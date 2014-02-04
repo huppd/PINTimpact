@@ -163,15 +163,15 @@ module cmod_VectorField
 
   implicit none
 
-  real(c_double)   , intent(in)    ::  phiU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  real(c_double)   , intent(in)    ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  real(c_double)   , intent(in)    ::  phiW(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double),  intent(in)    ::  phiU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double),  intent(in)    ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double),  intent(in)    ::  phiW(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
 
   logical(c_bool), intent(in)      ::  inf_yes
   logical(c_bool), intent(in)      ::  two_yes
 
-  real(c_double)   , optional, intent(out) ::  normInf
-  real(c_double)   , optional, intent(out) ::  normTwo
+  real(c_double),  intent(out) ::  normInf
+  real(c_double),  intent(out) ::  normTwo
 
   real(c_double)                   ::  normInf_global, normTwo_global
   integer(c_int)                   ::  i, j, k

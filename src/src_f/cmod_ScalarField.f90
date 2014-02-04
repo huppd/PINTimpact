@@ -208,8 +208,8 @@ module cmod_ScalarVector
   logical(c_bool), intent(in)   ::  inf_yes
   logical(c_bool), intent(in)   ::  two_yes
 
-  real(c_double), optional, intent(out) ::  normInf
-  real(c_double), optional, intent(out) ::  normTwo
+  real(c_double),  intent(out) ::  normInf
+  real(c_double),  intent(out) ::  normTwo
 
   real(c_double)                        ::  normInf_global, normTwo_global
   integer                              ::  i, j, k

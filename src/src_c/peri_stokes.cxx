@@ -1,5 +1,6 @@
 #include <ostream>
 #include <fstream>
+#include <mpi.h>
 
 #include "Teuchos_CommandLineProcessor.hpp"
 #include "Teuchos_RCP.hpp"
@@ -18,12 +19,13 @@
 #include "Pimpact_DomainSize.hpp"
 #include "Pimpact_GridSize.hpp"
 #include "Pimpact_ProcGridSize.hpp"
-#include "Pimpact_FieldSpace.hpp"
-#include "Pimpact_IndexSpace.hpp"
-#include "Pimpact_ScalarField.hpp"
-#include "Pimpact_VectorField.hpp"
-#include "Pimpact_ModeField.hpp"
-#include "Pimpact_MultiField.hpp"
+//#include "Pimpact_FieldSpace.hpp"
+//#include "Pimpact_IndexSpace.hpp"
+//#include "Pimpact_ScalarField.hpp"
+//#include "Pimpact_VectorField.hpp"
+//#include "Pimpact_ModeField.hpp"
+//#include "Pimpact_MultiField.hpp"
+#include "Pimpact_FieldFactory.hpp"
 #include "Pimpact_OperatorMV.hpp"
 #include "Pimpact_LinearProblem.hpp"
 #include "Pimpact_Operator.hpp"
@@ -190,65 +192,16 @@ int main(int argi, char** argv ) {
 	p->Init(0.);
 
 	/// \todo move this to a factory
-	auto velc = Pimpact::createVectorField<double,int>(fS,iIS,fIS);
-	auto vels = Pimpact::createVectorField<double,int>(fS,iIS,fIS);
 
-	auto vel = Pimpact::createModeField( velc, vels );
 
-	auto u     = Pimpact::createMultiField< VF, double, int >(*vel,1);
-	auto f     = Pimpact::createMultiField< VF, double, int >(*vel,1);
-	auto tempv = Pimpact::createMultiField< VF, double, int >(*vel,1);
-
-	switch( Pimpact::EFlowType(flow) ) {
-	case Pimpact::ZeroFLow :
-		u->GetVec(0).getFieldC()->init_field( Pimpact::ZeroProf );
-		u->GetVec(0).getFieldS()->init_field( Pimpact::ZeroProf );
-
-//		tempv->GetVec(0).getFieldC()->init_field( Pimpact::ZeroProf );
-//		tempv->GetVec(0).getFieldS()->init_field( Pimpact::ZeroProf );
-		break;
-	case Pimpact::Poiseuille_inX :
-		u->GetVec(0).getFieldC()->init_field( Pimpact::Poiseuille2D_inX );
-		u->GetVec(0).getFieldS()->init_field( Pimpact::ZeroProf );
-
-//		tempv->GetVec(0).getFieldC()->init_field( Pimpact::Poiseuille2D_inX );
-//		tempv->GetVec(0).getFieldS()->init_field( Pimpact::ZeroProf );
-		break;
-	case Pimpact::Poiseuille_inY :
-		u->GetVec(0).getFieldC()->init_field( Pimpact::Poiseuille2D_inY );
-		u->GetVec(0).getFieldS()->init_field( Pimpact::ZeroProf );
-
-//		tempv->GetVec(0).getFieldC()->init_field( Pimpact::Poiseuille2D_inY );
-//		tempv->GetVec(0).getFieldS()->init_field( Pimpact::ZeroProf );
-		break;
-	case Pimpact::Pulsatile_inX :
-		u->GetVec(0).getFieldC()->init_field( Pimpact::Pulsatile2D_inXC, re, omega, px );
-		u->GetVec(0).getFieldS()->init_field( Pimpact::Pulsatile2D_inXS, re, omega, px );
-
-//		tempv->GetVec(0).getFieldC()->init_field( Pimpact::Pulsatile2D_inXC, re, omega, px );
-//		tempv->GetVec(0).getFieldS()->init_field( Pimpact::Pulsatile2D_inXS, re, omega, px );
-		break;
-	case Pimpact::Pulsatile_inY :
-		u->GetVec(0).getFieldC()->init_field( Pimpact::Pulsatile2D_inYC, re, omega, px );
-		u->GetVec(0).getFieldS()->init_field( Pimpact::Pulsatile2D_inYS, re, omega, px );
-
-//		tempv->GetVec(0).getFieldC()->init_field( Pimpact::Pulsatile2D_inYC, re, omega, px );
-//		tempv->GetVec(0).getFieldS()->init_field( Pimpact::Pulsatile2D_inYS, re, omega, px );
-		break;
-	case Pimpact::Streaming2DFlow :
-		u->GetVec(0).getFieldC()->init_field( Pimpact::Streaming2D, re, omega, px );
-		u->GetVec(0).getFieldS()->init_field( Pimpact::ZeroProf, re, omega, px );
-
-//		tempv->GetVec(0).getFieldC()->init_field( Pimpact::Streaming2D, re, omega, px );
-//		tempv->GetVec(0).getFieldS()->init_field( Pimpact::ZeroProf, re, omega, px );
-		break;
-	}
+	auto u     = Pimpact::createInitMVF<Scalar,Ordinal>( Pimpact::EFlowType(flow), fS, iIS, fIS );
+	auto tempv = Pimpact::createInitMVF<Scalar,Ordinal>( Pimpact::EFlowType(flow), fS, iIS, fIS );
+	auto f     = Pimpact::createInitMVF<Scalar,Ordinal>( Pimpact::EFlowType(flow), fS, iIS, fIS );
 
 	u->Init(0);
 	tempv->Init(0);
 
-	f->GetVec(0).getFieldC()->init_field( Pimpact::ZeroProf );
-	f->GetVec(0).getFieldS()->init_field( Pimpact::ZeroProf );
+
 
 	// init operators
 	auto lap  = Pimpact::createDtL<Scalar,Ordinal>( omega, 0., 1./re );
