@@ -25,7 +25,6 @@ message("CMAKE_PREFIX_PATH: " ${CMAKE_PREFIX_PATH})
 FIND_PACKAGE(Trilinos REQUIRED)
 #FIND_PACKAGE(HDF5 NAMES hdf5 REQUIRED)
 #FIND_PACKAGE(HDF5 REQUIRED)
-#FindHDF5()
 
 
 # Echo trilinos build info just for fun
@@ -50,7 +49,7 @@ SET(CMAKE_C_COMPILER ${Trilinos_C_COMPILER} )
 SET(CMAKE_Fortran_COMPILER ${Trilinos_Fortran_COMPILER} )
 
 
-SET(CMAKE_CXX_FLAGS  "${Trilinos_CXX_COMPILER_FLAGS} ${CMAKE_CXX_FLAGS} -std=c++11 -Wall -pedantic")
+SET(CMAKE_CXX_FLAGS  "${Trilinos_CXX_COMPILER_FLAGS} ${CMAKE_CXX_FLAGS} -std=c++0x -Wall -pedantic")
 SET(CMAKE_C_FLAGS  "${Trilinos_C_COMPILER_FLAGS} ${CMAKE_C_FLAGS}")
 SET(CMAKE_Fortran_FLAGS  "${Trilinos_Fortran_COMPILER_FLAGS} ${CMAKE_Fortran_FLAGS}")
 
@@ -60,7 +59,7 @@ MESSAGE("Fortran compile flags: " ${CMAKE_Fortran_COMPILE_FLAGS})
 
 SET( CMAKE_Fortran_COMPILE_FLAGS "${Trilinos_Fortran_COMPILER_FLAGS} -xf95-cpp-input -fdefault-real-8 -fdefault-double-8"  )
 
-set( Limpact_TPL_LIBRARIES hdf5 hdf5_fortran hdf5_hl z m lapack blas )
+set( Limpact_TPL_LIBRARIES hdf5hl_fortran hdf5_hl hdf5_fortran hdf5  z m lapack blas )
 set( Pimpact_TPL_LIBRARIES limpact ${Limpact_TPL_LIBRARIES} gfortran mpi_f77 mpi_f90   ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES}   )
 
 SET(CMAKE_Fortran_COMPILER ${Trilinos_Fortran_COMPILER} )
