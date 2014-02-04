@@ -3,11 +3,11 @@ from numpy import linspace
 import numpy as np
 
 
-exe_path = '/home/huppd/workspace/PIMPACT/RELEASE/src/src_c/'
+exe_path = '/home/huppd/workspace/pimpact-repo/release/src/src_c/'
 exe = 'stat_stokes'
 exe = 'peri_stokes'
 
-data_path = '/home/huppd/workspace/PIMPACT/data/'
+data_path = '/home/huppd/workspace/pimpact-repo/data/'
 
 i = 6
 n = str(2**i+1)
