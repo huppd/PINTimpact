@@ -1,0 +1,56 @@
+##############################################################################
+#
+# Makefile macros for use by Trilinos/NOX clients. 
+#
+# Do not edit: This file was generated automatically by CMake.
+#
+##############################################################################
+
+
+## ---------------------------------------------------------------------------
+## Compilers used by Trilinos/NOX build
+## ---------------------------------------------------------------------------
+
+NOX_CXX_COMPILER=/usr/bin/mpic++
+
+NOX_C_COMPILER=/usr/bin/mpicc
+
+NOX_FORTRAN_COMPILER=/usr/bin/mpif77
+
+
+## ---------------------------------------------------------------------------
+## Compiler flags used by Trilinos/NOX build
+## ---------------------------------------------------------------------------
+
+## Set compiler flags, including those determined by build type
+NOX_CXX_FLAGS= -g -fPIC -O2 -g -O0
+
+NOX_C_FLAGS= -g -fPIC -O2 -g -O0
+
+NOX_FORTRAN_FLAGS= -g
+
+## Extra link flags (e.g., specification of fortran libraries)
+NOX_EXTRA_LD_FLAGS=
+
+## This is the command-line entry used for setting rpaths. In a build
+## with static libraries it will be empty. 
+SHARED_LIB_RPATH_COMMAND=-Wl,-rpath,/usr/lib
+
+
+## ---------------------------------------------------------------------------
+## Set library specifications and paths 
+## ---------------------------------------------------------------------------
+
+## Extra link flags (e.g., specification of fortran libraries)
+NOX_EXTRA_LD_FLAGS=
+
+## List of Trilinos libraries
+NOX_LIBRARIES= -ltrilinos_locathyra -ltrilinos_locaepetra -ltrilinos_loca -ltrilinos_noxthyra -ltrilinos_noxepetra -ltrilinos_nox -ltrilinos_phdmesh_txblas -ltrilinos_phdmesh_meshio -ltrilinos_phdmesh_mesh -ltrilinos_phdmesh_util -ltrilinos_phdelement_mesh -ltrilinos_intrepid -ltrilinos_FEApp -ltrilinos_sacado -ltrilinos_ModeLaplace -ltrilinos_anasaziepetra -ltrilinos_anasazi -ltrilinos_fei_utest_cases -ltrilinos_fei_test_utils -ltrilinos_fei_trilinos -ltrilinos_fei_base -ltrilinos_meros -ltrilinos_stratimikos -ltrilinos_stratimikosbelos -ltrilinos_stratimikosaztecoo -ltrilinos_stratimikosamesos -ltrilinos_stratimikosml -ltrilinos_stratimikosifpack -ltrilinos_belosepetra -ltrilinos_belos -ltrilinos_ml -ltrilinos_komplex -ltrilinos_ifpack -ltrilinos_pamgen_extras -ltrilinos_pamgen -ltrilinos_amesos -ltrilinos_galeri -ltrilinos_aztecoo -ltrilinos_dpliris -ltrilinos_isorropia -ltrilinos_thyraepetraext -ltrilinos_thyraepetra -ltrilinos_thyra -ltrilinos_epetraext -ltrilinos_tpetra -ltrilinos_triutils -ltrilinos_shards -ltrilinos_zoltan -ltrilinos_epetra -ltrilinos_kokkoslinalg -ltrilinos_kokkosnodeapi -ltrilinos_kokkos -ltrilinos_rtop -ltrilinos_teuchos
+
+## List of TPLs required by Trilinos
+NOX_TPL_LIBRARIES= /usr/lib/liblapack.so /usr/lib/libblas.so
+
+## Specification of directories for TPL headers
+NOX_TPL_INCLUDES=
+
+

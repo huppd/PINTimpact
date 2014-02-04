@@ -1,0 +1,56 @@
+##############################################################################
+#
+# Makefile macros for use by Trilinos/Teuchos clients. 
+#
+# Do not edit: This file was generated automatically by CMake.
+#
+##############################################################################
+
+
+## ---------------------------------------------------------------------------
+## Compilers used by Trilinos/Teuchos build
+## ---------------------------------------------------------------------------
+
+TEUCHOS_CXX_COMPILER=/usr/bin/mpic++
+
+TEUCHOS_C_COMPILER=/usr/bin/mpicc
+
+TEUCHOS_FORTRAN_COMPILER=/usr/bin/mpif77
+
+
+## ---------------------------------------------------------------------------
+## Compiler flags used by Trilinos/Teuchos build
+## ---------------------------------------------------------------------------
+
+## Set compiler flags, including those determined by build type
+TEUCHOS_CXX_FLAGS= -g -fPIC -O2 -g -O0
+
+TEUCHOS_C_FLAGS= -g -fPIC -O2 -g -O0
+
+TEUCHOS_FORTRAN_FLAGS= -g
+
+## Extra link flags (e.g., specification of fortran libraries)
+TEUCHOS_EXTRA_LD_FLAGS=
+
+## This is the command-line entry used for setting rpaths. In a build
+## with static libraries it will be empty. 
+SHARED_LIB_RPATH_COMMAND=-Wl,-rpath,/usr/lib
+
+
+## ---------------------------------------------------------------------------
+## Set library specifications and paths 
+## ---------------------------------------------------------------------------
+
+## Extra link flags (e.g., specification of fortran libraries)
+TEUCHOS_EXTRA_LD_FLAGS=
+
+## List of Trilinos libraries
+TEUCHOS_LIBRARIES= -ltrilinos_teuchos
+
+## List of TPLs required by Trilinos
+TEUCHOS_TPL_LIBRARIES= /usr/lib/liblapack.so /usr/lib/libblas.so
+
+## Specification of directories for TPL headers
+TEUCHOS_TPL_INCLUDES=
+
+

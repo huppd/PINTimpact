@@ -1,0 +1,56 @@
+##############################################################################
+#
+# Makefile macros for use by Trilinos/Belos clients. 
+#
+# Do not edit: This file was generated automatically by CMake.
+#
+##############################################################################
+
+
+## ---------------------------------------------------------------------------
+## Compilers used by Trilinos/Belos build
+## ---------------------------------------------------------------------------
+
+BELOS_CXX_COMPILER=/usr/bin/mpic++
+
+BELOS_C_COMPILER=/usr/bin/mpicc
+
+BELOS_FORTRAN_COMPILER=/usr/bin/mpif77
+
+
+## ---------------------------------------------------------------------------
+## Compiler flags used by Trilinos/Belos build
+## ---------------------------------------------------------------------------
+
+## Set compiler flags, including those determined by build type
+BELOS_CXX_FLAGS= -g -fPIC -O2 -g -O0
+
+BELOS_C_FLAGS= -g -fPIC -O2 -g -O0
+
+BELOS_FORTRAN_FLAGS= -g
+
+## Extra link flags (e.g., specification of fortran libraries)
+BELOS_EXTRA_LD_FLAGS=
+
+## This is the command-line entry used for setting rpaths. In a build
+## with static libraries it will be empty. 
+SHARED_LIB_RPATH_COMMAND=-Wl,-rpath,/usr/lib
+
+
+## ---------------------------------------------------------------------------
+## Set library specifications and paths 
+## ---------------------------------------------------------------------------
+
+## Extra link flags (e.g., specification of fortran libraries)
+BELOS_EXTRA_LD_FLAGS=
+
+## List of Trilinos libraries
+BELOS_LIBRARIES= -ltrilinos_belosepetra -ltrilinos_belos -ltrilinos_ml -ltrilinos_komplex -ltrilinos_ifpack -ltrilinos_pamgen_extras -ltrilinos_pamgen -ltrilinos_amesos -ltrilinos_galeri -ltrilinos_aztecoo -ltrilinos_dpliris -ltrilinos_isorropia -ltrilinos_thyraepetraext -ltrilinos_thyraepetra -ltrilinos_thyra -ltrilinos_epetraext -ltrilinos_tpetra -ltrilinos_triutils -ltrilinos_shards -ltrilinos_zoltan -ltrilinos_epetra -ltrilinos_kokkoslinalg -ltrilinos_kokkosnodeapi -ltrilinos_kokkos -ltrilinos_rtop -ltrilinos_teuchos
+
+## List of TPLs required by Trilinos
+BELOS_TPL_LIBRARIES= /usr/lib/liblapack.so /usr/lib/libblas.so
+
+## Specification of directories for TPL headers
+BELOS_TPL_INCLUDES=
+
+
