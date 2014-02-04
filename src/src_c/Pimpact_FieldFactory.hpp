@@ -66,12 +66,12 @@ Teuchos::RCP< MultiField<ModeField<VectorField<Scalar,Ordinal> > > > createInitM
 	switch( EFlowType( flowType ) ) {
 	case Pimpact::ZeroFLow :
 		u->GetVec(0).getFieldC()->init_field( ZeroProf );
-        u->GetVec(0).getFieldS()->init_field( ZeroProf );
-        break;
+		u->GetVec(0).getFieldS()->init_field( ZeroProf );
+		break;
 	case Pimpact::Poiseuille_inX :
-        u->GetVec(0).getFieldC()->init_field( Poiseuille2D_inX );
-        u->GetVec(0).getFieldS()->init_field( ZeroProf );
-        break;
+		u->GetVec(0).getFieldC()->init_field( Poiseuille2D_inX );
+		u->GetVec(0).getFieldS()->init_field( ZeroProf );
+		break;
 	case Poiseuille_inY :
 		u->GetVec(0).getFieldC()->init_field( Poiseuille2D_inY );
 		u->GetVec(0).getFieldS()->init_field( ZeroProf );
@@ -87,7 +87,7 @@ Teuchos::RCP< MultiField<ModeField<VectorField<Scalar,Ordinal> > > > createInitM
 	case Streaming2DFlow :
 		u->GetVec(0).getFieldC()->init_field( Streaming2D, re, omega, px );
 		u->GetVec(0).getFieldS()->init_field( ZeroProf, re, omega, px );
-        break;
+		break;
 	}
 	return u;
 }
