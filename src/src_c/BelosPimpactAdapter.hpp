@@ -68,36 +68,37 @@
 #endif // HAVE_BELOS_TSQR
 
 
+
+
 namespace Belos {
 
-  ////////////////////////////////////////////////////////////////////
-  //
-  // Implementation of \c Belos::MultiVecTraits for \c Pimpact::MultiField.
-  //
-  ////////////////////////////////////////////////////////////////////
 
-  /// \brief Partial specialization of MultiVecTraits for \c MV = \c Pimpact::MultiField.
-  ///
-  /// This interface lets Belos' solvers work directly with
-  ///
-  /// The two template parameters of this partial specialization
-  /// correspond to the \c Scalar type, and to the inner \c Field type of \c Pimpact::MultiField
-  /// \c Pimpact::MultiField.  See the \c Pimpact::MultiField documentation
-  /// for more information.
-  template<class Scalar, class Field>
-  class MultiVecTraits<Scalar, Pimpact::MultiField<Field> > {
-    typedef Pimpact::MultiField<Field> MV;
-  public:
-//#ifdef HAVE_BELOS_Pimpact_TIMERS
-//    static Teuchos::RCP<Teuchos::Time> mvTimesMatAddMvTimer_, mvTransMvTimer_;
-//#endif
+////////////////////////////////////////////////////////////////////
+//
+// Implementation of \c Belos::MultiVecTraits for \c Pimpact::MultiField.
+//
+////////////////////////////////////////////////////////////////////
 
-    /// \brief Create a new multivector with \c numvecs columns.
-    static Teuchos::RCP<Pimpact::MultiField<Field> >
-    Clone (const Pimpact::MultiField<Field>& mv, const int numvecs)
-    {
-    	return mv.Clone(numvecs);
-    }
+/// \brief Partial specialization of MultiVecTraits for \c MV = \c Pimpact::MultiField.
+///
+/// This interface lets Belos' solvers work directly with
+///
+/// The two template parameters of this partial specialization
+/// correspond to the \c Scalar type, and to the inner \c Field type of \c Pimpact::MultiField
+/// \c Pimpact::MultiField.  See the \c Pimpact::MultiField documentation
+/// for more information.
+template<class Scalar, class Field>
+class MultiVecTraits<Scalar, Pimpact::MultiField<Field> > {
+
+  typedef Pimpact::MultiField<Field> MV;
+
+public:
+
+  /// \brief Create a new multivector with \c numvecs columns.
+  static Teuchos::RCP<Pimpact::MultiField<Field> > Clone(
+      const Pimpact::MultiField<Field>& mv, const int numvecs) {
+    return( mv.clone(numvecs) );
+  }
 
 
     /// \brief Create a new deep copy of multivector.

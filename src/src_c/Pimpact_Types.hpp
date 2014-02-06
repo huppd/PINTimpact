@@ -4,7 +4,12 @@
 
 namespace Pimpact {
 	enum EFieldType  { U, V, W, S };
-	enum ECopyType  { DeepCopy, ShallowCopy };
+	/// Copy Type
+	enum ECopyType {
+	  /// Deep Copy, means that everything is copied including boundaries
+	  DeepCopy,
+	  /// Schallow Copy, up to now new field is initialized to zero.
+	  ShallowCopy };
 	enum EBCType { SymmetryBC=-2, PeriodicBC=-1, NeighborBC=0, DirichletBC=1, NeumannBC=2, RobinBC=3 };
 
 	enum EFlowProfile { ZeroProf=0,

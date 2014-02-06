@@ -9,6 +9,7 @@
 
 #include "BelosTypes.hpp"
 
+#include "Pimpact_Types.hpp"
 #include "Pimpact_MultiField.hpp"
 
 
@@ -229,8 +230,13 @@ public:
    */
   virtual Teuchos::RCP<NOX::Abstract::Vector >
   clone(NOX::CopyType type = NOX::DeepCopy) const {
-//  	Teuchos::RCP<Vector<Field> > asdf =  Teuchos::null;
-//  	return( asdf );
+//  	switch(type) {
+//  	case NOX::DeepCopy:
+//  		return( Teuchos::rcp(new Vector<Field>( field_->clone( Pimpact::DeepCopy) ) ) );
+//  	case NOX::ShapeCopy:
+//  		return( Teuchos::rcp(new Vector<Field>( field_->clone( Pimpact::ShallowCopy) ) ) );
+//  	}
+  	//
   	return( Teuchos::null );
   }
 

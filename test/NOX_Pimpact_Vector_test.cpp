@@ -161,7 +161,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, TwoNorm_and_init ) {
 }
 
 
-TEUCHOS_UNIT_TEST( NOXPimpactVector, dot ) {
+TEUCHOS_UNIT_TEST( NOXPimpactVector, innerProduct ) {
 	typedef double S;
 	typedef int O;
 	typedef Pimpact::ScalarField<S,O> SF;
@@ -184,14 +184,8 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, dot ) {
 
 	auto x  = Pimpact::createCompoundField( xv, xs );
 
-	auto xv1 = Pimpact::createInitMVF<S,O>(Pimpact::ZeroFLow, fS, iIS, fIS );
-
-	auto xs1 = Pimpact::createInitMSF<S,O>( fS );
-
-	auto x1  = Pimpact::createCompoundField( xv1, xs1 );
-
 	Teuchos::RCP<NV> vel1 = Teuchos::rcp(new NV(x) );
-	Teuchos::RCP<NV> vel2 = Teuchos::rcp(new NV(x1) );
+	Teuchos::RCP<NV> vel2 = Teuchos::rcp(new NV( x->clone() ) );
 
 	double dot;
 
@@ -314,22 +308,10 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, update ) {
 
 	auto x  = Pimpact::createCompoundField( xv, xs );
 
-	auto xv1 = Pimpact::createInitMVF<S,O>(Pimpact::ZeroFLow, fS, iIS, fIS );
-
-	auto xs1 = Pimpact::createInitMSF<S,O>( fS );
-
-	auto x1  = Pimpact::createCompoundField( xv1, xs1 );
-
-	auto xv2 = Pimpact::createInitMVF<S,O>(Pimpact::ZeroFLow, fS, iIS, fIS );
-
-	auto xs2 = Pimpact::createInitMSF<S,O>( fS );
-
-	auto x2  = Pimpact::createCompoundField( xv2, xs2 );
-
 
 	Teuchos::RCP<NV> vel1 = Teuchos::rcp(new NV(x) );
-	Teuchos::RCP<NV> vel2 = Teuchos::rcp(new NV(x1) );
-	Teuchos::RCP<NV> vel3 = Teuchos::rcp(new NV(x2) );
+	Teuchos::RCP<NV> vel2 = Teuchos::rcp(new NV(x->clone()) );
+	Teuchos::RCP<NV> vel3 = Teuchos::rcp(new NV(x->clone()) );
 
 	TEST_EQUALITY( vel1->length(), vel2->length() )
 	TEST_EQUALITY( vel2->length(), vel3->length() )

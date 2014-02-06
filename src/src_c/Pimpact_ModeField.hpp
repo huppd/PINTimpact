@@ -59,6 +59,12 @@ public:
 		fields_( Teuchos::rcp( new Field(*vF.fields_,copyType) ) )
 	{};
 
+
+  Teuchos::RCP<MV> clone( ECopyType ctype=DeepCopy ) {
+    return( Teuchos::rcp( new MV( fieldc_->clone(ctype), fields_->clone(ctype) ) ) );
+  }
+
+
 //	~ModeField() { for(int i=0; i<3; ++i) delete[] vec_[i];}
 
   //! \name Attribute methods

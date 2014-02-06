@@ -140,7 +140,9 @@ public:
 	};
 
 
-	/** copy constructor
+	/**
+	 * \brief copy constructor.
+	 *
 	 * shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
 	 * @param sF
 	 * @param copyType by default a ShallowCopy is done but allows also to deepcopy the field
@@ -172,6 +174,9 @@ public:
 
 	~ScalarField() { delete[] s_;}
 
+	Teuchos::RCP<MV> clone( ECopyType ctype=DeepCopy ) {
+	  return( Teuchos::rcp( new MV(*this, ctype) ) );
+	}
 
 	/// \name Attribute methods
 	///@{

@@ -48,7 +48,9 @@ public:
 
 	CompoundField(Teuchos::RCP<VField> vfield, Teuchos::RCP<SField> sfield):vfield_(vfield),sfield_(sfield) {};
 
-	/** copy constructor
+	/**
+	 * \brief copy constructor.
+	 *
 	 * shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
 	 * @param sF
 	 * @param copyType by default a ShallowCopy is done but allows also to deepcopy the field
@@ -58,6 +60,10 @@ public:
 		sfield_( Teuchos::rcp( new SField(*vF.sfield_,copyType) ) )
 	{};
 
+
+	Teuchos::RCP<MV> clone( ECopyType ctype=DeepCopy ){
+	  return( Teuchos::rcp( new MV( vfield_->clone(ctype), sfield_->clone(ctype) ) ) );
+	}
 //	~CompoundField() { for(int i=0; i<3; ++i) delete[] vec_[i];}
 
   //! \name Attribute methods

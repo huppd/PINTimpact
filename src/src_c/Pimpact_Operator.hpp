@@ -165,7 +165,7 @@ public:
 //  			Teuchos::RCP<Div<Scalar,Ordinal> > div,
 //  			Teuchos::RCP<Grad<Scalar,Ordinal> > grad,
 			Teuchos::RCP< LinearProblem<Scalar, MVF, HType > > H ):
-				temp0_(temp->Clone(1)), temp1_(temp->Clone(1)),
+				temp0_(temp->clone(1)), temp1_(temp->clone(1)),
 				div_(Teuchos::rcp( new Div<Scalar,Ordinal> ) ),
 				grad_(Teuchos::rcp( new Grad<Scalar,Ordinal> ) ),
 				H_(H) {};
@@ -274,7 +274,7 @@ public:
 //  			Teuchos::RCP<Div<Scalar,Ordinal> > div,
 //  			Teuchos::RCP<Grad<Scalar,Ordinal> > grad,
 			Teuchos::RCP< LinearProblem<Scalar, MVF, HType > > H ):
-				temp0_(temp->Clone(1)), temp1_(temp->Clone(1)),
+				temp0_(temp->clone(1)), temp1_(temp->clone(1)),
 				div_(Teuchos::rcp( new Div<Scalar,Ordinal> ) ),
 				grad_(Teuchos::rcp( new Grad<Scalar,Ordinal> ) ),
 				H_(H) {};

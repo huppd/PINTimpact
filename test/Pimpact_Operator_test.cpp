@@ -137,7 +137,7 @@ TEUCHOS_UNIT_TEST( Operator, HelmholtzMV ) {
 
 		auto mv = Pimpact::createMultiField<Pimpact::VectorField<double,int>,double,int>(*vel,10);
 //			auto mv2 = Pimpact::createMultiField<Pimpact::VectorField<double,int>,double,int>(*vel,10);
-		auto mv2 = mv->Clone(11);
+		auto mv2 = mv->clone(11);
 
 		Pimpact::Helmholtz<double,int> helmholtz;
 		auto helm = Pimpact::createOperatorMV<Pimpact::Helmholtz<double,int> >();
@@ -164,7 +164,7 @@ TEUCHOS_UNIT_TEST( Operator, HelmholtzMVMode ) {
 
 	auto mv = Pimpact::createMultiField<Pimpact::ModeField<Pimpact::VectorField<double,int> >,double,int>(*vel,10);
 
-	auto mv2 = mv->Clone(11);
+	auto mv2 = mv->clone(11);
 
 	Pimpact::Helmholtz<double,int> helmholtz;
 	auto helm = Pimpact::createOperatorMV<Pimpact::Helmholtz<double,int> >();
@@ -192,7 +192,7 @@ TEUCHOS_UNIT_TEST( Operator, Dt ) {
 	mv->GetVec(0).getFieldC()->init(1.);
 	mv->GetVec(0).getFieldS()->init(0.);
 
-	auto mv2 = mv->Clone(1);
+	auto mv2 = mv->clone(1);
 	mv2->init(0.);
 
 	auto A = Pimpact::createOperatorMV<Pimpact::Dt<double,int> >();
@@ -220,8 +220,8 @@ TEUCHOS_UNIT_TEST( Operator, DtL ) {
 
 	mv->random();
 
-	auto mv2 = mv->Clone(1);
-	auto mv3 = mv->Clone(1);
+	auto mv2 = mv->clone(1);
+	auto mv3 = mv->clone(1);
 	mv2->init(0.);
 	mv3->init(0.);
 

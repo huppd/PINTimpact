@@ -94,7 +94,7 @@ namespace {
 
 		auto mv = Pimpact::createMultiField<Pimpact::ScalarField<double,int>,double,int>(*p,1);
 
-		auto mv2 = mv->Clone(10);
+		auto mv2 = mv->clone(10);
 
 		int n1(mv->getNumberVecs());
 		int n2(mv2->getNumberVecs());
@@ -348,7 +348,7 @@ namespace {
 					index2[i] = i;
 
 				auto mv2 = mv1->CloneView(index1);
-				auto mv3 = mv1->Clone(mv1->getNumberVecs() );
+				auto mv3 = mv1->clone(mv1->getNumberVecs() );
 
 
 				unsigned int n1 = (mv1->getNumberVecs());

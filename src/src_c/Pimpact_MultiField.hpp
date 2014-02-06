@@ -89,20 +89,32 @@ public:
    * more parallel processes) Its entries are not initialized and have undefined
    * values.
   */
-  Teuchos::RCP< MV > Clone ( const int numvecs) const {
+  Teuchos::RCP< MV > clone( const int numvecs ) const {
   	return( Teuchos::rcp( new MV( *mfs_[0], numvecs ) ) );
+  }
+
+
+  /** \brief Create a new \c MultiField with \c numvecs columns.
+   *
+   * The returned Pimpact::MultiField has the same (distribution over one or
+   * more parallel processes) Its entries are not initialized and have undefined
+   * values.
+  */
+  Teuchos::RCP< MV > clone( ECopyType ctype = DeepCopy ) const {
+    auto mv_ = Teuchos::rcp( new MV(getNumberVecs()) );
+      for( int i=0; i<getNumberVecs(); ++i ) {
+//        mv_->mfs_[i] = Teuchos::rcp( new Field( *mfs_[i], type ) );
+        mv_->mfs_[i] = mfs_[i]->clone(ctype);
+      }
+      return( mv_ );
   }
 
 
   /**
    * @return deep copy of \c MultiField
-  */
+   */
   Teuchos::RCP<MV> CloneCopy() const {
-  	auto mv_ = Teuchos::rcp( new MV(getNumberVecs()) );
-  	for( int i=0; i<getNumberVecs(); ++i ) {
-  		mv_->mfs_[i] = Teuchos::rcp( new Field( *mfs_[i], DeepCopy ) );
-  	}
-  	return( mv_ );
+    return( clone() );
   }
 
 
