@@ -44,7 +44,8 @@ private:
 	typedef ModeField<Field> MV;
 
 public:
-//	typedef Teuchos::ArrayRCP< Teuchos::RCP<const IndexSpace<Ordinal> > >  IndexSpaces;
+
+	ModeField(): fieldc_(Teuchos::null), fields_(Teuchos::null) {};
 
 	ModeField(Teuchos::RCP<Field> fieldc, Teuchos::RCP<Field> fields):fieldc_(fieldc),fields_(fields) {};
 
@@ -75,24 +76,30 @@ public:
 	Teuchos::RCP<const Field> getConstFieldC() const { return fieldc_; }
 	Teuchos::RCP<const Field> getConstFieldS() const { return fields_; }
 
-	/** \brief get Vect length
-	 * shoud be the same as 2*fieldc_->getVecLength()
-	 * the vector length is withregard to the inner points
-	 * @return vector length
+
+	/**
+	 * \brief returns the length of Field.
+	 *
+	 * should be the same as 2*fieldc_->getVecLength()
+	 * the vector length is with regard to the inner points
 	 */
-  Ordinal getVecLength() const {
-  	return fieldc_->getVecLength() + fields_->getVecLength();
+	Ordinal getLength( bool nox_vec=false ) const {
+  	return( fieldc_->getLength(nox_vec) + fields_->getLength(nox_vec) );
   }
 
+
+	/// \brief get number of stored Field's
+	int getNumberVecs() const { return( 1 ); }
 
 
 	//@}
 
-	//! @name Update methods
+	/// @name Update methods
 	//@{
 
 
-	/*! \brief Replace \c this with \f$\alpha A + \beta B\f$.
+	/**
+	 * \brief Replace \c this with \f$\alpha A + \beta B\f$.
 	 */
 	void add( const Scalar& alpha, const MV& A, const Scalar& beta, const MV& B ) {
 		// add test for consistent VectorSpaces in debug mode
@@ -100,7 +107,9 @@ public:
 		fields_->add(alpha, *A.fields_, beta, *B.fields_);
 	}
 
-	/** \brief Scale each element of the vectors in \c this with \c alpha.
+
+	/**
+	 * \brief Scale each element of the vectors in \c this with \c alpha.
 	 */
 	void scale( const Scalar& alpha ) {
 		fieldc_->scale(alpha);
@@ -108,31 +117,33 @@ public:
 	}
 
 
-	/** \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
+	/**
+	 * \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
 	 * \todo has to be redone
 	 */
 	Scalar dot ( const MV& a ) const {
-		return fieldc_->dot( *a.fieldc_ ) + fields_->dot( *a.fields_ );
+		return( fieldc_->dot( *a.fieldc_ ) + fields_->dot( *a.fields_ ) );
 	}
 
-	//@}
 
-  //! @name Norm method
+	//@}
+  /// @name Norm method
   //@{
 
-  /** \brief Compute the norm of each individual vector.
-    Upon return, \c normvec[i] holds the value of \f$||this_i||_2\f$, the \c i-th column of \c this.
-    \todo implement OneNorm
-    \todo implement in fortran
-  */
-  Scalar norm(  Belos::NormType type = Belos::TwoNorm ) const {
-  	switch(type) {
-  			case Belos::TwoNorm: return fieldc_->norm(type) + fields_->norm(type);
-  			case Belos::InfNorm: return std::max(fieldc_->norm(type), fields_->norm(type) );
-  			case Belos::OneNorm: std::cout << "norm: not implemented"; return 0.;
-  			default: std::cout << "unkown norm"; return 0.;
-    	}
-  }
+  /**
+   * \brief Compute the norm of Field.
+   * Upon return, \c normvec[i] holds the value of \f$||this_i||_2\f$, the \c i-th column of \c this.
+   * \todo implement OneNorm
+   * \todo implement in fortran
+   */
+	Scalar norm(  Belos::NormType type = Belos::TwoNorm ) const {
+		switch(type) {
+		case Belos::TwoNorm: return( fieldc_->norm(type) + fields_->norm(type) );
+		case Belos::InfNorm: return( std::max(fieldc_->norm(type), fields_->norm(type) ) );
+		case Belos::OneNorm: std::cout << "!!! Warning Belos::OneNorm not implemented \n"; return(0.);
+  	default: std::cout << "!!! Warning unknown Belos::NormType:\t" << type << "\n"; return(0.);
+		}
+	}
 
 
   //@}
@@ -140,7 +151,8 @@ public:
   //@{
 
 
-  /** \brief mv := A
+  /**
+   * \brief mv := A
    * Assign (deep copy) A into mv.
    */
   void assign( const MV& a ) {
@@ -148,14 +160,18 @@ public:
   	fields_->assign(*a.fields_);
   }
 
-  /** \brief Replace the vectors with a random vectors.
+
+  /**
+   * \brief Replace the vectors with a random vectors.
    */
-  void random() {
+  void random(bool useSeed = false, int seed = 1) {
   	fieldc_->random();
   	fields_->random();
   }
 
-  /*! \brief Replace each element of the vector  with \c alpha.
+
+  /**
+   * \brief Replace each element of the vector  with \c alpha.
    */
   void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero() ) {
   	fieldc_->init(alpha);
@@ -186,9 +202,10 @@ public:
 
   //@}
 
-  void print()  {
-  	fieldc_->print();
-  	fields_->print();
+  /// Print the vector.  To be used for debugging only.
+  void print( std::ostream& os )  {
+  	fieldc_->print( os );
+  	fields_->print( os );
   }
 
   void write( int count=0 ) {

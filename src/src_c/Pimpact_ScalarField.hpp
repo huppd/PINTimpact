@@ -22,112 +22,88 @@ namespace Pimpact {
 
 extern "C" {
 
-//	void SV_compNorm(MPI_Fint& comm,
-//			const int& N1,  const int& N2,  const int& N3,
-//			const int& SS1, const int& SS2, const int& SS3,
-//			const int& NN1, const int& NN2, const int& NN3,
-//			const int& b1L, const int& b2L, const int& b3L,
-//			const int& b1U, const int& b2U, const int& b3U,
-//			float* phi,
-//			const bool& weighting_yes,
-//			const bool& inf_yes, const bool& two_yes,
-//			float& normInf, float& normTwo);
 
-//  void SV_dot( MPI_Fint& comm,
-//			const int& N1,  const int& N2,  const int& N3,
-//			const int& SS1, const int& SS2, const int& SS3,
-//			const int& NN1, const int& NN2, const int& NN3,
-//			const int& b1L, const int& b2L, const int& b3L,
-//			const int& b1U, const int& b2U, const int& b3U,
-//  		float* phi1, float* phi2, float& scalar);
-
-//  void SV_init(
-//			const int& N1,  const int& N2,  const int& N3,
-//			const int& SS1, const int& SS2, const int& SS3,
-//			const int& NN1, const int& NN2, const int& NN3,
-//			const int& b1L, const int& b2L, const int& b3L,
-//			const int& b1U, const int& b2U, const int& b3U,
-//  		float* phi, const float& scalar );
-
-//  void SV_print(
-//			const int& N1,  const int& N2,  const int& N3,
-//			const int& SS1, const int& SS2, const int& SS3,
-//			const int& NN1, const int& NN2, const int& NN3,
-//			const int& b1L, const int& b2L, const int& b3L,
-//			const int& b1U, const int& b2U, const int& b3U,
-//  		const float* phi );
+void SV_add(
+	const int& N1,  const int& N2,  const int& N3,
+	const int& SS1, const int& SS2, const int& SS3,
+	const int& NN1, const int& NN2, const int& NN3,
+	const int& b1L, const int& b2L, const int& b3L,
+	const int& b1U, const int& b2U, const int& b3U,
+	double* phi, const double* const  phi1, const double* const  phi2,
+	const double& scalar1, const double& scalar2);
 
 
-  void SV_add(
-			const int& N1,  const int& N2,  const int& N3,
-			const int& SS1, const int& SS2, const int& SS3,
-			const int& NN1, const int& NN2, const int& NN3,
-			const int& b1L, const int& b2L, const int& b3L,
-			const int& b1U, const int& b2U, const int& b3U,
-  		double* phi, const double* const  phi1, const double* const  phi2,
-  		const double& scalar1, const double& scalar2);
+void SV_compNorm(const MPI_Fint& comm,
+	const int& N1,  const int& N2,  const int& N3,
+	const int& SS1, const int& SS2, const int& SS3,
+	const int& NN1, const int& NN2, const int& NN3,
+	const int& b1L, const int& b2L, const int& b3L,
+	const int& b1U, const int& b2U, const int& b3U,
+	double* phi,
+	const bool& weighting_yes,
+	const bool& inf_yes, const bool& two_yes,
+	double& normInf, double& normTwo);
 
-	void SV_compNorm(const MPI_Fint& comm,
-			const int& N1,  const int& N2,  const int& N3,
-			const int& SS1, const int& SS2, const int& SS3,
-			const int& NN1, const int& NN2, const int& NN3,
-			const int& b1L, const int& b2L, const int& b3L,
-			const int& b1U, const int& b2U, const int& b3U,
-			double* phi,
-			const bool& weighting_yes,
-			const bool& inf_yes, const bool& two_yes,
-			double& normInf, double& normTwo);
 
-  void SV_dot( const MPI_Fint& comm,
-			const int& N1,  const int& N2,  const int& N3,
-			const int& SS1, const int& SS2, const int& SS3,
-			const int& NN1, const int& NN2, const int& NN3,
-			const int& b1L, const int& b2L, const int& b3L,
-			const int& b1U, const int& b2U, const int& b3U,
-  		const double* const phi1, const double* const phi2, double& scalar);
+void SV_dot( const MPI_Fint& comm,
+	const int& N1,  const int& N2,  const int& N3,
+	const int& SS1, const int& SS2, const int& SS3,
+	const int& NN1, const int& NN2, const int& NN3,
+	const int& b1L, const int& b2L, const int& b3L,
+	const int& b1U, const int& b2U, const int& b3U,
+	const double* const phi1, const double* const phi2, double& scalar);
 
-  void SV_scale(
-			const int& N1,  const int& N2,  const int& N3,
-			const int& SS1, const int& SS2, const int& SS3,
-			const int& NN1, const int& NN2, const int& NN3,
-			const int& b1L, const int& b2L, const int& b3L,
-			const int& b1U, const int& b2U, const int& b3U,
-  		double* phi, const double& scalar );
 
-  void SV_random(
-			const int& N1,  const int& N2,  const int& N3,
-			const int& SS1, const int& SS2, const int& SS3,
-			const int& NN1, const int& NN2, const int& NN3,
-			const int& b1L, const int& b2L, const int& b3L,
-			const int& b1U, const int& b2U, const int& b3U,
-  		double* phi );
+void SV_scale(
+	const int& N1,  const int& N2,  const int& N3,
+	const int& SS1, const int& SS2, const int& SS3,
+	const int& NN1, const int& NN2, const int& NN3,
+	const int& b1L, const int& b2L, const int& b3L,
+	const int& b1U, const int& b2U, const int& b3U,
+	double* phi, const double& scalar );
 
-  void SV_init(
-			const int& N1,  const int& N2,  const int& N3,
-			const int& SS1, const int& SS2, const int& SS3,
-			const int& NN1, const int& NN2, const int& NN3,
-			const int& b1L, const int& b2L, const int& b3L,
-			const int& b1U, const int& b2U, const int& b3U,
-  		double* phi, const double& scalar );
 
-  void SV_print(
-			const int& N1,  const int& N2,  const int& N3,
-			const int& SS1, const int& SS2, const int& SS3,
-			const int& NN1, const int& NN2, const int& NN3,
-			const int& b1L, const int& b2L, const int& b3L,
-			const int& b1U, const int& b2U, const int& b3U,
-  		const double* phi );
+void SV_random(
+	const int& N1,  const int& N2,  const int& N3,
+	const int& SS1, const int& SS2, const int& SS3,
+	const int& NN1, const int& NN2, const int& NN3,
+	const int& b1L, const int& b2L, const int& b3L,
+	const int& b1U, const int& b2U, const int& b3U,
+	double* phi );
 
-  void SF_write( double* phi, const int& count );
-}
+
+void SV_init(
+	const int& N1,  const int& N2,  const int& N3,
+	const int& SS1, const int& SS2, const int& SS3,
+	const int& NN1, const int& NN2, const int& NN3,
+	const int& b1L, const int& b2L, const int& b3L,
+	const int& b1U, const int& b2U, const int& b3U,
+	double* phi, const double& scalar );
+
+
+void SV_print(
+	const int& N1,  const int& N2,  const int& N3,
+	const int& SS1, const int& SS2, const int& SS3,
+	const int& NN1, const int& NN2, const int& NN3,
+	const int& b1L, const int& b2L, const int& b3L,
+	const int& b1U, const int& b2U, const int& b3U,
+	const double* phi );
+
+
+void SF_write( double* phi, const int& count );
+
+
+} // end of extern 'C'
 
 
 /** \brief important basic Vector class
  * vector for a scalar field, e.g.: pressure,
  * \note all indexing is done in Fortran
- */
+*/
 template<class S, class O>
 class ScalarField {
+
+
 	template<class S1,class O1>
 	friend class Grad;
 	template<class S1,class O1>
@@ -135,10 +111,10 @@ class ScalarField {
 	template<class S1,class O1>
 	friend class Div_Grad;
 
+
 public:
 	typedef S Scalar;
 	typedef O Ordinal;
-
 
 
 protected:
@@ -146,7 +122,9 @@ protected:
 	typedef Scalar* array;
 	typedef ScalarField<Scalar,Ordinal> MV;
 
+
 public:
+	ScalarField():s_(0),fieldSpace_(Teuchos::null) {};
 
 	ScalarField(Teuchos::RCP<const FieldSpace<Ordinal> > sVS):fieldSpace_(sVS) {
 		Ordinal N = 1;
@@ -160,6 +138,7 @@ public:
 		}
 //#endif
 	};
+
 
 	/** copy constructor
 	 * shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
@@ -190,21 +169,27 @@ public:
 		}
 	};
 
+
 	~ScalarField() { delete[] s_;}
 
-  /// \name Attribute methods
-  ///@{
+
+	/// \name Attribute methods
+	///@{
 
 	Teuchos::RCP<const FieldSpace<Ordinal> > getFieldSpace() const {return fieldSpace_;}
 
-  /// \brief Return the number of rows.
-  Ordinal getVecLength() const {
-  	Ordinal vl = 1;
-  	for(int i = 0; i<dim(); ++i)
-  		vl *= nGlo(i);
-  	return vl;
-  }
 
+	/// \brief returns the length of Field.
+	Ordinal getLength( bool dummy=false ) const {
+		Ordinal vl = 1;
+		for(int i = 0; i<dim(); ++i)
+			vl *= nGlo(i);
+		return( vl );
+	}
+
+
+	/// \brief get number of stored Field's
+	int getNumberVecs() const { return( 1 ); }
 
 	//@}
 
@@ -212,8 +197,9 @@ public:
 	//@{
 
 
-	/*! \brief Replace \c this with \f$\alpha A + \beta B\f$.
-	 */
+	/**
+	 * \brief Replace \c this with \f$\alpha A + \beta B\f$.
+	*/
 	void add( const Scalar& alpha, const MV& A, const Scalar& beta, const MV& B ) {
 		// add test for consistent VectorSpaces in debug mode
 		SV_add(
@@ -225,7 +211,9 @@ public:
 						s_, A.s_, B.s_, alpha, beta);
 	}
 
-	/*! \brief Scale each element of the vector with \c alpha.
+
+	/**
+	 * \brief Scale each element of the vector with \c alpha.
 	 */
 	void scale( const Scalar& alpha ) {
 		SV_scale(
@@ -238,8 +226,9 @@ public:
 	}
 
 
-	/** \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
-	 */
+	/**
+	 * \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
+	*/
 	Scalar dot ( const MV& a ) const {
 		/// \todo add test in debuging mode for testing equality of VectorSpaces
 		Scalar b;
@@ -253,61 +242,61 @@ public:
 		return b;
 	}
 
-	///@}
 
+	///@}
   /// @name Norm method
   ///@{
 
-  /** \brief compute the norm
-   * \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
-   * \todo implement OneNorm
-  */
-  Scalar norm(  Belos::NormType type = Belos::TwoNorm ) const {
-  	bool twoNorm_yes = false;
-  	bool infNorm_yes = false;
-  	switch(type) {
-			case Belos::TwoNorm: twoNorm_yes = true; break;
-			case Belos::InfNorm: infNorm_yes = true; break;
-			case Belos::OneNorm: std::cout << "norm: not implemented"; return 0.;
-			default: std::cout << "unkown norm"; return 0.;
-  	}
+	/**
+	 * \brief compute the norm
+	 * \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
+	 * \todo implement OneNorm
+	 */
+	Scalar norm(  Belos::NormType type = Belos::TwoNorm ) const {
+		bool twoNorm_yes = false;
+		bool infNorm_yes = false;
 
-  	bool weighted = false;
-  	Scalar normvec;
-  	SV_compNorm(
-  				commf(),
-  				nLoc(0), nLoc(1), nLoc(2),
-  				sInd(0), sInd(1), sInd(2),
-  				eInd(0), eInd(1), eInd(2),
-  				bl(0),   bl(1),   bl(2),
-  				bu(0),   bu(1),   bu(2),
-  				s_, // mabyeb .data() or getPTr()
-  				weighted,
-  				infNorm_yes, twoNorm_yes,
-  				normvec, normvec );
-  	return normvec;
-  }
+		switch(type) {
+		case Belos::TwoNorm: twoNorm_yes = true; break;
+		case Belos::InfNorm: infNorm_yes = true; break;
+		case Belos::OneNorm: std::cout << "!!! Warning Belos::OneNorm not implemented \n"; return(0.);
+  	default: std::cout << "!!! Warning unknown Belos::NormType:\t" << type << "\n"; return(0.);
+		}
+
+		bool weighted = false;
+		Scalar normvec;
+		SV_compNorm(
+				commf(),
+				nLoc(0), nLoc(1), nLoc(2),
+				sInd(0), sInd(1), sInd(2),
+				eInd(0), eInd(1), eInd(2),
+				  bl(0),   bl(1),   bl(2),
+				  bu(0),   bu(1),   bu(2),
+				s_,
+				weighted, infNorm_yes, twoNorm_yes,
+				normvec, normvec );
+		return( normvec );
+	}
 
 
   //@}
   //! @name Initialization methods
   //@{
 
-
-  /** \brief mv := A
-   * Assign (deep copy) \c a into \c this.
-   * total deep, boundaries and everythin.
-   * \note the \c FieldSpace is not take care of assuming every field is generated with one
-   * \note "indexing" is done c++
-   */
-  void assign( const MV& a ) {
-#ifdef DEBUG
+	/** \brief mv := A
+	 * Assign (deep copy) \c a into \c this.
+	 * total deep, boundaries and everythin.
+	 * \note the \c FieldSpace is not take care of assuming every field is generated with one
+	 * \note "indexing" is done c++
+	 */
+	void assign( const MV& a ) {
+		#ifdef DEBUG
 		for(int i=0; i<3; ++i) {
 			TEST_EQUALITY( nLoc(i), a.Nloc(i) )
 			TEST_EQUALITY( bu(i), a.bu(i) )
 			TEST_EQUALITY( bl(i), a.bl(i) )
 		}
-#endif
+		#endif
 
   	Ordinal N = 1;
   		for(int i=0; i<3; ++i)
@@ -318,18 +307,21 @@ public:
   		}
   }
 
-  /** \brief Replace the vector with a random vectors.
+
+	/**
+   * \brief Replace the vectors with a random vectors.
    * depending on Fortrans \c Random_number implementation, with always same seed => not save, if good randomness is requiered
    */
-  void random() {
-  	SV_random(
+	void random(bool useSeed = false, int seed = 1) {
+		SV_random(
 				nLoc(0), nLoc(1), nLoc(2),
 				sInd(0), sInd(1), sInd(2),
 				eInd(0), eInd(1), eInd(2),
 				bl(0),   bl(1),   bl(2),
 				bu(0),   bu(1),   bu(2),
 				s_);
-  }
+	}
+
 
   /*! \brief Replace each element of the vector  with \c alpha.
    */
@@ -345,17 +337,18 @@ public:
 
   //@}
 
-  void print()  {
+  /// Print the vector.  To be used for debugging only.
+  void print( std::ostream& os )  {
   		int rank;
 			MPI_Comm_rank(comm(),&rank);
 			for(int i=0; i<3; ++i) {
-				std::cout << "rank: " << rank << " :dir: " << i << "\n";
-				std::cout << "rank: " << rank << " :nGlo: " << nGlo(i) << "\n";
-				std::cout << "rank: " << rank << " :nLoc: " << nLoc(i) << "\n";
-				std::cout << "rank: " << rank << " :sInd: " << sInd(i) << "\n";
-				std::cout << "rank: " << rank << " :eInd: " << eInd(i) << "\n";
-				std::cout << "rank: " << rank << " :bl: " << bl(i) << "\n";
-				std::cout << "rank: " << rank << " :bu: " << bu(i) << "\n\n";
+				os << "rank: " << rank << " :dir: " << i << "\n";
+				os << "rank: " << rank << " :nGlo: " << nGlo(i) << "\n";
+				os << "rank: " << rank << " :nLoc: " << nLoc(i) << "\n";
+				os << "rank: " << rank << " :sInd: " << sInd(i) << "\n";
+				os << "rank: " << rank << " :eInd: " << eInd(i) << "\n";
+				os << "rank: " << rank << " :bl: " << bl(i) << "\n";
+				os << "rank: " << rank << " :bu: " << bu(i) << "\n\n";
 			}
 //		Ordinal N = 1;
 //		for(int i=0; i<3; ++i)
@@ -406,7 +399,8 @@ protected:
 	const Ordinal& bl(int i) const { return fieldSpace_->bl_[i]; }
 	const Ordinal& bu(int i) const { return fieldSpace_->bu_[i]; }
 
-}; //class ScalarField
+}; // end of class ScalarField
+
 
 
 /** @brief creates a scalar field(vector) belonging to a FieldSpace
@@ -417,9 +411,10 @@ protected:
 template<class Scalar, class Ordinal>
 Teuchos::RCP< ScalarField<Scalar,Ordinal> > createScalarField( Teuchos::RCP<const FieldSpace<Ordinal> > fS) {
 	return Teuchos::RCP<ScalarField<Scalar,Ordinal> > (
-				new ScalarField<Scalar,Ordinal>( fS ) );
+			new ScalarField<Scalar,Ordinal>( fS ) );
 }
 
-} // namespace Pimpact
 
-#endif // PIMPACT_SCALARFIELD_HPP
+} // end of namespace Pimpact
+
+#endif // end of #ifndef PIMPACT_SCALARFIELD_HPP

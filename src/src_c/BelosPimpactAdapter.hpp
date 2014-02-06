@@ -159,14 +159,16 @@ namespace Belos {
     }
 
 
-    /// \brief return the number of the Vector/Field length, it is assumed that every \c Field of the multivector has the same.
-    static int GetVecLength( const Pimpact::MultiField<Field>& mv )
-    { return mv.GetVecLength(); }
+  /// \brief return the number of the Vector/Field length, it is assumed that every \c Field of the multivector has the same.
+  static int GetVecLength( const Pimpact::MultiField<Field>& mv ) {
+  	return( mv.getLength() );
+  }
 
 
-    /// \brief return the number of the Vector/Field's.
-    static int GetNumberVecs( const Pimpact::MultiField<Field>& mv )
-    { return mv.GetNumberVecs(); }
+  /// \brief return the number of the Vector/Field's.
+  static int GetNumberVecs( const Pimpact::MultiField<Field>& mv ) {
+  	return( mv.getNumberVecs() );
+  }
 
     static bool HasConstantStride( const Pimpact::MultiField<Field>& mv )
     { return true; }
@@ -182,34 +184,27 @@ namespace Belos {
     	mv.TimesMatAdd(alpha,A,B,beta);
     }
 
-    /// \brief <tt>mv := alpha*A + beta*B</tt>
-    static void
-    MvAddMv (Scalar alpha,
-             const Pimpact::MultiField<Field>& A,
-             Scalar beta,
-             const Pimpact::MultiField<Field>& B,
-             Pimpact::MultiField<Field>& mv)
-    {
-      mv.Add( alpha, A, beta, B );
-    }
+
+  /// \brief <tt>mv := alpha*A + beta*B</tt>
+  static void MvAddMv( Scalar alpha,
+  		const Pimpact::MultiField<Field>& A,
+  		Scalar beta,
+  		const Pimpact::MultiField<Field>& B,
+  		Pimpact::MultiField<Field>& mv ) {
+  	mv.add( alpha, A, beta, B );
+  }
 
 
-    /// \brief <tt>mv := alpha*mv </tt>
-    static void
-    MvScale (Pimpact::MultiField<Field>& mv,
-             const Scalar& alpha)
-    {
-      mv.Scale (alpha);
-    }
+  /// \brief <tt>mv := alpha*mv </tt>
+  static void MvScale( Pimpact::MultiField<Field>& mv, const Scalar& alpha ) {
+  	mv.scale( alpha );
+  }
 
 
-    /// \brief <tt>mv[i] := alpha[i]*mv[i] </tt>
-    static void
-    MvScale (Pimpact::MultiField<Field>& mv,
-             const std::vector<Scalar>& alphas)
-    {
-      mv.Scale (alphas);
-    }
+  /// \brief <tt>mv[i] := alpha[i]*mv[i] </tt>
+  static void MvScale( Pimpact::MultiField<Field>& mv, const std::vector<Scalar>& alphas ) {
+  	mv.scale( alphas );
+  }
 
 
     /// \brief <tt>C[j,i] := dot(A[j],B[i]) </tt>
@@ -223,24 +218,22 @@ namespace Belos {
     }
 
 
-    /// \brief For all columns j of A, set <tt>dots[j] := A[j]^T * B[j]</tt>.
-    static void
-    MvDot (const Pimpact::MultiField<Field>& A,
-           const Pimpact::MultiField<Field>& B,
-           std::vector<Scalar>& dots)
-    {
-    	A.Dot(B,dots);
-    }
+  /// \brief For all columns j of A, set <tt>dots[j] := A[j]^T * B[j]</tt>.
+  static void MvDot(
+  		const Pimpact::MultiField<Field>& A,
+      const Pimpact::MultiField<Field>& B,
+      std::vector<Scalar>& dots) {
+  	A.dot(B,dots);
+  }
 
 
-    /// \brief For all columns j of mv, set <tt>normvec[j] = norm(mv[j])</tt>.
-    static void
-    MvNorm (const Pimpact::MultiField<Field>& mv,
-            std::vector<typename Teuchos::ScalarTraits<Scalar>::magnitudeType> &normvec,
-            NormType type=TwoNorm)
-    {
-    	mv.Norm(normvec,type);
-    }
+  /// \brief For all columns j of mv, set <tt>normvec[j] = norm(mv[j])</tt>.
+  static void MvNorm(
+  		const Pimpact::MultiField<Field>& mv,
+  		std::vector<typename Teuchos::ScalarTraits<Scalar>::magnitudeType> &normvec,
+  		NormType type=TwoNorm ) {
+  	mv.norm(normvec,type);
+  }
 
 
     /// \brief <tt> mv[i]:=A[index[i]] </tt>
@@ -262,54 +255,50 @@ namespace Belos {
     }
 
 
-    /// \brief <tt> mv:=A </tt>
-    static void
-    Assign (const Pimpact::MultiField<Field>& A,
-            Pimpact::MultiField<Field>& mv)
-    {
-    	mv.Assign(A);
-    }
+  /// \brief <tt> mv:=A </tt>
+  static void Assign (const Pimpact::MultiField<Field>& A,
+  		Pimpact::MultiField<Field>& mv) {
+  	mv.assign(A);
+  }
 
 
-    /// \brief make \c mv uniform random (0,1)
-    static void MvRandom( Pimpact::MultiField<Field>& mv )
-    {
-      mv.Random();
-    }
+  /// \brief make \c mv uniform random (0,1)
+  static void MvRandom( Pimpact::MultiField<Field>& mv ) {
+  	mv.random();
+  }
 
-    /// \brief init \c mv:= \c alpha everywhere(inner field)
-    static void MvInit( Pimpact::MultiField<Field>& mv, Scalar alpha = Teuchos::ScalarTraits<Scalar>::zero() )
-    { mv.Init(alpha); }
 
-    /// \brief print function(for debbuging)
-    /// \todo add \c os to mv.Print()
-    static void MvPrint( const Pimpact::MultiField<Field>& mv, std::ostream& os )
-    {
-//      Teuchos::FancyOStream fos(Teuchos::rcp(&os,false));
-      mv.Print();
-    }
+  /// \brief init \c mv:= \c alpha everywhere(inner field)
+  static void MvInit( Pimpact::MultiField<Field>& mv, Scalar alpha = Teuchos::ScalarTraits<Scalar>::zero() ) {
+  	mv.init(alpha);
+  }
+
+  /// \brief print function(for debbuging)
+  static void MvPrint( const Pimpact::MultiField<Field>& mv, std::ostream& os ) {
+  	mv.print( os );
+  }
 
 #ifdef HAVE_BELOS_TSQR
-//    /// \typedef tsqr_adaptor_type
-//    /// \brief stub TsqrAdaptor specialization for Pimpact::MultiField
-//    ///
     typedef Belos::details::StubTsqrAdapter< Pimpact::MultiField<Field> > tsqr_adaptor_type;
-#endif // HAVE_BELOS_TSQR
-  };
+#endif
 
-  ////////////////////////////////////////////////////////////////////
-  //
-  // Implementation of the Belos::OperatorTraits for Pimpact::Operator.
-  //
-  ////////////////////////////////////////////////////////////////////
+}; // end of class MultiVecTraits
 
-  /// \brief Partial specialization of \c Belos::OperatorTraits for \c Pimpact::OperatorMV.
-  /// it has three template parameters Scalar, Field, and the inner Operator
-  /// \note sadly Belos allows only Operators having the same domain and range
-  template <class Scalar, class Field, class Operator>
-  class OperatorTraits <Scalar, Pimpact::MultiField<Field>, Pimpact::OperatorMV<Operator> >
-  {
-  public:
+
+
+////////////////////////////////////////////////////////////////////
+//
+// Implementation of the Belos::OperatorTraits for Pimpact::Operator.
+//
+////////////////////////////////////////////////////////////////////
+
+/// \brief Partial specialization of \c Belos::OperatorTraits for \c Pimpact::OperatorMV.
+/// it has three template parameters Scalar, Field, and the inner Operator
+/// \note sadly Belos allows only Operators having the same domain and range
+template <class Scalar, class Field, class Operator>
+class OperatorTraits <Scalar, Pimpact::MultiField<Field>, Pimpact::OperatorMV<Operator> > {
+
+public:
   	/// \brief applys the inner \c Operator, such that \c Y:= \c Op( \c X)
   	/// \note up to now only no NOTRANS operators can be handled
     static void
@@ -343,27 +332,17 @@ namespace Belos {
 //                           "Please report this bug to the Belos developers.");
 //      }
 
-    /**
-     * @param Op
-     * @return \c true if Op has a transpose implemented
-     */
-    static bool
-    HasApplyTranspose (const Pimpact::OperatorMV<Operator>& Op)
-    {
-      return Op.hasTransposeApply();
-    }
-  };
-//
-//  // Partial specialization for MV=Pimpact::MultiField.
-//  template<class Scalar, class LO, class GO, class Node>
-//  class MultiVecTraitsExt<Scalar, Pimpact::MultiField<Scalar, LO, GO, Node> > {
-//  public:
-//    typedef Pimpact::MultiField<Scalar, LO, GO, Node> MV;
-//    static ptrdiff_t GetGlobalLength( const MV& mv ) {
-//      return Teuchos::as<ptrdiff_t> (mv.getGlobalLength ());
-//    }
-//  };
 
-} // end of Belos namespace
+  /**
+   * @param Op
+   * @return \c true if Op has a transpose implemented
+   */
+  static bool HasApplyTranspose (const Pimpact::OperatorMV<Operator>& Op) {
+  	return( Op.hasTransposeApply() );
+  }
+
+}; // end of class OperatorTraits
+
+} // end of namespace Belos
 
 #endif // end of file BELOSPIMPACTADAPTER_HPP

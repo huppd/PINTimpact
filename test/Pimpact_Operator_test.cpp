@@ -193,7 +193,7 @@ TEUCHOS_UNIT_TEST( Operator, Dt ) {
 	mv->GetVec(0).getFieldS()->init(0.);
 
 	auto mv2 = mv->Clone(1);
-	mv2->Init(0.);
+	mv2->init(0.);
 
 	auto A = Pimpact::createOperatorMV<Pimpact::Dt<double,int> >();
 
@@ -218,12 +218,12 @@ TEUCHOS_UNIT_TEST( Operator, DtL ) {
 
 	auto mv = Pimpact::createMultiField<Pimpact::ModeField<Pimpact::VectorField<double,int> >,double,int>(*vel,1);
 
-	mv->Random();
+	mv->random();
 
 	auto mv2 = mv->Clone(1);
 	auto mv3 = mv->Clone(1);
-	mv2->Init(0.);
-	mv3->Init(0.);
+	mv2->init(0.);
+	mv3->init(0.);
 
 	auto A = Pimpact::createDtL<double,int>( 1., 0., 0. );
 
@@ -234,7 +234,7 @@ TEUCHOS_UNIT_TEST( Operator, DtL ) {
 
 	Belos::OperatorTraits<double,Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<double,int> > >, Pimpact::OperatorMV<Pimpact::DtL<double,int> > >::Apply(*A,*mv,*mv2);
 
-	mv2->Init(0.);
+	mv2->init(0.);
 
 	auto A2 = Pimpact::createDtL<double,int>( 0., 0., 1. );
 	auto A3 = Pimpact::createHelmholtz<double,int>( 0., 1. );
@@ -245,12 +245,12 @@ TEUCHOS_UNIT_TEST( Operator, DtL ) {
 	std::vector<double> norm2( 1, 0. );
 	std::vector<double> norm3( 1, 0. );
 
-	mv2->Norm(norm2);
-	mv3->Norm(norm3);
+	mv2->norm(norm2);
+	mv3->norm(norm3);
 
 	TEST_EQUALITY( norm2[0] , norm3[0] );
 
-	mv2->Init(0.);
+	mv2->init(0.);
 
 	A2 = Pimpact::createDtL<double,int>( 0., 1., 0. );
 	A3 = Pimpact::createHelmholtz<double,int>( 1., 0. );
@@ -258,8 +258,8 @@ TEUCHOS_UNIT_TEST( Operator, DtL ) {
 	A2->apply(*mv,*mv2);
 	A3->apply(*mv,*mv3);
 
-	mv2->Norm(norm2);
-	mv3->Norm(norm3);
+	mv2->norm(norm2);
+	mv3->norm(norm3);
 
 	TEST_EQUALITY( norm2[0] , norm3[0] );
 
@@ -280,8 +280,8 @@ TEUCHOS_UNIT_TEST( Operator, Div_DtLinv_Grad ) {
 	auto X = Pimpact::createMultiModeScalarField<double,int>();
 	auto B = Pimpact::createMultiModeScalarField<double,int>();
 
-	X->Init(0.);
-	B->Random();
+	X->init(0.);
+	B->random();
 
 	auto A = Pimpact::createDtL<double,int>(0.,0.,10.);
 

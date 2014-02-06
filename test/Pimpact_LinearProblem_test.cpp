@@ -64,9 +64,9 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 	auto X = Pimpact::createMultiField<Pimpact::VectorField<double,int>,double,int>(*vel,1);
 	auto B = Pimpact::createMultiField<Pimpact::VectorField<double,int>,double,int>(*vel,1);
 
-	X->Init(0.);
-	B->Random();
-	B->Scale(100.);
+	X->init(0.);
+	B->random();
+	B->scale(100.);
 
 	auto A = Pimpact::createOperatorMV<Pimpact::Helmholtz<double,int> >();
 
@@ -133,9 +133,9 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV2 ) {
 	auto X = Pimpact::createMultiField<Pimpact::VectorField<double,int>,double,int>(*vel,1);
 	auto B = Pimpact::createMultiField<Pimpact::VectorField<double,int>,double,int>(*vel,1);
 
-	X->Init(0.);
-	B->Random();
-	B->Scale(100.);
+	X->init(0.);
+	B->random();
+	B->scale(100.);
 
 	auto A = Pimpact::createOperatorMV<Pimpact::Helmholtz<double,int> >();
 
@@ -188,11 +188,11 @@ TEUCHOS_UNIT_TEST( BelosSolver, Dt1L0 ) {
 	auto X = Pimpact::createMultiField<Pimpact::ModeField<Pimpact::VectorField<double,int> >,double,int>( *vel,1 );
 	auto B = Pimpact::createMultiField<Pimpact::ModeField<Pimpact::VectorField<double,int> >,double,int>( *vel,1 );
 
-	X->Init(0.);
+	X->init(0.);
 
-	X->Random();
-	B->Random();
-//	B->Scale(100.);
+	X->random();
+	B->random();
+//	B->scale(100.);
 
 	auto A = Pimpact::createDtL<double,int>( 1., 0., 0. );
 
@@ -245,9 +245,9 @@ TEUCHOS_UNIT_TEST( BelosSolver, Dt0L1 ) {
 	auto X = Pimpact::createMultiField<Pimpact::ModeField<Pimpact::VectorField<double,int> >,double,int>( *vel,1 );
 	auto B = Pimpact::createMultiField<Pimpact::ModeField<Pimpact::VectorField<double,int> >,double,int>( *vel,1 );
 
-	X->Init(0.);
-	B->Random();
-	B->Scale(100.);
+	X->init(0.);
+	B->random();
+	B->scale(100.);
 
 	auto A = Pimpact::createDtL<double,int>(0.,0.,10.);
 
@@ -305,13 +305,13 @@ TEUCHOS_UNIT_TEST( BelosSolver, Schur ) {
 	auto X = Pimpact::createMultiField<Pimpact::VectorField<double,int>,double,int>(*vel,1);
 	auto B = Pimpact::createMultiField<Pimpact::VectorField<double,int>,double,int>(*vel,1);
 
-	X->Init(0.);
-	B->Random();
-	B->Scale(100.);
+	X->init(0.);
+	B->random();
+	B->scale(100.);
 
-	Xp->Init(0.);
-	Bp->Random();
-	Bp->Scale(100.);
+	Xp->init(0.);
+	Bp->random();
+	Bp->scale(100.);
 
 	// init operators
 	auto lap = Pimpact::createHelmholtz<double,int>( 0.,1.);
@@ -370,8 +370,8 @@ TEUCHOS_UNIT_TEST( BelosSolver, Div_DtLinv_Grad ) {
 	auto X = Pimpact::createMultiModeScalarField<double,int>();
 	auto B = Pimpact::createMultiModeScalarField<double,int>();
 
-	X->Init(0.);
-	B->Random();
+	X->init(0.);
+	B->random();
 
 	auto A = Pimpact::createDtL<double,int>(0.,0.,10.);
 

@@ -211,7 +211,7 @@ int main(int argi, char** argv ) {
 		break;
 	}
 
-	q->Init(0);
+	q->init(0);
 
 	f->GetVec(0).getVField()->getFieldC()->init_field( Pimpact::ZeroProf );
 	f->GetVec(0).getVField()->getFieldS()->init_field( Pimpact::ZeroProf );

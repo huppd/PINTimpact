@@ -13,9 +13,9 @@
 #include "Pimpact_MultiField.hpp"
 
 
-/** \file
+/**
+ * \file
  * \todo make generat templated create function
- *
  */
 namespace Pimpact {
 
@@ -31,7 +31,7 @@ Teuchos::RCP< MultiField<ModeField<VectorField<Scalar,Ordinal> > > > createMulti
 
 	auto vel = createModeField( velc, vels );
 
-	return createMultiField<ModeField<VectorField<Scalar,Ordinal> >,double,int>( *vel, n );
+	return( createMultiField<ModeField<VectorField<Scalar,Ordinal> >,double,int>( *vel, n ) );
 }
 
 
@@ -44,7 +44,7 @@ Teuchos::RCP< MultiField<ModeField<ScalarField<Scalar,Ordinal> > > > createMulti
 
 	auto scal = createModeField( scalc, scals );
 
-	return createMultiField<ModeField<ScalarField<Scalar,Ordinal> >,Scalar,Ordinal>( *scal, n );
+	return( createMultiField<ModeField<ScalarField<Scalar,Ordinal> >,Scalar,Ordinal>( *scal, n ) );
 }
 
 
@@ -89,7 +89,19 @@ Teuchos::RCP< MultiField<ModeField<VectorField<Scalar,Ordinal> > > > createInitM
 		u->GetVec(0).getFieldS()->init_field( ZeroProf, re, omega, px );
 		break;
 	}
-	return u;
+	return( u );
+}
+
+
+template<class Scalar, class Ordinal>
+Teuchos::RCP< MultiField<ModeField<ScalarField<Scalar,Ordinal> > > > createInitMSF(
+		Teuchos::RCP< const FieldSpace<Ordinal> > fS ) {
+	auto scac = Pimpact::createScalarField<Scalar,Ordinal>(fS);
+	auto scas = Pimpact::createScalarField<Scalar,Ordinal>(fS);
+
+	auto sca = Pimpact::createModeField( scac, scas );
+
+	return( Pimpact::createMultiField<ModeField<ScalarField<Scalar,Ordinal> >, double, int >(*sca,1) );
 }
 
 } // end of namespace Pimpact

@@ -167,9 +167,9 @@ int main(int argi, char** argv ) {
 	sca = Teuchos::null;
 	vel = Teuchos::null;
 
-	p->Init(0.);
+	p->init(0.);
 	u->GetVec(0).init_field( Pimpact::EFlowProfile(flow) );
-	u->Init(0);
+	u->init(0);
 
 	tempv->GetVec(0).init_field( Pimpact::EFlowProfile(flow) );
 	f->GetVec(0).init_field( Pimpact::ZeroProf );
@@ -237,7 +237,7 @@ int main(int argi, char** argv ) {
 	grad->apply( *p, *tempv );
 	//	tempv->write(2003);
 
-	tempv->Add( -1., *tempv, 1., *f );
+	tempv->add( -1., *tempv, 1., *f );
 
 	solveParaCG->set ("Verbosity",  int(Belos::Errors + Belos::Warnings + Belos::IterationDetails +
 			Belos::OrthoDetails + Belos::FinalSummary +	Belos::TimingDetails +

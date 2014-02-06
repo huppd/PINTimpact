@@ -45,7 +45,7 @@ public:
 			Belos::ETrans trans=Belos::NOTRANS) const {
 
 		// Debug test: y.GetNumVecs()>=x.GetNumVecs()
-		int m = x.GetNumberVecs();
+		int m = x.getNumberVecs();
 
 		for( int i=0; i<m; ++i )
 			op_->apply( x.GetConstVec(i), y.GetVec(i) );
@@ -70,7 +70,7 @@ private:
 			Belos::ETrans trans=Belos::NOTRANS) const {
 
 		// Debug test: y.GetNumVecs()>=x.GetNumVecs()
-		int m = x.GetNumberVecs();
+		int m = x.getNumberVecs();
 
 		for( int i=0; i<m; ++i )
 			op_->apply( x.GetConstVec(i), y.GetVec(i) );
@@ -83,7 +83,7 @@ private:
 			Belos::ETrans trans=Belos::NOTRANS ) const {
 
 		// Debug test: y.GetNumVecs()>=x.GetNumVecs()
-		int m = x.GetNumberVecs();
+		int m = x.getNumberVecs();
 
 		for( int i=0; i<m; ++i ) {
 			op_->apply( *x.GetConstVec(i).getConstFieldC(), *y.GetVec(i).getFieldC() );

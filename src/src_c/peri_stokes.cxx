@@ -165,7 +165,10 @@ int main(int argi, char** argv ) {
 	}
 	outPar = Teuchos::null;
 
+
+	// init IMPACT
 	Pimpact::init_impact_post();
+
 
 	// init Spaces
 	auto fS = Pimpact::createFieldSpace<int>();
@@ -173,34 +176,18 @@ int main(int argi, char** argv ) {
 	auto iIS = Pimpact::createInnerFieldIndexSpaces<int>();
 	auto fIS = Pimpact::createFullFieldIndexSpaces<int>();
 
+
 	// init vectors
-	auto scac = Pimpact::createScalarField<double,int>(fS);
-	auto scas = Pimpact::createScalarField<double,int>(fS);
-
-	auto sca = Pimpact::createModeField( scac, scas );
-
-	auto p     = Pimpact::createMultiField< SF, double, int >(*sca,1);
-	auto temps = Pimpact::createMultiField< SF, double, int >(*sca,1);
-
-	scac=Teuchos::null;
-	scas=Teuchos::null;
-	sca=Teuchos::null;
-//	vel=Teuchos::null;
-//	velc=Teuchos::null;
-//	vels=Teuchos::null;
-
-	p->Init(0.);
-
-	/// \todo move this to a factory
-
+	auto p     = Pimpact::createInitMSF<Scalar,Ordinal>( fS );
+	auto temps = Pimpact::createInitMSF<Scalar,Ordinal>( fS );
 
 	auto u     = Pimpact::createInitMVF<Scalar,Ordinal>( Pimpact::EFlowType(flow), fS, iIS, fIS );
 	auto tempv = Pimpact::createInitMVF<Scalar,Ordinal>( Pimpact::EFlowType(flow), fS, iIS, fIS );
 	auto f     = Pimpact::createInitMVF<Scalar,Ordinal>( Pimpact::EFlowType(flow), fS, iIS, fIS );
 
-	u->Init(0);
-	tempv->Init(0);
-
+	p->init(0.);
+	u->init(0);
+	tempv->init(0);
 
 
 	// init operators
@@ -208,37 +195,22 @@ int main(int argi, char** argv ) {
 	auto div  = Pimpact::createOperatorMV<Pimpact::Div<double,int> >();
 	auto grad = Pimpact::createOperatorMV<Pimpact::Grad<double,int> >();
 
-
-//	RCP<ParameterList> solverParams = parameterList();
+	// create parameter for linsovlers
 	auto solverParams = Pimpact::createLinSolverParameter( solver_name_1, 1.e-6*l1*l2/n1/n2 );
 
-//	solverParams->set ("Num Blocks", 100);
-//	solverParams->set ("Maximum Iterations", 2000);
-//	solverParams->set ("Maximum Restarts", 20);
-//	solverParams->set ("Convergence Tolerance", 1.0e-6*l1*l2/n1/n2);
-//	solverParams->set ("Implicit Residual Scaling","None");
-//	solverParams->set ("Explicit Residual Scaling","None");
-//	solverParams->set ("Output Frequency", 10 );
-//	solverParams->set ("Output Style", 1 );
 	solverParams->get()->set ("Output Stream", outLap1 );
-//	solverParams->set ("Verbosity",  int(Belos::Errors + Belos::Warnings + Belos::IterationDetails +
-//			Belos::OrthoDetails + Belos::FinalSummary +	Belos::TimingDetails +
-//			Belos::StatusTestDetails + Belos::Debug) );
 //
 	Teuchos::writeParameterListToXmlFile( *solverParams->get(), "para_solver.xml" );
 
-//	solverParams = Teuchos::getParametersFromXmlFile("solver1.xml");
 
 	// create problems/solvers
 	auto lap_problem = Pimpact::createLinearProblem<Scalar,MVF,Lap>( lap, u, f, solverParams->get(), solver_name_1 );
 
 	auto schur = Pimpact::createDivDtLinvGrad<double,int>( u, lap_problem );
 
-//	solverParams = parameterList();
 	solverParams = Pimpact::createLinSolverParameter( solver_name_2, 1.e-6*l1*l2/n1/n2  );
 	solverParams->get()->set( "Output Stream", outSchur );
 	auto schur_prob = Pimpact::createLinearProblem<Scalar,MSF,Schur>( schur, p,temps, solverParams->get(), solver_name_2);
-
 
 	// solve stationary stokes
 	lap_problem->solve( tempv, f );
@@ -257,7 +229,7 @@ int main(int argi, char** argv ) {
 	grad->apply( *p, *tempv );
 	//tempv->write(2006);
 
-	tempv->Add( -1., *tempv, 1., *f );
+	tempv->add( -1., *tempv, 1., *f );
 
 	solverParams->get()->set ("Verbosity",  Belos::Errors + Belos::Warnings + Belos::IterationDetails +
 			Belos::OrthoDetails + Belos::FinalSummary +	Belos::TimingDetails +
@@ -277,5 +249,5 @@ int main(int argi, char** argv ) {
 
 
 	MPI_Finalize();
-	return 0;
+	return( 0 );
 }

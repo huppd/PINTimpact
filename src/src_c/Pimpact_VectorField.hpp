@@ -127,6 +127,8 @@ private:
 public:
 	typedef Teuchos::ArrayRCP< Teuchos::RCP<const IndexSpace<Ordinal> > >  IndexSpaces;
 
+	VectorField(): fieldS_(Teuchos::null),innerIS_(Teuchos::null),fullIS_(Teuchos::null),vec_(0) {};
+
 	VectorField(Teuchos::RCP<const FieldSpace<Ordinal> > fieldS, IndexSpaces innerIS, IndexSpaces fullIS ):fieldS_(fieldS),innerIS_(innerIS),fullIS_(fullIS) {
 		Ordinal N = 1;
 		for(int i=0; i<3; ++i)
@@ -181,15 +183,15 @@ public:
 	Teuchos::RCP<const FieldSpace<Ordinal> > getFieldSpace() const {return fieldS_;}
 
 
-	/** \brief get Vect length
-	 * \todo change loop bounds to dimension
+	/**
+	 * \brief returns the length of Field.
 	 * the vector length is withregard to the inner points such that
 	 * \f[ N_u = (N_x-1)(N_y-2)(N_z-?) \]
 	 * \f[ N_v = (N_x-2)(N_y-1)(N_z-?) \]
 	 * \f[ N_w = (N_x-?)(N_y-?)(N_z-?) \]
 	 * @return vect length \f[= N_u+N_v+N+w]f
 	 */
-  Ordinal getVecLength() const {
+	Ordinal getLength( bool dummy=false ) const {
   	Ordinal n = 0;
   	for( int i=0; i<dim(); ++i ) {
 			Ordinal vl = 1;
@@ -201,18 +203,20 @@ public:
 			}
 			n += vl;
   	}
-  	return n;
+  	return( n );
   }
 
 
+	/// \brief get number of stored Field's
+	int getNumberVecs() const { return( 1 ); }
+
 
 	//@}
-
-	//! @name Update methods
+	/// @name Update methods
 	//@{
 
-
-	/*! \brief Replace \c this with \f$\alpha A + \beta B\f$.
+	/**
+	 * \brief Replace \c this with \f$\alpha A + \beta B\f$.
 	 */
 	void add( const Scalar& alpha, const MV& A, const Scalar& beta, const MV& B ) {
 		// add test for consistent VectorSpaces in debug mode
@@ -226,7 +230,9 @@ public:
 						vec_[i], A.vec_[i], B.vec_[i], alpha, beta);
 	}
 
-	/*! \brief Scale each element of the vectors in \c this with \c alpha.
+
+	/**
+	 * \brief Scale each element of the vectors in \c this with \c alpha.
 	 */
 	void scale( const Scalar& alpha ) {
 		for(int i=0; i<dim(); ++i)
@@ -240,8 +246,8 @@ public:
 	}
 
 
-	/*! \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
-	 * \todo has to be redone
+	/**
+	 * \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
 	 */
 	Scalar dot ( const MV& a ) const {
 		/// \todo add test in debuging mode for testing equality of VectorSpaces
@@ -256,28 +262,30 @@ public:
 				vec_[0],     vec_[1],   vec_[2],
 				a.vec_[0], a.vec_[1], a.vec_[2],
 				b);
-		return b;
+		return( b );
 	}
 
-	//@}
 
-  //! @name Norm method
+	//@}
+  /// @name Norm method
   //@{
 
-  /** \brief Compute the norm of each individual vector.
-    Upon return, \c normvec[i] holds the value of \f$||this_i||_2^2\f$, the \c i-th column of \c this.
-    \attention the two norm is not the real two norm but its square
-    \todo implement OneNorm
-    \todo implement in fortran
-  */
-  Scalar norm(  Belos::NormType type = Belos::TwoNorm ) const {
-  	bool twoNorm_yes = false;
+  /**
+   * \brief Compute the norm of each individual vector.
+   * Upon return, \c normvec[i] holds the value of \f$||this_i||_2^2\f$, the \c i-th column of \c this.
+   * \attention the two norm is not the real two norm but its square
+   * \todo implement OneNorm
+   * \todo implement in fortran
+   */
+	Scalar norm(  Belos::NormType type = Belos::TwoNorm ) const {
+		bool twoNorm_yes = false;
   	bool infNorm_yes = false;
+
   	switch(type) {
-			case Belos::TwoNorm: twoNorm_yes = true; break;
-			case Belos::InfNorm: infNorm_yes = true; break;
-			case Belos::OneNorm: std::cout << "norm: not implemented"; return 0.;
-			default: std::cout << "unkown norm"; return 0.;
+  	case Belos::TwoNorm: twoNorm_yes = true; break;
+  	case Belos::InfNorm: infNorm_yes = true; break;
+  	case Belos::OneNorm: std::cout << "norm: not implemented"; return 0.;
+  	default: std::cout << "unkown norm"; return 0.;
   	}
 
   	Scalar normvec;
@@ -292,7 +300,7 @@ public:
 //  				s_, // mabyeb .data() or getPTr()
   				infNorm_yes, twoNorm_yes,
   				normvec, normvec );
-  	return normvec;
+  	return( normvec );
   }
 
 
@@ -301,17 +309,18 @@ public:
   //@{
 
 
-  /// \brief mv := A
-  ///
-  /// Assign (deep copy) A into mv.
+  /**
+   * \brief mv := A
+   * Assign (deep copy) A into mv.
+   */
   void assign( const MV& a ) {
-#ifdef DEBUG
-		for(int i=0; i<3; ++i) {
-			TEST_EQUALITY( nLoc(i), a.Nloc(i) )
+  	#ifdef DEBUG
+  	for(int i=0; i<3; ++i) {
+  		TEST_EQUALITY( nLoc(i), a.Nloc(i) )
 			TEST_EQUALITY( bu(i), a.bu(i) )
 			TEST_EQUALITY( bl(i), a.bl(i) )
-		}
-#endif
+  	}
+  	#endif
 
   	Ordinal N = 1;
 		for(int i=0; i<3; ++i)
@@ -323,10 +332,12 @@ public:
 			}
   }
 
-  /*! \brief Replace the vector with a random vectors.
+
+  /**
+   * \brief Replace the vectors with a random vectors.
    * depending on Fortrans \c Random_number implementation, with always same seed => not save, if good randomness is requiered
    */
-  void random() {
+  void random(bool useSeed = false, int seed = 1) {
   	for( int i=0; i<dim(); ++i )
 			SV_random(
 				nLoc(0), nLoc(1), nLoc(2),
@@ -397,21 +408,23 @@ public:
   	  	}
   }
 
+
   //@}
 
-  void print()  {
+  /// Print the vector.  To be used for debugging only.
+  void print( std::ostream& os )  {
   		int rank;
 			MPI_Comm_rank(comm(),&rank);
 			for(int i=0; i<dim(); ++i) {
-				std::cout << "rank: " << rank << " :dir: " << i << "\n";
-				std::cout << "rank: " << rank << " :nGlo: " << nGlo(i) << "\n";
-				std::cout << "rank: " << rank << " :nLoc: " << nLoc(i) << "\n";
+				os << "rank: " << rank << " :dir: " << i << "\n";
+				os << "rank: " << rank << " :nGlo: " << nGlo(i) << "\n";
+				os << "rank: " << rank << " :nLoc: " << nLoc(i) << "\n";
 				for( int j=0; j<3; ++j ) {
-					std::cout << "rank: " << rank << "field: " << j << " :sInd: " << sInd(i,j) << "\n";
-					std::cout << "rank: " << rank << "field: " << j << " :eInd: " << eInd(i,j) << "\n";
+					os << "rank: " << rank << "field: " << j << " :sInd: " << sInd(i,j) << "\n";
+					os << "rank: " << rank << "field: " << j << " :eInd: " << eInd(i,j) << "\n";
 				}
-				std::cout << "rank: " << rank << " :bl: " << bl(i) << "\n";
-				std::cout << "rank: " << rank << " :bu: " << bu(i) << "\n\n";
+				os << "rank: " << rank << " :bl: " << bl(i) << "\n";
+				os << "rank: " << rank << " :bu: " << bu(i) << "\n\n";
 			}
 //		Ordinal N = 1;
 //		for(int i=0; i<3; ++i)

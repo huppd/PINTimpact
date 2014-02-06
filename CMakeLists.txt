@@ -53,11 +53,18 @@ SET(CMAKE_CXX_FLAGS  "${Trilinos_CXX_COMPILER_FLAGS} ${CMAKE_CXX_FLAGS} -std=c++
 SET(CMAKE_C_FLAGS  "${Trilinos_C_COMPILER_FLAGS} ${CMAKE_C_FLAGS}")
 SET(CMAKE_Fortran_FLAGS  "${Trilinos_Fortran_COMPILER_FLAGS} ${CMAKE_Fortran_FLAGS}")
 
+IF( CMAKE_COMPILER_IS_GNUCXX )
+	SET(CMAKE_Fortran_FLAGS  "${CMAKE_Fortran_FLAGS} -ffree-line-length-none  -ffast-math -funroll-all-loops -fpeel-loops -ftracer -funswitch-loops -ftree-vectorize -march=native -funsafe-math-optimizations -fomit-frame-pointer -fno-math-errno -fdollar-ok -Wall" )
+ELSE()
+	SET(CMAKE_Fortran_FLAGS  "${CMAKE_Fortran_FLAGS} -funroll-all-loops -march=native -fomit-frame-pointer -fno-math-errno " )
+ENDIF()
+MESSAGE("Fortran flags: " ${CMAKE_Fortran_FLAGS})
 
-SET(CMAKE_Fortran_FLAGS  "${CMAKE_Fortran_FLAGS} -ffree-line-length-none  -ffast-math -funroll-all-loops -fpeel-loops -ftracer -funswitch-loops -ftree-vectorize -march=native -funsafe-math-optimizations -fomit-frame-pointer -fno-math-errno -fdollar-ok -Wall" )
-MESSAGE("Fortran compile flags: " ${CMAKE_Fortran_COMPILE_FLAGS})
-
-SET( CMAKE_Fortran_COMPILE_FLAGS "${Trilinos_Fortran_COMPILER_FLAGS} -xf95-cpp-input -fdefault-real-8 -fdefault-double-8"  )
+IF( CMAKE_COMPILER_IS_GNUCXX )
+	SET( CMAKE_Fortran_COMPILE_FLAGS "${Trilinos_Fortran_COMPILER_FLAGS} -xf95-cpp-input -fdefault-real-8 -fdefault-double-8"  )
+ELSE()
+	SET( CMAKE_Fortran_COMPILE_FLAGS "${Trilinos_Fortran_COMPILER_FLAGS} -free -fpp -r8 "  )
+ENDIF()
 
 set( Limpact_TPL_LIBRARIES hdf5hl_fortran hdf5_hl hdf5_fortran hdf5  z m lapack blas )
 set( Pimpact_TPL_LIBRARIES limpact ${Limpact_TPL_LIBRARIES} gfortran mpi_f77 mpi_f90   ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES}   )

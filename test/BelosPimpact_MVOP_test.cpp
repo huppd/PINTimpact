@@ -50,7 +50,6 @@ TEUCHOS_UNIT_TEST( AelosPimpactMV, MultiFieldScalar   ) {
 	auto fS = Pimpact::createFieldSpace<int>();
 //		auto sIS = Pimpact::createScalarIndexSpace<int>();
 	auto p = Pimpact::createScalarField<double,int>(fS);
-//		std::cout << "p->GetVecLength(): " << p->getVecLength() << "\n";
 
 
 	auto mvec = Pimpact::createMultiField<Pimpact::ScalarField<double,int>,double,int>(*p,5);
@@ -60,13 +59,7 @@ TEUCHOS_UNIT_TEST( AelosPimpactMV, MultiFieldScalar   ) {
 
 	bool res = Belos::TestMultiVecTraits<double,Pimpact::MultiField<Pimpact::ScalarField<double,int> > >(MyOM,mvec);
 	TEST_EQUALITY_CONST(res,true);
-////	    // All procs fail if any proc fails
-////	    int globalSuccess_int = -1;
-////	    reduceAll( *comm, Teuchos::REDUCE_SUkM, success ? 0 : 1, Teuchos::outArg(globalSuccess_int) );
-////	    TEST_EQUALITY_CONST( globalSuccess_int, 0 );
-////
-////		const int m = mv->GetNumberVecs();
-//
+
 }
 
 
@@ -86,12 +79,7 @@ TEUCHOS_UNIT_TEST( AelosPimpactMV, MultiFieldVector ) {
 
 	bool res = Belos::TestMultiVecTraits<double,Pimpact::MultiField<Pimpact::VectorField<double,int> > >(MyOM,mvec);
 	TEST_EQUALITY_CONST(res,true);
-////	    // All procs fail if any proc fails
-////	    int globalSuccess_int = -1;
-////	    reduceAll( *comm, Teuchos::REDUCE_SUkM, success ? 0 : 1, Teuchos::outArg(globalSuccess_int) );
-////	    TEST_EQUALITY_CONST( globalSuccess_int, 0 );
-////
-////		const int m = mv->GetNumberVecs();
+
 }
 
 
@@ -113,13 +101,6 @@ TEUCHOS_UNIT_TEST( AelosPimpactMV, MultiFieldScalarMode ) {
 			Belos::TestMultiVecTraits<double,Pimpact::MultiField<Pimpact::ModeField<Pimpact::ScalarField<double,int> > > >(MyOM,mvec);
 
 	TEST_EQUALITY_CONST(res,true);
-////	    // All procs fail if any proc fails
-////	    int globalSuccess_int = -1;
-////	    reduceAll( *comm, Teuchos::REDUCE_SUkM, success ? 0 : 1, Teuchos::outArg(globalSuccess_int) );
-////	    TEST_EQUALITY_CONST( globalSuccess_int, 0 );
-////
-////		const int m = mv->GetNumberVecs();
-//
 }
 
 

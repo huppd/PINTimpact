@@ -101,7 +101,7 @@ TEUCHOS_UNIT_TEST( VectorModeField, TwoNorm_and_init ) {
 	auto vel = Pimpact::createModeField( velc, vels );
 
 	double norm;
-	int N = vel->getVecLength();
+	int N = vel->getLength();
 
 	// test different float values, assures that initial and norm work smoothly
 	for( double i=0.; i< 200.1; ++i ) {
@@ -129,9 +129,9 @@ TEUCHOS_UNIT_TEST( VectorModeField, dot ) {
 
 	double dot;
 
-	TEST_EQUALITY( vel1->getVecLength(), vel2->getVecLength() )
+	TEST_EQUALITY( vel1->getLength(), vel2->getLength() )
 
-	int N = vel1->getVecLength();
+	int N = vel1->getLength();
 
 	vel1->init(0.);
 	vel2->init(1.);
@@ -167,7 +167,7 @@ TEUCHOS_UNIT_TEST( VectorModeField, scale ) {
 
 	auto vel = Pimpact::createModeField( velc, vels );
 
-	int N = vel->getVecLength();
+	int N = vel->getLength();
 	double norm;
 
 	vel->init(1.);
@@ -188,7 +188,7 @@ TEUCHOS_UNIT_TEST( VectorModeField, random ) {
 
 	auto vel = Pimpact::createModeField( velc, vels );
 
-	int N = vel->getVecLength();
+	int N = vel->getLength();
 	double norm;
 
 	vel->init(1.);
@@ -217,12 +217,12 @@ TEUCHOS_UNIT_TEST( VectorModeField, add ) {
 	auto vel3 = Pimpact::createModeField( vel3c, vel3s );
 
 
-	TEST_EQUALITY( vel1->getVecLength(), vel2->getVecLength() )
-	TEST_EQUALITY( vel2->getVecLength(), vel3->getVecLength() )
-	TEST_EQUALITY( vel1->getVecLength(), vel3->getVecLength() )
+	TEST_EQUALITY( vel1->getLength(), vel2->getLength() )
+	TEST_EQUALITY( vel2->getLength(), vel3->getLength() )
+	TEST_EQUALITY( vel1->getLength(), vel3->getLength() )
 
 	double norm;
-	int N = vel1->getVecLength();
+	int N = vel1->getLength();
 
 	vel1->init(0.);
 	vel2->init(1./2.);

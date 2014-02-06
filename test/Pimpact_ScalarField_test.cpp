@@ -94,7 +94,7 @@ TEUCHOS_UNIT_TEST( ScalarField, InfNorm_and_init ) {
 	  // test different float values, assures that initial and norm work smoothly
 		for( double i=0.; i< 200.1; ++i ) {
 			p->init(i/2.);
-			TEST_EQUALITY( std::pow(i/2.,2)*p->getVecLength(), p->norm(Belos::TwoNorm) );
+			TEST_EQUALITY( std::pow(i/2.,2)*p->getLength(), p->norm(Belos::TwoNorm) );
 		}
 	}
 
@@ -106,8 +106,8 @@ TEUCHOS_UNIT_TEST( ScalarField, dot ) {
 		auto q = Pimpact::createScalarField<double,int>(fS);
 
 
-		int Np = p->getVecLength();
-		int Nq = q->getVecLength();
+		int Np = p->getLength();
+		int Nq = q->getLength();
 		double dot;
 
 		TEST_EQUALITY( Np , Nq );
@@ -141,7 +141,7 @@ TEUCHOS_UNIT_TEST( ScalarField, scale ) {
 		auto p = Pimpact::createScalarField<double,int>(sVS);
 
 		double norm;
-		int N = p->getVecLength();
+		int N = p->getLength();
 
 		p->init(1.);
 		p->scale(2.);
@@ -157,7 +157,7 @@ TEUCHOS_UNIT_TEST( ScalarField, random ) {
 		auto p = Pimpact::createScalarField<double,int>(sVS);
 
 		double norm;
-		int N = p->getVecLength();
+		int N = p->getLength();
 
 		p->init(1.);
 		p->random();
@@ -177,7 +177,7 @@ TEUCHOS_UNIT_TEST( ScalarField, add ) {
 		auto p(q);
 
 		double norm;
-		int N = p->getVecLength();
+		int N = p->getLength();
 
 
 //		p->init(0.);
