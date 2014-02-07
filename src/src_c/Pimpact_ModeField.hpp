@@ -99,10 +99,8 @@ public:
 
 
 	//@}
-
-	/// @name Update methods
+	/// \name Update methods
 	//@{
-
 
 	/**
 	 * \brief Replace \c this with \f$\alpha A + \beta B\f$.
@@ -114,6 +112,35 @@ public:
 	}
 
 
+  /**
+   * \brief Put element-wise absolute values of source vector \c y into this
+   * vector.
+   *
+   * Here x represents this vector, and we update it as
+   * \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
+   * \return Reference to this object
+   * \todo implement me
+   */
+  void abs(const MV& y) {
+      fieldc_->abs( *y.fieldc_ );
+      fields_->abs( *y.fields_ );
+  }
+
+
+  /**
+    * \brief Put element-wise reciprocal of source vector \c y into this vector.
+    *
+    * Here x represents this vector, and we update it as
+    * \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
+    * \return Reference to this object
+    * \todo implement me
+    */
+   void reciprocal(const MV& y){
+      fieldc_->reciprocal( *y.fieldc_ );
+      fields_->reciprocal( *y.fields_ );
+   }
+
+
 	/**
 	 * \brief Scale each element of the vectors in \c this with \c alpha.
 	 */
@@ -121,6 +148,20 @@ public:
 		fieldc_->scale(alpha);
 		fields_->scale(alpha);
 	}
+
+
+  /**
+   * \brief Scale this vector <em>element-by-element</em> by the vector a.
+   *
+   * Here x represents this vector, and we update it as
+   * \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
+   * \return Reference to this object
+   * \todo implement me
+   */
+  void scale(const MV& a) {
+    fieldc_->scale( *a.fieldc_ );
+    fields_->scale( *a.fields_ );
+  }
 
 
 	/**
@@ -150,6 +191,18 @@ public:
   	default: std::cout << "!!! Warning unknown Belos::NormType:\t" << type << "\n"; return(0.);
 		}
 	}
+
+
+  /**
+   * \brief Weighted 2-Norm.
+   *
+   * Here x represents this vector, and we compute its weighted norm as follows:
+   * \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
+   * \return \f$ \|x\|_w \f$
+   */
+  double norm(const MV& weights) const {
+    return( fieldc_->norm( *weights.fieldc_)+fields_->norm( *weights.fields_ ) );
+  }
 
 
   //@}

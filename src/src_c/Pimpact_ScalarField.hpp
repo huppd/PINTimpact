@@ -17,13 +17,13 @@
 //#include "Pimpact_OperatorMV.hpp"
 
 
-namespace Pimpact {
 
+namespace Pimpact {
 
 extern "C" {
 
 
-void SV_add(
+void SF_add(
 	const int& N1,  const int& N2,  const int& N3,
 	const int& SS1, const int& SS2, const int& SS3,
 	const int& NN1, const int& NN2, const int& NN3,
@@ -33,7 +33,25 @@ void SV_add(
 	const double& scalar1, const double& scalar2);
 
 
-void SV_compNorm(const MPI_Fint& comm,
+void SF_abs(
+    const int& N1,  const int& N2,  const int& N3,
+    const int& SS1, const int& SS2, const int& SS3,
+    const int& NN1, const int& NN2, const int& NN3,
+    const int& b1L, const int& b2L, const int& b3L,
+    const int& b1U, const int& b2U, const int& b3U,
+    double* phi, const double* const  phi1 );
+
+
+void SF_reciprocal(
+    const int& N1,  const int& N2,  const int& N3,
+    const int& SS1, const int& SS2, const int& SS3,
+    const int& NN1, const int& NN2, const int& NN3,
+    const int& b1L, const int& b2L, const int& b3L,
+    const int& b1U, const int& b2U, const int& b3U,
+    double* phi, const double* const  phi1 );
+
+
+void SF_compNorm(const MPI_Fint& comm,
 	const int& N1,  const int& N2,  const int& N3,
 	const int& SS1, const int& SS2, const int& SS3,
 	const int& NN1, const int& NN2, const int& NN3,
@@ -45,7 +63,19 @@ void SV_compNorm(const MPI_Fint& comm,
 	double& normInf, double& normTwo);
 
 
-void SV_dot( const MPI_Fint& comm,
+void SF_weightedNorm(
+  const MPI_Fint& comm,
+  const int& N1,  const int& N2,  const int& N3,
+  const int& SS1, const int& SS2, const int& SS3,
+  const int& NN1, const int& NN2, const int& NN3,
+  const int& b1L, const int& b2L, const int& b3L,
+  const int& b1U, const int& b2U, const int& b3U,
+  double* phi,
+  const double* const weights,
+  double& norm);
+
+
+void SF_dot( const MPI_Fint& comm,
 	const int& N1,  const int& N2,  const int& N3,
 	const int& SS1, const int& SS2, const int& SS3,
 	const int& NN1, const int& NN2, const int& NN3,
@@ -54,7 +84,7 @@ void SV_dot( const MPI_Fint& comm,
 	const double* const phi1, const double* const phi2, double& scalar);
 
 
-void SV_scale(
+void SF_scale(
 	const int& N1,  const int& N2,  const int& N3,
 	const int& SS1, const int& SS2, const int& SS3,
 	const int& NN1, const int& NN2, const int& NN3,
@@ -63,7 +93,16 @@ void SV_scale(
 	double* phi, const double& scalar );
 
 
-void SV_random(
+void SF_scale2(
+    const int& N1,  const int& N2,  const int& N3,
+    const int& SS1, const int& SS2, const int& SS3,
+    const int& NN1, const int& NN2, const int& NN3,
+    const int& b1L, const int& b2L, const int& b3L,
+    const int& b1U, const int& b2U, const int& b3U,
+    double* phi, const double* const  phi1 );
+
+
+void SF_random(
 	const int& N1,  const int& N2,  const int& N3,
 	const int& SS1, const int& SS2, const int& SS3,
 	const int& NN1, const int& NN2, const int& NN3,
@@ -72,7 +111,7 @@ void SV_random(
 	double* phi );
 
 
-void SV_init(
+void SF_init(
 	const int& N1,  const int& N2,  const int& N3,
 	const int& SS1, const int& SS2, const int& SS3,
 	const int& NN1, const int& NN2, const int& NN3,
@@ -81,7 +120,7 @@ void SV_init(
 	double* phi, const double& scalar );
 
 
-void SV_print(
+void SF_print(
 	const int& N1,  const int& N2,  const int& N3,
 	const int& SS1, const int& SS2, const int& SS3,
 	const int& NN1, const int& NN2, const int& NN3,
@@ -207,7 +246,7 @@ public:
 	*/
 	void add( const Scalar& alpha, const MV& A, const Scalar& beta, const MV& B ) {
 		// add test for consistent VectorSpaces in debug mode
-		SV_add(
+		SF_add(
 						nLoc(0), nLoc(1), nLoc(2),
 						sInd(0), sInd(1), sInd(2),
 						eInd(0), eInd(1), eInd(2),
@@ -217,11 +256,52 @@ public:
 	}
 
 
+  /**
+   * \brief Put element-wise absolute values of source vector \c y into this
+   * vector.
+   *
+   * Here x represents this vector, and we update it as
+   * \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
+   * \return Reference to this object
+   * \todo implement me
+   */
+  void abs(const MV& y) {
+		// add test for consistent VectorSpaces in debug mode
+		SF_abs(
+						nLoc(0), nLoc(1), nLoc(2),
+						sInd(0), sInd(1), sInd(2),
+						eInd(0), eInd(1), eInd(2),
+						bl(0),   bl(1),   bl(2),
+						bu(0),   bu(1),   bu(2),
+						s_, y.s_ );
+  }
+
+
+  /**
+    * \brief Put element-wise reciprocal of source vector \c y into this vector.
+    *
+    * Here x represents this vector, and we update it as
+    * \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
+    * \return Reference to this object
+    * \todo implement me
+    */
+   void reciprocal(const MV& y){
+     // add test for consistent VectorSpaces in debug mode
+     SF_reciprocal(
+         nLoc(0), nLoc(1), nLoc(2),
+         sInd(0), sInd(1), sInd(2),
+         eInd(0), eInd(1), eInd(2),
+         bl(0),   bl(1),   bl(2),
+         bu(0),   bu(1),   bu(2),
+         s_, y.s_ );
+   }
+
+
 	/**
 	 * \brief Scale each element of the vector with \c alpha.
 	 */
 	void scale( const Scalar& alpha ) {
-		SV_scale(
+		SF_scale(
 					nLoc(0), nLoc(1), nLoc(2),
 					sInd(0), sInd(1), sInd(2),
 					eInd(0), eInd(1), eInd(2),
@@ -231,13 +311,33 @@ public:
 	}
 
 
+  /**
+   * \brief Scale this vector <em>element-by-element</em> by the vector a.
+   *
+   * Here x represents this vector, and we update it as
+   * \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
+   * \return Reference to this object
+   * \todo implement me
+   */
+  void scale(const MV& a) {
+    // add test for consistent VectorSpaces in debug mode
+    SF_scale2(
+        nLoc(0), nLoc(1), nLoc(2),
+        sInd(0), sInd(1), sInd(2),
+        eInd(0), eInd(1), eInd(2),
+        bl(0),   bl(1),   bl(2),
+        bu(0),   bu(1),   bu(2),
+        s_, a.s_ );
+  }
+
+
 	/**
 	 * \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
 	*/
 	Scalar dot ( const MV& a ) const {
 		/// \todo add test in debuging mode for testing equality of VectorSpaces
 		Scalar b;
-		SV_dot( commf(),
+		SF_dot( commf(),
 				nLoc(0), nLoc(1), nLoc(2),
 				sInd(0), sInd(1), sInd(2),
 				eInd(0), eInd(1), eInd(2),
@@ -270,7 +370,7 @@ public:
 
 		bool weighted = false;
 		Scalar normvec;
-		SV_compNorm(
+		SF_compNorm(
 				commf(),
 				nLoc(0), nLoc(1), nLoc(2),
 				sInd(0), sInd(1), sInd(2),
@@ -282,6 +382,28 @@ public:
 				normvec, normvec );
 		return( normvec );
 	}
+
+
+  /**
+   * \brief Weighted 2-Norm.
+   *
+   * Here x represents this vector, and we compute its weighted norm as follows:
+   * \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
+   * \return \f$ \|x\|_w \f$
+   */
+  double norm(const MV& weights) const {
+    Scalar normvec;
+    SF_weightedNorm(
+        commf(),
+        nLoc(0), nLoc(1), nLoc(2),
+        sInd(0), sInd(1), sInd(2),
+        eInd(0), eInd(1), eInd(2),
+          bl(0),   bl(1),   bl(2),
+          bu(0),   bu(1),   bu(2),
+        s_, weights.s_,
+        normvec );
+    return( normvec );
+  }
 
 
   //@}
@@ -318,7 +440,7 @@ public:
    * depending on Fortrans \c Random_number implementation, with always same seed => not save, if good randomness is requiered
    */
 	void random(bool useSeed = false, int seed = 1) {
-		SV_random(
+		SF_random(
 				nLoc(0), nLoc(1), nLoc(2),
 				sInd(0), sInd(1), sInd(2),
 				eInd(0), eInd(1), eInd(2),
@@ -331,7 +453,7 @@ public:
   /*! \brief Replace each element of the vector  with \c alpha.
    */
   void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero() ) {
-  	SV_init(
+  	SF_init(
 				nLoc(0), nLoc(1), nLoc(2),
 				sInd(0), sInd(1), sInd(2),
 				eInd(0), eInd(1), eInd(2),
@@ -375,7 +497,7 @@ public:
 //			std::cout << "\n";
 //		}
 		std::cout << "rank: " << rank << "\n";
-  	SV_print(
+  	SF_print(
 				nLoc(0), nLoc(1), nLoc(2),
 				sInd(0), sInd(1), sInd(2),
 				eInd(0), eInd(1), eInd(2),

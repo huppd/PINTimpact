@@ -215,6 +215,11 @@ public:
   bool HasConstantStride() const { return( true ); }
 
 
+  //@}
+  /// \name Update methods
+  //@{
+
+
   /**
    * \brief \f[ *this = \alpha A B + \beta *this \f]
    * \todo add debugtests
@@ -251,9 +256,38 @@ public:
    *	floating-point arithmetic. (Remember that NaN*0 = NaN.)
    */
   void add( Scalar alpha, const MV& A, Scalar beta, const MV& B ) {
-  	for( int i=0; i<A.getNumberVecs(); ++i )
+  	for( int i=0; i<getNumberVecs(); ++i )
   		mfs_[i]->add( alpha, *A.mfs_[i], beta, *B.mfs_[i] );
   }
+
+
+  /**
+   * \brief Put element-wise absolute values of source vector \c y into this
+   * vector.
+   *
+   * Here x represents this vector, and we update it as
+   * \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
+   * \return Reference to this object
+   * \todo implement me
+   */
+  void abs(const MV& y) {
+    for( int i=0; i<getNumberVecs(); ++i )
+      mfs_[i]->abs( *y.mfs_[i] );
+  }
+
+
+  /**
+    * \brief Put element-wise reciprocal of source vector \c y into this vector.
+    *
+    * Here x represents this vector, and we update it as
+    * \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
+    * \return Reference to this object
+    * \todo implement me
+    */
+   void reciprocal(const MV& y){
+    for( int i=0; i<getNumberVecs(); ++i )
+      mfs_[i]->reciprocal( *y.mfs_[i] );
+   }
 
 
   /**
@@ -265,6 +299,20 @@ public:
   void scale( const Scalar& alpha ) {
   	for( int i=0; i<getNumberVecs(); ++i )
   		mfs_[i]->scale(alpha);
+  }
+
+
+  /**
+   * \brief Scale this vector <em>element-by-element</em> by the vector a.
+   *
+   * Here x represents this vector, and we update it as
+   * \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
+   * \return Reference to this object
+   * \todo implement me
+   */
+  void scale(const MV& a) {
+    for( int i=0; i<getNumberVecs(); ++i )
+      mfs_[i]->scale( *a.mfs_[i] );
   }
 
 
@@ -307,6 +355,8 @@ public:
   			C(i,j) = alpha*mfs_[i]->dot( *A.mfs_[j] );
   }
 
+
+  //@}
 
   /// For all columns j of A, set <tt>dots[j] := A[j]^T * B[j]</tt>.
   void dot( const MV& A, std::vector<Scalar>& dots) const {
@@ -353,14 +403,27 @@ public:
 	Scalar norm(  Belos::NormType type = Belos::TwoNorm ) const {
 		int n = getNumberVecs();
 		Scalar nor=0.;
-		std::vector<typename Teuchos::ScalarTraits<Scalar>::magnitudeType> normvec( n );
-		norm( normvec, type );
 
 		for( int i=0; i<n; ++i ) {
-			nor += normvec[i];
+			nor += mfs_[i]->norm(type);
 		}
 		return( nor );
 	}
+
+
+  /**
+   * \brief Weighted 2-Norm.
+   *
+   * Here x represents this vector, and we compute its weighted norm as follows:
+   * \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
+   * \return \f$ \|x\|_w \f$
+   */
+  double norm(const MV& weights) const {
+    double nor=0.;
+    for( int i=0; i<getNumberVecs(); ++i )
+      nor+= mfs_[i]->norm( *weights.mfs_[i] );
+    return( nor );
+  }
 
 
   /**

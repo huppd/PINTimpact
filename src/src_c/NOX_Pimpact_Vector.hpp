@@ -41,7 +41,7 @@ namespace Pimpact{
  *
  */
 template<class Field>
-class Vector : NOX::Abstract::Vector {
+class Vector : public NOX::Abstract::Vector {
 
 public:
 
@@ -93,9 +93,9 @@ public:
    * Here x represents this vector, and we update it as
    * \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
    * \return Reference to this object
-   * \todo implement me
    */
   virtual NOX::Abstract::Vector& abs(const Vector<Field>& y) {
+    field_->abs( *y.field_ );
   	return( *this );
   }
   virtual NOX::Abstract::Vector& abs(const NOX::Abstract::Vector& y) {
@@ -125,9 +125,9 @@ public:
    * Here x represents this vector, and we update it as
    * \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
    * \return Reference to this object
-   * \todo implement me
-  */
+   */
   virtual NOX::Abstract::Vector& reciprocal(const Vector<Field>& y){
+    field_->reciprocal( *y.field_ );
   	return( *this );
   }
   virtual NOX::Abstract::Vector& reciprocal(const NOX::Abstract::Vector& y){
@@ -158,9 +158,9 @@ public:
    * Here x represents this vector, and we update it as
    * \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
    * \return Reference to this object
-   * \todo implement me
    */
   virtual NOX::Abstract::Vector& scale(const Vector<Field>& a) {
+    field_->scale( *a.field_ );
   	return( *this );
   }
   virtual NOX::Abstract::Vector& scale(const NOX::Abstract::Vector& a) {
@@ -227,17 +227,21 @@ public:
    * assumption</em> that a vector created by ShapeCopy is initialized to zeros.
    * \return Pointer to newly created vector or NULL if clone is not supported.
    * \todo implement
+   * \warning only Deep copy is working
+   * \todo fix schallow copy
    */
   virtual Teuchos::RCP<NOX::Abstract::Vector >
   clone(NOX::CopyType type = NOX::DeepCopy) const {
-//  	switch(type) {
-//  	case NOX::DeepCopy:
-//  		return( Teuchos::rcp(new Vector<Field>( field_->clone( Pimpact::DeepCopy) ) ) );
-//  	case NOX::ShapeCopy:
+  	switch(type) {
+  	case NOX::DeepCopy:
+  		return( Teuchos::rcp(new Vector<Field>( field_->clone() ) ) );
+  	case NOX::ShapeCopy:
+  		return( Teuchos::rcp(new Vector<Field>( field_->clone() ) ) );
 //  		return( Teuchos::rcp(new Vector<Field>( field_->clone( Pimpact::ShallowCopy) ) ) );
-//  	}
-  	//
-  	return( Teuchos::null );
+  	default:
+  	  return Teuchos::null;
+  	}
+
   }
 
 
@@ -295,10 +299,10 @@ public:
    * Here x represents this vector, and we compute its weighted norm as follows:
    * \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
    * \return \f$ \|x\|_w \f$
-   * \todo implement me
-  */
+   */
   virtual double norm(const Vector<Field>& weights) const {
-  	return( 0. );
+  	return( field_->norm( *weights.field_) );
+//    return 0.;
   }
   virtual double norm(const NOX::Abstract::Vector& weights) const {
   	return( norm( dynamic_cast<const Vector<Field>& >(weights) ) );

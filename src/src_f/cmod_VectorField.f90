@@ -296,6 +296,71 @@ module cmod_VectorField
   end subroutine get_norms_vel
 
 
+  !> brief computes weighted two norm
+  !! \todo add all parameters to make it more flexible
+  !!
+  !! \param[in] phi velocity vector, from which the norm is taken
+  !! \param[in] inf_yes if true infinity norm is computed
+  !! \param[in] two_yes if trhue two norm is computed
+  !! \param[out] normInf gets the infinity norm of phi
+  !! \param[out] normTwo get the two norm of phi
+  subroutine get_weighted_norm_vel(phiU,phiV,phiW, wU, wV, wW, norm) bind (c,name='VF_weightedNorm')
+
+  implicit none
+
+  real(c_double),  intent(in)    ::  phiU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double),  intent(in)    ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double),  intent(in)    ::  phiW(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+
+  real(c_double),  intent(in)    ::  wU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double),  intent(in)    ::  wV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double),  intent(in)    ::  wW(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+
+
+  real(c_double),  intent(out)   ::  norm
+
+  real(c_double)                 ::  norm_global
+  integer                        ::  i, j, k
+
+
+    norm = 0.
+
+    do k = S31, N31
+        do j = S21, N21
+!pgi$ unroll = n:8
+            do i = S11, N11
+                norm = norm + (wU(i,j,k)*phiU(i,j,k))**2
+            end do
+        end do
+    end do
+
+    do k = S32, N32
+        do j = S22, N22
+!pgi$ unroll = n:8
+            do i = S12, N12
+                norm = norm + (wV(i,j,k)*phiV(i,j,k))**2
+            end do
+        end do
+    end do
+
+    if (dimens == 3) then
+        do k = S33, N33
+            do j = S23, N23
+!pgi$ unroll = n:8
+                do i = S13, N13
+                    norm = norm + (wW(i,j,k)*phiW(i,j,k))**2
+                end do
+            end do
+        end do
+    end if
+
+    ! Lassen sich wegen MPI_SUM / MPI_MAX nicht zusammenlegen:
+    call MPI_ALLREDUCE(norm,norm_global,1,MPI_REAL8,MPI_SUM,COMM_CART,merror)
+    norm = norm_global
+
+  end subroutine get_weighted_norm_vel
+
+
   !> \brief init vector field with 2d Poiseuille flow in x-direction
   subroutine cinit_2DPoiseuilleX( phiU, phiV, phiW ) bind ( c, name='VF_init_2DPoiseuilleX' )
   ! (basic subroutine)

@@ -15,7 +15,6 @@ module cmod_ScalarVector
   contains
 
   !> \brief computes scalar product of two scalar fields(neccessary condition belong to same sVS)
-  !! \param[in] COMM_CART communicator belonging to vector
   !! \param[in] N1 ammount of local elements in 1-direction
   !! \param[in] N2 ammount of local elements in 2-direction
   !! \param[in] N3 ammount of local elements in 3-direction
@@ -37,7 +36,7 @@ module cmod_ScalarVector
   !! \param[in] inf_yes if true infinity norm is computed
   !! \param[in] two_yes if trhue two norm is computed
   !! \test if comm_cart is neccessary, or if comm is enough or even better
-  subroutine add(N1,N2,N3,SS1,SS2,SS3,NN1,NN2,NN3,b1L,b2L,b3L,b1U,b2U,b3U,phi,phi1,phi2,scalar1,scalar2) bind ( c, name='SV_add' )
+  subroutine SF_add(N1,N2,N3,SS1,SS2,SS3,NN1,NN2,NN3,b1L,b2L,b3L,b1U,b2U,b3U,phi,phi1,phi2,scalar1,scalar2) bind ( c, name='SF_add' )
 
   implicit none
 
@@ -63,17 +62,148 @@ module cmod_ScalarVector
   integer(c_int), intent(in)    ::  b2U
   integer(c_int), intent(in)    ::  b3U
 
-  real(c_double),  intent(out)   ::  phi (b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  real(c_double),  intent(in)    ::  phi1(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  real(c_double),  intent(in)    ::  phi2(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double), intent(inout) ::  phi (b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double), intent(in)    ::  phi1(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double), intent(in)    ::  phi2(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
 
   real(c_double),  intent(in)   ::  scalar1
   real(c_double),  intent(in)   ::  scalar2
 
 
-    phi(SS1:NN1,SS2:NN2,SS3:NN3) = scalar1*phi1(SS1:NN1,SS2:NN2,SS3:NN3)+scalar2*phi2(SS1:NN1,SS2:NN2,SS3:NN3)
+  phi(SS1:NN1,SS2:NN2,SS3:NN3) = scalar1*phi1(SS1:NN1,SS2:NN2,SS3:NN3)+scalar2*phi2(SS1:NN1,SS2:NN2,SS3:NN3)
 
-  end subroutine add
+  end subroutine SF_add
+
+
+  !> \brief copys absolute value from \c phi1 in \phi
+  !! \param[in] N1 ammount of local elements in 1-direction
+  !! \param[in] N2 ammount of local elements in 2-direction
+  !! \param[in] N3 ammount of local elements in 3-direction
+  !! \param[in] SS1 start index in 1-direction
+  !! \param[in] SS2 start index in 1-direction
+  !! \param[in] SS3 start index in 1-direction
+  !! \param[in] NN1 end index in 1-direction
+  !! \param[in] NN2 end index in 2-direction
+  !! \param[in] NN3 end index in 3-direction
+  !! \param[in] b1L start index of storage in 1-direction
+  !! \param[in] b2L start index of storage in 2-direction
+  !! \param[in] b3L start index of storage in 3-direction
+  !! \param[in] b1U end offset of storage in 1-direction
+  !! \param[in] b2U end offset of storage in 2-direction
+  !! \param[in] b3U end offset of storage in 3-direction
+  !! \param[in] phi1 first vector from which is taken the product
+  !! \param[in] phi2 second vector from which is taken the product
+  !! \param[in] weighting_yes if weighting schould be used, using the \c weights from \c mod_vars
+  !! \param[in] inf_yes if true infinity norm is computed
+  !! \param[in] two_yes if trhue two norm is computed
+  subroutine SF_abs(N1,N2,N3,SS1,SS2,SS3,NN1,NN2,NN3,b1L,b2L,b3L,b1U,b2U,b3U,phi,phi1) bind ( c, name='SF_abs' )
+
+  implicit none
+
+!  integer(c_int), intent(in)    ::  COMM_CART
+
+  integer(c_int), intent(in)    ::  N1
+  integer(c_int), intent(in)    ::  N2
+  integer(c_int), intent(in)    ::  N3
+
+  integer(c_int), intent(in)    ::  SS1
+  integer(c_int), intent(in)    ::  SS2
+  integer(c_int), intent(in)    ::  SS3
+
+  integer(c_int), intent(in)    ::  NN1
+  integer(c_int), intent(in)    ::  NN2
+  integer(c_int), intent(in)    ::  NN3
+
+  integer(c_int), intent(in)    ::  b1L
+  integer(c_int), intent(in)    ::  b2L
+  integer(c_int), intent(in)    ::  b3L
+
+  integer(c_int), intent(in)    ::  b1U
+  integer(c_int), intent(in)    ::  b2U
+  integer(c_int), intent(in)    ::  b3U
+
+  real(c_double), intent(inout) ::  phi (b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double), intent(in)    ::  phi1(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+
+  integer                       ::  i, j, k
+
+  do k = SS3, NN3
+    do j = SS2, NN2
+!pgi$ unroll = n:8
+      do i = SS1, NN1
+        phi(i,j,k) = abs( phi1(i,j,k) )
+      end do
+    end do
+  end do
+
+  end subroutine SF_abs
+
+
+  !> \brief copys reciprocal value from \c phi1 in \phi
+  !! \param[in] N1 ammount of local elements in 1-direction
+  !! \param[in] N2 ammount of local elements in 2-direction
+  !! \param[in] N3 ammount of local elements in 3-direction
+  !! \param[in] SS1 start index in 1-direction
+  !! \param[in] SS2 start index in 1-direction
+  !! \param[in] SS3 start index in 1-direction
+  !! \param[in] NN1 end index in 1-direction
+  !! \param[in] NN2 end index in 2-direction
+  !! \param[in] NN3 end index in 3-direction
+  !! \param[in] b1L start index of storage in 1-direction
+  !! \param[in] b2L start index of storage in 2-direction
+  !! \param[in] b3L start index of storage in 3-direction
+  !! \param[in] b1U end offset of storage in 1-direction
+  !! \param[in] b2U end offset of storage in 2-direction
+  !! \param[in] b3U end offset of storage in 3-direction
+  !! \param[in] phi1 first vector from which is taken the product
+  !! \param[in] phi2 second vector from which is taken the product
+  !! \param[in] weighting_yes if weighting schould be used, using the \c weights from \c mod_vars
+  !! \param[in] inf_yes if true infinity norm is computed
+  !! \param[in] two_yes if trhue two norm is computed
+  subroutine SF_reciprocal(N1,N2,N3,SS1,SS2,SS3,NN1,NN2,NN3,b1L,b2L,b3L,b1U,b2U,b3U,phi,phi1) bind ( c, name='SF_reciprocal' )
+
+  implicit none
+
+
+  integer(c_int), intent(in)    ::  N1
+  integer(c_int), intent(in)    ::  N2
+  integer(c_int), intent(in)    ::  N3
+
+  integer(c_int), intent(in)    ::  SS1
+  integer(c_int), intent(in)    ::  SS2
+  integer(c_int), intent(in)    ::  SS3
+
+  integer(c_int), intent(in)    ::  NN1
+  integer(c_int), intent(in)    ::  NN2
+  integer(c_int), intent(in)    ::  NN3
+
+  integer(c_int), intent(in)    ::  b1L
+  integer(c_int), intent(in)    ::  b2L
+  integer(c_int), intent(in)    ::  b3L
+
+  integer(c_int), intent(in)    ::  b1U
+  integer(c_int), intent(in)    ::  b2U
+  integer(c_int), intent(in)    ::  b3U
+
+  real(c_double), intent(inout)   ::  phi (b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double), intent(in)    ::  phi1(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+
+  integer                       ::  i, j, k
+
+    do k = SS3, NN3
+      do j = SS2, NN2
+!pgi$ unroll = n:8
+        do i = SS1, NN1
+          if( phi1(i,j,k) .EQ. 0. ) then
+            phi(i,j,k) = 0.
+          else
+            phi(i,j,k) = 1./phi1(i,j,k)
+          end if
+        end do
+      end do
+    end do
+
+  end subroutine SF_reciprocal
 
 
   !> \brief computes scalar product of two scalar fields(neccessary condition belong to same sVS)
@@ -99,7 +229,7 @@ module cmod_ScalarVector
   !! \param[in] inf_yes if true infinity norm is computed
   !! \param[in] two_yes if trhue two norm is computed
   !! \test if comm_cart is neccessary, or if comm is enough or even better
-  subroutine product_scalar(COMM_CART,N1,N2,N3,SS1,SS2,SS3,NN1,NN2,NN3,b1L,b2L,b3L,b1U,b2U,b3U,phi1,phi2,scalar) bind ( c, name='SV_dot' )
+  subroutine product_scalar(COMM_CART,N1,N2,N3,SS1,SS2,SS3,NN1,NN2,NN3,b1L,b2L,b3L,b1U,b2U,b3U,phi1,phi2,scalar) bind ( c, name='SF_dot' )
 
   implicit none
 
@@ -125,11 +255,11 @@ module cmod_ScalarVector
   integer(c_int), intent(in)    ::  b2U
   integer(c_int), intent(in)    ::  b3U
 
-  real(c_double),  intent(in)    ::  phi1(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  real(c_double),  intent(in)    ::  phi2(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double), intent(in)    ::  phi1(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double), intent(in)    ::  phi2(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
 
-  real(c_double),  intent(out)   ::  scalar
-  real(c_double)                 ::  scalar_global
+  real(c_double), intent(out)   ::  scalar
+  real(c_double)                ::  scalar_global
   integer                       ::  i, j, k
   integer                       ::  merror
 
@@ -177,39 +307,39 @@ module cmod_ScalarVector
   !! \param[out] normTwo get the two norm of phi
   !! \todo weight (easydirty fix: include module) (good persisting fix: move to pimpact)
   ! TEST!!! N1, N2, N3 werden ebenfalls uebergeben ...
-  subroutine get_norms(comm,N1,N2,N3,SS1,SS2,SS3,NN1,NN2,NN3,b1L,b2L,b3L,b1U,b2U,b3U,phi,weighting_yes,inf_yes,two_yes,normInf,normTwo) bind (c, name='SV_compNorm')
+  subroutine get_norms(comm,N1,N2,N3,SS1,SS2,SS3,NN1,NN2,NN3,b1L,b2L,b3L,b1U,b2U,b3U,phi,weighting_yes,inf_yes,two_yes,normInf,normTwo) bind (c, name='SF_compNorm')
   implicit none
 
-  integer(c_int), intent(in)    ::  comm
+  integer(c_int), intent(in)  ::  comm
 
-  integer(c_int), intent(in)    ::  N1
-  integer(c_int), intent(in)    ::  N2
-  integer(c_int), intent(in)    ::  N3
+  integer(c_int), intent(in)  ::  N1
+  integer(c_int), intent(in)  ::  N2
+  integer(c_int), intent(in)  ::  N3
 
-  integer(c_int), intent(in)    ::  SS1
-  integer(c_int), intent(in)    ::  SS2
-  integer(c_int), intent(in)    ::  SS3
+  integer(c_int), intent(in)  ::  SS1
+  integer(c_int), intent(in)  ::  SS2
+  integer(c_int), intent(in)  ::  SS3
 
-  integer(c_int), intent(in)    ::  NN1
-  integer(c_int), intent(in)    ::  NN2
-  integer(c_int), intent(in)    ::  NN3
+  integer(c_int), intent(in)  ::  NN1
+  integer(c_int), intent(in)  ::  NN2
+  integer(c_int), intent(in)  ::  NN3
 
-  integer(c_int), intent(in)    ::  b1L
-  integer(c_int), intent(in)    ::  b2L
-  integer(c_int), intent(in)    ::  b3L 
+  integer(c_int), intent(in)  ::  b1L
+  integer(c_int), intent(in)  ::  b2L
+  integer(c_int), intent(in)  ::  b3L
 
-  integer(c_int), intent(in)    ::  b1U
-  integer(c_int), intent(in)    ::  b2U
-  integer(c_int), intent(in)    ::  b3U 
+  integer(c_int), intent(in)  ::  b1U
+  integer(c_int), intent(in)  ::  b2U
+  integer(c_int), intent(in)  ::  b3U
 
-  real(c_double),  intent(in)    ::  phi(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double), intent(in)  ::  phi(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
 
-  logical(c_bool), intent(in)   ::  weighting_yes
-  logical(c_bool), intent(in)   ::  inf_yes
-  logical(c_bool), intent(in)   ::  two_yes
+  logical(c_bool),intent(in)  ::  weighting_yes
+  logical(c_bool),intent(in)  ::  inf_yes
+  logical(c_bool),intent(in)  ::  two_yes
 
-  real(c_double),  intent(out) ::  normInf
-  real(c_double),  intent(out) ::  normTwo
+  real(c_double), intent(out) ::  normInf
+  real(c_double), intent(out) ::  normTwo
 
   real(c_double)                        ::  normInf_global, normTwo_global
   integer                              ::  i, j, k
@@ -307,7 +437,83 @@ module cmod_ScalarVector
   end subroutine get_norms
 
 
-  subroutine scale(N1,N2,N3,SS1,SS2,SS3,NN1,NN2,NN3,b1L,b2L,b3L,b1U,b2U,b3U,phi,scalar) bind ( c, name='SV_scale' )
+  !> \brief computes two or infinity norm( get is misleading)
+  !! \param[in] comm communicator belonging to vector
+  !! \param[in] N1 ammount of local elements in 1-direction
+  !! \param[in] N2 ammount of local elements in 2-direction
+  !! \param[in] N3 ammount of local elements in 3-direction
+  !! \param[in] SS1 start index in 1-direction
+  !! \param[in] SS2 start index in 1-direction
+  !! \param[in] SS3 start index in 1-direction
+  !! \param[in] NN1 end index in 1-direction
+  !! \param[in] NN2 end index in 2-direction
+  !! \param[in] NN3 end index in 3-direction
+  !! \param[in] b1L start index of storage in 1-direction
+  !! \param[in] b2L start index of storage in 2-direction
+  !! \param[in] b3L start index of storage in 3-direction
+  !! \param[in] b1U end offset of storage in 1-direction
+  !! \param[in] b2U end offset of storage in 2-direction
+  !! \param[in] b3U end offset of storage in 3-direction
+  !! \param[in] phi vector, from which the norm is taken
+  !! \param[in] weights weights
+  !! \todo weight (easydirty fix: include module) (good persisting fix: move to pimpact)
+  ! TEST!!! N1, N2, N3 werden ebenfalls uebergeben ...
+  subroutine get_weighted_norms(comm,N1,N2,N3,SS1,SS2,SS3,NN1,NN2,NN3,b1L,b2L,b3L,b1U,b2U,b3U,phi,weights,norm) bind (c, name='SF_weightedNorm')
+  implicit none
+
+  integer(c_int), intent(in)  ::  comm
+
+  integer(c_int), intent(in)  ::  N1
+  integer(c_int), intent(in)  ::  N2
+  integer(c_int), intent(in)  ::  N3
+
+  integer(c_int), intent(in)  ::  SS1
+  integer(c_int), intent(in)  ::  SS2
+  integer(c_int), intent(in)  ::  SS3
+
+  integer(c_int), intent(in)  ::  NN1
+  integer(c_int), intent(in)  ::  NN2
+  integer(c_int), intent(in)  ::  NN3
+
+  integer(c_int), intent(in)  ::  b1L
+  integer(c_int), intent(in)  ::  b2L
+  integer(c_int), intent(in)  ::  b3L
+
+  integer(c_int), intent(in)  ::  b1U
+  integer(c_int), intent(in)  ::  b2U
+  integer(c_int), intent(in)  ::  b3U
+
+  real(c_double), intent(in)  ::  phi(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double), intent(in)  ::  weights(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+
+
+  real(c_double), intent(out) ::  norm
+
+  real(c_double)              ::  norm_global
+  integer                     ::  i, j, k
+
+  integer                     :: merror
+
+
+    norm = 0.
+
+    do k = SS3, NN3
+        do j = SS2, NN2
+!pgi$ unroll = n:8
+            do i = SS1, NN1
+                norm = norm + ( weights(i,j,k)*phi(i,j,k) )**2
+            end do
+        end do
+     end do
+
+
+     call MPI_ALLREDUCE(norm,norm_global,1,MPI_REAL8,MPI_SUM,comm,merror) ! MPI_REDUCE bringt nichts, weil exit_yes dann mit MPI_BCAST verteilt werden müsste ...
+     norm = norm_global
+
+  end subroutine get_weighted_norms
+
+
+  subroutine scale(N1,N2,N3,SS1,SS2,SS3,NN1,NN2,NN3,b1L,b2L,b3L,b1U,b2U,b3U,phi,scalar) bind ( c, name='SF_scale' )
 
   implicit none
 
@@ -333,7 +539,7 @@ module cmod_ScalarVector
   integer(c_int), intent(in)    ::  b2U
   integer(c_int), intent(in)    ::  b3U
 
-  real(c_double),  intent(inout)    ::  phi(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double), intent(inout) ::  phi(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
 
 
   real(c_double), intent(in) ::  scalar
@@ -343,7 +549,74 @@ module cmod_ScalarVector
   end subroutine scale
 
 
-  subroutine random(N1,N2,N3,SS1,SS2,SS3,NN1,NN2,NN3,b1L,b2L,b3L,b1U,b2U,b3U,phi) bind ( c, name='SV_random' )
+  !> \brief scales \c phi with \phi1.
+  !! \param[in] N1 ammount of local elements in 1-direction
+  !! \param[in] N2 ammount of local elements in 2-direction
+  !! \param[in] N3 ammount of local elements in 3-direction
+  !! \param[in] SS1 start index in 1-direction
+  !! \param[in] SS2 start index in 1-direction
+  !! \param[in] SS3 start index in 1-direction
+  !! \param[in] NN1 end index in 1-direction
+  !! \param[in] NN2 end index in 2-direction
+  !! \param[in] NN3 end index in 3-direction
+  !! \param[in] b1L start index of storage in 1-direction
+  !! \param[in] b2L start index of storage in 2-direction
+  !! \param[in] b3L start index of storage in 3-direction
+  !! \param[in] b1U end offset of storage in 1-direction
+  !! \param[in] b2U end offset of storage in 2-direction
+  !! \param[in] b3U end offset of storage in 3-direction
+  !! \param[in] phi1 first vector from which is taken the product
+  !! \param[in] phi2 second vector from which is taken the product
+  !! \param[in] weighting_yes if weighting schould be used, using the \c weights from \c mod_vars
+  !! \param[in] inf_yes if true infinity norm is computed
+  !! \param[in] two_yes if trhue two norm is computed
+  subroutine SF_scale2(N1,N2,N3,SS1,SS2,SS3,NN1,NN2,NN3,b1L,b2L,b3L,b1U,b2U,b3U,phi,phi1) bind ( c, name='SF_scale2' )
+
+  implicit none
+
+
+  integer(c_int), intent(in)    ::  N1
+  integer(c_int), intent(in)    ::  N2
+  integer(c_int), intent(in)    ::  N3
+
+  integer(c_int), intent(in)    ::  SS1
+  integer(c_int), intent(in)    ::  SS2
+  integer(c_int), intent(in)    ::  SS3
+
+  integer(c_int), intent(in)    ::  NN1
+  integer(c_int), intent(in)    ::  NN2
+  integer(c_int), intent(in)    ::  NN3
+
+  integer(c_int), intent(in)    ::  b1L
+  integer(c_int), intent(in)    ::  b2L
+  integer(c_int), intent(in)    ::  b3L
+
+  integer(c_int), intent(in)    ::  b1U
+  integer(c_int), intent(in)    ::  b2U
+  integer(c_int), intent(in)    ::  b3U
+
+  real(c_double), intent(inout) ::  phi (b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double), intent(in)    ::  phi1(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+
+  integer                       ::  i, j, k
+
+    do k = SS3, NN3
+      do j = SS2, NN2
+!pgi$ unroll = n:8
+        do i = SS1, NN1
+          if( phi1(i,j,k) .EQ. 0. ) then
+            phi(i,j,k) = 0.
+          else
+            phi(i,j,k) = phi(i,j,k)*phi1(i,j,k)
+          end if
+        end do
+      end do
+    end do
+
+  end subroutine SF_scale2
+
+
+  subroutine random(N1,N2,N3,SS1,SS2,SS3,NN1,NN2,NN3,b1L,b2L,b3L,b1U,b2U,b3U,phi) bind ( c, name='SF_random' )
 
   implicit none
 
@@ -377,7 +650,7 @@ module cmod_ScalarVector
   end subroutine random
 
 
-  subroutine init(N1,N2,N3,SS1,SS2,SS3,NN1,NN2,NN3,b1L,b2L,b3L,b1U,b2U,b3U,phi,scalar) bind ( c, name='SV_init' )
+  subroutine init(N1,N2,N3,SS1,SS2,SS3,NN1,NN2,NN3,b1L,b2L,b3L,b1U,b2U,b3U,phi,scalar) bind ( c, name='SF_init' )
 
   implicit none
 
@@ -413,7 +686,7 @@ module cmod_ScalarVector
   end subroutine init
 
 
-  subroutine print(N1,N2,N3,SS1,SS2,SS3,NN1,NN2,NN3,b1L,b2L,b3L,b1U,b2U,b3U,phi) bind ( c, name='SV_print' )
+  subroutine print(N1,N2,N3,SS1,SS2,SS3,NN1,NN2,NN3,b1L,b2L,b3L,b1U,b2U,b3U,phi) bind ( c, name='SF_print' )
 
   implicit none
 
@@ -439,7 +712,7 @@ module cmod_ScalarVector
   integer(c_int), intent(in)    ::  b2U
   integer(c_int), intent(in)    ::  b3U
 
-  real(c_double),  intent(in)    ::  phi(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double),  intent(inout)    ::  phi(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
   integer                       ::  i,j,k
 
 

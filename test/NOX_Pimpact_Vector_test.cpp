@@ -161,6 +161,230 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, TwoNorm_and_init ) {
 }
 
 
+TEUCHOS_UNIT_TEST( NOXPimpactVector, add ) {
+  typedef double S;
+  typedef int O;
+  typedef Pimpact::ScalarField<S,O> SF;
+  typedef Pimpact::VectorField<S,O> VF;
+  typedef Pimpact::ModeField<SF> MSF;
+  typedef Pimpact::ModeField<VF> MVF;
+  typedef Pimpact::MultiField< MSF> BMSF;
+  typedef Pimpact::MultiField< MVF> BMVF;
+  typedef Pimpact::CompoundField< BMVF, BMSF > CF;
+  typedef NOX::Pimpact::Vector<CF> NV;
+
+
+  auto fS  = Pimpact::createFieldSpace<O>();
+  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+
+  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::ZeroFLow, fS, iIS, fIS );
+
+  auto xs = Pimpact::createInitMSF<S,O>( fS );
+
+  auto x  = Pimpact::createCompoundField( xv, xs );
+
+  Teuchos::RCP<NV> vel1 = Teuchos::rcp(new NV(x) );
+  Teuchos::RCP<NV> vel2 = Teuchos::rcp(new NV( x->clone(Pimpact::ShallowCopy) ) );
+
+  double dot;
+
+  TEST_EQUALITY( vel1->length(), vel2->length() )
+
+  int N = vel1->length();
+
+  vel1->init(0.);
+  vel2->abs( *vel1 );
+  dot = vel1->innerProduct(*vel2);
+  TEST_EQUALITY( 0, dot );
+
+  vel1->init(1.);
+  vel2->abs( *vel1 );
+  dot = vel1->innerProduct(*vel2);
+  TEST_EQUALITY( N, dot );
+
+  vel1->init(-1.);
+  vel2->abs( *vel1 );
+  dot = vel2->innerProduct(*vel1);
+  TEST_EQUALITY( -N, dot );
+
+}
+
+
+TEUCHOS_UNIT_TEST( NOXPimpactVector, reciprocal ) {
+  typedef double S;
+  typedef int O;
+  typedef Pimpact::ScalarField<S,O> SF;
+  typedef Pimpact::VectorField<S,O> VF;
+  typedef Pimpact::ModeField<SF> MSF;
+  typedef Pimpact::ModeField<VF> MVF;
+  typedef Pimpact::MultiField< MSF> BMSF;
+  typedef Pimpact::MultiField< MVF> BMVF;
+  typedef Pimpact::CompoundField< BMVF, BMSF > CF;
+  typedef NOX::Pimpact::Vector<CF> NV;
+
+
+  auto fS  = Pimpact::createFieldSpace<O>();
+  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+
+  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::ZeroFLow, fS, iIS, fIS );
+
+  auto xs = Pimpact::createInitMSF<S,O>( fS );
+
+  auto x  = Pimpact::createCompoundField( xv, xs );
+
+  Teuchos::RCP<NV> vel1 = Teuchos::rcp(new NV(x) );
+  Teuchos::RCP<NV> vel2 = Teuchos::rcp(new NV( x->clone(Pimpact::ShallowCopy) ) );
+
+  double dot;
+
+  TEST_EQUALITY( vel1->length(), vel2->length() )
+
+  int N = vel1->length();
+
+  vel1->init(0.);
+  vel2->reciprocal( *vel1 );
+  dot = vel1->innerProduct(*vel2);
+  TEST_EQUALITY( 0., dot );
+
+  vel1->init(1.);
+  vel2->reciprocal( *vel1 );
+  dot = vel1->innerProduct(*vel2);
+  TEST_EQUALITY( N, dot );
+
+  vel1->init(-1.);
+  vel2->reciprocal( *vel1 );
+  dot = vel2->innerProduct(*vel1);
+  TEST_EQUALITY( N, dot );
+
+  vel1->random();
+  vel2->reciprocal( *vel1 );
+  dot = vel2->innerProduct(*vel1);
+  TEST_EQUALITY( N, dot );
+
+}
+
+
+TEUCHOS_UNIT_TEST( NOXPimpactVector, norm_weighted ) {
+  typedef double                                 S;
+  typedef int                                    O;
+  typedef Pimpact::ScalarField<S,O>             SF;
+  typedef Pimpact::VectorField<S,O>             VF;
+  typedef Pimpact::ModeField<SF>               MSF;
+  typedef Pimpact::ModeField<VF>               MVF;
+  typedef Pimpact::MultiField< MSF>           BMSF;
+  typedef Pimpact::MultiField< MVF>           BMVF;
+  typedef Pimpact::CompoundField< BMVF, BMSF >  CF;
+  typedef NOX::Pimpact::Vector<CF>              NV;
+
+
+  auto fS  = Pimpact::createFieldSpace<O>();
+  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+
+  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::ZeroFLow, fS, iIS, fIS );
+
+  auto xs = Pimpact::createInitMSF<S,O>( fS );
+
+  auto x  = Pimpact::createCompoundField( xv, xs );
+
+  Teuchos::RCP<NV> vel1 = Teuchos::rcp(new NV(x) );
+  Teuchos::RCP<NV> vel2 = Teuchos::rcp(new NV( x->clone(Pimpact::ShallowCopy) ) );
+
+  double norm;
+
+  TEST_EQUALITY( vel1->length(), vel2->length() )
+
+  int N = vel1->length();
+
+  vel1->init(0.);
+  vel2->reciprocal( *vel1 );
+  norm = vel1->norm(*vel2);
+  TEST_EQUALITY( 0., norm );
+
+  vel1->init(1.);
+  vel2->reciprocal( *vel1 );
+  norm = vel1->norm(*vel2);
+  TEST_EQUALITY( N, norm );
+
+  vel1->init(-1.);
+  vel2->reciprocal( *vel1 );
+  norm = vel2->norm(*vel1);
+  TEST_EQUALITY( N, norm );
+
+  vel1->init(2.);
+  vel2->reciprocal( *vel1 );
+  norm = vel2->norm(*vel1);
+  TEST_EQUALITY( N, norm );
+
+  vel1->random();
+  vel2->reciprocal( *vel1 );
+  norm = vel2->norm(*vel1);
+  TEST_EQUALITY( N, norm );
+
+}
+
+
+TEUCHOS_UNIT_TEST( NOXPimpactVector, scale2 ) {
+  typedef double S;
+  typedef int O;
+  typedef Pimpact::ScalarField<S,O> SF;
+  typedef Pimpact::VectorField<S,O> VF;
+  typedef Pimpact::ModeField<SF> MSF;
+  typedef Pimpact::ModeField<VF> MVF;
+  typedef Pimpact::MultiField< MSF> BMSF;
+  typedef Pimpact::MultiField< MVF> BMVF;
+  typedef Pimpact::CompoundField< BMVF, BMSF > CF;
+  typedef NOX::Pimpact::Vector<CF> NV;
+
+
+  auto fS  = Pimpact::createFieldSpace<O>();
+  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+
+  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::ZeroFLow, fS, iIS, fIS );
+
+  auto xs = Pimpact::createInitMSF<S,O>( fS );
+
+  auto x  = Pimpact::createCompoundField( xv, xs );
+
+  Teuchos::RCP<NV> vel1 = Teuchos::rcp(new NV(x) );
+  Teuchos::RCP<NV> vel2 = Teuchos::rcp(new NV( x->clone(Pimpact::ShallowCopy) ) );
+
+  double dot;
+
+  TEST_EQUALITY( vel1->length(), vel2->length() )
+
+  int N = vel1->length();
+
+  vel1->init(0.);
+  vel2->init(1.);
+  vel2->scale( *vel1 );
+  dot = vel1->innerProduct(*vel2);
+  TEST_EQUALITY( 0., dot );
+
+  vel1->init(1.);
+  vel2->init(1.);
+  vel2->scale( *vel1 );
+  dot = vel1->innerProduct(*vel2);
+  TEST_EQUALITY( N, dot );
+
+  vel1->init(-1.);
+  vel2->init(1.);
+  vel2->scale( *vel1 );
+  dot = vel2->innerProduct(*vel1);
+  TEST_EQUALITY( N, dot );
+
+  vel1->init(2.);
+  vel2->init(1.);
+  vel2->scale( *vel1 );
+  dot = vel2->innerProduct(*vel1);
+  TEST_EQUALITY( 4*N, dot );
+
+}
+
+
 TEUCHOS_UNIT_TEST( NOXPimpactVector, innerProduct ) {
 	typedef double S;
 	typedef int O;
@@ -311,7 +535,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, update ) {
 
 	Teuchos::RCP<NV> vel1 = Teuchos::rcp(new NV(x) );
 	Teuchos::RCP<NV> vel2 = Teuchos::rcp(new NV(x->clone()) );
-	Teuchos::RCP<NV> vel3 = Teuchos::rcp(new NV(x->clone()) );
+	Teuchos::RCP<NV> vel3 = Teuchos::rcp_static_cast<NV>(vel2->clone());
 
 	TEST_EQUALITY( vel1->length(), vel2->length() )
 	TEST_EQUALITY( vel2->length(), vel3->length() )

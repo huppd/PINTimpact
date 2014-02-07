@@ -21,17 +21,36 @@ namespace Pimpact {
 
 extern "C" {
 
-  void SV_add(
-			const int& N1,  const int& N2,  const int& N3,
-			const int& SS1, const int& SS2, const int& SS3,
-			const int& NN1, const int& NN2, const int& NN3,
-			const int& b1L, const int& b2L, const int& b3L,
-			const int& b1U, const int& b2U, const int& b3U,
-  		double* phi, const double* const  phi1, const double* const  phi2,
-  		const double& scalar1, const double& scalar2);
+void SF_add(
+    const int& N1,  const int& N2,  const int& N3,
+    const int& SS1, const int& SS2, const int& SS3,
+    const int& NN1, const int& NN2, const int& NN3,
+    const int& b1L, const int& b2L, const int& b3L,
+    const int& b1U, const int& b2U, const int& b3U,
+    double* phi, const double* const  phi1, const double* const  phi2,
+    const double& scalar1, const double& scalar2);
 
-	void VF_compNorm(
-			double* phi1, double* phi2, double*  phi3,
+
+void SF_abs(
+    const int& N1,  const int& N2,  const int& N3,
+    const int& SS1, const int& SS2, const int& SS3,
+    const int& NN1, const int& NN2, const int& NN3,
+    const int& b1L, const int& b2L, const int& b3L,
+    const int& b1U, const int& b2U, const int& b3U,
+    double* phi, const double* const  phi1 );
+
+
+void SF_reciprocal(
+    const int& N1,  const int& N2,  const int& N3,
+    const int& SS1, const int& SS2, const int& SS3,
+    const int& NN1, const int& NN2, const int& NN3,
+    const int& b1L, const int& b2L, const int& b3L,
+    const int& b1U, const int& b2U, const int& b3U,
+    double* phi, const double* const  phi1 );
+
+
+void VF_compNorm(
+    const double* const phi1, const double* const phi2, const double* const phi3,
 //			MPI_Fint& comm,
 //			const int& N1,  const int& N2,  const int& N3,
 //			const int& SS1, const int& SS2, const int& SS3,
@@ -39,62 +58,92 @@ extern "C" {
 //			const int& b1L, const int& b2L, const int& b3L,
 //			const int& b1U, const int& b2U, const int& b3U,
 //			double* phi,
-			const bool& inf_yes, const bool& two_yes,
-			double& normInf, double& normTwo);
+    const bool& inf_yes, const bool& two_yes,
+    double& normInf, double& normTwo);
 
-  void VF_dot(
+
+void VF_weightedNorm(
+    const double* const phi1, const double* const phi2, const double* const phi3,
+    const double* const wei1, const double* const wei2, const double* const wei3,
+//			MPI_Fint& comm,
+//			const int& N1,  const int& N2,  const int& N3,
+//			const int& SS1, const int& SS2, const int& SS3,
+//			const int& NN1, const int& NN2, const int& NN3,
+//			const int& b1L, const int& b2L, const int& b3L,
+//			const int& b1U, const int& b2U, const int& b3U,
+//			double* phi,
+    double& norm );
+
+
+void VF_dot(
 //  		MPI_Fint& comm,
 //			const int& N1,  const int& N2,  const int& N3,
 //			const int& SS1, const int& SS2, const int& SS3,
 //			const int& NN1, const int& NN2, const int& NN3,
 //			const int& b1L, const int& b2L, const int& b3L,
 //			const int& b1U, const int& b2U, const int& b3U,
-  		const double* const phi1U, const double* const phi1V, const double* const phi1W,
-  		const double* const phi2U, const double* const phi2V, const double* const phi2W,
-  		double& scalar);
+    const double* const phi1U, const double* const phi1V, const double* const phi1W,
+  	const double* const phi2U, const double* const phi2V, const double* const phi2W,
+  	double& scalar);
 
-  void SV_scale(
-			const int& N1,  const int& N2,  const int& N3,
-			const int& SS1, const int& SS2, const int& SS3,
-			const int& NN1, const int& NN2, const int& NN3,
-			const int& b1L, const int& b2L, const int& b3L,
-			const int& b1U, const int& b2U, const int& b3U,
-  		double* phi, const double& scalar );
 
-  void SV_random(
-			const int& N1,  const int& N2,  const int& N3,
-			const int& SS1, const int& SS2, const int& SS3,
-			const int& NN1, const int& NN2, const int& NN3,
-			const int& b1L, const int& b2L, const int& b3L,
-			const int& b1U, const int& b2U, const int& b3U,
-  		double* phi );
+void SF_scale(
+    const int& N1,  const int& N2,  const int& N3,
+		const int& SS1, const int& SS2, const int& SS3,
+		const int& NN1, const int& NN2, const int& NN3,
+		const int& b1L, const int& b2L, const int& b3L,
+		const int& b1U, const int& b2U, const int& b3U,
+  	double* phi, const double& scalar );
 
-  void SV_init(
-			const int& N1,  const int& N2,  const int& N3,
-			const int& SS1, const int& SS2, const int& SS3,
-			const int& NN1, const int& NN2, const int& NN3,
-			const int& b1L, const int& b2L, const int& b3L,
-			const int& b1U, const int& b2U, const int& b3U,
-  		double* phi, const double& scalar );
 
-  void SV_print(
-			const int& N1,  const int& N2,  const int& N3,
-			const int& SS1, const int& SS2, const int& SS3,
-			const int& NN1, const int& NN2, const int& NN3,
-			const int& b1L, const int& b2L, const int& b3L,
-			const int& b1U, const int& b2U, const int& b3U,
-  		const double* phi );
+void SF_scale2(
+    const int& N1,  const int& N2,  const int& N3,
+    const int& SS1, const int& SS2, const int& SS3,
+    const int& NN1, const int& NN2, const int& NN3,
+    const int& b1L, const int& b2L, const int& b3L,
+    const int& b1U, const int& b2U, const int& b3U,
+    double* phi, const double* const  phi1 );
 
-  void VF_write( double* phiU, double* phiV, double* phiW, const int& count );
 
-  void VF_init_Zero( double* phiU, double* phiV, double* phiW );
-  void VF_init_2DPoiseuilleX( double* phiU, double* phiV, double* phiW );
-  void VF_init_2DPoiseuilleY( double* phiU, double* phiV, double* phiW );
-  void VF_init_2DPulsatileXC( double* phiU, double* phiV, double* phiW, const double& re, const double& om, const double& px );
-  void VF_init_2DPulsatileYC( double* phiU, double* phiV, double* phiW, const double& re, const double& om, const double& px );
-  void VF_init_2DPulsatileXS( double* phiU, double* phiV, double* phiW, const double& re, const double& om, const double& px );
-  void VF_init_2DPulsatileYS( double* phiU, double* phiV, double* phiW, const double& re, const double& om, const double& px );
-  void VF_init_Streaming( double* phiU, double* phiV, double* phiW );
+void SF_random(
+    const int& N1,  const int& N2,  const int& N3,
+		const int& SS1, const int& SS2, const int& SS3,
+		const int& NN1, const int& NN2, const int& NN3,
+		const int& b1L, const int& b2L, const int& b3L,
+		const int& b1U, const int& b2U, const int& b3U,
+  	double* phi );
+
+
+void SF_init(
+    const int& N1,  const int& N2,  const int& N3,
+		const int& SS1, const int& SS2, const int& SS3,
+		const int& NN1, const int& NN2, const int& NN3,
+		const int& b1L, const int& b2L, const int& b3L,
+		const int& b1U, const int& b2U, const int& b3U,
+  	double* phi, const double& scalar );
+
+
+void SF_print(
+    const int& N1,  const int& N2,  const int& N3,
+		const int& SS1, const int& SS2, const int& SS3,
+		const int& NN1, const int& NN2, const int& NN3,
+		const int& b1L, const int& b2L, const int& b3L,
+		const int& b1U, const int& b2U, const int& b3U,
+  	const double* phi );
+
+
+void VF_write( double* phiU, double* phiV, double* phiW, const int& count );
+
+
+void VF_init_Zero( double* phiU, double* phiV, double* phiW );
+void VF_init_2DPoiseuilleX( double* phiU, double* phiV, double* phiW );
+void VF_init_2DPoiseuilleY( double* phiU, double* phiV, double* phiW );
+void VF_init_2DPulsatileXC( double* phiU, double* phiV, double* phiW, const double& re, const double& om, const double& px );
+void VF_init_2DPulsatileYC( double* phiU, double* phiV, double* phiW, const double& re, const double& om, const double& px );
+void VF_init_2DPulsatileXS( double* phiU, double* phiV, double* phiW, const double& re, const double& om, const double& px );
+void VF_init_2DPulsatileYS( double* phiU, double* phiV, double* phiW, const double& re, const double& om, const double& px );
+void VF_init_Streaming( double* phiU, double* phiV, double* phiW );
+
 }
 
 
@@ -227,7 +276,7 @@ public:
 	void add( const Scalar& alpha, const MV& A, const Scalar& beta, const MV& B ) {
 		// add test for consistent VectorSpaces in debug mode
 		for( int i=0; i<dim(); ++i )
-			SV_add(
+			SF_add(
 						nLoc(0), nLoc(1), nLoc(2),
 						sInd(0,i), sInd(1,i), sInd(2,i),
 						eInd(0,i), eInd(1,i), eInd(2,i),
@@ -237,12 +286,54 @@ public:
 	}
 
 
+  /**
+   * \brief Put element-wise absolute values of source vector \c y into this
+   * vector.
+   *
+   * Here x represents this vector, and we update it as
+   * \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
+   * \return Reference to this object
+   * \todo implement me
+   */
+  void abs(const MV& y) {
+    for( int i=0; i<dim(); ++i )
+      SF_abs(
+          nLoc(0), nLoc(1), nLoc(2),
+          sInd(0,i), sInd(1,i), sInd(2,i),
+          eInd(0,i), eInd(1,i), eInd(2,i),
+          bl(0),   bl(1),   bl(2),
+          bu(0),   bu(1),   bu(2),
+          vec_[i], y.vec_[i] );
+  }
+
+
+  /**
+    * \brief Put element-wise reciprocal of source vector \c y into this vector.
+    *
+    * Here x represents this vector, and we update it as
+    * \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
+    * \return Reference to this object
+    * \todo implement me
+    */
+  void reciprocal(const MV& y){
+    // add test for consistent VectorSpaces in debug mode
+    for( int i=0; i<dim(); ++i)
+      SF_reciprocal(
+          nLoc(0), nLoc(1), nLoc(2),
+          sInd(0,i), sInd(1,i), sInd(2,i),
+          eInd(0,i), eInd(1,i), eInd(2,i),
+          bl(0),   bl(1),   bl(2),
+          bu(0),   bu(1),   bu(2),
+          vec_[i], y.vec_[i] );
+  }
+
+
 	/**
 	 * \brief Scale each element of the vectors in \c this with \c alpha.
 	 */
 	void scale( const Scalar& alpha ) {
 		for(int i=0; i<dim(); ++i)
-			SV_scale(
+			SF_scale(
 					nLoc(0), nLoc(1), nLoc(2),
 					sInd(0,i), sInd(1,i), sInd(2,i),
 					eInd(0,i), eInd(1,i), eInd(2,i),
@@ -250,6 +341,27 @@ public:
 					bu(0),   bu(1),   bu(2),
 					vec_[i], alpha);
 	}
+
+
+  /**
+   * \brief Scale this vector <em>element-by-element</em> by the vector a.
+   *
+   * Here x represents this vector, and we update it as
+   * \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
+   * \return Reference to this object
+   * \todo implement me
+   */
+  void scale(const MV& a) {
+    // add test for consistent VectorSpaces in debug mode
+    for(int i=0; i<dim(); ++i)
+      SF_scale2(
+          nLoc(0), nLoc(1), nLoc(2),
+					sInd(0,i), sInd(1,i), sInd(2,i),
+					eInd(0,i), eInd(1,i), eInd(2,i),
+          bl(0),   bl(1),   bl(2),
+          bu(0),   bu(1),   bu(2),
+          vec_[i], a.vec_[i] );
+  }
 
 
 	/**
@@ -310,6 +422,23 @@ public:
   }
 
 
+  /**
+   * \brief Weighted 2-Norm.
+   *
+   * Here x represents this vector, and we compute its weighted norm as follows:
+   * \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
+   * \return \f$ \|x\|_w \f$
+   */
+  double norm(const MV& weights) const {
+    Scalar normvec;
+    VF_weightedNorm(
+        vec_[0], vec_[1], vec_[2],
+        weights.vec_[0], weights.vec_[1], weights.vec_[2],
+        normvec);
+    return( normvec );
+  }
+
+
   //@}
   //! @name Initialization methods
   //@{
@@ -345,7 +474,7 @@ public:
    */
   void random(bool useSeed = false, int seed = 1) {
   	for( int i=0; i<dim(); ++i )
-			SV_random(
+			SF_random(
 				nLoc(0), nLoc(1), nLoc(2),
 				sInd(0,i), sInd(1,i), sInd(2,i),
 				eInd(0,i), eInd(1,i), eInd(2,i),
@@ -358,7 +487,7 @@ public:
    */
   void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero() ) {
   	for( int i=0; i<dim(); ++i )
-			SV_init(
+			SF_init(
 				nLoc(0), nLoc(1), nLoc(2),
 				sInd(0,i), sInd(1,i), sInd(2,i),
 				eInd(0,i), eInd(1,i), eInd(2,i),
@@ -371,7 +500,7 @@ public:
     */
    void init( const Teuchos::Tuple<Scalar,3>& alpha ) {
    	for( int i=0; i<dim(); ++i )
- 			SV_init(
+ 			SF_init(
  				nLoc(0), nLoc(1), nLoc(2),
  				sInd(0,i), sInd(1,i), sInd(2,i),
  				eInd(0,i), eInd(1,i), eInd(2,i),
@@ -454,7 +583,7 @@ public:
 		std::cout << "rank: " << rank << "\n";
 		for( int i=0; i<dim(); ++i ) {
 			std::cout << "field: " << i << "\n";
-			SV_print(
+			SF_print(
 				nLoc(0), nLoc(1), nLoc(2),
 				sInd(0,i), sInd(1,i), sInd(2,i),
 				eInd(0,i), eInd(1,i), eInd(2,i),
