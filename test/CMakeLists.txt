@@ -16,33 +16,17 @@ ADD_EXECUTABLE(VectorFieldTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_
 TARGET_LINK_LIBRARIES( VectorFieldTest ${Pimpact_TPL_LIBRARIES} ) 
 add_test(NAME VectorFieldTest COMMAND mpirun -np 4 VectorFieldTest)
 
-ADD_EXECUTABLE(ScalarModeFieldTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_ScalarModeField_test.cpp )
-TARGET_LINK_LIBRARIES( ScalarModeFieldTest ${Pimpact_TPL_LIBRARIES} ) 
-add_test(NAME ScalarModeFieldTest COMMAND mpirun -np 4 ScalarModeFieldTest)
-
-ADD_EXECUTABLE(VectorModeFieldTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_VectorModeField_test.cpp )
-TARGET_LINK_LIBRARIES( VectorModeFieldTest ${Pimpact_TPL_LIBRARIES} ) 
-add_test(NAME VectorModeFieldTest COMMAND mpirun -np 4 VectorModeFieldTest)
+ADD_EXECUTABLE( ModeFieldTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_ModeField_test.cpp )
+TARGET_LINK_LIBRARIES( ModeFieldTest ${Pimpact_TPL_LIBRARIES} ) 
+add_test(NAME ModeFieldTest COMMAND mpirun -np 4 ModeFieldTest)
 
 ADD_EXECUTABLE(CompoundFieldTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_CompoundField_test.cpp )
 TARGET_LINK_LIBRARIES( CompoundFieldTest ${Pimpact_TPL_LIBRARIES} ) 
 add_test(NAME CompoundFieldTest COMMAND mpirun -np 4 CompoundFieldTest)
 
-ADD_EXECUTABLE(MultiFieldScalarTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_MultiField_Scalar_test.cpp )
-TARGET_LINK_LIBRARIES( MultiFieldScalarTest ${Pimpact_TPL_LIBRARIES} ) 
-add_test(NAME MultiFieldScalarTest COMMAND mpirun -np 4 MultiFieldScalarTest)
-
-ADD_EXECUTABLE(MultiFieldVectorTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_MultiField_Vector_test.cpp )
-TARGET_LINK_LIBRARIES( MultiFieldVectorTest ${Pimpact_TPL_LIBRARIES} ) 
-add_test(NAME MultiFieldVectorTest COMMAND mpirun -np 4 MultiFieldVectorTest)
-
-ADD_EXECUTABLE(MultiFieldScalarModeTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_MultiField_ScalarMode_test.cpp )
-TARGET_LINK_LIBRARIES( MultiFieldScalarModeTest ${Pimpact_TPL_LIBRARIES} ) 
-add_test(NAME MultiFieldScalarModeTest COMMAND mpirun -np 4 MultiFieldScalarModeTest)
-
-ADD_EXECUTABLE(MultiFieldVectorModeTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_MultiField_VectorMode_test.cpp )
-TARGET_LINK_LIBRARIES( MultiFieldVectorModeTest ${Pimpact_TPL_LIBRARIES} ) 
-add_test(NAME MultiFieldVectorModeTest COMMAND mpirun -np 4 MultiFieldVectorModeTest)
+ADD_EXECUTABLE( MultiFieldTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_MultiField_test.cpp )
+TARGET_LINK_LIBRARIES( MultiFieldTest ${Pimpact_TPL_LIBRARIES} ) 
+add_test( NAME MultiFieldTest COMMAND mpirun -np 4 MultiFieldTest )
 
 ADD_EXECUTABLE(BelosMVOPTest Teuchos_StandardParallelUnitTestMain.cpp BelosPimpact_MVOP_test.cpp )
 TARGET_LINK_LIBRARIES( BelosMVOPTest ${Pimpact_TPL_LIBRARIES} ) 

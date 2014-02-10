@@ -19,10 +19,13 @@
 #include "Pimpact_Operator.hpp"
 #include "BelosPimpactAdapter.hpp"
 #include "Pimpact_LinearProblem.hpp"
+#include "Pimpact_LinSolverParameter.hpp"
 
 #include "BelosSolverFactory.hpp"
 
 #include <iostream>
+
+
 
 namespace {
 
@@ -65,8 +68,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 	auto B = Pimpact::createMultiField<Pimpact::VectorField<double,int>,double,int>(*vel,1);
 
 	X->init(0.);
-	B->random();
-	B->scale(100.);
+	B->init(1.);
 
 	auto A = Pimpact::createOperatorMV<Pimpact::Helmholtz<double,int> >();
 
@@ -134,8 +136,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV2 ) {
 	auto B = Pimpact::createMultiField<Pimpact::VectorField<double,int>,double,int>(*vel,1);
 
 	X->init(0.);
-	B->random();
-	B->scale(100.);
+	B->init(1.);
 
 	auto A = Pimpact::createOperatorMV<Pimpact::Helmholtz<double,int> >();
 
@@ -188,11 +189,10 @@ TEUCHOS_UNIT_TEST( BelosSolver, Dt1L0 ) {
 	auto X = Pimpact::createMultiField<Pimpact::ModeField<Pimpact::VectorField<double,int> >,double,int>( *vel,1 );
 	auto B = Pimpact::createMultiField<Pimpact::ModeField<Pimpact::VectorField<double,int> >,double,int>( *vel,1 );
 
-	X->init(0.);
 
-	X->random();
-	B->random();
-//	B->scale(100.);
+	X->init(0.);
+	B->init(1.);
+
 
 	auto A = Pimpact::createDtL<double,int>( 1., 0., 0. );
 
@@ -246,8 +246,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, Dt0L1 ) {
 	auto B = Pimpact::createMultiField<Pimpact::ModeField<Pimpact::VectorField<double,int> >,double,int>( *vel,1 );
 
 	X->init(0.);
-	B->random();
-	B->scale(100.);
+	B->init(1.);
 
 	auto A = Pimpact::createDtL<double,int>(0.,0.,10.);
 
@@ -298,61 +297,49 @@ TEUCHOS_UNIT_TEST( BelosSolver, Schur ) {
 	auto vel = Pimpact::createVectorField<double,int>(fS,iIS,fIS);
 	auto p = Pimpact::createScalarField<double,int>(fS);
 
-	auto temp = Pimpact::createMultiField<Pimpact::VectorField<double,int>,double,int>(*vel,1);
 
 	auto Xp = Pimpact::createMultiField<Pimpact::ScalarField<double,int>,double,int>(*p,1);
-	auto Bp = Pimpact::createMultiField<Pimpact::ScalarField<double,int>,double,int>(*p,1);
+	auto Bp = Xp->clone();
 	auto X = Pimpact::createMultiField<Pimpact::VectorField<double,int>,double,int>(*vel,1);
-	auto B = Pimpact::createMultiField<Pimpact::VectorField<double,int>,double,int>(*vel,1);
+	auto B = X->clone();
 
 	X->init(0.);
 	B->random();
-	B->scale(100.);
+	B->scale(0.1);
 
 	Xp->init(0.);
+	Xp->random();
 	Bp->random();
-	Bp->scale(100.);
+	Bp->scale(0.1);
 
 	// init operators
 	auto lap = Pimpact::createHelmholtz<double,int>( 0.,1.);
-	auto div = Teuchos::rcp( new Pimpact::Div<double,int>() );
-	auto grad = Teuchos::rcp( new Pimpact::Grad<double,int>() );
-
-
-	// Make an empty new parameter list.
-	RCP<ParameterList> solverParams = parameterList();
 
 	// Set some Belos parameters.
-	//
-	// "Num Blocks" = Maximum number of Krylov vectors to store.  This
-	// is also the restart length.  "Block" here refers to the ability
-	// of this particular solver (and many other Belos solvers) to solve
-	// multiple linear systems at a time, even though we are only solving
-	// one linear system in this example.
-	solverParams->set ("Num Blocks", 40);
-	solverParams->set ("Maximum Iterations", 400);
-	solverParams->set ("Convergence Tolerance", 1.0e-1);
-	solverParams->set ("Output Frequency", 50);
-	solverParams->set ("Output Style", 1);
+  auto solverName = "CG";
+  auto solverParams = Pimpact::createLinSolverParameter( solverName, 1.e-3 );
+  solverParams->get()->set ("Verbosity", int( Belos::Errors) );
 
 // Create the Pimpact::LinearSolver solver.
-	auto H_prob = Pimpact::createLinearProblem<Scalar,MV,OP>( lap, X, B, solverParams,"CG" );
+	auto H_prob = Pimpact::createLinearProblem<Scalar,MV,OP>( lap, X, B, solverParams->get(), solverName );
 
-	auto schur = Pimpact::createDivHinvGrad<double,int>( X,
+	auto schur = Pimpact::createDivHinvGrad<double,int>( X->clone(),
 //			div, grad,
 			H_prob );
 
+  solverName = "GCRODR";
+  solverParams = Pimpact::createLinSolverParameter( solverName, 1.e-1 );
+  solverParams->get()->set( "Maximum Iterations", 100 );
 
-	solverParams->set ("Verbosity",  Belos::Errors + Belos::Warnings +
-	Belos::TimingDetails + Belos::StatusTestDetails);
 
-	auto schur_prob = Pimpact::createLinearProblem<Scalar,MVp,OPp>( schur, Xp,Bp, solverParams, "GMRES");
+	auto schur_prob = Pimpact::createLinearProblem<Scalar,MVp,OPp>( schur, Xp,Bp, solverParams->get(), solverName);
 	Belos::ReturnType result = schur_prob->solve(Xp,Bp);
 	TEST_EQUALITY( result,Belos::Converged);
 
 	X->write(200);
 
 }
+
 
 TEUCHOS_UNIT_TEST( BelosSolver, Div_DtLinv_Grad ) {
 	using Teuchos::ParameterList;
@@ -371,39 +358,30 @@ TEUCHOS_UNIT_TEST( BelosSolver, Div_DtLinv_Grad ) {
 	auto B = Pimpact::createMultiModeScalarField<double,int>();
 
 	X->init(0.);
-	B->random();
+	B->init(0.);
+	B->random(0.);
+	B->scale(0.1);
 
 	auto A = Pimpact::createDtL<double,int>(0.,0.,10.);
 
 	// Make an empty new parameter list.
-	RCP<ParameterList> solverParams = parameterList();
-
-	// Set some Belos parameters.
-	//
-	// "Num Blocks" = Maximum number of Krylov vectors to store.  This
-	// is also the restart length.  "Block" here refers to the ability
-	// of this particular solver (and many other Belos solvers) to solve
-	// multiple linear systems at a time, even though we are only solving
-	// one linear system in this example.
-	solverParams->set ("Num Blocks", 40);
-	solverParams->set ("Maximum Iterations", 400);
-	solverParams->set ("Convergence Tolerance", 1.0e-1);
-	solverParams->set ("Output Frequency", 50);
-	solverParams->set ("Output Style", 1);
+	auto solverName = "GMRES";
+	auto solverParams = Pimpact::createLinSolverParameter( solverName, 1.e-1 );
+  solverParams->get()->set ("Verbosity",  Belos::Errors );
 
 // Create the Pimpact::LinearSolver solver.
-	auto H_prob = Pimpact::createLinearProblem<double,MVF,OP>( A, temp, temp, solverParams,"GMRES" );
+	auto H_prob = Pimpact::createLinearProblem<double,MVF,OP>( A, temp, temp, solverParams->get(), solverName );
 
 	auto schur = Pimpact::createDivDtLinvGrad<double,int>( temp, H_prob );
 
-	solverParams->set ("Verbosity",  Belos::Errors + Belos::Warnings +
+	solverParams->get()->set ("Verbosity",  Belos::Errors + Belos::Warnings +
 	Belos::TimingDetails + Belos::StatusTestDetails);
 
-	auto schur_prob = Pimpact::createLinearProblem<double,MSF,OP2>( schur, X, B, solverParams, "GMRES" );
+	auto schur_prob = Pimpact::createLinearProblem<double,MSF,OP2>( schur, X, B, solverParams->get(), solverName );
 
 	schur_prob->solve(X,B);
 
 }
 
-} // namespace
+} // end of namespace
 

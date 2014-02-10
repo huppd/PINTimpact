@@ -36,7 +36,7 @@ public:
 //				OP_bc_extrapolation( i+1, y.vec_[i] );
 		}
 	}
-	bool hasApplyTranspose() const { return false; }
+	bool hasApplyTranspose() const { return( false ); }
 };
 
 
@@ -50,7 +50,7 @@ public:
 	void apply(const DomainFieldT& x, RangeFieldT& y) const {
 		OP_div(x.vec_[0],x.vec_[1],x.vec_[2],y.s_);
 	} // return erro
-	bool hasApplyTranspose() const { return false; }
+	bool hasApplyTranspose() const { return( false ); }
 };
 
 

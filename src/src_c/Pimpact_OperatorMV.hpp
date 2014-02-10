@@ -96,9 +96,9 @@ private:
 
 template<class Operator>
 Teuchos::RCP< OperatorMV<Operator> > createOperatorMV() {
-	return Teuchos::rcp( new OperatorMV<Operator>( Teuchos::rcp( new Operator() ) ) );
+	return( Teuchos::rcp( new OperatorMV<Operator>( Teuchos::rcp( new Operator() ) ) ) );
 }
 
 } // end of Pimpact namespace
 
-#endif // end of file PIMPACT_OPERATORMV_HPP
+#endif // end of #ifndef PIMPACT_OPERATORMV_HPP

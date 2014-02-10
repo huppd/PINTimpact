@@ -7,7 +7,6 @@ module cmod_VectorField
   use iso_c_binding
   use mpi
 
-  use mod_dims
   use mod_vars
 
   implicit none
@@ -22,12 +21,12 @@ module cmod_VectorField
   !! \param[in] N1 ammount of local elements in 1-direction
   !! \param[in] N2 ammount of local elements in 2-direction
   !! \param[in] N3 ammount of local elements in 3-direction
-  !! \param[in] SS1 start index in 1-direction
-  !! \param[in] SS2 start index in 1-direction
-  !! \param[in] SS3 start index in 1-direction
-  !! \param[in] NN1 end index in 1-direction
-  !! \param[in] NN2 end index in 2-direction
-  !! \param[in] NN3 end index in 3-direction
+  !! \param[in] S1U start index in 1-direction
+  !! \param[in] S2U start index in 1-direction
+  !! \param[in] S3U start index in 1-direction
+  !! \param[in] N1U end index in 1-direction
+  !! \param[in] N2U end index in 2-direction
+  !! \param[in] N3U end index in 3-direction
   !! \param[in] b1L start index of storage in 1-direction
   !! \param[in] b2L start index of storage in 2-direction
   !! \param[in] b3L start index of storage in 3-direction
@@ -40,78 +39,89 @@ module cmod_VectorField
   !! \param[in] inf_yes if true infinity norm is computed
   !! \param[in] two_yes if trhue two norm is computed
   !! \test if comm_cart is neccessary, or if comm is enough or even better
-  subroutine product_scalar_vel(phi1U,phi1V,phi1W,phi2U,phi2V,phi2W,scalar) bind ( c, name='VF_dot' )
+  subroutine product_scalar_vel( COMM_CART, dimens, N1,N2,N3, S1U,S2U,S3U, N1U,N2U,N3U, S1V,S2V,S3V, N1V,N2V,N3V, S1W,S2W,S3W, N1W,N2W,N3W, b1L,b2L,b3L, b1U,b2U,b3U, phi1U,phi1V,phi1W, phi2U,phi2V,phi2W, scalar ) bind ( c, name='VF_dot' )
 
   implicit none
 
-!  integer(c_int), intent(in)    ::  COMM_CART
-!
-!  integer(c_int), intent(in)    ::  N1
-!  integer(c_int), intent(in)    ::  N2
-!  integer(c_int), intent(in)    ::  N3
-!
-!  integer(c_int), intent(in)    ::  SS1
-!  integer(c_int), intent(in)    ::  SS2
-!  integer(c_int), intent(in)    ::  SS3
-!
-!  integer(c_int), intent(in)    ::  NN1
-!  integer(c_int), intent(in)    ::  NN2
-!  integer(c_int), intent(in)    ::  NN3
-!
-!  integer(c_int), intent(in)    ::  b1L
-!  integer(c_int), intent(in)    ::  b2L
-!  integer(c_int), intent(in)    ::  b3L
-!
-!  integer(c_int), intent(in)    ::  b1U
-!  integer(c_int), intent(in)    ::  b2U
-!  integer(c_int), intent(in)    ::  b3U
+  integer(c_int), intent(in)    ::  COMM_CART
 
-  real(c_double),  intent(in)    ::  phi1U(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  real(c_double),  intent(in)    ::  phi1V(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  real(c_double),  intent(in)    ::  phi1W(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  integer(c_int), intent(in)    ::  dimens
 
-  real(c_double),  intent(in)    ::  phi2U(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  real(c_double),  intent(in)    ::  phi2V(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  real(c_double),  intent(in)    ::  phi2W(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  integer(c_int), intent(in)    ::  N1
+  integer(c_int), intent(in)    ::  N2
+  integer(c_int), intent(in)    ::  N3
 
-  real(c_double),  intent(out)   ::  scalar
-  real(c_double)                 ::  scalar_global
+  integer(c_int), intent(in)    ::  S1U
+  integer(c_int), intent(in)    ::  S2U
+  integer(c_int), intent(in)    ::  S3U
+
+  integer(c_int), intent(in)    ::  N1U
+  integer(c_int), intent(in)    ::  N2U
+  integer(c_int), intent(in)    ::  N3U
+
+  integer(c_int), intent(in)    ::  S1V
+  integer(c_int), intent(in)    ::  S2V
+  integer(c_int), intent(in)    ::  S3V
+
+  integer(c_int), intent(in)    ::  N1V
+  integer(c_int), intent(in)    ::  N2V
+  integer(c_int), intent(in)    ::  N3V
+
+  integer(c_int), intent(in)    ::  S1W
+  integer(c_int), intent(in)    ::  S2W
+  integer(c_int), intent(in)    ::  S3W
+
+  integer(c_int), intent(in)    ::  N1W
+  integer(c_int), intent(in)    ::  N2W
+  integer(c_int), intent(in)    ::  N3W
+
+  integer(c_int), intent(in)    ::  b1L
+  integer(c_int), intent(in)    ::  b2L
+  integer(c_int), intent(in)    ::  b3L
+
+  integer(c_int), intent(in)    ::  b1U
+  integer(c_int), intent(in)    ::  b2U
+  integer(c_int), intent(in)    ::  b3U
+
+  real(c_double),  intent(in)   ::  phi1U(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double),  intent(in)   ::  phi1V(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double),  intent(in)   ::  phi1W(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+
+  real(c_double),  intent(in)   ::  phi2U(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double),  intent(in)   ::  phi2V(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double),  intent(in)   ::  phi2W(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+
+  real(c_double),  intent(out)  ::  scalar
+  real(c_double)                ::  scalar_global
   integer                       ::  i, j, k
   integer                       ::  merror
 
 
   scalar = 0.
 
-!  do k = SS3, NN3
-!     do j = SS2, NN2
-!!pgi$ unroll = n:8
-!        do i = SS1, NN1
-!           scalar = scalar + phi1(i,j,k)*phi2(i,j,k)
-!        end do
-!     end do
-!  end do
-  do k = S31, N31
-    do j = S21, N21
+  do k = S3U, N3U
+    do j = S2U, N2U
 !pgi$ unroll = n:8
-      do i = S11, N11
+      do i = S1U, N1U
         scalar = scalar + phi1U(i,j,k)*phi2U(i,j,k)
       end do
    end do
   end do
-  do k = S32, N32
-    do j = S22, N22
+
+  do k = S3V, N3V
+    do j = S2V, N2V
 !pgi$ unroll = n:8
-      do i = S12, N12
+      do i = S1V, N1V
         scalar = scalar + phi1V(i,j,k)*phi2V(i,j,k)
       end do
     end do
   end do
 
   if (dimens == 3) then
-    do k = S33, N33
-      do j = S23, N23
+    do k = S3W, N3W
+      do j = S2W, N2W
 !pgi$ unroll = n:8
-        do i = S13, N13
+        do i = S1W, N1W
           scalar = scalar + phi1W(i,j,k)*phi2W(i,j,k)
         end do
       end do
@@ -125,32 +135,6 @@ module cmod_VectorField
 
 
 
-  !> \brief computes two or infinity norm( get is misleading)
-  !! \param[in] comm communicator belonging to vector
-  !! \param[in] N1 ammount of local elements in 1-direction
-  !! \param[in] N2 ammount of local elements in 2-direction
-  !! \param[in] N3 ammount of local elements in 3-direction
-  !! \param[in] SS1 start index in 1-direction
-  !! \param[in] SS2 start index in 1-direction
-  !! \param[in] SS3 start index in 1-direction
-  !! \param[in] NN1 end index in 1-direction
-  !! \param[in] NN2 end index in 2-direction
-  !! \param[in] NN3 end index in 3-direction
-  !! \param[in] b1L start index of storage in 1-direction
-  !! \param[in] b2L start index of storage in 2-direction
-  !! \param[in] b3L start index of storage in 3-direction
-  !! \param[in] b1U end offset of storage in 1-direction
-  !! \param[in] b2U end offset of storage in 2-direction
-  !! \param[in] b3U end offset of storage in 3-direction
-  !! \param[in] phi vector, from which the norm is taken
-  !! \param[in] weighting_yes if weighting schould be used, using the \c weights from \c mod_vars
-  !! \param[in] inf_yes if true infinity norm is computed
-  !! \param[in] two_yes if trhue two norm is computed
-  !! \param[out] normInf gets the infinity norm of phi
-  !! \param[out] normTwo get the two norm of phi
-  !! \todo weight (easydirty fix: include module) (good persisting fix: move to pimpact)
-  ! TEST!!! N1, N2, N3 werden ebenfalls uebergeben ...
-!  subroutine get_norms(comm,N1,N2,N3,SS1,SS2,SS3,NN1,NN2,NN3,b1L,b2L,b3L,b1U,b2U,b3U,phi,weighting_yes,inf_yes,two_yes,normInf,normTwo) bind (c, name='SV_compNorm')
   !> brief computes two or infinity norm
   !! \todo add all parameters to make it more flexible
   !!
@@ -159,9 +143,49 @@ module cmod_VectorField
   !! \param[in] two_yes if trhue two norm is computed
   !! \param[out] normInf gets the infinity norm of phi
   !! \param[out] normTwo get the two norm of phi
-  subroutine get_norms_vel(phiU,phiV,phiW,inf_yes,two_yes,normInf,normTwo) bind (c,name='VF_compNorm')
+  subroutine get_norms_vel( COMM_CART, dimens, N1,N2,N3, S1U,S2U,S3U, N1U,N2U,N3U, S1V,S2V,S3V, N1V,N2V,N3V, S1W,S2W,S3W, N1W,N2W,N3W, b1L,b2L,b3L, b1U,b2U,b3U, phiU,phiV,phiW, inf_yes,two_yes, normInf,normTwo ) bind (c,name='VF_compNorm')
 
   implicit none
+
+  integer(c_int), intent(in)    ::  COMM_CART
+
+  integer(c_int), intent(in)    ::  dimens
+
+  integer(c_int), intent(in)    ::  N1
+  integer(c_int), intent(in)    ::  N2
+  integer(c_int), intent(in)    ::  N3
+
+  integer(c_int), intent(in)    ::  S1U
+  integer(c_int), intent(in)    ::  S2U
+  integer(c_int), intent(in)    ::  S3U
+
+  integer(c_int), intent(in)    ::  N1U
+  integer(c_int), intent(in)    ::  N2U
+  integer(c_int), intent(in)    ::  N3U
+
+  integer(c_int), intent(in)    ::  S1V
+  integer(c_int), intent(in)    ::  S2V
+  integer(c_int), intent(in)    ::  S3V
+
+  integer(c_int), intent(in)    ::  N1V
+  integer(c_int), intent(in)    ::  N2V
+  integer(c_int), intent(in)    ::  N3V
+
+  integer(c_int), intent(in)    ::  S1W
+  integer(c_int), intent(in)    ::  S2W
+  integer(c_int), intent(in)    ::  S3W
+
+  integer(c_int), intent(in)    ::  N1W
+  integer(c_int), intent(in)    ::  N2W
+  integer(c_int), intent(in)    ::  N3W
+
+  integer(c_int), intent(in)    ::  b1L
+  integer(c_int), intent(in)    ::  b2L
+  integer(c_int), intent(in)    ::  b3L
+
+  integer(c_int), intent(in)    ::  b1U
+  integer(c_int), intent(in)    ::  b2U
+  integer(c_int), intent(in)    ::  b3U
 
   real(c_double),  intent(in)    ::  phiU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
   real(c_double),  intent(in)    ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
@@ -182,19 +206,19 @@ module cmod_VectorField
      normInf = 0.
      normTwo = 0.
 
-     do k = S31, N31
-       do j = S21, N21
+     do k = S3U, N3U
+       do j = S2U, N2U
 !pgi$ unroll = n:8
-         do i = S11, N11
+         do i = S1U, N1U
            normInf = MAX(ABS(phiU(i,j,k)),normInf)
            normTwo = normTwo + phiU(i,j,k)**2
          end do
        end do
      end do
-     do k = S32, N32
-       do j = S22, N22
+     do k = S3V, N3V
+       do j = S2V, N2V
 !pgi$ unroll = n:8
-         do i = S12, N12
+         do i = S1V, N1V
            normInf = MAX(ABS(phiV(i,j,k)),normInf)
            normTwo = normTwo + phiV(i,j,k)**2
          end do
@@ -202,10 +226,10 @@ module cmod_VectorField
      end do
 
      if (dimens == 3) then
-       do k = S33, N33
-         do j = S23, N23
+       do k = S3W, N3W
+         do j = S2W, N2W
   !pgi$ unroll = n:8
-           do i = S13, N13
+           do i = S1W, N1W
              normInf = MAX(ABS(phiW(i,j,k)),normInf)
              normTwo = normTwo + phiW(i,j,k)**2
            end do
@@ -223,28 +247,28 @@ module cmod_VectorField
 
     normInf = 0.
 
-     do k = S31, N31
-       do j = S21, N21
+     do k = S3U, N3U
+       do j = S2U, N2U
 !pgi$ unroll = n:8
-         do i = S11, N11
+         do i = S1U, N1U
            normInf = MAX(ABS(phiU(i,j,k)),normInf)
          end do
        end do
      end do
-     do k = S32, N32
-       do j = S22, N22
+     do k = S3V, N3V
+       do j = S2V, N2V
 !pgi$ unroll = n:8
-         do i = S12, N12
+         do i = S1W, N1W
            normInf = MAX(ABS(phiV(i,j,k)),normInf)
          end do
        end do
      end do
 
      if (dimens == 3) then
-       do k = S33, N33
-         do j = S23, N23
+       do k = S3W, N3W
+         do j = S2W, N2W
   !pgi$ unroll = n:8
-           do i = S13, N13
+           do i = S1W, N1W
              normInf = MAX(ABS(phiW(i,j,k)),normInf)
            end do
          end do
@@ -259,28 +283,28 @@ module cmod_VectorField
 
      normTwo = 0.
 
-     do k = S31, N31
-       do j = S21, N21
+     do k = S3U, N3U
+       do j = S2U, N2U
 !pgi$ unroll = n:8
-         do i = S11, N11
+         do i = S1U, N1U
            normTwo = normTwo + phiU(i,j,k)**2
          end do
        end do
      end do
-     do k = S32, N32
-       do j = S22, N22
+     do k = S3V, N3V
+       do j = S2V, N2V
 !pgi$ unroll = n:8
-         do i = S12, N12
+         do i = S1V, N1V
            normTwo = normTwo + phiV(i,j,k)**2
          end do
        end do
      end do
 
      if (dimens == 3) then
-       do k = S33, N33
-         do j = S23, N23
+       do k = S3W, N3W
+         do j = S2W, N2W
   !pgi$ unroll = n:8
-           do i = S13, N13
+           do i = S1W, N1W
              normTwo = normTwo + phiW(i,j,k)**2
            end do
          end do
@@ -291,7 +315,6 @@ module cmod_VectorField
      normTwo = normTwo_global
 
   end if
-
 
   end subroutine get_norms_vel
 
@@ -304,17 +327,57 @@ module cmod_VectorField
   !! \param[in] two_yes if trhue two norm is computed
   !! \param[out] normInf gets the infinity norm of phi
   !! \param[out] normTwo get the two norm of phi
-  subroutine get_weighted_norm_vel(phiU,phiV,phiW, wU, wV, wW, norm) bind (c,name='VF_weightedNorm')
+  subroutine get_weighted_norm_vel( COMM_CART, dimens, N1,N2,N3, S1U,S2U,S3U, N1U,N2U,N3U, S1V,S2V,S3V, N1V,N2V,N3V, S1W,S2W,S3W, N1W,N2W,N3W, b1L,b2L,b3L, b1U,b2U,b3U, phiU,phiV,phiW, wU,wV,wW, norm ) bind (c,name='VF_weightedNorm')
 
   implicit none
 
-  real(c_double),  intent(in)    ::  phiU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  real(c_double),  intent(in)    ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  real(c_double),  intent(in)    ::  phiW(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  integer(c_int), intent(in)    ::  COMM_CART
 
-  real(c_double),  intent(in)    ::  wU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  real(c_double),  intent(in)    ::  wV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  real(c_double),  intent(in)    ::  wW(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  integer(c_int), intent(in)    ::  dimens
+
+  integer(c_int), intent(in)    ::  N1
+  integer(c_int), intent(in)    ::  N2
+  integer(c_int), intent(in)    ::  N3
+
+  integer(c_int), intent(in)    ::  S1U
+  integer(c_int), intent(in)    ::  S2U
+  integer(c_int), intent(in)    ::  S3U
+
+  integer(c_int), intent(in)    ::  N1U
+  integer(c_int), intent(in)    ::  N2U
+  integer(c_int), intent(in)    ::  N3U
+
+  integer(c_int), intent(in)    ::  S1V
+  integer(c_int), intent(in)    ::  S2V
+  integer(c_int), intent(in)    ::  S3V
+
+  integer(c_int), intent(in)    ::  N1V
+  integer(c_int), intent(in)    ::  N2V
+  integer(c_int), intent(in)    ::  N3V
+
+  integer(c_int), intent(in)    ::  S1W
+  integer(c_int), intent(in)    ::  S2W
+  integer(c_int), intent(in)    ::  S3W
+
+  integer(c_int), intent(in)    ::  N1W
+  integer(c_int), intent(in)    ::  N2W
+  integer(c_int), intent(in)    ::  N3W
+
+  integer(c_int), intent(in)    ::  b1L
+  integer(c_int), intent(in)    ::  b2L
+  integer(c_int), intent(in)    ::  b3L
+
+  integer(c_int), intent(in)    ::  b1U
+  integer(c_int), intent(in)    ::  b2U
+  integer(c_int), intent(in)    ::  b3U
+
+  real(c_double),  intent(in)   ::  phiU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double),  intent(in)   ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double),  intent(in)   ::  phiW(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+
+  real(c_double),  intent(in)   ::  wU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double),  intent(in)   ::  wV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double),  intent(in)   ::  wW(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
 
 
   real(c_double),  intent(out)   ::  norm
@@ -325,29 +388,29 @@ module cmod_VectorField
 
     norm = 0.
 
-    do k = S31, N31
-        do j = S21, N21
+    do k = S3U, N3U
+        do j = S2U, N2U
 !pgi$ unroll = n:8
-            do i = S11, N11
+            do i = S1U, N1U
                 norm = norm + (wU(i,j,k)*phiU(i,j,k))**2
             end do
         end do
     end do
 
-    do k = S32, N32
-        do j = S22, N22
+    do k = S3V, N3V
+        do j = S2V, N2V
 !pgi$ unroll = n:8
-            do i = S12, N12
+            do i = S1V, N1V
                 norm = norm + (wV(i,j,k)*phiV(i,j,k))**2
             end do
         end do
     end do
 
     if (dimens == 3) then
-        do k = S33, N33
-            do j = S23, N23
+        do k = S3W, N3W
+            do j = S2W, N2W
 !pgi$ unroll = n:8
-                do i = S13, N13
+                do i = S1W, N1W
                     norm = norm + (wW(i,j,k)*phiW(i,j,k))**2
                 end do
             end do
@@ -362,10 +425,29 @@ module cmod_VectorField
 
 
   !> \brief init vector field with 2d Poiseuille flow in x-direction
-  subroutine cinit_2DPoiseuilleX( phiU, phiV, phiW ) bind ( c, name='VF_init_2DPoiseuilleX' )
-  ! (basic subroutine)
+  subroutine cinit_2DPoiseuilleX( N1,N2,N3, b1L,b2L,b3L, b1U,b2U,b3U, phiU,phiV,phiW ) bind ( c, name='VF_init_2DPoiseuilleX' )
 
   implicit none
+
+  integer(c_int), intent(in)    ::  N1
+  integer(c_int), intent(in)    ::  N2
+  integer(c_int), intent(in)    ::  N3
+
+!  integer(c_int), intent(in)    ::  SS1
+!  integer(c_int), intent(in)    ::  SS2
+!  integer(c_int), intent(in)    ::  SS3
+!
+!  integer(c_int), intent(in)    ::  NN1
+!  integer(c_int), intent(in)    ::  NN2
+!  integer(c_int), intent(in)    ::  NN3
+!
+  integer(c_int), intent(in)    ::  b1L
+  integer(c_int), intent(in)    ::  b2L
+  integer(c_int), intent(in)    ::  b3L
+
+  integer(c_int), intent(in)    ::  b1U
+  integer(c_int), intent(in)    ::  b2U
+  integer(c_int), intent(in)    ::  b3U
 
   real(c_double), intent(inout) ::  phiU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
   real(c_double), intent(inout) ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
@@ -414,9 +496,29 @@ module cmod_VectorField
 
 
   !> \brief init vector field with 2d Poiseuille flow in y-direction
-  subroutine cinit_2DPoiseuilleY( phiU, phiV, phiW ) bind ( c, name='VF_init_2DPoiseuilleY' )
+  subroutine cinit_2DPoiseuilleY( N1,N2,N3, b1L,b2L,b3L, b1U,b2U,b3U, phiU,phiV,phiW ) bind ( c, name='VF_init_2DPoiseuilleY' )
 
   implicit none
+
+  integer(c_int), intent(in)    ::  N1
+  integer(c_int), intent(in)    ::  N2
+  integer(c_int), intent(in)    ::  N3
+
+!  integer(c_int), intent(in)    ::  SS1
+!  integer(c_int), intent(in)    ::  SS2
+!  integer(c_int), intent(in)    ::  SS3
+!
+!  integer(c_int), intent(in)    ::  NN1
+!  integer(c_int), intent(in)    ::  NN2
+!  integer(c_int), intent(in)    ::  NN3
+!
+  integer(c_int), intent(in)    ::  b1L
+  integer(c_int), intent(in)    ::  b2L
+  integer(c_int), intent(in)    ::  b3L
+
+  integer(c_int), intent(in)    ::  b1U
+  integer(c_int), intent(in)    ::  b2U
+  integer(c_int), intent(in)    ::  b3U
 
   real(c_double), intent(inout) ::  phiU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
   real(c_double), intent(inout) ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
@@ -462,9 +564,29 @@ module cmod_VectorField
 
 
   !> \brief init vector field with a zero flow
-  subroutine cinit_zero( phiU, phiV, phiW ) bind ( c, name='VF_init_Zero' )
+  subroutine cinit_zero( N1,N2,N3, b1L,b2L,b3L, b1U,b2U,b3U, phiU,phiV,phiW ) bind ( c, name='VF_init_Zero' )
 
   implicit none
+
+  integer(c_int), intent(in)    ::  N1
+  integer(c_int), intent(in)    ::  N2
+  integer(c_int), intent(in)    ::  N3
+
+!  integer(c_int), intent(in)    ::  SS1
+!  integer(c_int), intent(in)    ::  SS2
+!  integer(c_int), intent(in)    ::  SS3
+!
+!  integer(c_int), intent(in)    ::  NN1
+!  integer(c_int), intent(in)    ::  NN2
+!  integer(c_int), intent(in)    ::  NN3
+
+  integer(c_int), intent(in)    ::  b1L
+  integer(c_int), intent(in)    ::  b2L
+  integer(c_int), intent(in)    ::  b3L
+
+  integer(c_int), intent(in)    ::  b1U
+  integer(c_int), intent(in)    ::  b2U
+  integer(c_int), intent(in)    ::  b3U
 
   real(c_double), intent(inout) ::  phiU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
   real(c_double), intent(inout) ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
@@ -513,10 +635,30 @@ module cmod_VectorField
   !! \f[ u(y,t) = \hat{u}^+ \exp(i \omega t) + \hat{u}^- \exp(- i \omega t) \f]
   !! \f[ \hat{u}^+(y) = c^+ \left( \exp(+ \lambda_1 y ) + \exp(-\lambda\right) + \frac{p_x i}{\omega \f]
   !! \f[ \hat{u}^-(y) = c^- \left( \exp(+ \lambda_{-1} y ) \right) + \frac{p_x i}{\omega \f]
-  subroutine cinit_2DPulsatileXC( phiU, phiV, phiW, re_, om, px ) bind ( c, name='VF_init_2DPulsatileXC' )
-  ! (basic subroutine)
+  subroutine cinit_2DPulsatileXC( N1,N2,N3, b1L,b2L,b3L, b1U,b2U,b3U, phiU,phiV,phiW, re_, om, px ) bind ( c, name='VF_init_2DPulsatileXC' )
 
   implicit none
+
+  integer(c_int), intent(in)    ::  N1
+  integer(c_int), intent(in)    ::  N2
+  integer(c_int), intent(in)    ::  N3
+
+!  integer(c_int), intent(in)    ::  SS1
+!  integer(c_int), intent(in)    ::  SS2
+!  integer(c_int), intent(in)    ::  SS3
+!
+!  integer(c_int), intent(in)    ::  NN1
+!  integer(c_int), intent(in)    ::  NN2
+!  integer(c_int), intent(in)    ::  NN3
+
+  integer(c_int), intent(in)    ::  b1L
+  integer(c_int), intent(in)    ::  b2L
+  integer(c_int), intent(in)    ::  b3L
+
+  integer(c_int), intent(in)    ::  b1U
+  integer(c_int), intent(in)    ::  b2U
+  integer(c_int), intent(in)    ::  b3U
+
 
   real(c_double), intent(inout) ::  phiU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
   real(c_double), intent(inout) ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
@@ -585,10 +727,30 @@ module cmod_VectorField
   !! \f[ u(y,t) = \hat{u}^+ \exp(i \omega t) + \hat{u}^- \exp(- i \omega t) \f]
   !! \f[ \hat{u}^+(y) = c^+ \left( \exp(+ \lambda_1 y ) + \exp(-\lambda\right) + \frac{p_x i}{\omega \f]
   !! \f[ \hat{u}^-(y) = c^- \left( \exp(+ \lambda_{-1} y ) \right) + \frac{p_x i}{\omega \f]
-  subroutine cinit_2DPulsatileYC( phiU, phiV, phiW, re_, om_, px ) bind ( c, name='VF_init_2DPulsatileYC' )
+  subroutine cinit_2DPulsatileYC( N1,N2,N3, b1L,b2L,b3L, b1U,b2U,b3U, phiU,phiV,phiW, re_, om_, px ) bind ( c, name='VF_init_2DPulsatileYC' )
   ! (basic subroutine)
 
   implicit none
+
+  integer(c_int), intent(in)    ::  N1
+  integer(c_int), intent(in)    ::  N2
+  integer(c_int), intent(in)    ::  N3
+
+!  integer(c_int), intent(in)    ::  SS1
+!  integer(c_int), intent(in)    ::  SS2
+!  integer(c_int), intent(in)    ::  SS3
+!
+!  integer(c_int), intent(in)    ::  NN1
+!  integer(c_int), intent(in)    ::  NN2
+!  integer(c_int), intent(in)    ::  NN3
+
+  integer(c_int), intent(in)    ::  b1L
+  integer(c_int), intent(in)    ::  b2L
+  integer(c_int), intent(in)    ::  b3L
+
+  integer(c_int), intent(in)    ::  b1U
+  integer(c_int), intent(in)    ::  b2U
+  integer(c_int), intent(in)    ::  b3U
 
   real(c_double), intent(inout) ::  phiU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
   real(c_double), intent(inout) ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
@@ -657,10 +819,30 @@ module cmod_VectorField
   !! \f[ u(y,t) = \hat{u}^+ \exp(i \omega t) + \hat{u}^- \exp(- i \omega t) \f]
   !! \f[ \hat{u}^+(y) = c^+ \left( \exp(+ \lambda_1 y ) + \exp(-\lambda\right) + \frac{p_x i}{\omega \f]
   !! \f[ \hat{u}^-(y) = c^- \left( \exp(+ \lambda_{-1} y ) \right) + \frac{p_x i}{\omega \f]
-  subroutine cinit_2DPulsatileXS( phiU, phiV, phiW, re_, om_, px ) bind ( c, name='VF_init_2DPulsatileXS' )
+  subroutine cinit_2DPulsatileXS( N1,N2,N3, b1L,b2L,b3L, b1U,b2U,b3U, phiU,phiV,phiW, re_, om_, px ) bind ( c, name='VF_init_2DPulsatileXS' )
   ! (basic subroutine)
 
   implicit none
+
+  integer(c_int), intent(in)    ::  N1
+  integer(c_int), intent(in)    ::  N2
+  integer(c_int), intent(in)    ::  N3
+
+!  integer(c_int), intent(in)    ::  SS1
+!  integer(c_int), intent(in)    ::  SS2
+!  integer(c_int), intent(in)    ::  SS3
+!
+!  integer(c_int), intent(in)    ::  NN1
+!  integer(c_int), intent(in)    ::  NN2
+!  integer(c_int), intent(in)    ::  NN3
+
+  integer(c_int), intent(in)    ::  b1L
+  integer(c_int), intent(in)    ::  b2L
+  integer(c_int), intent(in)    ::  b3L
+
+  integer(c_int), intent(in)    ::  b1U
+  integer(c_int), intent(in)    ::  b2U
+  integer(c_int), intent(in)    ::  b3U
 
   real(c_double), intent(inout) ::  phiU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
   real(c_double), intent(inout) ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
@@ -729,10 +911,30 @@ module cmod_VectorField
   !! \f[ u(y,t) = \hat{u}^+ \exp(i \omega t) + \hat{u}^- \exp(- i \omega t) \f]
   !! \f[ \hat{u}^+(y) = c^+ \left( \exp(+ \lambda_1 y ) + \exp(-\lambda\right) + \frac{p_x i}{\omega \f]
   !! \f[ \hat{u}^-(y) = c^- \left( \exp(+ \lambda_{-1} y ) \right) + \frac{p_x i}{\omega \f]
-  subroutine cinit_2DPulsatileYS( phiU, phiV, phiW, re_, om_, px ) bind ( c, name='VF_init_2DPulsatileYS' )
+  subroutine cinit_2DPulsatileYS( N1,N2,N3, b1L,b2L,b3L, b1U,b2U,b3U, phiU,phiV,phiW, re_, om_, px ) bind ( c, name='VF_init_2DPulsatileYS' )
   ! (basic subroutine)
 
   implicit none
+
+  integer(c_int), intent(in)    ::  N1
+  integer(c_int), intent(in)    ::  N2
+  integer(c_int), intent(in)    ::  N3
+
+!  integer(c_int), intent(in)    ::  SS1
+!  integer(c_int), intent(in)    ::  SS2
+!  integer(c_int), intent(in)    ::  SS3
+!
+!  integer(c_int), intent(in)    ::  NN1
+!  integer(c_int), intent(in)    ::  NN2
+!  integer(c_int), intent(in)    ::  NN3
+
+  integer(c_int), intent(in)    ::  b1L
+  integer(c_int), intent(in)    ::  b2L
+  integer(c_int), intent(in)    ::  b3L
+
+  integer(c_int), intent(in)    ::  b1U
+  integer(c_int), intent(in)    ::  b2U
+  integer(c_int), intent(in)    ::  b3U
 
   real(c_double), intent(inout) ::  phiU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
   real(c_double), intent(inout) ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
@@ -746,8 +948,6 @@ module cmod_VectorField
   real :: mu
   real :: nu
   real :: c
-
-
 
   integer                ::  i, j, k
 
@@ -798,10 +998,30 @@ module cmod_VectorField
 
 
 
- subroutine cinit_Streaming( phiU, phiV, phiW ) bind ( c, name='VF_init_Streaming' )
+ subroutine cinit_Streaming( N1,N2,N3, b1L,b2L,b3L, b1U,b2U,b3U, phiU,phiV,phiW ) bind ( c, name='VF_init_Streaming' )
   ! (basic subroutine)
 
   implicit none
+
+  integer(c_int), intent(in)    ::  N1
+  integer(c_int), intent(in)    ::  N2
+  integer(c_int), intent(in)    ::  N3
+
+!  integer(c_int), intent(in)    ::  SS1
+!  integer(c_int), intent(in)    ::  SS2
+!  integer(c_int), intent(in)    ::  SS3
+!
+!  integer(c_int), intent(in)    ::  NN1
+!  integer(c_int), intent(in)    ::  NN2
+!  integer(c_int), intent(in)    ::  NN3
+
+  integer(c_int), intent(in)    ::  b1L
+  integer(c_int), intent(in)    ::  b2L
+  integer(c_int), intent(in)    ::  b3L
+
+  integer(c_int), intent(in)    ::  b1U
+  integer(c_int), intent(in)    ::  b2U
+  integer(c_int), intent(in)    ::  b3U
 
   real(c_double), intent(inout) ::  phiU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
   real(c_double), intent(inout) ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))

@@ -534,7 +534,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, update ) {
 
 	Teuchos::RCP<NV> vel1 = Teuchos::rcp(new NV(x) );
 	Teuchos::RCP<NV> vel2 = Teuchos::rcp(new NV(x->clone()) );
-	Teuchos::RCP<NV> vel3 = Teuchos::rcp_static_cast<NV>(vel2->clone());
+	Teuchos::RCP<NV> vel3 = Teuchos::rcp_dynamic_cast<NV>(vel2->clone());
 
 	TEST_EQUALITY( vel1->length(), vel2->length() )
 	TEST_EQUALITY( vel2->length(), vel3->length() )

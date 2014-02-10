@@ -50,41 +50,52 @@ void SF_reciprocal(
 
 
 void VF_compNorm(
+    const MPI_Fint& comm, const int& dimens,
+    const int& N1,  const int& N2,  const int& N3,
+    const int& S1U, const int& S2U, const int& S3U,
+    const int& N1U, const int& N2U, const int& N3U,
+    const int& S1V, const int& S2V, const int& S3V,
+    const int& N1V, const int& N2V, const int& N3V,
+    const int& S1W, const int& S2W, const int& S3W,
+    const int& N1W, const int& N2W, const int& N3W,
+    const int& b1L, const int& b2L, const int& b3L,
+		const int& b1U, const int& b2U, const int& b3U,
     const double* const phi1, const double* const phi2, const double* const phi3,
-//			MPI_Fint& comm,
-//			const int& N1,  const int& N2,  const int& N3,
-//			const int& SS1, const int& SS2, const int& SS3,
-//			const int& NN1, const int& NN2, const int& NN3,
-//			const int& b1L, const int& b2L, const int& b3L,
-//			const int& b1U, const int& b2U, const int& b3U,
-//			double* phi,
     const bool& inf_yes, const bool& two_yes,
-    double& normInf, double& normTwo);
+    double& normInf, double& normTwo );
 
 
 void VF_weightedNorm(
+    const MPI_Fint& comm, const int& dimens,
+		const int& N1,  const int& N2,  const int& N3,
+		const int& S1U, const int& S2U, const int& S3U,
+		const int& N1U, const int& N2U, const int& N3U,
+		const int& S1V, const int& S2V, const int& S3V,
+		const int& N1V, const int& N2V, const int& N3V,
+		const int& S1W, const int& S2W, const int& S3W,
+		const int& N1W, const int& N2W, const int& N3W,
+		const int& b1L, const int& b2L, const int& b3L,
+		const int& b1U, const int& b2U, const int& b3U,
     const double* const phi1, const double* const phi2, const double* const phi3,
     const double* const wei1, const double* const wei2, const double* const wei3,
-//			MPI_Fint& comm,
-//			const int& N1,  const int& N2,  const int& N3,
-//			const int& SS1, const int& SS2, const int& SS3,
-//			const int& NN1, const int& NN2, const int& NN3,
-//			const int& b1L, const int& b2L, const int& b3L,
-//			const int& b1U, const int& b2U, const int& b3U,
-//			double* phi,
     double& norm );
 
 
 void VF_dot(
-//  		MPI_Fint& comm,
-//			const int& N1,  const int& N2,  const int& N3,
-//			const int& SS1, const int& SS2, const int& SS3,
-//			const int& NN1, const int& NN2, const int& NN3,
-//			const int& b1L, const int& b2L, const int& b3L,
-//			const int& b1U, const int& b2U, const int& b3U,
-    const double* const phi1U, const double* const phi1V, const double* const phi1W,
-  	const double* const phi2U, const double* const phi2V, const double* const phi2W,
-  	double& scalar);
+  		const MPI_Fint& comm,
+  		const int& dimens,
+			const int& N1,  const int& N2,  const int& N3,
+			const int& S1U, const int& S2U, const int& S3U,
+			const int& N1U, const int& N2U, const int& N3U,
+			const int& S1V, const int& S2V, const int& S3V,
+			const int& N1V, const int& N2V, const int& N3V,
+			const int& S1W, const int& S2W, const int& S3W,
+			const int& N1W, const int& N2W, const int& N3W,
+			const int& b1L, const int& b2L, const int& b3L,
+			const int& b1U, const int& b2U, const int& b3U,
+			const double* const phi1U, const double* const phi1V, const double* const phi1W,
+			const double* const phi2U, const double* const phi2V, const double* const phi2W,
+			double& scalar);
 
 
 void SF_scale(
@@ -135,14 +146,76 @@ void SF_print(
 void VF_write( double* phiU, double* phiV, double* phiW, const int& count );
 
 
-void VF_init_Zero( double* phiU, double* phiV, double* phiW );
-void VF_init_2DPoiseuilleX( double* phiU, double* phiV, double* phiW );
-void VF_init_2DPoiseuilleY( double* phiU, double* phiV, double* phiW );
-void VF_init_2DPulsatileXC( double* phiU, double* phiV, double* phiW, const double& re, const double& om, const double& px );
-void VF_init_2DPulsatileYC( double* phiU, double* phiV, double* phiW, const double& re, const double& om, const double& px );
-void VF_init_2DPulsatileXS( double* phiU, double* phiV, double* phiW, const double& re, const double& om, const double& px );
-void VF_init_2DPulsatileYS( double* phiU, double* phiV, double* phiW, const double& re, const double& om, const double& px );
-void VF_init_Streaming( double* phiU, double* phiV, double* phiW );
+void VF_init_Zero(
+    const int& N1,  const int& N2,  const int& N3,
+//    const int& SS1, const int& SS2, const int& SS3,
+//    const int& NN1, const int& NN2, const int& NN3,
+    const int& b1L, const int& b2L, const int& b3L,
+    const int& b1U, const int& b2U, const int& b3U,
+    double* phiU, double* phiV, double* phiW );
+
+
+void VF_init_2DPoiseuilleX(
+    const int& N1,  const int& N2,  const int& N3,
+//		const int& SS1, const int& SS2, const int& SS3,
+//		const int& NN1, const int& NN2, const int& NN3,
+		const int& b1L, const int& b2L, const int& b3L,
+		const int& b1U, const int& b2U, const int& b3U,
+    double* phiU, double* phiV, double* phiW );
+
+
+void VF_init_2DPoiseuilleY(
+    const int& N1,  const int& N2,  const int& N3,
+//    const int& SS1, const int& SS2, const int& SS3,
+//    const int& NN1, const int& NN2, const int& NN3,
+    const int& b1L, const int& b2L, const int& b3L,
+    const int& b1U, const int& b2U, const int& b3U,
+    double* phiU, double* phiV, double* phiW );
+
+
+void VF_init_2DPulsatileXC(
+    const int& N1,  const int& N2,  const int& N3,
+    //    const int& SS1, const int& SS2, const int& SS3,
+    //    const int& NN1, const int& NN2, const int& NN3,
+    const int& b1L, const int& b2L, const int& b3L,
+    const int& b1U, const int& b2U, const int& b3U,
+    double* phiU, double* phiV, double* phiW, const double& re, const double& om, const double& px );
+
+
+void VF_init_2DPulsatileYC(
+    const int& N1,  const int& N2,  const int& N3,
+    //    const int& SS1, const int& SS2, const int& SS3,
+    //    const int& NN1, const int& NN2, const int& NN3,
+    const int& b1L, const int& b2L, const int& b3L,
+    const int& b1U, const int& b2U, const int& b3U,
+    double* phiU, double* phiV, double* phiW, const double& re, const double& om, const double& px );
+
+
+void VF_init_2DPulsatileXS(
+    const int& N1,  const int& N2,  const int& N3,
+    //    const int& SS1, const int& SS2, const int& SS3,
+    //    const int& NN1, const int& NN2, const int& NN3,
+    const int& b1L, const int& b2L, const int& b3L,
+    const int& b1U, const int& b2U, const int& b3U,
+    double* phiU, double* phiV, double* phiW, const double& re, const double& om, const double& px );
+
+
+void VF_init_2DPulsatileYS(
+    const int& N1,  const int& N2,  const int& N3,
+    //    const int& SS1, const int& SS2, const int& SS3,
+    //    const int& NN1, const int& NN2, const int& NN3,
+    const int& b1L, const int& b2L, const int& b3L,
+    const int& b1U, const int& b2U, const int& b3U,
+    double* phiU, double* phiV, double* phiW, const double& re, const double& om, const double& px );
+
+
+void VF_init_Streaming(
+    const int& N1,  const int& N2,  const int& N3,
+    //    const int& SS1, const int& SS2, const int& SS3,
+    //    const int& NN1, const int& NN2, const int& NN3,
+    const int& b1L, const int& b2L, const int& b3L,
+    const int& b1U, const int& b2U, const int& b3U,
+    double* phiU, double* phiV, double* phiW );
 
 }
 
@@ -371,12 +444,16 @@ public:
 		/// \todo add test in debuging mode for testing equality of VectorSpaces
 		Scalar b;
 		VF_dot(
-//				commf(),
-//				nLoc(0), nLoc(1), nLoc(2),
-//				sInd(0), sInd(1), sInd(2),
-//				eInd(0), eInd(1), eInd(2),
-//				bl(0),   bl(1),   bl(2),
-//				bu(0),   bu(1),   bu(2),
+				commf(), dim(),
+				nLoc(0), nLoc(1), nLoc(2),
+				sInd(0,0), sInd(1,0), sInd(2,0),
+				eInd(0,0), eInd(1,0), eInd(2,0),
+				sInd(0,1), sInd(1,1), sInd(2,1),
+				eInd(0,1), eInd(1,1), eInd(2,1),
+				sInd(0,2), sInd(1,2), sInd(2,2),
+				eInd(0,2), eInd(1,2), eInd(2,2),
+				bl(0),   bl(1),   bl(2),
+				bu(0),   bu(1),   bu(2),
 				vec_[0],     vec_[1],   vec_[2],
 				a.vec_[0], a.vec_[1], a.vec_[2],
 				b);
@@ -402,21 +479,24 @@ public:
   	switch(type) {
   	case Belos::TwoNorm: twoNorm_yes = true; break;
   	case Belos::InfNorm: infNorm_yes = true; break;
-  	case Belos::OneNorm: std::cout << "norm: not implemented"; return 0.;
-  	default: std::cout << "unkown norm"; return 0.;
+  	case Belos::OneNorm: std::cout << "norm: not implemented"; return( 0. );
+  	default: std::cout << "unkown norm"; return( 0. );
   	}
 
   	Scalar normvec;
   	VF_compNorm(
-  			vec_[0], vec_[1], vec_[2],
-//  				commf(),
-//  				nLoc(0), nLoc(1), nLoc(2),
-//  				sInd(0), sInd(1), sInd(2),
-//  				eInd(0), eInd(1), eInd(2),
-//  				bl(0),   bl(1),   bl(2),
-//  				bu(0),   bu(1),   bu(2),
-//  				s_, // mabyeb .data() or getPTr()
-  				infNorm_yes, twoNorm_yes,
+  	    commf(), dim(),
+  	    nLoc(0), nLoc(1), nLoc(2),
+				sInd(0,0), sInd(1,0), sInd(2,0),
+				eInd(0,0), eInd(1,0), eInd(2,0),
+				sInd(0,1), sInd(1,1), sInd(2,1),
+				eInd(0,1), eInd(1,1), eInd(2,1),
+				sInd(0,2), sInd(1,2), sInd(2,2),
+				eInd(0,2), eInd(1,2), eInd(2,2),
+  	    bl(0),   bl(1),   bl(2),
+  			bu(0),   bu(1),   bu(2),
+        vec_[0], vec_[1], vec_[2],
+  			infNorm_yes, twoNorm_yes,
   				normvec, normvec );
   	return( normvec );
   }
@@ -432,6 +512,16 @@ public:
   double norm(const MV& weights) const {
     Scalar normvec;
     VF_weightedNorm(
+  	    commf(), dim(),
+  	    nLoc(0), nLoc(1), nLoc(2),
+        sInd(0,0), sInd(1,0), sInd(2,0),
+        eInd(0,0), eInd(1,0), eInd(2,0),
+        sInd(0,1), sInd(1,1), sInd(2,1),
+        eInd(0,1), eInd(1,1), eInd(2,1),
+        sInd(0,2), sInd(1,2), sInd(2,2),
+        eInd(0,2), eInd(1,2), eInd(2,2),
+  	    bl(0),   bl(1),   bl(2),
+  			bu(0),   bu(1),   bu(2),
         vec_[0], vec_[1], vec_[2],
         weights.vec_[0], weights.vec_[1], weights.vec_[2],
         normvec);
@@ -514,33 +604,64 @@ public:
    *  \brief initializes VectorField with the initial field defined in Fortran
    */
   void init_field( EFlowProfile flowType = Poiseuille2D_inX, double re=1., double om=1., double px = 1. ) {
-  	switch(flowType) {
-  				case ZeroProf :
-						VF_init_Zero( vec_[0], vec_[1], vec_[2] );
-						break;
-  				case Poiseuille2D_inX :
-						VF_init_2DPoiseuilleX( vec_[0], vec_[1], vec_[2] );
-						break;
-  				case Poiseuille2D_inY :
-						VF_init_2DPoiseuilleY( vec_[0], vec_[1], vec_[2] );
-						break;
-  				case Pulsatile2D_inXC :
-						VF_init_2DPulsatileXC( vec_[0], vec_[1], vec_[2], re, om, px);
-						break;
-  				case Pulsatile2D_inYC :
-						VF_init_2DPulsatileYC( vec_[0], vec_[1], vec_[2], re, om, px);
-						break;
-  				case Pulsatile2D_inXS :
-						VF_init_2DPulsatileXS( vec_[0], vec_[1], vec_[2], re, om, px);
-						break;
-  				case Pulsatile2D_inYS:
-						VF_init_2DPulsatileYS( vec_[0], vec_[1], vec_[2], re, om, px);
-						break;
-  				case Streaming2D:
-						VF_init_Streaming( vec_[0], vec_[1], vec_[2] );
-						break;
-
-  	  	}
+    switch(flowType) {
+    case ZeroProf :
+      VF_init_Zero(
+          nLoc(0), nLoc(1), nLoc(2),
+          bl(0),   bl(1),   bl(2),
+          bu(0),   bu(1),   bu(2),
+					vec_[0], vec_[1], vec_[2] );
+      break;
+    case Poiseuille2D_inX :
+      VF_init_2DPoiseuilleX(
+          nLoc(0), nLoc(1), nLoc(2),
+          bl(0),   bl(1),   bl(2),
+          bu(0),   bu(1),   bu(2),
+					vec_[0], vec_[1], vec_[2] );
+      break;
+    case Poiseuille2D_inY :
+      VF_init_2DPoiseuilleY(
+          nLoc(0), nLoc(1), nLoc(2),
+          bl(0),   bl(1),   bl(2),
+          bu(0),   bu(1),   bu(2),
+          vec_[0], vec_[1], vec_[2] );
+      break;
+    case Pulsatile2D_inXC :
+      VF_init_2DPulsatileXC(
+          nLoc(0), nLoc(1), nLoc(2),
+          bl(0),   bl(1),   bl(2),
+          bu(0),   bu(1),   bu(2),
+          vec_[0], vec_[1], vec_[2], re, om, px);
+      break;
+    case Pulsatile2D_inYC :
+      VF_init_2DPulsatileYC(
+          nLoc(0), nLoc(1), nLoc(2),
+          bl(0),   bl(1),   bl(2),
+          bu(0),   bu(1),   bu(2),
+          vec_[0], vec_[1], vec_[2], re, om, px);
+      break;
+    case Pulsatile2D_inXS :
+      VF_init_2DPulsatileXS(
+          nLoc(0), nLoc(1), nLoc(2),
+          bl(0),   bl(1),   bl(2),
+          bu(0),   bu(1),   bu(2),
+          vec_[0], vec_[1], vec_[2], re, om, px);
+      break;
+    case Pulsatile2D_inYS:
+      VF_init_2DPulsatileYS(
+          nLoc(0), nLoc(1), nLoc(2),
+          bl(0),   bl(1),   bl(2),
+          bu(0),   bu(1),   bu(2),
+          vec_[0], vec_[1], vec_[2], re, om, px);
+      break;
+    case Streaming2D:
+      VF_init_Streaming(
+          nLoc(0), nLoc(1), nLoc(2),
+          bl(0),   bl(1),   bl(2),
+          bu(0),   bu(1),   bu(2),
+          vec_[0], vec_[1], vec_[2] );
+      break;
+    }
   }
 
 
@@ -609,7 +730,7 @@ protected:
 	 * \todo add good documetnation here
 	 * @return
 	 */
-	MPI_Fint& commf() const { return  fieldS_->commf_ ; }
+	const MPI_Fint& commf() const { return  fieldS_->commf_ ; }
 	MPI_Comm comm() const { return  fieldS_->comm_ ; }
 	const int& dim() const { return fieldS_->dim_; }
 	const Ordinal& nGlo(int i) const { return fieldS_->nGlo_[i]; }

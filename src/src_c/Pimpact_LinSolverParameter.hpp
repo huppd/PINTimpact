@@ -25,7 +25,13 @@ public:
 				Belos::StatusTestDetails + Belos::Debug ;
 		int style = Belos::Brief;
 
-		if( solver_name=="GMRES" ) {
+		if( solver_name=="CG" ) {
+      parameter_->set( "Maximum Iterations",        1000   );
+			parameter_->set( "Verbosity",									verbo	 );
+			parameter_->set( "Output Style",							style	 );
+			parameter_->set( "Convergence Tolerance",			tol		 );
+		}
+		else if( solver_name=="GMRES" ) {
 			parameter_->set( "Num Blocks",								100		 );
 //			parameter_->set( "Maximum Iterations",				2000	 );
 //			parameter_->set( "Maximum Restarts",					20		 );

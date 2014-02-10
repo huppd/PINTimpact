@@ -346,6 +346,10 @@ public:
   	field_->print( os );
   }
 
+
+  Teuchos::RCP<Field> getFieldPtr() { return( field_ ); };
+  Field& getField() { return( *field_ ); };
+
 protected:
   Teuchos::RCP<Field> field_;
 

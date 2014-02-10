@@ -7,7 +7,6 @@ module cmod_ScalarVector
   use iso_c_binding
   use mpi
 
-  use mod_vars, only: weight
 
   implicit none
 !  public get_norms
@@ -300,14 +299,12 @@ module cmod_ScalarVector
   !! \param[in] b2U end offset of storage in 2-direction
   !! \param[in] b3U end offset of storage in 3-direction
   !! \param[in] phi vector, from which the norm is taken
-  !! \param[in] weighting_yes if weighting schould be used, using the \c weights from \c mod_vars
   !! \param[in] inf_yes if true infinity norm is computed
   !! \param[in] two_yes if trhue two norm is computed
   !! \param[out] normInf gets the infinity norm of phi
   !! \param[out] normTwo get the two norm of phi
-  !! \todo weight (easydirty fix: include module) (good persisting fix: move to pimpact)
   ! TEST!!! N1, N2, N3 werden ebenfalls uebergeben ...
-  subroutine get_norms(comm,N1,N2,N3,SS1,SS2,SS3,NN1,NN2,NN3,b1L,b2L,b3L,b1U,b2U,b3U,phi,weighting_yes,inf_yes,two_yes,normInf,normTwo) bind (c, name='SF_compNorm')
+  subroutine get_norms(comm,N1,N2,N3,SS1,SS2,SS3,NN1,NN2,NN3,b1L,b2L,b3L,b1U,b2U,b3U,phi,inf_yes,two_yes,normInf,normTwo) bind (c, name='SF_compNorm')
   implicit none
 
   integer(c_int), intent(in)  ::  comm
@@ -334,72 +331,42 @@ module cmod_ScalarVector
 
   real(c_double), intent(in)  ::  phi(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
 
-  logical(c_bool),intent(in)  ::  weighting_yes
   logical(c_bool),intent(in)  ::  inf_yes
   logical(c_bool),intent(in)  ::  two_yes
 
   real(c_double), intent(out) ::  normInf
   real(c_double), intent(out) ::  normTwo
 
-  real(c_double)                        ::  normInf_global, normTwo_global
-  integer                              ::  i, j, k
+  real(c_double)              ::  normInf_global, normTwo_global
+  integer                     ::  i, j, k
 
-  integer                              :: merror
+  integer                     :: merror
 
+    if (inf_yes .and. two_yes) then
 
-  if (inf_yes .and. two_yes) then
-
-     normInf = 0.
-     normTwo = 0.
-
-     if( weighting_yes ) then
+        normInf = 0.
+        normTwo = 0.
 
         do k = SS3, NN3
-           do j = SS2, NN2
+            do j = SS2, NN2
 !pgi$ unroll = n:8
-              do i = SS1, NN1
-                 normInf = MAX(ABS(phi(i,j,k)*weight(i,j,k)),normInf)
-                 normTwo = normTwo + phi(i,j,k)**2
-              end do
-           end do
+                do i = SS1, NN1
+                    normInf = MAX(ABS(phi(i,j,k)),normInf)
+                    normTwo = normTwo + phi(i,j,k)**2
+                end do
+            end do
         end do
 
-     else
+        ! Lassen sich wegen MPI_SUM / MPI_MAX nicht zusammenlegen:
+        call MPI_ALLREDUCE(normInf,normInf_global,1,MPI_REAL8,MPI_MAX,comm,merror)
+        call MPI_ALLREDUCE(normTwo,normTwo_global,1,MPI_REAL8,MPI_SUM,comm,merror)
 
-        do k = SS3, NN3
-           do j = SS2, NN2
-!pgi$ unroll = n:8
-              do i = SS1, NN1
-                 normInf = MAX(ABS(phi(i,j,k)),normInf)
-                 normTwo = normTwo + phi(i,j,k)**2
-              end do
-           end do
-        end do
+        normInf = normInf_global
+        normTwo = normTwo_global
 
-     end if
+    else if (inf_yes) then
 
-     ! Lassen sich wegen MPI_SUM / MPI_MAX nicht zusammenlegen:
-     call MPI_ALLREDUCE(normInf,normInf_global,1,MPI_REAL8,MPI_MAX,comm,merror)
-     call MPI_ALLREDUCE(normTwo,normTwo_global,1,MPI_REAL8,MPI_SUM,comm,merror)
-     normInf = normInf_global
-     normTwo = normTwo_global
-
-  else if (inf_yes) then
-
-     normInf = 0.
-
-     if( weighting_yes ) then
-
-        do k = SS3, NN3
-           do j = SS2, NN2
-!pgi$ unroll = n:8
-              do i = SS1, NN1
-                 normInf = MAX(ABS(phi(i,j,k)*weight(i,j,k)),normInf)
-              end do
-           end do
-        end do
-
-     else
+        normInf = 0.
 
         do k = SS3, NN3
            do j = SS2, NN2
@@ -410,29 +377,26 @@ module cmod_ScalarVector
            end do
         end do
 
-     end if
+        call MPI_ALLREDUCE(normInf,normInf_global,1,MPI_REAL8,MPI_MAX,comm,merror) ! MPI_REDUCE bringt nichts, weil exit_yes dann mit MPI_BCAST verteilt werden müsste ...
+        normInf = normInf_global
 
-     call MPI_ALLREDUCE(normInf,normInf_global,1,MPI_REAL8,MPI_MAX,comm,merror) ! MPI_REDUCE bringt nichts, weil exit_yes dann mit MPI_BCAST verteilt werden müsste ...
-     normInf = normInf_global
+    else if (two_yes) then
 
-  else if (two_yes) then
+        normTwo = 0.
 
-     normTwo = 0.
-
-     do k = SS3, NN3
-        do j = SS2, NN2
+        do k = SS3, NN3
+            do j = SS2, NN2
 !pgi$ unroll = n:8
-           do i = SS1, NN1
-              normTwo = normTwo + phi(i,j,k)**2
-           end do
+                do i = SS1, NN1
+                    normTwo = normTwo + phi(i,j,k)**2
+                end do
+            end do
         end do
-     end do
 
-     call MPI_ALLREDUCE(normTwo,normTwo_global,1,MPI_REAL8,MPI_SUM,comm,merror)
-     normTwo = normTwo_global
+        call MPI_ALLREDUCE(normTwo,normTwo_global,1,MPI_REAL8,MPI_SUM,comm,merror)
+        normTwo = normTwo_global
 
-  end if
-
+    end if
 
   end subroutine get_norms
 

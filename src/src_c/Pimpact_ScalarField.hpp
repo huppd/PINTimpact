@@ -58,7 +58,6 @@ void SF_compNorm(const MPI_Fint& comm,
 	const int& b1L, const int& b2L, const int& b3L,
 	const int& b1U, const int& b2U, const int& b3U,
 	double* phi,
-	const bool& weighting_yes,
 	const bool& inf_yes, const bool& two_yes,
 	double& normInf, double& normTwo);
 
@@ -368,7 +367,6 @@ public:
   	default: std::cout << "!!! Warning unknown Belos::NormType:\t" << type << "\n"; return(0.);
 		}
 
-		bool weighted = false;
 		Scalar normvec;
 		SF_compNorm(
 				commf(),
@@ -378,7 +376,7 @@ public:
 				  bl(0),   bl(1),   bl(2),
 				  bu(0),   bu(1),   bu(2),
 				s_,
-				weighted, infNorm_yes, twoNorm_yes,
+				infNorm_yes, twoNorm_yes,
 				normvec, normvec );
 		return( normvec );
 	}
