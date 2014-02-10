@@ -322,7 +322,6 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, norm_weighted ) {
   vel2->reciprocal( *vel1 );
   norm = vel2->norm(*vel1);
   TEST_EQUALITY( N, norm );
-
 }
 
 

@@ -41,7 +41,7 @@ namespace Pimpact{
  *
  */
 template<class Field>
-class Vector : public NOX::Abstract::Vector {
+class Vector : public virtual NOX::Abstract::Vector {
 
 public:
 
@@ -302,7 +302,6 @@ public:
    */
   virtual double norm(const Vector<Field>& weights) const {
   	return( field_->norm( *weights.field_) );
-//    return 0.;
   }
   virtual double norm(const NOX::Abstract::Vector& weights) const {
   	return( norm( dynamic_cast<const Vector<Field>& >(weights) ) );

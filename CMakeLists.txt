@@ -17,9 +17,9 @@ cmake_minimum_required(VERSION 2.8)
 # Use Trilinos_PREFIX, if the user set it, to help find Trilinos.
 # The final location will actually be held in Trilinos_DIR which must
 # point at "<prefix>/lib/cmake/Trilinos", but this helps the search.
-SET(CMAKE_PREFIX_PATH ${Trilinos_PREFIX} ${CMAKE_PREFIX_PATH})
+#SET(CMAKE_PREFIX_PATH ${Trilinos_PREFIX} ${CMAKE_PREFIX_PATH})
 #SET(CMAKE_PREFIX_PATH "/usr/lib/")
-message("CMAKE_PREFIX_PATH: " ${CMAKE_PREFIX_PATH})
+#message("CMAKE_PREFIX_PATH: " ${CMAKE_PREFIX_PATH})
 
 # Get Trilinos as one entity
 FIND_PACKAGE(Trilinos REQUIRED)
@@ -69,15 +69,17 @@ ENDIF()
 set( Limpact_TPL_LIBRARIES hdf5hl_fortran hdf5_hl hdf5_fortran hdf5  z m lapack blas )
 set( Pimpact_TPL_LIBRARIES limpact ${Limpact_TPL_LIBRARIES} gfortran mpi_f77 mpi_f90   ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES}   )
 
-SET(CMAKE_Fortran_COMPILER ${Trilinos_Fortran_COMPILER} )
+#SET(CMAKE_Fortran_COMPILER ${Trilinos_Fortran_COMPILER} )
 MESSAGE("Fortran compiler: ${CMAKE_Fortran_COMPILER}")
 MESSAGE("CMAKE_Fortran_COMPILE_FLAGS:  ${CMAKE_Fortran_COMPILE_FLAGS}")
 
 #ADD_DEFINITIONS(-DMYAPP_EPETRA)
 
-INCLUDE_DIRECTORIES(${Trilinos_INCLUDE_DIRS} ${Trilinos_TPL_INCLUDE_DIRS}  /usr/include)
+INCLUDE_DIRECTORIES(${inc_dir} ${Trilinos_INCLUDE_DIRS} ${Trilinos_TPL_INCLUDE_DIRS} )
 LINK_DIRECTORIES(${Trilinos_LIBRARY_DIRS} ${Trilinos_TPL_LIBRARY_DIRS} )
 
+#find_path(STDIO_INCLUDE_PATH stdio.h)
+#include_directories("${STDIO_INCLUDE_PATH}/dummy/../")
 
 #ADD_LIBRARY(myappLib src_file.cpp src_file.hpp)
 
@@ -92,8 +94,11 @@ LINK_DIRECTORIES(${Trilinos_LIBRARY_DIRS} ${Trilinos_TPL_LIBRARY_DIRS} )
 # directories of additional CMake modules (ie. MacroOutOfSourceBuild.cmake):
 set(CMAKE_MODULE_PATH ${pimpact_SOURCE_DIR}/cmake/modules ${CMAKE_MODULE_PATH})
 
-MESSAGE("include dir: ${INCLUDE_DIRECTORIES}")
-message("link directories ${LINK_DIRETORIES}")
+
+get_property(inc_dirs DIRECTORY PROPERTY INCLUDE_DIRECTORIES)
+message("Include dirs = ${inc_dirs}")
+get_property(link_dirs DIRECTORY PROPERTY LINK_DIRECTORIES)
+message("Link dirs = ${link_dirs}")
 
 enable_testing()
 
