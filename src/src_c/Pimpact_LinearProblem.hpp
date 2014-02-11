@@ -27,7 +27,11 @@ public:
 			 Teuchos::RCP< Belos::LinearProblem<Scalar, MV, OP> > problem ):
 				 solver_(solver),problem_(problem) {};
 
-	 Belos::ReturnType solve( const Teuchos::RCP<MV>& x, const Teuchos::RCP<const MV>& rhs){
+	 void apply( const Teuchos::RCP<const MV>& x, const Teuchos::RCP<MV> & y ) {
+	   problem_->applyOp( *x, *y );
+	 }
+
+	 Belos::ReturnType solve( const Teuchos::RCP<MV>& x, const Teuchos::RCP<const MV>& rhs) {
 		 problem_->setProblem(x,rhs);
 		 return( solver_->solve() );
 	 }

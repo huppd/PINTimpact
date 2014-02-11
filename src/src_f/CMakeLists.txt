@@ -15,9 +15,9 @@ set(limpact_srcs ${mod_SRCS} ${cmod_SRCS} ${usr_SRCS} sub_other.f90)
 # using file() function:
 # file(GLOB pimpact_SOURCES *.cpp)
 
-MESSAGE("Fortran compiler: " ${CMAKE_Fortran_COMPILER})
-Message("Fortran_FORMAT: " ${Fortran_FORMAT})
-MESSAGE("CMAKE_Fortran_COMPILE_FLAGS: " ${CMAKE_Fortran_COMPILE_FLAGS})
+#MESSAGE("Fortran compiler: " ${CMAKE_Fortran_COMPILER})
+#Message("Fortran_FORMAT: " ${Fortran_FORMAT})
+#MESSAGE("CMAKE_Fortran_COMPILE_FLAGS: " ${CMAKE_Fortran_COMPILE_FLAGS})
 #Message("Impact libs: " ${ALL_f90_SRCS})
 
 add_library(limpact ${limpact_srcs} )

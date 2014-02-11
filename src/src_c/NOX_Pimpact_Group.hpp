@@ -40,7 +40,7 @@
 //class Ifpack_CrsRiluk;
 
 namespace NOX {
-namespace Pimpact {
+namespace PIMPACT {
 
 /**
  * \brief Concrete implementation of NOX::Abstract::Group for Pimpact.
@@ -113,31 +113,20 @@ protected:
 
   /** @name Shared Operators */
   //@{
-  /// Pointer to shared Jacobian matrix
+  /// Pointer to shared Interface
   Teuchos::RCP<
-    NOX::SharedObject< Operator, NOX::Pimpact::Group>
-    > sharedOperatorPtr;
+    NOX::SharedObject< Interface, NOX::Pimpact::Group>
+    > sharedInterfacePtr;
 
-  /// Reference to shared Jacobian matrix
-  NOX::SharedObject< Operator, NOX::Pimpact::Group>&
-  sharedOperator;
-
-  /// Pointer to shared Jacobian matrix
-  Teuchos::RCP<
-    NOX::SharedObject< LinearProblem, NOX::Pimpact::Group>
-    > sharedLinearSystemPtr;
-
-  /// Reference to shared Jacobian matrix
-  NOX::SharedObject< LinearProblem, NOX::Pimpact::Group>&
-  sharedLinearSystem;
+  /// Reference to shared Interface
+  NOX::SharedObject< Interface, NOX::Pimpact::Group>&
+  sharedInterface;
 
   //@}
 
   // Internal flag to disable linear resid computation. False unless set.
   bool linearResidCompDisabled;
 
-  /// Reference to the user supplied interface functions
-  Teuchos::RCP<Interface> userInterfacePtr;
 
 public:
 
@@ -163,41 +152,40 @@ public:
         NewtonVector(*NewtonVectorPtr),
         normNewtonSolveResidual(0),
         conditionNumber(0.0),
-        sharedOperator(*sharedOperatorPtr),
-        sharedLinearSystem(*sharedLinearSystemPtr),
-        linearResidCompDisabled(false),
-        userInterfacePtr(i) {
+        sharedInterfacePtr(i),
+        sharedInterface(*sharedInterfacePtr),
+        linearResidCompDisabled(false) {
     // Set all isValid flags to false
     resetIsValid();
   }
 
 
   /// Standard Constructor.
-  Group(Teuchos::ParameterList& printingParams,
-      const Teuchos::RCP<Interface>& i,
-      const Vector& initialGuess,
-      const Teuchos::RCP<Operator>& op,
-      const Teuchos::RCP<Operator>& linSys ):
-    utils( printParams ),
-    xVectorPtr(Teuchos::rcp_dynamic_cast<Vector>(x.clone(DeepCopy))),
-    xVector(*xVectorPtr),
-    RHSVectorPtr(rcp_dynamic_cast<Vector>(x.clone(ShapeCopy))),
-    RHSVector(*RHSVectorPtr),
-    gradVectorPtr(Teuchos::rcp_dynamic_cast<Vector>(x.clone(ShapeCopy))),
-    gradVector(*gradVectorPtr),
-    NewtonVectorPtr(Teuchos::rcp_dynamic_cast<Vector>(x.clone(ShapeCopy))),
-    NewtonVector(*NewtonVectorPtr),
-    normNewtonSolveResidual(0),
-    conditionNumber(0.0),
-    sharedOperatorPtr(Teuchos::rcp(new NOX::SharedObject<Operator, NOX::Pimpact::Group>(op))),
-    sharedOperator(*sharedOperatorPtr),
-    sharedLinearSystemPtr(Teuchos::rcp(new NOX::SharedObject<Operator, NOX::Pimpact::Group>(linSys))),
-    sharedLinearSystem(*sharedLinearSystemPtr),
-    linearResidCompDisabled(false),
-    userInterfacePtr(i) {
-    // Set all isValid flags to false
-    resetIsValid();
-  };
+//  Group(Teuchos::ParameterList& printingParams,
+//      const Teuchos::RCP<Interface>& i,
+//      const Vector& initialGuess,
+//      const Teuchos::RCP<Operator>& op,
+//      const Teuchos::RCP<Operator>& linSys ):
+//    utils( printParams ),
+//    xVectorPtr(Teuchos::rcp_dynamic_cast<Vector>(x.clone(DeepCopy))),
+//    xVector(*xVectorPtr),
+//    RHSVectorPtr(rcp_dynamic_cast<Vector>(x.clone(ShapeCopy))),
+//    RHSVector(*RHSVectorPtr),
+//    gradVectorPtr(Teuchos::rcp_dynamic_cast<Vector>(x.clone(ShapeCopy))),
+//    gradVector(*gradVectorPtr),
+//    NewtonVectorPtr(Teuchos::rcp_dynamic_cast<Vector>(x.clone(ShapeCopy))),
+//    NewtonVector(*NewtonVectorPtr),
+//    normNewtonSolveResidual(0),
+//    conditionNumber(0.0),
+//    sharedOperatorPtr(Teuchos::rcp(new NOX::SharedObject<Operator, NOX::Pimpact::Group>(op))),
+//    sharedOperator(*sharedOperatorPtr),
+//    sharedLinearSystemPtr(Teuchos::rcp(new NOX::SharedObject<Operator, NOX::Pimpact::Group>(linSys))),
+//    sharedLinearSystem(*sharedLinearSystemPtr),
+//    linearResidCompDisabled(false),
+//    userInterfacePtr(i) {
+//    // Set all isValid flags to false
+//    resetIsValid();
+//  };
 
 
   /**
@@ -214,12 +202,9 @@ public:
       gradVector(*gradVectorPtr),
       NewtonVectorPtr(Teuchos::rcp_dynamic_cast<Vector>(source.NewtonVector.clone(type))),
       NewtonVector(*NewtonVectorPtr),
-      sharedOperatorPtr(source.sharedOperatorPtr),
-      sharedOperator(*sharedOperatorPtr),
-      sharedLinearSystemPtr(source.sharedLinearSystemPtr),
-      sharedLinearSystem(*sharedLinearSystemPtr),
-      linearResidCompDisabled(source.linearResidCompDisabled),
-      userInterfacePtr(source.userInterfacePtr) {
+      sharedInterfacePtr(source.sharedInterfacePtr),
+      sharedInterface(*sharedInterface),
+      linearResidCompDisabled(source.linearResidCompDisabled) {
 
     switch (type) {
 
@@ -268,7 +253,7 @@ public:
     xVector = source.xVector;
 
     // Copy reference to sharedJacobian
-    sharedLinearSystemPtr = source.sharedLinearSystemPtr;
+    sharedInterfacePtr = source.sharedInterfacePtr;
 
     // Update the isValidVectors
     isValidRHS = source.isValidRHS;
@@ -296,7 +281,7 @@ public:
 
     // If valid, this takes ownership of the shared Jacobian
     if (isValidJacobian)
-      sharedLinearSystem.getObject(this);
+      sharedInterface.getObject(this);
 
     if (isValidConditionNumber)
       conditionNumber = source.conditionNumber;
@@ -312,7 +297,7 @@ public:
 
   virtual void setX(const Vector& y) {
     if (isPreconditioner()) {
-      sharedLinearSystem.getObject(this)->destroyPreconditioner();
+//      sharedLinearSystem.getObject(this)->destroyPreconditioner();
     }
     resetIsValid();
     xVector = y;
@@ -328,7 +313,7 @@ public:
       const Vector& d,
       double step ) {
     if( isPreconditioner() )
-      sharedLinearSystem.getObject(this)->destroyPreconditioner();
+//      sharedLinearSystem.getObject(this)->destroyPreconditioner();
     resetIsValid();
     xVector.update(1.0, grp.xVector, step, d);
     return;
@@ -375,7 +360,7 @@ public:
 
 //    status = sharedLinearSystem.getObject(this)->
 //        computeJacobian(xVector);
-    status = userInterfacePtr->computeJacobian( xVector.getField(), sharedOperator.getObject(this) );
+    status = sharedInterfacePtr->computeJacobian( xVector.getField() );
 
     if (status == false) {
       std::cout << "ERROR: NOX::Pimpact::Group::computeJacobian() - fill failed!!!"
@@ -405,7 +390,7 @@ public:
     }
 
     // Compute grad = Jacobian^T * RHS.
-    sharedOperator.getObject(this)->apply( RHSVector,
+    sharedInterface.getObject(this)->applyJacobian( RHSVector,
 							       gradVector, Belos::TRANS );
 
     // Update state
@@ -469,7 +454,7 @@ public:
       return( Abstract::Group::BadDependency );
 
     // Apply the Jacobian
-    Belos::ReturnType status = sharedLinearSystem.getObject()->solve( result, input );
+    Belos::ReturnType status = sharedInterface.getObject()->applyJacobian( result, input );
 
     switch(status) {
     case Belos::Converged: return( Abstract::Group::Ok );
@@ -478,7 +463,7 @@ public:
   }
   virtual NOX::Abstract::Group::ReturnType
   applyJacobian(const NOX::Abstract::Vector& input, NOX::Abstract::Vector& result) const {
-    const & pimpinput =  dynamic_cast<const Vector&> (input);
+    const Vector& pimpinput =  dynamic_cast<const Vector&> (input);
     Vector& pimpresult = dynamic_cast<Vector&> (result);
 
     return( applyJacobian( pimpinput, pimpresult) );
@@ -491,7 +476,7 @@ public:
     if( !isJacobian() )
       return( Abstract::Group::BadDependency );
 
-    bool status = sharedLinearSystem.getObject()->applyTranspose(input, result);
+    bool status = sharedInterface.getObject()->applyJacobian( input, result, Belos::Trans );
 
     return( status == true ? Abstract::Group::Ok : Abstract::Group::Failed );
   }
@@ -559,7 +544,7 @@ public:
 //      }
 //    }
 
-    bool status = sharedLinearSystem.getObject(this)->applyInverse(params, input, result);
+    bool status = sharedInterface.getObject(this)->applyJacobianInverse(params, input, result);
 
     return( status == true ? Abstract::Group::Ok : Abstract::Group::NotConverged );
   }
@@ -601,7 +586,7 @@ public:
     const Vector& pimpInput = dynamic_cast<const Vector&>(input);
     Vector& pimpResult = dynamic_cast<Vector&>(result);
 
-    return( applyRightPreconditioning(useTranspose, params, epetraInput, epetraResult) );
+    return( applyRightPreconditioning(useTranspose, params, pimpInput, pimpResult) );
   }
 
 
@@ -617,7 +602,7 @@ public:
   //@{
 
   virtual bool isF() const { return( isValidRHS ); }
-  virtual bool isJacobian() const { return( ((sharedLinearSystem.isOwner(this)) && (isValidJacobian)) ); }
+  virtual bool isJacobian() const { return( ((sharedInterface.isOwner(this)) && (isValidJacobian)) ); }
   virtual bool isGradient() const { return( isValidGrad ); }
   virtual bool isNewton() const { return( isValidNewton ); }
 
@@ -636,8 +621,8 @@ public:
    * multiple calls to applyRightPreconditioner).
    */
   virtual bool isPreconditioner() const {
-    return ((sharedLinearSystem.isOwner(this)) && (isValidPreconditioner) &&
-        (sharedLinearSystem.getObject(this)->isPreconditionerConstructed()));
+    return ((sharedInterface.isOwner(this)) && (isValidPreconditioner) &&
+        (sharedInterface.getObject(this)->isPreconditionerConstructed()));
   }
 
 
@@ -741,21 +726,21 @@ public:
     return( newgrp );
   }
 
-  /// Return the userInterface.
-  virtual Teuchos::RCP<Interface>
-  getRequiredInterface(); {
-    return userInterfacePtr;
-  }
+//  /// Return the userInterface.
+//  virtual Teuchos::RCP<Interface>
+//  getRequiredInterface(); {
+//    return userInterfacePtr;
+//  }
 
   /// Return the Linear System.
-  virtual Teuchos::RCP<const Operator> getLinearSystem() const {
-    return( sharedLinearSystem.getObject(this) );
+  virtual Teuchos::RCP<const Interface> getInterface() const {
+    return( sharedInterface.getObject(this) );
   }
 
 
   /// Return the Linear System.
-  virtual Teuchos::RCP<Operator> getLinearSystem() {
-    return( sharedLinearSystem.getObject() );
+  virtual Teuchos::RCP<Interface> getLinearSystem() {
+    return( sharedInterface.getObject() );
   }
 
 
@@ -858,7 +843,7 @@ protected:
     }
     Vector tmpNoxVector(*tmpVectorPtr, ShapeCopy);
 
-    sharedLinearSystem.getObject()->apply(NewtonVector, tmpNoxVector);
+    sharedInterface.getObject()->applyJacobian(NewtonVector, tmpNoxVector);
     tmpNoxVector.update(1.0, RHSVector, 1.0);
     normNewtonSolveResidual = tmpNoxVector.norm();
 
@@ -871,7 +856,7 @@ protected:
 
 }; // end of class Group
 
-} // end of namespace Pimpact
+} // end of namespace PIMPACT
 } // end of namespace NOX
 
 #endif // end of #ifndef NOX_PIMPACT_GROUP_HPP

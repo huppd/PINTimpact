@@ -55,7 +55,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, create_init_print ) {
 	typedef Pimpact::MultiField< MSF> BMSF;
 	typedef Pimpact::MultiField< MVF> BMVF;
 	typedef Pimpact::CompoundField< BMVF, BMSF > CF;
-	typedef NOX::Pimpact::Vector<CF> NV;
+	typedef NOX::PIMPACT::Vector<CF> NV;
 
 
 	auto fS  = Pimpact::createFieldSpace<O>();
@@ -85,7 +85,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, InfNorm_and_init ) {
 	typedef Pimpact::MultiField< MSF> BMSF;
 	typedef Pimpact::MultiField< MVF> BMVF;
 	typedef Pimpact::CompoundField< BMVF, BMSF > CF;
-	typedef NOX::Pimpact::Vector<CF> NV;
+  typedef NOX::PIMPACT::Vector<CF> NV;
 
 
 	auto fS  = Pimpact::createFieldSpace<O>();
@@ -134,7 +134,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, TwoNorm_and_init ) {
 	typedef Pimpact::MultiField< MSF> BMSF;
 	typedef Pimpact::MultiField< MVF> BMVF;
 	typedef Pimpact::CompoundField< BMVF, BMSF > CF;
-	typedef NOX::Pimpact::Vector<CF> NV;
+  typedef NOX::PIMPACT::Vector<CF> NV;
 
 
 	auto fS  = Pimpact::createFieldSpace<O>();
@@ -171,7 +171,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, add ) {
   typedef Pimpact::MultiField< MSF> BMSF;
   typedef Pimpact::MultiField< MVF> BMVF;
   typedef Pimpact::CompoundField< BMVF, BMSF > CF;
-  typedef NOX::Pimpact::Vector<CF> NV;
+  typedef NOX::PIMPACT::Vector<CF> NV;
 
 
   auto fS  = Pimpact::createFieldSpace<O>();
@@ -221,7 +221,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, reciprocal ) {
   typedef Pimpact::MultiField< MSF> BMSF;
   typedef Pimpact::MultiField< MVF> BMVF;
   typedef Pimpact::CompoundField< BMVF, BMSF > CF;
-  typedef NOX::Pimpact::Vector<CF> NV;
+  typedef NOX::PIMPACT::Vector<CF> NV;
 
 
   auto fS  = Pimpact::createFieldSpace<O>();
@@ -276,7 +276,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, norm_weighted ) {
   typedef Pimpact::MultiField< MSF>           BMSF;
   typedef Pimpact::MultiField< MVF>           BMVF;
   typedef Pimpact::CompoundField< BMVF, BMSF >  CF;
-  typedef NOX::Pimpact::Vector<CF>              NV;
+  typedef NOX::PIMPACT::Vector<CF> NV;
 
 
   auto fS  = Pimpact::createFieldSpace<O>();
@@ -335,7 +335,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, scale2 ) {
   typedef Pimpact::MultiField< MSF> BMSF;
   typedef Pimpact::MultiField< MVF> BMVF;
   typedef Pimpact::CompoundField< BMVF, BMSF > CF;
-  typedef NOX::Pimpact::Vector<CF> NV;
+  typedef NOX::PIMPACT::Vector<CF> NV;
 
 
   auto fS  = Pimpact::createFieldSpace<O>();
@@ -394,7 +394,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, innerProduct ) {
 	typedef Pimpact::MultiField< MSF> BMSF;
 	typedef Pimpact::MultiField< MVF> BMVF;
 	typedef Pimpact::CompoundField< BMVF, BMSF > CF;
-	typedef NOX::Pimpact::Vector<CF> NV;
+  typedef NOX::PIMPACT::Vector<CF> NV;
 
 
 	auto fS  = Pimpact::createFieldSpace<O>();
@@ -448,7 +448,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, scale ) {
 	typedef Pimpact::MultiField< MSF> BMSF;
 	typedef Pimpact::MultiField< MVF> BMVF;
 	typedef Pimpact::CompoundField< BMVF, BMSF > CF;
-	typedef NOX::Pimpact::Vector<CF> NV;
+  typedef NOX::PIMPACT::Vector<CF> NV;
 
 
 	auto fS  = Pimpact::createFieldSpace<O>();
@@ -483,7 +483,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, random ) {
 	typedef Pimpact::MultiField< MSF> BMSF;
 	typedef Pimpact::MultiField< MVF> BMVF;
 	typedef Pimpact::CompoundField< BMVF, BMSF > CF;
-	typedef NOX::Pimpact::Vector<CF> NV;
+  typedef NOX::PIMPACT::Vector<CF> NV;
 
 
 	auto fS  = Pimpact::createFieldSpace<O>();
@@ -518,7 +518,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, update ) {
 	typedef Pimpact::MultiField< MSF> BMSF;
 	typedef Pimpact::MultiField< MVF> BMVF;
 	typedef Pimpact::CompoundField< BMVF, BMSF > CF;
-	typedef NOX::Pimpact::Vector<CF> NV;
+  typedef NOX::PIMPACT::Vector<CF> NV;
 
 
 	auto fS  = Pimpact::createFieldSpace<O>();

@@ -29,7 +29,7 @@ namespace NOX{
 /**
  * \brief %NOX PIMPACT interface for Vector
 */
-namespace Pimpact{
+namespace PIMPACT{
 
 /**
  * \brief %NOX's pure PIMPACT vector interface for vectors that are used by the
