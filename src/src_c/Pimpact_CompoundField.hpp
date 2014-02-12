@@ -61,7 +61,7 @@ public:
 	{};
 
 
-	Teuchos::RCP<MV> clone( ECopyType ctype=DeepCopy ){
+	Teuchos::RCP<MV> clone( ECopyType ctype=DeepCopy ) const {
 	  return( Teuchos::rcp( new MV( vfield_->clone(ctype), sfield_->clone(ctype) ) ) );
 	}
 //	~CompoundField() { for(int i=0; i<3; ++i) delete[] vec_[i];}

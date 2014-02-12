@@ -7,7 +7,7 @@
 
 #include "Teuchos_RCP.hpp"
 
-#include "BelosTypes.hpp"
+//#include "BelosTypes.hpp"
 
 #include "Pimpact_Types.hpp"
 #include "Pimpact_MultiField.hpp"
@@ -29,7 +29,7 @@ namespace NOX{
 /**
  * \brief %NOX PIMPACT interface for Vector
 */
-namespace PIMPACT{
+namespace Pimpact {
 
 /**
  * \brief %NOX's pure PIMPACT vector interface for vectors that are used by the
@@ -234,12 +234,12 @@ public:
   clone(NOX::CopyType type = NOX::DeepCopy) const {
   	switch(type) {
   	case NOX::DeepCopy:
-  		return( Teuchos::rcp(new Vector<Field>( field_->clone() ) ) );
+  		return( Teuchos::rcp(new Vector<Field>( field_->clone( ::Pimpact::DeepCopy) ) ) );
   	case NOX::ShapeCopy:
-  		return( Teuchos::rcp(new Vector<Field>( field_->clone() ) ) );
-//  		return( Teuchos::rcp(new Vector<Field>( field_->clone( Pimpact::ShallowCopy) ) ) );
+//  		return( Teuchos::rcp(new Vector<Field>( field_->clone() ) ) );
+  		return( Teuchos::rcp(new Vector<Field>( field_->clone( ::Pimpact::ShallowCopy) ) ) );
   	default:
-  	  return Teuchos::null;
+  	  return( Teuchos::null );
   	}
 
   }
@@ -349,13 +349,14 @@ public:
 
   Teuchos::RCP<Field> getFieldPtr() { return( field_ ); };
   Field& getField() { return( *field_ ); };
+  const Field& getConstField() const { return( *field_ ); };
 
 protected:
   Teuchos::RCP<Field> field_;
 
 }; // end of class Vector
 
-} // end of namespace PIMPACT
+} // end of namespace Pimpact
 } // end of namespace NOX
 
 #endif //end of #ifndef NOX_PIMPACT_VECTOR_HPP

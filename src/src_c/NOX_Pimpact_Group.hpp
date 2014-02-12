@@ -40,7 +40,7 @@
 //class Ifpack_CrsRiluk;
 
 namespace NOX {
-namespace PIMPACT {
+namespace Pimpact  {
 
 /**
  * \brief Concrete implementation of NOX::Abstract::Group for Pimpact.
@@ -856,7 +856,7 @@ protected:
 
 }; // end of class Group
 
-} // end of namespace PIMPACT
+} // end of namespace Pimpact
 } // end of namespace NOX
 
 #endif // end of #ifndef NOX_PIMPACT_GROUP_HPP

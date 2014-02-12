@@ -55,7 +55,6 @@ add_test(NAME NOXVectorTest COMMAND mpirun -np 4 NOXVectorTest)
 ADD_EXECUTABLE( NOXInterfaceTest Teuchos_StandardParallelUnitTestMain.cpp NOX_Pimpact_Interface_test.cpp )
 TARGET_LINK_LIBRARIES( NOXInterfaceTest ${Pimpact_TPL_LIBRARIES} ) 
 add_test(NAME NOXInterfaceTest COMMAND mpirun -np 4 NOXInterfaceTest)
-#ADD_Test(mytets MyUnitTests)
 
 #INCLUDE(TribitsAddExecutableAndTest)
 

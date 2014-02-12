@@ -245,12 +245,12 @@ public:
 		y.getFieldS()->add( -omega_, *x.getConstFieldC(), 1., *y.getConstFieldS() );
 	}
 
-	bool hasApplyTranspose() const { return false; }
+	bool hasApplyTranspose() const { return( false ); }
 };
 
 template< class Scalar, class Ordinal>
 Teuchos::RCP<OperatorMV< DtL<Scalar,Ordinal> > > createDtL( Scalar omega=1., Scalar mulI=0., Scalar mulL=1. ) {
-	return Teuchos::rcp( new OperatorMV<DtL<Scalar,Ordinal> >( Teuchos::rcp( new DtL<Scalar,Ordinal>( omega, mulI, mulL ) ) ) );
+	return( Teuchos::rcp( new OperatorMV<DtL<Scalar,Ordinal> >( Teuchos::rcp( new DtL<Scalar,Ordinal>( omega, mulI, mulL ) ) ) ) );
 }
 
 
@@ -287,7 +287,7 @@ public:
 		div_->apply( *temp1_->GetVec(0).getConstFieldS(), *y.getFieldS() );
 	}
 
-	bool hasApplyTranspose() const { return false; }
+	bool hasApplyTranspose() const { return( false ); }
 
 };
 

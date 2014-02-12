@@ -60,7 +60,7 @@ public:
 	{};
 
 
-  Teuchos::RCP<MV> clone( ECopyType ctype=DeepCopy ) {
+  Teuchos::RCP<MV> clone( ECopyType ctype=DeepCopy ) const {
     return( Teuchos::rcp( new MV( fieldc_->clone(ctype), fields_->clone(ctype) ) ) );
   }
 

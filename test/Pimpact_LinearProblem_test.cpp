@@ -110,6 +110,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 
 	Belos::ReturnType result = H_prob->solve(X,B);
 	TEST_EQUALITY( result,Belos::Converged);
+	H_prob->apply( X, B );
 
 	X->write(200);
 
@@ -163,6 +164,8 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV2 ) {
 
 	Belos::ReturnType result = H_prob->solve(X,B);
 	TEST_EQUALITY( result,Belos::Converged);
+
+	H_prob->apply( X, B );
 
 	X->write(200);
 }
@@ -218,7 +221,10 @@ TEUCHOS_UNIT_TEST( BelosSolver, Dt1L0 ) {
 	auto H_prob = Pimpact::createLinearProblem<Scalar,MV,OP>( A, X, B, solverParams,"GMRES" );
 
 	Belos::ReturnType result = H_prob->solve(X,B);
+
 	TEST_EQUALITY( result,Belos::Converged);
+
+	H_prob->apply( X, B );
 
 	X->write(200);
 }
@@ -274,6 +280,8 @@ TEUCHOS_UNIT_TEST( BelosSolver, Dt0L1 ) {
 	Belos::ReturnType result = H_prob->solve(X,B);
 	TEST_EQUALITY( result,Belos::Converged);
 
+	H_prob->apply( X, B );
+
 	X->write(200);
 }
 
@@ -319,6 +327,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, Schur ) {
   auto solverName = "CG";
   auto solverParams = Pimpact::createLinSolverParameter( solverName, 1.e-3 );
   solverParams->get()->set ("Verbosity", int( Belos::Errors) );
+	solverParams->get()->set ("Maximum Iterations", 400);
 
 // Create the Pimpact::LinearSolver solver.
 	auto H_prob = Pimpact::createLinearProblem<Scalar,MV,OP>( lap, X, B, solverParams->get(), solverName );
@@ -327,16 +336,20 @@ TEUCHOS_UNIT_TEST( BelosSolver, Schur ) {
 //			div, grad,
 			H_prob );
 
-  solverName = "GCRODR";
+  solverName = "GMRES";
   solverParams = Pimpact::createLinSolverParameter( solverName, 1.e-1 );
   solverParams->get()->set( "Maximum Iterations", 100 );
 
 
 	auto schur_prob = Pimpact::createLinearProblem<Scalar,MVp,OPp>( schur, Xp,Bp, solverParams->get(), solverName);
+
 	Belos::ReturnType result = schur_prob->solve(Xp,Bp);
+
 	TEST_EQUALITY( result,Belos::Converged);
 
-	X->write(200);
+	schur_prob->apply( Xp, Bp );
+
+	Xp->write(200);
 
 }
 
@@ -362,7 +375,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, Div_DtLinv_Grad ) {
 	B->random(0.);
 	B->scale(0.1);
 
-	auto A = Pimpact::createDtL<double,int>(0.,0.,10.);
+	auto A = Pimpact::createDtL<double,int>(1.,0.,1.);
 
 	// Make an empty new parameter list.
 	auto solverName = "GMRES";
@@ -376,10 +389,13 @@ TEUCHOS_UNIT_TEST( BelosSolver, Div_DtLinv_Grad ) {
 
 	solverParams->get()->set ("Verbosity",  Belos::Errors + Belos::Warnings +
 	Belos::TimingDetails + Belos::StatusTestDetails);
+	solverParams->get()->set ("Maximum Iterations", 100);
 
 	auto schur_prob = Pimpact::createLinearProblem<double,MSF,OP2>( schur, X, B, solverParams->get(), solverName );
 
-	schur_prob->solve(X,B);
+	schur_prob->solve( X, B );
+
+	schur_prob->apply( X, B );
 
 }
 

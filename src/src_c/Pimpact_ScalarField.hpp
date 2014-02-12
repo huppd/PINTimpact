@@ -212,14 +212,14 @@ public:
 
 	~ScalarField() { delete[] s_;}
 
-	Teuchos::RCP<MV> clone( ECopyType ctype=DeepCopy ) {
+	Teuchos::RCP<MV> clone( ECopyType ctype=DeepCopy ) const {
 	  return( Teuchos::rcp( new MV(*this, ctype) ) );
 	}
 
 	/// \name Attribute methods
 	///@{
 
-	Teuchos::RCP<const FieldSpace<Ordinal> > getFieldSpace() const {return fieldSpace_;}
+	Teuchos::RCP<const FieldSpace<Ordinal> > getFieldSpace() const { return( fieldSpace_ ); }
 
 
 	/// \brief returns the length of Field.

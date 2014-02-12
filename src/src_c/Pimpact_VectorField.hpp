@@ -301,14 +301,14 @@ public:
 
 	~VectorField() { for(int i=0; i<3; ++i) delete[] vec_[i];}
 
-	Teuchos::RCP<MV> clone( ECopyType ctype=DeepCopy ) {
+	Teuchos::RCP<MV> clone( ECopyType ctype=DeepCopy ) const {
 	  return( Teuchos::rcp( new MV( *this, ctype ) ) );
 	}
 
   //! \name Attribute methods
   //@{
 
-	Teuchos::RCP<const FieldSpace<Ordinal> > getFieldSpace() const {return fieldS_;}
+	Teuchos::RCP<const FieldSpace<Ordinal> > getFieldSpace() const { return( fieldS_ ); }
 
 
 	/**

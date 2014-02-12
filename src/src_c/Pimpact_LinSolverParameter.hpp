@@ -49,11 +49,11 @@ public:
 //			parameter_->set( "Show Maximum Residual Norm Only", int(0)		 );
 		}
 		else if( solver_name=="GCRODR" ) {
-			parameter_->set( "Num Blocks",								100		 );
+			parameter_->set( "Num Blocks",								50		 );
 //			parameter_->set( "Maximum Iterations",				2000	 );
 //			parameter_->set( "Maximum Restarts",					20		 );
 //
-			parameter_->set( "Num Recycled Blocks",				20		 );
+			parameter_->set( "Num Recycled Blocks",				10		 );
 
 			parameter_->set( "Convergence Tolerance",			tol    );
 			parameter_->set( "Orthogonalization",					"DGKS" );

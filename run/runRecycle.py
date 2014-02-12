@@ -1,18 +1,19 @@
 import os
 from numpy import linspace
 import numpy as np
+from platform_paths import *
 
 
-exe_path = '/home/huppd/workspace/pimpact-repo/release/src/src_c/'
+#exe_path = '/home/huppd/workspace/pimpact-repo/release/src/src_c/'
 exe = 'stat_stokes'
 exe = 'peri_stokes'
 
-data_path = '/home/huppd/workspace/pimpact-repo/data/'
+#data_path = '/home/huppd/workspace/pimpact-repo/data/'
 
 i = 6
 n = str(2**i+1)
 woms = np.array([0.01,0.05,0.1,0.5,1.,5,10.,50,100.,225])
-woms = 10**np.linspace(-1,2,5)
+woms = 10**np.linspace(-2,3,20)
 oms  = woms
 
 case_consts = ' --domain=2 --flow=5 --nx='+n+' --ny='+n+' '
@@ -35,5 +36,5 @@ for sol in ["GMRES","GCRODR"]:
 		os.chdir( data_path+case_path0+case_path1 )
 		case_para = ' --omega='+str(om)+ ' --solver1='+sol+' '
 		print case_consts + case_para
-		os.system('mpirun -np 4 '+exe_path+exe+case_para+case_consts )
+		os.system(exe_pre+exe_path+exe+case_para+case_consts )
 		i += 1

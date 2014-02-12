@@ -13,7 +13,7 @@
 //#include"Pimpact_ScalarField.hpp"
 //#include"Pimpact_OperatorMV.hpp"
 //#include"Pimpact_Operator.hpp"
-//#include"BelosPimpactAdapter.hpp"
+#include"BelosPimpactAdapter.hpp"
 
 namespace Pimpact {
 
@@ -28,6 +28,7 @@ public:
 				 solver_(solver),problem_(problem) {};
 
 	 void apply( const Teuchos::RCP<const MV>& x, const Teuchos::RCP<MV> & y ) {
+//	 void apply( const MV& x, MV> & y ) {
 	   problem_->applyOp( *x, *y );
 	 }
 

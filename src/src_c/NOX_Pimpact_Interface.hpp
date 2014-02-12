@@ -11,13 +11,17 @@
 
 #include "Pimpact_MultiField.hpp"
 
+#include "Pimpact_Operator.hpp"
+#include "Pimpact_OperatorMV.hpp"
 #include "Pimpact_LinearProblem.hpp"
 
 // Forward declarations
 //class Epetra_Vector;
 
+
+
 namespace NOX {
-namespace PIMPACT {
+namespace Pimpact {
 
 /**
  * \brief Provides a set of interfaces for users to provide information about the nonlinear problem to NOX.
@@ -31,67 +35,76 @@ namespace PIMPACT {
 *     implementation.  Used by NOX::Epetra::Group to provide a link
 *     to the external code for residual fills.
 */
-class Interface_Stokes {
+class Interface {
+
+public:
 
   typedef double S;
   typedef int O;
-  typedef Pimpact::VectorField<S,O> VF;
-  typedef Pimpact::ScalarField<S,O> SF;
-  typedef Pimpact::ModeField<VF> MVF;
-  typedef Pimpact::ModeField<SF> MSF;
-  typedef Pimpact::MultiField<VF> BVF;
-  typedef Pimpact::MultiField<SF> BSF;
+  typedef ::Pimpact::VectorField<S,O> VF;
+  typedef ::Pimpact::ScalarField<S,O> SF;
+  typedef ::Pimpact::ModeField<VF> MVF;
+  typedef ::Pimpact::ModeField<SF> MSF;
+  typedef ::Pimpact::MultiField<MVF> BVF;
+  typedef ::Pimpact::MultiField<MSF> BSF;
+  typedef ::Pimpact::CompoundField< BVF, BSF> Field;
 
-  typedef Pimpact::OperatorMV< Pimpact::DtL<Scalar,Ordinal> >  DTL;
-  typedef Pimpact::OperatorMV< Pimpact::Div_DtLinv_Grad<Scalar,Ordinal> >  Schur;
-  typedef Pimpact::OperatorMV< Pimpact::Div<Scalar,Ordinal> >  D;
-  typedef Pimpact::OperatorMV< Pimpact::Grad<Scalar,Ordinal> > G;
+  typedef ::Pimpact::OperatorMV< ::Pimpact::DtL<S,O> >  DTL;
+  typedef ::Pimpact::OperatorMV< ::Pimpact::Div_DtLinv_Grad<S,O> >  Schur;
+  typedef ::Pimpact::Div<S,O>   DD;
+  typedef ::Pimpact::Grad<S,O>  GG;
+  typedef ::Pimpact::OperatorMV< DD >  D;
+  typedef ::Pimpact::OperatorMV< GG > G;
 
+  typedef ::Pimpact::LinearProblem<S,BVF,DTL> LP_DTL;
+  typedef ::Pimpact::LinearProblem<S,BSF,Schur> LP_Schur;
 
-public:
-  typedef Pimpact::CompoundField< BVF, BSF> Field;
+  typedef NOX::Pimpact::Vector<Field> Vector;
 
 protected:
 
   Teuchos::RCP<BVF> f_;
-  Teuchos::RCP<Pimpact::LinearProblem<S,BVF,DTL> > dTL_;
+  Teuchos::RCP<LP_DTL> lp_DTL_;
   Teuchos::RCP<D> div_;
   Teuchos::RCP<G> grad_;
-  Teuchos::RCP<Pimpact::LinearProblem<S,BSF,Schur> > schur_;
+  Teuchos::RCP<LP_Schur> lp_Schur_;
 
 public:
 
   /// Constructor
   Interface():
-    f_(Teuchos::null), dTL_(Teuchos::null),div_(Teuchos::null),
-    grad_(Teuchos::null),schur_(Teuchos::null) {};
+    f_(Teuchos::null), lp_DTL_(Teuchos::null),div_(Teuchos::null),
+    grad_(Teuchos::null),lp_Schur_(Teuchos::null) {};
 
   Interface(  Teuchos::RCP<BVF> f,
-      Teuchos::RCP<Pimpact::LinearProblem<S,BVF,DTL> > dTL,
-      Teuchos::RCP<Pimpact::LinearProblem<S,BVF,Schur> > schur ):
-        f_( f->clone() ),
-        div_( Pimpact::createOperatorMV<Pimpact::Div<S,O> >() ),
-        dTL_( dTL),
-        grad_( Pimpact::createOperatorMV<Pimpact::Grad<S,O> >() ),
-        shur_( shur ) {};
+      Teuchos::RCP<LP_DTL > lp_DTL,
+      Teuchos::RCP<LP_Schur > lp_Schur ):
+        f_( f ),
+        lp_DTL_( lp_DTL),
+        div_( ::Pimpact::createOperatorMV<DD>() ),
+        grad_( ::Pimpact::createOperatorMV<GG>() ),
+        lp_Schur_( lp_Schur ) {};
 
   /// Destructor
-  ~Required() {};
+  ~Interface() {};
 
   /// Compute the function, F, given the specified input vector x. Returns true if computation was successful.
-  bool computeF(const Field& x, Field& F ) {
-    auto xv = x.getVField();
-    auto xs = x.getSField();
-    auto yv = y.getVField();
-    auto ys = y.getSField();
+  bool computeF(const Field& x, Field& f ) {
+    auto xv = x.getConstVField();
+    auto xs = x.getConstSField();
+    auto yv = f.getVField();
+    auto ys = f.getSField();
 
-    auto tempv = xv.clone();
+    auto tempv = xv->clone();
 
-    dTL_->apply( *xv, *temvp );
+//    lp_DTL_->apply( xv, tempv );
+//    lp_DTL_->apply( *xv, *tempv );
+    lp_DTL_->getProblem()->getOperator()->apply( *xv, *tempv );
+
     grad_->apply( *xs, *yv );
 
-    tempv->add( -1., *tempv, 1., *f );
-    yv->add(yv,tempv);
+    yv->add( -1., *tempv, 1., *yv );
+    yv->add( 1., *f_, 1., *yv );
 
     div_->apply( *xv, *ys );
 
@@ -101,52 +114,62 @@ public:
 
   /// Compute the Jacobian Operator, given the specified input vector x. Returns true if computation was successful.
   bool computeJacobian( const Field& x ) { return( true ); }
-  bool applyJacobian( const Field& x, Field& y, Belos::ETrans type=Belos::NOTRANS ) {
 
-    return( true );
+  bool applyJacobian( const Field& x, Field& y, Belos::ETrans type=Belos::NOTRANS ) {
+    return( computeF( x, y ) );
   }
 
 
   bool applyJacobianInverse( /* param, */ const Field& x, Field& y ) {
 
-    auto xv = x.getVField();
-    auto xs = x.getSField();
+    auto xv = x.getConstVField();
+    auto xs = x.getConstSField();
     auto yv = y.getVField();
     auto ys = y.getSField();
 
     auto tempv = xv->clone();
     auto temps = xs->clone();
+
     // solve stationary stokes
-    dTL_->solve( *tempv, *f_ );
+    lp_DTL_->solve( tempv, f_ );
     //  tempv->write( 2000 );
 
-    div_->apply( *xv, *temps );
+    div_->apply( *tempv, *temps );
     //temps->write( 2002 );
-
+//
 //    solverParams = Pimpact::createLinSolverParameter( solver_name_1, 1.e-6*l1*l2/n1/n2 );
 //    solverParams->get()->set( "Output Stream", outLap2 );
 //    solverParams->get()->set ("Verbosity", int( Belos::Errors) );
 //    lap_problem->setParameters( solverParams->get() );
-    schur_->solve( *ys, *temps );
+    lp_Schur_->solve( ys, temps );
 
     grad_->apply( *ys, *tempv );
     //tempv->write(2006);
-
-    tempv->add( -1., *tempv, 1., *f );
-
-//    solverParams->get()->set ("Verbosity",  Belos::Errors + Belos::Warnings + Belos::IterationDetails +
-//        Belos::OrthoDetails + Belos::FinalSummary + Belos::TimingDetails +
-//        Belos::StatusTestDetails + Belos::Debug );
-//    solverParams->get()->set( "Output Stream", outLap2 );
-//    lap_problem->setParameters( solverParams->get() );
-
-    dTL_->solve( *ys, *tempv );
+//
+    tempv->add( -1., *tempv, 1., *f_ );
+//
+////    solverParams->get()->set ("Verbosity",  Belos::Errors + Belos::Warnings + Belos::IterationDetails +
+////        Belos::OrthoDetails + Belos::FinalSummary + Belos::TimingDetails +
+////        Belos::StatusTestDetails + Belos::Debug );
+////    solverParams->get()->set( "Output Stream", outLap2 );
+////    lap_problem->setParameters( solverParams->get() );
+//
+    lp_DTL_->solve( yv, tempv );
     return( true );
   }
 
 }; // end of class Interface
 
-} // end of namespace PIMPACT
+Teuchos::RCP<Interface> createInterface(
+    Teuchos::RCP<Interface::BVF> f,
+    Teuchos::RCP<Interface::LP_DTL> lp_DTL,
+    Teuchos::RCP<Interface::LP_Schur> lp_Schur ) {
+  return(
+      Teuchos::rcp( new Interface(f,lp_DTL,lp_Schur) )
+      );
+}
+
+} // end of namespace Pimpact
 } // end of namespace NOX
 
 #endif // end of #ifndef NOX_EPETRA_INTERFACE_REQUIRED_HPP
