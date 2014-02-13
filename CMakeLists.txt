@@ -54,8 +54,9 @@ SET(CMAKE_CXX_FLAGS  "${Trilinos_CXX_COMPILER_FLAGS} ${CMAKE_CXX_FLAGS} -std=c++
 SET(CMAKE_C_FLAGS  "${Trilinos_C_COMPILER_FLAGS} ${CMAKE_C_FLAGS}")
 SET(CMAKE_Fortran_FLAGS  "${Trilinos_Fortran_COMPILER_FLAGS} ${CMAKE_Fortran_FLAGS}" )
 
+#if(  "${CMAKE_BUILD_TYPE}" equal "RELEASE" )
 IF( CMAKE_COMPILER_IS_GNUCXX )
-	SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ")
+	SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -funroll-all-loops -ftree-vectorize -march=native ")
 	SET(CMAKE_Fortran_FLAGS  "${CMAKE_Fortran_FLAGS}  -ffree-line-length-none  -ffast-math -funroll-all-loops -fpeel-loops -ftracer -funswitch-loops -ftree-vectorize -march=native -funsafe-math-optimizations -fomit-frame-pointer -fno-math-errno -fdollar-ok -Wall" )
 	SET( CMAKE_Fortran_COMPILE_FLAGS "${Trilinos_Fortran_COMPILER_FLAGS} -xf95-cpp-input -fdefault-real-8 -fdefault-double-8 "  )
 ELSE()
@@ -64,6 +65,7 @@ ELSE()
 	SET( CMAKE_Fortran_COMPILE_FLAGS "${Trilinos_Fortran_COMPILER_FLAGS} -free -fpp -r8 "  )
 	#SET( CMAKE_Fortran_LINK_FLAGS "${Trilinos_Fortran_LINK_FLAGS} -static "  )
 ENDIF()
+#ENDIF()
 
 MESSAGE("Fortran flags: " ${CMAKE_Fortran_FLAGS})
 MESSAGE("CXX flags: " ${CMAKE_CXX_FLAGS})

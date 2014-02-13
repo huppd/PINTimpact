@@ -251,7 +251,7 @@ public:
 
 	VectorField(): fieldS_(Teuchos::null),innerIS_(Teuchos::null),fullIS_(Teuchos::null),vec_(0) {};
 
-	VectorField(Teuchos::RCP<const FieldSpace<Ordinal> > fieldS, IndexSpaces innerIS, IndexSpaces fullIS ):fieldS_(fieldS),innerIS_(innerIS),fullIS_(fullIS) {
+	VectorField( const Teuchos::RCP<const FieldSpace<Ordinal> >& fieldS, IndexSpaces innerIS, IndexSpaces fullIS ):fieldS_(fieldS),innerIS_(innerIS),fullIS_(fullIS) {
 		Ordinal N = 1;
 		for(int i=0; i<3; ++i)
 			N *= nLoc(i)+bu(i)-bl(i);
@@ -343,9 +343,7 @@ public:
 	/// @name Update methods
 	//@{
 
-	/**
-	 * \brief Replace \c this with \f$\alpha A + \beta B\f$.
-	 */
+	/// \brief Replace \c this with \f$\alpha A + \beta B\f$.
 	void add( const Scalar& alpha, const MV& A, const Scalar& beta, const MV& B ) {
 		// add test for consistent VectorSpaces in debug mode
 		for( int i=0; i<dim(); ++i )
@@ -401,9 +399,7 @@ public:
   }
 
 
-	/**
-	 * \brief Scale each element of the vectors in \c this with \c alpha.
-	 */
+	/// \brief Scale each element of the vectors in \c this with \c alpha.
 	void scale( const Scalar& alpha ) {
 		for(int i=0; i<dim(); ++i)
 			SF_scale(
@@ -437,9 +433,7 @@ public:
   }
 
 
-	/**
-	 * \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
-	 */
+	/// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
 	Scalar dot ( const MV& a ) const {
 		/// \todo add test in debuging mode for testing equality of VectorSpaces
 		Scalar b;
@@ -573,8 +567,7 @@ public:
 				vec_[i] );
   }
 
-  /*! \brief Replace each element of the vector  with \c alpha.
-   */
+  /// \brief Replace each element of the vector  with \c alpha.
   void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero() ) {
   	for( int i=0; i<dim(); ++i )
 			SF_init(
@@ -586,8 +579,8 @@ public:
 				vec_[i], alpha);
   }
 
-  /** \brief Replace each element of the vector \c vec[i] with \c alpha[i].
-    */
+
+  /// \brief Replace each element of the vector \c vec[i] with \c alpha[i].
    void init( const Teuchos::Tuple<Scalar,3>& alpha ) {
    	for( int i=0; i<dim(); ++i )
  			SF_init(
@@ -600,9 +593,7 @@ public:
    }
 
 
-  /**
-   *  \brief initializes VectorField with the initial field defined in Fortran
-   */
+  ///  \brief initializes VectorField with the initial field defined in Fortran
   void init_field( EFlowProfile flowType = Poiseuille2D_inX, double re=1., double om=1., double px = 1. ) {
     switch(flowType) {
     case ZeroProf :
@@ -752,13 +743,13 @@ protected:
  */
 template<class Scalar, class Ordinal>
 Teuchos::RCP< VectorField<Scalar,Ordinal> > createVectorField(
-		Teuchos::RCP<const FieldSpace<Ordinal> > fieldS,
+		const Teuchos::RCP<const FieldSpace<Ordinal> >& fieldS,
 		typename VectorField<Scalar,Ordinal>::IndexSpaces innerIS,
-		typename VectorField<Scalar,Ordinal>::IndexSpaces fullIS ) {
+		const typename VectorField<Scalar,Ordinal>::IndexSpaces& fullIS ) {
 	return Teuchos::RCP<VectorField<Scalar,Ordinal> > (
 				new VectorField<Scalar,Ordinal>( fieldS, innerIS, fullIS ) );
 }
 
-} // namespace Pimpact
+} // end of namespace Pimpact
 
-#endif // PIMPACT_VECTORFIELD_HPP
+#endif // end of #ifndef PIMPACT_VECTORFIELD_HPP

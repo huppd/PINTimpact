@@ -171,10 +171,10 @@ int main(int argi, char** argv ) {
 
 
 	// init Spaces
-	auto fS = Pimpact::createFieldSpace<int>();
+	auto fS = Pimpact::createFieldSpace<Ordinal>();
 
-	auto iIS = Pimpact::createInnerFieldIndexSpaces<int>();
-	auto fIS = Pimpact::createFullFieldIndexSpaces<int>();
+	auto iIS = Pimpact::createInnerFieldIndexSpaces<Ordinal>();
+	auto fIS = Pimpact::createFullFieldIndexSpaces<Ordinal>();
 
 
 	// init vectors
@@ -203,8 +203,12 @@ int main(int argi, char** argv ) {
 	Teuchos::writeParameterListToXmlFile( *solverParams->get(), "para_solver.xml" );
 
 
+	// create preconditioner
+//	auto lprec = Pimpact::createDtL<Scalar,Ordinal>( -1./omega, 0., 0. );
+
 	// create problems/solvers
 	auto lap_problem = Pimpact::createLinearProblem<Scalar,MVF,Lap>( lap, u, f, solverParams->get(), solver_name_1 );
+//	lap_problem->setLeftPrec( lprec );
 
 	auto schur = Pimpact::createDivDtLinvGrad<double,int>( u, lap_problem );
 

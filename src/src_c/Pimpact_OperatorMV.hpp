@@ -3,32 +3,27 @@
 #define PIMPACT_OPERATORMV_HPP
 
 
-/** \file Pimpact_OperatorMV.hpp
-*/
-
-//#include <Teuchos_Assert.hpp>
 #include "Teuchos_RCP.hpp"
-//#include "Teuchos_LocalTestingHelpers.hpp"
 
-//#include <BelosConfigDefs.hpp>
 #include <BelosTypes.hpp>
 
 #include "Pimpact_Types.hpp"
-//#include "Pimpact_ScalarField.hpp"
-//#include "Pimpact_VectorField.hpp"
+
 #include "Pimpact_ModeField.hpp"
 #include "Pimpact_MultiField.hpp"
+
 
 
 namespace Pimpact {
 
 
-
-/**
- * has multiple \c Field types, where \c Field can be a \c Pimpact:ScalarField or \c Pimpact:VectorField
- */
+/// \brief Operator for \c MultiField's.
+///
+/// wraps and \c Operator and adds the functionality of handling \c MultiField.
+/// Aditionally it can be use as Operator for Belos, wich is \deprecated,
+//because it does not allow preconditionin from another operator type.
 template<class Operator>
-class OperatorMV {
+class OperatorMV  {
 
 	typedef typename Operator::DomainFieldT DomainFieldT;
 	typedef typename Operator::RangeFieldT RangeFieldT;
@@ -38,8 +33,14 @@ class OperatorMV {
 
 public:
 
-	OperatorMV( Teuchos::RCP<Operator> op ):op_(op) {};
 
+	~OperatorMV() {op_=Teuchos::null;};
+
+
+	OperatorMV( const Teuchos::RCP<Operator>& op ):op_(op) {};
+
+
+  /// \brief default apply
 	void apply( const MultiField<DomainFieldT>& x,
 			MultiField<RangeFieldT> & y,
 			Belos::ETrans trans=Belos::NOTRANS) const {
@@ -52,6 +53,10 @@ public:
 	}
 
 
+	/// \brief apply for \c ModeField's.
+	///
+	/// depending on the \c opType it will apply an \c ModeOp or an \c NonModeOP,
+	//which means that the \c op is applied on each mode separetely.
 	void apply(
 			const MultiField<ModeField<DomainFieldT> >& x,
 			MultiField<ModeField<RangeFieldT> > & y,
@@ -60,7 +65,7 @@ public:
 	}
 
 
-	bool hasApplyTranspose() const { return op_.hasApplyTranspose(); }
+	bool hasApplyTranspose() const { return( op_->hasApplyTranspose() ); }
 
 private:
 
@@ -99,6 +104,13 @@ Teuchos::RCP< OperatorMV<Operator> > createOperatorMV() {
 	return( Teuchos::rcp( new OperatorMV<Operator>( Teuchos::rcp( new Operator() ) ) ) );
 }
 
-} // end of Pimpact namespace
+
+template<class Operator>
+Teuchos::RCP< OperatorMV<Operator> > createOperatorMV( const Teuchos::RCP<Operator>& op) {
+	return( Teuchos::rcp( new OperatorMV<Operator>( op ) ) );
+}
+
+
+} // end of namespace Pimpact
 
 #endif // end of #ifndef PIMPACT_OPERATORMV_HPP

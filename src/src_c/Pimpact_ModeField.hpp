@@ -47,13 +47,15 @@ public:
 
 	ModeField(): fieldc_(Teuchos::null), fields_(Teuchos::null) {};
 
-	ModeField(Teuchos::RCP<Field> fieldc, Teuchos::RCP<Field> fields):fieldc_(fieldc),fields_(fields) {};
+	ModeField( const Teuchos::RCP<Field>& fieldc,
+	    const Teuchos::RCP<Field>& fields):fieldc_(fieldc),fields_(fields) {};
 
-	/** copy constructor
-	 * shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
-	 * @param sF
-	 * @param copyType by default a ShallowCopy is done but allows also to deepcopy the field
-	 */
+
+	/// \brief copy constructor.
+	///
+	/// shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
+	/// @param sF
+	/// @param copyType by default a ShallowCopy is done but allows also to deepcopy the field
 	ModeField(const ModeField& vF, ECopyType copyType=ShallowCopy):
 		fieldc_( Teuchos::rcp( new Field(*vF.fieldc_,copyType) ) ),
 		fields_( Teuchos::rcp( new Field(*vF.fields_,copyType) ) )
@@ -102,9 +104,7 @@ public:
 	/// \name Update methods
 	//@{
 
-	/**
-	 * \brief Replace \c this with \f$\alpha A + \beta B\f$.
-	 */
+	/// \brief Replace \c this with \f$\alpha A + \beta B\f$.
 	void add( const Scalar& alpha, const MV& A, const Scalar& beta, const MV& B ) {
 		// add test for consistent VectorSpaces in debug mode
 		fieldc_->add(alpha, *A.fieldc_, beta, *B.fieldc_);
@@ -301,12 +301,12 @@ protected:
  * @return field vector
  */
 template<class Field>
-Teuchos::RCP< ModeField<Field> > createModeField( Teuchos::RCP<Field>  fieldc, Teuchos::RCP<Field> fields ) {
+Teuchos::RCP< ModeField<Field> > createModeField( const Teuchos::RCP<Field>&  fieldc, const Teuchos::RCP<Field>& fields ) {
 	return Teuchos::RCP<ModeField<Field> > (
 				new ModeField<Field>( fieldc, fields ) );
 }
 
 
-} // namespace Pimpact
+} // end of namespace Pimpact
 
-#endif // PIMPACT_MODEFIELD_HPP
+#endif // end of #ifndef PIMPACT_MODEFIELD_HPP

@@ -17,7 +17,7 @@ protected:
 public:
 
 
-	LinSolverParameter( std::string solver_name, double tol=1.e-12 ):parameter_(Teuchos::parameterList(solver_name) ) {
+	LinSolverParameter( const std::string& solver_name, double tol=1.e-12 ):parameter_(Teuchos::parameterList(solver_name) ) {
 
 		int verbo =
 				Belos::Errors + Belos::Warnings + Belos::IterationDetails +
@@ -92,13 +92,13 @@ public:
 		}
 	}
 
-	Teuchos::RCP<Teuchos::ParameterList> get() { return parameter_; }
+	Teuchos::RCP<Teuchos::ParameterList> get() { return( parameter_ ); }
 
 }; // end of class LinSolverParameter
 
 
-Teuchos::RCP<LinSolverParameter> createLinSolverParameter( std::string solver_name, double tol=1.e-8 ) {
-	return Teuchos::rcp( new LinSolverParameter( solver_name, tol ) );
+Teuchos::RCP<LinSolverParameter> createLinSolverParameter( const std::string& solver_name, double tol=1.e-8 ) {
+	return( Teuchos::rcp( new LinSolverParameter( solver_name, tol ) ) );
 
 }
 

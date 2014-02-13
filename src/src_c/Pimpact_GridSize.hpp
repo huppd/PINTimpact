@@ -43,9 +43,9 @@ public:
 
 template<class Ordinal>
 Teuchos::RCP<GridSize<Ordinal> > createGridSize( Ordinal n1=1, Ordinal n2=1, Ordinal n3=1 ) {
-	return Teuchos::rcp( new GridSize<Ordinal>( n1, n2, n3 ) );
+	return( Teuchos::rcp( new GridSize<Ordinal>( n1, n2, n3 ) ) );
 }
 
-} // namespace Pimpact
+} // end of namespace Pimpact
 
-#endif // PIMPACT_GRIDSIZE_HPP
+#endif // end of #ifndef PIMPACT_GRIDSIZE_HPP

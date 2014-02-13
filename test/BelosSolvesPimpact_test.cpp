@@ -1,5 +1,3 @@
-// Pimpact_SalarVectorSpace_test.cpp
-
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_RCP.hpp"
 #include <Teuchos_Array.hpp>
@@ -11,12 +9,20 @@
 #include "pimpact.hpp"
 #include "Pimpact_FieldSpace.hpp"
 #include "Pimpact_IndexSpace.hpp"
+
 #include "Pimpact_ScalarField.hpp"
 #include "Pimpact_VectorField.hpp"
+#include "Pimpact_ModeField.hpp"
 #include "Pimpact_MultiField.hpp"
-#include "Pimpact_OperatorMV.hpp"
+#include "Pimpact_FieldFactory.hpp"
+
 #include "Pimpact_Operator.hpp"
+#include "Pimpact_OperatorMV.hpp"
+#include "Pimpact_OperatorBase.hpp"
+#include "Pimpact_OperatorFactory.hpp"
+
 #include "BelosPimpactAdapter.hpp"
+#include "Pimpact_LinSolverParameter.hpp"
 
 #include "BelosSolverFactory.hpp"
 
@@ -128,10 +134,11 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 
 
 TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV2 ) {
+  typedef int O;
 
-				auto fS = Pimpact::createFieldSpace<int>();
+  auto fS = Pimpact::createFieldSpace<O>();
 
-				auto iIS = Pimpact::createInnerFieldIndexSpaces<int>();
+  auto iIS = Pimpact::createInnerFieldIndexSpaces<int>();
 				auto fIS = Pimpact::createFullFieldIndexSpaces<int>();
 
 				auto vel = Pimpact::createVectorField<double,int>(fS,iIS,fIS);
@@ -214,6 +221,71 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV2 ) {
 //				 const int numIters = solver->getNumIters();
 
 	//				TEST_EQUALITY( res, true );
+}
+
+
+TEUCHOS_UNIT_TEST( BelosSolver, DtL ) {
+
+  typedef int O;
+  typedef double S;
+  typedef Pimpact::VectorField<S,O> VF;
+  typedef Pimpact::ModeField<VF> MVF;
+  typedef Pimpact::MultiField<MVF> BVF;
+
+  typedef Pimpact::DtL<S,O> Op;
+  typedef Pimpact::OperatorMV<Op> OpMV;
+  typedef Pimpact::OperatorBase<BVF> OpBase;
+  typedef Pimpact::OperatorPimpl<BVF,Op> OpPimpl;
+  typedef Teuchos::RCP<OpBase > BOp;
+//  Teuchos::RCP<Pimpact::OperatorBase<Pimpact::MultiField<Field> > >
+//  typedef OpBase BOp;
+
+  auto fS = Pimpact::createFieldSpace<O>();
+
+  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+
+  auto b = Pimpact::createInitMVF<S,O>( Pimpact::Streaming2DFlow, fS, iIS, fIS );
+  auto x = Pimpact::createInitMVF<S,O>( Pimpact::ZeroFLow, fS, iIS, fIS );
+
+//  auto A = Pimpact::createOperatorMV<Pimpact::Helmholtz<double,int> >();
+
+//  auto op = Pimpact::createOperatorBase<BVF,Op>( Pimpact::createDtL<S,O>() );
+  auto op = Pimpact::createOperatorBase<BVF,Op>();
+  auto opp = Teuchos::rcp(&op,false);
+
+  auto para = Pimpact::createLinSolverParameter("GMRES",1.e-3);
+
+  Belos::SolverFactory<S, BVF, BOp > factory;
+  // Make an empty new parameter list.
+
+  // Create the GMRES solver.
+  Teuchos::RCP<Belos::SolverManager<S, BVF, BOp > > solver =
+           factory.create( "GMRES", para->get() );
+
+  // Create a LinearProblem struct with the problem to solve.
+  // A, X, B, and M are passed by (smart) pointer, not copied.
+  Teuchos::RCP<Belos::LinearProblem<S, BVF, BOp > > problem =
+           rcp (new Belos::LinearProblem<S, BVF, BOp > (opp, x, b));
+
+  std::cout << "param\n" << *solver->getValidParameters();
+  problem->setProblem(x,b);
+
+  // Tell the solver what problem you want to solve.
+  solver->setProblem( problem );
+  //       TEST_EQUALITY( solver->getProblem(), *problem)
+  //       std::cout << *problem;
+
+  // Attempt to solve the linear system.  result == Belos::Converged
+  // means that it was solved to the desired tolerance.  This call
+  // overwrites X with the computed approximate solution.
+  Belos::ReturnType result = solver->solve();
+  TEST_EQUALITY( result,Belos::Converged);
+
+  x->write(20);
+
+         // Ask the solver how many iterations the last solve() took.
+//         const int numIters = solver->getNumIters();
 }
 
 

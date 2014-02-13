@@ -46,6 +46,6 @@ Teuchos::RCP<ProcGridSize<Ordinal> > createProcGridSize( Ordinal np1=1, Ordinal 
 	return Teuchos::rcp( new ProcGridSize<Ordinal>( np1, np2, np3 ) );
 }
 
-} // namespace Pimpact
+} // end of namespace Pimpact
 
-#endif // PIMPACT_PROCGRIDSIZE_HPP
+#endif // end of #ifndef PIMPACT_PROCGRIDSIZE_HPP

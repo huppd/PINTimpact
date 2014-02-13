@@ -49,15 +49,14 @@ public:
 
 	void apply(const DomainFieldT& x, RangeFieldT& y) const {
 		OP_div(x.vec_[0],x.vec_[1],x.vec_[2],y.s_);
-	} // return erro
+	}
 	bool hasApplyTranspose() const { return( false ); }
 };
 
 
-/**
- * \brief Helmholtz operator
- * \todo change 2 to dim
- */
+
+/// \brief Helmholtz operator
+/// \todo change 2 to dim
 template<class Scalar,class Ordinal>
 class Helmholtz {
 protected:
@@ -80,21 +79,21 @@ public:
 		for( int d=0; d<2; ++d )
 			OP_helmholtz( d+1, true, mulI_, mulL_, x.vec_[d], y.vec_[d] ) ;
 	}
-	bool hasApplyTranspose() const { return false; }
+	bool hasApplyTranspose() const { return( false ); }
 };
 
 
 template<class Scalar,class Ordinal>
 Teuchos::RCP< OperatorMV<Helmholtz<Scalar,Ordinal> > > createHelmholtz( Scalar mulI, Scalar mulL ) {
-	return Teuchos::rcp( new OperatorMV<Helmholtz<Scalar,Ordinal> >( Teuchos::rcp( new Helmholtz<Scalar,Ordinal>(mulI, mulL) ) ) );
+	return(
+	    Teuchos::rcp( new OperatorMV<Helmholtz<Scalar,Ordinal> >( Teuchos::rcp( new Helmholtz<Scalar,Ordinal>(mulI, mulL) ) ) )
+	);
 }
 
 
-/**
- * \brief "laplace" for pressure
- * \todo not workin properly?
- * \todo add temporary variable
- */
+/// \brief "laplace" for pressure
+/// \todo not workin properly?
+/// \todo add temporary variable
 template<class Scalar,class Ordinal>
 class Div_Grad {
 public:
@@ -107,7 +106,7 @@ public:
 		OP_div_grad( true, x.s_, y.s_ );
 	}
 
-	bool hasApplyTranspose() const { return false; }
+	bool hasApplyTranspose() const { return( false ); }
 };
 
 
@@ -124,7 +123,7 @@ public:
 	void set_U(Teuchos::RCP<DomainFieldT> u) { u_=u; }
 
 	void apply(const DomainFieldT& x, RangeFieldT& y) const { return; }
-	bool hasApplyTranspose() const { return true; }
+	bool hasApplyTranspose() const { return( true ); }
 };
 
 
@@ -141,7 +140,7 @@ public:
 	void set_U(Teuchos::RCP<DomainFieldT> u) { u_=u; }
 
 	void apply(const DomainFieldT& x, RangeFieldT& y) const { return; }
-	bool hasApplyTranspose() const { return true; }
+	bool hasApplyTranspose() const { return( true ); }
 };
 
 
@@ -176,7 +175,7 @@ public:
 		div_->apply(temp1_->GetVec(0),y);
 		return;
 	}
-	bool hasApplyTranspose() const { return false; }
+	bool hasApplyTranspose() const { return( false ); }
 
 };
 
@@ -186,7 +185,9 @@ Teuchos::RCP<OperatorMV< Div_Hinv_Grad<Scalar,Ordinal> > > createDivHinvGrad(
 		Teuchos::RCP<MultiField<VectorField<Scalar,Ordinal> > > temp,
 		Teuchos::RCP< LinearProblem<Scalar, MultiField<VectorField<Scalar,Ordinal> >, OperatorMV<Helmholtz<Scalar,Ordinal> > > > H ) {
 
-	return Teuchos::rcp( new OperatorMV<Div_Hinv_Grad<Scalar,Ordinal> >( Teuchos::rcp( new Div_Hinv_Grad<Scalar,Ordinal>( temp, H ) ) ) );
+	return(
+	    Teuchos::rcp( new OperatorMV<Div_Hinv_Grad<Scalar,Ordinal> >( Teuchos::rcp( new Div_Hinv_Grad<Scalar,Ordinal>( temp, H ) ) ) )
+	);
 
 }
 
@@ -211,13 +212,13 @@ public:
 //		y.getFieldS()->assign( x.getConstFieldC() );
 //		y.getFieldS()->scale( omega_ );
 	}
-	bool hasApplyTranspose() const { return false; }
+	bool hasApplyTranspose() const { return( false ); }
 };
 
 
 template< class Scalar, class Ordinal>
 Teuchos::RCP<OperatorMV< Dt<Scalar,Ordinal> > > createDt( Scalar omega = 1. ) {
-	return Teuchos::rcp( new OperatorMV<Dt<Scalar,Ordinal> >( Teuchos::rcp( new Dt<Scalar,Ordinal>( omega ) ) ) );
+	return( Teuchos::rcp( new OperatorMV<Dt<Scalar,Ordinal> >( Teuchos::rcp( new Dt<Scalar,Ordinal>( omega ) ) ) ) );
 }
 
 

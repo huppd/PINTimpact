@@ -46,15 +46,13 @@ private:
 public:
 	CompoundField(): vfield_(Teuchos::null),sfield_(Teuchos::null) {};
 
-	CompoundField(Teuchos::RCP<VField> vfield, Teuchos::RCP<SField> sfield):vfield_(vfield),sfield_(sfield) {};
+	CompoundField( const Teuchos::RCP<VField>& vfield, const Teuchos::RCP<SField>& sfield):vfield_(vfield),sfield_(sfield) {};
 
-	/**
-	 * \brief copy constructor.
-	 *
-	 * shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
-	 * @param sF
-	 * @param copyType by default a ShallowCopy is done but allows also to deepcopy the field
-	 */
+	/// \brief copy constructor.
+	///
+	/// shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
+	/// @param sF
+	/// @param copyType by default a ShallowCopy is done but allows also to deepcopy the field
 	CompoundField(const CompoundField& vF, ECopyType copyType=ShallowCopy):
 		vfield_( Teuchos::rcp( new VField(*vF.vfield_,copyType) ) ),
 		sfield_( Teuchos::rcp( new SField(*vF.sfield_,copyType) ) )
@@ -64,15 +62,12 @@ public:
 	Teuchos::RCP<MV> clone( ECopyType ctype=DeepCopy ) const {
 	  return( Teuchos::rcp( new MV( vfield_->clone(ctype), sfield_->clone(ctype) ) ) );
 	}
-//	~CompoundField() { for(int i=0; i<3; ++i) delete[] vec_[i];}
 
-  //! \name Attribute methods
+  /// \name Attribute methods
   //@{
 
-	/**
-	 * \warning it is assumed that both fields have the same \c FieldSpace
-	 * @return field space of \c cfield_
-	 */
+	/// \warning it is assumed that both fields have the same \c FieldSpace
+	/// @return field space of \c cfield_
 	Teuchos::RCP<const FieldSpace<Ordinal> > getFieldSpace() const { return( vfield_->getFieldSpace() );}
 
 	Teuchos::RCP<VField> getVField() { return( vfield_ ); }
@@ -81,11 +76,10 @@ public:
 	Teuchos::RCP<const VField> getConstVField() const { return( vfield_ ); }
 	Teuchos::RCP<const SField> getConstSField() const { return( sfield_ ); }
 
-	/** \brief get Vect length
-	 * shoud be the same as 2*vfield_->getVecLength()
-	 * the vector length is withregard to the inner points
-	 * @return vector length
-	 */
+	/// \brief get Vect length
+	/// shoud be the same as 2*vfield_->getVecLength()
+	/// the vector length is withregard to the inner points
+	/// @return vector length
 	/// \brief returns the length of Field.
 	Ordinal getLength( bool nox_vec=false ) const {
 		return( vfield_->getLength(nox_vec) + sfield_->getLength(nox_vec) );
@@ -100,9 +94,7 @@ public:
 	/// \name Update methods
 	//@{
 
-	/**
-	 * \brief Replace \c this with \f$\alpha A + \beta B\f$.
-	 */
+	/// \brief Replace \c this with \f$\alpha A + \beta B\f$.
 	void add( const Scalar& alpha, const MV& A, const Scalar& beta, const MV& B ) {
 		// add test for consistent VectorSpaces in debug mode
 		vfield_->add(alpha, *A.vfield_, beta, *B.vfield_);
@@ -110,15 +102,13 @@ public:
 	}
 
 
-  /**
-   * \brief Put element-wise absolute values of source vector \c y into this
-   * vector.
-   *
-   * Here x represents this vector, and we update it as
-   * \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
-   * \return Reference to this object
-   * \todo implement me
-   */
+  /// \brief Put element-wise absolute values of source vector \c y into this
+  /// vector.
+  ///
+  /// Here x represents this vector, and we update it as
+  /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
+  /// \return Reference to this object
+  /// \todo implement me
   void abs(const MV& y) {
       vfield_->abs( *y.vfield_ );
       sfield_->abs( *y.sfield_ );
@@ -261,7 +251,7 @@ protected:
  */
 template<class VField, class SField>
 Teuchos::RCP< CompoundField<VField,SField> > createCompoundField(
-		Teuchos::RCP<VField>  vfield, Teuchos::RCP<SField> sfield ) {
+		const Teuchos::RCP<VField>&  vfield, const Teuchos::RCP<SField>& sfield ) {
 
 	return( Teuchos::RCP<CompoundField<VField,SField> > (
 				new CompoundField<VField,SField>( vfield, sfield ) ) );

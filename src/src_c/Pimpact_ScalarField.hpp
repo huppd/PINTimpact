@@ -164,7 +164,7 @@ protected:
 public:
 	ScalarField():s_(0),fieldSpace_(Teuchos::null) {};
 
-	ScalarField(Teuchos::RCP<const FieldSpace<Ordinal> > sVS):fieldSpace_(sVS) {
+	ScalarField( const Teuchos::RCP<const FieldSpace<Ordinal> >& sVS):fieldSpace_(sVS) {
 		Ordinal N = 1;
 		for(int i=0; i<3; ++i)
 			N *= nLoc(i)+bu(i)-bl(i);
@@ -234,15 +234,12 @@ public:
 	/// \brief get number of stored Field's
 	int getNumberVecs() const { return( 1 ); }
 
-	//@}
 
-	//! @name Update methods
+	//@}
+	/// @name Update methods
 	//@{
 
-
-	/**
-	 * \brief Replace \c this with \f$\alpha A + \beta B\f$.
-	*/
+	/// \brief Replace \c this with \f$\alpha A + \beta B\f$.
 	void add( const Scalar& alpha, const MV& A, const Scalar& beta, const MV& B ) {
 		// add test for consistent VectorSpaces in debug mode
 		SF_add(
@@ -534,7 +531,7 @@ protected:
  * @return scalar vector
  */
 template<class Scalar, class Ordinal>
-Teuchos::RCP< ScalarField<Scalar,Ordinal> > createScalarField( Teuchos::RCP<const FieldSpace<Ordinal> > fS) {
+Teuchos::RCP< ScalarField<Scalar,Ordinal> > createScalarField( const Teuchos::RCP<const FieldSpace<Ordinal> >& fS) {
 	return Teuchos::RCP<ScalarField<Scalar,Ordinal> > (
 			new ScalarField<Scalar,Ordinal>( fS ) );
 }

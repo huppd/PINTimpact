@@ -1,64 +1,15 @@
-//@HEADER
-// ************************************************************************
-//
-//                 Belos: Block Linear Solvers Package
-//                  Copyright 2004 Sandia Corporation
-//
-// Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
-// the U.S. Government retains certain rights in this software.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-// 1. Redistributions of source code must retain the above copyright
-// notice, this list of conditions and the following disclaimer.
-//
-// 2. Redistributions in binary form must reproduce the above copyright
-// notice, this list of conditions and the following disclaimer in the
-// documentation and/or other materials provided with the distribution.
-//
-// 3. Neither the name of the Corporation nor the names of the
-// contributors may be used to endorse or promote products derived from
-// this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY SANDIA CORPORATION "AS IS" AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL SANDIA CORPORATION OR THE
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-// LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-// NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Questions? Contact Michael A. Heroux (maherou@sandia.gov)
-//
-// ************************************************************************
-//@HEADER
-
 #pragma once
 #ifndef BELOSPIMPACTADAPTER_HPP
 #define BELOSPIMPACTADAPTER_HPP
 
 
-/*! \file BelosPimpactAdapter.hpp
-    \brief Provides several interfaces between Belos virtual classes and Pimpact concrete classes.
-*/
-
-
 #include <Pimpact_MultiField.hpp>
 #include <Pimpact_OperatorMV.hpp>
+#include "Pimpact_OperatorBase.hpp"
 
-//#include <Teuchos_Assert.hpp>
 #include <Teuchos_ScalarTraits.hpp>
 #include <Teuchos_TypeNameTraits.hpp>
-//#include <Teuchos_Array.hpp>
-//#include <Teuchos_DefaultSerialComm.hpp>
 
-//#include <BelosConfigDefs.hpp>
 #include <BelosTypes.hpp>
 #include <BelosMultiVecTraits.hpp>
 #include <BelosOperatorTraits.hpp>
@@ -66,7 +17,6 @@
 #ifdef HAVE_BELOS_TSQR
 #	include "BelosStubTsqrAdapter.hpp"
 #endif // HAVE_BELOS_TSQR
-
 
 
 
@@ -289,13 +239,15 @@ public:
 
 ////////////////////////////////////////////////////////////////////
 //
-// Implementation of the Belos::OperatorTraits for Pimpact::Operator.
+// Implementation of the Belos::OperatorTraits for Pimpact::OperatorMV.
 //
 ////////////////////////////////////////////////////////////////////
 
 /// \brief Partial specialization of \c Belos::OperatorTraits for \c Pimpact::OperatorMV.
+///
 /// it has three template parameters Scalar, Field, and the inner Operator
 /// \note sadly Belos allows only Operators having the same domain and range
+/// \deprecated doesnot allow preconditioner from another type
 template <class Scalar, class Field, class Operator>
 class OperatorTraits <Scalar, Pimpact::MultiField<Field>, Pimpact::OperatorMV<Operator> > {
 
@@ -343,6 +295,42 @@ public:
   }
 
 }; // end of class OperatorTraits
+
+
+////////////////////////////////////////////////////////////////////
+//
+// Implementation of the Belos::OperatorTraits for Pimpact::OperatorBase.
+//
+////////////////////////////////////////////////////////////////////
+
+/// \brief Partial specialization of \c Belos::OperatorTraits for \c Pimpact::OperatorBase.
+/// it has three template parameters Scalar, Field, and the inner Operator
+/// \note sadly Belos allows only Operators having the same domain and range
+template< class Scalar, class Field >
+class OperatorTraits<
+    Scalar,
+    Pimpact::MultiField<Field>,
+    typename Teuchos::RCP<Pimpact::OperatorBase<Pimpact::MultiField<Field> > > > {
+
+public:
+  	/// \brief applys the inner \c Operator, such that \c Y:= \c Op( \c X)
+  	/// \note up to now only no NOTRANS operators can be handled
+    static void
+    Apply( const Teuchos::RCP<Pimpact::OperatorBase<Pimpact::MultiField<Field> > >& Op,
+           const Pimpact::MultiField<Field>& X,
+           Pimpact::MultiField<Field>& Y,
+           Belos::ETrans trans=NOTRANS) {
+          Op->apply( X, Y, NOTRANS);
+    }
+
+  /// @param Op
+  /// @return \c true if Op has a transpose implemented
+  static bool HasApplyTranspose( const Teuchos::RCP<Pimpact::OperatorBase<Pimpact::MultiField<Field> > >& Op ) {
+  	return( Op->hasTransposeApply() );
+  }
+
+}; // end of class OperatorTraits
+
 
 } // end of namespace Belos
 

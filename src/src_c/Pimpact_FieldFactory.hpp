@@ -51,9 +51,9 @@ Teuchos::RCP< MultiField<ModeField<ScalarField<Scalar,Ordinal> > > > createMulti
 template<class Scalar, class Ordinal>
 Teuchos::RCP< MultiField<ModeField<VectorField<Scalar,Ordinal> > > > createInitMVF(
 		EFlowType flowType,
-		Teuchos::RCP<const FieldSpace<Ordinal> > fS,
-		Teuchos::ArrayRCP< Teuchos::RCP< const IndexSpace<Ordinal> > >iIS,
-		Teuchos::ArrayRCP< Teuchos::RCP< const IndexSpace<Ordinal> > >fIS,
+		const Teuchos::RCP<const FieldSpace<Ordinal> >& fS,
+		const Teuchos::ArrayRCP< Teuchos::RCP< const IndexSpace<Ordinal> > >& iIS,
+		const Teuchos::ArrayRCP< Teuchos::RCP< const IndexSpace<Ordinal> > >& fIS,
 		Scalar re=1., Scalar omega=1., Scalar px=1.) {
 
 	auto velc = createVectorField<double,int>(fS,iIS,fIS);
@@ -95,7 +95,7 @@ Teuchos::RCP< MultiField<ModeField<VectorField<Scalar,Ordinal> > > > createInitM
 
 template<class Scalar, class Ordinal>
 Teuchos::RCP< MultiField<ModeField<ScalarField<Scalar,Ordinal> > > > createInitMSF(
-		Teuchos::RCP< const FieldSpace<Ordinal> > fS ) {
+		const Teuchos::RCP< const FieldSpace<Ordinal> >& fS ) {
 	auto scac = Pimpact::createScalarField<Scalar,Ordinal>(fS);
 	auto scas = Pimpact::createScalarField<Scalar,Ordinal>(fS);
 

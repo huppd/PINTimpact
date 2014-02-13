@@ -61,7 +61,7 @@ private:
 public:
 	MultiField():mfs_(Teuchos::null) {};
 
-	/// \brief constructor taking a \c Field constructing multiple shallow copys
+	/// \brief constructor taking a \c Field constructing multiple shallow copys.
   /// \note maybe hide and make it private
   MultiField( const Field& field, const int numvecs, Pimpact::ECopyType ctyp = Pimpact::ShallowCopy):mfs_(numvecs) {
   	for( int i=0; i<numvecs; ++i )
@@ -69,37 +69,31 @@ public:
   }
 
 
-  /**
-   * \brief copy constructor creating a view
-   */
+   /// \brief copy constructor creating a view
   MultiField( const MV& mv ):mfs_(mv.mfs_) {}
 
 
-	/**
-   * \brief  constructor, creates \c numvecs  empty Fields
-   * @param numvecs
-   * @return
-  */
+  /// \brief  constructor, creates \c numvecs  empty Fields
+  /// @param numvecs
+  /// @return
   MultiField( int numvecs ):mfs_(numvecs) {}
 
 
-  /** \brief Create a new \c MultiField with \c numvecs columns.
-   *
-   * The returned Pimpact::MultiField has the same (distribution over one or
-   * more parallel processes) Its entries are not initialized and have undefined
-   * values.
-  */
+  /// \brief Create a new \c MultiField with \c numvecs columns.
+  ///
+  /// The returned Pimpact::MultiField has the same (distribution over one or
+  /// more parallel processes) Its entries are not initialized and have undefined
+  /// values.
   Teuchos::RCP< MV > clone( const int numvecs ) const {
   	return( Teuchos::rcp( new MV( *mfs_[0], numvecs ) ) );
   }
 
 
-  /** \brief Create a new \c MultiField with \c numvecs columns.
-   *
-   * The returned Pimpact::MultiField has the same (distribution over one or
-   * more parallel processes) Its entries are not initialized and have undefined
-   * values.
-  */
+  /// \brief Create a new \c MultiField with \c numvecs columns.
+  ///
+  /// The returned Pimpact::MultiField has the same (distribution over one or
+  /// more parallel processes) Its entries are not initialized and have undefined
+  /// values.
   Teuchos::RCP< MV > clone( ECopyType ctype = DeepCopy ) const {
     auto mv_ = Teuchos::rcp( new MV(getNumberVecs()) );
       for( int i=0; i<getNumberVecs(); ++i ) {
@@ -110,19 +104,16 @@ public:
   }
 
 
-  /**
-   * @return deep copy of \c MultiField
-   */
+  /// @return deep copy of \c MultiField
   Teuchos::RCP<MV> CloneCopy() const {
     return( clone() );
   }
 
 
-  /**
-   * deep copy of \c index fields, the new \c MultiFields stores \c index.size() vector
-   * @param index
-   * @return
-  */
+  /// \brief deep copy of \c index fields, the new \c MultiFields stores \c index.size() vector.
+  ///
+  /// @param index
+  /// @return
   Teuchos::RCP<MV>  CloneCopy( const std::vector<int>& index ) const {
   	auto mv_ = Teuchos::rcp( new MV(index.size()) );
   	for( unsigned int i=0; i<index.size(); ++i ) {
@@ -132,11 +123,9 @@ public:
   }
 
 
-  /**
-   * deep copy of \c index fields, the new \c MultiFields stores \c index.size()
-   * @param index here index means an interval
-   * @return
-  */
+  /// deep copy of \c index fields, the new \c MultiFields stores \c index.size()
+  /// @param index here index means an interval
+  /// @return
   Teuchos::RCP<MV> CloneCopy( const Teuchos::Range1D& index) const {
   	auto mv_ = Teuchos::rcp( new MV(index.size()) );
   	int j = 0;
@@ -148,11 +137,8 @@ public:
   }
 
 
-  /**
-   *
-   * @param index
-   * @return nonConst View
-  */
+  /// @param index
+  /// @return nonConst View
   Teuchos::RCP<MV> CloneViewNonConst( const std::vector<int>& index) {
   	auto mv_ = Teuchos::rcp( new MV( index.size() ) );
   	for( unsigned int i=0; i<index.size(); ++i ) {
@@ -191,10 +177,10 @@ public:
   }
 
 
-  /** \brief returns the length of Field.
-   * \param nox_vec if \c MultiField is used for NOX the Vector length is
-   * considered for all Fields
-   */
+  /// \brief returns the length of Field.
+  ///
+  /// \param nox_vec if \c MultiField is used for NOX the Vector length is
+  /// considered for all Fields
   Ordinal getLength( bool nox_vec=false ) const {
   	if( nox_vec ){
   		Ordinal n = 0;
@@ -220,14 +206,13 @@ public:
   //@{
 
 
-  /**
-   * \brief \f[ *this = \alpha A B + \beta *this \f]
-   * \todo add debugtests
-   * @param alpha
-   * @param A
-   * @param B
-   * @param beta
-   */
+
+  /// \brief \f[ *this = \alpha A B + \beta *this \f]
+  /// \todo add debugtests
+  /// @param alpha
+  /// @param A
+  /// @param B
+  /// @param beta
   void TimesMatAdd( const Scalar& alpha, const MV& A,
   		const Teuchos::SerialDenseMatrix<int,Scalar>& B,
   		const Scalar& beta ) {
@@ -247,81 +232,71 @@ public:
   }
 
 
-  /**
-   * \brief <tt>mv := alpha*A + beta*B</tt>
-   *
-   *	The Tpetra specialization of this method ignores and completely
-   *	overwrites any NaN or Inf entries in A.  Thus, it does <i>not</i> mean
-   *	the same thing as <tt>mv := 0*mv + alpha*A + beta*B</tt> in IEEE 754
-   *	floating-point arithmetic. (Remember that NaN*0 = NaN.)
-   */
+
+  /// \brief <tt>mv := alpha*A + beta*B</tt>
+  ///
+  ///	The Tpetra specialization of this method ignores and completely
+  ///	overwrites any NaN or Inf entries in A.  Thus, it does <i>not</i> mean
+  ///	the same thing as <tt>mv := 0*mv + alpha*A + beta*B</tt> in IEEE 754
+  ///	floating-point arithmetic. (Remember that NaN*0 = NaN.)
   void add( Scalar alpha, const MV& A, Scalar beta, const MV& B ) {
   	for( int i=0; i<getNumberVecs(); ++i )
   		mfs_[i]->add( alpha, *A.mfs_[i], beta, *B.mfs_[i] );
   }
 
 
-  /**
-   * \brief Put element-wise absolute values of source vector \c y into this
-   * vector.
-   *
-   * Here x represents this vector, and we update it as
-   * \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
-   * \return Reference to this object
-   * \todo implement me
-   */
+  /// \brief Put element-wise absolute values of source vector \c y into this
+  /// vector.
+  ///
+  /// Here x represents this vector, and we update it as
+  /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
+  /// \return Reference to this object
+  /// \todo implement me
   void abs(const MV& y) {
     for( int i=0; i<getNumberVecs(); ++i )
       mfs_[i]->abs( *y.mfs_[i] );
   }
 
 
-  /**
-    * \brief Put element-wise reciprocal of source vector \c y into this vector.
-    *
-    * Here x represents this vector, and we update it as
-    * \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
-    * \return Reference to this object
-    * \todo implement me
-    */
+  /// \brief Put element-wise reciprocal of source vector \c y into this vector.
+  ///
+  /// Here x represents this vector, and we update it as
+  /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
+  /// \return Reference to this object
+  /// \todo implement me
+  ///
    void reciprocal(const MV& y){
     for( int i=0; i<getNumberVecs(); ++i )
       mfs_[i]->reciprocal( *y.mfs_[i] );
    }
 
 
-  /**
-   * \brief Scale each element of every \c Field by \c gamma.
-   *
-   * Here x represents on \c Field, and we update it as
-   * \f[ x_i = \alpha x_i \quad \mbox{for } i=1,\dots,n \f]
-   */
+  /// \brief Scale each element of every \c Field by \c gamma.
+  ///
+  /// Here x represents on \c Field, and we update it as
+  /// \f[ x_i = \alpha x_i \quad \mbox{for } i=1,\dots,n \f]
   void scale( const Scalar& alpha ) {
   	for( int i=0; i<getNumberVecs(); ++i )
   		mfs_[i]->scale(alpha);
   }
 
 
-  /**
-   * \brief Scale this vector <em>element-by-element</em> by the vector a.
-   *
-   * Here x represents this vector, and we update it as
-   * \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
-   * \return Reference to this object
-   * \todo implement me
-   */
+  /// \brief Scale this vector <em>element-by-element</em> by the vector a.
+  ///
+  /// Here x represents this vector, and we update it as
+  /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
+  /// \return Reference to this object
+  /// \todo implement me
   void scale(const MV& a) {
     for( int i=0; i<getNumberVecs(); ++i )
       mfs_[i]->scale( *a.mfs_[i] );
   }
 
 
-  /**
-   * \brief Scale each element of a \c Field by a \c gamma.
-   *
-   * Here x_j represents the j'th field, and we update it as
-   * \f[ x_j[i] = \alpha_j x_j[i] \quad \mbox{for } i=1,\dots,n \f]
-   */
+  /// \brief Scale each element of a \c Field by a \c gamma.
+  ///
+  /// Here x_j represents the j'th field, and we update it as
+  /// \f[ x_j[i] = \alpha_j x_j[i] \quad \mbox{for } i=1,\dots,n \f]
   void scale( const std::vector<Scalar>& alphas ) {
 #ifdef DEBUG
   	TEST_EQUALITY( alphas.size(), getNumberVecs() );
@@ -331,12 +306,10 @@ public:
   }
 
 
-  /**
-   * \f[ C_{ij} = \alpha A_i^T \c this_j \f]
-   * @param alpha
-   * @param A
-   * @param C
-  */
+  /// \f[ C_{ij} = \alpha A_i^T \c this_j \f]
+  /// @param alpha
+  /// @param A
+  /// @param C
   void Trans( Scalar alpha, const MV& A,
   		Teuchos::SerialDenseMatrix<int,Scalar>& C) const {
 
@@ -366,10 +339,8 @@ public:
   }
 
 
-  /**
-   * \brief Compute the inner product for the \c MultiField considering it as one Vector.
-   * \todo test this
-   */
+  /// \brief Compute the inner product for the \c MultiField considering it as one Vector.
+  /// \todo test this
 	Scalar dot( const MV& A ) const {
 		int n = getNumberVecs();
 		Scalar innpro=0.;
@@ -383,11 +354,9 @@ public:
 	}
 
 
-  /**
-   * \brief Compute the norm of each individual vector.
-   * Upon return, \c normvec[i] holds the value of \f$||this_i||_2\f$, the \c i-th column of \c this.
-   * \todo implement OneNorm
-   */
+  /// \brief Compute the norm of each individual vector.
+  /// Upon return, \c normvec[i] holds the value of \f$||this_i||_2\f$, the \c i-th column of \c this.
+  /// \todo implement OneNorm
   void norm( std::vector<typename Teuchos::ScalarTraits<Scalar>::magnitudeType> &normvec,
   		Belos::NormType type=Belos::TwoNorm) const {
   	const int n = getNumberVecs();
@@ -396,10 +365,8 @@ public:
   }
 
 
-  /**
-   * \brief Compute the norm for the \c MultiField as it is considered as one Vector .
-   * \todo implement OneNorm
-   */
+  /// \brief Compute the norm for the \c MultiField as it is considered as one Vector .
+  /// \todo implement OneNorm
 	Scalar norm(  Belos::NormType type = Belos::TwoNorm ) const {
 		int n = getNumberVecs();
 		Scalar nor=0.;
@@ -411,13 +378,11 @@ public:
 	}
 
 
-  /**
-   * \brief Weighted 2-Norm.
-   *
-   * Here x represents this vector, and we compute its weighted norm as follows:
-   * \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
-   * \return \f$ \|x\|_w \f$
-   */
+  /// \brief Weighted 2-Norm.
+  ///
+  /// Here x represents this vector, and we compute its weighted norm as follows:
+  /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
+  /// \return \f$ \|x\|_w \f$
   double norm(const MV& weights) const {
     double nor=0.;
     for( int i=0; i<getNumberVecs(); ++i )
@@ -426,11 +391,9 @@ public:
   }
 
 
-  /**
-   * \test this
-   * @param A
-   * @param index
-  */
+  /// \test this
+  /// @param A
+  /// @param index
   void SetBlock( const MV& A, const std::vector<int>& index ) {
   	const int n = index.size();
   	for( int i=0; i<n; ++i )
@@ -438,19 +401,16 @@ public:
   }
 
 
-  /**
-   * @param A
-   * @param index
-   */
+  /// @param A
+  /// @param index
   void SetBlock( const MV& A, const Teuchos::Range1D& index) {
   	for( int i=index.lbound(); i<=index.ubound(); ++i )
   		mfs_[i]->assign(*A.mfs_[i-index.lbound()]);
   }
 
-  /**
-    * \brief mv := A
-    * assign (deep copy) A into mv.
-    */
+  /// \brief mv := A.
+  ///
+  /// assign (deep copy) A into mv.
   void assign( const MV& A ) {
   	const int n = getNumberVecs();
   	for( int i=0; i<n; ++i )
@@ -458,9 +418,7 @@ public:
   }
 
 
-  /**
-   * \brief Replace the vectors with a random vectors.
-   */
+  /// \brief Replace the vectors with a random vectors.
   void random(bool useSeed = false, int seed = 1) {
   	const int n = getNumberVecs();
   	for( int i=0; i<n; ++i )
@@ -476,10 +434,8 @@ public:
   }
 
 
-  /**
-   * \todo add os to \c ScalarField and \c VectorField
-   * @param os
-  */
+  /// \todo add os to \c ScalarField and \c VectorField
+  /// @param os
   void print( std::ostream& os ) {
   	const int n = getNumberVecs();
   	for( int i=0; i<n; ++i )
@@ -502,6 +458,8 @@ public:
 }; // end of class MultiField
 
 
+/// \brief factory for \c MultiField
+/// \todo remove tpara Scalar, Ordinal
 template<class Field, class Scalar, class Ordinal>
 Teuchos::RCP< MultiField<Field> > createMultiField( const Field& field,
 		const int numvecs, ECopyType ctype = ShallowCopy ) {
