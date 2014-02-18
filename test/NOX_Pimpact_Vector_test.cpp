@@ -62,7 +62,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, create_init_print ) {
 	auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
 	auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
-	auto xv = Pimpact::createInitMVF<S,O>(Pimpact::ZeroFLow, fS, iIS, fIS );
+	auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFLow, fS, iIS, fIS );
 
 	auto xs = Pimpact::createInitMSF<S,O>( fS );
 
@@ -92,7 +92,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, InfNorm_and_init ) {
 	auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
 	auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
-	auto xv = Pimpact::createInitMVF<S,O>(Pimpact::ZeroFLow, fS, iIS, fIS );
+	auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFLow, fS, iIS, fIS );
 
 	auto xs = Pimpact::createInitMSF<S,O>( fS );
 
@@ -141,7 +141,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, TwoNorm_and_init ) {
 	auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
 	auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
-	auto xv = Pimpact::createInitMVF<S,O>(Pimpact::ZeroFLow, fS, iIS, fIS );
+	auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFLow, fS, iIS, fIS );
 
 	auto xs = Pimpact::createInitMSF<S,O>( fS );
 
@@ -178,7 +178,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, add ) {
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
   auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
-  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::ZeroFLow, fS, iIS, fIS );
+  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFLow, fS, iIS, fIS );
 
   auto xs = Pimpact::createInitMSF<S,O>( fS );
 
@@ -228,7 +228,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, reciprocal ) {
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
   auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
-  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::ZeroFLow, fS, iIS, fIS );
+  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFLow, fS, iIS, fIS );
 
   auto xs = Pimpact::createInitMSF<S,O>( fS );
 
@@ -283,7 +283,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, norm_weighted ) {
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
   auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
-  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::ZeroFLow, fS, iIS, fIS );
+  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFLow, fS, iIS, fIS );
 
   auto xs = Pimpact::createInitMSF<S,O>( fS );
 
@@ -342,7 +342,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, scale2 ) {
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
   auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
-  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::ZeroFLow, fS, iIS, fIS );
+  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFLow, fS, iIS, fIS );
 
   auto xs = Pimpact::createInitMSF<S,O>( fS );
 
@@ -401,7 +401,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, innerProduct ) {
 	auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
 	auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
-	auto xv = Pimpact::createInitMVF<S,O>(Pimpact::ZeroFLow, fS, iIS, fIS );
+	auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFLow, fS, iIS, fIS );
 
 	auto xs = Pimpact::createInitMSF<S,O>( fS );
 
@@ -455,7 +455,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, scale ) {
 	auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
 	auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
-	auto xv = Pimpact::createInitMVF<S,O>(Pimpact::ZeroFLow, fS, iIS, fIS );
+	auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFLow, fS, iIS, fIS );
 
 	auto xs = Pimpact::createInitMSF<S,O>( fS );
 
@@ -490,7 +490,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, random ) {
 	auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
 	auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
-	auto xv = Pimpact::createInitMVF<S,O>(Pimpact::ZeroFLow, fS, iIS, fIS );
+	auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFLow, fS, iIS, fIS );
 
 	auto xs = Pimpact::createInitMSF<S,O>( fS );
 
@@ -525,7 +525,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, update ) {
 	auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
 	auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
-	auto xv = Pimpact::createInitMVF<S,O>(Pimpact::ZeroFLow, fS, iIS, fIS );
+	auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFLow, fS, iIS, fIS );
 
 	auto xs = Pimpact::createInitMSF<S,O>( fS );
 

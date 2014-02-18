@@ -22,8 +22,10 @@ os.chdir(exe_path)
 os.system('make -j2')
 
 
-for sol in ["GMRES","GCRODR"]:
-	case_path0 = sol
+
+for prec in range(3):
+	sol='GMRES'
+	case_path0 = 'prec'+str(prec)
 	if not os.path.exists( data_path+case_path0 ):
 		os.mkdir( data_path+case_path0 )
 	print data_path + case_path0
@@ -34,7 +36,7 @@ for sol in ["GMRES","GCRODR"]:
 		if not os.path.exists( data_path+case_path0+case_path1 ):
 			os.mkdir( data_path+case_path0+case_path1 )
 		os.chdir( data_path+case_path0+case_path1 )
-		case_para = ' --omega='+str(om)+ ' --solver1='+sol+' '
+		case_para = ' --omega='+str(om)+ ' --solver1='+sol+' --prec='+str(prec)+' '
 		print case_consts + case_para
 		os.system(exe_pre+exe_path+exe+case_para+case_consts )
 		i += 1

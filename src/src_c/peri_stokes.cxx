@@ -26,9 +26,13 @@
 //#include "Pimpact_ModeField.hpp"
 //#include "Pimpact_MultiField.hpp"
 #include "Pimpact_FieldFactory.hpp"
+
 #include "Pimpact_OperatorMV.hpp"
 #include "Pimpact_LinearProblem.hpp"
 #include "Pimpact_Operator.hpp"
+#include "Pimpact_DivOpGrad.hpp"
+#include "Pimpact_OperatorFactory.hpp"
+
 #include "Pimpact_LinSolverParameter.hpp"
 #include "BelosPimpactAdapter.hpp"
 
@@ -51,6 +55,12 @@ int main(int argi, char** argv ) {
 	typedef Pimpact::OperatorMV< Pimpact::DtL<Scalar,Ordinal> >  Lap;
 	typedef Pimpact::OperatorMV< Pimpact::Div_DtLinv_Grad<Scalar,Ordinal> >  Schur;
 	typedef Pimpact::OperatorMV< Pimpact::Grad<Scalar,Ordinal> >  G;
+
+	typedef Pimpact::OperatorBase<MVF> BVOp;
+	typedef Pimpact::OperatorBase<MSF> BSOp;
+	typedef Pimpact::OperatorPimpl<MVF,Lap>  BLap;
+	typedef Pimpact::OperatorPimpl<MSF,Schur>  BSchur;
+//	typedef Pimpact::OperatorMV< Pimpact::Grad<Scalar,Ordinal> >  BG;
 
 	// intialize MPI
 	MPI_Init( &argi, &argv );
@@ -114,6 +124,10 @@ int main(int argi, char** argv ) {
 
 	std::string solver_name_2 = "GMRES";
 	my_CLP.setOption( "solver2", &solver_name_2, "name of the solver for Schur complement" );
+
+	// preconditioner type
+	int precType = 0;
+	my_CLP.setOption( "prec", &precType, "Type of the preconditioner." );
 
 	my_CLP.recogniseAllOptions(true);
 	my_CLP.throwExceptions(true);
@@ -190,8 +204,35 @@ int main(int argi, char** argv ) {
 	tempv->init(0);
 
 
-	// init operators
-	auto lap  = Pimpact::createDtL<Scalar,Ordinal>( omega, 0., 1./re );
+	// init Belos operators
+	auto dtlap  =
+	    Pimpact::createOperatorBaseMV<MVF,Pimpact::DtL<Scalar,Ordinal> >(
+	        Pimpact::createDtL<Scalar,Ordinal>( omega, 0., 1./re ) );
+
+	Teuchos::RCP<Pimpact::OperatorBase<MVF> > lprec = Teuchos::null;
+
+	switch(precType) {
+	case 1:
+	  lprec = Pimpact::createOperatorBaseMV<MVF,Pimpact::Dt<Scalar,Ordinal> >(
+	        Pimpact::createDt<Scalar,Ordinal>( -1./omega ) );
+	  break;
+	case 2:
+	  auto solverParams = Pimpact::createLinSolverParameter( "CG", 1.e-6*l1*l2/n1/n2 );
+	  auto op = Pimpact::createHelmholtz<Scalar,Ordinal>( 0., 1./re );
+	// Create the Pimpact::LinearSolver solver.
+	  auto prob =
+	      Pimpact::createLinearProblem<Scalar,Pimpact::MultiField<Pimpact::VectorField<Scalar,Ordinal> >,Pimpact::OperatorMV< Pimpact::Helmholtz<Scalar,Ordinal> > >(
+	          op,
+	          Pimpact::createMultiField(f->GetVec(0).getFieldC()),
+	          Pimpact::createMultiField(f->GetVec(0).getFieldC()), solverParams->get() );
+
+	  lprec = Pimpact::createOperatorBaseMV<MVF,Pimpact::Linv<Scalar,Ordinal> >( Pimpact::createLinv<Scalar,Ordinal>( prob ) );
+	  break;
+//	default:
+//	  break;
+	}
+
+	// init MV operators
 	auto div  = Pimpact::createOperatorMV<Pimpact::Div<double,int> >();
 	auto grad = Pimpact::createOperatorMV<Pimpact::Grad<double,int> >();
 
@@ -207,14 +248,16 @@ int main(int argi, char** argv ) {
 //	auto lprec = Pimpact::createDtL<Scalar,Ordinal>( -1./omega, 0., 0. );
 
 	// create problems/solvers
-	auto lap_problem = Pimpact::createLinearProblem<Scalar,MVF,Lap>( lap, u, f, solverParams->get(), solver_name_1 );
-//	lap_problem->setLeftPrec( lprec );
+	auto lap_problem = Pimpact::createLinearProblem<Scalar,MVF,BVOp>( dtlap, u, f, solverParams->get(), solver_name_1 );
+	lap_problem->setLeftPrec( lprec );
 
-	auto schur = Pimpact::createDivDtLinvGrad<double,int>( u, lap_problem );
+	auto schur =
+	    Pimpact::createOperatorBase<MSF,Pimpact::DivOpGrad<Scalar,Ordinal> >(
+	        Pimpact::createDivOpGrad<Scalar,Ordinal>( u, lap_problem ) );
 
 	solverParams = Pimpact::createLinSolverParameter( solver_name_2, 1.e-6*l1*l2/n1/n2  );
 	solverParams->get()->set( "Output Stream", outSchur );
-	auto schur_prob = Pimpact::createLinearProblem<Scalar,MSF,Schur>( schur, p,temps, solverParams->get(), solver_name_2);
+	auto schur_prob = Pimpact::createLinearProblem<Scalar,MSF,BSOp>( schur, p,temps, solverParams->get(), solver_name_2);
 
 	// solve stationary stokes
 	lap_problem->solve( tempv, f );

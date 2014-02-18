@@ -56,8 +56,8 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 
 	auto vel = Pimpact::createVectorField<double,int>(fS,iIS,fIS);
 
-	auto X = Pimpact::createMultiField<Pimpact::VectorField<double,int>,double,int>(*vel,1);
-	auto B = Pimpact::createMultiField<Pimpact::VectorField<double,int>,double,int>(*vel,1);
+	auto X = Pimpact::createMultiField<Pimpact::VectorField<double,int> >(*vel,1);
+	auto B = Pimpact::createMultiField<Pimpact::VectorField<double,int> >(*vel,1);
 
 	X->init(0.);
 	B->init(1.);
@@ -146,8 +146,8 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV2 ) {
 //				vel->init(0.);
 //				vel->init_field();
 
-				auto X = Pimpact::createMultiField<Pimpact::VectorField<double,int>,double,int>( *vel, 1, Pimpact::DeepCopy );
-				auto B = Pimpact::createMultiField<Pimpact::VectorField<double,int>,double,int>( *vel, 1 );
+				auto X = Pimpact::createMultiField<Pimpact::VectorField<double,int> >( *vel, 1, Pimpact::DeepCopy );
+				auto B = Pimpact::createMultiField<Pimpact::VectorField<double,int> >( *vel, 1 );
 
 //			 X->Init(0.);
 			 X->GetVec(0).init_field();
@@ -236,7 +236,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, DtL ) {
   typedef Pimpact::OperatorMV<Op> OpMV;
   typedef Pimpact::OperatorBase<BVF> OpBase;
   typedef Pimpact::OperatorPimpl<BVF,Op> OpPimpl;
-  typedef Teuchos::RCP<OpBase > BOp;
+  typedef OpBase  BOp;
 //  Teuchos::RCP<Pimpact::OperatorBase<Pimpact::MultiField<Field> > >
 //  typedef OpBase BOp;
 
@@ -246,13 +246,11 @@ TEUCHOS_UNIT_TEST( BelosSolver, DtL ) {
   auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
   auto b = Pimpact::createInitMVF<S,O>( Pimpact::Streaming2DFlow, fS, iIS, fIS );
-  auto x = Pimpact::createInitMVF<S,O>( Pimpact::ZeroFLow, fS, iIS, fIS );
+  auto x = Pimpact::createInitMVF<S,O>( Pimpact::Zero2DFLow, fS, iIS, fIS );
 
 //  auto A = Pimpact::createOperatorMV<Pimpact::Helmholtz<double,int> >();
 
-//  auto op = Pimpact::createOperatorBase<BVF,Op>( Pimpact::createDtL<S,O>() );
   auto op = Pimpact::createOperatorBase<BVF,Op>();
-  auto opp = Teuchos::rcp(&op,false);
 
   auto para = Pimpact::createLinSolverParameter("GMRES",1.e-3);
 
@@ -266,7 +264,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, DtL ) {
   // Create a LinearProblem struct with the problem to solve.
   // A, X, B, and M are passed by (smart) pointer, not copied.
   Teuchos::RCP<Belos::LinearProblem<S, BVF, BOp > > problem =
-           rcp (new Belos::LinearProblem<S, BVF, BOp > (opp, x, b));
+           Teuchos::rcp (new Belos::LinearProblem<S, BVF, BOp > (op, x, b));
 
   std::cout << "param\n" << *solver->getValidParameters();
   problem->setProblem(x,b);

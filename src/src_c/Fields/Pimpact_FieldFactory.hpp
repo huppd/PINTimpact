@@ -31,7 +31,7 @@ Teuchos::RCP< MultiField<ModeField<VectorField<Scalar,Ordinal> > > > createMulti
 
 	auto vel = createModeField( velc, vels );
 
-	return( createMultiField<ModeField<VectorField<Scalar,Ordinal> >,double,int>( *vel, n ) );
+	return( createMultiField<ModeField<VectorField<Scalar,Ordinal> > >( *vel, n ) );
 }
 
 
@@ -44,7 +44,7 @@ Teuchos::RCP< MultiField<ModeField<ScalarField<Scalar,Ordinal> > > > createMulti
 
 	auto scal = createModeField( scalc, scals );
 
-	return( createMultiField<ModeField<ScalarField<Scalar,Ordinal> >,Scalar,Ordinal>( *scal, n ) );
+	return( createMultiField<ModeField<ScalarField<Scalar,Ordinal> > >( *scal, n ) );
 }
 
 
@@ -61,10 +61,10 @@ Teuchos::RCP< MultiField<ModeField<VectorField<Scalar,Ordinal> > > > createInitM
 
 	auto vel  = createModeField( velc, vels );
 
-	auto u   = Pimpact::createMultiField< ModeField<VectorField<Scalar,Ordinal> > , double, int >(*vel,1);
+	auto u   = Pimpact::createMultiField< ModeField<VectorField<Scalar,Ordinal> > >(*vel,1);
 
 	switch( EFlowType( flowType ) ) {
-	case Pimpact::ZeroFLow :
+	case Pimpact::Zero2DFLow :
 		u->GetVec(0).getFieldC()->init_field( ZeroProf );
 		u->GetVec(0).getFieldS()->init_field( ZeroProf );
 		break;
@@ -101,7 +101,7 @@ Teuchos::RCP< MultiField<ModeField<ScalarField<Scalar,Ordinal> > > > createInitM
 
 	auto sca = Pimpact::createModeField( scac, scas );
 
-	return( Pimpact::createMultiField<ModeField<ScalarField<Scalar,Ordinal> >, double, int >(*sca,1) );
+	return( Pimpact::createMultiField<ModeField<ScalarField<Scalar,Ordinal> > >(*sca,1) );
 }
 
 } // end of namespace Pimpact

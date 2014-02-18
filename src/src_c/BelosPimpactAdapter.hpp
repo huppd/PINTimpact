@@ -297,6 +297,7 @@ public:
 }; // end of class OperatorTraits
 
 
+
 ////////////////////////////////////////////////////////////////////
 //
 // Implementation of the Belos::OperatorTraits for Pimpact::OperatorBase.
@@ -310,27 +311,26 @@ template< class Scalar, class Field >
 class OperatorTraits<
     Scalar,
     Pimpact::MultiField<Field>,
-    typename Teuchos::RCP<Pimpact::OperatorBase<Pimpact::MultiField<Field> > > > {
+    typename Pimpact::OperatorBase<Pimpact::MultiField<Field> > > {
 
 public:
-  	/// \brief applys the inner \c Operator, such that \c Y:= \c Op( \c X)
-  	/// \note up to now only no NOTRANS operators can be handled
+    /// \brief applys the inner \c Operator, such that \c Y:= \c Op( \c X)
+    /// \note up to now only no NOTRANS operators can be handled
     static void
-    Apply( const Teuchos::RCP<Pimpact::OperatorBase<Pimpact::MultiField<Field> > >& Op,
+    Apply( const Pimpact::OperatorBase<Pimpact::MultiField<Field> >& Op,
            const Pimpact::MultiField<Field>& X,
            Pimpact::MultiField<Field>& Y,
            Belos::ETrans trans=NOTRANS) {
-          Op->apply( X, Y, NOTRANS);
+          Op.apply( X, Y, NOTRANS);
     }
 
   /// @param Op
   /// @return \c true if Op has a transpose implemented
-  static bool HasApplyTranspose( const Teuchos::RCP<Pimpact::OperatorBase<Pimpact::MultiField<Field> > >& Op ) {
-  	return( Op->hasTransposeApply() );
+  static bool HasApplyTranspose( const Pimpact::OperatorBase<Pimpact::MultiField<Field> > & Op ) {
+    return( Op.hasTransposeApply() );
   }
 
 }; // end of class OperatorTraits
-
 
 } // end of namespace Belos
 

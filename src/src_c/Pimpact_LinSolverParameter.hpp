@@ -30,6 +30,8 @@ public:
 			parameter_->set( "Verbosity",									verbo	 );
 			parameter_->set( "Output Style",							style	 );
 			parameter_->set( "Convergence Tolerance",			tol		 );
+			parameter_->set( "Implicit Residual Scaling",	"None" );
+			parameter_->set( "Explicit Residual Scaling",	"None" );
 		}
 		else if( solver_name=="GMRES" ) {
 			parameter_->set( "Num Blocks",								100		 );

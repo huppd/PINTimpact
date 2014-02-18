@@ -51,8 +51,8 @@ namespace {
 
 			auto vel = Pimpact::createVectorField<double,int>(fS,iIS,fIS);
 
-			auto X = Pimpact::createMultiField<Pimpact::VectorField<double,int>,double,int>(*vel,1);
-			auto B = Pimpact::createMultiField<Pimpact::VectorField<double,int>,double,int>(*vel,1);
+			auto X = Pimpact::createMultiField<Pimpact::VectorField<double,int> >(*vel,1);
+			auto B = Pimpact::createMultiField<Pimpact::VectorField<double,int> >(*vel,1);
 
 		 X->init(0.);
 		 B->init(1.);
@@ -140,8 +140,8 @@ namespace {
 //				vel->init(0.);
 //				vel->init_field();
 
-				auto X = Pimpact::createMultiField<Pimpact::VectorField<double,int>,double,int>( *vel, 1, Pimpact::DeepCopy );
-				auto B = Pimpact::createMultiField<Pimpact::VectorField<double,int>,double,int>( *vel, 1 );
+				auto X = Pimpact::createMultiField<Pimpact::VectorField<double,int> >( *vel, 1, Pimpact::DeepCopy );
+				auto B = Pimpact::createMultiField<Pimpact::VectorField<double,int> >( *vel, 1 );
 
 //			 X->Init(0.);
 			 X->GetVec(0).init_field();
@@ -230,8 +230,8 @@ namespace {
 	//				vel->init(0.);
 	//				vel->init_field();
 
-					auto X = Pimpact::createMultiField<Pimpact::VectorField<double,int>,double,int>( *vel, 1, Pimpact::DeepCopy );
-					auto B = Pimpact::createMultiField<Pimpact::VectorField<double,int>,double,int>( *vel, 1 );
+					auto X = Pimpact::createMultiField<Pimpact::VectorField<double,int> >( *vel, 1, Pimpact::DeepCopy );
+					auto B = Pimpact::createMultiField<Pimpact::VectorField<double,int> >( *vel, 1 );
 
 	//			 X->Init(0.);
 				 X->GetVec(0).init_field();

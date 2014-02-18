@@ -148,8 +148,12 @@ void VF_write( double* phiU, double* phiV, double* phiW, const int& count );
 
 void VF_init_Zero(
     const int& N1,  const int& N2,  const int& N3,
-//    const int& SS1, const int& SS2, const int& SS3,
-//    const int& NN1, const int& NN2, const int& NN3,
+    const int& S1U, const int& S2U, const int& S3U,
+    const int& N1U, const int& N2U, const int& N3U,
+    const int& S1V, const int& S2V, const int& S3V,
+    const int& N1V, const int& N2V, const int& N3V,
+    const int& S1W, const int& S2W, const int& S3W,
+    const int& N1W, const int& N2W, const int& N3W,
     const int& b1L, const int& b2L, const int& b3L,
     const int& b1U, const int& b2U, const int& b3U,
     double* phiU, double* phiV, double* phiW );
@@ -157,8 +161,12 @@ void VF_init_Zero(
 
 void VF_init_2DPoiseuilleX(
     const int& N1,  const int& N2,  const int& N3,
-//		const int& SS1, const int& SS2, const int& SS3,
-//		const int& NN1, const int& NN2, const int& NN3,
+    const int& S1U, const int& S2U, const int& S3U,
+    const int& N1U, const int& N2U, const int& N3U,
+    const int& S1V, const int& S2V, const int& S3V,
+    const int& N1V, const int& N2V, const int& N3V,
+    const int& S1W, const int& S2W, const int& S3W,
+    const int& N1W, const int& N2W, const int& N3W,
 		const int& b1L, const int& b2L, const int& b3L,
 		const int& b1U, const int& b2U, const int& b3U,
     double* phiU, double* phiV, double* phiW );
@@ -166,8 +174,12 @@ void VF_init_2DPoiseuilleX(
 
 void VF_init_2DPoiseuilleY(
     const int& N1,  const int& N2,  const int& N3,
-//    const int& SS1, const int& SS2, const int& SS3,
-//    const int& NN1, const int& NN2, const int& NN3,
+    const int& S1U, const int& S2U, const int& S3U,
+    const int& N1U, const int& N2U, const int& N3U,
+    const int& S1V, const int& S2V, const int& S3V,
+    const int& N1V, const int& N2V, const int& N3V,
+    const int& S1W, const int& S2W, const int& S3W,
+    const int& N1W, const int& N2W, const int& N3W,
     const int& b1L, const int& b2L, const int& b3L,
     const int& b1U, const int& b2U, const int& b3U,
     double* phiU, double* phiV, double* phiW );
@@ -175,8 +187,12 @@ void VF_init_2DPoiseuilleY(
 
 void VF_init_2DPulsatileXC(
     const int& N1,  const int& N2,  const int& N3,
-    //    const int& SS1, const int& SS2, const int& SS3,
-    //    const int& NN1, const int& NN2, const int& NN3,
+    const int& S1U, const int& S2U, const int& S3U,
+    const int& N1U, const int& N2U, const int& N3U,
+    const int& S1V, const int& S2V, const int& S3V,
+    const int& N1V, const int& N2V, const int& N3V,
+    const int& S1W, const int& S2W, const int& S3W,
+    const int& N1W, const int& N2W, const int& N3W,
     const int& b1L, const int& b2L, const int& b3L,
     const int& b1U, const int& b2U, const int& b3U,
     double* phiU, double* phiV, double* phiW, const double& re, const double& om, const double& px );
@@ -184,8 +200,12 @@ void VF_init_2DPulsatileXC(
 
 void VF_init_2DPulsatileYC(
     const int& N1,  const int& N2,  const int& N3,
-    //    const int& SS1, const int& SS2, const int& SS3,
-    //    const int& NN1, const int& NN2, const int& NN3,
+    const int& S1U, const int& S2U, const int& S3U,
+    const int& N1U, const int& N2U, const int& N3U,
+    const int& S1V, const int& S2V, const int& S3V,
+    const int& N1V, const int& N2V, const int& N3V,
+    const int& S1W, const int& S2W, const int& S3W,
+    const int& N1W, const int& N2W, const int& N3W,
     const int& b1L, const int& b2L, const int& b3L,
     const int& b1U, const int& b2U, const int& b3U,
     double* phiU, double* phiV, double* phiW, const double& re, const double& om, const double& px );
@@ -193,8 +213,12 @@ void VF_init_2DPulsatileYC(
 
 void VF_init_2DPulsatileXS(
     const int& N1,  const int& N2,  const int& N3,
-    //    const int& SS1, const int& SS2, const int& SS3,
-    //    const int& NN1, const int& NN2, const int& NN3,
+    const int& S1U, const int& S2U, const int& S3U,
+    const int& N1U, const int& N2U, const int& N3U,
+    const int& S1V, const int& S2V, const int& S3V,
+    const int& N1V, const int& N2V, const int& N3V,
+    const int& S1W, const int& S2W, const int& S3W,
+    const int& N1W, const int& N2W, const int& N3W,
     const int& b1L, const int& b2L, const int& b3L,
     const int& b1U, const int& b2U, const int& b3U,
     double* phiU, double* phiV, double* phiW, const double& re, const double& om, const double& px );
@@ -202,8 +226,12 @@ void VF_init_2DPulsatileXS(
 
 void VF_init_2DPulsatileYS(
     const int& N1,  const int& N2,  const int& N3,
-    //    const int& SS1, const int& SS2, const int& SS3,
-    //    const int& NN1, const int& NN2, const int& NN3,
+    const int& S1U, const int& S2U, const int& S3U,
+    const int& N1U, const int& N2U, const int& N3U,
+    const int& S1V, const int& S2V, const int& S3V,
+    const int& N1V, const int& N2V, const int& N3V,
+    const int& S1W, const int& S2W, const int& S3W,
+    const int& N1W, const int& N2W, const int& N3W,
     const int& b1L, const int& b2L, const int& b3L,
     const int& b1U, const int& b2U, const int& b3U,
     double* phiU, double* phiV, double* phiW, const double& re, const double& om, const double& px );
@@ -211,8 +239,12 @@ void VF_init_2DPulsatileYS(
 
 void VF_init_Streaming(
     const int& N1,  const int& N2,  const int& N3,
-    //    const int& SS1, const int& SS2, const int& SS3,
-    //    const int& NN1, const int& NN2, const int& NN3,
+    const int& S1U, const int& S2U, const int& S3U,
+    const int& N1U, const int& N2U, const int& N3U,
+    const int& S1V, const int& S2V, const int& S3V,
+    const int& N1V, const int& N2V, const int& N3V,
+    const int& S1W, const int& S2W, const int& S3W,
+    const int& N1W, const int& N2W, const int& N3W,
     const int& b1L, const int& b2L, const int& b3L,
     const int& b1U, const int& b2U, const int& b3U,
     double* phiU, double* phiV, double* phiW );
@@ -599,6 +631,12 @@ public:
     case ZeroProf :
       VF_init_Zero(
           nLoc(0), nLoc(1), nLoc(2),
+          sIndB(0,0), sIndB(1,0), sIndB(2,0),
+          eIndB(0,0), eIndB(1,0), eIndB(2,0),
+          sIndB(0,1), sIndB(1,1), sIndB(2,1),
+          eIndB(0,1), eIndB(1,1), eIndB(2,1),
+          sIndB(0,2), sIndB(1,2), sIndB(2,2),
+          eIndB(0,2), eIndB(1,2), eIndB(2,2),
           bl(0),   bl(1),   bl(2),
           bu(0),   bu(1),   bu(2),
 					vec_[0], vec_[1], vec_[2] );
@@ -606,6 +644,12 @@ public:
     case Poiseuille2D_inX :
       VF_init_2DPoiseuilleX(
           nLoc(0), nLoc(1), nLoc(2),
+          sIndB(0,0), sIndB(1,0), sIndB(2,0),
+          eIndB(0,0), eIndB(1,0), eIndB(2,0),
+          sIndB(0,1), sIndB(1,1), sIndB(2,1),
+          eIndB(0,1), eIndB(1,1), eIndB(2,1),
+          sIndB(0,2), sIndB(1,2), sIndB(2,2),
+          eIndB(0,2), eIndB(1,2), eIndB(2,2),
           bl(0),   bl(1),   bl(2),
           bu(0),   bu(1),   bu(2),
 					vec_[0], vec_[1], vec_[2] );
@@ -613,6 +657,12 @@ public:
     case Poiseuille2D_inY :
       VF_init_2DPoiseuilleY(
           nLoc(0), nLoc(1), nLoc(2),
+          sIndB(0,0), sIndB(1,0), sIndB(2,0),
+          eIndB(0,0), eIndB(1,0), eIndB(2,0),
+          sIndB(0,1), sIndB(1,1), sIndB(2,1),
+          eIndB(0,1), eIndB(1,1), eIndB(2,1),
+          sIndB(0,2), sIndB(1,2), sIndB(2,2),
+          eIndB(0,2), eIndB(1,2), eIndB(2,2),
           bl(0),   bl(1),   bl(2),
           bu(0),   bu(1),   bu(2),
           vec_[0], vec_[1], vec_[2] );
@@ -620,6 +670,12 @@ public:
     case Pulsatile2D_inXC :
       VF_init_2DPulsatileXC(
           nLoc(0), nLoc(1), nLoc(2),
+          sIndB(0,0), sIndB(1,0), sIndB(2,0),
+          eIndB(0,0), eIndB(1,0), eIndB(2,0),
+          sIndB(0,1), sIndB(1,1), sIndB(2,1),
+          eIndB(0,1), eIndB(1,1), eIndB(2,1),
+          sIndB(0,2), sIndB(1,2), sIndB(2,2),
+          eIndB(0,2), eIndB(1,2), eIndB(2,2),
           bl(0),   bl(1),   bl(2),
           bu(0),   bu(1),   bu(2),
           vec_[0], vec_[1], vec_[2], re, om, px);
@@ -627,6 +683,12 @@ public:
     case Pulsatile2D_inYC :
       VF_init_2DPulsatileYC(
           nLoc(0), nLoc(1), nLoc(2),
+          sIndB(0,0), sIndB(1,0), sIndB(2,0),
+          eIndB(0,0), eIndB(1,0), eIndB(2,0),
+          sIndB(0,1), sIndB(1,1), sIndB(2,1),
+          eIndB(0,1), eIndB(1,1), eIndB(2,1),
+          sIndB(0,2), sIndB(1,2), sIndB(2,2),
+          eIndB(0,2), eIndB(1,2), eIndB(2,2),
           bl(0),   bl(1),   bl(2),
           bu(0),   bu(1),   bu(2),
           vec_[0], vec_[1], vec_[2], re, om, px);
@@ -634,6 +696,12 @@ public:
     case Pulsatile2D_inXS :
       VF_init_2DPulsatileXS(
           nLoc(0), nLoc(1), nLoc(2),
+          sIndB(0,0), sIndB(1,0), sIndB(2,0),
+          eIndB(0,0), eIndB(1,0), eIndB(2,0),
+          sIndB(0,1), sIndB(1,1), sIndB(2,1),
+          eIndB(0,1), eIndB(1,1), eIndB(2,1),
+          sIndB(0,2), sIndB(1,2), sIndB(2,2),
+          eIndB(0,2), eIndB(1,2), eIndB(2,2),
           bl(0),   bl(1),   bl(2),
           bu(0),   bu(1),   bu(2),
           vec_[0], vec_[1], vec_[2], re, om, px);
@@ -641,6 +709,12 @@ public:
     case Pulsatile2D_inYS:
       VF_init_2DPulsatileYS(
           nLoc(0), nLoc(1), nLoc(2),
+          sIndB(0,0), sIndB(1,0), sIndB(2,0),
+          eIndB(0,0), eIndB(1,0), eIndB(2,0),
+          sIndB(0,1), sIndB(1,1), sIndB(2,1),
+          eIndB(0,1), eIndB(1,1), eIndB(2,1),
+          sIndB(0,2), sIndB(1,2), sIndB(2,2),
+          eIndB(0,2), eIndB(1,2), eIndB(2,2),
           bl(0),   bl(1),   bl(2),
           bu(0),   bu(1),   bu(2),
           vec_[0], vec_[1], vec_[2], re, om, px);
@@ -648,6 +722,12 @@ public:
     case Streaming2D:
       VF_init_Streaming(
           nLoc(0), nLoc(1), nLoc(2),
+          sIndB(0,0), sIndB(1,0), sIndB(2,0),
+          eIndB(0,0), eIndB(1,0), eIndB(2,0),
+          sIndB(0,1), sIndB(1,1), sIndB(2,1),
+          eIndB(0,1), eIndB(1,1), eIndB(2,1),
+          sIndB(0,2), sIndB(1,2), sIndB(2,2),
+          eIndB(0,2), eIndB(1,2), eIndB(2,2),
           bl(0),   bl(1),   bl(2),
           bu(0),   bu(1),   bu(2),
           vec_[0], vec_[1], vec_[2] );

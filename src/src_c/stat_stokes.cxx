@@ -158,11 +158,11 @@ int main(int argi, char** argv ) {
 	auto sca = Pimpact::createScalarField<double,int>(fS);
 	auto vel = Pimpact::createVectorField<double,int>(fS,iIS,fIS);
 
-	auto p     = Pimpact::createMultiField<SF,double,int>(*sca,1);
-	auto temps = Pimpact::createMultiField<SF,double,int>(*sca,1);
-	auto u     = Pimpact::createMultiField<VF,double,int>(*vel,1);
-	auto f     = Pimpact::createMultiField<VF,double,int>(*vel,1);
-	auto tempv = Pimpact::createMultiField<VF,double,int>(*vel,1);
+	auto p     = Pimpact::createMultiField<SF>(*sca,1);
+	auto temps = Pimpact::createMultiField<SF>(*sca,1);
+	auto u     = Pimpact::createMultiField<VF>(*vel,1);
+	auto f     = Pimpact::createMultiField<VF>(*vel,1);
+	auto tempv = Pimpact::createMultiField<VF>(*vel,1);
 
 	sca = Teuchos::null;
 	vel = Teuchos::null;

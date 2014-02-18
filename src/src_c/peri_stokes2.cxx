@@ -177,8 +177,8 @@ int main(int argi, char** argv ) {
 
 	auto q_ 	 = Pimpact::createCompoundField( vel, sca );
 
-	auto q     = Pimpact::createMultiField< CF, double, int >(*q_,1);
-	auto f     = Pimpact::createMultiField< CF, double, int >(*q_,1);
+	auto q     = Pimpact::createMultiField< CF >(*q_,1);
+	auto f     = Pimpact::createMultiField< CF >(*q_,1);
 
 	scac=Teuchos::null;
 	scas=Teuchos::null;
@@ -189,7 +189,7 @@ int main(int argi, char** argv ) {
 
 
 	switch( Pimpact::EFlowType(flow) ) {
-	case Pimpact::ZeroFLow :
+	case Pimpact::Zero2DFLow :
 		q->GetVec(0).getVField()->getFieldC()->init_field( Pimpact::ZeroProf );
 		q->GetVec(0).getVField()->getFieldS()->init_field( Pimpact::ZeroProf );
 		break;

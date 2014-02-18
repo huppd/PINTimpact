@@ -96,7 +96,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, createInterface ) {
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
   auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
-  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::ZeroFLow, fS, iIS, fIS );
+  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFLow, fS, iIS, fIS );
 
   auto xs = Pimpact::createInitMSF<S,O>( fS );
 
@@ -113,7 +113,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, createInterface ) {
   auto lp_DTL = Pimpact::createLinearProblem<S,Interface::BVF,Interface::DTL>(
       dtL, xv->clone(), xv->clone(), solverParams->get(), solverName );
 
-  auto schur = Pimpact::createDivDtLinvGrad<S,O>( xv->clone(), lp_DTL );
+  auto schur = Pimpact::createDivDtLinvGradold<S,O>( xv->clone(), lp_DTL );
 
   auto lp_Schur = Pimpact::createLinearProblem<S,Interface::BSF,Interface::Schur>(
       schur, xs->clone(), xs->clone(), solverParams->get(), solverName );
@@ -141,7 +141,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, computeF ) {
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
   auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
-  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::ZeroFLow, fS, iIS, fIS );
+  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFLow, fS, iIS, fIS );
 
   auto xs = Pimpact::createInitMSF<S,O>( fS );
 
@@ -161,7 +161,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, computeF ) {
   auto lp_DTL = Pimpact::createLinearProblem<S,Interface::BVF,Interface::DTL>(
       dtL, xv->clone(), xv->clone(), solverParams->get(), solverName );
 
-  auto schur = Pimpact::createDivDtLinvGrad<S,O>( xv->clone(), lp_DTL );
+  auto schur = Pimpact::createDivDtLinvGradold<S,O>( xv->clone(), lp_DTL );
 
   auto lp_Schur = Pimpact::createLinearProblem<S,Interface::BSF,Interface::Schur>(
       schur, xs->clone(), xs->clone(), solverParams->get(), solverName );
@@ -194,7 +194,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, computeJacobian ) {
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
   auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
-  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::ZeroFLow, fS, iIS, fIS );
+  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFLow, fS, iIS, fIS );
 
   auto xs = Pimpact::createInitMSF<S,O>( fS );
 
@@ -214,7 +214,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, computeJacobian ) {
   auto lp_DTL = Pimpact::createLinearProblem<S,Interface::BVF,Interface::DTL>(
       dtL, xv->clone(), xv->clone(), solverParams->get(), solverName );
 
-  auto schur = Pimpact::createDivDtLinvGrad<S,O>( xv->clone(), lp_DTL );
+  auto schur = Pimpact::createDivDtLinvGradold<S,O>( xv->clone(), lp_DTL );
 
   auto lp_Schur = Pimpact::createLinearProblem<S,Interface::BSF,Interface::Schur>(
       schur, xs->clone(), xs->clone(), solverParams->get(), solverName );
@@ -247,7 +247,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, applyJacobian ) {
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
   auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
-  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::ZeroFLow, fS, iIS, fIS );
+  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFLow, fS, iIS, fIS );
 
   auto xs = Pimpact::createInitMSF<S,O>( fS );
 
@@ -267,7 +267,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, applyJacobian ) {
   auto lp_DTL = Pimpact::createLinearProblem<S,Interface::BVF,Interface::DTL>(
       dtL, xv->clone(), xv->clone(), solverParams->get(), solverName );
 
-  auto schur = Pimpact::createDivDtLinvGrad<S,O>( xv->clone(), lp_DTL );
+  auto schur = Pimpact::createDivDtLinvGradold<S,O>( xv->clone(), lp_DTL );
 
   auto lp_Schur = Pimpact::createLinearProblem<S,Interface::BSF,Interface::Schur>(
       schur, xs->clone(), xs->clone(), solverParams->get(), solverName );
@@ -299,7 +299,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, applyJacobianInverse ) {
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
   auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
-  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::ZeroFLow, fS, iIS, fIS );
+  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFLow, fS, iIS, fIS );
 
   auto xs = Pimpact::createInitMSF<S,O>( fS );
 
@@ -319,7 +319,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, applyJacobianInverse ) {
   auto lp_DTL = Pimpact::createLinearProblem<S,Interface::BVF,Interface::DTL>(
       dtL, xv->clone(), xv->clone(), solverParams->get(), solverName );
 
-  auto schur = Pimpact::createDivDtLinvGrad<S,O>( xv->clone(), lp_DTL );
+  auto schur = Pimpact::createDivDtLinvGradold<S,O>( xv->clone(), lp_DTL );
 
   auto lp_Schur = Pimpact::createLinearProblem<S,Interface::BSF,Interface::Schur>(
       schur, xs->clone(), xs->clone(), solverParams->get(), solverName );

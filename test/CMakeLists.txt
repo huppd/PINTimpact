@@ -1,6 +1,8 @@
 
 #set(CMAKE_INCLUDE_CURRENT_DIR ../src)
 include_directories("../src/src_c")
+include_directories("../src/src_c/Fields")
+include_directories("../src/src_c/Operators")
 
 enable_testing()
 

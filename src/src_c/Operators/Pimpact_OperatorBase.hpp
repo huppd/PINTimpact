@@ -13,14 +13,18 @@ namespace Pimpact {
 /// \brief Operator class for type erasure
 ///
 /// for Belos preconditioner and operator has to be from the same type
-template<class MV>
+template<class MultiVector>
 class OperatorBase {
 public:
+
+  typedef MultiVector MV;
   virtual ~OperatorBase() {};
 
-  virtual void apply( const MV& x, MV& y, Belos::ETrans trans=Belos::NOTRANS ) const =0 ;
-  virtual bool hasApplyTranspose() const =0;
-};
+//  virtual void apply( const MV& x, MV& y, Belos::ETrans trans=Belos::NOTRANS ) const =0 ;
+//  virtual bool hasApplyTranspose() const =0;
+  virtual void apply( const MV& x, MV& y, Belos::ETrans trans=Belos::NOTRANS ) const {} ;
+  virtual bool hasApplyTranspose() const {return( false );};
+}; // end of class OperatorBase
 
 
 template<class MV,class Op>
@@ -36,7 +40,18 @@ public:
   virtual bool hasApplyTranspose() const {
     return( opm_->hasApplyTranspose() );
   };
-};
+}; // end of OperatorPimpl
+
+
+template<class MV, class Op>
+Teuchos::RCP<OperatorBase<MV> > createOperatorBase( const Teuchos::RCP<Op>& op=Teuchos::null ) {
+  if( Teuchos::is_null( op ) )
+    return( Teuchos::rcp( new OperatorPimpl<MV,Op>( Pimpact::createOperatorMV<Op>() ) ) );
+  else
+    return( Teuchos::rcp( new OperatorPimpl<MV,Op>( Pimpact::createOperatorMV<Op>( op ) ) ) );
+}
+
+
 
 
 } // end of namespace Pimpact

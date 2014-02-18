@@ -91,9 +91,10 @@ Teuchos::RCP< OperatorMV<Helmholtz<Scalar,Ordinal> > > createHelmholtz( Scalar m
 }
 
 
-/// \brief "laplace" for pressure
+/// \brief "laplace" for pressure.
 /// \todo not workin properly?
 /// \todo add temporary variable
+/// \warning does not hold test.
 template<class Scalar,class Ordinal>
 class Div_Grad {
 public:
@@ -144,6 +145,8 @@ public:
 };
 
 
+/// \brief stationary Operator for Schur complement.
+/// \deprecated use flexicble \c DivOpGrad operator
 template< class Scalar, class Ordinal >
 class Div_Hinv_Grad {
 public:
@@ -255,6 +258,8 @@ Teuchos::RCP<OperatorMV< DtL<Scalar,Ordinal> > > createDtL( Scalar omega=1., Sca
 }
 
 
+/// \brief periodic Operator for Schur complement.
+/// \deprecated use flexicble \c DivOpGrad operator
 template< class Scalar, class Ordinal >
 class Div_DtLinv_Grad {
 public:
@@ -300,6 +305,18 @@ Teuchos::RCP<OperatorMV< Div_DtLinv_Grad<Scalar,Ordinal> > > createDivDtLinvGrad
 
 	return Teuchos::rcp( new OperatorMV<Div_DtLinv_Grad<Scalar,Ordinal> >( Teuchos::rcp( new Div_DtLinv_Grad<Scalar,Ordinal>( temp, H) ) ) );
 }
+
+
+
+
+//template< class Scalar, class Ordinal>
+//Teuchos::RCP<OperatorMV< Div_DtLinv_Grad<Scalar,Ordinal> > > createDivDtLinvGradx(
+//    const Teuchos::RCP<MultiField<ModeField<VectorField<Scalar,Ordinal> > > >& temp,
+//    const Teuchos::RCP< LinearProblem<Scalar, MultiField<ModeField<VectorField<Scalar,Ordinal> > >, OperatorBase<MultiField<ModeField<VectorField<Scalar,Ordinal> > > > > >& H ) {
+//
+//  return Teuchos::rcp( new OperatorMV<Div_DtLinv_Grad<Scalar,Ordinal> >( Teuchos::rcp( new Div_DtLinv_Grad<Scalar,Ordinal>( temp, H) ) ) );
+//}
+
 
 template<class Scalar,class Ordinal>
 class CompoundStokes {
@@ -347,7 +364,7 @@ public:
 		y->getFieldS()->add( 1., *y->getFieldS(), 1., *temp_ );
 	}
 
-	bool hasApplyTranspose() const { return false; }
+	bool hasApplyTranspose() const { return( false ); }
 protected:
 	Teuchos::RCP<VF> temp_;
 };
@@ -358,6 +375,44 @@ Teuchos::RCP<OperatorMV< CompoundStokes<Scalar,Ordinal> > > createCompoundStokes
 
 	return Teuchos::rcp( new OperatorMV<CompoundStokes<Scalar,Ordinal> >( Teuchos::rcp( new CompoundStokes<Scalar,Ordinal>( omega,mulI,mulL,temp) ) ) );
 }
+
+
+template< class Scalar, class Ordinal >
+class Linv {
+public:
+  typedef VectorField<Scalar,Ordinal>  DomainFieldT;
+  typedef VectorField<Scalar,Ordinal>  RangeFieldT;
+//  typedef MultiField<ModeField<VectorField<Scalar,Ordinal> > > BVF;
+  typedef MultiField<VectorField<Scalar,Ordinal> > BVF;
+  typedef OperatorMV<Helmholtz<Scalar,Ordinal> > LapType;
+  typedef NonModeOp OpType;
+private:
+  Teuchos::RCP< LinearProblem<Scalar, BVF, LapType > > lap_prob_;
+
+public:
+  Linv( const Teuchos::RCP< LinearProblem<Scalar, BVF, LapType > >& lap_prob ):
+    lap_prob_(lap_prob)
+         {};
+
+  void apply(const DomainFieldT& x, RangeFieldT& y) const {
+    auto X = createMultiField<DomainFieldT>( Teuchos::rcpFromRef( const_cast<DomainFieldT&>(x) ) );
+    auto Y = createMultiField<RangeFieldT>( Teuchos::rcpFromRef( y ) );
+    lap_prob_->solve( Y, X );
+  }
+
+  bool hasApplyTranspose() const { return( false ); }
+
+}; // end of class Linv
+
+
+template< class Scalar, class Ordinal>
+Teuchos::RCP<OperatorMV< Linv<Scalar,Ordinal> > > createLinv(
+    const Teuchos::RCP<LinearProblem<Scalar,MultiField<VectorField<Scalar,Ordinal> >,OperatorMV<Helmholtz<Scalar,Ordinal> > > > lap_prob ) {
+
+  return Teuchos::rcp( new OperatorMV<Linv<Scalar,Ordinal> >( Teuchos::rcp( new Linv<Scalar,Ordinal>( lap_prob ) ) ) );
+}
+
+
 } // end of namespace Pimpact
 
 #endif

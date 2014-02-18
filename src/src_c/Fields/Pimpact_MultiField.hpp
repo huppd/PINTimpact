@@ -69,6 +69,14 @@ public:
   }
 
 
+  /// \brief cheap constructor from one Field.
+  ///
+  /// creates simple wrapper from Field(no coppying).
+  MultiField( const Teuchos::RCP<Field>& field ):mfs_(1) {
+    mfs_[0] = field;
+  }
+
+
    /// \brief copy constructor creating a view
   MultiField( const MV& mv ):mfs_(mv.mfs_) {}
 
@@ -459,14 +467,25 @@ public:
 
 
 /// \brief factory for \c MultiField
-/// \todo remove tpara Scalar, Ordinal
-template<class Field, class Scalar, class Ordinal>
+template<class Field>
 Teuchos::RCP< MultiField<Field> > createMultiField( const Field& field,
 		const int numvecs, ECopyType ctype = ShallowCopy ) {
 
 	return( Teuchos::rcp( new MultiField<Field>( field, numvecs, ctype ) ) );
 }
 
+
+/// \brief factory for \c MultiField.
+///
+/// simple wrapper.
+template<class Field>
+Teuchos::RCP< MultiField<Field> > createMultiField( const Teuchos::RCP<Field>& field ) {
+  return( Teuchos::rcp( new MultiField<Field>( field ) ) );
+}
+
+
+
 } // end of namespace Pimpact
+
 
 #endif // end of #ifndef PIMPACT_MULTIFIELD_HPP
