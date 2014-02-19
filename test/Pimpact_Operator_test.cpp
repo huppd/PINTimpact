@@ -15,6 +15,7 @@
 #include "Pimpact_VectorField.hpp"
 #include "Pimpact_FieldFactory.hpp"
 
+#include "Pimpact_EddyPrec.hpp"
 #include "Pimpact_DivOpGrad.hpp"
 #include "Pimpact_Operator.hpp"
 #include "Pimpact_OperatorMV.hpp"
@@ -404,5 +405,49 @@ TEUCHOS_UNIT_TEST( Operator, DivOpGrad ) {
 
   schur->apply( *B, *X );
 }
+
+
+TEUCHOS_UNIT_TEST( Operator, EddyPrec ) {
+  using Teuchos::ParameterList;
+  using Teuchos::parameterList;
+  using Teuchos::RCP;
+  using Teuchos::rcp; // Save some typing
+
+  typedef double S;
+  typedef int O;
+  typedef Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<double,int> > > MVF;
+  typedef Pimpact::Helmholtz<S,O>  OP;
+  typedef Pimpact::EddyPrec<S,O>  OP2;
+  typedef Pimpact::OperatorBase<MVF>  BOP;
+
+  auto temp = Pimpact::createMultiModeVectorField<S,O>();
+
+  auto X = Pimpact::createMultiModeVectorField<S,O>();
+  auto B = Pimpact::createMultiModeVectorField<S,O>();
+
+  X->init(0.);
+  B->random();
+
+  // Make an empty new parameter list.
+  RCP<ParameterList> solverParams = Pimpact::createLinSolverParameter("CG",1.e-1)->get();
+
+  // Create the Pimpact::LinearSolver solver.
+  auto A = Pimpact::createOperatorBaseMV<MVF,OP>( Pimpact::createHelmholtz<S,O>(14.,1.) );
+
+  A->apply( *temp, *temp );
+
+  auto prob = Pimpact::createLinearProblem<S,MVF,BOP>( A, temp, temp, solverParams,"CG" );
+
+  prob->solve(temp,temp);
+
+  auto op = Pimpact::createEddyPrec<S,O>( temp, prob ) ;
+
+  op->apply( X->GetVec(0), B->GetVec(0) );
+
+  auto schur = Pimpact::createOperatorBase<MVF,OP2>( op );
+
+  schur->apply( *B, *X );
+}
+
 
 } // namespace

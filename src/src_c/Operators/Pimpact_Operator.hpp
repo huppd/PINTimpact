@@ -208,8 +208,8 @@ public:
 
 
 	void apply(const ModeField<DomainFieldT>& x, ModeField<RangeFieldT>& y ) const {
-		y.getFieldC()->add( 0., *x.getConstFieldC(), omega_, *x.getConstFieldS() );
-		y.getFieldS()->add( -omega_, *x.getConstFieldC(), 0., *x.getConstFieldS() );
+		y.getFieldC()->add(      0.,  *x.getConstFieldC(), omega_, *x.getConstFieldS() );
+		y.getFieldS()->add( -omega_,  *x.getConstFieldC(),     0., *x.getConstFieldS() );
 //		y.getFieldC()->assign( x.getConstFieldS() );
 //		y.getFieldC()->scale( -omega_ );
 //		y.getFieldS()->assign( x.getConstFieldC() );
@@ -409,7 +409,7 @@ template< class Scalar, class Ordinal>
 Teuchos::RCP<OperatorMV< Linv<Scalar,Ordinal> > > createLinv(
     const Teuchos::RCP<LinearProblem<Scalar,MultiField<VectorField<Scalar,Ordinal> >,OperatorMV<Helmholtz<Scalar,Ordinal> > > > lap_prob ) {
 
-  return Teuchos::rcp( new OperatorMV<Linv<Scalar,Ordinal> >( Teuchos::rcp( new Linv<Scalar,Ordinal>( lap_prob ) ) ) );
+  return( Teuchos::rcp( new OperatorMV<Linv<Scalar,Ordinal> >( Teuchos::rcp( new Linv<Scalar,Ordinal>( lap_prob ) ) ) ) );
 }
 
 

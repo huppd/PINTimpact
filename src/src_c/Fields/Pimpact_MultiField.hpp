@@ -459,9 +459,10 @@ public:
 
 
   Field& GetVec(int i) { return( *mfs_[i] ); }
-
-
   const Field& GetConstVec(int i) const { return( *mfs_[i] ); }
+
+  Teuchos::RCP<Field> GetFieldPtr(int i) { return( mfs_[i] ); }
+  Teuchos::RCP<const Field> GetConstFieldPtr(int i) const { return( mfs_[i] ); }
 
 }; // end of class MultiField
 

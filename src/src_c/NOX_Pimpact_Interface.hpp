@@ -25,16 +25,18 @@ namespace Pimpact {
 
 /**
  * \brief Provides a set of interfaces for users to provide information about the nonlinear problem to NOX.
- * Contains interfaces for the user to supply (1) the evaluation of the nonlinear equations, (2) the Jacobian, and (3) any preconditioning if required.
+ * Contains interfaces for the user to supply
+ * (1) the evaluation of the nonlinear equations,
+ * (2) the Jacobian, and
+ * (3) any preconditioning if required.
  */
 
-/**
-* \brief Supplies NOX with the set nonlinear equations.
-* This is the minimum required information to solve a nonlinear
-* problem using the NOX::Epetra objects for the linear algebra
-*     implementation.  Used by NOX::Epetra::Group to provide a link
-*     to the external code for residual fills.
-*/
+/// \brief Supplies NOX with the set nonlinear equations.
+///
+/// This is the minimum required information to solve a nonlinear
+/// problem using the NOX::Epetra objects for the linear algebra
+/// implementation.  Used by NOX::Epetra::Group to provide a link
+/// to the external code for residual fills.
 class Interface {
 
 public:

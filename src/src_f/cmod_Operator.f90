@@ -1417,10 +1417,6 @@ module cmod_operator
   
   
   
-  
-  
-  
-  
   subroutine gradient_transp(m,phi,grad)
   
   implicit none
