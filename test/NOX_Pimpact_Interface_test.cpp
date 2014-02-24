@@ -61,19 +61,6 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, defaultctor ) {
 
   NOX::Pimpact::Interface asdf;
 
-//  auto fS  = Pimpact::createFieldSpace<O>();
-//  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-//  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
-//
-//  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::ZeroFLow, fS, iIS, fIS );
-//
-//  auto xs = Pimpact::createInitMSF<S,O>( fS );
-//
-//  auto x  = Pimpact::createCompoundField( xv, xs );
-//
-//  Teuchos::RCP<NV> nx = Teuchos::rcp(new NV(x) );
-//
-//  nx->init( rank );
 }
 
 
@@ -96,7 +83,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, createInterface ) {
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
   auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
-  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFLow, fS, iIS, fIS );
+  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFlow, fS, iIS, fIS );
 
   auto xs = Pimpact::createInitMSF<S,O>( fS );
 
@@ -118,7 +105,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, createInterface ) {
   auto lp_Schur = Pimpact::createLinearProblem<S,Interface::BSF,Interface::Schur>(
       schur, xs->clone(), xs->clone(), solverParams->get(), solverName );
 
-  auto stockie = NOX::Pimpact::createInterface(xv->clone(),lp_DTL,lp_Schur);
+  auto stockie = NOX::Pimpact::createInterface(xv->clone(),xs->clone(),lp_DTL,lp_Schur);
 }
 
 
@@ -141,7 +128,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, computeF ) {
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
   auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
-  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFLow, fS, iIS, fIS );
+  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFlow, fS, iIS, fIS );
 
   auto xs = Pimpact::createInitMSF<S,O>( fS );
 
@@ -166,7 +153,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, computeF ) {
   auto lp_Schur = Pimpact::createLinearProblem<S,Interface::BSF,Interface::Schur>(
       schur, xs->clone(), xs->clone(), solverParams->get(), solverName );
 
-  auto stockie = NOX::Pimpact::createInterface(xv->clone(),lp_DTL,lp_Schur);
+  auto stockie = NOX::Pimpact::createInterface(xv->clone(),xs->clone(),lp_DTL,lp_Schur);
 
 
   bool succes = stockie->computeF( X->getConstField(), F->getField() );
@@ -194,7 +181,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, computeJacobian ) {
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
   auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
-  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFLow, fS, iIS, fIS );
+  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFlow, fS, iIS, fIS );
 
   auto xs = Pimpact::createInitMSF<S,O>( fS );
 
@@ -219,7 +206,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, computeJacobian ) {
   auto lp_Schur = Pimpact::createLinearProblem<S,Interface::BSF,Interface::Schur>(
       schur, xs->clone(), xs->clone(), solverParams->get(), solverName );
 
-  auto stockie = NOX::Pimpact::createInterface(xv->clone(),lp_DTL,lp_Schur);
+  auto stockie = NOX::Pimpact::createInterface(xv->clone(), xs->clone(),lp_DTL,lp_Schur);
 
 
   bool succes = stockie->computeJacobian( X->getConstField() );
@@ -247,7 +234,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, applyJacobian ) {
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
   auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
-  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFLow, fS, iIS, fIS );
+  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFlow, fS, iIS, fIS );
 
   auto xs = Pimpact::createInitMSF<S,O>( fS );
 
@@ -272,7 +259,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, applyJacobian ) {
   auto lp_Schur = Pimpact::createLinearProblem<S,Interface::BSF,Interface::Schur>(
       schur, xs->clone(), xs->clone(), solverParams->get(), solverName );
 
-  auto stockie = NOX::Pimpact::createInterface(xv->clone(),lp_DTL,lp_Schur);
+  auto stockie = NOX::Pimpact::createInterface(xv->clone(),xs->clone(),lp_DTL,lp_Schur);
 
 
   bool succes = stockie->applyJacobian( X->getConstField(), F->getField() );
@@ -299,7 +286,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, applyJacobianInverse ) {
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
   auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
-  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFLow, fS, iIS, fIS );
+  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFlow, fS, iIS, fIS );
 
   auto xs = Pimpact::createInitMSF<S,O>( fS );
 
@@ -324,7 +311,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, applyJacobianInverse ) {
   auto lp_Schur = Pimpact::createLinearProblem<S,Interface::BSF,Interface::Schur>(
       schur, xs->clone(), xs->clone(), solverParams->get(), solverName );
 
-  auto stockie = NOX::Pimpact::createInterface(xv->clone(),lp_DTL,lp_Schur);
+  auto stockie = NOX::Pimpact::createInterface(xv->clone(),xs->clone(),lp_DTL,lp_Schur);
 
 
   bool succes = stockie->applyJacobianInverse( X->getConstField(), F->getField() );

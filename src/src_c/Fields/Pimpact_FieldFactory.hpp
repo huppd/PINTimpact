@@ -64,7 +64,7 @@ Teuchos::RCP< MultiField<ModeField<VectorField<Scalar,Ordinal> > > > createInitM
 	auto u   = Pimpact::createMultiField< ModeField<VectorField<Scalar,Ordinal> > >(*vel,1);
 
 	switch( EFlowType( flowType ) ) {
-	case Pimpact::Zero2DFLow :
+	case Pimpact::Zero2DFlow :
 		u->GetVec(0).getFieldC()->init_field( ZeroProf );
 		u->GetVec(0).getFieldS()->init_field( ZeroProf );
 		break;

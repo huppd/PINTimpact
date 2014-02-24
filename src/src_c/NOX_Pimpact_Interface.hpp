@@ -65,7 +65,8 @@ public:
 
 protected:
 
-  Teuchos::RCP<BVF> f_;
+  Teuchos::RCP<BVF> fu_;
+  Teuchos::RCP<BSF> fp_;
   Teuchos::RCP<LP_DTL> lp_DTL_;
   Teuchos::RCP<D> div_;
   Teuchos::RCP<G> grad_;
@@ -75,13 +76,19 @@ public:
 
   /// Constructor
   Interface():
-    f_(Teuchos::null), lp_DTL_(Teuchos::null),div_(Teuchos::null),
+    fu_(Teuchos::null),fp_(Teuchos::null),
+    lp_DTL_(Teuchos::null),div_(Teuchos::null),
     grad_(Teuchos::null),lp_Schur_(Teuchos::null) {};
 
-  Interface(  Teuchos::RCP<BVF> f,
+  Interface(
+      Teuchos::RCP<BVF> fu,
+//      Teuchos::RCP<BVF> tempu,
+      Teuchos::RCP<BSF> fp,
+//      Teuchos::RCP<BSF> tempp,
       Teuchos::RCP<LP_DTL > lp_DTL,
       Teuchos::RCP<LP_Schur > lp_Schur ):
-        f_( f ),
+        fu_( fu ),
+        fp_( fp ),
         lp_DTL_( lp_DTL),
         div_( ::Pimpact::createOperatorMV<DD>() ),
         grad_( ::Pimpact::createOperatorMV<GG>() ),
@@ -97,18 +104,21 @@ public:
     auto yv = f.getVField();
     auto ys = f.getSField();
 
+//    yv->random();
+//    ys->random();
     auto tempv = xv->clone();
-
+//
 //    lp_DTL_->apply( xv, tempv );
 //    lp_DTL_->apply( *xv, *tempv );
     lp_DTL_->getProblem()->getOperator()->apply( *xv, *tempv );
 
     grad_->apply( *xs, *yv );
 
-    yv->add( -1., *tempv, 1., *yv );
-    yv->add( 1., *f_, 1., *yv );
+    yv->add(  1., *tempv, 1., *yv );
+    yv->add( -1., *fu_,   1., *yv );
 
     div_->apply( *xv, *ys );
+    ys->add( -1., *fp_,   1., *ys );
 
 
     return( true );
@@ -133,7 +143,7 @@ public:
     auto temps = xs->clone();
 
     // solve stationary stokes
-    lp_DTL_->solve( tempv, f_ );
+    lp_DTL_->solve( tempv, fu_ );
     //  tempv->write( 2000 );
 
     div_->apply( *tempv, *temps );
@@ -148,7 +158,7 @@ public:
     grad_->apply( *ys, *tempv );
     //tempv->write(2006);
 //
-    tempv->add( -1., *tempv, 1., *f_ );
+    tempv->add( -1., *tempv, 1., *fu_ );
 //
 ////    solverParams->get()->set ("Verbosity",  Belos::Errors + Belos::Warnings + Belos::IterationDetails +
 ////        Belos::OrthoDetails + Belos::FinalSummary + Belos::TimingDetails +
@@ -163,11 +173,12 @@ public:
 }; // end of class Interface
 
 Teuchos::RCP<Interface> createInterface(
-    Teuchos::RCP<Interface::BVF> f,
+    Teuchos::RCP<Interface::BVF> fu,
+    Teuchos::RCP<Interface::BSF> fp,
     Teuchos::RCP<Interface::LP_DTL> lp_DTL,
     Teuchos::RCP<Interface::LP_Schur> lp_Schur ) {
   return(
-      Teuchos::rcp( new Interface(f,lp_DTL,lp_Schur) )
+      Teuchos::rcp( new Interface(fu,fp,lp_DTL,lp_Schur) )
       );
 }
 

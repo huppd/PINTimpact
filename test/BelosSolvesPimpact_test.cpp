@@ -246,7 +246,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, DtL ) {
   auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
   auto b = Pimpact::createInitMVF<S,O>( Pimpact::Streaming2DFlow, fS, iIS, fIS );
-  auto x = Pimpact::createInitMVF<S,O>( Pimpact::Zero2DFLow, fS, iIS, fIS );
+  auto x = Pimpact::createInitMVF<S,O>( Pimpact::Zero2DFlow, fS, iIS, fIS );
 
 //  auto A = Pimpact::createOperatorMV<Pimpact::Helmholtz<double,int> >();
 

@@ -429,7 +429,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, Dt1L1 ) {
   auto field = Pimpact::createModeField( fieldc, fields );
 
   auto x = Pimpact::createInitMVF( Pimpact::Streaming2DFlow, fS, iIS, fIS,1.,1.,1.);
-  auto b = Pimpact::createInitMVF( Pimpact::Zero2DFLow, fS, iIS, fIS,1.,1.,1.);
+  auto b = Pimpact::createInitMVF( Pimpact::Zero2DFlow, fS, iIS, fIS,1.,1.,1.);
 
   auto op = Pimpact::createOperatorBaseMV<BVF,Op>( Pimpact::createDtL<S,O>( 100., 0., 1. ) );
 //  auto prec = Pimpact::createOperatorBase<BVF,Op2>( Pimpact::createDt<S,O>( -1. ) );

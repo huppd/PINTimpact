@@ -34,13 +34,15 @@ public:
 //			parameter_->set( "Explicit Residual Scaling",	"None" ); // attention: is not in CG list
 		}
 		else if( solver_name=="GMRES" ) {
-			parameter_->set( "Num Blocks",								200		 );
-      parameter_->set( "Maximum Iterations",        400   );
+			parameter_->set( "Num Blocks",								25	  );
+      parameter_->set( "Maximum Iterations",        500   );
+//			parameter_->set( "Num Blocks",								100		 );
+//      parameter_->set( "Maximum Iterations",        1000   );
 			parameter_->set( "Maximum Restarts",					20		 );
 
 			parameter_->set( "Convergence Tolerance",			tol		 );
-			parameter_->set( "Implicit Residual Scaling",	"None" );
-			parameter_->set( "Explicit Residual Scaling",	"None" );
+//			parameter_->set( "Implicit Residual Scaling",	"None" );
+//			parameter_->set( "Explicit Residual Scaling",	"None" );
 			parameter_->set( "Deflation Quorum",					-1		 );
 			parameter_->set( "Orthogonalization",					"DGKS" );
 
@@ -52,17 +54,17 @@ public:
 		}
 		else if( solver_name=="GCRODR" ) {
 			parameter_->set( "Num Blocks",								50		 );
-      parameter_->set( "Maximum Iterations",        200   );
-//			parameter_->set( "Maximum Restarts",					20		 );
+      parameter_->set( "Maximum Iterations",        200    );
+			parameter_->set( "Maximum Restarts",					100		 );
 //
-			parameter_->set( "Num Recycled Blocks",				10		 );
+			parameter_->set( "Num Recycled Blocks",				10		   );
 
 			parameter_->set( "Convergence Tolerance",			tol    );
-			parameter_->set( "Orthogonalization",					"DGKS" );
-			parameter_->set( "Implicit Residual Scaling",	"None" );
-			parameter_->set( "Explicit Residual Scaling",	"None" );
+//			parameter_->set( "Orthogonalization",					"DGKS" );
+//			parameter_->set( "Implicit Residual Scaling",	"None" );
+//			parameter_->set( "Explicit Residual Scaling",	"None" );
 
-			parameter_->set( "Output Frequency",					1 		 );
+			parameter_->set( "Output Frequency",					10 		 );
 			parameter_->set( "Verbosity",									verbo	 );
 			parameter_->set( "Output Style",							style	 );
 			parameter_->set( "Timer Label",								"Belos");

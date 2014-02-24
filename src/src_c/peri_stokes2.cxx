@@ -189,7 +189,7 @@ int main(int argi, char** argv ) {
 
 
 	switch( Pimpact::EFlowType(flow) ) {
-	case Pimpact::Zero2DFLow :
+	case Pimpact::Zero2DFlow :
 		q->GetVec(0).getVField()->getFieldC()->init_field( Pimpact::ZeroProf );
 		q->GetVec(0).getVField()->getFieldS()->init_field( Pimpact::ZeroProf );
 		break;
