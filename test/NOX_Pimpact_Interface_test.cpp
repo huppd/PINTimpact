@@ -18,10 +18,19 @@
 #include "Pimpact_CompoundField.hpp"
 #include "Pimpact_FieldFactory.hpp"
 
+#include "Pimpact_EddyPrec.hpp"
+#include "Pimpact_Nonlinear.hpp"
+#include "Pimpact_DivOpGrad.hpp"
+#include "Pimpact_Operator.hpp"
+#include "Pimpact_OperatorMV.hpp"
+#include "Pimpact_OperatorBase.hpp"
+#include "Pimpact_OperatorFactory.hpp"
+
 #include "Pimpact_LinSolverParameter.hpp"
 
 #include "NOX_Pimpact_Vector.hpp"
 #include "NOX_Pimpact_Interface.hpp"
+#include "NOX_Pimpact_SimpleNonlinear.hpp"
 
 namespace {
 
@@ -317,6 +326,51 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, applyJacobianInverse ) {
   bool succes = stockie->applyJacobianInverse( X->getConstField(), F->getField() );
 
   TEST_EQUALITY( true, succes);
+}
+
+
+TEUCHOS_UNIT_TEST( NOXPimpact_SimpleNonlinear, computeF ) {
+
+  using Teuchos::ParameterList;
+  using Teuchos::parameterList;
+  using Teuchos::RCP;
+  using Teuchos::rcp; // Save some typing
+
+  typedef double S;
+  typedef int O;
+  typedef Pimpact::VectorField<S,O> VF;
+  typedef Pimpact::MultiField<VF> MVF;
+  typedef Pimpact::Nonlinear<S,O>  OP;
+  typedef Pimpact::OperatorBase<MVF>  BOP;
+
+  auto fS = Pimpact::createFieldSpace<O>();
+  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+
+  auto vel = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
+
+
+  auto x = Pimpact::createMultiField<VF>(*vel->clone(),10);
+  auto y = Pimpact::createMultiField<VF>(*vel->clone(),10);
+
+  auto op = Pimpact::createOperatorBase<MVF,OP>();
+//  auto op = Pimpact::createOperatorMV<O(void);
+
+  for( int i=0; i<10; ++i ) {
+    x->GetFieldPtr(i)->initField(Pimpact::Circle2D );
+  }
+//  x->random();
+x->GetFieldPtr(0)->write();
+
+  op->apply( *x, *y);
+
+  y->GetFieldPtr(0)->write(99);
+
+   auto inter = NOX::Pimpact::createSimpleNonlinear( y, op );
+
+//  bool succes = inter->computeF( *x, *f );
+
+//  TEST_EQUALITY( true, succes);
 }
 
 } // namespace

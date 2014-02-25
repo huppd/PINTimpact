@@ -56,7 +56,7 @@ SET(CMAKE_Fortran_FLAGS  "${Trilinos_Fortran_COMPILER_FLAGS} ${CMAKE_Fortran_FLA
 
 #if(  "${CMAKE_BUILD_TYPE}" equal "RELEASE" )
 IF( CMAKE_COMPILER_IS_GNUCXX )
-	SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -ftree-vectorizer-verbose=2 -funroll-all-loops -ftree-vectorize -march=native -msse2 -ffast-math ")
+	SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -ftree-vectorizer-verbose=2 -funroll-all-loops -ftree-vectorize -march=native -msse2 -ffast-math -funsafe-math-optimizations ")
 	SET(CMAKE_Fortran_FLAGS  "${CMAKE_Fortran_FLAGS} -ftree-vectorizer-verbose=2 -ffree-line-length-none  -msse2 -ffast-math -funroll-all-loops -fpeel-loops -ftracer -funswitch-loops -ftree-vectorize -march=native -funsafe-math-optimizations -fomit-frame-pointer -fno-math-errno -fdollar-ok -Wall" )
 	SET( CMAKE_Fortran_COMPILE_FLAGS "${Trilinos_Fortran_COMPILER_FLAGS} -xf95-cpp-input -fdefault-real-8 -fdefault-double-8 "  )
 ELSE()

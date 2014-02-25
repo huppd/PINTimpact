@@ -348,6 +348,7 @@ public:
 
 
   Teuchos::RCP<Field> getFieldPtr() { return( field_ ); };
+  Teuchos::RCP<const Field> getConstFieldPtr() const { return( field_ ); };
   Field& getField() { return( *field_ ); };
   const Field& getConstField() const { return( *field_ ); };
 

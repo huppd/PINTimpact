@@ -190,31 +190,31 @@ int main(int argi, char** argv ) {
 
 	switch( Pimpact::EFlowType(flow) ) {
 	case Pimpact::Zero2DFlow :
-		q->GetVec(0).getVField()->getFieldC()->init_field( Pimpact::ZeroProf );
-		q->GetVec(0).getVField()->getFieldS()->init_field( Pimpact::ZeroProf );
+		q->GetVec(0).getVField()->getFieldC()->initField( Pimpact::ZeroProf );
+		q->GetVec(0).getVField()->getFieldS()->initField( Pimpact::ZeroProf );
 		break;
 	case Pimpact::Poiseuille_inX :
-		q->GetVec(0).getVField()->getFieldC()->init_field( Pimpact::Poiseuille2D_inX );
-		q->GetVec(0).getVField()->getFieldS()->init_field( Pimpact::ZeroProf );
+		q->GetVec(0).getVField()->getFieldC()->initField( Pimpact::Poiseuille2D_inX );
+		q->GetVec(0).getVField()->getFieldS()->initField( Pimpact::ZeroProf );
 		break;
 	case Pimpact::Poiseuille_inY :
-		q->GetVec(0).getVField()->getFieldC()->init_field( Pimpact::Poiseuille2D_inY );
-		q->GetVec(0).getVField()->getFieldS()->init_field( Pimpact::ZeroProf );
+		q->GetVec(0).getVField()->getFieldC()->initField( Pimpact::Poiseuille2D_inY );
+		q->GetVec(0).getVField()->getFieldS()->initField( Pimpact::ZeroProf );
 		break;
 	case Pimpact::Pulsatile_inX :
-		q->GetVec(0).getVField()->getFieldC()->init_field( Pimpact::Pulsatile2D_inXC, re, omega, px );
-		q->GetVec(0).getVField()->getFieldS()->init_field( Pimpact::Pulsatile2D_inXS, re, omega, px );
+		q->GetVec(0).getVField()->getFieldC()->initField( Pimpact::Pulsatile2D_inXC, re, omega, px );
+		q->GetVec(0).getVField()->getFieldS()->initField( Pimpact::Pulsatile2D_inXS, re, omega, px );
 		break;
 	case Pimpact::Pulsatile_inY :
-		q->GetVec(0).getVField()->getFieldC()->init_field( Pimpact::Pulsatile2D_inYC, re, omega, px );
-		q->GetVec(0).getVField()->getFieldS()->init_field( Pimpact::Pulsatile2D_inYS, re, omega, px );
+		q->GetVec(0).getVField()->getFieldC()->initField( Pimpact::Pulsatile2D_inYC, re, omega, px );
+		q->GetVec(0).getVField()->getFieldS()->initField( Pimpact::Pulsatile2D_inYS, re, omega, px );
 		break;
 	}
 
 	q->init(0);
 
-	f->GetVec(0).getVField()->getFieldC()->init_field( Pimpact::ZeroProf );
-	f->GetVec(0).getVField()->getFieldS()->init_field( Pimpact::ZeroProf );
+	f->GetVec(0).getVField()->getFieldC()->initField( Pimpact::ZeroProf );
+	f->GetVec(0).getVField()->getFieldS()->initField( Pimpact::ZeroProf );
 
 	// init operators
 	auto op = Pimpact::createCompoundStokes( omega, 0., 1./re, velc );

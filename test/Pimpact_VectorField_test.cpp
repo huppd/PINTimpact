@@ -266,7 +266,7 @@ TEUCHOS_UNIT_TEST( VectorField, write ) {
 }
 
 
-TEUCHOS_UNIT_TEST( VectorField, init_field ) {
+TEUCHOS_UNIT_TEST( VectorField, initField ) {
 
 	auto fS = Pimpact::createFieldSpace<int>();
 	auto iIS = Pimpact::createInnerFieldIndexSpaces<int>();
@@ -275,7 +275,7 @@ TEUCHOS_UNIT_TEST( VectorField, init_field ) {
 	auto vel = Pimpact::createVectorField<double,int>(fS,iIS,fIS);
 
 	for( int i=0; i<=7; ++i ) {
-		vel->init_field( Pimpact::EFlowProfile(i) );
+		vel->initField( Pimpact::EFlowProfile(i) );
 		vel->write( i );
 	}
 

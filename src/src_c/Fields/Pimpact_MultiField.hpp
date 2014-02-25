@@ -451,7 +451,7 @@ public:
   }
 
 
-  void write( int count=0 ) {
+  void write( int count=0 ) const {
   	const int n = getNumberVecs();
   	for( int i=0; i<n; ++i )
   		mfs_[i]->write(count);

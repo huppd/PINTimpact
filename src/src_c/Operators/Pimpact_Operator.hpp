@@ -111,38 +111,7 @@ public:
 };
 
 
-template<class Scalar,class Ordinal>
-class nonlinear_Udx {
-public:
-	typedef VectorField<Scalar,Ordinal>  DomainFieldT;
-	typedef VectorField<Scalar,Ordinal>  RangeFieldT;
-	typedef NonModeOp OpType;
-private:
-	Teuchos::RCP<DomainFieldT> u_;
-public:
 
-	void set_U(Teuchos::RCP<DomainFieldT> u) { u_=u; }
-
-	void apply(const DomainFieldT& x, RangeFieldT& y) const { return; }
-	bool hasApplyTranspose() const { return( true ); }
-};
-
-
-template<class Scalar,class Ordinal>
-class nonlinear_dxU {
-public:
-	typedef VectorField<Scalar,Ordinal>  DomainFieldT;
-	typedef VectorField<Scalar,Ordinal>  RangeFieldT;
-	typedef NonModeOp OpType;
-private:
-	Teuchos::RCP<DomainFieldT> u_;
-public:
-
-	void set_U(Teuchos::RCP<DomainFieldT> u) { u_=u; }
-
-	void apply(const DomainFieldT& x, RangeFieldT& y) const { return; }
-	bool hasApplyTranspose() const { return( true ); }
-};
 
 
 /// \brief stationary Operator for Schur complement.

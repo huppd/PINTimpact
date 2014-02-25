@@ -53,7 +53,6 @@ Teuchos::RCP<OperatorBase<MV> > createOperatorBase( const Teuchos::RCP<Op>& op=T
 
 
 
-
 } // end of namespace Pimpact
 
 #endif // end of #ifndef PIMPACT_OPERATORBASE_HPP

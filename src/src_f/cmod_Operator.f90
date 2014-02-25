@@ -1270,10 +1270,10 @@ module cmod_operator
   
   implicit none
   
-  integer, intent(in   ) ::  m
+  integer(c_int), intent(in   ) ::  m
   
-  real   , intent(inout) ::  phi (b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  real   , intent(  out) ::  grad(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double), intent(inout) ::  phi (b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double), intent(  out) ::  grad(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
   
   integer                ::  i, ii
   integer                ::  j, jj
@@ -2578,20 +2578,38 @@ module cmod_operator
   
   
   
-  
-  !> \brief computes nonlinear terms
+  !> \brief computes nonlinear terms.
+  !! \todo:
+  !!    - (parameter in dimension)
+  !!    - parameter in work123
+  !!    - (parameter2 in work123)
+  !!    - parameter out nl
+  !!    - exchange vel/work123
+  !!    - interpolate_vel
   !!
   !! first interpolates worki to pp, then \f$\partial_i\f$ \c vel then
   !! \f[ \mathrm{nl = pp*\partial_i vel}\f]
   !! \test Teile davon (nur zentrale Operationen!) koennten jeweils durch interpolate2_pre_vel/interpolate2_vel_pre, first_adv_pre/first_adv_vel
   !!         ersetzt werden (beachte aber Addition von nl!)
   !! \test umbenennen in advect... (?)
-  subroutine nonlinear(exch_yes)
+  subroutine nonlinear( exch_yes, phi1U,phi1V,phi1W, phi2U,phi2V,phi2W, nlU,nlV,nlW ) bind (c,name='OP_nonlinear')
   
   implicit none
   
-  logical, intent(in   ) ::  exch_yes
+  logical(c_bool), intent(in   ) ::  exch_yes
   
+  real(c_double),  intent(inout) ::  phi1U(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double),  intent(inout) ::  phi1V(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double),  intent(inout) ::  phi1W(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+
+  real(c_double),  intent(inout) ::  phi2U(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double),  intent(inout) ::  phi2V(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double),  intent(inout) ::  phi2W(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+
+  real(c_double),  intent(  out) ::  nlU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double),  intent(  out) ::  nlV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double),  intent(  out) ::  nlW(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+
   real                   ::  dd1
   
   integer                ::  i, ii
@@ -2605,7 +2623,15 @@ module cmod_operator
   !                zu können. Im Prinzip könnte auch rhs(:,:,:,1:3) für die Zwischenspeicherung verwendet    !
   !                werden, jedoch sind dazu einige Umbaumassnahmen notwendig bei geringem Effizienzgewinn.   !
   !----------------------------------------------------------------------------------------------------------!
-  
+  vel(S11:N11,S21:N21,S31:N31,1) = phi1U(S11:N11,S21:N21,S31:N31)
+  vel(S12:N12,S22:N22,S32:N32,2) = phi1V(S12:N12,S22:N22,S32:N32)
+  vel(S13:N13,S23:N23,S33:N33,3) = phi1W(S13:N13,S23:N23,S33:N33)
+
+  call interpolate_vel(.true.)
+
+  vel(S11:N11,S21:N21,S31:N31,1) = phi2U(S11:N11,S21:N21,S31:N31)
+  vel(S12:N12,S22:N22,S32:N32,2) = phi2V(S12:N12,S22:N22,S32:N32)
+  vel(S13:N13,S23:N23,S33:N33,3) = phi2W(S13:N13,S23:N23,S33:N33)
   
   ! worki muss bereits ausgetauscht sein!
   if (exch_yes) call exchange_all_all(.true.,vel)
@@ -3136,6 +3162,9 @@ module cmod_operator
   !===========================================================================================================
   end if
   
+  nlU(S11:N11,S21:N21,S31:N31) = nl(S11:N11,S21:N21,S31:N31,1)
+  nlV(S12:N12,S22:N22,S32:N32) = nl(S12:N12,S22:N22,S32:N32,2)
+  nlW(S13:N13,S23:N23,S33:N33) = nl(S13:N13,S23:N23,S33:N33,3)
   
   end subroutine nonlinear
   

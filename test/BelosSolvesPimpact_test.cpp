@@ -150,7 +150,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV2 ) {
 				auto B = Pimpact::createMultiField<Pimpact::VectorField<double,int> >( *vel, 1 );
 
 //			 X->Init(0.);
-			 X->GetVec(0).init_field();
+			 X->GetVec(0).initField();
 			 B->init(1.);
 
 				auto A = Pimpact::createOperatorMV<Pimpact::Helmholtz<double,int> >();

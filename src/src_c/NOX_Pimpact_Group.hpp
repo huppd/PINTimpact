@@ -586,21 +586,15 @@ public:
           Vector& result) const {
     return( Abstract::Group::NotDefined );
 //    bool success = false;
-
-//    if( !isPreconditioner() ) {
-//      sharedLinearSystem.getObject(this)->destroyPreconditioner();
-//      sharedLinearSystem.getObject(this)->
-//          createPreconditioner(xVector, linearSolverParams, false);
-//      isValidPreconditioner = true;
-//    }
 //
-//    success = sharedLinearSystem.getObject()->
-//        applyRightPreconditioning(useTranspose, linearSolverParams, input, result);
-
+//    params.print();
+//
+//    success = sharedInterfacePtr->getObject(this)->applyPreconditioner( xVector.getField(), RHSVector.getField() );
+//
 //    if( success == true )
 //      return( Abstract::Group::Ok );
 //    else
-//      return( Abstract::Group::Failed );
+//      return( Abstract::Group::NotDefined );
   }
   virtual NOX::Abstract::Group::ReturnType
   applyRightPreconditioning(bool useTranspose,
@@ -874,7 +868,7 @@ Teuchos::RCP<NOX::Pimpact::Group<Interface> > createGroup(
     const Teuchos::RCP<Teuchos::ParameterList>& list,
     const Teuchos::RCP<Interface>& i,
     const Teuchos::RCP<typename Interface::Vector>& x ) {
-  return( Teuchos::rcp( new NOX::Pimpact::Group<NOX::Pimpact::Interface>( *list, i, *x ) ) );
+  return( Teuchos::rcp( new NOX::Pimpact::Group<Interface>( *list, i, *x ) ) );
 }
 
 

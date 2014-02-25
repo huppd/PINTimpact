@@ -3,6 +3,7 @@
 include_directories("../src/src_c")
 include_directories("../src/src_c/Fields")
 include_directories("../src/src_c/Operators")
+include_directories("../src/src_c/NOX_Interfaces")
 
 enable_testing()
 

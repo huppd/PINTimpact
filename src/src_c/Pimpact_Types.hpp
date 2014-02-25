@@ -16,7 +16,7 @@ namespace Pimpact {
 			Poiseuille2D_inX=1, Poiseuille2D_inY=2,
 			Pulsatile2D_inXC=3, Pulsatile2D_inXS=5,
 			Pulsatile2D_inYC=4, Pulsatile2D_inYS=6,
-			Streaming2D=7
+			Streaming2D=7, Circle2D=8
 	};
 
 	enum EFlowType { Zero2DFlow = 0,

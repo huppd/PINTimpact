@@ -181,7 +181,6 @@
   periodic_tol = 1.e-11
   
   !--- extents of the physical domain ---
-  L1 = 12.
   L1 = 2.
   L2 = 2.
   L3 = 1

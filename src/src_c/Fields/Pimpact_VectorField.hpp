@@ -249,6 +249,19 @@ void VF_init_Streaming(
     const int& b1U, const int& b2U, const int& b3U,
     double* phiU, double* phiV, double* phiW );
 
+
+void VF_init_Circle(
+    const int& N1,  const int& N2,  const int& N3,
+    const int& S1U, const int& S2U, const int& S3U,
+    const int& N1U, const int& N2U, const int& N3U,
+    const int& S1V, const int& S2V, const int& S3V,
+    const int& N1V, const int& N2V, const int& N3V,
+    const int& S1W, const int& S2W, const int& S3W,
+    const int& N1W, const int& N2W, const int& N3W,
+    const int& b1L, const int& b2L, const int& b3L,
+    const int& b1U, const int& b2U, const int& b3U,
+    double* phiU, double* phiV, double* phiW );
+
 }
 
 
@@ -265,6 +278,8 @@ class VectorField {
 	friend class Div;
 	template<class S1,class O1>
 	friend class Helmholtz;
+	template<class S1,class O1>
+	friend class Nonlinear;
 
 public:
 	typedef S Scalar;
@@ -626,7 +641,7 @@ public:
 
 
   ///  \brief initializes VectorField with the initial field defined in Fortran
-  void init_field( EFlowProfile flowType = Poiseuille2D_inX, double re=1., double om=1., double px = 1. ) {
+  void initField( EFlowProfile flowType = Poiseuille2D_inX, double re=1., double om=1., double px = 1. ) {
     switch(flowType) {
     case ZeroProf :
       VF_init_Zero(
@@ -732,6 +747,19 @@ public:
           bu(0),   bu(1),   bu(2),
           vec_[0], vec_[1], vec_[2] );
       break;
+    case Circle2D:
+      VF_init_Circle(
+          nLoc(0), nLoc(1), nLoc(2),
+          sIndB(0,0), sIndB(1,0), sIndB(2,0),
+          eIndB(0,0), eIndB(1,0), eIndB(2,0),
+          sIndB(0,1), sIndB(1,1), sIndB(2,1),
+          eIndB(0,1), eIndB(1,1), eIndB(2,1),
+          sIndB(0,2), sIndB(1,2), sIndB(2,2),
+          eIndB(0,2), eIndB(1,2), eIndB(2,2),
+          bl(0),   bl(1),   bl(2),
+          bu(0),   bu(1),   bu(2),
+          vec_[0], vec_[1], vec_[2] );
+      break;
     }
   }
 
@@ -801,17 +829,17 @@ protected:
 	 * \todo add good documetnation here
 	 * @return
 	 */
-	const MPI_Fint& commf() const { return  fieldS_->commf_ ; }
-	MPI_Comm comm() const { return  fieldS_->comm_ ; }
-	const int& dim() const { return fieldS_->dim_; }
-	const Ordinal& nGlo(int i) const { return fieldS_->nGlo_[i]; }
-	const Ordinal& nLoc(int i) const { return  fieldS_->nLoc_[i]; }
-	const Ordinal& sInd(int i, int fieldType) const { return innerIS_[fieldType]->sInd_[i]; }
-	const Ordinal& eInd(int i, int fieldType) const { return innerIS_[fieldType]->eInd_[i]; }
-	const Ordinal& sIndB(int i, int fieldType) const { return fullIS_[fieldType]->sInd_[i]; }
-	const Ordinal& eIndB(int i, int fieldType) const { return fullIS_[fieldType]->eInd_[i]; }
-	const Ordinal& bl(int i) const { return fieldS_->bl_[i]; }
-	const Ordinal& bu(int i) const { return fieldS_->bu_[i]; }
+	const MPI_Fint& commf()                     const { return( fieldS_->commf_  ); }
+	MPI_Comm        comm()                      const { return( fieldS_->comm_   ); }
+	const int&      dim()                       const { return( fieldS_->dim_    ); }
+	const Ordinal&  nGlo(int i)                 const { return( fieldS_->nGlo_[i] ); }
+	const Ordinal&  nLoc(int i)                 const { return( fieldS_->nLoc_[i]) ; }
+	const Ordinal&  sInd(int i, int fieldType)  const { return( innerIS_[fieldType]->sInd_[i] ); }
+	const Ordinal&  eInd(int i, int fieldType)  const { return( innerIS_[fieldType]->eInd_[i] ); }
+	const Ordinal&  sIndB(int i, int fieldType) const { return( fullIS_[fieldType]->sInd_[i] ); }
+	const Ordinal&  eIndB(int i, int fieldType) const { return( fullIS_[fieldType]->eInd_[i] ); }
+	const Ordinal&  bl(int i)                   const { return( fieldS_->bl_[i] ); }
+	const Ordinal&  bu(int i)                   const { return( fieldS_->bu_[i] ); }
 
 }; //class VectorField
 
@@ -826,8 +854,8 @@ Teuchos::RCP< VectorField<Scalar,Ordinal> > createVectorField(
 		const Teuchos::RCP<const FieldSpace<Ordinal> >& fieldS,
 		typename VectorField<Scalar,Ordinal>::IndexSpaces innerIS,
 		const typename VectorField<Scalar,Ordinal>::IndexSpaces& fullIS ) {
-	return Teuchos::RCP<VectorField<Scalar,Ordinal> > (
-				new VectorField<Scalar,Ordinal>( fieldS, innerIS, fullIS ) );
+	return( Teuchos::RCP<VectorField<Scalar,Ordinal> > (
+				new VectorField<Scalar,Ordinal>( fieldS, innerIS, fullIS ) ) );
 }
 
 } // end of namespace Pimpact

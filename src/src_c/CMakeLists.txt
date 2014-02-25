@@ -1,8 +1,11 @@
 # Include the directory itself as a path to include directories
-add_subdirectory(Fields)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+#add_subdirectory(Fields)
 include_directories("./Fields")
 include_directories("./Operators")
+include_directories("./NOX_Interfaces")
+#add_subdirectory(NOX_Interfaces)
+
  
 # Create a variable called helloworld_SOURCES containing all .cpp files:
 #set(pimpact_SOURCES pimpact.cpp)
