@@ -3,6 +3,7 @@
 #define NOX_PIMPACT_INTERFACE_HPP
 
 #include "NOX_Common.H"
+#include "NOX_Abstract_Group.H"   // base class
 
 #include "Pimpact_VectorField.hpp"
 #include "Pimpact_ScalarField.hpp"
@@ -98,7 +99,7 @@ public:
   ~Interface() {};
 
   /// Compute the function, F, given the specified input vector x. Returns true if computation was successful.
-  bool computeF(const Field& x, Field& f ) {
+  NOX::Abstract::Group::ReturnType computeF(const Field& x, Field& f ) {
     auto xv = x.getConstVField();
     auto xs = x.getConstSField();
     auto yv = f.getVField();
@@ -121,18 +122,21 @@ public:
     ys->add( -1., *fp_,   1., *ys );
 
 
-    return( true );
+    return( NOX::Abstract::Group::Ok );
   }
 
   /// Compute the Jacobian Operator, given the specified input vector x. Returns true if computation was successful.
-  bool computeJacobian( const Field& x ) { return( true ); }
+  NOX::Abstract::Group::ReturnType computeJacobian( const Field& x ) {
+      return( NOX::Abstract::Group::Ok );
+  }
 
-  bool applyJacobian( const Field& x, Field& y, Belos::ETrans type=Belos::NOTRANS ) {
+  NOX::Abstract::Group::ReturnType applyJacobian( const Field& x, Field& y, Belos::ETrans type=Belos::NOTRANS ) {
     return( computeF( x, y ) );
   }
 
 
-  bool applyJacobianInverse( /* param, */ const Field& x, Field& y ) {
+  NOX::Abstract::Group::ReturnType applyJacobianInverse( Teuchos::ParameterList &params, const Field& x, Field& y ) {
+    params.print();
 
     auto xv = x.getConstVField();
     auto xs = x.getConstSField();
@@ -167,7 +171,11 @@ public:
 ////    lap_problem->setParameters( solverParams->get() );
 //
     lp_DTL_->solve( yv, tempv );
-    return( true );
+    return( NOX::Abstract::Group::Ok );
+  }
+
+  NOX::Abstract::Group::ReturnType applyPreconditioner( const Field& x, Field& y ) {
+    return( NOX::Abstract::Group::NotDefined );
   }
 
 }; // end of class Interface

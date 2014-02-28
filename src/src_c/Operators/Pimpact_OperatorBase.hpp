@@ -31,15 +31,21 @@ template<class MV,class Op>
 class OperatorPimpl : public virtual OperatorBase<MV> {
   Teuchos::RCP<OperatorMV<Op> > opm_;
 public:
+
   OperatorPimpl( const Teuchos::RCP<OperatorMV<Op> >& opm ):opm_(opm) {};
+
   virtual ~OperatorPimpl() {opm_=Teuchos::null;};
 
   virtual void apply( const MV& x, MV& y, Belos::ETrans trans=Belos::NOTRANS ) const {
     opm_->apply( x, y, trans );
   }
+
   virtual bool hasApplyTranspose() const {
     return( opm_->hasApplyTranspose() );
   };
+
+  Teuchos::RCP<Op> getOperatorPtr() { return( opm_->getOperatorPtr() ); }
+
 }; // end of OperatorPimpl
 
 

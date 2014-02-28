@@ -223,7 +223,7 @@ int main(int argi, char** argv ) {
 	  break;
 	}
 	case 2: {
-	  auto solverParams = Pimpact::createLinSolverParameter( "CG", 1.e-7*l1*l2/n1/n2 );
+	  auto solverParams = Pimpact::createLinSolverParameter( "CG", 1.e-9*l1*l2/n1/n2 );
 	  solverParams->get()->set ("Verbosity", int( Belos::Errors) );
 //	  solverParams->get()->set ("Verbosity", int( Belos::Errors) );
 	  auto op = Pimpact::createHelmholtz<S,O>( 0., 1./re );
@@ -238,7 +238,7 @@ int main(int argi, char** argv ) {
 	  break;
 	}
 	case 3: {
-	  auto solverParams = Pimpact::createLinSolverParameter( "CG", 1.e-7*l1*l2/n1/n2 )->get();
+	  auto solverParams = Pimpact::createLinSolverParameter( "CG", 1.e-9*l1*l2/n1/n2 )->get();
 	  solverParams->set ("Verbosity", int( Belos::Errors) );
 	  auto A = Pimpact::createOperatorBaseMV<MVF,Pimpact::Helmholtz<S,O> >( Pimpact::createHelmholtz<S,O>( omega, 1./re ) );
 	  auto prob2 = Pimpact::createLinearProblem<S,MVF,Pimpact::OperatorBase<MVF> >( A, fu->clone(), fu->clone(), solverParams,"CG" );
@@ -267,6 +267,8 @@ int main(int argi, char** argv ) {
 	auto solverParams = Pimpact::createLinSolverParameter( solver_name_1, 1.e-7*l1*l2/n1/n2 );
 
 	solverParams->get()->set ("Output Stream", outLap1 );
+	if(precType==0)
+	  solverParams->get()->set( "Num Blocks", 100 );
 //
 	Teuchos::writeParameterListToXmlFile( *solverParams->get(), "para_solver.xml" );
 
@@ -293,7 +295,7 @@ int main(int argi, char** argv ) {
 	//temps->write( 2002 );
   temps->add( -1., *fp, 1., *temps );
 
-	solverParams = Pimpact::createLinSolverParameter( solver_name_1, 1.e-6*l1*l2/n1/n2 );
+	solverParams = Pimpact::createLinSolverParameter( solver_name_1, 1.e-7*l1*l2/n1/n2 );
 	solverParams->get()->set( "Output Stream", outLap2 );
 	solverParams->get()->set ("Verbosity", int( Belos::Errors) );
 	lap_problem->setParameters( solverParams->get() );

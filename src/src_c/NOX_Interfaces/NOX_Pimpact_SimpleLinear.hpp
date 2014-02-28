@@ -1,6 +1,6 @@
 #pragma once
-#ifndef NOX_PIMPACT_SIMPLENONLINEAR_HPP
-#define NOX_PIMPACT_SIMPLENONLINEAR_HPP
+#ifndef NOX_PIMPACT_SIMPLELINEAR_HPP
+#define NOX_PIMPACT_SIMPLELINEAR_HPP
 
 #include "NOX_Common.H"
 #include "Teuchos_RCP.hpp"
@@ -38,7 +38,7 @@ namespace Pimpact {
 /// problem using the NOX::Epetra objects for the linear algebra
 /// implementation.  Used by NOX::Epetra::Group to provide a link
 /// to the external code for residual fills.
-class SimpleNonlinear {
+class SimpleLinear {
 
 public:
 
@@ -66,12 +66,12 @@ protected:
 public:
 
   /// Constructor
-  SimpleNonlinear():
+  SimpleLinear():
     fu_(Teuchos::null),
     op_(Teuchos::null),
     jop_(Teuchos::null) {};
 
-  SimpleNonlinear(
+  SimpleLinear(
       Teuchos::RCP<Field> fu,
       Teuchos::RCP<Op> op,
       Teuchos::RCP<JOp> lp ):
@@ -80,7 +80,7 @@ public:
         jop_(lp) {};
 
   /// Destructor
-  ~SimpleNonlinear() {};
+  ~SimpleLinear() {};
 
   /// Compute the function, F, given the specified input vector x. Returns true if computation was successful.
   NOX::Abstract::Group::ReturnType computeF(const Field& x, Field& f ) {
@@ -141,12 +141,12 @@ public:
 }; // end of class SimpleNonlinear
 
 
-Teuchos::RCP<SimpleNonlinear> createSimpleNonlinear(
-    Teuchos::RCP<SimpleNonlinear::Field> fu,
-    Teuchos::RCP<SimpleNonlinear::Op> op,
-    Teuchos::RCP<SimpleNonlinear::JOp> lp ) {
+Teuchos::RCP<SimpleLinear> createSimpleLinear(
+    Teuchos::RCP<SimpleLinear::Field> fu,
+    Teuchos::RCP<SimpleLinear::Op> op,
+    Teuchos::RCP<SimpleLinear::JOp> lp ) {
   return(
-      Teuchos::rcp( new SimpleNonlinear(fu,op,lp) )
+      Teuchos::rcp( new SimpleLinear(fu,op,lp) )
       );
 }
 
@@ -155,4 +155,4 @@ Teuchos::RCP<SimpleNonlinear> createSimpleNonlinear(
 } // end of namespace NOX
 
 
-#endif // end of #ifndef NOX_PIMPACT_SIMPLENONLINEAR_HPP
+#endif // end of #ifndef NOX_PIMPACT_SIMPLELINEAR_HPP

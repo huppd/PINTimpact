@@ -280,6 +280,8 @@ class VectorField {
 	friend class Helmholtz;
 	template<class S1,class O1>
 	friend class Nonlinear;
+	template<class S1,class O1>
+	friend class NonlinearJacobian;
 
 public:
 	typedef S Scalar;

@@ -312,9 +312,9 @@ public:
   //@{
 
   virtual void setX(const Vector& y) {
-    if (isPreconditioner()) {
-//      sharedLinearSystem.getObject(this)->destroyPreconditioner();
-    }
+//    if (isPreconditioner()) {
+////      sharedLinearSystem.getObject(this)->destroyPreconditioner();
+//    }
     resetIsValid();
     xVector = y;
     return;
@@ -328,7 +328,7 @@ public:
   virtual void computeX( const Group& grp,
       const Vector& d,
       double step ) {
-    if( isPreconditioner() )
+//    if( isPreconditioner() )
 //      sharedLinearSystem.getObject(this)->destroyPreconditioner();
     resetIsValid();
     xVector.update(1.0, grp.xVector, step, d);
@@ -349,11 +349,11 @@ public:
     if( isF() )
       return( Abstract::Group::Ok );
 
-    bool status = false;
+    NOX::Abstract::Group::ReturnType status;
 
     status = sharedInterfacePtr->getObject(this)->computeF( xVector.getField(), RHSVector.getField() );
 
-    if (status == false) {
+    if (status != Abstract::Group::Ok ) {
       std::cout << "ERROR: Pimpact::Group::computeF() - fill failed!!!"
           << std::endl;
       throw "NOX Error: Fill Failed";
@@ -361,34 +361,29 @@ public:
 
     isValidRHS = true;
 
-    return( Abstract::Group::Ok );
+    return( status );
   }
 
 
   virtual NOX::Abstract::Group::ReturnType computeJacobian() {
-    return( Abstract::Group::NotDefined );
 
-//    // Skip if the Jacobian is already valid
-//    if (isJacobian())
-//      return( Abstract::Group::Ok );
-//
-//    // Fill the Jacobian
-//    bool status = false;
-//
-////    status = sharedLinearSystem.getObject(this)->
-////        computeJacobian(xVector);
-//    status = sharedInterfacePtr->computeJacobian( xVector.getField() );
-//
-//    if (status == false) {
-//      std::cout << "ERROR: NOX::Pimpact::Group::computeJacobian() - fill failed!!!"
-//          << std::endl;
-//      throw "NOX Error: Fill Failed";
-//    }
-//
-//    // Update status of Jacobian wrt solution vector
-//    isValidJacobian = true;
-//
-//    return( Abstract::Group::Ok );
+    // Skip if the Jacobian is already valid
+    if (isJacobian())
+      return( Abstract::Group::Ok );
+
+    // Fill the Jacobian
+    NOX::Abstract::Group::ReturnType status;
+    status = sharedInterfacePtr->getObject(this)->computeJacobian( xVector.getField() );
+
+    if (status != NOX::Abstract::Group::Ok) {
+      std::cout << "ERROR: NOX::Pimpact::Group::computeJacobian() - fill failed!!!"
+          << std::endl;
+      throw "NOX Error: Fill Failed";
+    }
+    // Update status of Jacobian wrt solution vector
+    isValidJacobian = true;
+
+    return( status );
   }
 
 
@@ -421,43 +416,42 @@ public:
 
 
   virtual NOX::Abstract::Group::ReturnType computeNewton(Teuchos::ParameterList& params) {
-    return( Abstract::Group::NotDefined );
 
-//    if (isNewton())
-//      return( Abstract::Group::Ok );
+    if (isNewton())
+      return( Abstract::Group::Ok );
+
+    if (!isF()) {
+      std::cerr << "ERROR: NOX::Pimpact::Group::computeNewton() - invalid RHS" << std::endl;
+      throw "NOX Error";
+    }
+
+    if (!isJacobian()) {
+      std::cerr << "ERROR: NOX::Pimpact::Group::computeNewton() - invalid Jacobian" << std::endl;
+      throw "NOX Error";
+    }
+
+    Abstract::Group::ReturnType status;
+
+    // Zero out the Newton Vector
+    NewtonVector.init( 0.0 );
+
+    // Create Epetra problem for the linear solve
+    status = applyJacobianInverse(params, RHSVector, NewtonVector);
+
+    // Scale soln by -1
+    NewtonVector.scale(-1.0);
 //
-//    if (!isF()) {
-//      std::cerr << "ERROR: NOX::Pimpact::Group::computeNewton() - invalid RHS" << std::endl;
-//      throw "NOX Error";
-//    }
-//
-//    if (!isJacobian()) {
-//      std::cerr << "ERROR: NOX::Pimpact::Group::computeNewton() - invalid Jacobian" << std::endl;
-//      throw "NOX Error";
-//    }
-//
-//    Abstract::Group::ReturnType status;
-//
-//    // Zero out the Newton Vector
-//    NewtonVector.init( 0.0 );
-//
-//    // Create Epetra problem for the linear solve
-//    status = applyJacobianInverse(params, RHSVector, NewtonVector);
-//
-//    // Scale soln by -1
-//    NewtonVector.scale(-1.0);
-//
-//    // Update state EVEN IF LINEAR SOLVE FAILED
-//    // We still may want to use the vector even it it just missed it's
-//    isValidNewton = true;
-//
-//    // Compute the 2-norm of the linear solve residual ||Js+f||
-//    // Can be disabled, but then disallows inexact Newton methods
-//    if (!linearResidCompDisabled)
-//      computeNormNewtonSolveResidual();
-//
-//    // Return solution
-//    return( status );
+    // Update state EVEN IF LINEAR SOLVE FAILED
+    // We still may want to use the vector even it it just missed it's
+    isValidNewton = true;
+
+    // Compute the 2-norm of the linear solve residual ||Js+f||
+    // Can be disabled, but then disallows inexact Newton methods
+    if (!linearResidCompDisabled)
+      computeNormNewtonSolveResidual();
+
+    // Return solution
+    return( status );
   }
 
 
@@ -468,28 +462,24 @@ public:
    * matrix-free scenarios. */
   //@{
 
-//  virtual NOX::Abstract::Group::ReturnType
-//  applyJacobian(const Vector& input, Vector& result) const {
-//    return( Abstract::Group::NotDefined );
-////    // Check validity of the Jacobian
-////    if (!isJacobian())
-////      return( Abstract::Group::BadDependency );
-////
-////    // Apply the Jacobian
-////    Belos::ReturnType status = sharedInterface.getObject()->applyJacobian( result, input );
-////
-////    switch(status) {
-////    case Belos::Converged: return( Abstract::Group::Ok );
-////    case Belos::Unconverged: return( Abstract::Group::Failed );
-////    }
-//  }
+  virtual NOX::Abstract::Group::ReturnType
+  applyJacobian(const Vector& input, Vector& result) const {
+//    // Check validity of the Jacobian
+    if (!isJacobian())
+      return( Abstract::Group::BadDependency );
+
+    // Apply the Jacobian
+//    NOX::Abstract::Group::ReturnType status = sharedInterface.getObject()->applyJacobian( input.getConstField(), result.getField() );
+    NOX::Abstract::Group::ReturnType status = sharedInterface.getObject(this)->applyJacobian( input.getConstField(), result.getField() );
+
+    return( status );
+  }
   virtual NOX::Abstract::Group::ReturnType
   applyJacobian(const NOX::Abstract::Vector& input, NOX::Abstract::Vector& result) const {
-    return( Abstract::Group::NotDefined );
-//    const Vector& pimpinput =  dynamic_cast<const Vector&> (input);
-//    Vector& pimpresult = dynamic_cast<Vector&> (result);
-//
-//    return( applyJacobian( pimpinput, pimpresult) );
+    const Vector& pimpinput =  dynamic_cast<const Vector&> (input);
+    Vector& pimpresult = dynamic_cast<Vector&> (result);
+
+    return( applyJacobian( pimpinput, pimpresult) );
   }
 
 
@@ -536,46 +526,45 @@ public:
   /// parameters - this is the ideal solution tolerance for an iterative
   /// linear solve.
   /// The parameter "Reuse Preconditioner" is a boolean that tells the group to turn off control of preconditioner recalculation.  This is a dangerous flag but can really speed the computations if the user knows what they are doing.  Toggling this flag is left to the user (ideally it should be done through a status test).  Defaults to false.
-//  virtual NOX::Abstract::Group::ReturnType
-//  applyJacobianInverse(Teuchos::ParameterList &params, const Vector &input, Vector &result) const {
-//    if (!isJacobian())
-//      return( Abstract::Group::BadDependency );
-//
-//    if (!isValidSolverJacOp) {
-////      sharedLinearSystem.getObject(this)->setJacobianOperatorForSolve(sharedLinearSystem.getObject(this)->getJacobianOperator());
-//      isValidSolverJacOp = true;
+  virtual NOX::Abstract::Group::ReturnType
+  applyJacobianInverse(Teuchos::ParameterList &params, const Vector &input, Vector &result) const {
+    if (!isJacobian())
+      return( Abstract::Group::BadDependency );
+
+    if (!isValidSolverJacOp) {
+//      sharedLinearSystem.getObject(this)->setJacobianOperatorForSolve(sharedLinearSystem.getObject(this)->getJacobianOperator());
+      isValidSolverJacOp = true;
+    }
+
+    // Compute the preconditioner
+//    NOX::Epetra::LinearSystem::PreconditionerReusePolicyType precPolicy =
+//        sharedLinearSystem.getObject(this)->getPreconditionerPolicy();
+
+//    if (!isPreconditioner()) {
+//      if (precPolicy == NOX::Epetra::LinearSystem::PRPT_REBUILD) {
+//        sharedLinearSystem.getObject(this)->destroyPreconditioner();
+//        sharedLinearSystem.getObject(this)->
+//            createPreconditioner(xVector, p, false);
+//        isValidPreconditioner = true;
+//      }
+//      else if (precPolicy == NOX::Epetra::LinearSystem::PRPT_RECOMPUTE) {
+//        sharedLinearSystem.getObject(this)->recomputePreconditioner(xVector, p);
+//        isValidPreconditioner = true;
+//      }
+//      else if (precPolicy == NOX::Epetra::LinearSystem::PRPT_REUSE) {
+//        // Do Nothing!!!
+//      }
 //    }
-//
-//    // Compute the preconditioner
-////    NOX::Epetra::LinearSystem::PreconditionerReusePolicyType precPolicy =
-////        sharedLinearSystem.getObject(this)->getPreconditionerPolicy();
-//
-////    if (!isPreconditioner()) {
-////      if (precPolicy == NOX::Epetra::LinearSystem::PRPT_REBUILD) {
-////        sharedLinearSystem.getObject(this)->destroyPreconditioner();
-////        sharedLinearSystem.getObject(this)->
-////            createPreconditioner(xVector, p, false);
-////        isValidPreconditioner = true;
-////      }
-////      else if (precPolicy == NOX::Epetra::LinearSystem::PRPT_RECOMPUTE) {
-////        sharedLinearSystem.getObject(this)->recomputePreconditioner(xVector, p);
-////        isValidPreconditioner = true;
-////      }
-////      else if (precPolicy == NOX::Epetra::LinearSystem::PRPT_REUSE) {
-////        // Do Nothing!!!
-////      }
-////    }
-//
-//    bool status = sharedInterface.getObject(this)->applyJacobianInverse(params, input, result);
-//
-//    return( status == true ? Abstract::Group::Ok : Abstract::Group::NotConverged );
-//  }
+
+    NOX::Abstract::Group::ReturnType status = sharedInterface.getObject(this)->applyJacobianInverse(params, input.getConstField(), result.getField() );
+
+    return( status );
+  }
   virtual NOX::Abstract::Group::ReturnType
   applyJacobianInverse(Teuchos::ParameterList &params, const NOX::Abstract::Vector &input, NOX::Abstract::Vector &result) const {
-    return( Abstract::Group::NotDefined );
-//    const Vector& pimpInput = dynamic_cast<const Vector&>(input);
-//    Vector& pimpResult = dynamic_cast<Vector&>(result);
-//    return( applyJacobianInverse(params, pimpInput, pimpResult) );
+    const Vector& pimpInput = dynamic_cast<const Vector&>(input);
+    Vector& pimpResult = dynamic_cast<Vector&>(result);
+    return( applyJacobianInverse(params, pimpInput, pimpResult) );
   }
 
 
@@ -584,28 +573,23 @@ public:
           Teuchos::ParameterList& params,
           const Vector& input,
           Vector& result) const {
-    return( Abstract::Group::NotDefined );
-//    bool success = false;
-//
-//    params.print();
-//
-//    success = sharedInterfacePtr->getObject(this)->applyPreconditioner( xVector.getField(), RHSVector.getField() );
-//
-//    if( success == true )
-//      return( Abstract::Group::Ok );
-//    else
-//      return( Abstract::Group::NotDefined );
+
+    params.print();
+    std::cout << "Call applyRightPrecon.... !!!!!!\n";
+
+    return( sharedInterfacePtr->getObject(this)->applyPreconditioner( xVector.getField(), RHSVector.getField() ) );
+
   }
   virtual NOX::Abstract::Group::ReturnType
   applyRightPreconditioning(bool useTranspose,
           Teuchos::ParameterList& params,
           const NOX::Abstract::Vector& input,
           NOX::Abstract::Vector& result) const {
-    return( Abstract::Group::NotDefined );
-//    const Vector& pimpInput = dynamic_cast<const Vector&>(input);
-//    Vector& pimpResult = dynamic_cast<Vector&>(result);
-//
-//    return( applyRightPreconditioning(useTranspose, params, pimpInput, pimpResult) );
+//    return( Abstract::Group::NotDefined );
+    const Vector& pimpInput = dynamic_cast<const Vector&>(input);
+    Vector& pimpResult = dynamic_cast<Vector&>(result);
+
+    return( applyRightPreconditioning(useTranspose, params, pimpInput, pimpResult) );
   }
 
   //@}

@@ -67,6 +67,8 @@ public:
 
 	bool hasApplyTranspose() const { return( op_->hasApplyTranspose() ); }
 
+	Teuchos::RCP<Operator> getOperatorPtr() { return( op_ ); }
+
 private:
 
 	void apply( ModeOp,
