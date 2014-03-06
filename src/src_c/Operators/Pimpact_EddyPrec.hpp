@@ -43,8 +43,8 @@ public:
         op_(op) {};
 
   void apply(const ModeField<DomainFieldT>& x, ModeField<RangeFieldT>& y) const {
-    temp_->GetFieldPtr(0)->getFieldC()->add( 1., *x.getConstFieldC(),  1., *x.getConstFieldS() );
-    temp_->GetFieldPtr(0)->getFieldS()->add( 1., *x.getConstFieldC(), -1., *x.getConstFieldS() );
+    temp_->getFieldPtr(0)->getFieldC()->add( 1., *x.getConstFieldC(),  1., *x.getConstFieldS() );
+    temp_->getFieldPtr(0)->getFieldS()->add( 1., *x.getConstFieldC(), -1., *x.getConstFieldS() );
 
     op_->solve( createMultiField<ModeField<DomainFieldT> >(Teuchos::rcpFromRef(y)), temp_ );
     y.scale(0.5);

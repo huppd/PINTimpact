@@ -46,11 +46,11 @@ public:
         op_(op) {};
 
   void apply(const ModeField<DomainFieldT>& x, ModeField<RangeFieldT>& y) const {
-    grad_->apply( *x.getConstFieldC(), *temp0_->GetVec(0).getFieldC() );
-    grad_->apply( *x.getConstFieldS(), *temp0_->GetVec(0).getFieldS() );
+    grad_->apply( *x.getConstFieldC(), *temp0_->getField(0).getFieldC() );
+    grad_->apply( *x.getConstFieldS(), *temp0_->getField(0).getFieldS() );
     op_->solve( temp1_, temp0_);
-    div_->apply( *temp1_->GetVec(0).getConstFieldC(), *y.getFieldC() );
-    div_->apply( *temp1_->GetVec(0).getConstFieldS(), *y.getFieldS() );
+    div_->apply( *temp1_->getField(0).getConstFieldC(), *y.getFieldC() );
+    div_->apply( *temp1_->getField(0).getConstFieldS(), *y.getFieldS() );
   }
 
   bool hasApplyTranspose() const { return( false ); }

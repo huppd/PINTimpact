@@ -226,8 +226,8 @@ int main(int argi, char** argv ) {
 	  auto prob =
 	      Pimpact::createLinearProblem<S,Pimpact::MultiField<Pimpact::VectorField<S,O> >,Pimpact::OperatorMV< Pimpact::Helmholtz<S,O> > >(
 	          op,
-	          Pimpact::createMultiField(f->GetVec(0).getFieldC()),
-	          Pimpact::createMultiField(f->GetVec(0).getFieldC()), solverParams->get(),"CG" );
+	          Pimpact::createMultiField(f->getField(0).getFieldC()),
+	          Pimpact::createMultiField(f->getField(0).getFieldC()), solverParams->get(),"CG" );
 
 	  lprec = Pimpact::createOperatorBaseMV<MVF,Pimpact::Linv<S,O> >( Pimpact::createLinv<S,O>( prob ) );
 	  break;

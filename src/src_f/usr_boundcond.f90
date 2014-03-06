@@ -9,8 +9,12 @@
 !!pgi$l unroll = n:8
   
   
-  !> \brief allows user to define starting? boundary conditions for the velocity
-  !! Randbedingungen (instantant)
+  !> \brief allows user to define starting? boundary conditions for the velocity.
+  !! Randbedingungen (instantant).
+  !!
+  !! note:
+  !! - advective boundary conditions are automatically initialized from the initial condition
+  !! - if constant, bc11 etc. can also be specified in "initial_conditions_vel" in file "usr_initcond.f90"
   subroutine boundary_vel_stat
   ! (basic subroutine)
   
@@ -101,7 +105,13 @@
   
   
   !> \brief allows user to define time boundary conditions for the velocity
-  !! instationaer + Zeitintegration
+  !! instationaer + Zeitintegration.
+  !!
+  !!--- additional terms on RHS of time-integrated velocity boundary conditions ---
+  !! note:
+  !! - du/dt = RHS-nlbc
+  !! - if not specified, advective boundary conditions are used
+  !! - cf. sketch in file "usr_geometry.f90"
   subroutine boundary_vel_tint
   ! (basic subroutine)
   

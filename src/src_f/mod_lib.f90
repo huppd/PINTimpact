@@ -481,6 +481,7 @@ module mod_lib
   
   
   
+  !> \brief copies velocity entries to BC... and interpolates the normal direction to pressure points
   subroutine init_BC ! TEST!!! Name nicht ganz passend ...
   
   implicit none

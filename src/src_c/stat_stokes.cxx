@@ -173,11 +173,11 @@ int main(int argi, char** argv ) {
 	vel = Teuchos::null;
 
 	p->init(0.);
-	u->GetVec(0).initField( Pimpact::EFlowProfile(flow) );
+	u->getField(0).initField( Pimpact::EFlowProfile(flow) );
 	u->init(0);
 
-	tempv->GetVec(0).initField( Pimpact::EFlowProfile(flow) );
-	fu->GetVec(0).initField( Pimpact::ZeroProf );
+	tempv->getField(0).initField( Pimpact::EFlowProfile(flow) );
+	fu->getField(0).initField( Pimpact::ZeroProf );
 
 
 	// init operators
@@ -194,8 +194,8 @@ int main(int argi, char** argv ) {
 	fu->write( 9000 );
 	fp->write( 8000 );
 
-	u->GetVec(0).initField( Pimpact::ZeroProf );
-	tempv->GetVec(0).initField( Pimpact::ZeroProf );
+	u->getField(0).initField( Pimpact::ZeroProf );
+	tempv->getField(0).initField( Pimpact::ZeroProf );
 
 	// solve parameter for GMRES
 	RCP<ParameterList> solveParaGMRES = Pimpact::createLinSolverParameter( "GMRES", 1.0e-16 )->get();

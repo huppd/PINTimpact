@@ -3606,7 +3606,7 @@ module mod_diff
   
   !> \brief interpolates pressure to vel nodes
   !!
-  !! \f[ inter = inter + interpolated(phi)
+  !! \f[ inter = inter + interpolated(phi) \f]
   !! Wie interpolate_pre_vel, allerdings mit fixen Index-Limiten (ohne Rand)
   !! \param[in] exch_yes indicates if fields have exchanged first
   !! \param[in] m dimension
@@ -4777,6 +4777,12 @@ module mod_diff
   
   
   
+  !> \brief outflow?.
+  !!
+  !! Anmerkungen:
+  !!    - Es wird vorausgesetzt, dass \c vel(:,:,:,:) zuvor schon ausgetauscht, bzw. an den Raendern
+  !!      zu Null gesetzt wurde (was beides streng genommen aber nichtmal notwentwendig ist).
+  !!    - Kompakte Differenzen nicht notwendig, ist ohnehin nur ein Modell.
   subroutine outflow_bc
   
   ! (revised on 06.08.2009)
@@ -5676,6 +5682,10 @@ module mod_diff
   
   
   
+  !> used for gpre
+  !! Achtung:
+  !!    - Wird in "product_div_grad" und "explicit" verwendet.                                          !
+  !! \test bislang nur Dirichlet-RB eingebaut!
   subroutine bc_extrapolation(m,phi)
   
   implicit none

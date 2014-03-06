@@ -198,8 +198,8 @@ TEUCHOS_UNIT_TEST( Operator, Dt ) {
 
 	auto mv = Pimpact::createMultiField<Pimpact::ModeField<Pimpact::VectorField<double,int> > >(*vel,1);
 
-	mv->GetVec(0).getFieldC()->init(1.);
-	mv->GetVec(0).getFieldS()->init(0.);
+	mv->getField(0).getFieldC()->init(1.);
+	mv->getField(0).getFieldS()->init(0.);
 
 	auto mv2 = mv->clone(1);
 	mv2->init(0.);
@@ -208,8 +208,8 @@ TEUCHOS_UNIT_TEST( Operator, Dt ) {
 
 	A->apply(*mv,*mv2);
 
-	TEST_EQUALITY( mv->GetConstVec(0).getConstFieldC()->norm(), mv2->GetConstVec(0).getConstFieldS()->norm() );
-	TEST_EQUALITY( mv->GetConstVec(0).getConstFieldS()->norm(), mv2->GetConstVec(0).getConstFieldC()->norm() );
+	TEST_EQUALITY( mv->getConstField(0).getConstFieldC()->norm(), mv2->getConstField(0).getConstFieldS()->norm() );
+	TEST_EQUALITY( mv->getConstField(0).getConstFieldS()->norm(), mv2->getConstField(0).getConstFieldC()->norm() );
 	Belos::OperatorTraits<double,Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<double,int> > >, Pimpact::OperatorMV<Pimpact::Dt<double,int> > >::Apply(*A,*mv,*mv2);
 }
 
@@ -238,8 +238,8 @@ TEUCHOS_UNIT_TEST( Operator, DtL ) {
 
 	A->apply(*mv,*mv2);
 
-	TEST_EQUALITY( mv->GetConstVec(0).getConstFieldC()->norm(), mv2->GetConstVec(0).getConstFieldS()->norm() );
-	TEST_EQUALITY( mv->GetConstVec(0).getConstFieldS()->norm(), mv2->GetConstVec(0).getConstFieldC()->norm() );
+	TEST_EQUALITY( mv->getConstField(0).getConstFieldC()->norm(), mv2->getConstField(0).getConstFieldS()->norm() );
+	TEST_EQUALITY( mv->getConstField(0).getConstFieldS()->norm(), mv2->getConstField(0).getConstFieldC()->norm() );
 
 	Belos::OperatorTraits<double,Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<double,int> > >, Pimpact::OperatorMV<Pimpact::DtL<double,int> > >::Apply(*A,*mv,*mv2);
 
@@ -352,8 +352,8 @@ TEUCHOS_UNIT_TEST( Operator, Linv ) {
   auto prob =
       Pimpact::createLinearProblem<S,MVF,OP>(
           op,
-          Pimpact::createMultiField(X->GetVec(0).getFieldC()),
-          Pimpact::createMultiField(B->GetVec(0).getFieldC()), solverParams );
+          Pimpact::createMultiField(X->getField(0).getFieldC()),
+          Pimpact::createMultiField(B->getField(0).getFieldC()), solverParams );
 
 
   auto opp = Pimpact::createOperatorBaseMV<BVF,Pimpact::Linv<S,O> >( Pimpact::createLinv<S,O>( prob ) );
@@ -400,7 +400,7 @@ TEUCHOS_UNIT_TEST( Operator, DivOpGrad ) {
 
   auto op = Pimpact::createDivOpGrad<S,O>( temp, prob ) ;
 
-  op->apply( X->GetVec(0), B->GetVec(0) );
+  op->apply( X->getField(0), B->getField(0) );
 
   auto schur = Pimpact::createOperatorBase<MSF,OP2>( op );
 
@@ -443,7 +443,7 @@ TEUCHOS_UNIT_TEST( Operator, EddyPrec ) {
 
   auto op = Pimpact::createEddyPrec<S,O>( temp, prob ) ;
 
-  op->apply( X->GetVec(0), B->GetVec(0) );
+  op->apply( X->getField(0), B->getField(0) );
 
   auto schur = Pimpact::createOperatorBase<MVF,OP2>( op );
 
@@ -478,14 +478,14 @@ TEUCHOS_UNIT_TEST( Operator, nonlinear ) {
 //  auto op = Pimpact::createOperatorMV<O(void);
 
   for( int i=0; i<10; ++i ) {
-    x->GetFieldPtr(i)->initField(Pimpact::Circle2D );
+    x->getFieldPtr(i)->initField(Pimpact::Circle2D );
   }
 //  x->random();
-x->GetFieldPtr(0)->write();
+x->getFieldPtr(0)->write();
 
   op->apply( *x, *y);
 
-  y->GetFieldPtr(0)->write(99);
+  y->getFieldPtr(0)->write(99);
 
 }
 

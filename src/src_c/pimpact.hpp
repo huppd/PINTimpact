@@ -105,12 +105,8 @@ int init_impact( int argi=0, char** argv=0, Teuchos::RCP<Pimpact::BoundaryCondit
 
 namespace Pimpact{
 
-/**
- * \brief initializes impact, transition for more and more pimpact initializing
- * @param ds
- * @param bc
- * @return
- */
+/// \brief initializes impact, transition for more and more pimpact initializing
+/// \return rank
 int init_impact_pre(){
 	//  --- Initialize MPI ----------------------------------------------------------------------------------------
 	//		MPI_Init(&argi,&argv);
@@ -128,7 +124,7 @@ int init_impact_pre(){
 
 	//  --- Set configuration / topology --------------------------------------------------------------------------
 	configuration_();
-	return rank;
+	return( rank );
 }
 
 

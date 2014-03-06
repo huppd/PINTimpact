@@ -28,10 +28,7 @@ module mod_rhs
 !!pgi$l unroll = n:8
   
   
-  !> \brief computes right hand side for the velocity component
-  !!
-  !! \f[ \mathrm{ rhs = vel - (-(1-thetaL)(aRK(substep) + bRK(substep))\frac{\Delta t}{Re} \Delta vel } \f]
-  !! \f[ \mathrm{ rhs = rhs -\Delta t \, bRK(substep) nl_{old} } \f]
+  !> \brief computes right hand side for the velocity component.
   !!
   !! \f[ \mathrm{ rhs = vel - (-(1-thetaL)(aRK(substep) + bRK(substep))\frac{\Delta t}{Re} \Delta vel -\Delta t \, bRK(substep) nl_{old} - \Delta t \, aRK(substep) nl} \f]
   subroutine rhs_vel

@@ -45,7 +45,8 @@ module mod_solvers
 !!pgi$l unroll = n:8
   
   
-  !> brief solver for timeint_mod=0 (CN-RK3)
+  !> brief solver for timeint_mod=0 (CN-RK3).
+  !!
   !! RHS for Druck-Gleichungssystem:
   !!   - Helmholtz-Gleichung lösen( solve_Helmholtz )
   !!   - divergenz bilde( divergence2 )
@@ -5640,6 +5641,7 @@ module mod_solvers
   
   
   
+  !> Anmerkungen: Siehe Subroutine "handle_corner_Lap"!                                                     !
   subroutine handle_corner_rhs(g,phi) ! TEST!!! Ersetzen mit einheitlicher Routine?? ! TEST!!! validieren ...
   
   implicit none

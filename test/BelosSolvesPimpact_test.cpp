@@ -139,29 +139,29 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV2 ) {
   auto fS = Pimpact::createFieldSpace<O>();
 
   auto iIS = Pimpact::createInnerFieldIndexSpaces<int>();
-				auto fIS = Pimpact::createFullFieldIndexSpaces<int>();
+	auto fIS = Pimpact::createFullFieldIndexSpaces<int>();
 
-				auto vel = Pimpact::createVectorField<double,int>(fS,iIS,fIS);
+	auto vel = Pimpact::createVectorField<double,int>(fS,iIS,fIS);
 
 //				vel->init(0.);
 //				vel->init_field();
 
-				auto X = Pimpact::createMultiField<Pimpact::VectorField<double,int> >( *vel, 1, Pimpact::DeepCopy );
-				auto B = Pimpact::createMultiField<Pimpact::VectorField<double,int> >( *vel, 1 );
+	auto X = Pimpact::createMultiField<Pimpact::VectorField<double,int> >( *vel, 1, Pimpact::DeepCopy );
+	auto B = Pimpact::createMultiField<Pimpact::VectorField<double,int> >( *vel, 1 );
 
 //			 X->Init(0.);
-			 X->GetVec(0).initField();
-			 B->init(1.);
+	X->getField(0).initField();
+	B->init(1.);
 
-				auto A = Pimpact::createOperatorMV<Pimpact::Helmholtz<double,int> >();
+	auto A = Pimpact::createOperatorMV<Pimpact::Helmholtz<double,int> >();
 
-			 using Teuchos::ParameterList;
-			 using Teuchos::parameterList;
-			 using Teuchos::RCP;
-			 using Teuchos::rcp; // Save some typing
-			 typedef double Scalar;
-			 typedef Pimpact::MultiField<Pimpact::VectorField<double,int> > MV;
-			 typedef Pimpact::OperatorMV< Pimpact::Helmholtz<double,int> >  OP;
+  using Teuchos::ParameterList;
+  using Teuchos::parameterList;
+	using Teuchos::RCP;
+	using Teuchos::rcp; // Save some typing
+	typedef double Scalar;
+	typedef Pimpact::MultiField<Pimpact::VectorField<double,int> > MV;
+	typedef Pimpact::OperatorMV< Pimpact::Helmholtz<double,int> >  OP;
 
 				 // The ellipses represent the code you would normally use to create
 				 // the sparse matrix, preconditioner, right-hand side, and initial
@@ -286,6 +286,101 @@ TEUCHOS_UNIT_TEST( BelosSolver, DtL ) {
 //         const int numIters = solver->getNumIters();
 }
 
+TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
+  typedef double S;
+  typedef int O;
+  typedef Pimpact::ScalarField<S,O> SF;
+  typedef Pimpact::MultiField<SF> BSF;
+
+  typedef Pimpact::Div_Grad<S,O> Op;
+  typedef Pimpact::OperatorMV<Op> OpMV;
+  typedef Pimpact::OperatorBase<BSF> OpBase;
+  typedef Pimpact::OperatorPimpl<BSF,Op> OpPimpl;
+  typedef OpBase  BOp;
+
+  auto fS = Pimpact::createFieldSpace<O>();
+
+  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+
+  auto temp = Pimpact::createVectorField<double,int>(fS,iIS,fIS);
+  temp->initField(Pimpact::Poiseuille2D_inX);
+//  temp->init(0.);
+
+
+
+  auto p = Pimpact::createScalarField<S,O>(fS);
+
+  auto x = Pimpact::createMultiField<SF>(*p,1);
+  auto b = x->clone();
+
+  auto div = Teuchos::rcp( new Pimpact::Div<S,O>() );
+  div->apply(*temp,b->getField(0) );
+//  b->scale(-1.);
+  b->write(9999);
+
+  x->init(0.);
+//  b->init(0.);
+  x->random();
+  x->scale(1000.);
+//  b->random();
+
+  temp->initField(Pimpact::ZeroProf);
+  auto op = Pimpact::createOperatorBase<BSF,Op>( Teuchos::rcp( new Op(temp) ) );
+
+  auto para = Pimpact::createLinSolverParameter("GMRES",1.e-9)->get();
+  para->set( "Num Blocks", 500 );
+
+//  auto para = Teuchos::parameterList();
+
+
+  Belos::SolverFactory<S, BSF, BOp > factory;
+   // Make an empty new parameter list.
+
+   // Create the GMRES solver.
+   Teuchos::RCP<Belos::SolverManager<S, BSF, BOp > > solver =
+            factory.create( "GMRES", para );
+
+   // Create a LinearProblem struct with the problem to solve.
+   // A, X, B, and M are passed by (smart) pointer, not copied.
+   Teuchos::RCP<Belos::LinearProblem<S, BSF, BOp > > problem =
+            Teuchos::rcp (new Belos::LinearProblem<S, BSF, BOp > (op, x, b));
+
+//   std::cout << "param\n" << *solver->getValidParameters();
+   problem->setProblem(x,b);
+
+   // Tell the solver what problem you want to solve.
+   solver->setProblem( problem );
+   //       TEST_EQUALITY( solver->getProblem(), *problem)
+   //       std::cout << *problem;
+
+   // Attempt to solve the linear system.  result == Belos::Converged
+   // means that it was solved to the desired tolerance.  This call
+   // overwrites X with the computed approximate solution.
+   Belos::ReturnType result = solver->solve();
+   TEST_EQUALITY( result, Belos::Converged);
+
+   x->write(999);
+   temp->write(999);
+
+          // Ask the solver how many iterations the last solve() took.
+ //         const int numIters = solver->getNumIters();
+//  auto lap = Pimpact::createOperatorMV<Op>();
+//
+//  Teuchos::RCP<Belos::OutputManager<S> > MyOM =
+//      Teuchos::rcp( new Belos::OutputManager<S>(Belos::Errors + Belos::Warnings + Belos::IterationDetails +
+//          Belos::OrthoDetails + Belos::FinalSummary + Belos::TimingDetails +
+//          Belos::StatusTestDetails + Belos::Debug, rcp(&out,false)) );
+//
+////  mv->random();
+////  lap->apply( *mv, *mv2 );
+////  mv2->write(20);
+//
+//  bool res =// true;
+//      Belos::TestOperatorTraits< S, BSF, BOp > (MyOM,mv,lap);
+//
+//  TEST_EQUALITY( res, true );
+}
 
 } // end of namespace
 

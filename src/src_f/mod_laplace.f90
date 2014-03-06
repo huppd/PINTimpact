@@ -3201,7 +3201,14 @@ module mod_laplace
   
   
   
-  
+  !> Anmerkungen:
+  !!    - Diese Routine dient dazu, den unbestimmten Druck in den Ecken und Kanten explizit zu
+  !!      behandeln und gleichzeitig das Konvergenzverhalten der Löser (BiCGstab oder Richardson)
+  !!      möglichst nicht zu beeinträchtigen.
+  !!    - Der Druck wird hier direkt zu Null gesetzt, um innerhalb des iterativen Lösers kein
+  !!      Residuum zu erzeugen (anstelle über die RHS).
+  !!    - Der Druck wird erst bei Bedarf (z.B. vor einem Ausschrieb) auf einen sinnvollen Wert gesetzt.
+  !!    - Siehe dazu auch die korrespondierende Subroutine "handle_corner_rhs"!
   subroutine handle_corner_Lap(g,phi)
   
   implicit none
@@ -3212,10 +3219,10 @@ module mod_laplace
   
   !----------------------------------------------------------------------------------------------------------!
   ! Anmerkungen: - Diese Routine dient dazu, den unbestimmten Druck in den Ecken und Kanten explizit zu      !
-  !                behandeln und gleichzeitig das Konvergenzverhalten der L�ser (BiCGstab oder Richardson)   !
-  !                m�glichst nicht zu beeintr�chtigen.                                                       !
-  !              - Der Druck wird hier direkt zu Null gesetzt, um innerhalb des iterativen L�sers kein Re-   !
-  !                siduum zu erzeugen (anstelle �ber die RHS).                                               !
+  !                behandeln und gleichzeitig das Konvergenzverhalten der Löser (BiCGstab oder Richardson)   !
+  !                möglichst nicht zu beeintráchtigen.                                                       !
+  !              - Der Druck wird hier direkt zu Null gesetzt, um innerhalb des iterativen Lösers kein Re-   !
+  !                siduum zu erzeugen (anstelle über die RHS).                                               !
   !              - Der Druck wird erst bei Bedarf (z.B. vor einem Ausschrieb) auf einen sinnvollen Wert ge-  !
   !                setzt.                                                                                    !
   !              - Siehe dazu auch die korrespondierende Subroutine "handle_corner_rhs"!                     !

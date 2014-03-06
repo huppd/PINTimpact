@@ -290,33 +290,43 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, DtL ) {
 }
 
 
-//TEUCHOS_UNIT_TEST( BelosOperatorMV, DivGrad ) {
-//  typedef double S;
-//  typedef int O;
-//  typedef Pimpact::ScalarField<S,O> SF;
-//  typedef Pimpact::MultiField<SF> BSF;
-//
-//  typedef Pimpact::Div_Grad<S,O> Op;
-//  typedef Pimpact::OperatorMV<Op> BOp;
-//
-//	auto fS = Pimpact::createFieldSpace<O>();
-//
-//	auto p = Pimpact::createScalarField<S,O>(fS);
-//
-//	auto mv = Pimpact::createMultiField<SF>(*p,10);
-//
-//	auto lap = Pimpact::createOperatorMV<Op>();
-//
-//	Teuchos::RCP<Belos::OutputManager<S> > MyOM =
-//	    Teuchos::rcp( new Belos::OutputManager<S>(Belos::Errors + Belos::Warnings + Belos::IterationDetails +
-//	        Belos::OrthoDetails + Belos::FinalSummary + Belos::TimingDetails +
-//	        Belos::StatusTestDetails + Belos::Debug,rcp(&out,false)) );
-//
-//	bool res =// true;
-//			Belos::TestOperatorTraits< S, BSF, BOp > (MyOM,mv,lap);
-//
-//	TEST_EQUALITY( res, true );
-//}
+TEUCHOS_UNIT_TEST( BelosOperatorMV, DivGrad ) {
+  typedef double S;
+  typedef int O;
+  typedef Pimpact::ScalarField<S,O> SF;
+  typedef Pimpact::MultiField<SF> BSF;
+
+  typedef Pimpact::Div_Grad<S,O> Op;
+  typedef Pimpact::OperatorMV<Op> BOp;
+
+	auto fS = Pimpact::createFieldSpace<O>();
+
+	auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+	auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+
+	auto temp = Pimpact::createVectorField<double,int>(fS,iIS,fIS);
+
+	auto p = Pimpact::createScalarField<S,O>(fS);
+
+	auto mv = Pimpact::createMultiField<SF>(*p,10);
+	auto mv2 = mv->clone();
+
+	auto lap = Pimpact::createOperatorMV<Op>( Teuchos::rcp( new Op(temp) ) );
+
+	Teuchos::RCP<Belos::OutputManager<S> > MyOM =
+	    Teuchos::rcp( new Belos::OutputManager<S>(Belos::Errors + Belos::Warnings + Belos::IterationDetails +
+	        Belos::OrthoDetails + Belos::FinalSummary + Belos::TimingDetails +
+	        Belos::StatusTestDetails + Belos::Debug, rcp(&out,false)) );
+
+//	mv->random();
+//	lap->apply( *mv, *mv2 );
+//	mv2->write(20);
+
+	bool res =// true;
+			Belos::TestOperatorTraits< S, BSF, BOp > (MyOM,mv,lap);
+
+	TEST_EQUALITY( res, true );
+}
 
 
 TEUCHOS_UNIT_TEST( BelosOperatorMV, CompoundStokes ) {

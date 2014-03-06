@@ -1967,12 +1967,13 @@ module mod_coeffs
   
   
   
-  !> \brief calculates differential coefficients
+  !> \brief calculates differential coefficients.
+  !!
   !! \param[in] dir direction
   !! \param[in] abl degree of derivative
   !! \param[in] upwind ?
   !! \param[in] mapping_yes ??
-  !! \param[in[ dim_ncb dimension of ??
+  !! \param[in] dim_ncb dimension of ??
   !! \param[in] n_coeff_bound ??
   !! \param[in] xC ??
   !! \param[in] xE ??

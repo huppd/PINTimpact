@@ -223,7 +223,7 @@ int main(int argi, char** argv ) {
 	  break;
 	}
 	case 2: {
-	  auto solverParams = Pimpact::createLinSolverParameter( "CG", 1.e-9*l1*l2/n1/n2 );
+	  auto solverParams = Pimpact::createLinSolverParameter( "CG", 1.e-7*l1*l2/n1/n2/1000 );
 	  solverParams->get()->set ("Verbosity", int( Belos::Errors) );
 //	  solverParams->get()->set ("Verbosity", int( Belos::Errors) );
 	  auto op = Pimpact::createHelmholtz<S,O>( 0., 1./re );
@@ -231,14 +231,14 @@ int main(int argi, char** argv ) {
 	  auto prob =
 	      Pimpact::createLinearProblem<S,Pimpact::MultiField<Pimpact::VectorField<S,O> >,Pimpact::OperatorMV< Pimpact::Helmholtz<S,O> > >(
 	          op,
-	          Pimpact::createMultiField(fu->GetVec(0).getFieldC()),
-	          Pimpact::createMultiField(fu->GetVec(0).getFieldC()), solverParams->get(),"CG" );
+	          Pimpact::createMultiField(fu->getField(0).getFieldC()),
+	          Pimpact::createMultiField(fu->getField(0).getFieldC()), solverParams->get(),"CG" );
 
 	  lprec = Pimpact::createOperatorBaseMV<MVF,Pimpact::Linv<S,O> >( Pimpact::createLinv<S,O>( prob ) );
 	  break;
 	}
 	case 3: {
-	  auto solverParams = Pimpact::createLinSolverParameter( "CG", 1.e-9*l1*l2/n1/n2 )->get();
+	  auto solverParams = Pimpact::createLinSolverParameter( "CG", 1.e-7*l1*l2/n1/n2/1000 )->get();
 	  solverParams->set ("Verbosity", int( Belos::Errors) );
 	  auto A = Pimpact::createOperatorBaseMV<MVF,Pimpact::Helmholtz<S,O> >( Pimpact::createHelmholtz<S,O>( omega, 1./re ) );
 	  auto prob2 = Pimpact::createLinearProblem<S,MVF,Pimpact::OperatorBase<MVF> >( A, fu->clone(), fu->clone(), solverParams,"CG" );

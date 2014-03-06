@@ -89,34 +89,34 @@ public:
 //      ::Pimpact::Nonlinear<typename Field::Scalar,typename Field::Ordinal> > >(
 //          op_, true )->getOperatorPtr()->setU(Teuchos::null);
 
-//    Teuchos::rcp_dynamic_cast< ::Pimpact::Nonlinear<double,int> >( nonlinear_, true )->setU( x.GetConstVec(0).clone()) ;
+//    Teuchos::rcp_dynamic_cast< ::Pimpact::Nonlinear<double,int> >( nonlinear_, true )->setU( x.getConstField(0).clone()) ;
     op_->apply( x, f );
-    f.add( 1., f, 1., *fu_ );
+    f.add( 1., f, -1., *fu_ );
     return( NOX::Abstract::Group::Ok );
   }
 
 
   /// Compute the Jacobian Operator, given the specified input vector x. Returns true if computation was successful.
   NOX::Abstract::Group::ReturnType computeJacobian( const Field& x ) {
-//    auto opJ = jop_->getProblem()->getOperator();
-//    auto opJ2 = Teuchos::rcp_const_cast<BOp>(opJ);
-//    auto opJ3 = Teuchos::rcp_dynamic_cast<
-//        ::Pimpact::OperatorPimpl<Field,::Pimpact::NonlinearJacobian<typename Field::Scalar,typename Field::Ordinal> > >( opJ2 );
-//    opJ3->getOperatorPtr()->setU( x.GetConstVec(0).clone() );
+    auto opJ = jop_->getProblem()->getOperator();
+    auto opJ2 = Teuchos::rcp_const_cast<Op>(opJ);
+    auto opJ3 = Teuchos::rcp_dynamic_cast<
+        ::Pimpact::OperatorPimpl<Field,::Pimpact::NonlinearJacobian<typename Field::Scalar,typename Field::Ordinal> > >( opJ2 );
+    opJ3->getOperatorPtr()->setU( x.getConstField(0).clone() );
 //    Teuchos::rcp_dynamic_cast<
 //      ::Pimpact::OperatorPimpl<Field,
 //      ::Pimpact::NonlinearJacobian<typename Field::Scalar,typename Field::Ordinal> > >(
 //          Teuchos::rcp_const_cast< ::Pimpact::OperatorBase<Field> >
 //          lp_->getProblem()->getOperator()
-//          , true )->getOperatorPtr()->setU( x.GetConstVec(0).clone() );
-//    Teuchos::rcp_dynamic_cast< ::Pimpact::Nonlinear<double,int> >( nonlinear_, true )->setU( x.GetConstVec(0).clone()) ;
+//          , true )->getOperatorPtr()->setU( x.getConstField(0).clone() );
+//    Teuchos::rcp_dynamic_cast< ::Pimpact::Nonlinear<double,int> >( nonlinear_, true )->setU( x.getConstField(0).clone()) ;
     return( NOX::Abstract::Group::Ok );
   }
 
   NOX::Abstract::Group::ReturnType applyJacobian( const Field& x, Field& y, Belos::ETrans type=Belos::NOTRANS ) {
 //    return( NOX::Abstract::Group::NotDefined );
     jop_->getProblem()->getOperator()->apply(x,y);
-    y.scale(-1.);
+//    y.scale(-1.);
 
     return( NOX::Abstract::Group::Ok );
 //    return( computeF( x, y ) );

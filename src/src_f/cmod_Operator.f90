@@ -3641,7 +3641,7 @@ module cmod_operator
   
   !> \brief interpolates pressure to vel nodes
   !!
-  !! \f[ inter = inter + interpolated(phi)
+  !! \f[ inter = inter + interpolated(phi) \f]
   !! Wie interpolate_pre_vel, allerdings mit fixen Index-Limiten (ohne Rand)
   !! \param[in] exch_yes indicates if fields have exchanged first
   !! \param[in] m dimension

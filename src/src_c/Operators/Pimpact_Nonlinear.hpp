@@ -31,7 +31,7 @@ private:
 public:
   Nonlinear():u_(Teuchos::null) {};
 
-  void setU(Teuchos::RCP<DomainFieldT> u) { u_=u; }
+  void setU(const Teuchos::RCP<DomainFieldT>& u) { u_=u; }
   void assignU(Teuchos::RCP<DomainFieldT> u) { u_->assign(u); }
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {

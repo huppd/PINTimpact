@@ -97,14 +97,28 @@ Teuchos::RCP< OperatorMV<Helmholtz<Scalar,Ordinal> > > createHelmholtz( Scalar m
 /// \warning does not hold test.
 template<class Scalar,class Ordinal>
 class Div_Grad {
+  Teuchos::RCP<VectorField<Scalar,Ordinal> > temp_;
+  Teuchos::RCP<Div<Scalar,Ordinal> > div_;
+  Teuchos::RCP<Grad<Scalar,Ordinal> > grad_;
 public:
 	typedef ScalarField<Scalar,Ordinal>  DomainFieldT;
 	typedef ScalarField<Scalar,Ordinal>  RangeFieldT;
 	typedef NonModeOp OpType;
 
+	Div_Grad():
+	  temp_(Teuchos::null),
+	  div_(Teuchos::rcp(new Div<Scalar,Ordinal>() )),
+	  grad_(Teuchos::rcp(new Grad<Scalar,Ordinal>() )) {};
+	Div_Grad( const Teuchos::RCP<VectorField<Scalar,Ordinal> >& temp):
+	  temp_(temp),
+	  div_(Teuchos::rcp(new Div<Scalar,Ordinal>() )),
+	  grad_(Teuchos::rcp(new Grad<Scalar,Ordinal>() )) {};
+
 	void apply(const DomainFieldT& x, RangeFieldT& y) const {
-		y.init();
-		OP_div_grad( true, x.s_, y.s_ );
+	  grad_->apply( x, *temp_ );
+	  div_->apply( *temp_, y );
+
+//		OP_div_grad( true, x.s_, y.s_ );
 	}
 
 	bool hasApplyTranspose() const { return( false ); }
@@ -142,9 +156,9 @@ public:
 				H_(H) {};
 
 	void apply(const DomainFieldT& x, RangeFieldT& y) const {
-		grad_->apply(x,temp0_->GetVec(0) );
+		grad_->apply(x,temp0_->getField(0) );
 		H_->solve( temp1_, temp0_);
-		div_->apply(temp1_->GetVec(0),y);
+		div_->apply(temp1_->getField(0),y);
 		return;
 	}
 	bool hasApplyTranspose() const { return( false ); }
@@ -255,11 +269,11 @@ public:
 				H_(H) {};
 
 	void apply(const ModeField<DomainFieldT>& x, ModeField<RangeFieldT>& y) const {
-		grad_->apply( *x.getConstFieldC(), *temp0_->GetVec(0).getFieldC() );
-		grad_->apply( *x.getConstFieldS(), *temp0_->GetVec(0).getFieldS() );
+		grad_->apply( *x.getConstFieldC(), *temp0_->getField(0).getFieldC() );
+		grad_->apply( *x.getConstFieldS(), *temp0_->getField(0).getFieldS() );
 		H_->solve( temp1_, temp0_);
-		div_->apply( *temp1_->GetVec(0).getConstFieldC(), *y.getFieldC() );
-		div_->apply( *temp1_->GetVec(0).getConstFieldS(), *y.getFieldS() );
+		div_->apply( *temp1_->getField(0).getConstFieldC(), *y.getFieldC() );
+		div_->apply( *temp1_->getField(0).getConstFieldS(), *y.getFieldS() );
 	}
 
 	bool hasApplyTranspose() const { return( false ); }
@@ -270,9 +284,14 @@ public:
 template< class Scalar, class Ordinal>
 Teuchos::RCP<OperatorMV< Div_DtLinv_Grad<Scalar,Ordinal> > > createDivDtLinvGrad(
 		Teuchos::RCP<MultiField<ModeField<VectorField<Scalar,Ordinal> > > > temp,
-		Teuchos::RCP< LinearProblem<Scalar, MultiField<ModeField<VectorField<Scalar,Ordinal> > >, OperatorMV<DtL<Scalar,Ordinal> > > > H ) {
+		Teuchos::RCP< LinearProblem<Scalar, MultiField<ModeField<VectorField<Scalar,Ordinal> > >,
+		OperatorMV<DtL<Scalar,Ordinal> > > > H ) {
 
-	return Teuchos::rcp( new OperatorMV<Div_DtLinv_Grad<Scalar,Ordinal> >( Teuchos::rcp( new Div_DtLinv_Grad<Scalar,Ordinal>( temp, H) ) ) );
+	return(
+	    Teuchos::rcp(
+	        new OperatorMV<Div_DtLinv_Grad<Scalar,Ordinal> >(
+	            Teuchos::rcp( new Div_DtLinv_Grad<Scalar,Ordinal>( temp, H) ) ) )
+	);
 }
 
 

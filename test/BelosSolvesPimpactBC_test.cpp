@@ -144,7 +144,7 @@ namespace {
 				auto B = Pimpact::createMultiField<Pimpact::VectorField<double,int> >( *vel, 1 );
 
 //			 X->Init(0.);
-			 X->GetVec(0).initField();
+			 X->getField(0).initField();
 			 B->init(1.);
 
 				auto A = Pimpact::createOperatorMV<Pimpact::Helmholtz<double,int> >();
@@ -234,7 +234,7 @@ namespace {
 					auto B = Pimpact::createMultiField<Pimpact::VectorField<double,int> >( *vel, 1 );
 
 	//			 X->Init(0.);
-				 X->GetVec(0).initField();
+				 X->getField(0).initField();
 				 B->init(1.);
 
 					auto A = Pimpact::createHelmholtz<double,int>( 0.,1.);

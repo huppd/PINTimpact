@@ -49,7 +49,7 @@ public:
 		int m = x.getNumberVecs();
 
 		for( int i=0; i<m; ++i )
-			op_->apply( x.GetConstVec(i), y.GetVec(i) );
+			op_->apply( x.getConstField(i), y.getField(i) );
 	}
 
 
@@ -80,7 +80,7 @@ private:
 		int m = x.getNumberVecs();
 
 		for( int i=0; i<m; ++i )
-			op_->apply( x.GetConstVec(i), y.GetVec(i) );
+			op_->apply( x.getConstField(i), y.getField(i) );
 	}
 
 
@@ -93,8 +93,8 @@ private:
 		int m = x.getNumberVecs();
 
 		for( int i=0; i<m; ++i ) {
-			op_->apply( *x.GetConstVec(i).getConstFieldC(), *y.GetVec(i).getFieldC() );
-			op_->apply( *x.GetConstVec(i).getConstFieldS(), *y.GetVec(i).getFieldS() );
+			op_->apply( *x.getConstField(i).getConstFieldC(), *y.getField(i).getFieldC() );
+			op_->apply( *x.getConstField(i).getConstFieldS(), *y.getField(i).getFieldS() );
 		}
 	}
 

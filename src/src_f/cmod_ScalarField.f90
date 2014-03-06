@@ -32,9 +32,6 @@ module cmod_ScalarVector
   !! \param[in] phi1 first vector from which is taken the product
   !! \param[in] phi2 second vector from which is taken the product
   !! \param[in] weighting_yes if weighting schould be used, using the \c weights from \c mod_vars
-  !! \param[in] inf_yes if true infinity norm is computed
-  !! \param[in] two_yes if trhue two norm is computed
-  !! \test if comm_cart is neccessary, or if comm is enough or even better
   subroutine SF_add(N1,N2,N3,SS1,SS2,SS3,NN1,NN2,NN3,b1L,b2L,b3L,b1U,b2U,b3U,phi,phi1,phi2,scalar1,scalar2) bind ( c, name='SF_add' )
 
   implicit none
@@ -93,8 +90,6 @@ module cmod_ScalarVector
   !! \param[in] phi1 first vector from which is taken the product
   !! \param[in] phi2 second vector from which is taken the product
   !! \param[in] weighting_yes if weighting schould be used, using the \c weights from \c mod_vars
-  !! \param[in] inf_yes if true infinity norm is computed
-  !! \param[in] two_yes if trhue two norm is computed
   subroutine SF_abs(N1,N2,N3,SS1,SS2,SS3,NN1,NN2,NN3,b1L,b2L,b3L,b1U,b2U,b3U,phi,phi1) bind ( c, name='SF_abs' )
 
   implicit none

@@ -358,14 +358,14 @@ TEUCHOS_UNIT_TEST( NOXPimpact_SimpleNonlinear, computeF ) {
 //  auto op = Pimpact::createOperatorMV<O(void);
 
   for( int i=0; i<10; ++i ) {
-    x->GetFieldPtr(i)->initField(Pimpact::Circle2D );
+    x->getFieldPtr(i)->initField(Pimpact::Circle2D );
   }
 //  x->random();
-x->GetFieldPtr(0)->write();
+x->getFieldPtr(0)->write();
 
   op->apply( *x, *y);
 
-  y->GetFieldPtr(0)->write(99);
+  y->getFieldPtr(0)->write(99);
 
   auto lp = Pimpact::createLinearProblem<S,MVF,BOP>(
         op, x->clone(), y->clone(), Pimpact::createLinSolverParameter("GMRES",1.e-12)->get(), "GMRES");
