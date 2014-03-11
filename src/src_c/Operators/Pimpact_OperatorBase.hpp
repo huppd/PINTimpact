@@ -23,6 +23,7 @@ public:
 //  virtual void apply( const MV& x, MV& y, Belos::ETrans trans=Belos::NOTRANS ) const =0 ;
 //  virtual bool hasApplyTranspose() const =0;
   virtual void apply( const MV& x, MV& y, Belos::ETrans trans=Belos::NOTRANS ) const {} ;
+//  virtual void setVector( const Teuchos::RCP<MV>& x ) {};
   virtual bool hasApplyTranspose() const {return( false );};
 }; // end of class OperatorBase
 
@@ -39,6 +40,8 @@ public:
   virtual void apply( const MV& x, MV& y, Belos::ETrans trans=Belos::NOTRANS ) const {
     opm_->apply( x, y, trans );
   }
+
+//  virtual void setVector( const Teuchos::RCP<MV>& x ) { opm_->set( x ) };
 
   virtual bool hasApplyTranspose() const {
     return( opm_->hasApplyTranspose() );

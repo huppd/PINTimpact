@@ -60,8 +60,8 @@ public:
 protected:
 
   Teuchos::RCP<Field> fu_;
-  Teuchos::RCP<Op>   op_;
-  Teuchos::RCP<JOp>    jop_;
+  Teuchos::RCP<Op>    op_;
+  Teuchos::RCP<JOp>  jop_;
 
 public:
 

@@ -36,7 +36,7 @@ public:
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
 //    u_.assing( x );
-    if( Teuchos::is_null( u_) )
+    if( Teuchos::is_null(u_) )
       OP_nonlinear( true,
           x.vec_[0],x.vec_[1],x.vec_[2],
           x.vec_[0],x.vec_[1],x.vec_[2],
@@ -48,8 +48,14 @@ public:
           y.vec_[0],y.vec_[1],y.vec_[2] );
     return;
   }
-  bool hasApplyTranspose() const { return( true ); }
+  bool hasApplyTranspose() const { return( false ); }
 };
+
+
+template< class S, class O >
+Teuchos::RCP<Nonlinear<S,O> > createNonlinear() {
+  return( Teuchos::rcp( new Nonlinear<S,O>() ) );
+}
 
 template<class Scalar,class Ordinal>
 class NonlinearJacobian {
@@ -67,7 +73,10 @@ public:
     u_=u;
     temp_=u->clone(ShallowCopy);
   }
-  void assignU(Teuchos::RCP<DomainFieldT> u) { u_->assign(u); }
+  void assignU(Teuchos::RCP<DomainFieldT> u) {
+    u_->add( 0., u_, 1., u );
+//    u_->assign(u);
+  }
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
 //    u_.assing( x );
@@ -84,8 +93,14 @@ public:
 
     return;
   }
-  bool hasApplyTranspose() const { return( true ); }
-};
+  bool hasApplyTranspose() const { return( false ); }
+}; // end of class NonlinearJacobian
+
+
+template< class S, class O>
+Teuchos::RCP<NonlinearJacobian<S,O> > createNonlinearJacobian() {
+  return( Teuchos::rcp( new NonlinearJacobian<S,O>() ) );
+}
 
 //template<class Scalar,class Ordinal>
 //class nonlinear_Udx {

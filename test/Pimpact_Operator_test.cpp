@@ -18,6 +18,7 @@
 #include "Pimpact_EddyPrec.hpp"
 #include "Pimpact_Nonlinear.hpp"
 #include "Pimpact_DivOpGrad.hpp"
+#include "Pimpact_CompoundOp.hpp"
 #include "Pimpact_Operator.hpp"
 #include "Pimpact_OperatorMV.hpp"
 #include "Pimpact_OperatorBase.hpp"
@@ -489,4 +490,50 @@ x->getFieldPtr(0)->write();
 
 }
 
+
+TEUCHOS_UNIT_TEST( Operator, compoundOp ) {
+  using Teuchos::ParameterList;
+  using Teuchos::parameterList;
+  using Teuchos::RCP;
+  using Teuchos::rcp; // Save some typing
+
+  typedef double S;
+  typedef int O;
+  typedef Pimpact::VectorField<S,O>     VF;
+  typedef Pimpact::MultiField<VF>      MVF;
+  typedef Pimpact::Helmholtz<S,O>      OP1;
+  typedef Pimpact::Nonlinear<S,O>      OP2;
+  typedef Pimpact::CompoundOp<OP1,OP2> COP;
+  typedef Pimpact::OperatorBase<MVF>   BOP;
+
+  auto fS = Pimpact::createFieldSpace<O>();
+  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+
+  auto vel = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
+
+
+  auto x = Pimpact::createMultiField<VF>(*vel->clone(),10);
+  auto y = Pimpact::createMultiField<VF>(*vel->clone(),10);
+
+//  auto op = Pimpact::createOperatorBase<MVF,COP>();
+  auto op = Pimpact::createOperatorBase<MVF,COP>(
+      Pimpact::createCompoundOp<OP1,OP2>(
+          Teuchos::rcp( new Pimpact::Helmholtz<S,O>() ),
+//          Pimpact::createHelmholtz<S,O>(),
+          Pimpact::createNonlinear<S,O>(),
+          vel->clone() ) );
+//  auto op = Pimpact::createOperatorMV<O(void);
+
+  for( int i=0; i<10; ++i ) {
+    x->getFieldPtr(i)->initField(Pimpact::Circle2D );
+  }
+//  x->random();
+x->getFieldPtr(0)->write();
+
+  op->apply( *x, *y);
+
+  y->getFieldPtr(0)->write(99);
+
+}
 } // namespace

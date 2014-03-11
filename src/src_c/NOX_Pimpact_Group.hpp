@@ -174,6 +174,9 @@ public:
         sharedInterface(*sharedInterfacePtr),
         linearResidCompDisabled(false) {
     // Set all isValid flags to false
+//    xVector.getField().write(0);
+//    RHSVector.getField().write(1);
+//    NewtonVector.getField().write(2);
     resetIsValid();
   }
 
@@ -434,6 +437,7 @@ public:
 
     // Zero out the Newton Vector
     NewtonVector.init( 0.0 );
+//    NewtonVector.getField().getField(0).initField(::Pimpact::ZeroProf);
 
     // Create Epetra problem for the linear solve
     status = applyJacobianInverse(params, RHSVector, NewtonVector);
@@ -456,10 +460,10 @@ public:
 
 
   //@}
-  /** \name Jacobian operations.
-   *
-   * Operations using the Jacobian matrix. These may not be defined in
-   * matrix-free scenarios. */
+  /// \name Jacobian operations.
+  ///
+  /// Operations using the Jacobian matrix. These may not be defined in
+  /// matrix-free scenarios.
   //@{
 
   virtual NOX::Abstract::Group::ReturnType

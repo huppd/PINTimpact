@@ -57,43 +57,37 @@ public:
 
 	//@{ \name Initialization methods.
 
-  /**
-   * \brief Initialize every element of this vector with \c gamma.
-   *
-   * Here x represents this vector, and we update it as
-   * \f[ x_i = \gamma \quad \mbox{for } i=1,\dots,n \f]
-   * \return Reference to this object
-   */
+  /// \brief Initialize every element of this vector with \c gamma.
+  ///
+  /// Here x represents this vector, and we update it as
+  /// \f[ x_i = \gamma \quad \mbox{for } i=1,\dots,n \f]
+  /// \return Reference to this object
   virtual NOX::Abstract::Vector& init( double gamma=0 ) {
   	field_->init( static_cast<typename Field::Scalar>(gamma) );
   	return( *this );
   }
 
 
-  /**
-   * \brief Initialize each element of this vector with a random value.
-   *
-   * If \c useSeed is true, uses the value of \c seed to seed the
-   * random number generator before filling the entries of this
-   * vector. So, if two calls are made where \c useSeed is true and \c
-   * seed is the same, then the vectors returned should be the same.
-   * Default implementation throw an error. Only referenced by LOCA methods.
-   * \return Reference to this object
-   */
+  /// \brief Initialize each element of this vector with a random value.
+  ///
+  /// If \c useSeed is true, uses the value of \c seed to seed the
+  /// random number generator before filling the entries of this
+  /// vector. So, if two calls are made where \c useSeed is true and \c
+  /// seed is the same, then the vectors returned should be the same.
+  /// Default implementation throw an error. Only referenced by LOCA methods.
+  /// \return Reference to this object
   virtual NOX::Abstract::Vector& random(bool useSeed = false, int seed = 1) {
   	field_->random( useSeed, seed );
   	return( *this );
   }
 
 
-  /**
-   * \brief Put element-wise absolute values of source vector \c y into this
-   * vector.
-   *
-   * Here x represents this vector, and we update it as
-   * \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
-   * \return Reference to this object
-   */
+  /// \brief Put element-wise absolute values of source vector \c y into this
+  /// vector.
+  ///
+  /// Here x represents this vector, and we update it as
+  /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
+  /// \return Reference to this object
   virtual NOX::Abstract::Vector& abs(const Vector<Field>& y) {
     field_->abs( *y.field_ );
   	return( *this );
@@ -103,13 +97,11 @@ public:
   }
 
 
-  /**
-   * \brief Copy source vector \c y into this vector.
-   *
-   * Here x represents this vector, and we update it as
-   * \f[ x_i = y_i \quad \mbox{for } i=1,\dots,n \f]
-   * \return Reference to this object
-   */
+  /// \brief Copy source vector \c y into this vector.
+  ///
+  /// Here x represents this vector, and we update it as
+  /// \f[ x_i = y_i \quad \mbox{for } i=1,\dots,n \f]
+  /// \return Reference to this object
   virtual NOX::Abstract::Vector& operator=(const Vector<Field>& y) {
   	field_->assign( *y.field_ );
   	return( *this );
@@ -119,13 +111,11 @@ public:
   }
 
 
-  /**
-   * \brief Put element-wise reciprocal of source vector \c y into this vector.
-   *
-   * Here x represents this vector, and we update it as
-   * \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
-   * \return Reference to this object
-   */
+  /// \brief Put element-wise reciprocal of source vector \c y into this vector.
+  ///
+  /// Here x represents this vector, and we update it as
+  /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
+  /// \return Reference to this object
   virtual NOX::Abstract::Vector& reciprocal(const Vector<Field>& y){
     field_->reciprocal( *y.field_ );
   	return( *this );
@@ -136,29 +126,24 @@ public:
 
 
   //@}
-
   //@{ \name Update methods.
 
-  /**
-   * \brief Scale each element of this vector by \c gamma.
-   *
-   * Here x represents this vector, and we update it as
-   * \f[ x_i = \gamma x_i \quad \mbox{for } i=1,\dots,n \f]
-   * \return Reference to this object
-  */
+  /// \brief Scale each element of this vector by \c gamma.
+  ///
+  /// Here x represents this vector, and we update it as
+  /// \f[ x_i = \gamma x_i \quad \mbox{for } i=1,\dots,n \f]
+  /// \return Reference to this object
   virtual NOX::Abstract::Vector& scale(double gamma) {
   	field_->scale( static_cast<typename Field::Scalar>(gamma) );
   	return( *this );
   }
 
 
-  /**
-   * \brief Scale this vector <em>element-by-element</em> by the vector a.
-   *
-   * Here x represents this vector, and we update it as
-   * \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
-   * \return Reference to this object
-   */
+  /// \brief Scale this vector <em>element-by-element</em> by the vector a.
+  ///
+  /// Here x represents this vector, and we update it as
+  /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
+  /// \return Reference to this object
   virtual NOX::Abstract::Vector& scale(const Vector<Field>& a) {
     field_->scale( *a.field_ );
   	return( *this );
@@ -168,14 +153,12 @@ public:
   }
 
 
-  /**
-   * \brief Compute x = (alpha * a) + (gamma * x) where x is this vector.
-   *
-   * Here x represents this vector, and we update it as
-   * \f[ x_i = \alpha \; a_i + \gamma \; x_i \quad \mbox{for } i=1,\dots,n \f]
-   * \return Reference to this object
-   * \todo test me good
-   */
+  /// \brief Compute x = (alpha * a) + (gamma * x) where x is this vector.
+  ///
+  /// Here x represents this vector, and we update it as
+  /// \f[ x_i = \alpha \; a_i + \gamma \; x_i \quad \mbox{for } i=1,\dots,n \f]
+  /// \return Reference to this object
+  /// \todo test me good
   virtual NOX::Abstract::Vector& update(double alpha, const Vector<Field>& a, double gamma = 0.0) {
   	field_->add( alpha, *a.field_, gamma, *field_);
   	return( *this );
@@ -185,14 +168,12 @@ public:
   }
 
 
-  /**
-   * \brief Compute x = (alpha * a) + (beta * b) + (gamma * x) where x is this vector.
-   *
-   * Here x represents this vector, and we update it as
-   * \f[ x_i = \alpha \; a_i + \beta \; b_i + \gamma \; x_i \quad \mbox{for } i=1,\dots,n \f]
-   * \return Reference to this object
-   * \todo test me
-   */
+  /// \brief Compute x = (alpha * a) + (beta * b) + (gamma * x) where x is this vector.
+  ///
+  /// Here x represents this vector, and we update it as
+  /// \f[ x_i = \alpha \; a_i + \beta \; b_i + \gamma \; x_i \quad \mbox{for } i=1,\dots,n \f]
+  /// \return Reference to this object
+  /// \todo test me
   virtual NOX::Abstract::Vector& update(
   		double alpha, const Vector<Field>& a,
 			double beta, const Vector<Field>& b,
@@ -216,20 +197,18 @@ public:
   //@}
   //@{ \name Creating new Vectors.
 
-  /**
-   * \brief Create a new %Vector of the same underlying type by
-   * cloning "this", and return a pointer to the new vector.
-   *
-   * If type is NOX::DeepCopy, then we need to create an exact replica of
-   * "this". Otherwise, if type is NOX::ShapeCopy, we need only replicate the
-   * shape of "this" (the memory is allocated for the objects, but the current
-   * values are not copied into the vector). Note that there is <em>no
-   * assumption</em> that a vector created by ShapeCopy is initialized to zeros.
-   * \return Pointer to newly created vector or NULL if clone is not supported.
-   * \todo implement
-   * \warning only Deep copy is working
-   * \todo fix schallow copy
-   */
+  /// \brief Create a new %Vector of the same underlying type by
+  /// cloning "this", and return a pointer to the new vector.
+  ///
+  /// If type is NOX::DeepCopy, then we need to create an exact replica of
+  /// "this". Otherwise, if type is NOX::ShapeCopy, we need only replicate the
+  /// shape of "this" (the memory is allocated for the objects, but the current
+  /// values are not copied into the vector). Note that there is <em>no
+  /// assumption</em> that a vector created by ShapeCopy is initialized to zeros.
+  /// \return Pointer to newly created vector or NULL if clone is not supported.
+  /// \todo implement
+  /// \warning only Deep copy is working
+  /// \todo fix schallow copy
   virtual Teuchos::RCP<NOX::Abstract::Vector >
   clone(NOX::CopyType type = NOX::DeepCopy) const {
   	switch(type) {
@@ -245,25 +224,21 @@ public:
   }
 
 
-  /**
-   * \brief Create a MultiVector with \c numVecs+1 columns out of an array of 
-   * Vectors.  The vector stored under \c this will be the first column with
-   * the remaining \c numVecs columns given by \c vecs.
-   *
-   * The default implementation creates a generic NOX::MultiVector with
-   * either Shape or Deep copies of the supplied vectors.
-   */
+  /// \brief Create a MultiVector with \c numVecs+1 columns out of an array of
+  /// Vectors.  The vector stored under \c this will be the first column with
+  /// the remaining \c numVecs columns given by \c vecs.
+  ///
+  /// The default implementation creates a generic NOX::MultiVector with
+  /// either Shape or Deep copies of the supplied vectors.
 //  virtual Teuchos::RCP<NOX::Pimpact::MultiVector>
 //  createMultiVector(const Vector<Field>* const* vecs,
 //		    int numVecs, NOX::CopyType type = NOX::DeepCopy) const;
 
 
-  /**
-   * \brief Create a MultiVector with \c numVecs columns.  
-   *
-   * The default implementation creates a generic NOX::MultiVector with
-   * either Shape or Deep copies of the supplied vector.
-   */
+  /// \brief Create a MultiVector with \c numVecs columns.
+  ///
+  /// The default implementation creates a generic NOX::MultiVector with
+  /// either Shape or Deep copies of the supplied vector.
 //  virtual Teuchos::RCP<NOX::Pimpact::MultiVector>
 //  createMultiVector(int numVecs, NOX::CopyType type = NOX::DeepCopy) const;
 
@@ -271,18 +246,16 @@ public:
   //@}
   //@{ \name Norms.
 
-  /**
-   * \brief Norm.
-   *
-   * Here x represents this vector, and we compute its norm as follows:
-   * for each NOX::PIMPACT::Vector::NormType:
-   * <ul>
-   * <li>  NOX::PIMPACT::Vector::TwoNorm  \f[ \|x\| = \sqrt{\sum_{i=1}^{n} x_i^2} \f]
-   * <li>  NOX::PIMPACT::Vector::OneNorm  \f[ \|x\| = \sum_{i=1}^{n} |x_i| \f]
-   * <li>  NOX::PIMPACT::Vector::MaxNorm  \f[ \|x\| = \max_{i} |x_i| \f]
-   * </uL>
-   * \return \f$\|x\|\f$
-   */
+  /// \brief Norm.
+  ///
+  /// Here x represents this vector, and we compute its norm as follows:
+  /// for each NOX::PIMPACT::Vector::NormType:
+  /// <ul>
+  /// <li>  NOX::PIMPACT::Vector::TwoNorm  \f[ \|x\| = \sqrt{\sum_{i=1}^{n} x_i^2} \f]
+  /// <li>  NOX::PIMPACT::Vector::OneNorm  \f[ \|x\| = \sum_{i=1}^{n} |x_i| \f]
+  /// <li>  NOX::PIMPACT::Vector::MaxNorm  \f[ \|x\| = \max_{i} |x_i| \f]
+  /// </uL>
+  /// \return \f$\|x\|\f$
   virtual double norm( NOX::Abstract::Vector::NormType type=NOX::Abstract::Vector::TwoNorm) const {
   	switch( type ) {
   	case TwoNorm: return( field_->norm( Belos::TwoNorm ) );
@@ -293,13 +266,11 @@ public:
   }
 
 
-  /**
-   * \brief Weighted 2-Norm.
-   *
-   * Here x represents this vector, and we compute its weighted norm as follows:
-   * \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
-   * \return \f$ \|x\|_w \f$
-   */
+  /// \brief Weighted 2-Norm.
+  ///
+  /// Here x represents this vector, and we compute its weighted norm as follows:
+  /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
+  /// \return \f$ \|x\|_w \f$
   virtual double norm(const Vector<Field>& weights) const {
   	return( field_->norm( *weights.field_) );
   }
@@ -311,14 +282,12 @@ public:
   //@}
   //@{ \name Inner product.
 
-  /**
-   * \brief Inner product with \c y.
-   *
-   * Here x represents this vector, and we compute its inner product with y as
-   * follows:
-   * \f[ \langle x,y \rangle = \sum_{i=1}^n x_i y_i \f]
-   * \return \f$\langle x,y \rangle\f$
-   */
+  /// \brief Inner product with \c y.
+  ///
+  /// Here x represents this vector, and we compute its inner product with y as
+  /// follows:
+  /// \f[ \langle x,y \rangle = \sum_{i=1}^n x_i y_i \f]
+  /// \return \f$\langle x,y \rangle\f$
   virtual double innerProduct( const Vector<Field>& y ) const {
   	return( field_->dot( *y.field_ ) );
   }
@@ -329,13 +298,11 @@ public:
 
   //@}
 
-  /**
-   * \brief Return the length of vector.
-   *
-   * \return The length of this vector
-   * \note Even if the vector is distributed across processors, this
-   * should return the <em> global length </em> of the vector.
-   */
+  /// \brief Return the length of vector.
+  ///
+  /// \return The length of this vector
+  /// \note Even if the vector is distributed across processors, this
+  /// should return the <em> global length </em> of the vector.
   virtual int length() const {
   	return( field_->getLength(true) );
   }

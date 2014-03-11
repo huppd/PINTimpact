@@ -262,13 +262,25 @@ void VF_init_Circle(
     const int& b1U, const int& b2U, const int& b3U,
     double* phiU, double* phiV, double* phiW );
 
+
+void VF_init_RankineVortex(
+    const int& N1,  const int& N2,  const int& N3,
+    const int& S1U, const int& S2U, const int& S3U,
+    const int& N1U, const int& N2U, const int& N3U,
+    const int& S1V, const int& S2V, const int& S3V,
+    const int& N1V, const int& N2V, const int& N3V,
+    const int& S1W, const int& S2W, const int& S3W,
+    const int& N1W, const int& N2W, const int& N3W,
+    const int& b1L, const int& b2L, const int& b3L,
+    const int& b1U, const int& b2U, const int& b3U,
+    double* phiU, double* phiV, double* phiW );
+
 }
 
 
-/** \brief important basic Vector class
- * vector for a vector field, e.g.: velocity,
- * here also happens the fortran wrapping
- */
+/// \brief important basic Vector class
+/// vector for a vector field, e.g.: velocity,
+/// here also happens the fortran wrapping
 template<class S, class O>
 class VectorField {
 
@@ -293,7 +305,7 @@ private:
 
 //	using Teuchos::RCP;
 	typedef Scalar* ScalarArray;
-	typedef VectorField<Scalar,Ordinal> MV;
+	typedef VectorField<Scalar,Ordinal> VF;
 
 public:
 	typedef Teuchos::ArrayRCP< Teuchos::RCP<const IndexSpace<Ordinal> > >  IndexSpaces;
@@ -315,14 +327,14 @@ public:
 		}
 	};
 
-	/**
-	 * \brief copy constructor.
-	 *
-	 * shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
-	 * @param sF
-	 * @param copyType by default a ShallowCopy is done but allows also to deepcopy the field
-	 */
-	VectorField(const VectorField& vF, ECopyType copyType=ShallowCopy):fieldS_(vF.fieldS_),innerIS_(vF.innerIS_),fullIS_(vF.fullIS_) {
+	/// \brief copy constructor.
+	///
+	/// shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
+	/// \param sF
+	/// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
+	VectorField(const VectorField& vF, ECopyType copyType=DeepCopy):
+	    fieldS_(vF.fieldS_),innerIS_(vF.innerIS_),fullIS_(vF.fullIS_) {
+
 		Ordinal N = 1;
 		for(int i=0; i<3; ++i)
 			N *= nLoc(i)+bu(i)-bl(i);
@@ -350,24 +362,24 @@ public:
 
 	~VectorField() { for(int i=0; i<3; ++i) delete[] vec_[i];}
 
-	Teuchos::RCP<MV> clone( ECopyType ctype=DeepCopy ) const {
-	  return( Teuchos::rcp( new MV( *this, ctype ) ) );
+	Teuchos::RCP<VF> clone( ECopyType ctype=DeepCopy ) const {
+	  return( Teuchos::rcp( new VF( *this, ctype ) ) );
 	}
 
-  //! \name Attribute methods
+  /// \name Attribute methods
   //@{
 
+	/// \brief get \c FieldSpace.
 	Teuchos::RCP<const FieldSpace<Ordinal> > getFieldSpace() const { return( fieldS_ ); }
 
 
-	/**
-	 * \brief returns the length of Field.
-	 * the vector length is withregard to the inner points such that
-	 * \f[ N_u = (N_x-1)(N_y-2)(N_z-?) \]
-	 * \f[ N_v = (N_x-2)(N_y-1)(N_z-?) \]
-	 * \f[ N_w = (N_x-?)(N_y-?)(N_z-?) \]
-	 * @return vect length \f[= N_u+N_v+N+w]f
-	 */
+	/// \brief returns the length of Field.
+	///
+	/// the vector length is withregard to the inner points such that
+	/// \f[ N_u = (N_x-1)(N_y-2)(N_z-?) \f]
+	/// \f[ N_v = (N_x-2)(N_y-1)(N_z-?) \f]
+	/// \f[ N_w = (N_x-?)(N_y-?)(N_z-?) \f]
+	/// \return vect length \f[= N_u+N_v+N_w\f]
 	Ordinal getLength( bool dummy=false ) const {
   	Ordinal n = 0;
   	for( int i=0; i<dim(); ++i ) {
@@ -389,11 +401,13 @@ public:
 
 
 	//@}
-	/// @name Update methods
+	/// \name Update methods
 	//@{
 
 	/// \brief Replace \c this with \f$\alpha A + \beta B\f$.
-	void add( const Scalar& alpha, const MV& A, const Scalar& beta, const MV& B ) {
+	///
+	/// only inner points.
+	void add( const Scalar& alpha, const VF& A, const Scalar& beta, const VF& B ) {
 		// add test for consistent VectorSpaces in debug mode
 		for( int i=0; i<dim(); ++i )
 			SF_add(
@@ -406,16 +420,13 @@ public:
 	}
 
 
-  /**
-   * \brief Put element-wise absolute values of source vector \c y into this
-   * vector.
-   *
-   * Here x represents this vector, and we update it as
-   * \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
-   * \return Reference to this object
-   * \todo implement me
-   */
-  void abs(const MV& y) {
+   /// \brief Put element-wise absolute values of source vector \c y into this
+   /// vector.
+   ///
+   /// Here x represents this vector, and we update it as
+   /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
+   /// \return Reference to this object
+  void abs(const VF& y) {
     for( int i=0; i<dim(); ++i )
       SF_abs(
           nLoc(0), nLoc(1), nLoc(2),
@@ -427,15 +438,12 @@ public:
   }
 
 
-  /**
-    * \brief Put element-wise reciprocal of source vector \c y into this vector.
-    *
-    * Here x represents this vector, and we update it as
-    * \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
-    * \return Reference to this object
-    * \todo implement me
-    */
-  void reciprocal(const MV& y){
+  /// \brief Put element-wise reciprocal of source vector \c y into this vector.
+  ///
+  /// Here x represents this vector, and we update it as
+  /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
+  /// \return Reference to this object
+  void reciprocal(const VF& y){
     // add test for consistent VectorSpaces in debug mode
     for( int i=0; i<dim(); ++i)
       SF_reciprocal(
@@ -461,15 +469,12 @@ public:
 	}
 
 
-  /**
-   * \brief Scale this vector <em>element-by-element</em> by the vector a.
-   *
-   * Here x represents this vector, and we update it as
-   * \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
-   * \return Reference to this object
-   * \todo implement me
-   */
-  void scale(const MV& a) {
+  /// \brief Scale this vector <em>element-by-element</em> by the vector a.
+  ///
+  /// Here x represents this vector, and we update it as
+  /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
+  /// \return Reference to this object
+  void scale(const VF& a) {
     // add test for consistent VectorSpaces in debug mode
     for(int i=0; i<dim(); ++i)
       SF_scale2(
@@ -483,8 +488,8 @@ public:
 
 
 	/// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
-	Scalar dot ( const MV& a ) const {
-		/// \todo add test in debuging mode for testing equality of VectorSpaces
+	/// \todo add test in debuging mode for testing equality of VectorSpaces
+	Scalar dot ( const VF& a ) const {
 		Scalar b;
 		VF_dot(
 				commf(), dim(),
@@ -508,13 +513,11 @@ public:
   /// @name Norm method
   //@{
 
-  /**
-   * \brief Compute the norm of each individual vector.
-   * Upon return, \c normvec[i] holds the value of \f$||this_i||_2^2\f$, the \c i-th column of \c this.
-   * \attention the two norm is not the real two norm but its square
-   * \todo implement OneNorm
-   * \todo implement in fortran
-   */
+  /// \brief Compute the norm of each individual vector.
+  ///
+  /// Upon return, \c normvec[i] holds the value of \f$||this_i||_2^2\f$, the \c i-th column of \c this.
+  /// \attention the two norm is not the real two norm but its square
+  /// \todo implement OneNorm
 	Scalar norm(  Belos::NormType type = Belos::TwoNorm ) const {
 		bool twoNorm_yes = false;
   	bool infNorm_yes = false;
@@ -545,14 +548,12 @@ public:
   }
 
 
-  /**
-   * \brief Weighted 2-Norm.
-   *
-   * Here x represents this vector, and we compute its weighted norm as follows:
-   * \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
-   * \return \f$ \|x\|_w \f$
-   */
-  double norm(const MV& weights) const {
+  /// \brief Weighted 2-Norm.
+  ///
+  /// Here x represents this vector, and we compute its weighted norm as follows:
+  /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
+  /// \return \f$ \|x\|_w \f$
+  double norm(const VF& weights) const {
     Scalar normvec;
     VF_weightedNorm(
   	    commf(), dim(),
@@ -573,15 +574,14 @@ public:
 
 
   //@}
-  //! @name Initialization methods
+  /// \name Initialization methods
   //@{
 
 
-  /**
-   * \brief mv := A
-   * Assign (deep copy) A into mv.
-   */
-  void assign( const MV& a ) {
+  /// \brief mv := A
+  ///
+  /// Assign (deep copy) A into mv.
+  void assign( const VF& a ) {
   	#ifdef DEBUG
   	for(int i=0; i<3; ++i) {
   		TEST_EQUALITY( nLoc(i), a.Nloc(i) )
@@ -601,10 +601,9 @@ public:
   }
 
 
-  /**
-   * \brief Replace the vectors with a random vectors.
-   * depending on Fortrans \c Random_number implementation, with always same seed => not save, if good randomness is requiered
-   */
+  /// \brief Replace the vectors with a random vectors.
+  ///
+  /// depending on Fortrans \c Random_number implementation, with always same seed => not save, if good randomness is requiered
   void random(bool useSeed = false, int seed = 1) {
   	for( int i=0; i<dim(); ++i )
 			SF_random(
@@ -630,7 +629,7 @@ public:
 
 
   /// \brief Replace each element of the vector \c vec[i] with \c alpha[i].
-   void init( const Teuchos::Tuple<Scalar,3>& alpha ) {
+  void init( const Teuchos::Tuple<Scalar,3>& alpha ) {
    	for( int i=0; i<dim(); ++i )
  			SF_init(
  				nLoc(0), nLoc(1), nLoc(2),
@@ -762,6 +761,19 @@ public:
           bu(0),   bu(1),   bu(2),
           vec_[0], vec_[1], vec_[2] );
       break;
+    case RankineVortex2D:
+      VF_init_RankineVortex(
+          nLoc(0), nLoc(1), nLoc(2),
+          sIndB(0,0), sIndB(1,0), sIndB(2,0),
+          eIndB(0,0), eIndB(1,0), eIndB(2,0),
+          sIndB(0,1), sIndB(1,1), sIndB(2,1),
+          eIndB(0,1), eIndB(1,1), eIndB(2,1),
+          sIndB(0,2), sIndB(1,2), sIndB(2,2),
+          eIndB(0,2), eIndB(1,2), eIndB(2,2),
+          bl(0),   bl(1),   bl(2),
+          bu(0),   bu(1),   bu(2),
+          vec_[0], vec_[1], vec_[2] );
+      break;
     }
   }
 
@@ -827,10 +839,8 @@ protected:
 	Teuchos::Tuple<ScalarArray,3> vec_;
 //	ScalarArray vec_[3];
 
-	/**
-	 * \todo add good documetnation here
-	 * @return
-	 */
+	/// \todo add good documetnation here
+	/// @return
 	const MPI_Fint& commf()                     const { return( fieldS_->commf_  ); }
 	MPI_Comm        comm()                      const { return( fieldS_->comm_   ); }
 	const int&      dim()                       const { return( fieldS_->dim_    ); }
@@ -846,11 +856,7 @@ protected:
 }; //class VectorField
 
 
-/** @brief creates a vector field(vector) belonging to a \c FieldSpace and two \c IndexSpaces
- *
- * @param sVS scalar Vector Space to which returned vector belongs
- * @return field vector
- */
+/// \brief creates a vector field(vector) belonging to a \c FieldSpace and two \c IndexSpaces
 template<class Scalar, class Ordinal>
 Teuchos::RCP< VectorField<Scalar,Ordinal> > createVectorField(
 		const Teuchos::RCP<const FieldSpace<Ordinal> >& fieldS,

@@ -57,7 +57,7 @@ public:
       parameter_->set( "Maximum Iterations",        500    );
 			parameter_->set( "Maximum Restarts",					20		 );
 //
-			parameter_->set( "Num Recycled Blocks",				1		   );
+			parameter_->set( "Num Recycled Blocks",				5		   );
 
 			parameter_->set( "Convergence Tolerance",			tol    );
 //			parameter_->set( "Orthogonalization",					"DGKS" );

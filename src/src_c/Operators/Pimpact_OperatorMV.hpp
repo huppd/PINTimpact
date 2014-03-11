@@ -115,4 +115,5 @@ Teuchos::RCP< OperatorMV<Operator> > createOperatorMV( const Teuchos::RCP<Operat
 
 } // end of namespace Pimpact
 
+
 #endif // end of #ifndef PIMPACT_OPERATORMV_HPP

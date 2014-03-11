@@ -10,48 +10,51 @@
 #include"Pimpact_OperatorMV.hpp"
 #include"Pimpact_LinearProblem.hpp"
 
+#include "Pimpact_GradOp.hpp"
+#include "Pimpact_DivOp.hpp"
+
 namespace Pimpact{
 
 
 extern "C" {
-	void OP_grad( const int& m, double* phi, double *grad );
-  void OP_div( double* phiU, double* phiV, double* phiW, double* div);
+//	void OP_grad( const int& m, double* phi, double *grad );
+//  void OP_div( double* phiU, double* phiV, double* phiW, double* div);
   void OP_helmholtz( const int& m, const bool& exch_yes, const double& mulI, const double& multL, double* phi, double* Lap);
   void OP_div_grad( const bool& corner_yes, double* phi, double* lap );
   void OP_bc_extrapolation( const int& m, double* phi );
 }
 
 
-template<class Scalar,class Ordinal>
-class Grad {
-public:
-	typedef ScalarField<Scalar,Ordinal>  DomainFieldT;
-	typedef VectorField<Scalar,Ordinal>  RangeFieldT;
-	typedef NonModeOp OpType;
+//template<class Scalar,class Ordinal>
+//class Grad {
+//public:
+//	typedef ScalarField<Scalar,Ordinal>  DomainFieldT;
+//	typedef VectorField<Scalar,Ordinal>  RangeFieldT;
+//	typedef NonModeOp OpType;
+//
+//	void apply(const DomainFieldT& x, RangeFieldT& y) const {
+//		int dim = x.getFieldSpace()->dim_;
+//		for( int i=0; i<dim; ++i) {
+//			OP_grad(i+1,x.s_,y.vec_[i]);
+////				OP_bc_extrapolation( i+1, y.vec_[i] );
+//		}
+//	}
+//	bool hasApplyTranspose() const { return( false ); }
+//};
 
-	void apply(const DomainFieldT& x, RangeFieldT& y) const {
-		int dim = x.getFieldSpace()->dim_;
-		for( int i=0; i<dim; ++i) {
-			OP_grad(i+1,x.s_,y.vec_[i]);
-//				OP_bc_extrapolation( i+1, y.vec_[i] );
-		}
-	}
-	bool hasApplyTranspose() const { return( false ); }
-};
 
-
-template<class Scalar,class Ordinal>
-class Div {
-public:
-	typedef VectorField<Scalar,Ordinal>  DomainFieldT;
-	typedef ScalarField<Scalar,Ordinal>  RangeFieldT;
-	typedef NonModeOp OpType;
-
-	void apply(const DomainFieldT& x, RangeFieldT& y) const {
-		OP_div(x.vec_[0],x.vec_[1],x.vec_[2],y.s_);
-	}
-	bool hasApplyTranspose() const { return( false ); }
-};
+//template<class Scalar,class Ordinal>
+//class Div {
+//public:
+//	typedef VectorField<Scalar,Ordinal>  DomainFieldT;
+//	typedef ScalarField<Scalar,Ordinal>  RangeFieldT;
+//	typedef NonModeOp OpType;
+//
+//	void apply(const DomainFieldT& x, RangeFieldT& y) const {
+//		OP_div(x.vec_[0],x.vec_[1],x.vec_[2],y.s_);
+//	}
+//	bool hasApplyTranspose() const { return( false ); }
+//};
 
 
 
@@ -84,7 +87,7 @@ public:
 
 
 template<class Scalar,class Ordinal>
-Teuchos::RCP< OperatorMV<Helmholtz<Scalar,Ordinal> > > createHelmholtz( Scalar mulI, Scalar mulL ) {
+Teuchos::RCP< OperatorMV<Helmholtz<Scalar,Ordinal> > > createHelmholtz( Scalar mulI=0., Scalar mulL=1. ) {
 	return(
 	    Teuchos::rcp( new OperatorMV<Helmholtz<Scalar,Ordinal> >( Teuchos::rcp( new Helmholtz<Scalar,Ordinal>(mulI, mulL) ) ) )
 	);
