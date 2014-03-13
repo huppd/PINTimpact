@@ -83,8 +83,8 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, createInterface ) {
   typedef Pimpact::VectorField<S,O> VF;
   typedef Pimpact::ModeField<SF> MSF;
   typedef Pimpact::ModeField<VF> MVF;
-  typedef Pimpact::MultiField< MSF> BMSF;
-  typedef Pimpact::MultiField< MVF> BMVF;
+  typedef Pimpact::MultiField<MSF> BMSF;
+  typedef Pimpact::MultiField<MVF> BMVF;
   typedef Pimpact::CompoundField< BMVF, BMSF > CF;
   typedef NOX::Pimpact::Vector<CF> NV;
   typedef NOX::Pimpact::Interface Interface;
@@ -99,7 +99,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, createInterface ) {
 
   auto x  = Pimpact::createCompoundField( xv, xs );
 
-  auto dtL = Pimpact::createDtL<S,O>(1.,0.,1.);
+  auto dtL = Pimpact::createMultiOperatorBase<BMVF,Pimpact::DtL<S,O> >( Pimpact::createDtL<S,O>(1.,0.,1.) );
 
   // Make an empty new parameter list.
   auto solverName = "GMRES";
@@ -110,7 +110,8 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, createInterface ) {
   auto lp_DTL = Pimpact::createLinearProblem<Interface::BVF>(
       dtL, xv->clone(), xv->clone(), solverParams->get(), solverName );
 
-  auto schur = Pimpact::createDivDtLinvGrad<S,O>( xv->clone(), lp_DTL );
+  auto schur = Pimpact::createMultiOperatorBase< BMSF, Pimpact::DivDtLinvGrad<S,O> >(
+      Pimpact::createDivDtLinvGrad<S,O>( xv->clone(), lp_DTL ) );
 
   auto lp_Schur = Pimpact::createLinearProblem<Interface::BSF>(
       schur, xs->clone(), xs->clone(), solverParams->get(), solverName );
@@ -147,7 +148,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, computeF ) {
   Teuchos::RCP<NV> X = Teuchos::rcp(new NV(x) );
   Teuchos::RCP<NV> F = Teuchos::rcp_dynamic_cast<NV>( X->clone() );
 
-  auto dtL = Pimpact::createDtL<S,O>(1.,0.,1.);
+  auto dtL = Pimpact::createMultiOperatorBase<BMVF,Pimpact::DtL<S,O> >( Pimpact::createDtL<S,O>(1.,0.,1.) );
 
   // Make an empty new parameter list.
   auto solverName = "GMRES";
@@ -158,7 +159,8 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, computeF ) {
   auto lp_DTL = Pimpact::createLinearProblem<Interface::BVF>(
       dtL, xv->clone(), xv->clone(), solverParams->get(), solverName );
 
-  auto schur = Pimpact::createDivDtLinvGrad<S,O>( xv->clone(), lp_DTL );
+  auto schur = Pimpact::createMultiOperatorBase< BMSF, Pimpact::DivDtLinvGrad<S,O> >(
+      Pimpact::createDivDtLinvGrad<S,O>( xv->clone(), lp_DTL ) );
 
   auto lp_Schur = Pimpact::createLinearProblem<Interface::BSF>(
       schur, xs->clone(), xs->clone(), solverParams->get(), solverName );
@@ -166,9 +168,9 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, computeF ) {
   auto stockie = NOX::Pimpact::createInterface(xv->clone(),xs->clone(),lp_DTL,lp_Schur);
 
 
-  bool succes = stockie->computeF( X->getConstField(), F->getField() );
+  NOX::Abstract::Group::ReturnType succes = stockie->computeF( X->getConstField(), F->getField() );
 
-  TEST_EQUALITY( true, succes);
+  TEST_EQUALITY( NOX::Abstract::Group::Ok, succes);
 }
 
 
@@ -200,7 +202,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, computeJacobian ) {
   Teuchos::RCP<NV> X = Teuchos::rcp(new NV(x) );
   Teuchos::RCP<NV> F = Teuchos::rcp_dynamic_cast<NV>( X->clone() );
 
-  auto dtL = Pimpact::createDtL<S,O>(1.,0.,1.);
+  auto dtL = Pimpact::createMultiOperatorBase<BMVF,Pimpact::DtL<S,O> >( Pimpact::createDtL<S,O>(1.,0.,1.) );
 
   // Make an empty new parameter list.
   auto solverName = "GMRES";
@@ -211,7 +213,8 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, computeJacobian ) {
   auto lp_DTL = Pimpact::createLinearProblem<Interface::BVF>(
       dtL, xv->clone(), xv->clone(), solverParams->get(), solverName );
 
-  auto schur = Pimpact::createDivDtLinvGrad<S,O>( xv->clone(), lp_DTL );
+  auto schur = Pimpact::createMultiOperatorBase< BMSF, Pimpact::DivDtLinvGrad<S,O> >(
+      Pimpact::createDivDtLinvGrad<S,O>( xv->clone(), lp_DTL ) );
 
   auto lp_Schur = Pimpact::createLinearProblem<Interface::BSF>(
       schur, xs->clone(), xs->clone(), solverParams->get(), solverName );
@@ -219,9 +222,9 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, computeJacobian ) {
   auto stockie = NOX::Pimpact::createInterface(xv->clone(), xs->clone(),lp_DTL,lp_Schur);
 
 
-  bool succes = stockie->computeJacobian( X->getConstField() );
+  NOX::Abstract::Group::ReturnType succes = stockie->computeJacobian( X->getConstField() );
 
-  TEST_EQUALITY( true, succes);
+  TEST_EQUALITY( NOX::Abstract::Group::Ok, succes);
 }
 
 
@@ -253,7 +256,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, applyJacobian ) {
   Teuchos::RCP<NV> X = Teuchos::rcp(new NV(x) );
   Teuchos::RCP<NV> F = Teuchos::rcp_dynamic_cast<NV>( X->clone() );
 
-  auto dtL = Pimpact::createDtL<S,O>(1.,0.,1.);
+  auto dtL = Pimpact::createMultiOperatorBase<BMVF,Pimpact::DtL<S,O> >( Pimpact::createDtL<S,O>(1.,0.,1.) );
 
   // Make an empty new parameter list.
   auto solverName = "GMRES";
@@ -264,7 +267,8 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, applyJacobian ) {
   auto lp_DTL = Pimpact::createLinearProblem<Interface::BVF>(
       dtL, xv->clone(), xv->clone(), solverParams->get(), solverName );
 
-  auto schur = Pimpact::createDivDtLinvGrad<S,O>( xv->clone(), lp_DTL );
+  auto schur = Pimpact::createMultiOperatorBase< BMSF, Pimpact::DivDtLinvGrad<S,O> >(
+      Pimpact::createDivDtLinvGrad<S,O>( xv->clone(), lp_DTL ) );
 
   auto lp_Schur = Pimpact::createLinearProblem<Interface::BSF>(
       schur, xs->clone(), xs->clone(), solverParams->get(), solverName );
@@ -272,9 +276,9 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, applyJacobian ) {
   auto stockie = NOX::Pimpact::createInterface(xv->clone(),xs->clone(),lp_DTL,lp_Schur);
 
 
-  bool succes = stockie->applyJacobian( X->getConstField(), F->getField() );
+  NOX::Abstract::Group::ReturnType succes = stockie->applyJacobian( X->getConstField(), F->getField() );
 
-  TEST_EQUALITY( true, succes);
+  TEST_EQUALITY( NOX::Abstract::Group::Ok, succes);
 }
 
 
@@ -305,7 +309,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, applyJacobianInverse ) {
   Teuchos::RCP<NV> X = Teuchos::rcp(new NV(x) );
   Teuchos::RCP<NV> F = Teuchos::rcp_dynamic_cast<NV>( X->clone() );
 
-  auto dtL = Pimpact::createDtL<S,O>(1.,0.,1.);
+  auto dtL = Pimpact::createMultiOperatorBase<BMVF,Pimpact::DtL<S,O> >( Pimpact::createDtL<S,O>(1.,0.,1.) );
 
   // Make an empty new parameter list.
   auto solverName = "GMRES";
@@ -316,7 +320,8 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, applyJacobianInverse ) {
   auto lp_DTL = Pimpact::createLinearProblem<Interface::BVF>(
       dtL, xv->clone(), xv->clone(), solverParams->get(), solverName );
 
-  auto schur = Pimpact::createDivDtLinvGrad<S,O>( xv->clone(), lp_DTL );
+  auto schur = Pimpact::createMultiOperatorBase< BMSF, Pimpact::DivDtLinvGrad<S,O> >(
+      Pimpact::createDivDtLinvGrad<S,O>( xv->clone(), lp_DTL ) );
 
   auto lp_Schur = Pimpact::createLinearProblem<Interface::BSF>(
       schur, xs->clone(), xs->clone(), solverParams->get(), solverName );
@@ -354,8 +359,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_SimpleNonlinear, computeF ) {
   auto x = Pimpact::createMultiField<VF>(*vel->clone(),10);
   auto y = Pimpact::createMultiField<VF>(*vel->clone(),10);
 
-  auto op = Pimpact::createOperatorBaseMV<MVF,OP>();
-//  auto op = Pimpact::createOperatorMV<O(void);
+  auto op = Pimpact::createMultiOperatorBase<MVF,OP>();
 
   for( int i=0; i<10; ++i ) {
     x->getFieldPtr(i)->initField(Pimpact::Circle2D );

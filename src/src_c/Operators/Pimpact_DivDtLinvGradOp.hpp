@@ -13,9 +13,9 @@
 #include "Pimpact_HelmholtzOp.hpp"
 #include "Pimpact_DtHelmholtzOp.hpp"
 
-#include "Pimpact_OperatorMV.hpp"
-#include "Pimpact_ModeOpWrap.hpp"
-#include "Pimpact_MultiOpWrap.hpp"
+//#include "Pimpact_OperatorMV.hpp"
+//#include "Pimpact_ModeOpWrap.hpp"
+//#include "Pimpact_MultiOpWrap.hpp"
 
 #include "Pimpact_LinearProblem.hpp"
 
@@ -27,8 +27,9 @@ namespace Pimpact{
 
 /// \brief periodic Operator for Schur complement.
 /// \ingroup ModeOperator
+/// \depracted
 template< class Scalar, class Ordinal >
-class Div_DtLinv_Grad {
+class DivDtLinvGrad {
 
 public:
 
@@ -46,13 +47,13 @@ private:
 
 
 public:
-  Div_DtLinv_Grad():
+  DivDtLinvGrad():
         temp0_(Teuchos::null), temp1_(Teuchos::null),
         div_(Teuchos::rcp( new Div<Scalar,Ordinal> ) ),
         grad_(Teuchos::rcp( new Grad<Scalar,Ordinal> ) ),
         H_(Teuchos::null) {};
 
-  Div_DtLinv_Grad( const Teuchos::RCP<MVF>& temp,
+  DivDtLinvGrad( const Teuchos::RCP<MVF>& temp,
       const Teuchos::RCP< LinearProblem<MVF> >& H ):
         temp0_(temp->clone(1)), temp1_(temp->clone(1)),
         div_(Teuchos::rcp( new Div<Scalar,Ordinal> ) ),
@@ -73,11 +74,11 @@ public:
 
 
 template< class Scalar, class Ordinal>
-Teuchos::RCP< Div_DtLinv_Grad<Scalar,Ordinal> > createDivDtLinvGrad(
-    const Teuchos::RCP<MultiField<ModeField<VectorField<Scalar,Ordinal> > > >& temp,
-    const Teuchos::RCP< LinearProblem<MultiField<ModeField<VectorField<Scalar,Ordinal> > > > >& H ) {
+Teuchos::RCP< DivDtLinvGrad<Scalar,Ordinal> > createDivDtLinvGrad(
+    const Teuchos::RCP<MultiField<ModeField<VectorField<Scalar,Ordinal> > > >& temp=Teuchos::null,
+    const Teuchos::RCP< LinearProblem<MultiField<ModeField<VectorField<Scalar,Ordinal> > > > >& H=Teuchos::null ) {
   return(
-      Teuchos::rcp( new Div_DtLinv_Grad<Scalar,Ordinal>( temp, H ) )
+      Teuchos::rcp( new DivDtLinvGrad<Scalar,Ordinal>( temp, H ) )
   );
 }
 

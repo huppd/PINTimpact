@@ -14,7 +14,7 @@
 
 namespace Pimpact {
 
-/// \ingroup BaseOperator
+/// \ingroup ModeOperator
 template<class Scalar,class Ordinal>
 class DivOpGrad {
 public:

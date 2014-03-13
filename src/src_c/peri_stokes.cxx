@@ -54,7 +54,7 @@ int main(int argi, char** argv ) {
 	typedef Pimpact::MultiField<VF> MVF;
 	typedef Pimpact::MultiField<SF> MSF;
 	typedef Pimpact::MultiOpWrap< Pimpact::ModeOpWrap<Pimpact::DtL<S,O> > >  Lap;
-	typedef Pimpact::MultiOpWrap< Pimpact::Div_DtLinv_Grad<S,O> >  Schur;
+	typedef Pimpact::MultiOpWrap< Pimpact::DivDtLinvGrad<S,O> >  Schur;
 	typedef Pimpact::MultiOpWrap< Pimpact::ModeOpWrap<Pimpact::Grad<S,O> > >  G;
 
 	typedef Pimpact::OperatorBase<MVF> BVOp;
@@ -243,7 +243,7 @@ int main(int argi, char** argv ) {
 	  auto A = Pimpact::createMultiModeOperatorBase<MVF,Pimpact::Helmholtz<S,O> >( Pimpact::createHelmholtz<S,O>( omega, 1./re ) );
 	  auto prob2 = Pimpact::createLinearProblem<MVF>( A, fu->clone(), fu->clone(), solverParams,"CG" );
 	  auto op2 = Pimpact::createEddyPrec<S,O>( fu->clone(), prob2 ) ;
-	  lprec = Pimpact::createOperatorBaseMV<MVF,Pimpact::EddyPrec<S,O> >( op2 );
+	  lprec = Pimpact::createMultiOperatorBase<MVF,Pimpact::EddyPrec<S,O> >( op2 );
 	  break;
 	}
 	default:
@@ -280,7 +280,7 @@ int main(int argi, char** argv ) {
 	lap_problem->setLeftPrec( lprec );
 
 	auto schur =
-	    Pimpact::createOperatorBaseMV<MSF,Pimpact::DivOpGrad<S,O> >(
+	    Pimpact::createMultiOperatorBase<MSF,Pimpact::DivOpGrad<S,O> >(
 	        Pimpact::createDivOpGrad<S,O>( u, lap_problem ) );
 
 	solverParams = Pimpact::createLinSolverParameter( solver_name_2, 1.e-7*l1*l2/n1/n2  );

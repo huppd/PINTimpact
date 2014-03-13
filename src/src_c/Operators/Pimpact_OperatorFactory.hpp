@@ -11,16 +11,22 @@
 
 namespace Pimpact {
 
-
+template<class Op>
+Teuchos::RCP< MultiOpWrap<ModeOpWrap<Op> > > createMultiModeOpWrap( const Teuchos::RCP<Op>& op=Teuchos::null ) {
+  if( Teuchos::is_null(op) )
+    return( createMultiOpWrap( createModeOpWrap( Teuchos::rcp( new Op() ) ) ) );
+  else
+    return( createMultiOpWrap( createModeOpWrap( op ) ) );
+}
 
 /// \deprecated
-template<class MV, class Op>
-Teuchos::RCP<OperatorBase<MV> > createOperatorBaseMV( const Teuchos::RCP<Op>& op ) {
-  return(
-      Teuchos::rcp_dynamic_cast< OperatorBase<MV> >(
-          Teuchos::rcp( new OperatorPimpl< MV, MultiOpWrap<Op> >( createMultiOpWrap(op) ) ) )
-      );
-}
+//template<class MV, class Op>
+//Teuchos::RCP<OperatorBase<MV> > createOperatorBaseMV( const Teuchos::RCP<Op>& op ) {
+//  return(
+//      Teuchos::rcp_dynamic_cast< OperatorBase<MV> >(
+//          Teuchos::rcp( new OperatorPimpl< MV, MultiOpWrap<Op> >( createMultiOpWrap(op) ) ) )
+//      );
+//}
 
 
 template<class MV, class Op>

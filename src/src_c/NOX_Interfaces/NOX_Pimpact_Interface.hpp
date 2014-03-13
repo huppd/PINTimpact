@@ -13,7 +13,7 @@
 #include "Pimpact_MultiField.hpp"
 
 #include "Pimpact_Operator.hpp"
-#include "Pimpact_OperatorMV.hpp"
+#include "Pimpact_OperatorFactory.hpp"
 #include "Pimpact_LinearProblem.hpp"
 
 // Forward declarations
@@ -53,7 +53,7 @@ public:
   typedef ::Pimpact::CompoundField< BVF, BSF> Field;
 
   typedef ::Pimpact::MultiOpWrap< ::Pimpact::DtL<S,O> >  DTL;
-  typedef ::Pimpact::MultiOpWrap< ::Pimpact::Div_DtLinv_Grad<S,O> >  Schur;
+  typedef ::Pimpact::MultiOpWrap< ::Pimpact::DivDtLinvGrad<S,O> >  Schur;
   typedef ::Pimpact::Div<S,O>   DD;
   typedef ::Pimpact::Grad<S,O>  GG;
   typedef ::Pimpact::MultiOpWrap< ::Pimpact::ModeOpWrap<DD> > D;
@@ -91,8 +91,8 @@ public:
         fu_( fu ),
         fp_( fp ),
         lp_DTL_( lp_DTL),
-        div_( ::Pimpact::createOperatorMV<DD>() ),
-        grad_( ::Pimpact::createOperatorMV<GG>() ),
+        div_( ::Pimpact::createMultiModeOpWrap<DD>() ),
+        grad_( ::Pimpact::createMultiModeOpWrap<GG>() ),
         lp_Schur_( lp_Schur ) {};
 
   /// Destructor

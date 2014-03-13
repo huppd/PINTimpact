@@ -52,7 +52,7 @@ public:
 //  typedef ::Pimpact::OperatorMV< ::Pimpact::Div_DtLinv_Grad<S,O> >  Schur;
   typedef ::Pimpact::OperatorBase<Field> Op;
 
-  typedef ::Pimpact::LinearProblem<S,Field,Op> JOp;
+  typedef ::Pimpact::LinearProblem<Field> JOp;
 
 //  typedef BVF Field;
   typedef NOX::Pimpact::Vector<Field> Vector;
