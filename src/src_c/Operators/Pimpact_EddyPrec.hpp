@@ -15,6 +15,7 @@
 namespace Pimpact {
 
 
+/// \ingroup ModeOperator
 template<class Scalar,class Ordinal>
 class EddyPrec {
 
@@ -43,8 +44,8 @@ public:
         op_(op) {};
 
   void apply(const ModeField<DomainFieldT>& x, ModeField<RangeFieldT>& y) const {
-    temp_->getFieldPtr(0)->getFieldC()->add( 1., *x.getConstFieldC(),  1., *x.getConstFieldS() );
-    temp_->getFieldPtr(0)->getFieldS()->add( 1., *x.getConstFieldC(), -1., *x.getConstFieldS() );
+    temp_->getFieldPtr(0)->getCFieldPtr()->add( 1., x.getConstCField(),  1., x.getConstSField() );
+    temp_->getFieldPtr(0)->getSFieldPtr()->add( 1., x.getConstCField(), -1., x.getConstSField() );
 
     op_->solve( createMultiField<ModeField<DomainFieldT> >(Teuchos::rcpFromRef(y)), temp_ );
     y.scale(0.5);

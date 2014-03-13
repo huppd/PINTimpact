@@ -54,7 +54,7 @@ public:
 	/// \brief copy constructor.
 	///
 	/// shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
-	/// @param sF
+	/// @param vF
 	/// @param copyType by default a ShallowCopy is done but allows also to deepcopy the field
 	ModeField(const ModeField& vF, ECopyType copyType=ShallowCopy):
 		fieldc_( Teuchos::rcp( new Field(*vF.fieldc_,copyType) ) ),
@@ -76,13 +76,19 @@ public:
 	 * \warning it is assumed that both fields have the same \c FieldSpace
 	 * @return field space of \c fieldc_
 	 */
-	Teuchos::RCP<const FieldSpace<Ordinal> > getFieldSpace() const {return fieldc_->getFieldSpace();}
+	Teuchos::RCP<const FieldSpace<Ordinal> > getFieldSpace() const {return( fieldc_->getFieldSpace() );}
 
-	Teuchos::RCP<Field> getFieldC() { return fieldc_; }
-	Teuchos::RCP<Field> getFieldS() { return fields_; }
+	Teuchos::RCP<Field> getCFieldPtr() { return( fieldc_ ); }
+	Teuchos::RCP<Field> getSFieldPtr() { return( fields_ ); }
 
-	Teuchos::RCP<const Field> getConstFieldC() const { return fieldc_; }
-	Teuchos::RCP<const Field> getConstFieldS() const { return fields_; }
+	Teuchos::RCP<const Field> getConstCFieldPtr() const { return( fieldc_ ); }
+	Teuchos::RCP<const Field> getConstSFieldPtr() const { return( fields_ ); }
+
+	Field& getCField() { return( *fieldc_ ); }
+	Field& getSField() { return( *fields_ ); }
+
+	const Field& getConstCField() const { return( *fieldc_ ); }
+	const Field& getConstSField() const { return( *fields_ ); }
 
 
 	/**

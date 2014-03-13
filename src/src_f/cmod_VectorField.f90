@@ -1462,7 +1462,7 @@ subroutine cinit_RankineVortex(        &
   ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
   !
   pi = 4.*atan(1.)
-  rad = L1/2./10.
+  rad = L1/2./5.
   circ = 2.*pi*rad
 !  Lh  = L1/2.
 !  mu = sqrt( om_*re_/2. )*Lh

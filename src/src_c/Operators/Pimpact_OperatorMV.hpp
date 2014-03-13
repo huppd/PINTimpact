@@ -18,10 +18,11 @@ namespace Pimpact {
 
 
 /// \brief Operator for \c MultiField's.
-///
+/// \deprecated
+/// \ingroup MultiOperator
 /// wraps and \c Operator and adds the functionality of handling \c MultiField.
-/// Aditionally it can be use as Operator for Belos, wich is \deprecated,
-//because it does not allow preconditionin from another operator type.
+/// Aditionally it can be use as Operator for Belos, which is \deprecated,
+/// because it does not allow preconditioning from another operator type.
 template<class Operator>
 class OperatorMV  {
 
@@ -93,8 +94,8 @@ private:
 		int m = x.getNumberVecs();
 
 		for( int i=0; i<m; ++i ) {
-			op_->apply( *x.getConstField(i).getConstFieldC(), *y.getField(i).getFieldC() );
-			op_->apply( *x.getConstField(i).getConstFieldS(), *y.getField(i).getFieldS() );
+			op_->apply( x.getConstField(i).getConstCField(), y.getField(i).getCField() );
+			op_->apply( x.getConstField(i).getConstSField(), y.getField(i).getSField() );
 		}
 	}
 

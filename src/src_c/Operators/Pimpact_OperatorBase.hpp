@@ -28,14 +28,16 @@ public:
 }; // end of class OperatorBase
 
 
+
+/// \deprecated
 template<class MV,class Op>
-class OperatorPimpl : public virtual OperatorBase<MV> {
+class OperatorPimpldep : public virtual OperatorBase<MV> {
   Teuchos::RCP<OperatorMV<Op> > opm_;
 public:
 
-  OperatorPimpl( const Teuchos::RCP<OperatorMV<Op> >& opm ):opm_(opm) {};
+  OperatorPimpldep( const Teuchos::RCP<OperatorMV<Op> >& opm ):opm_(opm) {};
 
-  virtual ~OperatorPimpl() {opm_=Teuchos::null;};
+  virtual ~OperatorPimpldep() {opm_=Teuchos::null;};
 
   virtual void apply( const MV& x, MV& y, Belos::ETrans trans=Belos::NOTRANS ) const {
     opm_->apply( x, y, trans );
@@ -52,12 +54,47 @@ public:
 }; // end of OperatorPimpl
 
 
+/// \deprecated
+template<class MV, class Op>
+Teuchos::RCP<OperatorBase<MV> > createOperatorBasedep( const Teuchos::RCP<Op>& op=Teuchos::null ) {
+  if( Teuchos::is_null( op ) )
+    return( Teuchos::rcp( new OperatorPimpldep<MV,Op>( Pimpact::createOperatorMV<Op>() ) ) );
+  else
+    return( Teuchos::rcp( new OperatorPimpldep<MV,Op>( Pimpact::createOperatorMV<Op>( op ) ) ) );
+}
+
+
+
+template<class MV,class Op>
+class OperatorPimpl : public virtual OperatorBase<MV> {
+  Teuchos::RCP<Op> opm_;
+public:
+
+  OperatorPimpl( const Teuchos::RCP<Op>& opm ):opm_(opm) {};
+
+  virtual ~OperatorPimpl() {opm_=Teuchos::null;};
+
+  virtual void apply( const MV& x, MV& y, Belos::ETrans trans=Belos::NOTRANS ) const {
+    opm_->apply( x, y, trans );
+  }
+
+//  virtual void setVector( const Teuchos::RCP<MV>& x ) { opm_->set( x ) };
+
+  virtual bool hasApplyTranspose() const {
+    return( opm_->hasApplyTranspose() );
+  };
+
+  Teuchos::RCP<Op> getOperatorPtr() { return( opm_ ); }
+
+}; // end of OperatorPimpl
+
+
 template<class MV, class Op>
 Teuchos::RCP<OperatorBase<MV> > createOperatorBase( const Teuchos::RCP<Op>& op=Teuchos::null ) {
   if( Teuchos::is_null( op ) )
-    return( Teuchos::rcp( new OperatorPimpl<MV,Op>( Pimpact::createOperatorMV<Op>() ) ) );
+    return( Teuchos::rcp( new OperatorPimpl<MV,Op>( Teuchos::rcp(new Op()) ) ) );
   else
-    return( Teuchos::rcp( new OperatorPimpl<MV,Op>( Pimpact::createOperatorMV<Op>( op ) ) ) );
+    return( Teuchos::rcp( new OperatorPimpl<MV,Op>( op ) ) );
 }
 
 

@@ -38,6 +38,8 @@
 
 #include "NOX.H"
 
+
+
 namespace {
 
 
@@ -400,8 +402,8 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear2 ) {
 
 
 //  auto op = Pimpact::createOperatorMV<OP>();
-  auto op = Pimpact::createOperatorBase<MVF,OP>();
-  auto jop = Pimpact::createOperatorBase<MVF,JOP>();
+  auto op = Pimpact::createOperatorBasedep<MVF,OP>();
+  auto jop = Pimpact::createOperatorBasedep<MVF,JOP>();
 
 
 //  x->getFieldPtr(0)->initField( Pimpact::Circle2D);
@@ -502,13 +504,13 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear3 ) {
   typedef int O;
   typedef Pimpact::VectorField<S,O> VF;
   typedef Pimpact::MultiField<VF> MVF;
-  typedef Pimpact::Nonlinear<S,O>  OP1;
-  typedef Pimpact::Helmholtz<S,O>  OP2;
-  typedef Pimpact::CompoundOp<OP1,OP2>  OP;
-  typedef Pimpact::NonlinearJacobian<S,O>  JOP1;
-  typedef Pimpact::Helmholtz<S,O>  JOP2;
-  typedef Pimpact::CompoundOp<JOP1,JOP2>  JOP;
-  typedef Pimpact::OperatorBase<MVF>  BOP;
+  typedef Pimpact::Nonlinear<S,O>  Op1;
+  typedef Pimpact::Helmholtz<S,O>  Op2;
+  typedef Pimpact::MultiOpWrap<Pimpact::CompoundOp<Op1,Op2> >  Op;
+  typedef Pimpact::NonlinearJacobian<S,O>  JOp1;
+  typedef Pimpact::Helmholtz<S,O>  JOp2;
+  typedef Pimpact::MultiOpWrap<Pimpact::CompoundOp<JOp1,JOp2> > JOp;
+  typedef Pimpact::OperatorBase<MVF>  BOp;
 
   typedef NOX::Pimpact::SimpleNonlinear Interface;
   typedef NOX::Pimpact::Vector<typename Interface::Field> NV;
@@ -526,37 +528,29 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear3 ) {
   auto f = Pimpact::createMultiField<VF>( *vel->clone(), 1 );
 
 
-//  auto op = Pimpact::createOperatorMV<OP>();
-//  auto op = Pimpact::createOperatorBase<MVF,OP>();
-  auto op = Pimpact::createOperatorBase<MVF,OP>(
-       Pimpact::createCompoundOp<OP1,OP2>(
-           Pimpact::createNonlinear<S,O>(),
-           Teuchos::rcp( new Pimpact::Helmholtz<S,O>() ),
- //          Pimpact::createHelmholtz<S,O>(),
-           vel->clone() ) );
-//  auto jop = Pimpact::createOperatorBase<MVF,JOP>();
-  auto jop = Pimpact::createOperatorBase<MVF,JOP>(
-       Pimpact::createCompoundOp<JOP1,JOP2>(
-           Pimpact::createNonlinearJacobian<S,O>(),
-           Teuchos::rcp( new Pimpact::Helmholtz<S,O>() ),
- //          Pimpact::createHelmholtz<S,O>(),
-           vel->clone() ) );
+  auto op = Pimpact::createOperatorBase<MVF,Op>(
+      Pimpact::createMultiOpWrap(
+          Pimpact::createCompoundOp<Op1,Op2>(
+              Pimpact::createNonlinear<S,O>(),
+              Pimpact::createHelmholtz<S,O>(),
+              vel->clone() ) ) );
+
+  auto jop = Pimpact::createOperatorBase<MVF,JOp>(
+      Pimpact::createMultiOpWrap(
+          Pimpact::createCompoundOp<JOp1,JOp2>(
+              Pimpact::createNonlinearJacobian<S,O>(),
+              Pimpact::createHelmholtz<S,O>(),
+              vel->clone() ) ) );
 
 
-//  x->getFieldPtr(0)->initField( Pimpact::Circle2D);
+  // init Fields, init and rhs
   x->getFieldPtr(0)->initField( Pimpact::RankineVortex2D );
-//  x->random();
-//  x->init(1.);
-
-//  f->GetFieldPtr(0)->initField( Pimpact::Circle2D);
   f->getFieldPtr(0)->initField( Pimpact::ZeroProf );
+
   op->apply(*x,*f);
   f->write(98);
-//  x->getFieldPtr(0)->initField( Pimpact::ZeroProf );
-//  x->random();
-//  x->scale( -1. );
+
   x->scale( 0.1 );
-//  x->init(1.);
 
   auto para = Pimpact::createLinSolverParameter("GMRES",1.e-6)->get();
 //  auto para = Teuchos::parameterlist();
@@ -568,13 +562,14 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear3 ) {
 
 
 
-  auto lp = Pimpact::createLinearProblem<S,MVF,BOP>(
+  auto lp = Pimpact::createLinearProblem<S,MVF,BOp>(
 //      jop, x->clone(), f->clone(), Pimpact::createLinSolverParameter("GCRODR",1.e-6)->get() , "GCRODR" );
       jop, x->clone(), f->clone(), para , "GMRES" );
   auto inter = NOX::Pimpact::createSimpleNonlinear( f, op, lp );
 
 
-  Teuchos::RCP<NV> nx = Teuchos::rcp(new NV(x) );
+//  Teuchos::RCP<NV> nx = Teuchos::rcp(new NV(x) );
+  auto nx = NOX::Pimpact::createVector(x);
 
   auto bla = Teuchos::parameterList();
 

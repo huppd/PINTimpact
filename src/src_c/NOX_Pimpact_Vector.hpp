@@ -49,7 +49,7 @@ public:
 	Vector() { field_ = Teuchos::null; };
 
 	/// constructor from \c Field
-	Vector( Teuchos::RCP<Field> field):field_(field) {};
+	Vector( const Teuchos::RCP<Field>& field):field_(field) {};
 
 	/// %PIMPACT %Vector destructor
 	virtual ~Vector() { field_ = Teuchos::null; };
@@ -323,6 +323,13 @@ protected:
   Teuchos::RCP<Field> field_;
 
 }; // end of class Vector
+
+
+template<class Field>
+Teuchos::RCP< Vector<Field> > createVector( const Teuchos::RCP<Field>& field ){
+  return( Teuchos::rcp( new Vector<Field>(field) ) );
+}
+
 
 } // end of namespace Pimpact
 } // end of namespace NOX

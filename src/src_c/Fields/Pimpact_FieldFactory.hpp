@@ -65,28 +65,28 @@ Teuchos::RCP< MultiField<ModeField<VectorField<Scalar,Ordinal> > > > createInitM
 
 	switch( EFlowType( flowType ) ) {
 	case Pimpact::Zero2DFlow :
-		u->getField(0).getFieldC()->initField( ZeroProf );
-		u->getField(0).getFieldS()->initField( ZeroProf );
+		u->getField(0).getCFieldPtr()->initField( ZeroProf );
+		u->getField(0).getSFieldPtr()->initField( ZeroProf );
 		break;
 	case Pimpact::Poiseuille_inX :
-		u->getField(0).getFieldC()->initField( Poiseuille2D_inX );
-		u->getField(0).getFieldS()->initField( ZeroProf );
+		u->getField(0).getCFieldPtr()->initField( Poiseuille2D_inX );
+		u->getField(0).getSFieldPtr()->initField( ZeroProf );
 		break;
 	case Poiseuille_inY :
-		u->getField(0).getFieldC()->initField( Poiseuille2D_inY );
-		u->getField(0).getFieldS()->initField( ZeroProf );
+		u->getField(0).getCFieldPtr()->initField( Poiseuille2D_inY );
+		u->getField(0).getSFieldPtr()->initField( ZeroProf );
 		break;
 	case Pulsatile_inX :
-		u->getField(0).getFieldC()->initField( Pulsatile2D_inXC, re, omega, px );
-		u->getField(0).getFieldS()->initField( Pulsatile2D_inXS, re, omega, px );
+		u->getField(0).getCFieldPtr()->initField( Pulsatile2D_inXC, re, omega, px );
+		u->getField(0).getSFieldPtr()->initField( Pulsatile2D_inXS, re, omega, px );
 		break;
 	case Pulsatile_inY :
-		u->getField(0).getFieldC()->initField( Pulsatile2D_inYC, re, omega, px );
-		u->getField(0).getFieldS()->initField( Pulsatile2D_inYS, re, omega, px );
+		u->getField(0).getCFieldPtr()->initField( Pulsatile2D_inYC, re, omega, px );
+		u->getField(0).getSFieldPtr()->initField( Pulsatile2D_inYS, re, omega, px );
 		break;
 	case Streaming2DFlow :
-		u->getField(0).getFieldC()->initField( Streaming2D, re, omega, px );
-		u->getField(0).getFieldS()->initField( ZeroProf, re, omega, px );
+		u->getField(0).getCFieldPtr()->initField( Streaming2D, re, omega, px );
+		u->getField(0).getSFieldPtr()->initField( ZeroProf, re, omega, px );
 		break;
 	}
 	return( u );

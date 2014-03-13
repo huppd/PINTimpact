@@ -19,7 +19,7 @@ template<class MV, class Op>
 Teuchos::RCP<OperatorBase<MV> > createOperatorBaseMV( const Teuchos::RCP<Pimpact::OperatorMV<Op> >& op ) {
   return(
       Teuchos::rcp_dynamic_cast<OperatorBase<MV> >(
-          Teuchos::rcp( new OperatorPimpl<MV,Op>( op ) ) )
+          Teuchos::rcp( new OperatorPimpldep<MV,Op>( op ) ) )
       );
 }
 

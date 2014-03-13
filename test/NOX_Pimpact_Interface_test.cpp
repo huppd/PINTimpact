@@ -354,7 +354,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_SimpleNonlinear, computeF ) {
   auto x = Pimpact::createMultiField<VF>(*vel->clone(),10);
   auto y = Pimpact::createMultiField<VF>(*vel->clone(),10);
 
-  auto op = Pimpact::createOperatorBase<MVF,OP>();
+  auto op = Pimpact::createOperatorBasedep<MVF,OP>();
 //  auto op = Pimpact::createOperatorMV<O(void);
 
   for( int i=0; i<10; ++i ) {

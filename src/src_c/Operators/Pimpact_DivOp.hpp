@@ -1,6 +1,6 @@
 #pragma once
-#ifndef PIMPACT_DIVDOP_HPP
-#define PIMPACT_DIVDOP_HPP
+#ifndef PIMPACT_DIVOP_HPP
+#define PIMPACT_DIVOP_HPP
 
 #include "Pimpact_Types.hpp"
 #include "Pimpact_ScalarField.hpp"
@@ -13,6 +13,9 @@ extern "C" {
   void OP_div( double* phiU, double* phiV, double* phiW, double* div);
 }
 
+
+/// \brief Divergence operator.
+/// \ingroup BaseOperator
 template<class Scalar,class Ordinal>
 class Div {
 public:

@@ -47,9 +47,9 @@ ADD_EXECUTABLE(BelosSolverTestBC Teuchos_StandardParallelUnitTestMain.cpp BelosS
 TARGET_LINK_LIBRARIES( BelosSolverTestBC ${Pimpact_TPL_LIBRARIES} ) 
 add_test(NAME BelosSolverTestBC COMMAND mpirun -np 4 BelosSolverTestBC)
 
-ADD_EXECUTABLE(LinearProblem Teuchos_StandardParallelUnitTestMain.cpp Pimpact_LinearProblem_test.cpp )
-TARGET_LINK_LIBRARIES( LinearProblem ${Pimpact_TPL_LIBRARIES} ) 
-add_test(NAME LinearProblem COMMAND mpirun -np 4 LinearProblem)
+ADD_EXECUTABLE(LinearProblemTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_LinearProblem_test.cpp )
+TARGET_LINK_LIBRARIES( LinearProblemTest ${Pimpact_TPL_LIBRARIES} ) 
+add_test(NAME LinearProblemTest COMMAND mpirun -np 4 LinearProblemTest)
 
 ADD_EXECUTABLE( NOXVectorTest Teuchos_StandardParallelUnitTestMain.cpp NOX_Pimpact_Vector_test.cpp )
 TARGET_LINK_LIBRARIES( NOXVectorTest ${Pimpact_TPL_LIBRARIES} ) 

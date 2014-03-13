@@ -237,7 +237,7 @@ namespace {
 				 X->getField(0).initField();
 				 B->init(1.);
 
-					auto A = Pimpact::createHelmholtz<double,int>( 0.,1.);
+					auto A = Pimpact::createHelmholtzdep<double,int>( 0.,1.);
 
 				 using Teuchos::ParameterList;
 				 using Teuchos::parameterList;

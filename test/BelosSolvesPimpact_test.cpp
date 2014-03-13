@@ -43,7 +43,7 @@ TEUCHOS_STATIC_SETUP() {
 	clp.setOption(
 			"error-tol-slack", &errorTolSlack,
 			"Slack off of machine epsilon used to check test results" );
-  }
+ }
 
 
 TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
@@ -109,7 +109,6 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 		 rcp (new Belos::LinearProblem<Scalar, MV, OP > (A, X, B));
 //			 problem->setRightPrec (M);
 
-	 std::cout << "param\n" << *solver->getValidParameters();
 	 problem->setProblem(X,B);
 //			 std::cout << "problem set? " << problem->isProblemSet() << "\n";
 
@@ -200,7 +199,6 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV2 ) {
 				   rcp (new Belos::LinearProblem<Scalar, MV, OP > (A, X, B));
 	//			 problem->setRightPrec (M);
 
-				 std::cout << "param\n" << *solver->getValidParameters();
 				 problem->setProblem(X,B);
 	//			 std::cout << "problem set? " << problem->isProblemSet() << "\n";
 
@@ -215,12 +213,6 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV2 ) {
 				 Belos::ReturnType result = solver->solve();
 				 TEST_EQUALITY( result,Belos::Converged);
 
-				 X->write(20);
-
-				 // Ask the solver how many iterations the last solve() took.
-//				 const int numIters = solver->getNumIters();
-
-	//				TEST_EQUALITY( res, true );
 }
 
 
@@ -235,7 +227,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, DtL ) {
   typedef Pimpact::DtL<S,O> Op;
   typedef Pimpact::OperatorMV<Op> OpMV;
   typedef Pimpact::OperatorBase<BVF> OpBase;
-  typedef Pimpact::OperatorPimpl<BVF,Op> OpPimpl;
+  typedef Pimpact::OperatorPimpldep<BVF,Op> OpPimpl;
   typedef OpBase  BOp;
 //  Teuchos::RCP<Pimpact::OperatorBase<Pimpact::MultiField<Field> > >
 //  typedef OpBase BOp;
@@ -250,7 +242,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, DtL ) {
 
 //  auto A = Pimpact::createOperatorMV<Pimpact::Helmholtz<double,int> >();
 
-  auto op = Pimpact::createOperatorBase<BVF,Op>();
+  auto op = Pimpact::createOperatorBasedep<BVF,Op>();
 
   auto para = Pimpact::createLinSolverParameter("GMRES",1.e-3);
 
@@ -266,25 +258,19 @@ TEUCHOS_UNIT_TEST( BelosSolver, DtL ) {
   Teuchos::RCP<Belos::LinearProblem<S, BVF, BOp > > problem =
            Teuchos::rcp (new Belos::LinearProblem<S, BVF, BOp > (op, x, b));
 
-  std::cout << "param\n" << *solver->getValidParameters();
   problem->setProblem(x,b);
 
   // Tell the solver what problem you want to solve.
   solver->setProblem( problem );
-  //       TEST_EQUALITY( solver->getProblem(), *problem)
-  //       std::cout << *problem;
 
-  // Attempt to solve the linear system.  result == Belos::Converged
-  // means that it was solved to the desired tolerance.  This call
-  // overwrites X with the computed approximate solution.
-  Belos::ReturnType result = solver->solve();
-  TEST_EQUALITY( result,Belos::Converged);
+  solver->solve();
+  TEST_EQUALITY( solver->achievedTol()<1.e-3, true );
 
   x->write(20);
 
-         // Ask the solver how many iterations the last solve() took.
-//         const int numIters = solver->getNumIters();
 }
+
+
 
 TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
   typedef double S;
@@ -292,10 +278,10 @@ TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
   typedef Pimpact::ScalarField<S,O> SF;
   typedef Pimpact::MultiField<SF> BSF;
 
-  typedef Pimpact::Div_Grad<S,O> Op;
-  typedef Pimpact::OperatorMV<Op> OpMV;
+  typedef Pimpact::DivGradOp<S,O> Op;
+  typedef Pimpact::MultiOpWrap<Op> MuOp;
   typedef Pimpact::OperatorBase<BSF> OpBase;
-  typedef Pimpact::OperatorPimpl<BSF,Op> OpPimpl;
+  typedef Pimpact::OperatorPimpl<BSF,MuOp> OpPimpl;
   typedef OpBase  BOp;
 
   auto fS = Pimpact::createFieldSpace<O>();
@@ -316,17 +302,19 @@ TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
 
   auto div = Teuchos::rcp( new Pimpact::Div<S,O>() );
   div->apply(*temp,b->getField(0) );
-//  b->scale(-1.);
+  b->scale(-1.);
   b->write(9999);
 
   x->init(0.);
 //  b->init(0.);
   x->random();
-  x->scale(1000.);
+//  x->scale(1000.);
 //  b->random();
 
   temp->initField(Pimpact::ZeroProf);
-  auto op = Pimpact::createOperatorBase<BSF,Op>( Teuchos::rcp( new Op(temp) ) );
+  auto op = Pimpact::createOperatorBase<BSF,MuOp>(
+      Pimpact::createMultiOpWrap(
+          Pimpact::createDivGradOp(temp) ) );
 
   auto para = Pimpact::createLinSolverParameter("GMRES",1.e-9)->get();
   para->set( "Num Blocks", 500 );
@@ -354,32 +342,12 @@ TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
    //       TEST_EQUALITY( solver->getProblem(), *problem)
    //       std::cout << *problem;
 
-   // Attempt to solve the linear system.  result == Belos::Converged
-   // means that it was solved to the desired tolerance.  This call
-   // overwrites X with the computed approximate solution.
-   Belos::ReturnType result = solver->solve();
-   TEST_EQUALITY( result, Belos::Converged);
+   solver->solve();
+   TEST_EQUALITY( solver->achievedTol()<1.e-9, true );
 
    x->write(999);
    temp->write(999);
 
-          // Ask the solver how many iterations the last solve() took.
- //         const int numIters = solver->getNumIters();
-//  auto lap = Pimpact::createOperatorMV<Op>();
-//
-//  Teuchos::RCP<Belos::OutputManager<S> > MyOM =
-//      Teuchos::rcp( new Belos::OutputManager<S>(Belos::Errors + Belos::Warnings + Belos::IterationDetails +
-//          Belos::OrthoDetails + Belos::FinalSummary + Belos::TimingDetails +
-//          Belos::StatusTestDetails + Belos::Debug, rcp(&out,false)) );
-//
-////  mv->random();
-////  lap->apply( *mv, *mv2 );
-////  mv2->write(20);
-//
-//  bool res =// true;
-//      Belos::TestOperatorTraits< S, BSF, BOp > (MyOM,mv,lap);
-//
-//  TEST_EQUALITY( res, true );
 }
 
 } // end of namespace

@@ -12,7 +12,7 @@
 
 namespace Pimpact {
 
-
+/// \ingroup BaseOperator
 template<class Scalar,class Ordinal>
 class DivOpGrad {
 public:
@@ -46,11 +46,11 @@ public:
         op_(op) {};
 
   void apply(const ModeField<DomainFieldT>& x, ModeField<RangeFieldT>& y) const {
-    grad_->apply( *x.getConstFieldC(), *temp0_->getField(0).getFieldC() );
-    grad_->apply( *x.getConstFieldS(), *temp0_->getField(0).getFieldS() );
+    grad_->apply( x.getConstCField(), temp0_->getFieldPtr(0)->getCField() );
+    grad_->apply( x.getConstSField(), temp0_->getFieldPtr(0)->getSField() );
     op_->solve( temp1_, temp0_);
-    div_->apply( *temp1_->getField(0).getConstFieldC(), *y.getFieldC() );
-    div_->apply( *temp1_->getField(0).getConstFieldS(), *y.getFieldS() );
+    div_->apply( temp1_->getFieldPtr(0)->getConstCField(), y.getCField() );
+    div_->apply( temp1_->getFieldPtr(0)->getConstSField(), y.getSField() );
   }
 
   bool hasApplyTranspose() const { return( false ); }

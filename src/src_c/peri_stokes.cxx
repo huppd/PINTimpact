@@ -59,8 +59,8 @@ int main(int argi, char** argv ) {
 
 	typedef Pimpact::OperatorBase<MVF> BVOp;
 	typedef Pimpact::OperatorBase<MSF> BSOp;
-	typedef Pimpact::OperatorPimpl<MVF,Lap>  BLap;
-	typedef Pimpact::OperatorPimpl<MSF,Schur>  BSchur;
+	typedef Pimpact::OperatorPimpldep<MVF,Lap>  BLap;
+	typedef Pimpact::OperatorPimpldep<MSF,Schur>  BSchur;
 //	typedef Pimpact::OperatorMV< Pimpact::Grad<Scalar,Ordinal> >  BG;
 
 	// intialize MPI
@@ -226,13 +226,13 @@ int main(int argi, char** argv ) {
 	  auto solverParams = Pimpact::createLinSolverParameter( "CG", 1.e-7*l1*l2/n1/n2/1000 );
 	  solverParams->get()->set ("Verbosity", int( Belos::Errors) );
 //	  solverParams->get()->set ("Verbosity", int( Belos::Errors) );
-	  auto op = Pimpact::createHelmholtz<S,O>( 0., 1./re );
+	  auto op = Pimpact::createHelmholtzdep<S,O>( 0., 1./re );
 	// Create the Pimpact::LinearSolver solver.
 	  auto prob =
 	      Pimpact::createLinearProblem<S,Pimpact::MultiField<Pimpact::VectorField<S,O> >,Pimpact::OperatorMV< Pimpact::Helmholtz<S,O> > >(
 	          op,
-	          Pimpact::createMultiField(fu->getField(0).getFieldC()),
-	          Pimpact::createMultiField(fu->getField(0).getFieldC()), solverParams->get(),"CG" );
+	          Pimpact::createMultiField(fu->getField(0).getCFieldPtr()),
+	          Pimpact::createMultiField(fu->getField(0).getCFieldPtr()), solverParams->get(),"CG" );
 
 	  lprec = Pimpact::createOperatorBaseMV<MVF,Pimpact::Linv<S,O> >( Pimpact::createLinv<S,O>( prob ) );
 	  break;
@@ -240,10 +240,10 @@ int main(int argi, char** argv ) {
 	case 3: {
 	  auto solverParams = Pimpact::createLinSolverParameter( "CG", 1.e-7*l1*l2/n1/n2/1000 )->get();
 	  solverParams->set ("Verbosity", int( Belos::Errors) );
-	  auto A = Pimpact::createOperatorBaseMV<MVF,Pimpact::Helmholtz<S,O> >( Pimpact::createHelmholtz<S,O>( omega, 1./re ) );
+	  auto A = Pimpact::createOperatorBaseMV<MVF,Pimpact::Helmholtz<S,O> >( Pimpact::createHelmholtzdep<S,O>( omega, 1./re ) );
 	  auto prob2 = Pimpact::createLinearProblem<S,MVF,Pimpact::OperatorBase<MVF> >( A, fu->clone(), fu->clone(), solverParams,"CG" );
 	  auto op2 = Pimpact::createEddyPrec<S,O>( fu->clone(), prob2 ) ;
-	  lprec = Pimpact::createOperatorBase<MVF,Pimpact::EddyPrec<S,O> >( op2 );
+	  lprec = Pimpact::createOperatorBasedep<MVF,Pimpact::EddyPrec<S,O> >( op2 );
 	  break;
 	}
 	default:
@@ -278,7 +278,7 @@ int main(int argi, char** argv ) {
 	lap_problem->setLeftPrec( lprec );
 
 	auto schur =
-	    Pimpact::createOperatorBase<MSF,Pimpact::DivOpGrad<S,O> >(
+	    Pimpact::createOperatorBasedep<MSF,Pimpact::DivOpGrad<S,O> >(
 	        Pimpact::createDivOpGrad<S,O>( u, lap_problem ) );
 
 	solverParams = Pimpact::createLinSolverParameter( solver_name_2, 1.e-7*l1*l2/n1/n2  );

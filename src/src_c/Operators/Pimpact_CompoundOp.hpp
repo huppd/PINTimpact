@@ -16,7 +16,7 @@ namespace Pimpact {
 /// \brief calls for combining two operators, which are apllied sequential.
 ///
 /// the \c DomainFieldT of \c OP2 has to be equal to the \c RangeFieldT of \c OP1.
-/// both operators should have the same OpType
+/// both operators should have the same OpType(OpType is obsolete)
 template< class OP1, class OP2 >
 class CompoundOp {
 public:
@@ -31,10 +31,7 @@ public:
 private:
   Teuchos::RCP<OP1> op1_;
   Teuchos::RCP<OP2> op2_;
-  Teuchos::RCP<DomainFieldT> temp_;
-//  Teuchos::RCP<Div<S,O>> div_;
-//  Teuchos::RCP<Grad<S,O>> grad_;
-//  Teuchos::RCP<LinearProblem<S, MVF, OP > > op_;
+  Teuchos::RCP<typename OP1::RangeFieldT> temp_;
 
 public:
   CompoundOp():

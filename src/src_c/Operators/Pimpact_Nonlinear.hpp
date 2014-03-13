@@ -20,6 +20,7 @@ extern "C" {
 namespace Pimpact {
 
 
+/// \ingroup BaseOperator
 template<class Scalar,class Ordinal>
 class Nonlinear {
 public:
@@ -57,6 +58,8 @@ Teuchos::RCP<Nonlinear<S,O> > createNonlinear() {
   return( Teuchos::rcp( new Nonlinear<S,O>() ) );
 }
 
+
+/// \ingroup BaseOperator
 template<class Scalar,class Ordinal>
 class NonlinearJacobian {
 public:

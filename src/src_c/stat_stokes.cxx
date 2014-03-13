@@ -181,7 +181,7 @@ int main(int argi, char** argv ) {
 
 
 	// init operators
-	auto lap  = Pimpact::createHelmholtz<S,O>( 0., 1./re );
+	auto lap  = Pimpact::createHelmholtzdep<S,O>( 0., 1./re );
 	auto div  = Pimpact::createOperatorMV<Pimpact::Div<S,O> >();
 	auto grad = Pimpact::createOperatorMV<Pimpact::Grad<S,O> >();
 

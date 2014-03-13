@@ -190,34 +190,35 @@ int main(int argi, char** argv ) {
 
 	switch( Pimpact::EFlowType(flow) ) {
 	case Pimpact::Zero2DFlow :
-		q->getField(0).getVField()->getFieldC()->initField( Pimpact::ZeroProf );
-		q->getField(0).getVField()->getFieldS()->initField( Pimpact::ZeroProf );
+		q->getField(0).getVField()->getCFieldPtr()->initField( Pimpact::ZeroProf );
+		q->getField(0).getVField()->getSFieldPtr()->initField( Pimpact::ZeroProf );
 		break;
 	case Pimpact::Poiseuille_inX :
-		q->getField(0).getVField()->getFieldC()->initField( Pimpact::Poiseuille2D_inX );
-		q->getField(0).getVField()->getFieldS()->initField( Pimpact::ZeroProf );
+		q->getField(0).getVField()->getCFieldPtr()->initField( Pimpact::Poiseuille2D_inX );
+		q->getField(0).getVField()->getSFieldPtr()->initField( Pimpact::ZeroProf );
 		break;
 	case Pimpact::Poiseuille_inY :
-		q->getField(0).getVField()->getFieldC()->initField( Pimpact::Poiseuille2D_inY );
-		q->getField(0).getVField()->getFieldS()->initField( Pimpact::ZeroProf );
+		q->getField(0).getVField()->getCFieldPtr()->initField( Pimpact::Poiseuille2D_inY );
+		q->getField(0).getVField()->getSFieldPtr()->initField( Pimpact::ZeroProf );
 		break;
 	case Pimpact::Pulsatile_inX :
-		q->getField(0).getVField()->getFieldC()->initField( Pimpact::Pulsatile2D_inXC, re, omega, px );
-		q->getField(0).getVField()->getFieldS()->initField( Pimpact::Pulsatile2D_inXS, re, omega, px );
+		q->getField(0).getVField()->getCFieldPtr()->initField( Pimpact::Pulsatile2D_inXC, re, omega, px );
+		q->getField(0).getVField()->getSFieldPtr()->initField( Pimpact::Pulsatile2D_inXS, re, omega, px );
 		break;
 	case Pimpact::Pulsatile_inY :
-		q->getField(0).getVField()->getFieldC()->initField( Pimpact::Pulsatile2D_inYC, re, omega, px );
-		q->getField(0).getVField()->getFieldS()->initField( Pimpact::Pulsatile2D_inYS, re, omega, px );
+		q->getField(0).getVField()->getCFieldPtr()->initField( Pimpact::Pulsatile2D_inYC, re, omega, px );
+		q->getField(0).getVField()->getSFieldPtr()->initField( Pimpact::Pulsatile2D_inYS, re, omega, px );
 		break;
 	}
 
 	q->init(0);
 
-	f->getField(0).getVField()->getFieldC()->initField( Pimpact::ZeroProf );
-	f->getField(0).getVField()->getFieldS()->initField( Pimpact::ZeroProf );
+	f->getField(0).getVField()->getCFieldPtr()->initField( Pimpact::ZeroProf );
+	f->getField(0).getVField()->getSFieldPtr()->initField( Pimpact::ZeroProf );
 
 	// init operators
-	auto op = Pimpact::createCompoundStokes( omega, 0., 1./re, velc );
+	auto op = Pimpact::createOperatorMV(
+	    Pimpact::createCompoundStokes( omega, 0., 1./re, velc ) );
 
 
 	RCP<ParameterList> solverParams = parameterList();
@@ -256,5 +257,5 @@ int main(int argi, char** argv ) {
 
 
 	MPI_Finalize();
-	return 0;
+	return( 0 );
 }

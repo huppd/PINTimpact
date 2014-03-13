@@ -11,9 +11,11 @@ namespace Pimpact{
 
 extern "C" {
   void OP_grad( const int& m, double* phi, double *grad );
+  void OP_bc_extrapolation( const int& m, double* phi );
 }
 
 
+/// \ingroup BaseOperator
 template<class Scalar,class Ordinal>
 class Grad {
 public:
@@ -25,12 +27,14 @@ public:
     int dim = x.getFieldSpace()->dim_;
     for( int i=0; i<dim; ++i) {
       OP_grad(i+1,x.s_,y.vec_[i]);
-//        OP_bc_extrapolation( i+1, y.vec_[i] );
+      OP_bc_extrapolation( i+1, y.vec_[i] );
     }
   }
   bool hasApplyTranspose() const { return( false ); }
 };
 
+
 } // end of namespace Pimpact
+
 
 #endif // end of #ifndef PIMPACT_GRADOP_HPP
