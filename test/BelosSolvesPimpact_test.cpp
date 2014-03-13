@@ -225,9 +225,9 @@ TEUCHOS_UNIT_TEST( BelosSolver, DtL ) {
   typedef Pimpact::MultiField<MVF> BVF;
 
   typedef Pimpact::DtL<S,O> Op;
-  typedef Pimpact::OperatorMV<Op> OpMV;
+  typedef Pimpact::MultiOpWrap<Op> OpMV;
   typedef Pimpact::OperatorBase<BVF> OpBase;
-  typedef Pimpact::OperatorPimpldep<BVF,Op> OpPimpl;
+//  typedef Pimpact::OperatorPimpldep<BVF,Op> OpPimpl;
   typedef OpBase  BOp;
 //  Teuchos::RCP<Pimpact::OperatorBase<Pimpact::MultiField<Field> > >
 //  typedef OpBase BOp;
@@ -242,7 +242,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, DtL ) {
 
 //  auto A = Pimpact::createOperatorMV<Pimpact::Helmholtz<double,int> >();
 
-  auto op = Pimpact::createOperatorBasedep<BVF,Op>();
+  auto op = Pimpact::createOperatorBase<BVF,OpMV>();
 
   auto para = Pimpact::createLinSolverParameter("GMRES",1.e-3);
 

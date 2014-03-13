@@ -41,10 +41,15 @@ public:
   bool hasApplyTranspose() const { return( false ); }
 };
 
+
+
 template< class Scalar, class Ordinal>
-Teuchos::RCP<OperatorMV< DtL<Scalar,Ordinal> > > createDtL( Scalar omega=1., Scalar mulI=0., Scalar mulL=1. ) {
-  return( Teuchos::rcp( new OperatorMV<DtL<Scalar,Ordinal> >( Teuchos::rcp( new DtL<Scalar,Ordinal>( omega, mulI, mulL ) ) ) ) );
+Teuchos::RCP< DtL<Scalar,Ordinal> > createDtL( Scalar omega=1., Scalar mulI=0., Scalar mulL=1. ) {
+  return( Teuchos::rcp( new DtL<Scalar,Ordinal>( omega, mulI, mulL ) ) );
 }
+
+
 } // end of namespace Pimpact
+
 
 #endif // end of #ifndef PIMPACT_DTHELMHOLTZOP_HPP

@@ -26,20 +26,15 @@ class MultiVector;
 //! Nonlinear solvers package namespace
 namespace NOX{
 
-/**
- * \brief %NOX PIMPACT interface for Vector
-*/
+/// \brief %NOX PIMPACT interface for Vector
 namespace Pimpact {
 
-/**
- * \brief %NOX's pure PIMPACT vector interface for vectors that are used by the
- * nonlinear solver.
- *
- * This class is a member of the namespace NOX::PIMPACT.
- * \note actually this class wrapps \c MultiField, where \c MultiField is
- * considered as one Vector, this is relevent for norms, dots and length
- *
- */
+/// \brief %NOX's pure PIMPACT vector interface for vectors that are used by the
+/// nonlinear solver.
+///
+/// This class is a member of the namespace NOX::PIMPACT.
+/// \note actually this class wrapps \c MultiField, where \c MultiField is
+/// considered as one Vector, this is relevent for norms, dots and length
 template<class Field>
 class Vector : public virtual NOX::Abstract::Vector {
 

@@ -23,31 +23,28 @@ public:
   typedef MultiField<ModeField<VectorField<Scalar,Ordinal> > > MVF;
   typedef typename MVF::Scalar S;
   typedef typename MVF::Ordinal O;
-  typedef VectorField<S,O>  DomainFieldT;
-  typedef VectorField<S,O>  RangeFieldT;
+  typedef ModeField<VectorField<S,O> > DomainFieldT;
+  typedef ModeField<VectorField<S,O> > RangeFieldT;
 //  typedef ScalarField<Scalar,Ordinal>  RangeFieldT;
-  typedef OperatorBase<MVF> OP;
+//  typedef OperatorBase<MVF> OP;
   typedef ModeOp OpType;
 
 private:
   Teuchos::RCP<MVF> temp_;
-  Teuchos::RCP<LinearProblem<S, MVF, OP > > op_;
+  Teuchos::RCP<LinearProblem<MVF> > op_;
 
 public:
-  EddyPrec():
-        temp_(Teuchos::null),
-        op_(Teuchos::null) {};
   EddyPrec(
-      const Teuchos::RCP<MVF>& temp,
-      const Teuchos::RCP< LinearProblem<S, MVF, OP > >& op ):
+      const Teuchos::RCP<MVF>& temp=Teuchos::null,
+      const Teuchos::RCP< LinearProblem<MVF> >& op=Teuchos::null ):
         temp_(temp->clone(1)),
         op_(op) {};
 
-  void apply(const ModeField<DomainFieldT>& x, ModeField<RangeFieldT>& y) const {
+  void apply(const DomainFieldT& x, RangeFieldT& y) const {
     temp_->getFieldPtr(0)->getCFieldPtr()->add( 1., x.getConstCField(),  1., x.getConstSField() );
     temp_->getFieldPtr(0)->getSFieldPtr()->add( 1., x.getConstCField(), -1., x.getConstSField() );
 
-    op_->solve( createMultiField<ModeField<DomainFieldT> >(Teuchos::rcpFromRef(y)), temp_ );
+    op_->solve( createMultiField<DomainFieldT>(Teuchos::rcpFromRef(y)), temp_ );
     y.scale(0.5);
   }
 
@@ -59,8 +56,7 @@ public:
 template<class S, class O>
 Teuchos::RCP<EddyPrec<S,O> > createEddyPrec(
     const Teuchos::RCP<MultiField<ModeField<VectorField<S,O> > > > & temp,
-    const Teuchos::RCP< LinearProblem<S,MultiField<ModeField<VectorField<S,O> > >,
-      OperatorBase<MultiField<ModeField<VectorField<S,O> > > > > > op ) {
+    const Teuchos::RCP< LinearProblem<MultiField<ModeField<VectorField<S,O> > > > > op ) {
   return( Teuchos::rcp( new EddyPrec<S,O>( temp, op ) ) );
 }
 

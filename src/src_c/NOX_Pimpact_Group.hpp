@@ -42,12 +42,10 @@
 namespace NOX {
 namespace Pimpact  {
 
-/**
- * \brief Concrete implementation of NOX::Abstract::Group for Pimpact.
- *
- *  This group is set up to use the linear algebra services provided
- *  through Pimpact with Belos for the linear %solver.
- */
+/// \brief Concrete implementation of NOX::Abstract::Group for Pimpact.
+///
+///  This group is set up to use the linear algebra services provided
+///  through Pimpact with Belos for the linear %solver.
 template<class Interface>
 class Group : public virtual NOX::Abstract::Group {
 

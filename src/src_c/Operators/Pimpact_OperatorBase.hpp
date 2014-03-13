@@ -10,9 +10,8 @@
 namespace Pimpact {
 
 
-/// \brief Operator class for type erasure
-///
-/// for Belos preconditioner and operator has to be from the same type
+/// \brief Operator base class for type erasure.
+/// \ingroup Operator
 template<class MultiVector>
 class OperatorBase {
 public:
@@ -25,43 +24,44 @@ public:
   virtual void apply( const MV& x, MV& y, Belos::ETrans trans=Belos::NOTRANS ) const {} ;
 //  virtual void setVector( const Teuchos::RCP<MV>& x ) {};
   virtual bool hasApplyTranspose() const {return( false );};
+
 }; // end of class OperatorBase
 
 
 
-/// \deprecated
-template<class MV,class Op>
-class OperatorPimpldep : public virtual OperatorBase<MV> {
-  Teuchos::RCP<OperatorMV<Op> > opm_;
-public:
-
-  OperatorPimpldep( const Teuchos::RCP<OperatorMV<Op> >& opm ):opm_(opm) {};
-
-  virtual ~OperatorPimpldep() {opm_=Teuchos::null;};
-
-  virtual void apply( const MV& x, MV& y, Belos::ETrans trans=Belos::NOTRANS ) const {
-    opm_->apply( x, y, trans );
-  }
-
-//  virtual void setVector( const Teuchos::RCP<MV>& x ) { opm_->set( x ) };
-
-  virtual bool hasApplyTranspose() const {
-    return( opm_->hasApplyTranspose() );
-  };
-
-  Teuchos::RCP<Op> getOperatorPtr() { return( opm_->getOperatorPtr() ); }
-
-}; // end of OperatorPimpl
-
-
-/// \deprecated
-template<class MV, class Op>
-Teuchos::RCP<OperatorBase<MV> > createOperatorBasedep( const Teuchos::RCP<Op>& op=Teuchos::null ) {
-  if( Teuchos::is_null( op ) )
-    return( Teuchos::rcp( new OperatorPimpldep<MV,Op>( Pimpact::createOperatorMV<Op>() ) ) );
-  else
-    return( Teuchos::rcp( new OperatorPimpldep<MV,Op>( Pimpact::createOperatorMV<Op>( op ) ) ) );
-}
+///// \deprecated
+//template<class MV,class Op>
+//class OperatorPimpldep : public virtual OperatorBase<MV> {
+//  Teuchos::RCP<OperatorMV<Op> > opm_;
+//public:
+//
+//  OperatorPimpldep( const Teuchos::RCP<OperatorMV<Op> >& opm ):opm_(opm) {};
+//
+//  virtual ~OperatorPimpldep() {opm_=Teuchos::null;};
+//
+//  virtual void apply( const MV& x, MV& y, Belos::ETrans trans=Belos::NOTRANS ) const {
+//    opm_->apply( x, y, trans );
+//  }
+//
+////  virtual void setVector( const Teuchos::RCP<MV>& x ) { opm_->set( x ) };
+//
+//  virtual bool hasApplyTranspose() const {
+//    return( opm_->hasApplyTranspose() );
+//  };
+//
+//  Teuchos::RCP<Op> getOperatorPtr() { return( opm_->getOperatorPtr() ); }
+//
+//}; // end of OperatorPimpl
+//
+//
+///// \deprecated
+//template<class MV, class Op>
+//Teuchos::RCP<OperatorBase<MV> > createOperatorBasedep( const Teuchos::RCP<Op>& op=Teuchos::null ) {
+//  if( Teuchos::is_null( op ) )
+//    return( Teuchos::rcp( new OperatorPimpldep<MV,Op>( Pimpact::createOperatorMV<Op>() ) ) );
+//  else
+//    return( Teuchos::rcp( new OperatorPimpldep<MV,Op>( Pimpact::createOperatorMV<Op>( op ) ) ) );
+//}
 
 
 

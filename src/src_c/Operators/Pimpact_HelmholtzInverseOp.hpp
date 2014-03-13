@@ -20,20 +20,28 @@ namespace Pimpact{
 
 
 /// \ingroup BaseOperator
+/// \todo recector to OperatorInverse
 template< class Scalar, class Ordinal >
 class Linv {
+
 public:
+
   typedef VectorField<Scalar,Ordinal>  DomainFieldT;
   typedef VectorField<Scalar,Ordinal>  RangeFieldT;
 //  typedef MultiField<ModeField<VectorField<Scalar,Ordinal> > > BVF;
   typedef MultiField<VectorField<Scalar,Ordinal> > BVF;
   typedef OperatorMV<Helmholtz<Scalar,Ordinal> > LapType;
   typedef NonModeOp OpType;
+
 private:
-  Teuchos::RCP< LinearProblem<Scalar, BVF, LapType > > lap_prob_;
+
+  Teuchos::RCP< LinearProblem<BVF> > lap_prob_;
 
 public:
-  Linv( const Teuchos::RCP< LinearProblem<Scalar, BVF, LapType > >& lap_prob ):
+
+//  Linv():lap_prob_(Teuchos::null) {};
+
+  Linv( const Teuchos::RCP< LinearProblem<BVF> >& lap_prob=Teuchos::null ):
     lap_prob_(lap_prob)
          {};
 
@@ -49,10 +57,10 @@ public:
 
 
 template< class Scalar, class Ordinal>
-Teuchos::RCP<OperatorMV< Linv<Scalar,Ordinal> > > createLinv(
-    const Teuchos::RCP<LinearProblem<Scalar,MultiField<VectorField<Scalar,Ordinal> >,OperatorMV<Helmholtz<Scalar,Ordinal> > > > lap_prob ) {
+Teuchos::RCP< Linv<Scalar,Ordinal> > createLinv(
+    const Teuchos::RCP<LinearProblem<MultiField<VectorField<Scalar,Ordinal> > > > lap_prob ) {
 
-  return( Teuchos::rcp( new OperatorMV<Linv<Scalar,Ordinal> >( Teuchos::rcp( new Linv<Scalar,Ordinal>( lap_prob ) ) ) ) );
+  return( Teuchos::rcp( new Linv<Scalar,Ordinal>( lap_prob ) ) );
 }
 
 

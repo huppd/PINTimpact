@@ -15,18 +15,23 @@
 
 #include "pimpact.hpp"
 #include "Pimpact_Types.hpp"
+
 #include "Pimpact_DomainSize.hpp"
 #include "Pimpact_GridSize.hpp"
 #include "Pimpact_ProcGridSize.hpp"
+
 #include "Pimpact_FieldSpace.hpp"
 #include "Pimpact_IndexSpace.hpp"
+
 #include "Pimpact_ScalarField.hpp"
 #include "Pimpact_VectorField.hpp"
 #include "Pimpact_ModeField.hpp"
 #include "Pimpact_MultiField.hpp"
-#include "Pimpact_OperatorMV.hpp"
+
+//#include "Pimpact_OperatorMV.hpp"
 #include "Pimpact_LinearProblem.hpp"
 #include "Pimpact_Operator.hpp"
+#include "Pimpact_OperatorFactory.hpp"
 #include "BelosPimpactAdapter.hpp"
 
 
@@ -49,7 +54,7 @@ int main(int argi, char** argv ) {
 	typedef Pimpact::ModeField<VF>          MVF;
 	typedef Pimpact::CompoundField<MVF,MSF> CF;
 	typedef Pimpact::MultiField<CF>         MV;
-	typedef Pimpact::OperatorMV<Pimpact::CompoundStokes<S,O> > OP;
+	typedef Pimpact::CompoundStokes<S,O>    Op;
 //	typedef Pimpact::OperatorMV< Pimpact::DtL<Scalar,Ordinal> >  Lap;
 //	typedef Pimpact::OperatorMV< Pimpact::Div_DtLinv_Grad<Scalar,Ordinal> >  Schur;
 //	typedef Pimpact::OperatorMV< Pimpact::Grad<Scalar,Ordinal> >  G;
@@ -217,7 +222,7 @@ int main(int argi, char** argv ) {
 	f->getField(0).getVField()->getSFieldPtr()->initField( Pimpact::ZeroProf );
 
 	// init operators
-	auto op = Pimpact::createOperatorMV(
+	auto op = Pimpact::createMultiOperatorBase<MV,Op>(
 	    Pimpact::createCompoundStokes( omega, 0., 1./re, velc ) );
 
 
@@ -241,7 +246,7 @@ int main(int argi, char** argv ) {
 //	solverParams = Teuchos::getParametersFromXmlFile("solver1.xml");
 
 	// create problems/solvers
-	auto problem = Pimpact::createLinearProblem<Scalar,MV,OP>( op, q, f, solverParams, "GMRES" );
+	auto problem = Pimpact::createLinearProblem<MV>( op, q, f, solverParams, "GMRES" );
 
 	// solve stationary stokes
 	problem->solve( q, f );

@@ -4,7 +4,7 @@
 
 /// \defgroup Operator Operators
 
-/// \defgroup BaseOperator Base Operator
+/// \defgroup BaseOperator Basic Operator
 /// \ingroup Operator
 /// Operator operate on basic fields, for example \c Pimpact::ScalarField and \c Pimpact::VectorField
 
@@ -38,6 +38,8 @@
 
 #include "Pimpact_HelmholtzInverseOp.hpp"
 #include "Pimpact_HelmholtzOp.hpp"
+
+#include "Pimpact_InverseOperator.hpp"
 
 #include "Pimpact_ModeOpWrap.hpp"
 #include "Pimpact_MultiOpWrap.hpp"

@@ -52,15 +52,15 @@ public:
   typedef ::Pimpact::MultiField<MSF> BSF;
   typedef ::Pimpact::CompoundField< BVF, BSF> Field;
 
-  typedef ::Pimpact::OperatorMV< ::Pimpact::DtL<S,O> >  DTL;
-  typedef ::Pimpact::OperatorMV< ::Pimpact::Div_DtLinv_Grad<S,O> >  Schur;
+  typedef ::Pimpact::MultiOpWrap< ::Pimpact::DtL<S,O> >  DTL;
+  typedef ::Pimpact::MultiOpWrap< ::Pimpact::Div_DtLinv_Grad<S,O> >  Schur;
   typedef ::Pimpact::Div<S,O>   DD;
   typedef ::Pimpact::Grad<S,O>  GG;
-  typedef ::Pimpact::OperatorMV< DD >  D;
-  typedef ::Pimpact::OperatorMV< GG > G;
+  typedef ::Pimpact::MultiOpWrap< ::Pimpact::ModeOpWrap<DD> > D;
+  typedef ::Pimpact::MultiOpWrap< ::Pimpact::ModeOpWrap<GG> > G;
 
-  typedef ::Pimpact::LinearProblem<S,BVF,DTL> LP_DTL;
-  typedef ::Pimpact::LinearProblem<S,BSF,Schur> LP_Schur;
+  typedef ::Pimpact::LinearProblem<BVF> LP_DTL;
+  typedef ::Pimpact::LinearProblem<BSF> LP_Schur;
 
   typedef NOX::Pimpact::Vector<Field> Vector;
 

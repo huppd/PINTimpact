@@ -12,7 +12,7 @@
 
 #include "Pimpact_MultiField.hpp"
 
-#include "Pimpact_Nonlinear.hpp"
+//#include "Pimpact_Nonlinear.hpp"
 #include "Pimpact_Operator.hpp"
 #include "Pimpact_OperatorMV.hpp"
 #include "Pimpact_OperatorBase.hpp"
@@ -52,7 +52,7 @@ public:
 //  typedef ::Pimpact::OperatorMV< ::Pimpact::Div_DtLinv_Grad<S,O> >  Schur;
   typedef ::Pimpact::OperatorBase<Field> Op;
 
-  typedef ::Pimpact::LinearProblem<S,Field,Op> JOp;
+  typedef ::Pimpact::LinearProblem<Field> JOp;
 
 //  typedef BVF Field;
   typedef NOX::Pimpact::Vector<Field> Vector;
@@ -99,11 +99,11 @@ public:
   /// \brief Compute the Jacobian Operator, given the specified input vector x. Returns true if computation was successful.
   /// \todo biggest baustelle unify this for \c Operators
   NOX::Abstract::Group::ReturnType computeJacobian( const Field& x ) {
-    auto opJ = jop_->getProblem()->getOperator();
-    auto opJ2 = Teuchos::rcp_const_cast<Op>(opJ);
-    auto opJ3 = Teuchos::rcp_dynamic_cast<
-        ::Pimpact::OperatorPimpldep<Field,::Pimpact::NonlinearJacobian<typename Field::Scalar,typename Field::Ordinal> > >( opJ2 );
-    opJ3->getOperatorPtr()->setU( x.getConstField(0).clone() );
+//    auto opJ = jop_->getProblem()->getOperator();
+//    auto opJ2 = Teuchos::rcp_const_cast<Op>(opJ);
+//    auto opJ3 = Teuchos::rcp_dynamic_cast<
+//        ::Pimpact::OperatorPimpldep<Field,::Pimpact::NonlinearJacobian<typename Field::Scalar,typename Field::Ordinal> > >( opJ2 );
+//    opJ3->getOperatorPtr()->setU( x.getConstField(0).clone() );
 //    Teuchos::rcp_dynamic_cast<
 //      ::Pimpact::OperatorPimpl<Field,
 //      ::Pimpact::NonlinearJacobian<typename Field::Scalar,typename Field::Ordinal> > >(

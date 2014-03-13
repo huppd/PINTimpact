@@ -11,6 +11,8 @@
 #include "Pimpact_HelmholtzOp.hpp"
 #include "Pimpact_OperatorMV.hpp"
 
+#include "Pimpact_LinearProblem.hpp"
+
 namespace Pimpact{
 
 
@@ -22,7 +24,7 @@ namespace Pimpact{
 /// \ingroup BaseOperator
 /// \deprecated use flexicble \c DivOpGrad operator
 template< class Scalar, class Ordinal >
-class Div_Hinv_Grad {
+class DivHinvGrad {
 public:
   typedef ScalarField<Scalar,Ordinal>  DomainFieldT;
   typedef ScalarField<Scalar,Ordinal>  RangeFieldT;
@@ -34,13 +36,12 @@ private:
   Teuchos::RCP< MVF > temp1_;
   Teuchos::RCP< Div<Scalar,Ordinal> > div_;
   Teuchos::RCP< Grad<Scalar,Ordinal> > grad_;
-  Teuchos::RCP< LinearProblem<Scalar, MVF, HType > > H_;
+  Teuchos::RCP< LinearProblem<MVF> > H_;
 
 public:
-  Div_Hinv_Grad( Teuchos::RCP<MVF> temp,
-//        Teuchos::RCP<Div<Scalar,Ordinal> > div,
-//        Teuchos::RCP<Grad<Scalar,Ordinal> > grad,
-      Teuchos::RCP< LinearProblem<Scalar, MVF, HType > > H ):
+  DivHinvGrad(
+      Teuchos::RCP<MVF> temp=Teuchos::null,
+      Teuchos::RCP< LinearProblem<MVF > > H=Teuchos::null ):
         temp0_(temp->clone(1)), temp1_(temp->clone(1)),
         div_(Teuchos::rcp( new Div<Scalar,Ordinal> ) ),
         grad_(Teuchos::rcp( new Grad<Scalar,Ordinal> ) ),
@@ -57,14 +58,14 @@ public:
 };
 
 
+
 template< class Scalar, class Ordinal>
-Teuchos::RCP<OperatorMV< Div_Hinv_Grad<Scalar,Ordinal> > > createDivHinvGrad(
+Teuchos::RCP<DivHinvGrad<Scalar,Ordinal> > createDivHinvGrad(
     Teuchos::RCP<MultiField<VectorField<Scalar,Ordinal> > > temp,
-    Teuchos::RCP< LinearProblem<Scalar, MultiField<VectorField<Scalar,Ordinal> >, OperatorMV<Helmholtz<Scalar,Ordinal> > > > H ) {
+    Teuchos::RCP< LinearProblem<MultiField<VectorField<Scalar,Ordinal> > > > H ) {
 
   return(
-      Teuchos::rcp( new OperatorMV<Div_Hinv_Grad<Scalar,Ordinal> >( Teuchos::rcp( new Div_Hinv_Grad<Scalar,Ordinal>( temp, H ) ) ) )
-  );
+      Teuchos::rcp( new DivHinvGrad<Scalar,Ordinal>( temp, H ) ) );
 
 }
 

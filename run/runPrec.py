@@ -15,13 +15,13 @@ os.chdir(exe_path)
 os.system('make -j4')
 
 woms = np.array([0.01,0.05,0.1,0.5,1.,5,10.,50,100.,225])
-woms = 10**np.linspace(-1,3,20)
+woms = 10**np.linspace(-1,2,5)
 
 oms  = woms
 
 case_path = ['','','']
 
-for i in range(4,8):
+for i in range(5,7):
   n = str(2**i+1)
   case_consts = ' --flow=3 --nx='+n+' --ny='+n+' '
   

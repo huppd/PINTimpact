@@ -12,43 +12,54 @@
 #include "Pimpact_GradOp.hpp"
 #include "Pimpact_HelmholtzOp.hpp"
 #include "Pimpact_DtHelmholtzOp.hpp"
+
 #include "Pimpact_OperatorMV.hpp"
+#include "Pimpact_ModeOpWrap.hpp"
+#include "Pimpact_MultiOpWrap.hpp"
 
 #include "Pimpact_LinearProblem.hpp"
+
+
+
 
 namespace Pimpact{
 
 
-
 /// \brief periodic Operator for Schur complement.
 /// \ingroup ModeOperator
-/// \deprecated use flexicble \c DivOpGrad operator
 template< class Scalar, class Ordinal >
 class Div_DtLinv_Grad {
+
 public:
-  typedef ScalarField<Scalar,Ordinal>  DomainFieldT;
-  typedef ScalarField<Scalar,Ordinal>  RangeFieldT;
+
+  typedef ModeField< ScalarField<Scalar,Ordinal> > DomainFieldT;
+  typedef ModeField< ScalarField<Scalar,Ordinal> > RangeFieldT;
   typedef MultiField<ModeField<VectorField<Scalar,Ordinal> > > MVF;
-  typedef OperatorMV<DtL<Scalar,Ordinal> > HType;
   typedef ModeOp OpType;
+
 private:
   Teuchos::RCP< MVF > temp0_;
   Teuchos::RCP< MVF > temp1_;
-  Teuchos::RCP< Div<Scalar,Ordinal> > div_;
+  Teuchos::RCP< Div<Scalar,Ordinal> >  div_;
   Teuchos::RCP< Grad<Scalar,Ordinal> > grad_;
-  Teuchos::RCP< LinearProblem<Scalar, MVF, HType > > H_;
+  Teuchos::RCP< LinearProblem<MVF> > H_;
+
 
 public:
-  Div_DtLinv_Grad( Teuchos::RCP<MVF> temp,
-//        Teuchos::RCP<Div<Scalar,Ordinal> > div,
-//        Teuchos::RCP<Grad<Scalar,Ordinal> > grad,
-      Teuchos::RCP< LinearProblem<Scalar, MVF, HType > > H ):
+  Div_DtLinv_Grad():
+        temp0_(Teuchos::null), temp1_(Teuchos::null),
+        div_(Teuchos::rcp( new Div<Scalar,Ordinal> ) ),
+        grad_(Teuchos::rcp( new Grad<Scalar,Ordinal> ) ),
+        H_(Teuchos::null) {};
+
+  Div_DtLinv_Grad( const Teuchos::RCP<MVF>& temp,
+      const Teuchos::RCP< LinearProblem<MVF> >& H ):
         temp0_(temp->clone(1)), temp1_(temp->clone(1)),
         div_(Teuchos::rcp( new Div<Scalar,Ordinal> ) ),
         grad_(Teuchos::rcp( new Grad<Scalar,Ordinal> ) ),
         H_(H) {};
 
-  void apply(const ModeField<DomainFieldT>& x, ModeField<RangeFieldT>& y) const {
+  void apply(const DomainFieldT& x, RangeFieldT& y) const {
     grad_->apply( x.getConstCField(), temp0_->getFieldPtr(0)->getCField() );
     grad_->apply( x.getConstSField(), temp0_->getFieldPtr(0)->getSField() );
     H_->solve( temp1_, temp0_);
@@ -62,15 +73,11 @@ public:
 
 
 template< class Scalar, class Ordinal>
-Teuchos::RCP<OperatorMV< Div_DtLinv_Grad<Scalar,Ordinal> > > createDivDtLinvGrad(
-    Teuchos::RCP<MultiField<ModeField<VectorField<Scalar,Ordinal> > > > temp,
-    Teuchos::RCP< LinearProblem<Scalar, MultiField<ModeField<VectorField<Scalar,Ordinal> > >,
-    OperatorMV<DtL<Scalar,Ordinal> > > > H ) {
-
+Teuchos::RCP< Div_DtLinv_Grad<Scalar,Ordinal> > createDivDtLinvGrad(
+    const Teuchos::RCP<MultiField<ModeField<VectorField<Scalar,Ordinal> > > >& temp,
+    const Teuchos::RCP< LinearProblem<MultiField<ModeField<VectorField<Scalar,Ordinal> > > > >& H ) {
   return(
-      Teuchos::rcp(
-          new OperatorMV<Div_DtLinv_Grad<Scalar,Ordinal> >(
-              Teuchos::rcp( new Div_DtLinv_Grad<Scalar,Ordinal>( temp, H) ) ) )
+      Teuchos::rcp( new Div_DtLinv_Grad<Scalar,Ordinal>( temp, H ) )
   );
 }
 

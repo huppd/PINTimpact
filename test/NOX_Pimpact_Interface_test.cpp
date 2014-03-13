@@ -107,12 +107,12 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, createInterface ) {
   solverParams->get()->set ("Verbosity",  Belos::Errors );
 
 // Create the Pimpact::LinearSolver solver.
-  auto lp_DTL = Pimpact::createLinearProblem<S,Interface::BVF,Interface::DTL>(
+  auto lp_DTL = Pimpact::createLinearProblem<Interface::BVF>(
       dtL, xv->clone(), xv->clone(), solverParams->get(), solverName );
 
   auto schur = Pimpact::createDivDtLinvGrad<S,O>( xv->clone(), lp_DTL );
 
-  auto lp_Schur = Pimpact::createLinearProblem<S,Interface::BSF,Interface::Schur>(
+  auto lp_Schur = Pimpact::createLinearProblem<Interface::BSF>(
       schur, xs->clone(), xs->clone(), solverParams->get(), solverName );
 
   auto stockie = NOX::Pimpact::createInterface(xv->clone(),xs->clone(),lp_DTL,lp_Schur);
@@ -155,12 +155,12 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, computeF ) {
   solverParams->get()->set ("Verbosity",  Belos::Errors );
 
 // Create the Pimpact::LinearSolver solver.
-  auto lp_DTL = Pimpact::createLinearProblem<S,Interface::BVF,Interface::DTL>(
+  auto lp_DTL = Pimpact::createLinearProblem<Interface::BVF>(
       dtL, xv->clone(), xv->clone(), solverParams->get(), solverName );
 
   auto schur = Pimpact::createDivDtLinvGrad<S,O>( xv->clone(), lp_DTL );
 
-  auto lp_Schur = Pimpact::createLinearProblem<S,Interface::BSF,Interface::Schur>(
+  auto lp_Schur = Pimpact::createLinearProblem<Interface::BSF>(
       schur, xs->clone(), xs->clone(), solverParams->get(), solverName );
 
   auto stockie = NOX::Pimpact::createInterface(xv->clone(),xs->clone(),lp_DTL,lp_Schur);
@@ -208,12 +208,12 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, computeJacobian ) {
   solverParams->get()->set ("Verbosity",  Belos::Errors );
 
 // Create the Pimpact::LinearSolver solver.
-  auto lp_DTL = Pimpact::createLinearProblem<S,Interface::BVF,Interface::DTL>(
+  auto lp_DTL = Pimpact::createLinearProblem<Interface::BVF>(
       dtL, xv->clone(), xv->clone(), solverParams->get(), solverName );
 
   auto schur = Pimpact::createDivDtLinvGrad<S,O>( xv->clone(), lp_DTL );
 
-  auto lp_Schur = Pimpact::createLinearProblem<S,Interface::BSF,Interface::Schur>(
+  auto lp_Schur = Pimpact::createLinearProblem<Interface::BSF>(
       schur, xs->clone(), xs->clone(), solverParams->get(), solverName );
 
   auto stockie = NOX::Pimpact::createInterface(xv->clone(), xs->clone(),lp_DTL,lp_Schur);
@@ -261,12 +261,12 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, applyJacobian ) {
   solverParams->get()->set ("Verbosity",  Belos::Errors );
 
 // Create the Pimpact::LinearSolver solver.
-  auto lp_DTL = Pimpact::createLinearProblem<S,Interface::BVF,Interface::DTL>(
+  auto lp_DTL = Pimpact::createLinearProblem<Interface::BVF>(
       dtL, xv->clone(), xv->clone(), solverParams->get(), solverName );
 
   auto schur = Pimpact::createDivDtLinvGrad<S,O>( xv->clone(), lp_DTL );
 
-  auto lp_Schur = Pimpact::createLinearProblem<S,Interface::BSF,Interface::Schur>(
+  auto lp_Schur = Pimpact::createLinearProblem<Interface::BSF>(
       schur, xs->clone(), xs->clone(), solverParams->get(), solverName );
 
   auto stockie = NOX::Pimpact::createInterface(xv->clone(),xs->clone(),lp_DTL,lp_Schur);
@@ -313,12 +313,12 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, applyJacobianInverse ) {
   solverParams->get()->set ("Verbosity",  Belos::Errors );
 
 // Create the Pimpact::LinearSolver solver.
-  auto lp_DTL = Pimpact::createLinearProblem<S,Interface::BVF,Interface::DTL>(
+  auto lp_DTL = Pimpact::createLinearProblem<Interface::BVF>(
       dtL, xv->clone(), xv->clone(), solverParams->get(), solverName );
 
   auto schur = Pimpact::createDivDtLinvGrad<S,O>( xv->clone(), lp_DTL );
 
-  auto lp_Schur = Pimpact::createLinearProblem<S,Interface::BSF,Interface::Schur>(
+  auto lp_Schur = Pimpact::createLinearProblem<Interface::BSF>(
       schur, xs->clone(), xs->clone(), solverParams->get(), solverName );
 
   auto stockie = NOX::Pimpact::createInterface(xv->clone(),xs->clone(),lp_DTL,lp_Schur);
@@ -354,7 +354,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_SimpleNonlinear, computeF ) {
   auto x = Pimpact::createMultiField<VF>(*vel->clone(),10);
   auto y = Pimpact::createMultiField<VF>(*vel->clone(),10);
 
-  auto op = Pimpact::createOperatorBasedep<MVF,OP>();
+  auto op = Pimpact::createOperatorBaseMV<MVF,OP>();
 //  auto op = Pimpact::createOperatorMV<O(void);
 
   for( int i=0; i<10; ++i ) {
@@ -367,7 +367,7 @@ x->getFieldPtr(0)->write();
 
   y->getFieldPtr(0)->write(99);
 
-  auto lp = Pimpact::createLinearProblem<S,MVF,BOP>(
+  auto lp = Pimpact::createLinearProblem<MVF>(
         op, x->clone(), y->clone(), Pimpact::createLinSolverParameter("GMRES",1.e-12)->get(), "GMRES");
   auto inter = NOX::Pimpact::createSimpleNonlinear( y, op, lp );
 

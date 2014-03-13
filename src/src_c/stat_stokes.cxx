@@ -27,6 +27,7 @@
 
 #include "Pimpact_Operator.hpp"
 #include "Pimpact_OperatorMV.hpp"
+#include "Pimpact_OperatorFactory.hpp"
 
 #include "Pimpact_LinearProblem.hpp"
 #include "Pimpact_LinSolverParameter.hpp"
@@ -49,7 +50,7 @@ int main(int argi, char** argv ) {
 	typedef Pimpact::MultiField<VF> MVF;
 	typedef Pimpact::MultiField<SF> MSF;
 	typedef Pimpact::OperatorMV< Pimpact::Helmholtz<S,O> >  Lap;
-	typedef Pimpact::OperatorMV< Pimpact::Div_Hinv_Grad<S,O> >  Schur;
+	typedef Pimpact::OperatorMV< Pimpact::DivHinvGrad<S,O> >  Schur;
 	typedef Pimpact::OperatorMV< Pimpact::Grad<S,O> >  G;
 
 	// intialize MPI
@@ -181,7 +182,7 @@ int main(int argi, char** argv ) {
 
 
 	// init operators
-	auto lap  = Pimpact::createHelmholtzdep<S,O>( 0., 1./re );
+	auto lap  = Pimpact::createMultiOperatorBase<MVF,Pimpact::Helmholtz<S,O> >(Pimpact::createHelmholtz<S,O>( 0., 1./re ) );
 	auto div  = Pimpact::createOperatorMV<Pimpact::Div<S,O> >();
 	auto grad = Pimpact::createOperatorMV<Pimpact::Grad<S,O> >();
 
@@ -211,12 +212,12 @@ int main(int argi, char** argv ) {
 
 	// create problems/solvers
 	solveParaCG->set( "Output Stream", outLap1 );
-	auto lap_problem = Pimpact::createLinearProblem<S,MVF,Lap>( lap, u, fu, solveParaCG, "GMRES" );
+	auto lap_problem = Pimpact::createLinearProblem<MVF>( lap, u, fu, solveParaCG, "GMRES" );
 
-	auto schur = Pimpact::createDivHinvGrad<S,O>( u, lap_problem );
+	auto schur = Pimpact::createMultiOperatorBase<MSF, Pimpact::DivHinvGrad<S,O> >(Pimpact::createDivHinvGrad<S,O>( u, lap_problem ) );
 
 	solveParaGMRES->set( "Output Stream", outSchur );
-	auto schur_prob = Pimpact::createLinearProblem<S,MSF,Schur>( schur, p, temps, solveParaGMRES, "GMRES" );
+	auto schur_prob = Pimpact::createLinearProblem<MSF>( schur, p, temps, solveParaGMRES, "GMRES" );
 
 
 	// solve stationary stokes
