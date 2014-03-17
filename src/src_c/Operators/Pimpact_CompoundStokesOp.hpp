@@ -76,6 +76,8 @@ public:
     y->getSFieldPtr()->add( 1., y->getSField(), 1., *temp_ );
   }
 
+  void assignField( const DomainFieldT& mv ) {};
+
   bool hasApplyTranspose() const { return( false ); }
 };
 

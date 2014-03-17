@@ -27,7 +27,7 @@ class InverseOperator {
 
   typedef MultiField           MF;
   typedef typename MF::Scalar  S;
-//  typedef OperatorBase<MF>     Op;
+  typedef OperatorBase<MF>     Op;
 
 public:
 
@@ -50,6 +50,10 @@ public:
   void apply(const MF& x, MF& y, Belos::ETrans trans=Belos::NOTRANS ) const {
     linprob_->solve( Teuchos::rcpFromRef(y), Teuchos::rcpFromRef(x) );
   }
+
+  void assignField( const DomainFieldT& mv ) {
+    Teuchos::rcp_const_cast<Op>( linprob_->getProblem()->getOperator() )->assignField( mv );
+  };
 
   bool hasApplyTranspose() const { return( false ); }
 

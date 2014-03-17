@@ -30,7 +30,8 @@ public:
   typedef VectorField<Scalar,Ordinal>  RangeFieldT;
 //  typedef MultiField<ModeField<VectorField<Scalar,Ordinal> > > BVF;
   typedef MultiField<VectorField<Scalar,Ordinal> > BVF;
-  typedef OperatorMV<Helmholtz<Scalar,Ordinal> > LapType;
+//  typedef OperatorMV<Helmholtz<Scalar,Ordinal> > LapType;
+//  typedef O
   typedef NonModeOp OpType;
 
 private:
@@ -50,6 +51,8 @@ public:
     auto Y = createMultiField<RangeFieldT>( Teuchos::rcpFromRef( y ) );
     lap_prob_->solve( Y, X );
   }
+
+  void assignField( const DomainFieldT& mv ) {};
 
   bool hasApplyTranspose() const { return( false ); }
 

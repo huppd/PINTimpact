@@ -31,6 +31,8 @@ public:
     y.getSFieldPtr()->add( -omega_,  x.getConstCField(),     0., x.getConstSField() );
   }
 
+  void assignField( const DomainFieldT& mv ) {};
+
   bool hasApplyTranspose() const { return( false ); }
 };
 

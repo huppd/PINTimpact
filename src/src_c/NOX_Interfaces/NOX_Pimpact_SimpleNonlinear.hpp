@@ -99,18 +99,9 @@ public:
   /// \brief Compute the Jacobian Operator, given the specified input vector x. Returns true if computation was successful.
   /// \todo biggest baustelle unify this for \c Operators
   NOX::Abstract::Group::ReturnType computeJacobian( const Field& x ) {
-//    auto opJ = jop_->getProblem()->getOperator();
-//    auto opJ2 = Teuchos::rcp_const_cast<Op>(opJ);
-//    auto opJ3 = Teuchos::rcp_dynamic_cast<
-//        ::Pimpact::OperatorPimpldep<Field,::Pimpact::NonlinearJacobian<typename Field::Scalar,typename Field::Ordinal> > >( opJ2 );
-//    opJ3->getOperatorPtr()->setU( x.getConstField(0).clone() );
-//    Teuchos::rcp_dynamic_cast<
-//      ::Pimpact::OperatorPimpl<Field,
-//      ::Pimpact::NonlinearJacobian<typename Field::Scalar,typename Field::Ordinal> > >(
-//          Teuchos::rcp_const_cast< ::Pimpact::OperatorBase<Field> >
-//          lp_->getProblem()->getOperator()
-//          , true )->getOperatorPtr()->setU( x.getConstField(0).clone() );
-//    Teuchos::rcp_dynamic_cast< ::Pimpact::Nonlinear<double,int> >( nonlinear_, true )->setU( x.getConstField(0).clone()) ;
+    auto opJ = jop_->getProblem()->getOperator();
+    Teuchos::rcp_const_cast<Op>(opJ)->assignField( x );
+
     return( NOX::Abstract::Group::Ok );
   }
 

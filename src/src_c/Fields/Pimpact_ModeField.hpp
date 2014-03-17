@@ -308,8 +308,8 @@ protected:
  */
 template<class Field>
 Teuchos::RCP< ModeField<Field> > createModeField( const Teuchos::RCP<Field>&  fieldc, const Teuchos::RCP<Field>& fields ) {
-	return Teuchos::RCP<ModeField<Field> > (
-				new ModeField<Field>( fieldc, fields ) );
+	return( Teuchos::rcp(
+				new ModeField<Field>( fieldc, fields ) ) );
 }
 
 

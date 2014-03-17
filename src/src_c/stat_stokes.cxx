@@ -49,9 +49,9 @@ int main(int argi, char** argv ) {
 	typedef Pimpact::ScalarField<S,O> SF;
 	typedef Pimpact::MultiField<VF> MVF;
 	typedef Pimpact::MultiField<SF> MSF;
-	typedef Pimpact::OperatorMV< Pimpact::Helmholtz<S,O> >  Lap;
-	typedef Pimpact::OperatorMV< Pimpact::DivHinvGrad<S,O> >  Schur;
-	typedef Pimpact::OperatorMV< Pimpact::Grad<S,O> >  G;
+	typedef Pimpact::MultiOpWrap< Pimpact::Helmholtz<S,O> >  Lap;
+	typedef Pimpact::MultiOpWrap< Pimpact::DivHinvGrad<S,O> >  Schur;
+	typedef Pimpact::MultiOpWrap< Pimpact::Grad<S,O> >  G;
 
 	// intialize MPI
 	MPI_Init( &argi, &argv );
@@ -183,8 +183,8 @@ int main(int argi, char** argv ) {
 
 	// init operators
 	auto lap  = Pimpact::createMultiOperatorBase<MVF,Pimpact::Helmholtz<S,O> >(Pimpact::createHelmholtz<S,O>( 0., 1./re ) );
-	auto div  = Pimpact::createOperatorMV<Pimpact::Div<S,O> >();
-	auto grad = Pimpact::createOperatorMV<Pimpact::Grad<S,O> >();
+	auto div  = Pimpact::createMultiOpWrap<Pimpact::Div<S,O> >();
+	auto grad = Pimpact::createMultiOpWrap<Pimpact::Grad<S,O> >();
 
 	// init rhs
 	lap->apply( *u, *fu );

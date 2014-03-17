@@ -68,6 +68,8 @@ public:
     div_->apply( temp1_->getFieldPtr(0)->getConstSField(), y.getSField() );
   }
 
+  void assignField( const DomainFieldT& mv ) {};
+
   bool hasApplyTranspose() const { return( false ); }
 
 };

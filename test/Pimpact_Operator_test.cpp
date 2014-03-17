@@ -153,33 +153,33 @@ TEUCHOS_UNIT_TEST( Operator, HelmholtzMVMode ) {
 
 
 
-TEUCHOS_UNIT_TEST( Operator, Dt ) {
-
-	auto fS = Pimpact::createFieldSpace<int>();
-	auto iIS = Pimpact::createInnerFieldIndexSpaces<int>();
-	auto fIS = Pimpact::createFullFieldIndexSpaces<int>();
-
-	auto velc = Pimpact::createVectorField<double,int>(fS,iIS,fIS);
-	auto vels = Pimpact::createVectorField<double,int>(fS,iIS,fIS);
-
-	auto vel = Pimpact::createModeField( velc, vels );
-
-	auto mv = Pimpact::createMultiField<Pimpact::ModeField<Pimpact::VectorField<double,int> > >(*vel,1);
-
-	mv->getFieldPtr(0)->getCFieldPtr()->init(1.);
-	mv->getFieldPtr(0)->getSFieldPtr()->init(0.);
-
-	auto mv2 = mv->clone(1);
-	mv2->init(0.);
-
-	auto A = Pimpact::createOperatorMV<Pimpact::Dt<double,int> >();
-
-	A->apply(*mv,*mv2);
-
-	TEST_EQUALITY( mv->getConstFieldPtr(0)->getConstCFieldPtr()->norm(), mv2->getConstFieldPtr(0)->getConstSFieldPtr()->norm() );
-	TEST_EQUALITY( mv->getConstFieldPtr(0)->getConstSFieldPtr()->norm(), mv2->getConstFieldPtr(0)->getConstCFieldPtr()->norm() );
-	Belos::OperatorTraits<double,Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<double,int> > >, Pimpact::OperatorMV<Pimpact::Dt<double,int> > >::Apply(*A,*mv,*mv2);
-}
+//TEUCHOS_UNIT_TEST( Operator, Dt ) {
+//
+//	auto fS = Pimpact::createFieldSpace<int>();
+//	auto iIS = Pimpact::createInnerFieldIndexSpaces<int>();
+//	auto fIS = Pimpact::createFullFieldIndexSpaces<int>();
+//
+//	auto velc = Pimpact::createVectorField<double,int>(fS,iIS,fIS);
+//	auto vels = Pimpact::createVectorField<double,int>(fS,iIS,fIS);
+//
+//	auto vel = Pimpact::createModeField( velc, vels );
+//
+//	auto mv = Pimpact::createMultiField<Pimpact::ModeField<Pimpact::VectorField<double,int> > >(*vel,1);
+//
+//	mv->getFieldPtr(0)->getCFieldPtr()->init(1.);
+//	mv->getFieldPtr(0)->getSFieldPtr()->init(0.);
+//
+//	auto mv2 = mv->clone(1);
+//	mv2->init(0.);
+//
+//	auto A = Pimpact::createOperatorMV<Pimpact::Dt<double,int> >();
+//
+//	A->apply(*mv,*mv2);
+//
+//	TEST_EQUALITY( mv->getConstFieldPtr(0)->getConstCFieldPtr()->norm(), mv2->getConstFieldPtr(0)->getConstSFieldPtr()->norm() );
+//	TEST_EQUALITY( mv->getConstFieldPtr(0)->getConstSFieldPtr()->norm(), mv2->getConstFieldPtr(0)->getConstCFieldPtr()->norm() );
+//	Belos::OperatorTraits<double,Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<double,int> > >, Pimpact::OperatorMV<Pimpact::Dt<double,int> > >::Apply(*A,*mv,*mv2);
+//}
 
 
 

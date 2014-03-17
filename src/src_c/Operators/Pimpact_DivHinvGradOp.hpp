@@ -22,14 +22,14 @@ namespace Pimpact{
 
 /// \brief stationary Operator for Schur complement.
 /// \ingroup BaseOperator
-/// \deprecated use flexicble \c DivOpGrad operator
 template< class Scalar, class Ordinal >
 class DivHinvGrad {
 public:
   typedef ScalarField<Scalar,Ordinal>  DomainFieldT;
   typedef ScalarField<Scalar,Ordinal>  RangeFieldT;
   typedef MultiField<VectorField<Scalar,Ordinal> > MVF;
-  typedef OperatorMV<Helmholtz<Scalar,Ordinal> > HType;
+  typedef OperatorBase<MVF> HType;
+//  typedef OperatorMV<Helmholtz<Scalar,Ordinal> > HType;
   typedef NonModeOp OpType;
 private:
   Teuchos::RCP< MVF > temp0_;
@@ -53,6 +53,9 @@ public:
     div_->apply(temp1_->getField(0),y);
     return;
   }
+
+  void assignField( const DomainFieldT& mv ) {};
+
   bool hasApplyTranspose() const { return( false ); }
 
 };

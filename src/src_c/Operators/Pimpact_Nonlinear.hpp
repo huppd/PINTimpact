@@ -32,8 +32,12 @@ private:
 public:
   Nonlinear():u_(Teuchos::null) {};
 
-  void setU(const Teuchos::RCP<DomainFieldT>& u) { u_=u; }
-  void assignU(Teuchos::RCP<DomainFieldT> u) { u_->assign(u); }
+//  void setU(const Teuchos::RCP<DomainFieldT>& u) { u_=u; }
+//  void assignU(Teuchos::RCP<DomainFieldT> u) { u_->assign(u); }
+
+  void assignField( const DomainFieldT& mv ) {
+    u_->assign( mv );
+  };
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
 //    u_.assing( x );
@@ -71,15 +75,23 @@ private:
   Teuchos::RCP<DomainFieldT> temp_;
 public:
   NonlinearJacobian():u_(Teuchos::null) {};
+  NonlinearJacobian( const Teuchos::RCP<DomainFieldT>& u ):
+    u_(u->clone()),temp_(u->clone()) {};
 
-  void setU(Teuchos::RCP<DomainFieldT> u) {
-    u_=u;
-    temp_=u->clone(ShallowCopy);
-  }
-  void assignU(Teuchos::RCP<DomainFieldT> u) {
-    u_->add( 0., u_, 1., u );
-//    u_->assign(u);
-  }
+//  void setU(Teuchos::RCP<DomainFieldT> u) {
+//    u_=u;
+//    temp_=u->clone(ShallowCopy);
+//  }
+//  void assignU(Teuchos::RCP<DomainFieldT> u) {
+//    u_->add( 0., u_, 1., u );
+////    u_->assign(u);
+//  }
+  void assignField( const DomainFieldT& mv ) {
+    if( Teuchos::is_null( u_ ) )
+      u_ = mv.clone();
+    else
+      u_->assign( mv );
+  };
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
 //    u_.assing( x );
@@ -101,8 +113,12 @@ public:
 
 
 template< class S, class O>
-Teuchos::RCP<NonlinearJacobian<S,O> > createNonlinearJacobian() {
-  return( Teuchos::rcp( new NonlinearJacobian<S,O>() ) );
+Teuchos::RCP<NonlinearJacobian<S,O> > createNonlinearJacobian(
+    const Teuchos::RCP<typename NonlinearJacobian<S,O>::DomainFieldT>& u = Teuchos::null ) {
+  if( Teuchos::is_null(u) )
+    return( Teuchos::rcp( new NonlinearJacobian<S,O>() ) );
+  else
+    return( Teuchos::rcp( new NonlinearJacobian<S,O>( u ) ) );
 }
 
 //template<class Scalar,class Ordinal>

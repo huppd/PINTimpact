@@ -46,6 +46,8 @@ public:
 //    OP_div_grad( true, x.s_, y.s_ );
   }
 
+  void assignField( const DomainFieldT& mv ) {};
+
   bool hasApplyTranspose() const { return( false ); }
 };
 

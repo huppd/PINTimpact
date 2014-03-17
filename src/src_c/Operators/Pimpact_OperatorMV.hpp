@@ -1,6 +1,6 @@
 #pragma once
-#ifndef PIMPACT_OPERATORMV_HPP
 #define PIMPACT_OPERATORMV_HPP
+#ifndef PIMPACT_OPERATORMV_HPP
 
 
 #include "Teuchos_RCP.hpp"

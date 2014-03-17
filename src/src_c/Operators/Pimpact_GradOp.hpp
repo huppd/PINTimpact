@@ -30,6 +30,9 @@ public:
       OP_bc_extrapolation( i+1, y.vec_[i] );
     }
   }
+
+  void assignField( const DomainFieldT& mv ) {};
+
   bool hasApplyTranspose() const { return( false ); }
 };
 

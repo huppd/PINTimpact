@@ -47,6 +47,9 @@ public:
 			op_->apply( x.getConstField(i), y.getField(i) );
 	}
 
+  void assignField( const DomainFieldT& mv ) {
+    op_->assignField( mv.getConstField(0) );
+  };
 
 	bool hasApplyTranspose() const { return( op_->hasApplyTranspose() ); }
 

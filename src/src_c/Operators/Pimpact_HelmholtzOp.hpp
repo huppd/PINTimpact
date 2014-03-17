@@ -40,16 +40,19 @@ public:
     for( int d=0; d<2; ++d )
       OP_helmholtz( d+1, true, mulI_, mulL_, x.vec_[d], y.vec_[d] ) ;
   }
+
+  void assignField( const DomainFieldT& mv ) {};
+
   bool hasApplyTranspose() const { return( false ); }
 };
 
 
-template<class Scalar,class Ordinal>
-Teuchos::RCP< OperatorMV<Helmholtz<Scalar,Ordinal> > > createHelmholtzdep( Scalar mulI=0., Scalar mulL=1. ) {
-  return(
-      Teuchos::rcp( new OperatorMV<Helmholtz<Scalar,Ordinal> >( Teuchos::rcp( new Helmholtz<Scalar,Ordinal>(mulI, mulL) ) ) )
-  );
-}
+//template<class Scalar,class Ordinal>
+//Teuchos::RCP< OperatorMV<Helmholtz<Scalar,Ordinal> > > createHelmholtzdep( Scalar mulI=0., Scalar mulL=1. ) {
+//  return(
+//      Teuchos::rcp( new OperatorMV<Helmholtz<Scalar,Ordinal> >( Teuchos::rcp( new Helmholtz<Scalar,Ordinal>(mulI, mulL) ) ) )
+//  );
+//}
 
 template<class Scalar,class Ordinal>
 Teuchos::RCP<Helmholtz<Scalar,Ordinal> > createHelmholtz( Scalar mulI=0., Scalar mulL=1. ) {

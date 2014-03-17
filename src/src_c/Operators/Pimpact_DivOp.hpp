@@ -26,6 +26,9 @@ public:
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
     OP_div(x.vec_[0],x.vec_[1],x.vec_[2],y.s_);
   }
+
+  void assignField( const DomainFieldT& mv ) {};
+
   bool hasApplyTranspose() const { return( false ); }
 };
 

@@ -35,7 +35,7 @@ public:
 		}
 		else if( solver_name=="GMRES" ) {
 			parameter_->set( "Num Blocks",								25	  );
-      parameter_->set( "Maximum Iterations",        500   );
+      parameter_->set( "Maximum Iterations",        800   );
 //			parameter_->set( "Num Blocks",								100		 );
 //      parameter_->set( "Maximum Iterations",        1000   );
 			parameter_->set( "Maximum Restarts",					20		 );
@@ -47,7 +47,7 @@ public:
 			parameter_->set( "Orthogonalization",					"DGKS" );
 
 			parameter_->set( "Verbosity",									verbo	 );
-			parameter_->set( "Output Frequency",					10		 );
+			parameter_->set( "Output Frequency",					100		 );
 			parameter_->set( "Output Style",							style	 );
 			parameter_->set( "Timer Label",								"Belos");
 //			parameter_->set( "Show Maximum Residual Norm Only", int(0)		 );
@@ -64,7 +64,7 @@ public:
 //			parameter_->set( "Implicit Residual Scaling",	"None" );
 //			parameter_->set( "Explicit Residual Scaling",	"None" );
 
-			parameter_->set( "Output Frequency",					10 		 );
+			parameter_->set( "Output Frequency",					100		 );
 			parameter_->set( "Verbosity",									verbo	 );
 			parameter_->set( "Output Style",							style	 );
 			parameter_->set( "Timer Label",								"Belos");
@@ -78,7 +78,7 @@ public:
 			parameter_->set( "Rel Mat Err",								tol    );
 			parameter_->set( "Orthogonalization",					"DGKS" );
 			parameter_->set( "Verbosity",									verbo	 );
-			parameter_->set( "Output Frequency",					1			 );
+			parameter_->set( "Output Frequency",					10			 );
 			parameter_->set( "Output Style",							0    	 );
 			parameter_->set( "Lambda",										1.e-12 );
 			parameter_->set( "Timer Label",								"Belos");

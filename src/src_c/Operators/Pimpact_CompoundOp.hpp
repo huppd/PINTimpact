@@ -52,9 +52,17 @@ public:
 //    temp_ = const_cast<Teuchos::RCP<DomainFieldT> >(x.clone()) ;
 //    temp_ = x.clone() ;
 //    temp_ = Teuchos::rcp( new DomainFieldT() );
+//    op1_->apply( x, *temp_ );
+//    op2_->apply( *temp_, y );
     op1_->apply( x, *temp_ );
-    op2_->apply( *temp_, y );
+    op2_->apply( x, y );
+    y.add(1., *temp_,1.,y );
   }
+
+  void assignField( const DomainFieldT& mv ) {
+    op1_->assignField( mv );
+    op2_->assignField( mv );
+  };
 
   bool hasApplyTranspose() const { return( op1_->hasApplyTranspose() && op2_->hasApplyTranspose() ); }
 
