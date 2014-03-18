@@ -27,6 +27,10 @@ ADD_EXECUTABLE(CompoundFieldTest Teuchos_StandardParallelUnitTestMain.cpp Pimpac
 TARGET_LINK_LIBRARIES( CompoundFieldTest ${Pimpact_TPL_LIBRARIES} ) 
 add_test(NAME CompoundFieldTest COMMAND mpirun -np 4 CompoundFieldTest)
 
+ADD_EXECUTABLE( MultiHarmonicFieldTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_MultiHarmonicField_test.cpp )
+TARGET_LINK_LIBRARIES( MultiHarmonicFieldTest ${Pimpact_TPL_LIBRARIES} ) 
+add_test(NAME MultiHarmonicFieldTest COMMAND mpirun -np 4 MultiHarmonicFieldTest)
+
 ADD_EXECUTABLE( MultiFieldTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_MultiField_test.cpp )
 TARGET_LINK_LIBRARIES( MultiFieldTest ${Pimpact_TPL_LIBRARIES} ) 
 add_test( NAME MultiFieldTest COMMAND mpirun -np 4 MultiFieldTest )

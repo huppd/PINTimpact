@@ -3,27 +3,15 @@
 #define PIMPACT_MULTIFIELD_HPP
 
 
-/*! \file Pimpact_MultiField.hpp
-    \brief Provides several interfaces between Belos virtual classes and Tpetra concrete classes.
-*/
+/// \file Pimpact_MultiField.hpp
 
 #include <vector>
-//#include <Teuchos_Assert.hpp>
-//#include <Teuchos_ScalarTraits.hpp>
-//#include <Teuchos_TypeNameTraits.hpp>
 #include <Teuchos_Array.hpp>
 #include "Teuchos_RCP.hpp"
 #include <Teuchos_Range1D.hpp>
-//#include "Teuchos_LocalTestingHelpers.hpp"
 
-//#include <BelosConfigDefs.hpp>
 #include <BelosTypes.hpp>
-//#include <BelosMultiVecTraits.hpp>
-//#include <BelosOperatorTraits.hpp>
 
-//#ifdef HAVE_BELOS_TSQR
-//#  include <Tpetra_TsqrAdaptor.hpp>
-//#endif // HAVE_BELOS_TSQR
 
 #include "Pimpact_Types.hpp"
 //#include "Pimpact_ModeField.hpp"
@@ -34,17 +22,16 @@
 namespace Pimpact {
 
 
-/**
- * \brief templated class which is the interface to \c Belos and \c NOX
- *
- * has multiple \c Field's, where \c Field can be a \c Pimpact:ScalarField, \c
- * Pimpact:VectorField or some combination with \c Pimpact::ModeField or \c
- * Pimpact::CompoundField \note if this is heavily used for many Field's, then
- * the implementation should be improved such that communication is done such
- * that only done once per MV not per Field
- *
- * \note for better documentation, look at the equivalent documentation in the \c Belos::...
- */
+/// \brief templated class which is the interface to \c Belos and \c NOX
+///
+/// has multiple \c Field's, where \c Field can be a \c Pimpact:ScalarField, \c
+/// Pimpact:VectorField or some combination with \c Pimpact::ModeField or \c
+/// Pimpact::CompoundField \note if this is heavily used for many Field's, then
+/// the implementation should be improved such that communication is done such
+/// that only done once per MV not per Field
+///
+/// \note for better documentation, look at the equivalent documentation in the \c Belos::...
+/// \ingroup Field
 template<class Field>
 class MultiField {
 
@@ -65,7 +52,8 @@ public:
   /// \note maybe hide and make it private
   MultiField( const Field& field, const int numvecs, Pimpact::ECopyType ctyp = Pimpact::ShallowCopy):mfs_(numvecs) {
   	for( int i=0; i<numvecs; ++i )
-  		mfs_[i] = Teuchos::rcp( new Field(field, ctyp ) );
+//  		mfs_[i] = Teuchos::rcp( new Field(field, ctyp ) );
+  		mfs_[i] = field.clone(ctyp);
   }
 
 
@@ -376,11 +364,17 @@ public:
   /// \brief Compute the norm for the \c MultiField as it is considered as one Vector .
   /// \todo implement OneNorm
 	Scalar norm(  Belos::NormType type = Belos::TwoNorm ) const {
+
 		int n = getNumberVecs();
-		Scalar nor=0.;
+		Scalar nor = 0.;
 
 		for( int i=0; i<n; ++i ) {
-			nor += mfs_[i]->norm(type);
+		  switch(type) {
+        case Belos::TwoNorm: nor += mfs_[i]->norm(type); break;
+        case Belos::InfNorm: nor = std::max( nor, mfs_[i]->norm(type) ); break;
+        case Belos::OneNorm: std::cout << "!!! Warning Belos::OneNorm not implemented \n"; return(0.);
+        default: std::cout << "!!! Warning unknown Belos::NormType:\t" << type << "\n"; return(0.);
+		  }
 		}
 		return( nor );
 	}

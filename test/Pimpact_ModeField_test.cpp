@@ -19,10 +19,14 @@
 #include <cmath>
 
 
+
+
 namespace {
+
 
 bool testMpi = true;
 double errorTolSlack = 1e+1;
+
 
 TEUCHOS_STATIC_SETUP() {
 	Teuchos::CommandLineProcessor &clp = Teuchos::UnitTestRepository::getCLP();
@@ -34,9 +38,8 @@ TEUCHOS_STATIC_SETUP() {
 	clp.setOption(
 			"error-tol-slack", &errorTolSlack,
 			"Slack off of machine epsilon used to check test results" );
-
-
 }
+
 
 
 TEUCHOS_UNIT_TEST( ScalarModeField, create_init_print ) {
@@ -52,6 +55,7 @@ TEUCHOS_UNIT_TEST( ScalarModeField, create_init_print ) {
 
 	vel->init(rank);
 }
+
 
 
 TEUCHOS_UNIT_TEST( ScalarModeField, InfNorm_and_init ) {
@@ -87,7 +91,6 @@ TEUCHOS_UNIT_TEST( ScalarModeField, InfNorm_and_init ) {
 
 
 TEUCHOS_UNIT_TEST( ScalarModeField, TwoNorm_and_init ) {
-
 	auto sVS = Pimpact::createFieldSpace<int>();
 
 	auto pc = Pimpact::createScalarField<double,int>(sVS);
@@ -107,8 +110,8 @@ TEUCHOS_UNIT_TEST( ScalarModeField, TwoNorm_and_init ) {
 }
 
 
-TEUCHOS_UNIT_TEST( ScalarModeField, dot ) {
 
+TEUCHOS_UNIT_TEST( ScalarModeField, dot ) {
 	auto sVS = Pimpact::createFieldSpace<int>();
 
 	auto p1c = Pimpact::createScalarField<double,int>(sVS);
@@ -149,6 +152,7 @@ TEUCHOS_UNIT_TEST( ScalarModeField, dot ) {
 }
 
 
+
 TEUCHOS_UNIT_TEST( ScalarModeField, scale ) {
 
 	auto sVS = Pimpact::createFieldSpace<int>();
@@ -168,6 +172,7 @@ TEUCHOS_UNIT_TEST( ScalarModeField, scale ) {
 }
 
 
+
 TEUCHOS_UNIT_TEST( ScalarModeField, random ) {
 
 	auto sVS = Pimpact::createFieldSpace<int>();
@@ -185,6 +190,7 @@ TEUCHOS_UNIT_TEST( ScalarModeField, random ) {
 	norm = vel->norm(Belos::TwoNorm);
 	TEST_INEQUALITY( N, norm)
 }
+
 
 
 TEUCHOS_UNIT_TEST( ScalarModeField, add ) {
@@ -237,6 +243,7 @@ TEUCHOS_UNIT_TEST( ScalarModeField, add ) {
 }
 
 
+
 TEUCHOS_UNIT_TEST( ScalarModeField, write ) {
 
 	auto sVS = Pimpact::createFieldSpace<int>();
@@ -256,6 +263,7 @@ TEUCHOS_UNIT_TEST( ScalarModeField, write ) {
 }
 
 
+
 TEUCHOS_UNIT_TEST( VectorModeField, create_init_print ) {
 
   auto fS = Pimpact::createFieldSpace<int>();
@@ -269,6 +277,7 @@ TEUCHOS_UNIT_TEST( VectorModeField, create_init_print ) {
 
   um->init();
 }
+
 
 
 TEUCHOS_UNIT_TEST( VectorModeField, InfNorm_and_init ) {
@@ -328,6 +337,7 @@ TEUCHOS_UNIT_TEST( VectorModeField, TwoNorm_and_init ) {
 }
 
 
+
 TEUCHOS_UNIT_TEST( VectorModeField, dot ) {
 
   auto fS = Pimpact::createFieldSpace<int>();
@@ -370,6 +380,7 @@ TEUCHOS_UNIT_TEST( VectorModeField, dot ) {
   TEST_EQUALITY( 2*N, dot );
 
 }
+
 
 
 TEUCHOS_UNIT_TEST( VectorModeField, scale ) {

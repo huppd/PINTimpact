@@ -15,6 +15,9 @@
 #include "Pimpact_IndexSpace.hpp"
 //#include "Pimpact_Operator.hpp"
 
+#include "Pimpact_ModeField.hpp"
+#include "Pimpact_MultiField.hpp"
+
 
 
 namespace Pimpact {
@@ -22,25 +25,18 @@ namespace Pimpact {
 
 /// \brief important basic Vector class.
 ///
-/// vector for wrapping 2 fields into one mode
+/// vector for wrapping many fields into one multiharmonic field
+/// \ingroup Field
 template<class Field>
 class MultiHarmonicField {
 
-//	template<class S1, class O1>
-//	friend class Grad;
-//	template<class S1,class O1>
-//	friend class Div;
-//	template<class S1,class O1>
-//	friend class Helmholtz;
-
 public:
+
 	typedef typename Field::Scalar Scalar;
 	typedef typename Field::Ordinal Ordinal;
 
 private:
 
-//	using Teuchos::RCP;
-//	typedef Scalar* ScalarArray;
 	typedef MultiHarmonicField<Field> MV;
 
 public:
@@ -67,8 +63,6 @@ public:
   }
 
 
-//	~ModeField() { for(int i=0; i<3; ++i) delete[] vec_[i];}
-
   /// \name Attribute methods
   //@{
 
@@ -83,23 +77,31 @@ public:
 	Teuchos::RCP<const ModeField<Field> > getConstFieldPtr( int i) const { return( fields_->getConstFieldPtr(i) ); }
 
 	Field& getField0() { return( *field0_ ); }
-	ModeField<Field>& getField( int i ) { return( fields_->getField(i) ); }
-
 	const Field& getConstField0() const { return( *field0_ ); }
+
+	ModeField<Field>& getField( int i ) { return( fields_->getField(i) ); }
 	const ModeField<Field>& getConstField( int i ) const { return( fields_->getConstField(i) ); }
 
+	Field& getCField( int i ) { return( fields_->getFieldPtr(i)->getCField() ); }
+	Field& getSField( int i ) { return( fields_->getFieldPtr(i)->getSField() ); }
+	const Field& getConstCField( int i ) const { return( fields_->getConstFieldPtr(i)->getCField() ); }
+	const Field& getConstSField( int i ) const { return( fields_->getConstFieldPtr(i)->getSField() ); }
 
 	/// \brief returns the length of Field.
 	///
 	/// the vector length is with regard to the inner points
 	Ordinal getLength( bool nox_vec=false ) const {
-  	return( field0_->getLength(nox_vec) + fields_->getLength(nox_vec) );
+  	return( field0_->getLength(nox_vec) + fields_->getLength(true) );
   }
 
 
 	/// \brief get number of stored Field's
 	/// \todo what makes sense here?
 	int getNumberVecs() const { return( 1 ); }
+
+	/// \brief get number of mode Field's
+	/// \todo what makes sense here?
+	int getNumberModes() const { return( fields_->getLength(false) ); }
 
 
 	//@}
@@ -282,11 +284,11 @@ protected:
 /// @param sVS scalar Vector Space to which returned vector belongs
 /// @return field vector
 template<class Field>
-Teuchos::RCP< ModeField<Field> > createMultiHarmonicField(
+Teuchos::RCP< MultiHarmonicField<Field> > createMultiHarmonicField(
     const Teuchos::RCP<Field>&  field0,
     const Teuchos::RCP<MultiField<ModeField<Field> > >& fields ) {
 	return Teuchos::rcp(
-				new ModeField<Field>( field0, fields ) );
+				new MultiHarmonicField<Field>( field0, fields ) );
 }
 
 

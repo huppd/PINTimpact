@@ -25,7 +25,7 @@
 namespace Pimpact {
 
 
-/// \ingroup ModeOperator
+/// \ingroup CompoundOperator
 template<class Scalar,class Ordinal>
 class CompoundStokes {
   Scalar omega_;

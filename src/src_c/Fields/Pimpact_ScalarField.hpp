@@ -134,10 +134,10 @@ void SF_write( double* phi, const int& count );
 } // end of extern 'C'
 
 
-/** \brief important basic Vector class
- * vector for a scalar field, e.g.: pressure,
- * \note all indexing is done in Fortran
-*/
+/// \brief important basic Vector class
+/// vector for a scalar field, e.g.: pressure,
+/// \note all indexing is done in Fortran
+/// \ingroup Field
 template<class S, class O>
 class ScalarField {
 
@@ -511,29 +511,28 @@ protected:
 	const Teuchos::RCP<const FieldSpace<Ordinal> > fieldSpace_;
 	array s_;
 
-	const MPI_Fint& commf() const { return  fieldSpace_->commf_ ; }
-	const MPI_Comm& comm() const { return  fieldSpace_->comm_ ; }
-	const int& dim() const {return fieldSpace_->dim_; }
-	const Ordinal& nGlo(int i) const { return fieldSpace_->nGlo_[i]; }
-	const Ordinal& nLoc(int i) const { return  fieldSpace_->nLoc_[i]; }
-	const Ordinal& sInd(int i) const { return fieldSpace_->sInd_[i]; }
-	const Ordinal& eInd(int i) const { return fieldSpace_->eInd_[i]; }
-	const Ordinal& bl(int i) const { return fieldSpace_->bl_[i]; }
-	const Ordinal& bu(int i) const { return fieldSpace_->bu_[i]; }
+	const MPI_Fint& commf() const { return(  fieldSpace_->commf_ ); }
+	const MPI_Comm& comm() const { return( fieldSpace_->comm_ ); }
+	const int& dim() const {return( fieldSpace_->dim_ ); }
+	const Ordinal& nGlo(int i) const { return( fieldSpace_->nGlo_[i] ); }
+	const Ordinal& nLoc(int i) const { return(  fieldSpace_->nLoc_[i] ); }
+	const Ordinal& sInd(int i) const { return( fieldSpace_->sInd_[i] ); }
+	const Ordinal& eInd(int i) const { return( fieldSpace_->eInd_[i] ); }
+	const Ordinal& bl(int i) const { return( fieldSpace_->bl_[i] ); }
+	const Ordinal& bu(int i) const { return( fieldSpace_->bu_[i] ); }
 
 }; // end of class ScalarField
 
 
 
-/** @brief creates a scalar field(vector) belonging to a FieldSpace
- *
- * @param fS scalar Vector Space to which returned vector belongs
- * @return scalar vector
- */
+/// \brief creates a scalar field(vector) belonging to a FieldSpace
+///
+/// \param fS scalar Vector Space to which returned vector belongs
+/// \return scalar vector
 template<class Scalar, class Ordinal>
 Teuchos::RCP< ScalarField<Scalar,Ordinal> > createScalarField( const Teuchos::RCP<const FieldSpace<Ordinal> >& fS) {
-	return Teuchos::RCP<ScalarField<Scalar,Ordinal> > (
-			new ScalarField<Scalar,Ordinal>( fS ) );
+	return( Teuchos::RCP<ScalarField<Scalar,Ordinal> > (
+			new ScalarField<Scalar,Ordinal>( fS ) ) );
 }
 
 

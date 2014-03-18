@@ -20,6 +20,10 @@
 /// \ingroup Operator
 /// Operator operate on compound fields: \c Pimpact::CompoundField
 
+/// \defgroup MultiHarmonicOperator Multi-harmonic Operator
+/// \ingroup Operator
+/// Operator operate on multi-harmonic fields: \c Pimpact::MultiHarmonicField
+
 #include "Pimpact_CompoundOp.hpp"
 #include "Pimpact_CompoundStokesOp.hpp"
 

@@ -11,12 +11,16 @@
 #include "Pimpact_VectorField.hpp"
 #include "Pimpact_ModeField.hpp"
 #include "Pimpact_MultiField.hpp"
+#include "Pimpact_MultiHarmonicField.hpp"
 
 
-/**
- * \file
- * \todo make generat templated create function
- */
+/// \file
+/// \todo make general templated create function
+
+/// \defgroup Field Fields
+///
+/// back bone of Pimpact,  can be seen as linerar algebra vectors
+
 namespace Pimpact {
 
 
@@ -103,6 +107,23 @@ Teuchos::RCP< MultiField<ModeField<ScalarField<Scalar,Ordinal> > > > createInitM
 
 	return( Pimpact::createMultiField<ModeField<ScalarField<Scalar,Ordinal> > >(*sca,1) );
 }
+
+
+/// @brief creates a scalar/vector mode field(vector)
+///
+/// @param sVS scalar Vector Space to which returned vector belongs
+/// @return field vector
+template<class S, class O>
+Teuchos::RCP< MultiHarmonicField< ScalarField<S,O> > > createMultiHarmonicScalarField(
+    const Teuchos::RCP<const FieldSpace<O> >& fS, int nf
+    ) {
+  auto field0 = createScalarField<S,O>( fS );
+  auto mfield = createModeField< ScalarField<S,O> >( field0, field0 );
+  auto fields = createMultiField< ModeField< ScalarField<S,O> > >( *mfield, nf );
+  return Teuchos::rcp(
+        new MultiHarmonicField< ScalarField<S,O> >( field0, fields ) );
+}
+
 
 } // end of namespace Pimpact
 

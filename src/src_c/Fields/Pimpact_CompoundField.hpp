@@ -20,9 +20,9 @@
 namespace Pimpact {
 
 
-/** \brief important basic Vector class
- * vector for wrapping 2 fields into one mode
- */
+/// \brief important basic Vector class
+/// vector for wrapping 2 fields into one mode
+/// \ingroup Field
 template<class VField, class SField>
 class CompoundField {
 

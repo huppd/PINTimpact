@@ -281,6 +281,7 @@ void VF_init_RankineVortex(
 /// \brief important basic Vector class
 /// vector for a vector field, e.g.: velocity,
 /// here also happens the fortran wrapping
+/// \ingroup Field
 template<class S, class O>
 class VectorField {
 
