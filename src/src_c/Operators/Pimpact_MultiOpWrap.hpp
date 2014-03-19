@@ -22,38 +22,38 @@ namespace Pimpact {
 template<class Operator>
 class MultiOpWrap  {
 
-	Teuchos::RCP<Operator> op_;
+  Teuchos::RCP<Operator> op_;
 
 public:
 
-	typedef MultiField<typename Operator::DomainFieldT> DomainFieldT;
-	typedef MultiField<typename Operator::RangeFieldT> RangeFieldT;
-	typedef typename Operator::OpType OpType;
+  typedef MultiField<typename Operator::DomainFieldT> DomainFieldT;
+  typedef MultiField<typename Operator::RangeFieldT> RangeFieldT;
+  typedef typename Operator::OpType OpType;
 
-	MultiOpWrap():op_( Teuchos::rcp( new Operator() ) ) {};
-	MultiOpWrap( const Teuchos::RCP<Operator>& op ):op_(op) {};
-	~MultiOpWrap() {op_=Teuchos::null;};
+  MultiOpWrap():op_( Teuchos::rcp( new Operator() ) ) {};
+  MultiOpWrap( const Teuchos::RCP<Operator>& op ):op_(op) {};
+  ~MultiOpWrap() {op_=Teuchos::null;};
 
 
   /// \brief default apply
-	void apply( const DomainFieldT& x,
-			RangeFieldT& y,
-			Belos::ETrans trans=Belos::NOTRANS) const {
+  void apply( const DomainFieldT& x,
+      RangeFieldT& y,
+      Belos::ETrans trans=Belos::NOTRANS) const {
 
-		// Debug test: y.GetNumVecs()>=x.GetNumVecs()
-		int m = x.getNumberVecs();
+    // Debug test: y.GetNumVecs()>=x.GetNumVecs()
+    int m = x.getNumberVecs();
 
-		for( int i=0; i<m; ++i )
-			op_->apply( x.getConstField(i), y.getField(i) );
-	}
+    for( int i=0; i<m; ++i )
+      op_->apply( x.getConstField(i), y.getField(i) );
+  }
 
   void assignField( const DomainFieldT& mv ) {
     op_->assignField( mv.getConstField(0) );
   };
 
-	bool hasApplyTranspose() const { return( op_->hasApplyTranspose() ); }
+  bool hasApplyTranspose() const { return( op_->hasApplyTranspose() ); }
 
-	Teuchos::RCP<Operator> getOperatorPtr() { return( op_ ); }
+  Teuchos::RCP<Operator> getOperatorPtr() { return( op_ ); }
 
 
 }; // end of class MultiOpWrap

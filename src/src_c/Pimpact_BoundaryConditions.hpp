@@ -1,15 +1,19 @@
 #pragma once
-#ifndef PIMPACT_BoundaryConditions_HPP
-#define PIMPACT_BoundaryConditions_HPP
+#ifndef PIMPACT_BOUNDARYCONDITIONS_HPP
+#define PIMPACT_BOUNDARYCONDITIONS_HPP
 
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_Tuple.hpp"
 
 #include "Pimpact_Types.hpp"
 
+
+
 extern "C" {
 	void fsetBC(const int& BC_1L_, const int& BC_1U_, const int& BC_2L_, const int& BC_2U_, const int& BC_3L_, const int& BC_3U_ );
 }
+
+
 
 namespace Pimpact{
 
@@ -61,6 +65,7 @@ Teuchos::RCP<BoundaryConditions> createBC( EDomainType dtype = Dirichelt2DChanne
 }
 
 
-} // namespace Pimpact
+} // end of namespace Pimpact
 
-#endif // PIMPACT_BoundaryConditions_HPP
+
+#endif // end of #ifndef PIMPACT_BOUNDARYCONDITIONS_HPP

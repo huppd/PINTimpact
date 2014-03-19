@@ -18,7 +18,7 @@
 //#include "Pimpact_EddyPrec.hpp"
 //#include "Pimpact_Nonlinear.hpp"
 //#include "Pimpact_DivOpGrad.hpp"
-//#include "Pimpact_CompoundOp.hpp"
+//#include "Pimpact_AddOp.hpp"
 #include "Pimpact_Operator.hpp"
 //#include "Pimpact_OperatorMV.hpp"
 #include "Pimpact_OperatorBase.hpp"
@@ -476,7 +476,7 @@ TEUCHOS_UNIT_TEST( Operator, compoundOp ) {
   typedef Pimpact::MultiField<VF>      MVF;
   typedef Pimpact::Helmholtz<S,O>      Op1;
   typedef Pimpact::Nonlinear<S,O>      Op2;
-  typedef Pimpact::CompoundOp<Op1,Op2> COp;
+  typedef Pimpact::AddOp<Op1,Op2> COp;
   typedef Pimpact::MultiOpWrap<COp>    Op;
   typedef Pimpact::OperatorBase<MVF>   BOp;
 
@@ -493,7 +493,7 @@ TEUCHOS_UNIT_TEST( Operator, compoundOp ) {
 //  auto op = Pimpact::createOperatorBase<MVF,COP>();
   auto op = Pimpact::createOperatorBase<MVF,Op>(
       Pimpact::createMultiOpWrap(
-          Pimpact::createCompoundOp<Op1,Op2>(
+          Pimpact::createAddOp<Op1,Op2>(
 //              Teuchos::rcp( new Pimpact::Helmholtz<S,O>() ),
                   Pimpact::createHelmholtz<S,O>(),
                   Pimpact::createNonlinear<S,O>(),
@@ -512,5 +512,63 @@ TEUCHOS_UNIT_TEST( Operator, compoundOp ) {
 
 }
 
+
+
+TEUCHOS_UNIT_TEST( Operator, MultiHarmonicNonlinear ) {
+  typedef double S;
+  typedef int O;
+//  typedef Pimpact::VectorField<S,O>       VF;
+//  typedef Pimpact::MultiHarmonicField<VF> MVF;
+
+  auto fS = Pimpact::createFieldSpace<O>();
+  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+
+  auto vel = Pimpact::createVectorField<S,O>( fS, iIS, fIS );
+
+  auto mv1 = Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, 10 );
+  auto mv2 = Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, 10 );
+
+  auto op = Pimpact::createMultiHarmonicNonlinear<S,O>( vel );
+
+  op->apply( *mv1, *mv2 );
+}
+
+
+
+TEUCHOS_UNIT_TEST( Operator, MultiHarmonicOpWrap ) {
+  typedef double S;
+  typedef int O;
+
+  auto fS = Pimpact::createFieldSpace<O>();
+  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+
+  auto vel = Pimpact::createVectorField<S,O>( fS, iIS, fIS );
+
+  auto mv1 = Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, 10 );
+  auto mv2 = Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, 10 );
+
+  auto op = Pimpact::createMultiHarmonicOpWrap< Pimpact::Helmholtz<S,O> >();
+
+  op->apply( *mv1, *mv2 );
+}
+
+
+TEUCHOS_UNIT_TEST( Operator, MultiDtHelmholtz) {
+  typedef double S;
+  typedef int O;
+
+  auto fS = Pimpact::createFieldSpace<O>();
+  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+
+  auto mv1 = Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, 10 );
+  auto mv2 = Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, 10 );
+
+  auto op = Pimpact::createMultiDtHelmholtz<S,O>();
+
+  op->apply( *mv1, *mv2 );
+}
 
 } // namespace

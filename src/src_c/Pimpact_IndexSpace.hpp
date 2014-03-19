@@ -15,9 +15,9 @@
 
 namespace Pimpact {
 
-/** \brief public class, that stores neccessary information for indexing \c ScalarField and \c VectorField in Fortran
- * \todo check constant make variables protected SV friend class
- */
+
+/// \brief public class, that stores neccessary information for indexing \c ScalarField and \c VectorField in Fortran
+/// \todo check constant make variables protected SV friend class
 template<class Ordinal>
 class IndexSpace {
 
@@ -26,11 +26,10 @@ public:
 
 	typedef Teuchos::Tuple<Ordinal,3> TO3;
 
-	/** \brief constructor
-	 * @param fieldType says which kind of field is taken
-	 * @param sInd start index of gridpoints
-	 * @param eInd last index of gridpoints
-	 */
+	/// \brief constructor
+	/// @param fieldType says which kind of field is taken
+	/// @param sInd start index of gridpoints
+	/// @param eInd last index of gridpoints
 	IndexSpace( EFieldType fieldType,TO3 sInd, TO3 eInd ):
 		fieldType_(fieldType),sInd_(sInd),eInd_(eInd) {};
 
@@ -46,7 +45,7 @@ public:
 	TO3 sInd_;
 	TO3 eInd_;
 
-}; // class IndexSpace
+}; // end of class IndexSpace
 
 extern "C" {
 	void SVS_get_sInd(int&,int&,int&);
@@ -71,9 +70,9 @@ extern "C" {
 	void VS_get_eIndWB(int&,int&,int&);
 }
 
-/** \brief function that creates ScaparIndexSpace
- * by getting values from \c IMPACT
- */
+
+/// \brief function that creates ScaparIndexSpace
+/// by getting values from \c IMPACT
 template<class Ordinal>
 Teuchos::RCP<const IndexSpace<Ordinal> > createScalarIndexSpace(){
 
@@ -90,10 +89,10 @@ Teuchos::RCP<const IndexSpace<Ordinal> > createScalarIndexSpace(){
 }
 
 
-/** \brief function that creates ScaparIndexSpace
- * by getting values from impact
- * \todo make construction clean without copying
- */
+/// \brief function that creates ScaparIndexSpace
+///
+/// by getting values from impact
+/// \todo make construction clean without copying
 template<class Ordinal>
 Teuchos::ArrayRCP< Teuchos::RCP< const IndexSpace<Ordinal> > > createInnerFieldIndexSpaces(){
 
@@ -116,16 +115,13 @@ Teuchos::ArrayRCP< Teuchos::RCP< const IndexSpace<Ordinal> > > createInnerFieldI
 	VS_get_eIndW( eInd[0], eInd[1], eInd[2] );
 	fIS[2] =	Teuchos::rcp( new IndexSpace<Ordinal>( EFieldType::W, sInd, eInd ) );
 
-	return fIS;
-
-//	return Teuchos::RCP<const IndexSpace<Ordinal> > (
-//			new IndexSpace<Ordinal>( EFieldType::S, sInd, eInd ) );
+	return( fIS );
 }
 
-/** \brief function that creates ScaparIndexSpace
- * by getting values from impact
- * \todo make construction clean without copying
- */
+
+/// \brief function that creates ScaparIndexSpace
+/// by getting values from impact
+/// \todo make construction clean without copying
 template<class Ordinal>
 Teuchos::ArrayRCP< Teuchos::RCP< const IndexSpace<Ordinal> > > createFullFieldIndexSpaces(){
 
@@ -148,13 +144,11 @@ Teuchos::ArrayRCP< Teuchos::RCP< const IndexSpace<Ordinal> > > createFullFieldIn
 	VS_get_eIndWB( eInd[0], eInd[1], eInd[2] );
 	fIS[2] =	Teuchos::rcp( new IndexSpace<Ordinal>( EFieldType::W, sInd, eInd ) );
 
-	return fIS;
-
-//	return Teuchos::RCP<const IndexSpace<Ordinal> > (
-//			new IndexSpace<Ordinal>( EFieldType::S, sInd, eInd ) );
+	return( fIS );
 }
 
-} // namespace Pimpact
+
+} // end of namespace Pimpact
 
 
-#endif // PIMPACT_INDEXSPACE_HPP
+#endif // end of #ifndef PIMPACT_INDEXSPACE_HPP

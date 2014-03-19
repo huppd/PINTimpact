@@ -143,77 +143,81 @@ public:
   typedef MultiHarmonicField< VectorField<Scalar,Ordinal> >  RangeFieldT;
   typedef NonModeOp OpType;
 private:
-  Teuchos::RCP<RangeFieldT> u_;
+//  Teuchos::RCP<RangeFieldT> u_;
   Teuchos::RCP<VectorField<S,O> > temp_;
   Teuchos::RCP<Nonlinear<S,O> > op;
 public:
-//  Nonlinear( const Teuchos::RCP<VectorField<Scalar,Ordinal> >& u=Teuchos::null ):u_() {};
+  MultiHarmonicNonlinear( const Teuchos::RCP<VectorField<S,O> >& temp=Teuchos::null ):
+    temp_(temp),
+    op( Teuchos::rcp( new Nonlinear<S,O>() )) {};
 
   void assignField( const DomainFieldT& mv ) {
-    u_->assign( mv );
+//    u_->assign( mv );
   };
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
+    int Nf = x.getNumberModes();
     y.init( 0. );
 
     // computing zero mode of y
-    op->nonlinear( x.getConstField0(), *temp_ );
-    y.getField0().add( 1., y.getField0(), 1., *temp_ );
+    op->apply( x.getConst0Field(), *temp_ );
+    y.get0Field().add( 1., y.get0Field(), 1., *temp_ );
 
-    int Nf = x.getNumberModes();
 
+//    std::cout << "Nf:\t" << Nf << "\n";
     for( int i=0; i<Nf; ++i ) {
-      op->nonlinear( x.getConstCField(i), *temp_ );
-      y.getField0().add( 1., y.getField0(), 1., *temp_ );
+//      std::cout << "i: " << i << "\n";
+      op->apply( x.getConstCField(i), *temp_ );
+      y.get0Field().add( 1., y.get0Field(), 1., *temp_ );
     }
 
-    for( int i=0; i<x.getNumberModes(); ++i ) {
-      op->nonlinear( x.getConstSField(i), *temp_ );
-      y.getField0().add( 1., y.getField0(), 1., *temp_ );
+    for( int i=0; i<Nf; ++i ) {
+      op->apply( x.getConstSField(i), *temp_ );
+      y.get0Field().add( 1., y.get0Field(), 1., *temp_ );
     }
 
     // computing cos mode of y
     for( int m=0; m<Nf; ++m ) {
-      op->nonlinear( x.getConstField0(), x.getConstCField(m), *temp_ );
+      op->apply( x.getConst0Field(), x.getConstCField(m), *temp_ );
       y.getCField(m).add( 1., y.getCField(m), 1., *temp_ );
 
-      op->nonlinear( x.getConstCField(m), x.getConstField0(), *temp_ );
+      op->apply( x.getConstCField(m), x.getConst0Field(), *temp_ );
       y.getCField(m).add( 1., y.getCField(m), 1., *temp_ );
 
-      for( int k=0; k+m<Nf; ++k ) {
-        op->nonlinear( x.getConstCField(m+k), x.getConstCField(k), *temp_ );
+      for( int k=0; m+k<Nf; ++k ) {
+        op->apply( x.getConstCField(m+k), x.getConstCField(k), *temp_ );
         y.getCField(m).add( 1., y.getCField(m), 0.5, *temp_ );
 
-        op->nonlinear( x.getConstCField(k), x.getConstCField(m+k), *temp_ );
+        op->apply( x.getConstCField(k), x.getConstCField(m+k), *temp_ );
         y.getCField(m).add( 1., y.getCField(m), 0.5, *temp_ );
 
-        op->nonlinear( x.getConstSField(m+k), x.getConstSField(k), *temp_ );
-        y.getField0().add( 1., y.getField0(), 1./2., temp_ );
+        op->apply( x.getConstSField(m+k), x.getConstSField(k), *temp_ );
+        y.getCField(m).add( 1., y.getCField(m), 0.5, *temp_ );
 
-        op->nonlinear( x.getConstSField(k), x.getConstSField(m+k), *temp_ );
-        y.getField0().add( 1., y.getField0(), 1./2., temp_ );
+        op->apply( x.getConstSField(k), x.getConstSField(m+k), *temp_ );
+        y.getCField(m).add( 1., y.getCField(m), 0.5, *temp_ );
       }
     }
 
     // computing sin mode of y
     for( int m=0; m<Nf; ++m ) {
-      op->nonlinear( x.getConstField0(), x.getConstSField(m), *temp_ );
+      op->apply( x.getConst0Field(), x.getConstSField(m), *temp_ );
       y.getSField(m).add( 1., y.getSField(m), 1., *temp_ );
 
-      op->nonlinear( x.getConstSField(m), x.getConstField0(), *temp_ );
+      op->apply( x.getConstSField(m), x.getConst0Field(), *temp_ );
       y.getSField(m).add( 1., y.getSField(m), 1., *temp_ );
 
       for( int k=0; k+m<Nf; ++k ) {
-        op->nonlinear( x.getConstCField(m+k), x.getConstSField(k), *temp_ );
+        op->apply( x.getConstCField(m+k), x.getConstSField(k), *temp_ );
         y.getSField(m).add( 1., y.getSField(m), -0.5, *temp_ );
 
-        op->nonlinear( x.getConstCField(k), x.getConstCField(m+k), *temp_ );
+        op->apply( x.getConstCField(k), x.getConstCField(m+k), *temp_ );
         y.getSField(m).add( 1., y.getSField(m), 0.5, *temp_ );
 
-        op->nonlinear( x.getConstSField(m+k), x.getConstCField(m), *temp_ );
+        op->apply( x.getConstSField(m+k), x.getConstCField(m), *temp_ );
         y.getSField(m).add( 1., y.getSField(m), 0.5, *temp_ );
 
-        op->nonlinear( x.getConstSField(k), x.getConstSField(m+k), *temp_ );
+        op->apply( x.getConstSField(k), x.getConstSField(m+k), *temp_ );
         y.getSField(m).add( 1., y.getSField(m), -0.5, *temp_ );
       }
     }
@@ -221,17 +225,17 @@ public:
     // strange terms
     int m;
     for( int k=0; k<Nf; ++k ) {
-      for( int l=0; 0<Nf; ++l ) {
+      for( int l=0; l<Nf; ++l ) {
         m = k+l;
         if( m<Nf ) {
-          op->nonlinear( x.getConstCField(k), x.getConstCField(l), *temp_ );
+          op->apply( x.getConstCField(k), x.getConstCField(l), *temp_ );
           y.getCField(m).add( 1., y.getCField(m), 0.5, *temp_ );
-          op->nonlinear( x.getConstSField(k), x.getConstSField(l), *temp_ );
+          op->apply( x.getConstSField(k), x.getConstSField(l), *temp_ );
           y.getCField(m).add( 1., y.getCField(m), -0.5, *temp_ );
 
-          op->nonlinear( x.getConstCField(k), x.getConstSField(l), *temp_ );
+          op->apply( x.getConstCField(k), x.getConstSField(l), *temp_ );
           y.getSField(m).add( 1., y.getSField(m), 0.5, *temp_ );
-          op->nonlinear( x.getConstSField(k), x.getConstCField(l), *temp_ );
+          op->apply( x.getConstSField(k), x.getConstCField(l), *temp_ );
           y.getSField(m).add( 1., y.getSField(m), -0.5, *temp_ );
         }
       }
@@ -241,6 +245,17 @@ public:
   }
   bool hasApplyTranspose() const { return( false ); }
 }; // end of class MultiHarmonicNonlinearOp
+
+
+template< class S, class O>
+Teuchos::RCP<MultiHarmonicNonlinear<S,O> > createMultiHarmonicNonlinear(
+    const Teuchos::RCP< VectorField<S,O> >& u = Teuchos::null ) {
+//  if( Teuchos::is_null(u) )
+//    return( Teuchos::rcp( new MultiHarmonicNonlinear<S,O>() ) );
+//  else
+    return( Teuchos::rcp( new MultiHarmonicNonlinear<S,O>( u ) ) );
+}
+
 
 } // end of namespace Pimpact
 

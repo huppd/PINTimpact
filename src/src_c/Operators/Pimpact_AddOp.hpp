@@ -17,8 +17,9 @@ namespace Pimpact {
 ///
 /// the \c DomainFieldT of \c OP2 has to be equal to the \c RangeFieldT of \c OP1.
 /// both operators should have the same OpType(OpType is obsolete)
+/// \ingroup Operator
 template< class OP1, class OP2 >
-class CompoundOp {
+class AddOp {
 public:
 //  typedef MultiField<ModeField<VectorField<Scalar,Ordinal> > > MVF;
 //  typedef typename MVF::Scalar S;
@@ -34,13 +35,13 @@ private:
   Teuchos::RCP<typename OP1::RangeFieldT> temp_;
 
 public:
-  CompoundOp():
+  AddOp():
         op1_(Teuchos::null),
         op2_(Teuchos::null),
         temp_(Teuchos::null)
        {};
 
-  CompoundOp(
+  AddOp(
       const Teuchos::RCP<OP1>& op1,
       const Teuchos::RCP<OP2>& op2,
       const Teuchos::RCP<DomainFieldT> temp ):
@@ -66,17 +67,17 @@ public:
 
   bool hasApplyTranspose() const { return( op1_->hasApplyTranspose() && op2_->hasApplyTranspose() ); }
 
-}; // end of class CompoundOp
+}; // end of class AddOp
 
 
 
 template<class OP1, class OP2 >
-Teuchos::RCP< CompoundOp<OP1, OP2> > createCompoundOp(
+Teuchos::RCP< AddOp<OP1, OP2> > createAddOp(
     const Teuchos::RCP<OP1>& op1,
     const Teuchos::RCP<OP2>& op2,
     const Teuchos::RCP<typename OP1::DomainFieldT>& temp
       ) {
-  return( Teuchos::rcp( new CompoundOp<OP1,OP2>( op1, op2, temp ) ) );
+  return( Teuchos::rcp( new AddOp<OP1,OP2>( op1, op2, temp ) ) );
 }
 
 

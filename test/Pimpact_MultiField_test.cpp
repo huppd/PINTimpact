@@ -19,47 +19,36 @@
 
 namespace {
 
-	bool testMpi = true;
-	double errorTolSlack = 1e+1;
+bool testMpi = true;
+double errorTolSlack = 1e+1;
 
-	TEUCHOS_STATIC_SETUP()
-	{
-    Teuchos::CommandLineProcessor &clp = Teuchos::UnitTestRepository::getCLP();
-    clp.addOutputSetupOptions(true);
-    clp.setOption(
-        "test-mpi", "test-serial", &testMpi,
-        "Test MPI (if available) or force test of serial.  In a serial build,"
-        " this option is ignored and a serial comm is always used." );
-    clp.setOption(
-        "error-tol-slack", &errorTolSlack,
-        "Slack off of machine epsilon used to check test results" );
-  }
-
-//  Teuchos::RCP<const Teuchos::Comm<int> > getDefaultComm()
-//  {
-//    if (testMpi) {
-//      return Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
-//    }
-//    return rcp(new Teuchos::SerialComm<int>());
-//  }
-
-	// test shows that nLoc is not consistent with start and end indexes
-	TEUCHOS_UNIT_TEST( MultiFieldScalar, constructor ) {
-		// init impact
-    init_impact(0,0);
-
-		auto fS = Pimpact::createFieldSpace<int>();
-//		auto sIS = Pimpact::createScalarIndexSpace<int>();
-		auto p = Pimpact::createScalarField<double,int>(fS);
+TEUCHOS_STATIC_SETUP() {
+  Teuchos::CommandLineProcessor &clp = Teuchos::UnitTestRepository::getCLP();
+  clp.addOutputSetupOptions(true);
+  clp.setOption(
+      "test-mpi", "test-serial", &testMpi,
+      "Test MPI (if available) or force test of serial.  In a serial build,"
+      " this option is ignored and a serial comm is always used." );
+  clp.setOption(
+      "error-tol-slack", &errorTolSlack,
+      "Slack off of machine epsilon used to check test results" );
+}
 
 
-		auto mv = Pimpact::createMultiField<Pimpact::ScalarField<double,int> >(*p,10);
+// test shows that nLoc is not consistent with start and end indexes
+TEUCHOS_UNIT_TEST( MultiFieldScalar, constructor ) {
+  // init impact
+  init_impact(0,0);
 
+	auto fS = Pimpact::createFieldSpace<int>();
+	auto p = Pimpact::createScalarField<double,int>(fS);
 
-		const int m = mv->getNumberVecs();
+	auto mv = Pimpact::createMultiField<Pimpact::ScalarField<double,int> >(*p,10);
 
-		TEST_EQUALITY( 10, m );
-	}
+	const int m = mv->getNumberVecs();
+
+	TEST_EQUALITY( 10, m );
+}
 
 
 	TEUCHOS_UNIT_TEST( MultiFieldScalarScalar, TwoNorm_and_init ) {

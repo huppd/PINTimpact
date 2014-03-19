@@ -75,7 +75,7 @@ public:
 	TO3 bu_;
 
 
-}; // class FieldSpace
+}; // end of class FieldSpace
 
 extern "C" {
 	void SVS_get_comm(MPI_Fint&);
@@ -88,9 +88,9 @@ extern "C" {
 	void SVS_get_bu(int&,int&,int&);
 }
 
-/** \brief function that creates \c Pimpact:FieldSpace
- * by getting values from \c IMPACT
- */
+
+/// \brief function that creates \c Pimpact:FieldSpace
+/// by getting values from \c IMPACT
 template<class Ordinal>
 const Teuchos::RCP<const FieldSpace<Ordinal> > createFieldSpace(){
 
@@ -123,6 +123,8 @@ const Teuchos::RCP<const FieldSpace<Ordinal> > createFieldSpace(){
 			new FieldSpace<Ordinal>( comm, MPI_Comm_f2c(comm), dim, nGlo, nLoc, sInd, eInd, bl, bu ) );
 }
 
+
 } // namespace Pimpact
+
 
 #endif // PIMPACT_FIELDSPACE_HPP

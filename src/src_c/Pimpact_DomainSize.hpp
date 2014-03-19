@@ -2,6 +2,7 @@
 #ifndef PIMPACT_DOMAINSIZE_HPP
 #define PIMPACT_DOMAINSIZE_HPP
 
+
 #include <ostream>
 
 #include "Teuchos_RCP.hpp"
@@ -9,11 +10,17 @@
 
 #include "Pimpact_Types.hpp"
 
+
+
 extern "C" {
 	void fsetDS(const double& L1, const double& L2, const double& L3 );
 }
 
+
+
 namespace Pimpact{
+
+
 
 template<class Scalar>
 class DomainSize {
@@ -46,6 +53,8 @@ Teuchos::RCP<DomainSize<Scalar> > createDomainSize( Scalar L1=1, Scalar L2=1, Sc
 	return Teuchos::rcp( new DomainSize<Scalar>( L1, L2, L3 ) );
 }
 
-} // namespace Pimpact
 
-#endif // PIMPACT_DOMAINSIZE_HPP
+} // end of namespace Pimpact
+
+
+#endif // end of #ifndef PIMPACT_DOMAINSIZE_HPP

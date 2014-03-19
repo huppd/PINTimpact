@@ -21,7 +21,7 @@
 #include "Pimpact_LinSolverParameter.hpp"
 
 #include "NOX_Pimpact_Vector.hpp"
-#include "NOX_Pimpact_Interface.hpp"
+#include "NOX_Pimpact_LinearStokes.hpp"
 #include "NOX_Pimpact_Group.hpp"
 
 namespace {
@@ -59,7 +59,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, createGroup ) {
   typedef Pimpact::MultiField< MVF> BMVF;
   typedef Pimpact::CompoundField< BMVF, BMSF > CF;
   typedef NOX::Pimpact::Vector<CF> NV;
-  typedef NOX::Pimpact::Interface Interface;
+  typedef NOX::Pimpact::LinearStokes Interface;
 
   auto fS  = Pimpact::createFieldSpace<O>();
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
@@ -88,14 +88,14 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, createGroup ) {
   auto lp_Schur = Pimpact::createLinearProblem<Interface::BSF>(
       schur, xs->clone(), xs->clone(), solverParams->get(), solverName );
 
-  auto stockie = NOX::Pimpact::createInterface(xv->clone(),xs->clone(),lp_DTL,lp_Schur);
+  auto stockie = NOX::Pimpact::createLinearStokes(xv->clone(),xs->clone(),lp_DTL,lp_Schur);
 
   Teuchos::RCP<NV> nx = Teuchos::rcp(new NV(x) );
 
   auto bla = Teuchos::parameterList();
-  NOX::Pimpact::Group<NOX::Pimpact::Interface> asdfasdf( *bla, stockie, *nx );
+  NOX::Pimpact::Group<NOX::Pimpact::LinearStokes> asdfasdf( *bla, stockie, *nx );
 
-  auto blabla = NOX::Pimpact::createGroup<NOX::Pimpact::Interface>( bla, stockie, nx );
+  auto blabla = NOX::Pimpact::createGroup<NOX::Pimpact::LinearStokes>( bla, stockie, nx );
 }
 
 
@@ -111,7 +111,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, computeF ) {
   typedef Pimpact::MultiField< MVF> BMVF;
   typedef Pimpact::CompoundField< BMVF, BMSF > CF;
   typedef NOX::Pimpact::Vector<CF> NV;
-  typedef NOX::Pimpact::Interface Interface;
+  typedef NOX::Pimpact::LinearStokes Interface;
 
   auto fS  = Pimpact::createFieldSpace<O>();
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
@@ -140,12 +140,12 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, computeF ) {
   auto lp_Schur = Pimpact::createLinearProblem<Interface::BSF>(
       schur, xs->clone(), xs->clone(), solverParams->get(), solverName );
 
-  auto stockie = NOX::Pimpact::createInterface(xv->clone(),xs->clone(),lp_DTL,lp_Schur);
+  auto stockie = NOX::Pimpact::createLinearStokes(xv->clone(),xs->clone(),lp_DTL,lp_Schur);
 
   Teuchos::RCP<NV> nx = Teuchos::rcp(new NV(x) );
 
   auto bla = Teuchos::parameterList();
-  NOX::Pimpact::Group<NOX::Pimpact::Interface> group( *bla, stockie, *nx );
+  NOX::Pimpact::Group<NOX::Pimpact::LinearStokes> group( *bla, stockie, *nx );
 
   group.computeF();
 

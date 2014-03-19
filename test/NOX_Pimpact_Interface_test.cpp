@@ -30,7 +30,7 @@
 #include "Pimpact_LinSolverParameter.hpp"
 
 #include "NOX_Pimpact_Vector.hpp"
-#include "NOX_Pimpact_Interface.hpp"
+#include "NOX_Pimpact_LinearStokes.hpp"
 #include "NOX_Pimpact_SimpleNonlinear.hpp"
 
 namespace {
@@ -54,7 +54,7 @@ TEUCHOS_STATIC_SETUP() {
 
 
 
-TEUCHOS_UNIT_TEST( NOXPimpact_Interface, defaultctor ) {
+TEUCHOS_UNIT_TEST( NOXPimpact_LinearStokes, defaultctor ) {
 
   init_impact(0,0);
 
@@ -69,12 +69,12 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, defaultctor ) {
   typedef Pimpact::CompoundField< BMVF, BMSF > CF;
   typedef NOX::Pimpact ::Vector<CF> NV;
 
-  NOX::Pimpact::Interface asdf;
+  NOX::Pimpact::LinearStokes asdf;
 
 }
 
 
-TEUCHOS_UNIT_TEST( NOXPimpact_Interface, createInterface ) {
+TEUCHOS_UNIT_TEST( NOXPimpact_LinearStokes, createLinearStokes ) {
 
 
   typedef double S;
@@ -87,7 +87,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, createInterface ) {
   typedef Pimpact::MultiField<MVF> BMVF;
   typedef Pimpact::CompoundField< BMVF, BMSF > CF;
   typedef NOX::Pimpact::Vector<CF> NV;
-  typedef NOX::Pimpact::Interface Interface;
+  typedef NOX::Pimpact::LinearStokes Interface;
 
   auto fS  = Pimpact::createFieldSpace<O>();
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
@@ -116,12 +116,12 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, createInterface ) {
   auto lp_Schur = Pimpact::createLinearProblem<Interface::BSF>(
       schur, xs->clone(), xs->clone(), solverParams->get(), solverName );
 
-  auto stockie = NOX::Pimpact::createInterface(xv->clone(),xs->clone(),lp_DTL,lp_Schur);
+  auto stockie = NOX::Pimpact::createLinearStokes(xv->clone(),xs->clone(),lp_DTL,lp_Schur);
 }
 
 
 
-TEUCHOS_UNIT_TEST( NOXPimpact_Interface, computeF ) {
+TEUCHOS_UNIT_TEST( NOXPimpact_LinearStokes, computeF ) {
 
   typedef double S;
   typedef int O;
@@ -133,7 +133,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, computeF ) {
   typedef Pimpact::MultiField< MVF> BMVF;
   typedef Pimpact::CompoundField< BMVF, BMSF > CF;
   typedef NOX::Pimpact::Vector<CF> NV;
-  typedef NOX::Pimpact::Interface Interface;
+  typedef NOX::Pimpact::LinearStokes Interface;
 
   auto fS  = Pimpact::createFieldSpace<O>();
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
@@ -165,7 +165,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, computeF ) {
   auto lp_Schur = Pimpact::createLinearProblem<Interface::BSF>(
       schur, xs->clone(), xs->clone(), solverParams->get(), solverName );
 
-  auto stockie = NOX::Pimpact::createInterface(xv->clone(),xs->clone(),lp_DTL,lp_Schur);
+  auto stockie = NOX::Pimpact::createLinearStokes(xv->clone(),xs->clone(),lp_DTL,lp_Schur);
 
 
   NOX::Abstract::Group::ReturnType succes = stockie->computeF( X->getConstField(), F->getField() );
@@ -175,7 +175,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, computeF ) {
 
 
 
-TEUCHOS_UNIT_TEST( NOXPimpact_Interface, computeJacobian ) {
+TEUCHOS_UNIT_TEST( NOXPimpact_LinearStokes, computeJacobian ) {
 
   typedef double S;
   typedef int O;
@@ -187,7 +187,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, computeJacobian ) {
   typedef Pimpact::MultiField< MVF> BMVF;
   typedef Pimpact::CompoundField< BMVF, BMSF > CF;
   typedef NOX::Pimpact::Vector<CF> NV;
-  typedef NOX::Pimpact::Interface Interface;
+  typedef NOX::Pimpact::LinearStokes Interface;
 
   auto fS  = Pimpact::createFieldSpace<O>();
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
@@ -219,7 +219,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, computeJacobian ) {
   auto lp_Schur = Pimpact::createLinearProblem<Interface::BSF>(
       schur, xs->clone(), xs->clone(), solverParams->get(), solverName );
 
-  auto stockie = NOX::Pimpact::createInterface(xv->clone(), xs->clone(),lp_DTL,lp_Schur);
+  auto stockie = NOX::Pimpact::createLinearStokes(xv->clone(), xs->clone(),lp_DTL,lp_Schur);
 
 
   NOX::Abstract::Group::ReturnType succes = stockie->computeJacobian( X->getConstField() );
@@ -229,7 +229,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, computeJacobian ) {
 
 
 
-TEUCHOS_UNIT_TEST( NOXPimpact_Interface, applyJacobian ) {
+TEUCHOS_UNIT_TEST( NOXPimpact_LinearStokes, applyJacobian ) {
 
   typedef double S;
   typedef int O;
@@ -241,7 +241,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, applyJacobian ) {
   typedef Pimpact::MultiField< MVF> BMVF;
   typedef Pimpact::CompoundField< BMVF, BMSF > CF;
   typedef NOX::Pimpact::Vector<CF> NV;
-  typedef NOX::Pimpact::Interface Interface;
+  typedef NOX::Pimpact::LinearStokes Interface;
 
   auto fS  = Pimpact::createFieldSpace<O>();
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
@@ -273,7 +273,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, applyJacobian ) {
   auto lp_Schur = Pimpact::createLinearProblem<Interface::BSF>(
       schur, xs->clone(), xs->clone(), solverParams->get(), solverName );
 
-  auto stockie = NOX::Pimpact::createInterface(xv->clone(),xs->clone(),lp_DTL,lp_Schur);
+  auto stockie = NOX::Pimpact::createLinearStokes(xv->clone(),xs->clone(),lp_DTL,lp_Schur);
 
 
   NOX::Abstract::Group::ReturnType succes = stockie->applyJacobian( X->getConstField(), F->getField() );
@@ -282,7 +282,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, applyJacobian ) {
 }
 
 
-TEUCHOS_UNIT_TEST( NOXPimpact_Interface, applyJacobianInverse ) {
+TEUCHOS_UNIT_TEST( NOXPimpact_LinearStokes, applyJacobianInverse ) {
 
   typedef double S;
   typedef int O;
@@ -294,7 +294,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, applyJacobianInverse ) {
   typedef Pimpact::MultiField< MVF> BMVF;
   typedef Pimpact::CompoundField< BMVF, BMSF > CF;
   typedef NOX::Pimpact::Vector<CF> NV;
-  typedef NOX::Pimpact::Interface Interface;
+  typedef NOX::Pimpact::LinearStokes Interface;
 
   auto fS  = Pimpact::createFieldSpace<O>();
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
@@ -326,7 +326,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Interface, applyJacobianInverse ) {
   auto lp_Schur = Pimpact::createLinearProblem<Interface::BSF>(
       schur, xs->clone(), xs->clone(), solverParams->get(), solverName );
 
-  auto stockie = NOX::Pimpact::createInterface(xv->clone(),xs->clone(),lp_DTL,lp_Schur);
+  auto stockie = NOX::Pimpact::createLinearStokes(xv->clone(),xs->clone(),lp_DTL,lp_Schur);
 
 
 //  NOX::Abstract::Group::ReturnType succes = stockie->applyJacobianInverse(Teuchos::parameterList(), X->getConstField(), F->getField() );

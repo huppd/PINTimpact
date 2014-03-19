@@ -76,16 +76,16 @@ public:
 	Teuchos::RCP<const Field> getConstField0Ptr() const { return( field0_ ); }
 	Teuchos::RCP<const ModeField<Field> > getConstFieldPtr( int i) const { return( fields_->getConstFieldPtr(i) ); }
 
-	Field& getField0() { return( *field0_ ); }
-	const Field& getConstField0() const { return( *field0_ ); }
+	Field& get0Field() { return( *field0_ ); }
+	const Field& getConst0Field() const { return( *field0_ ); }
 
 	ModeField<Field>& getField( int i ) { return( fields_->getField(i) ); }
 	const ModeField<Field>& getConstField( int i ) const { return( fields_->getConstField(i) ); }
 
 	Field& getCField( int i ) { return( fields_->getFieldPtr(i)->getCField() ); }
 	Field& getSField( int i ) { return( fields_->getFieldPtr(i)->getSField() ); }
-	const Field& getConstCField( int i ) const { return( fields_->getConstFieldPtr(i)->getCField() ); }
-	const Field& getConstSField( int i ) const { return( fields_->getConstFieldPtr(i)->getSField() ); }
+	const Field& getConstCField( int i ) const { return( fields_->getConstFieldPtr(i)->getConstCField() ); }
+	const Field& getConstSField( int i ) const { return( fields_->getConstFieldPtr(i)->getConstSField() ); }
 
 	/// \brief returns the length of Field.
 	///
@@ -101,7 +101,7 @@ public:
 
 	/// \brief get number of mode Field's
 	/// \todo what makes sense here?
-	int getNumberModes() const { return( fields_->getLength(false) ); }
+	int getNumberModes() const { return( fields_->getNumberVecs() ); }
 
 
 	//@}

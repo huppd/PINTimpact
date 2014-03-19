@@ -854,10 +854,11 @@ protected:
 	const Ordinal&  bl(int i)                   const { return( fieldS_->bl_[i] ); }
 	const Ordinal&  bu(int i)                   const { return( fieldS_->bu_[i] ); }
 
-}; //class VectorField
+}; // end of class VectorField
 
 
-/// \brief creates a vector field(vector) belonging to a \c FieldSpace and two \c IndexSpaces
+
+/// \brief creates a vector field belonging to a \c FieldSpace and two \c IndexSpaces
 template<class Scalar, class Ordinal>
 Teuchos::RCP< VectorField<Scalar,Ordinal> > createVectorField(
 		const Teuchos::RCP<const FieldSpace<Ordinal> >& fieldS,
@@ -867,6 +868,9 @@ Teuchos::RCP< VectorField<Scalar,Ordinal> > createVectorField(
 				new VectorField<Scalar,Ordinal>( fieldS, innerIS, fullIS ) ) );
 }
 
+
+
 } // end of namespace Pimpact
+
 
 #endif // end of #ifndef PIMPACT_VECTORFIELD_HPP

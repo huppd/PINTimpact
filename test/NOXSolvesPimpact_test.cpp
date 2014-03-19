@@ -18,7 +18,7 @@
 #include "Pimpact_CompoundField.hpp"
 #include "Pimpact_FieldFactory.hpp"
 
-#include "Pimpact_CompoundOp.hpp"
+#include "Pimpact_AddOp.hpp"
 #include "Pimpact_EddyPrec.hpp"
 #include "Pimpact_Nonlinear.hpp"
 #include "Pimpact_DivOpGrad.hpp"
@@ -31,7 +31,7 @@
 #include "Pimpact_LinSolverParameter.hpp"
 
 #include "NOX_Pimpact_Vector.hpp"
-#include "NOX_Pimpact_Interface.hpp"
+#include "NOX_Pimpact_LinearStokes.hpp"
 #include "NOX_Pimpact_SimpleLinear.hpp"
 #include "NOX_Pimpact_SimpleNonlinear.hpp"
 #include "NOX_Pimpact_Group.hpp"
@@ -75,7 +75,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, createGroup ) {
 //  typedef Pimpact::MultiField< MVF> BMVF;
 //  typedef Pimpact::CompoundField< BMVF, BMSF > CF;
 //  typedef NOX::Pimpact::Vector<CF> NV;
-//  typedef NOX::Pimpact::Interface Interface;
+//  typedef NOX::Pimpact::LinearStokes Interface;
 //
 //  auto fS  = Pimpact::createFieldSpace<O>();
 //  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
@@ -107,13 +107,13 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, createGroup ) {
 //
 ////  xv->random();
 ////  xs->random();
-//  auto stockie = NOX::Pimpact::createInterface( xv->clone(),xs->clone(),lp_DTL,lp_Schur);
+//  auto stockie = NOX::Pimpact::createLinearStokes( xv->clone(),xs->clone(),lp_DTL,lp_Schur);
 //
 //  Teuchos::RCP<NV> nx = Teuchos::rcp(new NV(x) );
 //
 //  auto bla = Teuchos::parameterList();
 //
-//  auto group = NOX::Pimpact::createGroup<NOX::Pimpact::Interface>( bla, stockie, nx );
+//  auto group = NOX::Pimpact::createGroup<NOX::Pimpact::LinearStokes>( bla, stockie, nx );
 //
 //  // Set up the status tests
 //  Teuchos::RCP<NOX::StatusTest::NormF> statusTestNormF =
@@ -519,10 +519,10 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear3 ) {
   typedef Pimpact::MultiField<VF> MVF;
   typedef Pimpact::Nonlinear<S,O>  Op1;
   typedef Pimpact::Helmholtz<S,O>  Op2;
-  typedef Pimpact::MultiOpWrap<Pimpact::CompoundOp<Op1,Op2> >  Op;
+  typedef Pimpact::MultiOpWrap<Pimpact::AddOp<Op1,Op2> >  Op;
   typedef Pimpact::NonlinearJacobian<S,O>  JOp1;
   typedef Pimpact::Helmholtz<S,O>  JOp2;
-  typedef Pimpact::MultiOpWrap<Pimpact::CompoundOp<JOp1,JOp2> > JOp;
+  typedef Pimpact::MultiOpWrap<Pimpact::AddOp<JOp1,JOp2> > JOp;
   typedef Pimpact::OperatorBase<MVF>  BOp;
 
   typedef NOX::Pimpact::SimpleNonlinear Interface;
@@ -544,7 +544,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear3 ) {
 
   auto op = Pimpact::createOperatorBase<MVF,Op>(
       Pimpact::createMultiOpWrap(
-          Pimpact::createCompoundOp<Op1,Op2>(
+          Pimpact::createAddOp<Op1,Op2>(
               Pimpact::createNonlinear<S,O>(),
               Pimpact::createHelmholtz<S,O>(0.,1.e-3),
               vel->clone() ) ) );
@@ -553,7 +553,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear3 ) {
 
   auto jop = Pimpact::createOperatorBase<MVF,JOp>(
       Pimpact::createMultiOpWrap(
-          Pimpact::createCompoundOp<JOp1,JOp2>(
+          Pimpact::createAddOp<JOp1,JOp2>(
               Pimpact::createNonlinearJacobian<S,O>(vel),
               Pimpact::createHelmholtz<S,O>(0.,1.e-3),
               vel->clone() ) ) );

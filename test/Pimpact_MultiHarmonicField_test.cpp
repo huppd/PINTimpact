@@ -285,4 +285,269 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, write ) {
 }
 
 
+// test shows that nLoc is not consistent with start and end indexes
+TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, constructor ) {
+  typedef double S;
+  typedef int O;
+
+  auto fS = Pimpact::createFieldSpace<O>();
+  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+
+  auto field = Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, 10 );
+
+  const int m = field->getNumberVecs();
+
+  TEST_EQUALITY( 1, m );
+}
+
+
+
+TEUCHOS_UNIT_TEST( MultiHarmonicVectorFieldScalar, TwoNorm_and_init ) {
+  typedef double S;
+  typedef int O;
+
+  auto fS = Pimpact::createFieldSpace<O>();
+  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+
+  auto field = Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, 10 );
+
+  const int n = field->getLength(true);
+
+  // test different float values, assures that initial and norm work smoothly
+  for( S i=0.; i< 200.1; ++i ) {
+    field->init(i/2.);
+    TEST_EQUALITY( std::pow(i/2.,2)*n, field->norm(Belos::TwoNorm) );
+  }
+}
+
+
+
+TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, clone ) {
+  typedef double S;
+  typedef int O;
+
+  auto fS = Pimpact::createFieldSpace<O>();
+  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+
+  auto field = Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, 10 );
+
+  auto field2 = field->clone();
+
+  O n1(field->getNumberVecs());
+  O n2(field2->getNumberVecs());
+
+  TEST_EQUALITY( 1, n1 );
+  TEST_EQUALITY( 1, n2 );
+}
+
+
+
+TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, InfNorm_and_init ) {
+  typedef double S;
+  typedef int O;
+
+  auto fS = Pimpact::createFieldSpace<O>();
+  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+
+  auto field = Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, 10 );
+
+  S norm;
+
+  // test different float values, assures that initial and norm work smoothly
+  for( S i=0.; i< 200.1; ++i ) {
+    field->init(i/2.);
+    norm = field->norm(Belos::InfNorm);
+    TEST_EQUALITY( i/2., norm );
+  }
+
+  // one test with infty-norm
+  int rank;
+  S init;
+  MPI_Comm_rank(fS->comm_,&rank);
+  for( S i = 0.; i<200.1; ++i) {
+    init = 3*i-1.;
+    init = (init<0)?-init:init;
+    field->init(rank*i-1.);
+    norm = field->norm(Belos::InfNorm);
+    TEST_EQUALITY( init, norm );
+  }
+}
+
+
+
+TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, TwoNorm_and_init ) {
+  typedef double S;
+  typedef int O;
+
+  auto fS = Pimpact::createFieldSpace<O>();
+  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+
+  auto field = Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, 10 );
+
+  S norm;
+  int N = field->getLength();
+
+  // test different float values, assures that initial and norm work smoothly
+  for( S i=0.; i< 200.1; ++i ) {
+    field->init(i/2.);
+    norm = field->norm(Belos::TwoNorm);
+    TEST_EQUALITY( std::pow(i/2.,2)*N, norm );
+  }
+}
+
+
+
+TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, dot ) {
+  typedef double S;
+  typedef int O;
+
+  auto fS = Pimpact::createFieldSpace<O>();
+  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+
+  auto field1 = Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, 10 );
+  auto field2 = Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, 10 );
+
+  S dot;
+
+  TEST_EQUALITY( field1->getLength(), field2->getLength() )
+
+  int N = field1->getLength();
+
+  field1->init(0.);
+  field2->init(1.);
+  dot = field1->dot(*field2);
+  TEST_EQUALITY( 0, dot );
+
+  field1->init(1.);
+  field2->init(1.);
+  dot = field2->dot(*field1);
+  TEST_EQUALITY( N, dot );
+
+  field1->init(2.);
+  field2->init(1.);
+  dot = field1->dot(*field2);
+  TEST_EQUALITY( 2*N, dot );
+
+  field1->init(1.);
+  field2->init(2.);
+  dot = field1->dot(*field2);
+  TEST_EQUALITY( 2*N, dot );
+
+}
+
+
+
+TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, scale ) {
+  typedef double S;
+  typedef int O;
+
+  auto fS = Pimpact::createFieldSpace<O>();
+  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+
+  auto field = Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, 10 );
+
+  int N = field->getLength();
+  S norm;
+
+  field->init(1.);
+  field->scale(2.);
+  norm = field->norm(Belos::TwoNorm);
+  TEST_EQUALITY( 4*N, norm)
+}
+
+
+
+TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, random ) {
+  typedef double S;
+  typedef int O;
+
+  auto fS = Pimpact::createFieldSpace<O>();
+  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+
+  auto field = Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, 10 );
+
+  int N = field->getLength();
+  S norm;
+
+  field->init(1.);
+  field->random();
+  norm = field->norm(Belos::TwoNorm);
+  TEST_INEQUALITY( N, norm)
+}
+
+
+
+TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, add ) {
+  typedef double S;
+  typedef int O;
+
+  auto fS = Pimpact::createFieldSpace<O>();
+  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+
+  auto field1 = Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, 10 );
+  auto field2 = Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, 10 );
+  auto field3 = Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, 10 );
+
+  TEST_EQUALITY( field1->getLength(), field2->getLength() )
+  TEST_EQUALITY( field2->getLength(), field3->getLength() )
+  TEST_EQUALITY( field1->getLength(), field3->getLength() )
+
+  S norm;
+  int N = field1->getLength();
+
+  field1->init(0.);
+  field2->init(1./2.);
+  field3->init(1./3.);
+
+  field1->add( 2., *field2, 0., *field3);
+  norm = field1->norm(Belos::TwoNorm);
+  TEST_EQUALITY( N, norm)
+
+  field1->init(0.);
+  field2->init(1./2.);
+  field3->init(1./3.);
+
+  field1->add( 0., *field2, 3., *field3);
+  norm = field1->norm(Belos::TwoNorm);
+  TEST_EQUALITY( N, norm)
+
+  field1->init(0.);
+  field2->init(1.);
+  field3->init(1.);
+
+  field1->add( 0.5, *field2, 0.5, *field3);
+  norm = field1->norm(Belos::TwoNorm);
+  TEST_EQUALITY( N, norm )
+}
+
+
+
+TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, write ) {
+  typedef double S;
+  typedef int O;
+
+  auto fS = Pimpact::createFieldSpace<O>();
+  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+
+  auto field = Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, 10 );
+
+  field->init( 1. );
+  field->write();
+
+  field->random();
+  field->write( 2 );
+}
+
+
+
 } // end of namespace

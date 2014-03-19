@@ -109,10 +109,12 @@ Teuchos::RCP< MultiField<ModeField<ScalarField<Scalar,Ordinal> > > > createInitM
 }
 
 
-/// @brief creates a scalar/vector mode field(vector)
+
+/// \brief creates a multi-harmonic scalar field.
 ///
-/// @param sVS scalar Vector Space to which returned vector belongs
-/// @return field vector
+/// \param fS scalar Vector Space to which returned vector belongs
+/// \param nf amount of modes
+/// \return field vector
 template<class S, class O>
 Teuchos::RCP< MultiHarmonicField< ScalarField<S,O> > > createMultiHarmonicScalarField(
     const Teuchos::RCP<const FieldSpace<O> >& fS, int nf
@@ -122,6 +124,26 @@ Teuchos::RCP< MultiHarmonicField< ScalarField<S,O> > > createMultiHarmonicScalar
   auto fields = createMultiField< ModeField< ScalarField<S,O> > >( *mfield, nf );
   return Teuchos::rcp(
         new MultiHarmonicField< ScalarField<S,O> >( field0, fields ) );
+}
+
+
+
+/// \brief creates a multi-harmonic vector field.
+///
+/// \param fS scalar Vector Space to which returned vector belongs
+/// \param nf amount of modes
+/// \return field vector
+template<class S, class O>
+Teuchos::RCP< MultiHarmonicField< VectorField<S,O> > > createMultiHarmonicVectorField(
+    const Teuchos::RCP<const FieldSpace<O> >& fieldS,
+    typename VectorField<S,O>::IndexSpaces innerIS,
+    const typename VectorField<S,O>::IndexSpaces& fullIS,
+    int nf ) {
+  auto field0 = createVectorField<S,O>( fieldS, innerIS, fullIS );
+  auto mfield = createModeField< VectorField<S,O> >( field0, field0 );
+  auto fields = createMultiField< ModeField< VectorField<S,O> > >( *mfield, nf );
+  return Teuchos::rcp(
+        new MultiHarmonicField< VectorField<S,O> >( field0, fields ) );
 }
 
 

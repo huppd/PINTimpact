@@ -24,7 +24,7 @@
 /// \ingroup Operator
 /// Operator operate on multi-harmonic fields: \c Pimpact::MultiHarmonicField
 
-#include "Pimpact_CompoundOp.hpp"
+#include "Pimpact_AddOp.hpp"
 #include "Pimpact_CompoundStokesOp.hpp"
 
 #include "Pimpact_DivDtLinvGradOp.hpp"
@@ -50,8 +50,8 @@
 
 #include "Pimpact_Nonlinear.hpp"
 
-
-
+#include "Pimpact_MultiHarmonicOpWrap.hpp"
+#include "Pimpact_MultiDtHelmholtzOp.hpp"
 
 
 #endif // end of #ifndef PIMPACT_OPERATOR_HPP

@@ -38,6 +38,7 @@ namespace Pimpact {
 /// problem using the NOX::Epetra objects for the linear algebra
 /// implementation.  Used by NOX::Epetra::Group to provide a link
 /// to the external code for residual fills.
+/// \deprecated
 class SimpleLinear {
 
 public:
