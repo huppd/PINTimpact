@@ -79,8 +79,12 @@ public:
   void assignField( const DomainFieldT& mv ) {};
 
   bool hasApplyTranspose() const { return( false ); }
-};
 
+}; // end of class CompoundStokes
+
+
+
+/// \relates CompoundStokes
 template< class Scalar, class Ordinal>
 Teuchos::RCP<CompoundStokes<Scalar,Ordinal> > createCompoundStokes(
     Scalar omega, Scalar mulI, Scalar mulL, Teuchos::RCP<VectorField<Scalar,Ordinal> > temp ) {

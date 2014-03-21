@@ -44,7 +44,8 @@ public:
   void assignField( const DomainFieldT& mv ) {};
 
   bool hasApplyTranspose() const { return( false ); }
-};
+
+}; // end of Helmholtz
 
 
 //template<class Scalar,class Ordinal>
@@ -54,6 +55,8 @@ public:
 //  );
 //}
 
+
+/// \relates Helmholtz
 template<class Scalar,class Ordinal>
 Teuchos::RCP<Helmholtz<Scalar,Ordinal> > createHelmholtz( Scalar mulI=0., Scalar mulL=1. ) {
   return(

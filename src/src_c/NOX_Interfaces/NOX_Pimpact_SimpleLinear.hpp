@@ -12,9 +12,7 @@
 
 #include "Pimpact_MultiField.hpp"
 
-#include "Pimpact_Nonlinear.hpp"
 #include "Pimpact_Operator.hpp"
-#include "Pimpact_OperatorMV.hpp"
 #include "Pimpact_OperatorBase.hpp"
 #include "Pimpact_LinearProblem.hpp"
 

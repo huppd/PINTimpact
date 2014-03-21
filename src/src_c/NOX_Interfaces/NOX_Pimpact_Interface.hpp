@@ -5,16 +5,14 @@
 #include "NOX_Common.H"
 #include "Teuchos_RCP.hpp"
 
-#include "Pimpact_VectorField.hpp"
-#include "Pimpact_ScalarField.hpp"
-#include "Pimpact_ModeField.hpp"
+//#include "Pimpact_VectorField.hpp"
+//#include "Pimpact_ScalarField.hpp"
+//#include "Pimpact_ModeField.hpp"
 //#include "Pimpact_CompoundField.hpp"
 
 #include "Pimpact_MultiField.hpp"
 
-//#include "Pimpact_Nonlinear.hpp"
-#include "Pimpact_Operator.hpp"
-#include "Pimpact_OperatorMV.hpp"
+//#include "Pimpact_Operator.hpp"
 #include "Pimpact_OperatorBase.hpp"
 #include "Pimpact_LinearProblem.hpp"
 
@@ -39,11 +37,12 @@ namespace Pimpact {
 /// implementation.  Used by NOX::Epetra::Group to provide a link
 /// to the external code for residual fills.
 /// \tparam Field hast to be of type \c Pimpact::MultiField.
-template< class Field >
+template<class F>
 class Interface {
 
 public:
 
+  typedef F Field;
   typedef typename Field::Scalar S;
   typedef typename Field::Ordinal O;
 //  typedef ::Pimpact::VectorField<S,O> VF;
@@ -126,12 +125,15 @@ public:
 }; // end of class Interface
 
 
-Teuchos::RCP<Interface> createInterface(
-    Teuchos::RCP<Interface::Field> fu,
-    Teuchos::RCP<Interface::Op> op,
-    Teuchos::RCP<Interface::JOp> lp ) {
+
+/// \relates Interface
+template<class Field>
+Teuchos::RCP< Interface<Field> > createInterface(
+    Teuchos::RCP<Field> fu,
+    Teuchos::RCP<typename Interface<Field>::Op> op,
+    Teuchos::RCP<typename Interface<Field>::JOp> lp ) {
   return(
-      Teuchos::rcp( new Interface(fu,op,lp) )
+      Teuchos::rcp( new Interface<Field>(fu,op,lp) )
       );
 }
 

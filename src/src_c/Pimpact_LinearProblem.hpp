@@ -102,6 +102,7 @@ public:
 }; // end of class LinearProblem
 
 
+/// \relates LinearProblem
 template<class MF>
 Teuchos::RCP< LinearProblem<MF> > createLinearProblem(
 		const Teuchos::RCP<const OperatorBase<MF> >& A,

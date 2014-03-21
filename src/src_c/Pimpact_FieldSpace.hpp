@@ -29,25 +29,23 @@ public:
 	typedef const Teuchos::Tuple<Ordinal,3> TO3;
 //	using Teuchos::RCP;
 
-	/** \brief constructor
-	 *
-	 * @param commf Fortran MPI communicator(an integer)
-	 * @param comm MPI communicator
-	 * @param nGlo amount of global gridpoints
-	 * @param nLoc amount of local gridpoints
-	 * @param sInd start index of gridpoints
-	 * @param eInd last index of gridpoints
-	 * @param bl lower bound of storage
-	 * @param bu upper bound of storage
-	 */
+	/// \brief constructor
+	///
+	/// \param commf Fortran MPI communicator(an integer)
+	/// \param comm MPI communicator
+	/// \param nGlo amount of global gridpoints
+	/// \param nLoc amount of local gridpoints
+	/// \param sInd start index of gridpoints
+	/// \param eInd last index of gridpoints
+	/// \param bl lower bound of storage
+	/// \param bu upper bound of storage
 	FieldSpace(MPI_Fint commf, MPI_Comm comm, Ordinal dim, TO3 nGlo, TO3 nLoc, TO3 sInd, TO3 eInd, TO3 bl, TO3 bu):
 		commf_(commf), comm_(comm), dim_(dim), nGlo_(nGlo), nLoc_(nLoc), sInd_(sInd), eInd_(eInd), bl_(bl), bu_(bu) {};
 
 	FieldSpace(const FieldSpace& fs):
 		commf_(fs.commf_), comm_(fs.comm_), dim_(fs.dim_), nGlo_(fs.nGlo_), nLoc_(fs.nLoc_), sInd_(fs.sInd_), eInd_(fs.eInd_), bl_(fs.bl_), bu_(fs.bu_) {};
-	/** prints to \c std::cout, only for debuging purpose
-	 *
-	 */
+
+	/// prints to \c std::cout, only for debuging purpose
 	void print() const {
 		int rank;
 		MPI_Comm_rank(comm_,&rank);
@@ -77,6 +75,7 @@ public:
 
 }; // end of class FieldSpace
 
+
 extern "C" {
 	void SVS_get_comm(MPI_Fint&);
 	void FS_get_dim(int&);
@@ -91,6 +90,7 @@ extern "C" {
 
 /// \brief function that creates \c Pimpact:FieldSpace
 /// by getting values from \c IMPACT
+/// \relates FieldSpace
 template<class Ordinal>
 const Teuchos::RCP<const FieldSpace<Ordinal> > createFieldSpace(){
 
@@ -124,7 +124,7 @@ const Teuchos::RCP<const FieldSpace<Ordinal> > createFieldSpace(){
 }
 
 
-} // namespace Pimpact
+} // end of namespace Pimpact
 
 
-#endif // PIMPACT_FIELDSPACE_HPP
+#endif // end of #ifndef PIMPACT_FIELDSPACE_HPP

@@ -320,6 +320,8 @@ protected:
 }; // end of class Vector
 
 
+
+/// \relates Vector
 template<class Field>
 Teuchos::RCP< Vector<Field> > createVector( const Teuchos::RCP<Field>& field ){
   return( Teuchos::rcp( new Vector<Field>(field) ) );

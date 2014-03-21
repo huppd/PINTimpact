@@ -4,7 +4,7 @@
 
 #include <vector>
 #include <iostream>
-#include "mpi.h"
+//#include "mpi.h"
 
 #include "Teuchos_RCP.hpp"
 #include "BelosTypes.hpp"
@@ -13,7 +13,6 @@
 
 #include "Pimpact_FieldSpace.hpp"
 #include "Pimpact_IndexSpace.hpp"
-//#include "Pimpact_Operator.hpp"
 
 #include "Pimpact_ModeField.hpp"
 #include "Pimpact_MultiField.hpp"
@@ -53,8 +52,8 @@ public:
 	/// @param vF
 	/// @param copyType by default a ShallowCopy is done but allows also to deepcopy the field
 	MultiHarmonicField(const MultiHarmonicField& vF, ECopyType copyType=ShallowCopy):
-		field0_( Teuchos::rcp( new Field(*vF.field0_,copyType) ) ),
-		fields_( Teuchos::rcp( new Field(*vF.fields_,copyType) ) )
+		field0_( vF.field0_->clone(copyType) ),
+		fields_( vF.fields_->clone(copyType) )
 	{};
 
 
@@ -70,22 +69,28 @@ public:
 	/// @return field space of \c field0_
 	Teuchos::RCP<const FieldSpace<Ordinal> > getFieldSpace() const {return( field0_->getFieldSpace() );}
 
-	Teuchos::RCP<Field> getField0Ptr() { return( field0_ ); }
-	Teuchos::RCP<ModeField<Field> > getFieldPtr( int i ) { return( fields_->getFieldPtr(i) ); }
 
-	Teuchos::RCP<const Field> getConstField0Ptr() const { return( field0_ ); }
+	Field&                    get0Field()               { return( *field0_ ); }
+	const Field&              getConst0Field()    const { return( *field0_ ); }
+	Teuchos::RCP<Field>       get0FieldPtr()            { return( field0_ ); }
+	Teuchos::RCP<const Field> getConst0FieldPtr() const { return( field0_ ); }
+
+
+	ModeField<Field>&                     getField( int i )              { return( fields_->getField(i) ); }
+	const ModeField<Field>&               getConstField( int i )   const { return( fields_->getConstField(i) ); }
+	Teuchos::RCP<ModeField<Field> >       getFieldPtr( int i )           { return( fields_->getFieldPtr(i) ); }
 	Teuchos::RCP<const ModeField<Field> > getConstFieldPtr( int i) const { return( fields_->getConstFieldPtr(i) ); }
 
-	Field& get0Field() { return( *field0_ ); }
-	const Field& getConst0Field() const { return( *field0_ ); }
 
-	ModeField<Field>& getField( int i ) { return( fields_->getField(i) ); }
-	const ModeField<Field>& getConstField( int i ) const { return( fields_->getConstField(i) ); }
+	Field&              getCField( int i )            { return( fields_->getFieldPtr(i)->getCField() ); }
+	const Field&        getConstCField( int i ) const { return( fields_->getConstFieldPtr(i)->getConstCField() ); }
+	Teuchos::RCP<Field> getCFieldPtr( int i )         { return( fields_->getFieldPtr(i)->getCFieldPtr() ); }
 
-	Field& getCField( int i ) { return( fields_->getFieldPtr(i)->getCField() ); }
-	Field& getSField( int i ) { return( fields_->getFieldPtr(i)->getSField() ); }
-	const Field& getConstCField( int i ) const { return( fields_->getConstFieldPtr(i)->getConstCField() ); }
-	const Field& getConstSField( int i ) const { return( fields_->getConstFieldPtr(i)->getConstSField() ); }
+
+	Field&              getSField( int i )            { return( fields_->getFieldPtr(i)->getSField() ); }
+	const Field&        getConstSField( int i ) const { return( fields_->getConstFieldPtr(i)->getConstSField() ); }
+	Teuchos::RCP<Field> getSFieldPtr( int i )         { return( fields_->getFieldPtr(i)->getSFieldPtr() ); }
+
 
 	/// \brief returns the length of Field.
 	///
@@ -122,7 +127,6 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  /// \todo implement me
   void abs(const MV& y) {
       field0_->abs( *y.field0_ );
       fields_->abs( *y.fields_ );
@@ -134,7 +138,6 @@ public:
    /// Here x represents this vector, and we update it as
    /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
    /// \return Reference to this object
-   /// \todo implement me
    void reciprocal(const MV& y){
       field0_->reciprocal( *y.field0_ );
       fields_->reciprocal( *y.fields_ );
@@ -253,7 +256,10 @@ public:
 
   void write( int count=0 ) {
   	field0_->write(count);
-  	fields_->write(count+1);
+  	for( int i=0; i<getNumberModes(); ++i ) {
+  	  getCFieldPtr(i)->write( count+2*i+1 );
+  	  getSFieldPtr(i)->write( count+2*i+2 );
+  	}
   }
 
 protected:
@@ -279,10 +285,11 @@ protected:
 }; //class MultiHarmonicField
 
 
-/// @brief creates a scalar/vector mode field(vector)
+/// \brief creates a scalar/vector mode field(vector)
 ///
-/// @param sVS scalar Vector Space to which returned vector belongs
-/// @return field vector
+/// \param sVS scalar Vector Space to which returned vector belongs
+/// \return field vector
+/// \relates MultiHarmonicField
 template<class Field>
 Teuchos::RCP< MultiHarmonicField<Field> > createMultiHarmonicField(
     const Teuchos::RCP<Field>&  field0,

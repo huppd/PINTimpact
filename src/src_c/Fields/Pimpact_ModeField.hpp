@@ -230,6 +230,7 @@ protected:
 ///
 /// \param sVS scalar Vector Space to which returned vector belongs
 /// \return field vector
+/// \relates ModeField
 template<class Field>
 Teuchos::RCP< ModeField<Field> > createModeField( const Teuchos::RCP<Field>&  fieldc, const Teuchos::RCP<Field>& fields ) {
 	return( Teuchos::rcp(

@@ -49,8 +49,11 @@ public:
   void assignField( const DomainFieldT& mv ) {};
 
   bool hasApplyTranspose() const { return( false ); }
-};
+}; // end of DivGradOp
 
+
+
+/// \relates DivGradOp
 template<class S, class O>
 Teuchos::RCP<DivGradOp<S,O> > createDivGradOp( const Teuchos::RCP<VectorField<S,O> >& temp ) {
   return(

@@ -38,14 +38,18 @@ public:
 		     << " \tny=" << gridSize_[1]
 		     << " \tnz=" << gridSize_[2] << "\n";
 	};
-};
+
+}; // end of class GridSize
 
 
+/// \relates GridSize
 template<class Ordinal>
 Teuchos::RCP<GridSize<Ordinal> > createGridSize( Ordinal n1=1, Ordinal n2=1, Ordinal n3=1 ) {
 	return( Teuchos::rcp( new GridSize<Ordinal>( n1, n2, n3 ) ) );
 }
 
+
 } // end of namespace Pimpact
+
 
 #endif // end of #ifndef PIMPACT_GRIDSIZE_HPP

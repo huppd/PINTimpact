@@ -848,6 +848,8 @@ protected:
 }; // end of class Group
 
 
+
+/// \relates Group
 template< class Interface >
 //Teuchos::RCP<NOX::Abstract::Group> createGroup(
 Teuchos::RCP<NOX::Pimpact::Group<Interface> > createGroup(

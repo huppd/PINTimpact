@@ -62,6 +62,8 @@ public:
 }; // end of class DivOpGrad
 
 
+
+/// \relates DivOpGrad
 template<class S, class O>
 Teuchos::RCP<DivOpGrad<S,O> > createDivOpGrad(
     const Teuchos::RCP<MultiField<ModeField<VectorField<S,O> > > > & temp,

@@ -4,7 +4,6 @@
 
 
 #include <Pimpact_MultiField.hpp>
-#include <Pimpact_OperatorMV.hpp>
 #include "Pimpact_OperatorBase.hpp"
 
 #include <Teuchos_ScalarTraits.hpp>

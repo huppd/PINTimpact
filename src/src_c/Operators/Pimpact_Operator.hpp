@@ -42,13 +42,17 @@
 
 #include "Pimpact_HelmholtzInverseOp.hpp"
 #include "Pimpact_HelmholtzOp.hpp"
+#include "Pimpact_ForcingOp.hpp"
 
 #include "Pimpact_InverseOperator.hpp"
 
 #include "Pimpact_ModeOpWrap.hpp"
 #include "Pimpact_MultiOpWrap.hpp"
 
-#include "Pimpact_Nonlinear.hpp"
+#include "Pimpact_NonlinearOp.hpp"
+#include "Pimpact_NonlinearJacobianOp.hpp"
+#include "Pimpact_MultiNonlinearOp.hpp"
+#include "Pimpact_MultiNonlinearJacobianOp.hpp"
 
 #include "Pimpact_MultiHarmonicOpWrap.hpp"
 #include "Pimpact_MultiDtHelmholtzOp.hpp"

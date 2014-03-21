@@ -61,6 +61,7 @@ public:
 
 
 
+/// \relates OperatorBase \relates OperatorPimpl
 template<class MF, class Op>
 Teuchos::RCP<OperatorBase<MF> > createOperatorBase( const Teuchos::RCP<Op>& op=Teuchos::null ) {
   if( Teuchos::is_null( op ) )

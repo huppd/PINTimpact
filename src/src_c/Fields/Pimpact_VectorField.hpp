@@ -13,7 +13,6 @@
 
 #include "Pimpact_FieldSpace.hpp"
 #include "Pimpact_IndexSpace.hpp"
-//#include "Pimpact_Operator.hpp"
 
 
 
@@ -275,6 +274,29 @@ void VF_init_RankineVortex(
     const int& b1U, const int& b2U, const int& b3U,
     double* phiU, double* phiV, double* phiW );
 
+void VF_init_GaussianForcing(
+    const int& N1,  const int& N2,  const int& N3,
+    const int& S1U, const int& S2U, const int& S3U,
+    const int& N1U, const int& N2U, const int& N3U,
+    const int& S1V, const int& S2V, const int& S3V,
+    const int& N1V, const int& N2V, const int& N3V,
+    const int& S1W, const int& S2W, const int& S3W,
+    const int& N1W, const int& N2W, const int& N3W,
+    const int& b1L, const int& b2L, const int& b3L,
+    const int& b1U, const int& b2U, const int& b3U,
+    double* phiU, double* phiV, double* phiW );
+
+void VF_init_BoundaryFilter1D(
+    const int& N1,  const int& N2,  const int& N3,
+    const int& S1U, const int& S2U, const int& S3U,
+    const int& N1U, const int& N2U, const int& N3U,
+    const int& S1V, const int& S2V, const int& S3V,
+    const int& N1V, const int& N2V, const int& N3V,
+    const int& S1W, const int& S2W, const int& S3W,
+    const int& N1W, const int& N2W, const int& N3W,
+    const int& b1L, const int& b2L, const int& b3L,
+    const int& b1U, const int& b2U, const int& b3U,
+    double* phiU, double* phiV, double* phiW );
 }
 
 
@@ -775,6 +797,32 @@ public:
           bu(0),   bu(1),   bu(2),
           vec_[0], vec_[1], vec_[2] );
       break;
+    case GaussianForcing1D:
+      VF_init_GaussianForcing(
+           nLoc(0), nLoc(1), nLoc(2),
+           sIndB(0,0), sIndB(1,0), sIndB(2,0),
+           eIndB(0,0), eIndB(1,0), eIndB(2,0),
+           sIndB(0,1), sIndB(1,1), sIndB(2,1),
+           eIndB(0,1), eIndB(1,1), eIndB(2,1),
+           sIndB(0,2), sIndB(1,2), sIndB(2,2),
+           eIndB(0,2), eIndB(1,2), eIndB(2,2),
+           bl(0),   bl(1),   bl(2),
+           bu(0),   bu(1),   bu(2),
+           vec_[0], vec_[1], vec_[2] );
+       break;
+    case BoundaryFilter1D:
+      VF_init_BoundaryFilter1D(
+            nLoc(0), nLoc(1), nLoc(2),
+            sIndB(0,0), sIndB(1,0), sIndB(2,0),
+            eIndB(0,0), eIndB(1,0), eIndB(2,0),
+            sIndB(0,1), sIndB(1,1), sIndB(2,1),
+            eIndB(0,1), eIndB(1,1), eIndB(2,1),
+            sIndB(0,2), sIndB(1,2), sIndB(2,2),
+            eIndB(0,2), eIndB(1,2), eIndB(2,2),
+            bl(0),   bl(1),   bl(2),
+            bu(0),   bu(1),   bu(2),
+            vec_[0], vec_[1], vec_[2] );
+        break;
     }
   }
 
@@ -859,6 +907,7 @@ protected:
 
 
 /// \brief creates a vector field belonging to a \c FieldSpace and two \c IndexSpaces
+/// \relates VectorField
 template<class Scalar, class Ordinal>
 Teuchos::RCP< VectorField<Scalar,Ordinal> > createVectorField(
 		const Teuchos::RCP<const FieldSpace<Ordinal> >& fieldS,

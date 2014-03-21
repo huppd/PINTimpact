@@ -13,8 +13,9 @@
 namespace Pimpact {
 
 
-/// \brief calls for combining two operators, which are apllied sequential.
+/// \brief combines two operators.
 ///
+/// Both operators are applied and the result is added.
 /// the \c DomainFieldT of \c OP2 has to be equal to the \c RangeFieldT of \c OP1.
 /// both operators should have the same OpType(OpType is obsolete)
 /// \ingroup Operator
@@ -50,14 +51,9 @@ public:
         {};
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
-//    temp_ = const_cast<Teuchos::RCP<DomainFieldT> >(x.clone()) ;
-//    temp_ = x.clone() ;
-//    temp_ = Teuchos::rcp( new DomainFieldT() );
-//    op1_->apply( x, *temp_ );
-//    op2_->apply( *temp_, y );
     op1_->apply( x, *temp_ );
     op2_->apply( x, y );
-    y.add(1., *temp_,1.,y );
+    y.add( 1., *temp_, 1., y );
   }
 
   void assignField( const DomainFieldT& mv ) {
@@ -71,6 +67,7 @@ public:
 
 
 
+/// \relates AddOp
 template<class OP1, class OP2 >
 Teuchos::RCP< AddOp<OP1, OP2> > createAddOp(
     const Teuchos::RCP<OP1>& op1,

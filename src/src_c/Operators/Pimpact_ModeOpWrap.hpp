@@ -57,6 +57,8 @@ public:
 
 
 
+
+/// \relates ModeOpWrap
 template<class Operator>
 Teuchos::RCP< ModeOpWrap<Operator> > createModeOpWrap( const Teuchos::RCP<Operator>& op=Teuchos::null) {
   if( Teuchos::is_null(op) )

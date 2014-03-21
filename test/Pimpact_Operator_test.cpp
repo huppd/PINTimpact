@@ -127,6 +127,32 @@ TEUCHOS_UNIT_TEST( Operator, Helmholtz ) {
 }
 
 
+TEUCHOS_UNIT_TEST( Operator, ForcingOp ) {
+
+  typedef double S;
+  typedef int O;
+
+  auto fS = Pimpact::createFieldSpace<O>();
+  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+
+  auto vel = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
+  auto force = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
+  auto res = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
+
+  vel->init(1.);
+  force->initField( Pimpact::EFlowProfile(11) );
+  res->random();
+
+  auto op = Pimpact::createForcingOp<S,O>( force, 1. );
+
+  op->apply(*vel,*res);
+  vel->add( 1., *res, -1., *force );
+
+  TEST_EQUALITY( vel->norm(), 0 );
+}
+
+
 
 TEUCHOS_UNIT_TEST( Operator, HelmholtzMVMode ) {
   typedef double S;

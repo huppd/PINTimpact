@@ -61,6 +61,7 @@ public:
 
 
 
+/// \relates InverseOperator
 template< class MF>
 Teuchos::RCP< InverseOperator<MF> > createInverseOperator(
     const Teuchos::RCP<LinearProblem<MF> > linprob=Teuchos::null ) {

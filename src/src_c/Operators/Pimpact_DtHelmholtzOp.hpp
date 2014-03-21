@@ -47,10 +47,12 @@ public:
   }
 
   bool hasApplyTranspose() const { return( false ); }
-};
+
+}; // end of class DtL
 
 
 
+/// \relates DtL
 template< class Scalar, class Ordinal>
 Teuchos::RCP< DtL<Scalar,Ordinal> > createDtL( Scalar omega=1., Scalar mulI=0., Scalar mulL=1. ) {
   return( Teuchos::rcp( new DtL<Scalar,Ordinal>( omega, mulI, mulL ) ) );

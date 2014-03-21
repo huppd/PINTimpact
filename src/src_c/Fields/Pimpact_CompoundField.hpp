@@ -13,7 +13,6 @@
 
 #include "Pimpact_FieldSpace.hpp"
 #include "Pimpact_IndexSpace.hpp"
-//#include "Pimpact_Operator.hpp"
 
 
 
@@ -244,11 +243,11 @@ protected:
 }; // end of class CompoundField
 
 
-/**
- * \brief creates a compound vector+scalar field(vector).
- * \param sVS scalar Vector Space to which returned vector belongs
- * \return Field vector
- */
+/// \brief creates a compound vector+scalar field(vector).
+///
+/// \param sVS scalar Vector Space to which returned vector belongs
+/// \return Field vector
+/// \relates CompoundField
 template<class VField, class SField>
 Teuchos::RCP< CompoundField<VField,SField> > createCompoundField(
 		const Teuchos::RCP<VField>&  vfield, const Teuchos::RCP<SField>& sfield ) {

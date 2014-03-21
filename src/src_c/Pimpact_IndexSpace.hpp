@@ -73,6 +73,7 @@ extern "C" {
 
 /// \brief function that creates ScaparIndexSpace
 /// by getting values from \c IMPACT
+/// \relates IndexSpace
 template<class Ordinal>
 Teuchos::RCP<const IndexSpace<Ordinal> > createScalarIndexSpace(){
 
@@ -86,6 +87,7 @@ Teuchos::RCP<const IndexSpace<Ordinal> > createScalarIndexSpace(){
 
 	return Teuchos::RCP<const IndexSpace<Ordinal> > (
 			new IndexSpace<Ordinal>( EFieldType::S, sInd, eInd ) );
+
 }
 
 
@@ -93,6 +95,7 @@ Teuchos::RCP<const IndexSpace<Ordinal> > createScalarIndexSpace(){
 ///
 /// by getting values from impact
 /// \todo make construction clean without copying
+/// \relates IndexSpace
 template<class Ordinal>
 Teuchos::ArrayRCP< Teuchos::RCP< const IndexSpace<Ordinal> > > createInnerFieldIndexSpaces(){
 
@@ -122,6 +125,7 @@ Teuchos::ArrayRCP< Teuchos::RCP< const IndexSpace<Ordinal> > > createInnerFieldI
 /// \brief function that creates ScaparIndexSpace
 /// by getting values from impact
 /// \todo make construction clean without copying
+/// \relates IndexSpace
 template<class Ordinal>
 Teuchos::ArrayRCP< Teuchos::RCP< const IndexSpace<Ordinal> > > createFullFieldIndexSpaces(){
 

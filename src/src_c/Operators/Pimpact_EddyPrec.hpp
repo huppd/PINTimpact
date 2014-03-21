@@ -55,6 +55,8 @@ public:
 }; // end of class EddyPrec
 
 
+
+/// \relates EddyPrec
 template<class S, class O>
 Teuchos::RCP<EddyPrec<S,O> > createEddyPrec(
     const Teuchos::RCP<MultiField<ModeField<VectorField<S,O> > > > & temp,

@@ -58,10 +58,11 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
-};
+}; // end of class DivHinvGrad
 
 
 
+/// \relates DivHinvGrad
 template< class Scalar, class Ordinal>
 Teuchos::RCP<DivHinvGrad<Scalar,Ordinal> > createDivHinvGrad(
     Teuchos::RCP<MultiField<VectorField<Scalar,Ordinal> > > temp,

@@ -60,6 +60,7 @@ public:
 
 
 
+/// \relates MultiOpWrap
 template<class Operator>
 Teuchos::RCP< MultiOpWrap<Operator> > createMultiOpWrap( const Teuchos::RCP<Operator>& op=Teuchos::null) {
   if( Teuchos::is_null(op) )

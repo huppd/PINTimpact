@@ -59,6 +59,8 @@ public:
 }; // end of class Linv
 
 
+
+/// \relates Linv
 template< class Scalar, class Ordinal>
 Teuchos::RCP< Linv<Scalar,Ordinal> > createLinv(
     const Teuchos::RCP<LinearProblem<MultiField<VectorField<Scalar,Ordinal> > > > lap_prob ) {

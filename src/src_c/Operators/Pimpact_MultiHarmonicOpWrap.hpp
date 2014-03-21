@@ -62,6 +62,7 @@ public:
 
 
 
+/// \relates MultiHarmonicOpWrap
 template<class Operator>
 Teuchos::RCP< MultiHarmonicOpWrap<Operator> > createMultiHarmonicOpWrap( const Teuchos::RCP<Operator>& op=Teuchos::null) {
   if( Teuchos::is_null(op) )

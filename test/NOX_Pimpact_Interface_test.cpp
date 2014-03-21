@@ -18,11 +18,7 @@
 #include "Pimpact_CompoundField.hpp"
 #include "Pimpact_FieldFactory.hpp"
 
-#include "Pimpact_EddyPrec.hpp"
-#include "Pimpact_Nonlinear.hpp"
-#include "Pimpact_DivOpGrad.hpp"
 #include "Pimpact_Operator.hpp"
-#include "Pimpact_OperatorMV.hpp"
 #include "Pimpact_OperatorBase.hpp"
 #include "Pimpact_OperatorFactory.hpp"
 

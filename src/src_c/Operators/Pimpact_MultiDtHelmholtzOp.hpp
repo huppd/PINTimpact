@@ -36,12 +36,12 @@ public:
     op_(op) {};
 
 
-  void apply(const DomainFieldT& x, RangeFieldT& y, int k=1 ) const {
+  void apply(const DomainFieldT& x, RangeFieldT& y ) const {
     op_->getInnerOpPtr()->apply( x.getConst0Field(), y.get0Field() );
 
     for( int i=0; i<x.getNumberModes(); ++i ) {
-      op_->apply( x.getConstField(i), y.getField(i) );
-      op_->apply( x.getConstField(i), y.getField(i) );
+      op_->apply( x.getConstField(i), y.getField(i), i+1 );
+      op_->apply( x.getConstField(i), y.getField(i), i+1 );
     }
   }
 
@@ -55,10 +55,12 @@ public:
 
 
   bool hasApplyTranspose() const { return( false ); }
-};
+
+}; // end of class MultiDtHelmholtz
 
 
 
+/// \relates MultiDtHelmholtz
 template< class Scalar, class Ordinal>
 Teuchos::RCP< MultiDtHelmholtz<Scalar,Ordinal> > createMultiDtHelmholtz( Scalar omega=1., Scalar mulI=0., Scalar mulL=1. ) {
   return( Teuchos::rcp( new MultiDtHelmholtz<Scalar,Ordinal>( omega, mulI, mulL ) ) );

@@ -34,7 +34,8 @@ public:
   void assignField( const DomainFieldT& mv ) {};
 
   bool hasApplyTranspose() const { return( false ); }
-};
+
+}; // end of class Grad
 
 
 } // end of namespace Pimpact

@@ -11,6 +11,8 @@
 
 namespace Pimpact {
 
+
+/// \relates ModeOpWrap \relates MultiOpWrap
 template<class Op>
 Teuchos::RCP< MultiOpWrap<ModeOpWrap<Op> > > createMultiModeOpWrap( const Teuchos::RCP<Op>& op=Teuchos::null ) {
   if( Teuchos::is_null(op) )
@@ -27,6 +29,7 @@ Teuchos::RCP< MultiOpWrap<ModeOpWrap<Op> > > createMultiModeOpWrap( const Teucho
 //          Teuchos::rcp( new OperatorPimpl< MV, MultiOpWrap<Op> >( createMultiOpWrap(op) ) ) )
 //      );
 //}
+
 
 
 template<class MV, class Op>
@@ -46,6 +49,7 @@ Teuchos::RCP<OperatorBase<MV> > createMultiOperatorBase( const Teuchos::RCP<Op>&
 }
 
 
+/// \relates OperatorBase
 template<class MF, class Op>
 Teuchos::RCP<OperatorBase<MF> > createMultiModeOperatorBase( const Teuchos::RCP<Op>& op=Teuchos::null ) {
   if( Teuchos::is_null(op) )

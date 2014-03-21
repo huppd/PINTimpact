@@ -14,9 +14,7 @@
 
 
 #include "Pimpact_Types.hpp"
-//#include "Pimpact_ModeField.hpp"
-//#include "Pimpact_VectorField.hpp"
-//#include "Pimpact_ScalarField.hpp"
+
 
 
 namespace Pimpact {
@@ -93,14 +91,13 @@ public:
   Teuchos::RCP< MV > clone( ECopyType ctype = DeepCopy ) const {
     auto mv_ = Teuchos::rcp( new MV(getNumberVecs()) );
       for( int i=0; i<getNumberVecs(); ++i ) {
-//        mv_->mfs_[i] = Teuchos::rcp( new Field( *mfs_[i], type ) );
         mv_->mfs_[i] = mfs_[i]->clone(ctype);
       }
       return( mv_ );
   }
 
 
-  /// @return deep copy of \c MultiField
+  /// \return deep copy of \c MultiField
   Teuchos::RCP<MV> CloneCopy() const {
     return( clone() );
   }
@@ -108,8 +105,8 @@ public:
 
   /// \brief deep copy of \c index fields, the new \c MultiFields stores \c index.size() vector.
   ///
-  /// @param index
-  /// @return
+  /// \param index
+  /// \return
   Teuchos::RCP<MV>  CloneCopy( const std::vector<int>& index ) const {
   	auto mv_ = Teuchos::rcp( new MV(index.size()) );
   	for( unsigned int i=0; i<index.size(); ++i ) {
@@ -462,6 +459,7 @@ public:
 
 
 /// \brief factory for \c MultiField
+/// \relates MultiField
 template<class Field>
 Teuchos::RCP< MultiField<Field> > createMultiField( const Field& field,
 		const int numvecs, ECopyType ctype = ShallowCopy ) {
@@ -473,6 +471,7 @@ Teuchos::RCP< MultiField<Field> > createMultiField( const Field& field,
 /// \brief factory for \c MultiField.
 ///
 /// simple wrapper.
+/// \relates MultiField
 template<class Field>
 Teuchos::RCP< MultiField<Field> > createMultiField( const Teuchos::RCP<Field>& field ) {
   return( Teuchos::rcp( new MultiField<Field>( field ) ) );

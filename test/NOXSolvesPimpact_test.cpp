@@ -12,18 +12,10 @@
 #include "pimpact.hpp"
 #include "Pimpact_FieldSpace.hpp"
 #include "Pimpact_IndexSpace.hpp"
-#include "Pimpact_ScalarField.hpp"
-#include "Pimpact_VectorField.hpp"
-//#include "Pimpact_ModeField.hpp"
-#include "Pimpact_CompoundField.hpp"
+#include "Pimpact_Fields.hpp"
 #include "Pimpact_FieldFactory.hpp"
 
-#include "Pimpact_AddOp.hpp"
-#include "Pimpact_EddyPrec.hpp"
-#include "Pimpact_Nonlinear.hpp"
-#include "Pimpact_DivOpGrad.hpp"
 #include "Pimpact_Operator.hpp"
-#include "Pimpact_OperatorMV.hpp"
 #include "Pimpact_OperatorBase.hpp"
 #include "Pimpact_OperatorFactory.hpp"
 
@@ -34,6 +26,7 @@
 #include "NOX_Pimpact_LinearStokes.hpp"
 #include "NOX_Pimpact_SimpleLinear.hpp"
 #include "NOX_Pimpact_SimpleNonlinear.hpp"
+#include "NOX_Pimpact_Interface.hpp"
 #include "NOX_Pimpact_Group.hpp"
 
 #include "NOX.H"
@@ -512,6 +505,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleLinear ) {
 //}
 
 
+
 TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear3 ) {
   typedef double S;
   typedef int O;
@@ -525,8 +519,8 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear3 ) {
   typedef Pimpact::MultiOpWrap<Pimpact::AddOp<JOp1,JOp2> > JOp;
   typedef Pimpact::OperatorBase<MVF>  BOp;
 
-  typedef NOX::Pimpact::SimpleNonlinear Interface;
-  typedef NOX::Pimpact::Vector<typename Interface::Field> NV;
+  typedef NOX::Pimpact::Interface<MVF> Inter;
+  typedef NOX::Pimpact::Vector<typename Inter::Field> NV;
 
   int rank = 0;
 
@@ -536,48 +530,46 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear3 ) {
 
   auto vel = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
 
-  vel->initField( Pimpact::RankineVortex2D );
+//  vel->initField( Pimpact::RankineVortex2D );
+  vel->initField( Pimpact::ZeroProf );
 
   auto x = Pimpact::createMultiField<VF>( *vel->clone(), 1 );
   auto f = Pimpact::createMultiField<VF>( *vel->clone(), 1 );
 
+  S eps = 1.e6;
 
   auto op = Pimpact::createOperatorBase<MVF,Op>(
       Pimpact::createMultiOpWrap(
           Pimpact::createAddOp<Op1,Op2>(
               Pimpact::createNonlinear<S,O>(),
-              Pimpact::createHelmholtz<S,O>(0.,1.e-3),
+              Pimpact::createHelmholtz<S,O>(0.,eps),
               vel->clone() ) ) );
 
-  vel->initField( Pimpact::ZeroProf );
+//  vel->initField( Pimpact::ZeroProf );
+//  vel->initField( Pimpact::RankineVortex2D );
 
   auto jop = Pimpact::createOperatorBase<MVF,JOp>(
       Pimpact::createMultiOpWrap(
           Pimpact::createAddOp<JOp1,JOp2>(
-              Pimpact::createNonlinearJacobian<S,O>(vel),
-              Pimpact::createHelmholtz<S,O>(0.,1.e-3),
+              Pimpact::createNonlinearJacobian<S,O>( vel ),
+              Pimpact::createHelmholtz<S,O>(0.,eps),
               vel->clone() ) ) );
 
 
   // init Fields, init and rhs
   x->getFieldPtr(0)->initField( Pimpact::RankineVortex2D );
-//  x->getFieldPtr(0)->initField( Pimpact::Circle2D );
   f->getFieldPtr(0)->initField( Pimpact::ZeroProf );
 
-//  f->add(1.,*x,1.,*f);
-//  f->write(97);
   x->write(97);
   op->apply(*x,*f);
   f->write(98);
 
-//  x->scale( -0.1 );
-  x->random();
   x->init( 0. );
 
   auto para = Pimpact::createLinSolverParameter("GMRES",1.e-16)->get();
 //  auto para = Teuchos::parameterlist();
-  para->set( "Num Blocks",          800/1  );
-  para->set( "Maximum Iterations", 1600/1 );
+  para->set( "Num Blocks",          800/2  );
+  para->set( "Maximum Iterations", 1600/2 );
 //  para->set( "Num Recycled Blocks",  20  );
   para->set( "Implicit Residual Scaling", "Norm of RHS");
   para->set( "Explicit Residual Scaling", "Norm of RHS" );
@@ -585,21 +577,19 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear3 ) {
 
 
   auto lp = Pimpact::createLinearProblem<MVF>(
-//      jop, x->clone(), f->clone(), Pimpact::createLinSolverParameter("GCRODR",1.e-6)->get() , "GCRODR" );
       jop, x->clone(), f->clone(), para , "GMRES" );
-  auto inter = NOX::Pimpact::createSimpleNonlinear( f, op, lp );
 
+  auto inter = NOX::Pimpact::createInterface<MVF>( f, op, lp );
 
-//  Teuchos::RCP<NV> nx = Teuchos::rcp(new NV(x) );
   auto nx = NOX::Pimpact::createVector(x);
 
   auto bla = Teuchos::parameterList();
 
-  auto group = NOX::Pimpact::createGroup<Interface>( bla, inter, nx );
+  auto group = NOX::Pimpact::createGroup<Inter>( bla, inter, nx );
 
   // Set up the status tests
   Teuchos::RCP<NOX::StatusTest::NormF> statusTestNormF =
-    Teuchos::rcp(new NOX::StatusTest::NormF(1.0e-16 ));
+    Teuchos::rcp(new NOX::StatusTest::NormF(1.0e-4 ));
   Teuchos::RCP<NOX::StatusTest::MaxIters> statusTestMaxIters =
     Teuchos::rcp(new NOX::StatusTest::MaxIters( 40 ) );
   Teuchos::RCP<NOX::StatusTest::Combo> statusTestsCombo =
@@ -650,8 +640,15 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear3 ) {
   // Print the answer
   if(rank==0) std::cout << "\n" << "-- Final Solution From Solver --" << "\n";
   Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() )->getConstFieldPtr()->write(99);
-  Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(999);
+  auto blabla = Teuchos::rcp_const_cast<Pimpact::VectorField<double,int> >(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() )->getConstFieldPtr()->getConstFieldPtr(0));
+  vel->initField( Pimpact::RankineVortex2D );
+  auto er = vel->clone();
+  er->initField( Pimpact::ZeroProf );
+  er->add( 1., *blabla, -1., *vel );
+  er->write(100);
 
+  Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(999);
 }
+
 
 } // namespace

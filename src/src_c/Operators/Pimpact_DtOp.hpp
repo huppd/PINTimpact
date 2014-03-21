@@ -34,9 +34,12 @@ public:
   void assignField( const DomainFieldT& mv ) {};
 
   bool hasApplyTranspose() const { return( false ); }
-};
+
+}; // end of class Dt
 
 
+
+/// \relates Dt
 template< class Scalar, class Ordinal>
 Teuchos::RCP< Dt<Scalar,Ordinal> > createDt( Scalar omega = 1. ) {
   return( Teuchos::rcp( new Dt<Scalar,Ordinal>( omega ) ) );

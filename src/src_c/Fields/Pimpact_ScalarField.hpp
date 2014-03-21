@@ -14,7 +14,6 @@
 #include "Pimpact_Types.hpp"
 #include "Pimpact_FieldSpace.hpp"
 #include "Pimpact_IndexSpace.hpp"
-//#include "Pimpact_OperatorMV.hpp"
 
 
 
@@ -529,6 +528,7 @@ protected:
 ///
 /// \param fS scalar Vector Space to which returned vector belongs
 /// \return scalar vector
+/// \relates ScalarField
 template<class Scalar, class Ordinal>
 Teuchos::RCP< ScalarField<Scalar,Ordinal> > createScalarField( const Teuchos::RCP<const FieldSpace<Ordinal> >& fS) {
 	return( Teuchos::RCP<ScalarField<Scalar,Ordinal> > (
