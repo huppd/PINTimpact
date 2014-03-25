@@ -23,6 +23,8 @@ public:
   typedef VectorField<Scalar,Ordinal>  DomainFieldT;
   typedef VectorField<Scalar,Ordinal>  RangeFieldT;
 
+  typedef ModeOp OpType;
+
 protected:
 
   Teuchos::RCP<DomainFieldT> forcing_;
@@ -41,7 +43,7 @@ public:
     mul_ = mul;
   }
 
-  void apply(const DomainFieldT& x, RangeFieldT& y) const {
+  void apply( const DomainFieldT& x, RangeFieldT& y ) const {
     y.add( mul_, x, 0., y );
     y.scale( *forcing_ );
   }

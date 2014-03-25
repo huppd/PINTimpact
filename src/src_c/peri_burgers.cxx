@@ -58,10 +58,14 @@ int main(int argi, char** argv ) {
 
   typedef Pimpact::MultiHarmonicNonlinear<S,O>  Op1;
   typedef Pimpact::MultiDtHelmholtz<S,O>  Op2;
-  typedef Pimpact::MultiOpWrap<Pimpact::AddOp<Op1,Op2> >  Op;
+  typedef Pimpact::MultiHarmonicOpWrap< Pimpact::ForcingOp<S,O> > Op3;
+//  typedef Pimpact::MultiOpWrap<Pimpact::AddOp<Op1,Op2> >  Op;
+  typedef Pimpact::MultiOpWrap< Pimpact::AddOp< Pimpact::AddOp<Op1,Op2>, Op3 > > Op;
   typedef Pimpact::MultiHarmonicNonlinearJacobian<S,O>  JOp1;
   typedef Op2 JOp2;
-  typedef Pimpact::MultiOpWrap<Pimpact::AddOp<JOp1,JOp2> > JOp;
+//  typedef Pimpact::MultiOpWrap<Pimpact::AddOp<JOp1,JOp2> > JOp;
+//  typedef Pimpact::MultiOpWrap<Pimpact::AddOp<JOp1,JOp2> > JOp;
+  typedef Pimpact::MultiOpWrap< Pimpact::AddOp< Pimpact::AddOp<JOp1,Op2>, Op3 > > JOp;
 //  typedef Op JOp;
   typedef Pimpact::OperatorBase<MVF>  BOp;
 
@@ -113,6 +117,9 @@ int main(int argi, char** argv ) {
 
   O n3 = 2.;
   my_CLP.setOption( "nz", &n3, "amount of grid points in z-direction: a*2**q+1" );
+
+  O nf = 4.;
+  my_CLP.setOption( "nf", &nf, "amount of grid points in f-direction" );
 
   // processor grid size
   O np1 = 4;
@@ -203,46 +210,75 @@ int main(int argi, char** argv ) {
 //  auto temps = Pimpact::createInitMSF<S,O>( fS );
 //  auto fp    = Pimpact::createInitMSF<S,O>( fS );
 
-  auto x    = Pimpact::createMultiField( Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, 8 ) );
-  auto temp = Pimpact::createMultiField( Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, 8 ) );
-  auto fu   = Pimpact::createMultiField( Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, 8 ) );
+  auto x    = Pimpact::createMultiField( Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, nf ) );
+  auto temp = Pimpact::createMultiField( Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, nf ) );
+  auto fu   = Pimpact::createMultiField( Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, nf ) );
 
   x->init(0);
-  x->random();
+//  x->random();
 //  x->scale();
   temp->init(0);
 
+  auto force = x->getConstFieldPtr(0)->getConst0FieldPtr()->clone();
+  force->initField( Pimpact::BoundaryFilter1D );
+
+//  auto op = Pimpact::createOperatorBase<MVF,Op>(
+//       Pimpact::createMultiOpWrap(
+//           Pimpact::createAddOp<Op1,Op2>(
+//               Pimpact::createMultiHarmonicNonlinear<S,O>( x->getConstFieldPtr(0)->getConst0FieldPtr()->clone() ),
+//               Pimpact::createMultiDtHelmholtz<S,O>( alpha2, 0., 1./re ),
+//               temp->getFieldPtr(0)->clone() ) )
+//  );
   auto op = Pimpact::createOperatorBase<MVF,Op>(
        Pimpact::createMultiOpWrap(
-           Pimpact::createAddOp<Op1,Op2>(
+           Pimpact::createAddOp<Pimpact::AddOp<Op1,Op2>,Op3>(
+             Pimpact::createAddOp<Op1,Op2>(
                Pimpact::createMultiHarmonicNonlinear<S,O>( x->getConstFieldPtr(0)->getConst0FieldPtr()->clone() ),
                Pimpact::createMultiDtHelmholtz<S,O>( alpha2, 0., 1./re ),
-               temp->getFieldPtr(0)->clone() ) ) );
-
+               temp->getFieldPtr(0)->clone() ) ,
+             Pimpact::createMultiHarmonicOpWrap( Pimpact::createForcingOp<S,O>( force ) ) ,
+             temp->getFieldPtr(0)->clone() ) )
+  );
 
   auto jop = Pimpact::createOperatorBase<MVF,JOp>(
        Pimpact::createMultiOpWrap(
-           Pimpact::createAddOp<JOp1,JOp2>(
+           Pimpact::createAddOp<Pimpact::AddOp<JOp1,Op2>,Op3>(
+             Pimpact::createAddOp<JOp1,Op2>(
                Pimpact::createMultiHarmonicNonlinearJacobian<S,O>(
                    x->getConstFieldPtr(0)->getConst0FieldPtr()->clone(), x->getConstFieldPtr(0)->clone() ),
                Pimpact::createMultiDtHelmholtz<S,O>( alpha2, 0., 1./re ),
-               temp->getFieldPtr(0)->clone() ) ) );
+               temp->getFieldPtr(0)->clone() ) ,
+             Pimpact::createMultiHarmonicOpWrap( Pimpact::createForcingOp<S,O>( force ) ) ,
+             temp->getFieldPtr(0)->clone() ) )
+  );
+
+
+//  auto jop = Pimpact::createOperatorBase<MVF,JOp>(
+//       Pimpact::createMultiOpWrap(
+//           Pimpact::createAddOp<JOp1,JOp2>(
+//               Pimpact::createMultiHarmonicNonlinearJacobian<S,O>(
+//                   x->getConstFieldPtr(0)->getConst0FieldPtr()->clone(), x->getConstFieldPtr(0)->clone() ),
+//               Pimpact::createMultiDtHelmholtz<S,O>( alpha2, 0., 1./re ),
+//               temp->getFieldPtr(0)->clone() ) ) );
 
   // init Fields, init and rhs
 //  x ->getFieldPtr(0)->get0FieldPtr()->initField( Pimpact::RankineVortex2D );
 //  x ->getFieldPtr(0)->get0FieldPtr()->initField( Pimpact::RankineVortex2D );
 //  fu->getFieldPtr(0)->get0FieldPtr()->initField( Pimpact::ZeroProf );
-  fu->getFieldPtr(0)->getCFieldPtr(1)->initField( Pimpact::GaussianForcing1D );
+//  fu->getFieldPtr(0)->getCFieldPtr(1)->initField( Pimpact::BoundaryFilter1D );
+  fu->getFieldPtr(0)->getCFieldPtr(0)->initField( Pimpact::BoundaryFilter1D );
+  fu->getFieldPtr(0)->getCFieldPtr(0)->scale( 0.5 );
+  fu->getFieldPtr(0)->get0FieldPtr()->initField( Pimpact::BoundaryFilter1D );
 //  fu->getFieldPtr(0)->get0FieldPtr()->initField( Pimpact::GaussianForcing2D );
 //  fu->scale(re);
 
-  x->write(0);
+  x->init( 0. );
+//  x->write(0);
 //  op->apply(*x,*fu);
   fu->write(100);
 
-  x->init( 0. );
 
-  auto para = Pimpact::createLinSolverParameter("GMRES",1.e-4 )->get();
+  auto para = Pimpact::createLinSolverParameter("GMRES",1.e-5 )->get();
  //  auto para = Teuchos::parameterlist();
    para->set( "Num Blocks",          800/2  );
    para->set( "Maximum Iterations", 1600/2 );
@@ -269,7 +305,7 @@ int main(int argi, char** argv ) {
    Teuchos::RCP<NOX::StatusTest::MaxIters> statusTestMaxIters =
      Teuchos::rcp(new NOX::StatusTest::MaxIters( 10 ) );
    Teuchos::RCP<NOX::StatusTest::NormUpdate> statusTestNormUpdate =
-     Teuchos::rcp(new NOX::StatusTest::NormUpdate( 1.e-4,  NOX::Abstract::Vector::TwoNorm ) );
+     Teuchos::rcp(new NOX::StatusTest::NormUpdate( 1.e-5,  NOX::Abstract::Vector::TwoNorm ) );
    Teuchos::RCP<NOX::StatusTest::Combo> statusTestsCombo =
      Teuchos::rcp(new NOX::StatusTest::Combo( NOX::StatusTest::Combo::OR,
      Teuchos::rcp(new NOX::StatusTest::Combo( NOX::StatusTest::Combo::OR,
@@ -296,7 +332,7 @@ int main(int argi, char** argv ) {
  //  solverParametersPtr->sublist("Line Search").set("Method","Backtrack");
    Teuchos::ParameterList& lineSearchParameters = solverParametersPtr->sublist("Line Search");
    lineSearchParameters.set("Method","Backtrack");
-   lineSearchParameters.sublist("Backtrack").set("Recovery Step",1.e-12/2.);
+   lineSearchParameters.sublist("Backtrack").set("Recovery Step",1.e-2);
 
    // Set the line search method
  //  lineSearchParameters.set("Method","More'-Thuente");

@@ -50,7 +50,7 @@ public:
   };
 
   void assignField( const DomainFieldT& mv ) {
-    op_->assignField( mv.getConstField(0) );
+    op_->assignField( mv.getConst0Field() );
   };
 
   bool hasApplyTranspose() const { return( op_->hasApplyTranspose() ); }
