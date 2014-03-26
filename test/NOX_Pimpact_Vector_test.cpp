@@ -156,9 +156,11 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, TwoNorm_and_init ) {
 	for( double i=0.; i< 200.1; ++i ) {
 		q->init(i/2.);
 		norm = q->norm(NOX::Abstract::Vector::TwoNorm);
-		TEST_EQUALITY( std::pow(i/2.,2)*N, norm );
+    TEST_FLOATING_EQUALITY( std::sqrt(std::pow(i/2.,2)*N), norm, errorTolSlack );
 	}
+
 }
+
 
 
 TEUCHOS_UNIT_TEST( NOXPimpactVector, add ) {
@@ -306,23 +308,26 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, norm_weighted ) {
   vel1->init(1.);
   vel2->reciprocal( *vel1 );
   norm = vel1->norm(*vel2);
-  TEST_EQUALITY( N, norm );
+  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, errorTolSlack );
+
 
   vel1->init(-1.);
   vel2->reciprocal( *vel1 );
   norm = vel2->norm(*vel1);
-  TEST_EQUALITY( N, norm );
+  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, errorTolSlack );
 
   vel1->init(2.);
   vel2->reciprocal( *vel1 );
   norm = vel2->norm(*vel1);
-  TEST_EQUALITY( N, norm );
+  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, errorTolSlack );
 
   vel1->random();
   vel2->reciprocal( *vel1 );
   norm = vel2->norm(*vel1);
-  TEST_EQUALITY( N, norm );
+  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, errorTolSlack );
+
 }
+
 
 
 TEUCHOS_UNIT_TEST( NOXPimpactVector, scale2 ) {
@@ -469,7 +474,8 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, scale ) {
 	q->init(1.);
 	q->scale(2.);
 	norm = q->norm(NOX::Abstract::Vector::TwoNorm);
-	TEST_EQUALITY( 4*N, norm)
+  TEST_FLOATING_EQUALITY( std::sqrt(4*N), norm, errorTolSlack );
+
 }
 
 
@@ -504,7 +510,8 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, random ) {
 	q->init(1.);
 	q->random();
 	norm = q->norm(NOX::Abstract::Vector::TwoNorm);
-	TEST_INEQUALITY( N, norm)
+  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, errorTolSlack );
+
 }
 
 
@@ -549,7 +556,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, update ) {
 
 	vel1->update( 2., *vel2, 0., *vel3);
 	norm = vel1->norm(NOX::Abstract::Vector::TwoNorm);
-	TEST_EQUALITY( N, norm)
+  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, errorTolSlack );
 
 	vel1->init(0.);
 	vel2->init(1./2.);
@@ -557,7 +564,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, update ) {
 
 	vel1->update( 0., *vel2, 3., *vel3);
 	norm = vel1->norm(NOX::Abstract::Vector::TwoNorm);
-	TEST_EQUALITY( N, norm)
+  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, errorTolSlack );
 
 	vel1->init(0.);
 	vel2->init(1.);
@@ -565,9 +572,9 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, update ) {
 
 	vel1->update( 0.5, *vel2, 0.5, *vel3);
 	norm = vel1->norm(NOX::Abstract::Vector::TwoNorm);
-	TEST_EQUALITY( N, norm )
+  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, errorTolSlack );
+
 }
 
 
-} // namespace
-
+} // end of namespace

@@ -17,45 +17,34 @@
 
 namespace {
 
-	bool testMpi = true;
-	double errorTolSlack = 1e+1;
+bool testMpi = true;
+double errorTolSlack = 1e+1;
 
-	TEUCHOS_STATIC_SETUP()
-	{
-    Teuchos::CommandLineProcessor &clp = Teuchos::UnitTestRepository::getCLP();
-    clp.addOutputSetupOptions(true);
-    clp.setOption(
-        "test-mpi", "test-serial", &testMpi,
-        "Test MPI (if available) or force test of serial.  In a serial build,"
-        " this option is ignored and a serial comm is always used." );
-    clp.setOption(
-        "error-tol-slack", &errorTolSlack,
-        "Slack off of machine epsilon used to check test results" );
-
-
-  }
-
-//  Teuchos::RCP<const Teuchos::Comm<int> > getDefaultComm()
-//  {
-//    if (testMpi) {
-//      return Tpetra::DefaultPlatform::getDefaultPlatform().getComm();
-//    }
-//    return rcp(new Teuchos::SerialComm<int>());
-//  }
+TEUCHOS_STATIC_SETUP() {
+  Teuchos::CommandLineProcessor &clp = Teuchos::UnitTestRepository::getCLP();
+  clp.addOutputSetupOptions(true);
+  clp.setOption(
+      "test-mpi", "test-serial", &testMpi,
+      "Test MPI (if available) or force test of serial.  In a serial build,"
+      " this option is ignored and a serial comm is always used." );
+  clp.setOption(
+      "error-tol-slack", &errorTolSlack,
+      "Slack off of machine epsilon used to check test results" );
+}
 
 
-	TEUCHOS_UNIT_TEST( ScalarField, create_init_print ) {
-    int rank = init_impact(0,0);
-		// init impact
-		auto sVS = Pimpact::createFieldSpace<int>();
-		auto p = Pimpact::createScalarField<double,int>(sVS);
 
-//		sVS->print();
-		p->init(rank);
-//		p->print();
+TEUCHOS_UNIT_TEST( ScalarField, create_init_print ) {
+  int rank = init_impact(0,0);
+  // init impact
+	auto sVS = Pimpact::createFieldSpace<int>();
+	auto p = Pimpact::createScalarField<double,int>(sVS);
 
-		TEST_EQUALITY( 0, 0 );
-	}
+	p->init(rank);
+
+	TEST_EQUALITY( 0, 0 );
+}
+
 
 
 TEUCHOS_UNIT_TEST( ScalarField, InfNorm_and_init ) {
@@ -85,116 +74,89 @@ TEUCHOS_UNIT_TEST( ScalarField, InfNorm_and_init ) {
 }
 
 
-	TEUCHOS_UNIT_TEST( ScalarField, TwoNorm_and_init ) {
 
-		auto sVS = Pimpact::createFieldSpace<int>();
-		auto p = Pimpact::createScalarField<double,int>(sVS);
+TEUCHOS_UNIT_TEST( ScalarField, TwoNorm_and_init ) {
 
+	auto sVS = Pimpact::createFieldSpace<int>();
+	auto p = Pimpact::createScalarField<double,int>(sVS);
 
-	  // test different float values, assures that initial and norm work smoothly
-		for( double i=0.; i< 200.1; ++i ) {
-			p->init(i/2.);
-			TEST_EQUALITY( std::pow(i/2.,2)*p->getLength(), p->norm(Belos::TwoNorm) );
-		}
+  // test different float values, assures that initial and norm work smoothly
+	for( double i=0.; i< 200.1; ++i ) {
+		p->init(i/2.);
+		TEST_EQUALITY( std::sqrt( std::pow(i/2.,2)*p->getLength() ), p->norm(Belos::TwoNorm) );
 	}
+}
 
 
 TEUCHOS_UNIT_TEST( ScalarField, dot ) {
 
-		auto fS = Pimpact::createFieldSpace<int>();
-		auto p = Pimpact::createScalarField<double,int>(fS);
-		auto q = Pimpact::createScalarField<double,int>(fS);
+	auto fS = Pimpact::createFieldSpace<int>();
+	auto p = Pimpact::createScalarField<double,int>(fS);
+	auto q = Pimpact::createScalarField<double,int>(fS);
 
+	int Np = p->getLength();
+	int Nq = q->getLength();
+	double dot;
 
-		int Np = p->getLength();
-		int Nq = q->getLength();
-		double dot;
+	TEST_EQUALITY( Np , Nq );
 
-		TEST_EQUALITY( Np , Nq );
+	p->init(1.);
+	q->init(2.);
+	dot = p->dot(*q);
+	TEST_EQUALITY( 2*Np, dot );
+}
 
-//		p->init(0.);
-//		q->init(1.);
-//		dot = p->dot(*q);
-//		TEST_EQUALITY( 0, dot );
-
-//		p->init(1.);
-//		q->init(1.);
-//		dot = p->dot(*q);
-//		TEST_EQUALITY( Np, dot );
-
-//		p->init(2.);
-//		q->init(1.);
-//		dot = p->dot(*q);
-//		TEST_EQUALITY( 2*Nq, dot );
-//
-		p->init(1.);
-		q->init(2.);
-		dot = p->dot(*q);
-		TEST_EQUALITY( 2*Np, dot );
-
-	}
 
 
 TEUCHOS_UNIT_TEST( ScalarField, scale ) {
 
-		auto sVS = Pimpact::createFieldSpace<int>();
-		auto p = Pimpact::createScalarField<double,int>(sVS);
+	auto sVS = Pimpact::createFieldSpace<int>();
+	auto p = Pimpact::createScalarField<double,int>(sVS);
 
-		double norm;
-		int N = p->getLength();
+	double norm;
+	int N = p->getLength();
 
-		p->init(1.);
-		p->scale(2.);
-		norm = p->norm(Belos::TwoNorm);
-		TEST_EQUALITY( 4*N, norm)
-
-	}
+	p->init(1.);
+	p->scale(2.);
+	norm = p->norm(Belos::TwoNorm);
+	TEST_EQUALITY( std::sqrt(4*N), norm)
+}
 
 
 TEUCHOS_UNIT_TEST( ScalarField, random ) {
 
-		auto sVS = Pimpact::createFieldSpace<int>();
-		auto p = Pimpact::createScalarField<double,int>(sVS);
+	auto sVS = Pimpact::createFieldSpace<int>();
+	auto p = Pimpact::createScalarField<double,int>(sVS);
 
-		double norm;
-		int N = p->getLength();
+	double norm;
+	int N = p->getLength();
 
-		p->init(1.);
-		p->random();
-		norm = p->norm(Belos::TwoNorm);
-		TEST_INEQUALITY( N, norm)
-
-	}
+	p->init(1.);
+	p->random();
+	norm = p->norm(Belos::TwoNorm);
+	TEST_INEQUALITY( N, norm)
+}
 
 
 TEUCHOS_UNIT_TEST( ScalarField, add ) {
 
-		auto sVS = Pimpact::createFieldSpace<int>();
-//		auto p = Pimpact::createScalarField<double,int>(sVS);
-		auto q = Pimpact::createScalarField<double,int>(sVS);
-//		auto r = Pimpact::createScalarField<double,int>(sVS);
-		auto r(q);
-		auto p(q);
+	auto sVS = Pimpact::createFieldSpace<int>();
 
-		double norm;
-		int N = p->getLength();
+	auto q = Pimpact::createScalarField<double,int>(sVS);
 
+	auto r(q);
+	auto p(q);
 
-//		p->init(0.);
-//		q->init(1./2.);
-//		r->init(1./3.);
-//
-//		p->add( 2., *q, 0, *r);
-//		norm = p->norm(Belos::TwoNorm);
-//		TEST_EQUALITY( N, norm)
+	double norm;
+	int N = p->getLength();
 
-		q->init(1.);
-		r->init(1./3.);
+	q->init(1.);
+	r->init(1./3.);
 
-		p->add( 0., *q, 3., *r);
-		norm = p->norm(Belos::TwoNorm);
-		TEST_EQUALITY( N, norm)
-	}
+	p->add( 0., *q, 3., *r);
+	norm = p->norm(Belos::TwoNorm);
+	TEST_EQUALITY( std::sqrt(N), norm)
+}
 
 TEUCHOS_UNIT_TEST( ScalarField, write ) {
 

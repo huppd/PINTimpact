@@ -164,13 +164,11 @@ public:
   /// @name Norm method
   //@{
 
-  /**
-   * \brief Compute the norm of the field.
-   * \todo implement OneNorm
-   */
+  /// \brief Compute the norm of the field.
+  /// \todo implement OneNorm
 	Scalar norm(  Belos::NormType type = Belos::TwoNorm ) const {
 		switch(type) {
-		case Belos::TwoNorm: return( vfield_->norm(type) + sfield_->norm(type) );
+		case Belos::TwoNorm: return( std::sqrt( std::pow(vfield_->norm(type),2) + std::pow(sfield_->norm(type),2) ) );
 		case Belos::InfNorm: return( std::max(vfield_->norm(type), sfield_->norm(type) ) );
 		case Belos::OneNorm: std::cout << "!!! Warning Belos::OneNorm not implemented \n"; return(0.);
   	default: std::cout << "!!! Warning unknown Belos::NormType:\t" << type << "\n"; return(0.);
@@ -178,13 +176,12 @@ public:
 	}
 
 
-  /**
-   * \brief Weighted 2-Norm.
-   *
-   * Here x represents this vector, and we compute its weighted norm as follows:
-   * \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
-   * \return \f$ \|x\|_w \f$
-   */
+  /// \brief Weighted 2-Norm.
+  ///
+  /// Here x represents this vector, and we compute its weighted norm as follows:
+  /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
+  /// \return \f$ \|x\|_w \f$
+  /// \todo add \c std::sqrt
   double norm(const MV& weights) const {
     return( vfield_->norm( *weights.vfield_)+sfield_->norm( *weights.sfield_ ) );
   }

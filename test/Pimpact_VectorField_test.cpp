@@ -121,10 +121,9 @@ TEUCHOS_UNIT_TEST( VectorField, TwoNorm_and_init ) {
 
 	// test different float values, assures that initial and norm work smoothly
 	for( double i=0.; i< 200.1; ++i ) {
-//		for( double i=0.; i<3.1; ++i ) {
 		vel->init(i/2.);
 		norm = vel->norm(Belos::TwoNorm);
-		TEST_EQUALITY( std::pow(i/2.,2)*N, norm );
+		TEST_EQUALITY( std::sqrt( std::pow(i/2.,2)*N ), norm );
 	}
 }
 
@@ -163,8 +162,8 @@ TEUCHOS_UNIT_TEST( VectorField, dot ) {
 	vel2->init(2.);
 	dot = vel1->dot(*vel2);
 	TEST_EQUALITY( 2*N, dot );
-
 }
+
 
 
 TEUCHOS_UNIT_TEST( VectorField, scale ) {
@@ -181,9 +180,10 @@ TEUCHOS_UNIT_TEST( VectorField, scale ) {
 	vel->init(1.);
 	vel->scale(2.);
 	norm = vel->norm(Belos::TwoNorm);
-	TEST_EQUALITY( 4*N, norm)
+	TEST_EQUALITY( std::sqrt(4*N), norm)
 
 }
+
 
 
 TEUCHOS_UNIT_TEST( VectorField, random ) {
@@ -203,6 +203,7 @@ TEUCHOS_UNIT_TEST( VectorField, random ) {
 	TEST_INEQUALITY( N, norm)
 
 }
+
 
 
 TEUCHOS_UNIT_TEST( VectorField, add ) {
@@ -228,7 +229,7 @@ TEUCHOS_UNIT_TEST( VectorField, add ) {
 
 	vel1->add( 2., *vel2, 0., *vel3);
 	norm = vel1->norm(Belos::TwoNorm);
-	TEST_EQUALITY( N, norm)
+	TEST_EQUALITY( std::sqrt(N), norm )
 
 	vel1->init(0.);
 	vel2->init(1./2.);
@@ -236,7 +237,7 @@ TEUCHOS_UNIT_TEST( VectorField, add ) {
 
 	vel1->add( 0., *vel2, 3., *vel3);
 	norm = vel1->norm(Belos::TwoNorm);
-	TEST_EQUALITY( N, norm)
+	TEST_EQUALITY( std::sqrt(N), norm )
 
 	vel1->init(0.);
 	vel2->init(1.);
@@ -244,8 +245,10 @@ TEUCHOS_UNIT_TEST( VectorField, add ) {
 
 	vel1->add( 0.5, *vel2, 0.5, *vel3);
 	norm = vel1->norm(Belos::TwoNorm);
-	TEST_EQUALITY( N, norm )
+	TEST_EQUALITY( std::sqrt(N), norm )
+
 }
+
 
 
 TEUCHOS_UNIT_TEST( VectorField, write ) {
@@ -266,6 +269,7 @@ TEUCHOS_UNIT_TEST( VectorField, write ) {
 }
 
 
+
 TEUCHOS_UNIT_TEST( VectorField, initField ) {
 
 	auto fS = Pimpact::createFieldSpace<int>();
@@ -279,8 +283,7 @@ TEUCHOS_UNIT_TEST( VectorField, initField ) {
 		vel->write( i );
 	}
 
-
 }
 
-} // namespace
 
+} // end of namespace

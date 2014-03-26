@@ -52,78 +52,78 @@ public:
     op->apply( x.getConst0Field(), y.getConst0Field(), *temp_ );
     z.get0Field().add( 1., z.getConst0Field(), 2., *temp_ );
 
-    for( int i=0; i<Nf; ++i ) {
-      op->apply( x.getConstCField(i), y.getConstCField(i), *temp_ );
+    for( int i=1; i<=Nf; ++i ) {
+      op->apply( x.getConstCField(i-1), y.getConstCField(i-1), *temp_ );
       z.get0Field().add( 1., z.getConst0Field(), 1., *temp_ );
     }
 
-    for( int i=0; i<Nf; ++i ) {
-      op->apply( x.getConstSField(i), y.getConstSField(i), *temp_ );
+    for( int i=1; i<=Nf; ++i ) {
+      op->apply( x.getConstSField(i-1), y.getConstSField(i-1), *temp_ );
       z.get0Field().add( 1., z.getConst0Field(), 1., *temp_ );
     }
 
 
     // computing cos mode of y
-    for( int i=0; i<Nf; ++i ) {
-      op->apply( x.getConst0Field(), y.getConstCField(i), *temp_ );
-      z.getCField(i).add( 1., z.getConstCField(i), 1., *temp_ );
+    for( int i=1; i<=Nf; ++i ) {
+      op->apply( x.getConst0Field(), y.getConstCField(i-1), *temp_ );
+      z.getCField(i-1).add( 1., z.getConstCField(i-1), 1., *temp_ );
 
-      op->apply( x.getConstCField(i), y.getConst0Field(), *temp_ );
-      z.getCField(i).add( 1., z.getConstCField(i), 1., *temp_ );
+      op->apply( x.getConstCField(i-1), y.getConst0Field(), *temp_ );
+      z.getCField(i-1).add( 1., z.getConstCField(i-1), 1., *temp_ );
 
-      for( int k=0; i+k<Nf; ++k ) {
-        op->apply( x.getConstCField(i+k), y.getConstCField(k), *temp_ );
-        z.getCField(i).add( 1., z.getConstCField(i), 0.5, *temp_ );
+      for( int k=1; k+i<=Nf; ++k ) {
+        op->apply( x.getConstCField(k+i-1), y.getConstCField(k-1), *temp_ );
+        z.getCField(i-1).add( 1., z.getConstCField(i-1), 0.5, *temp_ );
 
-        op->apply( x.getConstCField(k), y.getConstCField(i+k), *temp_ );
-        z.getCField(i).add( 1., z.getCField(i), 0.5, *temp_ );
+        op->apply( x.getConstCField(k-1), y.getConstCField(k+i-1), *temp_ );
+        z.getCField(i-1).add( 1., z.getCField(i-1), 0.5, *temp_ );
 
-        op->apply( x.getConstSField(i+k), y.getConstSField(k), *temp_ );
-        z.getCField(i).add( 1., z.getConstCField(i), 0.5, *temp_ );
+        op->apply( x.getConstSField(k+i-1), y.getConstSField(k-1), *temp_ );
+        z.getCField(i-1).add( 1., z.getConstCField(i-1), 0.5, *temp_ );
 
-        op->apply( x.getConstSField(k), y.getConstSField(i+k), *temp_ );
-        z.getCField(i).add( 1., z.getConstCField(i), 0.5, *temp_ );
+        op->apply( x.getConstSField(k-1), y.getConstSField(k+i-1), *temp_ );
+        z.getCField(i-1).add( 1., z.getConstCField(i-1), 0.5, *temp_ );
       }
     }
 
     // computing sin mode of y
-    for( int i=0; i<Nf; ++i ) {
-      op->apply( x.getConst0Field(), y.getConstSField(i), *temp_ );
-      z.getSField(i).add( 1., z.getConstSField(i), 1., *temp_ );
+    for( int i=1; i<=Nf; ++i ) {
+      op->apply( x.getConst0Field(), y.getConstSField(i-1), *temp_ );
+      z.getSField(i-1).add( 1., z.getConstSField(i-1), 1., *temp_ );
 
-      op->apply( x.getConstSField(i), y.getConst0Field(), *temp_ );
-      z.getSField(i).add( 1., z.getConstSField(i), 1., *temp_ );
+      op->apply( x.getConstSField(i-1), y.getConst0Field(), *temp_ );
+      z.getSField(i-1).add( 1., z.getConstSField(i-1), 1., *temp_ );
 
-      for( int k=0; k+i<Nf; ++k ) {
-        op->apply( x.getConstCField(i+k), y.getConstSField(k), *temp_ );
-        z.getSField(i).add( 1., z.getConstSField(i), -0.5, *temp_ );
+      for( int k=1; k+i<=Nf; ++k ) {
+        op->apply( x.getConstCField(k+i-1), y.getConstSField(k-1), *temp_ );
+        z.getSField(i-1).add( 1., z.getConstSField(i-1), -0.5, *temp_ );
 
-        op->apply( x.getConstCField(k), y.getConstSField(i+k), *temp_ );
-        z.getSField(i).add( 1., z.getConstSField(i), 0.5, *temp_ );
+        op->apply( x.getConstCField(k-1), y.getConstSField(k+i-1), *temp_ );
+        z.getSField(i-1).add( 1., z.getConstSField(i-1), 0.5, *temp_ );
 
-        op->apply( x.getConstSField(i+k), y.getConstCField(k), *temp_ );
-        z.getSField(i).add( 1., z.getConstSField(i), 0.5, *temp_ );
+        op->apply( x.getConstSField(k+i-1), y.getConstCField(k-1), *temp_ );
+        z.getSField(i-1).add( 1., z.getConstSField(i-1), 0.5, *temp_ );
 
-        op->apply( x.getConstSField(k), y.getConstCField(i+k), *temp_ );
-        z.getSField(i).add( 1., z.getConstSField(i), -0.5, *temp_ );
+        op->apply( x.getConstSField(k-1), y.getConstCField(k+i-1), *temp_ );
+        z.getSField(i-1).add( 1., z.getConstSField(i-1), -0.5, *temp_ );
       }
     }
 
     // strange terms
     int i;
-    for( int k=0; k<Nf; ++k ) {
-      for( int l=0; l<Nf; ++l ) {
+    for( int k=1; k<=Nf; ++k ) {
+      for( int l=1; l<=Nf; ++l ) {
         i = k+l;
-        if( i<Nf ) {
-          op->apply( x.getConstCField(k), y.getConstCField(l), *temp_ );
-          z.getCField(i).add( 1., z.getConstCField(i), 0.5, *temp_ );
-          op->apply( x.getConstSField(k), y.getConstSField(l), *temp_ );
-          z.getCField(i).add( 1., z.getConstCField(i), -0.5, *temp_ );
+        if( i<=Nf ) {
+          op->apply( x.getConstCField(k-1), y.getConstCField(l-1), *temp_ );
+          z.getCField(i-1).add( 1., z.getConstCField(i-1), 0.5, *temp_ );
+          op->apply( x.getConstSField(k-1), y.getConstSField(l-1), *temp_ );
+          z.getCField(i-1).add( 1., z.getConstCField(i-1), -0.5, *temp_ );
 
-          op->apply( x.getConstCField(k), y.getConstSField(l), *temp_ );
-          z.getSField(i).add( 1., z.getConstSField(i), 0.5, *temp_ );
-          op->apply( x.getConstSField(k), y.getConstCField(l), *temp_ );
-          z.getSField(i).add( 1., z.getConstSField(i), 0.5, *temp_ );
+          op->apply( x.getConstCField(k-1), y.getConstSField(l-1), *temp_ );
+          z.getSField(i-1).add( 1., z.getConstSField(i-1), 0.5, *temp_ );
+          op->apply( x.getConstSField(k-1), y.getConstCField(l-1), *temp_ );
+          z.getSField(i-1).add( 1., z.getConstSField(i-1), 0.5, *temp_ );
         }
       }
     }

@@ -347,11 +347,10 @@ public:
   /// @name Norm method
   ///@{
 
-	/**
-	 * \brief compute the norm
-	 * \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
-	 * \todo implement OneNorm
-	 */
+
+	/// \brief compute the norm
+	/// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
+	/// \todo implement OneNorm
 	Scalar norm(  Belos::NormType type = Belos::TwoNorm ) const {
 		bool twoNorm_yes = false;
 		bool infNorm_yes = false;
@@ -374,8 +373,10 @@ public:
 				s_,
 				infNorm_yes, twoNorm_yes,
 				normvec, normvec );
-		return( normvec );
-	}
+    if( type==Belos::TwoNorm )
+      return( std::sqrt(normvec) );
+    else
+      return( normvec );	}
 
 
   /**

@@ -567,7 +567,10 @@ public:
         vec_[0], vec_[1], vec_[2],
   			infNorm_yes, twoNorm_yes,
   				normvec, normvec );
-  	return( normvec );
+  	if( type==Belos::TwoNorm )
+  	  return( std::sqrt(normvec) );
+  	else
+  	  return( normvec );
   }
 
 

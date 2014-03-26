@@ -16,13 +16,19 @@
 #include "Pimpact_MultiHarmonicField.hpp"
 #include "Pimpact_FieldFactory.hpp"
 
-
 #include <iostream>
+
+
 
 namespace {
 
+
 bool testMpi = true;
-double errorTolSlack = 1e+1;
+double errorTolSlack = 1e-6;
+
+typedef double S;
+typedef int O;
+
 
 TEUCHOS_STATIC_SETUP() {
   Teuchos::CommandLineProcessor &clp = Teuchos::UnitTestRepository::getCLP();
@@ -42,8 +48,6 @@ TEUCHOS_STATIC_SETUP() {
 TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, constructor ) {
 	// init impact
   init_impact(0,0);
-  typedef double S;
-  typedef int O;
 
 	auto fS = Pimpact::createFieldSpace<O>();
 
@@ -57,8 +61,6 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, constructor ) {
 
 
 TEUCHOS_UNIT_TEST( MultiHarmonicScalarFieldScalar, TwoNorm_and_init ) {
-  typedef double S;
-  typedef int O;
 
 	auto fS = Pimpact::createFieldSpace<O>();
 
@@ -69,15 +71,14 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarFieldScalar, TwoNorm_and_init ) {
 	// test different float values, assures that initial and norm work smoothly
 	for( S i=0.; i< 200.1; ++i ) {
 	  field->init(i/2.);
-    TEST_EQUALITY( std::pow(i/2.,2)*n, field->norm(Belos::TwoNorm) );
+    TEST_FLOATING_EQUALITY( std::sqrt(std::pow(i/2.,2)*n), field->norm(Belos::TwoNorm), errorTolSlack );
 	}
+
 }
 
 
 
 TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, clone ) {
-  typedef double S;
-  typedef int O;
 
 	auto fS = Pimpact::createFieldSpace<O>();
 
@@ -90,13 +91,12 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, clone ) {
 
 	TEST_EQUALITY( 1, n1 );
 	TEST_EQUALITY( 1, n2 );
+
 }
 
 
 
 TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, InfNorm_and_init ) {
-  typedef double S;
-  typedef int O;
 
 	auto fS = Pimpact::createFieldSpace<O>();
 
@@ -122,27 +122,24 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, InfNorm_and_init ) {
 		norm = field->norm(Belos::InfNorm);
 		TEST_EQUALITY( init, norm );
 	}
+
 }
 
 
 
 TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, TwoNorm_and_init ) {
-  typedef double S;
-  typedef int O;
 
 	auto fS = Pimpact::createFieldSpace<O>();
 
 	auto field = Pimpact::createMultiHarmonicScalarField<S,O>(fS,10);
 
-	S norm;
 	int N = field->getLength();
 
-	// test different float values, assures that initial and norm work smoothly
 	for( S i=0.; i< 200.1; ++i ) {
 		field->init(i/2.);
-		norm = field->norm(Belos::TwoNorm);
-		TEST_EQUALITY( std::pow(i/2.,2)*N, norm );
+    TEST_FLOATING_EQUALITY( std::sqrt(std::pow(i/2.,2)*N), field->norm(Belos::TwoNorm), errorTolSlack );
 	}
+
 }
 
 
@@ -187,8 +184,6 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, dot ) {
 
 
 TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, scale ) {
-  typedef double S;
-  typedef int O;
 
 	auto fS = Pimpact::createFieldSpace<O>();
 
@@ -200,7 +195,7 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, scale ) {
 	field->init(1.);
 	field->scale(2.);
 	norm = field->norm(Belos::TwoNorm);
-	TEST_EQUALITY( 4*N, norm)
+	TEST_EQUALITY( std::sqrt(4*N), norm)
 }
 
 
@@ -219,14 +214,13 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, random ) {
 	field->init(1.);
 	field->random();
 	norm = field->norm(Belos::TwoNorm);
-	TEST_INEQUALITY( N, norm)
+	TEST_INEQUALITY( std::sqrt(N), norm)
+
 }
 
 
 
 TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, add ) {
-  typedef double S;
-  typedef int O;
 
 	auto fS = Pimpact::createFieldSpace<O>();
 
@@ -247,7 +241,7 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, add ) {
 
 	field1->add( 2., *field2, 0., *field3);
 	norm = field1->norm(Belos::TwoNorm);
-	TEST_EQUALITY( N, norm)
+  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, errorTolSlack );
 
 	field1->init(0.);
 	field2->init(1./2.);
@@ -255,7 +249,7 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, add ) {
 
 	field1->add( 0., *field2, 3., *field3);
 	norm = field1->norm(Belos::TwoNorm);
-	TEST_EQUALITY( N, norm)
+  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, errorTolSlack );
 
 	field1->init(0.);
 	field2->init(1.);
@@ -263,14 +257,13 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, add ) {
 
 	field1->add( 0.5, *field2, 0.5, *field3);
 	norm = field1->norm(Belos::TwoNorm);
-	TEST_EQUALITY( N, norm )
+  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, errorTolSlack );
+
 }
 
 
 
 TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, write ) {
-  typedef double S;
-  typedef int O;
 
 	auto fS = Pimpact::createFieldSpace<O>();
 
@@ -285,10 +278,9 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, write ) {
 }
 
 
+
 // test shows that nLoc is not consistent with start and end indexes
 TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, constructor ) {
-  typedef double S;
-  typedef int O;
 
   auto fS = Pimpact::createFieldSpace<O>();
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
@@ -299,13 +291,12 @@ TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, constructor ) {
   const int m = field->getNumberVecs();
 
   TEST_EQUALITY( 1, m );
+
 }
 
 
 
 TEUCHOS_UNIT_TEST( MultiHarmonicVectorFieldScalar, TwoNorm_and_init ) {
-  typedef double S;
-  typedef int O;
 
   auto fS = Pimpact::createFieldSpace<O>();
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
@@ -318,15 +309,14 @@ TEUCHOS_UNIT_TEST( MultiHarmonicVectorFieldScalar, TwoNorm_and_init ) {
   // test different float values, assures that initial and norm work smoothly
   for( S i=0.; i< 200.1; ++i ) {
     field->init(i/2.);
-    TEST_EQUALITY( std::pow(i/2.,2)*n, field->norm(Belos::TwoNorm) );
+    TEST_FLOATING_EQUALITY( std::sqrt(std::pow(i/2.,2)*n), field->norm(Belos::TwoNorm), errorTolSlack );
   }
+
 }
 
 
 
 TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, clone ) {
-  typedef double S;
-  typedef int O;
 
   auto fS = Pimpact::createFieldSpace<O>();
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
@@ -341,13 +331,12 @@ TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, clone ) {
 
   TEST_EQUALITY( 1, n1 );
   TEST_EQUALITY( 1, n2 );
+
 }
 
 
 
 TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, InfNorm_and_init ) {
-  typedef double S;
-  typedef int O;
 
   auto fS = Pimpact::createFieldSpace<O>();
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
@@ -380,8 +369,6 @@ TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, InfNorm_and_init ) {
 
 
 TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, TwoNorm_and_init ) {
-  typedef double S;
-  typedef int O;
 
   auto fS = Pimpact::createFieldSpace<O>();
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
@@ -396,15 +383,14 @@ TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, TwoNorm_and_init ) {
   for( S i=0.; i< 200.1; ++i ) {
     field->init(i/2.);
     norm = field->norm(Belos::TwoNorm);
-    TEST_EQUALITY( std::pow(i/2.,2)*N, norm );
+    TEST_FLOATING_EQUALITY( std::sqrt(std::pow(i/2.,2)*N), norm, errorTolSlack );
   }
+
 }
 
 
 
 TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, dot ) {
-  typedef double S;
-  typedef int O;
 
   auto fS = Pimpact::createFieldSpace<O>();
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
@@ -444,8 +430,6 @@ TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, dot ) {
 
 
 TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, scale ) {
-  typedef double S;
-  typedef int O;
 
   auto fS = Pimpact::createFieldSpace<O>();
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
@@ -459,14 +443,13 @@ TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, scale ) {
   field->init(1.);
   field->scale(2.);
   norm = field->norm(Belos::TwoNorm);
-  TEST_EQUALITY( 4*N, norm)
+  TEST_EQUALITY( std::sqrt(4*N), norm)
+
 }
 
 
 
 TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, random ) {
-  typedef double S;
-  typedef int O;
 
   auto fS = Pimpact::createFieldSpace<O>();
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
@@ -480,14 +463,13 @@ TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, random ) {
   field->init(1.);
   field->random();
   norm = field->norm(Belos::TwoNorm);
-  TEST_INEQUALITY( N, norm)
+  TEST_INEQUALITY( std::sqrt(N), norm )
+
 }
 
 
 
 TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, add ) {
-  typedef double S;
-  typedef int O;
 
   auto fS = Pimpact::createFieldSpace<O>();
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
@@ -510,7 +492,8 @@ TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, add ) {
 
   field1->add( 2., *field2, 0., *field3);
   norm = field1->norm(Belos::TwoNorm);
-  TEST_EQUALITY( N, norm)
+  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, errorTolSlack );
+
 
   field1->init(0.);
   field2->init(1./2.);
@@ -518,7 +501,7 @@ TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, add ) {
 
   field1->add( 0., *field2, 3., *field3);
   norm = field1->norm(Belos::TwoNorm);
-  TEST_EQUALITY( N, norm)
+  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, errorTolSlack );
 
   field1->init(0.);
   field2->init(1.);
@@ -526,14 +509,13 @@ TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, add ) {
 
   field1->add( 0.5, *field2, 0.5, *field3);
   norm = field1->norm(Belos::TwoNorm);
-  TEST_EQUALITY( N, norm )
+  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, errorTolSlack );
+
 }
 
 
 
 TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, write ) {
-  typedef double S;
-  typedef int O;
 
   auto fS = Pimpact::createFieldSpace<O>();
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
@@ -546,8 +528,8 @@ TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, write ) {
 
   field->random();
   field->write( 2 );
-}
 
+}
 
 
 } // end of namespace

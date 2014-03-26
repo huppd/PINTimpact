@@ -58,7 +58,7 @@ public:
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
     MultiHarmonicNonlinear<S,O>::apply( *u_,  x,  y );
-    MultiHarmonicNonlinear<S,O>::apply(  x,  *u_, y );
+//    MultiHarmonicNonlinear<S,O>::apply(  x,  *u_, y );
   }
 
   bool hasApplyTranspose() const { return( false ); }

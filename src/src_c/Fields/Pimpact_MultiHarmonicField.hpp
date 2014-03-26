@@ -180,9 +180,12 @@ public:
   /// \todo implement in fortran
 	Scalar norm(  Belos::NormType type = Belos::TwoNorm ) const {
 		switch(type) {
-		case Belos::TwoNorm: return( field0_->norm(type) + fields_->norm(type) );
-		case Belos::InfNorm: return( std::max(field0_->norm(type), fields_->norm(type) ) );
-		case Belos::OneNorm: std::cout << "!!! Warning Belos::OneNorm not implemented \n"; return(0.);
+		case Belos::TwoNorm:
+		  return( std::sqrt( std::pow(field0_->norm(type),2) + std::pow(fields_->norm(type),2) ) );
+		case Belos::InfNorm:
+		  return( std::max(field0_->norm(type), fields_->norm(type) ) );
+		case Belos::OneNorm:
+		  std::cout << "!!! Warning Belos::OneNorm not implemented \n"; return(0.);
   	default: std::cout << "!!! Warning unknown Belos::NormType:\t" << type << "\n"; return(0.);
 		}
 	}

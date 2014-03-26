@@ -21,7 +21,7 @@
 namespace {
 
 bool testMpi = true;
-double errorTolSlack = 1e+1;
+double errorTolSlack = 1e-6;
 
 TEUCHOS_STATIC_SETUP() {
 	Teuchos::CommandLineProcessor &clp = Teuchos::UnitTestRepository::getCLP();
@@ -33,9 +33,8 @@ TEUCHOS_STATIC_SETUP() {
 	clp.setOption(
 			"error-tol-slack", &errorTolSlack,
 			"Slack off of machine epsilon used to check test results" );
-
-
 }
+
 
 
 TEUCHOS_UNIT_TEST( VectorModeField, create_init_print ) {
@@ -53,6 +52,7 @@ TEUCHOS_UNIT_TEST( VectorModeField, create_init_print ) {
 
 	um->init(rank);
 }
+
 
 
 TEUCHOS_UNIT_TEST( VectorModeField, InfNorm_and_init ) {
@@ -107,9 +107,11 @@ TEUCHOS_UNIT_TEST( VectorModeField, TwoNorm_and_init ) {
 	for( double i=0.; i< 200.1; ++i ) {
 		q->init(i/2.);
 		norm = q->norm(Belos::TwoNorm);
-		TEST_EQUALITY( std::pow(i/2.,2)*N, norm );
+    TEST_FLOATING_EQUALITY( std::sqrt(std::pow(i/2.,2)*N), norm, errorTolSlack );
 	}
+
 }
+
 
 
 TEUCHOS_UNIT_TEST( VectorModeField, dot ) {
@@ -155,6 +157,7 @@ TEUCHOS_UNIT_TEST( VectorModeField, dot ) {
 }
 
 
+
 TEUCHOS_UNIT_TEST( VectorModeField, scale ) {
 
 	auto fS = Pimpact::createFieldSpace<int>();
@@ -172,8 +175,10 @@ TEUCHOS_UNIT_TEST( VectorModeField, scale ) {
 	q->init(1.);
 	q->scale(2.);
 	norm = q->norm(Belos::TwoNorm);
-	TEST_EQUALITY( 4*N, norm)
+	TEST_EQUALITY( std::sqrt(4*N), norm)
+
 }
+
 
 
 TEUCHOS_UNIT_TEST( VectorModeField, random ) {
@@ -194,7 +199,9 @@ TEUCHOS_UNIT_TEST( VectorModeField, random ) {
 	q->random();
 	norm = q->norm(Belos::TwoNorm);
 	TEST_INEQUALITY( N, norm)
+
 }
+
 
 
 TEUCHOS_UNIT_TEST( VectorModeField, add ) {
@@ -229,7 +236,7 @@ TEUCHOS_UNIT_TEST( VectorModeField, add ) {
 
 	vel1->add( 2., *vel2, 0., *vel3);
 	norm = vel1->norm(Belos::TwoNorm);
-	TEST_EQUALITY( N, norm)
+	TEST_EQUALITY( std::sqrt(N), norm )
 
 	vel1->init(0.);
 	vel2->init(1./2.);
@@ -237,7 +244,7 @@ TEUCHOS_UNIT_TEST( VectorModeField, add ) {
 
 	vel1->add( 0., *vel2, 3., *vel3);
 	norm = vel1->norm(Belos::TwoNorm);
-	TEST_EQUALITY( N, norm)
+	TEST_EQUALITY( std::sqrt(N), norm )
 
 	vel1->init(0.);
 	vel2->init(1.);
@@ -245,8 +252,10 @@ TEUCHOS_UNIT_TEST( VectorModeField, add ) {
 
 	vel1->add( 0.5, *vel2, 0.5, *vel3);
 	norm = vel1->norm(Belos::TwoNorm);
-	TEST_EQUALITY( N, norm )
+	TEST_EQUALITY( std::sqrt(N), norm )
+
 }
+
 
 
 TEUCHOS_UNIT_TEST( VectorModeField, write ) {
@@ -266,8 +275,7 @@ TEUCHOS_UNIT_TEST( VectorModeField, write ) {
 	q->random();
 	q->write( 2 );
 
-	TEST_EQUALITY( 0, 0 )
 }
 
-} // namespace
 
+} // end of namespace

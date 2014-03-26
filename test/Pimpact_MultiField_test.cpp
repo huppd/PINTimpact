@@ -17,10 +17,15 @@
 
 #include <iostream>
 
+
+
+
 namespace {
 
+
 bool testMpi = true;
-double errorTolSlack = 1e+1;
+double errorTolSlack = 1e-6;
+
 
 TEUCHOS_STATIC_SETUP() {
   Teuchos::CommandLineProcessor &clp = Teuchos::UnitTestRepository::getCLP();
@@ -33,6 +38,7 @@ TEUCHOS_STATIC_SETUP() {
       "error-tol-slack", &errorTolSlack,
       "Slack off of machine epsilon used to check test results" );
 }
+
 
 
 // test shows that nLoc is not consistent with start and end indexes
@@ -51,545 +57,528 @@ TEUCHOS_UNIT_TEST( MultiFieldScalar, constructor ) {
 }
 
 
-	TEUCHOS_UNIT_TEST( MultiFieldScalarScalar, TwoNorm_and_init ) {
 
-		auto sVS = Pimpact::createFieldSpace<int>();
-		auto sIS = Pimpact::createScalarIndexSpace<int>();
-		auto p = Pimpact::createScalarField<double,int>(sVS);
+TEUCHOS_UNIT_TEST( MultiFieldScalarScalar, TwoNorm_and_init ) {
 
-		auto mv = Pimpact::createMultiField<Pimpact::ScalarField<double,int> >(*p,10);
+	auto sVS = Pimpact::createFieldSpace<int>();
+	auto sIS = Pimpact::createScalarIndexSpace<int>();
+	auto p = Pimpact::createScalarField<double,int>(sVS);
 
+	auto mv = Pimpact::createMultiField<Pimpact::ScalarField<double,int> >(*p,10);
 
-		const int m = mv->getNumberVecs();
-		const int n = mv->getLength();
-		std::vector<double> normval(m);
+	const int m = mv->getNumberVecs();
+	const int n = mv->getLength();
+	std::vector<double> normval(m);
 
-	  // test different float values, assures that initial and norm work smoothly
-		for( double i=0.; i< 200.1; ++i ) {
-			mv->init(i/2.);
-			mv->norm(normval,Belos::TwoNorm);
-//			mv->Assign(*mv);
-//			mv->Dot(*mv,normval);
-			for( int j=0; j<m; ++j )
-				TEST_EQUALITY( std::pow(i/2.,2)*n, normval[j] );
-		}
+	 // test different float values, assures that initial and norm work smoothly
+	for( double i=0.; i< 200.1; ++i ) {
+		mv->init(i/2.);
+		mv->norm(normval,Belos::TwoNorm);
+		for( int j=0; j<m; ++j )
+      TEST_FLOATING_EQUALITY( std::sqrt(std::pow(i/2.,2)*n), normval[j], 0.01 );
 	}
+}
 
 
-	TEUCHOS_UNIT_TEST( MultiFieldScalar, clone ) {
 
-		auto sVS = Pimpact::createFieldSpace<int>();
-		auto sIS = Pimpact::createScalarIndexSpace<int>();
-		auto p = Pimpact::createScalarField<double,int>(sVS);
+TEUCHOS_UNIT_TEST( MultiFieldScalar, clone ) {
 
-		auto mv = Pimpact::createMultiField<Pimpact::ScalarField<double,int> >(*p,1);
+	auto sVS = Pimpact::createFieldSpace<int>();
+	auto sIS = Pimpact::createScalarIndexSpace<int>();
+	auto p = Pimpact::createScalarField<double,int>(sVS);
 
-		auto mv2 = mv->clone(10);
+	auto mv = Pimpact::createMultiField<Pimpact::ScalarField<double,int> >(*p,1);
 
-		int n1(mv->getNumberVecs());
-		int n2(mv2->getNumberVecs());
+	auto mv2 = mv->clone(10);
 
-		TEST_EQUALITY( 1, n1 );
-		TEST_EQUALITY( 10, n2 );
+	int n1(mv->getNumberVecs());
+	int n2(mv2->getNumberVecs());
 
-	}
+	TEST_EQUALITY( 1, n1 );
+	TEST_EQUALITY( 10, n2 );
 
-	TEUCHOS_UNIT_TEST( MultiFieldScalar, CloneCopy ) {
+}
 
-		auto sVS = Pimpact::createFieldSpace<int>();
-		auto sIS = Pimpact::createScalarIndexSpace<int>();
-		auto p = Pimpact::createScalarField<double,int>(sVS);
 
-		auto mv = Pimpact::createMultiField<Pimpact::ScalarField<double,int> >(*p,10);
 
-		mv->random();
-		auto mv2 = mv->CloneCopy();
+TEUCHOS_UNIT_TEST( MultiFieldScalar, CloneCopy ) {
 
-		int n1(mv->getNumberVecs());
-		int n2(mv2->getNumberVecs());
+	auto sVS = Pimpact::createFieldSpace<int>();
+	auto sIS = Pimpact::createScalarIndexSpace<int>();
+	auto p = Pimpact::createScalarField<double,int>(sVS);
 
-		TEST_EQUALITY( 10, n1 );
-		TEST_EQUALITY( n1, n2 );
+	auto mv = Pimpact::createMultiField<Pimpact::ScalarField<double,int> >(*p,10);
 
-		std::vector<double> norm1(n1);
-		std::vector<double> norm2(n2);
+	mv->random();
+	auto mv2 = mv->CloneCopy();
 
-		mv->norm(norm1);
-		mv2->norm(norm2);
-		for( int i=0; i<n1; ++i)
-			TEST_EQUALITY( norm1[i], norm2[i] );
+	int n1(mv->getNumberVecs());
+	int n2(mv2->getNumberVecs());
 
-	}
+	TEST_EQUALITY( 10, n1 );
+	TEST_EQUALITY( n1, n2 );
 
-	TEUCHOS_UNIT_TEST( MultiFieldScalar, CloneCopy2 ) {
+	std::vector<double> norm1(n1);
+	std::vector<double> norm2(n2);
 
-		auto sVS = Pimpact::createFieldSpace<int>();
-		auto sIS = Pimpact::createScalarIndexSpace<int>();
-		auto p = Pimpact::createScalarField<double,int>(sVS);
+	mv->norm(norm1);
+	mv2->norm(norm2);
+	for( int i=0; i<n1; ++i)
+		TEST_EQUALITY( norm1[i], norm2[i] );
 
-		auto mv = Pimpact::createMultiField<Pimpact::ScalarField<double,int> >(*p,10);
+}
 
-		mv->random();
 
-		std::vector<int> index(5);
-		for(int i=0; i<5; ++i)
-			index[i] = 2*i;
 
-		auto mv2 = mv->CloneCopy(index);
+TEUCHOS_UNIT_TEST( MultiFieldScalar, CloneCopy2 ) {
 
-		unsigned int n1 = (mv->getNumberVecs());
-		unsigned int n2 = (mv2->getNumberVecs());
+	auto sVS = Pimpact::createFieldSpace<int>();
+	auto sIS = Pimpact::createScalarIndexSpace<int>();
+	auto p = Pimpact::createScalarField<double,int>(sVS);
 
-		TEST_EQUALITY( 10, n1 );
-		TEST_EQUALITY( 5, n2 );
-		TEST_EQUALITY( index.size(), n2 );
+	auto mv = Pimpact::createMultiField<Pimpact::ScalarField<double,int> >(*p,10);
 
-		std::vector<double> norm1(n1);
-		std::vector<double> norm2(n2);
+	mv->random();
 
-		mv->norm(norm1);
-		mv2->norm(norm2);
+	std::vector<int> index(5);
+	for(int i=0; i<5; ++i)
+		index[i] = 2*i;
 
-		for( unsigned int i=0; i<index.size(); ++i)
-			TEST_EQUALITY( norm1[index[i]], norm2[i] );
-	}
+	auto mv2 = mv->CloneCopy(index);
 
-	TEUCHOS_UNIT_TEST( MultiFieldScalar, CloneCopy3 ) {
+	unsigned int n1 = (mv->getNumberVecs());
+	unsigned int n2 = (mv2->getNumberVecs());
 
-		auto sVS = Pimpact::createFieldSpace<int>();
-		auto sIS = Pimpact::createScalarIndexSpace<int>();
-		auto p = Pimpact::createScalarField<double,int>(sVS);
+	TEST_EQUALITY( 10, n1 );
+	TEST_EQUALITY( 5, n2 );
+	TEST_EQUALITY( index.size(), n2 );
 
-		auto mv1 = Pimpact::createMultiField<Pimpact::ScalarField<double,int> >(*p,10);
+	std::vector<double> norm1(n1);
+	std::vector<double> norm2(n2);
 
-		mv1->random();
+	mv->norm(norm1);
+	mv2->norm(norm2);
 
-		Teuchos::Range1D index(2,7);
+	for( unsigned int i=0; i<index.size(); ++i)
+		TEST_EQUALITY( norm1[index[i]], norm2[i] );
 
-		auto mv2 = mv1->CloneCopy(index);
+}
 
-		unsigned int n1(mv1->getNumberVecs());
-		unsigned int n2(mv2->getNumberVecs());
 
-		TEST_EQUALITY( 10, n1 );
-		TEST_EQUALITY( index.size(), n2 );
 
-		std::vector<double> norm1(n1);
-		std::vector<double> norm2(n2);
+TEUCHOS_UNIT_TEST( MultiFieldScalar, CloneCopy3 ) {
 
-		mv1->norm(norm1);
-		mv2->norm(norm2);
-		for( int i=0; i<index.size(); ++i)
-			TEST_EQUALITY( norm1[i+index.lbound()], norm2[i] );
+	auto sVS = Pimpact::createFieldSpace<int>();
+	auto sIS = Pimpact::createScalarIndexSpace<int>();
+	auto p = Pimpact::createScalarField<double,int>(sVS);
 
-	}
+	auto mv1 = Pimpact::createMultiField<Pimpact::ScalarField<double,int> >(*p,10);
 
-	TEUCHOS_UNIT_TEST( MultiFieldScalar, CloneViewNonConst1 ) {
+	mv1->random();
 
-		auto sVS = Pimpact::createFieldSpace<int>();
-		auto sIS = Pimpact::createScalarIndexSpace<int>();
-		auto p = Pimpact::createScalarField<double,int>(sVS);
+	Teuchos::Range1D index(2,7);
 
-		auto mv1 = Pimpact::createMultiField<Pimpact::ScalarField<double,int> >(*p,10);
+	auto mv2 = mv1->CloneCopy(index);
 
-		mv1->init(0.);
+	unsigned int n1(mv1->getNumberVecs());
+	unsigned int n2(mv2->getNumberVecs());
 
-		std::vector<int> index(5);
-		for(int i=0; i<5; ++i)
-			index[i] = 2*i;
+	TEST_EQUALITY( 10, n1 );
+	TEST_EQUALITY( index.size(), n2 );
 
-		auto mv2 = mv1->CloneViewNonConst(index);
+	std::vector<double> norm1(n1);
+	std::vector<double> norm2(n2);
 
-		unsigned int n1 = (mv1->getNumberVecs());
-		unsigned int n2 = (mv2->getNumberVecs());
-//
-		TEST_EQUALITY( 10, n1 );
-		TEST_EQUALITY( 5, n2 );
-		TEST_EQUALITY( index.size(), n2 );
+	mv1->norm(norm1);
+	mv2->norm(norm2);
+	for( int i=0; i<index.size(); ++i)
+		TEST_EQUALITY( norm1[i+index.lbound()], norm2[i] );
 
-		std::vector<double> norm1(n1);
-		std::vector<double> norm2(n2);
+}
 
-		mv2->random();
 
-		mv1->norm(norm1);
-		mv2->norm(norm2);
 
-		for( unsigned int i=0; i<index.size(); ++i)
-			TEST_EQUALITY( norm1[index[i]], norm2[i] );
-	}
+TEUCHOS_UNIT_TEST( MultiFieldScalar, CloneViewNonConst1 ) {
 
+	auto sVS = Pimpact::createFieldSpace<int>();
+	auto sIS = Pimpact::createScalarIndexSpace<int>();
+	auto p = Pimpact::createScalarField<double,int>(sVS);
 
-	TEUCHOS_UNIT_TEST( MultiFieldScalar, CloneViewNonConst2 ) {
+	auto mv1 = Pimpact::createMultiField<Pimpact::ScalarField<double,int> >(*p,10);
 
-			auto sVS = Pimpact::createFieldSpace<int>();
-			auto sIS = Pimpact::createScalarIndexSpace<int>();
-			auto p = Pimpact::createScalarField<double,int>(sVS);
+	mv1->init(0.);
 
-			auto mv1 = Pimpact::createMultiField<Pimpact::ScalarField<double,int> >(*p,10);
+	std::vector<int> index(5);
+	for(int i=0; i<5; ++i)
+		index[i] = 2*i;
 
-			mv1->init(0.);
+	auto mv2 = mv1->CloneViewNonConst(index);
 
-			Teuchos::Range1D index(2,7);
+	unsigned int n1 = (mv1->getNumberVecs());
+	unsigned int n2 = (mv2->getNumberVecs());
 
-			auto mv2 = mv1->CloneViewNonConst(index);
+	TEST_EQUALITY( 10, n1 );
+	TEST_EQUALITY( 5, n2 );
+	TEST_EQUALITY( index.size(), n2 );
 
-			unsigned int n1 = (mv1->getNumberVecs());
-			unsigned int n2 = (mv2->getNumberVecs());
+	std::vector<double> norm1(n1);
+	std::vector<double> norm2(n2);
 
-			TEST_EQUALITY( 10, n1 );
-			TEST_EQUALITY( index.size(), n2 );
+	mv2->random();
 
-			std::vector<double> norm1(n1);
-			std::vector<double> norm2(n2);
+	mv1->norm(norm1);
+	mv2->norm(norm2);
 
-			mv2->random();
+	for( unsigned int i=0; i<index.size(); ++i)
+		TEST_EQUALITY( norm1[index[i]], norm2[i] );
 
-			mv1->norm(norm1);
-			mv2->norm(norm2);
+}
 
-			for( unsigned int i=0; i<index.size(); ++i)
-				TEST_EQUALITY( norm1[i+index.lbound()], norm2[i] );
-		}
 
-	TEUCHOS_UNIT_TEST( MultiFieldScalar, CloneView1 ) {
 
-			auto sVS = Pimpact::createFieldSpace<int>();
-			auto sIS = Pimpact::createScalarIndexSpace<int>();
-			auto p = Pimpact::createScalarField<double,int>(sVS);
+TEUCHOS_UNIT_TEST( MultiFieldScalar, CloneViewNonConst2 ) {
 
-			auto mv1 = Pimpact::createMultiField<Pimpact::ScalarField<double,int> >(*p,10);
+	auto sVS = Pimpact::createFieldSpace<int>();
+	auto sIS = Pimpact::createScalarIndexSpace<int>();
+	auto p = Pimpact::createScalarField<double,int>(sVS);
 
-			mv1->init(0.);
+	auto mv1 = Pimpact::createMultiField<Pimpact::ScalarField<double,int> >(*p,10);
 
-			std::vector<int> index(5);
-			for(int i=0; i<5; ++i)
-				index[i] = 2*i;
+	mv1->init(0.);
 
-			auto mv2 = mv1->CloneView(index);
+	Teuchos::Range1D index(2,7);
 
-			unsigned int n1 = (mv1->getNumberVecs());
-			unsigned int n2 = (mv2->getNumberVecs());
-	//
-			TEST_EQUALITY( 10, n1 );
-			TEST_EQUALITY( 5, n2 );
-			TEST_EQUALITY( index.size(), n2 );
+	auto mv2 = mv1->CloneViewNonConst(index);
 
-			std::vector<double> norm1(n1);
-			std::vector<double> norm2(n2);
+	unsigned int n1 = (mv1->getNumberVecs());
+	unsigned int n2 = (mv2->getNumberVecs());
+
+	TEST_EQUALITY( 10, n1 );
+	TEST_EQUALITY( index.size(), n2 );
+
+	std::vector<double> norm1(n1);
+	std::vector<double> norm2(n2);
+
+	mv2->random();
+
+	mv1->norm(norm1);
+	mv2->norm(norm2);
+
+	for( unsigned int i=0; i<index.size(); ++i)
+		TEST_EQUALITY( norm1[i+index.lbound()], norm2[i] );
+
+}
+
+
+
+TEUCHOS_UNIT_TEST( MultiFieldScalar, CloneView1 ) {
+
+	auto sVS = Pimpact::createFieldSpace<int>();
+	auto sIS = Pimpact::createScalarIndexSpace<int>();
+	auto p = Pimpact::createScalarField<double,int>(sVS);
+
+	auto mv1 = Pimpact::createMultiField<Pimpact::ScalarField<double,int> >(*p,10);
+
+	mv1->init(0.);
+
+	std::vector<int> index(5);
+	for(int i=0; i<5; ++i)
+		index[i] = 2*i;
+
+	auto mv2 = mv1->CloneView(index);
+
+	unsigned int n1 = (mv1->getNumberVecs());
+	unsigned int n2 = (mv2->getNumberVecs());
+
+	TEST_EQUALITY( 10, n1 );
+	TEST_EQUALITY( 5, n2 );
+	TEST_EQUALITY( index.size(), n2 );
+
+	std::vector<double> norm1(n1);
+	std::vector<double> norm2(n2);
 
 //			mv2->Random(); //< this should give compile error
+	mv1->random();
 
-			mv1->random();
+	mv1->norm(norm1);
+	mv2->norm(norm2);
 
-			mv1->norm(norm1);
-			mv2->norm(norm2);
+	for( unsigned int i=0; i<index.size(); ++i)
+		TEST_EQUALITY( norm1[index[i]], norm2[i] );
 
-			for( unsigned int i=0; i<index.size(); ++i)
-				TEST_EQUALITY( norm1[index[i]], norm2[i] );
-		}
+}
 
-	TEUCHOS_UNIT_TEST( MultiFieldScalar, CloneViewt2 ) {
 
-			auto sVS = Pimpact::createFieldSpace<int>();
-			auto sIS = Pimpact::createScalarIndexSpace<int>();
-			auto p = Pimpact::createScalarField<double,int>(sVS);
 
-			auto mv1 = Pimpact::createMultiField<Pimpact::ScalarField<double,int> >(*p,10);
+TEUCHOS_UNIT_TEST( MultiFieldScalar, CloneViewt2 ) {
 
-			mv1->init(0.);
+	auto sVS = Pimpact::createFieldSpace<int>();
+	auto sIS = Pimpact::createScalarIndexSpace<int>();
+	auto p = Pimpact::createScalarField<double,int>(sVS);
 
-			Teuchos::Range1D index(2,7);
+	auto mv1 = Pimpact::createMultiField<Pimpact::ScalarField<double,int> >(*p,10);
 
-			auto mv2 = mv1->CloneView(index);
+	mv1->init(0.);
 
-			unsigned int n1 = (mv1->getNumberVecs());
-			unsigned int n2 = (mv2->getNumberVecs());
+	Teuchos::Range1D index(2,7);
 
-			TEST_EQUALITY( 10, n1 );
-			TEST_EQUALITY( index.size(), n2 );
+	auto mv2 = mv1->CloneView(index);
 
-			std::vector<double> norm1(n1);
-			std::vector<double> norm2(n2);
+	unsigned int n1 = (mv1->getNumberVecs());
+	unsigned int n2 = (mv2->getNumberVecs());
 
-//			mv2->Random(); // has to give compilation error
-			mv1->random();
+	TEST_EQUALITY( 10, n1 );
+	TEST_EQUALITY( index.size(), n2 );
 
-			mv1->norm(norm1);
-			mv2->norm(norm2);
+	std::vector<double> norm1(n1);
+	std::vector<double> norm2(n2);
 
-			for( unsigned int i=0; i<index.size(); ++i)
-				TEST_EQUALITY( norm1[i+index.lbound()], norm2[i] );
-		}
+//	mv2->Random(); // has to give compilation error
+		mv1->random();
 
-	TEUCHOS_UNIT_TEST( MultiFieldScalar, TimesMatAdd ) {
+	mv1->norm(norm1);
+	mv2->norm(norm2);
 
-				auto sVS = Pimpact::createFieldSpace<int>();
-				auto sIS = Pimpact::createScalarIndexSpace<int>();
-				auto p = Pimpact::createScalarField<double,int>(sVS);
+	for( unsigned int i=0; i<index.size(); ++i)
+		TEST_EQUALITY( norm1[i+index.lbound()], norm2[i] );
 
-				auto mv1 = Pimpact::createMultiField<Pimpact::ScalarField<double,int> >(*p,10);
+}
 
-				mv1->init(0.);
 
-				Teuchos::Range1D index1(0,9);
-				std::vector<int> index2(10);
-				for(int i=0; i<10; ++i)
-					index2[i] = i;
 
-				auto mv2 = mv1->CloneView(index1);
-				auto mv3 = mv1->clone(mv1->getNumberVecs() );
+TEUCHOS_UNIT_TEST( MultiFieldScalar, TimesMatAdd ) {
 
+	auto sVS = Pimpact::createFieldSpace<int>();
+	auto sIS = Pimpact::createScalarIndexSpace<int>();
+	auto p = Pimpact::createScalarField<double,int>(sVS);
 
-				unsigned int n1 = (mv1->getNumberVecs());
-				unsigned int n2 = (mv2->getNumberVecs());
-				unsigned int n3 = (mv3->getNumberVecs());
+	auto mv1 = Pimpact::createMultiField<Pimpact::ScalarField<double,int> >(*p,10);
 
-				TEST_EQUALITY( n1, n2 );
-				TEST_EQUALITY( n3, n2 );
-				TEST_EQUALITY( n3, n1 );
+	mv1->init(0.);
 
+	Teuchos::Range1D index1(0,9);
+	std::vector<int> index2(10);
+	for(int i=0; i<10; ++i)
+		index2[i] = i;
 
-	//			mv2->Random(); // has to give compilation error
-				mv1->init(1.);
-//				mv2->Random();
-//				mv3->Assign(2.);
+	auto mv2 = mv1->CloneView(index1);
+	auto mv3 = mv1->clone(mv1->getNumberVecs() );
 
+	unsigned int n1 = (mv1->getNumberVecs());
+	unsigned int n2 = (mv2->getNumberVecs());
+	unsigned int n3 = (mv3->getNumberVecs());
 
-				Teuchos::SerialDenseMatrix<int,double> B(n1,n2);
-				for( unsigned int j=0; j<n1; ++j)
-					for( unsigned int i=0; i<n1; ++i)
-						B(j,i) = 1./n1;
+	TEST_EQUALITY( n1, n2 );
+	TEST_EQUALITY( n3, n2 );
+	TEST_EQUALITY( n3, n1 );
 
-				mv1->TimesMatAdd( 0.5, *mv2, B, 0.5 );
+//  mv2->Random(); // has to give compilation error
+	mv1->init(1.);
+//  mv2->Random();
+//	mv3->Assign(2.);
 
+	Teuchos::SerialDenseMatrix<int,double> B(n1,n2);
 
-				std::vector<double> norm1(n1);
-				std::vector<double> norm2(n2);
+	for( unsigned int j=0; j<n1; ++j)
+		for( unsigned int i=0; i<n1; ++i)
+			B(j,i) = 1./n1;
 
-				mv1->norm(norm1);
-				mv2->norm(norm2);
+	mv1->TimesMatAdd( 0.5, *mv2, B, 0.5 );
 
-				for( unsigned int i=0; i<n1; ++i) {
-					TEST_EQUALITY( norm1[i], norm2[i] );
-					TEST_EQUALITY( mv1->getLength(), norm2[i] );
-				}
+	std::vector<double> norm1(n1);
+	std::vector<double> norm2(n2);
 
-				std::vector<double> scales(n1);
-				for( unsigned int j=0; j<n1; ++j){
-					scales[j] = (j+1);
-//					scales[j] = 0;
-					for( unsigned int i=0; i<n1; ++i)
-						B(j,i) = 1./n1/(j+1);
-//						B(j,i) = 1./5.;
-				}
-//				std::cout << B;
-//				scales[5] = 5.;
-				mv1->init(1.);
-				mv3->init(1.);
+	mv1->norm(norm1);
+	mv2->norm(norm2);
 
-				mv3->scale(scales);
+	for( unsigned int i=0; i<n1; ++i) {
+		TEST_EQUALITY( norm1[i], norm2[i] );
+		TEST_FLOATING_EQUALITY( std::sqrt(mv1->getLength()), norm2[i], errorTolSlack );
+	}
 
-				mv1->TimesMatAdd( 1., *mv3, B, 0. );
+	std::vector<double> scales(n1);
+	for( unsigned int j=0; j<n1; ++j){
+		scales[j] = (j+1);
+		for( unsigned int i=0; i<n1; ++i)
+		  B(j,i) = 1./n1/(j+1);
+	}
+	mv1->init(1.);
+	mv3->init(1.);
 
+	mv3->scale(scales);
 
-				mv1->norm(norm1);
-				mv2->norm(norm2);
+	mv1->TimesMatAdd( 1., *mv3, B, 0. );
 
-				for( unsigned int i=0; i<n1; ++i) {
-//					TEST_EQUALITY( norm1[i], norm2[i] );
-					TEST_FLOATING_EQUALITY( (double)mv1->getLength(), norm2[i], 0.01 );
-				}
-			}
+	mv1->norm(norm1);
+	mv2->norm(norm2);
 
-	TEUCHOS_UNIT_TEST( MultiFieldScalar, add ) {
+	for( unsigned int i=0; i<n1; ++i) {
+		TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm2[i], errorTolSlack );
+	}
+}
 
-					auto sVS = Pimpact::createFieldSpace<int>();
-					auto sIS = Pimpact::createScalarIndexSpace<int>();
-					auto p = Pimpact::createScalarField<double,int>(sVS);
 
-					auto mv1 = Pimpact::createMultiField<Pimpact::ScalarField<double,int> >(*p,10);
 
-					mv1->init(0.);
+TEUCHOS_UNIT_TEST( MultiFieldScalar, add ) {
 
-					Teuchos::Range1D index1(0,9);
-					std::vector<int> index2(10);
-					for(int i=0; i<10; ++i)
-						index2[i] = i;
+	auto sVS = Pimpact::createFieldSpace<int>();
+	auto sIS = Pimpact::createScalarIndexSpace<int>();
+	auto p = Pimpact::createScalarField<double,int>(sVS);
 
-//					auto mv2 = mv1->CloneCopy(index1);
-					auto mv2 = mv1->CloneViewNonConst(index1);
-					auto mv3 = mv1->CloneView(index1);
+	auto mv1 = Pimpact::createMultiField<Pimpact::ScalarField<double,int> >(*p,10);
 
-					unsigned int n1 = (mv1->getNumberVecs());
-					unsigned int n2 = (mv2->getNumberVecs());
-					unsigned int n3 = (mv3->getNumberVecs());
+	mv1->init(0.);
 
-					TEST_EQUALITY( n1, n2 );
-					TEST_EQUALITY( n3, n2 );
-					TEST_EQUALITY( n3, n1 );
+	Teuchos::Range1D index1(0,9);
+	std::vector<int> index2(10);
+	for(int i=0; i<10; ++i)
+		index2[i] = i;
 
+	auto mv2 = mv1->CloneViewNonConst(index1);
+	auto mv3 = mv1->CloneView(index1);
 
-		//			mv2->Random(); // has to give compilation error
-					mv1->init(1.);
-					mv2->init(1.);
-	//				mv2->Random();
-	//				mv3->Assign(2.);
+	unsigned int n1 = (mv1->getNumberVecs());
+	unsigned int n2 = (mv2->getNumberVecs());
+	unsigned int n3 = (mv3->getNumberVecs());
 
+	TEST_EQUALITY( n1, n2 );
+	TEST_EQUALITY( n3, n2 );
+	TEST_EQUALITY( n3, n1 );
 
+	mv1->init(1.);
+	mv2->init(1.);
 
-					mv1->add( 0.5, *mv2, 0.5, *mv3);
+	mv1->add( 0.5, *mv2, 0.5, *mv3);
 
+	std::vector<double> norm1(n1);
+	std::vector<double> norm2(n2);
 
-					std::vector<double> norm1(n1);
-					std::vector<double> norm2(n2);
+	mv1->norm(norm1);
+	mv2->norm(norm2);
 
-					mv1->norm(norm1);
-					mv2->norm(norm2);
+	for( unsigned int i=0; i<n1; ++i)
+    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm2[i], errorTolSlack );
 
-					for( unsigned int i=0; i<n1; ++i) {
-//						TEST_EQUALITY( norm1[i], norm2[i] );
-						TEST_EQUALITY( mv1->getLength(), norm2[i] );
-					}
+	mv1->init(1.);
+	mv2->init(1.);
 
-					mv1->init(1.);
-					mv2->init(1.);
+	mv2->scale(0.5);
 
-					mv2->scale(0.5);
+	mv1->add( 1., *mv2, 1., *mv3 );
 
-					mv1->add( 1., *mv2, 1., *mv3 );
+	mv1->norm(norm1);
+	mv2->assign(*mv1);
+	mv2->norm(norm2);
 
+	for( unsigned int i=0; i<n1; ++i) {
+		TEST_EQUALITY( norm1[i], norm2[i] );
+    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm1[i], errorTolSlack );
+	}
 
-					mv1->norm(norm1);
-					mv2->assign(*mv1);
-					mv2->norm(norm2);
+}
 
-					for( unsigned int i=0; i<n1; ++i) {
-						TEST_EQUALITY( norm1[i], norm2[i] );
-						TEST_FLOATING_EQUALITY( (double)mv1->getLength(), norm1[i], 0.01 );
-					}
-				}
 
 
-	TEUCHOS_UNIT_TEST( MultiFieldScalar, dot ) {
+TEUCHOS_UNIT_TEST( MultiFieldScalar, dot ) {
 
-					auto sVS = Pimpact::createFieldSpace<int>();
-					auto sIS = Pimpact::createScalarIndexSpace<int>();
-					auto p = Pimpact::createScalarField<double,int>(sVS);
+	auto sVS = Pimpact::createFieldSpace<int>();
+	auto sIS = Pimpact::createScalarIndexSpace<int>();
+	auto p = Pimpact::createScalarField<double,int>(sVS);
 
-					auto mv1 = Pimpact::createMultiField<Pimpact::ScalarField<double,int> >(*p,10);
+	auto mv1 = Pimpact::createMultiField<Pimpact::ScalarField<double,int> >(*p,10);
 
-					mv1->init(0.);
+	mv1->init(0.);
 
-					Teuchos::Range1D index1(0,9);
-					std::vector<int> index2(10);
-					for(int i=0; i<10; ++i)
-						index2[i] = i;
+	Teuchos::Range1D index1(0,9);
+	std::vector<int> index2(10);
+	for(int i=0; i<10; ++i)
+		index2[i] = i;
 
-//					auto mv2 = mv1->CloneCopy(index1);
-					auto mv2 = mv1->CloneViewNonConst(index1);
-					auto mv3 = mv1->CloneView(index1);
+	auto mv2 = mv1->CloneViewNonConst(index1);
+	auto mv3 = mv1->CloneView(index1);
 
-					unsigned int n1 = (mv1->getNumberVecs());
-					unsigned int n2 = (mv2->getNumberVecs());
-					unsigned int n3 = (mv3->getNumberVecs());
+	unsigned int n1 = (mv1->getNumberVecs());
+	unsigned int n2 = (mv2->getNumberVecs());
+	unsigned int n3 = (mv3->getNumberVecs());
 
-					TEST_EQUALITY( n1, n2 );
-					TEST_EQUALITY( n3, n2 );
-					TEST_EQUALITY( n3, n1 );
+	TEST_EQUALITY( n1, n2 );
+	TEST_EQUALITY( n3, n2 );
+	TEST_EQUALITY( n3, n1 );
 
+	mv1->init(1.);
+	mv2->init(1.);
 
-		//			mv2->Random(); // has to give compilation error
-					mv1->init(1.);
-					mv2->init(1.);
-	//				mv2->Random();
-	//				mv3->Assign(2.);
+	std::vector<double> dots(n1);
 
+	mv1->dot( *mv2, dots );
 
-					std::vector<double> dots(n1);
 
-					mv1->dot( *mv2, dots );
+	for( unsigned int i=0; i<n1; ++i) {
+	  TEST_EQUALITY( mv1->getLength(), dots[i] );
+	}
 
+	mv2->init(2.);
 
-					for( unsigned int i=0; i<n1; ++i) {
-//						TEST_EQUALITY( norm1[i], norm2[i] );
-						TEST_EQUALITY( mv1->getLength(), dots[i] );
-					}
+	mv3->dot( *mv2, dots  );
 
-					mv2->init(2.);
+	for( unsigned int i=0; i<n1; ++i) {
+		TEST_EQUALITY( 4*mv1->getLength(), dots[i] );
+	}
 
-					mv3->dot( *mv2, dots  );
-					for( unsigned int i=0; i<n1; ++i) {
-						TEST_EQUALITY( 4*mv1->getLength(), dots[i] );
-					}
-				}
+}
 
-	TEUCHOS_UNIT_TEST( MultiFieldScalar, Trans ) {
 
-				auto sVS = Pimpact::createFieldSpace<int>();
-				auto sIS = Pimpact::createScalarIndexSpace<int>();
-				auto p = Pimpact::createScalarField<double,int>(sVS);
 
-				auto mv1 = Pimpact::createMultiField<Pimpact::ScalarField<double,int> >(*p,10);
+TEUCHOS_UNIT_TEST( MultiFieldScalar, Trans ) {
 
-				mv1->init(0.);
+	auto sVS = Pimpact::createFieldSpace<int>();
+	auto sIS = Pimpact::createScalarIndexSpace<int>();
+	auto p = Pimpact::createScalarField<double,int>(sVS);
 
-				Teuchos::Range1D index1(0,9);
-				std::vector<int> index2(10);
-				for(int i=0; i<10; ++i)
-					index2[i] = i;
+	auto mv1 = Pimpact::createMultiField<Pimpact::ScalarField<double,int> >(*p,10);
 
-				auto mv2 = mv1->CloneView(index1);
-				auto mv3 = mv1->CloneView(index1);
-//				auto mv3 = mv1->CloneV(mv1->GetNumberVecs() );
+	mv1->init(0.);
 
+	Teuchos::Range1D index1(0,9);
+	std::vector<int> index2(10);
+	for(int i=0; i<10; ++i)
+		index2[i] = i;
 
-				unsigned int n1 = (mv1->getNumberVecs());
-				unsigned int n2 = (mv2->getNumberVecs());
-				unsigned int n3 = (mv3->getNumberVecs());
+	auto mv2 = mv1->CloneView(index1);
+	auto mv3 = mv1->CloneView(index1);
 
-				TEST_EQUALITY( n1, n2 );
-				TEST_EQUALITY( n3, n2 );
-				TEST_EQUALITY( n3, n1 );
+	unsigned int n1 = (mv1->getNumberVecs());
+	unsigned int n2 = (mv2->getNumberVecs());
+	unsigned int n3 = (mv3->getNumberVecs());
 
+	TEST_EQUALITY( n1, n2 );
+	TEST_EQUALITY( n3, n2 );
+	TEST_EQUALITY( n3, n1 );
 
-	//			mv2->Random(); // has to give compilation error
-				mv1->init(1.);
-//				mv2->Random();
-//				mv3->Assign(2.);
+	mv1->init(1.);
 
+	Teuchos::SerialDenseMatrix<int,double> B(n1,n2);
 
-				Teuchos::SerialDenseMatrix<int,double> B(n1,n2);
+	mv1->Trans( 1., *mv2, B );
 
-				mv1->Trans( 1., *mv2, B );
+	for( unsigned int j=0; j<n1; ++j) {
+		for( unsigned int i=0; i<n1; ++i)
+			TEST_EQUALITY( mv1->getLength(), B(j,i) );
+	}
 
-				for( unsigned int j=0; j<n1; ++j){
-					for( unsigned int i=0; i<n1; ++i)
-						TEST_EQUALITY( mv1->getLength(), B(j,i) );
-				}
+	std::vector<double> scales(n1);
 
-//				std::vector<double> norm1(n1);
-//				std::vector<double> norm2(n2);
-//
-//				mv1->Norm(norm1);
-//				mv2->Norm(norm2);
-//
-//				for( unsigned int i=0; i<n1; ++i) {
-//					TEST_EQUALITY( norm1[i], norm2[i] );
-//					TEST_EQUALITY( mv1->getLength(), norm2[i] );
-//				}
+	for( unsigned int i=0; i<scales.size(); ++i)
+		scales[i] = i*2;
 
-				std::vector<double> scales(n1);
-				for( unsigned int i=0; i<scales.size(); ++i)
-					scales[i] = i*2;
-				mv1->scale(scales);
+	mv1->scale(scales);
 
-				mv2->Trans( 1., *mv3, B );
+	mv2->Trans( 1., *mv3, B );
 
-				for( unsigned int j=0; j<n1; ++j){
-					for( unsigned int i=0; i<n1; ++i)
-						TEST_EQUALITY( scales[i]*scales[j]*mv1->getLength(), B(j,i) );
-				}
+	for( unsigned int j=0; j<n1; ++j) {
+		for( unsigned int i=0; i<n1; ++i)
+			TEST_EQUALITY( scales[i]*scales[j]*mv1->getLength(), B(j,i) );
+	}
 }
 
 
@@ -630,12 +619,12 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, TwoNorm_and_init ) {
   for( double i=0.; i< 200.1; ++i ) {
     mv->init(i/2.);
     mv->norm(normval,Belos::TwoNorm);
-//      mv->Assign(*mv);
-//      mv->Dot(*mv,normval);
     for( int j=0; j<m; ++j )
-      TEST_EQUALITY( std::pow(i/2.,2)*n, normval[j] );
+      TEST_FLOATING_EQUALITY( std::sqrt(std::pow(i/2.,2)*n), normval[j], 0.01 );
   }
+
 }
+
 
 
 TEUCHOS_UNIT_TEST( MultiFieldScalarMode, clone ) {
@@ -1011,7 +1000,7 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, TimesMatAdd ) {
 
   for( unsigned int i=0; i<n1; ++i) {
     TEST_EQUALITY( norm1[i], norm2[i] );
-    TEST_EQUALITY( mv1->getLength(), norm2[i] );
+    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm2[i], 0.01 );
   }
 
   std::vector<double> scales(n1);
@@ -1037,9 +1026,11 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, TimesMatAdd ) {
 
   for( unsigned int i=0; i<n1; ++i) {
   //          TEST_EQUALITY( norm1[i], norm2[i] );
-    TEST_FLOATING_EQUALITY( (double)mv1->getLength(), norm2[i], 0.01 );
+    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm2[i], 0.01 );
   }
+
 }
+
 
 
 TEUCHOS_UNIT_TEST( MultiFieldScalarMode, add ) {
@@ -1089,9 +1080,8 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, add ) {
   mv1->norm(norm1);
   mv2->norm(norm2);
 
-  for( unsigned int i=0; i<n1; ++i) {
-    TEST_EQUALITY( mv1->getLength(), norm2[i] );
-  }
+  for( unsigned int i=0; i<n1; ++i)
+    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm2[i], 0.01 );
 
   mv1->init(1.);
   mv2->init(1.);
@@ -1107,9 +1097,10 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, add ) {
 
   for( unsigned int i=0; i<n1; ++i) {
     TEST_EQUALITY( norm1[i], norm2[i] );
-    TEST_FLOATING_EQUALITY( (double)mv1->getLength(), norm1[i], 0.01 );
+    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm1[i], 0.01 );
   }
 }
+
 
 
 TEUCHOS_UNIT_TEST( MultiFieldScalarMode, dot ) {
@@ -1240,31 +1231,31 @@ TEUCHOS_UNIT_TEST( MultiFieldVector, constructor ) {
 }
 
 
+
 TEUCHOS_UNIT_TEST( MultiFieldVector, TwoNorm_and_init ) {
 
-        auto fS = Pimpact::createFieldSpace<int>();
-        auto iIS = Pimpact::createInnerFieldIndexSpaces<int>();
-        auto fIS = Pimpact::createFullFieldIndexSpaces<int>();
+  auto fS = Pimpact::createFieldSpace<int>();
+  auto iIS = Pimpact::createInnerFieldIndexSpaces<int>();
+  auto fIS = Pimpact::createFullFieldIndexSpaces<int>();
 
-        auto vel = Pimpact::createVectorField<double,int>(fS,iIS,fIS);
+  auto vel = Pimpact::createVectorField<double,int>(fS,iIS,fIS);
 
-        auto mv = Pimpact::createMultiField<Pimpact::VectorField<double,int> >(*vel,10);
+  auto mv = Pimpact::createMultiField<Pimpact::VectorField<double,int> >(*vel,10);
 
-
-        const int m = mv->getNumberVecs();
-        const int n = mv->getLength();
-        std::vector<double> normval(m);
+  const int m = mv->getNumberVecs();
+  const int n = mv->getLength();
+  std::vector<double> normval(m);
 
   // test different float values, assures that initial and norm work smoothly
-        for( double i=0.; i< 200.1; ++i ) {
-                mv->init(i/2.);
-                mv->norm(normval,Belos::TwoNorm);
-//      mv->Assign(*mv);
-//      mv->Dot(*mv,normval);
-                for( int j=0; j<m; ++j )
-                        TEST_EQUALITY( std::pow(i/2.,2)*n, normval[j] );
-        }
+  for( double i=0.; i< 200.1; ++i ) {
+    mv->init(i/2.);
+    mv->norm(normval,Belos::TwoNorm);
+    for( int j=0; j<m; ++j )
+      TEST_FLOATING_EQUALITY( std::sqrt(std::pow(i/2.,2)*n), normval[j], 0.01 );
+  }
+
 }
+
 
 
 TEUCHOS_UNIT_TEST( MultiFieldVector, clone ) {
@@ -1569,169 +1560,152 @@ TEUCHOS_UNIT_TEST( MultiFieldVector, CloneViewt2 ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldVector, TimesMatAdd ) {
 
-        auto fS = Pimpact::createFieldSpace<int>();
-        auto iIS = Pimpact::createInnerFieldIndexSpaces<int>();
-        auto fIS = Pimpact::createFullFieldIndexSpaces<int>();
+  auto fS = Pimpact::createFieldSpace<int>();
+  auto iIS = Pimpact::createInnerFieldIndexSpaces<int>();
+  auto fIS = Pimpact::createFullFieldIndexSpaces<int>();
 
-        auto vel = Pimpact::createVectorField<double,int>(fS,iIS,fIS);
+  auto vel = Pimpact::createVectorField<double,int>(fS,iIS,fIS);
 
-        auto mv1 = Pimpact::createMultiField<Pimpact::VectorField<double,int> >(*vel,10);
+  auto mv1 = Pimpact::createMultiField<Pimpact::VectorField<double,int> >(*vel,10);
 
-        mv1->init(0.);
+  mv1->init(0.);
 
-                        Teuchos::Range1D index1(0,9);
-                        std::vector<int> index2(10);
-                        for(int i=0; i<10; ++i)
-                                index2[i] = i;
+  Teuchos::Range1D index1(0,9);
+  std::vector<int> index2(10);
+  for(int i=0; i<10; ++i)
+    index2[i] = i;
 
-                        auto mv2 = mv1->CloneView(index1);
-                        auto mv3 = mv1->clone(mv1->getNumberVecs() );
+  auto mv2 = mv1->CloneView(index1);
+  auto mv3 = mv1->clone(mv1->getNumberVecs() );
 
+  unsigned int n1 = (mv1->getNumberVecs());
+  unsigned int n2 = (mv2->getNumberVecs());
+  unsigned int n3 = (mv3->getNumberVecs());
 
-                        unsigned int n1 = (mv1->getNumberVecs());
-                        unsigned int n2 = (mv2->getNumberVecs());
-                        unsigned int n3 = (mv3->getNumberVecs());
+  TEST_EQUALITY( n1, n2 );
+  TEST_EQUALITY( n3, n2 );
+  TEST_EQUALITY( n3, n1 );
 
-                        TEST_EQUALITY( n1, n2 );
-                        TEST_EQUALITY( n3, n2 );
-                        TEST_EQUALITY( n3, n1 );
+  int m1(mv1->getLength());
+  int m2(mv2->getLength());
+  int m3(mv3->getLength());
 
+  TEST_EQUALITY( m1, m2);
+  TEST_EQUALITY( m2, m3);
 
-                        int m1(mv1->getLength());
-                        int m2(mv2->getLength());
-                        int m3(mv3->getLength());
-                        TEST_EQUALITY( m1, m2);
-                        TEST_EQUALITY( m2, m3);
+  mv1->init(1.);
 
+  Teuchos::SerialDenseMatrix<int,double> B(n1,n2);
 
-//      mv2->Random(); // has to give compilation error
-                        mv1->init(1.);
-//        mv2->Random();
-//        mv3->Assign(2.);
+  for( unsigned int j=0; j<n1; ++j)
+    for( unsigned int i=0; i<n1; ++i)
+      B(j,i) = 1./n1;
 
-
-                        Teuchos::SerialDenseMatrix<int,double> B(n1,n2);
-                        for( unsigned int j=0; j<n1; ++j)
-                                for( unsigned int i=0; i<n1; ++i)
-                                        B(j,i) = 1./n1;
-
-                        mv1->TimesMatAdd( 0.5, *mv2, B, 0.5 );
+  mv1->TimesMatAdd( 0.5, *mv2, B, 0.5 );
 
 
-                        std::vector<double> norm1(n1);
-                        std::vector<double> norm2(n2);
+  std::vector<double> norm1(n1);
+  std::vector<double> norm2(n2);
 
-                        mv1->norm(norm1);
-                        mv2->norm(norm2);
+  mv1->norm(norm1);
+  mv2->norm(norm2);
 
-                        for( unsigned int i=0; i<n1; ++i) {
-                                TEST_EQUALITY( norm1[i], norm2[i] );
-                                TEST_EQUALITY( mv1->getLength(), norm2[i] );
-                        }
+  for( unsigned int i=0; i<n1; ++i) {
+    TEST_EQUALITY( norm1[i], norm2[i] );
+    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm2[i], 0.01 );
+  }
 
-                        std::vector<double> scales(n1);
-                        for( unsigned int j=0; j<n1; ++j){
-                                scales[j] = (j+1);
-//          scales[j] = 0;
-                                for( unsigned int i=0; i<n1; ++i)
-                                        B(j,i) = 1./n1/(j+1);
-//            B(j,i) = 1./5.;
-                        }
-//        std::cout << B;
-//        scales[5] = 5.;
-                        mv1->init(1.);
-                        mv3->init(1.);
+  std::vector<double> scales(n1);
+  for( unsigned int j=0; j<n1; ++j){
+    scales[j] = (j+1);
+    for( unsigned int i=0; i<n1; ++i)
+      B(j,i) = 1./n1/(j+1);
+  }
+  mv1->init(1.);
+  mv3->init(1.);
 
-                        mv3->scale(scales);
+  mv3->scale(scales);
 
-                        mv1->TimesMatAdd( 1., *mv3, B, 0. );
+  mv1->TimesMatAdd( 1., *mv3, B, 0. );
+
+  mv1->norm(norm1);
+  mv2->norm(norm2);
+
+  for( unsigned int i=0; i<n1; ++i)
+    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm2[i], 0.01 );
+
+}
 
 
-                        mv1->norm(norm1);
-                        mv2->norm(norm2);
-
-                        for( unsigned int i=0; i<n1; ++i) {
-//          TEST_EQUALITY( norm1[i], norm2[i] );
-                                TEST_FLOATING_EQUALITY( (double)mv1->getLength(), norm2[i], 0.01 );
-                        }
-                }
 
 TEUCHOS_UNIT_TEST( MultiFieldVector, add ) {
 
-        auto fS = Pimpact::createFieldSpace<int>();
-        auto iIS = Pimpact::createInnerFieldIndexSpaces<int>();
-        auto fIS = Pimpact::createFullFieldIndexSpaces<int>();
+  auto fS = Pimpact::createFieldSpace<int>();
+  auto iIS = Pimpact::createInnerFieldIndexSpaces<int>();
+  auto fIS = Pimpact::createFullFieldIndexSpaces<int>();
 
-        auto vel = Pimpact::createVectorField<double,int>(fS,iIS,fIS);
+  auto vel = Pimpact::createVectorField<double,int>(fS,iIS,fIS);
 
-        auto mv1 = Pimpact::createMultiField<Pimpact::VectorField<double,int> >(*vel,10);
+  auto mv1 = Pimpact::createMultiField<Pimpact::VectorField<double,int> >(*vel,10);
 
-        mv1->init(0.);
+  mv1->init(0.);
 
-        Teuchos::Range1D index1(0,9);
-        std::vector<int> index2(10);
-        for(int i=0; i<10; ++i)
-                index2[i] = i;
+  Teuchos::Range1D index1(0,9);
+  std::vector<int> index2(10);
+  for(int i=0; i<10; ++i)
+    index2[i] = i;
 
-//          auto mv2 = mv1->CloneCopy(index1);
-                auto mv2 = mv1->CloneViewNonConst(index1);
-                auto mv3 = mv1->CloneView(index1);
+  auto mv2 = mv1->CloneViewNonConst(index1);
+  auto mv3 = mv1->CloneView(index1);
 
-                unsigned int n1 = (mv1->getNumberVecs());
-                unsigned int n2 = (mv2->getNumberVecs());
-                unsigned int n3 = (mv3->getNumberVecs());
+  unsigned int n1 = (mv1->getNumberVecs());
+  unsigned int n2 = (mv2->getNumberVecs());
+  unsigned int n3 = (mv3->getNumberVecs());
 
-                TEST_EQUALITY( n1, n2 );
-                TEST_EQUALITY( n3, n2 );
-                TEST_EQUALITY( n3, n1 );
+  TEST_EQUALITY( n1, n2 );
+  TEST_EQUALITY( n3, n2 );
+  TEST_EQUALITY( n3, n1 );
 
-                int m1(mv1->getLength());
-                int m2(mv2->getLength());
-                int m3(mv3->getLength());
-                TEST_EQUALITY( m1, m2);
-                TEST_EQUALITY( m2, m3);
+  int m1(mv1->getLength());
+  int m2(mv2->getLength());
+  int m3(mv3->getLength());
 
-
-
-//      mv2->Random(); // has to give compilation error
-                mv1->init(1.);
-                mv2->init(1.);
-//        mv2->Random();
-//        mv3->Assign(2.);
+  TEST_EQUALITY( m1, m2);
+  TEST_EQUALITY( m2, m3);
 
 
+  mv1->init(1.);
+  mv2->init(1.);
 
-                mv1->add( 0.5, *mv2, 0.5, *mv3);
+  mv1->add( 0.5, *mv2, 0.5, *mv3);
 
+  std::vector<double> norm1(n1);
+  std::vector<double> norm2(n2);
 
-                std::vector<double> norm1(n1);
-                std::vector<double> norm2(n2);
+  mv1->norm(norm1);
+  mv2->norm(norm2);
 
-                mv1->norm(norm1);
-                mv2->norm(norm2);
+  for( unsigned int i=0; i<n1; ++i)
+    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm2[i], 0.01 );
 
-                for( unsigned int i=0; i<n1; ++i) {
-//            TEST_EQUALITY( norm1[i], norm2[i] );
-                        TEST_EQUALITY( mv1->getLength(), norm2[i] );
-                }
+  mv1->init(1.);
+  mv2->init(1.);
 
-                mv1->init(1.);
-                mv2->init(1.);
+  mv2->scale(0.5);
 
-                mv2->scale(0.5);
+  mv1->add( 1., *mv2, 1., *mv3 );
 
-                mv1->add( 1., *mv2, 1., *mv3 );
+  mv1->norm(norm1);
+  mv2->assign(*mv1);
+  mv2->norm(norm2);
 
+  for( unsigned int i=0; i<n1; ++i) {
+    TEST_EQUALITY( norm1[i], norm2[i] );
+    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm1[i], 0.01 );
+   }
 
-                mv1->norm(norm1);
-                mv2->assign(*mv1);
-                mv2->norm(norm2);
+}
 
-                for( unsigned int i=0; i<n1; ++i) {
-                        TEST_EQUALITY( norm1[i], norm2[i] );
-                        TEST_FLOATING_EQUALITY( (double)mv1->getLength(), norm1[i], 0.01 );
-                }
-        }
 
 
 TEUCHOS_UNIT_TEST( MultiFieldVector, dot ) {
@@ -1907,12 +1881,12 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, TwoNorm_and_init ) {
   for( double i=0.; i< 200.1; ++i ) {
     mv->init(i/2.);
     mv->norm(normval,Belos::TwoNorm);
-//      mv->assign(*mv);
-//      mv->dot(*mv,normval);
     for( int j=0; j<m; ++j )
-      TEST_EQUALITY( std::pow(i/2.,2)*n, normval[j] );
+      TEST_FLOATING_EQUALITY( std::sqrt(std::pow(i/2.,2)*n), normval[j], 0.01 );
   }
+
 }
+
 
 
 TEUCHOS_UNIT_TEST( MultiFieldVectorMode, clone ) {
@@ -2242,7 +2216,9 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, CloneViewt2 ) {
 
   for( unsigned int i=0; i<index.size(); ++i)
     TEST_EQUALITY( norm1[i+index.lbound()], norm2[i] );
+
 }
+
 
 
 TEUCHOS_UNIT_TEST( MultiFieldVectorMode, TimesMatAdd ) {
@@ -2285,11 +2261,7 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, TimesMatAdd ) {
   TEST_EQUALITY( m2, m3);
 
 
-  //      mv2->random(); // has to give compilation error
   mv1->init(1.);
-  //        mv2->random();
-  //        mv3->assign(2.);
-
 
   Teuchos::SerialDenseMatrix<int,double> B(n1,n2);
   for( unsigned int j=0; j<n1; ++j)
@@ -2307,7 +2279,7 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, TimesMatAdd ) {
 
   for( unsigned int i=0; i<n1; ++i) {
     TEST_EQUALITY( norm1[i], norm2[i] );
-    TEST_EQUALITY( mv1->getLength(), norm2[i] );
+    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm2[i], 0.01 );
   }
 
   std::vector<double> scales(n1);
@@ -2327,15 +2299,15 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, TimesMatAdd ) {
 
   mv1->TimesMatAdd( 1., *mv3, B, 0. );
 
-
   mv1->norm(norm1);
   mv2->norm(norm2);
 
   for( unsigned int i=0; i<n1; ++i) {
-  //          TEST_EQUALITY( norm1[i], norm2[i] );
-    TEST_FLOATING_EQUALITY( (double)mv1->getLength(), norm2[i], 0.01 );
+    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm2[i], 0.01 );
   }
+
 }
+
 
 
 TEUCHOS_UNIT_TEST( MultiFieldVectorMode, add ) {
@@ -2388,7 +2360,7 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, add ) {
   mv2->norm(norm2);
 
   for( unsigned int i=0; i<n1; ++i) {
-    TEST_EQUALITY( mv1->getLength(), norm2[i] );
+    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm2[i], 0.01 );
   }
 
   mv1->init(1.);
@@ -2398,16 +2370,17 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, add ) {
 
   mv1->add( 1., *mv2, 1., *mv3 );
 
-
   mv1->norm(norm1);
   mv2->assign(*mv1);
   mv2->norm(norm2);
 
   for( unsigned int i=0; i<n1; ++i) {
     TEST_EQUALITY( norm1[i], norm2[i] );
-    TEST_FLOATING_EQUALITY( (double)mv1->getLength(), norm1[i], 0.01 );
+    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm1[i], 0.01 );
   }
+
 }
+
 
 
 TEUCHOS_UNIT_TEST( MultiFieldVectorMode, dot ) {
@@ -2470,6 +2443,7 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, dot ) {
 }
 
 
+
 TEUCHOS_UNIT_TEST( MultiFieldVectorMode, Trans ) {
 
   auto fS = Pimpact::createFieldSpace<int>();
@@ -2524,8 +2498,7 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, Trans ) {
     for( unsigned int i=0; i<n1; ++i)
       TEST_EQUALITY( scales[i]*scales[j]*mv1->getLength(), B(j,i) );
   }
-  }
+}
 
 
-} // namespace
-
+} // end of namespace

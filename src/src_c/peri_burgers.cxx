@@ -280,8 +280,8 @@ int main(int argi, char** argv ) {
 
   auto para = Pimpact::createLinSolverParameter("GMRES",1.e-5 )->get();
  //  auto para = Teuchos::parameterlist();
-   para->set( "Num Blocks",          800/2  );
-   para->set( "Maximum Iterations", 1600/2 );
+   para->set( "Num Blocks",          800  );
+   para->set( "Maximum Iterations", 1600 );
  //  para->set( "Num Recycled Blocks",  20  );
    para->set( "Implicit Residual Scaling", "Norm of RHS");
    para->set( "Explicit Residual Scaling", "Norm of RHS" );
@@ -332,7 +332,7 @@ int main(int argi, char** argv ) {
  //  solverParametersPtr->sublist("Line Search").set("Method","Backtrack");
    Teuchos::ParameterList& lineSearchParameters = solverParametersPtr->sublist("Line Search");
    lineSearchParameters.set("Method","Backtrack");
-   lineSearchParameters.sublist("Backtrack").set("Recovery Step",1.e-2);
+   lineSearchParameters.sublist("Backtrack").set("Recovery Step",1.e-5);
 
    // Set the line search method
  //  lineSearchParameters.set("Method","More'-Thuente");

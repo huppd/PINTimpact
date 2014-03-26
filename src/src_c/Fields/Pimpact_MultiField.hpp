@@ -367,13 +367,16 @@ public:
 
 		for( int i=0; i<n; ++i ) {
 		  switch(type) {
-        case Belos::TwoNorm: nor += mfs_[i]->norm(type); break;
+        case Belos::TwoNorm: nor += std::pow(mfs_[i]->norm(type),2); break;
         case Belos::InfNorm: nor = std::max( nor, mfs_[i]->norm(type) ); break;
         case Belos::OneNorm: std::cout << "!!! Warning Belos::OneNorm not implemented \n"; return(0.);
         default: std::cout << "!!! Warning unknown Belos::NormType:\t" << type << "\n"; return(0.);
 		  }
 		}
-		return( nor );
+		if( type==Belos::TwoNorm )
+		  return( std::sqrt(nor) );
+		else
+		  return( nor );
 	}
 
 
