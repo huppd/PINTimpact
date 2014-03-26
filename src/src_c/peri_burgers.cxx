@@ -59,14 +59,10 @@ int main(int argi, char** argv ) {
   typedef Pimpact::MultiHarmonicNonlinear<S,O>  Op1;
   typedef Pimpact::MultiDtHelmholtz<S,O>  Op2;
   typedef Pimpact::MultiHarmonicOpWrap< Pimpact::ForcingOp<S,O> > Op3;
-//  typedef Pimpact::MultiOpWrap<Pimpact::AddOp<Op1,Op2> >  Op;
   typedef Pimpact::MultiOpWrap< Pimpact::AddOp< Pimpact::AddOp<Op1,Op2>, Op3 > > Op;
   typedef Pimpact::MultiHarmonicNonlinearJacobian<S,O>  JOp1;
   typedef Op2 JOp2;
-//  typedef Pimpact::MultiOpWrap<Pimpact::AddOp<JOp1,JOp2> > JOp;
-//  typedef Pimpact::MultiOpWrap<Pimpact::AddOp<JOp1,JOp2> > JOp;
   typedef Pimpact::MultiOpWrap< Pimpact::AddOp< Pimpact::AddOp<JOp1,Op2>, Op3 > > JOp;
-//  typedef Op JOp;
   typedef Pimpact::OperatorBase<MVF>  BOp;
 
   typedef NOX::Pimpact::Interface<MVF> Inter;
@@ -137,6 +133,9 @@ int main(int argi, char** argv ) {
 
   std::string solver_name_2 = "GMRES";
   my_CLP.setOption( "solver2", &solver_name_2, "name of the solver for Schur complement" );
+
+  S tol = 1.e-4;
+  my_CLP.setOption( "tol", &tol, "tolerance for linear solver" );
 
   // preconditioner type
   int precType = 0;
@@ -269,6 +268,7 @@ int main(int argi, char** argv ) {
   fu->getFieldPtr(0)->getCFieldPtr(0)->initField( Pimpact::BoundaryFilter1D );
   fu->getFieldPtr(0)->getCFieldPtr(0)->scale( 0.5 );
   fu->getFieldPtr(0)->get0FieldPtr()->initField( Pimpact::BoundaryFilter1D );
+  fu->scale( 0.5 );
 //  fu->getFieldPtr(0)->get0FieldPtr()->initField( Pimpact::GaussianForcing2D );
 //  fu->scale(re);
 
@@ -278,7 +278,7 @@ int main(int argi, char** argv ) {
   fu->write(100);
 
 
-  auto para = Pimpact::createLinSolverParameter("GMRES",1.e-5 )->get();
+  auto para = Pimpact::createLinSolverParameter( "GMRES", tol/n1 )->get();
  //  auto para = Teuchos::parameterlist();
    para->set( "Num Blocks",          800  );
    para->set( "Maximum Iterations", 1600 );
@@ -301,11 +301,11 @@ int main(int argi, char** argv ) {
 
    // Set up the status tests
    Teuchos::RCP<NOX::StatusTest::NormF> statusTestNormF =
-     Teuchos::rcp(new NOX::StatusTest::NormF( 1.0e-10 ) );
+     Teuchos::rcp(new NOX::StatusTest::NormF( 1.0e-6/n1 ) );
    Teuchos::RCP<NOX::StatusTest::MaxIters> statusTestMaxIters =
      Teuchos::rcp(new NOX::StatusTest::MaxIters( 10 ) );
    Teuchos::RCP<NOX::StatusTest::NormUpdate> statusTestNormUpdate =
-     Teuchos::rcp(new NOX::StatusTest::NormUpdate( 1.e-5,  NOX::Abstract::Vector::TwoNorm ) );
+     Teuchos::rcp(new NOX::StatusTest::NormUpdate( tol/n1/10,  NOX::Abstract::Vector::TwoNorm ) );
    Teuchos::RCP<NOX::StatusTest::Combo> statusTestsCombo =
      Teuchos::rcp(new NOX::StatusTest::Combo( NOX::StatusTest::Combo::OR,
      Teuchos::rcp(new NOX::StatusTest::Combo( NOX::StatusTest::Combo::OR,

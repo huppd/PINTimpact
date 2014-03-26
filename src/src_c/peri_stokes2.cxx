@@ -214,6 +214,8 @@ int main(int argi, char** argv ) {
 		q->getField(0).getVField()->getCFieldPtr()->initField( Pimpact::Pulsatile2D_inYC, re, omega, px );
 		q->getField(0).getVField()->getSFieldPtr()->initField( Pimpact::Pulsatile2D_inYS, re, omega, px );
 		break;
+	default:
+	  break;
 	}
 
 	q->init(0);

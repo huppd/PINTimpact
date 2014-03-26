@@ -37,12 +37,13 @@ public:
 protected:
 
   Teuchos::RCP<DomainFieldT> u_;
+  Teuchos::RCP<DomainFieldT> temp_;
 
 public:
 
   MultiHarmonicNonlinearJacobian(
       const Teuchos::RCP<VectorField<S,O> >& temp=Teuchos::null, const Teuchos::RCP<DomainFieldT>& u=Teuchos::null  ):
-        MultiHarmonicNonlinear<S,O>(temp),u_(u) {};
+        MultiHarmonicNonlinear<S,O>(temp),u_(u),temp_(u->clone()) {};
 //        temp_(temp),
 //     op( Teuchos::rcp( new Nonlinear<S,O>() )) {};
 //  MultiHarmonicNonlinearJacobian():u_(Teuchos::null) {};
@@ -57,8 +58,10 @@ public:
   };
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
-    MultiHarmonicNonlinear<S,O>::apply( *u_,  x,  y );
-//    MultiHarmonicNonlinear<S,O>::apply(  x,  *u_, y );
+
+    MultiHarmonicNonlinear<S,O>::apply( *u_,  x,  *temp_ );
+    MultiHarmonicNonlinear<S,O>::apply(  x,  *u_, y );
+    y.add( 1., *temp_, 1., y );
   }
 
   bool hasApplyTranspose() const { return( false ); }
