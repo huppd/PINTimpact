@@ -100,17 +100,17 @@ TEUCHOS_UNIT_TEST( NOXPimpact_LinearStokes, createLinearStokes ) {
   // Make an empty new parameter list.
   auto solverName = "GMRES";
   auto solverParams = Pimpact::createLinSolverParameter( solverName, 1.e-1 );
-  solverParams->get()->set ("Verbosity",  Belos::Errors );
+  solverParams->set ("Verbosity",  Belos::Errors );
 
 // Create the Pimpact::LinearSolver solver.
   auto lp_DTL = Pimpact::createLinearProblem<Interface::BVF>(
-      dtL, xv->clone(), xv->clone(), solverParams->get(), solverName );
+      dtL, xv->clone(), xv->clone(), solverParams, solverName );
 
   auto schur = Pimpact::createMultiOperatorBase< BMSF, Pimpact::DivDtLinvGrad<S,O> >(
       Pimpact::createDivDtLinvGrad<S,O>( xv->clone(), lp_DTL ) );
 
   auto lp_Schur = Pimpact::createLinearProblem<Interface::BSF>(
-      schur, xs->clone(), xs->clone(), solverParams->get(), solverName );
+      schur, xs->clone(), xs->clone(), solverParams, solverName );
 
   auto stockie = NOX::Pimpact::createLinearStokes(xv->clone(),xs->clone(),lp_DTL,lp_Schur);
 }
@@ -149,17 +149,17 @@ TEUCHOS_UNIT_TEST( NOXPimpact_LinearStokes, computeF ) {
   // Make an empty new parameter list.
   auto solverName = "GMRES";
   auto solverParams = Pimpact::createLinSolverParameter( solverName, 1.e-1 );
-  solverParams->get()->set ("Verbosity",  Belos::Errors );
+  solverParams->set ("Verbosity",  Belos::Errors );
 
 // Create the Pimpact::LinearSolver solver.
   auto lp_DTL = Pimpact::createLinearProblem<Interface::BVF>(
-      dtL, xv->clone(), xv->clone(), solverParams->get(), solverName );
+      dtL, xv->clone(), xv->clone(), solverParams, solverName );
 
   auto schur = Pimpact::createMultiOperatorBase< BMSF, Pimpact::DivDtLinvGrad<S,O> >(
       Pimpact::createDivDtLinvGrad<S,O>( xv->clone(), lp_DTL ) );
 
   auto lp_Schur = Pimpact::createLinearProblem<Interface::BSF>(
-      schur, xs->clone(), xs->clone(), solverParams->get(), solverName );
+      schur, xs->clone(), xs->clone(), solverParams, solverName );
 
   auto stockie = NOX::Pimpact::createLinearStokes(xv->clone(),xs->clone(),lp_DTL,lp_Schur);
 
@@ -203,17 +203,17 @@ TEUCHOS_UNIT_TEST( NOXPimpact_LinearStokes, computeJacobian ) {
   // Make an empty new parameter list.
   auto solverName = "GMRES";
   auto solverParams = Pimpact::createLinSolverParameter( solverName, 1.e-1 );
-  solverParams->get()->set ("Verbosity",  Belos::Errors );
+  solverParams->set ("Verbosity",  Belos::Errors );
 
 // Create the Pimpact::LinearSolver solver.
   auto lp_DTL = Pimpact::createLinearProblem<Interface::BVF>(
-      dtL, xv->clone(), xv->clone(), solverParams->get(), solverName );
+      dtL, xv->clone(), xv->clone(), solverParams, solverName );
 
   auto schur = Pimpact::createMultiOperatorBase< BMSF, Pimpact::DivDtLinvGrad<S,O> >(
       Pimpact::createDivDtLinvGrad<S,O>( xv->clone(), lp_DTL ) );
 
   auto lp_Schur = Pimpact::createLinearProblem<Interface::BSF>(
-      schur, xs->clone(), xs->clone(), solverParams->get(), solverName );
+      schur, xs->clone(), xs->clone(), solverParams, solverName );
 
   auto stockie = NOX::Pimpact::createLinearStokes(xv->clone(), xs->clone(),lp_DTL,lp_Schur);
 
@@ -257,17 +257,17 @@ TEUCHOS_UNIT_TEST( NOXPimpact_LinearStokes, applyJacobian ) {
   // Make an empty new parameter list.
   auto solverName = "GMRES";
   auto solverParams = Pimpact::createLinSolverParameter( solverName, 1.e-1 );
-  solverParams->get()->set ("Verbosity",  Belos::Errors );
+  solverParams->set ("Verbosity",  Belos::Errors );
 
 // Create the Pimpact::LinearSolver solver.
   auto lp_DTL = Pimpact::createLinearProblem<Interface::BVF>(
-      dtL, xv->clone(), xv->clone(), solverParams->get(), solverName );
+      dtL, xv->clone(), xv->clone(), solverParams, solverName );
 
   auto schur = Pimpact::createMultiOperatorBase< BMSF, Pimpact::DivDtLinvGrad<S,O> >(
       Pimpact::createDivDtLinvGrad<S,O>( xv->clone(), lp_DTL ) );
 
   auto lp_Schur = Pimpact::createLinearProblem<Interface::BSF>(
-      schur, xs->clone(), xs->clone(), solverParams->get(), solverName );
+      schur, xs->clone(), xs->clone(), solverParams, solverName );
 
   auto stockie = NOX::Pimpact::createLinearStokes(xv->clone(),xs->clone(),lp_DTL,lp_Schur);
 
@@ -310,17 +310,17 @@ TEUCHOS_UNIT_TEST( NOXPimpact_LinearStokes, applyJacobianInverse ) {
   // Make an empty new parameter list.
   auto solverName = "GMRES";
   auto solverParams = Pimpact::createLinSolverParameter( solverName, 1.e-1 );
-  solverParams->get()->set ("Verbosity",  Belos::Errors );
+  solverParams->set ("Verbosity",  Belos::Errors );
 
 // Create the Pimpact::LinearSolver solver.
   auto lp_DTL = Pimpact::createLinearProblem<Interface::BVF>(
-      dtL, xv->clone(), xv->clone(), solverParams->get(), solverName );
+      dtL, xv->clone(), xv->clone(), solverParams, solverName );
 
   auto schur = Pimpact::createMultiOperatorBase< BMSF, Pimpact::DivDtLinvGrad<S,O> >(
       Pimpact::createDivDtLinvGrad<S,O>( xv->clone(), lp_DTL ) );
 
   auto lp_Schur = Pimpact::createLinearProblem<Interface::BSF>(
-      schur, xs->clone(), xs->clone(), solverParams->get(), solverName );
+      schur, xs->clone(), xs->clone(), solverParams, solverName );
 
   auto stockie = NOX::Pimpact::createLinearStokes(xv->clone(),xs->clone(),lp_DTL,lp_Schur);
 
@@ -368,7 +368,7 @@ x->getFieldPtr(0)->write();
   y->getFieldPtr(0)->write(99);
 
   auto lp = Pimpact::createLinearProblem<MVF>(
-        op, x->clone(), y->clone(), Pimpact::createLinSolverParameter("GMRES",1.e-12)->get(), "GMRES");
+        op, x->clone(), y->clone(), Pimpact::createLinSolverParameter("GMRES",1.e-12), "GMRES");
   auto inter = NOX::Pimpact::createSimpleNonlinear( y, op, lp );
 
 //  bool succes = inter->computeF( *x, *f );

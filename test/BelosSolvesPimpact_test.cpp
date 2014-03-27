@@ -251,7 +251,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, DtL ) {
 
   // Create the GMRES solver.
   Teuchos::RCP<Belos::SolverManager<S, BVF, BOp > > solver =
-           factory.create( "GMRES", para->get() );
+           factory.create( "GMRES", para );
 
   // Create a LinearProblem struct with the problem to solve.
   // A, X, B, and M are passed by (smart) pointer, not copied.
@@ -316,7 +316,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
       Pimpact::createMultiOpWrap(
           Pimpact::createDivGradOp(temp) ) );
 
-  auto para = Pimpact::createLinSolverParameter("GMRES",1.e-9)->get();
+  auto para = Pimpact::createLinSolverParameter("GMRES",1.e-9);
   para->set( "Num Blocks", 500 );
 
 //  auto para = Teuchos::parameterList();

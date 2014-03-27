@@ -20,16 +20,16 @@ oms  = woms
 
 case_path = ['','','']
 
-for i in range(5,7):
+for i in range(7,8):
   n = str(2**i+1)
-  case_consts = ' --nx='+n+' --ny=7 '+
+  case_consts = ' --nx='+n+' --ny=7 '
   
   case_path[0] = 'discr'+str(i)
   if not os.path.exists( data_path+case_path[0] ):
 	  os.mkdir( data_path+case_path[0] )
   print data_path + case_path[0]
-  for nf in range(8,32,2):
-    case_path[1] = '/nf'+str(prec)
+  for nf in range(16,17,1):
+    case_path[1] = '/nf'+str(nf)
     if not os.path.exists( data_path+case_path[0]+case_path[1] ):
       os.mkdir( data_path+case_path[0]+case_path[1] )
     print data_path + case_path[0]+case_path[1]

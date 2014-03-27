@@ -177,13 +177,11 @@ public:
 	};
 
 
-	/**
-	 * \brief copy constructor.
-	 *
-	 * shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
-	 * @param sF
-	 * @param copyType by default a ShallowCopy is done but allows also to deepcopy the field
-	 */
+	/// \brief copy constructor.
+	///
+	/// shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
+	/// \param sF
+	/// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
 	ScalarField(const ScalarField& sF, ECopyType copyType=ShallowCopy):fieldSpace_(sF.fieldSpace_) {
 		Ordinal N = 1;
 		for(int i=0; i<3; ++i)
@@ -251,15 +249,13 @@ public:
 	}
 
 
-  /**
-   * \brief Put element-wise absolute values of source vector \c y into this
-   * vector.
-   *
-   * Here x represents this vector, and we update it as
-   * \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
-   * \return Reference to this object
-   * \todo implement me
-   */
+  /// \brief Put element-wise absolute values of source vector \c y into this
+  /// vector.
+  ///
+  /// Here x represents this vector, and we update it as
+  /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
+  /// \return Reference to this object
+  /// \todo implement me
   void abs(const MV& y) {
 		// add test for consistent VectorSpaces in debug mode
 		SF_abs(
@@ -272,14 +268,12 @@ public:
   }
 
 
-  /**
-    * \brief Put element-wise reciprocal of source vector \c y into this vector.
-    *
-    * Here x represents this vector, and we update it as
-    * \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
-    * \return Reference to this object
-    * \todo implement me
-    */
+   /// \brief Put element-wise reciprocal of source vector \c y into this vector.
+   ///
+   /// Here x represents this vector, and we update it as
+   /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
+   /// \return Reference to this object
+   /// \todo implement me
    void reciprocal(const MV& y){
      // add test for consistent VectorSpaces in debug mode
      SF_reciprocal(
@@ -292,9 +286,7 @@ public:
    }
 
 
-	/**
-	 * \brief Scale each element of the vector with \c alpha.
-	 */
+	/// \brief Scale each element of the vector with \c alpha.
 	void scale( const Scalar& alpha ) {
 		SF_scale(
 					nLoc(0), nLoc(1), nLoc(2),
@@ -306,14 +298,12 @@ public:
 	}
 
 
-  /**
-   * \brief Scale this vector <em>element-by-element</em> by the vector a.
-   *
-   * Here x represents this vector, and we update it as
-   * \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
-   * \return Reference to this object
-   * \todo implement me
-   */
+  /// \brief Scale this vector <em>element-by-element</em> by the vector a.
+  ///
+  /// Here x represents this vector, and we update it as
+  /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
+  /// \return Reference to this object
+  /// \todo implement me
   void scale(const MV& a) {
     // add test for consistent VectorSpaces in debug mode
     SF_scale2(
@@ -326,11 +316,9 @@ public:
   }
 
 
-	/**
-	 * \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
-	*/
+	/// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
+	/// \todo add test in debuging mode for testing equality of VectorSpaces
 	Scalar dot ( const MV& a ) const {
-		/// \todo add test in debuging mode for testing equality of VectorSpaces
 		Scalar b;
 		SF_dot( commf(),
 				nLoc(0), nLoc(1), nLoc(2),
@@ -339,7 +327,7 @@ public:
 				bl(0),   bl(1),   bl(2),
 				bu(0),   bu(1),   bu(2),
 				s_, a.s_, b);
-		return b;
+		return( b );
 	}
 
 
@@ -379,13 +367,11 @@ public:
       return( normvec );	}
 
 
-  /**
-   * \brief Weighted 2-Norm.
-   *
-   * Here x represents this vector, and we compute its weighted norm as follows:
-   * \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
-   * \return \f$ \|x\|_w \f$
-   */
+  /// \brief Weighted 2-Norm.
+  ///
+  /// Here x represents this vector, and we compute its weighted norm as follows:
+  /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
+  /// \return \f$ \|x\|_w \f$
   double norm(const MV& weights) const {
     Scalar normvec;
     SF_weightedNorm(
@@ -402,15 +388,15 @@ public:
 
 
   //@}
-  //! @name Initialization methods
+  /// @name Initialization methods
   //@{
 
-	/** \brief mv := A
-	 * Assign (deep copy) \c a into \c this.
-	 * total deep, boundaries and everythin.
-	 * \note the \c FieldSpace is not take care of assuming every field is generated with one
-	 * \note "indexing" is done c++
-	 */
+  /// \brief mv := A
+  ///
+	/// Assign (deep copy) \c a into \c this.
+	/// total deep, boundaries and everythin.
+	/// \note the \c FieldSpace is not take care of assuming every field is generated with one
+	/// \note "indexing" is done c++
 	void assign( const MV& a ) {
 		#ifdef DEBUG
 		for(int i=0; i<3; ++i) {
@@ -430,10 +416,8 @@ public:
   }
 
 
-	/**
-   * \brief Replace the vectors with a random vectors.
-   * depending on Fortrans \c Random_number implementation, with always same seed => not save, if good randomness is requiered
-   */
+  /// \brief Replace the vectors with a random vectors.
+  /// depending on Fortrans \c Random_number implementation, with always same seed => not save, if good randomness is requiered
 	void random(bool useSeed = false, int seed = 1) {
 		SF_random(
 				nLoc(0), nLoc(1), nLoc(2),
@@ -445,8 +429,7 @@ public:
 	}
 
 
-  /*! \brief Replace each element of the vector  with \c alpha.
-   */
+	/// \brief Replace each element of the vector  with \c alpha.
   void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero() ) {
   	SF_init(
 				nLoc(0), nLoc(1), nLoc(2),

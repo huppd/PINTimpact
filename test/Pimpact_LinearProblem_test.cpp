@@ -81,7 +81,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 
 
 	// Make an empty new parameter list.
-	RCP<ParameterList> param = Pimpact::createLinSolverParameter("GMRES",1.e-4)->get();
+	RCP<ParameterList> param = Pimpact::createLinSolverParameter("GMRES",1.e-4);
 
 	auto linprob = Pimpact::createLinearProblem<MF>(A,x,b,param,"GMRES");
 

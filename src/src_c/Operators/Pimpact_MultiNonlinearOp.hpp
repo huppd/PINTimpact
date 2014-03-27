@@ -50,16 +50,16 @@ public:
 
     // computing zero mode of y
     op->apply( x.getConst0Field(), y.getConst0Field(), *temp_ );
-    z.get0Field().add( 1., z.getConst0Field(), 2., *temp_ );
+    z.get0Field().add( 1., z.getConst0Field(), 1., *temp_ );
 
     for( int i=1; i<=Nf; ++i ) {
       op->apply( x.getConstCField(i-1), y.getConstCField(i-1), *temp_ );
-      z.get0Field().add( 1., z.getConst0Field(), 1., *temp_ );
+      z.get0Field().add( 1., z.getConst0Field(), 0.5, *temp_ );
     }
 
     for( int i=1; i<=Nf; ++i ) {
       op->apply( x.getConstSField(i-1), y.getConstSField(i-1), *temp_ );
-      z.get0Field().add( 1., z.getConst0Field(), 1., *temp_ );
+      z.get0Field().add( 1., z.getConst0Field(), 0.5, *temp_ );
     }
 
 

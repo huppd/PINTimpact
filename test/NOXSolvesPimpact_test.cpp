@@ -197,7 +197,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleLinear ) {
 
 
   auto lp = Pimpact::createLinearProblem<MVF>(
-      jop, x->clone(), f->clone(), Pimpact::createLinSolverParameter("GMRES",1.e-6)->get() , "GMRES" );
+      jop, x->clone(), f->clone(), Pimpact::createLinSolverParameter("GMRES",1.e-6), "GMRES" );
   auto inter = NOX::Pimpact::createSimpleLinear( f, op, lp );
 
 
@@ -566,7 +566,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear3 ) {
 
   x->init( 0. );
 
-  auto para = Pimpact::createLinSolverParameter("GMRES",1.e-16)->get();
+  auto para = Pimpact::createLinSolverParameter("GMRES",1.e-16);
 //  auto para = Teuchos::parameterlist();
   para->set( "Num Blocks",          800/2  );
   para->set( "Maximum Iterations", 1600/2 );

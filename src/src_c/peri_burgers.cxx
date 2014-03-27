@@ -75,22 +75,17 @@ int main(int argi, char** argv ) {
   Teuchos::CommandLineProcessor my_CLP;
 
   // physical constants
-  S re = 1.e-2;
+  S re = 1.e3;
   my_CLP.setOption( "re", &re, "Reynolds number" );
 
-  S alpha2 = 1.;
+  S alpha2 = 4.*(4*std::atan(1));
   my_CLP.setOption( "alpha2", &alpha2, "introduced frequency" );
 
   S px = 1.;
   my_CLP.setOption( "px", &px, "pressure gradient(only necessary for pulsatile flows)" );
 
-  // flow type
-  int flow = 1;
-  my_CLP.setOption( "flow", &flow,
-      "Flow type: 0=zero flow, 1=2D Poiseuille flow in x, 2=2D Poiseuille flow in y, 3=2D pulsatile flow in x, 4=2D pulsatile flow in, 5=2D streaming" );
-
   // domain type
-  int domain = 1;
+  int domain = 4;
   my_CLP.setOption( "domain", &domain,
       "Domain type: 0:all dirichlet, 1:dirichlet 2d channel, 2: periodic 2d channel" );
 
@@ -114,11 +109,11 @@ int main(int argi, char** argv ) {
   O n3 = 2.;
   my_CLP.setOption( "nz", &n3, "amount of grid points in z-direction: a*2**q+1" );
 
-  O nf = 4.;
+  O nf = 2.;
   my_CLP.setOption( "nf", &nf, "amount of grid points in f-direction" );
 
   // processor grid size
-  O np1 = 4;
+  O np1 = 2;
   my_CLP.setOption( "npx", &np1, "amount of processors in x-direction" );
 
   O np2 = 1;
@@ -134,7 +129,7 @@ int main(int argi, char** argv ) {
   std::string solver_name_2 = "GMRES";
   my_CLP.setOption( "solver2", &solver_name_2, "name of the solver for Schur complement" );
 
-  S tol = 1.e-4;
+  S tol = 1.e-1;
   my_CLP.setOption( "tol", &tol, "tolerance for linear solver" );
 
   // preconditioner type
@@ -165,7 +160,7 @@ int main(int argi, char** argv ) {
 //    outPar = Teuchos::rcp( &blackhole, false) ;
     outPar = Teuchos::rcp( new Teuchos::oblackholestream() ) ;
 
-  *outPar << " \tflow=" << flow << "\n";
+//  *outPar << " \tflow=" << flow << "\n";
   *outPar << " \tdomain=" << domain << "\n";
   *outPar << " \tre=" << re << "\n";
   *outPar << " \tpx=" << px << "\n";
@@ -266,7 +261,7 @@ int main(int argi, char** argv ) {
 //  fu->getFieldPtr(0)->get0FieldPtr()->initField( Pimpact::ZeroProf );
 //  fu->getFieldPtr(0)->getCFieldPtr(1)->initField( Pimpact::BoundaryFilter1D );
   fu->getFieldPtr(0)->getCFieldPtr(0)->initField( Pimpact::BoundaryFilter1D );
-  fu->getFieldPtr(0)->getCFieldPtr(0)->scale( 0.5 );
+  fu->getFieldPtr(0)->getCFieldPtr(0)->scale( -1 );
   fu->getFieldPtr(0)->get0FieldPtr()->initField( Pimpact::BoundaryFilter1D );
   fu->scale( 0.5 );
 //  fu->getFieldPtr(0)->get0FieldPtr()->initField( Pimpact::GaussianForcing2D );
@@ -278,10 +273,10 @@ int main(int argi, char** argv ) {
   fu->write(100);
 
 
-  auto para = Pimpact::createLinSolverParameter( "GMRES", tol/n1 )->get();
+  auto para = Pimpact::createLinSolverParameter( "GCRODR", tol/n1 );
  //  auto para = Teuchos::parameterlist();
-   para->set( "Num Blocks",          800  );
-   para->set( "Maximum Iterations", 1600 );
+   para->set( "Num Blocks",          800/4  );
+   para->set( "Maximum Iterations", 1600/2 );
  //  para->set( "Num Recycled Blocks",  20  );
    para->set( "Implicit Residual Scaling", "Norm of RHS");
    para->set( "Explicit Residual Scaling", "Norm of RHS" );
@@ -332,86 +327,34 @@ int main(int argi, char** argv ) {
  //  solverParametersPtr->sublist("Line Search").set("Method","Backtrack");
    Teuchos::ParameterList& lineSearchParameters = solverParametersPtr->sublist("Line Search");
    lineSearchParameters.set("Method","Backtrack");
-   lineSearchParameters.sublist("Backtrack").set("Recovery Step",1.e-5);
+   lineSearchParameters.sublist("Backtrack").set( "Recovery Step", tol );
 
    // Set the line search method
  //  lineSearchParameters.set("Method","More'-Thuente");
 
 
-   // Create the solver
-   Teuchos::RCP<NOX::Solver::Generic> solver =
-     NOX::Solver::buildSolver( group, statusTestsCombo, solverParametersPtr);
+  // Create the solver
+  Teuchos::RCP<NOX::Solver::Generic> solver =
+      NOX::Solver::buildSolver( group, statusTestsCombo, solverParametersPtr);
 
-   // Solve the nonlinear system
-   NOX::StatusTest::StatusType status = solver->solve();
+  // Solve the nonlinear system
+  NOX::StatusTest::StatusType status = solver->solve();
 
-   // Print the parameter list
-   if(rank==0) std::cout << "\n" << "-- Parameter List From Solver --" << "\n";
-   if(rank==0) std::cout << "\n" << status << "\n";
-   if(rank==0) solver->getList().print(std::cout);
+  // Print the parameter list
+  if(rank==0) std::cout << "\n" << "-- Parameter List From Solver --" << "\n";
+  if(rank==0) std::cout << "\n" << status << "\n";
+  if(rank==0) solver->getList().print(std::cout);
 
-   // Get the answer
-   *group = solver->getSolutionGroup();
+  // Get the answer
+  *group = solver->getSolutionGroup();
 
-   // Print the answer
-   if(rank==0) std::cout << "\n" << "-- Final Solution From Solver --" << "\n";
-   Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() )->getConstFieldPtr()->write(800);
-//   auto blabla = Teuchos::rcp_const_cast<Pimpact::VectorField<double,int> >(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() )->getConstFieldPtr()->getConstFieldPtr(0));
-//   vel->initField( Pimpact::RankineVortex2D );
-//   auto er = vel->clone();
-//   er->initField( Pimpact::ZeroProf );
-//   er->add( 1., *blabla, -1., *vel );
-//   er->write(100);
+  // Print the answer
+  if(rank==0) std::cout << "\n" << "-- Final Solution From Solver --" << "\n";
 
-   Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(900);
-
-//  auto schur =
-//      Pimpact::createMultiOperatorBase<MSF,Pimpact::DivOpGrad<S,O> >(
-//          Pimpact::createDivOpGrad<S,O>( u, lap_problem ) );
-//
-//  solverParams = Pimpact::createLinSolverParameter( solver_name_2, 1.e-7*l1*l2/n1/n2  );
-//  solverParams->get()->set( "Output Stream", outSchur );
-//  solverParams->get()->set( "Num Blocks", 100 );
-//
-//  auto schur_prob = Pimpact::createLinearProblem<MSF>( schur, p,temps, solverParams->get(), solver_name_2);
-//
-//  // solve stationary stokes
-//  lap_problem->solve( tempv, fu );
-//  //  tempv->write( 2000 );
-//
-//  div->apply( *tempv, *temps );
-//  //temps->write( 2002 );
-//  temps->add( -1., *fp, 1., *temps );
-//
-//  solverParams = Pimpact::createLinSolverParameter( solver_name_1, 1.e-7*l1*l2/n1/n2 );
-//  solverParams->get()->set( "Output Stream", outLap2 );
-//  solverParams->get()->set ("Verbosity", int( Belos::Errors) );
-//  lap_problem->setParameters( solverParams->get() );
-//  schur_prob->solve( p, temps );
-//  p->write();
-//
-//  grad->apply( *p, *tempv );
-//  //tempv->write(2006);
-//
-//  tempv->add( -1., *tempv, 1., *fu );
-//
-//  solverParams->get()->set ("Verbosity",  Belos::Errors + Belos::Warnings + Belos::IterationDetails +
-//      Belos::OrthoDetails + Belos::FinalSummary + Belos::TimingDetails +
-//      Belos::StatusTestDetails + Belos::Debug );
-//  solverParams->get()->set( "Output Stream", outLap2 );
-//  lap_problem->setParameters( solverParams->get() );
-//
-//  lap_problem->solve(u,tempv);
-//
-//  u->write();
-//
-//  if(rank==0) {
-//    Teuchos::rcp_static_cast<std::ofstream>( outLap1)->close();
-//    Teuchos::rcp_static_cast<std::ofstream>( outLap2)->close();
-//    Teuchos::rcp_static_cast<std::ofstream>(outSchur)->close();
-//  }
-
+  Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() )->getConstFieldPtr()->write(800);
+  Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(900);
 
   MPI_Finalize();
   return( 0 );
+
 }

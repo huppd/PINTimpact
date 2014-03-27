@@ -2583,7 +2583,6 @@ module cmod_operator
   !!    - (parameter in dimension)
   !!    - parameter in work123
   !!    - (parameter2 in work123)
-  !!    - parameter out nl
   !!    - exchange vel/work123
   !!    - interpolate_vel
   !!
@@ -2660,7 +2659,7 @@ module cmod_operator
                  end do
               end if
               
-              nl(i,j,k,1) = dd1*pp(i,j,k)
+              nlU(i,j,k) = dd1*pp(i,j,k)
            end do
         end do
      end do
@@ -2671,7 +2670,7 @@ module cmod_operator
            do j = S21, N21
 !pgi$ unroll = n:8
               do i = S11, N11
-                 nl(i,j,k,1) = pp(i,j,k)*rr(i,j,k)*dx1uM(i)
+                 nlU(i,j,k) = pp(i,j,k)*rr(i,j,k)*dx1uM(i)
               end do
            end do
         end do
@@ -2685,7 +2684,7 @@ module cmod_operator
                     dd1 = dd1 + cu1(ii,i)*vel(i+ii,j,k,1)
                  end do
                  
-                 nl(i,j,k,1) = dd1*pp(i,j,k)
+                 nlU(i,j,k) = dd1*pp(i,j,k)
               end do
            end do
         end do
@@ -2717,7 +2716,7 @@ module cmod_operator
                  end do
               end if
               
-              nl(i,j,k,1) = nl(i,j,k,1) + dd1*pp(i,j,k)
+              nlU(i,j,k) = nlU(i,j,k) + dd1*pp(i,j,k)
            end do
         end do
      end do
@@ -2728,7 +2727,7 @@ module cmod_operator
            do j = S21, N21
 !pgi$ unroll = n:8
               do i = S11, N11
-                 nl(i,j,k,1) = nl(i,j,k,1) + pp(i,j,k)*rr(i,j,k)*dx2pM(j)
+                 nlU(i,j,k) = nlU(i,j,k) + pp(i,j,k)*rr(i,j,k)*dx2pM(j)
               end do
            end do
         end do
@@ -2742,7 +2741,7 @@ module cmod_operator
                     dd1 = dd1 + cp2(jj,j)*vel(i,j+jj,k,1)
                  end do
                  
-                 nl(i,j,k,1) = nl(i,j,k,1) + dd1*pp(i,j,k)
+                 nlU(i,j,k) = nlU(i,j,k) + dd1*pp(i,j,k)
               end do
            end do
         end do
@@ -2775,7 +2774,7 @@ module cmod_operator
                  end do
               end if
               
-              nl(i,j,k,1) = nl(i,j,k,1) + dd1*pp(i,j,k)
+              nlU(i,j,k) = nlU(i,j,k) + dd1*pp(i,j,k)
            end do
         end do
      end do
@@ -2786,7 +2785,7 @@ module cmod_operator
            do j = S21, N21
 !pgi$ unroll = n:8
               do i = S11, N11
-                 nl(i,j,k,1) = nl(i,j,k,1) + pp(i,j,k)*rr(i,j,k)*dx3pM(k)
+                 nlU(i,j,k) = nlU(i,j,k) + pp(i,j,k)*rr(i,j,k)*dx3pM(k)
               end do
            end do
         end do
@@ -2800,7 +2799,7 @@ module cmod_operator
                     dd1 = dd1 + cp3(kk,k)*vel(i,j,k+kk,1)
                  end do
                  
-                 nl(i,j,k,1) = nl(i,j,k,1) + dd1*pp(i,j,k)
+                 nlU(i,j,k) = nl(i,j,k,1) + dd1*pp(i,j,k)
               end do
            end do
         end do
@@ -2837,7 +2836,7 @@ module cmod_operator
                  end do
               end if
               
-              nl(i,j,k,2) = dd1*pp(i,j,k)
+              nlV(i,j,k) = dd1*pp(i,j,k)
            end do
         end do
      end do
@@ -2848,7 +2847,7 @@ module cmod_operator
            do j = S22, N22
 !pgi$ unroll = n:8
               do i = S12, N12
-                 nl(i,j,k,2) = pp(i,j,k)*rr(i,j,k)*dx1pM(i)
+                 nlV(i,j,k) = pp(i,j,k)*rr(i,j,k)*dx1pM(i)
               end do
            end do
         end do
@@ -2862,7 +2861,7 @@ module cmod_operator
                     dd1 = dd1 + cp1(ii,i)*vel(i+ii,j,k,2)
                  end do
                  
-                 nl(i,j,k,2) = dd1*pp(i,j,k)
+                 nlV(i,j,k) = dd1*pp(i,j,k)
               end do
            end do
         end do
@@ -2894,7 +2893,7 @@ module cmod_operator
                  end do
               end if
               
-              nl(i,j,k,2) = nl(i,j,k,2) + dd1*pp(i,j,k)
+              nlV(i,j,k) = nlV(i,j,k) + dd1*pp(i,j,k)
            end do
         end do
      end do
@@ -2905,7 +2904,7 @@ module cmod_operator
            do j = S22, N22
 !pgi$ unroll = n:8
               do i = S12, N12
-                 nl(i,j,k,2) = nl(i,j,k,2) + pp(i,j,k)*rr(i,j,k)*dx2vM(j)
+                 nlV(i,j,k) = nlV(i,j,k) + pp(i,j,k)*rr(i,j,k)*dx2vM(j)
               end do
            end do
         end do
@@ -2919,7 +2918,7 @@ module cmod_operator
                     dd1 = dd1 + cv2(jj,j)*vel(i,j+jj,k,2)
                  end do
                  
-                 nl(i,j,k,2) = nl(i,j,k,2) + dd1*pp(i,j,k)
+                 nlV(i,j,k) = nlV(i,j,k) + dd1*pp(i,j,k)
               end do
            end do
         end do
@@ -2952,7 +2951,7 @@ module cmod_operator
                  end do
               end if
               
-              nl(i,j,k,2) = nl(i,j,k,2) + dd1*pp(i,j,k)
+              nlV(i,j,k) = nlV(i,j,k) + dd1*pp(i,j,k)
            end do
         end do
      end do
@@ -2963,7 +2962,7 @@ module cmod_operator
            do j = S22, N22
 !pgi$ unroll = n:8
               do i = S12, N12
-                 nl(i,j,k,2) = nl(i,j,k,2) + pp(i,j,k)*rr(i,j,k)*dx3pM(k)
+                 nlV(i,j,k) = nlV(i,j,k) + pp(i,j,k)*rr(i,j,k)*dx3pM(k)
               end do
            end do
         end do
@@ -2977,7 +2976,7 @@ module cmod_operator
                     dd1 = dd1 + cp3(kk,k)*vel(i,j,k+kk,2)
                  end do
                  
-                 nl(i,j,k,2) = nl(i,j,k,2) + dd1*pp(i,j,k)
+                 nlV(i,j,k) = nl(i,j,k,2) + dd1*pp(i,j,k)
               end do
            end do
         end do
@@ -3014,7 +3013,7 @@ module cmod_operator
                  end do
               end if
               
-              nl(i,j,k,3) = dd1*pp(i,j,k)
+              nlW(i,j,k) = dd1*pp(i,j,k)
            end do
         end do
      end do
@@ -3025,7 +3024,7 @@ module cmod_operator
            do j = S23, N23
 !pgi$ unroll = n:8
               do i = S13, N13
-                 nl(i,j,k,3) = pp(i,j,k)*rr(i,j,k)*dx1pM(i)
+                 nlW(i,j,k) = pp(i,j,k)*rr(i,j,k)*dx1pM(i)
               end do
            end do
         end do
@@ -3039,7 +3038,7 @@ module cmod_operator
                     dd1 = dd1 + cp1(ii,i)*vel(i+ii,j,k,3)
                  end do
                  
-                 nl(i,j,k,3) = dd1*pp(i,j,k)
+                 nlW(i,j,k) = dd1*pp(i,j,k)
               end do
            end do
         end do
@@ -3071,7 +3070,7 @@ module cmod_operator
                  end do
               end if
               
-              nl(i,j,k,3) = nl(i,j,k,3) + dd1*pp(i,j,k)
+              nlW(i,j,k) = nlW(i,j,k) + dd1*pp(i,j,k)
            end do
         end do
      end do
@@ -3082,7 +3081,7 @@ module cmod_operator
            do j = S23, N23
 !pgi$ unroll = n:8
               do i = S13, N13
-                 nl(i,j,k,3) = nl(i,j,k,3) + pp(i,j,k)*rr(i,j,k)*dx2pM(j)
+                 nlW(i,j,k) = nlW(i,j,k) + pp(i,j,k)*rr(i,j,k)*dx2pM(j)
               end do
            end do
         end do
@@ -3096,7 +3095,7 @@ module cmod_operator
                     dd1 = dd1 + cp2(jj,j)*vel(i,j+jj,k,3)
                  end do
                  
-                 nl(i,j,k,3) = nl(i,j,k,3) + dd1*pp(i,j,k)
+                 nlW(i,j,k) = nlW(i,j,k) + dd1*pp(i,j,k)
               end do
            end do
         end do
@@ -3128,7 +3127,7 @@ module cmod_operator
                  end do
               end if
               
-              nl(i,j,k,3) = nl(i,j,k,3) + dd1*pp(i,j,k)
+              nlW(i,j,k) = nlW(i,j,k) + dd1*pp(i,j,k)
            end do
         end do
      end do
@@ -3139,7 +3138,7 @@ module cmod_operator
            do j = S23, N23
 !pgi$ unroll = n:8
               do i = S13, N13
-                 nl(i,j,k,3) = nl(i,j,k,3) + pp(i,j,k)*rr(i,j,k)*dx3wM(k)
+                 nlW(i,j,k) = nlW(i,j,k) + pp(i,j,k)*rr(i,j,k)*dx3wM(k)
               end do
            end do
         end do
@@ -3153,7 +3152,7 @@ module cmod_operator
                     dd1 = dd1 + cw3(kk,k)*vel(i,j,k+kk,3)
                  end do
                  
-                 nl(i,j,k,3) = nl(i,j,k,3) + dd1*pp(i,j,k)
+                 nlW(i,j,k) = nlW(i,j,k) + dd1*pp(i,j,k)
               end do
            end do
         end do
@@ -3162,9 +3161,9 @@ module cmod_operator
   !===========================================================================================================
   end if
   
-  nlU(S11:N11,S21:N21,S31:N31) = nl(S11:N11,S21:N21,S31:N31,1)
-  nlV(S12:N12,S22:N22,S32:N32) = nl(S12:N12,S22:N22,S32:N32,2)
-  nlW(S13:N13,S23:N23,S33:N33) = nl(S13:N13,S23:N23,S33:N33,3)
+!  nlU(S11:N11,S21:N21,S31:N31) = nl(S11:N11,S21:N21,S31:N31,1)
+!  nlV(S12:N12,S22:N22,S32:N32) = nl(S12:N12,S22:N22,S32:N32,2)
+!  nlW(S13:N13,S23:N23,S33:N33) = nl(S13:N13,S23:N23,S33:N33,3)
   
   end subroutine nonlinear
   

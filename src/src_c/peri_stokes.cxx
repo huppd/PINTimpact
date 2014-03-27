@@ -225,23 +225,23 @@ int main(int argi, char** argv ) {
 	}
 	case 2: {
 	  auto solverParams = Pimpact::createLinSolverParameter( "CG", 1.e-7*l1*l2/n1/n2/1000 );
-	  solverParams->get()->set ("Verbosity", int( Belos::Errors) );
+	  solverParams->set ("Verbosity", int( Belos::Errors) );
 	  auto op = Pimpact::createMultiModeOperatorBase<MVF,Pimpact::Helmholtz<S,O> >( Pimpact::createHelmholtz<S,O>( 0., 1./re ) );
 	// Create the Pimpact::LinearSolver solver.
 	  auto prob =
 	      Pimpact::createLinearProblem<MVF>(
 	          op,
 	          fu,
-	          fu, solverParams->get(),"CG" );
+	          fu, solverParams, "CG" );
 
 	  lprec = Pimpact::createOperatorBase< MVF, Pimpact::InverseOperator<MVF> >( Pimpact::createInverseOperator<MVF>( prob ) );
 	  break;
 	}
 	case 3: {
-	  auto solverParams = Pimpact::createLinSolverParameter( "CG", 1.e-7*l1*l2/n1/n2/1000 )->get();
+	  auto solverParams = Pimpact::createLinSolverParameter( "CG", 1.e-7*l1*l2/n1/n2/1000 );
 	  solverParams->set ("Verbosity", int( Belos::Errors) );
 	  auto A = Pimpact::createMultiModeOperatorBase<MVF,Pimpact::Helmholtz<S,O> >( Pimpact::createHelmholtz<S,O>( omega, 1./re ) );
-	  auto prob2 = Pimpact::createLinearProblem<MVF>( A, fu->clone(), fu->clone(), solverParams,"CG" );
+	  auto prob2 = Pimpact::createLinearProblem<MVF>( A, fu->clone(), fu->clone(), solverParams, "CG" );
 	  auto op2 = Pimpact::createEddyPrec<S,O>( fu->clone(), prob2 ) ;
 	  lprec = Pimpact::createMultiOperatorBase<MVF,Pimpact::EddyPrec<S,O> >( op2 );
 	  break;
@@ -268,15 +268,15 @@ int main(int argi, char** argv ) {
 	// create parameter for linsovlers
 	auto solverParams = Pimpact::createLinSolverParameter( solver_name_1, 1.e-7*l1*l2/n1/n2 );
 
-	solverParams->get()->set ("Output Stream", outLap1 );
+	solverParams->set ("Output Stream", outLap1 );
 	if(precType==0)
-	  solverParams->get()->set( "Num Blocks", 100 );
+	  solverParams->set( "Num Blocks", 100 );
 //
-	Teuchos::writeParameterListToXmlFile( *solverParams->get(), "para_solver.xml" );
+	Teuchos::writeParameterListToXmlFile( *solverParams, "para_solver.xml" );
 
 
 	// create problems/solvers
-	auto lap_problem = Pimpact::createLinearProblem<MVF>( dtlap, u, fu, solverParams->get(), solver_name_1 );
+	auto lap_problem = Pimpact::createLinearProblem<MVF>( dtlap, u, fu, solverParams, solver_name_1 );
 	lap_problem->setLeftPrec( lprec );
 
 	auto schur =
@@ -284,10 +284,10 @@ int main(int argi, char** argv ) {
 	        Pimpact::createDivOpGrad<S,O>( u, lap_problem ) );
 
 	solverParams = Pimpact::createLinSolverParameter( solver_name_2, 1.e-7*l1*l2/n1/n2  );
-	solverParams->get()->set( "Output Stream", outSchur );
-	solverParams->get()->set( "Num Blocks", 100 );
+	solverParams->set( "Output Stream", outSchur );
+	solverParams->set( "Num Blocks", 100 );
 
-	auto schur_prob = Pimpact::createLinearProblem<MSF>( schur, p,temps, solverParams->get(), solver_name_2);
+	auto schur_prob = Pimpact::createLinearProblem<MSF>( schur, p,temps, solverParams, solver_name_2);
 
 	// solve stationary stokes
 	lap_problem->solve( tempv, fu );
@@ -298,9 +298,9 @@ int main(int argi, char** argv ) {
   temps->add( -1., *fp, 1., *temps );
 
 	solverParams = Pimpact::createLinSolverParameter( solver_name_1, 1.e-7*l1*l2/n1/n2 );
-	solverParams->get()->set( "Output Stream", outLap2 );
-	solverParams->get()->set ("Verbosity", int( Belos::Errors) );
-	lap_problem->setParameters( solverParams->get() );
+	solverParams->set( "Output Stream", outLap2 );
+	solverParams->set("Verbosity", int( Belos::Errors) );
+	lap_problem->setParameters( solverParams );
 	schur_prob->solve( p, temps );
 	p->write();
 
@@ -309,11 +309,11 @@ int main(int argi, char** argv ) {
 
 	tempv->add( -1., *tempv, 1., *fu );
 
-	solverParams->get()->set ("Verbosity",  Belos::Errors + Belos::Warnings + Belos::IterationDetails +
+	solverParams->set ("Verbosity",  Belos::Errors + Belos::Warnings + Belos::IterationDetails +
 			Belos::OrthoDetails + Belos::FinalSummary +	Belos::TimingDetails +
 			Belos::StatusTestDetails + Belos::Debug );
-	solverParams->get()->set( "Output Stream", outLap2 );
-	lap_problem->setParameters( solverParams->get() );
+	solverParams->set( "Output Stream", outLap2 );
+	lap_problem->setParameters( solverParams );
 
 	lap_problem->solve(u,tempv);
 

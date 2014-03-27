@@ -25,27 +25,21 @@ namespace Pimpact {
 template<class VField, class SField>
 class CompoundField {
 
-//	template<class S1, class O1>
-//	friend class Grad;
-//	template<class S1,class O1>
-//	friend class Div;
-//	template<class S1,class O1>
-//	friend class Helmholtz;
-
 public:
+
 	typedef typename VField::Scalar Scalar;
 	typedef typename VField::Ordinal Ordinal;
 
 private:
 
-//	using Teuchos::RCP;
-//	typedef Scalar* ScalarArray;
 	typedef CompoundField<VField,SField> MV;
 
 public:
+
 	CompoundField(): vfield_(Teuchos::null),sfield_(Teuchos::null) {};
 
 	CompoundField( const Teuchos::RCP<VField>& vfield, const Teuchos::RCP<SField>& sfield):vfield_(vfield),sfield_(sfield) {};
+
 
 	/// \brief copy constructor.
 	///
@@ -114,47 +108,38 @@ public:
   }
 
 
-  /**
-    * \brief Put element-wise reciprocal of source vector \c y into this vector.
-    *
-    * Here x represents this vector, and we update it as
-    * \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
-    * \return Reference to this object
-    * \todo implement me
-    */
+   /// \brief Put element-wise reciprocal of source vector \c y into this vector.
+   ///
+   /// Here x represents this vector, and we update it as
+   /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
+   /// \return Reference to this object
    void reciprocal(const MV& y){
       vfield_->reciprocal( *y.vfield_ );
       sfield_->reciprocal( *y.sfield_ );
    }
 
 
-	/**
-	 * \brief Scale each element of the vectors in \c this with \c alpha.
-	 */
+	/// \brief Scale each element of the vectors in \c this with \c alpha.
 	void scale( const Scalar& alpha ) {
 		vfield_->scale(alpha);
 		sfield_->scale(alpha);
 	}
 
 
-  /**
-   * \brief Scale this vector <em>element-by-element</em> by the vector a.
-   *
-   * Here x represents this vector, and we update it as
-   * \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
-   * \return Reference to this object
-   * \todo implement me
-   */
+  /// \brief Scale this vector <em>element-by-element</em> by the vector a.
+  ///
+  /// Here x represents this vector, and we update it as
+  /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
+  /// \return Reference to this object
+  /// \todo implement me
   void scale(const MV& a) {
 		vfield_->scale( *a.vfield_ );
 		sfield_->scale( *a.sfield_ );
   }
 
 
-	/**
-	 * \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
-	 * \todo has to be redone
-	 */
+	/// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
+	/// \todo has to be redone
 	Scalar dot ( const MV& a ) const {
 		return( vfield_->dot( *a.vfield_ ) + sfield_->dot( *a.sfield_ ) );
 	}
@@ -191,28 +176,22 @@ public:
   /// \name Initialization methods
   //@{
 
-  /**
-   * \brief mv := A
-   * Assign (deep copy) A into mv.
-   */
+  /// \brief mv := A
+  /// Assign (deep copy) A into mv.
   void assign( const MV& a ) {
   	vfield_->assign(*a.vfield_);
   	sfield_->assign(*a.sfield_);
   }
 
 
-  /**
-   * \brief Replace the vectors with a random vectors.
-   */
+  /// \brief Replace the vectors with a random vectors.
   void random(bool useSeed = false, int seed = 1) {
   	vfield_->random();
   	sfield_->random();
   }
 
 
-  /**
-   * \brief Replace each element of the vector  with \c alpha.
-   */
+  /// \brief Replace each element of the vector  with \c alpha.
   void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero() ) {
   	vfield_->init(alpha);
   	sfield_->init(alpha);

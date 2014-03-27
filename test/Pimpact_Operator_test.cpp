@@ -345,7 +345,7 @@ TEUCHOS_UNIT_TEST( Operator, InverseOperator ) {
   auto op = Pimpact::createMultiModeOperatorBase<BVF,Op>();
 
   // Make an empty new parameter list.
-  auto solverParams = Pimpact::createLinSolverParameter( "CG", 1.e-1 )->get();
+  auto solverParams = Pimpact::createLinSolverParameter( "CG", 1.e-1 );
 
   // Create the Pimpact::LinearSolver solver.
   auto prob =
@@ -388,7 +388,7 @@ TEUCHOS_UNIT_TEST( Operator, DivOpGrad ) {
   B->random();
 
   // Make an empty new parameter list.
-  RCP<ParameterList> solverParams = Pimpact::createLinSolverParameter("GMRES",1.e-1)->get();
+  RCP<ParameterList> solverParams = Pimpact::createLinSolverParameter("GMRES",1.e-1);
 
   // Create the Pimpact::LinearSolver solver.
   auto A = Pimpact::createMultiOperatorBase<MVF,Op>( Pimpact::createDtL<S,O>(14.,0.,1.) );
@@ -431,7 +431,7 @@ TEUCHOS_UNIT_TEST( Operator, EddyPrec ) {
   B->random();
 
   // Make an empty new parameter list.
-  RCP<ParameterList> solverParams = Pimpact::createLinSolverParameter("CG",1.e-1)->get();
+  RCP<ParameterList> solverParams = Pimpact::createLinSolverParameter("CG",1.e-1);
 
   // Create the Pimpact::LinearSolver solver.
   auto A = Pimpact::createMultiModeOperatorBase<MVF,Op>( Pimpact::createHelmholtz<S,O>(14.,1.) );

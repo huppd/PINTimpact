@@ -199,12 +199,12 @@ int main(int argi, char** argv ) {
 	tempv->getField(0).initField( Pimpact::ZeroProf );
 
 	// solve parameter for GMRES
-	RCP<ParameterList> solveParaGMRES = Pimpact::createLinSolverParameter( "GMRES", 1.0e-16 )->get();
+	RCP<ParameterList> solveParaGMRES = Pimpact::createLinSolverParameter( "GMRES", 1.0e-16 );
 
 	Teuchos::writeParameterListToXmlFile( *solveParaGMRES, "para_solverGMRES.xml" );
 
 	// solve parameter for CG
-	RCP<ParameterList> solveParaCG = Pimpact::createLinSolverParameter( "GMRES", 1.e-16 )->get();
+	RCP<ParameterList> solveParaCG = Pimpact::createLinSolverParameter( "GMRES", 1.e-16 );
 
 	Teuchos::writeParameterListToXmlFile( *solveParaCG, "para_solverCG.xml" );
 

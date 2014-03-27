@@ -76,17 +76,17 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, createGroup ) {
   // Make an empty new parameter list.
   auto solverName = "GMRES";
   auto solverParams = Pimpact::createLinSolverParameter( solverName, 1.e-1 );
-  solverParams->get()->set ("Verbosity",  Belos::Errors );
+  solverParams->set ("Verbosity",  Belos::Errors );
 
 // Create the Pimpact::LinearSolver solver.
   auto lp_DTL = Pimpact::createLinearProblem<Interface::BVF>(
-      dtL, xv->clone(), xv->clone(), solverParams->get(), solverName );
+      dtL, xv->clone(), xv->clone(), solverParams, solverName );
 
   auto schur = Pimpact::createMultiOperatorBase< BMSF, Pimpact::DivDtLinvGrad<S,O> >(
       Pimpact::createDivDtLinvGrad<S,O>( xv->clone(), lp_DTL ) );
 
   auto lp_Schur = Pimpact::createLinearProblem<Interface::BSF>(
-      schur, xs->clone(), xs->clone(), solverParams->get(), solverName );
+      schur, xs->clone(), xs->clone(), solverParams, solverName );
 
   auto stockie = NOX::Pimpact::createLinearStokes(xv->clone(),xs->clone(),lp_DTL,lp_Schur);
 
@@ -128,17 +128,17 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, computeF ) {
   // Make an empty new parameter list.
   auto solverName = "GMRES";
   auto solverParams = Pimpact::createLinSolverParameter( solverName, 1.e-1 );
-  solverParams->get()->set ("Verbosity",  Belos::Errors );
+  solverParams->set ("Verbosity",  Belos::Errors );
 
 // Create the Pimpact::LinearSolver solver.
   auto lp_DTL = Pimpact::createLinearProblem<Interface::BVF>(
-      dtL, xv->clone(), xv->clone(), solverParams->get(), solverName );
+      dtL, xv->clone(), xv->clone(), solverParams, solverName );
 
   auto schur = Pimpact::createMultiOperatorBase< BMSF, Pimpact::DivDtLinvGrad<S,O> >(
       Pimpact::createDivDtLinvGrad<S,O>( xv->clone(), lp_DTL ) );
 
   auto lp_Schur = Pimpact::createLinearProblem<Interface::BSF>(
-      schur, xs->clone(), xs->clone(), solverParams->get(), solverName );
+      schur, xs->clone(), xs->clone(), solverParams, solverName );
 
   auto stockie = NOX::Pimpact::createLinearStokes(xv->clone(),xs->clone(),lp_DTL,lp_Schur);
 
