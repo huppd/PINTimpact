@@ -584,9 +584,9 @@ module mod_exchange
   ! Anmerkungen: - [Sij,Nij] ist Untermenge von [Sip,Nip]                                                               !
   !              - [Sip,Nip] ist Untermenge von [1,Ni]                                                                  !
   !              - [1,Ni] hat den Vorteil, dass Intervallgrenzen fest einprogrammiert sind,                             !
-  !                was prinzipiell zu einem Vorteil bei der Effizienz f�hren sollte.                                    !
+  !                was prinzipiell zu einem Vorteil bei der Effizienz führen sollte.                                    !
   !              - Bei Spiegelung muss die zur Spiegelungsebene orthogonale Geschwindigkeitskomponente auch im          !
-  !                Vorzeichen gespiegelt werden, da die Spiegelungsebene nicht durchstr�mt werden kann!.                !
+  !                Vorzeichen gespiegelt werden, da die Spiegelungsebene nicht durchströmt werden kann!.                !
   !              - Alle Kopier-Schleifen sind ausgeschrieben, da der PGI-Compiler ansonsten keine Vektorisierung bzw.   !
   !                kein Prefetch einbaut.                                                                               !
   !---------------------------------------------------------------------------------------------------------------------!
@@ -887,23 +887,23 @@ module mod_exchange
   
   
   !---------------------------------------------------------------------------------------------------------------------!
-  ! Anmerkungen: - Intervallgrenzen sind der Einfachheit halber analog zu exchange gew�hlt.                             !
+  ! Anmerkungen: - Intervallgrenzen sind der Einfachheit halber analog zu exchange gewählt.                             !
   !              - Im Fall von Symmetrie-RB muss IMMER entsprechend oben und/oder unten gespiegelt werden.              !
   !              - Die Spiegelung wird anstelle einer Koeffizienten-Manipulation vorgenommen, da ansonsten auch in den  !
-  !                Grob-Gitter-Routinen die Punkte ausserhalb der betrachteten Domain zu Null gesetzt werden m�ssten,   !
-  !                was im Endeffekt (vermutlich) der gleiche Aufwand w�re.                                              !
+  !                Grob-Gitter-Routinen die Punkte ausserhalb der betrachteten Domain zu Null gesetzt werden müssten,   !
+  !                was im Endeffekt (vermutlich) der gleiche Aufwand wäre.                                              !
   !              - Bei Spiegelung muss die zur Spiegelungsebene orthogonale Geschwindigkeitskomponente auch im          !
-  !                Vorzeichen gespiegelt werden, da die Spiegelungsebene nicht durchstr�mt werden kann!.                !
+  !                Vorzeichen gespiegelt werden, da die Spiegelungsebene nicht durchströmt werden kann!.                !
   !              - Die "vel_dir"-Variante wird ausschliesslich von allen Helmholtz-Operationen auf dem feinsten Gitter  !
   !                benutzt, INKL. Interpolation.                                                                        !
   !              - Bei Spiegelung (mirror_yes bzw. vel_dir) wird das Nullsetzen des Randes einer expliziten Behandlung  !
-  !                in den aufrufenden Routinen vorgezogen, da die Komplexit�t und der Programmieraufwand im Vergleich   !
+  !                in den aufrufenden Routinen vorgezogen, da die Komplexität und der Programmieraufwand im Vergleich   !
   !                zum Geschwindigkeitsgewinn zu gross erscheinen (im Gegensatz zum Poisson-Problem mit Neumann-RB, bei !
   !                dem am Rand kein Laplace-3d-Stencil sondern nur eine 1d-Ableitung vorkommt (!)).                     !
   !              - Die "mirror_yes"-Variante wird ausschliesslich von allen Helmholtz- und Poisson-Operationen benutzt, !
   !                OHNE Interpolation.                                                                                  !
   !              - In der ersten Richtungen kann der Compiler offenbar nicht vektorisieren und in der zweiten zudem     !
-  !                nicht unrollen. Der Grund daf�r ist nicht klar.                                                      !
+  !                nicht unrollen. Der Grund dafür ist nicht klar.                                                      !
   !---------------------------------------------------------------------------------------------------------------------!
   
   
@@ -1068,9 +1068,9 @@ module mod_exchange
   ! Anmerkungen: - [Sij,Nij] ist Untermenge von [Sip,Nip]                                                               !
   !              - [Sip,Nip] ist Untermenge von [1,Ni]                                                                  !
   !              - [1,Ni] hat den Vorteil, dass Intervallgrenzen fest einprogrammiert sind,                             !
-  !                was prinzipiell zu einem Vorteil bei der Effizienz f�hren sollte.                                    !
+  !                was prinzipiell zu einem Vorteil bei der Effizienz führen sollte.                                    !
   !              - Bei Spiegelung muss die zur Spiegelungsebene orthogonale Geschwindigkeitskomponente auch im          !
-  !                Vorzeichen gespiegelt werden, da die Spiegelungsebene nicht durchstr�mt werden kann!.                !
+  !                Vorzeichen gespiegelt werden, da die Spiegelungsebene nicht durchströmt werden kann!.                !
   !              - Alle Kopier-Schleifen sind ausgeschrieben, da der PGI-Compiler ansonsten keine Vektorisierung bzw.   !
   !                kein Prefetch einbaut.                                                                               !
   !---------------------------------------------------------------------------------------------------------------------!

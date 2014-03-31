@@ -255,8 +255,8 @@ protected:
 
 /// \brief creates a scalar/vector mode field(vector)
 ///
-/// \param sVS scalar Vector Space to which returned vector belongs
-/// \return field vector
+/// \param field0 scalar Vector Space to which returned vector belongs
+/// \return fields vector
 /// \relates MultiHarmonicField
 template<class Field>
 Teuchos::RCP< MultiHarmonicField<Field> > createMultiHarmonicField(
@@ -265,6 +265,7 @@ Teuchos::RCP< MultiHarmonicField<Field> > createMultiHarmonicField(
 	return Teuchos::rcp(
 				new MultiHarmonicField<Field>( field0, fields ) );
 }
+
 
 
 } // end of namespace Pimpact

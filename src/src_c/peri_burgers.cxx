@@ -37,6 +37,8 @@
 #include "NOX_Pimpact_Interface.hpp"
 #include "NOX_Pimpact_Group.hpp"
 
+#include "NOX_Pimpact_StatusTest.hpp"
+
 #include "NOX.H"
 
 
@@ -214,7 +216,7 @@ int main(int argi, char** argv ) {
   temp->init(0);
 
   auto force = x->getConstFieldPtr(0)->getConst0FieldPtr()->clone();
-  force->initField( Pimpact::BoundaryFilter1D );
+  force->initField( Pimpact::BoundaryFilter2D );
 
 //  auto op = Pimpact::createOperatorBase<MVF,Op>(
 //       Pimpact::createMultiOpWrap(
@@ -260,9 +262,11 @@ int main(int argi, char** argv ) {
 //  x ->getFieldPtr(0)->get0FieldPtr()->initField( Pimpact::RankineVortex2D );
 //  fu->getFieldPtr(0)->get0FieldPtr()->initField( Pimpact::ZeroProf );
 //  fu->getFieldPtr(0)->getCFieldPtr(1)->initField( Pimpact::BoundaryFilter1D );
-  fu->getFieldPtr(0)->getCFieldPtr(0)->initField( Pimpact::BoundaryFilter1D );
+  fu->getFieldPtr(0)->getCFieldPtr(0)->initField( Pimpact::GaussianForcing2D );
+  fu->getFieldPtr(0)->getCFieldPtr(0)->scale( *force );
   fu->getFieldPtr(0)->getCFieldPtr(0)->scale( -1 );
-  fu->getFieldPtr(0)->get0FieldPtr()->initField( Pimpact::BoundaryFilter1D );
+  fu->getFieldPtr(0)->get0FieldPtr()->initField( Pimpact::BoundaryFilter2D );
+//  fu->getFieldPtr(0)->get0FieldPtr()->scale( *force );
   fu->scale( 0.5 );
 //  fu->getFieldPtr(0)->get0FieldPtr()->initField( Pimpact::GaussianForcing2D );
 //  fu->scale(re);
@@ -295,18 +299,7 @@ int main(int argi, char** argv ) {
 
 
    // Set up the status tests
-   Teuchos::RCP<NOX::StatusTest::NormF> statusTestNormF =
-     Teuchos::rcp(new NOX::StatusTest::NormF( 1.0e-6/n1 ) );
-   Teuchos::RCP<NOX::StatusTest::MaxIters> statusTestMaxIters =
-     Teuchos::rcp(new NOX::StatusTest::MaxIters( 10 ) );
-   Teuchos::RCP<NOX::StatusTest::NormUpdate> statusTestNormUpdate =
-     Teuchos::rcp(new NOX::StatusTest::NormUpdate( tol/n1/10,  NOX::Abstract::Vector::TwoNorm ) );
-   Teuchos::RCP<NOX::StatusTest::Combo> statusTestsCombo =
-     Teuchos::rcp(new NOX::StatusTest::Combo( NOX::StatusTest::Combo::OR,
-     Teuchos::rcp(new NOX::StatusTest::Combo( NOX::StatusTest::Combo::OR,
-                                             statusTestNormF,
-                                             statusTestMaxIters) ),
-         statusTestNormUpdate ) ) ;
+   auto statusTest = NOX::Pimpact::createStatusTest();
 
    // Create the list of solver parameters
    Teuchos::RCP<Teuchos::ParameterList> solverParametersPtr =
@@ -335,7 +328,7 @@ int main(int argi, char** argv ) {
 
   // Create the solver
   Teuchos::RCP<NOX::Solver::Generic> solver =
-      NOX::Solver::buildSolver( group, statusTestsCombo, solverParametersPtr);
+      NOX::Solver::buildSolver( group, statusTest, solverParametersPtr);
 
   // Solve the nonlinear system
   NOX::StatusTest::StatusType status = solver->solve();

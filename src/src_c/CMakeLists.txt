@@ -3,7 +3,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 include_directories("./Fields")
 include_directories("./Operators")
-include_directories("./NOX_Interfaces")
+include_directories("./NOX_Pimpact")
 
  
 # For a large number of source files you can create it in a simpler way

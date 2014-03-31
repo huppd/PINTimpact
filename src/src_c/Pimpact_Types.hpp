@@ -16,15 +16,18 @@ namespace Pimpact {
 	  ShallowCopy };
 
 
-	enum EFlowProfile { ZeroProf=0,
-			Poiseuille2D_inX=1, Poiseuille2D_inY=2,
-			Pulsatile2D_inXC=3, Pulsatile2D_inXS=5,
-			Pulsatile2D_inYC=4, Pulsatile2D_inYS=6,
-			Streaming2D=7,
-			Circle2D=8,
-			RankineVortex2D=9,
-			GaussianForcing1D=10,
-			BoundaryFilter1D=11
+	enum EFlowProfile {
+	  ZeroProf=0,
+		Poiseuille2D_inX=1, Poiseuille2D_inY=2,
+		Pulsatile2D_inXC=3, Pulsatile2D_inXS=5,
+		Pulsatile2D_inYC=4, Pulsatile2D_inYS=6,
+		Streaming2D=7,
+		Circle2D=8,
+		RankineVortex2D=9,
+		GaussianForcing1D=10,
+		BoundaryFilter1D=11,
+		GaussianForcing2D=12,
+		BoundaryFilter2D=13
 	};
 
 	enum EFlowType { Zero2DFlow = 0,

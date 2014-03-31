@@ -2591,6 +2591,7 @@ module cmod_operator
   !! \test Teile davon (nur zentrale Operationen!) koennten jeweils durch interpolate2_pre_vel/interpolate2_vel_pre, first_adv_pre/first_adv_vel
   !!         ersetzt werden (beachte aber Addition von nl!)
   !! \test umbenennen in advect... (?)
+  !! \relates Pimpact::Nonlinear
   subroutine nonlinear( exch_yes, phi1U,phi1V,phi1W, phi2U,phi2V,phi2W, nlU,nlV,nlW ) bind (c,name='OP_nonlinear')
   
   implicit none
