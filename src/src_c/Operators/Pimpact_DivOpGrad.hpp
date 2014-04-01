@@ -5,6 +5,7 @@
 #include "Teuchos_RCP.hpp"
 
 #include "Pimpact_ScalarField.hpp"
+#include "Pimpact_ModeField.hpp"
 
 #include "Pimpact_Operator.hpp"
 #include "Pimpact_OperatorBase.hpp"

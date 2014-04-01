@@ -34,16 +34,20 @@ public:
   typedef VectorField<Scalar,Ordinal>  DomainFieldT;
   typedef VectorField<Scalar,Ordinal>  RangeFieldT;
 
-private:
+protected:
 
   Teuchos::RCP<DomainFieldT> u_;
   Teuchos::RCP<DomainFieldT> temp_;
 
+  const bool& isNewton_;
+
 public:
 
-  NonlinearJacobian():u_(Teuchos::null) {};
-  NonlinearJacobian( const Teuchos::RCP<DomainFieldT>& u ):
-    u_(u->clone()),temp_(u->clone()) {};
+  NonlinearJacobian( const bool& isNewton=true ):
+    u_(Teuchos::null), temp_(Teuchos::null), isNewton_(isNewton) {};
+
+  NonlinearJacobian( const Teuchos::RCP<DomainFieldT>& u, const bool& isNewton=true ):
+    u_(u->clone()), temp_(u->clone()), isNewton_(isNewton) {};
 
   void assignField( const DomainFieldT& mv ) {
     if( Teuchos::is_null( u_ ) )
@@ -53,20 +57,34 @@ public:
   };
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
-    OP_nonlinear( true,
-        u_->   vec_[0], u_->   vec_[1], u_->   vec_[2],
-        x.     vec_[0], x.     vec_[1], x.     vec_[2],
-        temp_->vec_[0], temp_->vec_[1], temp_->vec_[2] );
 
-    OP_nonlinear( true,
-        x.  vec_[0], x.  vec_[1], x.  vec_[2],
-        u_->vec_[0], u_->vec_[1], u_->vec_[2],
-        y.  vec_[0], y.  vec_[1], y.  vec_[2] );
+    if( isNewton_ ) {
 
-    y.add( 1., *temp_, 1., y );
+      OP_nonlinear( true,
+          u_->   vec_[0], u_->   vec_[1], u_->   vec_[2],
+          x.     vec_[0], x.     vec_[1], x.     vec_[2],
+          temp_->vec_[0], temp_->vec_[1], temp_->vec_[2] );
+
+      OP_nonlinear( true,
+          x.  vec_[0], x.  vec_[1], x.  vec_[2],
+          u_->vec_[0], u_->vec_[1], u_->vec_[2],
+          y.  vec_[0], y.  vec_[1], y.  vec_[2] );
+
+      y.add( 1., *temp_, 1., y );
+
+    }
+    else {
+
+      OP_nonlinear( true,
+          u_->vec_[0], u_->vec_[1], u_->vec_[2],
+          x.  vec_[0], x.  vec_[1], x.  vec_[2],
+          y.  vec_[0], y.  vec_[1], y.  vec_[2] );
+
+    }
   }
 
   bool hasApplyTranspose() const { return( false ); }
+
 
 }; // end of class NonlinearJacobian
 
@@ -75,11 +93,14 @@ public:
 /// \relates NonlinearJacobian
 template< class S, class O>
 Teuchos::RCP<NonlinearJacobian<S,O> > createNonlinearJacobian(
-    const Teuchos::RCP<typename NonlinearJacobian<S,O>::DomainFieldT>& u = Teuchos::null ) {
+    const Teuchos::RCP<typename NonlinearJacobian<S,O>::DomainFieldT>& u = Teuchos::null,
+    const bool& isNewton=true ) {
+
   if( Teuchos::is_null(u) )
-    return( Teuchos::rcp( new NonlinearJacobian<S,O>() ) );
+    return( Teuchos::rcp( new NonlinearJacobian<S,O>( isNewton ) ) );
   else
-    return( Teuchos::rcp( new NonlinearJacobian<S,O>( u ) ) );
+    return( Teuchos::rcp( new NonlinearJacobian<S,O>( u, isNewton ) ) );
+
 }
 
 

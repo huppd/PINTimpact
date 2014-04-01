@@ -5,30 +5,22 @@
 #include "NOX_Common.H"
 #include "Teuchos_RCP.hpp"
 
-//#include "Pimpact_VectorField.hpp"
-//#include "Pimpact_ScalarField.hpp"
-//#include "Pimpact_ModeField.hpp"
-//#include "Pimpact_CompoundField.hpp"
 
 #include "Pimpact_MultiField.hpp"
 
-//#include "Pimpact_Operator.hpp"
 #include "Pimpact_OperatorBase.hpp"
 #include "Pimpact_LinearProblem.hpp"
-
 
 
 
 namespace NOX {
 namespace Pimpact {
 
-/**
- * \brief Provides a set of interfaces for users to provide information about the nonlinear problem to NOX.
- * Contains interfaces for the user to supply
- * (1) the evaluation of the nonlinear equations,
- * (2) the Jacobian, and
- * (3) any preconditioning if required.
- */
+/// \brief Provides a set of interfaces for users to provide information about the nonlinear problem to NOX.
+/// Contains interfaces for the user to supply
+/// (1) the evaluation of the nonlinear equations,
+/// (2) the Jacobian, and
+/// (3) any preconditioning if required.
 
 /// \brief Supplies NOX with the set nonlinear equations.
 ///
@@ -80,7 +72,7 @@ public:
   ~Interface() {};
 
 
-  /// Compute the function, F, given the specified input vector x. Returns true if computation was successful.
+  /// Compute the function, F, given the specified input vector x.
   NOX::Abstract::Group::ReturnType computeF(const Field& x, Field& f ) {
     op_->apply( x, f );
     f.add( 1., f, -1., *fu_ );
@@ -88,8 +80,7 @@ public:
   }
 
 
-  /// \brief Compute the Jacobian Operator, given the specified input vector x. Returns true if computation was successful.
-  /// \todo biggest baustelle unify this for \c Operators
+  /// \brief Compute the Jacobian Operator, given the specified input vector x.
   NOX::Abstract::Group::ReturnType computeJacobian( const Field& x ) {
     auto opJ = jop_->getProblem()->getOperator();
     Teuchos::rcp_const_cast<Op>(opJ)->assignField( x );

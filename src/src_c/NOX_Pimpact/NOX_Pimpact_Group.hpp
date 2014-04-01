@@ -4,40 +4,15 @@
 
 #include "NOX_Abstract_Group.H"   // base class
 #include "NOX_Pimpact_Vector.hpp" // class data element
-#include "NOX_Utils.H"          // class data element
-#include "NOX_Common.H"         // class data element (std::string)
-//#include "NOX_Epetra_LinearSystem.H"  // class data element
+#include "NOX_Utils.H"            // class data element
+#include "NOX_Common.H"           // class data element (std::string)
+
 #include "NOX_SharedObjectTemplate.H"  // class data element
 #include "Teuchos_RCP.hpp"  // class data element
 
 #include "BelosTypes.hpp"
 
-//#include "Teuchos_ParameterList.hpp"
-//#include "NOX_Utils.H"
-//#include "NOX_Epetra_Interface_Required.H"
-//#include "Epetra_Vector.h"
-//#include "Epetra_Operator.h"
-//#include "AztecOO_ConditionNumber.h"
 
-// Forward declares
-//namespace NOX {
-//  namespace Epetra {
-//    class Scaling;
-//    namespace Interface {
-//      class Required;
-//    }
-//  }
-//  namespace Parameter {
-//    class List;
-//  }
-//}
-//class Epetra_Vector;
-//class Epetra_Operator;
-//class Epetra_RowMatrix;
-//class AztecOO;
-//class AztecOOConditionNumber;
-//class Ifpack_IlukGraph;
-//class Ifpack_CrsRiluk;
 
 namespace NOX {
 namespace Pimpact  {
@@ -60,7 +35,7 @@ protected:
   /// Printing Utilities object
   const NOX::Utils utils;
 
-  /** @name Vectors */
+  /// @name Vectors
   //@{
   /// Solution vector pointer.
   Teuchos::RCP<Vector> xVectorPtr;
@@ -82,12 +57,10 @@ protected:
   mutable Teuchos::RCP<Vector> tmpVectorPtr;
 
   //@}
-  /**
-   * \name IsValid flags
-   *
-   * True if the current solution is up-to-date with respect to the
-   * currect xVector.
-   */
+  /// \name IsValid flags
+  ///
+  /// True if the current solution is up-to-date with respect to the
+  /// currect xVector.
   //@{
 
   bool isValidRHS;
@@ -109,7 +82,7 @@ protected:
 //  /// Pointer to the condition number object.
 //  Teuchos::RCP<AztecOOConditionNumber> azConditionNumberPtr;
 
-  /** @name Shared Operators */
+  /// @name Shared Operators
   //@{
   /// Pointer to shared Interface
   Teuchos::RCP<
@@ -309,7 +282,7 @@ public:
   }
 
 
-  /** @name "Compute" functions. */
+  /// \name "Compute" functions.
   //@{
 
   virtual void setX(const Vector& y) {
@@ -576,8 +549,8 @@ public:
           const Vector& input,
           Vector& result) const {
 
-    params.print();
-    std::cout << "Call applyRightPrecon.... !!!!!!\n";
+//    params.print();
+//    std::cout << "Call applyRightPrecon.... !!!!!!\n";
 
     return( sharedInterfacePtr->getObject(this)->applyPreconditioner( xVector.getField(), RHSVector.getField() ) );
 

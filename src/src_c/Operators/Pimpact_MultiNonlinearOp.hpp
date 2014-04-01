@@ -44,6 +44,8 @@ public:
   void assignField( const DomainFieldT& mv ) {
   };
 
+protected:
+
   void apply(const DomainFieldT& x, const DomainFieldT& y, RangeFieldT& z) const {
     int Nf = x.getNumberModes();
     z.init( 0. );
@@ -129,6 +131,7 @@ public:
     }
   }
 
+public:
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
     apply(x,x,y);

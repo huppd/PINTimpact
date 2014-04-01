@@ -47,8 +47,9 @@ Teuchos::RCP<NOX::StatusTest::Generic> createStatusTest( int maxI=10, double tol
 //  normWRMS.set( "Alpha", 1.0 );
 //  normWRMS.set( "Beta", 0.5 );
   normUpdate.set( "Test Type", "NormUpdate" );
-  normUpdate.set( "Norm Type", "One Norm" );
-  normUpdate.set( "Scale Type", "Scaled" );
+  normUpdate.set( "Tolerance", tolUpdate );
+  normUpdate.set( "Norm Type", "Two Norm" );
+  normUpdate.set( "Scale Type", "Unscaled" );
 //  userDefined.set("Test Type", "User Defined");
 //  Teuchos::RCP<NOX::StatusTest::Generic> myTest =
 //      Teuchos::rcp(new MyTest(1.0e-3));
@@ -75,8 +76,8 @@ Teuchos::RCP<NOX::StatusTest::Generic> createStatusTest( int maxI=10, double tol
 
 
 Teuchos::RCP<Teuchos::ParameterList> createNOXSolverParameter(
-    const std::string& solverName = "Nonlinear CG",
-    const std::string& lineSearchName = "Backtrack" ) {
+    const std::string& solverName = "NonlinearCG",
+    const std::string& lineSearchName = "NonlinearCG" ) {
 
   auto solverParametersPtr = Teuchos::parameterList( solverName );
   solverParametersPtr->set("Nonlinear Solver", "Line Search Based");
@@ -85,11 +86,10 @@ Teuchos::RCP<Teuchos::ParameterList> createNOXSolverParameter(
   Teuchos::ParameterList&  sl = solverParametersPtr->sublist("Direction");
   sl.set( "Method", solverName );
 
-  if( solverName=="Nonlinear CG" ) {
+  if( solverName=="NonlinearCG" ) {
     Teuchos::ParameterList&  sll = sl.sublist("Nonlinear CG");
     sll.set( "Precondition", "On" );
-    sll.set( "Restart Frequency", 10  );
-
+//    sll.set( "Restart Frequency", 10  );
   }
 
 
@@ -98,9 +98,10 @@ Teuchos::RCP<Teuchos::ParameterList> createNOXSolverParameter(
   if( lineSearchName=="Backtrack" ) {
      lineSearchParameters.sublist("Backtrack").set( "Recovery Step", 1.e-6 );
   }
+  return( solverParametersPtr );
 
+} // end of createNOXSolverParameter
 
-}// end of createNOXSolverParameter
 
 } // end of namespace Pimpact
 } // end of namespace NOX

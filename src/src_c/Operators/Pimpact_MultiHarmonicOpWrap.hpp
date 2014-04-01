@@ -28,7 +28,7 @@ public:
 
   typedef MultiHarmonicField<typename Operator::DomainFieldT> DomainFieldT;
   typedef MultiHarmonicField<typename Operator::RangeFieldT> RangeFieldT;
-  typedef typename Operator::OpType OpType;
+//  typedef typename Operator::OpType OpType;
 
   MultiHarmonicOpWrap():op_( Teuchos::rcp( new Operator() ) ) {};
   MultiHarmonicOpWrap( const Teuchos::RCP<Operator>& op ):op_(op) {};

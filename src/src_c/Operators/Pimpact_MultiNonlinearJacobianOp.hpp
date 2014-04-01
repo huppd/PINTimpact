@@ -39,16 +39,15 @@ protected:
   Teuchos::RCP<DomainFieldT> u_;
   Teuchos::RCP<DomainFieldT> temp_;
 
+  const bool isNewton_;
+
 public:
 
   MultiHarmonicNonlinearJacobian(
-      const Teuchos::RCP<VectorField<S,O> >& temp=Teuchos::null, const Teuchos::RCP<DomainFieldT>& u=Teuchos::null  ):
-        MultiHarmonicNonlinear<S,O>(temp),u_(u),temp_(u->clone()) {};
-//        temp_(temp),
-//     op( Teuchos::rcp( new Nonlinear<S,O>() )) {};
-//  MultiHarmonicNonlinearJacobian():u_(Teuchos::null) {};
-//  MultiHarmonicNonlinearJacobian( const Teuchos::RCP<DomainFieldT>& u ):
-//    u_(u->clone()),temp_(u->clone()) {};
+      const Teuchos::RCP<VectorField<S,O> >& temp=Teuchos::null,
+      const Teuchos::RCP<DomainFieldT>& u=Teuchos::null,
+      const bool& isNewton=true ):
+        MultiHarmonicNonlinear<S,O>(temp),u_(u),temp_(u->clone()),isNewton_(isNewton) {};
 
   void assignField( const DomainFieldT& mv ) {
     if( Teuchos::is_null( u_ ) )
@@ -59,9 +58,14 @@ public:
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
 
-    MultiHarmonicNonlinear<S,O>::apply( *u_,  x,  *temp_ );
-    MultiHarmonicNonlinear<S,O>::apply(  x,  *u_, y );
-    y.add( 1., *temp_, 1., y );
+    if( isNewton_ ) {
+      MultiHarmonicNonlinear<S,O>::apply( *u_,  x,  *temp_ );
+      MultiHarmonicNonlinear<S,O>::apply(  x,  *u_, y );
+      y.add( 1., *temp_, 1., y );
+    }
+    else {
+      MultiHarmonicNonlinear<S,O>::apply( *u_,  x, y );
+    }
   }
 
   bool hasApplyTranspose() const { return( false ); }
@@ -74,11 +78,9 @@ public:
 template< class S, class O>
 Teuchos::RCP<MultiHarmonicNonlinearJacobian<S,O> > createMultiHarmonicNonlinearJacobian(
     const Teuchos::RCP< VectorField<S,O> >& temp = Teuchos::null,
-    const Teuchos::RCP< typename MultiHarmonicNonlinearJacobian<S,O>::DomainFieldT>& u = Teuchos::null ) {
-//  if( Teuchos::is_null(u) )
-//    return( Teuchos::rcp( new MultiHarmonicNonlinearJacobian<S,O>() ) );
-//  else
-    return( Teuchos::rcp( new MultiHarmonicNonlinearJacobian<S,O>( temp, u ) ) );
+    const Teuchos::RCP< typename MultiHarmonicNonlinearJacobian<S,O>::DomainFieldT>& u = Teuchos::null,
+    const bool& isNewton=true ) {
+  return( Teuchos::rcp( new MultiHarmonicNonlinearJacobian<S,O>( temp, u, isNewton ) ) );
 }
 
 
