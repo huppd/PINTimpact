@@ -70,8 +70,37 @@ Teuchos::RCP<NOX::StatusTest::Generic> createStatusTest( int maxI=10, double tol
 
   return( status_tests );
 
-} // end of create
+} // end of createStatusTest
 
+
+
+Teuchos::RCP<Teuchos::ParameterList> createNOXSolverParameter(
+    const std::string& solverName = "Nonlinear CG",
+    const std::string& lineSearchName = "Backtrack" ) {
+
+  auto solverParametersPtr = Teuchos::parameterList( solverName );
+  solverParametersPtr->set("Nonlinear Solver", "Line Search Based");
+
+  // Create the directions parameters sublist
+  Teuchos::ParameterList&  sl = solverParametersPtr->sublist("Direction");
+  sl.set( "Method", solverName );
+
+  if( solverName=="Nonlinear CG" ) {
+    Teuchos::ParameterList&  sll = sl.sublist("Nonlinear CG");
+    sll.set( "Precondition", "On" );
+    sll.set( "Restart Frequency", 10  );
+
+  }
+
+
+  Teuchos::ParameterList& lineSearchParameters = solverParametersPtr->sublist("Line Search");
+  lineSearchParameters.set( "Method", lineSearchName );
+  if( lineSearchName=="Backtrack" ) {
+     lineSearchParameters.sublist("Backtrack").set( "Recovery Step", 1.e-6 );
+  }
+
+
+}// end of createNOXSolverParameter
 
 } // end of namespace Pimpact
 } // end of namespace NOX

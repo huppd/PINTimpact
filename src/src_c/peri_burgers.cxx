@@ -303,28 +303,7 @@ int main(int argi, char** argv ) {
 
    // Create the list of solver parameters
    Teuchos::RCP<Teuchos::ParameterList> solverParametersPtr =
-     Teuchos::rcp(new Teuchos::ParameterList);
-
- //   Select the solver (this is the default)
- //  solverParametersPtr->set("Nonlinear Solver", "Line Search Based");
-
-   // Create the directions parameters sublist
- //  Teuchos::ParameterList&  sl = solverParametersPtr->sublist("Direction");
- //  sl.set("Method","NonlinearCG");
- //  Teuchos::ParameterList&  sll = sl.sublist("Nonlinear CG");
- //  sll.set( "Precondition", "On" );
- ////  sll.set( "Restart Frequency", 10  );
-
-   // Create the line search parameters sublist
- //  solverParametersPtr->sublist("Line Search").set("Method","Polynomial");
- //  solverParametersPtr->sublist("Line Search").set("Method","Backtrack");
-   Teuchos::ParameterList& lineSearchParameters = solverParametersPtr->sublist("Line Search");
-   lineSearchParameters.set("Method","Backtrack");
-   lineSearchParameters.sublist("Backtrack").set( "Recovery Step", tol );
-
-   // Set the line search method
- //  lineSearchParameters.set("Method","More'-Thuente");
-
+     NOX::Pimpact::createNOXSolverParameter();
 
   // Create the solver
   Teuchos::RCP<NOX::Solver::Generic> solver =
