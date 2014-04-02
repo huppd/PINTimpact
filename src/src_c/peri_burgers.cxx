@@ -66,7 +66,6 @@ int main(int argi, char** argv ) {
   typedef Pimpact::MultiHarmonicNonlinearJacobian<S,O>  JMAdv;
   typedef Pimpact::MultiHarmonicDiagNonlinearJacobian<S,O>  DJMAdv;
   typedef Pimpact::MultiHarmonicOpWrap< Pimpact::NonlinearJacobian<S,O> > JAdv;
-//  MultiHarmonicDiagNonlinearJacobian
 //  typedef Pimpact::MultiOpWrap< Pimpact::AddOp< Pimpact::AddOp<JMAdv,DtL>, Fo > > JOp;
 
 
@@ -164,15 +163,15 @@ int main(int argi, char** argv ) {
 
   // outputs
   Teuchos::RCP<std::ostream> outPar;
-  Teuchos::RCP<std::ostream> outLap1;
-  Teuchos::RCP<std::ostream> outLap2;
-  Teuchos::RCP<std::ostream> outSchur;
+  Teuchos::RCP<std::ostream> outLinSolve;
+//  Teuchos::RCP<std::ostream> outLap2;
+//  Teuchos::RCP<std::ostream> outSchur;
 
   if(rank==0) {
     outPar   = Teuchos::rcp( new std::ofstream("para_case.txt") );
-    outLap1  = Teuchos::rcp( new std::ofstream("stats_solvLap1.txt") );
-    outLap2  = Teuchos::rcp( new std::ofstream("stats_solvLap2.txt") );
-    outSchur = Teuchos::rcp( new std::ofstream("stats_solvSchur.txt") );
+    outLinSolve  = Teuchos::rcp( new std::ofstream("stats_linSolve.txt") );
+//    outLap2  = Teuchos::rcp( new std::ofstream("stats_solvLap2.txt") );
+//    outSchur = Teuchos::rcp( new std::ofstream("stats_solvSchur.txt") );
   } else
 //    outPar = Teuchos::rcp( &blackhole, false) ;
     outPar = Teuchos::rcp( new Teuchos::oblackholestream() ) ;
@@ -180,7 +179,6 @@ int main(int argi, char** argv ) {
 //  *outPar << " \tflow=" << flow << "\n";
   *outPar << " \tdomain=" << domain << "\n";
   *outPar << " \tre=" << re << "\n";
-  *outPar << " \tpx=" << px << "\n";
   *outPar << " \talpha2=" << alpha2 << "\n";
 
   auto ds = Pimpact::createDomainSize<S>( l1, l2, l3 );
@@ -194,6 +192,7 @@ int main(int argi, char** argv ) {
   auto gs = Pimpact::createGridSize<O>(n1,n2,n3);
   gs->set_Impact();
   gs->print( *outPar );
+  *outPar << " \tnf=" << nf << "\n";
 
   auto pgs = Pimpact::createProcGridSize<O>(np1,np2,np3);
   pgs->set_Impact();
@@ -444,6 +443,8 @@ int main(int argi, char** argv ) {
  //  para->set( "Num Recycled Blocks",  20  );
    para->set( "Implicit Residual Scaling", "Norm of RHS");
    para->set( "Explicit Residual Scaling", "Norm of RHS" );
+   para->set( "Output Stream", outLinSolve );
+
 
 
    auto lp = Pimpact::createLinearProblem<MVF>(

@@ -37,7 +37,7 @@ protected:
   Teuchos::RCP<VectorField<S,O> > temp_;
   Teuchos::RCP<Nonlinear<S,O> > op_;
 
-  const bool& isNewton_;
+  const bool isNewton_;
 
 public:
 
@@ -81,9 +81,9 @@ protected:
 
 //    // computing cos mode of y
     for( int i=1; i<=Nf; ++i ) {
-//      op_->apply( x.getConst0Field(), y.getConstCField(i-1), *temp_ );
-//      z.getCField(i-1).add( 1., z.getConstCField(i-1), 1., *temp_ );
-//
+      op_->apply( x.getConst0Field(), y.getConstCField(i-1), *temp_ );
+      z.getCField(i-1).add( 1., z.getConstCField(i-1), 1., *temp_ );
+
 //      op_->apply( x.getConstCField(i-1), y.getConst0Field(), *temp_ );
 //      z.getCField(i-1).add( 1., z.getConstCField(i-1), 1., *temp_ );
 //
@@ -108,9 +108,9 @@ protected:
 //
 //    // computing sin mode of y
     for( int i=1; i<=Nf; ++i ) {
-//      op_->apply( x.getConst0Field(), y.getConstSField(i-1), *temp_ );
-//      z.getSField(i-1).add( 1., z.getConstSField(i-1), 1., *temp_ );
-//
+      op_->apply( x.getConst0Field(), y.getConstSField(i-1), *temp_ );
+      z.getSField(i-1).add( 1., z.getConstSField(i-1), 1., *temp_ );
+
 //      op_->apply( x.getConstSField(i-1), y.getConst0Field(), *temp_ );
 //      z.getSField(i-1).add( 1., z.getConstSField(i-1), 1., *temp_ );
 //

@@ -80,7 +80,9 @@ Teuchos::RCP<MultiHarmonicNonlinearJacobian<S,O> > createMultiHarmonicNonlinearJ
     const Teuchos::RCP< VectorField<S,O> >& temp = Teuchos::null,
     const Teuchos::RCP< typename MultiHarmonicNonlinearJacobian<S,O>::DomainFieldT>& u = Teuchos::null,
     const bool& isNewton=true ) {
+
   return( Teuchos::rcp( new MultiHarmonicNonlinearJacobian<S,O>( temp, u, isNewton ) ) );
+
 }
 
 
