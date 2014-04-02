@@ -32,8 +32,9 @@ public:
 
 protected:
 
-  Teuchos::RCP<VectorField<S,O> > temp_;
   Teuchos::RCP<DomainFieldT> u_;
+  Teuchos::RCP<DomainFieldT> mtemp_;
+  Teuchos::RCP<VectorField<S,O> > temp_;
   Teuchos::RCP<Nonlinear<S,O> > op_;
 
   const bool& isNewton_;
@@ -41,12 +42,12 @@ protected:
 public:
 
   MultiHarmonicDiagNonlinearJacobian( const bool& isNewton=true ):
-    u_(Teuchos::null),temp_(Teuchos::null),
+    u_(Teuchos::null),mtemp_(Teuchos::null),temp_(Teuchos::null),
     op_( Teuchos::rcp( new Nonlinear<S,O>() )),
     isNewton_(isNewton) {};
 
   MultiHarmonicDiagNonlinearJacobian( const Teuchos::RCP<DomainFieldT>& temp, const bool& isNewton=true ):
-    u_(temp->clone()),temp_(temp->get0FieldPtr()->clone()),
+    u_(temp->clone()),mtemp_(temp->clone()),temp_(temp->get0FieldPtr()->clone()),
     op_( Teuchos::rcp( new Nonlinear<S,O>() )),
     isNewton_(isNewton) {};
 
@@ -125,7 +126,6 @@ protected:
 //    }
 
     // strange terms
-    int i;
 //    for( int k=1; k<=Nf; ++k ) {
 //      for( int l=1; l<=Nf; ++l ) {
 //        i = k+l;
@@ -141,6 +141,7 @@ protected:
 //          z.getSField(i-1).add( 1., z.getConstSField(i-1), 0.5, *temp_ );
 //        }
 //      }
+    int i;
     for( int k=1; k<=Nf; ++k ) {
         i = 2*k;
         if( i<=Nf ) {
@@ -162,9 +163,9 @@ public:
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
     if( isNewton_ ) {
-      apply( *u_,  x,  *temp_ );
+      apply( *u_,  x,  *mtemp_ );
       apply(  x,  *u_, y );
-      y.add( 1., *temp_, 1., y );
+      y.add( 1., *mtemp_, 1., y );
     }
     else {
       apply( *u_,  x, y );
