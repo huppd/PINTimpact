@@ -146,6 +146,9 @@ int main(int argi, char** argv ) {
   S tol = 1.e-1;
   my_CLP.setOption( "tol", &tol, "tolerance for linear solver" );
 
+  S tolNOX = 1.e-1;
+  my_CLP.setOption( "tolNOX", &tolNOX, "tolerance for non-linear solver" );
+
   // preconditioner type
   int precType = 0;
   my_CLP.setOption( "prec", &precType, "Type of the preconditioner." );
@@ -251,6 +254,9 @@ int main(int argi, char** argv ) {
 
   Teuchos::RCP<BOp> jop;
   if( iterM==2 ){
+
+    if(0==rank) std::cout << "\n\t---\titeration matrix(2): full Picard iteration\t---\n";
+
     typedef Pimpact::MultiOpWrap< Pimpact::AddOp< Pimpact::AddOp<JMAdv,DtL>, Fo > > JOp;
 
     jop = Pimpact::createOperatorBase<MVF,JOp>(
@@ -268,7 +274,27 @@ int main(int argi, char** argv ) {
   }
   else if( 3==iterM ){
 
-    if(0==rank) std::cout << "complex diag Newton\n";
+    if(0==rank) std::cout << "\n\t---\titeration matrix(3): complex diagonal Newton iteration\t---\n";
+
+    typedef Pimpact::MultiOpWrap< Pimpact::AddOp< Pimpact::AddOp<DJMAdv,DtL>, Fo > > JOp;
+
+    jop = Pimpact::createOperatorBase<MVF,JOp>(
+        Pimpact::createMultiOpWrap(
+            Pimpact::createAddOp<Pimpact::AddOp<DJMAdv,DtL>,Fo>(
+                Pimpact::createAddOp<DJMAdv,DtL>(
+                    Pimpact::createMultiHarmonicDiagNonlinearJacobian<S,O>(
+                        temp->getFieldPtr(0), true ),
+                    Pimpact::createMultiDtHelmholtz<S,O>( alpha2, 0., 1./re ),
+                    temp->getFieldPtr(0)->clone() ) ,
+                Pimpact::createMultiHarmonicOpWrap(
+                    Pimpact::createForcingOp<S,O>( force ) ) ,
+                temp->getConstFieldPtr(0)->clone() ) )
+    );
+  }
+  else if( 4==iterM ){
+
+    if(0==rank) std::cout << "\n\t---\titeration matrix(4): complex diagonal Picard iteration\t---\n";
+
     typedef Pimpact::MultiOpWrap< Pimpact::AddOp< Pimpact::AddOp<DJMAdv,DtL>, Fo > > JOp;
 
     jop = Pimpact::createOperatorBase<MVF,JOp>(
@@ -286,7 +312,7 @@ int main(int argi, char** argv ) {
   }
   else if( 5==iterM ){
 
-    if(0==rank) std::cout << "omega d_t + (u_0*nabla) + d_x u_0 - eps lap + lambda\n";
+    if(0==rank) std::cout << "\n\t---\titeration matrix(5): semi-complex diagonal Newton iteration\t---\n";
 
     typedef Pimpact::MultiOpWrap< Pimpact::AddOp< Pimpact::AddOp<JAdv,DtL>, Fo > > JOp;
 
@@ -304,7 +330,7 @@ int main(int argi, char** argv ) {
   }
   else if( 6==iterM ){
 
-    if(0==rank) std::cout << "omega d_t + (u_0*nabla) - eps lap + lambda\n";
+    if(0==rank) std::cout << "\n\t---\titeration matrix(6): semi-complex diagonal Picard iteration\t---\n";
 
     typedef Pimpact::MultiOpWrap< Pimpact::AddOp< Pimpact::AddOp<JAdv,DtL>, Fo > > JOp;
 
@@ -322,7 +348,7 @@ int main(int argi, char** argv ) {
   }
   else if( 7==iterM ){
 
-    if(0==rank) std::cout << "(u_0*nabla) + d_x u_0 - eps lap + lambda\n";
+    if(0==rank) std::cout << "\n\t---\titeration matrix(7): real diagonal Newton iteration\t---\n";
 
     typedef Pimpact::MultiOpWrap< Pimpact::AddOp< Pimpact::AddOp<JAdv,DtL>, Fo > > JOp;
 
@@ -339,7 +365,7 @@ int main(int argi, char** argv ) {
     );
   }
   else if( 8==iterM ){
-    if(0==rank) std::cout << "(u_0*nabla) - eps lap + lambda\n";
+    if(0==rank) std::cout << "\n\t---\titeration matrix(8): real diagonal Newton iteration\t---\n";
 
     typedef Pimpact::MultiOpWrap< Pimpact::AddOp< Pimpact::AddOp<JAdv,DtL>, Fo > > JOp;
 
@@ -356,7 +382,7 @@ int main(int argi, char** argv ) {
     );
   }
   else if( 9==iterM ) {
-    if(0==rank) std::cout << "omega d_t - eps lap + lambda\n";
+    if(0==rank) std::cout << "\n\t---\titeration matrix(8): linear terms\t---\n";
     typedef Pimpact::MultiOpWrap< Pimpact::AddOp< DtL, Fo > > JOp;
 
     jop = Pimpact::createOperatorBase<MVF,JOp>(
@@ -373,6 +399,8 @@ int main(int argi, char** argv ) {
        );
   }
   else {
+    if(0==rank) std::cout << "full Newton\n\n";
+
     typedef Pimpact::MultiOpWrap< Pimpact::AddOp< Pimpact::AddOp<JMAdv,DtL>, Fo > > JOp;
     jop = Pimpact::createOperatorBase<MVF,JOp>(
         Pimpact::createMultiOpWrap(
@@ -412,7 +440,7 @@ int main(int argi, char** argv ) {
   auto para = Pimpact::createLinSolverParameter( linSolName, tol*l1*l2/n1/n2 );
  //  auto para = Teuchos::parameterlist();
    para->set( "Num Blocks",          800/4  );
-   para->set( "Maximum Iterations", 1600/2 );
+   para->set( "Maximum Iterations", 1600 );
  //  para->set( "Num Recycled Blocks",  20  );
    para->set( "Implicit Residual Scaling", "Norm of RHS");
    para->set( "Explicit Residual Scaling", "Norm of RHS" );
@@ -431,7 +459,7 @@ int main(int argi, char** argv ) {
 
 
    // Set up the status tests
-   auto statusTest = NOX::Pimpact::createStatusTest( maxI, 1.e-6*l1*l2/n1/n2, tol*l1*l2/n1/n2 );
+   auto statusTest = NOX::Pimpact::createStatusTest( maxI, tolNOX*l1*l2/n1/n2, tol*l1*l2/n1/n2 );
 
    // Create the list of solver parameters
    auto solverParametersPtr =

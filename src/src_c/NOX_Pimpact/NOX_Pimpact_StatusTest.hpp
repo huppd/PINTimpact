@@ -29,7 +29,7 @@ Teuchos::RCP<NOX::StatusTest::Generic> createStatusTest( int maxI=10, double tol
 //  Teuchos::ParameterList& divergence = stl.sublist( "Test 3" );
 //  Teuchos::ParameterList& stagnation = stl.sublist( "Test 4" );
   conv.set( "Test Type", "Combo" );
-  conv.set( "Combo Type", "AND" );
+  conv.set( "Combo Type", "OR" );
   conv.set( "Number of Tests", 2 );
   Teuchos::ParameterList& normF = conv.sublist( "Test 0" );
   Teuchos::ParameterList& normUpdate = conv.sublist( "Test 1" );
