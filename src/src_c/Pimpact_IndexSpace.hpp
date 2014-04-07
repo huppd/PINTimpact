@@ -13,6 +13,7 @@
 #include "Pimpact_Types.hpp"
 
 
+
 namespace Pimpact {
 
 
@@ -20,7 +21,6 @@ namespace Pimpact {
 /// \todo check constant make variables protected SV friend class
 template<class Ordinal>
 class IndexSpace {
-
 
 public:
 

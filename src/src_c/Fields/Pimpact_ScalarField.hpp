@@ -15,122 +15,12 @@
 #include "Pimpact_FieldSpace.hpp"
 #include "Pimpact_IndexSpace.hpp"
 
+#include "Pimpact_extern_ScalarField.hpp"
+
+
 
 
 namespace Pimpact {
-
-extern "C" {
-
-
-void SF_add(
-	const int& N1,  const int& N2,  const int& N3,
-	const int& SS1, const int& SS2, const int& SS3,
-	const int& NN1, const int& NN2, const int& NN3,
-	const int& b1L, const int& b2L, const int& b3L,
-	const int& b1U, const int& b2U, const int& b3U,
-	double* phi, const double* const  phi1, const double* const  phi2,
-	const double& scalar1, const double& scalar2);
-
-
-void SF_abs(
-    const int& N1,  const int& N2,  const int& N3,
-    const int& SS1, const int& SS2, const int& SS3,
-    const int& NN1, const int& NN2, const int& NN3,
-    const int& b1L, const int& b2L, const int& b3L,
-    const int& b1U, const int& b2U, const int& b3U,
-    double* phi, const double* const  phi1 );
-
-
-void SF_reciprocal(
-    const int& N1,  const int& N2,  const int& N3,
-    const int& SS1, const int& SS2, const int& SS3,
-    const int& NN1, const int& NN2, const int& NN3,
-    const int& b1L, const int& b2L, const int& b3L,
-    const int& b1U, const int& b2U, const int& b3U,
-    double* phi, const double* const  phi1 );
-
-
-void SF_compNorm(const MPI_Fint& comm,
-	const int& N1,  const int& N2,  const int& N3,
-	const int& SS1, const int& SS2, const int& SS3,
-	const int& NN1, const int& NN2, const int& NN3,
-	const int& b1L, const int& b2L, const int& b3L,
-	const int& b1U, const int& b2U, const int& b3U,
-	double* phi,
-	const bool& inf_yes, const bool& two_yes,
-	double& normInf, double& normTwo);
-
-
-void SF_weightedNorm(
-  const MPI_Fint& comm,
-  const int& N1,  const int& N2,  const int& N3,
-  const int& SS1, const int& SS2, const int& SS3,
-  const int& NN1, const int& NN2, const int& NN3,
-  const int& b1L, const int& b2L, const int& b3L,
-  const int& b1U, const int& b2U, const int& b3U,
-  double* phi,
-  const double* const weights,
-  double& norm);
-
-
-void SF_dot( const MPI_Fint& comm,
-	const int& N1,  const int& N2,  const int& N3,
-	const int& SS1, const int& SS2, const int& SS3,
-	const int& NN1, const int& NN2, const int& NN3,
-	const int& b1L, const int& b2L, const int& b3L,
-	const int& b1U, const int& b2U, const int& b3U,
-	const double* const phi1, const double* const phi2, double& scalar);
-
-
-void SF_scale(
-	const int& N1,  const int& N2,  const int& N3,
-	const int& SS1, const int& SS2, const int& SS3,
-	const int& NN1, const int& NN2, const int& NN3,
-	const int& b1L, const int& b2L, const int& b3L,
-	const int& b1U, const int& b2U, const int& b3U,
-	double* phi, const double& scalar );
-
-
-void SF_scale2(
-    const int& N1,  const int& N2,  const int& N3,
-    const int& SS1, const int& SS2, const int& SS3,
-    const int& NN1, const int& NN2, const int& NN3,
-    const int& b1L, const int& b2L, const int& b3L,
-    const int& b1U, const int& b2U, const int& b3U,
-    double* phi, const double* const  phi1 );
-
-
-void SF_random(
-	const int& N1,  const int& N2,  const int& N3,
-	const int& SS1, const int& SS2, const int& SS3,
-	const int& NN1, const int& NN2, const int& NN3,
-	const int& b1L, const int& b2L, const int& b3L,
-	const int& b1U, const int& b2U, const int& b3U,
-	double* phi );
-
-
-void SF_init(
-	const int& N1,  const int& N2,  const int& N3,
-	const int& SS1, const int& SS2, const int& SS3,
-	const int& NN1, const int& NN2, const int& NN3,
-	const int& b1L, const int& b2L, const int& b3L,
-	const int& b1U, const int& b2U, const int& b3U,
-	double* phi, const double& scalar );
-
-
-void SF_print(
-	const int& N1,  const int& N2,  const int& N3,
-	const int& SS1, const int& SS2, const int& SS3,
-	const int& NN1, const int& NN2, const int& NN3,
-	const int& b1L, const int& b2L, const int& b3L,
-	const int& b1U, const int& b2U, const int& b3U,
-	const double* phi );
-
-
-void SF_write( double* phi, const int& count );
-
-
-} // end of extern 'C'
 
 
 /// \brief important basic Vector class
@@ -494,15 +384,15 @@ protected:
 	const Teuchos::RCP<const FieldSpace<Ordinal> > fieldSpace_;
 	array s_;
 
-	const MPI_Fint& commf() const { return(  fieldSpace_->commf_ ); }
-	const MPI_Comm& comm() const { return( fieldSpace_->comm_ ); }
-	const int& dim() const {return( fieldSpace_->dim_ ); }
-	const Ordinal& nGlo(int i) const { return( fieldSpace_->nGlo_[i] ); }
-	const Ordinal& nLoc(int i) const { return(  fieldSpace_->nLoc_[i] ); }
-	const Ordinal& sInd(int i) const { return( fieldSpace_->sInd_[i] ); }
-	const Ordinal& eInd(int i) const { return( fieldSpace_->eInd_[i] ); }
-	const Ordinal& bl(int i) const { return( fieldSpace_->bl_[i] ); }
-	const Ordinal& bu(int i) const { return( fieldSpace_->bu_[i] ); }
+	const MPI_Fint& commf()     const { return(  fieldSpace_->commf_   ); }
+	const MPI_Comm& comm()      const { return( fieldSpace_->comm_     ); }
+	const int&      dim()       const { return( fieldSpace_->dim_      ); }
+	const Ordinal&  nGlo(int i) const { return( fieldSpace_->nGlo_[i]  ); }
+	const Ordinal&  nLoc(int i) const { return(  fieldSpace_->nLoc_[i] ); }
+	const Ordinal&  sInd(int i) const { return( fieldSpace_->sInd_[i]  ); }
+	const Ordinal&  eInd(int i) const { return( fieldSpace_->eInd_[i]  ); }
+	const Ordinal&  bl  (int i) const { return( fieldSpace_->bl_[i]    ); }
+	const Ordinal&  bu  (int i) const { return( fieldSpace_->bu_[i]    ); }
 
 }; // end of class ScalarField
 

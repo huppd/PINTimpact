@@ -3437,11 +3437,6 @@ module cmod_operator
   integer                ::  k, kk
   
   
-  !----------------------------------------------------------------------------------------------------------!
-  ! Anmerkungen: -                                                                                           !
-  !----------------------------------------------------------------------------------------------------------!
-  
-  
                    call interpolate2_vel_pre(exch_yes,1,vel(b1L,b2L,b3L,1),work1)
                    call interpolate2_vel_pre(exch_yes,2,vel(b1L,b2L,b3L,2),work2)
   if (dimens == 3) call interpolate2_vel_pre(exch_yes,3,vel(b1L,b2L,b3L,3),work3)

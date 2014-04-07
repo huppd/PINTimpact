@@ -14,7 +14,7 @@ os.system( 'make -j4' )
 
 case_path = ['','']
 
-case_consts = ' --nf=4 --tolNOX=1.e-1 --tol=1.e-1  --maxI=10 '
+case_consts = ' --nf=16 --tolNOX=1.e-1 --tol=1.e-6  --maxI=30 '
 
 for itM in range(1,10):
   case_path[0] = 'itM_'+str(itM)

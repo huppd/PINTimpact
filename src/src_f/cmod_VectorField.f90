@@ -1693,13 +1693,10 @@ subroutine cinit_GaussianForcing1D( &
   do k = S3U, N3U
      do j = S2U, N2U
         do i = S1U, N1U
-           phiU(i,j,k) = exp( -((x1u(i))/sig)**2 -((x2p(j))/sig)**2 ) / sqrt(2.) &
-                       + exp( -((x1u(i)-L1)/sig)**2 -((x2p(j)-L2)/sig)**2 ) / sqrt(2.)
-!           phiU(i,j,k) = exp( -((x1u(i)-L1/2)/sig)**2 -((x2p(j)-L2/2)/sig)**2 )
-!           phiU(i,j,k) = exp( -((x1u(i))/sig)**2     - ((x2p(j)-L2/2)/sig)**2 ) &
-!                       + exp( -((x1u(i)-L1)/sig)**2  - ((x2p(j)-L2/2)/sig)**2 )
-!           phiU(i,j,k) = exp( - ((x2p(j)-L2/2)/sig)**2 ) &
-!                       + exp( - ((x2p(j)-L2/2)/sig)**2 )
+           phiU(i,j,k) = exp( -((x1u(i)   )/sig)**2 - ((x2p(j)   )/sig)**2 ) / sqrt(2.)    &
+                       + exp( -((x1u(i)-L1)/sig)**2 - ((x2p(j)-L2)/sig)**2 ) / sqrt(2.)    &
+                       + exp( -((x1u(i)-L1)/sig)**2 - ((x2p(j)   )/sig)**2 ) / sqrt(2.)    &
+                       + exp( -((x1u(i)   )/sig)**2 - ((x2p(j)-L2)/sig)**2 ) / sqrt(2.)
         end do
      end do
   end do
@@ -1707,8 +1704,10 @@ subroutine cinit_GaussianForcing1D( &
   do k = S3V, N3V
      do j = S2V, N2V
         do i = S1V, N1V
-           phiV(i,j,k) = exp( -((x1p(i))/sig)**2 -((x2v(j))/sig)**2 ) / sqrt(2.) &
-                       + exp( -((x1p(i)-L1)/sig)**2 -((x2v(j)-L2)/sig)**2 ) / sqrt(2.)
+           phiV(i,j,k) = exp( -((x1p(i)   )/sig)**2 -((x2v(j)   )/sig)**2 ) / sqrt(2.) &
+                       + exp( -((x1p(i)-L1)/sig)**2 -((x2v(j)-L2)/sig)**2 ) / sqrt(2.) &
+                       + exp( -((x1p(i)-L1)/sig)**2 -((x2v(j)   )/sig)**2 ) / sqrt(2.) &
+                       + exp( -((x1p(i)   )/sig)**2 -((x2v(j)-L2)/sig)**2 ) / sqrt(2.)
 !           phiV(i,j,k) = 0
 !           phiV(i,j,k) = exp( -((x1p(i)-L1/2)/sig)**2     - ((x2v(j))/sig)**2 ) &
 !                       + exp( -((x1u(i)-L1/2)/sig)**2  - ((x2p(j)-L2)/sig)**2 )

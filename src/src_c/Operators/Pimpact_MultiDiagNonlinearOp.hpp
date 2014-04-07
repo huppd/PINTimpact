@@ -68,115 +68,47 @@ protected:
     op_->apply( x.getConst0Field(), y.getConst0Field(), *temp_ );
     z.get0Field().add( 1., z.getConst0Field(), 1., *temp_ );
 
-//    for( int i=1; i<=Nf; ++i ) {
-//      op_->apply( x.getConstCField(i-1), y.getConstCField(i-1), *temp_ );
-//      z.get0Field().add( 1., z.getConst0Field(), 0.5, *temp_ );
-//    }
-//
-//    for( int i=1; i<=Nf; ++i ) {
-//      op_->apply( x.getConstSField(i-1), y.getConstSField(i-1), *temp_ );
-//      z.get0Field().add( 1., z.getConst0Field(), 0.5, *temp_ );
-//    }
 
-
-//    // computing cos mode of y
     for( int i=1; i<=Nf; ++i ) {
+      // computing cos mode of y
       op_->apply( x.getConst0Field(), y.getConstCField(i-1), *temp_ );
       z.getCField(i-1).add( 1., z.getConstCField(i-1), 1., *temp_ );
 
-//      op_->apply( x.getConstCField(i-1), y.getConst0Field(), *temp_ );
-//      z.getCField(i-1).add( 1., z.getConstCField(i-1), 1., *temp_ );
-//
-//      for( int k=1; k+i<=Nf; ++k ) {
-      if( 2*i<=Nf ) {
-        op_->apply( x.getConstCField(i+i-1), y.getConstCField(i-1), *temp_ );
-        z.getCField(i-1).add( 1., z.getConstCField(i-1), 0.5, *temp_ );
-      }
-//
-//        op_->apply( x.getConstCField(k-1), y.getConstCField(k+i-1), *temp_ );
-//        z.getCField(i-1).add( 1., z.getCField(i-1), 0.5, *temp_ );
-//
-      if( 2*i<=Nf ) {
-        op_->apply( x.getConstSField(i+i-1), y.getConstSField(i-1), *temp_ );
-        z.getCField(i-1).add( 1., z.getConstCField(i-1), 0.5, *temp_ );
-      }
-//
-//        op_->apply( x.getConstSField(k-1), y.getConstSField(k+i-1), *temp_ );
-//        z.getCField(i-1).add( 1., z.getConstCField(i-1), 0.5, *temp_ );
-//      }
-    }
-//
-//    // computing sin mode of y
-    for( int i=1; i<=Nf; ++i ) {
+      // computing sin mode of y
       op_->apply( x.getConst0Field(), y.getConstSField(i-1), *temp_ );
       z.getSField(i-1).add( 1., z.getConstSField(i-1), 1., *temp_ );
 
-//      op_->apply( x.getConstSField(i-1), y.getConst0Field(), *temp_ );
-//      z.getSField(i-1).add( 1., z.getConstSField(i-1), 1., *temp_ );
-//
-//      for( int k=1; k+i<=Nf; ++k ) {
       if( 2*i<=Nf ) {
+
+        // computing cos mode of y
+        op_->apply( x.getConstCField(i+i-1), y.getConstCField(i-1), *temp_ );
+        z.getCField(i-1).add( 1., z.getConstCField(i-1), 0.5, *temp_ );
+
+        op_->apply( x.getConstSField(i+i-1), y.getConstSField(i-1), *temp_ );
+        z.getCField(i-1).add( 1., z.getConstCField(i-1), 0.5, *temp_ );
+
+        // computing sin mode of y
         op_->apply( x.getConstCField(i+i-1), y.getConstSField(i-1), *temp_ );
         z.getSField(i-1).add( 1., z.getConstSField(i-1), -0.5, *temp_ );
-      }
-//
-//        op_->apply( x.getConstCField(k-1), y.getConstSField(k+i-1), *temp_ );
-//        z.getSField(i-1).add( 1., z.getConstSField(i-1), 0.5, *temp_ );
-//
-      if( 2*i<=Nf ) {
+
         op_->apply( x.getConstSField(i+i-1), y.getConstCField(i-1), *temp_ );
         z.getSField(i-1).add( 1., z.getConstSField(i-1), 0.5, *temp_ );
-      }
-//
-//        op_->apply( x.getConstSField(k-1), y.getConstCField(k+i-1), *temp_ );
-//        z.getSField(i-1).add( 1., z.getConstSField(i-1), -0.5, *temp_ );
-//      }
-    }
 
-    // strange terms
-//    int i;
-//    for( int k=1; k<=Nf; ++k ) {
-//      for( int l=1; l<=Nf; ++l ) {
-//        i = k+l;
-//        if( i<=Nf ) {
-//          op_->apply( x.getConstCField(k-1), y.getConstCField(l-1), *temp_ );
-//          z.getCField(i-1).add( 1., z.getConstCField(i-1), 0.5, *temp_ );
-//          op_->apply( x.getConstSField(k-1), y.getConstSField(l-1), *temp_ );
-//          z.getCField(i-1).add( 1., z.getConstCField(i-1), -0.5, *temp_ );
-//
-//          op_->apply( x.getConstCField(k-1), y.getConstSField(l-1), *temp_ );
-//          z.getSField(i-1).add( 1., z.getConstSField(i-1), 0.5, *temp_ );
-//          op_->apply( x.getConstSField(k-1), y.getConstCField(l-1), *temp_ );
-//          z.getSField(i-1).add( 1., z.getConstSField(i-1), 0.5, *temp_ );
-//        }
-//      }
-//    for( int k=1; k<=Nf; ++k ) {
-//        i = 2*k;
-//        if( i<=Nf ) {
-//          op_->apply( x.getConstCField(i-1), y.getConstCField(i-1), *temp_ );
-//          z.getCField(i-1).add( 1., z.getConstCField(i-1), 0.5, *temp_ );
-//          op_->apply( x.getConstSField(i-1), y.getConstSField(i-1), *temp_ );
-//          z.getCField(i-1).add( 1., z.getConstCField(i-1), -0.5, *temp_ );
-//
-//          op_->apply( x.getConstCField(i-1), y.getConstSField(i-1), *temp_ );
-//          z.getSField(i-1).add( 1., z.getConstSField(i-1), 0.5, *temp_ );
-//          op_->apply( x.getConstSField(i-1), y.getConstCField(i-1), *temp_ );
-//          z.getSField(i-1).add( 1., z.getConstSField(i-1), 0.5, *temp_ );
-//        }
-//      }
-//    }
+      }
+
+    }
   }
 
 public:
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
     if( isNewton_ ) {
-      apply( *u_,  x,  *mtemp_ );
-      apply(  x,  *u_, y );
+      apply( *u_,  x,  y );
+      apply(  x,  *u_, *mtemp_ );
       y.add( 1., *mtemp_, 1., y );
     }
     else {
-      apply( *u_,  x, y );
+      apply( *u_, x, y );
     }
   }
 

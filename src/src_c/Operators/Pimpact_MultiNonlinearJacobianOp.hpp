@@ -12,12 +12,12 @@
 
 
 
-extern "C" {
-  void OP_nonlinear( const bool& exch_yes,
-      double* phi1U, double* phi1V, double* phi1W,
-      double* phi2U, double* phi2V, double* phi2W,
-      double* nl1,   double* nl2,   double* nl3 );
-}
+//extern "C" {
+//  void OP_nonlinear( const bool& exch_yes,
+//      double* phi1U, double* phi1V, double* phi1W,
+//      double* phi2U, double* phi2V, double* phi2W,
+//      double* nl1,   double* nl2,   double* nl3 );
+//}
 
 
 

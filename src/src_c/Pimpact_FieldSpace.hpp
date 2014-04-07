@@ -7,21 +7,20 @@
 #include "Teuchos_Tuple.hpp"
 #include "Teuchos_RCP.hpp"
 
-
 #include <iostream>
+
+
 
 namespace Pimpact {
 
-/**
- * public class, that stores neccessary information for Vectors(Fields), which are common for \c ScalarField and \c VectorField
- * \todo check constant/ make variables protected SV friend class
- * \todo remove indexes(add indexSpace to Vector)
- * \todo add procssor blocks
- * \todo add neibouring ranks
- */
+
+/// public class, that stores neccessary information for Vectors(Fields), which are common for \c ScalarField and \c VectorField
+/// \todo check constant/ make variables protected SV friend class
+/// \todo remove indexes(add indexSpace to Vector)
+/// \todo add procssor blocks
+/// \todo add neibouring ranks
 template<class O>
 class FieldSpace {
-
 
 public:
 

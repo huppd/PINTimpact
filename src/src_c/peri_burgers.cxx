@@ -85,8 +85,6 @@ int main(int argi, char** argv ) {
   S alpha2 = 4.*(4*std::atan(1));
   my_CLP.setOption( "alpha2", &alpha2, "introduced frequency" );
 
-  S px = 1.;
-  my_CLP.setOption( "px", &px, "pressure gradient(only necessary for pulsatile flows)" );
 
   // domain type
   int domain = 4;
@@ -102,6 +100,9 @@ int main(int argi, char** argv ) {
 
   S l3 = 1.;
   my_CLP.setOption( "lz", &l3, "length in z-direction" );
+
+  int dim = 2;
+  my_CLP.setOption( "dim", &dim, "dimension of problem" );
 
   // grid size
   O n1 = 33;
@@ -230,7 +231,10 @@ int main(int argi, char** argv ) {
   temp->init(0);
 
   auto force = x->getConstFieldPtr(0)->getConst0FieldPtr()->clone();
-  force->initField( Pimpact::BoundaryFilter2D );
+  if( 1==dim )
+    force->initField( Pimpact::BoundaryFilter1D );
+  else
+    force->initField( Pimpact::BoundaryFilter2D );
 
 //  auto op = Pimpact::createOperatorBase<MVF,Op>(
 //       Pimpact::createMultiOpWrap(
@@ -364,7 +368,7 @@ int main(int argi, char** argv ) {
     );
   }
   else if( 8==iterM ){
-    if(0==rank) std::cout << "\n\t---\titeration matrix(8): real diagonal Newton iteration\t---\n";
+    if(0==rank) std::cout << "\n\t---\titeration matrix(8): real diagonal Picard iteration\t---\n";
 
     typedef Pimpact::MultiOpWrap< Pimpact::AddOp< Pimpact::AddOp<JAdv,DtL>, Fo > > JOp;
 
@@ -398,7 +402,8 @@ int main(int argi, char** argv ) {
        );
   }
   else {
-    if(0==rank) std::cout << "full Newton\n\n";
+
+    if(0==rank) std::cout << "\n\t---\titeration matrix(2): full Newton iteration\t---\n";
 
     typedef Pimpact::MultiOpWrap< Pimpact::AddOp< Pimpact::AddOp<JMAdv,DtL>, Fo > > JOp;
     jop = Pimpact::createOperatorBase<MVF,JOp>(
@@ -417,33 +422,33 @@ int main(int argi, char** argv ) {
 
 
   // init Fields, init and rhs
-//  x ->getFieldPtr(0)->get0FieldPtr()->initField( Pimpact::RankineVortex2D );
-//  x ->getFieldPtr(0)->get0FieldPtr()->initField( Pimpact::RankineVortex2D );
-//  fu->getFieldPtr(0)->get0FieldPtr()->initField( Pimpact::ZeroProf );
-//  fu->getFieldPtr(0)->getCFieldPtr(1)->initField( Pimpact::BoundaryFilter1D );
-  fu->getFieldPtr(0)->getCFieldPtr(0)->initField( Pimpact::GaussianForcing2D );
-  fu->getFieldPtr(0)->getCFieldPtr(0)->scale( *force );
-  fu->getFieldPtr(0)->getCFieldPtr(0)->scale( -1 );
-  fu->getFieldPtr(0)->get0FieldPtr()->initField( Pimpact::BoundaryFilter2D );
-//  fu->getFieldPtr(0)->get0FieldPtr()->scale( *force );
-  fu->scale( 0.5 );
-//  fu->getFieldPtr(0)->get0FieldPtr()->initField( Pimpact::GaussianForcing2D );
-//  fu->scale(re);
+  if( 1==dim ) {
+    fu->getFieldPtr(0)->getCFieldPtr(0)->initField( Pimpact::BoundaryFilter1D );
+//    fu->getFieldPtr(0)->getCFieldPtr(0)->scale( *force );
+    fu->getFieldPtr(0)->getCFieldPtr(0)->scale( -1 );
+    fu->getFieldPtr(0)->get0FieldPtr()->initField( Pimpact::BoundaryFilter1D );
+    fu->scale( 0.5 );
+  }
+  else {
+    fu->getFieldPtr(0)->getCFieldPtr(0)->initField( Pimpact::GaussianForcing2D );
+    fu->getFieldPtr(0)->getCFieldPtr(0)->scale( *force );
+    fu->getFieldPtr(0)->getCFieldPtr(0)->scale( -1 );
+    fu->getFieldPtr(0)->get0FieldPtr()->initField( Pimpact::BoundaryFilter2D );
+    fu->scale( 0.5 );
+  }
 
   x->init( 0. );
-//  x->write(0);
-//  op->apply(*x,*fu);
-  fu->write(100);
+//  fu->write(100);
 
 
-  auto para = Pimpact::createLinSolverParameter( linSolName, tol*l1*l2/n1/n2 );
+  auto para = Pimpact::createLinSolverParameter( linSolName, tol*l1*l2/n1/n2, -1 );
  //  auto para = Teuchos::parameterlist();
-   para->set( "Num Blocks",          800/4  );
-   para->set( "Maximum Iterations", 1600 );
+//   para->set( "Num Blocks",          800/4  );
+   para->set( "Maximum Iterations", 3000 );
  //  para->set( "Num Recycled Blocks",  20  );
-   para->set( "Implicit Residual Scaling", "Norm of RHS");
+   para->set( "Implicit Residual Scaling", "Norm of RHS" );
    para->set( "Explicit Residual Scaling", "Norm of RHS" );
-   para->set( "Output Stream", outLinSolve );
+//   para->set( "Output Stream", outLinSolve );
 
 
 

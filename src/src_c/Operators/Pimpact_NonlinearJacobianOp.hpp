@@ -39,7 +39,7 @@ protected:
   Teuchos::RCP<DomainFieldT> u_;
   Teuchos::RCP<DomainFieldT> temp_;
 
-  const bool& isNewton_;
+  const bool isNewton_;
 
 public:
 
