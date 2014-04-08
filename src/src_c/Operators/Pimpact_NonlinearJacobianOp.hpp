@@ -12,7 +12,7 @@
 
 
 extern "C" {
-  void OP_nonlinear( const bool& exch_yes,
+  void OP_nonlinear( //const bool& exch_yes,
       double* phi1U, double* phi1V, double* phi1W,
       double* phi2U, double* phi2V, double* phi2W,
       double* nl1,   double* nl2,   double* nl3 );
@@ -54,18 +54,21 @@ public:
       u_ = mv.clone();
     else
       u_->assign( mv );
+    u_->exchange();
   };
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
 
+    x.exchange();
+
     if( isNewton_ ) {
 
-      OP_nonlinear( true,
+      OP_nonlinear( //true,
           u_->   vec_[0], u_->   vec_[1], u_->   vec_[2],
           x.     vec_[0], x.     vec_[1], x.     vec_[2],
           temp_->vec_[0], temp_->vec_[1], temp_->vec_[2] );
 
-      OP_nonlinear( true,
+      OP_nonlinear( //true,
           x.  vec_[0], x.  vec_[1], x.  vec_[2],
           u_->vec_[0], u_->vec_[1], u_->vec_[2],
           y.  vec_[0], y.  vec_[1], y.  vec_[2] );
@@ -75,12 +78,15 @@ public:
     }
     else {
 
-      OP_nonlinear( true,
+      OP_nonlinear( //true,
           u_->vec_[0], u_->vec_[1], u_->vec_[2],
           x.  vec_[0], x.  vec_[1], x.  vec_[2],
           y.  vec_[0], y.  vec_[1], y.  vec_[2] );
 
     }
+
+    y.changed();
+
   }
 
   bool hasApplyTranspose() const { return( false ); }

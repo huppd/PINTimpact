@@ -1286,7 +1286,7 @@ module cmod_operator
   !----------------------------------------------------------------------------------------------------------!
   
   
-  call exchange(m,0,phi)
+  call exchange(m,0,phi) ! irrelefant
   
   
   !===========================================================================================================
@@ -1604,18 +1604,16 @@ module cmod_operator
   !!
   !! used for mod_rhs and for product_Helmholtz(so boundary conditions are included?)
   !! \param[in] m dimension from one to three
-  !! \param[in] exch_yes indicates, if phi has to be exchanged(ghost layers)
   !! \param[in] mulI factor which coresponds to the factor of the identity part
   !! \param[in] mulL factor which coresponds to the factor of the laplace part
   !! \param[inout] phi = vel in case of mod_rhs
   !! \param[out] Lap
   !! \todo change for discrete forcing
-  subroutine Helmholtz(m,exch_yes,mulI,mulL,phi,Lap) bind (c,name='OP_helmholtz')
+  subroutine Helmholtz( m, mulI, mulL, phi, Lap ) bind (c,name='OP_helmholtz')
   
   implicit none
   
   integer(c_int)  , intent(in   ) ::  m
-  logical(c_bool) , intent(in   ) ::  exch_yes
   real(c_double)  , intent(in   ) ::  mulI
   real(c_double)  , intent(in   ) ::  mulL
 
@@ -1628,12 +1626,6 @@ module cmod_operator
   
   real                   ::  dd1
   
-  
-  if (exch_yes) then
-     call exchange(1,m,phi)
-     call exchange(2,m,phi)
-     call exchange(3,m,phi)
-  end if
   
   
   !===========================================================================================================
@@ -2592,11 +2584,16 @@ module cmod_operator
   !!         ersetzt werden (beachte aber Addition von nl!)
   !! \test umbenennen in advect... (?)
   !! \relates Pimpact::Nonlinear
-  subroutine nonlinear( exch_yes, phi1U,phi1V,phi1W, phi2U,phi2V,phi2W, nlU,nlV,nlW ) bind (c,name='OP_nonlinear')
+  !! \todo extract interpolate vel
+  subroutine nonlinear(     &
+!        exch_yes,           &
+        phi1U,phi1V,phi1W,  &
+        phi2U,phi2V,phi2W,  &
+        nlU,nlV,nlW ) bind (c,name='OP_nonlinear')
   
   implicit none
   
-  logical(c_bool), intent(in   ) ::  exch_yes
+!  logical(c_bool), intent(in   ) ::  exch_yes
   
   real(c_double),  intent(inout) ::  phi1U(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
   real(c_double),  intent(inout) ::  phi1V(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
@@ -2623,18 +2620,18 @@ module cmod_operator
   !                zu können. Im Prinzip könnte auch rhs(:,:,:,1:3) für die Zwischenspeicherung verwendet    !
   !                werden, jedoch sind dazu einige Umbaumassnahmen notwendig bei geringem Effizienzgewinn.   !
   !----------------------------------------------------------------------------------------------------------!
-  vel(S11:N11,S21:N21,S31:N31,1) = phi1U(S11:N11,S21:N21,S31:N31)
-  vel(S12:N12,S22:N22,S32:N32,2) = phi1V(S12:N12,S22:N22,S32:N32)
-  vel(S13:N13,S23:N23,S33:N33,3) = phi1W(S13:N13,S23:N23,S33:N33)
 
-  call interpolate_vel(.true.)
+  vel(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U),1) = phi1U(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  vel(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U),2) = phi1V(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  vel(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U),3) = phi1W(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
 
-  vel(S11:N11,S21:N21,S31:N31,1) = phi2U(S11:N11,S21:N21,S31:N31)
-  vel(S12:N12,S22:N22,S32:N32,2) = phi2V(S12:N12,S22:N22,S32:N32)
-  vel(S13:N13,S23:N23,S33:N33,3) = phi2W(S13:N13,S23:N23,S33:N33)
+  call interpolate_vel(.false.)
+
+  vel(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U),1) = phi2U(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  vel(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U),2) = phi2V(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  vel(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U),3) = phi2W(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
   
   ! worki muss bereits ausgetauscht sein!
-  if (exch_yes) call exchange_all_all(.true.,vel)
   
   
   !===========================================================================================================

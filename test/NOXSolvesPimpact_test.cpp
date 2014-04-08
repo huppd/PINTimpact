@@ -35,9 +35,12 @@
 
 namespace {
 
+typedef double S;
+typedef int O;
 
 bool testMpi = true;
-double errorTolSlack = 1e+1;
+S errorTolSlack = 1e+1;
+S eps = 1.e1;
 
 
 TEUCHOS_STATIC_SETUP() {
@@ -50,6 +53,9 @@ TEUCHOS_STATIC_SETUP() {
   clp.setOption(
       "error-tol-slack", &errorTolSlack,
       "Slack off of machine epsilon used to check test results" );
+  clp.setOption(
+      "eps", &eps,
+      "epsilon used to check test results" );
 }
 
 
@@ -506,9 +512,8 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleLinear ) {
 
 
 
-TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear3 ) {
-  typedef double S;
-  typedef int O;
+TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
+
   typedef Pimpact::VectorField<S,O> VF;
   typedef Pimpact::MultiField<VF> MVF;
   typedef Pimpact::Nonlinear<S,O>  Op1;
@@ -536,7 +541,6 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear3 ) {
   auto x = Pimpact::createMultiField<VF>( *vel->clone(), 1 );
   auto f = Pimpact::createMultiField<VF>( *vel->clone(), 1 );
 
-  S eps = 1.e6;
 
   auto op = Pimpact::createOperatorBase<MVF,Op>(
       Pimpact::createMultiOpWrap(

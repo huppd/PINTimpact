@@ -16,6 +16,7 @@ extern "C" {
 
 /// \brief Divergence operator.
 /// \ingroup BaseOperator
+/// \todo manage exchange
 template<class Scalar,class Ordinal>
 class Div {
 public:

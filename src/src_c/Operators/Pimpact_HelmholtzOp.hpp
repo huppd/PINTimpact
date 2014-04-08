@@ -12,18 +12,22 @@ namespace Pimpact{
 
 
 extern "C" {
-  void OP_helmholtz( const int& m, const bool& exch_yes, const double& mulI, const double& multL, double* phi, double* Lap);
+//  void OP_helmholtz( const int& m, const bool& exch_yes, const double& mulI, const double& multL, double* phi, double* Lap);
+  void OP_helmholtz( const int& m, const double& mulI, const double& multL, double* phi, double* Lap);
 }
 
 /// \brief Helmholtz operator
 /// \ingroup BaseOperator
-/// \todo change 2 to dim
 template<class Scalar,class Ordinal>
 class Helmholtz {
+
 protected:
+
   Scalar mulI_;
   Scalar mulL_;
+
 public:
+
   Helmholtz():mulI_(1.),mulL_(1.) {};
   Helmholtz(Scalar mulI, Scalar mulL):mulI_(mulI),mulL_(mulL) {};
 
@@ -35,25 +39,25 @@ public:
   typedef NonModeOp OpType;
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
-//      y.assign(x);
-//      int d=0;
-    for( int d=0; d<2; ++d )
-      OP_helmholtz( d+1, true, mulI_, mulL_, x.vec_[d], y.vec_[d] ) ;
+
+    for( int d=0; d<x.dim(); ++d ) {
+
+      for( int i=0; i<x.dim(); ++i )
+        if( !x.is_exchanged(d,i) ) x.exchange( d, i );
+
+      OP_helmholtz( d+1, mulI_, mulL_, x.vec_[d], y.vec_[d] ) ;
+
+    }
+    y.changed();
   }
 
   void assignField( const DomainFieldT& mv ) {};
 
   bool hasApplyTranspose() const { return( false ); }
 
-}; // end of Helmholtz
+}; // end of class Helmholtz
 
 
-//template<class Scalar,class Ordinal>
-//Teuchos::RCP< OperatorMV<Helmholtz<Scalar,Ordinal> > > createHelmholtzdep( Scalar mulI=0., Scalar mulL=1. ) {
-//  return(
-//      Teuchos::rcp( new OperatorMV<Helmholtz<Scalar,Ordinal> >( Teuchos::rcp( new Helmholtz<Scalar,Ordinal>(mulI, mulL) ) ) )
-//  );
-//}
 
 
 /// \relates Helmholtz
@@ -65,6 +69,8 @@ Teuchos::RCP<Helmholtz<Scalar,Ordinal> > createHelmholtz( Scalar mulI=0., Scalar
 }
 
 
+
 } // end of namespace Pimpact
+
 
 #endif // end of #ifndef PIMPACT_HELMHOLTZOP_HPP

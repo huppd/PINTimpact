@@ -24,7 +24,7 @@
 namespace Pimpact {
 
 
-/// \ingroup BaseOperator
+/// \ingroup MultiHarmonicOperator
 /// \note u_ has to contain appropriate BC, temp_ and y doesnot matter, x should have zero BC
 template<class S,class O>
 class MultiHarmonicNonlinearJacobian : private MultiHarmonicNonlinear<S,O> {

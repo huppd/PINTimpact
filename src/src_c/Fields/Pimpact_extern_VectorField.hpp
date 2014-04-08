@@ -2,7 +2,6 @@
 #ifndef PIMPACT_EXTERN_VECTORFIELD_HPP
 #define PIMPACT_EXTERN_VECTORFIELD_HPP
 
-//#include <vector>
 //#include <iostream>
 //#include "mpi.h"
 //
@@ -20,11 +19,6 @@
 namespace Pimpact {
 
 extern "C" {
-
-
-
-
-
 
 
 void VF_compNorm(
@@ -74,6 +68,13 @@ void VF_dot(
       const double* const phi1U, const double* const phi1V, const double* const phi1W,
       const double* const phi2U, const double* const phi2V, const double* const phi2W,
       double& scalar);
+
+
+void F_exchange(
+    const int& dir, const int& vel_dir,
+    const int& SS1, const int& SS2, const int& SS3,
+    const int& NN1, const int& NN2, const int& NN3,
+    double* phi );
 
 
 void VF_write( double* phiU, double* phiV, double* phiW, const int& count );

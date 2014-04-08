@@ -3,7 +3,6 @@ from numpy import linspace
 import numpy as np
 from pylab import pi
 from platform_paths import *
-from IMPACT_loadfields import pulseC, pulseS
 
 
 exe = 'peri_burgers'

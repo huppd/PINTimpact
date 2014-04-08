@@ -26,6 +26,10 @@ namespace Pimpact {
 /// vector for a vector field, e.g.: velocity,
 /// here also happens the fortran wrapping
 /// \ingroup Field
+/// \todo add state of echanged
+/// \todo There is one issue: update methods changes state but could be
+///implemented, such that they keep the satet, but then the boundary conditions
+///have to be taken care of
 template<class S, class O>
 class VectorField {
 
@@ -54,11 +58,22 @@ private:
 
 public:
 	typedef Teuchos::ArrayRCP< Teuchos::RCP<const IndexSpace<Ordinal> > >  IndexSpaces;
+	typedef Teuchos::Tuple<Teuchos::Tuple<bool,3>,3> State;
 
-	VectorField(): fieldS_(Teuchos::null),innerIS_(Teuchos::null),fullIS_(Teuchos::null),vec_(0) {};
+	VectorField():
+	  fieldS_(Teuchos::null),
+	  innerIS_(Teuchos::null),
+	  fullIS_(Teuchos::null),
+	  vec_(0),
+	  exchangedState_(Teuchos::tuple(Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true)))
+	{};
 
-	VectorField( const Teuchos::RCP<const FieldSpace<Ordinal> >& fieldS, IndexSpaces innerIS, IndexSpaces fullIS ):fieldS_(fieldS),innerIS_(innerIS),fullIS_(fullIS) {
-		Ordinal N = 1;
+	VectorField( const Teuchos::RCP<const FieldSpace<Ordinal> >& fieldS, IndexSpaces innerIS, IndexSpaces fullIS ):
+	    fieldS_(fieldS),
+	    innerIS_(innerIS),
+	    fullIS_(fullIS),
+	    exchangedState_(Teuchos::tuple(Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true))) {
+	  Ordinal N = 1;
 		for(int i=0; i<3; ++i)
 			N *= nLoc(i)+bu(i)-bl(i);
 
@@ -78,7 +93,10 @@ public:
 	/// \param sF
 	/// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
 	VectorField(const VectorField& vF, ECopyType copyType=DeepCopy):
-	    fieldS_(vF.fieldS_),innerIS_(vF.innerIS_),fullIS_(vF.fullIS_) {
+	    fieldS_(vF.fieldS_),
+	    innerIS_(vF.innerIS_),
+	    fullIS_(vF.fullIS_),
+	    exchangedState_(vF.exchangedState_) {
 
 		Ordinal N = 1;
 		for(int i=0; i<3; ++i)
@@ -105,7 +123,9 @@ public:
 		}
 	};
 
-	~VectorField() { for(int i=0; i<3; ++i) delete[] vec_[i];}
+
+	~VectorField() {
+	  for(int i=0; i<3; ++i) delete[] vec_[i];}
 
 	Teuchos::RCP<VF> clone( ECopyType ctype=DeepCopy ) const {
 	  return( Teuchos::rcp( new VF( *this, ctype ) ) );
@@ -121,9 +141,9 @@ public:
 	/// \brief returns the length of Field.
 	///
 	/// the vector length is withregard to the inner points such that
-	/// \f[ N_u = (N_x-1)(N_y-2)(N_z-?) \f]
-	/// \f[ N_v = (N_x-2)(N_y-1)(N_z-?) \f]
-	/// \f[ N_w = (N_x-?)(N_y-?)(N_z-?) \f]
+	/// \f[ N_u = (N_x-1)(N_y-2)(N_z-2) \f]
+	/// \f[ N_v = (N_x-2)(N_y-1)(N_z-2) \f]
+	/// \f[ N_w = (N_x-2)(N_y-2)(N_z-1) \f]
 	/// \return vect length \f[= N_u+N_v+N_w\f]
 	Ordinal getLength( bool dummy=false ) const {
   	Ordinal n = 0;
@@ -151,7 +171,7 @@ public:
 
 	/// \brief Replace \c this with \f$\alpha A + \beta B\f$.
 	///
-	/// only inner points.
+	/// only inner points
 	void add( const Scalar& alpha, const VF& A, const Scalar& beta, const VF& B ) {
 		// add test for consistent VectorSpaces in debug mode
 		for( int i=0; i<dim(); ++i )
@@ -162,6 +182,7 @@ public:
 						bl(0),   bl(1),   bl(2),
 						bu(0),   bu(1),   bu(2),
 						vec_[i], A.vec_[i], B.vec_[i], alpha, beta);
+		changed();
 	}
 
 
@@ -180,6 +201,7 @@ public:
           bl(0),   bl(1),   bl(2),
           bu(0),   bu(1),   bu(2),
           vec_[i], y.vec_[i] );
+    changed();
   }
 
 
@@ -198,6 +220,7 @@ public:
           bl(0),   bl(1),   bl(2),
           bu(0),   bu(1),   bu(2),
           vec_[i], y.vec_[i] );
+    changed();
   }
 
 
@@ -211,6 +234,7 @@ public:
 					bl(0),   bl(1),   bl(2),
 					bu(0),   bu(1),   bu(2),
 					vec_[i], alpha);
+		changed();
 	}
 
 
@@ -229,6 +253,7 @@ public:
           bl(0),   bl(1),   bl(2),
           bu(0),   bu(1),   bu(2),
           vec_[i], a.vec_[i] );
+    changed();
   }
 
 
@@ -346,6 +371,10 @@ public:
 			for(int i=0; i<N; ++i) {
 				vec_[d][i] = a.vec_[d][i];
 			}
+
+		for( int vel_dir=0; vel_dir<dim(); ++vel_dir )
+		  for( int dir=0; dir<dim(); ++dir )
+		    exchangedState_[vel_dir][dir] = a.exchangedState_[vel_dir][dir];
   }
 
 
@@ -361,6 +390,7 @@ public:
 				bl(0),   bl(1),   bl(2),
 				bu(0),   bu(1),   bu(2),
 				vec_[i] );
+  	changed();
   }
 
   /// \brief Replace each element of the vector  with \c alpha.
@@ -373,6 +403,10 @@ public:
 				bl(0),   bl(1),   bl(2),
 				bu(0),   bu(1),   bu(2),
 				vec_[i], alpha);
+//		for( int vel_dir=0; vel_dir<dim(); ++vel_dir )
+//		  for( int dir=0; dir<dim(); ++dir )
+//		    exchangedState_[vel_dir][dir] = true;
+  	changed();
   }
 
 
@@ -386,6 +420,10 @@ public:
  				bl(0),   bl(1),   bl(2),
  				bu(0),   bu(1),   bu(2),
  				vec_[i], alpha[i]);
+//		for( int vel_dir=0; vel_dir<dim(); ++vel_dir )
+//		  for( int dir=0; dir<dim(); ++dir )
+//		    exchangedState_[vel_dir][dir] = true;
+		changed();
    }
 
 
@@ -575,6 +613,7 @@ public:
             vec_[0], vec_[1], vec_[2] );
         break;
     }
+    changed();
   }
 
 
@@ -595,25 +634,6 @@ public:
 				os << "rank: " << rank << " :bl: " << bl(i) << "\n";
 				os << "rank: " << rank << " :bu: " << bu(i) << "\n\n";
 			}
-//		Ordinal N = 1;
-//		for(int i=0; i<3; ++i)
-//			N *= nLoc(i)+bu(i)-bl(i);
-//		Ordinal Nx = nLoc(0)+bu(0)-bl(0);
-//		Ordinal Ny = nLoc(1)+bu(1)-bl(1);
-//		Ordinal Nz = nLoc(2)+bu(2)-bl(2);
-
-//		Scalar bla = s_[0];
-//					std::cout << "s_[0]: "<< bla <<"\n" ;
-//		for(int ix=0; ix<Nx; ++ix) {
-//			for(int iy=0; iy<Ny; ++iy) {
-//				for(int iz=0; iz<Nz;++iz) {
-//					std::cout << "rank: " << rank << " " <<
-//							"ind: (" << ix+bl(0) << ", " << iy+bl(1) << ", " << iz+bl(2) <<  ") u(ind): " << s_[iz + Nz*iy + Nz*Ny*ix] << "\n" ;
-//				}
-//				std::cout << "\n";
-//			}
-//			std::cout << "\n";
-//		}
 		std::cout << "rank: " << rank << "\n";
 		for( int i=0; i<dim(); ++i ) {
 			std::cout << "field: " << i << "\n";
@@ -625,18 +645,20 @@ public:
 				bu(0),   bu(1),   bu(2),
 				vec_[i] );
 		}
-
   }
+
 
   void write( int count=0 ) {
   	VF_write( vec_[0], vec_[1], vec_[2], count );
   }
+
 
 protected:
 	Teuchos::RCP<const FieldSpace<Ordinal> > fieldS_;
 	IndexSpaces innerIS_;
 	IndexSpaces fullIS_;
 	Teuchos::Tuple<ScalarArray,3> vec_;
+	State exchangedState_;
 //	ScalarArray vec_[3];
 
 	/// \todo add good documetnation here
@@ -652,6 +674,45 @@ protected:
 	const Ordinal&  eIndB(int i, int fieldType) const { return( fullIS_[fieldType]->eInd_[i] ); }
 	const Ordinal&  bl(int i)                   const { return( fieldS_->bl_[i] ); }
 	const Ordinal&  bu(int i)                   const { return( fieldS_->bu_[i] ); }
+
+	void changed( const int& vel_dir, const int& dir ) const {
+	  exchangedState_[vel_dir][dir] = false;
+	}
+	void changed() const {
+	  for( int vel_dir=0; vel_dir<dim(); ++vel_dir )
+	    for( int dir=0; dir<dim(); ++dir )
+	      changed( vel_dir, dir );
+	}
+
+	bool is_exchanged( const int& vel_dir, const int& dir ) const {
+	  return( exchangedState_[vel_dir][dir] );
+	}
+	bool is_exchanged() const {
+	  bool all_exchanged = true;
+	  for( int vel_dir=0; vel_dir<dim(); ++vel_dir )
+	    for( int dir=0; dir<dim(); ++dir )
+	      all_exchanged = all_exchanged && is_exchanged(vel_dir,dir);
+	  return( all_exchanged );
+	}
+
+	/// \brief updates ghost layers
+	void exchange( const int& vel_dir, const int& dir ) const {
+	  if( !exchangedState_[vel_dir][dir] ) {
+	    F_exchange(
+	        dir+1, vel_dir+1,
+	        1, 1, 1,
+	        nLoc(0), nLoc(1), nLoc(2),
+	        vec_[vel_dir]);
+	    exchangedState_[vel_dir][dir] = true;
+	  }
+	}
+	void exchange() const {
+	  for( int vel_dir=0; vel_dir<dim(); ++vel_dir )
+	    for( int dir=0; dir<dim(); ++dir )
+	        exchange( vel_dir, dir );
+	}
+
+
 
 }; // end of class VectorField
 

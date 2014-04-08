@@ -27,9 +27,10 @@ namespace Pimpact {
 /// vector for a scalar field, e.g.: pressure,
 /// \note all indexing is done in Fortran
 /// \ingroup Field
+/// \todo include Indexspace
+/// \todo add state of exchanged
 template<class S, class O>
 class ScalarField {
-
 
 	template<class S1,class O1>
 	friend class Grad;
@@ -38,11 +39,9 @@ class ScalarField {
 	template<class S1,class O1>
 	friend class Div_Grad;
 
-
 public:
 	typedef S Scalar;
 	typedef O Ordinal;
-
 
 protected:
 //	using Teuchos::RCP;
