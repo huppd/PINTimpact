@@ -2625,11 +2625,10 @@ module cmod_operator
 
   call interpolate_vel(.false.)
 
-  vel(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U),1) = phi2U(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  vel(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U),2) = phi2V(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  vel(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U),3) = phi2W(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+!  vel(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U),1) = phi2U(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+!  vel(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U),2) = phi2V(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+!  vel(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U),3) = phi2W(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
   
-  ! worki muss bereits ausgetauscht sein!
   
   
   !===========================================================================================================
@@ -2642,16 +2641,16 @@ module cmod_operator
         do j = S21, N21
            do i = S11, N11
               if (pp(i,j,k) >= 0.) then
-                 dd1 = cNu1U(n1L,i)*vel(i+n1L,j,k,1)
+                 dd1 = cNu1U(n1L,i)*phi2U(i+n1L,j,k)
 !pgi$ unroll = n:8
                  do ii = n1L+1, n1U
-                    dd1 = dd1 + cNu1U(ii,i)*vel(i+ii,j,k,1)
+                    dd1 = dd1 + cNu1U(ii,i)*phi2U(i+ii,j,k)
                  end do
               else
-                 dd1 = cNu1D(n1L,i)*vel(i+n1L,j,k,1)
+                 dd1 = cNu1D(n1L,i)*phi2U(i+n1L,j,k)
 !pgi$ unroll = n:8
                  do ii = n1L+1, n1U
-                    dd1 = dd1 + cNu1D(ii,i)*vel(i+ii,j,k,1)
+                    dd1 = dd1 + cNu1D(ii,i)*phi2U(i+ii,j,k)
                  end do
               end if
               
@@ -2661,7 +2660,7 @@ module cmod_operator
      end do
   else
      if (comp_conv_yes) then
-        call apply_compact(1,1,S11,S21,S31,N11,N21,N31,N1,ndL,ndR,dimS1,cu1CL ,cu1CL_LU ,cu1CR ,Wu1 ,Su1 ,vel(b1L,b2L,b3L,1),rr)
+        call apply_compact(1,1,S11,S21,S31,N11,N21,N31,N1,ndL,ndR,dimS1,cu1CL ,cu1CL_LU ,cu1CR ,Wu1 ,Su1 ,phi2U(b1L,b2L,b3L),rr)
         do k = S31, N31
            do j = S21, N21
 !pgi$ unroll = n:8
@@ -2674,10 +2673,10 @@ module cmod_operator
         do k = S31, N31
            do j = S21, N21
               do i = S11, N11
-                 dd1 = cu1(b1L,i)*vel(i+b1L,j,k,1)
+                 dd1 = cu1(b1L,i)*phi2U(i+b1L,j,k)
 !pgi$ unroll = n:8
                  do ii = b1L+1, b1U
-                    dd1 = dd1 + cu1(ii,i)*vel(i+ii,j,k,1)
+                    dd1 = dd1 + cu1(ii,i)*phi2U(i+ii,j,k)
                  end do
                  
                  nlU(i,j,k) = dd1*pp(i,j,k)
@@ -2699,16 +2698,16 @@ module cmod_operator
         do j = S21, N21
            do i = S11, N11
               if (pp(i,j,k) >= 0.) then
-                 dd1 = cNp2U(n2L,j)*vel(i,j+n2L,k,1)
+                 dd1 = cNp2U(n2L,j)*phi2U(i,j+n2L,k)
 !pgi$ unroll = n:8
                  do jj = n2L+1, n2U
-                    dd1 = dd1 + cNp2U(jj,j)*vel(i,j+jj,k,1)
+                    dd1 = dd1 + cNp2U(jj,j)*phi2U(i,j+jj,k)
                  end do
               else
-                 dd1 = cNp2D(n2L,j)*vel(i,j+n2L,k,1)
+                 dd1 = cNp2D(n2L,j)*phi2U(i,j+n2L,k)
 !pgi$ unroll = n:8
                  do jj = n2L+1, n2U
-                    dd1 = dd1 + cNp2D(jj,j)*vel(i,j+jj,k,1)
+                    dd1 = dd1 + cNp2D(jj,j)*phi2U(i,j+jj,k)
                  end do
               end if
               
@@ -2718,7 +2717,7 @@ module cmod_operator
      end do
   else
      if (comp_conv_yes) then
-        call apply_compact(2,0,S11,S21,S31,N11,N21,N31,N2,ndL,ndR,dimS2,cp2CL ,cp2CL_LU ,cp2CR ,Wp2 ,Sp2 ,vel(b1L,b2L,b3L,1),rr)
+        call apply_compact(2,0,S11,S21,S31,N11,N21,N31,N2,ndL,ndR,dimS2,cp2CL ,cp2CL_LU ,cp2CR ,Wp2 ,Sp2 ,phi2U(b1L,b2L,b3L),rr)
         do k = S31, N31
            do j = S21, N21
 !pgi$ unroll = n:8
@@ -2731,10 +2730,10 @@ module cmod_operator
         do k = S31, N31
            do j = S21, N21
               do i = S11, N11
-                 dd1 = cp2(b2L,j)*vel(i,j+b2L,k,1)
+                 dd1 = cp2(b2L,j)*phi2U(i,j+b2L,k)
 !pgi$ unroll = n:8
                  do jj = b2L+1, b2U
-                    dd1 = dd1 + cp2(jj,j)*vel(i,j+jj,k,1)
+                    dd1 = dd1 + cp2(jj,j)*phi2U(i,j+jj,k)
                  end do
                  
                  nlU(i,j,k) = nlU(i,j,k) + dd1*pp(i,j,k)
@@ -2757,16 +2756,16 @@ module cmod_operator
         do j = S21, N21
            do i = S11, N11
               if (pp(i,j,k) >= 0.) then
-                 dd1 = cNp3U(n3L,k)*vel(i,j,k+n3L,1)
+                 dd1 = cNp3U(n3L,k)*phi2U(i,j,k+n3L)
 !pgi$ unroll = n:8
                  do kk = n3L+1, n3U
-                    dd1 = dd1 + cNp3U(kk,k)*vel(i,j,k+kk,1)
+                    dd1 = dd1 + cNp3U(kk,k)*phi2U(i,j,k+kk)
                  end do
               else
-                 dd1 = cNp3D(n3L,k)*vel(i,j,k+n3L,1)
+                 dd1 = cNp3D(n3L,k)*phi2U(i,j,k+n3L)
 !pgi$ unroll = n:8
                  do kk = n3L+1, n3U
-                    dd1 = dd1 + cNp3D(kk,k)*vel(i,j,k+kk,1)
+                    dd1 = dd1 + cNp3D(kk,k)*phi2U(i,j,k+kk)
                  end do
               end if
               
@@ -2776,7 +2775,7 @@ module cmod_operator
      end do
   else
      if (comp_conv_yes) then
-        call apply_compact(3,0,S11,S21,S31,N11,N21,N31,N3,ndL,ndR,dimS3,cp3CL ,cp3CL_LU ,cp3CR ,Wp3 ,Sp3 ,vel(b1L,b2L,b3L,1),rr)
+        call apply_compact(3,0,S11,S21,S31,N11,N21,N31,N3,ndL,ndR,dimS3,cp3CL ,cp3CL_LU ,cp3CR ,Wp3 ,Sp3 ,phi2U(b1L,b2L,b3L),rr)
         do k = S31, N31
            do j = S21, N21
 !pgi$ unroll = n:8
@@ -2789,10 +2788,10 @@ module cmod_operator
         do k = S31, N31
            do j = S21, N21
               do i = S11, N11
-                 dd1 = cp3(b3L,k)*vel(i,j,k+b3L,1)
+                 dd1 = cp3(b3L,k)*phi2U(i,j,k+b3L)
 !pgi$ unroll = n:8
                  do kk = b3L+1, b3U
-                    dd1 = dd1 + cp3(kk,k)*vel(i,j,k+kk,1)
+                    dd1 = dd1 + cp3(kk,k)*phi2U(i,j,k+kk)
                  end do
                  
                  nlU(i,j,k) = nl(i,j,k,1) + dd1*pp(i,j,k)
@@ -2819,16 +2818,16 @@ module cmod_operator
         do j = S22, N22
            do i = S12, N12
               if (pp(i,j,k) >= 0.) then
-                 dd1 = cNp1U(n1L,i)*vel(i+n1L,j,k,2)
+                 dd1 = cNp1U(n1L,i)*phi2V(i+n1L,j,k)
 !pgi$ unroll = n:8
                  do ii = n1L+1, n1U
-                    dd1 = dd1 + cNp1U(ii,i)*vel(i+ii,j,k,2)
+                    dd1 = dd1 + cNp1U(ii,i)*phi2V(i+ii,j,k)
                  end do
               else
-                 dd1 = cNp1D(n1L,i)*vel(i+n1L,j,k,2)
+                 dd1 = cNp1D(n1L,i)*phi2V(i+n1L,j,k)
 !pgi$ unroll = n:8
                  do ii = n1L+1, n1U
-                    dd1 = dd1 + cNp1D(ii,i)*vel(i+ii,j,k,2)
+                    dd1 = dd1 + cNp1D(ii,i)*phi2V(i+ii,j,k)
                  end do
               end if
               
@@ -2838,7 +2837,7 @@ module cmod_operator
      end do
   else
      if (comp_conv_yes) then
-        call apply_compact(1,0,S12,S22,S32,N12,N22,N32,N1,ndL,ndR,dimS1,cp1CL ,cp1CL_LU ,cp1CR ,Wp1 ,Sp1 ,vel(b1L,b2L,b3L,2),rr)
+        call apply_compact(1,0,S12,S22,S32,N12,N22,N32,N1,ndL,ndR,dimS1,cp1CL ,cp1CL_LU ,cp1CR ,Wp1 ,Sp1 ,phi2V(b1L,b2L,b3L),rr)
         do k = S32, N32
            do j = S22, N22
 !pgi$ unroll = n:8
@@ -2851,10 +2850,10 @@ module cmod_operator
         do k = S32, N32
            do j = S22, N22
               do i = S12, N12
-                 dd1 = cp1(b1L,i)*vel(i+b1L,j,k,2)
+                 dd1 = cp1(b1L,i)*phi2V(i+b1L,j,k)
 !pgi$ unroll = n:8
                  do ii = b1L+1, b1U
-                    dd1 = dd1 + cp1(ii,i)*vel(i+ii,j,k,2)
+                    dd1 = dd1 + cp1(ii,i)*phi2V(i+ii,j,k)
                  end do
                  
                  nlV(i,j,k) = dd1*pp(i,j,k)
@@ -2876,16 +2875,16 @@ module cmod_operator
         do j = S22, N22
            do i = S12, N12
               if (pp(i,j,k) >= 0.) then
-                 dd1 = cNv2U(n2L,j)*vel(i,j+n2L,k,2)
+                 dd1 = cNv2U(n2L,j)*phi2V(i,j+n2L,k)
 !pgi$ unroll = n:8
                  do jj = n2L+1, n2U
-                    dd1 = dd1 + cNv2U(jj,j)*vel(i,j+jj,k,2)
+                    dd1 = dd1 + cNv2U(jj,j)*phi2V(i,j+jj,k)
                  end do
               else
-                 dd1 = cNv2D(n2L,j)*vel(i,j+n2L,k,2)
+                 dd1 = cNv2D(n2L,j)*phi2V(i,j+n2L,k)
 !pgi$ unroll = n:8
                  do jj = n2L+1, n2U
-                    dd1 = dd1 + cNv2D(jj,j)*vel(i,j+jj,k,2)
+                    dd1 = dd1 + cNv2D(jj,j)*phi2V(i,j+jj,k)
                  end do
               end if
               
@@ -2895,7 +2894,7 @@ module cmod_operator
      end do
   else
      if (comp_conv_yes) then
-        call apply_compact(2,2,S12,S22,S32,N12,N22,N32,N2,ndL,ndR,dimS2,cv2CL ,cv2CL_LU ,cv2CR ,Wv2 ,Sv2 ,vel(b1L,b2L,b3L,2),rr)
+        call apply_compact(2,2,S12,S22,S32,N12,N22,N32,N2,ndL,ndR,dimS2,cv2CL ,cv2CL_LU ,cv2CR ,Wv2 ,Sv2 ,phi2V(b1L,b2L,b3L),rr)
         do k = S32, N32
            do j = S22, N22
 !pgi$ unroll = n:8
@@ -2908,10 +2907,10 @@ module cmod_operator
         do k = S32, N32
            do j = S22, N22
               do i = S12, N12
-                 dd1 = cv2(b2L,j)*vel(i,j+b2L,k,2)
+                 dd1 = cv2(b2L,j)*phi2V(i,j+b2L,k)
 !pgi$ unroll = n:8
                  do jj = b2L+1, b2U
-                    dd1 = dd1 + cv2(jj,j)*vel(i,j+jj,k,2)
+                    dd1 = dd1 + cv2(jj,j)*phi2V(i,j+jj,k)
                  end do
                  
                  nlV(i,j,k) = nlV(i,j,k) + dd1*pp(i,j,k)
@@ -2934,16 +2933,16 @@ module cmod_operator
         do j = S22, N22
            do i = S12, N12
               if (pp(i,j,k) >= 0.) then
-                 dd1 = cNp3U(n3L,k)*vel(i,j,k+n3L,2)
+                 dd1 = cNp3U(n3L,k)*phi2V(i,j,k+n3L)
 !pgi$ unroll = n:8
                  do kk = n3L+1, n3U
-                    dd1 = dd1 + cNp3U(kk,k)*vel(i,j,k+kk,2)
+                    dd1 = dd1 + cNp3U(kk,k)*phi2V(i,j,k+kk)
                  end do
               else
-                 dd1 = cNp3D(n3L,k)*vel(i,j,k+n3L,2)
+                 dd1 = cNp3D(n3L,k)*phi2V(i,j,k+n3L)
 !pgi$ unroll = n:8
                  do kk = n3L+1, n3U
-                    dd1 = dd1 + cNp3D(kk,k)*vel(i,j,k+kk,2)
+                    dd1 = dd1 + cNp3D(kk,k)*phi2V(i,j,k+kk)
                  end do
               end if
               
@@ -2953,7 +2952,7 @@ module cmod_operator
      end do
   else
      if (comp_conv_yes) then
-        call apply_compact(3,0,S12,S22,S32,N12,N22,N32,N3,ndL,ndR,dimS3,cp3CL ,cp3CL_LU ,cp3CR ,Wp3 ,Sp3 ,vel(b1L,b2L,b3L,2),rr)
+        call apply_compact(3,0,S12,S22,S32,N12,N22,N32,N3,ndL,ndR,dimS3,cp3CL ,cp3CL_LU ,cp3CR ,Wp3 ,Sp3 ,phi2V(b1L,b2L,b3L),rr)
         do k = S32, N32
            do j = S22, N22
 !pgi$ unroll = n:8
@@ -2966,10 +2965,10 @@ module cmod_operator
         do k = S32, N32
            do j = S22, N22
               do i = S12, N12
-                 dd1 = cp3(b3L,k)*vel(i,j,k+b3L,2)
+                 dd1 = cp3(b3L,k)*phi2V(i,j,k+b3L)
 !pgi$ unroll = n:8
                  do kk = b3L+1, b3U
-                    dd1 = dd1 + cp3(kk,k)*vel(i,j,k+kk,2)
+                    dd1 = dd1 + cp3(kk,k)*phi2V(i,j,k+kk)
                  end do
                  
                  nlV(i,j,k) = nl(i,j,k,2) + dd1*pp(i,j,k)
@@ -2996,16 +2995,16 @@ module cmod_operator
         do j = S23, N23
            do i = S13, N13
               if (pp(i,j,k) >= 0.) then
-                 dd1 = cNp1U(n1L,i)*vel(i+n1L,j,k,3)
+                 dd1 = cNp1U(n1L,i)*phi2W(i+n1L,j,k)
 !pgi$ unroll = n:8
                  do ii = n1L+1, n1U
-                    dd1 = dd1 + cNp1U(ii,i)*vel(i+ii,j,k,3)
+                    dd1 = dd1 + cNp1U(ii,i)*phi2W(i+ii,j,k)
                  end do
               else
-                 dd1 = cNp1D(n1L,i)*vel(i+n1L,j,k,3)
+                 dd1 = cNp1D(n1L,i)*phi2W(i+n1L,j,k)
 !pgi$ unroll = n:8
                  do ii = n1L+1, n1U
-                    dd1 = dd1 + cNp1D(ii,i)*vel(i+ii,j,k,3)
+                    dd1 = dd1 + cNp1D(ii,i)*phi2W(i+ii,j,k)
                  end do
               end if
               
@@ -3015,7 +3014,7 @@ module cmod_operator
      end do
   else
      if (comp_conv_yes) then
-        call apply_compact(1,0,S13,S23,S33,N13,N23,N33,N1,ndL,ndR,dimS1,cp1CL ,cp1CL_LU ,cp1CR ,Wp1 ,Sp1 ,vel(b1L,b2L,b3L,3),rr)
+        call apply_compact(1,0,S13,S23,S33,N13,N23,N33,N1,ndL,ndR,dimS1,cp1CL ,cp1CL_LU ,cp1CR ,Wp1 ,Sp1 ,phi2W(b1L,b2L,b3L),rr)
         do k = S33, N33
            do j = S23, N23
 !pgi$ unroll = n:8
@@ -3028,10 +3027,10 @@ module cmod_operator
         do k = S33, N33
            do j = S23, N23
               do i = S13, N13
-                 dd1 = cp1(b1L,i)*vel(i+b1L,j,k,3)
+                 dd1 = cp1(b1L,i)*phi2W(i+b1L,j,k)
 !pgi$ unroll = n:8
                  do ii = b1L+1, b1U
-                    dd1 = dd1 + cp1(ii,i)*vel(i+ii,j,k,3)
+                    dd1 = dd1 + cp1(ii,i)*phi2W(i+ii,j,k)
                  end do
                  
                  nlW(i,j,k) = dd1*pp(i,j,k)
@@ -3053,16 +3052,16 @@ module cmod_operator
         do j = S23, N23
            do i = S13, N13
               if (pp(i,j,k) >= 0.) then
-                 dd1 = cNp2U(n2L,j)*vel(i,j+n2L,k,3)
+                 dd1 = cNp2U(n2L,j)*phi2W(i,j+n2L,k)
 !pgi$ unroll = n:8
                  do jj = n2L+1, n2U
-                    dd1 = dd1 + cNp2U(jj,j)*vel(i,j+jj,k,3)
+                    dd1 = dd1 + cNp2U(jj,j)*phi2W(i,j+jj,k)
                  end do
               else
-                 dd1 = cNp2D(n2L,j)*vel(i,j+n2L,k,3)
+                 dd1 = cNp2D(n2L,j)*phi2W(i,j+n2L,k)
 !pgi$ unroll = n:8
                  do jj = n2L+1, n2U
-                    dd1 = dd1 + cNp2D(jj,j)*vel(i,j+jj,k,3)
+                    dd1 = dd1 + cNp2D(jj,j)*phi2W(i,j+jj,k)
                  end do
               end if
               
@@ -3072,7 +3071,7 @@ module cmod_operator
      end do
   else
      if (comp_conv_yes) then
-        call apply_compact(2,0,S13,S23,S33,N13,N23,N33,N2,ndL,ndR,dimS2,cp2CL ,cp2CL_LU ,cp2CR ,Wp2 ,Sp2 ,vel(b1L,b2L,b3L,3),rr)
+        call apply_compact(2,0,S13,S23,S33,N13,N23,N33,N2,ndL,ndR,dimS2,cp2CL ,cp2CL_LU ,cp2CR ,Wp2 ,Sp2 ,phi2W(b1L,b2L,b3L),rr)
         do k = S33, N33
            do j = S23, N23
 !pgi$ unroll = n:8
@@ -3085,10 +3084,10 @@ module cmod_operator
         do k = S33, N33
            do j = S23, N23
               do i = S13, N13
-                 dd1 = cp2(b2L,j)*vel(i,j+b2L,k,3)
+                 dd1 = cp2(b2L,j)*phi2W(i,j+b2L,k)
 !pgi$ unroll = n:8
                  do jj = b2L+1, b2U
-                    dd1 = dd1 + cp2(jj,j)*vel(i,j+jj,k,3)
+                    dd1 = dd1 + cp2(jj,j)*phi2W(i,j+jj,k)
                  end do
                  
                  nlW(i,j,k) = nlW(i,j,k) + dd1*pp(i,j,k)
@@ -3110,16 +3109,16 @@ module cmod_operator
         do j = S23, N23
            do i = S13, N13
               if (pp(i,j,k) >= 0.) then
-                 dd1 = cNw3U(n3L,k)*vel(i,j,k+n3L,3)
+                 dd1 = cNw3U(n3L,k)*phi2W(i,j,k+n3L)
 !pgi$ unroll = n:8
                  do kk = n3L+1, n3U
-                    dd1 = dd1 + cNw3U(kk,k)*vel(i,j,k+kk,3)
+                    dd1 = dd1 + cNw3U(kk,k)*phi2W(i,j,k+kk)
                  end do
               else
-                 dd1 = cNw3D(n3L,k)*vel(i,j,k+n3L,3)
+                 dd1 = cNw3D(n3L,k)*phi2W(i,j,k+n3L)
 !pgi$ unroll = n:8
                  do kk = n3L+1, n3U
-                    dd1 = dd1 + cNw3D(kk,k)*vel(i,j,k+kk,3)
+                    dd1 = dd1 + cNw3D(kk,k)*phi2W(i,j,k+kk)
                  end do
               end if
               
@@ -3129,7 +3128,7 @@ module cmod_operator
      end do
   else
      if (comp_conv_yes) then
-        call apply_compact(3,3,S13,S23,S33,N13,N23,N33,N3,ndL,ndR,dimS3,cw3CL ,cw3CL_LU ,cw3CR ,Ww3 ,Sw3 ,vel(b1L,b2L,b3L,3),rr)
+        call apply_compact(3,3,S13,S23,S33,N13,N23,N33,N3,ndL,ndR,dimS3,cw3CL ,cw3CL_LU ,cw3CR ,Ww3 ,Sw3 ,phi2W(b1L,b2L,b3L),rr)
         do k = S33, N33
            do j = S23, N23
 !pgi$ unroll = n:8
@@ -3142,10 +3141,10 @@ module cmod_operator
         do k = S33, N33
            do j = S23, N23
               do i = S13, N13
-                 dd1 = cw3(b3L,k)*vel(i,j,k+b3L,3)
+                 dd1 = cw3(b3L,k)*phi2W(i,j,k+b3L)
 !pgi$ unroll = n:8
                  do kk = b3L+1, b3U
-                    dd1 = dd1 + cw3(kk,k)*vel(i,j,k+kk,3)
+                    dd1 = dd1 + cw3(kk,k)*phi2W(i,j,k+kk)
                  end do
                  
                  nlW(i,j,k) = nlW(i,j,k) + dd1*pp(i,j,k)
@@ -3421,6 +3420,7 @@ module cmod_operator
   !! vel(:,:,:,i) -> worki(:,:,:)
   !! \test anderes Modul?
   !! \test basiert neu auf interpolate2_vel_pre ... ok??
+  !! \todo pimpactit
   subroutine interpolate_vel(exch_yes)
   
   implicit none
@@ -3722,16 +3722,20 @@ module cmod_operator
   
   
   ! TEST!!! noch relativ ungetestet!
-  subroutine interpolate_vel_pre(exch_yes,m,SS1,SS2,SS3,NN1,NN2,NN3,phi,inter)
+  subroutine interpolate_vel_pre(   &
+    m,                              &
+    SS1,SS2,SS3,                    &
+    NN1,NN2,NN3,                    &
+    phi,inter) bind (c,name='F_interpolateVel2Pre')
   
   implicit none
   
-  logical, intent(in   ) ::  exch_yes
-  integer, intent(in)    ::  m
-  integer, intent(in   ) ::  SS1, SS2, SS3, NN1, NN2, NN3
+!  logical       , intent(in   ) ::  exch_yes
+  integer(c_int), intent(in)    ::  m
+  integer(c_int), intent(in   ) ::  SS1, SS2, SS3, NN1, NN2, NN3
   
-  real   , intent(inout) ::  phi  (b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  real   , intent(inout) ::  inter(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double), intent(inout) ::  phi  (b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double), intent(inout) ::  inter(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
   
   integer                ::  i, ii
   integer                ::  j, jj
@@ -3743,7 +3747,7 @@ module cmod_operator
   !----------------------------------------------------------------------------------------------------------!
   
   
-  if (exch_yes) call exchange2(m,m,SS1,SS2,SS3,NN1,NN2,NN3,phi)
+!  if (exch_yes) call exchange2(m,m,SS1,SS2,SS3,NN1,NN2,NN3,phi)
   
   
   !===========================================================================================================
