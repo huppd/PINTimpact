@@ -37,8 +37,8 @@ public:
 //  void assignU(Teuchos::RCP<DomainFieldT> u) { u_->assign(u); }
 
   void assignField( const DomainFieldT& mv ) {
-    u_->assign( mv );
-    u_->exchange();
+//    u_->assign( mv );
+//    u_->exchange();
   };
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {

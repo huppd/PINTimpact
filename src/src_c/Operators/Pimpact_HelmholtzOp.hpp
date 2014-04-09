@@ -40,12 +40,12 @@ public:
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
 
-    for( int d=0; d<x.dim(); ++d ) {
+    for( int vel_dir=0; vel_dir<x.dim(); ++vel_dir ) {
 
-      for( int i=0; i<x.dim(); ++i )
-        if( !x.is_exchanged(d,i) ) x.exchange( d, i );
+      for( int dir=0; dir<x.dim(); ++dir )
+        if( !x.is_exchanged(vel_dir,dir) ) x.exchange( vel_dir, dir );
 
-      OP_helmholtz( d+1, mulI_, mulL_, x.vec_[d], y.vec_[d] ) ;
+      OP_helmholtz( vel_dir+1, mulI_, mulL_, x.vec_[vel_dir], y.vec_[vel_dir] ) ;
 
     }
     y.changed();

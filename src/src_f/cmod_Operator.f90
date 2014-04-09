@@ -2586,14 +2586,12 @@ module cmod_operator
   !! \relates Pimpact::Nonlinear
   !! \todo extract interpolate vel
   subroutine nonlinear(     &
-!        exch_yes,           &
         phi1U,phi1V,phi1W,  &
         phi2U,phi2V,phi2W,  &
         nlU,nlV,nlW ) bind (c,name='OP_nonlinear')
   
   implicit none
   
-!  logical(c_bool), intent(in   ) ::  exch_yes
   
   real(c_double),  intent(inout) ::  phi1U(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
   real(c_double),  intent(inout) ::  phi1V(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))

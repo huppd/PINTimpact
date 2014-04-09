@@ -135,7 +135,7 @@ int main(int argi, char** argv ) {
   my_CLP.setOption( "nonLinSolName", &nonLinSolName , "name of the non linear solver" );
 
   std::string lineSearchName = "Backtrack";
-  my_CLP.setOption( "lineSearchName", &lineSearchName, "name of the line search" );
+  my_CLP.setOption( "linesearch", &lineSearchName, "name of the line search" );
 
   int iterM = 1.;
   my_CLP.setOption( "iterM", &iterM, "kind of iteration matrix: 1=Newton, 2=Piccard, 3=lin diag, " );

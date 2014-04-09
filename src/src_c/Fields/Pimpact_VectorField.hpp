@@ -698,6 +698,7 @@ protected:
 	/// \brief updates ghost layers
 	void exchange( const int& vel_dir, const int& dir ) const {
 	  if( !exchangedState_[vel_dir][dir] ) {
+//	    std::cout << "exchange\n";
 	    F_exchange(
 	        dir+1, vel_dir+1,
 	        1, 1, 1,
