@@ -2619,16 +2619,24 @@ module cmod_operator
   !                werden, jedoch sind dazu einige Umbaumassnahmen notwendig bei geringem Effizienzgewinn.   !
   !----------------------------------------------------------------------------------------------------------!
 
-  vel(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U),1) = phi1U(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  vel(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U),2) = phi1V(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  vel(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U),3) = phi1W(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+                   call interpolate2_vel_pre(.false.,1,phi1U(b1L,b2L,b3L),work1)
+                   call interpolate2_vel_pre(.false.,2,phi1V(b1L,b2L,b3L),work2)
+  if (dimens == 3) call interpolate2_vel_pre(.false.,3,phi1W(b1L,b2L,b3L),work3)
 
-  call interpolate_vel(.false.)
 
-!  vel(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U),1) = phi2U(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-!  vel(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U),2) = phi2V(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-!  vel(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U),3) = phi2W(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  
+  call exchange(1,0,work1)
+  call exchange(2,0,work1)
+  call exchange(3,0,work1)
+
+  call exchange(1,0,work2)
+  call exchange(2,0,work2)
+  call exchange(3,0,work2)
+
+  if (dimens == 3) then
+     call exchange(1,0,work3)
+     call exchange(2,0,work3)
+     call exchange(3,0,work3)
+  end if
   
   
   !===========================================================================================================

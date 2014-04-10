@@ -13,7 +13,7 @@ namespace Pimpact {
 
 extern "C" {
 
-  void OP_nonlinear( //const bool& exch_yes,
+  void OP_nonlinear(
       double* phi1U, double* phi1V, double* phi1W,
       double* phi2U, double* phi2V, double* phi2W,
       double* nl1,   double* nl2,   double* nl3 );
@@ -33,20 +33,15 @@ private:
 public:
   Nonlinear():u_(Teuchos::null) {};
 
-//  void setU(const Teuchos::RCP<DomainFieldT>& u) { u_=u; }
-//  void assignU(Teuchos::RCP<DomainFieldT> u) { u_->assign(u); }
 
-  void assignField( const DomainFieldT& mv ) {
-//    u_->assign( mv );
-//    u_->exchange();
-  };
+  void assignField( const DomainFieldT& mv ) {};
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
 
-    if( Teuchos::is_null(u_) )
+//    if( Teuchos::is_null(u_) )
       apply( x, x, y);
-    else
-      apply( *u_, x, y );
+//    else
+//      apply( *u_, x, y );
 
   }
 
@@ -56,7 +51,7 @@ public:
       x.exchange( vel_dir, vel_dir );
     y.exchange();
 
-    OP_nonlinear( //false,
+    OP_nonlinear(
         x.vec_[0],x.vec_[1],x.vec_[2],
         y.vec_[0],y.vec_[1],y.vec_[2],
         z.vec_[0],z.vec_[1],z.vec_[2] );

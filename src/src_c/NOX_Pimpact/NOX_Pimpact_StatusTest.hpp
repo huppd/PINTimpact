@@ -99,7 +99,9 @@ Teuchos::RCP<Teuchos::ParameterList> createNOXSolverParameter(
      lineSearchParameters.sublist("Backtrack").set( "Recovery Step", 1.e-6 );
   }
   if( lineSearchName=="Polynomial" ) {
-     lineSearchParameters.sublist("Polynomial").set( "Interpolation Type", "Quadratic3" );
+     Teuchos::ParameterList& sll = lineSearchParameters.sublist("Polynomial");
+     sll.set( "Interpolation Type", "Quadratic3" );
+     sll.set( "Recovery Step Type", "Last Computed Step" );
   }
   return( solverParametersPtr );
 
