@@ -15,6 +15,8 @@ module cmod_inout
   use mod_lib
   use HDF5
   
+  use mpi
+
   use iso_c_binding
 
 
@@ -39,7 +41,7 @@ module cmod_inout
   
   
   
-  INCLUDE 'mpif.h'
+!  INCLUDE 'mpif.h'
   
   integer(HID_T)                 ::  file_id, plist_id, dset_id
   integer(HID_T)                 ::  filespace, memspace
@@ -59,6 +61,7 @@ module cmod_inout
   
   
   
+  !> \todo remove copying
   subroutine write_pre( phip, filecount ) bind (c,name='SF_write')
   
   implicit none
@@ -139,11 +142,6 @@ module cmod_inout
 
   if (rank == 0) write(*,'(a)') 'writing velocity field ...'
 
-  vel(:,:,:,1) = phiU
-  vel(:,:,:,2) = phiV
-  vel(:,:,:,3) = phiW
-
-
 
   !===========================================================================================================
   !=== Ausschrieb-Nr. als String fuer File-Namen =============================================================
@@ -152,11 +150,6 @@ module cmod_inout
   call num_to_string(5,filecount,count_char)
   !===========================================================================================================
 
-  
-  call exchange(1,1,vel(b1L,b2L,b3L,1))
-  call exchange(2,2,vel(b1L,b2L,b3L,2))
-  call exchange(3,3,vel(b1L,b2L,b3L,3))
-
   !===========================================================================================================
   !=== Interpolieren / Schreiben =============================================================================
   !===========================================================================================================
@@ -164,10 +157,10 @@ module cmod_inout
      do k = S3p, N3p
         do j = S2p, N2p
            do i = S1p, N1p
-              nl(i,j,k,1) = cIup(d1L,i)*vel(i+d1L,j,k,1)
+              nl(i,j,k,1) = cIup(d1L,i)*phiU(i+d1L,j,k)
 !pgi$ unroll = n:8
               do ii = d1L+1, d1U
-                 nl(i,j,k,1) = nl(i,j,k,1) + cIup(ii,i)*vel(i+ii,j,k,1) ! TEST!!! Verallgemeinerte Interpolation verwenden? Mit compute_stats teilen?
+                 nl(i,j,k,1) = nl(i,j,k,1) + cIup(ii,i)*phiU(i+ii,j,k) ! TEST!!! Verallgemeinerte Interpolation verwenden? Mit compute_stats teilen?
               end do
            end do
         end do
@@ -179,10 +172,10 @@ module cmod_inout
      k = 1
      do j = S2p, N2p
         do i = S1p, N1p
-           bc33(i,j,1) = cIup(d1L,i)*vel(i+d1L,j,k,1)
+           bc33(i,j,1) = cIup(d1L,i)*phiU(i+d1L,j,k)
 !pgi$ unroll = n:8
            do ii = d1L+1, d1U
-              bc33(i,j,1) = bc33(i,j,1) + cIup(ii,i)*vel(i+ii,j,k,1)
+              bc33(i,j,1) = bc33(i,j,1) + cIup(ii,i)*phiU(i+ii,j,k)
            end do
         end do
      end do
@@ -193,10 +186,10 @@ module cmod_inout
      do k = S3p, N3p
         do j = S2p, N2p
            do i = S1p, N1p
-              nl(i,j,k,2) = cIvp(d2L,j)*vel(i,j+d2L,k,2)
+              nl(i,j,k,2) = cIvp(d2L,j)*phiV(i,j+d2L,k)
 !pgi$ unroll = n:8
               do jj = d2L+1, d2U
-                 nl(i,j,k,2) = nl(i,j,k,2) + cIvp(jj,j)*vel(i,j+jj,k,2)
+                 nl(i,j,k,2) = nl(i,j,k,2) + cIvp(jj,j)*phiV(i,j+jj,k)
               end do
            end do
         end do
@@ -208,10 +201,10 @@ module cmod_inout
      k = 1
      do j = S2p, N2p
         do i = S1p, N1p
-           bc33(i,j,2) = cIvp(d2L,j)*vel(i,j+d2L,k,2)
+           bc33(i,j,2) = cIvp(d2L,j)*phiV(i,j+d2L,k)
 !pgi$ unroll = n:8
            do jj = d2L+1, d2U
-              bc33(i,j,2) = bc33(i,j,2) + cIvp(jj,j)*vel(i,j+jj,k,2)
+              bc33(i,j,2) = bc33(i,j,2) + cIvp(jj,j)*phiV(i,j+jj,k)
            end do
         end do
      end do
@@ -222,10 +215,10 @@ module cmod_inout
      do k = S3p, N3p
         do j = S2p, N2p
            do i = S1p, N1p
-              nl(i,j,k,3) = cIwp(d3L,k)*vel(i,j,k+d3L,3)
+              nl(i,j,k,3) = cIwp(d3L,k)*phiW(i,j,k+d3L)
 !pgi$ unroll = n:8
               do kk = d3L+1, d3U
-                 nl(i,j,k,3) = nl(i,j,k,3) + cIwp(kk,k)*vel(i,j,k+kk,3)
+                 nl(i,j,k,3) = nl(i,j,k,3) + cIwp(kk,k)*phiW(i,j,k+kk)
               end do
            end do
         end do

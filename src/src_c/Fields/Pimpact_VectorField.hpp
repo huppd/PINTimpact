@@ -649,6 +649,8 @@ public:
 
 
   void write( int count=0 ) {
+    for( int dir=0; dir<dim(); ++dir )
+      exchange( dir, dir );
   	VF_write( vec_[0], vec_[1], vec_[2], count );
   }
 

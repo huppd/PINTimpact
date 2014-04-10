@@ -68,7 +68,7 @@ public:
 
 
   /// \brief  constructor, creates \c numvecs  empty Fields
-  /// @param numvecs
+  /// \param numvecs
   /// @return
   MultiField( int numvecs ):mfs_(numvecs) {}
 
@@ -117,7 +117,7 @@ public:
 
 
   /// deep copy of \c index fields, the new \c MultiFields stores \c index.size()
-  /// @param index here index means an interval
+  /// \param index here index means an interval
   /// @return
   Teuchos::RCP<MV> CloneCopy( const Teuchos::Range1D& index) const {
   	auto mv_ = Teuchos::rcp( new MV(index.size()) );
@@ -130,7 +130,7 @@ public:
   }
 
 
-  /// @param index
+  /// \param index
   /// @return nonConst View
   Teuchos::RCP<MV> CloneViewNonConst( const std::vector<int>& index) {
   	auto mv_ = Teuchos::rcp( new MV( index.size() ) );
@@ -198,20 +198,27 @@ public:
   /// \name Update methods
   //@{
 
+  void push_back( const Teuchos::RCP<Field>& field=Teuchos::null ) {
+    if( Teuchos::is_null(field) )
+      mfs_.push_back( mfs_.back()->clone(ShallowCopy) );
+    else
+      mfs_.push_back( field );
+  }
+
 
 
   /// \brief \f[ *this = \alpha A B + \beta *this \f]
   /// \todo add debugtests
-  /// @param alpha
-  /// @param A
-  /// @param B
-  /// @param beta
+  /// \param alpha
+  /// \param A
+  /// \param B
+  /// \param beta
   void TimesMatAdd( const Scalar& alpha, const MV& A,
   		const Teuchos::SerialDenseMatrix<int,Scalar>& B,
   		const Scalar& beta ) {
-  	auto AB = CloneCopy(); /// costly should be avoided
+  	auto AB = CloneCopy();      /// costly should be avoided
   	int m1 = A.getNumberVecs(); ///< is assumed to be equal to number vecs of this and ncolumns and nrows of b
-  	int m2 = getNumberVecs(); ///< is assumed to be equal to number vecs of this and ncolumns and nrows of b
+  	int m2 = getNumberVecs();   ///< is assumed to be equal to number vecs of this and ncolumns and nrows of b
 
   	AB->init(0.);
   	for( int j=0; j<m1; ++j ) {
@@ -244,7 +251,6 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  /// \todo implement me
   void abs(const MV& y) {
     for( int i=0; i<getNumberVecs(); ++i )
       mfs_[i]->abs( *y.mfs_[i] );
@@ -256,8 +262,6 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
   /// \return Reference to this object
-  /// \todo implement me
-  ///
    void reciprocal(const MV& y){
     for( int i=0; i<getNumberVecs(); ++i )
       mfs_[i]->reciprocal( *y.mfs_[i] );
@@ -279,7 +283,6 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  /// \todo implement me
   void scale(const MV& a) {
     for( int i=0; i<getNumberVecs(); ++i )
       mfs_[i]->scale( *a.mfs_[i] );
@@ -300,9 +303,9 @@ public:
 
 
   /// \f[ C_{ij} = \alpha A_i^T \c this_j \f]
-  /// @param alpha
-  /// @param A
-  /// @param C
+  /// \param alpha
+  /// \param A
+  /// \param C
   void Trans( Scalar alpha, const MV& A,
   		Teuchos::SerialDenseMatrix<int,Scalar>& C) const {
 
@@ -333,7 +336,6 @@ public:
 
 
   /// \brief Compute the inner product for the \c MultiField considering it as one Vector.
-  /// \todo test this
 	Scalar dot( const MV& A ) const {
 		int n = getNumberVecs();
 		Scalar innpro=0.;
@@ -394,8 +396,8 @@ public:
 
 
   /// \test this
-  /// @param A
-  /// @param index
+  /// \param A
+  /// \param index
   void SetBlock( const MV& A, const std::vector<int>& index ) {
   	const int n = index.size();
   	for( int i=0; i<n; ++i )
@@ -403,8 +405,8 @@ public:
   }
 
 
-  /// @param A
-  /// @param index
+  /// \param A
+  /// \param index
   void SetBlock( const MV& A, const Teuchos::Range1D& index) {
   	for( int i=index.lbound(); i<=index.ubound(); ++i )
   		mfs_[i]->assign(*A.mfs_[i-index.lbound()]);
@@ -437,7 +439,7 @@ public:
 
 
   /// \todo add os to \c ScalarField and \c VectorField
-  /// @param os
+  /// \param os
   void print( std::ostream& os ) {
   	const int n = getNumberVecs();
   	for( int i=0; i<n; ++i )

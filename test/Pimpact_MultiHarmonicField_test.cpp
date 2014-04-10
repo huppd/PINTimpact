@@ -56,6 +56,27 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, constructor ) {
 	const int m = field->getNumberVecs();
 
 	TEST_EQUALITY( 1, m );
+
+}
+
+
+
+TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, push_back ) {
+
+  auto fS = Pimpact::createFieldSpace<O>();
+
+  auto field = Pimpact::createMultiHarmonicScalarField<S,O>(fS,10);
+
+  int nf1 = field->getNumberModes();
+  TEST_EQUALITY( nf1, 10 );
+
+  field->push_back();
+
+  int nf2 = field->getNumberModes();
+  TEST_EQUALITY( nf2, nf1+1 );
+
+  field->getFieldPtr(nf2-1)->random();
+
 }
 
 

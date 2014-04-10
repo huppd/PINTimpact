@@ -14,7 +14,7 @@ os.system( 'make -j4' )
 case_path = ['burgy1D/','','']
 
 itMs = [1,2,4,6]
-case_consts = ' --dim=1 --nx=97 --ny=7 --npx=4 --npy=1 --nf=16 --tolNOX=1.e-1 --tol=1.e-6  --maxI=40  --linesearch="Polynomial" '
+case_consts = ' --dim=1 --nx=97 --ny=7 --npx=4 --npy=1 --nfs=1 --nfe=16 --tolNOX=1.e-4 --tol=1.e-6  --maxI=20  --linesearch="Polynomial" '
 
 if not os.path.exists( data_path+case_path[0] ):
   os.mkdir( data_path+case_path[0] )

@@ -60,6 +60,9 @@ public:
     return( Teuchos::rcp( new MV( field0_->clone(ctype), fields_->clone(ctype) ) ) );
   }
 
+  void push_back( const Teuchos::RCP< ModeField<Field> >& modeField=Teuchos::null ) {
+    fields_->push_back( modeField );
+  }
 
   /// \name Attribute methods
   //@{

@@ -117,6 +117,20 @@ int main(int argi, char** argv ) {
   O nf = 4.;
   my_CLP.setOption( "nf", &nf, "amount of grid points in f-direction" );
 
+  O nfs = 1.;
+  my_CLP.setOption( "nfs", &nfs, "start amount of grid points in f-direction" );
+
+  O nfe = 1.;
+  my_CLP.setOption( "nfe", &nfe, "end amount of grid points in f-direction" );
+
+  if( nfs==nfe ) {
+    nfs=nf;
+    nfe=nf+1;
+  }
+  else {
+    nf=nfe;
+  }
+
   // processor grid size
   O np1 = 2;
   my_CLP.setOption( "npx", &np1, "amount of processors in x-direction" );
@@ -190,12 +204,12 @@ int main(int argi, char** argv ) {
   auto bc = Pimpact::createBC( Pimpact::EDomainType(domain) );
   bc->set_Impact();
 
-  auto gs = Pimpact::createGridSize<O>(n1,n2,n3);
+  auto gs = Pimpact::createGridSize<O>( n1, n2, n3 );
   gs->set_Impact();
   gs->print( *outPar );
   *outPar << " \tnf=" << nf << "\n";
 
-  auto pgs = Pimpact::createProcGridSize<O>(np1,np2,np3);
+  auto pgs = Pimpact::createProcGridSize<O>( np1, np2, np3 );
   pgs->set_Impact();
   pgs->print( *outPar );
 
@@ -221,29 +235,47 @@ int main(int argi, char** argv ) {
 //  auto temps = Pimpact::createInitMSF<S,O>( fS );
 //  auto fp    = Pimpact::createInitMSF<S,O>( fS );
 
-  auto x    = Pimpact::createMultiField( Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, nf ) );
-  auto temp = Pimpact::createMultiField( Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, nf ) );
-  auto fu   = Pimpact::createMultiField( Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, nf ) );
+  auto x    = Pimpact::createMultiField( Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, nfs ) );
+  auto temp = Pimpact::createMultiField( Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, nfs ) );
+  auto fu   = Pimpact::createMultiField( Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, nfs ) );
+  auto force = x->getConstFieldPtr(0)->getConst0FieldPtr()->clone();
 
-  x->init(0);
-//  x->random();
-//  x->scale();
+  // init Fields, init and rhs
   temp->init(0);
 
-  auto force = x->getConstFieldPtr(0)->getConst0FieldPtr()->clone();
   if( 1==dim )
     force->initField( Pimpact::BoundaryFilter1D );
   else
     force->initField( Pimpact::BoundaryFilter2D );
 
-//  auto op = Pimpact::createOperatorBase<MVF,Op>(
-//       Pimpact::createMultiOpWrap(
-//           Pimpact::createAddOp<MAdv,DtL>(
-//               Pimpact::createMultiHarmonicNonlinear<S,O>( x->getConstFieldPtr(0)->getConst0FieldPtr()->clone() ),
-//               Pimpact::createMultiDtHelmholtz<S,O>( alpha2, 0., 1./re ),
-//               temp->getFieldPtr(0)->clone() ) )
-//  );
-  auto op = Pimpact::createOperatorBase<MVF,Op>(
+  if( 1==dim ) {
+    fu->getFieldPtr(0)->getCFieldPtr(0)->initField( Pimpact::BoundaryFilter1D );
+//    fu->getFieldPtr(0)->getCFieldPtr(0)->scale( *force );
+    fu->getFieldPtr(0)->getCFieldPtr(0)->scale( -1 );
+    fu->getFieldPtr(0)->get0FieldPtr()->initField( Pimpact::BoundaryFilter1D );
+    fu->scale( 0.5 );
+  }
+  else {
+    fu->getFieldPtr(0)->getCFieldPtr(0)->initField( Pimpact::GaussianForcing2D );
+    fu->getFieldPtr(0)->getCFieldPtr(0)->scale( *force );
+    fu->getFieldPtr(0)->getCFieldPtr(0)->scale( -1 );
+    fu->getFieldPtr(0)->get0FieldPtr()->initField( Pimpact::BoundaryFilter2D );
+    fu->scale( 0.5 );
+  }
+  x->init( 0. );
+//  fu->write(100);
+
+  /******************************************************************************************/
+  for( nf=nfs; nf<nfe; ++nf) {
+    if( nf!=nfs ) {
+//      std::cout << "push_back()\n";
+      x->getFieldPtr(0)->push_back();
+      fu->getFieldPtr(0)->push_back();
+      temp->getFieldPtr(0)->push_back();
+    }
+    if(0==rank) std::cout << "\n\t--- Nf: "<<nf<<"\tdof: "<<x->getLength(true)<<"\t---\n";
+
+    auto op = Pimpact::createOperatorBase<MVF,Op>(
        Pimpact::createMultiOpWrap(
            Pimpact::createAddOp<Pimpact::AddOp<MAdv,DtL>,Fo>(
              Pimpact::createAddOp<MAdv,DtL>(
@@ -252,7 +284,7 @@ int main(int argi, char** argv ) {
                temp->getFieldPtr(0)->clone() ) ,
              Pimpact::createMultiHarmonicOpWrap( Pimpact::createForcingOp<S,O>( force ) ) ,
              temp->getFieldPtr(0)->clone() ) )
-  );
+    );
 
 
   Teuchos::RCP<BOp> jop;
@@ -421,76 +453,64 @@ int main(int argi, char** argv ) {
 
 
 
-  // init Fields, init and rhs
-  if( 1==dim ) {
-    fu->getFieldPtr(0)->getCFieldPtr(0)->initField( Pimpact::BoundaryFilter1D );
-//    fu->getFieldPtr(0)->getCFieldPtr(0)->scale( *force );
-    fu->getFieldPtr(0)->getCFieldPtr(0)->scale( -1 );
-    fu->getFieldPtr(0)->get0FieldPtr()->initField( Pimpact::BoundaryFilter1D );
-    fu->scale( 0.5 );
-  }
-  else {
-    fu->getFieldPtr(0)->getCFieldPtr(0)->initField( Pimpact::GaussianForcing2D );
-    fu->getFieldPtr(0)->getCFieldPtr(0)->scale( *force );
-    fu->getFieldPtr(0)->getCFieldPtr(0)->scale( -1 );
-    fu->getFieldPtr(0)->get0FieldPtr()->initField( Pimpact::BoundaryFilter2D );
-    fu->scale( 0.5 );
-  }
-
-  x->init( 0. );
-//  fu->write(100);
 
 
-  auto para = Pimpact::createLinSolverParameter( linSolName, tol*l1*l2/n1/n2, -1 );
- //  auto para = Teuchos::parameterlist();
-//   para->set( "Num Blocks",          800/4  );
-   para->set( "Maximum Iterations", 3000 );
- //  para->set( "Num Recycled Blocks",  20  );
-   para->set( "Implicit Residual Scaling", "Norm of RHS" );
-   para->set( "Explicit Residual Scaling", "Norm of RHS" );
+
+
+    auto para = Pimpact::createLinSolverParameter( linSolName, tol*l1*l2/n1/n2*(nfe-1)/nf, -1 );
+//    auto para = Pimpact::createLinSolverParameter( linSolName, tol, -1 );
+    para->set( "Maximum Iterations", 3000 );
+    para->set( "Implicit Residual Scaling", "Norm of RHS" );
+    para->set( "Explicit Residual Scaling", "Norm of RHS" );
 //   para->set( "Output Stream", outLinSolve );
 
+    auto lp = Pimpact::createLinearProblem<MVF>(
+        jop, x->clone(), fu->clone(), para, linSolName );
 
+    auto inter = NOX::Pimpact::createInterface<MVF>( fu, op, lp );
 
-   auto lp = Pimpact::createLinearProblem<MVF>(
-       jop, x->clone(), fu->clone(), para, linSolName );
+    auto nx = NOX::Pimpact::createVector(x);
 
-   auto inter = NOX::Pimpact::createInterface<MVF>( fu, op, lp );
+    auto bla = Teuchos::parameterList();
 
-   auto nx = NOX::Pimpact::createVector(x);
+    auto group = NOX::Pimpact::createGroup<Inter>( bla, inter, nx );
 
-   auto bla = Teuchos::parameterList();
+    // Set up the status tests
+    auto statusTest = NOX::Pimpact::createStatusTest( maxI, tolNOX, tol );
 
-   auto group = NOX::Pimpact::createGroup<Inter>( bla, inter, nx );
+    // Create the list of solver parameters
+    auto solverParametersPtr =
+        NOX::Pimpact::createNOXSolverParameter( nonLinSolName, lineSearchName );
 
+    // Create the solver
+    Teuchos::RCP<NOX::Solver::Generic> solver =
+        NOX::Solver::buildSolver( group, statusTest, solverParametersPtr);
 
-   // Set up the status tests
-   auto statusTest = NOX::Pimpact::createStatusTest( maxI, tolNOX*l1*l2/n1/n2, tol*l1*l2/n1/n2 );
+    // Solve the nonlinear system
+//    NOX::StatusTest::StatusType status =
+        solver->solve();
 
-   // Create the list of solver parameters
-   auto solverParametersPtr =
-     NOX::Pimpact::createNOXSolverParameter( nonLinSolName, lineSearchName );
+    // Print the parameter list
+//    if( nf==nfs ) {
+//      if(rank==0) std::cout << "\n" << "-- Parameter List From Solver --" << "\n";
+//      if(rank==0) std::cout << "\n" << status << "\n";
+//      if(rank==0) solver->getList().print(std::cout);
+//    }
 
-  // Create the solver
-  Teuchos::RCP<NOX::Solver::Generic> solver =
-      NOX::Solver::buildSolver( group, statusTest, solverParametersPtr);
+    // Get the answer
+    *group = solver->getSolutionGroup();
 
-  // Solve the nonlinear system
-  NOX::StatusTest::StatusType status = solver->solve();
+    // Print the answer if(rank==0) std::cout << "\n" << "-- Final Solution From Solver --" << "\n";
 
-  // Print the parameter list
-  if(rank==0) std::cout << "\n" << "-- Parameter List From Solver --" << "\n";
-  if(rank==0) std::cout << "\n" << status << "\n";
-  if(rank==0) solver->getList().print(std::cout);
+//    Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() )->getConstFieldPtr()->write(800);
+//    Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(900);
 
-  // Get the answer
-  *group = solver->getSolutionGroup();
+    x = Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr();
+//    x = Teuchos::rcp_const_cast<NV>( group->getXPtr() )->getFieldPtr();
 
-  // Print the answer
-  if(rank==0) std::cout << "\n" << "-- Final Solution From Solver --" << "\n";
-
-  Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() )->getConstFieldPtr()->write(800);
-  Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(900);
+//    x->write(nf*100);
+  }
+  x->write(800);
 
   MPI_Finalize();
   return( 0 );
