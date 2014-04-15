@@ -27,7 +27,7 @@ class Nonlinear {
 public:
   typedef VectorField<Scalar,Ordinal>  DomainFieldT;
   typedef VectorField<Scalar,Ordinal>  RangeFieldT;
-  typedef NonModeOp OpType;
+//  typedef NonModeOp OpType;
 private:
   Teuchos::RCP<DomainFieldT> u_;
 public:

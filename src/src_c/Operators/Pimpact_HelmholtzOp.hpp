@@ -36,7 +36,7 @@ public:
 
   typedef VectorField<Scalar,Ordinal>  DomainFieldT;
   typedef VectorField<Scalar,Ordinal>  RangeFieldT;
-  typedef NonModeOp OpType;
+//  typedef NonModeOp OpType;
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
 

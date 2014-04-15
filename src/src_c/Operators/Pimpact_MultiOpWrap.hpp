@@ -28,7 +28,7 @@ public:
 
   typedef MultiField<typename Operator::DomainFieldT> DomainFieldT;
   typedef MultiField<typename Operator::RangeFieldT> RangeFieldT;
-  typedef typename Operator::OpType OpType;
+//  typedef typename Operator::OpType OpType;
 
   MultiOpWrap():op_( Teuchos::rcp( new Operator() ) ) {};
   MultiOpWrap( const Teuchos::RCP<Operator>& op ):op_(op) {};

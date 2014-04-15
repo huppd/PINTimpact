@@ -23,7 +23,7 @@ public:
   typedef VectorField<Scalar,Ordinal>  DomainFieldT;
   typedef VectorField<Scalar,Ordinal>  RangeFieldT;
 
-  typedef ModeOp OpType;
+//  typedef ModeOp OpType;
 
 protected:
 

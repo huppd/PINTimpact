@@ -25,9 +25,8 @@ public:
   typedef typename MVF::Ordinal O;
   typedef ModeField<VectorField<S,O> > DomainFieldT;
   typedef ModeField<VectorField<S,O> > RangeFieldT;
-//  typedef ScalarField<Scalar,Ordinal>  RangeFieldT;
 //  typedef OperatorBase<MVF> OP;
-  typedef ModeOp OpType;
+//  typedef ModeOp OpType;
 
 private:
   Teuchos::RCP<MVF> temp_;

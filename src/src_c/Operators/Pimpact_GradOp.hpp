@@ -21,7 +21,7 @@ class Grad {
 public:
   typedef ScalarField<Scalar,Ordinal>  DomainFieldT;
   typedef VectorField<Scalar,Ordinal>  RangeFieldT;
-  typedef NonModeOp OpType;
+//  typedef NonModeOp OpType;
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
     int dim = x.getFieldSpace()->dim_;

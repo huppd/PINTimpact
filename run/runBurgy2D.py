@@ -14,7 +14,7 @@ os.system( 'make -j4' )
 case_path = ['','']
 
 itMs = [1,2,4,6]
-case_consts = ' --nf=16 --tolNOX=1.e-1 --tol=1.e-6  --maxI=40 --re=1e5 --linesearch="Polynomial" '
+case_consts = ' --nfe=17 --tolNOX=1.e-1 --tol=1.e-6  --maxI=40 --re=1e5 --linesearch="Polynomial" '
 
 for itM in itMs:
   case_path[0] = 'itM_'+str(itM)

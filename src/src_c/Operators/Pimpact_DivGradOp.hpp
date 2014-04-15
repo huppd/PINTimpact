@@ -28,7 +28,7 @@ class DivGradOp {
 public:
   typedef ScalarField<Scalar,Ordinal>  DomainFieldT;
   typedef ScalarField<Scalar,Ordinal>  RangeFieldT;
-  typedef NonModeOp OpType;
+//  typedef NonModeOp OpType;
 
   DivGradOp():
     temp_(Teuchos::null),

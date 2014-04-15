@@ -32,7 +32,7 @@ public:
   typedef MultiField<VectorField<Scalar,Ordinal> > BVF;
 //  typedef OperatorMV<Helmholtz<Scalar,Ordinal> > LapType;
 //  typedef O
-  typedef NonModeOp OpType;
+//  typedef NonModeOp OpType;
 
 private:
 

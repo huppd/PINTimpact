@@ -42,6 +42,9 @@ TARGET_LINK_LIBRARIES( peri_stokes2  ${Pimpact_TPL_LIBRARIES} )
 add_executable( peri_burgers peri_burgers.cxx )
 TARGET_LINK_LIBRARIES( peri_burgers  ${Pimpact_TPL_LIBRARIES} ) 
 
+add_executable( peri_burgers_timing peri_burgers_timing.cxx )
+TARGET_LINK_LIBRARIES( peri_burgers_timing  ${Pimpact_TPL_LIBRARIES} ) 
+
 #TARGET_LINK_LIBRARIES(stat_stokes  ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES} limpact hdf5 hdf5_fortran hdf5_hl z mpi_f90 mpi_f77 gfortran lapack blas m)
 #TARGET_LINK_LIBRARIES(pimpact  ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES} limpact hdf5 hdf5_fortran hdf5_hl z mpi_f90 mpi_f77 gfortran lapack blas m)
 #TARGET_LINK_LIBRARIES(pimpact  limpact hdf5 hdf5_fortran hdf5_hl z mpi_f90 mpi_f77 gfortran lapack blas m)

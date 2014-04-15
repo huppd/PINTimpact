@@ -30,7 +30,7 @@ public:
 
   typedef ModeField<VectorField<Scalar,Ordinal> >  DomainFieldT;
   typedef ModeField<VectorField<Scalar,Ordinal> >  RangeFieldT;
-  typedef ModeOp OpType;
+//  typedef ModeOp OpType;
 
 
   void apply(const DomainFieldT& x, RangeFieldT& y, int k=1 ) const {

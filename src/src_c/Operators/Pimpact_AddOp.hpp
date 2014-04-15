@@ -25,11 +25,12 @@ public:
 //  typedef MultiField<ModeField<VectorField<Scalar,Ordinal> > > MVF;
 //  typedef typename MVF::Scalar S;
 //  typedef typename MVF::Ordinal O;
+
   typedef typename OP1::DomainFieldT DomainFieldT;
   typedef typename OP2::RangeFieldT  RangeFieldT;
-//  typedef ScalarField<Scalar,Ordinal>  RangeFieldT;
+
 //  typedef OperatorBase<MVF> OP;
-  typedef NonModeOp OpType;
+//  typedef NonModeOp OpType;
 private:
   Teuchos::RCP<OP1> op1_;
   Teuchos::RCP<OP2> op2_;

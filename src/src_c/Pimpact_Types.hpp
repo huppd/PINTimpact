@@ -56,7 +56,7 @@ namespace Pimpact {
 	};
 
 
-	struct ModeOp {};
-	struct NonModeOp {};
+//	struct ModeOp {};
+//	struct NonModeOp {};
 }
 #endif // PIMPACT_TYPES_HPP

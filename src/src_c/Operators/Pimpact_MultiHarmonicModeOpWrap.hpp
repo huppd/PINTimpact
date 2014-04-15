@@ -1,6 +1,6 @@
 #pragma once
-#ifndef PIMPACT_MULTIHARMONICMODEOPWRAP_HPP
-#define PIMPACT_MULTIHARMONICMODEOPWRAP_HPP
+#define PIMPACT_MULTIHARMONICOPWRAP_HPP
+#ifndef PIMPACT_MULTIHARMONICOPWRAP_HPP
 
 
 #include "Teuchos_RCP.hpp"
@@ -18,7 +18,7 @@ namespace Pimpact {
 
 /// \brief Operator wrapper.
 /// \ingroup MultiHarmonicOperator
-/// wraps a \ref ModeOperator "mode operator" and adds the functionality of handling \c MultiHarmonicField's.
+/// wraps a \ref BaseOperator "base operator" and adds the functionality of handling \c MultiHarmonicField's.
 template<class Operator>
 class MultiHarmonicOpWrap  {
 
@@ -75,4 +75,4 @@ Teuchos::RCP< MultiHarmonicOpWrap<Operator> > createMultiHarmonicOpWrap( const T
 } // end of namespace Pimpact
 
 
-#endif // end of #ifndef PIMPACT_MULTIHARMONICMODEOPWRAP_HPP
+#endif // end of #ifndef PIMPACT_MULTIHARMONICOPWRAP_HPP

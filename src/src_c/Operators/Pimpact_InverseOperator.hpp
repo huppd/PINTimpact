@@ -34,7 +34,7 @@ public:
   typedef MultiField  DomainFieldT;
   typedef MultiField  RangeFieldT;
 
-  typedef NonModeOp OpType;
+//  typedef NonModeOp OpType;
 
 private:
 

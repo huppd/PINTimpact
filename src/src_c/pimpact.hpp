@@ -38,14 +38,12 @@ extern "C" {
 }
 
 
-/**
- * \brief initializes impact mainly using \c usr_config function
- * \debrecaited
- * @param argi
- * @param argv
- * @param bc
- * @return rank
- */
+
+/// \brief initializes impact mainly using \c usr_config function
+/// \param argi
+/// \param argv
+/// \param bc
+/// \return rank
 int init_impact( int argi=0, char** argv=0, Teuchos::RCP<Pimpact::BoundaryConditions> bc=Teuchos::null ){
 	//  --- Initialize MPI ----------------------------------------------------------------------------------------
 	//		MPI_Init(&argi,&argv);
@@ -101,6 +99,7 @@ int init_impact( int argi=0, char** argv=0, Teuchos::RCP<Pimpact::BoundaryCondit
 
 	return rank;
 }
+
 
 
 namespace Pimpact{
@@ -163,6 +162,6 @@ void init_impact_post(){
 
 }
 
-} // endo of namespace pimpact
+} // end of namespace pimpact
 
-#endif // PIMPACT_HPP
+#endif // end of #ifndef PIMPACT_HPP

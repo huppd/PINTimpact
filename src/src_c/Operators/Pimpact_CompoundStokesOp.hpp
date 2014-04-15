@@ -45,7 +45,7 @@ public:
 
   typedef CompoundField<MVF,MSF>  DomainFieldT;
   typedef CompoundField<MVF,MSF>  RangeFieldT;
-  typedef ModeOp OpType;
+//  typedef ModeOp OpType;
 
   CompoundStokes():omega_(1.),L_(Teuchos::rcp(new Helmholtz<Scalar,Ordinal>( 0., 1. )) ),
     div_(Teuchos::rcp(new Div<Scalar,Ordinal>())), grad_(Teuchos::rcp(new Grad<Scalar,Ordinal>() )), temp_(Teuchos::null) {};

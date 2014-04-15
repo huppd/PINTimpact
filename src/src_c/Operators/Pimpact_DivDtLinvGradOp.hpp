@@ -36,7 +36,7 @@ public:
   typedef ModeField< ScalarField<Scalar,Ordinal> > DomainFieldT;
   typedef ModeField< ScalarField<Scalar,Ordinal> > RangeFieldT;
   typedef MultiField<ModeField<VectorField<Scalar,Ordinal> > > MVF;
-  typedef ModeOp OpType;
+//  typedef ModeOp OpType;
 
 private:
   Teuchos::RCP< MVF > temp0_;

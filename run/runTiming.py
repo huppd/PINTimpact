@@ -3,13 +3,14 @@ import time
 from platform_paths import *
 
 
-exe = 'peri_burgers'
+exe = 'peri_burgers_timing'
 
 os.chdir( exe_path )
 
 os.system( 'make -j4' )
 
-case_consts = '  --tolNOX=1.e-1 --tol=1.e-6  --maxI=30 --nx=33 --ny=33 --nf=16 --npx=2 --npy=2 '
+#case_consts = '  --tolNOX=1.e-1 --tol=1.e-6  --maxI=30 --nx=33 --ny=33 --nf=16 --npx=2 --npy=2 '
+case_consts = ''# '  --tolNOX=1.e-1 --tol=1.e-6  --maxI=30 --nx=33 --ny=33 --nf=16 --npx=2 --npy=2 '
 
 os.chdir( data_path )
 f = open( 'timing.txt','a' )

@@ -22,7 +22,7 @@ class Div {
 public:
   typedef VectorField<Scalar,Ordinal>  DomainFieldT;
   typedef ScalarField<Scalar,Ordinal>  RangeFieldT;
-  typedef NonModeOp OpType;
+//  typedef NonModeOp OpType;
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
     OP_div(x.vec_[0],x.vec_[1],x.vec_[2],y.s_);
