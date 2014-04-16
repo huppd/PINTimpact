@@ -1010,12 +1010,11 @@ module cmod_operator
   
   !> \brief computes divergence
   !! same as Impact \c mod_diff::divergence
-  !! side effct phiU, phiV and phiW
   !! \param[inout] phiU
   !! \param[inout] phiV
   !! \param[inout] phiW
   !! \param[out] div
-  subroutine divergence2(phiU,phiV,phiW,div) bind (c,name='OP_div')
+  subroutine divergence2( phiU,phiV,phiW, div ) bind (c,name='OP_div')
   
   implicit none
   
@@ -1029,9 +1028,9 @@ module cmod_operator
   integer                ::  k, kk
   
   
-  call exchange(1,1,phiU(b1L,b2L,b3L))
-  call exchange(2,2,phiV(b1L,b2L,b3L))
-  call exchange(3,3,phiW(b1L,b2L,b3L))
+!  call exchange(1,1,phiU(b1L,b2L,b3L))
+!  call exchange(2,2,phiV(b1L,b2L,b3L))
+!  call exchange(3,3,phiW(b1L,b2L,b3L))
   
   
   !===========================================================================================================
@@ -1262,7 +1261,6 @@ module cmod_operator
   !> \brief applies gradient
   !! to phi, which is a scalar field, and stores the grad in a vector field, the
   !! boundary condtions for Dirichlet and Neumann are set to zero
-  !! side effect \c phi is exchanged
   !! \param[in] m direction in which gradient si calculated
   !! \param[inout] phi ScalarField from which the gradient is taken
   !! \param[out] grad gradient in m direction
@@ -1284,9 +1282,6 @@ module cmod_operator
   ! Anmerkungen: - Randbedingungen könnten nur zum Teil in die Stencils eingebaut werden, so dass sich das   !
   !                vermutlich nicht wirklich lohnt.                                                          !
   !----------------------------------------------------------------------------------------------------------!
-  
-  
-  call exchange(m,0,phi) ! irrelefant
   
   
   !===========================================================================================================
@@ -3435,9 +3430,9 @@ module cmod_operator
   
   logical, intent(in   ) ::  exch_yes
   
-  integer                ::  i, ii
-  integer                ::  j, jj
-  integer                ::  k, kk
+!  integer                ::  i, ii
+!  integer                ::  j, jj
+!  integer                ::  k, kk
   
   
                    call interpolate2_vel_pre(exch_yes,1,vel(b1L,b2L,b3L,1),work1)
@@ -4820,7 +4815,7 @@ module cmod_operator
   
   implicit none
   
-  integer                ::  m
+!  integer                ::  m
   
   integer                ::  i, ii
   integer                ::  j, jj

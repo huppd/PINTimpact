@@ -182,13 +182,14 @@ int main(int argi, char** argv ) {
   // outputs
   Teuchos::RCP<std::ostream> outPar;
   Teuchos::RCP<std::ostream> outLinSolve;
+  Teuchos::RCP<std::ostream> outPrec;
 //  Teuchos::RCP<std::ostream> outLap2;
 //  Teuchos::RCP<std::ostream> outSchur;
 
   if(rank==0) {
     outPar   = Teuchos::rcp( new std::ofstream("para_case.txt") );
     outLinSolve  = Teuchos::rcp( new std::ofstream("stats_linSolve.txt") );
-//    outLap2  = Teuchos::rcp( new std::ofstream("stats_solvLap2.txt") );
+    outPrec  = Teuchos::rcp( new std::ofstream("stats_solvPrec.txt") );
 //    outSchur = Teuchos::rcp( new std::ofstream("stats_solvSchur.txt") );
   } else
 //    outPar = Teuchos::rcp( &blackhole, false) ;
@@ -289,8 +290,14 @@ int main(int argi, char** argv ) {
       tolNOX /= 10;
     }
 
-    if(0==rank) std::cout << "\n\t--- Nf: "<<nf<<"\tdof: "<<x->getLength(true)<<"\t---\n";
+//    if(0==rank) std::cout << "\n\t--- Nf: "<<nf<<"\tdof: "<<x->getLength(true)<<"\t---\n";
     if(0==rank) std::cout << "\n\t--- Nf: "<<x->getConstFieldPtr(0)->getNumberModes()<<"\tdof: "<<x->getLength(true)<<"\t---\n";
+
+    auto para = Pimpact::createLinSolverParameter( linSolName, tol*l1*l2/n1/n2*(nfe-1)/nf, -1 );
+//    auto para = Pimpact::createLinSolverParameter( linSolName, tol, -1 );
+    para->set( "Maximum Iterations", 3000 );
+    para->set( "Implicit Residual Scaling", "Norm of RHS" );
+    para->set( "Explicit Residual Scaling", "Norm of RHS" );
 
     auto op = Pimpact::createOperatorBase<MVF,Op>(
        Pimpact::createMultiOpWrap(
@@ -434,7 +441,7 @@ int main(int argi, char** argv ) {
     );
   }
   else if( 9==iterM ) {
-    if(0==rank) std::cout << "\n\t---\titeration matrix(8): linear terms\t---\n";
+    if(0==rank) std::cout << "\n\t---\titeration matrix(9): linear terms\t---\n";
     typedef Pimpact::MultiOpWrap< Pimpact::AddOp< DtL, Fo > > JOp;
 
     jop = Pimpact::createOperatorBase<MVF,JOp>(
@@ -472,13 +479,14 @@ int main(int argi, char** argv ) {
 
   Teuchos::RCP<BOp> lprec = Teuchos::null;
   // init lprec
+   para->set( "Output Stream", outPrec );
   if( 3==precType ){
 
     if(0==rank) std::cout << "\n\t---\tpreconditioner matrix(3): complex diagonal Newton iteration\t---\n";
 
     typedef Pimpact::MultiOpWrap< Pimpact::AddOp< Pimpact::AddOp<DJMAdv,DtL>, Fo > > JOp;
 
-    lprec = Pimpact::createOperatorBase<MVF,JOp>(
+    auto precOp = Pimpact::createOperatorBase<MVF,JOp>(
         Pimpact::createMultiOpWrap(
             Pimpact::createAddOp<Pimpact::AddOp<DJMAdv,DtL>,Fo>(
                 Pimpact::createAddOp<DJMAdv,DtL>(
@@ -490,6 +498,14 @@ int main(int argi, char** argv ) {
                     Pimpact::createForcingOp<S,O>( force ) ) ,
                 temp->getConstFieldPtr(0)->clone() ) )
     );
+    auto prob =
+          Pimpact::createLinearProblem<MVF>(
+              precOp,
+              fu,
+              fu, para, "GMRES" );
+
+      lprec = Pimpact::createOperatorBase< MVF, Pimpact::InverseOperator<MVF> >( Pimpact::createInverseOperator<MVF>( prob ) );
+//      break;
   }
   else if( 4==precType ){
 
@@ -497,7 +513,7 @@ int main(int argi, char** argv ) {
 
     typedef Pimpact::MultiOpWrap< Pimpact::AddOp< Pimpact::AddOp<DJMAdv,DtL>, Fo > > JOp;
 
-    lprec = Pimpact::createOperatorBase<MVF,JOp>(
+    auto precOp = Pimpact::createOperatorBase<MVF,JOp>(
         Pimpact::createMultiOpWrap(
             Pimpact::createAddOp<Pimpact::AddOp<DJMAdv,DtL>,Fo>(
                 Pimpact::createAddOp<DJMAdv,DtL>(
@@ -509,6 +525,13 @@ int main(int argi, char** argv ) {
                     Pimpact::createForcingOp<S,O>( force ) ) ,
                 temp->getConstFieldPtr(0)->clone() ) )
     );
+    auto prob =
+          Pimpact::createLinearProblem<MVF>(
+              precOp,
+              fu,
+              fu, para, "GMRES" );
+
+      lprec = Pimpact::createOperatorBase< MVF, Pimpact::InverseOperator<MVF> >( Pimpact::createInverseOperator<MVF>( prob ) );
   }
   else if( 5==precType ){
 
@@ -516,7 +539,7 @@ int main(int argi, char** argv ) {
 
     typedef Pimpact::MultiOpWrap< Pimpact::AddOp< Pimpact::AddOp<JAdv,DtL>, Fo > > JOp;
 
-    lprec = Pimpact::createOperatorBase<MVF,JOp>(
+    auto precOp = Pimpact::createOperatorBase<MVF,JOp>(
         Pimpact::createMultiOpWrap(
             Pimpact::createAddOp<Pimpact::AddOp<JAdv,DtL>,Fo>(
                 Pimpact::createAddOp<JAdv,DtL>(
@@ -527,6 +550,13 @@ int main(int argi, char** argv ) {
                 Pimpact::createMultiHarmonicOpWrap( Pimpact::createForcingOp<S,O>( force ) ) ,
                 temp->getConstFieldPtr(0)->clone() ) )
     );
+    auto prob =
+          Pimpact::createLinearProblem<MVF>(
+              precOp,
+              fu,
+              fu, para, "GMRES" );
+
+      lprec = Pimpact::createOperatorBase< MVF, Pimpact::InverseOperator<MVF> >( Pimpact::createInverseOperator<MVF>( prob ) );
   }
   else if( 6==precType ){
 
@@ -534,7 +564,7 @@ int main(int argi, char** argv ) {
 
     typedef Pimpact::MultiOpWrap< Pimpact::AddOp< Pimpact::AddOp<JAdv,DtL>, Fo > > JOp;
 
-    lprec = Pimpact::createOperatorBase<MVF,JOp>(
+    auto precOp = Pimpact::createOperatorBase<MVF,JOp>(
         Pimpact::createMultiOpWrap(
             Pimpact::createAddOp<Pimpact::AddOp<JAdv,DtL>,Fo>(
                 Pimpact::createAddOp<JAdv,DtL>(
@@ -545,6 +575,12 @@ int main(int argi, char** argv ) {
                 Pimpact::createMultiHarmonicOpWrap( Pimpact::createForcingOp<S,O>( force ) ) ,
                 temp->getConstFieldPtr(0)->clone() ) )
     );
+    auto prob =
+          Pimpact::createLinearProblem<MVF>(
+              precOp,
+              fu,
+              fu, para, "GMRES" );
+    lprec = Pimpact::createOperatorBase< MVF, Pimpact::InverseOperator<MVF> >( Pimpact::createInverseOperator<MVF>( prob ) );
   }
   else if( 7==precType ){
 
@@ -552,7 +588,7 @@ int main(int argi, char** argv ) {
 
     typedef Pimpact::MultiOpWrap< Pimpact::AddOp< Pimpact::AddOp<JAdv,DtL>, Fo > > JOp;
 
-    lprec = Pimpact::createOperatorBase<MVF,JOp>(
+    auto precOp = Pimpact::createOperatorBase<MVF,JOp>(
         Pimpact::createMultiOpWrap(
             Pimpact::createAddOp<Pimpact::AddOp<JAdv,DtL>,Fo>(
                 Pimpact::createAddOp<JAdv,DtL>(
@@ -563,13 +599,19 @@ int main(int argi, char** argv ) {
                 Pimpact::createMultiHarmonicOpWrap( Pimpact::createForcingOp<S,O>( force ) ) ,
                 temp->getConstFieldPtr(0)->clone() ) )
     );
+    auto prob =
+          Pimpact::createLinearProblem<MVF>(
+              precOp,
+              fu,
+              fu, para, "GMRES" );
+    lprec = Pimpact::createOperatorBase< MVF, Pimpact::InverseOperator<MVF> >( Pimpact::createInverseOperator<MVF>( prob ) );
   }
   else if( 8==precType ){
     if(0==rank) std::cout << "\n\t---\titeration matrix(8): real diagonal Picard iteration\t---\n";
 
     typedef Pimpact::MultiOpWrap< Pimpact::AddOp< Pimpact::AddOp<JAdv,DtL>, Fo > > JOp;
 
-    lprec = Pimpact::createOperatorBase<MVF,JOp>(
+    auto precOp = Pimpact::createOperatorBase<MVF,JOp>(
         Pimpact::createMultiOpWrap(
             Pimpact::createAddOp<Pimpact::AddOp<JAdv,DtL>,Fo>(
                 Pimpact::createAddOp<JAdv,DtL>(
@@ -580,12 +622,18 @@ int main(int argi, char** argv ) {
                 Pimpact::createMultiHarmonicOpWrap( Pimpact::createForcingOp<S,O>( force ) ) ,
                 temp->getConstFieldPtr(0)->clone() ) )
     );
+    auto prob =
+          Pimpact::createLinearProblem<MVF>(
+              precOp,
+              fu,
+              fu, para, "GMRES" );
+    lprec = Pimpact::createOperatorBase< MVF, Pimpact::InverseOperator<MVF> >( Pimpact::createInverseOperator<MVF>( prob ) );
   }
   else if( 9==precType ) {
-    if(0==rank) std::cout << "\n\t---\titeration matrix(8): linear terms\t---\n";
+    if(0==rank) std::cout << "\n\t---\titeration matrix(9): linear terms\t---\n";
     typedef Pimpact::MultiOpWrap< Pimpact::AddOp< DtL, Fo > > JOp;
 
-    lprec = Pimpact::createOperatorBase<MVF,JOp>(
+    auto precOp = Pimpact::createOperatorBase<MVF,JOp>(
            Pimpact::createMultiOpWrap(
                Pimpact::createAddOp<DtL,Fo>(
 //                   Pimpact::createAddOp<JMAdv,DtL>(
@@ -597,35 +645,22 @@ int main(int argi, char** argv ) {
                        Pimpact::createForcingOp<S,O>( force ) ) ,
                    temp->getFieldPtr(0)->clone() ) )
        );
+    auto prob =
+          Pimpact::createLinearProblem<MVF>(
+              precOp,
+              fu,
+              fu, para, "GMRES" );
+    lprec = Pimpact::createOperatorBase< MVF, Pimpact::InverseOperator<MVF> >( Pimpact::createInverseOperator<MVF>( prob ) );
   }
   else {
-
-    if( 0==precType ) std::cout << "\n\t---\titeration matrix(2): full Newton iteration\t---\n";
-
-    typedef Pimpact::MultiOpWrap< Pimpact::AddOp< Pimpact::AddOp<JMAdv,DtL>, Fo > > JOp;
-    lprec = Pimpact::createOperatorBase<MVF,JOp>(
-        Pimpact::createMultiOpWrap(
-            Pimpact::createAddOp<Pimpact::AddOp<JMAdv,DtL>,Fo>(
-                Pimpact::createAddOp<JMAdv,DtL>(
-                    Pimpact::createMultiHarmonicNonlinearJacobian<S,O>(
-                        x->getConstFieldPtr(0)->getConst0FieldPtr()->clone(), x->getConstFieldPtr(0)->clone() ),
-                        Pimpact::createMultiDtHelmholtz<S,O>( alpha2, 0., 1./re ),
-                        temp->getFieldPtr(0)->clone() ) ,
-                        Pimpact::createMultiHarmonicOpWrap( Pimpact::createForcingOp<S,O>( force ) ) ,
-                        temp->getFieldPtr(0)->clone() ) )
-    );
+    lprec = Teuchos::null;
   }
 
-    auto para = Pimpact::createLinSolverParameter( linSolName, tol*l1*l2/n1/n2*(nfe-1)/nf, -1 );
-//    auto para = Pimpact::createLinSolverParameter( linSolName, tol, -1 );
-    para->set( "Maximum Iterations", 3000 );
-    para->set( "Implicit Residual Scaling", "Norm of RHS" );
-    para->set( "Explicit Residual Scaling", "Norm of RHS" );
-//   para->set( "Output Stream", outLinSolve );
+   para->set( "Output Stream", outLinSolve );
 
     auto lp = Pimpact::createLinearProblem<MVF>(
         jop, x->clone(), fu->clone(), para, linSolName );
-//    lp->setLeftPrec( lprec );
+    lp->setLeftPrec( lprec );
 
     auto inter = NOX::Pimpact::createInterface<MVF>( fu, op, lp );
 

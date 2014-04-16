@@ -208,7 +208,6 @@ public:
 
 
   /// \brief \f[ *this = \alpha A B + \beta *this \f]
-  /// \todo add debugtests
   /// \param alpha
   /// \param A
   /// \param B

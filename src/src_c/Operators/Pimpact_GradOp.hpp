@@ -26,9 +26,11 @@ public:
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
     int dim = x.getFieldSpace()->dim_;
     for( int i=0; i<dim; ++i) {
+      x.exchange(i);
       OP_grad(i+1,x.s_,y.vec_[i]);
       OP_bc_extrapolation( i+1, y.vec_[i] );
     }
+    y.changed();
   }
 
   void assignField( const DomainFieldT& mv ) {};

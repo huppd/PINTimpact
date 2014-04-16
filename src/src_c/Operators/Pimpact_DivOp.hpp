@@ -16,7 +16,6 @@ extern "C" {
 
 /// \brief Divergence operator.
 /// \ingroup BaseOperator
-/// \todo manage exchange
 template<class Scalar,class Ordinal>
 class Div {
 public:
@@ -25,7 +24,12 @@ public:
 //  typedef NonModeOp OpType;
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
+
+    for( int dir=0; dir<x.dim(); ++dir )
+      x.exchange( dir, dir );
     OP_div(x.vec_[0],x.vec_[1],x.vec_[2],y.s_);
+    y.changed();
+
   }
 
   void assignField( const DomainFieldT& mv ) {};

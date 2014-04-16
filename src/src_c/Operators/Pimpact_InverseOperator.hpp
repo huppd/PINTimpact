@@ -36,7 +36,7 @@ public:
 
 //  typedef NonModeOp OpType;
 
-private:
+protected:
 
   Teuchos::RCP< LinearProblem<MF> > linprob_;
 

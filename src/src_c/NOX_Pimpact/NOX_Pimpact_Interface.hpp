@@ -82,8 +82,15 @@ public:
 
   /// \brief Compute the Jacobian Operator, given the specified input vector x.
   NOX::Abstract::Group::ReturnType computeJacobian( const Field& x ) {
-    auto opJ = jop_->getProblem()->getOperator();
-    Teuchos::rcp_const_cast<Op>(opJ)->assignField( x );
+
+    auto prob = jop_->getProblem();
+    auto opJ = Teuchos::rcp_const_cast<Op>( prob->getOperator() );
+    opJ->assignField( x );
+    if( prob->isLeftPrec() ) {
+      auto opPrec = Teuchos::rcp_const_cast<Op>( prob->getLeftPrec() );
+//      if( !opPrec.is_null() )
+        opPrec->assignField( x );
+    }
 
     return( NOX::Abstract::Group::Ok );
   }

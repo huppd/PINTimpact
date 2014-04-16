@@ -40,29 +40,36 @@ class ScalarField {
 	friend class Div_Grad;
 
 public:
+
 	typedef S Scalar;
 	typedef O Ordinal;
 
 protected:
-//	using Teuchos::RCP;
+
 	typedef Scalar* array;
 	typedef ScalarField<Scalar,Ordinal> MV;
-
+	typedef Teuchos::Tuple<bool,3> State;
 
 public:
-	ScalarField():s_(0),fieldSpace_(Teuchos::null) {};
 
-	ScalarField( const Teuchos::RCP<const FieldSpace<Ordinal> >& sVS):fieldSpace_(sVS) {
-		Ordinal N = 1;
-		for(int i=0; i<3; ++i)
-			N *= nLoc(i)+bu(i)-bl(i);
+	ScalarField():
+	  s_(0),
+	  fieldSpace_(Teuchos::null),
+	  exchangedState_( Teuchos::tuple(true,true,true) ) {};
 
-		s_ = new Scalar[N];
-//#ifdef DEBUG
-		for(int i=0; i<N; ++i){
-			s_[i] = 0.;
-		}
-//#endif
+	ScalarField( const Teuchos::RCP<const FieldSpace<Ordinal> >& sVS ):
+	    fieldSpace_(sVS),
+	    exchangedState_( Teuchos::tuple(true,true,true) ) {
+
+	  Ordinal N = 1;
+	  for(int i=0; i<3; ++i)
+	    N *= nLoc(i)+bu(i)-bl(i);
+
+	  s_ = new Scalar[N];
+
+	  for(int i=0; i<N; ++i) {
+	    s_[i] = 0.;
+	  }
 	};
 
 
@@ -71,32 +78,30 @@ public:
 	/// shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
 	/// \param sF
 	/// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
-	ScalarField(const ScalarField& sF, ECopyType copyType=ShallowCopy):fieldSpace_(sF.fieldSpace_) {
-		Ordinal N = 1;
-		for(int i=0; i<3; ++i)
-			N *= nLoc(i)+bu(i)-bl(i);
+	ScalarField(const ScalarField& sF, ECopyType copyType=ShallowCopy):
+	  fieldSpace_( sF.fieldSpace_ ),
+	    exchangedState_( sF.exchangedState_ ) {
 
-		s_ = new Scalar[N];
+	  Ordinal N = 1;
+	  for(int i=0; i<3; ++i)
+	    N *= nLoc(i)+bu(i)-bl(i);
 
-		switch( copyType ) {
+	  s_ = new Scalar[N];
 
-			case ShallowCopy:
-//#ifdef DEBUG
-				for(int i=0; i<N; ++i) {
-					s_[i] = 0;
-				}
-//#endif
-				break;
-		case DeepCopy:
-			for( int i=0; i<N; ++i) {
-					s_[i] = sF.s_[i];
-			}
-			break;
-		}
+	  switch( copyType ) {
+	  case ShallowCopy:
+	    for(int i=0; i<N; ++i)
+	      s_[i] = 0;
+	  break;
+	  case DeepCopy:
+	    for( int i=0; i<N; ++i)
+	      s_[i] = sF.s_[i];
+	  break;
+	  }
 	};
 
-
 	~ScalarField() { delete[] s_;}
+
 
 	Teuchos::RCP<MV> clone( ECopyType ctype=DeepCopy ) const {
 	  return( Teuchos::rcp( new MV(*this, ctype) ) );
@@ -129,12 +134,13 @@ public:
 	void add( const Scalar& alpha, const MV& A, const Scalar& beta, const MV& B ) {
 		// add test for consistent VectorSpaces in debug mode
 		SF_add(
-						nLoc(0), nLoc(1), nLoc(2),
-						sInd(0), sInd(1), sInd(2),
-						eInd(0), eInd(1), eInd(2),
-						bl(0),   bl(1),   bl(2),
-						bu(0),   bu(1),   bu(2),
-						s_, A.s_, B.s_, alpha, beta);
+		    nLoc(0), nLoc(1), nLoc(2),
+				sInd(0), sInd(1), sInd(2),
+				eInd(0), eInd(1), eInd(2),
+				bl(0),   bl(1),   bl(2),
+				bu(0),   bu(1),   bu(2),
+				s_, A.s_, B.s_, alpha, beta);
+		changed();
 	}
 
 
@@ -148,46 +154,49 @@ public:
   void abs(const MV& y) {
 		// add test for consistent VectorSpaces in debug mode
 		SF_abs(
-						nLoc(0), nLoc(1), nLoc(2),
-						sInd(0), sInd(1), sInd(2),
-						eInd(0), eInd(1), eInd(2),
-						bl(0),   bl(1),   bl(2),
-						bu(0),   bu(1),   bu(2),
-						s_, y.s_ );
+		    nLoc(0), nLoc(1), nLoc(2),
+				sInd(0), sInd(1), sInd(2),
+				eInd(0), eInd(1), eInd(2),
+				bl(0),   bl(1),   bl(2),
+				bu(0),   bu(1),   bu(2),
+				s_, y.s_ );
+		changed();
   }
 
 
-   /// \brief Put element-wise reciprocal of source vector \c y into this vector.
-   ///
-   /// Here x represents this vector, and we update it as
-   /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
-   /// \return Reference to this object
-   /// \todo implement me
-   void reciprocal(const MV& y){
-     // add test for consistent VectorSpaces in debug mode
-     SF_reciprocal(
-         nLoc(0), nLoc(1), nLoc(2),
-         sInd(0), sInd(1), sInd(2),
-         eInd(0), eInd(1), eInd(2),
-         bl(0),   bl(1),   bl(2),
-         bu(0),   bu(1),   bu(2),
-         s_, y.s_ );
-   }
+  /// \brief Put element-wise reciprocal of source vector \c y into this vector.
+  ///
+  /// Here x represents this vector, and we update it as
+  /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
+  /// \return Reference to this object
+  /// \todo implement me
+  void reciprocal(const MV& y){
+    // add test for consistent VectorSpaces in debug mode
+    SF_reciprocal(
+        nLoc(0), nLoc(1), nLoc(2),
+        sInd(0), sInd(1), sInd(2),
+        eInd(0), eInd(1), eInd(2),
+        bl(0),   bl(1),   bl(2),
+        bu(0),   bu(1),   bu(2),
+        s_, y.s_ );
+    changed();
+  }
 
 
-	/// \brief Scale each element of the vector with \c alpha.
+  /// \brief Scale each element of the vector with \c alpha.
 	void scale( const Scalar& alpha ) {
-		SF_scale(
-					nLoc(0), nLoc(1), nLoc(2),
-					sInd(0), sInd(1), sInd(2),
-					eInd(0), eInd(1), eInd(2),
-					bl(0),   bl(1),   bl(2),
-					bu(0),   bu(1),   bu(2),
-					s_, alpha);
+	  SF_scale(
+	      nLoc(0), nLoc(1), nLoc(2),
+				sInd(0), sInd(1), sInd(2),
+				eInd(0), eInd(1), eInd(2),
+				bl(0),   bl(1),   bl(2),
+				bu(0),   bu(1),   bu(2),
+				s_, alpha);
+	  changed();
 	}
 
 
-  /// \brief Scale this vector <em>element-by-element</em> by the vector a.
+	/// \brief Scale this vector <em>element-by-element</em> by the vector a.
   ///
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
@@ -202,6 +211,7 @@ public:
         bl(0),   bl(1),   bl(2),
         bu(0),   bu(1),   bu(2),
         s_, a.s_ );
+    changed();
   }
 
 
@@ -241,7 +251,7 @@ public:
 
 		Scalar normvec;
 		SF_compNorm(
-				commf(),
+		    commf(),
 				nLoc(0), nLoc(1), nLoc(2),
 				sInd(0), sInd(1), sInd(2),
 				eInd(0), eInd(1), eInd(2),
@@ -250,10 +260,12 @@ public:
 				s_,
 				infNorm_yes, twoNorm_yes,
 				normvec, normvec );
+
     if( type==Belos::TwoNorm )
       return( std::sqrt(normvec) );
     else
-      return( normvec );	}
+      return( normvec );
+	}
 
 
   /// \brief Weighted 2-Norm.
@@ -286,7 +298,7 @@ public:
 	/// total deep, boundaries and everythin.
 	/// \note the \c FieldSpace is not take care of assuming every field is generated with one
 	/// \note "indexing" is done c++
-	void assign( const MV& a ) {
+  void assign( const MV& a ) {
 		#ifdef DEBUG
 		for(int i=0; i<3; ++i) {
 			TEST_EQUALITY( nLoc(i), a.Nloc(i) )
@@ -296,25 +308,28 @@ public:
 		#endif
 
   	Ordinal N = 1;
-  		for(int i=0; i<3; ++i)
-  			N *= nLoc(i)+bu(i)-bl(i);
+  	for(int i=0; i<3; ++i)
+  	  N *= nLoc(i)+bu(i)-bl(i);
 
-  		for(int i=0; i<N; ++i) {
-  			s_[i] = a.s_[i];
-  		}
+  	for(int i=0; i<N; ++i)
+  	  s_[i] = a.s_[i];
+
+  	for( int dir=0; dir<dim(); ++dir )
+  	  exchangedState_[dir] = a.exchangedState_[dir];
   }
 
 
   /// \brief Replace the vectors with a random vectors.
   /// depending on Fortrans \c Random_number implementation, with always same seed => not save, if good randomness is requiered
-	void random(bool useSeed = false, int seed = 1) {
-		SF_random(
-				nLoc(0), nLoc(1), nLoc(2),
+	void random( bool useSeed = false, int seed = 1 ) {
+	  SF_random(
+	      nLoc(0), nLoc(1), nLoc(2),
 				sInd(0), sInd(1), sInd(2),
 				eInd(0), eInd(1), eInd(2),
 				bl(0),   bl(1),   bl(2),
 				bu(0),   bu(1),   bu(2),
 				s_);
+	  changed();
 	}
 
 
@@ -327,7 +342,9 @@ public:
 				bl(0),   bl(1),   bl(2),
 				bu(0),   bu(1),   bu(2),
 				s_, alpha);
+	  changed();
   }
+
 
   //@}
 
@@ -376,12 +393,15 @@ public:
 
 
   void write( int count=0 ) {
+    // exchange?
   	SF_write( s_, count );
   }
 
 protected:
 	const Teuchos::RCP<const FieldSpace<Ordinal> > fieldSpace_;
 	array s_;
+  State exchangedState_;
+
 
 	const MPI_Fint& commf()     const { return(  fieldSpace_->commf_   ); }
 	const MPI_Comm& comm()      const { return( fieldSpace_->comm_     ); }
@@ -392,6 +412,43 @@ protected:
 	const Ordinal&  eInd(int i) const { return( fieldSpace_->eInd_[i]  ); }
 	const Ordinal&  bl  (int i) const { return( fieldSpace_->bl_[i]    ); }
 	const Ordinal&  bu  (int i) const { return( fieldSpace_->bu_[i]    ); }
+
+
+  void changed( const int& dir ) const {
+    exchangedState_[dir] = false;
+  }
+  void changed() const {
+    for( int dir=0; dir<dim(); ++dir )
+      changed( dir );
+  }
+
+  bool is_exchanged( const int& dir ) const {
+    return( exchangedState_[dir] );
+  }
+  bool is_exchanged() const {
+    bool all_exchanged = true;
+    for( int dir=0; dir<dim(); ++dir )
+      all_exchanged = all_exchanged && is_exchanged(dir);
+    return( all_exchanged );
+  }
+
+  /// \brief updates ghost layers
+  void exchange( const int& dir ) const {
+    if( !exchangedState_[dir] ) {
+//      std::cout << "exchange\n";
+      F_exchange(
+          dir+1, 0,
+          1, 1, 1,
+          nLoc(0), nLoc(1), nLoc(2),
+          s_);
+      exchangedState_[dir] = true;
+    }
+  }
+  void exchange() const {
+    for( int vel_dir=0; vel_dir<dim(); ++vel_dir )
+      for( int dir=0; dir<dim(); ++dir )
+          exchange( vel_dir, dir );
+  }
 
 }; // end of class ScalarField
 

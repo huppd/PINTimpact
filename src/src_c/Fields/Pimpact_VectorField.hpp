@@ -79,53 +79,59 @@ public:
 
 		for(int i=0; i<3; ++i) {
 			vec_[i] = new Scalar[N];
-//#ifdef DEBUG
 			for(int j=0; j<N; ++j){
 				vec_[i][j] = 0.;
 			}
-//#endif
 		}
 	};
 
 	/// \brief copy constructor.
 	///
 	/// shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
-	/// \param sF
+	/// \param vF
 	/// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
 	VectorField(const VectorField& vF, ECopyType copyType=DeepCopy):
-	    fieldS_(vF.fieldS_),
+	    fieldS_ (vF.fieldS_),
 	    innerIS_(vF.innerIS_),
-	    fullIS_(vF.fullIS_),
+	    fullIS_ (vF.fullIS_),
 	    exchangedState_(vF.exchangedState_) {
 
 		Ordinal N = 1;
 		for(int i=0; i<3; ++i)
 			N *= nLoc(i)+bu(i)-bl(i);
 
-		for(int i=0; i<3; ++i) {
-			vec_[i] = new Scalar[N];
+		for( int i=0; i<3; ++i )
+		  vec_[i] = new Scalar[N];
 
-			switch( copyType ) {
-
-				case ShallowCopy:
-//	#ifdef DEBUG
-					for(int j=0; j<N; ++j) {
-						vec_[i][j] = 0;
-					}
-//	#endif
-					break;
-			case DeepCopy:
-				for( int j=0; j<N; ++j) {
-						vec_[i][j] = vF.vec_[i][j];
-				}
-				break;
-			}
+		switch( copyType ) {
+		case ShallowCopy:
+		  for(int i=0; i<dim(); ++i)
+		      for( int j=0; j<N; ++j)
+		        vec_[i][j] = 0;
+//		    SF_init(
+//		        nLoc(0), nLoc(1), nLoc(2),
+////		        bl(0),   bl(1),   bl(2),
+////			      nLoc(0)+bu(0), nLoc(1)+bu(1), nLoc(2)+bu(2),
+//				  1,       1,       1,
+//				  nLoc(0), nLoc(1), nLoc(2),
+//            bl(0),   bl(1),   bl(2),
+//            bu(0),   bu(1),   bu(2),
+//            vec_[i], 0. );
+		  changed();
+		  break;
+		  case DeepCopy:
+		    for( int i=0; i<dim(); ++i )
+		      for( int j=0; j<N; ++j)
+		        vec_[i][j] = vF.vec_[i][j];
+		    break;
 		}
 	};
 
 
 	~VectorField() {
-	  for(int i=0; i<3; ++i) delete[] vec_[i];}
+	  for(int i=0; i<3; ++i)
+	    delete[] vec_[i];
+	}
 
 	Teuchos::RCP<VF> clone( ECopyType ctype=DeepCopy ) const {
 	  return( Teuchos::rcp( new VF( *this, ctype ) ) );
@@ -176,12 +182,12 @@ public:
 		// add test for consistent VectorSpaces in debug mode
 		for( int i=0; i<dim(); ++i )
 			SF_add(
-						nLoc(0), nLoc(1), nLoc(2),
-						sInd(0,i), sInd(1,i), sInd(2,i),
-						eInd(0,i), eInd(1,i), eInd(2,i),
-						bl(0),   bl(1),   bl(2),
-						bu(0),   bu(1),   bu(2),
-						vec_[i], A.vec_[i], B.vec_[i], alpha, beta);
+			    nLoc(0), nLoc(1), nLoc(2),
+					sInd(0,i), sInd(1,i), sInd(2,i),
+					eInd(0,i), eInd(1,i), eInd(2,i),
+					bl(0),   bl(1),   bl(2),
+					bu(0),   bu(1),   bu(2),
+					vec_[i], A.vec_[i], B.vec_[i], alpha, beta);
 		changed();
 	}
 

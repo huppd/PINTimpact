@@ -79,12 +79,12 @@ module cmod_inout
 
 
   character(len=5)       ::  count_char
-  character(len=1)       ::  conc_number
+!  character(len=1)       ::  conc_number
   
   
   if (rank == 0) write(*,'(a)') 'writing pressure field ...'
 
-  pre(:,:,:) = phip
+!  pre(:,:,:) = phip
 
   !===========================================================================================================
   !=== Ausschrieb-Nr. als String fuer File-Namen =============================================================
@@ -97,23 +97,23 @@ module cmod_inout
   
   !===========================================================================================================
   if( dimens == 3 )then
-     if (write_large) call write_hdf('pre_large_'//count_char,'pre',S1p,S2p,S3p,N1p,N2p,N3p,0,stride_large,pre)
-     if (write_med  ) call write_hdf('pre_med_'  //count_char,'pre',S1p,S2p,S3p,N1p,N2p,N3p,0,stride_med  ,pre)
-     if (write_small) call write_hdf('pre_small_'//count_char,'pre',S1p,S2p,S3p,N1p,N2p,N3p,0,stride_small,pre)
+     if (write_large) call write_hdf('pre_large_'//count_char,'pre',S1p,S2p,S3p,N1p,N2p,N3p,0,stride_large,phip)
+     if (write_med  ) call write_hdf('pre_med_'  //count_char,'pre',S1p,S2p,S3p,N1p,N2p,N3p,0,stride_med  ,phip)
+     if (write_small) call write_hdf('pre_small_'//count_char,'pre',S1p,S2p,S3p,N1p,N2p,N3p,0,stride_small,phip)
   else
      k = 1
      do j = S2p, N2p
         do i = S1p, N1p
-           bc33(i,j,1) = pre(i,j,k)
+           bc33(i,j,1) = phip(i,j,k)
         end do
      end do
      call write_2D_hdf('pre_'//count_char,'pre',N1,N2,S1p,S2p,N1p,N2p,iShift,jShift,-3,bc33(1,1,1))
   end if
   !===========================================================================================================
 
-  write_count    = write_count   + 1
-  time_out_vect  = time_out_vect + dtime_out_vect
-  write_out_vect = .false.
+!  write_count    = write_count   + 1
+!  time_out_vect  = time_out_vect + dtime_out_vect
+!  write_out_vect = .false.
   
   
   end subroutine write_pre
@@ -137,7 +137,7 @@ module cmod_inout
   integer(c_int)  , intent(in)   :: filecount
 
   character(len=5)       ::  count_char
-  character(len=1)       ::  conc_number
+!  character(len=1)       ::  conc_number
 
 
   if (rank == 0) write(*,'(a)') 'writing velocity field ...'
@@ -232,9 +232,9 @@ module cmod_inout
   !===========================================================================================================
   !===========================================================================================================
 
-  write_count    = write_count   + 1
-  time_out_vect  = time_out_vect + dtime_out_vect
-  write_out_vect = .false.
+!  write_count    = write_count   + 1
+!  time_out_vect  = time_out_vect + dtime_out_vect
+!  write_out_vect = .false.
 
 
   end subroutine write_vel
