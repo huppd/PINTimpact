@@ -91,10 +91,10 @@ int main(int argi, char** argv ) {
 	my_CLP.setOption( "nz", &n3, "amount of grid points in z-direction: a*2**q+1" );
 
 	// processor grid size
-	O np1 = 2;
+	O np1 = 1;
 	my_CLP.setOption( "npx", &np1, "amount of processors in x-direction" );
 
-	O np2 = 2;
+	O np2 = 1;
 	my_CLP.setOption( "npy", &np2, "amount of processors in y-direction" );
 
 	O np3 = 1.;
@@ -199,12 +199,12 @@ int main(int argi, char** argv ) {
 	tempv->getField(0).initField( Pimpact::ZeroProf );
 
 	// solve parameter for GMRES
-	RCP<ParameterList> solveParaGMRES = Pimpact::createLinSolverParameter( "GMRES", 1.0e-16 );
+	RCP<ParameterList> solveParaGMRES = Pimpact::createLinSolverParameter( "GMRES", 1.0e-6 );
 
 	Teuchos::writeParameterListToXmlFile( *solveParaGMRES, "para_solverGMRES.xml" );
 
 	// solve parameter for CG
-	RCP<ParameterList> solveParaCG = Pimpact::createLinSolverParameter( "GMRES", 1.e-16 );
+	RCP<ParameterList> solveParaCG = Pimpact::createLinSolverParameter( "GMRES", 1.e-6 );
 
 	Teuchos::writeParameterListToXmlFile( *solveParaCG, "para_solverCG.xml" );
 

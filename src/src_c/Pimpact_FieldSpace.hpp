@@ -17,8 +17,6 @@ namespace Pimpact {
 /// public class, that stores neccessary information for Vectors(Fields), which are common for \c ScalarField and \c VectorField
 /// \todo check constant/ make variables protected SV friend class
 /// \todo remove indexes(add indexSpace to ScalarField) sInd/eInd
-/// \todo add procssor blocks somewhere
-/// \todo add neibouring ranks somewhere
 template<class O>
 class FieldSpace {
 

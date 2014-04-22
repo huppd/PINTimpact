@@ -38,8 +38,20 @@ module cmod_VectorField
   !! \param[in] weighting_yes if weighting schould be used, using the \c weights from \c mod_vars
   !! \param[in] inf_yes if true infinity norm is computed
   !! \param[in] two_yes if trhue two norm is computed
-  !! \test if comm_cart is neccessary, or if comm is enough or even better
-  subroutine product_scalar_vel( COMM_CART, dimens, N1,N2,N3, S1U,S2U,S3U, N1U,N2U,N3U, S1V,S2V,S3V, N1V,N2V,N3V, S1W,S2W,S3W, N1W,N2W,N3W, b1L,b2L,b3L, b1U,b2U,b3U, phi1U,phi1V,phi1W, phi2U,phi2V,phi2W, scalar ) bind ( c, name='VF_dot' )
+  subroutine product_scalar_vel(    &
+    COMM_CART, dimens,              &
+    N1,N2,N3,                       &
+    S1U,S2U,S3U,                    &
+    N1U,N2U,N3U,                    &
+    S1V,S2V,S3V,                    &
+    N1V,N2V,N3V,                    &
+    S1W,S2W,S3W,                    &
+    N1W,N2W,N3W,                    &
+    b1L,b2L,b3L,                    &
+    b1U,b2U,b3U,                    &
+    phi1U,phi1V,phi1W,              &
+    phi2U,phi2V,phi2W,              &
+    scalar ) bind ( c, name='VF_dot' )
 
   implicit none
 
@@ -136,7 +148,6 @@ module cmod_VectorField
 
 
   !> brief computes two or infinity norm
-  !! \todo add all parameters to make it more flexible
   !!
   !! \param[in] phi velocity vector, from which the norm is taken
   !! \param[in] inf_yes if true infinity norm is computed

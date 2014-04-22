@@ -26,9 +26,8 @@ namespace Pimpact {
 /// vector for a vector field, e.g.: velocity,
 /// here also happens the fortran wrapping
 /// \ingroup Field
-/// \todo add state of echanged
 /// \todo There is one issue: update methods changes state but could be
-///implemented, such that they keep the satet, but then the boundary conditions
+///implemented, such that they keep the state, but then the boundary conditions
 ///have to be taken care of
 template<class S, class O>
 class VectorField {

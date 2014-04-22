@@ -21,7 +21,7 @@ namespace Pimpact{
 
 
 /// \ingroup Operator
-/// \tparam MultiField has to be of type \c Pimpact::MultiField<>
+/// \tparam MultiField has to be of type \c Pimpact::MultiField
 template< class MultiField >
 class InverseOperator {
 

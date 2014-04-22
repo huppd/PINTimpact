@@ -14,6 +14,7 @@ module cmod_ScalarVector
   contains
 
   !> \brief computes scalar product of two scalar fields(neccessary condition belong to same sVS)
+  !!
   !! \param[in] N1 ammount of local elements in 1-direction
   !! \param[in] N2 ammount of local elements in 2-direction
   !! \param[in] N3 ammount of local elements in 3-direction
@@ -36,8 +37,6 @@ module cmod_ScalarVector
 
   implicit none
 
-!  integer(c_int), intent(in)    ::  COMM_CART
-
   integer(c_int), intent(in)    ::  N1
   integer(c_int), intent(in)    ::  N2
   integer(c_int), intent(in)    ::  N3
@@ -58,7 +57,7 @@ module cmod_ScalarVector
   integer(c_int), intent(in)    ::  b2U
   integer(c_int), intent(in)    ::  b3U
 
-  real(c_double), intent(inout) ::  phi (b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double), intent(out)   ::  phi (b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
   real(c_double), intent(in)    ::  phi1(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
   real(c_double), intent(in)    ::  phi2(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
 
@@ -179,8 +178,8 @@ module cmod_ScalarVector
   integer(c_int), intent(in)    ::  b2U
   integer(c_int), intent(in)    ::  b3U
 
-  real(c_double), intent(inout)   ::  phi (b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  real(c_double), intent(in)    ::  phi1(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double), intent(inout) ::  phi (b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double), intent(in   ) ::  phi1(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
 
   integer                       ::  i, j, k
 

@@ -326,15 +326,17 @@ module mod_setup
   
   
   
- !> \brief intializes comunicator, COMM_CART, slice
+  !> \brief intializes comunicator, COMM_CART, slice
+  !! \todo should be extended for 4 dimension for the time dimens or subcommunicatos have to be used
   subroutine init_parallel() bind(c,name='finit_parallel')
   
   implicit none
   
-  integer                ::  ijkB(1:3)
-  integer                ::  periodic(1:3)
+  integer                ::  ijkB(1:3)      ! mpi grid coordinates
+  integer                ::  periodic(1:3)  ! array for mpir to signal where periodic grid is, from manual should be bool
   
   
+  ! init periodic
   if (BC_1L_global == -1) then
      periodic(1) = 1
   else
@@ -357,14 +359,21 @@ module mod_setup
   ! Macht keinen messbaren Unterschied (falls doch irgendwann, dann sollte der CALL auch auf die Grobgitter-Kommunikatoren auch angewandt werden!):
   !CALL MPI_CART_CREATE(MPI_COMM_WORLD,3,(/NB1,NB2,NB3/),periodic,.FALSE.,COMM_CART,merror)
   !CALL MPI_CART_MAP(COMM_CART,3,(/NB1,NB2,NB3/),periodic,rank,merror)
+
+  ! .true. means ranking may be reorderd
+  ! comm_cart comm with cartesian grid informations
   call MPI_CART_CREATE(MPI_COMM_WORLD,3,(/NB1,NB2,NB3/),periodic,.true.,COMM_CART,merror)
+  ! gets rank from COMM_CART
   call MPI_COMM_RANK  (COMM_CART,rank,merror)
+  ! gets coordinates in xyz direction from rank and comm_cart
   call MPI_CART_COORDS(COMM_CART,rank,3,ijkB,merror)
   
+  ! stores coordinates in a fortran fasion?
   iB(1,1) = ijkB(1)+1
   iB(2,1) = ijkB(2)+1
   iB(3,1) = ijkB(3)+1
   
+  ! computes index ofset
   iShift = (iB(1,1)-1)*(N1-1)
   jShift = (iB(2,1)-1)*(N2-1)
   kShift = (iB(3,1)-1)*(N3-1)
@@ -372,6 +381,19 @@ module mod_setup
   call MPI_CART_SHIFT(COMM_CART,0,1,rank1L,rank1U,merror)
   call MPI_CART_SHIFT(COMM_CART,1,1,rank2L,rank2U,merror)
   call MPI_CART_SHIFT(COMM_CART,2,1,rank3L,rank3U,merror)
+  !                             ^ ^   ^      ^
+  !                             | |   |      |
+  !                             d d   r      r
+  !                             i i   a      a
+  !                             r s   n      n
+  !                             e p   k      k
+  !                             c l   s      d
+  !                             t a   o      e
+  !                             i c   u      s
+  !                             o m   r      t
+  !                             n e   c
+  !                               n   e
+  !                               t
   
   
   call MPI_CART_SUB(COMM_CART,(/0,1,1/),COMM_SLICE1,merror)

@@ -18,7 +18,7 @@ namespace Pimpact {
 
 
 /// \brief public class, that stores neccessary information for indexing \c ScalarField and \c VectorField in Fortran
-/// \todo check constant make variables protected SV friend class
+/// \todo check constant make variables protected SF friend class
 template<class Ordinal>
 class IndexSpace {
 
@@ -27,9 +27,9 @@ public:
 	typedef Teuchos::Tuple<Ordinal,3> TO3;
 
 	/// \brief constructor
-	/// @param fieldType says which kind of field is taken
-	/// @param sInd start index of gridpoints
-	/// @param eInd last index of gridpoints
+	/// \param fieldType says which kind of field is taken
+	/// \param sInd start index of gridpoints
+	/// \param eInd last index of gridpoints
 	IndexSpace( EFieldType fieldType,TO3 sInd, TO3 eInd ):
 		fieldType_(fieldType),sInd_(sInd),eInd_(eInd) {};
 
