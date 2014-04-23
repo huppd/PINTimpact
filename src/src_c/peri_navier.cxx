@@ -243,17 +243,20 @@ int main(int argi, char** argv ) {
 
 
   // init vectors
-  auto xv   = Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, nfs );
-  auto xs   = Pimpact::createMultiHarmonicScalarField<S,O>( fS, nfs );
-  auto x    = Pimpact::createMultiField( Pimpact::createCompoundField( xv, xs) );
+  auto x    = Pimpact::createMultiField( Pimpact::createCompoundField(
+      Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, nfs ),
+      Pimpact::createMultiHarmonicScalarField<S,O>( fS, nfs )) );
 //  auto temp = x->clone();
   auto fu   = x->clone();
 //  auto force = x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone();
 
   // init Fields, init and rhs
-  fu->init(1.);
+//  fu->init(1.);
+  x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->initField( Pimpact::EFlowProfile(flow), re, alpha2/re );
   x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::EFlowProfile(flow), re, alpha2/re );
-  x->init( 0. );
+
+//  x->init( 0. );
+  fu->init( 0. );
 //  x->random();
 
 
@@ -263,22 +266,24 @@ int main(int argi, char** argv ) {
 //  for( nf=nfs; nf<nfe; nf+=2 ) {
   for( nf=nfs; nf<nfe; nf*=2) {
 
-//    if( nf!=nfs ) {
-//      S toltemp = x->getConstFieldPtr(0)->getConstVFieldPtr()->getConstFieldPtr(x->getConstFieldPtr(0)->getConstVFieldPtr()->getNumberModes()-1)->norm()/std::sqrt(l1*l2/n1/n2);
-//      if(0==rank) std::cout << "\n\t--- ||u_Nf||: "<<toltemp<<"\t---\n";
-//      if( toltemp < tolNF )
-//        break;
-//      do {
-//        x->getFieldPtr(0)->getVFieldPtr()->push_back();
-//        x->getFieldPtr(0)->getSFieldPtr()->push_back();
-//        fu->getFieldPtr(0)->getVFieldPtr()->push_back();
-//        fu->getFieldPtr(0)->getSFieldPtr()->push_back();
-////        temp->getFieldPtr(0)->getVFieldPtr()->push_back();
-////        temp->getFieldPtr(0)->getSFieldPtr()->push_back();
-//      } while( x->getConstFieldPtr(0)->getConstVFieldPtr()->getNumberModes() < nf );
-////      tolNOX /= 5;
-//      tolNOX /= 10;
-//    }
+    if( nf!=nfs ) {
+      S toltemp = x->getConstFieldPtr(0)->getConstVFieldPtr()->getConstFieldPtr(x->getConstFieldPtr(0)->getConstVFieldPtr()->getNumberModes()-1)->norm()/std::sqrt(l1*l2/n1/n2);
+      if(0==rank) std::cout << "\n\t--- ||u_Nf||: "<<toltemp<<"\t---\n";
+      if( toltemp < tolNF ) {
+        if(0==rank) std::cout << "\n\t--- Nf: "<<x->getConstFieldPtr(0)->getConstVFieldPtr()->getNumberModes()<<"\tdof: "<<x->getLength(true)<<"\t---\n";
+        break;
+      }
+      do {
+        x->getFieldPtr(0)->getVFieldPtr()->push_back();
+        x->getFieldPtr(0)->getSFieldPtr()->push_back();
+        fu->getFieldPtr(0)->getVFieldPtr()->push_back();
+        fu->getFieldPtr(0)->getSFieldPtr()->push_back();
+//        temp->getFieldPtr(0)->getVFieldPtr()->push_back();
+//        temp->getFieldPtr(0)->getSFieldPtr()->push_back();
+      } while( x->getConstFieldPtr(0)->getConstVFieldPtr()->getNumberModes() < nf );
+//      tolNOX /= 5;
+      tolNOX /= 10;
+    }
 
 //    if(0==rank) std::cout << "\n\t--- Nf: "<<nf<<"\tdof: "<<x->getLength(true)<<"\t---\n";
     if(0==rank) std::cout << "\n\t--- Nf: "<<x->getConstFieldPtr(0)->getConstVFieldPtr()->getNumberModes()<<"\tdof: "<<x->getLength(true)<<"\t---\n";
@@ -302,22 +307,22 @@ int main(int argi, char** argv ) {
     auto op =
         Pimpact::createMultiOperatorBase<MF>(
             Pimpact::createCompoundOpWrap(
-                x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(), opV2V, opS2V, opV2S
-                )
+                x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(), opV2V, opS2V, opV2S )
                 );
 
 
   Teuchos::RCP<BOp> jop;
-    jop =
-        Pimpact::createMultiOperatorBase<MF>(
-            Pimpact::createCompoundOpWrap(
-                x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
-                Pimpact::createAddOp(
-                    Pimpact::createMultiDtHelmholtz<S,O>( alpha2/re, 0., 1./re ),
-                    Pimpact::createMultiHarmonicNonlinearJacobian<S,O>( x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone(), x->getConstFieldPtr(0)->getConstVFieldPtr()->clone() ),
-                    x->getConstFieldPtr(0)->getConstVFieldPtr()->clone() ),
-                opS2V, opV2S )
-                );
+    jop = Pimpact::createMultiOperatorBase<MF>(
+        Pimpact::createCompoundOpWrap(
+            x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+            Pimpact::createAddOp(
+                Pimpact::createMultiDtHelmholtz<S,O>( alpha2/re, 0., 1./re ),
+                Pimpact::createMultiHarmonicNonlinearJacobian<S,O>(
+                    x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone(),
+                    x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::DeepCopy) ),
+                 x->getConstFieldPtr(0)->getConstVFieldPtr()->clone() ),
+            opS2V, opV2S )
+        );
 //  if( iterM==2 ){
 //
 //    if(0==rank) std::cout << "\n\t---\titeration matrix(2): full Picard iteration\t---\n";
@@ -708,8 +713,8 @@ int main(int argi, char** argv ) {
 //    Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() )->getConstFieldPtr()->write(800);
 //    Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(900);
 
-//    x = Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr();
-////    x = Teuchos::rcp_const_cast<NV>( group->getXPtr() )->getFieldPtr();
+    x = Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr();
+//    x = Teuchos::rcp_const_cast<NV>( group->getXPtr() )->getFieldPtr();
 
 //    x->write(nf*100);
   }

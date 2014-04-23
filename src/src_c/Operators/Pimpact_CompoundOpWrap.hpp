@@ -62,18 +62,13 @@ public:
   };
 
   void apply(const DomainFieldT& x, RangeFieldT& y ) const {
-    auto xv = x.getConstVField();
-    auto xs = x.getConstSField();
-    auto yv = y.getVField();
-    auto ys = y.getSField();
-//    // H-blockz
-//    opV2V_->apply( xv, yv );
-//    // ~grad
-//    opS2V_->apply( xs, *temp_ );
-//    yv.add( 1., yv, 1., *temp_ );
-//    // ~div
-//    opV2S_->pply( xv, ys );
-    y.assign(x);
+    // H-blockz
+    opV2V_->apply( x.getConstVField(), y.getVField() );
+    // ~grad
+    opS2V_->apply( x.getConstSField(), *temp_ );
+    y.getVField().add( 1., y.getConstVField(), 1., *temp_ );
+    // ~div
+    opV2S_->apply( x.getConstVField(), y.getSField() );
   }
 
   void assignField( const DomainFieldT& mv ) {
@@ -96,8 +91,8 @@ Teuchos::RCP<CompoundOpWrap<OpV2V,OpS2V,OpV2S> > createCompoundOpWrap(
     const Teuchos::RCP<OpS2V>& opS2V=Teuchos::null,
     const Teuchos::RCP<OpV2S>& opV2S=Teuchos::null ) {
 
-  return
-      Teuchos::rcp( new CompoundOpWrap<OpV2V,OpS2V,OpV2S>(temp,opV2V,opS2V,opV2S) );
+  return(
+      Teuchos::rcp( new CompoundOpWrap<OpV2V,OpS2V,OpV2S>(temp,opV2V,opS2V,opV2S) ) );
 }
 
 

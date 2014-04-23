@@ -610,6 +610,62 @@ TEUCHOS_UNIT_TEST( CompoundOperator, CompoundOpWrap ) {
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
   auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
+  int nfs = 4;
+
+  auto x    = Pimpact::createMultiField( Pimpact::createCompoundField(
+      Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, nfs ),
+      Pimpact::createMultiHarmonicScalarField<S,O>( fS, nfs )) );
+  auto fu   = x->clone();
+  x->init(1.);
+  x->random();
+
+  auto opV2V =
+       Pimpact::createAddOp(
+           Pimpact::createMultiDtHelmholtz<S,O>( 1., 0., 1. ),
+           Pimpact::createMultiHarmonicNonlinear<S,O>( x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone() ),
+           x->getConstFieldPtr(0)->getConstVFieldPtr()->clone()
+           );
+
+   auto opS2V = Pimpact::createMultiHarmonicOpWrap< Pimpact::Grad<S,O> >();
+   auto opV2S = Pimpact::createMultiHarmonicOpWrap< Pimpact::Div<S,O> >();
+
+   auto op =
+       Pimpact::createMultiOperatorBase<MF>(
+           Pimpact::createCompoundOpWrap(
+               x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(), opV2V, opS2V, opV2S )
+               );
+
+  // vector to vector operator
+  fu->init(0.);
+	TEST_EQUALITY( 0., fu->norm() );
+
+  opV2V->apply( x->getConstFieldPtr(0)->getConstVField(), fu->getFieldPtr(0)->getVField() );
+
+	TEST_INEQUALITY( 0., fu->norm() );
+
+
+  // scalar to vector operator
+  fu->init(0.);
+	TEST_EQUALITY( 0., fu->norm() );
+
+  opS2V->apply( x->getConstFieldPtr(0)->getConstSField(), fu->getFieldPtr(0)->getVField() );
+
+	TEST_INEQUALITY( 0., fu->norm() );
+
+  // vector to scalar operator
+  fu->init(0.);
+	TEST_EQUALITY( 0., fu->norm() );
+
+  opV2S->apply( x->getConstFieldPtr(0)->getConstVField(), fu->getFieldPtr(0)->getSField() );
+
+	TEST_INEQUALITY( 0., fu->norm() );
+
+  // compound operator
+  fu->init(0.);
+	TEST_EQUALITY( 0., fu->norm() );
+  op->apply(*x,*fu);
+	TEST_INEQUALITY( 0., fu->norm() );
+
 }
 
 

@@ -604,6 +604,7 @@ module cmod_ScalarVector
 
 
     call Random_number(phi(SS1:NN1,SS2:NN2,SS3:NN3))
+    phi(SS1:NN1,SS2:NN2,SS3:NN3) = phi(SS1:NN1,SS2:NN2,SS3:NN3) - 0.5
 
   end subroutine random
 

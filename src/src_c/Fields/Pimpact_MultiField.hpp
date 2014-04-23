@@ -454,10 +454,10 @@ public:
   }
 
 
-  Field& getField(int i) { return( *mfs_[i] ); }
+  Field&       getField     (int i)       { return( *mfs_[i] ); }
   const Field& getConstField(int i) const { return( *mfs_[i] ); }
 
-  Teuchos::RCP<Field> getFieldPtr(int i) { return( mfs_[i] ); }
+  Teuchos::RCP<Field>       getFieldPtr     (int i)       { return( mfs_[i] ); }
   Teuchos::RCP<const Field> getConstFieldPtr(int i) const { return( mfs_[i] ); }
 
 }; // end of class MultiField

@@ -1267,7 +1267,7 @@ module cmod_VectorField
   do k = S3V, N3V
      do j = S2V, N2V
         do i = S1V, N1V
-           phiV(i,j,k) = sin( 2.*pi*x1p(i)/L1 )
+           phiV(i,j,k) = sin( 2.*pi*x1p(i)/L1 )/2.
         end do
      end do
   end do

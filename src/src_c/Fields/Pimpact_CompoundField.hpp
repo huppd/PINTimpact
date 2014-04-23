@@ -64,17 +64,18 @@ public:
 	/// \return field space of \c cfield_
 	Teuchos::RCP<const FieldSpace<Ordinal> > getFieldSpace() const { return( vfield_->getFieldSpace() );}
 
+	VField& getVField() { return( *vfield_ ); }
+	SField& getSField() { return( *sfield_ ); }
+
+	const VField& getConstVField() const { return( *vfield_ ); }
+	const SField& getConstSField() const { return( *sfield_ ); }
+
 	Teuchos::RCP<VField> getVFieldPtr() { return( vfield_ ); }
 	Teuchos::RCP<SField> getSFieldPtr() { return( sfield_ ); }
 
 	Teuchos::RCP<const VField> getConstVFieldPtr() const { return( vfield_ ); }
 	Teuchos::RCP<const SField> getConstSFieldPtr() const { return( sfield_ ); }
 
-	VField getVField() { return( *vfield_ ); }
-	SField getSField() { return( *sfield_ ); }
-
-	const VField getConstVField() const { return( *vfield_ ); }
-	const SField getConstSField() const { return( *sfield_ ); }
 
 	/// \brief get Vect length
 	/// shoud be the same as 2*vfield_->getVecLength()
