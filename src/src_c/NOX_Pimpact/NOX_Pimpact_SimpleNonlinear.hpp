@@ -1,6 +1,6 @@
 #pragma once
-#ifndef NOX_PIMPACT_SIMPLENONLINEAR_HPP
 #define NOX_PIMPACT_SIMPLENONLINEAR_HPP
+#ifndef NOX_PIMPACT_SIMPLENONLINEAR_HPP
 
 #include "NOX_Common.H"
 #include "Teuchos_RCP.hpp"

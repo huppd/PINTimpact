@@ -57,10 +57,10 @@ public:
 //  CompoundStokes( Scalar omega, Teuchos::RCP<Helmholtz<Scalar,Ordinal> > L ):omega_(omega),L_(L) {};
 
   void apply(const DomainFieldT& x_, RangeFieldT& y_ ) const {
-    auto x = x_.getConstVField();
-    auto y = y_.getVField();
-    auto xp = x_.getConstSField();
-    auto yp = y_.getSField();
+    auto x = x_.getConstVFieldPtr();
+    auto y = y_.getVFieldPtr();
+    auto xp = x_.getConstSFieldPtr();
+    auto yp = y_.getSFieldPtr();
     // H-blockz
     L_->apply( x->getConstCField(), y->getCField() );
     y->getCFieldPtr()->add( 1., y->getConstCField(), omega_, x->getConstSField() );

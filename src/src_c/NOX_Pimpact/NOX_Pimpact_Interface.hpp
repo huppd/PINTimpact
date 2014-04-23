@@ -3,6 +3,7 @@
 #define NOX_PIMPACT_INTERFACE_HPP
 
 #include "NOX_Common.H"
+#include "NOX_Abstract_Group.H"
 #include "Teuchos_RCP.hpp"
 
 
@@ -41,7 +42,8 @@ public:
 ////  typedef ::Pimpact::MultiField<VF> BVF;
 //  typedef ::Pimpact::MultiField<VF> Field;
   typedef ::Pimpact::OperatorBase<Field> Op;
-  typedef ::Pimpact::LinearProblem<Field> JOp;
+//  typedef ::Pimpact::LinearProblem<Field> JOp;
+  typedef Op JOp;
 
 //  typedef BVF Field;
   typedef NOX::Pimpact::Vector<Field> Vector;
@@ -51,6 +53,7 @@ protected:
   Teuchos::RCP<Field> fu_;
   Teuchos::RCP<Op>    op_;
   Teuchos::RCP<JOp>  jop_;
+//  Teuchos::RCP<Op>  jop_;
 
 public:
 
@@ -83,30 +86,32 @@ public:
   /// \brief Compute the Jacobian Operator, given the specified input vector x.
   NOX::Abstract::Group::ReturnType computeJacobian( const Field& x ) {
 
-    auto prob = jop_->getProblem();
-    auto opJ = Teuchos::rcp_const_cast<Op>( prob->getOperator() );
-    opJ->assignField( x );
-    if( prob->isLeftPrec() ) {
-      auto opPrec = Teuchos::rcp_const_cast<Op>( prob->getLeftPrec() );
-//      if( !opPrec.is_null() )
-        opPrec->assignField( x );
-    }
+//    auto prob = jop_->getProblem();
+//    auto opJ = Teuchos::rcp_const_cast<Op>( prob->getOperator() );
+//    opJ->assignField( x );
+//    if( prob->isLeftPrec() ) {
+//      auto opPrec = Teuchos::rcp_const_cast<Op>( prob->getLeftPrec() );
+////      if( !opPrec.is_null() )
+//        opPrec->assignField( x );
+//    }
+    jop_->assignField( x );
 
     return( NOX::Abstract::Group::Ok );
   }
 
 
   NOX::Abstract::Group::ReturnType applyJacobian( const Field& x, Field& y, Belos::ETrans type=Belos::NOTRANS ) {
-    if( Belos::NOTRANS==type ) {
-      jop_->getProblem()->getOperator()->apply(x,y);
-      return( NOX::Abstract::Group::Ok );
-    }
+//    if( Belos::NOTRANS==type ) {
+//      jop_->getProblem()->getOperator()->apply(x,y);
+//      return( NOX::Abstract::Group::Ok );
+//    }
     return( NOX::Abstract::Group::NotDefined );
   }
 
 
   NOX::Abstract::Group::ReturnType applyJacobianInverse( Teuchos::ParameterList &params, const Field& x, Field& y ) {
-    jop_->solve( Teuchos::rcpFromRef(y), Teuchos::rcpFromRef(x) );
+//    jop_->solve( Teuchos::rcpFromRef(y), Teuchos::rcpFromRef(x) );
+    jop_->apply( x, y );
 
     return( NOX::Abstract::Group::Ok );
   }
@@ -114,8 +119,8 @@ public:
 
   NOX::Abstract::Group::ReturnType applyPreconditioner( const Field& x, Field& y ) {
 
-    jop_->solve( Teuchos::rcpFromRef(y), Teuchos::rcpFromRef(x) );
-    y.scale( -1. );
+//    jop_->solve( Teuchos::rcpFromRef(y), Teuchos::rcpFromRef(x) );
+//    y.scale( -1. );
 
     return( NOX::Abstract::Group::Ok );
   }

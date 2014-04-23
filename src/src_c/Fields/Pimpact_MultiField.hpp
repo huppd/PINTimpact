@@ -63,7 +63,8 @@ public:
   }
 
 
-   /// \brief copy constructor creating a view
+  /// \brief copy constructor creating a view
+  /// note clear if here only referencing or copy is happening
   MultiField( const MV& mv ):mfs_(mv.mfs_) {}
 
 

@@ -164,109 +164,109 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, createGroup ) {
 
 
 
-TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleLinear ) {
-  typedef double S;
-  typedef int O;
-  typedef Pimpact::VectorField<S,O> VF;
-  typedef Pimpact::MultiField<VF> MVF;
-//  typedef Pimpact::Nonlinear<S,O>  OP;
-  typedef Pimpact::Helmholtz<S,O>  Op;
-  typedef Pimpact::Helmholtz<S,O>  JOp;
-//  typedef Pimpact::OperatorBase<MVF>  BOP;
-
-  typedef NOX::Pimpact::SimpleLinear Interface;
-  typedef NOX::Pimpact::Vector<typename Interface::Field> NV;
-
-  int rank = 0;
-
-  auto fS = Pimpact::createFieldSpace<O>();
-  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
-
-  auto vel = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
-
-
-  auto x = Pimpact::createMultiField<VF>( *vel->clone(), 1 );
-  auto f = Pimpact::createMultiField<VF>( *vel->clone(), 1 );
-
-
-//  auto op = Pimpact::createOperatorMV<OP>();
-  auto op = Pimpact::createMultiOperatorBase<MVF,Op>();
-  auto jop = Pimpact::createMultiOperatorBase<MVF,JOp>();
-
-
-  x->getFieldPtr(0)->initField( Pimpact::ZeroProf);
-  x->random();
-
-  f->getFieldPtr(0)->initField( Pimpact::ZeroProf );
-  f->init(1.);
-
-
-  auto lp = Pimpact::createLinearProblem<MVF>(
-      jop, x->clone(), f->clone(), Pimpact::createLinSolverParameter("GMRES",1.e-6), "GMRES" );
-  auto inter = NOX::Pimpact::createSimpleLinear( f, op, lp );
-
-
-  Teuchos::RCP<NV> nx = Teuchos::rcp(new NV(x) );
-
-  auto bla = Teuchos::parameterList();
-
-  auto group = NOX::Pimpact::createGroup<Interface>( bla, inter, nx );
-
-  // Set up the status tests
-  Teuchos::RCP<NOX::StatusTest::NormF> statusTestNormF =
-    Teuchos::rcp(new NOX::StatusTest::NormF(1.0e-1));
-  Teuchos::RCP<NOX::StatusTest::MaxIters> statusTestMaxIters =
-    Teuchos::rcp(new NOX::StatusTest::MaxIters( 1 ));
-  Teuchos::RCP<NOX::StatusTest::Combo> statusTestsCombo =
-    Teuchos::rcp(new NOX::StatusTest::Combo(NOX::StatusTest::Combo::OR,
-                                            statusTestNormF,
-                                            statusTestMaxIters));
-
-  // Create the list of solver parameters
-  Teuchos::RCP<Teuchos::ParameterList> solverParametersPtr =
-    Teuchos::rcp(new Teuchos::ParameterList);
-
-//   Select the solver (this is the default)
-//  solverParametersPtr->set("Nonlinear Solver", "Line Search Based");
-
-  // Create the directions parameters sublist
-//  Teuchos::ParameterList&  sl = solverParametersPtr->sublist("Direction");
-//  sl.set("Method","NonlinearCG");
-//  Teuchos::ParameterList&  sll = sl.sublist("Nonlinear CG");
-//  sll.set( "Precondition", "On" );
-////  sll.set( "Restart Frequency", 10  );
-
-  // Create the line search parameters sublist
-//  solverParametersPtr->sublist("Line Search").set("Method","Polynomial");
-//  Teuchos::ParameterList& lineSearchParameters = solverParametersPtr->sublist("Line Search");
-
-  // Set the line search method
-//  lineSearchParameters.set("Method","More'-Thuente");
-
-
-  // Create the solver
-  Teuchos::RCP<NOX::Solver::Generic> solver =
-    NOX::Solver::buildSolver( group, statusTestsCombo, solverParametersPtr);
-
-  // Solve the nonlinear system
-  NOX::StatusTest::StatusType status = solver->solve();
-
-  // Print the parameter list
-  if(rank==0) std::cout << "\n" << "-- Parameter List From Solver --" << "\n";
-  if(rank==0) std::cout << "\n" << status << "\n";
-  if(rank==0) solver->getList().print(std::cout);
-
-  // Get the answer
-  *group = solver->getSolutionGroup();
-
-  // Print the answer
-  if(rank==0) std::cout << "\n" << "-- Final Solution From Solver --" << "\n";
-  Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() )->getConstFieldPtr()->write(77);
-
-  TEST_EQUALITY( NOX::StatusTest::Converged, status);
-
-}
+//TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleLinear ) {
+//  typedef double S;
+//  typedef int O;
+//  typedef Pimpact::VectorField<S,O> VF;
+//  typedef Pimpact::MultiField<VF> MVF;
+////  typedef Pimpact::Nonlinear<S,O>  OP;
+//  typedef Pimpact::Helmholtz<S,O>  Op;
+//  typedef Pimpact::Helmholtz<S,O>  JOp;
+////  typedef Pimpact::OperatorBase<MVF>  BOP;
+//
+//  typedef NOX::Pimpact::SimpleLinear Interface;
+//  typedef NOX::Pimpact::Vector<typename Interface::Field> NV;
+//
+//  int rank = 0;
+//
+//  auto fS = Pimpact::createFieldSpace<O>();
+//  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+//  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+//
+//  auto vel = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
+//
+//
+//  auto x = Pimpact::createMultiField<VF>( *vel->clone(), 1 );
+//  auto f = Pimpact::createMultiField<VF>( *vel->clone(), 1 );
+//
+//
+////  auto op = Pimpact::createOperatorMV<OP>();
+//  auto op = Pimpact::createMultiOperatorBase<MVF,Op>();
+//  auto jop = Pimpact::createMultiOperatorBase<MVF,JOp>();
+//
+//
+//  x->getFieldPtr(0)->initField( Pimpact::ZeroProf);
+//  x->random();
+//
+//  f->getFieldPtr(0)->initField( Pimpact::ZeroProf );
+//  f->init(1.);
+//
+//
+//  auto lp = Pimpact::createLinearProblem<MVF>(
+//      jop, x->clone(), f->clone(), Pimpact::createLinSolverParameter("GMRES",1.e-6), "GMRES" );
+//  auto inter = NOX::Pimpact::createSimpleLinear( f, op, lp );
+//
+//
+//  Teuchos::RCP<NV> nx = Teuchos::rcp(new NV(x) );
+//
+//  auto bla = Teuchos::parameterList();
+//
+//  auto group = NOX::Pimpact::createGroup<Interface>( bla, inter, nx );
+//
+//  // Set up the status tests
+//  Teuchos::RCP<NOX::StatusTest::NormF> statusTestNormF =
+//    Teuchos::rcp(new NOX::StatusTest::NormF(1.0e-1));
+//  Teuchos::RCP<NOX::StatusTest::MaxIters> statusTestMaxIters =
+//    Teuchos::rcp(new NOX::StatusTest::MaxIters( 1 ));
+//  Teuchos::RCP<NOX::StatusTest::Combo> statusTestsCombo =
+//    Teuchos::rcp(new NOX::StatusTest::Combo(NOX::StatusTest::Combo::OR,
+//                                            statusTestNormF,
+//                                            statusTestMaxIters));
+//
+//  // Create the list of solver parameters
+//  Teuchos::RCP<Teuchos::ParameterList> solverParametersPtr =
+//    Teuchos::rcp(new Teuchos::ParameterList);
+//
+////   Select the solver (this is the default)
+////  solverParametersPtr->set("Nonlinear Solver", "Line Search Based");
+//
+//  // Create the directions parameters sublist
+////  Teuchos::ParameterList&  sl = solverParametersPtr->sublist("Direction");
+////  sl.set("Method","NonlinearCG");
+////  Teuchos::ParameterList&  sll = sl.sublist("Nonlinear CG");
+////  sll.set( "Precondition", "On" );
+//////  sll.set( "Restart Frequency", 10  );
+//
+//  // Create the line search parameters sublist
+////  solverParametersPtr->sublist("Line Search").set("Method","Polynomial");
+////  Teuchos::ParameterList& lineSearchParameters = solverParametersPtr->sublist("Line Search");
+//
+//  // Set the line search method
+////  lineSearchParameters.set("Method","More'-Thuente");
+//
+//
+//  // Create the solver
+//  Teuchos::RCP<NOX::Solver::Generic> solver =
+//    NOX::Solver::buildSolver( group, statusTestsCombo, solverParametersPtr);
+//
+//  // Solve the nonlinear system
+//  NOX::StatusTest::StatusType status = solver->solve();
+//
+//  // Print the parameter list
+//  if(rank==0) std::cout << "\n" << "-- Parameter List From Solver --" << "\n";
+//  if(rank==0) std::cout << "\n" << status << "\n";
+//  if(rank==0) solver->getList().print(std::cout);
+//
+//  // Get the answer
+//  *group = solver->getSolutionGroup();
+//
+//  // Print the answer
+//  if(rank==0) std::cout << "\n" << "-- Final Solution From Solver --" << "\n";
+//  Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() )->getConstFieldPtr()->write(77);
+//
+//  TEST_EQUALITY( NOX::StatusTest::Converged, status);
+//
+//}
 
 
 
@@ -549,8 +549,6 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
               Pimpact::createHelmholtz<S,O>(0.,eps),
               vel->clone() ) ) );
 
-//  vel->initField( Pimpact::ZeroProf );
-//  vel->initField( Pimpact::RankineVortex2D );
 
   auto jop = Pimpact::createOperatorBase<MVF,JOp>(
       Pimpact::createMultiOpWrap(
@@ -580,8 +578,10 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
 
 
 
-  auto lp = Pimpact::createLinearProblem<MVF>(
+  auto lp_ = Pimpact::createLinearProblem<MVF>(
       jop, x->clone(), f->clone(), para , "GMRES" );
+
+  auto lp = Pimpact::createInverseOperatorBase<MVF>( lp_ );
 
   auto inter = NOX::Pimpact::createInterface<MVF>( f, op, lp );
 

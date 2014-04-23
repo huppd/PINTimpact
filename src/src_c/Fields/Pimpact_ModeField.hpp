@@ -34,20 +34,21 @@ private:
 
 public:
 
-	ModeField(): fieldc_(Teuchos::null), fields_(Teuchos::null) {};
 
-	ModeField( const Teuchos::RCP<Field>& fieldc,
-	    const Teuchos::RCP<Field>& fields):fieldc_(fieldc),fields_(fields) {};
+	ModeField(
+	    const Teuchos::RCP<Field>& fieldc=Teuchos::null,
+	    const Teuchos::RCP<Field>& fields=Teuchos::null):
+	      fieldc_(fieldc),fields_(fields) {};
 
 
 	/// \brief copy constructor.
 	///
 	/// shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
-	/// @param vF
-	/// @param copyType by default a ShallowCopy is done but allows also to deepcopy the field
+	/// \param vF
+	/// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
 	ModeField(const ModeField& vF, ECopyType copyType=ShallowCopy):
-		fieldc_( Teuchos::rcp( new Field(*vF.fieldc_,copyType) ) ),
-		fields_( Teuchos::rcp( new Field(*vF.fields_,copyType) ) )
+		fieldc_( vF.fieldc_->clone(copyType) ),
+		fields_( vF.fields_->clone(copyType) )
 	{};
 
 

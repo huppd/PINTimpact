@@ -24,25 +24,28 @@ Teuchos::RCP< MultiOpWrap<ModeOpWrap<Op> > > createMultiModeOpWrap( const Teucho
 
 
 
+/// \relates OperatorBase
 /// \relates MultiOpWrap
-template<class MV, class Op>
-Teuchos::RCP<OperatorBase<MV> > createMultiOperatorBase( const Teuchos::RCP<Op>& op=Teuchos::null ) {
-  if( Teuchos::is_null(op) )
+template<class MF, class Op>
+Teuchos::RCP<OperatorBase<MF> > createMultiOperatorBase( const Teuchos::RCP<Op>& op=Teuchos::null ) {
+  if( op.is_null() )
     return(
-        Teuchos::rcp_dynamic_cast< OperatorBase<MV> >(
+        Teuchos::rcp_dynamic_cast< OperatorBase<MF> >(
             Teuchos::rcp(
-                new OperatorPimpl< MV, MultiOpWrap<Op> >(
+                new OperatorPimpl< MF, MultiOpWrap<Op> >(
                     createMultiOpWrap<Op>( Teuchos::rcp( new Op() ) ) ) ) )
             );
   else
     return(
-        Teuchos::rcp_dynamic_cast< OperatorBase<MV> >(
-            Teuchos::rcp( new OperatorPimpl< MV, MultiOpWrap<Op> >( createMultiOpWrap<Op>(op) ) ) )
+        Teuchos::rcp_dynamic_cast< OperatorBase<MF> >(
+            Teuchos::rcp( new OperatorPimpl< MF, MultiOpWrap<Op> >( createMultiOpWrap<Op>(op) ) ) )
             );
 }
 
 
 /// \relates OperatorBase
+/// \relates MultiOpWrap
+/// \relates ModeOpWrap
 template<class MF, class Op>
 Teuchos::RCP<OperatorBase<MF> > createMultiModeOperatorBase( const Teuchos::RCP<Op>& op=Teuchos::null ) {
   if( Teuchos::is_null(op) )
@@ -64,6 +67,14 @@ Teuchos::RCP<OperatorBase<MF> > createMultiModeOperatorBase( const Teuchos::RCP<
                         ) ) ) );
 }
 
+
+/// \relates OperatorBase
+/// \relates MultiOpWrap
+/// \relates InverseOperator
+template<class MF>
+Teuchos::RCP< OperatorBase<MF> > createInverseOperatorBase( const Teuchos::RCP< LinearProblem<MF> >& linProb ) {
+  return( createOperatorBase<MF,InverseOperator<MF>>( createInverseOperator<MF>(linProb) ) );
+}
 
 
 } // end of namespace Pimpact

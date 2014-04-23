@@ -8,7 +8,7 @@
 
 /// \defgroup BaseOperator Basic Operator
 /// \ingroup Operator
-/// Operator operate on basic fields, for example \c Pimpact::ScalarField and \c Pimpact::VectorField
+/// Operator operate on basic fields, \c Pimpact::ScalarField and \c Pimpact::VectorField
 #include "Pimpact_DivOp.hpp"
 #include "Pimpact_GradOp.hpp"
 #include "Pimpact_DivGradOp.hpp"
@@ -38,6 +38,8 @@
 /// \ingroup Operator
 /// Operator operate on compound fields: \c Pimpact::CompoundField
 #include "Pimpact_CompoundStokesOp.hpp"
+//#include "Pimpact_CopmoundOpWrap.hpp"
+#include "Pimpact_CompoundOpWrap.hpp"
 
 /// \defgroup MultiHarmonicOperator Multi-harmonic Operator
 /// \ingroup Operator

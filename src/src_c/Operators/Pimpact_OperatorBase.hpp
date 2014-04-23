@@ -12,17 +12,19 @@ namespace Pimpact {
 
 /// \brief Operator base class for type erasure.
 /// \ingroup Operator
-template<class MultiVector>
+template<class DomainField,class RangeField=DomainField>
 class OperatorBase {
 
 public:
   virtual ~OperatorBase() {};
 
-  typedef MultiVector MF;
+  typedef DomainField MF;
+  typedef DomainField DomainFieldT;
+  typedef RangeField RangeFieldT;
 
-  virtual void apply( const MF& x, MF& y, Belos::ETrans trans=Belos::NOTRANS ) const {} ;
+  virtual void apply( const DomainField& x, RangeField& y, Belos::ETrans trans=Belos::NOTRANS ) const {} ;
 
-  virtual void assignField( const MF& mv ) {};
+  virtual void assignField( const DomainField& mv ) {};
 
   virtual bool hasApplyTranspose() const {return( false );};
 
@@ -31,21 +33,23 @@ public:
 
 
 
-template<class MF,class Op>
-class OperatorPimpl : public virtual OperatorBase<MF> {
+template< class DomainField, class Op, class RangeField=DomainField >
+class OperatorPimpl : public virtual OperatorBase<DomainField,RangeField> {
   Teuchos::RCP<Op> opm_;
 public:
+  typedef DomainField DomainFieldT;
+  typedef RangeField RangeFieldT;
 
   OperatorPimpl( const Teuchos::RCP<Op>& opm ):opm_(opm) {};
 
   virtual ~OperatorPimpl() {opm_=Teuchos::null;};
 
-  virtual void apply( const MF& x, MF& y, Belos::ETrans trans=Belos::NOTRANS ) const {
+  virtual void apply( const DomainField& x, RangeField& y, Belos::ETrans trans=Belos::NOTRANS ) const {
     opm_->apply( x, y, trans );
   }
 
-  virtual void assignField( const MF& mv ) {
-    opm_->assignField( mv );
+  virtual void assignField( const DomainField& field ) {
+    opm_->assignField( field );
   };
 
   virtual bool hasApplyTranspose() const {
@@ -61,13 +65,14 @@ public:
 
 
 
-/// \relates OperatorBase \relates OperatorPimpl
-template<class MF, class Op>
-Teuchos::RCP<OperatorBase<MF> > createOperatorBase( const Teuchos::RCP<Op>& op=Teuchos::null ) {
+/// \relates OperatorBase
+/// \relates OperatorPimpl
+template<class DF, class Op, class RF=DF>
+Teuchos::RCP<OperatorBase<DF,RF> > createOperatorBase( const Teuchos::RCP<Op>& op=Teuchos::null ) {
   if( Teuchos::is_null( op ) )
-    return( Teuchos::rcp( new OperatorPimpl<MF,Op>( Teuchos::rcp(new Op()) ) ) );
+    return( Teuchos::rcp( new OperatorPimpl<DF,Op,RF>( Teuchos::rcp(new Op()) ) ) );
   else
-    return( Teuchos::rcp( new OperatorPimpl<MF,Op>( op ) ) );
+    return( Teuchos::rcp( new OperatorPimpl<DF,Op,RF>( op ) ) );
 }
 
 

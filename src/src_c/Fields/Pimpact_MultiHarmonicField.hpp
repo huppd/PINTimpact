@@ -39,10 +39,13 @@ private:
 
 public:
 
-	MultiHarmonicField(): field0_(Teuchos::null), fields_(Teuchos::null) {};
+//	MultiHarmonicField(): field0_(Teuchos::null), fields_(Teuchos::null) {};
 
-	MultiHarmonicField( const Teuchos::RCP<Field>& field0,
-	    const Teuchos::RCP< MultiField< ModeField<Field> > >& fields):field0_(field0),fields_(fields) {};
+	MultiHarmonicField(
+	    const Teuchos::RCP<Field>& field0=Teuchos::null,
+	    const Teuchos::RCP< MultiField< ModeField<Field> > >& fields=Teuchos::null):
+	      field0_(field0),
+	      fields_(fields) {};
 
 
 	/// \brief copy constructor.

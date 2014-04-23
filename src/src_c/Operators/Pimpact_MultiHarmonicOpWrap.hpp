@@ -18,7 +18,7 @@ namespace Pimpact {
 
 /// \brief Operator wrapper.
 /// \ingroup MultiHarmonicOperator
-/// wraps a \ref ModeOperator "mode operator" and adds the functionality of handling \c MultiHarmonicField's.
+/// wraps a \ref BaseOperator "base operator" and adds the functionality of handling \c MultiHarmonicField's.
 template<class Operator>
 class MultiHarmonicOpWrap  {
 

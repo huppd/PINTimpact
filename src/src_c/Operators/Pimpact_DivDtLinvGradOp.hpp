@@ -27,7 +27,7 @@ namespace Pimpact{
 
 /// \brief periodic Operator for Schur complement.
 /// \ingroup ModeOperator
-/// \depracted
+/// \deprecated
 template< class Scalar, class Ordinal >
 class DivDtLinvGrad {
 

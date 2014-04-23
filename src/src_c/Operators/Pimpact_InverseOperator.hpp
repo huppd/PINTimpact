@@ -42,8 +42,6 @@ protected:
 
 public:
 
-//  InverseOperator():linprob_(Teuchos::null) {};
-
   InverseOperator( const Teuchos::RCP< LinearProblem<MF> >& linprob=Teuchos::null ):
     linprob_(linprob) {};
 
@@ -52,7 +50,13 @@ public:
   }
 
   void assignField( const DomainFieldT& mv ) {
-    Teuchos::rcp_const_cast<Op>( linprob_->getProblem()->getOperator() )->assignField( mv );
+    auto prob = linprob_->getProblem();
+    Teuchos::rcp_const_cast<Op>( prob->getOperator() )->assignField( mv );
+    if( prob->isLeftPrec() ) {
+      auto opPrec = Teuchos::rcp_const_cast<Op>( prob->getLeftPrec() );
+//      if( !opPrec.is_null() )
+        opPrec->assignField( mv );
+    }
   };
 
   bool hasApplyTranspose() const { return( false ); }

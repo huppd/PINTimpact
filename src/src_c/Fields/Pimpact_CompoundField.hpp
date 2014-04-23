@@ -36,19 +36,20 @@ private:
 
 public:
 
-	CompoundField(): vfield_(Teuchos::null),sfield_(Teuchos::null) {};
-
-	CompoundField( const Teuchos::RCP<VField>& vfield, const Teuchos::RCP<SField>& sfield):vfield_(vfield),sfield_(sfield) {};
+	CompoundField(
+	    const Teuchos::RCP<VField>& vfield=Teuchos::null,
+	    const Teuchos::RCP<SField>& sfield=Teuchos::null ):
+	      vfield_(vfield),sfield_(sfield) {};
 
 
 	/// \brief copy constructor.
 	///
 	/// shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
-	/// @param sF
-	/// @param copyType by default a ShallowCopy is done but allows also to deepcopy the field
+	/// \param sF
+	/// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
 	CompoundField(const CompoundField& vF, ECopyType copyType=ShallowCopy):
-		vfield_( Teuchos::rcp( new VField(*vF.vfield_,copyType) ) ),
-		sfield_( Teuchos::rcp( new SField(*vF.sfield_,copyType) ) )
+		vfield_( vF.vfield_->clone(copyType) ),
+		sfield_( vF.sfield_->clone(copyType) )
 	{};
 
 
@@ -60,19 +61,25 @@ public:
   //@{
 
 	/// \warning it is assumed that both fields have the same \c FieldSpace
-	/// @return field space of \c cfield_
+	/// \return field space of \c cfield_
 	Teuchos::RCP<const FieldSpace<Ordinal> > getFieldSpace() const { return( vfield_->getFieldSpace() );}
 
-	Teuchos::RCP<VField> getVField() { return( vfield_ ); }
-	Teuchos::RCP<SField> getSField() { return( sfield_ ); }
+	Teuchos::RCP<VField> getVFieldPtr() { return( vfield_ ); }
+	Teuchos::RCP<SField> getSFieldPtr() { return( sfield_ ); }
 
-	Teuchos::RCP<const VField> getConstVField() const { return( vfield_ ); }
-	Teuchos::RCP<const SField> getConstSField() const { return( sfield_ ); }
+	Teuchos::RCP<const VField> getConstVFieldPtr() const { return( vfield_ ); }
+	Teuchos::RCP<const SField> getConstSFieldPtr() const { return( sfield_ ); }
+
+	VField getVField() { return( *vfield_ ); }
+	SField getSField() { return( *sfield_ ); }
+
+	const VField getConstVField() const { return( *vfield_ ); }
+	const SField getConstSField() const { return( *sfield_ ); }
 
 	/// \brief get Vect length
 	/// shoud be the same as 2*vfield_->getVecLength()
 	/// the vector length is withregard to the inner points
-	/// @return vector length
+	/// \return vector length
 	/// \brief returns the length of Field.
 	Ordinal getLength( bool nox_vec=false ) const {
 		return( vfield_->getLength(nox_vec) + sfield_->getLength(nox_vec) );
@@ -101,7 +108,6 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  /// \todo implement me
   void abs(const MV& y) {
       vfield_->abs( *y.vfield_ );
       sfield_->abs( *y.sfield_ );
@@ -131,7 +137,6 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  /// \todo implement me
   void scale(const MV& a) {
 		vfield_->scale( *a.vfield_ );
 		sfield_->scale( *a.sfield_ );
@@ -139,7 +144,6 @@ public:
 
 
 	/// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
-	/// \todo has to be redone
 	Scalar dot ( const MV& a ) const {
 		return( vfield_->dot( *a.vfield_ ) + sfield_->dot( *a.sfield_ ) );
 	}
@@ -221,7 +225,8 @@ protected:
 
 /// \brief creates a compound vector+scalar field(vector).
 ///
-/// \param sVS scalar Vector Space to which returned vector belongs
+/// \param vfield
+/// \param sfield
 /// \return Field vector
 /// \relates CompoundField
 template<class VField, class SField>

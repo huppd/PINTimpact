@@ -32,8 +32,8 @@
 
 #include "NOX_Pimpact_Vector.hpp"
 #include "NOX_Pimpact_LinearStokes.hpp"
-#include "NOX_Pimpact_SimpleLinear.hpp"
-#include "NOX_Pimpact_SimpleNonlinear.hpp"
+//#include "NOX_Pimpact_SimpleLinear.hpp"
+//#include "NOX_Pimpact_SimpleNonlinear.hpp"
 #include "NOX_Pimpact_Interface.hpp"
 #include "NOX_Pimpact_Group.hpp"
 
@@ -444,8 +444,10 @@ int main(int argi, char** argv ) {
 
 
 
-   auto lp = Pimpact::createLinearProblem<MVF>(
+   auto lp_ = Pimpact::createLinearProblem<MVF>(
        jop, x->clone(), fu->clone(), para, linSolName );
+
+   auto lp = Pimpact::createInverseOperatorBase<MVF>( lp_ );
 
    auto inter = NOX::Pimpact::createInterface<MVF>( fu, op, lp );
 

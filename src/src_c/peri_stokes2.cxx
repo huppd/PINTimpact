@@ -195,24 +195,24 @@ int main(int argi, char** argv ) {
 
 	switch( Pimpact::EFlowType(flow) ) {
 	case Pimpact::Zero2DFlow :
-		q->getField(0).getVField()->getCFieldPtr()->initField( Pimpact::ZeroProf );
-		q->getField(0).getVField()->getSFieldPtr()->initField( Pimpact::ZeroProf );
+		q->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr()->initField( Pimpact::ZeroProf );
+		q->getFieldPtr(0)->getVFieldPtr()->getSFieldPtr()->initField( Pimpact::ZeroProf );
 		break;
 	case Pimpact::Poiseuille_inX :
-		q->getField(0).getVField()->getCFieldPtr()->initField( Pimpact::Poiseuille2D_inX );
-		q->getField(0).getVField()->getSFieldPtr()->initField( Pimpact::ZeroProf );
+		q->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr()->initField( Pimpact::Poiseuille2D_inX );
+		q->getFieldPtr(0)->getVFieldPtr()->getSFieldPtr()->initField( Pimpact::ZeroProf );
 		break;
 	case Pimpact::Poiseuille_inY :
-		q->getField(0).getVField()->getCFieldPtr()->initField( Pimpact::Poiseuille2D_inY );
-		q->getField(0).getVField()->getSFieldPtr()->initField( Pimpact::ZeroProf );
+		q->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr()->initField( Pimpact::Poiseuille2D_inY );
+		q->getFieldPtr(0)->getVFieldPtr()->getSFieldPtr()->initField( Pimpact::ZeroProf );
 		break;
 	case Pimpact::Pulsatile_inX :
-		q->getField(0).getVField()->getCFieldPtr()->initField( Pimpact::Pulsatile2D_inXC, re, omega, px );
-		q->getField(0).getVField()->getSFieldPtr()->initField( Pimpact::Pulsatile2D_inXS, re, omega, px );
+		q->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr()->initField( Pimpact::Pulsatile2D_inXC, re, omega, px );
+		q->getFieldPtr(0)->getVFieldPtr()->getSFieldPtr()->initField( Pimpact::Pulsatile2D_inXS, re, omega, px );
 		break;
 	case Pimpact::Pulsatile_inY :
-		q->getField(0).getVField()->getCFieldPtr()->initField( Pimpact::Pulsatile2D_inYC, re, omega, px );
-		q->getField(0).getVField()->getSFieldPtr()->initField( Pimpact::Pulsatile2D_inYS, re, omega, px );
+		q->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr()->initField( Pimpact::Pulsatile2D_inYC, re, omega, px );
+		q->getFieldPtr(0)->getVFieldPtr()->getSFieldPtr()->initField( Pimpact::Pulsatile2D_inYS, re, omega, px );
 		break;
 	default:
 	  break;
@@ -220,8 +220,8 @@ int main(int argi, char** argv ) {
 
 	q->init(0);
 
-	f->getField(0).getVField()->getCFieldPtr()->initField( Pimpact::ZeroProf );
-	f->getField(0).getVField()->getSFieldPtr()->initField( Pimpact::ZeroProf );
+	f->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr()->initField( Pimpact::ZeroProf );
+	f->getFieldPtr(0)->getVFieldPtr()->getSFieldPtr()->initField( Pimpact::ZeroProf );
 
 	// init operators
 	auto op = Pimpact::createMultiOperatorBase<MV,Op>(

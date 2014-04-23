@@ -1,6 +1,6 @@
 #pragma once
-#ifndef NOX_PIMPACT_LINEARSTOKES_HPP
 #define NOX_PIMPACT_LINEARSTOKES_HPP
+#ifndef NOX_PIMPACT_LINEARSTOKES_HPP
 
 #include "NOX_Common.H"
 #include "NOX_Abstract_Group.H"   // base class
