@@ -61,7 +61,7 @@ void SF_weightedNorm(
   double& norm);
 
 
-void SF_dot( const MPI_Fint& comm,
+void SF_dot( //const MPI_Fint& comm,
   const int& N1,  const int& N2,  const int& N3,
   const int& SS1, const int& SS2, const int& SS3,
   const int& NN1, const int& NN2, const int& NN3,

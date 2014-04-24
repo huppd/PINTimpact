@@ -54,7 +54,7 @@ void VF_weightedNorm(
 
 
 void VF_dot(
-      const MPI_Fint& comm,
+//      const MPI_Fint& comm,
       const int& dimens,
       const int& N1,  const int& N2,  const int& N3,
       const int& S1U, const int& S2U, const int& S3U,
@@ -174,7 +174,8 @@ void VF_init_Streaming(
     const int& N1W, const int& N2W, const int& N3W,
     const int& b1L, const int& b2L, const int& b3L,
     const int& b1U, const int& b2U, const int& b3U,
-    double* phiU, double* phiV, double* phiW );
+    double* phiU, double* phiV, double* phiW,
+    const double& re);
 
 
 void VF_init_Circle(

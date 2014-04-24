@@ -217,15 +217,20 @@ public:
 
 	/// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
 	/// \todo add test in debuging mode for testing equality of VectorSpaces
-	Scalar dot ( const MV& a ) const {
+	Scalar dot ( const MV& a, bool global=true ) const {
 		Scalar b;
-		SF_dot( commf(),
+		SF_dot(
 				nLoc(0), nLoc(1), nLoc(2),
 				sInd(0), sInd(1), sInd(2),
 				eInd(0), eInd(1), eInd(2),
 				bl(0),   bl(1),   bl(2),
 				bu(0),   bu(1),   bu(2),
 				s_, a.s_, b);
+	  if( global ) {
+	      Scalar b_global;
+	      MPI_Allreduce( &b, &b_global, 1, MPI_REAL8, MPI_SUM, comm() );
+	      b = b_global;
+	  }
 		return( b );
 	}
 
@@ -403,9 +408,11 @@ protected:
   State exchangedState_;
 
 
+public:
 	const MPI_Fint& commf()     const { return(  fieldSpace_->commf_   ); }
 	const MPI_Comm& comm()      const { return( fieldSpace_->comm_     ); }
 	const int&      dim()       const { return( fieldSpace_->dim_      ); }
+protected:
 	const Ordinal&  nGlo(int i) const { return( fieldSpace_->nGlo_[i]  ); }
 	const Ordinal&  nLoc(int i) const { return(  fieldSpace_->nLoc_[i] ); }
 	const Ordinal&  sInd(int i) const { return( fieldSpace_->sInd_[i]  ); }

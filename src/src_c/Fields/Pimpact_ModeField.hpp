@@ -148,9 +148,15 @@ public:
 
 
 	/// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
-	/// \todo has to be redone
-	Scalar dot ( const MV& a ) const {
-		return( fieldc_->dot( *a.fieldc_ ) + fields_->dot( *a.fields_ ) );
+	Scalar dot ( const MV& a, bool global=true ) const {
+	  Scalar b;
+		b = fieldc_->dot( *a.fieldc_, false ) + fields_->dot( *a.fields_, false );
+		if( global ) {
+		      Scalar b_global;
+		      MPI_Allreduce( &b, &b_global, 1, MPI_REAL8, MPI_SUM, comm() );
+		      b = b_global;
+		}
+		return( b );
 	}
 
 
@@ -220,6 +226,8 @@ public:
   	fieldc_->write(count);
   	fields_->write(count+1);
   }
+
+  MPI_Comm comm() const { return( fieldc_->comm() ); }
 
 protected:
 	Teuchos::RCP<Field> fieldc_;

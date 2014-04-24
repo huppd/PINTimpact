@@ -222,11 +222,13 @@ module cmod_ScalarVector
   !! \param[in] inf_yes if true infinity norm is computed
   !! \param[in] two_yes if trhue two norm is computed
   !! \test if comm_cart is neccessary, or if comm is enough or even better
-  subroutine product_scalar(COMM_CART,N1,N2,N3,SS1,SS2,SS3,NN1,NN2,NN3,b1L,b2L,b3L,b1U,b2U,b3U,phi1,phi2,scalar) bind ( c, name='SF_dot' )
+  subroutine product_scalar(    &
+!  COMM_CART,                    &
+  N1,N2,N3,SS1,SS2,SS3,NN1,NN2,NN3,b1L,b2L,b3L,b1U,b2U,b3U,phi1,phi2,scalar) bind ( c, name='SF_dot' )
 
   implicit none
 
-  integer(c_int), intent(in)    ::  COMM_CART
+!  integer(c_int), intent(in)    ::  COMM_CART
 
   integer(c_int), intent(in)    ::  N1
   integer(c_int), intent(in)    ::  N2
@@ -268,11 +270,11 @@ module cmod_ScalarVector
      end do
   end do
 
-  call MPI_ALLREDUCE(scalar,scalar_global,1,MPI_REAL8,MPI_SUM,COMM_CART,merror)
-  scalar = scalar_global
-
+!  call MPI_ALLREDUCE(scalar,scalar_global,1,MPI_REAL8,MPI_SUM,COMM_CART,merror)
+!  scalar = scalar_global
 
   end subroutine product_scalar
+
 
 
   !> \brief computes two or infinity norm( get is misleading)

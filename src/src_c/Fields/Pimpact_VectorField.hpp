@@ -264,10 +264,11 @@ public:
 
 	/// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
 	/// \todo add test in debuging mode for testing equality of VectorSpaces
-	Scalar dot ( const VF& a ) const {
+	Scalar dot ( const VF& a, bool global=true ) const {
 		Scalar b;
 		VF_dot(
-				commf(), dim(),
+//				commf(),
+				dim(),
 				nLoc(0), nLoc(1), nLoc(2),
 				sInd(0,0), sInd(1,0), sInd(2,0),
 				eInd(0,0), eInd(1,0), eInd(2,0),
@@ -280,6 +281,11 @@ public:
 				vec_[0],     vec_[1],   vec_[2],
 				a.vec_[0], a.vec_[1], a.vec_[2],
 				b);
+		if( global ) {
+		  Scalar b_global;
+		  MPI_Allreduce( &b, &b_global, 1, MPI_REAL8, MPI_SUM, comm() );
+		  b = b_global;
+		}
 		return( b );
 	}
 
@@ -537,7 +543,8 @@ public:
           eIndB(0,2), eIndB(1,2), eIndB(2,2),
           bl(0),   bl(1),   bl(2),
           bu(0),   bu(1),   bu(2),
-          vec_[0], vec_[1], vec_[2] );
+          vec_[0], vec_[1], vec_[2],
+          re );
       break;
     case Circle2D:
       VF_init_Circle(
@@ -668,11 +675,13 @@ protected:
 	State exchangedState_;
 //	ScalarArray vec_[3];
 
+public:
 	/// \todo add good documetnation here
 	/// @return
 	const MPI_Fint& commf()                     const { return( fieldS_->commf_  ); }
 	MPI_Comm        comm()                      const { return( fieldS_->comm_   ); }
 	const int&      dim()                       const { return( fieldS_->dim_    ); }
+protected:
 	const Ordinal&  nGlo(int i)                 const { return( fieldS_->nGlo_[i] ); }
 	const Ordinal&  nLoc(int i)                 const { return( fieldS_->nLoc_[i]) ; }
 	const Ordinal&  sInd(int i, int fieldType)  const { return( innerIS_[fieldType]->sInd_[i] ); }

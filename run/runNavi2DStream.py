@@ -9,14 +9,14 @@ exe = 'peri_navier'
 
 
 os.chdir( exe_path )
-os.system( 'make -j4' )
+os.system( 'make '+exe+' -j4' )
 
 case_path = ['','']
 
-case_consts = ' --nfe=16   --maxI=40 --flow=7  --domain=2 --ly=0.5  '
+case_consts = ' --nfe=17   --maxIter=10 --flow=7  --domain=2 --lx=2. --ly=2.  '
 
-res = [10, 100, 1000]
-alpha2s = [10,100,1000,10000]
+res     = [10, 100, 1000]
+alpha2s = [10, 100, 1000,10000]
 
 for alpha2 in alpha2s:
   case_path[0] = 'alpha2_'+str(alpha2)

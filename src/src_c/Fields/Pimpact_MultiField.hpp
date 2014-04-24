@@ -328,10 +328,12 @@ public:
   //@}
 
   /// For all columns j of A, set <tt>dots[j] := A[j]^T * B[j]</tt>.
+  /// \todo make reduction over vector
   void dot( const MV& A, std::vector<Scalar>& dots) const {
   	const int n = getNumberVecs();
   	for( int i=0; i<n; ++i)
-  		dots[i] = A.mfs_[i]->dot( *mfs_[i] );
+  		dots[i] = A.mfs_[i]->dot( *mfs_[i], true );
+
   }
 
 

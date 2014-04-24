@@ -39,7 +39,8 @@ module cmod_VectorField
   !! \param[in] inf_yes if true infinity norm is computed
   !! \param[in] two_yes if trhue two norm is computed
   subroutine product_scalar_vel(    &
-    COMM_CART, dimens,              &
+!    COMM_CART,
+    dimens,                         &
     N1,N2,N3,                       &
     S1U,S2U,S3U,                    &
     N1U,N2U,N3U,                    &
@@ -55,7 +56,7 @@ module cmod_VectorField
 
   implicit none
 
-  integer(c_int), intent(in)    ::  COMM_CART
+!  integer(c_int), intent(in)    ::  COMM_CART
 
   integer(c_int), intent(in)    ::  dimens
 
@@ -139,9 +140,6 @@ module cmod_VectorField
       end do
     end do
   end if
-
-  call MPI_ALLREDUCE(scalar,scalar_global,1,MPI_REAL8,MPI_SUM,COMM_CART,merror)
-  scalar = scalar_global
 
   end subroutine product_scalar_vel
 
@@ -1186,7 +1184,8 @@ module cmod_VectorField
     S1V,S2V,S3V, N1V,N2V,N3V,       &
     S1W,S2W,S3W, N1W,N2W,N3W,       &
     b1L,b2L,b3L, b1U,b2U,b3U,       &
-    phiU,phiV,phiW ) bind ( c, name='VF_init_Streaming' )
+    phiU,phiV,phiW,                 &
+    re ) bind ( c, name='VF_init_Streaming' )
   ! (basic subroutine)
 
   implicit none
@@ -1233,6 +1232,8 @@ module cmod_VectorField
   real(c_double), intent(inout) ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
   real(c_double), intent(inout) ::  phiW(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
 
+  real(c_double),intent(in)     ::  re
+
   real :: pi
 !  real :: Lh
 !  real :: mu
@@ -1267,7 +1268,7 @@ module cmod_VectorField
   do k = S3V, N3V
      do j = S2V, N2V
         do i = S1V, N1V
-           phiV(i,j,k) = sin( 2.*pi*x1p(i)/L1 )/2.
+           phiV(i,j,k) = sin( 2.*pi*x1p(i)/L1 )*re
         end do
      end do
   end do
