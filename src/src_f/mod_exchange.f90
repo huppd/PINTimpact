@@ -328,7 +328,7 @@ module mod_exchange
   !              - [1,Ni] hat den Vorteil, dass Intervallgrenzen fest einprogrammiert sind,                             !
   !                was prinzipiell zu einem Vorteil bei der Effizienz führen sollte.                                    !
   !              - Bei Spiegelung muss die zur Spiegelungsebene orthogonale Geschwindigkeitskomponente auch im          !
-  !                Vorzeichen gespiegelt werden, da die Spiegelungsebene nicht durchstr�mt werden kann!.                !
+  !                Vorzeichen gespiegelt werden, da die Spiegelungsebene nicht durchströmt werden kann!.                !
   !              - Alle Kopier-Schleifen sind ausgeschrieben, da der PGI-Compiler ansonsten keine Vektorisierung bzw.   !
   !                kein Prefetch einbaut.                                                                               !
   !---------------------------------------------------------------------------------------------------------------------!

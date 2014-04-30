@@ -1,6 +1,6 @@
 #pragma once
-#ifndef PIMPACT_COMPOUNDOP_HPP
-#define PIMPACT_COMPOUNDOP_HPP
+#ifndef PIMPACT_ADD2OP_HPP
+#define PIMPACT_ADD2OP_HPP
 
 #include "Teuchos_RCP.hpp"
 
@@ -16,11 +16,11 @@ namespace Pimpact {
 /// \brief combines two operators.
 ///
 /// Both operators are applied and the result is added.
-/// the \c DomainFieldT of \c OP2 has to be equal to the \c RangeFieldT of \c OP1.
+/// the \c DomainFieldT  \c RangeFieldT has to be equal for both \c OP1 \c OP2.
 /// both operators should have the same OpType(OpType is obsolete)
 /// \ingroup Operator
 template< class OP1, class OP2 >
-class AddOp {
+class Add2Op {
 public:
 //  typedef MultiField<ModeField<VectorField<Scalar,Ordinal> > > MVF;
 //  typedef typename MVF::Scalar S;
@@ -37,16 +37,11 @@ private:
   Teuchos::RCP<typename OP1::RangeFieldT> temp_;
 
 public:
-  AddOp():
-        op1_(Teuchos::null),
-        op2_(Teuchos::null),
-        temp_(Teuchos::null)
-       {};
 
-  AddOp(
-      const Teuchos::RCP<OP1>& op1,
-      const Teuchos::RCP<OP2>& op2,
-      const Teuchos::RCP<DomainFieldT> temp ):
+  Add2Op(
+      const Teuchos::RCP<OP1>& op1=Teuchos::null,
+      const Teuchos::RCP<OP2>& op2=Teuchos::null,
+      const Teuchos::RCP<DomainFieldT>& temp=Teuchos::null ):
         op1_(op1), op2_(op2),
         temp_(temp)
         {};
@@ -64,22 +59,22 @@ public:
 
   bool hasApplyTranspose() const { return( op1_->hasApplyTranspose() && op2_->hasApplyTranspose() ); }
 
-}; // end of class AddOp
+}; // end of class Add2Op
 
 
 
-/// \relates AddOp
+/// \relates Add2Op
 template<class OP1, class OP2 >
-Teuchos::RCP< AddOp<OP1, OP2> > createAddOp(
+Teuchos::RCP< Add2Op<OP1, OP2> > createAdd2Op(
     const Teuchos::RCP<OP1>& op1,
     const Teuchos::RCP<OP2>& op2,
     const Teuchos::RCP<typename OP1::DomainFieldT>& temp
       ) {
-  return( Teuchos::rcp( new AddOp<OP1,OP2>( op1, op2, temp ) ) );
+  return( Teuchos::rcp( new Add2Op<OP1,OP2>( op1, op2, temp ) ) );
 }
 
 
 } // end of namespace Pimpact
 
 
-#endif // end of #ifndef PIMPACT_COMPOUNDOP_HPP
+#endif // end of #ifndef PIMPACT_ADD2OP_HPP

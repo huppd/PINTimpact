@@ -7,7 +7,7 @@ exe = 'peri_burgers_timing'
 
 os.chdir( exe_path )
 
-os.system( 'make -j4' )
+os.system( 'make '+exe+' -j4' )
 
 #case_consts = '  --tolNOX=1.e-1 --tol=1.e-6  --maxI=30 --nx=33 --ny=33 --nf=16 --npx=2 --npy=2 '
 case_consts = ''# '  --tolNOX=1.e-1 --tol=1.e-6  --maxI=30 --nx=33 --ny=33 --nf=16 --npx=2 --npy=2 '
@@ -30,7 +30,7 @@ exe = 'peri_navier_timing'
 
 os.chdir( exe_path )
 
-os.system( 'make -j4' )
+os.system( 'make '+exe+' -j4' )
 
 #case_consts = '  --tolNOX=1.e-1 --tol=1.e-6  --maxI=30 --nx=33 --ny=33 --nf=16 --npx=2 --npy=2 '
 case_consts = ''# '  --tolNOX=1.e-1 --tol=1.e-6  --maxI=30 --nx=33 --ny=33 --nf=16 --npx=2 --npy=2 '

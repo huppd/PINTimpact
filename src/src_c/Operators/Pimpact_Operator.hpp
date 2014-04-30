@@ -3,7 +3,8 @@
 #define PIMPACT_OPERATOR_HPP
 
 /// \defgroup Operator Operators
-#include "Pimpact_AddOp.hpp"
+#include "Pimpact_Add2Op.hpp"
+#include "Pimpact_Add3Op.hpp"
 #include "Pimpact_InverseOperator.hpp"
 
 /// \defgroup BaseOperator Basic Operator

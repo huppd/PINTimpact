@@ -28,11 +28,14 @@ public:
 
   typedef MultiHarmonicField<typename Operator::DomainFieldT> DomainFieldT;
   typedef MultiHarmonicField<typename Operator::RangeFieldT> RangeFieldT;
-//  typedef typename Operator::OpType OpType;
 
-  MultiHarmonicOpWrap():op_( Teuchos::rcp( new Operator() ) ) {};
-  MultiHarmonicOpWrap( const Teuchos::RCP<Operator>& op ):op_(op) {};
-  ~MultiHarmonicOpWrap() {op_=Teuchos::null;};
+//  MultiHarmonicOpWrap():op_(  ) {};
+  MultiHarmonicOpWrap( const Teuchos::RCP<Operator>& op=Teuchos::null ):
+    op_(op) {
+    if( op_.is_null() )
+      op_ = Teuchos::rcp( new Operator() );
+  };
+//  ~MultiHarmonicOpWrap() {op_=Teuchos::null;};
 
 
   void apply( const DomainFieldT& x,

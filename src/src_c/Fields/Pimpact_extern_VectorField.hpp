@@ -83,7 +83,7 @@ void VF_init_Zero(
     const int& N1W, const int& N2W, const int& N3W,
     const int& b1L, const int& b2L, const int& b3L,
     const int& b1U, const int& b2U, const int& b3U,
-    double* phiU, double* phiV, double* phiW );
+    double* const phiU, double* const phiV, double* const phiW );
 
 
 void VF_init_2DPoiseuilleX(
@@ -96,7 +96,7 @@ void VF_init_2DPoiseuilleX(
     const int& N1W, const int& N2W, const int& N3W,
     const int& b1L, const int& b2L, const int& b3L,
     const int& b1U, const int& b2U, const int& b3U,
-    double* phiU, double* phiV, double* phiW );
+    double* const phiU, double* const phiV, double* const phiW );
 
 
 void VF_init_2DPoiseuilleY(
@@ -109,7 +109,7 @@ void VF_init_2DPoiseuilleY(
     const int& N1W, const int& N2W, const int& N3W,
     const int& b1L, const int& b2L, const int& b3L,
     const int& b1U, const int& b2U, const int& b3U,
-    double* phiU, double* phiV, double* phiW );
+    double* const phiU, double* const phiV, double* const phiW );
 
 
 void VF_init_2DPulsatileXC(
@@ -122,7 +122,7 @@ void VF_init_2DPulsatileXC(
     const int& N1W, const int& N2W, const int& N3W,
     const int& b1L, const int& b2L, const int& b3L,
     const int& b1U, const int& b2U, const int& b3U,
-    double* phiU, double* phiV, double* phiW, const double& re, const double& om, const double& px );
+    double* const phiU, double* const phiV, double* const phiW, const double& re, const double& om, const double& px );
 
 
 void VF_init_2DPulsatileYC(
@@ -135,7 +135,8 @@ void VF_init_2DPulsatileYC(
     const int& N1W, const int& N2W, const int& N3W,
     const int& b1L, const int& b2L, const int& b3L,
     const int& b1U, const int& b2U, const int& b3U,
-    double* phiU, double* phiV, double* phiW, const double& re, const double& om, const double& px );
+    double* const phiU, double* const phiV, double* const phiW,
+    const double& re, const double& om, const double& px );
 
 
 void VF_init_2DPulsatileXS(
@@ -148,7 +149,8 @@ void VF_init_2DPulsatileXS(
     const int& N1W, const int& N2W, const int& N3W,
     const int& b1L, const int& b2L, const int& b3L,
     const int& b1U, const int& b2U, const int& b3U,
-    double* phiU, double* phiV, double* phiW, const double& re, const double& om, const double& px );
+    double* const phiU, double* const phiV, double* const phiW,
+    const double& re, const double& om, const double& px );
 
 
 void VF_init_2DPulsatileYS(
@@ -161,10 +163,11 @@ void VF_init_2DPulsatileYS(
     const int& N1W, const int& N2W, const int& N3W,
     const int& b1L, const int& b2L, const int& b3L,
     const int& b1U, const int& b2U, const int& b3U,
-    double* phiU, double* phiV, double* phiW, const double& re, const double& om, const double& px );
+    double* const phiU, double* const phiV, double* const phiW,
+    const double& re, const double& om, const double& px );
 
 
-void VF_init_Streaming(
+void VF_init_StreamingC(
     const int& N1,  const int& N2,  const int& N3,
     const int& S1U, const int& S2U, const int& S3U,
     const int& N1U, const int& N2U, const int& N3U,
@@ -174,8 +177,22 @@ void VF_init_Streaming(
     const int& N1W, const int& N2W, const int& N3W,
     const int& b1L, const int& b2L, const int& b3L,
     const int& b1U, const int& b2U, const int& b3U,
-    double* phiU, double* phiV, double* phiW,
-    const double& re);
+    double* const phiU, double* const phiV, double* const phiW,
+    const double& amp);
+
+
+void VF_init_StreamingS(
+    const int& N1,  const int& N2,  const int& N3,
+    const int& S1U, const int& S2U, const int& S3U,
+    const int& N1U, const int& N2U, const int& N3U,
+    const int& S1V, const int& S2V, const int& S3V,
+    const int& N1V, const int& N2V, const int& N3V,
+    const int& S1W, const int& S2W, const int& S3W,
+    const int& N1W, const int& N2W, const int& N3W,
+    const int& b1L, const int& b2L, const int& b3L,
+    const int& b1U, const int& b2U, const int& b3U,
+    double* const phiU, double* const phiV, double* const phiW,
+    const double& amp);
 
 
 void VF_init_Circle(
@@ -188,7 +205,7 @@ void VF_init_Circle(
     const int& N1W, const int& N2W, const int& N3W,
     const int& b1L, const int& b2L, const int& b3L,
     const int& b1U, const int& b2U, const int& b3U,
-    double* phiU, double* phiV, double* phiW );
+    double* const phiU, double* const phiV, double* const phiW );
 
 
 void VF_init_RankineVortex(
@@ -201,7 +218,7 @@ void VF_init_RankineVortex(
     const int& N1W, const int& N2W, const int& N3W,
     const int& b1L, const int& b2L, const int& b3L,
     const int& b1U, const int& b2U, const int& b3U,
-    double* phiU, double* phiV, double* phiW );
+    double* const phiU, double* const phiV, double* const phiW );
 
 void VF_init_GaussianForcing1D(
     const int& N1,  const int& N2,  const int& N3,
@@ -213,7 +230,7 @@ void VF_init_GaussianForcing1D(
     const int& N1W, const int& N2W, const int& N3W,
     const int& b1L, const int& b2L, const int& b3L,
     const int& b1U, const int& b2U, const int& b3U,
-    double* phiU, double* phiV, double* phiW );
+    double* const phiU, double* const phiV, double* const phiW );
 
 void VF_init_BoundaryFilter1D(
     const int& N1,  const int& N2,  const int& N3,
@@ -225,7 +242,7 @@ void VF_init_BoundaryFilter1D(
     const int& N1W, const int& N2W, const int& N3W,
     const int& b1L, const int& b2L, const int& b3L,
     const int& b1U, const int& b2U, const int& b3U,
-    double* phiU, double* phiV, double* phiW );
+    double* const phiU, double* const phiV, double* const phiW );
 
 void VF_init_GaussianForcing2D(
     const int& N1,  const int& N2,  const int& N3,
@@ -237,7 +254,7 @@ void VF_init_GaussianForcing2D(
     const int& N1W, const int& N2W, const int& N3W,
     const int& b1L, const int& b2L, const int& b3L,
     const int& b1U, const int& b2U, const int& b3U,
-    double* phiU, double* phiV, double* phiW );
+    double* const phiU, double* const phiV, double* const phiW );
 
 void VF_init_BoundaryFilter2D(
     const int& N1,  const int& N2,  const int& N3,
@@ -249,7 +266,20 @@ void VF_init_BoundaryFilter2D(
     const int& N1W, const int& N2W, const int& N3W,
     const int& b1L, const int& b2L, const int& b3L,
     const int& b1U, const int& b2U, const int& b3U,
-    double* phiU, double* phiV, double* phiW );
+    double* const phiU, double* const phiV, double* const phiW );
+
+void VF_init_Vpoint(
+    const int& N1,  const int& N2,  const int& N3,
+    const int& S1U, const int& S2U, const int& S3U,
+    const int& N1U, const int& N2U, const int& N3U,
+    const int& S1V, const int& S2V, const int& S3V,
+    const int& N1V, const int& N2V, const int& N3V,
+    const int& S1W, const int& S2W, const int& S3W,
+    const int& N1W, const int& N2W, const int& N3W,
+    const int& b1L, const int& b2L, const int& b3L,
+    const int& b1U, const int& b2U, const int& b3U,
+    double* const phiU, double* const phiV, double* const phiW,
+    const double& sig );
 
 } // end of extern 'C'
 

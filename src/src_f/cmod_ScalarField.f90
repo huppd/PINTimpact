@@ -64,8 +64,18 @@ module cmod_ScalarVector
   real(c_double),  intent(in)   ::  scalar1
   real(c_double),  intent(in)   ::  scalar2
 
+  integer                       :: i,j,k
 
-  phi(SS1:NN1,SS2:NN2,SS3:NN3) = scalar1*phi1(SS1:NN1,SS2:NN2,SS3:NN3)+scalar2*phi2(SS1:NN1,SS2:NN2,SS3:NN3)
+!  phi(SS1:NN1,SS2:NN2,SS3:NN3) = scalar1*phi1(SS1:NN1,SS2:NN2,SS3:NN3)+scalar2*phi2(SS1:NN1,SS2:NN2,SS3:NN3)
+
+  do k = SS3, NN3
+    do j = SS2, NN2
+!pgi$ unroll = n:8
+      do i = SS1, NN1
+        phi(i,j,k) = scalar1*phi1(i,j,k)+scalar2*phi2(i,j,k)
+      end do
+    end do
+  end do
 
   end subroutine SF_add
 
@@ -223,8 +233,12 @@ module cmod_ScalarVector
   !! \param[in] two_yes if trhue two norm is computed
   !! \test if comm_cart is neccessary, or if comm is enough or even better
   subroutine product_scalar(    &
-!  COMM_CART,                    &
-  N1,N2,N3,SS1,SS2,SS3,NN1,NN2,NN3,b1L,b2L,b3L,b1U,b2U,b3U,phi1,phi2,scalar) bind ( c, name='SF_dot' )
+    N1,N2,N3,                   &
+    SS1,SS2,SS3,                &
+    NN1,NN2,NN3,                &
+    b1L,b2L,b3L,                &
+    b1U,b2U,b3U,                &
+    phi1,phi2,scalar) bind ( c, name='SF_dot' )
 
   implicit none
 
@@ -254,9 +268,7 @@ module cmod_ScalarVector
   real(c_double), intent(in)    ::  phi2(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
 
   real(c_double), intent(out)   ::  scalar
-  real(c_double)                ::  scalar_global
   integer                       ::  i, j, k
-  integer                       ::  merror
 
 
   scalar = 0.
@@ -270,8 +282,6 @@ module cmod_ScalarVector
      end do
   end do
 
-!  call MPI_ALLREDUCE(scalar,scalar_global,1,MPI_REAL8,MPI_SUM,COMM_CART,merror)
-!  scalar = scalar_global
 
   end subroutine product_scalar
 

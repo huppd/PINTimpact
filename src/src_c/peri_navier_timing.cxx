@@ -61,7 +61,7 @@ int main(int argi, char** argv ) {
   typedef Pimpact::MultiHarmonicNonlinear<S,O>  MAdv;
 //  typedef Pimpact::MultiHarmonicOpWrap< Pimpact::ForcingOp<S,O> > Fo;
 //  typedef Pimpact::MultiOpWrap< Pimpact::AddOp< Pimpact::AddOp<MAdv,DtL>, Fo > > Op;
-  typedef Pimpact::AddOp<DtL,MAdv> OpV2V;
+  typedef Pimpact::Add2Op<DtL,MAdv> OpV2V;
 //  typedef Pimpact::AddOp<DtL,MAdv> OpV2V;
   typedef Pimpact::MultiOpWrap< Pimpact::CompoundOpWrap<OpV2V,OpS2V,OpV2S> > Op;
 
@@ -295,7 +295,7 @@ int main(int argi, char** argv ) {
 
 
     auto opV2V =
-        Pimpact::createAddOp(
+        Pimpact::createAdd2Op(
             Pimpact::createMultiDtHelmholtz<S,O>( alpha2/re, 0., 1./re ),
             Pimpact::createMultiHarmonicNonlinear<S,O>( x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone() ),
             x->getConstFieldPtr(0)->getConstVFieldPtr()->clone()
@@ -314,7 +314,7 @@ int main(int argi, char** argv ) {
     jop = Pimpact::createMultiOperatorBase<MF>(
         Pimpact::createCompoundOpWrap(
             x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
-            Pimpact::createAddOp(
+            Pimpact::createAdd2Op(
                 Pimpact::createMultiDtHelmholtz<S,O>( alpha2/re, 0., 1./re ),
                 Pimpact::createMultiHarmonicNonlinearJacobian<S,O>(
                     x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone(),
@@ -330,8 +330,8 @@ int main(int argi, char** argv ) {
 //
 //    jop = Pimpact::createOperatorBase<MVF,JOp>(
 //        Pimpact::createMultiOpWrap(
-//            Pimpact::createAddOp<Pimpact::AddOp<JMAdv,DtL>,Fo>(
-//                Pimpact::createAddOp<JMAdv,DtL>(
+//            Pimpact::createAdd2Op<Pimpact::AddOp<JMAdv,DtL>,Fo>(
+//                Pimpact::createAdd2Op<JMAdv,DtL>(
 //                    Pimpact::createMultiHarmonicNonlinearJacobian<S,O>(
 //                        x->getConstFieldPtr(0)->getConst0FieldPtr()->clone(), x->getConstFieldPtr(0)->clone(), false ),
 //                    Pimpact::createMultiDtHelmholtz<S,O>( alpha2, 0., 1./re ),
@@ -349,8 +349,8 @@ int main(int argi, char** argv ) {
 //
 //    jop = Pimpact::createOperatorBase<MVF,JOp>(
 //        Pimpact::createMultiOpWrap(
-//            Pimpact::createAddOp<Pimpact::AddOp<DJMAdv,DtL>,Fo>(
-//                Pimpact::createAddOp<DJMAdv,DtL>(
+//            Pimpact::createAdd2Op<Pimpact::AddOp<DJMAdv,DtL>,Fo>(
+//                Pimpact::createAdd2Op<DJMAdv,DtL>(
 //                    Pimpact::createMultiHarmonicDiagNonlinearJacobian<S,O>(
 //                        temp->getFieldPtr(0), true ),
 //                    Pimpact::createMultiDtHelmholtz<S,O>( alpha2, 0., 1./re ),
@@ -368,8 +368,8 @@ int main(int argi, char** argv ) {
 //
 //    jop = Pimpact::createOperatorBase<MVF,JOp>(
 //        Pimpact::createMultiOpWrap(
-//            Pimpact::createAddOp<Pimpact::AddOp<DJMAdv,DtL>,Fo>(
-//                Pimpact::createAddOp<DJMAdv,DtL>(
+//            Pimpact::createAdd2Op<Pimpact::AddOp<DJMAdv,DtL>,Fo>(
+//                Pimpact::createAdd2Op<DJMAdv,DtL>(
 //                    Pimpact::createMultiHarmonicDiagNonlinearJacobian<S,O>(
 //                        temp->getFieldPtr(0), false ),
 //                    Pimpact::createMultiDtHelmholtz<S,O>( alpha2, 0., 1./re ),
@@ -387,8 +387,8 @@ int main(int argi, char** argv ) {
 //
 //    jop = Pimpact::createOperatorBase<MVF,JOp>(
 //        Pimpact::createMultiOpWrap(
-//            Pimpact::createAddOp<Pimpact::AddOp<JAdv,DtL>,Fo>(
-//                Pimpact::createAddOp<JAdv,DtL>(
+//            Pimpact::createAdd2Op<Pimpact::AddOp<JAdv,DtL>,Fo>(
+//                Pimpact::createAdd2Op<JAdv,DtL>(
 //                    Pimpact::createMultiHarmonicOpWrap<Pimpact::NonlinearJacobian<S,O> >(
 //                        Pimpact::createNonlinearJacobian<S,O>( temp->getFieldPtr(0)->get0FieldPtr(), true ) ),
 //                    Pimpact::createMultiDtHelmholtz<S,O>( alpha2, 0., 1./re ),
@@ -405,8 +405,8 @@ int main(int argi, char** argv ) {
 //
 //    jop = Pimpact::createOperatorBase<MVF,JOp>(
 //        Pimpact::createMultiOpWrap(
-//            Pimpact::createAddOp<Pimpact::AddOp<JAdv,DtL>,Fo>(
-//                Pimpact::createAddOp<JAdv,DtL>(
+//            Pimpact::createAdd2Op<Pimpact::AddOp<JAdv,DtL>,Fo>(
+//                Pimpact::createAdd2Op<JAdv,DtL>(
 //                    Pimpact::createMultiHarmonicOpWrap<Pimpact::NonlinearJacobian<S,O> >(
 //                        Pimpact::createNonlinearJacobian<S,O>( temp->getFieldPtr(0)->get0FieldPtr(), false ) ),
 //                    Pimpact::createMultiDtHelmholtz<S,O>( alpha2, 0., 1./re ),
@@ -423,8 +423,8 @@ int main(int argi, char** argv ) {
 //
 //    jop = Pimpact::createOperatorBase<MVF,JOp>(
 //        Pimpact::createMultiOpWrap(
-//            Pimpact::createAddOp<Pimpact::AddOp<JAdv,DtL>,Fo>(
-//                Pimpact::createAddOp<JAdv,DtL>(
+//            Pimpact::createAdd2Op<Pimpact::AddOp<JAdv,DtL>,Fo>(
+//                Pimpact::createAdd2Op<JAdv,DtL>(
 //                    Pimpact::createMultiHarmonicOpWrap<Pimpact::NonlinearJacobian<S,O> >(
 //                        Pimpact::createNonlinearJacobian<S,O>( temp->getFieldPtr(0)->get0FieldPtr(), true) ),
 //                    Pimpact::createMultiDtHelmholtz<S,O>( 0., 0., 1./re ),
@@ -440,8 +440,8 @@ int main(int argi, char** argv ) {
 //
 //    jop = Pimpact::createOperatorBase<MVF,JOp>(
 //        Pimpact::createMultiOpWrap(
-//            Pimpact::createAddOp<Pimpact::AddOp<JAdv,DtL>,Fo>(
-//                Pimpact::createAddOp<JAdv,DtL>(
+//            Pimpact::createAdd2Op<Pimpact::AddOp<JAdv,DtL>,Fo>(
+//                Pimpact::createAdd2Op<JAdv,DtL>(
 //                    Pimpact::createMultiHarmonicOpWrap<Pimpact::NonlinearJacobian<S,O> >(
 //                        Pimpact::createNonlinearJacobian<S,O>( temp->getFieldPtr(0)->get0FieldPtr(), false) ),
 //                    Pimpact::createMultiDtHelmholtz<S,O>( 0., 0., 1./re ),
@@ -456,8 +456,8 @@ int main(int argi, char** argv ) {
 //
 //    jop = Pimpact::createOperatorBase<MVF,JOp>(
 //           Pimpact::createMultiOpWrap(
-//               Pimpact::createAddOp<DtL,Fo>(
-////                   Pimpact::createAddOp<JMAdv,DtL>(
+//               Pimpact::createAdd2Op<DtL,Fo>(
+////                   Pimpact::createAdd2Op<JMAdv,DtL>(
 ////                       Pimpact::createMultiHarmonicNonlinearJacobian<S,O>(
 ////                           x->getConstFieldPtr(0)->getConst0FieldPtr()->clone(), x->getConstFieldPtr(0)->clone(), false ),
 //                   Pimpact::createMultiDtHelmholtz<S,O>( alpha2, 0., 1./re ),
@@ -474,8 +474,8 @@ int main(int argi, char** argv ) {
 //    typedef Pimpact::MultiOpWrap< Pimpact::AddOp< Pimpact::AddOp<JMAdv,DtL>, Fo > > JOp;
 //    jop = Pimpact::createOperatorBase<MVF,JOp>(
 //        Pimpact::createMultiOpWrap(
-//            Pimpact::createAddOp<Pimpact::AddOp<JMAdv,DtL>,Fo>(
-//                Pimpact::createAddOp<JMAdv,DtL>(
+//            Pimpact::createAdd2Op<Pimpact::AddOp<JMAdv,DtL>,Fo>(
+//                Pimpact::createAdd2Op<JMAdv,DtL>(
 //                    Pimpact::createMultiHarmonicNonlinearJacobian<S,O>(
 //                        x->getConstFieldPtr(0)->getConst0FieldPtr()->clone(), x->getConstFieldPtr(0)->clone() ),
 //                        Pimpact::createMultiDtHelmholtz<S,O>( alpha2, 0., 1./re ),
@@ -498,8 +498,8 @@ int main(int argi, char** argv ) {
 //
 //    auto precOp = Pimpact::createOperatorBase<MVF,JOp>(
 //        Pimpact::createMultiOpWrap(
-//            Pimpact::createAddOp<Pimpact::AddOp<DJMAdv,DtL>,Fo>(
-//                Pimpact::createAddOp<DJMAdv,DtL>(
+//            Pimpact::createAdd2Op<Pimpact::AddOp<DJMAdv,DtL>,Fo>(
+//                Pimpact::createAdd2Op<DJMAdv,DtL>(
 //                    Pimpact::createMultiHarmonicDiagNonlinearJacobian<S,O>(
 //                        temp->getFieldPtr(0), true ),
 //                    Pimpact::createMultiDtHelmholtz<S,O>( alpha2, 0., 1./re ),
@@ -525,8 +525,8 @@ int main(int argi, char** argv ) {
 //
 //    auto precOp = Pimpact::createOperatorBase<MVF,JOp>(
 //        Pimpact::createMultiOpWrap(
-//            Pimpact::createAddOp<Pimpact::AddOp<DJMAdv,DtL>,Fo>(
-//                Pimpact::createAddOp<DJMAdv,DtL>(
+//            Pimpact::createAdd2Op<Pimpact::AddOp<DJMAdv,DtL>,Fo>(
+//                Pimpact::createAdd2Op<DJMAdv,DtL>(
 //                    Pimpact::createMultiHarmonicDiagNonlinearJacobian<S,O>(
 //                        temp->getFieldPtr(0), false ),
 //                    Pimpact::createMultiDtHelmholtz<S,O>( alpha2, 0., 1./re ),
@@ -551,8 +551,8 @@ int main(int argi, char** argv ) {
 //
 //    auto precOp = Pimpact::createOperatorBase<MVF,JOp>(
 //        Pimpact::createMultiOpWrap(
-//            Pimpact::createAddOp<Pimpact::AddOp<JAdv,DtL>,Fo>(
-//                Pimpact::createAddOp<JAdv,DtL>(
+//            Pimpact::createAdd2Op<Pimpact::AddOp<JAdv,DtL>,Fo>(
+//                Pimpact::createAdd2Op<JAdv,DtL>(
 //                    Pimpact::createMultiHarmonicOpWrap<Pimpact::NonlinearJacobian<S,O> >(
 //                        Pimpact::createNonlinearJacobian<S,O>( temp->getFieldPtr(0)->get0FieldPtr(), true ) ),
 //                    Pimpact::createMultiDtHelmholtz<S,O>( alpha2, 0., 1./re ),
@@ -576,8 +576,8 @@ int main(int argi, char** argv ) {
 //
 //    auto precOp = Pimpact::createOperatorBase<MVF,JOp>(
 //        Pimpact::createMultiOpWrap(
-//            Pimpact::createAddOp<Pimpact::AddOp<JAdv,DtL>,Fo>(
-//                Pimpact::createAddOp<JAdv,DtL>(
+//            Pimpact::createAdd2Op<Pimpact::AddOp<JAdv,DtL>,Fo>(
+//                Pimpact::createAdd2Op<JAdv,DtL>(
 //                    Pimpact::createMultiHarmonicOpWrap<Pimpact::NonlinearJacobian<S,O> >(
 //                        Pimpact::createNonlinearJacobian<S,O>( temp->getFieldPtr(0)->get0FieldPtr(), false ) ),
 //                    Pimpact::createMultiDtHelmholtz<S,O>( alpha2, 0., 1./re ),
@@ -600,8 +600,8 @@ int main(int argi, char** argv ) {
 //
 //    auto precOp = Pimpact::createOperatorBase<MVF,JOp>(
 //        Pimpact::createMultiOpWrap(
-//            Pimpact::createAddOp<Pimpact::AddOp<JAdv,DtL>,Fo>(
-//                Pimpact::createAddOp<JAdv,DtL>(
+//            Pimpact::createAdd2Op<Pimpact::AddOp<JAdv,DtL>,Fo>(
+//                Pimpact::createAdd2Op<JAdv,DtL>(
 //                    Pimpact::createMultiHarmonicOpWrap<Pimpact::NonlinearJacobian<S,O> >(
 //                        Pimpact::createNonlinearJacobian<S,O>( temp->getFieldPtr(0)->get0FieldPtr(), true) ),
 //                    Pimpact::createMultiDtHelmholtz<S,O>( 0., 0., 1./re ),
@@ -623,8 +623,8 @@ int main(int argi, char** argv ) {
 //
 //    auto precOp = Pimpact::createOperatorBase<MVF,JOp>(
 //        Pimpact::createMultiOpWrap(
-//            Pimpact::createAddOp<Pimpact::AddOp<JAdv,DtL>,Fo>(
-//                Pimpact::createAddOp<JAdv,DtL>(
+//            Pimpact::createAdd2Op<Pimpact::AddOp<JAdv,DtL>,Fo>(
+//                Pimpact::createAdd2Op<JAdv,DtL>(
 //                    Pimpact::createMultiHarmonicOpWrap<Pimpact::NonlinearJacobian<S,O> >(
 //                        Pimpact::createNonlinearJacobian<S,O>( temp->getFieldPtr(0)->get0FieldPtr(), false) ),
 //                    Pimpact::createMultiDtHelmholtz<S,O>( 0., 0., 1./re ),
@@ -645,8 +645,8 @@ int main(int argi, char** argv ) {
 //
 //    auto precOp = Pimpact::createOperatorBase<MVF,JOp>(
 //           Pimpact::createMultiOpWrap(
-//               Pimpact::createAddOp<DtL,Fo>(
-////                   Pimpact::createAddOp<JMAdv,DtL>(
+//               Pimpact::createAdd2Op<DtL,Fo>(
+////                   Pimpact::createAdd2Op<JMAdv,DtL>(
 ////                       Pimpact::createMultiHarmonicNonlinearJacobian<S,O>(
 ////                           x->getConstFieldPtr(0)->getConst0FieldPtr()->clone(), x->getConstFieldPtr(0)->clone(), false ),
 //                   Pimpact::createMultiDtHelmholtz<S,O>( alpha2, 0., 1./re ),

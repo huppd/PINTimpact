@@ -27,13 +27,18 @@ namespace Pimpact {
 		GaussianForcing1D=10,
 		BoundaryFilter1D=11,
 		GaussianForcing2D=12,
-		BoundaryFilter2D=13
+		BoundaryFilter2D=13,
+		Streaming2DC=14,
+		Streaming2DS=15,
+		VPoint2D=16
 	};
+
 
 	enum EFlowType { Zero2DFlow = 0,
 			Poiseuille_inX=1, Poiseuille_inY=2,
 			Pulsatile_inX=3, Pulsatile_inY=4,
-			Streaming2DFlow=5
+			Streaming2DFlow=5, Streaming2DFlow2=6,
+			Streaming2DFlow3=7
 	};
 
 
@@ -46,6 +51,7 @@ namespace Pimpact {
 	  RobinBC = 3
 	};
 
+
 	enum EDomainType {
 	  AllDirichlet = 0,
 	  Dirichelt2DChannel = 1,
@@ -55,8 +61,6 @@ namespace Pimpact {
 	  Neumann1Periodic2 = 5
 	};
 
-
-//	struct ModeOp {};
-//	struct NonModeOp {};
 }
+
 #endif // PIMPACT_TYPES_HPP

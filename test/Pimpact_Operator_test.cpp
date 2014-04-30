@@ -215,7 +215,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, nonlinear ) {
 
 
 
-TEUCHOS_UNIT_TEST( BasicOperator, AddOp ) {
+TEUCHOS_UNIT_TEST( BasicOperator, Add2Op ) {
   using Teuchos::ParameterList;
   using Teuchos::parameterList;
   using Teuchos::RCP;
@@ -225,7 +225,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, AddOp ) {
   typedef Pimpact::MultiField<VF>      MVF;
   typedef Pimpact::Helmholtz<S,O>      Op1;
   typedef Pimpact::Nonlinear<S,O>      Op2;
-  typedef Pimpact::AddOp<Op1,Op2> COp;
+  typedef Pimpact::Add2Op<Op1,Op2> COp;
   typedef Pimpact::MultiOpWrap<COp>    Op;
   typedef Pimpact::OperatorBase<MVF>   BOp;
 
@@ -242,7 +242,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, AddOp ) {
 //  auto op = Pimpact::createOperatorBase<MVF,COP>();
   auto op = Pimpact::createOperatorBase<MVF,Op>(
       Pimpact::createMultiOpWrap(
-          Pimpact::createAddOp<Op1,Op2>(
+          Pimpact::createAdd2Op<Op1,Op2>(
 //              Teuchos::rcp( new Pimpact::Helmholtz<S,O>() ),
                   Pimpact::createHelmholtz<S,O>(),
                   Pimpact::createNonlinear<S,O>(),
@@ -601,7 +601,7 @@ TEUCHOS_UNIT_TEST( CompoundOperator, CompoundOpWrap ) {
   typedef Pimpact::MultiDtHelmholtz<S,O>  DtL;
   typedef Pimpact::MultiHarmonicNonlinear<S,O>  MAdv;
 
-  typedef Pimpact::AddOp<DtL,MAdv> OpV2V;
+  typedef Pimpact::Add2Op<DtL,MAdv> OpV2V;
   typedef Pimpact::MultiOpWrap< Pimpact::CompoundOpWrap<OpV2V,OpS2V,OpV2S> > Op;
 
   typedef Pimpact::OperatorBase<MF> BOp;
@@ -620,7 +620,7 @@ TEUCHOS_UNIT_TEST( CompoundOperator, CompoundOpWrap ) {
   x->random();
 
   auto opV2V =
-       Pimpact::createAddOp(
+       Pimpact::createAdd2Op(
            Pimpact::createMultiDtHelmholtz<S,O>( 1., 0., 1. ),
            Pimpact::createMultiHarmonicNonlinear<S,O>( x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone() ),
            x->getConstFieldPtr(0)->getConstVFieldPtr()->clone()

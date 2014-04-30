@@ -209,9 +209,9 @@ public:
 
 
   /// \brief \f[ *this = \alpha A B + \beta *this \f]
-  /// \param alpha
-  /// \param A
-  /// \param B
+  /// \param alpha scalar
+  /// \param A Vector
+  /// \param B Matrix
   /// \param beta
   void TimesMatAdd( const Scalar& alpha, const MV& A,
   		const Teuchos::SerialDenseMatrix<int,Scalar>& B,
@@ -223,11 +223,11 @@ public:
   	AB->init(0.);
   	for( int j=0; j<m1; ++j ) {
   		for( int i=0; i<m2; ++i ) {
-  			AB->mfs_[i]->add(1., *(AB->mfs_[i]), B(j,i), *A.mfs_[j] );
+  			AB->mfs_[i]->add(1., *(AB->mfs_[i]), B(j,i), *A.mfs_[j] ); // better version possible
   		}
   	}
   	for( int i=0; i<m2; ++i ) {
-  		mfs_[i]->add( alpha, *AB->mfs_[i], beta, *mfs_[i] );
+  		mfs_[i]->add( alpha, *AB->mfs_[i], beta, *mfs_[i] ); // slightly better vesion possible
   	}
   }
 
@@ -332,22 +332,30 @@ public:
   void dot( const MV& A, std::vector<Scalar>& dots) const {
   	const int n = getNumberVecs();
   	for( int i=0; i<n; ++i)
-  		dots[i] = A.mfs_[i]->dot( *mfs_[i], true );
+  		dots[i] = A.mfs_[i]->dot( *mfs_[i] );
 
   }
 
 
   /// \brief Compute the inner product for the \c MultiField considering it as one Vector.
-	Scalar dot( const MV& A ) const {
+	Scalar dot( const MV& A, bool global=true ) const {
 		int n = getNumberVecs();
-		Scalar innpro=0.;
-		std::vector<Scalar> innprovec( n );
-		dot( A, innprovec );
+//		Scalar innpro=0.;
+		Scalar b = 0.;
+//		std::vector<Scalar> innprovec( n );
+//		dot( A, innprovec );
 
 		for( int i=0; i<n; ++i ) {
-			innpro += innprovec[i];
+//			innpro += innprovec[i];
+			b+= mfs_[i]->dot( *A.mfs_[i], false );
 		}
-		return( innpro );
+	  if( global ) {
+	    Scalar b_global=0.;
+	    MPI_Allreduce( &b, &b_global, 1, MPI_REAL8, MPI_SUM, comm() );
+	    b = b_global;
+	  }
+
+		return( b );
 	}
 
 
@@ -461,6 +469,8 @@ public:
 
   Teuchos::RCP<Field>       getFieldPtr     (int i)       { return( mfs_[i] ); }
   Teuchos::RCP<const Field> getConstFieldPtr(int i) const { return( mfs_[i] ); }
+
+  MPI_Comm comm() const { return( mfs_[0]->comm() ); }
 
 }; // end of class MultiField
 

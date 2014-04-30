@@ -105,17 +105,13 @@ public:
 		switch( copyType ) {
 		case ShallowCopy:
 		  for(int i=0; i<dim(); ++i)
-		      for( int j=0; j<N; ++j)
-		        vec_[i][j] = 0;
-//		    SF_init(
-//		        nLoc(0), nLoc(1), nLoc(2),
-////		        bl(0),   bl(1),   bl(2),
-////			      nLoc(0)+bu(0), nLoc(1)+bu(1), nLoc(2)+bu(2),
-//				  1,       1,       1,
-//				  nLoc(0), nLoc(1), nLoc(2),
-//            bl(0),   bl(1),   bl(2),
-//            bu(0),   bu(1),   bu(2),
-//            vec_[i], 0. );
+		    SF_init(
+		        nLoc(0), nLoc(1), nLoc(2),
+		        sIndB(0,i), sIndB(1,i), sIndB(2,i),
+		        eIndB(0,i), eIndB(1,i), eIndB(2,i),
+            bl(0),   bl(1),   bl(2),
+            bu(0),   bu(1),   bu(2),
+            vec_[i], 0. );
 		  changed();
 		  break;
 		  case DeepCopy:
@@ -440,7 +436,7 @@ public:
 
   ///  \brief initializes VectorField with the initial field defined in Fortran
   void initField( EFlowProfile flowType = Poiseuille2D_inX, double re=1., double om=1., double px = 1. ) {
-    switch(flowType) {
+    switch( flowType) {
     case ZeroProf :
       VF_init_Zero(
           nLoc(0), nLoc(1), nLoc(2),
@@ -453,8 +449,8 @@ public:
           bl(0),   bl(1),   bl(2),
           bu(0),   bu(1),   bu(2),
 					vec_[0], vec_[1], vec_[2] );
-      break;
-    case Poiseuille2D_inX :
+    break;
+     case Poiseuille2D_inX :
       VF_init_2DPoiseuilleX(
           nLoc(0), nLoc(1), nLoc(2),
           sIndB(0,0), sIndB(1,0), sIndB(2,0),
@@ -533,7 +529,35 @@ public:
           vec_[0], vec_[1], vec_[2], re, om, px);
       break;
     case Streaming2D:
-      VF_init_Streaming(
+      VF_init_StreamingS(
+          nLoc(0), nLoc(1), nLoc(2),
+          sIndB(0,0), sIndB(1,0), sIndB(2,0),
+          eIndB(0,0), eIndB(1,0), eIndB(2,0),
+          sIndB(0,1), sIndB(1,1), sIndB(2,1),
+          eIndB(0,1), eIndB(1,1), eIndB(2,1),
+          sIndB(0,2), sIndB(1,2), sIndB(2,2),
+          eIndB(0,2), eIndB(1,2), eIndB(2,2),
+          bl(0),   bl(1),   bl(2),
+          bu(0),   bu(1),   bu(2),
+          vec_[0], vec_[1], vec_[2],
+          re );
+      break;
+    case Streaming2DC:
+      VF_init_StreamingC(
+          nLoc(0), nLoc(1), nLoc(2),
+          sIndB(0,0), sIndB(1,0), sIndB(2,0),
+          eIndB(0,0), eIndB(1,0), eIndB(2,0),
+          sIndB(0,1), sIndB(1,1), sIndB(2,1),
+          eIndB(0,1), eIndB(1,1), eIndB(2,1),
+          sIndB(0,2), sIndB(1,2), sIndB(2,2),
+          eIndB(0,2), eIndB(1,2), eIndB(2,2),
+          bl(0),   bl(1),   bl(2),
+          bu(0),   bu(1),   bu(2),
+          vec_[0], vec_[1], vec_[2],
+          re );
+      break;
+    case Streaming2DS:
+      VF_init_StreamingS(
           nLoc(0), nLoc(1), nLoc(2),
           sIndB(0,0), sIndB(1,0), sIndB(2,0),
           eIndB(0,0), eIndB(1,0), eIndB(2,0),
@@ -623,6 +647,20 @@ public:
             bl(0),   bl(1),   bl(2),
             bu(0),   bu(1),   bu(2),
             vec_[0], vec_[1], vec_[2] );
+        break;
+    case VPoint2D:
+      VF_init_Vpoint(
+            nLoc(0), nLoc(1), nLoc(2),
+            sIndB(0,0), sIndB(1,0), sIndB(2,0),
+            eIndB(0,0), eIndB(1,0), eIndB(2,0),
+            sIndB(0,1), sIndB(1,1), sIndB(2,1),
+            eIndB(0,1), eIndB(1,1), eIndB(2,1),
+            sIndB(0,2), sIndB(1,2), sIndB(2,2),
+            eIndB(0,2), eIndB(1,2), eIndB(2,2),
+            bl(0),   bl(1),   bl(2),
+            bu(0),   bu(1),   bu(2),
+            vec_[0], vec_[1], vec_[2],
+            re );
         break;
     }
     changed();
