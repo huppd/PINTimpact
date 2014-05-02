@@ -1462,7 +1462,7 @@ module cmod_VectorField
   do k = S3U, N3U
      do j = S2U, N2U
         do i = S1U, N1U
-           phiU(i,j,k) = exp( -((x1u(i)-L1/2.)/sig)**2 -((x2p(j)-L2/2.)/sig)**2 )
+           phiU(i,j,k) = exp( -((x1u(i)-L1/2.)/sig)**2 -((x2p(j)-L2/2.)/sig/sig)**2 )
         end do
      end do
   end do

@@ -268,14 +268,16 @@ int main(int argi, char** argv ) {
   Teuchos::RCP<Pimpact::VectorField<S,O> > force=Teuchos::null;
   if( 0!=forcing ) {
     force = x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone();
-    force->initField( Pimpact::VPoint2D, 0.05 );
-    force->scale( 10000. );
-    fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::VPoint2D, 0.05  );
-    fu->scale( -10000. );
+    force->initField( Pimpact::VPoint2D, 0.1 );
+    force->scale( 1.e4 );
+    fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::VPoint2D, 0.1  );
+    fu->scale( -1.e4 );
   }
 
   // init Fields, init and rhs
   switch( Pimpact::EFlowType(flow) ) {
+  case Pimpact::Zero2DFlow:
+  break;
   case Pimpact::Streaming2DFlow:
     x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::Streaming2DS, 1. );
   break;
