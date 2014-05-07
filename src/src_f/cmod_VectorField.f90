@@ -1471,6 +1471,7 @@ module cmod_VectorField
      do j = S2V, N2V
         do i = S1V, N1V
            phiV(i,j,k) = 0.
+!           phiV(i,j,k) = min(2.*exp( -((x1p(i)-L1/2.)/sig)**2 -((x2v(j)-L2/2.)/sig)**2 ),1.)
          end do
      end do
   end do
@@ -2145,5 +2146,206 @@ subroutine cinit_GaussianForcing1D( &
   end do
 
   end subroutine cinit_BoundaryFilter2D
+
+
+
+  subroutine cinit_Disc( &
+    N1,N2,N3,                         &
+    S1U,S2U,S3U, N1U,N2U,N3U,         &
+    S1V,S2V,S3V, N1V,N2V,N3V,         &
+    S1W,S2W,S3W, N1W,N2W,N3W,         &
+    b1L,b2L,b3L, b1U,b2U,b3U,         &
+    phiU,phiV,phiW,                   &
+    xm,ym, rad ) bind ( c, name='VF_init_Disc' )
+  ! (basic subroutine)
+
+  implicit none
+
+  integer(c_int), intent(in)    ::  N1
+  integer(c_int), intent(in)    ::  N2
+  integer(c_int), intent(in)    ::  N3
+
+
+  integer(c_int), intent(in)    ::  S1U
+  integer(c_int), intent(in)    ::  S2U
+  integer(c_int), intent(in)    ::  S3U
+
+  integer(c_int), intent(in)    ::  N1U
+  integer(c_int), intent(in)    ::  N2U
+  integer(c_int), intent(in)    ::  N3U
+
+  integer(c_int), intent(in)    ::  S1V
+  integer(c_int), intent(in)    ::  S2V
+  integer(c_int), intent(in)    ::  S3V
+
+  integer(c_int), intent(in)    ::  N1V
+  integer(c_int), intent(in)    ::  N2V
+  integer(c_int), intent(in)    ::  N3V
+
+  integer(c_int), intent(in)    ::  S1W
+  integer(c_int), intent(in)    ::  S2W
+  integer(c_int), intent(in)    ::  S3W
+
+  integer(c_int), intent(in)    ::  N1W
+  integer(c_int), intent(in)    ::  N2W
+  integer(c_int), intent(in)    ::  N3W
+
+
+  integer(c_int), intent(in)    ::  b1L
+  integer(c_int), intent(in)    ::  b2L
+  integer(c_int), intent(in)    ::  b3L
+
+  integer(c_int), intent(in)    ::  b1U
+  integer(c_int), intent(in)    ::  b2U
+  integer(c_int), intent(in)    ::  b3U
+
+  real(c_double), intent(inout) ::  phiU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double), intent(inout) ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double), intent(inout) ::  phiW(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+
+  real(c_double), intent(in)    :: xm
+  real(c_double), intent(in)    :: ym
+  real(c_double), intent(in)    :: rad
+
+  integer                ::  i, j, k
+
+  !--- initial conditions for velocity ---
+  ! note: - cf. sketch in file "usr_geometry.f90"
+  !
+  !         grid points in the domain and on the boundary
+  !         |         |         |     velocity component
+  !         |         |         |     |
+  ! vel(S1U:N1U,S2U:N2U,S3U:N3U,1)
+  ! vel(S1V:N1V,S2V:N2V,S3V:N3V,2)
+  ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
+  !
+
+
+  do k = S3U, N3U
+     do j = S2U, N2U
+        do i = S1U, N1U
+           phiU(i,j,k) = min(4*exp( -((x1u(i)-xm)/rad)**2 -((x2p(j)-ym)/rad)**2 ),1.)
+        end do
+     end do
+  end do
+
+  do k = S3V, N3V
+     do j = S2V, N2V
+        do i = S1V, N1V
+           phiV(i,j,k) = min(4*exp( -((x1p(i)-xm)/rad)**2 -((x2v(j)-ym)/rad)**2 ),1.)
+         end do
+     end do
+  end do
+
+  do k = S3W, N3W
+     do j = S2W, N2W
+        do i = S1W, N1W
+           phiW(i,j,k) = 0.0
+        end do
+     end do
+  end do
+
+  end subroutine cinit_Disc
+
+
+  subroutine cinit_RotatingDisc( &
+    N1,N2,N3,                         &
+    S1U,S2U,S3U, N1U,N2U,N3U,         &
+    S1V,S2V,S3V, N1V,N2V,N3V,         &
+    S1W,S2W,S3W, N1W,N2W,N3W,         &
+    b1L,b2L,b3L, b1U,b2U,b3U,         &
+    phiU,phiV,phiW,                   &
+    xm,ym, omega ) bind ( c, name='VF_init_RotatingDisc' )
+  ! (basic subroutine)
+
+  implicit none
+
+  integer(c_int), intent(in)    ::  N1
+  integer(c_int), intent(in)    ::  N2
+  integer(c_int), intent(in)    ::  N3
+
+
+  integer(c_int), intent(in)    ::  S1U
+  integer(c_int), intent(in)    ::  S2U
+  integer(c_int), intent(in)    ::  S3U
+
+  integer(c_int), intent(in)    ::  N1U
+  integer(c_int), intent(in)    ::  N2U
+  integer(c_int), intent(in)    ::  N3U
+
+  integer(c_int), intent(in)    ::  S1V
+  integer(c_int), intent(in)    ::  S2V
+  integer(c_int), intent(in)    ::  S3V
+
+  integer(c_int), intent(in)    ::  N1V
+  integer(c_int), intent(in)    ::  N2V
+  integer(c_int), intent(in)    ::  N3V
+
+  integer(c_int), intent(in)    ::  S1W
+  integer(c_int), intent(in)    ::  S2W
+  integer(c_int), intent(in)    ::  S3W
+
+  integer(c_int), intent(in)    ::  N1W
+  integer(c_int), intent(in)    ::  N2W
+  integer(c_int), intent(in)    ::  N3W
+
+
+  integer(c_int), intent(in)    ::  b1L
+  integer(c_int), intent(in)    ::  b2L
+  integer(c_int), intent(in)    ::  b3L
+
+  integer(c_int), intent(in)    ::  b1U
+  integer(c_int), intent(in)    ::  b2U
+  integer(c_int), intent(in)    ::  b3U
+
+  real(c_double), intent(inout) ::  phiU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double), intent(inout) ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double), intent(inout) ::  phiW(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+
+  real(c_double), intent(in)    :: xm
+  real(c_double), intent(in)    :: ym
+  real(c_double), intent(in)    :: omega
+
+  integer                ::  i, j, k
+
+  !--- initial conditions for velocity ---
+  ! note: - cf. sketch in file "usr_geometry.f90"
+  !
+  !         grid points in the domain and on the boundary
+  !         |         |         |     velocity component
+  !         |         |         |     |
+  ! vel(S1U:N1U,S2U:N2U,S3U:N3U,1)
+  ! vel(S1V:N1V,S2V:N2V,S3V:N3V,2)
+  ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
+  !
+
+
+  do k = S3U, N3U
+     do j = S2U, N2U
+        do i = S1U, N1U
+!           phiU(i,j,k) = min(4*exp( -((x1u(i)-xm)/rad)**2 -((x2p(j)-ym)/rad)**2 ),1.)
+            phiU(i,j,k) = -omega*(x2p(j)-ym)
+        end do
+     end do
+  end do
+
+  do k = S3V, N3V
+     do j = S2V, N2V
+        do i = S1V, N1V
+!           phiV(i,j,k) = min(4*exp( -((x1p(i)-ym)/rad)**2 -((x2v(j)-ym)/rad)**2 ),1.)
+           phiV(i,j,k) = omega*(x1p(i)-xm)
+         end do
+     end do
+  end do
+
+  do k = S3W, N3W
+     do j = S2W, N2W
+        do i = S1W, N1W
+           phiW(i,j,k) = 0.0
+        end do
+     end do
+  end do
+
+  end subroutine cinit_RotatingDisc
 
 end module cmod_VectorField

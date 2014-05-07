@@ -30,7 +30,9 @@ namespace Pimpact {
 		BoundaryFilter2D=13,
 		Streaming2DC=14,
 		Streaming2DS=15,
-		VPoint2D=16
+		VPoint2D=16,
+		Disc2D=17,
+		RotationDisc2D=18
 	};
 
 
@@ -39,6 +41,13 @@ namespace Pimpact {
 			Pulsatile_inX=3, Pulsatile_inY=4,
 			Streaming2DFlow=5, Streaming2DFlow2=6,
 			Streaming2DFlow3=7
+	};
+
+
+	enum EForceType {
+	  Dipol        = 1,
+		Disc         = 2,
+		RotatingDisc = 3
 	};
 
 

@@ -5,6 +5,7 @@
 /// \defgroup Operator Operators
 #include "Pimpact_Add2Op.hpp"
 #include "Pimpact_Add3Op.hpp"
+#include "Pimpact_CompositionOp.hpp"
 #include "Pimpact_InverseOperator.hpp"
 
 /// \defgroup BaseOperator Basic Operator

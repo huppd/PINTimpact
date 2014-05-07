@@ -73,8 +73,8 @@ public:
 
   void assignField( const DomainFieldT& mv ) {
     opV2V_->assignField( mv.getConstVField() );
-    opS2V_->assignField( mv.getConstSField() );
-    opV2S_->assignField( mv.getConstVField() );
+//    opS2V_->assignField( mv.getConstVField() );
+//    opV2S_->assignField( mv.getConstVField() );
   };
 
   bool hasApplyTranspose() const { return( false ); }

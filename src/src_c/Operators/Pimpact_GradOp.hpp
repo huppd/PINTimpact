@@ -33,11 +33,18 @@ public:
     y.changed();
   }
 
+  void assignField( const RangeFieldT& mv ) {};
   void assignField( const DomainFieldT& mv ) {};
 
   bool hasApplyTranspose() const { return( false ); }
 
 }; // end of class Grad
+
+
+template<class S,class O>
+Teuchos::RCP< Grad<S,O> > createGradOp() {
+  return( Teuchos::rcp( new Grad<S,O>() ) );
+}
 
 
 } // end of namespace Pimpact

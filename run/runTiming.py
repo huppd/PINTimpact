@@ -39,7 +39,7 @@ os.chdir( data_path )
 f = open( 'timingNaveier.txt','a' )
 
 runtime = 1e22
-for i in range(10):
+for i in range(5):
   start = time.time()
   os.system(exe_pre+exe_path+exe+case_consts )
   rt = time.time()-start
@@ -48,3 +48,8 @@ for i in range(10):
 f.write('year:'+str(time.gmtime().tm_year ) + ', month: '+str(time.gmtime().tm_mon)+', day: '+str(time.gmtime().tm_mday)+',\truntime: '+str(runtime)+'\n')
 
 f.close()
+
+os.chdir( prof_path )
+os.system( 'make '+exe+' -j4' )
+os.system(exe_pre+prof_pre+exe+case_consts )
+

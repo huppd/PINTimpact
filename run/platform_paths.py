@@ -1,3 +1,5 @@
 exe_path = '/home/huppd/workspace/pimpact-repo/release/src/src_c/'
+prof_path = '/home/huppd/workspace/pimpact-repo/profile/src/src_c/'
 data_path = '/home/huppd/workspace/pimpact-repo/data/'
 exe_pre = 'mpirun -np 4 '
+prof_pre = ' valgrind --tool=callgrind --dump-instr=yes --cache-sim=yes --branch-sim=yes '

@@ -42,21 +42,33 @@ public:
         op1_(op1), op2_(op2), op3_(op3) {};
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
-    op1_->apply( x, y );
-    if( !op2_.is_null() ) {
-      op2_->apply( x, *temp_ );
-      y.add( 1., y, 1., *temp_ );
+    if( !op1_.is_null() ) {
+      op1_->apply( x, y );
+      if( !op2_.is_null() ) {
+        op2_->apply( x, *temp_ );
+        y.add( 1., y, 1., *temp_ );
+      }
+      if( !op3_.is_null() ) {
+        op3_->apply( x, *temp_ );
+        y.add( 1., y, 1., *temp_ );
+      }
     }
-    if( !op3_.is_null() ) {
-      op3_->apply( x, *temp_ );
-      y.add( 1., y, 1., *temp_ );
+    else if( !op2_.is_null() ) {
+      op2_->apply( x, y );
+      if( !op3_.is_null() ) {
+        op3_->apply( x, *temp_ );
+        y.add( 1., y, 1., *temp_ );
+      }
     }
   }
 
   void assignField( const DomainFieldT& field ) {
-    op1_->assignField( field );
-    op2_->assignField( field );
-    op3_->assignField( field );
+    if( !op1_.is_null() )
+      op1_->assignField( field );
+    if( !op2_.is_null() )
+      op2_->assignField( field );
+    if( !op3_.is_null() )
+      op3_->assignField( field );
   };
 
   bool hasApplyTranspose() const { return( op1_->hasApplyTranspose() && op2_->hasApplyTranspose() && op3_->hasApplyTranspose() ); }
@@ -66,7 +78,7 @@ public:
 
 
 /// \relates Add3Op
-template<class OP1, class OP2, class OP3 >
+template<class OP1, class OP2, class OP3=OP1 >
 Teuchos::RCP< Add3Op<OP1, OP2, OP3> > createAdd3Op(
     const Teuchos::RCP<typename OP1::DomainFieldT>& temp=Teuchos::null,
     const Teuchos::RCP<OP1>& op1=Teuchos::null,

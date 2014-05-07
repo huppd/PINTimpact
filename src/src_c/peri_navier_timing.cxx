@@ -84,96 +84,48 @@ int main(int argi, char** argv ) {
 
   // physical constants
   S re = 1.e2;
-//  my_CLP.setOption( "re", &re, "Reynolds number" );
 
   S alpha2 = 1.e3;
-//  my_CLP.setOption( "alpha2", &alpha2, "introduced frequency" );
 
   // flow type
   int flow = 7;
-//  my_CLP.setOption( "flow", &flow,
-//      "Flow type: 0=zero flow, 1=2D Poiseuille flow in x, 2=2D Poiseuille flow in y, 3=2D pulsatile flow in x, 4=2D pulsatile flow in, 5=2D streaming" );
 
   // domain type
   int domain = 2;
-//  my_CLP.setOption( "domain", &domain,
-//      "Domain type: 0:all dirichlet, 1:dirichlet 2d channel, 2: periodic 2d channel" );
 
   // domain size
   S l1 = 1.;
-//  my_CLP.setOption( "lx", &l1, "length in x-direction" );
-
   S l2 = 1.;
-//  my_CLP.setOption( "ly", &l2, "length in y-direction" );
-
   S l3 = 1.;
-//  my_CLP.setOption( "lz", &l3, "length in z-direction" );
-
-  int dim = 2;
-//  my_CLP.setOption( "dim", &dim, "dimension of problem" );
 
   // grid size
-  O n1 = 33;
-//  my_CLP.setOption( "nx", &n1, "amount of grid points in x-direction: a*2**q+1" );
-
-  O n2 = 33;
-//  my_CLP.setOption( "ny", &n2, "amount of grid points in y-direction: a*2**q+1" );
-
+  O n1 = 65;
+  O n2 = 65;
   O n3 = 2.;
-//  my_CLP.setOption( "nz", &n3, "amount of grid points in z-direction: a*2**q+1" );
 
   O nf = 4.;
-//  my_CLP.setOption( "nf", &nf, "amount of grid points in f-direction" );
 
   O nfs = 1.;
-//  my_CLP.setOption( "nfs", &nfs, "start amount of grid points in f-direction" );
 
   O nfe = 1.;
-//  my_CLP.setOption( "nfe", &nfe, "end amount of grid points in f-direction" );
 
   // processor grid size
   O np1 = 2;
-//  my_CLP.setOption( "npx", &np1, "amount of processors in x-direction" );
-
   O np2 = 2;
-//  my_CLP.setOption( "npy", &np2, "amount of processors in y-direction" );
-
   O np3 = 1.;
-//  my_CLP.setOption( "npz", &np3, "amount of processors in z-direction" );
 
   // solver stuff
   std::string linSolName = "GMRES";
-//  my_CLP.setOption( "linSolName", &linSolName, "name of the linear solver" );
-
   std::string nonLinSolName = "Newton";
-//  my_CLP.setOption( "nonLinSolName", &nonLinSolName , "name of the non linear solver" );
 
   std::string lineSearchName = "Backtrack";
-//  my_CLP.setOption( "linesearch", &lineSearchName, "name of the line search" );
-
-  int fixType = 1.;
-//  my_CLP.setOption( "fixType", &fixType, "type of fixpoint iteration matrix: 1=Newton, 2=Piccard, 3=lin diag... " );
-
-  int precType = 1.;
-//  my_CLP.setOption( "precType", &precType, "type of preconditioners " );
 
   int maxIter = 10;
-//  my_CLP.setOption( "maxIter", &maxIter, "maximum iterations" );
 
   S tolBelos = 1.e-1;
-//  my_CLP.setOption( "tolBelos", &tolBelos, "tolerance for linear solver" );
+  S tolNOX   = 1.e-1;
+  S tolNF    = 1.e-1;
 
-  S tolNOX = 1.e-1;
-//  my_CLP.setOption( "tolNOX", &tolNOX, "tolerance for non-linear solver" );
-
-  S tolNF = 1.e-1;
-//  my_CLP.setOption( "tolNF", &tolNF, "tolerance for non-linear solver" );
-
-
-//  my_CLP.recogniseAllOptions(true);
-//  my_CLP.throwExceptions(true);
-
-//  my_CLP.parse(argi,argv);
   // end of parsing
 
   if( nfs==nfe ) {

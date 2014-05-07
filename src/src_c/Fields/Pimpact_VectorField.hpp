@@ -662,7 +662,36 @@ public:
             vec_[0], vec_[1], vec_[2],
             re );
         break;
+    case Disc2D:
+      VF_init_Disc(
+            nLoc(0), nLoc(1), nLoc(2),
+            sIndB(0,0), sIndB(1,0), sIndB(2,0),
+            eIndB(0,0), eIndB(1,0), eIndB(2,0),
+            sIndB(0,1), sIndB(1,1), sIndB(2,1),
+            eIndB(0,1), eIndB(1,1), eIndB(2,1),
+            sIndB(0,2), sIndB(1,2), sIndB(2,2),
+            eIndB(0,2), eIndB(1,2), eIndB(2,2),
+            bl(0),   bl(1),   bl(2),
+            bu(0),   bu(1),   bu(2),
+            vec_[0], vec_[1], vec_[2],
+            re, om, px );
+        break;
+    case RotationDisc2D:
+      VF_init_RotatingDisc(
+            nLoc(0), nLoc(1), nLoc(2),
+            sIndB(0,0), sIndB(1,0), sIndB(2,0),
+            eIndB(0,0), eIndB(1,0), eIndB(2,0),
+            sIndB(0,1), sIndB(1,1), sIndB(2,1),
+            eIndB(0,1), eIndB(1,1), eIndB(2,1),
+            sIndB(0,2), sIndB(1,2), sIndB(2,2),
+            eIndB(0,2), eIndB(1,2), eIndB(2,2),
+            bl(0),   bl(1),   bl(2),
+            bu(0),   bu(1),   bu(2),
+            vec_[0], vec_[1], vec_[2],
+            re, om, px );
+        break;
     }
+//    }
     changed();
   }
 

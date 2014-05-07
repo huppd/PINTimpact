@@ -47,29 +47,14 @@ int main(int argi, char** argv ) {
 
   typedef double S;
   typedef int O;
+
   typedef Pimpact::MultiHarmonicField< Pimpact::VectorField<S,O> > VF;
   typedef Pimpact::MultiHarmonicField< Pimpact::ScalarField<S,O> > SF;
   typedef Pimpact::CompoundField< VF, SF> CF;
   typedef Pimpact::MultiField<CF> MF;
 
-
-
-  typedef Pimpact::MultiHarmonicOpWrap< Pimpact::Grad<S,O> > OpS2V;
-  typedef Pimpact::MultiHarmonicOpWrap< Pimpact::Div<S,O> >  OpV2S;
-
-  typedef Pimpact::MultiDtHelmholtz<S,O>                          DtL;
-  typedef Pimpact::MultiHarmonicNonlinear<S,O>                    MAdv;
   typedef Pimpact::MultiHarmonicOpWrap< Pimpact::ForcingOp<S,O> > Fo;
-  typedef Pimpact::Add3Op<DtL,MAdv,Fo> OpV2V;
-
-  typedef Pimpact::MultiOpWrap< Pimpact::CompoundOpWrap<OpV2V,OpS2V,OpV2S> > Op;
-
   typedef Pimpact::OperatorBase<MF> BOp;
-
-//  typedef Pimpact::MultiHarmonicNonlinearJacobian<S,O>  JMAdv;
-//  typedef Pimpact::MultiHarmonicDiagNonlinearJacobian<S,O>  DJMAdv;
-//  typedef Pimpact::MultiHarmonicOpWrap< Pimpact::NonlinearJacobian<S,O> > JAdv;
-//  typedef Pimpact::MultiOpWrap< Pimpact::AddOp< Pimpact::AddOp<JMAdv,DtL>, Fo > > JOp;
 
 
   typedef NOX::Pimpact::Interface<MF> Inter;
@@ -85,12 +70,14 @@ int main(int argi, char** argv ) {
   S re = 1.e0;
   my_CLP.setOption( "re", &re, "Reynolds number" );
 
-//  S alpha2 = 4.*(4*std::atan(1));
   S alpha2 = 1.;
   my_CLP.setOption( "alpha2", &alpha2, "introduced frequency" );
 
   S drift = 1.;
   my_CLP.setOption( "drift", &drift, "phase velocity" );
+
+  S sig = 0.1;
+  my_CLP.setOption( "sig", &sig, "phase velocity" );
 
   // flow type
   int flow = 5;
@@ -98,8 +85,8 @@ int main(int argi, char** argv ) {
       "Flow type: 0=zero flow, 1=2D Poiseuille flow in x, 2=2D Poiseuille flow in y, 3=2D pulsatile flow in x, 4=2D pulsatile flow in, 5=2D streaming" );
 
   int forcing = 0;
-  my_CLP.setOption( "forcing", &forcing,
-      "forcing ja?" );
+  my_CLP.setOption( "force", &forcing,
+      "forcing, ja?" );
 
   // domain type
   int domain = 2;
@@ -218,7 +205,7 @@ int main(int argi, char** argv ) {
     outPar = Teuchos::rcp( new Teuchos::oblackholestream() ) ;
 
   *outPar << " \tflow=" << flow << "\n";
-  *outPar << " \tforcing=" << forcing << "\n";
+  *outPar << " \tforce=" << forcing << "\n";
   *outPar << " \tdomain=" << domain << "\n";
   *outPar << " \tre=" << re << "\n";
   *outPar << " \talpha2=" << alpha2 << "\n";
@@ -266,17 +253,53 @@ int main(int argi, char** argv ) {
   fu->init( 0. );
 
   Teuchos::RCP<Pimpact::VectorField<S,O> > force=Teuchos::null;
+  Teuchos::RCP<Pimpact::VectorField<S,O> > forcem1=Teuchos::null;
   if( 0!=forcing ) {
     force = x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone();
-    force->initField( Pimpact::VPoint2D, 0.1 );
-    force->scale( 1.e4 );
-    fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::VPoint2D, 0.1  );
-    fu->scale( -1.e4 );
+    switch( Pimpact::EForceType(forcing) ) {
+    case Pimpact::Dipol:
+      force->initField( Pimpact::VPoint2D, sig );
+      fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::VPoint2D, sig );
+    break;
+    case Pimpact::Disc:
+      force->initField( Pimpact::Disc2D, l1/4., l2/2., l2/20. );
+    break;
+    case Pimpact::RotatingDisc:
+      force->initField( Pimpact::Disc2D, l1/4., l2/2., l2/20. );
+      fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::RotationDisc2D, l1/4., l2/2., 1. );
+      fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->scale( *force );
+    break;
+    }
+//    force->initField( Pimpact::VPoint2D, 0.1 );
+//    force->scale( 1.e1 );
+//    fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::VPoint2D, l1/n1  );
+//    fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::VPoint2D, 0.1 );
+//    fu->scale(-1.);
+//    fu->scale( -1.e4 );
+    forcem1 = force->clone();
+    forcem1->init( 1. );
+    forcem1->add( 1., *forcem1, -1., *force );
+    force  ->write( 111 );
+    forcem1->write( 222 );
   }
 
   // init Fields, init and rhs
   switch( Pimpact::EFlowType(flow) ) {
   case Pimpact::Zero2DFlow:
+  break;
+  case Pimpact::Poiseuille_inX:
+    x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->initField( Pimpact::Poiseuille2D_inX );
+  break;
+  case Pimpact::Poiseuille_inY:
+    x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->initField( Pimpact::Poiseuille2D_inY );
+  break;
+  case Pimpact::Pulsatile_inX:
+    x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::Pulsatile2D_inXC, -1. );
+    x->getFieldPtr(0)->getVFieldPtr()->getSFieldPtr(0)->initField( Pimpact::Pulsatile2D_inXS,  1. );
+  break;
+  case Pimpact::Pulsatile_inY:
+    x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::Pulsatile2D_inYC, -1. );
+    x->getFieldPtr(0)->getVFieldPtr()->getSFieldPtr(0)->initField( Pimpact::Pulsatile2D_inYS,  1. );
   break;
   case Pimpact::Streaming2DFlow:
     x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::Streaming2DS, 1. );
@@ -295,7 +318,7 @@ int main(int argi, char** argv ) {
   break;
   }
 
-  x->init( 0. );
+//  x->init( 0. );
 
 
 
@@ -333,149 +356,195 @@ int main(int argi, char** argv ) {
     auto dtl = Pimpact::createMultiDtHelmholtz<S,O>( alpha2/re, 0., 1./re );
 
     Teuchos::RCP<Fo> forcingOp = Teuchos::null;
-    if( 0!=forcing )
-      forcingOp = Pimpact::createMultiHarmonicOpWrap( Pimpact::createForcingOp<S,O>( force ) );
+    Teuchos::RCP<Fo> forcingm1Op = Teuchos::null;
+    if( 0!=forcing ) {
+      forcingOp   = Pimpact::createMultiHarmonicOpWrap( Pimpact::createForcingOp<S,O>( force   ) );
+      forcingm1Op = Pimpact::createMultiHarmonicOpWrap( Pimpact::createForcingOp<S,O>( forcem1 ) );
+    }
 
 
-    auto opV2V = Pimpact::createAdd3Op(
-          x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
-          dtl,
-          Pimpact::createMultiHarmonicNonlinear<S,O>( x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone() ),
-          forcingOp );
-    auto opS2V = Pimpact::createMultiHarmonicOpWrap< Pimpact::Grad<S,O> >();
+    auto opV2V =
+        Pimpact::createAdd3Op(
+            x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+            Pimpact::createCompositionOp(
+                x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+                forcingm1Op,
+                Pimpact::createAdd3Op(
+                    x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+                    dtl,
+                    Pimpact::createMultiHarmonicNonlinear<S,O>( x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone() )
+                )
+            ),
+            forcingOp
+        );
+
+//    auto opS2V = Pimpact::createMultiHarmonicOpWrap< Pimpact::Grad<S,O> >();
+    auto opS2V =
+        Pimpact::createCompositionOp(
+            x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+            forcingm1Op,
+            Pimpact::createMultiHarmonicOpWrap(
+                Pimpact::createGradOp<S,O>()
+            )
+        );
     auto opV2S = Pimpact::createMultiHarmonicOpWrap< Pimpact::Div<S,O> >();
 
     auto op =
         Pimpact::createMultiOperatorBase<MF>(
             Pimpact::createCompoundOpWrap(
-                x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(), opV2V, opS2V, opV2S )
+                x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+                opV2V,
+                opS2V,
+                opV2S )
                 );
 
 
   Teuchos::RCP<BOp> jop;
+
+  if( 1==fixType ) {
+    if(0==rank) std::cout << "\n\t---\titeration matrix(1): full Newton iteration\t---\n";
+    jop =
+        Pimpact::createMultiOperatorBase<MF>(
+            Pimpact::createCompoundOpWrap(
+                x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+                Pimpact::createAdd3Op(
+                    x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+                    Pimpact::createCompositionOp(
+                        x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+                        forcingm1Op,
+                        Pimpact::createAdd3Op(
+                            x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+                            dtl,
+                            Pimpact::createMultiHarmonicNonlinearJacobian<S,O>(
+                                x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone(),
+                                x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::DeepCopy)  ) ) ),
+                    forcingOp
+                ),
+                opS2V,
+                opV2S ) );
+//        Pimpact::createMultiOperatorBase<MF>(
+//            Pimpact::createCompoundOpWrap(
+//                x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+//                Pimpact::createAdd3Op(
+//                    x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+//                    Pimpact::createCompositionOp(
+//                        x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+//                        forcingm1Op,
+//                        Pimpact::createAdd3Op(
+//                            x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+//                            dtl,
+//                            Pimpact::createMultiHarmonicNonlinearJacobian<S,O>(
+//                                x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone(),
+//                                x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::DeepCopy) ) ) ),
+//                    forcingOp ),
+//                opS2V,
+//                opV2S ) );
+  }
+  else
+  if( 2==fixType ){
+
+    if(0==rank) std::cout << "\n\t---\titeration matrix(2): full Picard iteration\t---\n";
+    jop =
+        Pimpact::createMultiOperatorBase<MF>(
+            Pimpact::createCompoundOpWrap(
+                x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+                Pimpact::createAdd3Op(
+                    x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+                    Pimpact::createCompositionOp(
+                        x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+                        forcingm1Op,
+                        Pimpact::createAdd3Op(
+                            x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+                            dtl,
+                            Pimpact::createMultiHarmonicNonlinearJacobian<S,O>(
+                                x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone(),
+                                x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::DeepCopy), false  ) ) ),
+                    forcingOp
+                ),
+                opS2V,
+                opV2S ) );
+
+//    jop = Pimpact::createMultiOperatorBase<MF>(
+//        Pimpact::createCompoundOpWrap(
+//            x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+//            Pimpact::createAdd3Op(
+//                x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+//                dtl,
+//                Pimpact::createMultiHarmonicNonlinearJacobian<S,O>(
+//                    x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone(),
+//                    x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::DeepCopy),false ),
+//                forcingOp ),
+//            opS2V, opV2S )
+//        );
+  }
+  else if( 3==fixType ){
+
+    if(0==rank) std::cout << "\n\t---\titeration matrix(3): complex diagonal Newton iteration\t---\n";
+
     jop = Pimpact::createMultiOperatorBase<MF>(
         Pimpact::createCompoundOpWrap(
             x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
             Pimpact::createAdd3Op(
                 x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
                 dtl,
-                Pimpact::createMultiHarmonicNonlinearJacobian<S,O>(
-                    x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone(),
-                    x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::DeepCopy) ),
+                Pimpact::createMultiHarmonicDiagNonlinearJacobian<S,O>(
+                    x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::DeepCopy), true ),
                 forcingOp ),
             opS2V, opV2S )
         );
-//  if( iterM==2 ){
-//
-//    if(0==rank) std::cout << "\n\t---\titeration matrix(2): full Picard iteration\t---\n";
-//
-//    typedef Pimpact::MultiOpWrap< Pimpact::AddOp< Pimpact::AddOp<JMAdv,DtL>, Fo > > JOp;
-//
-//    jop = Pimpact::createOperatorBase<MVF,JOp>(
-//        Pimpact::createMultiOpWrap(
-//            Pimpact::createAdd2Op<Pimpact::AddOp<JMAdv,DtL>,Fo>(
-//                Pimpact::createAdd2Op<JMAdv,DtL>(
-//                    Pimpact::createMultiHarmonicNonlinearJacobian<S,O>(
-//                        x->getConstFieldPtr(0)->getConst0FieldPtr()->clone(), x->getConstFieldPtr(0)->clone(), false ),
-//                    Pimpact::createMultiDtHelmholtz<S,O>( alpha2, 0., 1./re ),
-//                    temp->getFieldPtr(0)->clone() ) ,
-//                Pimpact::createMultiHarmonicOpWrap(
-//                    Pimpact::createForcingOp<S,O>( force ) ) ,
-//                temp->getConstFieldPtr(0)->clone() ) )
-//    );
-//  }
-//  else if( 3==iterM ){
-//
-//    if(0==rank) std::cout << "\n\t---\titeration matrix(3): complex diagonal Newton iteration\t---\n";
-//
-//    typedef Pimpact::MultiOpWrap< Pimpact::AddOp< Pimpact::AddOp<DJMAdv,DtL>, Fo > > JOp;
-//
-//    jop = Pimpact::createOperatorBase<MVF,JOp>(
-//        Pimpact::createMultiOpWrap(
-//            Pimpact::createAdd2Op<Pimpact::AddOp<DJMAdv,DtL>,Fo>(
-//                Pimpact::createAdd2Op<DJMAdv,DtL>(
-//                    Pimpact::createMultiHarmonicDiagNonlinearJacobian<S,O>(
-//                        temp->getFieldPtr(0), true ),
-//                    Pimpact::createMultiDtHelmholtz<S,O>( alpha2, 0., 1./re ),
-//                    temp->getFieldPtr(0)->clone() ) ,
-//                Pimpact::createMultiHarmonicOpWrap(
-//                    Pimpact::createForcingOp<S,O>( force ) ) ,
-//                temp->getConstFieldPtr(0)->clone() ) )
-//    );
-//  }
-//  else if( 4==iterM ){
-//
-//    if(0==rank) std::cout << "\n\t---\titeration matrix(4): complex diagonal Picard iteration\t---\n";
-//
-//    typedef Pimpact::MultiOpWrap< Pimpact::AddOp< Pimpact::AddOp<DJMAdv,DtL>, Fo > > JOp;
-//
-//    jop = Pimpact::createOperatorBase<MVF,JOp>(
-//        Pimpact::createMultiOpWrap(
-//            Pimpact::createAdd2Op<Pimpact::AddOp<DJMAdv,DtL>,Fo>(
-//                Pimpact::createAdd2Op<DJMAdv,DtL>(
-//                    Pimpact::createMultiHarmonicDiagNonlinearJacobian<S,O>(
-//                        temp->getFieldPtr(0), false ),
-//                    Pimpact::createMultiDtHelmholtz<S,O>( alpha2, 0., 1./re ),
-//                    temp->getFieldPtr(0)->clone() ) ,
-//                Pimpact::createMultiHarmonicOpWrap(
-//                    Pimpact::createForcingOp<S,O>( force ) ) ,
-//                temp->getConstFieldPtr(0)->clone() ) )
-//    );
-//  }
-//  else if( 5==iterM ){
-//
-//    if(0==rank) std::cout << "\n\t---\titeration matrix(5): semi-complex diagonal Newton iteration\t---\n";
-//
-//    typedef Pimpact::MultiOpWrap< Pimpact::AddOp< Pimpact::AddOp<JAdv,DtL>, Fo > > JOp;
-//
-//    jop = Pimpact::createOperatorBase<MVF,JOp>(
-//        Pimpact::createMultiOpWrap(
-//            Pimpact::createAdd2Op<Pimpact::AddOp<JAdv,DtL>,Fo>(
-//                Pimpact::createAdd2Op<JAdv,DtL>(
-//                    Pimpact::createMultiHarmonicOpWrap<Pimpact::NonlinearJacobian<S,O> >(
-//                        Pimpact::createNonlinearJacobian<S,O>( temp->getFieldPtr(0)->get0FieldPtr(), true ) ),
-//                    Pimpact::createMultiDtHelmholtz<S,O>( alpha2, 0., 1./re ),
-//                    temp->getFieldPtr(0)->clone() ) ,
-//                Pimpact::createMultiHarmonicOpWrap( Pimpact::createForcingOp<S,O>( force ) ) ,
-//                temp->getConstFieldPtr(0)->clone() ) )
-//    );
-//  }
-//  else if( 6==iterM ){
-//
-//    if(0==rank) std::cout << "\n\t---\titeration matrix(6): semi-complex diagonal Picard iteration\t---\n";
-//
-//    typedef Pimpact::MultiOpWrap< Pimpact::AddOp< Pimpact::AddOp<JAdv,DtL>, Fo > > JOp;
-//
-//    jop = Pimpact::createOperatorBase<MVF,JOp>(
-//        Pimpact::createMultiOpWrap(
-//            Pimpact::createAdd2Op<Pimpact::AddOp<JAdv,DtL>,Fo>(
-//                Pimpact::createAdd2Op<JAdv,DtL>(
-//                    Pimpact::createMultiHarmonicOpWrap<Pimpact::NonlinearJacobian<S,O> >(
-//                        Pimpact::createNonlinearJacobian<S,O>( temp->getFieldPtr(0)->get0FieldPtr(), false ) ),
-//                    Pimpact::createMultiDtHelmholtz<S,O>( alpha2, 0., 1./re ),
-//                    temp->getFieldPtr(0)->clone() ) ,
-//                Pimpact::createMultiHarmonicOpWrap( Pimpact::createForcingOp<S,O>( force ) ) ,
-//                temp->getConstFieldPtr(0)->clone() ) )
-//    );
-//  }
-//  else if( 7==iterM ){
-//
-//    if(0==rank) std::cout << "\n\t---\titeration matrix(7): real diagonal Newton iteration\t---\n";
-//
-//    typedef Pimpact::MultiOpWrap< Pimpact::AddOp< Pimpact::AddOp<JAdv,DtL>, Fo > > JOp;
-//
-//    jop = Pimpact::createOperatorBase<MVF,JOp>(
-//        Pimpact::createMultiOpWrap(
-//            Pimpact::createAdd2Op<Pimpact::AddOp<JAdv,DtL>,Fo>(
-//                Pimpact::createAdd2Op<JAdv,DtL>(
-//                    Pimpact::createMultiHarmonicOpWrap<Pimpact::NonlinearJacobian<S,O> >(
-//                        Pimpact::createNonlinearJacobian<S,O>( temp->getFieldPtr(0)->get0FieldPtr(), true) ),
-//                    Pimpact::createMultiDtHelmholtz<S,O>( 0., 0., 1./re ),
-//                    temp->getFieldPtr(0)->clone() ) ,
-//                Pimpact::createMultiHarmonicOpWrap( Pimpact::createForcingOp<S,O>( force ) ) ,
-//                temp->getConstFieldPtr(0)->clone() ) )
-//    );
-//  }
+  }
+  else if( 4==fixType ){
+
+    if(0==rank) std::cout << "\n\t---\titeration matrix(4): complex diagonal Picard iteration\t---\n";
+
+    jop = Pimpact::createMultiOperatorBase<MF>(
+        Pimpact::createCompoundOpWrap(
+            x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+            Pimpact::createAdd3Op(
+                x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+                dtl,
+                    Pimpact::createMultiHarmonicDiagNonlinearJacobian<S,O>(
+                    x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::DeepCopy), false ),
+                forcingOp ),
+            opS2V, opV2S )
+        );
+  }
+  else if( 5==fixType ){
+
+    if(0==rank) std::cout << "\n\t---\titeration matrix(5): semi-complex diagonal Newton iteration\t---\n";
+
+    jop = Pimpact::createMultiOperatorBase<MF>(
+        Pimpact::createCompoundOpWrap(
+            x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+            Pimpact::createAdd3Op(
+                x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+                dtl,
+                Pimpact::createMultiHarmonicOpWrap<Pimpact::NonlinearJacobian<S,O> >(
+                    Pimpact::createNonlinearJacobian<S,O>(
+                        x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone(), true ) ),
+                forcingOp ),
+            opS2V, opV2S )
+        );
+
+  }
+  else if( 6==fixType){
+
+    if(0==rank) std::cout << "\n\t---\titeration matrix(6): semi-complex diagonal Picard iteration\t---\n";
+
+    jop = Pimpact::createMultiOperatorBase<MF>(
+        Pimpact::createCompoundOpWrap(
+            x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+            Pimpact::createAdd3Op(
+                x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+                dtl,
+                Pimpact::createMultiHarmonicOpWrap<Pimpact::NonlinearJacobian<S,O> >(
+                    Pimpact::createNonlinearJacobian<S,O>(
+                        x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone(), false) ),
+                forcingOp ),
+            opS2V, opV2S )
+        );
+
+  }
 //  else if( 8==iterM ){
 //    if(0==rank) std::cout << "\n\t---\titeration matrix(8): real diagonal Picard iteration\t---\n";
 //
@@ -493,10 +562,20 @@ int main(int argi, char** argv ) {
 //                temp->getConstFieldPtr(0)->clone() ) )
 //    );
 //  }
-//  else if( 9==iterM ) {
-//    if(0==rank) std::cout << "\n\t---\titeration matrix(9): linear terms\t---\n";
-//    typedef Pimpact::MultiOpWrap< Pimpact::AddOp< DtL, Fo > > JOp;
-//
+  else if( 9==fixType ) {
+
+    if(0==rank) std::cout << "\n\t---\titeration matrix(9): linear terms\t---\n";
+
+    jop = Pimpact::createMultiOperatorBase<MF>(
+        Pimpact::createCompoundOpWrap(
+            x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+            Pimpact::createAdd3Op(
+                x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+                dtl,
+                forcingOp ),
+            opS2V, opV2S )
+        );
+
 //    jop = Pimpact::createOperatorBase<MVF,JOp>(
 //           Pimpact::createMultiOpWrap(
 //               Pimpact::createAdd2Op<DtL,Fo>(
@@ -509,7 +588,7 @@ int main(int argi, char** argv ) {
 //                       Pimpact::createForcingOp<S,O>( force ) ) ,
 //                   temp->getFieldPtr(0)->clone() ) )
 //       );
-//  }
+  }
 //  else {
 //
 //    if(0==rank) std::cout << "\n\t---\titeration matrix(2): full Newton iteration\t---\n";
@@ -759,6 +838,9 @@ int main(int argi, char** argv ) {
 //    x = Teuchos::rcp_const_cast<NV>( group->getXPtr() )->getFieldPtr();
 
 //    x->write(nf*100);
+//  x->write(800);
+//  x = Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() ))->getFieldPtr();
+//  x->write(900);
   }
   /******************************************************************************************/
   x->write(800);
