@@ -4,22 +4,7 @@
 
 #include "Teuchos_RCP.hpp"
 
-#include "Pimpact_ScalarField.hpp"
-#include "Pimpact_VectorField.hpp"
-#include "Pimpact_ModeField.hpp"
-#include "Pimpact_MultiField.hpp"
 #include "Pimpact_CompoundField.hpp"
-
-#include "Pimpact_DivOp.hpp"
-#include "Pimpact_GradOp.hpp"
-#include "Pimpact_HelmholtzOp.hpp"
-#include "Pimpact_OperatorMV.hpp"
-
-
-//#include "Pimpact_ScalarField.hpp"
-//
-//#include "Pimpact_Operator.hpp"
-//#include "Pimpact_OperatorBase.hpp"
 
 
 namespace Pimpact {

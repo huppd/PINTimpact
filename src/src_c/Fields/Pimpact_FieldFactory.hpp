@@ -103,6 +103,14 @@ Teuchos::RCP< MultiField<ModeField<VectorField<Scalar,Ordinal> > > > createInitM
 		u->getField(0).getCFieldPtr()->initField( Streaming2D, re, omega, px );
 		u->getField(0).getSFieldPtr()->initField( ZeroProf, re, omega, px );
 		break;
+	case Streaming2DFlow2 :
+		u->getField(0).getCFieldPtr()->initField( Streaming2DC, re, omega, px );
+		u->getField(0).getSFieldPtr()->initField( Streaming2DS, re, omega, px );
+		break;
+	case Streaming2DFlow3 :
+		u->getField(0).getCFieldPtr()->initField( Streaming2DC, re, omega, px );
+		u->getField(0).getSFieldPtr()->initField( Streaming2DS, re, omega, px );
+		break;
 	}
 	return( u );
 }

@@ -38,6 +38,12 @@ public:
 };
 
 
+/// \relates Div
+template< class S, class O >
+Teuchos::RCP< Div<S,O> > createDivOp() {
+  return( Teuchos::rcp( new Div<S,O>() ) );
+}
+
 } // end of namespace Pimpact
 
 #endif // end of #ifndef PIMPACT_DIVOP_HPP

@@ -41,6 +41,8 @@ public:
 }; // end of class Grad
 
 
+
+/// \relates Grad
 template<class S,class O>
 Teuchos::RCP< Grad<S,O> > createGradOp() {
   return( Teuchos::rcp( new Grad<S,O>() ) );

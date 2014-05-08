@@ -105,9 +105,9 @@ module cmod_VectorField
   real(c_double),  intent(in)   ::  phi2W(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
 
   real(c_double),  intent(out)  ::  scalar
-  real(c_double)                ::  scalar_global
+!  real(c_double)                ::  scalar_global
   integer                       ::  i, j, k
-  integer                       ::  merror
+!  integer                       ::  merror
 
 
   scalar = 0.
@@ -1541,8 +1541,8 @@ module cmod_VectorField
   real(c_double), intent(inout) ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
   real(c_double), intent(inout) ::  phiW(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
 
-  real :: phi
-  real :: d
+!  real :: phi
+!  real :: d
 !  real :: Lh
 !  real :: mu
 !  real :: nu
@@ -1656,7 +1656,7 @@ subroutine cinit_RankineVortex(        &
   real :: circ
   real :: rad
   real :: r
-  real :: phi
+!  real :: phi
   real :: pi
 
 !  real :: d

@@ -54,8 +54,7 @@ public:
     Teuchos::rcp_const_cast<Op>( prob->getOperator() )->assignField( mv );
     if( prob->isLeftPrec() ) {
       auto opPrec = Teuchos::rcp_const_cast<Op>( prob->getLeftPrec() );
-//      if( !opPrec.is_null() )
-        opPrec->assignField( mv );
+      opPrec->assignField( mv );
     }
   };
 

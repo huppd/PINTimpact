@@ -408,6 +408,51 @@ TEUCHOS_UNIT_TEST( ModeOperator, DivDtLinvGrad ) {
 
 
 
+TEUCHOS_UNIT_TEST( ModeOperator, TripleCompostion) {
+  using Teuchos::ParameterList;
+  using Teuchos::parameterList;
+  using Teuchos::RCP;
+  using Teuchos::rcp; // Save some typing
+
+  typedef Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<S,O> > > MVF;
+  typedef Pimpact::MultiField<Pimpact::ModeField<Pimpact::ScalarField<S,O> > > MSF;
+  typedef Pimpact::DtL<S,O> Op;
+
+  auto temp = Pimpact::createMultiModeVectorField<S,O>();
+
+  auto X = Pimpact::createMultiModeScalarField<S,O>();
+  auto B = Pimpact::createMultiModeScalarField<S,O>();
+
+  X->init(0.);
+  B->random();
+
+//  Pimpact::createOperatorB
+  auto A = Pimpact::createMultiOperatorBase<MVF,Op>(
+      ( Pimpact::createDtL<S,O>(0.,0.,10.) ) );
+
+  A->apply( *temp, *temp );
+
+  // Make an empty new parameter list.
+  auto solverParams = parameterList();
+
+// Create the Pimpact::LinearSolver solver.
+  auto Hprob = Pimpact::createLinearProblem<MVF>( A, temp, temp, solverParams,"GMRES" );
+  auto Hinv  = Pimpact::createInverseOperator( Hprob );
+
+  auto schur = Pimpact::createTripleCompositionOp(
+      temp->getConstFieldPtr(0)->clone(),
+      temp->getConstFieldPtr(0)->clone(),
+      Pimpact::createModeOpWrap( Pimpact::createGradOp<S,O>()),
+      Hinv,
+      Pimpact::createModeOpWrap( Pimpact::createDivOp<S,O>() )
+      );
+
+//  auto schur = Pimpact::createMultiOpWrap( Pimpact::createDivDtLinvGrad<S,O>( temp, Hprob ) );
+  schur->apply( B->getConstField(0), X->getField(0) );
+}
+
+
+
 TEUCHOS_UNIT_TEST( ModeOperator, InverseOperator ) {
   using Teuchos::ParameterList;
   using Teuchos::parameterList;
