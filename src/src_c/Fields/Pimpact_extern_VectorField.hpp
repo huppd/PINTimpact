@@ -18,63 +18,66 @@
 
 namespace Pimpact {
 
+
 extern "C" {
 
 
+void VF_dot(
+    const int& dimens,
+    const int* const N,
+    const int* const bL,
+    const int* const bU,
+    const int* const sU,
+    const int* const nU,
+    const int* const sV,
+    const int* const nV,
+    const int* const sW,
+    const int* const nW,
+    const double* const phi1U, const double* const phi1V, const double* const phi1W,
+    const double* const phi2U, const double* const phi2V, const double* const phi2W,
+    double& scalar);
+
+
 void VF_compNorm(
-    const MPI_Fint& comm, const int& dimens,
-    const int& N1,  const int& N2,  const int& N3,
-    const int& S1U, const int& S2U, const int& S3U,
-    const int& N1U, const int& N2U, const int& N3U,
-    const int& S1V, const int& S2V, const int& S3V,
-    const int& N1V, const int& N2V, const int& N3V,
-    const int& S1W, const int& S2W, const int& S3W,
-    const int& N1W, const int& N2W, const int& N3W,
-    const int& b1L, const int& b2L, const int& b3L,
-    const int& b1U, const int& b2U, const int& b3U,
-    const double* const phi1, const double* const phi2, const double* const phi3,
+    const MPI_Fint& comm,
+    const int& dimens,
+    const int* const N,
+    const int* const bL,
+    const int* const bU,
+    const int* const sU,
+    const int* const nU,
+    const int* const sV,
+    const int* const nV,
+    const int* const sW,
+    const int* const nW,
+    const double* const phiU, const double* const phiV, const double* const phiW,
     const bool& inf_yes, const bool& two_yes,
     double& normInf, double& normTwo );
 
 
 void VF_weightedNorm(
-    const MPI_Fint& comm, const int& dimens,
-    const int& N1,  const int& N2,  const int& N3,
-    const int& S1U, const int& S2U, const int& S3U,
-    const int& N1U, const int& N2U, const int& N3U,
-    const int& S1V, const int& S2V, const int& S3V,
-    const int& N1V, const int& N2V, const int& N3V,
-    const int& S1W, const int& S2W, const int& S3W,
-    const int& N1W, const int& N2W, const int& N3W,
-    const int& b1L, const int& b2L, const int& b3L,
-    const int& b1U, const int& b2U, const int& b3U,
-    const double* const phi1, const double* const phi2, const double* const phi3,
-    const double* const wei1, const double* const wei2, const double* const wei3,
+    const MPI_Fint& comm,
+    const int& dimens,
+    const int* const N,
+    const int* const bL,
+    const int* const bU,
+    const int* const sU,
+    const int* const nU,
+    const int* const sV,
+    const int* const nV,
+    const int* const sW,
+    const int* const nW,
+    const double* const phiU, const double* const phiV, const double* const phiW,
+    const double* const weiU, const double* const weiV, const double* const weiW,
     double& norm );
-
-
-void VF_dot(
-//      const MPI_Fint& comm,
-      const int& dimens,
-      const int& N1,  const int& N2,  const int& N3,
-      const int& S1U, const int& S2U, const int& S3U,
-      const int& N1U, const int& N2U, const int& N3U,
-      const int& S1V, const int& S2V, const int& S3V,
-      const int& N1V, const int& N2V, const int& N3V,
-      const int& S1W, const int& S2W, const int& S3W,
-      const int& N1W, const int& N2W, const int& N3W,
-      const int& b1L, const int& b2L, const int& b3L,
-      const int& b1U, const int& b2U, const int& b3U,
-      const double* const phi1U, const double* const phi1V, const double* const phi1W,
-      const double* const phi2U, const double* const phi2V, const double* const phi2W,
-      double& scalar);
 
 
 void VF_write( double* phiU, double* phiV, double* phiW, const int& count );
 
 
 void VF_init_Zero(
-    const int& N1,  const int& N2,  const int& N3,
+//    const int& N1,  const int& N2,  const int& N3,
+    const int* const N,
     const int& S1U, const int& S2U, const int& S3U,
     const int& N1U, const int& N2U, const int& N3U,
     const int& S1V, const int& S2V, const int& S3V,
@@ -87,7 +90,8 @@ void VF_init_Zero(
 
 
 void VF_init_2DPoiseuilleX(
-    const int& N1,  const int& N2,  const int& N3,
+//    const int& N1,  const int& N2,  const int& N3,
+    const int* const N,
     const int& S1U, const int& S2U, const int& S3U,
     const int& N1U, const int& N2U, const int& N3U,
     const int& S1V, const int& S2V, const int& S3V,
@@ -100,7 +104,8 @@ void VF_init_2DPoiseuilleX(
 
 
 void VF_init_2DPoiseuilleY(
-    const int& N1,  const int& N2,  const int& N3,
+//    const int& N1,  const int& N2,  const int& N3,
+    const int* const N,
     const int& S1U, const int& S2U, const int& S3U,
     const int& N1U, const int& N2U, const int& N3U,
     const int& S1V, const int& S2V, const int& S3V,

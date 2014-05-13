@@ -133,13 +133,26 @@ public:
 	/// \brief Replace \c this with \f$\alpha A + \beta B\f$.
 	void add( const Scalar& alpha, const MV& A, const Scalar& beta, const MV& B ) {
 		// add test for consistent VectorSpaces in debug mode
-		SF_add(
-		    nLoc(0), nLoc(1), nLoc(2),
-				sInd(0), sInd(1), sInd(2),
-				eInd(0), eInd(1), eInd(2),
-				bl(0),   bl(1),   bl(2),
-				bu(0),   bu(1),   bu(2),
-				s_, A.s_, B.s_, alpha, beta);
+	  if( s_==A.s_ && s_==B.s_ )
+	    scale( alpha+beta );
+	  else if( s_==A.s_ && s_!=B.s_ )
+	    SF_add2(
+	        nLoc(), bl(), bu(),
+	        sInd(), eInd(),
+	        s_, B.s_,
+	        alpha, beta );
+	  else if( s_!=A.s_ && s_==B.s_ )
+	    SF_add2(
+	        nLoc(), bl(), bu(),
+	        sInd(), eInd(),
+	        s_, A.s_,
+	        beta, alpha );
+	  else if( s_!=A.s_ && s_!=B.s_ )
+	    SF_add(
+	        nLoc(), bl(), bu(),
+	        sInd(), eInd(),
+	        s_, A.s_, B.s_,
+	        alpha, beta );
 		changed();
 	}
 
@@ -409,9 +422,9 @@ protected:
 
 
 public:
-	const MPI_Fint& commf()     const { return(  fieldSpace_->commf_   ); }
-	const MPI_Comm& comm()      const { return( fieldSpace_->comm_     ); }
-	const int&      dim()       const { return( fieldSpace_->dim_      ); }
+	const MPI_Fint& commf()     const { return( fieldSpace_->commf_   ); }
+	const MPI_Comm& comm()      const { return( fieldSpace_->comm_    ); }
+	const int&      dim()       const { return( fieldSpace_->dim_     ); }
 protected:
 	const Ordinal&  nGlo(int i) const { return( fieldSpace_->nGlo_[i]  ); }
 	const Ordinal&  nLoc(int i) const { return(  fieldSpace_->nLoc_[i] ); }
@@ -419,6 +432,12 @@ protected:
 	const Ordinal&  eInd(int i) const { return( fieldSpace_->eInd_[i]  ); }
 	const Ordinal&  bl  (int i) const { return( fieldSpace_->bl_[i]    ); }
 	const Ordinal&  bu  (int i) const { return( fieldSpace_->bu_[i]    ); }
+
+	const Ordinal* const nLoc() const { return(  fieldSpace_->nLoc_.getRawPtr() ); }
+	const Ordinal* const bl  () const { return( fieldSpace_->bl_.getRawPtr()    ); }
+	const Ordinal* const bu  () const { return( fieldSpace_->bu_.getRawPtr()    ); }
+	const Ordinal* const sInd() const { return( fieldSpace_->sInd_.getRawPtr()  ); }
+	const Ordinal* const eInd() const { return( fieldSpace_->eInd_.getRawPtr()  ); }
 
 
   void changed( const int& dir ) const {

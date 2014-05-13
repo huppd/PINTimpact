@@ -17,124 +17,85 @@ module cmod_VectorField
 
 
   !> \brief computes scalar product of two scalar fields(neccessary condition belong to same sVS)
-  !! \param[in] COMM_CART communicator belonging to vector
-  !! \param[in] N1 ammount of local elements in 1-direction
-  !! \param[in] N2 ammount of local elements in 2-direction
-  !! \param[in] N3 ammount of local elements in 3-direction
-  !! \param[in] S1U start index in 1-direction
-  !! \param[in] S2U start index in 1-direction
-  !! \param[in] S3U start index in 1-direction
-  !! \param[in] N1U end index in 1-direction
-  !! \param[in] N2U end index in 2-direction
-  !! \param[in] N3U end index in 3-direction
-  !! \param[in] b1L start index of storage in 1-direction
-  !! \param[in] b2L start index of storage in 2-direction
-  !! \param[in] b3L start index of storage in 3-direction
-  !! \param[in] b1U end offset of storage in 1-direction
-  !! \param[in] b2U end offset of storage in 2-direction
-  !! \param[in] b3U end offset of storage in 3-direction
+  !! \param[in] dimens dimension
+  !! \param[in] N ammount of local elements
+  !! \param[in] bL start index of storage in 1-direction
+  !! \param[in] bU end offset of storage in 1-direction
+  !! \param[in] SU start index in 1-direction
+  !! \param[in] NU end index in 1-direction
+  !! \param[in] SV start index in 1-direction
+  !! \param[in] NV end index in 2-direction
+  !! \param[in] SW start index in 1-direction
+  !! \param[in] NW end index in 3-direction
   !! \param[in] phi1 first vector from which is taken the product
   !! \param[in] phi2 second vector from which is taken the product
-  !! \param[in] weighting_yes if weighting schould be used, using the \c weights from \c mod_vars
-  !! \param[in] inf_yes if true infinity norm is computed
-  !! \param[in] two_yes if trhue two norm is computed
+  !! \param[out] scalar dot product
   subroutine product_scalar_vel(    &
-!    COMM_CART,
     dimens,                         &
-    N1,N2,N3,                       &
-    S1U,S2U,S3U,                    &
-    N1U,N2U,N3U,                    &
-    S1V,S2V,S3V,                    &
-    N1V,N2V,N3V,                    &
-    S1W,S2W,S3W,                    &
-    N1W,N2W,N3W,                    &
-    b1L,b2L,b3L,                    &
-    b1U,b2U,b3U,                    &
+    N,                              &
+    bL,bU,                          &
+    SU,NU,                          &
+    SV,NV,                          &
+    SW,NW,                          &
     phi1U,phi1V,phi1W,              &
     phi2U,phi2V,phi2W,              &
     scalar ) bind ( c, name='VF_dot' )
 
   implicit none
 
-!  integer(c_int), intent(in)    ::  COMM_CART
-
   integer(c_int), intent(in)    ::  dimens
 
-  integer(c_int), intent(in)    ::  N1
-  integer(c_int), intent(in)    ::  N2
-  integer(c_int), intent(in)    ::  N3
+  integer(c_int), intent(in)    ::  N(3)
 
-  integer(c_int), intent(in)    ::  S1U
-  integer(c_int), intent(in)    ::  S2U
-  integer(c_int), intent(in)    ::  S3U
+  integer(c_int), intent(in)    ::  bL(3)
+  integer(c_int), intent(in)    ::  bU(3)
 
-  integer(c_int), intent(in)    ::  N1U
-  integer(c_int), intent(in)    ::  N2U
-  integer(c_int), intent(in)    ::  N3U
+  integer(c_int), intent(in)    ::  SU(3)
+  integer(c_int), intent(in)    ::  NU(3)
 
-  integer(c_int), intent(in)    ::  S1V
-  integer(c_int), intent(in)    ::  S2V
-  integer(c_int), intent(in)    ::  S3V
+  integer(c_int), intent(in)    ::  SV(3)
+  integer(c_int), intent(in)    ::  NV(3)
 
-  integer(c_int), intent(in)    ::  N1V
-  integer(c_int), intent(in)    ::  N2V
-  integer(c_int), intent(in)    ::  N3V
+  integer(c_int), intent(in)    ::  SW(3)
+  integer(c_int), intent(in)    ::  NW(3)
 
-  integer(c_int), intent(in)    ::  S1W
-  integer(c_int), intent(in)    ::  S2W
-  integer(c_int), intent(in)    ::  S3W
+  real(c_double),  intent(in)   ::  phi1U(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+  real(c_double),  intent(in)   ::  phi1V(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+  real(c_double),  intent(in)   ::  phi1W(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-  integer(c_int), intent(in)    ::  N1W
-  integer(c_int), intent(in)    ::  N2W
-  integer(c_int), intent(in)    ::  N3W
-
-  integer(c_int), intent(in)    ::  b1L
-  integer(c_int), intent(in)    ::  b2L
-  integer(c_int), intent(in)    ::  b3L
-
-  integer(c_int), intent(in)    ::  b1U
-  integer(c_int), intent(in)    ::  b2U
-  integer(c_int), intent(in)    ::  b3U
-
-  real(c_double),  intent(in)   ::  phi1U(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  real(c_double),  intent(in)   ::  phi1V(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  real(c_double),  intent(in)   ::  phi1W(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-
-  real(c_double),  intent(in)   ::  phi2U(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  real(c_double),  intent(in)   ::  phi2V(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  real(c_double),  intent(in)   ::  phi2W(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double),  intent(in)   ::  phi2U(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+  real(c_double),  intent(in)   ::  phi2V(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+  real(c_double),  intent(in)   ::  phi2W(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
   real(c_double),  intent(out)  ::  scalar
-!  real(c_double)                ::  scalar_global
-  integer                       ::  i, j, k
-!  integer                       ::  merror
 
+  integer                       ::  i, j, k
 
   scalar = 0.
 
-  do k = S3U, N3U
-    do j = S2U, N2U
+  do k = SU(3), NU(3)
+    do j = SU(2), NU(2)
 !pgi$ unroll = n:8
-      do i = S1U, N1U
+      do i = SU(1), NU(1)
         scalar = scalar + phi1U(i,j,k)*phi2U(i,j,k)
       end do
    end do
   end do
 
-  do k = S3V, N3V
-    do j = S2V, N2V
+  do k = SV(3), NV(3)
+    do j = SV(2), NV(2)
 !pgi$ unroll = n:8
-      do i = S1V, N1V
+      do i = SV(1), NV(1)
         scalar = scalar + phi1V(i,j,k)*phi2V(i,j,k)
       end do
     end do
   end do
 
   if (dimens == 3) then
-    do k = S3W, N3W
-      do j = S2W, N2W
+    do k = SW(3), NW(3)
+      do j = SW(2), NW(2)
 !pgi$ unroll = n:8
-        do i = S1W, N1W
+        do i = SW(1), NW(1)
           scalar = scalar + phi1W(i,j,k)*phi2W(i,j,k)
         end do
       end do
@@ -147,60 +108,61 @@ module cmod_VectorField
 
   !> brief computes two or infinity norm
   !!
-  !! \param[in] phi velocity vector, from which the norm is taken
+  !! \param[in] COMM_CART mpi communicator(obsolete) communications should be done level above
+  !! \param[in] dimens dimension
+  !! \param[in] N ammount of local elements
+  !! \param[in] bL start index of storage in 1-direction
+  !! \param[in] bU end offset of storage in 1-direction
+  !! \param[in] SU start index in 1-direction
+  !! \param[in] NU end index in 1-direction
+  !! \param[in] SV start index in 1-direction
+  !! \param[in] NV end index in 2-direction
+  !! \param[in] SW start index in 1-direction
+  !! \param[in] NW end index in 3-direction
+  !! \param[in] phiU velocity vector, from which the norm is taken
+  !! \param[in] phiV velocity vector, from which the norm is taken
+  !! \param[in] phiW velocity vector, from which the norm is taken
   !! \param[in] inf_yes if true infinity norm is computed
   !! \param[in] two_yes if trhue two norm is computed
   !! \param[out] normInf gets the infinity norm of phi
   !! \param[out] normTwo get the two norm of phi
-  subroutine get_norms_vel( COMM_CART, dimens, N1,N2,N3, S1U,S2U,S3U, N1U,N2U,N3U, S1V,S2V,S3V, N1V,N2V,N3V, S1W,S2W,S3W, N1W,N2W,N3W, b1L,b2L,b3L, b1U,b2U,b3U, phiU,phiV,phiW, inf_yes,two_yes, normInf,normTwo ) bind (c,name='VF_compNorm')
+  subroutine get_norms_vel( &
+    COMM_CART,              &
+    dimens,                 &
+    N,                      &
+    bL,bU,                  &
+    SU,NU,                  &
+    SV,NV,                  &
+    SW,NW,                  &
+    phiU,phiV,phiW,         &
+    inf_yes,two_yes,        &
+    normInf,normTwo ) bind (c,name='VF_compNorm')
 
   implicit none
 
-  integer(c_int), intent(in)    ::  COMM_CART
+  integer(c_int), intent(in)    :: COMM_CART
 
-  integer(c_int), intent(in)   ::  dimens
+  integer(c_int), intent(in)    :: dimens
 
-  integer(c_int), intent(in)   ::  N1
-  integer(c_int), intent(in)   ::  N2
-  integer(c_int), intent(in)   ::  N3
+  integer(c_int), intent(in)    :: N(3)
 
-  integer(c_int), intent(in)   ::  S1U
-  integer(c_int), intent(in)   ::  S2U
-  integer(c_int), intent(in)   ::  S3U
+  integer(c_int), intent(in)    :: bL(3)
+  integer(c_int), intent(in)    :: bU(3)
 
-  integer(c_int), intent(in)   ::  N1U
-  integer(c_int), intent(in)   ::  N2U
-  integer(c_int), intent(in)   ::  N3U
+  integer(c_int), intent(in)    :: SU(3)
+  integer(c_int), intent(in)    :: NU(3)
 
-  integer(c_int), intent(in)   ::  S1V
-  integer(c_int), intent(in)   ::  S2V
-  integer(c_int), intent(in)   ::  S3V
+  integer(c_int), intent(in)    :: SV(3)
+  integer(c_int), intent(in)    :: NV(3)
 
-  integer(c_int), intent(in)   ::  N1V
-  integer(c_int), intent(in)   ::  N2V
-  integer(c_int), intent(in)   ::  N3V
+  integer(c_int), intent(in)    :: SW(3)
+  integer(c_int), intent(in)    :: NW(3)
 
-  integer(c_int), intent(in)   ::  S1W
-  integer(c_int), intent(in)   ::  S2W
-  integer(c_int), intent(in)   ::  S3W
+  real(c_double),  intent(in)   :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+  real(c_double),  intent(in)   :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+  real(c_double),  intent(in)   :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-  integer(c_int), intent(in)   ::  N1W
-  integer(c_int), intent(in)   ::  N2W
-  integer(c_int), intent(in)   ::  N3W
-
-  integer(c_int), intent(in)   ::  b1L
-  integer(c_int), intent(in)   ::  b2L
-  integer(c_int), intent(in)   ::  b3L
-
-  integer(c_int), intent(in)   ::  b1U
-  integer(c_int), intent(in)   ::  b2U
-  integer(c_int), intent(in)   ::  b3U
-
-  real(c_double),  intent(in)  ::  phiU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  real(c_double),  intent(in)  ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  real(c_double),  intent(in)  ::  phiW(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-
-  logical(c_bool), intent(in)  ::  inf_yes
+  logical(c_bool), intent(in)   :: inf_yes
   logical(c_bool), intent(in)  ::  two_yes
 
   real(c_double),  intent(out) ::  normInf
@@ -217,19 +179,19 @@ module cmod_VectorField
      normInf = 0.
      normTwo = 0.
 
-     do k = S3U, N3U
-       do j = S2U, N2U
+     do k = SU(3), NU(3)
+       do j = SU(2), NU(2)
 !pgi$ unroll = n:8
-         do i = S1U, N1U
+         do i = SU(1), NU(1)
            normInf = MAX(ABS(phiU(i,j,k)),normInf)
            normTwo = normTwo + phiU(i,j,k)**2
          end do
        end do
      end do
-     do k = S3V, N3V
-       do j = S2V, N2V
+     do k = SV(3), NV(3)
+       do j = SV(2), NV(2)
 !pgi$ unroll = n:8
-         do i = S1V, N1V
+         do i = SV(1), NV(1)
            normInf = MAX(ABS(phiV(i,j,k)),normInf)
            normTwo = normTwo + phiV(i,j,k)**2
          end do
@@ -237,10 +199,10 @@ module cmod_VectorField
      end do
 
      if (dimens == 3) then
-       do k = S3W, N3W
-         do j = S2W, N2W
+       do k = SW(3), NW(3)
+         do j = SW(2), NW(2)
   !pgi$ unroll = n:8
-           do i = S1W, N1W
+           do i = SW(1), NW(1)
              normInf = MAX(ABS(phiW(i,j,k)),normInf)
              normTwo = normTwo + phiW(i,j,k)**2
            end do
@@ -258,28 +220,29 @@ module cmod_VectorField
 
     normInf = 0.
 
-     do k = S3U, N3U
-       do j = S2U, N2U
+     do k = SU(3), NU(3)
+       do j = SU(2), NU(2)
 !pgi$ unroll = n:8
-         do i = S1U, N1U
+         do i = SU(1), NU(1)
            normInf = MAX(ABS(phiU(i,j,k)),normInf)
          end do
        end do
      end do
-     do k = S3V, N3V
-       do j = S2V, N2V
+
+     do k = SV(3), NV(3)
+       do j = SV(2), NV(2)
 !pgi$ unroll = n:8
-         do i = S1W, N1W
+         do i = SW(1), NW(1)
            normInf = MAX(ABS(phiV(i,j,k)),normInf)
          end do
        end do
      end do
 
      if (dimens == 3) then
-       do k = S3W, N3W
-         do j = S2W, N2W
+       do k = SW(3), NW(3)
+         do j = SW(2), NW(2)
   !pgi$ unroll = n:8
-           do i = S1W, N1W
+           do i = SW(1), NW(1)
              normInf = MAX(ABS(phiW(i,j,k)),normInf)
            end do
          end do
@@ -294,28 +257,28 @@ module cmod_VectorField
 
      normTwo = 0.
 
-     do k = S3U, N3U
-       do j = S2U, N2U
+     do k = SU(3), NU(3)
+       do j = SU(2), NU(2)
 !pgi$ unroll = n:8
-         do i = S1U, N1U
+         do i = SU(1), NU(1)
            normTwo = normTwo + phiU(i,j,k)**2
          end do
        end do
      end do
-     do k = S3V, N3V
-       do j = S2V, N2V
+     do k = SV(3), NV(3)
+       do j = SV(2), NV(2)
 !pgi$ unroll = n:8
-         do i = S1V, N1V
+         do i = SV(1), NV(1)
            normTwo = normTwo + phiV(i,j,k)**2
          end do
        end do
      end do
 
      if (dimens == 3) then
-       do k = S3W, N3W
-         do j = S2W, N2W
+       do k = SW(3), NW(3)
+         do j = SW(2), NW(2)
   !pgi$ unroll = n:8
-           do i = S1W, N1W
+           do i = SW(1), NW(1)
              normTwo = normTwo + phiW(i,j,k)**2
            end do
          end do
@@ -331,104 +294,95 @@ module cmod_VectorField
 
 
   !> brief computes weighted two norm
-  !! \todo add all parameters to make it more flexible
   !!
-  !! \param[in] phi velocity vector, from which the norm is taken
-  !! \param[in] inf_yes if true infinity norm is computed
-  !! \param[in] two_yes if trhue two norm is computed
-  !! \param[out] normInf gets the infinity norm of phi
-  !! \param[out] normTwo get the two norm of phi
-  subroutine get_weighted_norm_vel( COMM_CART, dimens,  &
-    N1,N2,N3,                                           &
-    S1U,S2U,S3U, N1U,N2U,N3U,                           &
-    S1V,S2V,S3V, N1V,N2V,N3V,                           &
-    S1W,S2W,S3W, N1W,N2W,N3W,                           &
-    b1L,b2L,b3L, b1U,b2U,b3U, phiU,phiV,phiW, wU,wV,wW, norm ) bind (c,name='VF_weightedNorm')
+  !! \param[in] COMM_CART mpi communicator(obsolete) communications should be done level above
+  !! \param[in] dimens dimension
+  !! \param[in] N ammount of local elements
+  !! \param[in] bL start index of storage in 1-direction
+  !! \param[in] bU end offset of storage in 1-direction
+  !! \param[in] SU start index in 1-direction
+  !! \param[in] NU end index in 1-direction
+  !! \param[in] SV start index in 1-direction
+  !! \param[in] NV end index in 2-direction
+  !! \param[in] SW start index in 1-direction
+  !! \param[in] NW end index in 3-direction
+  !! \param[in] phiU velocity vector, from which the norm is taken
+  !! \param[in] phiV velocity vector, from which the norm is taken
+  !! \param[in] phiW velocity vector, from which the norm is taken
+  !! \param[out] norm gets the weighted two norm of phi
+  subroutine get_weighted_norm_vel( &
+    COMM_CART,                      &
+    dimens,                         &
+    N,                              &
+    bL,bU,                          &
+    SU,NU,                          &
+    SV,NV,                          &
+    SW,NW,                          &
+    phiU,phiV,phiW,                 &
+    wU,wV,wW,                       &
+    norm ) bind (c,name='VF_weightedNorm')
 
   implicit none
 
-  integer(c_int), intent(in)    ::  COMM_CART
+    integer(c_int), intent(in)    :: COMM_CART
 
-  integer(c_int), intent(in)    ::  dimens
+    integer(c_int), intent(in)    :: dimens
 
-  integer(c_int), intent(in)    ::  N1
-  integer(c_int), intent(in)    ::  N2
-  integer(c_int), intent(in)    ::  N3
+    integer(c_int), intent(in)    :: N(3)
 
-  integer(c_int), intent(in)    ::  S1U
-  integer(c_int), intent(in)    ::  S2U
-  integer(c_int), intent(in)    ::  S3U
+    integer(c_int), intent(in)    :: bL(3)
+    integer(c_int), intent(in)    :: bU(3)
 
-  integer(c_int), intent(in)    ::  N1U
-  integer(c_int), intent(in)    ::  N2U
-  integer(c_int), intent(in)    ::  N3U
+    integer(c_int), intent(in)    :: SU(3)
+    integer(c_int), intent(in)    :: NU(3)
 
-  integer(c_int), intent(in)    ::  S1V
-  integer(c_int), intent(in)    ::  S2V
-  integer(c_int), intent(in)    ::  S3V
+    integer(c_int), intent(in)    :: SV(3)
+    integer(c_int), intent(in)    :: NV(3)
 
-  integer(c_int), intent(in)    ::  N1V
-  integer(c_int), intent(in)    ::  N2V
-  integer(c_int), intent(in)    ::  N3V
+    integer(c_int), intent(in)    :: SW(3)
+    integer(c_int), intent(in)    :: NW(3)
 
-  integer(c_int), intent(in)    ::  S1W
-  integer(c_int), intent(in)    ::  S2W
-  integer(c_int), intent(in)    ::  S3W
+    real(c_double),  intent(in)   :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(in)   :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(in)   :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-  integer(c_int), intent(in)    ::  N1W
-  integer(c_int), intent(in)    ::  N2W
-  integer(c_int), intent(in)    ::  N3W
+    real(c_double),  intent(in)   :: wU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(in)   :: wV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(in)   :: wW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-  integer(c_int), intent(in)    ::  b1L
-  integer(c_int), intent(in)    ::  b2L
-  integer(c_int), intent(in)    ::  b3L
+    real(c_double),  intent(out) ::  norm
 
-  integer(c_int), intent(in)   ::  b1U
-  integer(c_int), intent(in)   ::  b2U
-  integer(c_int), intent(in)   ::  b3U
+    real(c_double)               ::  norm_global
+    integer                      ::  i, j, k
 
-  real(c_double),  intent(in)  ::  phiU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  real(c_double),  intent(in)  ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  real(c_double),  intent(in)  ::  phiW(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-
-  real(c_double),  intent(in)  ::  wU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  real(c_double),  intent(in)  ::  wV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  real(c_double),  intent(in)  ::  wW(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-
-
-  real(c_double),  intent(out) ::  norm
-
-  real(c_double)               ::  norm_global
-  integer                      ::  i, j, k
-
-  integer                      ::  merror
+    integer                      ::  merror
 
 
     norm = 0.
 
-    do k = S3U, N3U
-        do j = S2U, N2U
+    do k = SU(3), NU(3)
+      do j = SU(2), NU(2)
 !pgi$ unroll = n:8
-            do i = S1U, N1U
-                norm = norm + (wU(i,j,k)*phiU(i,j,k))**2
-            end do
-        end do
+        do i = SU(1), NU(1)
+               norm = norm + (wU(i,j,k)*phiU(i,j,k))**2
+           end do
+       end do
     end do
 
-    do k = S3V, N3V
-        do j = S2V, N2V
+    do k = SV(3), NV(3)
+      do j = SV(2), NV(2)
 !pgi$ unroll = n:8
-            do i = S1V, N1V
-                norm = norm + (wV(i,j,k)*phiV(i,j,k))**2
-            end do
-        end do
+        do i = SW(1), NW(1)
+           norm = norm + (wV(i,j,k)*phiV(i,j,k))**2
+         end do
+      end do
     end do
 
     if (dimens == 3) then
-        do k = S3W, N3W
-            do j = S2W, N2W
+       do k = SW(3), NW(3)
+         do j = SW(2), NW(2)
 !pgi$ unroll = n:8
-                do i = S1W, N1W
+           do i = SW(1), NW(1)
                     norm = norm + (wW(i,j,k)*phiW(i,j,k))**2
                 end do
             end do
@@ -442,9 +396,11 @@ module cmod_VectorField
   end subroutine get_weighted_norm_vel
 
 
+
+
   !> \brief init vector field with 2d Poiseuille flow in x-direction
   subroutine cinit_2DPoiseuilleX(   &
-    N1,N2,N3,                       &
+    N,      &
     S1U,S2U,S3U, N1U,N2U,N3U,       &
     S1V,S2V,S3V, N1V,N2V,N3V,       &
     S1W,S2W,S3W, N1W,N2W,N3W,       &
@@ -453,9 +409,7 @@ module cmod_VectorField
 
   implicit none
 
-  integer(c_int), intent(in)    ::  N1
-  integer(c_int), intent(in)    ::  N2
-  integer(c_int), intent(in)    ::  N3
+  integer(c_int), intent(in)    ::  N(3)
 
   integer(c_int), intent(in)    ::  S1U
   integer(c_int), intent(in)    ::  S2U
@@ -489,9 +443,9 @@ module cmod_VectorField
   integer(c_int), intent(in)    ::  b2U
   integer(c_int), intent(in)    ::  b3U
 
-  real(c_double), intent(inout) ::  phiU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  real(c_double), intent(inout) ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  real(c_double), intent(inout) ::  phiW(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double), intent(inout) ::  phiU(b1L:(N(1)+b1U),b2L:(N(2)+b2U),b3L:(N(3)+b3U))
+  real(c_double), intent(inout) ::  phiV(b1L:(N(1)+b1U),b2L:(N(2)+b2U),b3L:(N(3)+b3U))
+  real(c_double), intent(inout) ::  phiW(b1L:(N(1)+b1U),b2L:(N(2)+b2U),b3L:(N(3)+b3U))
 
   integer                ::  i, j, k
 
@@ -537,7 +491,8 @@ module cmod_VectorField
 
   !> \brief init vector field with 2d Poiseuille flow in y-direction
   subroutine cinit_2DPoiseuilleY(   &
-    N1,N2,N3,                       &
+!    N1,N2,N3,                       &
+    N,                       &
     S1U,S2U,S3U, N1U,N2U,N3U,       &
     S1V,S2V,S3V, N1V,N2V,N3V,       &
     S1W,S2W,S3W, N1W,N2W,N3W,       &
@@ -546,9 +501,10 @@ module cmod_VectorField
 
   implicit none
 
-  integer(c_int), intent(in)    ::  N1
-  integer(c_int), intent(in)    ::  N2
-  integer(c_int), intent(in)    ::  N3
+!  integer(c_int), intent(in)    ::  N1
+!  integer(c_int), intent(in)    ::  N2
+!  integer(c_int), intent(in)    ::  N3
+  integer(c_int), intent(in)    ::  N(3)
 
   integer(c_int), intent(in)    ::  S1U
   integer(c_int), intent(in)    ::  S2U
@@ -582,9 +538,9 @@ module cmod_VectorField
   integer(c_int), intent(in)    ::  b2U
   integer(c_int), intent(in)    ::  b3U
 
-  real(c_double), intent(inout) ::  phiU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  real(c_double), intent(inout) ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  real(c_double), intent(inout) ::  phiW(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double), intent(inout) ::  phiU(b1L:(N(1)+b1U),b2L:(N(2)+b2U),b3L:(N(3)+b3U))
+  real(c_double), intent(inout) ::  phiV(b1L:(N(1)+b1U),b2L:(N(2)+b2U),b3L:(N(3)+b3U))
+  real(c_double), intent(inout) ::  phiW(b1L:(N(1)+b1U),b2L:(N(2)+b2U),b3L:(N(3)+b3U))
 
   integer                ::  i, j, k
 
@@ -627,7 +583,8 @@ module cmod_VectorField
 
   !> \brief init vector field with a zero flow
   subroutine cinit_zero(            &
-    N1,N2,N3,                       &
+!    N1,N2,N3,                       &
+    N,  &
     S1U,S2U,S3U, N1U,N2U,N3U,       &
     S1V,S2V,S3V, N1V,N2V,N3V,       &
     S1W,S2W,S3W, N1W,N2W,N3W,       &
@@ -636,9 +593,10 @@ module cmod_VectorField
 
   implicit none
 
-  integer(c_int), intent(in)    ::  N1
-  integer(c_int), intent(in)    ::  N2
-  integer(c_int), intent(in)    ::  N3
+!  integer(c_int), intent(in)    ::  N1
+!  integer(c_int), intent(in)    ::  N2
+!  integer(c_int), intent(in)    ::  N3
+  integer(c_int), intent(in)    ::  N(3)
 
 
   integer(c_int), intent(in)    ::  S1U
@@ -674,9 +632,9 @@ module cmod_VectorField
   integer(c_int), intent(in)    ::  b2U
   integer(c_int), intent(in)    ::  b3U
 
-  real(c_double), intent(inout) ::  phiU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  real(c_double), intent(inout) ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  real(c_double), intent(inout) ::  phiW(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+  real(c_double), intent(inout) ::  phiU(b1L:(N(1)+b1U),b2L:(N(2)+b2U),b3L:(N(3)+b3U))
+  real(c_double), intent(inout) ::  phiV(b1L:(N(1)+b1U),b2L:(N(2)+b2U),b3L:(N(3)+b3U))
+  real(c_double), intent(inout) ::  phiW(b1L:(N(1)+b1U),b2L:(N(2)+b2U),b3L:(N(3)+b3U))
 
   integer                ::  i, j, k
 

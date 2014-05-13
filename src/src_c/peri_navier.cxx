@@ -83,6 +83,12 @@ int main(int argi, char** argv ) {
   S rot = 1.;
   my_CLP.setOption( "rotation", &rot, "rotation of disc" );
 
+  S xm = 0.25;
+  my_CLP.setOption( "xm", &xm, "rotation of disc" );
+
+  S ym = 0.5;
+  my_CLP.setOption( "ym", &ym, "rotation of disc" );
+
   // flow type
   int flow = 5;
   my_CLP.setOption( "flow", &flow,
@@ -266,11 +272,11 @@ int main(int argi, char** argv ) {
       fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::VPoint2D, rad );
     break;
     case Pimpact::Disc:
-      force->initField( Pimpact::Disc2D, l1/4., l2/2., rad );
+      force->initField( Pimpact::Disc2D, xm*l1, ym*l2, rad );
     break;
     case Pimpact::RotatingDisc:
-      force->initField( Pimpact::Disc2D, l1/4., l2/2., rad );
-      fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::RotationDisc2D, l1/4., l2/2., rot );
+      force->initField( Pimpact::Disc2D, xm*l1, ym*l2, rad );
+      fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::RotationDisc2D, xm*l1, ym*l2, rot );
       fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->scale( *force );
     break;
     }
@@ -356,6 +362,7 @@ int main(int argi, char** argv ) {
     para->set( "Maximum Iterations", 3000 );
     para->set( "Implicit Residual Scaling", "Norm of RHS" );
     para->set( "Explicit Residual Scaling", "Norm of RHS" );
+    para->set( "Output Stream", outLinSolve );
 
     auto dtl = Pimpact::createMultiDtHelmholtz<S,O>( alpha2/re, 0., 1./re );
 
@@ -431,7 +438,7 @@ int main(int argi, char** argv ) {
   else
   if( 10==fixType ) {
 
-    if(0==rank) std::cout << "\n\t---\titeration matrix(1): full Newton iteration\t---\n";
+    if(0==rank) std::cout << "\n\t---\titeration matrix(1): full Newton iteration Schur complement\t---\n";
 
        auto opV2V =
            Pimpact::createMultiOperatorBase<MVF>(
@@ -451,6 +458,18 @@ int main(int argi, char** argv ) {
            opV2V, Teuchos::null, Teuchos::null, para, linSolName );
      auto opV2Vinv = Pimpact::createInverseOperatorBase<MVF>( lp_ );
 
+     auto invSchur = Pimpact::createInverseSchurOp(
+         x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+         x->getConstFieldPtr(0)->getConstSFieldPtr()->clone(),
+         opV2Vinv,
+         opS2V,
+         opV2S);
+
+//     auto multischur = Pimpact::createMultiOpWrap( invSchur );
+//     auto bla = Pimpact::createOperatorBase<MF>( multischur );
+      jop =
+          Pimpact::createMultiOperatorBase<MF>(
+              invSchur );
 //      jop =
 //          Pimpact::createMultiOperatorBase<MF>(
 //              Pimpact::createTripleCompositionOp(
@@ -816,15 +835,18 @@ int main(int argi, char** argv ) {
 //    lprec = Teuchos::null;
 //  }
 
-//   para->set( "Output Stream", outLinSolve );
 
+  if( 10!=fixType ) {
     auto lp_ = Pimpact::createLinearProblem<MF>(
         jop, x->clone(), fu->clone(), para, linSolName );
     auto lp = Pimpact::createInverseOperatorBase<MF>( lp_ );
 
+    jop=lp;
+  }
+
 //    lp->setLeftPrec( lprec );
 
-    auto inter = NOX::Pimpact::createInterface<MF>( fu, op, lp );
+    auto inter = NOX::Pimpact::createInterface<MF>( fu, op, jop );
 
     auto nx = NOX::Pimpact::createVector(x);
 

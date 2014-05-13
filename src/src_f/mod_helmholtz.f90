@@ -1641,13 +1641,13 @@ module mod_helmholtz
   
   
   !----------------------------------------------------------------------------------------------------------!
-  ! Anmerkungen: - Null-Setzen am Rand nicht notwendig, da Startindizes entsprechend gew�hlt sind!           !
-  !              - Randbedingungen m�ssen auch in Ecken und Kanten gerechnet werden, daher die Intervalle    !
+  ! Anmerkungen: - Null-Setzen am Rand nicht notwendig, da Startindizes entsprechend gewählt sind!           !
+  !              - Randbedingungen müssen auch in Ecken und Kanten gerechnet werden, daher die Intervalle    !
   !                S11B:N11B & Co.                                                                           !
   !              - Initialisierung bezieht sich nur auf Feldbereich, daher die Intervalle S11:N11 usw..      !
   !              - Reihenfolge der Randbedingungen analog zu product_Helmholtz!                              !
   !              - Dirichlet-Randbedingungen sind zur Optimierung der Konvergenzrate z.T. VOR der Relaxation !
-  !                eingef�gt!                                                                                !
+  !                eingefügt!                                                                                !
   !----------------------------------------------------------------------------------------------------------!
   
   g = 1

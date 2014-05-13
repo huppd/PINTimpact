@@ -11,13 +11,22 @@ extern "C" {
 
 
 void SF_add(
-  const int& N1,  const int& N2,  const int& N3,
-  const int& SS1, const int& SS2, const int& SS3,
-  const int& NN1, const int& NN2, const int& NN3,
-  const int& b1L, const int& b2L, const int& b3L,
-  const int& b1U, const int& b2U, const int& b3U,
-  double* const phi, const double* const  phi1, const double* const  phi2,
-  const double& scalar1, const double& scalar2);
+    const int* const N,
+    const int* const bL,
+    const int* const bU,
+    const int* const SS,
+    const int* const NN,
+    double* const phi, const double* const  phi1, const double* const  phi2,
+    const double& scalar1, const double& scalar2);
+
+void SF_add2(
+    const int* const N,
+    const int* const bL,
+    const int* const bU,
+    const int* const SS,
+    const int* const NN,
+    double* const phi, const double* const  phi1,
+    const double& scalar1, const double& scalar2);
 
 
 void SF_abs(

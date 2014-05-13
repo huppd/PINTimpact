@@ -13,7 +13,7 @@ os.system( 'make '+exe+' -j4' )
 
 case_path = ['','','']
 
-case_consts = ' --flow=1 --domain=1 --force=3 --rad=0.2 --rot=10 --nfe=17  --nx=33 --ny=64 --tolNOX=1.e-6 --tolBelos=1.e-4 --tolNF=1.e-6 --maxIter=10  --domain=2 --lx=2. --ly=4.  '
+case_consts = ' --flow=1 --domain=1 --force=3 --radius=0.1 --rotation=5 --nfe=8  --nx=65 --ny=33 --npx=4 --npy=1 --tolNOX=1.e-1 --tolBelos=1.e-1 --tolNF=1.e-4 --maxIter=10  --lx=2. --ly=1.  '
 
 flows   = [ 1 ]
 res     = [ 1, 10, 100, 500 ]

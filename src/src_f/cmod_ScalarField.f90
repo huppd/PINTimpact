@@ -15,69 +15,108 @@ module cmod_ScalarVector
 
   !> \brief computes scalar product of two scalar fields(neccessary condition belong to same sVS)
   !!
-  !! \param[in] N1 ammount of local elements in 1-direction
-  !! \param[in] N2 ammount of local elements in 2-direction
-  !! \param[in] N3 ammount of local elements in 3-direction
-  !! \param[in] SS1 start index in 1-direction
-  !! \param[in] SS2 start index in 1-direction
-  !! \param[in] SS3 start index in 1-direction
-  !! \param[in] NN1 end index in 1-direction
-  !! \param[in] NN2 end index in 2-direction
-  !! \param[in] NN3 end index in 3-direction
-  !! \param[in] b1L start index of storage in 1-direction
-  !! \param[in] b2L start index of storage in 2-direction
-  !! \param[in] b3L start index of storage in 3-direction
-  !! \param[in] b1U end offset of storage in 1-direction
-  !! \param[in] b2U end offset of storage in 2-direction
-  !! \param[in] b3U end offset of storage in 3-direction
+  !! \param[in] N ammount of local elements in 1-direction
+  !! \param[in] bL start index of storage in 1-direction
+  !! \param[in] bU end offset of storage in 1-direction
+  !! \param[in] SS start index in 1-direction
+  !! \param[in] NN end index in 1-direction
+  !! \param[in] phi first vector from which is taken the product
   !! \param[in] phi1 first vector from which is taken the product
   !! \param[in] phi2 second vector from which is taken the product
-  !! \param[in] weighting_yes if weighting schould be used, using the \c weights from \c mod_vars
-  subroutine SF_add(N1,N2,N3,SS1,SS2,SS3,NN1,NN2,NN3,b1L,b2L,b3L,b1U,b2U,b3U,phi,phi1,phi2,scalar1,scalar2) bind ( c, name='SF_add' )
+  subroutine SF_add(    &
+    N,                  &
+    bL,bU,              &
+    SS,NN,              &
+    phi,phi1,phi2,      &
+    scalar1,scalar2 ) bind ( c, name='SF_add' )
 
   implicit none
 
-  integer(c_int), intent(in)    ::  N1
-  integer(c_int), intent(in)    ::  N2
-  integer(c_int), intent(in)    ::  N3
+    integer(c_int), intent(in)     :: N(3)
 
-  integer(c_int), intent(in)    ::  SS1
-  integer(c_int), intent(in)    ::  SS2
-  integer(c_int), intent(in)    ::  SS3
+    integer(c_int), intent(in)     :: bL(3)
+    integer(c_int), intent(in)     :: bU(3)
 
-  integer(c_int), intent(in)    ::  NN1
-  integer(c_int), intent(in)    ::  NN2
-  integer(c_int), intent(in)    ::  NN3
+    integer(c_int), intent(in)     :: SS(3)
+    integer(c_int), intent(in)     :: NN(3)
 
-  integer(c_int), intent(in)    ::  b1L
-  integer(c_int), intent(in)    ::  b2L
-  integer(c_int), intent(in)    ::  b3L
 
-  integer(c_int), intent(in)    ::  b1U
-  integer(c_int), intent(in)    ::  b2U
-  integer(c_int), intent(in)    ::  b3U
+    real(c_double),  intent(out)   :: phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(in )   :: phi1(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(in )   :: phi2(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-  real(c_double), intent(out)   ::  phi (b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  real(c_double), intent(in)    ::  phi1(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  real(c_double), intent(in)    ::  phi2(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+!    real(c_double), intent(out)   ::  phi (b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+!    real(c_double), intent(in)    ::  phi1(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+!    real(c_double), intent(in)    ::  phi2(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
 
-  real(c_double),  intent(in)   ::  scalar1
-  real(c_double),  intent(in)   ::  scalar2
+    real(c_double),  intent(in)   ::  scalar1
+    real(c_double),  intent(in)   ::  scalar2
 
-  integer                       :: i,j,k
+!    integer                       :: i,j,k
 
-!  phi(SS1:NN1,SS2:NN2,SS3:NN3) = scalar1*phi1(SS1:NN1,SS2:NN2,SS3:NN3)+scalar2*phi2(SS1:NN1,SS2:NN2,SS3:NN3)
 
-  do k = SS3, NN3
-    do j = SS2, NN2
-!pgi$ unroll = n:8
-      do i = SS1, NN1
-        phi(i,j,k) = scalar1*phi1(i,j,k)+scalar2*phi2(i,j,k)
-      end do
-    end do
-  end do
+    phi(SS(1):NN(1),SS(2):NN(2),SS(3):NN(3)) = scalar1*phi1(SS(1):NN(1),SS(2):NN(2),SS(3):NN(3))+scalar2*phi2(SS(1):NN(1),SS(2):NN(2),SS(3):NN(3))
+
+!  do k = SS3, NN3
+!    do j = SS2, NN2
+!!pgi$ unroll = n:8
+!      do i = SS1, NN1
+!        phi(i,j,k) = scalar1*phi1(i,j,k)+scalar2*phi2(i,j,k)
+!      end do
+!    end do
+!  end do
 
   end subroutine SF_add
+
+
+  !> \brief computes scalar product of two scalar fields(neccessary condition belong to same sVS)
+  !!
+  !! \param[in] N ammount of local elements in 1-direction
+  !! \param[in] bL start index of storage in 1-direction
+  !! \param[in] bU end offset of storage in 1-direction
+  !! \param[in] SS start index in 1-direction
+  !! \param[in] NN end index in 1-direction
+  !! \param[in] phi first vector from which is taken the product
+  !! \param[in] phi1 first vector from which is taken the product
+  subroutine SF_add2(   &
+    N,                  &
+    bL,bU,              &
+    SS,NN,              &
+    phi,phi1,           &
+    scalar1,scalar2 ) bind ( c, name='SF_add2' )
+
+  implicit none
+
+    integer(c_int), intent(in)     :: N(3)
+
+    integer(c_int), intent(in)     :: bL(3)
+    integer(c_int), intent(in)     :: bU(3)
+
+    integer(c_int), intent(in)     :: SS(3)
+    integer(c_int), intent(in)     :: NN(3)
+
+
+    real(c_double),  intent(out)   :: phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(in )   :: phi1(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+!    real(c_double),  intent(in )   :: phi2(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+
+
+    real(c_double),  intent(in)   ::  scalar1
+    real(c_double),  intent(in)   ::  scalar2
+
+
+    phi(SS(1):NN(1),SS(2):NN(2),SS(3):NN(3)) = scalar1*phi(SS(1):NN(1),SS(2):NN(2),SS(3):NN(3))+scalar2*phi1(SS(1):NN(1),SS(2):NN(2),SS(3):NN(3))
+
+!  do k = SS3, NN3
+!    do j = SS2, NN2
+!!pgi$ unroll = n:8
+!      do i = SS1, NN1
+!        phi(i,j,k) = scalar1*phi1(i,j,k)+scalar2*phi2(i,j,k)
+!      end do
+!    end do
+!  end do
+
+  end subroutine SF_add2
 
 
   !> \brief copys absolute value from \c phi1 in \phi

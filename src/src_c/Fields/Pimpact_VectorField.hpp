@@ -44,14 +44,12 @@ class VectorField {
 	friend class NonlinearJacobian;
 
 public:
+
 	typedef S Scalar;
 	typedef O Ordinal;
-//	friend class Operator;
-//	friend class Grad<Scalar,Ordinal>;
 
 private:
 
-//	using Teuchos::RCP;
 	typedef Scalar* ScalarArray;
 	typedef VectorField<Scalar,Ordinal> VF;
 
@@ -175,14 +173,34 @@ public:
 	/// only inner points
 	void add( const Scalar& alpha, const VF& A, const Scalar& beta, const VF& B ) {
 		// add test for consistent VectorSpaces in debug mode
-		for( int i=0; i<dim(); ++i )
-			SF_add(
-			    nLoc(0), nLoc(1), nLoc(2),
-					sInd(0,i), sInd(1,i), sInd(2,i),
-					eInd(0,i), eInd(1,i), eInd(2,i),
-					bl(0),   bl(1),   bl(2),
-					bu(0),   bu(1),   bu(2),
-					vec_[i], A.vec_[i], B.vec_[i], alpha, beta);
+		for( int i=0; i<dim(); ++i ) {
+		  if( vec_[i]==A.vec_[i] && vec_[i]==B.vec_[i] )
+		    SF_scale(
+		        nLoc(0), nLoc(1), nLoc(2),
+		        sInd(0,i), sInd(1,i), sInd(2,i),
+		        eInd(0,i), eInd(1,i), eInd(2,i),
+		        bl(0),   bl(1),   bl(2),
+		        bu(0),   bu(1),   bu(2),
+		        vec_[i], alpha+beta );
+		  else if( vec_[i]==A.vec_[i] && vec_[i]!=B.vec_[i] )
+		    SF_add2(
+		        nLoc(), bl(), bu(),
+		        sInd(i), eInd(i),
+		        vec_[i], B.vec_[i],
+		        alpha, beta );
+		  else if( vec_[i]!=A.vec_[i] && vec_[i]==B.vec_[i] )
+		    SF_add2(
+		        nLoc(), bl(), bu(),
+		        sInd(i), eInd(i),
+		        vec_[i], A.vec_[i],
+		        beta, alpha );
+		  else if( vec_[i]!=A.vec_[i] && vec_[i]!=B.vec_[i] )
+		    SF_add(
+		        nLoc(), bl(), bu(),
+		        sInd(i), eInd(i),
+		        vec_[i], A.vec_[i], B.vec_[i],
+		        alpha, beta );
+		}
 		changed();
 	}
 
@@ -263,17 +281,11 @@ public:
 	Scalar dot ( const VF& a, bool global=true ) const {
 		Scalar b;
 		VF_dot(
-//				commf(),
 				dim(),
-				nLoc(0), nLoc(1), nLoc(2),
-				sInd(0,0), sInd(1,0), sInd(2,0),
-				eInd(0,0), eInd(1,0), eInd(2,0),
-				sInd(0,1), sInd(1,1), sInd(2,1),
-				eInd(0,1), eInd(1,1), eInd(2,1),
-				sInd(0,2), sInd(1,2), sInd(2,2),
-				eInd(0,2), eInd(1,2), eInd(2,2),
-				bl(0),   bl(1),   bl(2),
-				bu(0),   bu(1),   bu(2),
+				nLoc(), bl(), bu(),
+				sInd(0), eInd(0),
+				sInd(1), eInd(1),
+				sInd(2), eInd(2),
 				vec_[0],     vec_[1],   vec_[2],
 				a.vec_[0], a.vec_[1], a.vec_[2],
 				b);
@@ -308,19 +320,16 @@ public:
 
   	Scalar normvec;
   	VF_compNorm(
-  	    commf(), dim(),
-  	    nLoc(0), nLoc(1), nLoc(2),
-				sInd(0,0), sInd(1,0), sInd(2,0),
-				eInd(0,0), eInd(1,0), eInd(2,0),
-				sInd(0,1), sInd(1,1), sInd(2,1),
-				eInd(0,1), eInd(1,1), eInd(2,1),
-				sInd(0,2), sInd(1,2), sInd(2,2),
-				eInd(0,2), eInd(1,2), eInd(2,2),
-  	    bl(0),   bl(1),   bl(2),
-  			bu(0),   bu(1),   bu(2),
+  	    commf(),
+  	    dim(),
+				nLoc(),
+				bl(), bu(),
+				sInd(0), eInd(0),
+				sInd(1), eInd(1),
+				sInd(2), eInd(2),
         vec_[0], vec_[1], vec_[2],
   			infNorm_yes, twoNorm_yes,
-  				normvec, normvec );
+  			normvec, normvec );
   	if( type==Belos::TwoNorm )
   	  return( std::sqrt(normvec) );
   	else
@@ -336,16 +345,13 @@ public:
   double norm(const VF& weights) const {
     Scalar normvec;
     VF_weightedNorm(
-  	    commf(), dim(),
-  	    nLoc(0), nLoc(1), nLoc(2),
-        sInd(0,0), sInd(1,0), sInd(2,0),
-        eInd(0,0), eInd(1,0), eInd(2,0),
-        sInd(0,1), sInd(1,1), sInd(2,1),
-        eInd(0,1), eInd(1,1), eInd(2,1),
-        sInd(0,2), sInd(1,2), sInd(2,2),
-        eInd(0,2), eInd(1,2), eInd(2,2),
-  	    bl(0),   bl(1),   bl(2),
-  			bu(0),   bu(1),   bu(2),
+  	    commf(),
+  	    dim(),
+				nLoc(),
+				bl(), bu(),
+				sInd(0), eInd(0),
+				sInd(1), eInd(1),
+				sInd(2), eInd(2),
         vec_[0], vec_[1], vec_[2],
         weights.vec_[0], weights.vec_[1], weights.vec_[2],
         normvec);
@@ -439,7 +445,8 @@ public:
     switch( flowType) {
     case ZeroProf :
       VF_init_Zero(
-          nLoc(0), nLoc(1), nLoc(2),
+//          nLoc(0), nLoc(1), nLoc(2),
+          nLoc(),
           sIndB(0,0), sIndB(1,0), sIndB(2,0),
           eIndB(0,0), eIndB(1,0), eIndB(2,0),
           sIndB(0,1), sIndB(1,1), sIndB(2,1),
@@ -452,7 +459,8 @@ public:
     break;
      case Poiseuille2D_inX :
       VF_init_2DPoiseuilleX(
-          nLoc(0), nLoc(1), nLoc(2),
+//          nLoc(0), nLoc(1), nLoc(2),
+          nLoc(),
           sIndB(0,0), sIndB(1,0), sIndB(2,0),
           eIndB(0,0), eIndB(1,0), eIndB(2,0),
           sIndB(0,1), sIndB(1,1), sIndB(2,1),
@@ -465,7 +473,8 @@ public:
       break;
     case Poiseuille2D_inY :
       VF_init_2DPoiseuilleY(
-          nLoc(0), nLoc(1), nLoc(2),
+//          nLoc(0), nLoc(1), nLoc(2),
+          nLoc(),
           sIndB(0,0), sIndB(1,0), sIndB(2,0),
           eIndB(0,0), eIndB(1,0), eIndB(2,0),
           sIndB(0,1), sIndB(1,1), sIndB(2,1),
@@ -751,12 +760,19 @@ public:
 protected:
 	const Ordinal&  nGlo(int i)                 const { return( fieldS_->nGlo_[i] ); }
 	const Ordinal&  nLoc(int i)                 const { return( fieldS_->nLoc_[i]) ; }
+	const Ordinal*const  nLoc()                      const { return( fieldS_->nLoc_.getRawPtr() ) ; }
 	const Ordinal&  sInd(int i, int fieldType)  const { return( innerIS_[fieldType]->sInd_[i] ); }
 	const Ordinal&  eInd(int i, int fieldType)  const { return( innerIS_[fieldType]->eInd_[i] ); }
 	const Ordinal&  sIndB(int i, int fieldType) const { return( fullIS_[fieldType]->sInd_[i] ); }
 	const Ordinal&  eIndB(int i, int fieldType) const { return( fullIS_[fieldType]->eInd_[i] ); }
 	const Ordinal&  bl(int i)                   const { return( fieldS_->bl_[i] ); }
 	const Ordinal&  bu(int i)                   const { return( fieldS_->bu_[i] ); }
+	const Ordinal* const bl()                   const { return( fieldS_->bl_.getRawPtr() ); }
+	const Ordinal* const bu()                   const { return( fieldS_->bu_.getRawPtr() ); }
+	const Ordinal* const sInd( int fieldType )  const { return( innerIS_[fieldType]->sInd_.getRawPtr() ); }
+	const Ordinal* const eInd( int fieldType )  const { return( innerIS_[fieldType]->eInd_.getRawPtr() ); }
+	const Ordinal* const sIndB( int fieldType )  const { return( fullIS_[fieldType]->sInd_.getRawPtr() ); }
+	const Ordinal* const eIndB( int fieldType )  const { return( fullIS_[fieldType]->eInd_.getRawPtr() ); }
 
 	void changed( const int& vel_dir, const int& dir ) const {
 	  exchangedState_[vel_dir][dir] = false;

@@ -41,8 +41,8 @@
 /// \ingroup Operator
 /// Operator operate on compound fields: \c Pimpact::CompoundField
 #include "Pimpact_CompoundStokesOp.hpp"
-//#include "Pimpact_CopmoundOpWrap.hpp"
 #include "Pimpact_CompoundOpWrap.hpp"
+#include "Pimpact_InverseSchurOp.hpp"
 
 /// \defgroup MultiHarmonicOperator Multi-harmonic Operator
 /// \ingroup Operator
