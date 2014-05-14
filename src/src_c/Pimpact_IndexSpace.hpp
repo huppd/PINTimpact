@@ -85,8 +85,8 @@ Teuchos::RCP<const IndexSpace<Ordinal> > createScalarIndexSpace(){
 	TO3 eInd;
 	SVS_get_eInd( eInd[0], eInd[1], eInd[2] );
 
-	return Teuchos::RCP<const IndexSpace<Ordinal> > (
-			new IndexSpace<Ordinal>( EFieldType::S, sInd, eInd ) );
+	return( Teuchos::rcp(
+			new IndexSpace<Ordinal>( EFieldType::S, sInd, eInd ) ) );
 
 }
 

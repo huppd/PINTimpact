@@ -210,10 +210,9 @@ public:
   	case NOX::DeepCopy:
   		return( Teuchos::rcp(new Vector<Field>( field_->clone( ::Pimpact::DeepCopy) ) ) );
   	case NOX::ShapeCopy:
-//  		return( Teuchos::rcp(new Vector<Field>( field_->clone() ) ) );
   		return( Teuchos::rcp(new Vector<Field>( field_->clone( ::Pimpact::ShallowCopy) ) ) );
-  	default:
-  	  return( Teuchos::null );
+//  	default:
+//  	  return( Teuchos::null );
   	}
 
   }

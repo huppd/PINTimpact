@@ -78,7 +78,7 @@ public:
 	/// shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
 	/// \param sF
 	/// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
-	ScalarField(const ScalarField& sF, ECopyType copyType=ShallowCopy):
+	ScalarField( const ScalarField& sF, ECopyType copyType=DeepCopy ):
 	  fieldSpace_( sF.fieldSpace_ ),
 	    exchangedState_( sF.exchangedState_ ) {
 

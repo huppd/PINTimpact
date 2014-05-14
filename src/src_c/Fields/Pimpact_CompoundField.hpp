@@ -47,7 +47,7 @@ public:
 	/// shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
 	/// \param sF
 	/// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
-	CompoundField(const CompoundField& vF, ECopyType copyType=ShallowCopy):
+	CompoundField(const CompoundField& vF, ECopyType copyType=DeepCopy):
 		vfield_( vF.vfield_->clone(copyType) ),
 		sfield_( vF.sfield_->clone(copyType) )
 	{};
@@ -221,7 +221,7 @@ public:
 
   void write( int count=0 ) {
   	vfield_->write(count);
-  	sfield_->write(count+1);
+  	sfield_->write(count);
   }
 
   MPI_Comm comm() const { return( vfield_->comm() ); }

@@ -46,7 +46,7 @@ public:
 	/// shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
 	/// \param vF
 	/// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
-	ModeField(const ModeField& vF, ECopyType copyType=ShallowCopy):
+	ModeField(const ModeField& vF, ECopyType copyType=DeepCopy):
 		fieldc_( vF.fieldc_->clone(copyType) ),
 		fields_( vF.fields_->clone(copyType) )
 	{};

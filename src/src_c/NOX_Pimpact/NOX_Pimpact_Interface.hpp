@@ -38,42 +38,24 @@ public:
   typedef F Field;
   typedef typename Field::Scalar S;
   typedef typename Field::Ordinal O;
-//  typedef ::Pimpact::VectorField<S,O> VF;
-////  typedef ::Pimpact::MultiField<VF> BVF;
-//  typedef ::Pimpact::MultiField<VF> Field;
   typedef ::Pimpact::OperatorBase<Field> Op;
-//  typedef ::Pimpact::LinearProblem<Field> JOp;
-  typedef Op JOp;
-
-//  typedef BVF Field;
-  typedef NOX::Pimpact::Vector<Field> Vector;
 
 protected:
 
   Teuchos::RCP<Field> fu_;
   Teuchos::RCP<Op>    op_;
-  Teuchos::RCP<JOp>  jop_;
-//  Teuchos::RCP<Op>  jop_;
+  Teuchos::RCP<Op>   jop_;
 
 public:
 
   /// Constructor
-  Interface():
-    fu_(Teuchos::null),
-    op_(Teuchos::null),
-    jop_(Teuchos::null) {};
-
   Interface(
-      Teuchos::RCP<Field> fu,
-      Teuchos::RCP<Op> op,
-      Teuchos::RCP<JOp> lp ):
+      Teuchos::RCP<Field> fu=Teuchos::null,
+      Teuchos::RCP<Op>    op=Teuchos::null,
+      Teuchos::RCP<Op>   jop=Teuchos::null ):
         fu_( fu ),
         op_(op),
-        jop_(lp) {};
-
-  /// Destructor
-  ~Interface() {};
-
+        jop_(jop) {};
 
   /// Compute the function, F, given the specified input vector x.
   NOX::Abstract::Group::ReturnType computeF(const Field& x, Field& f ) {
@@ -86,31 +68,19 @@ public:
   /// \brief Compute the Jacobian Operator, given the specified input vector x.
   NOX::Abstract::Group::ReturnType computeJacobian( const Field& x ) {
 
-//    auto prob = jop_->getProblem();
-//    auto opJ = Teuchos::rcp_const_cast<Op>( prob->getOperator() );
-//    opJ->assignField( x );
-//    if( prob->isLeftPrec() ) {
-//      auto opPrec = Teuchos::rcp_const_cast<Op>( prob->getLeftPrec() );
-////      if( !opPrec.is_null() )
-//        opPrec->assignField( x );
-//    }
     jop_->assignField( x );
-
     return( NOX::Abstract::Group::Ok );
+
   }
 
 
   NOX::Abstract::Group::ReturnType applyJacobian( const Field& x, Field& y, Belos::ETrans type=Belos::NOTRANS ) {
-//    if( Belos::NOTRANS==type ) {
-//      jop_->getProblem()->getOperator()->apply(x,y);
-//      return( NOX::Abstract::Group::Ok );
-//    }
     return( NOX::Abstract::Group::NotDefined );
   }
 
 
   NOX::Abstract::Group::ReturnType applyJacobianInverse( Teuchos::ParameterList &params, const Field& x, Field& y ) {
-//    jop_->solve( Teuchos::rcpFromRef(y), Teuchos::rcpFromRef(x) );
+
     jop_->apply( x, y );
 
     return( NOX::Abstract::Group::Ok );
@@ -118,11 +88,7 @@ public:
 
 
   NOX::Abstract::Group::ReturnType applyPreconditioner( const Field& x, Field& y ) {
-
-//    jop_->solve( Teuchos::rcpFromRef(y), Teuchos::rcpFromRef(x) );
-//    y.scale( -1. );
-
-    return( NOX::Abstract::Group::Ok );
+    return( NOX::Abstract::Group::NotDefined );
   }
 
 }; // end of class Interface
@@ -132,11 +98,11 @@ public:
 /// \relates Interface
 template<class Field>
 Teuchos::RCP< Interface<Field> > createInterface(
-    Teuchos::RCP<Field> fu,
-    Teuchos::RCP<typename Interface<Field>::Op> op,
-    Teuchos::RCP<typename Interface<Field>::JOp> lp ) {
+    Teuchos::RCP<Field> fu=Teuchos::null,
+    Teuchos::RCP< ::Pimpact::OperatorBase<Field> >  op=Teuchos::null,
+    Teuchos::RCP< ::Pimpact::OperatorBase<Field> > jop=Teuchos::null ) {
   return(
-      Teuchos::rcp( new Interface<Field>(fu,op,lp) )
+      Teuchos::rcp( new Interface<Field>(fu,op,jop) )
       );
 }
 

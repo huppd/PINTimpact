@@ -25,10 +25,9 @@ template<class Interface>
 class Group : public virtual NOX::Abstract::Group {
 
 public:
+
   typedef typename Interface::Field   Field;
-  typedef typename Interface::Vector  Vector;
-//  typedef typename Interface::Operator Operator;
-//  typedef typename Interface::LinearProblem LinearProblem;
+  typedef NOX::Pimpact::Vector<Field>  Vector;
 
 protected:
 
@@ -100,25 +99,6 @@ protected:
 
 
 public:
-/*  /// \brief default constructor.
-  Group():
-        utils(),
-        xVectorPtr(Teuchos::null),
-        xVector(*xVectorPtr),
-        RHSVectorPtr(Teuchos::null),
-        RHSVector(*RHSVectorPtr),
-        gradVectorPtr(Teuchos::null),
-        gradVector(*gradVectorPtr),
-        NewtonVectorPtr(Teuchos::null),
-        NewtonVector(*NewtonVectorPtr),
-        normNewtonSolveResidual(0),
-        conditionNumber(0.0),
-        sharedInterfacePtr(Teuchos::null),
-        sharedInterface(*sharedInterfacePtr),
-        linearResidCompDisabled(false) {
-    // Set all isValid flags to false
-    resetIsValid();
-  }*/
 
   /// \brief Constructor with NO linear system.
   ///
@@ -141,43 +121,11 @@ public:
         normNewtonSolveResidual(0),
         conditionNumber(0.0),
         sharedInterfacePtr(Teuchos::rcp(new NOX::SharedObject<Interface, NOX::Pimpact::Group<Interface> >(i))),
-//        sharedInterfacePtr(i),
         sharedInterface(*sharedInterfacePtr),
         linearResidCompDisabled(false) {
     // Set all isValid flags to false
-//    xVector.getField().write(0);
-//    RHSVector.getField().write(1);
-//    NewtonVector.getField().write(2);
     resetIsValid();
   }
-
-
-  /// Standard Constructor.
-//  Group(Teuchos::ParameterList& printingParams,
-//      const Teuchos::RCP<Interface>& i,
-//      const Vector& initialGuess,
-//      const Teuchos::RCP<Operator>& op,
-//      const Teuchos::RCP<Operator>& linSys ):
-//    utils( printParams ),
-//    xVectorPtr(Teuchos::rcp_dynamic_cast<Vector>(x.clone(DeepCopy))),
-//    xVector(*xVectorPtr),
-//    RHSVectorPtr(rcp_dynamic_cast<Vector>(x.clone(ShapeCopy))),
-//    RHSVector(*RHSVectorPtr),
-//    gradVectorPtr(Teuchos::rcp_dynamic_cast<Vector>(x.clone(ShapeCopy))),
-//    gradVector(*gradVectorPtr),
-//    NewtonVectorPtr(Teuchos::rcp_dynamic_cast<Vector>(x.clone(ShapeCopy))),
-//    NewtonVector(*NewtonVectorPtr),
-//    normNewtonSolveResidual(0),
-//    conditionNumber(0.0),
-//    sharedOperatorPtr(Teuchos::rcp(new NOX::SharedObject<Operator, NOX::Pimpact::Group>(op))),
-//    sharedOperator(*sharedOperatorPtr),
-//    sharedLinearSystemPtr(Teuchos::rcp(new NOX::SharedObject<Operator, NOX::Pimpact::Group>(linSys))),
-//    sharedLinearSystem(*sharedLinearSystemPtr),
-//    linearResidCompDisabled(false),
-//    userInterfacePtr(i) {
-//    // Set all isValid flags to false
-//    resetIsValid();
-//  };
 
 
   /// \brief Copy constructor. If type is DeepCopy, takes ownership of valid
@@ -408,7 +356,6 @@ public:
 
     // Zero out the Newton Vector
     NewtonVector.init( 0.0 );
-//    NewtonVector.getField().getField(0).initField(::Pimpact::ZeroProf);
 
     // Create Epetra problem for the linear solve
     status = applyJacobianInverse(params, RHSVector, NewtonVector);
@@ -828,7 +775,7 @@ template< class Interface >
 Teuchos::RCP<NOX::Pimpact::Group<Interface> > createGroup(
     const Teuchos::RCP<Teuchos::ParameterList>& list,
     const Teuchos::RCP<Interface>& i,
-    const Teuchos::RCP<typename Interface::Vector>& x ) {
+    const Teuchos::RCP<typename NOX::Pimpact::Group<Interface>::Vector>& x ) {
   return( Teuchos::rcp( new NOX::Pimpact::Group<Interface>( *list, i, *x ) ) );
 }
 

@@ -282,10 +282,8 @@ int main(int argi, char** argv ) {
 
 	// solve stationary stokes
 	lap_problem->solve( tempv, fu );
-	//  tempv->write( 2000 );
 
 	div->apply( *tempv, *temps );
-	//temps->write( 2002 );
   temps->add( -1., *fp, 1., *temps );
 
 	solverParams = Pimpact::createLinSolverParameter( solver_name_1, 1.e-7*l1*l2/n1/n2 );
@@ -296,7 +294,6 @@ int main(int argi, char** argv ) {
 	p->write();
 
 	grad->apply( *p, *tempv );
-	//tempv->write(2006);
 
 	tempv->add( -1., *tempv, 1., *fu );
 

@@ -28,7 +28,7 @@ public:
     for( int i=0; i<dim; ++i) {
       x.exchange(i);
       OP_grad(i+1,x.s_,y.vec_[i]);
-      OP_bc_extrapolation( i+1, y.vec_[i] );
+//      OP_bc_extrapolation( i+1, y.vec_[i] ); // doesnot work with Schurcomplement, not cleary what it does anyway
     }
     y.changed();
   }

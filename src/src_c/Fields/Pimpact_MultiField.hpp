@@ -48,9 +48,8 @@ public:
 
 	/// \brief constructor taking a \c Field constructing multiple shallow copys.
   /// \note maybe hide and make it private
-  MultiField( const Field& field, const int numvecs, Pimpact::ECopyType ctyp = Pimpact::ShallowCopy):mfs_(numvecs) {
+  MultiField( const Field& field, const int numvecs, ECopyType ctyp=DeepCopy ):mfs_(numvecs) {
   	for( int i=0; i<numvecs; ++i )
-//  		mfs_[i] = Teuchos::rcp( new Field(field, ctyp ) );
   		mfs_[i] = field.clone(ctyp);
   }
 

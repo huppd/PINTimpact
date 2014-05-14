@@ -39,8 +39,6 @@ private:
 
 public:
 
-//	MultiHarmonicField(): field0_(Teuchos::null), fields_(Teuchos::null) {};
-
 	MultiHarmonicField(
 	    const Teuchos::RCP<Field>& field0=Teuchos::null,
 	    const Teuchos::RCP< MultiField< ModeField<Field> > >& fields=Teuchos::null):
@@ -53,7 +51,7 @@ public:
 	/// shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
 	/// @param vF
 	/// @param copyType by default a ShallowCopy is done but allows also to deepcopy the field
-	MultiHarmonicField(const MultiHarmonicField& vF, ECopyType copyType=ShallowCopy):
+	MultiHarmonicField( const MultiHarmonicField& vF, ECopyType copyType=DeepCopy ):
 		field0_( vF.field0_->clone(copyType) ),
 		fields_( vF.fields_->clone(copyType) )
 	{};

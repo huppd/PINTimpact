@@ -52,6 +52,7 @@ public:
     op3_->apply( *temp2_, y );
   }
 
+  /// \note here nothing happens, because it is assumed to be done somewhere else
   void assignField( const RangeFieldT& field ) {
 //    if( !op1_.is_null() )
 //      op1_->assignField( field );

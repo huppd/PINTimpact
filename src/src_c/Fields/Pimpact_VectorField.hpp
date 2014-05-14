@@ -74,8 +74,11 @@ public:
 		for(int i=0; i<3; ++i)
 			N *= nLoc(i)+bu(i)-bl(i);
 
+		vec_[0] = new Scalar[3*N];
+		vec_[1] = vec_[0]+N;
+		vec_[2] = vec_[1]+N;
 		for(int i=0; i<3; ++i) {
-			vec_[i] = new Scalar[N];
+//			vec_[i] = new Scalar[N];
 			for(int j=0; j<N; ++j){
 				vec_[i][j] = 0.;
 			}
@@ -93,28 +96,26 @@ public:
 	    fullIS_ (vF.fullIS_),
 	    exchangedState_(vF.exchangedState_) {
 
-		Ordinal N = 1;
+		Ordinal n = 1;
 		for(int i=0; i<3; ++i)
-			N *= nLoc(i)+bu(i)-bl(i);
+			n *= nLoc(i)+bu(i)-bl(i);
 
-		for( int i=0; i<3; ++i )
-		  vec_[i] = new Scalar[N];
+		vec_[0] = new Scalar[3*n];
+		vec_[1] = vec_[0]+n;
+		vec_[2] = vec_[1]+n;
+//		for( int i=0; i<3; ++i )
+//		  vec_[i] = new Scalar[N];
 
 		switch( copyType ) {
 		case ShallowCopy:
-		  for(int i=0; i<dim(); ++i)
-		    SF_init(
-		        nLoc(0), nLoc(1), nLoc(2),
-		        sIndB(0,i), sIndB(1,i), sIndB(2,i),
-		        eIndB(0,i), eIndB(1,i), eIndB(2,i),
-            bl(0),   bl(1),   bl(2),
-            bu(0),   bu(1),   bu(2),
-            vec_[i], 0. );
+		  for( int i=0; i<dim(); ++i )
+		    for( int j=0; j<n; ++j)
+		      vec_[i][j] = 0.;
 		  changed();
 		  break;
 		  case DeepCopy:
 		    for( int i=0; i<dim(); ++i )
-		      for( int j=0; j<N; ++j)
+		      for( int j=0; j<n; ++j)
 		        vec_[i][j] = vF.vec_[i][j];
 		    break;
 		}
@@ -122,8 +123,9 @@ public:
 
 
 	~VectorField() {
-	  for(int i=0; i<3; ++i)
-	    delete[] vec_[i];
+//	  for(int i=0; i<3; ++i)
+//	    delete[] vec_[i];
+	  delete[] vec_[0];
 	}
 
 	Teuchos::RCP<VF> clone( ECopyType ctype=DeepCopy ) const {

@@ -35,6 +35,8 @@ void VF_dot(
     const int* const nW,
     const double* const phi1U, const double* const phi1V, const double* const phi1W,
     const double* const phi2U, const double* const phi2V, const double* const phi2W,
+//    const double* const phi1,
+//    const double* const phi2,
     double& scalar);
 
 

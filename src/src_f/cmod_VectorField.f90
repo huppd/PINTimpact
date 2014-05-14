@@ -37,6 +37,8 @@ module cmod_VectorField
     SU,NU,                          &
     SV,NV,                          &
     SW,NW,                          &
+!    phi1,                           &
+!    phi2,                           &
     phi1U,phi1V,phi1W,              &
     phi2U,phi2V,phi2W,              &
     scalar ) bind ( c, name='VF_dot' )
@@ -67,6 +69,9 @@ module cmod_VectorField
   real(c_double),  intent(in)   ::  phi2V(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
   real(c_double),  intent(in)   ::  phi2W(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
+!  real(c_double),  intent(in)   ::  phi1(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)),3)
+!  real(c_double),  intent(in)   ::  phi2(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)),3)
+
   real(c_double),  intent(out)  ::  scalar
 
   integer                       ::  i, j, k
@@ -78,6 +83,7 @@ module cmod_VectorField
 !pgi$ unroll = n:8
       do i = SU(1), NU(1)
         scalar = scalar + phi1U(i,j,k)*phi2U(i,j,k)
+!        scalar = scalar + phi1(i,j,k,1)*phi2(i,j,k,1)
       end do
    end do
   end do
@@ -87,6 +93,7 @@ module cmod_VectorField
 !pgi$ unroll = n:8
       do i = SV(1), NV(1)
         scalar = scalar + phi1V(i,j,k)*phi2V(i,j,k)
+!        scalar = scalar + phi1(i,j,k,2)*phi2(i,j,k,2)
       end do
     end do
   end do
@@ -97,6 +104,7 @@ module cmod_VectorField
 !pgi$ unroll = n:8
         do i = SW(1), NW(1)
           scalar = scalar + phi1W(i,j,k)*phi2W(i,j,k)
+!          scalar = scalar + phi1(i,j,k,3)*phi2(i,j,k,3)
         end do
       end do
     end do

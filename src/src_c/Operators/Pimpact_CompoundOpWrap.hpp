@@ -15,6 +15,7 @@ template<class OpV2V,class OpS2V, class OpV2S>
 class CompoundOpWrap {
 
 protected:
+
   typedef typename OpV2V::DomainFieldT  VF;
   typedef typename OpS2V::DomainFieldT  SF;
 
@@ -23,8 +24,6 @@ protected:
   Teuchos::RCP<OpV2V> opV2V_;
   Teuchos::RCP<OpS2V> opS2V_;
   Teuchos::RCP<OpV2S> opV2S_;
-
-
 
 public:
 
