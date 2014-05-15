@@ -1619,7 +1619,7 @@ module cmod_operator
   !! \param[in] m dimension from one to three
   !! \param[in] mulI factor which coresponds to the factor of the identity part
   !! \param[in] mulL factor which coresponds to the factor of the laplace part
-  !! \param[inout] phi = vel in case of mod_rhs
+  !! \param[inout] phi
   !! \param[out] Lap
   subroutine Helmholtz( m, mulI, mulL, phi, Lap ) bind (c,name='OP_helmholtz')
   
@@ -1913,11 +1913,322 @@ module cmod_operator
   
   
   
-  
-  
-  
-  
-  
+  !>  \brief computes \f$ \mathrm{lap_m = mulI phiI_m - mulL \Delta phiL_m} \f$
+  !!
+  !! \param[in] dimens dimension 2 or 3
+  !! \param[in] N local amount of
+  !! \param[in] m dimension from one to three
+  !! \param[in] mulI factor which coresponds to the factor of the identity part
+  !! \param[in] mulL factor which coresponds to the factor of the laplace part
+  !! \param[inout] phi
+  !! \param[out] Lap
+  subroutine DtHelmholtz(   &
+    dimens,                 &
+    N,                      &
+    bL,bU,                  &
+    m,                      &
+    mulI,                   &
+    mulL,                   &
+    phiI,                   &
+    phiL,                   &
+!    Lapc,                   &
+    Lap ) bind (c,name='OP_DtHelmholtz')
+
+  implicit none
+
+    integer(c_int), intent(in)    ::  dimens
+
+    integer(c_int), intent(in)    ::  N(3)
+
+    integer(c_int), intent(in)    ::  bL(3)
+    integer(c_int), intent(in)    ::  bU(3)
+
+    integer(c_int), intent(in   ) ::  m
+    real(c_double), intent(in   ) ::  mulI
+    real(c_double), intent(in   ) ::  mulL
+
+    real(c_double), intent(inout) ::  phiI(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double), intent(inout) ::  phiL(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+
+    real(c_double),  intent(out)  ::  Lap (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+
+    integer                ::  i, ii
+    integer                ::  j, jj
+    integer                ::  k, kk
+
+    real                   ::  dd1
+
+
+  !===========================================================================================================
+  if (m == 1) then
+     !--------------------------------------------------------------------------------------------------------
+     if (comp_visc_yes) then
+        if (dimens == 3) then
+           call apply_compact(1,1,S11,S21,S31,N11,N21,N31,N1,ndL,ndR,dimS1,cu1CL ,cu1CL_LU ,cu1CR ,Wu1 ,Su1 ,phiL,com)
+           call apply_compact(1,1,S11,S21,S31,N11,N21,N31,N1,ndL,ndR,dimS1,cu11CL,cu11CL_LU,cu11CR,Wu11,Su11,phiL,dig)
+           do k = S31, N31
+              do j = S21, N21
+!pgi$ unroll = n:8
+                 do i = S11, N11
+                    Lap(i,j,k) = dig(i,j,k)*dx1uM(i)**2 + com(i,j,k)*ddx1uM(i)
+                 end do
+              end do
+           end do
+           call apply_compact(2,0,S11,S21,S31,N11,N21,N31,N2,ndL,ndR,dimS2,cp2CL ,cp2CL_LU ,cp2CR ,Wp2 ,Sp2 ,phiL,com)
+           call apply_compact(2,0,S11,S21,S31,N11,N21,N31,N2,ndL,ndR,dimS2,cp22CL,cp22CL_LU,cp22CR,Wp22,Sp22,phiL,dig)
+           do k = S31, N31
+              do j = S21, N21
+!pgi$ unroll = n:8
+                 do i = S11, N11
+                    Lap(i,j,k) = Lap(i,j,k) + dig(i,j,k)*dx2pM(j)**2 + com(i,j,k)*ddx2pM(j)
+                 end do
+              end do
+           end do
+           call apply_compact(3,0,S11,S21,S31,N11,N21,N31,N3,ndL,ndR,dimS3,cp3CL ,cp3CL_LU ,cp3CR ,Wp3 ,Sp3 ,phiL,com)
+           call apply_compact(3,0,S11,S21,S31,N11,N21,N31,N3,ndL,ndR,dimS3,cp33CL,cp33CL_LU,cp33CR,Wp33,Sp33,phiL,dig)
+           do k = S31, N31
+              do j = S21, N21
+!pgi$ unroll = n:8
+                 do i = S11, N11
+                    Lap(i,j,k) = Lap(i,j,k) + dig(i,j,k)*dx3pM(k)**2 + com(i,j,k)*ddx3pM(k)
+                    Lap(i,j,k) = mulI*phiI(i,j,k) - mulL*Lap(i,j,k)
+                 end do
+              end do
+           end do
+        else
+           call apply_compact(1,1,S11,S21,S31,N11,N21,N31,N1,ndL,ndR,dimS1,cu1CL ,cu1CL_LU ,cu1CR ,Wu1 ,Su1 ,phiL,com)
+           call apply_compact(1,1,S11,S21,S31,N11,N21,N31,N1,ndL,ndR,dimS1,cu11CL,cu11CL_LU,cu11CR,Wu11,Su11,phiL,dig)
+           do k = S31, N31
+              do j = S21, N21
+!pgi$ unroll = n:8
+                 do i = S11, N11
+                    Lap(i,j,k) = dig(i,j,k)*dx1uM(i)**2 + com(i,j,k)*ddx1uM(i)
+                 end do
+              end do
+           end do
+           call apply_compact(2,0,S11,S21,S31,N11,N21,N31,N2,ndL,ndR,dimS2,cp2CL ,cp2CL_LU ,cp2CR ,Wp2 ,Sp2 ,phiL,com)
+           call apply_compact(2,0,S11,S21,S31,N11,N21,N31,N2,ndL,ndR,dimS2,cp22CL,cp22CL_LU,cp22CR,Wp22,Sp22,phiL,dig)
+           do k = S31, N31
+              do j = S21, N21
+!pgi$ unroll = n:8
+                 do i = S11, N11
+                    Lap(i,j,k) = Lap(i,j,k) + dig(i,j,k)*dx2pM(j)**2 + com(i,j,k)*ddx2pM(j)
+                    Lap(i,j,k) = mulI*phiI(i,j,k) - mulL*Lap(i,j,k)
+                 end do
+              end do
+           end do
+        end if
+     !--------------------------------------------------------------------------------------------------------
+     else
+        if (dimens == 3) then
+           do k = S31, N31
+              do j = S21, N21
+                 do i = S11, N11
+                    dd1 = cu11(b1L,i)*phiL(i+b1L,j,k)
+!pgi$ unroll = n:8
+                    do ii = b1L+1, b1U
+                       dd1 = dd1 + cu11(ii,i)*phiL(i+ii,j,k)
+                    end do
+!pgi$ unroll = n:8
+                    do jj = b2L, b2U
+                       dd1 = dd1 + cp22(jj,j)*phiL(i,j+jj,k)
+                    end do
+!pgi$ unroll = n:8
+                    do kk = b3L, b3U
+                       dd1 = dd1 + cp33(kk,k)*phiL(i,j,k+kk)
+                    end do
+                    Lap(i,j,k) = mulI*phiI(i,j,k) - mulL*dd1
+                 end do
+              end do
+           end do
+        else
+           do k = S31, N31
+              do j = S21, N21
+                 do i = S11, N11
+                    dd1 = cu11(b1L,i)*phiL(i+b1L,j,k)
+!pgi$ unroll = n:8
+                    do ii = b1L+1, b1U
+                       dd1 = dd1 + cu11(ii,i)*phiL(i+ii,j,k)
+                    end do
+!pgi$ unroll = n:8
+                    do jj = b2L, b2U
+                       dd1 = dd1 + cp22(jj,j)*phiL(i,j+jj,k)
+                    end do
+                    Lap(i,j,k) = mulI*phiI(i,j,k) - mulL*dd1
+                 end do
+              end do
+           end do
+        end if
+     end if
+     !--------------------------------------------------------------------------------------------------------
+  end if
+  !===========================================================================================================
+  if (m == 2) then
+     !--------------------------------------------------------------------------------------------------------
+     if (comp_visc_yes) then
+        if (dimens == 3) then
+           call apply_compact(1,0,S12,S22,S32,N12,N22,N32,N1,ndL,ndR,dimS1,cp1CL ,cp1CL_LU ,cp1CR ,Wp1 ,Sp1 ,phiL,com)
+           call apply_compact(1,0,S12,S22,S32,N12,N22,N32,N1,ndL,ndR,dimS1,cp11CL,cp11CL_LU,cp11CR,Wp11,Sp11,phiL,dig)
+           do k = S32, N32
+              do j = S22, N22
+!pgi$ unroll = n:8
+                 do i = S12, N12
+                    Lap(i,j,k) = dig(i,j,k)*dx1pM(i)**2 + com(i,j,k)*ddx1pM(i)
+                 end do
+              end do
+           end do
+           call apply_compact(2,2,S12,S22,S32,N12,N22,N32,N2,ndL,ndR,dimS2,cv2CL ,cv2CL_LU ,cv2CR ,Wv2 ,Sv2 ,phiL,com)
+           call apply_compact(2,2,S12,S22,S32,N12,N22,N32,N2,ndL,ndR,dimS2,cv22CL,cv22CL_LU,cv22CR,Wv22,Sv22,phiL,dig)
+           do k = S32, N32
+              do j = S22, N22
+!pgi$ unroll = n:8
+                 do i = S12, N12
+                    Lap(i,j,k) = Lap(i,j,k) + dig(i,j,k)*dx2vM(j)**2 + com(i,j,k)*ddx2vM(j)
+                 end do
+              end do
+           end do
+           call apply_compact(3,0,S12,S22,S32,N12,N22,N32,N3,ndL,ndR,dimS3,cp3CL ,cp3CL_LU ,cp3CR ,Wp3 ,Sp3 ,phiL,com)
+           call apply_compact(3,0,S12,S22,S32,N12,N22,N32,N3,ndL,ndR,dimS3,cp33CL,cp33CL_LU,cp33CR,Wp33,Sp33,phiL,dig)
+           do k = S32, N32
+              do j = S22, N22
+!pgi$ unroll = n:8
+                 do i = S12, N12
+                    Lap(i,j,k) = Lap(i,j,k) + dig(i,j,k)*dx3pM(k)**2 + com(i,j,k)*ddx3pM(k)
+                    Lap(i,j,k) = mulI*phiI(i,j,k) - mulL*Lap(i,j,k)
+                 end do
+              end do
+           end do
+        else
+           call apply_compact(1,0,S12,S22,S32,N12,N22,N32,N1,ndL,ndR,dimS1,cp1CL ,cp1CL_LU ,cp1CR ,Wp1 ,Sp1 ,phiL,com)
+           call apply_compact(1,0,S12,S22,S32,N12,N22,N32,N1,ndL,ndR,dimS1,cp11CL,cp11CL_LU,cp11CR,Wp11,Sp11,phiL,dig)
+           do k = S32, N32
+              do j = S22, N22
+!pgi$ unroll = n:8
+                 do i = S12, N12
+                    Lap(i,j,k) = dig(i,j,k)*dx1pM(i)**2 + com(i,j,k)*ddx1pM(i)
+                 end do
+              end do
+           end do
+           call apply_compact(2,2,S12,S22,S32,N12,N22,N32,N2,ndL,ndR,dimS2,cv2CL ,cv2CL_LU ,cv2CR ,Wv2 ,Sv2 ,phiL,com)
+           call apply_compact(2,2,S12,S22,S32,N12,N22,N32,N2,ndL,ndR,dimS2,cv22CL,cv22CL_LU,cv22CR,Wv22,Sv22,phiL,dig)
+           do k = S32, N32
+              do j = S22, N22
+!pgi$ unroll = n:8
+                 do i = S12, N12
+                    Lap(i,j,k) = Lap(i,j,k) + dig(i,j,k)*dx2vM(j)**2 + com(i,j,k)*ddx2vM(j)
+                    Lap(i,j,k) = mulI*phiI(i,j,k) - mulL*Lap(i,j,k)
+                 end do
+              end do
+           end do
+        end if
+     !--------------------------------------------------------------------------------------------------------
+     else
+        if (dimens == 3) then
+           do k = S32, N32
+              do j = S22, N22
+                 do i = S12, N12
+                    dd1 = cp11(b1L,i)*phiL(i+b1L,j,k)
+!pgi$ unroll = n:8
+                    do ii = b1L+1, b1U
+                       dd1 = dd1 + cp11(ii,i)*phiL(i+ii,j,k)
+                    end do
+!pgi$ unroll = n:8
+                    do jj = b2L, b2U
+                       dd1 = dd1 + cv22(jj,j)*phiL(i,j+jj,k)
+                    end do
+!pgi$ unroll = n:8
+                    do kk = b3L, b3U
+                       dd1 = dd1 + cp33(kk,k)*phiL(i,j,k+kk)
+                    end do
+                    Lap(i,j,k) = mulI*phiI(i,j,k) - mulL*dd1
+                 end do
+              end do
+           end do
+        else
+           do k = S32, N32
+              do j = S22, N22
+                 do i = S12, N12
+                    dd1 = cp11(b1L,i)*phiL(i+b1L,j,k)
+!pgi$ unroll = n:8
+                    do ii = b1L+1, b1U
+                       dd1 = dd1 + cp11(ii,i)*phiL(i+ii,j,k)
+                    end do
+!pgi$ unroll = n:8
+                    do jj = b2L, b2U
+                       dd1 = dd1 + cv22(jj,j)*phiL(i,j+jj,k)
+                    end do
+                    Lap(i,j,k) = mulI*phiI(i,j,k) - mulL*dd1
+                 end do
+              end do
+           end do
+        end if
+     end if
+     !--------------------------------------------------------------------------------------------------------
+  end if
+  !===========================================================================================================
+  if (m == 3 .and. dimens == 3) then
+     !--------------------------------------------------------------------------------------------------------
+     if (comp_visc_yes) then
+        call apply_compact(1,0,S13,S23,S33,N13,N23,N33,N1,ndL,ndR,dimS1,cp1CL ,cp1CL_LU ,cp1CR ,Wp1 ,Sp1 ,phiL,com)
+        call apply_compact(1,0,S13,S23,S33,N13,N23,N33,N1,ndL,ndR,dimS1,cp11CL,cp11CL_LU,cp11CR,Wp11,Sp11,phiL,dig)
+        do k = S33, N33
+           do j = S23, N23
+!pgi$ unroll = n:8
+              do i = S13, N13
+                 Lap(i,j,k) = dig(i,j,k)*dx1pM(i)**2 + com(i,j,k)*ddx1pM(i)
+              end do
+           end do
+        end do
+        call apply_compact(2,0,S13,S23,S33,N13,N23,N33,N2,ndL,ndR,dimS2,cp2CL ,cp2CL_LU ,cp2CR ,Wp2 ,Sp2 ,phiL,com)
+        call apply_compact(2,0,S13,S23,S33,N13,N23,N33,N2,ndL,ndR,dimS2,cp22CL,cp22CL_LU,cp22CR,Wp22,Sp22,phiL,dig)
+        do k = S33, N33
+           do j = S23, N23
+!pgi$ unroll = n:8
+              do i = S13, N13
+                 Lap(i,j,k) = Lap(i,j,k) + dig(i,j,k)*dx2pM(j)**2 + com(i,j,k)*ddx2pM(j)
+              end do
+           end do
+        end do
+        call apply_compact(3,3,S13,S23,S33,N13,N23,N33,N3,ndL,ndR,dimS3,cw3CL ,cw3CL_LU ,cw3CR ,Ww3 ,Sw3 ,phiL,com)
+        call apply_compact(3,3,S13,S23,S33,N13,N23,N33,N3,ndL,ndR,dimS3,cw33CL,cw33CL_LU,cw33CR,Ww33,Sw33,phiL,dig)
+        do k = S33, N33
+           do j = S23, N23
+!pgi$ unroll = n:8
+              do i = S13, N13
+                 Lap(i,j,k) = Lap(i,j,k) + dig(i,j,k)*dx3wM(k)**2 + com(i,j,k)*ddx3wM(k)
+                 Lap(i,j,k) = mulI*phiI(i,j,k) - mulL*Lap(i,j,k)
+              end do
+           end do
+        end do
+     !--------------------------------------------------------------------------------------------------------
+     else
+        do k = S33, N33
+           do j = S23, N23
+              do i = S13, N13
+                 dd1 = cp11(b1L,i)*phiL(i+b1L,j,k)
+!pgi$ unroll = n:8
+                 do ii = b1L+1, b1U
+                    dd1 = dd1 + cp11(ii,i)*phiL(i+ii,j,k)
+                 end do
+!pgi$ unroll = n:8
+                 do jj = b2L, b2U
+                    dd1 = dd1 + cp22(jj,j)*phiL(i,j+jj,k)
+                 end do
+!pgi$ unroll = n:8
+                 do kk = b3L, b3U
+                    dd1 = dd1 + cw33(kk,k)*phiL(i,j,k+kk)
+                 end do
+                 Lap(i,j,k) = mulI*phiI(i,j,k) - mulL*dd1
+              end do
+           end do
+        end do
+     end if
+     !--------------------------------------------------------------------------------------------------------
+  end if
+  !===========================================================================================================
+
+
+  end subroutine DtHelmholtz
   
   
   

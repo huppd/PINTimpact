@@ -204,15 +204,15 @@ public:
   /// \todo implement
   /// \warning only Deep copy is working
   /// \todo fix schallow copy
-  virtual Teuchos::RCP<NOX::Abstract::Vector >
+  virtual Teuchos::RCP<NOX::Abstract::Vector>
   clone(NOX::CopyType type = NOX::DeepCopy) const {
   	switch(type) {
   	case NOX::DeepCopy:
   		return( Teuchos::rcp(new Vector<Field>( field_->clone( ::Pimpact::DeepCopy) ) ) );
   	case NOX::ShapeCopy:
   		return( Teuchos::rcp(new Vector<Field>( field_->clone( ::Pimpact::ShallowCopy) ) ) );
-//  	default:
-//  	  return( Teuchos::null );
+  	default: // just to make the compliler happy
+  	  return( Teuchos::null );
   	}
 
   }

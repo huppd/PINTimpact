@@ -230,7 +230,7 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, HelmholtzMV ) {
 }
 
 
-TEUCHOS_UNIT_TEST( BelosOperatorMV, DtL ) {
+TEUCHOS_UNIT_TEST( BelosOperatorMV, DtLapOp ) {
 
   typedef int O;
   typedef double S;
@@ -238,7 +238,7 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, DtL ) {
   typedef Pimpact::ModeField<VF> MVF;
   typedef Pimpact::MultiField<MVF> BVF;
 
-  typedef Pimpact::DtL<S,O> Op;
+  typedef Pimpact::DtLapOp<S,O> Op;
   typedef Pimpact::MultiOpWrap<Op> MuOp;
   typedef Pimpact::OperatorBase<BVF> OpBase;
 

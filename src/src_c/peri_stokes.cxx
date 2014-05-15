@@ -44,7 +44,7 @@ int main(int argi, char** argv ) {
 	typedef Pimpact::ModeField<Pimpact::ScalarField<S,O> >  SF;
 	typedef Pimpact::MultiField<VF> MVF;
 	typedef Pimpact::MultiField<SF> MSF;
-	typedef Pimpact::MultiOpWrap< Pimpact::ModeOpWrap<Pimpact::DtL<S,O> > >  Lap;
+	typedef Pimpact::MultiOpWrap< Pimpact::ModeOpWrap<Pimpact::DtLapOp<S,O> > >  Lap;
 	typedef Pimpact::MultiOpWrap< Pimpact::DivDtLinvGrad<S,O> >  Schur;
 	typedef Pimpact::MultiOpWrap< Pimpact::ModeOpWrap<Pimpact::Grad<S,O> > >  G;
 
@@ -200,8 +200,8 @@ int main(int argi, char** argv ) {
 
 	// init Belos operators
 	auto dtlap  =
-	    Pimpact::createMultiOperatorBase<MVF,Pimpact::DtL<S,O> >(
-	        Pimpact::createDtL<S,O>( omega, 0., 1./re ) );
+	    Pimpact::createMultiOperatorBase<MVF,Pimpact::DtLapOp<S,O> >(
+	        Pimpact::createDtLapOp<S,O>( omega, 1./re ) );
 
 
 	// create choosen preconditioner

@@ -72,6 +72,7 @@ module cmod_VectorField
 !  real(c_double),  intent(in)   ::  phi1(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)),3)
 !  real(c_double),  intent(in)   ::  phi2(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)),3)
 
+!  real(c_double),               ::  scalars(4)
   real(c_double),  intent(out)  ::  scalar
 
   integer                       ::  i, j, k

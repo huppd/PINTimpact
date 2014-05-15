@@ -27,7 +27,7 @@
 /// \ingroup Operator
 /// Operator operate on mode fields: \c Pimpact::ModeField
 #include "Pimpact_DtOp.hpp"
-#include "Pimpact_DtHelmholtzOp.hpp"
+#include "Pimpact_DtLapOp.hpp"
 #include "Pimpact_EddyPrec.hpp"
 #include "Pimpact_DivDtLinvGradOp.hpp"
 #include "Pimpact_ModeOpWrap.hpp"

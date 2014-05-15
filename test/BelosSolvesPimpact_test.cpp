@@ -100,7 +100,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 
 
 
-TEUCHOS_UNIT_TEST( BelosSolver, DtL ) {
+TEUCHOS_UNIT_TEST( BelosSolver, DtLapOp ) {
 
   typedef int O;
   typedef double S;
@@ -108,7 +108,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, DtL ) {
   typedef Pimpact::ModeField<VF> MVF;
   typedef Pimpact::MultiField<MVF> BVF;
 
-  typedef Pimpact::DtL<S,O> Op;
+  typedef Pimpact::DtLapOp<S,O> Op;
   typedef Pimpact::MultiOpWrap<Op> OpMV;
   typedef Pimpact::OperatorBase<BVF> OpBase;
 //  typedef Pimpact::OperatorPimpldep<BVF,Op> OpPimpl;

@@ -5,11 +5,9 @@
 
 #include "Pimpact_Types.hpp"
 
-//#include "Pimpact_ScalarField.hpp"
 #include "Pimpact_VectorField.hpp"
 
-#include "Pimpact_DtHelmholtzOp.hpp"
-
+#include "Pimpact_DtLapOp.hpp"
 
 
 namespace Pimpact{
@@ -21,7 +19,7 @@ template<class Scalar,class Ordinal>
 class MultiDtHelmholtz {
 
 //  Scalar omega_;
-  Teuchos::RCP<DtL<Scalar,Ordinal> > op_;
+  Teuchos::RCP<DtLapOp<Scalar,Ordinal> > op_;
 
 public:
 
@@ -29,10 +27,10 @@ public:
   typedef MultiHarmonicField< VectorField<Scalar,Ordinal> >  RangeFieldT;
 
 
-  MultiDtHelmholtz( Scalar omega=1., Scalar mulI=0., Scalar mulL=1.):
-    op_( createDtL<Scalar,Ordinal>( omega, mulI, mulL )) {};
+  MultiDtHelmholtz(Scalar alpha2=1., Scalar mulI=0., Scalar iRe=1.):
+    op_( createDtLapOp<Scalar,Ordinal>(alpha2, iRe) ) {};
 
-  MultiDtHelmholtz( const Teuchos::RCP<DtL<Scalar,Ordinal> >& op ):
+  MultiDtHelmholtz( const Teuchos::RCP<DtLapOp<Scalar,Ordinal> >& op ):
     op_(op) {};
 
 

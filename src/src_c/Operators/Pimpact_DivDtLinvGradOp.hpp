@@ -11,11 +11,7 @@
 #include "Pimpact_DivOp.hpp"
 #include "Pimpact_GradOp.hpp"
 #include "Pimpact_HelmholtzOp.hpp"
-#include "Pimpact_DtHelmholtzOp.hpp"
-
-//#include "Pimpact_OperatorMV.hpp"
-//#include "Pimpact_ModeOpWrap.hpp"
-//#include "Pimpact_MultiOpWrap.hpp"
+#include "Pimpact_DtLapOp.hpp"
 
 #include "Pimpact_LinearProblem.hpp"
 

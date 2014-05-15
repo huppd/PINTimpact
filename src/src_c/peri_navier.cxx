@@ -289,8 +289,8 @@ int main(int argi, char** argv ) {
     forcem1 = force->clone(Pimpact::ShallowCopy);
     forcem1->init( 1. );
     forcem1->add( 1., *forcem1, -1., *force );
-    force  ->write( 111 );
-    forcem1->write( 222 );
+//    force  ->write( 111 );
+//    forcem1->write( 222 );
   }
 
   // init Fields, init and rhs
@@ -413,6 +413,7 @@ int main(int argi, char** argv ) {
 
   Teuchos::RCP<BOp> jop;
 
+  /// this could be a factory in goes opS2V, opV2S, forcingOp, forcing1mOp, x,
   if( 1==fixType ) {
     if(0==rank) std::cout << "\n\t---\titeration matrix(1): full Newton iteration\t---\n";
 
@@ -630,9 +631,11 @@ int main(int argi, char** argv ) {
 
   }
 
-  Teuchos::RCP<BOp> lprec = Teuchos::null;
+
   // init lprec
-   para->set( "Output Stream", outPrec );
+  Teuchos::RCP<BOp> lprec = Teuchos::null;
+  para->set( "Output Stream", outPrec );
+
    if( 10==precType ) {
     if(0==rank) std::cout << "\n\t---\tprec Type(10): full Newton iteration Schur complement\t---\n";
        auto opV2V =
@@ -650,7 +653,7 @@ int main(int argi, char** argv ) {
 //                                  x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy), false ) ) ),
                       forcingOp ) );
      auto lp_ = Pimpact::createLinearProblem<MVF>(
-           opV2V, Teuchos::null, Teuchos::null, para, linSolName );
+           opV2V, Teuchos::null, Teuchos::null, Teuchos::parameterList(), linSolName );
      auto opV2Vinv = Pimpact::createInverseOperatorBase<MVF>( lp_ );
 
      auto invSchur = Pimpact::createInverseSchurOp(
@@ -842,6 +845,7 @@ int main(int argi, char** argv ) {
 
 
   if( 10!=fixType ) {
+    para->set( "Output Stream", outLinSolve );
     auto lp_ = Pimpact::createLinearProblem<MF>(
         jop, x->clone(), fu->clone(), para, linSolName );
     lp_->setLeftPrec( lprec );
@@ -894,8 +898,8 @@ int main(int argi, char** argv ) {
 
 //    x->write(nf*100);
   x->write(800);
-  x = Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() ))->getFieldPtr();
-  x->write(900);
+//  x = Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() ))->getFieldPtr();
+//  x->write(900);
   }
   /******************************************************************************************/
 //  x->write(800);

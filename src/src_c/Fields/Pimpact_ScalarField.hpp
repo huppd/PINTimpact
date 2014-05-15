@@ -433,11 +433,11 @@ protected:
 	const Ordinal&  bl  (int i) const { return( fieldSpace_->bl_[i]    ); }
 	const Ordinal&  bu  (int i) const { return( fieldSpace_->bu_[i]    ); }
 
-	const Ordinal* const nLoc() const { return(  fieldSpace_->nLoc_.getRawPtr() ); }
-	const Ordinal* const bl  () const { return( fieldSpace_->bl_.getRawPtr()    ); }
-	const Ordinal* const bu  () const { return( fieldSpace_->bu_.getRawPtr()    ); }
-	const Ordinal* const sInd() const { return( fieldSpace_->sInd_.getRawPtr()  ); }
-	const Ordinal* const eInd() const { return( fieldSpace_->eInd_.getRawPtr()  ); }
+	const Ordinal* nLoc() const { return(  fieldSpace_->nLoc_.getRawPtr() ); }
+	const Ordinal* bl  () const { return( fieldSpace_->bl_.getRawPtr()    ); }
+	const Ordinal* bu  () const { return( fieldSpace_->bu_.getRawPtr()    ); }
+	const Ordinal* sInd() const { return( fieldSpace_->sInd_.getRawPtr()  ); }
+	const Ordinal* eInd() const { return( fieldSpace_->eInd_.getRawPtr()  ); }
 
 
   void changed( const int& dir ) const {

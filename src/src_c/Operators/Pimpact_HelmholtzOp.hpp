@@ -12,8 +12,9 @@ namespace Pimpact{
 
 
 extern "C" {
-//  void OP_helmholtz( const int& m, const bool& exch_yes, const double& mulI, const double& multL, double* phi, double* Lap);
-  void OP_helmholtz( const int& m, const double& mulI, const double& multL, double* phi, double* Lap);
+
+  void OP_helmholtz( const int& m, const double& mulI, const double& multL, double* const phi, double* const Lap);
+
 }
 
 /// \brief Helmholtz operator
@@ -34,9 +35,11 @@ public:
   void setMulI(Scalar mulI){ mulI_ = mulI;};
   void setMulL(Scalar mulL){ mulL_ = mulL;};
 
+  Scalar getMulI() const { return(mulI_); };
+  Scalar getMulL() const { return(mulL_); };
+
   typedef VectorField<Scalar,Ordinal>  DomainFieldT;
   typedef VectorField<Scalar,Ordinal>  RangeFieldT;
-//  typedef NonModeOp OpType;
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
 

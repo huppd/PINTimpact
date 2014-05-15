@@ -142,8 +142,6 @@ module cmod_ScalarVector
 
   implicit none
 
-!  integer(c_int), intent(in)    ::  COMM_CART
-
   integer(c_int), intent(in)    ::  N1
   integer(c_int), intent(in)    ::  N2
   integer(c_int), intent(in)    ::  N3

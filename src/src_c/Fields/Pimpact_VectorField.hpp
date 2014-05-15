@@ -42,6 +42,8 @@ class VectorField {
 	friend class Nonlinear;
 	template<class S1,class O1>
 	friend class NonlinearJacobian;
+	template<class S1,class O1>
+	friend class DtLapOp;
 
 public:
 
@@ -762,19 +764,19 @@ public:
 protected:
 	const Ordinal&  nGlo(int i)                 const { return( fieldS_->nGlo_[i] ); }
 	const Ordinal&  nLoc(int i)                 const { return( fieldS_->nLoc_[i]) ; }
-	const Ordinal*const  nLoc()                      const { return( fieldS_->nLoc_.getRawPtr() ) ; }
 	const Ordinal&  sInd(int i, int fieldType)  const { return( innerIS_[fieldType]->sInd_[i] ); }
 	const Ordinal&  eInd(int i, int fieldType)  const { return( innerIS_[fieldType]->eInd_[i] ); }
 	const Ordinal&  sIndB(int i, int fieldType) const { return( fullIS_[fieldType]->sInd_[i] ); }
 	const Ordinal&  eIndB(int i, int fieldType) const { return( fullIS_[fieldType]->eInd_[i] ); }
 	const Ordinal&  bl(int i)                   const { return( fieldS_->bl_[i] ); }
 	const Ordinal&  bu(int i)                   const { return( fieldS_->bu_[i] ); }
-	const Ordinal* const bl()                   const { return( fieldS_->bl_.getRawPtr() ); }
-	const Ordinal* const bu()                   const { return( fieldS_->bu_.getRawPtr() ); }
-	const Ordinal* const sInd( int fieldType )  const { return( innerIS_[fieldType]->sInd_.getRawPtr() ); }
-	const Ordinal* const eInd( int fieldType )  const { return( innerIS_[fieldType]->eInd_.getRawPtr() ); }
-	const Ordinal* const sIndB( int fieldType )  const { return( fullIS_[fieldType]->sInd_.getRawPtr() ); }
-	const Ordinal* const eIndB( int fieldType )  const { return( fullIS_[fieldType]->eInd_.getRawPtr() ); }
+	const Ordinal*  nLoc()                      const { return( fieldS_->nLoc_.getRawPtr() ) ; }
+	const Ordinal*  bl()                   const { return( fieldS_->bl_.getRawPtr() ); }
+	const Ordinal*  bu()                   const { return( fieldS_->bu_.getRawPtr() ); }
+	const Ordinal*  sInd( int fieldType )  const { return( innerIS_[fieldType]->sInd_.getRawPtr() ); }
+	const Ordinal*  eInd( int fieldType )  const { return( innerIS_[fieldType]->eInd_.getRawPtr() ); }
+	const Ordinal*  sIndB( int fieldType )  const { return( fullIS_[fieldType]->sInd_.getRawPtr() ); }
+	const Ordinal*  eIndB( int fieldType )  const { return( fullIS_[fieldType]->eInd_.getRawPtr() ); }
 
 	void changed( const int& vel_dir, const int& dir ) const {
 	  exchangedState_[vel_dir][dir] = false;
