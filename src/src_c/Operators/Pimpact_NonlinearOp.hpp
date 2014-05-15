@@ -13,10 +13,11 @@ namespace Pimpact {
 
 extern "C" {
 
-  void OP_nonlinear(
-      double* phi1U, double* phi1V, double* phi1W,
-      double* phi2U, double* phi2V, double* phi2W,
-      double* nl1,   double* nl2,   double* nl3 );
+void OP_nonlinear(
+    double* const phi1U, double* const phi1V, double* const phi1W,
+    double* const phi2U, double* const phi2V, double* const phi2W,
+    double* const nl1,   double* const nl2,   double* const nl3,
+    const double& mul );
 
 }
 
@@ -45,16 +46,20 @@ public:
 
   }
 
-  void apply( const DomainFieldT& x, const DomainFieldT& y, RangeFieldT& z) const {
+  void apply( const DomainFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mul=0. ) const {
 
     for( int vel_dir=0; vel_dir<x.dim(); ++vel_dir )
       x.exchange( vel_dir, vel_dir );
     y.exchange();
 
+    if( std::abs(mul) < 1.e-12 ) {
+      z.init( 0. );
+      mul = 1.;
+    }
     OP_nonlinear(
         x.vec_[0],x.vec_[1],x.vec_[2],
         y.vec_[0],y.vec_[1],y.vec_[2],
-        z.vec_[0],z.vec_[1],z.vec_[2] );
+        z.vec_[0],z.vec_[1],z.vec_[2], mul );
 
     z.changed();
 

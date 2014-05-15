@@ -12,10 +12,13 @@
 
 
 extern "C" {
-  void OP_nonlinear( //const bool& exch_yes,
-      double* phi1U, double* phi1V, double* phi1W,
-      double* phi2U, double* phi2V, double* phi2W,
-      double* nl1,   double* nl2,   double* nl3 );
+
+void OP_nonlinear(
+      double* const phi1U, double* const phi1V, double* const phi1W,
+      double* const phi2U, double* const phi2V, double* const phi2W,
+      double* const nl1,   double* const nl2,   double* const nl3,
+      const double& mul );
+
 }
 
 
@@ -37,17 +40,18 @@ public:
 protected:
 
   Teuchos::RCP<DomainFieldT> u_;
-  Teuchos::RCP<DomainFieldT> temp_;
 
   const bool isNewton_;
 
 public:
 
   NonlinearJacobian( const bool& isNewton=true ):
-    u_(Teuchos::null), temp_(Teuchos::null), isNewton_(isNewton) {};
+    u_(Teuchos::null),
+    isNewton_(isNewton) {};
 
   NonlinearJacobian( const Teuchos::RCP<DomainFieldT>& u, const bool& isNewton=true ):
-    u_(u->clone()), temp_(u->clone()), isNewton_(isNewton) {};
+    u_(u->clone()),
+    isNewton_(isNewton) {};
 
   void assignField( const DomainFieldT& mv ) {
     if( Teuchos::is_null( u_ ) )
@@ -57,32 +61,27 @@ public:
     u_->exchange();
   };
 
-  void apply(const DomainFieldT& x, RangeFieldT& y) const {
+  void apply( const DomainFieldT& x, RangeFieldT& y, Scalar mul=0. ) const {
 
     x.exchange();
 
-    if( isNewton_ ) {
-
-      OP_nonlinear( //true,
-          u_->   vec_[0], u_->   vec_[1], u_->   vec_[2],
-          x.     vec_[0], x.     vec_[1], x.     vec_[2],
-          temp_->vec_[0], temp_->vec_[1], temp_->vec_[2] );
-
-      OP_nonlinear( //true,
-          x.  vec_[0], x.  vec_[1], x.  vec_[2],
-          u_->vec_[0], u_->vec_[1], u_->vec_[2],
-          y.  vec_[0], y.  vec_[1], y.  vec_[2] );
-
-      y.add( 1., *temp_, 1., y );
-
+    if( std::abs(mul) < 1.e-12 ) {
+      y.init(0.);
+      mul = 1.;
     }
-    else {
 
-      OP_nonlinear( //true,
-          u_->vec_[0], u_->vec_[1], u_->vec_[2],
+    OP_nonlinear(
+        u_->vec_[0], u_->vec_[1], u_->vec_[2],
+        x.  vec_[0], x.  vec_[1], x.  vec_[2],
+        y.  vec_[0], y.  vec_[1], y.  vec_[2],
+        mul );
+
+    if( isNewton_ ) {
+      OP_nonlinear(
           x.  vec_[0], x.  vec_[1], x.  vec_[2],
-          y.  vec_[0], y.  vec_[1], y.  vec_[2] );
-
+          u_->vec_[0], u_->vec_[1], u_->vec_[2],
+          y.  vec_[0], y.  vec_[1], y.  vec_[2],
+          mul );
     }
 
     y.changed();

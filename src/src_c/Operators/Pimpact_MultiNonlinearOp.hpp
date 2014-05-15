@@ -28,7 +28,6 @@ public:
 
   typedef MultiHarmonicField< VectorField<Scalar,Ordinal> >  DomainFieldT;
   typedef MultiHarmonicField< VectorField<Scalar,Ordinal> >  RangeFieldT;
-//  typedef NonModeOp OpType;
 
 protected:
 
