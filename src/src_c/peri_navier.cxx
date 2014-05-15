@@ -384,7 +384,7 @@ int main(int argi, char** argv ) {
                 Pimpact::createAdd3Op(
                     x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
                     dtl,
-                    Pimpact::createMultiHarmonicNonlinear<S,O>( x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone() )
+                    Pimpact::createMultiHarmonicNonlinear<S,O>( /*x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone()*/ )
                 )
             ),
             forcingOp
@@ -426,7 +426,7 @@ int main(int argi, char** argv ) {
                 x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
                 dtl,
                 Pimpact::createMultiHarmonicNonlinearJacobian<S,O>(
-                    x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone(Pimpact::ShallowCopy),
+//                    x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone(Pimpact::ShallowCopy),
                     x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy)  ) ) ),
                     forcingOp );
     jop =
@@ -453,8 +453,9 @@ int main(int argi, char** argv ) {
                             x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
                             dtl,
                             Pimpact::createMultiHarmonicNonlinearJacobian<S,O>(
-                                x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone(Pimpact::ShallowCopy),
-                                x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy), false  ) ) ),
+//                                x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone(Pimpact::ShallowCopy),
+                                x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
+                                false  ) ) ),
                     forcingOp
                 ),
                 opS2V,

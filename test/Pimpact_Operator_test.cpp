@@ -592,7 +592,7 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicNonlinear ) {
   auto mv1 = Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, 10 );
   auto mv2 = Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, 10 );
 
-  auto op = Pimpact::createMultiHarmonicNonlinear<S,O>( vel );
+  auto op = Pimpact::createMultiHarmonicNonlinear<S,O>();
 
   op->apply( *mv1, *mv2 );
 }
@@ -667,8 +667,10 @@ TEUCHOS_UNIT_TEST( CompoundOperator, CompoundOpWrap ) {
   auto opV2V =
        Pimpact::createAdd2Op(
            Pimpact::createMultiDtHelmholtz<S,O>( 1., 0., 1. ),
-           Pimpact::createMultiHarmonicNonlinear<S,O>( x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone() ),
-           x->getConstFieldPtr(0)->getConstVFieldPtr()->clone()
+           Pimpact::createMultiHarmonicNonlinear<S,O>(
+//               x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone()
+               ),
+               x->getConstFieldPtr(0)->getConstVFieldPtr()->clone()
            );
 
    auto opS2V = Pimpact::createMultiHarmonicOpWrap< Pimpact::Grad<S,O> >();

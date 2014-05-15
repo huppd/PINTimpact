@@ -299,7 +299,7 @@ int main(int argi, char** argv ) {
         Pimpact::createMultiOperatorBase<MVF>(
            Pimpact::createAdd2Op<Pimpact::Add2Op<MAdv,DtL>,Fo>(
              Pimpact::createAdd2Op<MAdv,DtL>(
-               Pimpact::createMultiHarmonicNonlinear<S,O>( x->getConstFieldPtr(0)->getConst0FieldPtr()->clone() ),
+               Pimpact::createMultiHarmonicNonlinear<S,O>( /*x->getConstFieldPtr(0)->getConst0FieldPtr()->clone()*/ ),
                Pimpact::createMultiDtHelmholtz<S,O>( alpha2, 0., 1./re ),
                temp->getFieldPtr(0)->clone() ) ,
              Pimpact::createMultiHarmonicOpWrap( Pimpact::createForcingOp<S,O>( force ) ) ,
@@ -319,7 +319,9 @@ int main(int argi, char** argv ) {
             Pimpact::createAdd2Op<Pimpact::Add2Op<JMAdv,DtL>,Fo>(
                 Pimpact::createAdd2Op<JMAdv,DtL>(
                     Pimpact::createMultiHarmonicNonlinearJacobian<S,O>(
-                        x->getConstFieldPtr(0)->getConst0FieldPtr()->clone(), x->getConstFieldPtr(0)->clone(), false ),
+//                        x->getConstFieldPtr(0)->getConst0FieldPtr()->clone(),
+                        x->getConstFieldPtr(0)->clone(),
+                        false ),
                     Pimpact::createMultiDtHelmholtz<S,O>( alpha2, 0., 1./re ),
                     temp->getFieldPtr(0)->clone() ) ,
                 Pimpact::createMultiHarmonicOpWrap(
@@ -460,7 +462,8 @@ int main(int argi, char** argv ) {
             Pimpact::createAdd2Op<Pimpact::Add2Op<JMAdv,DtL>,Fo>(
                 Pimpact::createAdd2Op<JMAdv,DtL>(
                     Pimpact::createMultiHarmonicNonlinearJacobian<S,O>(
-                        x->getConstFieldPtr(0)->getConst0FieldPtr()->clone(), x->getConstFieldPtr(0)->clone() ),
+//                        x->getConstFieldPtr(0)->getConst0FieldPtr()->clone(),
+                        x->getConstFieldPtr(0)->clone() ),
                         Pimpact::createMultiDtHelmholtz<S,O>( alpha2, 0., 1./re ),
                         temp->getFieldPtr(0)->clone() ) ,
                         Pimpact::createMultiHarmonicOpWrap( Pimpact::createForcingOp<S,O>( force ) ) ,

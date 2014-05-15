@@ -28,13 +28,12 @@ public:
 
   typedef MultiHarmonicField< VectorField<Scalar,Ordinal> >  DomainFieldT;
   typedef MultiHarmonicField< VectorField<Scalar,Ordinal> >  RangeFieldT;
-//  typedef NonModeOp OpType;
 
 protected:
 
   Teuchos::RCP<DomainFieldT> u_;
-  Teuchos::RCP<DomainFieldT> mtemp_;
-  Teuchos::RCP<VectorField<S,O> > temp_;
+//  Teuchos::RCP<DomainFieldT> mtemp_;
+//  Teuchos::RCP<VectorField<S,O> > temp_;
   Teuchos::RCP<Nonlinear<S,O> > op_;
 
   const bool isNewton_;
@@ -42,12 +41,16 @@ protected:
 public:
 
   MultiHarmonicDiagNonlinearJacobian( const bool& isNewton=true ):
-    u_(Teuchos::null),mtemp_(Teuchos::null),temp_(Teuchos::null),
+    u_(Teuchos::null),
+//    mtemp_(Teuchos::null),
+//    temp_(Teuchos::null),
     op_( Teuchos::rcp( new Nonlinear<S,O>() )),
     isNewton_(isNewton) {};
 
   MultiHarmonicDiagNonlinearJacobian( const Teuchos::RCP<DomainFieldT>& temp, const bool& isNewton=true ):
-    u_(temp->clone()),mtemp_(temp->clone()),temp_(temp->get0FieldPtr()->clone()),
+    u_(temp->clone()),
+//    mtemp_(temp->clone()),
+//    temp_(temp->get0FieldPtr()->clone()),
     op_( Teuchos::rcp( new Nonlinear<S,O>() )),
     isNewton_(isNewton) {};
 
@@ -60,39 +63,40 @@ public:
 
 protected:
 
-  void apply(const DomainFieldT& x, const DomainFieldT& y, RangeFieldT& z) const {
+  void apply(const DomainFieldT& x, const DomainFieldT& y, RangeFieldT& z, bool init_yes=true ) const {
     int Nf = x.getNumberModes();
-    z.init( 0. );
+    if( init_yes )
+      z.init( 0. );
 
     // computing zero mode of y
-    op_->apply( x.getConst0Field(), y.getConst0Field(), *temp_ );
-    z.get0Field().add( 1., z.getConst0Field(), 1., *temp_ );
+    op_->apply( x.getConst0Field(), y.getConst0Field(), z.get0Field(), 1. );
+//    z.get0Field().add( 1., z.getConst0Field(), 1., *temp_ );
 
 
     for( int i=1; i<=Nf; ++i ) {
       // computing cos mode of y
-      op_->apply( x.getConst0Field(), y.getConstCField(i-1), *temp_ );
-      z.getCField(i-1).add( 1., z.getConstCField(i-1), 1., *temp_ );
+      op_->apply( x.getConst0Field(), y.getConstCField(i-1), z.getCField(i-1), 1. );
+//      z.getCField(i-1).add( 1., z.getConstCField(i-1), 1., *temp_ );
 
       // computing sin mode of y
-      op_->apply( x.getConst0Field(), y.getConstSField(i-1), *temp_ );
-      z.getSField(i-1).add( 1., z.getConstSField(i-1), 1., *temp_ );
+      op_->apply( x.getConst0Field(), y.getConstSField(i-1), z.getSField(i-1), 1. );
+//      z.getSField(i-1).add( 1., z.getConstSField(i-1), 1., *temp_ );
 
       if( 2*i<=Nf ) {
 
         // computing cos mode of y
-        op_->apply( x.getConstCField(i+i-1), y.getConstCField(i-1), *temp_ );
-        z.getCField(i-1).add( 1., z.getConstCField(i-1), 0.5, *temp_ );
+        op_->apply( x.getConstCField(i+i-1), y.getConstCField(i-1), z.getCField(i-1), 0.5 );
+//        z.getCField(i-1).add( 1., z.getConstCField(i-1), 0.5, *temp_ );
 
-        op_->apply( x.getConstSField(i+i-1), y.getConstSField(i-1), *temp_ );
-        z.getCField(i-1).add( 1., z.getConstCField(i-1), 0.5, *temp_ );
+        op_->apply( x.getConstSField(i+i-1), y.getConstSField(i-1), z.getCField(i-1), 0.5 );
+//        z.getCField(i-1).add( 1., z.getConstCField(i-1), 0.5, *temp_ );
 
         // computing sin mode of y
-        op_->apply( x.getConstCField(i+i-1), y.getConstSField(i-1), *temp_ );
-        z.getSField(i-1).add( 1., z.getConstSField(i-1), -0.5, *temp_ );
+        op_->apply( x.getConstCField(i+i-1), y.getConstSField(i-1), z.getSField(i-1), -0.5 );
+//        z.getSField(i-1).add( 1., z.getConstSField(i-1), -0.5, *temp_ );
 
-        op_->apply( x.getConstSField(i+i-1), y.getConstCField(i-1), *temp_ );
-        z.getSField(i-1).add( 1., z.getConstSField(i-1), 0.5, *temp_ );
+        op_->apply( x.getConstSField(i+i-1), y.getConstCField(i-1), z.getSField(i-1), 0.5 );
+//        z.getSField(i-1).add( 1., z.getConstSField(i-1), 0.5, *temp_ );
 
       }
 
@@ -102,14 +106,12 @@ protected:
 public:
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
-    if( isNewton_ ) {
-      apply( *u_,  x,  y );
-      apply(  x,  *u_, *mtemp_ );
-      y.add( 1., *mtemp_, 1., y );
-    }
-    else {
-      apply( *u_, x, y );
-    }
+
+    apply( *u_,  x,  y, true );
+
+    if( isNewton_ )
+      apply(  x,  *u_, y, false );
+
   }
 
 

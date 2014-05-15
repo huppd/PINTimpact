@@ -29,17 +29,18 @@ public:
 protected:
 
   Teuchos::RCP<DomainFieldT> u_;
-  Teuchos::RCP<DomainFieldT> temp_;
 
   const bool isNewton_;
 
 public:
 
   MultiHarmonicNonlinearJacobian(
-      const Teuchos::RCP<VectorField<S,O> >& temp=Teuchos::null,
+//      const Teuchos::RCP<VectorField<S,O> >& temp=Teuchos::null,
       const Teuchos::RCP<DomainFieldT>& u=Teuchos::null,
       const bool& isNewton=true ):
-        MultiHarmonicNonlinear<S,O>(temp),u_(u),temp_(u->clone()),isNewton_(isNewton) {};
+        MultiHarmonicNonlinear<S,O>(/*temp*/),
+        u_(u),
+        isNewton_(isNewton) {};
 
   void assignField( const DomainFieldT& mv ) {
     if( Teuchos::is_null( u_ ) )
@@ -50,14 +51,11 @@ public:
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
 
-    if( isNewton_ ) {
-      MultiHarmonicNonlinear<S,O>::apply( *u_,  x,  *temp_ );
-      MultiHarmonicNonlinear<S,O>::apply(  x,  *u_, y );
-      y.add( 1., *temp_, 1., y );
-    }
-    else {
-      MultiHarmonicNonlinear<S,O>::apply( *u_,  x, y );
-    }
+    MultiHarmonicNonlinear<S,O>::apply( *u_,  x,  y, true );
+
+    if( isNewton_ )
+      MultiHarmonicNonlinear<S,O>::apply(  x,  *u_, y, false );
+
   }
 
   bool hasApplyTranspose() const { return( false ); }
@@ -69,11 +67,11 @@ public:
 /// \relates MultiHarmonicNonlinearJacobian
 template< class S, class O>
 Teuchos::RCP<MultiHarmonicNonlinearJacobian<S,O> > createMultiHarmonicNonlinearJacobian(
-    const Teuchos::RCP< VectorField<S,O> >& temp = Teuchos::null,
+//    const Teuchos::RCP< VectorField<S,O> >& temp = Teuchos::null,
     const Teuchos::RCP< typename MultiHarmonicNonlinearJacobian<S,O>::DomainFieldT>& u = Teuchos::null,
     const bool& isNewton=true ) {
 
-  return( Teuchos::rcp( new MultiHarmonicNonlinearJacobian<S,O>( temp, u, isNewton ) ) );
+  return( Teuchos::rcp( new MultiHarmonicNonlinearJacobian<S,O>( /*temp,*/ u, isNewton ) ) );
 
 }
 
