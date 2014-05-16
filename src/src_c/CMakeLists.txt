@@ -51,6 +51,9 @@ TARGET_LINK_LIBRARIES( peri_navier ${Pimpact_TPL_LIBRARIES} )
 add_executable( peri_navier_timing peri_navier_timing.cxx )
 TARGET_LINK_LIBRARIES( peri_navier_timing ${Pimpact_TPL_LIBRARIES} ) 
 
+add_executable( mlguide mlguide.cxx )
+TARGET_LINK_LIBRARIES( mlguide ${Pimpact_TPL_LIBRARIES} ) 
+
 #TARGET_LINK_LIBRARIES(stat_stokes  ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES} limpact hdf5 hdf5_fortran hdf5_hl z mpi_f90 mpi_f77 gfortran lapack blas m)
 #TARGET_LINK_LIBRARIES(pimpact  ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES} limpact hdf5 hdf5_fortran hdf5_hl z mpi_f90 mpi_f77 gfortran lapack blas m)
 #TARGET_LINK_LIBRARIES(pimpact  limpact hdf5 hdf5_fortran hdf5_hl z mpi_f90 mpi_f77 gfortran lapack blas m)

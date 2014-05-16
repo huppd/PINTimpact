@@ -120,19 +120,23 @@ public:
   	return( mv.getNumberVecs() );
   }
 
-    static bool HasConstantStride( const Pimpact::MultiField<Field>& mv )
-    { return true; }
 
-    /// \brief <tt> mv:= alpha A*B + beta mv </tt>
-    static void
-    MvTimesMatAddMv (const Scalar& alpha,
-                     const Pimpact::MultiField<Field>& A,
-                     const Teuchos::SerialDenseMatrix<int,Scalar>& B,
-                     const Scalar& beta,
-                     Pimpact::MultiField<Field>& mv)
-    {
-    	mv.TimesMatAdd(alpha,A,B,beta);
-    }
+  static bool HasConstantStride( const Pimpact::MultiField<Field>& mv ) {
+    return( true );
+  }
+
+
+  /// \brief <tt> mv:= alpha A*B + beta mv </tt>
+  static void
+  MvTimesMatAddMv( const Scalar& alpha,
+      const Pimpact::MultiField<Field>& A,
+      const Teuchos::SerialDenseMatrix<int,Scalar>& B,
+      const Scalar& beta,
+      Pimpact::MultiField<Field>& mv ) {
+
+    mv.TimesMatAdd( alpha, A, B, beta );
+
+  }
 
 
   /// \brief <tt>mv := alpha*A + beta*B</tt>

@@ -13,13 +13,17 @@ os.system( 'make '+exe+' -j4' )
 
 case_path = ['','','','','']
 
-case_consts = ' --flow=1 --domain=1 --force=3 --radius=0.1 --rotation=1 --nf=8   --npx=4 --npy=1 --tolNOX=1.e-6 --tolBelos=1.e-4  --maxIter=10  --lx=2. --ly=1.  '
+case_consts = ' --linSolName="TFQMR" --flow=1 --domain=1 --force=3 --radius=0.1 --rotation=1 --nfe=8   --npx=4 --npy=1 --tolNOX=1.e-6 --tolBelos=1.e-2  --maxIter=10  --lx=2. --ly=1.  '
 
 precTypes = [ 0, 10 ]
 ns        = [ 4, 5, 6, 7 ]
 res       = [ 10, 100, 200 ]
 alpha2s   = [ 10, 100, 200 ]
-fixTypes  = [ 1, 2, 4, 6 ]
+fixTypes  = [ 1, 2, 4, 6, 9, 10]
+
+ns  = [ 4 ]
+res = [ 11 ]
+alpha2s = [ 12 ] 
 
 for precType in precTypes:
   case_path[0] = 'precType_'+str(precType)

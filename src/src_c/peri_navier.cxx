@@ -249,6 +249,7 @@ int main(int argi, char** argv ) {
 
   // init Spaces
   auto fS = Pimpact::createFieldSpace<O>();
+  fS->print();
 
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
   auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
@@ -328,7 +329,7 @@ int main(int argi, char** argv ) {
   break;
   }
 
-//  x->init( 0. );
+  x->init( 0. );
 //  x->random();
 
 
@@ -898,12 +899,12 @@ int main(int argi, char** argv ) {
 //    x = Teuchos::rcp_const_cast<NV>( group->getXPtr() )->getFieldPtr();
 
 //    x->write(nf*100);
-  x->write(800);
+//  x->write(800);
 //  x = Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() ))->getFieldPtr();
 //  x->write(900);
   }
   /******************************************************************************************/
-//  x->write(800);
+  x->write(800);
 
   MPI_Finalize();
   return( 0 );

@@ -208,6 +208,7 @@ public:
 
 
   /// \brief \f[ *this = \alpha A B + \beta *this \f]
+  ///
   /// \param alpha scalar
   /// \param A Vector
   /// \param B Matrix
@@ -215,18 +216,29 @@ public:
   void TimesMatAdd( const Scalar& alpha, const MV& A,
   		const Teuchos::SerialDenseMatrix<int,Scalar>& B,
   		const Scalar& beta ) {
-  	auto AB = CloneCopy();      /// costly should be avoided
+//  	auto AB = CloneCopy();      /// costly should be avoided
+//  	int m1 = A.getNumberVecs(); ///< is assumed to be equal to number vecs of this and ncolumns and nrows of b
+//  	int m2 = getNumberVecs();   ///< is assumed to be equal to number vecs of this and ncolumns and nrows of b
+//
+//  	AB->init(0.);
+//		for( int i=0; i<m2; ++i ) {
+//		  for( int j=0; j<m1; ++j ) {
+//  			AB->mfs_[i]->add(1., *(AB->mfs_[i]), B(j,i), *A.mfs_[j] );
+//  		}
+//  	}
+//  	for( int i=0; i<m2; ++i ) {
+//  		mfs_[i]->add( alpha, *AB->mfs_[i], beta, *mfs_[i] );
+//  	}
+    //  shoudl be faster, but for big scale differences alpha*B(j,i)s and mfs the above method should be more stable
   	int m1 = A.getNumberVecs(); ///< is assumed to be equal to number vecs of this and ncolumns and nrows of b
   	int m2 = getNumberVecs();   ///< is assumed to be equal to number vecs of this and ncolumns and nrows of b
 
-  	AB->init(0.);
-  	for( int j=0; j<m1; ++j ) {
-  		for( int i=0; i<m2; ++i ) {
-  			AB->mfs_[i]->add(1., *(AB->mfs_[i]), B(j,i), *A.mfs_[j] ); // better version possible
+  	scale( beta );
+
+		for( int i=0; i<m2; ++i ) {
+		  for( int j=0; j<m1; ++j ) {
+  			mfs_[i]->add( 1., *mfs_[i], alpha*B(j,i), *A.mfs_[j] );
   		}
-  	}
-  	for( int i=0; i<m2; ++i ) {
-  		mfs_[i]->add( alpha, *AB->mfs_[i], beta, *mfs_[i] ); // slightly better vesion possible
   	}
   }
 

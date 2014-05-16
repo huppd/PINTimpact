@@ -83,25 +83,25 @@ Teuchos::RCP< Teuchos::ParameterList > createLinSolverParameter(
 	}
 	else if( solver_name=="LSQR" ) {
 		parameter_->set( "Maximum Iterations",				1000	 );
-		parameter_->set( "Block Size",								1			 );
-		parameter_->set( "Condition Limit",						1.e20	 );
-		parameter_->set( "Term Iter Max",							20		 );
-		parameter_->set( "Rel RHS Err",								1.e-16 );
-		parameter_->set( "Rel Mat Err",								tol    );
-		parameter_->set( "Orthogonalization",					"DGKS" );
+//		parameter_->set( "Block Size",								1			 );
+//		parameter_->set( "Condition Limit",						1.e20	 );
+//		parameter_->set( "Term Iter Max",							20		 );
+//		parameter_->set( "Rel RHS Err",								1.e-16 );
+//		parameter_->set( "Rel Mat Err",								tol    );
+//		parameter_->set( "Orthogonalization",					"DGKS" );
 		parameter_->set( "Verbosity",									verbo	 );
 		parameter_->set( "Output Frequency",					outfreq);
-		parameter_->set( "Output Style",							0    	 );
-		parameter_->set( "Lambda",										1.e-12 );
+			parameter_->set( "Output Style",							style	 );
+//		parameter_->set( "Lambda",										1.e-12 );
 		parameter_->set( "Timer Label",								"Belos");
 	}
 	else if( solver_name=="TFQMR" ) {
-//			parameter_->set( "Maximum Iterations",				1000	 );
-//			parameter_->set( "Convergence Tolerance",			tol    );
-//			parameter_->set( "Verbosity",									verbo	 );
-//			parameter_->set( "Output Style",							style	 );
-//			parameter_->set( "Output Frequency",					outfreq);
-//			parameter_->set( "Timer Label",								"Belos");
+			parameter_->set( "Maximum Iterations",				1000	 );
+			parameter_->set( "Convergence Tolerance",			tol    );
+			parameter_->set( "Verbosity",									verbo	 );
+			parameter_->set( "Output Style",							style	 );
+			parameter_->set( "Output Frequency",					outfreq);
+			parameter_->set( "Timer Label",								"Belos");
 	}
 	else {
 		std::cout << "!!!Warning!!! solver_name:\t" << solver_name << "\tnot kown in Pimpact!";
