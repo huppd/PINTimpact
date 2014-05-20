@@ -259,6 +259,7 @@ public:
 
 
 protected:
+
 	Teuchos::RCP<Field> field0_;
 	Teuchos::RCP< MultiField< ModeField<Field> > > fields_;
 

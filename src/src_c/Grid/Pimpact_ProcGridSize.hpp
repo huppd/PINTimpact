@@ -44,7 +44,9 @@ public:
 /// \relates ProcGridSize
 template<class Ordinal>
 Teuchos::RCP<ProcGridSize<Ordinal> > createProcGridSize( Ordinal np1=1, Ordinal np2=1, Ordinal np3=1 ) {
-	return Teuchos::rcp( new ProcGridSize<Ordinal>( np1, np2, np3 ) );
+	return(
+	    Teuchos::rcp(
+	        new ProcGridSize<Ordinal>( np1, np2, np3 ) ) );
 }
 
 } // end of namespace Pimpact

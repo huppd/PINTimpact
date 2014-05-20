@@ -416,24 +416,27 @@ public:
   }
 
 protected:
-	const Teuchos::RCP<const FieldSpace<Ordinal> > fieldSpace_;
+
+	Teuchos::RCP<const FieldSpace<Ordinal> > fieldSpace_;
 	array s_;
   State exchangedState_;
 
-
 public:
+
 	const MPI_Fint& commf()     const { return( fieldSpace_->commf_   ); }
 	const MPI_Comm& comm()      const { return( fieldSpace_->comm_    ); }
 	const int&      dim()       const { return( fieldSpace_->dim_     ); }
+
 protected:
+
 	const Ordinal&  nGlo(int i) const { return( fieldSpace_->nGlo_[i]  ); }
-	const Ordinal&  nLoc(int i) const { return(  fieldSpace_->nLoc_[i] ); }
+	const Ordinal&  nLoc(int i) const { return( fieldSpace_->nLoc_[i] ); }
 	const Ordinal&  sInd(int i) const { return( fieldSpace_->sInd_[i]  ); }
 	const Ordinal&  eInd(int i) const { return( fieldSpace_->eInd_[i]  ); }
 	const Ordinal&  bl  (int i) const { return( fieldSpace_->bl_[i]    ); }
 	const Ordinal&  bu  (int i) const { return( fieldSpace_->bu_[i]    ); }
 
-	const Ordinal* nLoc() const { return(  fieldSpace_->nLoc_.getRawPtr() ); }
+	const Ordinal* nLoc() const { return( fieldSpace_->nLoc_.getRawPtr() ); }
 	const Ordinal* bl  () const { return( fieldSpace_->bl_.getRawPtr()    ); }
 	const Ordinal* bu  () const { return( fieldSpace_->bu_.getRawPtr()    ); }
 	const Ordinal* sInd() const { return( fieldSpace_->sInd_.getRawPtr()  ); }

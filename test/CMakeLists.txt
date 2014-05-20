@@ -1,6 +1,8 @@
 
 #set(CMAKE_INCLUDE_CURRENT_DIR ../src)
 include_directories("../src/src_c")
+include_directories("../src/src_c/Space")
+include_directories("../src/src_c/Grid")
 include_directories("../src/src_c/Fields")
 include_directories("../src/src_c/Operators")
 include_directories("../src/src_c/NOX_Pimpact")
@@ -47,9 +49,9 @@ ADD_EXECUTABLE(BelosSolverTest Teuchos_StandardParallelUnitTestMain.cpp BelosSol
 TARGET_LINK_LIBRARIES( BelosSolverTest ${Pimpact_TPL_LIBRARIES} ) 
 add_test(NAME BelosSolverTest COMMAND mpirun -np 4 BelosSolverTest)
 
-ADD_EXECUTABLE(BelosSolverTestBC Teuchos_StandardParallelUnitTestMain.cpp BelosSolvesPimpactBC_test.cpp )
-TARGET_LINK_LIBRARIES( BelosSolverTestBC ${Pimpact_TPL_LIBRARIES} ) 
-add_test(NAME BelosSolverTestBC COMMAND mpirun -np 4 BelosSolverTestBC)
+# ADD_EXECUTABLE(BelosSolverTestBC Teuchos_StandardParallelUnitTestMain.cpp BelosSolvesPimpactBC_test.cpp )
+# TARGET_LINK_LIBRARIES( BelosSolverTestBC ${Pimpact_TPL_LIBRARIES} ) 
+# add_test(NAME BelosSolverTestBC COMMAND mpirun -np 4 BelosSolverTestBC)
 
 ADD_EXECUTABLE(LinearProblemTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_LinearProblem_test.cpp )
 TARGET_LINK_LIBRARIES( LinearProblemTest ${Pimpact_TPL_LIBRARIES} ) 

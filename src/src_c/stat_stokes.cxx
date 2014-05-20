@@ -133,9 +133,7 @@ int main(int argi, char** argv ) {
 	ds->set_Impact();
 	ds->print( *outPar );
 
-//	auto bc = Pimpact::createPeriodicChannelBC2D();
-//	auto bc = Pimpact::createPeriodicChannelBC2D();
-	auto bc = Pimpact::createAllDirichletBC2D();
+  auto bc = Pimpact::createBoudaryConditionsGlobal( Pimpact::Dirichelt2DChannel );
 	bc->set_Impact();
 
 	auto gs = Pimpact::createGridSize<O>(n1,n2,n3);

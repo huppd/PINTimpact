@@ -155,7 +155,7 @@ int main(int argi, char** argv ) {
 	ds->set_Impact();
 	ds->print( *outPar );
 
-	auto bc = Pimpact::createBC( Pimpact::EDomainType(domain) );
+	auto bc = Pimpact::createBoudaryConditionsGlobal( Pimpact::EDomainType(domain) );
 	bc->set_Impact();
 
 	auto gs = Pimpact::createGridSize<O>(n1,n2,n3);

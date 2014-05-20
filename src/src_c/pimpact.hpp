@@ -6,7 +6,7 @@
 #include <mpi.h>
 
 #include "Pimpact_DomainSize.hpp"
-#include "Pimpact_BoundaryConditions.hpp"
+#include "Pimpact_BoundaryConditionsGlobal.hpp"
 
 extern "C" {
   void finit_alarm();
@@ -44,7 +44,7 @@ extern "C" {
 /// \param argv
 /// \param bc
 /// \return rank
-int init_impact( int argi=0, char** argv=0, Teuchos::RCP<Pimpact::BoundaryConditions> bc=Teuchos::null ){
+int init_impact( int argi=0, char** argv=0, Teuchos::RCP<Pimpact::BoundaryConditionsGlobal> bc=Teuchos::null ){
 	//  --- Initialize MPI ----------------------------------------------------------------------------------------
 	//		MPI_Init(&argi,&argv);
 	int rank;

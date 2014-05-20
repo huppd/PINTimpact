@@ -116,8 +116,9 @@ const Teuchos::RCP<const FieldSpace<Ordinal> > createFieldSpace(){
 	TO3 bu;
 	SVS_get_bu( bu[0], bu[1], bu[2] );
 
-	return Teuchos::RCP<const FieldSpace<Ordinal> > (
-			new FieldSpace<Ordinal>( comm, MPI_Comm_f2c(comm), dim, nGlo, nLoc, sInd, eInd, bl, bu ) );
+	return(
+	    Teuchos::RCP<const FieldSpace<Ordinal> > (
+	        new FieldSpace<Ordinal>( comm, MPI_Comm_f2c(comm), dim, nGlo, nLoc, sInd, eInd, bl, bu ) ) );
 }
 
 

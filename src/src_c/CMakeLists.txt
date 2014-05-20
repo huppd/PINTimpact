@@ -1,6 +1,8 @@
 # Include the directory itself as a path to include directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+include_directories("./Space")
+include_directories("./Grid")
 include_directories("./Fields")
 include_directories("./Operators")
 include_directories("./NOX_Pimpact")
@@ -53,6 +55,9 @@ TARGET_LINK_LIBRARIES( peri_navier_timing ${Pimpact_TPL_LIBRARIES} )
 
 add_executable( mlguide mlguide.cxx )
 TARGET_LINK_LIBRARIES( mlguide ${Pimpact_TPL_LIBRARIES} ) 
+
+add_executable( mlguide_par mlguide_par.cxx )
+TARGET_LINK_LIBRARIES( mlguide_par ${Pimpact_TPL_LIBRARIES} ) 
 
 #TARGET_LINK_LIBRARIES(stat_stokes  ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES} limpact hdf5 hdf5_fortran hdf5_hl z mpi_f90 mpi_f77 gfortran lapack blas m)
 #TARGET_LINK_LIBRARIES(pimpact  ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES} limpact hdf5 hdf5_fortran hdf5_hl z mpi_f90 mpi_f77 gfortran lapack blas m)

@@ -15,14 +15,21 @@ extern "C" {
 
 namespace Pimpact{
 
+
+/// \todo merge with Space should make nGlow in FieldSpace obsolete, maybe rename
 template<class Ordinal>
 class GridSize {
+
 public:
+
 	typedef const Teuchos::Tuple<Ordinal,3> TO3;
 
 protected:
+
 	TO3 gridSize_;
+
 public:
+
 	GridSize( Ordinal n1, Ordinal n2, Ordinal n3 ):
 		gridSize_( Teuchos::tuple( n1, n2, n3) ) {};
 
@@ -45,7 +52,9 @@ public:
 /// \relates GridSize
 template<class Ordinal>
 Teuchos::RCP<GridSize<Ordinal> > createGridSize( Ordinal n1=1, Ordinal n2=1, Ordinal n3=1 ) {
-	return( Teuchos::rcp( new GridSize<Ordinal>( n1, n2, n3 ) ) );
+	return(
+	    Teuchos::rcp(
+	        new GridSize<Ordinal>( n1, n2, n3 ) ) );
 }
 
 

@@ -52,7 +52,9 @@ public:
 /// \relates DomainSize
 template<class Scalar>
 Teuchos::RCP<DomainSize<Scalar> > createDomainSize( Scalar L1=1, Scalar L2=1, Scalar L3=1 ) {
-	return Teuchos::rcp( new DomainSize<Scalar>( L1, L2, L3 ) );
+	return(
+	    Teuchos::rcp(
+	        new DomainSize<Scalar>( L1, L2, L3 ) ) );
 }
 
 

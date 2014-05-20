@@ -42,8 +42,8 @@ int main(int argc, char *argv[]){
                                                   ML_INCREASING, agg_object);
    /******** Begin code to set a Jacobi smoother ******/
 
-   ML_Gen_Smoother_Jacobi(ml_object, ML_ALL_LEVELS, ML_PRESMOOTHER, 10, ML_DEFAULT);
-//   ML_Gen_Smoother_GaussSeidel(ml_object, ML_ALL_LEVELS, ML_PRESMOOTHER, 1, ML_DEFAULT);
+//   ML_Gen_Smoother_Jacobi(ml_object, ML_ALL_LEVELS, ML_PRESMOOTHER, 10, ML_DEFAULT);
+   ML_Gen_Smoother_GaussSeidel(ml_object, ML_ALL_LEVELS, ML_PRESMOOTHER, 1, ML_DEFAULT);
 //   ML_Gen_Smoother_BlockGaussSeidel(ml_object, ML_ALL_LEVELS, ML_PRESMOOTHER, 1, ML_DEFAULT, 3 );
 
    /******** End code to set a Jacobi smoother ******/
