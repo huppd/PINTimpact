@@ -5,6 +5,7 @@
 //#include "mpi.h"
 
 #include "Teuchos_Tuple.hpp"
+#include "Teuchos_ArrayRCP.hpp"
 #include "Teuchos_RCP.hpp"
 
 #include "Pimpact_FieldSpace.hpp"
@@ -21,22 +22,30 @@ namespace Pimpact {
 template<class Ordinal>
 class Space {
 
-  typedef Teuchos::Tuple< Teuchos::RCP<const IndexSpace<Ordinal> >, 3 >  IndexSpaces;
-
 public:
+
+  typedef Teuchos::ArrayRCP< Teuchos::RCP<const IndexSpace<Ordinal> > >  IndexSpaces;
 
   Space(
       const Teuchos::RCP<const FieldSpace<Ordinal> > fieldSpace=Teuchos::null,
-      const IndexSpace& innerIS=Teuchos::null,
-      const IndexSpace& fullIS=Teuchos::null ):
+      const IndexSpaces& innerIS=Teuchos::null,
+      const IndexSpaces& fullIS=Teuchos::null ):
         fieldSpace_(fieldSpace),
         innerIS_(innerIS),
         fullIS_(fullIS) {}
+
+protected:
 
   Teuchos::RCP<const FieldSpace<Ordinal> > fieldSpace_;
 
   IndexSpaces innerIS_;
   IndexSpaces fullIS_;
+
+public:
+
+  Teuchos::RCP<const FieldSpace<Ordinal> > getFieldSpace() const { return( fieldSpace_ ); }
+  IndexSpaces getInnerIndexSpace() const { return( innerIS_ ); }
+  IndexSpaces getFullIndexSpace() const { return( fullIS_ ); }
 
 
   const MPI_Fint& commf() const { return( fieldSpace_->commf_ ); }
@@ -58,6 +67,13 @@ public:
   const Ordinal* sIndB( int fieldType ) const { return( fullIS_[fieldType]->sInd_.getRawPtr()  ); }
   const Ordinal* eIndB( int fieldType ) const { return( fullIS_[fieldType]->eInd_.getRawPtr()  ); }
 
+  void print() const {
+    fieldSpace_->print();
+    for( int i=0; i<dim(); ++i ) {
+      innerIS_[i]->print();
+      fullIS_[i]->print();
+    }
+  }
 
 }; // end of class Space
 
@@ -66,12 +82,20 @@ public:
 template<class Ordinal>
 Teuchos::RCP< const Space<Ordinal> > createSpace(
     const Teuchos::RCP< const FieldSpace<Ordinal> > fieldSpace=Teuchos::null,
-    const IndexSpace& innerIS=Teuchos::null,
-    const IndexSpace& fullIS=Teuchos::null ) {
+    const typename Space<Ordinal>::IndexSpaces& innerIS=Teuchos::null,
+    const typename Space<Ordinal>::IndexSpaces& fullIS=Teuchos::null ) {
 
-  return(
+  if( fieldSpace.is_null() &&  innerIS.is_null() && fullIS.is_null() )
+    return(
       Teuchos::rcp(
-          new Space( fieldSpace, innerIS, fullIS ) ) );
+          new Space<Ordinal>(
+              createFieldSpace<Ordinal>(),
+              createInnerFieldIndexSpaces<Ordinal>(),
+              createFullFieldIndexSpaces<Ordinal>() ) ) );
+  else
+    return(
+        Teuchos::rcp(
+            new Space<Ordinal>( fieldSpace, innerIS, fullIS ) ) );
 }
 
 

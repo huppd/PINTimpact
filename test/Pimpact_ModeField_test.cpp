@@ -226,7 +226,7 @@ TEUCHOS_UNIT_TEST( ScalarModeField, add ) {
 
 	vel1->add( 2., *vel2, 0., *vel3);
 	norm = vel1->norm(Belos::TwoNorm);
-	TEST_EQUALITY( std::sqrt(N), norm )
+	TEST_FLOATING_EQUALITY( std::sqrt(N), norm, errorTolSlack );
 
 	vel1->init(0.);
 	vel2->init(1./2.);
@@ -234,7 +234,7 @@ TEUCHOS_UNIT_TEST( ScalarModeField, add ) {
 
 	vel1->add( 0., *vel2, 3., *vel3);
 	norm = vel1->norm(Belos::TwoNorm);
-	TEST_EQUALITY( std::sqrt(N), norm )
+	TEST_FLOATING_EQUALITY( std::sqrt(N), norm, errorTolSlack );
 
 	vel1->init(0.);
 	vel2->init(1.);
@@ -242,7 +242,7 @@ TEUCHOS_UNIT_TEST( ScalarModeField, add ) {
 
 	vel1->add( 0.5, *vel2, 0.5, *vel3);
 	norm = vel1->norm(Belos::TwoNorm);
-	TEST_EQUALITY( std::sqrt(N), norm )
+	TEST_FLOATING_EQUALITY( std::sqrt(N), norm, errorTolSlack );
 }
 
 
@@ -404,7 +404,7 @@ TEUCHOS_UNIT_TEST( VectorModeField, scale ) {
   vel->init(1.);
   vel->scale(2.);
   norm = vel->norm(Belos::TwoNorm);
-  TEST_EQUALITY( std::sqrt(4*N), norm)
+  TEST_FLOATING_EQUALITY( std::sqrt(4*N), norm, errorTolSlack );
 
 }
 
@@ -463,7 +463,7 @@ TEUCHOS_UNIT_TEST( VectorModeField, add ) {
 
   vel1->add( 2., *vel2, 0., *vel3);
   norm = vel1->norm(Belos::TwoNorm);
-  TEST_EQUALITY( std::sqrt(N), norm )
+  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, errorTolSlack );
 
   vel1->init(0.);
   vel2->init(1./2.);
@@ -471,7 +471,7 @@ TEUCHOS_UNIT_TEST( VectorModeField, add ) {
 
   vel1->add( 0., *vel2, 3., *vel3);
   norm = vel1->norm(Belos::TwoNorm);
-  TEST_EQUALITY( std::sqrt(N), norm )
+  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, errorTolSlack );
 
   vel1->init(0.);
   vel2->init(1.);
@@ -479,7 +479,7 @@ TEUCHOS_UNIT_TEST( VectorModeField, add ) {
 
   vel1->add( 0.5, *vel2, 0.5, *vel3);
   norm = vel1->norm(Belos::TwoNorm);
-  TEST_EQUALITY( std::sqrt(N), norm )
+  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, errorTolSlack );
 
 }
 

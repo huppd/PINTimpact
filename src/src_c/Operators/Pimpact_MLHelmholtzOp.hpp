@@ -21,7 +21,6 @@
 
 namespace Pimpact{
 
-
 extern "C" {
 
 void VF_extract_dof(
@@ -41,10 +40,57 @@ void VF_extract_dof(
     double* const phioU,
     double* const phioV,
     double* const phioW );
+
+void VF_extract_dof_reverse(
+    const int& dimens,
+    const int* const N,
+    const int* const bL,
+    const int* const bU,
+    const int* const sU,
+    const int* const nU,
+    const int* const sV,
+    const int* const nV,
+    const int* const sW,
+    const int* const nW,
+    const double* const phiiU,
+    const double* const phiiV,
+    const double* const phiiW,
+    double* const phioU,
+    double* const phioV,
+    double* const phioW );
+
+void OP_innerhelmholtz(
+    const int& m,
+    const int* const ss,
+    const int* const nn,
+    const double& mulI,
+    const double& multL,
+    double* const x,
+    double* const rhs );
+
+void OP_HelmholtzGetRowEntries(
+    const int& m,
+    const int* const ss,
+    const int* const nn,
+    const double& mulI,
+    const double& multL,
+    const int& i,
+    const int& j,
+    const int& k,
+    const int& maxRowEntries,
+    int* const ic,
+    int* const jc,
+    int* const kc,
+    double* const val,
+    int& rowEntries );
 }
 
 
+
+
 /// \ingroup BaseOperator
+/// \todo make Adat pretty
+/// \todo make mulL better
 template< class Scalar, class Ordinal >
 class MLHelmholtzOp {
 
@@ -57,41 +103,65 @@ public:
 
 private:
 
+  struct Adat {
+    Teuchos::RCP< const Pimpact::Space<Ordinal> > space_;
+    int field_;
+    double mulI_;
+    double mulL_;
+  };
+
   Teuchos::Tuple<ML*,3> mlObject_;
   Teuchos::Tuple<ML_Aggregate*,3> agg_object_;
 
-  Teuchos::RCP<const Space<Ordinal> > space_;
+  //  ML* mlObject_[3]; ML_Aggregate* agg_object_[3];
 
-  const int& dim() const { return( space_->filedS_->dim_   ); }
+  Teuchos::Tuple<Adat,3> adat_;
+  //  Teuchos::RCP<const Space<Ordinal> > space_;
 
-  Teuchos::Tuple<ScalarArray,3> x_;
-  Teuchos::Tuple<ScalarArray,3> rhs_;
+  const int& dim() const { return( adat_[0].space_->dim() ); }
+  Teuchos::RCP<const Space<Ordinal> > space() const {return( adat_[0].space_ );}
 
   Teuchos::Tuple<int,3> nloc_;
 
   int nLevels_;
 
+  Teuchos::Tuple<ScalarArray,3> sol_;
+  Teuchos::Tuple<ScalarArray,3> rhs_;
 
 public:
 
   MLHelmholtzOp(
-      const Teuchos::RCP<const Space>& space,
-      int nGrids=20 ):
-    space_(space) {
+      const Teuchos::RCP< const Space<Ordinal> >& space,
+      int nGrids=20,
+      Scalar mulI=1.,
+      Scalar mulL=1. ):
+        nloc_(Teuchos::tuple(1,1,1)) {
 
+    //    std::cout << "construct me baby\n";
+    for( int field=0; field<space->dim(); ++field) {
+      adat_[field].space_=space;
+      adat_[field].field_ = field;
+      adat_[field].mulI_ = mulI;
+      adat_[field].mulL_ = mulL;
+//      adat_[field].space_->print();
+    }
+
+    //    MLHelmholtzOp::space_=space;
     // comput nlo_
     int nTot = 0;
     for( int field=0; field<3; ++field ) {
-      nloc_[field] = 1;
-       for( int i=0; i<3; ++i )
-         nloc_[field] *= space_->eInd(field)[i]-space_->sInd(field)[i];
-       nTot += nloc_[field];
+      for( int i=0; i<dim(); ++i ) {
+//        space()->print();
+//        std::cout << "\nnloc: " << nloc_[i]<< "\n";
+        nloc_[field] *= space()->eInd(field)[i]-space()->sInd(field)[i]+1;
+      }
+      nTot += nloc_[field];
     }
 
     // init x
-    x_[0] = new Scalar[ nTot ];
-    x_[1] = x_[0] + nloc_[0];
-    x_[2] = x_[1] + nloc_[1];
+    sol_[0] = new Scalar[ nTot ];
+    sol_[1] = sol_[0] + nloc_[0];
+    sol_[2] = sol_[1] + nloc_[1];
 
     // init rhs
     rhs_[0] = new Scalar[ nTot ];
@@ -100,77 +170,231 @@ public:
 
 
 
-    for( int i=0; i<dim(); ++i ) {
-      ML_Create( &mlObject_[i], nGrids );
+    for( int field=0; field<dim(); ++field ) {
+      std::cout << "\nfield: " << field << "\tnloc: " << nloc_[field] << "\n";
+      ML_Create( &mlObject_[field], nGrids );
 
-      ML_Init_Amatrix( mlObject_[i], 0,  nloc_[i], nloc_[i], NULL );
-      ML_Set_Amatrix_Getrow( mlObject_[i], 0, getrow, NULL, 129 );
-      ML_Set_Amatrix_Matvec( mlObject_[i], 0, matvec );
+      ML_Init_Amatrix( mlObject_[field], 0,  nloc_[field], nloc_[field], &adat_[field] );
+      ML_Set_Amatrix_Getrow( mlObject_[field], 0, pimp_getrow, NULL, nloc_[field] );
+      ML_Set_Amatrix_Matvec( mlObject_[field], 0, pimp_matvec );
 
+      ML_Set_PrintLevel(10);
 
-      ML_Aggregate_Create( &agg_object_[i]);
-      ML_Aggregate_Set_MaxCoarseSize( agg_object_[i], 1 );
+      ML_Aggregate_Create( &agg_object_[field]);
+      ML_Aggregate_Set_MaxCoarseSize( agg_object_[field], 1 );
 
-      nLevels_ = ML_Gen_MGHierarchy_UsingAggregation( mlObject_[i], 0,
-                                                   ML_INCREASING, agg_object_[i] );
+      nLevels_ = ML_Gen_MGHierarchy_UsingAggregation( mlObject_[field], 0,
+          ML_INCREASING, agg_object_[field] );
 
-      ML_Gen_Smoother_GaussSeidel( mlObject_[i], ML_ALL_LEVELS, ML_PRESMOOTHER, 1, ML_DEFAULT );
+      std::cout << "\nnLeves: " << nLevels_ << "\n";
 
-      ML_Gen_Solver( mlObject_[i], ML_MGV, 0, nLevels_-1 );
+      ML_Gen_Smoother_Jacobi( mlObject_[field], ML_ALL_LEVELS, ML_PRESMOOTHER, 10, ML_DEFAULT);
+
+      ML_Gen_Solver( mlObject_[field], ML_MGV, 0, nLevels_-1 );
     }
 
   };
 
   ~MLHelmholtzOp() {
 
-    for( int i=0; i<3; ++i ) {
+    delete[] sol_[0];
+    delete[] rhs_[0];
+    for( int i=0; i<dim(); ++i ) {
       ML_Aggregate_Destroy( &agg_object_[i] );
       ML_Destroy( &mlObject_[i] );
     }
 
   }
 
-  int getrow(
+private:
+
+  static int pimp_getrow(
       ML_Operator *Amat,
       int N_requested_rows,
       int requested_rows[],
       int allocated_space,
       int columns[],
       double values[],
-      int row_lengths[] );
+      int row_lengths[] ) {
 
-  int matvec(
+//    if( allocated_space<N_requested_rows ) return( 0 );
+//    for( int i=0; i<N_requested_rows; ++i) {
+//      values[i] = 1.;
+//      row_lengths[i] = 1;
+//      columns[i] = requested_rows[i];
+//    }
+
+
+//    std::cout << "\ngetrow: # requested rows: "<< N_requested_rows << " # allocated_space: " << allocated_space << "\n";
+    Adat* itemp;
+    itemp  = (Adat *) ML_Get_MyGetrowData( Amat );
+    int field = itemp->field_;
+    double mulI = itemp->mulI_;
+    double mulL = itemp->mulL_;
+    Teuchos::RCP<const Pimpact::Space<Ordinal> > space = itemp->space_;
+
+    int count = 0;
+    int start, row;
+    int i,j,k;
+
+    int maxRowEntries = 0;
+    for( int l=0; l<space->dim(); ++l )
+      maxRowEntries += ( space->bl()[l]+space->bu()[l]+1 ) ;
+    maxRowEntries -= space->dim()-1;
+
+    int rowEntries;
+
+    int* ic = new int[maxRowEntries];
+    int* jc = new int[maxRowEntries];
+    int* kc = new int[maxRowEntries];
+    Scalar* val = new Scalar[maxRowEntries];
+
+    for( int l=0; l<N_requested_rows; l++ ) {
+      if( allocated_space < count+maxRowEntries )
+        return(0);
+      start = count;
+      row = requested_rows[l];
+      //       if ( (row >= 0) || (row <= (129-1)) ) {
+      //         columns[count] = row;
+      //         values[count++] = 2.;
+      //         if (row != 0) {
+      //           columns[count] = row-1;
+      //           values[count++] = -1.; }
+      //         if (row != (129-1)) {
+      //           columns[count] = row+1;
+      //           values[count++] = -1.;
+      //         }
+      //       }
+      k = row
+          /(space->eInd(field)[0]-space->sInd(field)[0])
+          /(space->eInd(field)[1]-space->sInd(field)[1])
+          + space->sInd(field)[2];
+      j = ( row
+          -(space->eInd(field)[0]-space->sInd(field)[0])
+          *(space->eInd(field)[1]-space->sInd(field)[1])
+          *(k-space->sInd(field)[2]) )
+                                /(space->eInd(field)[0]-space->sInd(field)[0])
+                                +space->sInd(field)[1];
+      i = row
+          -(space->eInd(field)[0]-space->sInd(field)[0])
+          *(space->eInd(field)[1]-space->sInd(field)[1])
+          *(k-space->sInd(field)[2])
+          -(space->eInd(field)[0]-space->sInd(field)[0])
+          *(j-space->sInd(field)[1])
+          +space->sInd(field)[0];
+
+      OP_HelmholtzGetRowEntries(
+          field+1,
+          space->sInd(field),
+          space->eInd(field),
+          mulI,
+          mulL,
+          i,
+          j,
+          k,
+          maxRowEntries,
+          ic,
+          jc,
+          kc,
+          val,
+          rowEntries );
+      for( int m=0; m<rowEntries; ++m) {
+
+        values[count] = val[m];
+        columns[count++] = ic[m]-space->sInd(field)[0]
+                                                    + (space->eInd(field)[0]-space->sInd(field)[0])*(jc[m]-space->sInd(field)[1])
+                                                    + (space->eInd(field)[0]-space->sInd(field)[0])*
+                                                    (space->eInd(field)[1]-space->sInd(field)[1])*(kc[m]-space->sInd(field)[2]) ;
+        std::cout << "\nrow: "<< row << "\t";
+        std::cout << "\tcol: "<< columns[count] << "\t";
+        std::cout << "\tval: "<< val[m] << "\n";
+
+      }
+      row_lengths[l] = count - start;
+
+    }
+    return( 1 );
+  }
+
+  static int pimp_matvec(
       ML_Operator *Amat,
       int in_length,
-      double p[],
+      double* p,
       int out_length,
-      double ap[] ) ;
+      double* ap ) {
 
+    //    typedef double Scalar;
+    //    typedef int Ordinal;
+
+    std::cout << "\nmatvec: in length: " << in_length << " outlength: " << out_length << " ";
+//    std::cout << "\nmatvec\n";
+    Adat* itemp;
+    itemp  = (Adat *) ML_Get_MyGetrowData( Amat );
+    int field = itemp->field_;
+    double mulI = itemp->mulI_;
+    double mulL = itemp->mulL_;
+    Teuchos::RCP<const Pimpact::Space<int> > space = itemp->space_;
+//    space->print();
+    int nloc = 1;
+    for( int i=0; i<2;++i) {
+      nloc*=-space->sInd(field)[i]+space->eInd(field)[i]+1;
+    }
+    std::cout << "nloc: " << nloc << "\n";
+
+    OP_innerhelmholtz(
+        field+1,
+        space->sInd(field),
+        space->eInd(field),
+        mulI,
+        mulL,
+        p,
+        ap );
+
+//    for( int i=0; i<out_length; ++i) {
+//      ap[i] = 1*p[i];
+//    }
+    return( 0 );
+  }
+
+public:
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
+    x.exchange();
 
     VF_extract_dof(
-        space_->dim(),
-        space_->nLoc(),
-        space_->bl(), space_->bu(),
-        space_->sInd(0), space_->eInd(0),
-        space_->sInd(1), space_->eInd(1),
-        space_->sInd(2), space_->eInd(2),
+        space()->dim(),
+        space()->nLoc(),
+        space()->bl(), space()->bu(),
+        space()->sInd(0), space()->eInd(0),
+        space()->sInd(1), space()->eInd(1),
+        space()->sInd(2), space()->eInd(2),
         x.vec_[0], x.vec_[1], x.vec_[2],
-        x_    [0], x_    [1], x_    [2] );
-
-    VF_extract_dof(
-        space_->dim(),
-        space_->nLoc(),
-        space_->bl(), space_->bu(),
-        space_->sInd(0), space_->eInd(0),
-        space_->sInd(1), space_->eInd(1),
-        space_->sInd(2), space_->eInd(2),
-        y.vec_[0], y.vec_[1], y.vec_[2],
         rhs_  [0], rhs_  [1], rhs_  [2] );
 
-    for( int i=0; i<space_->dim(); ++i )
-      ML_Iterate( mlObject_[i], *x_[i], *rhs_[i] );
+    VF_extract_dof(
+        space()->dim(),
+        space()->nLoc(),
+        space()->bl(), space()->bu(),
+        space()->sInd(0), space()->eInd(0),
+        space()->sInd(1), space()->eInd(1),
+        space()->sInd(2), space()->eInd(2),
+        y.vec_[0], y.vec_[1], y.vec_[2],
+        sol_  [0], sol_  [1], sol_  [2] );
+
+    for( int i=0; i<dim(); ++i )
+      ML_Iterate( mlObject_[i], sol_[i], rhs_[i] );
+
+    VF_extract_dof_reverse(
+        space()->dim(),
+        space()->nLoc(),
+        space()->bl(), space()->bu(),
+        space()->sInd(0), space()->eInd(0),
+        space()->sInd(1), space()->eInd(1),
+        space()->sInd(2), space()->eInd(2),
+        sol_  [0], sol_  [1], sol_  [2],
+        y.vec_[0], y.vec_[1], y.vec_[2] );
+
+    y.changed();
 
   }
 
@@ -181,13 +405,18 @@ public:
 }; // end of class MLHelmholtzOp
 
 
-
 /// \relates MLHelmholtzOp
 template< class Scalar, class Ordinal>
 Teuchos::RCP< MLHelmholtzOp<Scalar,Ordinal> > createMLHelmholtzOp(
-    const Teuchos::RCP<LinearProblem<MultiField<VectorField<Scalar,Ordinal> > > > lap_prob ) {
+    const Teuchos::RCP< const Space<Ordinal> >& space,
+    int nGrids=20,
+    Scalar mulI=1.,
+    Scalar mulL=1.  ) {
 
-  return( Teuchos::rcp( new MLHelmholtzOp<Scalar,Ordinal>( lap_prob ) ) );
+  return(
+      Teuchos::rcp(
+          new MLHelmholtzOp<Scalar,Ordinal>( space, nGrids, mulI, mulL ) ) );
+
 }
 
 

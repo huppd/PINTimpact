@@ -13,6 +13,7 @@
 
 #include "Pimpact_FieldSpace.hpp"
 #include "Pimpact_IndexSpace.hpp"
+#include "Pimpact_Space.hpp"
 
 #include "Pimpact_extern_ScalarField.hpp"
 #include "Pimpact_extern_VectorField.hpp"
@@ -44,6 +45,8 @@ class VectorField {
 	friend class NonlinearJacobian;
 	template<class S1,class O1>
 	friend class DtLapOp;
+	template<class S1,class O1>
+	friend class MLHelmholtzOp;
 
 public:
 
@@ -78,7 +81,7 @@ public:
 	      exchangedState_(Teuchos::tuple(Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true))) {
 	  Ordinal N = 1;
 		for(int i=0; i<3; ++i)
-			N *= nLoc(i)+bu(i)-bl(i);
+			N *= nLoc(i)+bu(i)-bl(i)+1;
 
 		vec_[0] = new Scalar[3*N];
 		vec_[1] = vec_[0]+N;
@@ -745,8 +748,9 @@ public:
 
 
   void write( int count=0 ) {
-    for( int dir=0; dir<dim(); ++dir )
-      exchange( dir, dir );
+//    for( int dir=0; dir<dim(); ++dir )
+//      exchange( dir, dir );
+    exchange();
   	VF_write( vec_[0], vec_[1], vec_[2], count );
   }
 
@@ -834,10 +838,23 @@ protected:
 template<class Scalar, class Ordinal>
 Teuchos::RCP< VectorField<Scalar,Ordinal> > createVectorField(
 		const Teuchos::RCP<const FieldSpace<Ordinal> >& fieldS,
-		typename VectorField<Scalar,Ordinal>::IndexSpaces innerIS,
+		const typename VectorField<Scalar,Ordinal>::IndexSpaces& innerIS,
 		const typename VectorField<Scalar,Ordinal>::IndexSpaces& fullIS ) {
+
 	return( Teuchos::RCP<VectorField<Scalar,Ordinal> > (
 				new VectorField<Scalar,Ordinal>( fieldS, innerIS, fullIS ) ) );
+
+}
+
+
+/// \brief creates a vector field belonging to a \c FieldSpace and two \c IndexSpaces
+/// \relates VectorField
+template<class S, class O>
+Teuchos::RCP< VectorField<S,O> > createVectorField( const Teuchos::RCP< const Space<O> >& space ) {
+
+	return( Teuchos::RCP<VectorField<S,O> > (
+				new VectorField<S,O>( space->getFieldSpace(), space->getInnerIndexSpace(), space->getFullIndexSpace() ) ) );
+
 }
 
 

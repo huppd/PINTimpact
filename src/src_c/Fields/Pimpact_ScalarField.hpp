@@ -63,7 +63,7 @@ public:
 
 	  Ordinal N = 1;
 	  for(int i=0; i<3; ++i)
-	    N *= nLoc(i)+bu(i)-bl(i);
+	    N *= nLoc(i)+bu(i)-bl(i)+1;
 
 	  s_ = new Scalar[N];
 

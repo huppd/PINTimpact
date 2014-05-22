@@ -13,7 +13,12 @@ namespace Pimpact{
 
 extern "C" {
 
-  void OP_helmholtz( const int& m, const double& mulI, const double& multL, double* const phi, double* const Lap);
+void OP_helmholtz(
+    const int& m,
+    const double& mulI,
+    const double& multL,
+    double* const phi,
+    double* const Lap );
 
 }
 

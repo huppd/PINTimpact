@@ -62,16 +62,22 @@
   !         (will be improved in future releases)
   !       - for 2D simulations set M3 = 2 (all terms in the third direction are switched off)
   !
-  M1 = 193
-  M1 = 2*2**2+1
-  M1 = 193
-  M2 = 193
-  M1 = 129
-  M2 = 129
+!  M1 = 257
+!  M2 = 257
+!  M1 = 193
+!  M2 = 193
+!  M1 = 129
+!  M2 = 129
 !  M1 = 65
 !  M2 = 65
-  M1 = 49
-  M2 = 49
+!  M1 = 49
+!  M2 = 49
+  M1 = 33
+  M2 = 33
+!  M1 = 9
+!  M2 = 9
+!  M1 = 7
+!  M2 = 7
 !  M3 = 2*2**2+1
   M3 = 2
   
@@ -79,11 +85,11 @@
   ! note: - multigrid requires that MOD(Mi-1,NBi) = 0
   !       - 2D simulations (M3 = 2) require NB3 = 1
   !
-!  NB1 = 4
-!  NB2 = 1
-!  NB3 = 1
   NB1 = 2
   NB2 = 2
+!  NB3 = 1
+!  NB1 = 1
+!  NB2 = 1
   NB3 = 1
 #endif
   

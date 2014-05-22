@@ -150,7 +150,7 @@ contains
 
         real(c_double),  intent(out)   ::  phioU(SU(1):NU(1),SU(2):NU(2),SU(3):NU(3))
         real(c_double),  intent(out)   ::  phioV(SV(1):NV(1),SV(2):NV(2),SV(3):NV(3))
-        real(c_double),  intent(out)   ::  phioW(SV(1):NW(1),SW(2):NW(2),SW(3):NW(3))
+        real(c_double),  intent(out)   ::  phioW(SW(1):NW(1),SW(2):NW(2),SW(3):NW(3))
 
         integer                       ::  i, j, k
 
@@ -185,6 +185,79 @@ contains
         end if
 
     end subroutine extract_dof
+
+
+    subroutine extract_dof_reverse(    &
+        dimens,                &
+        N,                     &
+        bL,bU,                 &
+        SU,NU,                 &
+        SV,NV,                 &
+        SW,NW,                 &
+        phiiU,phiiV,phiiW,     &
+        phioU,phioV,phioW ) bind ( c, name='VF_extract_dof_reverse' )
+
+        implicit none
+
+        integer(c_int), intent(in)    ::  dimens
+
+        integer(c_int), intent(in)    ::  N(3)
+
+        integer(c_int), intent(in)    ::  bL(3)
+        integer(c_int), intent(in)    ::  bU(3)
+
+        integer(c_int), intent(in)    ::  SU(3)
+        integer(c_int), intent(in)    ::  NU(3)
+
+        integer(c_int), intent(in)    ::  SV(3)
+        integer(c_int), intent(in)    ::  NV(3)
+
+        integer(c_int), intent(in)    ::  SW(3)
+        integer(c_int), intent(in)    ::  NW(3)
+
+
+        real(c_double),  intent(in)  ::  phiiU(SU(1):NU(1),SU(2):NU(2),SU(3):NU(3))
+        real(c_double),  intent(in)  ::  phiiV(SV(1):NV(1),SV(2):NV(2),SV(3):NV(3))
+        real(c_double),  intent(in)  ::  phiiW(SW(1):NW(1),SW(2):NW(2),SW(3):NW(3))
+
+        real(c_double),  intent(out)   ::  phioU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double),  intent(out)   ::  phioV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double),  intent(out)   ::  phioW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+
+        integer                       ::  i, j, k
+
+
+        do k = SU(3), NU(3)
+            do j = SU(2), NU(2)
+                !pgi$ unroll = n:8
+                do i = SU(1), NU(1)
+                    phioU(i,j,k) =  phiiU(i,j,k)
+                end do
+            end do
+        end do
+
+        do k = SV(3), NV(3)
+            do j = SV(2), NV(2)
+                !pgi$ unroll = n:8
+                do i = SV(1), NV(1)
+                    phioV(i,j,k) =  phiiV(i,j,k)
+                end do
+            end do
+        end do
+
+        if (dimens == 3) then
+            do k = SW(3), NW(3)
+                do j = SW(2), NW(2)
+                    !pgi$ unroll = n:8
+                    do i = SW(1), NW(1)
+                        phioW(i,j,k) =  phiiW(i,j,k)
+                    end do
+                end do
+            end do
+        end if
+
+    end subroutine extract_dof_reverse
+
 
 
     !> brief computes two or infinity norm

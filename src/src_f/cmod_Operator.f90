@@ -1922,7 +1922,8 @@ contains
     !! \param[out] Lap
     subroutine InnerHelmholtz(    &
         m,    &
-        SS,NN,&
+        SS,   &
+        NN,   &
         mulI, &
         mulL, &
         phi,  &
@@ -1930,16 +1931,16 @@ contains
 
         implicit none
 
-        integer(c_int)  , intent(in   ) ::  m
+        integer(c_int), intent(in ) ::  m
 
         integer(c_int), intent(in)    ::  SS(3)
         integer(c_int), intent(in)    ::  NN(3)
 
-        real(c_double)  , intent(in   ) ::  mulI
-        real(c_double)  , intent(in   ) ::  mulL
+        real(c_double), intent(in   ) ::  mulI
+        real(c_double), intent(in   ) ::  mulL
 
-        real(c_double)  , intent(inout) ::  phi(SS(1):NN(1),SS(2):NN(2),SS(3):NN(3))
-        real(c_double)  , intent(  out) ::  Lap(SS(1):NN(1),SS(2):NN(2),SS(3):NN(3))
+        real(c_double), intent(inout) ::  phi(SS(1):NN(1),SS(2):NN(2),SS(3):NN(3))
+        real(c_double), intent(inout) ::  Lap(SS(1):NN(1),SS(2):NN(2),SS(3):NN(3))
 
         integer                ::  i, ii
         integer                ::  j, jj
@@ -1957,15 +1958,15 @@ contains
                             dd1 = 0.
                             !pgi$ unroll = n:8
                             do ii = b1L, b1U
-                                dd1 = dd1 + cu11(ii,i)*phi(i+ii,j,k)
+                                if( SS(1) <= i+ii .and. i+ii <= NN(1) ) dd1 = dd1 + cu11(ii,i)*phi(i+ii,j,k)
                             end do
                             !pgi$ unroll = n:8
                             do jj = b2L, b2U
-                                dd1 = dd1 + cp22(jj,j)*phi(i,j+jj,k)
+                                if( SS(2) <= j+jj .and. j+jj <= NN(2) ) dd1 = dd1 + cp22(jj,j)*phi(i,j+jj,k)
                             end do
                             !pgi$ unroll = n:8
                             do kk = b3L, b3U
-                                dd1 = dd1 + cp33(kk,k)*phi(i,j,k+kk)
+                                if( SS(3) <= k+kk .and. k+kk <= NN(3) ) dd1 = dd1 + cp33(kk,k)*phi(i,j,k+kk)
                             end do
                             Lap(i,j,k) = mulI*phi(i,j,k) - mulL*dd1
                         end do
@@ -1975,14 +1976,14 @@ contains
                 do k = SS(3), NN(3)
                     do j = SS(2), NN(2)
                         do i = SS(1), NN(1)
-                            dd1 = cu11(b1L,i)*phi(i+b1L,j,k)
+                            dd1 = 0.
                             !pgi$ unroll = n:8
-                            do ii = b1L+1, b1U
-                                dd1 = dd1 + cu11(ii,i)*phi(i+ii,j,k)
+                            do ii = b1L, b1U
+                                if( SS(1) <= i+ii .and. i+ii <= NN(1) ) dd1 = dd1 + cu11(ii,i)*phi(i+ii,j,k)
                             end do
                             !pgi$ unroll = n:8
                             do jj = b2L, b2U
-                                dd1 = dd1 + cp22(jj,j)*phi(i,j+jj,k)
+                                if( SS(2) <= j+jj .and. j+jj <= NN(2) ) dd1 = dd1 + cp22(jj,j)*phi(i,j+jj,k)
                             end do
                             Lap(i,j,k) = mulI*phi(i,j,k) - mulL*dd1
                         end do
@@ -1996,18 +1997,18 @@ contains
                 do k = SS(3), NN(3)
                     do j = SS(2), NN(2)
                         do i = SS(1), NN(1)
-                            dd1 = cp11(b1L,i)*phi(i+b1L,j,k)
+                            dd1 = 0.
                             !pgi$ unroll = n:8
-                            do ii = b1L+1, b1U
-                                dd1 = dd1 + cp11(ii,i)*phi(i+ii,j,k)
+                            do ii = b1L, b1U
+                                if( SS(1) <= i+ii .and. i+ii <= NN(1) ) dd1 = dd1 + cp11(ii,i)*phi(i+ii,j,k)
                             end do
                             !pgi$ unroll = n:8
                             do jj = b2L, b2U
-                                dd1 = dd1 + cv22(jj,j)*phi(i,j+jj,k)
+                                if( SS(2) <= j+jj .and. j+jj <= NN(2) ) dd1 = dd1 + cv22(jj,j)*phi(i,j+jj,k)
                             end do
                             !pgi$ unroll = n:8
                             do kk = b3L, b3U
-                                dd1 = dd1 + cp33(kk,k)*phi(i,j,k+kk)
+                                if( SS(3) <= k+kk .and. k+kk <= NN(3) ) dd1 = dd1 + cp33(kk,k)*phi(i,j,k+kk)
                             end do
                             Lap(i,j,k) = mulI*phi(i,j,k) - mulL*dd1
                         end do
@@ -2017,14 +2018,14 @@ contains
                 do k = SS(3), NN(3)
                     do j = SS(2), NN(2)
                         do i = SS(1), NN(1)
-                            dd1 = cp11(b1L,i)*phi(i+b1L,j,k)
+                            dd1 = 0.
                             !pgi$ unroll = n:8
-                            do ii = b1L+1, b1U
-                                dd1 = dd1 + cp11(ii,i)*phi(i+ii,j,k)
+                            do ii = b1L, b1U
+                                if( SS(1) <= i+ii .and. i+ii <= NN(1) ) dd1 = dd1 + cp11(ii,i)*phi(i+ii,j,k)
                             end do
                             !pgi$ unroll = n:8
                             do jj = b2L, b2U
-                                dd1 = dd1 + cv22(jj,j)*phi(i,j+jj,k)
+                                if( SS(2) <= j+jj .and. j+jj <= NN(2) ) dd1 = dd1 + cv22(jj,j)*phi(i,j+jj,k)
                             end do
                             Lap(i,j,k) = mulI*phi(i,j,k) - mulL*dd1
                         end do
@@ -2037,18 +2038,18 @@ contains
             do k = SS(3), NN(3)
                 do j = SS(2), NN(2)
                     do i = SS(1), NN(1)
-                        dd1 = cp11(b1L,i)*phi(i+b1L,j,k)
+                        dd1 = 0.
                         !pgi$ unroll = n:8
-                        do ii = b1L+1, b1U
-                            dd1 = dd1 + cp11(ii,i)*phi(i+ii,j,k)
+                        do ii = b1L, b1U
+                            if( SS(1) <= i+ii .and. i+ii <= NN(1) ) dd1 = dd1 + cp11(ii,i)*phi(i+ii,j,k)
                         end do
                         !pgi$ unroll = n:8
                         do jj = b2L, b2U
-                            dd1 = dd1 + cp22(jj,j)*phi(i,j+jj,k)
+                            if( SS(2) <= j+jj .and. j+jj <= NN(2) ) dd1 = dd1 + cp22(jj,j)*phi(i,j+jj,k)
                         end do
                         !pgi$ unroll = n:8
                         do kk = b3L, b3U
-                            dd1 = dd1 + cw33(kk,k)*phi(i,j,k+kk)
+                            if( SS(3) <= k+kk .and. k+kk <= NN(3) ) dd1 = dd1 + cw33(kk,k)*phi(i,j,k+kk)
                         end do
                         Lap(i,j,k) = mulI*phi(i,j,k) - mulL*dd1
                     end do
@@ -2061,6 +2062,369 @@ contains
     end subroutine InnerHelmholtz
 
 
+
+
+    !>  \brief computes \f$ \mathrm{lap_m = mulI phi_m - mulL \Delta phi_m} \f$
+    !!
+    !! used for mod_rhs and for product_Helmholtz(so boundary conditions are included?)
+    !! \param[in] m dimension from one to three
+    !! \param[in] mulI factor which coresponds to the factor of the identity part
+    !! \param[in] mulL factor which coresponds to the factor of the laplace part
+    !! \param[inout] phi
+    !! \param[out] Lap
+    subroutine HelmholtzGetRowEntries(    &
+        m,             &
+        SS,            &
+        NN,            &
+        mulI,          &
+        mulL,          &
+        i,             &
+        j,             &
+        k,             &
+        maxRowEntries, &
+        ic,            &
+        jc,            &
+        kc,            &
+        val,           &
+        rowEntries     &
+        ) bind (c,name='OP_HelmholtzGetRowEntries')
+
+        implicit none
+
+        integer(c_int), intent(in ) ::  m
+
+        integer(c_int), intent(in ) ::  i
+        integer(c_int), intent(in ) ::  j
+        integer(c_int), intent(in ) ::  k
+
+        integer(c_int), intent(in ) ::  SS(3)
+        integer(c_int), intent(in ) ::  NN(3)
+
+        integer(c_int), intent(in ) ::  maxRowEntries
+
+        integer(c_int), intent(out) ::  ic(maxRowEntries)
+        integer(c_int), intent(out) ::  jc(maxRowEntries)
+        integer(c_int), intent(out) ::  kc(maxRowEntries)
+
+        real(c_double), intent(out) ::  val(maxRowEntries)
+
+        integer(c_int), intent(out) ::  rowEntries
+
+        real(c_double), intent(in   ) ::  mulI
+        real(c_double), intent(in   ) ::  mulL
+
+
+        integer                ::  ii
+        integer                ::  jj
+        integer                ::  kk
+!        integer                ::  counter
+
+
+        rowEntries = 1;
+        !===========================================================================================================
+        if (m == 1) then
+            if (dimens == 3) then
+                val(rowEntries) = mulI - mulL*( cu11(0,i)+cp22(0,j)+cp33(0,k) )
+                ic(rowEntries) = i
+                jc(rowEntries) = j
+                kc(rowEntries) = k
+                rowEntries = rowEntries + 1
+                !pgi$ unroll = n:8
+                do ii = b1L, -1
+                    if( SS(1) <= i+ii .and. i+ii <= NN(1) ) then
+                        val(rowEntries) = - mulL*( cu11(ii,i) )
+                        ic(rowEntries) = ii
+                        jc(rowEntries) = j
+                        kc(rowEntries) = k
+                        rowEntries = rowEntries + 1
+                    end if
+                end do
+                !pgi$ unroll = n:8
+                do ii = 1, b1U
+                    if( SS(1) <= i+ii .and. i+ii <= NN(1) ) then
+                        val(rowEntries) = - mulL*( cu11(ii,i) )
+                        ic(rowEntries) = ii
+                        jc(rowEntries) = j
+                        kc(rowEntries) = k
+                        rowEntries = rowEntries + 1
+                    end if
+                end do
+                !pgi$ unroll = n:8
+                do jj = b2L, -1
+                    if( SS(2) <= j+jj .and. j+jj <= NN(2) ) then
+                        val(rowEntries) = - mulL*( cp22(jj,j) )
+                        ic(rowEntries) = i
+                        jc(rowEntries) = jj
+                        kc(rowEntries) = k
+                        rowEntries = rowEntries + 1
+                    end if
+                end do
+                !pgi$ unroll = n:8
+                do jj = 1, b2U
+                    if( SS(2) <= j+jj .and. j+jj <= NN(2) ) then
+                        val(rowEntries) = - mulL*( cp22(jj,j) )
+                        ic(rowEntries) = i
+                        jc(rowEntries) = jj
+                        kc(rowEntries) = k
+                        rowEntries = rowEntries + 1
+                    end if
+                end do
+                !pgi$ unroll = n:8
+                do kk = b3L, -1
+                    if( SS(3) <= k+kk .and. k+kk <= NN(3) ) then
+                        val(rowEntries) = - mulL*( cp33(kk,k) )
+                        ic(rowEntries) = i
+                        jc(rowEntries) = j
+                        kc(rowEntries) = kk
+                        rowEntries = rowEntries + 1
+                    end if
+                end do
+                !pgi$ unroll = n:8
+                do kk = 1, b3U
+                    if( SS(3) <= k+kk .and. k+kk <= NN(3) ) then
+                        val(rowEntries) = - mulL*( cp33(kk,k) )
+                        ic(rowEntries) = i
+                        jc(rowEntries) = j
+                        kc(rowEntries) = kk
+                        rowEntries = rowEntries + 1
+                    end if
+                end do
+            else
+                val(rowEntries) = mulI - mulL*( cu11(0,i)+cp22(0,j) )
+                ic(rowEntries) = i
+                jc(rowEntries) = j
+                kc(rowEntries) = k
+                rowEntries = rowEntries + 1
+                !pgi$ unroll = n:8
+                do ii = b1L, -1
+                    if( SS(1) <= i+ii .and. i+ii <= NN(1) ) then
+                        val(rowEntries) = - mulL*( cu11(ii,i) )
+                        ic(rowEntries) = ii
+                        jc(rowEntries) = j
+                        kc(rowEntries) = k
+                        rowEntries = rowEntries + 1
+                    end if
+                end do
+                !pgi$ unroll = n:8
+                do ii = 1, b1U
+                    if( SS(1) <= i+ii .and. i+ii <= NN(1) ) then
+                        val(rowEntries) = - mulL*( cu11(ii,i) )
+                        ic(rowEntries) = ii
+                        jc(rowEntries) = j
+                        kc(rowEntries) = k
+                        rowEntries = rowEntries + 1
+                    end if
+                end do
+                !pgi$ unroll = n:8
+                do jj = b2L, -1
+                    if( SS(2) <= j+jj .and. j+jj <= NN(2) ) then
+                        val(rowEntries) = - mulL*( cp22(jj,j) )
+                        ic(rowEntries) = i
+                        jc(rowEntries) = jj
+                        kc(rowEntries) = k
+                        rowEntries = rowEntries + 1
+                    end if
+                end do
+                !pgi$ unroll = n:8
+                do jj = 1, b2U
+                    if( SS(2) <= j+jj .and. j+jj <= NN(2) ) then
+                        val(rowEntries) = - mulL*( cp22(jj,j) )
+                        ic(rowEntries) = i
+                        jc(rowEntries) = jj
+                        kc(rowEntries) = k
+                        rowEntries = rowEntries + 1
+                    end if
+                end do
+            end if
+        end if
+        !===========================================================================================================
+        if (m == 2) then
+            if (dimens == 3) then
+                val(rowEntries) = mulI - mulL*( cp11(0,i)+cv22(0,j)+cp33(0,k) )
+                ic(rowEntries) = i
+                jc(rowEntries) = j
+                kc(rowEntries) = k
+                rowEntries = rowEntries + 1
+                !pgi$ unroll = n:8
+                do ii = b1L, -1
+                    if( SS(1) <= i+ii .and. i+ii <= NN(1) ) then
+                        val(rowEntries) = - mulL*( cp11(ii,i) )
+                        ic(rowEntries) = ii
+                        jc(rowEntries) = j
+                        kc(rowEntries) = k
+                        rowEntries = rowEntries + 1
+                    end if
+                end do
+                !pgi$ unroll = n:8
+                do ii = 1, b1U
+                    if( SS(1) <= i+ii .and. i+ii <= NN(1) ) then
+                        val(rowEntries) = - mulL*( cp11(ii,i) )
+                        ic(rowEntries) = ii
+                        jc(rowEntries) = j
+                        kc(rowEntries) = k
+                        rowEntries = rowEntries + 1
+                    end if
+                end do
+                !pgi$ unroll = n:8
+                do jj = b2L, -1
+                    if( SS(2) <= j+jj .and. j+jj <= NN(2) ) then
+                        val(rowEntries) = - mulL*( cv22(jj,j) )
+                        ic(rowEntries) = i
+                        jc(rowEntries) = jj
+                        kc(rowEntries) = k
+                        rowEntries = rowEntries + 1
+                    end if
+                end do
+                !pgi$ unroll = n:8
+                do jj = 1, b2U
+                    if( SS(2) <= j+jj .and. j+jj <= NN(2) ) then
+                        val(rowEntries) = - mulL*( cv22(jj,j) )
+                        ic(rowEntries) = i
+                        jc(rowEntries) = jj
+                        kc(rowEntries) = k
+                        rowEntries = rowEntries + 1
+                    end if
+                end do
+                !pgi$ unroll = n:8
+                do kk = b3L, -1
+                    if( SS(3) <= k+kk .and. k+kk <= NN(3) ) then
+                        val(rowEntries) = - mulL*( cp33(kk,k) )
+                        ic(rowEntries) = i
+                        jc(rowEntries) = j
+                        kc(rowEntries) = kk
+                        rowEntries = rowEntries + 1
+                    end if
+                end do
+                !pgi$ unroll = n:8
+                do kk = 1, b3U
+                    if( SS(3) <= k+kk .and. k+kk <= NN(3) ) then
+                        val(rowEntries) = - mulL*( cp33(kk,k) )
+                        ic(rowEntries) = i
+                        jc(rowEntries) = j
+                        kc(rowEntries) = kk
+                        rowEntries = rowEntries + 1
+                    end if
+                end do
+            else
+                val(rowEntries) = mulI - mulL*( cp11(0,i)+cv22(0,j) )
+                ic(rowEntries) = i
+                jc(rowEntries) = j
+                kc(rowEntries) = k
+                rowEntries = rowEntries + 1
+                !pgi$ unroll = n:8
+                do ii = b1L, -1
+                    if( SS(1) <= i+ii .and. i+ii <= NN(1) ) then
+                        val(rowEntries) = - mulL*( cp11(ii,i) )
+                        ic(rowEntries) = ii
+                        jc(rowEntries) = j
+                        kc(rowEntries) = k
+                        rowEntries = rowEntries + 1
+                    end if
+                end do
+                !pgi$ unroll = n:8
+                do ii = 1, b1U
+                    if( SS(1) <= i+ii .and. i+ii <= NN(1) ) then
+                        val(rowEntries) = - mulL*( cp11(ii,i) )
+                        ic(rowEntries) = ii
+                        jc(rowEntries) = j
+                        kc(rowEntries) = k
+                        rowEntries = rowEntries + 1
+                    end if
+                end do
+                !pgi$ unroll = n:8
+                do jj = b2L, -1
+                    if( SS(2) <= j+jj .and. j+jj <= NN(2) ) then
+                        val(rowEntries) = - mulL*( cv22(jj,j) )
+                        ic(rowEntries) = i
+                        jc(rowEntries) = jj
+                        kc(rowEntries) = k
+                        rowEntries = rowEntries + 1
+                    end if
+                end do
+                !pgi$ unroll = n:8
+                do jj = 1, b2U
+                    if( SS(2) <= j+jj .and. j+jj <= NN(2) ) then
+                        val(rowEntries) = - mulL*( cv22(jj,j) )
+                        ic(rowEntries) = i
+                        jc(rowEntries) = jj
+                        kc(rowEntries) = k
+                        rowEntries = rowEntries + 1
+                    end if
+                end do
+            end if
+        end if
+        !===========================================================================================================
+        if (m == 3 .and. dimens == 3) then
+            val(rowEntries) = mulI - mulL*( cp11(0,i)+cp22(0,j)+cw33(0,k) )
+            ic(rowEntries) = i
+            jc(rowEntries) = j
+            kc(rowEntries) = k
+            rowEntries = rowEntries + 1
+            !pgi$ unroll = n:8
+            do ii = b1L, -1
+                if( SS(1) <= i+ii .and. i+ii <= NN(1) ) then
+                    val(rowEntries) = - mulL*( cp11(ii,i) )
+                    ic(rowEntries) = ii
+                    jc(rowEntries) = j
+                    kc(rowEntries) = k
+                    rowEntries = rowEntries + 1
+                end if
+            end do
+            !pgi$ unroll = n:8
+            do ii = 1, b1U
+                if( SS(1) <= i+ii .and. i+ii <= NN(1) ) then
+                    val(rowEntries) = - mulL*( cp11(ii,i) )
+                    ic(rowEntries) = ii
+                    jc(rowEntries) = j
+                    kc(rowEntries) = k
+                    rowEntries = rowEntries + 1
+                end if
+            end do
+            !pgi$ unroll = n:8
+            do jj = b2L, -1
+                if( SS(2) <= j+jj .and. j+jj <= NN(2) ) then
+                    val(rowEntries) = - mulL*( cp22(jj,j) )
+                    ic(rowEntries) = i
+                    jc(rowEntries) = jj
+                    kc(rowEntries) = k
+                    rowEntries = rowEntries + 1
+                end if
+            end do
+            !pgi$ unroll = n:8
+            do jj = 1, b2U
+                if( SS(2) <= j+jj .and. j+jj <= NN(2) ) then
+                    val(rowEntries) = - mulL*( cp22(jj,j) )
+                    ic(rowEntries) = i
+                    jc(rowEntries) = jj
+                    kc(rowEntries) = k
+                    rowEntries = rowEntries + 1
+                end if
+            end do
+            !pgi$ unroll = n:8
+            do kk = b3L, -1
+                if( SS(3) <= k+kk .and. k+kk <= NN(3) ) then
+                    val(rowEntries) = - mulL*( cw33(kk,k) )
+                    ic(rowEntries) = i
+                    jc(rowEntries) = j
+                    kc(rowEntries) = kk
+                    rowEntries = rowEntries + 1
+                end if
+            end do
+            !pgi$ unroll = n:8
+            do kk = 1, b3U
+                if( SS(3) <= k+kk .and. k+kk <= NN(3) ) then
+                    val(rowEntries) = - mulL*( cw33(kk,k) )
+                    ic(rowEntries) = i
+                    jc(rowEntries) = j
+                    kc(rowEntries) = kk
+                    rowEntries = rowEntries + 1
+                end if
+            end do
+        end if
+        !===========================================================================================================
+
+
+    end subroutine HelmholtzGetRowEntries
 
     !>  \brief computes \f$ \mathrm{lap_m = mulI phiI_m - mulL \Delta phiL_m} \f$
     !!

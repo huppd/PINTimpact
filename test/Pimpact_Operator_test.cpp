@@ -10,22 +10,17 @@
 #include "pimpact.hpp"
 #include "Pimpact_FieldSpace.hpp"
 #include "Pimpact_IndexSpace.hpp"
+#include "Pimpact_Space.hpp"
 
 #include "Pimpact_ScalarField.hpp"
 #include "Pimpact_VectorField.hpp"
 #include "Pimpact_FieldFactory.hpp"
 
-//#include "Pimpact_EddyPrec.hpp"
-//#include "Pimpact_Nonlinear.hpp"
-//#include "Pimpact_DivOpGrad.hpp"
-//#include "Pimpact_AddOp.hpp"
 #include "Pimpact_Operator.hpp"
-//#include "Pimpact_OperatorMV.hpp"
 #include "Pimpact_OperatorBase.hpp"
 #include "Pimpact_OperatorFactory.hpp"
 
 #include "Pimpact_LinSolverParameter.hpp"
-//#include "BelosPimpactAdapter.hpp"
 
 #include <iostream>
 #include <cmath>
@@ -263,6 +258,45 @@ TEUCHOS_UNIT_TEST( BasicOperator, Add2Op ) {
 
 
 
+TEUCHOS_UNIT_TEST( BasicOperator, MLHelmholtzOp ) {
+
+//  init_impact(0,0);
+
+  typedef Pimpact::VectorField<S,O>     VF;
+  typedef Pimpact::MultiField<VF>      MVF;
+  typedef Pimpact::Helmholtz<S,O>      Op1;
+  typedef Pimpact::Nonlinear<S,O>      Op2;
+  typedef Pimpact::Add2Op<Op1,Op2> COp;
+  typedef Pimpact::MultiOpWrap<COp>    Op;
+  typedef Pimpact::OperatorBase<MVF>   BOp;
+
+  auto fS = Pimpact::createFieldSpace<O>();
+  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+
+  auto space = Pimpact::createSpace<O>();
+  auto x   = Pimpact::createVectorField<S,O>( space );
+  auto rhs = Pimpact::createVectorField<S,O>( space );
+
+//  x->init( 0. );
+  x->random();
+  rhs->init( 2. );
+  rhs->random();
+
+  auto op =  Pimpact::createMLHelmholtzOp<S,O>( space, 20, 1., 1.  );
+
+
+  op->apply( *rhs, *x );
+
+  x->write(1111);
+  rhs->write(2222);
+  rhs->add( 1., *rhs, -1., *x );
+  rhs->write(3333);
+
+}
+
+
+
 TEUCHOS_UNIT_TEST( ModeOperator, Dt ) {
   typedef Pimpact::MultiField< Pimpact::ModeField< Pimpact::VectorField<S,O> > > MF;
   typedef Pimpact::OperatorBase<MF> BOp;
@@ -447,7 +481,6 @@ TEUCHOS_UNIT_TEST( ModeOperator, TripleCompostion) {
       Pimpact::createModeOpWrap( Pimpact::createDivOp<S,O>() )
       );
 
-//  auto schur = Pimpact::createMultiOpWrap( Pimpact::createDivDtLinvGrad<S,O>( temp, Hprob ) );
   schur->apply( B->getConstField(0), X->getField(0) );
 }
 
@@ -488,7 +521,6 @@ TEUCHOS_UNIT_TEST( ModeOperator, InverseOperator ) {
   auto opinv = Pimpact::createInverseOperator<BVF>( prob );
   auto opp = Pimpact::createOperatorBase<BVF,Op2 >( opinv );
 
-//  opp->apply( *B, *X );
 }
 
 

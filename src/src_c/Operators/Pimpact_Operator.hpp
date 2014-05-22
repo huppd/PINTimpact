@@ -18,7 +18,7 @@
 #include "Pimpact_DivHinvGradOp.hpp"
 #include "Pimpact_DivOpGrad.hpp"
 #include "Pimpact_HelmholtzOp.hpp"
-//#include "Pimpact_MLHelmholtzOp.hpp"
+#include "Pimpact_MLHelmholtzOp.hpp"
 #include "Pimpact_ForcingOp.hpp"
 #include "Pimpact_NonlinearOp.hpp"
 #include "Pimpact_NonlinearJacobianOp.hpp"
