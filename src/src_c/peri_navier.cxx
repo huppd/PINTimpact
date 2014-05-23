@@ -242,7 +242,6 @@ int main(int argi, char** argv ) {
   }
   outPar = Teuchos::null;
 
-
   // init IMPACT
   Pimpact::init_impact_post();
 
@@ -254,6 +253,7 @@ int main(int argi, char** argv ) {
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
   auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
+  auto space = Pimpact::createSpace( fS, iIS, fIS );
 
   // init vectors
   auto x    = Pimpact::createMultiField( Pimpact::createCompoundField(
@@ -359,14 +359,14 @@ int main(int argi, char** argv ) {
 //    if(0==rank) std::cout << "\n\t--- Nf: "<<nf<<"\tdof: "<<x->getLength(true)<<"\t---\n";
     if(0==rank) std::cout << "\n\t--- Nf: "<<x->getConstFieldPtr(0)->getConstVFieldPtr()->getNumberModes()<<"\tdof: "<<x->getLength(true)<<"\t---\n";
 
-    auto para = Pimpact::createLinSolverParameter( linSolName, tolBelos*l1*l2/n1/n2*(nfe-1)/nf, -1 );
+    auto para = Pimpact::createLinSolverParameter( linSolName, tolBelos*l1*l2/n1/n2*(nfe-1)/nf, 1 );
 //    auto para = Pimpact::createLinSolverParameter( linSolName, tol, -1 );
     para->set( "Maximum Iterations", 3000 );
     para->set( "Implicit Residual Scaling", "Norm of RHS" );
     para->set( "Explicit Residual Scaling", "Norm of RHS" );
-    para->set( "Output Stream", outLinSolve );
+//    para->set( "Output Stream", outLinSolve );
 
-    auto dtl = Pimpact::createMultiDtHelmholtz<S,O>( alpha2/re, 0., 1./re );
+    auto dtl = Pimpact::createMultiDtHelmholtz<S,O>( alpha2/re, 1./re );
 
     Teuchos::RCP<Fo> forcingOp = Teuchos::null;
     Teuchos::RCP<Fo> forcingm1Op = Teuchos::null;
@@ -662,6 +662,43 @@ int main(int argi, char** argv ) {
          x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
          x->getConstFieldPtr(0)->getConstSFieldPtr()->clone(Pimpact::ShallowCopy),
          opV2Vinv,
+         opS2V,
+         opV2S);
+
+      lprec =
+          Pimpact::createMultiOperatorBase<MF>(
+              invSchur );
+   }
+   else if( 11==precType ) {
+    if(0==rank) std::cout << "\n\t---\tprec Type(10): full Newton iteration Schur complement\t---\n";
+
+       auto prec = Pimpact::createMultiHarmonicMLEddy<S,O>( space, 20, nf, alpha2, 1./re );
+
+       auto opV2V =
+           Pimpact::createMultiOperatorBase<MVF>(
+               Pimpact::createAdd3Op(
+                   x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
+                   Pimpact::createCompositionOp(
+                       x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
+                       forcingm1Op,
+//                          Pimpact::createAdd3Op(
+//                              x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
+                              dtl ),//,
+//                              Pimpact::createMultiHarmonicNonlinearJacobian<S,O>(
+//                                  x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone(Pimpact::ShallowCopy),
+//                                  x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy), false ) ) ),
+                      forcingOp ) );
+
+//     auto lp_ = Pimpact::createLinearProblem<MVF>(
+//           opV2V, Teuchos::null, Teuchos::null, Teuchos::parameterList(), linSolName );
+//     lp_->setLeftPrec(prec);
+//     auto opV2Vinv = Pimpact::createInverseOperatorBase<MVF>( lp_ );
+
+     auto invSchur = Pimpact::createInverseSchurOp(
+         x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
+         x->getConstFieldPtr(0)->getConstSFieldPtr()->clone(Pimpact::ShallowCopy),
+         prec,
+//         opV2Vinv,
          opS2V,
          opV2S);
 

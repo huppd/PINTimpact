@@ -19,35 +19,46 @@ namespace Pimpact {
 template<class Scalar,class Ordinal>
 class EddyPrec {
 
+  typedef Scalar S;
+  typedef Ordinal O;
+
 public:
-  typedef MultiField<ModeField<VectorField<Scalar,Ordinal> > > MVF;
-  typedef typename MVF::Scalar S;
-  typedef typename MVF::Ordinal O;
-  typedef ModeField<VectorField<S,O> > DomainFieldT;
-  typedef ModeField<VectorField<S,O> > RangeFieldT;
-//  typedef OperatorBase<MVF> OP;
-//  typedef ModeOp OpType;
+
+  typedef ModeField< VectorField<S,O> > DomainFieldT;
+  typedef ModeField< VectorField<S,O> > RangeFieldT;
+
+  typedef MultiField< ModeField< VectorField<S,O> > > MVF;
+
+  typedef OperatorBase<MVF> Op;
 
 private:
+
   Teuchos::RCP<MVF> temp_;
-  Teuchos::RCP<LinearProblem<MVF> > op_;
+  Teuchos::RCP<Op> op_;
 
 public:
+
   EddyPrec(
       const Teuchos::RCP<MVF>& temp=Teuchos::null,
-      const Teuchos::RCP< LinearProblem<MVF> >& op=Teuchos::null ):
+      const Teuchos::RCP<Op>& op=Teuchos::null ):
         temp_(temp->clone(1)),
         op_(op) {};
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
+
     temp_->getFieldPtr(0)->getCFieldPtr()->add( 1., x.getConstCField(),  1., x.getConstSField() );
     temp_->getFieldPtr(0)->getSFieldPtr()->add( 1., x.getConstCField(), -1., x.getConstSField() );
 
-    op_->solve( createMultiField<DomainFieldT>(Teuchos::rcpFromRef(y)), temp_ );
+//    op_->apply( temp_, createMultiField<DomainFieldT>(Teuchos::rcpFromRef(y)));
+    op_->apply( *temp_, *createMultiField<DomainFieldT>(Teuchos::rcpFromRef(y)) );
+
     y.scale(0.5);
+
   }
 
-  void assignField( const DomainFieldT& mv ) {};
+  void assignField( const DomainFieldT& mv ) {
+//    op_->assignField( createMultiField(Teuchos::rcpFromRef(mv))  );
+  };
 
   bool hasApplyTranspose() const { return( false ); }
 
@@ -58,8 +69,8 @@ public:
 /// \relates EddyPrec
 template<class S, class O>
 Teuchos::RCP<EddyPrec<S,O> > createEddyPrec(
-    const Teuchos::RCP<MultiField<ModeField<VectorField<S,O> > > > & temp,
-    const Teuchos::RCP< LinearProblem<MultiField<ModeField<VectorField<S,O> > > > > op ) {
+    const Teuchos::RCP<typename EddyPrec<S,O>::MVF> & temp,
+    const Teuchos::RCP<typename EddyPrec<S,O>::Op> op ) {
   return( Teuchos::rcp( new EddyPrec<S,O>( temp, op ) ) );
 }
 

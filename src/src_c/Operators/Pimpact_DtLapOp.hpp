@@ -34,19 +34,22 @@ class DtLapOp {
 
   Scalar alpha2_;
   Scalar iRe_;
-  Teuchos::RCP<Helmholtz<Scalar,Ordinal> > L_;
+  Teuchos::RCP<Helmholtz<Scalar,Ordinal> > L_; // necesary for 0 mode
 
 public:
 
   DtLapOp( Scalar alpha2=1., Scalar iRe=1. ):
     alpha2_(alpha2),
     iRe_(iRe),
-    L_(Teuchos::rcp( new Helmholtz<Scalar,Ordinal>(0,iRe) ) ) {};
+    L_( createHelmholtz<Scalar,Ordinal>(0,iRe) )
+{};
+//    L_(Teuchos::rcp( new Helmholtz<Scalar,Ordinal>(0,iRe) ) ) {};
 
   DtLapOp( Scalar alpha2, const Teuchos::RCP<Helmholtz<Scalar,Ordinal> >& L ):
     alpha2_(alpha2),
     iRe_(L->getMulL()),
-    L_(L) {};
+    L_(L)
+  {};
 
   typedef ModeField<VectorField<Scalar,Ordinal> >  DomainFieldT;
   typedef ModeField<VectorField<Scalar,Ordinal> >  RangeFieldT;
@@ -56,10 +59,6 @@ public:
   /// = \begin{bmatrix} mulL \mathbf{L} & \alpha^2 k \mathbf{I} \\ -\alpha^2 k \mathbf{I} & mulL \mathbf{L} \end{bmatrix}
   /// \begin{bmatrix} \hat{\mathbf{x}}^c \\ \hat{\mathbf{x}}^s  \end{bmatrix} \f]
   void apply(const DomainFieldT& x, RangeFieldT& y, int k=1 ) const {
-//    L_->apply( x.getConstCField(), y.getCField() );
-//    y.getCFieldPtr()->add( 1., y.getConstCField(), alpha2_*k, x.getConstSField() );
-//    L_->apply( x.getConstSField(), y.getSField() );
-//    y.getSFieldPtr()->add( -alpha2_*k, x.getConstCField(), 1., y.getConstSField() );
 
     const Ordinal& dim = y.getConstCField().dim();
 

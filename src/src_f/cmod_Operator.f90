@@ -2133,7 +2133,7 @@ contains
                 do ii = b1L, -1
                     if( SS(1) <= i+ii .and. i+ii <= NN(1) ) then
                         val(rowEntries) = - mulL*( cu11(ii,i) )
-                        ic(rowEntries) = ii
+                        ic(rowEntries) = i+ii
                         jc(rowEntries) = j
                         kc(rowEntries) = k
                         rowEntries = rowEntries + 1
@@ -2143,7 +2143,7 @@ contains
                 do ii = 1, b1U
                     if( SS(1) <= i+ii .and. i+ii <= NN(1) ) then
                         val(rowEntries) = - mulL*( cu11(ii,i) )
-                        ic(rowEntries) = ii
+                        ic(rowEntries) = i+ii
                         jc(rowEntries) = j
                         kc(rowEntries) = k
                         rowEntries = rowEntries + 1
@@ -2154,7 +2154,7 @@ contains
                     if( SS(2) <= j+jj .and. j+jj <= NN(2) ) then
                         val(rowEntries) = - mulL*( cp22(jj,j) )
                         ic(rowEntries) = i
-                        jc(rowEntries) = jj
+                        jc(rowEntries) = j+jj
                         kc(rowEntries) = k
                         rowEntries = rowEntries + 1
                     end if
@@ -2164,7 +2164,7 @@ contains
                     if( SS(2) <= j+jj .and. j+jj <= NN(2) ) then
                         val(rowEntries) = - mulL*( cp22(jj,j) )
                         ic(rowEntries) = i
-                        jc(rowEntries) = jj
+                        jc(rowEntries) = j+jj
                         kc(rowEntries) = k
                         rowEntries = rowEntries + 1
                     end if
@@ -2175,7 +2175,7 @@ contains
                         val(rowEntries) = - mulL*( cp33(kk,k) )
                         ic(rowEntries) = i
                         jc(rowEntries) = j
-                        kc(rowEntries) = kk
+                        kc(rowEntries) = k+kk
                         rowEntries = rowEntries + 1
                     end if
                 end do
@@ -2185,7 +2185,7 @@ contains
                         val(rowEntries) = - mulL*( cp33(kk,k) )
                         ic(rowEntries) = i
                         jc(rowEntries) = j
-                        kc(rowEntries) = kk
+                        kc(rowEntries) = k+kk
                         rowEntries = rowEntries + 1
                     end if
                 end do
@@ -2199,7 +2199,7 @@ contains
                 do ii = b1L, -1
                     if( SS(1) <= i+ii .and. i+ii <= NN(1) ) then
                         val(rowEntries) = - mulL*( cu11(ii,i) )
-                        ic(rowEntries) = ii
+                        ic(rowEntries) = i+ii
                         jc(rowEntries) = j
                         kc(rowEntries) = k
                         rowEntries = rowEntries + 1
@@ -2209,7 +2209,7 @@ contains
                 do ii = 1, b1U
                     if( SS(1) <= i+ii .and. i+ii <= NN(1) ) then
                         val(rowEntries) = - mulL*( cu11(ii,i) )
-                        ic(rowEntries) = ii
+                        ic(rowEntries) = i+ii
                         jc(rowEntries) = j
                         kc(rowEntries) = k
                         rowEntries = rowEntries + 1
@@ -2220,7 +2220,7 @@ contains
                     if( SS(2) <= j+jj .and. j+jj <= NN(2) ) then
                         val(rowEntries) = - mulL*( cp22(jj,j) )
                         ic(rowEntries) = i
-                        jc(rowEntries) = jj
+                        jc(rowEntries) = j+jj
                         kc(rowEntries) = k
                         rowEntries = rowEntries + 1
                     end if
@@ -2230,7 +2230,7 @@ contains
                     if( SS(2) <= j+jj .and. j+jj <= NN(2) ) then
                         val(rowEntries) = - mulL*( cp22(jj,j) )
                         ic(rowEntries) = i
-                        jc(rowEntries) = jj
+                        jc(rowEntries) = j+jj
                         kc(rowEntries) = k
                         rowEntries = rowEntries + 1
                     end if
@@ -2249,7 +2249,7 @@ contains
                 do ii = b1L, -1
                     if( SS(1) <= i+ii .and. i+ii <= NN(1) ) then
                         val(rowEntries) = - mulL*( cp11(ii,i) )
-                        ic(rowEntries) = ii
+                        ic(rowEntries) = i+ii
                         jc(rowEntries) = j
                         kc(rowEntries) = k
                         rowEntries = rowEntries + 1
@@ -2259,7 +2259,7 @@ contains
                 do ii = 1, b1U
                     if( SS(1) <= i+ii .and. i+ii <= NN(1) ) then
                         val(rowEntries) = - mulL*( cp11(ii,i) )
-                        ic(rowEntries) = ii
+                        ic(rowEntries) = i+ii
                         jc(rowEntries) = j
                         kc(rowEntries) = k
                         rowEntries = rowEntries + 1
@@ -2270,7 +2270,7 @@ contains
                     if( SS(2) <= j+jj .and. j+jj <= NN(2) ) then
                         val(rowEntries) = - mulL*( cv22(jj,j) )
                         ic(rowEntries) = i
-                        jc(rowEntries) = jj
+                        jc(rowEntries) = j+jj
                         kc(rowEntries) = k
                         rowEntries = rowEntries + 1
                     end if
@@ -2280,7 +2280,7 @@ contains
                     if( SS(2) <= j+jj .and. j+jj <= NN(2) ) then
                         val(rowEntries) = - mulL*( cv22(jj,j) )
                         ic(rowEntries) = i
-                        jc(rowEntries) = jj
+                        jc(rowEntries) = j+jj
                         kc(rowEntries) = k
                         rowEntries = rowEntries + 1
                     end if
@@ -2291,7 +2291,7 @@ contains
                         val(rowEntries) = - mulL*( cp33(kk,k) )
                         ic(rowEntries) = i
                         jc(rowEntries) = j
-                        kc(rowEntries) = kk
+                        kc(rowEntries) = k+kk
                         rowEntries = rowEntries + 1
                     end if
                 end do
@@ -2301,7 +2301,7 @@ contains
                         val(rowEntries) = - mulL*( cp33(kk,k) )
                         ic(rowEntries) = i
                         jc(rowEntries) = j
-                        kc(rowEntries) = kk
+                        kc(rowEntries) = k+kk
                         rowEntries = rowEntries + 1
                     end if
                 end do
@@ -2315,7 +2315,7 @@ contains
                 do ii = b1L, -1
                     if( SS(1) <= i+ii .and. i+ii <= NN(1) ) then
                         val(rowEntries) = - mulL*( cp11(ii,i) )
-                        ic(rowEntries) = ii
+                        ic(rowEntries) = i+ii
                         jc(rowEntries) = j
                         kc(rowEntries) = k
                         rowEntries = rowEntries + 1
@@ -2325,7 +2325,7 @@ contains
                 do ii = 1, b1U
                     if( SS(1) <= i+ii .and. i+ii <= NN(1) ) then
                         val(rowEntries) = - mulL*( cp11(ii,i) )
-                        ic(rowEntries) = ii
+                        ic(rowEntries) = i+ii
                         jc(rowEntries) = j
                         kc(rowEntries) = k
                         rowEntries = rowEntries + 1
@@ -2336,7 +2336,7 @@ contains
                     if( SS(2) <= j+jj .and. j+jj <= NN(2) ) then
                         val(rowEntries) = - mulL*( cv22(jj,j) )
                         ic(rowEntries) = i
-                        jc(rowEntries) = jj
+                        jc(rowEntries) = j+jj
                         kc(rowEntries) = k
                         rowEntries = rowEntries + 1
                     end if
@@ -2346,7 +2346,7 @@ contains
                     if( SS(2) <= j+jj .and. j+jj <= NN(2) ) then
                         val(rowEntries) = - mulL*( cv22(jj,j) )
                         ic(rowEntries) = i
-                        jc(rowEntries) = jj
+                        jc(rowEntries) = j+jj
                         kc(rowEntries) = k
                         rowEntries = rowEntries + 1
                     end if
@@ -2364,7 +2364,7 @@ contains
             do ii = b1L, -1
                 if( SS(1) <= i+ii .and. i+ii <= NN(1) ) then
                     val(rowEntries) = - mulL*( cp11(ii,i) )
-                    ic(rowEntries) = ii
+                    ic(rowEntries) = i+ii
                     jc(rowEntries) = j
                     kc(rowEntries) = k
                     rowEntries = rowEntries + 1
@@ -2374,7 +2374,7 @@ contains
             do ii = 1, b1U
                 if( SS(1) <= i+ii .and. i+ii <= NN(1) ) then
                     val(rowEntries) = - mulL*( cp11(ii,i) )
-                    ic(rowEntries) = ii
+                    ic(rowEntries) = i+ii
                     jc(rowEntries) = j
                     kc(rowEntries) = k
                     rowEntries = rowEntries + 1
@@ -2385,7 +2385,7 @@ contains
                 if( SS(2) <= j+jj .and. j+jj <= NN(2) ) then
                     val(rowEntries) = - mulL*( cp22(jj,j) )
                     ic(rowEntries) = i
-                    jc(rowEntries) = jj
+                    jc(rowEntries) = j+jj
                     kc(rowEntries) = k
                     rowEntries = rowEntries + 1
                 end if
@@ -2395,7 +2395,7 @@ contains
                 if( SS(2) <= j+jj .and. j+jj <= NN(2) ) then
                     val(rowEntries) = - mulL*( cp22(jj,j) )
                     ic(rowEntries) = i
-                    jc(rowEntries) = jj
+                    jc(rowEntries) = j+jj
                     kc(rowEntries) = k
                     rowEntries = rowEntries + 1
                 end if
@@ -2406,7 +2406,7 @@ contains
                     val(rowEntries) = - mulL*( cw33(kk,k) )
                     ic(rowEntries) = i
                     jc(rowEntries) = j
-                    kc(rowEntries) = kk
+                    kc(rowEntries) = k+kk
                     rowEntries = rowEntries + 1
                 end if
             end do
@@ -2416,7 +2416,7 @@ contains
                     val(rowEntries) = - mulL*( cw33(kk,k) )
                     ic(rowEntries) = i
                     jc(rowEntries) = j
-                    kc(rowEntries) = kk
+                    kc(rowEntries) = k+kk
                     rowEntries = rowEntries + 1
                 end if
             end do

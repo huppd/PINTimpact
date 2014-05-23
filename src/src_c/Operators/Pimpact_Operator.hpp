@@ -52,7 +52,7 @@
 #include "Pimpact_MultiNonlinearJacobianOp.hpp"
 #include "Pimpact_MultiHarmonicOpWrap.hpp"
 #include "Pimpact_MultiDiagNonlinearOp.hpp"
-
+#include "Pimpact_MultiHarmonicMLPrec.hpp"
 
 
 

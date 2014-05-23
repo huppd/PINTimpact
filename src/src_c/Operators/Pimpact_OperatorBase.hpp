@@ -3,9 +3,6 @@
 #define PIMPACT_OPERATORBASE_HPP
 
 
-//#include "Pimpact_OperatorMV.hpp"
-
-
 
 namespace Pimpact {
 

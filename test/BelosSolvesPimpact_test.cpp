@@ -9,6 +9,7 @@
 #include "pimpact.hpp"
 #include "Pimpact_FieldSpace.hpp"
 #include "Pimpact_IndexSpace.hpp"
+#include "Pimpact_Space.hpp"
 
 #include "Pimpact_ScalarField.hpp"
 #include "Pimpact_VectorField.hpp"
@@ -98,6 +99,62 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 
 }
 
+
+TEUCHOS_UNIT_TEST( BelosSolver, PrecHelmholtzMV ) {
+
+//  init_impact(0,0);
+
+  typedef Pimpact::VectorField<S,O> VF;
+  typedef Pimpact::MultiField<VF> MVF;
+
+  typedef Pimpact::Helmholtz<S,O> Op;
+  typedef Pimpact::MLHelmholtzOp<S,O> Prec;
+  typedef Pimpact::MultiOpWrap<Op> MOp;
+  typedef Pimpact::OperatorBase<MVF> BOp;
+
+
+  auto fS = Pimpact::createFieldSpace<O>();
+
+  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+
+  auto space = Pimpact::createSpace( fS, iIS, fIS );
+
+  auto x = Pimpact::createMultiField( Pimpact::createVectorField<S,O>(fS, iIS, fIS) );
+  auto b = Pimpact::createMultiField( Pimpact::createVectorField<S,O>(fS, iIS, fIS) );
+
+  b->init( 1. );
+
+  auto op = Pimpact::createOperatorBase<MVF,MOp>();
+  auto prec = Pimpact::createMultiOperatorBase<MVF,Prec>(
+      Pimpact::createMLHelmholtzOp<S,O>( space, 20, 1., 1.  ) );
+
+  auto para = Pimpact::createLinSolverParameter("CG",1.e-3);
+
+  Belos::SolverFactory<S, MVF, BOp> factory;
+
+  // Create the GMRES solver.
+  Teuchos::RCP<Belos::SolverManager<S, MVF, BOp > > solver =
+           factory.create( "CG", para );
+
+  // Create a LinearProblem struct with the problem to solve.
+  // A, X, B, and M are passed by (smart) pointer, not copied.
+  Teuchos::RCP<Belos::LinearProblem<S, MVF, BOp > > problem =
+           Teuchos::rcp (new Belos::LinearProblem<S, MVF, BOp > (op, x, b));
+
+  problem->setProblem(x,b);
+  problem->setLeftPrec( prec );
+
+  // Tell the solver what problem you want to solve.
+  solver->setProblem( problem );
+
+  Belos::ReturnType ret =  solver->solve();
+  x->write(111);
+
+  TEST_EQUALITY( ret, Belos::Converged );
+
+
+}
 
 
 TEUCHOS_UNIT_TEST( BelosSolver, DtLapOp ) {

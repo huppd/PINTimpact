@@ -76,11 +76,9 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 	x->init(0.);
 	b->init(1.);
 
-//	auto A = Pimpact::createMultiField<Pimpact::Helmholtz<double,int> >();
 	auto A = Pimpact::createMultiOperatorBase< MF, Pimpact::Helmholtz<S,O> >();
 
 
-	// Make an empty new parameter list.
 	RCP<ParameterList> param = Pimpact::createLinSolverParameter("GMRES",1.e-4);
 
 	auto linprob = Pimpact::createLinearProblem<MF>(A,x,b,param,"GMRES");

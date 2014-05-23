@@ -2,7 +2,6 @@
 #ifndef PIMPACT_SPACE_HPP
 #define PIMPACT_SPACE_HPP
 
-//#include "mpi.h"
 
 #include "Teuchos_Tuple.hpp"
 #include "Teuchos_ArrayRCP.hpp"

@@ -233,8 +233,8 @@ int main(int argi, char** argv ) {
 	  solverParams->set ("Verbosity", int( Belos::Errors) );
 	  auto A = Pimpact::createMultiModeOperatorBase<MVF,Pimpact::Helmholtz<S,O> >( Pimpact::createHelmholtz<S,O>( omega, 1./re ) );
 	  auto prob2 = Pimpact::createLinearProblem<MVF>( A, fu->clone(), fu->clone(), solverParams, "CG" );
-	  auto op2 = Pimpact::createEddyPrec<S,O>( fu->clone(), prob2 ) ;
-	  lprec = Pimpact::createMultiOperatorBase<MVF,Pimpact::EddyPrec<S,O> >( op2 );
+	  auto op2 = Pimpact::createEddyPrec<S,O>( fu->clone(), Pimpact::createInverseOperatorBase<MVF>(prob2) ) ;
+	  lprec = Pimpact::createMultiOperatorBase<MVF >( op2 );
 	  break;
 	}
 	default:

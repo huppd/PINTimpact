@@ -131,7 +131,7 @@ private:
 public:
 
   MLHelmholtzOp(
-      const Teuchos::RCP< const Space<Ordinal> >& space,
+      const Teuchos::RCP< const Space<Ordinal> >& space=Teuchos::null,
       int nGrids=20,
       Scalar mulI=1.,
       Scalar mulL=1. ):
@@ -143,16 +143,17 @@ public:
       adat_[field].field_ = field;
       adat_[field].mulI_ = mulI;
       adat_[field].mulL_ = mulL;
-//      adat_[field].space_->print();
+      //      adat_[field].space_->print();
     }
+    space->print();
 
     //    MLHelmholtzOp::space_=space;
     // comput nlo_
     int nTot = 0;
     for( int field=0; field<3; ++field ) {
       for( int i=0; i<dim(); ++i ) {
-//        space()->print();
-//        std::cout << "\nnloc: " << nloc_[i]<< "\n";
+        //        space()->print();
+        //        std::cout << "\nnloc: " << nloc_[i]<< "\n";
         nloc_[field] *= space()->eInd(field)[i]-space()->sInd(field)[i]+1;
       }
       nTot += nloc_[field];
@@ -171,13 +172,15 @@ public:
 
 
     for( int field=0; field<dim(); ++field ) {
-      std::cout << "\nfield: " << field << "\tnloc: " << nloc_[field] << "\n";
+      //      std::cout << "\nfield: " << field << "\tnloc: " << nloc_[field] << "\n";
       ML_Create( &mlObject_[field], nGrids );
 
       ML_Init_Amatrix( mlObject_[field], 0,  nloc_[field], nloc_[field], &adat_[field] );
       ML_Set_Amatrix_Getrow( mlObject_[field], 0, pimp_getrow, NULL, nloc_[field] );
       ML_Set_Amatrix_Matvec( mlObject_[field], 0, pimp_matvec );
 
+      ML_Set_OutputLevel(mlObject_[field], 0 );
+      ML_Set_ResidualOutputFrequency( mlObject_[field], 100 );
       ML_Set_PrintLevel(10);
 
       ML_Aggregate_Create( &agg_object_[field]);
@@ -186,9 +189,12 @@ public:
       nLevels_ = ML_Gen_MGHierarchy_UsingAggregation( mlObject_[field], 0,
           ML_INCREASING, agg_object_[field] );
 
-      std::cout << "\nnLeves: " << nLevels_ << "\n";
+      //      std::cout << "\nnLeves: " << nLevels_ << "\n";
 
-      ML_Gen_Smoother_Jacobi( mlObject_[field], ML_ALL_LEVELS, ML_PRESMOOTHER, 10, ML_DEFAULT);
+            ML_Gen_Smoother_Jacobi( mlObject_[field], ML_ALL_LEVELS, ML_PRESMOOTHER, 10, ML_DEFAULT);
+//            ML_Gen_Smoother_GaussSeidel( mlObject_[field], ML_ALL_LEVELS, ML_PRESMOOTHER, 1, ML_DEFAULT);
+//      ML_Gen_Smoother_SymGaussSeidel( mlObject_[field], ML_ALL_LEVELS, ML_PRESMOOTHER, 10, ML_DEFAULT);
+
 
       ML_Gen_Solver( mlObject_[field], ML_MGV, 0, nLevels_-1 );
     }
@@ -210,28 +216,23 @@ private:
 
   static int pimp_getrow(
       ML_Operator *Amat,
-      int N_requested_rows,
-      int requested_rows[],
-      int allocated_space,
+      int nRequestedRows,
+      int requestedRows[],
+      int allocatedSpace,
       int columns[],
       double values[],
-      int row_lengths[] ) {
-
-//    if( allocated_space<N_requested_rows ) return( 0 );
-//    for( int i=0; i<N_requested_rows; ++i) {
-//      values[i] = 1.;
-//      row_lengths[i] = 1;
-//      columns[i] = requested_rows[i];
-//    }
+      int rowLengths[] ) {
 
 
-//    std::cout << "\ngetrow: # requested rows: "<< N_requested_rows << " # allocated_space: " << allocated_space << "\n";
+
     Adat* itemp;
     itemp  = (Adat *) ML_Get_MyGetrowData( Amat );
     int field = itemp->field_;
     double mulI = itemp->mulI_;
     double mulL = itemp->mulL_;
     Teuchos::RCP<const Pimpact::Space<Ordinal> > space = itemp->space_;
+    //    std::cout << "\ngetrow: # requested rows: "<< nRequestedRows << " # allocated space: " << allocatedSpace << "\n";
+    //    space->print();
 
     int count = 0;
     int start, row;
@@ -239,7 +240,7 @@ private:
 
     int maxRowEntries = 0;
     for( int l=0; l<space->dim(); ++l )
-      maxRowEntries += ( space->bl()[l]+space->bu()[l]+1 ) ;
+      maxRowEntries += ( -space->bl()[l]+space->bu()[l]+1 ) ;
     maxRowEntries -= space->dim()-1;
 
     int rowEntries;
@@ -249,11 +250,11 @@ private:
     int* kc = new int[maxRowEntries];
     Scalar* val = new Scalar[maxRowEntries];
 
-    for( int l=0; l<N_requested_rows; l++ ) {
-      if( allocated_space < count+maxRowEntries )
+    for( int l=0; l<nRequestedRows; l++ ) {
+      if( allocatedSpace < count+maxRowEntries )
         return(0);
       start = count;
-      row = requested_rows[l];
+      row = requestedRows[l];
       //       if ( (row >= 0) || (row <= (129-1)) ) {
       //         columns[count] = row;
       //         values[count++] = 2.;
@@ -266,22 +267,24 @@ private:
       //         }
       //       }
       k = row
-          /(space->eInd(field)[0]-space->sInd(field)[0])
-          /(space->eInd(field)[1]-space->sInd(field)[1])
+          /(space->eInd(field)[0]-space->sInd(field)[0]+1)
+          /(space->eInd(field)[1]-space->sInd(field)[1]+1)
           + space->sInd(field)[2];
       j = ( row
-          -(space->eInd(field)[0]-space->sInd(field)[0])
-          *(space->eInd(field)[1]-space->sInd(field)[1])
+          -(space->eInd(field)[0]-space->sInd(field)[0]+1)
+          *(space->eInd(field)[1]-space->sInd(field)[1]+1)
           *(k-space->sInd(field)[2]) )
-                                /(space->eInd(field)[0]-space->sInd(field)[0])
-                                +space->sInd(field)[1];
+                                    /(space->eInd(field)[0]-space->sInd(field)[0]+1)
+                                    +space->sInd(field)[1];
       i = row
-          -(space->eInd(field)[0]-space->sInd(field)[0])
-          *(space->eInd(field)[1]-space->sInd(field)[1])
+          -(space->eInd(field)[0]-space->sInd(field)[0]+1)
+          *(space->eInd(field)[1]-space->sInd(field)[1]+1)
           *(k-space->sInd(field)[2])
-          -(space->eInd(field)[0]-space->sInd(field)[0])
+          -(space->eInd(field)[0]-space->sInd(field)[0]+1)
           *(j-space->sInd(field)[1])
           +space->sInd(field)[0];
+      //      std::cout << "\nrow: " << row <<" i: " << i << " j: " << j << " k: " << k << "\n";
+      //      std::cout << "\nmax row entries: " << maxRowEntries << "\n";
 
       OP_HelmholtzGetRowEntries(
           field+1,
@@ -298,22 +301,29 @@ private:
           kc,
           val,
           rowEntries );
-      for( int m=0; m<rowEntries; ++m) {
 
+      for( int m=0; m<rowEntries-1; ++m) {
         values[count] = val[m];
         columns[count++] = ic[m]-space->sInd(field)[0]
-                                                    + (space->eInd(field)[0]-space->sInd(field)[0])*(jc[m]-space->sInd(field)[1])
-                                                    + (space->eInd(field)[0]-space->sInd(field)[0])*
-                                                    (space->eInd(field)[1]-space->sInd(field)[1])*(kc[m]-space->sInd(field)[2]) ;
-        std::cout << "\nrow: "<< row << "\t";
-        std::cout << "\tcol: "<< columns[count] << "\t";
-        std::cout << "\tval: "<< val[m] << "\n";
-
+                                                    + (jc[m]-space->sInd(field)[1])*(space->eInd(field)[0]-space->sInd(field)[0]+1)
+                                                    + (kc[m]-space->sInd(field)[2])*(space->eInd(field)[0]-space->sInd(field)[0]+1)*(space->eInd(field)[1]-space->sInd(field)[1]+1);
+        //        std::cout << "\t\tic: " << ic[m] << " jc: " << jc[m] << " kc: " << kc[m] ;
+        //        std::cout << "\tcol: "<< columns[count-1] << "\t";
+        //        std::cout << "\tval: "<< val[m] << "\n";
       }
-      row_lengths[l] = count - start;
-
+      rowLengths[l] = count - start;
+      //      std::cout << "\n impact rowEntries: " << rowEntries;
+      //      std::cout << "\npimpact rowEntries: " << rowLengths[l];
     }
+
+    //    if( allocatedSpace<nRequestedRows ) return( 0 );
+    //    for( int i=0; i<nRequestedRows; ++i) {
+    //      values[i] = 1.;
+    //      rowLengths[i] = 1;
+    //      columns[i] = requestedRows[i];
+    //    }
     return( 1 );
+
   }
 
   static int pimp_matvec(
@@ -326,20 +336,20 @@ private:
     //    typedef double Scalar;
     //    typedef int Ordinal;
 
-    std::cout << "\nmatvec: in length: " << in_length << " outlength: " << out_length << " ";
-//    std::cout << "\nmatvec\n";
+    //    std::cout << "\nmatvec: in length: " << in_length << " outlength: " << out_length << " ";
+    //    std::cout << "\nmatvec\n";
     Adat* itemp;
     itemp  = (Adat *) ML_Get_MyGetrowData( Amat );
     int field = itemp->field_;
     double mulI = itemp->mulI_;
     double mulL = itemp->mulL_;
     Teuchos::RCP<const Pimpact::Space<int> > space = itemp->space_;
-//    space->print();
-    int nloc = 1;
-    for( int i=0; i<2;++i) {
-      nloc*=-space->sInd(field)[i]+space->eInd(field)[i]+1;
-    }
-    std::cout << "nloc: " << nloc << "\n";
+    //    space->print();
+    //    int nloc = 1;
+    //    for( int i=0; i<2;++i) {
+    //      nloc*=-space->sInd(field)[i]+space->eInd(field)[i]+1;
+    //    }
+    //    std::cout << "nloc: " << nloc << "\n";
 
     OP_innerhelmholtz(
         field+1,
@@ -350,9 +360,9 @@ private:
         p,
         ap );
 
-//    for( int i=0; i<out_length; ++i) {
-//      ap[i] = 1*p[i];
-//    }
+    //    for( int i=0; i<out_length; ++i) {
+    //      ap[i] = 1*p[i];
+    //    }
     return( 0 );
   }
 
@@ -383,6 +393,8 @@ public:
 
     for( int i=0; i<dim(); ++i )
       ML_Iterate( mlObject_[i], sol_[i], rhs_[i] );
+//      ML_Solve_MGV( mlObject_[i], sol_[i], rhs_[i] );
+//      ML_Solve_AMGV( mlObject_[i], sol_[i], rhs_[i] );
 
     VF_extract_dof_reverse(
         space()->dim(),

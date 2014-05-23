@@ -27,7 +27,7 @@ public:
   typedef MultiHarmonicField< VectorField<Scalar,Ordinal> >  RangeFieldT;
 
 
-  MultiDtHelmholtz(Scalar alpha2=1., Scalar mulI=0., Scalar iRe=1.):
+  MultiDtHelmholtz(Scalar alpha2=1., Scalar iRe=1.):
     op_( createDtLapOp<Scalar,Ordinal>(alpha2, iRe) ) {};
 
   MultiDtHelmholtz( const Teuchos::RCP<DtLapOp<Scalar,Ordinal> >& op ):
@@ -60,8 +60,8 @@ public:
 
 /// \relates MultiDtHelmholtz
 template< class Scalar, class Ordinal>
-Teuchos::RCP< MultiDtHelmholtz<Scalar,Ordinal> > createMultiDtHelmholtz( Scalar omega=1., Scalar mulI=0., Scalar mulL=1. ) {
-  return( Teuchos::rcp( new MultiDtHelmholtz<Scalar,Ordinal>( omega, mulI, mulL ) ) );
+Teuchos::RCP< MultiDtHelmholtz<Scalar,Ordinal> > createMultiDtHelmholtz( Scalar omega=1., Scalar mulL=1. ) {
+  return( Teuchos::rcp( new MultiDtHelmholtz<Scalar,Ordinal>( omega, mulL ) ) );
 }
 
 

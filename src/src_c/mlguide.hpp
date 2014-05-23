@@ -36,7 +36,7 @@ public:
       ML_Init_Amatrix      (ml_object[dim], 0,  129, 129, &dim);
       ML_Set_Amatrix_Getrow(ml_object[dim], 0,  Poisson_getrow, NULL, 129);
       ML_Set_Amatrix_Matvec(ml_object[dim], 0,  Poisson_matvec);
-      ML_Set_PrintLevel(10);
+      ML_Set_PrintLevel(0);
 
       ML_Aggregate_Create(&agg_object[dim]);
       ML_Aggregate_Set_MaxCoarseSize(agg_object[dim],1);

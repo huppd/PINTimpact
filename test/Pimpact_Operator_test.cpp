@@ -261,7 +261,6 @@ TEUCHOS_UNIT_TEST( BasicOperator, Add2Op ) {
 TEUCHOS_UNIT_TEST( BasicOperator, MLHelmholtzOp ) {
 
 //  init_impact(0,0);
-
   typedef Pimpact::VectorField<S,O>     VF;
   typedef Pimpact::MultiField<VF>      MVF;
   typedef Pimpact::Helmholtz<S,O>      Op1;
@@ -280,8 +279,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, MLHelmholtzOp ) {
 
 //  x->init( 0. );
   x->random();
-  rhs->init( 2. );
-  rhs->random();
+  rhs->init( 1. );
+//  rhs->random();
 
   auto op =  Pimpact::createMLHelmholtzOp<S,O>( space, 20, 1., 1.  );
 
@@ -290,8 +289,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, MLHelmholtzOp ) {
 
   x->write(1111);
   rhs->write(2222);
-  rhs->add( 1., *rhs, -1., *x );
-  rhs->write(3333);
+//  rhs->add( 1., *rhs, -1., *x );
+//  rhs->write(3333);
 
 }
 
@@ -599,7 +598,7 @@ TEUCHOS_UNIT_TEST( ModeOperator, EddyPrec ) {
 
   prob->solve(temp,temp);
 
-  auto op = Pimpact::createEddyPrec<S,O>( temp, prob ) ;
+  auto op = Pimpact::createEddyPrec<S,O>( temp, Pimpact::createInverseOperatorBase(prob) ) ;
 
   op->apply( X->getField(0), B->getField(0) );
 
@@ -698,10 +697,8 @@ TEUCHOS_UNIT_TEST( CompoundOperator, CompoundOpWrap ) {
 
   auto opV2V =
        Pimpact::createAdd2Op(
-           Pimpact::createMultiDtHelmholtz<S,O>( 1., 0., 1. ),
-           Pimpact::createMultiHarmonicNonlinear<S,O>(
-//               x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone()
-               ),
+           Pimpact::createMultiDtHelmholtz<S,O>( 1., 1. ),
+           Pimpact::createMultiHarmonicNonlinear<S,O>(),
                x->getConstFieldPtr(0)->getConstVFieldPtr()->clone()
            );
 
@@ -711,8 +708,7 @@ TEUCHOS_UNIT_TEST( CompoundOperator, CompoundOpWrap ) {
    auto op =
        Pimpact::createMultiOperatorBase<MF>(
            Pimpact::createCompoundOpWrap(
-               x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(), opV2V, opS2V, opV2S )
-               );
+               x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(), opV2V, opS2V, opV2S ) );
 
   // vector to vector operator
   fu->init(0.);
