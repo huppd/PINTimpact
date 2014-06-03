@@ -47,7 +47,8 @@ namespace Pimpact {
 	enum EForceType {
 	  Dipol        = 1,
 		Disc         = 2,
-		RotatingDisc = 3
+		RotatingDisc = 3,
+		PseudoOscilatingDisc = 4
 	};
 
 

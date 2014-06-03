@@ -219,7 +219,6 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, HelmholtzMV ) {
   auto opm = Pimpact::createMultiOpWrap<Op>();
 
   auto op = Pimpact::createOperatorBase<MVF,MuOp>( opm );
-//  auto op = Teuchos::rcp( new OpPimpl(opm) );
 
   Teuchos::RCP<Belos::OutputManager<S> > MyOM = Teuchos::rcp(
       new Belos::OutputManager<S>(Belos::Warnings,rcp(&out,false)) );

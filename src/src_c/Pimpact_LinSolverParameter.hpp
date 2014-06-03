@@ -48,9 +48,10 @@ Teuchos::RCP< Teuchos::ParameterList > createLinSolverParameter(
 		parameter_->set( "Convergence Tolerance",			tol		 );
 	}
 	else if( solver_name=="GMRES" ) {
+//		parameter_->set( "Num Blocks",								50	  );
 		parameter_->set( "Num Blocks",								300	  );
     parameter_->set( "Maximum Iterations",        1000  );
-		parameter_->set( "Maximum Restarts",					20	  );
+		parameter_->set( "Maximum Restarts",					50	  );
 
 		parameter_->set( "Convergence Tolerance",			tol           );
 		parameter_->set( "Implicit Residual Scaling",	"Norm of RHS" );

@@ -134,7 +134,8 @@ public:
       const Teuchos::RCP< const Space<Ordinal> >& space=Teuchos::null,
       int nGrids=20,
       Scalar mulI=1.,
-      Scalar mulL=1. ):
+      Scalar mulL=1.,
+      double tol = 1.e-3 ):
         nloc_(Teuchos::tuple(1,1,1)) {
 
     //    std::cout << "construct me baby\n";
@@ -145,7 +146,7 @@ public:
       adat_[field].mulL_ = mulL;
       //      adat_[field].space_->print();
     }
-    space->print();
+//    space->print();
 
     //    MLHelmholtzOp::space_=space;
     // comput nlo_
@@ -179,21 +180,27 @@ public:
       ML_Set_Amatrix_Getrow( mlObject_[field], 0, pimp_getrow, NULL, nloc_[field] );
       ML_Set_Amatrix_Matvec( mlObject_[field], 0, pimp_matvec );
 
-      ML_Set_OutputLevel(mlObject_[field], 0 );
-      ML_Set_ResidualOutputFrequency( mlObject_[field], 100 );
+
+      ML_Set_Tolerance( mlObject_[field], tol );
+
+//      ML_Set_OutputLevel( mlObject_[field], 10 );
+      ML_Set_ResidualOutputFrequency( mlObject_[field], -1 );
       ML_Set_PrintLevel(10);
 
       ML_Aggregate_Create( &agg_object_[field]);
-      ML_Aggregate_Set_MaxCoarseSize( agg_object_[field], 1 );
+      ML_Aggregate_Set_MaxCoarseSize( agg_object_[field], 10 );
 
       nLevels_ = ML_Gen_MGHierarchy_UsingAggregation( mlObject_[field], 0,
           ML_INCREASING, agg_object_[field] );
 
       //      std::cout << "\nnLeves: " << nLevels_ << "\n";
 
-            ML_Gen_Smoother_Jacobi( mlObject_[field], ML_ALL_LEVELS, ML_PRESMOOTHER, 10, ML_DEFAULT);
+//            ML_Gen_Smoother_Jacobi( mlObject_[field], ML_ALL_LEVELS, ML_PRESMOOTHER, 1, ML_DEFAULT);
+            ML_Gen_Smoother_Jacobi( mlObject_[field], ML_ALL_LEVELS, ML_BOTH, 2, ML_DEFAULT);
 //            ML_Gen_Smoother_GaussSeidel( mlObject_[field], ML_ALL_LEVELS, ML_PRESMOOTHER, 1, ML_DEFAULT);
-//      ML_Gen_Smoother_SymGaussSeidel( mlObject_[field], ML_ALL_LEVELS, ML_PRESMOOTHER, 10, ML_DEFAULT);
+//            ML_Gen_Smoother_GaussSeidel( mlObject_[field], ML_ALL_LEVELS, ML_BOTH, 1, ML_DEFAULT);
+//      ML_Gen_Smoother_SymGaussSeidel( mlObject_[field], ML_ALL_LEVELS, ML_PRESMOOTHER, 1, ML_DEFAULT);
+//      ML_Gen_Smoother_SymGaussSeidel( mlObject_[field], ML_ALL_LEVELS, ML_BOTH, 1, ML_DEFAULT);
 
 
       ML_Gen_Solver( mlObject_[field], ML_MGV, 0, nLevels_-1 );
@@ -392,7 +399,9 @@ public:
         sol_  [0], sol_  [1], sol_  [2] );
 
     for( int i=0; i<dim(); ++i )
-      ML_Iterate( mlObject_[i], sol_[i], rhs_[i] );
+//      ML_Iterate( mlObject_[i], sol_[i], rhs_[i] );
+      ML_Solve( mlObject_[i], nloc_[i], sol_[i], nloc_[i], rhs_[i]);
+//      ML_Solve_MGFull( mlObject_[i], sol_[i], rhs_[i] );
 //      ML_Solve_MGV( mlObject_[i], sol_[i], rhs_[i] );
 //      ML_Solve_AMGV( mlObject_[i], sol_[i], rhs_[i] );
 
@@ -423,11 +432,12 @@ Teuchos::RCP< MLHelmholtzOp<Scalar,Ordinal> > createMLHelmholtzOp(
     const Teuchos::RCP< const Space<Ordinal> >& space,
     int nGrids=20,
     Scalar mulI=1.,
-    Scalar mulL=1.  ) {
+    Scalar mulL=1.,
+    double tol=1.e-6 ) {
 
   return(
       Teuchos::rcp(
-          new MLHelmholtzOp<Scalar,Ordinal>( space, nGrids, mulI, mulL ) ) );
+          new MLHelmholtzOp<Scalar,Ordinal>( space, nGrids, mulI, mulL, tol ) ) );
 
 }
 

@@ -45,6 +45,7 @@ TEUCHOS_STATIC_SETUP() {
   clp.setOption(
       "error-tol-slack", &errorTolSlack,
       "Slack off of machine epsilon used to check test results" );
+//  init_impact(0,0);
 }
 
 
@@ -174,7 +175,7 @@ TEUCHOS_UNIT_TEST( ModeOperator, Helmholtz ) {
 
 
 
-TEUCHOS_UNIT_TEST( BasicOperator, nonlinear ) {
+TEUCHOS_UNIT_TEST( BasicOperator, Nonlinear ) {
   using Teuchos::ParameterList;
   using Teuchos::parameterList;
   using Teuchos::RCP;
@@ -390,6 +391,7 @@ TEUCHOS_UNIT_TEST( ModeOperator, DtLapOp ) {
 
 
 TEUCHOS_UNIT_TEST( ModeOperator, DivDtLinvGrad ) {
+
 	using Teuchos::ParameterList;
 	using Teuchos::parameterList;
 	using Teuchos::RCP;

@@ -8,6 +8,8 @@
 
 #include "Pimpact_OperatorMV.hpp"
 
+
+
 namespace Pimpact{
 
 
@@ -34,8 +36,11 @@ protected:
 
 public:
 
-  Helmholtz():mulI_(1.),mulL_(1.) {};
-  Helmholtz(Scalar mulI, Scalar mulL):mulI_(mulI),mulL_(mulL) {};
+  typedef VectorField<Scalar,Ordinal>  DomainFieldT;
+  typedef VectorField<Scalar,Ordinal>  RangeFieldT;
+
+  Helmholtz( Scalar mulI=0., Scalar mulL=1. ):
+    mulI_(mulI),mulL_(mulL) {};
 
   void setMulI(Scalar mulI){ mulI_ = mulI;};
   void setMulL(Scalar mulL){ mulL_ = mulL;};
@@ -43,8 +48,6 @@ public:
   Scalar getMulI() const { return(mulI_); };
   Scalar getMulL() const { return(mulL_); };
 
-  typedef VectorField<Scalar,Ordinal>  DomainFieldT;
-  typedef VectorField<Scalar,Ordinal>  RangeFieldT;
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
 

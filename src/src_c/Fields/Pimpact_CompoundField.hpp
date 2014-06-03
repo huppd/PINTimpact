@@ -163,13 +163,35 @@ public:
 
   /// \brief Compute the norm of the field.
   /// \todo implement OneNorm
-	Scalar norm(  Belos::NormType type = Belos::TwoNorm ) const {
-		switch(type) {
-		case Belos::TwoNorm: return( std::sqrt( std::pow(vfield_->norm(type),2) + std::pow(sfield_->norm(type),2) ) );
-		case Belos::InfNorm: return( std::max(vfield_->norm(type), sfield_->norm(type) ) );
-		case Belos::OneNorm: std::cout << "!!! Warning Belos::OneNorm not implemented \n"; return(0.);
-  	default: std::cout << "!!! Warning unknown Belos::NormType:\t" << type << "\n"; return(0.);
-		}
+	Scalar norm(  Belos::NormType type = Belos::TwoNorm, bool global=true) const {
+//		switch(type) {
+//		case Belos::TwoNorm: return( std::sqrt( std::pow(vfield_->norm(type),2) + std::pow(sfield_->norm(type),2) ) );
+//		case Belos::InfNorm: return( std::max(vfield_->norm(type), sfield_->norm(type) ) );
+//		case Belos::OneNorm: std::cout << "!!! Warning Belos::OneNorm not implemented \n"; return(0.);
+//  	default: std::cout << "!!! Warning unknown Belos::NormType:\t" << type << "\n"; return(0.);
+//		}
+	  Scalar normvec=0;
+	  switch(type) {
+	  case Belos::TwoNorm:
+	    normvec = std::pow(vfield_->norm(type,false),2) + std::pow(sfield_->norm(type,false),2) ;
+	    if( global ) {
+	      Scalar normvec_global;
+	      MPI_Allreduce( &normvec, &normvec_global, 1, MPI_REAL8, MPI_SUM, comm() );
+	      normvec = normvec_global;
+	    }
+	    return( std::sqrt(normvec) );
+	  case Belos::InfNorm:
+	    normvec = std::max(vfield_->norm(type,false), sfield_->norm(type,false) ) ;
+	    if( global ) {
+	      Scalar normvec_global;
+	      MPI_Allreduce( &normvec, &normvec_global, 1, MPI_REAL8, MPI_MAX, comm() );
+	      normvec = normvec_global;
+	    }
+	    return( normvec );
+	  case Belos::OneNorm:
+	    std::cout << "!!! Warning Belos::OneNorm not implemented \n"; return(0.);
+	  default: std::cout << "!!! Warning unknown Belos::NormType:\t" << type << "\n"; return(0.);
+	  }
 	}
 
 

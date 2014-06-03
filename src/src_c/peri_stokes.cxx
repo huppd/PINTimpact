@@ -50,9 +50,7 @@ int main(int argi, char** argv ) {
 
 	typedef Pimpact::OperatorBase<MVF> BVOp;
 	typedef Pimpact::OperatorBase<MSF> BSOp;
-//	typedef Pimpact::OperatorPimpldep<MVF,Lap>  BLap;
-//	typedef Pimpact::OperatorPimpldep<MSF,Schur>  BSchur;
-//	typedef Pimpact::OperatorMV< Pimpact::Grad<Scalar,Ordinal> >  BG;
+
 
 	// intialize MPI
 	MPI_Init( &argi, &argv );
@@ -116,6 +114,9 @@ int main(int argi, char** argv ) {
 
 	std::string solver_name_2 = "GMRES";
 	my_CLP.setOption( "solver2", &solver_name_2, "name of the solver for Schur complement" );
+
+	S tol= 1.e-6;
+	my_CLP.setOption( "tol", &tol, "name of the solver for Schur complement" );
 
 	// preconditioner type
 	int precType = 0;
@@ -182,6 +183,8 @@ int main(int argi, char** argv ) {
 	auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
 	auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
+	auto space = Pimpact::createSpace<O>( fS, iIS, fIS );
+
 
 	// init vectors
 	auto p     = Pimpact::createInitMSF<S,O>( fS );
@@ -215,7 +218,7 @@ int main(int argi, char** argv ) {
 	  break;
 	}
 	case 2: {
-	  auto solverParams = Pimpact::createLinSolverParameter( "CG", 1.e-7*l1*l2/n1/n2/1000 );
+	  auto solverParams = Pimpact::createLinSolverParameter( "CG", tol*l1*l2/n1/n2/1000 );
 	  solverParams->set ("Verbosity", int( Belos::Errors) );
 	  auto op = Pimpact::createMultiModeOperatorBase<MVF,Pimpact::Helmholtz<S,O> >( Pimpact::createHelmholtz<S,O>( 0., 1./re ) );
 	// Create the Pimpact::LinearSolver solver.
@@ -229,12 +232,26 @@ int main(int argi, char** argv ) {
 	  break;
 	}
 	case 3: {
-	  auto solverParams = Pimpact::createLinSolverParameter( "CG", 1.e-7*l1*l2/n1/n2/1000 );
+	  auto solverParams = Pimpact::createLinSolverParameter( "CG", tol*l1*l2/n1/n2/1000 );
 	  solverParams->set ("Verbosity", int( Belos::Errors) );
 	  auto A = Pimpact::createMultiModeOperatorBase<MVF,Pimpact::Helmholtz<S,O> >( Pimpact::createHelmholtz<S,O>( omega, 1./re ) );
 	  auto prob2 = Pimpact::createLinearProblem<MVF>( A, fu->clone(), fu->clone(), solverParams, "CG" );
 	  auto op2 = Pimpact::createEddyPrec<S,O>( fu->clone(), Pimpact::createInverseOperatorBase<MVF>(prob2) ) ;
 	  lprec = Pimpact::createMultiOperatorBase<MVF >( op2 );
+	  break;
+	}
+	case 4: {
+	  std::cout << "hello\n";
+	  auto solverParams = Pimpact::createLinSolverParameter( "CG", tol*l1*l2/n1/n2/1000 );
+	  solverParams->set ("Verbosity", int( Belos::Errors) );
+//	  auto A =
+//	      Pimpact::createMultiModeOperatorBase<MVF,Pimpact::Helmholtz<S,O> >(
+//	          Pimpact::createHelmholtz<S,O>( omega, 1./re ) );
+//	  auto prob2 = Pimpact::createLinearProblem<MVF>( A, fu->clone(), fu->clone(), solverParams, "CG" );
+	  auto bla = Pimpact::createMultiModeOperatorBase<MVF>(
+	      Pimpact::createMLHelmholtzOp<S,O>( space, 20, omega, 1./re, tol*l1*l2/n1/n2/1000 ) );
+	  auto op2 = Pimpact::createEddyPrec<S,O>( fu->clone(), bla ) ;
+	  lprec = Pimpact::createMultiOperatorBase<MVF>( op2 );
 	  break;
 	}
 	default:
@@ -257,7 +274,7 @@ int main(int argi, char** argv ) {
   u = Pimpact::createInitMVF<S,O>( Pimpact::Zero2DFlow, fS, iIS, fIS );
 
 	// create parameter for linsovlers
-	auto solverParams = Pimpact::createLinSolverParameter( solver_name_1, 1.e-7*l1*l2/n1/n2 );
+	auto solverParams = Pimpact::createLinSolverParameter( solver_name_1, tol*l1*l2/n1/n2 );
 
 	solverParams->set ("Output Stream", outLap1 );
 	if(precType==0)
@@ -274,7 +291,7 @@ int main(int argi, char** argv ) {
 	    Pimpact::createMultiOperatorBase<MSF,Pimpact::DivOpGrad<S,O> >(
 	        Pimpact::createDivOpGrad<S,O>( u, lap_problem ) );
 
-	solverParams = Pimpact::createLinSolverParameter( solver_name_2, 1.e-7*l1*l2/n1/n2  );
+	solverParams = Pimpact::createLinSolverParameter( solver_name_2, tol*l1*l2/n1/n2  );
 	solverParams->set( "Output Stream", outSchur );
 	solverParams->set( "Num Blocks", 100 );
 
@@ -286,7 +303,7 @@ int main(int argi, char** argv ) {
 	div->apply( *tempv, *temps );
   temps->add( -1., *fp, 1., *temps );
 
-	solverParams = Pimpact::createLinSolverParameter( solver_name_1, 1.e-7*l1*l2/n1/n2 );
+	solverParams = Pimpact::createLinSolverParameter( solver_name_1, tol*l1*l2/n1/n2 );
 	solverParams->set( "Output Stream", outLap2 );
 	solverParams->set("Verbosity", int( Belos::Errors) );
 	lap_problem->setParameters( solverParams );

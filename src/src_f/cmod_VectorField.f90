@@ -281,20 +281,17 @@ contains
     !! \param[out] normInf gets the infinity norm of phi
     !! \param[out] normTwo get the two norm of phi
     subroutine get_norms_vel( &
-        COMM_CART,              &
-        dimens,                 &
-        N,                      &
-        bL,bU,                  &
-        SU,NU,                  &
-        SV,NV,                  &
-        SW,NW,                  &
-        phiU,phiV,phiW,         &
-        inf_yes,two_yes,        &
+        dimens,               &
+        N,                    &
+        bL,bU,                &
+        SU,NU,                &
+        SV,NV,                &
+        SW,NW,                &
+        phiU,phiV,phiW,       &
+        inf_yes,two_yes,      &
         normInf,normTwo ) bind (c,name='VF_compNorm')
 
         implicit none
-
-        integer(c_int), intent(in)    :: COMM_CART
 
         integer(c_int), intent(in)    :: dimens
 
@@ -322,10 +319,7 @@ contains
         real(c_double),  intent(out) ::  normInf
         real(c_double),  intent(out) ::  normTwo
 
-        real(c_double)               ::  normInf_global, normTwo_global
         integer(c_int)               ::  i, j, k
-
-        integer                      ::  merror
 
 
         if (inf_yes .and. two_yes) then
@@ -364,12 +358,6 @@ contains
                 end do
             end if
 
-            ! Lassen sich wegen MPI_SUM / MPI_MAX nicht zusammenlegen:
-            call MPI_ALLREDUCE(normInf,normInf_global,1,MPI_REAL8,MPI_MAX,COMM_CART,merror)
-            call MPI_ALLREDUCE(normTwo,normTwo_global,1,MPI_REAL8,MPI_SUM,COMM_CART,merror)
-            normInf = normInf_global
-            normTwo = normTwo_global
-
         else if (inf_yes) then
 
             normInf = 0.
@@ -403,10 +391,6 @@ contains
                 end do
             end if
 
-
-            call MPI_ALLREDUCE(normInf,normInf_global,1,MPI_REAL8,MPI_MAX,COMM_CART,merror) ! MPI_REDUCE bringt nichts, weil exit_yes dann mit MPI_BCAST verteilt werden m�sste ...
-            normInf = normInf_global
-
         else if (two_yes) then
 
             normTwo = 0.
@@ -438,9 +422,6 @@ contains
                     end do
                 end do
             end if
-
-            call MPI_ALLREDUCE(normTwo,normTwo_global,1,MPI_REAL8,MPI_SUM,COMM_CART,merror)
-            normTwo = normTwo_global
 
         end if
 

@@ -67,7 +67,7 @@ Teuchos::RCP<NOX::StatusTest::Generic> createStatusTest( int maxI=10, double tol
   maxiters.set( "Test Type", "MaxIters" );
   maxiters.set( "Maximum Iterations", maxI );
   nstep.set( "Test Type", "NStep" );
-  nstep.set( "N", 1 );
+  nstep.set( "N", 2 );
 //  Teuchos::RCP<NOX::StatusTest::Generic>
   auto status_tests =
       NOX::StatusTest::buildStatusTests( stl, NOX::Utils() );

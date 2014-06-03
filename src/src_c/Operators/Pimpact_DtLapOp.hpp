@@ -29,6 +29,7 @@ extern "C" {
 
 
 /// \ingroup ModeOperator
+/// \todo move Helmholtz to MultiDtHelmholtzOp(is not ModeOp)
 template<class Scalar,class Ordinal>
 class DtLapOp {
 
@@ -38,21 +39,21 @@ class DtLapOp {
 
 public:
 
-  DtLapOp( Scalar alpha2=1., Scalar iRe=1. ):
-    alpha2_(alpha2),
-    iRe_(iRe),
-    L_( createHelmholtz<Scalar,Ordinal>(0,iRe) )
-{};
-//    L_(Teuchos::rcp( new Helmholtz<Scalar,Ordinal>(0,iRe) ) ) {};
-
-  DtLapOp( Scalar alpha2, const Teuchos::RCP<Helmholtz<Scalar,Ordinal> >& L ):
-    alpha2_(alpha2),
-    iRe_(L->getMulL()),
-    L_(L)
-  {};
-
   typedef ModeField<VectorField<Scalar,Ordinal> >  DomainFieldT;
   typedef ModeField<VectorField<Scalar,Ordinal> >  RangeFieldT;
+
+  DtLapOp(
+      Scalar alpha2=1.,
+      Scalar iRe=1.,
+      const Teuchos::RCP<Helmholtz<Scalar,Ordinal> >& L=Teuchos::null ):
+    alpha2_(alpha2),
+    iRe_(iRe),
+    L_(L) {
+    if( L_.is_null() )
+      L_ = createHelmholtz<Scalar,Ordinal>( 0, iRe );
+  };
+
+
 
 
   /// \f[ \begin{bmatrix} \hat{\mathbf{y}}^c \\ \hat{\mathbf{y}}^s  \end{bmatrix}

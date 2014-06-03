@@ -29,7 +29,7 @@ for i in range(5,7):
   if not os.path.exists( data_path+case_path[0] ):
 	  os.mkdir( data_path+case_path[0] )
   print data_path + case_path[0]
-  for prec in [0,2,3]:
+  for prec in [0,2,3,4]:
   #for prec in [0]:
 	  case_path[1] = '/prec'+str(prec)
 	  if not os.path.exists( data_path+case_path[0]+case_path[1] ):

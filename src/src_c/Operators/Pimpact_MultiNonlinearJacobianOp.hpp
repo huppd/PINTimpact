@@ -67,7 +67,6 @@ public:
 /// \relates MultiHarmonicNonlinearJacobian
 template< class S, class O>
 Teuchos::RCP<MultiHarmonicNonlinearJacobian<S,O> > createMultiHarmonicNonlinearJacobian(
-//    const Teuchos::RCP< VectorField<S,O> >& temp = Teuchos::null,
     const Teuchos::RCP< typename MultiHarmonicNonlinearJacobian<S,O>::DomainFieldT>& u = Teuchos::null,
     const bool& isNewton=true ) {
 

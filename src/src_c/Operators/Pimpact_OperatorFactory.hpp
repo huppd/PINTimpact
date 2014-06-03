@@ -96,6 +96,8 @@ createMultiHarmonicMLEddy(
 
   typedef VectorField<S,O> VF;
   typedef MultiField<VF> MF;
+  typedef ModeField<VF> MoF;
+  typedef MultiField<MoF> MMF;
   typedef MultiHarmonicField<VF> HF;
   typedef MultiField<HF> MHF;
 
@@ -105,9 +107,15 @@ createMultiHarmonicMLEddy(
   Teuchos::Array< Teuchos::RCP<Ops> > array( nf );
 
   for( int i=0; i<nf; ++i ) {
-    array[i] = Pimpact::createMultiOperatorBase<MultiField<ModeField<VectorField<S,O> > > >(
-        Pimpact::createModeOpWrap(
-            Pimpact::createMLHelmholtzOp<S,O>( space, nGrids, alpha2*(i+1), iRe  ) ) );
+    auto tempOp = Pimpact::createMultiModeOperatorBase<MMF>(
+            Pimpact::createMLHelmholtzOp<S,O>( space, nGrids, alpha2*(i+1), iRe  ) );
+    array[i] =
+        Pimpact::createMultiOperatorBase<MMF>(
+            Pimpact::createEddyPrec<S,O>( Teuchos::null, tempOp ) );
+//    lprec = Pimpact::createMultiOperatorBase<MVF>( op2 );
+//        Pimpact::createMultiOperatorBase<MultiField<ModeField<VectorField<S,O> > > >(
+//            Pimpact::createModeOpWrap(
+//                Pimpact::createMLHelmholtzOp<S,O>( space, nGrids, alpha2*(i+1), iRe  ) ) );
   }
 
   auto prec =

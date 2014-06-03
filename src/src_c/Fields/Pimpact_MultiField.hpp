@@ -35,22 +35,22 @@ class MultiField {
 
 public:
 
-	typedef typename Field::Scalar Scalar;
-	typedef typename Field::Ordinal Ordinal;
+  typedef typename Field::Scalar Scalar;
+  typedef typename Field::Ordinal Ordinal;
 
 private:
 
-	typedef Pimpact::MultiField<Field> MV;
-	Teuchos::Array<Teuchos::RCP<Field> > mfs_;
+  typedef Pimpact::MultiField<Field> MV;
+  Teuchos::Array<Teuchos::RCP<Field> > mfs_;
 
 public:
-	MultiField():mfs_(Teuchos::null) {};
+  MultiField():mfs_(Teuchos::null) {};
 
-	/// \brief constructor taking a \c Field constructing multiple shallow copys.
+  /// \brief constructor taking a \c Field constructing multiple shallow copys.
   /// \note maybe hide and make it private
   MultiField( const Field& field, const int numvecs, ECopyType ctyp=DeepCopy ):mfs_(numvecs) {
-  	for( int i=0; i<numvecs; ++i )
-  		mfs_[i] = field.clone(ctyp);
+    for( int i=0; i<numvecs; ++i )
+      mfs_[i] = field.clone(ctyp);
   }
 
 
@@ -79,7 +79,7 @@ public:
   /// more parallel processes) Its entries are not initialized and have undefined
   /// values.
   Teuchos::RCP< MV > clone( const int numvecs ) const {
-  	return( Teuchos::rcp( new MV( *mfs_[0], numvecs ) ) );
+    return( Teuchos::rcp( new MV( *mfs_[0], numvecs ) ) );
   }
 
 
@@ -90,10 +90,10 @@ public:
   /// values.
   Teuchos::RCP< MV > clone( ECopyType ctype = DeepCopy ) const {
     auto mv_ = Teuchos::rcp( new MV(getNumberVecs()) );
-      for( int i=0; i<getNumberVecs(); ++i ) {
-        mv_->mfs_[i] = mfs_[i]->clone(ctype);
-      }
-      return( mv_ );
+    for( int i=0; i<getNumberVecs(); ++i ) {
+      mv_->mfs_[i] = mfs_[i]->clone(ctype);
+    }
+    return( mv_ );
   }
 
 
@@ -108,11 +108,11 @@ public:
   /// \param index
   /// \return
   Teuchos::RCP<MV>  CloneCopy( const std::vector<int>& index ) const {
-  	auto mv_ = Teuchos::rcp( new MV(index.size()) );
-  	for( unsigned int i=0; i<index.size(); ++i ) {
-  		mv_->mfs_[i] = Teuchos::rcp( new Field( *mfs_[ index[i] ], DeepCopy ) );
-  	}
-  	return( mv_ );
+    auto mv_ = Teuchos::rcp( new MV(index.size()) );
+    for( unsigned int i=0; i<index.size(); ++i ) {
+      mv_->mfs_[i] = Teuchos::rcp( new Field( *mfs_[ index[i] ], DeepCopy ) );
+    }
+    return( mv_ );
   }
 
 
@@ -120,53 +120,53 @@ public:
   /// \param index here index means an interval
   /// @return
   Teuchos::RCP<MV> CloneCopy( const Teuchos::Range1D& index) const {
-  	auto mv_ = Teuchos::rcp( new MV(index.size()) );
-  	int j = 0;
-  	for( int i=index.lbound(); i<=index.ubound(); ++i ) {
-  		mv_->mfs_[j] = Teuchos::rcp( new Field( *mfs_[ i ], DeepCopy ) );
-  		++j;
-  	}
-  	return( mv_ );
+    auto mv_ = Teuchos::rcp( new MV(index.size()) );
+    int j = 0;
+    for( int i=index.lbound(); i<=index.ubound(); ++i ) {
+      mv_->mfs_[j] = Teuchos::rcp( new Field( *mfs_[ i ], DeepCopy ) );
+      ++j;
+    }
+    return( mv_ );
   }
 
 
   /// \param index
   /// @return nonConst View
   Teuchos::RCP<MV> CloneViewNonConst( const std::vector<int>& index) {
-  	auto mv_ = Teuchos::rcp( new MV( index.size() ) );
-  	for( unsigned int i=0; i<index.size(); ++i ) {
-  		mv_->mfs_[i] =  mfs_[ index[i] ];
-  	}
-  	return( mv_ );
+    auto mv_ = Teuchos::rcp( new MV( index.size() ) );
+    for( unsigned int i=0; i<index.size(); ++i ) {
+      mv_->mfs_[i] =  mfs_[ index[i] ];
+    }
+    return( mv_ );
   }
 
 
   Teuchos::RCP<MV> CloneViewNonConst( const Teuchos::Range1D& index ) {
-  	auto mv_ = Teuchos::rcp( new MV(index.size()) );
-  	int j=0;
-  	for( int i=index.lbound(); i<=index.ubound(); ++i ) {
-  		mv_->mfs_[j++] =  mfs_[i];
-  	}
-  	return( mv_ );
+    auto mv_ = Teuchos::rcp( new MV(index.size()) );
+    int j=0;
+    for( int i=index.lbound(); i<=index.ubound(); ++i ) {
+      mv_->mfs_[j++] =  mfs_[i];
+    }
+    return( mv_ );
   }
 
 
   Teuchos::RCP<const MV > CloneView( const std::vector<int>& index ) const {
-  	auto mv_ = Teuchos::rcp( new MV(index.size()) );
-  	for( unsigned int i=0; i<index.size(); ++i ) {
-  		mv_->mfs_[i] =  mfs_[ index[i] ];
-  	}
-  	return( mv_ );
+    auto mv_ = Teuchos::rcp( new MV(index.size()) );
+    for( unsigned int i=0; i<index.size(); ++i ) {
+      mv_->mfs_[i] =  mfs_[ index[i] ];
+    }
+    return( mv_ );
   }
 
 
   Teuchos::RCP<const MV > CloneView( const Teuchos::Range1D& index ) const {
-  	auto mv_ = Teuchos::rcp( new MV(index.size()) );
-  	int j=0;
-  	for( int i=index.lbound(); i<=index.ubound(); ++i ) {
-  		mv_->mfs_[j++] =  mfs_[i];
-  	}
-  	return( mv_ );
+    auto mv_ = Teuchos::rcp( new MV(index.size()) );
+    int j=0;
+    for( int i=index.lbound(); i<=index.ubound(); ++i ) {
+      mv_->mfs_[j++] =  mfs_[i];
+    }
+    return( mv_ );
   }
 
 
@@ -175,14 +175,14 @@ public:
   /// \param nox_vec if \c MultiField is used for NOX the Vector length is
   /// considered for all Fields
   Ordinal getLength( bool nox_vec=false ) const {
-  	if( nox_vec ){
-  		Ordinal n = 0;
-  		for( int i=0; i<getNumberVecs(); ++i )
-  			n += mfs_[i]->getLength(nox_vec);
-  		return( n );
-  	}
-  	else
-  		return( mfs_[0]->getLength(nox_vec) );
+    if( nox_vec ){
+      Ordinal n = 0;
+      for( int i=0; i<getNumberVecs(); ++i )
+        n += mfs_[i]->getLength(nox_vec);
+      return( n );
+    }
+    else
+      return( mfs_[0]->getLength(nox_vec) );
   }
 
 
@@ -214,32 +214,32 @@ public:
   /// \param B Matrix
   /// \param beta
   void TimesMatAdd( const Scalar& alpha, const MV& A,
-  		const Teuchos::SerialDenseMatrix<int,Scalar>& B,
-  		const Scalar& beta ) {
-//  	auto AB = CloneCopy();      /// costly should be avoided
-//  	int m1 = A.getNumberVecs(); ///< is assumed to be equal to number vecs of this and ncolumns and nrows of b
-//  	int m2 = getNumberVecs();   ///< is assumed to be equal to number vecs of this and ncolumns and nrows of b
-//
-//  	AB->init(0.);
-//		for( int i=0; i<m2; ++i ) {
-//		  for( int j=0; j<m1; ++j ) {
-//  			AB->mfs_[i]->add(1., *(AB->mfs_[i]), B(j,i), *A.mfs_[j] );
-//  		}
-//  	}
-//  	for( int i=0; i<m2; ++i ) {
-//  		mfs_[i]->add( alpha, *AB->mfs_[i], beta, *mfs_[i] );
-//  	}
+      const Teuchos::SerialDenseMatrix<int,Scalar>& B,
+      const Scalar& beta ) {
+    //  	auto AB = CloneCopy();      /// costly should be avoided
+    //  	int m1 = A.getNumberVecs(); ///< is assumed to be equal to number vecs of this and ncolumns and nrows of b
+    //  	int m2 = getNumberVecs();   ///< is assumed to be equal to number vecs of this and ncolumns and nrows of b
+    //
+    //  	AB->init(0.);
+    //		for( int i=0; i<m2; ++i ) {
+    //		  for( int j=0; j<m1; ++j ) {
+    //  			AB->mfs_[i]->add(1., *(AB->mfs_[i]), B(j,i), *A.mfs_[j] );
+    //  		}
+    //  	}
+    //  	for( int i=0; i<m2; ++i ) {
+    //  		mfs_[i]->add( alpha, *AB->mfs_[i], beta, *mfs_[i] );
+    //  	}
     //  shoudl be faster, but for big scale differences alpha*B(j,i)s and mfs the above method should be more stable
-  	int m1 = A.getNumberVecs(); ///< is assumed to be equal to number vecs of this and ncolumns and nrows of b
-  	int m2 = getNumberVecs();   ///< is assumed to be equal to number vecs of this and ncolumns and nrows of b
+    int m1 = A.getNumberVecs(); ///< is assumed to be equal to number vecs of this and ncolumns and nrows of b
+    int m2 = getNumberVecs();   ///< is assumed to be equal to number vecs of this and ncolumns and nrows of b
 
-  	scale( beta );
+    scale( beta );
 
-		for( int i=0; i<m2; ++i ) {
-		  for( int j=0; j<m1; ++j ) {
-  			mfs_[i]->add( 1., *mfs_[i], alpha*B(j,i), *A.mfs_[j] );
-  		}
-  	}
+    for( int i=0; i<m2; ++i ) {
+      for( int j=0; j<m1; ++j ) {
+        mfs_[i]->add( 1., *mfs_[i], alpha*B(j,i), *A.mfs_[j] );
+      }
+    }
   }
 
 
@@ -251,8 +251,8 @@ public:
   ///	the same thing as <tt>mv := 0*mv + alpha*A + beta*B</tt> in IEEE 754
   ///	floating-point arithmetic. (Remember that NaN*0 = NaN.)
   void add( Scalar alpha, const MV& A, Scalar beta, const MV& B ) {
-  	for( int i=0; i<getNumberVecs(); ++i )
-  		mfs_[i]->add( alpha, *A.mfs_[i], beta, *B.mfs_[i] );
+    for( int i=0; i<getNumberVecs(); ++i )
+      mfs_[i]->add( alpha, *A.mfs_[i], beta, *B.mfs_[i] );
   }
 
 
@@ -273,10 +273,10 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
   /// \return Reference to this object
-   void reciprocal(const MV& y){
+  void reciprocal(const MV& y){
     for( int i=0; i<getNumberVecs(); ++i )
       mfs_[i]->reciprocal( *y.mfs_[i] );
-   }
+  }
 
 
   /// \brief Scale each element of every \c Field by \c gamma.
@@ -284,8 +284,8 @@ public:
   /// Here x represents on \c Field, and we update it as
   /// \f[ x_i = \alpha x_i \quad \mbox{for } i=1,\dots,n \f]
   void scale( const Scalar& alpha ) {
-  	for( int i=0; i<getNumberVecs(); ++i )
-  		mfs_[i]->scale(alpha);
+    for( int i=0; i<getNumberVecs(); ++i )
+      mfs_[i]->scale(alpha);
   }
 
 
@@ -306,10 +306,10 @@ public:
   /// \f[ x_j[i] = \alpha_j x_j[i] \quad \mbox{for } i=1,\dots,n \f]
   void scale( const std::vector<Scalar>& alphas ) {
 #ifdef DEBUG
-  	TEST_EQUALITY( alphas.size(), getNumberVecs() );
+    TEST_EQUALITY( alphas.size(), getNumberVecs() );
 #endif
-  	for( unsigned int i=0; i<alphas.size(); ++i )
-  		mfs_[i]->scale( alphas[i] );
+    for( unsigned int i=0; i<alphas.size(); ++i )
+      mfs_[i]->scale( alphas[i] );
   }
 
 
@@ -318,21 +318,21 @@ public:
   /// \param A
   /// \param C
   void Trans( Scalar alpha, const MV& A,
-  		Teuchos::SerialDenseMatrix<int,Scalar>& C) const {
+      Teuchos::SerialDenseMatrix<int,Scalar>& C) const {
 
-  	const int n1 = getNumberVecs();
-  	const int n2 = A.getNumberVecs();
-//#ifdef DEBUG
-//    	if( n2!=C.numCols() )
-//    		std::cout << "n1!=C.numCols() n1= " << n1 << ", C.numcols() = " << C.numRows() << "\n";
-//    	if( n1!=C.numRows() )
-//    		std::cout << "n1!=C.numCols() n1= " << n2 << ", C.numcols() = " << C.numCols() << "\n";
-//    	TEST_EQUALITY( n2, C.numRows() );
-//    	TEST_EQUALITY( n1, C.numCols() );
-//#endif
-  	for( int i=0; i<n1; ++i)
-  		for( int j=0; j<n2; ++j )
-  			C(i,j) = alpha*mfs_[i]->dot( *A.mfs_[j] );
+    const int n1 = getNumberVecs();
+    const int n2 = A.getNumberVecs();
+    //#ifdef DEBUG
+    //    	if( n2!=C.numCols() )
+    //    		std::cout << "n1!=C.numCols() n1= " << n1 << ", C.numcols() = " << C.numRows() << "\n";
+    //    	if( n1!=C.numRows() )
+    //    		std::cout << "n1!=C.numCols() n1= " << n2 << ", C.numcols() = " << C.numCols() << "\n";
+    //    	TEST_EQUALITY( n2, C.numRows() );
+    //    	TEST_EQUALITY( n1, C.numCols() );
+    //#endif
+    for( int i=0; i<n1; ++i)
+      for( int j=0; j<n2; ++j )
+        C(i,j) = alpha*mfs_[i]->dot( *A.mfs_[j] );
   }
 
 
@@ -341,66 +341,109 @@ public:
   /// For all columns j of A, set <tt>dots[j] := A[j]^T * B[j]</tt>.
   /// \todo make reduction over vector
   void dot( const MV& A, std::vector<Scalar>& dots) const {
-  	const int n = getNumberVecs();
-  	for( int i=0; i<n; ++i)
-  		dots[i] = A.mfs_[i]->dot( *mfs_[i] );
+    const int n = getNumberVecs();
+    Scalar* temp = new Scalar[n];
+    for( int i=0; i<n; ++i)
+      temp[i] = A.mfs_[i]->dot( *mfs_[i], false );
+
+//    Scalar b_global=0.;
+    MPI_Allreduce( temp, dots.data(), n, MPI_REAL8, MPI_SUM, comm() );
+    delete[] temp;
 
   }
 
 
   /// \brief Compute the inner product for the \c MultiField considering it as one Vector.
-	Scalar dot( const MV& A, bool global=true ) const {
-		int n = getNumberVecs();
-//		Scalar innpro=0.;
-		Scalar b = 0.;
-//		std::vector<Scalar> innprovec( n );
-//		dot( A, innprovec );
+  Scalar dot( const MV& A, bool global=true ) const {
+    int n = getNumberVecs();
+    //		Scalar innpro=0.;
+    Scalar b = 0.;
+    //		std::vector<Scalar> innprovec( n );
+    //		dot( A, innprovec );
 
-		for( int i=0; i<n; ++i ) {
-//			innpro += innprovec[i];
-			b+= mfs_[i]->dot( *A.mfs_[i], false );
-		}
-	  if( global ) {
-	    Scalar b_global=0.;
-	    MPI_Allreduce( &b, &b_global, 1, MPI_REAL8, MPI_SUM, comm() );
-	    b = b_global;
-	  }
+    for( int i=0; i<n; ++i ) {
+      //			innpro += innprovec[i];
+      b+= mfs_[i]->dot( *A.mfs_[i], false );
+    }
+    if( global ) {
+      Scalar b_global=0.;
+      MPI_Allreduce( &b, &b_global, 1, MPI_REAL8, MPI_SUM, comm() );
+      b = b_global;
+    }
 
-		return( b );
-	}
+    return( b );
+  }
 
 
   /// \brief Compute the norm of each individual vector.
   /// Upon return, \c normvec[i] holds the value of \f$||this_i||_2\f$, the \c i-th column of \c this.
   /// \todo implement OneNorm
   void norm( std::vector<typename Teuchos::ScalarTraits<Scalar>::magnitudeType> &normvec,
-  		Belos::NormType type=Belos::TwoNorm) const {
-  	const int n = getNumberVecs();
-  	for( int i=0; i<n; ++i )
-  		normvec[i] = mfs_[i]->norm(type);
+      Belos::NormType type=Belos::TwoNorm) const {
+    const int n = getNumberVecs();
+    Scalar* temp = new Scalar[n];
+
+//    for( int i=0; i<n; ++i )
+//      temp[i] = mfs_[i]->norm(type,false);
+
+    switch(type) {
+    case Belos::TwoNorm:
+      for( int i=0; i<n; ++i )
+        temp[i] = std::pow( mfs_[i]->norm(type,false), 2 );
+      MPI_Allreduce( temp, normvec.data(), n, MPI_REAL8, MPI_SUM, comm() );
+      for( int i=0; i<n; ++i )
+        normvec[i] = std::sqrt( normvec[i] );
+      break;
+    case Belos::InfNorm:
+      for( int i=0; i<n; ++i )
+        temp[i] = mfs_[i]->norm(type,false);
+      MPI_Allreduce( temp, normvec.data(), n, MPI_REAL8, MPI_MAX, comm() );
+      break;
+    case Belos::OneNorm:
+      std::cout << "Warning!: OneNorm not implemented\n";
+      break;
+    }
+    delete[] temp;
   }
 
 
   /// \brief Compute the norm for the \c MultiField as it is considered as one Vector .
   /// \todo implement OneNorm
-	Scalar norm(  Belos::NormType type = Belos::TwoNorm ) const {
+  Scalar norm(  Belos::NormType type = Belos::TwoNorm, bool global=true ) const {
 
-		int n = getNumberVecs();
-		Scalar nor = 0.;
+    int n = getNumberVecs();
+    Scalar normvec = 0.;
 
-		for( int i=0; i<n; ++i ) {
-		  switch(type) {
-        case Belos::TwoNorm: nor += std::pow(mfs_[i]->norm(type),2); break;
-        case Belos::InfNorm: nor = std::max( nor, mfs_[i]->norm(type) ); break;
-        case Belos::OneNorm: std::cout << "!!! Warning Belos::OneNorm not implemented \n"; return(0.);
-        default: std::cout << "!!! Warning unknown Belos::NormType:\t" << type << "\n"; return(0.);
-		  }
-		}
-		if( type==Belos::TwoNorm )
-		  return( std::sqrt(nor) );
-		else
-		  return( nor );
-	}
+    for( int i=0; i<n; ++i ) {
+      switch(type) {
+      case Belos::TwoNorm: normvec += std::pow(mfs_[i]->norm(type,false),2); break;
+      case Belos::InfNorm: normvec = std::max( normvec, mfs_[i]->norm(type,false) ); break;
+      case Belos::OneNorm: std::cout << "!!! Warning Belos::OneNorm not implemented \n"; return(0.);
+      default: std::cout << "!!! Warning unknown Belos::NormType:\t" << type << "\n"; return(0.);
+      }
+    }
+    switch(type) {
+    case Belos::TwoNorm:
+//      normvec = std::pow(fieldc_->norm(type,false),2) + std::pow(fields_->norm(type,false),2);
+      if( global ) {
+        Scalar normvec_global;
+        MPI_Allreduce( &normvec, &normvec_global, 1, MPI_REAL8, MPI_SUM, comm() );
+        normvec = normvec_global;
+      }
+      return( std::sqrt(normvec) );
+    case Belos::InfNorm:
+//      normvec = std::max(fieldc_->norm(type,false), fields_->norm(type,false) ) ;
+      if( global ) {
+        Scalar normvec_global;
+        MPI_Allreduce( &normvec, &normvec_global, 1, MPI_REAL8, MPI_MAX, comm() );
+        normvec = normvec_global;
+      }
+      return( normvec );
+    case Belos::OneNorm:
+      std::cout << "!!! Warning Belos::OneNorm not implemented \n"; return(0.);
+    default: std::cout << "!!! Warning unknown Belos::NormType:\t" << type << "\n"; return(0.);
+    }
+  }
 
 
   /// \brief Weighted 2-Norm.
@@ -420,58 +463,58 @@ public:
   /// \param A
   /// \param index
   void SetBlock( const MV& A, const std::vector<int>& index ) {
-  	const int n = index.size();
-  	for( int i=0; i<n; ++i )
-  		mfs_[index[i]]->assign(*A.mfs_[i]);
+    const int n = index.size();
+    for( int i=0; i<n; ++i )
+      mfs_[index[i]]->assign(*A.mfs_[i]);
   }
 
 
   /// \param A
   /// \param index
   void SetBlock( const MV& A, const Teuchos::Range1D& index) {
-  	for( int i=index.lbound(); i<=index.ubound(); ++i )
-  		mfs_[i]->assign(*A.mfs_[i-index.lbound()]);
+    for( int i=index.lbound(); i<=index.ubound(); ++i )
+      mfs_[i]->assign(*A.mfs_[i-index.lbound()]);
   }
 
   /// \brief mv := A.
   ///
   /// assign (deep copy) A into mv.
   void assign( const MV& A ) {
-  	const int n = getNumberVecs();
-  	for( int i=0; i<n; ++i )
-  		mfs_[i]->assign( *A.mfs_[i] );
+    const int n = getNumberVecs();
+    for( int i=0; i<n; ++i )
+      mfs_[i]->assign( *A.mfs_[i] );
   }
 
 
   /// \brief Replace the vectors with a random vectors.
   void random(bool useSeed = false, int seed = 1) {
-  	const int n = getNumberVecs();
-  	for( int i=0; i<n; ++i )
-  		mfs_[i]->random();
+    const int n = getNumberVecs();
+    for( int i=0; i<n; ++i )
+      mfs_[i]->random();
   }
 
 
   /// \brief \f[ *this = \alpha \f]
   void init( Scalar alpha = Teuchos::ScalarTraits<Scalar>::zero() ) {
-  	const int n = getNumberVecs();
-  	for( int i=0; i<n; ++i )
-  		mfs_[i]->init(alpha);
+    const int n = getNumberVecs();
+    for( int i=0; i<n; ++i )
+      mfs_[i]->init(alpha);
   }
 
 
   /// \todo add os to \c ScalarField and \c VectorField
   /// \param os
   void print( std::ostream& os ) {
-  	const int n = getNumberVecs();
-  	for( int i=0; i<n; ++i )
-  		mfs_[i]->print( os );
+    const int n = getNumberVecs();
+    for( int i=0; i<n; ++i )
+      mfs_[i]->print( os );
   }
 
 
   void write( int count=0 ) const {
-  	const int n = getNumberVecs();
-  	for( int i=0; i<n; ++i )
-  		mfs_[i]->write(count);
+    const int n = getNumberVecs();
+    for( int i=0; i<n; ++i )
+      mfs_[i]->write(count);
   }
 
 
@@ -490,9 +533,9 @@ public:
 /// \relates MultiField
 template<class Field>
 Teuchos::RCP< MultiField<Field> > createMultiField( const Field& field,
-		const int numvecs, ECopyType ctype = ShallowCopy ) {
+    const int numvecs, ECopyType ctype = ShallowCopy ) {
 
-	return( Teuchos::rcp( new MultiField<Field>( field, numvecs, ctype ) ) );
+  return( Teuchos::rcp( new MultiField<Field>( field, numvecs, ctype ) ) );
 }
 
 

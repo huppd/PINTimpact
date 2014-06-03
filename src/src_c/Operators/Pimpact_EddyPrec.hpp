@@ -27,7 +27,7 @@ public:
   typedef ModeField< VectorField<S,O> > DomainFieldT;
   typedef ModeField< VectorField<S,O> > RangeFieldT;
 
-  typedef MultiField< ModeField< VectorField<S,O> > > MVF;
+  typedef MultiField<DomainFieldT> MVF;
 
   typedef OperatorBase<MVF> Op;
 
@@ -41,15 +41,17 @@ public:
   EddyPrec(
       const Teuchos::RCP<MVF>& temp=Teuchos::null,
       const Teuchos::RCP<Op>& op=Teuchos::null ):
-        temp_(temp->clone(1)),
+        temp_(temp),
         op_(op) {};
 
-  void apply(const DomainFieldT& x, RangeFieldT& y) const {
+  void apply(const DomainFieldT& x, RangeFieldT& y) {
+    if( temp_.is_null() ) {
+      temp_ = createMultiField( x.clone() );
+    }
 
     temp_->getFieldPtr(0)->getCFieldPtr()->add( 1., x.getConstCField(),  1., x.getConstSField() );
     temp_->getFieldPtr(0)->getSFieldPtr()->add( 1., x.getConstCField(), -1., x.getConstSField() );
 
-//    op_->apply( temp_, createMultiField<DomainFieldT>(Teuchos::rcpFromRef(y)));
     op_->apply( *temp_, *createMultiField<DomainFieldT>(Teuchos::rcpFromRef(y)) );
 
     y.scale(0.5);

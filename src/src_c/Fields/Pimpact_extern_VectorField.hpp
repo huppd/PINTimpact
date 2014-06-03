@@ -41,7 +41,6 @@ void VF_dot(
 
 
 void VF_compNorm(
-    const MPI_Fint& comm,
     const int& dimens,
     const int* const N,
     const int* const bL,
