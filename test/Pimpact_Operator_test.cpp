@@ -34,6 +34,9 @@ typedef int O;
 bool testMpi = true;
 S errorTolSlack = 1e+1;
 
+bool isImpactInit = false;
+
+
 
 TEUCHOS_STATIC_SETUP() {
   Teuchos::CommandLineProcessor &clp = Teuchos::UnitTestRepository::getCLP();
@@ -51,7 +54,10 @@ TEUCHOS_STATIC_SETUP() {
 
 TEUCHOS_UNIT_TEST( BasicOperator, Div ) {
   // init impact
-  init_impact(0,0);
+  if( !isImpactInit ) {
+    init_impact(0,0);
+    isImpactInit=true;
+  }
 
   auto fS = Pimpact::createFieldSpace<O>();
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
@@ -74,6 +80,12 @@ TEUCHOS_UNIT_TEST( BasicOperator, Div ) {
 
 
 TEUCHOS_UNIT_TEST( BasicOperator, Div2 ) {
+
+  if( !isImpactInit ) {
+    init_impact(0,0);
+    isImpactInit=true;
+  }
+
   auto fS = Pimpact::createFieldSpace<O>();
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
   auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
@@ -96,6 +108,11 @@ TEUCHOS_UNIT_TEST( BasicOperator, Div2 ) {
 
 TEUCHOS_UNIT_TEST( BasicOperator, Grad ) {
 
+  if( !isImpactInit ) {
+    init_impact(0,0);
+    isImpactInit=true;
+  }
+
 	auto fS = Pimpact::createFieldSpace<O>();
 	auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
 	auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
@@ -114,6 +131,12 @@ TEUCHOS_UNIT_TEST( BasicOperator, Grad ) {
 
 
 TEUCHOS_UNIT_TEST( BasicOperator, Helmholtz ) {
+
+  if( !isImpactInit ) {
+    init_impact(0,0);
+    isImpactInit=true;
+  }
+
   auto fS = Pimpact::createFieldSpace<O>();
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
   auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
@@ -127,8 +150,38 @@ TEUCHOS_UNIT_TEST( BasicOperator, Helmholtz ) {
 }
 
 
+
+TEUCHOS_UNIT_TEST( BasicOperator, InverseHelmholtz ) {
+
+  if( !isImpactInit ) {
+    init_impact(0,0);
+    isImpactInit=true;
+  }
+
+  auto fS = Pimpact::createFieldSpace<O>();
+  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+
+  auto rhs = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
+  auto sol = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
+
+  auto op = Pimpact::createInverseHelmholtzOp<S,O>( 1., 1., 1.e-6, 100, true, false, false );
+
+  rhs->init( 1. );
+
+  op->apply( *rhs,*sol);
+  sol->write(77);
+
+}
+
+
+
 TEUCHOS_UNIT_TEST( BasicOperator, ForcingOp ) {
 
+  if( !isImpactInit ) {
+    init_impact(0,0);
+    isImpactInit=true;
+  }
 
   auto fS = Pimpact::createFieldSpace<O>();
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
@@ -154,6 +207,11 @@ TEUCHOS_UNIT_TEST( BasicOperator, ForcingOp ) {
 
 TEUCHOS_UNIT_TEST( ModeOperator, Helmholtz ) {
 
+  if( !isImpactInit ) {
+    init_impact(0,0);
+    isImpactInit=true;
+  }
+
 	auto fS = Pimpact::createFieldSpace<O>();
 	auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
 	auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
@@ -176,6 +234,12 @@ TEUCHOS_UNIT_TEST( ModeOperator, Helmholtz ) {
 
 
 TEUCHOS_UNIT_TEST( BasicOperator, Nonlinear ) {
+
+  if( !isImpactInit ) {
+    init_impact(0,0);
+    isImpactInit=true;
+  }
+
   using Teuchos::ParameterList;
   using Teuchos::parameterList;
   using Teuchos::RCP;
@@ -212,6 +276,12 @@ TEUCHOS_UNIT_TEST( BasicOperator, Nonlinear ) {
 
 
 TEUCHOS_UNIT_TEST( BasicOperator, Add2Op ) {
+
+  if( !isImpactInit ) {
+    init_impact(0,0);
+    isImpactInit=true;
+  }
+
   using Teuchos::ParameterList;
   using Teuchos::parameterList;
   using Teuchos::RCP;
@@ -261,7 +331,11 @@ TEUCHOS_UNIT_TEST( BasicOperator, Add2Op ) {
 
 TEUCHOS_UNIT_TEST( BasicOperator, MLHelmholtzOp ) {
 
-//  init_impact(0,0);
+  if( !isImpactInit ) {
+    init_impact(0,0);
+    isImpactInit=true;
+  }
+
   typedef Pimpact::VectorField<S,O>     VF;
   typedef Pimpact::MultiField<VF>      MVF;
   typedef Pimpact::Helmholtz<S,O>      Op1;
@@ -298,6 +372,12 @@ TEUCHOS_UNIT_TEST( BasicOperator, MLHelmholtzOp ) {
 
 
 TEUCHOS_UNIT_TEST( ModeOperator, Dt ) {
+
+  if( !isImpactInit ) {
+    init_impact(0,0);
+    isImpactInit=true;
+  }
+
   typedef Pimpact::MultiField< Pimpact::ModeField< Pimpact::VectorField<S,O> > > MF;
   typedef Pimpact::OperatorBase<MF> BOp;
 
@@ -330,6 +410,11 @@ TEUCHOS_UNIT_TEST( ModeOperator, Dt ) {
 
 
 TEUCHOS_UNIT_TEST( ModeOperator, DtLapOp ) {
+
+  if( !isImpactInit ) {
+    init_impact(0,0);
+    isImpactInit=true;
+  }
 
 	auto fS = Pimpact::createFieldSpace<O>();
 	auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
@@ -392,6 +477,11 @@ TEUCHOS_UNIT_TEST( ModeOperator, DtLapOp ) {
 
 TEUCHOS_UNIT_TEST( ModeOperator, DivDtLinvGrad ) {
 
+  if( !isImpactInit ) {
+    init_impact(0,0);
+    isImpactInit=true;
+  }
+
 	using Teuchos::ParameterList;
 	using Teuchos::parameterList;
 	using Teuchos::RCP;
@@ -444,6 +534,12 @@ TEUCHOS_UNIT_TEST( ModeOperator, DivDtLinvGrad ) {
 
 
 TEUCHOS_UNIT_TEST( ModeOperator, TripleCompostion) {
+
+  if( !isImpactInit ) {
+    init_impact(0,0);
+    isImpactInit=true;
+  }
+
   using Teuchos::ParameterList;
   using Teuchos::parameterList;
   using Teuchos::RCP;
@@ -488,6 +584,12 @@ TEUCHOS_UNIT_TEST( ModeOperator, TripleCompostion) {
 
 
 TEUCHOS_UNIT_TEST( ModeOperator, InverseOperator ) {
+
+  if( !isImpactInit ) {
+    init_impact(0,0);
+    isImpactInit=true;
+  }
+
   using Teuchos::ParameterList;
   using Teuchos::parameterList;
   using Teuchos::RCP;
@@ -527,6 +629,12 @@ TEUCHOS_UNIT_TEST( ModeOperator, InverseOperator ) {
 
 
 TEUCHOS_UNIT_TEST( ModeOperator, DivOpGrad ) {
+
+  if( !isImpactInit ) {
+    init_impact(0,0);
+    isImpactInit=true;
+  }
+
   using Teuchos::ParameterList;
   using Teuchos::parameterList;
   using Teuchos::RCP;
@@ -570,6 +678,12 @@ TEUCHOS_UNIT_TEST( ModeOperator, DivOpGrad ) {
 
 
 TEUCHOS_UNIT_TEST( ModeOperator, EddyPrec ) {
+
+  if( !isImpactInit ) {
+    init_impact(0,0);
+    isImpactInit=true;
+  }
+
   using Teuchos::ParameterList;
   using Teuchos::parameterList;
   using Teuchos::RCP;
@@ -613,8 +727,11 @@ TEUCHOS_UNIT_TEST( ModeOperator, EddyPrec ) {
 
 
 TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicNonlinear ) {
-//  typedef Pimpact::VectorField<S,O>       VF;
-//  typedef Pimpact::MultiHarmonicField<VF> MVF;
+
+  if( !isImpactInit ) {
+    init_impact(0,0);
+    isImpactInit=true;
+  }
 
   auto fS = Pimpact::createFieldSpace<O>();
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
@@ -634,6 +751,11 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicNonlinear ) {
 
 TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicOpWrap ) {
 
+  if( !isImpactInit ) {
+    init_impact(0,0);
+    isImpactInit=true;
+  }
+
   auto fS = Pimpact::createFieldSpace<O>();
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
   auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
@@ -652,6 +774,11 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicOpWrap ) {
 
 TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiDtHelmholtz) {
 
+  if( !isImpactInit ) {
+    init_impact(0,0);
+    isImpactInit=true;
+  }
+
   auto fS = Pimpact::createFieldSpace<O>();
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
   auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
@@ -667,6 +794,11 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiDtHelmholtz) {
 
 
 TEUCHOS_UNIT_TEST( CompoundOperator, CompoundOpWrap ) {
+
+  if( !isImpactInit ) {
+    init_impact(0,0);
+    isImpactInit=true;
+  }
 
   typedef Pimpact::MultiHarmonicField< Pimpact::VectorField<S,O> > VF;
   typedef Pimpact::MultiHarmonicField< Pimpact::ScalarField<S,O> > SF;

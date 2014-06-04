@@ -23,7 +23,7 @@ namespace bla{
 template<class S,class O>
 class MyML {
 
-  Teuchos::Tuple<ML*,3> ml_object;
+  Teuchos::Tuple<ML*,3> mlObject;
   Teuchos::Tuple<ML_Aggregate*,3> agg_object;
 
 public:
@@ -31,38 +31,43 @@ public:
   MyML( int N_grids=20 ) {
 
     for( int dim=0; dim<2; ++dim ) {
-      ML_Create         (&ml_object[dim], N_grids);
+      ML_Create         (&mlObject[dim], N_grids);
 
-      ML_Init_Amatrix      (ml_object[dim], 0,  129, 129, &dim);
-      ML_Set_Amatrix_Getrow(ml_object[dim], 0,  Poisson_getrow, NULL, 129);
-      ML_Set_Amatrix_Matvec(ml_object[dim], 0,  Poisson_matvec);
-      ML_Set_PrintLevel(0);
+      ML_Init_Amatrix      (mlObject[dim], 0,  129, 129, &dim);
+      ML_Set_Amatrix_Getrow(mlObject[dim], 0,  Poisson_getrow, NULL, 129);
+      ML_Set_Amatrix_Matvec(mlObject[dim], 0,  Poisson_matvec);
+
+      ML_Set_PrintLevel(10);
+      ML_Set_ResidualOutputFrequency( mlObject[dim], -1 );
+
 
       ML_Aggregate_Create(&agg_object[dim]);
       ML_Aggregate_Set_MaxCoarseSize(agg_object[dim],1);
-      int N_levels = ML_Gen_MGHierarchy_UsingAggregation(ml_object[dim], 0,
+      int nLevels = ML_Gen_MGHierarchy_UsingAggregation(mlObject[dim], 0,
           ML_INCREASING, agg_object[dim]);
       /******** Begin code to set a Jacobi smoother ******/
 
-      //   ML_Gen_Smoother_Jacobi(ml_object, ML_ALL_LEVELS, ML_PRESMOOTHER, 10, ML_DEFAULT);
-      ML_Gen_Smoother_GaussSeidel(ml_object[dim], ML_ALL_LEVELS, ML_PRESMOOTHER, 10, ML_DEFAULT);
-      //   ML_Gen_Smoother_BlockGaussSeidel(ml_object, ML_ALL_LEVELS, ML_PRESMOOTHER, 1, ML_DEFAULT, 3 );
+      ML_Gen_CoarseSolverSuperLU( mlObject[dim], nLevels-1 );
+      //   ML_Gen_Smoother_Jacobi(mlObject, ML_ALL_LEVELS, ML_PRESMOOTHER, 10, ML_DEFAULT);
+      ML_Gen_Smoother_GaussSeidel(mlObject[dim], ML_ALL_LEVELS, ML_PRESMOOTHER, 10, ML_DEFAULT);
+      //   ML_Gen_Smoother_BlockGaussSeidel(mlObject, ML_ALL_LEVELS, ML_PRESMOOTHER, 1, ML_DEFAULT, 3 );
+
 
       /******** End code to set a Jacobi smoother ******/
 
-      ML_Gen_Solver (ml_object[dim], ML_MGV, 0, N_levels-1);
+      ML_Gen_Solver (mlObject[dim], ML_MGV, 0, nLevels-1);
     }
   }
   void apply( double* sol, double* rhs ) {
 
     for(int dim=0; dim<2; ++dim) {
-      ML_Iterate(ml_object[dim], sol, rhs);
+      ML_Iterate(mlObject[dim], sol, rhs);
     }
   }
   ~MyML() {
     for(int dim=0; dim<2; ++dim) {
       ML_Aggregate_Destroy(&agg_object[dim]);
-      ML_Destroy(&ml_object[dim]);
+      ML_Destroy(&mlObject[dim]);
     }
   }
 
@@ -89,7 +94,7 @@ private:
   static int Poisson_matvec(ML_Operator *A_data, int in_length, double p[], int out_length,
       double ap[]) {
 
-    std::cout << "blalblamatvec\n";
+    //    std::cout << "blalblamatvec\n";
     for( O i = 0; i < 129; i++ ) {
       ap[i] = 2*p[i];
       if (i != 0) ap[i] -= p[i-1];

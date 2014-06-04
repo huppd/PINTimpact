@@ -25,8 +25,8 @@ Teuchos::RCP<NOX::StatusTest::Generic> createStatusTest( int maxI=10, double tol
   stl.set( "Number of Tests", 2 );
   Teuchos::ParameterList& conv = stl.sublist( "Test 0" );
   Teuchos::ParameterList& nstep = stl.sublist( "Test 1" );
-//  Teuchos::ParameterList& divergence = stl.sublist( "Test 3" );
-//  Teuchos::ParameterList& fv = stl.sublist( "Test 4" );
+  //  Teuchos::ParameterList& divergence = stl.sublist( "Test 3" );
+  //  Teuchos::ParameterList& fv = stl.sublist( "Test 4" );
   conv.set( "Test Type", "Combo" );
   conv.set( "Combo Type", "OR" );
   conv.set( "Number of Tests", 4 );
@@ -34,33 +34,33 @@ Teuchos::RCP<NOX::StatusTest::Generic> createStatusTest( int maxI=10, double tol
   Teuchos::ParameterList& normUpdate = conv.sublist( "Test 1" );
   Teuchos::ParameterList& maxiters = conv.sublist( "Test 2" );
   Teuchos::ParameterList& stagnation = conv.sublist( "Test 3" );
-//  Teuchos::ParameterList& normWRMS = conv.sublist( "Test 2" );
-//  Teuchos::ParameterList& userDefined = conv.sublist( "Test 3" );
+  //  Teuchos::ParameterList& normWRMS = conv.sublist( "Test 2" );
+  //  Teuchos::ParameterList& userDefined = conv.sublist( "Test 3" );
   normF.set( "Test Type", "NormF" );
   normF.set( "Tolerance", tolF );
   normF.set( "Norm Type", "Two Norm" );
   normF.set( "Scale Type", "Scaled" );
-//  normWRMS.set( "Test Type", "NormWRMS" );
-//  normWRMS.set( "Absolute Tolerance", 1.0e-8 );
-//  normWRMS.set( "Relative Tolerance", 1.0e-5 );
-//  normWRMS.set( "Tolerance", 1.0 );
-//  normWRMS.set( "BDF Multiplier", 1.0 );
-//  normWRMS.set( "Alpha", 1.0 );
-//  normWRMS.set( "Beta", 0.5 );
+  //  normWRMS.set( "Test Type", "NormWRMS" );
+  //  normWRMS.set( "Absolute Tolerance", 1.0e-8 );
+  //  normWRMS.set( "Relative Tolerance", 1.0e-5 );
+  //  normWRMS.set( "Tolerance", 1.0 );
+  //  normWRMS.set( "BDF Multiplier", 1.0 );
+  //  normWRMS.set( "Alpha", 1.0 );
+  //  normWRMS.set( "Beta", 0.5 );
   normUpdate.set( "Test Type", "NormUpdate" );
   normUpdate.set( "Tolerance", tolUpdate );
   normUpdate.set( "Norm Type", "Two Norm" );
   normUpdate.set( "Scale Type", "Scaled" );
-//  userDefined.set("Test Type", "User Defined");
-//  Teuchos::RCP<NOX::StatusTest::Generic> myTest =
-//      Teuchos::rcp(new MyTest(1.0e-3));
-//  userDefined.set("User Status Test", myTest);
-//  fv.set("Test Type", "FiniteValue");
-//  fv.set("Vector Type", "F Vector");
-//  fv.set("Norm Type", "Two Norm");
-//  divergence.set("Test Type", "Divergence");
-//  divergence.set("Tolerance", 1.0e+20);
-//  divergence.set("Consecutive Iterations", 3);
+  //  userDefined.set("Test Type", "User Defined");
+  //  Teuchos::RCP<NOX::StatusTest::Generic> myTest =
+  //      Teuchos::rcp(new MyTest(1.0e-3));
+  //  userDefined.set("User Status Test", myTest);
+  //  fv.set("Test Type", "FiniteValue");
+  //  fv.set("Vector Type", "F Vector");
+  //  fv.set("Norm Type", "Two Norm");
+  //  divergence.set("Test Type", "Divergence");
+  //  divergence.set("Tolerance", 1.0e+20);
+  //  divergence.set("Consecutive Iterations", 3);
   stagnation.set( "Test Type", "Stagnation" );
   stagnation.set( "Tolerance", 1.0 );
   stagnation.set( "Consecutive Iterations", 10 );
@@ -68,7 +68,7 @@ Teuchos::RCP<NOX::StatusTest::Generic> createStatusTest( int maxI=10, double tol
   maxiters.set( "Maximum Iterations", maxI );
   nstep.set( "Test Type", "NStep" );
   nstep.set( "N", 2 );
-//  Teuchos::RCP<NOX::StatusTest::Generic>
+  //  Teuchos::RCP<NOX::StatusTest::Generic>
   auto status_tests =
       NOX::StatusTest::buildStatusTests( stl, NOX::Utils() );
 
@@ -92,19 +92,19 @@ Teuchos::RCP<Teuchos::ParameterList> createNOXSolverParameter(
   if( solverName=="NonlinearCG" ) {
     Teuchos::ParameterList&  sll = sl.sublist("Nonlinear CG");
     sll.set( "Precondition", "On" );
-//    sll.set( "Restart Frequency", 10  );
+    //    sll.set( "Restart Frequency", 10  );
   }
 
 
   Teuchos::ParameterList& lineSearchParameters = solverParametersPtr->sublist("Line Search");
   lineSearchParameters.set( "Method", lineSearchName );
   if( lineSearchName=="Backtrack" ) {
-     lineSearchParameters.sublist("Backtrack").set( "Recovery Step", 1.e-6 );
+    lineSearchParameters.sublist("Backtrack").set( "Recovery Step", 1.e-6 );
   }
   if( lineSearchName=="Polynomial" ) {
-     Teuchos::ParameterList& sll = lineSearchParameters.sublist("Polynomial");
-     sll.set( "Interpolation Type", "Quadratic3" );
-     sll.set( "Recovery Step Type", "Last Computed Step" );
+    Teuchos::ParameterList& sll = lineSearchParameters.sublist("Polynomial");
+    sll.set( "Interpolation Type", "Quadratic3" );
+    sll.set( "Recovery Step Type", "Last Computed Step" );
   }
   return( solverParametersPtr );
 

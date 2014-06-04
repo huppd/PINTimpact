@@ -24,50 +24,50 @@ class IndexSpace {
 
 public:
 
-	typedef Teuchos::Tuple<Ordinal,3> TO3;
+  typedef Teuchos::Tuple<Ordinal,3> TO3;
 
-	/// \brief constructor
-	/// \param fieldType says which kind of field is taken
-	/// \param sInd start index of gridpoints
-	/// \param eInd last index of gridpoints
-	IndexSpace( EFieldType fieldType,TO3 sInd, TO3 eInd ):
-		fieldType_(fieldType),sInd_(sInd),eInd_(eInd) {};
+  /// \brief constructor
+  /// \param fieldType says which kind of field is taken
+  /// \param sInd start index of gridpoints
+  /// \param eInd last index of gridpoints
+  IndexSpace( EFieldType fieldType,TO3 sInd, TO3 eInd ):
+    fieldType_(fieldType),sInd_(sInd),eInd_(eInd) {};
 
-	void print() const {
-		std::cout << "fieldType: " << fieldType_ << "\n";
-		std::cout << "sInd: " << sInd_ << "\n";
-		std::cout << "eInd: " << eInd_ << "\n";
-	}
+  void print() const {
+    std::cout << "fieldType: " << fieldType_ << "\n";
+    std::cout << "sInd: " << sInd_ << "\n";
+    std::cout << "eInd: " << eInd_ << "\n";
+  }
 
 
-	EFieldType fieldType_;
+  EFieldType fieldType_;
 
-	TO3 sInd_;
-	TO3 eInd_;
+  TO3 sInd_;
+  TO3 eInd_;
 
 }; // end of class IndexSpace
 
 extern "C" {
-	void SVS_get_sInd(int&,int&,int&);
-	void SVS_get_eInd(int&,int&,int&);
+void SVS_get_sInd(int&,int&,int&);
+void SVS_get_eInd(int&,int&,int&);
 
-	void VS_get_sIndU(int&,int&,int&);
-	void VS_get_eIndU(int&,int&,int&);
+void VS_get_sIndU(int&,int&,int&);
+void VS_get_eIndU(int&,int&,int&);
 
-	void VS_get_sIndV(int&,int&,int&);
-	void VS_get_eIndV(int&,int&,int&);
+void VS_get_sIndV(int&,int&,int&);
+void VS_get_eIndV(int&,int&,int&);
 
-	void VS_get_sIndW(int&,int&,int&);
-	void VS_get_eIndW(int&,int&,int&);
+void VS_get_sIndW(int&,int&,int&);
+void VS_get_eIndW(int&,int&,int&);
 
-	void VS_get_sIndUB(int&,int&,int&);
-	void VS_get_eIndUB(int&,int&,int&);
+void VS_get_sIndUB(int&,int&,int&);
+void VS_get_eIndUB(int&,int&,int&);
 
-	void VS_get_sIndVB(int&,int&,int&);
-	void VS_get_eIndVB(int&,int&,int&);
+void VS_get_sIndVB(int&,int&,int&);
+void VS_get_eIndVB(int&,int&,int&);
 
-	void VS_get_sIndWB(int&,int&,int&);
-	void VS_get_eIndWB(int&,int&,int&);
+void VS_get_sIndWB(int&,int&,int&);
+void VS_get_eIndWB(int&,int&,int&);
 }
 
 
@@ -77,16 +77,16 @@ extern "C" {
 template<class Ordinal>
 Teuchos::RCP<const IndexSpace<Ordinal> > createScalarIndexSpace(){
 
-	typedef typename IndexSpace<Ordinal>::TO3 TO3;
+  typedef typename IndexSpace<Ordinal>::TO3 TO3;
 
-	TO3 sInd;
-	SVS_get_sInd( sInd[0], sInd[1], sInd[2] );
+  TO3 sInd;
+  SVS_get_sInd( sInd[0], sInd[1], sInd[2] );
 
-	TO3 eInd;
-	SVS_get_eInd( eInd[0], eInd[1], eInd[2] );
+  TO3 eInd;
+  SVS_get_eInd( eInd[0], eInd[1], eInd[2] );
 
-	return( Teuchos::rcp(
-			new IndexSpace<Ordinal>( EFieldType::S, sInd, eInd ) ) );
+  return( Teuchos::rcp(
+      new IndexSpace<Ordinal>( EFieldType::S, sInd, eInd ) ) );
 
 }
 
@@ -99,26 +99,26 @@ Teuchos::RCP<const IndexSpace<Ordinal> > createScalarIndexSpace(){
 template<class Ordinal>
 Teuchos::ArrayRCP< Teuchos::RCP< const IndexSpace<Ordinal> > > createInnerFieldIndexSpaces(){
 
-	typedef typename IndexSpace<Ordinal>::TO3 TO3;
+  typedef typename IndexSpace<Ordinal>::TO3 TO3;
 
-	Teuchos::ArrayRCP< Teuchos::RCP<const IndexSpace<Ordinal> > > fIS(3);
+  Teuchos::ArrayRCP< Teuchos::RCP<const IndexSpace<Ordinal> > > fIS(3);
 
-	TO3 sInd;
-	TO3 eInd;
+  TO3 sInd;
+  TO3 eInd;
 
-	VS_get_sIndU( sInd[0], sInd[1], sInd[2] );
-	VS_get_eIndU( eInd[0], eInd[1], eInd[2] );
-	fIS[0] =	Teuchos::rcp( new IndexSpace<Ordinal>( EFieldType::U, sInd, eInd ) );
+  VS_get_sIndU( sInd[0], sInd[1], sInd[2] );
+  VS_get_eIndU( eInd[0], eInd[1], eInd[2] );
+  fIS[0] =	Teuchos::rcp( new IndexSpace<Ordinal>( EFieldType::U, sInd, eInd ) );
 
-	VS_get_sIndV( sInd[0], sInd[1], sInd[2] );
-	VS_get_eIndV( eInd[0], eInd[1], eInd[2] );
-	fIS[1] =	Teuchos::rcp( new IndexSpace<Ordinal>( EFieldType::V, sInd, eInd ) );
+  VS_get_sIndV( sInd[0], sInd[1], sInd[2] );
+  VS_get_eIndV( eInd[0], eInd[1], eInd[2] );
+  fIS[1] =	Teuchos::rcp( new IndexSpace<Ordinal>( EFieldType::V, sInd, eInd ) );
 
-	VS_get_sIndW( sInd[0], sInd[1], sInd[2] );
-	VS_get_eIndW( eInd[0], eInd[1], eInd[2] );
-	fIS[2] =	Teuchos::rcp( new IndexSpace<Ordinal>( EFieldType::W, sInd, eInd ) );
+  VS_get_sIndW( sInd[0], sInd[1], sInd[2] );
+  VS_get_eIndW( eInd[0], eInd[1], eInd[2] );
+  fIS[2] =	Teuchos::rcp( new IndexSpace<Ordinal>( EFieldType::W, sInd, eInd ) );
 
-	return( fIS );
+  return( fIS );
 }
 
 
@@ -129,26 +129,26 @@ Teuchos::ArrayRCP< Teuchos::RCP< const IndexSpace<Ordinal> > > createInnerFieldI
 template<class Ordinal>
 Teuchos::ArrayRCP< Teuchos::RCP< const IndexSpace<Ordinal> > > createFullFieldIndexSpaces(){
 
-	typedef typename IndexSpace<Ordinal>::TO3 TO3;
+  typedef typename IndexSpace<Ordinal>::TO3 TO3;
 
-	Teuchos::ArrayRCP< Teuchos::RCP<const IndexSpace<Ordinal> > > fIS(3);
+  Teuchos::ArrayRCP< Teuchos::RCP<const IndexSpace<Ordinal> > > fIS(3);
 
-	TO3 sInd;
-	TO3 eInd;
+  TO3 sInd;
+  TO3 eInd;
 
-	VS_get_sIndUB( sInd[0], sInd[1], sInd[2] );
-	VS_get_eIndUB( eInd[0], eInd[1], eInd[2] );
-	fIS[0] =	Teuchos::rcp( new IndexSpace<Ordinal>( EFieldType::U, sInd, eInd ) );
+  VS_get_sIndUB( sInd[0], sInd[1], sInd[2] );
+  VS_get_eIndUB( eInd[0], eInd[1], eInd[2] );
+  fIS[0] =	Teuchos::rcp( new IndexSpace<Ordinal>( EFieldType::U, sInd, eInd ) );
 
-	VS_get_sIndVB( sInd[0], sInd[1], sInd[2] );
-	VS_get_eIndVB( eInd[0], eInd[1], eInd[2] );
-	fIS[1] =	Teuchos::rcp( new IndexSpace<Ordinal>( EFieldType::V, sInd, eInd ) );
+  VS_get_sIndVB( sInd[0], sInd[1], sInd[2] );
+  VS_get_eIndVB( eInd[0], eInd[1], eInd[2] );
+  fIS[1] =	Teuchos::rcp( new IndexSpace<Ordinal>( EFieldType::V, sInd, eInd ) );
 
-	VS_get_sIndWB( sInd[0], sInd[1], sInd[2] );
-	VS_get_eIndWB( eInd[0], eInd[1], eInd[2] );
-	fIS[2] =	Teuchos::rcp( new IndexSpace<Ordinal>( EFieldType::W, sInd, eInd ) );
+  VS_get_sIndWB( sInd[0], sInd[1], sInd[2] );
+  VS_get_eIndWB( eInd[0], eInd[1], eInd[2] );
+  fIS[2] =	Teuchos::rcp( new IndexSpace<Ordinal>( EFieldType::W, sInd, eInd ) );
 
-	return( fIS );
+  return( fIS );
 }
 
 

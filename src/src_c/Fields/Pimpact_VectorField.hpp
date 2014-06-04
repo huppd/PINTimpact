@@ -47,6 +47,8 @@ class VectorField {
   friend class DtLapOp;
   template<class S1,class O1>
   friend class MLHelmholtzOp;
+  template<class S1,class O1>
+  friend class InverseHelmholtzOp;
 
 public:
 
@@ -393,8 +395,8 @@ public:
 #ifdef DEBUG
     for(int i=0; i<3; ++i) {
       TEST_EQUALITY( nLoc(i), a.Nloc(i) )
-			                TEST_EQUALITY( bu(i), a.bu(i) )
-			                TEST_EQUALITY( bl(i), a.bl(i) )
+			                    TEST_EQUALITY( bu(i), a.bu(i) )
+			                    TEST_EQUALITY( bl(i), a.bl(i) )
     }
 #endif
 
@@ -820,7 +822,6 @@ protected:
   /// \brief updates ghost layers
   void exchange( const int& vel_dir, const int& dir ) const {
     if( !exchangedState_[vel_dir][dir] ) {
-      //	    std::cout << "exchange\n";
       F_exchange(
           dir+1, vel_dir+1,
           1, 1, 1,

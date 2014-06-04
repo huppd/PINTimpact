@@ -3404,7 +3404,7 @@ module mod_solvers
      
   else
      
-     if (add_yes) then ! TEST!!! etwas seri�ser einbauen ...
+     if (add_yes) then ! TEST!!! etwas seriöser einbauen ...
      
      call exchange_relax(g,0,0,0,0,.true.,fine1)
      call exchange_relax(g,0,0,0,0,.true.,fine2)

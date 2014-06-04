@@ -12,19 +12,20 @@ int main(int argc, char *argv[]){
   for (i = 0; i < 129; i++) sol[i] = 0.;
   for (i = 0; i < 129; i++) rhs[i] = 2.;
 
-//  auto myML = Teuchos::rcp(new bla::MyML<int>(N_grids) );
+  //  auto myML = Teuchos::rcp(new bla::MyML<int>(N_grids) );
   auto myML = bla::createMyML<double,int>(N_grids) ;
 
   myML->apply(sol,rhs);
 
 
-   /******** End code to set a user-defined smoother ******/
-   printf("answer is %e %e %e %e %e\n",sol[0],sol[1],sol[2],sol[3],sol[4]);
+  /******** End code to set a user-defined smoother ******/
+  printf("answer is %e %e %e %e %e\n",sol[0],sol[1],sol[2],sol[3],sol[4]);
+  myML = Teuchos::null;
 
 
 #ifdef ML_MPI
-    MPI_Finalize();
+  MPI_Finalize();
 #endif
-    exit(EXIT_SUCCESS);
+  exit(EXIT_SUCCESS);
 }
 

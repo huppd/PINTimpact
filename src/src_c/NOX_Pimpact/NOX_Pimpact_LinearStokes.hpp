@@ -84,9 +84,9 @@ public:
 
   LinearStokes(
       Teuchos::RCP<BVF> fu,
-//      Teuchos::RCP<BVF> tempu,
+      //      Teuchos::RCP<BVF> tempu,
       Teuchos::RCP<BSF> fp,
-//      Teuchos::RCP<BSF> tempp,
+      //      Teuchos::RCP<BSF> tempp,
       Teuchos::RCP<LP_DTL > lp_DTL,
       Teuchos::RCP<LP_Schur > lp_Schur ):
         fu_( fu ),
@@ -106,12 +106,12 @@ public:
     auto yv = f.getVField();
     auto ys = f.getSField();
 
-//    yv->random();
-//    ys->random();
+    //    yv->random();
+    //    ys->random();
     auto tempv = xv->clone();
-//
-//    lp_DTL_->apply( xv, tempv );
-//    lp_DTL_->apply( *xv, *tempv );
+    //
+    //    lp_DTL_->apply( xv, tempv );
+    //    lp_DTL_->apply( *xv, *tempv );
     lp_DTL_->getProblem()->getOperator()->apply( *xv, *tempv );
 
     grad_->apply( *xs, *yv );
@@ -128,7 +128,7 @@ public:
 
   /// Compute the Jacobian Operator, given the specified input vector x. Returns true if computation was successful.
   NOX::Abstract::Group::ReturnType computeJacobian( const Field& x ) {
-      return( NOX::Abstract::Group::Ok );
+    return( NOX::Abstract::Group::Ok );
   }
 
   NOX::Abstract::Group::ReturnType applyJacobian( const Field& x, Field& y, Belos::ETrans type=Belos::NOTRANS ) {
@@ -153,24 +153,24 @@ public:
 
     div_->apply( *tempv, *temps );
     //temps->write( 2002 );
-//
-//    solverParams = Pimpact::createLinSolverParameter( solver_name_1, 1.e-6*l1*l2/n1/n2 );
-//    solverParams->get()->set( "Output Stream", outLap2 );
-//    solverParams->get()->set ("Verbosity", int( Belos::Errors) );
-//    lap_problem->setParameters( solverParams->get() );
+    //
+    //    solverParams = Pimpact::createLinSolverParameter( solver_name_1, 1.e-6*l1*l2/n1/n2 );
+    //    solverParams->get()->set( "Output Stream", outLap2 );
+    //    solverParams->get()->set ("Verbosity", int( Belos::Errors) );
+    //    lap_problem->setParameters( solverParams->get() );
     lp_Schur_->solve( ys, temps );
 
     grad_->apply( *ys, *tempv );
     //tempv->write(2006);
-//
+    //
     tempv->add( -1., *tempv, 1., *fu_ );
-//
-////    solverParams->get()->set ("Verbosity",  Belos::Errors + Belos::Warnings + Belos::IterationDetails +
-////        Belos::OrthoDetails + Belos::FinalSummary + Belos::TimingDetails +
-////        Belos::StatusTestDetails + Belos::Debug );
-////    solverParams->get()->set( "Output Stream", outLap2 );
-////    lap_problem->setParameters( solverParams->get() );
-//
+    //
+    ////    solverParams->get()->set ("Verbosity",  Belos::Errors + Belos::Warnings + Belos::IterationDetails +
+    ////        Belos::OrthoDetails + Belos::FinalSummary + Belos::TimingDetails +
+    ////        Belos::StatusTestDetails + Belos::Debug );
+    ////    solverParams->get()->set( "Output Stream", outLap2 );
+    ////    lap_problem->setParameters( solverParams->get() );
+    //
     lp_DTL_->solve( yv, tempv );
     return( NOX::Abstract::Group::Ok );
   }
@@ -188,7 +188,7 @@ Teuchos::RCP<LinearStokes> createLinearStokes(
     Teuchos::RCP<LinearStokes::LP_Schur> lp_Schur ) {
   return(
       Teuchos::rcp( new LinearStokes(fu,fp,lp_DTL,lp_Schur) )
-      );
+  );
 }
 
 } // end of namespace Pimpact

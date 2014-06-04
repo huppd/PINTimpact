@@ -346,7 +346,7 @@ public:
     for( int i=0; i<n; ++i)
       temp[i] = A.mfs_[i]->dot( *mfs_[i], false );
 
-//    Scalar b_global=0.;
+    //    Scalar b_global=0.;
     MPI_Allreduce( temp, dots.data(), n, MPI_REAL8, MPI_SUM, comm() );
     delete[] temp;
 
@@ -383,8 +383,8 @@ public:
     const int n = getNumberVecs();
     Scalar* temp = new Scalar[n];
 
-//    for( int i=0; i<n; ++i )
-//      temp[i] = mfs_[i]->norm(type,false);
+    //    for( int i=0; i<n; ++i )
+    //      temp[i] = mfs_[i]->norm(type,false);
 
     switch(type) {
     case Belos::TwoNorm:
@@ -424,7 +424,6 @@ public:
     }
     switch(type) {
     case Belos::TwoNorm:
-//      normvec = std::pow(fieldc_->norm(type,false),2) + std::pow(fields_->norm(type,false),2);
       if( global ) {
         Scalar normvec_global;
         MPI_Allreduce( &normvec, &normvec_global, 1, MPI_REAL8, MPI_SUM, comm() );
@@ -432,7 +431,6 @@ public:
       }
       return( std::sqrt(normvec) );
     case Belos::InfNorm:
-//      normvec = std::max(fieldc_->norm(type,false), fields_->norm(type,false) ) ;
       if( global ) {
         Scalar normvec_global;
         MPI_Allreduce( &normvec, &normvec_global, 1, MPI_REAL8, MPI_MAX, comm() );

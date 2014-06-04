@@ -19,7 +19,7 @@ f = open( 'timing.txt','a' )
 runtime = 1e22
 for i in range(rep):
   start = time.time()
-  os.system(exe_pre+exe_path+exe+case_consts )
+  os.system(exe_pre()+exe_path+exe+case_consts )
   rt = time.time()-start
   runtime = min(rt,runtime)
 
@@ -42,7 +42,7 @@ f = open( 'timingNaveier.txt','a' )
 runtime = 1e22
 for i in range(rep):
   start = time.time()
-  os.system(exe_pre+exe_path+exe+case_consts )
+  os.system(exe_pre()+exe_path+exe+case_consts )
   rt = time.time()-start
   runtime = min(rt,runtime)
 
@@ -53,5 +53,5 @@ f.close()
 os.chdir( prof_path )
 os.system( 'make '+exe+' -j4' )
 print exe_pre+prof_pre+exe
-os.system(exe_pre+prof_pre+'./'+exe+case_consts )
+os.system(exe_pre()+prof_pre+'./'+exe+case_consts )
 

@@ -10,7 +10,7 @@
 #include"Pimpact_Types.hpp"
 
 extern "C" {
-	void fsetGS(const int& n1, const int& n2, const int& n3 );
+void fsetGS(const int& n1, const int& n2, const int& n3 );
 }
 
 namespace Pimpact{
@@ -22,29 +22,29 @@ class GridSize {
 
 public:
 
-	typedef const Teuchos::Tuple<Ordinal,3> TO3;
+  typedef const Teuchos::Tuple<Ordinal,3> TO3;
 
 protected:
 
-	TO3 gridSize_;
+  TO3 gridSize_;
 
 public:
 
-	GridSize( Ordinal n1, Ordinal n2, Ordinal n3 ):
-		gridSize_( Teuchos::tuple( n1, n2, n3) ) {};
+  GridSize( Ordinal n1, Ordinal n2, Ordinal n3 ):
+    gridSize_( Teuchos::tuple( n1, n2, n3) ) {};
 
-	GridSize( TO3 domainSize ):
-		gridSize_( domainSize ) {};
+  GridSize( TO3 domainSize ):
+    gridSize_( domainSize ) {};
 
-	void set_Impact(){
-		fsetGS( gridSize_[0], gridSize_[1], gridSize_[2] );
-	};
+  void set_Impact(){
+    fsetGS( gridSize_[0], gridSize_[1], gridSize_[2] );
+  };
 
-	void print( std::ostream& out ) {
-		out  << " \tnx=" << gridSize_[0]
-		     << " \tny=" << gridSize_[1]
-		     << " \tnz=" << gridSize_[2] << "\n";
-	};
+  void print( std::ostream& out ) {
+    out  << " \tnx=" << gridSize_[0]
+                                  << " \tny=" << gridSize_[1]
+                                                           << " \tnz=" << gridSize_[2] << "\n";
+  };
 
 }; // end of class GridSize
 
@@ -52,9 +52,9 @@ public:
 /// \relates GridSize
 template<class Ordinal>
 Teuchos::RCP<GridSize<Ordinal> > createGridSize( Ordinal n1=1, Ordinal n2=1, Ordinal n3=1 ) {
-	return(
-	    Teuchos::rcp(
-	        new GridSize<Ordinal>( n1, n2, n3 ) ) );
+  return(
+      Teuchos::rcp(
+          new GridSize<Ordinal>( n1, n2, n3 ) ) );
 }
 
 

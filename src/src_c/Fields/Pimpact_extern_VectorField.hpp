@@ -35,8 +35,8 @@ void VF_dot(
     const int* const nW,
     const double* const phi1U, const double* const phi1V, const double* const phi1W,
     const double* const phi2U, const double* const phi2V, const double* const phi2W,
-//    const double* const phi1,
-//    const double* const phi2,
+    //    const double* const phi1,
+    //    const double* const phi2,
     double& scalar);
 
 
@@ -77,7 +77,7 @@ void VF_write( double* phiU, double* phiV, double* phiW, const int& count );
 
 
 void VF_init_Zero(
-//    const int& N1,  const int& N2,  const int& N3,
+    //    const int& N1,  const int& N2,  const int& N3,
     const int* const N,
     const int& S1U, const int& S2U, const int& S3U,
     const int& N1U, const int& N2U, const int& N3U,
@@ -91,7 +91,7 @@ void VF_init_Zero(
 
 
 void VF_init_2DPoiseuilleX(
-//    const int& N1,  const int& N2,  const int& N3,
+    //    const int& N1,  const int& N2,  const int& N3,
     const int* const N,
     const int& S1U, const int& S2U, const int& S3U,
     const int& N1U, const int& N2U, const int& N3U,
@@ -105,7 +105,7 @@ void VF_init_2DPoiseuilleX(
 
 
 void VF_init_2DPoiseuilleY(
-//    const int& N1,  const int& N2,  const int& N3,
+    //    const int& N1,  const int& N2,  const int& N3,
     const int* const N,
     const int& S1U, const int& S2U, const int& S3U,
     const int& N1U, const int& N2U, const int& N3U,

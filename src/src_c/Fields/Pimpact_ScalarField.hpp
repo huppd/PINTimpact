@@ -331,8 +331,8 @@ public:
 #ifdef DEBUG
     for(int i=0; i<3; ++i) {
       TEST_EQUALITY( nLoc(i), a.Nloc(i) )
-			                TEST_EQUALITY( bu(i), a.bu(i) )
-			                TEST_EQUALITY( bl(i), a.bl(i) )
+			                    TEST_EQUALITY( bu(i), a.bu(i) )
+			                    TEST_EQUALITY( bl(i), a.bl(i) )
     }
 #endif
 

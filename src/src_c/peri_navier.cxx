@@ -253,7 +253,7 @@ int main(int argi, char** argv ) {
 
   // init Spaces
   auto fS = Pimpact::createFieldSpace<O>();
-//  fS->print();
+  //  fS->print();
 
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
   auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
@@ -333,7 +333,7 @@ int main(int argi, char** argv ) {
     break;
   }
 
-    x->init( 0. );
+  x->init( 0. );
   //  x->random();
 
 
@@ -356,8 +356,8 @@ int main(int argi, char** argv ) {
         fu->getFieldPtr(0)->getVFieldPtr()->push_back();
         fu->getFieldPtr(0)->getSFieldPtr()->push_back();
       } while( x->getConstFieldPtr(0)->getConstVFieldPtr()->getNumberModes() < nf );
-            tolNOX /= 5;
-//      tolNOX /= 10;
+      tolNOX /= 5;
+      //      tolNOX /= 10;
     }
 
     //    if(0==rank) std::cout << "\n\t--- Nf: "<<nf<<"\tdof: "<<x->getLength(true)<<"\t---\n";
@@ -941,9 +941,9 @@ int main(int argi, char** argv ) {
     x = Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr();
     //    x = Teuchos::rcp_const_cast<NV>( group->getXPtr() )->getFieldPtr();
 
-//    Teuchos::TimeMonitor::summarize();
-        x->write(nf*100);
-//      x->write();
+    //    Teuchos::TimeMonitor::summarize();
+    x->write(nf*100);
+    //      x->write();
     //  x = Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() ))->getFieldPtr();
     //  x->write(900);
   }
@@ -953,7 +953,7 @@ int main(int argi, char** argv ) {
   Teuchos::TimeMonitor::summarize();
 
   //  write so
-//  x->write();
+  //  x->write();
 
 
   MPI_Finalize();

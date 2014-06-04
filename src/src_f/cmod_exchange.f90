@@ -8,546 +8,546 @@
 module cmod_exchange
   
   
-  use mod_dims
-  use mod_vars
+    use mod_dims
+    use mod_vars
 
-  use iso_c_binding
+    use iso_c_binding
 
-  use mpi
+    use mpi
   
   
-  private
+    private
   
-!  public exchange, exchange2, exchange_all_all, exchange_relax, exchange_part
-  public exchange2
-  
-  
-  integer                ::  status(MPI_STATUS_SIZE) ! TEST!!! Warum steht das eigentlich hier lokal? gleiches gilt auch fuer die anderen Module ...
-  
-  contains
-  
-!pgi$g unroll = n:8
-!!pgi$r unroll = n:8
-!!pgi$l unroll = n:8
+    !  public exchange, exchange2, exchange_all_all, exchange_relax, exchange_part
+    public exchange2
   
   
+    integer                ::  status(MPI_STATUS_SIZE) ! TEST!!! Warum steht das eigentlich hier lokal? gleiches gilt auch fuer die anderen Module ...
   
-!pgi$r nodepchk
-!pgi$r ivdep
-! subroutine exchange(dir,vel_dir,phi)
-!
-! implicit none
-!
-! integer, intent(in)    ::  dir
-! integer, intent(in)    ::  vel_dir
-!
-! real   , intent(inout) ::  phi(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-!
-! real                   ::  ghost1LR( 1:b1U,1:N2,1:N3) ! TEST!!! Feld global anlegen und all_all-Variante loeschen? Performance ...
-! real                   ::  ghost1LS( 1:b1U,1:N2,1:N3)
-! real                   ::  ghost1UR(b1L:-1,1:N2,1:N3)
-! real                   ::  ghost1US(b1L:-1,1:N2,1:N3)
-!
-! real                   ::  ghost2LR(1:N1, 1:b2U,1:N3)
-! real                   ::  ghost2LS(1:N1, 1:b2U,1:N3)
-! real                   ::  ghost2UR(1:N1,b2L:-1,1:N3)
-! real                   ::  ghost2US(1:N1,b2L:-1,1:N3)
-!
-! real                   ::  ghost3LR(1:N1,1:N2, 1:b3U)
-! real                   ::  ghost3LS(1:N1,1:N2, 1:b3U)
-! real                   ::  ghost3UR(1:N1,1:N2,b3L:-1)
-! real                   ::  ghost3US(1:N1,1:N2,b3L:-1)
-!
-! integer                ::  length1L, length1U
-! integer                ::  length2L, length2U
-! integer                ::  length3L, length3U
-!
-! integer                ::  i, j, k
-!
-!
-! !---------------------------------------------------------------------------------------------------------------------!
-! ! Anmerkungen: - [Sij,Nij] ist Untermenge von [Sip,Nip]                                                               !
-! !              - [Sip,Nip] ist Untermenge von [1,Ni]                                                                  !
-! !              - [1,Ni] hat den Vorteil, dass Intervallgrenzen fest einprogrammiert sind,                             !
-! !                was prinzipiell zu einem Vorteil bei der Effizienz führen sollte.                                    !
-! !              - Bei Spiegelung muss die zur Spiegelungsebene orthogonale Geschwindigkeitskomponente auch im          !
-! !                Vorzeichen gespiegelt werden, da die Spiegelungsebene nicht durchströmt werden kann!.                !
-! !              - Alle Kopier-Schleifen sind ausgeschrieben, da der PGI-Compiler ansonsten keine Vektorisierung bzw.   !
-! !                kein Prefetch einbaut.                                                                               !
-! !---------------------------------------------------------------------------------------------------------------------!
-!
-!
-! !======================================================================================================================
-!
-! if (dir == 1) then
-!
-!    length1L = N2*N3*ABS(b1L)
-!    length1U = N2*N3*ABS(b1U)
-!
-!    if (BC_1L == 0) call MPI_IRECV(ghost1UR,length1L,MPI_REAL8,rank1L,1,COMM_CART,req1L,merror)
-!    if (BC_1U == 0) call MPI_IRECV(ghost1LR,length1U,MPI_REAL8,rank1U,2,COMM_CART,req1U,merror)
-!
-!    if (BC_1U == 0) then
-!       do i = b1L, -1
-!          ghost1US(i,1:N2,1:N3) = phi((N1p+1+i),1:N2,1:N3)
-!       end do
-!    end if
-!    if (BC_1L == 0) then
-!       do i = 1, b1U
-!          ghost1LS(i,1:N2,1:N3) = phi((S1p-1+i),1:N2,1:N3)
-!       end do
-!    end if
-!
-!    if (BC_1U == 0) call MPI_SEND(ghost1US,length1L,MPI_REAL8,rank1U,1,COMM_CART,merror)
-!    if (BC_1L == 0) call MPI_SEND(ghost1LS,length1U,MPI_REAL8,rank1L,2,COMM_CART,merror)
-!
-!    if (BC_1L == 0) call MPI_WAIT(req1L,status,merror)
-!    if (BC_1U == 0) call MPI_WAIT(req1U,status,merror)
-!
-!    if (BC_1L == 0) call pseudocall(ghost1UR) ! Soll den Compiler daran hindern, das Umspeichern mit MPI_WAIT zu vertauschen.
-!    if (BC_1U == 0) call pseudocall(ghost1LR)
-!
-!    if (BC_1L == 0) then
-!       do i = b1L, -1
-!          phi((S1p+i),1:N2,1:N3) = ghost1UR(i,1:N2,1:N3)
-!       end do
-!    end if
-!    if (BC_1U == 0) then
-!       do i = 1, b1U
-!          phi((N1p+i),1:N2,1:N3) = ghost1LR(i,1:N2,1:N3)
-!       end do
-!    end if
-!
-!    !-------------------------------------------------------------------------------------------------------------------
-!
-!    if (BC_1L == -1) then
-!       do i = b1L, -1
-!          phi((S1p+i),1:N2,1:N3) = phi((N1p+1+i),1:N2,1:N3)
-!       end do
-!       do i = 1, b1U
-!          phi((N1p+i),1:N2,1:N3) = phi((S1p-1+i),1:N2,1:N3)
-!       end do
-!    end if
-!
-!    !-------------------------------------------------------------------------------------------------------------------
-!
-!    if (vel_dir == dir) then
-!       if (BC_1L > 0) phi( b1L  : -1     ,1:N2,1:N3) = 0.
-!       if (BC_1U > 0) phi((N1+1):(N1+b1U),1:N2,1:N3) = 0.
-!
-!       if (BC_1L  == -2) phi( b1L  :  0     ,1:N2,1:N3) = 0.
-!       if (BC_1U  == -2) phi( N1   :(N1+b1U),1:N2,1:N3) = 0.
-!    else
-!       if (BC_1L > 0 .or. BC_1L == -2) phi( b1L  : 0      ,1:N2,1:N3) = 0.
-!       if (BC_1U > 0 .or. BC_1U == -2) phi((N1+1):(N1+b1U),1:N2,1:N3) = 0.
-!    end if
-!
-! end if
-!
-! !======================================================================================================================
-!
-! if (dir == 2) then
-!
-!    length2L = N1*N3*ABS(b2L)
-!    length2U = N1*N3*ABS(b2U)
-!
-!    if (BC_2L == 0) call MPI_IRECV(ghost2UR,length2L,MPI_REAL8,rank2L,3,COMM_CART,req2L,merror)
-!    if (BC_2U == 0) call MPI_IRECV(ghost2LR,length2U,MPI_REAL8,rank2U,4,COMM_CART,req2U,merror)
-!
-!    if (BC_2U == 0) then
-!       do j = b2L, -1
-!          ghost2US(1:N1,j,1:N3) = phi(1:N1,(N2p+1+j),1:N3)
-!       end do
-!    end if
-!    if (BC_2L == 0) then
-!       do j = 1, b2U
-!          ghost2LS(1:N1,j,1:N3) = phi(1:N1,(S2p-1+j),1:N3)
-!       end do
-!    end if
-!
-!    if (BC_2U == 0) call MPI_SEND(ghost2US,length2L,MPI_REAL8,rank2U,3,COMM_CART,merror)
-!    if (BC_2L == 0) call MPI_SEND(ghost2LS,length2U,MPI_REAL8,rank2L,4,COMM_CART,merror)
-!
-!    if (BC_2L == 0) call MPI_WAIT(req2L,status,merror)
-!    if (BC_2U == 0) call MPI_WAIT(req2U,status,merror)
-!
-!    if (BC_2L == 0) call pseudocall(ghost2UR) ! Soll den Compiler daran hindern, das Umspeichern mit MPI_WAIT zu vertauschen.
-!    if (BC_2U == 0) call pseudocall(ghost2LR)
-!
-!    if (BC_2L == 0) then
-!       do j = b2L, -1
-!          phi(1:N1,(S2p+j),1:N3) = ghost2UR(1:N1,j,1:N3)
-!       end do
-!    end if
-!    if (BC_2U == 0) then
-!       do j = 1, b2U
-!          phi(1:N1,(N2p+j),1:N3) = ghost2LR(1:N1,j,1:N3)
-!       end do
-!    end if
-!
-!    !-------------------------------------------------------------------------------------------------------------------
-!
-!    if (BC_2L == -1) then
-!       do j = b2L, -1
-!          phi(1:N1,(S2p+j),1:N3) = phi(1:N1,(N2p+1+j),1:N3)
-!       end do
-!       do j = 1, b2U
-!          phi(1:N1,(N2p+j),1:N3) = phi(1:N1,(S2p-1+j),1:N3)
-!       end do
-!    end if
-!
-!    !-------------------------------------------------------------------------------------------------------------------
-!
-!    if (vel_dir == dir) then
-!       if (BC_2L > 0) phi(1:N1, b2L  : -1     ,1:N3) = 0.
-!       if (BC_2U > 0) phi(1:N1,(N2+1):(N2+b2U),1:N3) = 0.
-!
-!       if (BC_2L  == -2) phi(1:N1, b2L  :  0     ,1:N3) = 0.
-!       if (BC_2U  == -2) phi(1:N1, N2   :(N2+b2U),1:N3) = 0.
-!    else
-!       if (BC_2L > 0 .or. BC_2L == -2) phi(1:N1, b2L  : 0      ,1:N3) = 0.
-!       if (BC_2U > 0 .or. BC_2U == -2) phi(1:N1,(N2+1):(N2+b2U),1:N3) = 0.
-!    end if
-!
-! end if
-!
-! !======================================================================================================================
-!
-! if (dir == 3 .and. dimens == 3) then
-!
-!    length3L = N1*N2*ABS(b3L)
-!    length3U = N1*N2*ABS(b3U)
-!
-!    if (BC_3L == 0) call MPI_IRECV(ghost3UR,length3L,MPI_REAL8,rank3L,5,COMM_CART,req3L,merror)
-!    if (BC_3U == 0) call MPI_IRECV(ghost3LR,length3U,MPI_REAL8,rank3U,6,COMM_CART,req3U,merror)
-!
-!    if (BC_3U == 0) then
-!       do k = b3L, -1
-!          ghost3US(1:N1,1:N2,k) = phi(1:N1,1:N2,(N3p+1+k))
-!       end do
-!    end if
-!    if (BC_3L == 0) then
-!       do k = 1, b3U
-!          ghost3LS(1:N1,1:N2,k) = phi(1:N1,1:N2,(S3p-1+k))
-!       end do
-!    end if
-!
-!    if (BC_3U == 0) call MPI_SEND(ghost3US,length3L,MPI_REAL8,rank3U,5,COMM_CART,merror)
-!    if (BC_3L == 0) call MPI_SEND(ghost3LS,length3U,MPI_REAL8,rank3L,6,COMM_CART,merror)
-!
-!    if (BC_3L == 0) call MPI_WAIT(req3L,status,merror)
-!    if (BC_3U == 0) call MPI_WAIT(req3U,status,merror)
-!
-!    if (BC_3L == 0) call pseudocall(ghost3UR) ! Soll den Compiler daran hindern, das Umspeichern mit MPI_WAIT zu vertauschen.
-!    if (BC_3U == 0) call pseudocall(ghost3LR)
-!
-!    if (BC_3L == 0) then
-!       do k = b3L, -1
-!          phi(1:N1,1:N2,(S3p+k)) = ghost3UR(1:N1,1:N2,k)
-!       end do
-!    end if
-!    if (BC_3U == 0) then
-!       do k = 1, b3U
-!          phi(1:N1,1:N2,(N3p+k)) = ghost3LR(1:N1,1:N2,k)
-!       end do
-!    end if
-!
-!    !-------------------------------------------------------------------------------------------------------------------
-!
-!    if (BC_3L == -1) then
-!       do k = b3L, -1
-!          phi(1:N1,1:N2,(S3p+k)) = phi(1:N1,1:N2,(N3p+1+k))
-!       end do
-!       do k = 1, b3U
-!          phi(1:N1,1:N2,(N3p+k)) = phi(1:N1,1:N2,(S3p-1+k))
-!       end do
-!    end if
-!
-!    !-------------------------------------------------------------------------------------------------------------------
-!
-!    if (vel_dir == dir) then
-!       if (BC_3L > 0) phi(1:N1,1:N2, b3L  : -1     ) = 0.
-!       if (BC_3U > 0) phi(1:N1,1:N2,(N3+1):(N3+b3U)) = 0.
-!
-!       if (BC_3L  == -2) phi(1:N1,1:N2, b3L  :  0     ) = 0.
-!       if (BC_3U  == -2) phi(1:N1,1:N2, N3   :(N3+b3U)) = 0.
-!    else
-!       if (BC_3L > 0 .or. BC_3L == -2) phi(1:N1,1:N2, b3L  : 0      ) = 0.
-!       if (BC_3U > 0 .or. BC_3U == -2) phi(1:N1,1:N2,(N3+1):(N3+b3U)) = 0.
-!    end if
-!
-! end if
-!
-! !======================================================================================================================
-!
-!
-! end subroutine exchange
+contains
+  
+    !pgi$g unroll = n:8
+    !!pgi$r unroll = n:8
+    !!pgi$l unroll = n:8
   
   
   
+    !pgi$r nodepchk
+    !pgi$r ivdep
+    ! subroutine exchange(dir,vel_dir,phi)
+    !
+    ! implicit none
+    !
+    ! integer, intent(in)    ::  dir
+    ! integer, intent(in)    ::  vel_dir
+    !
+    ! real   , intent(inout) ::  phi(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+    !
+    ! real                   ::  ghost1LR( 1:b1U,1:N2,1:N3) ! TEST!!! Feld global anlegen und all_all-Variante loeschen? Performance ...
+    ! real                   ::  ghost1LS( 1:b1U,1:N2,1:N3)
+    ! real                   ::  ghost1UR(b1L:-1,1:N2,1:N3)
+    ! real                   ::  ghost1US(b1L:-1,1:N2,1:N3)
+    !
+    ! real                   ::  ghost2LR(1:N1, 1:b2U,1:N3)
+    ! real                   ::  ghost2LS(1:N1, 1:b2U,1:N3)
+    ! real                   ::  ghost2UR(1:N1,b2L:-1,1:N3)
+    ! real                   ::  ghost2US(1:N1,b2L:-1,1:N3)
+    !
+    ! real                   ::  ghost3LR(1:N1,1:N2, 1:b3U)
+    ! real                   ::  ghost3LS(1:N1,1:N2, 1:b3U)
+    ! real                   ::  ghost3UR(1:N1,1:N2,b3L:-1)
+    ! real                   ::  ghost3US(1:N1,1:N2,b3L:-1)
+    !
+    ! integer                ::  length1L, length1U
+    ! integer                ::  length2L, length2U
+    ! integer                ::  length3L, length3U
+    !
+    ! integer                ::  i, j, k
+    !
+    !
+    ! !---------------------------------------------------------------------------------------------------------------------!
+    ! ! Anmerkungen: - [Sij,Nij] ist Untermenge von [Sip,Nip]                                                               !
+    ! !              - [Sip,Nip] ist Untermenge von [1,Ni]                                                                  !
+    ! !              - [1,Ni] hat den Vorteil, dass Intervallgrenzen fest einprogrammiert sind,                             !
+    ! !                was prinzipiell zu einem Vorteil bei der Effizienz führen sollte.                                    !
+    ! !              - Bei Spiegelung muss die zur Spiegelungsebene orthogonale Geschwindigkeitskomponente auch im          !
+    ! !                Vorzeichen gespiegelt werden, da die Spiegelungsebene nicht durchströmt werden kann!.                !
+    ! !              - Alle Kopier-Schleifen sind ausgeschrieben, da der PGI-Compiler ansonsten keine Vektorisierung bzw.   !
+    ! !                kein Prefetch einbaut.                                                                               !
+    ! !---------------------------------------------------------------------------------------------------------------------!
+    !
+    !
+    ! !======================================================================================================================
+    !
+    ! if (dir == 1) then
+    !
+    !    length1L = N2*N3*ABS(b1L)
+    !    length1U = N2*N3*ABS(b1U)
+    !
+    !    if (BC_1L == 0) call MPI_IRECV(ghost1UR,length1L,MPI_REAL8,rank1L,1,COMM_CART,req1L,merror)
+    !    if (BC_1U == 0) call MPI_IRECV(ghost1LR,length1U,MPI_REAL8,rank1U,2,COMM_CART,req1U,merror)
+    !
+    !    if (BC_1U == 0) then
+    !       do i = b1L, -1
+    !          ghost1US(i,1:N2,1:N3) = phi((N1p+1+i),1:N2,1:N3)
+    !       end do
+    !    end if
+    !    if (BC_1L == 0) then
+    !       do i = 1, b1U
+    !          ghost1LS(i,1:N2,1:N3) = phi((S1p-1+i),1:N2,1:N3)
+    !       end do
+    !    end if
+    !
+    !    if (BC_1U == 0) call MPI_SEND(ghost1US,length1L,MPI_REAL8,rank1U,1,COMM_CART,merror)
+    !    if (BC_1L == 0) call MPI_SEND(ghost1LS,length1U,MPI_REAL8,rank1L,2,COMM_CART,merror)
+    !
+    !    if (BC_1L == 0) call MPI_WAIT(req1L,status,merror)
+    !    if (BC_1U == 0) call MPI_WAIT(req1U,status,merror)
+    !
+    !    if (BC_1L == 0) call pseudocall(ghost1UR) ! Soll den Compiler daran hindern, das Umspeichern mit MPI_WAIT zu vertauschen.
+    !    if (BC_1U == 0) call pseudocall(ghost1LR)
+    !
+    !    if (BC_1L == 0) then
+    !       do i = b1L, -1
+    !          phi((S1p+i),1:N2,1:N3) = ghost1UR(i,1:N2,1:N3)
+    !       end do
+    !    end if
+    !    if (BC_1U == 0) then
+    !       do i = 1, b1U
+    !          phi((N1p+i),1:N2,1:N3) = ghost1LR(i,1:N2,1:N3)
+    !       end do
+    !    end if
+    !
+    !    !-------------------------------------------------------------------------------------------------------------------
+    !
+    !    if (BC_1L == -1) then
+    !       do i = b1L, -1
+    !          phi((S1p+i),1:N2,1:N3) = phi((N1p+1+i),1:N2,1:N3)
+    !       end do
+    !       do i = 1, b1U
+    !          phi((N1p+i),1:N2,1:N3) = phi((S1p-1+i),1:N2,1:N3)
+    !       end do
+    !    end if
+    !
+    !    !-------------------------------------------------------------------------------------------------------------------
+    !
+    !    if (vel_dir == dir) then
+    !       if (BC_1L > 0) phi( b1L  : -1     ,1:N2,1:N3) = 0.
+    !       if (BC_1U > 0) phi((N1+1):(N1+b1U),1:N2,1:N3) = 0.
+    !
+    !       if (BC_1L  == -2) phi( b1L  :  0     ,1:N2,1:N3) = 0.
+    !       if (BC_1U  == -2) phi( N1   :(N1+b1U),1:N2,1:N3) = 0.
+    !    else
+    !       if (BC_1L > 0 .or. BC_1L == -2) phi( b1L  : 0      ,1:N2,1:N3) = 0.
+    !       if (BC_1U > 0 .or. BC_1U == -2) phi((N1+1):(N1+b1U),1:N2,1:N3) = 0.
+    !    end if
+    !
+    ! end if
+    !
+    ! !======================================================================================================================
+    !
+    ! if (dir == 2) then
+    !
+    !    length2L = N1*N3*ABS(b2L)
+    !    length2U = N1*N3*ABS(b2U)
+    !
+    !    if (BC_2L == 0) call MPI_IRECV(ghost2UR,length2L,MPI_REAL8,rank2L,3,COMM_CART,req2L,merror)
+    !    if (BC_2U == 0) call MPI_IRECV(ghost2LR,length2U,MPI_REAL8,rank2U,4,COMM_CART,req2U,merror)
+    !
+    !    if (BC_2U == 0) then
+    !       do j = b2L, -1
+    !          ghost2US(1:N1,j,1:N3) = phi(1:N1,(N2p+1+j),1:N3)
+    !       end do
+    !    end if
+    !    if (BC_2L == 0) then
+    !       do j = 1, b2U
+    !          ghost2LS(1:N1,j,1:N3) = phi(1:N1,(S2p-1+j),1:N3)
+    !       end do
+    !    end if
+    !
+    !    if (BC_2U == 0) call MPI_SEND(ghost2US,length2L,MPI_REAL8,rank2U,3,COMM_CART,merror)
+    !    if (BC_2L == 0) call MPI_SEND(ghost2LS,length2U,MPI_REAL8,rank2L,4,COMM_CART,merror)
+    !
+    !    if (BC_2L == 0) call MPI_WAIT(req2L,status,merror)
+    !    if (BC_2U == 0) call MPI_WAIT(req2U,status,merror)
+    !
+    !    if (BC_2L == 0) call pseudocall(ghost2UR) ! Soll den Compiler daran hindern, das Umspeichern mit MPI_WAIT zu vertauschen.
+    !    if (BC_2U == 0) call pseudocall(ghost2LR)
+    !
+    !    if (BC_2L == 0) then
+    !       do j = b2L, -1
+    !          phi(1:N1,(S2p+j),1:N3) = ghost2UR(1:N1,j,1:N3)
+    !       end do
+    !    end if
+    !    if (BC_2U == 0) then
+    !       do j = 1, b2U
+    !          phi(1:N1,(N2p+j),1:N3) = ghost2LR(1:N1,j,1:N3)
+    !       end do
+    !    end if
+    !
+    !    !-------------------------------------------------------------------------------------------------------------------
+    !
+    !    if (BC_2L == -1) then
+    !       do j = b2L, -1
+    !          phi(1:N1,(S2p+j),1:N3) = phi(1:N1,(N2p+1+j),1:N3)
+    !       end do
+    !       do j = 1, b2U
+    !          phi(1:N1,(N2p+j),1:N3) = phi(1:N1,(S2p-1+j),1:N3)
+    !       end do
+    !    end if
+    !
+    !    !-------------------------------------------------------------------------------------------------------------------
+    !
+    !    if (vel_dir == dir) then
+    !       if (BC_2L > 0) phi(1:N1, b2L  : -1     ,1:N3) = 0.
+    !       if (BC_2U > 0) phi(1:N1,(N2+1):(N2+b2U),1:N3) = 0.
+    !
+    !       if (BC_2L  == -2) phi(1:N1, b2L  :  0     ,1:N3) = 0.
+    !       if (BC_2U  == -2) phi(1:N1, N2   :(N2+b2U),1:N3) = 0.
+    !    else
+    !       if (BC_2L > 0 .or. BC_2L == -2) phi(1:N1, b2L  : 0      ,1:N3) = 0.
+    !       if (BC_2U > 0 .or. BC_2U == -2) phi(1:N1,(N2+1):(N2+b2U),1:N3) = 0.
+    !    end if
+    !
+    ! end if
+    !
+    ! !======================================================================================================================
+    !
+    ! if (dir == 3 .and. dimens == 3) then
+    !
+    !    length3L = N1*N2*ABS(b3L)
+    !    length3U = N1*N2*ABS(b3U)
+    !
+    !    if (BC_3L == 0) call MPI_IRECV(ghost3UR,length3L,MPI_REAL8,rank3L,5,COMM_CART,req3L,merror)
+    !    if (BC_3U == 0) call MPI_IRECV(ghost3LR,length3U,MPI_REAL8,rank3U,6,COMM_CART,req3U,merror)
+    !
+    !    if (BC_3U == 0) then
+    !       do k = b3L, -1
+    !          ghost3US(1:N1,1:N2,k) = phi(1:N1,1:N2,(N3p+1+k))
+    !       end do
+    !    end if
+    !    if (BC_3L == 0) then
+    !       do k = 1, b3U
+    !          ghost3LS(1:N1,1:N2,k) = phi(1:N1,1:N2,(S3p-1+k))
+    !       end do
+    !    end if
+    !
+    !    if (BC_3U == 0) call MPI_SEND(ghost3US,length3L,MPI_REAL8,rank3U,5,COMM_CART,merror)
+    !    if (BC_3L == 0) call MPI_SEND(ghost3LS,length3U,MPI_REAL8,rank3L,6,COMM_CART,merror)
+    !
+    !    if (BC_3L == 0) call MPI_WAIT(req3L,status,merror)
+    !    if (BC_3U == 0) call MPI_WAIT(req3U,status,merror)
+    !
+    !    if (BC_3L == 0) call pseudocall(ghost3UR) ! Soll den Compiler daran hindern, das Umspeichern mit MPI_WAIT zu vertauschen.
+    !    if (BC_3U == 0) call pseudocall(ghost3LR)
+    !
+    !    if (BC_3L == 0) then
+    !       do k = b3L, -1
+    !          phi(1:N1,1:N2,(S3p+k)) = ghost3UR(1:N1,1:N2,k)
+    !       end do
+    !    end if
+    !    if (BC_3U == 0) then
+    !       do k = 1, b3U
+    !          phi(1:N1,1:N2,(N3p+k)) = ghost3LR(1:N1,1:N2,k)
+    !       end do
+    !    end if
+    !
+    !    !-------------------------------------------------------------------------------------------------------------------
+    !
+    !    if (BC_3L == -1) then
+    !       do k = b3L, -1
+    !          phi(1:N1,1:N2,(S3p+k)) = phi(1:N1,1:N2,(N3p+1+k))
+    !       end do
+    !       do k = 1, b3U
+    !          phi(1:N1,1:N2,(N3p+k)) = phi(1:N1,1:N2,(S3p-1+k))
+    !       end do
+    !    end if
+    !
+    !    !-------------------------------------------------------------------------------------------------------------------
+    !
+    !    if (vel_dir == dir) then
+    !       if (BC_3L > 0) phi(1:N1,1:N2, b3L  : -1     ) = 0.
+    !       if (BC_3U > 0) phi(1:N1,1:N2,(N3+1):(N3+b3U)) = 0.
+    !
+    !       if (BC_3L  == -2) phi(1:N1,1:N2, b3L  :  0     ) = 0.
+    !       if (BC_3U  == -2) phi(1:N1,1:N2, N3   :(N3+b3U)) = 0.
+    !    else
+    !       if (BC_3L > 0 .or. BC_3L == -2) phi(1:N1,1:N2, b3L  : 0      ) = 0.
+    !       if (BC_3U > 0 .or. BC_3U == -2) phi(1:N1,1:N2,(N3+1):(N3+b3U)) = 0.
+    !    end if
+    !
+    ! end if
+    !
+    ! !======================================================================================================================
+    !
+    !
+    ! end subroutine exchange
   
   
   
   
-  !> \brief exchanges ghost layer
-  !! \note Routine exakt identisch zu "exchange", allerdings mit variablen Intervallgrenzen
-  !!---------------------------------------------------------------------------------------------------------------------!
-  !! \note: - [Sij,Nij] ist Untermenge von [Sip,Nip]                                                                     !
-  !!        - [Sip,Nip] ist Untermenge von [1,Ni]                                                                  !
-  !!        - [1,Ni] hat den Vorteil, dass Intervallgrenzen fest einprogrammiert sind,                             !
-  !!          was prinzipiell zu einem Vorteil bei der Effizienz führen sollte.                                    !
-  !!        - Bei Spiegelung muss die zur Spiegelungsebene orthogonale Geschwindigkeitskomponente auch im          !
-  !!          Vorzeichen gespiegelt werden, da die Spiegelungsebene nicht durchströmt werden kann!.                !
-  !!        - Alle Kopier-Schleifen sind ausgeschrieben, da der PGI-Compiler ansonsten keine Vektorisierung bzw.   !
-  !!          kein Prefetch einbaut.                                                                               !
-  !!---------------------------------------------------------------------------------------------------------------------!
-  !! \todo add input parameters:
-  !!        - b1L, b1U, b2L,b2U, b3L, b3U
-  !!        - S1p, S2p, S3p, N1p, N2p, N3p
-  !!        - BC1L, BC1U, BC2L, BC2U, BC3L, BC3U
-  !!        - COMM_CART
-  !!        - rankl, ranku
-  !!        - reql, requ
-  !!        - merror
-!pgi$r nodepchk
-!pgi$r ivdep
-  subroutine exchange2(dir,vel_dir,SS1,SS2,SS3,NN1,NN2,NN3,phi) bind (c,name='F_exchange')
   
-  implicit none
   
-  integer(c_int), intent(in   ) ::  dir
-  integer(c_int), intent(in   ) ::  vel_dir
-  integer(c_int), intent(in   ) ::  SS1, SS2, SS3, NN1, NN2, NN3
   
-  real(c_double), intent(inout) ::  phi(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+    !> \brief exchanges ghost layer
+    !! \note Routine exakt identisch zu "exchange", allerdings mit variablen Intervallgrenzen
+    !!---------------------------------------------------------------------------------------------------------------------!
+    !! \note: - [Sij,Nij] ist Untermenge von [Sip,Nip]                                                                     !
+    !!        - [Sip,Nip] ist Untermenge von [1,Ni]                                                                  !
+    !!        - [1,Ni] hat den Vorteil, dass Intervallgrenzen fest einprogrammiert sind,                             !
+    !!          was prinzipiell zu einem Vorteil bei der Effizienz führen sollte.                                    !
+    !!        - Bei Spiegelung muss die zur Spiegelungsebene orthogonale Geschwindigkeitskomponente auch im          !
+    !!          Vorzeichen gespiegelt werden, da die Spiegelungsebene nicht durchströmt werden kann!.                !
+    !!        - Alle Kopier-Schleifen sind ausgeschrieben, da der PGI-Compiler ansonsten keine Vektorisierung bzw.   !
+    !!          kein Prefetch einbaut.                                                                               !
+    !!---------------------------------------------------------------------------------------------------------------------!
+    !! \todo add input parameters:
+    !!        - b1L, b1U, b2L,b2U, b3L, b3U
+    !!        - S1p, S2p, S3p, N1p, N2p, N3p
+    !!        - BC1L, BC1U, BC2L, BC2U, BC3L, BC3U
+    !!        - COMM_CART
+    !!        - rankl, ranku
+    !!        - reql, requ
+    !!        - merror
+    !pgi$r nodepchk
+    !pgi$r ivdep
+    subroutine exchange2(dir,vel_dir,SS1,SS2,SS3,NN1,NN2,NN3,phi) bind (c,name='F_exchange')
   
-  real                   ::  ghost1LR( 1:b1U,SS2:NN2,SS3:NN3)
-  real                   ::  ghost1LS( 1:b1U,SS2:NN2,SS3:NN3)
-  real                   ::  ghost1UR(b1L:-1,SS2:NN2,SS3:NN3)
-  real                   ::  ghost1US(b1L:-1,SS2:NN2,SS3:NN3)
+        implicit none
   
-  real                   ::  ghost2LR(SS1:NN1, 1:b2U,SS3:NN3)
-  real                   ::  ghost2LS(SS1:NN1, 1:b2U,SS3:NN3)
-  real                   ::  ghost2UR(SS1:NN1,b2L:-1,SS3:NN3)
-  real                   ::  ghost2US(SS1:NN1,b2L:-1,SS3:NN3)
+        integer(c_int), intent(in   ) ::  dir
+        integer(c_int), intent(in   ) ::  vel_dir
+        integer(c_int), intent(in   ) ::  SS1, SS2, SS3, NN1, NN2, NN3
   
-  real                   ::  ghost3LR(SS1:NN1,SS2:NN2, 1:b3U)
-  real                   ::  ghost3LS(SS1:NN1,SS2:NN2, 1:b3U)
-  real                   ::  ghost3UR(SS1:NN1,SS2:NN2,b3L:-1)
-  real                   ::  ghost3US(SS1:NN1,SS2:NN2,b3L:-1)
+        real(c_double), intent(inout) ::  phi(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
   
-  integer                ::  length1L, length1U
-  integer                ::  length2L, length2U
-  integer                ::  length3L, length3U
+        real                   ::  ghost1LR( 1:b1U,SS2:NN2,SS3:NN3)
+        real                   ::  ghost1LS( 1:b1U,SS2:NN2,SS3:NN3)
+        real                   ::  ghost1UR(b1L:-1,SS2:NN2,SS3:NN3)
+        real                   ::  ghost1US(b1L:-1,SS2:NN2,SS3:NN3)
   
-  integer                ::  i, j, k
-!  integer                ::  dummy
+        real                   ::  ghost2LR(SS1:NN1, 1:b2U,SS3:NN3)
+        real                   ::  ghost2LS(SS1:NN1, 1:b2U,SS3:NN3)
+        real                   ::  ghost2UR(SS1:NN1,b2L:-1,SS3:NN3)
+        real                   ::  ghost2US(SS1:NN1,b2L:-1,SS3:NN3)
   
-  !======================================================================================================================
+        real                   ::  ghost3LR(SS1:NN1,SS2:NN2, 1:b3U)
+        real                   ::  ghost3LS(SS1:NN1,SS2:NN2, 1:b3U)
+        real                   ::  ghost3UR(SS1:NN1,SS2:NN2,b3L:-1)
+        real                   ::  ghost3US(SS1:NN1,SS2:NN2,b3L:-1)
   
-  if (dir == 1) then
+        integer                ::  length1L, length1U
+        integer                ::  length2L, length2U
+        integer                ::  length3L, length3U
+  
+        integer                ::  i, j, k
+        !  integer                ::  dummy
+  
+        !======================================================================================================================
+  
+        if (dir == 1) then
      
-     length1L = (NN2-SS2+1)*(NN3-SS3+1)*ABS(b1L)
-     length1U = (NN2-SS2+1)*(NN3-SS3+1)*ABS(b1U)
+            length1L = (NN2-SS2+1)*(NN3-SS3+1)*ABS(b1L)
+            length1U = (NN2-SS2+1)*(NN3-SS3+1)*ABS(b1U)
      
-     if (BC_1L == 0) call MPI_IRECV(ghost1UR,length1L,MPI_REAL8,rank1L,1,COMM_CART,req1L,merror)
-     if (BC_1U == 0) call MPI_IRECV(ghost1LR,length1U,MPI_REAL8,rank1U,2,COMM_CART,req1U,merror)
+            if (BC_1L == 0) call MPI_IRECV(ghost1UR,length1L,MPI_REAL8,rank1L,1,COMM_CART,req1L,merror)
+            if (BC_1U == 0) call MPI_IRECV(ghost1LR,length1U,MPI_REAL8,rank1U,2,COMM_CART,req1U,merror)
      
-     if (BC_1U == 0) then
-        do i = b1L, -1
-           ghost1US(i,SS2:NN2,SS3:NN3) = phi((N1p+1+i),SS2:NN2,SS3:NN3)
-        end do
-     end if
-     if (BC_1L == 0) then
-        do i = 1, b1U
-           ghost1LS(i,SS2:NN2,SS3:NN3) = phi((S1p-1+i),SS2:NN2,SS3:NN3)
-        end do
-     end if
+            if (BC_1U == 0) then
+                do i = b1L, -1
+                    ghost1US(i,SS2:NN2,SS3:NN3) = phi((N1p+1+i),SS2:NN2,SS3:NN3)
+                end do
+            end if
+            if (BC_1L == 0) then
+                do i = 1, b1U
+                    ghost1LS(i,SS2:NN2,SS3:NN3) = phi((S1p-1+i),SS2:NN2,SS3:NN3)
+                end do
+            end if
      
-     if (BC_1U == 0) call MPI_SEND(ghost1US,length1L,MPI_REAL8,rank1U,1,COMM_CART,merror)
-     if (BC_1L == 0) call MPI_SEND(ghost1LS,length1U,MPI_REAL8,rank1L,2,COMM_CART,merror)
+            if (BC_1U == 0) call MPI_SEND(ghost1US,length1L,MPI_REAL8,rank1U,1,COMM_CART,merror)
+            if (BC_1L == 0) call MPI_SEND(ghost1LS,length1U,MPI_REAL8,rank1L,2,COMM_CART,merror)
      
-     if (BC_1L == 0) call MPI_WAIT(req1L,status,merror)
-     if (BC_1U == 0) call MPI_WAIT(req1U,status,merror)
+            if (BC_1L == 0) call MPI_WAIT(req1L,status,merror)
+            if (BC_1U == 0) call MPI_WAIT(req1U,status,merror)
      
-     if (BC_1L == 0) call pseudocall(ghost1UR) ! Soll den Compiler daran hindern, das Umspeichern mit MPI_WAIT zu vertauschen.
-     if (BC_1U == 0) call pseudocall(ghost1LR)
+            if (BC_1L == 0) call pseudocall(ghost1UR) ! Soll den Compiler daran hindern, das Umspeichern mit MPI_WAIT zu vertauschen.
+            if (BC_1U == 0) call pseudocall(ghost1LR)
      
-     if (BC_1L == 0) then
-        do i = b1L, -1
-           phi((S1p+i),SS2:NN2,SS3:NN3) = ghost1UR(i,SS2:NN2,SS3:NN3)
-        end do
-     end if
-     if (BC_1U == 0) then
-        do i = 1, b1U
-           phi((N1p+i),SS2:NN2,SS3:NN3) = ghost1LR(i,SS2:NN2,SS3:NN3)
-        end do
-     end if
+            if (BC_1L == 0) then
+                do i = b1L, -1
+                    phi((S1p+i),SS2:NN2,SS3:NN3) = ghost1UR(i,SS2:NN2,SS3:NN3)
+                end do
+            end if
+            if (BC_1U == 0) then
+                do i = 1, b1U
+                    phi((N1p+i),SS2:NN2,SS3:NN3) = ghost1LR(i,SS2:NN2,SS3:NN3)
+                end do
+            end if
      
-     !-------------------------------------------------------------------------------------------------------------------
+            !-------------------------------------------------------------------------------------------------------------------
      
-     if (BC_1L == -1) then
-        do i = b1L, -1
-           phi((S1p+i),SS2:NN2,SS3:NN3) = phi((N1p+1+i),SS2:NN2,SS3:NN3)
-        end do
-        do i = 1, b1U
-           phi((N1p+i),SS2:NN2,SS3:NN3) = phi((S1p-1+i),SS2:NN2,SS3:NN3)
-        end do
-     end if
+            if (BC_1L == -1) then
+                do i = b1L, -1
+                    phi((S1p+i),SS2:NN2,SS3:NN3) = phi((N1p+1+i),SS2:NN2,SS3:NN3)
+                end do
+                do i = 1, b1U
+                    phi((N1p+i),SS2:NN2,SS3:NN3) = phi((S1p-1+i),SS2:NN2,SS3:NN3)
+                end do
+            end if
      
-     !-------------------------------------------------------------------------------------------------------------------
+            !-------------------------------------------------------------------------------------------------------------------
      
-     if (vel_dir == dir) then
-        if (BC_1L > 0) phi( b1L  : -1     ,SS2:NN2,SS3:NN3) = 0.
-        if (BC_1U > 0) phi((N1+1):(N1+b1U),SS2:NN2,SS3:NN3) = 0.
+            if (vel_dir == dir) then
+                if (BC_1L > 0) phi( b1L  : -1     ,SS2:NN2,SS3:NN3) = 0.
+                if (BC_1U > 0) phi((N1+1):(N1+b1U),SS2:NN2,SS3:NN3) = 0.
         
-        if (BC_1L  == -2) phi( b1L  :  0     ,SS2:NN2,SS3:NN3) = 0.
-        if (BC_1U  == -2) phi( N1   :(N1+b1U),SS2:NN2,SS3:NN3) = 0.
-     else
-        if (BC_1L > 0 .or. BC_1L == -2) phi( b1L  : 0      ,SS2:NN2,SS3:NN3) = 0.
-        if (BC_1U > 0 .or. BC_1U == -2) phi((N1+1):(N1+b1U),SS2:NN2,SS3:NN3) = 0.
-     end if
+                if (BC_1L  == -2) phi( b1L  :  0     ,SS2:NN2,SS3:NN3) = 0.
+                if (BC_1U  == -2) phi( N1   :(N1+b1U),SS2:NN2,SS3:NN3) = 0.
+            else
+                if (BC_1L > 0 .or. BC_1L == -2) phi( b1L  : 0      ,SS2:NN2,SS3:NN3) = 0.
+                if (BC_1U > 0 .or. BC_1U == -2) phi((N1+1):(N1+b1U),SS2:NN2,SS3:NN3) = 0.
+            end if
      
-  end if
+        end if
   
-  !======================================================================================================================
+        !======================================================================================================================
   
-  if (dir == 2) then
+        if (dir == 2) then
      
-     length2L = (NN1-SS1+1)*(NN3-SS3+1)*ABS(b2L)
-     length2U = (NN1-SS1+1)*(NN3-SS3+1)*ABS(b2U)
+            length2L = (NN1-SS1+1)*(NN3-SS3+1)*ABS(b2L)
+            length2U = (NN1-SS1+1)*(NN3-SS3+1)*ABS(b2U)
      
-     if (BC_2L == 0) call MPI_IRECV(ghost2UR,length2L,MPI_REAL8,rank2L,3,COMM_CART,req2L,merror)
-     if (BC_2U == 0) call MPI_IRECV(ghost2LR,length2U,MPI_REAL8,rank2U,4,COMM_CART,req2U,merror)
+            if (BC_2L == 0) call MPI_IRECV(ghost2UR,length2L,MPI_REAL8,rank2L,3,COMM_CART,req2L,merror)
+            if (BC_2U == 0) call MPI_IRECV(ghost2LR,length2U,MPI_REAL8,rank2U,4,COMM_CART,req2U,merror)
      
-     if (BC_2U == 0) then
-        do j = b2L, -1
-           ghost2US(SS1:NN1,j,SS3:NN3) = phi(SS1:NN1,(N2p+1+j),SS3:NN3)
-        end do
-     end if
-     if (BC_2L == 0) then
-        do j = 1, b2U
-           ghost2LS(SS1:NN1,j,SS3:NN3) = phi(SS1:NN1,(S2p-1+j),SS3:NN3)
-        end do
-     end if
+            if (BC_2U == 0) then
+                do j = b2L, -1
+                    ghost2US(SS1:NN1,j,SS3:NN3) = phi(SS1:NN1,(N2p+1+j),SS3:NN3)
+                end do
+            end if
+            if (BC_2L == 0) then
+                do j = 1, b2U
+                    ghost2LS(SS1:NN1,j,SS3:NN3) = phi(SS1:NN1,(S2p-1+j),SS3:NN3)
+                end do
+            end if
      
-     if (BC_2U == 0) call MPI_SEND(ghost2US,length2L,MPI_REAL8,rank2U,3,COMM_CART,merror)
-     if (BC_2L == 0) call MPI_SEND(ghost2LS,length2U,MPI_REAL8,rank2L,4,COMM_CART,merror)
+            if (BC_2U == 0) call MPI_SEND(ghost2US,length2L,MPI_REAL8,rank2U,3,COMM_CART,merror)
+            if (BC_2L == 0) call MPI_SEND(ghost2LS,length2U,MPI_REAL8,rank2L,4,COMM_CART,merror)
      
-     if (BC_2L == 0) call MPI_WAIT(req2L,status,merror)
-     if (BC_2U == 0) call MPI_WAIT(req2U,status,merror)
+            if (BC_2L == 0) call MPI_WAIT(req2L,status,merror)
+            if (BC_2U == 0) call MPI_WAIT(req2U,status,merror)
      
-     if (BC_2L == 0) call pseudocall(ghost2UR) ! Soll den Compiler daran hindern, das Umspeichern mit MPI_WAIT zu vertauschen.
-     if (BC_2U == 0) call pseudocall(ghost2LR)
+            if (BC_2L == 0) call pseudocall(ghost2UR) ! Soll den Compiler daran hindern, das Umspeichern mit MPI_WAIT zu vertauschen.
+            if (BC_2U == 0) call pseudocall(ghost2LR)
      
-     if (BC_2L == 0) then
-        do j = b2L, -1
-           phi(SS1:NN1,(S2p+j),SS3:NN3) = ghost2UR(SS1:NN1,j,SS3:NN3)
-        end do
-     end if
-     if (BC_2U == 0) then
-        do j = 1, b2U
-           phi(SS1:NN1,(N2p+j),SS3:NN3) = ghost2LR(SS1:NN1,j,SS3:NN3)
-        end do
-     end if
+            if (BC_2L == 0) then
+                do j = b2L, -1
+                    phi(SS1:NN1,(S2p+j),SS3:NN3) = ghost2UR(SS1:NN1,j,SS3:NN3)
+                end do
+            end if
+            if (BC_2U == 0) then
+                do j = 1, b2U
+                    phi(SS1:NN1,(N2p+j),SS3:NN3) = ghost2LR(SS1:NN1,j,SS3:NN3)
+                end do
+            end if
      
-     !-------------------------------------------------------------------------------------------------------------------
+            !-------------------------------------------------------------------------------------------------------------------
      
-     if (BC_2L == -1) then
-        do j = b2L, -1
-           phi(SS1:NN1,(S2p+j),SS3:NN3) = phi(SS1:NN1,(N2p+1+j),SS3:NN3)
-        end do
-        do j = 1, b2U
-           phi(SS1:NN1,(N2p+j),SS3:NN3) = phi(SS1:NN1,(S2p-1+j),SS3:NN3)
-        end do
-     end if
+            if (BC_2L == -1) then
+                do j = b2L, -1
+                    phi(SS1:NN1,(S2p+j),SS3:NN3) = phi(SS1:NN1,(N2p+1+j),SS3:NN3)
+                end do
+                do j = 1, b2U
+                    phi(SS1:NN1,(N2p+j),SS3:NN3) = phi(SS1:NN1,(S2p-1+j),SS3:NN3)
+                end do
+            end if
      
-     !-------------------------------------------------------------------------------------------------------------------
+            !-------------------------------------------------------------------------------------------------------------------
      
-     if (vel_dir == dir) then
-        if (BC_2L > 0) phi(SS1:NN1, b2L  : -1     ,SS3:NN3) = 0.
-        if (BC_2U > 0) phi(SS1:NN1,(N2+1):(N2+b2U),SS3:NN3) = 0.
+            if (vel_dir == dir) then
+                if (BC_2L > 0) phi(SS1:NN1, b2L  : -1     ,SS3:NN3) = 0.
+                if (BC_2U > 0) phi(SS1:NN1,(N2+1):(N2+b2U),SS3:NN3) = 0.
         
-        if (BC_2L  == -2) phi(SS1:NN1, b2L  :  0     ,SS3:NN3) = 0.
-        if (BC_2U  == -2) phi(SS1:NN1, N2   :(N2+b2U),SS3:NN3) = 0.
-     else
-        if (BC_2L > 0 .or. BC_2L == -2) phi(SS1:NN1, b2L  : 0      ,SS3:NN3) = 0.
-        if (BC_2U > 0 .or. BC_2U == -2) phi(SS1:NN1,(N2+1):(N2+b2U),SS3:NN3) = 0.
-     end if
+                if (BC_2L  == -2) phi(SS1:NN1, b2L  :  0     ,SS3:NN3) = 0.
+                if (BC_2U  == -2) phi(SS1:NN1, N2   :(N2+b2U),SS3:NN3) = 0.
+            else
+                if (BC_2L > 0 .or. BC_2L == -2) phi(SS1:NN1, b2L  : 0      ,SS3:NN3) = 0.
+                if (BC_2U > 0 .or. BC_2U == -2) phi(SS1:NN1,(N2+1):(N2+b2U),SS3:NN3) = 0.
+            end if
      
-  end if
+        end if
   
-  !======================================================================================================================
+        !======================================================================================================================
   
-  if (dir == 3 .and. dimens == 3) then
+        if (dir == 3 .and. dimens == 3) then
      
-     length3L = (NN1-SS1+1)*(NN2-SS2+1)*ABS(b3L)
-     length3U = (NN1-SS1+1)*(NN2-SS2+1)*ABS(b3U)
+            length3L = (NN1-SS1+1)*(NN2-SS2+1)*ABS(b3L)
+            length3U = (NN1-SS1+1)*(NN2-SS2+1)*ABS(b3U)
      
-     if (BC_3L == 0) call MPI_IRECV(ghost3UR,length3L,MPI_REAL8,rank3L,5,COMM_CART,req3L,merror)
-     if (BC_3U == 0) call MPI_IRECV(ghost3LR,length3U,MPI_REAL8,rank3U,6,COMM_CART,req3U,merror)
+            if (BC_3L == 0) call MPI_IRECV(ghost3UR,length3L,MPI_REAL8,rank3L,5,COMM_CART,req3L,merror)
+            if (BC_3U == 0) call MPI_IRECV(ghost3LR,length3U,MPI_REAL8,rank3U,6,COMM_CART,req3U,merror)
      
-     if (BC_3U == 0) then
-        do k = b3L, -1
-           ghost3US(SS1:NN1,SS2:NN2,k) = phi(SS1:NN1,SS2:NN2,(N3p+1+k))
-        end do
-     end if
-     if (BC_3L == 0) then
-        do k = 1, b3U
-           ghost3LS(SS1:NN1,SS2:NN2,k) = phi(SS1:NN1,SS2:NN2,(S3p-1+k))
-        end do
-     end if
+            if (BC_3U == 0) then
+                do k = b3L, -1
+                    ghost3US(SS1:NN1,SS2:NN2,k) = phi(SS1:NN1,SS2:NN2,(N3p+1+k))
+                end do
+            end if
+            if (BC_3L == 0) then
+                do k = 1, b3U
+                    ghost3LS(SS1:NN1,SS2:NN2,k) = phi(SS1:NN1,SS2:NN2,(S3p-1+k))
+                end do
+            end if
      
-     if (BC_3U == 0) call MPI_SEND(ghost3US,length3L,MPI_REAL8,rank3U,5,COMM_CART,merror)
-     if (BC_3L == 0) call MPI_SEND(ghost3LS,length3U,MPI_REAL8,rank3L,6,COMM_CART,merror)
+            if (BC_3U == 0) call MPI_SEND(ghost3US,length3L,MPI_REAL8,rank3U,5,COMM_CART,merror)
+            if (BC_3L == 0) call MPI_SEND(ghost3LS,length3U,MPI_REAL8,rank3L,6,COMM_CART,merror)
      
-     if (BC_3L == 0) call MPI_WAIT(req3L,status,merror)
-     if (BC_3U == 0) call MPI_WAIT(req3U,status,merror)
+            if (BC_3L == 0) call MPI_WAIT(req3L,status,merror)
+            if (BC_3U == 0) call MPI_WAIT(req3U,status,merror)
      
-     if (BC_3L == 0) call pseudocall(ghost3UR) ! Soll den Compiler daran hindern, das Umspeichern mit MPI_WAIT zu vertauschen.
-     if (BC_3U == 0) call pseudocall(ghost3LR)
+            if (BC_3L == 0) call pseudocall(ghost3UR) ! Soll den Compiler daran hindern, das Umspeichern mit MPI_WAIT zu vertauschen.
+            if (BC_3U == 0) call pseudocall(ghost3LR)
      
-     if (BC_3L == 0) then
-        do k = b3L, -1
-           phi(SS1:NN1,SS2:NN2,(S3p+k)) = ghost3UR(SS1:NN1,SS2:NN2,k)
-        end do
-     end if
-     if (BC_3U == 0) then
-        do k = 1, b3U
-           phi(SS1:NN1,SS2:NN2,(N3p+k)) = ghost3LR(SS1:NN1,SS2:NN2,k)
-        end do
-     end if
+            if (BC_3L == 0) then
+                do k = b3L, -1
+                    phi(SS1:NN1,SS2:NN2,(S3p+k)) = ghost3UR(SS1:NN1,SS2:NN2,k)
+                end do
+            end if
+            if (BC_3U == 0) then
+                do k = 1, b3U
+                    phi(SS1:NN1,SS2:NN2,(N3p+k)) = ghost3LR(SS1:NN1,SS2:NN2,k)
+                end do
+            end if
      
-     !-------------------------------------------------------------------------------------------------------------------
+            !-------------------------------------------------------------------------------------------------------------------
      
-     if (BC_3L == -1) then
-        do k = b3L, -1
-           phi(SS1:NN1,SS2:NN2,(S3p+k)) = phi(SS1:NN1,SS2:NN2,(N3p+1+k))
-        end do
-        do k = 1, b3U
-           phi(SS1:NN1,SS2:NN2,(N3p+k)) = phi(SS1:NN1,SS2:NN2,(S3p-1+k))
-        end do
-     end if
+            if (BC_3L == -1) then
+                do k = b3L, -1
+                    phi(SS1:NN1,SS2:NN2,(S3p+k)) = phi(SS1:NN1,SS2:NN2,(N3p+1+k))
+                end do
+                do k = 1, b3U
+                    phi(SS1:NN1,SS2:NN2,(N3p+k)) = phi(SS1:NN1,SS2:NN2,(S3p-1+k))
+                end do
+            end if
      
-     !-------------------------------------------------------------------------------------------------------------------
+            !-------------------------------------------------------------------------------------------------------------------
      
-     if (vel_dir == dir) then
-        if (BC_3L > 0) phi(SS1:NN1,SS2:NN2, b3L  : -1     ) = 0.
-        if (BC_3U > 0) phi(SS1:NN1,SS2:NN2,(N3+1):(N3+b3U)) = 0.
+            if (vel_dir == dir) then
+                if (BC_3L > 0) phi(SS1:NN1,SS2:NN2, b3L  : -1     ) = 0.
+                if (BC_3U > 0) phi(SS1:NN1,SS2:NN2,(N3+1):(N3+b3U)) = 0.
         
-        if (BC_3L  == -2) phi(SS1:NN1,SS2:NN2, b3L  :  0     ) = 0.
-        if (BC_3U  == -2) phi(SS1:NN1,SS2:NN2, N3   :(N3+b3U)) = 0.
-     else
-        if (BC_3L > 0 .or. BC_3L == -2) phi(SS1:NN1,SS2:NN2, b3L  : 0      ) = 0.
-        if (BC_3U > 0 .or. BC_3U == -2) phi(SS1:NN1,SS2:NN2,(N3+1):(N3+b3U)) = 0.
-     end if
+                if (BC_3L  == -2) phi(SS1:NN1,SS2:NN2, b3L  :  0     ) = 0.
+                if (BC_3U  == -2) phi(SS1:NN1,SS2:NN2, N3   :(N3+b3U)) = 0.
+            else
+                if (BC_3L > 0 .or. BC_3L == -2) phi(SS1:NN1,SS2:NN2, b3L  : 0      ) = 0.
+                if (BC_3U > 0 .or. BC_3U == -2) phi(SS1:NN1,SS2:NN2,(N3+1):(N3+b3U)) = 0.
+            end if
      
-  end if
+        end if
   
-  !======================================================================================================================
+    !======================================================================================================================
   
   
-  end subroutine exchange2
+    end subroutine exchange2
   
   
   

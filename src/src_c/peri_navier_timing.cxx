@@ -59,18 +59,18 @@ int main(int argi, char** argv ) {
 
   typedef Pimpact::MultiDtHelmholtz<S,O>  DtL;
   typedef Pimpact::MultiHarmonicNonlinear<S,O>  MAdv;
-//  typedef Pimpact::MultiHarmonicOpWrap< Pimpact::ForcingOp<S,O> > Fo;
-//  typedef Pimpact::MultiOpWrap< Pimpact::AddOp< Pimpact::AddOp<MAdv,DtL>, Fo > > Op;
+  //  typedef Pimpact::MultiHarmonicOpWrap< Pimpact::ForcingOp<S,O> > Fo;
+  //  typedef Pimpact::MultiOpWrap< Pimpact::AddOp< Pimpact::AddOp<MAdv,DtL>, Fo > > Op;
   typedef Pimpact::Add2Op<DtL,MAdv> OpV2V;
-//  typedef Pimpact::AddOp<DtL,MAdv> OpV2V;
+  //  typedef Pimpact::AddOp<DtL,MAdv> OpV2V;
   typedef Pimpact::MultiOpWrap< Pimpact::CompoundOpWrap<OpV2V,OpS2V,OpV2S> > Op;
 
   typedef Pimpact::OperatorBase<MF> BOp;
 
-//  typedef Pimpact::MultiHarmonicNonlinearJacobian<S,O>  JMAdv;
-//  typedef Pimpact::MultiHarmonicDiagNonlinearJacobian<S,O>  DJMAdv;
-//  typedef Pimpact::MultiHarmonicOpWrap< Pimpact::NonlinearJacobian<S,O> > JAdv;
-//  typedef Pimpact::MultiOpWrap< Pimpact::AddOp< Pimpact::AddOp<JMAdv,DtL>, Fo > > JOp;
+  //  typedef Pimpact::MultiHarmonicNonlinearJacobian<S,O>  JMAdv;
+  //  typedef Pimpact::MultiHarmonicDiagNonlinearJacobian<S,O>  DJMAdv;
+  //  typedef Pimpact::MultiHarmonicOpWrap< Pimpact::NonlinearJacobian<S,O> > JAdv;
+  //  typedef Pimpact::MultiOpWrap< Pimpact::AddOp< Pimpact::AddOp<JMAdv,DtL>, Fo > > JOp;
 
 
   typedef NOX::Pimpact::Interface<MF> Inter;
@@ -142,16 +142,16 @@ int main(int argi, char** argv ) {
   Teuchos::RCP<std::ostream> outPar;
   Teuchos::RCP<std::ostream> outLinSolve;
   Teuchos::RCP<std::ostream> outPrec;
-//  Teuchos::RCP<std::ostream> outLap2;
-//  Teuchos::RCP<std::ostream> outSchur;
+  //  Teuchos::RCP<std::ostream> outLap2;
+  //  Teuchos::RCP<std::ostream> outSchur;
 
   if(rank==0) {
     outPar   = Teuchos::rcp( new std::ofstream("para_case.txt") );
     outLinSolve  = Teuchos::rcp( new std::ofstream("stats_linSolve.txt") );
     outPrec  = Teuchos::rcp( new std::ofstream("stats_solvPrec.txt") );
-//    outSchur = Teuchos::rcp( new std::ofstream("stats_solvSchur.txt") );
+    //    outSchur = Teuchos::rcp( new std::ofstream("stats_solvSchur.txt") );
   } else
-//    outPar = Teuchos::rcp( &blackhole, false) ;
+    //    outPar = Teuchos::rcp( &blackhole, false) ;
     outPar = Teuchos::rcp( new Teuchos::oblackholestream() ) ;
 
   *outPar << " \tflow=" << flow << "\n";
@@ -163,7 +163,7 @@ int main(int argi, char** argv ) {
   ds->set_Impact();
   ds->print( *outPar );
 
-//  auto bc = Pimpact::createBC( Pimpact::AllPeriodic );
+  //  auto bc = Pimpact::createBC( Pimpact::AllPeriodic );
   auto bc = Pimpact::createBoudaryConditionsGlobal( Pimpact::EDomainType(domain) );
   bc->set_Impact();
 
@@ -197,24 +197,24 @@ int main(int argi, char** argv ) {
   auto x    = Pimpact::createMultiField( Pimpact::createCompoundField(
       Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, nfs ),
       Pimpact::createMultiHarmonicScalarField<S,O>( fS, nfs )) );
-//  auto temp = x->clone();
+  //  auto temp = x->clone();
   auto fu   = x->clone();
-//  auto force = x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone();
+  //  auto force = x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone();
 
   // init Fields, init and rhs
-//  fu->init(1.);
-//  x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->initField( Pimpact::EFlowProfile(flow), re, alpha2/re );
+  //  fu->init(1.);
+  //  x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->initField( Pimpact::EFlowProfile(flow), re, alpha2/re );
   x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::EFlowProfile(flow), 1 );
 
-//  x->init( 0. );
+  //  x->init( 0. );
   fu->init( 0. );
-//  x->random();
+  //  x->random();
 
 
 
   /******************************************************************************************/
-//  for( nf=nfs; nf<nfe; ++nf) {
-//  for( nf=nfs; nf<nfe; nf+=2 ) {
+  //  for( nf=nfs; nf<nfe; ++nf) {
+  //  for( nf=nfs; nf<nfe; nf+=2 ) {
   for( nf=nfs; nf<nfe; nf*=2) {
 
     if( nf!=nfs ) {
@@ -233,7 +233,7 @@ int main(int argi, char** argv ) {
       tolNOX /= 10;
     }
 
-//    if(0==rank) std::cout << "\n\t--- Nf: "<<x->getConstFieldPtr(0)->getConstVFieldPtr()->getNumberModes()<<"\tdof: "<<x->getLength(true)<<"\t---\n";
+    //    if(0==rank) std::cout << "\n\t--- Nf: "<<x->getConstFieldPtr(0)->getConstVFieldPtr()->getNumberModes()<<"\tdof: "<<x->getLength(true)<<"\t---\n";
 
     auto para = Pimpact::createLinSolverParameter( linSolName, tolBelos*l1*l2/n1/n2*(nfe-1)/nf, -1 );
     para->set( "Maximum Iterations", 3000 );
@@ -246,7 +246,7 @@ int main(int argi, char** argv ) {
             Pimpact::createMultiDtHelmholtz<S,O>( alpha2/re, 1./re ),
             Pimpact::createMultiHarmonicNonlinear<S,O>( /*x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone()*/ ),
             x->getConstFieldPtr(0)->getConstVFieldPtr()->clone()
-            );
+        );
     auto opS2V = Pimpact::createMultiHarmonicOpWrap< Pimpact::Grad<S,O> >();
     auto opV2S = Pimpact::createMultiHarmonicOpWrap< Pimpact::Div<S,O> >();
 
@@ -254,28 +254,28 @@ int main(int argi, char** argv ) {
         Pimpact::createMultiOperatorBase<MF>(
             Pimpact::createCompoundOpWrap(
                 x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(), opV2V, opS2V, opV2S )
-                );
+        );
 
 
-  Teuchos::RCP<BOp> jop;
+    Teuchos::RCP<BOp> jop;
     jop = Pimpact::createMultiOperatorBase<MF>(
         Pimpact::createCompoundOpWrap(
             x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
             Pimpact::createAdd2Op(
                 Pimpact::createMultiDtHelmholtz<S,O>( alpha2/re, 1./re ),
                 Pimpact::createMultiHarmonicNonlinearJacobian<S,O>(
-//                    x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone(),
+                    //                    x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone(),
                     x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::DeepCopy) ),
-                 x->getConstFieldPtr(0)->getConstVFieldPtr()->clone() ),
-            opS2V, opV2S )
-        );
+                    x->getConstFieldPtr(0)->getConstVFieldPtr()->clone() ),
+                    opS2V, opV2S )
+    );
 
 
     auto lp_ = Pimpact::createLinearProblem<MF>(
         jop, x->clone(), fu->clone(), para, linSolName );
     auto lp = Pimpact::createInverseOperatorBase<MF>( lp_ );
 
-//    lp->setLeftPrec( lprec );
+    //    lp->setLeftPrec( lprec );
 
     auto inter = NOX::Pimpact::createInterface<MF>( fu, op, lp );
 
@@ -297,28 +297,28 @@ int main(int argi, char** argv ) {
         NOX::Solver::buildSolver( group, statusTest, solverParametersPtr);
 
     // Solve the nonlinear system
-//    NOX::StatusTest::StatusType status =
-        solver->solve();
+    //    NOX::StatusTest::StatusType status =
+    solver->solve();
 
     // Print the parameter list
-//    if( nf==nfs ) {
-//      if(rank==0) std::cout << "\n" << "-- Parameter List From Solver --" << "\n";
-//      if(rank==0) std::cout << "\n" << status << "\n";
-//      if(rank==0) solver->getList().print(std::cout);
-//    }
+    //    if( nf==nfs ) {
+    //      if(rank==0) std::cout << "\n" << "-- Parameter List From Solver --" << "\n";
+    //      if(rank==0) std::cout << "\n" << status << "\n";
+    //      if(rank==0) solver->getList().print(std::cout);
+    //    }
 
     // Get the answer
     *group = solver->getSolutionGroup();
 
     // Print the answer if(rank==0) std::cout << "\n" << "-- Final Solution From Solver --" << "\n";
 
-//    Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() )->getConstFieldPtr()->write(800);
-//    Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(900);
+    //    Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() )->getConstFieldPtr()->write(800);
+    //    Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(900);
 
     x = Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr();
-//    x = Teuchos::rcp_const_cast<NV>( group->getXPtr() )->getFieldPtr();
+    //    x = Teuchos::rcp_const_cast<NV>( group->getXPtr() )->getFieldPtr();
 
-//    x->write(nf*100);
+    //    x->write(nf*100);
   }
   /******************************************************************************************/
   x->write(800);

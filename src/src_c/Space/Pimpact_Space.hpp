@@ -86,11 +86,11 @@ Teuchos::RCP< const Space<Ordinal> > createSpace(
 
   if( fieldSpace.is_null() &&  innerIS.is_null() && fullIS.is_null() )
     return(
-      Teuchos::rcp(
-          new Space<Ordinal>(
-              createFieldSpace<Ordinal>(),
-              createInnerFieldIndexSpaces<Ordinal>(),
-              createFullFieldIndexSpaces<Ordinal>() ) ) );
+        Teuchos::rcp(
+            new Space<Ordinal>(
+                createFieldSpace<Ordinal>(),
+                createInnerFieldIndexSpaces<Ordinal>(),
+                createFullFieldIndexSpaces<Ordinal>() ) ) );
   else
     return(
         Teuchos::rcp(

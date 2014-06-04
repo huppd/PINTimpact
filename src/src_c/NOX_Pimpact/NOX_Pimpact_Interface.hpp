@@ -103,7 +103,7 @@ Teuchos::RCP< Interface<Field> > createInterface(
     Teuchos::RCP< ::Pimpact::OperatorBase<Field> > jop=Teuchos::null ) {
   return(
       Teuchos::rcp( new Interface<Field>(fu,op,jop) )
-      );
+  );
 }
 
 

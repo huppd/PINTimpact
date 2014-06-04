@@ -29,16 +29,16 @@ namespace Pimpact {
 /// \relates VectorField
 template<class Scalar, class Ordinal>
 Teuchos::RCP< MultiField<ModeField<VectorField<Scalar,Ordinal> > > > createMultiModeVectorField( int n=1 ) {
-	auto fS  = createFieldSpace<Ordinal>();
-	auto iIS = createInnerFieldIndexSpaces<Ordinal>();
-	auto fIS = createFullFieldIndexSpaces<Ordinal>();
+  auto fS  = createFieldSpace<Ordinal>();
+  auto iIS = createInnerFieldIndexSpaces<Ordinal>();
+  auto fIS = createFullFieldIndexSpaces<Ordinal>();
 
-	auto velc = createVectorField<Scalar,Ordinal>(fS,iIS,fIS);
-	auto vels = createVectorField<Scalar,Ordinal>(fS,iIS,fIS);
+  auto velc = createVectorField<Scalar,Ordinal>(fS,iIS,fIS);
+  auto vels = createVectorField<Scalar,Ordinal>(fS,iIS,fIS);
 
-	auto vel = createModeField( velc, vels );
+  auto vel = createModeField( velc, vels );
 
-	return( createMultiField<ModeField<VectorField<Scalar,Ordinal> > >( *vel, n ) );
+  return( createMultiField<ModeField<VectorField<Scalar,Ordinal> > >( *vel, n ) );
 }
 
 
@@ -48,14 +48,14 @@ Teuchos::RCP< MultiField<ModeField<VectorField<Scalar,Ordinal> > > > createMulti
 /// \relates ScalarField
 template<class Scalar, class Ordinal>
 Teuchos::RCP< MultiField<ModeField<ScalarField<Scalar,Ordinal> > > > createMultiModeScalarField( int n=1 ) {
-	auto sVS = createFieldSpace<Ordinal>();
+  auto sVS = createFieldSpace<Ordinal>();
 
-	auto scalc = createScalarField<Scalar,Ordinal>(sVS);
-	auto scals = createScalarField<Scalar,Ordinal>(sVS);
+  auto scalc = createScalarField<Scalar,Ordinal>(sVS);
+  auto scals = createScalarField<Scalar,Ordinal>(sVS);
 
-	auto scal = createModeField( scalc, scals );
+  auto scal = createModeField( scalc, scals );
 
-	return( createMultiField<ModeField<ScalarField<Scalar,Ordinal> > >( *scal, n ) );
+  return( createMultiField<ModeField<ScalarField<Scalar,Ordinal> > >( *scal, n ) );
 }
 
 
@@ -65,54 +65,54 @@ Teuchos::RCP< MultiField<ModeField<ScalarField<Scalar,Ordinal> > > > createMulti
 /// \relates VectorField
 template<class Scalar, class Ordinal>
 Teuchos::RCP< MultiField<ModeField<VectorField<Scalar,Ordinal> > > > createInitMVF(
-		EFlowType flowType,
-		const Teuchos::RCP<const FieldSpace<Ordinal> >& fS,
-		const Teuchos::ArrayRCP< Teuchos::RCP< const IndexSpace<Ordinal> > >& iIS,
-		const Teuchos::ArrayRCP< Teuchos::RCP< const IndexSpace<Ordinal> > >& fIS,
-		Scalar re=1., Scalar omega=1., Scalar px=1.) {
+    EFlowType flowType,
+    const Teuchos::RCP<const FieldSpace<Ordinal> >& fS,
+    const Teuchos::ArrayRCP< Teuchos::RCP< const IndexSpace<Ordinal> > >& iIS,
+    const Teuchos::ArrayRCP< Teuchos::RCP< const IndexSpace<Ordinal> > >& fIS,
+    Scalar re=1., Scalar omega=1., Scalar px=1.) {
 
-	auto velc = createVectorField<double,int>(fS,iIS,fIS);
-	auto vels = createVectorField<double,int>(fS,iIS,fIS);
+  auto velc = createVectorField<double,int>(fS,iIS,fIS);
+  auto vels = createVectorField<double,int>(fS,iIS,fIS);
 
-	auto vel  = createModeField( velc, vels );
+  auto vel  = createModeField( velc, vels );
 
-	auto u   = Pimpact::createMultiField< ModeField<VectorField<Scalar,Ordinal> > >(*vel,1);
+  auto u   = Pimpact::createMultiField< ModeField<VectorField<Scalar,Ordinal> > >(*vel,1);
 
-	switch( EFlowType( flowType ) ) {
-	case Pimpact::Zero2DFlow :
-		u->getField(0).getCFieldPtr()->initField( ZeroProf );
-		u->getField(0).getSFieldPtr()->initField( ZeroProf );
-		break;
-	case Pimpact::Poiseuille_inX :
-		u->getField(0).getCFieldPtr()->initField( Poiseuille2D_inX );
-		u->getField(0).getSFieldPtr()->initField( ZeroProf );
-		break;
-	case Poiseuille_inY :
-		u->getField(0).getCFieldPtr()->initField( Poiseuille2D_inY );
-		u->getField(0).getSFieldPtr()->initField( ZeroProf );
-		break;
-	case Pulsatile_inX :
-		u->getField(0).getCFieldPtr()->initField( Pulsatile2D_inXC, re, omega, px );
-		u->getField(0).getSFieldPtr()->initField( Pulsatile2D_inXS, re, omega, px );
-		break;
-	case Pulsatile_inY :
-		u->getField(0).getCFieldPtr()->initField( Pulsatile2D_inYC, re, omega, px );
-		u->getField(0).getSFieldPtr()->initField( Pulsatile2D_inYS, re, omega, px );
-		break;
-	case Streaming2DFlow :
-		u->getField(0).getCFieldPtr()->initField( Streaming2D, re, omega, px );
-		u->getField(0).getSFieldPtr()->initField( ZeroProf, re, omega, px );
-		break;
-	case Streaming2DFlow2 :
-		u->getField(0).getCFieldPtr()->initField( Streaming2DC, re, omega, px );
-		u->getField(0).getSFieldPtr()->initField( Streaming2DS, re, omega, px );
-		break;
-	case Streaming2DFlow3 :
-		u->getField(0).getCFieldPtr()->initField( Streaming2DC, re, omega, px );
-		u->getField(0).getSFieldPtr()->initField( Streaming2DS, re, omega, px );
-		break;
-	}
-	return( u );
+  switch( EFlowType( flowType ) ) {
+  case Pimpact::Zero2DFlow :
+    u->getField(0).getCFieldPtr()->initField( ZeroProf );
+    u->getField(0).getSFieldPtr()->initField( ZeroProf );
+    break;
+  case Pimpact::Poiseuille_inX :
+    u->getField(0).getCFieldPtr()->initField( Poiseuille2D_inX );
+    u->getField(0).getSFieldPtr()->initField( ZeroProf );
+    break;
+  case Poiseuille_inY :
+    u->getField(0).getCFieldPtr()->initField( Poiseuille2D_inY );
+    u->getField(0).getSFieldPtr()->initField( ZeroProf );
+    break;
+  case Pulsatile_inX :
+    u->getField(0).getCFieldPtr()->initField( Pulsatile2D_inXC, re, omega, px );
+    u->getField(0).getSFieldPtr()->initField( Pulsatile2D_inXS, re, omega, px );
+    break;
+  case Pulsatile_inY :
+    u->getField(0).getCFieldPtr()->initField( Pulsatile2D_inYC, re, omega, px );
+    u->getField(0).getSFieldPtr()->initField( Pulsatile2D_inYS, re, omega, px );
+    break;
+  case Streaming2DFlow :
+    u->getField(0).getCFieldPtr()->initField( Streaming2D, re, omega, px );
+    u->getField(0).getSFieldPtr()->initField( ZeroProf, re, omega, px );
+    break;
+  case Streaming2DFlow2 :
+    u->getField(0).getCFieldPtr()->initField( Streaming2DC, re, omega, px );
+    u->getField(0).getSFieldPtr()->initField( Streaming2DS, re, omega, px );
+    break;
+  case Streaming2DFlow3 :
+    u->getField(0).getCFieldPtr()->initField( Streaming2DC, re, omega, px );
+    u->getField(0).getSFieldPtr()->initField( Streaming2DS, re, omega, px );
+    break;
+  }
+  return( u );
 }
 
 
@@ -122,13 +122,13 @@ Teuchos::RCP< MultiField<ModeField<VectorField<Scalar,Ordinal> > > > createInitM
 /// \relates ScalarField
 template<class Scalar, class Ordinal>
 Teuchos::RCP< MultiField<ModeField<ScalarField<Scalar,Ordinal> > > > createInitMSF(
-		const Teuchos::RCP< const FieldSpace<Ordinal> >& fS ) {
-	auto scac = Pimpact::createScalarField<Scalar,Ordinal>(fS);
-	auto scas = Pimpact::createScalarField<Scalar,Ordinal>(fS);
+    const Teuchos::RCP< const FieldSpace<Ordinal> >& fS ) {
+  auto scac = Pimpact::createScalarField<Scalar,Ordinal>(fS);
+  auto scas = Pimpact::createScalarField<Scalar,Ordinal>(fS);
 
-	auto sca = Pimpact::createModeField( scac, scas );
+  auto sca = Pimpact::createModeField( scac, scas );
 
-	return( Pimpact::createMultiField<ModeField<ScalarField<Scalar,Ordinal> > >(*sca,1) );
+  return( Pimpact::createMultiField<ModeField<ScalarField<Scalar,Ordinal> > >(*sca,1) );
 }
 
 
@@ -143,12 +143,12 @@ Teuchos::RCP< MultiField<ModeField<ScalarField<Scalar,Ordinal> > > > createInitM
 template<class S, class O>
 Teuchos::RCP< MultiHarmonicField< ScalarField<S,O> > > createMultiHarmonicScalarField(
     const Teuchos::RCP<const FieldSpace<O> >& fS, int nf
-    ) {
+) {
   auto field0 = createScalarField<S,O>( fS );
   auto mfield = createModeField< ScalarField<S,O> >( field0, field0 );
   auto fields = createMultiField< ModeField< ScalarField<S,O> > >( *mfield, nf );
   return Teuchos::rcp(
-        new MultiHarmonicField< ScalarField<S,O> >( field0, fields ) );
+      new MultiHarmonicField< ScalarField<S,O> >( field0, fields ) );
 }
 
 
@@ -172,7 +172,7 @@ Teuchos::RCP< MultiHarmonicField< VectorField<S,O> > > createMultiHarmonicVector
   auto mfield = createModeField< VectorField<S,O> >( field0, field0 );
   auto fields = createMultiField< ModeField< VectorField<S,O> > >( *mfield, nf );
   return Teuchos::rcp(
-        new MultiHarmonicField< VectorField<S,O> >( field0, fields ) );
+      new MultiHarmonicField< VectorField<S,O> >( field0, fields ) );
 }
 
 

@@ -44,16 +44,16 @@ public:
   typedef double S;
   typedef int O;
   typedef ::Pimpact::VectorField<S,O> VF;
-//  typedef ::Pimpact::MultiField<VF> BVF;
+  //  typedef ::Pimpact::MultiField<VF> BVF;
   typedef ::Pimpact::MultiField<VF> Field;
 
-//  typedef ::Pimpact::OperatorMV< ::Pimpact::Nonlinear<S,O> >  Op;
-//  typedef ::Pimpact::OperatorMV< ::Pimpact::Div_DtLinv_Grad<S,O> >  Schur;
+  //  typedef ::Pimpact::OperatorMV< ::Pimpact::Nonlinear<S,O> >  Op;
+  //  typedef ::Pimpact::OperatorMV< ::Pimpact::Div_DtLinv_Grad<S,O> >  Schur;
   typedef ::Pimpact::OperatorBase<Field> Op;
 
   typedef ::Pimpact::LinearProblem<Field> JOp;
 
-//  typedef BVF Field;
+  //  typedef BVF Field;
   typedef NOX::Pimpact::Vector<Field> Vector;
 
 protected:
@@ -83,12 +83,12 @@ public:
 
   /// Compute the function, F, given the specified input vector x. Returns true if computation was successful.
   NOX::Abstract::Group::ReturnType computeF(const Field& x, Field& f ) {
-//    Teuchos::rcp_dynamic_cast<
-//      ::Pimpact::OperatorPimpl<Field,
-//      ::Pimpact::Nonlinear<typename Field::Scalar,typename Field::Ordinal> > >(
-//          op_, true )->getOperatorPtr()->setU(Teuchos::null);
+    //    Teuchos::rcp_dynamic_cast<
+    //      ::Pimpact::OperatorPimpl<Field,
+    //      ::Pimpact::Nonlinear<typename Field::Scalar,typename Field::Ordinal> > >(
+    //          op_, true )->getOperatorPtr()->setU(Teuchos::null);
 
-//    Teuchos::rcp_dynamic_cast< ::Pimpact::Nonlinear<double,int> >( nonlinear_, true )->setU( x.GetConstVec(0).clone()) ;
+    //    Teuchos::rcp_dynamic_cast< ::Pimpact::Nonlinear<double,int> >( nonlinear_, true )->setU( x.GetConstVec(0).clone()) ;
     op_->apply( x, f );
     f.add( 1., f, 1., *fu_ );
     return( NOX::Abstract::Group::Ok );
@@ -97,28 +97,28 @@ public:
 
   /// Compute the Jacobian Operator, given the specified input vector x. Returns true if computation was successful.
   NOX::Abstract::Group::ReturnType computeJacobian( const Field& x ) {
-//    auto opJ = jop_->getProblem()->getOperator();
-//    auto opJ2 = Teuchos::rcp_const_cast<BOp>(opJ);
-//    auto opJ3 = Teuchos::rcp_dynamic_cast<
-//        ::Pimpact::OperatorPimpl<Field,::Pimpact::NonlinearJacobian<typename Field::Scalar,typename Field::Ordinal> > >( opJ2 );
-//    opJ3->getOperatorPtr()->setU( x.GetConstVec(0).clone() );
-//    Teuchos::rcp_dynamic_cast<
-//      ::Pimpact::OperatorPimpl<Field,
-//      ::Pimpact::NonlinearJacobian<typename Field::Scalar,typename Field::Ordinal> > >(
-//          Teuchos::rcp_const_cast< ::Pimpact::OperatorBase<Field> >
-//          lp_->getProblem()->getOperator()
-//          , true )->getOperatorPtr()->setU( x.GetConstVec(0).clone() );
-//    Teuchos::rcp_dynamic_cast< ::Pimpact::Nonlinear<double,int> >( nonlinear_, true )->setU( x.GetConstVec(0).clone()) ;
+    //    auto opJ = jop_->getProblem()->getOperator();
+    //    auto opJ2 = Teuchos::rcp_const_cast<BOp>(opJ);
+    //    auto opJ3 = Teuchos::rcp_dynamic_cast<
+    //        ::Pimpact::OperatorPimpl<Field,::Pimpact::NonlinearJacobian<typename Field::Scalar,typename Field::Ordinal> > >( opJ2 );
+    //    opJ3->getOperatorPtr()->setU( x.GetConstVec(0).clone() );
+    //    Teuchos::rcp_dynamic_cast<
+    //      ::Pimpact::OperatorPimpl<Field,
+    //      ::Pimpact::NonlinearJacobian<typename Field::Scalar,typename Field::Ordinal> > >(
+    //          Teuchos::rcp_const_cast< ::Pimpact::OperatorBase<Field> >
+    //          lp_->getProblem()->getOperator()
+    //          , true )->getOperatorPtr()->setU( x.GetConstVec(0).clone() );
+    //    Teuchos::rcp_dynamic_cast< ::Pimpact::Nonlinear<double,int> >( nonlinear_, true )->setU( x.GetConstVec(0).clone()) ;
     return( NOX::Abstract::Group::Ok );
   }
 
   NOX::Abstract::Group::ReturnType applyJacobian( const Field& x, Field& y, Belos::ETrans type=Belos::NOTRANS ) {
-//    return( NOX::Abstract::Group::NotDefined );
+    //    return( NOX::Abstract::Group::NotDefined );
     jop_->getProblem()->getOperator()->apply(x,y);
     y.scale(-1.);
 
     return( NOX::Abstract::Group::Ok );
-//    return( computeF( x, y ) );
+    //    return( computeF( x, y ) );
   }
 
 
@@ -146,7 +146,7 @@ Teuchos::RCP<SimpleLinear> createSimpleLinear(
     Teuchos::RCP<SimpleLinear::JOp> lp ) {
   return(
       Teuchos::rcp( new SimpleLinear(fu,op,lp) )
-      );
+  );
 }
 
 

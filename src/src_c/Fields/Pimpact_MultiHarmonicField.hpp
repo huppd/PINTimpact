@@ -194,34 +194,28 @@ public:
     Scalar normvec=0;
     switch(type) {
     case Belos::TwoNorm:
-         normvec =  std::sqrt( std::pow(field0_->norm(type,false),2) + std::pow(fields_->norm(type,false),2) ) ;
-         if( global ) {
-           Scalar normvec_global;
-           MPI_Allreduce( &normvec, &normvec_global, 1, MPI_REAL8, MPI_SUM, comm() );
-           normvec = normvec_global;
-         }
-         return( std::sqrt(normvec) );
-       case Belos::InfNorm:
-         normvec = std::max(field0_->norm(type,false), fields_->norm(type,false) );
-         if( global ) {
-           Scalar normvec_global;
-           MPI_Allreduce( &normvec, &normvec_global, 1, MPI_REAL8, MPI_MAX, comm() );
-           normvec = normvec_global;
-         }
-         return( normvec );
-       case Belos::OneNorm:
-         std::cout << "!!! Warning Belos::OneNorm not implemented \n"; return(0.);
-       default: std::cout << "!!! Warning unknown Belos::NormType:\t" << type << "\n"; return(0.);
-       }
-//    switch(type) {
-//    case Belos::TwoNorm:
-//      return( std::sqrt( std::pow(field0_->norm(type),2) + std::pow(fields_->norm(type),2) ) );
-//    case Belos::InfNorm:
-//      return( std::max(field0_->norm(type), fields_->norm(type) ) );
-//    case Belos::OneNorm:
-//      std::cout << "!!! Warning Belos::OneNorm not implemented \n"; return(0.);
-//    default: std::cout << "!!! Warning unknown Belos::NormType:\t" << type << "\n"; return(0.);
-//    }
+      normvec =  std::pow( field0_->norm(type,false), 2 ) + std::pow( fields_->norm(type,false), 2 );
+      if( global ) {
+        Scalar normvec_global;
+        MPI_Allreduce( &normvec, &normvec_global, 1, MPI_REAL8, MPI_SUM, comm() );
+        normvec = std::sqrt( normvec_global );
+      }
+      break;
+    case Belos::InfNorm:
+      normvec = std::max( field0_->norm(type,false), fields_->norm(type,false) );
+      if( global ) {
+        Scalar normvec_global;
+        MPI_Allreduce( &normvec, &normvec_global, 1, MPI_REAL8, MPI_MAX, comm() );
+        normvec = normvec_global;
+      }
+      break;
+    case Belos::OneNorm:
+      normvec = 0.;
+      std::cout << "!!! Warning Belos::OneNorm not implemented \n";
+      break;
+      //       default: std::cout << "!!! Warning unknown Belos::NormType:\t" << type << "\n"; return(0.);
+    }
+    return( normvec );
   }
 
 

@@ -84,7 +84,7 @@ MESSAGE("CXX flags: " ${CMAKE_CXX_FLAGS})
 
 
 set( Limpact_TPL_LIBRARIES hdf5hl_fortran hdf5_hl hdf5_fortran hdf5  z m lapack blas )
-set( Pimpact_TPL_LIBRARIES limpact ${Limpact_TPL_LIBRARIES} gfortran mpi_f77 mpi_f90   ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES}   )
+set( Pimpact_TPL_LIBRARIES limpact ${Limpact_TPL_LIBRARIES} gfortran mpi_f77 mpi_f90  ${Trilinos_TPL_LIBRARIES} ${Trilinos_LIBRARIES}    )
 
 MESSAGE("Fortran compiler: ${CMAKE_Fortran_COMPILER}")
 MESSAGE("CMAKE_Fortran_COMPILE_FLAGS:  ${CMAKE_Fortran_COMPILE_FLAGS}")

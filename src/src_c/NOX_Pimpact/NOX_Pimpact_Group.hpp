@@ -78,15 +78,15 @@ protected:
   /// condition number of Jacobian
   double conditionNumber;
 
-//  /// Pointer to the condition number object.
-//  Teuchos::RCP<AztecOOConditionNumber> azConditionNumberPtr;
+  //  /// Pointer to the condition number object.
+  //  Teuchos::RCP<AztecOOConditionNumber> azConditionNumberPtr;
 
   /// @name Shared Operators
   //@{
   /// Pointer to shared Interface
   Teuchos::RCP<
-    NOX::SharedObject< Interface, NOX::Pimpact::Group<Interface> >
-    > sharedInterfacePtr;
+  NOX::SharedObject< Interface, NOX::Pimpact::Group<Interface> >
+  > sharedInterfacePtr;
 
   /// Reference to shared Interface
   NOX::SharedObject< Interface, NOX::Pimpact::Group<Interface> >&
@@ -131,18 +131,18 @@ public:
   /// \brief Copy constructor. If type is DeepCopy, takes ownership of valid
   /// shared linear system.
   Group(const NOX::Pimpact::Group<Interface>& source, NOX::CopyType type = NOX::DeepCopy):
-      utils(source.utils),
-      xVectorPtr(Teuchos::rcp_dynamic_cast<Vector>(source.xVector.clone(type))),
-      xVector(*xVectorPtr),
-      RHSVectorPtr(Teuchos::rcp_dynamic_cast<Vector>(source.RHSVector.clone(type))),
-      RHSVector(*RHSVectorPtr),
-      gradVectorPtr(Teuchos::rcp_dynamic_cast<Vector>(source.gradVector.clone(type))),
-      gradVector(*gradVectorPtr),
-      NewtonVectorPtr(Teuchos::rcp_dynamic_cast<Vector>(source.NewtonVector.clone(type))),
-      NewtonVector(*NewtonVectorPtr),
-      sharedInterfacePtr( source.sharedInterfacePtr ),
-      sharedInterface(*sharedInterfacePtr),
-      linearResidCompDisabled(source.linearResidCompDisabled) {
+    utils(source.utils),
+    xVectorPtr(Teuchos::rcp_dynamic_cast<Vector>(source.xVector.clone(type))),
+    xVector(*xVectorPtr),
+    RHSVectorPtr(Teuchos::rcp_dynamic_cast<Vector>(source.RHSVector.clone(type))),
+    RHSVector(*RHSVectorPtr),
+    gradVectorPtr(Teuchos::rcp_dynamic_cast<Vector>(source.gradVector.clone(type))),
+    gradVector(*gradVectorPtr),
+    NewtonVectorPtr(Teuchos::rcp_dynamic_cast<Vector>(source.NewtonVector.clone(type))),
+    NewtonVector(*NewtonVectorPtr),
+    sharedInterfacePtr( source.sharedInterfacePtr ),
+    sharedInterface(*sharedInterfacePtr),
+    linearResidCompDisabled(source.linearResidCompDisabled) {
 
     switch (type) {
 
@@ -234,9 +234,9 @@ public:
   //@{
 
   virtual void setX(const Vector& y) {
-//    if (isPreconditioner()) {
-////      sharedLinearSystem.getObject(this)->destroyPreconditioner();
-//    }
+    //    if (isPreconditioner()) {
+    ////      sharedLinearSystem.getObject(this)->destroyPreconditioner();
+    //    }
     resetIsValid();
     xVector = y;
     return;
@@ -250,8 +250,8 @@ public:
   virtual void computeX( const Group& grp,
       const Vector& d,
       double step ) {
-//    if( isPreconditioner() )
-//      sharedLinearSystem.getObject(this)->destroyPreconditioner();
+    //    if( isPreconditioner() )
+    //      sharedLinearSystem.getObject(this)->destroyPreconditioner();
     resetIsValid();
     xVector.update(1.0, grp.xVector, step, d);
     return;
@@ -312,28 +312,28 @@ public:
   virtual NOX::Abstract::Group::ReturnType computeGradient() {
     return( Abstract::Group::NotDefined );
 
-//    if( isGradient() )
-//      return( Abstract::Group::Ok );
-//
-//    if (!isF()) {
-//      std::cerr << "ERROR: NOX::Pimpact::Group::computeGradient() - RHS is out of date wrt X!" << std::endl;
-//      throw "NOX Error";
-//    }
-//
-//    if (!isJacobian()) {
-//      std::cerr << "ERROR: NOX::Pimpact::Group::computeGradient() - Jacobian is out of date wrt X!" << std::endl;
-//      throw "NOX Error";
-//    }
-//
-//    // Compute grad = Jacobian^T * RHS.
-//    sharedInterface.getObject(this)->applyJacobian( RHSVector,
-//							       gradVector, Belos::TRANS );
-//
-//    // Update state
-//    isValidGrad = true;
-//
-//    // Return result
-//    return( Abstract::Group::Ok );
+    //    if( isGradient() )
+    //      return( Abstract::Group::Ok );
+    //
+    //    if (!isF()) {
+    //      std::cerr << "ERROR: NOX::Pimpact::Group::computeGradient() - RHS is out of date wrt X!" << std::endl;
+    //      throw "NOX Error";
+    //    }
+    //
+    //    if (!isJacobian()) {
+    //      std::cerr << "ERROR: NOX::Pimpact::Group::computeGradient() - Jacobian is out of date wrt X!" << std::endl;
+    //      throw "NOX Error";
+    //    }
+    //
+    //    // Compute grad = Jacobian^T * RHS.
+    //    sharedInterface.getObject(this)->applyJacobian( RHSVector,
+    //							       gradVector, Belos::TRANS );
+    //
+    //    // Update state
+    //    isValidGrad = true;
+    //
+    //    // Return result
+    //    return( Abstract::Group::Ok );
   }
 
 
@@ -362,7 +362,7 @@ public:
 
     // Scale soln by -1
     NewtonVector.scale(-1.0);
-//
+    //
     // Update state EVEN IF LINEAR SOLVE FAILED
     // We still may want to use the vector even it it just missed it's
     isValidNewton = true;
@@ -386,12 +386,12 @@ public:
 
   virtual NOX::Abstract::Group::ReturnType
   applyJacobian(const Vector& input, Vector& result) const {
-//    // Check validity of the Jacobian
+    //    // Check validity of the Jacobian
     if (!isJacobian())
       return( Abstract::Group::BadDependency );
 
     // Apply the Jacobian
-//    NOX::Abstract::Group::ReturnType status = sharedInterface.getObject()->applyJacobian( input.getConstField(), result.getField() );
+    //    NOX::Abstract::Group::ReturnType status = sharedInterface.getObject()->applyJacobian( input.getConstField(), result.getField() );
     NOX::Abstract::Group::ReturnType status = sharedInterface.getObject(this)->applyJacobian( input.getConstField(), result.getField() );
 
     return( status );
@@ -405,22 +405,22 @@ public:
   }
 
 
-//  virtual NOX::Abstract::Group::ReturnType
-//  applyJacobianTranspose(const Vector& input, Vector& result) const {
-//    // Check validity of the Jacobian
-//    if( !isJacobian() )
-//      return( Abstract::Group::BadDependency );
-//
-//    bool status = sharedInterface.getObject()->applyJacobian( input, result, Belos::Trans );
-//
-//    return( status == true ? Abstract::Group::Ok : Abstract::Group::Failed );
-//  }
+  //  virtual NOX::Abstract::Group::ReturnType
+  //  applyJacobianTranspose(const Vector& input, Vector& result) const {
+  //    // Check validity of the Jacobian
+  //    if( !isJacobian() )
+  //      return( Abstract::Group::BadDependency );
+  //
+  //    bool status = sharedInterface.getObject()->applyJacobian( input, result, Belos::Trans );
+  //
+  //    return( status == true ? Abstract::Group::Ok : Abstract::Group::Failed );
+  //  }
   virtual NOX::Abstract::Group::ReturnType
   applyJacobianTranspose( const NOX::Abstract::Vector& input, NOX::Abstract::Vector& result ) const {
     return( Abstract::Group::NotDefined );
-//    const Vector& pimpinput = dynamic_cast<const Vector&> (input);
-//    Vector& pimpresult = dynamic_cast<Vector&> (result);
-//    return( applyJacobianTranspose( pimpinput, pimpresult ) );
+    //    const Vector& pimpinput = dynamic_cast<const Vector&> (input);
+    //    Vector& pimpresult = dynamic_cast<Vector&> (result);
+    //    return( applyJacobianTranspose( pimpinput, pimpresult ) );
   }
 
 
@@ -454,29 +454,29 @@ public:
       return( Abstract::Group::BadDependency );
 
     if (!isValidSolverJacOp) {
-//      sharedLinearSystem.getObject(this)->setJacobianOperatorForSolve(sharedLinearSystem.getObject(this)->getJacobianOperator());
+      //      sharedLinearSystem.getObject(this)->setJacobianOperatorForSolve(sharedLinearSystem.getObject(this)->getJacobianOperator());
       isValidSolverJacOp = true;
     }
 
     // Compute the preconditioner
-//    NOX::Epetra::LinearSystem::PreconditionerReusePolicyType precPolicy =
-//        sharedLinearSystem.getObject(this)->getPreconditionerPolicy();
+    //    NOX::Epetra::LinearSystem::PreconditionerReusePolicyType precPolicy =
+    //        sharedLinearSystem.getObject(this)->getPreconditionerPolicy();
 
-//    if (!isPreconditioner()) {
-//      if (precPolicy == NOX::Epetra::LinearSystem::PRPT_REBUILD) {
-//        sharedLinearSystem.getObject(this)->destroyPreconditioner();
-//        sharedLinearSystem.getObject(this)->
-//            createPreconditioner(xVector, p, false);
-//        isValidPreconditioner = true;
-//      }
-//      else if (precPolicy == NOX::Epetra::LinearSystem::PRPT_RECOMPUTE) {
-//        sharedLinearSystem.getObject(this)->recomputePreconditioner(xVector, p);
-//        isValidPreconditioner = true;
-//      }
-//      else if (precPolicy == NOX::Epetra::LinearSystem::PRPT_REUSE) {
-//        // Do Nothing!!!
-//      }
-//    }
+    //    if (!isPreconditioner()) {
+    //      if (precPolicy == NOX::Epetra::LinearSystem::PRPT_REBUILD) {
+    //        sharedLinearSystem.getObject(this)->destroyPreconditioner();
+    //        sharedLinearSystem.getObject(this)->
+    //            createPreconditioner(xVector, p, false);
+    //        isValidPreconditioner = true;
+    //      }
+    //      else if (precPolicy == NOX::Epetra::LinearSystem::PRPT_RECOMPUTE) {
+    //        sharedLinearSystem.getObject(this)->recomputePreconditioner(xVector, p);
+    //        isValidPreconditioner = true;
+    //      }
+    //      else if (precPolicy == NOX::Epetra::LinearSystem::PRPT_REUSE) {
+    //        // Do Nothing!!!
+    //      }
+    //    }
 
     NOX::Abstract::Group::ReturnType status = sharedInterface.getObject(this)->applyJacobianInverse(params, input.getConstField(), result.getField() );
 
@@ -492,22 +492,22 @@ public:
 
   virtual NOX::Abstract::Group::ReturnType
   applyRightPreconditioning(bool useTranspose,
-          Teuchos::ParameterList& params,
-          const Vector& input,
-          Vector& result) const {
+      Teuchos::ParameterList& params,
+      const Vector& input,
+      Vector& result) const {
 
-//    params.print();
-//    std::cout << "Call applyRightPrecon.... !!!!!!\n";
+    //    params.print();
+    //    std::cout << "Call applyRightPrecon.... !!!!!!\n";
 
     return( sharedInterfacePtr->getObject(this)->applyPreconditioner( xVector.getField(), RHSVector.getField() ) );
 
   }
   virtual NOX::Abstract::Group::ReturnType
   applyRightPreconditioning(bool useTranspose,
-          Teuchos::ParameterList& params,
-          const NOX::Abstract::Vector& input,
-          NOX::Abstract::Vector& result) const {
-//    return( Abstract::Group::NotDefined );
+      Teuchos::ParameterList& params,
+      const NOX::Abstract::Vector& input,
+      NOX::Abstract::Vector& result) const {
+    //    return( Abstract::Group::NotDefined );
     const Vector& pimpInput = dynamic_cast<const Vector&>(input);
     Vector& pimpResult = dynamic_cast<Vector&>(result);
 
@@ -543,8 +543,8 @@ public:
   /// multiple calls to applyRightPreconditioner).
   virtual bool isPreconditioner() const {
     return( false );
-//    return ((sharedInterface.isOwner(this)) && (isValidPreconditioner) &&
-//        (sharedInterface.getObject(this)->isPreconditionerConstructed()));
+    //    return ((sharedInterface.isOwner(this)) && (isValidPreconditioner) &&
+    //        (sharedInterface.getObject(this)->isPreconditionerConstructed()));
   }
 
 
@@ -643,11 +643,11 @@ public:
     return( newgrp );
   }
 
-//  /// Return the userInterface.
-//  virtual Teuchos::RCP<Interface>
-//  getRequiredInterface(); {
-//    return userInterfacePtr;
-//  }
+  //  /// Return the userInterface.
+  //  virtual Teuchos::RCP<Interface>
+  //  getRequiredInterface(); {
+  //    return userInterfacePtr;
+  //  }
 
   /// Return the Linear System.
   virtual Teuchos::RCP<Interface> getInterface() const {
@@ -666,44 +666,44 @@ public:
   /// Uses GMRES to estimate the condtion number.  The tolerance and
   /// maxIters are used to control the GMRES iterations.  Typically the
   /// solves do not have to be tight to get the estimate.
-//  virtual NOX::Abstract::Group::ReturnType
-//  computeJacobianConditionNumber(int maxIters, double tolerance,
-//         int krylovSubspaceSize=100,
-//         bool printOutput=false) {
-//    if (!isConditionNumber()) {
-//      if (!isJacobian()) {
-//        std::cerr << "ERROR: NOX::Epetra::Group::computeJacobianConditionNumber()"
-//            << " - Jacobian is invalid wrt the solution." << std::endl;
-//        throw "NOX Error";
-//      }
-//
-//      if (Teuchos::is_null(azConditionNumberPtr))
-//        azConditionNumberPtr = Teuchos::rcp(new AztecOOConditionNumber);
-//
-//        azConditionNumberPtr->
-//        initialize(*(sharedLinearSystem.getObject()->getJacobianOperator()),
-//            AztecOOConditionNumber::GMRES_, krylovSubspaceSize,
-//            printOutput);
-//
-//        azConditionNumberPtr->computeConditionNumber(maxIters, tolerance);
-//
-//        conditionNumber = azConditionNumberPtr->getConditionNumber();
-//
-//        isValidConditionNumber = true;
-//    }
-//    return( NOX::Abstract::Group::Ok );
-//  }
+  //  virtual NOX::Abstract::Group::ReturnType
+  //  computeJacobianConditionNumber(int maxIters, double tolerance,
+  //         int krylovSubspaceSize=100,
+  //         bool printOutput=false) {
+  //    if (!isConditionNumber()) {
+  //      if (!isJacobian()) {
+  //        std::cerr << "ERROR: NOX::Epetra::Group::computeJacobianConditionNumber()"
+  //            << " - Jacobian is invalid wrt the solution." << std::endl;
+  //        throw "NOX Error";
+  //      }
+  //
+  //      if (Teuchos::is_null(azConditionNumberPtr))
+  //        azConditionNumberPtr = Teuchos::rcp(new AztecOOConditionNumber);
+  //
+  //        azConditionNumberPtr->
+  //        initialize(*(sharedLinearSystem.getObject()->getJacobianOperator()),
+  //            AztecOOConditionNumber::GMRES_, krylovSubspaceSize,
+  //            printOutput);
+  //
+  //        azConditionNumberPtr->computeConditionNumber(maxIters, tolerance);
+  //
+  //        conditionNumber = azConditionNumberPtr->getConditionNumber();
+  //
+  //        isValidConditionNumber = true;
+  //    }
+  //    return( NOX::Abstract::Group::Ok );
+  //  }
 
 
-//  /// Returns the condition number of the Jacobian matrix.
-//  virtual double getJacobianConditionNumber() const {
-//    if( !isConditionNumber() ) {
-//      std::cerr << "ERROR: NOX::Epetra::Group::getJacobianConditionNumber()"
-//          << " - condition number has not yet been computed!" << std::endl;
-//      throw "NOX Error";
-//    }
-//    return( conditionNumber );
-//  }
+  //  /// Returns the condition number of the Jacobian matrix.
+  //  virtual double getJacobianConditionNumber() const {
+  //    if( !isConditionNumber() ) {
+  //      std::cerr << "ERROR: NOX::Epetra::Group::getJacobianConditionNumber()"
+  //          << " - condition number has not yet been computed!" << std::endl;
+  //      throw "NOX Error";
+  //    }
+  //    return( conditionNumber );
+  //  }
 
 
   /// \brief Sets option to disable linear resid computation.
@@ -729,38 +729,38 @@ protected:
   }
 
 
-   /// \brief Computes the 2-norm of the residual of the linear model used in
-   /// the Newton solve computation, ||Js+f||.
+  /// \brief Computes the 2-norm of the residual of the linear model used in
+  /// the Newton solve computation, ||Js+f||.
   virtual bool computeNormNewtonSolveResidual() {
-//    // Make sure value is not already calculated
-//    if (isValidNormNewtonSolveResidual)
-//      return( true );
-//
-//    // Make sure NewtonVector and RHSVector are valid
-//    // We could return false, but for now we will throw errors
-//    if (!isValidRHS) {
-//      std::cerr << "ERROR: NOX::Pimpact::Group::computeNormNewtonSolveResidual() - invalid RHS"
-//          << std::endl;
-//      throw "NOX Error";
-//    }
-//    if (!isValidNewton) {
-//      std::cerr << "ERROR: NOX::Pimpact::Group::computeNormNewtonSolveResidual() - invalid "
-//          << "Newton direction" << std::endl;
-//      throw "NOX Error";
-//    }
-//
-//    // Allocate the tmpVectorPtr if not already done (deleted in ~Group)
-//    if (Teuchos::is_null(tmpVectorPtr)) {
-//      tmpVectorPtr = RHSVector.clone();
-////          Teuchos::rcp(new Epetra_Vector(RHSVector.getEpetraVector()));
-//    }
-//    Vector tmpNoxVector(*tmpVectorPtr, ShapeCopy);
-//
-//    sharedInterface.getObject()->applyJacobian(NewtonVector, tmpNoxVector);
-//    tmpNoxVector.update(1.0, RHSVector, 1.0);
-//    normNewtonSolveResidual = tmpNoxVector.norm();
-//
-//    isValidNormNewtonSolveResidual = true;
+    //    // Make sure value is not already calculated
+    //    if (isValidNormNewtonSolveResidual)
+    //      return( true );
+    //
+    //    // Make sure NewtonVector and RHSVector are valid
+    //    // We could return false, but for now we will throw errors
+    //    if (!isValidRHS) {
+    //      std::cerr << "ERROR: NOX::Pimpact::Group::computeNormNewtonSolveResidual() - invalid RHS"
+    //          << std::endl;
+    //      throw "NOX Error";
+    //    }
+    //    if (!isValidNewton) {
+    //      std::cerr << "ERROR: NOX::Pimpact::Group::computeNormNewtonSolveResidual() - invalid "
+    //          << "Newton direction" << std::endl;
+    //      throw "NOX Error";
+    //    }
+    //
+    //    // Allocate the tmpVectorPtr if not already done (deleted in ~Group)
+    //    if (Teuchos::is_null(tmpVectorPtr)) {
+    //      tmpVectorPtr = RHSVector.clone();
+    ////          Teuchos::rcp(new Epetra_Vector(RHSVector.getEpetraVector()));
+    //    }
+    //    Vector tmpNoxVector(*tmpVectorPtr, ShapeCopy);
+    //
+    //    sharedInterface.getObject()->applyJacobian(NewtonVector, tmpNoxVector);
+    //    tmpNoxVector.update(1.0, RHSVector, 1.0);
+    //    normNewtonSolveResidual = tmpNoxVector.norm();
+    //
+    //    isValidNormNewtonSolveResidual = true;
 
     return( true );
   }
