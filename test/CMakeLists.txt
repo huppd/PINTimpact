@@ -9,9 +9,9 @@ include_directories("../src/src_c/NOX_Pimpact")
 
 enable_testing()
 
-ADD_EXECUTABLE( SpaceTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_Space_test.cpp )
-TARGET_LINK_LIBRARIES( SpaceTest  ${Pimpact_TPL_LIBRARIES} )
-add_test(NAME SpaceTest COMMAND mpirun -np 4 SpaceTest)
+ADD_EXECUTABLE( SpaceGridTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_SpaceGrid_test.cpp )
+TARGET_LINK_LIBRARIES( SpaceGridTest  ${Pimpact_TPL_LIBRARIES} )
+add_test(NAME SpaceGridTest COMMAND mpirun -np 4 SpaceGridTest)
 
 ADD_EXECUTABLE(ScalarFieldTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_ScalarField_test.cpp )
 TARGET_LINK_LIBRARIES(ScalarFieldTest ${Pimpact_TPL_LIBRARIES} ) 

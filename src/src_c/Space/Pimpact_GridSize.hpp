@@ -31,7 +31,9 @@ protected:
 public:
 
   GridSize( Ordinal n1, Ordinal n2, Ordinal n3 ):
-    gridSize_( Teuchos::tuple( n1, n2, n3) ) {};
+    gridSize_( Teuchos::tuple( n1, n2, n3) ) {
+    set_Impact();
+  };
 
   GridSize( TO3 domainSize ):
     gridSize_( domainSize ) {};
@@ -42,8 +44,8 @@ public:
 
   void print( std::ostream& out ) {
     out  << " \tnx=" << gridSize_[0]
-                                  << " \tny=" << gridSize_[1]
-                                                           << " \tnz=" << gridSize_[2] << "\n";
+         << " \tny=" << gridSize_[1]
+         << " \tnz=" << gridSize_[2] << "\n";
   };
 
 }; // end of class GridSize

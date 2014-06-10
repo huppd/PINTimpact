@@ -165,12 +165,13 @@ int main(int argi, char** argv ) {
   // init Spaces
   auto fS = Pimpact::createFieldSpace<int>();
 
+  auto iS  = Pimpact::createScalarIndexSpace<int>();
   auto iIS = Pimpact::createInnerFieldIndexSpaces<int>();
   auto fIS = Pimpact::createFullFieldIndexSpaces<int>();
 
   // init vectors
-  auto scac = Pimpact::createScalarField<double,int>(fS);
-  auto scas = Pimpact::createScalarField<double,int>(fS);
+  auto scac = Pimpact::createScalarField<double,int>( fS, iS );
+  auto scas = Pimpact::createScalarField<double,int>( fS, iS );
 
   auto velc = Pimpact::createVectorField<double,int>(fS,iIS,fIS);
   auto vels = Pimpact::createVectorField<double,int>(fS,iIS,fIS);

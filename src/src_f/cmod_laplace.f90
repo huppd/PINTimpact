@@ -23,7 +23,6 @@ module cmod_laplace
     public product_div_grad_relax, relaxation_div_grad, relaxation_div_grad_inv
     public handle_corner_Lap
   
-  
 contains
   
     !pgi$g unroll = n:8

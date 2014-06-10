@@ -13,6 +13,8 @@ namespace Pimpact{
 
 extern "C" {
   void OP_div_grad( const bool& corner_yes, double* phi, double* lap );
+  void SF_level( double* const phi );
+
 }
 
 /// \brief "laplace" for pressure.
@@ -40,22 +42,28 @@ public:
     grad_(Teuchos::rcp(new Grad<Scalar,Ordinal>() )) {};
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
-    grad_->apply( x, *temp_ );
-    div_->apply( *temp_, y );
+//    grad_->apply( x, *temp_ );
+//    div_->apply( *temp_, y );
 
-//    OP_div_grad( true, x.s_, y.s_ );
+    x.exchange();
+    OP_div_grad( true, x.s_, y.s_ );
+    y.changed();
+
+//    SF_level( y.s_ );
+
   }
 
   void assignField( const DomainFieldT& mv ) {};
 
   bool hasApplyTranspose() const { return( false ); }
+
 }; // end of DivGradOp
 
 
 
 /// \relates DivGradOp
 template<class S, class O>
-Teuchos::RCP<DivGradOp<S,O> > createDivGradOp( const Teuchos::RCP<VectorField<S,O> >& temp ) {
+Teuchos::RCP<DivGradOp<S,O> > createDivGradOp( const Teuchos::RCP<VectorField<S,O> >& temp=Teuchos::null ) {
   return(
       Teuchos::rcp( new DivGradOp<S,O>( temp ) )
   );

@@ -52,6 +52,6 @@ f.close()
 
 os.chdir( prof_path )
 os.system( 'make '+exe+' -j4' )
-print exe_pre+prof_pre+exe
+print exe_pre()+prof_pre+exe
 os.system(exe_pre()+prof_pre+'./'+exe+case_consts )
 

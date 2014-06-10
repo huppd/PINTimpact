@@ -67,7 +67,8 @@ public:
   const Ordinal* eIndB( int fieldType ) const { return( fullIS_[fieldType]->eInd_.getRawPtr()  ); }
 
   void print() const {
-    fieldSpace_->print();
+    std::cout << "\t---Space: ---\n";
+        fieldSpace_->print();
     for( int i=0; i<dim(); ++i ) {
       innerIS_[i]->print();
       fullIS_[i]->print();

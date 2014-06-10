@@ -31,7 +31,7 @@ void ftest_coeffs_compact();
 void fget_weights();
 void fget_beta();
 int fget_task();
-void fset_rank(int&);
+void SG_setRank(const int&);
 void ftimeintegration();
 void postprocess_();
 void fanalyze_matrix(int&);
@@ -53,7 +53,7 @@ int init_impact( int argi=0, char** argv=0, Teuchos::RCP<Pimpact::BoundaryCondit
   if( ierr!=0 )
     std::cout << "ierr:\t" << ierr << "rank:\t" << rank << "\n";
 
-  fset_rank(rank);
+  SG_setRank(rank);
 
   //  --- Set alarm if queue is being used ----------------------------------------------------------------------
   //		if(0==rank) std::cout << "finit_alarm?\n";
@@ -97,7 +97,7 @@ int init_impact( int argi=0, char** argv=0, Teuchos::RCP<Pimpact::BoundaryCondit
   frestr_coeffs();
   frestr_coeffs_Helm();
 
-  return rank;
+  return( rank );
 }
 
 
@@ -108,14 +108,13 @@ namespace Pimpact{
 /// \return rank
 int init_impact_pre(){
   //  --- Initialize MPI ----------------------------------------------------------------------------------------
-  //		MPI_Init(&argi,&argv);
   int rank;
   int ierr =  MPI_Comm_rank( MPI_COMM_WORLD, &rank );
 
   if( ierr!=0 )
     std::cout << "ierr:\t" << ierr << "rank:\t" << rank << "\n";
 
-  fset_rank(rank);
+  SG_setRank(rank);
 
   //  --- Set alarm if queue is being used ----------------------------------------------------------------------
   //		if(0==rank) std::cout << "finit_alarm?\n";
@@ -161,6 +160,46 @@ void init_impact_post(){
   frestr_coeffs_Helm();
 
 }
+
+
+void init_impact_mid(){
+  //  --- Test of input parameters ------------------------------------------------------------------------------
+  ftest_parameter();
+
+  //   --- General -------------------------------------------------------------------------------------------
+  finit_general();
+}
+
+void init_impact_postpost(){
+//  //   --- MPI -----------------------------------------------------------------------------------------------
+//  finit_parallel();
+
+  //   --- Type of boundary conditions -----------------------------------------------------------------------
+  finit_boundaries();
+
+  //   --- Limits of indices ---------------------------------------------------------------------------------
+  finit_limits();
+
+  //  --- Physical coordinates ----------------------------------------------------------------------------------
+  fcoordinates();
+
+  //  --- Determine differential coefficients -------------------------------------------------------------------
+  ffd_coeffs();
+  ffd_coeffs_compat();
+
+  //    --- Get stencil of operator div(grad( )), order of convergence is 2 ---------------------------------------
+  fget_stencil();
+  fget_stencil_Helm();
+
+  //  --- Get interpolation coefficients (multigrid, order of convergence is 2) ---------------------------------
+  finterp_coeffs();
+  finterp_coeffs_Helm();
+  frestr_coeffs();
+  frestr_coeffs_Helm();
+
+}
+
+
 
 } // end of namespace pimpact
 

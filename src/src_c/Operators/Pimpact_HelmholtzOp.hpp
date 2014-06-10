@@ -39,7 +39,7 @@ public:
   typedef VectorField<Scalar,Ordinal>  DomainFieldT;
   typedef VectorField<Scalar,Ordinal>  RangeFieldT;
 
-  Helmholtz( Scalar mulI=0., Scalar mulL=1. ):
+  Helmholtz( Scalar mulI=1., Scalar mulL=1. ):
     mulI_(mulI),mulL_(mulL) {};
 
   void setMulI(Scalar mulI){ mulI_ = mulI;};

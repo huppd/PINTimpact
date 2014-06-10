@@ -23,9 +23,11 @@ res       = [ 10, 100, 200 ]
 alpha2s   = [ 10, 100, 200 ]
 fixTypes  = [ 1, 2, 4, 6, 9, 10]
 
-ns  = [ 7,8 ]
+data_path = '/cluster/scratch_xl/public/huppd/'
+
+ns  = [ 7 ]
 precTypes = [ 0 ]
-res = [ 401 ]
+res = [ 399  ]
 #res = [ 200 ]
 alpha2s = [ 25**2 ] 
 #alpha2s = [ 15**2 ] 
@@ -55,4 +57,4 @@ for precType in precTypes:
 					os.system(' rm ./* -r -v  ')
 					case_para = ' --precType='+str(precType)+' --nx='+str(3*2**n+1)+' --ny='+str(2**n+1)+' --re='+str(re)+' --alpha2='+str(alpha2)+' --fixType='+str(fixType)+' '
 					print case_consts + case_para
-					os.system( exe_pre(npx*npy)+exe_path+exe+case_para+case_consts )
+					os.system( exe_pre(npx*npy,' -R lustre ')+exe_path+exe+case_para+case_consts )

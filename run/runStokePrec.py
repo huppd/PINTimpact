@@ -29,7 +29,7 @@ for i in range(5,7):
   if not os.path.exists( data_path+case_path[0] ):
 	  os.mkdir( data_path+case_path[0] )
   print data_path + case_path[0]
-  for prec in [0,2,3,4]:
+  for prec in [0,2,3,4,5,6]:
   #for prec in [0]:
 	  case_path[1] = '/prec'+str(prec)
 	  if not os.path.exists( data_path+case_path[0]+case_path[1] ):
@@ -46,5 +46,5 @@ for i in range(5,7):
 		  #px = 1./max(max( pulseC(linspace(0,1.,10000),1.,om,1.) ),max( pulseS(linspace(0,1.,10000),1.,om,1.) ) )
 		  case_para = ' --px='+str(1)+' --omega='+str(om)+ ' --solver1='+sol+' --prec='+str(prec)+' '
 		  print case_consts + case_para
-		  os.system(exe_pre+exe_path+exe+case_para+case_consts )
+		  os.system(exe_pre()+exe_path+exe+case_para+case_consts )
 		  j += 1

@@ -164,6 +164,147 @@ TEUCHOS_UNIT_TEST( BelosSolver, PrecHelmholtzMV ) {
 
 }
 
+TEUCHOS_UNIT_TEST( BelosSolver, PrecMGVHelmholtz ) {
+
+  if( !isImpactInit ) {
+    init_impact(0,0);
+    isImpactInit=true;
+  }
+
+  typedef Pimpact::VectorField<S,O> VF;
+  typedef Pimpact::MultiField<VF> MVF;
+
+  typedef Pimpact::Helmholtz<S,O> Op;
+  typedef Pimpact::MLHelmholtzOp<S,O> Prec;
+  typedef Pimpact::MultiOpWrap<Op> MOp;
+  typedef Pimpact::OperatorBase<MVF> BOp;
+
+
+  auto fS = Pimpact::createFieldSpace<O>();
+
+  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+
+  auto space = Pimpact::createSpace( fS, iIS, fIS );
+
+  auto x = Pimpact::createMultiField( Pimpact::createVectorField<S,O>(fS, iIS, fIS) );
+  auto b = Pimpact::createMultiField( Pimpact::createVectorField<S,O>(fS, iIS, fIS) );
+
+  b->init( 1. );
+
+  auto op = Pimpact::createOperatorBase<MVF,MOp>();
+  auto prec = Pimpact::createMultiOperatorBase<MVF>(
+      Pimpact::createMGVHelmholtzOp<S,O>(1.,1.,true) );
+
+  auto para = Pimpact::createLinSolverParameter("GMRES",1.e-3,10);
+
+  Belos::SolverFactory<S, MVF, BOp> factory;
+
+  // Create the GMRES solver.
+  Teuchos::RCP<Belos::SolverManager<S, MVF, BOp > > solver =
+      factory.create( "CG", para );
+
+  // Create a LinearProblem struct with the problem to solve.
+  // A, X, B, and M are passed by (smart) pointer, not copied.
+  Teuchos::RCP<Belos::LinearProblem<S, MVF, BOp > > problem =
+      Teuchos::rcp( new Belos::LinearProblem<S, MVF, BOp >( op, x, b) );
+
+  problem->setProblem(x,b);
+  problem->setLeftPrec( prec );
+
+  // Tell the solver what problem you want to solve.
+  solver->setProblem( problem );
+
+  Belos::ReturnType ret =  solver->solve();
+  x->write(222);
+
+  TEST_EQUALITY( ret, Belos::Converged );
+
+}
+
+
+
+TEUCHOS_UNIT_TEST( BelosSolver, PrecDivGrad ) {
+
+  if( !isImpactInit ) {
+    init_impact(0,0);
+    isImpactInit=true;
+  }
+
+  typedef Pimpact::VectorField<S,O> VF;
+  typedef Pimpact::MultiField<VF> MVF;
+
+  typedef Pimpact::ScalarField<S,O> SF;
+  typedef Pimpact::MultiField<SF> MSF;
+
+  typedef Pimpact::Helmholtz<S,O> Op;
+  typedef Pimpact::MLHelmholtzOp<S,O> Prec;
+  typedef Pimpact::MultiOpWrap<Op> MOp;
+  typedef Pimpact::OperatorBase<MSF> BOp;
+
+
+  auto fS = Pimpact::createFieldSpace<O>();
+
+	auto sIS = Pimpact::createScalarIndexSpace<int>();
+  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+
+  auto u = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
+  auto temp = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
+
+  auto rhs = Pimpact::createScalarField<S,O>(fS,sIS);
+  auto sol = Pimpact::createScalarField<S,O>(fS,sIS);
+
+//  auto op = Pimpact::createMGVDivGradOp<S,O>(1.,1.,false);
+
+  auto lap = Pimpact::createHelmholtz<S,O>( 0., 1. );
+
+  auto div = Pimpact::createDivOp<S,O>();
+
+  u->initField( Pimpact::Poiseuille2D_inX );
+  u->write();
+
+
+  lap->apply( *u, *temp );
+  div->apply( *temp, *rhs );
+
+  auto b = Pimpact::createMultiField( rhs );
+  auto x = Pimpact::createMultiField( sol );
+
+  auto op = Pimpact::createMultiOperatorBase<MSF>(
+      Pimpact::createDivGradOp<S,O>( temp ) );
+
+  auto prec = Pimpact::createMultiOperatorBase<MSF>(
+      Pimpact::createMGVDivGradOp<S,O>(1.,1.,true) );
+
+  auto para = Pimpact::createLinSolverParameter("GMRES",1.e-1,10);
+  para->set( "Maximum Iterations", 100 );
+
+
+  Belos::SolverFactory<S, MSF, BOp> factory;
+
+  // Create the GMRES solver.
+  Teuchos::RCP<Belos::SolverManager<S, MSF, BOp > > solver =
+      factory.create( "GMRES", para );
+
+  // Create a LinearProblem struct with the problem to solve.
+  // A, X, B, and M are passed by (smart) pointer, not copied.
+  auto problem = Teuchos::rcp( new Belos::LinearProblem<S, MSF, BOp >( op, x, b) );
+
+  problem->setProblem(x,b);
+  problem->setLeftPrec( prec );
+
+  // Tell the solver what problem you want to solve.
+  solver->setProblem( problem );
+
+  Belos::ReturnType ret =  solver->solve();
+  x->write(222);
+
+  TEST_EQUALITY( ret, Belos::Converged );
+
+}
+
+
 
 TEUCHOS_UNIT_TEST( BelosSolver, DtLapOp ) {
 

@@ -20,6 +20,8 @@
 #include "Pimpact_HelmholtzOp.hpp"
 #include "Pimpact_InverseHelmholtzOp.hpp"
 #include "Pimpact_MLHelmholtzOp.hpp"
+#include "Pimpact_MGVHelmholtzOp.hpp"
+#include "Pimpact_MGVDivGradOp.hpp"
 #include "Pimpact_ForcingOp.hpp"
 #include "Pimpact_NonlinearOp.hpp"
 #include "Pimpact_NonlinearJacobianOp.hpp"

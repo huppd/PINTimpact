@@ -21,6 +21,7 @@
 #include "Pimpact_DomainSize.hpp"
 #include "Pimpact_GridSize.hpp"
 #include "Pimpact_ProcGridSize.hpp"
+#include "Pimpact_ProcGrid.hpp"
 #include "Pimpact_Fields.hpp"
 #include "Pimpact_FieldFactory.hpp"
 
@@ -78,9 +79,6 @@ int main(int argi, char** argv ) {
 
   S alpha2 = 1.;
   my_CLP.setOption( "alpha2", &alpha2, "introduced frequency" );
-
-  //  S drift = 1.;
-  //  my_CLP.setOption( "drift", &drift, "phase velocity" );
 
   S rad = 0.1;
   my_CLP.setOption( "radius", &rad, "radius of disk or sig of dipol" );
@@ -225,21 +223,19 @@ int main(int argi, char** argv ) {
   *outPar << " \tre=" << re << "\n";
   *outPar << " \talpha2=" << alpha2 << "\n";
 
+
   auto ds = Pimpact::createDomainSize<S>( l1, l2, l3 );
-  ds->set_Impact();
   ds->print( *outPar );
 
-  //  auto bc = Pimpact::createBC( Pimpact::AllPeriodic );
+
   auto bc = Pimpact::createBoudaryConditionsGlobal( Pimpact::EDomainType(domain) );
-  bc->set_Impact();
+
 
   auto gs = Pimpact::createGridSize<O>( n1, n2, n3 );
-  gs->set_Impact();
   gs->print( *outPar );
   *outPar << " \tnf=" << nf << "\n";
 
   auto pgs = Pimpact::createProcGridSize<O>( np1, np2, np3 );
-  pgs->set_Impact();
   pgs->print( *outPar );
 
   if(rank==0) {
@@ -248,22 +244,28 @@ int main(int argi, char** argv ) {
   outPar = Teuchos::null;
 
   // init IMPACT
-  Pimpact::init_impact_post();
-
+  Pimpact::init_impact_mid();
 
   // init Spaces
   auto fS = Pimpact::createFieldSpace<O>();
-  //  fS->print();
+  fS->print();
 
+    auto pg = Pimpact::createProcGrid<O>( fS, bc, pgs );
+      pg->print();
+  Pimpact::init_impact_postpost();
+
+  auto iS = Pimpact::createScalarIndexSpace<O>();
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
   auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
   auto space = Pimpact::createSpace( fS, iIS, fIS );
+  space->print();
+
 
   // init vectors
   auto x    = Pimpact::createMultiField( Pimpact::createCompoundField(
       Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, nfs ),
-      Pimpact::createMultiHarmonicScalarField<S,O>( fS, nfs )) );
+      Pimpact::createMultiHarmonicScalarField<S,O>( fS, iS, nfs )) );
 
   auto fu   = x->clone(Pimpact::ShallowCopy);
   //  fu->init( 0. );
@@ -365,7 +367,7 @@ int main(int argi, char** argv ) {
 
     auto para = Pimpact::createLinSolverParameter( linSolName, tolBelos*l1*l2/n1/n2*(nfe-1)/nf, -1 );
     //    auto para = Pimpact::createLinSolverParameter( linSolName, tol, -1 );
-    para->set( "Maximum Iterations", 3000 );
+    para->set( "Maximum Iterations", 30000 );
     para->set( "Implicit Residual Scaling", "Norm of RHS" );
     para->set( "Explicit Residual Scaling", "Norm of RHS" );
     //    para->set( "Output Stream", outLinSolve );

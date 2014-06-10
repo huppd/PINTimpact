@@ -22,7 +22,7 @@ module cmod_exchange
     public exchange2
   
   
-    integer                ::  status(MPI_STATUS_SIZE) ! TEST!!! Warum steht das eigentlich hier lokal? gleiches gilt auch fuer die anderen Module ...
+    integer :: status(MPI_STATUS_SIZE) ! TEST!!! Warum steht das eigentlich hier lokal? gleiches gilt auch fuer die anderen Module ...
   
 contains
   
@@ -305,15 +305,16 @@ contains
     !!        - b1L, b1U, b2L,b2U, b3L, b3U
     !!        - S1p, S2p, S3p, N1p, N2p, N3p
     !!        - BC1L, BC1U, BC2L, BC2U, BC3L, BC3U
-    !!        - COMM_CART
     !!        - rankl, ranku
     !!        - reql, requ
     !!        - merror
     !pgi$r nodepchk
     !pgi$r ivdep
-    subroutine exchange2(dir,vel_dir,SS1,SS2,SS3,NN1,NN2,NN3,phi) bind (c,name='F_exchange')
+    subroutine exchange2( COMM, dir,vel_dir,SS1,SS2,SS3,NN1,NN2,NN3,phi) bind (c,name='F_exchange')
   
         implicit none
+
+        integer(c_int), intent(in   ) :: COMM
   
         integer(c_int), intent(in   ) ::  dir
         integer(c_int), intent(in   ) ::  vel_dir
@@ -350,8 +351,8 @@ contains
             length1L = (NN2-SS2+1)*(NN3-SS3+1)*ABS(b1L)
             length1U = (NN2-SS2+1)*(NN3-SS3+1)*ABS(b1U)
      
-            if (BC_1L == 0) call MPI_IRECV(ghost1UR,length1L,MPI_REAL8,rank1L,1,COMM_CART,req1L,merror)
-            if (BC_1U == 0) call MPI_IRECV(ghost1LR,length1U,MPI_REAL8,rank1U,2,COMM_CART,req1U,merror)
+            if (BC_1L == 0) call MPI_IRECV(ghost1UR,length1L,MPI_REAL8,rank1L,1,COMM,req1L,merror)
+            if (BC_1U == 0) call MPI_IRECV(ghost1LR,length1U,MPI_REAL8,rank1U,2,COMM,req1U,merror)
      
             if (BC_1U == 0) then
                 do i = b1L, -1
@@ -364,8 +365,8 @@ contains
                 end do
             end if
      
-            if (BC_1U == 0) call MPI_SEND(ghost1US,length1L,MPI_REAL8,rank1U,1,COMM_CART,merror)
-            if (BC_1L == 0) call MPI_SEND(ghost1LS,length1U,MPI_REAL8,rank1L,2,COMM_CART,merror)
+            if (BC_1U == 0) call MPI_SEND(ghost1US,length1L,MPI_REAL8,rank1U,1,COMM,merror)
+            if (BC_1L == 0) call MPI_SEND(ghost1LS,length1U,MPI_REAL8,rank1L,2,COMM,merror)
      
             if (BC_1L == 0) call MPI_WAIT(req1L,status,merror)
             if (BC_1U == 0) call MPI_WAIT(req1U,status,merror)
@@ -417,8 +418,8 @@ contains
             length2L = (NN1-SS1+1)*(NN3-SS3+1)*ABS(b2L)
             length2U = (NN1-SS1+1)*(NN3-SS3+1)*ABS(b2U)
      
-            if (BC_2L == 0) call MPI_IRECV(ghost2UR,length2L,MPI_REAL8,rank2L,3,COMM_CART,req2L,merror)
-            if (BC_2U == 0) call MPI_IRECV(ghost2LR,length2U,MPI_REAL8,rank2U,4,COMM_CART,req2U,merror)
+            if (BC_2L == 0) call MPI_IRECV(ghost2UR,length2L,MPI_REAL8,rank2L,3,COMM,req2L,merror)
+            if (BC_2U == 0) call MPI_IRECV(ghost2LR,length2U,MPI_REAL8,rank2U,4,COMM,req2U,merror)
      
             if (BC_2U == 0) then
                 do j = b2L, -1
@@ -431,8 +432,8 @@ contains
                 end do
             end if
      
-            if (BC_2U == 0) call MPI_SEND(ghost2US,length2L,MPI_REAL8,rank2U,3,COMM_CART,merror)
-            if (BC_2L == 0) call MPI_SEND(ghost2LS,length2U,MPI_REAL8,rank2L,4,COMM_CART,merror)
+            if (BC_2U == 0) call MPI_SEND(ghost2US,length2L,MPI_REAL8,rank2U,3,COMM,merror)
+            if (BC_2L == 0) call MPI_SEND(ghost2LS,length2U,MPI_REAL8,rank2L,4,COMM,merror)
      
             if (BC_2L == 0) call MPI_WAIT(req2L,status,merror)
             if (BC_2U == 0) call MPI_WAIT(req2U,status,merror)
@@ -484,8 +485,8 @@ contains
             length3L = (NN1-SS1+1)*(NN2-SS2+1)*ABS(b3L)
             length3U = (NN1-SS1+1)*(NN2-SS2+1)*ABS(b3U)
      
-            if (BC_3L == 0) call MPI_IRECV(ghost3UR,length3L,MPI_REAL8,rank3L,5,COMM_CART,req3L,merror)
-            if (BC_3U == 0) call MPI_IRECV(ghost3LR,length3U,MPI_REAL8,rank3U,6,COMM_CART,req3U,merror)
+            if (BC_3L == 0) call MPI_IRECV(ghost3UR,length3L,MPI_REAL8,rank3L,5,COMM,req3L,merror)
+            if (BC_3U == 0) call MPI_IRECV(ghost3LR,length3U,MPI_REAL8,rank3U,6,COMM,req3U,merror)
      
             if (BC_3U == 0) then
                 do k = b3L, -1
@@ -498,8 +499,8 @@ contains
                 end do
             end if
      
-            if (BC_3U == 0) call MPI_SEND(ghost3US,length3L,MPI_REAL8,rank3U,5,COMM_CART,merror)
-            if (BC_3L == 0) call MPI_SEND(ghost3LS,length3U,MPI_REAL8,rank3L,6,COMM_CART,merror)
+            if (BC_3U == 0) call MPI_SEND(ghost3US,length3L,MPI_REAL8,rank3U,5,COMM,merror)
+            if (BC_3L == 0) call MPI_SEND(ghost3LS,length3U,MPI_REAL8,rank3L,6,COMM,merror)
      
             if (BC_3L == 0) call MPI_WAIT(req3L,status,merror)
             if (BC_3U == 0) call MPI_WAIT(req3U,status,merror)

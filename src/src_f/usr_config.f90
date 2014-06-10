@@ -496,6 +496,10 @@
   n_relax_down   = 4
   n_relax_up     = 4
   n_relax_bottom = 4
+
+  n_relax_down   = 10
+  n_relax_up     = 10
+  n_relax_bottom = 50
   
   !--- directions of (alternating) line-relaxations ---
   ! note: - line-relaxation is necessary if the grid is strongly unisotropic, i.e. when the grid spacings
@@ -508,6 +512,7 @@
   
   !--- Jacobi smoothing instead of Gauss-Seidel ---
   Jacobi_yes = .false.
+!  Jacobi_yes = .true.
   
   !--- max. number of coarse grid levels ---
   ! note: - must be 1 <= n_grids_limit <= n_grids_max

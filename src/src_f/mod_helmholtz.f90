@@ -2161,8 +2161,8 @@ module mod_helmholtz
   
   
   !----------------------------------------------------------------------------------------------------------!
-  ! Anmerkungen: - Dirichlet-Randbedingungen sind der Konvergenzrate wegen �berall VOR der Relaxation        !
-  !                eingef�gt!                                                                                !
+  ! Anmerkungen: - Dirichlet-Randbedingungen sind der Konvergenzrate wegen überall VOR der Relaxation        !
+  !                eingefügt!                                                                                !
   !----------------------------------------------------------------------------------------------------------!
   
   N1 = NN(1,g)

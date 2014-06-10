@@ -52,7 +52,11 @@ module mod_solvers
   !!   - divergenz bilde( divergence2 )
   !!   - norm des residuum bilden( get_norms )
   !! Druckiteration:
-  !!   -
+  !!   - Norm an Abbruchkriterium testen
+  !!   - nächste Iteration
+  !!   - Vorkonditionierer
+  !!   - aktuelles Residuum
+  !!   - Norm des Residuums
   subroutine outer_iteration
   
   implicit none
@@ -2756,6 +2760,10 @@ module mod_solvers
   
   
   
+  !> \brief first phase of MG
+  !!
+  !! (sometimes nullspace befor)
+  !! calls first restrict_???, than product_???, and restrict
   subroutine relax_restrict(init_yes,nullspace_yes,g,psi,bb,phi,work,coarse,problem_type)
   
   implicit none

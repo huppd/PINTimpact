@@ -1,6 +1,6 @@
 #pragma once
-#ifndef PIMPACT_BOUNDARYCONDITIONS_HPP
-#define PIMPACT_BOUNDARYCONDITIONS_HPP
+#ifndef PIMPACT_BOUNDARYCONDITIONSGLOBAL_HPP
+#define PIMPACT_BOUNDARYCONDITIONSGLOBAL_HPP
 
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_Tuple.hpp"
@@ -44,11 +44,27 @@ public:
 	    EBCType BC3L=DirichletBC,
 	    EBCType BC3U=DirichletBC ):
 	      BCL_global_( Teuchos::tuple(BC1L, BC2L, BC3L) ),
-	      BCU_global_( Teuchos::tuple(BC1U, BC2U, BC3U) ) {};
+	      BCU_global_( Teuchos::tuple(BC1U, BC2U, BC3U) ) {
+
+	  set_Impact();
+
+	};
 
 
 	BoundaryConditionsGlobal( TBC3 BCL_global, TBC3 BCU_global ):
-		BCL_global_( BCL_global ), BCU_global_( BCU_global ) {};
+		BCL_global_( BCL_global ), BCU_global_( BCU_global ) {
+
+	  set_Impact();
+
+	};
+
+	EBCType getBCL( int dim ) {
+	  return( BCL_global_[dim] );
+	}
+
+	EBCType getBCU( int dim ) {
+	  return( BCU_global_[dim] );
+	}
 
 	void set_Impact(){
 		fsetBC(
@@ -141,4 +157,4 @@ Teuchos::RCP<BoundaryConditionsGlobal> createBoudaryConditionsGlobal(
 } // end of namespace Pimpact
 
 
-#endif // end of #ifndef PIMPACT_BOUNDARYCONDITIONS_HPP
+#endif // end of #ifndef PIMPACT_BOUNDARYCONDITIONSGLOBAL_HPP

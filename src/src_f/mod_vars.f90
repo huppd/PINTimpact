@@ -2081,11 +2081,5 @@ contains
   end function get_task
 
 
-  subroutine set_rank(rankin) bind(c,name='fset_rank')
-  implicit none
-  integer(c_int)  ,intent(in)     ::  rankin
-    rank = rankin
-
-  end subroutine set_rank
   
 end module mod_vars

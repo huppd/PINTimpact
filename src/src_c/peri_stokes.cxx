@@ -180,6 +180,7 @@ int main(int argi, char** argv ) {
   // init Spaces
   auto fS = Pimpact::createFieldSpace<O>();
 
+  auto iS  = Pimpact::createScalarIndexSpace<O>();
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
   auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
@@ -187,9 +188,9 @@ int main(int argi, char** argv ) {
 
 
   // init vectors
-  auto p     = Pimpact::createInitMSF<S,O>( fS );
-  auto temps = Pimpact::createInitMSF<S,O>( fS );
-  auto fp    = Pimpact::createInitMSF<S,O>( fS );
+  auto p     = Pimpact::createInitMSF<S,O>( fS, iS );
+  auto temps = Pimpact::createInitMSF<S,O>( fS, iS );
+  auto fp    = Pimpact::createInitMSF<S,O>( fS, iS );
 
   auto u     = Pimpact::createInitMVF<S,O>( Pimpact::EFlowType(flow), fS, iIS, fIS, re, omega, px );
   auto tempv = Pimpact::createInitMVF<S,O>( Pimpact::Zero2DFlow, fS, iIS, fIS );
@@ -259,16 +260,16 @@ int main(int argi, char** argv ) {
     if(rank==0) std::cout << "\n\tprecType: 5, EddyPrec(ImpactSolver)\n";
 
     auto bla = Pimpact::createMultiModeOperatorBase<MVF>(
-        Pimpact::createInverseHelmholtzOp<S,O>( omega, 1./re, tol*l1*l2/n1/n2/100, 1000, true, true, false ) );
+        Pimpact::createInverseHelmholtzOp<S,O>( omega, 1./re, tol*l1*l2/n1/n2/1000, 1000, true, true, false ) );
     auto op2 = Pimpact::createEddyPrec<S,O>( fu->clone(), bla ) ;
     lprec = Pimpact::createMultiOperatorBase<MVF>( op2 );
     break;
   }
   case 6: {
-    if(rank==0) std::cout << "\n\tprecType: 6, EddyPrec(CG+ImpactSolver) danger danger\n";
+    if(rank==0) std::cout << "\n\tprecType: 6, EddyPrec(CG+ImpactSolver)\n";
 
     auto bla = Pimpact::createMultiModeOperatorBase<MVF>(
-        Pimpact::createInverseHelmholtzOp<S,O>( omega, 1./re, tol*l1*l2/n1/n2/1000, 1000, false, true, false ) );
+        Pimpact::createMGVHelmholtzOp<S,O>( omega, 1./re, true ) );
 
     auto solverParams = Pimpact::createLinSolverParameter( "CG", tol*l1*l2/n1/n2/1000 );
     solverParams->set ("Verbosity", int( Belos::Errors) );
@@ -280,12 +281,6 @@ int main(int argi, char** argv ) {
 
     auto op2 = Pimpact::createEddyPrec<S,O>( fu->clone(), Pimpact::createInverseOperatorBase<MVF>(prob2) ) ;
     lprec = Pimpact::createMultiOperatorBase<MVF >( op2 );
-    break;
-
-    //    auto bla = Pimpact::createMultiModeOperatorBase<MVF>(
-    //        Pimpact::createInverseHelmholtzOp<S,O>( omega, 1./re, tol*l1*l2/n1/n2/1000, 1000, false, true, false ) );
-    //    auto op2 = Pimpact::createEddyPrec<S,O>( fu->clone(), bla ) ;
-    //    lprec = Pimpact::createMultiOperatorBase<MVF>( op2 );
     break;
   }
   default:
@@ -311,9 +306,16 @@ int main(int argi, char** argv ) {
   auto solverParams = Pimpact::createLinSolverParameter( solver_name_1, tol*l1*l2/n1/n2 );
 
   solverParams->set ("Output Stream", outLap1 );
-  if(precType==0)
-    solverParams->set( "Num Blocks", 100 );
-  //
+//  if(precType==0) {
+//    solverParams->set( "Num Blocks", 100 );
+//    solverParams->set( "Maximum Iterations", 1000  );
+//  }
+//  else {
+//    solverParams->set( "Num Blocks", 10 );
+//    solverParams->set( "Maximum Iterations", 10  );
+//  }
+
+
   Teuchos::writeParameterListToXmlFile( *solverParams, "para_solver.xml" );
 
 
@@ -327,7 +329,8 @@ int main(int argi, char** argv ) {
 
   solverParams = Pimpact::createLinSolverParameter( solver_name_2, tol*l1*l2/n1/n2  );
   solverParams->set( "Output Stream", outSchur );
-  solverParams->set( "Num Blocks", 100 );
+//  solverParams->set( "Num Blocks", 10 );
+//  solverParams->set( "Maximum Iterations", 10  );
 
   auto schur_prob = Pimpact::createLinearProblem<MSF>( schur, p,temps, solverParams, solver_name_2);
 
@@ -367,4 +370,5 @@ int main(int argi, char** argv ) {
 
   MPI_Finalize();
   return( 0 );
+
 }

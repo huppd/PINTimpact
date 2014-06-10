@@ -50,8 +50,9 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, constructor ) {
   init_impact(0,0);
 
 	auto fS = Pimpact::createFieldSpace<O>();
+	auto sIS = Pimpact::createScalarIndexSpace<int>();
 
-	auto field = Pimpact::createMultiHarmonicScalarField<S,O>(fS,10);
+	auto field = Pimpact::createMultiHarmonicScalarField<S,O>(fS,sIS,10);
 
 	const int m = field->getNumberVecs();
 
@@ -64,8 +65,9 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, constructor ) {
 TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, push_back ) {
 
   auto fS = Pimpact::createFieldSpace<O>();
+	auto sIS = Pimpact::createScalarIndexSpace<int>();
 
-  auto field = Pimpact::createMultiHarmonicScalarField<S,O>(fS,10);
+  auto field = Pimpact::createMultiHarmonicScalarField<S,O>(fS,sIS,10);
 
   int nf1 = field->getNumberModes();
   TEST_EQUALITY( nf1, 10 );
@@ -84,8 +86,9 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, push_back ) {
 TEUCHOS_UNIT_TEST( MultiHarmonicScalarFieldScalar, TwoNorm_and_init ) {
 
 	auto fS = Pimpact::createFieldSpace<O>();
+	auto sIS = Pimpact::createScalarIndexSpace<int>();
 
-	auto field = Pimpact::createMultiHarmonicScalarField<S,O>(fS,10);
+  auto field = Pimpact::createMultiHarmonicScalarField<S,O>(fS,sIS,10);
 
 	const int n = field->getLength(true);
 
@@ -102,8 +105,9 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarFieldScalar, TwoNorm_and_init ) {
 TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, clone ) {
 
 	auto fS = Pimpact::createFieldSpace<O>();
+	auto sIS = Pimpact::createScalarIndexSpace<int>();
 
-	auto field = Pimpact::createMultiHarmonicScalarField<S,O>(fS,10);
+  auto field = Pimpact::createMultiHarmonicScalarField<S,O>(fS,sIS,10);
 
 	auto field2 = field->clone();
 
@@ -120,8 +124,9 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, clone ) {
 TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, InfNorm_and_init ) {
 
 	auto fS = Pimpact::createFieldSpace<O>();
+	auto sIS = Pimpact::createScalarIndexSpace<int>();
 
-	auto field = Pimpact::createMultiHarmonicScalarField<S,O>(fS,10);
+  auto field = Pimpact::createMultiHarmonicScalarField<S,O>(fS,sIS,10);
 
 	S norm;
 
@@ -151,8 +156,10 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, InfNorm_and_init ) {
 TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, TwoNorm_and_init ) {
 
 	auto fS = Pimpact::createFieldSpace<O>();
+	auto sIS = Pimpact::createScalarIndexSpace<int>();
 
-	auto field = Pimpact::createMultiHarmonicScalarField<S,O>(fS,10);
+  auto field = Pimpact::createMultiHarmonicScalarField<S,O>(fS,sIS,10);
+
 
 	int N = field->getLength();
 
@@ -170,9 +177,11 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, dot ) {
   typedef int O;
 
 	auto fS = Pimpact::createFieldSpace<O>();
+	auto sIS = Pimpact::createScalarIndexSpace<int>();
 
-	auto field1 = Pimpact::createMultiHarmonicScalarField<S,O>(fS,10);
-	auto field2 = Pimpact::createMultiHarmonicScalarField<S,O>(fS,10);
+  auto field1 = Pimpact::createMultiHarmonicScalarField<S,O>(fS,sIS,10);
+  auto field2 = field1->clone();
+
 
 	S dot;
 
@@ -207,8 +216,10 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, dot ) {
 TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, scale ) {
 
 	auto fS = Pimpact::createFieldSpace<O>();
+	auto sIS = Pimpact::createScalarIndexSpace<int>();
 
-	auto field = Pimpact::createMultiHarmonicScalarField<S,O>(fS,10);
+  auto field = Pimpact::createMultiHarmonicScalarField<S,O>(fS,sIS,10);
+
 
 	int N = field->getLength();
 	S norm;
@@ -226,8 +237,10 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, random ) {
   typedef int O;
 
 	auto fS = Pimpact::createFieldSpace<O>();
+	auto sIS = Pimpact::createScalarIndexSpace<int>();
 
-	auto field = Pimpact::createMultiHarmonicScalarField<S,O>(fS,10);
+  auto field = Pimpact::createMultiHarmonicScalarField<S,O>(fS,sIS,10);
+
 
 	int N = field->getLength();
 	S norm;
@@ -245,9 +258,11 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, add ) {
 
 	auto fS = Pimpact::createFieldSpace<O>();
 
-	auto field1 = Pimpact::createMultiHarmonicScalarField<S,O>(fS,10);
-	auto field2 = Pimpact::createMultiHarmonicScalarField<S,O>(fS,10);
-	auto field3 = Pimpact::createMultiHarmonicScalarField<S,O>(fS,10);
+	auto sIS = Pimpact::createScalarIndexSpace<int>();
+
+  auto field1 = Pimpact::createMultiHarmonicScalarField<S,O>(fS,sIS,10);
+  auto field2 = field1->clone();
+  auto field3 = field1->clone();
 
 	TEST_EQUALITY( field1->getLength(), field2->getLength() )
 	TEST_EQUALITY( field2->getLength(), field3->getLength() )
@@ -287,8 +302,10 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, add ) {
 TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, write ) {
 
 	auto fS = Pimpact::createFieldSpace<O>();
+	auto sIS = Pimpact::createScalarIndexSpace<int>();
 
-	auto field = Pimpact::createMultiHarmonicScalarField<S,O>(fS,10);
+  auto field = Pimpact::createMultiHarmonicScalarField<S,O>(fS,sIS,10);
+
 
 	field->init( 1. );
 	field->write();

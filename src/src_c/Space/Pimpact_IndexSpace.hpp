@@ -34,6 +34,7 @@ public:
     fieldType_(fieldType),sInd_(sInd),eInd_(eInd) {};
 
   void print() const {
+    std::cout << "\t---IndexSpace: ---\n";
     std::cout << "fieldType: " << fieldType_ << "\n";
     std::cout << "sInd: " << sInd_ << "\n";
     std::cout << "eInd: " << eInd_ << "\n";

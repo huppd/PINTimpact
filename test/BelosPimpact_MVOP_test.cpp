@@ -51,8 +51,9 @@ TEUCHOS_UNIT_TEST( AelosPimpactMV, MultiFieldScalar ) {
 	init_impact(0,0);
 
 	auto fS = Pimpact::createFieldSpace<int>();
-//		auto sIS = Pimpact::createScalarIndexSpace<int>();
-	auto p = Pimpact::createScalarField<double,int>(fS);
+	auto sIS = Pimpact::createScalarIndexSpace<int>();
+
+	auto p = Pimpact::createScalarField<double,int>( fS, sIS );
 
 
 	auto mvec = Pimpact::createMultiField<Pimpact::ScalarField<double,int> >(*p,5);
@@ -89,8 +90,10 @@ TEUCHOS_UNIT_TEST( AelosPimpactMV, MultiFieldVector ) {
 TEUCHOS_UNIT_TEST( AelosPimpactMV, MultiFieldScalarMode ) {
 	auto sVS = Pimpact::createFieldSpace<int>();
 
-	auto pc = Pimpact::createScalarField<double,int>(sVS);
-	auto ps = Pimpact::createScalarField<double,int>(sVS);
+	auto sIS = Pimpact::createScalarIndexSpace<int>();
+
+	auto pc = Pimpact::createScalarField<double,int>(sVS,sIS);
+	auto ps = Pimpact::createScalarField<double,int>(sVS,sIS);
 
 	auto vel = Pimpact::createModeField( pc, ps );
 
@@ -140,11 +143,12 @@ TEUCHOS_UNIT_TEST( AelosPimpactMV, MultiFieldCompound ) {
 	typedef Pimpact::MultiField<CF> MV;
 
 	auto fS = Pimpact::createFieldSpace<O>();
+	auto sIS = Pimpact::createScalarIndexSpace<int>();
 	auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
 	auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
 	auto vel = Pimpact::createVectorField<S,O>( fS,iIS,fIS );
-	auto sca = Pimpact::createScalarField<S,O>( fS );
+	auto sca = Pimpact::createScalarField<S,O>( fS, sIS );
 
 	auto q = Pimpact::createCompoundField( vel, sca );
 
@@ -170,6 +174,7 @@ TEUCHOS_UNIT_TEST( AelosPimpactMV, MultiFieldCompoundMode ) {
 	typedef Pimpact::MultiField<CF> MV;
 
 	auto fS = Pimpact::createFieldSpace<O>();
+	auto sIS = Pimpact::createScalarIndexSpace<int>();
 	auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
 	auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
@@ -178,8 +183,8 @@ TEUCHOS_UNIT_TEST( AelosPimpactMV, MultiFieldCompoundMode ) {
 
 	auto vel = Pimpact::createModeField( velc, vels );
 
-	auto scac = Pimpact::createScalarField<S,O>( fS );
-	auto scas = Pimpact::createScalarField<S,O>( fS );
+	auto scac = Pimpact::createScalarField<S,O>( fS, sIS );
+	auto scas = Pimpact::createScalarField<S,O>( fS, sIS );
 
 	auto sca = Pimpact::createModeField( scac, scas );
 
@@ -280,12 +285,13 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, DivGrad ) {
 
 	auto fS = Pimpact::createFieldSpace<O>();
 
+	auto sIS = Pimpact::createScalarIndexSpace<int>();
 	auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
 	auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
 	auto temp = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
 
-	auto p = Pimpact::createScalarField<S,O>(fS);
+	auto p = Pimpact::createScalarField<double,int>( fS, sIS );
 
 	auto mv = Pimpact::createMultiField<SF>(*p,10);
 	auto mv2 = mv->clone();
@@ -321,6 +327,7 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, CompoundStokes ) {
   typedef Pimpact::OperatorPimpl<MV,Op> OpPimpl;
 
 	auto fS = Pimpact::createFieldSpace<O>();
+	auto sIS = Pimpact::createScalarIndexSpace<int>();
 	auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
 	auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
@@ -329,8 +336,8 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, CompoundStokes ) {
 
 	auto vel = Pimpact::createModeField( velc, vels );
 
-	auto scac = Pimpact::createScalarField<S,O>( fS );
-	auto scas = Pimpact::createScalarField<S,O>( fS );
+	auto scac = Pimpact::createScalarField<S,O>( fS, sIS );
+	auto scas = Pimpact::createScalarField<S,O>( fS, sIS );
 
 	auto sca = Pimpact::createModeField( scac, scas );
 

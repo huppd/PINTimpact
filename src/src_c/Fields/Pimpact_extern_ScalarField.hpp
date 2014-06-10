@@ -128,6 +128,7 @@ void SF_write( double* const phi, const int& count );
 
 
 void F_exchange(
+    const int& comm,
     const int& dir, const int& vel_dir,
     const int& SS1, const int& SS2, const int& SS3,
     const int& NN1, const int& NN2, const int& NN3,

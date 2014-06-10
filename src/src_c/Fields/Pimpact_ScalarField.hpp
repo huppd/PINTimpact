@@ -37,7 +37,9 @@ class ScalarField {
   template<class S1,class O1>
   friend class Div;
   template<class S1,class O1>
-  friend class Div_Grad;
+  friend class DivGradOp;
+  template<class S1,class O1>
+  friend class MGVDivGradOp;
 
 public:
 
@@ -55,10 +57,14 @@ public:
   ScalarField():
     s_(0),
     fieldSpace_(Teuchos::null),
+    indexSpace_(Teuchos::null),
     exchangedState_( Teuchos::tuple(true,true,true) ) {};
 
-  ScalarField( const Teuchos::RCP<const FieldSpace<Ordinal> >& sVS ):
+  ScalarField(
+      const Teuchos::RCP<const FieldSpace<Ordinal> >& sVS,
+      const Teuchos::RCP<const IndexSpace<Ordinal> >& indexSpace ):
     fieldSpace_(sVS),
+    indexSpace_(indexSpace),
     exchangedState_( Teuchos::tuple(true,true,true) ) {
 
     Ordinal N = 1;
@@ -80,6 +86,7 @@ public:
   /// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
   ScalarField( const ScalarField& sF, ECopyType copyType=DeepCopy ):
     fieldSpace_( sF.fieldSpace_ ),
+    indexSpace_( sF.indexSpace_ ),
     exchangedState_( sF.exchangedState_ ) {
 
     Ordinal N = 1;
@@ -111,6 +118,7 @@ public:
   ///@{
 
   Teuchos::RCP<const FieldSpace<Ordinal> > getFieldSpace() const { return( fieldSpace_ ); }
+  Teuchos::RCP<const IndexSpace<Ordinal> > getIndexSpace() const { return( indexSpace_ ); }
 
 
   /// \brief returns the length of Field.
@@ -331,8 +339,8 @@ public:
 #ifdef DEBUG
     for(int i=0; i<3; ++i) {
       TEST_EQUALITY( nLoc(i), a.Nloc(i) )
-			                    TEST_EQUALITY( bu(i), a.bu(i) )
-			                    TEST_EQUALITY( bl(i), a.bl(i) )
+			                        TEST_EQUALITY( bu(i), a.bu(i) )
+			                        TEST_EQUALITY( bl(i), a.bl(i) )
     }
 #endif
 
@@ -429,6 +437,7 @@ public:
 protected:
 
   Teuchos::RCP<const FieldSpace<Ordinal> > fieldSpace_;
+  Teuchos::RCP<const IndexSpace<Ordinal> > indexSpace_;
   array s_;
   State exchangedState_;
 
@@ -442,16 +451,16 @@ protected:
 
   const Ordinal&  nGlo(int i) const { return( fieldSpace_->nGlo_[i]  ); }
   const Ordinal&  nLoc(int i) const { return( fieldSpace_->nLoc_[i] ); }
-  const Ordinal&  sInd(int i) const { return( fieldSpace_->sInd_[i]  ); }
-  const Ordinal&  eInd(int i) const { return( fieldSpace_->eInd_[i]  ); }
+  const Ordinal&  sInd(int i) const { return( indexSpace_->sInd_[i]  ); }
+  const Ordinal&  eInd(int i) const { return( indexSpace_->eInd_[i]  ); }
   const Ordinal&  bl  (int i) const { return( fieldSpace_->bl_[i]    ); }
   const Ordinal&  bu  (int i) const { return( fieldSpace_->bu_[i]    ); }
 
   const Ordinal* nLoc() const { return( fieldSpace_->nLoc_.getRawPtr() ); }
   const Ordinal* bl  () const { return( fieldSpace_->bl_.getRawPtr()    ); }
   const Ordinal* bu  () const { return( fieldSpace_->bu_.getRawPtr()    ); }
-  const Ordinal* sInd() const { return( fieldSpace_->sInd_.getRawPtr()  ); }
-  const Ordinal* eInd() const { return( fieldSpace_->eInd_.getRawPtr()  ); }
+  const Ordinal* sInd() const { return( indexSpace_->sInd_.getRawPtr()  ); }
+  const Ordinal* eInd() const { return( indexSpace_->eInd_.getRawPtr()  ); }
 
 
   void changed( const int& dir ) const {
@@ -475,8 +484,8 @@ protected:
   /// \brief updates ghost layers
   void exchange( const int& dir ) const {
     if( !exchangedState_[dir] ) {
-      //      std::cout << "exchange\n";
       F_exchange(
+          commf(),
           dir+1, 0,
           1, 1, 1,
           nLoc(0), nLoc(1), nLoc(2),
@@ -485,9 +494,8 @@ protected:
     }
   }
   void exchange() const {
-    for( int vel_dir=0; vel_dir<dim(); ++vel_dir )
-      for( int dir=0; dir<dim(); ++dir )
-        exchange( vel_dir, dir );
+    for( int dir=0; dir<dim(); ++dir )
+      exchange( dir );
   }
 
 }; // end of class ScalarField
@@ -500,9 +508,15 @@ protected:
 /// \return scalar vector
 /// \relates ScalarField
 template<class Scalar, class Ordinal>
-Teuchos::RCP< ScalarField<Scalar,Ordinal> > createScalarField( const Teuchos::RCP<const FieldSpace<Ordinal> >& fS) {
-  return( Teuchos::RCP<ScalarField<Scalar,Ordinal> > (
-      new ScalarField<Scalar,Ordinal>( fS ) ) );
+Teuchos::RCP< ScalarField<Scalar,Ordinal> > createScalarField(
+    const Teuchos::RCP<const FieldSpace<Ordinal> >& fS,
+    const Teuchos::RCP<const IndexSpace<Ordinal> >& iS=Teuchos::null ) {
+  if( iS.is_null() )
+    return( Teuchos::RCP<ScalarField<Scalar,Ordinal> > (
+        new ScalarField<Scalar,Ordinal>( fS, createScalarIndexSpace<Ordinal>() ) ) );
+  else
+    return( Teuchos::RCP<ScalarField<Scalar,Ordinal> > (
+        new ScalarField<Scalar,Ordinal>( fS, iS ) ) );
 }
 
 

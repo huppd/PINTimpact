@@ -49,6 +49,8 @@ class VectorField {
   friend class MLHelmholtzOp;
   template<class S1,class O1>
   friend class InverseHelmholtzOp;
+  template<class S1,class O1>
+  friend class MGVHelmholtzOp;
 
 public:
 
@@ -70,7 +72,8 @@ public:
     innerIS_(Teuchos::null),
     fullIS_(Teuchos::null),
     vec_(0),
-    exchangedState_(Teuchos::tuple(Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true)))
+    exchangedState_(Teuchos::tuple(Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true))),
+    storageSize_(0)
   {};
 
   VectorField(
@@ -80,16 +83,18 @@ public:
         fieldS_(fieldS),
         innerIS_(innerIS),
         fullIS_(fullIS),
-        exchangedState_(Teuchos::tuple(Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true))) {
+        exchangedState_(Teuchos::tuple(Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true))),
+        storageSize_(0) {
     Ordinal N = 1;
     for(int i=0; i<3; ++i)
       N *= nLoc(i)+bu(i)-bl(i)+1;
 
-    vec_[0] = new Scalar[3*N];
+    storageSize_ = 3*N;
+
+    vec_[0] = new Scalar[3*storageSize_];
     vec_[1] = vec_[0]+N;
     vec_[2] = vec_[1]+N;
     for(int i=0; i<3; ++i) {
-      //			vec_[i] = new Scalar[N];
       for(int j=0; j<N; ++j){
         vec_[i][j] = 0.;
       }
@@ -758,8 +763,6 @@ public:
 
 
   void write( int count=0 ) {
-    //    for( int dir=0; dir<dim(); ++dir )
-    //      exchange( dir, dir );
     exchange();
     VF_write( vec_[0], vec_[1], vec_[2], count );
   }
@@ -768,10 +771,14 @@ public:
 protected:
 
   Teuchos::RCP<const FieldSpace<Ordinal> > fieldS_;
+
   IndexSpaces innerIS_;
   IndexSpaces fullIS_;
+
   Teuchos::Tuple<ScalarArray,3> vec_;
+
   State exchangedState_;
+  Ordinal storageSize_;
 
 public:
 
@@ -780,6 +787,9 @@ public:
   const MPI_Fint& commf() const { return( fieldS_->commf_ ); }
   MPI_Comm        comm()  const { return( fieldS_->comm_  ); }
   const int&      dim()   const { return( fieldS_->dim_   ); }
+
+  const Ordinal& getStorageSize() const{ return( storageSize_ ); }
+  Scalar* getSoragaePtr() const { return( vec_[0] ); }
 
 protected:
 
@@ -823,6 +833,7 @@ protected:
   void exchange( const int& vel_dir, const int& dir ) const {
     if( !exchangedState_[vel_dir][dir] ) {
       F_exchange(
+          commf(),
           dir+1, vel_dir+1,
           1, 1, 1,
           nLoc(0), nLoc(1), nLoc(2),

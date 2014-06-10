@@ -5,7 +5,7 @@ module cmod_FieldSpace
 
 
     use iso_c_binding
-    !  use mpi
+    use mpi
 
 
     use mod_dims
@@ -231,5 +231,103 @@ contains
 
     END subroutine get_bu
 
+
+    subroutine set_COMM_CART( comm ) bind( c, name='SG_setCommCart' )
+        implicit none
+        integer(c_int), intent(in) :: comm
+
+        COMM_CART = comm
+
+    end subroutine set_COMM_CART
+
+
+    subroutine set_rank( rank_ ) bind( c, name='SG_setRank' )
+        implicit none
+        integer(c_int), intent(in) :: rank_
+
+        rank = rank_
+
+    end subroutine set_rank
+
+
+    subroutine set_iB( iB_ ) bind( c, name='SG_setIB' )
+        implicit none
+        integer(c_int), intent(in) :: iB_(1:3)
+        integer :: i
+
+        do i = 1, 3
+            iB(i,1) = iB_(i)
+        end do
+
+    end subroutine set_iB
+
+
+    subroutine set_Shift( shift_ ) bind( c, name='SG_setShift' )
+        implicit none
+        integer(c_int), intent(in) :: shift_(1:3)
+
+        iShift = shift_(1)
+        jShift = shift_(2)
+        kShift = shift_(3)
+
+    end subroutine set_Shift
+
+
+    subroutine set_rankLU( rankl, ranku ) bind( c, name='SG_setRankLU' )
+        implicit none
+        integer(c_int), intent(in) :: rankl(1:3)
+        integer(c_int), intent(in) :: ranku(1:3)
+
+        rank1L = rankl(1)
+        rank2L = rankl(2)
+        rank3L = rankl(3)
+
+        rank1U = ranku(1)
+        rank2U = ranku(2)
+        rank3U = ranku(3)
+
+    end subroutine set_rankLU
+
+
+    subroutine set_COMM_SLICE( slice1, slice2, slice3 ) bind( c, name='SG_setCommSlice' )
+        implicit none
+        integer(c_int), intent(in) :: slice1
+        integer(c_int), intent(in) :: slice2
+        integer(c_int), intent(in) :: slice3
+
+        COMM_SLICE1 = slice1
+        COMM_SLICE2 = slice2
+        COMM_SLICE3 = slice3
+
+    end subroutine set_COMM_SLICE
+
+
+    subroutine set_COMM_BAR( bar1, bar2, bar3 ) bind( c, name='SG_setCommBar' )
+        implicit none
+        integer(c_int), intent(in) :: bar1
+        integer(c_int), intent(in) :: bar2
+        integer(c_int), intent(in) :: bar3
+
+        COMM_BAR1 = bar1
+        COMM_BAR2 = bar2
+        COMM_BAR3 = bar3
+
+    end subroutine set_COMM_BAR
+
+
+    subroutine set_rank_SliceBar( rankSlice, rankBar ) bind( c, name='SG_setRankSliceBar' )
+        implicit none
+        integer(c_int), intent(in) :: rankSlice(1:3)
+        integer(c_int), intent(in) :: rankBar(1:3)
+
+        rank_slice1 = rankSlice(1)
+        rank_slice2 = rankSlice(2)
+        rank_slice3 = rankSlice(3)
+
+        rank_bar1 = rankBar(1)
+        rank_bar2 = rankBar(2)
+        rank_bar3 = rankBar(3)
+
+    end subroutine set_rank_SliceBar
 
 end module cmod_FieldSpace
