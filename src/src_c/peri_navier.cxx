@@ -229,6 +229,7 @@ int main(int argi, char** argv ) {
 
 
   auto bc = Pimpact::createBoudaryConditionsGlobal( Pimpact::EDomainType(domain) );
+  bc->print();
 
 
   auto gs = Pimpact::createGridSizeGlobal( n1, n2, n3 );
@@ -239,6 +240,7 @@ int main(int argi, char** argv ) {
   pgs->print( *outPar );
 
   auto lgs = Pimpact::createGridSizeLocal( gs, pgs );
+  lgs->print();
 
   if(rank==0) {
     Teuchos::rcp_static_cast<std::ofstream>(outPar)->close();
@@ -257,18 +259,18 @@ int main(int argi, char** argv ) {
 
   Pimpact::init_impact_postpost();
 
-  auto iS = Pimpact::createScalarIndexSpace<O>();
-  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+//  auto iS = Pimpact::createScalarIndexSpace<O>();
+//  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+//  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
-  auto space = Pimpact::createSpace( fS, iIS, fIS );
+  auto space = Pimpact::createSpace();
   space->print( std::cout );
 
 
   // init vectors
   auto x    = Pimpact::createMultiField( Pimpact::createCompoundField(
-      Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, nfs ),
-      Pimpact::createMultiHarmonicScalarField<S,O>( fS, iS, nfs )) );
+      Pimpact::createMultiHarmonicVectorField<S,O>( space, nfs ),
+      Pimpact::createMultiHarmonicScalarField<S,O>( space, nfs )) );
 
   auto fu   = x->clone(Pimpact::ShallowCopy);
   //  fu->init( 0. );

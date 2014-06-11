@@ -63,12 +63,9 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 	typedef Pimpact::MultiOpWrap< Pimpact::Helmholtz<S,O> >  Op;
 
 
-	auto fS = Pimpact::createFieldSpace<O>();
+	auto space = Pimpact::createSpace();
 
-	auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-	auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
-
-	auto vel = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
+	auto vel = Pimpact::createVectorField<S,O>(space);
 
 	auto x = Pimpact::createMultiField<Pimpact::VectorField<S,O> >(*vel,1);
 	auto b = Pimpact::createMultiField<Pimpact::VectorField<S,O> >(*vel,1);

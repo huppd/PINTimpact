@@ -12,8 +12,7 @@
 #include "Teuchos_SerialDenseMatrix.hpp"
 
 #include "Pimpact_Types.hpp"
-#include "Pimpact_FieldSpace.hpp"
-#include "Pimpact_IndexSpace.hpp"
+#include "Pimpact_Space.hpp"
 
 #include "Pimpact_extern_ScalarField.hpp"
 
@@ -29,7 +28,7 @@ namespace Pimpact {
 /// \ingroup Field
 /// \todo include Indexspace
 /// \todo add state of exchanged
-template<class S, class O>
+template<class S, class O, int dimension=3>
 class ScalarField {
 
   template<class S1,class O1>
@@ -56,15 +55,19 @@ public:
 
   ScalarField():
     s_(0),
-    fieldSpace_(Teuchos::null),
-    indexSpace_(Teuchos::null),
+    space_(Teuchos::null),
+    //    fieldSpace_(Teuchos::null),
+    //    indexSpace_(Teuchos::null),
     exchangedState_( Teuchos::tuple(true,true,true) ) {};
 
   ScalarField(
-      const Teuchos::RCP<const FieldSpace<Ordinal> >& sVS,
-      const Teuchos::RCP<const IndexSpace<Ordinal> >& indexSpace ):
-    fieldSpace_(sVS),
-    indexSpace_(indexSpace),
+      const Teuchos::RCP<const Space<Ordinal,dimension> >& space
+      //      const Teuchos::RCP<const FieldSpace<Ordinal> >& sVS,
+      //      const Teuchos::RCP<const IndexSpace<Ordinal> >& indexSpace
+  ):
+    space_(space),
+    //    fieldSpace_(sVS),
+    //    indexSpace_(indexSpace),
     exchangedState_( Teuchos::tuple(true,true,true) ) {
 
     Ordinal N = 1;
@@ -85,8 +88,9 @@ public:
   /// \param sF
   /// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
   ScalarField( const ScalarField& sF, ECopyType copyType=DeepCopy ):
-    fieldSpace_( sF.fieldSpace_ ),
-    indexSpace_( sF.indexSpace_ ),
+    space_(sF.space_),
+    //    fieldSpace_( sF.fieldSpace_ ),
+    //    indexSpace_( sF.indexSpace_ ),
     exchangedState_( sF.exchangedState_ ) {
 
     Ordinal N = 1;
@@ -117,8 +121,8 @@ public:
   /// \name Attribute methods
   ///@{
 
-  Teuchos::RCP<const FieldSpace<Ordinal> > getFieldSpace() const { return( fieldSpace_ ); }
-  Teuchos::RCP<const IndexSpace<Ordinal> > getIndexSpace() const { return( indexSpace_ ); }
+//  Teuchos::RCP<const FieldSpace<Ordinal> > getFieldSpace() const { return( fieldSpace_ ); }
+//  Teuchos::RCP<const IndexSpace<Ordinal> > getIndexSpace() const { return( indexSpace_ ); }
 
 
   /// \brief returns the length of Field.
@@ -339,8 +343,8 @@ public:
 #ifdef DEBUG
     for(int i=0; i<3; ++i) {
       TEST_EQUALITY( nLoc(i), a.Nloc(i) )
-			                        TEST_EQUALITY( bu(i), a.bu(i) )
-			                        TEST_EQUALITY( bl(i), a.bl(i) )
+			                            TEST_EQUALITY( bu(i), a.bu(i) )
+			                            TEST_EQUALITY( bl(i), a.bl(i) )
     }
 #endif
 
@@ -436,32 +440,35 @@ public:
 
 protected:
 
-  Teuchos::RCP<const FieldSpace<Ordinal> > fieldSpace_;
-  Teuchos::RCP<const IndexSpace<Ordinal> > indexSpace_;
+  //  Teuchos::RCP<const FieldSpace<Ordinal> > fieldSpace_;
+  Teuchos::RCP<const Space<Ordinal,dimension> > space_;
+  //  Teuchos::RCP<const IndexSpace<Ordinal> > indexSpace_;
   array s_;
   State exchangedState_;
 
 public:
 
-  const MPI_Fint& commf()     const { return( fieldSpace_->commf_   ); }
-  const MPI_Comm& comm()      const { return( fieldSpace_->comm_    ); }
-  const int&      dim()       const { return( fieldSpace_->dim_     ); }
+  const MPI_Fint& commf() const { return( space_->commf() ); }
+  MPI_Comm        comm()  const { return( space_->comm() ); }
+  const int&      dim()   const { return( space_->dim()   ); }
 
 protected:
+  const Ordinal& nGlo(int i)                 const { return( space_->nGlo()[i] ); }
+  const Ordinal& nLoc(int i)                 const { return( space_->nLoc()[i]) ; }
 
-  const Ordinal&  nGlo(int i) const { return( fieldSpace_->nGlo_[i]  ); }
-  const Ordinal&  nLoc(int i) const { return( fieldSpace_->nLoc_[i] ); }
-  const Ordinal&  sInd(int i) const { return( indexSpace_->sInd_[i]  ); }
-  const Ordinal&  eInd(int i) const { return( indexSpace_->eInd_[i]  ); }
-  const Ordinal&  bl  (int i) const { return( fieldSpace_->bl_[i]    ); }
-  const Ordinal&  bu  (int i) const { return( fieldSpace_->bu_[i]    ); }
+  const Ordinal& sInd(int i)  const { return( space_->sInd()[i] ); }
+  const Ordinal& eInd(int i)  const { return( space_->eInd()[i] ); }
 
-  const Ordinal* nLoc() const { return( fieldSpace_->nLoc_.getRawPtr() ); }
-  const Ordinal* bl  () const { return( fieldSpace_->bl_.getRawPtr()    ); }
-  const Ordinal* bu  () const { return( fieldSpace_->bu_.getRawPtr()    ); }
-  const Ordinal* sInd() const { return( indexSpace_->sInd_.getRawPtr()  ); }
-  const Ordinal* eInd() const { return( indexSpace_->eInd_.getRawPtr()  ); }
+  const Ordinal& bl(int i)                   const { return( space_->bl()[i] ); }
+  const Ordinal& bu(int i)                   const { return( space_->bu()[i] ); }
 
+  const Ordinal* nLoc()                      const { return( space_->nLoc() ) ; }
+
+  const Ordinal* bl()                   const { return( space_->bl() ); }
+  const Ordinal* bu()                   const { return( space_->bu() ); }
+
+  const Ordinal* sInd() const { return( space_->sInd()  ); }
+  const Ordinal* eInd() const { return( space_->eInd() ); }
 
   void changed( const int& dir ) const {
     exchangedState_[dir] = false;
@@ -502,23 +509,40 @@ protected:
 
 
 
+///// \brief creates a scalar field(vector) belonging to a FieldSpace
+/////
+///// \param fS scalar Vector Space to which returned vector belongs
+///// \return scalar vector
+///// \relates ScalarField
+//template<class Scalar, class Ordinal>
+//Teuchos::RCP< ScalarField<Scalar,Ordinal> > createScalarField(
+//    const Teuchos::RCP<const FieldSpace<Ordinal> >& fS,
+//    const Teuchos::RCP<const IndexSpace<Ordinal> >& iS=Teuchos::null ) {
+//  if( iS.is_null() )
+//    return( Teuchos::RCP<ScalarField<Scalar,Ordinal> > (
+//        new ScalarField<Scalar,Ordinal>( fS, createScalarIndexSpace<Ordinal>() ) ) );
+//  else
+//    return( Teuchos::RCP<ScalarField<Scalar,Ordinal> > (
+//        new ScalarField<Scalar,Ordinal>( fS, iS ) ) );
+//}
 /// \brief creates a scalar field(vector) belonging to a FieldSpace
 ///
 /// \param fS scalar Vector Space to which returned vector belongs
 /// \return scalar vector
 /// \relates ScalarField
 template<class Scalar, class Ordinal>
-Teuchos::RCP< ScalarField<Scalar,Ordinal> > createScalarField(
-    const Teuchos::RCP<const FieldSpace<Ordinal> >& fS,
-    const Teuchos::RCP<const IndexSpace<Ordinal> >& iS=Teuchos::null ) {
-  if( iS.is_null() )
-    return( Teuchos::RCP<ScalarField<Scalar,Ordinal> > (
-        new ScalarField<Scalar,Ordinal>( fS, createScalarIndexSpace<Ordinal>() ) ) );
+Teuchos::RCP< ScalarField<Scalar,Ordinal> >
+createScalarField(
+    const Teuchos::RCP<const Space<Ordinal> >& space=Teuchos::null ) {
+//    const Teuchos::RCP<const FieldSpace<Ordinal> >& fS,
+//    const Teuchos::RCP<const IndexSpace<Ordinal> >& iS=Teuchos::null ) {
+  if( space.is_null() )
+    return( Teuchos::rcp(
+        new ScalarField<Scalar,Ordinal>( createSpace<Ordinal>() ) ) );
   else
-    return( Teuchos::RCP<ScalarField<Scalar,Ordinal> > (
-        new ScalarField<Scalar,Ordinal>( fS, iS ) ) );
+    return( Teuchos::rcp(
+        new ScalarField<Scalar,Ordinal>( space ) ) );
 }
-
 
 } // end of namespace Pimpact
 

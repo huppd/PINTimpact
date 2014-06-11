@@ -58,8 +58,12 @@ public:
   };
 
 
-  Ordinal get( int i ) {
+  Ordinal get( int i ) const {
     return( gridSize_[i] );
+  }
+
+  const Ordinal* const getPtr() const {
+    return( gridSize_.getRawPtr() );
   }
 
 

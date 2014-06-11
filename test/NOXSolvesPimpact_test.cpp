@@ -529,11 +529,9 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
 
   int rank = 0;
 
-  auto fS = Pimpact::createFieldSpace<O>();
-  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+	auto space = Pimpact::createSpace();
 
-  auto vel = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
+  auto vel = Pimpact::createVectorField<S,O>(space);
 
 //  vel->initField( Pimpact::RankineVortex2D );
   vel->initField( Pimpact::ZeroProf );

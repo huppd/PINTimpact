@@ -77,7 +77,8 @@ public:
 /// by getting values from \c IMPACT
 /// \relates IndexSpace
 template<class Ordinal>
-Teuchos::RCP<const IndexSpace<Ordinal> > createScalarIndexSpace(){
+Teuchos::RCP<const IndexSpace<Ordinal> >
+createScalarIndexSpace(){
 
   typedef typename IndexSpace<Ordinal>::TO3 TO3;
 

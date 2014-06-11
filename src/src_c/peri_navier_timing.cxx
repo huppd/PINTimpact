@@ -187,17 +187,18 @@ int main(int argi, char** argv ) {
 
 
   // init Spaces
-  auto fS = Pimpact::createFieldSpace<O>();
+//  auto fS = Pimpact::createFieldSpace<O>();
+//
+//  auto iS = Pimpact::createScalarIndexSpace<O>();
+//  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+//  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
-  auto iS = Pimpact::createScalarIndexSpace<O>();
-  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
-
+  auto space = Pimpact::createSpace();
 
   // init vectors
   auto x    = Pimpact::createMultiField( Pimpact::createCompoundField(
-      Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, nfs ),
-      Pimpact::createMultiHarmonicScalarField<S,O>( fS, iS, nfs )) );
+      Pimpact::createMultiHarmonicVectorField<S,O>( space, nfs ),
+      Pimpact::createMultiHarmonicScalarField<S,O>( space, nfs )) );
   //  auto temp = x->clone();
   auto fu   = x->clone();
   //  auto force = x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone();

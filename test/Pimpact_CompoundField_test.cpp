@@ -41,13 +41,10 @@ TEUCHOS_UNIT_TEST( VectorModeField, create_init_print ) {
 	// init impact
 	int rank = init_impact(0,0);
 
-	auto fS = Pimpact::createFieldSpace<int>();
-	auto sIS = Pimpact::createScalarIndexSpace<int>();
-	auto iIS = Pimpact::createInnerFieldIndexSpaces<int>();
-	auto fIS = Pimpact::createFullFieldIndexSpaces<int>();
+	auto space = Pimpact::createSpace();
 
-	auto vel = Pimpact::createVectorField<double,int>( fS, iIS, fIS );
-	auto p = Pimpact::createScalarField<double,int>( fS, sIS );
+	auto vel = Pimpact::createVectorField<double,int>( space );
+	auto p = Pimpact::createScalarField<double,int>( space );
 
 	auto um = Pimpact::createCompoundField( vel, p );
 
@@ -58,13 +55,10 @@ TEUCHOS_UNIT_TEST( VectorModeField, create_init_print ) {
 
 TEUCHOS_UNIT_TEST( VectorModeField, InfNorm_and_init ) {
 
-	auto fS = Pimpact::createFieldSpace<int>();
-	auto sIS = Pimpact::createScalarIndexSpace<int>();
-	auto iIS = Pimpact::createInnerFieldIndexSpaces<int>();
-	auto fIS = Pimpact::createFullFieldIndexSpaces<int>();
+	auto space = Pimpact::createSpace();
 
-	auto vel = Pimpact::createVectorField<double,int>( fS, iIS, fIS );
-	auto p = Pimpact::createScalarField<double,int>( fS, sIS );
+	auto vel = Pimpact::createVectorField<double,int>( space );
+	auto p = Pimpact::createScalarField<double,int>( space );
 
 	auto um = Pimpact::createCompoundField( vel, p );
 
@@ -79,7 +73,7 @@ TEUCHOS_UNIT_TEST( VectorModeField, InfNorm_and_init ) {
 	// one test with infty-norm
 	int rank;
 	double init;
-	MPI_Comm_rank(fS->comm_,&rank);
+	MPI_Comm_rank(space->comm(),&rank);
 	for( double i = 0.; i<200.1; ++i) {
 		init = 3*i-1.;
 		init = (init<0)?-init:init;
@@ -93,13 +87,10 @@ TEUCHOS_UNIT_TEST( VectorModeField, InfNorm_and_init ) {
 
 TEUCHOS_UNIT_TEST( VectorModeField, TwoNorm_and_init ) {
 
-	auto fS = Pimpact::createFieldSpace<int>();
-	auto sIS = Pimpact::createScalarIndexSpace<int>();
-	auto iIS = Pimpact::createInnerFieldIndexSpaces<int>();
-	auto fIS = Pimpact::createFullFieldIndexSpaces<int>();
+	auto space = Pimpact::createSpace();
 
-	auto vel = Pimpact::createVectorField<double,int>( fS, iIS, fIS );
-	auto p = Pimpact::createScalarField<double,int>( fS, sIS );
+	auto vel = Pimpact::createVectorField<double,int>( space );
+	auto p = Pimpact::createScalarField<double,int>( space );
 
 	auto q = Pimpact::createCompoundField( vel, p );
 
@@ -119,15 +110,12 @@ TEUCHOS_UNIT_TEST( VectorModeField, TwoNorm_and_init ) {
 
 TEUCHOS_UNIT_TEST( VectorModeField, dot ) {
 
-	auto fS = Pimpact::createFieldSpace<int>();
-	auto sIS = Pimpact::createScalarIndexSpace<int>();
-	auto iIS = Pimpact::createInnerFieldIndexSpaces<int>();
-	auto fIS = Pimpact::createFullFieldIndexSpaces<int>();
+	auto space = Pimpact::createSpace();
 
-	auto vel = Pimpact::createVectorField<double,int>( fS, iIS, fIS );
-	auto p = Pimpact::createScalarField<double,int>( fS, sIS );
-	auto vel3 = Pimpact::createVectorField<double,int>( fS, iIS, fIS );
-	auto p3 = Pimpact::createScalarField<double,int>( fS, sIS);
+	auto vel = Pimpact::createVectorField<double,int>( space );
+	auto p = Pimpact::createScalarField<double,int>( space );
+	auto vel3 = Pimpact::createVectorField<double,int>( space );
+	auto p3 = Pimpact::createScalarField<double,int>( space );
 
 	auto vel1 = Pimpact::createCompoundField( vel, p );
 	auto vel2 = Pimpact::createCompoundField( vel3, p3 );
@@ -164,13 +152,10 @@ TEUCHOS_UNIT_TEST( VectorModeField, dot ) {
 
 TEUCHOS_UNIT_TEST( VectorModeField, scale ) {
 
-	auto fS = Pimpact::createFieldSpace<int>();
-	auto sIS = Pimpact::createScalarIndexSpace<int>();
-	auto iIS = Pimpact::createInnerFieldIndexSpaces<int>();
-	auto fIS = Pimpact::createFullFieldIndexSpaces<int>();
+	auto space = Pimpact::createSpace();
 
-	auto vel = Pimpact::createVectorField<double,int>( fS, iIS, fIS );
-	auto p = Pimpact::createScalarField<double,int>( fS, sIS );
+	auto vel = Pimpact::createVectorField<double,int>( space );
+	auto p = Pimpact::createScalarField<double,int>( space );
 
 	auto q = Pimpact::createCompoundField( vel, p );
 
@@ -188,13 +173,10 @@ TEUCHOS_UNIT_TEST( VectorModeField, scale ) {
 
 TEUCHOS_UNIT_TEST( VectorModeField, random ) {
 
-	auto fS = Pimpact::createFieldSpace<int>();
-	auto sIS = Pimpact::createScalarIndexSpace<int>();
-	auto iIS = Pimpact::createInnerFieldIndexSpaces<int>();
-	auto fIS = Pimpact::createFullFieldIndexSpaces<int>();
+	auto space = Pimpact::createSpace();
 
-	auto vel = Pimpact::createVectorField<double,int>( fS, iIS, fIS );
-	auto p = Pimpact::createScalarField<double,int>( fS, sIS );
+	auto vel = Pimpact::createVectorField<double,int>( space );
+	auto p = Pimpact::createScalarField<double,int>( space );
 
 	auto q = Pimpact::createCompoundField( vel, p );
 
@@ -212,18 +194,15 @@ TEUCHOS_UNIT_TEST( VectorModeField, random ) {
 
 TEUCHOS_UNIT_TEST( VectorModeField, add ) {
 
-	auto fS = Pimpact::createFieldSpace<int>();
-	auto sIS = Pimpact::createScalarIndexSpace<int>();
-	auto iIS = Pimpact::createInnerFieldIndexSpaces<int>();
-	auto fIS = Pimpact::createFullFieldIndexSpaces<int>();
+	auto space = Pimpact::createSpace();
 
-	auto vel1c = Pimpact::createVectorField<double,int>(fS,iIS,fIS);
-	auto vel2c = Pimpact::createVectorField<double,int>(fS,iIS,fIS);
-	auto vel3c = Pimpact::createVectorField<double,int>(fS,iIS,fIS);
+	auto vel1c = Pimpact::createVectorField<double,int>(space);
+	auto vel2c = Pimpact::createVectorField<double,int>(space);
+	auto vel3c = Pimpact::createVectorField<double,int>(space);
 
-	auto vel1s = Pimpact::createScalarField<double,int>( fS, sIS );
-	auto vel2s = Pimpact::createScalarField<double,int>( fS, sIS );
-	auto vel3s = Pimpact::createScalarField<double,int>( fS, sIS );
+	auto vel1s = Pimpact::createScalarField<double,int>( space );
+	auto vel2s = Pimpact::createScalarField<double,int>( space );
+	auto vel3s = Pimpact::createScalarField<double,int>( space );
 
 	auto vel1 = Pimpact::createCompoundField( vel1c, vel1s );
 	auto vel2 = Pimpact::createCompoundField( vel2c, vel2s );
@@ -267,13 +246,10 @@ TEUCHOS_UNIT_TEST( VectorModeField, add ) {
 
 TEUCHOS_UNIT_TEST( VectorModeField, write ) {
 
-	auto fS = Pimpact::createFieldSpace<int>();
-	auto sIS = Pimpact::createScalarIndexSpace<int>();
-	auto iIS = Pimpact::createInnerFieldIndexSpaces<int>();
-	auto fIS = Pimpact::createFullFieldIndexSpaces<int>();
+	auto space = Pimpact::createSpace();
 
-	auto vel = Pimpact::createVectorField<double,int>( fS, iIS, fIS );
-	auto p = Pimpact::createScalarField<double,int>( fS,sIS );
+	auto vel = Pimpact::createVectorField<double,int>( space );
+	auto p = Pimpact::createScalarField<double,int>( space );
 
 	auto q = Pimpact::createCompoundField( vel, p );
 

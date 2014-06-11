@@ -153,14 +153,15 @@ int main(int argi, char** argv ) {
   Pimpact::init_impact_post();
 
   // init Spaces
-  auto fS = Pimpact::createFieldSpace<O>();
-
-  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+//  auto fS = Pimpact::createFieldSpace<O>();
+//
+//  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+//  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+  auto space = Pimpact::createSpace();
 
   // init vectors
-  auto sca = Pimpact::createScalarField<S,O>(fS);
-  auto vel = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
+  auto sca = Pimpact::createScalarField<S,O>( space );
+  auto vel = Pimpact::createVectorField<S,O>( space );
 
   auto p     = Pimpact::createMultiField<SF>(*sca,1);
   auto temps = Pimpact::createMultiField<SF>(*sca,1);

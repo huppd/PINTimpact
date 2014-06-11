@@ -178,23 +178,23 @@ int main(int argi, char** argv ) {
 
 
   // init Spaces
-  auto fS = Pimpact::createFieldSpace<O>();
+//  auto fS = Pimpact::createFieldSpace<O>();
+//
+//  auto iS  = Pimpact::createScalarIndexSpace<O>();
+//  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+//  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
-  auto iS  = Pimpact::createScalarIndexSpace<O>();
-  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
-
-  auto space = Pimpact::createSpace<O>( fS, iIS, fIS );
+  auto space = Pimpact::createSpace<O>();
 
 
   // init vectors
-  auto p     = Pimpact::createInitMSF<S,O>( fS, iS );
-  auto temps = Pimpact::createInitMSF<S,O>( fS, iS );
-  auto fp    = Pimpact::createInitMSF<S,O>( fS, iS );
+  auto p     = Pimpact::createInitMSF<S,O>( space );
+  auto temps = p->clone();
+  auto fp    = p->clone();
 
-  auto u     = Pimpact::createInitMVF<S,O>( Pimpact::EFlowType(flow), fS, iIS, fIS, re, omega, px );
-  auto tempv = Pimpact::createInitMVF<S,O>( Pimpact::Zero2DFlow, fS, iIS, fIS );
-  auto fu    = Pimpact::createInitMVF<S,O>( Pimpact::Zero2DFlow, fS, iIS, fIS );
+  auto u     = Pimpact::createInitMVF<S,O>( Pimpact::EFlowType(flow), space, omega, px );
+  auto tempv = Pimpact::createInitMVF<S,O>( Pimpact::Zero2DFlow, space );
+  auto fu    = Pimpact::createInitMVF<S,O>( Pimpact::Zero2DFlow, space );
 
   p->init(0.);
   u->init(0);
@@ -300,7 +300,7 @@ int main(int argi, char** argv ) {
   fu->scale(-1.);
   fp->scale(-1.);
 
-  u = Pimpact::createInitMVF<S,O>( Pimpact::Zero2DFlow, fS, iIS, fIS );
+  u = Pimpact::createInitMVF<S,O>( Pimpact::Zero2DFlow, space );
 
   // create parameter for linsovlers
   auto solverParams = Pimpact::createLinSolverParameter( solver_name_1, tol*l1*l2/n1/n2 );

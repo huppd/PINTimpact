@@ -163,18 +163,19 @@ int main(int argi, char** argv ) {
   Pimpact::init_impact_post();
 
   // init Spaces
-  auto fS = Pimpact::createFieldSpace<int>();
-
-  auto iS  = Pimpact::createScalarIndexSpace<int>();
-  auto iIS = Pimpact::createInnerFieldIndexSpaces<int>();
-  auto fIS = Pimpact::createFullFieldIndexSpaces<int>();
+  //  auto fS = Pimpact::createFieldSpace<int>();
+  //
+  //  auto iS  = Pimpact::createScalarIndexSpace<int>();
+  //  auto iIS = Pimpact::createInnerFieldIndexSpaces<int>();
+  //  auto fIS = Pimpact::createFullFieldIndexSpaces<int>();
+  auto space = Pimpact::createSpace();
 
   // init vectors
-  auto scac = Pimpact::createScalarField<double,int>( fS, iS );
-  auto scas = Pimpact::createScalarField<double,int>( fS, iS );
+  auto scac = Pimpact::createScalarField<double,int>( space );
+  auto scas = Pimpact::createScalarField<double,int>( space );
 
-  auto velc = Pimpact::createVectorField<double,int>(fS,iIS,fIS);
-  auto vels = Pimpact::createVectorField<double,int>(fS,iIS,fIS);
+  auto velc = Pimpact::createVectorField<double,int>( space );
+  auto vels = Pimpact::createVectorField<double,int>( space );
 
   auto vel = Pimpact::createModeField( velc, vels );
   auto sca = Pimpact::createModeField( scac, scas );

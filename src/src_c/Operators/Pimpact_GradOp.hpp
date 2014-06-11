@@ -24,7 +24,7 @@ public:
 //  typedef NonModeOp OpType;
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
-    int dim = x.getFieldSpace()->dim_;
+    int dim = x.dim();
     for( int i=0; i<dim; ++i) {
       x.exchange(i);
       OP_grad(i+1,x.s_,y.vec_[i]);

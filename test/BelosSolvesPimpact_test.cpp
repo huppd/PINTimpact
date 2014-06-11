@@ -66,14 +66,10 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
   typedef Pimpact::MultiOpWrap<Op> MOp;
   typedef Pimpact::OperatorBase<MVF> BOp;
 
-  auto fS = Pimpact::createFieldSpace<O>();
+	auto space = Pimpact::createSpace();
 
-  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
-
-
-  auto x = Pimpact::createMultiField( Pimpact::createVectorField<S,O>(fS, iIS, fIS) );
-  auto b = Pimpact::createMultiField( Pimpact::createVectorField<S,O>(fS, iIS, fIS) );
+  auto x = Pimpact::createMultiField( Pimpact::createVectorField<S,O>(space) );
+  auto b = Pimpact::createMultiField( Pimpact::createVectorField<S,O>(space) );
 
   b->init( 1. );
 
@@ -121,15 +117,15 @@ TEUCHOS_UNIT_TEST( BelosSolver, PrecHelmholtzMV ) {
   typedef Pimpact::OperatorBase<MVF> BOp;
 
 
-  auto fS = Pimpact::createFieldSpace<O>();
+//  auto fS = Pimpact::createFieldSpace<O>();
+//
+//  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+//  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
-  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+  auto space = Pimpact::createSpace( );
 
-  auto space = Pimpact::createSpace( fS, iIS, fIS );
-
-  auto x = Pimpact::createMultiField( Pimpact::createVectorField<S,O>(fS, iIS, fIS) );
-  auto b = Pimpact::createMultiField( Pimpact::createVectorField<S,O>(fS, iIS, fIS) );
+  auto x = Pimpact::createMultiField( Pimpact::createVectorField<S,O>(space) );
+  auto b = Pimpact::createMultiField( Pimpact::createVectorField<S,O>(space) );
 
   b->init( 1. );
 
@@ -180,15 +176,15 @@ TEUCHOS_UNIT_TEST( BelosSolver, PrecMGVHelmholtz ) {
   typedef Pimpact::OperatorBase<MVF> BOp;
 
 
-  auto fS = Pimpact::createFieldSpace<O>();
+//  auto fS = Pimpact::createFieldSpace<O>();
+//
+//  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+//  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
-  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+  auto space = Pimpact::createSpace( );
 
-  auto space = Pimpact::createSpace( fS, iIS, fIS );
-
-  auto x = Pimpact::createMultiField( Pimpact::createVectorField<S,O>(fS, iIS, fIS) );
-  auto b = Pimpact::createMultiField( Pimpact::createVectorField<S,O>(fS, iIS, fIS) );
+  auto x = Pimpact::createMultiField( Pimpact::createVectorField<S,O>( space ) );
+  auto b = Pimpact::createMultiField( Pimpact::createVectorField<S,O>( space ) );
 
   b->init( 1. );
 
@@ -243,19 +239,14 @@ TEUCHOS_UNIT_TEST( BelosSolver, PrecDivGrad ) {
   typedef Pimpact::OperatorBase<MSF> BOp;
 
 
-  auto fS = Pimpact::createFieldSpace<O>();
+	auto space = Pimpact::createSpace();
 
-	auto sIS = Pimpact::createScalarIndexSpace<int>();
-  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+  auto u = Pimpact::createVectorField<S,O>( space );
+  auto temp = Pimpact::createVectorField<S,O>( space );
 
-  auto u = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
-  auto temp = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
+  auto rhs = Pimpact::createScalarField<S,O>( space );
+  auto sol = Pimpact::createScalarField<S,O>( space );
 
-  auto rhs = Pimpact::createScalarField<S,O>(fS,sIS);
-  auto sol = Pimpact::createScalarField<S,O>(fS,sIS);
-
-//  auto op = Pimpact::createMGVDivGradOp<S,O>(1.,1.,false);
 
   auto lap = Pimpact::createHelmholtz<S,O>( 0., 1. );
 
@@ -325,15 +316,11 @@ TEUCHOS_UNIT_TEST( BelosSolver, DtLapOp ) {
   //  Teuchos::RCP<Pimpact::OperatorBase<Pimpact::MultiField<Field> > >
   //  typedef OpBase BOp;
 
-  auto fS = Pimpact::createFieldSpace<O>();
+	auto space = Pimpact::createSpace();
 
-  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+  auto b = Pimpact::createInitMVF<S,O>( Pimpact::Streaming2DFlow, space );
+  auto x = Pimpact::createInitMVF<S,O>( Pimpact::Zero2DFlow, space );
 
-  auto b = Pimpact::createInitMVF<S,O>( Pimpact::Streaming2DFlow, fS, iIS, fIS );
-  auto x = Pimpact::createInitMVF<S,O>( Pimpact::Zero2DFlow, fS, iIS, fIS );
-
-  //  auto A = Pimpact::createOperatorMV<Pimpact::Helmholtz<double,int> >();
 
   auto op = Pimpact::createOperatorBase<BVF,OpMV>();
 
@@ -381,18 +368,13 @@ TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
   typedef Pimpact::OperatorPimpl<BSF,MuOp> OpPimpl;
   typedef OpBase  BOp;
 
-  auto fS = Pimpact::createFieldSpace<O>();
+	auto space = Pimpact::createSpace();
 
-  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
-
-  auto temp = Pimpact::createVectorField<double,int>(fS,iIS,fIS);
+  auto temp = Pimpact::createVectorField<double,int>( space );
   temp->initField(Pimpact::Poiseuille2D_inX);
   //  temp->init(0.);
 
-
-
-  auto p = Pimpact::createScalarField<S,O>(fS);
+  auto p = Pimpact::createScalarField<S,O>(space);
 
   auto x = Pimpact::createMultiField<SF>(*p,1);
   auto b = x->clone();

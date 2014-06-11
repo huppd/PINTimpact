@@ -197,10 +197,12 @@ int main(int argi, char** argv ) {
 
 
   // init Spaces
-  auto fS = Pimpact::createFieldSpace<O>();
+//  auto fS = Pimpact::createFieldSpace<O>();
+//
+//  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+//  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
-  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+  auto space = Pimpact::createSpace();
 
 
   // init vectors
@@ -208,9 +210,9 @@ int main(int argi, char** argv ) {
   //  auto temps = Pimpact::createInitMSF<S,O>( fS );
   //  auto fp    = Pimpact::createInitMSF<S,O>( fS );
 
-  auto x    = Pimpact::createMultiField( Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, nf ) );
-  auto temp = Pimpact::createMultiField( Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, nf ) );
-  auto fu   = Pimpact::createMultiField( Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, nf ) );
+  auto x    = Pimpact::createMultiField( Pimpact::createMultiHarmonicVectorField<S,O>( space, nf ) );
+  auto temp = Pimpact::createMultiField( Pimpact::createMultiHarmonicVectorField<S,O>( space, nf ) );
+  auto fu   = Pimpact::createMultiField( Pimpact::createMultiHarmonicVectorField<S,O>( space, nf ) );
 
   x->init(0);
   //  x->random();

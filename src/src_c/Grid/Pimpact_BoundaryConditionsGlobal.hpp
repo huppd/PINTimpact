@@ -76,6 +76,13 @@ public:
 		    BCU_global_[2] );
 	};
 
+  void print( std::ostream& out=std::cout ) const {
+    out << "---BoundaryConditionsGlobal: ---\n";
+    out << " BCL_blobal: " << BCL_global_ << "\n";
+    out << " BCU_blobal: " << BCU_global_ << "\n";
+
+  }
+
 }; // end of class BoundaryConditionsGlobal
 
 

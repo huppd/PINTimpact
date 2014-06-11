@@ -58,14 +58,11 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, create_init_print ) {
 	typedef NOX::Pimpact ::Vector<CF> NV;
 
 
-	auto fS  = Pimpact::createFieldSpace<O>();
-	auto sIS = Pimpact::createScalarIndexSpace<int>();
-	auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-	auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+	auto space = Pimpact::createSpace();
 
-	auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFlow, fS, iIS, fIS );
+	auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFlow, space );
 
-	auto xs = Pimpact::createInitMSF<S,O>( fS, sIS );
+	auto xs = Pimpact::createInitMSF<S,O>( space );
 
 	auto x  = Pimpact::createCompoundField( xv, xs );
 
@@ -89,14 +86,11 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, InfNorm_and_init ) {
   typedef NOX::Pimpact ::Vector<CF> NV;
 
 
-	auto fS  = Pimpact::createFieldSpace<O>();
-	auto sIS = Pimpact::createScalarIndexSpace<int>();
-	auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-	auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+	auto space = Pimpact::createSpace();
 
-	auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFlow, fS, iIS, fIS );
+	auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFlow, space );
 
-	auto xs = Pimpact::createInitMSF<S,O>( fS, sIS );
+	auto xs = Pimpact::createInitMSF<S,O>( space );
 
 	auto x  = Pimpact::createCompoundField( xv, xs );
 
@@ -113,7 +107,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, InfNorm_and_init ) {
 	// one test with infty-norm
 	int rank;
 	double init;
-	MPI_Comm_rank(fS->comm_,&rank);
+	MPI_Comm_rank( space->comm(), &rank );
 	for( double i = 0.; i<200.1; ++i) {
 		init = 3*i-1.;
 		init = (init<0)?-init:init;
@@ -139,14 +133,11 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, TwoNorm_and_init ) {
   typedef NOX::Pimpact ::Vector<CF> NV;
 
 
-	auto fS  = Pimpact::createFieldSpace<O>();
-	auto sIS = Pimpact::createScalarIndexSpace<int>();
-	auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-	auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+	auto space = Pimpact::createSpace();
 
-	auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFlow, fS, iIS, fIS );
+	auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFlow, space );
 
-	auto xs = Pimpact::createInitMSF<S,O>( fS, sIS );
+	auto xs = Pimpact::createInitMSF<S,O>( space );
 
 	auto x  = Pimpact::createCompoundField( xv, xs );
 
@@ -179,14 +170,11 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, add ) {
   typedef NOX::Pimpact ::Vector<CF> NV;
 
 
-  auto fS  = Pimpact::createFieldSpace<O>();
-	auto sIS = Pimpact::createScalarIndexSpace<int>();
-  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+	auto space = Pimpact::createSpace();
 
-  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFlow, fS, iIS, fIS );
+  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFlow, space );
 
-  auto xs = Pimpact::createInitMSF<S,O>( fS, sIS );
+  auto xs = Pimpact::createInitMSF<S,O>( space );
 
   auto x  = Pimpact::createCompoundField( xv, xs );
 
@@ -230,14 +218,11 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, reciprocal ) {
   typedef NOX::Pimpact ::Vector<CF> NV;
 
 
-  auto fS  = Pimpact::createFieldSpace<O>();
-	auto sIS = Pimpact::createScalarIndexSpace<int>();
-  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+	auto space = Pimpact::createSpace();
 
-  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFlow, fS, iIS, fIS );
+  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFlow, space );
 
-  auto xs = Pimpact::createInitMSF<S,O>( fS, sIS );
+  auto xs = Pimpact::createInitMSF<S,O>( space );
 
   auto x  = Pimpact::createCompoundField( xv, xs );
 
@@ -286,14 +271,11 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, norm_weighted ) {
   typedef NOX::Pimpact ::Vector<CF> NV;
 
 
-  auto fS  = Pimpact::createFieldSpace<O>();
-	auto sIS = Pimpact::createScalarIndexSpace<int>();
-  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+	auto space = Pimpact::createSpace();
 
-  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFlow, fS, iIS, fIS );
+  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFlow, space );
 
-  auto xs = Pimpact::createInitMSF<S,O>( fS, sIS );
+  auto xs = Pimpact::createInitMSF<S,O>( space );
 
   auto x  = Pimpact::createCompoundField( xv, xs );
 
@@ -349,14 +331,11 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, scale2 ) {
   typedef NOX::Pimpact ::Vector<CF> NV;
 
 
-  auto fS  = Pimpact::createFieldSpace<O>();
-	auto sIS = Pimpact::createScalarIndexSpace<int>();
-  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+	auto space = Pimpact::createSpace();
 
-  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFlow, fS, iIS, fIS );
+  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFlow, space );
 
-  auto xs = Pimpact::createInitMSF<S,O>( fS, sIS );
+  auto xs = Pimpact::createInitMSF<S,O>( space );
 
   auto x  = Pimpact::createCompoundField( xv, xs );
 
@@ -409,14 +388,11 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, innerProduct ) {
   typedef NOX::Pimpact ::Vector<CF> NV;
 
 
-	auto fS  = Pimpact::createFieldSpace<O>();
-	auto sIS = Pimpact::createScalarIndexSpace<int>();
-	auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-	auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+	auto space = Pimpact::createSpace();
 
-	auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFlow, fS, iIS, fIS );
+	auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFlow, space );
 
-	auto xs = Pimpact::createInitMSF<S,O>( fS, sIS );
+	auto xs = Pimpact::createInitMSF<S,O>( space );
 
 	auto x  = Pimpact::createCompoundField( xv, xs );
 
@@ -464,14 +440,11 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, scale ) {
   typedef NOX::Pimpact ::Vector<CF> NV;
 
 
-	auto fS  = Pimpact::createFieldSpace<O>();
-	auto sIS = Pimpact::createScalarIndexSpace<int>();
-	auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-	auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+	auto space = Pimpact::createSpace();
 
-	auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFlow, fS, iIS, fIS );
+	auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFlow, space );
 
-	auto xs = Pimpact::createInitMSF<S,O>( fS, sIS );
+	auto xs = Pimpact::createInitMSF<S,O>( space );
 
 	auto x  = Pimpact::createCompoundField( xv, xs );
 
@@ -501,14 +474,11 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, random ) {
   typedef NOX::Pimpact ::Vector<CF> NV;
 
 
-	auto fS  = Pimpact::createFieldSpace<O>();
-	auto sIS = Pimpact::createScalarIndexSpace<int>();
-	auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-	auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+	auto space = Pimpact::createSpace();
 
-	auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFlow, fS, iIS, fIS );
+	auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFlow, space );
 
-	auto xs = Pimpact::createInitMSF<S,O>( fS, sIS );
+	auto xs = Pimpact::createInitMSF<S,O>( space );
 
 	auto x  = Pimpact::createCompoundField( xv, xs );
 
@@ -538,14 +508,11 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, update ) {
   typedef NOX::Pimpact ::Vector<CF> NV;
 
 
-	auto fS  = Pimpact::createFieldSpace<O>();
-	auto sIS = Pimpact::createScalarIndexSpace<int>();
-	auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-	auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+	auto space = Pimpact::createSpace();
 
-	auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFlow, fS, iIS, fIS );
+	auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFlow, space );
 
-	auto xs = Pimpact::createInitMSF<S,O>( fS, sIS );
+	auto xs = Pimpact::createInitMSF<S,O>( space );
 
 	auto x  = Pimpact::createCompoundField( xv, xs );
 

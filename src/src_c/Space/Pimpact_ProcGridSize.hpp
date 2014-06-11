@@ -67,12 +67,6 @@ public:
   };
 
 
-  ProcGridSize( TO procGridSize ):
-    procGridSize_( procGridSize ) {
-    test();
-    set_Impact();
-  };
-
   Ordinal get( int i ) {
     return( procGridSize_[i] );
   }

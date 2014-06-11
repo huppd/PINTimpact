@@ -37,139 +37,143 @@ TEUCHOS_STATIC_SETUP() {
 TEUCHOS_UNIT_TEST( ScalarField, create_init_print ) {
   int rank = init_impact(0,0);
   // init impact
-	auto sVS = Pimpact::createFieldSpace<int>();
-	auto p = Pimpact::createScalarField<double,int>(sVS);
+  auto sVS = Pimpact::createSpace();
 
-	p->init(rank);
+  auto p = Pimpact::createScalarField<double,int>(sVS);
 
-	TEST_EQUALITY( 0, 0 );
+  p->init(rank);
+
+  TEST_EQUALITY( 0, 0 );
 }
 
 
 
 TEUCHOS_UNIT_TEST( ScalarField, InfNorm_and_init ) {
-	auto sVS = Pimpact::createFieldSpace<int>();
-	auto p = Pimpact::createScalarField<double,int>(sVS);
 
-	double norm;
+  auto sVS = Pimpact::createSpace();
 
-	// test different float values, assures that initial and norm work smoothly
-	for( double i=0.; i< 200.1; ++i ) {
-		p->init(i/2.);
-		norm = p->norm(Belos::InfNorm);
-		TEST_EQUALITY( i/2., norm );
-	}
+  auto p = Pimpact::createScalarField<double,int>(sVS);
 
-	// one test with infty-norm
-	int rank;
-	double init;
-	MPI_Comm_rank(sVS->comm_,&rank);
-	for( double i = 0.; i<200.1; ++i) {
-		init = 3*i-1.;
-		init = (init<0)?-init:init;
-		p->init(rank*i-1.);
-		norm = p->norm(Belos::InfNorm);
-		TEST_EQUALITY( init, norm );
-	}
+  double norm;
+
+  // test different float values, assures that initial and norm work smoothly
+  for( double i=0.; i< 200.1; ++i ) {
+    p->init(i/2.);
+    norm = p->norm(Belos::InfNorm);
+    TEST_EQUALITY( i/2., norm );
+  }
+
+  // one test with infty-norm
+  int rank;
+  double init;
+  MPI_Comm_rank(sVS->comm(),&rank);
+  for( double i = 0.; i<200.1; ++i) {
+    init = 3*i-1.;
+    init = (init<0)?-init:init;
+    p->init(rank*i-1.);
+    norm = p->norm(Belos::InfNorm);
+    TEST_EQUALITY( init, norm );
+  }
 }
 
 
 
 TEUCHOS_UNIT_TEST( ScalarField, TwoNorm_and_init ) {
 
-	auto sVS = Pimpact::createFieldSpace<int>();
-	auto p = Pimpact::createScalarField<double,int>(sVS);
+  auto sVS = Pimpact::createSpace();
+  auto p = Pimpact::createScalarField<double,int>(sVS);
 
   // test different float values, assures that initial and norm work smoothly
-	for( double i=0.; i< 200.1; ++i ) {
-		p->init(i/2.);
-		TEST_EQUALITY( std::sqrt( std::pow(i/2.,2)*p->getLength() ), p->norm(Belos::TwoNorm) );
-	}
+  for( double i=0.; i< 200.1; ++i ) {
+    p->init(i/2.);
+    TEST_EQUALITY( std::sqrt( std::pow(i/2.,2)*p->getLength() ), p->norm(Belos::TwoNorm) );
+  }
 }
 
 
 TEUCHOS_UNIT_TEST( ScalarField, dot ) {
 
-	auto fS = Pimpact::createFieldSpace<int>();
-	auto p = Pimpact::createScalarField<double,int>(fS);
-	auto q = Pimpact::createScalarField<double,int>(fS);
+  auto fS = Pimpact::createSpace();
 
-	int Np = p->getLength();
-	int Nq = q->getLength();
-	double dot;
+  auto p = Pimpact::createScalarField<double,int>(fS);
+  auto q = Pimpact::createScalarField<double,int>(fS);
 
-	TEST_EQUALITY( Np , Nq );
+  int Np = p->getLength();
+  int Nq = q->getLength();
+  double dot;
 
-	p->init(1.);
-	q->init(2.);
-	dot = p->dot(*q);
-	TEST_EQUALITY( 2*Np, dot );
+  TEST_EQUALITY( Np , Nq );
+
+  p->init(1.);
+  q->init(2.);
+  dot = p->dot(*q);
+  TEST_EQUALITY( 2*Np, dot );
 }
 
 
 
 TEUCHOS_UNIT_TEST( ScalarField, scale ) {
 
-	auto sVS = Pimpact::createFieldSpace<int>();
-	auto p = Pimpact::createScalarField<double,int>(sVS);
+  auto sVS = Pimpact::createSpace();
+  auto p = Pimpact::createScalarField<double,int>(sVS);
 
-	double norm;
-	int N = p->getLength();
+  double norm;
+  int N = p->getLength();
 
-	p->init(1.);
-	p->scale(2.);
-	norm = p->norm(Belos::TwoNorm);
-	TEST_EQUALITY( std::sqrt(4*N), norm)
+  p->init(1.);
+  p->scale(2.);
+  norm = p->norm(Belos::TwoNorm);
+  TEST_EQUALITY( std::sqrt(4*N), norm)
 }
 
 
 TEUCHOS_UNIT_TEST( ScalarField, random ) {
 
-	auto sVS = Pimpact::createFieldSpace<int>();
-	auto p = Pimpact::createScalarField<double,int>(sVS);
+  auto sVS = Pimpact::createSpace();
+  auto p = Pimpact::createScalarField<double,int>(sVS);
 
-	double norm;
-	int N = p->getLength();
+  double norm;
+  int N = p->getLength();
 
-	p->init(1.);
-	p->random();
-	norm = p->norm(Belos::TwoNorm);
-	TEST_INEQUALITY( N, norm)
+  p->init(1.);
+  p->random();
+  norm = p->norm(Belos::TwoNorm);
+  TEST_INEQUALITY( N, norm)
 }
 
 
 TEUCHOS_UNIT_TEST( ScalarField, add ) {
 
-	auto sVS = Pimpact::createFieldSpace<int>();
+  auto sVS = Pimpact::createSpace();
 
-	auto q = Pimpact::createScalarField<double,int>(sVS);
+  auto q = Pimpact::createScalarField<double,int>(sVS);
 
-	auto r(q);
-	auto p(q);
+  auto r(q);
+  auto p(q);
 
-	double norm;
-	int N = p->getLength();
+  double norm;
+  int N = p->getLength();
 
-	q->init(1.);
-	r->init(1./3.);
+  q->init(1.);
+  r->init(1./3.);
 
-	p->add( 0., *q, 3., *r);
-	norm = p->norm(Belos::TwoNorm);
-	TEST_EQUALITY( std::sqrt(N), norm)
+  p->add( 0., *q, 3., *r);
+  norm = p->norm(Belos::TwoNorm);
+  TEST_EQUALITY( std::sqrt(N), norm)
 }
 
 TEUCHOS_UNIT_TEST( ScalarField, write ) {
 
-		auto sVS = Pimpact::createFieldSpace<int>();
-		auto p = Pimpact::createScalarField<double,int>(sVS);
+  auto sVS = Pimpact::createSpace();
+  auto p = Pimpact::createScalarField<double,int>(sVS);
 
-		p->init(1.);
-		p->write();
+  p->init(1.);
+  p->write();
 
-		p->random();
-		p->write(1);
+  p->random();
+  p->write(1);
 
-		TEST_EQUALITY( 0, 0)
-	}
+  TEST_EQUALITY( 0, 0)
+}
 } // namespace
 

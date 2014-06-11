@@ -228,14 +228,17 @@ int main(int argi, char** argv ) {
 
 
   // init Spaces
-  auto fS = Pimpact::createFieldSpace<O>();
+//  auto fS = Pimpact::createFieldSpace<O>();
+//
+//  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+//  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
-  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
-
+  auto space =
+//      Pimpact::createSpace(fS,Teuchos::null,iIS,fIS,gs,Teuchos::null,pgs,Teuchos::null);
+      Pimpact::createSpace();
 
   // init vectors
-  auto x    = Pimpact::createMultiField( Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, nfs ) );
+  auto x    = Pimpact::createMultiField( Pimpact::createMultiHarmonicVectorField<S,O>( space, nfs ) );
   auto temp = x->clone();
   auto fu   = x->clone();
   auto force = x->getConstFieldPtr(0)->getConst0FieldPtr()->clone();

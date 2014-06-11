@@ -137,4 +137,18 @@ TEUCHOS_UNIT_TEST( ProcGrid, initialization4D ) {
 }
 
 
+TEUCHOS_UNIT_TEST( Space, create ) {
+  // init impact
+  if( !isImpactInit ) {
+    init_impact(0,0);
+    isImpactInit=true;
+  }
+  auto space = Pimpact::createSpace();
+
+  space->print();
+
+}
+
+
+
 } // end of namespace

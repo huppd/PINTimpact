@@ -59,12 +59,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, Div ) {
     isImpactInit=true;
   }
 
-  auto fS = Pimpact::createFieldSpace<O>();
-  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+	auto space = Pimpact::createSpace();
 
-  auto p = Pimpact::createScalarField<S,O>(fS);
-  auto vel = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
+  auto p = Pimpact::createScalarField<S,O>(space);
+  auto vel = Pimpact::createVectorField<S,O>(space);
 
   vel->init(1.);
 	p->init(2.);
@@ -86,12 +84,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, Div2 ) {
     isImpactInit=true;
   }
 
-  auto fS = Pimpact::createFieldSpace<O>();
-  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+	auto space = Pimpact::createSpace();
 
-  auto p = Pimpact::createScalarField<S,O>(fS);
-  auto vel = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
+  auto p = Pimpact::createScalarField<S,O>(space);
+  auto vel = Pimpact::createVectorField<S,O>(space);
 
   vel->initField();
   p->init(2.);
@@ -113,12 +109,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, Grad ) {
     isImpactInit=true;
   }
 
-	auto fS = Pimpact::createFieldSpace<O>();
-	auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-	auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+	auto space = Pimpact::createSpace();
 
-	auto p = Pimpact::createScalarField<S,O>(fS);
-	auto vel = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
+	auto p = Pimpact::createScalarField<S,O>(space);
+	auto vel = Pimpact::createVectorField<S,O>(space);
 
 	Pimpact::Grad<S,O> grad;
 
@@ -137,12 +131,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, Helmholtz ) {
     isImpactInit=true;
   }
 
-  auto fS = Pimpact::createFieldSpace<O>();
-  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+	auto space = Pimpact::createSpace();
 
-  auto vel = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
-  auto res = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
+  auto vel = Pimpact::createVectorField<S,O>(space);
+  auto res = Pimpact::createVectorField<S,O>(space);
 
   Pimpact::Helmholtz<S,O> helmholtz;
 
@@ -158,12 +150,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, InverseHelmholtz ) {
     isImpactInit=true;
   }
 
-  auto fS = Pimpact::createFieldSpace<O>();
-  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+	auto space = Pimpact::createSpace();
 
-  auto rhs = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
-  auto sol = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
+  auto rhs = Pimpact::createVectorField<S,O>(space);
+  auto sol = Pimpact::createVectorField<S,O>(space);
 
   auto op = Pimpact::createInverseHelmholtzOp<S,O>( 1., 1., 1.e-6, 100, true, false, false );
 
@@ -183,12 +173,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, MGVHelmholtzOp ) {
     isImpactInit=true;
   }
 
-  auto fS = Pimpact::createFieldSpace<O>();
-  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+	auto space = Pimpact::createSpace();
 
-  auto rhs = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
-  auto sol = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
+  auto rhs = Pimpact::createVectorField<S,O>(space);
+  auto sol = Pimpact::createVectorField<S,O>(space);
 
 //  auto op = Pimpact::createInverseHelmholtzOp<S,O>( 1., 1., 1.e-6, 100, true, false, false );
   auto op = Pimpact::createMGVHelmholtzOp<S,O>(1.,1.,false);
@@ -211,16 +199,13 @@ TEUCHOS_UNIT_TEST( BasicOperator, MGVDivGradOp ) {
     isImpactInit=true;
   }
 
-  auto fS = Pimpact::createFieldSpace<O>();
+	auto space = Pimpact::createSpace();
 
-  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+  auto u = Pimpact::createVectorField<S,O>(space);
+  auto temp = Pimpact::createVectorField<S,O>(space);
 
-  auto u = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
-  auto temp = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
-
-  auto rhs = Pimpact::createScalarField<S,O>(fS);
-  auto sol = Pimpact::createScalarField<S,O>(fS);
+  auto rhs = Pimpact::createScalarField<S,O>(space);
+  auto sol = Pimpact::createScalarField<S,O>(space);
 
   auto op = Pimpact::createMGVDivGradOp<S,O>(1.,1.,false);
 
@@ -254,13 +239,11 @@ TEUCHOS_UNIT_TEST( BasicOperator, ForcingOp ) {
     isImpactInit=true;
   }
 
-  auto fS = Pimpact::createFieldSpace<O>();
-  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+	auto space = Pimpact::createSpace();
 
-  auto vel = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
-  auto force = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
-  auto res = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
+  auto vel = Pimpact::createVectorField<S,O>(space);
+  auto force = Pimpact::createVectorField<S,O>(space);
+  auto res = Pimpact::createVectorField<S,O>(space);
 
   vel->init(1.);
   force->initField( Pimpact::EFlowProfile(11) );
@@ -283,12 +266,10 @@ TEUCHOS_UNIT_TEST( ModeOperator, Helmholtz ) {
     isImpactInit=true;
   }
 
-	auto fS = Pimpact::createFieldSpace<O>();
-	auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-	auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+	auto space = Pimpact::createSpace();
 
-	auto velc = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
-	auto vels = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
+	auto velc = Pimpact::createVectorField<S,O>(space);
+	auto vels = Pimpact::createVectorField<S,O>(space);
 
 	auto vel = Pimpact::createModeField( velc, vels );
 
@@ -321,12 +302,9 @@ TEUCHOS_UNIT_TEST( BasicOperator, Nonlinear ) {
   typedef Pimpact::Nonlinear<S,O>  Op;
   typedef Pimpact::OperatorBase<MVF>  BOp;
 
-  auto fS = Pimpact::createFieldSpace<O>();
-  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+	auto space = Pimpact::createSpace();
 
-  auto vel = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
-
+  auto vel = Pimpact::createVectorField<S,O>(space);
 
   auto x = Pimpact::createMultiField<VF>(*vel->clone(),10);
   auto y = Pimpact::createMultiField<VF>(*vel->clone(),10);
@@ -366,11 +344,9 @@ TEUCHOS_UNIT_TEST( BasicOperator, Add2Op ) {
   typedef Pimpact::MultiOpWrap<COp>    Op;
   typedef Pimpact::OperatorBase<MVF>   BOp;
 
-  auto fS = Pimpact::createFieldSpace<O>();
-  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+	auto space = Pimpact::createSpace();
 
-  auto vel = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
+  auto vel = Pimpact::createVectorField<S,O>(space);
 
 
   auto x = Pimpact::createMultiField<VF>(*vel->clone(),10);
@@ -415,11 +391,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, MLHelmholtzOp ) {
   typedef Pimpact::MultiOpWrap<COp>    Op;
   typedef Pimpact::OperatorBase<MVF>   BOp;
 
-  auto fS = Pimpact::createFieldSpace<O>();
-  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+	auto space = Pimpact::createSpace();
 
-  auto space = Pimpact::createSpace<O>();
   auto x   = Pimpact::createVectorField<S,O>( space );
   auto rhs = Pimpact::createVectorField<S,O>( space );
 
@@ -452,12 +425,10 @@ TEUCHOS_UNIT_TEST( ModeOperator, Dt ) {
   typedef Pimpact::MultiField< Pimpact::ModeField< Pimpact::VectorField<S,O> > > MF;
   typedef Pimpact::OperatorBase<MF> BOp;
 
-	auto fS = Pimpact::createFieldSpace<O>();
-	auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-	auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+	auto space = Pimpact::createSpace();
 
-	auto velc = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
-	auto vels = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
+	auto velc = Pimpact::createVectorField<S,O>(space);
+	auto vels = Pimpact::createVectorField<S,O>(space);
 
 	auto vel = Pimpact::createModeField( velc, vels );
 
@@ -487,12 +458,10 @@ TEUCHOS_UNIT_TEST( ModeOperator, DtLapOp ) {
     isImpactInit=true;
   }
 
-	auto fS = Pimpact::createFieldSpace<O>();
-	auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-	auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+	auto space = Pimpact::createSpace();
 
-	auto velc = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
-	auto vels = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
+	auto velc = Pimpact::createVectorField<S,O>(space);
+	auto vels = Pimpact::createVectorField<S,O>(space);
 
 	auto vel = Pimpact::createModeField( velc, vels );
 
@@ -804,14 +773,12 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicNonlinear ) {
     isImpactInit=true;
   }
 
-  auto fS = Pimpact::createFieldSpace<O>();
-  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+	auto space = Pimpact::createSpace();
 
-  auto vel = Pimpact::createVectorField<S,O>( fS, iIS, fIS );
+  auto vel = Pimpact::createVectorField<S,O>( space );
 
-  auto mv1 = Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, 10 );
-  auto mv2 = Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, 10 );
+  auto mv1 = Pimpact::createMultiHarmonicVectorField<S,O>( space, 10 );
+  auto mv2 = Pimpact::createMultiHarmonicVectorField<S,O>( space, 10 );
 
   auto op = Pimpact::createMultiHarmonicNonlinear<S,O>();
 
@@ -827,14 +794,12 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicOpWrap ) {
     isImpactInit=true;
   }
 
-  auto fS = Pimpact::createFieldSpace<O>();
-  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+	auto space = Pimpact::createSpace();
 
-  auto vel = Pimpact::createVectorField<S,O>( fS, iIS, fIS );
+  auto vel = Pimpact::createVectorField<S,O>( space );
 
-  auto mv1 = Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, 10 );
-  auto mv2 = Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, 10 );
+  auto mv1 = Pimpact::createMultiHarmonicVectorField<S,O>( space, 10 );
+  auto mv2 = Pimpact::createMultiHarmonicVectorField<S,O>( space, 10 );
 
   auto op = Pimpact::createMultiHarmonicOpWrap< Pimpact::Helmholtz<S,O> >();
 
@@ -850,12 +815,10 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiDtHelmholtz) {
     isImpactInit=true;
   }
 
-  auto fS = Pimpact::createFieldSpace<O>();
-  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+	auto space = Pimpact::createSpace();
 
-  auto mv1 = Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, 10 );
-  auto mv2 = Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, 10 );
+  auto mv1 = Pimpact::createMultiHarmonicVectorField<S,O>( space, 10 );
+  auto mv2 = Pimpact::createMultiHarmonicVectorField<S,O>( space, 10 );
 
   auto op = Pimpact::createMultiDtHelmholtz<S,O>();
 
@@ -887,16 +850,13 @@ TEUCHOS_UNIT_TEST( CompoundOperator, CompoundOpWrap ) {
 
   typedef Pimpact::OperatorBase<MF> BOp;
 
-  auto fS = Pimpact::createFieldSpace<O>();
-	auto sIS = Pimpact::createScalarIndexSpace<int>();
-  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+	auto space = Pimpact::createSpace();
 
   int nfs = 4;
 
   auto x    = Pimpact::createMultiField( Pimpact::createCompoundField(
-      Pimpact::createMultiHarmonicVectorField<S,O>( fS, iIS, fIS, nfs ),
-      Pimpact::createMultiHarmonicScalarField<S,O>( fS, sIS, nfs )) );
+      Pimpact::createMultiHarmonicVectorField<S,O>( space, nfs ),
+      Pimpact::createMultiHarmonicScalarField<S,O>( space, nfs )) );
   auto fu   = x->clone();
   x->init(1.);
   x->random();
