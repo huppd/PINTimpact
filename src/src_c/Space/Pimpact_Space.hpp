@@ -8,6 +8,8 @@
 #include "Teuchos_RCP.hpp"
 
 #include "Pimpact_FieldSpace.hpp"
+#include "Pimpact_GridSizeGlobal.hpp"
+#include "Pimpact_GridSizeLocal.hpp"
 #include "Pimpact_IndexSpace.hpp"
 
 #include <iostream>
@@ -18,7 +20,7 @@ namespace Pimpact {
 
 
 /// \todo integrate this
-template<class Ordinal>
+template<class Ordinal=int, int dim=3 >
 class Space {
 
 public:
@@ -37,15 +39,23 @@ protected:
 
   Teuchos::RCP<const FieldSpace<Ordinal> > fieldSpace_;
 
+  Teuchos::RCP<const IndexSpace<Ordinal> > scalarIS_;
+
   IndexSpaces innerIS_;
   IndexSpaces fullIS_;
+
+  Teuchos::RCP< GridSizeGlobal<Ordinal,dim> > gridSizeGlobal_;
+  Teuchos::RCP< GridSizeLocal<Ordinal,dim> > gridSizeLocal_;
+
+  Teuchos::RCP< ProcGridSize<Ordinal,dim> > procGridSize_;
+
+  Teuchos::RCP< ProcGrid<Ordinal,dim> > procGrid_;
 
 public:
 
   Teuchos::RCP<const FieldSpace<Ordinal> > getFieldSpace() const { return( fieldSpace_ ); }
   IndexSpaces getInnerIndexSpace() const { return( innerIS_ ); }
   IndexSpaces getFullIndexSpace() const { return( fullIS_ ); }
-
 
   const MPI_Fint& commf() const { return( fieldSpace_->commf_ ); }
   const MPI_Comm& comm()  const { return( fieldSpace_->comm_  ); }
@@ -66,12 +76,12 @@ public:
   const Ordinal* sIndB( int fieldType ) const { return( fullIS_[fieldType]->sInd_.getRawPtr()  ); }
   const Ordinal* eIndB( int fieldType ) const { return( fullIS_[fieldType]->eInd_.getRawPtr()  ); }
 
-  void print() const {
-    std::cout << "\t---Space: ---\n";
-        fieldSpace_->print();
+  void print(  std::ostream& out=std::cout ) const {
+    out << "\t---Space: ---\n";
+        fieldSpace_->print( out );
     for( int i=0; i<dim(); ++i ) {
-      innerIS_[i]->print();
-      fullIS_[i]->print();
+      innerIS_[i]->print( out );
+      fullIS_[i]->print( out );
     }
   }
 

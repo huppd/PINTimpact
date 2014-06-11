@@ -18,7 +18,7 @@
 #include "pimpact.hpp"
 #include "Pimpact_Types.hpp"
 #include "Pimpact_DomainSize.hpp"
-#include "Pimpact_GridSize.hpp"
+#include "Pimpact_Space.hpp"
 #include "Pimpact_ProcGridSize.hpp"
 #include "Pimpact_Fields.hpp"
 #include "Pimpact_FieldFactory.hpp"
@@ -167,7 +167,7 @@ int main(int argi, char** argv ) {
   auto bc = Pimpact::createBoudaryConditionsGlobal( Pimpact::EDomainType(domain) );
   bc->set_Impact();
 
-  auto gs = Pimpact::createGridSize<O>( n1, n2, n3 );
+  auto gs = Pimpact::createGridSizeGlobal( n1, n2, n3 );
   gs->set_Impact();
   gs->print( *outPar );
   *outPar << " \tnf=" << nf << "\n";

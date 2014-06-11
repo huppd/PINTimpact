@@ -17,37 +17,6 @@
 namespace Pimpact {
 
 
-/// \brief public class, that stores neccessary information for indexing \c ScalarField and \c VectorField in Fortran
-/// \todo check constant make variables protected SF friend class
-template<class Ordinal>
-class IndexSpace {
-
-public:
-
-  typedef Teuchos::Tuple<Ordinal,3> TO3;
-
-  /// \brief constructor
-  /// \param fieldType says which kind of field is taken
-  /// \param sInd start index of gridpoints
-  /// \param eInd last index of gridpoints
-  IndexSpace( EFieldType fieldType,TO3 sInd, TO3 eInd ):
-    fieldType_(fieldType),sInd_(sInd),eInd_(eInd) {};
-
-  void print() const {
-    std::cout << "\t---IndexSpace: ---\n";
-    std::cout << "fieldType: " << fieldType_ << "\n";
-    std::cout << "sInd: " << sInd_ << "\n";
-    std::cout << "eInd: " << eInd_ << "\n";
-  }
-
-
-  EFieldType fieldType_;
-
-  TO3 sInd_;
-  TO3 eInd_;
-
-}; // end of class IndexSpace
-
 extern "C" {
 void SVS_get_sInd(int&,int&,int&);
 void SVS_get_eInd(int&,int&,int&);
@@ -70,6 +39,38 @@ void VS_get_eIndVB(int&,int&,int&);
 void VS_get_sIndWB(int&,int&,int&);
 void VS_get_eIndWB(int&,int&,int&);
 }
+
+
+/// \brief public class, that stores neccessary information for indexing \c ScalarField and \c VectorField in Fortran
+/// \todo check constant make variables protected SF friend class
+template<class Ordinal>
+class IndexSpace {
+
+public:
+
+  typedef Teuchos::Tuple<Ordinal,3> TO3;
+
+  /// \brief constructor
+  /// \param fieldType says which kind of field is taken
+  /// \param sInd start index of gridpoints
+  /// \param eInd last index of gridpoints
+  IndexSpace( EFieldType fieldType,TO3 sInd, TO3 eInd ):
+    fieldType_(fieldType),sInd_(sInd),eInd_(eInd) {};
+
+  void print( std::ostream& out=std::cout ) const {
+    out << "\t---IndexSpace: ---\n";
+    out << "fieldType: " << fieldType_ << "\n";
+    out << "sInd: " << sInd_ << "\n";
+    out << "eInd: " << eInd_ << "\n";
+  }
+
+  EFieldType fieldType_;
+
+  TO3 sInd_;
+  TO3 eInd_;
+
+}; // end of class IndexSpace
+
 
 
 /// \brief function that creates ScaparIndexSpace

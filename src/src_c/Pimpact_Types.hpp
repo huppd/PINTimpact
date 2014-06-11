@@ -6,7 +6,7 @@
 
 namespace Pimpact {
 
-enum EFieldType  { U, V, W, S };
+enum EFieldType  { U=1, V=2, W=3, S=0 };
 
 /// Copy Type
 enum ECopyType {

@@ -631,19 +631,19 @@
 
   end subroutine set_DS
 
-subroutine set_GS( n1_, n2_, n3_ ) bind( c, name='fsetGS' )
+  subroutine set_GS( n1_, n2_, n3_ ) bind( c, name='fsetGS' )
 
-  use iso_c_binding
+      use iso_c_binding
 
-  use mod_vars
+      use mod_vars
 
-  implicit none
+      implicit none
 
-  integer(c_int)  :: n1_, n2_, n3_
+      integer(c_int)  :: n1_, n2_, n3_
 
-  M1 = n1_
-  M2 = n2_
-  M3 = n3_
+      M1 = n1_
+      M2 = n2_
+      M3 = n3_
 
   end subroutine set_GS
 

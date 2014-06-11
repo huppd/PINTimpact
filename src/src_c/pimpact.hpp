@@ -12,7 +12,9 @@ extern "C" {
 void finit_alarm();
 void configuration_();
 void ftest_parameter();
+void ftest_parameterlight();
 void finit_general();
+void finit_generallight();
 void finit_parallel();
 void finit_boundaries();
 void finit_limits();
@@ -164,10 +166,10 @@ void init_impact_post(){
 
 void init_impact_mid(){
   //  --- Test of input parameters ------------------------------------------------------------------------------
-  ftest_parameter();
+  ftest_parameterlight();
 
   //   --- General -------------------------------------------------------------------------------------------
-  finit_general();
+  finit_generallight();
 }
 
 void init_impact_postpost(){

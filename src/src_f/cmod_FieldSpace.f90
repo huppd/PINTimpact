@@ -330,4 +330,16 @@ contains
 
     end subroutine set_rank_SliceBar
 
+
+    subroutine set_LS( n1_, n2_, n3_ ) bind( c, name='fsetLS' )
+        implicit none
+        integer(c_int)  :: n1_, n2_, n3_
+
+        N1 = n1_
+        N2 = n2_
+        N3 = n3_
+
+    end subroutine set_LS
+
+
 end module cmod_FieldSpace

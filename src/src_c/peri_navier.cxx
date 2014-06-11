@@ -19,9 +19,9 @@
 #include "pimpact.hpp"
 #include "Pimpact_Types.hpp"
 #include "Pimpact_DomainSize.hpp"
-#include "Pimpact_GridSize.hpp"
 #include "Pimpact_ProcGridSize.hpp"
 #include "Pimpact_ProcGrid.hpp"
+#include "Pimpact_Space.hpp"
 #include "Pimpact_Fields.hpp"
 #include "Pimpact_FieldFactory.hpp"
 
@@ -231,12 +231,14 @@ int main(int argi, char** argv ) {
   auto bc = Pimpact::createBoudaryConditionsGlobal( Pimpact::EDomainType(domain) );
 
 
-  auto gs = Pimpact::createGridSize<O>( n1, n2, n3 );
+  auto gs = Pimpact::createGridSizeGlobal( n1, n2, n3 );
   gs->print( *outPar );
   *outPar << " \tnf=" << nf << "\n";
 
   auto pgs = Pimpact::createProcGridSize<O>( np1, np2, np3 );
   pgs->print( *outPar );
+
+  auto lgs = Pimpact::createGridSizeLocal( gs, pgs );
 
   if(rank==0) {
     Teuchos::rcp_static_cast<std::ofstream>(outPar)->close();
@@ -248,10 +250,11 @@ int main(int argi, char** argv ) {
 
   // init Spaces
   auto fS = Pimpact::createFieldSpace<O>();
-  fS->print();
+  fS->print( std::cout );
 
-    auto pg = Pimpact::createProcGrid<O>( fS, bc, pgs );
-      pg->print();
+  auto pg = Pimpact::createProcGrid<O>( lgs, bc, pgs );
+  pg->print();
+
   Pimpact::init_impact_postpost();
 
   auto iS = Pimpact::createScalarIndexSpace<O>();
@@ -259,7 +262,7 @@ int main(int argi, char** argv ) {
   auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
   auto space = Pimpact::createSpace( fS, iIS, fIS );
-  space->print();
+  space->print( std::cout );
 
 
   // init vectors

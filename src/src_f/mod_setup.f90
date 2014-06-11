@@ -328,7 +328,7 @@ module mod_setup
   
   !> \brief intializes comunicator, COMM_CART, slice
   !! \todo should be extended for 4 dimension for the time dimens or subcommunicatos have to be used
-  subroutine init_parallel() bind(c,name='finit_parallel')
+  subroutine init_parallel()
   
   implicit none
   
@@ -436,7 +436,7 @@ module mod_setup
   
   
   
-  subroutine init_boundaries() bind(c,name='finit_boundaries')
+  subroutine init_boundaries()
   
   implicit none
   
@@ -586,7 +586,7 @@ module mod_setup
   
   
   
-  subroutine init_limits() bind(c,name='finit_limits')
+  subroutine init_limits()
   
   implicit none
   
