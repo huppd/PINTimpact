@@ -42,7 +42,7 @@ public:
     fsetDS( domainSize_[0], domainSize_[1], domainSize_[2] );
   };
 
-  void print( std::ostream& out ) {
+  void print( std::ostream& out=std::cout ) {
     out << " \tlx=" << domainSize_[0]
         << " \tly=" << domainSize_[1]
         << " \tlz=" << domainSize_[2] << "\n";

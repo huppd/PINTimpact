@@ -26,7 +26,7 @@ void OP_helmholtz(
 
 /// \brief Helmholtz operator
 /// \ingroup BaseOperator
-template<class Scalar,class Ordinal>
+template<class Scalar,class Ordinal,int dimension=3>
 class Helmholtz {
 
 protected:
@@ -36,8 +36,8 @@ protected:
 
 public:
 
-  typedef VectorField<Scalar,Ordinal>  DomainFieldT;
-  typedef VectorField<Scalar,Ordinal>  RangeFieldT;
+  typedef VectorField<Scalar,Ordinal,dimension>  DomainFieldT;
+  typedef VectorField<Scalar,Ordinal,dimension>  RangeFieldT;
 
   Helmholtz( Scalar mulI=1., Scalar mulL=1. ):
     mulI_(mulI),mulL_(mulL) {};

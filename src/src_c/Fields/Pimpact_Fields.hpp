@@ -10,6 +10,7 @@
 
 #include "Pimpact_ScalarField.hpp"
 #include "Pimpact_VectorField.hpp"
+#include "Pimpact_TimeField.hpp"
 #include "Pimpact_CompoundField.hpp"
 #include "Pimpact_ModeField.hpp"
 #include "Pimpact_MultiField.hpp"

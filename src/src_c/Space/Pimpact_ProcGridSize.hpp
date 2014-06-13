@@ -55,13 +55,14 @@ public:
 
   ProcGridSize( Ordinal np1, Ordinal np2, Ordinal np3 ):
     procGridSize_( Teuchos::tuple(np1, np2, np3) ) {
+
     test();
     set_Impact();
   };
 
   ProcGridSize( Ordinal np1, Ordinal np2, Ordinal np3, Ordinal npt ):
-
     procGridSize_( Teuchos::tuple(np1, np2, np3, npt) ) {
+
     test();
     set_Impact();
   };
@@ -85,6 +86,7 @@ public:
     out<< "\n";
   };
 };
+
 
 
 /// \relates ProcGridSize

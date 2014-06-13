@@ -77,7 +77,9 @@ public:
   void print( std::ostream& out=std::cout ) {
     out << " \tnx=" << gridSize_[0] ;
     out << " \tny=" << gridSize_[1] ;
-    out << " \tnz=" << gridSize_[2] << "\n";
+    out << " \tnz=" << gridSize_[2] ;
+    if( 4==dim ) out << "\tnt=" << gridSize_[3];
+    out << "\n";
   };
 
 protected:
@@ -115,7 +117,7 @@ Teuchos::RCP<GridSizeLocal<O,d> > createGridSizeLocal() {
 
   Teuchos::Tuple<O,d> bla;
   SVS_get_nLoc(bla[0],bla[1],bla[2]);
-  if( d>3 ) bla[3] = 1;
+  if( 4==d ) bla[3] = 1;
   return(
       Teuchos::rcp(
           new GridSizeLocal<O,d>(bla) ) );

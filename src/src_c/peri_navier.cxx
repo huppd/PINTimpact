@@ -251,20 +251,22 @@ int main(int argi, char** argv ) {
   Pimpact::init_impact_mid();
 
   // init Spaces
-  auto fS = Pimpact::createFieldSpace<O>();
-  fS->print( std::cout );
 
   auto pg = Pimpact::createProcGrid<O>( lgs, bc, pgs );
   pg->print();
 
   Pimpact::init_impact_postpost();
 
-//  auto iS = Pimpact::createScalarIndexSpace<O>();
-//  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-//  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+  auto fS = Pimpact::createFieldSpace<O>();
+  fS->print();
 
-  auto space = Pimpact::createSpace();
-  space->print( std::cout );
+//  auto fs = Pimpact::createFieldSpace();
+  auto iS = Pimpact::createScalarIndexSpace<O>();
+  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+
+  auto space = Pimpact::createSpace(fS,iS,iIS,fIS,gs,lgs,pgs,pg);
+  space->print();
 
 
   // init vectors

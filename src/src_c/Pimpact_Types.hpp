@@ -36,11 +36,13 @@ enum EFlowProfile {
 };
 
 
-enum EFlowType { Zero2DFlow = 0,
+enum EFlowType {
+  Zero2DFlow = 0,
   Poiseuille_inX=1, Poiseuille_inY=2,
   Pulsatile_inX=3, Pulsatile_inY=4,
   Streaming2DFlow=5, Streaming2DFlow2=6,
-  Streaming2DFlow3=7
+  Streaming2DFlow3=7,
+  OscilatingDisc2D=8
 };
 
 

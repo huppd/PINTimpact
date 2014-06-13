@@ -452,10 +452,9 @@ public:
   double norm(const MV& weights) const {
     double nor=0.;
     for( int i=0; i<getNumberVecs(); ++i )
-      nor+= mfs_[i]->norm( *weights.mfs_[i] );
+      nor += mfs_[i]->norm( *weights.mfs_[i] );
     return( nor );
   }
-
 
   /// \test this
   /// \param A
@@ -465,7 +464,6 @@ public:
     for( int i=0; i<n; ++i )
       mfs_[index[i]]->assign(*A.mfs_[i]);
   }
-
 
   /// \param A
   /// \param index
@@ -483,7 +481,6 @@ public:
       mfs_[i]->assign( *A.mfs_[i] );
   }
 
-
   /// \brief Replace the vectors with a random vectors.
   void random(bool useSeed = false, int seed = 1) {
     const int n = getNumberVecs();
@@ -491,14 +488,12 @@ public:
       mfs_[i]->random();
   }
 
-
   /// \brief \f[ *this = \alpha \f]
   void init( Scalar alpha = Teuchos::ScalarTraits<Scalar>::zero() ) {
     const int n = getNumberVecs();
     for( int i=0; i<n; ++i )
       mfs_[i]->init(alpha);
   }
-
 
   /// \todo add os to \c ScalarField and \c VectorField
   /// \param os

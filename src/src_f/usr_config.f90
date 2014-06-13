@@ -10,10 +10,10 @@
   
   
   !> \brief configurates all specification by the user first the mandatory ones, then the user-defined at the end
-  subroutine configuration
+  subroutine configuration() bind ( c, name='configuration_' )
   ! (basic subroutine)
   
-! use iso_c_binding
+ use iso_c_binding
 
   use mod_dims
   use mod_vars

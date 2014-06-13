@@ -61,7 +61,9 @@ public:
   void print( std::ostream& out=std::cout ) {
     out << " \tnx=" << gridSize_[0];
     out << " \tny=" << gridSize_[1];
-    out << " \tnz=" << gridSize_[2] << "\n";
+    out << " \tnz=" << gridSize_[2];
+    if( 4==dim )  out << "\tnt=" << gridSize_[3];
+    out << "\n";
   };
 
 }; // end of class GridSizeGlobal
@@ -69,15 +71,16 @@ public:
 
 /// \relates GridSizeGlobal
 /// from Impact
-template< class O=int>
-Teuchos::RCP<GridSizeGlobal<O,3> > createGridSizeGlobal() {
+template< class O=int, int d=3 >
+Teuchos::RCP<GridSizeGlobal<O,d> > createGridSizeGlobal() {
 
-  Teuchos::Tuple<O,3> bla;
+  Teuchos::Tuple<O,d> bla;
   SVS_get_nGlo(bla[0],bla[1],bla[2]);
+  if( 4==d ) bla[3] = 2;
 
   return(
       Teuchos::rcp(
-          new GridSizeGlobal<O,3>( bla ) ) );
+          new GridSizeGlobal<O,d>( bla ) ) );
 }
 
 

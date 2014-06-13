@@ -26,6 +26,11 @@
 #include "Pimpact_NonlinearOp.hpp"
 #include "Pimpact_NonlinearJacobianOp.hpp"
 
+/// \defgroup TimeOperator Time Operator
+/// \ingroup Operator
+/// Operator operate on time fields: \c Pimpact::TimeField
+#include "Pimpact_TimeOpWrap.hpp"
+
 /// \defgroup ModeOperator Mode Operator
 /// \ingroup Operator
 /// Operator operate on mode fields: \c Pimpact::ModeField
@@ -56,10 +61,6 @@
 #include "Pimpact_MultiHarmonicOpWrap.hpp"
 #include "Pimpact_MultiDiagNonlinearOp.hpp"
 #include "Pimpact_MultiHarmonicMLPrec.hpp"
-
-
-
-
 
 
 

@@ -25,8 +25,6 @@ void SG_setRankLU( const int* const rankl, const int* const ranku );
 void SG_setCommSlice( const int& slice1, const int& slice2, const int& slice3 );
 void SG_setCommBar( const int& bar1, const int& bar2, const int& bar3 );
 void SG_setRankSliceBar( const int* const rankSlice, const int* const rankBar );
-
-
 }
 
 
@@ -38,13 +36,16 @@ namespace Pimpact{
 template< class Ordinal, int dim=3 >
 class ProcGrid {
 
+public:
+
   MPI_Fint commSpaceTimef_;
   MPI_Comm commSpaceTime_;
 
   MPI_Fint commSpacef_;
   MPI_Comm commSpace_;
 
-  int rank_;
+  int rankS_;
+  int rankST_;
 
   Teuchos::Tuple<int,dim> iB_;
   Teuchos::Tuple<int,dim> shift_;
@@ -85,23 +86,11 @@ public:
     }
     if( 4==dim ) periodic[3] = 1;
 
-    //    // Macht keinen messbaren Unterschied (falls doch irgendwann, dann sollte der CALL auch auf die Grobgitter-Kommunikatoren auch angewandt werden!):
-    //    MPI_Cart_create(
-    //        MPI_COMM_WORLD,
-    //        dim,
-    //        procGridSize->getRawPtr(),
-    //        periodic->getRawPtr(),
-    //        false,
-    //        commSpaceTime_)
-    //    MPI_Cart_map(
-    //        commSpaceTime_,
-    //        dim,
-    //        procGridSize->getRawPtr(),
-    //        periodic->getRawPtr(),
-    //        rank )
 
     // true means ranking may be reorderd
     // comm_cart comm with cartesian grid informations
+    //    int* bla = procGridSize->getRawPtr();
+    //    int mpierror =
     MPI_Cart_create(
         MPI_COMM_WORLD,
         dim,
@@ -119,7 +108,8 @@ public:
       commSpacef_ = MPI_Comm_c2f( commSpace_ );
 
       // gets rank from COMM_CART
-      MPI_Comm_rank( commSpace_, &rank_ );
+      MPI_Comm_rank( commSpace_, &rankS_ );
+      rankST_ = rankS_;
 
     }
     else if( 4==dim ) {
@@ -132,39 +122,52 @@ public:
       commSpacef_ = MPI_Comm_c2f( commSpace_ );
 
       // gets rank from COMM_CART
-      MPI_Comm_rank( commSpace_, &rank_ );
+      MPI_Comm_rank( commSpace_, &rankS_ );
+      MPI_Comm_rank( commSpaceTime_, &rankST_ );
+      std::cout << "rank in commSpace: " << rankS_ << "\trank in commSpaceTime: " << rankST_ << "\n";
     }
 
     // gets coordinates in xyz direction from rank and comm_cart
     MPI_Cart_coords(
         commSpaceTime_,
-        rank_,
+        rankST_,
         dim,
         ijkB.getRawPtr() );
 
-    // stores coordinates in a fortran fasion?
-    for( int i=0; i<dim; ++i ) {
-      iB_[i] = ijkB[i] + 1;
+//    std::cout << "rankST: " << rankST_ << " coord: " << ijkB << "\n";
 
+//    MPI_Cart_coords(
+//        commSpace_,
+//        rankS_,
+//        dim,
+//        ijkB.getRawPtr() );
+//    std::cout << "rankS: " << rankS_ << " coord: " << ijkB << "\n";
+
+    for( int i=0; i<dim; ++i ) {
+      // stores coordinates in a fortran fasion?
+      iB_[i] = ijkB[i] + 1;
       // computes index ofset
       shift_[i] = (iB_[i]-1)*( gridSizeLocal->get(i)-1 );
-
-      MPI_Cart_shift( commSpaceTime_, i, 1, &rankL_[i], &rankU_[i] );
-      //      !                             ^ ^   ^      ^
-      //      !                             | |   |      |
-      //      !                             d d   r      r
-      //      !                             i i   a      a
-      //      !                             r s   n      n
-      //      !                             e p   k      k
-      //      !                             c l   s      d
-      //      !                             t a   o      e
-      //      !                             i c   u      s
-      //      !                             o m   r      t
-      //      !                             n e   c
-      //      !                               n   e
-      //      !                               t
-
     }
+
+    for( int i = 0; i<3; ++i )
+      MPI_Cart_shift( commSpace_, i, 1, &rankL_[i], &rankU_[i] );
+    if( 4==dim )
+      MPI_Cart_shift( commSpaceTime_, 3, 1, &rankL_[3], &rankU_[3] );
+    //        !                             ^ ^   ^      ^
+    //        !                             | |   |      |
+    //        !                             d d   r      r
+    //        !                             i i   a      a
+    //        !                             r s   n      n
+    //        !                             e p   k      k
+    //        !                             c l   s      d
+    //        !                             t a   o      e
+    //        !                             i c   u      s
+    //        !                             o m   r      t
+    //        !                             n e   c
+    //        !                               n   e
+    //        !                               t
+
 
     {
       int temp[] = {0,1,1};
@@ -209,7 +212,7 @@ public:
 
   void set_Impact() {
     SG_setCommCart( commSpacef_ );
-    SG_setRank( rank_ );
+    SG_setRank( rankS_ );
     SG_setIB( iB_.getRawPtr() );
     SG_setShift( shift_.getRawPtr() );
     SG_setRankLU( rankL_.getRawPtr(), rankU_.getRawPtr() );
@@ -227,10 +230,12 @@ public:
 
   void print( std::ostream& out=std::cout ) const {
     out << "\t---ProcessorGrid: ---\n";
-    out << "\trank: " <<rank_<<"\n";
+    out << "\trankS: " <<rankS_<<"\n";
+    out << "\trankST: " <<rankST_<<"\n";
     out << "\trankL: " <<rankL_<<"\n";
     out << "\trankU: " <<rankU_<<"\n";
-    out << "\tiB: " << iB_ << "\n";
+    out << "\tproc coordinate: " << iB_ << "\n";
+    out << "\toffset: " << shift_ << "\n";
   }
 
 

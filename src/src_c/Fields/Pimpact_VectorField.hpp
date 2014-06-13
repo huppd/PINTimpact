@@ -37,7 +37,7 @@ class VectorField {
   friend class Grad;
   template<class S1,class O1>
   friend class Div;
-  template<class S1,class O1>
+  template<class S1,class O1,int>
   friend class Helmholtz;
   template<class S1,class O1>
   friend class Nonlinear;
@@ -57,52 +57,53 @@ public:
   typedef S Scalar;
   typedef O Ordinal;
 
-private:
-
-  typedef Scalar* ScalarArray;
-  typedef VectorField<Scalar,Ordinal> VF;
-
-public:
-
   typedef Teuchos::ArrayRCP< Teuchos::RCP<const IndexSpace<Ordinal> > >  IndexSpaces;
   typedef Teuchos::Tuple<Teuchos::Tuple<bool,3>,3> State;
 
+protected:
+
+  typedef Scalar* ScalarArray;
+  typedef VectorField<Scalar,Ordinal,dimension> VF;
+
+  Teuchos::RCP< const Space<Ordinal,dimension> > space_;
+
+  Teuchos::Tuple<ScalarArray,3> vec_;
+
+  const bool owning_;
+
+  State exchangedState_;
+
+public:
+
   VectorField():
     space_(Teuchos::null),
-    //    fieldS_(Teuchos::null),
-    //    innerIS_(Teuchos::null),
-    //    fullIS_(Teuchos::null),
     vec_(0),
-    exchangedState_(Teuchos::tuple(Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true))),
-    storageSize_(0)
-  {};
+    owning_(true),
+    exchangedState_(Teuchos::tuple(Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true)))
+    {};
 
-  VectorField(
-      const Teuchos::RCP< const Space<Ordinal,dimension> >& space
-      //      const IndexSpaces& innerIS,
-      //      IndexSpaces fullIS
-  ):
-    //        fieldS_(fieldS),
-    //        innerIS_(innerIS),
-    //        fullIS_(fullIS),
+  VectorField( const Teuchos::RCP< const Space<Ordinal,dimension> >& space, bool owning=true ):
     space_(space),
-    exchangedState_(Teuchos::tuple(Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true))),
-    storageSize_(0) {
-    Ordinal N = 1;
-    for(int i=0; i<3; ++i)
-      N *= nLoc(i)+bu(i)-bl(i)+1;
+    owning_(owning),
+    exchangedState_(Teuchos::tuple(Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true))) {
 
-    storageSize_ = 3*N;
+    if( owning_ ) {
+      Ordinal N = 1;
+      for(int i=0; i<3; ++i)
+        N *= nLoc(i)+bu(i)-bl(i)+1;
 
-    vec_[0] = new Scalar[3*storageSize_];
-    vec_[1] = vec_[0]+N;
-    vec_[2] = vec_[1]+N;
-    for(int i=0; i<3; ++i) {
-      for(int j=0; j<N; ++j){
-        vec_[i][j] = 0.;
-      }
+
+      vec_[0] = new Scalar[3*N];
+      vec_[1] = vec_[0]+N;
+      vec_[2] = vec_[1]+N;
+
+      for(int i=0; i<3; ++i)
+        for(int j=0; j<N; ++j)
+          vec_[i][j] = 0.;
     }
+
   };
+
 
   /// \brief copy constructor.
   ///
@@ -111,42 +112,37 @@ public:
   /// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
   VectorField(const VectorField& vF, ECopyType copyType=DeepCopy):
     space_(vF.space_),
-    //    fieldS_ (vF.fieldS_),
-    //    innerIS_(vF.innerIS_),
-    //    fullIS_ (vF.fullIS_),
-    exchangedState_(vF.exchangedState_),
-    storageSize_(vF.storageSize_) {
+    owning_(vF.owning_),
+    exchangedState_(vF.exchangedState_) {
 
-    Ordinal n = 1;
-    for(int i=0; i<3; ++i)
-      n *= nLoc(i)+bu(i)-bl(i);
+    if( owning_ ) {
+      Ordinal n = 1;
+      for(int i=0; i<3; ++i)
+        n *= nLoc(i)+bu(i)-bl(i);
 
-    vec_[0] = new Scalar[3*n];
-    vec_[1] = vec_[0]+n;
-    vec_[2] = vec_[1]+n;
-    //		for( int i=0; i<3; ++i )
-    //		  vec_[i] = new Scalar[N];
+      vec_[0] = new Scalar[3*n];
+      vec_[1] = vec_[0]+n;
+      vec_[2] = vec_[1]+n;
 
-    switch( copyType ) {
-    case ShallowCopy:
-      for( int i=0; i<dim(); ++i )
-        for( int j=0; j<n; ++j)
-          vec_[i][j] = 0.;
-      changed();
-      break;
-    case DeepCopy:
-      for( int i=0; i<dim(); ++i )
-        for( int j=0; j<n; ++j)
-          vec_[i][j] = vF.vec_[i][j];
-      break;
+      switch( copyType ) {
+      case ShallowCopy:
+        for( int i=0; i<dim(); ++i )
+          for( int j=0; j<n; ++j)
+            vec_[i][j] = 0.;
+//        changed();
+        break;
+      case DeepCopy:
+        for( int i=0; i<dim(); ++i )
+          for( int j=0; j<n; ++j)
+            vec_[i][j] = vF.vec_[i][j];
+        break;
+      }
     }
   };
 
 
   ~VectorField() {
-    //	  for(int i=0; i<3; ++i)
-    //	    delete[] vec_[i];
-    delete[] vec_[0];
+    if( owning_ ) delete[] vec_[0];
   }
 
   Teuchos::RCP<VF> clone( ECopyType ctype=DeepCopy ) const {
@@ -405,8 +401,8 @@ public:
 #ifdef DEBUG
     for(int i=0; i<3; ++i) {
       TEST_EQUALITY( nLoc(i), a.Nloc(i) )
-			                        TEST_EQUALITY( bu(i), a.bu(i) )
-			                        TEST_EQUALITY( bl(i), a.bl(i) )
+			                            TEST_EQUALITY( bu(i), a.bu(i) )
+			                            TEST_EQUALITY( bl(i), a.bl(i) )
     }
 #endif
 
@@ -476,7 +472,6 @@ public:
     switch( flowType) {
     case ZeroProf :
       VF_init_Zero(
-          //          nLoc(0), nLoc(1), nLoc(2),
           nLoc(),
           sIndB(0,0), sIndB(1,0), sIndB(2,0),
           eIndB(0,0), eIndB(1,0), eIndB(2,0),
@@ -490,7 +485,6 @@ public:
       break;
     case Poiseuille2D_inX :
       VF_init_2DPoiseuilleX(
-          //          nLoc(0), nLoc(1), nLoc(2),
           nLoc(),
           sIndB(0,0), sIndB(1,0), sIndB(2,0),
           eIndB(0,0), eIndB(1,0), eIndB(2,0),
@@ -773,19 +767,7 @@ public:
   }
 
 
-protected:
 
-  Teuchos::RCP< const Space<Ordinal,dimension> > space_;
-
-  //  Teuchos::RCP<const FieldSpace<Ordinal> > fieldS_;
-
-  //  IndexSpaces innerIS_;
-  //  IndexSpaces fullIS_;
-
-  Teuchos::Tuple<ScalarArray,3> vec_;
-
-  State exchangedState_;
-  Ordinal storageSize_;
 
 public:
 
@@ -795,8 +777,27 @@ public:
   MPI_Comm        comm()  const { return( space_->comm() ); }
   const int&      dim()   const { return( space_->dim()   ); }
 
-  const Ordinal& getStorageSize() const{ return( storageSize_ ); }
-  Scalar* getSoragaePtr() const { return( vec_[0] ); }
+  Ordinal getStorageSize() const {
+
+    Ordinal N = 1;
+    for(int i=0; i<3; ++i)
+      N *= nLoc(i)+bu(i)-bl(i)+1;
+
+    return( 3*N );
+  }
+
+  void setStoragePtr( Scalar*  array ) {
+    Ordinal N = 1;
+    for(int i=0; i<3; ++i)
+      N *= nLoc(i)+bu(i)-bl(i)+1;
+
+    vec_[0] = array;
+    vec_[1] = array+N;
+    vec_[2] = array+2*N;
+  }
+  Scalar* getStoragePtr() {
+    return( vec_[0] );
+  }
 
 protected:
 
@@ -806,8 +807,8 @@ protected:
   const Ordinal& sInd(int i, int fieldType)  const { return( space_->sInd(fieldType)[i] ); }
   const Ordinal& eInd(int i, int fieldType)  const { return( space_->eInd(fieldType)[i] ); }
 
-  const Ordinal& sIndB(int i, int fieldType) const { return( space_->sInd(fieldType)[i] ); }
-  const Ordinal& eIndB(int i, int fieldType) const { return( space_->eInd(fieldType)[i] ); }
+  const Ordinal& sIndB(int i, int fieldType) const { return( space_->sIndB(fieldType)[i] ); }
+  const Ordinal& eIndB(int i, int fieldType) const { return( space_->eIndB(fieldType)[i] ); }
 
   const Ordinal& bl(int i)                   const { return( space_->bl()[i] ); }
   const Ordinal& bu(int i)                   const { return( space_->bu()[i] ); }
@@ -866,19 +867,6 @@ protected:
 }; // end of class VectorField
 
 
-
-///// \brief creates a vector field belonging to a \c FieldSpace and two \c IndexSpaces
-///// \relates VectorField
-//template<class Scalar, class Ordinal>
-//Teuchos::RCP< VectorField<Scalar,Ordinal> > createVectorField(
-//    const Teuchos::RCP<const FieldSpace<Ordinal> >& fieldS,
-//    const typename VectorField<Scalar,Ordinal>::IndexSpaces& innerIS,
-//    const typename VectorField<Scalar,Ordinal>::IndexSpaces& fullIS ) {
-//
-//  return( Teuchos::RCP<VectorField<Scalar,Ordinal> > (
-//      new VectorField<Scalar,Ordinal>( fieldS, innerIS, fullIS ) ) );
-//
-//}
 
 
 /// \brief creates a vector field belonging to a \c FieldSpace and two \c IndexSpaces

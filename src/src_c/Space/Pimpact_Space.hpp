@@ -31,7 +31,7 @@ public:
   typedef Teuchos::ArrayRCP< Teuchos::RCP<const IndexSpace<Ordinal> > >  IndexSpaces;
 
   Space(
-      const Teuchos::RCP<const FieldSpace<Ordinal> >& fieldSpace,
+      const Teuchos::RCP<const FieldSpace<Ordinal,dimension> >& fieldSpace,
       const Teuchos::RCP<const IndexSpace<Ordinal> >& scalarIS,
       const IndexSpaces& innerIS,
       const IndexSpaces& fullIS,
@@ -51,7 +51,7 @@ public:
 
 protected:
 
-  Teuchos::RCP<const FieldSpace<Ordinal> > fieldSpace_;
+  Teuchos::RCP<const FieldSpace<Ordinal,dimension> > fieldSpace_;
 
   Teuchos::RCP<const IndexSpace<Ordinal> > scalarIS_;
 
@@ -73,6 +73,12 @@ public:
 
   const MPI_Fint& commf() const { return( fieldSpace_->commf_ ); }
   const MPI_Comm& comm()  const { return( fieldSpace_->comm_  ); }
+
+//  const MPI_Fint& commf() const { return( fieldSpace_->commf_ ); }
+  const MPI_Comm& commST()  const { return( procGrid_->commSpaceTime_  ); }
+
+  int rankST() const { return( procGrid_->rankST_ ); }
+
   const int&      dim()   const { return( fieldSpace_->dim_   ); }
 
   const Ordinal* nGlo()  const { return( gridSizeGlobal_->getPtr() ); }
@@ -90,6 +96,14 @@ public:
   const Ordinal* sIndB( int fieldType ) const { return( fullIS_[fieldType]->sInd_.getRawPtr()  ); }
   const Ordinal* eIndB( int fieldType ) const { return( fullIS_[fieldType]->eInd_.getRawPtr()  ); }
 
+  const Ordinal* rankU() const { return( procGrid_->rankU_.getRawPtr()  ); }
+  const Ordinal* rankL() const { return( procGrid_->rankL_.getRawPtr()  ); }
+
+  const Ordinal* procCoordinate() const { return( procGrid_->iB_.getRawPtr()  ); }
+
+  const Ordinal* shift() const { return( procGrid_->shift_.getRawPtr()  ); }
+
+
   void print(  std::ostream& out=std::cout ) const {
 
     out << "\t---Space: ---\n";
@@ -98,7 +112,7 @@ public:
       fieldSpace_->print( out );
     else
       out << "fieldSpace_ is null\n";
-    MPI_Barrier( comm() );
+    MPI_Barrier( commST() );
 
     if( !gridSizeGlobal_.is_null() ) {
       out <<"---GridSizeGlobal: ---\n";
@@ -106,7 +120,7 @@ public:
     }
     else
       out << "gridSizeGlobal_ is null\n";
-    MPI_Barrier( comm() );
+    MPI_Barrier( commST() );
 
     if( !gridSizeLocal_.is_null() ) {
       out <<"---GridSizeLocal: ---\n";
@@ -114,13 +128,13 @@ public:
     }
     else
       out << "gridSizeLocal_ is null\n";
-    MPI_Barrier( comm() );
+    MPI_Barrier( commST() );
 
     if( !scalarIS_.is_null() )
       scalarIS_->print(out);
     else
       out << "scalarIS_ is null\n";
-    MPI_Barrier( comm() );
+    MPI_Barrier( commST() );
 
     for( int i=0; i<2; ++i ) {
       innerIS_[i]->print( out );
@@ -132,13 +146,13 @@ public:
       procGridSize_->print( out );
     else
       out << "procGridSize_ is null\n";
-    MPI_Barrier( comm() );
+    MPI_Barrier( commST() );
 
     if( !procGrid_.is_null() )
       procGrid_->print( out );
     else
       out << "procGrid_ is null\n";
-    MPI_Barrier( comm() );
+    MPI_Barrier( commST() );
 
   }
 
@@ -149,7 +163,7 @@ public:
 /// \todo wünschenswert initialization from parameterlist
 template< class O=int, int d=3>
 Teuchos::RCP< const Space<O,d> > createSpace(
-    const Teuchos::RCP<const FieldSpace<O> >& fieldSpace,
+    const Teuchos::RCP<const FieldSpace<O,d> >& fieldSpace,
     const Teuchos::RCP<const IndexSpace<O> >& scalarIS,
     const Teuchos::ArrayRCP< Teuchos::RCP<const IndexSpace<O> > >& innerIS,
     const Teuchos::ArrayRCP< Teuchos::RCP<const IndexSpace<O> > >& fullIS,

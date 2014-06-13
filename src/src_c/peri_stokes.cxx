@@ -196,6 +196,8 @@ int main(int argi, char** argv ) {
   auto tempv = Pimpact::createInitMVF<S,O>( Pimpact::Zero2DFlow, space );
   auto fu    = Pimpact::createInitMVF<S,O>( Pimpact::Zero2DFlow, space );
 
+  u->write(3);
+
   p->init(0.);
   u->init(0);
   tempv->init(0);
@@ -299,6 +301,9 @@ int main(int argi, char** argv ) {
   div->apply( *u, *fp );
   fu->scale(-1.);
   fp->scale(-1.);
+
+  fu->write(6);
+  fp->write(6);
 
   u = Pimpact::createInitMVF<S,O>( Pimpact::Zero2DFlow, space );
 

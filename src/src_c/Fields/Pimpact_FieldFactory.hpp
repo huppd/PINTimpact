@@ -174,9 +174,10 @@ createMultiHarmonicVectorField(
   auto field0 = createVectorField<S,O>( space );
   auto mfield = createModeField< VectorField<S,O> >( field0, field0 );
   auto fields = createMultiField< ModeField< VectorField<S,O> > >( *mfield, nf );
-  return Teuchos::rcp(
-      new MultiHarmonicField< VectorField<S,O> >( field0, fields ) );
+  return( Teuchos::rcp(
+      new MultiHarmonicField< VectorField<S,O> >( field0, fields ) ) );
 }
+
 
 
 } // end of namespace Pimpact

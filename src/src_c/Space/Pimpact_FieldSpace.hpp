@@ -22,44 +22,45 @@ class FieldSpace {
 
 public:
 
-//  typedef const Teuchos::Tuple<Ordinal,dim> TO;
-  typedef const Teuchos::Tuple<Ordinal,3> TO3;
-  //	using Teuchos::RCP;
+  typedef const Teuchos::Tuple<Ordinal,dim> TO;
+//  typedef const Teuchos::Tuple<Ordinal,3> TO3;
+
+  const MPI_Fint commf_;
+  MPI_Comm comm_;
+
+  Ordinal dim_;
+
+  TO bl_;
+  TO bu_;
+
 
   /// \brief constructor
   ///
   /// \param commf Fortran MPI communicator(an integer)
   /// \param comm MPI communicator
-//  / \param nGlo amount of global gridpoints
-//  / \param nLoc amount of local gridpoints
   /// \param bl lower bound of storage
   /// \param bu upper bound of storage
   FieldSpace(
       MPI_Fint commf,
       MPI_Comm comm,
       Ordinal dimension,
-//      TO nGlo,
-//      TO nLoc,
-      TO3 bl,
-      TO3 bu ):
+      TO bl,
+      TO bu ):
         commf_(commf),
         comm_(comm),
         dim_(dimension),
-//        nGlo_(nGlo),
-//        nLoc_(nLoc),
         bl_(bl),
         bu_(bu)
   {};
 
-  FieldSpace(const FieldSpace& fs):
+  FieldSpace( const FieldSpace& fs ):
     commf_(fs.commf_),
     comm_(fs.comm_),
     dim_(fs.dim_),
-//    nGlo_(fs.nGlo_),
-//    nLoc_(fs.nLoc_),
     bl_(fs.bl_),
     bu_(fs.bu_)
   {};
+
 
   /// prints to \c std::cout, only for debuging purpose
   void print( std::ostream& out=std::cout ) const {
@@ -75,23 +76,12 @@ public:
   }
 
 
-  const MPI_Fint commf_;
-  MPI_Comm comm_;
-
-  Ordinal dim_;
-
-  TO3 bl_;
-  TO3 bu_;
-
-
 }; // end of class FieldSpace
 
 
 extern "C" {
 void SVS_get_comm(MPI_Fint&);
 void FS_get_dim(int&);
-//void SVS_get_nGlo(int&,int&,int&);
-//void SVS_get_nLoc(int&,int&,int&);
 void SVS_get_bl(int&,int&,int&);
 void SVS_get_bu(int&,int&,int&);
 }
@@ -104,8 +94,8 @@ void SVS_get_bu(int&,int&,int&);
 template< class O=int, int d=3 >
 const Teuchos::RCP<const FieldSpace<O,d> > createFieldSpace(){
 
-//  typedef typename FieldSpace<O,d>::TO TO;
-  typedef typename FieldSpace<O,3>::TO3 TO3;
+  typedef typename FieldSpace<O,d>::TO TO;
+//  typedef typename FieldSpace<O,3>::TO3 TO3;
 
   MPI_Fint comm;
   SVS_get_comm( comm );
@@ -113,17 +103,13 @@ const Teuchos::RCP<const FieldSpace<O,d> > createFieldSpace(){
   int dim;
   FS_get_dim( dim );
 
-//  TO nGlo;
-//  SVS_get_nGlo( nGlo[0], nGlo[1], nGlo[2] );
-
-//  TO nLoc;
-//  SVS_get_nLoc( nLoc[0], nLoc[1], nLoc[2] );
-
-  TO3 bl;
+  TO bl;
   SVS_get_bl( bl[0], bl[1], bl[2] );
+  if( d==4 ) bl[3] = -1;
 
-  TO3 bu;
+  TO bu;
   SVS_get_bu( bu[0], bu[1], bu[2] );
+  if( d==4 ) bu[3] = 0;
 
   return(
       Teuchos::RCP<const FieldSpace<O,d> > (
@@ -131,8 +117,6 @@ const Teuchos::RCP<const FieldSpace<O,d> > createFieldSpace(){
               comm,
               MPI_Comm_f2c(comm),
               dim,
-//              nGlo,
-//              nLoc,
               bl,
               bu ) ) );
 }
