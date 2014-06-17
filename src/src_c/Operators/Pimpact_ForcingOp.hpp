@@ -6,7 +6,7 @@
 
 #include "Pimpact_Types.hpp"
 
-#include "Pimpact_VectorField.hpp"
+//#include "Pimpact_VectorField.hpp"
 
 
 
@@ -14,16 +14,17 @@ namespace Pimpact{
 
 
 /// \brief forcing operator.
-/// \ingroup BaseOperator
-template<class Scalar,class Ordinal>
+/// \ingroup Operator
+template<class Field>
 class ForcingOp {
+
+  typedef typename Field::Scalar Scalar;
+  typedef typename Field::Ordinal Ordinal;
 
 public:
 
-  typedef VectorField<Scalar,Ordinal>  DomainFieldT;
-  typedef VectorField<Scalar,Ordinal>  RangeFieldT;
-
-//  typedef ModeOp OpType;
+  typedef Field  DomainFieldT;
+  typedef Field  RangeFieldT;
 
 protected:
 
@@ -57,11 +58,11 @@ public:
 
 
 /// \relates ForcingOp
-template<class Scalar,class Ordinal>
-Teuchos::RCP<ForcingOp<Scalar,Ordinal> > createForcingOp(
-    const Teuchos::RCP< VectorField<Scalar,Ordinal> >& forcing, Scalar mul=1. ) {
+template<class F>
+Teuchos::RCP<ForcingOp<F> > createForcingOp(
+    const Teuchos::RCP<F>& forcing, typename F::Scalar mul=1. ) {
   return(
-      Teuchos::rcp( new ForcingOp<Scalar,Ordinal>( forcing, mul ) )
+      Teuchos::rcp( new ForcingOp<F>( forcing, mul ) )
   );
 }
 

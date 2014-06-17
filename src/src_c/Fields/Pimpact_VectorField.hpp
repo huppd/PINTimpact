@@ -33,15 +33,15 @@ namespace Pimpact {
 template<class S=double, class O=int, int dimension=3 >
 class VectorField {
 
-  template<class S1, class O1>
+  template<class S1, class O1, int dimension1>
   friend class Grad;
-  template<class S1,class O1>
+  template<class S1,class O1, int dimension1>
   friend class Div;
-  template<class S1,class O1,int>
-  friend class Helmholtz;
-  template<class S1,class O1>
+  template<class S1,class O1, int dimension1>
+  friend class HelmholtzOp;
+  template<class S1,class O1, int d>
   friend class Nonlinear;
-  template<class S1,class O1>
+  template<class S1,class O1, int dimension1>
   friend class NonlinearJacobian;
   template<class S1,class O1>
   friend class DtLapOp;
@@ -49,8 +49,11 @@ class VectorField {
   friend class MLHelmholtzOp;
   template<class S1,class O1>
   friend class InverseHelmholtzOp;
-  template<class S1,class O1>
+  template<class S1,class O1,int dimension1>
   friend class MGVHelmholtzOp;
+  template< class S1, class O1, bool CNY >
+  friend class TimeNonlinearJacobian;
+
 
 public:
 
@@ -767,8 +770,6 @@ public:
   }
 
 
-
-
 public:
 
   /// \todo add good documetnation here
@@ -871,11 +872,11 @@ protected:
 
 /// \brief creates a vector field belonging to a \c FieldSpace and two \c IndexSpaces
 /// \relates VectorField
-template<class S, class O>
-Teuchos::RCP< VectorField<S,O> > createVectorField( const Teuchos::RCP< const Space<O> >& space ) {
+template<class S=double, class O=int, int d=3>
+Teuchos::RCP< VectorField<S,O,d> > createVectorField( const Teuchos::RCP< const Space<O,d> >& space ) {
 
-  return( Teuchos::RCP<VectorField<S,O> > (
-      new VectorField<S,O>( space ) ) );
+  return( Teuchos::RCP<VectorField<S,O,d> > (
+      new VectorField<S,O,d>( space ) ) );
 
 }
 

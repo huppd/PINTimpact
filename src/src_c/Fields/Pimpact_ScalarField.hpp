@@ -29,9 +29,9 @@ namespace Pimpact {
 template<class S, class O, int dimension=3>
 class ScalarField {
 
-  template<class S1,class O1>
+  template<class S1,class O1,int dimension1>
   friend class Grad;
-  template<class S1,class O1>
+  template<class S1,class O1,int dimension1>
   friend class Div;
   template<class S1,class O1>
   friend class DivGradOp;

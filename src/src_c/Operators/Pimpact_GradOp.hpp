@@ -16,12 +16,13 @@ extern "C" {
 
 
 /// \ingroup BaseOperator
-template<class Scalar,class Ordinal>
+template<class Scalar, class Ordinal, int dimension=3>
 class Grad {
+
 public:
-  typedef ScalarField<Scalar,Ordinal>  DomainFieldT;
-  typedef VectorField<Scalar,Ordinal>  RangeFieldT;
-//  typedef NonModeOp OpType;
+
+  typedef ScalarField<Scalar,Ordinal,dimension>  DomainFieldT;
+  typedef VectorField<Scalar,Ordinal,dimension>  RangeFieldT;
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
     int dim = x.dim();
@@ -43,9 +44,9 @@ public:
 
 
 /// \relates Grad
-template<class S,class O>
-Teuchos::RCP< Grad<S,O> > createGradOp() {
-  return( Teuchos::rcp( new Grad<S,O>() ) );
+template<class S=double, class O=int, int d=3>
+Teuchos::RCP< Grad<S,O,d> > createGradOp() {
+  return( Teuchos::rcp( new Grad<S,O,d>() ) );
 }
 
 

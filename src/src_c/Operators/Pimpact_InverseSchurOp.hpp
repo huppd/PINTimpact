@@ -67,6 +67,9 @@ public:
                 opV2S_ ) );
 
     lp_ = Pimpact::createLinearProblem< MultiField<SF> >( opSchur, Teuchos::null, Teuchos::null, para, "GMRES" );
+//    lp_ = Pimpact::createLinearProblem< MultiField<SF> >( opSchur, Teuchos::null, Teuchos::null, Teuchos::null, "GmresPoly" );
+//    lp_ = Pimpact::createLinearProblem< MultiField<SF> >( opSchur, Teuchos::null, Teuchos::null, para, "GCRODR" );
+//    lp_ = Pimpact::createLinearProblem< MultiField<SF> >( opSchur, Teuchos::null, Teuchos::null, Teuchos::parameterList(), "GCRODR" );
 
   };
 
@@ -85,6 +88,11 @@ public:
     tempv_->add( -1., *tempv_, 1., x.getConstVField() );
     // ~ H^{-1}(f_u -G p)
     opV2Vinv_->apply( *createMultiField(tempv_), *createMultiField( y.getVFieldPtr() ) );
+
+
+//    opV2Vinv_->apply( *createMultiField( Teuchos::rcp_const_cast<VF>(x.getConstVFieldPtr()) ), *createMultiField(y.getVFieldPtr()) ); // should be correct
+//    y.getSFieldPtr()->add( 0., y.getConstSField(), 1., x.getConstSField() );
+
   }
 
   /// \todo fixme

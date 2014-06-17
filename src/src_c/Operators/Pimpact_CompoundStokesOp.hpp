@@ -29,7 +29,7 @@ namespace Pimpact {
 template<class Scalar,class Ordinal>
 class CompoundStokes {
   Scalar omega_;
-  Teuchos::RCP<Helmholtz<Scalar,Ordinal> > L_;
+  Teuchos::RCP<HelmholtzOp<Scalar,Ordinal> > L_;
   Teuchos::RCP<Div<Scalar,Ordinal> >  div_;
   Teuchos::RCP<Grad<Scalar,Ordinal> > grad_;
 
@@ -47,14 +47,14 @@ public:
   typedef CompoundField<MVF,MSF>  RangeFieldT;
 //  typedef ModeOp OpType;
 
-  CompoundStokes():omega_(1.),L_(Teuchos::rcp(new Helmholtz<Scalar,Ordinal>( 0., 1. )) ),
+  CompoundStokes():omega_(1.),L_(Teuchos::rcp(new HelmholtzOp<Scalar,Ordinal>( 0., 1. )) ),
     div_(Teuchos::rcp(new Div<Scalar,Ordinal>())), grad_(Teuchos::rcp(new Grad<Scalar,Ordinal>() )), temp_(Teuchos::null) {};
 
   CompoundStokes( Scalar omega, Scalar mulI, Scalar mulL, Teuchos::RCP<VF> temp ):
-    omega_(omega),L_(Teuchos::rcp( new Helmholtz<Scalar,Ordinal>(mulI,mulL) ) ),
+    omega_(omega),L_(Teuchos::rcp( new HelmholtzOp<Scalar,Ordinal>(mulI,mulL) ) ),
     div_(Teuchos::rcp(new Div<Scalar,Ordinal>())), grad_(Teuchos::rcp(new Grad<Scalar,Ordinal>() )), temp_(temp) {};
 
-//  CompoundStokes( Scalar omega, Teuchos::RCP<Helmholtz<Scalar,Ordinal> > L ):omega_(omega),L_(L) {};
+//  CompoundStokes( Scalar omega, Teuchos::RCP<HelmholtzOp<Scalar,Ordinal> > L ):omega_(omega),L_(L) {};
 
   void apply(const DomainFieldT& x_, RangeFieldT& y_ ) const {
     auto x = x_.getConstVFieldPtr();

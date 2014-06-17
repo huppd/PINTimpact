@@ -534,6 +534,7 @@ contains
 
 
     !> \brief init vector field with 2d Poiseuille flow in x-direction
+    !! \f[ u(y) = y*( L_y - y )*4/L_y/L_y \f]
     subroutine cinit_2DPoiseuilleX(   &
         N,      &
         S1U,S2U,S3U, N1U,N2U,N3U,       &
@@ -625,6 +626,7 @@ contains
 
 
     !> \brief init vector field with 2d Poiseuille flow in y-direction
+    !! \f[ v(x) = x*( L_x - x )*4/L_x/L_x \f]
     subroutine cinit_2DPoiseuilleY(   &
         !    N1,N2,N3,                       &
         N,                       &
@@ -717,6 +719,7 @@ contains
 
 
     !> \brief init vector field with a zero flow
+    !! \f[ u=v=0 \f]
     subroutine cinit_zero(            &
         !    N1,N2,N3,                       &
         N,  &
@@ -1271,6 +1274,7 @@ contains
 
 
 
+    !> \brief \f$ amp*\cos( \frac{2.*pi*x}{L_x} ) \f$
     subroutine cinit_StreamingC(       &
         N1,N2,N3,                       &
         S1U,S2U,S3U, N1U,N2U,N3U,       &
@@ -1378,6 +1382,7 @@ contains
 
 
 
+    !> \brief \f$ amp*\sin( \frac{2.*pi*x}{L_x} ) \f$
     subroutine cinit_StreamingS(       &
         N1,N2,N3,                       &
         S1U,S2U,S3U, N1U,N2U,N3U,       &
@@ -2242,6 +2247,7 @@ contains
 
 
 
+    !> \f$ u = \min( 4*\exp( -((x-xm)/rad)**2 -((y-ym)/rad)**2 ),1.) \f$
     subroutine cinit_Disc( &
         N1,N2,N3,                         &
         S1U,S2U,S3U, N1U,N2U,N3U,         &

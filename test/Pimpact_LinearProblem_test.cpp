@@ -60,7 +60,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 	typedef double  S;
 	typedef int     O;
 	typedef Pimpact::MultiField< Pimpact::VectorField<S,O> > MF;
-	typedef Pimpact::MultiOpWrap< Pimpact::Helmholtz<S,O> >  Op;
+	typedef Pimpact::MultiOpWrap< Pimpact::HelmholtzOp<S,O> >  Op;
 
 
 	auto space = Pimpact::createSpace();
@@ -73,7 +73,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 	x->init(0.);
 	b->init(1.);
 
-	auto A = Pimpact::createMultiOperatorBase< MF, Pimpact::Helmholtz<S,O> >();
+	auto A = Pimpact::createMultiOperatorBase< MF, Pimpact::HelmholtzOp<S,O> >();
 
 
 	RCP<ParameterList> param = Pimpact::createLinSolverParameter("GMRES",1.e-4);
@@ -95,7 +95,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 //	using Teuchos::rcp; // Save some typing
 //	typedef double Scalar;
 //	typedef Pimpact::MultiField<Pimpact::VectorField<double,int> > MV;
-//	typedef Pimpact::OperatorMV< Pimpact::Helmholtz<double,int> >  OP;
+//	typedef Pimpact::OperatorMV< Pimpact::HelmholtzOp<double,int> >  OP;
 //
 //	auto fS = Pimpact::createFieldSpace<int>();
 //
@@ -110,7 +110,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 //	X->init(0.);
 //	B->init(1.);
 //
-//	auto A = Pimpact::createOperatorMV<Pimpact::Helmholtz<double,int> >();
+//	auto A = Pimpact::createOperatorMV<Pimpact::HelmholtzOp<double,int> >();
 //
 //	// Make an empty new parameter list.
 //	RCP<ParameterList> solverParams = parameterList();
@@ -265,7 +265,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 //	typedef double Scalar;
 //	typedef Pimpact::MultiField<Pimpact::VectorField<double,int> > MV;
 //	typedef Pimpact::MultiField<Pimpact::ScalarField<double,int> > MVp;
-//	typedef Pimpact::OperatorMV< Pimpact::Helmholtz<double,int> >  OP;
+//	typedef Pimpact::OperatorMV< Pimpact::HelmholtzOp<double,int> >  OP;
 //	typedef Pimpact::OperatorMV< Pimpact::Div_Hinv_Grad<double,int> >  OPp;
 //
 //	auto fS = Pimpact::createFieldSpace<int>();
@@ -380,7 +380,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 //  typedef Pimpact::MultiField<MVF> BVF;
 //
 //  typedef Pimpact::DtL<S,O> Op;
-//  typedef Pimpact::Dt<S,O> Op2;
+//  typedef Pimpact::DtModeOp<S,O> Op2;
 ////  typedef Pimpact::OperatorMV<Op> OpMV;
 ////  typedef Pimpact::OperatorMV<Op2> OpMV2;
 //  typedef Pimpact::OperatorBase<BVF> OpBase;
@@ -401,7 +401,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 //  auto b = Pimpact::createInitMVF( Pimpact::Zero2DFlow, fS, iIS, fIS,1.,1.,1.);
 //
 //  auto op = Pimpact::createOperatorBaseMV<BVF,Op>( Pimpact::createDtL<S,O>( 100., 0., 1. ) );
-////  auto prec = Pimpact::createOperatorBase<BVF,Op2>( Pimpact::createDt<S,O>( -1. ) );
+////  auto prec = Pimpact::createOperatorBase<BVF,Op2>( Pimpact::createDtModeOp<S,O>( -1. ) );
 //
 //
 //  // Make an empty new parameter list.

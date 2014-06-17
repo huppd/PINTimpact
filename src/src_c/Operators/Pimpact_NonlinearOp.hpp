@@ -23,26 +23,30 @@ void OP_nonlinear(
 
 
 /// \ingroup BaseOperator
-template<class Scalar,class Ordinal>
+template<class Scalar,class Ordinal, int dimension=3>
 class Nonlinear {
-public:
-  typedef VectorField<Scalar,Ordinal>  DomainFieldT;
-  typedef VectorField<Scalar,Ordinal>  RangeFieldT;
-//  typedef NonModeOp OpType;
-private:
-  Teuchos::RCP<DomainFieldT> u_;
-public:
-  Nonlinear():u_(Teuchos::null) {};
 
+public:
+
+  typedef VectorField<Scalar,Ordinal,dimension>  DomainFieldT;
+  typedef VectorField<Scalar,Ordinal,dimension>  RangeFieldT;
+
+private:
+
+  Teuchos::RCP<DomainFieldT> u_;
+
+public:
+
+  Nonlinear():u_(Teuchos::null) {};
 
   void assignField( const DomainFieldT& mv ) {};
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
 
-//    if( Teuchos::is_null(u_) )
-      apply( x, x, y);
-//    else
-//      apply( *u_, x, y );
+    //    if( Teuchos::is_null(u_) )
+    apply( x, x, y);
+    //    else
+    //      apply( *u_, x, y );
 
   }
 
@@ -74,9 +78,9 @@ public:
 
 
 /// \relates Nonlinear
-template< class S, class O >
-Teuchos::RCP<Nonlinear<S,O> > createNonlinear() {
-  return( Teuchos::rcp( new Nonlinear<S,O>() ) );
+template< class S=double, class O=int, int d=3 >
+Teuchos::RCP<Nonlinear<S,O,d> > createNonlinear() {
+  return( Teuchos::rcp( new Nonlinear<S,O,d>() ) );
 }
 
 

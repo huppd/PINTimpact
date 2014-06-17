@@ -29,13 +29,13 @@ extern "C" {
 
 
 /// \ingroup ModeOperator
-/// \todo move Helmholtz to MultiDtHelmholtzOp(is not ModeOp)
+/// \todo move HelmholtzOp to MultiDtHelmholtzOp(is not ModeOp)
 template<class Scalar,class Ordinal>
 class DtLapOp {
 
   Scalar alpha2_;
   Scalar iRe_;
-  Teuchos::RCP<Helmholtz<Scalar,Ordinal> > L_; // necesary for 0 mode
+  Teuchos::RCP<HelmholtzOp<Scalar,Ordinal> > L_; // necesary for 0 mode
 
 public:
 
@@ -45,12 +45,12 @@ public:
   DtLapOp(
       Scalar alpha2=1.,
       Scalar iRe=1.,
-      const Teuchos::RCP<Helmholtz<Scalar,Ordinal> >& L=Teuchos::null ):
+      const Teuchos::RCP<HelmholtzOp<Scalar,Ordinal> >& L=Teuchos::null ):
     alpha2_(alpha2),
     iRe_(iRe),
     L_(L) {
     if( L_.is_null() )
-      L_ = createHelmholtz<Scalar,Ordinal>( 0, iRe );
+      L_ = createHelmholtzOp<Scalar,Ordinal>( 0, iRe );
   };
 
 
@@ -100,7 +100,7 @@ public:
 
   void assignField( const DomainFieldT& mv ) {};
 
-  Teuchos::RCP< Helmholtz<Scalar,Ordinal> > getInnerOpPtr() {
+  Teuchos::RCP< HelmholtzOp<Scalar,Ordinal> > getInnerOpPtr() {
     return( L_ );
   }
 
@@ -110,7 +110,7 @@ public:
 
 
 
-/// \relates DtL
+/// \relates DtLapOp
 template< class Scalar, class Ordinal>
 Teuchos::RCP< DtLapOp<Scalar,Ordinal> > createDtLapOp( Scalar alpha2=1., Scalar iRe=1. ) {
   return( Teuchos::rcp( new DtLapOp<Scalar,Ordinal>( alpha2, iRe ) ) );

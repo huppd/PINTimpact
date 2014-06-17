@@ -170,8 +170,8 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, createGroup ) {
 //  typedef Pimpact::VectorField<S,O> VF;
 //  typedef Pimpact::MultiField<VF> MVF;
 ////  typedef Pimpact::Nonlinear<S,O>  OP;
-//  typedef Pimpact::Helmholtz<S,O>  Op;
-//  typedef Pimpact::Helmholtz<S,O>  JOp;
+//  typedef Pimpact::HelmholtzOp<S,O>  Op;
+//  typedef Pimpact::HelmholtzOp<S,O>  JOp;
 ////  typedef Pimpact::OperatorBase<MVF>  BOP;
 //
 //  typedef NOX::Pimpact::SimpleLinear Interface;
@@ -517,10 +517,10 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
   typedef Pimpact::VectorField<S,O> VF;
   typedef Pimpact::MultiField<VF> MVF;
   typedef Pimpact::Nonlinear<S,O>  Op1;
-  typedef Pimpact::Helmholtz<S,O>  Op2;
+  typedef Pimpact::HelmholtzOp<S,O>  Op2;
   typedef Pimpact::MultiOpWrap<Pimpact::Add2Op<Op1,Op2> >  Op;
   typedef Pimpact::NonlinearJacobian<S,O>  JOp1;
-  typedef Pimpact::Helmholtz<S,O>  JOp2;
+  typedef Pimpact::HelmholtzOp<S,O>  JOp2;
   typedef Pimpact::MultiOpWrap<Pimpact::Add2Op<JOp1,JOp2> > JOp;
   typedef Pimpact::OperatorBase<MVF>  BOp;
 
@@ -544,7 +544,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
       Pimpact::createMultiOpWrap(
           Pimpact::createAdd2Op<Op1,Op2>(
               Pimpact::createNonlinear<S,O>(),
-              Pimpact::createHelmholtz<S,O>(0.,eps),
+              Pimpact::createHelmholtzOp<S,O>(0.,eps),
               vel->clone() ) ) );
 
 
@@ -552,7 +552,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
       Pimpact::createMultiOpWrap(
           Pimpact::createAdd2Op<JOp1,JOp2>(
               Pimpact::createNonlinearJacobian<S,O>( vel ),
-              Pimpact::createHelmholtz<S,O>(0.,eps),
+              Pimpact::createHelmholtzOp<S,O>(0.,eps),
               vel->clone() ) ) );
 
 

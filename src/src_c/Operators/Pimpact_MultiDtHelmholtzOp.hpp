@@ -18,7 +18,6 @@ namespace Pimpact{
 template<class Scalar,class Ordinal>
 class MultiDtHelmholtz {
 
-//  Scalar omega_;
   Teuchos::RCP<DtLapOp<Scalar,Ordinal> > op_;
 
 public:
@@ -47,7 +46,7 @@ public:
   void assignField( const DomainFieldT& mv ) {};
 
 
-  Teuchos::RCP< Helmholtz<Scalar,Ordinal> > getInnerOpPtr() {
+  Teuchos::RCP< HelmholtzOp<Scalar,Ordinal> > getInnerOpPtr() {
     return( op_ );
   }
 

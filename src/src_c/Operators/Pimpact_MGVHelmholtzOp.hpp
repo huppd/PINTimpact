@@ -27,7 +27,7 @@ void OP_MGV(
 ///
 /// uses bicgstab, and multigrid from Impact
 /// \ingroup BaseOperator
-template<class Scalar,class Ordinal>
+template<class Scalar,class Ordinal, int dimension=3>
 class MGVHelmholtzOp {
 
 protected:
@@ -39,8 +39,8 @@ protected:
 
 public:
 
-  typedef VectorField<Scalar,Ordinal>  DomainFieldT;
-  typedef VectorField<Scalar,Ordinal>  RangeFieldT;
+  typedef VectorField<Scalar,Ordinal,dimension>  DomainFieldT;
+  typedef VectorField<Scalar,Ordinal,dimension>  RangeFieldT;
 
   MGVHelmholtzOp(
       Scalar mulI=0.,
@@ -69,7 +69,7 @@ public:
 
     for( int vel_dir=0; vel_dir<x.dim(); ++vel_dir ) {
 
-      for( int i=0; i<10; ++i )
+      for( int i=0; i<4; ++i )
         OP_MGV(
             vel_dir+1,
             mulL_/mulI_,
@@ -93,10 +93,10 @@ public:
 
 
 /// \relates MGVHelmholtzOp
-template<class Scalar,class Ordinal>
-Teuchos::RCP<MGVHelmholtzOp<Scalar,Ordinal> > createMGVHelmholtzOp(
-    Scalar mulI=0.,
-    Scalar mulL=1.,
+template<class S,class O, int d=3>
+Teuchos::RCP<MGVHelmholtzOp<S,O,d> > createMGVHelmholtzOp(
+    S mulI=0.,
+    S mulL=1.,
 //    Scalar tol=1.e-3,
 //    int nItMax=100,
     bool initYes=true
@@ -105,7 +105,7 @@ Teuchos::RCP<MGVHelmholtzOp<Scalar,Ordinal> > createMGVHelmholtzOp(
     ) {
 
   return(
-      Teuchos::rcp( new MGVHelmholtzOp<Scalar,Ordinal>(mulI, mulL, initYes ) ) );
+      Teuchos::rcp( new MGVHelmholtzOp<S,O,d>(mulI, mulL, initYes ) ) );
 }
 
 

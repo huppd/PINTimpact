@@ -62,7 +62,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
   typedef Pimpact::VectorField<S,O> VF;
   typedef Pimpact::MultiField<VF> MVF;
 
-  typedef Pimpact::Helmholtz<S,O> Op;
+  typedef Pimpact::HelmholtzOp<S,O> Op;
   typedef Pimpact::MultiOpWrap<Op> MOp;
   typedef Pimpact::OperatorBase<MVF> BOp;
 
@@ -111,7 +111,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, PrecHelmholtzMV ) {
   typedef Pimpact::VectorField<S,O> VF;
   typedef Pimpact::MultiField<VF> MVF;
 
-  typedef Pimpact::Helmholtz<S,O> Op;
+  typedef Pimpact::HelmholtzOp<S,O> Op;
   typedef Pimpact::MLHelmholtzOp<S,O> Prec;
   typedef Pimpact::MultiOpWrap<Op> MOp;
   typedef Pimpact::OperatorBase<MVF> BOp;
@@ -170,7 +170,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, PrecMGVHelmholtz ) {
   typedef Pimpact::VectorField<S,O> VF;
   typedef Pimpact::MultiField<VF> MVF;
 
-  typedef Pimpact::Helmholtz<S,O> Op;
+  typedef Pimpact::HelmholtzOp<S,O> Op;
   typedef Pimpact::MLHelmholtzOp<S,O> Prec;
   typedef Pimpact::MultiOpWrap<Op> MOp;
   typedef Pimpact::OperatorBase<MVF> BOp;
@@ -233,7 +233,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, PrecDivGrad ) {
   typedef Pimpact::ScalarField<S,O> SF;
   typedef Pimpact::MultiField<SF> MSF;
 
-  typedef Pimpact::Helmholtz<S,O> Op;
+  typedef Pimpact::HelmholtzOp<S,O> Op;
   typedef Pimpact::MLHelmholtzOp<S,O> Prec;
   typedef Pimpact::MultiOpWrap<Op> MOp;
   typedef Pimpact::OperatorBase<MSF> BOp;
@@ -248,7 +248,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, PrecDivGrad ) {
   auto sol = Pimpact::createScalarField<S,O>( space );
 
 
-  auto lap = Pimpact::createHelmholtz<S,O>( 0., 1. );
+  auto lap = Pimpact::createHelmholtzOp<S,O>( 0., 1. );
 
   auto div = Pimpact::createDivOp<S,O>();
 

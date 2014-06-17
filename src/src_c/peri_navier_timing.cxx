@@ -59,18 +59,10 @@ int main(int argi, char** argv ) {
 
   typedef Pimpact::MultiDtHelmholtz<S,O>  DtL;
   typedef Pimpact::MultiHarmonicNonlinear<S,O>  MAdv;
-  //  typedef Pimpact::MultiHarmonicOpWrap< Pimpact::ForcingOp<S,O> > Fo;
-  //  typedef Pimpact::MultiOpWrap< Pimpact::AddOp< Pimpact::AddOp<MAdv,DtL>, Fo > > Op;
   typedef Pimpact::Add2Op<DtL,MAdv> OpV2V;
-  //  typedef Pimpact::AddOp<DtL,MAdv> OpV2V;
   typedef Pimpact::MultiOpWrap< Pimpact::CompoundOpWrap<OpV2V,OpS2V,OpV2S> > Op;
 
   typedef Pimpact::OperatorBase<MF> BOp;
-
-  //  typedef Pimpact::MultiHarmonicNonlinearJacobian<S,O>  JMAdv;
-  //  typedef Pimpact::MultiHarmonicDiagNonlinearJacobian<S,O>  DJMAdv;
-  //  typedef Pimpact::MultiHarmonicOpWrap< Pimpact::NonlinearJacobian<S,O> > JAdv;
-  //  typedef Pimpact::MultiOpWrap< Pimpact::AddOp< Pimpact::AddOp<JMAdv,DtL>, Fo > > JOp;
 
 
   typedef NOX::Pimpact::Interface<MF> Inter;

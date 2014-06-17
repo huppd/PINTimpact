@@ -50,7 +50,7 @@ int main(int argi, char** argv ) {
   typedef Pimpact::ScalarField<S,O> SF;
   typedef Pimpact::MultiField<VF> MVF;
   typedef Pimpact::MultiField<SF> MSF;
-  typedef Pimpact::MultiOpWrap< Pimpact::Helmholtz<S,O> >  Lap;
+  typedef Pimpact::MultiOpWrap< Pimpact::HelmholtzOp<S,O> >  Lap;
   typedef Pimpact::MultiOpWrap< Pimpact::DivHinvGrad<S,O> >  Schur;
   typedef Pimpact::MultiOpWrap< Pimpact::Grad<S,O> >  G;
 
@@ -182,7 +182,7 @@ int main(int argi, char** argv ) {
 
 
   // init operators
-  auto lap  = Pimpact::createMultiOperatorBase<MVF,Pimpact::Helmholtz<S,O> >(Pimpact::createHelmholtz<S,O>( 0., 1./re ) );
+  auto lap  = Pimpact::createMultiOperatorBase<MVF,Pimpact::HelmholtzOp<S,O> >(Pimpact::createHelmholtzOp<S,O>( 0., 1./re ) );
   auto div  = Pimpact::createMultiOpWrap<Pimpact::Div<S,O> >();
   auto grad = Pimpact::createMultiOpWrap<Pimpact::Grad<S,O> >();
 

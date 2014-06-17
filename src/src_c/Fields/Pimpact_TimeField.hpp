@@ -34,13 +34,12 @@ namespace Pimpact {
 template<class Field>
 class TimeField {
 
-  template<class Op>
+  template<class Op,bool CNY>
   friend class TimeOpWrap;
-
-//  friend initVectorTimeField;
-//
-////  template
-//  friend initFie
+  template<class S, class O>
+  friend class DtTimeOp;
+  template<class S, class O,bool CNY>
+  friend class TimeNonlinearJacobian;
 
 public:
 
@@ -51,14 +50,15 @@ protected:
 
   typedef Pimpact::TimeField<Field> MV;
   typedef Scalar* ScalarArray;
-  typedef Teuchos::Array< Teuchos::RCP<Field> > FieldArray;
-  typedef typename FieldArray::iterator Iter;
 
   Teuchos::RCP<const Space<Ordinal,4> > space_;
 
   Teuchos::Array< Teuchos::RCP<Field> > mfs_;
 
 public:
+
+  typedef Teuchos::Array< Teuchos::RCP<Field> > FieldArray;
+  typedef typename FieldArray::iterator Iter;
 
   Iter beginI_;
   Iter endI_;
@@ -155,19 +155,17 @@ public:
 
   /// \brief get number of stored Field's
 private:
-  int getNumberVecs() const {  return( mfs_.size() ); }
-public:
 
+  int getNumberVecs() const {  return( mfs_.size() ); }
+
+public:
 
   /// \brief is true
   bool HasConstantStride() const { return( true ); }
 
-
   //@}
   /// \name Update methods
   //@{
-
-
 
 
   /// \brief <tt>mv := alpha*A + beta*B</tt>
@@ -177,11 +175,12 @@ public:
   ///	the same thing as <tt>mv := 0*mv + alpha*A + beta*B</tt> in IEEE 754
   ///	floating-point arithmetic. (Remember that NaN*0 = NaN.)
   void add( Scalar alpha, const MV& A, Scalar beta, const MV& B ) {
-    int j=0;
-    for( Iter i=mfs_.begin(); i<mfs_.end(); ++i ) {
-      (*i)->add( alpha, (*A.mfs_[j]), beta, (*B.mfs_[j]) );
-      ++j;
+    Iter j = const_cast<MV&>(A).beginI_;
+    Iter k = const_cast<MV&>(B).beginI_;
+    for( Iter i=beginI_; i<endI_; ++i ) {
+      (*i)->add( alpha, **(j++), beta, **(k++) );
     }
+    changed();
   }
 
 
@@ -192,8 +191,10 @@ public:
   /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
   void abs(const MV& y) {
-    for( Iter i=mfs_.begin(); i<mfs_.end(); ++i )
-      mfs_[i]->abs( *y.mfs_[i] );
+    Iter j=const_cast<MV&>(y).beginI_;
+    for( Iter i=beginI_; i<endI_; ++i )
+      (*i)->abs( **(j++) );
+    changed();
   }
 
 
@@ -203,8 +204,10 @@ public:
   /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
   /// \return Reference to this object
   void reciprocal(const MV& y){
-    for( Iter i=mfs_.begin(); i<mfs_.end(); ++i )
-      mfs_[i]->reciprocal( *y.mfs_[i] );
+    Iter j=const_cast<MV&>(y).beginI_;
+    for( Iter i=beginI_; i<endI_; ++i )
+      (*i)->reciprocal( **(j++) );
+    changed();
   }
 
 
@@ -213,20 +216,22 @@ public:
   /// Here x represents on \c Field, and we update it as
   /// \f[ x_i = \alpha x_i \quad \mbox{for } i=1,\dots,n \f]
   void scale( const Scalar& alpha ) {
-    for( Iter i=mfs_.begin(); i<mfs_.end(); ++i )
+    for( Iter i=beginI_; i<endI_; ++i )
       (*i)->scale(alpha);
+    changed();
   }
 
 
   /// \brief Scale this vector <em>element-by-element</em> by the vector a.
   ///
   /// Here x represents this vector, and we update it as
-  /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
+  /// \f[ x_i = x_i \cdot y_i \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  void scale(const MV& a) {
-    Iter j = a.mfs_.begin();
-    for( Iter i=mfs_.begin(); i<mfs_.end(); ++i )
-      mfs_[i]->scale( (*j++) );
+  void scale(const MV& y) {
+    Iter j=const_cast<MV&>(y).beginI_;
+    for( Iter i=beginI_; i<endI_; ++i )
+      (*i)->scale( **(j++) );
+    changed();
   }
 
 
@@ -240,9 +245,9 @@ public:
 
     Scalar b = 0.;
 
-    int j=0;
+    Iter j = const_cast<MV&>(A).beginI_;
     for( Iter i=beginI_; i<endI_; ++i )
-      b+= (*i)->dot( *A.mfs_[j++], false );
+      b+= (*i)->dot( **(j++), false );
 
     if( global ) {
       Scalar b_global=0.;
@@ -300,8 +305,9 @@ public:
   /// \return \f$ \|x\|_w \f$
   double norm(const MV& weights) const {
     double nor=0.;
-    for( int i=0; i<getNumberVecs(); ++i )
-      nor+= mfs_[i]->norm( *weights.mfs_[i] );
+    Iter j = const_cast<MV&>(weights).beginI_;
+    for( Iter i=beginI_; i<endI_; ++i )
+      nor+= (*i)->norm( **(j++) );
     return( nor );
   }
 
@@ -310,10 +316,10 @@ public:
   ///
   /// assign (deep copy) A into mv.
   void assign( const MV& A ) {
-    //    Iter j = A.mfs_.begin();
-    int j = 0;
-    for( Iter i=mfs_.begin(); i<mfs_.end(); ++i )
-      (*i)->assign( *A.mfs_[j++] );
+    Iter j = const_cast<MV&>(A).beginI_;
+    for( Iter i=beginI_; i<endI_; ++i )
+      (*i)->assign( **(j++) );
+    changed();
   }
 
 
@@ -327,7 +333,6 @@ public:
 
   /// \brief \f[ *this = \alpha \f]
   void init( Scalar alpha = Teuchos::ScalarTraits<Scalar>::zero() ) {
-    //    for( Iter i=mfs_.begin(); i<mfs_.end(); ++i )
     for( Iter i=beginI_; i<endI_; ++i )
       (*i)->init(alpha);
     changed();
@@ -343,16 +348,12 @@ public:
 
 
   void write( int count=0 )  {
-    for( Iter i=mfs_.begin(); i<mfs_.end(); ++i )
-      (*i)->write(count++ + 2.*space_->shift()[3] );
+    //    for( Iter i=mfs_.begin(); i<mfs_.end(); ++i )
+    //      (*i)->write(count++ + 2.*space_->shift()[3] );
+    for( Iter i=beginI_; i<endI_; ++i )
+      (*i)->write(count++ + space_->shift()[3] );
   }
 
-
-  //  Field&       getField     (int i)       { return( *mfs_[i] ); }
-  //  const Field& getConstField(int i) const { return( *mfs_[i] ); }
-  //
-  //  Teuchos::RCP<Field>       getFieldPtr     (int i)       { return( mfs_[i] ); }
-  //  Teuchos::RCP<const Field> getConstFieldPtr(int i) const { return( mfs_[i] ); }
 
   MPI_Comm comm() const { return( space_->commST() ); }
 
@@ -364,12 +365,12 @@ public:
     exchangedState_ = false;
   }
 
-  void exchange()  {
+  void exchange()   {
 
 
     if(!exchangedState_) {
       int transL = beginI_-mfs_.begin();
-//      int transU = mfs_.end()-endI_;
+      //      int transU = mfs_.end()-endI_;
 
       //    std::cout << "transl: " <<  transl<< "\n";
       //    std::cout << "transu: " <<  transu<< "\n";
@@ -377,13 +378,13 @@ public:
       int rankL = space_->rankL()[3];
 
       MPI_Request reqL;
-//      MPI_Request reqU;
+      //      MPI_Request reqU;
 
       MPI_Status statusL;
-//      MPI_Status statusU;
+      //      MPI_Status statusU;
 
       Ordinal lengthL = transL * mfs_[0]->getStorageSize();
-//      Ordinal lengthU = transU * mfs_[0]->getStorageSize();
+      //      Ordinal lengthU = transU * mfs_[0]->getStorageSize();
 
       Scalar* ghostUR = mfs_[0]->getStoragePtr();
       //      Scalar* ghostLR = (*(endI_))->getStoragePtr();
@@ -404,6 +405,12 @@ public:
     exchangedState_ = true;
   }
 
+  Teuchos::RCP<Field> getFieldPtr( int i ) { return(  mfs_[i] ); }
+  Field& getField   ( int i ) { return( *mfs_[i] ); }
+
+  Teuchos::RCP<const Field> getConstFieldPtr( int i ) const { return(  mfs_[i] ); }
+  const Field&  getConstField   ( int i ) const { return( *mfs_[i] ); }
+
 }; // end of class TimeField
 
 
@@ -420,13 +427,62 @@ createTimeField( const Teuchos::RCP<const Space<typename Field::Ordinal,4> >& sp
 
 
 #include "Pimpact_VectorField.hpp"
+#include "cmath"
 
 template<class S,class O>
-void initVectorTimeField( Teuchos::RCP<TimeField<VectorField<S,O,4> > > field, EFlowType flowType ) {
+Teuchos::RCP<TimeField<VectorField<S,O,4> > >
+initVectorTimeField(
+    Teuchos::RCP<TimeField<VectorField<S,O,4> > > field,
+    EFlowType flowType=Zero2DFlow,
+    S xm=0.5,
+    S ym=0.5,
+    S rad=0.1,
+    S amp=0.25 ) {
   typedef TimeField<VectorField<S,O,4> > Field;
   typedef typename Field::Iter Iter;
 
   auto space = field->getSpace();
+
+  auto offset = space->shift()[3];
+
+  O i = 0;
+  S pi = 4.*std::atan(1.);
+
+  for( Iter j = field->beginI_; j<field->endI_; ++j )
+    switch( flowType ) {
+    case Zero2DFlow:
+      (*j)->initField( ZeroProf );
+      break;
+    case Poiseuille_inX:
+      (*j)->initField( Poiseuille2D_inX );
+      break;
+    case Poiseuille_inY:
+      (*j)->initField( Poiseuille2D_inY );
+      break;
+    case Streaming2DFlow: {
+      S ampt = std::sin( 2.*pi*((S)i+++(S)offset)/(S)space->nGlo()[3] );
+      (*j)->initField( Streaming2D, ampt );
+      break;
+    }
+    case OscilatingDisc2D: {
+      S ymt = ym+amp*std::sin( 2.*pi*((S)i+++(S)offset)/(S)space->nGlo()[3] );
+      S xmt = xm;
+      (*j)->initField( Disc2D, xmt, ymt, rad );
+      break;
+    }
+    case OscilatingDisc2DVel: {
+      S yvelt = amp*std::cos( 2.*pi*((S)i+++(S)offset)/(S)space->nGlo()[3] );
+      S xvelt = 0;
+      (*j)->init( Teuchos::tuple( xvelt, yvelt, 0.) );
+      break;
+    }
+    default:
+      (*j)->initField( ZeroProf );
+      break;
+    }
+  field->changed();
+
+  return( field );
 
 }
 

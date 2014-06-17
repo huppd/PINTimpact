@@ -42,7 +42,8 @@ enum EFlowType {
   Pulsatile_inX=3, Pulsatile_inY=4,
   Streaming2DFlow=5, Streaming2DFlow2=6,
   Streaming2DFlow3=7,
-  OscilatingDisc2D=8
+  OscilatingDisc2D=8,
+  OscilatingDisc2DVel=9
 };
 
 

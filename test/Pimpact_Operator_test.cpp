@@ -124,7 +124,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, Grad ) {
 
 
 
-TEUCHOS_UNIT_TEST( BasicOperator, Helmholtz ) {
+TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
 
   if( !isImpactInit ) {
     init_impact(0,0);
@@ -136,7 +136,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, Helmholtz ) {
   auto vel = Pimpact::createVectorField<S,O>(space);
   auto res = Pimpact::createVectorField<S,O>(space);
 
-  Pimpact::Helmholtz<S,O> helmholtz;
+  Pimpact::HelmholtzOp<S,O> helmholtz;
 
   helmholtz.apply(*vel,*res);
 }
@@ -178,7 +178,6 @@ TEUCHOS_UNIT_TEST( BasicOperator, MGVHelmholtzOp ) {
   auto rhs = Pimpact::createVectorField<S,O>(space);
   auto sol = Pimpact::createVectorField<S,O>(space);
 
-//  auto op = Pimpact::createInverseHelmholtzOp<S,O>( 1., 1., 1.e-6, 100, true, false, false );
   auto op = Pimpact::createMGVHelmholtzOp<S,O>(1.,1.,false);
 
   rhs->init( 1. );
@@ -209,7 +208,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, MGVDivGradOp ) {
 
   auto op = Pimpact::createMGVDivGradOp<S,O>(1.,1.,false);
 
-  auto lap = Pimpact::createHelmholtz<S,O>( 0., 1. );
+  auto lap = Pimpact::createHelmholtzOp<S,O>( 0., 1. );
 
   auto div = Pimpact::createDivOp<S,O>();
 
@@ -249,7 +248,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ForcingOp ) {
   force->initField( Pimpact::EFlowProfile(11) );
   res->random();
 
-  auto op = Pimpact::createForcingOp<S,O>( force, 1. );
+  auto op = Pimpact::createForcingOp( force, 1. );
 
   op->apply(*vel,*res);
   vel->add( 1., *res, -1., *force );
@@ -259,7 +258,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ForcingOp ) {
 
 
 
-TEUCHOS_UNIT_TEST( ModeOperator, Helmholtz ) {
+TEUCHOS_UNIT_TEST( ModeOperator, HelmholtzOp ) {
 
   if( !isImpactInit ) {
     init_impact(0,0);
@@ -277,8 +276,8 @@ TEUCHOS_UNIT_TEST( ModeOperator, Helmholtz ) {
 
 	auto mv2 = mv->clone(11);
 
-	Pimpact::Helmholtz<S,O> helmholtz;
-	auto helm = Pimpact::createMultiOpWrap<Pimpact::ModeOpWrap<Pimpact::Helmholtz<S,O> > >();
+	Pimpact::HelmholtzOp<S,O> helmholtz;
+	auto helm = Pimpact::createMultiOpWrap<Pimpact::ModeOpWrap<Pimpact::HelmholtzOp<S,O> > >();
 
 	helm->apply(*mv,*mv2);
 }
@@ -338,7 +337,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, Add2Op ) {
 
   typedef Pimpact::VectorField<S,O>     VF;
   typedef Pimpact::MultiField<VF>      MVF;
-  typedef Pimpact::Helmholtz<S,O>      Op1;
+  typedef Pimpact::HelmholtzOp<S,O>      Op1;
   typedef Pimpact::Nonlinear<S,O>      Op2;
   typedef Pimpact::Add2Op<Op1,Op2> COp;
   typedef Pimpact::MultiOpWrap<COp>    Op;
@@ -356,8 +355,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, Add2Op ) {
   auto op = Pimpact::createOperatorBase<MVF,Op>(
       Pimpact::createMultiOpWrap(
           Pimpact::createAdd2Op<Op1,Op2>(
-//              Teuchos::rcp( new Pimpact::Helmholtz<S,O>() ),
-                  Pimpact::createHelmholtz<S,O>(),
+//              Teuchos::rcp( new Pimpact::HelmholtzOp<S,O>() ),
+                  Pimpact::createHelmholtzOp<S,O>(),
                   Pimpact::createNonlinear<S,O>(),
                   vel->clone() ) ) );
 //  auto op = Pimpact::createOperatorMV<O(void);
@@ -385,7 +384,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, MLHelmholtzOp ) {
 
   typedef Pimpact::VectorField<S,O>     VF;
   typedef Pimpact::MultiField<VF>      MVF;
-  typedef Pimpact::Helmholtz<S,O>      Op1;
+  typedef Pimpact::HelmholtzOp<S,O>      Op1;
   typedef Pimpact::Nonlinear<S,O>      Op2;
   typedef Pimpact::Add2Op<Op1,Op2> COp;
   typedef Pimpact::MultiOpWrap<COp>    Op;
@@ -415,7 +414,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, MLHelmholtzOp ) {
 
 
 
-TEUCHOS_UNIT_TEST( ModeOperator, Dt ) {
+TEUCHOS_UNIT_TEST( ModeOperator, DtModeOp ) {
 
   if( !isImpactInit ) {
     init_impact(0,0);
@@ -440,7 +439,7 @@ TEUCHOS_UNIT_TEST( ModeOperator, Dt ) {
 	auto mv2 = mv->clone(1);
 	mv2->init(0.);
 
-	auto A = Pimpact::createMultiOperatorBase<MF,Pimpact::Dt<S,O> >();
+	auto A = Pimpact::createMultiOperatorBase<MF,Pimpact::DtModeOp<S,O> >();
 
 	A->apply(*mv,*mv2);
 
@@ -486,7 +485,7 @@ TEUCHOS_UNIT_TEST( ModeOperator, DtLapOp ) {
 	mv2->init(0.);
 
 	auto A2 = Pimpact::createMultiOpWrap( Pimpact::createDtLapOp<S,O>( 0., 1. ) );
-	auto A3 = Pimpact::createMultiOpWrap( Pimpact::createModeOpWrap( Pimpact::createHelmholtz<S,O>( 0., 1. ) ) );
+	auto A3 = Pimpact::createMultiOpWrap( Pimpact::createModeOpWrap( Pimpact::createHelmholtzOp<S,O>( 0., 1. ) ) );
 
 	A2->apply(*mv,*mv2);
 	A3->apply(*mv,*mv3);
@@ -502,7 +501,7 @@ TEUCHOS_UNIT_TEST( ModeOperator, DtLapOp ) {
 //	mv2->init(0.);
 //
 //	A2 = Pimpact::createMultiOpWrap( Pimpact::createDtLapOp<S,O>( 0., 0. ) );
-//	A3 = Pimpact::createMultiOpWrap( Pimpact::createModeOpWrap( Pimpact::createHelmholtz<S,O>( 1., 0. ) ) );
+//	A3 = Pimpact::createMultiOpWrap( Pimpact::createModeOpWrap( Pimpact::createHelmholtzOp<S,O>( 1., 0. ) ) );
 //
 //	A2->apply(*mv,*mv2);
 //	A3->apply(*mv,*mv3);
@@ -637,7 +636,7 @@ TEUCHOS_UNIT_TEST( ModeOperator, InverseOperator ) {
 
   typedef Pimpact::MultiField<Pimpact::VectorField<S,O> > MVF;
   typedef Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<S,O> > > BVF;
-  typedef Pimpact::Helmholtz<S,O> Op;
+  typedef Pimpact::HelmholtzOp<S,O> Op;
   typedef Pimpact::InverseOperator<BVF> Op2;
 
 
@@ -730,7 +729,7 @@ TEUCHOS_UNIT_TEST( ModeOperator, EddyPrec ) {
   using Teuchos::rcp; // Save some typing
 
   typedef Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<S,O> > > MVF;
-  typedef Pimpact::Helmholtz<S,O>  Op;
+  typedef Pimpact::HelmholtzOp<S,O>  Op;
   typedef Pimpact::EddyPrec<S,O>  Op2;
   typedef Pimpact::OperatorBase<MVF>  BOp;
 
@@ -746,7 +745,7 @@ TEUCHOS_UNIT_TEST( ModeOperator, EddyPrec ) {
   RCP<ParameterList> solverParams = Pimpact::createLinSolverParameter("CG",1.e-1);
 
   // Create the Pimpact::LinearSolver solver.
-  auto A = Pimpact::createMultiModeOperatorBase<MVF,Op>( Pimpact::createHelmholtz<S,O>(14.,1.) );
+  auto A = Pimpact::createMultiModeOperatorBase<MVF,Op>( Pimpact::createHelmholtzOp<S,O>(14.,1.) );
 
   A->apply( *temp, *temp );
 
@@ -801,7 +800,7 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicOpWrap ) {
   auto mv1 = Pimpact::createMultiHarmonicVectorField<S,O>( space, 10 );
   auto mv2 = Pimpact::createMultiHarmonicVectorField<S,O>( space, 10 );
 
-  auto op = Pimpact::createMultiHarmonicOpWrap< Pimpact::Helmholtz<S,O> >();
+  auto op = Pimpact::createMultiHarmonicOpWrap< Pimpact::HelmholtzOp<S,O> >();
 
   op->apply( *mv1, *mv2 );
 }

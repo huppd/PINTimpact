@@ -62,7 +62,7 @@ public:
     return( gridSize_[i] );
   }
 
-  const Ordinal* const getPtr() const {
+  const Ordinal* getPtr() const {
     return( gridSize_.getRawPtr() );
   }
 

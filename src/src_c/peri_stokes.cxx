@@ -218,8 +218,8 @@ int main(int argi, char** argv ) {
     if(rank==0) std::cout << "\n\tprecType: 1, -Dt/omega\n";
 
     lprec =
-        Pimpact::createMultiOperatorBase<MVF,Pimpact::Dt<S,O> >(
-            Pimpact::createDt<S,O>( -1./omega ) );
+        Pimpact::createMultiOperatorBase<MVF,Pimpact::DtModeOp<S,O> >(
+            Pimpact::createDtModeOp<S,O>( -1./omega ) );
     break;
   }
   case 2: {
@@ -227,7 +227,7 @@ int main(int argi, char** argv ) {
 
     auto solverParams = Pimpact::createLinSolverParameter( "CG", tol*l1*l2/n1/n2/1000 );
     solverParams->set ("Verbosity", int( Belos::Errors) );
-    auto op = Pimpact::createMultiModeOperatorBase<MVF,Pimpact::Helmholtz<S,O> >( Pimpact::createHelmholtz<S,O>( 0., 1./re ) );
+    auto op = Pimpact::createMultiModeOperatorBase<MVF,Pimpact::HelmholtzOp<S,O> >( Pimpact::createHelmholtzOp<S,O>( 0., 1./re ) );
     // Create the Pimpact::LinearSolver solver.
     auto prob =
         Pimpact::createLinearProblem<MVF>(
@@ -243,7 +243,7 @@ int main(int argi, char** argv ) {
 
     auto solverParams = Pimpact::createLinSolverParameter( "CG", tol*l1*l2/n1/n2/1000 );
     solverParams->set ("Verbosity", int( Belos::Errors) );
-    auto A = Pimpact::createMultiModeOperatorBase<MVF,Pimpact::Helmholtz<S,O> >( Pimpact::createHelmholtz<S,O>( omega, 1./re ) );
+    auto A = Pimpact::createMultiModeOperatorBase<MVF,Pimpact::HelmholtzOp<S,O> >( Pimpact::createHelmholtzOp<S,O>( omega, 1./re ) );
     auto prob2 = Pimpact::createLinearProblem<MVF>( A, fu->clone(), fu->clone(), solverParams, "CG" );
     auto op2 = Pimpact::createEddyPrec<S,O>( fu->clone(), Pimpact::createInverseOperatorBase<MVF>(prob2) ) ;
     lprec = Pimpact::createMultiOperatorBase<MVF >( op2 );
@@ -271,12 +271,12 @@ int main(int argi, char** argv ) {
     if(rank==0) std::cout << "\n\tprecType: 6, EddyPrec(CG+ImpactSolver)\n";
 
     auto bla = Pimpact::createMultiModeOperatorBase<MVF>(
-        Pimpact::createMGVHelmholtzOp<S,O>( omega, 1./re, true ) );
+        Pimpact::createMGVHelmholtzOp<S,O>( omega, 1./re, false ) );
 
     auto solverParams = Pimpact::createLinSolverParameter( "CG", tol*l1*l2/n1/n2/1000 );
     solverParams->set ("Verbosity", int( Belos::Errors) );
 
-    auto A = Pimpact::createMultiModeOperatorBase<MVF,Pimpact::Helmholtz<S,O> >( Pimpact::createHelmholtz<S,O>( omega, 1./re ) );
+    auto A = Pimpact::createMultiModeOperatorBase<MVF,Pimpact::HelmholtzOp<S,O> >( Pimpact::createHelmholtzOp<S,O>( omega, 1./re ) );
 
     auto prob2 = Pimpact::createLinearProblem<MVF>( A, fu->clone(), fu->clone(), solverParams, "CG" );
     prob2->setLeftPrec( bla );

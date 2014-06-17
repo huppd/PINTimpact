@@ -50,6 +50,9 @@ TARGET_LINK_LIBRARIES( peri_burgers_timing  ${Pimpact_TPL_LIBRARIES} )
 add_executable( peri_navier peri_navier.cxx )
 TARGET_LINK_LIBRARIES( peri_navier ${Pimpact_TPL_LIBRARIES} ) 
 
+add_executable( peri_navier4 peri_navier4.cxx )
+TARGET_LINK_LIBRARIES( peri_navier4 ${Pimpact_TPL_LIBRARIES} ) 
+
 add_executable( peri_navier_timing peri_navier_timing.cxx )
 TARGET_LINK_LIBRARIES( peri_navier_timing ${Pimpact_TPL_LIBRARIES} ) 
 

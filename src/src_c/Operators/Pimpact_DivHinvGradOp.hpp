@@ -29,7 +29,7 @@ public:
   typedef ScalarField<Scalar,Ordinal>  RangeFieldT;
   typedef MultiField<VectorField<Scalar,Ordinal> > MVF;
   typedef OperatorBase<MVF> HType;
-//  typedef OperatorMV<Helmholtz<Scalar,Ordinal> > HType;
+//  typedef OperatorMV<HelmholtzOp<Scalar,Ordinal> > HType;
 //  typedef NonModeOp OpType;
 private:
   Teuchos::RCP< MVF > temp0_;

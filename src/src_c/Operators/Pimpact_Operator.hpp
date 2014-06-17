@@ -26,15 +26,19 @@
 #include "Pimpact_NonlinearOp.hpp"
 #include "Pimpact_NonlinearJacobianOp.hpp"
 
+
 /// \defgroup TimeOperator Time Operator
 /// \ingroup Operator
 /// Operator operate on time fields: \c Pimpact::TimeField
+#include "Pimpact_DtTimeOp.hpp"
+#include "Pimpact_TimeNonlinearJacobianOp.hpp"
 #include "Pimpact_TimeOpWrap.hpp"
+
 
 /// \defgroup ModeOperator Mode Operator
 /// \ingroup Operator
 /// Operator operate on mode fields: \c Pimpact::ModeField
-#include "Pimpact_DtOp.hpp"
+#include "Pimpact_DtModeOp.hpp"
 #include "Pimpact_DtLapOp.hpp"
 #include "Pimpact_EddyPrec.hpp"
 #include "Pimpact_DivDtLinvGradOp.hpp"

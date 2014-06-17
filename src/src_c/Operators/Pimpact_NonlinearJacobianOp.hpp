@@ -29,13 +29,13 @@ namespace Pimpact {
 
 /// \ingroup BaseOperator
 /// \note u_ has to contain appropriate BC, temp_ and y doesnot matter, x should have zero BC
-template<class Scalar,class Ordinal>
+template<class Scalar,class Ordinal, int dimension=3>
 class NonlinearJacobian {
 
 public:
 
-  typedef VectorField<Scalar,Ordinal>  DomainFieldT;
-  typedef VectorField<Scalar,Ordinal>  RangeFieldT;
+  typedef VectorField<Scalar,Ordinal,dimension>  DomainFieldT;
+  typedef VectorField<Scalar,Ordinal,dimension>  RangeFieldT;
 
 protected:
 
@@ -50,15 +50,18 @@ public:
     isNewton_(isNewton) {};
 
   NonlinearJacobian( const Teuchos::RCP<DomainFieldT>& u, const bool& isNewton=true ):
-    u_(u->clone()),
+    u_( u ),
     isNewton_(isNewton) {};
 
   void assignField( const DomainFieldT& mv ) {
-    if( Teuchos::is_null( u_ ) )
+
+    if( u_.is_null() )
       u_ = mv.clone();
     else
       u_->assign( mv );
+
     u_->exchange();
+
   };
 
   void apply( const DomainFieldT& x, RangeFieldT& y, Scalar mul=0. ) const {
@@ -96,15 +99,15 @@ public:
 
 
 /// \relates NonlinearJacobian
-template< class S, class O>
-Teuchos::RCP<NonlinearJacobian<S,O> > createNonlinearJacobian(
-    const Teuchos::RCP<typename NonlinearJacobian<S,O>::DomainFieldT>& u = Teuchos::null,
+template< class S=double, class O=int, int d=3>
+Teuchos::RCP<NonlinearJacobian<S,O,d> > createNonlinearJacobian(
+    const Teuchos::RCP<typename NonlinearJacobian<S,O,d>::DomainFieldT>& u = Teuchos::null,
     const bool& isNewton=true ) {
 
   if( Teuchos::is_null(u) )
-    return( Teuchos::rcp( new NonlinearJacobian<S,O>( isNewton ) ) );
+    return( Teuchos::rcp( new NonlinearJacobian<S,O,d>( isNewton ) ) );
   else
-    return( Teuchos::rcp( new NonlinearJacobian<S,O>( u, isNewton ) ) );
+    return( Teuchos::rcp( new NonlinearJacobian<S,O,d>( u, isNewton ) ) );
 
 }
 

@@ -19,19 +19,29 @@ namespace Pimpact {
 /// \brief Operator wrapper for \c TimeField's.
 /// \ingroup TimeOperator
 /// wraps and \c Operator and adds the functionality of handling \c TimeField.
-template<class Operator>
+template<class Operator, bool CNyes=false>
 class TimeOpWrap  {
-
-  Teuchos::RCP<Operator> op_;
 
 public:
 
   typedef TimeField<typename Operator::DomainFieldT> DomainFieldT;
   typedef TimeField<typename Operator::RangeFieldT> RangeFieldT;
 
+protected:
+
+  Teuchos::RCP<Operator> op_;
+  Teuchos::RCP<typename Operator::RangeFieldT> temp_;
+
+public:
+
   TimeOpWrap():op_( Teuchos::rcp( new Operator() ) ) {};
-  TimeOpWrap( const Teuchos::RCP<Operator>& op ):op_(op) {};
-  ~TimeOpWrap() { op_=Teuchos::null; };
+
+  TimeOpWrap(
+      const Teuchos::RCP<Operator>& op,
+      const Teuchos::RCP<typename Operator::RangeFieldT>& temp=Teuchos::null ):
+        op_(op),temp_(temp) {};
+
+//  ~TimeOpWrap() { op_=Teuchos::null; };
 
 
   /// \brief default apply
@@ -39,11 +49,33 @@ public:
       RangeFieldT& y,
       Belos::ETrans trans=Belos::NOTRANS) const {
 
-//    const_cast<DomainFieldT>(x).exchange();
+    if( true==CNyes ) {
 
-    typename DomainFieldT::Iter j = y.beginI_;
-    for( typename DomainFieldT::Iter i=x.beginI_; i<x.endI_; ++i )
-      op_->apply( **i , **(j++) );
+
+      const_cast<DomainFieldT&>(x).exchange();
+      y.init(0.);
+
+      typename DomainFieldT::Iter i= const_cast<DomainFieldT&>(x).mfs_.begin();
+      typename RangeFieldT::Iter  j = y.mfs_.begin();
+
+//      for( ; i<const_cast<DomainFieldT&>(x).mfs_.end(); ++i )
+//        op_->apply( **(i), *temp_ );
+
+      for( ; i<const_cast<DomainFieldT&>(x).mfs_.end(); ++i ) {
+        op_->apply( **(i), *temp_ );
+        if( j>=y.beginI_ )
+          (*j)->add( 1., **j, 0.5, *temp_ );
+        ++j;
+        if( j<y.endI_ )
+          (*j)->add( 1., **j, 0.5, *temp_ );
+      }
+
+    }
+    else{
+      typename RangeFieldT::Iter j = y.beginI_;
+      for( typename DomainFieldT::Iter i=x.beginI_; i<x.endI_; ++i )
+        op_->apply( **i , **(j++) );
+    }
     y.changed();
   }
 
@@ -61,12 +93,14 @@ public:
 
 
 /// \relates TimeOpWrap
-template<class Operator>
-Teuchos::RCP< TimeOpWrap<Operator> > createTimeOpWrap( const Teuchos::RCP<Operator>& op=Teuchos::null) {
+template< class Operator, bool CNY=false >
+Teuchos::RCP< TimeOpWrap<Operator,CNY> > createTimeOpWrap(
+    const Teuchos::RCP<Operator>& op=Teuchos::null,
+    const Teuchos::RCP<typename Operator::RangeFieldT>& temp=Teuchos::null ) {
   if( Teuchos::is_null(op) )
-    return( Teuchos::rcp( new TimeOpWrap<Operator>( Teuchos::rcp( new Operator() ) ) ) );
+    return( Teuchos::rcp( new TimeOpWrap<Operator,CNY>( Teuchos::rcp(new Operator()), temp ) ) );
   else
-    return( Teuchos::rcp( new TimeOpWrap<Operator>( op ) ) );
+    return( Teuchos::rcp( new TimeOpWrap<Operator,CNY>( op, temp ) ) );
 }
 
 

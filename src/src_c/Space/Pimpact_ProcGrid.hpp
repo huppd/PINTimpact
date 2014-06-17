@@ -47,10 +47,15 @@ public:
   int rankS_;
   int rankST_;
 
+  /// processor coordinates going from 1..np
   Teuchos::Tuple<int,dim> iB_;
+  /// index offset going for dim 1:3 strange fortran style dim==4 c style
   Teuchos::Tuple<int,dim> shift_;
 
+  /// rank of lower neighbour
   Teuchos::Tuple<int,dim> rankL_;
+
+  /// rank of upper neighbour
   Teuchos::Tuple<int,dim> rankU_;
 
   MPI_Comm commSlice_[3] ;
@@ -124,7 +129,7 @@ public:
       // gets rank from COMM_CART
       MPI_Comm_rank( commSpace_, &rankS_ );
       MPI_Comm_rank( commSpaceTime_, &rankST_ );
-      std::cout << "rank in commSpace: " << rankS_ << "\trank in commSpaceTime: " << rankST_ << "\n";
+//      std::cout << "rank in commSpace: " << rankS_ << "\trank in commSpaceTime: " << rankST_ << "\n";
     }
 
     // gets coordinates in xyz direction from rank and comm_cart
@@ -143,12 +148,15 @@ public:
 //        ijkB.getRawPtr() );
 //    std::cout << "rankS: " << rankS_ << " coord: " << ijkB << "\n";
 
-    for( int i=0; i<dim; ++i ) {
       // stores coordinates in a fortran fasion?
+    for( int i=0; i<dim; ++i )
       iB_[i] = ijkB[i] + 1;
-      // computes index ofset
+      // computes index offset
+    for( int i=0; i<3; ++i )
       shift_[i] = (iB_[i]-1)*( gridSizeLocal->get(i)-1 );
-    }
+    if( 4==dim )
+      shift_[3] = (iB_[3]-1)*( gridSizeLocal->get(3) );
+
 
     for( int i = 0; i<3; ++i )
       MPI_Cart_shift( commSpace_, i, 1, &rankL_[i], &rankU_[i] );

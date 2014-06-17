@@ -16,11 +16,11 @@ extern "C" {
 
 /// \brief Divergence operator.
 /// \ingroup BaseOperator
-template<class Scalar,class Ordinal>
+template<class Scalar,class Ordinal,int dimension=3>
 class Div {
 public:
-  typedef VectorField<Scalar,Ordinal>  DomainFieldT;
-  typedef ScalarField<Scalar,Ordinal>  RangeFieldT;
+  typedef VectorField<Scalar,Ordinal,dimension>  DomainFieldT;
+  typedef ScalarField<Scalar,Ordinal,dimension>  RangeFieldT;
 //  typedef NonModeOp OpType;
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
@@ -39,9 +39,9 @@ public:
 
 
 /// \relates Div
-template< class S, class O >
-Teuchos::RCP< Div<S,O> > createDivOp() {
-  return( Teuchos::rcp( new Div<S,O>() ) );
+template< class S, class O, int d=3 >
+Teuchos::RCP< Div<S,O,d> > createDivOp() {
+  return( Teuchos::rcp( new Div<S,O,d>() ) );
 }
 
 } // end of namespace Pimpact

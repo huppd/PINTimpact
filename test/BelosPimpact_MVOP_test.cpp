@@ -197,7 +197,7 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, HelmholtzMV ) {
   typedef Pimpact::VectorField<S,O> VF;
   typedef Pimpact::MultiField<VF> MVF;
 
-  typedef Pimpact::Helmholtz<S,O> Op;
+  typedef Pimpact::HelmholtzOp<S,O> Op;
   typedef Pimpact::MultiOpWrap<Op> MuOp;
   typedef Pimpact::OperatorBase<MVF> OpBase;
 

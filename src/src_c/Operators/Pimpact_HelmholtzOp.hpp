@@ -24,10 +24,10 @@ void OP_helmholtz(
 
 }
 
-/// \brief Helmholtz operator
+/// \brief HelmholtzOp operator
 /// \ingroup BaseOperator
 template<class Scalar,class Ordinal,int dimension=3>
-class Helmholtz {
+class HelmholtzOp {
 
 protected:
 
@@ -39,7 +39,7 @@ public:
   typedef VectorField<Scalar,Ordinal,dimension>  DomainFieldT;
   typedef VectorField<Scalar,Ordinal,dimension>  RangeFieldT;
 
-  Helmholtz( Scalar mulI=1., Scalar mulL=1. ):
+  HelmholtzOp( Scalar mulI=1., Scalar mulL=1. ):
     mulI_(mulI),mulL_(mulL) {};
 
   void setMulI(Scalar mulI){ mulI_ = mulI;};
@@ -66,16 +66,16 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
-}; // end of class Helmholtz
+}; // end of class HelmholtzOp
 
 
 
 
-/// \relates Helmholtz
-template<class Scalar,class Ordinal>
-Teuchos::RCP<Helmholtz<Scalar,Ordinal> > createHelmholtz( Scalar mulI=0., Scalar mulL=1. ) {
+/// \relates HelmholtzOp
+template<class S=double,class O=int,int d=3>
+Teuchos::RCP<HelmholtzOp<S,O,d> > createHelmholtzOp( S mulI=0., S mulL=1. ) {
   return(
-      Teuchos::rcp( new Helmholtz<Scalar,Ordinal>(mulI, mulL) )
+      Teuchos::rcp( new HelmholtzOp<S,O,d>(mulI, mulL) )
   );
 }
 
