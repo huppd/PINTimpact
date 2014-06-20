@@ -55,6 +55,7 @@
 #include "Pimpact_CompoundStokesOp.hpp"
 #include "Pimpact_CompoundOpWrap.hpp"
 #include "Pimpact_InverseSchurOp.hpp"
+#include "Pimpact_InverseTriangularOp.hpp"
 
 /// \defgroup MultiHarmonicOperator Multi-harmonic Operator
 /// \ingroup Operator

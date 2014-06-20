@@ -27,56 +27,46 @@ void OP_MGV(
 ///
 /// uses bicgstab, and multigrid from Impact
 /// \ingroup BaseOperator
-template<class Scalar,class Ordinal>
+template<class Scalar=double,class Ordinal=int, int dimension=3>
 class MGVDivGradOp {
 
 protected:
-
-  Scalar mulI_;
-  Scalar mulL_;
 
   bool initYes_;
 
 public:
 
-  typedef ScalarField<Scalar,Ordinal>  DomainFieldT;
-  typedef ScalarField<Scalar,Ordinal>  RangeFieldT;
+  typedef ScalarField<Scalar,Ordinal,dimension>  DomainFieldT;
+  typedef ScalarField<Scalar,Ordinal,dimension>  RangeFieldT;
 
   MGVDivGradOp(
-      Scalar mulI=0.,
-      Scalar mulL=1.,
       bool initYes=true
   ):
-    mulI_(mulI),
-    mulL_(mulL),
     initYes_(initYes)
   {};
-
-  void setMulI(Scalar mulI){ mulI_ = mulI;};
-  void setMulL(Scalar mulL){ mulL_ = mulL;};
-
-  Scalar getMulI() const { return(mulI_); };
-  Scalar getMulL() const { return(mulL_); };
-
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
 
     if( initYes_ )
       y.init( 0. );
+    else
+      y.exchange();
 
     x.exchange();
-    y.exchange();
 
-//    for( int i=0; i<10; ++i )
+    for( int i=0; i<1; ++i )
+    {
       OP_MGV(
           0,
-          mulL_/mulI_,
+          1.,
           false,
           1,
           x.s_,
           y.s_,
-          3 ); /// not sure what is the difference between 2,3,5
-//    y.scale( mulI_ );
+          2 ); /// not sure what is the difference between 2,4,5
+      SF_level( y.s_ );
+    }
+
     y.changed();
   }
 
@@ -90,15 +80,12 @@ public:
 
 
 /// \relates MGVDivGradOp
-template<class Scalar,class Ordinal>
-Teuchos::RCP<MGVDivGradOp<Scalar,Ordinal> > createMGVDivGradOp(
-    Scalar mulI=0.,
-    Scalar mulL=1.,
-    bool initYes=true
-) {
+template<class S=double,class O=int,int d=3>
+Teuchos::RCP<MGVDivGradOp<S,O,d> > createMGVDivGradOp(
+    bool initYes=true ) {
 
   return(
-      Teuchos::rcp( new MGVDivGradOp<Scalar,Ordinal>(mulI, mulL, initYes ) ) );
+      Teuchos::rcp( new MGVDivGradOp<S,O,d>( initYes ) ) );
 }
 
 

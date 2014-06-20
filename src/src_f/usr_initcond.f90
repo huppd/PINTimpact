@@ -48,15 +48,15 @@
   ! vel(S13B:N13B,S23B:N23B,S33B:N33B,3)
   !
   vel = 0.
-  do k = S32B, N32B
-     do j = S22B, N22B
-        do i = S12B, N12B
-           !vel(i,j,k,2) = vel(i,j,k,2) + interface((x1p(i)-0.75*L1)/(0.01*L1))
-           vel(i,j,k,2) = x1p(i)*( L1 - x1p(i) )*4/L1/L1
-!           vel(i,j,k,2) = 1.0
-        end do
-     end do
-  end do
+!  do k = S32B, N32B
+!     do j = S22B, N22B
+!        do i = S12B, N12B
+!           !vel(i,j,k,2) = vel(i,j,k,2) + interface((x1p(i)-0.75*L1)/(0.01*L1))
+!!           vel(i,j,k,2) = x1p(i)*( L1 - x1p(i) )*4/L1/L1
+!!           vel(i,j,k,2) = 1.0
+!        end do
+!     end do
+!  end do
   
   
   !--- advection velocity ---

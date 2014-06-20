@@ -367,39 +367,43 @@ public:
 
   void exchange()   {
 
+    if(!exchangedState_ ) {
+      if( space_->getNProc(3)>=1 ) {
+        int transL = beginI_-mfs_.begin();
+        //      int transU = mfs_.end()-endI_;
 
-    if(!exchangedState_) {
-      int transL = beginI_-mfs_.begin();
-      //      int transU = mfs_.end()-endI_;
+        //    std::cout << "transl: " <<  transl<< "\n";
+        //    std::cout << "transu: " <<  transu<< "\n";
+        int rankU = space_->rankU()[3];
+        int rankL = space_->rankL()[3];
 
-      //    std::cout << "transl: " <<  transl<< "\n";
-      //    std::cout << "transu: " <<  transu<< "\n";
-      int rankU = space_->rankU()[3];
-      int rankL = space_->rankL()[3];
+        MPI_Request reqL;
+        //      MPI_Request reqU;
 
-      MPI_Request reqL;
-      //      MPI_Request reqU;
+        MPI_Status statusL;
+        //      MPI_Status statusU;
 
-      MPI_Status statusL;
-      //      MPI_Status statusU;
+        Ordinal lengthL = transL * mfs_[0]->getStorageSize();
+        //      Ordinal lengthU = transU * mfs_[0]->getStorageSize();
 
-      Ordinal lengthL = transL * mfs_[0]->getStorageSize();
-      //      Ordinal lengthU = transU * mfs_[0]->getStorageSize();
+        Scalar* ghostUR = mfs_[0]->getStoragePtr();
+        //      Scalar* ghostLR = (*(endI_))->getStoragePtr();
 
-      Scalar* ghostUR = mfs_[0]->getStoragePtr();
-      //      Scalar* ghostLR = (*(endI_))->getStoragePtr();
+        Scalar* ghostUS = ( *(endI_-transL) )->getStoragePtr();
+        //      Scalar* ghostLS = ;
+        //
+        if( transL>0 ) MPI_Irecv( ghostUR, lengthL, MPI_REAL8, rankL, 1, comm(), &reqL);
+        //      if( transU>0 ) MPI_Irecv( ghostLR, lengthU, MPI_REAL8, rankU, 2, comm(), &reqU);
+        //
+        if( transL>0 ) MPI_Send ( ghostUS, lengthL, MPI_REAL8, rankU, 1, comm() );
+        //      if( transL>0 ) MPI_Send ( ghostLS, lengthU, MPI_REAL8, rankL, 2, comm() );
+        //
+        if( transL>0 ) MPI_Wait( &reqL, &statusL );
 
-      Scalar* ghostUS = ( *(endI_-transL) )->getStoragePtr();
-      //      Scalar* ghostLS = ;
-      //
-      if( transL>0 ) MPI_Irecv( ghostUR, lengthL, MPI_REAL8, rankL, 1, comm(), &reqL);
-      //      if( transU>0 ) MPI_Irecv( ghostLR, lengthU, MPI_REAL8, rankU, 2, comm(), &reqU);
-      //
-      if( transL>0 ) MPI_Send ( ghostUS, lengthL, MPI_REAL8, rankU, 1, comm() );
-      //      if( transL>0 ) MPI_Send ( ghostLS, lengthU, MPI_REAL8, rankL, 2, comm() );
-      //
-      if( transL>0 ) MPI_Wait( &reqL, &statusL );
-
+      }
+      else {
+        mfs_[0]->assign( **(mfs_.end()-1) );
+      }
     }
 
     exchangedState_ = true;

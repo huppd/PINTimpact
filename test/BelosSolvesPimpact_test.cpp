@@ -241,8 +241,8 @@ TEUCHOS_UNIT_TEST( BelosSolver, PrecDivGrad ) {
 
 	auto space = Pimpact::createSpace();
 
-  auto u = Pimpact::createVectorField<S,O>( space );
-  auto temp = Pimpact::createVectorField<S,O>( space );
+  auto u   = Pimpact::createVectorField<S,O>( space );
+  auto temp= Pimpact::createVectorField<S,O>( space );
 
   auto rhs = Pimpact::createScalarField<S,O>( space );
   auto sol = Pimpact::createScalarField<S,O>( space );
@@ -261,14 +261,16 @@ TEUCHOS_UNIT_TEST( BelosSolver, PrecDivGrad ) {
 
   auto b = Pimpact::createMultiField( rhs );
   auto x = Pimpact::createMultiField( sol );
+  b->random();
+  x->init(0.);
 
   auto op = Pimpact::createMultiOperatorBase<MSF>(
-      Pimpact::createDivGradOp<S,O>( temp ) );
+      Pimpact::createDivGradOp<S,O>( u->clone() ) );
 
   auto prec = Pimpact::createMultiOperatorBase<MSF>(
-      Pimpact::createMGVDivGradOp<S,O>(1.,1.,true) );
+      Pimpact::createMGVDivGradOp<S,O>(false) );
 
-  auto para = Pimpact::createLinSolverParameter("GMRES",1.e-1,10);
+  auto para = Pimpact::createLinSolverParameter("GMRES",1.e-1,1);
   para->set( "Maximum Iterations", 100 );
 
 
@@ -277,6 +279,8 @@ TEUCHOS_UNIT_TEST( BelosSolver, PrecDivGrad ) {
   // Create the GMRES solver.
   Teuchos::RCP<Belos::SolverManager<S, MSF, BOp > > solver =
       factory.create( "GMRES", para );
+//      factory.create( "TFQMR", para );
+//      factory.create( "CG", para ); < not working
 
   // Create a LinearProblem struct with the problem to solve.
   // A, X, B, and M are passed by (smart) pointer, not copied.

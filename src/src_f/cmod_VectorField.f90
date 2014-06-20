@@ -7,12 +7,53 @@ module cmod_VectorField
     use iso_c_binding
     use mpi
 
-    use mod_vars, only: x1p,x1u,x2p,x2v,x3p,L1,L2,L3
+    use mod_vars!, only: x1p,x1u,x2p,x2v,x3p,L1,L2,L3,M1,M2,M3
 
     implicit none
 !  public get_norms
 
 contains
+
+    !> \brief calculate distance to immersed boundary
+    !! \author huppd
+    !! \param[in] x
+    !! \param[in] y
+    !! \param[in] z
+    FUNCTION distance2ib( x, y, z, x0, y0, R ) RESULT(dis)
+
+        IMPLICIT NONE
+
+        REAL, INTENT(IN)  ::  x,y,z
+        REAL              ::  dis
+        REAL, intent(in)  ::  x0
+        REAL, intent(in)  ::  y0
+        REAL              ::  z0
+        REAL, intent(in)  ::  R
+        REAL              ::  dr
+        INTEGER           ::  m
+
+        ! geometric properties of disc
+        !        x0 = L1/2. + L1*amp*SIN(2.*pi*freq*subtime)
+        !        y0 = L2/4.
+        !        z0 = L3/2.
+
+        !        R = L1/10.
+        dr = SQRT( ( L1/REAL(M1-1) )**2 + ( L2/REAL(M2-1) )**2 )
+        !  write(*,*) 'dr=',dr
+
+        dis = SQRT( (x0-x)**2 + (y0-y)**2 )
+
+        IF( dis <= R) THEN
+            dis = 1.
+        ELSE IF( dis-R <= dr) THEN
+            dis = (1./( 1. + EXP(1./(-(dis-R)/dr) + 1./(1.-(dis-R)/dr) ) ));
+        !    dis = (1-(dis-R)/dr)
+        ELSE
+            dis = 0.
+        END IF
+    !    dis = 0.
+
+    END FUNCTION distance2ib
 
 
 
@@ -2323,7 +2364,8 @@ contains
         do k = S3U, N3U
             do j = S2U, N2U
                 do i = S1U, N1U
-                    phiU(i,j,k) = min(4*exp( -((x1u(i)-xm)/rad)**2 -((x2p(j)-ym)/rad)**2 ),1.)
+!                    phiU(i,j,k) = min(4*exp( -((x1u(i)-xm)/rad)**2 -((x2p(j)-ym)/rad)**2 ),1.)
+                     phiU(i,j,k) = distance2ib( x1u(i),x2p(j),x3p(k),xm,ym,rad )
                 end do
             end do
         end do
@@ -2331,7 +2373,8 @@ contains
         do k = S3V, N3V
             do j = S2V, N2V
                 do i = S1V, N1V
-                    phiV(i,j,k) = min(4*exp( -((x1p(i)-xm)/rad)**2 -((x2v(j)-ym)/rad)**2 ),1.)
+!                    phiV(i,j,k) = min(4*exp( -((x1p(i)-xm)/rad)**2 -((x2v(j)-ym)/rad)**2 ),1.)
+                     phiV(i,j,k) = distance2ib( x1p(i),x2v(j),x3p(k),xm,ym,rad )
                 end do
             end do
         end do
@@ -2446,5 +2489,7 @@ contains
         end do
 
     end subroutine cinit_RotatingDisc
+
+
 
 end module cmod_VectorField

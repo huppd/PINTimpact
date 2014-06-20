@@ -472,6 +472,9 @@
   !
   nullspace_yes        = .false.
   nullspace_coarse_yes = .false.
+
+!  nullspace_yes        = .true.
+!  nullspace_coarse_yes = .true.
   
   !--- read null space base vectors instead of recomputing them ---
   read_nullspace_yes = .false.
@@ -493,13 +496,13 @@
   !--- numbers of relaxation sweeps ---
   ! from top: restriction, prolongation, coarsest grid
   !
-  n_relax_down   = 4
-  n_relax_up     = 4
-  n_relax_bottom = 4
+!  n_relax_down   = 4
+!  n_relax_up     = 4
+!  n_relax_bottom = 4
 
-  n_relax_down   = 10
-  n_relax_up     = 10
-  n_relax_bottom = 50
+  n_relax_down   = 8
+  n_relax_up     = 8
+  n_relax_bottom = 8
   
   !--- directions of (alternating) line-relaxations ---
   ! note: - line-relaxation is necessary if the grid is strongly unisotropic, i.e. when the grid spacings

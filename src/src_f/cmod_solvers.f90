@@ -111,6 +111,9 @@ contains
   
   
   
+    !> \brief heavily overloaded fortran interface for GeometricMultiGrid v-solver
+    !!
+    !! \param[in] problem_type 1: Helmholtz, 3: conc Helmholtz, 2: divGrad, 4: divGrad_trans, 5: divgrad?
     subroutine cmultigridV( &
         m,                  &
         mulL,               &

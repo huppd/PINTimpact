@@ -68,7 +68,7 @@ public:
   };
 
 
-  Ordinal get( int i ) {
+  const Ordinal& get( int i ) {
     return( procGridSize_[i] );
   }
 

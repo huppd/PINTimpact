@@ -206,7 +206,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, MGVDivGradOp ) {
   auto rhs = Pimpact::createScalarField<S,O>(space);
   auto sol = Pimpact::createScalarField<S,O>(space);
 
-  auto op = Pimpact::createMGVDivGradOp<S,O>(1.,1.,false);
+  auto op = Pimpact::createMGVDivGradOp<S,O>(false);
 
   auto lap = Pimpact::createHelmholtzOp<S,O>( 0., 1. );
 
@@ -223,7 +223,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, MGVDivGradOp ) {
 
   sol->init( 0. );
 
-  for( int i=0; i<10; ++i )
+  for( int i=0; i<100; ++i )
     op->apply( *rhs,*sol);
 
   sol->write(777);

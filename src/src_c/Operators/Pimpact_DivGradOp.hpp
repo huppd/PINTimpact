@@ -24,18 +24,21 @@ extern "C" {
 /// \warning does not hold test.
 template<class Scalar,class Ordinal>
 class DivGradOp {
+
   Teuchos::RCP<VectorField<Scalar,Ordinal> > temp_;
   Teuchos::RCP<Div<Scalar,Ordinal> > div_;
   Teuchos::RCP<Grad<Scalar,Ordinal> > grad_;
+
 public:
+
   typedef ScalarField<Scalar,Ordinal>  DomainFieldT;
   typedef ScalarField<Scalar,Ordinal>  RangeFieldT;
-//  typedef NonModeOp OpType;
 
   DivGradOp():
     temp_(Teuchos::null),
     div_(Teuchos::rcp(new Div<Scalar,Ordinal>() )),
     grad_(Teuchos::rcp(new Grad<Scalar,Ordinal>() )) {};
+
   DivGradOp( const Teuchos::RCP<VectorField<Scalar,Ordinal> >& temp):
     temp_(temp),
     div_(Teuchos::rcp(new Div<Scalar,Ordinal>() )),
@@ -47,9 +50,9 @@ public:
 
     x.exchange();
     OP_div_grad( true, x.s_, y.s_ );
+    SF_level( y.s_ );
     y.changed();
 
-//    SF_level( y.s_ );
 
   }
 

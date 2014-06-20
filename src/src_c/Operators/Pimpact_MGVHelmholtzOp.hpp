@@ -69,7 +69,7 @@ public:
 
     for( int vel_dir=0; vel_dir<x.dim(); ++vel_dir ) {
 
-      for( int i=0; i<4; ++i )
+      for( int i=0; i<1; ++i )
         OP_MGV(
             vel_dir+1,
             mulL_/mulI_,

@@ -61,13 +61,13 @@ contains
   
         do m = 1, dimens
             call gradient        (m,phi,dig)
-            call bc_extrapolation(m,dig    )
+!            call bc_extrapolation(m,dig    )
             call divergence      (m,dig,Lap)
         !     Lap(S1p:N1p,S2p:N2p,S3p:N3p) = com(S1p:N1p,S2p:N2p,S3p:N3p) + Lap(S1p:N1p,S2p:N2p,S3p:N3p)
         end do
   
-    !if (ccorner_yes) call handle_corner_Lap(1,Lap)
-    !  if (ccorner_yes) call handle_corner_Lap(1,pre)
+    if (ccorner_yes) call handle_corner_Lap(1,Lap)
+!    !  if (ccorner_yes) call handle_corner_Lap(1,pre)
   
     !  Lap(:,:,:) = 0 + pre(:,:,:)
   

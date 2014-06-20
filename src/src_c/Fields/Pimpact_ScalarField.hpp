@@ -35,7 +35,7 @@ class ScalarField {
   friend class Div;
   template<class S1,class O1>
   friend class DivGradOp;
-  template<class S1,class O1>
+  template<class S1,class O1,int dimension1>
   friend class MGVDivGradOp;
 
 public:

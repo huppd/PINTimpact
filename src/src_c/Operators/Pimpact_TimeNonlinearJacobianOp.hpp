@@ -91,6 +91,7 @@ public:
       typename RangeFieldT::Iter j = y.mfs_.begin();
 
       for( typename DomainFieldT::Iter i = const_cast<DomainFieldT&>(x).mfs_.begin(); i<x.endI_; ++i ) {
+        (*i)->exchange();
         temp_->init( 0. );
         OP_nonlinear(
             (*k)->vec_[0], (*k)->vec_[1], (*k)->vec_[2],
@@ -100,8 +101,8 @@ public:
 
         if( isNewton_ ) {
           OP_nonlinear(
-              (*k)->vec_[0], (*k)->vec_[1], (*k)->vec_[2],
               (*i)->vec_[0], (*i)->vec_[1], (*i)->vec_[2],
+              (*k)->vec_[0], (*k)->vec_[1], (*k)->vec_[2],
               temp_->vec_[0], temp_->vec_[1], temp_->vec_[2],
               1. );
         }
@@ -110,6 +111,7 @@ public:
         ++j;
         if( j<y.endI_ )
           (*j)->add( 1., **j, 0.5, *temp_ );
+        (*j)->changed();
         ++k;
       }
     }
@@ -117,6 +119,7 @@ public:
       typename RangeFieldT::Iter j = y.beginI_;
       typename DomainFieldT::Iter k = u_->beginI_;
       for( typename DomainFieldT::Iter i = const_cast<DomainFieldT&>(x).beginI_; i<x.endI_; ++i ) {
+        (*i)->exchange();
         OP_nonlinear(
             (*k)->vec_[0], (*k)->vec_[1], (*k)->vec_[2],
             (*i)->vec_[0], (*i)->vec_[1], (*i)->vec_[2],
@@ -125,11 +128,12 @@ public:
 
         if( isNewton_ ) {
           OP_nonlinear(
-              (*k)->vec_[0], (*k)->vec_[1], (*k)->vec_[2],
               (*i)->vec_[0], (*i)->vec_[1], (*i)->vec_[2],
+              (*k)->vec_[0], (*k)->vec_[1], (*k)->vec_[2],
               (*j)->vec_[0], (*j)->vec_[1], (*j)->vec_[2],
               1. );
         }
+        (*j)->changed();
         ++j; ++k;
       }
     }

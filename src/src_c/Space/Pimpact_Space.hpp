@@ -103,6 +103,8 @@ public:
 
   const Ordinal* shift() const { return( procGrid_->shift_.getRawPtr()  ); }
 
+  const Ordinal& getNProc(int i) const { return( procGridSize_->get(i) ); }
+
 
   void print(  std::ostream& out=std::cout ) const {
 
