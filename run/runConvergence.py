@@ -28,14 +28,14 @@ data_path = '/cluster/scratch_xp/public/huppd'
 
 #ns  = [ 7 ]
 #precTypes = [ 0,1,2 ]
-res = [ 1  ]
+res = [ 10  ]
 #res = [ 200 ]
-alpha2s = [ 1 ] 
+alpha2s = [ 12 ] 
 #alpha2s = [ 15**2 ] 
 fixTypes  = [ 1 ]
 
 for precType in precTypes:
-	case_path[0] = '/1precType_'+str(precType)
+	case_path[0] = '/precType_'+str(precType)
 	if not os.path.exists( data_path+case_path[0] ):
 		os.mkdir( data_path+case_path[0] )
 	for fixType in fixTypes:

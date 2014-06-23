@@ -67,8 +67,7 @@ template<class OP1, class OP2>
 Teuchos::RCP< CompositionOp<OP1, OP2> > createCompositionOp(
     const Teuchos::RCP<typename OP2::RangeFieldT>& temp=Teuchos::null,
     const Teuchos::RCP<OP1>& op1=Teuchos::null,
-    const Teuchos::RCP<OP2>& op2=Teuchos::null//,
-//    const Teuchos::RCP<OP3>& op3=Teuchos::null
+    const Teuchos::RCP<OP2>& op2=Teuchos::null
       ) {
   return( Teuchos::rcp( new CompositionOp<OP1,OP2>( temp, op1, op2 ) ) );
 }

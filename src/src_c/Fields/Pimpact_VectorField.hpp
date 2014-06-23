@@ -828,11 +828,16 @@ protected:
   void changed( const int& vel_dir, const int& dir ) const {
     exchangedState_[vel_dir][dir] = false;
   }
+
+public:
+
   void changed() const {
     for( int vel_dir=0; vel_dir<dim(); ++vel_dir )
       for( int dir=0; dir<dim(); ++dir )
         changed( vel_dir, dir );
   }
+
+protected:
 
   bool is_exchanged( const int& vel_dir, const int& dir ) const {
     return( exchangedState_[vel_dir][dir] );

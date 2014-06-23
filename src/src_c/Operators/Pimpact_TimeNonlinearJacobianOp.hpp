@@ -81,18 +81,16 @@ public:
 
     const_cast<DomainFieldT&>(x).exchange();
 
-//    if( std::abs(mul) < 1.e-12 ) { //      y.init(0.);
-//      mul = 1.;
-//    }
 
     if( CrankNicolsonYes ) {
 
       typename DomainFieldT::Iter k = u_->mfs_.begin();
-      typename RangeFieldT::Iter j = y.mfs_.begin();
-
+      typename RangeFieldT::Iter  j = y.  mfs_.begin();
+//      typename RangeFieldT::Iter  j = y.beginI_-1;
       for( typename DomainFieldT::Iter i = const_cast<DomainFieldT&>(x).mfs_.begin(); i<x.endI_; ++i ) {
         (*i)->exchange();
-        temp_->init( 0. );
+        temp_->init(0);
+
         OP_nonlinear(
             (*k)->vec_[0], (*k)->vec_[1], (*k)->vec_[2],
             (*i)->vec_[0], (*i)->vec_[1], (*i)->vec_[2],
@@ -109,15 +107,19 @@ public:
         if( j>=y.beginI_ )
           (*j)->add( 1., **j, 0.5, *temp_ );
         ++j;
-        if( j<y.endI_ )
-          (*j)->add( 1., **j, 0.5, *temp_ );
-        (*j)->changed();
+        if( j<y.endI_ ) {
+          (*j)->add( 0., **j, 0.5, *temp_ );
+          (*j)->changed();
+        }
+//        ++j;
         ++k;
       }
     }
     else {
-      typename RangeFieldT::Iter j = y.beginI_;
+      y.init(0.);
+
       typename DomainFieldT::Iter k = u_->beginI_;
+      typename RangeFieldT::Iter  j = y.beginI_;
       for( typename DomainFieldT::Iter i = const_cast<DomainFieldT&>(x).beginI_; i<x.endI_; ++i ) {
         (*i)->exchange();
         OP_nonlinear(

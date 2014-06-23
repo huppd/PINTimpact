@@ -40,13 +40,15 @@ class TimeField {
   friend class DtTimeOp;
   template<class S, class O,bool CNY>
   friend class TimeNonlinearJacobian;
+//  template<class S,class O>
+//  friend void initVectorTimeField();
 
 public:
 
   typedef typename Field::Scalar Scalar;
   typedef typename Field::Ordinal Ordinal;
 
-protected:
+public:
 
   typedef Pimpact::TimeField<Field> MV;
   typedef Scalar* ScalarArray;
@@ -398,6 +400,7 @@ public:
         if( transL>0 ) MPI_Send ( ghostUS, lengthL, MPI_REAL8, rankU, 1, comm() );
         //      if( transL>0 ) MPI_Send ( ghostLS, lengthU, MPI_REAL8, rankL, 2, comm() );
         //
+        mfs_[0]->changed();
         if( transL>0 ) MPI_Wait( &reqL, &statusL );
 
       }
@@ -449,10 +452,11 @@ initVectorTimeField(
 
   auto offset = space->shift()[3];
 
-  O i = 0;
+  O i = -1;
   S pi = 4.*std::atan(1.);
 
-  for( Iter j = field->beginI_; j<field->endI_; ++j )
+//  for( Iter j = field->beginI_; j<field->endI_; ++j )
+  for( Iter j = field->mfs_.begin(); j<field->endI_; ++j )
     switch( flowType ) {
     case Zero2DFlow:
       (*j)->initField( ZeroProf );
@@ -484,7 +488,8 @@ initVectorTimeField(
       (*j)->initField( ZeroProf );
       break;
     }
-  field->changed();
+//  field->changed();
+//  field->exchange();
 
   return( field );
 

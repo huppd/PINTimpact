@@ -53,21 +53,20 @@ public:
 
 
       const_cast<DomainFieldT&>(x).exchange();
-      y.init(0.);
+//      y.init(0.);
 
       typename DomainFieldT::Iter i= const_cast<DomainFieldT&>(x).mfs_.begin();
       typename RangeFieldT::Iter  j = y.mfs_.begin();
 
-//      for( ; i<const_cast<DomainFieldT&>(x).mfs_.end(); ++i )
-//        op_->apply( **(i), *temp_ );
+      for( ; i < const_cast<DomainFieldT&>(x).mfs_.end(); ++i ) {
 
-      for( ; i<const_cast<DomainFieldT&>(x).mfs_.end(); ++i ) {
         op_->apply( **(i), *temp_ );
+
         if( j>=y.beginI_ )
           (*j)->add( 1., **j, 0.5, *temp_ );
         ++j;
         if( j<y.endI_ )
-          (*j)->add( 1., **j, 0.5, *temp_ );
+          (*j)->add( 0., **j, 0.5, *temp_ );
       }
 
     }

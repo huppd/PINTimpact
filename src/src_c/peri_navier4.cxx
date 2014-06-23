@@ -207,6 +207,9 @@ int main(int argi, char** argv ) {
     //    outPar = Teuchos::rcp( &blackhole, false) ;
     outPar = Teuchos::rcp( new Teuchos::oblackholestream() ) ;
 
+
+  *outPar << " \tCrankNicolson=" << cny << "\n";
+  *outPar << " \tNewton=" << isNewton << "\n";
   *outPar << " \tflow=" << flow << "\n";
   *outPar << " \tforce=" << forcing << "\n";
   *outPar << " \tdomain=" << domain << "\n";
@@ -260,10 +263,13 @@ int main(int argi, char** argv ) {
           Pimpact::createTimeField< Pimpact::VectorField<S,O,4> >( space ),
           Pimpact::createTimeField< Pimpact::ScalarField<S,O,4> >( space ) ) );
 
+
+  // init Fields, init and rhs
+  Pimpact::initVectorTimeField( x->getFieldPtr(0)->getVFieldPtr(), Pimpact::EFlowType(flow) );
   x->init( 0. );
   //  x->random();
   auto fu   = x->clone(Pimpact::ShallowCopy);
-  fu->init( 0. );
+//  fu->init( 0. );
 
   Teuchos::RCP<VF> force=Teuchos::null;
   Teuchos::RCP<VF> forcem1=Teuchos::null;
@@ -274,39 +280,21 @@ int main(int argi, char** argv ) {
             x->getConstFieldPtr(0)->getConstVFieldPtr()->clone( Pimpact::ShallowCopy ),
             Pimpact::OscilatingDisc2D,
             xm*l1, ym*l2, rad, amp );
+    force->write(500);
     Pimpact::initVectorTimeField(
         fu->getFieldPtr(0)->getVFieldPtr(),
         Pimpact::OscilatingDisc2DVel,
         xm*l1, ym*l2, rad, amp );
     fu->getFieldPtr(0)->getVFieldPtr()->scale( *force );
-//    switch( Pimpact::EForceType(forcing) ) {
-//    case Pimpact::Dipol:
-//      force->initField( Pimpact::VPoint2D, rad );
-//      fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::VPoint2D, rad );
-//      break;
-//    case Pimpact::Disc:
-//      force->initField( Pimpact::Disc2D, xm*l1, ym*l2, rad );
-//      break;
-//    case Pimpact::RotatingDisc:
-//      force->initField( Pimpact::Disc2D, xm*l1, ym*l2, rad );
-//      fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::RotationDisc2D, xm*l1, ym*l2, rot );
-//      fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->scale( *force );
-//      break;
-//    case Pimpact::PseudoOscilatingDisc:
-//      force->initField( Pimpact::Disc2D, xm*l1, ym*l2, rad );
-//      fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->init( Teuchos::tuple(0., rot*rad, 0.) );
-//      fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->scale( *force );
-//      break;
-//    }
+
     forcem1 = force->clone(Pimpact::ShallowCopy);
     forcem1->init( 1. );
     forcem1->add( 1., *forcem1, -1., *force );
-    //    force  ->write( 111 );
-    //    forcem1->write( 222 );
+
+    x->getFieldPtr(0)->getVFieldPtr()->scale( *force );
+
   }
 
-  // init Fields, init and rhs
-  Pimpact::initVectorTimeField( x->getFieldPtr(0)->getVFieldPtr(), Pimpact::EFlowType(flow) );
 
 
   auto para = Pimpact::createLinSolverParameter( linSolName, tolBelos, 10 );
@@ -350,18 +338,32 @@ int main(int argi, char** argv ) {
                   adv ) ),
            forcingOp );
 
-    auto opS2V = Pimpact::createTimeOpWrap< Pimpact::Grad<S,O,4> >();
-//  auto opS2V =
+//    auto opS2V = Pimpact::createTimeOpWrap< Pimpact::Grad<S,O,4> >();
+  auto opS2V =
+      Pimpact::createCompositionOp(
+          x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+          forcingm1Op,
+//          Pimpact::createTimeOpWrap<Pimpact::Grad<S,O,4>,cny>(
+          Pimpact::createTimeOpWrap<Pimpact::Grad<S,O,4> >(
+              Pimpact::createGradOp<S,O,4>(),
+              Pimpact::createVectorField<S,O,4>( space ) ) );
+
+//  auto opV2S = Pimpact::createTimeOpWrap< Pimpact::Div<S,O,4>,cny >(
+  auto opV2S = Pimpact::createTimeOpWrap< Pimpact::Div<S,O,4> >(
+              Pimpact::createDivOp<S,O,4>(),
+              Pimpact::createScalarField<S,O,4>( space ) );
+//  auto opV2S = Pimpact::createTimeOpWrap< Pimpact::Div<S,O,4> >();
+
+//  auto opV2S =
 //      Pimpact::createCompositionOp(
 //          x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
-//          forcingm1Op,
-////          Pimpact::createTimeOpWrap<Pimpact::Grad<S,O,4>,cny>(
-//          Pimpact::createTimeOpWrap<Pimpact::Grad<S,O,4> >(
-//              Pimpact::createGradOp<S,O,4>(),
-//              Pimpact::createVectorField<S,O,4>( space ) ) );
+//          Pimpact::createTimeOpWrap<Pimpact::Div<S,O,4>,cny>(
+////          Pimpact::createTimeOpWrap<Pimpact::Div<S,O,4> >(
+//              Pimpact::createDivOp<S,O,4>(),
+//              Pimpact::createScalarField<S,O,4>( space ) ),
+//          forcingm1Op
+//              );
 
-  auto opV2S = Pimpact::createTimeOpWrap< Pimpact::Div<S,O,4> >();
-  //
   auto op =
       Pimpact::createMultiOperatorBase<MF>(
           Pimpact::createCompoundOpWrap(
@@ -394,7 +396,7 @@ int main(int argi, char** argv ) {
                     dt,
                     lap,
                     Pimpact::createTimeNonlinearJacobian<S,O,cny>(
-                        Teuchos::null,
+                        x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
                         isNewton,
                         Pimpact::createVectorField<S,O,4>( space )) ) ),
              forcingOp );
@@ -911,7 +913,7 @@ int main(int argi, char** argv ) {
   //    // Print the answer if(rank==0) std::cout << "\n" << "-- Final Solution From Solver --" << "\n";
   //
   Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() )->getConstFieldPtr()->write();
-//  Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(100);
+  Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(100);
   //
   //  x = Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr();
   //  x = Teuchos::rcp_const_cast<NV>( group->getXPtr() )->getFieldPtr();

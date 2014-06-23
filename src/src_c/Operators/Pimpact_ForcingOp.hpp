@@ -44,6 +44,7 @@ public:
     mul_ = mul;
   }
 
+  /// \brief \f[ y = force*x \f]
   void apply( const DomainFieldT& x, RangeFieldT& y ) const {
     y.add( mul_, x, 0., y );
     y.scale( *forcing_ );

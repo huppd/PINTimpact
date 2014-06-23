@@ -38,15 +38,16 @@ contains
         !        z0 = L3/2.
 
         !        R = L1/10.
-        dr = SQRT( ( L1/REAL(M1-1) )**2 + ( L2/REAL(M2-1) )**2 )
+        dr = SQRT( ( 2*L1/REAL(M1-1) )**2 + ( 2*L2/REAL(M2-1) )**2 )
         !  write(*,*) 'dr=',dr
 
         dis = SQRT( (x0-x)**2 + (y0-y)**2 )
 
-        IF( dis <= R) THEN
-            dis = 1.
-        ELSE IF( dis-R <= dr) THEN
-            dis = (1./( 1. + EXP(1./(-(dis-R)/dr) + 1./(1.-(dis-R)/dr) ) ));
+!        IF( dis <= R) THEN
+!            dis = 1.
+!        ELSE
+        IF( Abs(dis-R) < dr) THEN
+            dis = ABS(1./( 1. + EXP(1./(-ABS(dis-R)/dr) + 1./(1.-Abs(dis-R)/dr) ) ));
         !    dis = (1-(dis-R)/dr)
         ELSE
             dis = 0.

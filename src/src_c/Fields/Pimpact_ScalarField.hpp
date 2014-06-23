@@ -490,10 +490,15 @@ protected:
   void changed( const int& dir ) const {
     exchangedState_[dir] = false;
   }
+
+public:
+
   void changed() const {
     for( int dir=0; dir<dim(); ++dir )
       changed( dir );
   }
+
+protected:
 
   bool is_exchanged( const int& dir ) const {
     return( exchangedState_[dir] );
@@ -532,18 +537,16 @@ protected:
 /// \param fS scalar Vector Space to which returned vector belongs
 /// \return scalar vector
 /// \relates ScalarField
-template<class Scalar, class Ordinal>
-Teuchos::RCP< ScalarField<Scalar,Ordinal> >
+template<class S=double, class O=int, int d=3>
+Teuchos::RCP< ScalarField<S,O,d> >
 createScalarField(
-    const Teuchos::RCP<const Space<Ordinal> >& space=Teuchos::null ) {
-  //    const Teuchos::RCP<const FieldSpace<Ordinal> >& fS,
-  //    const Teuchos::RCP<const IndexSpace<Ordinal> >& iS=Teuchos::null ) {
-  if( space.is_null() )
+    const Teuchos::RCP<const Space<O,d> >& space=Teuchos::null ) {
+//  if( space.is_null() )
+//    return( Teuchos::rcp(
+//        new ScalarField<S,O,d>( createSpace<O,d>() ) ) );
+//  else
     return( Teuchos::rcp(
-        new ScalarField<Scalar,Ordinal>( createSpace<Ordinal>() ) ) );
-  else
-    return( Teuchos::rcp(
-        new ScalarField<Scalar,Ordinal>( space ) ) );
+        new ScalarField<S,O,d>( space ) ) );
 }
 
 
