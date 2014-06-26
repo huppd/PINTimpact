@@ -335,6 +335,7 @@
   ! note: - option not available for compact finite differences (cf. comp_conv_yes)
   !
   upwind_yes = .true.
+!  upwind_yes = .false.
   
   !--- upwinding for advective terms of concentration equations ---
   ! note: - option not available for compact finite differences (cf. comp_conv_yes)

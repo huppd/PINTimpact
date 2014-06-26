@@ -22,27 +22,27 @@ extern "C" {
 /// \todo not workin properly?
 /// \todo add temporary variable
 /// \warning does not hold test.
-template<class Scalar,class Ordinal>
+template<class Scalar,class Ordinal, int dimension=3>
 class DivGradOp {
 
-  Teuchos::RCP<VectorField<Scalar,Ordinal> > temp_;
-  Teuchos::RCP<Div<Scalar,Ordinal> > div_;
-  Teuchos::RCP<Grad<Scalar,Ordinal> > grad_;
+  Teuchos::RCP<VectorField<Scalar,Ordinal,dimension> > temp_;
+  Teuchos::RCP<Div<Scalar,Ordinal,dimension> > div_;
+  Teuchos::RCP<Grad<Scalar,Ordinal,dimension> > grad_;
 
 public:
 
-  typedef ScalarField<Scalar,Ordinal>  DomainFieldT;
-  typedef ScalarField<Scalar,Ordinal>  RangeFieldT;
+  typedef ScalarField<Scalar,Ordinal,dimension>  DomainFieldT;
+  typedef ScalarField<Scalar,Ordinal,dimension>  RangeFieldT;
 
   DivGradOp():
     temp_(Teuchos::null),
-    div_(Teuchos::rcp(new Div<Scalar,Ordinal>() )),
-    grad_(Teuchos::rcp(new Grad<Scalar,Ordinal>() )) {};
+    div_(Teuchos::rcp(new Div<Scalar,Ordinal,dimension>() )),
+    grad_(Teuchos::rcp(new Grad<Scalar,Ordinal,dimension>() )) {};
 
-  DivGradOp( const Teuchos::RCP<VectorField<Scalar,Ordinal> >& temp):
+  DivGradOp( const Teuchos::RCP<VectorField<Scalar,Ordinal,dimension> >& temp):
     temp_(temp),
-    div_(Teuchos::rcp(new Div<Scalar,Ordinal>() )),
-    grad_(Teuchos::rcp(new Grad<Scalar,Ordinal>() )) {};
+    div_(Teuchos::rcp(new Div<Scalar,Ordinal,dimension>() )),
+    grad_(Teuchos::rcp(new Grad<Scalar,Ordinal,dimension>() )) {};
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
 //    grad_->apply( x, *temp_ );
@@ -65,10 +65,10 @@ public:
 
 
 /// \relates DivGradOp
-template<class S, class O>
-Teuchos::RCP<DivGradOp<S,O> > createDivGradOp( const Teuchos::RCP<VectorField<S,O> >& temp=Teuchos::null ) {
+template<class S, class O, int d=3>
+Teuchos::RCP< DivGradOp<S,O,d> > createDivGradOp( const Teuchos::RCP<VectorField<S,O,d> >& temp=Teuchos::null ) {
   return(
-      Teuchos::rcp( new DivGradOp<S,O>( temp ) )
+      Teuchos::rcp( new DivGradOp<S,O,d>( temp ) )
   );
 }
 

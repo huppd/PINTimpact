@@ -90,13 +90,13 @@ module mod_dims
   integer, parameter  ::  ncb1r(4) = (/2,3,3,3/) ! TEST!!!dim_ncb1c wird als Array-Laenge angenommen ...
   integer, parameter  ::  ncb1g(4) = (/3,4,4,6/)
   integer, parameter  ::  ncb1d(4) = (/4,4,6,6/)
-  
+
   integer, parameter  ::  ncb2c(4) = (/4,5,5,7/)
   integer, parameter  ::  ncb2f(4) = (/4,5,5,5/)
   integer, parameter  ::  ncb2r(4) = (/2,3,3,3/)
   integer, parameter  ::  ncb2g(4) = (/3,4,4,6/)
   integer, parameter  ::  ncb2d(4) = (/4,4,6,6/)
-  
+
   integer, parameter  ::  ncb3c(4) = (/4,5,5,7/)
   integer, parameter  ::  ncb3f(4) = (/4,5,5,5/)
   integer, parameter  ::  ncb3r(4) = (/2,3,3,3/)

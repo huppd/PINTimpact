@@ -610,14 +610,14 @@ TEUCHOS_UNIT_TEST( ModeOperator, TripleCompostion) {
   auto Hinv  = Pimpact::createInverseOperator( Hprob );
 
   auto schur = Pimpact::createTripleCompositionOp(
-      temp->getConstFieldPtr(0)->clone(),
-      temp->getConstFieldPtr(0)->clone(),
-      Pimpact::createModeOpWrap( Pimpact::createGradOp<S,O>()),
+      Pimpact::createMultiField( temp->getConstFieldPtr(0)->clone() ),
+      Pimpact::createMultiField( temp->getConstFieldPtr(0)->clone() ),
+      Pimpact::createMultiModeOpWrap( Pimpact::createGradOp<S,O>()),
       Hinv,
-      Pimpact::createModeOpWrap( Pimpact::createDivOp<S,O>() )
+      Pimpact::createMultiModeOpWrap( Pimpact::createDivOp<S,O>() )
       );
 
-  schur->apply( B->getConstField(0), X->getField(0) );
+  schur->apply( *B, *X );
 }
 
 

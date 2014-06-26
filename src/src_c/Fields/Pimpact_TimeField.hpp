@@ -111,18 +111,17 @@ public:
 
     for( int i=0; i<nt; ++i )
       mfs_[i] = field.mfs_[i]->clone(copyType);
-    //      mfs_[i] = Teuchos::rcp( new Field( space_, false ) );
 
     Ordinal storage = mfs_[0]->getStorageSize();
 
     array_ = new Scalar[storage*nt];
 
-    for( int i=0; i<storage*nt; ++i ) {
-      if( DeepCopy==copyType )
+    if( DeepCopy==copyType )
+      for( int i=0; i<storage*nt; ++i ) {
         array_[i] = field.array_[i];
-      else
-        array_[i] = 0.;
-    }
+//      else
+//        array_[i] = 0.;
+      }
 
     for( int i=0; i<nt; ++i )
       mfs_[i]->setStoragePtr( array_+i*storage );

@@ -206,7 +206,8 @@ TEUCHOS_UNIT_TEST( BelosSolver, PrecMGVHelmholtz ) {
       Teuchos::rcp( new Belos::LinearProblem<S, MVF, BOp >( op, x, b) );
 
   problem->setProblem(x,b);
-  problem->setLeftPrec( prec );
+//  problem->setLeftPrec( prec );
+  problem->setRightPrec( prec );
 
   // Tell the solver what problem you want to solve.
   solver->setProblem( problem );
@@ -259,25 +260,28 @@ TEUCHOS_UNIT_TEST( BelosSolver, PrecDivGrad ) {
   lap->apply( *u, *temp );
   div->apply( *temp, *rhs );
 
+  rhs->write(0);
   auto b = Pimpact::createMultiField( rhs );
   auto x = Pimpact::createMultiField( sol );
-  b->random();
+//  b->random();
   x->init(0.);
 
   auto op = Pimpact::createMultiOperatorBase<MSF>(
       Pimpact::createDivGradOp<S,O>( u->clone() ) );
 
   auto prec = Pimpact::createMultiOperatorBase<MSF>(
-      Pimpact::createMGVDivGradOp<S,O>(false) );
+      Pimpact::createMGVDivGradOp<S,O>(true) );
 
-  auto para = Pimpact::createLinSolverParameter("GMRES",1.e-1,1);
-  para->set( "Maximum Iterations", 100 );
+  auto para = Pimpact::createLinSolverParameter("GMRES",1.e-6,1);
+//  auto para = Teuchos::parameterList();
+  para->set( "Maximum Iterations", 10000 );
 
 
   Belos::SolverFactory<S, MSF, BOp> factory;
 
   // Create the GMRES solver.
   Teuchos::RCP<Belos::SolverManager<S, MSF, BOp > > solver =
+//      factory.create( "LSQR", para );
       factory.create( "GMRES", para );
 //      factory.create( "TFQMR", para );
 //      factory.create( "CG", para ); < not working
@@ -287,7 +291,8 @@ TEUCHOS_UNIT_TEST( BelosSolver, PrecDivGrad ) {
   auto problem = Teuchos::rcp( new Belos::LinearProblem<S, MSF, BOp >( op, x, b) );
 
   problem->setProblem(x,b);
-  problem->setLeftPrec( prec );
+//  problem->setLeftPrec( prec );
+  problem->setRightPrec( prec );
 
   // Tell the solver what problem you want to solve.
   solver->setProblem( problem );

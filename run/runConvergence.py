@@ -14,9 +14,9 @@ os.system( 'make '+exe+' -j4' )
 case_path = ['','','','','']
 npx= 2 
 npy= 2
-npt= 2
+npt= 4
 
-case_consts = ' --linSolName="GMRES" --flow=5 --domain=2 --force=0   --npx='+str(npx)+' --npy='+str(npy)+' --npt='+str(npt)+' --tolNOX=1.e-6  --tolBelos=1.e-2  --maxIter=20  --lx=2. --ly=2.  '
+case_consts = ' --linSolName="GCRODR" --flow=5 --domain=2 --force=0   --npx='+str(npx)+' --npy='+str(npy)+' --npt='+str(npt)+' --tolNOX=1.e-6  --tolBelos=1.e-2  --maxIter=20  --lx=2. --ly=2.  '
 
 precTypes = [ 0 ]
 ns        = [ 4, 5, 6, 7, 8, 9   ]
@@ -35,7 +35,7 @@ alpha2s = [ 12 ]
 fixTypes  = [ 1 ]
 
 for precType in precTypes:
-	case_path[0] = '/precType_'+str(precType)
+	case_path[0] = '/precType_1'+str(precType)
 	if not os.path.exists( data_path+case_path[0] ):
 		os.mkdir( data_path+case_path[0] )
 	for fixType in fixTypes:
@@ -56,7 +56,7 @@ for precType in precTypes:
 						os.mkdir( data_path+case_path[0]+case_path[1]+case_path[2]+case_path[3]+case_path[4] )
 					os.chdir( data_path+case_path[0]+case_path[1]+case_path[2]+case_path[3]+case_path[4] )
 					os.system(' rm ./* -r -v  ')
-					case_para = ' --precType='+str(precType)+' --nx='+str(2**5+1)+' --ny='+str(2**5+1)+' --nt='+str(2**n)+' --re='+str(re)+' --alpha2='+str(alpha2)+' --fixType='+str(fixType)+' '
+					case_para = ' --precType='+str(precType)+' --nx='+str(2**6+1)+' --ny='+str(2**6+1)+' --nt='+str(2**n)+' --re='+str(re)+' --alpha2='+str(alpha2)+' --fixType='+str(fixType)+' '
 					print case_consts + case_para
 					os.system( exe_pre(npx*npy*npt,' -R lustre ')+exe_path+exe+case_para+case_consts )
 					#os.system( exe_pre(npx*npy*npt)+exe_path+exe+case_para+case_consts )

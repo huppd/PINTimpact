@@ -58,13 +58,13 @@ public:
     if( opV2S_.is_null() )    opV2S_ = Teuchos::rcp( new OpV2S() );
 
     auto opSchur =
-        Pimpact::createMultiOperatorBase< MultiField<SF> >(
+        Pimpact::createOperatorBase< MultiField<SF> >(
             Pimpact::createTripleCompositionOp(
-                tempv_->clone(Pimpact::ShallowCopy),
-                tempv_->clone(Pimpact::ShallowCopy),
-                opS2V_,
+                createMultiField( tempv_->clone(Pimpact::ShallowCopy) ),
+                createMultiField( tempv_->clone(Pimpact::ShallowCopy) ),
+                createMultiOpWrap( opS2V_ ),
                 opV2Vinv_,
-                opV2S_ ) );
+                createMultiOpWrap( opV2S_ ) ) );
 
     lp_ = Pimpact::createLinearProblem< MultiField<SF> >( opSchur, Teuchos::null, Teuchos::null, para, "GMRES" );
 //    lp_ = Pimpact::createLinearProblem< MultiField<SF> >( opSchur, Teuchos::null, Teuchos::null, Teuchos::null, "GmresPoly" );

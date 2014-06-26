@@ -46,9 +46,9 @@ public:
         op1_(op1), op2_(op2), op3_(op3)
 {};
 
-  void apply(const DomainFieldT& x, RangeFieldT& y) const {
+  void apply(const DomainFieldT& x, RangeFieldT& y, Belos::ETrans trans=Belos::NOTRANS) const {
     op1_->apply( x, *temp1_);
-    op2_->apply( *Pimpact::createMultiField(temp1_), *Pimpact::createMultiField(temp2_) );
+    op2_->apply( *temp1_, *temp2_ );
     op3_->apply( *temp2_, y );
   }
 
