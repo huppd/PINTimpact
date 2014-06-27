@@ -1039,6 +1039,7 @@ int main(int argi, char** argv ) {
   Teuchos::RCP<NOX::Solver::Generic> solver =
       NOX::Solver::buildSolver( group, statusTest, solverParametersPtr);
 
+  if(0==rank) std::cout << "\n\t--- Nf: 0\tdof: "<<x->getLength(true)<<"\t---\n";
   // Solve the nonlinear system
   {
     Teuchos::TimeMonitor LocalTimer(*CompTime);
@@ -1062,7 +1063,7 @@ int main(int argi, char** argv ) {
   //    // Print the answer if(rank==0) std::cout << "\n" << "-- Final Solution From Solver --" << "\n";
   //
   Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() )->getConstFieldPtr()->write();
-  Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(100);
+  Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(1000);
   //
   //  x = Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr();
   //  x = Teuchos::rcp_const_cast<NV>( group->getXPtr() )->getFieldPtr();

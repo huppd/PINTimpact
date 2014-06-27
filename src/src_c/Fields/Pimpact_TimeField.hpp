@@ -116,15 +116,19 @@ public:
 
     array_ = new Scalar[storage*nt];
 
-    if( DeepCopy==copyType )
-      for( int i=0; i<storage*nt; ++i ) {
-        array_[i] = field.array_[i];
-//      else
-//        array_[i] = 0.;
-      }
-
     for( int i=0; i<nt; ++i )
       mfs_[i]->setStoragePtr( array_+i*storage );
+
+    if( DeepCopy==copyType )
+      for( int i=0; i<nt; ++i )
+        mfs_[i]->assign( *(field.mfs_[i]) );
+//    if( DeepCopy==copyType )
+//      for( int i=0; i<storage*nt; ++i ) {
+//        array_[i] = field.array_[i];
+////      else
+////        array_[i] = 0.;
+//      }
+
 
     beginI_ = mfs_.begin()-space_->bl()[3];
     endI_ = mfs_.end()-space_->bu()[3];
@@ -368,7 +372,7 @@ public:
 
   void exchange()   {
 
-    if(!exchangedState_ ) {
+    if( !exchangedState_ ) {
       if( space_->getNProc(3)>=1 ) {
         int transL = beginI_-mfs_.begin();
         //      int transU = mfs_.end()-endI_;
@@ -405,6 +409,7 @@ public:
       }
       else {
         mfs_[0]->assign( **(mfs_.end()-1) );
+        mfs_[0]->changed();
       }
     }
 

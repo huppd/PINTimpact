@@ -55,5 +55,5 @@ os.system( 'make '+exe+' -j4' )
 os.chdir( prof_path )
 os.system( 'make '+exe+' -j4' )
 print exe_pre()+prof_pre+exe
-os.system(exe_pre()+prof_pre+'./'+exe+' --nx=33 --ny=33 --nt=32 --domain=1 --flow=1 --force=1 --precType=0 --maxIter=1 --rightPrec --piccard --tolNOX=0.5 --tolBelos=0.5 --tolSchur=0.1 --tolPrec=0.1 --re=200 --alpha2=250 ')
+os.system(exe_pre()+prof_pre+'./'+exe+' --nx=33 --ny=33 --nt=32 --domain=1 --flow=1 --force=1 --precType=0 --maxIter=1 --rightPrec --piccard --tolNOX=0.1 --tolBelos=0.1 --tolSchur=0.1 --tolPrec=0.1 --re=200 --alpha2=250 ')
 

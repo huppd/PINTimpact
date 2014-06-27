@@ -413,7 +413,7 @@ public:
     for(int i=0; i<3; ++i)
       N *= nLoc(i)+bu(i)-bl(i);
 
-    for( int d=0; d<3; ++d)
+    for( int d=0; d<dim(); ++d)
       for(int i=0; i<N; ++i) {
         vec_[d][i] = a.vec_[d][i];
       }
@@ -782,7 +782,7 @@ public:
 
     Ordinal N = 1;
     for(int i=0; i<3; ++i)
-      N *= nLoc(i)+bu(i)-bl(i)+1;
+      N *= nLoc(i)+bu(i)-bl(i);
 
     return( 3*N );
   }
@@ -790,7 +790,7 @@ public:
   void setStoragePtr( Scalar*  array ) {
     Ordinal N = 1;
     for(int i=0; i<3; ++i)
-      N *= nLoc(i)+bu(i)-bl(i)+1;
+      N *= nLoc(i)+bu(i)-bl(i);
 
     vec_[0] = array;
     vec_[1] = array+N;
