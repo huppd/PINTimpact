@@ -497,13 +497,13 @@
   !--- numbers of relaxation sweeps ---
   ! from top: restriction, prolongation, coarsest grid
   !
-!  n_relax_down   = 4
-!  n_relax_up     = 4
-!  n_relax_bottom = 4
+  n_relax_down   = 4
+  n_relax_up     = 4
+  n_relax_bottom = 4
 
-  n_relax_down   = 8
-  n_relax_up     = 8
-  n_relax_bottom = 8
+!  n_relax_down   = 8
+!  n_relax_up     = 8
+!  n_relax_bottom = 8
   
   !--- directions of (alternating) line-relaxations ---
   ! note: - line-relaxation is necessary if the grid is strongly unisotropic, i.e. when the grid spacings

@@ -62,8 +62,8 @@ int main(int argi, char** argv ) {
   S re = 1.;
   my_CLP.setOption( "re", &re, "Reynolds number" );
 
-  S omega = 1.;
-  my_CLP.setOption( "omega", &omega, "introduced frequency" );
+  S alpha2 = 1.;
+  my_CLP.setOption( "alpha2", &alpha2, "introduced frequency" );
 
   S px = 1.;
   my_CLP.setOption( "px", &px, "pressure gradient(only necessary for pulsatile flows)" );
@@ -122,6 +122,12 @@ int main(int argi, char** argv ) {
   int precType = 0;
   my_CLP.setOption( "prec", &precType, "Type of the preconditioner." );
 
+  int precTypeSchur = 0;
+  my_CLP.setOption( "precTypeSchur", &precTypeSchur, "Type of the preconditioner for the SchurComplement." );
+
+  bool leftPrec = true;
+  my_CLP.setOption( "leftPrec","rightPrec", &leftPrec, "type of fixpoint iteration matrix: 1=Newton, 2=Piccard, 3=lin diag... " );
+
   my_CLP.recogniseAllOptions(true);
   my_CLP.throwExceptions(true);
 
@@ -148,18 +154,16 @@ int main(int argi, char** argv ) {
 
   *outPar << " \tflow=" << flow << "\n";
   *outPar << " \tdomain=" << domain << "\n";
-  *outPar << " \tre=" << re << "\n";
   *outPar << " \tpx=" << px << "\n";
-  *outPar << " \tomega=" << omega << "\n";
 
-  auto ds = Pimpact::createDomainSize<S>(l1,l2,l3);
+  auto ds = Pimpact::createDomainSize<S>( re, alpha2, l1,l2,l3);
   ds->set_Impact();
   ds->print( *outPar );
 
   auto bc = Pimpact::createBoudaryConditionsGlobal( Pimpact::EDomainType(domain) );
   bc->set_Impact();
 
-  auto gs = Pimpact::createGridSizeGlobal(n1,n2,n3);
+  auto gs = Pimpact::createGridSizeGlobal( n1, n2, n3 );
   gs->set_Impact();
   gs->print( *outPar );
 
@@ -178,12 +182,6 @@ int main(int argi, char** argv ) {
 
 
   // init Spaces
-//  auto fS = Pimpact::createFieldSpace<O>();
-//
-//  auto iS  = Pimpact::createScalarIndexSpace<O>();
-//  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-//  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
-
   auto space = Pimpact::createSpace<O>();
 
 
@@ -192,7 +190,7 @@ int main(int argi, char** argv ) {
   auto temps = p->clone();
   auto fp    = p->clone();
 
-  auto u     = Pimpact::createInitMVF<S,O>( Pimpact::EFlowType(flow), space, omega, px );
+  auto u     = Pimpact::createInitMVF<S,O>( Pimpact::EFlowType(flow), space, alpha2, px );
   auto tempv = Pimpact::createInitMVF<S,O>( Pimpact::Zero2DFlow, space );
   auto fu    = Pimpact::createInitMVF<S,O>( Pimpact::Zero2DFlow, space );
 
@@ -207,7 +205,7 @@ int main(int argi, char** argv ) {
   // init Belos operators
   auto dtlap  =
       Pimpact::createMultiOperatorBase<MVF,Pimpact::DtLapOp<S,O> >(
-          Pimpact::createDtLapOp<S,O>( omega, 1./re ) );
+          Pimpact::createDtLapOp<S,O>( alpha2, 1./re ) );
 
 
   // create choosen preconditioner
@@ -219,7 +217,7 @@ int main(int argi, char** argv ) {
 
     lprec =
         Pimpact::createMultiOperatorBase<MVF,Pimpact::DtModeOp<S,O> >(
-            Pimpact::createDtModeOp<S,O>( -1./omega ) );
+            Pimpact::createDtModeOp<S,O>( -1./alpha2 ) );
     break;
   }
   case 2: {
@@ -243,7 +241,7 @@ int main(int argi, char** argv ) {
 
     auto solverParams = Pimpact::createLinSolverParameter( "CG", tol*l1*l2/n1/n2/1000 );
     solverParams->set ("Verbosity", int( Belos::Errors) );
-    auto A = Pimpact::createMultiModeOperatorBase<MVF,Pimpact::HelmholtzOp<S,O> >( Pimpact::createHelmholtzOp<S,O>( omega, 1./re ) );
+    auto A = Pimpact::createMultiModeOperatorBase<MVF,Pimpact::HelmholtzOp<S,O> >( Pimpact::createHelmholtzOp<S,O>( alpha2, 1./re ) );
     auto prob2 = Pimpact::createLinearProblem<MVF>( A, fu->clone(), fu->clone(), solverParams, "CG" );
     auto op2 = Pimpact::createEddyPrec<S,O>( fu->clone(), Pimpact::createInverseOperatorBase<MVF>(prob2) ) ;
     lprec = Pimpact::createMultiOperatorBase<MVF >( op2 );
@@ -253,7 +251,7 @@ int main(int argi, char** argv ) {
     if(rank==0) std::cout << "\n\tprecType: 4, EddyPrec(ML)\n";
 
     auto bla = Pimpact::createMultiModeOperatorBase<MVF>(
-        Pimpact::createMLHelmholtzOp<S,O>( space, 20, omega, 1./re, tol*l1*l2/n1/n2/1000 ) );
+        Pimpact::createMLHelmholtzOp<S,O>( space, 20, alpha2, 1./re, tol*l1*l2/n1/n2/1000 ) );
     auto op2 = Pimpact::createEddyPrec<S,O>( fu->clone(), bla ) ;
     lprec = Pimpact::createMultiOperatorBase<MVF>( op2 );
     break;
@@ -262,7 +260,7 @@ int main(int argi, char** argv ) {
     if(rank==0) std::cout << "\n\tprecType: 5, EddyPrec(ImpactSolver)\n";
 
     auto bla = Pimpact::createMultiModeOperatorBase<MVF>(
-        Pimpact::createInverseHelmholtzOp<S,O>( omega, 1./re, tol*l1*l2/n1/n2/1000, 1000, true, true, false ) );
+        Pimpact::createInverseHelmholtzOp<S,O>( alpha2, 1./re, tol*l1*l2/n1/n2/1000, 1000, true, true, false ) );
     auto op2 = Pimpact::createEddyPrec<S,O>( fu->clone(), bla ) ;
     lprec = Pimpact::createMultiOperatorBase<MVF>( op2 );
     break;
@@ -271,15 +269,18 @@ int main(int argi, char** argv ) {
     if(rank==0) std::cout << "\n\tprecType: 6, EddyPrec(CG+ImpactSolver)\n";
 
     auto bla = Pimpact::createMultiModeOperatorBase<MVF>(
-        Pimpact::createMGVHelmholtzOp<S,O>( omega, 1./re, false ) );
+        Pimpact::createMGVHelmholtzOp<S,O>( alpha2, 1./re, false ) );
 
-    auto solverParams = Pimpact::createLinSolverParameter( "CG", tol*l1*l2/n1/n2/1000 );
+    auto solverParams = Pimpact::createLinSolverParameter( "CG", tol*l1*l2/n1/n2/100 );
     solverParams->set ("Verbosity", int( Belos::Errors) );
 
-    auto A = Pimpact::createMultiModeOperatorBase<MVF,Pimpact::HelmholtzOp<S,O> >( Pimpact::createHelmholtzOp<S,O>( omega, 1./re ) );
+    auto A = Pimpact::createMultiModeOperatorBase<MVF,Pimpact::HelmholtzOp<S,O> >( Pimpact::createHelmholtzOp<S,O>( alpha2, 1./re ) );
 
     auto prob2 = Pimpact::createLinearProblem<MVF>( A, fu->clone(), fu->clone(), solverParams, "CG" );
-    prob2->setLeftPrec( bla );
+    if( leftPrec )
+      prob2->setLeftPrec( bla );
+    else
+      prob2->setRightPrec( bla );
 
     auto op2 = Pimpact::createEddyPrec<S,O>( fu->clone(), Pimpact::createInverseOperatorBase<MVF>(prob2) ) ;
     lprec = Pimpact::createMultiOperatorBase<MVF >( op2 );
@@ -288,6 +289,8 @@ int main(int argi, char** argv ) {
   default:
     break;
   }
+
+
 
   // init MV operators
   auto div  = Pimpact::createMultiOpWrap(
@@ -325,22 +328,68 @@ int main(int argi, char** argv ) {
 
 
   // create problems/solvers
-  auto lap_problem = Pimpact::createLinearProblem<MVF>( dtlap, u, fu, solverParams, solver_name_1 );
-  lap_problem->setLeftPrec( lprec );
+  auto lapProblem = Pimpact::createLinearProblem<MVF>( dtlap, u, fu, solverParams, solver_name_1 );
+  if( leftPrec )
+    lapProblem->setLeftPrec( lprec );
+  else
+    lapProblem->setRightPrec( lprec );
 
   auto schur =
       Pimpact::createMultiOperatorBase<MSF,Pimpact::DivOpGrad<S,O> >(
-          Pimpact::createDivOpGrad<S,O>( u, lap_problem ) );
+          Pimpact::createDivOpGrad<S,O>( u, lapProblem ) );
 
   solverParams = Pimpact::createLinSolverParameter( solver_name_2, tol*l1*l2/n1/n2  );
   solverParams->set( "Output Stream", outSchur );
 //  solverParams->set( "Num Blocks", 10 );
 //  solverParams->set( "Maximum Iterations", 10  );
 
-  auto schur_prob = Pimpact::createLinearProblem<MSF>( schur, p,temps, solverParams, solver_name_2);
+  auto schurProb = Pimpact::createLinearProblem<MSF>( schur, p,temps, solverParams, solver_name_2);
+
+  // create choosen preconditioner
+   Teuchos::RCP<Pimpact::OperatorBase<MSF> > precSchur = Teuchos::null;
+   switch(precTypeSchur) {
+   case 0:
+     break;
+   case 1: {
+
+     //--- inverse DivGrad
+     auto divGradPrec =
+         Pimpact::createMultiOperatorBase< MSF >(
+             Pimpact::createModeOpWrap( Pimpact::createMGVDivGradOp<S,O,3>(true) ) );
+
+     auto divGradProb =
+         Pimpact::createLinearProblem< MSF >(
+             Pimpact::createMultiOperatorBase< MSF >(
+                 Pimpact::createModeOpWrap(
+                     Pimpact::createDivGradOp<S,O,3>(/*x->getConstFieldPtr(0)->getConstVFieldPtr()->getConstField(0)*/) ) ),
+             Teuchos::null,
+             Teuchos::null,
+             Teuchos::parameterList(),
+             "GMRES" );
+     divGradProb->setRightPrec( divGradPrec );
+     auto divGradInv = Pimpact::createInverseOperatorBase( divGradProb );
+
+     precSchur =
+         Pimpact::createOperatorBase< MSF >(
+             Pimpact::createTripleCompositionOp(
+                 temps->clone(Pimpact::ShallowCopy),
+                 temps->clone(Pimpact::ShallowCopy),
+                 divGradInv,
+                 Pimpact::createInverseOperator( schurProb ),
+                 divGradInv ) );
+
+     break;
+   }
+   default:
+     break;
+   }
+  if( leftPrec )
+    schurProb->setLeftPrec( precSchur );
+  else
+    schurProb->setRightPrec( precSchur );
 
   // solve stationary stokes
-  lap_problem->solve( tempv, fu );
+  lapProblem->solve( tempv, fu );
 
   div->apply( *tempv, *temps );
   temps->add( -1., *fp, 1., *temps );
@@ -348,8 +397,8 @@ int main(int argi, char** argv ) {
   solverParams = Pimpact::createLinSolverParameter( solver_name_1, tol*l1*l2/n1/n2 );
   solverParams->set( "Output Stream", outLap2 );
   solverParams->set("Verbosity", int( Belos::Errors) );
-  lap_problem->setParameters( solverParams );
-  schur_prob->solve( p, temps );
+  lapProblem->setParameters( solverParams );
+  schurProb->solve( p, temps );
   p->write();
 
   grad->apply( *p, *tempv );
@@ -360,9 +409,9 @@ int main(int argi, char** argv ) {
       Belos::OrthoDetails + Belos::FinalSummary +	Belos::TimingDetails +
       Belos::StatusTestDetails + Belos::Debug );
   solverParams->set( "Output Stream", outLap2 );
-  lap_problem->setParameters( solverParams );
+  lapProblem->setParameters( solverParams );
 
-  lap_problem->solve(u,tempv);
+  lapProblem->solve(u,tempv);
 
   u->write();
 

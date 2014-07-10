@@ -23,6 +23,9 @@ void fsetPGS(const int& np1, const int& np2, const int& np3 );
 namespace Pimpact{
 
 
+
+/// \brief size of processor grid
+/// \ingroup Space
 template<class Ordinal=int,int dim=3>
 class ProcGridSize {
 
@@ -44,11 +47,15 @@ protected:
     for( int i=0; i<dim; ++i )
       procSize *= procGridSize_[i];
 
-    if( procSize != commSize)
-      std::cout << "!!!ERROR! ProcGridSize: ( procSize("<<procSize<<") != commSize("<<commSize<<")  differs from number of allocated processors !!!";
-      for( int i=0; i<dim; ++i )
-        if( procGridSize_[i]<1 )
-          std::cout << "!!!ERROR! ProcGridSize: procGridSize_["<<i<<"]="<<procGridSize_[i]<<"<1 !!!\n";
+    TEUCHOS_TEST_FOR_EXCEPTION(
+        procSize != commSize,
+        std::logic_error,
+        "!!!ERROR! ProcGridSize:  differs from number of allocated processors !!!" );
+    for( int i=0; i<dim; ++i )
+      TEUCHOS_TEST_FOR_EXCEPTION(
+          procGridSize_[i]<1,
+        std::logic_error,
+        "!!!ERROR! ProcGridSize: has to be greater than one!!!" );
   }
 
 public:

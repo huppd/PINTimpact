@@ -61,29 +61,47 @@
   !    ||
   ! BC_1L
   !
-  bc11(S21B:N21B,S31B:N31B,1) = 0.
+!  bc11(S21B:N21B,S31B:N31B,1) = 0.
   bc21(S22B:N22B,S32B:N32B,1) = 0.
   bc31(S23B:N23B,S33B:N33B,1) = 0.
   
   bc12(S11B:N11B,S31B:N31B,1) = 0.
+  bc22(S12B:N12B,S32B:N32B,1) = 0.
   bc32(S13B:N13B,S33B:N33B,1) = 0.
   
-  IF ((.NOT. outlet(2,1,2)) .AND. BC_2L == 1) THEN ! Note: this case differentiation may save computational time but is not stringently necessary
-     DO k = S32B, N32B
-        DO i = S12B, N12B
-!           bc22(i,k,1) = interface((x1p(i)-0.75*L1)/(0.01*L1))
+!  IF ((.NOT. outlet(2,1,2)) .AND. BC_2L == 1) THEN ! Note: this case differentiation may save computational time but is not stringently necessary
+!     DO k = S32B, N32B
+!        DO i = S12B, N12B
+!!           bc22(i,k,1) = interface((x1p(i)-0.75*L1)/(0.01*L1))
+!!           bc22(i,k,1) = x2v(i)*( L2 - x2v(i)/L2 )*4/L2
+!           bc22(i,k,1) = x1p(i)*( L1 - x1p(i) )*4/L1/L1
+!        END DO
+!     END DO
+!  END IF
+!
+!  IF ((.NOT. outlet(2,1,2)) .AND. BC_2U == 1) THEN ! Note: this case differentiation may save computational time but is not stringently necessary
+!     DO k = S32B, N32B
+!        DO i = S12B, N12B
+!!           bc22(i,k,1) = interface((x1p(i)-0.75*L1)/(0.01*L1))
+!!           bc22(i,k,1) = x2v(i)*( L2 - x2v(i)/L2 )*4/L2
+!           bc22(i,k,2) = x1p(i)*( L1 - x1p(i) )*4/L1/L1
+!        END DO
+!     END DO
+!  END IF
+  IF ( BC_1L == 1 ) THEN ! Note: this case differentiation may save computational time but is not stringently necessary
+     DO k = S31B, N31B
+        DO i = S21B, N21B
 !           bc22(i,k,1) = x2v(i)*( L2 - x2v(i)/L2 )*4/L2
-           bc22(i,k,1) = x1p(i)*( L1 - x1p(i) )*4/L1/L1
+           bc11(i,k,1) = x2p(i)*( L2 - x2p(i) )*4/L2/L2
         END DO
      END DO
   END IF
   
-  IF ((.NOT. outlet(2,1,2)) .AND. BC_2U == 1) THEN ! Note: this case differentiation may save computational time but is not stringently necessary
-     DO k = S32B, N32B
-        DO i = S12B, N12B
-!           bc22(i,k,1) = interface((x1p(i)-0.75*L1)/(0.01*L1))
+  IF ( BC_1U == 1 ) THEN ! Note: this case differentiation may save computational time but is not stringently necessary
+     DO k = S31B, N31B
+        DO i = S21B, N21B
 !           bc22(i,k,1) = x2v(i)*( L2 - x2v(i)/L2 )*4/L2
-           bc22(i,k,2) = x1p(i)*( L1 - x1p(i) )*4/L1/L1
+           bc11(i,k,2) = x2p(i)*( L2 - x2p(i) )*4/L2/L2
         END DO
      END DO
   END IF

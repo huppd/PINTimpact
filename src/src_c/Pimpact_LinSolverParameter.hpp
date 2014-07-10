@@ -17,7 +17,8 @@ namespace Pimpact {
 Teuchos::RCP< Teuchos::ParameterList > createLinSolverParameter(
     const std::string& solver_name="GMRES",
     double tol=1.e-6,
-    int outfreq=100 ) {
+    int outfreq=100,
+    const Teuchos::RCP<std::ostream>& outStream=Teuchos::rcp(&std::cout,false) ) {
 
   auto parameter_ = Teuchos::parameterList(solver_name);
   int verbo;
@@ -48,28 +49,9 @@ Teuchos::RCP< Teuchos::ParameterList > createLinSolverParameter(
     parameter_->set( "Convergence Tolerance",			tol		 );
   }
   else if( solver_name=="GMRES" ) {
-    		parameter_->set( "Num Blocks",						100	   );
-//    parameter_->set( "Num Blocks",								200	  );
-    parameter_->set( "Maximum Iterations",        3000  );
-    parameter_->set( "Maximum Restarts",					50	  );
-
-    parameter_->set( "Convergence Tolerance",			tol           );
-    parameter_->set( "Implicit Residual Scaling",	"Norm of RHS" );
-    parameter_->set( "Explicit Residual Scaling",	"Norm of RHS" );
-    parameter_->set( "Deflation Quorum",					-1		        );
-    parameter_->set( "Orthogonalization",					"DGKS"        );
-
-    parameter_->set( "Verbosity",									verbo	 );
-    parameter_->set( "Output Frequency",					outfreq);
-    parameter_->set( "Output Style",							style	 );
-    parameter_->set( "Timer Label",								"Belos");
-    //	parameter_->set( "Show Maximum Residual Norm Only", int(0)		 );
-  }
-  else if( solver_name=="GMRES" ) {
-    //		parameter_->set( "Num Blocks",								50	  );
     parameter_->set( "Num Blocks",								300	  );
-    parameter_->set( "Maximum Iterations",        1000  );
-    parameter_->set( "Maximum Restarts",					50	  );
+    parameter_->set( "Maximum Iterations",        30000  );
+    parameter_->set( "Maximum Restarts",					100	  );
 
     parameter_->set( "Convergence Tolerance",			tol           );
     parameter_->set( "Implicit Residual Scaling",	"Norm of RHS" );
@@ -81,12 +63,11 @@ Teuchos::RCP< Teuchos::ParameterList > createLinSolverParameter(
     parameter_->set( "Output Frequency",					outfreq);
     parameter_->set( "Output Style",							style	 );
     parameter_->set( "Timer Label",								"Belos");
-    //	parameter_->set( "Show Maximum Residual Norm Only", int(0)		 );
   }
   else if( solver_name=="GCRODR" ) {
-    parameter_->set( "Num Blocks",								50		 );
-    parameter_->set( "Maximum Iterations",        3000    );
-    parameter_->set( "Maximum Restarts",					60		 );
+    parameter_->set( "Num Blocks",								100 	 );
+    parameter_->set( "Maximum Iterations",        30000   );
+    parameter_->set( "Maximum Restarts",					1000	 );
 
     parameter_->set( "Num Recycled Blocks",				10		   );
 
@@ -123,8 +104,9 @@ Teuchos::RCP< Teuchos::ParameterList > createLinSolverParameter(
     parameter_->set( "Timer Label",								"Belos");
   }
   else {
-    std::cout << "!!!Warning!!! solver_name:\t" << solver_name << "\tnot kown in Pimpact!";
+    std::cout << "!!!Warning!!! solver_name:\t" << solver_name << "\tnot known in Pimpact!";
   }
+  parameter_->set( "Output Stream", outStream );
 
   return( parameter_ );
 

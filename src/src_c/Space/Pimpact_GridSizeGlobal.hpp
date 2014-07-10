@@ -19,7 +19,8 @@ void SVS_get_nGlo(int&,int&,int&);
 namespace Pimpact{
 
 
-/// \todo merge with Space should make nGlow in FieldSpace obsolete, maybe rename
+/// \brief global grid size( independent of Field Type)
+/// \ingroup Space
 template< class Ordinal=int, int dim=3 >
 class GridSizeGlobal {
 
@@ -69,8 +70,8 @@ public:
 }; // end of class GridSizeGlobal
 
 
+/// \brief create GridSize Global from Impact
 /// \relates GridSizeGlobal
-/// from Impact
 template< class O=int, int d=3 >
 Teuchos::RCP<GridSizeGlobal<O,d> > createGridSizeGlobal() {
 
@@ -84,17 +85,17 @@ Teuchos::RCP<GridSizeGlobal<O,d> > createGridSizeGlobal() {
 }
 
 
+/// \brief create GridSize Global and sets Impact
 /// \relates GridSizeGlobal
-/// sets impact
-template< class O=int>
+template< class O=int >
 Teuchos::RCP<GridSizeGlobal<O,3> > createGridSizeGlobal( O n1, O n2, O n3 ) {
   return(
       Teuchos::rcp(
           new GridSizeGlobal<O,3>( n1, n2, n3 ) ) );
 }
 
+/// \brief create GridSize Global and sets Impact
 /// \relates GridSizeGlobal
-/// sets impact
 template< class O=int>
 Teuchos::RCP<GridSizeGlobal<O,4> > createGridSizeGlobal( O n1, O n2, O n3, O nt ) {
   return(

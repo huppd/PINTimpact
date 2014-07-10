@@ -65,32 +65,33 @@
   !    ||
   ! BC_1L
   !
-  bc11(S21B:N21B,S31B:N31B,1) = 0.
-  bc21(S22B:N22B,S32B:N32B,1) = 0.
-  bc31(S23B:N23B,S33B:N33B,1) = 0.
+  bc11(S21B:N21B,S31B:N31B,1:2) = 0.
+  bc21(S22B:N22B,S32B:N32B,1:2) = 0.
+  bc31(S23B:N23B,S33B:N33B,1:2) = 0.
   
-  bc12(S11B:N11B,S31B:N31B,1) = 0.
-  bc32(S13B:N13B,S33B:N33B,1) = 0.
+  bc12(S11B:N11B,S31B:N31B,1:2) = 0.
+  bc22(S12B:N12B,S32B:N32B,1:2) = 0.
+  bc32(S13B:N13B,S33B:N33B,1:2) = 0.
   
-  if ((.not. outlet(2,1,2)) .and. BC_2L == 1) then ! Note: this case differentiation may save computational time but is not stringently necessary
-     do k = S32B, N32B
-        do i = S12B, N12B
-!           bc22(i,k,1) = interface((x1p(i)-0.75*L1)/(0.01*L1))
-!           bc22(i,k,1) = x2v(i)*( L2 - x2v(i)/L2 )*4/L2
-           bc22(i,k,1) = x1p(i)*( L1 - x1p(i) )*4/L1/L1
-        end do
-     end do
-  end if
+!  if ((.not. outlet(2,1,2)) .and. BC_2L == 1) then ! Note: this case differentiation may save computational time but is not stringently necessary
+!     do k = S32B, N32B
+!        do i = S12B, N12B
+!!           bc22(i,k,1) = interface((x1p(i)-0.75*L1)/(0.01*L1))
+!!           bc22(i,k,1) = x2v(i)*( L2 - x2v(i)/L2 )*4/L2
+!           bc22(i,k,1) = x1p(i)*( L1 - x1p(i) )*4/L1/L1
+!        end do
+!     end do
+!  end if
   
-  if ((.not. outlet(2,1,2)) .and. BC_2U == 1) then ! Note: this case differentiation may save computational time but is not stringently necessary
-     do k = S32B, N32B
-        do i = S12B, N12B
-!           bc22(i,k,1) = interface((x1p(i)-0.75*L1)/(0.01*L1))
-!           bc22(i,k,1) = x2v(i)*( L2 - x2v(i)/L2 )*4/L2
-           bc22(i,k,2) = x1p(i)*( L1 - x1p(i) )*4/L1/L1
-        end do
-     end do
-  end if
+!  if ((.not. outlet(2,1,2)) .and. BC_2U == 1) then ! Note: this case differentiation may save computational time but is not stringently necessary
+!     do k = S32B, N32B
+!        do i = S12B, N12B
+!!           bc22(i,k,1) = interface((x1p(i)-0.75*L1)/(0.01*L1))
+!!           bc22(i,k,1) = x2v(i)*( L2 - x2v(i)/L2 )*4/L2
+!           bc22(i,k,2) = x1p(i)*( L1 - x1p(i) )*4/L1/L1
+!        end do
+!     end do
+!  end if
   
   end subroutine boundary_vel_stat
   

@@ -46,9 +46,11 @@ hpc2:  #PRE  = -DALLOC
 hpc2:  PRE  = -DALLOC
 hpc2:  CUSR = FALSE
 #hpc2:  INCL = -I/usr/include 
-hpc2:  INCL = -I/usr/include -I/cluster/apps/hdf5/1.8.8/x86_64/openmpi_1.4.5/gcc_4.4.6/include/ 
+#hpc2:  INCL = -I/usr/include -I/cluster/apps/hdf5/1.8.8/x86_64/openmpi_1.4.5/gcc_4.4.6/include/ 
+hpc2:  INCL = -I/usr/include  -I/cluster/apps/hdf5/1.8.8/x86_64/openmpi_1.6.2/gcc_4.7.2/include
 #hpc2:  LIBS = -lhdf5_fortran -lhdf5 -lhdf5_hl  -lz -lm -L/usr/lib/lapack -llapack -L/usr/lib/libblas -lblas
-hpc2:  LIBS = -L/cluster/apps/hdf5/1.8.8/x86_64/openmpi_1.4.5/gcc_4.4.6/lib -lhdf5_fortran -lhdf5 -lhdf5_hl  -lz -lm -L/usr/lib/lapack -llapack -L/usr/lib/libblas -lblas
+#hpc2:  LIBS = -L/cluster/apps/hdf5/1.8.8/x86_64/openmpi_1.4.5/gcc_4.4.6/lib -lhdf5_fortran -lhdf5 -lhdf5_hl  -lz -lm -L/usr/lib/lapack -llapack -L/usr/lib/libblas -lblas
+hpc2:  LIBS = -L/cluster/apps/hdf5/1.8.8/x86_64/openmpi_1.6.2/gcc_4.7.2/lib -lhdf5_fortran -lhdf5 -lhdf5_hl  -lz -lm -L/usr/lib/lapack -llapack -L/usr/lib/libblas -lblas
 hpc2:  OPT1 =  -ffree-line-length-none \
 			  -O3 -ffast-math -funroll-all-loops -fpeel-loops -ftracer -funswitch-loops \
 			  -ftree-vectorize -march=native -funsafe-math-optimizations -fomit-frame-pointer -fno-math-errno \

@@ -30,7 +30,7 @@ namespace Pimpact {
 /// \todo There is one issue: update methods changes state but could be
 ///implemented, such that they keep the state, but then the boundary conditions
 ///have to be taken care of
-template<class S=double, class O=int, int dimension=3 >
+template<class S=double, class O=int, int d=3 >
 class VectorField {
 
   template<class S1, class O1, int dimension1>
@@ -39,7 +39,7 @@ class VectorField {
   friend class Div;
   template<class S1,class O1, int dimension1>
   friend class HelmholtzOp;
-  template<class S1,class O1, int d>
+  template<class S1,class O1, int d1>
   friend class Nonlinear;
   template<class S1,class O1, int dimension1>
   friend class NonlinearJacobian;
@@ -59,6 +59,9 @@ public:
 
   typedef S Scalar;
   typedef O Ordinal;
+
+  static const int dimension = d;
+
 
   typedef Teuchos::ArrayRCP< Teuchos::RCP<const IndexSpace<Ordinal> > >  IndexSpaces;
   typedef Teuchos::Tuple<Teuchos::Tuple<bool,3>,3> State;
@@ -413,9 +416,9 @@ public:
     for(int i=0; i<3; ++i)
       N *= nLoc(i)+bu(i)-bl(i);
 
-    for( int d=0; d<dim(); ++d)
+    for( int dir=0; dir<dim(); ++dir)
       for(int i=0; i<N; ++i) {
-        vec_[d][i] = a.vec_[d][i];
+        vec_[dir][i] = a.vec_[dir][i];
       }
 
     for( int vel_dir=0; vel_dir<dim(); ++vel_dir )
@@ -873,14 +876,40 @@ protected:
 }; // end of class VectorField
 
 
-
+//template<class Field>
+//Teuchos::RCP<Field> create( const Teuchos::RCP<const Space<typename Field::Ordinal,Field::dimension> >& space ) {
+//  return( Teuchos::null );
+//}
+//
+//
+///// \brief creates a vector field belonging to a \c FieldSpace and two \c IndexSpaces
+///// \relates VectorField
+//template<>
+//Teuchos::RCP< VectorField<double,int,3> > create< VectorField<double,int,3> >( const Teuchos::RCP< const Space<int,3> >& space ) {
+//
+//  return( Teuchos::RCP<VectorField<double,int,3> > (
+//      new VectorField<double,int,3>( space ) ) );
+//
+//}
+//
+///// \brief creates a vector field belonging to a \c FieldSpace and two \c IndexSpaces
+///// \relates VectorField
+//template<>
+//Teuchos::RCP< VectorField<double,int,4> > create<VectorField<double,int,4> >(
+//    const Teuchos::RCP< const Space<VectorField<double,int,4>::Ordinal,VectorField<double,int,4>::dimensionina> >& space ) {
+//
+//  return( Teuchos::RCP<VectorField<double,int,4> > (
+//      new VectorField<double,int,4>( space ) ) );
+//
+//}
 
 /// \brief creates a vector field belonging to a \c FieldSpace and two \c IndexSpaces
 /// \relates VectorField
 template<class S=double, class O=int, int d=3>
 Teuchos::RCP< VectorField<S,O,d> > createVectorField( const Teuchos::RCP< const Space<O,d> >& space ) {
 
-  return( Teuchos::RCP<VectorField<S,O,d> > (
+//  return( create< VectorField<S,O,d> >() );
+  return( Teuchos::rcp(
       new VectorField<S,O,d>( space ) ) );
 
 }

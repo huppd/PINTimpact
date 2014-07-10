@@ -23,7 +23,6 @@ class FieldSpace {
 public:
 
   typedef const Teuchos::Tuple<Ordinal,dim> TO;
-//  typedef const Teuchos::Tuple<Ordinal,3> TO3;
 
   const MPI_Fint commf_;
   MPI_Comm comm_;
@@ -95,7 +94,6 @@ template< class O=int, int d=3 >
 const Teuchos::RCP<const FieldSpace<O,d> > createFieldSpace(){
 
   typedef typename FieldSpace<O,d>::TO TO;
-//  typedef typename FieldSpace<O,3>::TO3 TO3;
 
   MPI_Fint comm;
   SVS_get_comm( comm );

@@ -198,10 +198,8 @@ int main(int argi, char** argv ) {
 
   //  *outPar << " \tflow=" << flow << "\n";
   *outPar << " \tdomain=" << domain << "\n";
-  *outPar << " \tre=" << re << "\n";
-  *outPar << " \talpha2=" << alpha2 << "\n";
 
-  auto ds = Pimpact::createDomainSize<S>( l1, l2, l3 );
+  auto ds = Pimpact::createDomainSize<S>( re, alpha2, l1, l2, l3 );
   ds->set_Impact();
   ds->print( *outPar );
 
@@ -316,16 +314,15 @@ int main(int argi, char** argv ) {
 
       if(0==rank) std::cout << "\n\t---\titeration matrix(2): full Picard iteration\t---\n";
 
+      typedef Pimpact::MultiHarmonicNonlinearJacobian<S,O,false> JMAdv;
       typedef Pimpact::MultiOpWrap< Pimpact::Add2Op< Pimpact::Add2Op<JMAdv,DtL>, Fo > > JOp;
 
       jop =
           Pimpact::createMultiOperatorBase<MVF>(
               Pimpact::createAdd2Op<Pimpact::Add2Op<JMAdv,DtL>,Fo>(
                   Pimpact::createAdd2Op<JMAdv,DtL>(
-                      Pimpact::createMultiHarmonicNonlinearJacobian<S,O>(
-                          //                        x->getConstFieldPtr(0)->getConst0FieldPtr()->clone(),
-                          x->getConstFieldPtr(0)->clone(),
-                          false ),
+                      Pimpact::createMultiHarmonicNonlinearJacobian<S,O,false>(
+                          x->getConstFieldPtr(0)->clone() ),
                           Pimpact::createMultiDtHelmholtz<S,O>( alpha2, 1./re ),
                           temp->getFieldPtr(0)->clone() ) ,
                           Pimpact::createMultiHarmonicOpWrap(

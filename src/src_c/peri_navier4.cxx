@@ -220,12 +220,9 @@ int main(int argi, char** argv ) {
   *outPar << " \tflow=" << flow << "\n";
   *outPar << " \tforce=" << forcing << "\n";
   *outPar << " \tdomain=" << domain << "\n";
-  *outPar << " \tre=" << re << "\n";
-  *outPar << " \talpha2=" << alpha2 << "\n";
-
 
   // init space
-  auto ds = Pimpact::createDomainSize<S>( l1, l2, l3 );
+  auto ds = Pimpact::createDomainSize<S>( re, alpha2, l1, l2, l3 );
   ds->print( *outPar );
 
   auto bc = Pimpact::createBoudaryConditionsGlobal( Pimpact::EDomainType(domain) );
@@ -233,7 +230,6 @@ int main(int argi, char** argv ) {
 
   auto gs = Pimpact::createGridSizeGlobal( n1, n2, n3, nt );
   gs->print( *outPar );
-  //  gs->print();
 
   auto pgs = Pimpact::createProcGridSize<O>( np1, np2, np3, np4 );
   pgs->print( *outPar );
@@ -291,7 +287,7 @@ int main(int argi, char** argv ) {
     Pimpact::initVectorTimeField(
         fu->getFieldPtr(0)->getVFieldPtr(),
         Pimpact::OscilatingDisc2DVel,
-        xm*l1, ym*l2, rad, amp );
+        xm*l1, ym*l2, rad, amp*alpha2/re );
     fu->getFieldPtr(0)->getVFieldPtr()->scale( *force );
 
     forcem1 = force->clone(Pimpact::ShallowCopy);

@@ -166,10 +166,8 @@ int main(int argi, char** argv ) {
 
   //  *outPar << " \tflow=" << flow << "\n";
   *outPar << " \tdomain=" << domain << "\n";
-  *outPar << " \tre=" << re << "\n";
-  *outPar << " \talpha2=" << alpha2 << "\n";
 
-  auto ds = Pimpact::createDomainSize<S>( l1, l2, l3 );
+  auto ds = Pimpact::createDomainSize<S>( re, alpha2, l1, l2, l3 );
   ds->set_Impact();
   ds->print( *outPar );
 

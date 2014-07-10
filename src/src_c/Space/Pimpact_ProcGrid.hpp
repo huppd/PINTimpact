@@ -17,6 +17,8 @@
 
 
 extern "C" {
+void SVS_get_comm(MPI_Fint&);
+
 void SG_setCommCart( const int& comm );
 void SG_setRank( const int& rank_ );
 void SG_setIB( const int* const iB_);
@@ -30,10 +32,10 @@ void SG_setRankSliceBar( const int* const rankSlice, const int* const rankBar );
 
 namespace Pimpact{
 
-/// \brief ProcGrid
+/// \brief ProcGrid, needs ProcGridSize, globalBoundaryConditions, GridSizeLocal
+/// and sets Impact accordingly
 /// \tparam dim default 3 or 4
-/// for creation BCGlobal/ ProcGridSize
-template< class Ordinal, int dim=3 >
+template< class Ordinal=int, int dim=3 >
 class ProcGrid {
 
 public:
@@ -64,7 +66,6 @@ public:
   Teuchos::Tuple<int,3> rankSlice_;
   Teuchos::Tuple<int,3> rankBar_;
 
-  //friend createProcGrid<Ordinal,dim>;
 
 public:
 
@@ -74,10 +75,10 @@ public:
       const Teuchos::RCP< ProcGridSize<Ordinal,dim> >& procGridSize ):
         iB_(),rankL_(),rankU_(),commSlice_(),commBar_(),rankSlice_(),rankBar_() {
 
-    if( 3!=dim && 4!=dim ) {
-      std::cout<< "Pimpact::ProcGrid::cotor: dim:"<<dim<<" not implemented!!!\n";
-      return;
-    }
+    TEUCHOS_TEST_FOR_EXCEPTION(
+        3!=dim && 4!=dim ,
+        std::logic_error,
+        "Pimpact::ProcGrid::cotor: dim:"<<dim<<" not implemented!!!\n");
 
     Teuchos::Tuple<int,dim> ijkB;      // mpi grid coordinates
     Teuchos::Tuple<int,dim> periodic;  // array for mpir to signal where periodic grid is, from manual should be bool
@@ -129,7 +130,7 @@ public:
       // gets rank from COMM_CART
       MPI_Comm_rank( commSpace_, &rankS_ );
       MPI_Comm_rank( commSpaceTime_, &rankST_ );
-//      std::cout << "rank in commSpace: " << rankS_ << "\trank in commSpaceTime: " << rankST_ << "\n";
+      //      std::cout << "rank in commSpace: " << rankS_ << "\trank in commSpaceTime: " << rankST_ << "\n";
     }
 
     // gets coordinates in xyz direction from rank and comm_cart
@@ -139,19 +140,19 @@ public:
         dim,
         ijkB.getRawPtr() );
 
-//    std::cout << "rankST: " << rankST_ << " coord: " << ijkB << "\n";
+    //    std::cout << "rankST: " << rankST_ << " coord: " << ijkB << "\n";
 
-//    MPI_Cart_coords(
-//        commSpace_,
-//        rankS_,
-//        dim,
-//        ijkB.getRawPtr() );
-//    std::cout << "rankS: " << rankS_ << " coord: " << ijkB << "\n";
+    //    MPI_Cart_coords(
+    //        commSpace_,
+    //        rankS_,
+    //        dim,
+    //        ijkB.getRawPtr() );
+    //    std::cout << "rankS: " << rankS_ << " coord: " << ijkB << "\n";
 
-      // stores coordinates in a fortran fasion?
+    // stores coordinates in a fortran fasion?
     for( int i=0; i<dim; ++i )
       iB_[i] = ijkB[i] + 1;
-      // computes index offset
+    // computes index offset
     for( int i=0; i<3; ++i )
       shift_[i] = (iB_[i]-1)*( gridSizeLocal->get(i)-1 );
     if( 4==dim )
@@ -251,7 +252,7 @@ public:
 
 
 /// \relates ProcGrid
-template< class O=int, int d=3>
+template< class O=int, int d=3 >
 Teuchos::RCP< ProcGrid<O,d> > createProcGrid(
     const Teuchos::RCP< GridSizeLocal<O,d> >& gsl,
     const Teuchos::RCP< BoundaryConditionsGlobal>& bcg,

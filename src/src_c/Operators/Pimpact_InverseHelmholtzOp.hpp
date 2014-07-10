@@ -114,7 +114,7 @@ public:
 
 
 /// \relates InverseHelmholtzOp
-template<class Scalar,class Ordinal>
+template<class Scalar=double,class Ordinal=int>
 Teuchos::RCP<InverseHelmholtzOp<Scalar,Ordinal> > createInverseHelmholtzOp(
     Scalar mulI=0.,
     Scalar mulL=1.,

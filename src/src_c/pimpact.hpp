@@ -173,9 +173,6 @@ void init_impact_mid(){
 }
 
 void init_impact_postpost(){
-//  //   --- MPI -----------------------------------------------------------------------------------------------
-//  finit_parallel();
-
   //   --- Type of boundary conditions -----------------------------------------------------------------------
   finit_boundaries();
 

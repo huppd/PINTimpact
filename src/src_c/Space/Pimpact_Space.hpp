@@ -18,11 +18,16 @@
 #include <iostream>
 
 
+// \defgroup Space Space
+///
+/// overloaded class managing indexing, grid ...
+
 
 namespace Pimpact {
 
 
-/// \todo integrate this
+/// \brief manages all Space component, one big composition
+/// \ingroup Space
 template<class Ordinal=int, int dimension=3 >
 class Space {
 
@@ -67,14 +72,10 @@ protected:
 
 public:
 
-  //  Teuchos::RCP<const FieldSpace<Ordinal> > getFieldSpace() const { return( fieldSpace_ ); }
-  //  IndexSpaces getInnerIndexSpace() const { return( innerIS_ ); }
-  //  IndexSpaces getFullIndexSpace() const { return( fullIS_ ); }
 
   const MPI_Fint& commf() const { return( fieldSpace_->commf_ ); }
   const MPI_Comm& comm()  const { return( fieldSpace_->comm_  ); }
 
-//  const MPI_Fint& commf() const { return( fieldSpace_->commf_ ); }
   const MPI_Comm& commST()  const { return( procGrid_->commSpaceTime_  ); }
 
   int rankST() const { return( procGrid_->rankST_ ); }
@@ -204,6 +205,7 @@ Teuchos::RCP< const Space<O,d> > createSpace() {
               Teuchos::null,
               Teuchos::null ) ) );
 }
+
 } // end of namespace Pimpact
 
 

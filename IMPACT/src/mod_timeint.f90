@@ -457,6 +457,8 @@ MODULE mod_timeint
   !--- diverse Files schliessen ------------------------------------------------------------------------------
   CALL close_stats
   
+  CLOSE(42)
+
   
   END SUBROUTINE timeintegration
   

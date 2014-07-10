@@ -28,7 +28,12 @@ void SVS_get_nLoc(int&,int&,int&);
 
 namespace Pimpact{
 
-/// \todo merge with Space should make nGlow in FieldSpace obsolete, maybe rename
+
+
+
+/// \brief local grid size
+/// generated from \c GridSizeGlobal and \c ProcGridSize
+/// \ingroup Space
 template< class Ordinal=int, int dim=3 >
 class GridSizeLocal {
 
@@ -52,7 +57,7 @@ public:
         gridSize_() {
 
     for( int i=0; i<dim; ++i )
-      gridSize_[i] = 1+(gridSizeGlobal->get(i)-1)/procGridSize->get(i);
+      gridSize_[i] = 1 + ( gridSizeGlobal->get(i)-1 )/procGridSize->get(i);
     test();
     set_Impact();
   };
@@ -85,21 +90,23 @@ public:
 protected:
 
   void test() {
-    for( int i=0; i<2; ++i ) {
-      if( gridSize_[i] < 3) {
-        std::cout << "!!!ERROR!GridSizeLocal: gridSize_["<<i<<"] < 3 !!!\n";
-        return;
-      }
-      if( (gridSize_[i]-1)%2 != 0) {
-        std::cout << "!!!ERROR! GridSizeLocal: (gridSize_["<<i<<"]-1)%2 != 0: cannot be used for multigrid!!!\n";
-        return;
-      }
-    }
+    for( int i=0; i<2; ++i )
+      TEUCHOS_TEST_FOR_EXCEPTION(
+          gridSize_[i] < 3,
+          std::logic_error,
+          "!!!ERROR!GridSizeLocal!!!\n" );
+    for( int i=0; i<2; ++i )
+      TEUCHOS_TEST_FOR_EXCEPTION(
+          (gridSize_[i]-1)%2 != 0,
+          std::logic_error,
+          "!!!ERROR! GridSizeLocal: cannot be used for multigrid!!!\n" );
   }
 
 }; // end of class GridSizeLocal
 
 
+
+/// \brief creates GridSizeLocal, and sets Impact
 /// \relates GridSizeLocal
 template< class O=int, int d=3 >
 Teuchos::RCP<GridSizeLocal<O,d> > createGridSizeLocal(
@@ -111,6 +118,7 @@ Teuchos::RCP<GridSizeLocal<O,d> > createGridSizeLocal(
 }
 
 
+/// \brief creates GridSizeLocal from Impact
 /// \relates GridSizeLocal
 template< class O=int, int d=3 >
 Teuchos::RCP<GridSizeLocal<O,d> > createGridSizeLocal() {

@@ -1,12 +1,12 @@
 import os
-from numpy import linspace
+from numpy import linspace, pi
 import numpy as np
 from pylab import pi
 from platform_paths import *
 
 
 exe = 'peri_navier4'
-runs = 4
+runs = 10 
 
 
 os.chdir( exe_path )
@@ -15,15 +15,16 @@ os.system( 'make '+exe+' -j4' )
 case_path = ['','','','','']
 
 #case_consts = ' --piccard --linSolName="GMRES" --flow=1 --domain=1 --force=1 --tolNOX=1.e-1 --tolBelos=1.e-2   --lx=4. --ly=2.  --xm=0.25 --fixType=1   '
-case_consts = ' --linSolName="GCRODR" --piccard --flow=1 --domain=1 --force=1 --radius=0.1 --amp=0.1  --tolNOX=1.e-2 --tolBelos=1.e-1  --maxIter=20  --lx=4. --ly=2. --xm='+str(0.25) + '  '
+case_consts = ' --linSolName="GCRODR" --piccard --flow=1 --domain=1 --force=1 --radius=0.2 --amp=0.2  --tolNOX=1.e-2 --tolBelos=1.e-1  --maxIter=20  --lx=8. --ly=2. --xm='+str(0.125) + '  '
 
 
-ns  = [ 4, 5, 6, 7 ]
+ns  = [ 4, 5 ,6 ]
 
 precTypes = [ 0 ]
-res = [ 200 ]
-alpha2s = [ 250 ] 
+res = [ 150 ]
+alpha2s = [ 2.*pi*0.2*res[0] ] 
 fixTypes  = [ 1 ]
+
 npxs = [ 1, 1, 1, 2, 2, 4, 4 ]
 npys = [ 1, 1, 2, 2, 2, 4, 4 ]
 npts = [ 1, 2, 2, 2, 4, 4, 8 ]
@@ -42,7 +43,7 @@ npts = [ 1, 2, 2, 2, 4 ]
 
 
 for precType in precTypes:
-	case_path[0] = '/speedupRec'
+	case_path[0] = '/speedup'
 	if not os.path.exists( data_path+case_path[0] ):
 		os.mkdir( data_path+case_path[0] )
 	for n in ns:

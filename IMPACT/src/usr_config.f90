@@ -58,8 +58,8 @@
   !         (will be improved in future releases)
   !       - for 2D simulations set M3 = 2 (all terms in the third direction are switched off)
   !
-  M1 = 49
-  M2 = 193
+  M1 = 193
+  M2 = 49
 !  M3 = 2*2**2+1
   M3 = 2
   
@@ -119,7 +119,7 @@
   ALLOCATE(Stp(1:n_spec))
 #endif
   !--- Reynolds number ---
-  Re = 2000
+  Re = 200
   !--- frequenzy ---
   freq = 0.2
   
@@ -164,12 +164,12 @@
   !--- end time ---
   ! note: - time integration is terminated when "n_timesteps" or "time_end" is reached
   !
-  time_end = 100./freq
+  time_end = 4./freq
   periodic_tol = 1.e-11
   
   !--- extents of the physical domain ---
-  L1 = 2.
-  L2 = 12
+  L1 = 8
+  L2 = 2
   L3 = 1
   
 
@@ -295,12 +295,12 @@
   CFL = 0.999
   
   !--- max. time step size ---
-  dtime_max = 1./freq/250
+  dtime_max = 1./freq/320
   
   !--- max. time step size at beginning of time integration ---
   ! note: - "dtime" is limited by "dtime0" for the first "Int_dtime" time steps
   !
-  dtime0 = 1./freq/250
+  dtime0 = 1./freq/320
   
   !--- number of time steps after which time step size is recomputed ---
   Int_dtime = 900000
@@ -508,7 +508,7 @@
   write_restart_yes = .TRUE.
   
   !--- time interval of field output ---
-  dtime_out_vect = 1./freq
+  dtime_out_vect = 1./freq/320
 
   !--- time interval of other ouput (statistics) ---
   dtime_out_scal = 1.

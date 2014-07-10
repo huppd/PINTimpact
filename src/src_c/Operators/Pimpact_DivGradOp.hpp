@@ -41,18 +41,17 @@ public:
 
   DivGradOp( const Teuchos::RCP<VectorField<Scalar,Ordinal,dimension> >& temp):
     temp_(temp),
-    div_(Teuchos::rcp(new Div<Scalar,Ordinal,dimension>() )),
+    div_ (Teuchos::rcp(new Div<Scalar,Ordinal,dimension>() )),
     grad_(Teuchos::rcp(new Grad<Scalar,Ordinal,dimension>() )) {};
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
-//    grad_->apply( x, *temp_ );
-//    div_->apply( *temp_, y );
+    grad_->apply( x, *temp_ );
+    div_->apply( *temp_, y );
 
-    x.exchange();
-    OP_div_grad( true, x.s_, y.s_ );
-    SF_level( y.s_ );
-    y.changed();
-
+//    x.exchange();
+//    OP_div_grad( true, x.s_, y.s_ );
+//    SF_level( y.s_ );
+//    y.changed();
 
   }
 

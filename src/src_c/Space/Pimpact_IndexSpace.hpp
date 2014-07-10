@@ -43,7 +43,7 @@ void VS_get_eIndWB(int&,int&,int&);
 
 /// \brief public class, that stores neccessary information for indexing \c ScalarField and \c VectorField in Fortran
 /// \todo check constant make variables protected SF friend class
-template<class Ordinal>
+template< class Ordinal = int >
 class IndexSpace {
 
 public:

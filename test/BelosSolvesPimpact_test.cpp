@@ -264,6 +264,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, PrecDivGrad ) {
   auto b = Pimpact::createMultiField( rhs );
   auto x = Pimpact::createMultiField( sol );
 //  b->random();
+  b->init(1.);
   x->init(0.);
 
   auto op = Pimpact::createMultiOperatorBase<MSF>(
