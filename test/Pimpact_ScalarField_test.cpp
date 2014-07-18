@@ -19,6 +19,7 @@ namespace {
 
 bool testMpi = true;
 double errorTolSlack = 1e+1;
+int domain = 1;
 
 TEUCHOS_STATIC_SETUP() {
   Teuchos::CommandLineProcessor &clp = Teuchos::UnitTestRepository::getCLP();
@@ -30,16 +31,23 @@ TEUCHOS_STATIC_SETUP() {
   clp.setOption(
       "error-tol-slack", &errorTolSlack,
       "Slack off of machine epsilon used to check test results" );
+  clp.setOption(
+      "domain", &domain,
+      "domain" );
 }
 
 
 
 TEUCHOS_UNIT_TEST( ScalarField, create_init_print ) {
-  int rank = init_impact(0,0);
-  // init impact
-  auto sVS = Pimpact::createSpace();
+  int rank = Pimpact::init_impact_pre();
+  auto bc = Pimpact::createBoudaryConditionsGlobal( Pimpact::EDomainType( domain ) );
+  bc->print();
+  Pimpact::init_impact_post();  // init impact
 
-  auto p = Pimpact::createScalarField<double,int>(sVS);
+  auto space = Pimpact::createSpace();
+  space->print();
+
+  auto p = Pimpact::createScalarField(space);
 
   p->init(rank);
 
@@ -52,7 +60,7 @@ TEUCHOS_UNIT_TEST( ScalarField, InfNorm_and_init ) {
 
   auto sVS = Pimpact::createSpace();
 
-  auto p = Pimpact::createScalarField<double,int>(sVS);
+  auto p = Pimpact::createScalarField(sVS);
 
   double norm;
 
@@ -81,7 +89,7 @@ TEUCHOS_UNIT_TEST( ScalarField, InfNorm_and_init ) {
 TEUCHOS_UNIT_TEST( ScalarField, TwoNorm_and_init ) {
 
   auto sVS = Pimpact::createSpace();
-  auto p = Pimpact::createScalarField<double,int>(sVS);
+  auto p = Pimpact::createScalarField(sVS);
 
   // test different float values, assures that initial and norm work smoothly
   for( double i=0.; i< 200.1; ++i ) {
@@ -95,8 +103,8 @@ TEUCHOS_UNIT_TEST( ScalarField, dot ) {
 
   auto fS = Pimpact::createSpace();
 
-  auto p = Pimpact::createScalarField<double,int>(fS);
-  auto q = Pimpact::createScalarField<double,int>(fS);
+  auto p = Pimpact::createScalarField(fS);
+  auto q = Pimpact::createScalarField(fS);
 
   int Np = p->getLength();
   int Nq = q->getLength();
@@ -115,7 +123,7 @@ TEUCHOS_UNIT_TEST( ScalarField, dot ) {
 TEUCHOS_UNIT_TEST( ScalarField, scale ) {
 
   auto sVS = Pimpact::createSpace();
-  auto p = Pimpact::createScalarField<double,int>(sVS);
+  auto p = Pimpact::createScalarField(sVS);
 
   double norm;
   int N = p->getLength();
@@ -130,7 +138,7 @@ TEUCHOS_UNIT_TEST( ScalarField, scale ) {
 TEUCHOS_UNIT_TEST( ScalarField, random ) {
 
   auto sVS = Pimpact::createSpace();
-  auto p = Pimpact::createScalarField<double,int>(sVS);
+  auto p = Pimpact::createScalarField(sVS);
 
   double norm;
   int N = p->getLength();
@@ -146,7 +154,7 @@ TEUCHOS_UNIT_TEST( ScalarField, add ) {
 
   auto sVS = Pimpact::createSpace();
 
-  auto q = Pimpact::createScalarField<double,int>(sVS);
+  auto q = Pimpact::createScalarField(sVS);
 
   auto r(q);
   auto p(q);
@@ -165,7 +173,7 @@ TEUCHOS_UNIT_TEST( ScalarField, add ) {
 TEUCHOS_UNIT_TEST( ScalarField, write ) {
 
   auto sVS = Pimpact::createSpace();
-  auto p = Pimpact::createScalarField<double,int>(sVS);
+  auto p = Pimpact::createScalarField(sVS);
 
   p->init(1.);
   p->write();

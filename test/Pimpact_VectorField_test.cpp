@@ -22,6 +22,8 @@ namespace {
 
 bool testMpi = true;
 double errorTolSlack = 1e+1;
+int domain = 1;
+
 
 TEUCHOS_STATIC_SETUP() {
 	Teuchos::CommandLineProcessor &clp = Teuchos::UnitTestRepository::getCLP();
@@ -33,12 +35,20 @@ TEUCHOS_STATIC_SETUP() {
 	clp.setOption(
 			"error-tol-slack", &errorTolSlack,
 			"Slack off of machine epsilon used to check test results" );
+  clp.setOption(
+      "domain", &domain,
+      "domain" );
 }
 
 
 TEUCHOS_UNIT_TEST( VectorField, create_init_print ) {
 	// init impact
-	int rank = init_impact(0,0);
+  int rank = Pimpact::init_impact_pre();
+
+  auto bc = Pimpact::createBoudaryConditionsGlobal( Pimpact::EDomainType(domain) );
+  bc->print();
+
+	Pimpact::init_impact_post();
 
 	auto space = Pimpact::createSpace();
 

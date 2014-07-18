@@ -33,9 +33,6 @@
 #include "BelosPimpactAdapter.hpp"
 
 #include "NOX_Pimpact_Vector.hpp"
-#include "NOX_Pimpact_LinearStokes.hpp"
-#include "NOX_Pimpact_SimpleLinear.hpp"
-#include "NOX_Pimpact_SimpleNonlinear.hpp"
 #include "NOX_Pimpact_Interface.hpp"
 #include "NOX_Pimpact_Group.hpp"
 
@@ -228,13 +225,13 @@ int main(int argi, char** argv ) {
   auto bc = Pimpact::createBoudaryConditionsGlobal( Pimpact::EDomainType(domain) );
   bc->print( *outPar );
 
-  auto gs = Pimpact::createGridSizeGlobal( n1, n2, n3, nt );
+  auto gs = Pimpact::createGridSizeGlobal<O,4>( n1, n2, n3, nt );
   gs->print( *outPar );
 
-  auto pgs = Pimpact::createProcGridSize<O>( np1, np2, np3, np4 );
+  auto pgs = Pimpact::createProcGridSize<O,4>( np1, np2, np3, np4 );
   pgs->print( *outPar );
 
-  auto lgs = Pimpact::createGridSizeLocal( gs, pgs );
+  auto lgs = Pimpact::createGridSizeLocal<O,4>( gs, pgs );
   //  lgs->print();
 
   if(rank==0) {
@@ -248,6 +245,9 @@ int main(int argi, char** argv ) {
   auto pg = Pimpact::createProcGrid<O>( lgs, bc, pgs );
   //  pg->print();
 
+  auto bcl = Pimpact::createBoudaryConditionsLocal( bc, pgs, pg );
+  bcl->set_Impact();
+
   Pimpact::init_impact_postpost();
 
   auto fS = Pimpact::createFieldSpace<O,4>();
@@ -256,7 +256,7 @@ int main(int argi, char** argv ) {
   auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
   auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 
-  auto space = Pimpact::createSpace<O,4>(fS,iS,iIS,fIS,gs,lgs,pgs,pg);
+  auto space = Pimpact::createSpace<S,O,4>(fS,iS,iIS,fIS,gs,lgs,pgs,pg);
 //  space->print();
 
 

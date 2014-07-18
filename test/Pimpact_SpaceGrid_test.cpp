@@ -12,10 +12,10 @@
 #include "Pimpact_FieldSpace.hpp"
 #include "Pimpact_IndexSpace.hpp"
 
-#include "Pimpact_BoundaryConditionsGlobal.hpp"
-#include "Pimpact_BoundaryConditionsLocal.hpp"
-#include "Pimpact_DomainSize.hpp"
-#include "Pimpact_Grid.hpp"
+//#include "Pimpact_BoundaryConditionsGlobal.hpp"
+//#include "Pimpact_BoundaryConditionsLocal.hpp"
+//#include "Pimpact_DomainSize.hpp"
+#include "Pimpact_Domain.hpp"
 #include "Pimpact_ProcGrid.hpp"
 
 #include <iostream>
@@ -130,11 +130,37 @@ TEUCHOS_UNIT_TEST( ProcGrid, initialization4D ) {
 
   auto gsl = Pimpact::createGridSizeLocal<O,4>();
   auto bcg = Pimpact::createBoudaryConditionsGlobal();
-  auto pgs = Pimpact::createProcGridSize<O>(2,1,1,2);
+  auto pgs = Pimpact::createProcGridSize<O,4>(2,1,1,2);
 
   auto pg = Pimpact::createProcGrid<O,4>( gsl, bcg, pgs );
 
 }
+
+TEUCHOS_UNIT_TEST( BoundaryConditionsGlobal, createFromImpact ) {
+  // init impact
+  if( !isImpactInit ) {
+    init_impact(0,0);
+    isImpactInit=true;
+  }
+  auto bc = Pimpact::createBoudaryConditionsGlobal();
+
+  bc->print();
+
+}
+
+TEUCHOS_UNIT_TEST( BoundaryConditionsLocal, createFromImpact ) {
+  // init impact
+  if( !isImpactInit ) {
+    init_impact(0,0);
+    isImpactInit=true;
+  }
+  auto bc = Pimpact::createBoudaryConditionsLocal();
+
+  bc->print();
+
+}
+
+
 
 
 TEUCHOS_UNIT_TEST( Space, create ) {

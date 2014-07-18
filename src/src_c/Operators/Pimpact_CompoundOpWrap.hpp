@@ -45,7 +45,8 @@ public:
     if( opS2V_.is_null() ) opS2V_ = Teuchos::rcp( new OpS2V() );
   };
 
-  void apply(const DomainFieldT& x, RangeFieldT& y ) const {
+  void apply(const DomainFieldT& x, RangeFieldT& y,
+      Belos::ETrans trans=Belos::NOTRANS  ) const {
     // H-blockz
     opV2V_->apply( x.getConstVField(), y.getVField() );
     // ~grad

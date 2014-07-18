@@ -342,4 +342,153 @@ contains
     end subroutine set_LS
 
 
+    subroutine get_BCLoc( BC_1L_, BC_1U_, BC_2L_, BC_2U_, BC_3L_, BC_3U_ ) bind( c, name='fgetBCLoc' )
+
+        implicit none
+
+        integer(c_int), intent(out) ::  BC_1L_, BC_1U_
+        integer(c_int), intent(out) ::  BC_2L_, BC_2U_
+        integer(c_int), intent(out) ::  BC_3L_, BC_3U_
+
+        BC_1L_ =  BC_1L
+        BC_1U_ =  BC_1U
+
+        BC_2L_ =  BC_2L
+        BC_2U_ =  BC_2U
+
+        BC_3L_ = BC_3L
+        BC_3U_ = BC_3U
+
+    end subroutine get_BCLoc
+
+
+    subroutine set_BCLoc( BC_1L_, BC_1U_, BC_2L_, BC_2U_, BC_3L_, BC_3U_ ) bind( c, name='fsetBCLoc' )
+
+        implicit none
+
+        integer(c_int), intent(in) ::  BC_1L_, BC_1U_
+        integer(c_int), intent(in) ::  BC_2L_, BC_2U_
+        integer(c_int), intent(in) ::  BC_3L_, BC_3U_
+
+        BC_1L =  BC_1L_
+        BC_1U =  BC_1U_
+
+        BC_2L =  BC_2L_
+        BC_2U =  BC_2U_
+
+        BC_3L = BC_3L_
+        BC_3U = BC_3U_
+
+    end subroutine set_BCLoc
+
+
+    subroutine get_BC( BC_1L_, BC_1U_, BC_2L_, BC_2U_, BC_3L_, BC_3U_ ) bind( c, name='fgetBC' )
+
+        implicit none
+
+        integer(c_int), intent(out) ::  BC_1L_, BC_1U_
+        integer(c_int), intent(out) ::  BC_2L_, BC_2U_
+        integer(c_int), intent(out) ::  BC_3L_, BC_3U_
+
+        BC_1L_ =  BC_1L_global
+        BC_1U_ =  BC_1U_global
+
+        BC_2L_ =  BC_2L_global
+        BC_2U_ =  BC_2U_global
+
+        BC_3L_ = BC_3L_global
+        BC_3U_ = BC_3U_global
+
+    end subroutine get_BC
+
+
+    subroutine set_BC( BC_1L_, BC_1U_, BC_2L_, BC_2U_, BC_3L_, BC_3U_ ) bind( c, name='fsetBC' )
+
+        implicit none
+
+        integer(c_int), intent(in) ::  BC_1L_, BC_1U_
+        integer(c_int), intent(in) ::  BC_2L_, BC_2U_
+        integer(c_int), intent(in) ::  BC_3L_, BC_3U_
+
+        BC_1L_global =  BC_1L_
+        BC_1U_global =  BC_1U_
+
+        BC_2L_global =  BC_2L_
+        BC_2U_global =  BC_2U_
+
+        BC_3L_global = BC_3L_
+        BC_3U_global = BC_3U_
+
+    end subroutine set_BC
+
+
+    subroutine get_DS( L1_, L2_, L3_ ) bind( c, name='fgetDS' )
+
+        implicit none
+
+        real(c_double), intent(out) :: L1_, L2_, L3_
+
+        L1_ = L1
+        L2_ = L2
+        L3_ = L3
+
+    end subroutine get_DS
+
+    subroutine set_DS( L1_, L2_, L3_ ) bind( c, name='fsetDS' )
+
+        implicit none
+
+        real(c_double), intent(in) :: L1_, L2_, L3_
+
+        L1 = L1_
+        L2 = L2_
+        L3 = L3_
+
+    end subroutine set_DS
+
+
+
+    subroutine set_GS( n1_, n2_, n3_ ) bind( c, name='fsetGS' )
+
+        use iso_c_binding
+
+        use mod_vars
+
+        implicit none
+
+        integer(c_int)  :: n1_, n2_, n3_
+
+        M1 = n1_
+        M2 = n2_
+        M3 = n3_
+
+    end subroutine set_GS
+
+
+    subroutine get_PGS( np1_, np2_, np3_ ) bind( c, name='fgetPGS' )
+
+        implicit none
+
+        integer(c_int), intent(out) :: np1_, np2_, np3_
+
+        np1_ = NB1
+        np2_ = NB2
+        np3_ = NB3
+
+    end subroutine get_PGS
+
+
+    subroutine set_PGS( np1_, np2_, np3_ ) bind( c, name='fsetPGS' )
+
+        implicit none
+
+        integer(c_int), intent(in) :: np1_, np2_, np3_
+
+        NB1 = np1_
+        NB2 = np2_
+        NB3 = np3_
+
+    end subroutine set_PGS
+
+
 end module cmod_FieldSpace

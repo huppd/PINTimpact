@@ -56,7 +56,8 @@ public:
         grad_(Teuchos::rcp( new Grad<Scalar,Ordinal> ) ),
         H_(H) {};
 
-  void apply(const DomainFieldT& x, RangeFieldT& y) const {
+  void apply(const DomainFieldT& x, RangeFieldT& y,
+      Belos::ETrans trans=Belos::NOTRANS ) const {
     grad_->apply( x.getConstCField(), temp0_->getFieldPtr(0)->getCField() );
     grad_->apply( x.getConstSField(), temp0_->getFieldPtr(0)->getSField() );
     H_->solve( temp1_, temp0_);

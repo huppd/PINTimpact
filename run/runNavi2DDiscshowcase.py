@@ -16,7 +16,7 @@ case_path = ['','','','','']
 npx= 6
 npy= 4
 
-case_consts = ' --linSolName="GCRODR" --flow=1 --domain=1 --force=4 --radius=0.1 --rotation=2. --nfe=33   --npx='+str(npx)+' --npy='+str(npy)+' --tolNOX=1.e-2 --tolNF=1.e-4 --tolBelos=1.e-6  --maxIter=10  --lx=6. --ly=2. --xm='+str(1./6.) + '  '
+case_consts = ' --linSolName="GCRODR" --flow=1 --domain=1 --force=4 --radius=0.1 --rotation=1. --nfe=33   --npx='+str(npx)+' --npy='+str(npy)+' --tolNOX=1.e-2 --tolNF=1.e-4 --tolBelos=1.e-6  --maxIter=10  --lx=6. --ly=2. --xm='+str(1./6.) + '  '
 
 precTypes = [ 0 ]
 ns        = [ 4 ]
@@ -27,13 +27,13 @@ fixTypes  = [ 1, 2, 4, 6, 9, 10]
 #ns  = [ 6 ]
 #precTypes = [ 0 ]
 #res = [ 400 ]
-res = [ 200 ]
+res = [ 100 ]
 #alpha2s = [ 25**2 ] 
-alpha2s = [ 251 ] 
-#fixTypes  = [ 1 ]
+alpha2s = [ 125 ] 
+fixTypes  = [ 1, 2, 4, 6 ]
 
 for precType in precTypes:
-	case_path[0] = '/precType_'+str(precType)
+	case_path[0] = '/precType1_'+str(precType)
 	if not os.path.exists( data_path+case_path[0] ):
 		os.mkdir( data_path+case_path[0] )
 	for n in ns:

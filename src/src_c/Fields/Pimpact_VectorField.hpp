@@ -71,7 +71,7 @@ protected:
   typedef Scalar* ScalarArray;
   typedef VectorField<Scalar,Ordinal,dimension> VF;
 
-  Teuchos::RCP< const Space<Ordinal,dimension> > space_;
+  Teuchos::RCP< const Space<Scalar,Ordinal,dimension> > space_;
 
   Teuchos::Tuple<ScalarArray,3> vec_;
 
@@ -88,7 +88,7 @@ public:
     exchangedState_(Teuchos::tuple(Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true)))
     {};
 
-  VectorField( const Teuchos::RCP< const Space<Ordinal,dimension> >& space, bool owning=true ):
+  VectorField( const Teuchos::RCP< const Space<Scalar,Ordinal,dimension> >& space, bool owning=true ):
     space_(space),
     owning_(owning),
     exchangedState_(Teuchos::tuple(Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true))) {
@@ -158,9 +158,6 @@ public:
   /// \name Attribute methods
   //@{
 
-  /// \brief get \c FieldSpace.
-  //  Teuchos::RCP<const FieldSpace<Ordinal> > getFieldSpace() const { return( fieldS_ ); }
-
 
   /// \brief returns the length of Field.
   ///
@@ -170,14 +167,25 @@ public:
   /// \f[ N_w = (N_x-2)(N_y-2)(N_z-1) \f]
   /// \return vect length \f[= N_u+N_v+N_w\f]
   Ordinal getLength( bool dummy=false ) const {
+
+    auto bc = space_->getDomain()->getBCGlobal();
+
     Ordinal n = 0;
     for( int i=0; i<dim(); ++i ) {
       Ordinal vl = 1;
       for( int j=0; j<dim(); ++j) {
-        if( i==j )
-          vl *= nGlo(j)-1;
-        else
-          vl *= nGlo(j)-2;
+        if( i==j ) {
+//          if( PeriodicBC==bc->getBCL(i) )
+//            vl *= nGlo(j)-1-1;
+//          else
+            vl *= nGlo(j)-1;
+        }
+        else {
+          if( PeriodicBC==bc->getBCL(j) )
+            vl *= nGlo(j)-2+1;
+          else
+            vl *= nGlo(j)-2;
+        }
       }
       n += vl;
     }
@@ -906,7 +914,7 @@ protected:
 /// \brief creates a vector field belonging to a \c FieldSpace and two \c IndexSpaces
 /// \relates VectorField
 template<class S=double, class O=int, int d=3>
-Teuchos::RCP< VectorField<S,O,d> > createVectorField( const Teuchos::RCP< const Space<O,d> >& space ) {
+Teuchos::RCP< VectorField<S,O,d> > createVectorField( const Teuchos::RCP< const Space<S,O,d> >& space ) {
 
 //  return( create< VectorField<S,O,d> >() );
   return( Teuchos::rcp(

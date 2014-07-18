@@ -26,7 +26,7 @@ namespace Pimpact {
 /// vector for a scalar field, e.g.: pressure,
 /// \note all indexing is done in Fortran
 /// \ingroup Field
-template<class S, class O, int dimension=3>
+template< class S=double, class O=int, int dimension=3 >
 class ScalarField {
 
   template<class S1,class O1,int dimension1>
@@ -49,7 +49,7 @@ protected:
   typedef ScalarField<Scalar,Ordinal,dimension> MV;
   typedef Teuchos::Tuple<bool,3> State;
 
-  Teuchos::RCP<const Space<Ordinal,dimension> > space_;
+  Teuchos::RCP<const Space<Scalar,Ordinal,dimension> > space_;
 
   ScalarArray s_;
 
@@ -65,15 +65,16 @@ public:
     owning_(true),
     exchangedState_( Teuchos::tuple(true,true,true) ) {};
 
-  ScalarField( const Teuchos::RCP<const Space<Ordinal,dimension> >& space, bool owning=true ):
+  ScalarField( const Teuchos::RCP<const Space<Scalar,Ordinal,dimension> >& space, bool owning=true ):
     space_(space),
     owning_(owning),
     exchangedState_( Teuchos::tuple(true,true,true) ) {
 
+
     if( owning_ ) {
       Ordinal N = 1;
       for(int i=0; i<3; ++i)
-        N *= nLoc(i)+bu(i)-bl(i)+1;
+          N *= nLoc(i)+bu(i)-bl(i)+1;
 
       s_ = new Scalar[N];
 
@@ -125,14 +126,17 @@ public:
   /// \name Attribute methods
   ///@{
 
-  //  Teuchos::RCP<const FieldSpace<Ordinal> > getFieldSpace() const { return( fieldSpace_ ); }
-  //  Teuchos::RCP<const IndexSpace<Ordinal> > getIndexSpace() const { return( indexSpace_ ); }
-
   /// \brief returns the length of Field.
   Ordinal getLength( bool dummy=false ) const {
+
+    auto bc = space_->getDomain()->getBCGlobal();
+
     Ordinal vl = 1;
     for(int i = 0; i<dim(); ++i)
-      vl *= nGlo(i);
+      if( PeriodicBC==bc->getBCL(i) )
+        vl *= nGlo(i)-1;
+      else
+        vl *= nGlo(i);
     return( vl );
   }
 
@@ -536,7 +540,7 @@ protected:
 template<class S=double, class O=int, int d=3>
 Teuchos::RCP< ScalarField<S,O,d> >
 createScalarField(
-    const Teuchos::RCP<const Space<O,d> >& space=Teuchos::null ) {
+    const Teuchos::RCP<const Space<S,O,d> >& space=Teuchos::null ) {
 //  if( space.is_null() )
 //    return( Teuchos::rcp(
 //        new ScalarField<S,O,d>( createSpace<O,d>() ) ) );

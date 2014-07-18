@@ -44,7 +44,8 @@ public:
     div_ (Teuchos::rcp(new Div<Scalar,Ordinal,dimension>() )),
     grad_(Teuchos::rcp(new Grad<Scalar,Ordinal,dimension>() )) {};
 
-  void apply(const DomainFieldT& x, RangeFieldT& y) const {
+  void apply(const DomainFieldT& x, RangeFieldT& y,
+      Belos::ETrans trans=Belos::NOTRANS ) const {
     grad_->apply( x, *temp_ );
     div_->apply( *temp_, y );
 

@@ -53,7 +53,7 @@ public:
   typedef Pimpact::TimeField<Field> MV;
   typedef Scalar* ScalarArray;
 
-  Teuchos::RCP<const Space<Ordinal,4> > space_;
+  Teuchos::RCP<const Space<Scalar,Ordinal,4> > space_;
 
   Teuchos::Array< Teuchos::RCP<Field> > mfs_;
 
@@ -73,7 +73,7 @@ protected:
 
 public:
 
-  TimeField( Teuchos::RCP<const Space<Ordinal,4> > space ):
+  TimeField( Teuchos::RCP<const Space<Scalar,Ordinal,4> > space ):
     space_(space),exchangedState_(true) {
 
     Ordinal nt = space_->nLoc()[3]+space_->bu()[3]-space_->bl()[3];
@@ -362,7 +362,7 @@ public:
 
   MPI_Comm comm() const { return( space_->commST() ); }
 
-  Teuchos::RCP<const Space<Ordinal,4> > getSpace() const { return( space_ ); }
+  Teuchos::RCP<const Space<Scalar,Ordinal,4> > getSpace() const { return( space_ ); }
 
 
 public:
@@ -379,8 +379,8 @@ public:
 
         //    std::cout << "transl: " <<  transl<< "\n";
         //    std::cout << "transu: " <<  transu<< "\n";
-        int rankU = space_->rankU()[3];
-        int rankL = space_->rankL()[3];
+        int rankU = space_->getProcGrid()->getRankU(3);
+        int rankL = space_->getProcGrid()->getRankL(3);
 
         MPI_Request reqL;
         //      MPI_Request reqU;
@@ -430,7 +430,7 @@ public:
 /// \relates TimeField
 template<class Field>
 Teuchos::RCP< TimeField<Field> >
-createTimeField( const Teuchos::RCP<const Space<typename Field::Ordinal,4> >& space ) {
+createTimeField( const Teuchos::RCP<const Space<typename Field::Scalar,typename Field::Ordinal,4> >& space ) {
 
   return( Teuchos::rcp( new TimeField<Field>( space ) ) );
 

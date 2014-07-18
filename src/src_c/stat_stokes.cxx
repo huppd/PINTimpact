@@ -127,10 +127,8 @@ int main(int argi, char** argv ) {
     outPar = Teuchos::rcp( new Teuchos::oblackholestream() ) ;
 
   *outPar << " \tflow=" << flow << "\n";
-  *outPar << " \tre=" << re << "\n";
-  *outPar << " \tomega=" << omega << "\n";
 
-  auto ds = Pimpact::createDomainSize<S>(l1,l2,l3);
+  auto ds = Pimpact::createDomainSize<S>(re,omega,l1,l2,l3);
   ds->set_Impact();
   ds->print( *outPar );
 

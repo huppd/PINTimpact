@@ -76,7 +76,7 @@ public:
 /// \brief function that creates ScaparIndexSpace
 /// by getting values from \c IMPACT
 /// \relates IndexSpace
-template<class Ordinal>
+template<class Ordinal=int>
 Teuchos::RCP<const IndexSpace<Ordinal> >
 createScalarIndexSpace(){
 
@@ -99,7 +99,7 @@ createScalarIndexSpace(){
 /// by getting values from impact
 /// \todo make construction clean without copying
 /// \relates IndexSpace
-template<class Ordinal>
+template<class Ordinal=int>
 Teuchos::ArrayRCP< Teuchos::RCP< const IndexSpace<Ordinal> > > createInnerFieldIndexSpaces(){
 
   typedef typename IndexSpace<Ordinal>::TO3 TO3;

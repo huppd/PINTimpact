@@ -18,7 +18,7 @@ npy= 4
 
 case_consts = ' --linSolName="GCRODR"  --nf=8   --npx='+str(npx)+' --npy='+str(npy)+' --tolNOX=1.e-4  --tolBelos=1.e-5  --maxIter=10  --lx=2. --ly=2.  '
 
-precTypes = [ 0, 99 ]
+precTypes = [ 99 ]
 ns        = [ 4, 5, 6, 7 ]
 res       = [ 10, 100, 200 ]
 alpha2s   = [ 10, 100, 200 ]

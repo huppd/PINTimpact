@@ -18,7 +18,7 @@ namespace Pimpact {
 
 /// \ingroup MultiHarmonicOperator
 /// \note u_ has to contain appropriate BC, temp_ and y doesnot matter, x should have zero BC
-template<class S,class O, bool isNewton_=true >
+template<class S,class O>
 class MultiHarmonicNonlinearJacobian : private MultiHarmonicNonlinear<S,O> {
 
 public:
@@ -30,13 +30,17 @@ protected:
 
   Teuchos::RCP<DomainFieldT> u_;
 
+  const bool isNewton_;
 
 public:
 
   MultiHarmonicNonlinearJacobian(
-      const Teuchos::RCP<DomainFieldT>& u=Teuchos::null ):
-        MultiHarmonicNonlinear<S,O>(),
-        u_(u) {};
+//      const Teuchos::RCP<VectorField<S,O> >& temp=Teuchos::null,
+      const Teuchos::RCP<DomainFieldT>& u=Teuchos::null,
+      const bool& isNewton=true ):
+        MultiHarmonicNonlinear<S,O>(/*temp*/),
+        u_(u),
+        isNewton_(isNewton) {};
 
   void assignField( const DomainFieldT& mv ) {
     if( Teuchos::is_null( u_ ) )
@@ -61,11 +65,12 @@ public:
 
 
 /// \relates MultiHarmonicNonlinearJacobian
-template< class S=double, class O=int, bool iN=true>
-Teuchos::RCP<MultiHarmonicNonlinearJacobian<S,O,iN> > createMultiHarmonicNonlinearJacobian(
-    const Teuchos::RCP< typename MultiHarmonicNonlinearJacobian<S,O,iN>::DomainFieldT>& u = Teuchos::null ) {
+template< class S=double , class O=int >
+Teuchos::RCP<MultiHarmonicNonlinearJacobian<S,O> > createMultiHarmonicNonlinearJacobian(
+    const Teuchos::RCP< typename MultiHarmonicNonlinearJacobian<S,O>::DomainFieldT>& u = Teuchos::null,
+    const bool& isNewton=true ) {
 
-  return( Teuchos::rcp( new MultiHarmonicNonlinearJacobian<S,O,iN>( u ) ) );
+  return( Teuchos::rcp( new MultiHarmonicNonlinearJacobian<S,O>( u, isNewton ) ) );
 
 }
 

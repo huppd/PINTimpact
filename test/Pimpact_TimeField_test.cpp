@@ -69,38 +69,33 @@ TEUCHOS_STATIC_SETUP() {
 
 // test shows that nLoc is not consistent with start and end indexes
 TEUCHOS_UNIT_TEST( TimeFieldVector, creator ) {
+  auto pl = Teuchos::parameterList();
 
-  int rank = Pimpact::init_impact_pre();
+  pl->set( "Re", 1. );
+  pl->set( "alpha2", 1. );
+  pl->set( "domain", 1 );
 
-  auto ds = Pimpact::createDomainSize<S>( 1., 1., 1. );
-  ds->print();
+  pl->set( "lx", 1. );
+  pl->set( "ly", 1. );
+  pl->set( "lz", 1. );
 
-  auto bc = Pimpact::createBoudaryConditionsGlobal( Pimpact::Dirichelt2DChannel );
-  bc->print();
+  pl->set( "dim", 2 );
 
-  auto gs = Pimpact::createGridSizeGlobal<O>( 33, 33, 2, 8 );
-  gs->print();
+  pl->set("nx", 33 );
+  pl->set("ny", 33 );
+  pl->set("nz", 2 );
 
-  auto pgs = Pimpact::createProcGridSize<O>(2,1,1,2);
-  pgs->print();
+  pl->set("nf", 33 );
+//  pl->set("nfs", 0 );
+//  pl->set("nfe", 0 );
 
-  auto lgs = Pimpact::createGridSizeLocal<O,4>( gs,pgs );
-  lgs->print();
+  // processor grid size
+  pl->set("npx", 2 );
+  pl->set("npy", 1 );
+  pl->set("npz", 1 );
+  pl->set("npf", 2 );
 
-  Pimpact::init_impact_mid();
-
-  auto pg = Pimpact::createProcGrid<O,4>( lgs, bc, pgs );
-  pg->print();
-
-  Pimpact::init_impact_postpost();
-
-  auto fS = Pimpact::createFieldSpace<O,4>();
-
-  auto iS = Pimpact::createScalarIndexSpace<O>();
-  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
-
-  auto space = Pimpact::createSpace<O,4>( fS, iS, iIS, fIS, gs, lgs, pgs, pg );
+  auto space = Pimpact::createSpace<S,O,4>( pl );
 
   space->print();
   //---------------------------------------------------

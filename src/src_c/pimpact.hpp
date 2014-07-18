@@ -173,9 +173,6 @@ void init_impact_mid(){
 }
 
 void init_impact_postpost(){
-  //   --- Type of boundary conditions -----------------------------------------------------------------------
-  finit_boundaries();
-
   //   --- Limits of indices ---------------------------------------------------------------------------------
   finit_limits();
 

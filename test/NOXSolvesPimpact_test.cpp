@@ -23,9 +23,6 @@
 #include "Pimpact_LinSolverParameter.hpp"
 
 #include "NOX_Pimpact_Vector.hpp"
-#include "NOX_Pimpact_LinearStokes.hpp"
-#include "NOX_Pimpact_SimpleLinear.hpp"
-#include "NOX_Pimpact_SimpleNonlinear.hpp"
 #include "NOX_Pimpact_Interface.hpp"
 #include "NOX_Pimpact_Group.hpp"
 

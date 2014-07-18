@@ -31,9 +31,6 @@
 #include "BelosPimpactAdapter.hpp"
 
 #include "NOX_Pimpact_Vector.hpp"
-#include "NOX_Pimpact_LinearStokes.hpp"
-//#include "NOX_Pimpact_SimpleLinear.hpp"
-//#include "NOX_Pimpact_SimpleNonlinear.hpp"
 #include "NOX_Pimpact_Interface.hpp"
 #include "NOX_Pimpact_Group.hpp"
 
@@ -226,15 +223,7 @@ int main(int argi, char** argv ) {
   Pimpact::init_impact_post();
 
 
-  // init Spaces
-//  auto fS = Pimpact::createFieldSpace<O>();
-//
-//  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-//  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
-
-  auto space =
-//      Pimpact::createSpace(fS,Teuchos::null,iIS,fIS,gs,Teuchos::null,pgs,Teuchos::null);
-      Pimpact::createSpace();
+  auto space = Pimpact::createSpace();
 
   // init vectors
   auto x    = Pimpact::createMultiField( Pimpact::createMultiHarmonicVectorField<S,O>( space, nfs ) );
@@ -314,20 +303,20 @@ int main(int argi, char** argv ) {
 
       if(0==rank) std::cout << "\n\t---\titeration matrix(2): full Picard iteration\t---\n";
 
-      typedef Pimpact::MultiHarmonicNonlinearJacobian<S,O,false> JMAdv;
+      typedef Pimpact::MultiHarmonicNonlinearJacobian<S,O> JMAdv;
       typedef Pimpact::MultiOpWrap< Pimpact::Add2Op< Pimpact::Add2Op<JMAdv,DtL>, Fo > > JOp;
 
       jop =
           Pimpact::createMultiOperatorBase<MVF>(
               Pimpact::createAdd2Op<Pimpact::Add2Op<JMAdv,DtL>,Fo>(
                   Pimpact::createAdd2Op<JMAdv,DtL>(
-                      Pimpact::createMultiHarmonicNonlinearJacobian<S,O,false>(
-                          x->getConstFieldPtr(0)->clone() ),
-                          Pimpact::createMultiDtHelmholtz<S,O>( alpha2, 1./re ),
-                          temp->getFieldPtr(0)->clone() ) ,
-                          Pimpact::createMultiHarmonicOpWrap(
-                              Pimpact::createForcingOp( force ) ) ,
-                              temp->getConstFieldPtr(0)->clone() )
+                      Pimpact::createMultiHarmonicNonlinearJacobian<S,O>(
+                          x->getConstFieldPtr(0)->clone(),false ),
+                      Pimpact::createMultiDtHelmholtz<S,O>( alpha2, 1./re ),
+                      temp->getFieldPtr(0)->clone() ) ,
+                      Pimpact::createMultiHarmonicOpWrap(
+                          Pimpact::createForcingOp( force ) ) ,
+                          temp->getConstFieldPtr(0)->clone() )
           );
     }
     else if( 3==iterM ){

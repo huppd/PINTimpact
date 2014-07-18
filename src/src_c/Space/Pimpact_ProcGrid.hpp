@@ -52,13 +52,17 @@ public:
   /// processor coordinates going from 1..np
   Teuchos::Tuple<int,dim> iB_;
   /// index offset going for dim 1:3 strange fortran style dim==4 c style
-  Teuchos::Tuple<int,dim> shift_;
+  Teuchos::Tuple<Ordinal,dim> shift_;
+
+protected:
 
   /// rank of lower neighbour
   Teuchos::Tuple<int,dim> rankL_;
 
   /// rank of upper neighbour
   Teuchos::Tuple<int,dim> rankU_;
+
+public:
 
   MPI_Comm commSlice_[3] ;
   MPI_Comm commBar_[3];
@@ -247,6 +251,8 @@ public:
     out << "\toffset: " << shift_ << "\n";
   }
 
+  const int& getRankL( int i ) const { return( rankL_[i] ); }
+  const int& getRankU( int i ) const { return( rankU_[i] ); }
 
 };
 

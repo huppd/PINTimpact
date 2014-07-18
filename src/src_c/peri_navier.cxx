@@ -19,6 +19,7 @@
 #include "pimpact.hpp"
 #include "Pimpact_Types.hpp"
 #include "Pimpact_Space.hpp"
+#include "Pimpact_Domain.hpp"
 #include "Pimpact_Fields.hpp"
 #include "Pimpact_FieldFactory.hpp"
 
@@ -157,6 +158,9 @@ int main(int argi, char** argv ) {
   int fixType = 1.;
   my_CLP.setOption( "fixType", &fixType, "type of fixpoint iteration matrix: 1=Newton, 2=Piccard, 3=lin diag... " );
 
+  bool isNewton = true;
+  my_CLP.setOption( "newton","piccard", &isNewton, "type of fixpoint iteration matrix: 1=Newton, 2=Piccard, 3=lin diag... " );
+
   int precType = 1.;
   my_CLP.setOption( "precType", &precType, "type of preconditioners " );
 
@@ -195,72 +199,62 @@ int main(int argi, char** argv ) {
     }
   }
   // starting with ininializing
-  int rank = Pimpact::init_impact_pre();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "Re", re );
+  pl->set( "alpha2", alpha2 );
+  pl->set( "domain", domain );
+
+  pl->set( "lx", l1 );
+  pl->set( "ly", l2 );
+  pl->set( "lz", l3 );
+
+  pl->set( "dim", dim );
+
+  pl->set("nx", n1 );
+  pl->set("ny", n2 );
+  pl->set("nz", n3 );
+
+  pl->set("nf", nf );
+  pl->set("nfs", nfs );
+  pl->set("nfe", nfe );
+
+  // processor grid size
+  pl->set("npx", np1 );
+  pl->set("npy", np2 );
+  pl->set("npz", np3 );
+
+  auto space = Pimpact::createSpace<S,O>( pl );
+//  auto space = Pimpact::createSpace<S,O>(fS,iS,iIS,fIS,gs,lgs,pgs,pg);
+  space->print();
+  int rank = space->getProcGrid()->rankS_;
 
   // outputs
-  Teuchos::RCP<std::ostream> outPar;
   Teuchos::RCP<std::ostream> outLinSolve;
   Teuchos::RCP<std::ostream> outPrec;
-  //  Teuchos::RCP<std::ostream> outLap2;
   Teuchos::RCP<std::ostream> outSchur;
-
+//  Teuchos::RCP<std::ostream> outLoc;
+//  {
+//    std::string bla = "locstuff";
+//    std::ostringstream convert;   // stream used for the conversion
+//    convert << rank;      // insert the textual representation of 'Number' in the characters in the stream
+//    bla += convert.str();
+//    bla += ".txt";
+//    outLoc   = Teuchos::rcp( new std::ofstream(bla) );
+//  }
   if(rank==0) {
-    outPar   = Teuchos::rcp( new std::ofstream("para_case.txt") );
     outLinSolve  = Teuchos::rcp( new std::ofstream("linSolve.txt") );
-    outPrec  = Teuchos::rcp( new std::ofstream("solvPrec.txt") );
-    outSchur = Teuchos::rcp( new std::ofstream("solvSchur.txt") );
-  } else
-    //    outPar = Teuchos::rcp( &blackhole, false) ;
-    outPar = Teuchos::rcp( new Teuchos::oblackholestream() ) ;
-
-  *outPar << " \tflow=" << flow << "\n";
-  *outPar << " \tforce=" << forcing << "\n";
-  *outPar << " \tdomain=" << domain << "\n";
-
-
-  auto ds = Pimpact::createDomainSize<S>( re, alpha2, l1, l2, l3 );
-  ds->print( *outPar );
-
-
-  auto bc = Pimpact::createBoudaryConditionsGlobal( Pimpact::EDomainType(domain) );
-  bc->print();
-
-
-  auto gs = Pimpact::createGridSizeGlobal( n1, n2, n3 );
-  gs->print( *outPar );
-  *outPar << " \tnf=" << nf << "\n";
-
-  auto pgs = Pimpact::createProcGridSize<O>( np1, np2, np3 );
-  pgs->print( *outPar );
-
-  auto lgs = Pimpact::createGridSizeLocal( gs, pgs );
-  lgs->print();
-
-  if(rank==0) {
-    Teuchos::rcp_static_cast<std::ofstream>(outPar)->close();
+    outPrec      = Teuchos::rcp( new std::ofstream("solvPrec.txt") );
+    outSchur     = Teuchos::rcp( new std::ofstream("solvSchur.txt") );
   }
-  outPar = Teuchos::null;
-
-  // init IMPACT
-  Pimpact::init_impact_mid();
-
-  // init Spaces
-
-  auto pg = Pimpact::createProcGrid<O>( lgs, bc, pgs );
-  pg->print();
-
-  Pimpact::init_impact_postpost();
-
-  auto fS = Pimpact::createFieldSpace<O>();
-  fS->print();
-
-  auto iS = Pimpact::createScalarIndexSpace<O>();
-  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
-
-  auto space = Pimpact::createSpace(fS,iS,iIS,fIS,gs,lgs,pgs,pg);
-  space->print();
-
+//  else
+//        outPar = Teuchos::rcp( &blackhole, false) ;
+//    outPar = Teuchos::rcp( new Teuchos::oblackholestream() ) ;
+//
+//
+//
+//  Teuchos::rcp_static_cast<std::ofstream>(outLoc)->close();
+//  outLoc=Teuchos::null;
 
   // init vectors
   auto x    = Pimpact::createMultiField( Pimpact::createCompoundField(
@@ -428,7 +422,7 @@ int main(int argi, char** argv ) {
                       dtl,
                       Pimpact::createMultiHarmonicNonlinearJacobian<S,O>(
                           x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy)  ) ) ),
-                          forcingOp );
+              forcingOp );
       jop =
           Pimpact::createMultiOperatorBase<MF>(
               Pimpact::createCompoundOpWrap(
@@ -449,8 +443,8 @@ int main(int argi, char** argv ) {
                   Pimpact::createAdd3Op(
                       x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
                       dtl,
-                      Pimpact::createMultiHarmonicNonlinearJacobian<S,O,false>(
-                          x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy) ) ) ),
+                      Pimpact::createMultiHarmonicNonlinearJacobian<S,O>(
+                          x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy), false ) ) ),
                           forcingOp
           );
 
@@ -716,25 +710,26 @@ int main(int argi, char** argv ) {
       if(0==rank) std::cout << "\n\t---\tpreconditioner matrix(99): proof of concept triangular \t---\n";
 
       auto opV2V =
-              Pimpact::createAdd3Op(
+          Pimpact::createAdd3Op(
+              x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
+              Pimpact::createCompositionOp(
                   x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
-                  Pimpact::createCompositionOp(
+                  forcingm1Op,
+                  Pimpact::createAdd3Op(
                       x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
-                      forcingm1Op,
-                      Pimpact::createAdd3Op(
-                          x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
-                          dtl,
-                          Pimpact::createMultiHarmonicNonlinearJacobian<S,O>(
-                              x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy)  ) ) ),
-                              forcingOp );
+                      dtl,
+                      Pimpact::createMultiHarmonicNonlinearJacobian<S,O>(
+                          x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy)  ) ) ),
+                          forcingOp );
+
       auto opV2Vprob =
           Pimpact::createLinearProblem<MVF>(
               Pimpact::createMultiOperatorBase<MVF>(
                   opV2V ),
-              Teuchos::null,
-              Teuchos::null,
-              Pimpact::createLinSolverParameter( "GMRES", tolBelos/10, -1, outPrec ),
-              "GMRES" );
+                  Teuchos::null,
+                  Teuchos::null,
+                  Pimpact::createLinSolverParameter( "GMRES", tolBelos/10, -1, outPrec ),
+                  "GMRES" );
 
       auto opV2Vinv = Pimpact::createInverseOperatorBase( opV2Vprob );
 
@@ -748,16 +743,25 @@ int main(int argi, char** argv ) {
                   opV2V,
                   opV2S)  );
 
-      //--- inverse DivGrad
-      auto divGradOp =
-          Pimpact::createMultiOperatorBase<MSF>(
-              Pimpact::createMultiHarmonicOpWrap(
-                  Pimpact::createDivGradOp<S,O>(
-                      Pimpact::createVectorField( space ) ) ) );  // works without forcing
+//      //--- inverse DivGrad
+//      auto divGradOp =
+//          Pimpact::createMultiOperatorBase<MSF>(
+//              Pimpact::createMultiHarmonicOpWrap(
+//                  Pimpact::createDivGradOp<S,O>(
+//                      Pimpact::createVectorField( space ) ) ) );  // works without forcing
 
-//      auto divGradOp = Pimpact::createMultiHarmonicOpWrap(
-//          Pimpact::createCompositionOp( )
-//          Pimpact::createDivGradOp<S,O>( Pimpact::createVectorField( space ) ) ) );
+      auto hello =
+          Pimpact::createCompositionOp(
+              x->getConstFieldPtr(0)->getConstVFieldPtr()->clone( Pimpact::ShallowCopy) ,
+              opV2S,
+              opS2V );
+
+      auto divGradOp =
+          Pimpact::createMultiOperatorBase<MSF>( hello );
+////              Pimpact::createMultiHarmonicOpWrap(
+////                  Pimpact::createDivGradOp<S,O>(
+////                      Pimpact::createVectorField( space ) ) ) );  // works without forcing
+
 
       auto divGradProb =
           Pimpact::createLinearProblem< MSF >(

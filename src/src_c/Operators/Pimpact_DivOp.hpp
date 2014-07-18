@@ -23,7 +23,8 @@ public:
   typedef ScalarField<Scalar,Ordinal,dimension>  RangeFieldT;
 //  typedef NonModeOp OpType;
 
-  void apply(const DomainFieldT& x, RangeFieldT& y) const {
+  void apply(const DomainFieldT& x, RangeFieldT& y,
+      Belos::ETrans trans=Belos::NOTRANS ) const {
 
     for( int dir=0; dir<x.dim(); ++dir )
       x.exchange( dir, dir );
@@ -32,6 +33,7 @@ public:
 
   }
 
+  void assignField( const RangeFieldT& mv ) {};
   void assignField( const DomainFieldT& mv ) {};
 
   bool hasApplyTranspose() const { return( false ); }

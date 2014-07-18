@@ -182,7 +182,7 @@ int main(int argi, char** argv ) {
 
 
   // init Spaces
-  auto space = Pimpact::createSpace<O>();
+  auto space = Pimpact::createSpace<S,O>();
 
 
   // init vectors

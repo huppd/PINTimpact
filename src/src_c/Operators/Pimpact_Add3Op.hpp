@@ -41,9 +41,10 @@ public:
         temp_(temp),
         op1_(op1), op2_(op2), op3_(op3) {};
 
-  void apply(const DomainFieldT& x, RangeFieldT& y) const {
+  void apply(const DomainFieldT& x, RangeFieldT& y,
+      Belos::ETrans trans=Belos::NOTRANS ) const {
     if( !op1_.is_null() ) {
-      op1_->apply( x, y );
+      op1_->apply( x, y  );
       if( !op2_.is_null() ) {
         op2_->apply( x, *temp_ );
         y.add( 1., y, 1., *temp_ );

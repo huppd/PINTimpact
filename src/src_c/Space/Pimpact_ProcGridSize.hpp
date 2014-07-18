@@ -13,9 +13,8 @@
 
 
 extern "C" {
-
+void fgetPGS(      int& np1,       int& np2,       int& np3 );
 void fsetPGS(const int& np1, const int& np2, const int& np3 );
-
 }
 
 
@@ -60,19 +59,25 @@ protected:
 
 public:
 
-  ProcGridSize( Ordinal np1, Ordinal np2, Ordinal np3 ):
-    procGridSize_( Teuchos::tuple(np1, np2, np3) ) {
+  ProcGridSize( TO procGridSize ):
+    procGridSize_( procGridSize ) {
 
     test();
     set_Impact();
   };
-
-  ProcGridSize( Ordinal np1, Ordinal np2, Ordinal np3, Ordinal npt ):
-    procGridSize_( Teuchos::tuple(np1, np2, np3, npt) ) {
-
-    test();
-    set_Impact();
-  };
+//  ProcGridSize( Ordinal np1, Ordinal np2, Ordinal np3 ):
+//    procGridSize_( Teuchos::tuple(np1, np2, np3) ) {
+//
+//    test();
+//    set_Impact();
+//  };
+//
+//  ProcGridSize( Ordinal np1, Ordinal np2, Ordinal np3, Ordinal npt ):
+//    procGridSize_( Teuchos::tuple(np1, np2, np3, npt) ) {
+//
+//    test();
+//    set_Impact();
+//  };
 
 
   const Ordinal& get( int i ) {
@@ -98,18 +103,39 @@ public:
 
 /// \relates ProcGridSize
 template<class Ordinal=int>
-Teuchos::RCP<ProcGridSize<Ordinal,3> > createProcGridSize( Ordinal np1, Ordinal np2, Ordinal np3 ) {
+Teuchos::RCP<ProcGridSize<Ordinal,3> > createProcGridSize() {
+  typedef const Teuchos::Tuple<Ordinal,3> TO;
+
+  TO procGridSize;
+
+  fgetPGS( procGridSize[0], procGridSize[1], procGridSize[2] );
+
   return(
       Teuchos::rcp(
-          new ProcGridSize<Ordinal,3>( np1, np2, np3 ) ) );
+          new ProcGridSize<Ordinal,3>( procGridSize ) ) );
 }
 
+
+
 /// \relates ProcGridSize
-template<class Ordinal=int>
-Teuchos::RCP<ProcGridSize<Ordinal,4> > createProcGridSize( Ordinal np1, Ordinal np2, Ordinal np3, Ordinal npt ) {
+template< class O=int, int d=3 >
+Teuchos::RCP<ProcGridSize<O,d> > createProcGridSize( O np1, O np2, O np3, O npt=0 ) {
+
+  Teuchos::Tuple<O,d> temp;
+  if( 3==d ) {
+    temp[0] = np1;
+    temp[1] = np2;
+    temp[2] = np3;
+  }
+  else if( 4==d ) {
+    temp[0] = np1;
+    temp[1] = np2;
+    temp[2] = np3;
+    temp[3] = npt;
+  }
   return(
       Teuchos::rcp(
-          new ProcGridSize<Ordinal,4>( np1, np2, np3, npt ) ) );
+          new ProcGridSize<O,d>( temp ) ) );
 }
 
 } // end of namespace Pimpact

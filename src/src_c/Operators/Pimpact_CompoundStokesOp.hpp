@@ -56,7 +56,8 @@ public:
 
 //  CompoundStokes( Scalar omega, Teuchos::RCP<HelmholtzOp<Scalar,Ordinal> > L ):omega_(omega),L_(L) {};
 
-  void apply(const DomainFieldT& x_, RangeFieldT& y_ ) const {
+  void apply(const DomainFieldT& x_, RangeFieldT& y_,
+      Belos::ETrans trans=Belos::NOTRANS  ) const {
     auto x = x_.getConstVFieldPtr();
     auto y = y_.getVFieldPtr();
     auto xp = x_.getConstSFieldPtr();

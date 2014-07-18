@@ -88,7 +88,7 @@ Teuchos::RCP< OperatorBase<MF> > createInverseOperatorBase( const Teuchos::RCP< 
 template<class S,class O>
 Teuchos::RCP< OperatorBase<MultiField<MultiHarmonicField<VectorField<S,O> > > > >
 createMultiHarmonicMLEddy(
-    const Teuchos::RCP<const Space<O> >& space,
+    const Teuchos::RCP<const Space<S,O> >& space,
     int nGrids = 20,
     int nf = 1,
     S alpha2=1.,

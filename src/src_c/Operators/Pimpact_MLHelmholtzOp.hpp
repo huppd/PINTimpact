@@ -104,7 +104,7 @@ public:
 private:
 
   struct Adat {
-    Teuchos::RCP< const Pimpact::Space<Ordinal> > space_;
+    Teuchos::RCP< const Pimpact::Space<Scalar,Ordinal> > space_;
     int field_;
     double mulI_;
     double mulL_;
@@ -116,10 +116,9 @@ private:
   //  ML* mlObject_[3]; ML_Aggregate* agg_object_[3];
 
   Teuchos::Tuple<Adat,3> adat_;
-  //  Teuchos::RCP<const Space<Ordinal> > space_;
 
   const int& dim() const { return( adat_[0].space_->dim() ); }
-  Teuchos::RCP<const Space<Ordinal> > space() const {return( adat_[0].space_ );}
+  Teuchos::RCP<const Space<Scalar,Ordinal> > space() const {return( adat_[0].space_ );}
 
   Teuchos::Tuple<int,3> nloc_;
 
@@ -131,7 +130,7 @@ private:
 public:
 
   MLHelmholtzOp(
-      const Teuchos::RCP< const Space<Ordinal> >& space=Teuchos::null,
+      const Teuchos::RCP< const Space<Scalar,Ordinal> >& space=Teuchos::null,
       int nGrids=8,
       Scalar mulI=1.,
       Scalar mulL=1.,
@@ -238,7 +237,7 @@ private:
     int field = itemp->field_;
     double mulI = itemp->mulI_;
     double mulL = itemp->mulL_;
-    Teuchos::RCP<const Pimpact::Space<Ordinal> > space = itemp->space_;
+    Teuchos::RCP<const Pimpact::Space<Scalar,Ordinal> > space = itemp->space_;
     //    std::cout << "\ngetrow: # requested rows: "<< nRequestedRows << " # allocated space: " << allocatedSpace << "\n";
     //    space->print();
 
@@ -351,7 +350,7 @@ private:
     int field = itemp->field_;
     double mulI = itemp->mulI_;
     double mulL = itemp->mulL_;
-    Teuchos::RCP<const Pimpact::Space<int> > space = itemp->space_;
+    Teuchos::RCP<const Pimpact::Space<double,int> > space = itemp->space_;
     //    space->print();
     //    int nloc = 1;
     //    for( int i=0; i<2;++i) {
@@ -430,7 +429,7 @@ public:
 /// \relates MLHelmholtzOp
 template< class Scalar, class Ordinal>
 Teuchos::RCP< MLHelmholtzOp<Scalar,Ordinal> > createMLHelmholtzOp(
-    const Teuchos::RCP< const Space<Ordinal> >& space,
+    const Teuchos::RCP< const Space<Scalar,Ordinal> >& space,
     int nGrids=20,
     Scalar mulI=1.,
     Scalar mulL=1.,
