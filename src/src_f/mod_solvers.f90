@@ -3691,21 +3691,21 @@ module mod_solvers
   
   
   !----------------------------------------------------------------------------------------------------------!
-  ! Anmerkungen: - f�r allgemeine di, dj, dk geeignet                                                        !
+  ! Anmerkungen: - für allgemeine di, dj, dk geeignet                                                        !
   !              - di /= 1 <===> N1 /= 1                                                                     !
   !              - es wird nur in eine Richung ausgetauscht                                                  !
   !              - Null-Setzen am Rand nicht notwendig                                                       !
-  !              - Es wird sequentiell �ber alle Raumrichtungen interpoliert, um keinen individuellen        !
-  !                Interpolationsstencil f�r jeden Punkt im Raum speichern zu m�ssen.                        !
+  !              - Es wird sequentiell über alle Raumrichtungen interpoliert, um keinen individuellen        !
+  !                Interpolationsstencil für jeden Punkt im Raum speichern zu müssen.                        !
   !              - Durch das sequentielle Interpolieren kann der Interpolationsstencil klein und damit der   !
   !                Gesamtaufwand minimiert werden (Alternative: 8- bzw. 26-Punkt Stencil (!)). Nachteilig    !
-  !                ist dabei das zus�tzliche Arbeitsfeld auf dem feineren Gitterniveau (wird der Multigrid-  !
+  !                ist dabei das zusützliche Arbeitsfeld auf dem feineren Gitterniveau (wird der Multigrid-  !
   !                Routine entliehen).                                               .                       !
   !              - Interpolationskoeffizienten werden auf dem jeweils feineren Gitter gespeichert, um nicht  !
-  !                auf die entsprechenden Indizes des gr�beren Gitters umrechnen zu m�ssen.                  !
-  !              - Die Block-�berlappenden Stirnfl�chen werden ebenfalls mitverarbeitet, aber eigentlich     !
+  !                auf die entsprechenden Indizes des gröberen Gitters umrechnen zu müssen.                  !
+  !              - Die Block-überlappenden Stirnflächen werden ebenfalls mitverarbeitet, aber eigentlich     !
   !                nicht gebraucht (erleichtert die Programmierung), so dass eigentlich eine Initialisierung !
-  !                notwendig w�re. Dies wird jedoch zuvor schon in der korrespondierenden Restriktions-      !
+  !                notwendig wäre. Dies wird jedoch zuvor schon in der korrespondierenden Restriktions-      !
   !                Routine erledigt, so dass dies hier nicht mehr notwendig ist.                             !
   !----------------------------------------------------------------------------------------------------------!
   
@@ -3929,7 +3929,7 @@ module mod_solvers
   !===========================================================================================================
   if (direction == 1) then
      
-     if (dk /= 1) then ! (dimens == 2) <==> (dk == 1) automatisch erf�llt!
+     if (dk /= 1) then ! (dimens == 2) <==> (dk == 1) automatisch erfüllt!
         do k = 2, kmax-1, dk
            do j = 1, jmax, dj
 !pgi$ unroll = n:8

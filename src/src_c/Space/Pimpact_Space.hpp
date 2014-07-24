@@ -327,7 +327,7 @@ Teuchos::RCP< const Space<S,O,d> > createSpace() {
               createGridSizeGlobal<O>(),
               createGridSizeLocal<O,3>(),
               createProcGridSize<O>(),
-              Teuchos::null,
+              createProcGrid<O,d>(),
               createDomain<S>() ) ) );
 }
 

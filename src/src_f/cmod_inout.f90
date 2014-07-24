@@ -41,8 +41,6 @@ module cmod_inout
   
   
   
-!  INCLUDE 'mpif.h'
-  
   integer(HID_T)                 ::  file_id, plist_id, dset_id
   integer(HID_T)                 ::  filespace, memspace
   integer(HID_T)                 ::  memtypeREAL, memtypeINT
@@ -84,8 +82,6 @@ module cmod_inout
   
   if (rank == 0) write(*,'(a)') 'writing pressure field ...'
 
-!  pre(:,:,:) = phip
-
   !===========================================================================================================
   !=== Ausschrieb-Nr. als String fuer File-Namen =============================================================
   !===========================================================================================================
@@ -110,11 +106,6 @@ module cmod_inout
      call write_2D_hdf('pre_'//count_char,'pre',N1,N2,S1p,S2p,N1p,N2p,iShift,jShift,-3,bc33(1,1,1))
   end if
   !===========================================================================================================
-
-!  write_count    = write_count   + 1
-!  time_out_vect  = time_out_vect + dtime_out_vect
-!  write_out_vect = .false.
-  
   
   end subroutine write_pre
   
@@ -231,11 +222,6 @@ module cmod_inout
   if( 1 == 2 .and. dimens == 3) call write_hdf_velall('velA_'//count_char,S1p,S2p,S3p,N1p,N2p,N3p,0,nl)
   !===========================================================================================================
   !===========================================================================================================
-
-!  write_count    = write_count   + 1
-!  time_out_vect  = time_out_vect + dtime_out_vect
-!  write_out_vect = .false.
-
 
   end subroutine write_vel
   

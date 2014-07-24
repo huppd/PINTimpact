@@ -816,11 +816,20 @@ protected:
   const Ordinal* bl()                   const { return( space_->bl() ); }
   const Ordinal* bu()                   const { return( space_->bu() ); }
 
+  const Ordinal* sInd() const { return( space_->sInd() ); }
+  const Ordinal* eInd() const { return( space_->eInd() ); }
+
   const Ordinal* sInd(  int fieldType ) const { return( space_->sInd(fieldType)  ); }
   const Ordinal* eInd(  int fieldType ) const { return( space_->eInd(fieldType) ); }
 
   const Ordinal* sIndB( int fieldType ) const { return( space_->sIndB(fieldType) ); }
   const Ordinal* eIndB( int fieldType ) const { return( space_->eIndB(fieldType) ); }
+
+  const int*     bcL() const { return( space_->getDomain()->getBCLocal()->getBCL() ); }
+  const int*     bcU() const { return( space_->getDomain()->getBCLocal()->getBCU() ); }
+
+  const int* rankL() const { return( space_->getProcGrid()->getRankL() ); }
+  const int* rankU() const { return( space_->getProcGrid()->getRankU() ); }
 
   void changed( const int& vel_dir, const int& dir ) const {
     exchangedState_[vel_dir][dir] = false;
@@ -849,12 +858,20 @@ protected:
 
   /// \brief updates ghost layers
   void exchange( const int& vel_dir, const int& dir ) const {
+    int ones[3] = {1,1,1};
+
     if( !exchangedState_[vel_dir][dir] ) {
       F_exchange(
+          dim(),
           commf(),
+          rankL(), rankU(),
+          nLoc(),
+          bl(), bu(),
+          bcL(), bcU(),
+          sInd(), eInd(),
+          ones,
+          nLoc(),
           dir+1, vel_dir+1,
-          1, 1, 1,
-          nLoc(0), nLoc(1), nLoc(2),
           vec_[vel_dir]);
       exchangedState_[vel_dir][dir] = true;
     }

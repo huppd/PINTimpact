@@ -439,6 +439,12 @@ protected:
   const Ordinal* sInd() const { return( space_->sInd() ); }
   const Ordinal* eInd() const { return( space_->eInd() ); }
 
+  const int*     bcL() const { return( space_->getDomain()->getBCLocal()->getBCL() ); }
+  const int*     bcU() const { return( space_->getDomain()->getBCLocal()->getBCU() ); }
+
+  const int* rankL() const { return( space_->getProcGrid()->getRankL() ); }
+  const int* rankU() const { return( space_->getProcGrid()->getRankU() ); }
+
   void changed( const int& dir ) const {
     exchangedState_[dir] = false;
   }
@@ -464,12 +470,19 @@ protected:
 
   /// \brief updates ghost layers
   void exchange( const int& dir ) const {
+    int ones[3] = {1,1,1};
     if( !exchangedState_[dir] ) {
       F_exchange(
+          dim(),
           commf(),
+          rankL(), rankU(),
+          nLoc(),
+          bl(), bu(),
+          bcL(), bcU(),
+          sInd(), eInd(),
+          ones,
+          nLoc(),
           dir+1, 0,
-          1, 1, 1,
-          nLoc(0), nLoc(1), nLoc(2),
           s_);
       exchangedState_[dir] = true;
     }

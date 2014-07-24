@@ -39,6 +39,7 @@ public:
       bcLoc_( bcLoc ) {}
 
   Teuchos::RCP<const BoundaryConditionsGlobal> getBCGlobal() const { return( bcGlo_ ); }
+  Teuchos::RCP<const BoundaryConditionsLocal> getBCLocal() const { return( bcLoc_ ); }
 
 protected:
 

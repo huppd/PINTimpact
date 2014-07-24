@@ -24,6 +24,7 @@ void SG_setRank( const int& rank_ );
 void SG_setIB( const int* const iB_);
 void SG_setShift( const int* const shift);
 void SG_setRankLU( const int* const rankl, const int* const ranku );
+void SG_getRankLU(       int* const rankl,       int* const ranku );
 void SG_setCommSlice( const int& slice1, const int& slice2, const int& slice3 );
 void SG_setCommBar( const int& bar1, const int& bar2, const int& bar3 );
 void SG_setRankSliceBar( const int* const rankSlice, const int* const rankBar );
@@ -72,6 +73,8 @@ public:
 
 
 public:
+  ProcGrid(Teuchos::Tuple<int,3> rankL, Teuchos::Tuple<int,3> rankU ):
+        iB_(),rankL_(rankL),rankU_(rankU),commSlice_(),commBar_(),rankSlice_(),rankBar_() {}
 
   ProcGrid(
       const Teuchos::RCP< GridSizeLocal<Ordinal,dim> >& gridSizeLocal,
@@ -254,8 +257,23 @@ public:
   const int& getRankL( int i ) const { return( rankL_[i] ); }
   const int& getRankU( int i ) const { return( rankU_[i] ); }
 
+  const int* getRankL() const { return( rankL_.getRawPtr() ); }
+  const int* getRankU() const { return( rankU_.getRawPtr() ); }
+
 };
 
+/// \relates ProcGrid
+template< class O=int, int d=3 >
+Teuchos::RCP< ProcGrid<O,d> > createProcGrid() {
+  Teuchos::Tuple<int,3> rankL;
+  Teuchos::Tuple<int,3> rankU;
+
+   SG_getRankLU( rankL.getRawPtr(), rankU.getRawPtr() );
+
+  return(
+      Teuchos::rcp( new ProcGrid<O,d>( rankL, rankU) ) );
+
+}
 
 /// \relates ProcGrid
 template< class O=int, int d=3 >

@@ -43,9 +43,13 @@ class BoundaryConditionsLocal {
 public:
 
   typedef const Teuchos::Tuple<EBCType,3> TBC3;
+  typedef const Teuchos::Tuple<int,3> Ti3;
 
   TBC3 BCL_local_;
   TBC3 BCU_local_;
+
+  Ti3 BCL_int_;
+  Ti3 BCU_int_;
 
   BoundaryConditionsLocal(
       EBCType BC1L=DirichletBC,
@@ -55,11 +59,21 @@ public:
       EBCType BC3L=DirichletBC,
       EBCType BC3U=DirichletBC ):
         BCL_local_( Teuchos::tuple(BC1L, BC2L, BC3L) ),
-        BCU_local_( Teuchos::tuple(BC1U, BC2U, BC3U) ) {};
+        BCU_local_( Teuchos::tuple(BC1U, BC2U, BC3U) ) {
+    for( int i=0; i<3; ++i ) {
+      BCL_int_[i] = (int)( BCL_local_[i] );
+      BCU_int_[i] = (int)( BCU_local_[i] );
+    }
+
+  };
 
   BoundaryConditionsLocal( TBC3 BCL_local, TBC3 BCU_local ):
     BCL_local_( BCL_local ),
     BCU_local_( BCU_local ) {
+    for( int i=0; i<3; ++i ) {
+      BCL_int_[i] = (int)( BCL_local_[i] );
+      BCU_int_[i] = (int)( BCU_local_[i] );
+    }
     set_Impact();
   }
 
@@ -72,6 +86,9 @@ public:
         BCL_local_[2],
         BCU_local_[2] );
   }
+
+  const int* getBCL() const { return( BCL_int_.getRawPtr() ); }
+  const int* getBCU() const { return( BCU_int_.getRawPtr() ); }
 
   void print( std::ostream& out=std::cout ) const {
     out << "---BoundaryConditionsGlobal: ---\n";

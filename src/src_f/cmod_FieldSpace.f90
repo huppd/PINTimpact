@@ -272,7 +272,7 @@ contains
     end subroutine set_Shift
 
 
-    subroutine set_rankLU( rankl, ranku ) bind( c, name='SG_setRankLU' )
+    subroutine SG_setRankLU( rankl, ranku ) bind( c, name='SG_setRankLU' )
         implicit none
         integer(c_int), intent(in) :: rankl(1:3)
         integer(c_int), intent(in) :: ranku(1:3)
@@ -285,7 +285,23 @@ contains
         rank2U = ranku(2)
         rank3U = ranku(3)
 
-    end subroutine set_rankLU
+    end subroutine SG_setRankLU
+
+
+        subroutine SG_getRankLU( rankl, ranku ) bind( c, name='SG_getRankLU' )
+        implicit none
+        integer(c_int), intent(out) :: rankl(3)
+        integer(c_int), intent(out) :: ranku(3)
+
+        rankl(1) = rank1L
+        rankl(2) = rank2L
+        rankl(3) = rank3L
+
+        ranku(1) = rank1U
+        ranku(2) = rank2U
+        ranku(3) = rank3U
+
+    end subroutine SG_getRankLU
 
 
     subroutine set_COMM_SLICE( slice1, slice2, slice3 ) bind( c, name='SG_setCommSlice' )

@@ -168,10 +168,20 @@ void SF_write( double* const phi, const int& count );
 
 
 void F_exchange(
+    const int& dim,
     const int& comm,
+    const int* const rankL,
+    const int* const rankU,
+    const int* const N,
+    const int* const bL,
+    const int* const bU,
+    const int* const bcL,
+    const int* const bcU,
+    const int* const Sp,
+    const int* const Np,
+    const int* const SS,
+    const int* const NN,
     const int& dir, const int& vel_dir,
-    const int& SS1, const int& SS2, const int& SS3,
-    const int& NN1, const int& NN2, const int& NN3,
     double* const phi );
 
 
