@@ -14,6 +14,8 @@
 #include "Pimpact_FieldSpace.hpp"
 #include "Pimpact_IndexSpace.hpp"
 
+#include "Pimpact_AbstractField.hpp"
+
 
 
 namespace Pimpact {
@@ -23,7 +25,7 @@ namespace Pimpact {
 /// vector for wrapping 2 fields into one mode
 /// \ingroup Field
 template<class VField, class SField>
-class CompoundField {
+class CompoundField : private AbstractField<typename VField::Scalar ,typename VField::Ordinal > {
 
 public:
 
@@ -146,13 +148,13 @@ public:
 
   /// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
   Scalar dot ( const MV& a, bool global=true ) const {
+
     Scalar b = 0.;
+
     b = vfield_->dot( *a.vfield_, false ) + sfield_->dot( *a.sfield_, false );
-    if( global ) {
-      Scalar b_global=0.;
-      MPI_Allreduce( &b, &b_global, 1, MPI_REAL8, MPI_SUM, comm() );
-      b = b_global;
-    }
+
+    if( global ) reduceNorm( comm(), b );
+
     return( b );
   }
 
@@ -164,34 +166,25 @@ public:
   /// \brief Compute the norm of the field.
   /// \todo implement OneNorm
   Scalar norm(  Belos::NormType type = Belos::TwoNorm, bool global=true) const {
-    //		switch(type) {
-    //		case Belos::TwoNorm: return( std::sqrt( std::pow(vfield_->norm(type),2) + std::pow(sfield_->norm(type),2) ) );
-    //		case Belos::InfNorm: return( std::max(vfield_->norm(type), sfield_->norm(type) ) );
-    //		case Belos::OneNorm: std::cout << "!!! Warning Belos::OneNorm not implemented \n"; return(0.);
-    //  	default: std::cout << "!!! Warning unknown Belos::NormType:\t" << type << "\n"; return(0.);
-    //		}
+
     Scalar normvec=0;
+
     switch(type) {
+    case Belos::OneNorm:
+      normvec = vfield_->norm(type,false) + sfield_->norm(type,false);
+      break;
     case Belos::TwoNorm:
-      normvec = std::pow(vfield_->norm(type,false),2) + std::pow(sfield_->norm(type,false),2) ;
-      if( global ) {
-        Scalar normvec_global;
-        MPI_Allreduce( &normvec, &normvec_global, 1, MPI_REAL8, MPI_SUM, comm() );
-        normvec = normvec_global;
-      }
-      return( std::sqrt(normvec) );
+      normvec = vfield_->norm(type,false) + sfield_->norm(type,false);
+//      normvec = std::pow(vfield_->norm(type,false),2) + std::pow(sfield_->norm(type,false),2);
+      break;
     case Belos::InfNorm:
       normvec = std::max(vfield_->norm(type,false), sfield_->norm(type,false) ) ;
-      if( global ) {
-        Scalar normvec_global;
-        MPI_Allreduce( &normvec, &normvec_global, 1, MPI_REAL8, MPI_MAX, comm() );
-        normvec = normvec_global;
-      }
-      return( normvec );
-    case Belos::OneNorm:
-      std::cout << "!!! Warning Belos::OneNorm not implemented \n"; return(0.);
-    default: std::cout << "!!! Warning unknown Belos::NormType:\t" << type << "\n"; return(0.);
+      break;
     }
+
+    if( global ) reduceNorm( comm(), normvec, type );
+
+    return( normvec );
   }
 
 
@@ -201,8 +194,16 @@ public:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
   /// \todo add \c std::sqrt
-  double norm(const MV& weights) const {
-    return( vfield_->norm( *weights.vfield_)+sfield_->norm( *weights.sfield_ ) );
+  double norm(const MV& weights, bool global=true) const {
+
+    double normvec=
+        vfield_->norm( *weights.vfield_, false ) +
+        sfield_->norm( *weights.sfield_, false );
+
+    if( global ) reduceNorm( comm(), normvec, Belos::TwoNorm );
+
+    return( normvec );
+
   }
 
 

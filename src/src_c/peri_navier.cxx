@@ -227,7 +227,7 @@ int main(int argi, char** argv ) {
   auto space = Pimpact::createSpace<S,O>( pl );
 //  auto space = Pimpact::createSpace<S,O>(fS,iS,iIS,fIS,gs,lgs,pgs,pg);
   space->print();
-  int rank = space->getProcGrid()->rankS_;
+  int rank = space->getProcGrid()->rankST_;
 
   // outputs
   Teuchos::RCP<std::ostream> outLinSolve;

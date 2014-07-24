@@ -58,6 +58,22 @@ TEUCHOS_UNIT_TEST( VectorField, create_init_print ) {
 }
 
 
+
+TEUCHOS_UNIT_TEST( VectorField, OneNorm_and_init ) {
+
+  auto space = Pimpact::createSpace();
+  auto x = Pimpact::createVectorField(space);
+
+  // test different float values, assures that initial and norm work smoothly
+  for( double i=0.; i< 200.1; ++i ) {
+    x->init(i/2.);
+    TEST_EQUALITY( (i/2.)*x->getLength(), x->norm(Belos::OneNorm) );
+  }
+}
+
+
+
+
 TEUCHOS_UNIT_TEST( VectorField, InfNorm_and_init ) {
 
 	auto space = Pimpact::createSpace();

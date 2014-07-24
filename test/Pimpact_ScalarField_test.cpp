@@ -86,6 +86,20 @@ TEUCHOS_UNIT_TEST( ScalarField, InfNorm_and_init ) {
 
 
 
+TEUCHOS_UNIT_TEST( ScalarField, OneNorm_and_init ) {
+
+  auto sVS = Pimpact::createSpace();
+  auto p = Pimpact::createScalarField(sVS);
+
+  // test different float values, assures that initial and norm work smoothly
+  for( double i=0.; i< 200.1; ++i ) {
+    p->init(i/2.);
+    TEST_EQUALITY( (i/2.)*p->getLength(), p->norm(Belos::OneNorm) );
+  }
+}
+
+
+
 TEUCHOS_UNIT_TEST( ScalarField, TwoNorm_and_init ) {
 
   auto sVS = Pimpact::createSpace();

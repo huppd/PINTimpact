@@ -15,6 +15,8 @@
 
 #include "Pimpact_Types.hpp"
 
+#include "Pimpact_AbstractField.hpp"
+
 
 
 namespace Pimpact {
@@ -31,7 +33,7 @@ namespace Pimpact {
 /// \note for better documentation, look at the equivalent documentation in the \c Belos::...
 /// \ingroup Field
 template<class Field>
-class MultiField {
+class MultiField : private AbstractField<typename Field::Scalar, typename Field::Ordinal> {
 
 public:
 
@@ -328,12 +330,13 @@ public:
   /// For all columns j of A, set <tt>dots[j] := A[j]^T * B[j]</tt>.
   /// \todo make reduction over vector
   void dot( const MV& A, std::vector<Scalar>& dots) const {
+
     const int n = getNumberVecs();
     Scalar* temp = new Scalar[n];
+
     for( int i=0; i<n; ++i)
       temp[i] = A.mfs_[i]->dot( *mfs_[i], false );
 
-    //    Scalar b_global=0.;
     MPI_Allreduce( temp, dots.data(), n, MPI_REAL8, MPI_SUM, comm() );
     delete[] temp;
 
@@ -343,20 +346,13 @@ public:
   /// \brief Compute the inner product for the \c MultiField considering it as one Vector.
   Scalar dot( const MV& A, bool global=true ) const {
     int n = getNumberVecs();
-    //		Scalar innpro=0.;
-    Scalar b = 0.;
-    //		std::vector<Scalar> innprovec( n );
-    //		dot( A, innprovec );
 
-    for( int i=0; i<n; ++i ) {
-      //			innpro += innprovec[i];
+    Scalar b = 0.;
+
+    for( int i=0; i<n; ++i )
       b+= mfs_[i]->dot( *A.mfs_[i], false );
-    }
-    if( global ) {
-      Scalar b_global=0.;
-      MPI_Allreduce( &b, &b_global, 1, MPI_REAL8, MPI_SUM, comm() );
-      b = b_global;
-    }
+
+    if( global ) reduceNorm( comm(), b );
 
     return( b );
   }
@@ -365,18 +361,22 @@ public:
   /// \brief Compute the norm of each individual vector.
   /// Upon return, \c normvec[i] holds the value of \f$||this_i||_2\f$, the \c i-th column of \c this.
   /// \todo implement OneNorm
-  void norm( std::vector<typename Teuchos::ScalarTraits<Scalar>::magnitudeType> &normvec,
-      Belos::NormType type=Belos::TwoNorm) const {
+  void norm(
+      std::vector<typename Teuchos::ScalarTraits<Scalar>::magnitudeType> &normvec,
+      Belos::NormType type=Belos::TwoNorm ) const {
+
     const int n = getNumberVecs();
     Scalar* temp = new Scalar[n];
 
-    //    for( int i=0; i<n; ++i )
-    //      temp[i] = mfs_[i]->norm(type,false);
-
     switch(type) {
+    case Belos::OneNorm:
+      for( int i=0; i<n; ++i )
+        temp[i] = mfs_[i]->norm(type,false);
+      MPI_Allreduce( temp, normvec.data(), n, MPI_REAL8, MPI_SUM, comm() );
+      break;
     case Belos::TwoNorm:
       for( int i=0; i<n; ++i )
-        temp[i] = std::pow( mfs_[i]->norm(type,false), 2 );
+        temp[i] = mfs_[i]->norm(type,false);
       MPI_Allreduce( temp, normvec.data(), n, MPI_REAL8, MPI_SUM, comm() );
       for( int i=0; i<n; ++i )
         normvec[i] = std::sqrt( normvec[i] );
@@ -385,9 +385,6 @@ public:
       for( int i=0; i<n; ++i )
         temp[i] = mfs_[i]->norm(type,false);
       MPI_Allreduce( temp, normvec.data(), n, MPI_REAL8, MPI_MAX, comm() );
-      break;
-    case Belos::OneNorm:
-      std::cout << "Warning!: OneNorm not implemented\n";
       break;
     }
     delete[] temp;
@@ -403,31 +400,21 @@ public:
 
     for( int i=0; i<n; ++i ) {
       switch(type) {
-      case Belos::TwoNorm: normvec += std::pow(mfs_[i]->norm(type,false),2); break;
-      case Belos::InfNorm: normvec = std::max( normvec, mfs_[i]->norm(type,false) ); break;
-      case Belos::OneNorm: std::cout << "!!! Warning Belos::OneNorm not implemented \n"; return(0.);
-      default: std::cout << "!!! Warning unknown Belos::NormType:\t" << type << "\n"; return(0.);
-      }
+          case Belos::OneNorm:
+            normvec += mfs_[i]->norm(type,false);
+            break;
+          case Belos::TwoNorm:
+            normvec += mfs_[i]->norm(type,false);
+            break;
+          case Belos::InfNorm:
+            normvec = std::max( mfs_[i]->norm(type,false), normvec ) ;
+            break;
+          }
     }
-    switch(type) {
-    case Belos::TwoNorm:
-      if( global ) {
-        Scalar normvec_global;
-        MPI_Allreduce( &normvec, &normvec_global, 1, MPI_REAL8, MPI_SUM, comm() );
-        normvec = normvec_global;
-      }
-      return( std::sqrt(normvec) );
-    case Belos::InfNorm:
-      if( global ) {
-        Scalar normvec_global;
-        MPI_Allreduce( &normvec, &normvec_global, 1, MPI_REAL8, MPI_MAX, comm() );
-        normvec = normvec_global;
-      }
-      return( normvec );
-    case Belos::OneNorm:
-      std::cout << "!!! Warning Belos::OneNorm not implemented \n"; return(0.);
-    default: std::cout << "!!! Warning unknown Belos::NormType:\t" << type << "\n"; return(0.);
-    }
+
+    if( global ) reduceNorm( comm(), normvec, type );
+
+    return( normvec );
   }
 
 
@@ -436,10 +423,15 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  double norm(const MV& weights) const {
+  double norm( const MV& weights, bool global=true ) const {
+
     double nor=0.;
+
     for( int i=0; i<getNumberVecs(); ++i )
-      nor += mfs_[i]->norm( *weights.mfs_[i] );
+      nor += mfs_[i]->norm( *weights.mfs_[i], false );
+
+    if( global ) reduceNorm( comm(), nor, Belos::TwoNorm );
+
     return( nor );
   }
 

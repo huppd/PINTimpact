@@ -22,57 +22,6 @@ namespace Pimpact {
 extern "C" {
 
 
-void VF_dot(
-    const int& dimens,
-    const int* const N,
-    const int* const bL,
-    const int* const bU,
-    const int* const sU,
-    const int* const nU,
-    const int* const sV,
-    const int* const nV,
-    const int* const sW,
-    const int* const nW,
-    const double* const phi1U, const double* const phi1V, const double* const phi1W,
-    const double* const phi2U, const double* const phi2V, const double* const phi2W,
-    //    const double* const phi1,
-    //    const double* const phi2,
-    double& scalar);
-
-
-void VF_compNorm(
-    const int& dimens,
-    const int* const N,
-    const int* const bL,
-    const int* const bU,
-    const int* const sU,
-    const int* const nU,
-    const int* const sV,
-    const int* const nV,
-    const int* const sW,
-    const int* const nW,
-    const double* const phiU, const double* const phiV, const double* const phiW,
-    const bool& inf_yes, const bool& two_yes,
-    double& normInf, double& normTwo );
-
-
-void VF_weightedNorm(
-    const MPI_Fint& comm,
-    const int& dimens,
-    const int* const N,
-    const int* const bL,
-    const int* const bU,
-    const int* const sU,
-    const int* const nU,
-    const int* const sV,
-    const int* const nV,
-    const int* const sW,
-    const int* const nW,
-    const double* const phiU, const double* const phiV, const double* const phiW,
-    const double* const weiU, const double* const weiV, const double* const weiW,
-    double& norm );
-
-
 void VF_write( double* phiU, double* phiV, double* phiW, const int& count );
 
 

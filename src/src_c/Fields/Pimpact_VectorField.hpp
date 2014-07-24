@@ -18,6 +18,7 @@
 #include "Pimpact_extern_ScalarField.hpp"
 #include "Pimpact_extern_VectorField.hpp"
 
+#include "Pimpact_AbstractField.hpp"
 
 
 namespace Pimpact {
@@ -31,7 +32,7 @@ namespace Pimpact {
 ///implemented, such that they keep the state, but then the boundary conditions
 ///have to be taken care of
 template<class S=double, class O=int, int d=3 >
-class VectorField {
+class VectorField : AbstractField<S,O> {
 
   template<class S1, class O1, int dimension1>
   friend class Grad;
@@ -209,11 +210,9 @@ public:
     for( int i=0; i<dim(); ++i ) {
       if( vec_[i]==A.vec_[i] && vec_[i]==B.vec_[i] )
         SF_scale(
-            nLoc(0), nLoc(1), nLoc(2),
-            sInd(0,i), sInd(1,i), sInd(2,i),
-            eInd(0,i), eInd(1,i), eInd(2,i),
-            bl(0),   bl(1),   bl(2),
-            bu(0),   bu(1),   bu(2),
+            nLoc(),
+            bl(), bu(),
+            sInd(i), eInd(i),
             vec_[i], alpha+beta );
       else if( vec_[i]==A.vec_[i] && vec_[i]!=B.vec_[i] )
         SF_add2(
@@ -223,13 +222,15 @@ public:
             alpha, beta );
       else if( vec_[i]!=A.vec_[i] && vec_[i]==B.vec_[i] )
         SF_add2(
-            nLoc(), bl(), bu(),
+            nLoc(),
+            bl(), bu(),
             sInd(i), eInd(i),
             vec_[i], A.vec_[i],
             beta, alpha );
       else if( vec_[i]!=A.vec_[i] && vec_[i]!=B.vec_[i] )
         SF_add(
-            nLoc(), bl(), bu(),
+            nLoc(),
+            bl(), bu(),
             sInd(i), eInd(i),
             vec_[i], A.vec_[i], B.vec_[i],
             alpha, beta );
@@ -247,11 +248,9 @@ public:
   void abs(const VF& y) {
     for( int i=0; i<dim(); ++i )
       SF_abs(
-          nLoc(0), nLoc(1), nLoc(2),
-          sInd(0,i), sInd(1,i), sInd(2,i),
-          eInd(0,i), eInd(1,i), eInd(2,i),
-          bl(0),   bl(1),   bl(2),
-          bu(0),   bu(1),   bu(2),
+          nLoc(),
+          bl(), bu(),
+          sInd(i), eInd(i),
           vec_[i], y.vec_[i] );
     changed();
   }
@@ -266,11 +265,9 @@ public:
     // add test for consistent VectorSpaces in debug mode
     for( int i=0; i<dim(); ++i)
       SF_reciprocal(
-          nLoc(0), nLoc(1), nLoc(2),
-          sInd(0,i), sInd(1,i), sInd(2,i),
-          eInd(0,i), eInd(1,i), eInd(2,i),
-          bl(0),   bl(1),   bl(2),
-          bu(0),   bu(1),   bu(2),
+          nLoc(),
+          bl(), bu(),
+          sInd(i), eInd(i),
           vec_[i], y.vec_[i] );
     changed();
   }
@@ -280,11 +277,9 @@ public:
   void scale( const Scalar& alpha ) {
     for(int i=0; i<dim(); ++i)
       SF_scale(
-          nLoc(0), nLoc(1), nLoc(2),
-          sInd(0,i), sInd(1,i), sInd(2,i),
-          eInd(0,i), eInd(1,i), eInd(2,i),
-          bl(0),   bl(1),   bl(2),
-          bu(0),   bu(1),   bu(2),
+          nLoc(),
+          bl(), bu(),
+          sInd(i), eInd(i),
           vec_[i], alpha);
     changed();
   }
@@ -299,11 +294,9 @@ public:
     // add test for consistent VectorSpaces in debug mode
     for(int i=0; i<dim(); ++i)
       SF_scale2(
-          nLoc(0), nLoc(1), nLoc(2),
-          sInd(0,i), sInd(1,i), sInd(2,i),
-          eInd(0,i), eInd(1,i), eInd(2,i),
-          bl(0),   bl(1),   bl(2),
-          bu(0),   bu(1),   bu(2),
+          nLoc(),
+          bl(), bu(),
+          sInd(i), eInd(i),
           vec_[i], a.vec_[i] );
     changed();
   }
@@ -312,22 +305,20 @@ public:
   /// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
   /// \todo add test in debuging mode for testing equality of VectorSpaces
   Scalar dot ( const VF& a, bool global=true ) const {
-    Scalar b;
-    VF_dot(
-        dim(),
-        nLoc(), bl(), bu(),
-        sInd(0), eInd(0),
-        sInd(1), eInd(1),
-        sInd(2), eInd(2),
-        vec_[0],     vec_[1],   vec_[2],
-        a.vec_[0], a.vec_[1], a.vec_[2],
-        b);
-    if( global ) {
-      Scalar b_global;
-      MPI_Allreduce( &b, &b_global, 1, MPI_REAL8, MPI_SUM, comm() );
-      b = b_global;
-    }
+    Scalar b = 0.;
+
+    for( int i=0; i<dim(); ++i )
+      SF_dot(
+          nLoc(),
+          bl(), bu(),
+          sInd(i), eInd(i),
+          vec_[i], a.vec_[i],
+          b );
+
+    if( global ) reduceNorm( comm(), b );
+
     return( b );
+
   }
 
 
@@ -341,43 +332,41 @@ public:
   /// \attention the two norm is not the real two norm but its square
   /// \todo implement OneNorm
   Scalar norm(  Belos::NormType type = Belos::TwoNorm, bool global=true ) const {
-    bool twoNorm_yes = false;
-    bool infNorm_yes = false;
 
-    switch(type) {
-    case Belos::TwoNorm: twoNorm_yes = true; break;
-    case Belos::InfNorm: infNorm_yes = true; break;
-    case Belos::OneNorm: std::cout << "norm: not implemented"; return( 0. );
-    default: std::cout << "unkown norm"; return( 0. );
-    }
+    Scalar normvec = 0.;
 
-    Scalar normvec;
-    VF_compNorm(
-        dim(),
-        nLoc(),
-        bl(), bu(),
-        sInd(0), eInd(0),
-        sInd(1), eInd(1),
-        sInd(2), eInd(2),
-        vec_[0], vec_[1], vec_[2],
-        infNorm_yes, twoNorm_yes,
-        normvec, normvec );
-    if( type==Belos::TwoNorm ) {
-      if( global ) {
-        Scalar normvec_global;
-        MPI_Allreduce( &normvec, &normvec_global, 1, MPI_REAL8, MPI_SUM, comm() );
-        normvec = normvec_global;
+    for( int i=0; i<dim(); ++i )
+      switch(type) {
+      case Belos::OneNorm:
+        SF_comp1Norm(
+            nLoc(),
+            bl(), bu(),
+            sInd(i), eInd(i),
+            vec_[i],
+            normvec );
+        break;
+      case Belos::TwoNorm:
+        SF_comp2Norm(
+            nLoc(),
+            bl(), bu(),
+            sInd(i), eInd(i),
+            vec_[i],
+            normvec );
+        break;
+      case Belos::InfNorm:
+        SF_compInfNorm(
+            nLoc(),
+            bl(), bu(),
+            sInd(i), eInd(i),
+            vec_[i],
+            normvec );
+        break;
       }
-      return( std::sqrt(normvec) );
-    }
-    else{
-      if( global ) {
-        Scalar normvec_global;
-        MPI_Allreduce( &normvec, &normvec_global, 1, MPI_REAL8, MPI_MAX, comm() );
-        normvec = normvec_global;
-      }
-      return( normvec );
-    }
+
+    if( global ) reduceNorm( comm(), normvec, type );
+
+    return( normvec );
+
   }
 
 
@@ -386,20 +375,21 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  double norm(const VF& weights) const {
-    Scalar normvec;
-    VF_weightedNorm(
-        commf(),
-        dim(),
-        nLoc(),
-        bl(), bu(),
-        sInd(0), eInd(0),
-        sInd(1), eInd(1),
-        sInd(2), eInd(2),
-        vec_[0], vec_[1], vec_[2],
-        weights.vec_[0], weights.vec_[1], weights.vec_[2],
-        normvec);
-    return( normvec );
+  double norm( const VF& weights, bool global=true ) const {
+    Scalar normvec = 0.;
+
+    for( int i=0; i<dim(); ++i )
+      SF_weightedNorm(
+          nLoc(),
+          bl(), bu(),
+          sInd(i), eInd(i),
+          vec_[i], weights.vec_[i],
+          normvec );
+
+     if( global ) reduceNorm( comm(), normvec, Belos::TwoNorm );
+
+     return( normvec );
+
   }
 
 
@@ -412,26 +402,33 @@ public:
   ///
   /// Assign (deep copy) A into mv.
   void assign( const VF& a ) {
-#ifdef DEBUG
-    for(int i=0; i<3; ++i) {
-      TEST_EQUALITY( nLoc(i), a.Nloc(i) )
-			                            TEST_EQUALITY( bu(i), a.bu(i) )
-			                            TEST_EQUALITY( bl(i), a.bl(i) )
-    }
-#endif
-
-    Ordinal N = 1;
-    for(int i=0; i<3; ++i)
-      N *= nLoc(i)+bu(i)-bl(i);
+//#ifdef DEBUG
+//    for(int i=0; i<3; ++i) {
+//      TEST_EQUALITY( nLoc(i), a.Nloc(i) )
+//			                            TEST_EQUALITY( bu(i), a.bu(i) )
+//			                            TEST_EQUALITY( bl(i), a.bl(i) )
+//    }
+//#endif
 
     for( int dir=0; dir<dim(); ++dir)
-      for(int i=0; i<N; ++i) {
-        vec_[dir][i] = a.vec_[dir][i];
-      }
-
-    for( int vel_dir=0; vel_dir<dim(); ++vel_dir )
-      for( int dir=0; dir<dim(); ++dir )
-        exchangedState_[vel_dir][dir] = a.exchangedState_[vel_dir][dir];
+      SF_assign(
+          nLoc(),
+          bl(), bu(),
+          sIndB(dir), eIndB(dir),
+          vec_[dir], a.vec_[dir] );
+     changed();
+//    Ordinal N = 1;
+//    for(int i=0; i<3; ++i)
+//      N *= nLoc(i)+bu(i)-bl(i);
+//
+//    for( int dir=0; dir<dim(); ++dir)
+//      for(int i=0; i<N; ++i) {
+//        vec_[dir][i] = a.vec_[dir][i];
+//      }
+//
+//    for( int vel_dir=0; vel_dir<dim(); ++vel_dir )
+//      for( int dir=0; dir<dim(); ++dir )
+//        exchangedState_[vel_dir][dir] = a.exchangedState_[vel_dir][dir];
   }
 
 
@@ -441,12 +438,10 @@ public:
   void random(bool useSeed = false, int seed = 1) {
     for( int i=0; i<dim(); ++i )
       SF_random(
-          nLoc(0), nLoc(1), nLoc(2),
-          sInd(0,i), sInd(1,i), sInd(2,i),
-          eInd(0,i), eInd(1,i), eInd(2,i),
-          bl(0),   bl(1),   bl(2),
-          bu(0),   bu(1),   bu(2),
-          vec_[i] );
+          nLoc(),
+          bl(), bu(),
+          sInd(i), eInd(i),
+          vec_[i]);
     changed();
   }
 
@@ -454,15 +449,10 @@ public:
   void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero() ) {
     for( int i=0; i<dim(); ++i )
       SF_init(
-          nLoc(0), nLoc(1), nLoc(2),
-          sInd(0,i), sInd(1,i), sInd(2,i),
-          eInd(0,i), eInd(1,i), eInd(2,i),
-          bl(0),   bl(1),   bl(2),
-          bu(0),   bu(1),   bu(2),
+          nLoc(),
+          bl(), bu(),
+          sInd(i), eInd(i),
           vec_[i], alpha);
-    //		for( int vel_dir=0; vel_dir<dim(); ++vel_dir )
-    //		  for( int dir=0; dir<dim(); ++dir )
-    //		    exchangedState_[vel_dir][dir] = true;
     changed();
   }
 
@@ -471,11 +461,9 @@ public:
   void init( const Teuchos::Tuple<Scalar,3>& alpha ) {
     for( int i=0; i<dim(); ++i )
       SF_init(
-          nLoc(0), nLoc(1), nLoc(2),
-          sInd(0,i), sInd(1,i), sInd(2,i),
-          eInd(0,i), eInd(1,i), eInd(2,i),
-          bl(0),   bl(1),   bl(2),
-          bu(0),   bu(1),   bu(2),
+          nLoc(),
+          bl(), bu(),
+          sInd(i), eInd(i),
           vec_[i], alpha[i]);
     changed();
   }
@@ -765,11 +753,9 @@ public:
     for( int i=0; i<dim(); ++i ) {
       std::cout << "field: " << i << "\n";
       SF_print(
-          nLoc(0), nLoc(1), nLoc(2),
-          sInd(0,i), sInd(1,i), sInd(2,i),
-          eInd(0,i), eInd(1,i), eInd(2,i),
-          bl(0),   bl(1),   bl(2),
-          bu(0),   bu(1),   bu(2),
+          nLoc(),
+          bl(), bu(),
+          sInd(i), eInd(i),
           vec_[i] );
     }
   }

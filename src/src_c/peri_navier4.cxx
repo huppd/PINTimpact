@@ -42,7 +42,6 @@
 
 
 
-
 auto CompTime = Teuchos::TimeMonitor::getNewCounter("Pimpact:: Solving Time");
 
 
@@ -191,24 +190,50 @@ int main(int argi, char** argv ) {
   // end of parsing
 
   // starting with ininializing
-  int rank = Pimpact::init_impact_pre();
+//  int rank = Pimpact::init_impact_pre();
+
+
+  // starting with ininializing
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "Re", re );
+  pl->set( "alpha2", alpha2 );
+  pl->set( "domain", domain );
+
+  pl->set( "lx", l1 );
+  pl->set( "ly", l2 );
+  pl->set( "lz", l3 );
+
+  pl->set( "dim", dim );
+
+  pl->set("nx", n1 );
+  pl->set("ny", n2 );
+  pl->set("nz", n3 );
+
+  pl->set("nf", nt );
+
+  // processor grid size
+  pl->set("npx", np1 );
+  pl->set("npy", np2 );
+  pl->set("npz", np3 );
+  pl->set("npf", np4 );
+
+  auto space = Pimpact::createSpace<S,O,4>( pl );
+  space->print();
+  int rank = space->getProcGrid()->rankST_;
 
   // outputs
   Teuchos::RCP<std::ostream> outPar;
   Teuchos::RCP<std::ostream> outLinSolve;
   Teuchos::RCP<std::ostream> outPrec;
   Teuchos::RCP<std::ostream> outSchur;
-  //  Teuchos::RCP<std::ostream> outLap2;
-  //  Teuchos::RCP<std::ostream> outSchur;
 
   if(rank==0) {
     outPar   = Teuchos::rcp( new std::ofstream("para_case.txt") );
     outLinSolve  = Teuchos::rcp( new std::ofstream("stats_linSolve.txt") );
     outPrec  = Teuchos::rcp( new std::ofstream("stats_solvPrec.txt") );
     outSchur  = Teuchos::rcp( new std::ofstream("stats_solvSchur.txt") );
-    //    outSchur = Teuchos::rcp( new std::ofstream("stats_solvSchur.txt") );
   } else
-    //    outPar = Teuchos::rcp( &blackhole, false) ;
     outPar = Teuchos::rcp( new Teuchos::oblackholestream() ) ;
 
 
@@ -219,45 +244,13 @@ int main(int argi, char** argv ) {
   *outPar << " \tdomain=" << domain << "\n";
 
   // init space
-  auto ds = Pimpact::createDomainSize<S>( re, alpha2, l1, l2, l3 );
-  ds->print( *outPar );
 
-  auto bc = Pimpact::createBoudaryConditionsGlobal( Pimpact::EDomainType(domain) );
-  bc->print( *outPar );
-
-  auto gs = Pimpact::createGridSizeGlobal<O,4>( n1, n2, n3, nt );
-  gs->print( *outPar );
-
-  auto pgs = Pimpact::createProcGridSize<O,4>( np1, np2, np3, np4 );
-  pgs->print( *outPar );
-
-  auto lgs = Pimpact::createGridSizeLocal<O,4>( gs, pgs );
-  //  lgs->print();
 
   if(rank==0) {
     Teuchos::rcp_static_cast<std::ofstream>(outPar)->close();
   }
   outPar = Teuchos::null;
 
-  // init IMPACT
-  Pimpact::init_impact_mid();
-
-  auto pg = Pimpact::createProcGrid<O>( lgs, bc, pgs );
-  //  pg->print();
-
-  auto bcl = Pimpact::createBoudaryConditionsLocal( bc, pgs, pg );
-  bcl->set_Impact();
-
-  Pimpact::init_impact_postpost();
-
-  auto fS = Pimpact::createFieldSpace<O,4>();
-
-  auto iS = Pimpact::createScalarIndexSpace<O>();
-  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
-
-  auto space = Pimpact::createSpace<S,O,4>(fS,iS,iIS,fIS,gs,lgs,pgs,pg);
-//  space->print();
 
 
   // init vectors
@@ -301,8 +294,8 @@ int main(int argi, char** argv ) {
 
 
   auto para = Pimpact::createLinSolverParameter( linSolName, tolBelos, 10 );
-  //    auto para = Pimpact::createLinSolverParameter( linSolName, tol, -1 );
-//  para->set( "Maximum Iterations", 30000 );
+  //  auto para = Pimpact::createLinSolverParameter( linSolName, tol, -1 );
+  //  para->set( "Maximum Iterations", 30000 );
   para->set( "Output Stream", outLinSolve );
 
 

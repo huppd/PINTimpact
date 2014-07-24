@@ -329,7 +329,7 @@ contains
   
   
     !> \brief intializes comunicator, COMM_CART, slice
-    !! \todo should be extended for 4 dimension for the time dimens or subcommunicatos have to be used
+    !! \deprecated
     subroutine init_parallel() bind(c,name='finit_parallel')
   
         implicit none
@@ -438,6 +438,7 @@ contains
   
   
   
+    !> \deprecated
     subroutine init_boundaries() bind(c,name='finit_boundaries')
   
         implicit none

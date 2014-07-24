@@ -14,15 +14,18 @@
 #include "Pimpact_FieldSpace.hpp"
 #include "Pimpact_IndexSpace.hpp"
 
+#include "Pimpact_AbstractField.hpp"
+
 
 
 namespace Pimpact {
+
 
 /// \brief important basic Vector class
 /// vector for wrapping 2 fields into one mode
 /// \ingroup Field
 template<class Field>
-class ModeField {
+class ModeField : AbstractField< typename Field::Scalar, typename Field::Ordinal> {
 
 public:
   typedef typename Field::Scalar Scalar;
@@ -149,13 +152,13 @@ public:
 
   /// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
   Scalar dot ( const MV& a, bool global=true ) const {
+
     Scalar b=0.;
+
     b = fieldc_->dot( *a.fieldc_, false ) + fields_->dot( *a.fields_, false );
-    if( global ) {
-      Scalar b_global=0.;
-      MPI_Allreduce( &b, &b_global, 1, MPI_REAL8, MPI_SUM, comm() );
-      b = b_global;
-    }
+
+    if( global ) reduceNorm( comm(), b );
+
     return( b );
   }
 
@@ -169,29 +172,25 @@ public:
   /// Upon return, \c normvec[i] holds the value of \f$||this_i||_2\f$, the \c i-th column of \c this.
   /// \todo implement OneNorm
   /// \todo implement in fortran
-  Scalar norm(  Belos::NormType type = Belos::TwoNorm, bool global=true ) const {
-    Scalar normvec=0;
+  Scalar norm(  Belos::NormType type=Belos::TwoNorm, bool global=true ) const {
+
+    Scalar normvec = 0;
+
     switch(type) {
-    case Belos::TwoNorm:
-      normvec = std::pow(fieldc_->norm(type,false),2) + std::pow(fields_->norm(type,false),2);
-      if( global ) {
-        Scalar normvec_global;
-        MPI_Allreduce( &normvec, &normvec_global, 1, MPI_REAL8, MPI_SUM, comm() );
-        normvec = normvec_global;
-      }
-      return( std::sqrt(normvec) );
-    case Belos::InfNorm:
-      normvec = std::max(fieldc_->norm(type,false), fields_->norm(type,false) ) ;
-      if( global ) {
-        Scalar normvec_global;
-        MPI_Allreduce( &normvec, &normvec_global, 1, MPI_REAL8, MPI_MAX, comm() );
-        normvec = normvec_global;
-      }
-      return( normvec );
     case Belos::OneNorm:
-      std::cout << "!!! Warning Belos::OneNorm not implemented \n"; return(0.);
-    default: std::cout << "!!! Warning unknown Belos::NormType:\t" << type << "\n"; return(0.);
+      normvec = fieldc_->norm(type,false) + fields_->norm(type,false);
+      break;
+    case Belos::TwoNorm:
+      normvec = fieldc_->norm(type,false) + fields_->norm(type,false);
+      break;
+    case Belos::InfNorm:
+      normvec = std::max( fieldc_->norm(type,false), fields_->norm(type,false) ) ;
+      break;
     }
+
+    if( global ) reduceNorm( comm(), normvec, type );
+
+    return( normvec );
   }
 
 
@@ -200,8 +199,14 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  double norm(const MV& weights) const {
-    return( fieldc_->norm( *weights.fieldc_)+fields_->norm( *weights.fields_ ) );
+  double norm(const MV& weights, bool global=true) const {
+
+    double normvec=fieldc_->norm(*weights.fieldc_,false)+fields_->norm(*weights.fields_,false);
+
+    if( global ) reduceNorm( comm(), normvec, Belos::TwoNorm );
+
+    return( normvec );
+
   }
 
 

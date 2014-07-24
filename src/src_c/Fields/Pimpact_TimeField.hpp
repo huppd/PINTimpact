@@ -16,6 +16,8 @@
 #include "Pimpact_Space.hpp"
 #include "Pimpact_Types.hpp"
 
+#include "Pimpact_AbstractField.hpp"
+
 
 
 namespace Pimpact {
@@ -32,7 +34,7 @@ namespace Pimpact {
 /// \todo decide if it is better to modifie ghostlayer or exchange eventuell more
 /// \ingroup Field
 template<class Field>
-class TimeField {
+class TimeField : private AbstractField<typename Field::Scalar,typename Field::Ordinal> {
 
   template<class Op,bool CNY>
   friend class TimeOpWrap;
@@ -254,11 +256,7 @@ public:
     for( Iter i=beginI_; i<endI_; ++i )
       b+= (*i)->dot( **(j++), false );
 
-    if( global ) {
-      Scalar b_global=0.;
-      MPI_Allreduce( &b, &b_global, 1, MPI_REAL8, MPI_SUM, comm() );
-      b = b_global;
-    }
+    if( global ) reduceNorm( comm(), b );
 
     return( b );
   }
@@ -274,32 +272,22 @@ public:
 
     for( Iter i=beginI_; i<endI_; ++i ) {
       switch(type) {
-      case Belos::TwoNorm: normvec += std::pow((*i)->norm(type,false),2); break;
-      case Belos::InfNorm: normvec = std::max( normvec, (*i)->norm(type,false) ); break;
-      case Belos::OneNorm: std::cout << "!!! Warning Belos::OneNorm not implemented \n"; return(0.);
-      default: std::cout << "!!! Warning unknown Belos::NormType:\t" << type << "\n"; return(0.);
+      case Belos::OneNorm:
+        normvec += (*i)->norm(type,false);
+        break;
+      case Belos::TwoNorm:
+        normvec += (*i)->norm(type,false);
+        break;
+      case Belos::InfNorm:
+        normvec = std::max( (*i)->norm(type,false), normvec ) ;
+        break;
       }
     }
-    //    std::cout << "rank: "<< space_->rankST() << " normLocal: " << normvec << "\n";
-    switch(type) {
-    case Belos::TwoNorm:
-      if( global ) {
-        Scalar normvec_global;
-        MPI_Allreduce( &normvec, &normvec_global, 1, MPI_REAL8, MPI_SUM, comm() );
-        normvec = normvec_global;
-      }
-      return( std::sqrt(normvec) );
-    case Belos::InfNorm:
-      if( global ) {
-        Scalar normvec_global;
-        MPI_Allreduce( &normvec, &normvec_global, 1, MPI_REAL8, MPI_MAX, comm() );
-        normvec = normvec_global;
-      }
-      return( normvec );
-    case Belos::OneNorm:
-      std::cout << "!!! Warning Belos::OneNorm not implemented \n"; return(0.);
-    default: std::cout << "!!! Warning unknown Belos::NormType:\t" << type << "\n"; return(0.);
-    }
+
+    if( global ) reduceNorm( comm(), normvec, type );
+
+    return( normvec );
+
   }
 
 
@@ -308,11 +296,17 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  double norm(const MV& weights) const {
+  double norm( const MV& weights, bool global=true ) const {
+
     double nor=0.;
+
     Iter j = const_cast<MV&>(weights).beginI_;
+
     for( Iter i=beginI_; i<endI_; ++i )
       nor+= (*i)->norm( **(j++) );
+
+    if( global ) reduceNorm( comm(), nor, Belos::TwoNorm );
+
     return( nor );
   }
 

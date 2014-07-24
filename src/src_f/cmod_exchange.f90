@@ -310,7 +310,14 @@ contains
     !!        - merror
     !pgi$r nodepchk
     !pgi$r ivdep
-    subroutine exchange2( COMM, dir,vel_dir,SS1,SS2,SS3,NN1,NN2,NN3,phi) bind (c,name='F_exchange')
+    subroutine exchange2(   &
+        COMM,               &
+        dir,                &
+        vel_dir,            &
+        SS1,SS2,SS3,        &
+        NN1,NN2,NN3,        &
+        phi )               &
+        bind ( c, name='F_exchange' )
   
         implicit none
 

@@ -1,5 +1,6 @@
 !>  Modul: cmod_FieldSpace
 !!
+!! transition module will become unnecessary in future
 !! helps \c Pimpact::FieldSpace to extract varibales from impact
 module cmod_FieldSpace
 
@@ -7,10 +8,8 @@ module cmod_FieldSpace
     use iso_c_binding
     use mpi
 
-
     use mod_dims
     use mod_vars
-
 
     implicit none
 
