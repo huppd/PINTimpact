@@ -15,25 +15,25 @@ module cmod_FieldSpace
 
 contains
 
-    subroutine get_comm( comm_ ) bind(c,name='SVS_get_comm')
+    subroutine SVS_get_comm( comm_ ) bind(c,name='SVS_get_comm')
         implicit none
         INTEGER(c_int), intent(out)  ::  comm_
 
         comm_ = COMM_CART
 
-    END subroutine get_comm
+    END subroutine SVS_get_comm
 
 
-    subroutine get_dim( dim_ ) bind(c,name='FS_get_dim')
+    subroutine FS_get_dim( dim_ ) bind(c,name='FS_get_dim')
         implicit none
         INTEGER(c_int), intent(out)  ::  dim_
 
         dim_ = dimens
 
-    END subroutine get_dim
+    END subroutine FS_get_dim
 
 
-    subroutine get_nGlo( nGlo1_, nGlo2_, nGlo3_ ) bind(c,name='SVS_get_nGlo')
+    subroutine SVS_get_nGlo( nGlo1_, nGlo2_, nGlo3_ ) bind(c,name='SVS_get_nGlo')
         implicit none
         INTEGER(c_int), intent(out)  :: nGlo1_,nGlo2_,nGlo3_
 
@@ -41,10 +41,10 @@ contains
         nGlo2_ = M2
         nGlo3_ = M3
 
-    end subroutine get_nGlo
+    end subroutine SVS_get_nGlo
 
 
-    subroutine get_nLoc( nLoc1_, nLoc2_, nLoc3_ ) bind(c,name='SVS_get_nLoc')
+    subroutine SVS_get_nLoc( nLoc1_, nLoc2_, nLoc3_ ) bind(c,name='SVS_get_nLoc')
         implicit none
         INTEGER(c_int), intent(out)  :: nLoc1_,nLoc2_,nLoc3_
 
@@ -52,7 +52,7 @@ contains
         nLoc2_ = N2
         nLoc3_ = N3
 
-    end subroutine get_nLoc
+    end subroutine SVS_get_nLoc
 
 
     subroutine SVS_get_sInd( sInd1_, sInd2_, sInd3_ ) bind(c,name='SVS_get_sInd')
@@ -100,7 +100,7 @@ contains
     end subroutine SVS_set_eInd
 
 
-    subroutine get_sIndU( sInd1_, sInd2_, sInd3_ ) bind(c,name='VS_get_sIndU')
+    subroutine VS_get_sIndU( sInd1_, sInd2_, sInd3_ ) bind(c,name='VS_get_sIndU')
         implicit none
         INTEGER(c_int), intent(out)  :: sInd1_, sInd2_, sInd3_
 
@@ -108,10 +108,10 @@ contains
         sInd2_ = S21
         sInd3_ = S31
 
-    end subroutine get_sIndU
+    end subroutine VS_get_sIndU
 
 
-    subroutine get_eIndU( eInd1_, eInd2_, eInd3_ ) bind(c,name='VS_get_eIndU')
+    subroutine VS_get_eIndU( eInd1_, eInd2_, eInd3_ ) bind(c,name='VS_get_eIndU')
         implicit none
         INTEGER(c_int), intent(out)  :: eInd1_, eInd2_, eInd3_
 
@@ -119,7 +119,48 @@ contains
         eInd2_ = N21
         eInd3_ = N31
 
-    end subroutine get_eIndU
+    end subroutine VS_get_eIndU
+
+
+    subroutine VS_set_sIndU( sInd_ ) bind(c,name='VS_set_sIndU')
+        implicit none
+        INTEGER(c_int), intent(out)  :: sInd_(3)
+
+        S11 = sInd_(1)
+        S21 = sInd_(2)
+        S31 = sInd_(3)
+
+    end subroutine VS_set_sIndU
+
+    subroutine VS_set_eIndU( eInd_ ) bind(c,name='VS_set_eIndU')
+        implicit none
+        INTEGER(c_int), intent(out)  :: eInd_(3)
+
+        N11 = eInd_(1)
+        N21 = eInd_(2)
+        N31 = eInd_(3)
+
+    end subroutine VS_set_eIndU
+
+    subroutine VS_set_sIndUB( sInd_ ) bind(c,name='VS_set_sIndUB')
+        implicit none
+        INTEGER(c_int), intent(out)  :: sInd_(3)
+
+        S11B = sInd_(1)
+        S21B = sInd_(2)
+        S31B = sInd_(3)
+
+    end subroutine VS_set_sIndUB
+
+    subroutine VS_set_eIndUB( eInd_ ) bind(c,name='VS_set_eIndUB')
+        implicit none
+        INTEGER(c_int), intent(out)  :: eInd_(3)
+
+        N11B = eInd_(1)
+        N21B = eInd_(2)
+        N31B = eInd_(3)
+
+    end subroutine VS_set_eIndUB
 
 
     subroutine get_sIndV( sInd1_, sInd2_, sInd3_ ) bind(c,name='VS_get_sIndV')
@@ -132,8 +173,47 @@ contains
 
     end subroutine get_sIndV
 
+    subroutine VS_set_sIndV( sInd_ ) bind(c,name='VS_set_sIndV')
+        implicit none
+        INTEGER(c_int), intent(out)  :: sInd_(3)
 
-    subroutine get_eIndV( eInd1_, eInd2_, eInd3_ ) bind(c,name='VS_get_eIndV')
+        S12 = sInd_(1)
+        S22 = sInd_(2)
+        S32 = sInd_(3)
+
+    end subroutine VS_set_sIndV
+    subroutine VS_set_eIndV( eInd_ ) bind(c,name='VS_set_eIndV')
+        implicit none
+        INTEGER(c_int), intent(out)  :: eInd_(3)
+
+        N12 = eInd_(1)
+        N22 = eInd_(2)
+        N32 = eInd_(3)
+
+    end subroutine VS_set_eIndV
+
+
+    subroutine VS_set_sIndVB( sInd_ ) bind(c,name='VS_set_sIndVB')
+        implicit none
+        INTEGER(c_int), intent(out)  :: sInd_(3)
+
+        S12B = sInd_(1)
+        S22B = sInd_(2)
+        S32B = sInd_(3)
+
+    end subroutine VS_set_sIndVB
+    subroutine VS_set_eIndVB( eInd_ ) bind(c,name='VS_set_eIndVB')
+        implicit none
+        INTEGER(c_int), intent(out)  :: eInd_(3)
+
+        N12B = eInd_(1)
+        N22B = eInd_(2)
+        N32B = eInd_(3)
+
+    end subroutine VS_set_eIndVB
+
+
+    subroutine VS_get_eIndV( eInd1_, eInd2_, eInd3_ ) bind(c,name='VS_get_eIndV')
         implicit none
         INTEGER(c_int), intent(out)  :: eInd1_, eInd2_, eInd3_
 
@@ -141,10 +221,10 @@ contains
         eInd2_ = N22
         eInd3_ = N32
 
-    end subroutine get_eIndV
+    end subroutine VS_get_eIndV
 
 
-    subroutine get_sIndW( sInd1_, sInd2_, sInd3_ ) bind(c,name='VS_get_sIndW')
+    subroutine VS_get_sIndW( sInd1_, sInd2_, sInd3_ ) bind(c,name='VS_get_sIndW')
         implicit none
         INTEGER(c_int), intent(out)  :: sInd1_, sInd2_, sInd3_
 
@@ -152,10 +232,10 @@ contains
         sInd2_ = S23
         sInd3_ = S33
 
-    end subroutine get_sIndW
+    end subroutine VS_get_sIndW
 
 
-    subroutine get_eIndW( eInd1_, eInd2_, eInd3_ ) bind(c,name='VS_get_eIndW')
+    subroutine VS_get_eIndW( eInd1_, eInd2_, eInd3_ ) bind(c,name='VS_get_eIndW')
         implicit none
         INTEGER(c_int), intent(out)  :: eInd1_, eInd2_, eInd3_
 
@@ -163,7 +243,46 @@ contains
         eInd2_ = N23
         eInd3_ = N33
 
-    end subroutine get_eIndW
+    end subroutine VS_get_eIndW
+
+    subroutine VS_set_sIndW( sInd_ ) bind(c,name='VS_set_sIndW')
+        implicit none
+        INTEGER(c_int), intent(out)  :: sInd_(3)
+
+        S13 = sInd_(1)
+        S23 = sInd_(2)
+        S33 = sInd_(3)
+
+    end subroutine VS_set_sIndW
+    subroutine VS_set_eIndW( eInd_ ) bind(c,name='VS_set_eIndW')
+        implicit none
+        INTEGER(c_int), intent(out)  :: eInd_(3)
+
+        N13 = eInd_(1)
+        N23 = eInd_(2)
+        N33 = eInd_(3)
+
+    end subroutine VS_set_eIndW
+
+    subroutine VS_set_sIndWB( sInd_ ) bind(c,name='VS_set_sIndWB')
+        implicit none
+        INTEGER(c_int), intent(out)  :: sInd_(3)
+
+        S13B = sInd_(1)
+        S23B = sInd_(2)
+        S33B = sInd_(3)
+
+    end subroutine VS_set_sIndWB
+
+    subroutine VS_set_eIndWB( eInd_ ) bind(c,name='VS_set_eIndWB')
+        implicit none
+        INTEGER(c_int), intent(out)  :: eInd_(3)
+
+        N13B = eInd_(1)
+        N23B = eInd_(2)
+        N33B = eInd_(3)
+
+    end subroutine VS_set_eIndWB
 
 
     subroutine get_sIndUB( sInd1_, sInd2_, sInd3_ ) bind(c,name='VS_get_sIndUB')

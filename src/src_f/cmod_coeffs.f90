@@ -5,8 +5,9 @@
 !*************************************************************************************************************
 
 !> \brief module providing functions to initiliaze stencil arrays
-module mod_coeffs
+module cmod_coeffs
   
+  use iso_c_binding
   
   use mod_dims
   use mod_vars
@@ -36,7 +37,7 @@ module mod_coeffs
   
   
   
-  subroutine FD_coeffs_compact()
+  subroutine FD_coeffs_compact() bind(c,name='ffd_coeffs_compat')
   
   implicit none
   
@@ -1259,8 +1260,8 @@ module mod_coeffs
   
   
   
-  subroutine test_coeffs_compact()
-
+  subroutine test_coeffs_compact() bind(c,name='ftest_coeffs_compact')
+  
   implicit none
   
   integer                ::  h, i, j, k
@@ -1771,7 +1772,7 @@ module mod_coeffs
   
   
   !> \brief initializes all FD coeff array with the help of diff_coeffs
-  subroutine FD_coeffs()
+  subroutine FD_coeffs() bind(c,name='ffd_coeffs')
   
   implicit none
   
@@ -1889,7 +1890,7 @@ module mod_coeffs
   
   
   
-  subroutine test_coeffs()
+  subroutine test_coeffs() bind(c,name='ftest_coeffs')
   
   implicit none
   
@@ -2829,7 +2830,7 @@ module mod_coeffs
   
   
   
-  subroutine get_stencil()
+  subroutine get_stencil() bind(c,name='fget_stencil')
   
   implicit none
   
@@ -3158,7 +3159,7 @@ module mod_coeffs
   
   
   
-  subroutine get_stencil_Helm()
+  subroutine get_stencil_Helm() bind(c,name='fget_stencil_Helm')
   
   implicit none
   
@@ -3512,7 +3513,7 @@ module mod_coeffs
   
   
   
-  subroutine interp_coeffs()
+  subroutine interp_coeffs() bind(c,name='finterp_coeffs')
   
   implicit none
   
@@ -3587,7 +3588,7 @@ module mod_coeffs
   
   
   
-  subroutine interp_coeffs_Helm()
+  subroutine interp_coeffs_Helm() bind(c,name='finterp_coeffs_Helm')
   
   implicit none
   
@@ -3704,7 +3705,7 @@ module mod_coeffs
   
   
   
-  subroutine restr_coeffs()
+  subroutine restr_coeffs() bind(c,name='frestr_coeffs') ! TEST!!! aufraeumen und Variablen substituieren ...
   
   implicit none
   
@@ -3937,7 +3938,7 @@ module mod_coeffs
   
   
   
-  subroutine restr_coeffs_Helm()
+  subroutine restr_coeffs_Helm() bind(c,name='frestr_coeffs_Helm')
   
   implicit none
   
@@ -4042,7 +4043,7 @@ module mod_coeffs
   
   
   
-  subroutine get_weights() ! TEST!!! bezieht sich bislang nur auf explizite Differenzen ... ODER: rauswerfen!
+  subroutine get_weights() bind(c,name='fget_weights') ! TEST!!! bezieht sich bislang nur auf explizite Differenzen ... ODER: rauswerfen!
   
   ! revised: 24.10.07
   
@@ -4397,4 +4398,4 @@ module mod_coeffs
   
   
   
-end module mod_coeffs
+end module cmod_coeffs

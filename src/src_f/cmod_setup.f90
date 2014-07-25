@@ -28,7 +28,7 @@ contains
   
   
   
-    subroutine init_general() bind(c,name='finit_generallight')
+    subroutine finit_generallight() bind(c,name='finit_generallight')
   
         implicit none
   
@@ -318,9 +318,7 @@ contains
     !IF (rank == 0) CALL SYSTEM('echo "IMPACT is run by $USER on $HOST which is a $HOSTTYPE" | mail -s "IMPACT usage notification" henniger@ifd.mavt.ethz.ch')
   
   
-    end subroutine init_general
-  
-  
+    end subroutine finit_generallight
   
   
   
@@ -589,7 +587,7 @@ contains
   
   
   
-    subroutine init_limits() bind(c,name='finit_limits')
+    subroutine finit_limits() bind(c,name='finit_limits')
   
         implicit none
   
@@ -681,13 +679,13 @@ contains
   
   
         ! Druck / Konzentrationen (MIT Rand):
-!        S1p  = 2 + ls1
-!        S2p  = 2 + ls2
-!        S3p  = 2 + ls3
-!
-!        N1p  = N1 + ls1
-!        N2p  = N2 + ls2
-!        N3p  = N3 + ls3
+        S1p  = 2 + ls1
+        S2p  = 2 + ls2
+        S3p  = 2 + ls3
+
+        N1p  = N1 + ls1
+        N2p  = N2 + ls2
+        N3p  = N3 + ls3
   
   
         ! Geschwindigkeiten (Feld MIT Rand)
@@ -754,7 +752,7 @@ contains
   
         !===========================================================================================================
         if (BC_1L > 0) then
-!            S1p  = 1
+            S1p  = 1
             S1R  = 1
             S11R = 2
      
@@ -767,7 +765,7 @@ contains
             S13  = 2
         end if
         if (BC_1L == -2) then
-!            S1p  = 1
+            S1p  = 1
             S1R  = 1
             S11R = 1
      
@@ -785,7 +783,7 @@ contains
         end do
         !-----------------------------------------------------------------------------------------------------------
         if (BC_1U > 0) then
-!            N1p  = N1
+            N1p  = N1
             d1R  =  0
             d11R = -1
      
@@ -798,7 +796,7 @@ contains
             N13  = N1-1
         end if
         if (BC_1U == -2) then
-!            N1p  = N1
+            N1p  = N1
             d1R  =  0
             d11R =  0
      
@@ -816,7 +814,7 @@ contains
         end do
         !===========================================================================================================
         if (BC_2L > 0) then
-!            S2p  = 1
+            S2p  = 1
             S2R  = 1
             S22R = 2
      
@@ -829,7 +827,7 @@ contains
             S23  = 2
         end if
         if (BC_2L == -2) then
-!            S2p  = 1
+            S2p  = 1
             S2R  = 1
             S22R = 1
      
@@ -847,7 +845,7 @@ contains
         end do
         !-----------------------------------------------------------------------------------------------------------
         if (BC_2U > 0) then
-!            N2p  = N2
+            N2p  = N2
             d2R  =  0
             d22R = -1
      
@@ -860,7 +858,7 @@ contains
             N23  = N2-1
         end if
         if (BC_2U == -2) then
-!            N2p  = N2
+            N2p  = N2
             d2R  =  0
             d22R =  0
      
@@ -878,7 +876,7 @@ contains
         end do
         !===========================================================================================================
         if (BC_3L > 0) then
-!            S3p  = 1
+            S3p  = 1
             S3R  = 1
             S33R = 2
      
@@ -891,7 +889,7 @@ contains
             S33  = 1
         end if
         if (BC_3L == -2) then
-!            S3p  = 1
+            S3p  = 1
             S3R  = 1
             S33R = 1
      
@@ -909,7 +907,7 @@ contains
         end do
         !-----------------------------------------------------------------------------------------------------------
         if (BC_3U > 0) then
-!            N3p  = N3
+            N3p  = N3
             d3R  =  0
             d33R = -1
      
@@ -922,7 +920,7 @@ contains
             N33  = N3-1
         end if
         if (BC_3U == -2) then
-!            N3p  = N3
+            N3p  = N3
             d3R  =  0
             d33R =  0
      
@@ -1270,8 +1268,690 @@ contains
         bar3_offset = bar3_out
   
   
-    end subroutine init_limits
+    end subroutine finit_limits
+
+
+
+    subroutine finit_limits_light() bind(c,name='finit_limits_light')
+
+        implicit none
+
+        integer                ::  bar1_out(1:NB1)
+        integer                ::  bar2_out(1:NB2)
+        integer                ::  bar3_out(1:NB3)
+
+        integer                ::  g, m
+
+        integer                ::  rank_bar1
+        integer                ::  rank_bar2
+        integer                ::  rank_bar3
+
+        !*************************************************************************
+        integer                ::  base_group, new_group, comm_temp
+        integer                ::  stride(1:3), counter
+        integer                ::  rank_comm1(1:n_grids_max), rank_comm2(1:n_grids_max)
+        integer, allocatable   ::  new_ranks(:,:,:)
+        integer                ::  i, ii, iii, iimax, iiShift
+        integer                ::  j, jj, jjj, jjmax, jjShift
+        integer                ::  k, kk, kkk, kkmax, kkShift
+        integer                ::  offs_global(1:3,NB1*NB2*NB3)
+        integer                ::  sizs_global(1:3,NB1*NB2*NB3)
+        integer                ::  count_comm
+        !*************************************************************************
+
+        integer                ::  periodic(1:3)
+        logical                ::  member_yes
+
+        if (BC_1L_global == -1) then
+            periodic(1) = 1
+        else
+            periodic(1) = 0
+        end if
+
+        if (BC_2L_global == -1) then
+            periodic(2) = 1
+        else
+            periodic(2) = 0
+        end if
+
+        if (BC_3L_global == -1) then
+            periodic(3) = 1
+        else
+            periodic(3) = 0
+        end if
+
+        !-----------------------------------------------------------------------------------------------------------------------!
+        ! Anmerkungen: - S1p = S1R, N1p = N1R (in Relaxationsroutinen)                                                          !
+        !              - Default sind periodische / Nachbarblock-RB                                                             !
+        !-----------------------------------------------------------------------------------------------------------------------!
+
+        !-----------------------------------------------------------------------------------------------------------------------!
+        ! ls =  0: erster  Block ab Wand hat 2 Schichten wand-normale Geschwindigkeiten mehr als die folgenden Blöcke           !
+        !                         -||-       1 Schicht   wand-parallele Geschw. / Druck mehr als die folgenden Blöcke           !
+        !                                                                                                                       !
+        ! ls = -1: erster / letzter Block ab Wand haben 1 Schicht wand-normale Geschwindigkeiten mehr als die Blöcke dazwischen !
+        !                   letzter Block ab Wand hat   1 Schicht wand-parallele Geschw. / Druck mehr als die Blöcke davor      !
+        !-----------------------------------------------------------------------------------------------------------------------!
+
+
+        if (ls1 ==  0) ex1 =  1
+        if (ls1 == -1) ex1 = -1
+
+        if (ls2 ==  0) ex2 =  1
+        if (ls2 == -1) ex2 = -1
+
+        if (ls3 ==  0) ex3 =  1
+        if (ls3 == -1) ex3 = -1
+
+
+        S1R  = 2 + ls1
+        S2R  = 2 + ls2
+        S3R  = 2 + ls3
+
+        S11R = 2 + ls1
+        S22R = 2 + ls2
+        S33R = 2 + ls3
+
+        d1R  = ls1
+        d2R  = ls2
+        d3R  = ls3
+
+        d11R = ls1
+        d22R = ls2
+        d33R = ls3
+
+
+!        ! Druck / Konzentrationen (MIT Rand):
+!        S1p  = 2 + ls1
+!        S2p  = 2 + ls2
+!        S3p  = 2 + ls3
+!
+!        N1p  = N1 + ls1
+!        N2p  = N2 + ls2
+!        N3p  = N3 + ls3
+
+
+        ! Geschwindigkeiten (Feld MIT Rand)
+!        S11B = 2 + ls1
+!        S21B = 2 + ls2
+!        S31B = 2 + ls3
+!
+!        S12B = 2 + ls1
+!        S22B = 2 + ls2
+!        S32B = 2 + ls3
+!
+!        S13B = 2 + ls1
+!        S23B = 2 + ls2
+!        S33B = 2 + ls3
+!
+!        N11B = N1 + ls1
+!        N21B = N2 + ls2
+!        N31B = N3 + ls3
+!
+!        N12B = N1 + ls1
+!        N22B = N2 + ls2
+!        N32B = N3 + ls3
+!
+!        N13B = N1 + ls1
+!        N23B = N2 + ls2
+!        N33B = N3 + ls3
+
+        ! Geschwindigkeiten (Feld OHNE Rand)
+!        S11 = 2 + ls1
+!        S21 = 2 + ls2
+!        S31 = 2 + ls3
+!
+!        S12 = 2 + ls1
+!        S22 = 2 + ls2
+!        S32 = 2 + ls3
+!
+!        S13 = 2 + ls1
+!        S23 = 2 + ls2
+!        S33 = 2 + ls3
+!
+!        N11 = N1 + ls1
+!        N21 = N2 + ls2
+!        N31 = N3 + ls3
+!
+!        N12 = N1 + ls1
+!        N22 = N2 + ls2
+!        N32 = N3 + ls3
+!
+!        N13 = N1 + ls1
+!        N23 = N2 + ls2
+!        N33 = N3 + ls3
+
+
+        ! Konzentrationen (Feld OHNE Rand):
+        do m = 1, n_conc
+            S1c(m)  = 2 + ls1
+            S2c(m)  = 2 + ls2
+            S3c(m)  = 2 + ls3
+
+            N1c(m)  = N1 + ls1
+            N2c(m)  = N2 + ls2
+            N3c(m)  = N3 + ls3
+        end do
+
+        !===========================================================================================================
+        if (BC_1L > 0) then
+!            S1p  = 1
+            S1R  = 1
+            S11R = 2
+
+!            S11B = 0
+!            S12B = 1
+!            S13B = 1
+
+!            S11  = 1
+!            S12  = 2
+!            S13  = 2
+        end if
+        if (BC_1L == -2) then
+!            S1p  = 1
+            S1R  = 1
+            S11R = 1
+
+!            S11B = 1
+!            S12B = 1
+!            S13B = 1
+
+!            S11  = 1
+!            S12  = 1
+!            S13  = 1
+        end if
+        do m = 1, n_conc
+            if (BCc_1L(m) > 0) S1c(m) = 2
+            if (BCc_1L(m)  == -2) S1c(m) = 1
+        end do
+        !-----------------------------------------------------------------------------------------------------------
+        if (BC_1U > 0) then
+!            N1p  = N1
+            d1R  =  0
+            d11R = -1
+
+!            N11B = N1
+!            N12B = N1
+!            N13B = N1
+
+!            N11  = N1-1
+!            N12  = N1-1
+!            N13  = N1-1
+        end if
+        if (BC_1U == -2) then
+!            N1p  = N1
+            d1R  =  0
+            d11R =  0
+
+!            N11B = N1-1
+!            N12B = N1
+!            N13B = N1
+
+!            N11  = N1-1
+!            N12  = N1
+!            N13  = N1
+        end if
+        do m = 1, n_conc
+            if (BCc_1U(m) > 0) N1c(m) = N1-1
+            if (BCc_1U(m)  == -2) N1c(m) = N1
+        end do
+        !===========================================================================================================
+        if (BC_2L > 0) then
+!            S2p  = 1
+            S2R  = 1
+            S22R = 2
+
+!            S21B = 1
+!            S22B = 0
+!            S23B = 1
+
+!            S21  = 2
+!            S22  = 1
+!            S23  = 2
+        end if
+        if (BC_2L == -2) then
+!            S2p  = 1
+            S2R  = 1
+            S22R = 1
+
+!            S21B = 1
+!            S22B = 1
+!            S23B = 1
+
+!            S21  = 1
+!            S22  = 1
+!            S23  = 1
+        end if
+        do m = 1, n_conc
+            if (BCc_2L(m) > 0) S2c(m) = 2
+            if (BCc_2L(m)  == -2) S2c(m) = 1
+        end do
+        !-----------------------------------------------------------------------------------------------------------
+        if (BC_2U > 0) then
+!            N2p  = N2
+            d2R  =  0
+            d22R = -1
+
+!            N21B = N2
+!            N22B = N2
+!            N23B = N2
+
+!            N21  = N2-1
+!            N22  = N2-1
+!            N23  = N2-1
+        end if
+        if (BC_2U == -2) then
+!            N2p  = N2
+            d2R  =  0
+            d22R =  0
+
+!            N21B = N2
+!            N22B = N2-1
+!            N23B = N2
+
+!            N21  = N2
+!            N22  = N2-1
+!            N23  = N2
+        end if
+        do m = 1, n_conc
+            if (BCc_2U(m) > 0) N2c(m) = N2-1
+            if (BCc_2U(m)  == -2) N2c(m) = N2
+        end do
+        !===========================================================================================================
+        if (BC_3L > 0) then
+!            S3p  = 1
+            S3R  = 1
+            S33R = 2
+
+!            S31B = 1
+!            S32B = 1
+!            S33B = 0
+
+!            S31  = 2
+!            S32  = 2
+!            S33  = 1
+        end if
+        if (BC_3L == -2) then
+!            S3p  = 1
+            S3R  = 1
+            S33R = 1
+
+!            S31B = 1
+!            S32B = 1
+!            S33B = 1
+
+!            S31  = 1
+!            S32  = 1
+!            S33  = 1
+        end if
+        do m = 1, n_conc
+            if (BCc_3L(m) > 0) S3c(m) = 2
+            if (BCc_3L(m)  == -2) S3c(m) = 1
+        end do
+        !-----------------------------------------------------------------------------------------------------------
+        if (BC_3U > 0) then
+!            N3p  = N3
+            d3R  =  0
+            d33R = -1
+
+!            N31B = N3
+!            N32B = N3
+!            N33B = N3
+
+!            N31  = N3-1
+!            N32  = N3-1
+!            N33  = N3-1
+        end if
+        if (BC_3U == -2) then
+!            N3p  = N3
+            d3R  =  0
+            d33R =  0
+
+!            N31B = N3
+!            N32B = N3
+!            N33B = N3-1
+
+!            N31  = N3
+!            N32  = N3
+!            N33  = N3-1
+        end if
+        do m = 1, n_conc
+            if (BCc_3U(m) > 0) N3c(m) = N3-1
+            if (BCc_3U(m)  == -2) N3c(m) = N3
+        end do
+
+
+
+        !*********************************************************************
+        participate_yes = .false.
+
+        stride     = 1
+        count_comm = 0
+
+        do g = 1, n_grids
+
+            !--------------------------------------------------------------
+            stride(1) = stride(1)*n_gather(1,g)
+            stride(2) = stride(2)*n_gather(2,g)
+            stride(3) = stride(3)*n_gather(3,g)
+            !--------------------------------------------------------------
+
+
+            !--------------------------------------------------------------
+            iB(1,g) = (iB(1,1)-1)*NB(1,g)/NB1 + 1
+            iB(2,g) = (iB(2,1)-1)*NB(2,g)/NB2 + 1
+            iB(3,g) = (iB(3,1)-1)*NB(3,g)/NB3 + 1
+            !--------------------------------------------------------------
+
+
+            !--------------------------------------------------------------
+            ! Analog "init_boundaries"
+            BC(1:2,1,g) = (/BC_1L,BC_1U/)
+            BC(1:2,2,g) = (/BC_2L,BC_2U/)
+            BC(1:2,3,g) = (/BC_3L,BC_3U/)
+
+            if (iB(1,g) == 1       .and. .not. BC_1L_global == -1) BC(1,1,g) = BC_1L_global
+            if (iB(1,g) == NB(1,g) .and. .not. BC_1U_global == -1) BC(2,1,g) = BC_1U_global
+
+            if (iB(2,g) == 1       .and. .not. BC_2L_global == -1) BC(1,2,g) = BC_2L_global
+            if (iB(2,g) == NB(2,g) .and. .not. BC_2U_global == -1) BC(2,2,g) = BC_2U_global
+
+            if (iB(3,g) == 1       .and. .not. BC_3L_global == -1) BC(1,3,g) = BC_3L_global
+            if (iB(3,g) == NB(3,g) .and. .not. BC_3U_global == -1) BC(2,3,g) = BC_3U_global
+
+
+            if (NB(1,g) == 1 .and. BC_1L_global == -1) BC(1:2,1,g) = BC_1L_global
+            if (NB(2,g) == 1 .and. BC_2L_global == -1) BC(1:2,2,g) = BC_2L_global
+            if (NB(3,g) == 1 .and. BC_3L_global == -1) BC(1:2,3,g) = BC_3L_global
+            !--------------------------------------------------------------
+
+
+            !--------------------------------------------------------------
+            SNB(1:2,1,g) = (/2+ls1,NN(1,g)+ls1/)
+            SNB(1:2,2,g) = (/2+ls2,NN(2,g)+ls2/)
+            SNB(1:2,3,g) = (/2+ls3,NN(3,g)+ls3/)
+
+            if (BC(1,1,g) > 0) SNB(1,1,g) = 1
+            if (BC(1,1,g)  == -2) SNB(1,1,g) = 1
+            if (BC(2,1,g) > 0) SNB(2,1,g) = NN(1,g)
+            if (BC(2,1,g)  == -2) SNB(2,1,g) = NN(1,g)
+
+            if (BC(1,2,g) > 0) SNB(1,2,g) = 1
+            if (BC(1,2,g)  == -2) SNB(1,2,g) = 1
+            if (BC(2,2,g) > 0) SNB(2,2,g) = NN(2,g)
+            if (BC(2,2,g)  == -2) SNB(2,2,g) = NN(2,g)
+
+            if (BC(1,3,g) > 0) SNB(1,3,g) = 1
+            if (BC(1,3,g)  == -2) SNB(1,3,g) = 1
+            if (BC(2,3,g) > 0) SNB(2,3,g) = NN(3,g)
+            if (BC(2,3,g)  == -2) SNB(2,3,g) = NN(3,g)
+            !--------------------------------------------------------------
+
+
+            !--------------------------------------------------------------
+            SNF(1:2,1,g) = (/2+ls1,NN(1,g)+ls1/)
+            SNF(1:2,2,g) = (/2+ls2,NN(2,g)+ls2/)
+            SNF(1:2,3,g) = (/2+ls3,NN(3,g)+ls3/)
+
+            if (BC(1,1,g) > 0) SNF(1,1,g) = 2
+            if (BC(1,1,g)  == -2) SNF(1,1,g) = 1
+            if (BC(2,1,g) > 0) SNF(2,1,g) = NN(1,g)-1
+            if (BC(2,1,g)  == -2) SNF(2,1,g) = NN(1,g)
+
+            if (BC(1,2,g) > 0) SNF(1,2,g) = 2
+            if (BC(1,2,g)  == -2) SNF(1,2,g) = 1
+            if (BC(2,2,g) > 0) SNF(2,2,g) = NN(2,g)-1
+            if (BC(2,2,g)  == -2) SNF(2,2,g) = NN(2,g)
+
+            if (BC(1,3,g) > 0) SNF(1,3,g) = 2
+            if (BC(1,3,g)  == -2) SNF(1,3,g) = 1
+            if (BC(2,3,g) > 0) SNF(2,3,g) = NN(3,g)-1
+            if (BC(2,3,g)  == -2) SNF(2,3,g) = NN(3,g)
+            !--------------------------------------------------------------
+
+
+            !--------------------------------------------------------------
+            call MPI_CART_SHIFT(COMM_CART,0,stride(1),ngb(1,1,g),ngb(2,1,g),merror)
+            call MPI_CART_SHIFT(COMM_CART,1,stride(2),ngb(1,2,g),ngb(2,2,g),merror)
+            call MPI_CART_SHIFT(COMM_CART,2,stride(3),ngb(1,3,g),ngb(2,3,g),merror)
+            !--------------------------------------------------------------
+
+
+            !--------------------------------------------------------------
+            !--- coarse grid communicators (comm1) ---
+            ! siehe auch Kommentare in alten Versionen bis 19.01.2010!
+            if (g >= 2 .and. n_gather(1,g)*n_gather(2,g)*n_gather(3,g) > 1) then
+
+                allocate(new_ranks(1:NB(1,g),1:NB(2,g),1:NB(3,g)))
+
+                !-----------------------------------------------------------------------------------
+                call MPI_COMM_GROUP(COMM_CART,base_group,merror)
+                participate_yes(g) = .false.
+                do k = 1, NB(3,g)
+                    do j = 1, NB(2,g)
+                        do i = 1, NB(1,g)
+                            call MPI_CART_RANK(COMM_CART,(/MOD((i-1)*stride(1),NB1),  &
+                                &          MOD((j-1)*stride(2),NB2),  &
+                                &          MOD((k-1)*stride(3),NB3)/),new_ranks(i,j,k),merror)
+                            if (rank == new_ranks(i,j,k)) participate_yes(g) = .true.
+                        end do
+                    end do
+                end do
+
+                call MPI_GROUP_INCL(base_group,NB(1,g)*NB(2,g)*NB(3,g),new_ranks,new_group,merror)
+                call MPI_COMM_CREATE(COMM_CART,new_group,comm_temp,merror)
+                call MPI_GROUP_FREE(base_group,merror)
+                call MPI_GROUP_FREE(new_group ,merror)
+
+                if (participate_yes(g)) then
+                    call MPI_CART_CREATE(comm_temp,3,NB(1:3,g),periodic,.true.,comm1(g),merror)
+                    call MPI_COMM_FREE(comm_temp,merror)
+                end if
+                !-----------------------------------------------------------------------------------
+
+                deallocate(new_ranks)
+            else
+                if (g == 1) then
+                    comm1          (g) = COMM_CART
+                    rank_comm1     (g) = rank
+                    participate_yes(g) = .true.
+                else
+                    comm1          (g) = comm1          (g-1)
+                    rank_comm1     (g) = rank_comm1     (g-1)
+                    participate_yes(g) = participate_yes(g-1)
+                end if
+            end if
+            !--------------------------------------------------------------
+
+
+            !--------------------------------------------------------------
+            !--- gathering communicators (comm2) ---
+            if (g >= 2 .and. n_gather(1,g)*n_gather(2,g)*n_gather(3,g) > 1) then
+
+                allocate(new_ranks(1:n_gather(1,g),1:n_gather(2,g),1:n_gather(3,g)))
+
+                !-----------------------------------------------------------------------------------------------
+                call MPI_COMM_GROUP(COMM_CART,base_group,merror)
+
+                do kk = 1, NB(3,g)
+                    do jj = 1, NB(2,g)
+                        do ii = 1, NB(1,g)
+
+                            member_yes = .false.
+                            do k = 1, n_gather(3,g)
+                                do j = 1, n_gather(2,g)
+                                    do i = 1, n_gather(1,g)
+                                        ! TEST!!! Das sieht etwas komisch aus ...
+                                        call MPI_CART_RANK(COMM_CART,(/MOD(((ii-1)*n_gather(1,g)+i-1)*NB1/NB(1,g-1),NB1),                             &
+                                            &          MOD(((jj-1)*n_gather(2,g)+j-1)*NB2/NB(2,g-1),NB2),                             &
+                                            &          MOD(((kk-1)*n_gather(3,g)+k-1)*NB3/NB(3,g-1),NB3)/),new_ranks(i,j,k),merror)
+                                        if (rank == new_ranks(i,j,k)) member_yes = .true.
+                                    end do
+                                end do
+                            end do
+
+                            call MPI_GROUP_INCL(base_group,n_gather(1,g)*n_gather(2,g)*n_gather(3,g),new_ranks,new_group,merror)
+                            call MPI_COMM_CREATE(COMM_CART,new_group,comm_temp,merror)
+                            call MPI_GROUP_FREE(new_group,merror)
+
+                            if (member_yes) then
+                                call MPI_CART_CREATE(comm_temp,3,n_gather(1:3,g),periodic,.true.,comm2(g),merror)
+                                call MPI_COMM_FREE(comm_temp,merror)
+
+                                !--- comm1 und comm2 synchronisieren ---
+                                rank_comm2(g) = 0
+                                if (participate_yes(g)) call MPI_COMM_RANK(comm2(g),rank_comm2(g),merror) ! Nur fuer "rankc2(g)" gilt "participate_yes(g)"
+                                call MPI_ALLREDUCE(rank_comm2(g),rankc2(g),1,MPI_INTEGER,MPI_SUM,comm2(g),merror)
+                                call MPI_COMM_RANK(comm2(g),rank_comm2(g),merror)
+                            end if
+
+                        end do
+                    end do
+                end do
+
+                call MPI_GROUP_FREE(base_group,merror)
+                !-----------------------------------------------------------------------------------------------
+
+                deallocate(new_ranks)
+
+            end if
+            !--------------------------------------------------------------
+
+
+            !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            if (g >= 2 .and. n_gather(1,g)*n_gather(2,g)*n_gather(3,g) > 1 .and. participate_yes(g-1)) then
+
+                iimax   = (NN(1,g)-1)/n_gather(1,g)+1
+                jjmax   = (NN(2,g)-1)/n_gather(2,g)+1
+                kkmax   = (NN(3,g)-1)/n_gather(3,g)+1
+
+                iiShift = (iimax-1)*MOD(iB(1,g-1)-1,n_gather(1,g))
+                jjShift = (jjmax-1)*MOD(iB(2,g-1)-1,n_gather(2,g))
+                kkShift = (kkmax-1)*MOD(iB(3,g-1)-1,n_gather(3,g))
+
+                call MPI_COMM_RANK(comm2(g),rank_comm2(g),merror)
+
+                !--- Interpolation ---------------------------------------------------------------------
+                offs_global = 0
+                sizs_global = 0
+
+                offs_global(1:3,rank_comm2(g)+1) = (/iiShift,jjShift,kkShift/)
+                sizs_global(1:3,rank_comm2(g)+1) = (/iimax  ,jjmax  ,kkmax  /)
+
+                call MPI_ALLREDUCE(offs_global,offsI(1,1,g),3*n_gather(1,g)*n_gather(2,g)*n_gather(3,g),MPI_INTEGER,MPI_SUM,comm2(g),merror)
+                call MPI_ALLREDUCE(sizs_global,sizsI(1,1,g),3*n_gather(1,g)*n_gather(2,g)*n_gather(3,g),MPI_INTEGER,MPI_SUM,comm2(g),merror)
+
+                counter = 0
+                do k = 1, n_gather(3,g)
+                    do j = 1, n_gather(2,g)
+                        do i = 1, n_gather(1,g)
+                            recvI                (  i+(j-1)*n_gather(1,g)+(k-1)*n_gather(1,g)*n_gather(2,g),g)      &
+                                &          = sizsI(1,i+(j-1)*n_gather(1,g)+(k-1)*n_gather(1,g)*n_gather(2,g),g)      &
+                                &           *sizsI(2,i+(j-1)*n_gather(1,g)+(k-1)*n_gather(1,g)*n_gather(2,g),g)      &
+                                &           *sizsI(3,i+(j-1)*n_gather(1,g)+(k-1)*n_gather(1,g)*n_gather(2,g),g)
+
+                            dispI                    (  i+(j-1)*n_gather(1,g)+(k-1)*n_gather(1,g)*n_gather(2,g),g) = counter
+                            counter = counter + recvI(  i+(j-1)*n_gather(1,g)+(k-1)*n_gather(1,g)*n_gather(2,g),g)
+                        end do
+                    end do
+                end do
+
+
+                !--- Restriction -----------------------------------------------------------------------
+                if (ls1 ==  0 .and. (BC(1,1,g-1) == 0 .or. BC(1,1,g-1) == -1)) iimax = iimax-1
+                if (ls1 == -1 .and. (BC(2,1,g-1) == 0 .or. BC(2,1,g-1) == -1)) iimax = iimax-1
+
+                if (ls2 ==  0 .and. (BC(1,2,g-1) == 0 .or. BC(1,2,g-1) == -1)) jjmax = jjmax-1
+                if (ls2 == -1 .and. (BC(2,2,g-1) == 0 .or. BC(2,2,g-1) == -1)) jjmax = jjmax-1
+
+                if (ls3 ==  0 .and. (BC(1,3,g-1) == 0 .or. BC(1,3,g-1) == -1)) kkmax = kkmax-1
+                if (ls3 == -1 .and. (BC(2,3,g-1) == 0 .or. BC(2,3,g-1) == -1)) kkmax = kkmax-1
+
+                if (ls1 ==  0 .and. (BC(1,1,g-1) == 0 .or. BC(1,1,g-1) == -1)) iiShift = iiShift+1
+                if (ls2 ==  0 .and. (BC(1,2,g-1) == 0 .or. BC(1,2,g-1) == -1)) jjShift = jjShift+1
+                if (ls3 ==  0 .and. (BC(1,3,g-1) == 0 .or. BC(1,3,g-1) == -1)) kkShift = kkShift+1
+
+                offs_global = 0
+                sizs_global = 0
+
+                offs_global(1:3,rank_comm2(g)+1) = (/iiShift,jjShift,kkShift/)
+                sizs_global(1:3,rank_comm2(g)+1) = (/iimax  ,jjmax  ,kkmax  /)
+
+                call MPI_ALLREDUCE(offs_global,offsR(1,1,g),3*n_gather(1,g)*n_gather(2,g)*n_gather(3,g),MPI_INTEGER,MPI_SUM,comm2(g),merror)
+                call MPI_ALLREDUCE(sizs_global,sizsR(1,1,g),3*n_gather(1,g)*n_gather(2,g)*n_gather(3,g),MPI_INTEGER,MPI_SUM,comm2(g),merror)
+
+                counter = 0
+                do k = 1, n_gather(3,g)
+                    do j = 1, n_gather(2,g)
+                        do i = 1, n_gather(1,g)
+                            recvR                (  i+(j-1)*n_gather(1,g)+(k-1)*n_gather(1,g)*n_gather(2,g),g)      &
+                                &          = sizsR(1,i+(j-1)*n_gather(1,g)+(k-1)*n_gather(1,g)*n_gather(2,g),g)      &
+                                &           *sizsR(2,i+(j-1)*n_gather(1,g)+(k-1)*n_gather(1,g)*n_gather(2,g),g)      &
+                                &           *sizsR(3,i+(j-1)*n_gather(1,g)+(k-1)*n_gather(1,g)*n_gather(2,g),g)
+
+                            dispR                    (  i+(j-1)*n_gather(1,g)+(k-1)*n_gather(1,g)*n_gather(2,g),g) = counter
+                            counter = counter + recvR(  i+(j-1)*n_gather(1,g)+(k-1)*n_gather(1,g)*n_gather(2,g),g)
+                        end do
+                    end do
+                end do
+               !---------------------------------------------------------------------------------------
+            end if
+           !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+        end do
+        !*********************************************************************
+
+        !===========================================================================================================
+
+        dim1 = M1
+        dim2 = M2
+        dim3 = M3
+
+        if (BC_1L_global == -1) dim1 = M1-1
+        if (BC_2L_global == -1) dim2 = M2-1
+        if (BC_3L_global == -1) dim3 = M3-1
+
+        !===========================================================================================================
+
+        bar1_size = 0
+        bar2_size = 0
+        bar3_size = 0
+
+        bar1_offset = 0
+        bar2_offset = 0
+        bar3_offset = 0
+
+        call MPI_COMM_RANK(COMM_BAR1,rank_bar1,merror)
+        call MPI_COMM_RANK(COMM_BAR2,rank_bar2,merror)
+        call MPI_COMM_RANK(COMM_BAR3,rank_bar3,merror)
+
+        bar1_size(rank_bar1+1) = N1p-S1p+1
+        bar2_size(rank_bar2+1) = N2p-S2p+1
+        bar3_size(rank_bar3+1) = N3p-S3p+1
+
+        call MPI_ALLREDUCE(bar1_size,bar1_out,NB1,MPI_INTEGER,MPI_SUM,COMM_BAR1,merror)
+        call MPI_ALLREDUCE(bar2_size,bar2_out,NB2,MPI_INTEGER,MPI_SUM,COMM_BAR2,merror)
+        call MPI_ALLREDUCE(bar3_size,bar3_out,NB3,MPI_INTEGER,MPI_SUM,COMM_BAR3,merror)
+
+        bar1_size = bar1_out
+        bar2_size = bar2_out
+        bar3_size = bar3_out
+
+
+        bar1_offset(rank_bar1+1) = iShift + 1 + ls1
+        bar2_offset(rank_bar2+1) = jShift + 1 + ls2
+        bar3_offset(rank_bar3+1) = kShift + 1 + ls3
+
+        call MPI_ALLREDUCE(bar1_offset,bar1_out,NB1,MPI_INTEGER,MPI_SUM,COMM_BAR1,merror)
+        call MPI_ALLREDUCE(bar2_offset,bar2_out,NB2,MPI_INTEGER,MPI_SUM,COMM_BAR2,merror)
+        call MPI_ALLREDUCE(bar3_offset,bar3_out,NB3,MPI_INTEGER,MPI_SUM,COMM_BAR3,merror)
+  
+        bar1_offset = bar1_out
+        bar2_offset = bar2_out
+        bar3_offset = bar3_out
   
   
-  
+    end subroutine finit_limits_light
+
+
 end module cmod_setup

@@ -24,9 +24,6 @@ public:
 
   typedef const Teuchos::Tuple<Ordinal,dim> TO;
 
-  const MPI_Fint commf_;
-  MPI_Comm comm_;
-
   Ordinal dim_;
 
   TO bl_;
@@ -37,18 +34,12 @@ public:
 
   /// \brief constructor
   ///
-  /// \param commf Fortran MPI communicator(an integer)
-  /// \param comm MPI communicator
   /// \param bl lower bound of storage
   /// \param bu upper bound of storage
   FieldSpace(
-      MPI_Fint commf,
-      MPI_Comm comm,
       Ordinal dimension,
       TO bl,
       TO bu ):
-        commf_(commf),
-        comm_(comm),
         dim_(dimension),
         bl_(bl),
         bu_(bu),
@@ -57,8 +48,6 @@ public:
 
   FieldSpace(
       const FieldSpace& fs ):
-        commf_(fs.commf_),
-        comm_(fs.comm_),
         dim_(fs.dim_),
         bl_(fs.bl_),
         bu_(fs.bu_),
@@ -68,16 +57,12 @@ public:
 
   /// prints to \c std::cout, only for debuging purpose
   void print( std::ostream& out=std::cout ) const {
-    int rank;
-    MPI_Comm_rank(comm_,&rank);
-    if(0==rank) out << "\t---FieldSpace: ---\n";
-    out << "rank: " << rank << " :commf: " << commf_ << "\n";
-    out << "rank: " << rank << " :comput dim: " << dim << "\n";
-    out << "rank: " << rank << " :pseudo dim: " << dim_ << "\n";
-    out << "rank: " << rank << " :bl: " << bl_ << "\n";
-    out << "rank: " << rank << " :bu: " << bu_ << "\n";
-    out << "rank: " << rank << " :ls: " << ls_ << "\n";
-    MPI_Barrier(comm_);
+    out << "\t---FieldSpace: ---\n";
+    out << "comput dim: " << dim << "\n";
+    out << "pseudo dim: " << dim_ << "\n";
+    out << "bl: " << bl_ << "\n";
+    out << "bu: " << bu_ << "\n";
+    out << "ls: " << ls_ << "\n";
   }
 
 
@@ -85,7 +70,6 @@ public:
 
 
 extern "C" {
-void SVS_get_comm(MPI_Fint&);
 void FS_get_dim(int&);
 void SVS_get_bl(int&,int&,int&);
 void SVS_get_bu(int&,int&,int&);
@@ -101,9 +85,6 @@ const Teuchos::RCP<const FieldSpace<O,d> > createFieldSpace(){
 
   typedef typename FieldSpace<O,d>::TO TO;
 
-  MPI_Fint comm;
-  SVS_get_comm( comm );
-
   int dim;
   FS_get_dim( dim );
 
@@ -118,8 +99,6 @@ const Teuchos::RCP<const FieldSpace<O,d> > createFieldSpace(){
   return(
       Teuchos::RCP<const FieldSpace<O,d> > (
           new FieldSpace<O,d>(
-              comm,
-              MPI_Comm_f2c(comm),
               dim,
               bl,
               bu ) ) );

@@ -25,14 +25,35 @@ extern "C" {
 void SVS_get_sInd(int&,int&,int&);
 void SVS_get_eInd(int&,int&,int&);
 
+void SVS_set_sInd(const int* const);
+void SVS_set_eInd(const int* const);
+
 void VS_get_sIndU(int&,int&,int&);
 void VS_get_eIndU(int&,int&,int&);
+
+void VS_set_sIndU(const int* const);
+void VS_set_eIndU(const int* const);
+
+void VS_set_sIndUB(const int* const);
+void VS_set_eIndUB(const int* const);
 
 void VS_get_sIndV(int&,int&,int&);
 void VS_get_eIndV(int&,int&,int&);
 
+void VS_set_sIndV(const int* const);
+void VS_set_eIndV(const int* const);
+
+void VS_set_sIndVB(const int* const);
+void VS_set_eIndVB(const int* const);
+
 void VS_get_sIndW(int&,int&,int&);
 void VS_get_eIndW(int&,int&,int&);
+
+void VS_set_sIndW(const int* const);
+void VS_set_eIndW(const int* const);
+
+void VS_set_sIndWB(const int* const);
+void VS_set_eIndWB(const int* const);
 
 void VS_get_sIndUB(int&,int&,int&);
 void VS_get_eIndUB(int&,int&,int&);
@@ -87,9 +108,9 @@ public:
 template<class O=int, int d=3>
 Teuchos::RCP<const IndexSpace<O> >
 createScalarIndexSpace(
-    Teuchos::RCP<FieldSpace<O,d> > fS,
-    Teuchos::RCP<GridSizeLocal<O,d> > nLoc,
-    Teuchos::RCP<BoundaryConditionsLocal> bc ){
+    const Teuchos::RCP<const FieldSpace<O,d> >& fS,
+    const Teuchos::RCP<GridSizeLocal<O,d> >& nLoc,
+    const Teuchos::RCP<BoundaryConditionsLocal>& bc ){
 
   typedef typename IndexSpace<O>::TO3 TO3;
 
@@ -105,7 +126,6 @@ createScalarIndexSpace(
       eInd[i] = nLoc->get(i);
   }
 
-
   SVS_set_sInd( sInd.getRawPtr() );
   SVS_set_eInd( eInd.getRawPtr() );
 
@@ -114,6 +134,237 @@ createScalarIndexSpace(
       new IndexSpace<O>( EFieldType::S, sInd, eInd ) ) );
 
 }
+
+
+/// \brief function that creates ScaparIndexSpace
+///
+/// by getting values from impact
+/// \todo make construction clean without copying
+/// \relates IndexSpace
+template<class O=int, int d=3>
+Teuchos::ArrayRCP< Teuchos::RCP< const IndexSpace<O> > >
+createInnerFieldIndexSpaces(
+    const Teuchos::RCP<const FieldSpace<O,d> >& fS,
+    const Teuchos::RCP<GridSizeLocal<O,d> >& nLoc,
+    const Teuchos::RCP<BoundaryConditionsLocal>& bc ){
+
+
+  typedef typename IndexSpace<O>::TO3 TO3;
+
+  Teuchos::ArrayRCP< Teuchos::RCP<const IndexSpace<O> > > fIS(3);
+
+  TO3 sIndU;
+  TO3 eIndU;
+
+  TO3 sIndV;
+  TO3 eIndV;
+
+  TO3 sIndW;
+  TO3 eIndW;
+
+  for( int i=0; i<3; ++i ) {
+    sIndU[i] = 2            + fS->ls_[i];
+    eIndU[i] = nLoc->get(i) + fS->ls_[i];
+
+    sIndV[i] = 2            + fS->ls_[i];
+    eIndV[i] = nLoc->get(i) + fS->ls_[i];
+
+    sIndW[i] = 2            + fS->ls_[i];
+    eIndW[i] = nLoc->get(i) + fS->ls_[i];
+  }
+
+  // Lower index in x-direction
+  int i = 0;
+  if( bc->BCL_int_[i] > 0 ) {
+    sIndU[i] = 1;
+    sIndV[i] = 2;
+    sIndW[i] = 2;
+  }
+  // lower index in y-direction
+  i = 1;
+  if( bc->BCL_int_[i] > 0 ) {
+    sIndU[i] = 2;
+    sIndV[i] = 1;
+    sIndW[i] = 2;
+  }
+  // lower index in z-direction
+  i = 2;
+  if( bc->BCL_int_[i] > 0 ) {
+    sIndU[i] = 2;
+    sIndV[i] = 2;
+    sIndW[i] = 1;
+  }
+
+  // lower index for symmetriBC
+  for( int i=0; i<3; ++i )
+    if( bc->BCL_local_[i]==SymmetryBC ) {
+      sIndU[i] = 1;
+      sIndV[i] = 1;
+      sIndW[i] = 1;
+    }
+
+  // upper index
+  for( int i=0; i<3; ++i )
+    if( bc->BCU_int_[i] > 0 ) {
+      eIndU[i] = nLoc->get(i)-1;
+      eIndV[i] = nLoc->get(i)-1;
+      eIndW[i] = nLoc->get(i)-1;
+    }
+
+  // upper index in x-direction for symmetricBC
+  i=0;
+  if( bc->BCU_local_[i]==SymmetryBC ) {
+    eIndU[i] = nLoc->get(i)-1;
+    eIndV[i] = nLoc->get(i);
+    eIndW[i] = nLoc->get(i);
+  }
+
+  // upper index in y-direction for symmetricBC
+  i=1;
+  if( bc->BCU_local_[i]==SymmetryBC ) {
+    eIndU[i] = nLoc->get(i);
+    eIndV[i] = nLoc->get(i)-1;
+    eIndW[i] = nLoc->get(i);
+  }
+
+  // upper index in z-direction for symmetricBC
+  i=2;
+  if( bc->BCU_local_[i]==SymmetryBC ) {
+    eIndU[i] = nLoc->get(i);
+    eIndV[i] = nLoc->get(i);
+    eIndW[i] = nLoc->get(i)-1;
+  }
+
+
+  VS_set_sIndU( sIndU.getRawPtr() );
+  VS_set_eIndU( eIndU.getRawPtr() );
+  fIS[0] =  Teuchos::rcp( new IndexSpace<O>( EFieldType::U, sIndU, eIndU ) );
+
+  VS_set_sIndV( sIndV.getRawPtr() );
+  VS_set_eIndV( eIndV.getRawPtr() );
+  fIS[1] =  Teuchos::rcp( new IndexSpace<O>( EFieldType::V, sIndV, eIndV ) );
+
+  VS_set_sIndW( sIndW.getRawPtr() );
+  VS_set_eIndW( eIndW.getRawPtr() );
+  fIS[2] =  Teuchos::rcp( new IndexSpace<O>( EFieldType::W, sIndW, eIndW ) );
+
+  return( fIS );
+}
+/// \brief function that creates ScaparIndexSpace
+///
+/// by getting values from impact
+/// \todo make construction clean without copying
+/// \relates IndexSpace
+template<class O=int, int d=3>
+Teuchos::ArrayRCP< Teuchos::RCP< const IndexSpace<O> > >
+createFullFieldIndexSpaces(
+    const Teuchos::RCP<const FieldSpace<O,d> >& fS,
+    const Teuchos::RCP<GridSizeLocal<O,d> >& nLoc,
+    const Teuchos::RCP<BoundaryConditionsLocal>& bc ){
+
+
+  typedef typename IndexSpace<O>::TO3 TO3;
+
+  Teuchos::ArrayRCP< Teuchos::RCP<const IndexSpace<O> > > fIS(3);
+
+  TO3 sIndU;
+  TO3 eIndU;
+
+  TO3 sIndV;
+  TO3 eIndV;
+
+  TO3 sIndW;
+  TO3 eIndW;
+
+  for( int i=0; i<3; ++i ) {
+    sIndU[i] = 2            + fS->ls_[i];
+    eIndU[i] = nLoc->get(i) + fS->ls_[i];
+
+    sIndV[i] = 2            + fS->ls_[i];
+    eIndV[i] = nLoc->get(i) + fS->ls_[i];
+
+    sIndW[i] = 2            + fS->ls_[i];
+    eIndW[i] = nLoc->get(i) + fS->ls_[i];
+  }
+
+  // Lower index in x-direction
+  int i = 0;
+  if( bc->BCL_int_[i] > 0 ) {
+    sIndU[i] = 0;
+    sIndV[i] = 1;
+    sIndW[i] = 1;
+  }
+  // lower index in y-direction
+  i = 1;
+  if( bc->BCL_int_[i] > 0 ) {
+    sIndU[i] = 1;
+    sIndV[i] = 0;
+    sIndW[i] = 1;
+  }
+  // lower index in z-direction
+  i = 2;
+  if( bc->BCL_int_[i] > 0 ) {
+    sIndU[i] = 1;
+    sIndV[i] = 1;
+    sIndW[i] = 0;
+  }
+
+  // lower index for symmetriBC
+  for( int i=0; i<3; ++i )
+    if( bc->BCL_local_[i]==SymmetryBC ) {
+      sIndU[i] = 1;
+      sIndV[i] = 1;
+      sIndW[i] = 1;
+    }
+
+  // upper index
+  for( int i=0; i<3; ++i )
+    if( bc->BCU_int_[i] > 0 ) {
+      eIndU[i] = nLoc->get(i);
+      eIndV[i] = nLoc->get(i);
+      eIndW[i] = nLoc->get(i);
+    }
+
+  // upper index in x-direction for symmetricBC
+  i=0;
+  if( bc->BCU_local_[i]==SymmetryBC ) {
+    eIndU[i] = nLoc->get(i)-1;
+    eIndV[i] = nLoc->get(i);
+    eIndW[i] = nLoc->get(i);
+  }
+
+  // upper index in y-direction for symmetricBC
+  i=1;
+  if( bc->BCU_local_[i]==SymmetryBC ) {
+    eIndU[i] = nLoc->get(i);
+    eIndV[i] = nLoc->get(i)-1;
+    eIndW[i] = nLoc->get(i);
+  }
+
+  // upper index in z-direction for symmetricBC
+  i=2;
+  if( bc->BCU_local_[i]==SymmetryBC ) {
+    eIndU[i] = nLoc->get(i);
+    eIndV[i] = nLoc->get(i);
+    eIndW[i] = nLoc->get(i)-1;
+  }
+
+
+  VS_set_sIndUB( sIndU.getRawPtr() );
+  VS_set_eIndUB( eIndU.getRawPtr() );
+  fIS[0] =  Teuchos::rcp( new IndexSpace<O>( EFieldType::U, sIndU, eIndU ) );
+
+  VS_set_sIndVB( sIndV.getRawPtr() );
+  VS_set_eIndVB( eIndV.getRawPtr() );
+  fIS[1] =  Teuchos::rcp( new IndexSpace<O>( EFieldType::V, sIndV, eIndV ) );
+
+  VS_set_sIndWB( sIndW.getRawPtr() );
+  VS_set_eIndWB( eIndW.getRawPtr() );
+  fIS[2] =  Teuchos::rcp( new IndexSpace<O>( EFieldType::W, sIndW, eIndW ) );
+
+  return( fIS );
+}
+
 
 /// \brief function that creates ScaparIndexSpace
 /// by getting values from \c IMPACT

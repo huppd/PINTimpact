@@ -73,7 +73,15 @@ public:
 
 
 public:
-  ProcGrid(Teuchos::Tuple<int,3> rankL, Teuchos::Tuple<int,3> rankU ):
+  ProcGrid(
+      MPI_Fint commf,
+      MPI_Comm comm,
+      Teuchos::Tuple<int,3> rankL,
+      Teuchos::Tuple<int,3> rankU ):
+        commSpaceTimef_(commf),
+        commSpaceTime_(comm),
+        commSpacef_(commf),
+        commSpace_(comm),
         iB_(),rankL_(rankL),rankU_(rankU),commSlice_(),commBar_(),rankSlice_(),rankBar_() {}
 
   ProcGrid(
@@ -268,10 +276,18 @@ Teuchos::RCP< ProcGrid<O,d> > createProcGrid() {
   Teuchos::Tuple<int,3> rankL;
   Teuchos::Tuple<int,3> rankU;
 
+
+    MPI_Fint comm;
+    SVS_get_comm( comm );
+
    SG_getRankLU( rankL.getRawPtr(), rankU.getRawPtr() );
 
   return(
-      Teuchos::rcp( new ProcGrid<O,d>( rankL, rankU) ) );
+      Teuchos::rcp( new ProcGrid<O,d>(
+          comm,
+          MPI_Comm_f2c(comm),
+          rankL,
+          rankU) ) );
 
 }
 

@@ -94,8 +94,8 @@ TEUCHOS_UNIT_TEST( FieldSpace, global_consistency ) {
   std::cout << "nloc: " << nloc << "\n";
   Teuchos::Tuple<O,dim> nglo;
 
-  MPI_Allreduce( nloc.getRawPtr(), nglo.getRawPtr(), dim,
-      MPI_INT, MPI_SUM, sVS->comm_);
+//  MPI_Allreduce( nloc.getRawPtr(), nglo.getRawPtr(), dim,
+//      MPI_INT, MPI_SUM, sVS->comm_);
 
   //  for(int i=0; i<dim; ++i)
   //    TEST_EQUALITY( sVS->nGlo_[i], nglo[i] );

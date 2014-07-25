@@ -18,6 +18,7 @@ void finit_generallight();
 void finit_parallel();
 void finit_boundaries();
 void finit_limits();
+void finit_limits_light();
 void fcoordinates();
 void ffd_coeffs();
 void ffd_coeffs_compat();
@@ -174,7 +175,7 @@ void init_impact_mid(){
 
 void init_impact_postpost(){
   //   --- Limits of indices ---------------------------------------------------------------------------------
-  finit_limits();
+  finit_limits_light();
 
   //  --- Physical coordinates ----------------------------------------------------------------------------------
   fcoordinates();

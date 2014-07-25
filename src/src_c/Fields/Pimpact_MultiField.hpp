@@ -200,6 +200,7 @@ public:
   /// \name Update methods
   //@{
 
+  /// \brief addes new field at end
   void push_back( const Teuchos::RCP<Field>& field=Teuchos::null ) {
     if( Teuchos::is_null(field) )
       mfs_.push_back( mfs_.back()->clone(ShallowCopy) );

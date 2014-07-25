@@ -81,8 +81,8 @@ protected:
 public:
 
 
-  const MPI_Fint& commf() const { return( fieldSpace_->commf_ ); }
-  const MPI_Comm& comm()  const { return( fieldSpace_->comm_  ); }
+  const MPI_Fint& commf() const { return( procGrid_->commSpacef_ ); }
+  const MPI_Comm& comm()  const { return( procGrid_->commSpace_  ); }
 
   const MPI_Comm& commST()  const { return( procGrid_->commSpaceTime_  ); }
 
@@ -288,14 +288,16 @@ Teuchos::RCP< const Space<S,O,d> > createSpace(
 
   auto boundaryConditionsLocal = Pimpact::createBoudaryConditionsLocal( boundaryConditionsGlobal, procGridSize, procGrid );
 
-  Pimpact::init_impact_postpost();
-
   auto fieldSpace = Pimpact::createFieldSpace<O,d>();
 
-//  auto scalarIndexSpace = Pimpact::createScalarIndexSpace<O>( fieldSpace, gridSizeLocal, boundaryConditionsLocal );
-  auto scalarIndexSpace = Pimpact::createScalarIndexSpace<O>(  );
-  auto innerIndexSpace = Pimpact::createInnerFieldIndexSpaces<O>();
-  auto fullIndexSpace = Pimpact::createFullFieldIndexSpaces<O>();
+  auto scalarIndexSpace = Pimpact::createScalarIndexSpace<O,d>( fieldSpace, gridSizeLocal, boundaryConditionsLocal );
+
+  auto innerIndexSpace = Pimpact::createInnerFieldIndexSpaces<O,d>( fieldSpace, gridSizeLocal, boundaryConditionsLocal );
+  auto  fullIndexSpace = Pimpact::createFullFieldIndexSpaces<O,d>(  fieldSpace, gridSizeLocal, boundaryConditionsLocal );
+
+  Pimpact::init_impact_postpost();
+
+//  auto fullIndexSpace = Pimpact::createFullFieldIndexSpaces<O>();
 
   auto domain = Pimpact::createDomain<S>( domainSize, boundaryConditionsGlobal, boundaryConditionsLocal );
 

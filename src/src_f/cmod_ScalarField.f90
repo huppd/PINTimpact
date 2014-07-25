@@ -15,10 +15,10 @@ contains
     !> \brief computes scalar product of two scalar fields(neccessary condition belong to same sVS)
     !!
     !! \param[in] N ammount of local elements in 1-direction
+    !! \param[in] SS start index
+    !! \param[in] NN end index
     !! \param[in] bL start index of storage in 1-direction
     !! \param[in] bU end offset of storage in 1-direction
-    !! \param[in] SS start index in 1-direction
-    !! \param[in] NN end index in 1-direction
     !! \param[in] phi first vector from which is taken the product
     !! \param[in] phi1 first vector from which is taken the product
     !! \param[in] phi2 second vector from which is taken the product
@@ -57,10 +57,10 @@ contains
     !> \brief computes scalar product of two scalar fields(neccessary condition belong to same sVS)
     !!
     !! \param[in] N ammount of local elements in 1-direction
+    !! \param[in] SS start index
+    !! \param[in] NN end index
     !! \param[in] bL start index of storage in 1-direction
     !! \param[in] bU end offset of storage in 1-direction
-    !! \param[in] SS start index in 1-direction
-    !! \param[in] NN end index in 1-direction
     !! \param[in] phi first vector from which is taken the product
     !! \param[in] phi1 first vector from which is taken the product
     subroutine SF_add2( &
@@ -96,21 +96,11 @@ contains
 
 
     !> \brief copys absolute value from \c phi1 in \phi
-    !! \param[in] N1 ammount of local elements in 1-direction
-    !! \param[in] N2 ammount of local elements in 2-direction
-    !! \param[in] N3 ammount of local elements in 3-direction
-    !! \param[in] SS1 start index in 1-direction
-    !! \param[in] SS2 start index in 1-direction
-    !! \param[in] SS3 start index in 1-direction
-    !! \param[in] NN1 end index in 1-direction
-    !! \param[in] NN2 end index in 2-direction
-    !! \param[in] NN3 end index in 3-direction
-    !! \param[in] b1L start index of storage in 1-direction
-    !! \param[in] b2L start index of storage in 2-direction
-    !! \param[in] b3L start index of storage in 3-direction
-    !! \param[in] b1U end offset of storage in 1-direction
-    !! \param[in] b2U end offset of storage in 2-direction
-    !! \param[in] b3U end offset of storage in 3-direction
+    !! \param[in] N ammount of local elements in 1-direction
+    !! \param[in] SS start index
+    !! \param[in] NN end index
+    !! \param[in] bL start index of storage in 1-direction
+    !! \param[in] bU end offset of storage in 1-direction
     !! \param[in] phi1 first vector from which is taken the product
     !! \param[in] phi2 second vector from which is taken the product
     !! \param[in] weighting_yes if weighting schould be used, using the \c weights from \c mod_vars
@@ -140,21 +130,11 @@ contains
 
 
     !> \brief copys reciprocal value from \c phi1 in \phi
-    !! \param[in] N1 ammount of local elements in 1-direction
-    !! \param[in] N2 ammount of local elements in 2-direction
-    !! \param[in] N3 ammount of local elements in 3-direction
-    !! \param[in] SS1 start index in 1-direction
-    !! \param[in] SS2 start index in 1-direction
-    !! \param[in] SS3 start index in 1-direction
-    !! \param[in] NN1 end index in 1-direction
-    !! \param[in] NN2 end index in 2-direction
-    !! \param[in] NN3 end index in 3-direction
-    !! \param[in] b1L start index of storage in 1-direction
-    !! \param[in] b2L start index of storage in 2-direction
-    !! \param[in] b3L start index of storage in 3-direction
-    !! \param[in] b1U end offset of storage in 1-direction
-    !! \param[in] b2U end offset of storage in 2-direction
-    !! \param[in] b3U end offset of storage in 3-direction
+    !! \param[in] N ammount of local elements in 1-direction
+    !! \param[in] SS start index
+    !! \param[in] NN end index
+    !! \param[in] bL start index of storage in 1-direction
+    !! \param[in] bU end offset of storage in 1-direction
     !! \param[in] phi1 first vector from which is taken the product
     !! \param[in] phi2 second vector from which is taken the product
     subroutine SF_reciprocal(   &
@@ -178,12 +158,32 @@ contains
         real(c_double), intent(inout) ::  phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3) ))
         real(c_double), intent(in)    ::  phi1(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3) ))
 
+        integer                       :: i,j,k
 
-        phi(SS(1):NN(1),SS(2):NN(2),SS(3):NN(3)) = 1./( phi1(SS(1):NN(1),SS(2):NN(2),SS(3):NN(3)) )
+
+        do k = SS(3), NN(3)
+            do j = SS(2), NN(2)
+                !pgi$ unroll = n:8
+                do i = SS(1), NN(1)
+                    if( phi1(i,j,k).eq. 0. ) then
+                        phi(i,j,k) = 0.
+                    else
+                        phi(i,j,k) = 1./phi1(i,j,k)
+                    endif
+                end do
+            end do
+        end do
 
     end subroutine SF_reciprocal
 
 
+    !> \brief scales Field
+    !!
+    !! \param[in] N ammount of local elements in 1-direction
+    !! \param[in] SS start index
+    !! \param[in] NN end index
+    !! \param[in] bL start index of storage in 1-direction
+    !! \param[in] bU end offset of storage in 1-direction
     subroutine SF_scale(    &
         N,                  &
         bL, bU,             &
@@ -212,21 +212,11 @@ contains
 
 
     !> \brief scales \c phi with \phi1.
-    !! \param[in] N1 ammount of local elements in 1-direction
-    !! \param[in] N2 ammount of local elements in 2-direction
-    !! \param[in] N3 ammount of local elements in 3-direction
-    !! \param[in] SS1 start index in 1-direction
-    !! \param[in] SS2 start index in 1-direction
-    !! \param[in] SS3 start index in 1-direction
-    !! \param[in] NN1 end index in 1-direction
-    !! \param[in] NN2 end index in 2-direction
-    !! \param[in] NN3 end index in 3-direction
-    !! \param[in] b1L start index of storage in 1-direction
-    !! \param[in] b2L start index of storage in 2-direction
-    !! \param[in] b3L start index of storage in 3-direction
-    !! \param[in] b1U end offset of storage in 1-direction
-    !! \param[in] b2U end offset of storage in 2-direction
-    !! \param[in] b3U end offset of storage in 3-direction
+    !! \param[in] N ammount of local elements in 1-direction
+    !! \param[in] SS start index
+    !! \param[in] NN end index
+    !! \param[in] bL start index of storage in 1-direction
+    !! \param[in] bU end offset of storage in 1-direction
     !! \param[in] phi1 first vector from which is taken the product
     !! \param[in] phi2 second vector from which is taken the product
     !! \param[in] weighting_yes if weighting schould be used, using the \c weights from \c mod_vars
@@ -261,22 +251,11 @@ contains
 
 
     !> \brief computes scalar product of two scalar fields(neccessary condition belong to same sVS)
-    !! \param[in] COMM_CART communicator belonging to vector
-    !! \param[in] N1 ammount of local elements in 1-direction
-    !! \param[in] N2 ammount of local elements in 2-direction
-    !! \param[in] N3 ammount of local elements in 3-direction
-    !! \param[in] SS1 start index in 1-direction
-    !! \param[in] SS2 start index in 1-direction
-    !! \param[in] SS3 start index in 1-direction
-    !! \param[in] NN1 end index in 1-direction
-    !! \param[in] NN2 end index in 2-direction
-    !! \param[in] NN3 end index in 3-direction
-    !! \param[in] b1L start index of storage in 1-direction
-    !! \param[in] b2L start index of storage in 2-direction
-    !! \param[in] b3L start index of storage in 3-direction
-    !! \param[in] b1U end offset of storage in 1-direction
-    !! \param[in] b2U end offset of storage in 2-direction
-    !! \param[in] b3U end offset of storage in 3-direction
+    !! \param[in] N ammount of local elements in 1-direction
+    !! \param[in] SS start index
+    !! \param[in] NN end index
+    !! \param[in] bL start index of storage in 1-direction
+    !! \param[in] bU end offset of storage in 1-direction
     !! \param[in] phi1 first vector from which is taken the product
     !! \param[in] phi2 second vector from which is taken the product
     !! \param[in] weighting_yes if weighting schould be used, using the \c weights from \c mod_vars
@@ -318,27 +297,13 @@ contains
 
 
     !> \brief computes two or infinity norm( get is misleading)
-    !! \param[in] comm communicator belonging to vector
-    !! \param[in] N1 ammount of local elements in 1-direction
-    !! \param[in] N2 ammount of local elements in 2-direction
-    !! \param[in] N3 ammount of local elements in 3-direction
-    !! \param[in] SS1 start index in 1-direction
-    !! \param[in] SS2 start index in 1-direction
-    !! \param[in] SS3 start index in 1-direction
-    !! \param[in] NN1 end index in 1-direction
-    !! \param[in] NN2 end index in 2-direction
-    !! \param[in] NN3 end index in 3-direction
-    !! \param[in] b1L start index of storage in 1-direction
-    !! \param[in] b2L start index of storage in 2-direction
-    !! \param[in] b3L start index of storage in 3-direction
-    !! \param[in] b1U end offset of storage in 1-direction
-    !! \param[in] b2U end offset of storage in 2-direction
-    !! \param[in] b3U end offset of storage in 3-direction
+    !! \param[in] N ammount of local elements in 1-direction
+    !! \param[in] SS start index
+    !! \param[in] NN end index
+    !! \param[in] bL start index of storage in 1-direction
+    !! \param[in] bU end offset of storage in 1-direction
     !! \param[in] phi vector, from which the norm is taken
-    !! \param[in] inf_yes if true infinity norm is computed
-    !! \param[in] two_yes if trhue two norm is computed
-    !! \param[out] normInf gets the infinity norm of phi
-    !! \param[out] normTwo get the two norm of phi
+    !! \param[out] norm get the two norm of phi
     ! TEST!!! N1, N2, N3 werden ebenfalls uebergeben ...
     subroutine SF_comp1Norm(    &
         N,                      &
@@ -377,27 +342,13 @@ contains
 
 
     !> \brief computes two or infinity norm( get is misleading)
-    !! \param[in] comm communicator belonging to vector
-    !! \param[in] N1 ammount of local elements in 1-direction
-    !! \param[in] N2 ammount of local elements in 2-direction
-    !! \param[in] N3 ammount of local elements in 3-direction
-    !! \param[in] SS1 start index in 1-direction
-    !! \param[in] SS2 start index in 1-direction
-    !! \param[in] SS3 start index in 1-direction
-    !! \param[in] NN1 end index in 1-direction
-    !! \param[in] NN2 end index in 2-direction
-    !! \param[in] NN3 end index in 3-direction
-    !! \param[in] b1L start index of storage in 1-direction
-    !! \param[in] b2L start index of storage in 2-direction
-    !! \param[in] b3L start index of storage in 3-direction
-    !! \param[in] b1U end offset of storage in 1-direction
-    !! \param[in] b2U end offset of storage in 2-direction
-    !! \param[in] b3U end offset of storage in 3-direction
+    !! \param[in] N ammount of local elements in 1-direction
+    !! \param[in] SS start index
+    !! \param[in] NN end index
+    !! \param[in] bL start index of storage in 1-direction
+    !! \param[in] bU end offset of storage in 1-direction
     !! \param[in] phi vector, from which the norm is taken
-    !! \param[in] inf_yes if true infinity norm is computed
-    !! \param[in] two_yes if trhue two norm is computed
-    !! \param[out] normInf gets the infinity norm of phi
-    !! \param[out] normTwo get the two norm of phi
+    !! \param[out] norm get the two norm of phi
     ! TEST!!! N1, N2, N3 werden ebenfalls uebergeben ...
     subroutine SF_comp2Norm(    &
         N,                      &
@@ -436,28 +387,13 @@ contains
 
 
     !> \brief computes two or infinity norm( get is misleading)
-    !! \param[in] comm communicator belonging to vector
-    !! \param[in] N1 ammount of local elements in 1-direction
-    !! \param[in] N2 ammount of local elements in 2-direction
-    !! \param[in] N3 ammount of local elements in 3-direction
-    !! \param[in] SS1 start index in 1-direction
-    !! \param[in] SS2 start index in 1-direction
-    !! \param[in] SS3 start index in 1-direction
-    !! \param[in] NN1 end index in 1-direction
-    !! \param[in] NN2 end index in 2-direction
-    !! \param[in] NN3 end index in 3-direction
-    !! \param[in] b1L start index of storage in 1-direction
-    !! \param[in] b2L start index of storage in 2-direction
-    !! \param[in] b3L start index of storage in 3-direction
-    !! \param[in] b1U end offset of storage in 1-direction
-    !! \param[in] b2U end offset of storage in 2-direction
-    !! \param[in] b3U end offset of storage in 3-direction
+    !! \param[in] N ammount of local elements in 1-direction
+    !! \param[in] SS start index
+    !! \param[in] NN end index
+    !! \param[in] bL start index of storage in 1-direction
+    !! \param[in] bU end offset of storage in 1-direction
     !! \param[in] phi vector, from which the norm is taken
-    !! \param[in] inf_yes if true infinity norm is computed
-    !! \param[in] two_yes if trhue two norm is computed
-    !! \param[out] normInf gets the infinity norm of phi
-    !! \param[out] normTwo get the two norm of phi
-    ! TEST!!! N1, N2, N3 werden ebenfalls uebergeben ...
+    !! \param[out] norm gets the infinity norm of phi
     subroutine SF_compInfNorm(  &
         N,                      &
         bL, bU,                 &
@@ -495,26 +431,14 @@ contains
 
 
     !> \brief computes two or infinity norm( get is misleading)
-    !! \param[in] comm communicator belonging to vector
-    !! \param[in] N1 ammount of local elements in 1-direction
-    !! \param[in] N2 ammount of local elements in 2-direction
-    !! \param[in] N3 ammount of local elements in 3-direction
-    !! \param[in] SS1 start index in 1-direction
-    !! \param[in] SS2 start index in 1-direction
-    !! \param[in] SS3 start index in 1-direction
-    !! \param[in] NN1 end index in 1-direction
-    !! \param[in] NN2 end index in 2-direction
-    !! \param[in] NN3 end index in 3-direction
-    !! \param[in] b1L start index of storage in 1-direction
-    !! \param[in] b2L start index of storage in 2-direction
-    !! \param[in] b3L start index of storage in 3-direction
-    !! \param[in] b1U end offset of storage in 1-direction
-    !! \param[in] b2U end offset of storage in 2-direction
-    !! \param[in] b3U end offset of storage in 3-direction
+    !! \param[in] N ammount of local elements in 1-direction
+    !! \param[in] SS start index
+    !! \param[in] NN end index
+    !! \param[in] bL start index of storage in 1-direction
+    !! \param[in] bU end offset of storage in 1-direction
     !! \param[in] phi vector, from which the norm is taken
     !! \param[in] weights weights
-    !! \todo weight (easydirty fix: include module) (good persisting fix: move to pimpact)
-    ! TEST!!! N1, N2, N3 werden ebenfalls uebergeben ...
+    !! \param[out] norm result
     subroutine SF_weightedNorm( &
         N,                      &
         bL, bU,                 &
@@ -556,10 +480,10 @@ contains
     !> \brief computes scalar product of two scalar fields(neccessary condition belong to same sVS)
     !!
     !! \param[in] N ammount of local elements in 1-direction
+    !! \param[in] SS start index
+    !! \param[in] NN end index
     !! \param[in] bL start index of storage in 1-direction
     !! \param[in] bU end offset of storage in 1-direction
-    !! \param[in] SS start index in 1-direction
-    !! \param[in] NN end index in 1-direction
     !! \param[in] phi first vector from which is taken the product
     !! \param[in] phi1 first vector from which is taken the product
     !! \param[in] phi2 second vector from which is taken the product
@@ -589,7 +513,13 @@ contains
     end subroutine SF_assign
 
 
-
+    !> \brief random values in [-0.5,0.5]
+    !!
+    !! \param[in] N ammount of local elements in 1-direction
+    !! \param[in] SS start index
+    !! \param[in] NN end index
+    !! \param[in] bL start index of storage in 1-direction
+    !! \param[in] bU end offset of storage in 1-direction
     subroutine SF_random(   &
         N,                  &
         bL, bU,             &
@@ -616,7 +546,13 @@ contains
     end subroutine SF_random
 
 
-    subroutine SF_init(    &
+    !> \brief inits all with scalar
+    !! \param[in] N ammount of local elements in 1-direction
+    !! \param[in] SS start index
+    !! \param[in] NN end index
+    !! \param[in] bL start index of storage in 1-direction
+    !! \param[in] bU end offset of storage in 1-direction
+    subroutine SF_init( &
         N,              &
         bL, bU,         &
         SS, NN,         &
@@ -643,6 +579,14 @@ contains
     end subroutine SF_init
 
 
+
+    !> \brief writes Field to std out
+    !!
+    !! \param[in] N ammount of local elements in 1-direction
+    !! \param[in] SS start index
+    !! \param[in] NN end index
+    !! \param[in] bL start index of storage in 1-direction
+    !! \param[in] bU end offset of storage in 1-direction
     subroutine SF_print(    &
         N,                  &
         bL, bU,             &
