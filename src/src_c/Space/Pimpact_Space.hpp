@@ -292,7 +292,8 @@ Teuchos::RCP< const Space<S,O,d> > createSpace(
 
   auto fieldSpace = Pimpact::createFieldSpace<O,d>();
 
-  auto scalarIndexSpace = Pimpact::createScalarIndexSpace<O>();
+//  auto scalarIndexSpace = Pimpact::createScalarIndexSpace<O>( fieldSpace, gridSizeLocal, boundaryConditionsLocal );
+  auto scalarIndexSpace = Pimpact::createScalarIndexSpace<O>(  );
   auto innerIndexSpace = Pimpact::createInnerFieldIndexSpaces<O>();
   auto fullIndexSpace = Pimpact::createFullFieldIndexSpaces<O>();
 

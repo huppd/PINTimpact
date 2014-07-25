@@ -2762,7 +2762,7 @@ module mod_solvers
   
   !> \brief first phase of MG
   !!
-  !! (sometimes nullspace befor)
+  !! (sometimes nullspace befor, only on coarase)
   !! calls first restrict_???, than product_???, and restrict
   subroutine relax_restrict(init_yes,nullspace_yes,g,psi,bb,phi,work,coarse,problem_type)
   

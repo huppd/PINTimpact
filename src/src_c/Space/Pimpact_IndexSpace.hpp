@@ -12,6 +12,10 @@
 
 #include "Pimpact_Types.hpp"
 
+#include "Pimpact_FieldSpace.hpp"
+#include "Pimpact_GridSizeLocal.hpp"
+#include "Pimpact_BoundaryConditionsLocal.hpp"
+
 
 
 namespace Pimpact {
@@ -50,12 +54,16 @@ public:
 
   typedef Teuchos::Tuple<Ordinal,3> TO3;
 
+
   /// \brief constructor
   /// \param fieldType says which kind of field is taken
   /// \param sInd start index of gridpoints
   /// \param eInd last index of gridpoints
   IndexSpace( EFieldType fieldType,TO3 sInd, TO3 eInd ):
     fieldType_(fieldType),sInd_(sInd),eInd_(eInd) {};
+
+
+
 
   void print( std::ostream& out=std::cout ) const {
     out << "\t---IndexSpace: ---\n";
@@ -72,6 +80,40 @@ public:
 }; // end of class IndexSpace
 
 
+
+/// \brief function that creates ScaparIndexSpace
+/// by getting values from \c IMPACT
+/// \relates IndexSpace
+template<class O=int, int d=3>
+Teuchos::RCP<const IndexSpace<O> >
+createScalarIndexSpace(
+    Teuchos::RCP<FieldSpace<O,d> > fS,
+    Teuchos::RCP<GridSizeLocal<O,d> > nLoc,
+    Teuchos::RCP<BoundaryConditionsLocal> bc ){
+
+  typedef typename IndexSpace<O>::TO3 TO3;
+
+  TO3 sInd;
+  TO3 eInd;
+
+  for( int i=0; i<3; ++i ) {
+    sInd[i] = 2            + fS->ls_[i];
+    eInd[i] = nLoc->get(i) + fS->ls_[i];
+    if( bc->BCL_int_[i] > 0 )
+      sInd[i] = 1;
+    if( bc->BCU_int_[i] > 0 )
+      eInd[i] = nLoc->get(i);
+  }
+
+
+  SVS_set_sInd( sInd.getRawPtr() );
+  SVS_set_eInd( eInd.getRawPtr() );
+
+
+  return( Teuchos::rcp(
+      new IndexSpace<O>( EFieldType::S, sInd, eInd ) ) );
+
+}
 
 /// \brief function that creates ScaparIndexSpace
 /// by getting values from \c IMPACT

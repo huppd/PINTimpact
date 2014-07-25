@@ -32,6 +32,8 @@ public:
   TO bl_;
   TO bu_;
 
+  Teuchos::Tuple<Ordinal,3> ls_; /// < \brief Ueberlappungskonvention der Blöcke (Multigrid, siehe mod_setup)
+
 
   /// \brief constructor
   ///
@@ -49,15 +51,18 @@ public:
         comm_(comm),
         dim_(dimension),
         bl_(bl),
-        bu_(bu)
+        bu_(bu),
+        ls_(Teuchos::tuple(-1,-1,-1))
   {};
 
-  FieldSpace( const FieldSpace& fs ):
-    commf_(fs.commf_),
-    comm_(fs.comm_),
-    dim_(fs.dim_),
-    bl_(fs.bl_),
-    bu_(fs.bu_)
+  FieldSpace(
+      const FieldSpace& fs ):
+        commf_(fs.commf_),
+        comm_(fs.comm_),
+        dim_(fs.dim_),
+        bl_(fs.bl_),
+        bu_(fs.bu_),
+        ls_(Teuchos::tuple(-1,-1,-1))
   {};
 
 
@@ -71,6 +76,7 @@ public:
     out << "rank: " << rank << " :pseudo dim: " << dim_ << "\n";
     out << "rank: " << rank << " :bl: " << bl_ << "\n";
     out << "rank: " << rank << " :bu: " << bu_ << "\n";
+    out << "rank: " << rank << " :ls: " << ls_ << "\n";
     MPI_Barrier(comm_);
   }
 

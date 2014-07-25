@@ -55,7 +55,7 @@ contains
     end subroutine get_nLoc
 
 
-    subroutine get_sInd( sInd1_, sInd2_, sInd3_ ) bind(c,name='SVS_get_sInd')
+    subroutine SVS_get_sInd( sInd1_, sInd2_, sInd3_ ) bind(c,name='SVS_get_sInd')
         implicit none
         INTEGER(c_int), intent(out)  :: sInd1_, sInd2_, sInd3_
 
@@ -63,10 +63,22 @@ contains
         sInd2_ = S2p
         sInd3_ = S3p
 
-    end subroutine get_sInd
+    end subroutine SVS_get_sInd
 
 
-    subroutine get_eInd( eInd1_, eInd2_, eInd3_ ) bind(c,name='SVS_get_eInd')
+    subroutine SVS_set_sInd( sInd_ ) bind(c,name='SVS_set_sInd')
+        implicit none
+        INTEGER(c_int), intent(out)  :: sInd_(3)
+
+        S1p = sInd_(1)
+        S2p = sInd_(2)
+        S3p = sInd_(3)
+
+    end subroutine SVS_set_sInd
+
+
+
+    subroutine SVS_get_eInd( eInd1_, eInd2_, eInd3_ ) bind(c,name='SVS_get_eInd')
         implicit none
         INTEGER(c_int), intent(out)  :: eInd1_, eInd2_, eInd3_
 
@@ -74,7 +86,18 @@ contains
         eInd2_ = N2p
         eInd3_ = N3p
 
-    end subroutine get_eInd
+    end subroutine SVS_get_eInd
+
+
+    subroutine SVS_set_eInd( eInd_ ) bind(c,name='SVS_set_eInd')
+        implicit none
+        INTEGER(c_int), intent(out)  :: eInd_(3)
+
+        N1p = eInd_(1)
+        N2p = eInd_(2)
+        N3p = eInd_(3)
+
+    end subroutine SVS_set_eInd
 
 
     subroutine get_sIndU( sInd1_, sInd2_, sInd3_ ) bind(c,name='VS_get_sIndU')
@@ -288,7 +311,7 @@ contains
     end subroutine SG_setRankLU
 
 
-        subroutine SG_getRankLU( rankl, ranku ) bind( c, name='SG_getRankLU' )
+    subroutine SG_getRankLU( rankl, ranku ) bind( c, name='SG_getRankLU' )
         implicit none
         integer(c_int), intent(out) :: rankl(3)
         integer(c_int), intent(out) :: ranku(3)
