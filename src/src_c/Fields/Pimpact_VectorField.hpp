@@ -11,8 +11,6 @@
 #include "Teuchos_ScalarTraitsDecl.hpp"
 #include "Teuchos_SerialDenseMatrix.hpp"
 
-//#include "Pimpact_FieldSpace.hpp"
-//#include "Pimpact_IndexSpace.hpp"
 #include "Pimpact_Space.hpp"
 
 #include "Pimpact_extern_ScalarField.hpp"
@@ -95,10 +93,8 @@ public:
     exchangedState_(Teuchos::tuple(Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true))) {
 
     if( owning_ ) {
-      Ordinal N = 1;
-      for(int i=0; i<3; ++i)
-        N *= nLoc(i)+bu(i)-bl(i)+1;
 
+      Ordinal N = getStorageSize()/3;
 
       vec_[0] = new Scalar[3*N];
       vec_[1] = vec_[0]+N;
@@ -123,9 +119,8 @@ public:
     exchangedState_(vF.exchangedState_) {
 
     if( owning_ ) {
-      Ordinal n = 1;
-      for(int i=0; i<3; ++i)
-        n *= nLoc(i)+bu(i)-bl(i);
+
+      Ordinal n = getStorageSize();
 
       vec_[0] = new Scalar[3*n];
       vec_[1] = vec_[0]+n;
@@ -136,7 +131,6 @@ public:
         for( int i=0; i<dim(); ++i )
           for( int j=0; j<n; ++j)
             vec_[i][j] = 0.;
-//        changed();
         break;
       case DeepCopy:
         for( int i=0; i<dim(); ++i )
@@ -402,13 +396,6 @@ public:
   ///
   /// Assign (deep copy) A into mv.
   void assign( const VF& a ) {
-//#ifdef DEBUG
-//    for(int i=0; i<3; ++i) {
-//      TEST_EQUALITY( nLoc(i), a.Nloc(i) )
-//			                            TEST_EQUALITY( bu(i), a.bu(i) )
-//			                            TEST_EQUALITY( bl(i), a.bl(i) )
-//    }
-//#endif
 
     for( int dir=0; dir<dim(); ++dir)
       SF_assign(
@@ -777,22 +764,22 @@ public:
 
   Ordinal getStorageSize() const {
 
-    Ordinal N = 1;
+    Ordinal n = 1;
     for(int i=0; i<3; ++i)
-      N *= nLoc(i)+bu(i)-bl(i);
+      n *= nLoc(i)+bu(i)-bl(i)+1;
 
-    return( 3*N );
+    return( 3*n );
   }
 
   void setStoragePtr( Scalar*  array ) {
-    Ordinal N = 1;
-    for(int i=0; i<3; ++i)
-      N *= nLoc(i)+bu(i)-bl(i);
+
+    Ordinal n = getStorageSize()/3;
 
     vec_[0] = array;
-    vec_[1] = array+N;
-    vec_[2] = array+2*N;
+    vec_[1] = array+n;
+    vec_[2] = array+2*n;
   }
+
   Scalar* getStoragePtr() {
     return( vec_[0] );
   }

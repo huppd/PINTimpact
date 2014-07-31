@@ -279,7 +279,7 @@ Teuchos::RCP< const Space<S,O,d> > createSpace(
   auto domainSize = Pimpact::createDomainSize<S>( pl->get("Re",1.), pl->get("alpha2",1.), pl->get("lx",1.), pl->get("ly",1.), pl->get("lz",1.) );
   auto boundaryConditionsGlobal = Pimpact::createBoudaryConditionsGlobal( Pimpact::EDomainType( pl->get("domain",2) ) );
   auto procGridSize = Pimpact::createProcGridSize<O,d>( pl->get("npx",2), pl->get("npy",2), pl->get("npz",1), pl->get("npf",1) );
-  auto gridSizeGlobal = Pimpact::createGridSizeGlobal<O,d>( pl->get("nx",33), pl->get("ny",33), pl->get("nz",33) );
+  auto gridSizeGlobal = Pimpact::createGridSizeGlobal<O,d>( pl->get("nx",33), pl->get("ny",33), pl->get("nz",2), pl->get("nf",32) );
   auto gridSizeLocal = Pimpact::createGridSizeLocal<O,d>( gridSizeGlobal, procGridSize );
 
   Pimpact::init_impact_mid();

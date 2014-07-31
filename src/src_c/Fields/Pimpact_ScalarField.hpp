@@ -74,9 +74,8 @@ public:
 
 
     if( owning_ ) {
-      Ordinal N = 1;
-      for(int i=0; i<3; ++i)
-        N *= nLoc(i)+bu(i)-bl(i)+1;
+
+      Ordinal N = getStorageSize();
 
       s_ = new Scalar[N];
 
@@ -97,9 +96,8 @@ public:
     exchangedState_( sF.exchangedState_ ) {
 
     if( owning_ ) {
-      Ordinal N = 1;
-      for(int i=0; i<3; ++i)
-        N *= nLoc(i)+bu(i)-bl(i);
+
+      Ordinal N = getStorageSize();
 
       s_ = new Scalar[N];
 
@@ -114,6 +112,7 @@ public:
         break;
       }
     }
+
   };
 
   ~ScalarField() {
@@ -407,15 +406,17 @@ public:
 
   Ordinal getStorageSize() const {
 
-    Ordinal N = 1;
+    Ordinal n = 1;
     for(int i=0; i<3; ++i)
-      N *= nLoc(i)+bu(i)-bl(i); // there a one was added for AMG, but it is not neede error seem to be in Impact there it should be (B1L+1:N1+B1U) probably has to be changed aganin for 3D
+      n *= nLoc(i)+bu(i)-bl(i)+1; // there a one was added for AMG, but it is not neede error seem to be in Impact there it should be (B1L+1:N1+B1U) probably has to be changed aganin for 3D
 
-    return( N );
+    return( n );
   }
+
   void setStoragePtr( Scalar*  array ) {
     s_ = array;
   }
+
   Scalar* getStoragePtr() {
     return( s_ );
   }

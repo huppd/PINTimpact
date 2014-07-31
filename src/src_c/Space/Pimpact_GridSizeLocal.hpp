@@ -57,7 +57,17 @@ public:
         gridSize_() {
 
     for( int i=0; i<dim; ++i )
+      TEUCHOS_TEST_FOR_EXCEPTION(
+          gridSizeGlobal->get(i) < procGridSize->get(i),
+          std::logic_error,
+          "!!!ERROR!GridSizeLocal!!!\n" );
+
+    for( int i=0; i<3; ++i )
       gridSize_[i] = 1 + ( gridSizeGlobal->get(i)-1 )/procGridSize->get(i);
+
+    if( 4==dim )
+      gridSize_[3] = gridSizeGlobal->get(3)/procGridSize->get(3);
+
     test();
     set_Impact();
   };

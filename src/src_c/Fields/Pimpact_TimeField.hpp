@@ -80,20 +80,22 @@ public:
 
     Ordinal nt = space_->nLoc()[3]+space_->bu()[3]-space_->bl()[3];
 
-    mfs_ = Teuchos::Array< Teuchos::RCP<Field> >(nt);
+    mfs_ = Teuchos::Array< Teuchos::RCP<Field> >( nt );
 
     for( int i=0; i<nt; ++i )
       mfs_[i] = Teuchos::rcp( new Field( space_, false ) );
 
-    Ordinal storage = mfs_[0]->getStorageSize();
+    Ordinal nx = mfs_[0]->getStorageSize();
 
-    array_ = new Scalar[storage*nt];
+    array_ = new Scalar[nx*nt];
+    for( int i=0; i<nt; ++i )
+      array_[i] = 0.;
 
     for( int i=0; i<nt; ++i )
-      mfs_[i]->setStoragePtr( array_+i*storage );
+      mfs_[i]->setStoragePtr( array_+i*nx );
 
     beginI_ = mfs_.begin()-space_->bl()[3];
-    endI_ = mfs_.end()-space_->bu()[3];
+    endI_   = mfs_.end()  -space_->bu()[3];
 
   }
 
@@ -112,25 +114,24 @@ public:
     mfs_ = Teuchos::Array< Teuchos::RCP<Field> >(nt);
 
     for( int i=0; i<nt; ++i )
-      mfs_[i] = field.mfs_[i]->clone(copyType);
+      mfs_[i] = Teuchos::rcp( new Field( space_, false ) );
+//      mfs_[i] = field.mfs_[i]->clone(copyType);
 
-    Ordinal storage = mfs_[0]->getStorageSize();
+    Ordinal nx = mfs_[0]->getStorageSize();
 
-    array_ = new Scalar[storage*nt];
+    array_ = new Scalar[nx*nt];
 
     for( int i=0; i<nt; ++i )
-      mfs_[i]->setStoragePtr( array_+i*storage );
+      mfs_[i]->setStoragePtr( array_+i*nx );
 
     if( DeepCopy==copyType )
-      for( int i=0; i<nt; ++i )
+      for( int i=0; i<nt; ++i ) {
         mfs_[i]->assign( *(field.mfs_[i]) );
-//    if( DeepCopy==copyType )
-//      for( int i=0; i<storage*nt; ++i ) {
-//        array_[i] = field.array_[i];
-////      else
-////        array_[i] = 0.;
-//      }
-
+//        mfs_[i]->changed();
+      }
+    else
+      for( int i=0; i<nt*nx; ++i )
+        array_[i] = 0.;
 
     beginI_ = mfs_.begin()-space_->bl()[3];
     endI_ = mfs_.end()-space_->bu()[3];
@@ -267,7 +268,6 @@ public:
   /// \todo implement OneNorm
   Scalar norm(  Belos::NormType type = Belos::TwoNorm, bool global=true ) const {
 
-    //    const int n = endI_-beginI_;
     Scalar normvec = 0.;
 
     for( Iter i=beginI_; i<endI_; ++i ) {

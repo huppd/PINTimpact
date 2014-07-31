@@ -50,7 +50,6 @@ typedef Pimpact::TimeField<SF> TSF;
 
 typedef Pimpact::MultiField<TVF> MTVF;
 typedef Pimpact::MultiField<TSF> MTSF;
-//typedef Pimpact::VectorField<S,O,4> VF;
 
 
 TEUCHOS_STATIC_SETUP() {
@@ -68,7 +67,7 @@ TEUCHOS_STATIC_SETUP() {
 
 
 // test shows that nLoc is not consistent with start and end indexes
-TEUCHOS_UNIT_TEST( TimeFieldVector, creator ) {
+TEUCHOS_UNIT_TEST( TimeFieldVector, all ) {
   auto pl = Teuchos::parameterList();
 
   pl->set( "Re", 1. );
@@ -85,7 +84,7 @@ TEUCHOS_UNIT_TEST( TimeFieldVector, creator ) {
   pl->set("ny", 33 );
   pl->set("nz", 2 );
 
-  pl->set("nf", 33 );
+  pl->set("nf", 32 );
 //  pl->set("nfs", 0 );
 //  pl->set("nfe", 0 );
 
@@ -106,6 +105,21 @@ TEUCHOS_UNIT_TEST( TimeFieldVector, creator ) {
   std::cout << "field1: length: " << field1->getLength() << "\n";
   std::cout << "field2: length: " << field2->getLength() << "\n";
 
+  for( S i=0.; i< 200.1; ++i ) {
+    field1->init(i/2.);
+    S norm_ = field1->norm(Belos::InfNorm);
+    TEST_EQUALITY( i/2., norm_ );
+    field2->init(i/2.);
+    norm_ = field2->norm(Belos::InfNorm);
+    TEST_EQUALITY( i/2., norm_ );
+  }
+  field2->init(1.);
+  for( double i=0.; i< 200.1; ++i ) {
+    field1->init(i/2.);
+    TEST_EQUALITY( (i/2.)*field1->getLength(), field1->norm(Belos::OneNorm) );
+    TEST_EQUALITY( (i/2.)*field1->getLength(), field1->dot(*field2) );
+  }
+
   auto mvec = Pimpact::createMultiField<TVF>(*field1,5);
 
   //   Create an output manager to handle the I/O from the solver
@@ -115,12 +129,6 @@ TEUCHOS_UNIT_TEST( TimeFieldVector, creator ) {
   bool res = Belos::TestMultiVecTraits<S,MTVF>( MyOM, mvec );
   TEST_EQUALITY_CONST(res,true);
 
-//  field2->random();
-//  MPI_Barrier( MPI_COMM_WORLD );
-//  field2->init( space->procCoordinate()[3] );
-//  field2->norm();
-//  field2->exchange();
-//  field2->write();
 
   auto fields = Pimpact::createTimeField<SF>( space );
 
