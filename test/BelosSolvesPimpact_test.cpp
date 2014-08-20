@@ -101,125 +101,6 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 }
 
 
-TEUCHOS_UNIT_TEST( BelosSolver, PrecHelmholtzMV ) {
-
-  if( !isImpactInit ) {
-    init_impact(0,0);
-    isImpactInit=true;
-  }
-
-  typedef Pimpact::VectorField<S,O> VF;
-  typedef Pimpact::MultiField<VF> MVF;
-
-  typedef Pimpact::HelmholtzOp<S,O> Op;
-  typedef Pimpact::MLHelmholtzOp<S,O> Prec;
-  typedef Pimpact::MultiOpWrap<Op> MOp;
-  typedef Pimpact::OperatorBase<MVF> BOp;
-
-
-//  auto fS = Pimpact::createFieldSpace<O>();
-//
-//  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-//  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
-
-  auto space = Pimpact::createSpace( );
-
-  auto x = Pimpact::createMultiField( Pimpact::createVectorField<S,O>(space) );
-  auto b = Pimpact::createMultiField( Pimpact::createVectorField<S,O>(space) );
-
-  b->init( 1. );
-
-  auto op = Pimpact::createOperatorBase<MVF,MOp>();
-  auto prec = Pimpact::createMultiOperatorBase<MVF,Prec>(
-      Pimpact::createMLHelmholtzOp<S,O>( space, 20, 1., 1.  ) );
-
-  auto para = Pimpact::createLinSolverParameter("GMRES",1.e-3);
-
-  Belos::SolverFactory<S, MVF, BOp> factory;
-
-  // Create the GMRES solver.
-  Teuchos::RCP<Belos::SolverManager<S, MVF, BOp > > solver =
-      factory.create( "GMRES", para );
-
-  // Create a LinearProblem struct with the problem to solve.
-  // A, X, B, and M are passed by (smart) pointer, not copied.
-  Teuchos::RCP<Belos::LinearProblem<S, MVF, BOp > > problem =
-      Teuchos::rcp (new Belos::LinearProblem<S, MVF, BOp > (op, x, b));
-
-  problem->setProblem(x,b);
-  problem->setLeftPrec( prec );
-
-  // Tell the solver what problem you want to solve.
-  solver->setProblem( problem );
-
-  Belos::ReturnType ret =  solver->solve();
-  x->write(111);
-
-  TEST_EQUALITY( ret, Belos::Converged );
-
-
-}
-
-TEUCHOS_UNIT_TEST( BelosSolver, PrecMGVHelmholtz ) {
-
-  if( !isImpactInit ) {
-    init_impact(0,0);
-    isImpactInit=true;
-  }
-
-  typedef Pimpact::VectorField<S,O> VF;
-  typedef Pimpact::MultiField<VF> MVF;
-
-  typedef Pimpact::HelmholtzOp<S,O> Op;
-  typedef Pimpact::MLHelmholtzOp<S,O> Prec;
-  typedef Pimpact::MultiOpWrap<Op> MOp;
-  typedef Pimpact::OperatorBase<MVF> BOp;
-
-
-//  auto fS = Pimpact::createFieldSpace<O>();
-//
-//  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-//  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
-
-  auto space = Pimpact::createSpace( );
-
-  auto x = Pimpact::createMultiField( Pimpact::createVectorField<S,O>( space ) );
-  auto b = Pimpact::createMultiField( Pimpact::createVectorField<S,O>( space ) );
-
-  b->init( 1. );
-
-  auto op = Pimpact::createOperatorBase<MVF,MOp>();
-  auto prec = Pimpact::createMultiOperatorBase<MVF>(
-      Pimpact::createMGVHelmholtzOp<S,O>(1.,1.,true) );
-
-  auto para = Pimpact::createLinSolverParameter("GMRES",1.e-3,10);
-
-  Belos::SolverFactory<S, MVF, BOp> factory;
-
-  // Create the GMRES solver.
-  Teuchos::RCP<Belos::SolverManager<S, MVF, BOp > > solver =
-      factory.create( "CG", para );
-
-  // Create a LinearProblem struct with the problem to solve.
-  // A, X, B, and M are passed by (smart) pointer, not copied.
-  Teuchos::RCP<Belos::LinearProblem<S, MVF, BOp > > problem =
-      Teuchos::rcp( new Belos::LinearProblem<S, MVF, BOp >( op, x, b) );
-
-  problem->setProblem(x,b);
-//  problem->setLeftPrec( prec );
-  problem->setRightPrec( prec );
-
-  // Tell the solver what problem you want to solve.
-  solver->setProblem( problem );
-
-  Belos::ReturnType ret =  solver->solve();
-  x->write(222);
-
-  TEST_EQUALITY( ret, Belos::Converged );
-
-}
-
-
 
 TEUCHOS_UNIT_TEST( BelosSolver, PrecDivGrad ) {
 
@@ -228,15 +109,12 @@ TEUCHOS_UNIT_TEST( BelosSolver, PrecDivGrad ) {
     isImpactInit=true;
   }
 
-  typedef Pimpact::VectorField<S,O> VF;
-  typedef Pimpact::MultiField<VF> MVF;
+//  typedef Pimpact::VectorField<S,O> VF;
 
   typedef Pimpact::ScalarField<S,O> SF;
   typedef Pimpact::MultiField<SF> MSF;
 
-  typedef Pimpact::HelmholtzOp<S,O> Op;
-  typedef Pimpact::MLHelmholtzOp<S,O> Prec;
-  typedef Pimpact::MultiOpWrap<Op> MOp;
+//  typedef Pimpact::HelmholtzOp<S,O> Op;
   typedef Pimpact::OperatorBase<MSF> BOp;
 
 
@@ -247,7 +125,6 @@ TEUCHOS_UNIT_TEST( BelosSolver, PrecDivGrad ) {
 
   auto rhs = Pimpact::createScalarField<S,O>( space );
   auto sol = Pimpact::createScalarField<S,O>( space );
-
 
   auto lap = Pimpact::createHelmholtzOp<S,O>( 0., 1. );
 
@@ -375,7 +252,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
   typedef Pimpact::DivGradOp<S,O> Op;
   typedef Pimpact::MultiOpWrap<Op> MuOp;
   typedef Pimpact::OperatorBase<BSF> OpBase;
-  typedef Pimpact::OperatorPimpl<BSF,MuOp> OpPimpl;
+//  typedef Pimpact::OperatorPimpl<BSF,MuOp> OpPimpl;
   typedef OpBase  BOp;
 
 	auto space = Pimpact::createSpace();

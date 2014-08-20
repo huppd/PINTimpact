@@ -519,7 +519,6 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
   typedef Pimpact::NonlinearJacobian<S,O>  JOp1;
   typedef Pimpact::HelmholtzOp<S,O>  JOp2;
   typedef Pimpact::MultiOpWrap<Pimpact::Add2Op<JOp1,JOp2> > JOp;
-  typedef Pimpact::OperatorBase<MVF>  BOp;
 
   typedef NOX::Pimpact::Interface<MVF> Inter;
   typedef NOX::Pimpact::Vector<typename Inter::Field> NV;

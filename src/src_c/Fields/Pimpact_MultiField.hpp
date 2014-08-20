@@ -12,7 +12,6 @@
 
 #include <BelosTypes.hpp>
 
-
 #include "Pimpact_Types.hpp"
 
 #include "Pimpact_AbstractField.hpp"
@@ -353,7 +352,7 @@ public:
     for( int i=0; i<n; ++i )
       b+= mfs_[i]->dot( *A.mfs_[i], false );
 
-    if( global ) reduceNorm( comm(), b );
+    if( global ) this->reduceNorm( comm(), b );
 
     return( b );
   }
@@ -413,7 +412,7 @@ public:
           }
     }
 
-    if( global ) reduceNorm( comm(), normvec, type );
+    if( global ) this->reduceNorm( comm(), normvec, type );
 
     return( normvec );
   }
@@ -431,7 +430,7 @@ public:
     for( int i=0; i<getNumberVecs(); ++i )
       nor += mfs_[i]->norm( *weights.mfs_[i], false );
 
-    if( global ) reduceNorm( comm(), nor, Belos::TwoNorm );
+    if( global ) this->reduceNorm( comm(), nor, Belos::TwoNorm );
 
     return( nor );
   }

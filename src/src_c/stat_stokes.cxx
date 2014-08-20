@@ -50,9 +50,6 @@ int main(int argi, char** argv ) {
   typedef Pimpact::ScalarField<S,O> SF;
   typedef Pimpact::MultiField<VF> MVF;
   typedef Pimpact::MultiField<SF> MSF;
-  typedef Pimpact::MultiOpWrap< Pimpact::HelmholtzOp<S,O> >  Lap;
-  typedef Pimpact::MultiOpWrap< Pimpact::DivHinvGrad<S,O> >  Schur;
-  typedef Pimpact::MultiOpWrap< Pimpact::Grad<S,O> >  G;
 
   // intialize MPI
   MPI_Init( &argi, &argv );

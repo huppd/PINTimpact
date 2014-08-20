@@ -178,7 +178,7 @@ public:
 
     b = field0_->dot( *a.field0_, false ) + fields_->dot( *a.fields_, false );
 
-    if( global ) reduceNorm( comm(), b );
+    if( global ) this->reduceNorm( comm(), b );
 
     return( b );
 
@@ -209,7 +209,7 @@ public:
       break;
     }
 
-    if( global ) reduceNorm( comm(), normvec, type );
+    if( global ) this->reduceNorm( comm(), normvec, type );
 
     return( normvec );
 
@@ -225,7 +225,7 @@ public:
 
     double normvec=field0_->norm(*weights.field0_,false)+fields_->norm(*weights.fields_,false);
 
-    if( global ) reduceNorm( comm(), normvec, Belos::TwoNorm );
+    if( global ) this->reduceNorm( comm(), normvec, Belos::TwoNorm );
 
     return( normvec );
 

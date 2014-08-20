@@ -153,7 +153,7 @@ public:
 
     b = vfield_->dot( *a.vfield_, false ) + sfield_->dot( *a.sfield_, false );
 
-    if( global ) reduceNorm( comm(), b );
+    if( global ) this->reduceNorm( comm(), b );
 
     return( b );
   }
@@ -182,7 +182,7 @@ public:
       break;
     }
 
-    if( global ) reduceNorm( comm(), normvec, type );
+    if( global ) this->reduceNorm( comm(), normvec, type );
 
     return( normvec );
   }
@@ -200,7 +200,7 @@ public:
         vfield_->norm( *weights.vfield_, false ) +
         sfield_->norm( *weights.sfield_, false );
 
-    if( global ) reduceNorm( comm(), normvec, Belos::TwoNorm );
+    if( global ) this->reduceNorm( comm(), normvec, Belos::TwoNorm );
 
     return( normvec );
 

@@ -263,7 +263,6 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, DivGrad ) {
   //  typedef Pimpact::OperatorMV<Op> BOp;
   typedef Pimpact::MultiOpWrap<Op> MuOp;
   typedef Pimpact::OperatorBase<BSF> OpBase;
-  typedef Pimpact::OperatorPimpl<BSF,MuOp> OpPimpl;
 
 
 	auto space = Pimpact::createSpace();
@@ -303,7 +302,6 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, CompoundStokes ) {
   typedef Pimpact::MultiField<CF>         MV;
   typedef Pimpact::MultiOpWrap<Pimpact::CompoundStokes<S,O> > Op;
   typedef Pimpact::OperatorBase<MV> OpBase;
-  typedef Pimpact::OperatorPimpl<MV,Op> OpPimpl;
 
   auto space = Pimpact::createSpace();
 

@@ -44,12 +44,8 @@ int main(int argi, char** argv ) {
   typedef Pimpact::ModeField<Pimpact::ScalarField<S,O> >  SF;
   typedef Pimpact::MultiField<VF> MVF;
   typedef Pimpact::MultiField<SF> MSF;
-  typedef Pimpact::MultiOpWrap< Pimpact::ModeOpWrap<Pimpact::DtLapOp<S,O> > >  Lap;
-  typedef Pimpact::MultiOpWrap< Pimpact::DivDtLinvGrad<S,O> >  Schur;
-  typedef Pimpact::MultiOpWrap< Pimpact::ModeOpWrap<Pimpact::Grad<S,O> > >  G;
 
-  typedef Pimpact::OperatorBase<MVF> BVOp;
-  typedef Pimpact::OperatorBase<MSF> BSOp;
+//  typedef Pimpact::OperatorBase<MVF> BVOp;
 
 
   // intialize MPI
@@ -247,15 +243,15 @@ int main(int argi, char** argv ) {
     lprec = Pimpact::createMultiOperatorBase<MVF >( op2 );
     break;
   }
-  case 4: {
-    if(rank==0) std::cout << "\n\tprecType: 4, EddyPrec(ML)\n";
-
-    auto bla = Pimpact::createMultiModeOperatorBase<MVF>(
-        Pimpact::createMLHelmholtzOp<S,O>( space, 20, alpha2, 1./re, tol*l1*l2/n1/n2/1000 ) );
-    auto op2 = Pimpact::createEddyPrec<S,O>( fu->clone(), bla ) ;
-    lprec = Pimpact::createMultiOperatorBase<MVF>( op2 );
-    break;
-  }
+//  case 4: {
+//    if(rank==0) std::cout << "\n\tprecType: 4, EddyPrec(ML)\n";
+//
+//    auto bla = Pimpact::createMultiModeOperatorBase<MVF>(
+//        Pimpact::createMLHelmholtzOp<S,O>( space, 20, alpha2, 1./re, tol*l1*l2/n1/n2/1000 ) );
+//    auto op2 = Pimpact::createEddyPrec<S,O>( fu->clone(), bla ) ;
+//    lprec = Pimpact::createMultiOperatorBase<MVF>( op2 );
+//    break;
+//  }
   case 5: {
     if(rank==0) std::cout << "\n\tprecType: 5, EddyPrec(ImpactSolver)\n";
 

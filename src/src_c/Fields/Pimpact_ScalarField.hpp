@@ -21,6 +21,7 @@
 
 
 
+
 namespace Pimpact {
 
 
@@ -31,6 +32,8 @@ namespace Pimpact {
 template< class S=double, class O=int, int dimension=3 >
 class ScalarField : private AbstractField<S,O> {
 
+  template<class S1,class O1,int dimension1>
+  friend class VectorField;
   template<class S1,class O1,int dimension1>
   friend class Grad;
   template<class S1,class O1,int dimension1>
@@ -59,19 +62,22 @@ protected:
 
   State exchangedState_;
 
+  EFieldType fType_;
+
 public:
 
-  ScalarField():
+  ScalarField( EFieldType fType=EFieldType::S ):
     s_(0),
     space_(Teuchos::null),
     owning_(true),
-    exchangedState_( Teuchos::tuple(true,true,true) ) {};
+    exchangedState_( Teuchos::tuple(true,true,true) ),
+    fType_(fType) {};
 
-  ScalarField( const Teuchos::RCP<const Space<Scalar,Ordinal,dimension> >& space, bool owning=true ):
+  ScalarField( const Teuchos::RCP<const Space<Scalar,Ordinal,dimension> >& space, bool owning=true, EFieldType fType=EFieldType::S ):
     space_(space),
     owning_(owning),
-    exchangedState_( Teuchos::tuple(true,true,true) ) {
-
+    exchangedState_( Teuchos::tuple(true,true,true) ),
+    fType_(fType) {
 
     if( owning_ ) {
 
@@ -93,7 +99,8 @@ public:
   ScalarField( const ScalarField& sF, ECopyType copyType=DeepCopy ):
     space_(sF.space_),
     owning_(sF.owning_),
-    exchangedState_( sF.exchangedState_ ) {
+    exchangedState_( sF.exchangedState_ ),
+    fType_( sF.fType_ ) {
 
     if( owning_ ) {
 
@@ -133,11 +140,62 @@ public:
     auto bc = space_->getDomain()->getBCGlobal();
 
     Ordinal vl = 1;
-    for(int i = 0; i<dim(); ++i)
-      if( PeriodicBC==bc->getBCL(i) )
-        vl *= nGlo(i)-1;
-      else
-        vl *= nGlo(i);
+
+    switch( fType_ ) {
+    case EFieldType::S: {
+      for(int i = 0; i<dim(); ++i)
+        if( PeriodicBC==bc->getBCL(i) )
+          vl *= nGlo(i)-1;
+        else
+          vl *= nGlo(i);
+      break;
+    }
+    case EFieldType::U: {
+      Ordinal vl = 1;
+      for( int j=0; j<dim(); ++j) {
+        if( U==j ) {
+          vl *= nGlo(j)-1;
+        }
+        else {
+          if( PeriodicBC==bc->getBCL(j) )
+            vl *= nGlo(j)-2+1;
+          else
+            vl *= nGlo(j)-2;
+        }
+      }
+      break;
+    }
+    case EFieldType::V: {
+      Ordinal vl = 1;
+      for( int j=0; j<dim(); ++j) {
+        if( 1==j ) {
+          vl *= nGlo(j)-1;
+        }
+        else {
+          if( PeriodicBC==bc->getBCL(j) )
+            vl *= nGlo(j)-2+1;
+          else
+            vl *= nGlo(j)-2;
+        }
+      }
+      break;
+    }
+    case EFieldType::W: {
+      Ordinal vl = 1;
+      for( int j=0; j<dim(); ++j) {
+        if( 2==j ) {
+          vl *= nGlo(j)-1;
+        }
+        else {
+          if( PeriodicBC==bc->getBCL(j) )
+            vl *= nGlo(j)-2+1;
+          else
+            vl *= nGlo(j)-2;
+        }
+      }
+      break;
+    }
+    }
     return( vl );
   }
 
@@ -251,7 +309,7 @@ public:
         sInd(), eInd(),
         s_, a.s_, b );
 
-    if( global ) reduceNorm( comm(), b );
+    if( global ) this->reduceNorm( comm(), b );
 
     return( b );
   }
@@ -296,7 +354,7 @@ public:
       break;
     }
 
-    if( global ) reduceNorm( comm(), normvec, type );
+    if( global ) this->reduceNorm( comm(), normvec, type );
 
     return( normvec );
   }
@@ -319,7 +377,7 @@ public:
         s_, weights.s_,
         normvec );
 
-    if( global ) reduceNorm( comm(), normvec, Belos::TwoNorm );
+    if( global ) this->reduceNorm( comm(), normvec, Belos::TwoNorm );
 
     return( normvec );
 
@@ -408,7 +466,7 @@ public:
 
     Ordinal n = 1;
     for(int i=0; i<3; ++i)
-      n *= nLoc(i)+bu(i)-bl(i)+1; // there a one was added for AMG, but it is not neede error seem to be in Impact there it should be (B1L+1:N1+B1U) probably has to be changed aganin for 3D
+      n *= nLoc()[i]+bu()[i]-bl()[i]+1; // there a one was added for AMG, but it is not neede error seem to be in Impact there it should be (B1L+1:N1+B1U) probably has to be changed aganin for 3D
 
     return( n );
   }
@@ -424,21 +482,14 @@ public:
 protected:
 
   const Ordinal& nGlo(int i)                 const { return( space_->nGlo()[i] ); }
-  const Ordinal& nLoc(int i)                 const { return( space_->nLoc()[i]) ; }
-
-  const Ordinal& sInd(int i)  const { return( space_->sInd()[i] ); }
-  const Ordinal& eInd(int i)  const { return( space_->eInd()[i] ); }
-
-  const Ordinal& bl(int i)                   const { return( space_->bl()[i] ); }
-  const Ordinal& bu(int i)                   const { return( space_->bu()[i] ); }
 
   const Ordinal* nLoc()                      const { return( space_->nLoc() ) ; }
 
   const Ordinal* bl()                   const { return( space_->bl() ); }
   const Ordinal* bu()                   const { return( space_->bu() ); }
 
-  const Ordinal* sInd() const { return( space_->sInd() ); }
-  const Ordinal* eInd() const { return( space_->eInd() ); }
+  const Ordinal* sInd() const { return( space_->sInd( fType_ ) ); }
+  const Ordinal* eInd() const { return( space_->eInd( fType_ ) ); }
 
   const int*     bcL() const { return( space_->getDomain()->getBCLocal()->getBCL() ); }
   const int*     bcU() const { return( space_->getDomain()->getBCLocal()->getBCU() ); }
@@ -506,13 +557,14 @@ protected:
 template<class S=double, class O=int, int d=3>
 Teuchos::RCP< ScalarField<S,O,d> >
 createScalarField(
-    const Teuchos::RCP<const Space<S,O,d> >& space=Teuchos::null ) {
+    const Teuchos::RCP<const Space<S,O,d> >& space=Teuchos::null,
+    EFieldType fType=EFieldType::S ) {
   //  if( space.is_null() )
   //    return( Teuchos::rcp(
   //        new ScalarField<S,O,d>( createSpace<O,d>() ) ) );
   //  else
   return( Teuchos::rcp(
-      new ScalarField<S,O,d>( space ) ) );
+      new ScalarField<S,O,d>( space, fType ) ) );
 }
 
 

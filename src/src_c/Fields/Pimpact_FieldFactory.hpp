@@ -108,6 +108,10 @@ Teuchos::RCP< MultiField<ModeField<VectorField<Scalar,Ordinal> > > > createInitM
     u->getField(0).getCFieldPtr()->initField( Streaming2DC, re, omega, px );
     u->getField(0).getSFieldPtr()->initField( Streaming2DS, re, omega, px );
     break;
+  case OscilatingDisc2D:
+    break;
+  case OscilatingDisc2DVel:
+    break;
   }
   return( u );
 }

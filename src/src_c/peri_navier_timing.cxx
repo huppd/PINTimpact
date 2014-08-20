@@ -50,14 +50,13 @@ int main(int argi, char** argv ) {
   typedef Pimpact::MultiField<CF> MF;
 
 
+//  typedef Pimpact::MultiHarmonicOpWrap< Pimpact::Grad<S,O> > OpS2V;
+//  typedef Pimpact::MultiHarmonicOpWrap< Pimpact::Div<S,O> >  OpV2S;
 
-  typedef Pimpact::MultiHarmonicOpWrap< Pimpact::Grad<S,O> > OpS2V;
-  typedef Pimpact::MultiHarmonicOpWrap< Pimpact::Div<S,O> >  OpV2S;
-
-  typedef Pimpact::MultiDtHelmholtz<S,O>  DtL;
-  typedef Pimpact::MultiHarmonicNonlinear<S,O>  MAdv;
-  typedef Pimpact::Add2Op<DtL,MAdv> OpV2V;
-  typedef Pimpact::MultiOpWrap< Pimpact::CompoundOpWrap<OpV2V,OpS2V,OpV2S> > Op;
+//  typedef Pimpact::MultiDtHelmholtz<S,O>  DtL;
+//  typedef Pimpact::MultiHarmonicNonlinear<S,O>  MAdv;
+//  typedef Pimpact::Add2Op<DtL,MAdv> OpV2V;
+//  typedef Pimpact::MultiOpWrap< Pimpact::CompoundOpWrap<OpV2V,OpS2V,OpV2S> > Op;
 
   typedef Pimpact::OperatorBase<MF> BOp;
 

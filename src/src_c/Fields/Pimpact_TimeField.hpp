@@ -257,7 +257,7 @@ public:
     for( Iter i=beginI_; i<endI_; ++i )
       b+= (*i)->dot( **(j++), false );
 
-    if( global ) reduceNorm( comm(), b );
+    if( global ) this->reduceNorm( comm(), b );
 
     return( b );
   }
@@ -284,7 +284,7 @@ public:
       }
     }
 
-    if( global ) reduceNorm( comm(), normvec, type );
+    if( global ) this->reduceNorm( comm(), normvec, type );
 
     return( normvec );
 
@@ -305,7 +305,7 @@ public:
     for( Iter i=beginI_; i<endI_; ++i )
       nor+= (*i)->norm( **(j++) );
 
-    if( global ) reduceNorm( comm(), nor, Belos::TwoNorm );
+    if( global ) this->reduceNorm( comm(), nor, Belos::TwoNorm );
 
     return( nor );
   }

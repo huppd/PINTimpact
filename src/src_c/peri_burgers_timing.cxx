@@ -62,8 +62,6 @@ int main(int argi, char** argv ) {
   typedef Pimpact::MultiOpWrap< Pimpact::Add3Op<DtL,MAdv,Fo> > Op;
 
   typedef Pimpact::MultiHarmonicNonlinearJacobian<S,O>  JMAdv;
-  typedef Pimpact::MultiHarmonicDiagNonlinearJacobian<S,O>  DJMAdv;
-  typedef Pimpact::MultiHarmonicOpWrap< Pimpact::NonlinearJacobian<S,O> > JAdv;
 
 
   typedef NOX::Pimpact::Interface<MVF> Inter;

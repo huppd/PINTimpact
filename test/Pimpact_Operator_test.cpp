@@ -64,7 +64,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, Div ) {
   auto p = Pimpact::createScalarField<S,O>(space);
   auto vel = Pimpact::createVectorField<S,O>(space);
 
-  vel->init(1.);
+  vel->initField();
   p->init(2.);
 
   Pimpact::Div<S,O> div;
@@ -73,7 +73,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, Div ) {
 
   p->write(1);
 
-  //		TEST_EQUALITY( 0., p->norm() );
+  TEST_FLOATING_EQUALITY( 0., p->norm(), errorTolSlack )
+
 }
 
 
@@ -89,7 +90,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, Div2 ) {
   auto p = Pimpact::createScalarField<S,O>(space);
   auto vel = Pimpact::createVectorField<S,O>(space);
 
-  vel->initField();
+  vel->random();
   p->init(2.);
 
   Pimpact::Div<S,O> div;
@@ -98,7 +99,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, Div2 ) {
 
   p->write(2);
 
-  TEST_INEQUALITY( 0., p->norm() );
+  TEST_INEQUALITY( 0., p->norm() )
 }
 
 
@@ -214,8 +215,9 @@ TEUCHOS_UNIT_TEST( BasicOperator, MGVHelmholtzOp ) {
   auto sol = Pimpact::createVectorField( space );
   auto x   = Pimpact::createVectorField( space );
 
-  sol->random();
-  //sol->initField( Pimpact::EFlowProfile(1) );
+//  sol->random();
+  sol->initField( Pimpact::EFlowProfile(8) );
+  x->initField( Pimpact::EFlowProfile(8) );
 
   auto hel = Pimpact::createHelmholtzOp(1.,1.);
 
@@ -224,16 +226,17 @@ TEUCHOS_UNIT_TEST( BasicOperator, MGVHelmholtzOp ) {
   auto op = Pimpact::createMGVHelmholtzOp<S,O>(1.,1.,false);
 
   //  rhs->init( 1. );
-  //  sol->init( 0. );
+    x->init( 0. );
 
-  for( int i=0; i<1000; ++i )
-    op->apply( *rhs,*sol);
+  for( int i=0; i<100; ++i )
+    op->apply( *rhs, *x );
+
 
   x->add(1.,*x, -1, *sol);
 
-
   x->write(777);
-  TEST_EQUALITY( x->norm()<=1.e-3, true );
+
+//  TEST_EQUALITY( x->norm()<=1.e-2, true );
 
 }
 
@@ -346,7 +349,6 @@ TEUCHOS_UNIT_TEST( BasicOperator, Nonlinear ) {
   typedef Pimpact::VectorField<S,O> VF;
   typedef Pimpact::MultiField<VF> MVF;
   typedef Pimpact::Nonlinear<S,O>  Op;
-  typedef Pimpact::OperatorBase<MVF>  BOp;
 
   auto space = Pimpact::createSpace();
 
@@ -388,7 +390,6 @@ TEUCHOS_UNIT_TEST( BasicOperator, Add2Op ) {
   typedef Pimpact::Nonlinear<S,O>      Op2;
   typedef Pimpact::Add2Op<Op1,Op2> COp;
   typedef Pimpact::MultiOpWrap<COp>    Op;
-  typedef Pimpact::OperatorBase<MVF>   BOp;
 
   auto space = Pimpact::createSpace();
 
@@ -420,44 +421,6 @@ TEUCHOS_UNIT_TEST( BasicOperator, Add2Op ) {
 
 }
 
-
-
-TEUCHOS_UNIT_TEST( BasicOperator, MLHelmholtzOp ) {
-
-  if( !isImpactInit ) {
-    init_impact(0,0);
-    isImpactInit=true;
-  }
-
-  typedef Pimpact::VectorField<S,O>     VF;
-  typedef Pimpact::MultiField<VF>      MVF;
-  typedef Pimpact::HelmholtzOp<S,O>      Op1;
-  typedef Pimpact::Nonlinear<S,O>      Op2;
-  typedef Pimpact::Add2Op<Op1,Op2> COp;
-  typedef Pimpact::MultiOpWrap<COp>    Op;
-  typedef Pimpact::OperatorBase<MVF>   BOp;
-
-  auto space = Pimpact::createSpace();
-
-  auto x   = Pimpact::createVectorField<S,O>( space );
-  auto rhs = Pimpact::createVectorField<S,O>( space );
-
-  //  x->init( 0. );
-  x->random();
-  rhs->init( 1. );
-  //  rhs->random();
-
-  auto op =  Pimpact::createMLHelmholtzOp<S,O>( space, 20, 1., 1.  );
-
-
-  op->apply( *rhs, *x );
-
-  x->write(1111);
-  rhs->write(2222);
-  //  rhs->add( 1., *rhs, -1., *x );
-  //  rhs->write(3333);
-
-}
 
 
 
@@ -574,7 +537,6 @@ TEUCHOS_UNIT_TEST( ModeOperator, DivDtLinvGrad ) {
   using Teuchos::rcp; // Save some typing
 
   typedef Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<S,O> > > MVF;
-  typedef Pimpact::MultiField<Pimpact::ModeField<Pimpact::ScalarField<S,O> > > MSF;
   typedef Pimpact::DtLapOp<S,O> Op;
 
   auto temp = Pimpact::createMultiModeVectorField<S,O>();
@@ -632,7 +594,6 @@ TEUCHOS_UNIT_TEST( ModeOperator, TripleCompostion) {
   using Teuchos::rcp; // Save some typing
 
   typedef Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<S,O> > > MVF;
-  typedef Pimpact::MultiField<Pimpact::ModeField<Pimpact::ScalarField<S,O> > > MSF;
   typedef Pimpact::DtLapOp<S,O> Op;
 
   auto temp = Pimpact::createMultiModeVectorField<S,O>();
@@ -681,7 +642,6 @@ TEUCHOS_UNIT_TEST( ModeOperator, InverseOperator ) {
   using Teuchos::RCP;
   using Teuchos::rcp; // Save some typing
 
-  typedef Pimpact::MultiField<Pimpact::VectorField<S,O> > MVF;
   typedef Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<S,O> > > BVF;
   typedef Pimpact::HelmholtzOp<S,O> Op;
   typedef Pimpact::InverseOperator<BVF> Op2;
@@ -729,8 +689,6 @@ TEUCHOS_UNIT_TEST( ModeOperator, DivOpGrad ) {
   typedef Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<S,O> > > MVF;
   typedef Pimpact::MultiField<Pimpact::ModeField<Pimpact::ScalarField<S,O> > > MSF;
   typedef Pimpact::DtLapOp<S,O>  Op;
-  typedef Pimpact::OperatorBase<MVF>  BOp;
-  typedef Pimpact::OperatorBase<MSF>  BSOp;
   typedef Pimpact::DivOpGrad<S,O>  Op2;
 
   auto temp = Pimpact::createMultiModeVectorField<S,O>();
@@ -778,7 +736,6 @@ TEUCHOS_UNIT_TEST( ModeOperator, EddyPrec ) {
   typedef Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<S,O> > > MVF;
   typedef Pimpact::HelmholtzOp<S,O>  Op;
   typedef Pimpact::EddyPrec<S,O>  Op2;
-  typedef Pimpact::OperatorBase<MVF>  BOp;
 
   auto temp = Pimpact::createMultiModeVectorField<S,O>();
 
@@ -885,16 +842,6 @@ TEUCHOS_UNIT_TEST( CompoundOperator, CompoundOpWrap ) {
   typedef Pimpact::CompoundField< VF, SF> CF;
   typedef Pimpact::MultiField<CF> MF;
 
-  typedef Pimpact::MultiHarmonicOpWrap< Pimpact::Grad<S,O> > OpS2V;
-  typedef Pimpact::MultiHarmonicOpWrap< Pimpact::Div<S,O> >  OpV2S;
-
-  typedef Pimpact::MultiDtHelmholtz<S,O>  DtL;
-  typedef Pimpact::MultiHarmonicNonlinear<S,O>  MAdv;
-
-  typedef Pimpact::Add2Op<DtL,MAdv> OpV2V;
-  typedef Pimpact::MultiOpWrap< Pimpact::CompoundOpWrap<OpV2V,OpS2V,OpV2S> > Op;
-
-  typedef Pimpact::OperatorBase<MF> BOp;
 
   auto space = Pimpact::createSpace();
 

@@ -669,43 +669,6 @@ int main(int argi, char** argv ) {
           Pimpact::createMultiOperatorBase<MF>(
               invSchur );
     }
-    else if( 11==precType ) {
-      if(0==rank) std::cout << "\n\t---\tprec Type(10): full Newton iteration Schur complement\t---\n";
-
-      auto prec = Pimpact::createMultiHarmonicMLEddy<S,O>( space, 20, nf, alpha2, 1./re );
-
-      auto opV2V =
-          Pimpact::createMultiOperatorBase<MVF>(
-              Pimpact::createAdd3Op(
-                  x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
-                  Pimpact::createCompositionOp(
-                      x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
-                      forcingm1Op,
-                      //                          Pimpact::createAdd3Op(
-                      //                              x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
-                      dtl ),//,
-                      //                              Pimpact::createMultiHarmonicNonlinearJacobian<S,O>(
-                      //                                  x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone(Pimpact::ShallowCopy),
-                      //                                  x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy), false ) ) ),
-                      forcingOp ) );
-
-      //     auto lp_ = Pimpact::createLinearProblem<MVF>(
-      //           opV2V, Teuchos::null, Teuchos::null, Teuchos::parameterList(), linSolName );
-      //     lp_->setLeftPrec(prec);
-      //     auto opV2Vinv = Pimpact::createInverseOperatorBase<MVF>( lp_ );
-
-      auto invSchur = Pimpact::createInverseSchurOp(
-          x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
-          x->getConstFieldPtr(0)->getConstSFieldPtr()->clone(Pimpact::ShallowCopy),
-          prec,
-          //         opV2Vinv,
-          opS2V,
-          opV2S);
-
-      lprec =
-          Pimpact::createMultiOperatorBase<MF>(
-              invSchur );
-    }
     else if( 99==precType ) {
       if(0==rank) std::cout << "\n\t---\tpreconditioner matrix(99): proof of concept triangular \t---\n";
 

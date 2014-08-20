@@ -59,7 +59,6 @@ int main(int argi, char** argv ) {
   typedef Pimpact::MultiDtHelmholtz<S,O>  DtL;
   typedef Pimpact::MultiHarmonicOpWrap< Pimpact::ForcingOp<V> > Fo;
   typedef Pimpact::MultiHarmonicNonlinear<S,O>  MAdv;
-  typedef Pimpact::MultiOpWrap< Pimpact::Add2Op< Pimpact::Add2Op<MAdv,DtL>, Fo > > Op;
 
   typedef Pimpact::MultiHarmonicNonlinearJacobian<S,O>  JMAdv;
   typedef Pimpact::MultiHarmonicDiagNonlinearJacobian<S,O>  DJMAdv;
@@ -304,7 +303,6 @@ int main(int argi, char** argv ) {
       if(0==rank) std::cout << "\n\t---\titeration matrix(2): full Picard iteration\t---\n";
 
       typedef Pimpact::MultiHarmonicNonlinearJacobian<S,O> JMAdv;
-      typedef Pimpact::MultiOpWrap< Pimpact::Add2Op< Pimpact::Add2Op<JMAdv,DtL>, Fo > > JOp;
 
       jop =
           Pimpact::createMultiOperatorBase<MVF>(
@@ -323,8 +321,6 @@ int main(int argi, char** argv ) {
 
       if(0==rank) std::cout << "\n\t---\titeration matrix(3): complex diagonal Newton iteration\t---\n";
 
-      typedef Pimpact::MultiOpWrap< Pimpact::Add2Op< Pimpact::Add2Op<DJMAdv,DtL>, Fo > > JOp;
-
       jop =
           Pimpact::createMultiOperatorBase<MVF>(
               Pimpact::createAdd2Op<Pimpact::Add2Op<DJMAdv,DtL>,Fo>(
@@ -342,7 +338,6 @@ int main(int argi, char** argv ) {
 
       if(0==rank) std::cout << "\n\t---\titeration matrix(4): complex diagonal Picard iteration\t---\n";
 
-      typedef Pimpact::MultiOpWrap< Pimpact::Add2Op< Pimpact::Add2Op<DJMAdv,DtL>, Fo > > JOp;
 
       jop =
           Pimpact::createMultiOperatorBase<MVF>(
@@ -361,7 +356,6 @@ int main(int argi, char** argv ) {
 
       if(0==rank) std::cout << "\n\t---\titeration matrix(5): semi-complex diagonal Newton iteration\t---\n";
 
-      typedef Pimpact::MultiOpWrap< Pimpact::Add2Op< Pimpact::Add2Op<JAdv,DtL>, Fo > > JOp;
 
       jop =
           Pimpact::createMultiOperatorBase<MVF>(
@@ -379,8 +373,6 @@ int main(int argi, char** argv ) {
 
       if(0==rank) std::cout << "\n\t---\titeration matrix(6): semi-complex diagonal Picard iteration\t---\n";
 
-      typedef Pimpact::MultiOpWrap< Pimpact::Add2Op< Pimpact::Add2Op<JAdv,DtL>, Fo > > JOp;
-
       jop =
           Pimpact::createMultiOperatorBase<MVF>(
               Pimpact::createAdd2Op<Pimpact::Add2Op<JAdv,DtL>,Fo>(
@@ -397,7 +389,6 @@ int main(int argi, char** argv ) {
 
       if(0==rank) std::cout << "\n\t---\titeration matrix(7): real diagonal Newton iteration\t---\n";
 
-      typedef Pimpact::MultiOpWrap< Pimpact::Add2Op< Pimpact::Add2Op<JAdv,DtL>, Fo > > JOp;
 
       jop =
           Pimpact::createMultiOperatorBase<MVF>(
@@ -414,7 +405,6 @@ int main(int argi, char** argv ) {
     else if( 8==iterM ){
       if(0==rank) std::cout << "\n\t---\titeration matrix(8): real diagonal Picard iteration\t---\n";
 
-      typedef Pimpact::MultiOpWrap< Pimpact::Add2Op< Pimpact::Add2Op<JAdv,DtL>, Fo > > JOp;
 
       jop =
           Pimpact::createMultiOperatorBase<MVF>(
@@ -430,7 +420,6 @@ int main(int argi, char** argv ) {
     }
     else if( 9==iterM ) {
       if(0==rank) std::cout << "\n\t---\titeration matrix(9): linear terms\t---\n";
-      typedef Pimpact::MultiOpWrap< Pimpact::Add2Op< DtL, Fo > > JOp;
 
       jop =
           Pimpact::createMultiOperatorBase<MVF>(
@@ -445,7 +434,6 @@ int main(int argi, char** argv ) {
 
       if(0==rank) std::cout << "\n\t---\titeration matrix(2): full Newton iteration\t---\n";
 
-      typedef Pimpact::MultiOpWrap< Pimpact::Add2Op< Pimpact::Add2Op<JMAdv,DtL>, Fo > > JOp;
 
       jop =
           Pimpact::createMultiOperatorBase<MVF>(
@@ -470,7 +458,6 @@ int main(int argi, char** argv ) {
 
       if(0==rank) std::cout << "\n\t---\tpreconditioner matrix(3): complex diagonal Newton iteration\t---\n";
 
-      typedef Pimpact::MultiOpWrap< Pimpact::Add2Op< Pimpact::Add2Op<DJMAdv,DtL>, Fo > > JOp;
 
       auto precOp =
           Pimpact::createMultiOperatorBase<MVF>(
@@ -496,7 +483,6 @@ int main(int argi, char** argv ) {
 
       if(0==rank) std::cout << "\n\t---\tpreconditioner  matrix(4): complex diagonal Picard iteration\t---\n";
 
-      typedef Pimpact::MultiOpWrap< Pimpact::Add2Op< Pimpact::Add2Op<DJMAdv,DtL>, Fo > > JOp;
 
       auto precOp =
           Pimpact::createMultiOperatorBase<MVF>(
@@ -523,7 +509,6 @@ int main(int argi, char** argv ) {
 
       if(0==rank) std::cout << "\n\t---\titeration matrix(5): semi-complex diagonal Newton iteration\t---\n";
 
-      typedef Pimpact::MultiOpWrap< Pimpact::Add2Op< Pimpact::Add2Op<JAdv,DtL>, Fo > > JOp;
 
       auto precOp =
           Pimpact::createMultiOperatorBase<MVF>(
@@ -549,7 +534,6 @@ int main(int argi, char** argv ) {
 
       if(0==rank) std::cout << "\n\t---\titeration matrix(6): semi-complex diagonal Picard iteration\t---\n";
 
-      typedef Pimpact::MultiOpWrap< Pimpact::Add2Op< Pimpact::Add2Op<JAdv,DtL>, Fo > > JOp;
 
       auto precOp =
           Pimpact::createMultiOperatorBase<MVF>(
@@ -574,7 +558,6 @@ int main(int argi, char** argv ) {
 
       if(0==rank) std::cout << "\n\t---\titeration matrix(7): real diagonal Newton iteration\t---\n";
 
-      typedef Pimpact::MultiOpWrap< Pimpact::Add2Op< Pimpact::Add2Op<JAdv,DtL>, Fo > > JOp;
 
       auto precOp =
           Pimpact::createMultiOperatorBase<MVF>(
@@ -598,7 +581,6 @@ int main(int argi, char** argv ) {
     else if( 8==precType ){
       if(0==rank) std::cout << "\n\t---\titeration matrix(8): real diagonal Picard iteration\t---\n";
 
-      typedef Pimpact::MultiOpWrap< Pimpact::Add2Op< Pimpact::Add2Op<JAdv,DtL>, Fo > > JOp;
 
       auto precOp =
           Pimpact::createMultiOperatorBase<MVF>(
@@ -621,7 +603,6 @@ int main(int argi, char** argv ) {
     }
     else if( 9==precType ) {
       if(0==rank) std::cout << "\n\t---\titeration matrix(9): linear terms\t---\n";
-      typedef Pimpact::MultiOpWrap< Pimpact::Add2Op< DtL, Fo > > JOp;
 
       auto precOp =
           Pimpact::createMultiOperatorBase<MVF>(

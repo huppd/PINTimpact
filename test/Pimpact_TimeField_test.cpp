@@ -37,7 +37,7 @@ namespace {
 
 bool testMpi = true;
 double errorTolSlack = 3e-1;
-bool isImpactInit=false;
+//bool isImpactInit=false;
 
 typedef double S;
 typedef int O;

@@ -96,14 +96,31 @@ public:
   const Ordinal* bu  ()  const { return( fieldSpace_->bu_.getRawPtr()   ); }
 
 
-  const Ordinal* sInd() const { return( scalarIS_->sInd_.getRawPtr()  ); }
-  const Ordinal* eInd() const { return( scalarIS_->eInd_.getRawPtr()  ); }
+  const Ordinal* sInd( int fieldType ) const {
+    if( EFieldType::S == fieldType )
+      return( scalarIS_->sInd_.getRawPtr()  );
+    else
+      return( innerIS_[fieldType]->sInd_.getRawPtr() );
+  }
+  const Ordinal* eInd(  int fieldType ) const {
+    if( EFieldType::S == fieldType )
+      return( scalarIS_->eInd_.getRawPtr()  );
+    else
+      return( innerIS_[fieldType]->eInd_.getRawPtr() );
+  }
 
-  const Ordinal* sInd(  int fieldType ) const { return( innerIS_[fieldType]->sInd_.getRawPtr() ); }
-  const Ordinal* eInd(  int fieldType ) const { return( innerIS_[fieldType]->eInd_.getRawPtr() ); }
-
-  const Ordinal* sIndB( int fieldType ) const { return( fullIS_[fieldType]->sInd_.getRawPtr()  ); }
-  const Ordinal* eIndB( int fieldType ) const { return( fullIS_[fieldType]->eInd_.getRawPtr()  ); }
+  const Ordinal* sIndB( int fieldType ) const {
+    if( EFieldType::S == fieldType )
+      return( scalarIS_->eInd_.getRawPtr()  );
+    else
+      return( fullIS_[fieldType]->sInd_.getRawPtr()  );
+  }
+  const Ordinal* eIndB( int fieldType ) const {
+    if( EFieldType::S == fieldType )
+      return( scalarIS_->eInd_.getRawPtr()  );
+    else
+      return( fullIS_[fieldType]->eInd_.getRawPtr()  );
+  }
 
   const Ordinal* procCoordinate() const { return( procGrid_->iB_.getRawPtr()  ); }
 

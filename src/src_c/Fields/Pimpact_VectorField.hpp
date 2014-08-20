@@ -309,7 +309,7 @@ public:
           vec_[i], a.vec_[i],
           b );
 
-    if( global ) reduceNorm( comm(), b );
+    if( global ) this->reduceNorm( comm(), b );
 
     return( b );
 
@@ -357,7 +357,7 @@ public:
         break;
       }
 
-    if( global ) reduceNorm( comm(), normvec, type );
+    if( global ) this->reduceNorm( comm(), normvec, type );
 
     return( normvec );
 
@@ -380,7 +380,7 @@ public:
           vec_[i], weights.vec_[i],
           normvec );
 
-     if( global ) reduceNorm( comm(), normvec, Belos::TwoNorm );
+     if( global ) this->reduceNorm( comm(), normvec, Belos::TwoNorm );
 
      return( normvec );
 
@@ -803,8 +803,8 @@ protected:
   const Ordinal* bl()                   const { return( space_->bl() ); }
   const Ordinal* bu()                   const { return( space_->bu() ); }
 
-  const Ordinal* sInd() const { return( space_->sInd() ); }
-  const Ordinal* eInd() const { return( space_->eInd() ); }
+//  const Ordinal* sInd() const { return( space_->sInd() ); }
+//  const Ordinal* eInd() const { return( space_->eInd() ); }
 
   const Ordinal* sInd(  int fieldType ) const { return( space_->sInd(fieldType)  ); }
   const Ordinal* eInd(  int fieldType ) const { return( space_->eInd(fieldType) ); }
@@ -855,7 +855,7 @@ protected:
           nLoc(),
           bl(), bu(),
           bcL(), bcU(),
-          sInd(), eInd(),
+          sInd(EFieldType::S), eInd(EFieldType::S),
           ones,
           nLoc(),
           dir+1, vel_dir+1,
@@ -874,32 +874,6 @@ protected:
 }; // end of class VectorField
 
 
-//template<class Field>
-//Teuchos::RCP<Field> create( const Teuchos::RCP<const Space<typename Field::Ordinal,Field::dimension> >& space ) {
-//  return( Teuchos::null );
-//}
-//
-//
-///// \brief creates a vector field belonging to a \c FieldSpace and two \c IndexSpaces
-///// \relates VectorField
-//template<>
-//Teuchos::RCP< VectorField<double,int,3> > create< VectorField<double,int,3> >( const Teuchos::RCP< const Space<int,3> >& space ) {
-//
-//  return( Teuchos::RCP<VectorField<double,int,3> > (
-//      new VectorField<double,int,3>( space ) ) );
-//
-//}
-//
-///// \brief creates a vector field belonging to a \c FieldSpace and two \c IndexSpaces
-///// \relates VectorField
-//template<>
-//Teuchos::RCP< VectorField<double,int,4> > create<VectorField<double,int,4> >(
-//    const Teuchos::RCP< const Space<VectorField<double,int,4>::Ordinal,VectorField<double,int,4>::dimensionina> >& space ) {
-//
-//  return( Teuchos::RCP<VectorField<double,int,4> > (
-//      new VectorField<double,int,4>( space ) ) );
-//
-//}
 
 /// \brief creates a vector field belonging to a \c FieldSpace and two \c IndexSpaces
 /// \relates VectorField
