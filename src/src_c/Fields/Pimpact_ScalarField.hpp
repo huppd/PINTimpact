@@ -150,40 +150,9 @@ public:
           vl *= nGlo(i);
       break;
     }
-    case EFieldType::U: {
-      Ordinal vl = 1;
+    default: {
       for( int j=0; j<dim(); ++j) {
-        if( U==j ) {
-          vl *= nGlo(j)-1;
-        }
-        else {
-          if( PeriodicBC==bc->getBCL(j) )
-            vl *= nGlo(j)-2+1;
-          else
-            vl *= nGlo(j)-2;
-        }
-      }
-      break;
-    }
-    case EFieldType::V: {
-      Ordinal vl = 1;
-      for( int j=0; j<dim(); ++j) {
-        if( 1==j ) {
-          vl *= nGlo(j)-1;
-        }
-        else {
-          if( PeriodicBC==bc->getBCL(j) )
-            vl *= nGlo(j)-2+1;
-          else
-            vl *= nGlo(j)-2;
-        }
-      }
-      break;
-    }
-    case EFieldType::W: {
-      Ordinal vl = 1;
-      for( int j=0; j<dim(); ++j) {
-        if( 2==j ) {
+        if( fType_==j ) {
           vl *= nGlo(j)-1;
         }
         else {
@@ -396,20 +365,20 @@ public:
   /// \note "indexing" is done c++
   void assign( const MV& a ) {
     SF_assign(
-         nLoc(),
-         bl(), bu(),
-         sInd(), eInd(),
-         s_, a.s_ );
-     changed();
-//    Ordinal N = 1;
-//    for(int i=0; i<3; ++i)
-//      N *= nLoc(i)+bu(i)-bl(i);
-//
-//    for(int i=0; i<N; ++i)
-//      s_[i] = a.s_[i];
-//
-//    for( int dir=0; dir<dim(); ++dir )
-//      exchangedState_[dir] = a.exchangedState_[dir];
+        nLoc(),
+        bl(), bu(),
+        sInd(), eInd(),
+        s_, a.s_ );
+    changed();
+    //    Ordinal N = 1;
+    //    for(int i=0; i<3; ++i)
+    //      N *= nLoc(i)+bu(i)-bl(i);
+    //
+    //    for(int i=0; i<N; ++i)
+    //      s_[i] = a.s_[i];
+    //
+    //    for( int dir=0; dir<dim(); ++dir )
+    //      exchangedState_[dir] = a.exchangedState_[dir];
   }
 
 
@@ -475,7 +444,11 @@ public:
     s_ = array;
   }
 
-  Scalar* getStoragePtr() {
+  ScalarArray getRawPtr() {
+    return( s_ );
+  }
+
+  const Scalar* getConstRawPtr() const {
     return( s_ );
   }
 

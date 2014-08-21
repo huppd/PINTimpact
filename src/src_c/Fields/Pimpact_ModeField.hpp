@@ -177,10 +177,7 @@ public:
     Scalar normvec = 0;
 
     switch(type) {
-    case Belos::OneNorm:
-      normvec = fieldc_->norm(type,false) + fields_->norm(type,false);
-      break;
-    case Belos::TwoNorm:
+    default:
       normvec = fieldc_->norm(type,false) + fields_->norm(type,false);
       break;
     case Belos::InfNorm:

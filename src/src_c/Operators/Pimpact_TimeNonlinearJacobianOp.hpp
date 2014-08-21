@@ -92,16 +92,16 @@ public:
         temp_->init(0);
 
         OP_nonlinear(
-            (*k)->vec_[0], (*k)->vec_[1], (*k)->vec_[2],
-            (*i)->vec_[0], (*i)->vec_[1], (*i)->vec_[2],
-            temp_->vec_[0], temp_->vec_[1], temp_->vec_[2],
+            (*k)->vec(0), (*k)->vec(1), (*k)->vec(2),
+            (*i)->vec(0), (*i)->vec(1), (*i)->vec(2),
+            temp_->vec(0), temp_->vec(1), temp_->vec(2),
             1. );
 
         if( isNewton_ ) {
           OP_nonlinear(
-              (*i)->vec_[0], (*i)->vec_[1], (*i)->vec_[2],
-              (*k)->vec_[0], (*k)->vec_[1], (*k)->vec_[2],
-              temp_->vec_[0], temp_->vec_[1], temp_->vec_[2],
+              (*i)->vec(0), (*i)->vec(1), (*i)->vec(2),
+              (*k)->vec(0), (*k)->vec(1), (*k)->vec(2),
+              temp_->vec(0), temp_->vec(1), temp_->vec(2),
               1. );
         }
         if( j>=y.beginI_ )
@@ -123,16 +123,16 @@ public:
       for( typename DomainFieldT::Iter i = const_cast<DomainFieldT&>(x).beginI_; i<x.endI_; ++i ) {
         (*i)->exchange();
         OP_nonlinear(
-            (*k)->vec_[0], (*k)->vec_[1], (*k)->vec_[2],
-            (*i)->vec_[0], (*i)->vec_[1], (*i)->vec_[2],
-            (*j)->vec_[0], (*j)->vec_[1], (*j)->vec_[2],
+            (*k)->vec(0), (*k)->vec(1), (*k)->vec(2),
+            (*i)->vec(0), (*i)->vec(1), (*i)->vec(2),
+            (*j)->vec(0), (*j)->vec(1), (*j)->vec(2),
             1. );
 
         if( isNewton_ ) {
           OP_nonlinear(
-              (*i)->vec_[0], (*i)->vec_[1], (*i)->vec_[2],
-              (*k)->vec_[0], (*k)->vec_[1], (*k)->vec_[2],
-              (*j)->vec_[0], (*j)->vec_[1], (*j)->vec_[2],
+              (*i)->vec(0), (*i)->vec(1), (*i)->vec(2),
+              (*k)->vec(0), (*k)->vec(1), (*k)->vec(2),
+              (*j)->vec(0), (*j)->vec(1), (*j)->vec(2),
               1. );
         }
         (*j)->changed();

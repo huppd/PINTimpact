@@ -93,8 +93,8 @@ public:
           tol_,
           nItMax_,
 //          initYes_,
-          x.vec_[vel_dir],
-          y.vec_[vel_dir],
+          x.vecC(vel_dir),
+          y.vec (vel_dir),
           quietYes1_,
           quietYes2_ );
 //      OP_InverseHelmholtzOp( vel_dir+1, mulI_, mulL_, x.vec_[vel_dir], y.vec_[vel_dir] ) ;

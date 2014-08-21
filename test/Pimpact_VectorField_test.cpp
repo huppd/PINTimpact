@@ -55,6 +55,7 @@ TEUCHOS_UNIT_TEST( VectorField, create_init_print ) {
 	auto vel = Pimpact::createVectorField<double,int>(space);
 
 	vel->init(rank);
+	vel->print();
 }
 
 

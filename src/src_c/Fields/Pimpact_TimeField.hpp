@@ -127,7 +127,6 @@ public:
     if( DeepCopy==copyType )
       for( int i=0; i<nt; ++i ) {
         mfs_[i]->assign( *(field.mfs_[i]) );
-//        mfs_[i]->changed();
       }
     else
       for( int i=0; i<nt*nx; ++i )
@@ -385,10 +384,10 @@ public:
         Ordinal lengthL = transL * mfs_[0]->getStorageSize();
         //      Ordinal lengthU = transU * mfs_[0]->getStorageSize();
 
-        Scalar* ghostUR = mfs_[0]->getStoragePtr();
-        //      Scalar* ghostLR = (*(endI_))->getStoragePtr();
+        Scalar* ghostUR = mfs_[0]->getRawPtr();
+        //      Scalar* ghostLR = (*(endI_))->getRawPtr();
 
-        Scalar* ghostUS = ( *(endI_-transL) )->getStoragePtr();
+        Scalar* ghostUS = ( *(endI_-transL) )->getRawPtr();
         //      Scalar* ghostLS = ;
         //
         if( transL>0 ) MPI_Irecv( ghostUR, lengthL, MPI_REAL8, rankL, 1, comm(), &reqL);

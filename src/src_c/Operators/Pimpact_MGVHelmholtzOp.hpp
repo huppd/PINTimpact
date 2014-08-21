@@ -75,8 +75,8 @@ public:
             mulL_/mulI_,
             false,
             1,
-            x.vec_[vel_dir],
-            y.vec_[vel_dir],
+            x.vecC(vel_dir),
+            y.vec (vel_dir),
             1 );
     }
     y.scale( mulI_ );

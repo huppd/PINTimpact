@@ -61,9 +61,10 @@ public:
       mul = 1.;
     }
     OP_nonlinear(
-        x.vec_[0],x.vec_[1],x.vec_[2],
-        y.vec_[0],y.vec_[1],y.vec_[2],
-        z.vec_[0],z.vec_[1],z.vec_[2], mul );
+//        x.vec_[0],x.vec_[1],x.vec_[2],
+        x.sFields_[0]->getRawPtr(),x.sFields_[1]->getRawPtr(),x.sFields_[2]->getRawPtr(),
+        y.sFields_[0]->getRawPtr(),y.sFields_[1]->getRawPtr(),y.sFields_[2]->getRawPtr(),
+        z.sFields_[0]->getRawPtr(),z.sFields_[1]->getRawPtr(),z.sFields_[2]->getRawPtr(), mul );
 
     z.changed();
 

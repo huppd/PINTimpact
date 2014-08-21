@@ -28,7 +28,7 @@ public:
 
     for( int dir=0; dir<x.dim(); ++dir )
       x.exchange( dir, dir );
-    OP_div(x.vec_[0],x.vec_[1],x.vec_[2],y.s_);
+    OP_div( x.vecC(U), x.vecC(V), x.vecC(W), y.s_ );
     y.changed();
 
   }

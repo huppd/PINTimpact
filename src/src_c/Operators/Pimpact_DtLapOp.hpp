@@ -63,11 +63,11 @@ public:
 
     const Ordinal& dim = y.getConstCField().dim();
 
-    for( int vel_dir=0; vel_dir<dim; ++vel_dir ) {
+    for( int i=0; i<dim; ++i ) {
 
          for( int dir=0; dir<dim; ++dir ) {
-           if( !x.getConstCField().is_exchanged(vel_dir,dir) ) x.getConstCField().exchange( vel_dir, dir );
-           if( !x.getConstSField().is_exchanged(vel_dir,dir) ) x.getConstSField().exchange( vel_dir, dir );
+           if( !x.getConstCField().is_exchanged(i,dir) ) x.getConstCField().exchange( i, dir );
+           if( !x.getConstSField().is_exchanged(i,dir) ) x.getConstSField().exchange( i, dir );
          }
 
          OP_DtHelmholtz(
@@ -75,24 +75,24 @@ public:
              y.getConstCField().nLoc(),
              y.getConstCField().bl(),
              y.getConstCField().bu(),
-             vel_dir+1,
+             i+1,
              alpha2_*k,
              iRe_,
-             x.getConstSField().vec_[vel_dir],
-             x.getConstCField().vec_[vel_dir],
-             y.getCField().vec_[vel_dir] ) ;
+             x.getConstSField().vecC(i),
+             x.getConstCField().vecC(i),
+             y.getCField().vec(i) ) ;
 
          OP_DtHelmholtz(
              dim,
              y.getConstCField().nLoc(),
              y.getConstCField().bl(),
              y.getConstCField().bu(),
-             vel_dir+1,
+             i+1,
              -alpha2_*k,
              iRe_,
-             x.getConstCField().vec_[vel_dir],
-             x.getConstSField().vec_[vel_dir],
-             y.getSField().vec_[vel_dir] ) ;
+             x.getConstCField().vecC(i),
+             x.getConstSField().vecC(i),
+             y.getSField().vec(i) ) ;
        }
        y.getCField().changed();
        y.getSField().changed();

@@ -170,13 +170,14 @@ public:
     Scalar normvec=0;
 
     switch(type) {
-    case Belos::OneNorm:
+//    case Belos::OneNorm:
+    default:
       normvec = vfield_->norm(type,false) + sfield_->norm(type,false);
       break;
-    case Belos::TwoNorm:
-      normvec = vfield_->norm(type,false) + sfield_->norm(type,false);
-//      normvec = std::pow(vfield_->norm(type,false),2) + std::pow(sfield_->norm(type,false),2);
-      break;
+//    case Belos::TwoNorm:
+//      normvec = vfield_->norm(type,false) + sfield_->norm(type,false);
+////      normvec = std::pow(vfield_->norm(type,false),2) + std::pow(sfield_->norm(type,false),2);
+//      break;
     case Belos::InfNorm:
       normvec = std::max(vfield_->norm(type,false), sfield_->norm(type,false) ) ;
       break;

@@ -56,7 +56,7 @@ public:
       for( int dir=0; dir<x.dim(); ++dir )
         if( !x.is_exchanged(vel_dir,dir) ) x.exchange( vel_dir, dir );
 
-      OP_helmholtz( vel_dir+1, mulI_, mulL_, x.vec_[vel_dir], y.vec_[vel_dir] ) ;
+      OP_helmholtz( vel_dir+1, mulI_, mulL_, x.sFields_[vel_dir]->getRawPtr(), y.sFields_[vel_dir]->getRawPtr() ) ;
 
     }
     y.changed();

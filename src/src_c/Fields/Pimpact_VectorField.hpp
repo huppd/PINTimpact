@@ -18,6 +18,8 @@
 
 #include "Pimpact_AbstractField.hpp"
 
+#include "Pimpact_ScalarField.hpp"
+
 
 namespace Pimpact {
 
@@ -62,21 +64,25 @@ public:
   static const int dimension = d;
 
 
-  typedef Teuchos::ArrayRCP< Teuchos::RCP<const IndexSpace<Ordinal> > >  IndexSpaces;
-  typedef Teuchos::Tuple<Teuchos::Tuple<bool,3>,3> State;
+//  typedef Teuchos::ArrayRCP< Teuchos::RCP<const IndexSpace<Ordinal> > >  IndexSpaces;
+  typedef Teuchos::Tuple<Teuchos::Tuple<bool,3>,3> State; // obsolte in ScalarField
 
 protected:
 
   typedef Scalar* ScalarArray;
   typedef VectorField<Scalar,Ordinal,dimension> VF;
+  typedef ScalarField<Scalar,Ordinal,dimension> SF;
 
   Teuchos::RCP< const Space<Scalar,Ordinal,dimension> > space_;
 
-  Teuchos::Tuple<ScalarArray,3> vec_;
+//  Teuchos::Tuple<ScalarArray,3> vec_;
+  ScalarArray vec_;
 
   const bool owning_;
 
-  State exchangedState_;
+  State exchangedState_; // obsolete > SF
+
+  Teuchos::Tuple< Teuchos::RCP<SF>, 3 > sFields_;
 
 public:
 
@@ -84,25 +90,37 @@ public:
     space_(Teuchos::null),
     vec_(0),
     owning_(true),
-    exchangedState_(Teuchos::tuple(Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true)))
+    exchangedState_(Teuchos::tuple(Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true))),
+    sFields_( Teuchos::tuple(Teuchos::null,Teuchos::null,Teuchos::null) )
     {};
 
   VectorField( const Teuchos::RCP< const Space<Scalar,Ordinal,dimension> >& space, bool owning=true ):
     space_(space),
     owning_(owning),
-    exchangedState_(Teuchos::tuple(Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true))) {
+    exchangedState_(Teuchos::tuple(Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true)))//,
+//    sFields_( Teuchos::tuple(Teuchos::null,Teuchos::null,Teuchos::null) )
+    {
+
+    for( int i=0; i<3; ++i )
+      sFields_[i] = Teuchos::rcp( new SF( space_, false, EFieldType(i) ) );
 
     if( owning_ ) {
 
       Ordinal N = getStorageSize()/3;
 
-      vec_[0] = new Scalar[3*N];
-      vec_[1] = vec_[0]+N;
-      vec_[2] = vec_[1]+N;
+      vec_ = new Scalar[3*N];
+//      vec_[0] = new Scalar[3*N];
+//      vec_[1] = vec_[0]+N; // shoudl become obsolete
+//      vec_[2] = vec_[1]+N;
 
-      for(int i=0; i<3; ++i)
-        for(int j=0; j<N; ++j)
-          vec_[i][j] = 0.;
+//      for(int i=0; i<3; ++i)
+//        for(int j=0; j<N; ++j)
+//          vec_[i][j] = 0.;
+      for( int i=0; i<3*N; ++i )
+        vec_[i] = 0.;
+
+      for( int i=0; i<3; ++i )
+        sFields_[i]->setStoragePtr( vec_+i*N );
     }
 
   };
@@ -118,24 +136,33 @@ public:
     owning_(vF.owning_),
     exchangedState_(vF.exchangedState_) {
 
+    for( int i=0; i<3; ++i )
+      sFields_[i] = Teuchos::rcp( new SF( space_, false, EFieldType(i) ) );
+
     if( owning_ ) {
 
-      Ordinal n = getStorageSize();
+      Ordinal n = getStorageSize()/3;
 
-      vec_[0] = new Scalar[3*n];
-      vec_[1] = vec_[0]+n;
-      vec_[2] = vec_[1]+n;
+      vec_ = new Scalar[3*n];
+//      vec_[0] = new Scalar[3*n];
+//      vec_[1] = vec_[0]+n;
+//      vec_[2] = vec_[1]+n;
+
+      for( int i=0; i<3; ++i )
+        sFields_[i]->setStoragePtr( vec_+i*n );
 
       switch( copyType ) {
       case ShallowCopy:
-        for( int i=0; i<dim(); ++i )
-          for( int j=0; j<n; ++j)
-            vec_[i][j] = 0.;
+//        for( int i=0; i<dim(); ++i )
+//          for( int j=0; j<n; ++j)
+//            vec_[i][j] = 0.;
+        for( int i=0; i<3*n; ++i )
+          vec_[i] = 0.;
         break;
       case DeepCopy:
         for( int i=0; i<dim(); ++i )
-          for( int j=0; j<n; ++j)
-            vec_[i][j] = vF.vec_[i][j];
+          sFields_[i]->assign( *vF.sFields_[i] );
+        changed();
         break;
       }
     }
@@ -143,7 +170,7 @@ public:
 
 
   ~VectorField() {
-    if( owning_ ) delete[] vec_[0];
+    if( owning_ ) delete[] vec_;
   }
 
   Teuchos::RCP<VF> clone( ECopyType ctype=DeepCopy ) const {
@@ -166,24 +193,9 @@ public:
     auto bc = space_->getDomain()->getBCGlobal();
 
     Ordinal n = 0;
-    for( int i=0; i<dim(); ++i ) {
-      Ordinal vl = 1;
-      for( int j=0; j<dim(); ++j) {
-        if( i==j ) {
-//          if( PeriodicBC==bc->getBCL(i) )
-//            vl *= nGlo(j)-1-1;
-//          else
-            vl *= nGlo(j)-1;
-        }
-        else {
-          if( PeriodicBC==bc->getBCL(j) )
-            vl *= nGlo(j)-2+1;
-          else
-            vl *= nGlo(j)-2;
-        }
-      }
-      n += vl;
-    }
+    for( int i=0; i<dim(); ++i )
+      n += sFields_[i]->getLength( dummy );
+
     return( n );
   }
 
@@ -202,32 +214,7 @@ public:
   void add( const Scalar& alpha, const VF& A, const Scalar& beta, const VF& B ) {
     // add test for consistent VectorSpaces in debug mode
     for( int i=0; i<dim(); ++i ) {
-      if( vec_[i]==A.vec_[i] && vec_[i]==B.vec_[i] )
-        SF_scale(
-            nLoc(),
-            bl(), bu(),
-            sInd(i), eInd(i),
-            vec_[i], alpha+beta );
-      else if( vec_[i]==A.vec_[i] && vec_[i]!=B.vec_[i] )
-        SF_add2(
-            nLoc(), bl(), bu(),
-            sInd(i), eInd(i),
-            vec_[i], B.vec_[i],
-            alpha, beta );
-      else if( vec_[i]!=A.vec_[i] && vec_[i]==B.vec_[i] )
-        SF_add2(
-            nLoc(),
-            bl(), bu(),
-            sInd(i), eInd(i),
-            vec_[i], A.vec_[i],
-            beta, alpha );
-      else if( vec_[i]!=A.vec_[i] && vec_[i]!=B.vec_[i] )
-        SF_add(
-            nLoc(),
-            bl(), bu(),
-            sInd(i), eInd(i),
-            vec_[i], A.vec_[i], B.vec_[i],
-            alpha, beta );
+      sFields_[i]->add( alpha, *A.sFields_[i], beta, *B.sFields_[i] );
     }
     changed();
   }
@@ -241,11 +228,7 @@ public:
   /// \return Reference to this object
   void abs(const VF& y) {
     for( int i=0; i<dim(); ++i )
-      SF_abs(
-          nLoc(),
-          bl(), bu(),
-          sInd(i), eInd(i),
-          vec_[i], y.vec_[i] );
+      sFields_[i]->abs( *y.sFields_[i] );
     changed();
   }
 
@@ -258,11 +241,7 @@ public:
   void reciprocal(const VF& y){
     // add test for consistent VectorSpaces in debug mode
     for( int i=0; i<dim(); ++i)
-      SF_reciprocal(
-          nLoc(),
-          bl(), bu(),
-          sInd(i), eInd(i),
-          vec_[i], y.vec_[i] );
+      sFields_[i]->reciprocal( *y.sFields_[i] );
     changed();
   }
 
@@ -270,11 +249,7 @@ public:
   /// \brief Scale each element of the vectors in \c this with \c alpha.
   void scale( const Scalar& alpha ) {
     for(int i=0; i<dim(); ++i)
-      SF_scale(
-          nLoc(),
-          bl(), bu(),
-          sInd(i), eInd(i),
-          vec_[i], alpha);
+      sFields_[i]->scale( alpha );
     changed();
   }
 
@@ -287,11 +262,7 @@ public:
   void scale(const VF& a) {
     // add test for consistent VectorSpaces in debug mode
     for(int i=0; i<dim(); ++i)
-      SF_scale2(
-          nLoc(),
-          bl(), bu(),
-          sInd(i), eInd(i),
-          vec_[i], a.vec_[i] );
+      sFields_[i]->scale( *a.sFields_[i] );
     changed();
   }
 
@@ -302,12 +273,7 @@ public:
     Scalar b = 0.;
 
     for( int i=0; i<dim(); ++i )
-      SF_dot(
-          nLoc(),
-          bl(), bu(),
-          sInd(i), eInd(i),
-          vec_[i], a.vec_[i],
-          b );
+      b += sFields_[i]->dot( *a.sFields_[i], false );
 
     if( global ) this->reduceNorm( comm(), b );
 
@@ -331,29 +297,11 @@ public:
 
     for( int i=0; i<dim(); ++i )
       switch(type) {
-      case Belos::OneNorm:
-        SF_comp1Norm(
-            nLoc(),
-            bl(), bu(),
-            sInd(i), eInd(i),
-            vec_[i],
-            normvec );
-        break;
-      case Belos::TwoNorm:
-        SF_comp2Norm(
-            nLoc(),
-            bl(), bu(),
-            sInd(i), eInd(i),
-            vec_[i],
-            normvec );
+      default:
+        normvec += sFields_[i]->norm(type,false);
         break;
       case Belos::InfNorm:
-        SF_compInfNorm(
-            nLoc(),
-            bl(), bu(),
-            sInd(i), eInd(i),
-            vec_[i],
-            normvec );
+        normvec = std::max( sFields_[i]->norm(type,false), normvec ) ;
         break;
       }
 
@@ -373,12 +321,7 @@ public:
     Scalar normvec = 0.;
 
     for( int i=0; i<dim(); ++i )
-      SF_weightedNorm(
-          nLoc(),
-          bl(), bu(),
-          sInd(i), eInd(i),
-          vec_[i], weights.vec_[i],
-          normvec );
+      normvec += sFields_[i]->norm( *weights.sFields_[i], false);
 
      if( global ) this->reduceNorm( comm(), normvec, Belos::TwoNorm );
 
@@ -397,25 +340,9 @@ public:
   /// Assign (deep copy) A into mv.
   void assign( const VF& a ) {
 
-    for( int dir=0; dir<dim(); ++dir)
-      SF_assign(
-          nLoc(),
-          bl(), bu(),
-          sIndB(dir), eIndB(dir),
-          vec_[dir], a.vec_[dir] );
-     changed();
-//    Ordinal N = 1;
-//    for(int i=0; i<3; ++i)
-//      N *= nLoc(i)+bu(i)-bl(i);
-//
-//    for( int dir=0; dir<dim(); ++dir)
-//      for(int i=0; i<N; ++i) {
-//        vec_[dir][i] = a.vec_[dir][i];
-//      }
-//
-//    for( int vel_dir=0; vel_dir<dim(); ++vel_dir )
-//      for( int dir=0; dir<dim(); ++dir )
-//        exchangedState_[vel_dir][dir] = a.exchangedState_[vel_dir][dir];
+    for( int i=0; i<dim(); ++i)
+      sFields_[i]->assign( *a.sFields_[i] );
+    changed();
   }
 
 
@@ -423,23 +350,17 @@ public:
   ///
   /// depending on Fortrans \c Random_number implementation, with always same seed => not save, if good randomness is requiered
   void random(bool useSeed = false, int seed = 1) {
+
     for( int i=0; i<dim(); ++i )
-      SF_random(
-          nLoc(),
-          bl(), bu(),
-          sInd(i), eInd(i),
-          vec_[i]);
+      sFields_[i]->random( useSeed, seed );
+
     changed();
   }
 
   /// \brief Replace each element of the vector  with \c alpha.
   void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero() ) {
     for( int i=0; i<dim(); ++i )
-      SF_init(
-          nLoc(),
-          bl(), bu(),
-          sInd(i), eInd(i),
-          vec_[i], alpha);
+      sFields_[i]->init( alpha );
     changed();
   }
 
@@ -447,11 +368,7 @@ public:
   /// \brief Replace each element of the vector \c vec[i] with \c alpha[i].
   void init( const Teuchos::Tuple<Scalar,3>& alpha ) {
     for( int i=0; i<dim(); ++i )
-      SF_init(
-          nLoc(),
-          bl(), bu(),
-          sInd(i), eInd(i),
-          vec_[i], alpha[i]);
+      sFields_[i]->init( alpha[i] );
     changed();
   }
 
@@ -470,7 +387,7 @@ public:
           eIndB(0,2), eIndB(1,2), eIndB(2,2),
           bl(0),   bl(1),   bl(2),
           bu(0),   bu(1),   bu(2),
-          vec_[0], vec_[1], vec_[2] );
+          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
       break;
     case Poiseuille2D_inX :
       VF_init_2DPoiseuilleX(
@@ -483,11 +400,10 @@ public:
           eIndB(0,2), eIndB(1,2), eIndB(2,2),
           bl(0),   bl(1),   bl(2),
           bu(0),   bu(1),   bu(2),
-          vec_[0], vec_[1], vec_[2] );
+          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
       break;
     case Poiseuille2D_inY :
       VF_init_2DPoiseuilleY(
-          //          nLoc(0), nLoc(1), nLoc(2),
           nLoc(),
           sIndB(0,0), sIndB(1,0), sIndB(2,0),
           eIndB(0,0), eIndB(1,0), eIndB(2,0),
@@ -497,7 +413,7 @@ public:
           eIndB(0,2), eIndB(1,2), eIndB(2,2),
           bl(0),   bl(1),   bl(2),
           bu(0),   bu(1),   bu(2),
-          vec_[0], vec_[1], vec_[2] );
+          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
       break;
     case Pulsatile2D_inXC :
       VF_init_2DPulsatileXC(
@@ -510,7 +426,8 @@ public:
           eIndB(0,2), eIndB(1,2), eIndB(2,2),
           bl(0),   bl(1),   bl(2),
           bu(0),   bu(1),   bu(2),
-          vec_[0], vec_[1], vec_[2], re, om, px);
+          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr(),
+          re, om, px);
       break;
     case Pulsatile2D_inYC :
       VF_init_2DPulsatileYC(
@@ -523,7 +440,8 @@ public:
           eIndB(0,2), eIndB(1,2), eIndB(2,2),
           bl(0),   bl(1),   bl(2),
           bu(0),   bu(1),   bu(2),
-          vec_[0], vec_[1], vec_[2], re, om, px);
+          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr(),
+          re, om, px);
       break;
     case Pulsatile2D_inXS :
       VF_init_2DPulsatileXS(
@@ -536,7 +454,8 @@ public:
           eIndB(0,2), eIndB(1,2), eIndB(2,2),
           bl(0),   bl(1),   bl(2),
           bu(0),   bu(1),   bu(2),
-          vec_[0], vec_[1], vec_[2], re, om, px);
+          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr(),
+          re, om, px);
       break;
     case Pulsatile2D_inYS:
       VF_init_2DPulsatileYS(
@@ -549,7 +468,8 @@ public:
           eIndB(0,2), eIndB(1,2), eIndB(2,2),
           bl(0),   bl(1),   bl(2),
           bu(0),   bu(1),   bu(2),
-          vec_[0], vec_[1], vec_[2], re, om, px);
+          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr(),
+          re, om, px);
       break;
     case Streaming2D:
       VF_init_StreamingS(
@@ -562,7 +482,7 @@ public:
           eIndB(0,2), eIndB(1,2), eIndB(2,2),
           bl(0),   bl(1),   bl(2),
           bu(0),   bu(1),   bu(2),
-          vec_[0], vec_[1], vec_[2],
+          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr(),
           re );
       break;
     case Streaming2DC:
@@ -576,7 +496,7 @@ public:
           eIndB(0,2), eIndB(1,2), eIndB(2,2),
           bl(0),   bl(1),   bl(2),
           bu(0),   bu(1),   bu(2),
-          vec_[0], vec_[1], vec_[2],
+          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr(),
           re );
       break;
     case Streaming2DS:
@@ -590,7 +510,7 @@ public:
           eIndB(0,2), eIndB(1,2), eIndB(2,2),
           bl(0),   bl(1),   bl(2),
           bu(0),   bu(1),   bu(2),
-          vec_[0], vec_[1], vec_[2],
+          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr(),
           re );
       break;
     case Circle2D:
@@ -604,7 +524,7 @@ public:
           eIndB(0,2), eIndB(1,2), eIndB(2,2),
           bl(0),   bl(1),   bl(2),
           bu(0),   bu(1),   bu(2),
-          vec_[0], vec_[1], vec_[2] );
+          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
       break;
     case RankineVortex2D:
       VF_init_RankineVortex(
@@ -617,7 +537,7 @@ public:
           eIndB(0,2), eIndB(1,2), eIndB(2,2),
           bl(0),   bl(1),   bl(2),
           bu(0),   bu(1),   bu(2),
-          vec_[0], vec_[1], vec_[2] );
+          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
       break;
     case GaussianForcing1D:
       VF_init_GaussianForcing1D(
@@ -630,7 +550,7 @@ public:
           eIndB(0,2), eIndB(1,2), eIndB(2,2),
           bl(0),   bl(1),   bl(2),
           bu(0),   bu(1),   bu(2),
-          vec_[0], vec_[1], vec_[2] );
+          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
       break;
     case BoundaryFilter1D:
       VF_init_BoundaryFilter1D(
@@ -643,7 +563,7 @@ public:
           eIndB(0,2), eIndB(1,2), eIndB(2,2),
           bl(0),   bl(1),   bl(2),
           bu(0),   bu(1),   bu(2),
-          vec_[0], vec_[1], vec_[2] );
+          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
       break;
     case GaussianForcing2D:
       VF_init_GaussianForcing2D(
@@ -656,7 +576,7 @@ public:
           eIndB(0,2), eIndB(1,2), eIndB(2,2),
           bl(0),   bl(1),   bl(2),
           bu(0),   bu(1),   bu(2),
-          vec_[0], vec_[1], vec_[2] );
+          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
       break;
     case BoundaryFilter2D:
       VF_init_BoundaryFilter2D(
@@ -669,7 +589,7 @@ public:
           eIndB(0,2), eIndB(1,2), eIndB(2,2),
           bl(0),   bl(1),   bl(2),
           bu(0),   bu(1),   bu(2),
-          vec_[0], vec_[1], vec_[2] );
+          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
       break;
     case VPoint2D:
       VF_init_Vpoint(
@@ -682,7 +602,7 @@ public:
           eIndB(0,2), eIndB(1,2), eIndB(2,2),
           bl(0),   bl(1),   bl(2),
           bu(0),   bu(1),   bu(2),
-          vec_[0], vec_[1], vec_[2],
+          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr(),
           re );
       break;
     case Disc2D:
@@ -696,7 +616,7 @@ public:
           eIndB(0,2), eIndB(1,2), eIndB(2,2),
           bl(0),   bl(1),   bl(2),
           bu(0),   bu(1),   bu(2),
-          vec_[0], vec_[1], vec_[2],
+          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr(),
           re, om, px );
       break;
     case RotationDisc2D:
@@ -710,7 +630,7 @@ public:
           eIndB(0,2), eIndB(1,2), eIndB(2,2),
           bl(0),   bl(1),   bl(2),
           bu(0),   bu(1),   bu(2),
-          vec_[0], vec_[1], vec_[2],
+          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr(),
           re, om, px );
       break;
     }
@@ -727,6 +647,7 @@ public:
     MPI_Comm_rank(comm(),&rank);
     for(int i=0; i<dim(); ++i) {
       os << "rank: " << rank << " :dir: " << i << "\n";
+      os << "rank: " << rank << " :dirs: " << sFields_[i]->fType_ << "\n";
       os << "rank: " << rank << " :nGlo: " << nGlo(i) << "\n";
       os << "rank: " << rank << " :nLoc: " << nLoc(i) << "\n";
       for( int j=0; j<3; ++j ) {
@@ -737,20 +658,20 @@ public:
       os << "rank: " << rank << " :bu: " << bu(i) << "\n\n";
     }
     std::cout << "rank: " << rank << "\n";
-    for( int i=0; i<dim(); ++i ) {
-      std::cout << "field: " << i << "\n";
-      SF_print(
-          nLoc(),
-          bl(), bu(),
-          sInd(i), eInd(i),
-          vec_[i] );
-    }
+//    for( int i=0; i<dim(); ++i ) {
+//      std::cout << "field: " << i << "\n";
+//      SF_print(
+//          nLoc(),
+//          bl(), bu(),
+//          sInd(i), eInd(i),
+//          vec_[i] );
+//    }
   }
 
 
   void write( int count=0 ) {
     exchange();
-    VF_write( vec_[0], vec_[1], vec_[2], count );
+    VF_write( sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr(), count );
   }
 
 
@@ -764,24 +685,30 @@ public:
 
   Ordinal getStorageSize() const {
 
-    Ordinal n = 1;
-    for(int i=0; i<3; ++i)
-      n *= nLoc(i)+bu(i)-bl(i)+1;
-
-    return( 3*n );
+    return( sFields_[0]->getStorageSize()*3 );
+//    Ordinal n = 1;
+//    for(int i=0; i<3; ++i)
+//      n *= nLoc(i)+bu(i)-bl(i)+1;
+//
+//    return( 3*n );
   }
 
   void setStoragePtr( Scalar*  array ) {
 
     Ordinal n = getStorageSize()/3;
 
-    vec_[0] = array;
-    vec_[1] = array+n;
-    vec_[2] = array+2*n;
+    vec_ = array;
+//    vec_[0] = array;
+//    vec_[1] = array+n;
+//    vec_[2] = array+2*n;
+
+    for( int i=0; i<3; ++i )
+      sFields_[i]->setStoragePtr( vec_+i*n );
   }
 
-  Scalar* getStoragePtr() {
-    return( vec_[0] );
+  Scalar* getRawPtr() {
+//    return( vec_[0] );
+    return( vec_ );
   }
 
 protected:
@@ -817,6 +744,9 @@ protected:
 
   const int* rankL() const { return( space_->getProcGrid()->getRankL() ); }
   const int* rankU() const { return( space_->getProcGrid()->getRankU() ); }
+
+        Scalar* vec ( int i )       { return( sFields_[i]->s_ ); }
+        Scalar* vecC( int i ) const { return( sFields_[i]->s_ ); }
 
   void changed( const int& vel_dir, const int& dir ) const {
     exchangedState_[vel_dir][dir] = false;
@@ -859,7 +789,8 @@ protected:
           ones,
           nLoc(),
           dir+1, vel_dir+1,
-          vec_[vel_dir]);
+//          vec_[vel_dir]);
+          sFields_[vel_dir]->getRawPtr() );
       exchangedState_[vel_dir][dir] = true;
     }
   }
@@ -875,7 +806,7 @@ protected:
 
 
 
-/// \brief creates a vector field belonging to a \c FieldSpace and two \c IndexSpaces
+/// \brief creates a vector field belonging to a \c Space
 /// \relates VectorField
 template<class S=double, class O=int, int d=3>
 Teuchos::RCP< VectorField<S,O,d> > createVectorField( const Teuchos::RCP< const Space<S,O,d> >& space ) {
