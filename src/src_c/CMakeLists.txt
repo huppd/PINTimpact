@@ -6,6 +6,7 @@ include_directories("./Grid")
 include_directories("./Fields")
 include_directories("./Operators")
 include_directories("./NOX_Pimpact")
+include_directories("./MultiGrid")
 
  
 # For a large number of source files you can create it in a simpler way

@@ -1030,6 +1030,7 @@ module mod_setup
      call MPI_CART_SHIFT(COMM_CART,0,stride(1),ngb(1,1,g),ngb(2,1,g),merror)
      call MPI_CART_SHIFT(COMM_CART,1,stride(2),ngb(1,2,g),ngb(2,2,g),merror)
      call MPI_CART_SHIFT(COMM_CART,2,stride(3),ngb(1,3,g),ngb(2,3,g),merror)
+     !                    comm,  dir, displac, source, dest
      !--------------------------------------------------------------
      
      

@@ -39,12 +39,16 @@ public:
 
   typedef const Teuchos::Tuple<EBCType,3> TBC3;
 
+
+  friend Teuchos::RCP<BoundaryConditionsGlobal> createBoudaryConditionsGlobal();
+
+  friend Teuchos::RCP<BoundaryConditionsGlobal> createBoudaryConditionsGlobal( EDomainType dtype );
+
 protected:
 
   TBC3 BCL_global_;
   TBC3 BCU_global_;
 
-public:
 
   BoundaryConditionsGlobal(
       EBCType BC1L=DirichletBC,
@@ -54,18 +58,12 @@ public:
       EBCType BC3L=DirichletBC,
       EBCType BC3U=DirichletBC ):
         BCL_global_( Teuchos::tuple(BC1L, BC2L, BC3L) ),
-        BCU_global_( Teuchos::tuple(BC1U, BC2U, BC3U) ) {
-
-    set_Impact();
-
-  };
+        BCU_global_( Teuchos::tuple(BC1U, BC2U, BC3U) ) {};
 
   BoundaryConditionsGlobal( TBC3 BCL_global, TBC3 BCU_global ):
-    BCL_global_( BCL_global ), BCU_global_( BCU_global ) {
+    BCL_global_( BCL_global ), BCU_global_( BCU_global ) {};
 
-    set_Impact();
-
-  };
+public:
 
   EBCType getBCL( int dim ) const {
     return( BCL_global_[dim] );

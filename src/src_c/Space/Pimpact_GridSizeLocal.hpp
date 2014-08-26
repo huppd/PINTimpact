@@ -37,6 +37,14 @@ namespace Pimpact{
 template< class Ordinal=int, int dim=3 >
 class GridSizeLocal {
 
+  template< class OT, int dT >
+  friend Teuchos::RCP< GridSizeLocal<OT,dT> > createGridSizeLocal(
+      const Teuchos::RCP< GridSizeGlobal<OT,dT> >& gsg,
+      const Teuchos::RCP< ProcGridSize<OT,dT> >& pgs );
+
+  template< class OT, int dT >
+  friend Teuchos::RCP< GridSizeLocal<OT,dT> > createGridSizeLocal();
+
 public:
 
   typedef const Teuchos::Tuple<Ordinal,dim> TO;
@@ -45,7 +53,6 @@ protected:
 
   TO gridSize_;
 
-public:
 
   GridSizeLocal( TO gridSize ): gridSize_( gridSize ) {
     test();
@@ -69,9 +76,10 @@ public:
       gridSize_[3] = gridSizeGlobal->get(3)/procGridSize->get(3);
 
     test();
-    set_Impact();
   };
 
+
+public:
 
   Ordinal get( int i ) const {
     return( gridSize_[i] );

@@ -75,15 +75,12 @@ public:
 
   typedef Teuchos::Tuple<Ordinal,3> TO3;
 
-
   /// \brief constructor
   /// \param fieldType says which kind of field is taken
   /// \param sInd start index of gridpoints
   /// \param eInd last index of gridpoints
   IndexSpace( EFieldType fieldType,TO3 sInd, TO3 eInd ):
     fieldType_(fieldType),sInd_(sInd),eInd_(eInd) {};
-
-
 
 
   void print( std::ostream& out=std::cout ) const {
@@ -110,7 +107,8 @@ Teuchos::RCP<const IndexSpace<O> >
 createScalarIndexSpace(
     const Teuchos::RCP<const FieldSpace<O,d> >& fS,
     const Teuchos::RCP<GridSizeLocal<O,d> >& nLoc,
-    const Teuchos::RCP<BoundaryConditionsLocal>& bc ){
+    const Teuchos::RCP<BoundaryConditionsLocal>& bc,
+    bool setImpact=true ){
 
   typedef typename IndexSpace<O>::TO3 TO3;
 
@@ -126,8 +124,10 @@ createScalarIndexSpace(
       eInd[i] = nLoc->get(i);
   }
 
-  SVS_set_sInd( sInd.getRawPtr() );
-  SVS_set_eInd( eInd.getRawPtr() );
+  if( setImpact ) {
+    SVS_set_sInd( sInd.getRawPtr() );
+    SVS_set_eInd( eInd.getRawPtr() );
+  }
 
 
   return( Teuchos::rcp(
@@ -146,7 +146,8 @@ Teuchos::ArrayRCP< Teuchos::RCP< const IndexSpace<O> > >
 createInnerFieldIndexSpaces(
     const Teuchos::RCP<const FieldSpace<O,d> >& fS,
     const Teuchos::RCP<GridSizeLocal<O,d> >& nLoc,
-    const Teuchos::RCP<BoundaryConditionsLocal>& bc ){
+    const Teuchos::RCP<BoundaryConditionsLocal>& bc,
+    bool setImpact=true ){
 
 
   typedef typename IndexSpace<O>::TO3 TO3;
@@ -236,20 +237,29 @@ createInnerFieldIndexSpaces(
   }
 
 
-  VS_set_sIndU( sIndU.getRawPtr() );
-  VS_set_eIndU( eIndU.getRawPtr() );
+  if( setImpact ) {
+    VS_set_sIndU( sIndU.getRawPtr() );
+    VS_set_eIndU( eIndU.getRawPtr() );
+  }
   fIS[0] =  Teuchos::rcp( new IndexSpace<O>( EFieldType::U, sIndU, eIndU ) );
 
-  VS_set_sIndV( sIndV.getRawPtr() );
-  VS_set_eIndV( eIndV.getRawPtr() );
+  if( setImpact ) {
+    VS_set_sIndV( sIndV.getRawPtr() );
+    VS_set_eIndV( eIndV.getRawPtr() );
+  }
   fIS[1] =  Teuchos::rcp( new IndexSpace<O>( EFieldType::V, sIndV, eIndV ) );
 
-  VS_set_sIndW( sIndW.getRawPtr() );
-  VS_set_eIndW( eIndW.getRawPtr() );
+  if( setImpact ) {
+    VS_set_sIndW( sIndW.getRawPtr() );
+    VS_set_eIndW( eIndW.getRawPtr() );
+  }
   fIS[2] =  Teuchos::rcp( new IndexSpace<O>( EFieldType::W, sIndW, eIndW ) );
 
   return( fIS );
 }
+
+
+
 /// \brief function that creates ScaparIndexSpace
 ///
 /// by getting values from impact
@@ -260,7 +270,8 @@ Teuchos::ArrayRCP< Teuchos::RCP< const IndexSpace<O> > >
 createFullFieldIndexSpaces(
     const Teuchos::RCP<const FieldSpace<O,d> >& fS,
     const Teuchos::RCP<GridSizeLocal<O,d> >& nLoc,
-    const Teuchos::RCP<BoundaryConditionsLocal>& bc ){
+    const Teuchos::RCP<BoundaryConditionsLocal>& bc,
+    bool setImpact=true ){
 
 
   typedef typename IndexSpace<O>::TO3 TO3;
@@ -350,16 +361,22 @@ createFullFieldIndexSpaces(
   }
 
 
-  VS_set_sIndUB( sIndU.getRawPtr() );
-  VS_set_eIndUB( eIndU.getRawPtr() );
+  if( setImpact ) {
+    VS_set_sIndUB( sIndU.getRawPtr() );
+    VS_set_eIndUB( eIndU.getRawPtr() );
+  }
   fIS[0] =  Teuchos::rcp( new IndexSpace<O>( EFieldType::U, sIndU, eIndU ) );
 
-  VS_set_sIndVB( sIndV.getRawPtr() );
-  VS_set_eIndVB( eIndV.getRawPtr() );
+  if( setImpact ) {
+    VS_set_sIndVB( sIndV.getRawPtr() );
+    VS_set_eIndVB( eIndV.getRawPtr() );
+  }
   fIS[1] =  Teuchos::rcp( new IndexSpace<O>( EFieldType::V, sIndV, eIndV ) );
 
-  VS_set_sIndWB( sIndW.getRawPtr() );
-  VS_set_eIndWB( eIndW.getRawPtr() );
+  if( setImpact ) {
+    VS_set_sIndWB( sIndW.getRawPtr() );
+    VS_set_eIndWB( eIndW.getRawPtr() );
+  }
   fIS[2] =  Teuchos::rcp( new IndexSpace<O>( EFieldType::W, sIndW, eIndW ) );
 
   return( fIS );

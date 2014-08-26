@@ -10,8 +10,8 @@
 #include "Teuchos_ScalarTraitsDecl.hpp"
 #include "Teuchos_SerialDenseMatrix.hpp"
 
-#include "Pimpact_FieldSpace.hpp"
-#include "Pimpact_IndexSpace.hpp"
+//#include "Pimpact_FieldSpace.hpp"
+//#include "Pimpact_IndexSpace.hpp"
 
 #include "Pimpact_ModeField.hpp"
 #include "Pimpact_MultiField.hpp"
@@ -34,6 +34,11 @@ public:
 
   typedef typename Field::Scalar Scalar;
   typedef typename Field::Ordinal Ordinal;
+
+  static const int dimension = Field::dimension;
+
+  typedef Space<Scalar,Ordinal,dimension> SpaceT;
+
 
 private:
 
@@ -71,8 +76,6 @@ public:
   //@{
 
   /// \warning it is assumed that both fields have the same \c FieldSpace
-  /// @return field space of \c field0_
-  Teuchos::RCP<const FieldSpace<Ordinal> > getFieldSpace() const {return( field0_->getFieldSpace() );}
 
 
   Field&                    get0Field()               { return( *field0_ ); }

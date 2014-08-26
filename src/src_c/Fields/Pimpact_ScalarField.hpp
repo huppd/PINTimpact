@@ -29,7 +29,7 @@ namespace Pimpact {
 /// vector for a scalar field, e.g.: pressure,
 /// \note all indexing is done in Fortran
 /// \ingroup Field
-template< class S=double, class O=int, int dimension=3 >
+template< class S=double, class O=int, int d=3 >
 class ScalarField : private AbstractField<S,O> {
 
   template<class S1,class O1,int dimension1>
@@ -48,13 +48,18 @@ public:
   typedef S Scalar;
   typedef O Ordinal;
 
+  static const int dimension = d;
+
+  typedef Space<Scalar,Ordinal,dimension> SpaceT;
+
+
 protected:
 
   typedef Scalar* ScalarArray;
   typedef ScalarField<Scalar,Ordinal,dimension> MV;
   typedef Teuchos::Tuple<bool,3> State;
 
-  Teuchos::RCP<const Space<Scalar,Ordinal,dimension> > space_;
+  Teuchos::RCP<const SpaceT > space_;
 
   ScalarArray s_;
 
@@ -73,7 +78,7 @@ public:
     exchangedState_( Teuchos::tuple(true,true,true) ),
     fType_(fType) {};
 
-  ScalarField( const Teuchos::RCP<const Space<Scalar,Ordinal,dimension> >& space, bool owning=true, EFieldType fType=EFieldType::S ):
+  ScalarField( const Teuchos::RCP<const SpaceT >& space, bool owning=true, EFieldType fType=EFieldType::S ):
     space_(space),
     owning_(owning),
     exchangedState_( Teuchos::tuple(true,true,true) ),

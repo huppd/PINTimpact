@@ -20,6 +20,9 @@ namespace Pimpact {
 template< class Ordinal=int, int dim=3>
 class FieldSpace {
 
+  template< class OT, int dT >
+  friend const Teuchos::RCP<const FieldSpace<OT,dT> > createFieldSpace();
+
 public:
 
   typedef const Teuchos::Tuple<Ordinal,dim> TO;
@@ -31,6 +34,7 @@ public:
 
   Teuchos::Tuple<Ordinal,3> ls_; /// < \brief Ueberlappungskonvention der Blöcke (Multigrid, siehe mod_setup)
 
+protected:
 
   /// \brief constructor
   ///
@@ -54,6 +58,7 @@ public:
         ls_(Teuchos::tuple(-1,-1,-1))
   {};
 
+public:
 
   /// prints to \c std::cout, only for debuging purpose
   void print( std::ostream& out=std::cout ) const {

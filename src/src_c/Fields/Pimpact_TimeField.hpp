@@ -50,12 +50,16 @@ public:
   typedef typename Field::Scalar Scalar;
   typedef typename Field::Ordinal Ordinal;
 
+  static const int dimension = 4;
+
+  typedef Space<Scalar,Ordinal,4> SpaceT;
+
 public:
 
   typedef Pimpact::TimeField<Field> MV;
   typedef Scalar* ScalarArray;
 
-  Teuchos::RCP<const Space<Scalar,Ordinal,4> > space_;
+  Teuchos::RCP<const SpaceT > space_;
 
   Teuchos::Array< Teuchos::RCP<Field> > mfs_;
 
@@ -75,7 +79,7 @@ protected:
 
 public:
 
-  TimeField( Teuchos::RCP<const Space<Scalar,Ordinal,4> > space ):
+  TimeField( Teuchos::RCP<const SpaceT > space ):
     space_(space),exchangedState_(true) {
 
     Ordinal nt = space_->nLoc()[3]+space_->bu()[3]-space_->bl()[3];
@@ -355,7 +359,7 @@ public:
 
   MPI_Comm comm() const { return( space_->commST() ); }
 
-  Teuchos::RCP<const Space<Scalar,Ordinal,4> > getSpace() const { return( space_ ); }
+  Teuchos::RCP<const SpaceT > getSpace() const { return( space_ ); }
 
 
 public:

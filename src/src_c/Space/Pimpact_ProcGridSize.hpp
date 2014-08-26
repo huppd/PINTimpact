@@ -30,7 +30,16 @@ class ProcGridSize {
 
 public:
 
+
   typedef const Teuchos::Tuple<Ordinal,dim> TO;
+
+
+  template<class OT>
+  friend Teuchos::RCP<ProcGridSize<OT,3> > createProcGridSize();
+
+  template< class OT, int dT >
+  friend Teuchos::RCP<ProcGridSize<OT,dT> > createProcGridSize( OT np1, OT np2, OT np3, OT npt=0 );
+
 
 protected:
 
@@ -57,28 +66,15 @@ protected:
         "!!!ERROR! ProcGridSize: has to be greater than one!!!" );
   }
 
-public:
 
   ProcGridSize( TO procGridSize ):
     procGridSize_( procGridSize ) {
 
     test();
-    set_Impact();
-  };
-//  ProcGridSize( Ordinal np1, Ordinal np2, Ordinal np3 ):
-//    procGridSize_( Teuchos::tuple(np1, np2, np3) ) {
-//
-//    test();
-//    set_Impact();
-//  };
-//
-//  ProcGridSize( Ordinal np1, Ordinal np2, Ordinal np3, Ordinal npt ):
-//    procGridSize_( Teuchos::tuple(np1, np2, np3, npt) ) {
-//
-//    test();
-//    set_Impact();
-//  };
 
+  };
+
+public:
 
   const Ordinal& get( int i ) {
     return( procGridSize_[i] );

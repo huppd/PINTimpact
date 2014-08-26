@@ -12,7 +12,9 @@
 
 #include <BelosTypes.hpp>
 
+
 #include "Pimpact_Types.hpp"
+#include "Pimpact_Space.hpp"
 
 #include "Pimpact_AbstractField.hpp"
 
@@ -38,6 +40,10 @@ public:
 
   typedef typename Field::Scalar Scalar;
   typedef typename Field::Ordinal Ordinal;
+
+  static const int dimension = Field::dimension;
+
+  typedef Space<Scalar,Ordinal,dimension> SpaceT;
 
 private:
 

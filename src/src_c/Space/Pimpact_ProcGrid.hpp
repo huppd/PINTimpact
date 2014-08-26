@@ -39,6 +39,15 @@ namespace Pimpact{
 template< class Ordinal=int, int dim=3 >
 class ProcGrid {
 
+  template< class OT, int dT >
+  friend Teuchos::RCP< ProcGrid<OT,dT> > createProcGrid();
+
+  template< class OT, int dT >
+  friend Teuchos::RCP< ProcGrid<OT,dT> > createProcGrid(
+      const Teuchos::RCP< GridSizeLocal<OT,dT> >& gsl,
+      const Teuchos::RCP< BoundaryConditionsGlobal>& bcg,
+      const Teuchos::RCP< ProcGridSize<OT,dT> >& procGridSize );
+
 public:
 
   MPI_Fint commSpaceTimef_;
@@ -72,7 +81,8 @@ public:
   Teuchos::Tuple<int,3> rankBar_;
 
 
-public:
+protected:
+
   ProcGrid(
       MPI_Fint commf,
       MPI_Comm comm,
@@ -82,7 +92,13 @@ public:
         commSpaceTime_(comm),
         commSpacef_(commf),
         commSpace_(comm),
-        iB_(),rankL_(rankL),rankU_(rankU),commSlice_(),commBar_(),rankSlice_(),rankBar_() {}
+        iB_(),
+        rankL_(rankL),
+        rankU_(rankU),
+        commSlice_(),
+        commBar_(),
+        rankSlice_(),
+        rankBar_() {}
 
   ProcGrid(
       const Teuchos::RCP< GridSizeLocal<Ordinal,dim> >& gridSizeLocal,
@@ -230,9 +246,12 @@ public:
       MPI_Errhandler_set( commBar_[i],   MPI_ERRORS_ARE_FATAL );
     }
 
-    set_Impact();
+//    set_Impact();
 
   }
+
+
+public:
 
   void set_Impact() {
     SG_setCommCart( commSpacef_ );

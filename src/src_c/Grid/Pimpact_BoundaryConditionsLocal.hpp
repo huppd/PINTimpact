@@ -42,6 +42,15 @@ class BoundaryConditionsLocal {
 
 public:
 
+  friend Teuchos::RCP<BoundaryConditionsLocal> createBoudaryConditionsLocal();
+
+  template< class OT, int dT >
+  friend Teuchos::RCP<BoundaryConditionsLocal>  createBoudaryConditionsLocal(
+        const Teuchos::RCP< BoundaryConditionsGlobal >& bcg,
+        const Teuchos::RCP< ProcGridSize<OT,dT> >&  pgs,
+        const Teuchos::RCP< ProcGrid<OT,dT> >&  pg );
+
+
   typedef const Teuchos::Tuple<EBCType,3> TBC3;
   typedef const Teuchos::Tuple<int,3> Ti3;
 
@@ -50,6 +59,8 @@ public:
 
   Ti3 BCL_int_;
   Ti3 BCU_int_;
+
+protected:
 
   BoundaryConditionsLocal(
       EBCType BC1L=DirichletBC,
@@ -74,8 +85,9 @@ public:
       BCL_int_[i] = (int)( BCL_local_[i] );
       BCU_int_[i] = (int)( BCU_local_[i] );
     }
-    set_Impact();
   }
+
+public:
 
   void set_Impact(){
     fsetBCLoc(
@@ -129,7 +141,7 @@ Teuchos::RCP<BoundaryConditionsLocal> createBoudaryConditionsLocal() {
 }
 
 
-template< class O=int, int d=3 >
+template< class O, int d >
 Teuchos::RCP<BoundaryConditionsLocal>  createBoudaryConditionsLocal(
       const Teuchos::RCP< BoundaryConditionsGlobal >& bcg,
       const Teuchos::RCP< ProcGridSize<O,d> >&  pgs,
@@ -160,12 +172,6 @@ Teuchos::RCP<BoundaryConditionsLocal>  createBoudaryConditionsLocal(
   return(
       Teuchos::rcp(
           new BoundaryConditionsLocal( BCL, BCU ) ) );
-//              BCL[0],
-//              BCU[0],
-//              BCL[1],
-//              BCU[1],
-//              BCL[2],
-//              BCU[2] ) ) );
 
 }
 

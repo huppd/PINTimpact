@@ -6,6 +6,7 @@ include_directories("../src/src_c/Grid")
 include_directories("../src/src_c/Fields")
 include_directories("../src/src_c/Operators")
 include_directories("../src/src_c/NOX_Pimpact")
+include_directories("../src/src_c/MultiGrid")
 
 enable_testing()
 
@@ -81,6 +82,9 @@ ADD_EXECUTABLE( NOXSolvesPimpactTest Teuchos_StandardParallelUnitTestMain.cpp NO
 TARGET_LINK_LIBRARIES( NOXSolvesPimpactTest ${Pimpact_TPL_LIBRARIES} ) 
 add_test(NAME NOXSolvesPimpactTest COMMAND mpirun -np 4 NOXSolvesPimpactTest)
 
+ADD_EXECUTABLE( MultiGridTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_MultiGrid_test.cpp )
+TARGET_LINK_LIBRARIES( MultiGridTest ${Pimpact_TPL_LIBRARIES} ) 
+add_test( NAME MultiGridTest COMMAND mpirun -np 4 MultiGridTest )
 #INCLUDE(TribitsAddExecutableAndTest)
 
 #project("")

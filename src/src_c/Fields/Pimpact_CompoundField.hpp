@@ -32,6 +32,10 @@ public:
   typedef typename VField::Scalar Scalar;
   typedef typename VField::Ordinal Ordinal;
 
+  static const int dimension = VField::dimension;
+
+  typedef Space<Scalar,Ordinal,dimension> SpaceT;
+
 private:
 
   typedef CompoundField<VField,SField> MV;
@@ -63,8 +67,8 @@ public:
   //@{
 
   /// \warning it is assumed that both fields have the same \c FieldSpace
-  /// \return field space of \c cfield_
-  Teuchos::RCP<const FieldSpace<Ordinal> > getFieldSpace() const { return( vfield_->getFieldSpace() );}
+//  /// \return field space of \c cfield_
+//  Teuchos::RCP<const FieldSpace<Ordinal> > getFieldSpace() const { return( vfield_->getFieldSpace() );}
 
   VField& getVField() { return( *vfield_ ); }
   SField& getSField() { return( *sfield_ ); }

@@ -31,6 +31,7 @@ namespace Pimpact {
 /// \todo There is one issue: update methods changes state but could be
 ///implemented, such that they keep the state, but then the boundary conditions
 ///have to be taken care of
+/// \todo move exhange to \c ScalarField
 template<class S=double, class O=int, int d=3 >
 class VectorField : AbstractField<S,O> {
 
@@ -63,8 +64,8 @@ public:
 
   static const int dimension = d;
 
+  typedef Space<Scalar,Ordinal,dimension> SpaceT;
 
-//  typedef Teuchos::ArrayRCP< Teuchos::RCP<const IndexSpace<Ordinal> > >  IndexSpaces;
   typedef Teuchos::Tuple<Teuchos::Tuple<bool,3>,3> State; // obsolte in ScalarField
 
 protected:
@@ -73,9 +74,9 @@ protected:
   typedef VectorField<Scalar,Ordinal,dimension> VF;
   typedef ScalarField<Scalar,Ordinal,dimension> SF;
 
-  Teuchos::RCP< const Space<Scalar,Ordinal,dimension> > space_;
+  Teuchos::RCP< const SpaceT > space_;
 
-//  Teuchos::Tuple<ScalarArray,3> vec_;
+  //  Teuchos::Tuple<ScalarArray,3> vec_;
   ScalarArray vec_;
 
   const bool owning_;
@@ -92,14 +93,14 @@ public:
     owning_(true),
     exchangedState_(Teuchos::tuple(Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true))),
     sFields_( Teuchos::tuple(Teuchos::null,Teuchos::null,Teuchos::null) )
-    {};
+{};
 
-  VectorField( const Teuchos::RCP< const Space<Scalar,Ordinal,dimension> >& space, bool owning=true ):
+  VectorField( const Teuchos::RCP< const SpaceT >& space, bool owning=true ):
     space_(space),
     owning_(owning),
     exchangedState_(Teuchos::tuple(Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true)))//,
-//    sFields_( Teuchos::tuple(Teuchos::null,Teuchos::null,Teuchos::null) )
-    {
+  //    sFields_( Teuchos::tuple(Teuchos::null,Teuchos::null,Teuchos::null) )
+  {
 
     for( int i=0; i<3; ++i )
       sFields_[i] = Teuchos::rcp( new SF( space_, false, EFieldType(i) ) );
@@ -109,13 +110,13 @@ public:
       Ordinal N = getStorageSize()/3;
 
       vec_ = new Scalar[3*N];
-//      vec_[0] = new Scalar[3*N];
-//      vec_[1] = vec_[0]+N; // shoudl become obsolete
-//      vec_[2] = vec_[1]+N;
+      //      vec_[0] = new Scalar[3*N];
+      //      vec_[1] = vec_[0]+N; // shoudl become obsolete
+      //      vec_[2] = vec_[1]+N;
 
-//      for(int i=0; i<3; ++i)
-//        for(int j=0; j<N; ++j)
-//          vec_[i][j] = 0.;
+      //      for(int i=0; i<3; ++i)
+      //        for(int j=0; j<N; ++j)
+      //          vec_[i][j] = 0.;
       for( int i=0; i<3*N; ++i )
         vec_[i] = 0.;
 
@@ -144,18 +145,18 @@ public:
       Ordinal n = getStorageSize()/3;
 
       vec_ = new Scalar[3*n];
-//      vec_[0] = new Scalar[3*n];
-//      vec_[1] = vec_[0]+n;
-//      vec_[2] = vec_[1]+n;
+      //      vec_[0] = new Scalar[3*n];
+      //      vec_[1] = vec_[0]+n;
+      //      vec_[2] = vec_[1]+n;
 
       for( int i=0; i<3; ++i )
         sFields_[i]->setStoragePtr( vec_+i*n );
 
       switch( copyType ) {
       case ShallowCopy:
-//        for( int i=0; i<dim(); ++i )
-//          for( int j=0; j<n; ++j)
-//            vec_[i][j] = 0.;
+        //        for( int i=0; i<dim(); ++i )
+        //          for( int j=0; j<n; ++j)
+        //            vec_[i][j] = 0.;
         for( int i=0; i<3*n; ++i )
           vec_[i] = 0.;
         break;
@@ -323,9 +324,9 @@ public:
     for( int i=0; i<dim(); ++i )
       normvec += sFields_[i]->norm( *weights.sFields_[i], false);
 
-     if( global ) this->reduceNorm( comm(), normvec, Belos::TwoNorm );
+    if( global ) this->reduceNorm( comm(), normvec, Belos::TwoNorm );
 
-     return( normvec );
+    return( normvec );
 
   }
 
@@ -658,14 +659,14 @@ public:
       os << "rank: " << rank << " :bu: " << bu(i) << "\n\n";
     }
     std::cout << "rank: " << rank << "\n";
-//    for( int i=0; i<dim(); ++i ) {
-//      std::cout << "field: " << i << "\n";
-//      SF_print(
-//          nLoc(),
-//          bl(), bu(),
-//          sInd(i), eInd(i),
-//          vec_[i] );
-//    }
+    //    for( int i=0; i<dim(); ++i ) {
+    //      std::cout << "field: " << i << "\n";
+    //      SF_print(
+    //          nLoc(),
+    //          bl(), bu(),
+    //          sInd(i), eInd(i),
+    //          vec_[i] );
+    //    }
   }
 
 
@@ -686,11 +687,11 @@ public:
   Ordinal getStorageSize() const {
 
     return( sFields_[0]->getStorageSize()*3 );
-//    Ordinal n = 1;
-//    for(int i=0; i<3; ++i)
-//      n *= nLoc(i)+bu(i)-bl(i)+1;
-//
-//    return( 3*n );
+    //    Ordinal n = 1;
+    //    for(int i=0; i<3; ++i)
+    //      n *= nLoc(i)+bu(i)-bl(i)+1;
+    //
+    //    return( 3*n );
   }
 
   void setStoragePtr( Scalar*  array ) {
@@ -698,16 +699,16 @@ public:
     Ordinal n = getStorageSize()/3;
 
     vec_ = array;
-//    vec_[0] = array;
-//    vec_[1] = array+n;
-//    vec_[2] = array+2*n;
+    //    vec_[0] = array;
+    //    vec_[1] = array+n;
+    //    vec_[2] = array+2*n;
 
     for( int i=0; i<3; ++i )
       sFields_[i]->setStoragePtr( vec_+i*n );
   }
 
   Scalar* getRawPtr() {
-//    return( vec_[0] );
+    //    return( vec_[0] );
     return( vec_ );
   }
 
@@ -730,8 +731,8 @@ protected:
   const Ordinal* bl()                   const { return( space_->bl() ); }
   const Ordinal* bu()                   const { return( space_->bu() ); }
 
-//  const Ordinal* sInd() const { return( space_->sInd() ); }
-//  const Ordinal* eInd() const { return( space_->eInd() ); }
+  //  const Ordinal* sInd() const { return( space_->sInd() ); }
+  //  const Ordinal* eInd() const { return( space_->eInd() ); }
 
   const Ordinal* sInd(  int fieldType ) const { return( space_->sInd(fieldType)  ); }
   const Ordinal* eInd(  int fieldType ) const { return( space_->eInd(fieldType) ); }
@@ -745,8 +746,8 @@ protected:
   const int* rankL() const { return( space_->getProcGrid()->getRankL() ); }
   const int* rankU() const { return( space_->getProcGrid()->getRankU() ); }
 
-        Scalar* vec ( int i )       { return( sFields_[i]->s_ ); }
-        Scalar* vecC( int i ) const { return( sFields_[i]->s_ ); }
+  Scalar* vec ( int i )       { return( sFields_[i]->s_ ); }
+  Scalar* vecC( int i ) const { return( sFields_[i]->s_ ); }
 
   void changed( const int& vel_dir, const int& dir ) const {
     exchangedState_[vel_dir][dir] = false;
@@ -789,7 +790,7 @@ protected:
           ones,
           nLoc(),
           dir+1, vel_dir+1,
-//          vec_[vel_dir]);
+          //          vec_[vel_dir]);
           sFields_[vel_dir]->getRawPtr() );
       exchangedState_[vel_dir][dir] = true;
     }
@@ -811,7 +812,7 @@ protected:
 template<class S=double, class O=int, int d=3>
 Teuchos::RCP< VectorField<S,O,d> > createVectorField( const Teuchos::RCP< const Space<S,O,d> >& space ) {
 
-//  return( create< VectorField<S,O,d> >() );
+  //  return( create< VectorField<S,O,d> >() );
   return( Teuchos::rcp(
       new VectorField<S,O,d>( space ) ) );
 

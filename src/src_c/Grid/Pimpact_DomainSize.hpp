@@ -28,6 +28,15 @@ namespace Pimpact{
 template< class Scalar=double >
 class DomainSize {
 
+  template<class ST>
+  friend Teuchos::RCP<DomainSize<ST> > createDomainSize();
+
+  template<class ST>
+  friend Teuchos::RCP<DomainSize<ST> > createDomainSize( ST L1, ST L2, ST L3 );
+
+  template<class ST>
+  friend Teuchos::RCP<DomainSize<ST> > createDomainSize( ST re, ST alpha2, ST L1, ST L2, ST L3 );
+
 public:
 
   typedef const Teuchos::Tuple<Scalar,3> TS3;
@@ -40,23 +49,20 @@ protected:
 
   TS3 domainSize_;
 
-public:
 
   DomainSize( Scalar L1, Scalar L2, Scalar L3 ):
     re_(1.),alpha2_(1.),
-    domainSize_( Teuchos::tuple(L1, L2, L3) ) {
-    set_Impact();
-  };
+    domainSize_( Teuchos::tuple(L1, L2, L3) ) {};
 
   DomainSize( Scalar re, Scalar alpha2, Scalar L1, Scalar L2, Scalar L3 ):
     re_(re),alpha2_(alpha2),
-    domainSize_( Teuchos::tuple(L1, L2, L3) ) {
-    set_Impact();
-  };
+    domainSize_( Teuchos::tuple(L1, L2, L3) ) {};
 
   DomainSize( TS3 domainSize ):
     re_(1.),alpha2_(1.),
     domainSize_( domainSize ) {};
+
+public:
 
   void set_Impact(){
     fsetDS( domainSize_[0], domainSize_[1], domainSize_[2] );
