@@ -34,21 +34,28 @@ class MultiGrid {
 
 protected:
 
-  int nGrids_;
-
   std::vector< Teuchos::RCP<const SpaceT> > multiSpace_;
 
 
   MultiGrid( const std::vector<Teuchos::RCP<const SpaceT> >& multiSpace ):
-    nGrids_( multiSpace.size() ),
-    multiSpace_(nGrids_) {}
+    multiSpace_(multiSpace) {}
 
 public:
 
   int getNGrids() const {
-    return( nGrids_ );
+    return( multiSpace_.size() );
   }
 
+  void print(  std::ostream& out=std::cout ) const {
+
+    for( int i = 0; i<getNGrids(); ++i ) {
+      if( multiSpace_[i]->rankST()==0 ) {
+        out << "-------- level: "<< i << "--------\n";
+        multiSpace_[i]->print(out);
+      }
+//      MPI_Barrier( (*i)->commST() );
+    }
+  }
 
 }; // end of class MultiGrid
 

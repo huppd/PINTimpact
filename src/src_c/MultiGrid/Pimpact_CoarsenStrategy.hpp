@@ -31,7 +31,6 @@ public:
       const Teuchos::RCP<const SpaceT> space,
       int maxGrids=10 ) {
 
-//    int nGrids = 1;
     std::vector<Teuchos::RCP<const SpaceT> > multiSpace( 1, space );
 
     const Ordinal* nLoc_ = space->nLoc();
@@ -52,7 +51,6 @@ public:
         if( j<3 ) {
           if( ( (nLoc[j]-1)%2 )==0 && nLoc[j]>=5 ) {
             nLoc[j] = (nLoc[j]-1)/2 + 1;
-//            nGrids = i;
             coarsen_yes = true;
             coarsen_dir[j] = true;
           }
@@ -60,15 +58,11 @@ public:
         else
           if( ( (nLoc[j])%2 )==0 && nLoc[j]>1 ) {
             nLoc[j] = (nLoc[j])/2;
-//            nGrids = i;
             coarsen_yes = true;
             coarsen_dir[j] = true;
           }
-        if( coarsen_yes ) {
-          multiSpace.push_back( createCoarseSpace( space, coarsen_dir ) );
-        }
-
       }
+      if( coarsen_yes )  multiSpace.push_back( createCoarseSpace( multiSpace.back(), coarsen_dir ) );
     }
 
     multiSpace.shrink_to_fit();

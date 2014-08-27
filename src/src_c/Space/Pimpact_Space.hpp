@@ -89,6 +89,7 @@ public:
   const MPI_Comm& commST()  const { return( procGrid_->commSpaceTime_  ); }
 
   int rankST() const { return( procGrid_->rankST_ ); }
+//  int rank  () const { return( procGrid_->rank_   ); }
 
   const int&      dim()   const { return( fieldSpace_->dim_   ); }
 
@@ -150,53 +151,55 @@ public:
 
   void print(  std::ostream& out=std::cout ) const {
 
-    out << "\t---Space: ---\n";
+    if( 0==rankST() ) {
+      out << "\t---Space: ---\n";
 
-    if( !fieldSpace_.is_null() )
-      fieldSpace_->print( out );
-    else
-      out << "fieldSpace_ is null\n";
-    //    MPI_Barrier( commST() );
+      if( !fieldSpace_.is_null() )
+        fieldSpace_->print( out );
+      else
+        out << "fieldSpace_ is null\n";
+      //    MPI_Barrier( commST() );
 
-    if( !gridSizeGlobal_.is_null() ) {
-      out <<"---GridSizeGlobal: ---\n";
-      gridSizeGlobal_->print( out );
+      if( !gridSizeGlobal_.is_null() ) {
+        out <<"---GridSizeGlobal: ---\n";
+        gridSizeGlobal_->print( out );
+      }
+      else
+        out << "gridSizeGlobal_ is null\n";
+      //    MPI_Barrier( commST() );
+
+      if( !gridSizeLocal_.is_null() ) {
+        out <<"---GridSizeLocal: ---\n";
+        gridSizeLocal_->print( out );
+      }
+      else
+        out << "gridSizeLocal_ is null\n";
+      //    MPI_Barrier( commST() );
+
+      if( !scalarIS_.is_null() )
+        scalarIS_->print(out);
+      else
+        out << "scalarIS_ is null\n";
+      //    MPI_Barrier( commST() );
+
+      for( int i=0; i<2; ++i ) {
+        innerIS_[i]->print( out );
+        fullIS_[i]->print( out );
+      }
+      //    MPI_Barrier( comm() );
+
+      if( !procGridSize_.is_null() )
+        procGridSize_->print( out );
+      else
+        out << "procGridSize_ is null\n";
+      //    MPI_Barrier( commST() );
+
+      if( !procGrid_.is_null() )
+        procGrid_->print( out );
+      else
+        out << "procGrid_ is null\n";
+      //    MPI_Barrier( commST() );
     }
-    else
-      out << "gridSizeGlobal_ is null\n";
-    //    MPI_Barrier( commST() );
-
-    if( !gridSizeLocal_.is_null() ) {
-      out <<"---GridSizeLocal: ---\n";
-      gridSizeLocal_->print( out );
-    }
-    else
-      out << "gridSizeLocal_ is null\n";
-    //    MPI_Barrier( commST() );
-
-    if( !scalarIS_.is_null() )
-      scalarIS_->print(out);
-    else
-      out << "scalarIS_ is null\n";
-    //    MPI_Barrier( commST() );
-
-    for( int i=0; i<2; ++i ) {
-      innerIS_[i]->print( out );
-      fullIS_[i]->print( out );
-    }
-    //    MPI_Barrier( comm() );
-
-    if( !procGridSize_.is_null() )
-      procGridSize_->print( out );
-    else
-      out << "procGridSize_ is null\n";
-    //    MPI_Barrier( commST() );
-
-    if( !procGrid_.is_null() )
-      procGrid_->print( out );
-    else
-      out << "procGrid_ is null\n";
-    //    MPI_Barrier( commST() );
 
   }
 
@@ -375,44 +378,6 @@ Teuchos::RCP< const Space<S,O,d> > createSpace() {
               createDomain<S>() ) ) );
 }
 
-/// \relates Space
-template< class S=double, class O=int, int d=3 >
-Teuchos::RCP< const Space<S,O,d> > createCoarseSpace( Teuchos::RCP<const Space<S,O,d> > space ) {
-
-  auto domain = space->getDomain();
-
-  auto procGridSize = space->getProcGridSize();
-  auto gridSizeGlobal = space->getGridSizeGlobal(); //coarsen
-//  auto gridSizeLocal = Pimpact::createGridSizeLocal<O,d>( gridSizeGlobal, procGridSize );
-  auto gridSizeLocal = space->getGridSizeLocal();
-
-//  auto procGrid = Pimpact::createProcGrid<O,d>( gridSizeLocal, domain->getBCGlobal(), procGridSize );
-  auto procGrid = space->getProcGrid();;
-
-  auto boundaryConditionsLocal = domain->getBCLocal();
-
-  auto fieldSpace = space->getFieldSpace();
-
-//  auto scalarIndexSpace = Pimpact::createScalarIndexSpace<O,d>( fieldSpace, gridSizeLocal, boundaryConditionsLocal );
-  auto scalarIndexSpace = space->getScalarIndexSpace();
-
-//  auto innerIndexSpace = Pimpact::createInnerFieldIndexSpaces<O,d>( fieldSpace, gridSizeLocal, boundaryConditionsLocal );
-//  auto  fullIndexSpace = Pimpact::createFullFieldIndexSpaces<O,d>(  fieldSpace, gridSizeLocal, boundaryConditionsLocal );
-  auto innerIndexSpace = space->getInnerIndexSpace();
-  auto  fullIndexSpace = space->getFullIndexSpace();
-
-  return( Pimpact::createSpace<S,O>(
-      fieldSpace,
-      scalarIndexSpace,
-      innerIndexSpace,
-      fullIndexSpace,
-      gridSizeGlobal,
-      gridSizeLocal,
-      procGridSize,
-      procGrid,
-      domain) );
-
-}
 
 } // end of namespace Pimpact
 

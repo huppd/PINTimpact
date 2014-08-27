@@ -86,12 +86,15 @@ protected:
   ProcGrid(
       MPI_Fint commf,
       MPI_Comm comm,
+      int rank,
       Teuchos::Tuple<int,3> rankL,
       Teuchos::Tuple<int,3> rankU ):
         commSpaceTimef_(commf),
         commSpaceTime_(comm),
         commSpacef_(commf),
         commSpace_(comm),
+        rankS_(rank),
+        rankST_(rank),
         iB_(),
         rankL_(rankL),
         rankU_(rankU),
@@ -246,8 +249,6 @@ protected:
       MPI_Errhandler_set( commBar_[i],   MPI_ERRORS_ARE_FATAL );
     }
 
-//    set_Impact();
-
   }
 
 
@@ -292,21 +293,25 @@ public:
 /// \relates ProcGrid
 template< class O=int, int d=3 >
 Teuchos::RCP< ProcGrid<O,d> > createProcGrid() {
+
+
+  MPI_Fint comm;
+  SVS_get_comm( comm );
+
+  int rank;
+  SG_setRank( rank );
+
   Teuchos::Tuple<int,3> rankL;
   Teuchos::Tuple<int,3> rankU;
-
-
-    MPI_Fint comm;
-    SVS_get_comm( comm );
-
-   SG_getRankLU( rankL.getRawPtr(), rankU.getRawPtr() );
+  SG_getRankLU( rankL.getRawPtr(), rankU.getRawPtr() );
 
   return(
       Teuchos::rcp( new ProcGrid<O,d>(
           comm,
           MPI_Comm_f2c(comm),
+          rank,
           rankL,
-          rankU) ) );
+          rankU ) ) );
 
 }
 

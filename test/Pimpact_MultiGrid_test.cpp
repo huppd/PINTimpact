@@ -68,6 +68,7 @@ TEUCHOS_UNIT_TEST( MultiGrid, constructor3D ) {
 
   auto asdf = Pimpact::createMultiGrid<SF,CS>( space, 10 );
   std::cout << "nGridLevels: " << asdf->getNGrids() << "\n";
+  asdf->print();
 
 }
 
@@ -111,6 +112,7 @@ TEUCHOS_UNIT_TEST( MultiGrid, constructor4D ) {
 
     auto asdf = Pimpact::createMultiGrid<SF,CS>( space, 10 );
     std::cout << "nGridLevels: " << asdf->getNGrids() << "\n";
+    asdf->print();
 
   }
 
