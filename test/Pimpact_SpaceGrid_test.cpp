@@ -175,6 +175,19 @@ TEUCHOS_UNIT_TEST( Space, create ) {
 
 }
 
+TEUCHOS_UNIT_TEST( Space, GlobalGridCoordinates ) {
+  // init impact
+  if( !isImpactInit ) {
+    init_impact(0,0);
+    isImpactInit=true;
+  }
+  auto space = Pimpact::createSpace();
+
+  auto coord= Pimpact::createGridCoordinatesGlobal(space->getGridSizeGlobal(),space->getDomain()->getDomainSize());
+  coord->print();
+
+}
+
 
 
 } // end of namespace

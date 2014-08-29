@@ -69,6 +69,9 @@ int main(int argi, char** argv ) {
   my_CLP.setOption( "flow", &flow, "Flow type: 0=zero flow, 1=2D Poiseuille flow in x, 2=2D Poiseuille flow in y" );
 
   // domain size
+  int dim = 2;
+  my_CLP.setOption( "dim", &dim, "length in x-direction" );
+
   S l1 = 2.;
   my_CLP.setOption( "lx", &l1, "length in x-direction" );
 
@@ -125,7 +128,7 @@ int main(int argi, char** argv ) {
 
   *outPar << " \tflow=" << flow << "\n";
 
-  auto ds = Pimpact::createDomainSize<S>(re,omega,l1,l2,l3);
+  auto ds = Pimpact::createDomainSize<S>(dim,re,omega,l1,l2,l3);
   ds->set_Impact();
   ds->print( *outPar );
 

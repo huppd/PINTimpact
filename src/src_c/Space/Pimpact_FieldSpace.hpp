@@ -27,7 +27,6 @@ public:
 
   typedef const Teuchos::Tuple<Ordinal,dim> TO;
 
-  Ordinal dim_;
 
   TO bl_;
   TO bu_;
@@ -41,18 +40,19 @@ protected:
   /// \param bl lower bound of storage
   /// \param bu upper bound of storage
   FieldSpace(
-      Ordinal dimension,
+//      Ordinal dimension,
       TO bl,
       TO bu ):
-        dim_(dimension),
+//        dim_(dimension),
         bl_(bl),
         bu_(bu),
         ls_(Teuchos::tuple(-1,-1,-1))
   {};
 
+  /// \todo necessary?
   FieldSpace(
       const FieldSpace& fs ):
-        dim_(fs.dim_),
+//        dim_(fs.dim_),
         bl_(fs.bl_),
         bu_(fs.bu_),
         ls_(Teuchos::tuple(-1,-1,-1))
@@ -64,7 +64,7 @@ public:
   void print( std::ostream& out=std::cout ) const {
     out << "\t---FieldSpace: ---\n";
     out << "comput dim: " << dim << "\n";
-    out << "pseudo dim: " << dim_ << "\n";
+//    out << "pseudo dim: " << dim_ << "\n";
     out << "bl: " << bl_ << "\n";
     out << "bu: " << bu_ << "\n";
     out << "ls: " << ls_ << "\n";
@@ -75,7 +75,6 @@ public:
 
 
 extern "C" {
-void FS_get_dim(int&);
 void SVS_get_bl(int&,int&,int&);
 void SVS_get_bu(int&,int&,int&);
 }
@@ -90,8 +89,6 @@ const Teuchos::RCP<const FieldSpace<O,d> > createFieldSpace(){
 
   typedef typename FieldSpace<O,d>::TO TO;
 
-  int dim;
-  FS_get_dim( dim );
 
   TO bl;
   SVS_get_bl( bl[0], bl[1], bl[2] );
@@ -104,7 +101,7 @@ const Teuchos::RCP<const FieldSpace<O,d> > createFieldSpace(){
   return(
       Teuchos::RCP<const FieldSpace<O,d> > (
           new FieldSpace<O,d>(
-              dim,
+//              dim,
               bl,
               bu ) ) );
 }

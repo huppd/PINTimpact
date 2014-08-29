@@ -103,7 +103,7 @@ public:
   {
 
     for( int i=0; i<3; ++i )
-      sFields_[i] = Teuchos::rcp( new SF( space_, false, EFieldType(i) ) );
+      sFields_[i] = Teuchos::rcp( new SF( space_, false, EField(i) ) );
 
     if( owning_ ) {
 
@@ -138,25 +138,19 @@ public:
     exchangedState_(vF.exchangedState_) {
 
     for( int i=0; i<3; ++i )
-      sFields_[i] = Teuchos::rcp( new SF( space_, false, EFieldType(i) ) );
+      sFields_[i] = Teuchos::rcp( new SF( space_, false, EField(i) ) );
 
     if( owning_ ) {
 
       Ordinal n = getStorageSize()/3;
 
       vec_ = new Scalar[3*n];
-      //      vec_[0] = new Scalar[3*n];
-      //      vec_[1] = vec_[0]+n;
-      //      vec_[2] = vec_[1]+n;
 
       for( int i=0; i<3; ++i )
         sFields_[i]->setStoragePtr( vec_+i*n );
 
       switch( copyType ) {
       case ShallowCopy:
-        //        for( int i=0; i<dim(); ++i )
-        //          for( int j=0; j<n; ++j)
-        //            vec_[i][j] = 0.;
         for( int i=0; i<3*n; ++i )
           vec_[i] = 0.;
         break;
@@ -786,7 +780,7 @@ protected:
           nLoc(),
           bl(), bu(),
           bcL(), bcU(),
-          sInd(EFieldType::S), eInd(EFieldType::S),
+          sInd(EField::S), eInd(EField::S),
           ones,
           nLoc(),
           dir+1, vel_dir+1,

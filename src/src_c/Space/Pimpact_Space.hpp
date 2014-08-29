@@ -19,6 +19,8 @@
 
 #include "Pimpact_Domain.hpp"
 
+#include "Pimpact_GridCoordinatesGlobal.hpp"
+
 #include "pimpact.hpp"
 
 #include <iostream>
@@ -50,6 +52,7 @@ public:
       const Teuchos::RCP< GridSizeLocal<Ordinal,dimension> >& gridSizeLocal,
       const Teuchos::RCP< ProcGridSize<Ordinal,dimension> >& procGridSize,
       const Teuchos::RCP< ProcGrid<Ordinal,dimension> >& procGrid,
+      const Teuchos::RCP< GridCoordinatesGlobal<Scalar,Ordinal,dimension> >& coordGlobal,
       const Teuchos::RCP< Domain<Scalar> >& domain ):
         fieldSpace_(fieldSpace),
         scalarIS_(scalarIS),
@@ -59,6 +62,7 @@ public:
         gridSizeLocal_(gridSizeLocal),
         procGridSize_(procGridSize),
         procGrid_(procGrid),
+        coordGlobal_(coordGlobal),
         domain_(domain)
   {}
 
@@ -72,11 +76,14 @@ protected:
   IndexSpaces fullIS_;
 
   Teuchos::RCP< GridSizeGlobal<Ordinal,dimension> > gridSizeGlobal_;
+
   Teuchos::RCP< GridSizeLocal<Ordinal,dimension> > gridSizeLocal_;
 
   Teuchos::RCP< ProcGridSize<Ordinal,dimension> > procGridSize_;
 
   Teuchos::RCP< ProcGrid<Ordinal,dimension> > procGrid_;
+
+  Teuchos::RCP< GridCoordinatesGlobal<Scalar,Ordinal,dimension> > coordGlobal_;
 
   Teuchos::RCP< Domain<Scalar> > domain_;
 
@@ -91,35 +98,35 @@ public:
   int rankST() const { return( procGrid_->rankST_ ); }
 //  int rank  () const { return( procGrid_->rank_   ); }
 
-  const int&      dim()   const { return( fieldSpace_->dim_   ); }
+  const int&      dim()   const { return( domain_->getDomainSize()->getDim() ); }
 
-  const Ordinal* nGlo()  const { return( gridSizeGlobal_->getPtr() ); }
+  const Ordinal* nGlo()  const { return( gridSizeGlobal_->getSizeP() ); }
   const Ordinal* nLoc()  const { return( gridSizeLocal_->getPtr() ); }
   const Ordinal* bl  ()  const { return( fieldSpace_->bl_.getRawPtr()   ); }
   const Ordinal* bu  ()  const { return( fieldSpace_->bu_.getRawPtr()   ); }
 
 
   const Ordinal* sInd( int fieldType ) const {
-    if( EFieldType::S == fieldType )
+    if( EField::S == fieldType )
       return( scalarIS_->sInd_.getRawPtr()  );
     else
       return( innerIS_[fieldType]->sInd_.getRawPtr() );
   }
   const Ordinal* eInd(  int fieldType ) const {
-    if( EFieldType::S == fieldType )
+    if( EField::S == fieldType )
       return( scalarIS_->eInd_.getRawPtr()  );
     else
       return( innerIS_[fieldType]->eInd_.getRawPtr() );
   }
 
   const Ordinal* sIndB( int fieldType ) const {
-    if( EFieldType::S == fieldType )
+    if( EField::S == fieldType )
       return( scalarIS_->eInd_.getRawPtr()  );
     else
       return( fullIS_[fieldType]->sInd_.getRawPtr()  );
   }
   const Ordinal* eIndB( int fieldType ) const {
-    if( EFieldType::S == fieldType )
+    if( EField::S == fieldType )
       return( scalarIS_->eInd_.getRawPtr()  );
     else
       return( fullIS_[fieldType]->eInd_.getRawPtr()  );
@@ -219,6 +226,9 @@ public:
           "Domain type: 0:all dirichlet, 1:dirichlet 2d channel, 2: periodic 2d channel" );
 
       // domain size
+      int dim = 2;
+      pl->set("dim", dim, "dimension of problem" );
+
       S l1 = 1.;
       pl->set( "lx", l1, "length in x-direction" );
 
@@ -228,8 +238,6 @@ public:
       S l3 = 1.;
       pl->set("lz", l3, "length in z-direction" );
 
-      int dim = 2;
-      pl->set("dim", dim, "dimension of problem" );
 
       // grid size
       O n1 = 33;
@@ -272,6 +280,7 @@ public:
 
 
 /// \relates Space
+/// \deprecated
 template<class S=double, class O=int, int d=3>
 Teuchos::RCP< const Space<S,O,d> > createSpace(
     const Teuchos::RCP<const FieldSpace<O,d> >& fieldSpace,
@@ -282,6 +291,7 @@ Teuchos::RCP< const Space<S,O,d> > createSpace(
     const Teuchos::RCP< GridSizeLocal<O,d> >& gridSizeLocal,
     const Teuchos::RCP< ProcGridSize<O,d> >& procGridSize,
     const Teuchos::RCP< ProcGrid<O,d> >& procGrid,
+    const Teuchos::RCP< GridCoordinatesGlobal<S,O,d> >& coordGlobal,
     const Teuchos::RCP< Domain<S> >& domain=Teuchos::null ) {
 
   return(
@@ -295,11 +305,12 @@ Teuchos::RCP< const Space<S,O,d> > createSpace(
               gridSizeLocal,
               procGridSize,
               procGrid,
+              coordGlobal,
               domain ) ) );
 }
 
+
 /// \relates Space
-/// \todo wünschenswert initialization from parameterlist
 template<class S=double, class O=int, int d=3>
 Teuchos::RCP< const Space<S,O,d> > createSpace(
     const Teuchos::RCP<Teuchos::ParameterList> pl ) {
@@ -311,7 +322,13 @@ Teuchos::RCP< const Space<S,O,d> > createSpace(
 
   Teuchos::writeParameterListToXmlFile( *pl, "parameterOut.xml" );
 
-  auto domainSize = Pimpact::createDomainSize<S>( pl->get("Re",1.), pl->get("alpha2",1.), pl->get("lx",1.), pl->get("ly",1.), pl->get("lz",1.) );
+  auto domainSize = Pimpact::createDomainSize<S>(
+      pl->get("dim",2),
+      pl->get("Re",1.),
+      pl->get("alpha2",1.),
+      pl->get("lx",1.),
+      pl->get("ly",1.),
+      pl->get("lz",1.) );
   domainSize->set_Impact();
 
   auto boundaryConditionsGlobal = Pimpact::createBoudaryConditionsGlobal( Pimpact::EDomainType( pl->get("domain",2) ) );
@@ -345,6 +362,8 @@ Teuchos::RCP< const Space<S,O,d> > createSpace(
 
   auto domain = Pimpact::createDomain<S>( domainSize, boundaryConditionsGlobal, boundaryConditionsLocal );
 
+  auto  coordGlobal = Pimpact::createGridCoordinatesGlobal<S,O,d>( gridSizeGlobal, domainSize );
+
   return( Pimpact::createSpace<S,O>(
       fieldSpace,
       scalarIndexSpace,
@@ -354,6 +373,7 @@ Teuchos::RCP< const Space<S,O,d> > createSpace(
       gridSizeLocal,
       procGridSize,
       procGrid,
+      coordGlobal,
       domain ) );
 
 
@@ -375,6 +395,7 @@ Teuchos::RCP< const Space<S,O,d> > createSpace() {
               createGridSizeLocal<O,3>(),
               createProcGridSize<O>(),
               createProcGrid<O,d>(),
+              Teuchos::null,
               createDomain<S>() ) ) );
 }
 

@@ -32,6 +32,7 @@ namespace Pimpact {
 /// that only done once per MV not per Field
 ///
 /// \todo decide if it is better to modifie ghostlayer or exchange eventuell more
+/// \todo maybe move functionality in Scalar/VectorField<S,O,4>
 /// \ingroup Field
 template<class Field>
 class TimeField : private AbstractField<typename Field::Scalar,typename Field::Ordinal> {

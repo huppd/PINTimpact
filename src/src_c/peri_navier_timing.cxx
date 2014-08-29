@@ -82,6 +82,7 @@ int main(int argi, char** argv ) {
   int domain = 2;
 
   // domain size
+  int dim = 2;
   S l1 = 1.;
   S l2 = 1.;
   S l3 = 1.;
@@ -145,7 +146,7 @@ int main(int argi, char** argv ) {
   *outPar << " \tflow=" << flow << "\n";
   *outPar << " \tdomain=" << domain << "\n";
 
-  auto ds = Pimpact::createDomainSize<S>( re, alpha2, l1, l2, l3 );
+  auto ds = Pimpact::createDomainSize<S>( dim, re, alpha2, l1, l2, l3 );
   ds->set_Impact();
   ds->print( *outPar );
 

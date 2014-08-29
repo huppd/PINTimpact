@@ -42,6 +42,8 @@ class ScalarField : private AbstractField<S,O> {
   friend class DivGradOp;
   template<class S1,class O1,int dimension1>
   friend class MGVDivGradOp;
+  template<class S1,class O1,int dimension1>
+  friend class RestrictionOp;
 
 public:
 
@@ -67,18 +69,18 @@ protected:
 
   State exchangedState_;
 
-  EFieldType fType_;
+  EField fType_;
 
 public:
 
-  ScalarField( EFieldType fType=EFieldType::S ):
+  ScalarField( EField fType=EField::S ):
     s_(0),
     space_(Teuchos::null),
     owning_(true),
     exchangedState_( Teuchos::tuple(true,true,true) ),
     fType_(fType) {};
 
-  ScalarField( const Teuchos::RCP<const SpaceT >& space, bool owning=true, EFieldType fType=EFieldType::S ):
+  ScalarField( const Teuchos::RCP<const SpaceT >& space, bool owning=true, EField fType=EField::S ):
     space_(space),
     owning_(owning),
     exchangedState_( Teuchos::tuple(true,true,true) ),
@@ -147,7 +149,7 @@ public:
     Ordinal vl = 1;
 
     switch( fType_ ) {
-    case EFieldType::S: {
+    case EField::S: {
       for(int i = 0; i<dim(); ++i)
         if( PeriodicBC==bc->getBCL(i) )
           vl *= nGlo(i)-1;
@@ -413,7 +415,7 @@ public:
   //@}
 
   /// Print the vector.  To be used for debugging only.
-  void print( std::ostream& os )  const {
+  void print( std::ostream& os=std::cout )  const {
     SF_print(
         nLoc(),
         bl(), bu(),
@@ -425,7 +427,11 @@ public:
 
   void write( int count=0 ) {
     // exchange?
-    SF_write( s_, count );
+    SF_write(
+        nLoc(),
+        bl(), bu(),
+        sInd(), eInd(),
+        s_, count );
   }
 
 
@@ -435,6 +441,8 @@ public:
   const MPI_Fint& commf() const { return( space_->commf() ); }
   MPI_Comm        comm()  const { return( space_->comm() ); }
   const int&      dim()   const { return( space_->dim()   ); }
+
+  Teuchos::RCP<const SpaceT> getSpace() const { return( space_ ); };
 
   Ordinal getStorageSize() const {
 
@@ -536,7 +544,7 @@ template<class S=double, class O=int, int d=3>
 Teuchos::RCP< ScalarField<S,O,d> >
 createScalarField(
     const Teuchos::RCP<const Space<S,O,d> >& space=Teuchos::null,
-    EFieldType fType=EFieldType::S ) {
+    EField fType=EField::S ) {
   //  if( space.is_null() )
   //    return( Teuchos::rcp(
   //        new ScalarField<S,O,d>( createSpace<O,d>() ) ) );

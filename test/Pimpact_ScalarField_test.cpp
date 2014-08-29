@@ -18,7 +18,7 @@
 namespace {
 
 bool testMpi = true;
-double errorTolSlack = 1e+1;
+double errorTolSlack = 1e-6;
 int domain = 1;
 
 TEUCHOS_STATIC_SETUP() {
@@ -51,7 +51,6 @@ TEUCHOS_UNIT_TEST( ScalarField, create_init_print ) {
 
   p->init(rank);
 
-  TEST_EQUALITY( 0, 0 );
 }
 
 
@@ -68,7 +67,8 @@ TEUCHOS_UNIT_TEST( ScalarField, InfNorm_and_init ) {
   for( double i=0.; i< 200.1; ++i ) {
     p->init(i/2.);
     norm = p->norm(Belos::InfNorm);
-    TEST_EQUALITY( i/2., norm );
+    TEST_FLOATING_EQUALITY( i/2., norm, errorTolSlack );
+
   }
 
   // one test with infty-norm
@@ -80,7 +80,8 @@ TEUCHOS_UNIT_TEST( ScalarField, InfNorm_and_init ) {
     init = (init<0)?-init:init;
     p->init(rank*i-1.);
     norm = p->norm(Belos::InfNorm);
-    TEST_EQUALITY( init, norm );
+    TEST_FLOATING_EQUALITY( init, norm, errorTolSlack );
+
   }
 }
 
@@ -94,7 +95,9 @@ TEUCHOS_UNIT_TEST( ScalarField, OneNorm_and_init ) {
   // test different float values, assures that initial and norm work smoothly
   for( double i=0.; i< 200.1; ++i ) {
     p->init(i/2.);
-    TEST_EQUALITY( (i/2.)*p->getLength(), p->norm(Belos::OneNorm) );
+//    TEST_EQUALITY( (i/2.)*p->getLength(), p->norm(Belos::OneNorm) );
+    TEST_FLOATING_EQUALITY( (i/2.)*p->getLength(), p->norm(Belos::OneNorm), errorTolSlack );
+
   }
 }
 

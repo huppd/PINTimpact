@@ -79,7 +79,7 @@ public:
   /// \param fieldType says which kind of field is taken
   /// \param sInd start index of gridpoints
   /// \param eInd last index of gridpoints
-  IndexSpace( EFieldType fieldType,TO3 sInd, TO3 eInd ):
+  IndexSpace( EField fieldType,TO3 sInd, TO3 eInd ):
     fieldType_(fieldType),sInd_(sInd),eInd_(eInd) {};
 
 
@@ -90,7 +90,7 @@ public:
     out << "eInd: " << eInd_ << "\n";
   }
 
-  EFieldType fieldType_;
+  EField fieldType_;
 
   TO3 sInd_;
   TO3 eInd_;
@@ -131,7 +131,7 @@ createScalarIndexSpace(
 
 
   return( Teuchos::rcp(
-      new IndexSpace<O>( EFieldType::S, sInd, eInd ) ) );
+      new IndexSpace<O>( EField::S, sInd, eInd ) ) );
 
 }
 
@@ -241,19 +241,19 @@ createInnerFieldIndexSpaces(
     VS_set_sIndU( sIndU.getRawPtr() );
     VS_set_eIndU( eIndU.getRawPtr() );
   }
-  fIS[0] =  Teuchos::rcp( new IndexSpace<O>( EFieldType::U, sIndU, eIndU ) );
+  fIS[0] =  Teuchos::rcp( new IndexSpace<O>( EField::U, sIndU, eIndU ) );
 
   if( setImpact ) {
     VS_set_sIndV( sIndV.getRawPtr() );
     VS_set_eIndV( eIndV.getRawPtr() );
   }
-  fIS[1] =  Teuchos::rcp( new IndexSpace<O>( EFieldType::V, sIndV, eIndV ) );
+  fIS[1] =  Teuchos::rcp( new IndexSpace<O>( EField::V, sIndV, eIndV ) );
 
   if( setImpact ) {
     VS_set_sIndW( sIndW.getRawPtr() );
     VS_set_eIndW( eIndW.getRawPtr() );
   }
-  fIS[2] =  Teuchos::rcp( new IndexSpace<O>( EFieldType::W, sIndW, eIndW ) );
+  fIS[2] =  Teuchos::rcp( new IndexSpace<O>( EField::W, sIndW, eIndW ) );
 
   return( fIS );
 }
@@ -365,19 +365,19 @@ createFullFieldIndexSpaces(
     VS_set_sIndUB( sIndU.getRawPtr() );
     VS_set_eIndUB( eIndU.getRawPtr() );
   }
-  fIS[0] =  Teuchos::rcp( new IndexSpace<O>( EFieldType::U, sIndU, eIndU ) );
+  fIS[0] =  Teuchos::rcp( new IndexSpace<O>( EField::U, sIndU, eIndU ) );
 
   if( setImpact ) {
     VS_set_sIndVB( sIndV.getRawPtr() );
     VS_set_eIndVB( eIndV.getRawPtr() );
   }
-  fIS[1] =  Teuchos::rcp( new IndexSpace<O>( EFieldType::V, sIndV, eIndV ) );
+  fIS[1] =  Teuchos::rcp( new IndexSpace<O>( EField::V, sIndV, eIndV ) );
 
   if( setImpact ) {
     VS_set_sIndWB( sIndW.getRawPtr() );
     VS_set_eIndWB( eIndW.getRawPtr() );
   }
-  fIS[2] =  Teuchos::rcp( new IndexSpace<O>( EFieldType::W, sIndW, eIndW ) );
+  fIS[2] =  Teuchos::rcp( new IndexSpace<O>( EField::W, sIndW, eIndW ) );
 
   return( fIS );
 }
@@ -399,7 +399,7 @@ createScalarIndexSpace(){
   SVS_get_eInd( eInd[0], eInd[1], eInd[2] );
 
   return( Teuchos::rcp(
-      new IndexSpace<Ordinal>( EFieldType::S, sInd, eInd ) ) );
+      new IndexSpace<Ordinal>( EField::S, sInd, eInd ) ) );
 
 }
 
@@ -421,15 +421,15 @@ Teuchos::ArrayRCP< Teuchos::RCP< const IndexSpace<Ordinal> > > createInnerFieldI
 
   VS_get_sIndU( sInd[0], sInd[1], sInd[2] );
   VS_get_eIndU( eInd[0], eInd[1], eInd[2] );
-  fIS[0] =	Teuchos::rcp( new IndexSpace<Ordinal>( EFieldType::U, sInd, eInd ) );
+  fIS[0] =	Teuchos::rcp( new IndexSpace<Ordinal>( EField::U, sInd, eInd ) );
 
   VS_get_sIndV( sInd[0], sInd[1], sInd[2] );
   VS_get_eIndV( eInd[0], eInd[1], eInd[2] );
-  fIS[1] =	Teuchos::rcp( new IndexSpace<Ordinal>( EFieldType::V, sInd, eInd ) );
+  fIS[1] =	Teuchos::rcp( new IndexSpace<Ordinal>( EField::V, sInd, eInd ) );
 
   VS_get_sIndW( sInd[0], sInd[1], sInd[2] );
   VS_get_eIndW( eInd[0], eInd[1], eInd[2] );
-  fIS[2] =	Teuchos::rcp( new IndexSpace<Ordinal>( EFieldType::W, sInd, eInd ) );
+  fIS[2] =	Teuchos::rcp( new IndexSpace<Ordinal>( EField::W, sInd, eInd ) );
 
   return( fIS );
 }
@@ -451,15 +451,15 @@ Teuchos::ArrayRCP< Teuchos::RCP< const IndexSpace<Ordinal> > > createFullFieldIn
 
   VS_get_sIndUB( sInd[0], sInd[1], sInd[2] );
   VS_get_eIndUB( eInd[0], eInd[1], eInd[2] );
-  fIS[0] =	Teuchos::rcp( new IndexSpace<Ordinal>( EFieldType::U, sInd, eInd ) );
+  fIS[0] =	Teuchos::rcp( new IndexSpace<Ordinal>( EField::U, sInd, eInd ) );
 
   VS_get_sIndVB( sInd[0], sInd[1], sInd[2] );
   VS_get_eIndVB( eInd[0], eInd[1], eInd[2] );
-  fIS[1] =	Teuchos::rcp( new IndexSpace<Ordinal>( EFieldType::V, sInd, eInd ) );
+  fIS[1] =	Teuchos::rcp( new IndexSpace<Ordinal>( EField::V, sInd, eInd ) );
 
   VS_get_sIndWB( sInd[0], sInd[1], sInd[2] );
   VS_get_eIndWB( eInd[0], eInd[1], eInd[2] );
-  fIS[2] =	Teuchos::rcp( new IndexSpace<Ordinal>( EFieldType::W, sInd, eInd ) );
+  fIS[2] =	Teuchos::rcp( new IndexSpace<Ordinal>( EField::W, sInd, eInd ) );
 
   return( fIS );
 }

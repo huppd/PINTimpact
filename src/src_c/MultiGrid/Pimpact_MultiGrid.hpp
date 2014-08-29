@@ -11,6 +11,8 @@
 
 #include "Pimpact_CoarsenStrategy.hpp"
 
+#include "Pimpact_RestrictionOp.hpp"
+
 
 
 
@@ -26,6 +28,7 @@ class MultiGrid {
   static const int dimension = Field::dimension;
 
   typedef typename Field::SpaceT SpaceT;
+  typedef RestrictionOp<Scalar,Ordinal,dimension> RestrictionOpT;
 
   template<class FieldT, class CoarsenStrategy>
   friend
@@ -35,25 +38,38 @@ class MultiGrid {
 protected:
 
   std::vector< Teuchos::RCP<const SpaceT> > multiSpace_;
+  std::vector< Teuchos::RCP<Field> >        multiField_;
+  std::vector< Teuchos::RCP<RestrictionOpT> > restrictionOps_;
 
 
-  MultiGrid( const std::vector<Teuchos::RCP<const SpaceT> >& multiSpace ):
-    multiSpace_(multiSpace) {}
+  MultiGrid(
+      const std::vector<Teuchos::RCP<const SpaceT> >& multiSpace,
+      const std::vector<Teuchos::RCP<Field> >& multiField,
+      const std::vector<Teuchos::RCP<RestrictionOpT> >& restrictionOps ):
+    multiSpace_(multiSpace),
+    multiField_(multiField),
+    restrictionOps_(restrictionOps) {}
 
 public:
 
   int getNGrids() const {
     return( multiSpace_.size() );
   }
+  Teuchos::RCP<const SpaceT>    getSpace        ( int i ) const { return( multiSpace_[i] ); }
+  Teuchos::RCP<Field>           getField        ( int i ) const { return( multiField_[i] ); }
+  Teuchos::RCP<RestrictionOpT>  getRestrictionOp( int i ) const { return( restrictionOps_[i] ); }
 
   void print(  std::ostream& out=std::cout ) const {
 
-    for( int i = 0; i<getNGrids(); ++i ) {
-      if( multiSpace_[i]->rankST()==0 ) {
-        out << "-------- level: "<< i << "--------\n";
-        multiSpace_[i]->print(out);
+    if( multiSpace_[0]->rankST()==0 ) {
+      for( int i = 0; i<multiSpace_.size(); ++i ) {
+          out << "-------- space: "<< i << "--------\n";
+          multiSpace_[i]->print(out);
       }
-//      MPI_Barrier( (*i)->commST() );
+      for( int i = 0; i<restrictionOps_.size(); ++i ) {
+          out << "-------- restrictor: "<< i << "--------\n";
+          restrictionOps_[i]->print(out);
+      }
     }
   }
 
@@ -65,9 +81,25 @@ template<class Field, class CoarsenStrategy>
 Teuchos::RCP< MultiGrid<Field> >
 createMultiGrid( const Teuchos::RCP<const typename Field::SpaceT>& space, int maxGrids=10 ) {
 
+  typedef typename Field::Scalar  S;
+  typedef typename Field::Ordinal O;
+
+  static const int d = Field::dimension;
+
   std::vector<Teuchos::RCP<const typename Field::SpaceT> > spaces =
       CoarsenStrategy::getMultiSpace( space, maxGrids );
-  return( Teuchos::rcp( new MultiGrid<Field>( spaces ) ) );
+
+  std::vector< Teuchos::RCP<Field> > fields;
+
+  for( unsigned i=0; i<spaces.size(); ++i )
+    fields.push_back( Teuchos::rcp( new Field(spaces[i]) ) );
+
+  std::vector< Teuchos::RCP< typename MultiGrid<Field>::RestrictionOpT> > restrictOp;
+
+  for( unsigned i=0; i<spaces.size()-1; ++i )
+    restrictOp.push_back( createRestrictionOp<S,O,d>( spaces[i], spaces[i+1] ) );
+
+  return( Teuchos::rcp( new MultiGrid<Field>( spaces, fields, restrictOp ) ) );
 
 }
 

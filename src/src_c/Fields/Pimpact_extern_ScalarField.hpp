@@ -164,7 +164,14 @@ void SF_print(
     const double* const phi );
 
 
-void SF_write( double* const phi, const int& count );
+void SF_write(
+    const int* const N,
+    const int* const bL,
+    const int* const bU,
+    const int* const SS,
+    const int* const NN,
+    const double* const phi,
+    const int& count );
 
 
 void F_exchange(

@@ -102,6 +102,8 @@ protected:
     auto innerIndexSpace = Pimpact::createInnerFieldIndexSpaces<Ordinal,dimension>( fieldSpace, gridSizeLocal, boundaryConditionsLocal, false );
     auto  fullIndexSpace = Pimpact::createFullFieldIndexSpaces<Ordinal,dimension>(  fieldSpace, gridSizeLocal, boundaryConditionsLocal, false );
 
+    auto  coordGlobal = Pimpact::createGridCoordinatesGlobal<Scalar,Ordinal,dimension>( gridSizeGlobal, domain->getDomainSize() );
+
     return( Pimpact::createSpace<Scalar,Ordinal>(
         fieldSpace,
         scalarIndexSpace,
@@ -111,6 +113,7 @@ protected:
         gridSizeLocal,
         procGridSize,
         procGrid,
+        coordGlobal,
         domain) );
 
   }

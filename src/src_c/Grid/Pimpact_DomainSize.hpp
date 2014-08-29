@@ -13,8 +13,11 @@
 
 
 extern "C" {
+
+void FS_get_dim(int&);
 void fsetDS( const double& L1, const double& L2, const double& L3 );
 void fgetDS(       double& L1,       double& L2,       double& L3 );
+
 }
 
 
@@ -32,10 +35,10 @@ class DomainSize {
   friend Teuchos::RCP<DomainSize<ST> > createDomainSize();
 
   template<class ST>
-  friend Teuchos::RCP<DomainSize<ST> > createDomainSize( ST L1, ST L2, ST L3 );
+  friend Teuchos::RCP<DomainSize<ST> > createDomainSize( int dim, ST L1, ST L2, ST L3 );
 
   template<class ST>
-  friend Teuchos::RCP<DomainSize<ST> > createDomainSize( ST re, ST alpha2, ST L1, ST L2, ST L3 );
+  friend Teuchos::RCP<DomainSize<ST> > createDomainSize( int dim, ST re, ST alpha2, ST L1, ST L2, ST L3 );
 
 public:
 
@@ -43,33 +46,47 @@ public:
 
 protected:
 
+  int dim_;
+
   Scalar re_;
 
   Scalar alpha2_;
 
   TS3 domainSize_;
 
+  TS3 origin_;
 
-  DomainSize( Scalar L1, Scalar L2, Scalar L3 ):
-    re_(1.),alpha2_(1.),
-    domainSize_( Teuchos::tuple(L1, L2, L3) ) {};
 
-  DomainSize( Scalar re, Scalar alpha2, Scalar L1, Scalar L2, Scalar L3 ):
-    re_(re),alpha2_(alpha2),
-    domainSize_( Teuchos::tuple(L1, L2, L3) ) {};
+  DomainSize( int dim, Scalar L1, Scalar L2, Scalar L3 ):
+    dim_(dim),re_(1.),alpha2_(1.),
+    domainSize_( Teuchos::tuple(L1, L2, L3) ),
+    origin_( Teuchos::tuple( 0.,0.,0.) ) {};
 
-  DomainSize( TS3 domainSize ):
-    re_(1.),alpha2_(1.),
-    domainSize_( domainSize ) {};
+  DomainSize( int dim, Scalar re, Scalar alpha2, Scalar L1, Scalar L2, Scalar L3 ):
+    dim_(dim),re_(re),alpha2_(alpha2),
+    domainSize_( Teuchos::tuple(L1, L2, L3) ),
+    origin_( Teuchos::tuple( 0.,0.,0.) ) {};
+
+  DomainSize( int dim, TS3 domainSize ):
+    dim_(dim),re_(1.),alpha2_(1.),
+    domainSize_( domainSize ),
+    origin_( Teuchos::tuple( 0.,0.,0.) ) {};
 
 public:
+
+  const int& getDim() const { return( dim_ ); }
+
+  const Scalar* getSizeP() const { return( domainSize_.getRawPtr() ); }
+
+  const Scalar* getOriginP() const { return( origin_.getRawPtr() ); }
 
   void set_Impact(){
     fsetDS( domainSize_[0], domainSize_[1], domainSize_[2] );
   };
 
   void print( std::ostream& out=std::cout ) {
-    out << "\tRe= "      << re_ << "\n"
+    out << "\tspatial dim: " << dim_ << "\n"
+        << "\tRe= "      << re_ << "\n"
         << "\talpha^2= " << alpha2_ << "\n"
         << "\tlx= "      << domainSize_[0]
         << "\tly= "      << domainSize_[1]
@@ -83,32 +100,36 @@ public:
 /// \relates DomainSize
 template<class S=double>
 Teuchos::RCP<DomainSize<S> > createDomainSize() {
+
+  int dim;
+  FS_get_dim( dim );
+
   Teuchos::Tuple<S,3> L;
 
   fgetDS( L[0],L[1],L[2] );
 
   return(
       Teuchos::rcp(
-          new DomainSize<S>( 1., 1., L[0], L[1], L[2] ) ) );
+          new DomainSize<S>( dim, 1., 1., L[0], L[1], L[2] ) ) );
 }
 
 
 /// \relates DomainSize
 template<class Scalar=double>
-Teuchos::RCP<DomainSize<Scalar> > createDomainSize( Scalar L1, Scalar L2, Scalar L3 ) {
+Teuchos::RCP<DomainSize<Scalar> > createDomainSize( int dim, Scalar L1, Scalar L2, Scalar L3 ) {
   return(
       Teuchos::rcp(
-          new DomainSize<Scalar>( 1., 1., L1, L2, L3 ) ) );
+          new DomainSize<Scalar>( dim, 1., 1., L1, L2, L3 ) ) );
 }
 
 
 
 /// \relates DomainSize
 template<class Scalar=double>
-Teuchos::RCP<DomainSize<Scalar> > createDomainSize( Scalar re, Scalar alpha2, Scalar L1, Scalar L2, Scalar L3 ) {
+Teuchos::RCP<DomainSize<Scalar> > createDomainSize( int dim, Scalar re, Scalar alpha2, Scalar L1, Scalar L2, Scalar L3 ) {
   return(
       Teuchos::rcp(
-          new DomainSize<Scalar>( re, alpha2, L1, L2, L3 ) ) );
+          new DomainSize<Scalar>( dim, re, alpha2, L1, L2, L3 ) ) );
 }
 
 
