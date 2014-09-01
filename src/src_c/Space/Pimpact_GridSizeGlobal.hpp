@@ -51,11 +51,11 @@ public:
     fsetGS( gridSize_[0], gridSize_[1], gridSize_[2] );
   };
 
-  Ordinal get( int i ) const  {
+  const Ordinal& get( int i ) const  {
     return( gridSize_[i] );
   }
 
-  const Ordinal* getSizeP() const {
+  const Ordinal* get() const {
     return( gridSize_.getRawPtr() );
   }
 

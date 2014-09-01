@@ -91,18 +91,37 @@ protected:
 
     auto gridSizeGlobal = createGridSizeGlobal<Ordinal,dimension>( gridSizeGlobalTup ); //coarsen
 
-    auto gridSizeLocal = Pimpact::createGridSizeLocal<Ordinal,dimension>( gridSizeGlobal, procGridSize );
+    auto gridSizeLocal = Pimpact::createGridSizeLocal<Ordinal,dimension>(
+        gridSizeGlobal, procGridSize );
 
-    auto procGrid = Pimpact::createProcGrid<Ordinal,dimension>( gridSizeLocal, domain->getBCGlobal(), procGridSize );
+    auto procGrid = Pimpact::createProcGrid<Ordinal,dimension>(
+        gridSizeLocal, domain->getBCGlobal(), procGridSize );
 
     auto fieldSpace = space->getFieldSpace();
 
-    auto scalarIndexSpace = Pimpact::createScalarIndexSpace<Ordinal,dimension>( fieldSpace, gridSizeLocal, boundaryConditionsLocal, false );
+    auto scalarIndexSpace = Pimpact::createScalarIndexSpace<Ordinal,dimension>(
+        fieldSpace, gridSizeLocal, boundaryConditionsLocal, false );
 
-    auto innerIndexSpace = Pimpact::createInnerFieldIndexSpaces<Ordinal,dimension>( fieldSpace, gridSizeLocal, boundaryConditionsLocal, false );
-    auto  fullIndexSpace = Pimpact::createFullFieldIndexSpaces<Ordinal,dimension>(  fieldSpace, gridSizeLocal, boundaryConditionsLocal, false );
+    auto innerIndexSpace = Pimpact::createInnerFieldIndexSpaces<Ordinal,dimension>(
+        fieldSpace, gridSizeLocal, boundaryConditionsLocal, false );
 
-    auto  coordGlobal = Pimpact::createGridCoordinatesGlobal<Scalar,Ordinal,dimension>( gridSizeGlobal, domain->getDomainSize() );
+    auto  fullIndexSpace = Pimpact::createFullFieldIndexSpaces<Ordinal,dimension>(
+        fieldSpace, gridSizeLocal, boundaryConditionsLocal, false );
+
+    auto  coordGlobal = Pimpact::createGridCoordinatesGlobal<Scalar,Ordinal,dimension>(
+        gridSizeGlobal,
+        domain->getDomainSize() );
+
+    auto  coordLocal = Pimpact::createGridCoordinatesLocal<Scalar,Ordinal,dimension>(
+        fieldSpace,
+        domain->getDomainSize(),
+        gridSizeGlobal,
+        gridSizeLocal,
+        domain->getBCGlobal(),
+        domain->getBCLocal(),
+        procGrid,
+        coordGlobal );
+
 
     return( Pimpact::createSpace<Scalar,Ordinal>(
         fieldSpace,
@@ -114,6 +133,7 @@ protected:
         procGridSize,
         procGrid,
         coordGlobal,
+        coordLocal,
         domain) );
 
   }

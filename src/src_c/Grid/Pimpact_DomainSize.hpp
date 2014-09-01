@@ -76,9 +76,13 @@ public:
 
   const int& getDim() const { return( dim_ ); }
 
-  const Scalar* getSizeP() const { return( domainSize_.getRawPtr() ); }
+  const Scalar* getSize() const { return( domainSize_.getRawPtr() ); }
 
-  const Scalar* getOriginP() const { return( origin_.getRawPtr() ); }
+  const Scalar& getSize( int i) const { return( domainSize_[i] ); }
+
+  const Scalar* getOrigin() const { return( origin_.getRawPtr() ); }
+
+  const Scalar& getOrigin( int i) const { return( origin_[i] ); }
 
   void set_Impact(){
     fsetDS( domainSize_[0], domainSize_[1], domainSize_[2] );

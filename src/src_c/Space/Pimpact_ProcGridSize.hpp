@@ -76,15 +76,16 @@ protected:
 
 public:
 
-  const Ordinal& get( int i ) {
-    return( procGridSize_[i] );
-  }
 
   void set_Impact(){
     fsetPGS( procGridSize_[0], procGridSize_[1], procGridSize_[2] );
   };
 
-  Ordinal* getRawPtr() {
+
+  const Ordinal& get( int i ) {
+    return( procGridSize_[i] );
+  }
+  Ordinal* get() {
     return( procGridSize_.getRawPtr() );
   }
 

@@ -81,11 +81,11 @@ protected:
 
 public:
 
-  Ordinal get( int i ) const {
+  const Ordinal& get( int i ) const {
     return( gridSize_[i] );
   }
 
-  const Ordinal* getPtr() const {
+  const Ordinal* get() const {
     return( gridSize_.getRawPtr() );
   }
 

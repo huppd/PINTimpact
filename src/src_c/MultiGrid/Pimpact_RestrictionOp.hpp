@@ -16,15 +16,26 @@
 namespace Pimpact {
 
 
-
 extern "C" {
 
-void MG_getCR(
+void MG_getCRS(
     const int& S,
     const int& N,
     const int& BC_L,
     const int& BC_U,
     double* const cR );
+
+void MG_getCRV(
+    const int& N,
+    const int& bL,
+    const int& bU,
+    const int& SS,
+    const int& NN,
+    const int& BC_L,
+    const int& BC_U,
+    const double* const xs,
+    const double* const xv,
+    double* const cRV );
 
 void MG_restrict(
     const int& dimens,
@@ -44,6 +55,22 @@ void MG_restrict(
     const double* const phif,
     double* const phic );
 
+void MG_restrictV(
+    const int& dir,
+    const int & Nf,
+    const int* const bLf,
+    const int* const bUf,
+    const int* const SSf,
+    const int* const NNf,
+    const int* const Nc,
+    const int* const bLc,
+    const int* const bUc,
+    const int* const SSc,
+    const int* const NNc,
+    const double* const cRV,
+    const double* const phif,
+    double* const phic );
+
 
 }
 
@@ -58,7 +85,9 @@ class RestrictionOp {
   Teuchos::RCP<const SpaceT> spaceF_;
   Teuchos::RCP<const SpaceT> spaceC_;
 
-  Teuchos::Tuple<Scalar*,3> cR_;
+  Teuchos::Tuple<Scalar*,3> cRS_;
+
+  Teuchos::Tuple<Scalar*,3> cRV_;
 
 public:
 
@@ -68,19 +97,33 @@ public:
         spaceF_(spaceF),spaceC_(spaceC) {
 
     for( int i=0; i<3; ++i ) {
-      cR_[i] = new Scalar[ 3*(spaceC_->eInd(EField::S)[i]-spaceC_->sInd(EField::S)[i]+1) ];
-      MG_getCR(
+      cRS_[i] = new Scalar[ 3*(spaceC_->eInd(EField::S)[i]-spaceC_->sInd(EField::S)[i]+1) ];
+      MG_getCRS(
           spaceC_->sInd(EField::S)[i],
           spaceC_->eInd(EField::S)[i],
-          spaceC_->getDomain()->getBCLocal()->getBCL()[i],
-          spaceC_->getDomain()->getBCLocal()->getBCU()[i],
-          cR_[i] );
+          spaceC_->getDomain()->getBCLocal()->getBCL(i),
+          spaceC_->getDomain()->getBCLocal()->getBCU(i),
+          cRS_[i] );
+      cRV_[i] = new Scalar[ 2*( spaceC_->eIndB(i)[i]-spaceC_->sIndB(i)[i]+1 ) ];
+      MG_getCRV(
+          spaceC_->getGridSizeLocal()->get(i),
+          spaceC_->bl(i),
+          spaceC_->bu(i),
+          spaceC_->sIndB(i)[i],
+          spaceC_->eIndB(i)[i],
+          spaceC_->getDomain()->getBCLocal()->getBCL(i),
+          spaceC_->getDomain()->getBCLocal()->getBCU(i),
+          spaceC_->getCoordinatesLocal()->getX( i, EField::S ),
+          spaceC_->getCoordinatesLocal()->getX( i, i ),
+          cRV_[i] );
     }
 
   }
   ~RestrictionOp() {
-    for( int i=0; i<3; ++i )
-      delete[] cR_[i];
+    for( int i=0; i<3; ++i ) {
+      delete[] cRS_[i];
+      delete[] cRV_[i];
+    }
   }
 
   void apply( const DomainFieldT& x, RangeFieldT& y ) {
@@ -102,9 +145,9 @@ public:
         y.bu(),
         y.sInd(),
         y.eInd(),
-        cR_[0],
-        cR_[1],
-        cR_[2],
+        cRS_[0],
+        cRS_[1],
+        cRS_[2],
         x.s_,
         y.s_ );
     y.changed();
@@ -112,9 +155,15 @@ public:
 
   void print(  std::ostream& out=std::cout ) const {
     for( int j=0; j<3; ++j ) {
-      out << "\ndir: " << j << ":\n";
-      for( int i=0; i<3*spaceF_->nLoc()[j]; ++i)
-        out << cR_[j][i] << "\t";
+      out << "\n Scalar dir: " << j << ":\n";
+      for( int i=0; i<3*( spaceC_->eInd(EField::S)[j]-spaceC_->sInd(EField::S)[j]+1 ); ++i)
+        out << cRS_[j][i] << "\t";
+    }
+    out << "\n";
+    for( int j=0; j<3; ++j ) {
+      out << "\n Vector dir: " << j << ":\n";
+      for( int i=0; i<2*( spaceC_->eIndB(j)[j]-spaceC_->sIndB(j)[j]+1 ); ++i)
+        out << cRV_[j][i] << "\t";
     }
     out << "\n";
   }

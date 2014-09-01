@@ -20,6 +20,7 @@
 #include "Pimpact_Domain.hpp"
 
 #include "Pimpact_GridCoordinatesGlobal.hpp"
+#include "Pimpact_GridCoordinatesLocal.hpp"
 
 #include "pimpact.hpp"
 
@@ -53,6 +54,7 @@ public:
       const Teuchos::RCP< ProcGridSize<Ordinal,dimension> >& procGridSize,
       const Teuchos::RCP< ProcGrid<Ordinal,dimension> >& procGrid,
       const Teuchos::RCP< GridCoordinatesGlobal<Scalar,Ordinal,dimension> >& coordGlobal,
+      const Teuchos::RCP< GridCoordinatesLocal<Scalar,Ordinal,dimension> >& coordLocal,
       const Teuchos::RCP< Domain<Scalar> >& domain ):
         fieldSpace_(fieldSpace),
         scalarIS_(scalarIS),
@@ -63,6 +65,7 @@ public:
         procGridSize_(procGridSize),
         procGrid_(procGrid),
         coordGlobal_(coordGlobal),
+        coordLocal_(coordLocal),
         domain_(domain)
   {}
 
@@ -85,6 +88,8 @@ protected:
 
   Teuchos::RCP< GridCoordinatesGlobal<Scalar,Ordinal,dimension> > coordGlobal_;
 
+  Teuchos::RCP< GridCoordinatesLocal<Scalar,Ordinal,dimension> > coordLocal_;
+
   Teuchos::RCP< Domain<Scalar> > domain_;
 
 public:
@@ -100,10 +105,17 @@ public:
 
   const int&      dim()   const { return( domain_->getDomainSize()->getDim() ); }
 
-  const Ordinal* nGlo()  const { return( gridSizeGlobal_->getSizeP() ); }
-  const Ordinal* nLoc()  const { return( gridSizeLocal_->getPtr() ); }
-  const Ordinal* bl  ()  const { return( fieldSpace_->bl_.getRawPtr()   ); }
-  const Ordinal* bu  ()  const { return( fieldSpace_->bu_.getRawPtr()   ); }
+  const Ordinal* nGlo()        const { return( gridSizeGlobal_->get() ); }
+  const Ordinal& nGlo( int i ) const { return( gridSizeGlobal_->get(i) ); }
+
+  const Ordinal* nLoc()        const { return( gridSizeLocal_->get() ); }
+  const Ordinal& nLoc( int i ) const { return( gridSizeLocal_->get(i) ); }
+
+  const Ordinal* bl()         const { return( fieldSpace_->bl_.getRawPtr()   ); }
+  const Ordinal& bl( int i )  const { return( fieldSpace_->bl_[i]   ); }
+
+  const Ordinal* bu()         const { return( fieldSpace_->bu_.getRawPtr()   ); }
+  const Ordinal& bu( int i )  const { return( fieldSpace_->bu_[i]   ); }
 
 
   const Ordinal* sInd( int fieldType ) const {
@@ -132,7 +144,7 @@ public:
       return( fullIS_[fieldType]->eInd_.getRawPtr()  );
   }
 
-  const Ordinal* procCoordinate() const { return( procGrid_->iB_.getRawPtr()  ); }
+  const Ordinal* procCoordinate() const { return( procGrid_->getIB()  ); }
 
   const Ordinal* shift() const { return( procGrid_->shift_.getRawPtr()  ); }
 
@@ -153,6 +165,14 @@ public:
   Teuchos::RCP< ProcGridSize<Ordinal,dimension> > getProcGridSize() const { return( procGridSize_ ); }
 
   Teuchos::RCP< ProcGrid<Ordinal,dimension> > getProcGrid() const { return( procGrid_ ); }
+
+  Teuchos::RCP<GridCoordinatesGlobal<Scalar,Ordinal,dimension> > getCoordinatesGlobal() const {
+    return( coordGlobal_ );
+  }
+
+  Teuchos::RCP<GridCoordinatesLocal<Scalar,Ordinal,dimension> > getCoordinatesLocal() const {
+    return( coordLocal_ );
+  }
 
   Teuchos::RCP< Domain<Scalar> > getDomain() const { return( domain_ ); }
 
@@ -292,6 +312,7 @@ Teuchos::RCP< const Space<S,O,d> > createSpace(
     const Teuchos::RCP< ProcGridSize<O,d> >& procGridSize,
     const Teuchos::RCP< ProcGrid<O,d> >& procGrid,
     const Teuchos::RCP< GridCoordinatesGlobal<S,O,d> >& coordGlobal,
+    const Teuchos::RCP< GridCoordinatesLocal<S,O,d> >& coordLocal,
     const Teuchos::RCP< Domain<S> >& domain=Teuchos::null ) {
 
   return(
@@ -306,6 +327,7 @@ Teuchos::RCP< const Space<S,O,d> > createSpace(
               procGridSize,
               procGrid,
               coordGlobal,
+              coordLocal,
               domain ) ) );
 }
 
@@ -364,7 +386,18 @@ Teuchos::RCP< const Space<S,O,d> > createSpace(
 
   auto  coordGlobal = Pimpact::createGridCoordinatesGlobal<S,O,d>( gridSizeGlobal, domainSize );
 
-  return( Pimpact::createSpace<S,O>(
+  auto  coordLocal = Pimpact::createGridCoordinatesLocal<S,O,d>(
+      fieldSpace,
+      domainSize,
+      gridSizeGlobal,
+      gridSizeLocal,
+      boundaryConditionsGlobal,
+      boundaryConditionsLocal,
+      procGrid,
+      coordGlobal );
+//  coordLocal= Teuchos::null;
+
+  return( Pimpact::createSpace<S,O,d>(
       fieldSpace,
       scalarIndexSpace,
       innerIndexSpace,
@@ -374,6 +407,7 @@ Teuchos::RCP< const Space<S,O,d> > createSpace(
       procGridSize,
       procGrid,
       coordGlobal,
+      coordLocal,
       domain ) );
 
 
@@ -384,19 +418,59 @@ Teuchos::RCP< const Space<S,O,d> > createSpace(
 template< class S=double, class O=int, int d=3>
 Teuchos::RCP< const Space<S,O,d> > createSpace() {
 
-  return(
-      Teuchos::rcp(
-          new Space<S,O,d>(
-              createFieldSpace<O>(),
-              createScalarIndexSpace<O>(),
-              createInnerFieldIndexSpaces<O>(),
-              createFullFieldIndexSpaces<O>(),
-              createGridSizeGlobal<O>(),
-              createGridSizeLocal<O,3>(),
-              createProcGridSize<O>(),
-              createProcGrid<O,d>(),
-              Teuchos::null,
-              createDomain<S>() ) ) );
+
+  auto procGridSize = createProcGridSize<O>();
+
+  auto gridSizeGlobal = createGridSizeGlobal<O>();
+
+  auto gridSizeLocal = createGridSizeLocal<O,3>();
+
+
+  auto procGrid = createProcGrid<O>();
+
+
+  auto fieldSpace = createFieldSpace<O>();
+
+  auto scalarIndexSpace = createScalarIndexSpace<O>();
+
+  auto innerIndexSpace = createInnerFieldIndexSpaces<O>();
+  auto  fullIndexSpace = createFullFieldIndexSpaces<O>();
+
+
+  auto domain = createDomain<S>();
+
+  auto domainSize = domain->getDomainSize();
+
+  auto boundaryConditionsGlobal = domain->getBCGlobal();
+
+  auto boundaryConditionsLocal = domain->getBCLocal();
+
+  auto  coordGlobal = Pimpact::createGridCoordinatesGlobal<S,O,d>( gridSizeGlobal, domainSize );
+
+  auto  coordLocal = Pimpact::createGridCoordinatesLocal<S,O,d>(
+      fieldSpace,
+      domainSize,
+      gridSizeGlobal,
+      gridSizeLocal,
+      boundaryConditionsGlobal,
+      boundaryConditionsLocal,
+      procGrid,
+      coordGlobal );
+
+
+  return( Pimpact::createSpace<S,O,d>(
+      fieldSpace,
+      scalarIndexSpace,
+      innerIndexSpace,
+      fullIndexSpace,
+      gridSizeGlobal,
+      gridSizeLocal,
+      procGridSize,
+      procGrid,
+      coordGlobal,
+      coordLocal,
+      domain ) );
+
 }
 
 

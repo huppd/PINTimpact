@@ -5,17 +5,17 @@ module cmod_RestrictionOp
 
 contains
 
-    subroutine MG_getCR(    &
+    subroutine MG_getCRS(   &
         S,                  &
         N,                  &
         BC_L, BC_U,         &
-        cR ) bind(c,name='MG_getCR')
+        cR ) bind(c,name='MG_getCRS')
 
         implicit none
 
         integer               ::  i!, ii!, iimax
-!        integer               ::  j, jj, jjmax
-!        integer               ::  k, kk, kkmax
+        !        integer               ::  j, jj, jjmax
+        !        integer               ::  k, kk, kkmax
 
         integer(c_int), intent(in)  :: S
         integer(c_int), intent(in)  :: N
@@ -30,7 +30,7 @@ contains
         !=== Restriktion, linienweise, 1d ==========================================================================
         !===========================================================================================================
 
-!        iimax = N
+        !        iimax = N
 
         do i = S, N
             cR(-1,i) = 1./4.
@@ -43,9 +43,9 @@ contains
             cR( 0,S) = 1.
             cR( 1,S) = 0.
 
-!            cR(-1,2) = 0. ! TEST!!! Sollte evtl. noch ergaenzt werden ...
-!            cR( 0,2) = 1.
-!            cR( 1,2) = 0.
+        !            cR(-1,2) = 0. ! TEST!!! Sollte evtl. noch ergaenzt werden ...
+        !            cR( 0,2) = 1.
+        !            cR( 1,2) = 0.
         end if
         if (BC_L == -2) then
             cR( 1,S) = cR( 1,S) + cR(-1,S)
@@ -57,9 +57,9 @@ contains
             cR( 0,N) = 1.
             cR( 1,N) = 0.
 
-!            cR(-1,N-1) = 0. ! TEST!!!
-!            cR( 0,N-1) = 1.
-!            cR( 1,N-1) = 0.
+        !            cR(-1,N-1) = 0. ! TEST!!!
+        !            cR( 0,N-1) = 1.
+        !            cR( 1,N-1) = 0.
         end if
 
         if (BC_U == -2) then
@@ -67,7 +67,81 @@ contains
             cR( 1,N) = 0.
         end if
 
-    end subroutine MG_getCR
+    end subroutine MG_getCRS
+
+
+
+    !> \todo understand from where comes the weith 0.75 / 0.25
+    subroutine MG_getCRV(   &
+        N,                  &
+        bL, bU,             &
+        SS,                  &
+        NN,                  &
+        BC_L, BC_U,         &
+        xs,xv,              &
+        cRV ) bind(c,name='MG_getCRV')
+
+
+        implicit none
+
+        integer(c_int),intent(in)    :: N
+
+
+        integer(c_int),intent(in)    :: bL,bU
+
+        integer(c_int),intent(in)    :: SS
+        integer(c_int),intent(in)    :: NN
+
+        integer(c_int),intent(in)    :: BC_L,BC_U
+
+        real(c_double),intent(in)    :: xs(bL:(N+bU))
+        real(c_double),intent(in)    :: xv(bL:(N+bU))
+
+        real(c_double),intent(inout) :: cRV(1:2,SS:NN)
+
+        integer(c_int)        ::  i
+        real(c_double)        ::  Dx12, Dx1a
+
+
+        !===========================================================================================================
+        !=== Restriktion, linienweise, 1d ==========================================================================
+        !===========================================================================================================
+        ! fine
+        !    xs(i-1)        vv(i-1)         xs(i)       xv(i)
+        !  ----o-------------->---------------o----------->-----
+        !                     |------Dx1x-----|
+        !                     |-----------Dx12------------|
+        !                                     >
+        !                                   xv(i-1)
+        ! coarse
+        cRV = 0.
+
+
+        do i = SS, NN
+            Dx1a = xs(i)-xv(i-1)
+            Dx12 = xv(i)-xv(i-1)
+
+            cRV(1,i) = 1.- Dx1a/Dx12
+            cRV(2,i) =     Dx1a/Dx12
+        end do
+
+        if (BC_L > 0) then
+            cRV(1,SS) = 1.
+            cRV(2,SS) = 0.
+        end if
+        if (BC_L == -2) then
+            cRV(:,SS) = 0.
+        end if
+
+        if (BC_U > 0) then
+            cRV(1,NN) = 0.
+            cRV(2,NN) = 1.
+        end if
+        if (BC_U == -2) then
+            cRV(:,NN) = 0.
+        end if
+
+    end subroutine MG_getCRV
 
 
 
@@ -327,6 +401,133 @@ contains
     !
 
     end subroutine MG_restrict
+
+
+
+    !> \todo maybe use SS and NN with boundary instead should be more cleaner
+    subroutine MG_restrictV(    &
+        dir,                    &
+        Nf,                     &
+        bLf,bUf,                &
+        SSf,NNf,                &
+        Nc,                     &
+        bLc,bUc,                &
+        SSc,NNc,                &
+        cRV,                    &
+        phif,                   &
+        phic) bind (c,name='MG_restrictV')
+
+        implicit none
+
+        integer(c_int), intent(in)     :: dir
+
+        integer(c_int), intent(in)     :: Nf(3)
+
+        integer(c_int), intent(in)     :: bLf(3)
+        integer(c_int), intent(in)     :: bUf(3)
+
+        integer(c_int), intent(in)     :: SSf(3)
+        integer(c_int), intent(in)     :: NNf(3)
+
+        integer(c_int), intent(in)     :: Nc(3)
+
+        integer(c_int), intent(in)     :: bLc(3)
+        integer(c_int), intent(in)     :: bUc(3)
+
+        integer(c_int), intent(in)     :: SSc(3)
+        integer(c_int), intent(in)     :: NNc(3)
+
+        real(c_double),  intent(in)    :: cRV ( 1:2, SSc(dir):NNc(dir) )
+
+        real(c_double),  intent(in)    :: phif (bLf(1):(Nf(1)+bUf(1)),bLf(2):(Nf(2)+bUf(2)),bLf(3):(Nf(3)+bUf(3)))
+
+        real(c_double),  intent(out)   :: phic (bLc(1):(Nc(1)+bUc(1)),bLc(2):(Nc(2)+bUc(2)),bLc(3):(Nc(3)+bUc(3)))
+
+
+        integer                ::  i, ii
+        integer                ::  j, jj
+        integer                ::  k, kk
+
+        integer                :: dd(1:3)
+
+
+        !----------------------------------------------------------------------------------------------------------!
+        ! Anmerkungen: - Null-Setzen am Rand nicht notwendig!                                                      !
+        !              - Da nur in Richtung der jeweiligen Geschwindigkeitskomponente gemittelt wird, muss nicht   !
+        !                die spezialisierte Helmholtz-Variante aufgerufen werden.                                  !
+        !              - Austauschrichtung ist invers zu ex1, ex2, ex3. Bei mehreren Blöcken wird auch der jeweils !
+        !                redundante "überlappende" Punkt aufgrund der zu grossen Intervallgrenzen (1:iimax) zwar   !
+        !                berechnet, aber aufgrund des Einweg-Austauschs falsch berechnet! Dieses Vorgehen wurde    !
+        !                bislang aus übersichtsgründen vorgezogen, macht aber eine Initialisierung notwendig.      !
+        !                Dabei werden Intervalle der Form 0:imax anstelle von 1:imax bearbeitet, da hier nur die   !
+        !                das feinste Geschwindigkeitsgitter behandelt wird!                                        !
+        !              - INTENT(inout) ist bei den feinen Gittern notwendig, da Ghost-Werte ausgetauscht werden    !
+        !                müssen.                                                                                   !
+        !              - Zuviele Daten werden ausgetauscht; eigentlich müsste in der Grenzfläche nur jeder 4.      !
+        !                Punkt behandelt werden (4x zuviel!). Leider etwas unschön, könnte aber durch eine         !
+        !                spezialisierte Austauschroutine behandelt werden, da das übergeben von Feldern mit        !
+        !                Intervallen von b1L:(iimax+b1U) nur sehr schlecht funktionieren würde (d.h. mit Um-       !
+        !                kopieren).                                                                                !
+        !----------------------------------------------------------------------------------------------------------!
+
+        ! TEST!!! Test schreiben, um n_gather(:,2) .GT. 1 hier zu vermeiden! Gleiches gilt natürlich für die Interpolation.
+
+
+
+        do i=1,3
+            dd(i) = ( NNf(i)-SSf(i) )/( NNc(1)-SSc(1) )
+        end do
+
+
+        !===========================================================================================================
+        if( dir==1 ) then
+
+            do kk = SSc(3), NNc(3)
+                k = dd(3)*kk-1
+                do jj = SSc(2), NNc(2)
+                    j = dd(2)*jj-1
+                    do ii = SSc(1), NNc(1)
+                        i = dd(1)*ii-1
+                        phic(ii,jj,kk) = cRV(1,ii)*phif(i-1,j,k) + cRV(2,ii)*phif(i,j,k)
+                    end do
+                end do
+            end do
+
+        end if
+        !===========================================================================================================
+        if( dir==2 ) then
+
+            do kk = SSc(3), NNc(3)
+                k = dd(3)*kk-1
+                do jj = SSc(2), NNc(2)
+                    j = dd(2)*jj-1
+                    do ii = SSc(1), NNc(1)
+                        i = dd(1)*ii-1
+                        phic(ii,jj,kk) = cRV(1,jj)*phif(i,j-1,k) + cRV(2,jj)*phif(i,j,k)
+                    end do
+                end do
+            end do
+
+        end if
+        !===========================================================================================================
+        if( dir==3 ) then
+
+            do kk = SSc(3), NNc(3)
+                k = dd(3)*kk-1
+                do jj = SSc(2), NNc(2)
+                    j = dd(2)*jj-1
+                    do ii = SSc(1), NNc(1)
+                        i = dd(1)*ii-1
+                        phic(ii,jj,kk) = cRV(1,kk)*phif(i,j,k-1) + cRV(2,kk)*phif(i,j,k)
+                    end do
+                end do
+            end do
+
+        end if
+    !===========================================================================================================
+
+
+    end subroutine MG_restrictV
 
 
 end module cmod_RestrictionOp

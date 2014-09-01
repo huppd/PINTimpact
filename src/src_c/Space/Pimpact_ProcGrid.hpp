@@ -17,14 +17,21 @@
 
 
 extern "C" {
-void SVS_get_comm(MPI_Fint&);
 
-void SG_setCommCart( const int& comm );
+void SG_getCommCart(       MPI_Fint& comm );
+void SG_setCommCart( const MPI_Fint& comm );
+
+void SG_getRank(       int& rank_ );
 void SG_setRank( const int& rank_ );
+
+void SG_getIB(       int* const iB_);
 void SG_setIB( const int* const iB_);
+
 void SG_setShift( const int* const shift);
-void SG_setRankLU( const int* const rankl, const int* const ranku );
+
 void SG_getRankLU(       int* const rankl,       int* const ranku );
+void SG_setRankLU( const int* const rankl, const int* const ranku );
+
 void SG_setCommSlice( const int& slice1, const int& slice2, const int& slice3 );
 void SG_setCommBar( const int& bar1, const int& bar2, const int& bar3 );
 void SG_setRankSliceBar( const int* const rankSlice, const int* const rankBar );
@@ -59,8 +66,11 @@ public:
   int rankS_;
   int rankST_;
 
-  /// processor coordinates going from 1..np
+protected:
+  /// processor coordinates(index Block) fortranstyle going from 1..np
   Teuchos::Tuple<int,dim> iB_;
+
+public:
   /// index offset going for dim 1:3 strange fortran style dim==4 c style
   Teuchos::Tuple<Ordinal,dim> shift_;
 
@@ -87,6 +97,7 @@ protected:
       MPI_Fint commf,
       MPI_Comm comm,
       int rank,
+      Teuchos::Tuple<int,3> ib,
       Teuchos::Tuple<int,3> rankL,
       Teuchos::Tuple<int,3> rankU ):
         commSpaceTimef_(commf),
@@ -95,7 +106,7 @@ protected:
         commSpace_(comm),
         rankS_(rank),
         rankST_(rank),
-        iB_(),
+        iB_(ib),
         rankL_(rankL),
         rankU_(rankU),
         commSlice_(),
@@ -134,7 +145,7 @@ protected:
     MPI_Cart_create(
         MPI_COMM_WORLD,
         dim,
-        procGridSize->getRawPtr(),
+        procGridSize->get(),
         periodic.getRawPtr(),
         true,
         &commSpaceTime_ );
@@ -282,11 +293,17 @@ public:
     out << "\toffset: " << shift_ << "\n";
   }
 
+  const int& getRank() const { return( rankST_ ); }
+
   const int& getRankL( int i ) const { return( rankL_[i] ); }
   const int& getRankU( int i ) const { return( rankU_[i] ); }
 
   const int* getRankL() const { return( rankL_.getRawPtr() ); }
   const int* getRankU() const { return( rankU_.getRawPtr() ); }
+
+  const int& getIB( int i ) const { return( iB_[i] ); }
+
+  const int* getIB() const { return( iB_.getRawPtr() ); }
 
 };
 
@@ -296,20 +313,25 @@ Teuchos::RCP< ProcGrid<O,d> > createProcGrid() {
 
 
   MPI_Fint comm;
-  SVS_get_comm( comm );
+  SG_getCommCart( comm );
 
   int rank;
-  SG_setRank( rank );
+  SG_getRank( rank );
+
+  Teuchos::Tuple<int,3> ib;
+  SG_getIB( ib.getRawPtr() );
 
   Teuchos::Tuple<int,3> rankL;
   Teuchos::Tuple<int,3> rankU;
   SG_getRankLU( rankL.getRawPtr(), rankU.getRawPtr() );
+
 
   return(
       Teuchos::rcp( new ProcGrid<O,d>(
           comm,
           MPI_Comm_f2c(comm),
           rank,
+          ib,
           rankL,
           rankU ) ) );
 

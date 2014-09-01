@@ -15,15 +15,6 @@ module cmod_FieldSpace
 
 contains
 
-    subroutine SVS_get_comm( comm_ ) bind(c,name='SVS_get_comm')
-        implicit none
-        INTEGER(c_int), intent(out)  ::  comm_
-
-        comm_ = COMM_CART
-
-    END subroutine SVS_get_comm
-
-
     subroutine FS_get_dim( dim_ ) bind(c,name='FS_get_dim')
         implicit none
         INTEGER(c_int), intent(out)  ::  dim_
@@ -362,7 +353,7 @@ contains
     END subroutine get_bl
 
 
-    subroutine get_bu( bu1_, bu2_, bu3_ ) bind(c,name='SVS_get_bu')
+    subroutine SVS_get_bu( bu1_, bu2_, bu3_ ) bind(c,name='SVS_get_bu')
         implicit none
         INTEGER(c_int), intent(out)  :: bu1_,bu2_,bu3_
 
@@ -370,28 +361,58 @@ contains
         bu2_ = b2U
         bu3_ = b3U
 
-    END subroutine get_bu
+    END subroutine SVS_get_bu
 
 
-    subroutine set_COMM_CART( comm ) bind( c, name='SG_setCommCart' )
+    subroutine SG_setCommCart( comm ) bind( c, name='SG_setCommCart' )
         implicit none
         integer(c_int), intent(in) :: comm
 
         COMM_CART = comm
 
-    end subroutine set_COMM_CART
+    end subroutine SG_setCommCart
+
+    subroutine SG_getCommCart( comm_ ) bind(c,name='SG_getCommCart')
+        implicit none
+        INTEGER(c_int), intent(out)  ::  comm_
+
+        comm_ = COMM_CART
+
+    END subroutine SG_getCommCart
 
 
-    subroutine set_rank( rank_ ) bind( c, name='SG_setRank' )
+
+
+    subroutine SG_getRank( rank_ ) bind( c, name='SG_getRank' )
+        implicit none
+        integer(c_int), intent(out) :: rank_
+
+        rank_ = rank
+
+    end subroutine SG_getRank
+
+    subroutine SG_setRank( rank_ ) bind( c, name='SG_setRank' )
         implicit none
         integer(c_int), intent(in) :: rank_
 
         rank = rank_
 
-    end subroutine set_rank
+    end subroutine SG_setRank
 
 
-    subroutine set_iB( iB_ ) bind( c, name='SG_setIB' )
+    subroutine SG_getIB( iB_ ) bind( c, name='SG_getIB' )
+        implicit none
+        integer(c_int), intent(out) :: iB_(1:3)
+        integer :: i
+
+        do i = 1, 3
+            iB_(i) = iB(i,1)
+        end do
+
+    end subroutine SG_getIB
+
+
+    subroutine SG_setIB( iB_ ) bind( c, name='SG_setIB' )
         implicit none
         integer(c_int), intent(in) :: iB_(1:3)
         integer :: i
@@ -400,7 +421,7 @@ contains
             iB(i,1) = iB_(i)
         end do
 
-    end subroutine set_iB
+    end subroutine SG_setIB
 
 
     subroutine set_Shift( shift_ ) bind( c, name='SG_setShift' )

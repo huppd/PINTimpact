@@ -43,7 +43,6 @@ protected:
 //      Ordinal dimension,
       TO bl,
       TO bu ):
-//        dim_(dimension),
         bl_(bl),
         bu_(bu),
         ls_(Teuchos::tuple(-1,-1,-1))
@@ -52,7 +51,6 @@ protected:
   /// \todo necessary?
   FieldSpace(
       const FieldSpace& fs ):
-//        dim_(fs.dim_),
         bl_(fs.bl_),
         bu_(fs.bu_),
         ls_(Teuchos::tuple(-1,-1,-1))
@@ -64,11 +62,13 @@ public:
   void print( std::ostream& out=std::cout ) const {
     out << "\t---FieldSpace: ---\n";
     out << "comput dim: " << dim << "\n";
-//    out << "pseudo dim: " << dim_ << "\n";
     out << "bl: " << bl_ << "\n";
     out << "bu: " << bu_ << "\n";
     out << "ls: " << ls_ << "\n";
   }
+
+  const Ordinal& getBL( int i ) const { return( bl_[i] ); }
+  const Ordinal& getBU( int i ) const { return( bu_[i] ); }
 
 
 }; // end of class FieldSpace

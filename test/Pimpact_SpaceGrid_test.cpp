@@ -183,11 +183,38 @@ TEUCHOS_UNIT_TEST( Space, GlobalGridCoordinates ) {
   }
   auto space = Pimpact::createSpace();
 
-  auto coord= Pimpact::createGridCoordinatesGlobal(space->getGridSizeGlobal(),space->getDomain()->getDomainSize());
+//  auto coord =
+//      Pimpact::createGridCoordinatesGlobal(space->getGridSizeGlobal(),space->getDomain()->getDomainSize());
+  auto coord = space->getCoordinatesGlobal();
+
   coord->print();
 
 }
 
 
+TEUCHOS_UNIT_TEST( Space, LocalGridCoordinates ) {
+  // init impact
+  if( !isImpactInit ) {
+    init_impact(0,0);
+    isImpactInit=true;
+  }
+  auto space = Pimpact::createSpace();
+
+//  auto coord = Pimpact::createGridCoordinatesLocal(
+//      space->getFieldSpace(),
+//      space->getDomain()->getDomainSize(),
+//      space->getGridSizeGlobal(),
+//      space->getGridSizeLocal(),
+//      space->getDomain()->getBCGlobal(),
+//      space->getDomain()->getBCLocal(),
+//      space->getProcGrid(),
+//      space->getCoordinatesGlobal() );
+
+  auto coord = space->getCoordinatesLocal();
+
+  if( space->getProcGrid()->getRank()==3 )
+    coord->print();
+
+}
 
 } // end of namespace

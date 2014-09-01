@@ -100,7 +100,10 @@ public:
   }
 
   const int* getBCL() const { return( BCL_int_.getRawPtr() ); }
+  const int& getBCL( int i ) const { return( BCL_int_[i] ); }
+
   const int* getBCU() const { return( BCU_int_.getRawPtr() ); }
+  const int& getBCU( int i ) const { return( BCU_int_[i] ); }
 
   void print( std::ostream& out=std::cout ) const {
     out << "---BoundaryConditionsGlobal: ---\n";
