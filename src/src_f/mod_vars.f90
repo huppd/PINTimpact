@@ -762,6 +762,7 @@ module mod_vars
   integer                ::  iB (1:3,1:n_grids_max)
   integer                ::  SNF(1:2,1:3,1:n_grids_max)
   integer                ::  SNB(1:2,1:3,1:n_grids_max)
+  !> first index lower upper/ second index direction, third index grid level
   integer                ::  BC (1:2,1:3,1:n_grids_max)
   integer                ::  ngb(1:2,1:3,1:n_grids_max)
   integer                ::  comm1(1:n_grids_max), comm2(1:n_grids_max)

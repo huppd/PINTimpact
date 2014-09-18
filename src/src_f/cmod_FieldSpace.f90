@@ -342,7 +342,7 @@ contains
     end subroutine get_eIndWB
 
 
-    subroutine get_bl( bl1_, bl2_, bl3_ ) bind(c,name='SVS_get_bl')
+    subroutine SVS_get_bl( bl1_, bl2_, bl3_ ) bind(c,name='SVS_get_bl')
         implicit none
         INTEGER(c_int), intent(out)  :: bl1_,bl2_,bl3_
 
@@ -350,7 +350,7 @@ contains
         bl2_ = b2L
         bl3_ = b3L
 
-    END subroutine get_bl
+    END subroutine SVS_get_bl
 
 
     subroutine SVS_get_bu( bu1_, bu2_, bu3_ ) bind(c,name='SVS_get_bu')

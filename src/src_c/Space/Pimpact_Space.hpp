@@ -119,26 +119,26 @@ public:
 
 
   const Ordinal* sInd( int fieldType ) const {
-    if( EField::S == fieldType )
+    if( EField::S == (EField)fieldType )
       return( scalarIS_->sInd_.getRawPtr()  );
     else
       return( innerIS_[fieldType]->sInd_.getRawPtr() );
   }
   const Ordinal* eInd(  int fieldType ) const {
-    if( EField::S == fieldType )
+    if( EField::S == (EField)fieldType )
       return( scalarIS_->eInd_.getRawPtr()  );
     else
       return( innerIS_[fieldType]->eInd_.getRawPtr() );
   }
 
   const Ordinal* sIndB( int fieldType ) const {
-    if( EField::S == fieldType )
-      return( scalarIS_->eInd_.getRawPtr()  );
+    if( EField::S == (EField)fieldType )
+      return( scalarIS_->sInd_.getRawPtr()  );
     else
       return( fullIS_[fieldType]->sInd_.getRawPtr()  );
   }
   const Ordinal* eIndB( int fieldType ) const {
-    if( EField::S == fieldType )
+    if( EField::S == (EField)fieldType )
       return( scalarIS_->eInd_.getRawPtr()  );
     else
       return( fullIS_[fieldType]->eInd_.getRawPtr()  );
@@ -178,7 +178,7 @@ public:
 
   void print(  std::ostream& out=std::cout ) const {
 
-    if( 0==rankST() ) {
+    if( true || 0==rankST() ) {
       out << "\t---Space: ---\n";
 
       if( !fieldSpace_.is_null() )

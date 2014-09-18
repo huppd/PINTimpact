@@ -72,11 +72,12 @@ contains
 
 
     !> \todo understand from where comes the weith 0.75 / 0.25
+    !! \todo change to simple HW or use with a better coarsestrategy
     subroutine MG_getCRV(   &
         N,                  &
         bL, bU,             &
-        SS,                  &
-        NN,                  &
+        SS,                 &
+        NN,                 &
         BC_L, BC_U,         &
         xs,xv,              &
         cRV ) bind(c,name='MG_getCRV')
@@ -125,9 +126,12 @@ contains
             cRV(2,i) =     Dx1a/Dx12
         end do
 
+        ! a little bit shaky, please verify this when IO is ready
         if (BC_L > 0) then
             cRV(1,SS) = 1.
             cRV(2,SS) = 0.
+            cRV(1,SS+1) = 0.
+            cRV(2,SS+1) = 1.
         end if
         if (BC_L == -2) then
             cRV(:,SS) = 0.
@@ -406,6 +410,7 @@ contains
 
     !> \todo maybe use SS and NN with boundary instead should be more cleaner
     subroutine MG_restrictV(    &
+        dimens,                 &
         dir,                    &
         Nf,                     &
         bLf,bUf,                &
@@ -415,27 +420,29 @@ contains
         SSc,NNc,                &
         cRV,                    &
         phif,                   &
-        phic) bind (c,name='MG_restrictV')
+        phic ) bind (c,name='MG_restrictV')
 
         implicit none
 
+        integer(c_int), intent(in)     :: dimens
+
         integer(c_int), intent(in)     :: dir
 
-        integer(c_int), intent(in)     :: Nf(3)
+        integer(c_int), intent(in)     :: Nf(1:3)
 
-        integer(c_int), intent(in)     :: bLf(3)
-        integer(c_int), intent(in)     :: bUf(3)
+        integer(c_int), intent(in)     :: bLf(1:3)
+        integer(c_int), intent(in)     :: bUf(1:3)
 
-        integer(c_int), intent(in)     :: SSf(3)
-        integer(c_int), intent(in)     :: NNf(3)
+        integer(c_int), intent(in)     :: SSf(1:3)
+        integer(c_int), intent(in)     :: NNf(1:3)
 
-        integer(c_int), intent(in)     :: Nc(3)
+        integer(c_int), intent(in)     :: Nc(1:3)
 
-        integer(c_int), intent(in)     :: bLc(3)
-        integer(c_int), intent(in)     :: bUc(3)
+        integer(c_int), intent(in)     :: bLc(1:3)
+        integer(c_int), intent(in)     :: bUc(1:3)
 
-        integer(c_int), intent(in)     :: SSc(3)
-        integer(c_int), intent(in)     :: NNc(3)
+        integer(c_int), intent(in)     :: SSc(1:3)
+        integer(c_int), intent(in)     :: NNc(1:3)
 
         real(c_double),  intent(in)    :: cRV ( 1:2, SSc(dir):NNc(dir) )
 
@@ -451,39 +458,41 @@ contains
         integer                :: dd(1:3)
 
 
-        !----------------------------------------------------------------------------------------------------------!
-        ! Anmerkungen: - Null-Setzen am Rand nicht notwendig!                                                      !
-        !              - Da nur in Richtung der jeweiligen Geschwindigkeitskomponente gemittelt wird, muss nicht   !
-        !                die spezialisierte Helmholtz-Variante aufgerufen werden.                                  !
-        !              - Austauschrichtung ist invers zu ex1, ex2, ex3. Bei mehreren Blöcken wird auch der jeweils !
-        !                redundante "überlappende" Punkt aufgrund der zu grossen Intervallgrenzen (1:iimax) zwar   !
-        !                berechnet, aber aufgrund des Einweg-Austauschs falsch berechnet! Dieses Vorgehen wurde    !
-        !                bislang aus übersichtsgründen vorgezogen, macht aber eine Initialisierung notwendig.      !
-        !                Dabei werden Intervalle der Form 0:imax anstelle von 1:imax bearbeitet, da hier nur die   !
-        !                das feinste Geschwindigkeitsgitter behandelt wird!                                        !
-        !              - INTENT(inout) ist bei den feinen Gittern notwendig, da Ghost-Werte ausgetauscht werden    !
-        !                müssen.                                                                                   !
-        !              - Zuviele Daten werden ausgetauscht; eigentlich müsste in der Grenzfläche nur jeder 4.      !
-        !                Punkt behandelt werden (4x zuviel!). Leider etwas unschön, könnte aber durch eine         !
-        !                spezialisierte Austauschroutine behandelt werden, da das übergeben von Feldern mit        !
-        !                Intervallen von b1L:(iimax+b1U) nur sehr schlecht funktionieren würde (d.h. mit Um-       !
-        !                kopieren).                                                                                !
-        !----------------------------------------------------------------------------------------------------------!
+                !----------------------------------------------------------------------------------------------------------!
+                ! Anmerkungen: - Null-Setzen am Rand nicht notwendig!                                                      !
+                !              - Da nur in Richtung der jeweiligen Geschwindigkeitskomponente gemittelt wird, muss nicht   !
+                !                die spezialisierte Helmholtz-Variante aufgerufen werden.                                  !
+                !              - Austauschrichtung ist invers zu ex1, ex2, ex3. Bei mehreren Blöcken wird auch der jeweils !
+                !                redundante "überlappende" Punkt aufgrund der zu grossen Intervallgrenzen (1:iimax) zwar   !
+                !                berechnet, aber aufgrund des Einweg-Austauschs falsch berechnet! Dieses Vorgehen wurde    !
+                !                bislang aus übersichtsgründen vorgezogen, macht aber eine Initialisierung notwendig.      !
+                !                Dabei werden Intervalle der Form 0:imax anstelle von 1:imax bearbeitet, da hier nur die   !
+                !                das feinste Geschwindigkeitsgitter behandelt wird!                                        !
+                !              - INTENT(inout) ist bei den feinen Gittern notwendig, da Ghost-Werte ausgetauscht werden    !
+                !                müssen.                                                                                   !
+                !              - Zuviele Daten werden ausgetauscht; eigentlich müsste in der Grenzfläche nur jeder 4.      !
+                !                Punkt behandelt werden (4x zuviel!). Leider etwas unschön, könnte aber durch eine         !
+                !                spezialisierte Austauschroutine behandelt werden, da das übergeben von Feldern mit        !
+                !                Intervallen von b1L:(iimax+b1U) nur sehr schlecht funktionieren würde (d.h. mit Um-       !
+                !                kopieren).                                                                                !
+                !----------------------------------------------------------------------------------------------------------!
 
-        ! TEST!!! Test schreiben, um n_gather(:,2) .GT. 1 hier zu vermeiden! Gleiches gilt natürlich für die Interpolation.
+                ! TEST!!! Test schreiben, um n_gather(:,2) .GT. 1 hier zu vermeiden! Gleiches gilt natürlich für die Interpolation.
 
 
 
-        do i=1,3
-            dd(i) = ( NNf(i)-SSf(i) )/( NNc(1)-SSc(1) )
+        dd=1
+        do i=1,dimens
+            dd(i) = ( NNf(i)-SSf(i) )/( NNc(i)-SSc(i) )
         end do
 
 
         !===========================================================================================================
-        if( dir==1 ) then
+        if( 1==dir ) then
 
-            do kk = SSc(3), NNc(3)
-                k = dd(3)*kk-1
+            if( 2==dimens ) then
+                kk = SSc(3)
+                k = SSc(3)
                 do jj = SSc(2), NNc(2)
                     j = dd(2)*jj-1
                     do ii = SSc(1), NNc(1)
@@ -491,14 +500,26 @@ contains
                         phic(ii,jj,kk) = cRV(1,ii)*phif(i-1,j,k) + cRV(2,ii)*phif(i,j,k)
                     end do
                 end do
-            end do
+            else
+                do kk = SSc(3), NNc(3)
+                    k = dd(3)*kk-1
+                    do jj = SSc(2), NNc(2)
+                        j = dd(2)*jj-1
+                        do ii = SSc(1), NNc(1)
+                            i = dd(1)*ii-1
+                            phic(ii,jj,kk) = cRV(1,ii)*phif(i-1,j,k) + cRV(2,ii)*phif(i,j,k)
+                        end do
+                    end do
+                end do
+            end if
 
         end if
         !===========================================================================================================
         if( dir==2 ) then
 
-            do kk = SSc(3), NNc(3)
-                k = dd(3)*kk-1
+            if( 2==dimens ) then
+                kk = SSc(3)
+                k = SSc(3)
                 do jj = SSc(2), NNc(2)
                     j = dd(2)*jj-1
                     do ii = SSc(1), NNc(1)
@@ -506,11 +527,22 @@ contains
                         phic(ii,jj,kk) = cRV(1,jj)*phif(i,j-1,k) + cRV(2,jj)*phif(i,j,k)
                     end do
                 end do
-            end do
+            else
+                do kk = SSc(3), NNc(3)
+                    k = dd(3)*kk-1
+                    do jj = SSc(2), NNc(2)
+                        j = dd(2)*jj-1
+                        do ii = SSc(1), NNc(1)
+                            i = dd(1)*ii-1
+                            phic(ii,jj,kk) = cRV(1,jj)*phif(i,j-1,k) + cRV(2,jj)*phif(i,j,k)
+                        end do
+                    end do
+                end do
+            end if
 
         end if
         !===========================================================================================================
-        if( dir==3 ) then
+        if( 3==dimens .and. dir==3 ) then
 
             do kk = SSc(3), NNc(3)
                 k = dd(3)*kk-1

@@ -56,8 +56,9 @@ void MG_restrict(
     double* const phic );
 
 void MG_restrictV(
+    const int& dimens,
     const int& dir,
-    const int & Nf,
+    const int* const Nf,
     const int* const bLf,
     const int* const bUf,
     const int* const SSf,
@@ -71,8 +72,9 @@ void MG_restrictV(
     const double* const phif,
     double* const phic );
 
-
 }
+
+
 
 template< class Scalar=double, class Ordinal=int, int dimension=3 >
 class RestrictionOp {
@@ -128,29 +130,54 @@ public:
 
   void apply( const DomainFieldT& x, RangeFieldT& y ) {
 
-    TEUCHOS_TEST_FOR_EXCEPTION( y.fType_!=EField::S, std::logic_error, "Error!!! up to now only ScalarField is supported!!!");
-    TEUCHOS_TEST_FOR_EXCEPTION( x.fType_!=EField::S, std::logic_error, "Error!!! up to now only ScalarField is supported!!!");
     TEUCHOS_TEST_FOR_EXCEPTION( x.fType_!=y.fType_     , std::logic_error, "Error!!! has to be of same FieldType!!!");
 
-    x.exchange();
-    MG_restrict(
-        x.dim(),
-        x.nLoc(),
-        x.bl(),
-        x.bu(),
-        x.sInd(),
-        x.eInd(),
-        y.nLoc(),
-        y.bl(),
-        y.bu(),
-        y.sInd(),
-        y.eInd(),
-        cRS_[0],
-        cRS_[1],
-        cRS_[2],
-        x.s_,
-        y.s_ );
-    y.changed();
+    if( EField::S==x.fType_ ) {
+      x.exchange();
+      MG_restrict(
+          x.dim(),
+          x.nLoc(),
+          x.bl(),
+          x.bu(),
+          x.sInd(),
+          x.eInd(),
+          y.nLoc(),
+          y.bl(),
+          y.bu(),
+          y.sInd(),
+          y.eInd(),
+          cRS_[0],
+          cRS_[1],
+          cRS_[2],
+          x.s_,
+          y.s_ );
+      y.changed();
+    }
+    else {
+      int dir = x.fType_;
+      x.exchange( dir );
+//      for( int i=0; i<3; ++i ) {
+//          std::cout << "SSc["<<i<<"]: " <<  y.sIndB()[i] << "\n";
+//          std::cout << "NNc["<<i<<"]: " <<  y.eIndB()[i] << "\n";
+//      }
+      MG_restrictV(
+          x.dim(),
+          dir+1,
+          x.nLoc(),
+          x.bl(),
+          x.bu(),
+          x.sIndB(),
+          x.eIndB(),
+          y.nLoc(),
+          y.bl(),
+          y.bu(),
+          y.sIndB(),
+          y.eIndB(),
+          cRV_[dir],
+          x.s_,
+          y.s_ );
+      y.changed();
+    }
   }
 
   void print(  std::ostream& out=std::cout ) const {

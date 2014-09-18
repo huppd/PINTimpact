@@ -73,7 +73,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, Div ) {
 
   p->write(1);
 
-  TEST_FLOATING_EQUALITY( 0., p->norm(), errorTolSlack )
+  TEST_FLOATING_EQUALITY( 0., p->norm(), errorTolSlack*10.e6 )
 
 }
 

@@ -65,11 +65,11 @@ module mod_dims
   !*************************************************************
   
   !--- Anzahl Stencil-Koeffizienten (Rand) -------------------------------------------------------------------
-  INTEGER, PARAMETER  ::  ncb1c(2) = (/2,3/)
-  INTEGER, PARAMETER  ::  ncb1f(2) = (/2,3/)
-  INTEGER, PARAMETER  ::  ncb1r(2) = (/2,3/)
-  INTEGER, PARAMETER  ::  ncb1g(2) = (/0,2/)
-  INTEGER, PARAMETER  ::  ncb1d(2) = (/2,2/)
+!  INTEGER, PARAMETER  ::  ncb1c(2) = (/2,3/)
+!  INTEGER, PARAMETER  ::  ncb1f(2) = (/2,3/)
+!  INTEGER, PARAMETER  ::  ncb1r(2) = (/2,3/)
+!  INTEGER, PARAMETER  ::  ncb1g(2) = (/0,2/)
+!  INTEGER, PARAMETER  ::  ncb1d(2) = (/2,2/)
   
   !INTEGER, PARAMETER  ::  ncb1c(3) = (/3,4,5/)
   !INTEGER, PARAMETER  ::  ncb1f(3) = (/3,4,5/)
@@ -85,11 +85,11 @@ module mod_dims
   !INTEGER, PARAMETER  ::  ncb1d(4) = (/4,4,6,6/)
   
 !  !> \{ \brief Anzahl Stencil-Koeffizienten (Rand)
-!  integer, parameter  ::  ncb1c(4) = (/4,5,5,7/)
-!  integer, parameter  ::  ncb1f(4) = (/4,5,5,5/) ! TEST!!!dim_ncb1c wird als Array-Laenge angenommen ...
-!  integer, parameter  ::  ncb1r(4) = (/2,3,3,3/) ! TEST!!!dim_ncb1c wird als Array-Laenge angenommen ...
-!  integer, parameter  ::  ncb1g(4) = (/3,4,4,6/)
-!  integer, parameter  ::  ncb1d(4) = (/4,4,6,6/)
+  integer, parameter  ::  ncb1c(4) = (/4,5,5,7/)
+  integer, parameter  ::  ncb1f(4) = (/4,5,5,5/) ! TEST!!!dim_ncb1c wird als Array-Laenge angenommen ...
+  integer, parameter  ::  ncb1r(4) = (/2,3,3,3/) ! TEST!!!dim_ncb1c wird als Array-Laenge angenommen ...
+  integer, parameter  ::  ncb1g(4) = (/3,4,4,6/)
+  integer, parameter  ::  ncb1d(4) = (/4,4,6,6/)
 
   integer, parameter  ::  ncb2c(4) = (/4,5,5,7/)
   integer, parameter  ::  ncb2f(4) = (/4,5,5,5/)

@@ -3991,7 +3991,7 @@ module mod_solvers
   !===========================================================================================================
   if (direction == 2) then
      
-     if (dk /= 1) then ! (dimens == 2) <==> (dk == 1) automatisch erf�llt!
+     if (dk /= 1) then ! (dimens == 2) <==> (dk == 1) automatisch erfüllt!
         do k = 2, kmax-1, dk
            do j = 1, jmax, dj
 !pgi$ unroll = n:8
@@ -4049,7 +4049,7 @@ module mod_solvers
      
   end if
   !===========================================================================================================
-  if (direction == 3) then ! (dimens == 2) <==> (direction /= 3) automatisch erf�llt!
+  if (direction == 3) then ! (dimens == 2) <==> (direction /= 3) automatisch erfüllt!
      
      if (dj /= 1) then
         do k = 1, kmax, dk

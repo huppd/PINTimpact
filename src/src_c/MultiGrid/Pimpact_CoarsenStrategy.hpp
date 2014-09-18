@@ -14,6 +14,11 @@
 namespace Pimpact {
 
 
+/// \brief first model implementation, where one coarsens until every processor has 3 dofs.
+///
+/// it should be that the coardinates are taken from the fine grid and are halved.
+/// \todo compute coordinates correctly (grid stretching only on finest grid, afterwards simple coarsening),
+/// cleanest version would be to use same grid stretching on every level, makes interpolation and restriction slightly more complicated.
 template<class Field>
 class CoarsenStrategy {
 

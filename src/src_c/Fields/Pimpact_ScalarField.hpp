@@ -44,6 +44,8 @@ class ScalarField : private AbstractField<S,O> {
   friend class MGVDivGradOp;
   template<class S1,class O1,int dimension1>
   friend class RestrictionOp;
+  template<class S1,class O1,int dimension1>
+  friend class InterpolationOp;
 
 public:
 
@@ -467,15 +469,28 @@ public:
 
 protected:
 
-  const Ordinal& nGlo(int i)                 const { return( space_->nGlo()[i] ); }
+  const Ordinal& nGlo(int i)  const { return( space_->nGlo()[i] ); }
 
-  const Ordinal* nLoc()                      const { return( space_->nLoc() ) ; }
+  const Ordinal* nLoc()      const { return( space_->nLoc() ) ; }
+  const Ordinal& nLoc(int i) const { return( space_->nLoc(i) ) ; }
 
-  const Ordinal* bl()                   const { return( space_->bl() ); }
-  const Ordinal* bu()                   const { return( space_->bu() ); }
+  const Ordinal* bl() const { return( space_->bl() ); }
+  const Ordinal& bl(int i) const { return( space_->bl(i) ); }
 
-  const Ordinal* sInd() const { return( space_->sInd( fType_ ) ); }
-  const Ordinal* eInd() const { return( space_->eInd( fType_ ) ); }
+  const Ordinal* bu() const { return( space_->bu() ); }
+  const Ordinal& bu(int i) const { return( space_->bu(i) ); }
+
+  const Ordinal* sInd() const { return( space_->sInd( (int)fType_ ) ); }
+  const Ordinal& sInd(int i) const { return( space_->sInd( (int)fType_ )[i] ); }
+
+  const Ordinal* eInd() const { return( space_->eInd( (int)fType_ ) ); }
+  const Ordinal& eInd(int i) const { return( space_->eInd( (int)fType_ )[i] ); }
+
+  const Ordinal* sIndB() const { return( space_->sIndB( (int)fType_ ) ); }
+  const Ordinal& sIndB(int i) const { return( space_->sIndB( (int)fType_ )[i] ); }
+
+  const Ordinal* eIndB() const { return( space_->eIndB( (int)fType_ ) ); }
+  const Ordinal& eIndB(int i) const { return( space_->eIndB( (int)fType_ )[i] ); }
 
   const int*     bcL() const { return( space_->getDomain()->getBCLocal()->getBCL() ); }
   const int*     bcU() const { return( space_->getDomain()->getBCLocal()->getBCU() ); }

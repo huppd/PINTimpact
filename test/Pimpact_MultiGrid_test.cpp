@@ -33,6 +33,7 @@ double errorTolSlack = 1e-6;
 
 bool isImpactInit = false;
 int domain = 1;
+int ftype = 0;
 
 typedef double S;
 typedef int O;
@@ -50,6 +51,9 @@ TEUCHOS_STATIC_SETUP() {
       "Slack off of machine epsilon used to check test results" );
   clp.setOption(
       "domain", &domain,
+      "Slack off of machine epsilon used to check test results" );
+  clp.setOption(
+      "ftype", &ftype,
       "Slack off of machine epsilon used to check test results" );
 }
 
@@ -123,7 +127,7 @@ TEUCHOS_UNIT_TEST( MultiGrid, constructor4D ) {
 }
 
 
-TEUCHOS_UNIT_TEST( MultiGrid, restrictor3D ) {
+TEUCHOS_UNIT_TEST( MultiGrid, Restrictor3D ) {
   if( !isImpactInit ) {
 
     typedef Pimpact::ScalarField<S,O,3> SF;
@@ -160,48 +164,176 @@ TEUCHOS_UNIT_TEST( MultiGrid, restrictor3D ) {
 
     space->print();
 
-    auto asdf = Pimpact::createMultiGrid<SF,CS>( space, 2 );
+    Pimpact::EField type[] = {Pimpact::EField::S, Pimpact::EField::U, Pimpact::EField::V };
 
-    auto fieldf = asdf->getField( 0 );
-    auto fieldc = asdf->getField( 1 );
+    for( int i=0; i<3; ++i ) {
+//    {
+//      int i = ftype;
+      std::cout << "type: " << i << "\n";
 
-    auto op = asdf->getRestrictionOp( 0 );
+      auto asdf = Pimpact::createMultiGrid<SF,CS>( space, 2, type[i] );
 
-    TEST_FLOATING_EQUALITY( 0., fieldf->norm(), errorTolSlack );
-    TEST_FLOATING_EQUALITY( 0., fieldc->norm(), errorTolSlack );
+      auto fieldf = asdf->getField( 0 );
+      auto fieldc = asdf->getField( 1 );
 
-    // the random test
-    fieldf->random();
+      auto op = asdf->getRestrictionOp( 0 );
 
-    TEST_INEQUALITY( 0., fieldf->norm() );
+      // the zero test
+      fieldf->init( 0. );
+      fieldc->init( 1. );
 
-    op->apply( *fieldf, *fieldc );
-    TEST_INEQUALITY( 0., fieldc->norm() );
+      op->apply( *fieldf, *fieldc );
 
-    // the init test
-    fieldf->init(1.);
+      TEST_FLOATING_EQUALITY( 0., fieldf->norm(), errorTolSlack );
+      TEST_FLOATING_EQUALITY( 0., fieldc->norm(), errorTolSlack );
 
-    TEST_FLOATING_EQUALITY( 1., fieldf->norm(Belos::InfNorm), errorTolSlack );
 
-    TEST_FLOATING_EQUALITY( (S)fieldf->getLength(), fieldf->norm(Belos::OneNorm), errorTolSlack  );
+      // the random test
+      fieldf->random();
 
-    TEST_FLOATING_EQUALITY( std::sqrt( (S)fieldf->getLength() ), fieldf->norm(Belos::TwoNorm), errorTolSlack  );
+      TEST_INEQUALITY( 0., fieldf->norm() );
 
-    fieldc->init(0.);
+      op->apply( *fieldf, *fieldc );
 
-    op->apply( *fieldf, *fieldc );
+      TEST_INEQUALITY( 0., fieldc->norm() );
 
-//    if( asdf->getSpace(0)->rankST()==3) {
-//      std::cout << "\nproc coord:\t" << asdf->getSpace(0)->getProcGrid()->iB_ << "\n";
+//      op->print();
 //      fieldc->print();
-//    }
 
-    TEST_FLOATING_EQUALITY( 1., fieldc->norm(Belos::InfNorm), errorTolSlack );
+      // the init test
+      fieldf->init(1.);
 
-    TEST_FLOATING_EQUALITY( (S)fieldc->getLength(), fieldc->norm(Belos::OneNorm), errorTolSlack  );
+      TEST_FLOATING_EQUALITY( 1., fieldf->norm(Belos::InfNorm), errorTolSlack );
 
-    TEST_FLOATING_EQUALITY( std::sqrt( (S)fieldc->getLength() ), fieldc->norm(Belos::TwoNorm), errorTolSlack  );
+      TEST_FLOATING_EQUALITY( (S)fieldf->getLength(), fieldf->norm(Belos::OneNorm), errorTolSlack  );
 
+      TEST_FLOATING_EQUALITY( std::sqrt( (S)fieldf->getLength() ), fieldf->norm(Belos::TwoNorm), errorTolSlack  );
+
+      fieldc->init(0.);
+
+      op->apply( *fieldf, *fieldc );
+
+//      if( asdf->getSpace(0)->rankST()==0) {
+//        std::cout << "\nproc x-coord:\t" << asdf->getSpace(0)->getProcGrid()->getIB(0) << "\n";
+//        std::cout << "\nproc y-coord:\t" << asdf->getSpace(0)->getProcGrid()->getIB(1) << "\n";
+//        std::cout << "\nproc z=coord:\t" << asdf->getSpace(0)->getProcGrid()->getIB(2) << "\n";
+//        fieldc->print();
+//      }
+
+      TEST_FLOATING_EQUALITY( 1., fieldc->norm(Belos::InfNorm), errorTolSlack );
+
+      TEST_FLOATING_EQUALITY( (S)fieldc->getLength(), fieldc->norm(Belos::OneNorm), errorTolSlack  );
+
+      TEST_FLOATING_EQUALITY( std::sqrt( (S)fieldc->getLength() ), fieldc->norm(Belos::TwoNorm), errorTolSlack  );
+
+    }
+  }
+
+}
+
+
+TEUCHOS_UNIT_TEST( MultiGrid, Interpolator3D ) {
+  if( !isImpactInit ) {
+
+    typedef Pimpact::ScalarField<S,O,3> SF;
+
+    typedef Pimpact::CoarsenStrategy<SF> CS;
+
+    auto pl = Teuchos::parameterList();
+
+    pl->set( "Re", 1. );
+    pl->set( "alpha2", 1. );
+    pl->set( "domain", domain );
+
+    pl->set( "lx", 1. );
+    pl->set( "ly", 1. );
+    pl->set( "lz", 1. );
+
+    pl->set( "dim", 2 );
+
+    pl->set("nx", 33 );
+    pl->set("ny", 33 );
+    pl->set("nz", 2 );
+
+    pl->set("nf", 0 );
+    //  pl->set("nfs", 0 );
+    //  pl->set("nfe", 0 );
+
+    // processor grid size
+    pl->set("npx", 2 );
+    pl->set("npy", 2 );
+    pl->set("npz", 1 );
+    pl->set("npf", 1 );
+
+    auto space = Pimpact::createSpace<S,O,3>( pl );
+
+    space->print();
+
+    Pimpact::EField type[] = {Pimpact::EField::S, Pimpact::EField::U, Pimpact::EField::V };
+
+    for( int i=0; i<1; ++i ) {
+//    {
+//      int i = ftype;
+      std::cout << "type: " << i << "\n";
+
+      auto asdf = Pimpact::createMultiGrid<SF,CS>( space, 2, type[i] );
+
+      auto fieldf = asdf->getField( 0 );
+      auto fieldc = asdf->getField( 1 );
+
+      auto op = asdf->getInterpolationOp( 0 );
+//      auto op = Pimpact::createInterpolationOp( asdf->getSpace(1), asdf->getSpace(0) );
+
+      op->print();
+      // the zero test
+      fieldc->init( 0. );
+      fieldf->init( 1. );
+
+      op->apply( *fieldc, *fieldf );
+
+      TEST_FLOATING_EQUALITY( 0., fieldf->norm(), errorTolSlack );
+      TEST_FLOATING_EQUALITY( 0., fieldc->norm(), errorTolSlack );
+      fieldf->write();
+
+
+      // the random test
+      fieldc->random();
+      fieldf->init(0.);
+
+      TEST_INEQUALITY( 0., fieldc->norm() );
+
+      op->apply( *fieldc, *fieldf );
+
+      TEST_INEQUALITY( 0., fieldc->norm() );
+
+
+      // the stronger init test
+      fieldc->init(1.);
+
+      TEST_FLOATING_EQUALITY( 1., fieldc->norm(Belos::InfNorm), errorTolSlack );
+
+      TEST_FLOATING_EQUALITY( (S)fieldc->getLength(), fieldc->norm(Belos::OneNorm), errorTolSlack  );
+
+      TEST_FLOATING_EQUALITY( std::sqrt( (S)fieldc->getLength() ), fieldc->norm(Belos::TwoNorm), errorTolSlack  );
+
+      fieldf->init(0.);
+
+      op->apply( *fieldc, *fieldf );
+
+////      if( asdf->getSpace(0)->rankST()==0) {
+////        std::cout << "\nproc x-coord:\t" << asdf->getSpace(0)->getProcGrid()->getIB(0) << "\n";
+////        std::cout << "\nproc y-coord:\t" << asdf->getSpace(0)->getProcGrid()->getIB(1) << "\n";
+////        std::cout << "\nproc z=coord:\t" << asdf->getSpace(0)->getProcGrid()->getIB(2) << "\n";
+////        fieldc->print();
+////      }
+
+      TEST_FLOATING_EQUALITY( 1., fieldf->norm(Belos::InfNorm), errorTolSlack );
+
+      TEST_FLOATING_EQUALITY( (S)fieldf->getLength(), fieldf->norm(Belos::OneNorm), errorTolSlack  );
+
+      TEST_FLOATING_EQUALITY( std::sqrt( (S)fieldf->getLength() ), fieldf->norm(Belos::TwoNorm), errorTolSlack  );
+
+    }
   }
 
 }
