@@ -421,7 +421,8 @@ public:
     SF_print(
         nLoc(),
         bl(), bu(),
-        sInd(), eInd(),
+        sIndB(),
+        eIndB(),
         s_ );
 
   }
@@ -432,7 +433,8 @@ public:
     SF_write(
         nLoc(),
         bl(), bu(),
-        sInd(), eInd(),
+        sInd(),
+        eInd(),
         s_, count );
   }
 

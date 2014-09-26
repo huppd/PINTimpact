@@ -18,12 +18,10 @@ module cmod_operator
   
     private
   
-  
-    public apply_compact, apply_compact_transp
-    public divergence, divergence2, divergence_transp
-    public gradient, gradient_transp
-    public Helmholtz, Helmholtz_explicit, Helmholtz_conc, Helmholtz_conc_explicit
-    public nonlinear, nonlinear_conc
+    public divergence2
+    public gradient
+    public Helmholtz,   Helmholtz_conc_explicit
+    public nonlinear
     public interpolate_vel, interpolate_conc
     public outflow_bc, sediment_bc
     public filter
@@ -35,977 +33,12 @@ module cmod_operator
     public Helmholtz_pre_explicit ! TEST!!!
   
   
-!  INCLUDE 'mpif.h'
   
 contains
   
-    !pgi$g unroll = n:8
-    !!pgi$r unroll = n:8
-    !!pgi$l unroll = n:8
   
   
     ! TEST!!! Generell bei Randbehandlung bei ii=0,1 beginnen, bzw. bis ii=N1 rechnen!
-  
-  
-    ! TEST!!!
-    !       - Multiplikation mit 1/dx in Subroutine bzw. in die Koeffizienten hineinziehen (noch besser)
-    !       - in dieser Routine gibt es noch Potential für Vektorisierung!!
-    !       - Intervalle doch besser erweitern, d.h. S11 --> S11B. Es wird zwar mehr gerechnet, dafuer sind die Operatoren dann allgemeiner (z.B. fuer LES) ...
-    !       - ndR nach Unten/Oben unterscheiden ...
-    !       - vel_dir ist momentan ueberfluessig ...
-    !pgi$r unroll = n:8
-    subroutine apply_compact(dir,vel_dir,SS1,SS2,SS3,NN1,NN2,NN3,Nmax,ndL,ndR,dimS,ccL,ccL_LU,ccR,WW,Schur,phi,der)
-  
-        implicit none
-  
-        integer, intent(in   ) ::  dir, vel_dir
-        integer, intent(in   ) ::  SS1, SS2, SS3, NN1, NN2, NN3
-        integer, intent(in   ) ::  Nmax, ndL, ndR, dimS
-        real   , intent(in   ) ::  ccL (-ndL:ndL,0:Nmax)
-        real   , intent(in   ) ::  ccR (-ndR:ndR,0:Nmax)
-        real   , intent(in   ) ::  ccL_LU(1:(3*ndL+1),0:Nmax)
-        real   , intent(in   ) ::  WW(1:2*ndL,0:Nmax)
-        real   , intent(in   ) ::  Schur(1:dimS,1:dimS)
-  
-        real   , intent(inout) ::  phi(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-        real   , intent(inout) ::  der(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  
-        integer                ::  i, ii, i0
-        integer                ::  j, jj, j0
-        integer                ::  k, kk, k0
-  
-        integer                ::  dimG
-        integer                ::  KD, KO, LM
-  
-  
-        ! Wurde herausgezogen:
-        !!CALL exchange (dir,vel_dir,phi)
-        !CALL exchange2(dir,vel_dir,SS1,SS2,SS3,NN1,NN2,NN3,phi)
-        call pseudocall_int(vel_dir) ! TEST!!! this action has no meaning - it shall only to suppress the warnings
-                                     ! that the argument vel_dir is not used when building the executable ...
-  
-        KD = ndL+ndL+1
-        KO = ndL+ndL
-  
-        !===========================================================================================================
-        if (dir == 1) then
-            !--------------------------------------------------------------------------------------------------------
-            ! TEST!!! Block-Raender werden nun IMMER per Schur-Komplement behandelt (Pivoting-Problem) ...
-            !         Man koennte/sollte aber immerhin das Umspeichern von buffer1A auf buffer1B vermeiden ...
-            if (1 == 2 .and. NB1 == 1 .and. BC_1L_global /= -1) then
-        
-                do k = SS3, NN3
-                    do j = SS2, NN2
-              
-                        !--- expliziter Teil ---
-                        do i = SS1, NN1
-                            der(i,j,k) = ccR(-ndR,i)*phi(i-ndR,j,k)
-                            do ii = -ndR+1, ndR
-                                der(i,j,k) = der(i,j,k) + ccR(ii,i)*phi(i+ii,j,k)
-                            end do
-                        end do
-              
-                        !--- L^-1*der ---
-                        do i = SS1, NN1-1
-                            LM = MIN(ndL,NN1-i)
-                            do ii = 1, LM
-                                der(i+ii,j,k) = der(i+ii,j,k) - ccL_LU(KD+ii,i)*der(i,j,k)
-                            end do
-                        end do
-              
-                        !--- U^-1*L^-1*der ---
-                        do i = NN1, SS1, -1
-                            LM = MAX(SS1,i-KO)
-                            der(i,j,k) = der(i,j,k) / ccL_LU(KD,i)
-                            do ii = i-1, LM, -1
-                                der(ii,j,k) = der(ii,j,k) - ccL_LU(KD+ii-i,i)*der(i,j,k)
-                            end do
-                        end do
-              
-                    end do
-                end do
-        
-            !--------------------------------------------------------------------------------------------------------
-            else
-        
-                dimG = NN1-SS1+1-2*ndL
-                i0   = 2*ndL*(iB(1,1)-1)
-        
-                do k = SS3, NN3
-                    do j = SS2, NN2
-              
-                        !--- expliziter Teil ---
-                        do i = SS1, NN1 ! Anmerkung: Man koennte hier nur den für buffer1A notwendigen Teil von "der" berechnen und den anderen erst nach MPI_ALLGATHERv ...
-                            der(i,j,k) = ccR(-ndR,i)*phi(i-ndR,j,k)
-                            do ii = -ndR+1, ndR
-                                der(i,j,k) = der(i,j,k) + ccR(ii,i)*phi(i+ii,j,k)
-                            end do
-                        end do
-              
-                        !--- Umspeichern ---
-                        do i = 1, ndL
-                            buffer1A(j,k,i    ) = der(SS1+i-1  ,j,k)
-                            buffer1A(j,k,i+ndL) = der(NN1+i-ndL,j,k)
-                        end do
-              
-                        !--- RHS fuer Schur-Komplement ---
-                        do i = 1, dimG
-                            do ii = 1, 2*ndL
-                                buffer1A(j,k,ii) = buffer1A(j,k,ii) - WW(ii,SS1+i+ndL-1)*der(SS1+i+ndL-1,j,k)
-                            end do
-                        end do
-              
-                    end do
-                end do
-        
-                !--- Verteilen der RHS fuer Schur-Problem ---
-                ! TEST!!! Evtl. ist das nicht die effizenteste Methode!!
-                call MPI_ALLGATHERv(buffer1A,2*ndl*(N2+1)*(N3+1),MPI_REAL8,buffer1B,recv1,disp1,MPI_REAL8,COMM_BAR1,merror)
-        
-                do k = SS3, NN3
-                    do j = SS2, NN2
-              
-                        !--- Loesung des Schur-Komplement-LGS ---
-                        do i = 1, ndL
-                            der(SS1+i-1  ,j,k) = Schur(i+i0    ,1)*buffer1B(j,k,1)
-                            der(NN1+i-ndL,j,k) = Schur(i+i0+ndL,1)*buffer1B(j,k,1)
-                            do ii = 2, dimS
-                                der(SS1+i-1  ,j,k) = der(SS1+i-1  ,j,k) + Schur(i+i0    ,ii)*buffer1B(j,k,ii)
-                                der(NN1+i-ndL,j,k) = der(NN1+i-ndL,j,k) + Schur(i+i0+ndL,ii)*buffer1B(j,k,ii)
-                            end do
-                        end do
-              
-                        !--- RHS des uebrigen Feldes anpassen ---
-                        do i = 1, ndL
-                            do ii = i, ndL
-                                der(SS1+i-1+ndL,j,k) = der(SS1+i-1+ndL,j,k) - ccL(-ii,SS1+i-1+ndL)*der(SS1+i-1+ndL-ii,j,k)
-                                der(NN1-i+1-ndL,j,k) = der(NN1-i+1-ndL,j,k) - ccL( ii,NN1-i+1-ndL)*der(NN1-i+1-ndL+ii,j,k)
-                            end do
-                        end do
-              
-                        !--- L^-1*der ---
-                        do i = SS1+ndL, NN1-ndL-1
-                            LM = MIN(ndL,NN1-ndL-i)
-                            do ii = 1, LM
-                                der(i+ii,j,k) = der(i+ii,j,k) - ccL_LU(KD+ii,i)*der(i,j,k)
-                            end do
-                        end do
-              
-                        !--- U^-1*L^-1*der ---
-                        do i = NN1-ndL, SS1+ndL, -1
-                            der(i,j,k) = der(i,j,k) / ccL_LU(KD,i)
-                            LM = MAX(SS1+ndL,i-KO)
-                            do ii = i-1, LM, -1
-                                der(ii,j,k) = der(ii,j,k) - ccL_LU(KD+ii-i,i)*der(i,j,k)
-                            end do
-                        end do
-              
-                    end do
-                end do
-        
-            end if
-           !--------------------------------------------------------------------------------------------------------
-        end if
-        !===========================================================================================================
-        if (dir == 2) then
-            !--------------------------------------------------------------------------------------------------------
-            if (1 == 2 .and. NB2 == 1 .and. BC_2L_global /= -1) then
-        
-                do k = SS3, NN3
-           
-                    !--- expliziter Teil ---
-                    do j = SS2, NN2
-                        do i = SS1, NN1
-                            der(i,j,k) = ccR(-ndR,j)*phi(i,j-ndR,k)
-                            do jj = -ndR+1, ndR
-                                der(i,j,k) = der(i,j,k) + ccR(jj,j)*phi(i,j+jj,k)
-                            end do
-                        end do
-                    end do
-           
-                    !--- L^-1*der ---
-                    do j = SS2, NN2-1
-                        LM = MIN(ndL,NN2-j)
-                        do i = SS1, NN1
-                            do jj = 1, LM
-                                der(i,j+jj,k) = der(i,j+jj,k) - ccL_LU(KD+jj,j)*der(i,j,k)
-                            end do
-                        end do
-                    end do
-           
-                    !--- U^-1*L^-1*der ---
-                    do j = NN2, SS2, -1
-                        LM = MAX(SS2,j-KO)
-                        do i = SS1, NN1
-                            der(i,j,k) = der(i,j,k) / ccL_LU(KD,j)
-                            do jj = j-1, LM, -1
-                                der(i,jj,k) = der(i,jj,k) - ccL_LU(KD+jj-j,j)*der(i,j,k)
-                            end do
-                        end do
-                    end do
-           
-                end do
-        
-            !--------------------------------------------------------------------------------------------------------
-            else
-        
-                dimG = NN2-SS2+1-2*ndL
-                j0   = 2*ndL*(iB(2,1)-1)
-        
-                do k = SS3, NN3
-           
-                    !--- expliziter Teil ---
-                    do j = SS2, NN2
-                        do i = SS1, NN1
-                            der(i,j,k) = ccR(-ndR,j)*phi(i,j-ndR,k)
-                            do jj = -ndR+1, ndR
-                                der(i,j,k) = der(i,j,k) + ccR(jj,j)*phi(i,j+jj,k)
-                            end do
-                        end do
-                    end do
-           
-                    !--- Umspeichern ---
-                    do j = 1, ndL
-                        do i = SS1, NN1
-                            buffer2A(i,k,j    ) = der(i,SS2+j-1  ,k)
-                            buffer2A(i,k,j+ndL) = der(i,NN2+j-ndL,k)
-                        end do
-                    end do
-           
-                    !--- RHS fuer Schur-Komplement ---
-                    do j = 1, dimG
-                        do i = SS1, NN1
-                            do jj = 1, 2*ndL
-                                buffer2A(i,k,jj) = buffer2A(i,k,jj) - WW(jj,SS2+j+ndL-1)*der(i,SS2+j+ndL-1,k)
-                            end do
-                        end do
-                    end do
-           
-                end do
-        
-                !--- Verteilen der RHS fuer Schur-Problem ---
-                call MPI_ALLGATHERv(buffer2A,2*ndl*(N1+1)*(N3+1),MPI_REAL8,buffer2B,recv2,disp2,MPI_REAL8,COMM_BAR2,merror)
-        
-                do k = SS3, NN3
-           
-                    !--- Loesung des Schur-Komplement-LGS ---
-                    do j = 1, ndL
-                        do i = SS1, NN1
-                            der(i,SS2+j-1  ,k) = Schur(j+j0    ,1)*buffer2B(i,k,1)
-                            der(i,NN2+j-ndL,k) = Schur(j+j0+ndL,1)*buffer2B(i,k,1)
-                            do jj = 2, dimS
-                                der(i,SS2+j-1  ,k) = der(i,SS2+j-1  ,k) + Schur(j+j0    ,jj)*buffer2B(i,k,jj)
-                                der(i,NN2+j-ndL,k) = der(i,NN2+j-ndL,k) + Schur(j+j0+ndL,jj)*buffer2B(i,k,jj)
-                            end do
-                        end do
-                    end do
-           
-                    !--- RHS des uebrigen Feldes anpassen ---
-                    do j = 1, ndL
-                        do i = SS1, NN1
-                            do jj = j, ndL
-                                der(i,SS2+j-1+ndL,k) = der(i,SS2+j-1+ndL,k) - ccL(-jj,SS2+j-1+ndL)*der(i,SS2+j-1+ndL-jj,k)
-                                der(i,NN2-j+1-ndL,k) = der(i,NN2-j+1-ndL,k) - ccL( jj,NN2-j+1-ndL)*der(i,NN2-j+1-ndL+jj,k)
-                            end do
-                        end do
-                    end do
-           
-                    !--- L^-1*der ---
-                    do j = SS2+ndL, NN2-ndL-1
-                        LM = MIN(ndL,NN2-ndL-j)
-                        do i = SS1, NN1
-                            do jj = 1, LM
-                                der(i,j+jj,k) = der(i,j+jj,k) - ccL_LU(KD+jj,j)*der(i,j,k)
-                            end do
-                        end do
-                    end do
-           
-                    !--- U^-1*L^-1*der ---
-                    do j = NN2-ndL, SS2+ndL, -1
-                        LM = MAX(SS2+ndL,j-KO)
-                        do i = SS1, NN1
-                            der(i,j,k) = der(i,j,k) / ccL_LU(KD,j)
-                            do jj = j-1, LM, -1
-                                der(i,jj,k) = der(i,jj,k) - ccL_LU(KD+jj-j,j)*der(i,j,k)
-                            end do
-                        end do
-                    end do
-           
-                end do
-        
-            end if
-           !--------------------------------------------------------------------------------------------------------
-        end if
-        !===========================================================================================================
-        if (dir == 3) then
-            !--------------------------------------------------------------------------------------------------------
-            if (1 == 2 .and. NB3 == 1 .and. BC_3L_global /= -1) then
-        
-                !--- expliziter Teil ---
-                do k = SS3, NN3
-                    do j = SS2, NN2
-                        do i = SS1, NN1
-                            der(i,j,k) = ccR(-ndR,k)*phi(i,j,k-ndR)
-                            do kk = -ndR+1, ndR
-                                der(i,j,k) = der(i,j,k) + ccR(kk,k)*phi(i,j,k+kk)
-                            end do
-                        end do
-                    end do
-                end do
-        
-                !--- L^-1*der ---
-                do k = SS3, NN3-1
-                    LM = MIN(ndL,NN3-k)
-                    do j = SS2, NN2
-                        do i = SS1, NN1
-                            do kk = 1, LM
-                                der(i,j,k+kk) = der(i,j,k+kk) - ccL_LU(KD+kk,k)*der(i,j,k)
-                            end do
-                        end do
-                    end do
-                end do
-        
-                !--- U^-1*L^-1*der ---
-                do k = NN3, SS3, -1
-                    LM = MAX(SS3,k-KO)
-                    do j = SS2, NN2
-                        do i = SS1, NN1
-                            der(i,j,k) = der(i,j,k) / ccL_LU(KD,k)
-                            do kk = k-1, LM, -1
-                                der(i,j,kk) = der(i,j,kk) - ccL_LU(KD+kk-k,k)*der(i,j,k)
-                            end do
-                        end do
-                    end do
-                end do
-        
-            !--------------------------------------------------------------------------------------------------------
-            else
-        
-                dimG = NN3-SS3+1-2*ndL
-                k0   = 2*ndL*(iB(3,1)-1)
-        
-                !--- expliziter Teil ---
-                do k = SS3, NN3
-                    do j = SS2, NN2
-                        do i = SS1, NN1
-                            der(i,j,k) = ccR(-ndR,k)*phi(i,j,k-ndR)
-                            do kk = -ndR+1, ndR
-                                der(i,j,k) = der(i,j,k) + ccR(kk,k)*phi(i,j,k+kk)
-                            end do
-                        end do
-                    end do
-                end do
-        
-                !--- Umspeichern ---
-                do k = 1, ndL
-                    do j = SS2, NN2
-                        do i = SS1, NN1
-                            buffer3A(i,j,k    ) = der(i,j,SS3+k-1  )
-                            buffer3A(i,j,k+ndL) = der(i,j,NN3+k-ndL)
-                        end do
-                    end do
-                end do
-        
-                !--- RHS fuer Schur-Komplement ---
-                do k = 1, dimG
-                    do j = SS2, NN2
-                        do i = SS1, NN1
-                            do kk = 1, 2*ndL
-                                buffer3A(i,j,kk) = buffer3A(i,j,kk) - WW(kk,SS3+k+ndL-1)*der(i,j,SS3+k+ndL-1)
-                            end do
-                        end do
-                    end do
-                end do
-        
-                !--- Verteilen der RHS fuer Schur-Problem ---
-                call MPI_ALLGATHERv(buffer3A,2*ndl*(N1+1)*(N2+1),MPI_REAL8,buffer3B,recv3,disp3,MPI_REAL8,COMM_BAR3,merror)
-        
-                !--- Loesung des Schur-Komplement-LGS ---
-                do k = 1, ndL
-                    do j = SS2, NN2
-                        do i = SS1, NN1
-                            der(i,j,SS3+k-1  ) = Schur(k+k0    ,1)*buffer3B(i,j,1)
-                            der(i,j,NN3+k-ndL) = Schur(k+k0+ndL,1)*buffer3B(i,j,1)
-                            do kk = 2, dimS
-                                der(i,j,SS3+k-1  ) = der(i,j,SS3+k-1  ) + Schur(k+k0    ,kk)*buffer3B(i,j,kk)
-                                der(i,j,NN3+k-ndL) = der(i,j,NN3+k-ndL) + Schur(k+k0+ndL,kk)*buffer3B(i,j,kk)
-                            end do
-                        end do
-                    end do
-                end do
-        
-                !--- RHS des uebrigen Feldes anpassen ---
-                do k = 1, ndL
-                    do j = SS2, NN2
-                        do i = SS1, NN1
-                            do kk = k, ndL
-                                der(i,j,SS3+k-1+ndL) = der(i,j,SS3+k-1+ndL) - ccL(-kk,SS3+k-1+ndL)*der(i,j,SS3+k-1+ndL-kk)
-                                der(i,j,NN3-k+1-ndL) = der(i,j,NN3-k+1-ndL) - ccL( kk,NN3-k+1-ndL)*der(i,j,NN3-k+1-ndL+kk)
-                            end do
-                        end do
-                    end do
-                end do
-        
-                !--- L^-1*der ---
-                do k = SS3+ndL, NN3-ndL-1
-                    LM = MIN(ndL,NN3-ndL-k)
-                    do j = SS2, NN2
-                        do i = SS1, NN1
-                            do kk = 1, LM
-                                der(i,j,k+kk) = der(i,j,k+kk) - ccL_LU(KD+kk,k)*der(i,j,k)
-                            end do
-                        end do
-                    end do
-                end do
-        
-                !--- U^-1*L^-1*der ---
-                do k = NN3-ndL, SS3+ndL, -1
-                    LM = MAX(SS3+ndL,k-KO)
-                    do j = SS2, NN2
-                        do i = SS1, NN1
-                            der(i,j,k) = der(i,j,k) / ccL_LU(KD,k)
-                            do kk = k-1, LM, -1
-                                der(i,j,kk) = der(i,j,kk) - ccL_LU(KD+kk-k,k)*der(i,j,k)
-                            end do
-                        end do
-                    end do
-                end do
-        
-            end if
-           !--------------------------------------------------------------------------------------------------------
-        end if
-    !===========================================================================================================
-  
-  
-    end subroutine apply_compact
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-    ! ACTHUNG: phi wird überschrieben (da ohnehin mit dx vormultipliziert werden muss)
-    subroutine apply_compact_transp(dir,vel_dir,SI1,SI2,SI3,NI1,NI2,NI3,SE1,SE2,SE3,NE1,NE2,NE3,Nmax,ndL,ndR,dimS,ccL,ccL_LU,ccR,WW,Schur,phi,der)
-  
-        implicit none
-  
-        integer, intent(in   ) ::  dir, vel_dir
-        integer, intent(in   ) ::  SI1, SI2, SI3, NI1, NI2, NI3
-        integer, intent(in   ) ::  SE1, SE2, SE3, NE1, NE2, NE3
-        integer, intent(in   ) ::  Nmax, ndL, ndR, dimS
-        real   , intent(in   ) ::  ccL (-ndL:ndL,0:Nmax)
-        real   , intent(in   ) ::  ccR (-ndR:ndR,0:Nmax)
-        real   , intent(in   ) ::  ccL_LU(1:(3*ndL+1),0:Nmax)
-        real   , intent(in   ) ::  WW(1:2*ndL,0:Nmax)
-        real   , intent(in   ) ::  Schur(1:dimS,1:dimS)
-  
-        real   , intent(inout) ::  phi(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-        real   , intent(inout) ::  der(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  
-        integer                ::  i, ii, i0
-        integer                ::  j, jj, j0
-        integer                ::  k, kk, k0
-  
-        integer                ::  dimG
-        integer                ::  KD, KO, LM
-  
-  
-        KD = ndL+ndL+1
-        KO = ndL+ndL
-  
-        !===========================================================================================================
-        if (dir == 1) then
-            !--------------------------------------------------------------------------------------------------------
-            if (NB1 == 1 .and. BC_1L_global /= -1) then
-        
-                do k = SI3, NI3
-                    do j = SI2, NI2
-              
-                        !--- L^-1*der ---
-                        do i = SI1, NI1-1
-                            LM = MIN(ndL,NI1-i)
-                            do ii = 1, LM
-                                phi(i+ii,j,k) = phi(i+ii,j,k) - ccL_LU(KD+ii,i)*phi(i,j,k)
-                            end do
-                        end do
-              
-                        !--- U^-1*L^-1*der ---
-                        do i = NI1, SI1, -1
-                            LM = MAX(SI1,i-KO)
-                            phi(i,j,k) = phi(i,j,k) / ccL_LU(KD,i)
-                            do ii = i-1, LM, -1
-                                phi(ii,j,k) = phi(ii,j,k) - ccL_LU(KD+ii-i,i)*phi(i,j,k)
-                            end do
-                        end do
-              
-                    end do
-                end do
-            !--------------------------------------------------------------------------------------------------------
-            else
-        
-                dimG = NI1-SI1+1-2*ndL
-                i0   = 2*ndL*(iB(1,1)-1)
-        
-                do k = SI3, NI3
-                    do j = SI2, NI2
-              
-                        !--- Umspeichern ---
-                        do i = 1, ndL
-                            buffer1A(j,k,i    ) = phi(SI1+i-1  ,j,k)
-                            buffer1A(j,k,i+ndL) = phi(NI1+i-ndL,j,k)
-                        end do
-              
-                        !--- RHS fuer Schur-Komplement ---
-                        do i = 1, dimG
-                            do ii = 1, 2*ndL
-                                buffer1A(j,k,ii) = buffer1A(j,k,ii) - WW(ii,SI1+i+ndL-1)*phi(SI1+i+ndL-1,j,k)
-                            end do
-                        end do
-              
-                    end do
-                end do
-        
-                !--- Verteilen der RHS fuer Schur-Problem ---
-                call MPI_ALLGATHERv(buffer1A,2*ndl*(N2+1)*(N3+1),MPI_REAL8,buffer1B,recv1,disp1,MPI_REAL8,COMM_BAR1,merror)
-        
-                do k = SI3, NI3
-                    do j = SI2, NI2
-              
-                        !--- Loesung des Schur-Komplement-LGS ---
-                        do i = 1, ndL
-                            phi(SI1+i-1  ,j,k) = Schur(i+i0    ,1)*buffer1B(j,k,1)
-                            phi(NI1+i-ndL,j,k) = Schur(i+i0+ndL,1)*buffer1B(j,k,1)
-                            do ii = 2, dimS
-                                phi(SI1+i-1  ,j,k) = phi(SI1+i-1  ,j,k) + Schur(i+i0    ,ii)*buffer1B(j,k,ii)
-                                phi(NI1+i-ndL,j,k) = phi(NI1+i-ndL,j,k) + Schur(i+i0+ndL,ii)*buffer1B(j,k,ii)
-                            end do
-                        end do
-              
-                        !--- RHS des uebrigen Feldes anpassen ---
-                        do i = 1, ndL
-                            do ii = i, ndL
-                                phi(SI1+i-1+ndL,j,k) = phi(SI1+i-1+ndL,j,k) - ccL(-ii,SI1+i-1+ndL)*phi(SI1+i-1+ndL-ii,j,k)
-                                phi(NI1-i+1-ndL,j,k) = phi(NI1-i+1-ndL,j,k) - ccL( ii,NI1-i+1-ndL)*phi(NI1-i+1-ndL+ii,j,k)
-                            end do
-                        end do
-              
-                        !--- L^-1*der ---
-                        do i = SI1+ndL, NI1-ndL-1
-                            LM = MIN(ndL,NI1-ndL-i)
-                            do ii = 1, LM
-                                phi(i+ii,j,k) = phi(i+ii,j,k) - ccL_LU(KD+ii,i)*phi(i,j,k)
-                            end do
-                        end do
-              
-                        !--- U^-1*L^-1*der ---
-                        do i = NI1-ndL, SI1+ndL, -1
-                            phi(i,j,k) = phi(i,j,k) / ccL_LU(KD,i)
-                            LM = MAX(SI1+ndL,i-KO)
-                            do ii = i-1, LM, -1
-                                phi(ii,j,k) = phi(ii,j,k) - ccL_LU(KD+ii-i,i)*phi(i,j,k)
-                            end do
-                        end do
-              
-                    end do
-                end do
-        
-            end if
-            !--------------------------------------------------------------------------------------------------------
-            call exchange2(dir,vel_dir,SE1,SE2,SE3,NE1,NE2,NE3,phi)
-     
-            !--- expliziter Teil ---
-            do k = SE3, NE3
-                do j = SE2, NE2
-                    do i = SE1, NE1
-                        der(i,j,k) = ccR(-ndR,i)*phi(i-ndR,j,k)
-                        do ii = -ndR+1, ndR
-                            der(i,j,k) = der(i,j,k) + ccR(ii,i)*phi(i+ii,j,k)
-                        end do
-                    end do
-                end do
-            end do
-           !--------------------------------------------------------------------------------------------------------
-        end if
-        !===========================================================================================================
-        if (dir == 2) then
-            !--------------------------------------------------------------------------------------------------------
-            if (NB2 == 1 .and. BC_2L_global /= -1) then
-        
-                do k = SI3, NI3
-           
-                    !--- L^-1*der ---
-                    do j = SI2, NI2-1
-                        LM = MIN(ndL,NI2-j)
-                        do i = SI1, NI1
-                            do jj = 1, LM
-                                phi(i,j+jj,k) = phi(i,j+jj,k) - ccL_LU(KD+jj,j)*phi(i,j,k)
-                            end do
-                        end do
-                    end do
-           
-                    !--- U^-1*L^-1*der ---
-                    do j = NI2, SI2, -1
-                        LM = MAX(SI2,j-KO)
-                        do i = SI1, NI1
-                            phi(i,j,k) = phi(i,j,k) / ccL_LU(KD,j)
-                            do jj = j-1, LM, -1
-                                phi(i,jj,k) = phi(i,jj,k) - ccL_LU(KD+jj-j,j)*phi(i,j,k)
-                            end do
-                        end do
-                    end do
-           
-                end do
-            !--------------------------------------------------------------------------------------------------------
-            else
-        
-                dimG = NI2-SI2+1-2*ndL
-                j0   = 2*ndL*(iB(2,1)-1)
-        
-                do k = SI3, NI3
-           
-                    !--- Umspeichern ---
-                    do j = 1, ndL
-                        do i = SI1, NI1
-                            buffer2A(i,k,j    ) = phi(i,SI2+j-1  ,k)
-                            buffer2A(i,k,j+ndL) = phi(i,NI2+j-ndL,k)
-                        end do
-                    end do
-           
-                    !--- RHS fuer Schur-Komplement ---
-                    do j = 1, dimG
-                        do i = SI1, NI1
-                            do jj = 1, 2*ndL
-                                buffer2A(i,k,jj) = buffer2A(i,k,jj) - WW(jj,SI2+j+ndL-1)*phi(i,SI2+j+ndL-1,k)
-                            end do
-                        end do
-                    end do
-           
-                end do
-        
-                !--- Verteilen der RHS fuer Schur-Problem ---
-                call MPI_ALLGATHERv(buffer2A,2*ndl*(N1+1)*(N3+1),MPI_REAL8,buffer2B,recv2,disp2,MPI_REAL8,COMM_BAR2,merror)
-        
-                do k = SI3, NI3
-           
-                    !--- Loesung des Schur-Komplement-LGS ---
-                    do j = 1, ndL
-                        do i = SI1, NI1
-                            phi(i,SI2+j-1  ,k) = Schur(j+j0    ,1)*buffer2B(i,k,1)
-                            phi(i,NI2+j-ndL,k) = Schur(j+j0+ndL,1)*buffer2B(i,k,1)
-                            do jj = 2, dimS
-                                phi(i,SI2+j-1  ,k) = phi(i,SI2+j-1  ,k) + Schur(j+j0    ,jj)*buffer2B(i,k,jj)
-                                phi(i,NI2+j-ndL,k) = phi(i,NI2+j-ndL,k) + Schur(j+j0+ndL,jj)*buffer2B(i,k,jj)
-                            end do
-                        end do
-                    end do
-           
-                    !--- RHS des uebrigen Feldes anpassen ---
-                    do j = 1, ndL
-                        do i = SI1, NI1
-                            do jj = j, ndL
-                                phi(i,SI2+j-1+ndL,k) = phi(i,SI2+j-1+ndL,k) - ccL(-jj,SI2+j-1+ndL)*phi(i,SI2+j-1+ndL-jj,k)
-                                phi(i,NI2-j+1-ndL,k) = phi(i,NI2-j+1-ndL,k) - ccL( jj,NI2-j+1-ndL)*phi(i,NI2-j+1-ndL+jj,k)
-                            end do
-                        end do
-                    end do
-           
-                    !--- L^-1*der ---
-                    do j = SI2+ndL, NI2-ndL-1
-                        LM = MIN(ndL,NI2-ndL-j)
-                        do i = SI1, NI1
-                            do jj = 1, LM
-                                phi(i,j+jj,k) = phi(i,j+jj,k) - ccL_LU(KD+jj,j)*phi(i,j,k)
-                            end do
-                        end do
-                    end do
-           
-                    !--- U^-1*L^-1*der ---
-                    do j = NI2-ndL, SI2+ndL, -1
-                        LM = MAX(SI2+ndL,j-KO)
-                        do i = SI1, NI1
-                            phi(i,j,k) = phi(i,j,k) / ccL_LU(KD,j)
-                            do jj = j-1, LM, -1
-                                phi(i,jj,k) = phi(i,jj,k) - ccL_LU(KD+jj-j,j)*phi(i,j,k)
-                            end do
-                        end do
-                    end do
-           
-                end do
-        
-            end if
-            !--------------------------------------------------------------------------------------------------------
-            call exchange2(dir,vel_dir,SE1,SE2,SE3,NE1,NE2,NE3,phi)
-     
-            !--- expliziter Teil ---
-            do k = SE3, NE3
-                do j = SE2, NE2
-                    do i = SE1, NE1
-                        der(i,j,k) = ccR(-ndR,j)*phi(i,j-ndR,k)
-                        do jj = -ndR+1, ndR
-                            der(i,j,k) = der(i,j,k) + ccR(jj,j)*phi(i,j+jj,k)
-                        end do
-                    end do
-                end do
-            end do
-           !--------------------------------------------------------------------------------------------------------
-        end if
-        !===========================================================================================================
-        if (dir == 3) then
-            !--------------------------------------------------------------------------------------------------------
-            if (NB3 == 1 .and. BC_3L_global /= -1) then
-        
-                !--- L^-1*der ---
-                do k = SI3, NI3-1
-                    LM = MIN(ndL,NI3-k)
-                    do j = SI2, NI2
-                        do i = SI1, NI1
-                            do kk = 1, LM
-                                phi(i,j,k+kk) = phi(i,j,k+kk) - ccL_LU(KD+kk,k)*phi(i,j,k)
-                            end do
-                        end do
-                    end do
-                end do
-        
-                !--- U^-1*L^-1*der ---
-                do k = NI3, SI3, -1
-                    LM = MAX(SI3,k-KO)
-                    do j = SI2, NI2
-                        do i = SI1, NI1
-                            phi(i,j,k) = phi(i,j,k) / ccL_LU(KD,k)
-                            do kk = k-1, LM, -1
-                                phi(i,j,kk) = phi(i,j,kk) - ccL_LU(KD+kk-k,k)*phi(i,j,k)
-                            end do
-                        end do
-                    end do
-                end do
-            !--------------------------------------------------------------------------------------------------------
-            else
-        
-                dimG = NI3-SI3+1-2*ndL
-                k0   = 2*ndL*(iB(3,1)-1)
-        
-                !--- Umspeichern ---
-                do k = 1, ndL
-                    do j = SI2, NI2
-                        do i = SI1, NI1
-                            buffer3A(i,j,k    ) = phi(i,j,SI3+k-1  )
-                            buffer3A(i,j,k+ndL) = phi(i,j,NI3+k-ndL)
-                        end do
-                    end do
-                end do
-        
-                !--- RHS fuer Schur-Komplement ---
-                do k = 1, dimG
-                    do j = SI2, NI2
-                        do i = SI1, NI1
-                            do kk = 1, 2*ndL
-                                buffer3A(i,j,kk) = buffer3A(i,j,kk) - WW(kk,SI3+k+ndL-1)*phi(i,j,SI3+k+ndL-1)
-                            end do
-                        end do
-                    end do
-                end do
-        
-                !--- Verteilen der RHS fuer Schur-Problem ---
-                call MPI_ALLGATHERv(buffer3A,2*ndl*(N1+1)*(N2+1),MPI_REAL8,buffer3B,recv3,disp3,MPI_REAL8,COMM_BAR3,merror)
-        
-                !--- Loesung des Schur-Komplement-LGS ---
-                do k = 1, ndL
-                    do j = SI2, NI2
-                        do i = SI1, NI1
-                            phi(i,j,SI3+k-1  ) = Schur(k+k0    ,1)*buffer3B(i,j,1)
-                            phi(i,j,NI3+k-ndL) = Schur(k+k0+ndL,1)*buffer3B(i,j,1)
-                            do kk = 2, dimS
-                                phi(i,j,SI3+k-1  ) = phi(i,j,SI3+k-1  ) + Schur(k+k0    ,kk)*buffer3B(i,j,kk)
-                                phi(i,j,NI3+k-ndL) = phi(i,j,NI3+k-ndL) + Schur(k+k0+ndL,kk)*buffer3B(i,j,kk)
-                            end do
-                        end do
-                    end do
-                end do
-        
-                !--- RHS des uebrigen Feldes anpassen ---
-                do k = 1, ndL
-                    do j = SI2, NI2
-                        do i = SI1, NI1
-                            do kk = k, ndL
-                                phi(i,j,SI3+k-1+ndL) = phi(i,j,SI3+k-1+ndL) - ccL(-kk,SI3+k-1+ndL)*phi(i,j,SI3+k-1+ndL-kk)
-                                phi(i,j,NI3-k+1-ndL) = phi(i,j,NI3-k+1-ndL) - ccL( kk,NI3-k+1-ndL)*phi(i,j,NI3-k+1-ndL+kk)
-                            end do
-                        end do
-                    end do
-                end do
-        
-                !--- L^-1*der ---
-                do k = SI3+ndL, NI3-ndL-1
-                    LM = MIN(ndL,NI3-ndL-k)
-                    do j = SI2, NI2
-                        do i = SI1, NI1
-                            do kk = 1, LM
-                                phi(i,j,k+kk) = phi(i,j,k+kk) - ccL_LU(KD+kk,k)*phi(i,j,k)
-                            end do
-                        end do
-                    end do
-                end do
-        
-                !--- U^-1*L^-1*der ---
-                do k = NI3-ndL, SI3+ndL, -1
-                    LM = MAX(SI3+ndL,k-KO)
-                    do j = SI2, NI2
-                        do i = SI1, NI1
-                            phi(i,j,k) = phi(i,j,k) / ccL_LU(KD,k)
-                            do kk = k-1, LM, -1
-                                phi(i,j,kk) = phi(i,j,kk) - ccL_LU(KD+kk-k,k)*phi(i,j,k)
-                            end do
-                        end do
-                    end do
-                end do
-        
-            end if
-            !--------------------------------------------------------------------------------------------------------
-            call exchange2(dir,vel_dir,SE1,SE2,SE3,NE1,NE2,NE3,phi)
-     
-            !--- expliziter Teil ---
-            do k = SE3, NE3
-                do j = SE2, NE2
-                    do i = SE1, NE1
-                        der(i,j,k) = ccR(-ndR,k)*phi(i,j,k-ndR)
-                        do kk = -ndR+1, ndR
-                            der(i,j,k) = der(i,j,k) + ccR(kk,k)*phi(i,j,k+kk)
-                        end do
-                    end do
-                end do
-            end do
-           !--------------------------------------------------------------------------------------------------------
-        end if
-    !===========================================================================================================
-  
-  
-    end subroutine apply_compact_transp
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-    !  subroutine divergence(m,phi,div)
-    !
-    !  implicit none
-    !
-    !  integer, intent(in)    ::  m
-    !
-    !  real   , intent(inout) ::  phi(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-    !  real   , intent(inout) ::  div(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-    !
-    !  integer                ::  i, ii
-    !  integer                ::  j, jj
-    !  integer                ::  k, kk
-    !
-    !
-    !  call exchange(m,m,phi)
-    !
-    !
-    !  !===========================================================================================================
-    !  if (m == 1) then
-    !     !--------------------------------------------------------------------------------------------------------
-    !     if (comp_div_yes) then
-    !        call apply_compact(1,1,S1p,S2p,S3p,N1p,N2p,N3p,N1,ndL,ndR,dimS1,cDu1CL,cDu1CL_LU,cDu1CR,WDu1,SDu1,phi,div)
-    !
-    !        do k = S3p, N3p
-    !           do j = S2p, N2p
-    !!pgi$ unroll = n:8
-    !              do i = S1p, N1p
-    !                 div(i,j,k) = div(i,j,k)*dx1DM(i)
-    !              end do
-    !           end do
-    !        end do
-    !     !--------------------------------------------------------------------------------------------------------
-    !     else
-    !        do k = S3p, N3p
-    !           do j = S2p, N2p
-    !              do i = S1p, N1p
-    !                 div(i,j,k) = cDu1(d1L,i)*phi(i+d1L,j,k)
-    !!pgi$ unroll = n:8
-    !                 do ii = d1L+1, d1U
-    !                    div(i,j,k) = div(i,j,k) + cDu1(ii,i)*phi(i+ii,j,k)
-    !                 end do
-    !              end do
-    !           end do
-    !        end do
-    !     end if
-    !     !--------------------------------------------------------------------------------------------------------
-    !  end if
-    !  !===========================================================================================================
-    !  if (m == 2) then
-    !     !--------------------------------------------------------------------------------------------------------
-    !     if (comp_div_yes) then
-    !        call apply_compact(2,2,S1p,S2p,S3p,N1p,N2p,N3p,N2,ndL,ndR,dimS2,cDv2CL,cDv2CL_LU,cDv2CR,WDv2,SDv2,phi,com)
-    !
-    !        do k = S3p, N3p
-    !           do j = S2p, N2p
-    !!pgi$ unroll = n:8
-    !              do i = S1p, N1p
-    !                 div(i,j,k) = div(i,j,k) + com(i,j,k)*dx2DM(j)
-    !              end do
-    !           end do
-    !        end do
-    !     !--------------------------------------------------------------------------------------------------------
-    !     else
-    !        do k = S3p, N3p
-    !           do j = S2p, N2p
-    !              do i = S1p, N1p
-    !!pgi$ unroll = n:8
-    !                 do jj = d2L, d2U
-    !                    div(i,j,k) = div(i,j,k) + cDv2(jj,j)*phi(i,j+jj,k)
-    !                 end do
-    !              end do
-    !           end do
-    !        end do
-    !     end if
-    !     !--------------------------------------------------------------------------------------------------------
-    !  end if
-    !  !===========================================================================================================
-    !  if (m == 3) then
-    !     !--------------------------------------------------------------------------------------------------------
-    !     if (comp_div_yes) then
-    !        call apply_compact(3,3,S1p,S2p,S3p,N1p,N2p,N3p,N3,ndL,ndR,dimS3,cDw3CL,cDw3CL_LU,cDw3CR,WDw3,SDw3,phi,com)
-    !
-    !        do k = S3p, N3p
-    !           do j = S2p, N2p
-    !!pgi$ unroll = n:8
-    !              do i = S1p, N1p
-    !                 div(i,j,k) = div(i,j,k) + com(i,j,k)*dx3DM(k)
-    !              end do
-    !           end do
-    !        end do
-    !     !--------------------------------------------------------------------------------------------------------
-    !     else
-    !        do k = S3p, N3p
-    !           do j = S2p, N2p
-    !              do i = S1p, N1p
-    !!pgi$ unroll = n:8
-    !                 do kk = d3L, d3U
-    !                    div(i,j,k) = div(i,j,k) + cDw3(kk,k)*phi(i,j,k+kk)
-    !                 end do
-    !              end do
-    !           end do
-    !        end do
-    !     end if
-    !     !--------------------------------------------------------------------------------------------------------
-    !  end if
-    !  !===========================================================================================================
-    !
-    !
-    !  end subroutine divergence
-  
-  
   
   
   
@@ -1024,7 +57,7 @@ contains
     !!    - cDu1, cDv2, cDw3
     !!    - d1L,d2L,d3L
     !!    - d1U,d2U,d3U
-    subroutine divergence2( phiU,phiV,phiW, div ) bind (c,name='OP_div')
+    subroutine OP_div( phiU,phiV,phiW, div ) bind (c,name='OP_div')
   
         implicit none
   
@@ -1038,110 +71,58 @@ contains
         integer                ::  k, kk
   
   
-        !  call exchange(1,1,phiU(b1L,b2L,b3L))
-        !  call exchange(2,2,phiV(b1L,b2L,b3L))
-        !  call exchange(3,3,phiW(b1L,b2L,b3L))
-  
-  
         !===========================================================================================================
-        if (comp_div_yes) then
-            !--------------------------------------------------------------------------------------------------------
-            call apply_compact(1,1,S1p,S2p,S3p,N1p,N2p,N3p,N1,ndL,ndR,dimS1,cDu1CL,cDu1CL_LU,cDu1CR,WDu1,SDu1,phiU(b1L,b2L,b3L),div)
-     
+        !--------------------------------------------------------------------------------------------------------
+        if (dimens == 3) then
+        
             do k = S3p, N3p
                 do j = S2p, N2p
-                    !pgi$ unroll = n:8
                     do i = S1p, N1p
-                        div(i,j,k) = div(i,j,k)*dx1DM(i)
-                    end do
-                end do
-            end do
-            !--------------------------------------------------------------------------------------------------------
-            call apply_compact(2,2,S1p,S2p,S3p,N1p,N2p,N3p,N2,ndL,ndR,dimS2,cDv2CL,cDv2CL_LU,cDv2CR,WDv2,SDv2,phiV(b1L,b2L,b3L),com)
-     
-            do k = S3p, N3p
-                do j = S2p, N2p
-                    !pgi$ unroll = n:8
-                    do i = S1p, N1p
-                        div(i,j,k) = div(i,j,k) + com(i,j,k)*dx2DM(j)
-                    end do
-                end do
-            end do
-            !--------------------------------------------------------------------------------------------------------
-            if (dimens == 3) then
-     
-                call apply_compact(3,3,S1p,S2p,S3p,N1p,N2p,N3p,N3,ndL,ndR,dimS3,cDw3CL,cDw3CL_LU,cDw3CR,WDw3,SDw3,phiW(b1L,b2L,b3L),com)
-     
-                do k = S3p, N3p
-                    do j = S2p, N2p
+                        div(i,j,k) = cDu1(d1L,i)*phiU(i+d1L,j,k)
                         !pgi$ unroll = n:8
-                        do i = S1p, N1p
-                            div(i,j,k) = div(i,j,k) + com(i,j,k)*dx3DM(k)
+                        do ii = d1L+1, d1U
+                            div(i,j,k) = div(i,j,k) + cDu1(ii,i)*phiU(i+ii,j,k)
+                        end do
+                        !pgi$ unroll = n:8
+                        do jj = d2L, d2U
+                            div(i,j,k) = div(i,j,k) + cDv2(jj,j)*phiV(i,j+jj,k)
+                        end do
+                        !pgi$ unroll = n:8
+                        do kk = d3L, d3U
+                            div(i,j,k) = div(i,j,k) + cDw3(kk,k)*phiW(i,j,k+kk)
                         end do
                     end do
                 end do
-     
-            end if
-           !--------------------------------------------------------------------------------------------------------
-     
-        !===========================================================================================================
+            end do
+        
+        !--------------------------------------------------------------------------------------------------------
         else
-            !--------------------------------------------------------------------------------------------------------
-            if (dimens == 3) then
         
-                do k = S3p, N3p
-                    do j = S2p, N2p
-                        do i = S1p, N1p
-                            div(i,j,k) = cDu1(d1L,i)*phiU(i+d1L,j,k)
-                            !pgi$ unroll = n:8
-                            do ii = d1L+1, d1U
-                                div(i,j,k) = div(i,j,k) + cDu1(ii,i)*phiU(i+ii,j,k)
-                            end do
-                            !pgi$ unroll = n:8
-                            do jj = d2L, d2U
-                                div(i,j,k) = div(i,j,k) + cDv2(jj,j)*phiV(i,j+jj,k)
-                            end do
-                            !pgi$ unroll = n:8
-                            do kk = d3L, d3U
-                                div(i,j,k) = div(i,j,k) + cDw3(kk,k)*phiW(i,j,k+kk)
-                            end do
+            do k = S3p, N3p
+                do j = S2p, N2p
+                    do i = S1p, N1p
+                        div(i,j,k) = cDu1(d1L,i)*phiU(i+d1L,j,k)
+                        !pgi$ unroll = n:8
+                        do ii = d1L+1, d1U
+                            div(i,j,k) = div(i,j,k) + cDu1(ii,i)*phiU(i+ii,j,k)
+                        end do
+                        !pgi$ unroll = n:8
+                        do jj = d2L, d2U
+                            div(i,j,k) = div(i,j,k) + cDv2(jj,j)*phiV(i,j+jj,k)
                         end do
                     end do
                 end do
+            end do
         
-            !--------------------------------------------------------------------------------------------------------
-            else
-        
-                do k = S3p, N3p
-                    do j = S2p, N2p
-                        do i = S1p, N1p
-                            div(i,j,k) = cDu1(d1L,i)*phiU(i+d1L,j,k)
-                            !pgi$ unroll = n:8
-                            do ii = d1L+1, d1U
-                                div(i,j,k) = div(i,j,k) + cDu1(ii,i)*phiU(i+ii,j,k)
-                            end do
-                            !pgi$ unroll = n:8
-                            do jj = d2L, d2U
-                                div(i,j,k) = div(i,j,k) + cDv2(jj,j)*phiV(i,j+jj,k)
-                            end do
-                        end do
-                    end do
-                end do
-        
-            end if
-           !--------------------------------------------------------------------------------------------------------
         end if
+           !--------------------------------------------------------------------------------------------------------
     !===========================================================================================================
-  
-  
-    end subroutine divergence2
-  
-  
-  
-  
-  
-  
-  
+
+
+    end subroutine OP_div
+
+
+
     !  subroutine divergence_transp(m,phi,div)
     !
     !  implicit none
@@ -1259,11 +240,11 @@ contains
     !
     !
     !  end subroutine divergence_transp
-  
-  
-  
-  
-  
+
+
+
+
+
     !> \brief applies gradient
     !! to phi, which is a scalar field, and stores the grad in a vector field, the
     !! boundary condtions for Dirichlet and Neumann are set to zero
@@ -1285,56 +266,40 @@ contains
     !!    - g1L,g2L,g3L
     !!    - g1U,g2U,g3U
     !! maybe extract setting BC to zero
-    subroutine gradient(m,phi,grad) bind(c,name='OP_grad')
-  
+    subroutine OP_grad(m,phi,grad) bind(c,name='OP_grad')
+
         implicit none
-  
+
         integer(c_int), intent(in   ) ::  m
-  
+
         real(c_double), intent(inout) ::  phi (b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
         real(c_double), intent(  out) ::  grad(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-  
+
         integer                ::  i, ii
         integer                ::  j, jj
         integer                ::  k, kk
-  
-  
+
+
         !----------------------------------------------------------------------------------------------------------!
         ! Anmerkungen: - Randbedingungen könnten nur zum Teil in die Stencils eingebaut werden, so dass sich das   !
         !                vermutlich nicht wirklich lohnt.                                                          !
         !----------------------------------------------------------------------------------------------------------!
-  
-  
         !===========================================================================================================
         if (m == 1) then
             !--------------------------------------------------------------------------------------------------------
-            if (comp_grad_yes) then
-                call apply_compact(1,0,S11,S21,S31,N11,N21,N31,N1,ndL,ndR,dimS1,cGp1CL,cGp1CL_LU,cGp1CR,WGp1,SGp1,phi,grad)
-        
-                do k = S31, N31
-                    do j = S21, N21
+            do k = S31, N31
+                do j = S21, N21
+                    do i = S11, N11
+                        grad(i,j,k) = cGp1(g1L,i)*phi(i+g1L,j,k)
                         !pgi$ unroll = n:8
-                        do i = S11, N11
-                            grad(i,j,k) = grad(i,j,k)*dx1GM(i)
+                        do ii = g1L+1, g1U
+                            grad(i,j,k) = grad(i,j,k) + cGp1(ii,i)*phi(i+ii,j,k)
                         end do
                     end do
                 end do
+            end do
             !--------------------------------------------------------------------------------------------------------
-            else
-                do k = S31, N31
-                    do j = S21, N21
-                        do i = S11, N11
-                            grad(i,j,k) = cGp1(g1L,i)*phi(i+g1L,j,k)
-                            !pgi$ unroll = n:8
-                            do ii = g1L+1, g1U
-                                grad(i,j,k) = grad(i,j,k) + cGp1(ii,i)*phi(i+ii,j,k)
-                            end do
-                        end do
-                    end do
-                end do
-            end if
-            !--------------------------------------------------------------------------------------------------------
-     
+
             !--- Randbedingungen ------------------------------------------------------------------------------------
             if (BC_1L > 0) grad(0 ,S21B:N21B,S31B:N31B) = 0.
             if (BC_1U > 0) grad(N1,S21B:N21B,S31B:N31B) = 0.
@@ -1342,36 +307,22 @@ contains
             if (BC_2U > 0) grad(S11B:N11B,N2,S31B:N31B) = 0.
             if (BC_3L > 0) grad(S11B:N11B,S21B:N21B,1 ) = 0.
             if (BC_3U > 0) grad(S11B:N11B,S21B:N21B,N3) = 0.
-     
+
         end if
         !===========================================================================================================
         if (m == 2) then
             !--------------------------------------------------------------------------------------------------------
-            if (comp_grad_yes) then
-                call apply_compact(2,0,S12,S22,S32,N12,N22,N32,N2,ndL,ndR,dimS2,cGp2CL,cGp2CL_LU,cGp2CR,WGp2,SGp2,phi,grad)
-        
-                do k = S32, N32
-                    do j = S22, N22
+            do k = S32, N32
+                do j = S22, N22
+                    do i = S12, N12
+                        grad(i,j,k) = cGp2(g2L,j)*phi(i,j+g2L,k)
                         !pgi$ unroll = n:8
-                        do i = S12, N12
-                            grad(i,j,k) = grad(i,j,k)*dx2GM(j)
+                        do jj = g2L+1, g2U
+                            grad(i,j,k) = grad(i,j,k) + cGp2(jj,j)*phi(i,j+jj,k)
                         end do
                     end do
                 end do
-            !--------------------------------------------------------------------------------------------------------
-            else
-                do k = S32, N32
-                    do j = S22, N22
-                        do i = S12, N12
-                            grad(i,j,k) = cGp2(g2L,j)*phi(i,j+g2L,k)
-                            !pgi$ unroll = n:8
-                            do jj = g2L+1, g2U
-                                grad(i,j,k) = grad(i,j,k) + cGp2(jj,j)*phi(i,j+jj,k)
-                            end do
-                        end do
-                    end do
-                end do
-            end if
+            end do
             !--------------------------------------------------------------------------------------------------------
      
             !--- Randbedingungen ------------------------------------------------------------------------------------
@@ -1381,38 +332,24 @@ contains
             if (BC_2U > 0) grad(S12B:N12B,N2,S32B:N32B) = 0.
             if (BC_3L > 0) grad(S12B:N12B,S22B:N22B,1 ) = 0.
             if (BC_3U > 0) grad(S12B:N12B,S22B:N22B,N3) = 0.
-     
+
         end if
         !===========================================================================================================
         if (m == 3) then
             !--------------------------------------------------------------------------------------------------------
-            if (comp_grad_yes) then
-                call apply_compact(3,0,S13,S23,S33,N13,N23,N33,N3,ndL,ndR,dimS3,cGp3CL,cGp3CL_LU,cGp3CR,WGp3,SGp3,phi,grad)
-        
-                do k = S33, N33
-                    do j = S23, N23
+            do k = S33, N33
+                do j = S23, N23
+                    do i = S13, N13
+                        grad(i,j,k) = cGp3(g3L,k)*phi(i,j,k+g3L)
                         !pgi$ unroll = n:8
-                        do i = S13, N13
-                            grad(i,j,k) = grad(i,j,k)*dx3GM(k)
+                        do kk = g3L+1, g3U
+                            grad(i,j,k) = grad(i,j,k) + cGp3(kk,k)*phi(i,j,k+kk)
                         end do
                     end do
                 end do
+            end do
             !--------------------------------------------------------------------------------------------------------
-            else
-                do k = S33, N33
-                    do j = S23, N23
-                        do i = S13, N13
-                            grad(i,j,k) = cGp3(g3L,k)*phi(i,j,k+g3L)
-                            !pgi$ unroll = n:8
-                            do kk = g3L+1, g3U
-                                grad(i,j,k) = grad(i,j,k) + cGp3(kk,k)*phi(i,j,k+kk)
-                            end do
-                        end do
-                    end do
-                end do
-            end if
-            !--------------------------------------------------------------------------------------------------------
-     
+
             !--- Randbedingungen ------------------------------------------------------------------------------------
             if (BC_1L > 0) grad(1 ,S23B:N23B,S33B:N33B) = 0.
             if (BC_1U > 0) grad(N1,S23B:N23B,S33B:N33B) = 0.
@@ -1420,19 +357,14 @@ contains
             if (BC_2U > 0) grad(S13B:N13B,N2,S33B:N33B) = 0.
             if (BC_3L > 0) grad(S13B:N13B,S23B:N23B,0 ) = 0.
             if (BC_3U > 0) grad(S13B:N13B,S23B:N23B,N3) = 0.
-     
+
         end if
     !===========================================================================================================
-  
-  
-    end subroutine gradient
-  
-  
-  
-  
-  
-  
-  
+
+
+    end subroutine OP_grad
+
+
     !  subroutine gradient_transp(m,phi,grad)
     !
     !  implicit none
@@ -1606,9 +538,9 @@ contains
     !
     !
     !  end subroutine gradient_transp
-  
-  
-  
+
+
+
   
   
   
@@ -1621,7 +553,7 @@ contains
     !! \param[in] mulL factor which coresponds to the factor of the laplace part
     !! \param[inout] phi
     !! \param[out] Lap
-    subroutine Helmholtz( m, mulI, mulL, phi, Lap ) bind (c,name='OP_helmholtz')
+    subroutine OP_helmholtz( m, mulI, mulL, phi, Lap ) bind (c,name='OP_helmholtz')
   
         implicit none
   
@@ -1638,214 +570,96 @@ contains
   
         real                   ::  dd1
   
-  
-  
+
+
         !===========================================================================================================
         if (m == 1) then
             !--------------------------------------------------------------------------------------------------------
-            if (comp_visc_yes) then
-                if (dimens == 3) then
-                    call apply_compact(1,1,S11,S21,S31,N11,N21,N31,N1,ndL,ndR,dimS1,cu1CL ,cu1CL_LU ,cu1CR ,Wu1 ,Su1 ,phi,com)
-                    call apply_compact(1,1,S11,S21,S31,N11,N21,N31,N1,ndL,ndR,dimS1,cu11CL,cu11CL_LU,cu11CR,Wu11,Su11,phi,dig)
-                    do k = S31, N31
-                        do j = S21, N21
+            if (dimens == 3) then
+                do k = S31, N31
+                    do j = S21, N21
+                        do i = S11, N11
+                            dd1 = cu11(b1L,i)*phi(i+b1L,j,k)
                             !pgi$ unroll = n:8
-                            do i = S11, N11
-                                Lap(i,j,k) = dig(i,j,k)*dx1uM(i)**2 + com(i,j,k)*ddx1uM(i)
+                            do ii = b1L+1, b1U
+                                dd1 = dd1 + cu11(ii,i)*phi(i+ii,j,k)
                             end do
+                            !pgi$ unroll = n:8
+                            do jj = b2L, b2U
+                                dd1 = dd1 + cp22(jj,j)*phi(i,j+jj,k)
+                            end do
+                            !pgi$ unroll = n:8
+                            do kk = b3L, b3U
+                                dd1 = dd1 + cp33(kk,k)*phi(i,j,k+kk)
+                            end do
+                            Lap(i,j,k) = mulI*phi(i,j,k) - mulL*dd1
                         end do
                     end do
-                    call apply_compact(2,0,S11,S21,S31,N11,N21,N31,N2,ndL,ndR,dimS2,cp2CL ,cp2CL_LU ,cp2CR ,Wp2 ,Sp2 ,phi,com)
-                    call apply_compact(2,0,S11,S21,S31,N11,N21,N31,N2,ndL,ndR,dimS2,cp22CL,cp22CL_LU,cp22CR,Wp22,Sp22,phi,dig)
-                    do k = S31, N31
-                        do j = S21, N21
-                            !pgi$ unroll = n:8
-                            do i = S11, N11
-                                Lap(i,j,k) = Lap(i,j,k) + dig(i,j,k)*dx2pM(j)**2 + com(i,j,k)*ddx2pM(j)
-                            end do
-                        end do
-                    end do
-                    call apply_compact(3,0,S11,S21,S31,N11,N21,N31,N3,ndL,ndR,dimS3,cp3CL ,cp3CL_LU ,cp3CR ,Wp3 ,Sp3 ,phi,com)
-                    call apply_compact(3,0,S11,S21,S31,N11,N21,N31,N3,ndL,ndR,dimS3,cp33CL,cp33CL_LU,cp33CR,Wp33,Sp33,phi,dig)
-                    do k = S31, N31
-                        do j = S21, N21
-                            !pgi$ unroll = n:8
-                            do i = S11, N11
-                                Lap(i,j,k) = Lap(i,j,k) + dig(i,j,k)*dx3pM(k)**2 + com(i,j,k)*ddx3pM(k)
-                                Lap(i,j,k) = mulI*phi(i,j,k) - mulL*Lap(i,j,k)
-                            end do
-                        end do
-                    end do
-                else
-                    call apply_compact(1,1,S11,S21,S31,N11,N21,N31,N1,ndL,ndR,dimS1,cu1CL ,cu1CL_LU ,cu1CR ,Wu1 ,Su1 ,phi,com)
-                    call apply_compact(1,1,S11,S21,S31,N11,N21,N31,N1,ndL,ndR,dimS1,cu11CL,cu11CL_LU,cu11CR,Wu11,Su11,phi,dig)
-                    do k = S31, N31
-                        do j = S21, N21
-                            !pgi$ unroll = n:8
-                            do i = S11, N11
-                                Lap(i,j,k) = dig(i,j,k)*dx1uM(i)**2 + com(i,j,k)*ddx1uM(i)
-                            end do
-                        end do
-                    end do
-                    call apply_compact(2,0,S11,S21,S31,N11,N21,N31,N2,ndL,ndR,dimS2,cp2CL ,cp2CL_LU ,cp2CR ,Wp2 ,Sp2 ,phi,com)
-                    call apply_compact(2,0,S11,S21,S31,N11,N21,N31,N2,ndL,ndR,dimS2,cp22CL,cp22CL_LU,cp22CR,Wp22,Sp22,phi,dig)
-                    do k = S31, N31
-                        do j = S21, N21
-                            !pgi$ unroll = n:8
-                            do i = S11, N11
-                                Lap(i,j,k) = Lap(i,j,k) + dig(i,j,k)*dx2pM(j)**2 + com(i,j,k)*ddx2pM(j)
-                                Lap(i,j,k) = mulI*phi(i,j,k) - mulL*Lap(i,j,k)
-                            end do
-                        end do
-                    end do
-                end if
-            !--------------------------------------------------------------------------------------------------------
+                end do
             else
-                if (dimens == 3) then
-                    do k = S31, N31
-                        do j = S21, N21
-                            do i = S11, N11
-                                dd1 = cu11(b1L,i)*phi(i+b1L,j,k)
-                                !pgi$ unroll = n:8
-                                do ii = b1L+1, b1U
-                                    dd1 = dd1 + cu11(ii,i)*phi(i+ii,j,k)
-                                end do
-                                !pgi$ unroll = n:8
-                                do jj = b2L, b2U
-                                    dd1 = dd1 + cp22(jj,j)*phi(i,j+jj,k)
-                                end do
-                                !pgi$ unroll = n:8
-                                do kk = b3L, b3U
-                                    dd1 = dd1 + cp33(kk,k)*phi(i,j,k+kk)
-                                end do
-                                Lap(i,j,k) = mulI*phi(i,j,k) - mulL*dd1
+                do k = S31, N31
+                    do j = S21, N21
+                        do i = S11, N11
+                            dd1 = cu11(b1L,i)*phi(i+b1L,j,k)
+                            !pgi$ unroll = n:8
+                            do ii = b1L+1, b1U
+                                dd1 = dd1 + cu11(ii,i)*phi(i+ii,j,k)
                             end do
+                            !pgi$ unroll = n:8
+                            do jj = b2L, b2U
+                                dd1 = dd1 + cp22(jj,j)*phi(i,j+jj,k)
+                            end do
+                            Lap(i,j,k) = mulI*phi(i,j,k) - mulL*dd1
                         end do
                     end do
-                else
-                    do k = S31, N31
-                        do j = S21, N21
-                            do i = S11, N11
-                                dd1 = cu11(b1L,i)*phi(i+b1L,j,k)
-                                !pgi$ unroll = n:8
-                                do ii = b1L+1, b1U
-                                    dd1 = dd1 + cu11(ii,i)*phi(i+ii,j,k)
-                                end do
-                                !pgi$ unroll = n:8
-                                do jj = b2L, b2U
-                                    dd1 = dd1 + cp22(jj,j)*phi(i,j+jj,k)
-                                end do
-                                Lap(i,j,k) = mulI*phi(i,j,k) - mulL*dd1
-                            end do
-                        end do
-                    end do
-                end if
+                end do
             end if
-           !--------------------------------------------------------------------------------------------------------
         end if
+           !--------------------------------------------------------------------------------------------------------
         !===========================================================================================================
         if (m == 2) then
             !--------------------------------------------------------------------------------------------------------
-            if (comp_visc_yes) then
-                if (dimens == 3) then
-                    call apply_compact(1,0,S12,S22,S32,N12,N22,N32,N1,ndL,ndR,dimS1,cp1CL ,cp1CL_LU ,cp1CR ,Wp1 ,Sp1 ,phi,com)
-                    call apply_compact(1,0,S12,S22,S32,N12,N22,N32,N1,ndL,ndR,dimS1,cp11CL,cp11CL_LU,cp11CR,Wp11,Sp11,phi,dig)
-                    do k = S32, N32
-                        do j = S22, N22
+            if (dimens == 3) then
+                do k = S32, N32
+                    do j = S22, N22
+                        do i = S12, N12
+                            dd1 = cp11(b1L,i)*phi(i+b1L,j,k)
                             !pgi$ unroll = n:8
-                            do i = S12, N12
-                                Lap(i,j,k) = dig(i,j,k)*dx1pM(i)**2 + com(i,j,k)*ddx1pM(i)
+                            do ii = b1L+1, b1U
+                                dd1 = dd1 + cp11(ii,i)*phi(i+ii,j,k)
                             end do
+                            !pgi$ unroll = n:8
+                            do jj = b2L, b2U
+                                dd1 = dd1 + cv22(jj,j)*phi(i,j+jj,k)
+                            end do
+                            !pgi$ unroll = n:8
+                            do kk = b3L, b3U
+                                dd1 = dd1 + cp33(kk,k)*phi(i,j,k+kk)
+                            end do
+                            Lap(i,j,k) = mulI*phi(i,j,k) - mulL*dd1
                         end do
                     end do
-                    call apply_compact(2,2,S12,S22,S32,N12,N22,N32,N2,ndL,ndR,dimS2,cv2CL ,cv2CL_LU ,cv2CR ,Wv2 ,Sv2 ,phi,com)
-                    call apply_compact(2,2,S12,S22,S32,N12,N22,N32,N2,ndL,ndR,dimS2,cv22CL,cv22CL_LU,cv22CR,Wv22,Sv22,phi,dig)
-                    do k = S32, N32
-                        do j = S22, N22
-                            !pgi$ unroll = n:8
-                            do i = S12, N12
-                                Lap(i,j,k) = Lap(i,j,k) + dig(i,j,k)*dx2vM(j)**2 + com(i,j,k)*ddx2vM(j)
-                            end do
-                        end do
-                    end do
-                    call apply_compact(3,0,S12,S22,S32,N12,N22,N32,N3,ndL,ndR,dimS3,cp3CL ,cp3CL_LU ,cp3CR ,Wp3 ,Sp3 ,phi,com)
-                    call apply_compact(3,0,S12,S22,S32,N12,N22,N32,N3,ndL,ndR,dimS3,cp33CL,cp33CL_LU,cp33CR,Wp33,Sp33,phi,dig)
-                    do k = S32, N32
-                        do j = S22, N22
-                            !pgi$ unroll = n:8
-                            do i = S12, N12
-                                Lap(i,j,k) = Lap(i,j,k) + dig(i,j,k)*dx3pM(k)**2 + com(i,j,k)*ddx3pM(k)
-                                Lap(i,j,k) = mulI*phi(i,j,k) - mulL*Lap(i,j,k)
-                            end do
-                        end do
-                    end do
-                else
-                    call apply_compact(1,0,S12,S22,S32,N12,N22,N32,N1,ndL,ndR,dimS1,cp1CL ,cp1CL_LU ,cp1CR ,Wp1 ,Sp1 ,phi,com)
-                    call apply_compact(1,0,S12,S22,S32,N12,N22,N32,N1,ndL,ndR,dimS1,cp11CL,cp11CL_LU,cp11CR,Wp11,Sp11,phi,dig)
-                    do k = S32, N32
-                        do j = S22, N22
-                            !pgi$ unroll = n:8
-                            do i = S12, N12
-                                Lap(i,j,k) = dig(i,j,k)*dx1pM(i)**2 + com(i,j,k)*ddx1pM(i)
-                            end do
-                        end do
-                    end do
-                    call apply_compact(2,2,S12,S22,S32,N12,N22,N32,N2,ndL,ndR,dimS2,cv2CL ,cv2CL_LU ,cv2CR ,Wv2 ,Sv2 ,phi,com)
-                    call apply_compact(2,2,S12,S22,S32,N12,N22,N32,N2,ndL,ndR,dimS2,cv22CL,cv22CL_LU,cv22CR,Wv22,Sv22,phi,dig)
-                    do k = S32, N32
-                        do j = S22, N22
-                            !pgi$ unroll = n:8
-                            do i = S12, N12
-                                Lap(i,j,k) = Lap(i,j,k) + dig(i,j,k)*dx2vM(j)**2 + com(i,j,k)*ddx2vM(j)
-                                Lap(i,j,k) = mulI*phi(i,j,k) - mulL*Lap(i,j,k)
-                            end do
-                        end do
-                    end do
-                end if
-            !--------------------------------------------------------------------------------------------------------
+                end do
             else
-                if (dimens == 3) then
-                    do k = S32, N32
-                        do j = S22, N22
-                            do i = S12, N12
-                                dd1 = cp11(b1L,i)*phi(i+b1L,j,k)
-                                !pgi$ unroll = n:8
-                                do ii = b1L+1, b1U
-                                    dd1 = dd1 + cp11(ii,i)*phi(i+ii,j,k)
-                                end do
-                                !pgi$ unroll = n:8
-                                do jj = b2L, b2U
-                                    dd1 = dd1 + cv22(jj,j)*phi(i,j+jj,k)
-                                end do
-                                !pgi$ unroll = n:8
-                                do kk = b3L, b3U
-                                    dd1 = dd1 + cp33(kk,k)*phi(i,j,k+kk)
-                                end do
-                                Lap(i,j,k) = mulI*phi(i,j,k) - mulL*dd1
+                do k = S32, N32
+                    do j = S22, N22
+                        do i = S12, N12
+                            dd1 = cp11(b1L,i)*phi(i+b1L,j,k)
+                            !pgi$ unroll = n:8
+                            do ii = b1L+1, b1U
+                                dd1 = dd1 + cp11(ii,i)*phi(i+ii,j,k)
                             end do
+                            !pgi$ unroll = n:8
+                            do jj = b2L, b2U
+                                dd1 = dd1 + cv22(jj,j)*phi(i,j+jj,k)
+                            end do
+                            Lap(i,j,k) = mulI*phi(i,j,k) - mulL*dd1
                         end do
                     end do
-                else
-                    do k = S32, N32
-                        do j = S22, N22
-                            do i = S12, N12
-                                dd1 = cp11(b1L,i)*phi(i+b1L,j,k)
-                                !pgi$ unroll = n:8
-                                do ii = b1L+1, b1U
-                                    dd1 = dd1 + cp11(ii,i)*phi(i+ii,j,k)
-                                end do
-                                !pgi$ unroll = n:8
-                                do jj = b2L, b2U
-                                    dd1 = dd1 + cv22(jj,j)*phi(i,j+jj,k)
-                                end do
-                                Lap(i,j,k) = mulI*phi(i,j,k) - mulL*dd1
-                            end do
-                        end do
-                    end do
-                end if
+                end do
             end if
-           !--------------------------------------------------------------------------------------------------------
         end if
+           !--------------------------------------------------------------------------------------------------------
         !===========================================================================================================
         if (m == 3 .and. dimens == 3) then
             !--------------------------------------------------------------------------------------------------------
@@ -1909,7 +723,7 @@ contains
     !===========================================================================================================
   
   
-    end subroutine Helmholtz
+    end subroutine OP_helmholtz
   
   
      !>  \brief computes \f$ \mathrm{lap_m = mulI phi_m - mulL \Delta phi_m} \f$
@@ -2117,7 +931,7 @@ contains
         integer                ::  ii
         integer                ::  jj
         integer                ::  kk
-!        integer                ::  counter
+        !        integer                ::  counter
 
 
         rowEntries = 1;
@@ -2471,7 +1285,7 @@ contains
 
         real                   ::  dd1
 
-!        write(*,*) cu11(:,4)
+        !        write(*,*) cu11(:,4)
 
         !===========================================================================================================
         if (m == 1) then

@@ -13,9 +13,7 @@ contains
 
         implicit none
 
-        integer               ::  i!, ii!, iimax
-        !        integer               ::  j, jj, jjmax
-        !        integer               ::  k, kk, kkmax
+        integer               ::  i
 
         integer(c_int), intent(in)  :: S
         integer(c_int), intent(in)  :: N
@@ -409,6 +407,7 @@ contains
 
 
     !> \todo maybe use SS and NN with boundary instead should be more cleaner
+    !! \todo make restriction proper in 3d not just in 1d!!!
     subroutine MG_restrictV(    &
         dimens,                 &
         dir,                    &

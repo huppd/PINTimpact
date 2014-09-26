@@ -253,6 +253,8 @@ TEUCHOS_UNIT_TEST( MultiGrid, Interpolator3D ) {
 
     pl->set("nx", 33 );
     pl->set("ny", 33 );
+//    pl->set("nx", 17 );
+//    pl->set("ny", 17 );
     pl->set("nz", 2 );
 
     pl->set("nf", 0 );
@@ -262,21 +264,26 @@ TEUCHOS_UNIT_TEST( MultiGrid, Interpolator3D ) {
     // processor grid size
     pl->set("npx", 2 );
     pl->set("npy", 2 );
+//    pl->set("npx", 1 );
+//    pl->set("npy", 1 );
     pl->set("npz", 1 );
     pl->set("npf", 1 );
 
     auto space = Pimpact::createSpace<S,O,3>( pl );
 
-    space->print();
+//    space->print();
 
-    Pimpact::EField type[] = {Pimpact::EField::S, Pimpact::EField::U, Pimpact::EField::V };
+    Pimpact::EField type[] = { Pimpact::EField::S, Pimpact::EField::U, Pimpact::EField::V };
 
-    for( int i=0; i<1; ++i ) {
+    for( int i=1; i<2; ++i ) {
 //    {
 //      int i = ftype;
       std::cout << "type: " << i << "\n";
 
       auto asdf = Pimpact::createMultiGrid<SF,CS>( space, 2, type[i] );
+
+      asdf->getSpace(0)->print();
+      asdf->getSpace(1)->print();
 
       auto fieldf = asdf->getField( 0 );
       auto fieldc = asdf->getField( 1 );
@@ -286,14 +293,20 @@ TEUCHOS_UNIT_TEST( MultiGrid, Interpolator3D ) {
 
       op->print();
       // the zero test
-      fieldc->init( 0. );
+
       fieldf->init( 1. );
+      fieldf->write(7);
+
+      fieldc->init( 1. );
+      fieldf->init( 0. );
 
       op->apply( *fieldc, *fieldf );
 
       TEST_FLOATING_EQUALITY( 0., fieldf->norm(), errorTolSlack );
       TEST_FLOATING_EQUALITY( 0., fieldc->norm(), errorTolSlack );
-      fieldf->write();
+      fieldf->write(i);
+//      fieldc->print();
+      fieldf->print();
 
 
       // the random test
@@ -320,12 +333,6 @@ TEUCHOS_UNIT_TEST( MultiGrid, Interpolator3D ) {
 
       op->apply( *fieldc, *fieldf );
 
-////      if( asdf->getSpace(0)->rankST()==0) {
-////        std::cout << "\nproc x-coord:\t" << asdf->getSpace(0)->getProcGrid()->getIB(0) << "\n";
-////        std::cout << "\nproc y-coord:\t" << asdf->getSpace(0)->getProcGrid()->getIB(1) << "\n";
-////        std::cout << "\nproc z=coord:\t" << asdf->getSpace(0)->getProcGrid()->getIB(2) << "\n";
-////        fieldc->print();
-////      }
 
       TEST_FLOATING_EQUALITY( 1., fieldf->norm(Belos::InfNorm), errorTolSlack );
 

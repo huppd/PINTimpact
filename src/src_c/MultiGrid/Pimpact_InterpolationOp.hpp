@@ -22,21 +22,24 @@ void MG_getCIS(
     const int& N,
     const int& bL,
     const int& bU,
-    const int& SS,
-    const int& NN,
     const double* const xs,
     double* const cI );
 
 void MG_getCIV(
-    const int& N,
-    const int& bL,
-    const int& bU,
-    const int& SS,
-    const int& NN,
+    const int& Nc,
+    const int& bLc,
+    const int& bUc,
+    const int& SSc,
+    const int& NNc,
     const int& BC_L,
     const int& BC_U,
-    const double* const xs,
-    const double* const xv,
+    const int& Nf,
+    const int& bLf,
+    const int& bUf,
+    const int& SSf,
+//    const int& NNf,
+    const double* const xc,
+    const double* const xf,
     double* const cIV );
 
 void MG_interpolate(
@@ -44,15 +47,11 @@ void MG_interpolate(
     const int* const Nc,
     const int* const bLc,
     const int* const bUc,
-    const int* const SSc,
-    const int* const NNc,
     const int* const BCL,
     const int* const BCU,
     const int* const Nf,
     const int* const bLf,
     const int* const bUf,
-    const int* const SSf,
-    const int* const NNf,
     const double* const cI1,
     const double* const cI2,
     const double* const cI3,
@@ -72,7 +71,12 @@ void MG_interpolateV(
     const int* const bUc,
     const int* const SSc,
     const int* const NNc,
+    const int* const BCL,
+    const int* const BCU,
     const double* const cIV,
+    const double* const cI1,
+    const double* const cI2,
+    const double* const cI3,
     const double* const phif,
     double* const phic );
 
@@ -103,29 +107,33 @@ public:
         spaceC_(spaceC),spaceF_(spaceF) {
 
     for( int i=0; i<3; ++i ) {
-//      cIS_[i] = new Scalar[ 2*(spaceC_->eIndB(EField::S)[i]-spaceC_->sIndB(EField::S)[i]+1) ];
-      cIS_[i] = new Scalar[ 2*(spaceC_->nLoc(i)-spaceC_->sIndB(EField::S)[i]+1) ];
+
+      cIS_[i] = new Scalar[ 2*( spaceC_->nLoc(i)-1+1 ) ];
       MG_getCIS(
           spaceC_->nLoc(i),
           spaceC_->bl(i),
           spaceC_->bu(i),
-          spaceC_->sIndB(EField::S)[i],
-//          spaceC_->eIndB(EField::S)[i],
-          spaceC_->nLoc(i),
           spaceC_->getCoordinatesLocal()->getX( i, EField::S ),
           cIS_[i] );
-      cIV_[i] = new Scalar[ 2*( spaceC_->eIndB(i)[i]-spaceC_->sIndB(i)[i]+1 ) ];
-//      MG_getCIV(
-//          spaceC_->getGridSizeLocal()->get(i),
-//          spaceC_->bl(i),
-//          spaceC_->bu(i),
-//          spaceC_->sIndB(i)[i],
-//          spaceC_->eIndB(i)[i],
-//          spaceC_->getDomain()->getBCLocal()->getBCL(i),
-//          spaceC_->getDomain()->getBCLocal()->getBCU(i),
-//          spaceC_->getCoordinatesLocal()->getX( i, EField::S ),
-//          spaceC_->getCoordinatesLocal()->getX( i, i ),
-//          cIV_[i] );
+
+      cIV_[i] = new Scalar[ 4*( spaceC_->nLoc(i)-0+1 ) ];
+//      if( i<spaceC_->dim() )
+        MG_getCIV(
+            spaceC_->nLoc(i),
+            spaceC_->bl(i),
+            spaceC_->bu(i),
+            spaceC_->sInd(i)[i],
+            spaceC_->eInd(i)[i],
+            spaceC_->getDomain()->getBCLocal()->getBCL(i),
+            spaceC_->getDomain()->getBCLocal()->getBCU(i),
+            spaceF_->nLoc(i),
+            spaceF_->bl(i),
+            spaceF_->bu(i),
+            spaceF_->sInd(i)[i],
+//            spaceF_->eIndB(i)[i],
+            spaceC_->getCoordinatesLocal()->getX( i, i ),
+            spaceF_->getCoordinatesLocal()->getX( i, i ),
+            cIV_[i] );
     }
 
   }
@@ -147,15 +155,15 @@ public:
           x.nLoc(),
           x.bl(),
           x.bu(),
-          x.sInd(),
-          x.eInd(),
+//          x.sInd(),
+//          x.eInd(),
           x.bcL(),
           x.bcU(),
           y.nLoc(),
           y.bl(),
           y.bu(),
-          y.sInd(),
-          y.eInd(),
+//          y.sInd(),
+//          y.eInd(),
           cIS_[0],
           cIS_[1],
           cIS_[2],
@@ -165,28 +173,33 @@ public:
     }
     else {
       int dir = x.fType_;
-      x.exchange( dir );
+      x.exchange();
 //      for( int i=0; i<3; ++i ) {
 //          std::cout << "SSc["<<i<<"]: " <<  y.sIndB()[i] << "\n";
 //          std::cout << "NNc["<<i<<"]: " <<  y.eIndB()[i] << "\n";
 //      }
-//      MG_interpolateV(
-//          x.dim(),
-//          dir+1,
-//          x.nLoc(),
-//          x.bl(),
-//          x.bu(),
-//          x.sIndB(),
-//          x.eIndB(),
-//          y.nLoc(),
-//          y.bl(),
-//          y.bu(),
-//          y.sIndB(),
-//          y.eIndB(),
-//          cIV_[dir],
-//          x.s_,
-//          y.s_ );
-//      y.changed();
+      MG_interpolateV(
+          x.dim(),
+          dir+1,
+          x.nLoc(),
+          x.bl(),
+          x.bu(),
+          x.sInd(),
+          x.eInd(),
+          y.nLoc(),
+          y.bl(),
+          y.bu(),
+          y.sInd(),
+          y.eInd(),
+          y.bcL(),
+          y.bcU(),
+          cIV_[dir],
+          cIS_[0],
+          cIS_[1],
+          cIS_[2],
+          x.s_,
+          y.s_ );
+      y.changed();
     }
   }
 
@@ -197,12 +210,13 @@ public:
         out << cIS_[j][i] << "\t";
     }
     out << "\n";
-//    for( int j=0; j<3; ++j ) {
-//      out << "\n Vector dir: " << j << ":\n";
-//      for( int i=0; i<2*( spaceC_->eIndB(j)[j]-spaceC_->sIndB(j)[j]+1 ); ++i)
-//        out << cIV_[j][i] << "\t";
-//    }
-//    out << "\n";
+    for( int j=0; j<3; ++j ) {
+      out << "\n Vector dir: " << j << ":\n";
+//      for( int i=0; i<4*( spaceC_->eIndB(j)[j]-spaceC_->sIndB(j)[j]+1 ); ++i)
+      for( int i=0; i<4*( spaceC_->nLoc(j)-0+1 ); ++i)
+        out << cIV_[j][i] << "\t";
+    }
+    out << "\n";
   }
 
 }; // end of class InterpolationOp
