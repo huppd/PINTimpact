@@ -60,10 +60,10 @@ public:
 
 /// \relates ModeOpWrap
 template<class Operator>
-Teuchos::RCP< ModeOpWrap<Operator> > createModeOpWrap( const Teuchos::RCP<Operator>& op=Teuchos::null) {
-  if( Teuchos::is_null(op) )
-    return( Teuchos::rcp( new ModeOpWrap<Operator>( Teuchos::rcp( new Operator() ) ) ) );
-  else
+Teuchos::RCP< ModeOpWrap<Operator> > createModeOpWrap( const Teuchos::RCP<Operator>& op/*=Teuchos::null*/) {
+//  if( Teuchos::is_null(op) )
+//    return( Teuchos::rcp( new ModeOpWrap<Operator>( Teuchos::rcp( new Operator() ) ) ) );
+//  else
     return( Teuchos::rcp( new ModeOpWrap<Operator>( op ) ) );
 }
 

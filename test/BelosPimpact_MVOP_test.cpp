@@ -207,7 +207,7 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, HelmholtzMV ) {
 
   auto mv = Pimpact::createMultiField<VF>( *field, 10 );
 
-  auto opm = Pimpact::createMultiOpWrap<Op>();
+  auto opm = Pimpact::createMultiOpWrap<Op>( Pimpact::createHelmholtzOp(space) );
 
   auto op = Pimpact::createOperatorBase<MVF,MuOp>( opm );
 
@@ -228,8 +228,8 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, DtLapOp ) {
   typedef Pimpact::ModeField<VF> MVF;
   typedef Pimpact::MultiField<MVF> BVF;
 
-  typedef Pimpact::DtLapOp<S,O> Op;
-  typedef Pimpact::MultiOpWrap<Op> MuOp;
+//  typedef Pimpact::DtLapOp<S,O> Op;
+//  typedef Pimpact::MultiOpWrap<Op> MuOp;
   typedef Pimpact::OperatorBase<BVF> OpBase;
 
 
@@ -242,7 +242,7 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, DtLapOp ) {
 
   auto mv = Pimpact::createMultiField<MVF>( *field, 10 );
 
-  auto op = Pimpact::createOperatorBase<BVF,MuOp>();
+  auto op = Pimpact::createMultiOperatorBase<BVF>( Pimpact::createDtLapOp(space) );
 
   Teuchos::RCP<Belos::OutputManager<S> > myOM = Teuchos::rcp(
       new Belos::OutputManager<S>(Belos::Warnings+Belos::TimingDetails,rcp(&out,false)) );
@@ -322,7 +322,7 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, CompoundStokes ) {
   auto op =
       Pimpact::createOperatorBase<MV,Op>(
           Pimpact::createMultiOpWrap(
-              Pimpact::createCompoundStokes( 1., 0., 1., velc ) ) );
+              Pimpact::createCompoundStokes( space, 1., 0., 1., velc ) ) );
 
   Teuchos::RCP<Belos::OutputManager<S> > MyOM =
       Teuchos::rcp( new Belos::OutputManager<S>(Belos::Warnings,rcp(&out,false)) );

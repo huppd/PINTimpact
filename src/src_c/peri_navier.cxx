@@ -359,7 +359,7 @@ int main(int argi, char** argv ) {
     if(0==rank) std::cout << "\n\t--- Nf: "<<x->getConstFieldPtr(0)->getConstVFieldPtr()->getNumberModes()<<"\tdof: "<<x->getLength(true)<<"\t---\n";
 
 
-    auto dtl = Pimpact::createMultiDtHelmholtz<S,O>( alpha2/re, 1./re );
+    auto dtl = Pimpact::createMultiDtHelmholtz<S,O>( space, alpha2/re, 1./re );
 
     Teuchos::RCP<Fo> forcingOp = Teuchos::null;
     Teuchos::RCP<Fo> forcingm1Op = Teuchos::null;
@@ -393,7 +393,7 @@ int main(int argi, char** argv ) {
                 Pimpact::createGradOp<S,O>()
             )
         );
-    auto opV2S = Pimpact::createMultiHarmonicOpWrap< Pimpact::Div<S,O> >();
+    auto opV2S = Pimpact::createMultiHarmonicOpWrap< Pimpact::Div<S,O> >( Pimpact::createDivOp<S,O>() );
 
     auto op =
         Pimpact::createMultiOperatorBase<MF>(

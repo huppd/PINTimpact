@@ -34,7 +34,7 @@ protected:
 
 public:
 
-  TimeOpWrap():op_( Teuchos::rcp( new Operator() ) ) {};
+//  TimeOpWrap():op_( Teuchos::rcp( new Operator() ) ) {};
 
   TimeOpWrap(
       const Teuchos::RCP<Operator>& op,
@@ -94,11 +94,11 @@ public:
 /// \relates TimeOpWrap
 template< class Operator, bool CNY=false >
 Teuchos::RCP< TimeOpWrap<Operator,CNY> > createTimeOpWrap(
-    const Teuchos::RCP<Operator>& op=Teuchos::null,
+    const Teuchos::RCP<Operator>& op/*=Teuchos::null*/,
     const Teuchos::RCP<typename Operator::RangeFieldT>& temp=Teuchos::null ) {
-  if( Teuchos::is_null(op) )
-    return( Teuchos::rcp( new TimeOpWrap<Operator,CNY>( Teuchos::rcp(new Operator()), temp ) ) );
-  else
+//  if( Teuchos::is_null(op) )
+//    return( Teuchos::rcp( new TimeOpWrap<Operator,CNY>( Teuchos::rcp(new Operator()), temp ) ) );
+//  else
     return( Teuchos::rcp( new TimeOpWrap<Operator,CNY>( op, temp ) ) );
 }
 

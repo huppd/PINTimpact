@@ -31,15 +31,15 @@ Teuchos::RCP< MultiOpWrap<ModeOpWrap<Op> > > createMultiModeOpWrap( const Teucho
 /// \relates MultiOpWrap
 /// \relates OperatorBase
 template<class MF, class Op>
-Teuchos::RCP< OperatorBase<MF> > createMultiOperatorBase( const Teuchos::RCP<Op>& op=Teuchos::null ) {
-  if( op.is_null() )
-    return(
-        Teuchos::rcp_dynamic_cast< OperatorBase<MF> >(
-            Teuchos::rcp(
-                new OperatorPimpl< MF, MultiOpWrap<Op> >(
-                    createMultiOpWrap<Op>( Teuchos::rcp( new Op() ) ) ) ) )
-    );
-  else
+Teuchos::RCP< OperatorBase<MF> > createMultiOperatorBase( const Teuchos::RCP<Op>& op/*=Teuchos::null*/ ) {
+//  if( op.is_null() )
+//    return(
+//        Teuchos::rcp_dynamic_cast< OperatorBase<MF> >(
+//            Teuchos::rcp(
+//                new OperatorPimpl< MF, MultiOpWrap<Op> >(
+//                    createMultiOpWrap<Op>( Teuchos::rcp( new Op() ) ) ) ) )
+//    );
+//  else
     return(
         Teuchos::rcp_dynamic_cast< OperatorBase<MF> >(
             Teuchos::rcp( new OperatorPimpl< MF, MultiOpWrap<Op> >( createMultiOpWrap<Op>(op) ) ) )
@@ -51,17 +51,17 @@ Teuchos::RCP< OperatorBase<MF> > createMultiOperatorBase( const Teuchos::RCP<Op>
 /// \relates MultiOpWrap
 /// \relates ModeOpWrap
 template<class MF, class Op>
-Teuchos::RCP<OperatorBase<MF> > createMultiModeOperatorBase( const Teuchos::RCP<Op>& op=Teuchos::null ) {
-  if( Teuchos::is_null(op) )
-    return(
-        Teuchos::rcp_dynamic_cast< OperatorBase<MF> >(
-            Teuchos::rcp(
-                new OperatorPimpl< MF, MultiOpWrap<ModeOpWrap<Op> > >(
-                    createMultiOpWrap(
-                        createModeOpWrap(
-                            Teuchos::rcp( new Op() ) ) )
-                        ) ) ) );
-  else
+Teuchos::RCP<OperatorBase<MF> > createMultiModeOperatorBase( const Teuchos::RCP<Op>& op/*=Teuchos::null*/ ) {
+//  if( Teuchos::is_null(op) )
+//    return(
+//        Teuchos::rcp_dynamic_cast< OperatorBase<MF> >(
+//            Teuchos::rcp(
+//                new OperatorPimpl< MF, MultiOpWrap<ModeOpWrap<Op> > >(
+//                    createMultiOpWrap(
+//                        createModeOpWrap(
+//                            Teuchos::rcp( new Op() ) ) )
+//                        ) ) ) );
+//  else
     return(
         Teuchos::rcp_dynamic_cast< OperatorBase<MF> >(
             Teuchos::rcp(

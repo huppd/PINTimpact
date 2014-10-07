@@ -5,7 +5,7 @@
 module cmod_VectorField
 
     use iso_c_binding
-!    use mpi
+    !    use mpi
 
     use mod_vars!, only: x1p,x1u,x2p,x2v,x3p,L1,L2,L3,M1,M2,M3
 
@@ -43,9 +43,9 @@ contains
 
         dis = SQRT( (x0-x)**2 + (y0-y)**2 )
 
-!        IF( dis <= R) THEN
-!            dis = 1.
-!        ELSE
+        !        IF( dis <= R) THEN
+        !            dis = 1.
+        !        ELSE
         IF( Abs(dis-R) < dr) THEN
             dis = ABS(1./( 1. + EXP(1./(-ABS(dis-R)/dr) + 1./(1.-Abs(dis-R)/dr) ) ));
         !    dis = (1-(dis-R)/dr)
@@ -211,282 +211,87 @@ contains
 
     !> \brief init vector field with 2d Poiseuille flow in x-direction
     !! \f[ u(y) = y*( L_y - y )*4/L_y/L_y \f]
-    subroutine cinit_2DPoiseuilleX(   &
-        N,      &
-        S1U,S2U,S3U, N1U,N2U,N3U,       &
-        S1V,S2V,S3V, N1V,N2V,N3V,       &
-        S1W,S2W,S3W, N1W,N2W,N3W,       &
-        b1L,b2L,b3L, b1U,b2U,b3U,       &
-        phiU,phiV,phiW ) bind ( c, name='VF_init_2DPoiseuilleX' )
+    subroutine VF_init_2DPoiseuilleX(   &
+        N,                              &
+        bL,bU,                          &
+        SS,NN,                          &
+        L2,                             &
+        x2,                             &
+        phi ) bind ( c, name='VF_init_2DPoiseuilleX' )
 
         implicit none
 
         integer(c_int), intent(in)    ::  N(3)
 
-        integer(c_int), intent(in)    ::  S1U
-        integer(c_int), intent(in)    ::  S2U
-        integer(c_int), intent(in)    ::  S3U
+        integer(c_int), intent(in)     :: bL(3)
+        integer(c_int), intent(in)     :: bU(3)
 
-        integer(c_int), intent(in)    ::  N1U
-        integer(c_int), intent(in)    ::  N2U
-        integer(c_int), intent(in)    ::  N3U
+        integer(c_int), intent(in)     :: SS(3)
+        integer(c_int), intent(in)     :: NN(3)
 
-        integer(c_int), intent(in)    ::  S1V
-        integer(c_int), intent(in)    ::  S2V
-        integer(c_int), intent(in)    ::  S3V
+        real(c_double), intent(in)     :: L2
 
-        integer(c_int), intent(in)    ::  N1V
-        integer(c_int), intent(in)    ::  N2V
-        integer(c_int), intent(in)    ::  N3V
+        real(c_double), intent(in)     :: x2( bL(2):(N(2)+bU(2)) )
 
-        integer(c_int), intent(in)    ::  S1W
-        integer(c_int), intent(in)    ::  S2W
-        integer(c_int), intent(in)    ::  S3W
-
-        integer(c_int), intent(in)    ::  N1W
-        integer(c_int), intent(in)    ::  N2W
-        integer(c_int), intent(in)    ::  N3W
-
-        integer(c_int), intent(in)    ::  b1L
-        integer(c_int), intent(in)    ::  b2L
-        integer(c_int), intent(in)    ::  b3L
-
-        integer(c_int), intent(in)    ::  b1U
-        integer(c_int), intent(in)    ::  b2U
-        integer(c_int), intent(in)    ::  b3U
-
-        real(c_double), intent(inout) ::  phiU(b1L:(N(1)+b1U),b2L:(N(2)+b2U),b3L:(N(3)+b3U))
-        real(c_double), intent(inout) ::  phiV(b1L:(N(1)+b1U),b2L:(N(2)+b2U),b3L:(N(3)+b3U))
-        real(c_double), intent(inout) ::  phiW(b1L:(N(1)+b1U),b2L:(N(2)+b2U),b3L:(N(3)+b3U))
+        real(c_double),  intent(out)   :: phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
         integer                ::  i, j, k
 
         !--- initial conditions for velocity ---
-        ! note: - cf. sketch in file "usr_geometry.f90"
-        !
-        !         grid points in the domain and on the boundary
-        !         |         |         |     velocity component
-        !         |         |         |     |
-        ! vel(S1U:N1U,S2U:N2U,S3U:N3U,1)
-        ! vel(S1V:N1V,S2V:N2V,S3V:N3V,2)
-        ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
-        !
-        !  phiU = 0.
-        !  phiV = 0.
-        !  phiW = 0.
-        do k = S3U, N3U
-            do j = S2U, N2U
-                do i = S1U, N1U
-                    phiU(i,j,k) = x2p(j)*( L2 - x2p(j) )*4/L2/L2
+        do k = SS(3), NN(3)
+            do j = SS(2), NN(2)
+                !pgi$ unroll = n:8
+                do i = SS(1), NN(1)
+                    phi(i,j,k) = x2(j)*( L2 - x2(j) )*4/L2/L2
                 end do
             end do
         end do
 
-        do k = S3V, N3V
-            do j = S2V, N2V
-                do i = S1V, N1V
-                    phiV(i,j,k) = 0
-                end do
-            end do
-        end do
-
-        do k = S3W, N3W
-            do j = S2W, N2W
-                do i = S1W, N1W
-                    phiW(i,j,k) = 0.0
-                end do
-            end do
-        end do
-
-    end subroutine cinit_2DPoiseuilleX
+    end subroutine VF_init_2DPoiseuilleX
 
 
     !> \brief init vector field with 2d Poiseuille flow in y-direction
     !! \f[ v(x) = x*( L_x - x )*4/L_x/L_x \f]
-    subroutine cinit_2DPoiseuilleY(   &
-        !    N1,N2,N3,                       &
-        N,                       &
-        S1U,S2U,S3U, N1U,N2U,N3U,       &
-        S1V,S2V,S3V, N1V,N2V,N3V,       &
-        S1W,S2W,S3W, N1W,N2W,N3W,       &
-        b1L,b2L,b3L, b1U,b2U,b3U,       &
-        phiU,phiV,phiW ) bind ( c, name='VF_init_2DPoiseuilleY' )
+    subroutine VF_init_2DPoiseuilleY(   &
+        N,                              &
+        bL,bU,                          &
+        SS,NN,                          &
+        L1,                             &
+        x1,                             &
+        phi ) bind ( c, name='VF_init_2DPoiseuilleY' )
 
         implicit none
 
-        !  integer(c_int), intent(in)    ::  N1
-        !  integer(c_int), intent(in)    ::  N2
-        !  integer(c_int), intent(in)    ::  N3
         integer(c_int), intent(in)    ::  N(3)
 
-        integer(c_int), intent(in)    ::  S1U
-        integer(c_int), intent(in)    ::  S2U
-        integer(c_int), intent(in)    ::  S3U
+        integer(c_int), intent(in)     :: bL(3)
+        integer(c_int), intent(in)     :: bU(3)
 
-        integer(c_int), intent(in)    ::  N1U
-        integer(c_int), intent(in)    ::  N2U
-        integer(c_int), intent(in)    ::  N3U
+        integer(c_int), intent(in)     :: SS(3)
+        integer(c_int), intent(in)     :: NN(3)
 
-        integer(c_int), intent(in)    ::  S1V
-        integer(c_int), intent(in)    ::  S2V
-        integer(c_int), intent(in)    ::  S3V
+        real(c_double), intent(in)     :: L1
 
-        integer(c_int), intent(in)    ::  N1V
-        integer(c_int), intent(in)    ::  N2V
-        integer(c_int), intent(in)    ::  N3V
+        real(c_double), intent(in)     :: x1( bL(1):(N(1)+bU(1)) )
 
-        integer(c_int), intent(in)    ::  S1W
-        integer(c_int), intent(in)    ::  S2W
-        integer(c_int), intent(in)    ::  S3W
-
-        integer(c_int), intent(in)    ::  N1W
-        integer(c_int), intent(in)    ::  N2W
-        integer(c_int), intent(in)    ::  N3W
-
-        integer(c_int), intent(in)    ::  b1L
-        integer(c_int), intent(in)    ::  b2L
-        integer(c_int), intent(in)    ::  b3L
-
-        integer(c_int), intent(in)    ::  b1U
-        integer(c_int), intent(in)    ::  b2U
-        integer(c_int), intent(in)    ::  b3U
-
-        real(c_double), intent(inout) ::  phiU(b1L:(N(1)+b1U),b2L:(N(2)+b2U),b3L:(N(3)+b3U))
-        real(c_double), intent(inout) ::  phiV(b1L:(N(1)+b1U),b2L:(N(2)+b2U),b3L:(N(3)+b3U))
-        real(c_double), intent(inout) ::  phiW(b1L:(N(1)+b1U),b2L:(N(2)+b2U),b3L:(N(3)+b3U))
+        real(c_double),  intent(out)   :: phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
         integer                ::  i, j, k
 
         !--- initial conditions for velocity ---
-        ! note: - cf. sketch in file "usr_geometry.f90"
-        !
-        !         grid points in the domain and on the boundary
-        !         |         |         |     velocity component
-        !         |         |         |     |
-        ! vel(S1U:N1U,S2U:N2U,S3U:N3U,1)
-        ! vel(S1V:N1V,S2V:N2V,S3V:N3V,2)
-        ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
-
-        do k = S3U, N3U
-            do j = S2U, N2U
-                do i = S1U, N1U
-                    phiU(i,j,k) = 0.
+        do k = SS(3), NN(3)
+            do j = SS(2), NN(2)
+                !pgi$ unroll = n:8
+                do i = SS(1), NN(1)
+                    phi(i,j,k) = x1(i)*( L1 - x1(i) )*4/L1/L1
                 end do
             end do
         end do
 
-        do k = S3V, N3V
-            do j = S2V, N2V
-                do i = S1V, N1V
-                    phiV(i,j,k) = x1p(i)*( L1 - x1p(i) )*4/L1/L1
-                end do
-            end do
-        end do
-
-        do k = S3W, N3W
-            do j = S2W, N2W
-                do i = S1W, N1W
-                    phiW(i,j,k) = 0.0
-                end do
-            end do
-        end do
-
-    end subroutine cinit_2DPoiseuilleY
+    end subroutine VF_init_2DPoiseuilleY
 
 
-    !> \brief init vector field with a zero flow
-    !! \f[ u=v=0 \f]
-    subroutine cinit_zero(            &
-        !    N1,N2,N3,                       &
-        N,  &
-        S1U,S2U,S3U, N1U,N2U,N3U,       &
-        S1V,S2V,S3V, N1V,N2V,N3V,       &
-        S1W,S2W,S3W, N1W,N2W,N3W,       &
-        b1L,b2L,b3L, b1U,b2U,b3U,       &
-        phiU,phiV,phiW ) bind ( c, name='VF_init_Zero' )
 
-        implicit none
-
-        !  integer(c_int), intent(in)    ::  N1
-        !  integer(c_int), intent(in)    ::  N2
-        !  integer(c_int), intent(in)    ::  N3
-        integer(c_int), intent(in)    ::  N(3)
-
-
-        integer(c_int), intent(in)    ::  S1U
-        integer(c_int), intent(in)    ::  S2U
-        integer(c_int), intent(in)    ::  S3U
-
-        integer(c_int), intent(in)    ::  N1U
-        integer(c_int), intent(in)    ::  N2U
-        integer(c_int), intent(in)    ::  N3U
-
-        integer(c_int), intent(in)    ::  S1V
-        integer(c_int), intent(in)    ::  S2V
-        integer(c_int), intent(in)    ::  S3V
-
-        integer(c_int), intent(in)    ::  N1V
-        integer(c_int), intent(in)    ::  N2V
-        integer(c_int), intent(in)    ::  N3V
-
-        integer(c_int), intent(in)    ::  S1W
-        integer(c_int), intent(in)    ::  S2W
-        integer(c_int), intent(in)    ::  S3W
-
-        integer(c_int), intent(in)    ::  N1W
-        integer(c_int), intent(in)    ::  N2W
-        integer(c_int), intent(in)    ::  N3W
-
-
-        integer(c_int), intent(in)    ::  b1L
-        integer(c_int), intent(in)    ::  b2L
-        integer(c_int), intent(in)    ::  b3L
-
-        integer(c_int), intent(in)    ::  b1U
-        integer(c_int), intent(in)    ::  b2U
-        integer(c_int), intent(in)    ::  b3U
-
-        real(c_double), intent(inout) ::  phiU(b1L:(N(1)+b1U),b2L:(N(2)+b2U),b3L:(N(3)+b3U))
-        real(c_double), intent(inout) ::  phiV(b1L:(N(1)+b1U),b2L:(N(2)+b2U),b3L:(N(3)+b3U))
-        real(c_double), intent(inout) ::  phiW(b1L:(N(1)+b1U),b2L:(N(2)+b2U),b3L:(N(3)+b3U))
-
-        integer                ::  i, j, k
-
-        !--- initial conditions for velocity ---
-        ! note: - cf. sketch in file "usr_geometry.f90"
-        !
-        !         grid points in the domain and on the boundary
-        !         |         |         |     velocity component
-        !         |         |         |     |
-        ! vel(S1U:N1U,S2U:N2U,S3U:N3U,1)
-        ! vel(S1V:N1V,S2V:N2V,S3V:N3V,2)
-        ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
-
-        do k = S3U, N3U
-            do j = S2U, N2U
-                do i = S1U, N1U
-                    phiU(i,j,k) = 0.0
-                end do
-            end do
-        end do
-
-        do k = S3V, N3V
-            do j = S2V, N2V
-                do i = S1V, N1V
-                    phiV(i,j,k) = 0.0
-                end do
-            end do
-        end do
-
-        do k = S3W, N3W
-            do j = S2W, N2W
-                do i = S1W, N1W
-                    phiW(i,j,k) = 0.0
-                end do
-            end do
-        end do
-
-    end subroutine cinit_zero
 
 
     !> \brief init vector field with 2d pulsatile flow in x-direction
@@ -1999,8 +1804,8 @@ contains
         do k = S3U, N3U
             do j = S2U, N2U
                 do i = S1U, N1U
-!                    phiU(i,j,k) = min(4*exp( -((x1u(i)-xm)/rad)**2 -((x2p(j)-ym)/rad)**2 ),1.)
-                     phiU(i,j,k) = distance2ib( x1u(i),x2p(j),x3p(k),xm,ym,rad )
+                    !                    phiU(i,j,k) = min(4*exp( -((x1u(i)-xm)/rad)**2 -((x2p(j)-ym)/rad)**2 ),1.)
+                    phiU(i,j,k) = distance2ib( x1u(i),x2p(j),x3p(k),xm,ym,rad )
                 end do
             end do
         end do
@@ -2008,8 +1813,8 @@ contains
         do k = S3V, N3V
             do j = S2V, N2V
                 do i = S1V, N1V
-!                    phiV(i,j,k) = min(4*exp( -((x1p(i)-xm)/rad)**2 -((x2v(j)-ym)/rad)**2 ),1.)
-                     phiV(i,j,k) = distance2ib( x1p(i),x2v(j),x3p(k),xm,ym,rad )
+                    !                    phiV(i,j,k) = min(4*exp( -((x1p(i)-xm)/rad)**2 -((x2v(j)-ym)/rad)**2 ),1.)
+                    phiV(i,j,k) = distance2ib( x1p(i),x2v(j),x3p(k),xm,ym,rad )
                 end do
             end do
         end do

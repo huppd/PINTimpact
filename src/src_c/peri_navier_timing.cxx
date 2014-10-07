@@ -232,12 +232,12 @@ int main(int argi, char** argv ) {
 
     auto opV2V =
         Pimpact::createAdd2Op(
-            Pimpact::createMultiDtHelmholtz<S,O>( alpha2/re, 1./re ),
+            Pimpact::createMultiDtHelmholtz<S,O>( space, alpha2/re, 1./re ),
             Pimpact::createMultiHarmonicNonlinear<S,O>( /*x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone()*/ ),
             x->getConstFieldPtr(0)->getConstVFieldPtr()->clone()
         );
-    auto opS2V = Pimpact::createMultiHarmonicOpWrap< Pimpact::Grad<S,O> >();
-    auto opV2S = Pimpact::createMultiHarmonicOpWrap< Pimpact::Div<S,O> >();
+    auto opS2V = Pimpact::createMultiHarmonicOpWrap< Pimpact::Grad<S,O> >( Pimpact::createGradOp<S,O>() );
+    auto opV2S = Pimpact::createMultiHarmonicOpWrap< Pimpact::Div<S,O> >( Pimpact::createDivOp<S,O>() );
 
     auto op =
         Pimpact::createMultiOperatorBase<MF>(
@@ -251,7 +251,7 @@ int main(int argi, char** argv ) {
         Pimpact::createCompoundOpWrap(
             x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
             Pimpact::createAdd2Op(
-                Pimpact::createMultiDtHelmholtz<S,O>( alpha2/re, 1./re ),
+                Pimpact::createMultiDtHelmholtz<S,O>( space, alpha2/re, 1./re ),
                 Pimpact::createMultiHarmonicNonlinearJacobian<S,O>(
                     //                    x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone(),
                     x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::DeepCopy) ),

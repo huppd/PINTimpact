@@ -65,10 +65,10 @@ public:
 /// \relates OperatorBase
 /// \relates OperatorPimpl
 template<class DF, class Op, class RF=DF>
-Teuchos::RCP<OperatorBase<DF,RF> > createOperatorBase( const Teuchos::RCP<Op>& op=Teuchos::null ) {
-  if( Teuchos::is_null( op ) )
-    return( Teuchos::rcp( new OperatorPimpl<DF,Op,RF>( Teuchos::rcp(new Op()) ) ) );
-  else
+Teuchos::RCP<OperatorBase<DF,RF> > createOperatorBase( const Teuchos::RCP<Op>& op/*=Teuchos::null*/ ) {
+//  if( Teuchos::is_null( op ) )
+//    return( Teuchos::rcp( new OperatorPimpl<DF,Op,RF>( Teuchos::rcp(new Op()) ) ) );
+//  else
     return( Teuchos::rcp( new OperatorPimpl<DF,Op,RF>( op ) ) );
 }
 

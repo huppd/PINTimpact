@@ -116,8 +116,8 @@ createScalarIndexSpace(
   TO3 eInd;
 
   for( int i=0; i<3; ++i ) {
-    sInd[i] = 2            + fS->ls_[i];
-    eInd[i] = nLoc->get(i) + fS->ls_[i];
+    sInd[i] = 2            + fS->getLS(i);
+    eInd[i] = nLoc->get(i) + fS->getLS(i);
     if( bc->BCL_int_[i] > 0 )
       sInd[i] = 1;
     if( bc->BCU_int_[i] > 0 )
@@ -164,14 +164,14 @@ createInnerFieldIndexSpaces(
   TO3 eIndW;
 
   for( int i=0; i<3; ++i ) {
-    sIndU[i] = 2            + fS->ls_[i];
-    eIndU[i] = nLoc->get(i) + fS->ls_[i];
+    sIndU[i] = 2            + fS->getLS(i);
+    eIndU[i] = nLoc->get(i) + fS->getLS(i);
 
-    sIndV[i] = 2            + fS->ls_[i];
-    eIndV[i] = nLoc->get(i) + fS->ls_[i];
+    sIndV[i] = 2            + fS->getLS(i);
+    eIndV[i] = nLoc->get(i) + fS->getLS(i);
 
-    sIndW[i] = 2            + fS->ls_[i];
-    eIndW[i] = nLoc->get(i) + fS->ls_[i];
+    sIndW[i] = 2            + fS->getLS(i);
+    eIndW[i] = nLoc->get(i) + fS->getLS(i);
   }
 
   // Lower index in x-direction
@@ -288,14 +288,14 @@ createFullFieldIndexSpaces(
   TO3 eIndW;
 
   for( int i=0; i<3; ++i ) {
-    sIndU[i] = 2            + fS->ls_[i];
-    eIndU[i] = nLoc->get(i) + fS->ls_[i];
+    sIndU[i] = 2            + fS->getLS(i);
+    eIndU[i] = nLoc->get(i) + fS->getLS(i);
 
-    sIndV[i] = 2            + fS->ls_[i];
-    eIndV[i] = nLoc->get(i) + fS->ls_[i];
+    sIndV[i] = 2            + fS->getLS(i);
+    eIndV[i] = nLoc->get(i) + fS->getLS(i);
 
-    sIndW[i] = 2            + fS->ls_[i];
-    eIndW[i] = nLoc->get(i) + fS->ls_[i];
+    sIndW[i] = 2            + fS->getLS(i);
+    eIndW[i] = nLoc->get(i) + fS->getLS(i);
   }
 
   // Lower index in x-direction

@@ -312,7 +312,7 @@ int main(int argi, char** argv ) {
 
   auto dt  = Pimpact::createDtTimeOp<S,O>( alpha2*idt/re );
   auto lap = Pimpact::createTimeOpWrap< Pimpact::HelmholtzOp<S,O,4>, cny >(
-      Pimpact::createHelmholtzOp<S,O,4>( 0., 1./re ),
+      Pimpact::createHelmholtzOp<S,O,4>( space, 0., 1./re ),
       Pimpact::createVectorField<S,O,4>( space ) );
   auto adv = Pimpact::createTimeOpWrap<Pimpact::Nonlinear<S,O,4>,cny>  (
       Pimpact::createNonlinear<S,O,4>(),
@@ -434,7 +434,7 @@ int main(int argi, char** argv ) {
 
     auto A = Pimpact::createMultiOperatorBase<MVF>(
         Pimpact::createTimeOpWrap(
-            Pimpact::createHelmholtzOp<S,O,4>( alpha2/re/deltat, 1./re ) ) );
+            Pimpact::createHelmholtzOp<S,O,4>( space, alpha2/re/deltat, 1./re ) ) );
 
     auto prob2 =
         Pimpact::createLinearProblem<MVF>(
@@ -578,7 +578,7 @@ int main(int argi, char** argv ) {
 
      auto A = Pimpact::createMultiOperatorBase<MVF>(
          Pimpact::createTimeOpWrap(
-             Pimpact::createHelmholtzOp<S,O,4>( alpha2/re/deltat, 1./re ) ) );
+             Pimpact::createHelmholtzOp<S,O,4>( space, alpha2/re/deltat, 1./re ) ) );
 
      auto prob2 =
          Pimpact::createLinearProblem<MVF>(

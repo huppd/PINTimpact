@@ -147,7 +147,8 @@ TEUCHOS_UNIT_TEST( TimeFieldVector, all ) {
   field2s->write();
 
 
-  auto op = Pimpact::createTimeOpWrap<Pimpact::HelmholtzOp<S,O,4> >();
+  auto op = Pimpact::createTimeOpWrap<Pimpact::HelmholtzOp<S,O,4> >(
+      Pimpact::createHelmholtzOp<S,O,4>(space ) );
 
   field1->random();
   op->apply( *field1, *field2 );

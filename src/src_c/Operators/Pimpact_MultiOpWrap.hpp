@@ -29,7 +29,7 @@ public:
   typedef MultiField<typename Operator::DomainFieldT> DomainFieldT;
   typedef MultiField<typename Operator::RangeFieldT> RangeFieldT;
 
-  MultiOpWrap():op_( Teuchos::rcp( new Operator() ) ) {};
+//  MultiOpWrap():op_( Teuchos::rcp( new Operator() ) ) {};
   MultiOpWrap( const Teuchos::RCP<Operator>& op ):op_(op) {};
   ~MultiOpWrap() {op_=Teuchos::null;};
 
@@ -61,10 +61,10 @@ public:
 
 /// \relates MultiOpWrap
 template<class Operator>
-Teuchos::RCP< MultiOpWrap<Operator> > createMultiOpWrap( const Teuchos::RCP<Operator>& op=Teuchos::null) {
-  if( Teuchos::is_null(op) )
-    return( Teuchos::rcp( new MultiOpWrap<Operator>( Teuchos::rcp( new Operator() ) ) ) );
-  else
+Teuchos::RCP< MultiOpWrap<Operator> > createMultiOpWrap( const Teuchos::RCP<Operator>& op/*=Teuchos::null*/) {
+//  if( Teuchos::is_null(op) )
+//    return( Teuchos::rcp( new MultiOpWrap<Operator>( Teuchos::rcp( new Operator() ) ) ) );
+//  else
     return( Teuchos::rcp( new MultiOpWrap<Operator>( op ) ) );
 }
 

@@ -105,17 +105,17 @@ public:
 
   const int&      dim()   const { return( domain_->getDomainSize()->getDim() ); }
 
-  const Ordinal* nGlo()        const { return( gridSizeGlobal_->get() ); }
+  const Ordinal* nGlo()        const { return( gridSizeGlobal_->get()  ); }
   const Ordinal& nGlo( int i ) const { return( gridSizeGlobal_->get(i) ); }
 
-  const Ordinal* nLoc()        const { return( gridSizeLocal_->get() ); }
+  const Ordinal* nLoc()        const { return( gridSizeLocal_->get()  ); }
   const Ordinal& nLoc( int i ) const { return( gridSizeLocal_->get(i) ); }
 
-  const Ordinal* bl()         const { return( fieldSpace_->bl_.getRawPtr()   ); }
-  const Ordinal& bl( int i )  const { return( fieldSpace_->bl_[i]   ); }
+  const Ordinal* bl()         const { return( fieldSpace_->getBL()   ); }
+  const Ordinal& bl( int i )  const { return( fieldSpace_->getBL(i)  ); }
 
-  const Ordinal* bu()         const { return( fieldSpace_->bu_.getRawPtr()   ); }
-  const Ordinal& bu( int i )  const { return( fieldSpace_->bu_[i]   ); }
+  const Ordinal* bu()         const { return( fieldSpace_->getBU()   ); }
+  const Ordinal& bu( int i )  const { return( fieldSpace_->getBU(i)  ); }
 
 
   const Ordinal* sInd( int fieldType ) const {
@@ -146,8 +146,10 @@ public:
 
   const Ordinal* procCoordinate() const { return( procGrid_->getIB()  ); }
 
-  const Ordinal* shift() const { return( procGrid_->shift_.getRawPtr()  ); }
+  const Ordinal* getShift()      const { return( procGrid_->shift_.getRawPtr()  ); }
+  const Ordinal& getShift(int i) const { return( procGrid_->shift_[i]  ); }
 
+//  const Ordinal* getNProc()      const { return( procGridSize_->get() ); }
   const Ordinal& getNProc(int i) const { return( procGridSize_->get(i) ); }
 
   Teuchos::RCP<const FieldSpace<Ordinal,dimension> > getFieldSpace() const { return( fieldSpace_ ); }
@@ -348,8 +350,8 @@ Teuchos::RCP< const Space<S,O,d> > createSpace(
       pl->get("dim",2),
       pl->get("Re",1.),
       pl->get("alpha2",1.),
-      pl->get("lx",1.),
-      pl->get("ly",1.),
+      pl->get("lx",2.),
+      pl->get("ly",2.),
       pl->get("lz",1.) );
   domainSize->set_Impact();
 

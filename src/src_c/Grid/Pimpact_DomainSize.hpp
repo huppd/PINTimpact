@@ -79,6 +79,7 @@ public:
   const Scalar* getSize() const { return( domainSize_.getRawPtr() ); }
 
   const Scalar& getSize( int i) const { return( domainSize_[i] ); }
+  const Scalar& getSize( ECoord i) const { return( domainSize_[ (int)i ] ); }
 
   const Scalar* getOrigin() const { return( origin_.getRawPtr() ); }
 

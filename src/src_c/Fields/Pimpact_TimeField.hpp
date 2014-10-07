@@ -352,9 +352,9 @@ public:
 
   void write( int count=0 )  {
     //    for( Iter i=mfs_.begin(); i<mfs_.end(); ++i )
-    //      (*i)->write(count++ + 2.*space_->shift()[3] );
+    //      (*i)->write(count++ + 2.*space_->getShift()[3] );
     for( Iter i=beginI_; i<endI_; ++i )
-      (*i)->write(count++ + space_->shift()[3] );
+      (*i)->write(count++ + space_->getShift()[3] );
   }
 
 
@@ -452,7 +452,7 @@ initVectorTimeField(
 
   auto space = field->getSpace();
 
-  auto offset = space->shift()[3];
+  auto offset = space->getShift()[3];
 
   O i = -1;
   S pi = 4.*std::atan(1.);

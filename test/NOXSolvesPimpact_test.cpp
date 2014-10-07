@@ -540,7 +540,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
       Pimpact::createMultiOpWrap(
           Pimpact::createAdd2Op<Op1,Op2>(
               Pimpact::createNonlinear<S,O>(),
-              Pimpact::createHelmholtzOp<S,O>(0.,eps),
+              Pimpact::createHelmholtzOp<S,O>( space, 0., eps ),
               vel->clone() ) ) );
 
 
@@ -548,7 +548,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
       Pimpact::createMultiOpWrap(
           Pimpact::createAdd2Op<JOp1,JOp2>(
               Pimpact::createNonlinearJacobian<S,O>( vel ),
-              Pimpact::createHelmholtzOp<S,O>(0.,eps),
+              Pimpact::createHelmholtzOp<S,O>( space, 0.,eps),
               vel->clone() ) ) );
 
 

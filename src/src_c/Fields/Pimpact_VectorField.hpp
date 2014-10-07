@@ -372,43 +372,59 @@ public:
   void initField( EFlowProfile flowType = Poiseuille2D_inX, double re=1., double om=1., double px = 1. ) {
     switch( flowType) {
     case ZeroProf :
-      VF_init_Zero(
-          nLoc(),
-          sIndB(0,0), sIndB(1,0), sIndB(2,0),
-          eIndB(0,0), eIndB(1,0), eIndB(2,0),
-          sIndB(0,1), sIndB(1,1), sIndB(2,1),
-          eIndB(0,1), eIndB(1,1), eIndB(2,1),
-          sIndB(0,2), sIndB(1,2), sIndB(2,2),
-          eIndB(0,2), eIndB(1,2), eIndB(2,2),
-          bl(0),   bl(1),   bl(2),
-          bu(0),   bu(1),   bu(2),
-          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
+      for( int i=0; i<dim(); ++i )
+        SF_init(
+            nLoc(),
+            bl(),
+            bu(),
+            sIndB(i),
+            eIndB(i),
+            vec(i),
+            0. );
       break;
     case Poiseuille2D_inX :
-      VF_init_2DPoiseuilleX(
-          nLoc(),
-          sIndB(0,0), sIndB(1,0), sIndB(2,0),
-          eIndB(0,0), eIndB(1,0), eIndB(2,0),
-          sIndB(0,1), sIndB(1,1), sIndB(2,1),
-          eIndB(0,1), eIndB(1,1), eIndB(2,1),
-          sIndB(0,2), sIndB(1,2), sIndB(2,2),
-          eIndB(0,2), eIndB(1,2), eIndB(2,2),
-          bl(0),   bl(1),   bl(2),
-          bu(0),   bu(1),   bu(2),
-          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
+      for( int i=0; i<dim(); ++i )
+        if( U==i )
+          VF_init_2DPoiseuilleX(
+              nLoc(),
+              bl(),
+              bu(),
+              sIndB(i),
+              eIndB(i),
+              space_->getDomain()->getDomainSize()->getSize( Y ),
+              space_->getCoordinatesLocal()->getX(Y,i),
+              vec(i) );
+        else
+          SF_init(
+              nLoc(),
+              bl(),
+              bu(),
+              sIndB(i),
+              eIndB(i),
+              vec(i),
+              0. );
       break;
     case Poiseuille2D_inY :
-      VF_init_2DPoiseuilleY(
-          nLoc(),
-          sIndB(0,0), sIndB(1,0), sIndB(2,0),
-          eIndB(0,0), eIndB(1,0), eIndB(2,0),
-          sIndB(0,1), sIndB(1,1), sIndB(2,1),
-          eIndB(0,1), eIndB(1,1), eIndB(2,1),
-          sIndB(0,2), sIndB(1,2), sIndB(2,2),
-          eIndB(0,2), eIndB(1,2), eIndB(2,2),
-          bl(0),   bl(1),   bl(2),
-          bu(0),   bu(1),   bu(2),
-          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
+      for( int i=0; i<dim(); ++i )
+        if( V==i )
+          VF_init_2DPoiseuilleY(
+              nLoc(),
+              bl(),
+              bu(),
+              sIndB(i),
+              eIndB(i),
+              space_->getDomain()->getDomainSize()->getSize( X ),
+              space_->getCoordinatesLocal()->getX(X,i),
+              vec(i) );
+        else
+          SF_init(
+              nLoc(),
+              bl(),
+              bu(),
+              sIndB(i),
+              eIndB(i),
+              vec(i),
+              0. );
       break;
     case Pulsatile2D_inXC :
       VF_init_2DPulsatileXC(
@@ -709,18 +725,20 @@ public:
 protected:
 
   const Ordinal& nGlo(int i)                 const { return( space_->nGlo()[i] ); }
+  const Ordinal* nGlo()                 const { return( space_->nGlo() ); }
+
   const Ordinal& nLoc(int i)                 const { return( space_->nLoc()[i]) ; }
+  const Ordinal* nLoc()                 const { return( space_->nLoc() ) ; }
 
   const Ordinal& sInd(int i, int fieldType)  const { return( space_->sInd(fieldType)[i] ); }
   const Ordinal& eInd(int i, int fieldType)  const { return( space_->eInd(fieldType)[i] ); }
+
 
   const Ordinal& sIndB(int i, int fieldType) const { return( space_->sIndB(fieldType)[i] ); }
   const Ordinal& eIndB(int i, int fieldType) const { return( space_->eIndB(fieldType)[i] ); }
 
   const Ordinal& bl(int i)                   const { return( space_->bl()[i] ); }
   const Ordinal& bu(int i)                   const { return( space_->bu()[i] ); }
-
-  const Ordinal* nLoc()                      const { return( space_->nLoc() ) ; }
 
   const Ordinal* bl()                   const { return( space_->bl() ); }
   const Ordinal* bu()                   const { return( space_->bu() ); }

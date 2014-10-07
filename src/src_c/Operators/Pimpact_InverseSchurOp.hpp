@@ -41,11 +41,11 @@ public:
   typedef CompoundField<VF,SF>  RangeFieldT;
 
   InverseSchurOp(
-      const Teuchos::RCP<VF> tempv=Teuchos::null,
-      const Teuchos::RCP<SF> temps=Teuchos::null,
-      const Teuchos::RCP<OpV2Vinv>& opV2V=Teuchos::null,
-      const Teuchos::RCP<OpS2V>& opS2V=Teuchos::null,
-      const Teuchos::RCP<OpV2S>& opV2S=Teuchos::null,
+      const Teuchos::RCP<VF> tempv/*=Teuchos::null*/,
+      const Teuchos::RCP<SF> temps/*=Teuchos::null*/,
+      const Teuchos::RCP<OpV2Vinv>& opV2V/*=Teuchos::null*/,
+      const Teuchos::RCP<OpS2V>& opS2V/*=Teuchos::null*/,
+      const Teuchos::RCP<OpV2S>& opV2S/*=Teuchos::null*/,
       const Teuchos::RCP<Teuchos::ParameterList>& para=Teuchos::null):
         tempv_(tempv),
         temps_(temps),
@@ -53,9 +53,9 @@ public:
         opS2V_(opS2V),
         opV2S_(opV2S) {
 
-    if( opV2Vinv_.is_null() ) opV2Vinv_ = Teuchos::rcp( new OpV2Vinv() );
-    if( opS2V_.is_null() )    opS2V_ = Teuchos::rcp( new OpS2V() );
-    if( opV2S_.is_null() )    opV2S_ = Teuchos::rcp( new OpV2S() );
+//    if( opV2Vinv_.is_null() ) opV2Vinv_ = Teuchos::rcp( new OpV2Vinv() );
+//    if( opS2V_.is_null() )    opS2V_ = Teuchos::rcp( new OpS2V() );
+//    if( opV2S_.is_null() )    opV2S_ = Teuchos::rcp( new OpV2S() );
 
     auto opSchur =
         Pimpact::createOperatorBase< MultiField<SF> >(

@@ -90,7 +90,7 @@ contains
 
         real(c_double), intent(in)    :: xf( bLf:(Nf+bUf) )
 
-        real(c_double), intent(inout) :: cIV( 1:2,SSf:NNf)
+        real(c_double), intent(inout) :: cIV( -1:2, 0:Nc )
 
         integer(c_int)                ::  i, ic, dd
         real(c_double)                ::  Dx1a, Dx12
@@ -116,8 +116,8 @@ contains
         dd = (Nf-1)/(Nc-1)
 
 
-        do i = SSf, NNf
-            ic = (i-SSf)/dd + SSc
+        do ic = 0, Nc
+            i = (ic-SSc)*dd + SSf
 
             Dx1a = xc(ic)-xf(i -1)
             Dx12 = xc(ic)-xc(ic-1)
@@ -382,13 +382,13 @@ contains
             dd(i) = ( Nf(i)-1 )/( Nc(i)-1 )
 
             if( 0 < BCL(i) ) then
-                S(i) = SSf(i)
+                S(i) = 0
             else
                 S(i) = SSf(i)
             end if
 
             if( 0 < BCU(i) ) then
-                N(i) = NNf(i)
+                N(i) = NNf(i)+1
             else
                 N(i) = NNf(i)+1
             end if
@@ -396,11 +396,8 @@ contains
         end do
         S(dir) = SSf(dir)
 
-        !pgi$ unroll = n:8
-        !        phif( SSf(1):NNf(1), SSf(2):NNf(2), SSf(3):NNf(3) ) = 0.
 
         if( 1==dir ) then
-            !            do k = SSf(3)+1, NNf(3)-1, dd(3)
             do k = SSf(3), NNf(3)
                 kc = k/dd(3)
                 !                if( 2==dimens )
@@ -409,59 +406,11 @@ contains
                     jc = ( j )/dd(2)
                     do i = S(1), N(1)
                         ic = ( i )/dd(1)
-                        phif(i,j,k) = cIV(1,ic)*phic(ic,jc,kc)+cIV(2,ic+1)*phic(ic+1,jc,kc)
-!                        phif(i,j,k) = 0.5*phic(ic,jc,kc)+0.5*phic(ic+1,jc,kc)
+!                        phif(i,j,k) = cIV(1,ic)*phic(ic,jc,kc)+cIV(2,ic+1)*phic(ic+1,jc,kc)
+                        phif(i,j,k) = 0.5*phic(ic,jc,kc)+0.5*phic(ic+1,jc,kc)
                     end do
                 end do
             end do
-            !            do k = 0, Nc(3)
-            !                kc = (k-SSc(3))*dd(3) + SSf(3)
-            !!                if( 2==dimens )
-            !kc = k
-            !                do jc = 1, Nc(2)
-            !                    j = ( jc-1 )*dd(2)+1
-            !                    do ic = 0, Nc(1)
-            !                        i = ( ic-1 )*dd(1)+1
-            !                        do l=-1,2
-            !                            phif(i+l,j,k) = phif(i+l,j,k) + cIV(l,ic)*phic(ic,jc,kc)
-            !                        end do
-            !                    end do
-            !                end do
-            !            end do
-            !            do k = SSc(3), NNNc(3)
-            !                kc = (k-SSc(3))*dd(3) + SSf(3)
-            !                if( 2==dimens ) kc = k
-            !                do jc = SSc(2),NNNc(2)
-            !                    j = ( jc-SSc(2) )*dd(2) + SSf(2) + 1
-            !                    do ic = SSc(1),NNNc(1)
-            !                        i = ( ic-SSc(1) )*dd(1) + SSf(1)
-            !                        do l=-1,2
-            !                            phif(i+l,j,k) = phif(i+l,j,k) + cIV(l,ic)*phic(ic,jc,kc)
-            !                        end do
-            !                    end do
-            !                end do
-            !            end do
-
-            !            if( dd(3) /= 1 ) then ! TEST!!! in 2D wird hier doppelte Arbeit geleistet! (NNf(3) == 2??)
-            !                do k = SSf(3), NNf(3)
-            !                    kc = ( k-SSf(3) )/dd(3) + SSc(3)
-            !                    do j = SSf(2), NNf(2), dd(2)
-            !                        jc = ( j-SSf(2) )/dd(2) + SSc(2)
-            !                        !pgi$ unroll = n:8
-            !                        do i = SSf(1), NNf(1)
-            !                            phif(i,j,k) = cI3(1,kc)*phif(i,j,k-1) + cI3(2,kc)*phif(i,j,k+1)
-            !                        end do
-            !                    end do
-            !                end do
-
-            !               ! dirty hack
-            !               if( BCL(1) > 0 ) then
-            !                   phif( SSf(1):NNf(1),SSf(2)::NNf(2),SSf(3) ) = phif( SSf(1):NNf(1),SSf(2):NNf(2),SSf(3)+1 )
-            !               end if
-            !               if( BCU(1) > 0 ) then
-            !                   phif( SSf(1):NNf(1),SSf(2)::NNf(2),NNf(3) ) = phif( SSf(1):NNf(1),SSf(2):NNf(2),NNf(3)-1 )
-            !               end if
-            !           end if
 
             if( dd(2) /= 1 ) then ! TEST!!! in 2D wird hier doppelte Arbeit geleistet! (NNf(3) == 2??)
 
@@ -475,14 +424,15 @@ contains
                     end do
                 end do
 
-                ! dirty hack
-                if( BCL(2) > 0 ) then
-!                    phif( SSf(1):NNf(1),SSf(2)+1,SSf(3):NNf(3) ) = phif( SSf(1):NNf(1),SSf(2)+2,SSf(3):NNf(3) )
-                    phif( SSf(1):NNf(1),SSf(2),SSf(3):NNf(3) ) = phif( SSf(1):NNf(1),SSf(2)+1,SSf(3):NNf(3) )
-                end if
-                if( BCU(2) > 0 ) then
-                    phif( SSf(1):NNf(1),NNf(2),SSf(3):NNf(3) ) = phif( SSf(1):NNf(1),NNf(2)-1,SSf(3):NNf(3) )
-                end if
+!                ! dirty hack
+!                if( BCL(2) > 0 ) then
+!                    phif( SSf(1):NNf(1),SSf(2),SSf(3):NNf(3) ) = phif( SSf(1):NNf(1),SSf(2)+1,SSf(3):NNf(3) )
+!!                    phif( SSf(1):NNf(1),SSf(2),SSf(3):NNf(3) ) = phif( SSf(1):NNf(1),SSf(2)+1,SSf(3):NNf(3) )
+!!                    phif( SSf(1):NNf(1),SSf(2),SSf(3):NNf(3) ) = 2
+!                end if
+!                if( BCU(2) > 0 ) then
+!                    phif( SSf(1):NNf(1),NNf(2),SSf(3):NNf(3) ) = phif( SSf(1):NNf(1),NNf(2)-1,SSf(3):NNf(3) )
+!                end if
 
             end if
 

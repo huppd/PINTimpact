@@ -226,7 +226,7 @@ int main(int argi, char** argv ) {
 
   // init operators
   auto op = Pimpact::createMultiOperatorBase<MV,Op>(
-      Pimpact::createCompoundStokes( omega, 0., 1./re, velc ) );
+      Pimpact::createCompoundStokes( space, omega, 0., 1./re, velc ) );
 
 
   RCP<ParameterList> solverParams = parameterList();

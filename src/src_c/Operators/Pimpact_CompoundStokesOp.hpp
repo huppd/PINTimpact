@@ -50,8 +50,8 @@ public:
   CompoundStokes():omega_(1.),L_(Teuchos::rcp(new HelmholtzOp<Scalar,Ordinal>( 0., 1. )) ),
     div_(Teuchos::rcp(new Div<Scalar,Ordinal>())), grad_(Teuchos::rcp(new Grad<Scalar,Ordinal>() )), temp_(Teuchos::null) {};
 
-  CompoundStokes( Scalar omega, Scalar mulI, Scalar mulL, Teuchos::RCP<VF> temp ):
-    omega_(omega),L_(Teuchos::rcp( new HelmholtzOp<Scalar,Ordinal>(mulI,mulL) ) ),
+  CompoundStokes( const Teuchos::RCP<const Space<Scalar,Ordinal> >& space, Scalar omega, Scalar mulI, Scalar mulL, Teuchos::RCP<VF> temp ):
+    omega_(omega),L_(Teuchos::rcp( new HelmholtzOp<Scalar,Ordinal>(space, mulI,mulL) ) ),
     div_(Teuchos::rcp(new Div<Scalar,Ordinal>())), grad_(Teuchos::rcp(new Grad<Scalar,Ordinal>() )), temp_(temp) {};
 
 //  CompoundStokes( Scalar omega, Teuchos::RCP<HelmholtzOp<Scalar,Ordinal> > L ):omega_(omega),L_(L) {};
@@ -88,10 +88,11 @@ public:
 /// \relates CompoundStokes
 template< class Scalar, class Ordinal>
 Teuchos::RCP<CompoundStokes<Scalar,Ordinal> > createCompoundStokes(
+    const Teuchos::RCP<const Space<Scalar,Ordinal> >& space,
     Scalar omega, Scalar mulI, Scalar mulL, Teuchos::RCP<VectorField<Scalar,Ordinal> > temp ) {
 
   return(
-      Teuchos::rcp( new CompoundStokes<Scalar,Ordinal>( omega,mulI,mulL,temp) )
+      Teuchos::rcp( new CompoundStokes<Scalar,Ordinal>( space, omega,mulI,mulL,temp) )
       );
 }
 

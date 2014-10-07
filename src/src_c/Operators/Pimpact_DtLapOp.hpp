@@ -43,6 +43,7 @@ public:
   typedef ModeField<VectorField<Scalar,Ordinal> >  RangeFieldT;
 
   DtLapOp(
+      const Teuchos::RCP<const Space<Scalar,Ordinal,3> >& space=Teuchos::null,
       Scalar alpha2=1.,
       Scalar iRe=1.,
       const Teuchos::RCP<HelmholtzOp<Scalar,Ordinal> >& L=Teuchos::null ):
@@ -50,7 +51,7 @@ public:
     iRe_(iRe),
     L_(L) {
     if( L_.is_null() )
-      L_ = createHelmholtzOp<Scalar,Ordinal>( 0, iRe );
+      L_ = createHelmholtzOp<Scalar,Ordinal>( space, 0, iRe );
   };
 
 
@@ -111,9 +112,9 @@ public:
 
 
 /// \relates DtLapOp
-template< class Scalar, class Ordinal>
-Teuchos::RCP< DtLapOp<Scalar,Ordinal> > createDtLapOp( Scalar alpha2=1., Scalar iRe=1. ) {
-  return( Teuchos::rcp( new DtLapOp<Scalar,Ordinal>( alpha2, iRe ) ) );
+template< class S, class O>
+Teuchos::RCP< DtLapOp<S,O> > createDtLapOp( const Teuchos::RCP<const Space<S,O,3> >& space, S alpha2=1., S iRe=1. ) {
+  return( Teuchos::rcp( new DtLapOp<S,O>( space, alpha2, iRe ) ) );
 }
 
 
