@@ -37,7 +37,7 @@ public:
 private:
   Teuchos::RCP< MVF > temp0_;
   Teuchos::RCP< MVF > temp1_;
-  Teuchos::RCP< Div<Scalar,Ordinal> >  div_;
+  Teuchos::RCP< DivOp<Scalar,Ordinal> >  div_;
   Teuchos::RCP< Grad<Scalar,Ordinal> > grad_;
   Teuchos::RCP< LinearProblem<MVF> > H_;
 
@@ -45,14 +45,15 @@ private:
 public:
   DivDtLinvGrad():
         temp0_(Teuchos::null), temp1_(Teuchos::null),
-        div_(Teuchos::rcp( new Div<Scalar,Ordinal> ) ),
+        div_(Teuchos::rcp( new DivOp<Scalar,Ordinal> ) ),
         grad_(Teuchos::rcp( new Grad<Scalar,Ordinal> ) ),
         H_(Teuchos::null) {};
 
   DivDtLinvGrad( const Teuchos::RCP<MVF>& temp,
-      const Teuchos::RCP< LinearProblem<MVF> >& H ):
+      const Teuchos::RCP< LinearProblem<MVF> >& H,
+      const Teuchos::RCP< DivOp<Scalar,Ordinal> >& div=Teuchos::null):
         temp0_(temp->clone(1)), temp1_(temp->clone(1)),
-        div_(Teuchos::rcp( new Div<Scalar,Ordinal> ) ),
+        div_( div ),
         grad_(Teuchos::rcp( new Grad<Scalar,Ordinal> ) ),
         H_(H) {};
 

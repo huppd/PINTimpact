@@ -30,21 +30,19 @@ public:
 private:
   Teuchos::RCP<MVF> temp0_;
   Teuchos::RCP<MVF> temp1_;
-  Teuchos::RCP<Div<S,O>> div_;
+  Teuchos::RCP<DivOp<S,O>> div_;
   Teuchos::RCP<Grad<S,O>> grad_;
   Teuchos::RCP<LinearProblem<MVF> > op_;
 
 public:
-//  DivOpGrad():
-//        temp0_(Teuchos::null), temp1_(Teuchos::null),
-//        div_(Teuchos::rcp( new Div<S,O> ) ),
-//        grad_(Teuchos::rcp( new Grad<S,O> ) ),
-//        op_(Teuchos::null) {};
+
   DivOpGrad(
       const Teuchos::RCP<MVF>& temp=Teuchos::null,
-      const Teuchos::RCP< LinearProblem<MVF> >& op=Teuchos::null ):
+      const Teuchos::RCP< LinearProblem<MVF> >& op=Teuchos::null,
+      const Teuchos::RCP<DivOp<S,O> > div=Teuchos::null
+      ):
         temp0_(temp->clone(1)), temp1_(temp->clone(1)),
-        div_(Teuchos::rcp( new Div<S,O> ) ),
+        div_(div),
         grad_(Teuchos::rcp( new Grad<S,O> ) ),
         op_(op) {};
 

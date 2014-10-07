@@ -384,16 +384,15 @@ int main(int argi, char** argv ) {
             forcingOp
         );
 
-    //    auto opS2V = Pimpact::createMultiHarmonicOpWrap< Pimpact::Grad<S,O> >();
     auto opS2V =
         Pimpact::createCompositionOp(
             x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
             forcingm1Op,
             Pimpact::createMultiHarmonicOpWrap(
-                Pimpact::createGradOp<S,O>()
+                Pimpact::createGradOp<S,O>( space )
             )
         );
-    auto opV2S = Pimpact::createMultiHarmonicOpWrap< Pimpact::Div<S,O> >( Pimpact::createDivOp<S,O>() );
+    auto opV2S = Pimpact::createMultiHarmonicOpWrap< Pimpact::DivOp<S,O> >( Pimpact::createDivOp<S,O>( space ) );
 
     auto op =
         Pimpact::createMultiOperatorBase<MF>(

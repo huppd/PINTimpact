@@ -32,7 +32,7 @@ typedef double S;
 typedef int O;
 
 bool testMpi = true;
-S errorTolSlack = 1e-6;
+S errorTolSlack = 1e-8;
 
 bool isImpactInit = false;
 
@@ -52,54 +52,66 @@ TEUCHOS_STATIC_SETUP() {
 }
 
 
-TEUCHOS_UNIT_TEST( BasicOperator, Div ) {
-  // init impact
-  if( !isImpactInit ) {
-    init_impact(0,0);
-    isImpactInit=true;
-  }
+TEUCHOS_UNIT_TEST( BasicOperator, DivOp ) {
+  auto pl = Teuchos::parameterList();
 
-  auto space = Pimpact::createSpace();
+  pl->set( "domain", 1);
 
-  auto p = Pimpact::createScalarField<S,O>(space);
-  auto vel = Pimpact::createVectorField<S,O>(space);
+  pl->set( "lx", 2. );
+  pl->set( "ly", 2. );
+  pl->set( "lz", 1. );
 
+
+  pl->set("nx", 49 );
+  pl->set("ny", 49 );
+  pl->set("nz", 2 );
+
+  // processor grid size
+  pl->set("npx", 3 );
+  pl->set("npy", 3 );
+  pl->set("npz", 1 );
+
+  auto space = Pimpact::createSpace( pl );
+
+
+  auto p = Pimpact::createScalarField( space );
+  auto vel = Pimpact::createVectorField( space );
+
+  // zero test
   vel->initField();
   p->init(2.);
 
-  Pimpact::Div<S,O> div;
+  auto div = Pimpact::createDivOp( space );
 
-  div.apply(*vel,*p);
+  div->print();
 
-  p->write(1);
+  div->apply(*vel,*p);
 
-  TEST_FLOATING_EQUALITY( 0., p->norm(), errorTolSlack*10.e6 )
+  p->write(0);
 
-}
+  TEST_EQUALITY( p->norm()<errorTolSlack, true );
 
 
-TEUCHOS_UNIT_TEST( BasicOperator, Div2 ) {
-
-  if( !isImpactInit ) {
-    init_impact(0,0);
-    isImpactInit=true;
-  }
-
-  auto space = Pimpact::createSpace();
-
-  auto p = Pimpact::createScalarField<S,O>(space);
-  auto vel = Pimpact::createVectorField<S,O>(space);
-
+  // random test
   vel->random();
   p->init(2.);
 
-  Pimpact::Div<S,O> div;
+  div->apply(*vel,*p);
 
-  div.apply(*vel,*p);
+  p->write(1);
+
+  TEST_EQUALITY( p->norm()>errorTolSlack, true );
+
+  // circle test
+  vel->initField( Pimpact::Circle2D );
+  p->init(2.);
+
+  div->apply(*vel,*p);
+
+  TEST_EQUALITY( p->norm()<errorTolSlack, true );
 
   p->write(2);
 
-  TEST_INEQUALITY( 0., p->norm() )
 }
 
 
@@ -127,10 +139,6 @@ TEUCHOS_UNIT_TEST( BasicOperator, Grad ) {
 
 TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
 
-  //  if( !isImpactInit ) {
-  //    init_impact(0,0);
-  //    isImpactInit=true;
-  //  }
   auto pl = Teuchos::parameterList();
 
   pl->set( "domain", 1);
@@ -299,7 +307,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, MGVDivGradOp ) {
 
   auto lap = Pimpact::createHelmholtzOp<S,O>( space, 0., 1. );
 
-  auto div = Pimpact::createDivOp<S,O>();
+  auto div = Pimpact::createDivOp<S,O>( space );
 
   u->initField( Pimpact::Poiseuille2D_inX );
   u->write();
@@ -665,9 +673,9 @@ TEUCHOS_UNIT_TEST( ModeOperator, TripleCompostion) {
   auto schur = Pimpact::createTripleCompositionOp(
       Pimpact::createMultiField( temp->getConstFieldPtr(0)->clone() ),
       Pimpact::createMultiField( temp->getConstFieldPtr(0)->clone() ),
-      Pimpact::createMultiModeOpWrap( Pimpact::createGradOp<S,O>()),
+      Pimpact::createMultiModeOpWrap( Pimpact::createGradOp<S,O>( space )),
       Hinv,
-      Pimpact::createMultiModeOpWrap( Pimpact::createDivOp<S,O>() )
+      Pimpact::createMultiModeOpWrap( Pimpact::createDivOp<S,O>( space ) )
   );
 
   schur->apply( *B, *X );
@@ -913,8 +921,8 @@ TEUCHOS_UNIT_TEST( CompoundOperator, CompoundOpWrap ) {
           x->getConstFieldPtr(0)->getConstVFieldPtr()->clone()
       );
 
-  auto opS2V = Pimpact::createMultiHarmonicOpWrap( Pimpact::createGradOp<S,O>() );
-  auto opV2S = Pimpact::createMultiHarmonicOpWrap< Pimpact::Div<S,O> >( Pimpact::createDivOp<S,O>() );
+  auto opS2V = Pimpact::createMultiHarmonicOpWrap( Pimpact::createGradOp<S,O>( space ) );
+  auto opV2S = Pimpact::createMultiHarmonicOpWrap( Pimpact::createDivOp<S,O>( space ) );
 
   auto op =
       Pimpact::createMultiOperatorBase<MF>(

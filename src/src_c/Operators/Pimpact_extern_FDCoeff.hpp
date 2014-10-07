@@ -15,6 +15,8 @@ void FD_getDiffCoeff(
     const int& Nmax,
     const int& bL,
     const int& bU,
+    const int& cL,
+    const int& cU,
     const int& BCL,
     const int& BCU,
     const int& SShift,

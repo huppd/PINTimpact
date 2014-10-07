@@ -46,7 +46,7 @@ public:
 
 /// \relates Grad
 template<class S=double, class O=int, int d=3>
-Teuchos::RCP< Grad<S,O,d> > createGradOp() {
+Teuchos::RCP< Grad<S,O,d> > createGradOp( const Teuchos::RCP< const Space<S,O,d> >& space ) {
   return( Teuchos::rcp( new Grad<S,O,d>() ) );
 }
 

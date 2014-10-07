@@ -128,7 +128,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, PrecDivGrad ) {
 
   auto lap = Pimpact::createHelmholtzOp<S,O>( space, 0., 1. );
 
-  auto div = Pimpact::createDivOp<S,O>();
+  auto div = Pimpact::createDivOp<S,O>( space );
 
   u->initField( Pimpact::Poiseuille2D_inX );
   u->write();
@@ -266,17 +266,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
   auto x = Pimpact::createMultiField<SF>(*p,1);
   auto b = x->clone();
 
-  auto div = Teuchos::rcp( new Pimpact::Div<S,O>() );
-  //  div->apply(*temp,b->getField(0) );
-  //  b->scale(-1.);
-  //  b->init( 1. );
-  //  b->write(9999);
-
-  //  x->init(0.);
-  //  b->init(0.);
-  //  x->random();
-  //  x->scale(1000.);
-  //  b->random();
+  auto div = Teuchos::rcp( new Pimpact::DivOp<S,O>( space ) );
 
   temp->initField(Pimpact::ZeroProf);
   auto op = Pimpact::createOperatorBase<BSF,MuOp>(

@@ -19,7 +19,6 @@ namespace Pimpact{
 
 
 extern "C" {
-
 void OP_helmholtz(
     const int& dimens,
     const int* const N,
@@ -34,18 +33,9 @@ void OP_helmholtz(
     const double& multL,
     const double* const phi,
     double* const lap );
-
-
-
-
-//void OP_helmholtz(
-//    const int& m,
-//    const double& mulI,
-//    const double& multL,
-//    double* const phi,
-//    double* const Lap );
-
 }
+
+
 
 /// \brief HelmholtzOp operator
 /// \ingroup BaseOperator
@@ -89,7 +79,8 @@ public:
             space_->nLoc(i),
             space_->bl(i),
             space_->bu(i),
-//            1,1,
+            space_->bl(i),
+            space_->bu(i),
             space_->getDomain()->getBCLocal()->getBCL(i),
             space_->getDomain()->getBCLocal()->getBCU(i),
             space_->getShift(i),
@@ -109,6 +100,8 @@ public:
         FD_getDiffCoeff(
             space_->rankST(),
             space_->nLoc(i),
+            space_->bl(i),
+            space_->bu(i),
             space_->bl(i),
             space_->bu(i),
             space_->getDomain()->getBCLocal()->getBCL(i),
@@ -144,13 +137,12 @@ public:
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
 
-//    for( int vel_dir=0; vel_dir<x.dim(); ++vel_dir )
-//      for( int dir=0; dir<x.dim(); ++dir )
-//        if( !x.is_exchanged(vel_dir,dir) )
-//          x.exchange( vel_dir, dir );
-    x.exchange();
+        for( int vel_dir=0; vel_dir<x.dim(); ++vel_dir )
+          for( int dir=0; dir<x.dim(); ++dir )
+            if( !x.is_exchanged(vel_dir,dir) )
+              x.exchange( vel_dir, dir );
+//    x.exchange();
 
-    //      OP_helmholtz( vel_dir+1, mulI_, mulL_, x.sFields_[vel_dir]->getRawPtr(), y.sFields_[vel_dir]->getRawPtr() ) ;
     OP_helmholtz(
         x.dim(),
         x.nLoc(),

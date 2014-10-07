@@ -237,8 +237,10 @@ contains
     !!
     !! \param[in] rank only needed for error handling
     !! \param[in] Nmax dimension of cc and xc,xs
-    !! \param[in] bl  stencil lower bound
-    !! \param[in] bu  stencil upper bound
+    !! \param[in] bl  coordinate lower bound
+    !! \param[in] bu  coordinate upper bound
+    !! \param[in] cl  stencil lower bound
+    !! \param[in] cu  stencil upper bound
     !! \param[in] BCL local lower Boundary conditions
     !! \param[in] BCU local upper Boundary conditions
     !! \param[in] SShift shift in procgrid
@@ -259,6 +261,7 @@ contains
         rank,                   &
         Nmax,                   &
         bL, bU,                 &
+        cL, cU,                 &
         BCL, BCU,               &
         SShift,                 &
         grid_type,              &
@@ -277,8 +280,12 @@ contains
         integer(c_int),  intent(in)   :: rank
 
         integer(c_int),  intent(in)   :: Nmax
+
         integer(c_int),  intent(in)   :: bL
         integer(c_int),  intent(in)   :: bU
+
+        integer(c_int),  intent(in)   :: cL
+        integer(c_int),  intent(in)   :: cU
 
         integer(c_int),  intent(in)   :: BCL
         integer(c_int),  intent(in)   :: BCU
@@ -299,7 +306,7 @@ contains
         real(c_double),  intent(in)   :: xC(bL:(Nmax+bU))
         real(c_double),  intent(in)   :: xE(bL:(Nmax+bU))
   
-        real(c_double),  intent(out)  :: cc(bL:bU,0:Nmax)
+        real(c_double),  intent(out)  :: cc(cL:cU,0:Nmax)
   
         integer               :: n_coeff
         integer               :: dim_n_coeff_bound
@@ -470,7 +477,7 @@ contains
                 !=====================================================================================================
                 !=== Stencilanordnung testen =========================================================================
                 !=====================================================================================================
-                if (right > bU .or. left < bL) then
+                if (right > cU .or. left < cL) then
                     if (rank == 0) then
                         !WRITE(*,'(a   )') 'WARNING! The FD-Stencil does probably not fit into provided array!'
                         write(*,'(a   )') 'ERROR! Stencil doesn`t fit into provided array!'
@@ -613,45 +620,45 @@ contains
                 !=====================================================================================================
                 if (BCL == -2 .and. abl == -1 .and. i == iStart) then
                     cc(0,i) = 0.5*cc(0,i)
-                    do ii = bL, -1
+                    do ii = cL, -1
                         cc(ii,i) = 0.
                     end do
                 end if
                 if (BCU == -2 .and. abl == -1 .and. i == Nmax  ) then
                     cc(0,i) = 0.5*cc(0,i)
-                    do ii = 1, bU
+                    do ii = 1, cU
                         cc(ii,i) = 0.
                     end do
                 end if
                 !-----------------------------------------------------------------------------------------------------
                 !-----------------------------------------------------------------------------------------------------
                 ! TEST!!! abl == -1 ???
-                if (BCL == -2 .and. (i+bL) < 1) then
+                if (BCL == -2 .and. (i+cL) < 1) then
                     if (grid_type == 5 .or. (grid_type == 2 .and. i >= 1)) then
-                        do ii = 1, 1-(i+bL)
+                        do ii = 1, 1-(i+cL)
                             cc(1-i+ii,i) = cc(1-i+ii,i) + cc(1-i-ii,i)
                             cc(1-i-ii,i) = 0.
                         end do
                     end if
                     if ((grid_type == 1 .and. i >= 1) .or. grid_type == 3) then
-                        do ii = 1, 1-(i+bL)
+                        do ii = 1, 1-(i+cL)
                             cc(0-i+ii,i) = cc(0-i+ii,i) - cc(1-i-ii,i)
                             cc(1-i-ii,i) = 0.
                         end do
                     end if
                 end if
                 !-----------------------------------------------------------------------------------------------------
-                if (BCU == -2 .and. (i+bU) > (Nmax+0)) then
+                if (BCU == -2 .and. (i+cU) > (Nmax+0)) then
                     if (grid_type == 5 .or. (grid_type == 2 .and. i <= Nmax-1)) then
-                        do ii = 1, i+bU-(Nmax-0)
+                        do ii = 1, i+cU-(Nmax-0)
                             cc(Nmax-i  -ii,i) = cc(Nmax-i  -ii,i) + cc(Nmax-i  +ii,i)
                             cc(Nmax-i  +ii,i) = 0.
                         end do
                     end if
                 end if
-                if (BCU == -2 .and. (i+bU) > (Nmax-1)) then
+                if (BCU == -2 .and. (i+cU) > (Nmax-1)) then
                     if ((grid_type == 1 .and. i <= Nmax-1) .or. grid_type == 3) then
-                        do ii = 1, i+bU-(Nmax-1)
+                        do ii = 1, i+cU-(Nmax-1)
                             cc(Nmax-i  -ii,i) = cc(Nmax-i  -ii,i) - cc(Nmax-i-1+ii,i)
                             cc(Nmax-i-1+ii,i) = 0.
                         end do

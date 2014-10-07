@@ -34,17 +34,19 @@ public:
 private:
   Teuchos::RCP< MVF > temp0_;
   Teuchos::RCP< MVF > temp1_;
-  Teuchos::RCP< Div<Scalar,Ordinal> > div_;
+  Teuchos::RCP< DivOp<Scalar,Ordinal> > div_;
   Teuchos::RCP< Grad<Scalar,Ordinal> > grad_;
   Teuchos::RCP< LinearProblem<MVF> > H_;
 
 public:
   DivHinvGrad(
       Teuchos::RCP<MVF> temp=Teuchos::null,
-      Teuchos::RCP< LinearProblem<MVF > > H=Teuchos::null ):
+      Teuchos::RCP< LinearProblem<MVF > > H=Teuchos::null,
+      Teuchos::RCP< DivOp<Scalar,Ordinal > > div=Teuchos::null,
+      Teuchos::RCP< Grad<Scalar,Ordinal > > grad=Teuchos::null ):
         temp0_(temp->clone(1)), temp1_(temp->clone(1)),
-        div_(Teuchos::rcp( new Div<Scalar,Ordinal> ) ),
-        grad_(Teuchos::rcp( new Grad<Scalar,Ordinal> ) ),
+        div_( div ),
+        grad_( grad ),
         H_(H) {};
 
   void apply(const DomainFieldT& x, RangeFieldT& y,

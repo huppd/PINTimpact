@@ -20,9 +20,9 @@ namespace Pimpact {
 /// \relates ModeOpWrap
 template<class Op>
 Teuchos::RCP< MultiOpWrap<ModeOpWrap<Op> > > createMultiModeOpWrap( const Teuchos::RCP<Op>& op=Teuchos::null ) {
-  if( Teuchos::is_null(op) )
-    return( createMultiOpWrap( createModeOpWrap( Teuchos::rcp( new Op() ) ) ) );
-  else
+//  if( Teuchos::is_null(op) )
+//    return( createMultiOpWrap( createModeOpWrap( Teuchos::rcp( new Op() ) ) ) );
+//  else
     return( createMultiOpWrap( createModeOpWrap( op ) ) );
 }
 

@@ -37,7 +37,7 @@ class ScalarField : private AbstractField<S,O> {
   template<class S1,class O1,int dimension1>
   friend class Grad;
   template<class S1,class O1,int dimension1>
-  friend class Div;
+  friend class DivOp;
   template<class S1,class O1,int dimension1>
   friend class DivGradOp;
   template<class S1,class O1,int dimension1>

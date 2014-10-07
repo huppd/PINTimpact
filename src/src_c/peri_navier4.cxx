@@ -337,27 +337,26 @@ int main(int argi, char** argv ) {
                   adv ) ),
            forcingOp );
 
-//    auto opS2V = Pimpact::createTimeOpWrap< Pimpact::Grad<S,O,4> >();
   auto opS2V =
       Pimpact::createCompositionOp(
           x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
           forcingm1Op,
 //          Pimpact::createTimeOpWrap<Pimpact::Grad<S,O,4>,cny>(
-          Pimpact::createTimeOpWrap<Pimpact::Grad<S,O,4> >(
-              Pimpact::createGradOp<S,O,4>(),
+          Pimpact::createTimeOpWrap(
+              Pimpact::createGradOp<S,O,4>( space ),
               Pimpact::createVectorField<S,O,4>( space ) ) );
 
-//  auto opV2S = Pimpact::createTimeOpWrap< Pimpact::Div<S,O,4>,cny >(
-  auto opV2S = Pimpact::createTimeOpWrap< Pimpact::Div<S,O,4> >(
-              Pimpact::createDivOp<S,O,4>(),
+//  auto opV2S = Pimpact::createTimeOpWrap< Pimpact::DivOp<S,O,4>,cny >(
+  auto opV2S = Pimpact::createTimeOpWrap(
+              Pimpact::createDivOp<S,O,4>( space ),
               Pimpact::createScalarField<S,O,4>( space ) );
-//  auto opV2S = Pimpact::createTimeOpWrap< Pimpact::Div<S,O,4> >();
+//  auto opV2S = Pimpact::createTimeOpWrap< Pimpact::DivOp<S,O,4> >();
 
 //  auto opV2S =
 //      Pimpact::createCompositionOp(
 //          x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
-//          Pimpact::createTimeOpWrap<Pimpact::Div<S,O,4>,cny>(
-////          Pimpact::createTimeOpWrap<Pimpact::Div<S,O,4> >(
+//          Pimpact::createTimeOpWrap<Pimpact::DivOp<S,O,4>,cny>(
+////          Pimpact::createTimeOpWrap<Pimpact::DivOp<S,O,4> >(
 //              Pimpact::createDivOp<S,O,4>(),
 //              Pimpact::createScalarField<S,O,4>( space ) ),
 //          forcingm1Op

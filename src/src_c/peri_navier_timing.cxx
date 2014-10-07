@@ -51,7 +51,7 @@ int main(int argi, char** argv ) {
 
 
 //  typedef Pimpact::MultiHarmonicOpWrap< Pimpact::Grad<S,O> > OpS2V;
-//  typedef Pimpact::MultiHarmonicOpWrap< Pimpact::Div<S,O> >  OpV2S;
+//  typedef Pimpact::MultiHarmonicOpWrap< Pimpact::DivOp<S,O> >  OpV2S;
 
 //  typedef Pimpact::MultiDtHelmholtz<S,O>  DtL;
 //  typedef Pimpact::MultiHarmonicNonlinear<S,O>  MAdv;
@@ -236,8 +236,8 @@ int main(int argi, char** argv ) {
             Pimpact::createMultiHarmonicNonlinear<S,O>( /*x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone()*/ ),
             x->getConstFieldPtr(0)->getConstVFieldPtr()->clone()
         );
-    auto opS2V = Pimpact::createMultiHarmonicOpWrap< Pimpact::Grad<S,O> >( Pimpact::createGradOp<S,O>() );
-    auto opV2S = Pimpact::createMultiHarmonicOpWrap< Pimpact::Div<S,O> >( Pimpact::createDivOp<S,O>() );
+    auto opS2V = Pimpact::createMultiHarmonicOpWrap( Pimpact::createGradOp<S,O>( space ) );
+    auto opV2S = Pimpact::createMultiHarmonicOpWrap( Pimpact::createDivOp<S,O>( space ) );
 
     auto op =
         Pimpact::createMultiOperatorBase<MF>(

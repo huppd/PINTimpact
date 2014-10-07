@@ -117,6 +117,12 @@ public:
   const Ordinal* bu()         const { return( fieldSpace_->getBU()   ); }
   const Ordinal& bu( int i )  const { return( fieldSpace_->getBU(i)  ); }
 
+  const Ordinal* dl()         const { return( fieldSpace_->getDL()   ); }
+  const Ordinal& dl( int i )  const { return( fieldSpace_->getDL(i)  ); }
+
+  const Ordinal* du()         const { return( fieldSpace_->getDU()   ); }
+  const Ordinal& du( int i )  const { return( fieldSpace_->getDU(i)  ); }
+
 
   const Ordinal* sInd( int fieldType ) const {
     if( EField::S == (EField)fieldType )

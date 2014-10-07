@@ -16,10 +16,6 @@
 #include "Pimpact_OperatorMV.hpp"
 
 
-//#include "Pimpact_ScalarField.hpp"
-//
-//#include "Pimpact_Operator.hpp"
-//#include "Pimpact_OperatorBase.hpp"
 
 
 namespace Pimpact {
@@ -30,7 +26,7 @@ template<class Scalar,class Ordinal>
 class CompoundStokes {
   Scalar omega_;
   Teuchos::RCP<HelmholtzOp<Scalar,Ordinal> > L_;
-  Teuchos::RCP<Div<Scalar,Ordinal> >  div_;
+  Teuchos::RCP<DivOp<Scalar,Ordinal> >  div_;
   Teuchos::RCP<Grad<Scalar,Ordinal> > grad_;
 
 
@@ -45,16 +41,26 @@ public:
 
   typedef CompoundField<MVF,MSF>  DomainFieldT;
   typedef CompoundField<MVF,MSF>  RangeFieldT;
-//  typedef ModeOp OpType;
 
-  CompoundStokes():omega_(1.),L_(Teuchos::rcp(new HelmholtzOp<Scalar,Ordinal>( 0., 1. )) ),
-    div_(Teuchos::rcp(new Div<Scalar,Ordinal>())), grad_(Teuchos::rcp(new Grad<Scalar,Ordinal>() )), temp_(Teuchos::null) {};
+//  CompoundStokes():
+//    omega_(1.),
+//    L_(Teuchos::rcp(new HelmholtzOp<Scalar,Ordinal>( 0., 1. )) ),
+//    div_(Teuchos::rcp(new DivOp<Scalar,Ordinal>())),
+//    grad_(Teuchos::rcp(new Grad<Scalar,Ordinal>() )),
+//    temp_(Teuchos::null) {};
 
-  CompoundStokes( const Teuchos::RCP<const Space<Scalar,Ordinal> >& space, Scalar omega, Scalar mulI, Scalar mulL, Teuchos::RCP<VF> temp ):
-    omega_(omega),L_(Teuchos::rcp( new HelmholtzOp<Scalar,Ordinal>(space, mulI,mulL) ) ),
-    div_(Teuchos::rcp(new Div<Scalar,Ordinal>())), grad_(Teuchos::rcp(new Grad<Scalar,Ordinal>() )), temp_(temp) {};
+  CompoundStokes(
+      const Teuchos::RCP<const Space<Scalar,Ordinal> >& space,
+      Scalar omega,
+      Scalar mulI,
+      Scalar mulL,
+      Teuchos::RCP<VF> temp ):
+    omega_(omega),
+    L_(Teuchos::rcp( new HelmholtzOp<Scalar,Ordinal>(space, mulI,mulL) ) ),
+    div_(Teuchos::rcp(new DivOp<Scalar,Ordinal>(space))),
+    grad_(Teuchos::rcp(new Grad<Scalar,Ordinal>() )),
+    temp_(temp) {};
 
-//  CompoundStokes( Scalar omega, Teuchos::RCP<HelmholtzOp<Scalar,Ordinal> > L ):omega_(omega),L_(L) {};
 
   void apply(const DomainFieldT& x_, RangeFieldT& y_,
       Belos::ETrans trans=Belos::NOTRANS  ) const {

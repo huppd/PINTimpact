@@ -292,10 +292,10 @@ int main(int argi, char** argv ) {
 
 
   // init MV operators
-  auto div  = Pimpact::createMultiOpWrap(
-      Pimpact::createModeOpWrap<Pimpact::Div<S,O> >( Pimpact::createDivOp<S,O>()) );
-  auto grad = Pimpact::createMultiOpWrap(
-      Pimpact::createModeOpWrap<Pimpact::Grad<S,O> >( Pimpact::createGradOp<S,O>() ) );
+  auto div  =
+      Pimpact::createMultiModeOpWrap( Pimpact::createDivOp<S,O>(space) );
+  auto grad =
+      Pimpact::createMultiModeOpWrap( Pimpact::createGradOp<S,O>(space) );
 
 
   // init boundary conditions
