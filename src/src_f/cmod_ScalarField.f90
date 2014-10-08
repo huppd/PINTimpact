@@ -620,4 +620,169 @@ contains
     end subroutine SF_print
 
 
+    !> \brief init vector field with 2d Poiseuille flow in x-direction
+    !! \f[ u(y) = y*( L_y - y )*4/L_y/L_y \f]
+    subroutine SF_init_2DPoiseuilleX(   &
+        N,                              &
+        bL,bU,                          &
+        SS,NN,                          &
+        L2,                             &
+        x2,                             &
+        phi ) bind ( c, name='SF_init_2DPoiseuilleX' )
+
+        implicit none
+
+        integer(c_int), intent(in)    ::  N(3)
+
+        integer(c_int), intent(in)     :: bL(3)
+        integer(c_int), intent(in)     :: bU(3)
+
+        integer(c_int), intent(in)     :: SS(3)
+        integer(c_int), intent(in)     :: NN(3)
+
+        real(c_double), intent(in)     :: L2
+
+        real(c_double), intent(in)     :: x2( bL(2):(N(2)+bU(2)) )
+
+        real(c_double),  intent(out)   :: phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+
+        integer                ::  i, j, k
+
+        !--- initial conditions for velocity ---
+        do k = SS(3), NN(3)
+            do j = SS(2), NN(2)
+                !pgi$ unroll = n:8
+                do i = SS(1), NN(1)
+                    phi(i,j,k) = x2(j)*( L2 - x2(j) )*4/L2/L2
+                end do
+            end do
+        end do
+
+    end subroutine SF_init_2DPoiseuilleX
+
+
+    !> \brief init vector field with 2d Poiseuille flow in y-direction
+    !! \f[ v(x) = x*( L_x - x )*4/L_x/L_x \f]
+    subroutine SF_init_2DPoiseuilleY(   &
+        N,                              &
+        bL,bU,                          &
+        SS,NN,                          &
+        L1,                             &
+        x1,                             &
+        phi ) bind ( c, name='SF_init_2DPoiseuilleY' )
+
+        implicit none
+
+        integer(c_int), intent(in)    ::  N(3)
+
+        integer(c_int), intent(in)     :: bL(3)
+        integer(c_int), intent(in)     :: bU(3)
+
+        integer(c_int), intent(in)     :: SS(3)
+        integer(c_int), intent(in)     :: NN(3)
+
+        real(c_double), intent(in)     :: L1
+
+        real(c_double), intent(in)     :: x1( bL(1):(N(1)+bU(1)) )
+
+        real(c_double),  intent(out)   :: phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+
+        integer                ::  i, j, k
+
+        !--- initial conditions for velocity ---
+        do k = SS(3), NN(3)
+            do j = SS(2), NN(2)
+                !pgi$ unroll = n:8
+                do i = SS(1), NN(1)
+                    phi(i,j,k) = x1(i)*( L1 - x1(i) )*4/L1/L1
+                end do
+            end do
+        end do
+
+    end subroutine SF_init_2DPoiseuilleY
+
+
+    !> \brief init vector field with constant gradient in x-direction
+    !! \f[ u(y) = y*( L_y - y )*4/L_y/L_y \f]
+    subroutine SF_init_2DGradX( &
+        N,                      &
+        bL,bU,                  &
+        SS,NN,                  &
+        L,                      &
+        x1,                     &
+        phi ) bind ( c, name='SF_init_2DGradX' )
+
+        implicit none
+
+        integer(c_int), intent(in)    ::  N(3)
+
+        integer(c_int), intent(in)     :: bL(3)
+        integer(c_int), intent(in)     :: bU(3)
+
+        integer(c_int), intent(in)     :: SS(3)
+        integer(c_int), intent(in)     :: NN(3)
+
+        real(c_double), intent(in)     :: L(3)
+
+        real(c_double), intent(in)     :: x1( bL(1):(N(1)+bU(1)) )
+
+        real(c_double),  intent(out)   :: phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+
+        integer                ::  i, j, k
+
+        !--- initial conditions for velocity ---
+        do k = SS(3), NN(3)
+            do j = SS(2), NN(2)
+                !pgi$ unroll = n:8
+                do i = SS(1), NN(1)
+!                    phi(i,j,k) = 8*( x1(i)-L(1)/2 )/L(2)/L(2)/L(1)
+                    phi(i,j,k) = ( x1(i)-L(1)/2 )
+                end do
+            end do
+        end do
+
+    end subroutine SF_init_2DGradX
+
+
+    !> \brief init vector field with constant gradient in x-direction
+    !! \f[ u(y) = y*( L_y - y )*4/L_y/L_y \f]
+    subroutine SF_init_2DGradY( &
+        N,                      &
+        bL,bU,                  &
+        SS,NN,                  &
+        L,                      &
+        x2,                     &
+        phi ) bind ( c, name='SF_init_2DGradY' )
+
+        implicit none
+
+        integer(c_int), intent(in)    ::  N(3)
+
+        integer(c_int), intent(in)     :: bL(3)
+        integer(c_int), intent(in)     :: bU(3)
+
+        integer(c_int), intent(in)     :: SS(3)
+        integer(c_int), intent(in)     :: NN(3)
+
+        real(c_double), intent(in)     :: L(3)
+
+        real(c_double), intent(in)     :: x2( bL(2):(N(2)+bU(2)) )
+
+        real(c_double),  intent(out)   :: phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+
+        integer                ::  i, j, k
+
+        !--- initial conditions for velocity ---
+        do k = SS(3), NN(3)
+            do j = SS(2), NN(2)
+                !pgi$ unroll = n:8
+                do i = SS(1), NN(1)
+!                    phi(i,j,k) = 8.*( x2(j)-L(2)/2 )/L(1)/L(1)/L(2)
+                    phi(i,j,k) = ( x2(j)-L(2)/2 )
+                end do
+            end do
+        end do
+
+    end subroutine SF_init_2DGradY
+
 end module cmod_ScalarField

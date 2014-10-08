@@ -202,7 +202,7 @@ int main(int argi, char** argv ) {
 
 
   // init Belos operators
-  auto dtlap  =
+  auto H  =
       Pimpact::createMultiOperatorBase<MVF,Pimpact::DtLapOp<S,O> >(
           Pimpact::createDtLapOp<S,O>( space, alpha2, 1./re ) );
 
@@ -299,7 +299,7 @@ int main(int argi, char** argv ) {
 
 
   // init boundary conditions
-  dtlap->apply( *u, *fu );
+  H->apply( *u, *fu );
   div->apply( *u, *fp );
   fu->scale(-1.);
   fp->scale(-1.);
@@ -327,15 +327,24 @@ int main(int argi, char** argv ) {
 
 
   // create problems/solvers
-  auto lapProblem = Pimpact::createLinearProblem<MVF>( dtlap, u, fu, solverParams, solver_name_1 );
+  auto H_prob = Pimpact::createLinearProblem<MVF>( H, u, fu, solverParams, solver_name_1 );
   if( leftPrec )
-    lapProblem->setLeftPrec( lprec );
+    H_prob->setLeftPrec( lprec );
   else
-    lapProblem->setRightPrec( lprec );
+    H_prob->setRightPrec( lprec );
+
+  auto H_inv = Pimpact::createInverseOperator( H_prob );
 
   auto schur =
-      Pimpact::createMultiOperatorBase<MSF,Pimpact::DivOpGrad<S,O> >(
-          Pimpact::createDivOpGrad<S,O>( u, lapProblem ) );
+      Pimpact::createOperatorBase<MSF>(
+          Pimpact::createTripleCompositionOp(
+              u->clone(),
+              u->clone(),
+              div,
+              H_inv,
+              grad
+          )
+      );
 
   solverParams = Pimpact::createLinSolverParameter( solver_name_2, tol*l1*l2/n1/n2  );
   solverParams->set( "Output Stream", outSchur );
@@ -388,7 +397,7 @@ int main(int argi, char** argv ) {
     schurProb->setRightPrec( precSchur );
 
   // solve stationary stokes
-  lapProblem->solve( tempv, fu );
+  H_prob->solve( tempv, fu );
 
   div->apply( *tempv, *temps );
   temps->add( -1., *fp, 1., *temps );
@@ -396,7 +405,7 @@ int main(int argi, char** argv ) {
   solverParams = Pimpact::createLinSolverParameter( solver_name_1, tol*l1*l2/n1/n2 );
   solverParams->set( "Output Stream", outLap2 );
   solverParams->set("Verbosity", int( Belos::Errors) );
-  lapProblem->setParameters( solverParams );
+  H_prob->setParameters( solverParams );
   schurProb->solve( p, temps );
   p->write();
 
@@ -408,9 +417,9 @@ int main(int argi, char** argv ) {
       Belos::OrthoDetails + Belos::FinalSummary +	Belos::TimingDetails +
       Belos::StatusTestDetails + Belos::Debug );
   solverParams->set( "Output Stream", outLap2 );
-  lapProblem->setParameters( solverParams );
+  H_prob->setParameters( solverParams );
 
-  lapProblem->solve(u,tempv);
+  H_prob->solve(u,tempv);
 
   u->write();
 

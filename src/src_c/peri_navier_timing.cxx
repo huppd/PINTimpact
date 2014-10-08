@@ -50,7 +50,7 @@ int main(int argi, char** argv ) {
   typedef Pimpact::MultiField<CF> MF;
 
 
-//  typedef Pimpact::MultiHarmonicOpWrap< Pimpact::Grad<S,O> > OpS2V;
+//  typedef Pimpact::MultiHarmonicOpWrap< Pimpact::GradOp<S,O> > OpS2V;
 //  typedef Pimpact::MultiHarmonicOpWrap< Pimpact::DivOp<S,O> >  OpV2S;
 
 //  typedef Pimpact::MultiDtHelmholtz<S,O>  DtL;
@@ -192,8 +192,8 @@ int main(int argi, char** argv ) {
 
   // init Fields, init and rhs
   //  fu->init(1.);
-  //  x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->initField( Pimpact::EFlowProfile(flow), re, alpha2/re );
-  x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::EFlowProfile(flow), 1 );
+  //  x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->initField( Pimpact::EFlowField(flow), re, alpha2/re );
+  x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::EFlowField(flow), 1 );
 
   //  x->init( 0. );
   fu->init( 0. );

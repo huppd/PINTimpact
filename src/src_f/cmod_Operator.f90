@@ -18,8 +18,8 @@ module cmod_operator
   
     private
   
-    public divergence2
-    public gradient
+!    public divergence2
+!    public gradient
     public Helmholtz,   Helmholtz_conc_explicit
     public nonlinear
     public interpolate_vel, interpolate_conc
@@ -185,103 +185,103 @@ contains
     !!    - g1L,g2L,g3L
     !!    - g1U,g2U,g3U
     !! maybe extract setting BC to zero
-    subroutine OP_grad(m,phi,grad) bind(c,name='OP_grad')
-
-        implicit none
-
-        integer(c_int), intent(in   ) ::  m
-
-        real(c_double), intent(inout) ::  phi (b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-        real(c_double), intent(  out) ::  grad(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-
-        integer                ::  i, ii
-        integer                ::  j, jj
-        integer                ::  k, kk
-
-
-        !----------------------------------------------------------------------------------------------------------!
-        ! Anmerkungen: - Randbedingungen könnten nur zum Teil in die Stencils eingebaut werden, so dass sich das   !
-        !                vermutlich nicht wirklich lohnt.                                                          !
-        !----------------------------------------------------------------------------------------------------------!
-        !===========================================================================================================
-        if (m == 1) then
-            !--------------------------------------------------------------------------------------------------------
-            do k = S31, N31
-                do j = S21, N21
-                    do i = S11, N11
-                        grad(i,j,k) = cGp1(g1L,i)*phi(i+g1L,j,k)
-                        !pgi$ unroll = n:8
-                        do ii = g1L+1, g1U
-                            grad(i,j,k) = grad(i,j,k) + cGp1(ii,i)*phi(i+ii,j,k)
-                        end do
-                    end do
-                end do
-            end do
-            !--------------------------------------------------------------------------------------------------------
-
-            !--- Randbedingungen ------------------------------------------------------------------------------------
-            if (BC_1L > 0) grad(0 ,S21B:N21B,S31B:N31B) = 0.
-            if (BC_1U > 0) grad(N1,S21B:N21B,S31B:N31B) = 0.
-            if (BC_2L > 0) grad(S11B:N11B,1 ,S31B:N31B) = 0.
-            if (BC_2U > 0) grad(S11B:N11B,N2,S31B:N31B) = 0.
-            if (BC_3L > 0) grad(S11B:N11B,S21B:N21B,1 ) = 0.
-            if (BC_3U > 0) grad(S11B:N11B,S21B:N21B,N3) = 0.
-
-        end if
-        !===========================================================================================================
-        if (m == 2) then
-            !--------------------------------------------------------------------------------------------------------
-            do k = S32, N32
-                do j = S22, N22
-                    do i = S12, N12
-                        grad(i,j,k) = cGp2(g2L,j)*phi(i,j+g2L,k)
-                        !pgi$ unroll = n:8
-                        do jj = g2L+1, g2U
-                            grad(i,j,k) = grad(i,j,k) + cGp2(jj,j)*phi(i,j+jj,k)
-                        end do
-                    end do
-                end do
-            end do
-            !--------------------------------------------------------------------------------------------------------
-     
-            !--- Randbedingungen ------------------------------------------------------------------------------------
-            if (BC_1L > 0) grad(1 ,S22B:N22B,S32B:N32B) = 0.
-            if (BC_1U > 0) grad(N1,S22B:N22B,S32B:N32B) = 0.
-            if (BC_2L > 0) grad(S12B:N12B,0 ,S32B:N32B) = 0.
-            if (BC_2U > 0) grad(S12B:N12B,N2,S32B:N32B) = 0.
-            if (BC_3L > 0) grad(S12B:N12B,S22B:N22B,1 ) = 0.
-            if (BC_3U > 0) grad(S12B:N12B,S22B:N22B,N3) = 0.
-
-        end if
-        !===========================================================================================================
-        if (m == 3) then
-            !--------------------------------------------------------------------------------------------------------
-            do k = S33, N33
-                do j = S23, N23
-                    do i = S13, N13
-                        grad(i,j,k) = cGp3(g3L,k)*phi(i,j,k+g3L)
-                        !pgi$ unroll = n:8
-                        do kk = g3L+1, g3U
-                            grad(i,j,k) = grad(i,j,k) + cGp3(kk,k)*phi(i,j,k+kk)
-                        end do
-                    end do
-                end do
-            end do
-            !--------------------------------------------------------------------------------------------------------
-
-            !--- Randbedingungen ------------------------------------------------------------------------------------
-            if (BC_1L > 0) grad(1 ,S23B:N23B,S33B:N33B) = 0.
-            if (BC_1U > 0) grad(N1,S23B:N23B,S33B:N33B) = 0.
-            if (BC_2L > 0) grad(S13B:N13B,1 ,S33B:N33B) = 0.
-            if (BC_2U > 0) grad(S13B:N13B,N2,S33B:N33B) = 0.
-            if (BC_3L > 0) grad(S13B:N13B,S23B:N23B,0 ) = 0.
-            if (BC_3U > 0) grad(S13B:N13B,S23B:N23B,N3) = 0.
-
-        end if
-    !===========================================================================================================
-
-
-    end subroutine OP_grad
+!    subroutine OP_grad(m,phi,grad) bind(c,name='OP_grad')
+!
+!        implicit none
+!
+!        integer(c_int), intent(in   ) ::  m
+!
+!        real(c_double), intent(inout) ::  phi (b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+!        real(c_double), intent(  out) ::  grad(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+!
+!        integer                ::  i, ii
+!        integer                ::  j, jj
+!        integer                ::  k, kk
+!
+!
+!        !----------------------------------------------------------------------------------------------------------!
+!        ! Anmerkungen: - Randbedingungen könnten nur zum Teil in die Stencils eingebaut werden, so dass sich das   !
+!        !                vermutlich nicht wirklich lohnt.                                                          !
+!        !----------------------------------------------------------------------------------------------------------!
+!        !===========================================================================================================
+!        if (m == 1) then
+!            !--------------------------------------------------------------------------------------------------------
+!            do k = S31, N31
+!                do j = S21, N21
+!                    do i = S11, N11
+!                        grad(i,j,k) = cGp1(g1L,i)*phi(i+g1L,j,k)
+!                        !pgi$ unroll = n:8
+!                        do ii = g1L+1, g1U
+!                            grad(i,j,k) = grad(i,j,k) + cGp1(ii,i)*phi(i+ii,j,k)
+!                        end do
+!                    end do
+!                end do
+!            end do
+!            !--------------------------------------------------------------------------------------------------------
+!
+!            !--- Randbedingungen ------------------------------------------------------------------------------------
+!            if (BC_1L > 0) grad(0 ,S21B:N21B,S31B:N31B) = 0.
+!            if (BC_1U > 0) grad(N1,S21B:N21B,S31B:N31B) = 0.
+!            if (BC_2L > 0) grad(S11B:N11B,1 ,S31B:N31B) = 0.
+!            if (BC_2U > 0) grad(S11B:N11B,N2,S31B:N31B) = 0.
+!            if (BC_3L > 0) grad(S11B:N11B,S21B:N21B,1 ) = 0.
+!            if (BC_3U > 0) grad(S11B:N11B,S21B:N21B,N3) = 0.
+!
+!        end if
+!        !===========================================================================================================
+!        if (m == 2) then
+!            !--------------------------------------------------------------------------------------------------------
+!            do k = S32, N32
+!                do j = S22, N22
+!                    do i = S12, N12
+!                        grad(i,j,k) = cGp2(g2L,j)*phi(i,j+g2L,k)
+!                        !pgi$ unroll = n:8
+!                        do jj = g2L+1, g2U
+!                            grad(i,j,k) = grad(i,j,k) + cGp2(jj,j)*phi(i,j+jj,k)
+!                        end do
+!                    end do
+!                end do
+!            end do
+!            !--------------------------------------------------------------------------------------------------------
+!
+!            !--- Randbedingungen ------------------------------------------------------------------------------------
+!            if (BC_1L > 0) grad(1 ,S22B:N22B,S32B:N32B) = 0.
+!            if (BC_1U > 0) grad(N1,S22B:N22B,S32B:N32B) = 0.
+!            if (BC_2L > 0) grad(S12B:N12B,0 ,S32B:N32B) = 0.
+!            if (BC_2U > 0) grad(S12B:N12B,N2,S32B:N32B) = 0.
+!            if (BC_3L > 0) grad(S12B:N12B,S22B:N22B,1 ) = 0.
+!            if (BC_3U > 0) grad(S12B:N12B,S22B:N22B,N3) = 0.
+!
+!        end if
+!        !===========================================================================================================
+!        if (m == 3) then
+!            !--------------------------------------------------------------------------------------------------------
+!            do k = S33, N33
+!                do j = S23, N23
+!                    do i = S13, N13
+!                        grad(i,j,k) = cGp3(g3L,k)*phi(i,j,k+g3L)
+!                        !pgi$ unroll = n:8
+!                        do kk = g3L+1, g3U
+!                            grad(i,j,k) = grad(i,j,k) + cGp3(kk,k)*phi(i,j,k+kk)
+!                        end do
+!                    end do
+!                end do
+!            end do
+!            !--------------------------------------------------------------------------------------------------------
+!
+!            !--- Randbedingungen ------------------------------------------------------------------------------------
+!            if (BC_1L > 0) grad(1 ,S23B:N23B,S33B:N33B) = 0.
+!            if (BC_1U > 0) grad(N1,S23B:N23B,S33B:N33B) = 0.
+!            if (BC_2L > 0) grad(S13B:N13B,1 ,S33B:N33B) = 0.
+!            if (BC_2U > 0) grad(S13B:N13B,N2,S33B:N33B) = 0.
+!            if (BC_3L > 0) grad(S13B:N13B,S23B:N23B,0 ) = 0.
+!            if (BC_3U > 0) grad(S13B:N13B,S23B:N23B,N3) = 0.
+!
+!        end if
+!    !===========================================================================================================
+!
+!
+!    end subroutine OP_grad
 
 
     !  subroutine gradient_transp(m,phi,grad)

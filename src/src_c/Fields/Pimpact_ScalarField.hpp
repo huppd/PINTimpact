@@ -35,7 +35,7 @@ class ScalarField : private AbstractField<S,O> {
   template<class S1,class O1,int dimension1>
   friend class VectorField;
   template<class S1,class O1,int dimension1>
-  friend class Grad;
+  friend class GradOp;
   template<class S1,class O1,int dimension1>
   friend class DivOp;
   template<class S1,class O1,int dimension1>
@@ -410,6 +410,68 @@ public:
         bl(), bu(),
         sInd(), eInd(),
         s_, alpha);
+    changed();
+  }
+
+
+  ///  \brief initializes VectorField with the initial field defined in Fortran
+  void initField( EScalarField fieldType = Poiseuille2D_inX, double re=1., double om=1., double px = 1. ) {
+    switch( fieldType ) {
+    case ZeroField :
+      SF_init(
+          nLoc(),
+          bl(),
+          bu(),
+          sIndB(),
+          eIndB(),
+          s_,
+          0. );
+      break;
+    case Poiseuille2D_inX :
+      SF_init_2DPoiseuilleX(
+          nLoc(),
+          bl(),
+          bu(),
+          sIndB(),
+          eIndB(),
+          space_->getDomain()->getDomainSize()->getSize( Y ),
+          space_->getCoordinatesLocal()->getX(Y,fType_),
+          s_ );
+      break;
+    case Poiseuille2D_inY :
+      SF_init_2DPoiseuilleY(
+          nLoc(),
+          bl(),
+          bu(),
+          sIndB(),
+          eIndB(),
+          space_->getDomain()->getDomainSize()->getSize( X ),
+          space_->getCoordinatesLocal()->getX(X,fType_),
+          s_ );
+      break;
+    case Grad2D_inX :
+      SF_init_2DGradX(
+          nLoc(),
+          bl(),
+          bu(),
+          sIndB(),
+          eIndB(),
+          space_->getDomain()->getDomainSize()->getSize(),
+          space_->getCoordinatesLocal()->getX( X, fType_ ),
+          s_ );
+      break;
+    case Grad2D_inY :
+      SF_init_2DGradY(
+          nLoc(),
+          bl(),
+          bu(),
+          sIndB(),
+          eIndB(),
+          space_->getDomain()->getDomainSize()->getSize(),
+          space_->getCoordinatesLocal()->getX( Y, fType_ ),
+          s_ );
+      break;
+    }
     changed();
   }
 

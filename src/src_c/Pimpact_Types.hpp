@@ -18,9 +18,9 @@ enum ECopyType {
   ShallowCopy };
 
 
-enum EFlowProfile {
-  ZeroProf=0,
-  Poiseuille2D_inX=1, Poiseuille2D_inY=2,
+enum EFlowField {
+  ZeroFlow=0,
+  PoiseuilleFlow2D_inX=1, PoiseuilleFlow2D_inY=2,
   Pulsatile2D_inXC=3, Pulsatile2D_inXS=5,
   Pulsatile2D_inYC=4, Pulsatile2D_inYS=6,
   Streaming2D=7,
@@ -34,7 +34,15 @@ enum EFlowProfile {
   Streaming2DS=15,
   VPoint2D=16,
   Disc2D=17,
-  RotationDisc2D=18
+  RotationDisc2D=18,
+};
+
+enum EScalarField {
+  ZeroField=0,
+  Poiseuille2D_inX=1,
+  Poiseuille2D_inY=2,
+  Grad2D_inX =3,
+  Grad2D_inY =4
 };
 
 

@@ -225,7 +225,7 @@ int main(int argi, char** argv ) {
   pl->set("npz", np3 );
 
   auto space = Pimpact::createSpace<S,O>( pl );
-//  auto space = Pimpact::createSpace<S,O>(fS,iS,iIS,fIS,gs,lgs,pgs,pg);
+  //  auto space = Pimpact::createSpace<S,O>(fS,iS,iIS,fIS,gs,lgs,pgs,pg);
   space->print();
   int rank = space->getProcGrid()->rankST_;
 
@@ -233,28 +233,28 @@ int main(int argi, char** argv ) {
   Teuchos::RCP<std::ostream> outLinSolve;
   Teuchos::RCP<std::ostream> outPrec;
   Teuchos::RCP<std::ostream> outSchur;
-//  Teuchos::RCP<std::ostream> outLoc;
-//  {
-//    std::string bla = "locstuff";
-//    std::ostringstream convert;   // stream used for the conversion
-//    convert << rank;      // insert the textual representation of 'Number' in the characters in the stream
-//    bla += convert.str();
-//    bla += ".txt";
-//    outLoc   = Teuchos::rcp( new std::ofstream(bla) );
-//  }
+  //  Teuchos::RCP<std::ostream> outLoc;
+  //  {
+  //    std::string bla = "locstuff";
+  //    std::ostringstream convert;   // stream used for the conversion
+  //    convert << rank;      // insert the textual representation of 'Number' in the characters in the stream
+  //    bla += convert.str();
+  //    bla += ".txt";
+  //    outLoc   = Teuchos::rcp( new std::ofstream(bla) );
+  //  }
   if(rank==0) {
     outLinSolve  = Teuchos::rcp( new std::ofstream("linSolve.txt") );
     outPrec      = Teuchos::rcp( new std::ofstream("solvPrec.txt") );
     outSchur     = Teuchos::rcp( new std::ofstream("solvSchur.txt") );
   }
-//  else
-//        outPar = Teuchos::rcp( &blackhole, false) ;
-//    outPar = Teuchos::rcp( new Teuchos::oblackholestream() ) ;
-//
-//
-//
-//  Teuchos::rcp_static_cast<std::ofstream>(outLoc)->close();
-//  outLoc=Teuchos::null;
+  //  else
+  //        outPar = Teuchos::rcp( &blackhole, false) ;
+  //    outPar = Teuchos::rcp( new Teuchos::oblackholestream() ) ;
+  //
+  //
+  //
+  //  Teuchos::rcp_static_cast<std::ofstream>(outLoc)->close();
+  //  outLoc=Teuchos::null;
 
   // init vectors
   auto x    = Pimpact::createMultiField( Pimpact::createCompoundField(
@@ -299,10 +299,10 @@ int main(int argi, char** argv ) {
   case Pimpact::Zero2DFlow:
     break;
   case Pimpact::Poiseuille_inX:
-    x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->initField( Pimpact::Poiseuille2D_inX );
+    x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->initField( Pimpact::PoiseuilleFlow2D_inX );
     break;
   case Pimpact::Poiseuille_inY:
-    x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->initField( Pimpact::Poiseuille2D_inY );
+    x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->initField( Pimpact::PoiseuilleFlow2D_inY );
     break;
   case Pimpact::Pulsatile_inX:
     x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::Pulsatile2D_inXC, -1. );
@@ -421,7 +421,7 @@ int main(int argi, char** argv ) {
                       dtl,
                       Pimpact::createMultiHarmonicNonlinearJacobian<S,O>(
                           x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy)  ) ) ),
-              forcingOp );
+                          forcingOp );
       jop =
           Pimpact::createMultiOperatorBase<MF>(
               Pimpact::createCompoundOpWrap(
@@ -701,16 +701,18 @@ int main(int argi, char** argv ) {
               Pimpact::createTripleCompositionOp(
                   f->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
                   f->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
-                  opS2V,
+                  opV2S,
                   opV2V,
-                  opV2S)  );
+                  opS2V
+              )
+          );
 
-//      //--- inverse DivGrad
-//      auto divGradOp =
-//          Pimpact::createMultiOperatorBase<MSF>(
-//              Pimpact::createMultiHarmonicOpWrap(
-//                  Pimpact::createDivGradOp<S,O>(
-//                      Pimpact::createVectorField( space ) ) ) );  // works without forcing
+      //      //--- inverse DivGrad
+      //      auto divGradOp =
+      //          Pimpact::createMultiOperatorBase<MSF>(
+      //              Pimpact::createMultiHarmonicOpWrap(
+      //                  Pimpact::createDivGradOp<S,O>(
+      //                      Pimpact::createVectorField( space ) ) ) );  // works without forcing
 
       auto hello =
           Pimpact::createCompositionOp(
@@ -720,18 +722,18 @@ int main(int argi, char** argv ) {
 
       auto divGradOp =
           Pimpact::createMultiOperatorBase<MSF>( hello );
-////              Pimpact::createMultiHarmonicOpWrap(
-////                  Pimpact::createDivGradOp<S,O>(
-////                      Pimpact::createVectorField( space ) ) ) );  // works without forcing
+      ////              Pimpact::createMultiHarmonicOpWrap(
+      ////                  Pimpact::createDivGradOp<S,O>(
+      ////                      Pimpact::createVectorField( space ) ) ) );  // works without forcing
 
 
       auto divGradProb =
           Pimpact::createLinearProblem< MSF >(
-                  divGradOp ,
-                  Teuchos::null,
-                  Teuchos::null,
-                  Pimpact::createLinSolverParameter( "GMRES", tolBelos/100, -1, outSchur ),
-                  "GMRES" );
+              divGradOp ,
+              Teuchos::null,
+              Teuchos::null,
+              Pimpact::createLinSolverParameter( "GMRES", tolBelos/100, -1, outSchur ),
+              "GMRES" );
 
       auto divGradInv = Pimpact::createInverseOperatorBase( divGradProb );
 
@@ -742,7 +744,9 @@ int main(int argi, char** argv ) {
                   Pimpact::createMultiField( f->getConstFieldPtr(0)->getConstSFieldPtr()->clone(Pimpact::ShallowCopy) ),
                   divGradInv,
                   opSchur,
-                  divGradInv ) );
+                  divGradInv
+              )
+          );
 
       auto invSchur = Pimpact::createInverseTriangularOp(
           x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
@@ -941,7 +945,7 @@ int main(int argi, char** argv ) {
           Pimpact::createLinSolverParameter( linSolName, tolBelos, -1, outLinSolve ),
           linSolName );
 
-//      lp_->setLeftPrec( lprec );
+      //      lp_->setLeftPrec( lprec );
       lp_->setRightPrec( lprec );
 
       auto lp = Pimpact::createInverseOperatorBase<MF>( lp_ );

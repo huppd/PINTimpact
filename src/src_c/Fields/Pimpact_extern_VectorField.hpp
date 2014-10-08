@@ -25,29 +25,6 @@ extern "C" {
 void VF_write( double* phiU, double* phiV, double* phiW, const int& count );
 
 
-
-void VF_init_2DPoiseuilleX(
-    const int* const N,
-    const int* const bL,
-    const int* const bU,
-    const int* const SS,
-    const int* const NN,
-    const double& L2,
-    const double* const x2,
-          double* const phi );
-
-
-void VF_init_2DPoiseuilleY(
-    const int* const N,
-    const int* const bL,
-    const int* const bU,
-    const int* const SS,
-    const int* const NN,
-    const double& L1,
-    const double* const x1,
-          double* const phi );
-
-
 void VF_init_2DPulsatileXC(
     const int& N1,  const int& N2,  const int& N3,
     const int& S1U, const int& S2U, const int& S3U,

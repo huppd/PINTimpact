@@ -286,7 +286,7 @@ TEUCHOS_UNIT_TEST( VectorField, initField ) {
 	auto vel = Pimpact::createVectorField<double,int>(space);
 
 	for( int i=0; i<=18; ++i ) {
-		vel->initField( Pimpact::EFlowProfile(i) );
+		vel->initField( Pimpact::EFlowField(i) );
 		vel->write( i );
 	}
 

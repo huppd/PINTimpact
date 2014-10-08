@@ -27,7 +27,7 @@ class CompoundStokes {
   Scalar omega_;
   Teuchos::RCP<HelmholtzOp<Scalar,Ordinal> > L_;
   Teuchos::RCP<DivOp<Scalar,Ordinal> >  div_;
-  Teuchos::RCP<Grad<Scalar,Ordinal> > grad_;
+  Teuchos::RCP<GradOp<Scalar,Ordinal> > grad_;
 
 
   typedef ScalarField<Scalar,Ordinal>  SF;
@@ -46,7 +46,7 @@ public:
 //    omega_(1.),
 //    L_(Teuchos::rcp(new HelmholtzOp<Scalar,Ordinal>( 0., 1. )) ),
 //    div_(Teuchos::rcp(new DivOp<Scalar,Ordinal>())),
-//    grad_(Teuchos::rcp(new Grad<Scalar,Ordinal>() )),
+//    grad_(Teuchos::rcp(new GradOp<Scalar,Ordinal>() )),
 //    temp_(Teuchos::null) {};
 
   CompoundStokes(
@@ -58,7 +58,7 @@ public:
     omega_(omega),
     L_(Teuchos::rcp( new HelmholtzOp<Scalar,Ordinal>(space, mulI,mulL) ) ),
     div_(Teuchos::rcp(new DivOp<Scalar,Ordinal>(space))),
-    grad_(Teuchos::rcp(new Grad<Scalar,Ordinal>() )),
+    grad_(Teuchos::rcp(new GradOp<Scalar,Ordinal>(space) )),
     temp_(temp) {};
 
 

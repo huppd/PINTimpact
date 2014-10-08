@@ -15,8 +15,6 @@
 #include "Pimpact_DivOp.hpp"
 #include "Pimpact_GradOp.hpp"
 #include "Pimpact_DivGradOp.hpp"
-#include "Pimpact_DivHinvGradOp.hpp"
-#include "Pimpact_DivOpGrad.hpp"
 #include "Pimpact_HelmholtzOp.hpp"
 #include "Pimpact_InverseHelmholtzOp.hpp"
 #include "Pimpact_MLHelmholtzOp.hpp"
@@ -41,7 +39,6 @@
 #include "Pimpact_DtModeOp.hpp"
 #include "Pimpact_DtLapOp.hpp"
 #include "Pimpact_EddyPrec.hpp"
-#include "Pimpact_DivDtLinvGradOp.hpp"
 #include "Pimpact_ModeOpWrap.hpp"
 
 /// \defgroup MultiOperator Multi Operator

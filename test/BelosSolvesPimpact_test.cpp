@@ -130,7 +130,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, PrecDivGrad ) {
 
   auto div = Pimpact::createDivOp<S,O>( space );
 
-  u->initField( Pimpact::Poiseuille2D_inX );
+  u->initField( Pimpact::PoiseuilleFlow2D_inX );
   u->write();
 
 
@@ -258,7 +258,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
 	auto space = Pimpact::createSpace();
 
   auto temp = Pimpact::createVectorField<double,int>( space );
-  temp->initField(Pimpact::Poiseuille2D_inX);
+  temp->initField(Pimpact::PoiseuilleFlow2D_inX);
   //  temp->init(0.);
 
   auto p = Pimpact::createScalarField<S,O>(space);
@@ -268,7 +268,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
 
   auto div = Teuchos::rcp( new Pimpact::DivOp<S,O>( space ) );
 
-  temp->initField(Pimpact::ZeroProf);
+  temp->initField(Pimpact::ZeroFlow);
   auto op = Pimpact::createOperatorBase<BSF,MuOp>(
       Pimpact::createMultiOpWrap(
           Pimpact::createDivGradOp(temp) ) );

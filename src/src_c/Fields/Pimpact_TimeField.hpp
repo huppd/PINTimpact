@@ -461,13 +461,13 @@ initVectorTimeField(
   for( Iter j = field->mfs_.begin(); j<field->endI_; ++j )
     switch( flowType ) {
     case Zero2DFlow:
-      (*j)->initField( ZeroProf );
+      (*j)->initField( ZeroFlow );
       break;
     case Poiseuille_inX:
-      (*j)->initField( Poiseuille2D_inX );
+      (*j)->initField( PoiseuilleFlow2D_inX );
       break;
     case Poiseuille_inY:
-      (*j)->initField( Poiseuille2D_inY );
+      (*j)->initField( PoiseuilleFlow2D_inY );
       break;
     case Streaming2DFlow: {
       S ampt = std::sin( 2.*pi*((S)i+++(S)offset)/(S)space->nGlo()[3] );
@@ -487,7 +487,7 @@ initVectorTimeField(
       break;
     }
     default:
-      (*j)->initField( ZeroProf );
+      (*j)->initField( ZeroFlow );
       break;
     }
 //  field->changed();

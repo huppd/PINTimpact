@@ -27,7 +27,7 @@ class DivGradOp {
 
   Teuchos::RCP<VectorField<Scalar,Ordinal,dimension> > temp_;
   Teuchos::RCP<DivOp<Scalar,Ordinal,dimension> > div_;
-  Teuchos::RCP<Grad<Scalar,Ordinal,dimension> > grad_;
+  Teuchos::RCP<GradOp<Scalar,Ordinal,dimension> > grad_;
 
 public:
 
@@ -37,13 +37,14 @@ public:
   DivGradOp():
     temp_(Teuchos::null),
     div_(Teuchos::rcp(new DivOp<Scalar,Ordinal,dimension>() )),
-    grad_(Teuchos::rcp(new Grad<Scalar,Ordinal,dimension>() )) {};
+    grad_(Teuchos::rcp(new GradOp<Scalar,Ordinal,dimension>() )) {};
 
   DivGradOp( const Teuchos::RCP<VectorField<Scalar,Ordinal,dimension> >& temp,
-      const Teuchos::RCP< DivOp<Scalar,Ordinal,dimension> > div=Teuchos::null ):
+      const Teuchos::RCP< DivOp<Scalar,Ordinal,dimension> >& div=Teuchos::null,
+      const Teuchos::RCP< GradOp<Scalar,Ordinal,dimension> >& grad=Teuchos::null ):
     temp_(temp),
     div_ (div),
-    grad_(Teuchos::rcp(new Grad<Scalar,Ordinal,dimension>() )) {};
+    grad_(grad) {};
 
   void apply(const DomainFieldT& x, RangeFieldT& y,
       Belos::ETrans trans=Belos::NOTRANS ) const {

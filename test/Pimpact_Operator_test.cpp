@@ -115,22 +115,56 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivOp ) {
 }
 
 
-TEUCHOS_UNIT_TEST( BasicOperator, Grad ) {
+TEUCHOS_UNIT_TEST( BasicOperator, GradOp ) {
 
-  if( !isImpactInit ) {
-    init_impact(0,0);
-    isImpactInit=true;
-  }
+  auto pl = Teuchos::parameterList();
 
-  auto space = Pimpact::createSpace();
+  pl->set( "domain", 1);
 
-  auto p = Pimpact::createScalarField<S,O>(space);
-  auto vel = Pimpact::createVectorField<S,O>(space);
+  pl->set( "lx", 2. );
+  pl->set( "ly", 2. );
+  pl->set( "lz", 1. );
 
-  Pimpact::Grad<S,O> grad;
 
-  grad.apply(*p,*vel);
+  pl->set("nx", 49 );
+  pl->set("ny", 49 );
+  pl->set("nz", 2 );
 
+  // processor grid size
+  pl->set("npx", 1 );
+  pl->set("npy", 1 );
+  pl->set("npz", 1 );
+
+  auto space = Pimpact::createSpace( pl );
+
+
+  auto p = Pimpact::createScalarField( space );
+  auto v = Pimpact::createVectorField( space );
+
+  auto grad = Pimpact::createGradOp( space );
+  grad->print();
+
+  // grad in x test
+  p->initField( Pimpact::Grad2D_inX );
+  v->random();
+
+  grad->apply(*p,*v);
+
+  TEST_EQUALITY( (v->getConstFieldPtr(Pimpact::U)->norm()-std::sqrt( std::pow(1.,2)*p->getLength() ))<errorTolSlack, true );
+  TEST_EQUALITY( v->getConstFieldPtr(Pimpact::V)->norm()<errorTolSlack, true );
+
+  v->write(0);
+
+  // grad in x test
+  p->initField( Pimpact::Grad2D_inY );
+  v->random();
+
+  grad->apply(*p,*v);
+
+  TEST_EQUALITY(  v->getConstFieldPtr(Pimpact::U)->norm()<errorTolSlack, true );
+  TEST_EQUALITY( (v->getConstFieldPtr(Pimpact::V)->norm()-std::sqrt( std::pow(1.,2)*p->getLength() ))<errorTolSlack, true );
+
+  v->write(1);
 
   TEST_EQUALITY( 0, 0 );
 }
@@ -171,7 +205,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
 //  op->print();
 
   // test in x direction
-  x->initField( Pimpact::Poiseuille2D_inX );
+  x->initField( Pimpact::PoiseuilleFlow2D_inX );
   bs->init( Teuchos::tuple( 8./std::pow(space->getDomain()->getDomainSize()->getSize(Pimpact::Y),2), 0., 0. ) );
   bs->add( mulI, *x, mulL, *bs );
 
@@ -185,7 +219,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
   TEST_EQUALITY( bs->norm()<errorTolSlack, true );
 
   // test in y direction
-  x->initField( Pimpact::Poiseuille2D_inY );
+  x->initField( Pimpact::PoiseuilleFlow2D_inY );
   bs->init( Teuchos::tuple( 0., 8./std::pow(space->getDomain()->getDomainSize()->getSize(Pimpact::X),2), 0. ) );
   bs->add( mulI, *x, mulL, *bs );
 
@@ -229,7 +263,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, InverseHelmholtz ) {
   auto x   = Pimpact::createVectorField(space);
 
   sol->random();
-  //sol->initField( Pimpact::EFlowProfile(1) );
+  //sol->initField( Pimpact::EFlowField(1) );
 
   auto hel = Pimpact::createHelmholtzOp( space, 1.,1.);
 
@@ -263,8 +297,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, MGVHelmholtzOp ) {
   auto x   = Pimpact::createVectorField( space );
 
   //  sol->random();
-  sol->initField( Pimpact::EFlowProfile(8) );
-  x->initField( Pimpact::EFlowProfile(8) );
+  sol->initField( Pimpact::EFlowField(8) );
+  x->initField( Pimpact::EFlowField(8) );
 
   auto hel = Pimpact::createHelmholtzOp( space, 1.,1.);
 
@@ -309,7 +343,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, MGVDivGradOp ) {
 
   auto div = Pimpact::createDivOp<S,O>( space );
 
-  u->initField( Pimpact::Poiseuille2D_inX );
+  u->initField( Pimpact::PoiseuilleFlow2D_inX );
   u->write();
 
 
@@ -342,7 +376,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ForcingOp ) {
   auto res = Pimpact::createVectorField<S,O>(space);
 
   vel->init(1.);
-  force->initField( Pimpact::EFlowProfile(11) );
+  force->initField( Pimpact::EFlowField(11) );
   res->random();
 
   auto op = Pimpact::createForcingOp( force, 1. );
@@ -625,8 +659,17 @@ TEUCHOS_UNIT_TEST( ModeOperator, DivDtLinvGrad ) {
   // Create the Pimpact::LinearSolver solver.
   auto H_prob = Pimpact::createLinearProblem<MVF>( A, temp, temp, solverParams,"GMRES" );
 
-  auto schur = Pimpact::createMultiOpWrap( Pimpact::createDivDtLinvGrad<S,O>( temp, H_prob ) );
+//  auto schur = Pimpact::createMultiOpWrap( Pimpact::createDivDtLinvGrad<S,O>( temp, H_prob ) );
   //
+  auto schur =
+      Pimpact::createTripleCompositionOp(
+          temp,
+          temp->clone(),
+          Pimpact::createMultiModeOpWrap( Pimpact::createDivOp(space) ),
+          Pimpact::createInverseOperator( H_prob ),
+          Pimpact::createMultiModeOpWrap( Pimpact::createGradOp(space) )
+      );
+
   schur->apply( *B, *X );
 }
 
@@ -639,43 +682,39 @@ TEUCHOS_UNIT_TEST( ModeOperator, TripleCompostion) {
     isImpactInit=true;
   }
 
-  using Teuchos::ParameterList;
-  using Teuchos::parameterList;
-  using Teuchos::RCP;
-  using Teuchos::rcp; // Save some typing
+  auto space = Pimpact::createSpace();
 
   typedef Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<S,O> > > MVF;
   typedef Pimpact::DtLapOp<S,O> Op;
 
-  auto temp = Pimpact::createMultiModeVectorField<S,O>();
 
   auto X = Pimpact::createMultiModeScalarField<S,O>();
   auto B = Pimpact::createMultiModeScalarField<S,O>();
 
+  auto temp = Pimpact::createMultiModeVectorField<S,O>();
+
   X->init(0.);
   B->random();
 
-  //  Pimpact::createOperatorB
-  auto space = Pimpact::createSpace();
 
-  auto A = Pimpact::createMultiOperatorBase<MVF,Op>(
+  auto H = Pimpact::createMultiOperatorBase<MVF,Op>(
       ( Pimpact::createDtLapOp<S,O>( space, 0., 10. ) ) );
 
-  A->apply( *temp, *temp );
+  H->apply( *temp, *temp );
 
   // Make an empty new parameter list.
-  auto solverParams = parameterList();
+  auto solverParams = Teuchos::parameterList();
 
   // Create the Pimpact::LinearSolver solver.
-  auto Hprob = Pimpact::createLinearProblem<MVF>( A, temp, temp, solverParams,"GMRES" );
+  auto Hprob = Pimpact::createLinearProblem<MVF>( H, temp, temp, solverParams,"GMRES" );
   auto Hinv  = Pimpact::createInverseOperator( Hprob );
 
   auto schur = Pimpact::createTripleCompositionOp(
-      Pimpact::createMultiField( temp->getConstFieldPtr(0)->clone() ),
-      Pimpact::createMultiField( temp->getConstFieldPtr(0)->clone() ),
-      Pimpact::createMultiModeOpWrap( Pimpact::createGradOp<S,O>( space )),
+      temp->clone(),
+      temp->clone(),
+      Pimpact::createMultiModeOpWrap( Pimpact::createDivOp<S,O>( space ) ),
       Hinv,
-      Pimpact::createMultiModeOpWrap( Pimpact::createDivOp<S,O>( space ) )
+      Pimpact::createMultiModeOpWrap( Pimpact::createGradOp<S,O>( space ))
   );
 
   schur->apply( *B, *X );
@@ -742,9 +781,9 @@ TEUCHOS_UNIT_TEST( ModeOperator, DivOpGrad ) {
   using Teuchos::rcp; // Save some typing
 
   typedef Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<S,O> > > MVF;
-  typedef Pimpact::MultiField<Pimpact::ModeField<Pimpact::ScalarField<S,O> > > MSF;
+//  typedef Pimpact::MultiField<Pimpact::ModeField<Pimpact::ScalarField<S,O> > > MSF;
   typedef Pimpact::DtLapOp<S,O>  Op;
-  typedef Pimpact::DivOpGrad<S,O>  Op2;
+//  typedef Pimpact::DivOpGrad<S,O>  Op2;
 
   auto temp = Pimpact::createMultiModeVectorField<S,O>();
 
@@ -760,21 +799,26 @@ TEUCHOS_UNIT_TEST( ModeOperator, DivOpGrad ) {
   // Create the Pimpact::LinoearSolver solver.
   auto space = Pimpact::createSpace();
 
-  auto A = Pimpact::createMultiOperatorBase<MVF,Op>( Pimpact::createDtLapOp<S,O>( space, 14., 1. ) );
+  auto H = Pimpact::createMultiOperatorBase<MVF,Op>( Pimpact::createDtLapOp<S,O>( space, 14., 1. ) );
 
-  A->apply( *temp, *temp );
+  H->apply( *temp, *temp );
 
-  auto prob = Pimpact::createLinearProblem<MVF>( A, temp, temp, solverParams,"GMRES" );
+  auto H_prob = Pimpact::createLinearProblem<MVF>( H, temp, temp, solverParams,"GMRES" );
 
-  prob->solve(temp,temp);
+  H_prob->solve(temp,temp);
 
-  auto op = Pimpact::createDivOpGrad<S,O>( temp, prob ) ;
+  auto H_inv = Pimpact::createInverseOperator( H_prob );
 
-  op->apply( X->getField(0), B->getField(0) );
+  auto op = Pimpact::createTripleCompositionOp(
+      temp,
+      temp->clone(),
+      Pimpact::createMultiModeOpWrap( Pimpact::createDivOp( space ) ),
+      H_inv,
+      Pimpact::createMultiModeOpWrap( Pimpact::createGradOp( space ) )
+  );
 
-  auto schur = Pimpact::createMultiOperatorBase<MSF,Op2>( op );
+  op->apply( *X, *B);
 
-  schur->apply( *B, *X );
 }
 
 

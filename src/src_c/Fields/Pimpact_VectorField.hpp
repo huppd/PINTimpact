@@ -36,7 +36,7 @@ template<class S=double, class O=int, int d=3 >
 class VectorField : AbstractField<S,O> {
 
   template<class S1, class O1, int dimension1>
-  friend class Grad;
+  friend class GradOp;
   template<class S1,class O1, int dimension1>
   friend class DivOp;
   template<class S1,class O1, int dimension1>
@@ -369,62 +369,25 @@ public:
 
 
   ///  \brief initializes VectorField with the initial field defined in Fortran
-  void initField( EFlowProfile flowType = Poiseuille2D_inX, double re=1., double om=1., double px = 1. ) {
+  void initField( EFlowField flowType = PoiseuilleFlow2D_inX, double re=1., double om=1., double px = 1. ) {
     switch( flowType) {
-    case ZeroProf :
+    case ZeroFlow :
       for( int i=0; i<dim(); ++i )
-        SF_init(
-            nLoc(),
-            bl(),
-            bu(),
-            sIndB(i),
-            eIndB(i),
-            vec(i),
-            0. );
+        sFields_[i]->initField( ZeroField );
       break;
-    case Poiseuille2D_inX :
+    case PoiseuilleFlow2D_inX :
       for( int i=0; i<dim(); ++i )
         if( U==i )
-          VF_init_2DPoiseuilleX(
-              nLoc(),
-              bl(),
-              bu(),
-              sIndB(i),
-              eIndB(i),
-              space_->getDomain()->getDomainSize()->getSize( Y ),
-              space_->getCoordinatesLocal()->getX(Y,i),
-              vec(i) );
+          sFields_[i]->initField( Poiseuille2D_inX );
         else
-          SF_init(
-              nLoc(),
-              bl(),
-              bu(),
-              sIndB(i),
-              eIndB(i),
-              vec(i),
-              0. );
+          sFields_[i]->initField( ZeroField );
       break;
-    case Poiseuille2D_inY :
+    case PoiseuilleFlow2D_inY :
       for( int i=0; i<dim(); ++i )
         if( V==i )
-          VF_init_2DPoiseuilleY(
-              nLoc(),
-              bl(),
-              bu(),
-              sIndB(i),
-              eIndB(i),
-              space_->getDomain()->getDomainSize()->getSize( X ),
-              space_->getCoordinatesLocal()->getX(X,i),
-              vec(i) );
+          sFields_[i]->initField( Poiseuille2D_inY );
         else
-          SF_init(
-              nLoc(),
-              bl(),
-              bu(),
-              sIndB(i),
-              eIndB(i),
-              vec(i),
-              0. );
+          sFields_[i]->initField( ZeroField );
       break;
     case Pulsatile2D_inXC :
       VF_init_2DPulsatileXC(
@@ -721,6 +684,12 @@ public:
     //    return( vec_[0] );
     return( vec_ );
   }
+
+  Teuchos::RCP<SF> getFieldPtr( int i ) { return(  sFields_[i] ); }
+  SF& getField   ( int i ) { return( *sFields_[i] ); }
+
+  Teuchos::RCP<const SF> getConstFieldPtr( int i ) const { return(  sFields_[i] ); }
+  const SF&  getConstField   ( int i ) const { return( *sFields_[i] ); }
 
 protected:
 

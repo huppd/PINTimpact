@@ -200,5 +200,21 @@ TEUCHOS_UNIT_TEST( ScalarField, write ) {
 
   TEST_EQUALITY( 0, 0)
 }
+
+
+TEUCHOS_UNIT_TEST( ScalarField, initField ) {
+
+  auto space = Pimpact::createSpace();
+
+  auto x = Pimpact::createScalarField(space);
+
+  for( int i=0; i<=4; ++i ) {
+    x->initField( Pimpact::EScalarField(i) );
+    x->write( i );
+  }
+
+}
+
+
 } // namespace
 

@@ -192,6 +192,49 @@ void F_exchange(
     double* const phi );
 
 
+void SF_init_2DPoiseuilleX(
+    const int* const N,
+    const int* const bL,
+    const int* const bU,
+    const int* const SS,
+    const int* const NN,
+    const double& L2,
+    const double* const x2,
+          double* const phi );
+
+
+void SF_init_2DPoiseuilleY(
+    const int* const N,
+    const int* const bL,
+    const int* const bU,
+    const int* const SS,
+    const int* const NN,
+    const double& L1,
+    const double* const x1,
+          double* const phi );
+
+
+void SF_init_2DGradX(
+    const int* const N,
+    const int* const bL,
+    const int* const bU,
+    const int* const SS,
+    const int* const NN,
+    const double* L,
+    const double* const x1,
+          double* const phi );
+
+
+void SF_init_2DGradY(
+    const int* const N,
+    const int* const bL,
+    const int* const bU,
+    const int* const SS,
+    const int* const NN,
+    const double* L,
+    const double* const x2,
+          double* const phi );
+
 } // end of extern 'C'
 
 

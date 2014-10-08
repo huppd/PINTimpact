@@ -341,7 +341,7 @@ int main(int argi, char** argv ) {
       Pimpact::createCompositionOp(
           x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
           forcingm1Op,
-//          Pimpact::createTimeOpWrap<Pimpact::Grad<S,O,4>,cny>(
+//          Pimpact::createTimeOpWrap<Pimpact::GradOp<S,O,4>,cny>(
           Pimpact::createTimeOpWrap(
               Pimpact::createGradOp<S,O,4>( space ),
               Pimpact::createVectorField<S,O,4>( space ) ) );
@@ -453,9 +453,11 @@ int main(int argi, char** argv ) {
                    Pimpact::createMultiField(fu->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy)),
                    Pimpact::createMultiField(fu->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy)),
 //                   fu->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
-                   Pimpact::createMultiOpWrap(opS2V),
+                   Pimpact::createMultiOpWrap(opV2S),
                    opV2Vinv,
-                   Pimpact::createMultiOpWrap(opV2S) ) );//
+                   Pimpact::createMultiOpWrap(opS2V)
+               )
+           );//
 
     auto lp_ = Pimpact::createLinearProblem< MSF >( opSchur, Teuchos::null, Teuchos::null, schurParams, "GMRES");
     /// simple prec
@@ -519,9 +521,11 @@ int main(int argi, char** argv ) {
                 Pimpact::createTripleCompositionOp(
                     fu->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
                     fu->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
-                    opS2V,
+                    opV2S,
                     opV2V,
-                    opV2S)  );
+                    opS2V
+                )
+            );
 
      //--- inverse DivGrad
      auto divGradPrec =
@@ -546,7 +550,9 @@ int main(int argi, char** argv ) {
                     Pimpact::createMultiField( fu->getConstFieldPtr(0)->getConstSFieldPtr()->clone(Pimpact::ShallowCopy) ),
                     divGradInv,
                     opSchur,
-                    divGradInv ) );
+                    divGradInv
+                )
+            );
 
 ////     auto lp_ = Pimpact::createLinearProblem< Pimpact::MultiField<SF> >( opSchur, Teuchos::null, Teuchos::null, schurParams, "GMRES" );
 ////
@@ -624,9 +630,11 @@ int main(int argi, char** argv ) {
                 Pimpact::createTripleCompositionOp(
                     fu->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
                     fu->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
-                    opS2V,
+                    opV2S,
                     opV2V,
-                    opV2S)  );
+                    opS2V
+                )
+            );
 
      //--- inverse DivGrad
      auto divGradPrec =
@@ -651,7 +659,9 @@ int main(int argi, char** argv ) {
                     Pimpact::createMultiField( fu->getConstFieldPtr(0)->getConstSFieldPtr()->clone(Pimpact::ShallowCopy) ),
                     divGradInv,
                     opSchur,
-                    divGradInv ) );
+                    divGradInv
+                )
+            );
 
 ////     auto lp_ = Pimpact::createLinearProblem< Pimpact::MultiField<SF> >( opSchur, Teuchos::null, Teuchos::null, schurParams, "GMRES" );
 ////

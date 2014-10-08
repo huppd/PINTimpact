@@ -18,6 +18,7 @@ namespace Pimpact {
 
 
 /// \ingroup CompoundOperator
+/// \relates TripleComposition
 template<class OpV2Vinv,class OpS2V, class OpV2S>
 class InverseSchurOp {
 
@@ -62,9 +63,11 @@ public:
             Pimpact::createTripleCompositionOp(
                 createMultiField( tempv_->clone(Pimpact::ShallowCopy) ),
                 createMultiField( tempv_->clone(Pimpact::ShallowCopy) ),
-                createMultiOpWrap( opS2V_ ),
+                createMultiOpWrap( opV2S_ ),
                 opV2Vinv_,
-                createMultiOpWrap( opV2S_ ) ) );
+                createMultiOpWrap( opS2V_ )
+            )
+        );
 
     lp_ = Pimpact::createLinearProblem< MultiField<SF> >( opSchur, Teuchos::null, Teuchos::null, para, "GMRES" );
 //    lp_ = Pimpact::createLinearProblem< MultiField<SF> >( opSchur, Teuchos::null, Teuchos::null, Teuchos::null, "GmresPoly" );

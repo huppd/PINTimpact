@@ -192,10 +192,10 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, createGroup ) {
 //  auto jop = Pimpact::createMultiOperatorBase<MVF,JOp>();
 //
 //
-//  x->getFieldPtr(0)->initField( Pimpact::ZeroProf);
+//  x->getFieldPtr(0)->initField( Pimpact::ZeroFlow);
 //  x->random();
 //
-//  f->getFieldPtr(0)->initField( Pimpact::ZeroProf );
+//  f->getFieldPtr(0)->initField( Pimpact::ZeroFlow );
 //  f->init(1.);
 //
 //
@@ -304,11 +304,11 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, createGroup ) {
 ////  x->init(1.);
 //
 ////  f->getFieldPtr(0)->initField( Pimpact::Circle2D);
-//  f->getFieldPtr(0)->initField( Pimpact::ZeroProf );
+//  f->getFieldPtr(0)->initField( Pimpact::ZeroFlow );
 ////  f->init(1.);
 //  op->apply(*x,*f);
 //  f->write(77);
-////  x->getFieldPtr(0)->initField( Pimpact::ZeroProf );
+////  x->getFieldPtr(0)->initField( Pimpact::ZeroFlow );
 ////  x->random();
 ////  x->init(1.);
 //  x->scale(0.9);
@@ -421,10 +421,10 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, createGroup ) {
 ////  x->init(1.);
 //
 ////  f->GetFieldPtr(0)->initField( Pimpact::Circle2D);
-//  f->getFieldPtr(0)->initField( Pimpact::ZeroProf );
+//  f->getFieldPtr(0)->initField( Pimpact::ZeroFlow );
 //  op->apply(*x,*f);
 //  f->write(98);
-////  x->getFieldPtr(0)->initField( Pimpact::ZeroProf );
+////  x->getFieldPtr(0)->initField( Pimpact::ZeroFlow );
 ////  x->random();
 ////  x->scale( -1. );
 //  x->scale( 0.1 );
@@ -530,7 +530,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
   auto vel = Pimpact::createVectorField<S,O>(space);
 
 //  vel->initField( Pimpact::RankineVortex2D );
-  vel->initField( Pimpact::ZeroProf );
+  vel->initField( Pimpact::ZeroFlow );
 
   auto x = Pimpact::createMultiField<VF>( *vel->clone(), 1 );
   auto f = Pimpact::createMultiField<VF>( *vel->clone(), 1 );
@@ -554,7 +554,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
 
   // init Fields, init and rhs
   x->getFieldPtr(0)->initField( Pimpact::RankineVortex2D );
-  f->getFieldPtr(0)->initField( Pimpact::ZeroProf );
+  f->getFieldPtr(0)->initField( Pimpact::ZeroFlow );
 
   x->write(97);
   op->apply(*x,*f);
@@ -641,7 +641,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
   auto blabla = Teuchos::rcp_const_cast<Pimpact::VectorField<double,int> >(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() )->getConstFieldPtr()->getConstFieldPtr(0));
   vel->initField( Pimpact::RankineVortex2D );
   auto er = vel->clone();
-  er->initField( Pimpact::ZeroProf );
+  er->initField( Pimpact::ZeroFlow );
   er->add( 1., *blabla, -1., *vel );
   er->write(100);
 

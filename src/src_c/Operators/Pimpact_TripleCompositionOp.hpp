@@ -21,13 +21,13 @@ class TripleCompositionOp {
 
 public:
 
-  typedef typename OP1::DomainFieldT DomainFieldT;
-  typedef typename OP3::RangeFieldT  RangeFieldT;
+  typedef typename OP3::DomainFieldT DomainFieldT;
+  typedef typename OP1::RangeFieldT  RangeFieldT;
 
 private:
 
-  Teuchos::RCP<typename OP1::RangeFieldT> temp1_; // has to be equal to OP2::DomainFieldT
-  Teuchos::RCP<typename OP3::DomainFieldT> temp2_; // has to be euqal to OP3::DomainFieldT
+  Teuchos::RCP<typename OP2::RangeFieldT> temp1_; // has to be equal to OP2::DomainFieldT
+  Teuchos::RCP<typename OP2::DomainFieldT> temp2_; // has to be euqal to OP3::DomainFieldT
 
   Teuchos::RCP<OP1> op1_;
   Teuchos::RCP<OP2> op2_;
@@ -36,20 +36,23 @@ private:
 public:
 
   TripleCompositionOp(
-      const Teuchos::RCP<typename OP1::RangeFieldT>& temp1=Teuchos::null,
-      const Teuchos::RCP<typename OP3::DomainFieldT>& temp2=Teuchos::null,
-      const Teuchos::RCP<OP1>&          op1=Teuchos::null,
-      const Teuchos::RCP<OP2>&          op2=Teuchos::null,
-      const Teuchos::RCP<OP3>&          op3=Teuchos::null
+      const Teuchos::RCP<typename OP2::DomainFieldT>& temp1,
+      const Teuchos::RCP<typename OP2::RangeFieldT>& temp2,
+      const Teuchos::RCP<OP1>&          op1,
+      const Teuchos::RCP<OP2>&          op2,
+      const Teuchos::RCP<OP3>&          op3
       ):
-        temp1_(temp1),temp2_(temp2),
-        op1_(op1), op2_(op2), op3_(op3)
+        temp1_(temp1),
+        temp2_(temp2),
+        op1_(op1),
+        op2_(op2),
+        op3_(op3)
 {};
 
   void apply(const DomainFieldT& x, RangeFieldT& y, Belos::ETrans trans=Belos::NOTRANS) const {
-    op1_->apply( x, *temp1_);
+    op3_->apply( x, *temp1_);
     op2_->apply( *temp1_, *temp2_ );
-    op3_->apply( *temp2_, y );
+    op1_->apply( *temp2_, y );
   }
 
   /// \note here nothing happens, because it is assumed to be done somewhere else
@@ -61,6 +64,14 @@ public:
 //    if( !op2_.is_null() )
 //      op2_->assignField( field );
   };
+//  void assignField( const DomainFieldT& field ) {
+//    if( !op1_.is_null() )
+//      op1_->assignField( field );
+//    if( !op2_.is_null() )
+//      op2_->assignField( field );
+//    if( !op2_.is_null() )
+//      op2_->assignField( field );
+//  };
 
   bool hasApplyTranspose() const { return( op1_->hasApplyTranspose() && op2_->hasApplyTranspose() && op3_->hasApplyTranspose() ); }
 
@@ -71,11 +82,11 @@ public:
 /// \relates TripleCompositionOp
 template<class OP1, class OP2, class OP3>
 Teuchos::RCP< TripleCompositionOp<OP1, OP2, OP3> > createTripleCompositionOp(
-    const Teuchos::RCP<typename OP1::RangeFieldT>& temp1=Teuchos::null,
-    const Teuchos::RCP<typename OP3::DomainFieldT>& temp2=Teuchos::null,
-    const Teuchos::RCP<OP1>& op1=Teuchos::null,
-    const Teuchos::RCP<OP2>& op2=Teuchos::null,
-    const Teuchos::RCP<OP3>& op3=Teuchos::null
+    const Teuchos::RCP<typename OP2::DomainFieldT>& temp1,
+    const Teuchos::RCP<typename OP2::RangeFieldT>& temp2,
+    const Teuchos::RCP<OP1>& op1,
+    const Teuchos::RCP<OP2>& op2,
+    const Teuchos::RCP<OP3>& op3
       ) {
   return( Teuchos::rcp( new TripleCompositionOp<OP1,OP2,OP3>( temp1, temp2, op1, op2, op3 ) ) );
 }

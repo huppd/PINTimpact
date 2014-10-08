@@ -172,11 +172,11 @@ int main(int argi, char** argv ) {
   vel = Teuchos::null;
 
   p->init(0.);
-  u->getField(0).initField( Pimpact::EFlowProfile(flow) );
+  u->getField(0).initField( Pimpact::EFlowField(flow) );
   u->init(0);
 
-  tempv->getField(0).initField( Pimpact::EFlowProfile(flow) );
-  fu->getField(0).initField( Pimpact::ZeroProf );
+  tempv->getField(0).initField( Pimpact::EFlowField(flow) );
+  fu->getField(0).initField( Pimpact::ZeroFlow );
 
 
   // init operators
@@ -193,8 +193,8 @@ int main(int argi, char** argv ) {
   fu->write( 9000 );
   fp->write( 8000 );
 
-  u->getField(0).initField( Pimpact::ZeroProf );
-  tempv->getField(0).initField( Pimpact::ZeroProf );
+  u->getField(0).initField( Pimpact::ZeroFlow );
+  tempv->getField(0).initField( Pimpact::ZeroFlow );
 
   // solve parameter for GMRES
   RCP<ParameterList> solveParaGMRES = Pimpact::createLinSolverParameter( "GMRES", 1.0e-6 );
@@ -212,7 +212,11 @@ int main(int argi, char** argv ) {
   solveParaCG->set( "Output Stream", outLap1 );
   auto lap_problem = Pimpact::createLinearProblem<MVF>( lap, u, fu, solveParaCG, "GMRES" );
 
-  auto schur = Pimpact::createMultiOperatorBase<MSF, Pimpact::DivHinvGrad<S,O> >(Pimpact::createDivHinvGrad<S,O>( u, lap_problem ) );
+  auto lap_inv = Pimpact::createInverseOperator( lap_problem );
+
+  auto schur = Pimpact::createOperatorBase<MSF>(
+      Pimpact::createTripleCompositionOp(
+          u->clone(),u->clone(), div, lap_inv, grad ) );
 
   solveParaGMRES->set( "Output Stream", outSchur );
   auto schur_prob = Pimpact::createLinearProblem<MSF>( schur, p, temps, solveParaGMRES, "GMRES" );

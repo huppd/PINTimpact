@@ -57,7 +57,7 @@ int main(int argi, char** argv ) {
   typedef Pimpact::CompoundStokes<S,O>    Op;
   //	typedef Pimpact::OperatorMV< Pimpact::DtL<Scalar,Ordinal> >  Lap;
   //	typedef Pimpact::OperatorMV< Pimpact::Div_DtLinv_Grad<Scalar,Ordinal> >  Schur;
-  //	typedef Pimpact::OperatorMV< Pimpact::Grad<Scalar,Ordinal> >  G;
+  //	typedef Pimpact::OperatorMV< Pimpact::GradOp<Scalar,Ordinal> >  G;
 
   // intialize MPI
   MPI_Init( &argi, &argv );
@@ -196,16 +196,16 @@ int main(int argi, char** argv ) {
 
   switch( Pimpact::EFlowType(flow) ) {
   case Pimpact::Zero2DFlow :
-    q->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr()->initField( Pimpact::ZeroProf );
-    q->getFieldPtr(0)->getVFieldPtr()->getSFieldPtr()->initField( Pimpact::ZeroProf );
+    q->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr()->initField( Pimpact::ZeroFlow );
+    q->getFieldPtr(0)->getVFieldPtr()->getSFieldPtr()->initField( Pimpact::ZeroFlow );
     break;
   case Pimpact::Poiseuille_inX :
-    q->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr()->initField( Pimpact::Poiseuille2D_inX );
-    q->getFieldPtr(0)->getVFieldPtr()->getSFieldPtr()->initField( Pimpact::ZeroProf );
+    q->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr()->initField( Pimpact::PoiseuilleFlow2D_inX );
+    q->getFieldPtr(0)->getVFieldPtr()->getSFieldPtr()->initField( Pimpact::ZeroFlow );
     break;
   case Pimpact::Poiseuille_inY :
-    q->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr()->initField( Pimpact::Poiseuille2D_inY );
-    q->getFieldPtr(0)->getVFieldPtr()->getSFieldPtr()->initField( Pimpact::ZeroProf );
+    q->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr()->initField( Pimpact::PoiseuilleFlow2D_inY );
+    q->getFieldPtr(0)->getVFieldPtr()->getSFieldPtr()->initField( Pimpact::ZeroFlow );
     break;
   case Pimpact::Pulsatile_inX :
     q->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr()->initField( Pimpact::Pulsatile2D_inXC, re, omega, px );
@@ -221,8 +221,8 @@ int main(int argi, char** argv ) {
 
   q->init(0);
 
-  f->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr()->initField( Pimpact::ZeroProf );
-  f->getFieldPtr(0)->getVFieldPtr()->getSFieldPtr()->initField( Pimpact::ZeroProf );
+  f->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr()->initField( Pimpact::ZeroFlow );
+  f->getFieldPtr(0)->getVFieldPtr()->getSFieldPtr()->initField( Pimpact::ZeroFlow );
 
   // init operators
   auto op = Pimpact::createMultiOperatorBase<MV,Op>(
