@@ -1,6 +1,6 @@
 #pragma once
-#ifndef PIMPACT_COMPOUNDSTOKESOP_HPP
 #define PIMPACT_COMPOUNDSTOKESOP_HPP
+#ifndef PIMPACT_COMPOUNDSTOKESOP_HPP
 
 #include "Teuchos_RCP.hpp"
 

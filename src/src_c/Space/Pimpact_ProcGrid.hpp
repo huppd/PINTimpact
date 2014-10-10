@@ -301,10 +301,11 @@ public:
   const int* getRankL() const { return( rankL_.getRawPtr() ); }
   const int* getRankU() const { return( rankU_.getRawPtr() ); }
 
+  const int* getIB() const { return( iB_.getRawPtr() ); }
   const int& getIB( int i ) const { return( iB_[i] ); }
 
-  const int* getIB() const { return( iB_.getRawPtr() ); }
-
+  const int& getShift( int i ) const { return( shift_[i] ); }
+  const int* getShift() const { return( shift_.getRawPtr() ); }
 };
 
 /// \relates ProcGrid

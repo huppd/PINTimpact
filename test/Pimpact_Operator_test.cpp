@@ -81,11 +81,11 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivOp ) {
   vel->initField();
   p->init(2.);
 
-  auto div = Pimpact::createDivOp( space );
+  auto op = Pimpact::createDivOp( space );
 
-  div->print();
+  op->print();
 
-  div->apply(*vel,*p);
+  op->apply(*vel,*p);
 
   p->write(0);
 
@@ -96,7 +96,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivOp ) {
   vel->random();
   p->init(2.);
 
-  div->apply(*vel,*p);
+  op->apply(*vel,*p);
 
   p->write(1);
 
@@ -106,11 +106,63 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivOp ) {
   vel->initField( Pimpact::Circle2D );
   p->init(2.);
 
-  div->apply(*vel,*p);
+  op->apply(*vel,*p);
 
   TEST_EQUALITY( p->norm()<errorTolSlack, true );
 
   p->write(2);
+
+}
+
+
+TEUCHOS_UNIT_TEST( BasicOperator, InterpolateV2SOp ) {
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", 1);
+
+  pl->set( "lx", 2. );
+  pl->set( "ly", 2. );
+  pl->set( "lz", 1. );
+
+
+  pl->set("nx", 49 );
+  pl->set("ny", 49 );
+  pl->set("nz", 2 );
+
+  // processor grid size
+  pl->set("npx", 3 );
+  pl->set("npy", 3 );
+  pl->set("npz", 1 );
+
+  auto space = Pimpact::createSpace( pl );
+
+
+  auto p = Pimpact::createScalarField( space );
+  auto vel = Pimpact::createVectorField( space );
+
+  auto op = Pimpact::createInterpolateV2S( space );
+  op->print();
+
+  // zero test
+  vel->initField( Pimpact::PoiseuilleFlow2D_inX );
+
+  for( int i=0; i<space->dim(); ++i ) {
+    p->random();
+    op->apply( vel->getConstField( i ), *p );
+    p->write(i);
+  }
+
+  // zero test
+  vel->initField( Pimpact::PoiseuilleFlow2D_inY );
+
+  for( int i=0; i<space->dim(); ++i ) {
+    p->random();
+    op->apply( vel->getConstField( i ), *p );
+    p->write( i+space->dim() );
+  }
+
+//  TEST_EQUALITY( p->norm()<errorTolSlack, true );
+
 
 }
 
@@ -141,25 +193,25 @@ TEUCHOS_UNIT_TEST( BasicOperator, GradOp ) {
   auto p = Pimpact::createScalarField( space );
   auto v = Pimpact::createVectorField( space );
 
-  auto grad = Pimpact::createGradOp( space );
-  grad->print();
+  auto op = Pimpact::createGradOp( space );
+  op->print();
 
-  // grad in x test
+  // op in x test
   p->initField( Pimpact::Grad2D_inX );
   v->random();
 
-  grad->apply(*p,*v);
+  op->apply(*p,*v);
 
   TEST_EQUALITY( (v->getConstFieldPtr(Pimpact::U)->norm()-std::sqrt( std::pow(1.,2)*p->getLength() ))<errorTolSlack, true );
   TEST_EQUALITY( v->getConstFieldPtr(Pimpact::V)->norm()<errorTolSlack, true );
 
   v->write(0);
 
-  // grad in x test
+  // op in x test
   p->initField( Pimpact::Grad2D_inY );
   v->random();
 
-  grad->apply(*p,*v);
+  op->apply(*p,*v);
 
   TEST_EQUALITY(  v->getConstFieldPtr(Pimpact::U)->norm()<errorTolSlack, true );
   TEST_EQUALITY( (v->getConstFieldPtr(Pimpact::V)->norm()-std::sqrt( std::pow(1.,2)*p->getLength() ))<errorTolSlack, true );
@@ -407,11 +459,10 @@ TEUCHOS_UNIT_TEST( ModeOperator, HelmholtzOp ) {
 
   auto mv2 = mv->clone(11);
 
-  Pimpact::HelmholtzOp<S,O> helmholtz(space);
-  auto helm = Pimpact::createMultiOpWrap<Pimpact::ModeOpWrap<Pimpact::HelmholtzOp<S,O> > >(
+  auto op = Pimpact::createMultiOpWrap<Pimpact::ModeOpWrap<Pimpact::HelmholtzOp<S,O> > >(
       Pimpact::createModeOpWrap( Pimpact::createHelmholtzOp<S,O>(space) ) );
 
-  helm->apply(*mv,*mv2);
+  op->apply(*mv,*mv2);
 }
 
 
@@ -531,14 +582,14 @@ TEUCHOS_UNIT_TEST( ModeOperator, DtModeOp ) {
   auto mv2 = mv->clone(1);
   mv2->init(0.);
 
-  auto A = Pimpact::createMultiOperatorBase<MF,Pimpact::DtModeOp<S,O> >(
+  auto op = Pimpact::createMultiOperatorBase<MF,Pimpact::DtModeOp<S,O> >(
       Pimpact::createDtModeOp<S,O>() );
 
-  A->apply(*mv,*mv2);
+  op->apply(*mv,*mv2);
 
   TEST_EQUALITY( mv->getConstFieldPtr(0)->getConstCFieldPtr()->norm(), mv2->getConstFieldPtr(0)->getConstSFieldPtr()->norm() );
   TEST_EQUALITY( mv->getConstFieldPtr(0)->getConstSFieldPtr()->norm(), mv2->getConstFieldPtr(0)->getConstCFieldPtr()->norm() );
-  Belos::OperatorTraits<S,MF,BOp>::Apply(*A,*mv,*mv2);
+  Belos::OperatorTraits<S,MF,BOp>::Apply(*op,*mv,*mv2);
 }
 
 
@@ -606,72 +657,6 @@ TEUCHOS_UNIT_TEST( ModeOperator, DtLapOp ) {
 }
 
 
-
-TEUCHOS_UNIT_TEST( ModeOperator, DivDtLinvGrad ) {
-
-  if( !isImpactInit ) {
-    init_impact(0,0);
-    isImpactInit=true;
-  }
-
-  using Teuchos::ParameterList;
-  using Teuchos::parameterList;
-  using Teuchos::RCP;
-  using Teuchos::rcp; // Save some typing
-
-  typedef Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<S,O> > > MVF;
-  typedef Pimpact::DtLapOp<S,O> Op;
-
-  auto space = Pimpact::createSpace();
-
-  auto temp = Pimpact::createMultiModeVectorField<S,O>();
-
-  auto X = Pimpact::createMultiModeScalarField<S,O>();
-  auto B = Pimpact::createMultiModeScalarField<S,O>();
-
-  X->init(0.);
-  B->random();
-
-  //	Pimpact::createOperatorB
-  auto A = Pimpact::createMultiOperatorBase<MVF,Op>(
-      ( Pimpact::createDtLapOp<S,O>( space, 0., 10. ) ) );
-
-  A->apply( *temp, *temp );
-
-  // Make an empty new parameter list.
-  RCP<ParameterList> solverParams = parameterList();
-
-  // Set some Belos parameters.
-  //
-  // "Num Blocks" = Maximum number of Krylov vectors to store.  This
-  // is also the restart length.  "Block" here refers to the ability
-  // of this particular solver (and many other Belos solvers) to solve
-  // multiple linear systems at a time, even though we are only solving
-  // one linear system in this example.
-  solverParams->set ("Num Blocks", 40);
-  solverParams->set ("Maximum Iterations", 400);
-  solverParams->set ("Convergence Tolerance", 1.0e-1);
-  solverParams->set ("Output Frequency", 50);
-  solverParams->set ("Output Style", 1);
-  solverParams->set ("Verbosity",  Belos::Errors + Belos::Warnings +
-      Belos::TimingDetails + Belos::StatusTestDetails);
-
-  // Create the Pimpact::LinearSolver solver.
-  auto H_prob = Pimpact::createLinearProblem<MVF>( A, temp, temp, solverParams,"GMRES" );
-
-//  auto schur = Pimpact::createMultiOpWrap( Pimpact::createDivDtLinvGrad<S,O>( temp, H_prob ) );
-  //
-  auto schur =
-      Pimpact::createTripleCompositionOp(
-          temp,
-          temp->clone(),
-          Pimpact::createMultiModeOpWrap( Pimpact::createDivOp(space) ),
-          Pimpact::createInverseOperator( H_prob ),
-          Pimpact::createMultiModeOpWrap( Pimpact::createGradOp(space) )
-      );
-
-  schur->apply( *B, *X );
-}
 
 
 

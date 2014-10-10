@@ -204,7 +204,25 @@ TEUCHOS_UNIT_TEST( ScalarField, write ) {
 
 TEUCHOS_UNIT_TEST( ScalarField, initField ) {
 
-  auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", 1);
+
+  pl->set( "lx", 2. );
+  pl->set( "ly", 2. );
+  pl->set( "lz", 1. );
+
+
+  pl->set("nx", 49 );
+  pl->set("ny", 49 );
+  pl->set("nz", 2 );
+
+  // processor grid size
+  pl->set("npx", 3 );
+  pl->set("npy", 3 );
+  pl->set("npz", 1 );
+
+  auto space = Pimpact::createSpace( pl );
 
   auto x = Pimpact::createScalarField(space);
 

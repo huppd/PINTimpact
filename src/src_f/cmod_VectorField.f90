@@ -7,7 +7,7 @@ module cmod_VectorField
     use iso_c_binding
     !    use mpi
 
-    use mod_vars!, only: x1p,x1u,x2p,x2v,x3p,L1,L2,L3,M1,M2,M3
+    use mod_vars, only: x1p,x1u,x2p,x2v,x3p,L1,L2,L3,M1,M2,M3
 
     implicit none
 !  public get_norms

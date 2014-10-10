@@ -4,7 +4,7 @@
 !* Mai 2005 - Dec 2011                                                                                       *
 !*************************************************************************************************************
 
-!> @brief contains many variables, like wokring stuff and stencils
+!> \brief contains many variables, like wokring stuff and stencils
 module mod_vars
   
   use iso_c_binding

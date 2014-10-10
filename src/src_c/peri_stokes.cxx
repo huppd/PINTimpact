@@ -369,7 +369,13 @@ int main(int argi, char** argv ) {
          Pimpact::createLinearProblem< MSF >(
              Pimpact::createMultiOperatorBase< MSF >(
                  Pimpact::createModeOpWrap(
-                     Pimpact::createDivGradOp<S,O,3>(/*x->getConstFieldPtr(0)->getConstVFieldPtr()->getConstField(0)*/) ) ),
+                     Pimpact::createDivGradOp<S,O,3>(
+                         u->getConstFieldPtr(0)->getConstCFieldPtr()->clone(),
+                         Pimpact::createDivOp( space ),
+                         Pimpact::createGradOp( space )
+                     )
+                 )
+             ),
              Teuchos::null,
              Teuchos::null,
              Teuchos::parameterList(),

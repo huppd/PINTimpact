@@ -51,227 +51,280 @@ module cmod_inout
   
 contains
 
-      !> \todo include ls1, BC_global, IB, y1p ...
-    ! TEST!!! evtl. schoener: write_hdf_2D??
-    ! Anmerkung: Unterscheidet sich im Wesentlichen durch die Dimensionen und den Rang von phi ...
-    subroutine SF_write_HDF5_2D(    &
-        filename,                   &
-        dsetname,                   &
-        ls,                         &
-        M,                          &
-        N,                          &
-        SS,                         &
-        NN,                         &
-        BC_L,                       &
-        BC_U,                       &
-        NB,                         &
-        iB,                         &
-        shift,                      &
-        dir,phi)
+    subroutine SF_write3D(  &
+        N,                  &
+        bL, bU,             &
+        SS, NN,             &
+        phi,                &
+        filecount ) bind (c,name='SF_write3D')
 
         implicit none
 
-        character(*), intent(in) ::  filename
-        character(*), intent(in) ::  dsetname
+        integer(c_int), intent(in)      ::  N(3)
 
-        integer, intent(in)      ::  ls(1:3)
+        integer(c_int), intent(in)      ::  bL(3)
+        integer(c_int), intent(in)      ::  bU(3)
 
-        integer, intent(in)      ::  M(1:3)
-        integer, intent(in)      ::  N(1:3)
+        integer(c_int), intent(in)      ::  SS(3)
 
-        integer, intent(in)      ::  SS(1:3)
-        integer, intent(in)      ::  NN(1:3)
+        integer(c_int), intent(in)      ::  NN(3)
 
-        integer, intent(in)      ::  BC_L(1:3)
-        integer, intent(in)      ::  BC_U(1:3)
+        !        integer                ::  m
 
-        integer, intent(in)      ::  NB(1:3)
-
-        integer, intent(in)      ::  iB(1:3)
-        integer, intent(in)      ::  shift(1:3)
-
-        integer, intent(in)      ::  dir
-
-        real   , intent(in)      ::  phi(1:N1,1:N2)
-
-        integer                  ::  S1w, M1w, dim1
-        integer                  ::  S2w, M2w, dim2
-
-        logical                  ::  attr_yes
-
-        integer(HSIZE_T )        ::  dims_file  (1:2), dims_mem  (1:2), dims_data(1:2)
-        integer(HSSIZE_T)        ::  offset_file(1:2), offset_mem(1:2)
+        integer                ::  i!, ii
+        integer                ::  j!, jj
+        integer                ::  k!, kk
 
 
-        !----------------------------------------------------------------------------------------------------------!
-        ! Anmerkungen: - Die Intervallgrenzen, Offsets und Block-Groessen werden wegen vel_dir nicht global        !
-        !                eingefuehrt.                                                                              !
-        !----------------------------------------------------------------------------------------------------------!
+        real(c_double), intent(out)   ::  phi(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3) ))
+
+        integer(c_int)  , intent(in)    :: filecount
+
+
+        character(len=5)       ::  count_char
+        !  character(len=1)       ::  conc_number
+
 
 
         !===========================================================================================================
-        !=== Attribut-Datentyp =====================================================================================
+        !=== Ausschrieb-Nr. als String fuer File-Namen =============================================================
         !===========================================================================================================
-        call h5tcopy_f(H5T_NATIVE_DOUBLE ,memtypeREAL,herror)
-        call h5tcopy_f(H5T_NATIVE_INTEGER,memtypeINT ,herror)
-        !===========================================================================================================
-
-
-        !===========================================================================================================
-        !=== Dimensionen und Offsets ===============================================================================
-        !===========================================================================================================
-        if (ABS(dir) == 1) then
-            S1w = 2  + ls(2)
-            S2w = 2  + ls(3)
-
-            M1w = M(2) + ls(2)
-            M2w = M(3) + ls(3)
-
-            if (BC_L(2) /= -1) then
-                S1w = 1
-                M1w = M(2)
-            end if
-            if (BC_L(3) /= -1) then
-                S2w = 1
-                M2w = M(3)
-            end if
-        end if
-        !-----------------------------------------------------------------------------------------------------------
-        if (ABS(dir) == 2) then
-            S1w = 2  + ls(1)
-            S2w = 2  + ls(3)
-
-            M1w = M(1) + ls(1)
-            M2w = M(3) + ls(3)
-
-            if (BC_L(1) /= -1) then
-                S1w = 1
-                M1w = M(1)
-            end if
-            if (BC_L(3) /= -1) then
-                S2w = 1
-                M2w = M(3)
-            end if
-        end if
-        !-----------------------------------------------------------------------------------------------------------
-        if (ABS(dir) == 3) then
-            S1w = 2  + ls(1)
-            S2w = 2  + ls(2)
-
-            M1w = M(1) + ls(1)
-            M2w = M(2) + ls(2)
-
-            if (BC_L(1) /= -1) then
-                S1w = 1
-                M1w = M(1)
-            end if
-            if (BC_L(2) /= -1) then
-                S2w = 1
-                M2w = M(2)
-            end if
-        end if
-        !===========================================================================================================
-        dim1 = M1w-S1w+1
-        dim2 = M2w-S2w+1
-
-        dims_file   = (/ dim1 , dim2 /)
-        dims_mem    = (/ N(1) , N(2)   /)
-        dims_data   = (/(NN(1)-SS(1)+1),(NN(2)-SS(2)+1)/)
-        offset_mem  = (/ SS(1)-1, SS(2)-1/)
-        offset_file = (/shift(i),shift(i)/)
-
-        if (.not. ((dir == -1 .and. iB(1) == 1    )   &
-            .or.   (dir == -2 .and. iB(2) == 1    )   &
-            .or.   (dir == -3 .and. iB(3) == 1    )   &
-            .or.   (dir ==  1 .and. iB(1) == NB(1))   &
-            .or.   (dir ==  2 .and. iB(2) == NB(2))   &
-            .or.   (dir ==  3 .and. iB(3) == NB(3)))) then
-            dims_data   = (/0,0/)
-            offset_mem  = (/0,0/)
-            offset_file = (/0,0/)
-        end if
+        !  call num_to_string(5,write_count,count_char)
+        call num_to_string(5,filecount,count_char)
         !===========================================================================================================
 
 
+
         !===========================================================================================================
-        !=== HDF5 schreiben ========================================================================================
+        if (write_large) call write_hdf('pre_large_'//count_char,'pre',SS(1),SS(2),SS(3),NN(1),NN(2),NN(3),0,stride_large,phi)
+        if (write_med  ) call write_hdf('pre_med_'  //count_char,'pre',SS(1),SS(2),SS(3),NN(1),NN(2),NN(3),0,stride_med  ,phi)
+        if (write_small) call write_hdf('pre_small_'//count_char,'pre',SS(1),SS(2),SS(3),NN(1),NN(2),NN(3),0,stride_small,phi)
         !===========================================================================================================
-        ! Setup file access property list with parallel I/O access:
-        call h5pcreate_f(H5P_FILE_ACCESS_F,plist_id,herror)
-        call h5pset_fapl_mpio_f(plist_id,COMM_CART,MPI_INFO_NULL,herror)
 
-        ! Create the file collectively:
-        call h5fcreate_f(filename//'.h5',H5F_ACC_TRUNC_F,file_id,herror,access_prp=plist_id)
-        call h5pclose_f(plist_id,herror)
-        !-----------------------------------------------------------------------------------------------------------
-        ! Create file space / memory space:
-        call h5screate_simple_f(2,dims_file,filespace,herror)
-        call h5screate_simple_f(2,dims_mem ,memspace ,herror)
-
-        ! Create the dataset:
-        call h5dcreate_f(file_id,dsetname,H5T_NATIVE_DOUBLE,filespace,dset_id,herror)
-        !-----------------------------------------------------------------------------------------------------------
-        ! Write the attributes:
-        attr_yes = .true.
-        call write_hdf_infoINT (1     ,.true. ,attr_yes,'restart'          ,scalar=restart          )
-        call write_hdf_infoINT (1     ,.true. ,attr_yes,'write_count'      ,scalar=write_count      )
-        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'time_out_vect'    ,scalar=time_out_vect    )
-        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'time_out_scal'    ,scalar=time_out_scal    )
-        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'dtime_out_vect'   ,scalar=dtime_out_vect   )
-        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'dtime_out_scal'   ,scalar=dtime_out_scal   )
-        call write_hdf_infoLOG (1     ,.true. ,attr_yes,'write_out_vect'   ,scalar=write_out_vect   )
-        call write_hdf_infoLOG (1     ,.true. ,attr_yes,'write_out_scal'   ,scalar=write_out_scal   )
-        call write_hdf_infoLOG (1     ,.true. ,attr_yes,'new_dtime'        ,scalar=new_dtime        )
-
-        call write_hdf_infoINT (2     ,.false.,attr_yes,'S1w S2w'          ,array =(/S1w,S2w/)      )
-        call write_hdf_infoINT (2     ,.false.,attr_yes,'M1w M2w'          ,array =(/M1w,M2w/)      )
-
-        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'time'             ,scalar=time             )
-        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'dtime'            ,scalar=dtime            )
-        call write_hdf_infoINT (1     ,.true. ,attr_yes,'timestep'         ,scalar=timestep         )
-
-        call write_hdf_infoLOG (1     ,.true. ,attr_yes,'concentration_yes',scalar=concentration_yes)
-        call write_hdf_infoINT (1     ,.true. ,attr_yes,'n_conc'           ,scalar=n_conc           )
-        call write_hdf_infoREAL(3     ,.false.,attr_yes,'gravity'          ,array =gravity          )
-        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'Re'               ,scalar=Re               )
-        call write_hdf_infoREAL(n_conc,.false.,attr_yes,'Sc'               ,array =Sc               )
-        call write_hdf_infoREAL(n_conc,.false.,attr_yes,'Ric'              ,array =Ric              )
-        call write_hdf_infoREAL(n_conc,.false.,attr_yes,'usc'              ,array =usc              )
-        !-----------------------------------------------------------------------------------------------------------
-        ! Select hyperslab in the file space / memory space:
-        call h5sselect_hyperslab_f(filespace,H5S_SELECT_SET_F,offset_file,dims_data,herror)
-        call h5sselect_hyperslab_f(memspace ,H5S_SELECT_SET_F,offset_mem ,dims_data,herror)
-
-        ! Create property list for collective dataset write:
-        call h5pcreate_f(H5P_DATASET_XFER_F,plist_id,herror)
-        call h5pset_dxpl_mpio_f(plist_id,H5FD_MPIO_COLLECTIVE_F,herror)
-
-        ! Write the dataset collectively:
-        call h5dwrite_f(dset_id,H5T_NATIVE_DOUBLE,phi,dims_file,herror,mem_space_id=memspace,file_space_id=filespace,xfer_prp=plist_id)
-  
-        call h5pclose_f(plist_id ,herror)
-        call h5dclose_f(dset_id  ,herror)
-        call h5sclose_f(memspace ,herror)
-        call h5sclose_f(filespace,herror)
-        !-----------------------------------------------------------------------------------------------------------
-        if (ABS(dir) == 1) then
-            call write_hdf_infoREAL(dim1,.false.,.false.,'VectorY',array=y2p(S1w:M1w))
-            call write_hdf_infoREAL(dim2,.false.,.false.,'VectorZ',array=y3p(S2w:M2w))
-        end if
-        if (ABS(dir) == 2) then
-            call write_hdf_infoREAL(dim1,.false.,.false.,'VectorX',array=y1p(S1w:M1w))
-            call write_hdf_infoREAL(dim2,.false.,.false.,'VectorZ',array=y3p(S2w:M2w))
-        end if
-        if (ABS(dir) == 3) then
-            call write_hdf_infoREAL(dim1,.false.,.false.,'VectorX',array=y1p(S1w:M1w))
-            call write_hdf_infoREAL(dim2,.false.,.false.,'VectorY',array=y2p(S2w:M2w))
-        end if
-        !-----------------------------------------------------------------------------------------------------------
-        call h5fclose_f(file_id,herror)
-    !===========================================================================================================
+    end subroutine SF_write3D
 
 
-    end subroutine SF_write_HDF5_2D
+!      !> \todo include ls1, BC_global, IB, y1p ...
+!    ! TEST!!! evtl. schoener: write_hdf_2D??
+!    ! Anmerkung: Unterscheidet sich im Wesentlichen durch die Dimensionen und den Rang von phi ...
+!    subroutine SF_write_HDF5_2D(    &
+!        filename,                   &
+!        dsetname,                   &
+!        ls,                         &
+!        M,                          &
+!        N,                          &
+!        SS,                         &
+!        NN,                         &
+!        BC_L,                       &
+!        BC_U,                       &
+!        NB,                         &
+!        iB,                         &
+!        shift,                      &
+!        dir,phi)
+!
+!        implicit none
+!
+!        character(*), intent(in) ::  filename
+!        character(*), intent(in) ::  dsetname
+!
+!        integer, intent(in)      ::  ls(1:3)
+!
+!        integer, intent(in)      ::  M(1:3)
+!        integer, intent(in)      ::  N(1:3)
+!
+!        integer, intent(in)      ::  SS(1:3)
+!        integer, intent(in)      ::  NN(1:3)
+!
+!        integer, intent(in)      ::  BC_L(1:3)
+!        integer, intent(in)      ::  BC_U(1:3)
+!
+!        integer, intent(in)      ::  NB(1:3)
+!
+!        integer, intent(in)      ::  iB(1:3)
+!        integer, intent(in)      ::  shift(1:3)
+!
+!        integer, intent(in)      ::  dir
+!
+!        real   , intent(in)      ::  phi(1:N1,1:N2)
+!
+!        integer                  ::  S1w, M1w, dim1
+!        integer                  ::  S2w, M2w, dim2
+!
+!        logical                  ::  attr_yes
+!
+!        integer(HSIZE_T )        ::  dims_file  (1:2), dims_mem  (1:2), dims_data(1:2)
+!        integer(HSSIZE_T)        ::  offset_file(1:2), offset_mem(1:2)
+!
+!
+!        !----------------------------------------------------------------------------------------------------------!
+!        ! Anmerkungen: - Die Intervallgrenzen, Offsets und Block-Groessen werden wegen vel_dir nicht global        !
+!        !                eingefuehrt.                                                                              !
+!        !----------------------------------------------------------------------------------------------------------!
+!
+!
+!        !===========================================================================================================
+!        !=== Attribut-Datentyp =====================================================================================
+!        !===========================================================================================================
+!        call h5tcopy_f(H5T_NATIVE_DOUBLE ,memtypeREAL,herror)
+!        call h5tcopy_f(H5T_NATIVE_INTEGER,memtypeINT ,herror)
+!        !===========================================================================================================
+!
+!
+!        !===========================================================================================================
+!        !=== Dimensionen und Offsets ===============================================================================
+!        !===========================================================================================================
+!        if (ABS(dir) == 1) then
+!            S1w = 2  + ls(2)
+!            S2w = 2  + ls(3)
+!
+!            M1w = M(2) + ls(2)
+!            M2w = M(3) + ls(3)
+!
+!            if (BC_L(2) /= -1) then
+!                S1w = 1
+!                M1w = M(2)
+!            end if
+!            if (BC_L(3) /= -1) then
+!                S2w = 1
+!                M2w = M(3)
+!            end if
+!        end if
+!        !-----------------------------------------------------------------------------------------------------------
+!        if (ABS(dir) == 2) then
+!            S1w = 2  + ls(1)
+!            S2w = 2  + ls(3)
+!
+!            M1w = M(1) + ls(1)
+!            M2w = M(3) + ls(3)
+!
+!            if (BC_L(1) /= -1) then
+!                S1w = 1
+!                M1w = M(1)
+!            end if
+!            if (BC_L(3) /= -1) then
+!                S2w = 1
+!                M2w = M(3)
+!            end if
+!        end if
+!        !-----------------------------------------------------------------------------------------------------------
+!        if (ABS(dir) == 3) then
+!            S1w = 2  + ls(1)
+!            S2w = 2  + ls(2)
+!
+!            M1w = M(1) + ls(1)
+!            M2w = M(2) + ls(2)
+!
+!            if (BC_L(1) /= -1) then
+!                S1w = 1
+!                M1w = M(1)
+!            end if
+!            if (BC_L(2) /= -1) then
+!                S2w = 1
+!                M2w = M(2)
+!            end if
+!        end if
+!        !===========================================================================================================
+!        dim1 = M1w-S1w+1
+!        dim2 = M2w-S2w+1
+!
+!        dims_file   = (/ dim1 , dim2 /)
+!        dims_mem    = (/ N(1) , N(2)   /)
+!        dims_data   = (/(NN(1)-SS(1)+1),(NN(2)-SS(2)+1)/)
+!        offset_mem  = (/ SS(1)-1, SS(2)-1/)
+!        offset_file = (/shift(i),shift(i)/)
+!
+!        if (.not. ((dir == -1 .and. iB(1) == 1    )   &
+!            .or.   (dir == -2 .and. iB(2) == 1    )   &
+!            .or.   (dir == -3 .and. iB(3) == 1    )   &
+!            .or.   (dir ==  1 .and. iB(1) == NB(1))   &
+!            .or.   (dir ==  2 .and. iB(2) == NB(2))   &
+!            .or.   (dir ==  3 .and. iB(3) == NB(3)))) then
+!            dims_data   = (/0,0/)
+!            offset_mem  = (/0,0/)
+!            offset_file = (/0,0/)
+!        end if
+!        !===========================================================================================================
+!
+!
+!        !===========================================================================================================
+!        !=== HDF5 schreiben ========================================================================================
+!        !===========================================================================================================
+!        ! Setup file access property list with parallel I/O access:
+!        call h5pcreate_f(H5P_FILE_ACCESS_F,plist_id,herror)
+!        call h5pset_fapl_mpio_f(plist_id,COMM_CART,MPI_INFO_NULL,herror)
+!
+!        ! Create the file collectively:
+!        call h5fcreate_f(filename//'.h5',H5F_ACC_TRUNC_F,file_id,herror,access_prp=plist_id)
+!        call h5pclose_f(plist_id,herror)
+!        !-----------------------------------------------------------------------------------------------------------
+!        ! Create file space / memory space:
+!        call h5screate_simple_f(2,dims_file,filespace,herror)
+!        call h5screate_simple_f(2,dims_mem ,memspace ,herror)
+!
+!        ! Create the dataset:
+!        call h5dcreate_f(file_id,dsetname,H5T_NATIVE_DOUBLE,filespace,dset_id,herror)
+!        !-----------------------------------------------------------------------------------------------------------
+!        ! Write the attributes:
+!        attr_yes = .true.
+!        call write_hdf_infoINT (1     ,.true. ,attr_yes,'restart'          ,scalar=restart          )
+!        call write_hdf_infoINT (1     ,.true. ,attr_yes,'write_count'      ,scalar=write_count      )
+!        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'time_out_vect'    ,scalar=time_out_vect    )
+!        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'time_out_scal'    ,scalar=time_out_scal    )
+!        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'dtime_out_vect'   ,scalar=dtime_out_vect   )
+!        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'dtime_out_scal'   ,scalar=dtime_out_scal   )
+!        call write_hdf_infoLOG (1     ,.true. ,attr_yes,'write_out_vect'   ,scalar=write_out_vect   )
+!        call write_hdf_infoLOG (1     ,.true. ,attr_yes,'write_out_scal'   ,scalar=write_out_scal   )
+!        call write_hdf_infoLOG (1     ,.true. ,attr_yes,'new_dtime'        ,scalar=new_dtime        )
+!
+!        call write_hdf_infoINT (2     ,.false.,attr_yes,'S1w S2w'          ,array =(/S1w,S2w/)      )
+!        call write_hdf_infoINT (2     ,.false.,attr_yes,'M1w M2w'          ,array =(/M1w,M2w/)      )
+!
+!        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'time'             ,scalar=time             )
+!        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'dtime'            ,scalar=dtime            )
+!        call write_hdf_infoINT (1     ,.true. ,attr_yes,'timestep'         ,scalar=timestep         )
+!
+!        call write_hdf_infoLOG (1     ,.true. ,attr_yes,'concentration_yes',scalar=concentration_yes)
+!        call write_hdf_infoINT (1     ,.true. ,attr_yes,'n_conc'           ,scalar=n_conc           )
+!        call write_hdf_infoREAL(3     ,.false.,attr_yes,'gravity'          ,array =gravity          )
+!        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'Re'               ,scalar=Re               )
+!        call write_hdf_infoREAL(n_conc,.false.,attr_yes,'Sc'               ,array =Sc               )
+!        call write_hdf_infoREAL(n_conc,.false.,attr_yes,'Ric'              ,array =Ric              )
+!        call write_hdf_infoREAL(n_conc,.false.,attr_yes,'usc'              ,array =usc              )
+!        !-----------------------------------------------------------------------------------------------------------
+!        ! Select hyperslab in the file space / memory space:
+!        call h5sselect_hyperslab_f(filespace,H5S_SELECT_SET_F,offset_file,dims_data,herror)
+!        call h5sselect_hyperslab_f(memspace ,H5S_SELECT_SET_F,offset_mem ,dims_data,herror)
+!
+!        ! Create property list for collective dataset write:
+!        call h5pcreate_f(H5P_DATASET_XFER_F,plist_id,herror)
+!        call h5pset_dxpl_mpio_f(plist_id,H5FD_MPIO_COLLECTIVE_F,herror)
+!
+!        ! Write the dataset collectively:
+!        call h5dwrite_f(dset_id,H5T_NATIVE_DOUBLE,phi,dims_file,herror,mem_space_id=memspace,file_space_id=filespace,xfer_prp=plist_id)
+!
+!        call h5pclose_f(plist_id ,herror)
+!        call h5dclose_f(dset_id  ,herror)
+!        call h5sclose_f(memspace ,herror)
+!        call h5sclose_f(filespace,herror)
+!        !-----------------------------------------------------------------------------------------------------------
+!        if (ABS(dir) == 1) then
+!            call write_hdf_infoREAL(dim1,.false.,.false.,'VectorY',array=y2p(S1w:M1w))
+!            call write_hdf_infoREAL(dim2,.false.,.false.,'VectorZ',array=y3p(S2w:M2w))
+!        end if
+!        if (ABS(dir) == 2) then
+!            call write_hdf_infoREAL(dim1,.false.,.false.,'VectorX',array=y1p(S1w:M1w))
+!            call write_hdf_infoREAL(dim2,.false.,.false.,'VectorZ',array=y3p(S2w:M2w))
+!        end if
+!        if (ABS(dir) == 3) then
+!            call write_hdf_infoREAL(dim1,.false.,.false.,'VectorX',array=y1p(S1w:M1w))
+!            call write_hdf_infoREAL(dim2,.false.,.false.,'VectorY',array=y2p(S2w:M2w))
+!        end if
+!        !-----------------------------------------------------------------------------------------------------------
+!        call h5fclose_f(file_id,herror)
+!    !===========================================================================================================
+!
+!
+!    end subroutine SF_write_HDF5_2D
 
 
     !pgi$g unroll = n:8
@@ -332,78 +385,78 @@ contains
         end do
         call write_2D_hdf('pre_'//count_char,'pre',N(1),N(2),SS(1),SS(2),NN(1),NN(2),Shift(1),Shift(2),-3,temp(1,1))
     !===========================================================================================================
-  
+
     end subroutine SF_write2D
 
 
   
-    subroutine SF_write(   &
-        N,                 &
-        bL, bU,            &
-        SS, NN,            &
-        phi,               &
-        filecount ) bind (c,name='SF_write')
+!    subroutine SF_write(   &
+!        N,                 &
+!        bL, bU,            &
+!        SS, NN,            &
+!        phi,               &
+!        filecount ) bind (c,name='SF_write')
+!
+!        implicit none
+!
+!        integer(c_int), intent(in)      ::  N(3)
+!
+!        integer(c_int), intent(in)      ::  bL(3)
+!        integer(c_int), intent(in)      ::  bU(3)
+!
+!        integer(c_int), intent(in)      ::  SS(3)
+!
+!        integer(c_int), intent(in)      ::  NN(3)
+!
+!        !        integer                ::  m
+!
+!        integer                ::  i!, ii
+!        integer                ::  j!, jj
+!        integer                ::  k!, kk
+!
+!
+!        real(c_double), intent(out)   ::  phi(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3) ))
+!        real(c_double)                ::  temp( 1:N(1), 1:N(2) )
+!
+!        integer(c_int)  , intent(in)    :: filecount
+!
+!
+!        character(len=5)       ::  count_char
+!        !  character(len=1)       ::  conc_number
+!
+!
+!        if (rank == 0) write(*,'(a)') 'writing pressure field ...'
+!
+!        !===========================================================================================================
+!        !=== Ausschrieb-Nr. als String fuer File-Namen =============================================================
+!        !===========================================================================================================
+!        !  call num_to_string(5,write_count,count_char)
+!        call num_to_string(5,filecount,count_char)
+!        !===========================================================================================================
+!
+!
+!
+!        !===========================================================================================================
+!        if( dimens == 3 )then
+!            if (write_large) call write_hdf('pre_large_'//count_char,'pre',SS(1),SS(2),SS(3),NN(1),NN(2),NN(3),0,stride_large,phi)
+!            if (write_med  ) call write_hdf('pre_med_'  //count_char,'pre',SS(1),SS(2),SS(3),NN(1),NN(2),NN(3),0,stride_med  ,phi)
+!            if (write_small) call write_hdf('pre_small_'//count_char,'pre',SS(1),SS(2),SS(3),NN(1),NN(2),NN(3),0,stride_small,phi)
+!        else
+!            k = 1
+!            do j = SS(2), NN(2)
+!                do i = SS(1), NN(1)
+!                    temp(i,j) = phi(i,j,k)
+!                end do
+!            end do
+!            call write_2D_hdf('pre_'//count_char,'pre',N(1),N(2),SS(1),SS(2),NN(1),NN(2),iShift,jShift,-3,temp(1,1))
+!        end if
+!    !===========================================================================================================
+!
+!    end subroutine SF_write
+!
   
-        implicit none
-
-        integer(c_int), intent(in)      ::  N(3)
-
-        integer(c_int), intent(in)      ::  bL(3)
-        integer(c_int), intent(in)      ::  bU(3)
-
-        integer(c_int), intent(in)      ::  SS(3)
-
-        integer(c_int), intent(in)      ::  NN(3)
   
-        !        integer                ::  m
-  
-        integer                ::  i!, ii
-        integer                ::  j!, jj
-        integer                ::  k!, kk
-  
-
-        real(c_double), intent(out)   ::  phi(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3) ))
-        real(c_double)                ::  temp( 1:N(1), 1:N(2) )
-
-        integer(c_int)  , intent(in)    :: filecount
-
-
-        character(len=5)       ::  count_char
-        !  character(len=1)       ::  conc_number
-  
-  
-        if (rank == 0) write(*,'(a)') 'writing pressure field ...'
-
-        !===========================================================================================================
-        !=== Ausschrieb-Nr. als String fuer File-Namen =============================================================
-        !===========================================================================================================
-        !  call num_to_string(5,write_count,count_char)
-        call num_to_string(5,filecount,count_char)
-        !===========================================================================================================
-  
-  
-  
-        !===========================================================================================================
-        if( dimens == 3 )then
-            if (write_large) call write_hdf('pre_large_'//count_char,'pre',SS(1),SS(2),SS(3),NN(1),NN(2),NN(3),0,stride_large,phi)
-            if (write_med  ) call write_hdf('pre_med_'  //count_char,'pre',SS(1),SS(2),SS(3),NN(1),NN(2),NN(3),0,stride_med  ,phi)
-            if (write_small) call write_hdf('pre_small_'//count_char,'pre',SS(1),SS(2),SS(3),NN(1),NN(2),NN(3),0,stride_small,phi)
-        else
-            k = 1
-            do j = SS(2), NN(2)
-                do i = SS(1), NN(1)
-                    temp(i,j) = phi(i,j,k)
-                end do
-            end do
-            call write_2D_hdf('pre_'//count_char,'pre',N(1),N(2),SS(1),SS(2),NN(1),NN(2),iShift,jShift,-3,temp(1,1))
-        end if
-    !===========================================================================================================
-  
-    end subroutine SF_write
-  
-  
-  
-    subroutine write_vel( phiU, phiV, phiW, filecount ) bind (c,name='VF_write')
+    subroutine VF_write( phiU, phiV, phiW, filecount ) bind (c,name='VF_write')
 
         implicit none
 
@@ -421,6 +474,10 @@ contains
 
         character(len=5)       ::  count_char
         !  character(len=1)       ::  conc_number
+
+        real                   ::  tempV (b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U),1:3)
+        real                   ::  temp(1:N1,1:N2,1:2)
+
 
 
         if (rank == 0) write(*,'(a)') 'writing velocity field ...'
@@ -440,82 +497,82 @@ contains
             do k = S3p, N3p
                 do j = S2p, N2p
                     do i = S1p, N1p
-                        nl(i,j,k,1) = cIup(d1L,i)*phiU(i+d1L,j,k)
+                        tempV(i,j,k,1) = cIup(d1L,i)*phiU(i+d1L,j,k)
                         !pgi$ unroll = n:8
                         do ii = d1L+1, d1U
-                            nl(i,j,k,1) = nl(i,j,k,1) + cIup(ii,i)*phiU(i+ii,j,k) ! TEST!!! Verallgemeinerte Interpolation verwenden? Mit compute_stats teilen?
+                            tempV(i,j,k,1) = tempV(i,j,k,1) + cIup(ii,i)*phiU(i+ii,j,k) ! TEST!!! Verallgemeinerte Interpolation verwenden? Mit compute_stats teilen?
                         end do
                     end do
                 end do
             end do
-            if (write_large) call write_hdf('velX_large_'//count_char,'velX',S1p,S2p,S3p,N1p,N2p,N3p,0,stride_large,nl(b1L,b2L,b3L,1)) ! TEST!!! velX --> vel1, etc. umbenennen!!
-            if (write_med  ) call write_hdf('velX_med_'  //count_char,'velX',S1p,S2p,S3p,N1p,N2p,N3p,0,stride_med  ,nl(b1L,b2L,b3L,1))
-            if (write_small) call write_hdf('velX_small_'//count_char,'velX',S1p,S2p,S3p,N1p,N2p,N3p,0,stride_small,nl(b1L,b2L,b3L,1))
+            if (write_large) call write_hdf('velX_large_'//count_char,'velX',S1p,S2p,S3p,N1p,N2p,N3p,0,stride_large,tempV(b1L,b2L,b3L,1)) ! TEST!!! velX --> vel1, etc. umbenennen!!
+            if (write_med  ) call write_hdf('velX_med_'  //count_char,'velX',S1p,S2p,S3p,N1p,N2p,N3p,0,stride_med  ,tempV(b1L,b2L,b3L,1))
+            if (write_small) call write_hdf('velX_small_'//count_char,'velX',S1p,S2p,S3p,N1p,N2p,N3p,0,stride_small,tempV(b1L,b2L,b3L,1))
         else
             k = 1
             do j = S2p, N2p
                 do i = S1p, N1p
-                    bc33(i,j,1) = cIup(d1L,i)*phiU(i+d1L,j,k)
+                    temp(i,j,1) = cIup(d1L,i)*phiU(i+d1L,j,k)
                     !pgi$ unroll = n:8
                     do ii = d1L+1, d1U
-                        bc33(i,j,1) = bc33(i,j,1) + cIup(ii,i)*phiU(i+ii,j,k)
+                        temp(i,j,1) = temp(i,j,1) + cIup(ii,i)*phiU(i+ii,j,k)
                     end do
                 end do
             end do
-            call write_2D_hdf('velX_'//count_char,'velX',N1,N2,S1p,S2p,N1p,N2p,iShift,jShift,-3,bc33(1,1,1))
+            call write_2D_hdf('velX_'//count_char,'velX',N1,N2,S1p,S2p,N1p,N2p,iShift,jShift,-3,temp(1,1,1))
         end if
         !-----------------------------------------------------------------------------------------------------------
         if (dimens == 3 ) then
             do k = S3p, N3p
                 do j = S2p, N2p
                     do i = S1p, N1p
-                        nl(i,j,k,2) = cIvp(d2L,j)*phiV(i,j+d2L,k)
+                        tempV(i,j,k,2) = cIvp(d2L,j)*phiV(i,j+d2L,k)
                         !pgi$ unroll = n:8
                         do jj = d2L+1, d2U
-                            nl(i,j,k,2) = nl(i,j,k,2) + cIvp(jj,j)*phiV(i,j+jj,k)
+                            tempV(i,j,k,2) = tempV(i,j,k,2) + cIvp(jj,j)*phiV(i,j+jj,k)
                         end do
                     end do
                 end do
             end do
-            if (write_large) call write_hdf('velY_large_'//count_char,'velY',S1p,S2p,S3p,N1p,N2p,N3p,0,stride_large,nl(b1L,b2L,b3L,2))
-            if (write_med  ) call write_hdf('velY_med_'  //count_char,'velY',S1p,S2p,S3p,N1p,N2p,N3p,0,stride_med  ,nl(b1L,b2L,b3L,2))
-            if (write_small) call write_hdf('velY_small_'//count_char,'velY',S1p,S2p,S3p,N1p,N2p,N3p,0,stride_small,nl(b1L,b2L,b3L,2))
+            if (write_large) call write_hdf('velY_large_'//count_char,'velY',S1p,S2p,S3p,N1p,N2p,N3p,0,stride_large,tempV(b1L,b2L,b3L,2))
+            if (write_med  ) call write_hdf('velY_med_'  //count_char,'velY',S1p,S2p,S3p,N1p,N2p,N3p,0,stride_med  ,tempV(b1L,b2L,b3L,2))
+            if (write_small) call write_hdf('velY_small_'//count_char,'velY',S1p,S2p,S3p,N1p,N2p,N3p,0,stride_small,tempV(b1L,b2L,b3L,2))
         else
             k = 1
             do j = S2p, N2p
                 do i = S1p, N1p
-                    bc33(i,j,2) = cIvp(d2L,j)*phiV(i,j+d2L,k)
+                    temp(i,j,2) = cIvp(d2L,j)*phiV(i,j+d2L,k)
                     !pgi$ unroll = n:8
                     do jj = d2L+1, d2U
-                        bc33(i,j,2) = bc33(i,j,2) + cIvp(jj,j)*phiV(i,j+jj,k)
+                        temp(i,j,2) = temp(i,j,2) + cIvp(jj,j)*phiV(i,j+jj,k)
                     end do
                 end do
             end do
-            call write_2D_hdf('velY_'//count_char,'velY',N1,N2,S1p,S2p,N1p,N2p,iShift,jShift,-3,bc33(1,1,2))
+            call write_2D_hdf('velY_'//count_char,'velY',N1,N2,S1p,S2p,N1p,N2p,iShift,jShift,-3,temp(1,1,2))
         end if
         !-----------------------------------------------------------------------------------------------------------
         if( dimens == 3 ) then
             do k = S3p, N3p
                 do j = S2p, N2p
                     do i = S1p, N1p
-                        nl(i,j,k,3) = cIwp(d3L,k)*phiW(i,j,k+d3L)
+                        tempV(i,j,k,3) = cIwp(d3L,k)*phiW(i,j,k+d3L)
                         !pgi$ unroll = n:8
                         do kk = d3L+1, d3U
-                            nl(i,j,k,3) = nl(i,j,k,3) + cIwp(kk,k)*phiW(i,j,k+kk)
+                            tempV(i,j,k,3) = tempV(i,j,k,3) + cIwp(kk,k)*phiW(i,j,k+kk)
                         end do
                     end do
                 end do
             end do
-            if (write_large) call write_hdf('velZ_large_'//count_char,'velZ',S1p,S2p,S3p,N1p,N2p,N3p,0,stride_large,nl(b1L,b2L,b3L,3))
-            if (write_med  ) call write_hdf('velZ_med_'  //count_char,'velZ',S1p,S2p,S3p,N1p,N2p,N3p,0,stride_med  ,nl(b1L,b2L,b3L,3))
-            if (write_small) call write_hdf('velZ_small_'//count_char,'velZ',S1p,S2p,S3p,N1p,N2p,N3p,0,stride_small,nl(b1L,b2L,b3L,3))
+            if (write_large) call write_hdf('velZ_large_'//count_char,'velZ',S1p,S2p,S3p,N1p,N2p,N3p,0,stride_large,tempV(b1L,b2L,b3L,3))
+            if (write_med  ) call write_hdf('velZ_med_'  //count_char,'velZ',S1p,S2p,S3p,N1p,N2p,N3p,0,stride_med  ,tempV(b1L,b2L,b3L,3))
+            if (write_small) call write_hdf('velZ_small_'//count_char,'velZ',S1p,S2p,S3p,N1p,N2p,N3p,0,stride_small,tempV(b1L,b2L,b3L,3))
         end if
         !===========================================================================================================
-        if( 1 == 2 .and. dimens == 3) call write_hdf_velall('velA_'//count_char,S1p,S2p,S3p,N1p,N2p,N3p,0,nl)
+        if( 1 == 2 .and. dimens == 3) call write_hdf_velall('velA_'//count_char,S1p,S2p,S3p,N1p,N2p,N3p,0,tempV)
     !===========================================================================================================
     !===========================================================================================================
 
-    end subroutine write_vel
+    end subroutine VF_write
   
   
   
@@ -523,6 +580,7 @@ contains
   
   
   
+    !> \todo implement
     subroutine write_restart
   
         implicit none
@@ -600,7 +658,7 @@ contains
   
   
   
-  
+    !> \todo implement
     subroutine read_restart
   
         implicit none
@@ -750,6 +808,7 @@ contains
   
   
   
+    !> \todo
     subroutine write_hdf(filename,dsetname,SS1,SS2,SS3,NN1,NN2,NN3,vel_dir,stride,phi)
   
         implicit none
@@ -952,253 +1011,253 @@ contains
   
   
   
-    subroutine write_hdf_velall(filename,SS1,SS2,SS3,NN1,NN2,NN3,vel_dir,phi)
-  
-        implicit none
-  
-        character(*), intent(in) ::  filename
-  
-        integer, intent(in)      ::  SS1
-        integer, intent(in)      ::  SS2
-        integer, intent(in)      ::  SS3
-  
-        integer, intent(in)      ::  NN1
-        integer, intent(in)      ::  NN2
-        integer, intent(in)      ::  NN3
-  
-        integer, intent(in)      ::  vel_dir
-  
-        real   , intent(in)      ::  phi(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U),1:3)
-  
-        integer(HSIZE_T )        ::  dims_mem(1:3), dims_data(1:3)
-        integer(HSSIZE_T)        ::  offset_mem(1:3)
-  
-        integer                  ::  S1w, M1w, dim1
-        integer                  ::  S2w, M2w, dim2
-        integer                  ::  S3w, M3w, dim3
-  
-        logical                  ::  attr_yes
-  
-  
-        !----------------------------------------------------------------------------------------------------------!
-        ! Anmerkungen: - Die Intervallgrenzen, Offsets und Block-Groessen werden wegen vel_dir nicht global        !
-        !                eingefuehrt.                                                                              !
-        !----------------------------------------------------------------------------------------------------------!
-  
-  
-        !===========================================================================================================
-        !=== Attribut-Datentyp =====================================================================================
-        !===========================================================================================================
-        call h5tcopy_f(H5T_NATIVE_DOUBLE ,memtypeREAL,herror)
-        call h5tcopy_f(H5T_NATIVE_INTEGER,memtypeINT ,herror)
-        !===========================================================================================================
-  
-  
-        !===========================================================================================================
-        !=== Dimensionen und Offsets ===============================================================================
-        !===========================================================================================================
-        call filespace_props(vel_dir,(/1,1,1/),S1w,S2w,S3w,M1w,M2w,M3w,dim1,dim2,dim3)
-  
-        dims_mem   = (/(N1+b1U-b1L+1),(N2+b2U-b2L+1),(N3+b3U-b3L+1)/)
-        dims_data  = (/(NN1-SS1+1   ),(NN2-SS2+1   ),(NN3-SS3+1   )/)
-        offset_mem = (/(SS1-b1L     ),(SS2-b2L     ),(SS3-b3L     )/)
-        !===========================================================================================================
-  
-  
-        !===========================================================================================================
-        !=== HDF5 schreiben ========================================================================================
-        !===========================================================================================================
-        ! Setup file access property list with parallel I/O access:
-        call h5pcreate_f(H5P_FILE_ACCESS_F,plist_id,herror)
-        call h5pset_fapl_mpio_f(plist_id,COMM_CART,MPI_INFO_NULL,herror)
-  
-        ! Create the file collectively:
-        call h5fcreate_f(filename//'.h5',H5F_ACC_TRUNC_F,file_id,herror,access_prp=plist_id)
-        call h5pclose_f(plist_id,herror)
-        !-----------------------------------------------------------------------------------------------------------
-        !-----------------------------------------------------------------------------------------------------------
-        ! Create file space / memory space:
-        call h5screate_simple_f(3,dims_file,filespace,herror)
-        call h5screate_simple_f(3,dims_mem ,memspace ,herror)
-  
-        ! Create the dataset:
-        call h5dcreate_f(file_id,'velX',H5T_NATIVE_DOUBLE,filespace,dset_id,herror)
-        !-----------------------------------------------------------------------------------------------------------
-        ! Write the attributes:
-        attr_yes = .true.
-        call write_hdf_infoINT (1     ,.true. ,attr_yes,'restart'          ,scalar=restart          )
-        call write_hdf_infoINT (1     ,.true. ,attr_yes,'write_count'      ,scalar=write_count      )
-        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'time_out_vect'    ,scalar=time_out_vect    )
-        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'time_out_scal'    ,scalar=time_out_scal    )
-        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'dtime_out_vect'   ,scalar=dtime_out_vect   )
-        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'dtime_out_scal'   ,scalar=dtime_out_scal   )
-        call write_hdf_infoLOG (1     ,.true. ,attr_yes,'write_out_vect'   ,scalar=write_out_vect   )
-        call write_hdf_infoLOG (1     ,.true. ,attr_yes,'write_out_scal'   ,scalar=write_out_scal   )
-        call write_hdf_infoLOG (1     ,.true. ,attr_yes,'new_dtime'        ,scalar=new_dtime        )
-  
-        call write_hdf_infoINT (3     ,.false.,attr_yes,'M1  M2  M3 '      ,array =(/M1 ,M2 ,M3 /)  )
-        call write_hdf_infoINT (3     ,.false.,attr_yes,'S1w S2w S3w'      ,array =(/S1w,S2w,S3w/)  )
-        call write_hdf_infoINT (3     ,.false.,attr_yes,'M1w M2w M3w'      ,array =(/M1w,M2w,M3w/)  )
-        call write_hdf_infoINT (3     ,.false.,attr_yes,'NB1 NB2 NB3'      ,array =(/NB1,NB2,NB3/)  )
-        call write_hdf_infoINT (3     ,.false.,attr_yes,'ls1 ls2 ls3'      ,array =(/ls1,ls2,ls3/)  )
-  
-        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'time'             ,scalar=time             )
-        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'dtime'            ,scalar=dtime            )
-        call write_hdf_infoINT (1     ,.true. ,attr_yes,'timestep'         ,scalar=timestep         )
-  
-        call write_hdf_infoLOG (1     ,.true. ,attr_yes,'concentration_yes',scalar=concentration_yes)
-        call write_hdf_infoINT (1     ,.true. ,attr_yes,'n_conc'           ,scalar=n_conc           )
-        call write_hdf_infoREAL(3     ,.false.,attr_yes,'gravity'          ,array =gravity          )
-        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'Re'               ,scalar=Re               )
-        call write_hdf_infoREAL(n_conc,.false.,attr_yes,'Sc'               ,array =Sc               )
-        call write_hdf_infoREAL(n_conc,.false.,attr_yes,'Ric'              ,array =Ric              ) ! TEST!!! Rip und usp auch beruecksichtigen!
-        call write_hdf_infoREAL(n_conc,.false.,attr_yes,'usc'              ,array =usc              )
-  
-        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'CFL   '           ,scalar=CFL              )
-        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'thetaL'           ,scalar=thetaL           )
-        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'epsU  '           ,scalar=epsU             )
-  
-        call write_hdf_infoLOG (1     ,.true. ,attr_yes,'Euler_yes'        ,scalar=Euler_yes        )
-        call write_hdf_infoLOG (1     ,.true. ,attr_yes,'twostep_yes'      ,scalar=twostep_yes      )
-        call write_hdf_infoLOG (1     ,.true. ,attr_yes,'mapping_yes'      ,scalar=mapping_yes      )
-        call write_hdf_infoLOG (1     ,.true. ,attr_yes,'upwind_yes'       ,scalar=upwind_yes       )
-        call write_hdf_infoLOG (1     ,.true. ,attr_yes,'upwind_conc_yes'  ,scalar=upwind_conc_yes  )
-  
-        call write_hdf_infoINT (3,.false.,attr_yes,'BC_iL',array=(/BC_1L_global,BC_2L_global,BC_3L_global/))
-        call write_hdf_infoINT (3,.false.,attr_yes,'BC_iU',array=(/BC_1U_global,BC_2U_global,BC_3U_global/))
-  
-        call write_hdf_infoINT (dim_ncb1c,.false.,attr_yes,'ncb1c',array=ncb1c    )
-        call write_hdf_infoINT (dim_ncb1g,.false.,attr_yes,'ncb1g',array=ncb1g    )
-        call write_hdf_infoINT (dim_ncb1d,.false.,attr_yes,'ncb1d',array=ncb1d    )
-  
-        call write_hdf_infoINT (dim_ncb2c,.false.,attr_yes,'ncb2c',array=ncb2c    )
-        call write_hdf_infoINT (dim_ncb2g,.false.,attr_yes,'ncb2g',array=ncb2g    )
-        call write_hdf_infoINT (dim_ncb2d,.false.,attr_yes,'ncb2d',array=ncb2d    )
-  
-        call write_hdf_infoINT (dim_ncb3c,.false.,attr_yes,'ncb3c',array=ncb3c    )
-        call write_hdf_infoINT (dim_ncb3g,.false.,attr_yes,'ncb3g',array=ncb3g    )
-        call write_hdf_infoINT (dim_ncb3d,.false.,attr_yes,'ncb3d',array=ncb3d    )
-  
-        call write_hdf_infoREAL( M1      ,.false.,attr_yes,'y1p'  ,array=y1p(1:M1))
-        call write_hdf_infoREAL( M2      ,.false.,attr_yes,'y2p'  ,array=y2p(1:M2))
-        call write_hdf_infoREAL( M3      ,.false.,attr_yes,'y3p'  ,array=y3p(1:M3))
-  
-        call write_hdf_infoREAL((M1+1)   ,.false.,attr_yes,'y1u'  ,array=y1u(0:M1))
-        call write_hdf_infoREAL((M2+1)   ,.false.,attr_yes,'y2v'  ,array=y2v(0:M2))
-        call write_hdf_infoREAL((M3+1)   ,.false.,attr_yes,'y3w'  ,array=y3w(0:M3))
-        !-----------------------------------------------------------------------------------------------------------
-        ! Select hyperslab in the file space / memory space:
-        call h5sselect_hyperslab_f(filespace,H5S_SELECT_SET_F,offset_file,dims_data,herror)
-        call h5sselect_hyperslab_f(memspace ,H5S_SELECT_SET_F,offset_mem ,dims_data,herror)
-  
-        ! Create property list for collective dataset write:
-        call h5pcreate_f(H5P_DATASET_XFER_F,plist_id,herror)
-        call h5pset_dxpl_mpio_f(plist_id,H5FD_MPIO_COLLECTIVE_F,herror)
-  
-        ! Write the dataset collectively:
-        call h5dwrite_f(dset_id,H5T_NATIVE_DOUBLE,phi(b1L,b2L,b3L,1),dims_file,herror,mem_space_id=memspace,file_space_id=filespace,xfer_prp=plist_id)
-  
-        call h5pclose_f(plist_id ,herror)
-        call h5dclose_f(dset_id  ,herror)
-        call h5sclose_f(memspace ,herror)
-        call h5sclose_f(filespace,herror)
-        !-----------------------------------------------------------------------------------------------------------
-        !-----------------------------------------------------------------------------------------------------------
-        ! Create file space / memory space:
-        call h5screate_simple_f(3,dims_file,filespace,herror)
-        call h5screate_simple_f(3,dims_mem ,memspace ,herror)
-        !-----------------------------------------------------------------------------------------------------------
-        ! Create the dataset:
-        call h5dcreate_f(file_id,'velY',H5T_NATIVE_DOUBLE,filespace,dset_id,herror)
-        !-----------------------------------------------------------------------------------------------------------
-        ! Select hyperslab in the file space / memory space:
-        call h5sselect_hyperslab_f(filespace,H5S_SELECT_SET_F,offset_file,dims_data,herror)
-        call h5sselect_hyperslab_f(memspace ,H5S_SELECT_SET_F,offset_mem ,dims_data,herror)
-  
-        ! Create property list for collective dataset write:
-        call h5pcreate_f(H5P_DATASET_XFER_F,plist_id,herror)
-        call h5pset_dxpl_mpio_f(plist_id,H5FD_MPIO_COLLECTIVE_F,herror)
-  
-        ! Write the dataset collectively:
-        call h5dwrite_f(dset_id,H5T_NATIVE_DOUBLE,phi(b1L,b2L,b3L,2),dims_file,herror,mem_space_id=memspace,file_space_id=filespace,xfer_prp=plist_id)
-  
-        call h5pclose_f(plist_id ,herror)
-        call h5dclose_f(dset_id  ,herror)
-        call h5sclose_f(memspace ,herror)
-        call h5sclose_f(filespace,herror)
-        !-----------------------------------------------------------------------------------------------------------
-        !-----------------------------------------------------------------------------------------------------------
-        ! Create file space / memory space:
-        call h5screate_simple_f(3,dims_file,filespace,herror)
-        call h5screate_simple_f(3,dims_mem ,memspace ,herror)
-        !-----------------------------------------------------------------------------------------------------------
-        ! Create the dataset:
-        call h5dcreate_f(file_id,'velZ',H5T_NATIVE_DOUBLE,filespace,dset_id,herror)
-        !-----------------------------------------------------------------------------------------------------------
-        ! Select hyperslab in the file space / memory space:
-        call h5sselect_hyperslab_f(filespace,H5S_SELECT_SET_F,offset_file,dims_data,herror)
-        call h5sselect_hyperslab_f(memspace ,H5S_SELECT_SET_F,offset_mem ,dims_data,herror)
-  
-        ! Create property list for collective dataset write:
-        call h5pcreate_f(H5P_DATASET_XFER_F,plist_id,herror)
-        call h5pset_dxpl_mpio_f(plist_id,H5FD_MPIO_COLLECTIVE_F,herror)
-  
-        ! Write the dataset collectively:
-        call h5dwrite_f(dset_id,H5T_NATIVE_DOUBLE,phi(b1L,b2L,b3L,3),dims_file,herror,mem_space_id=memspace,file_space_id=filespace,xfer_prp=plist_id)
-  
-        call h5pclose_f(plist_id ,herror)
-        call h5dclose_f(dset_id  ,herror)
-        call h5sclose_f(memspace ,herror)
-        call h5sclose_f(filespace,herror)
-        !-----------------------------------------------------------------------------------------------------------
-        !-----------------------------------------------------------------------------------------------------------
-        if (1 == 1) then ! TEST!!! wird u.a. gebraucht, um 'velabs' zu speichern.
-            ! Create file space / memory space:
-            call h5screate_simple_f(3,dims_file,filespace,herror)
-            call h5screate_simple_f(3,dims_mem ,memspace ,herror)
-            !-----------------------------------------------------------------------------------------------------------
-            ! Create the dataset:
-            call h5dcreate_f(file_id,'pre',H5T_NATIVE_DOUBLE,filespace,dset_id,herror)
-            !-----------------------------------------------------------------------------------------------------------
-            ! Select hyperslab in the file space / memory space:
-            call h5sselect_hyperslab_f(filespace,H5S_SELECT_SET_F,offset_file,dims_data,herror)
-            call h5sselect_hyperslab_f(memspace ,H5S_SELECT_SET_F,offset_mem ,dims_data,herror)
-  
-            ! Create property list for collective dataset write:
-            call h5pcreate_f(H5P_DATASET_XFER_F,plist_id,herror)
-            call h5pset_dxpl_mpio_f(plist_id,H5FD_MPIO_COLLECTIVE_F,herror)
-  
-            ! Write the dataset collectively:
-            call h5dwrite_f(dset_id,H5T_NATIVE_DOUBLE,pre,dims_file,herror,mem_space_id=memspace,file_space_id=filespace,xfer_prp=plist_id)
-  
-            call h5pclose_f(plist_id ,herror)
-            call h5dclose_f(dset_id  ,herror)
-            call h5sclose_f(memspace ,herror)
-            call h5sclose_f(filespace,herror)
-        end if
-        !-----------------------------------------------------------------------------------------------------------
-        !-----------------------------------------------------------------------------------------------------------
-        if (vel_dir == 1) then
-            call write_hdf_infoREAL(dim1,.false.,.false.,'VectorX',array=y1u(S1w:M1w))
-        else
-            call write_hdf_infoREAL(dim1,.false.,.false.,'VectorX',array=y1p(S1w:M1w))
-        end if
-        if (vel_dir == 2) then
-            call write_hdf_infoREAL(dim2,.false.,.false.,'VectorY',array=y2v(S2w:M2w))
-        else
-            call write_hdf_infoREAL(dim2,.false.,.false.,'VectorY',array=y2p(S2w:M2w))
-        end if
-        if (vel_dir == 3) then
-            call write_hdf_infoREAL(dim3,.false.,.false.,'VectorZ',array=y3w(S3w:M3w))
-        else
-            call write_hdf_infoREAL(dim3,.false.,.false.,'VectorZ',array=y3p(S3w:M3w))
-        end if
-        !-----------------------------------------------------------------------------------------------------------
-        call h5fclose_f(file_id,herror)
-    !===========================================================================================================
-  
-  
-    end subroutine write_hdf_velall
+!    subroutine write_hdf_velall(filename,SS1,SS2,SS3,NN1,NN2,NN3,vel_dir,phi)
+!
+!        implicit none
+!
+!        character(*), intent(in) ::  filename
+!
+!        integer, intent(in)      ::  SS1
+!        integer, intent(in)      ::  SS2
+!        integer, intent(in)      ::  SS3
+!
+!        integer, intent(in)      ::  NN1
+!        integer, intent(in)      ::  NN2
+!        integer, intent(in)      ::  NN3
+!
+!        integer, intent(in)      ::  vel_dir
+!
+!        real   , intent(in)      ::  phi(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U),1:3)
+!
+!        integer(HSIZE_T )        ::  dims_mem(1:3), dims_data(1:3)
+!        integer(HSSIZE_T)        ::  offset_mem(1:3)
+!
+!        integer                  ::  S1w, M1w, dim1
+!        integer                  ::  S2w, M2w, dim2
+!        integer                  ::  S3w, M3w, dim3
+!
+!        logical                  ::  attr_yes
+!
+!
+!        !----------------------------------------------------------------------------------------------------------!
+!        ! Anmerkungen: - Die Intervallgrenzen, Offsets und Block-Groessen werden wegen vel_dir nicht global        !
+!        !                eingefuehrt.                                                                              !
+!        !----------------------------------------------------------------------------------------------------------!
+!
+!
+!        !===========================================================================================================
+!        !=== Attribut-Datentyp =====================================================================================
+!        !===========================================================================================================
+!        call h5tcopy_f(H5T_NATIVE_DOUBLE ,memtypeREAL,herror)
+!        call h5tcopy_f(H5T_NATIVE_INTEGER,memtypeINT ,herror)
+!        !===========================================================================================================
+!
+!
+!        !===========================================================================================================
+!        !=== Dimensionen und Offsets ===============================================================================
+!        !===========================================================================================================
+!        call filespace_props(vel_dir,(/1,1,1/),S1w,S2w,S3w,M1w,M2w,M3w,dim1,dim2,dim3)
+!
+!        dims_mem   = (/(N1+b1U-b1L+1),(N2+b2U-b2L+1),(N3+b3U-b3L+1)/)
+!        dims_data  = (/(NN1-SS1+1   ),(NN2-SS2+1   ),(NN3-SS3+1   )/)
+!        offset_mem = (/(SS1-b1L     ),(SS2-b2L     ),(SS3-b3L     )/)
+!        !===========================================================================================================
+!
+!
+!        !===========================================================================================================
+!        !=== HDF5 schreiben ========================================================================================
+!        !===========================================================================================================
+!        ! Setup file access property list with parallel I/O access:
+!        call h5pcreate_f(H5P_FILE_ACCESS_F,plist_id,herror)
+!        call h5pset_fapl_mpio_f(plist_id,COMM_CART,MPI_INFO_NULL,herror)
+!
+!        ! Create the file collectively:
+!        call h5fcreate_f(filename//'.h5',H5F_ACC_TRUNC_F,file_id,herror,access_prp=plist_id)
+!        call h5pclose_f(plist_id,herror)
+!        !-----------------------------------------------------------------------------------------------------------
+!        !-----------------------------------------------------------------------------------------------------------
+!        ! Create file space / memory space:
+!        call h5screate_simple_f(3,dims_file,filespace,herror)
+!        call h5screate_simple_f(3,dims_mem ,memspace ,herror)
+!
+!        ! Create the dataset:
+!        call h5dcreate_f(file_id,'velX',H5T_NATIVE_DOUBLE,filespace,dset_id,herror)
+!        !-----------------------------------------------------------------------------------------------------------
+!        ! Write the attributes:
+!        attr_yes = .true.
+!        call write_hdf_infoINT (1     ,.true. ,attr_yes,'restart'          ,scalar=restart          )
+!        call write_hdf_infoINT (1     ,.true. ,attr_yes,'write_count'      ,scalar=write_count      )
+!        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'time_out_vect'    ,scalar=time_out_vect    )
+!        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'time_out_scal'    ,scalar=time_out_scal    )
+!        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'dtime_out_vect'   ,scalar=dtime_out_vect   )
+!        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'dtime_out_scal'   ,scalar=dtime_out_scal   )
+!        call write_hdf_infoLOG (1     ,.true. ,attr_yes,'write_out_vect'   ,scalar=write_out_vect   )
+!        call write_hdf_infoLOG (1     ,.true. ,attr_yes,'write_out_scal'   ,scalar=write_out_scal   )
+!        call write_hdf_infoLOG (1     ,.true. ,attr_yes,'new_dtime'        ,scalar=new_dtime        )
+!
+!        call write_hdf_infoINT (3     ,.false.,attr_yes,'M1  M2  M3 '      ,array =(/M1 ,M2 ,M3 /)  )
+!        call write_hdf_infoINT (3     ,.false.,attr_yes,'S1w S2w S3w'      ,array =(/S1w,S2w,S3w/)  )
+!        call write_hdf_infoINT (3     ,.false.,attr_yes,'M1w M2w M3w'      ,array =(/M1w,M2w,M3w/)  )
+!        call write_hdf_infoINT (3     ,.false.,attr_yes,'NB1 NB2 NB3'      ,array =(/NB1,NB2,NB3/)  )
+!        call write_hdf_infoINT (3     ,.false.,attr_yes,'ls1 ls2 ls3'      ,array =(/ls1,ls2,ls3/)  )
+!
+!        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'time'             ,scalar=time             )
+!        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'dtime'            ,scalar=dtime            )
+!        call write_hdf_infoINT (1     ,.true. ,attr_yes,'timestep'         ,scalar=timestep         )
+!
+!        call write_hdf_infoLOG (1     ,.true. ,attr_yes,'concentration_yes',scalar=concentration_yes)
+!        call write_hdf_infoINT (1     ,.true. ,attr_yes,'n_conc'           ,scalar=n_conc           )
+!        call write_hdf_infoREAL(3     ,.false.,attr_yes,'gravity'          ,array =gravity          )
+!        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'Re'               ,scalar=Re               )
+!        call write_hdf_infoREAL(n_conc,.false.,attr_yes,'Sc'               ,array =Sc               )
+!        call write_hdf_infoREAL(n_conc,.false.,attr_yes,'Ric'              ,array =Ric              ) ! TEST!!! Rip und usp auch beruecksichtigen!
+!        call write_hdf_infoREAL(n_conc,.false.,attr_yes,'usc'              ,array =usc              )
+!
+!        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'CFL   '           ,scalar=CFL              )
+!        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'thetaL'           ,scalar=thetaL           )
+!        call write_hdf_infoREAL(1     ,.true. ,attr_yes,'epsU  '           ,scalar=epsU             )
+!
+!        call write_hdf_infoLOG (1     ,.true. ,attr_yes,'Euler_yes'        ,scalar=Euler_yes        )
+!        call write_hdf_infoLOG (1     ,.true. ,attr_yes,'twostep_yes'      ,scalar=twostep_yes      )
+!        call write_hdf_infoLOG (1     ,.true. ,attr_yes,'mapping_yes'      ,scalar=mapping_yes      )
+!        call write_hdf_infoLOG (1     ,.true. ,attr_yes,'upwind_yes'       ,scalar=upwind_yes       )
+!        call write_hdf_infoLOG (1     ,.true. ,attr_yes,'upwind_conc_yes'  ,scalar=upwind_conc_yes  )
+!
+!        call write_hdf_infoINT (3,.false.,attr_yes,'BC_iL',array=(/BC_1L_global,BC_2L_global,BC_3L_global/))
+!        call write_hdf_infoINT (3,.false.,attr_yes,'BC_iU',array=(/BC_1U_global,BC_2U_global,BC_3U_global/))
+!
+!        call write_hdf_infoINT (dim_ncb1c,.false.,attr_yes,'ncb1c',array=ncb1c    )
+!        call write_hdf_infoINT (dim_ncb1g,.false.,attr_yes,'ncb1g',array=ncb1g    )
+!        call write_hdf_infoINT (dim_ncb1d,.false.,attr_yes,'ncb1d',array=ncb1d    )
+!
+!        call write_hdf_infoINT (dim_ncb2c,.false.,attr_yes,'ncb2c',array=ncb2c    )
+!        call write_hdf_infoINT (dim_ncb2g,.false.,attr_yes,'ncb2g',array=ncb2g    )
+!        call write_hdf_infoINT (dim_ncb2d,.false.,attr_yes,'ncb2d',array=ncb2d    )
+!
+!        call write_hdf_infoINT (dim_ncb3c,.false.,attr_yes,'ncb3c',array=ncb3c    )
+!        call write_hdf_infoINT (dim_ncb3g,.false.,attr_yes,'ncb3g',array=ncb3g    )
+!        call write_hdf_infoINT (dim_ncb3d,.false.,attr_yes,'ncb3d',array=ncb3d    )
+!
+!        call write_hdf_infoREAL( M1      ,.false.,attr_yes,'y1p'  ,array=y1p(1:M1))
+!        call write_hdf_infoREAL( M2      ,.false.,attr_yes,'y2p'  ,array=y2p(1:M2))
+!        call write_hdf_infoREAL( M3      ,.false.,attr_yes,'y3p'  ,array=y3p(1:M3))
+!
+!        call write_hdf_infoREAL((M1+1)   ,.false.,attr_yes,'y1u'  ,array=y1u(0:M1))
+!        call write_hdf_infoREAL((M2+1)   ,.false.,attr_yes,'y2v'  ,array=y2v(0:M2))
+!        call write_hdf_infoREAL((M3+1)   ,.false.,attr_yes,'y3w'  ,array=y3w(0:M3))
+!        !-----------------------------------------------------------------------------------------------------------
+!        ! Select hyperslab in the file space / memory space:
+!        call h5sselect_hyperslab_f(filespace,H5S_SELECT_SET_F,offset_file,dims_data,herror)
+!        call h5sselect_hyperslab_f(memspace ,H5S_SELECT_SET_F,offset_mem ,dims_data,herror)
+!
+!        ! Create property list for collective dataset write:
+!        call h5pcreate_f(H5P_DATASET_XFER_F,plist_id,herror)
+!        call h5pset_dxpl_mpio_f(plist_id,H5FD_MPIO_COLLECTIVE_F,herror)
+!
+!        ! Write the dataset collectively:
+!        call h5dwrite_f(dset_id,H5T_NATIVE_DOUBLE,phi(b1L,b2L,b3L,1),dims_file,herror,mem_space_id=memspace,file_space_id=filespace,xfer_prp=plist_id)
+!
+!        call h5pclose_f(plist_id ,herror)
+!        call h5dclose_f(dset_id  ,herror)
+!        call h5sclose_f(memspace ,herror)
+!        call h5sclose_f(filespace,herror)
+!        !-----------------------------------------------------------------------------------------------------------
+!        !-----------------------------------------------------------------------------------------------------------
+!        ! Create file space / memory space:
+!        call h5screate_simple_f(3,dims_file,filespace,herror)
+!        call h5screate_simple_f(3,dims_mem ,memspace ,herror)
+!        !-----------------------------------------------------------------------------------------------------------
+!        ! Create the dataset:
+!        call h5dcreate_f(file_id,'velY',H5T_NATIVE_DOUBLE,filespace,dset_id,herror)
+!        !-----------------------------------------------------------------------------------------------------------
+!        ! Select hyperslab in the file space / memory space:
+!        call h5sselect_hyperslab_f(filespace,H5S_SELECT_SET_F,offset_file,dims_data,herror)
+!        call h5sselect_hyperslab_f(memspace ,H5S_SELECT_SET_F,offset_mem ,dims_data,herror)
+!
+!        ! Create property list for collective dataset write:
+!        call h5pcreate_f(H5P_DATASET_XFER_F,plist_id,herror)
+!        call h5pset_dxpl_mpio_f(plist_id,H5FD_MPIO_COLLECTIVE_F,herror)
+!
+!        ! Write the dataset collectively:
+!        call h5dwrite_f(dset_id,H5T_NATIVE_DOUBLE,phi(b1L,b2L,b3L,2),dims_file,herror,mem_space_id=memspace,file_space_id=filespace,xfer_prp=plist_id)
+!
+!        call h5pclose_f(plist_id ,herror)
+!        call h5dclose_f(dset_id  ,herror)
+!        call h5sclose_f(memspace ,herror)
+!        call h5sclose_f(filespace,herror)
+!        !-----------------------------------------------------------------------------------------------------------
+!        !-----------------------------------------------------------------------------------------------------------
+!        ! Create file space / memory space:
+!        call h5screate_simple_f(3,dims_file,filespace,herror)
+!        call h5screate_simple_f(3,dims_mem ,memspace ,herror)
+!        !-----------------------------------------------------------------------------------------------------------
+!        ! Create the dataset:
+!        call h5dcreate_f(file_id,'velZ',H5T_NATIVE_DOUBLE,filespace,dset_id,herror)
+!        !-----------------------------------------------------------------------------------------------------------
+!        ! Select hyperslab in the file space / memory space:
+!        call h5sselect_hyperslab_f(filespace,H5S_SELECT_SET_F,offset_file,dims_data,herror)
+!        call h5sselect_hyperslab_f(memspace ,H5S_SELECT_SET_F,offset_mem ,dims_data,herror)
+!
+!        ! Create property list for collective dataset write:
+!        call h5pcreate_f(H5P_DATASET_XFER_F,plist_id,herror)
+!        call h5pset_dxpl_mpio_f(plist_id,H5FD_MPIO_COLLECTIVE_F,herror)
+!
+!        ! Write the dataset collectively:
+!        call h5dwrite_f(dset_id,H5T_NATIVE_DOUBLE,phi(b1L,b2L,b3L,3),dims_file,herror,mem_space_id=memspace,file_space_id=filespace,xfer_prp=plist_id)
+!
+!        call h5pclose_f(plist_id ,herror)
+!        call h5dclose_f(dset_id  ,herror)
+!        call h5sclose_f(memspace ,herror)
+!        call h5sclose_f(filespace,herror)
+!        !-----------------------------------------------------------------------------------------------------------
+!        !-----------------------------------------------------------------------------------------------------------
+!        if (1 == 1) then ! TEST!!! wird u.a. gebraucht, um 'velabs' zu speichern.
+!            ! Create file space / memory space:
+!            call h5screate_simple_f(3,dims_file,filespace,herror)
+!            call h5screate_simple_f(3,dims_mem ,memspace ,herror)
+!            !-----------------------------------------------------------------------------------------------------------
+!            ! Create the dataset:
+!            call h5dcreate_f(file_id,'pre',H5T_NATIVE_DOUBLE,filespace,dset_id,herror)
+!            !-----------------------------------------------------------------------------------------------------------
+!            ! Select hyperslab in the file space / memory space:
+!            call h5sselect_hyperslab_f(filespace,H5S_SELECT_SET_F,offset_file,dims_data,herror)
+!            call h5sselect_hyperslab_f(memspace ,H5S_SELECT_SET_F,offset_mem ,dims_data,herror)
+!
+!            ! Create property list for collective dataset write:
+!            call h5pcreate_f(H5P_DATASET_XFER_F,plist_id,herror)
+!            call h5pset_dxpl_mpio_f(plist_id,H5FD_MPIO_COLLECTIVE_F,herror)
+!
+!            ! Write the dataset collectively:
+!            call h5dwrite_f(dset_id,H5T_NATIVE_DOUBLE,pre,dims_file,herror,mem_space_id=memspace,file_space_id=filespace,xfer_prp=plist_id)
+!
+!            call h5pclose_f(plist_id ,herror)
+!            call h5dclose_f(dset_id  ,herror)
+!            call h5sclose_f(memspace ,herror)
+!            call h5sclose_f(filespace,herror)
+!        end if
+!        !-----------------------------------------------------------------------------------------------------------
+!        !-----------------------------------------------------------------------------------------------------------
+!        if (vel_dir == 1) then
+!            call write_hdf_infoREAL(dim1,.false.,.false.,'VectorX',array=y1u(S1w:M1w))
+!        else
+!            call write_hdf_infoREAL(dim1,.false.,.false.,'VectorX',array=y1p(S1w:M1w))
+!        end if
+!        if (vel_dir == 2) then
+!            call write_hdf_infoREAL(dim2,.false.,.false.,'VectorY',array=y2v(S2w:M2w))
+!        else
+!            call write_hdf_infoREAL(dim2,.false.,.false.,'VectorY',array=y2p(S2w:M2w))
+!        end if
+!        if (vel_dir == 3) then
+!            call write_hdf_infoREAL(dim3,.false.,.false.,'VectorZ',array=y3w(S3w:M3w))
+!        else
+!            call write_hdf_infoREAL(dim3,.false.,.false.,'VectorZ',array=y3p(S3w:M3w))
+!        end if
+!        !-----------------------------------------------------------------------------------------------------------
+!        call h5fclose_f(file_id,herror)
+!    !===========================================================================================================
+!
+!
+!    end subroutine write_hdf_velall
   
   
   

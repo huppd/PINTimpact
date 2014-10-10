@@ -85,6 +85,10 @@ public:
 
   const Scalar& getOrigin( int i) const { return( origin_[i] ); }
 
+  const Scalar& getRe() const { return( re_ ); }
+
+  const Scalar& getAlpha2() const { return( alpha2_ ); }
+
   void set_Impact(){
     fsetDS( domainSize_[0], domainSize_[1], domainSize_[2] );
   };

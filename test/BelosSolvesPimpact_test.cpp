@@ -35,7 +35,7 @@ typedef double S;
 typedef int O;
 
 bool testMpi = true;
-double errorTolSlack = 1e+1;
+double errorTolSlack = 1e-4;
 
 bool isImpactInit = false;
 
@@ -94,7 +94,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
   solver->setProblem( problem );
 
   solver->solve();
-  TEST_EQUALITY( solver->achievedTol()<1.e-3, true );
+  TEST_EQUALITY( solver->achievedTol()<errorTolSlack, true );
 
   x->write(111);
 
@@ -145,7 +145,12 @@ TEUCHOS_UNIT_TEST( BelosSolver, PrecDivGrad ) {
   x->init(0.);
 
   auto op = Pimpact::createMultiOperatorBase<MSF>(
-      Pimpact::createDivGradOp<S,O>( u->clone() ) );
+      Pimpact::createDivGradOp<S,O>(
+          u->clone(),
+          Pimpact::createDivOp( space ),
+          Pimpact::createGradOp( space )
+      )
+  );
 
   auto prec = Pimpact::createMultiOperatorBase<MSF>(
       Pimpact::createMGVDivGradOp<S,O>(true) );
@@ -175,10 +180,11 @@ TEUCHOS_UNIT_TEST( BelosSolver, PrecDivGrad ) {
   // Tell the solver what problem you want to solve.
   solver->setProblem( problem );
 
-  Belos::ReturnType ret =  solver->solve();
+//  Belos::ReturnType ret =
+  solver->solve();
   x->write(222);
 
-  TEST_EQUALITY( ret, Belos::Converged );
+  TEST_EQUALITY( solver->achievedTol()<errorTolSlack, true );
 
 }
 
@@ -231,7 +237,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, DtLapOp ) {
   solver->setProblem( problem );
 
   solver->solve();
-  TEST_EQUALITY( solver->achievedTol()<1.e-3, true );
+  TEST_EQUALITY( solver->achievedTol()<errorTolSlack, true );
 
   x->write(20);
 
@@ -271,7 +277,13 @@ TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
   temp->initField(Pimpact::ZeroFlow);
   auto op = Pimpact::createOperatorBase<BSF,MuOp>(
       Pimpact::createMultiOpWrap(
-          Pimpact::createDivGradOp(temp) ) );
+          Pimpact::createDivGradOp(
+              temp,
+              Pimpact::createDivOp( space ),
+              Pimpact::createGradOp( space )
+          )
+      )
+  );
 
   //  x->init( 1. );
   x->random();
@@ -306,7 +318,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
   //       std::cout << *problem;
 
   solver->solve();
-  TEST_EQUALITY( solver->achievedTol()<1.e-9, true );
+  TEST_EQUALITY( solver->achievedTol()<errorTolSlack, true );
 
   x->write(999);
   temp->write(999);

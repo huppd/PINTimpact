@@ -34,14 +34,15 @@ public:
   typedef ScalarField<Scalar,Ordinal,dimension>  DomainFieldT;
   typedef ScalarField<Scalar,Ordinal,dimension>  RangeFieldT;
 
-  DivGradOp():
-    temp_(Teuchos::null),
-    div_(Teuchos::rcp(new DivOp<Scalar,Ordinal,dimension>() )),
-    grad_(Teuchos::rcp(new GradOp<Scalar,Ordinal,dimension>() )) {};
+//  DivGradOp():
+//    temp_(Teuchos::null),
+//    div_(Teuchos::rcp(new DivOp<Scalar,Ordinal,dimension>() )),
+//    grad_(Teuchos::rcp(new GradOp<Scalar,Ordinal,dimension>() )) {};
 
-  DivGradOp( const Teuchos::RCP<VectorField<Scalar,Ordinal,dimension> >& temp,
-      const Teuchos::RCP< DivOp<Scalar,Ordinal,dimension> >& div=Teuchos::null,
-      const Teuchos::RCP< GradOp<Scalar,Ordinal,dimension> >& grad=Teuchos::null ):
+  DivGradOp(
+      const Teuchos::RCP<VectorField<Scalar,Ordinal,dimension> >& temp,
+      const Teuchos::RCP< DivOp<Scalar,Ordinal,dimension> >& div,
+      const Teuchos::RCP< GradOp<Scalar,Ordinal,dimension> >& grad ):
     temp_(temp),
     div_ (div),
     grad_(grad) {};
@@ -68,10 +69,12 @@ public:
 
 /// \relates DivGradOp
 template<class S, class O, int d=3>
-Teuchos::RCP< DivGradOp<S,O,d> > createDivGradOp( const Teuchos::RCP<VectorField<S,O,d> >& temp=Teuchos::null ) {
+Teuchos::RCP< DivGradOp<S,O,d> > createDivGradOp(
+    const Teuchos::RCP<VectorField<S,O,d> >& temp,
+    const Teuchos::RCP< DivOp<S,O,d> >& div,
+    const Teuchos::RCP< GradOp<S,O,d> >& grad ) {
   return(
-      Teuchos::rcp( new DivGradOp<S,O,d>( temp ) )
-  );
+      Teuchos::rcp( new DivGradOp<S,O,d>( temp, div, grad ) ) );
 }
 
 

@@ -39,6 +39,8 @@ class ScalarField : private AbstractField<S,O> {
   template<class S1,class O1,int dimension1>
   friend class DivOp;
   template<class S1,class O1,int dimension1>
+  friend class InterpolateV2S;
+  template<class S1,class O1,int dimension1>
   friend class DivGradOp;
   template<class S1,class O1,int dimension1>
   friend class MGVDivGradOp;
@@ -491,13 +493,45 @@ public:
 
 
   void write( int count=0 ) {
+    if( 0==space_->rankST() )
+      std::cout << "writing pressure field (" << count << ") ...\n";
     // exchange?
-    SF_write(
-        nLoc(),
-        bl(), bu(),
-        sInd(),
-        eInd(),
-        s_, count );
+    if( 2==space_->dim() )
+      write_hdf5_2D(
+          space_->commf(),
+          space_->nGlo(),
+          space_->getDomain()->getBCGlobal()->getBCL(),
+          space_->getDomain()->getBCGlobal()->getBCU(),
+          space_->nLoc(),
+          space_->bl(),
+          space_->bu(),
+          sInd(),
+          eInd(),
+          space_->getFieldSpace()->getLS(),
+          space_->getProcGridSize()->get(),
+          space_->getProcGrid()->getIB(),
+          space_->getProcGrid()->getShift(),
+          fType_,
+          count,
+          s_,
+          space_->getCoordinatesGlobal()->get(0,EField::S),
+          space_->getCoordinatesGlobal()->get(1,EField::S),
+          space_->getCoordinatesGlobal()->get(2,EField::S),
+          space_->getDomain()->getDomainSize()->getRe(),
+          space_->getDomain()->getDomainSize()->getAlpha2() );
+//      SF_write2D(
+//          nLoc(),
+//          bl(), bu(),
+//          sInd(),
+//          eInd(),
+//          s_, count );
+    if( 3==space_->dim() )
+      SF_write3D(
+          nLoc(),
+          bl(), bu(),
+          sInd(),
+          eInd(),
+          s_, count );
   }
 
 
@@ -533,6 +567,7 @@ public:
 
 protected:
 
+//  const Ordinal* nGlo()  const { return( space_->nGlo() ); }
   const Ordinal& nGlo(int i)  const { return( space_->nGlo()[i] ); }
 
   const Ordinal* nLoc()      const { return( space_->nLoc() ) ; }
@@ -624,10 +659,7 @@ Teuchos::RCP< ScalarField<S,O,d> >
 createScalarField(
     const Teuchos::RCP<const Space<S,O,d> >& space=Teuchos::null,
     EField fType=EField::S ) {
-  //  if( space.is_null() )
-  //    return( Teuchos::rcp(
-  //        new ScalarField<S,O,d>( createSpace<O,d>() ) ) );
-  //  else
+
   return( Teuchos::rcp(
       new ScalarField<S,O,d>( space, fType ) ) );
 }

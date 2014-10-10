@@ -38,6 +38,7 @@ class BoundaryConditionsGlobal {
 public:
 
   typedef const Teuchos::Tuple<EBCType,3> TBC3;
+  typedef const Teuchos::Tuple<int,3> Ti3;
 
 
   friend Teuchos::RCP<BoundaryConditionsGlobal> createBoudaryConditionsGlobal();
@@ -49,6 +50,8 @@ protected:
   TBC3 BCL_global_;
   TBC3 BCU_global_;
 
+  Ti3 BCL_int_;
+  Ti3 BCU_int_;
 
   BoundaryConditionsGlobal(
       EBCType BC1L=DirichletBC,
@@ -58,20 +61,35 @@ protected:
       EBCType BC3L=DirichletBC,
       EBCType BC3U=DirichletBC ):
         BCL_global_( Teuchos::tuple(BC1L, BC2L, BC3L) ),
-        BCU_global_( Teuchos::tuple(BC1U, BC2U, BC3U) ) {};
+        BCU_global_( Teuchos::tuple(BC1U, BC2U, BC3U) ) {
+    for( int i=0; i<3; ++i ) {
+         BCL_int_[i] = (int)( BCL_global_[i] );
+         BCU_int_[i] = (int)( BCU_global_[i] );
+    };
+  }
 
   BoundaryConditionsGlobal( TBC3 BCL_global, TBC3 BCU_global ):
-    BCL_global_( BCL_global ), BCU_global_( BCU_global ) {};
+    BCL_global_( BCL_global ), BCU_global_( BCU_global ) {
+    for( int i=0; i<3; ++i ) {
+         BCL_int_[i] = (int)( BCL_global_[i] );
+         BCU_int_[i] = (int)( BCU_global_[i] );
+    };
+  }
 
 public:
 
-  EBCType getBCL( int dim ) const {
-    return( BCL_global_[dim] );
-  }
+  EBCType getBCL( int dim ) const { return( BCL_global_[dim] ); }
 
   EBCType getBCU( int dim ) const {
     return( BCU_global_[dim] );
   }
+
+
+  const int* getBCL() const { return( BCL_int_.getRawPtr() ); }
+//  const int& getBCL( int i ) const { return( BCL_int_[i] ); }
+
+  const int* getBCU() const { return( BCU_int_.getRawPtr() ); }
+//  const int& getBCU( int i ) const { return( BCU_int_[i] ); }
 
   void set_Impact(){
     fsetBC(

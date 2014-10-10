@@ -164,7 +164,40 @@ void SF_print(
     const double* const phi );
 
 
-void SF_write(
+void SF_write2D(
+    const int* const N,
+    const int* const bL,
+    const int* const bU,
+    const int* const SS,
+    const int* const NN,
+    const double* const phi,
+    const int& count );
+
+void write_hdf5_2D(
+        const int& COMM_CART,
+        const int* const M,
+        const int* const BC_L_global,
+        const int* const BC_U_global,
+        const int* const N,
+        const int* const bL,
+        const int* const bU,
+        const int* const SS,
+        const int* const NN,
+        const int* const ls,
+        const int* const NB,
+        const int* const iB,
+        const int* const iShift,
+        const int& ftype,
+        const int& filecount,
+        const double* const phi,
+        const double* const y1p,
+        const double* const y2p,
+        const double* const y3p,
+        const double& Re,
+        const double& alpha2 );
+
+
+void SF_write3D(
     const int* const N,
     const int* const bL,
     const int* const bU,

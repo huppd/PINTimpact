@@ -535,11 +535,18 @@ int main(int argi, char** argv ) {
          Pimpact::createLinearProblem< MSF >(
              Pimpact::createMultiOperatorBase< Pimpact::MultiField<SF> >(
                  Pimpact::createTimeOpWrap(
-                     Pimpact::createDivGradOp<S,O,4>(/*x->getConstFieldPtr(0)->getConstVFieldPtr()->getConstField(0)*/) ) ),
+                     Pimpact::createDivGradOp<S,O,4>(
+                         x->getConstFieldPtr(0)->getConstVFieldPtr()->getConstFieldPtr(0)->clone(),
+                         Pimpact::createDivOp<S,O,4>( space ),
+                         Pimpact::createGradOp<S,O,4>( space )
+                     )
+                 )
+             ),
              Teuchos::null,
              Teuchos::null,
              schurParams,
-             "GMRES" );
+             "GMRES"
+         );
      divGradProb->setRightPrec( divGradPrec );
      auto divGradInv = Pimpact::createInverseOperatorBase( divGradProb );
 
@@ -644,11 +651,18 @@ int main(int argi, char** argv ) {
          Pimpact::createLinearProblem< MSF >(
              Pimpact::createMultiOperatorBase< Pimpact::MultiField<SF> >(
                  Pimpact::createTimeOpWrap(
-                     Pimpact::createDivGradOp<S,O,4>(/*x->getConstFieldPtr(0)->getConstVFieldPtr()->getConstField(0)*/) ) ),
+                     Pimpact::createDivGradOp<S,O,4>(
+                         x->getConstFieldPtr(0)->getConstVFieldPtr()->getConstFieldPtr(0)->clone(),
+                         Pimpact::createDivOp<S,O,4>( space ),
+                         Pimpact::createGradOp<S,O,4>( space )
+                     )
+                 )
+             ),
              Teuchos::null,
              Teuchos::null,
              schurParams,
-             "GMRES" );
+             "GMRES"
+         );
      divGradProb->setRightPrec( divGradPrec );
      auto divGradInv = Pimpact::createInverseOperatorBase( divGradProb );
 
