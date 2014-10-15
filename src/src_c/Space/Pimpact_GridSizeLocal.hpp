@@ -38,12 +38,12 @@ template< class Ordinal=int, int dim=3 >
 class GridSizeLocal {
 
   template< class OT, int dT >
-  friend Teuchos::RCP< GridSizeLocal<OT,dT> > createGridSizeLocal(
-      const Teuchos::RCP< GridSizeGlobal<OT,dT> >& gsg,
-      const Teuchos::RCP< ProcGridSize<OT,dT> >& pgs );
+  friend Teuchos::RCP<const GridSizeLocal<OT,dT> > createGridSizeLocal(
+      const Teuchos::RCP<const GridSizeGlobal<OT,dT> >& gsg,
+      const Teuchos::RCP<const ProcGridSize<OT,dT> >& pgs );
 
   template< class OT, int dT >
-  friend Teuchos::RCP< GridSizeLocal<OT,dT> > createGridSizeLocal();
+  friend Teuchos::RCP<const GridSizeLocal<OT,dT> > createGridSizeLocal();
 
 public:
 
@@ -59,8 +59,8 @@ protected:
   }
 
   GridSizeLocal(
-      const Teuchos::RCP< GridSizeGlobal<Ordinal,dim> >& gridSizeGlobal,
-      const Teuchos::RCP< ProcGridSize  <Ordinal,dim> >& procGridSize ):
+      const Teuchos::RCP<const GridSizeGlobal<Ordinal,dim> >& gridSizeGlobal,
+      const Teuchos::RCP<const ProcGridSize  <Ordinal,dim> >& procGridSize ):
         gridSize_() {
 
     for( int i=0; i<dim; ++i )
@@ -90,14 +90,14 @@ public:
   }
 
 
-  void set_Impact(){
+  void set_Impact() const {
     fsetLS(
         gridSize_[0],
         gridSize_[1],
         gridSize_[2] );
   };
 
-  void print( std::ostream& out=std::cout ) {
+  void print( std::ostream& out=std::cout ) const {
     out << " \tnx=" << gridSize_[0] ;
     out << " \tny=" << gridSize_[1] ;
     out << " \tnz=" << gridSize_[2] ;
@@ -127,9 +127,9 @@ protected:
 /// \brief creates GridSizeLocal, and sets Impact
 /// \relates GridSizeLocal
 template< class O=int, int d=3 >
-Teuchos::RCP<GridSizeLocal<O,d> > createGridSizeLocal(
-    const Teuchos::RCP< GridSizeGlobal<O,d> >& gsg,
-    const Teuchos::RCP< ProcGridSize<O,d> >& pgs ) {
+Teuchos::RCP<const GridSizeLocal<O,d> > createGridSizeLocal(
+    const Teuchos::RCP<const GridSizeGlobal<O,d> >& gsg,
+    const Teuchos::RCP<const ProcGridSize<O,d> >& pgs ) {
   return(
       Teuchos::rcp(
           new GridSizeLocal<O,d>( gsg, pgs ) ) );
@@ -139,7 +139,7 @@ Teuchos::RCP<GridSizeLocal<O,d> > createGridSizeLocal(
 /// \brief creates GridSizeLocal from Impact
 /// \relates GridSizeLocal
 template< class O=int, int d=3 >
-Teuchos::RCP<GridSizeLocal<O,d> > createGridSizeLocal() {
+Teuchos::RCP<const GridSizeLocal<O,d> > createGridSizeLocal() {
 
   Teuchos::Tuple<O,d> bla;
   SVS_get_nLoc(bla[0],bla[1],bla[2]);

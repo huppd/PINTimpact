@@ -47,13 +47,13 @@ template< class Ordinal=int, int dim=3 >
 class ProcGrid {
 
   template< class OT, int dT >
-  friend Teuchos::RCP< ProcGrid<OT,dT> > createProcGrid();
+  friend Teuchos::RCP<const ProcGrid<OT,dT> > createProcGrid();
 
   template< class OT, int dT >
-  friend Teuchos::RCP< ProcGrid<OT,dT> > createProcGrid(
-      const Teuchos::RCP< GridSizeLocal<OT,dT> >& gsl,
-      const Teuchos::RCP< BoundaryConditionsGlobal>& bcg,
-      const Teuchos::RCP< ProcGridSize<OT,dT> >& procGridSize );
+  friend Teuchos::RCP<const ProcGrid<OT,dT> > createProcGrid(
+      const Teuchos::RCP<const GridSizeLocal<OT,dT> >& gsl,
+      const Teuchos::RCP<const BoundaryConditionsGlobal>& bcg,
+      const Teuchos::RCP<const ProcGridSize<OT,dT> >& procGridSize );
 
 public:
 
@@ -63,10 +63,11 @@ public:
   MPI_Fint commSpacef_;
   MPI_Comm commSpace_;
 
+protected:
+
   int rankS_;
   int rankST_;
 
-protected:
   /// processor coordinates(index Block) fortranstyle going from 1..np
   Teuchos::Tuple<int,dim> iB_;
 
@@ -115,9 +116,9 @@ protected:
         rankBar_() {}
 
   ProcGrid(
-      const Teuchos::RCP< GridSizeLocal<Ordinal,dim> >& gridSizeLocal,
-      const Teuchos::RCP< BoundaryConditionsGlobal >& bcg,
-      const Teuchos::RCP< ProcGridSize<Ordinal,dim> >& procGridSize ):
+      const Teuchos::RCP<const GridSizeLocal<Ordinal,dim> >& gridSizeLocal,
+      const Teuchos::RCP<const BoundaryConditionsGlobal >& bcg,
+      const Teuchos::RCP<const ProcGridSize<Ordinal,dim> >& procGridSize ):
         iB_(),rankL_(),rankU_(),commSlice_(),commBar_(),rankSlice_(),rankBar_() {
 
     TEUCHOS_TEST_FOR_EXCEPTION(
@@ -142,6 +143,7 @@ protected:
     // comm_cart comm with cartesian grid informations
     //    int* bla = procGridSize->getRawPtr();
     //    int mpierror =
+
     MPI_Cart_create(
         MPI_COMM_WORLD,
         dim,
@@ -265,7 +267,7 @@ protected:
 
 public:
 
-  void set_Impact() {
+  void set_Impact() const {
     SG_setCommCart( commSpacef_ );
     SG_setRank( rankS_ );
     SG_setIB( iB_.getRawPtr() );
@@ -295,6 +297,8 @@ public:
 
   const int& getRank() const { return( rankST_ ); }
 
+  const int& getRankS() const { return( rankS_ ); }
+
   const int& getRankL( int i ) const { return( rankL_[i] ); }
   const int& getRankU( int i ) const { return( rankU_[i] ); }
 
@@ -310,7 +314,7 @@ public:
 
 /// \relates ProcGrid
 template< class O=int, int d=3 >
-Teuchos::RCP< ProcGrid<O,d> > createProcGrid() {
+Teuchos::RCP<const ProcGrid<O,d> > createProcGrid() {
 
 
   MPI_Fint comm;
@@ -340,10 +344,10 @@ Teuchos::RCP< ProcGrid<O,d> > createProcGrid() {
 
 /// \relates ProcGrid
 template< class O=int, int d=3 >
-Teuchos::RCP< ProcGrid<O,d> > createProcGrid(
-    const Teuchos::RCP< GridSizeLocal<O,d> >& gsl,
-    const Teuchos::RCP< BoundaryConditionsGlobal>& bcg,
-    const Teuchos::RCP< ProcGridSize<O,d> >& procGridSize ) {
+Teuchos::RCP<const ProcGrid<O,d> > createProcGrid(
+    const Teuchos::RCP<const GridSizeLocal<O,d> >& gsl,
+    const Teuchos::RCP<const BoundaryConditionsGlobal>& bcg,
+    const Teuchos::RCP<const ProcGridSize<O,d> >& procGridSize ) {
 
   return(
       Teuchos::rcp( new ProcGrid<O,d>( gsl, bcg, procGridSize ) ) );

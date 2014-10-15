@@ -220,7 +220,7 @@ int main(int argi, char** argv ) {
 
   auto space = Pimpact::createSpace<S,O,4>( pl );
   space->print();
-  int rank = space->getProcGrid()->rankST_;
+  int rank = space->getProcGrid()->getRank();
 
   // outputs
   Teuchos::RCP<std::ostream> outPar;

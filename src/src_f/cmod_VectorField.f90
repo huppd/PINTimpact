@@ -5,12 +5,10 @@
 module cmod_VectorField
 
     use iso_c_binding
-    !    use mpi
 
-    use mod_vars, only: x1p,x1u,x2p,x2v,x3p,L1,L2,L3,M1,M2,M3
+!    use mod_vars, only: L1,L2,L3,M1,M2,M3
 
     implicit none
-!  public get_norms
 
 contains
 
@@ -19,17 +17,23 @@ contains
     !! \param[in] x
     !! \param[in] y
     !! \param[in] z
-    FUNCTION distance2ib( x, y, z, x0, y0, R ) RESULT(dis)
+    FUNCTION distance2ib( x, y, z, x0, y0, R, dr ) RESULT(dis)
 
         IMPLICIT NONE
 
         REAL, INTENT(IN)  ::  x,y,z
-        REAL              ::  dis
+
         REAL, intent(in)  ::  x0
         REAL, intent(in)  ::  y0
-        REAL              ::  z0
+
         REAL, intent(in)  ::  R
-        REAL              ::  dr
+
+        REAL, intent(in)  ::  dr
+
+        REAL              ::  z0
+
+        REAL              ::  dis
+
         INTEGER           ::  m
 
         ! geometric properties of disc
@@ -38,7 +42,6 @@ contains
         !        z0 = L3/2.
 
         !        R = L1/10.
-        dr = SQRT( ( 2*L1/REAL(M1-1) )**2 + ( 2*L2/REAL(M2-1) )**2 )
         !  write(*,*) 'dr=',dr
 
         dis = SQRT( (x0-x)**2 + (y0-y)**2 )
@@ -217,66 +220,50 @@ contains
     !! \f[ u(y,t) = \hat{u}^+ \exp(i \omega t) + \hat{u}^- \exp(- i \omega t) \f]
     !! \f[ \hat{u}^+(y) = c^+ \left( \exp(+ \lambda_1 y ) + \exp(-\lambda\right) + \frac{p_x i}{\omega \f]
     !! \f[ \hat{u}^-(y) = c^- \left( \exp(+ \lambda_{-1} y ) \right) + \frac{p_x i}{\omega \f]
-    subroutine cinit_2DPulsatileXC(   &
-        N1,N2,N3,                       &
-        S1U,S2U,S3U, N1U,N2U,N3U,       &
-        S1V,S2V,S3V, N1V,N2V,N3V,       &
-        S1W,S2W,S3W, N1W,N2W,N3W,       &
-        b1L,b2L,b3L, b1U,b2U,b3U,       &
-        phiU,phiV,phiW, re_, om, px ) bind ( c, name='VF_init_2DPulsatileXC' )
+    subroutine VF_init_2DPulsatileXC(   &
+        N,                              &
+        bL,bU,                          &
+        SU,NU,                          &
+        SV,NV,                          &
+        SW,NW,                          &
+        L2,                             &
+        x2p,                            &
+        re_, om, px,                    &
+        phiU, phiV, phiW ) bind ( c, name='VF_init_2DPulsatileXC' )
 
         implicit none
 
-        integer(c_int), intent(in)    ::  N1
-        integer(c_int), intent(in)    ::  N2
-        integer(c_int), intent(in)    ::  N3
 
+        integer(c_int), intent(in)    ::  N(3)
 
-        integer(c_int), intent(in)    ::  S1U
-        integer(c_int), intent(in)    ::  S2U
-        integer(c_int), intent(in)    ::  S3U
+        integer(c_int), intent(in)     :: bL(3)
+        integer(c_int), intent(in)     :: bU(3)
 
-        integer(c_int), intent(in)    ::  N1U
-        integer(c_int), intent(in)    ::  N2U
-        integer(c_int), intent(in)    ::  N3U
+        integer(c_int), intent(in)     :: SU(3)
+        integer(c_int), intent(in)     :: NU(3)
 
-        integer(c_int), intent(in)    ::  S1V
-        integer(c_int), intent(in)    ::  S2V
-        integer(c_int), intent(in)    ::  S3V
+        integer(c_int), intent(in)     :: SV(3)
+        integer(c_int), intent(in)     :: NV(3)
 
-        integer(c_int), intent(in)    ::  N1V
-        integer(c_int), intent(in)    ::  N2V
-        integer(c_int), intent(in)    ::  N3V
+        integer(c_int), intent(in)     :: SW(3)
+        integer(c_int), intent(in)     :: NW(3)
 
-        integer(c_int), intent(in)    ::  S1W
-        integer(c_int), intent(in)    ::  S2W
-        integer(c_int), intent(in)    ::  S3W
+        real(c_double), intent(in)     :: L2
 
-        integer(c_int), intent(in)    ::  N1W
-        integer(c_int), intent(in)    ::  N2W
-        integer(c_int), intent(in)    ::  N3W
+        real(c_double), intent(in)     :: x2p( bL(2):(N(2)+bU(2)) )
 
-
-        integer(c_int), intent(in)    ::  b1L
-        integer(c_int), intent(in)    ::  b2L
-        integer(c_int), intent(in)    ::  b3L
-
-        integer(c_int), intent(in)    ::  b1U
-        integer(c_int), intent(in)    ::  b2U
-        integer(c_int), intent(in)    ::  b3U
-
-
-        real(c_double), intent(inout) ::  phiU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-        real(c_double), intent(inout) ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-        real(c_double), intent(inout) ::  phiW(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
         real(c_double), intent(in)    ::  re_
         real(c_double), intent(in)    ::  om
         real(c_double), intent(in)    ::  px
 
+        real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+
         real :: pi
         real :: Lh
         real :: mu
-        real :: nu
+        real :: ny
         real :: c
 
 
@@ -301,100 +288,82 @@ contains
         mu = sqrt( om*re_/2. )*Lh
         c  = px/( om*(cos(mu)**2*cosh(mu)**2 + sin(mu)**2*sinh(mu)**2) )
 
-        do k = S3U, N3U
-            do j = S2U, N2U
-                do i = S1U, N1U
-                    nu = sqrt( om*re_/2. )*( x2p(j)-Lh )
-                    phiU(i,j,k) = -c*( -cos(nu)*cosh(nu)*sin(mu)*sinh(mu) +sin(nu)*sinh(nu)*cos(mu)*cosh(mu) )
+        do k = SU(3), NU(3)
+            do j = SU(2), NU(2)
+                do i = SU(1), NU(1)
+                    ny = sqrt( om*re_/2. )*( x2p(j)-Lh )
+                    phiU(i,j,k) = -c*( -cos(ny)*cosh(ny)*sin(mu)*sinh(mu) +sin(ny)*sinh(ny)*cos(mu)*cosh(mu) )
                 end do
             end do
         end do
 
-        do k = S3V, N3V
-            do j = S2V, N2V
-                do i = S1V, N1V
+        do k = SV(3), NV(3)
+            do j = SV(2), NV(2)
+                do i = SV(1), NV(1)
                     phiV(i,j,k) = 0
                 end do
             end do
         end do
 
-        do k = S3W, N3W
-            do j = S2W, N2W
-                do i = S1W, N1W
+        do k = SW(3), NW(3)
+            do j = SW(2), NW(2)
+                do i = SW(1), NW(1)
                     phiW(i,j,k) = 0.0
                 end do
             end do
         end do
 
-    end subroutine cinit_2DPulsatileXC
+    end subroutine VF_init_2DPulsatileXC
 
 
     !> \brief init vector field with 2d pulsatile flow in x-direction
     !! \f[ u(y,t) = \hat{u}^+ \exp(i \omega t) + \hat{u}^- \exp(- i \omega t) \f]
     !! \f[ \hat{u}^+(y) = c^+ \left( \exp(+ \lambda_1 y ) + \exp(-\lambda\right) + \frac{p_x i}{\omega \f]
     !! \f[ \hat{u}^-(y) = c^- \left( \exp(+ \lambda_{-1} y ) \right) + \frac{p_x i}{\omega \f]
-    subroutine cinit_2DPulsatileYC(   &
-        N1,N2,N3,                       &
-        S1U,S2U,S3U, N1U,N2U,N3U,       &
-        S1V,S2V,S3V, N1V,N2V,N3V,       &
-        S1W,S2W,S3W, N1W,N2W,N3W,       &
-        b1L,b2L,b3L, b1U,b2U,b3U,       &
-        phiU,phiV,phiW, re_, om_, px ) bind ( c, name='VF_init_2DPulsatileYC' )
+    subroutine VF_init_2DPulsatileYC(   &
+        N,                              &
+        bL,bU,                          &
+        SU,NU,                          &
+        SV,NV,                          &
+        SW,NW,                          &
+        L1,                             &
+        x1,                             &
+        re_, om_, px,                   &
+        phiU, phiV, phiW ) bind ( c, name='VF_init_2DPulsatileYC' )
         ! (basic subroutine)
 
         implicit none
 
-        integer(c_int), intent(in)    ::  N1
-        integer(c_int), intent(in)    ::  N2
-        integer(c_int), intent(in)    ::  N3
+        integer(c_int), intent(in)    ::  N(3)
 
+        integer(c_int), intent(in)    :: bL(3)
+        integer(c_int), intent(in)    :: bU(3)
 
-        integer(c_int), intent(in)    ::  S1U
-        integer(c_int), intent(in)    ::  S2U
-        integer(c_int), intent(in)    ::  S3U
+        integer(c_int), intent(in)    :: SU(3)
+        integer(c_int), intent(in)    :: NU(3)
 
-        integer(c_int), intent(in)    ::  N1U
-        integer(c_int), intent(in)    ::  N2U
-        integer(c_int), intent(in)    ::  N3U
+        integer(c_int), intent(in)    :: SV(3)
+        integer(c_int), intent(in)    :: NV(3)
 
-        integer(c_int), intent(in)    ::  S1V
-        integer(c_int), intent(in)    ::  S2V
-        integer(c_int), intent(in)    ::  S3V
+        integer(c_int), intent(in)    :: SW(3)
+        integer(c_int), intent(in)    :: NW(3)
 
-        integer(c_int), intent(in)    ::  N1V
-        integer(c_int), intent(in)    ::  N2V
-        integer(c_int), intent(in)    ::  N3V
+        real(c_double), intent(in)     :: L1
+        real(c_double), intent(in)     :: x1( bL(1):(N(1)+bU(1)) )
 
-        integer(c_int), intent(in)    ::  S1W
-        integer(c_int), intent(in)    ::  S2W
-        integer(c_int), intent(in)    ::  S3W
+        real(c_double), intent(in)    :: re_
+        real(c_double), intent(in)    :: om_
+        real(c_double), intent(in)    :: px
 
-        integer(c_int), intent(in)    ::  N1W
-        integer(c_int), intent(in)    ::  N2W
-        integer(c_int), intent(in)    ::  N3W
-
-        integer(c_int), intent(in)    ::  b1L
-        integer(c_int), intent(in)    ::  b2L
-        integer(c_int), intent(in)    ::  b3L
-
-        integer(c_int), intent(in)    ::  b1U
-        integer(c_int), intent(in)    ::  b2U
-        integer(c_int), intent(in)    ::  b3U
-
-        real(c_double), intent(inout) ::  phiU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-        real(c_double), intent(inout) ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-        real(c_double), intent(inout) ::  phiW(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-        real(c_double), intent(in)    ::  re_
-        real(c_double), intent(in)    ::  om_
-        real(c_double), intent(in)    ::  px
+        real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
         real :: pi
         real :: Lh
         real :: mu
-        real :: nu
+        real :: ny
         real :: c
-
-
 
         integer                ::  i, j, k
 
@@ -416,101 +385,82 @@ contains
         mu = sqrt( om_*re_/2. )*Lh
         c  = px/( om_*(cos(mu)**2*cosh(mu)**2 + sin(mu)**2*sinh(mu)**2) )
 
-        do k = S3U, N3U
-            do j = S2U, N2U
-                do i = S1U, N1U
+        do k = SU(3), NU(3)
+            do j = SU(2), NU(2)
+                do i = SU(1), NU(1)
                     phiU(i,j,k) = 0
                 end do
             end do
         end do
 
-        do k = S3V, N3V
-            do j = S2V, N2V
-                do i = S1V, N1V
-                    nu = sqrt( om_*re_/2. )*( x1p(i)-Lh )
-                    phiV(i,j,k) = -c*( -cos(nu)*cosh(nu)*sin(mu)*sinh(mu) +sin(nu)*sinh(nu)*cos(mu)*cosh(mu) )
+        do k = SV(3), NV(3)
+            do j = SV(2), NV(2)
+                do i = SV(1), NV(1)
+                    ny = sqrt( om_*re_/2. )*( x1(i)-Lh )
+                    phiV(i,j,k) = -c*( -cos(ny)*cosh(ny)*sin(mu)*sinh(mu) +sin(ny)*sinh(ny)*cos(mu)*cosh(mu) )
                 end do
             end do
         end do
 
-        do k = S3W, N3W
-            do j = S2W, N2W
-                do i = S1W, N1W
+        do k = SW(3), NW(3)
+            do j = SW(2), NW(2)
+                do i = SW(1), NW(1)
                     phiW(i,j,k) = 0.0
                 end do
             end do
         end do
 
-    end subroutine cinit_2DPulsatileYC
+    end subroutine VF_init_2DPulsatileYC
 
 
     !> \brief init vector field with 2d pulsatile flow in x-direction
     !! \f[ u(y,t) = \hat{u}^+ \exp(i \omega t) + \hat{u}^- \exp(- i \omega t) \f]
     !! \f[ \hat{u}^+(y) = c^+ \left( \exp(+ \lambda_1 y ) + \exp(-\lambda\right) + \frac{p_x i}{\omega \f]
     !! \f[ \hat{u}^-(y) = c^- \left( \exp(+ \lambda_{-1} y ) \right) + \frac{p_x i}{\omega \f]
-    subroutine cinit_2DPulsatileXS(   &
-        N1,N2,N3,                       &
-        S1U,S2U,S3U, N1U,N2U,N3U,       &
-        S1V,S2V,S3V, N1V,N2V,N3V,       &
-        S1W,S2W,S3W, N1W,N2W,N3W,       &
-        b1L,b2L,b3L, b1U,b2U,b3U,       &
-        phiU,phiV,phiW, re_, om_, px ) bind ( c, name='VF_init_2DPulsatileXS' )
+    subroutine VF_init_2DPulsatileXS(   &
+        N,                      &
+        bL,bU,                  &
+        SU,NU,                  &
+        SV,NV,                  &
+        SW,NW,                  &
+        L2,                     &
+        x2,                     &
+        re_, om_, px,           &
+        phiU, phiV, phiW ) bind ( c, name='VF_init_2DPulsatileXS' )
         ! (basic subroutine)
 
         implicit none
 
-        integer(c_int), intent(in)    ::  N1
-        integer(c_int), intent(in)    ::  N2
-        integer(c_int), intent(in)    ::  N3
+        integer(c_int), intent(in)    ::  N(3)
 
+        integer(c_int), intent(in)     :: bL(3)
+        integer(c_int), intent(in)     :: bU(3)
 
-        integer(c_int), intent(in)    ::  S1U
-        integer(c_int), intent(in)    ::  S2U
-        integer(c_int), intent(in)    ::  S3U
+        integer(c_int), intent(in)     :: SU(3)
+        integer(c_int), intent(in)     :: NU(3)
 
-        integer(c_int), intent(in)    ::  N1U
-        integer(c_int), intent(in)    ::  N2U
-        integer(c_int), intent(in)    ::  N3U
+        integer(c_int), intent(in)     :: SV(3)
+        integer(c_int), intent(in)     :: NV(3)
 
-        integer(c_int), intent(in)    ::  S1V
-        integer(c_int), intent(in)    ::  S2V
-        integer(c_int), intent(in)    ::  S3V
+        integer(c_int), intent(in)     :: SW(3)
+        integer(c_int), intent(in)     :: NW(3)
 
-        integer(c_int), intent(in)    ::  N1V
-        integer(c_int), intent(in)    ::  N2V
-        integer(c_int), intent(in)    ::  N3V
+        real(c_double), intent(in)     :: L2
+        real(c_double), intent(in)     :: x2( bL(2):(N(2)+bU(2)) )
 
-        integer(c_int), intent(in)    ::  S1W
-        integer(c_int), intent(in)    ::  S2W
-        integer(c_int), intent(in)    ::  S3W
-
-        integer(c_int), intent(in)    ::  N1W
-        integer(c_int), intent(in)    ::  N2W
-        integer(c_int), intent(in)    ::  N3W
-
-
-        integer(c_int), intent(in)    ::  b1L
-        integer(c_int), intent(in)    ::  b2L
-        integer(c_int), intent(in)    ::  b3L
-
-        integer(c_int), intent(in)    ::  b1U
-        integer(c_int), intent(in)    ::  b2U
-        integer(c_int), intent(in)    ::  b3U
-
-        real(c_double), intent(inout) ::  phiU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-        real(c_double), intent(inout) ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-        real(c_double), intent(inout) ::  phiW(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
         real(c_double), intent(in)    ::  re_
         real(c_double), intent(in)    ::  om_
         real(c_double), intent(in)    ::  px
 
+        real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+
         real :: pi
         real :: Lh
         real :: mu
-        real :: nu
+        real :: ny
         real :: c
-
-
 
         integer                ::  i, j, k
 
@@ -532,97 +482,80 @@ contains
         mu = sqrt( om_*re_/2. )*Lh
         c  = px/( om_*(cos(mu)**2*cosh(mu)**2 + sin(mu)**2*sinh(mu)**2) )
 
-        do k = S3U, N3U
-            do j = S2U, N2U
-                do i = S1U, N1U
-                    nu = sqrt( om_*Re_/2. )*( x2p(j)-Lh )
-                    phiU(i,j,k) = -c*( cos(nu)*cosh(nu)*cos(mu)*cosh(mu) +sin(nu)*sinh(nu)*sin(mu)*sinh(mu) ) + px/om_
+        do k = SU(3), NU(3)
+            do j = SU(2), NU(2)
+                do i = SU(1), NU(1)
+                    ny = sqrt( om_*Re_/2. )*( x2(j)-Lh )
+                    phiU(i,j,k) = -c*( cos(ny)*cosh(ny)*cos(mu)*cosh(mu) +sin(ny)*sinh(ny)*sin(mu)*sinh(mu) ) + px/om_
                 end do
             end do
         end do
 
-        do k = S3V, N3V
-            do j = S2V, N2V
-                do i = S1V, N1V
+        do k = SV(3), NV(3)
+            do j = SV(2), NV(2)
+                do i = SV(1), NV(1)
                     phiV(i,j,k) = 0
                 end do
             end do
         end do
 
-        do k = S3W, N3W
-            do j = S2W, N2W
-                do i = S1W, N1W
+        do k = SW(3), NW(3)
+            do j = SW(2), NW(2)
+                do i = SW(1), NW(1)
                     phiW(i,j,k) = 0.0
                 end do
             end do
         end do
 
-    end subroutine cinit_2DPulsatileXS
+    end subroutine VF_init_2DPulsatileXS
 
 
     !> \brief init vector field with 2d pulsatile flow in x-direction
     !! \f[ u(y,t) = \hat{u}^+ \exp(i \omega t) + \hat{u}^- \exp(- i \omega t) \f]
     !! \f[ \hat{u}^+(y) = c^+ \left( \exp(+ \lambda_1 y ) + \exp(-\lambda\right) + \frac{p_x i}{\omega \f]
     !! \f[ \hat{u}^-(y) = c^- \left( \exp(+ \lambda_{-1} y ) \right) + \frac{p_x i}{\omega \f]
-    subroutine cinit_2DPulsatileYS(   &
-        N1,N2,N3,                       &
-        S1U,S2U,S3U, N1U,N2U,N3U,       &
-        S1V,S2V,S3V, N1V,N2V,N3V,       &
-        S1W,S2W,S3W, N1W,N2W,N3W,       &
-        b1L,b2L,b3L, b1U,b2U,b3U,       &
-        phiU,phiV,phiW, re_, om_, px ) bind ( c, name='VF_init_2DPulsatileYS' )
+    subroutine VF_init_2DPulsatileYS(   &
+        N,                      &
+        bL,bU,                  &
+        SU,NU,                  &
+        SV,NV,                  &
+        SW,NW,                  &
+        L1,                     &
+        x1,                     &
+        re_, om_, px,           &
+        phiU,phiV,phiW ) bind ( c, name='VF_init_2DPulsatileYS' )
 
         implicit none
 
-        integer(c_int), intent(in)    ::  N1
-        integer(c_int), intent(in)    ::  N2
-        integer(c_int), intent(in)    ::  N3
+        integer(c_int), intent(in)    ::  N(3)
 
+        integer(c_int), intent(in)     :: bL(3)
+        integer(c_int), intent(in)     :: bU(3)
 
-        integer(c_int), intent(in)    ::  S1U
-        integer(c_int), intent(in)    ::  S2U
-        integer(c_int), intent(in)    ::  S3U
+        integer(c_int), intent(in)     :: SU(3)
+        integer(c_int), intent(in)     :: NU(3)
 
-        integer(c_int), intent(in)    ::  N1U
-        integer(c_int), intent(in)    ::  N2U
-        integer(c_int), intent(in)    ::  N3U
+        integer(c_int), intent(in)     :: SV(3)
+        integer(c_int), intent(in)     :: NV(3)
 
-        integer(c_int), intent(in)    ::  S1V
-        integer(c_int), intent(in)    ::  S2V
-        integer(c_int), intent(in)    ::  S3V
+        integer(c_int), intent(in)     :: SW(3)
+        integer(c_int), intent(in)     :: NW(3)
 
-        integer(c_int), intent(in)    ::  N1V
-        integer(c_int), intent(in)    ::  N2V
-        integer(c_int), intent(in)    ::  N3V
+        real(c_double), intent(in)     :: L1
+        real(c_double), intent(in)     :: x1( bL(1):(N(1)+bU(1)) )
 
-        integer(c_int), intent(in)    ::  S1W
-        integer(c_int), intent(in)    ::  S2W
-        integer(c_int), intent(in)    ::  S3W
-
-        integer(c_int), intent(in)    ::  N1W
-        integer(c_int), intent(in)    ::  N2W
-        integer(c_int), intent(in)    ::  N3W
-
-
-        integer(c_int), intent(in)    ::  b1L
-        integer(c_int), intent(in)    ::  b2L
-        integer(c_int), intent(in)    ::  b3L
-
-        integer(c_int), intent(in)    ::  b1U
-        integer(c_int), intent(in)    ::  b2U
-        integer(c_int), intent(in)    ::  b3U
-
-        real(c_double), intent(inout) ::  phiU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-        real(c_double), intent(inout) ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-        real(c_double), intent(inout) ::  phiW(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
         real(c_double), intent(in)    ::  re_
         real(c_double), intent(in)    ::  om_
         real(c_double), intent(in)    ::  px
 
+        real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+
         real :: pi
         real :: Lh
         real :: mu
-        real :: nu
+        real :: ny
         real :: c
 
         integer                ::  i, j, k
@@ -645,97 +578,74 @@ contains
         mu = sqrt( om_*re_/2. )*Lh
         c  = px/( om_*(cos(mu)**2*cosh(mu)**2 + sin(mu)**2*sinh(mu)**2) )
 
-        do k = S3U, N3U
-            do j = S2U, N2U
-                do i = S1U, N1U
+        do k = SU(3), NU(3)
+            do j = SU(2), NU(2)
+                do i = SU(1), NU(1)
                     phiU(i,j,k) = 0
                 end do
             end do
         end do
 
-        do k = S3V, N3V
-            do j = S2V, N2V
-                do i = S1V, N1V
-                    nu = sqrt( om_*re_/2. )*( x1p(i)-Lh )
-                    phiV(i,j,k) = -c*( cos(nu)*cosh(nu)*cos(mu)*cosh(mu) +sin(nu)*sinh(nu)*sin(mu)*sinh(mu) ) + px/om_
+        do k = SV(3), NV(3)
+            do j = SV(2), NV(2)
+                do i = SV(1), NV(1)
+                    ny = sqrt( om_*re_/2. )*( x1(i)-Lh )
+                    phiV(i,j,k) = -c*( cos(ny)*cosh(ny)*cos(mu)*cosh(mu) +sin(ny)*sinh(ny)*sin(mu)*sinh(mu) ) + px/om_
                 end do
             end do
         end do
 
-        do k = S3W, N3W
-            do j = S2W, N2W
-                do i = S1W, N1W
+        do k = SW(3), NW(3)
+            do j = SW(2), NW(2)
+                do i = SW(1), NW(1)
                     phiW(i,j,k) = 0.0
                 end do
             end do
         end do
 
-    end subroutine cinit_2DPulsatileYS
+    end subroutine VF_init_2DPulsatileYS
 
 
 
     !> \brief \f$ amp*\cos( \frac{2.*pi*x}{L_x} ) \f$
-    subroutine cinit_StreamingC(       &
-        N1,N2,N3,                       &
-        S1U,S2U,S3U, N1U,N2U,N3U,       &
-        S1V,S2V,S3V, N1V,N2V,N3V,       &
-        S1W,S2W,S3W, N1W,N2W,N3W,       &
-        b1L,b2L,b3L, b1U,b2U,b3U,       &
-        phiU,phiV,phiW,                 &
-        amp ) bind ( c, name='VF_init_StreamingC' )
+    subroutine VF_init_StreamingC(  &
+        N,                          &
+        bL,bU,                      &
+        SU,NU,                      &
+        SV,NV,                      &
+        SW,NW,                      &
+        L1,                         &
+        x1,                         &
+        amp,                        &
+        phiU,phiV,phiW ) bind ( c, name='VF_init_StreamingC' )
         ! (basic subroutine)
 
         implicit none
 
-        integer(c_int), intent(in)    ::  N1
-        integer(c_int), intent(in)    ::  N2
-        integer(c_int), intent(in)    ::  N3
+        integer(c_int), intent(in)    ::  N(3)
 
+        integer(c_int), intent(in)     :: bL(3)
+        integer(c_int), intent(in)     :: bU(3)
 
-        integer(c_int), intent(in)    ::  S1U
-        integer(c_int), intent(in)    ::  S2U
-        integer(c_int), intent(in)    ::  S3U
+        integer(c_int), intent(in)     :: SU(3)
+        integer(c_int), intent(in)     :: NU(3)
 
-        integer(c_int), intent(in)    ::  N1U
-        integer(c_int), intent(in)    ::  N2U
-        integer(c_int), intent(in)    ::  N3U
+        integer(c_int), intent(in)     :: SV(3)
+        integer(c_int), intent(in)     :: NV(3)
 
-        integer(c_int), intent(in)    ::  S1V
-        integer(c_int), intent(in)    ::  S2V
-        integer(c_int), intent(in)    ::  S3V
+        integer(c_int), intent(in)     :: SW(3)
+        integer(c_int), intent(in)     :: NW(3)
 
-        integer(c_int), intent(in)    ::  N1V
-        integer(c_int), intent(in)    ::  N2V
-        integer(c_int), intent(in)    ::  N3V
-
-        integer(c_int), intent(in)    ::  S1W
-        integer(c_int), intent(in)    ::  S2W
-        integer(c_int), intent(in)    ::  S3W
-
-        integer(c_int), intent(in)    ::  N1W
-        integer(c_int), intent(in)    ::  N2W
-        integer(c_int), intent(in)    ::  N3W
-
-
-        integer(c_int), intent(in)    ::  b1L
-        integer(c_int), intent(in)    ::  b2L
-        integer(c_int), intent(in)    ::  b3L
-
-        integer(c_int), intent(in)    ::  b1U
-        integer(c_int), intent(in)    ::  b2U
-        integer(c_int), intent(in)    ::  b3U
-
-        real(c_double), intent(inout) ::  phiU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-        real(c_double), intent(inout) ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-        real(c_double), intent(inout) ::  phiW(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+        real(c_double), intent(in)     :: L1
+        real(c_double), intent(in)     :: x1( bL(1):(N(1)+bU(1)) )
 
         real(c_double), intent(in)    ::  amp
 
+        real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+
         real :: pi
-        !  real :: Lh
-        !  real :: mu
-        !  real :: nu
-        !  real :: c
 
         integer                ::  i, j, k
 
@@ -749,95 +659,75 @@ contains
         ! vel(S1V:N1V,S2V:N2V,S3V:N3V,2)
         ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
         !
-        pi = 4.*atan(1.)
-        !  Lh  = L1/2.
-        !  mu = sqrt( om_*re_/2. )*Lh
-        !  c  = px/( om_*(cos(mu)**2*cosh(mu)**2 + sin(mu)**2*sinh(mu)**2) )
 
-        do k = S3U, N3U
-            do j = S2U, N2U
-                do i = S1U, N1U
+        pi = 4.*atan(1.)
+
+        do k = SU(3), NU(3)
+            do j = SU(2), NU(2)
+                do i = SU(1), NU(1)
                     phiU(i,j,k) = 0
                 end do
             end do
         end do
 
-        do k = S3V, N3V
-            do j = S2V, N2V
-                do i = S1V, N1V
-                    phiV(i,j,k) = amp*cos( 2.*pi*x1p(i)/L1 )
+        do k = SV(3), NV(3)
+            do j = SV(2), NV(2)
+                do i = SV(1), NV(1)
+                    phiV(i,j,k) = amp*cos( 2.*pi*x1(i)/L1 )
                 end do
             end do
         end do
 
-        do k = S3W, N3W
-            do j = S2W, N2W
-                do i = S1W, N1W
+        do k = SW(3), NW(3)
+            do j = SW(2), NW(2)
+                do i = SW(1), NW(1)
                     phiW(i,j,k) = 0.0
                 end do
             end do
         end do
 
-    end subroutine cinit_StreamingC
+    end subroutine VF_init_StreamingC
 
 
 
     !> \brief \f$ amp*\sin( \frac{2.*pi*x}{L_x} ) \f$
-    subroutine cinit_StreamingS(       &
-        N1,N2,N3,                       &
-        S1U,S2U,S3U, N1U,N2U,N3U,       &
-        S1V,S2V,S3V, N1V,N2V,N3V,       &
-        S1W,S2W,S3W, N1W,N2W,N3W,       &
-        b1L,b2L,b3L, b1U,b2U,b3U,       &
-        phiU,phiV,phiW,                 &
-        amp ) bind ( c, name='VF_init_StreamingS' )
+    subroutine VF_init_StreamingS(  &
+        N,                          &
+        bL,bU,                      &
+        SU,NU,                      &
+        SV,NV,                      &
+        SW,NW,                      &
+        L1,                         &
+        x1,                         &
+        amp,                        &
+        phiU,phiV,phiW ) bind ( c, name='VF_init_StreamingS' )
         ! (basic subroutine)
 
         implicit none
 
-        integer(c_int), intent(in)    ::  N1
-        integer(c_int), intent(in)    ::  N2
-        integer(c_int), intent(in)    ::  N3
+        integer(c_int), intent(in)    ::  N(3)
 
+        integer(c_int), intent(in)     :: bL(3)
+        integer(c_int), intent(in)     :: bU(3)
 
-        integer(c_int), intent(in)    ::  S1U
-        integer(c_int), intent(in)    ::  S2U
-        integer(c_int), intent(in)    ::  S3U
+        integer(c_int), intent(in)     :: SU(3)
+        integer(c_int), intent(in)     :: NU(3)
 
-        integer(c_int), intent(in)    ::  N1U
-        integer(c_int), intent(in)    ::  N2U
-        integer(c_int), intent(in)    ::  N3U
+        integer(c_int), intent(in)     :: SV(3)
+        integer(c_int), intent(in)     :: NV(3)
 
-        integer(c_int), intent(in)    ::  S1V
-        integer(c_int), intent(in)    ::  S2V
-        integer(c_int), intent(in)    ::  S3V
+        integer(c_int), intent(in)     :: SW(3)
+        integer(c_int), intent(in)     :: NW(3)
 
-        integer(c_int), intent(in)    ::  N1V
-        integer(c_int), intent(in)    ::  N2V
-        integer(c_int), intent(in)    ::  N3V
-
-        integer(c_int), intent(in)    ::  S1W
-        integer(c_int), intent(in)    ::  S2W
-        integer(c_int), intent(in)    ::  S3W
-
-        integer(c_int), intent(in)    ::  N1W
-        integer(c_int), intent(in)    ::  N2W
-        integer(c_int), intent(in)    ::  N3W
-
-
-        integer(c_int), intent(in)    ::  b1L
-        integer(c_int), intent(in)    ::  b2L
-        integer(c_int), intent(in)    ::  b3L
-
-        integer(c_int), intent(in)    ::  b1U
-        integer(c_int), intent(in)    ::  b2U
-        integer(c_int), intent(in)    ::  b3U
-
-        real(c_double), intent(inout) ::  phiU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-        real(c_double), intent(inout) ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-        real(c_double), intent(inout) ::  phiW(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+        real(c_double), intent(in)     :: L1
+        real(c_double), intent(in)     :: x1( bL(1):(N(1)+bU(1)) )
 
         real(c_double), intent(in)    ::  amp
+
+        real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+
 
         integer                       ::  i, j, k
 
@@ -859,90 +749,74 @@ contains
         !  mu = sqrt( om_*re_/2. )*Lh
         !  c  = px/( om_*(cos(mu)**2*cosh(mu)**2 + sin(mu)**2*sinh(mu)**2) )
 
-        do k = S3U, N3U
-            do j = S2U, N2U
-                do i = S1U, N1U
+        do k = SU(3), NU(3)
+            do j = SU(2), NU(2)
+                do i = SU(1), NU(1)
                     phiU(i,j,k) = 0
                 end do
             end do
         end do
 
-        do k = S3V, N3V
-            do j = S2V, N2V
-                do i = S1V, N1V
-                    phiV(i,j,k) = amp*sin( 2.*pi*x1p(i)/L1 )
+        do k = SV(3), NV(3)
+            do j = SV(2), NV(2)
+                do i = SV(1), NV(1)
+                    phiV(i,j,k) = amp*sin( 2.*pi*x1(i)/L1 )
                 end do
             end do
         end do
 
-        do k = S3W, N3W
-            do j = S2W, N2W
-                do i = S1W, N1W
+        do k = SW(3), NW(3)
+            do j = SW(2), NW(2)
+                do i = SW(1), NW(1)
                     phiW(i,j,k) = 0.0
                 end do
             end do
         end do
 
-    end subroutine cinit_StreamingS
+    end subroutine VF_init_StreamingS
 
 
 
-    subroutine cinit_Vpoint( &
-        N1,N2,N3,                         &
-        S1U,S2U,S3U, N1U,N2U,N3U,         &
-        S1V,S2V,S3V, N1V,N2V,N3V,         &
-        S1W,S2W,S3W, N1W,N2W,N3W,         &
-        b1L,b2L,b3L, b1U,b2U,b3U,         &
-        phiU,phiV,phiW,                   &
-        sig ) bind ( c, name='VF_init_Vpoint' )
+    subroutine VF_init_Vpoint(  &
+        N,                      &
+        bL,bU,                  &
+        SU,NU,                  &
+        SV,NV,                  &
+        SW,NW,                  &
+        L,                      &
+        x1u,                    &
+        x2p,                    &
+        sig,                    &
+        phiU,phiV,phiW ) bind ( c, name='VF_init_Vpoint' )
         ! (basic subroutine)
 
         implicit none
 
-        integer(c_int), intent(in)    ::  N1
-        integer(c_int), intent(in)    ::  N2
-        integer(c_int), intent(in)    ::  N3
+        integer(c_int), intent(in)    ::  N(3)
 
+        integer(c_int), intent(in)     :: bL(3)
+        integer(c_int), intent(in)     :: bU(3)
 
-        integer(c_int), intent(in)    ::  S1U
-        integer(c_int), intent(in)    ::  S2U
-        integer(c_int), intent(in)    ::  S3U
+        integer(c_int), intent(in)     :: SU(3)
+        integer(c_int), intent(in)     :: NU(3)
 
-        integer(c_int), intent(in)    ::  N1U
-        integer(c_int), intent(in)    ::  N2U
-        integer(c_int), intent(in)    ::  N3U
+        integer(c_int), intent(in)     :: SV(3)
+        integer(c_int), intent(in)     :: NV(3)
 
-        integer(c_int), intent(in)    ::  S1V
-        integer(c_int), intent(in)    ::  S2V
-        integer(c_int), intent(in)    ::  S3V
+        integer(c_int), intent(in)     :: SW(3)
+        integer(c_int), intent(in)     :: NW(3)
 
-        integer(c_int), intent(in)    ::  N1V
-        integer(c_int), intent(in)    ::  N2V
-        integer(c_int), intent(in)    ::  N3V
-
-        integer(c_int), intent(in)    ::  S1W
-        integer(c_int), intent(in)    ::  S2W
-        integer(c_int), intent(in)    ::  S3W
-
-        integer(c_int), intent(in)    ::  N1W
-        integer(c_int), intent(in)    ::  N2W
-        integer(c_int), intent(in)    ::  N3W
-
-
-        integer(c_int), intent(in)    ::  b1L
-        integer(c_int), intent(in)    ::  b2L
-        integer(c_int), intent(in)    ::  b3L
-
-        integer(c_int), intent(in)    ::  b1U
-        integer(c_int), intent(in)    ::  b2U
-        integer(c_int), intent(in)    ::  b3U
-
-        real(c_double), intent(inout) ::  phiU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-        real(c_double), intent(inout) ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-        real(c_double), intent(inout) ::  phiW(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+        real(c_double), intent(in)     :: L(3)
+        real(c_double), intent(in)     :: x1u( bL(1):(N(1)+bU(1)) )
+        real(c_double), intent(in)     :: x2p( bL(2):(N(2)+bU(2)) )
 
         real(c_double), intent(in)    :: sig
 
+        real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+
+
         integer                ::  i, j, k
 
         !--- initial conditions for velocity ---
@@ -957,94 +831,71 @@ contains
         !
 
 
-        do k = S3U, N3U
-            do j = S2U, N2U
-                do i = S1U, N1U
-                    phiU(i,j,k) = exp( -((x1u(i)-L1/2.)/sig)**2 -((x2p(j)-L2/2.)/sig/sig)**2 )
+        do k = SU(3), NU(3)
+            do j = SU(2), NU(2)
+                do i = SU(1), NU(1)
+                    phiU(i,j,k) = exp( -((x1u(i)-L(1)/2.)/sig)**2 -((x2p(j)-L(2)/2.)/sig/sig)**2 )
                 end do
             end do
         end do
 
-        do k = S3V, N3V
-            do j = S2V, N2V
-                do i = S1V, N1V
+        do k = SV(3), NV(3)
+            do j = SV(2), NV(2)
+                do i = SV(1), NV(1)
                     phiV(i,j,k) = 0.
-                !           phiV(i,j,k) = min(2.*exp( -((x1p(i)-L1/2.)/sig)**2 -((x2v(j)-L2/2.)/sig)**2 ),1.)
                 end do
             end do
         end do
 
-        do k = S3W, N3W
-            do j = S2W, N2W
-                do i = S1W, N1W
+        do k = SW(3), NW(3)
+            do j = SW(2), NW(2)
+                do i = SW(1), NW(1)
                     phiW(i,j,k) = 0.0
                 end do
             end do
         end do
 
-    end subroutine cinit_Vpoint
+    end subroutine VF_init_Vpoint
 
 
 
-    subroutine cinit_Circle(          &
-        N1,N2,N3,                       &
-        S1U,S2U,S3U, N1U,N2U,N3U,       &
-        S1V,S2V,S3V, N1V,N2V,N3V,       &
-        S1W,S2W,S3W, N1W,N2W,N3W,       &
-        b1L,b2L,b3L, b1U,b2U,b3U,       &
+    subroutine VF_init_Circle(  &
+        N,                      &
+        bL,bU,                  &
+        SU,NU,                  &
+        SV,NV,                  &
+        SW,NW,                  &
+        L,                      &
+        x1,                     &
+        x2,                     &
         phiU,phiV,phiW ) bind ( c, name='VF_init_Circle' )
-        ! (basic subroutine)
 
         implicit none
 
-        integer(c_int), intent(in)    ::  N1
-        integer(c_int), intent(in)    ::  N2
-        integer(c_int), intent(in)    ::  N3
+        integer(c_int), intent(in)    ::  N(3)
+
+        integer(c_int), intent(in)     :: bL(3)
+        integer(c_int), intent(in)     :: bU(3)
+
+        integer(c_int), intent(in)     :: SU(3)
+        integer(c_int), intent(in)     :: NU(3)
+
+        integer(c_int), intent(in)     :: SV(3)
+        integer(c_int), intent(in)     :: NV(3)
+
+        integer(c_int), intent(in)     :: SW(3)
+        integer(c_int), intent(in)     :: NW(3)
+
+        real(c_double), intent(in)     :: L(3)
+
+        real(c_double), intent(in)     :: x1( bL(1):(N(1)+bU(1)) )
+        real(c_double), intent(in)     :: x2( bL(2):(N(2)+bU(2)) )
+
+        real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
 
-        integer(c_int), intent(in)    ::  S1U
-        integer(c_int), intent(in)    ::  S2U
-        integer(c_int), intent(in)    ::  S3U
-
-        integer(c_int), intent(in)    ::  N1U
-        integer(c_int), intent(in)    ::  N2U
-        integer(c_int), intent(in)    ::  N3U
-
-        integer(c_int), intent(in)    ::  S1V
-        integer(c_int), intent(in)    ::  S2V
-        integer(c_int), intent(in)    ::  S3V
-
-        integer(c_int), intent(in)    ::  N1V
-        integer(c_int), intent(in)    ::  N2V
-        integer(c_int), intent(in)    ::  N3V
-
-        integer(c_int), intent(in)    ::  S1W
-        integer(c_int), intent(in)    ::  S2W
-        integer(c_int), intent(in)    ::  S3W
-
-        integer(c_int), intent(in)    ::  N1W
-        integer(c_int), intent(in)    ::  N2W
-        integer(c_int), intent(in)    ::  N3W
-
-
-        integer(c_int), intent(in)    ::  b1L
-        integer(c_int), intent(in)    ::  b2L
-        integer(c_int), intent(in)    ::  b3L
-
-        integer(c_int), intent(in)    ::  b1U
-        integer(c_int), intent(in)    ::  b2U
-        integer(c_int), intent(in)    ::  b3U
-
-        real(c_double), intent(inout) ::  phiU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-        real(c_double), intent(inout) ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-        real(c_double), intent(inout) ::  phiW(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-
-        !  real :: phi
-        !  real :: d
-        !  real :: Lh
-        !  real :: mu
-        !  real :: nu
-        !  real :: c
 
         integer                ::  i, j, k
 
@@ -1058,110 +909,80 @@ contains
         ! vel(S1V:N1V,S2V:N2V,S3V:N3V,2)
         ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
         !
-        !  pi = 4.*atan(1.)
-        !  Lh  = L1/2.
-        !  mu = sqrt( om_*re_/2. )*Lh
-        !  c  = px/( om_*(cos(mu)**2*cosh(mu)**2 + sin(mu)**2*sinh(mu)**2) )
 
-
-        do k = S3U, N3U
-            do j = S2U, N2U
-                do i = S1U, N1U
-                    !           d = sqrt( (x1u(i)-L1/2)**2 + (x2p(j)-L2/2)**2 )
-                    !           phi = atan( (x2p(j)-L2/2) / (x1u(i)-L1/2) )
-                    !           phiU(i,j,k) = d*sin( phi )
-                    phiU(i,j,k) = -(x2p(j)-L2/2)
+        do k = SU(3), NU(3)
+            do j = SU(2), NU(2)
+                do i = SU(1), NU(1)
+                    phiU(i,j,k) = -(x2(j)-L(2)/2)
                 end do
             end do
         end do
 
-        do k = S3V, N3V
-            do j = S2V, N2V
-                do i = S1V, N1V
-                    !           d = sqrt( (x1p(i)-L1/2)**2 + (x2v(j)-L2/2)**2 )
-                    !           phi = atan( (x2v(j)-L2/2) / (x1p(i)-L1/2) )
-                    !           phiV(i,j,k) = d*cos( phi )
-                    phiV(i,j,k) = x1p(i)-L1/2
+        do k = SV(3), NV(3)
+            do j = SV(2), NV(2)
+                do i = SV(1), NV(1)
+                    phiV(i,j,k) = x1(i)-L(1)/2
                 end do
             end do
         end do
 
-        do k = S3W, N3W
-            do j = S2W, N2W
-                do i = S1W, N1W
+        do k = SW(3), NW(3)
+            do j = SW(2), NW(2)
+                do i = SW(1), NW(1)
                     phiW(i,j,k) = 0.0
                 end do
             end do
         end do
 
-    end subroutine cinit_Circle
+    end subroutine VF_init_Circle
 
 
 
-    subroutine cinit_RankineVortex(        &
-        N1,N2,N3,                       &
-        S1U,S2U,S3U, N1U,N2U,N3U,       &
-        S1V,S2V,S3V, N1V,N2V,N3V,       &
-        S1W,S2W,S3W, N1W,N2W,N3W,       &
-        b1L,b2L,b3L, b1U,b2U,b3U,       &
+    subroutine VF_init_RankineVortex(   &
+        N,                              &
+        bL,bU,                          &
+        SU,NU,                          &
+        SV,NV,                          &
+        SW,NW,                          &
+        L,                              &
+        x1p,x2p,                        &
+        x1u,x2v,                        &
         phiU,phiV,phiW ) bind ( c, name='VF_init_RankineVortex' )
         ! (basic subroutine)
 
         implicit none
 
-        integer(c_int), intent(in)    ::  N1
-        integer(c_int), intent(in)    ::  N2
-        integer(c_int), intent(in)    ::  N3
+        integer(c_int), intent(in)    ::  N(3)
 
+        integer(c_int), intent(in)     :: bL(3)
+        integer(c_int), intent(in)     :: bU(3)
 
-        integer(c_int), intent(in)    ::  S1U
-        integer(c_int), intent(in)    ::  S2U
-        integer(c_int), intent(in)    ::  S3U
+        integer(c_int), intent(in)     :: SU(3)
+        integer(c_int), intent(in)     :: NU(3)
 
-        integer(c_int), intent(in)    ::  N1U
-        integer(c_int), intent(in)    ::  N2U
-        integer(c_int), intent(in)    ::  N3U
+        integer(c_int), intent(in)     :: SV(3)
+        integer(c_int), intent(in)     :: NV(3)
 
-        integer(c_int), intent(in)    ::  S1V
-        integer(c_int), intent(in)    ::  S2V
-        integer(c_int), intent(in)    ::  S3V
+        integer(c_int), intent(in)     :: SW(3)
+        integer(c_int), intent(in)     :: NW(3)
 
-        integer(c_int), intent(in)    ::  N1V
-        integer(c_int), intent(in)    ::  N2V
-        integer(c_int), intent(in)    ::  N3V
+        real(c_double), intent(in)     :: L(3)
 
-        integer(c_int), intent(in)    ::  S1W
-        integer(c_int), intent(in)    ::  S2W
-        integer(c_int), intent(in)    ::  S3W
+        real(c_double), intent(in)     :: x1p( bL(1):(N(1)+bU(1)) )
+        real(c_double), intent(in)     :: x2p( bL(2):(N(2)+bU(2)) )
 
-        integer(c_int), intent(in)    ::  N1W
-        integer(c_int), intent(in)    ::  N2W
-        integer(c_int), intent(in)    ::  N3W
+        real(c_double), intent(in)     :: x1u( bL(1):(N(1)+bU(1)) )
+        real(c_double), intent(in)     :: x2v( bL(2):(N(2)+bU(2)) )
 
-
-        integer(c_int), intent(in)    ::  b1L
-        integer(c_int), intent(in)    ::  b2L
-        integer(c_int), intent(in)    ::  b3L
-
-        integer(c_int), intent(in)    ::  b1U
-        integer(c_int), intent(in)    ::  b2U
-        integer(c_int), intent(in)    ::  b3U
-
-        real(c_double), intent(inout) ::  phiU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-        real(c_double), intent(inout) ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-        real(c_double), intent(inout) ::  phiW(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+        real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
         real :: circ
         real :: rad
         real :: r
-        !  real :: phi
         real :: pi
 
-        !  real :: d
-        !  real :: Lh
-        !  real :: mu
-        !  real :: nu
-        !  real :: c
 
         integer                ::  i, j, k
 
@@ -1176,112 +997,80 @@ contains
         ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
         !
         pi = 4.*atan(1.)
-        rad = L1/2./2.
+        rad = L(1)/2./2.
         circ = 2.*pi*rad
-        !  Lh  = L1/2.
-        !  mu = sqrt( om_*re_/2. )*Lh
-        !  c  = px/( om_*(cos(mu)**2*cosh(mu)**2 + sin(mu)**2*sinh(mu)**2) )
 
-
-        do k = S3U, N3U
-            do j = S2U, N2U
-                do i = S1U, N1U
-                    r = sqrt( (x1u(i)-L1/2)**2 + (x2p(j)-L2/2)**2 )
+        do k = SU(3), NU(3)
+            do j = SU(2), NU(2)
+                do i = SU(1), NU(1)
+                    r = sqrt( (x1u(i)-L(1)/2)**2 + (x2p(j)-L(2)/2)**2 )
                     if( r<= rad ) then
-                        phiU(i,j,k) = -(x2p(j)-L2/2)/rad
+                        phiU(i,j,k) = -(x2p(j)-L(2)/2)/rad
                     else
-                        phiU(i,j,k) = -(x2p(j)-L2/2)*rad/r/r
+                        phiU(i,j,k) = -(x2p(j)-L(2)/2)*rad/r/r
                     endif
-
-                !           phi = atan( (x2p(j)-L2/2) / (x1u(i)-L1/2) )
-                !           phiU(i,j,k) = d*sin( phi )
-                !           r = sqrt( (x1u-
-
-                !           phiU(i,j,k) = -(x2p(j)-L2/2)
                 end do
             end do
         end do
 
-        do k = S3V, N3V
-            do j = S2V, N2V
-                do i = S1V, N1V
-                    r = sqrt( (x1p(i)-L1/2)**2 + (x2v(j)-L2/2)**2 )
-                    !           d = sqrt( (x1p(i)-L1/2)**2 + (x2v(j)-L2/2)**2 )
-                    !           phi = atan( (x2v(j)-L2/2) / (x1p(i)-L1/2) )
-                    !           phiV(i,j,k) = d*cos( phi )
+        do k = SV(3), NV(3)
+            do j = SV(2), NV(2)
+                do i = SV(1), NV(1)
+                    r = sqrt( (x1p(i)-L(1)/2)**2 + (x2v(j)-L(2)/2)**2 )
                     if( r<=rad ) then
-                        phiV(i,j,k) = (x1p(i)-L1/2)/rad
+                        phiV(i,j,k) = (x1p(i)-L(1)/2)/rad
                     else
-                        phiV(i,j,k) = (x1p(i)-L1/2)*rad/r/r
+                        phiV(i,j,k) = (x1p(i)-L(1)/2)*rad/r/r
                     endif
                 end do
             end do
         end do
 
-        do k = S3W, N3W
-            do j = S2W, N2W
-                do i = S1W, N1W
+        do k = SW(3), NW(3)
+            do j = SW(2), NW(2)
+                do i = SW(1), NW(1)
                     phiW(i,j,k) = 0.0
                 end do
             end do
         end do
 
-    end subroutine cinit_RankineVortex
+    end subroutine VF_init_RankineVortex
 
 
 
-    subroutine cinit_GaussianForcing1D( &
-        N1,N2,N3,                       &
-        S1U,S2U,S3U, N1U,N2U,N3U,       &
-        S1V,S2V,S3V, N1V,N2V,N3V,       &
-        S1W,S2W,S3W, N1W,N2W,N3W,       &
-        b1L,b2L,b3L, b1U,b2U,b3U,       &
+    subroutine VF_init_GaussianForcing1D(   &
+        N,                                  &
+        bL,bU,                              &
+        SU,NU,                              &
+        SV,NV,                              &
+        SW,NW,                              &
+        L1,                                 &
+        x1u,                                &
         phiU,phiV,phiW ) bind ( c, name='VF_init_GaussianForcing1D' )
         ! (basic subroutine)
 
         implicit none
 
-        integer(c_int), intent(in)    ::  N1
-        integer(c_int), intent(in)    ::  N2
-        integer(c_int), intent(in)    ::  N3
+        integer(c_int), intent(in)    ::  N(3)
 
+        integer(c_int), intent(in)     :: bL(3)
+        integer(c_int), intent(in)     :: bU(3)
 
-        integer(c_int), intent(in)    ::  S1U
-        integer(c_int), intent(in)    ::  S2U
-        integer(c_int), intent(in)    ::  S3U
+        integer(c_int), intent(in)     :: SU(3)
+        integer(c_int), intent(in)     :: NU(3)
 
-        integer(c_int), intent(in)    ::  N1U
-        integer(c_int), intent(in)    ::  N2U
-        integer(c_int), intent(in)    ::  N3U
+        integer(c_int), intent(in)     :: SV(3)
+        integer(c_int), intent(in)     :: NV(3)
 
-        integer(c_int), intent(in)    ::  S1V
-        integer(c_int), intent(in)    ::  S2V
-        integer(c_int), intent(in)    ::  S3V
+        integer(c_int), intent(in)     :: SW(3)
+        integer(c_int), intent(in)     :: NW(3)
 
-        integer(c_int), intent(in)    ::  N1V
-        integer(c_int), intent(in)    ::  N2V
-        integer(c_int), intent(in)    ::  N3V
+        real(c_double), intent(in)     :: L1
+        real(c_double), intent(in)     :: x1u( bL(1):(N(1)+bU(1)) )
 
-        integer(c_int), intent(in)    ::  S1W
-        integer(c_int), intent(in)    ::  S2W
-        integer(c_int), intent(in)    ::  S3W
-
-        integer(c_int), intent(in)    ::  N1W
-        integer(c_int), intent(in)    ::  N2W
-        integer(c_int), intent(in)    ::  N3W
-
-
-        integer(c_int), intent(in)    ::  b1L
-        integer(c_int), intent(in)    ::  b2L
-        integer(c_int), intent(in)    ::  b3L
-
-        integer(c_int), intent(in)    ::  b1U
-        integer(c_int), intent(in)    ::  b2U
-        integer(c_int), intent(in)    ::  b3U
-
-        real(c_double), intent(inout) ::  phiU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-        real(c_double), intent(inout) ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-        real(c_double), intent(inout) ::  phiW(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+        real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
         real :: sig
 
@@ -1300,92 +1089,74 @@ contains
 
         sig = 0.2
 
-        do k = S3U, N3U
-            do j = S2U, N2U
-                do i = S1U, N1U
-                    !           phiU(i,j,k) = exp( -((x1u(i)-L1/2)/sig)**2 -((x2p(j)-L2/2)/sig)**2 ) / sqrt(2.)
-                    !           phiU(i,j,k) = exp( -((x1u(i)-L1/2)/sig)**2 -((x2p(j)-L2/2)/sig)**2 )
+        do k = SU(3), NU(3)
+            do j = SU(2), NU(2)
+                do i = SU(1), NU(1)
                     phiU(i,j,k) = exp( -((x1u(i)-L1/2)/sig)**2  )
                 end do
             end do
         end do
 
-        do k = S3V, N3V
-            do j = S2V, N2V
-                do i = S1V, N1V
-                    !           phiV(i,j,k) = exp( -((x1u(i))/sig)**2 -((x2p(j)-L2/2)/sig)**2 ) / sqrt(2.)
-                    !           phiV(i,j,k) = exp( -((x1p(i)-L1/2)/sig)**2 -((x2v(j)-L2/2)/sig)**2 ) / sqrt(2.)
+        do k = SV(3), NV(3)
+            do j = SV(2), NV(2)
+                do i = SV(1), NV(1)
                     phiV(i,j,k) = 0
                 end do
             end do
         end do
 
-        do k = S3W, N3W
-            do j = S2W, N2W
-                do i = S1W, N1W
+        do k = SW(3), NW(3)
+            do j = SW(2), NW(2)
+                do i = SW(1), NW(1)
                     phiW(i,j,k) = 0.0
                 end do
             end do
         end do
 
-    end subroutine cinit_GaussianForcing1D
+    end subroutine VF_init_GaussianForcing1D
 
 
 
 
-    subroutine cinit_GaussianForcing2D( &
-        N1,N2,N3,                       &
-        S1U,S2U,S3U, N1U,N2U,N3U,       &
-        S1V,S2V,S3V, N1V,N2V,N3V,       &
-        S1W,S2W,S3W, N1W,N2W,N3W,       &
-        b1L,b2L,b3L, b1U,b2U,b3U,       &
+    subroutine VF_init_GaussianForcing2D(   &
+        N,                                  &
+        bL,bU,                              &
+        SU,NU,                              &
+        SV,NV,                              &
+        SW,NW,                              &
+        L,                                  &
+        x1p,x2p,                            &
+        x1u,x2v,                            &
         phiU,phiV,phiW ) bind ( c, name='VF_init_GaussianForcing2D' )
         ! (basic subroutine)
 
         implicit none
 
-        integer(c_int), intent(in)    ::  N1
-        integer(c_int), intent(in)    ::  N2
-        integer(c_int), intent(in)    ::  N3
+        integer(c_int), intent(in)    ::  N(3)
 
+        integer(c_int), intent(in)     :: bL(3)
+        integer(c_int), intent(in)     :: bU(3)
 
-        integer(c_int), intent(in)    ::  S1U
-        integer(c_int), intent(in)    ::  S2U
-        integer(c_int), intent(in)    ::  S3U
+        integer(c_int), intent(in)     :: SU(3)
+        integer(c_int), intent(in)     :: NU(3)
 
-        integer(c_int), intent(in)    ::  N1U
-        integer(c_int), intent(in)    ::  N2U
-        integer(c_int), intent(in)    ::  N3U
+        integer(c_int), intent(in)     :: SV(3)
+        integer(c_int), intent(in)     :: NV(3)
 
-        integer(c_int), intent(in)    ::  S1V
-        integer(c_int), intent(in)    ::  S2V
-        integer(c_int), intent(in)    ::  S3V
+        integer(c_int), intent(in)     :: SW(3)
+        integer(c_int), intent(in)     :: NW(3)
 
-        integer(c_int), intent(in)    ::  N1V
-        integer(c_int), intent(in)    ::  N2V
-        integer(c_int), intent(in)    ::  N3V
+        real(c_double), intent(in)     :: L(3)
 
-        integer(c_int), intent(in)    ::  S1W
-        integer(c_int), intent(in)    ::  S2W
-        integer(c_int), intent(in)    ::  S3W
+        real(c_double), intent(in)     :: x1p( bL(1):(N(1)+bU(1)) )
+        real(c_double), intent(in)     :: x2p( bL(2):(N(2)+bU(2)) )
 
-        integer(c_int), intent(in)    ::  N1W
-        integer(c_int), intent(in)    ::  N2W
-        integer(c_int), intent(in)    ::  N3W
+        real(c_double), intent(in)     :: x1u( bL(1):(N(1)+bU(1)) )
+        real(c_double), intent(in)     :: x2v( bL(2):(N(2)+bU(2)) )
 
-
-        integer(c_int), intent(in)    ::  b1L
-        integer(c_int), intent(in)    ::  b2L
-        integer(c_int), intent(in)    ::  b3L
-
-        integer(c_int), intent(in)    ::  b1U
-        integer(c_int), intent(in)    ::  b2U
-        integer(c_int), intent(in)    ::  b3U
-
-        real(c_double), intent(inout) ::  phiU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-        real(c_double), intent(inout) ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-        real(c_double), intent(inout) ::  phiW(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-
+        real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
         real :: sig
 
         integer                ::  i, j, k
@@ -1403,93 +1174,75 @@ contains
 
         sig = 0.2
 
-        do k = S3U, N3U
-            do j = S2U, N2U
-                do i = S1U, N1U
+        do k = SU(3), NU(3)
+            do j = SU(2), NU(2)
+                do i = SU(1), NU(1)
                     phiU(i,j,k) = exp( -((x1u(i)   )/sig)**2 - ((x2p(j)   )/sig)**2 ) / sqrt(2.)    &
-                        + exp( -((x1u(i)-L1)/sig)**2 - ((x2p(j)-L2)/sig)**2 ) / sqrt(2.)    &
-                        + exp( -((x1u(i)-L1)/sig)**2 - ((x2p(j)   )/sig)**2 ) / sqrt(2.)    &
-                        + exp( -((x1u(i)   )/sig)**2 - ((x2p(j)-L2)/sig)**2 ) / sqrt(2.)
+                        + exp( -((x1u(i)-L(1))/sig)**2 - ((x2p(j)-L(2))/sig)**2 ) / sqrt(2.)    &
+                        + exp( -((x1u(i)-L(1))/sig)**2 - ((x2p(j)   )/sig)**2 ) / sqrt(2.)    &
+                        + exp( -((x1u(i)   )/sig)**2 - ((x2p(j)-L(2))/sig)**2 ) / sqrt(2.)
                 end do
             end do
         end do
 
-        do k = S3V, N3V
-            do j = S2V, N2V
-                do i = S1V, N1V
+        do k = SV(3), NV(3)
+            do j = SV(2), NV(2)
+                do i = SV(1), NV(1)
                     phiV(i,j,k) = exp( -((x1p(i)   )/sig)**2 -((x2v(j)   )/sig)**2 ) / sqrt(2.) &
-                        + exp( -((x1p(i)-L1)/sig)**2 -((x2v(j)-L2)/sig)**2 ) / sqrt(2.) &
-                        + exp( -((x1p(i)-L1)/sig)**2 -((x2v(j)   )/sig)**2 ) / sqrt(2.) &
-                        + exp( -((x1p(i)   )/sig)**2 -((x2v(j)-L2)/sig)**2 ) / sqrt(2.)
+                        + exp( -((x1p(i)-L(1))/sig)**2 -((x2v(j)-L(2))/sig)**2 ) / sqrt(2.) &
+                        + exp( -((x1p(i)-L(1))/sig)**2 -((x2v(j)   )/sig)**2 ) / sqrt(2.) &
+                        + exp( -((x1p(i)   )/sig)**2 -((x2v(j)-L(2))/sig)**2 ) / sqrt(2.)
                 end do
             end do
         end do
 
-        do k = S3W, N3W
-            do j = S2W, N2W
-                do i = S1W, N1W
+        do k = SW(3), NW(3)
+            do j = SW(2), NW(2)
+                do i = SW(1), NW(1)
                     phiW(i,j,k) = 0.0
                 end do
             end do
         end do
 
-    end subroutine cinit_GaussianForcing2D
+    end subroutine VF_init_GaussianForcing2D
 
 
 
 
-    subroutine cinit_BoundaryFilter1D(        &
-        N1,N2,N3,                       &
-        S1U,S2U,S3U, N1U,N2U,N3U,       &
-        S1V,S2V,S3V, N1V,N2V,N3V,       &
-        S1W,S2W,S3W, N1W,N2W,N3W,       &
-        b1L,b2L,b3L, b1U,b2U,b3U,       &
+    subroutine VF_init_BoundaryFilter1D(    &
+        N,                                  &
+        bL,bU,                              &
+        SU,NU,                              &
+        SV,NV,                              &
+        SW,NW,                              &
+        L1,                                 &
+        x1u,                                &
         phiU,phiV,phiW ) bind ( c, name='VF_init_BoundaryFilter1D' )
         ! (basic subroutine)
 
         implicit none
 
-        integer(c_int), intent(in)    ::  N1
-        integer(c_int), intent(in)    ::  N2
-        integer(c_int), intent(in)    ::  N3
+        integer(c_int), intent(in)    ::  N(3)
 
+        integer(c_int), intent(in)     :: bL(3)
+        integer(c_int), intent(in)     :: bU(3)
 
-        integer(c_int), intent(in)    ::  S1U
-        integer(c_int), intent(in)    ::  S2U
-        integer(c_int), intent(in)    ::  S3U
+        integer(c_int), intent(in)     :: SU(3)
+        integer(c_int), intent(in)     :: NU(3)
 
-        integer(c_int), intent(in)    ::  N1U
-        integer(c_int), intent(in)    ::  N2U
-        integer(c_int), intent(in)    ::  N3U
+        integer(c_int), intent(in)     :: SV(3)
+        integer(c_int), intent(in)     :: NV(3)
 
-        integer(c_int), intent(in)    ::  S1V
-        integer(c_int), intent(in)    ::  S2V
-        integer(c_int), intent(in)    ::  S3V
+        integer(c_int), intent(in)     :: SW(3)
+        integer(c_int), intent(in)     :: NW(3)
 
-        integer(c_int), intent(in)    ::  N1V
-        integer(c_int), intent(in)    ::  N2V
-        integer(c_int), intent(in)    ::  N3V
+        real(c_double), intent(in)     :: L1
 
-        integer(c_int), intent(in)    ::  S1W
-        integer(c_int), intent(in)    ::  S2W
-        integer(c_int), intent(in)    ::  S3W
+        real(c_double), intent(in)     :: x1u( bL(1):(N(1)+bU(1)) )
 
-        integer(c_int), intent(in)    ::  N1W
-        integer(c_int), intent(in)    ::  N2W
-        integer(c_int), intent(in)    ::  N3W
-
-
-        integer(c_int), intent(in)    ::  b1L
-        integer(c_int), intent(in)    ::  b2L
-        integer(c_int), intent(in)    ::  b3L
-
-        integer(c_int), intent(in)    ::  b1U
-        integer(c_int), intent(in)    ::  b2U
-        integer(c_int), intent(in)    ::  b3U
-
-        real(c_double), intent(inout) ::  phiU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-        real(c_double), intent(inout) ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-        real(c_double), intent(inout) ::  phiW(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+        real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
         real :: h
         real :: h2
@@ -1510,89 +1263,73 @@ contains
         h = 0.1
         h2 = h*h
 
-        do k = S3U, N3U
-            do j = S2U, N2U
-                do i = S1U, N1U
-                    !           phiU(i,j,k) = exp( -((x1u(i)-L1/2)/sig)**2 -((x2p(j)-L2/2)/sig)**2 ) / sqrt(2.)
-                    !           phiU(i,j,k) = exp( -((x1u(i)-L1/2)/sig)**2 -((x2p(j)-L2/2)/sig)**2 )
+        do k = SU(3), NU(3)
+            do j = SU(2), NU(2)
+                do i = SU(1), NU(1)
                     phiU(i,j,k) = 10*( exp( -(x1u(i)**2)/h2  ) + exp( -((x1u(i)-L1)**2)/h2  ) )
                 end do
             end do
         end do
 
-        do k = S3V, N3V
-            do j = S2V, N2V
-                do i = S1V, N1V
-                    !           phiV(i,j,k) = exp( -((x1p(i)-L1/2)/sig)**2 -((x2v(j)-L2/2)/sig)**2 ) / sqrt(2.)
+        do k = SV(3), NV(3)
+            do j = SV(2), NV(2)
+                do i = SV(1), NV(1)
                     phiV(i,j,k) = 0
                 end do
             end do
         end do
 
-        do k = S3W, N3W
-            do j = S2W, N2W
-                do i = S1W, N1W
+        do k = SW(3), NW(3)
+            do j = SW(2), NW(2)
+                do i = SW(1), NW(1)
                     phiW(i,j,k) = 0.0
                 end do
             end do
         end do
 
-    end subroutine cinit_BoundaryFilter1D
+    end subroutine VF_init_BoundaryFilter1D
 
 
 
-    subroutine cinit_BoundaryFilter2D(&
-        N1,N2,N3,                       &
-        S1U,S2U,S3U, N1U,N2U,N3U,       &
-        S1V,S2V,S3V, N1V,N2V,N3V,       &
-        S1W,S2W,S3W, N1W,N2W,N3W,       &
-        b1L,b2L,b3L, b1U,b2U,b3U,       &
+    subroutine VF_init_BoundaryFilter2D(    &
+        N,                                  &
+        bL,bU,                              &
+        SU,NU,                              &
+        SV,NV,                              &
+        SW,NW,                              &
+        L,                                  &
+        x1p,x2p,                            &
+        x1u,x2v,                            &
         phiU,phiV,phiW ) bind ( c, name='VF_init_BoundaryFilter2D' )
         ! (basic subroutine)
 
         implicit none
 
-        integer(c_int), intent(in)    ::  N1
-        integer(c_int), intent(in)    ::  N2
-        integer(c_int), intent(in)    ::  N3
+        integer(c_int), intent(in)    ::  N(3)
 
+        integer(c_int), intent(in)     :: bL(3)
+        integer(c_int), intent(in)     :: bU(3)
 
-        integer(c_int), intent(in)    ::  S1U
-        integer(c_int), intent(in)    ::  S2U
-        integer(c_int), intent(in)    ::  S3U
+        integer(c_int), intent(in)     :: SU(3)
+        integer(c_int), intent(in)     :: NU(3)
 
-        integer(c_int), intent(in)    ::  N1U
-        integer(c_int), intent(in)    ::  N2U
-        integer(c_int), intent(in)    ::  N3U
+        integer(c_int), intent(in)     :: SV(3)
+        integer(c_int), intent(in)     :: NV(3)
 
-        integer(c_int), intent(in)    ::  S1V
-        integer(c_int), intent(in)    ::  S2V
-        integer(c_int), intent(in)    ::  S3V
+        integer(c_int), intent(in)     :: SW(3)
+        integer(c_int), intent(in)     :: NW(3)
 
-        integer(c_int), intent(in)    ::  N1V
-        integer(c_int), intent(in)    ::  N2V
-        integer(c_int), intent(in)    ::  N3V
+        real(c_double), intent(in)     :: L(3)
 
-        integer(c_int), intent(in)    ::  S1W
-        integer(c_int), intent(in)    ::  S2W
-        integer(c_int), intent(in)    ::  S3W
+        real(c_double), intent(in)     :: x1p( bL(1):(N(1)+bU(1)) )
+        real(c_double), intent(in)     :: x2p( bL(2):(N(2)+bU(2)) )
 
-        integer(c_int), intent(in)    ::  N1W
-        integer(c_int), intent(in)    ::  N2W
-        integer(c_int), intent(in)    ::  N3W
+        real(c_double), intent(in)     :: x1u( bL(1):(N(1)+bU(1)) )
+        real(c_double), intent(in)     :: x2v( bL(2):(N(2)+bU(2)) )
 
-
-        integer(c_int), intent(in)    ::  b1L
-        integer(c_int), intent(in)    ::  b2L
-        integer(c_int), intent(in)    ::  b3L
-
-        integer(c_int), intent(in)    ::  b1U
-        integer(c_int), intent(in)    ::  b2U
-        integer(c_int), intent(in)    ::  b3U
-
-        real(c_double), intent(inout) ::  phiU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-        real(c_double), intent(inout) ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-        real(c_double), intent(inout) ::  phiW(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+        real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
         real :: h
         real :: h2
@@ -1613,100 +1350,83 @@ contains
         h = 0.1
         h2 = h*h
 
-        do k = S3U, N3U
-            do j = S2U, N2U
-                do i = S1U, N1U
-                    !           phiU(i,j,k) = exp( -((x1u(i)-L1/2)/sig)**2 -((x2p(j)-L2/2)/sig)**2 ) / sqrt(2.)
-                    !           phiU(i,j,k) = exp( -((x1u(i)-L1/2)/sig)**2 -((x2p(j)-L2/2)/sig)**2 )
-                    phiU(i,j,k) = max( 10*( exp( -(x1u(i)**2)/h2  ) + exp( -((x1u(i)-L1)**2)/h2  ) ) , &
-                        10*( exp( -(x2p(j)**2)/h2  ) + exp( -((x2p(j)-L2)**2)/h2  ) ) )
+        do k = SU(3), NU(3)
+            do j = SU(2), NU(2)
+                do i = SU(1), NU(1)
+                    phiU(i,j,k) = max( 10*( exp( -(x1u(i)**2)/h2  ) + exp( -((x1u(i)-L(1))**2)/h2  ) ) , &
+                        10*( exp( -(x2p(j)**2)/h2  ) + exp( -((x2p(j)-L(2))**2)/h2  ) ) )
                 end do
             end do
         end do
 
-        do k = S3V, N3V
-            do j = S2V, N2V
-                do i = S1V, N1V
-                    !           phiV(i,j,k) = exp( -((x1p(i)-L1/2)/sig)**2 -((x2v(j)-L2/2)/sig)**2 ) / sqrt(2.)
-                    !           phiV(i,j,k) = 0
-                    phiV(i,j,k) = max( 10*( exp( -(x1p(i)**2)/h2  ) + exp( -((x1p(i)-L1)**2)/h2  ) ) , &
-                        10*( exp( -(x2v(j)**2)/h2  ) + exp( -((x2v(j)-L2)**2)/h2  ) ) )
+        do k = SV(3), NV(3)
+            do j = SV(2), NV(2)
+                do i = SV(1), NV(1)
+                    phiV(i,j,k) = max( 10*( exp( -(x1p(i)**2)/h2  ) + exp( -((x1p(i)-L(1))**2)/h2  ) ) , &
+                        10*( exp( -(x2v(j)**2)/h2  ) + exp( -((x2v(j)-L(2))**2)/h2  ) ) )
                 end do
             end do
         end do
 
-        do k = S3W, N3W
-            do j = S2W, N2W
-                do i = S1W, N1W
+        do k = SW(3), NW(3)
+            do j = SW(2), NW(2)
+                do i = SW(1), NW(1)
                     phiW(i,j,k) = 0.0
                 end do
             end do
         end do
 
-    end subroutine cinit_BoundaryFilter2D
+    end subroutine VF_init_BoundaryFilter2D
 
 
 
     !> \f$ u = \min( 4*\exp( -((x-xm)/rad)**2 -((y-ym)/rad)**2 ),1.) \f$
-    subroutine cinit_Disc( &
-        N1,N2,N3,                         &
-        S1U,S2U,S3U, N1U,N2U,N3U,         &
-        S1V,S2V,S3V, N1V,N2V,N3V,         &
-        S1W,S2W,S3W, N1W,N2W,N3W,         &
-        b1L,b2L,b3L, b1U,b2U,b3U,         &
-        phiU,phiV,phiW,                   &
-        xm,ym, rad ) bind ( c, name='VF_init_Disc' )
-        ! (basic subroutine)
+    subroutine VF_init_Disc(    &
+        N,                      &
+        bL,bU,                  &
+        SU,NU,                  &
+        SV,NV,                  &
+        SW,NW,                  &
+        x1p,x2p,x3p,            &
+        x1u,x2v,                &
+        xm,ym, rad,             &
+        phiU,phiV,phiW ) bind ( c, name='VF_init_Disc' )
 
         implicit none
 
-        integer(c_int), intent(in)    ::  N1
-        integer(c_int), intent(in)    ::  N2
-        integer(c_int), intent(in)    ::  N3
+        integer(c_int), intent(in)    ::  N(3)
 
+        integer(c_int), intent(in)     :: bL(3)
+        integer(c_int), intent(in)     :: bU(3)
 
-        integer(c_int), intent(in)    ::  S1U
-        integer(c_int), intent(in)    ::  S2U
-        integer(c_int), intent(in)    ::  S3U
+        integer(c_int), intent(in)     :: SU(3)
+        integer(c_int), intent(in)     :: NU(3)
 
-        integer(c_int), intent(in)    ::  N1U
-        integer(c_int), intent(in)    ::  N2U
-        integer(c_int), intent(in)    ::  N3U
+        integer(c_int), intent(in)     :: SV(3)
+        integer(c_int), intent(in)     :: NV(3)
 
-        integer(c_int), intent(in)    ::  S1V
-        integer(c_int), intent(in)    ::  S2V
-        integer(c_int), intent(in)    ::  S3V
+        integer(c_int), intent(in)     :: SW(3)
+        integer(c_int), intent(in)     :: NW(3)
 
-        integer(c_int), intent(in)    ::  N1V
-        integer(c_int), intent(in)    ::  N2V
-        integer(c_int), intent(in)    ::  N3V
+        real(c_double), intent(in)     :: x1p( bL(1):(N(1)+bU(1)) )
+        real(c_double), intent(in)     :: x2p( bL(2):(N(2)+bU(2)) )
+        real(c_double), intent(in)     :: x3p( bL(3):(N(3)+bU(3)) )
 
-        integer(c_int), intent(in)    ::  S1W
-        integer(c_int), intent(in)    ::  S2W
-        integer(c_int), intent(in)    ::  S3W
+        real(c_double), intent(in)     :: x1u( bL(1):(N(1)+bU(1)) )
+        real(c_double), intent(in)     :: x2v( bL(2):(N(2)+bU(2)) )
 
-        integer(c_int), intent(in)    ::  N1W
-        integer(c_int), intent(in)    ::  N2W
-        integer(c_int), intent(in)    ::  N3W
-
-
-        integer(c_int), intent(in)    ::  b1L
-        integer(c_int), intent(in)    ::  b2L
-        integer(c_int), intent(in)    ::  b3L
-
-        integer(c_int), intent(in)    ::  b1U
-        integer(c_int), intent(in)    ::  b2U
-        integer(c_int), intent(in)    ::  b3U
-
-        real(c_double), intent(inout) ::  phiU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-        real(c_double), intent(inout) ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-        real(c_double), intent(inout) ::  phiW(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+        real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
         real(c_double), intent(in)    :: xm
         real(c_double), intent(in)    :: ym
         real(c_double), intent(in)    :: rad
 
-        integer                ::  i, j, k
+
+        real    :: dr
+
+        integer ::  i, j, k
 
         !--- initial conditions for velocity ---
         ! note: - cf. sketch in file "usr_geometry.f90"
@@ -1720,93 +1440,75 @@ contains
         !
 
 
-        do k = S3U, N3U
-            do j = S2U, N2U
-                do i = S1U, N1U
-                    !                    phiU(i,j,k) = min(4*exp( -((x1u(i)-xm)/rad)**2 -((x2p(j)-ym)/rad)**2 ),1.)
-                    phiU(i,j,k) = distance2ib( x1u(i),x2p(j),x3p(k),xm,ym,rad )
+!        dr = SQRT( ( 2*L1/REAL(M1-1) )**2 + ( 2*L2/REAL(M2-1) )**2 )
+        dr = SQRT( ( 2*(x1p(2)-x1p(1)) )**2 + ( 2*(x2p(2)-x2p(1)) )**2 )
+
+        do k = SU(3), NU(3)
+            do j = SU(2), NU(2)
+                do i = SU(1), NU(1)
+                    phiU(i,j,k) = distance2ib( x1u(i),x2p(j),x3p(k),xm,ym,rad,dr )
                 end do
             end do
         end do
 
-        do k = S3V, N3V
-            do j = S2V, N2V
-                do i = S1V, N1V
-                    !                    phiV(i,j,k) = min(4*exp( -((x1p(i)-xm)/rad)**2 -((x2v(j)-ym)/rad)**2 ),1.)
-                    phiV(i,j,k) = distance2ib( x1p(i),x2v(j),x3p(k),xm,ym,rad )
+        do k = SV(3), NV(3)
+            do j = SV(2), NV(2)
+                do i = SV(1), NV(1)
+                    phiV(i,j,k) = distance2ib( x1p(i),x2v(j),x3p(k),xm,ym,rad,dr )
                 end do
             end do
         end do
 
-        do k = S3W, N3W
-            do j = S2W, N2W
-                do i = S1W, N1W
+        do k = SW(3), NW(3)
+            do j = SW(2), NW(2)
+                do i = SW(1), NW(1)
                     phiW(i,j,k) = 0.0
                 end do
             end do
         end do
 
-    end subroutine cinit_Disc
+    end subroutine VF_init_Disc
 
 
-    subroutine cinit_RotatingDisc( &
-        N1,N2,N3,                         &
-        S1U,S2U,S3U, N1U,N2U,N3U,         &
-        S1V,S2V,S3V, N1V,N2V,N3V,         &
-        S1W,S2W,S3W, N1W,N2W,N3W,         &
-        b1L,b2L,b3L, b1U,b2U,b3U,         &
-        phiU,phiV,phiW,                   &
-        xm,ym, omega ) bind ( c, name='VF_init_RotatingDisc' )
+    subroutine VF_init_RotatingDisc(    &
+        N,                              &
+        bL,bU,                          &
+        SU,NU,                          &
+        SV,NV,                          &
+        SW,NW,                          &
+        x1p,x2p,                        &
+        xm,ym, omega,                   &
+        phiU,phiV,phiW ) bind ( c, name='VF_init_RotatingDisc' )
         ! (basic subroutine)
 
         implicit none
 
-        integer(c_int), intent(in)    ::  N1
-        integer(c_int), intent(in)    ::  N2
-        integer(c_int), intent(in)    ::  N3
+        integer(c_int), intent(in)    ::  N(3)
 
+        integer(c_int), intent(in)     :: bL(3)
+        integer(c_int), intent(in)     :: bU(3)
 
-        integer(c_int), intent(in)    ::  S1U
-        integer(c_int), intent(in)    ::  S2U
-        integer(c_int), intent(in)    ::  S3U
+        integer(c_int), intent(in)     :: SU(3)
+        integer(c_int), intent(in)     :: NU(3)
 
-        integer(c_int), intent(in)    ::  N1U
-        integer(c_int), intent(in)    ::  N2U
-        integer(c_int), intent(in)    ::  N3U
+        integer(c_int), intent(in)     :: SV(3)
+        integer(c_int), intent(in)     :: NV(3)
 
-        integer(c_int), intent(in)    ::  S1V
-        integer(c_int), intent(in)    ::  S2V
-        integer(c_int), intent(in)    ::  S3V
+        integer(c_int), intent(in)     :: SW(3)
+        integer(c_int), intent(in)     :: NW(3)
 
-        integer(c_int), intent(in)    ::  N1V
-        integer(c_int), intent(in)    ::  N2V
-        integer(c_int), intent(in)    ::  N3V
-
-        integer(c_int), intent(in)    ::  S1W
-        integer(c_int), intent(in)    ::  S2W
-        integer(c_int), intent(in)    ::  S3W
-
-        integer(c_int), intent(in)    ::  N1W
-        integer(c_int), intent(in)    ::  N2W
-        integer(c_int), intent(in)    ::  N3W
-
-
-        integer(c_int), intent(in)    ::  b1L
-        integer(c_int), intent(in)    ::  b2L
-        integer(c_int), intent(in)    ::  b3L
-
-        integer(c_int), intent(in)    ::  b1U
-        integer(c_int), intent(in)    ::  b2U
-        integer(c_int), intent(in)    ::  b3U
-
-        real(c_double), intent(inout) ::  phiU(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-        real(c_double), intent(inout) ::  phiV(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-        real(c_double), intent(inout) ::  phiW(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+        real(c_double), intent(in)     :: x1p( bL(1):(N(1)+bU(1)) )
+        real(c_double), intent(in)     :: x2p( bL(2):(N(2)+bU(2)) )
 
         real(c_double), intent(in)    :: xm
         real(c_double), intent(in)    :: ym
         real(c_double), intent(in)    :: omega
 
+        real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+
+
         integer                ::  i, j, k
 
         !--- initial conditions for velocity ---
@@ -1821,33 +1523,31 @@ contains
         !
 
 
-        do k = S3U, N3U
-            do j = S2U, N2U
-                do i = S1U, N1U
-                    !           phiU(i,j,k) = min(4*exp( -((x1u(i)-xm)/rad)**2 -((x2p(j)-ym)/rad)**2 ),1.)
+        do k = SU(3), NU(3)
+            do j = SU(2), NU(2)
+                do i = SU(1), NU(1)
                     phiU(i,j,k) = -omega*(x2p(j)-ym)
                 end do
             end do
         end do
 
-        do k = S3V, N3V
-            do j = S2V, N2V
-                do i = S1V, N1V
-                    !           phiV(i,j,k) = min(4*exp( -((x1p(i)-ym)/rad)**2 -((x2v(j)-ym)/rad)**2 ),1.)
+        do k = SV(3), NV(3)
+            do j = SV(2), NV(2)
+                do i = SV(1), NV(1)
                     phiV(i,j,k) = omega*(x1p(i)-xm)
                 end do
             end do
         end do
 
-        do k = S3W, N3W
-            do j = S2W, N2W
-                do i = S1W, N1W
+        do k = SW(3), NW(3)
+            do j = SW(2), NW(2)
+                do i = SW(1), NW(1)
                     phiW(i,j,k) = 0.0
                 end do
             end do
         end do
 
-    end subroutine cinit_RotatingDisc
+    end subroutine VF_init_RotatingDisc
 
 
 

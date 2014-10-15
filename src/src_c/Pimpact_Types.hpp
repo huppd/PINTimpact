@@ -2,7 +2,7 @@
 #ifndef PIMPACT_TYPES_HPP
 #define PIMPACT_TYPES_HPP
 
-
+#include "BelosTypes.hpp"
 
 namespace Pimpact {
 

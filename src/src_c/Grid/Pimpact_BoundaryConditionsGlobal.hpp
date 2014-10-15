@@ -41,9 +41,9 @@ public:
   typedef const Teuchos::Tuple<int,3> Ti3;
 
 
-  friend Teuchos::RCP<BoundaryConditionsGlobal> createBoudaryConditionsGlobal();
+  friend Teuchos::RCP<const BoundaryConditionsGlobal> createBoudaryConditionsGlobal();
 
-  friend Teuchos::RCP<BoundaryConditionsGlobal> createBoudaryConditionsGlobal( EDomainType dtype );
+  friend Teuchos::RCP<const BoundaryConditionsGlobal> createBoudaryConditionsGlobal( EDomainType dtype );
 
 protected:
 
@@ -91,7 +91,7 @@ public:
   const int* getBCU() const { return( BCU_int_.getRawPtr() ); }
 //  const int& getBCU( int i ) const { return( BCU_int_[i] ); }
 
-  void set_Impact(){
+  void set_Impact() const {
     fsetBC(
         BCL_global_[0],
         BCU_global_[0],
@@ -113,7 +113,7 @@ public:
 
 
 /// \relates BoundaryConditionsGlobal
-Teuchos::RCP<BoundaryConditionsGlobal>
+Teuchos::RCP<const BoundaryConditionsGlobal>
 createBoudaryConditionsGlobal() {
 
   typedef const Teuchos::Tuple<int,3> TBC3;
@@ -142,7 +142,8 @@ createBoudaryConditionsGlobal() {
 
 
 /// \relates BoundaryConditionsGlobal
-Teuchos::RCP<BoundaryConditionsGlobal> createBoudaryConditionsGlobal(
+Teuchos::RCP<const BoundaryConditionsGlobal>
+createBoudaryConditionsGlobal(
     EDomainType dtype ) {
 
   switch( dtype ) {

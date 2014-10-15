@@ -28,9 +28,9 @@ namespace Pimpact {
 /// \relates ModeField
 /// \relates VectorField
 template<class Scalar, class Ordinal>
-Teuchos::RCP< MultiField<ModeField<VectorField<Scalar,Ordinal> > > > createMultiModeVectorField( int n=1 ) {
+Teuchos::RCP< MultiField<ModeField<VectorField<Scalar,Ordinal> > > >
+createMultiModeVectorField( const Teuchos::RCP<const Space<Scalar,Ordinal,3> >& space, int n=1 ) {
 
-	auto space = Pimpact::createSpace();
 
   auto velc = createVectorField<Scalar,Ordinal>( space );
   auto vels = createVectorField<Scalar,Ordinal>( space );
@@ -46,11 +46,11 @@ Teuchos::RCP< MultiField<ModeField<VectorField<Scalar,Ordinal> > > > createMulti
 /// \relates ModeField
 /// \relates ScalarField
 template<class Scalar, class Ordinal>
-Teuchos::RCP< MultiField<ModeField<ScalarField<Scalar,Ordinal> > > > createMultiModeScalarField( int n=1 ) {
-	auto sVS = Pimpact::createSpace<Scalar,Ordinal>();
+Teuchos::RCP< MultiField<ModeField<ScalarField<Scalar,Ordinal> > > >
+createMultiModeScalarField( const Teuchos::RCP<const Space<Scalar,Ordinal,3> >& space, int n=1 ) {
 
-  auto scalc = createScalarField<Scalar,Ordinal>(sVS);
-  auto scals = createScalarField<Scalar,Ordinal>(sVS);
+  auto scalc = createScalarField<Scalar,Ordinal>(space);
+  auto scals = createScalarField<Scalar,Ordinal>(space);
 
   auto scal = createModeField( scalc, scals );
 

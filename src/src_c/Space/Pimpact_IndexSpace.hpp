@@ -102,12 +102,13 @@ public:
 /// \brief function that creates ScaparIndexSpace
 /// by getting values from \c IMPACT
 /// \relates IndexSpace
+/// setImpact should be \depracted soon
 template<class O=int, int d=3>
 Teuchos::RCP<const IndexSpace<O> >
 createScalarIndexSpace(
     const Teuchos::RCP<const FieldSpace<O,d> >& fS,
-    const Teuchos::RCP<GridSizeLocal<O,d> >& nLoc,
-    const Teuchos::RCP<BoundaryConditionsLocal>& bc,
+    const Teuchos::RCP<const GridSizeLocal<O,d> >& nLoc,
+    const Teuchos::RCP<const BoundaryConditionsLocal>& bc,
     bool setImpact=true ){
 
   typedef typename IndexSpace<O>::TO3 TO3;
@@ -145,8 +146,8 @@ template<class O=int, int d=3>
 Teuchos::ArrayRCP< Teuchos::RCP< const IndexSpace<O> > >
 createInnerFieldIndexSpaces(
     const Teuchos::RCP<const FieldSpace<O,d> >& fS,
-    const Teuchos::RCP<GridSizeLocal<O,d> >& nLoc,
-    const Teuchos::RCP<BoundaryConditionsLocal>& bc,
+    const Teuchos::RCP<const GridSizeLocal<O,d> >& nLoc,
+    const Teuchos::RCP<const BoundaryConditionsLocal>& bc,
     bool setImpact=true ){
 
 
@@ -269,8 +270,8 @@ template<class O=int, int d=3>
 Teuchos::ArrayRCP< Teuchos::RCP< const IndexSpace<O> > >
 createFullFieldIndexSpaces(
     const Teuchos::RCP<const FieldSpace<O,d> >& fS,
-    const Teuchos::RCP<GridSizeLocal<O,d> >& nLoc,
-    const Teuchos::RCP<BoundaryConditionsLocal>& bc,
+    const Teuchos::RCP<const GridSizeLocal<O,d> >& nLoc,
+    const Teuchos::RCP<const BoundaryConditionsLocal>& bc,
     bool setImpact=true ){
 
 

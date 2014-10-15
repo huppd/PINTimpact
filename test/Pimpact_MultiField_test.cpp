@@ -24,7 +24,9 @@ namespace {
 
 
 bool testMpi = true;
-double errorTolSlack = 3e-1;
+double errorTolSlack = 1e-6;
+int domain = 1;
+
 
 
 TEUCHOS_STATIC_SETUP() {
@@ -37,16 +39,21 @@ TEUCHOS_STATIC_SETUP() {
   clp.setOption(
       "error-tol-slack", &errorTolSlack,
       "Slack off of machine epsilon used to check test results" );
+  clp.setOption(
+      "domain", &domain,
+      "domain" );
 }
 
 
 
 // test shows that nLoc is not consistent with start and end indexes
 TEUCHOS_UNIT_TEST( MultiFieldScalar, constructor ) {
-  // init impact
-  init_impact(0,0);
 
-  auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
   auto p = Pimpact::createScalarField<double,int>(space);
 
@@ -61,7 +68,12 @@ TEUCHOS_UNIT_TEST( MultiFieldScalar, constructor ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldScalarScalar, TwoNorm_and_init ) {
 
-  auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
 
   auto p = Pimpact::createScalarField<double,int>( space );
 
@@ -84,7 +96,12 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarScalar, TwoNorm_and_init ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldScalar, clone ) {
 
-  auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
 
   auto p = Pimpact::createScalarField<double,int>( space );
 
@@ -104,7 +121,12 @@ TEUCHOS_UNIT_TEST( MultiFieldScalar, clone ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldScalar, CloneCopy ) {
 
-  auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
 
   auto p = Pimpact::createScalarField<double,int>( space );
 
@@ -133,7 +155,12 @@ TEUCHOS_UNIT_TEST( MultiFieldScalar, CloneCopy ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldScalar, CloneCopy2 ) {
 
-  auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
 
   auto p = Pimpact::createScalarField<double,int>( space );
 
@@ -169,7 +196,12 @@ TEUCHOS_UNIT_TEST( MultiFieldScalar, CloneCopy2 ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldScalar, CloneCopy3 ) {
 
-  auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
 
   auto p = Pimpact::createScalarField<double,int>( space );
 
@@ -201,7 +233,12 @@ TEUCHOS_UNIT_TEST( MultiFieldScalar, CloneCopy3 ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldScalar, CloneViewNonConst1 ) {
 
-  auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
 
   auto p = Pimpact::createScalarField<double,int>( space );
 
@@ -239,7 +276,12 @@ TEUCHOS_UNIT_TEST( MultiFieldScalar, CloneViewNonConst1 ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldScalar, CloneViewNonConst2 ) {
 
-  auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
 
   auto p = Pimpact::createScalarField<double,int>( space );
 
@@ -274,7 +316,12 @@ TEUCHOS_UNIT_TEST( MultiFieldScalar, CloneViewNonConst2 ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldScalar, CloneView1 ) {
 
-  auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
 
   auto p = Pimpact::createScalarField<double,int>( space );
 
@@ -313,7 +360,12 @@ TEUCHOS_UNIT_TEST( MultiFieldScalar, CloneView1 ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldScalar, CloneViewt2 ) {
 
-  auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
 
   auto p = Pimpact::createScalarField<double,int>( space );
 
@@ -349,11 +401,15 @@ TEUCHOS_UNIT_TEST( MultiFieldScalar, CloneViewt2 ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldScalar, TimesMatAdd ) {
 
-  auto sVS = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
 
-  auto p = Pimpact::createScalarField<double,int>(sVS);
+  pl->set( "domain", domain);
 
-  auto mv1 = Pimpact::createMultiField<Pimpact::ScalarField<double,int> >(*p,10);
+  auto space = Pimpact::createSpace( pl, false );
+
+  auto p = Pimpact::createScalarField( space );
+
+  auto mv1 = Pimpact::createMultiField( *p, 10 );
 
   mv1->init(0.);
 
@@ -394,7 +450,7 @@ TEUCHOS_UNIT_TEST( MultiFieldScalar, TimesMatAdd ) {
 
   for( unsigned int i=0; i<n1; ++i) {
     TEST_FLOATING_EQUALITY( norm1[i], norm2[i], errorTolSlack  );
-    TEST_FLOATING_EQUALITY( std::sqrt(mv1->getLength()), norm2[i], errorTolSlack );
+    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm2[i], 3.e-1 );
   }
 
   std::vector<double> scales(n1);
@@ -422,9 +478,13 @@ TEUCHOS_UNIT_TEST( MultiFieldScalar, TimesMatAdd ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldScalar, add ) {
 
-  auto sVS = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
 
-  auto p = Pimpact::createScalarField<double,int>(sVS);
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
+  auto p = Pimpact::createScalarField<double,int>(space);
 
   auto mv1 = Pimpact::createMultiField<Pimpact::ScalarField<double,int> >(*p,10);
 
@@ -482,9 +542,13 @@ TEUCHOS_UNIT_TEST( MultiFieldScalar, add ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldScalar, dot ) {
 
-  auto sVS = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
 
-  auto p = Pimpact::createScalarField<double,int>(sVS);
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
+  auto p = Pimpact::createScalarField<double,int>(space);
 
   auto mv1 = Pimpact::createMultiField<Pimpact::ScalarField<double,int> >(*p,10);
 
@@ -532,9 +596,13 @@ TEUCHOS_UNIT_TEST( MultiFieldScalar, dot ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldScalar, Trans ) {
 
-  auto sVS = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
 
-  auto p = Pimpact::createScalarField<double,int>(sVS);
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
+  auto p = Pimpact::createScalarField<double,int>(space);
 
   auto mv1 = Pimpact::createMultiField<Pimpact::ScalarField<double,int> >(*p,10);
 
@@ -586,10 +654,14 @@ TEUCHOS_UNIT_TEST( MultiFieldScalar, Trans ) {
 // test shows that nLoc is not consistent with start and end indexes
 TEUCHOS_UNIT_TEST( MultiFieldScalarMode, constructor ) {
 
-  auto sVS = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
 
-  auto pc = Pimpact::createScalarField<double,int>(sVS);
-  auto ps = Pimpact::createScalarField<double,int>(sVS);
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
+  auto pc = Pimpact::createScalarField<double,int>(space);
+  auto ps = Pimpact::createScalarField<double,int>(space);
 
   auto vel = Pimpact::createModeField( pc, ps );
 
@@ -603,10 +675,14 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, constructor ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldScalarMode, TwoNorm_and_init ) {
 
-  auto sVS = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
 
-  auto pc = Pimpact::createScalarField<double,int>(sVS);
-  auto ps = Pimpact::createScalarField<double,int>(sVS);
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
+  auto pc = Pimpact::createScalarField<double,int>(space);
+  auto ps = Pimpact::createScalarField<double,int>(space);
 
   auto vel = Pimpact::createModeField( pc, ps );
 
@@ -630,10 +706,14 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, TwoNorm_and_init ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldScalarMode, clone ) {
 
-  auto sVS = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
 
-  auto pc = Pimpact::createScalarField<double,int>(sVS);
-  auto ps = Pimpact::createScalarField<double,int>(sVS);
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
+  auto pc = Pimpact::createScalarField<double,int>(space);
+  auto ps = Pimpact::createScalarField<double,int>(space);
 
   auto vel = Pimpact::createModeField( pc, ps );
 
@@ -657,10 +737,14 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, clone ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldScalarMode, CloneCopy ) {
 
-  auto sVS = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
 
-  auto pc = Pimpact::createScalarField<double,int>(sVS);
-  auto ps = Pimpact::createScalarField<double,int>(sVS);
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
+  auto pc = Pimpact::createScalarField<double,int>(space);
+  auto ps = Pimpact::createScalarField<double,int>(space);
 
   auto vel = Pimpact::createModeField( pc, ps );
 
@@ -692,10 +776,14 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, CloneCopy ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldScalarMode, CloneCopy2 ) {
 
-  auto sVS = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
 
-  auto pc = Pimpact::createScalarField<double,int>(sVS);
-  auto ps = Pimpact::createScalarField<double,int>(sVS);
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
+  auto pc = Pimpact::createScalarField<double,int>(space);
+  auto ps = Pimpact::createScalarField<double,int>(space);
 
   auto vel = Pimpact::createModeField( pc, ps );
 
@@ -733,10 +821,14 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, CloneCopy2 ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldScalarMode, CloneCopy3 ) {
 
-  auto sVS = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
 
-  auto pc = Pimpact::createScalarField<double,int>(sVS);
-  auto ps = Pimpact::createScalarField<double,int>(sVS);
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
+  auto pc = Pimpact::createScalarField<double,int>(space);
+  auto ps = Pimpact::createScalarField<double,int>(space);
 
   auto vel = Pimpact::createModeField( pc, ps );
 
@@ -772,10 +864,14 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, CloneCopy3 ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldScalarMode, CloneViewNonConst1 ) {
 
-  auto sVS = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
 
-  auto pc = Pimpact::createScalarField<double,int>(sVS);
-  auto ps = Pimpact::createScalarField<double,int>(sVS);
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
+  auto pc = Pimpact::createScalarField<double,int>(space);
+  auto ps = Pimpact::createScalarField<double,int>(space);
 
   auto vel = Pimpact::createModeField( pc, ps );
 
@@ -816,10 +912,14 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, CloneViewNonConst1 ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldScalarMode, CloneViewNonConst2 ) {
 
-  auto sVS = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
 
-  auto pc = Pimpact::createScalarField<double,int>(sVS);
-  auto ps = Pimpact::createScalarField<double,int>(sVS);
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
+  auto pc = Pimpact::createScalarField<double,int>(space);
+  auto ps = Pimpact::createScalarField<double,int>(space);
 
   auto vel = Pimpact::createModeField( pc, ps );
 
@@ -857,10 +957,14 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, CloneViewNonConst2 ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldScalarMode, CloneView1 ) {
 
-  auto sVS = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
 
-  auto pc = Pimpact::createScalarField<double,int>(sVS);
-  auto ps = Pimpact::createScalarField<double,int>(sVS);
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
+  auto pc = Pimpact::createScalarField<double,int>(space);
+  auto ps = Pimpact::createScalarField<double,int>(space);
 
   auto vel = Pimpact::createModeField( pc, ps );
 
@@ -901,10 +1005,14 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, CloneView1 ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldScalarMode, CloneViewt2 ) {
 
-  auto sVS = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
 
-  auto pc = Pimpact::createScalarField<double,int>(sVS);
-  auto ps = Pimpact::createScalarField<double,int>(sVS);
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
+  auto pc = Pimpact::createScalarField<double,int>(space);
+  auto ps = Pimpact::createScalarField<double,int>(space);
 
   auto vel = Pimpact::createModeField( pc, ps );
 
@@ -943,10 +1051,14 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, CloneViewt2 ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldScalarMode, TimesMatAdd ) {
 
-  auto sVS = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
 
-  auto pc = Pimpact::createScalarField<double,int>(sVS);
-  auto ps = Pimpact::createScalarField<double,int>(sVS);
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
+  auto pc = Pimpact::createScalarField<double,int>(space);
+  auto ps = Pimpact::createScalarField<double,int>(space);
 
   auto vel = Pimpact::createModeField( pc, ps );
 
@@ -1001,7 +1113,7 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, TimesMatAdd ) {
 
   for( unsigned int i=0; i<n1; ++i) {
     TEST_FLOATING_EQUALITY( norm1[i], norm2[i], errorTolSlack   );
-    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm2[i], errorTolSlack  );
+    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm2[i], 3.e-1  );
   }
 
   std::vector<double> scales(n1);
@@ -1036,10 +1148,14 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, TimesMatAdd ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldScalarMode, add ) {
 
-  auto sVS = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
 
-  auto pc = Pimpact::createScalarField<double,int>(sVS);
-  auto ps = Pimpact::createScalarField<double,int>(sVS);
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
+  auto pc = Pimpact::createScalarField<double,int>(space);
+  auto ps = Pimpact::createScalarField<double,int>(space);
 
   auto vel = Pimpact::createModeField( pc, ps );
 
@@ -1106,10 +1222,14 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, add ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldScalarMode, dot ) {
 
-  auto sVS = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
 
-  auto pc = Pimpact::createScalarField<double,int>(sVS);
-  auto ps = Pimpact::createScalarField<double,int>(sVS);
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
+  auto pc = Pimpact::createScalarField<double,int>(space);
+  auto ps = Pimpact::createScalarField<double,int>(space);
 
   auto vel = Pimpact::createModeField( pc, ps );
 
@@ -1164,10 +1284,14 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, dot ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldScalarMode, Trans ) {
 
-  auto sVS = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
 
-  auto pc = Pimpact::createScalarField<double,int>(sVS);
-  auto ps = Pimpact::createScalarField<double,int>(sVS);
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
+  auto pc = Pimpact::createScalarField<double,int>(space);
+  auto ps = Pimpact::createScalarField<double,int>(space);
 
   auto vel = Pimpact::createModeField( pc, ps );
 
@@ -1221,7 +1345,12 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, Trans ) {
 // test shows that nLoc is not consistent with start and end indexes
 TEUCHOS_UNIT_TEST( MultiFieldVector, constructor ) {
 
-  auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
 
   auto vel = Pimpact::createVectorField<double,int>(space);
 
@@ -1236,7 +1365,12 @@ TEUCHOS_UNIT_TEST( MultiFieldVector, constructor ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldVector, TwoNorm_and_init ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
 
   auto vel = Pimpact::createVectorField<double,int>(space);
 
@@ -1260,7 +1394,12 @@ TEUCHOS_UNIT_TEST( MultiFieldVector, TwoNorm_and_init ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldVector, clone ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
 
   auto vel = Pimpact::createVectorField<double,int>(space);
 
@@ -1283,7 +1422,12 @@ TEUCHOS_UNIT_TEST( MultiFieldVector, clone ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldVector, CloneCopy ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
 
   auto vel = Pimpact::createVectorField<double,int>(space);
 
@@ -1314,7 +1458,11 @@ TEUCHOS_UNIT_TEST( MultiFieldVector, CloneCopy ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldVector, CloneCopy2 ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
   auto vel = Pimpact::createVectorField<double,int>(space);
 
@@ -1351,7 +1499,11 @@ TEUCHOS_UNIT_TEST( MultiFieldVector, CloneCopy2 ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldVector, CloneCopy3 ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
   auto vel = Pimpact::createVectorField<double,int>(space);
 
@@ -1386,7 +1538,12 @@ TEUCHOS_UNIT_TEST( MultiFieldVector, CloneCopy3 ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldVector, CloneViewNonConst1 ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
 
   auto vel = Pimpact::createVectorField<double,int>(space);
 
@@ -1427,7 +1584,12 @@ TEUCHOS_UNIT_TEST( MultiFieldVector, CloneViewNonConst1 ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldVector, CloneViewNonConst2 ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
 
   auto vel = Pimpact::createVectorField<double,int>(space);
 
@@ -1464,7 +1626,12 @@ TEUCHOS_UNIT_TEST( MultiFieldVector, CloneViewNonConst2 ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldVector, CloneView1 ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
 
   auto vel = Pimpact::createVectorField<double,int>(space);
 
@@ -1506,7 +1673,12 @@ TEUCHOS_UNIT_TEST( MultiFieldVector, CloneView1 ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldVector, CloneViewt2 ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
 
   auto vel = Pimpact::createVectorField<double,int>(space);
 
@@ -1544,7 +1716,12 @@ TEUCHOS_UNIT_TEST( MultiFieldVector, CloneViewt2 ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldVector, TimesMatAdd ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
 
   auto vel = Pimpact::createVectorField<double,int>(space);
 
@@ -1594,7 +1771,7 @@ TEUCHOS_UNIT_TEST( MultiFieldVector, TimesMatAdd ) {
 
   for( unsigned int i=0; i<n1; ++i) {
     TEST_EQUALITY( norm1[i], norm2[i] );
-    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm2[i], errorTolSlack );
+    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm2[i], 3.e-1  );
   }
 
   std::vector<double> scales(n1);
@@ -1622,7 +1799,12 @@ TEUCHOS_UNIT_TEST( MultiFieldVector, TimesMatAdd ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldVector, add ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
 
   auto vel = Pimpact::createVectorField<double,int>(space);
 
@@ -1690,7 +1872,12 @@ TEUCHOS_UNIT_TEST( MultiFieldVector, add ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldVector, dot ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
 
   auto vel = Pimpact::createVectorField<double,int>(space);
 
@@ -1750,7 +1937,12 @@ TEUCHOS_UNIT_TEST( MultiFieldVector, dot ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldVector, Trans ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
 
   auto vel = Pimpact::createVectorField<double,int>(space);
 
@@ -1820,7 +2012,12 @@ TEUCHOS_UNIT_TEST( MultiFieldVector, Trans ) {
 // test shows that nLoc is not consistent with start and end indexes
 TEUCHOS_UNIT_TEST( MultiFieldVectorMode, constructor ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
 
   auto velc = Pimpact::createVectorField<double,int>(space);
   auto vels = Pimpact::createVectorField<double,int>(space);
@@ -1836,7 +2033,12 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, constructor ) {
 
 
 TEUCHOS_UNIT_TEST( MultiFieldVectorMode, TwoNorm_and_init ) {
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
 
   auto velc = Pimpact::createVectorField<double,int>(space);
   auto vels = Pimpact::createVectorField<double,int>(space);
@@ -1863,7 +2065,12 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, TwoNorm_and_init ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldVectorMode, clone ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
 
   auto velc = Pimpact::createVectorField<double,int>(space);
   auto vels = Pimpact::createVectorField<double,int>(space);
@@ -1891,7 +2098,12 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, clone ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldVectorMode, CloneCopy ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
 
   auto velc = Pimpact::createVectorField<double,int>(space);
   auto vels = Pimpact::createVectorField<double,int>(space );
@@ -1926,7 +2138,12 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, CloneCopy ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldVectorMode, CloneCopy2 ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
 
   auto velc = Pimpact::createVectorField<double,int>(space );
   auto vels = Pimpact::createVectorField<double,int>(space);
@@ -1967,7 +2184,12 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, CloneCopy2 ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldVectorMode, CloneCopy3 ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
 
   auto velc = Pimpact::createVectorField<double,int>(space);
   auto vels = Pimpact::createVectorField<double,int>(space);
@@ -2006,7 +2228,12 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, CloneCopy3 ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldVectorMode, CloneViewNonConst1 ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
 
   auto velc = Pimpact::createVectorField<double,int>(space);
   auto vels = Pimpact::createVectorField<double,int>(space);
@@ -2050,7 +2277,12 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, CloneViewNonConst1 ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldVectorMode, CloneViewNonConst2 ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
 
   auto velc = Pimpact::createVectorField<double,int>(space );
   auto vels = Pimpact::createVectorField<double,int>(space);
@@ -2091,7 +2323,12 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, CloneViewNonConst2 ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldVectorMode, CloneView1 ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
 
   auto velc = Pimpact::createVectorField<double,int>(space);
   auto vels = Pimpact::createVectorField<double,int>(space);
@@ -2135,7 +2372,12 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, CloneView1 ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldVectorMode, CloneViewt2 ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
 
   auto velc = Pimpact::createVectorField<double,int>(space);
   auto vels = Pimpact::createVectorField<double,int>(space);
@@ -2179,7 +2421,12 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, CloneViewt2 ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldVectorMode, TimesMatAdd ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
 
   auto velc = Pimpact::createVectorField<double,int>(space);
   auto vels = Pimpact::createVectorField<double,int>(space);
@@ -2233,7 +2480,7 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, TimesMatAdd ) {
 
   for( unsigned int i=0; i<n1; ++i) {
     TEST_EQUALITY( norm1[i], norm2[i] );
-    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm2[i], errorTolSlack );
+    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm2[i], 3.e-1  );
   }
 
   std::vector<double> scales(n1);
@@ -2266,7 +2513,12 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, TimesMatAdd ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldVectorMode, add ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
 
   auto velc = Pimpact::createVectorField<double,int>( space );
   auto vels = Pimpact::createVectorField<double,int>( space );
@@ -2337,7 +2589,12 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, add ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldVectorMode, dot ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
 
   auto velc = Pimpact::createVectorField<double,int>( space );
   auto vels = Pimpact::createVectorField<double,int>( space );
@@ -2396,7 +2653,12 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, dot ) {
 
 TEUCHOS_UNIT_TEST( MultiFieldVectorMode, Trans ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
 
   auto velc = Pimpact::createVectorField<double,int>( space );
   auto vels = Pimpact::createVectorField<double,int>( space );

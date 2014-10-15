@@ -40,9 +40,9 @@ class GridCoordinatesGlobal {
 
 
   template<class ST,class OT,int dT>
-  friend Teuchos::RCP<GridCoordinatesGlobal<ST,OT,dT> > createGridCoordinatesGlobal(
-      const Teuchos::RCP< GridSizeGlobal<OT,dT> >& gridSize,
-      const Teuchos::RCP< DomainSize<ST> >& domainSize );
+  friend Teuchos::RCP<const GridCoordinatesGlobal<ST,OT,dT> > createGridCoordinatesGlobal(
+      const Teuchos::RCP<const GridSizeGlobal<OT,dT> >& gridSize,
+      const Teuchos::RCP<const DomainSize<ST> >& domainSize );
 
 public:
 
@@ -50,7 +50,7 @@ public:
 
 protected:
 
-  Teuchos::RCP< GridSizeGlobal<Ordinal,dim> > gridSize_;
+  Teuchos::RCP<const GridSizeGlobal<Ordinal,dim> > gridSize_;
 
   TO xS_;
   TO xV_;
@@ -59,8 +59,8 @@ protected:
   TO dxV_;
 
   GridCoordinatesGlobal(
-      const Teuchos::RCP< GridSizeGlobal<Ordinal,dim> >& gridSize,
-      const Teuchos::RCP< DomainSize<Scalar> >& domainSize ):
+      const Teuchos::RCP<const GridSizeGlobal<Ordinal,dim> >& gridSize,
+      const Teuchos::RCP<const DomainSize<Scalar> >& domainSize ):
     gridSize_( gridSize ) {
 
     for( int i=0; i<dim; ++i ) {
@@ -121,7 +121,7 @@ public:
   }
 
 
-  void print( std::ostream& out=std::cout ) {
+  void print( std::ostream& out=std::cout ) const {
     for( int i=0; i<dim; ++i ) {
       out << "ScalarField dir: " << i << ":\n(";
       for( int j=0; j<gridSize_->get(i); ++j )
@@ -143,9 +143,9 @@ public:
 /// \brief create Grid coordinates Global
 /// \relates GridCoordinatesGlobal
 template<class S=double, class O=int, int d=3 >
-Teuchos::RCP<GridCoordinatesGlobal<S,O,d> > createGridCoordinatesGlobal(
-    const Teuchos::RCP< GridSizeGlobal<O,d> >& gridSize,
-    const Teuchos::RCP< DomainSize<S> >& domainSize ) {
+Teuchos::RCP<const GridCoordinatesGlobal<S,O,d> > createGridCoordinatesGlobal(
+    const Teuchos::RCP<const GridSizeGlobal<O,d> >& gridSize,
+    const Teuchos::RCP<const DomainSize<S> >& domainSize ) {
 
   return(
       Teuchos::rcp(

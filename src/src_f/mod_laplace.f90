@@ -597,7 +597,7 @@ module mod_laplace
            ! nichts zu tun!). Daher kann sich der Shift "ss" in jedem Block einfach auf den lokalen Gitter-  !
            ! punkt rel(1,1,1) beziehen.                                                                      !
            !                                                                                                 !
-           ! Die aktuelle Schreibweise in den Schleifen ist �quivalent zu:                                   !
+           ! Die aktuelle Schreibweise in den Schleifen ist äquivalent zu:                                   !
            ! DO k = S33R, N33R                                                                               !
            !    DO j = S22R, N22R                                                                            !
            !       DO i = S11R, N11R                                                                         !
@@ -1474,7 +1474,7 @@ module mod_laplace
               end if
               
               
-              !--- mit RB �berschreiben ----------------------------------------------------------------------
+              !--- mit RB überschreiben ----------------------------------------------------------------------
               if (BC_2L > 0) then
                  band2(1,S2R) = cdg2(0,S2R,g)
                  band2(2,S2R) = bb  (i,S2R,k)
@@ -1823,21 +1823,21 @@ module mod_laplace
   
   
   !----------------------------------------------------------------------------------------------------------!
-  ! Anmerkungen: - Null-Setzen am Rand nicht notwendig, da Startindizes entsprechend gew�hlt sind!           !
-  !              - Bei der Initialisierung m�ssen die Intervallgrenzen SiR:NiR anstelle von SiiR:NiiR        !
-  !                gew�hlt werden, da beim  Aufbau der RHS ("vec") innerhalb der Linienrelaxation IMMER auch !
-  !                die Randbereiche SiR und NiR aufgebaut aber ggf. mit einer Korrektur wieder �berschrieben !
-  !                werden. Ansonsten w�re eine Initialisierung allein im Feldbereich SiiR:NiiR ausreichend,  !
-  !                kann aber z.B. zu Floating Point Exceptions f�hren (die f�r die eigentliche Rechnung      !
-  !                allerdings irrelevant w�ren)!                                                             !
-  !              - obere Stirnfl�chen werden bei der Initialisierung ebenfalls ber�cksichtigt, da ggf.       !
+  ! Anmerkungen: - Null-Setzen am Rand nicht notwendig, da Startindizes entsprechend gewählt sind!           !
+  !              - Bei der Initialisierung müssen die Intervallgrenzen SiR:NiR anstelle von SiiR:NiiR        !
+  !                gewählt werden, da beim  Aufbau der RHS ("vec") innerhalb der Linienrelaxation IMMER auch !
+  !                die Randbereiche SiR und NiR aufgebaut aber ggf. mit einer Korrektur wieder überschrieben !
+  !                werden. Ansonsten wäre eine Initialisierung allein im Feldbereich SiiR:NiiR ausreichend,  !
+  !                kann aber z.B. zu Floating Point Exceptions führen (die für die eigentliche Rechnung      !
+  !                allerdings irrelevant wären)!                                                             !
+  !              - obere Stirnflächen werden bei der Initialisierung ebenfalls berücksichtigt, da ggf.       !
   !                verschiedene Richtungen nacheinander bearbeitet werden und dies beim Aufbauen der rechten !
-  !                Seite sonst ber�cksichtigt werden m�sste. ==> geringerer Mehraufwand beim Rechnen,        !
+  !                Seite sonst berücksichtigt werden müsste. ==> geringerer Mehraufwand beim Rechnen,        !
   !                weniger Programmierdetails.                                                               !
   !              - LU-Zerlegung (d.h. band, mult) kann gespeichert werden, wenn mindestens eine Richtung     !
-  !                �quidistant ist. Der L�sungsaufwand w�rde sich etwa halbieren!!                           !
+  !                äquidistant ist. Der Lösungsaufwand würde sich etwa halbieren!!                           !
   !              - "r == 1 .AND. init_yes" sollte idealerweise aus den Schleifen herausgezogen werden, was   !
-  !                hier aber aus Gr�nden der �bersicht bisher nicht ausgef�hrt wurde.                        !
+  !                hier aber aus Gründen der übersicht bisher nicht ausgeführt wurde.                        !
   !----------------------------------------------------------------------------------------------------------!
   
   
@@ -2036,14 +2036,14 @@ module mod_laplace
         if (RBGS_mode > 0) then
            !-------------------------------------------------------------------------------------------------!
            ! Hinweis:                                                                                        !
-           ! Die Red-Black-Sortierung sollte f�r eine gute Performance global sein, d.h. ueber die Bl�cke    !
+           ! Die Red-Black-Sortierung sollte für eine gute Performance global sein, d.h. ueber die Blücke    !
            ! hinweg implementiert sein. Die aktuelle Umsetzung macht sich zunutze, dass im Parallelbetrieb   !
            ! die Anzahl der Gitterpunkte in jeder Raumrichtung automatisch eine gerade Zahl ist (die Tat-    !
-           ! sache, dass in Randbl�cken ggf. eine ungerade Anzahl Gitterpunkte abgearbeitet wird hat damit   !
+           ! sache, dass in Randblöcken ggf. eine ungerade Anzahl Gitterpunkte abgearbeitet wird hat damit   !
            ! nichts zu tun!). Daher kann sich der Shift "ss" in jedem Block einfach auf den lokalen Gitter-  !
            ! punkt rel(1,1,1) beziehen.                                                                      !
            !                                                                                                 !
-           ! Die aktuelle Schreibweise in den Schleifen ist �quivalent zu:                                   !
+           ! Die aktuelle Schreibweise in den Schleifen ist äquivalent zu:                                   !
            ! DO k = S33R, N33R                                                                               !
            !    DO j = S22R, N22R                                                                            !
            !       DO i = S11R, N11R                                                                         !
@@ -2213,7 +2213,7 @@ module mod_laplace
            if (r == 1 .and. init_yes) then
               do k = S33R, N33R
                  do j = S22R, N22R
-                    ss = MOD(j+k+S11R,2) ! "+k" ist offenbar elementar f�r grosse Konvergenzrate. Symmetrie zu relaxation_div_grad_inv ist hier interessanterweise kontraproduktiv!
+                    ss = MOD(j+k+S11R,2) ! "+k" ist offenbar elementar für grosse Konvergenzrate. Symmetrie zu relaxation_div_grad_inv ist hier interessanterweise kontraproduktiv!
 !pgi$ unroll = n:8
                     do i = ss+S11R, N11R, 2
                        if (SOR_yes) then
@@ -2224,7 +2224,7 @@ module mod_laplace
                     end do
                  end do
               end do
-              !CALL exchange_relax(g,0,0,0,0,.TRUE.,rel) ! TEST!!! Austausch bringt praktisch nichts, macht aber die Gl�ttung unabh�ngig von der Parallelisierung (sonst teilweise Jacobi-Iteration)!
+              !CALL exchange_relax(g,0,0,0,0,.TRUE.,rel) ! TEST!!! Austausch bringt praktisch nichts, macht aber die Glättung unabhängig von der Parallelisierung (sonst teilweise Jacobi-Iteration)!
               do k = S33R, N33R
                  do j = S22R, N22R
                     ss = MOD(j+k+S11R+1,2)
@@ -2268,7 +2268,7 @@ module mod_laplace
                     end do
                  end do
               end do
-              !CALL exchange_relax(g,0,0,0,0,.TRUE.,rel) ! TEST!!! Austausch bringt praktisch nichts, macht aber die Gl�ttung unabh�ngig von der Parallelisierung (sonst teilweise Jacobi-Iteration)!
+              !CALL exchange_relax(g,0,0,0,0,.TRUE.,rel) ! TEST!!! Austausch bringt praktisch nichts, macht aber die Glättung unabhängig von der Parallelisierung (sonst teilweise Jacobi-Iteration)!
               do k = S33R, N33R
                  do j = S22R, N22R
                     ss = MOD(j+k+S11R+1,2)
@@ -2297,7 +2297,7 @@ module mod_laplace
            if (r == 1 .and. init_yes) then
               do k = N33R, S33R, -1
                  do j = S22R, N22R
-                    ss = MOD(j+k+S11R,2) ! "+k" ist offenbar elementar f�r grosse Konvergenzrate. Symmetrie zu relaxation_div_grad_inv ist hier interessanterweise kontraproduktiv!
+                    ss = MOD(j+k+S11R,2) ! "+k" ist offenbar elementar für grosse Konvergenzrate. Symmetrie zu relaxation_div_grad_inv ist hier interessanterweise kontraproduktiv!
 !pgi$ unroll = n:8
                     do i = ss+S11R, N11R, 2
                        if (SOR_yes) then

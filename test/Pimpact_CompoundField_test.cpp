@@ -22,6 +22,7 @@ namespace {
 
 bool testMpi = true;
 double errorTolSlack = 1e-6;
+int domain = 1;
 
 TEUCHOS_STATIC_SETUP() {
 	Teuchos::CommandLineProcessor &clp = Teuchos::UnitTestRepository::getCLP();
@@ -33,29 +34,37 @@ TEUCHOS_STATIC_SETUP() {
 	clp.setOption(
 			"error-tol-slack", &errorTolSlack,
 			"Slack off of machine epsilon used to check test results" );
+  clp.setOption(
+      "domain", &domain,
+      "domain" );
 }
 
 
 
 TEUCHOS_UNIT_TEST( VectorModeField, create_init_print ) {
-	// init impact
-	int rank = init_impact(0,0);
+  auto pl = Teuchos::parameterList();
 
-	auto space = Pimpact::createSpace();
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
 	auto vel = Pimpact::createVectorField<double,int>( space );
 	auto p = Pimpact::createScalarField<double,int>( space );
 
 	auto um = Pimpact::createCompoundField( vel, p );
 
-	um->init(rank);
+	um->init( space->rankST() );
 }
 
 
 
 TEUCHOS_UNIT_TEST( VectorModeField, InfNorm_and_init ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
 	auto vel = Pimpact::createVectorField<double,int>( space );
 	auto p = Pimpact::createScalarField<double,int>( space );
@@ -87,7 +96,11 @@ TEUCHOS_UNIT_TEST( VectorModeField, InfNorm_and_init ) {
 
 TEUCHOS_UNIT_TEST( VectorModeField, TwoNorm_and_init ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
 	auto vel = Pimpact::createVectorField<double,int>( space );
 	auto p = Pimpact::createScalarField<double,int>( space );
@@ -110,7 +123,11 @@ TEUCHOS_UNIT_TEST( VectorModeField, TwoNorm_and_init ) {
 
 TEUCHOS_UNIT_TEST( VectorModeField, dot ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
 	auto vel = Pimpact::createVectorField<double,int>( space );
 	auto p = Pimpact::createScalarField<double,int>( space );
@@ -152,7 +169,11 @@ TEUCHOS_UNIT_TEST( VectorModeField, dot ) {
 
 TEUCHOS_UNIT_TEST( VectorModeField, scale ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
 	auto vel = Pimpact::createVectorField<double,int>( space );
 	auto p = Pimpact::createScalarField<double,int>( space );
@@ -173,7 +194,11 @@ TEUCHOS_UNIT_TEST( VectorModeField, scale ) {
 
 TEUCHOS_UNIT_TEST( VectorModeField, random ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
 	auto vel = Pimpact::createVectorField<double,int>( space );
 	auto p = Pimpact::createScalarField<double,int>( space );
@@ -194,7 +219,11 @@ TEUCHOS_UNIT_TEST( VectorModeField, random ) {
 
 TEUCHOS_UNIT_TEST( VectorModeField, add ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
 	auto vel1c = Pimpact::createVectorField<double,int>(space);
 	auto vel2c = Pimpact::createVectorField<double,int>(space);
@@ -246,7 +275,11 @@ TEUCHOS_UNIT_TEST( VectorModeField, add ) {
 
 TEUCHOS_UNIT_TEST( VectorModeField, write ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
 	auto vel = Pimpact::createVectorField<double,int>( space );
 	auto p = Pimpact::createScalarField<double,int>( space );

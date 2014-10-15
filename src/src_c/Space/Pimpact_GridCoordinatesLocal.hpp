@@ -46,15 +46,15 @@ template<class Scalar=double, class Ordinal=int, int dim=3 >
 class GridCoordinatesLocal {
 
   template<class ST,class OT,int dT>
-  friend Teuchos::RCP<GridCoordinatesLocal<ST,OT,dT> > createGridCoordinatesLocal(
-      const Teuchos::RCP< const FieldSpace<OT,dT> >& fieldSpace,
-      const Teuchos::RCP< DomainSize<ST> >& domainSize,
-      const Teuchos::RCP< GridSizeGlobal<OT,dT> >& gridSizeGlobal,
-      const Teuchos::RCP< GridSizeLocal<OT,dT> >& gridSize,
-      const Teuchos::RCP< BoundaryConditionsGlobal >& bcGlobal,
-      const Teuchos::RCP< BoundaryConditionsLocal >& bcLocal,
-      const Teuchos::RCP< ProcGrid<OT,dT> >& procGrid,
-      const Teuchos::RCP< GridCoordinatesGlobal<ST,OT,dT> >& coordGlobal );
+  friend Teuchos::RCP<const GridCoordinatesLocal<ST,OT,dT> > createGridCoordinatesLocal(
+      const Teuchos::RCP<const FieldSpace<OT,dT> >& fieldSpace,
+      const Teuchos::RCP<const DomainSize<ST> >& domainSize,
+      const Teuchos::RCP<const GridSizeGlobal<OT,dT> >& gridSizeGlobal,
+      const Teuchos::RCP<const GridSizeLocal<OT,dT> >& gridSize,
+      const Teuchos::RCP<const BoundaryConditionsGlobal >& bcGlobal,
+      const Teuchos::RCP<const BoundaryConditionsLocal >& bcLocal,
+      const Teuchos::RCP<const ProcGrid<OT,dT> >& procGrid,
+      const Teuchos::RCP<const GridCoordinatesGlobal<ST,OT,dT> >& coordGlobal );
 
 public:
 
@@ -62,7 +62,7 @@ public:
 
 protected:
 
-  Teuchos::RCP< GridSizeLocal<Ordinal,dim> > gridSize_;
+  Teuchos::RCP<const GridSizeLocal<Ordinal,dim> > gridSize_;
 
   TO xS_;
   TO xV_;
@@ -71,14 +71,14 @@ protected:
   TO dxV_;
 
   GridCoordinatesLocal(
-      const Teuchos::RCP< const FieldSpace<Ordinal,dim> >& fieldSpace,
-      const Teuchos::RCP< DomainSize<Scalar> >& domainSize,
-      const Teuchos::RCP< GridSizeGlobal<Ordinal,dim> >& gridSizeGlobal,
-      const Teuchos::RCP< GridSizeLocal<Ordinal,dim> >& gridSize,
-      const Teuchos::RCP< BoundaryConditionsGlobal >& bcGlobal,
-      const Teuchos::RCP< BoundaryConditionsLocal >& bcLocal,
-      const Teuchos::RCP< ProcGrid<Ordinal,dim> >& procGrid,
-      const Teuchos::RCP< GridCoordinatesGlobal<Scalar,Ordinal,dim> >& coordGlobal
+      const Teuchos::RCP<const FieldSpace<Ordinal,dim> >& fieldSpace,
+      const Teuchos::RCP<const DomainSize<Scalar> >& domainSize,
+      const Teuchos::RCP<const GridSizeGlobal<Ordinal,dim> >& gridSizeGlobal,
+      const Teuchos::RCP<const GridSizeLocal<Ordinal,dim> >& gridSize,
+      const Teuchos::RCP<const BoundaryConditionsGlobal >& bcGlobal,
+      const Teuchos::RCP<const BoundaryConditionsLocal >& bcLocal,
+      const Teuchos::RCP<const ProcGrid<Ordinal,dim> >& procGrid,
+      const Teuchos::RCP<const GridCoordinatesGlobal<Scalar,Ordinal,dim> >& coordGlobal
       ):
     gridSize_( gridSize ) {
 
@@ -159,7 +159,7 @@ public:
   }
 
 
-  void print( std::ostream& out=std::cout ) {
+  void print( std::ostream& out=std::cout ) const {
     for( int i=0; i<dim; ++i ) {
       out << "ScalarField dir: " << i << ":\n(";
       for( int j=0; j<gridSize_->get(i); ++j )
@@ -181,15 +181,15 @@ public:
 /// \brief create Grid coordinates Global
 /// \relates GridCoordinatesLocal
 template<class S=double, class O=int, int d=3 >
-Teuchos::RCP<GridCoordinatesLocal<S,O,d> > createGridCoordinatesLocal(
-    const Teuchos::RCP< const FieldSpace<O,d> >& fieldSpace,
-    const Teuchos::RCP< DomainSize<S> >& domainSize,
-    const Teuchos::RCP< GridSizeGlobal<O,d> >& gridSizeGlobal,
-    const Teuchos::RCP< GridSizeLocal<O,d> >& gridSize,
-    const Teuchos::RCP< BoundaryConditionsGlobal >& bcGlobal,
-    const Teuchos::RCP< BoundaryConditionsLocal >& bcLocal,
-    const Teuchos::RCP< ProcGrid<O,d> >& procGrid,
-    const Teuchos::RCP< GridCoordinatesGlobal<S,O,d> >& coordGlobal
+Teuchos::RCP<const GridCoordinatesLocal<S,O,d> > createGridCoordinatesLocal(
+    const Teuchos::RCP<const FieldSpace<O,d> >& fieldSpace,
+    const Teuchos::RCP<const DomainSize<S> >& domainSize,
+    const Teuchos::RCP<const GridSizeGlobal<O,d> >& gridSizeGlobal,
+    const Teuchos::RCP<const GridSizeLocal<O,d> >& gridSize,
+    const Teuchos::RCP<const BoundaryConditionsGlobal >& bcGlobal,
+    const Teuchos::RCP<const BoundaryConditionsLocal >& bcLocal,
+    const Teuchos::RCP<const ProcGrid<O,d> >& procGrid,
+    const Teuchos::RCP<const GridCoordinatesGlobal<S,O,d> >& coordGlobal
     ) {
 
   return(

@@ -170,10 +170,12 @@ void SF_write2D(
     const int* const bU,
     const int* const SS,
     const int* const NN,
+    const int* const shift,
     const double* const phi,
     const int& count );
 
 void write_hdf5_2D(
+        const int& rank,
         const int& COMM_CART,
         const int* const M,
         const int* const BC_L_global,
@@ -189,12 +191,14 @@ void write_hdf5_2D(
         const int* const iShift,
         const int& ftype,
         const int& filecount,
+        const int& filenamelen,
         const double* const phi,
         const double* const y1p,
         const double* const y2p,
-        const double* const y3p,
+//        const double* const y3p,
         const double& Re,
         const double& alpha2 );
+
 
 
 void SF_write3D(
@@ -267,6 +271,8 @@ void SF_init_2DGradY(
     const double* L,
     const double* const x2,
           double* const phi );
+
+
 
 } // end of extern 'C'
 

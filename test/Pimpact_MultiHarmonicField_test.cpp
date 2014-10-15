@@ -25,6 +25,8 @@ namespace {
 
 bool testMpi = true;
 double errorTolSlack = 1e-6;
+int domain = 1;
+
 
 typedef double S;
 typedef int O;
@@ -40,16 +42,21 @@ TEUCHOS_STATIC_SETUP() {
   clp.setOption(
       "error-tol-slack", &errorTolSlack,
       "Slack off of machine epsilon used to check test results" );
+  clp.setOption(
+      "domain", &domain,
+      "domain" );
 }
 
 
 
 // test shows that nLoc is not consistent with start and end indexes
 TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, constructor ) {
-	// init impact
-  init_impact(0,0);
+  auto pl = Teuchos::parameterList();
 
-	auto space = Pimpact::createSpace();
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
 
 	auto field = Pimpact::createMultiHarmonicScalarField<S,O>(space,10);
 
@@ -63,7 +70,11 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, constructor ) {
 
 TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, push_back ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
   auto field = Pimpact::createMultiHarmonicScalarField<S,O>(space,10);
 
@@ -83,7 +94,11 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, push_back ) {
 
 TEUCHOS_UNIT_TEST( MultiHarmonicScalarFieldScalar, TwoNorm_and_init ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
   auto field = Pimpact::createMultiHarmonicScalarField<S,O>(space,10);
 
@@ -101,7 +116,11 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarFieldScalar, TwoNorm_and_init ) {
 
 TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, clone ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
   auto field = Pimpact::createMultiHarmonicScalarField<S,O>(space,10);
 
@@ -119,7 +138,11 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, clone ) {
 
 TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, InfNorm_and_init ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
   auto field = Pimpact::createMultiHarmonicScalarField<S,O>(space,10);
 
@@ -150,7 +173,11 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, InfNorm_and_init ) {
 
 TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, TwoNorm_and_init ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
   auto field = Pimpact::createMultiHarmonicScalarField<S,O>(space,10);
 
@@ -170,7 +197,11 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, dot ) {
   typedef double S;
   typedef int O;
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
   auto field1 = Pimpact::createMultiHarmonicScalarField<S,O>(space,10);
   auto field2 = field1->clone();
@@ -208,7 +239,11 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, dot ) {
 
 TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, scale ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
   auto field = Pimpact::createMultiHarmonicScalarField<S,O>(space,10);
 
@@ -228,7 +263,11 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, random ) {
   typedef double S;
   typedef int O;
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
   auto field = Pimpact::createMultiHarmonicScalarField<S,O>(space,10);
 
@@ -246,7 +285,11 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, random ) {
 
 TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, add ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
   auto field1 = Pimpact::createMultiHarmonicScalarField<S,O>( space, 10);
   auto field2 = field1->clone();
@@ -289,7 +332,11 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, add ) {
 
 TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, write ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
   auto field = Pimpact::createMultiHarmonicScalarField<S,O>(space,10);
 
@@ -306,7 +353,11 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, write ) {
 // test shows that nLoc is not consistent with start and end indexes
 TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, constructor ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
   auto field = Pimpact::createMultiHarmonicVectorField<S,O>( space, 10 );
 
@@ -320,7 +371,11 @@ TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, constructor ) {
 
 TEUCHOS_UNIT_TEST( MultiHarmonicVectorFieldScalar, TwoNorm_and_init ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
   auto field = Pimpact::createMultiHarmonicVectorField<S,O>( space, 10 );
 
@@ -338,7 +393,11 @@ TEUCHOS_UNIT_TEST( MultiHarmonicVectorFieldScalar, TwoNorm_and_init ) {
 
 TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, clone ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
   auto field = Pimpact::createMultiHarmonicVectorField<S,O>( space, 10 );
 
@@ -356,7 +415,11 @@ TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, clone ) {
 
 TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, InfNorm_and_init ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
   auto field = Pimpact::createMultiHarmonicVectorField<S,O>( space, 10 );
 
@@ -386,7 +449,11 @@ TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, InfNorm_and_init ) {
 
 TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, TwoNorm_and_init ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
   auto field = Pimpact::createMultiHarmonicVectorField<S,O>( space, 10 );
 
@@ -406,7 +473,11 @@ TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, TwoNorm_and_init ) {
 
 TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, dot ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
   auto field1 = Pimpact::createMultiHarmonicVectorField<S,O>( space, 10 );
   auto field2 = Pimpact::createMultiHarmonicVectorField<S,O>( space, 10 );
@@ -443,7 +514,11 @@ TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, dot ) {
 
 TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, scale ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
   auto field = Pimpact::createMultiHarmonicVectorField<S,O>( space, 10 );
 
@@ -461,7 +536,11 @@ TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, scale ) {
 
 TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, random ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
   auto field = Pimpact::createMultiHarmonicVectorField<S,O>( space, 10 );
 
@@ -479,7 +558,11 @@ TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, random ) {
 
 TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, add ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
   auto field1 = Pimpact::createMultiHarmonicVectorField<S,O>( space, 10 );
   auto field2 = Pimpact::createMultiHarmonicVectorField<S,O>( space, 10 );
@@ -523,7 +606,11 @@ TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, add ) {
 
 TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, write ) {
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
   auto field = Pimpact::createMultiHarmonicVectorField<S,O>( space, 10 );
 

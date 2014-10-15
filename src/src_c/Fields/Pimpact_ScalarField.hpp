@@ -285,9 +285,13 @@ public:
 
     SF_dot(
         nLoc(),
-        bl(), bu(),
-        sInd(), eInd(),
-        s_, a.s_, b );
+        bl(),
+        bu(),
+        sInd(),
+        eInd(),
+        s_,
+        a.s_,
+        b );
 
     if( global ) this->reduceNorm( comm(), b );
 
@@ -493,11 +497,13 @@ public:
 
 
   void write( int count=0 ) {
+
     if( 0==space_->rankST() )
       std::cout << "writing pressure field (" << count << ") ...\n";
-    // exchange?
+
     if( 2==space_->dim() )
       write_hdf5_2D(
+          space_->rankST(),
           space_->commf(),
           space_->nGlo(),
           space_->getDomain()->getBCGlobal()->getBCL(),
@@ -513,18 +519,12 @@ public:
           space_->getProcGrid()->getShift(),
           fType_,
           count,
+          9,
           s_,
           space_->getCoordinatesGlobal()->get(0,EField::S),
           space_->getCoordinatesGlobal()->get(1,EField::S),
-          space_->getCoordinatesGlobal()->get(2,EField::S),
           space_->getDomain()->getDomainSize()->getRe(),
           space_->getDomain()->getDomainSize()->getAlpha2() );
-//      SF_write2D(
-//          nLoc(),
-//          bl(), bu(),
-//          sInd(),
-//          eInd(),
-//          s_, count );
     if( 3==space_->dim() )
       SF_write3D(
           nLoc(),
@@ -629,12 +629,18 @@ protected:
           commf(),
           rankL(), rankU(),
           nLoc(),
-          bl(), bu(),
-          bcL(), bcU(),
-          sInd(), eInd(),
+          bl(),
+          bu(),
+          bcL(),
+          bcU(),
+          space_->sInd(EField::S),
+          space_->eInd(EField::S),
+//          sInd(), eInd(),
           ones,
           nLoc(),
-          dir+1, 0,
+          1+dir,
+          1+(int)fType_,
+//          0,
           s_);
       exchangedState_[dir] = true;
     }

@@ -35,17 +35,17 @@ public:
 
 
   template<class OT>
-  friend Teuchos::RCP<ProcGridSize<OT,3> > createProcGridSize();
+  friend Teuchos::RCP<const ProcGridSize<OT,3> > createProcGridSize();
 
   template< class OT, int dT >
-  friend Teuchos::RCP<ProcGridSize<OT,dT> > createProcGridSize( OT np1, OT np2, OT np3, OT npt=0 );
+  friend Teuchos::RCP<const ProcGridSize<OT,dT> > createProcGridSize( OT np1, OT np2, OT np3, OT npt=0 );
 
 
 protected:
 
   TO procGridSize_;
 
-  void test() {
+  void test() const {
 
     int commSize;
     MPI_Comm_size( MPI_COMM_WORLD, &commSize );
@@ -77,19 +77,19 @@ protected:
 public:
 
 
-  void set_Impact(){
+  void set_Impact() const {
     fsetPGS( procGridSize_[0], procGridSize_[1], procGridSize_[2] );
   };
 
 
-  const Ordinal& get( int i ) {
+  const Ordinal& get( int i ) const {
     return( procGridSize_[i] );
   }
-  Ordinal* get() {
+  Ordinal* get() const {
     return( procGridSize_.getRawPtr() );
   }
 
-  void print( std::ostream& out=std::cout ) {
+  void print( std::ostream& out=std::cout ) const {
     for( int i=0; i<dim; ++i)
       out << "\t#proc"<<i<<": "<<procGridSize_[i];
     out<< "\n";
@@ -100,7 +100,7 @@ public:
 
 /// \relates ProcGridSize
 template<class Ordinal=int>
-Teuchos::RCP<ProcGridSize<Ordinal,3> > createProcGridSize() {
+Teuchos::RCP<const ProcGridSize<Ordinal,3> > createProcGridSize() {
   typedef const Teuchos::Tuple<Ordinal,3> TO;
 
   TO procGridSize;
@@ -116,7 +116,7 @@ Teuchos::RCP<ProcGridSize<Ordinal,3> > createProcGridSize() {
 
 /// \relates ProcGridSize
 template< class O=int, int d=3 >
-Teuchos::RCP<ProcGridSize<O,d> > createProcGridSize( O np1, O np2, O np3, O npt=0 ) {
+Teuchos::RCP<const ProcGridSize<O,d> > createProcGridSize( O np1, O np2, O np3, O npt=0 ) {
 
   Teuchos::Tuple<O,d> temp;
   if( 3==d ) {

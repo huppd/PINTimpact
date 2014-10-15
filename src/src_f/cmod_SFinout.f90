@@ -13,93 +13,45 @@ module cmod_SFinout
   
     use mpi
 
-    use mod_lib
+    !    use mod_lib, only: num_to_string
 
     use iso_c_binding
 
     private
   
     public SF_write_hdf5_2D
-    !    public SF_write3D
+    public  openH5F
+    public closeH5F
 
-    !    integer(HID_T)                 ::  file_id, plist_id, dset_id
-    !    integer(HID_T)                 ::  filespace, memspace
-    !    integer(HID_T)                 ::  memtypeREAL, memtypeINT
-    !
-    !    integer(HSIZE_T )              ::  dims_file  (1:3) ! wird global eingefuehrt, um Probleme bei Uebergabe als Argument nach "CALL filespace_props" zu vermeiden.
-    !    integer(HSSIZE_T)              ::  offset_file(1:3)
-    !
-    !    integer                        ::  i, j, k ! TEST!!! wo brauchts das global?
     integer         ::  herror
+    integer         ::  merror
 
 
 contains
 
+    subroutine openH5F(  ) bind (c,name='openH5F')
 
-    !    subroutine SF_write2asdf  &
-    !        N,                  &
-    !        bL, bU,             &
-    !        SS, NN,             &
-    !        phi,                &
-    !        filecount ) bind (c,name='SF_write2D')
-    !
-    !        implicit none
-    !
-    !        integer(c_int), intent(in)      ::  N(3)
-    !
-    !        integer(c_int), intent(in)      ::  bL(3)
-    !        integer(c_int), intent(in)      ::  bU(3)
-    !
-    !        integer(c_int), intent(in)      ::  SS(3)
-    !
-    !        integer(c_int), intent(in)      ::  NN(3)
-    !
-    !        !        integer                ::  m
-    !
-    !        integer                ::  i!, ii
-    !        integer                ::  j!, jj
-    !        integer                ::  k!, kk
-    !
-    !
-    !        real(c_double), intent(out)   ::  phi(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3) ))
-    !        real(c_double)                ::  temp( 1:N(1), 1:N(2) )
-    !
-    !        integer(c_int)  , intent(in)    :: filecount
-    !
-    !
-    !        character(len=5)       ::  count_char
-    !        !  character(len=1)       ::  conc_number
-    !
-    !
-    !        !===========================================================================================================
-    !        !=== Ausschrieb-Nr. als String fuer File-Namen =============================================================
-    !        !===========================================================================================================
-    !        !  call num_to_string(5,write_count,count_char)
-    !        call num_to_string(5,filecount,count_char)
-    !        !===========================================================================================================
-    !
-    !
-    !
-    !        !===========================================================================================================
-    !        k = 1
-    !        do j = SS(2), NN(2)
-    !            do i = SS(1), NN(1)
-    !                temp(i,j) = phi(i,j,k)
-    !            end do
-    !        end do
-    !
-    !        call write_hdf_2D('pre_'//count_char,'pre',N,SS,NN,iShift,jShift,-3,temp(1,1))
-    !        !===========================================================================================================
-    !
-    !    end subroutine SF_write2asdf
+        implicit none
 
-  
+!        integer(c_int), intent(in) :: herrorout
 
+        call h5open_f(herror)
+
+    end subroutine openH5F
+
+    subroutine closeH5F(  ) bind (c,name='closeH5F')
+
+        implicit none
+
+!        integer(c_int), intent(in) :: herrorout
+
+        call h5close_f(herror)
+
+    end subroutine closeH5F
   
   
-    !> \todo include ls1, BC_global, IB, y1p ...
-    ! Anmerkung: Unterscheidet sich im Wesentlichen durch die Dimensionen und den Rang von phi ...
     subroutine write_hdf_2D(    &
+        rank,                   &
         COMM_CART,              &
         M,                      &
         BC_L_global,            &
@@ -114,69 +66,72 @@ contains
         iShift,                 &
         ftype,                  &
         filecount,              &
+        namelen,                &
         phi,                    &
         y1p,                    &
         y2p,                    &
-        y3p,                    &
+        !        y3p,                    &
         Re,                     &
         alpha2                  &
         )   bind (c,name='write_hdf5_2D')
 
         implicit none
 
+        integer(c_int), intent(in) :: rank
 
+        integer(c_int), intent(in) :: COMM_Cart
 
-        integer(c_int),    intent(in) ::  COMM_Cart
+        integer(c_int), intent(in) :: M(1:3)
 
-        integer(c_int),    intent(in) ::  M(1:3)
+        integer(c_int), intent(in) :: BC_L_global(1:3)
+        integer(c_int), intent(in) :: BC_U_global(1:3)
 
-        integer(c_int), intent(in)      ::  BC_L_global(1:3)
-        integer(c_int), intent(in)      ::  BC_U_global(1:3)
+        integer(c_int), intent(in) :: N(1:3)
 
-        integer(c_int), intent(in)      ::  N(1:3)
+        integer(c_int), intent(in) :: bL(1:3)
+        integer(c_int), intent(in) :: bU(1:3)
 
-        integer(c_int), intent(in)      ::  bL(1:3)
-        integer(c_int), intent(in)      ::  bU(1:3)
+        integer(c_int), intent(in) :: SS(1:3)
 
-        integer(c_int), intent(in)      ::  SS(1:3)
+        integer(c_int), intent(in) :: NN(1:3)
 
-        integer(c_int), intent(in)      ::  NN(1:3)
+        integer(c_int), intent(in) :: ls(1:3)
 
-        integer(c_int), intent(in)      ::  ls(1:3)
+        integer(c_int), intent(in) :: NB(1:3)
 
-        integer(c_int), intent(in)      ::  NB(1:3)
+        integer(c_int), intent(in) :: iB(1:3)
 
-        integer(c_int), intent(in)      ::  iB(1:3)
+        integer(c_int), intent(in) :: iShift(1:3)
 
-        integer(c_int), intent(in)      ::  iShift(1:3)
+        integer(c_int), intent(in) :: ftype
 
-        integer(c_int), intent(in)      ::  ftype
+        integer(c_int), intent(in) :: filecount
 
-        integer(c_int), intent(in)      ::  filecount
+        integer(c_int), intent(in) :: namelen
 
-        real(c_double), intent(in   ) :: phi(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3) ))
+        real(c_double), intent(in) :: phi(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3) ))
 
-        real(c_double), intent(in   ) :: y1p( 1:M(1) )
-        real(c_double), intent(in   ) :: y2p( 1:M(2) )
-        real(c_double), intent(in   ) :: y3p( 1:M(3) )
+        real(c_double), intent(in) :: y1p( 1:M(1) )
+        real(c_double), intent(in) :: y2p( 1:M(2) )
+        !        real(c_double), intent(in) :: y3p( 1:M(3) )
 
         real(c_double), intent(in) :: Re
         real(c_double), intent(in) :: alpha2
 
 
-        real                     ::  temp(1:N(1),1:N(2))
+        real               ::  temp(1:N(1),1:N(2))
 
-        integer                ::  i,j
+        integer            ::  i,j
 
-        integer                  ::  S1w, M1w, dim1
-        integer                  ::  S2w, M2w, dim2
+        integer            ::  S1w, M1w, dim1
+        integer            ::  S2w, M2w, dim2
 
-        character(len=5)       ::  count_char
+        character(len=5)   ::  count_char
 
-        character(10) ::  filename
-        character(10) ::  dsetname
+        character(len=namelen) :: filename
+        character(len=namelen) :: dsetname
 
-        logical                  ::  attr_yes
+        logical            ::  attr_yes
 
 
 
@@ -188,7 +143,7 @@ contains
                !        integer(HID_T)                 ::  file_id, plist_id
 
   
-        integer(HSIZE_T )        ::  dims_file  (1:2), dims_mem  (1:2), dims_data(1:2)
+        integer( HSIZE_T)        ::  dims_file  (1:2), dims_mem  (1:2), dims_data(1:2)
         integer(HSSIZE_T)        ::  offset_file(1:2), offset_mem(1:2)
 
 
@@ -196,7 +151,7 @@ contains
         !=== Ausschrieb-Nr. als String fuer File-Namen =============================================================
         !===========================================================================================================
         !  call num_to_string(5,write_count,count_char)
-        call num_to_string(5,filecount,count_char)
+        call num_to_string(rank,5,filecount,count_char)
         if( 0==ftype ) filename = 'velX_'//count_char
         if( 1==ftype ) filename = 'velY_'//count_char
         if( 4==ftype ) filename = 'pre_'//count_char
@@ -503,6 +458,62 @@ contains
 
 
     end subroutine write_hdf_infoLOG
+
+
+
+    subroutine num_to_string(rank,n_digits,num,num_char)
+
+        implicit none
+
+        integer     , intent(in ) ::  rank
+        integer     , intent(in ) ::  n_digits
+        integer     , intent(in ) ::  num
+        character(len=n_digits), intent(out) ::  num_char
+
+        integer                   ::  tenthousands, thousands, hundreds, tens, ones
+
+
+        !===========================================================================================================
+        if (num < 0) then
+            if (rank == 0) write(*,*) 'ERROR! Cannot convert negative integers to a string.'
+            call MPI_FINALIZE(merror)
+            stop
+        !===========================================================================================================
+        else if (n_digits >= 6) then
+            if (rank == 0) write(*,*) 'ERROR! Cannot convert integers > 99999 to a string.'
+            call MPI_FINALIZE(merror)
+            stop
+        !===========================================================================================================
+        else if (n_digits == 1) then
+            write(num_char,'(i1.1)') num
+        !===========================================================================================================
+        else if (n_digits == 2) then
+            write(num_char,'(i2.2)') num
+        !===========================================================================================================
+        else if (n_digits == 3) then
+            write(num_char,'(i3.3)') num
+        !===========================================================================================================
+        else if (n_digits == 4) then
+            write(num_char,'(i4.4)') num
+        !===========================================================================================================
+        else if (n_digits == 5) then
+            !tenthousands =  num / 10000
+            !thousands    = (num - 10000 * tenthousands) / 1000
+            !hundreds     = (num - 10000 * tenthousands - 1000 * thousands) / 100
+            !tens         = (num - 10000 * tenthousands - 1000 * thousands - 100 * hundreds) / 10
+            !ones         =  num - 10000 * tenthousands - 1000 * thousands - 100 * hundreds - tens*10
+            !
+            !num_char(1:1) = CHAR(ICHAR('0')+tenthousands)
+            !num_char(2:2) = CHAR(ICHAR('0')+thousands)
+            !num_char(3:3) = CHAR(ICHAR('0')+hundreds)
+            !num_char(4:4) = CHAR(ICHAR('0')+tens)
+            !num_char(5:5) = CHAR(ICHAR('0')+ones)
+            write(num_char,'(i5.5)') num
+        end if
+    !===========================================================================================================
+
+
+    end subroutine num_to_string
 
 
   

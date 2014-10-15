@@ -90,11 +90,11 @@ TEUCHOS_UNIT_TEST( TimeFieldVector, all ) {
 
   // processor grid size
   pl->set("npx", 2 );
-  pl->set("npy", 1 );
+  pl->set("npy", 2 );
   pl->set("npz", 1 );
   pl->set("npf", 2 );
 
-  auto space = Pimpact::createSpace<S,O,4>( pl );
+  auto space = Pimpact::createSpace<S,O,4>( pl, true );
 
   space->print();
   //---------------------------------------------------

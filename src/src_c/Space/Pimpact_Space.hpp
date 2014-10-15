@@ -22,6 +22,8 @@
 #include "Pimpact_GridCoordinatesGlobal.hpp"
 #include "Pimpact_GridCoordinatesLocal.hpp"
 
+#include "Pimpact_InterpolateV2SOp.hpp"
+
 #include "pimpact.hpp"
 
 #include <iostream>
@@ -35,6 +37,10 @@
 namespace Pimpact {
 
 
+extern "C" {
+  void openH5F();
+  void closeH5F();
+}
 /// \brief manages all Space component, one big composition
 /// \ingroup Space
 template< class Scalar=double, class Ordinal=int, int dimension=3 >
@@ -49,13 +55,14 @@ public:
       const Teuchos::RCP<const IndexSpace<Ordinal> >& scalarIS,
       const IndexSpaces& innerIS,
       const IndexSpaces& fullIS,
-      const Teuchos::RCP< GridSizeGlobal<Ordinal,dimension> >& gridSizeGlobal,
-      const Teuchos::RCP< GridSizeLocal<Ordinal,dimension> >& gridSizeLocal,
-      const Teuchos::RCP< ProcGridSize<Ordinal,dimension> >& procGridSize,
-      const Teuchos::RCP< ProcGrid<Ordinal,dimension> >& procGrid,
-      const Teuchos::RCP< GridCoordinatesGlobal<Scalar,Ordinal,dimension> >& coordGlobal,
-      const Teuchos::RCP< GridCoordinatesLocal<Scalar,Ordinal,dimension> >& coordLocal,
-      const Teuchos::RCP< Domain<Scalar> >& domain ):
+      const Teuchos::RCP<const GridSizeGlobal<Ordinal,dimension> >& gridSizeGlobal,
+      const Teuchos::RCP<const GridSizeLocal<Ordinal,dimension> >& gridSizeLocal,
+      const Teuchos::RCP<const ProcGridSize<Ordinal,dimension> >& procGridSize,
+      const Teuchos::RCP<const ProcGrid<Ordinal,dimension> >& procGrid,
+      const Teuchos::RCP<const GridCoordinatesGlobal<Scalar,Ordinal,dimension> >& coordGlobal,
+      const Teuchos::RCP<const GridCoordinatesLocal<Scalar,Ordinal,dimension> >& coordLocal,
+      const Teuchos::RCP<const Domain<Scalar> >& domain,
+      const Teuchos::RCP<const InterpolateV2S<Scalar,Ordinal,dimension> >& interV2S ):
         fieldSpace_(fieldSpace),
         scalarIS_(scalarIS),
         innerIS_(innerIS),
@@ -66,8 +73,13 @@ public:
         procGrid_(procGrid),
         coordGlobal_(coordGlobal),
         coordLocal_(coordLocal),
-        domain_(domain)
-  {}
+        domain_(domain),
+        interV2S_(interV2S)
+  {
+    openH5F();
+  }
+
+  ~Space(){ closeH5F(); }
 
 protected:
 
@@ -78,21 +90,51 @@ protected:
   IndexSpaces innerIS_;
   IndexSpaces fullIS_;
 
-  Teuchos::RCP< GridSizeGlobal<Ordinal,dimension> > gridSizeGlobal_;
+  Teuchos::RCP<const GridSizeGlobal<Ordinal,dimension> > gridSizeGlobal_;
 
-  Teuchos::RCP< GridSizeLocal<Ordinal,dimension> > gridSizeLocal_;
+  Teuchos::RCP<const GridSizeLocal<Ordinal,dimension> > gridSizeLocal_;
 
-  Teuchos::RCP< ProcGridSize<Ordinal,dimension> > procGridSize_;
+  Teuchos::RCP<const ProcGridSize<Ordinal,dimension> > procGridSize_;
 
-  Teuchos::RCP< ProcGrid<Ordinal,dimension> > procGrid_;
+  Teuchos::RCP<const ProcGrid<Ordinal,dimension> > procGrid_;
 
-  Teuchos::RCP< GridCoordinatesGlobal<Scalar,Ordinal,dimension> > coordGlobal_;
+  Teuchos::RCP<const GridCoordinatesGlobal<Scalar,Ordinal,dimension> > coordGlobal_;
 
-  Teuchos::RCP< GridCoordinatesLocal<Scalar,Ordinal,dimension> > coordLocal_;
+  Teuchos::RCP<const GridCoordinatesLocal<Scalar,Ordinal,dimension> > coordLocal_;
 
-  Teuchos::RCP< Domain<Scalar> > domain_;
+  Teuchos::RCP<const Domain<Scalar> > domain_;
+
+  Teuchos::RCP<const InterpolateV2S<Scalar,Ordinal,dimension> > interV2S_;
 
 public:
+
+  Teuchos::RCP<const FieldSpace<Ordinal,dimension> > getFieldSpace() const { return( fieldSpace_ ); }
+
+  Teuchos::RCP<const IndexSpace<Ordinal> > getScalarIndexSpace() const { return( scalarIS_ ); }
+
+  IndexSpaces getInnerIndexSpace() const { return( innerIS_ ); }
+
+  IndexSpaces getFullIndexSpace() const { return( fullIS_ ); }
+
+  Teuchos::RCP<const GridSizeGlobal<Ordinal,dimension> > getGridSizeGlobal() const { return( gridSizeGlobal_ );  }
+
+  Teuchos::RCP<const GridSizeLocal<Ordinal,dimension> > getGridSizeLocal() const { return( gridSizeLocal_ );  }
+
+  Teuchos::RCP<const ProcGridSize<Ordinal,dimension> > getProcGridSize() const { return( procGridSize_ ); }
+
+  Teuchos::RCP<const ProcGrid<Ordinal,dimension> > getProcGrid() const { return( procGrid_ ); }
+
+  Teuchos::RCP<const GridCoordinatesGlobal<Scalar,Ordinal,dimension> > getCoordinatesGlobal() const {
+    return( coordGlobal_ );
+  }
+
+  Teuchos::RCP<const GridCoordinatesLocal<Scalar,Ordinal,dimension> > getCoordinatesLocal() const {
+    return( coordLocal_ );
+  }
+
+  Teuchos::RCP<const Domain<Scalar> > getDomain() const { return( domain_ ); }
+
+  Teuchos::RCP<const InterpolateV2S<Scalar,Ordinal,dimension> > getInterpolateV2S() const { return( interV2S_ ); }
 
 
   const MPI_Fint& commf() const { return( procGrid_->commSpacef_ ); }
@@ -100,7 +142,7 @@ public:
 
   const MPI_Comm& commST()  const { return( procGrid_->commSpaceTime_  ); }
 
-  int rankST() const { return( procGrid_->rankST_ ); }
+  int rankST() const { return( procGrid_->getRank() ); }
 //  int rank  () const { return( procGrid_->rank_   ); }
 
   const int&      dim()   const { return( domain_->getDomainSize()->getDim() ); }
@@ -163,32 +205,6 @@ public:
 
 //  const Ordinal* getNProc()      const { return( procGridSize_->get() ); }
   const Ordinal& getNProc(int i) const { return( procGridSize_->get(i) ); }
-
-  Teuchos::RCP<const FieldSpace<Ordinal,dimension> > getFieldSpace() const { return( fieldSpace_ ); }
-
-  Teuchos::RCP<const IndexSpace<Ordinal> > getScalarIndexSpace() const { return( scalarIS_ ); }
-
-  IndexSpaces getInnerIndexSpace() const { return( innerIS_ ); }
-
-  IndexSpaces getFullIndexSpace() const { return( fullIS_ ); }
-
-  Teuchos::RCP< GridSizeGlobal<Ordinal,dimension> > getGridSizeGlobal() const { return( gridSizeGlobal_ );  }
-
-  Teuchos::RCP< GridSizeLocal<Ordinal,dimension> > getGridSizeLocal() const { return( gridSizeLocal_ );  }
-
-  Teuchos::RCP< ProcGridSize<Ordinal,dimension> > getProcGridSize() const { return( procGridSize_ ); }
-
-  Teuchos::RCP< ProcGrid<Ordinal,dimension> > getProcGrid() const { return( procGrid_ ); }
-
-  Teuchos::RCP<GridCoordinatesGlobal<Scalar,Ordinal,dimension> > getCoordinatesGlobal() const {
-    return( coordGlobal_ );
-  }
-
-  Teuchos::RCP<GridCoordinatesLocal<Scalar,Ordinal,dimension> > getCoordinatesLocal() const {
-    return( coordLocal_ );
-  }
-
-  Teuchos::RCP< Domain<Scalar> > getDomain() const { return( domain_ ); }
 
   void print(  std::ostream& out=std::cout ) const {
 
@@ -313,46 +329,14 @@ public:
 }; // end of class Space
 
 
-/// \relates Space
-/// \deprecated
-template<class S=double, class O=int, int d=3>
-Teuchos::RCP< const Space<S,O,d> > createSpace(
-    const Teuchos::RCP<const FieldSpace<O,d> >& fieldSpace,
-    const Teuchos::RCP<const IndexSpace<O> >& scalarIS,
-    const Teuchos::ArrayRCP< Teuchos::RCP<const IndexSpace<O> > >& innerIS,
-    const Teuchos::ArrayRCP< Teuchos::RCP<const IndexSpace<O> > >& fullIS,
-    const Teuchos::RCP< GridSizeGlobal<O,d> >& gridSizeGlobal,
-    const Teuchos::RCP< GridSizeLocal<O,d> >& gridSizeLocal,
-    const Teuchos::RCP< ProcGridSize<O,d> >& procGridSize,
-    const Teuchos::RCP< ProcGrid<O,d> >& procGrid,
-    const Teuchos::RCP< GridCoordinatesGlobal<S,O,d> >& coordGlobal,
-    const Teuchos::RCP< GridCoordinatesLocal<S,O,d> >& coordLocal,
-    const Teuchos::RCP< Domain<S> >& domain=Teuchos::null ) {
-
-  return(
-      Teuchos::rcp(
-          new Space<S,O,d>(
-              fieldSpace,
-              scalarIS,
-              innerIS,
-              fullIS,
-              gridSizeGlobal,
-              gridSizeLocal,
-              procGridSize,
-              procGrid,
-              coordGlobal,
-              coordLocal,
-              domain ) ) );
-}
-
 
 /// \relates Space
 template<class S=double, class O=int, int d=3>
-Teuchos::RCP< const Space<S,O,d> > createSpace(
-    const Teuchos::RCP<Teuchos::ParameterList> pl ) {
+Teuchos::RCP<const Space<S,O,d> > createSpace(
+    const Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::null, bool setImpact=true ) {
 
 //  int rank =
-      Pimpact::init_impact_pre();
+  if( setImpact ) Pimpact::init_impact_pre();
 
   pl->validateParametersAndSetDefaults( *Space<S,O,d>::getValidParameters() );
 
@@ -365,127 +349,150 @@ Teuchos::RCP< const Space<S,O,d> > createSpace(
       pl->get("lx",2.),
       pl->get("ly",2.),
       pl->get("lz",1.) );
-  domainSize->set_Impact();
+  if( setImpact ) domainSize->set_Impact();
 
   auto boundaryConditionsGlobal = Pimpact::createBoudaryConditionsGlobal( Pimpact::EDomainType( pl->get("domain",2) ) );
-  boundaryConditionsGlobal->set_Impact();
+  if( setImpact ) boundaryConditionsGlobal->set_Impact();
 
   auto procGridSize = Pimpact::createProcGridSize<O,d>( pl->get("npx",2), pl->get("npy",2), pl->get("npz",1), pl->get("npf",1) );
-  procGridSize->set_Impact();
+  if( setImpact ) procGridSize->set_Impact();
 
   auto gridSizeGlobal = Pimpact::createGridSizeGlobal<O,d>( pl->get("nx",33), pl->get("ny",33), pl->get("nz",2), pl->get("nf",32) );
-  gridSizeGlobal->set_Impact();
+  if( setImpact ) gridSizeGlobal->set_Impact();
 
   auto gridSizeLocal = Pimpact::createGridSizeLocal<O,d>( gridSizeGlobal, procGridSize );
-  gridSizeLocal->set_Impact();
+  if( setImpact ) gridSizeLocal->set_Impact();
 
-  Pimpact::init_impact_mid();
+  if( setImpact ) Pimpact::init_impact_mid();
 
   auto procGrid = Pimpact::createProcGrid<O,d>( gridSizeLocal, boundaryConditionsGlobal, procGridSize );
-  procGrid->set_Impact();
+  if( setImpact ) procGrid->set_Impact();
 
   auto boundaryConditionsLocal = Pimpact::createBoudaryConditionsLocal( boundaryConditionsGlobal, procGridSize, procGrid );
-  boundaryConditionsLocal->set_Impact();
+  if( setImpact ) boundaryConditionsLocal->set_Impact();
 
   auto fieldSpace = Pimpact::createFieldSpace<O,d>();
 
-  auto scalarIndexSpace = Pimpact::createScalarIndexSpace<O,d>( fieldSpace, gridSizeLocal, boundaryConditionsLocal );
+  auto scalarIndexSpace = Pimpact::createScalarIndexSpace<O,d>( fieldSpace, gridSizeLocal, boundaryConditionsLocal, setImpact );
 
-  auto innerIndexSpace = Pimpact::createInnerFieldIndexSpaces<O,d>( fieldSpace, gridSizeLocal, boundaryConditionsLocal );
-  auto  fullIndexSpace = Pimpact::createFullFieldIndexSpaces<O,d>(  fieldSpace, gridSizeLocal, boundaryConditionsLocal );
+  auto innerIndexSpace = Pimpact::createInnerFieldIndexSpaces<O,d>( fieldSpace, gridSizeLocal, boundaryConditionsLocal, setImpact );
+  auto  fullIndexSpace = Pimpact::createFullFieldIndexSpaces<O,d>(  fieldSpace, gridSizeLocal, boundaryConditionsLocal, setImpact );
 
-  Pimpact::init_impact_postpost();
+  if( setImpact ) Pimpact::init_impact_postpost();
 
-  auto domain = Pimpact::createDomain<S>( domainSize, boundaryConditionsGlobal, boundaryConditionsLocal );
+  auto domain =
+      Pimpact::createDomain<S>( domainSize, boundaryConditionsGlobal, boundaryConditionsLocal );
 
-  auto  coordGlobal = Pimpact::createGridCoordinatesGlobal<S,O,d>( gridSizeGlobal, domainSize );
+  auto  coordGlobal =
+      Pimpact::createGridCoordinatesGlobal<S,O,d>( gridSizeGlobal, domainSize );
 
-  auto  coordLocal = Pimpact::createGridCoordinatesLocal<S,O,d>(
-      fieldSpace,
-      domainSize,
-      gridSizeGlobal,
-      gridSizeLocal,
-      boundaryConditionsGlobal,
-      boundaryConditionsLocal,
-      procGrid,
-      coordGlobal );
-//  coordLocal= Teuchos::null;
+  auto  coordLocal =
+      Pimpact::createGridCoordinatesLocal<S,O,d>(
+          fieldSpace,
+          domainSize,
+          gridSizeGlobal,
+          gridSizeLocal,
+          boundaryConditionsGlobal,
+          boundaryConditionsLocal,
+          procGrid,
+          coordGlobal );
 
-  return( Pimpact::createSpace<S,O,d>(
-      fieldSpace,
-      scalarIndexSpace,
-      innerIndexSpace,
-      fullIndexSpace,
-      gridSizeGlobal,
-      gridSizeLocal,
-      procGridSize,
-      procGrid,
-      coordGlobal,
-      coordLocal,
-      domain ) );
+  auto interV2S =
+      Pimpact::createInterpolateV2S<S,O,d>(
+          procGrid,
+          gridSizeLocal,
+          fieldSpace,
+          domain,
+          coordLocal );
+
+  return(
+       Teuchos::rcp(
+           new Space<S,O,d>(
+               fieldSpace,
+               scalarIndexSpace,
+               innerIndexSpace,
+               fullIndexSpace,
+               gridSizeGlobal,
+               gridSizeLocal,
+               procGridSize,
+               procGrid,
+               coordGlobal,
+               coordLocal,
+               domain,
+               interV2S ) ) );
 
 
 }
 
 
-/// \relates Space
-template< class S=double, class O=int, int d=3>
-Teuchos::RCP< const Space<S,O,d> > createSpace() {
-
-
-  auto procGridSize = createProcGridSize<O>();
-
-  auto gridSizeGlobal = createGridSizeGlobal<O>();
-
-  auto gridSizeLocal = createGridSizeLocal<O,3>();
-
-
-  auto procGrid = createProcGrid<O>();
-
-
-  auto fieldSpace = createFieldSpace<O>();
-
-  auto scalarIndexSpace = createScalarIndexSpace<O>();
-
-  auto innerIndexSpace = createInnerFieldIndexSpaces<O>();
-  auto  fullIndexSpace = createFullFieldIndexSpaces<O>();
-
-
-  auto domain = createDomain<S>();
-
-  auto domainSize = domain->getDomainSize();
-
-  auto boundaryConditionsGlobal = domain->getBCGlobal();
-
-  auto boundaryConditionsLocal = domain->getBCLocal();
-
-  auto  coordGlobal = Pimpact::createGridCoordinatesGlobal<S,O,d>( gridSizeGlobal, domainSize );
-
-  auto  coordLocal = Pimpact::createGridCoordinatesLocal<S,O,d>(
-      fieldSpace,
-      domainSize,
-      gridSizeGlobal,
-      gridSizeLocal,
-      boundaryConditionsGlobal,
-      boundaryConditionsLocal,
-      procGrid,
-      coordGlobal );
-
-
-  return( Pimpact::createSpace<S,O,d>(
-      fieldSpace,
-      scalarIndexSpace,
-      innerIndexSpace,
-      fullIndexSpace,
-      gridSizeGlobal,
-      gridSizeLocal,
-      procGridSize,
-      procGrid,
-      coordGlobal,
-      coordLocal,
-      domain ) );
-
-}
+///// \relates Space
+///// should be \deprecated soon
+//template< class S=double, class O=int, int d=3>
+//Teuchos::RCP<const Space<S,O,d> > createSpace() {
+//
+//
+//  auto procGridSize = createProcGridSize<O>();
+//
+//  auto gridSizeGlobal = createGridSizeGlobal<O>();
+//
+//  auto gridSizeLocal = createGridSizeLocal<O,3>();
+//
+//  auto procGrid = createProcGrid<O>();
+//
+//
+//  auto fieldSpace = createFieldSpace<O>();
+//
+//  auto scalarIndexSpace = createScalarIndexSpace<O>();
+//
+//  auto innerIndexSpace = createInnerFieldIndexSpaces<O>();
+//  auto  fullIndexSpace = createFullFieldIndexSpaces<O>();
+//
+//
+//  auto domain = createDomain<S>();
+//
+//  auto domainSize = domain->getDomainSize();
+//
+//  auto boundaryConditionsGlobal = domain->getBCGlobal();
+//
+//  auto boundaryConditionsLocal = domain->getBCLocal();
+//
+//  auto  coordGlobal = Pimpact::createGridCoordinatesGlobal<S,O,d>( gridSizeGlobal, domainSize );
+//
+//  auto  coordLocal = Pimpact::createGridCoordinatesLocal<S,O,d>(
+//      fieldSpace,
+//      domainSize,
+//      gridSizeGlobal,
+//      gridSizeLocal,
+//      boundaryConditionsGlobal,
+//      boundaryConditionsLocal,
+//      procGrid,
+//      coordGlobal );
+//
+//  auto interV2S =
+//      Pimpact::createInterpolateV2S<S,O,d>(
+//          procGrid,
+//          gridSizeLocal,
+//          fieldSpace,
+//          domain,
+//          coordLocal );
+//
+//  return(
+//       Teuchos::rcp(
+//           new Space<S,O,d>(
+//               fieldSpace,
+//               scalarIndexSpace,
+//               innerIndexSpace,
+//               fullIndexSpace,
+//               gridSizeGlobal,
+//               gridSizeLocal,
+//               procGridSize,
+//               procGrid,
+//               coordGlobal,
+//               coordLocal,
+//               domain,
+//               interV2S ) ) );
+//
+//}
 
 
 } // end of namespace Pimpact

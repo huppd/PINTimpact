@@ -127,19 +127,30 @@ protected:
         procGrid,
         coordGlobal );
 
+    auto interV2S =
+        Pimpact::createInterpolateV2S<Scalar,Ordinal,dimension>(
+            procGrid,
+            gridSizeLocal,
+            fieldSpace,
+            domain,
+            coordLocal );
 
-    return( Pimpact::createSpace<Scalar,Ordinal>(
-        fieldSpace,
-        scalarIndexSpace,
-        innerIndexSpace,
-        fullIndexSpace,
-        gridSizeGlobal,
-        gridSizeLocal,
-        procGridSize,
-        procGrid,
-        coordGlobal,
-        coordLocal,
-        domain) );
+    return(
+         Teuchos::rcp(
+             new SpaceT(
+                 fieldSpace,
+                 scalarIndexSpace,
+                 innerIndexSpace,
+                 fullIndexSpace,
+                 gridSizeGlobal,
+                 gridSizeLocal,
+                 procGridSize,
+                 procGrid,
+                 coordGlobal,
+                 coordLocal,
+                 domain,
+                 interV2S ) ) );
+
 
   }
 

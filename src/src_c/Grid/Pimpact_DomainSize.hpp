@@ -32,13 +32,13 @@ template< class Scalar=double >
 class DomainSize {
 
   template<class ST>
-  friend Teuchos::RCP<DomainSize<ST> > createDomainSize();
+  friend Teuchos::RCP<const DomainSize<ST> > createDomainSize();
 
   template<class ST>
-  friend Teuchos::RCP<DomainSize<ST> > createDomainSize( int dim, ST L1, ST L2, ST L3 );
+  friend Teuchos::RCP<const DomainSize<ST> > createDomainSize( int dim, ST L1, ST L2, ST L3 );
 
   template<class ST>
-  friend Teuchos::RCP<DomainSize<ST> > createDomainSize( int dim, ST re, ST alpha2, ST L1, ST L2, ST L3 );
+  friend Teuchos::RCP<const DomainSize<ST> > createDomainSize( int dim, ST re, ST alpha2, ST L1, ST L2, ST L3 );
 
 public:
 
@@ -46,11 +46,11 @@ public:
 
 protected:
 
-  int dim_;
+  const int dim_;
 
-  Scalar re_;
+  const Scalar re_;
 
-  Scalar alpha2_;
+  const Scalar alpha2_;
 
   TS3 domainSize_;
 
@@ -89,11 +89,11 @@ public:
 
   const Scalar& getAlpha2() const { return( alpha2_ ); }
 
-  void set_Impact(){
+  void set_Impact() const {
     fsetDS( domainSize_[0], domainSize_[1], domainSize_[2] );
   };
 
-  void print( std::ostream& out=std::cout ) {
+  void print( std::ostream& out=std::cout ) const {
     out << "\tspatial dim: " << dim_ << "\n"
         << "\tRe= "      << re_ << "\n"
         << "\talpha^2= " << alpha2_ << "\n"
@@ -108,7 +108,7 @@ public:
 
 /// \relates DomainSize
 template<class S=double>
-Teuchos::RCP<DomainSize<S> > createDomainSize() {
+Teuchos::RCP<const DomainSize<S> > createDomainSize() {
 
   int dim;
   FS_get_dim( dim );
@@ -125,7 +125,7 @@ Teuchos::RCP<DomainSize<S> > createDomainSize() {
 
 /// \relates DomainSize
 template<class Scalar=double>
-Teuchos::RCP<DomainSize<Scalar> > createDomainSize( int dim, Scalar L1, Scalar L2, Scalar L3 ) {
+Teuchos::RCP<const DomainSize<Scalar> > createDomainSize( int dim, Scalar L1, Scalar L2, Scalar L3 ) {
   return(
       Teuchos::rcp(
           new DomainSize<Scalar>( dim, 1., 1., L1, L2, L3 ) ) );
@@ -135,7 +135,7 @@ Teuchos::RCP<DomainSize<Scalar> > createDomainSize( int dim, Scalar L1, Scalar L
 
 /// \relates DomainSize
 template<class Scalar=double>
-Teuchos::RCP<DomainSize<Scalar> > createDomainSize( int dim, Scalar re, Scalar alpha2, Scalar L1, Scalar L2, Scalar L3 ) {
+Teuchos::RCP<const DomainSize<Scalar> > createDomainSize( int dim, Scalar re, Scalar alpha2, Scalar L1, Scalar L2, Scalar L3 ) {
   return(
       Teuchos::rcp(
           new DomainSize<Scalar>( dim, re, alpha2, L1, L2, L3 ) ) );

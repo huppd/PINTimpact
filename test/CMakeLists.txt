@@ -16,19 +16,19 @@ add_test(NAME SpaceGridTest COMMAND mpirun -np 4 SpaceGridTest)
 
 ADD_EXECUTABLE(ScalarFieldTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_ScalarField_test.cpp )
 TARGET_LINK_LIBRARIES(ScalarFieldTest ${Pimpact_TPL_LIBRARIES} ) 
-foreach(domain RANGE total 5)
+foreach(domain RANGE 1 5)
 	add_test(NAME "ScalarFieldTest_domain_${domain}" COMMAND mpirun -np 4 ScalarFieldTest --domain=${domain})
 endforeach( domain )
 
 ADD_EXECUTABLE(VectorFieldTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_VectorField_test.cpp )
 TARGET_LINK_LIBRARIES( VectorFieldTest ${Pimpact_TPL_LIBRARIES} ) 
-foreach(domain RANGE total 5)
+foreach(domain RANGE 1 5)
 	add_test(NAME "VectorFieldTest_domain_${domain}" COMMAND mpirun -np 4 VectorFieldTest --domain=${domain})
 endforeach( domain )
 
 ADD_EXECUTABLE( TimeFieldTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_TimeField_test.cpp )
 TARGET_LINK_LIBRARIES( TimeFieldTest ${Pimpact_TPL_LIBRARIES} ) 
-add_test( NAME TimeFieldTest COMMAND mpirun -np 4 TimeFieldTest )
+add_test( NAME TimeFieldTest COMMAND mpirun -np 8 TimeFieldTest )
 
 ADD_EXECUTABLE( ModeFieldTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_ModeField_test.cpp )
 TARGET_LINK_LIBRARIES( ModeFieldTest ${Pimpact_TPL_LIBRARIES} ) 

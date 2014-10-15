@@ -32,7 +32,9 @@
 namespace {
 
 bool testMpi = true;
-double errorTolSlack = 1e+1;
+double errorTolSlack = 1.e-6;
+int domain = 1;
+
 
 TEUCHOS_STATIC_SETUP() {
   Teuchos::CommandLineProcessor &clp = Teuchos::UnitTestRepository::getCLP();
@@ -44,15 +46,19 @@ TEUCHOS_STATIC_SETUP() {
   clp.setOption(
       "error-tol-slack", &errorTolSlack,
       "Slack off of machine epsilon used to check test results" );
+  clp.setOption(
+      "domain", &domain,
+      "domain" );
 }
 
 
 TEUCHOS_UNIT_TEST( AelosPimpactMV, MultiFieldScalar ) {
-  init_impact(0,0);
 
-  //	auto fS = Pimpact::createFieldSpace<int>();
-  //	auto sIS = Pimpact::createScalarIndexSpace<int>();
-  auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
   auto p = Pimpact::createScalarField<double,int>( space );
 
@@ -70,7 +76,11 @@ TEUCHOS_UNIT_TEST( AelosPimpactMV, MultiFieldScalar ) {
 
 TEUCHOS_UNIT_TEST( AelosPimpactMV, MultiFieldVector ) {
 
-  auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
   auto vel = Pimpact::createVectorField<double,int>(space);
 
@@ -87,7 +97,11 @@ TEUCHOS_UNIT_TEST( AelosPimpactMV, MultiFieldVector ) {
 
 TEUCHOS_UNIT_TEST( AelosPimpactMV, MultiFieldScalarMode ) {
 
-  auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
   auto pc = Pimpact::createScalarField<double,int>(space);
   auto ps = Pimpact::createScalarField<double,int>(space);
@@ -109,7 +123,11 @@ TEUCHOS_UNIT_TEST( AelosPimpactMV, MultiFieldScalarMode ) {
 
 TEUCHOS_UNIT_TEST( AelosPimpactMV, MultiFieldVectorMode ) {
 
-  auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
   auto velc = Pimpact::createVectorField<double,int>(space);
   auto vels = Pimpact::createVectorField<double,int>(space);
@@ -137,7 +155,11 @@ TEUCHOS_UNIT_TEST( AelosPimpactMV, MultiFieldCompound ) {
   typedef Pimpact::CompoundField<VF,SF> CF;
   typedef Pimpact::MultiField<CF> MV;
 
-  auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
   auto vel = Pimpact::createVectorField<S,O>( space );
   auto sca = Pimpact::createScalarField<S,O>( space );
@@ -165,7 +187,11 @@ TEUCHOS_UNIT_TEST( AelosPimpactMV, MultiFieldCompoundMode ) {
   typedef Pimpact::CompoundField<MVF,MSF> CF;
   typedef Pimpact::MultiField<CF> MV;
 
-  auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
   auto velc = Pimpact::createVectorField<double,int>(space);
   auto vels = Pimpact::createVectorField<double,int>(space);
@@ -201,7 +227,11 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, HelmholtzMV ) {
   typedef Pimpact::MultiOpWrap<Op> MuOp;
   typedef Pimpact::OperatorBase<MVF> OpBase;
 
-  auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
   auto field = Pimpact::createVectorField<S,O>(space);
 
@@ -228,12 +258,16 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, DtLapOp ) {
   typedef Pimpact::ModeField<VF> MVF;
   typedef Pimpact::MultiField<MVF> BVF;
 
-//  typedef Pimpact::DtLapOp<S,O> Op;
-//  typedef Pimpact::MultiOpWrap<Op> MuOp;
+  //  typedef Pimpact::DtLapOp<S,O> Op;
+  //  typedef Pimpact::MultiOpWrap<Op> MuOp;
   typedef Pimpact::OperatorBase<BVF> OpBase;
 
 
-  auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
   auto fieldc = Pimpact::createVectorField<S,O>(space);
   auto fields = fieldc->clone();
@@ -265,7 +299,11 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, DivGrad ) {
   typedef Pimpact::OperatorBase<BSF> OpBase;
 
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
 
   auto temp = Pimpact::createVectorField<S,O>( space );
 

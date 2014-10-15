@@ -119,8 +119,8 @@ public:
 
   }
 
-  void assignField( const RangeFieldT& mv ) {};
-  void assignField( const DomainFieldT& mv ) {};
+  void assignField( const RangeFieldT& mv ) const {};
+  void assignField( const DomainFieldT& mv ) const {};
 
   bool hasApplyTranspose() const { return( false ); }
 

@@ -5,7 +5,7 @@
 
 #include "Teuchos_RCP.hpp"
 
-#include <BelosTypes.hpp>
+//#include <BelosTypes.hpp>
 
 #include "Pimpact_Types.hpp"
 

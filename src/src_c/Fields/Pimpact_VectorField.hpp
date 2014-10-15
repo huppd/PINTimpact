@@ -7,9 +7,10 @@
 #include "mpi.h"
 
 #include "Teuchos_RCP.hpp"
-#include "BelosTypes.hpp"
 #include "Teuchos_ScalarTraitsDecl.hpp"
 #include "Teuchos_SerialDenseMatrix.hpp"
+
+#include "Pimpact_Types.hpp"
 
 #include "Pimpact_Space.hpp"
 
@@ -76,12 +77,11 @@ protected:
 
   Teuchos::RCP< const SpaceT > space_;
 
-  //  Teuchos::Tuple<ScalarArray,3> vec_;
   ScalarArray vec_;
 
   const bool owning_;
 
-  State exchangedState_; // obsolete > SF
+//  State exchangedState_; // obsolete > SF
 
   Teuchos::Tuple< Teuchos::RCP<SF>, 3 > sFields_;
 
@@ -91,14 +91,14 @@ public:
     space_(Teuchos::null),
     vec_(0),
     owning_(true),
-    exchangedState_(Teuchos::tuple(Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true))),
+//    exchangedState_(Teuchos::tuple(Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true))),
     sFields_( Teuchos::tuple(Teuchos::null,Teuchos::null,Teuchos::null) )
 {};
 
   VectorField( const Teuchos::RCP< const SpaceT >& space, bool owning=true ):
     space_(space),
-    owning_(owning),
-    exchangedState_(Teuchos::tuple(Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true)))//,
+    owning_(owning)//,
+//    exchangedState_(Teuchos::tuple(Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true),Teuchos::tuple(true,true,true)))//,
   //    sFields_( Teuchos::tuple(Teuchos::null,Teuchos::null,Teuchos::null) )
   {
 
@@ -110,13 +110,7 @@ public:
       Ordinal N = getStorageSize()/3;
 
       vec_ = new Scalar[3*N];
-      //      vec_[0] = new Scalar[3*N];
-      //      vec_[1] = vec_[0]+N; // shoudl become obsolete
-      //      vec_[2] = vec_[1]+N;
 
-      //      for(int i=0; i<3; ++i)
-      //        for(int j=0; j<N; ++j)
-      //          vec_[i][j] = 0.;
       for( int i=0; i<3*N; ++i )
         vec_[i] = 0.;
 
@@ -134,8 +128,8 @@ public:
   /// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
   VectorField(const VectorField& vF, ECopyType copyType=DeepCopy):
     space_(vF.space_),
-    owning_(vF.owning_),
-    exchangedState_(vF.exchangedState_) {
+    owning_(vF.owning_)/*,
+    exchangedState_(vF.exchangedState_)*/ {
 
     for( int i=0; i<3; ++i )
       sFields_[i] = Teuchos::rcp( new SF( space_, false, EField(i) ) );
@@ -391,221 +385,267 @@ public:
       break;
     case Pulsatile2D_inXC :
       VF_init_2DPulsatileXC(
-          nLoc(0), nLoc(1), nLoc(2),
-          sIndB(0,0), sIndB(1,0), sIndB(2,0),
-          eIndB(0,0), eIndB(1,0), eIndB(2,0),
-          sIndB(0,1), sIndB(1,1), sIndB(2,1),
-          eIndB(0,1), eIndB(1,1), eIndB(2,1),
-          sIndB(0,2), sIndB(1,2), sIndB(2,2),
-          eIndB(0,2), eIndB(1,2), eIndB(2,2),
-          bl(0),   bl(1),   bl(2),
-          bu(0),   bu(1),   bu(2),
-          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr(),
-          re, om, px);
+          nLoc(),
+          bl(),
+          bu(),
+          sIndB(0),
+          eIndB(0),
+          sIndB(1),
+          eIndB(1),
+          sIndB(2),
+          eIndB(2),
+          space_->getDomain()->getDomainSize()->getSize(1),
+          space_->getCoordinatesLocal()->getX(Y,EField::S),
+          re, om, px,
+          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
       break;
     case Pulsatile2D_inYC :
       VF_init_2DPulsatileYC(
-          nLoc(0), nLoc(1), nLoc(2),
-          sIndB(0,0), sIndB(1,0), sIndB(2,0),
-          eIndB(0,0), eIndB(1,0), eIndB(2,0),
-          sIndB(0,1), sIndB(1,1), sIndB(2,1),
-          eIndB(0,1), eIndB(1,1), eIndB(2,1),
-          sIndB(0,2), sIndB(1,2), sIndB(2,2),
-          eIndB(0,2), eIndB(1,2), eIndB(2,2),
-          bl(0),   bl(1),   bl(2),
-          bu(0),   bu(1),   bu(2),
-          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr(),
-          re, om, px);
+          nLoc(),
+          bl(),
+          bu(),
+          sIndB(0),
+          eIndB(0),
+          sIndB(1),
+          eIndB(1),
+          sIndB(2),
+          eIndB(2),
+          space_->getDomain()->getDomainSize()->getSize(0),
+          space_->getCoordinatesLocal()->getX(X,EField::S),
+          re, om, px,
+          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
       break;
     case Pulsatile2D_inXS :
       VF_init_2DPulsatileXS(
-          nLoc(0), nLoc(1), nLoc(2),
-          sIndB(0,0), sIndB(1,0), sIndB(2,0),
-          eIndB(0,0), eIndB(1,0), eIndB(2,0),
-          sIndB(0,1), sIndB(1,1), sIndB(2,1),
-          eIndB(0,1), eIndB(1,1), eIndB(2,1),
-          sIndB(0,2), sIndB(1,2), sIndB(2,2),
-          eIndB(0,2), eIndB(1,2), eIndB(2,2),
-          bl(0),   bl(1),   bl(2),
-          bu(0),   bu(1),   bu(2),
-          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr(),
-          re, om, px);
+          nLoc(),
+          bl(),
+          bu(),
+          sIndB(0),
+          eIndB(0),
+          sIndB(1),
+          eIndB(1),
+          sIndB(2),
+          eIndB(2),
+          space_->getDomain()->getDomainSize()->getSize(1),
+          space_->getCoordinatesLocal()->getX(Y,EField::S),
+          re, om, px,
+          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
       break;
     case Pulsatile2D_inYS:
       VF_init_2DPulsatileYS(
-          nLoc(0), nLoc(1), nLoc(2),
-          sIndB(0,0), sIndB(1,0), sIndB(2,0),
-          eIndB(0,0), eIndB(1,0), eIndB(2,0),
-          sIndB(0,1), sIndB(1,1), sIndB(2,1),
-          eIndB(0,1), eIndB(1,1), eIndB(2,1),
-          sIndB(0,2), sIndB(1,2), sIndB(2,2),
-          eIndB(0,2), eIndB(1,2), eIndB(2,2),
-          bl(0),   bl(1),   bl(2),
-          bu(0),   bu(1),   bu(2),
-          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr(),
-          re, om, px);
+          nLoc(),
+          bl(),
+          bu(),
+          sIndB(0),
+          eIndB(0),
+          sIndB(1),
+          eIndB(1),
+          sIndB(2),
+          eIndB(2),
+          space_->getDomain()->getDomainSize()->getSize(0),
+          space_->getCoordinatesLocal()->getX(X,EField::S),
+          re, om, px,
+          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
       break;
     case Streaming2D:
       VF_init_StreamingS(
-          nLoc(0), nLoc(1), nLoc(2),
-          sIndB(0,0), sIndB(1,0), sIndB(2,0),
-          eIndB(0,0), eIndB(1,0), eIndB(2,0),
-          sIndB(0,1), sIndB(1,1), sIndB(2,1),
-          eIndB(0,1), eIndB(1,1), eIndB(2,1),
-          sIndB(0,2), sIndB(1,2), sIndB(2,2),
-          eIndB(0,2), eIndB(1,2), eIndB(2,2),
-          bl(0),   bl(1),   bl(2),
-          bu(0),   bu(1),   bu(2),
-          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr(),
-          re );
+          nLoc(),
+          bl(),
+          bu(),
+          sIndB(0),
+          eIndB(0),
+          sIndB(1),
+          eIndB(1),
+          sIndB(2),
+          eIndB(2),
+          space_->getDomain()->getDomainSize()->getSize(0),
+          space_->getCoordinatesLocal()->getX(X,EField::S),
+          re,
+          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
       break;
     case Streaming2DC:
       VF_init_StreamingC(
-          nLoc(0), nLoc(1), nLoc(2),
-          sIndB(0,0), sIndB(1,0), sIndB(2,0),
-          eIndB(0,0), eIndB(1,0), eIndB(2,0),
-          sIndB(0,1), sIndB(1,1), sIndB(2,1),
-          eIndB(0,1), eIndB(1,1), eIndB(2,1),
-          sIndB(0,2), sIndB(1,2), sIndB(2,2),
-          eIndB(0,2), eIndB(1,2), eIndB(2,2),
-          bl(0),   bl(1),   bl(2),
-          bu(0),   bu(1),   bu(2),
-          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr(),
-          re );
+          nLoc(),
+          bl(),
+          bu(),
+          sIndB(0),
+          eIndB(0),
+          sIndB(1),
+          eIndB(1),
+          sIndB(2),
+          eIndB(2),
+          space_->getDomain()->getDomainSize()->getSize(0),
+          space_->getCoordinatesLocal()->getX(X,EField::S),
+          re,
+          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
       break;
     case Streaming2DS:
       VF_init_StreamingS(
-          nLoc(0), nLoc(1), nLoc(2),
-          sIndB(0,0), sIndB(1,0), sIndB(2,0),
-          eIndB(0,0), eIndB(1,0), eIndB(2,0),
-          sIndB(0,1), sIndB(1,1), sIndB(2,1),
-          eIndB(0,1), eIndB(1,1), eIndB(2,1),
-          sIndB(0,2), sIndB(1,2), sIndB(2,2),
-          eIndB(0,2), eIndB(1,2), eIndB(2,2),
-          bl(0),   bl(1),   bl(2),
-          bu(0),   bu(1),   bu(2),
-          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr(),
-          re );
+          nLoc(),
+          bl(),
+          bu(),
+          sIndB(0),
+          eIndB(0),
+          sIndB(1),
+          eIndB(1),
+          sIndB(2),
+          eIndB(2),
+          space_->getDomain()->getDomainSize()->getSize(0),
+          space_->getCoordinatesLocal()->getX(X,EField::S),
+          re,
+          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
       break;
     case Circle2D:
       VF_init_Circle(
-          nLoc(0), nLoc(1), nLoc(2),
-          sIndB(0,0), sIndB(1,0), sIndB(2,0),
-          eIndB(0,0), eIndB(1,0), eIndB(2,0),
-          sIndB(0,1), sIndB(1,1), sIndB(2,1),
-          eIndB(0,1), eIndB(1,1), eIndB(2,1),
-          sIndB(0,2), sIndB(1,2), sIndB(2,2),
-          eIndB(0,2), eIndB(1,2), eIndB(2,2),
-          bl(0),   bl(1),   bl(2),
-          bu(0),   bu(1),   bu(2),
+          nLoc(),
+          bl(),
+          bu(),
+          sIndB(0),
+          eIndB(0),
+          sIndB(1),
+          eIndB(1),
+          sIndB(2),
+          eIndB(2),
+          space_->getDomain()->getDomainSize()->getSize(),
+          space_->getCoordinatesLocal()->getX(X,EField::S),
+          space_->getCoordinatesLocal()->getX(Y,EField::S),
           sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
       break;
     case RankineVortex2D:
       VF_init_RankineVortex(
-          nLoc(0), nLoc(1), nLoc(2),
-          sIndB(0,0), sIndB(1,0), sIndB(2,0),
-          eIndB(0,0), eIndB(1,0), eIndB(2,0),
-          sIndB(0,1), sIndB(1,1), sIndB(2,1),
-          eIndB(0,1), eIndB(1,1), eIndB(2,1),
-          sIndB(0,2), sIndB(1,2), sIndB(2,2),
-          eIndB(0,2), eIndB(1,2), eIndB(2,2),
-          bl(0),   bl(1),   bl(2),
-          bu(0),   bu(1),   bu(2),
+          nLoc(),
+          bl(),
+          bu(),
+          sIndB(0),
+          eIndB(0),
+          sIndB(1),
+          eIndB(1),
+          sIndB(2),
+          eIndB(2),
+          space_->getDomain()->getDomainSize()->getSize(),
+          space_->getCoordinatesLocal()->getX(X,EField::S),
+          space_->getCoordinatesLocal()->getX(Y,EField::S),
+          space_->getCoordinatesLocal()->getX(X,EField::U),
+          space_->getCoordinatesLocal()->getX(Y,EField::V),
           sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
       break;
     case GaussianForcing1D:
       VF_init_GaussianForcing1D(
-          nLoc(0), nLoc(1), nLoc(2),
-          sIndB(0,0), sIndB(1,0), sIndB(2,0),
-          eIndB(0,0), eIndB(1,0), eIndB(2,0),
-          sIndB(0,1), sIndB(1,1), sIndB(2,1),
-          eIndB(0,1), eIndB(1,1), eIndB(2,1),
-          sIndB(0,2), sIndB(1,2), sIndB(2,2),
-          eIndB(0,2), eIndB(1,2), eIndB(2,2),
-          bl(0),   bl(1),   bl(2),
-          bu(0),   bu(1),   bu(2),
+          nLoc(),
+          bl(),
+          bu(),
+          sIndB(0),
+          eIndB(0),
+          sIndB(1),
+          eIndB(1),
+          sIndB(2),
+          eIndB(2),
+          space_->getDomain()->getDomainSize()->getSize(0),
+          space_->getCoordinatesLocal()->getX(X,EField::U),
           sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
       break;
     case BoundaryFilter1D:
       VF_init_BoundaryFilter1D(
-          nLoc(0), nLoc(1), nLoc(2),
-          sIndB(0,0), sIndB(1,0), sIndB(2,0),
-          eIndB(0,0), eIndB(1,0), eIndB(2,0),
-          sIndB(0,1), sIndB(1,1), sIndB(2,1),
-          eIndB(0,1), eIndB(1,1), eIndB(2,1),
-          sIndB(0,2), sIndB(1,2), sIndB(2,2),
-          eIndB(0,2), eIndB(1,2), eIndB(2,2),
-          bl(0),   bl(1),   bl(2),
-          bu(0),   bu(1),   bu(2),
+          nLoc(),
+          bl(),
+          bu(),
+          sIndB(0),
+          eIndB(0),
+          sIndB(1),
+          eIndB(1),
+          sIndB(2),
+          eIndB(2),
+          space_->getDomain()->getDomainSize()->getSize(0),
+          space_->getCoordinatesLocal()->getX(X,EField::U),
           sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
       break;
     case GaussianForcing2D:
       VF_init_GaussianForcing2D(
-          nLoc(0), nLoc(1), nLoc(2),
-          sIndB(0,0), sIndB(1,0), sIndB(2,0),
-          eIndB(0,0), eIndB(1,0), eIndB(2,0),
-          sIndB(0,1), sIndB(1,1), sIndB(2,1),
-          eIndB(0,1), eIndB(1,1), eIndB(2,1),
-          sIndB(0,2), sIndB(1,2), sIndB(2,2),
-          eIndB(0,2), eIndB(1,2), eIndB(2,2),
-          bl(0),   bl(1),   bl(2),
-          bu(0),   bu(1),   bu(2),
+          nLoc(),
+          bl(),
+          bu(),
+          sIndB(0),
+          eIndB(0),
+          sIndB(1),
+          eIndB(1),
+          sIndB(2),
+          eIndB(2),
+          space_->getDomain()->getDomainSize()->getSize(),
+          space_->getCoordinatesLocal()->getX(X,EField::S),
+          space_->getCoordinatesLocal()->getX(Y,EField::S),
+          space_->getCoordinatesLocal()->getX(X,EField::U),
+          space_->getCoordinatesLocal()->getX(Y,EField::V),
           sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
       break;
     case BoundaryFilter2D:
       VF_init_BoundaryFilter2D(
-          nLoc(0), nLoc(1), nLoc(2),
-          sIndB(0,0), sIndB(1,0), sIndB(2,0),
-          eIndB(0,0), eIndB(1,0), eIndB(2,0),
-          sIndB(0,1), sIndB(1,1), sIndB(2,1),
-          eIndB(0,1), eIndB(1,1), eIndB(2,1),
-          sIndB(0,2), sIndB(1,2), sIndB(2,2),
-          eIndB(0,2), eIndB(1,2), eIndB(2,2),
-          bl(0),   bl(1),   bl(2),
-          bu(0),   bu(1),   bu(2),
+          nLoc(),
+          bl(),
+          bu(),
+          sIndB(0),
+          eIndB(0),
+          sIndB(1),
+          eIndB(1),
+          sIndB(2),
+          eIndB(2),
+          space_->getDomain()->getDomainSize()->getSize(),
+          space_->getCoordinatesLocal()->getX(X,EField::S),
+          space_->getCoordinatesLocal()->getX(Y,EField::S),
+          space_->getCoordinatesLocal()->getX(X,EField::U),
+          space_->getCoordinatesLocal()->getX(Y,EField::V),
           sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
       break;
     case VPoint2D:
       VF_init_Vpoint(
-          nLoc(0), nLoc(1), nLoc(2),
-          sIndB(0,0), sIndB(1,0), sIndB(2,0),
-          eIndB(0,0), eIndB(1,0), eIndB(2,0),
-          sIndB(0,1), sIndB(1,1), sIndB(2,1),
-          eIndB(0,1), eIndB(1,1), eIndB(2,1),
-          sIndB(0,2), sIndB(1,2), sIndB(2,2),
-          eIndB(0,2), eIndB(1,2), eIndB(2,2),
-          bl(0),   bl(1),   bl(2),
-          bu(0),   bu(1),   bu(2),
-          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr(),
-          re );
+          nLoc(),
+          bl(),
+          bu(),
+          sIndB(0),
+          eIndB(0),
+          sIndB(1),
+          eIndB(1),
+          sIndB(2),
+          eIndB(2),
+          space_->getDomain()->getDomainSize()->getSize(),
+          space_->getCoordinatesLocal()->getX(X,EField::U),
+          space_->getCoordinatesLocal()->getX(Y,EField::S),
+          re,
+          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
       break;
     case Disc2D:
       VF_init_Disc(
-          nLoc(0), nLoc(1), nLoc(2),
-          sIndB(0,0), sIndB(1,0), sIndB(2,0),
-          eIndB(0,0), eIndB(1,0), eIndB(2,0),
-          sIndB(0,1), sIndB(1,1), sIndB(2,1),
-          eIndB(0,1), eIndB(1,1), eIndB(2,1),
-          sIndB(0,2), sIndB(1,2), sIndB(2,2),
-          eIndB(0,2), eIndB(1,2), eIndB(2,2),
-          bl(0),   bl(1),   bl(2),
-          bu(0),   bu(1),   bu(2),
-          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr(),
-          re, om, px );
+          nLoc(),
+          bl(),
+          bu(),
+          sIndB(0),
+          eIndB(0),
+          sIndB(1),
+          eIndB(1),
+          sIndB(2),
+          eIndB(2),
+          space_->getCoordinatesLocal()->getX(X,EField::S),
+          space_->getCoordinatesLocal()->getX(Y,EField::S),
+          space_->getCoordinatesLocal()->getX(Z,EField::S),
+          space_->getCoordinatesLocal()->getX(X,EField::U),
+          space_->getCoordinatesLocal()->getX(Y,EField::V),
+          re, om, px,
+          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
       break;
     case RotationDisc2D:
       VF_init_RotatingDisc(
-          nLoc(0), nLoc(1), nLoc(2),
-          sIndB(0,0), sIndB(1,0), sIndB(2,0),
-          eIndB(0,0), eIndB(1,0), eIndB(2,0),
-          sIndB(0,1), sIndB(1,1), sIndB(2,1),
-          eIndB(0,1), eIndB(1,1), eIndB(2,1),
-          sIndB(0,2), sIndB(1,2), sIndB(2,2),
-          eIndB(0,2), eIndB(1,2), eIndB(2,2),
-          bl(0),   bl(1),   bl(2),
-          bu(0),   bu(1),   bu(2),
-          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr(),
-          re, om, px );
+          nLoc(),
+          bl(),
+          bu(),
+          sIndB(0),
+          eIndB(0),
+          sIndB(1),
+          eIndB(1),
+          sIndB(2),
+          eIndB(2),
+          space_->getCoordinatesLocal()->getX(X,EField::S),
+          space_->getCoordinatesLocal()->getX(Y,EField::S),
+          re, om, px,
+          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
       break;
     }
     //    }
@@ -644,8 +684,41 @@ public:
 
 
   void write( int count=0 ) {
-    exchange();
-    VF_write( sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr(), count );
+
+    if( 0==space_->rankST() )
+      std::cout << "writing velocity field (" << count << ") ...\n";
+
+    auto temp = createScalarField<Scalar,Ordinal,dimension>( space_ );
+
+    for( int i=0; i<dim(); ++i ) {
+      space_->getInterpolateV2S()->apply( getConstField(i), *temp );
+
+      write_hdf5_2D(
+          space_->rankST(),
+          space_->commf(),
+          space_->nGlo(),
+          space_->getDomain()->getBCGlobal()->getBCL(),
+          space_->getDomain()->getBCGlobal()->getBCU(),
+          space_->nLoc(),
+          space_->bl(),
+          space_->bu(),
+          space_->sInd(EField::S),
+          space_->eInd(EField::S),
+          space_->getFieldSpace()->getLS(),
+          space_->getProcGridSize()->get(),
+          space_->getProcGrid()->getIB(),
+          space_->getProcGrid()->getShift(),
+          i,
+          count,
+          10,
+          temp->s_,
+          space_->getCoordinatesGlobal()->get(0,EField::S),
+          space_->getCoordinatesGlobal()->get(1,EField::S),
+          space_->getDomain()->getDomainSize()->getRe(),
+          space_->getDomain()->getDomainSize()->getAlpha2() );
+    }
+//    exchange();
+//    VF_write( sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr(), count*100 );
   }
 
 
@@ -731,21 +804,25 @@ protected:
   Scalar* vecC( int i ) const { return( sFields_[i]->s_ ); }
 
   void changed( const int& vel_dir, const int& dir ) const {
-    exchangedState_[vel_dir][dir] = false;
+    getConstFieldPtr( vel_dir )->changed( dir );
+//    exchangedState_[vel_dir][dir] = false;
   }
 
 public:
 
   void changed() const {
     for( int vel_dir=0; vel_dir<dim(); ++vel_dir )
-      for( int dir=0; dir<dim(); ++dir )
+      for( int dir=0; dir<dim(); ++dir ) {
         changed( vel_dir, dir );
+//        getConstFieldPtr( vel_dir )->changed(dir);
+      }
   }
 
 protected:
 
   bool is_exchanged( const int& vel_dir, const int& dir ) const {
-    return( exchangedState_[vel_dir][dir] );
+    return( getConstFieldPtr( vel_dir )->is_exchanged( dir ) );
+//    return( exchangedState_[vel_dir][dir] );
   }
   bool is_exchanged() const {
     bool all_exchanged = true;
@@ -757,24 +834,28 @@ protected:
 
   /// \brief updates ghost layers
   void exchange( const int& vel_dir, const int& dir ) const {
-    int ones[3] = {1,1,1};
+//    int ones[3] = {1,1,1};
 
-    if( !exchangedState_[vel_dir][dir] ) {
-      F_exchange(
-          dim(),
-          commf(),
-          rankL(), rankU(),
-          nLoc(),
-          bl(), bu(),
-          bcL(), bcU(),
-          sInd(EField::S), eInd(EField::S),
-          ones,
-          nLoc(),
-          dir+1, vel_dir+1,
+//    if( !is_exchanged(vel_dir,dir) ) {
+      getConstFieldPtr(vel_dir)->exchange(dir);
+//      F_exchange(
+//          dim(),
+//          commf(),
+//          rankL(),
+//          rankU(),
+//          nLoc(),
+//          bl(), bu(),
+//          bcL(), bcU(),
+//          sInd(EField::S),
+//          eInd(EField::S),
+//          ones,
+//          nLoc(),
+//          dir+1,
+//          vel_dir+1,
           //          vec_[vel_dir]);
-          sFields_[vel_dir]->getRawPtr() );
-      exchangedState_[vel_dir][dir] = true;
-    }
+//          sFields_[vel_dir]->getRawPtr() );
+//      exchangedState_[vel_dir][dir] = true;
+//    }
   }
   void exchange() const {
     for( int vel_dir=0; vel_dir<dim(); ++vel_dir )
@@ -793,7 +874,6 @@ protected:
 template<class S=double, class O=int, int d=3>
 Teuchos::RCP< VectorField<S,O,d> > createVectorField( const Teuchos::RCP< const Space<S,O,d> >& space ) {
 
-  //  return( create< VectorField<S,O,d> >() );
   return( Teuchos::rcp(
       new VectorField<S,O,d>( space ) ) );
 

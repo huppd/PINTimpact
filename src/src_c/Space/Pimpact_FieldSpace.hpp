@@ -261,22 +261,6 @@ public:
 template< class O=int, int d=3 >
 const Teuchos::RCP<const FieldSpace<O,d> > createFieldSpace(){
 
-//  typedef typename FieldSpace<O,d>::TO TO;
-//
-//
-//  TO bl;
-//  SVS_get_bl( bl[0], bl[1], bl[2] );
-//  if( d==4 ) bl[3] = -1;
-//
-//  TO bu;
-//  SVS_get_bu( bu[0], bu[1], bu[2] );
-//  if( d==4 ) bu[3] = 0;
-//
-//  return(
-//      Teuchos::RCP<const FieldSpace<O,d> > (
-//          new FieldSpace<O,d>(
-//              bl,
-//              bu ) ) );
   return(
       Teuchos::RCP<const FieldSpace<O,d> > (
           new FieldSpace<O,d>() ) );

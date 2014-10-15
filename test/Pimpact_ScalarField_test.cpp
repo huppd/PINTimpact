@@ -14,6 +14,8 @@
 #include <iostream>
 #include <cmath>
 
+//#include "hdf5.h"
+
 
 namespace {
 
@@ -39,17 +41,18 @@ TEUCHOS_STATIC_SETUP() {
 
 
 TEUCHOS_UNIT_TEST( ScalarField, create_init_print ) {
-  int rank = Pimpact::init_impact_pre();
-  auto bc = Pimpact::createBoudaryConditionsGlobal( Pimpact::EDomainType( domain ) );
-  bc->print();
-  Pimpact::init_impact_post();  // init impact
 
-  auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
   space->print();
 
   auto p = Pimpact::createScalarField(space);
 
-  p->init(rank);
+  p->init( space->rankST() );
 
 }
 
@@ -57,9 +60,13 @@ TEUCHOS_UNIT_TEST( ScalarField, create_init_print ) {
 
 TEUCHOS_UNIT_TEST( ScalarField, InfNorm_and_init ) {
 
-  auto sVS = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
 
-  auto p = Pimpact::createScalarField(sVS);
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
+  auto p = Pimpact::createScalarField(space);
 
   double norm;
 
@@ -74,7 +81,7 @@ TEUCHOS_UNIT_TEST( ScalarField, InfNorm_and_init ) {
   // one test with infty-norm
   int rank;
   double init;
-  MPI_Comm_rank(sVS->comm(),&rank);
+  MPI_Comm_rank(space->comm(),&rank);
   for( double i = 0.; i<200.1; ++i) {
     init = 3*i-1.;
     init = (init<0)?-init:init;
@@ -89,8 +96,13 @@ TEUCHOS_UNIT_TEST( ScalarField, InfNorm_and_init ) {
 
 TEUCHOS_UNIT_TEST( ScalarField, OneNorm_and_init ) {
 
-  auto sVS = Pimpact::createSpace();
-  auto p = Pimpact::createScalarField(sVS);
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
+  auto p = Pimpact::createScalarField(space);
 
   // test different float values, assures that initial and norm work smoothly
   for( double i=0.; i< 200.1; ++i ) {
@@ -105,8 +117,13 @@ TEUCHOS_UNIT_TEST( ScalarField, OneNorm_and_init ) {
 
 TEUCHOS_UNIT_TEST( ScalarField, TwoNorm_and_init ) {
 
-  auto sVS = Pimpact::createSpace();
-  auto p = Pimpact::createScalarField(sVS);
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
+  auto p = Pimpact::createScalarField(space);
 
   // test different float values, assures that initial and norm work smoothly
   for( double i=0.; i< 200.1; ++i ) {
@@ -118,10 +135,14 @@ TEUCHOS_UNIT_TEST( ScalarField, TwoNorm_and_init ) {
 
 TEUCHOS_UNIT_TEST( ScalarField, dot ) {
 
-  auto fS = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
 
-  auto p = Pimpact::createScalarField(fS);
-  auto q = Pimpact::createScalarField(fS);
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, true );
+
+  auto p = Pimpact::createScalarField( space );
+  auto q = Pimpact::createScalarField( space );
 
   int Np = p->getLength();
   int Nq = q->getLength();
@@ -130,17 +151,24 @@ TEUCHOS_UNIT_TEST( ScalarField, dot ) {
   TEST_EQUALITY( Np , Nq );
 
   p->init(1.);
-  q->init(2.);
+  q->init(1.);
   dot = p->dot(*q);
-  TEST_EQUALITY( 2*Np, dot );
+
+  TEST_FLOATING_EQUALITY( 1.*Np, dot, errorTolSlack );
+
 }
 
 
 
 TEUCHOS_UNIT_TEST( ScalarField, scale ) {
 
-  auto sVS = Pimpact::createSpace();
-  auto p = Pimpact::createScalarField(sVS);
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
+  auto p = Pimpact::createScalarField(space);
 
   double norm;
   int N = p->getLength();
@@ -154,8 +182,13 @@ TEUCHOS_UNIT_TEST( ScalarField, scale ) {
 
 TEUCHOS_UNIT_TEST( ScalarField, random ) {
 
-  auto sVS = Pimpact::createSpace();
-  auto p = Pimpact::createScalarField(sVS);
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
+  auto p = Pimpact::createScalarField(space);
 
   double norm;
   int N = p->getLength();
@@ -169,9 +202,13 @@ TEUCHOS_UNIT_TEST( ScalarField, random ) {
 
 TEUCHOS_UNIT_TEST( ScalarField, add ) {
 
-  auto sVS = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
 
-  auto q = Pimpact::createScalarField(sVS);
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
+  auto q = Pimpact::createScalarField(space);
 
   auto r(q);
   auto p(q);
@@ -189,8 +226,13 @@ TEUCHOS_UNIT_TEST( ScalarField, add ) {
 
 TEUCHOS_UNIT_TEST( ScalarField, write ) {
 
-  auto sVS = Pimpact::createSpace();
-  auto p = Pimpact::createScalarField(sVS);
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", domain);
+
+  auto space = Pimpact::createSpace( pl, false );
+
+  auto p = Pimpact::createScalarField(space);
 
   p->init(1.);
   p->write();
@@ -203,28 +245,29 @@ TEUCHOS_UNIT_TEST( ScalarField, write ) {
 
 
 TEUCHOS_UNIT_TEST( ScalarField, initField ) {
+//  H5open();
 
   auto pl = Teuchos::parameterList();
 
-  pl->set( "domain", 1);
+  pl->set( "domain", domain );
 
   pl->set( "lx", 2. );
   pl->set( "ly", 2. );
   pl->set( "lz", 1. );
 
 
-  pl->set("nx", 49 );
+  pl->set("nx", (48*3)+1 );
   pl->set("ny", 49 );
   pl->set("nz", 2 );
 
-  // processor grid size
-  pl->set("npx", 3 );
-  pl->set("npy", 3 );
-  pl->set("npz", 1 );
+//  // processor grid size
+//  pl->set("npx", 2 );
+//  pl->set("npy", 2 );
+//  pl->set("npz", 1 );
 
-  auto space = Pimpact::createSpace( pl );
+  auto space = Pimpact::createSpace( pl, false );
 
-  auto x = Pimpact::createScalarField(space);
+  auto x = Pimpact::createScalarField( space );
 
   for( int i=0; i<=4; ++i ) {
     x->initField( Pimpact::EScalarField(i) );
