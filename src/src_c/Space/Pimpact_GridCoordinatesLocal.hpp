@@ -13,7 +13,6 @@
 
 
 
-
 namespace Pimpact{
 
 
@@ -78,9 +77,8 @@ protected:
       const Teuchos::RCP<const BoundaryConditionsGlobal >& bcGlobal,
       const Teuchos::RCP<const BoundaryConditionsLocal >& bcLocal,
       const Teuchos::RCP<const ProcGrid<Ordinal,dim> >& procGrid,
-      const Teuchos::RCP<const GridCoordinatesGlobal<Scalar,Ordinal,dim> >& coordGlobal
-      ):
-    gridSize_( gridSize ) {
+      const Teuchos::RCP<const GridCoordinatesGlobal<Scalar,Ordinal,dim> >& coordGlobal ):
+        gridSize_( gridSize ) {
 
     for( int i=0; i<dim; ++i ) {
       Ordinal nTemp = gridSize_->get(i)+fieldSpace->getBU(i)-fieldSpace->getBL(i)+1;
@@ -190,7 +188,7 @@ Teuchos::RCP<const GridCoordinatesLocal<S,O,d> > createGridCoordinatesLocal(
     const Teuchos::RCP<const BoundaryConditionsLocal >& bcLocal,
     const Teuchos::RCP<const ProcGrid<O,d> >& procGrid,
     const Teuchos::RCP<const GridCoordinatesGlobal<S,O,d> >& coordGlobal
-    ) {
+) {
 
   return(
       Teuchos::rcp(

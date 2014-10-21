@@ -13,7 +13,7 @@
 
 
 extern "C" {
-void fgetPGS(      int& np1,       int& np2,       int& np3 );
+//void fgetPGS(      int& np1,       int& np2,       int& np3 );
 void fsetPGS(const int& np1, const int& np2, const int& np3 );
 }
 
@@ -25,6 +25,7 @@ namespace Pimpact{
 
 /// \brief size of processor grid
 /// \ingroup Space
+/// \todo maybe inherit from Tuple
 template<class Ordinal=int,int dim=3>
 class ProcGridSize {
 
@@ -98,19 +99,19 @@ public:
 
 
 
-/// \relates ProcGridSize
-template<class Ordinal=int>
-Teuchos::RCP<const ProcGridSize<Ordinal,3> > createProcGridSize() {
-  typedef const Teuchos::Tuple<Ordinal,3> TO;
-
-  TO procGridSize;
-
-  fgetPGS( procGridSize[0], procGridSize[1], procGridSize[2] );
-
-  return(
-      Teuchos::rcp(
-          new ProcGridSize<Ordinal,3>( procGridSize ) ) );
-}
+///// \relates ProcGridSize
+//template<class Ordinal=int>
+//Teuchos::RCP<const ProcGridSize<Ordinal,3> > createProcGridSize() {
+//  typedef const Teuchos::Tuple<Ordinal,3> TO;
+//
+//  TO procGridSize;
+//
+//  fgetPGS( procGridSize[0], procGridSize[1], procGridSize[2] );
+//
+//  return(
+//      Teuchos::rcp(
+//          new ProcGridSize<Ordinal,3>( procGridSize ) ) );
+//}
 
 
 

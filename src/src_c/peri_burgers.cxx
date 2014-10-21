@@ -222,7 +222,7 @@ int main(int argi, char** argv ) {
   Pimpact::init_impact_post();
 
 
-  auto space = Pimpact::createSpace();
+  auto space = Pimpact::createSpace<S,O,3>();
 
   // init vectors
   auto x    = Pimpact::createMultiField( Pimpact::createMultiHarmonicVectorField<S,O>( space, nfs ) );
@@ -289,7 +289,7 @@ int main(int argi, char** argv ) {
         Pimpact::createMultiOperatorBase<MVF>(
             Pimpact::createAdd2Op<Pimpact::Add2Op<MAdv,DtL>,Fo>(
                 Pimpact::createAdd2Op<MAdv,DtL>(
-                    Pimpact::createMultiHarmonicNonlinear<S,O>( /*x->getConstFieldPtr(0)->getConst0FieldPtr()->clone()*/ ),
+                    Pimpact::createMultiHarmonicNonlinear<S,O>( space /*x->getConstFieldPtr(0)->getConst0FieldPtr()->clone()*/ ),
                     Pimpact::createMultiDtHelmholtz<S,O>( space, alpha2, 1./re ),
                     temp->getFieldPtr(0)->clone() ) ,
                     Pimpact::createMultiHarmonicOpWrap( Pimpact::createForcingOp( force ) ) ,
@@ -309,7 +309,9 @@ int main(int argi, char** argv ) {
               Pimpact::createAdd2Op<Pimpact::Add2Op<JMAdv,DtL>,Fo>(
                   Pimpact::createAdd2Op<JMAdv,DtL>(
                       Pimpact::createMultiHarmonicNonlinearJacobian<S,O>(
-                          x->getConstFieldPtr(0)->clone(),false ),
+                          space,
+                          x->getConstFieldPtr(0)->clone(),
+                          false ),
                       Pimpact::createMultiDtHelmholtz<S,O>( space, alpha2, 1./re ),
                       temp->getFieldPtr(0)->clone() ) ,
                       Pimpact::createMultiHarmonicOpWrap(
@@ -326,12 +328,17 @@ int main(int argi, char** argv ) {
               Pimpact::createAdd2Op<Pimpact::Add2Op<DJMAdv,DtL>,Fo>(
                   Pimpact::createAdd2Op<DJMAdv,DtL>(
                       Pimpact::createMultiHarmonicDiagNonlinearJacobian<S,O>(
-                          temp->getFieldPtr(0), true ),
-                          Pimpact::createMultiDtHelmholtz<S,O>( space, alpha2,  1./re ),
-                          temp->getFieldPtr(0)->clone() ) ,
-                          Pimpact::createMultiHarmonicOpWrap(
-                              Pimpact::createForcingOp( force ) ) ,
-                              temp->getConstFieldPtr(0)->clone() )
+                          space,
+                          temp->getFieldPtr(0),
+                          true
+                      ),
+                      Pimpact::createMultiDtHelmholtz<S,O>( space, alpha2,  1./re ),
+                      temp->getFieldPtr(0)->clone()
+                  ),
+                  Pimpact::createMultiHarmonicOpWrap(
+                      Pimpact::createForcingOp( force )
+                  ),
+                  temp->getConstFieldPtr(0)->clone() )
           );
     }
     else if( 4==iterM ){
@@ -344,12 +351,15 @@ int main(int argi, char** argv ) {
               Pimpact::createAdd2Op<Pimpact::Add2Op<DJMAdv,DtL>,Fo>(
                   Pimpact::createAdd2Op<DJMAdv,DtL>(
                       Pimpact::createMultiHarmonicDiagNonlinearJacobian<S,O>(
-                          temp->getFieldPtr(0), false ),
-                          Pimpact::createMultiDtHelmholtz<S,O>( space, alpha2, 1./re ),
-                          temp->getFieldPtr(0)->clone() ) ,
-                          Pimpact::createMultiHarmonicOpWrap(
-                              Pimpact::createForcingOp( force ) ) ,
-                              temp->getConstFieldPtr(0)->clone() )
+                          space,
+                          temp->getFieldPtr(0),
+                          false
+                      ),
+                      Pimpact::createMultiDtHelmholtz<S,O>( space, alpha2, 1./re ),
+                      temp->getFieldPtr(0)->clone() ) ,
+                      Pimpact::createMultiHarmonicOpWrap(
+                          Pimpact::createForcingOp( force ) ) ,
+                          temp->getConstFieldPtr(0)->clone() )
           );
     }
     else if( 5==iterM ){
@@ -441,6 +451,7 @@ int main(int argi, char** argv ) {
                   Pimpact::createAdd2Op<JMAdv,DtL>(
                       Pimpact::createMultiHarmonicNonlinearJacobian<S,O>(
                           //                        x->getConstFieldPtr(0)->getConst0FieldPtr()->clone(),
+                          space,
                           x->getConstFieldPtr(0)->clone() ),
                           Pimpact::createMultiDtHelmholtz<S,O>( space, alpha2, 1./re ),
                           temp->getFieldPtr(0)->clone() ) ,
@@ -464,8 +475,11 @@ int main(int argi, char** argv ) {
               Pimpact::createAdd2Op<Pimpact::Add2Op<DJMAdv,DtL>,Fo>(
                   Pimpact::createAdd2Op<DJMAdv,DtL>(
                       Pimpact::createMultiHarmonicDiagNonlinearJacobian<S,O>(
-                          temp->getFieldPtr(0), true ),
-                          Pimpact::createMultiDtHelmholtz<S,O>( space, alpha2, 1./re ),
+                          space,
+                          temp->getFieldPtr(0),
+                          true
+                      ),
+                      Pimpact::createMultiDtHelmholtz<S,O>( space, alpha2, 1./re ),
                           temp->getFieldPtr(0)->clone() ) ,
                           Pimpact::createMultiHarmonicOpWrap(
                               Pimpact::createForcingOp( force ) ) ,
@@ -489,12 +503,15 @@ int main(int argi, char** argv ) {
               Pimpact::createAdd2Op<Pimpact::Add2Op<DJMAdv,DtL>,Fo>(
                   Pimpact::createAdd2Op<DJMAdv,DtL>(
                       Pimpact::createMultiHarmonicDiagNonlinearJacobian<S,O>(
-                          temp->getFieldPtr(0), false ),
-                          Pimpact::createMultiDtHelmholtz<S,O>( space, alpha2, 1./re ),
-                          temp->getFieldPtr(0)->clone() ) ,
-                          Pimpact::createMultiHarmonicOpWrap(
-                              Pimpact::createForcingOp( force ) ) ,
-                              temp->getConstFieldPtr(0)->clone() )
+                          space,
+                          temp->getFieldPtr(0),
+                          false
+                      ),
+                      Pimpact::createMultiDtHelmholtz<S,O>( space, alpha2, 1./re ),
+                      temp->getFieldPtr(0)->clone() ) ,
+                      Pimpact::createMultiHarmonicOpWrap(
+                          Pimpact::createForcingOp( force ) ) ,
+                          temp->getConstFieldPtr(0)->clone() )
           );
       auto prob =
           Pimpact::createLinearProblem<MVF>(

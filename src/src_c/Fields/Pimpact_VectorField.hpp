@@ -43,7 +43,7 @@ class VectorField : AbstractField<S,O> {
   template<class S1,class O1, int dimension1>
   friend class HelmholtzOp;
   template<class S1,class O1, int d1>
-  friend class Nonlinear;
+  friend class ConvectionOp;
   template<class S1,class O1, int dimension1>
   friend class NonlinearJacobian;
   template<class S1,class O1>

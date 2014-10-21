@@ -19,6 +19,7 @@ namespace Pimpact {
 /// \brief Operator wrapper.
 /// \ingroup MultiHarmonicOperator
 /// wraps a \ref BaseOperator "base operator" and adds the functionality of handling \c MultiHarmonicField's.
+/// \deprecated
 template<class Field>
 class MultiHarmonicMLPrec  {
 

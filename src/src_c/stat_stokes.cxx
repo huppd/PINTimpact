@@ -27,7 +27,6 @@
 #include "Pimpact_MultiField.hpp"
 
 #include "Pimpact_Operator.hpp"
-#include "Pimpact_OperatorMV.hpp"
 #include "Pimpact_OperatorFactory.hpp"
 
 #include "Pimpact_LinearProblem.hpp"
@@ -48,8 +47,8 @@ int main(int argi, char** argv ) {
   typedef int O;
   typedef Pimpact::VectorField<S,O> VF;
   typedef Pimpact::ScalarField<S,O> SF;
-  typedef Pimpact::MultiField<VF> MVF;
-  typedef Pimpact::MultiField<SF> MSF;
+  typedef Pimpact::MultiField<VF>  MVF;
+  typedef Pimpact::MultiField<SF>  MSF;
 
   // intialize MPI
   MPI_Init( &argi, &argv );
@@ -61,12 +60,15 @@ int main(int argi, char** argv ) {
   S re = 1.;
   my_CLP.setOption( "re", &re, "Reynolds number" );
 
-  S omega = 1.;
-  my_CLP.setOption( "omega", &omega, "introduced frequency" );
+  S alpha2 = 1.;
+  my_CLP.setOption( "omega", &alpha2, "introduced frequency" );
 
   // flow type \todo + Boundary conditions
   int flow = 1;
   my_CLP.setOption( "flow", &flow, "Flow type: 0=zero flow, 1=2D Poiseuille flow in x, 2=2D Poiseuille flow in y" );
+
+  int domain = 1;
+  my_CLP.setOption( "domain", &domain, "length in x-direction" );
 
   // domain size
   int dim = 2;
@@ -109,7 +111,34 @@ int main(int argi, char** argv ) {
   // end of parsing
 
   // starting with ininializing
-  int rank = Pimpact::init_impact_pre();
+  // starting with ininializing
+   auto pl = Teuchos::parameterList();
+
+   pl->set( "Re", re );
+   pl->set( "alpha2", alpha2 );
+   pl->set( "domain", domain );
+
+   pl->set( "lx", l1 );
+   pl->set( "ly", l2 );
+   pl->set( "lz", l3 );
+
+   pl->set( "dim", dim );
+
+   pl->set("nx", n1 );
+   pl->set("ny", n2 );
+   pl->set("nz", n3 );
+
+
+   // processor grid size
+   pl->set("npx", np1 );
+   pl->set("npy", np2 );
+   pl->set("npz", np3 );
+
+   auto space = Pimpact::createSpace<S,O,3>( pl );
+
+   space->print();
+
+   int rank = space->getProcGrid()->getRank();
 
   // outputs
   Teuchos::RCP<std::ostream> outPar;
@@ -123,39 +152,17 @@ int main(int argi, char** argv ) {
     outLap2  = Teuchos::rcp( new std::ofstream("stats_solvLap2.txt") );
     outSchur = Teuchos::rcp( new std::ofstream("stats_solvSchur.txt") );
   }	else
-    //		outPar = Teuchos::rcp( &blackhole, false) ;
     outPar = Teuchos::rcp( new Teuchos::oblackholestream() ) ;
 
   *outPar << " \tflow=" << flow << "\n";
+  space->print( *outPar );
 
-  auto ds = Pimpact::createDomainSize<S>(dim,re,omega,l1,l2,l3);
-  ds->set_Impact();
-  ds->print( *outPar );
-
-  auto bc = Pimpact::createBoudaryConditionsGlobal( Pimpact::Dirichelt2DChannel );
-  bc->set_Impact();
-
-  auto gs = Pimpact::createGridSizeGlobal(n1,n2,n3);
-  gs->set_Impact();
-  gs->print( *outPar );
-
-  auto pgs = Pimpact::createProcGridSize<O>(np1,np2,np3);
-  pgs->set_Impact();
-  pgs->print( *outPar );
 
   if(rank==0) {
     Teuchos::rcp_static_cast<std::ofstream>(outPar)->close();
   }
   outPar = Teuchos::null;
 
-  Pimpact::init_impact_post();
-
-  // init Spaces
-//  auto fS = Pimpact::createFieldSpace<O>();
-//
-//  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-//  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
-  auto space = Pimpact::createSpace();
 
   // init vectors
   auto sca = Pimpact::createScalarField<S,O>( space );
@@ -164,8 +171,8 @@ int main(int argi, char** argv ) {
   auto p     = Pimpact::createMultiField<SF>(*sca,1);
   auto temps = Pimpact::createMultiField<SF>(*sca,1);
   auto u     = Pimpact::createMultiField<VF>(*vel,1);
-  auto fu     = Pimpact::createMultiField<VF>(*vel,1);
-  auto fp     = Pimpact::createMultiField<SF>(*sca,1);
+  auto fu    = Pimpact::createMultiField<VF>(*vel,1);
+  auto fp    = Pimpact::createMultiField<SF>(*sca,1);
   auto tempv = Pimpact::createMultiField<VF>(*vel,1);
 
   sca = Teuchos::null;
@@ -174,13 +181,16 @@ int main(int argi, char** argv ) {
   p->init(0.);
   u->getField(0).initField( Pimpact::EFlowField(flow) );
   u->init(0);
+  u->write(1);
 
   tempv->getField(0).initField( Pimpact::EFlowField(flow) );
   fu->getField(0).initField( Pimpact::ZeroFlow );
 
 
   // init operators
-  auto lap  = Pimpact::createMultiOperatorBase<MVF,Pimpact::HelmholtzOp<S,O> >(Pimpact::createHelmholtzOp<S,O>( space, 0., 1./re ) );
+  auto lap  =
+      Pimpact::createMultiOperatorBase<MVF>(
+          Pimpact::createHelmholtzOp<S,O>( space, 0., 1./re ) );
   auto div  = Pimpact::createMultiOpWrap( Pimpact::createDivOp<S,O>( space ) );
   auto grad = Pimpact::createMultiOpWrap( Pimpact::createGradOp<S,O>( space ) );
 
@@ -198,17 +208,15 @@ int main(int argi, char** argv ) {
 
   // solve parameter for GMRES
   RCP<ParameterList> solveParaGMRES = Pimpact::createLinSolverParameter( "GMRES", 1.0e-6 );
-
   Teuchos::writeParameterListToXmlFile( *solveParaGMRES, "para_solverGMRES.xml" );
 
   // solve parameter for CG
   RCP<ParameterList> solveParaCG = Pimpact::createLinSolverParameter( "GMRES", 1.e-6 );
-
   Teuchos::writeParameterListToXmlFile( *solveParaCG, "para_solverCG.xml" );
 
   //	solveParaGMRES = Teuchos::getParametersFromXmlFile("solver1.xml");
 
-  // create problems/solvers
+  // create linear problems/solvers
   solveParaCG->set( "Output Stream", outLap1 );
   auto lap_problem = Pimpact::createLinearProblem<MVF>( lap, u, fu, solveParaCG, "GMRES" );
 
@@ -259,7 +267,6 @@ int main(int argi, char** argv ) {
     Teuchos::rcp_static_cast<std::ofstream>( outLap2)->close();
     Teuchos::rcp_static_cast<std::ofstream>(outSchur)->close();
   }
-
 
   MPI_Finalize();
   return( 0 );

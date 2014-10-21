@@ -119,7 +119,6 @@ public:
     int m = (int)x.fType_;
 
     x.exchange( m );
-//    x.exchange();
 
     OP_interpolateV2S(
         m+1,

@@ -6,8 +6,6 @@ module cmod_VectorField
 
     use iso_c_binding
 
-!    use mod_vars, only: L1,L2,L3,M1,M2,M3
-
     implicit none
 
 contains
@@ -34,7 +32,6 @@ contains
 
         REAL              ::  dis
 
-        INTEGER           ::  m
 
         ! geometric properties of disc
         !        x0 = L1/2. + L1*amp*SIN(2.*pi*freq*subtime)

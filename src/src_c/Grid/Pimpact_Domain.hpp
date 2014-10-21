@@ -31,12 +31,12 @@ class Domain {
 public:
 
   Domain(
-    const Teuchos::RCP<const DomainSize<Scalar> >& domainSize,
-    const Teuchos::RCP<const BoundaryConditionsGlobal> bcGlo,
-    const Teuchos::RCP<const BoundaryConditionsLocal> bcLoc ):
-      domainSize_( domainSize ),
-      bcGlo_( bcGlo ),
-      bcLoc_( bcLoc ) {}
+      const Teuchos::RCP<const DomainSize<Scalar> >& domainSize,
+      const Teuchos::RCP<const BoundaryConditionsGlobal> bcGlo,
+      const Teuchos::RCP<const BoundaryConditionsLocal> bcLoc ):
+        domainSize_( domainSize ),
+        bcGlo_( bcGlo ),
+        bcLoc_( bcLoc ) {}
 
   Teuchos::RCP<const DomainSize<Scalar> >      getDomainSize() const { return( domainSize_ ); }
   Teuchos::RCP<const BoundaryConditionsGlobal> getBCGlobal()   const { return( bcGlo_ ); }
@@ -53,17 +53,17 @@ protected:
 };
 
 
-/// \relates Domain
-template<class S=double>
-Teuchos::RCP<const Domain<S> > createDomain() {
-  return(
-      Teuchos::rcp(
-          new Domain<S>(
-              createDomainSize<S>(),
-              createBoudaryConditionsGlobal(),
-              createBoudaryConditionsLocal() ) ) );
-
-}
+///// \relates Domain
+//template<class S=double>
+//Teuchos::RCP<const Domain<S> > createDomain() {
+//  return(
+//      Teuchos::rcp(
+//          new Domain<S>(
+//              createDomainSize<S>(),
+//              createBoudaryConditionsGlobal(),
+//              createBoudaryConditionsLocal() ) ) );
+//
+//}
 
 
 /// \relates Domain

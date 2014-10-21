@@ -14,9 +14,9 @@
 
 extern "C" {
 
-void FS_get_dim(int&);
+//void FS_get_dim(int&);
 void fsetDS( const double& L1, const double& L2, const double& L3 );
-void fgetDS(       double& L1,       double& L2,       double& L3 );
+//void fgetDS(       double& L1,       double& L2,       double& L3 );
 
 }
 
@@ -98,29 +98,29 @@ public:
         << "\tRe= "      << re_ << "\n"
         << "\talpha^2= " << alpha2_ << "\n"
         << "\tlx= "      << domainSize_[0]
-        << "\tly= "      << domainSize_[1]
-        << "\tlz= "      << domainSize_[2] << "\n";
+                                        << "\tly= "      << domainSize_[1]
+                                                                        << "\tlz= "      << domainSize_[2] << "\n";
   };
 
 }; // end of DomainSize
 
 
 
-/// \relates DomainSize
-template<class S=double>
-Teuchos::RCP<const DomainSize<S> > createDomainSize() {
-
-  int dim;
-  FS_get_dim( dim );
-
-  Teuchos::Tuple<S,3> L;
-
-  fgetDS( L[0],L[1],L[2] );
-
-  return(
-      Teuchos::rcp(
-          new DomainSize<S>( dim, 1., 1., L[0], L[1], L[2] ) ) );
-}
+///// \relates DomainSize
+//template<class S=double>
+//Teuchos::RCP<const DomainSize<S> > createDomainSize() {
+//
+//  int dim;
+//  FS_get_dim( dim );
+//
+//  Teuchos::Tuple<S,3> L;
+//
+//  fgetDS( L[0],L[1],L[2] );
+//
+//  return(
+//      Teuchos::rcp(
+//          new DomainSize<S>( dim, 1., 1., L[0], L[1], L[2] ) ) );
+//}
 
 
 /// \relates DomainSize

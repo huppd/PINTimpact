@@ -35,10 +35,10 @@ protected:
 public:
 
   MultiHarmonicNonlinearJacobian(
-//      const Teuchos::RCP<VectorField<S,O> >& temp=Teuchos::null,
+      const Teuchos::RCP<const Space<S,O,3> >& space,
       const Teuchos::RCP<DomainFieldT>& u=Teuchos::null,
       const bool& isNewton=true ):
-        MultiHarmonicNonlinear<S,O>(/*temp*/),
+        MultiHarmonicNonlinear<S,O>(space/*,temp*/),
         u_(u),
         isNewton_(isNewton) {};
 
@@ -67,10 +67,11 @@ public:
 /// \relates MultiHarmonicNonlinearJacobian
 template< class S=double , class O=int >
 Teuchos::RCP<MultiHarmonicNonlinearJacobian<S,O> > createMultiHarmonicNonlinearJacobian(
-    const Teuchos::RCP< typename MultiHarmonicNonlinearJacobian<S,O>::DomainFieldT>& u = Teuchos::null,
+    const Teuchos::RCP<const Space<S,O,3> >& space,
+    const Teuchos::RCP<typename MultiHarmonicNonlinearJacobian<S,O>::DomainFieldT>& u = Teuchos::null,
     const bool& isNewton=true ) {
 
-  return( Teuchos::rcp( new MultiHarmonicNonlinearJacobian<S,O>( u, isNewton ) ) );
+  return( Teuchos::rcp( new MultiHarmonicNonlinearJacobian<S,O>( space, u, isNewton ) ) );
 
 }
 

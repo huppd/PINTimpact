@@ -1,10 +1,12 @@
 #pragma once
-#ifndef PIMPACT_NONLINEAROP_HPP
-#define PIMPACT_NONLINEAROP_HPP
+#ifndef PIMPACT_CONVECTIONOP_HPP
+#define PIMPACT_CONVECTIONOP_HPP
 
 
 #include "Pimpact_Types.hpp"
-#include "Pimpact_FieldFactory.hpp"
+
+#include "Pimpact_VectorField.hpp"
+#include "Pimpact_InterpolateS2VOp.hpp"
 
 
 
@@ -24,7 +26,7 @@ void OP_nonlinear(
 
 /// \ingroup BaseOperator
 template<class Scalar,class Ordinal, int dimension=3>
-class Nonlinear {
+class ConvectionOp {
 
 public:
 
@@ -33,20 +35,18 @@ public:
 
 private:
 
-  Teuchos::RCP<DomainFieldT> u_;
+  Teuchos::RCP<const Space<Scalar,Ordinal,dimension> > space_;
 
 public:
 
-  Nonlinear():u_(Teuchos::null) {};
+  ConvectionOp( const Teuchos::RCP<const Space<Scalar,Ordinal,dimension> >& space  ):
+    space_(space) {};
 
   void assignField( const DomainFieldT& mv ) {};
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
 
-    //    if( Teuchos::is_null(u_) )
     apply( x, x, y);
-    //    else
-    //      apply( *u_, x, y );
 
   }
 
@@ -61,10 +61,10 @@ public:
       mul = 1.;
     }
     OP_nonlinear(
-//        x.vec_[0],x.vec_[1],x.vec_[2],
         x.sFields_[0]->getRawPtr(),x.sFields_[1]->getRawPtr(),x.sFields_[2]->getRawPtr(),
         y.sFields_[0]->getRawPtr(),y.sFields_[1]->getRawPtr(),y.sFields_[2]->getRawPtr(),
-        z.sFields_[0]->getRawPtr(),z.sFields_[1]->getRawPtr(),z.sFields_[2]->getRawPtr(), mul );
+        z.sFields_[0]->getRawPtr(),z.sFields_[1]->getRawPtr(),z.sFields_[2]->getRawPtr(),
+        mul );
 
     z.changed();
 
@@ -74,14 +74,15 @@ public:
   bool hasApplyTranspose() const { return( false ); }
 
 
-}; // end of class Nonlinear
+}; // end of class ConvectionOp
 
 
 
-/// \relates Nonlinear
+/// \relates ConvectionOp
 template< class S=double, class O=int, int d=3 >
-Teuchos::RCP<Nonlinear<S,O,d> > createNonlinear() {
-  return( Teuchos::rcp( new Nonlinear<S,O,d>() ) );
+Teuchos::RCP<ConvectionOp<S,O,d> > createConvectionOp(
+    const Teuchos::RCP<const Space<S,O,d> >& space ) {
+  return( Teuchos::rcp( new ConvectionOp<S,O,d>( space ) ) );
 }
 
 
@@ -89,4 +90,4 @@ Teuchos::RCP<Nonlinear<S,O,d> > createNonlinear() {
 } // end of namespace Pimpact
 
 
-#endif // end of #ifndef PIMPACT_NONLINEAROP_HPP
+#endif // end of #ifndef PIMPACT_CONVECTIONOP_HPP

@@ -5,6 +5,12 @@ include_directories("../src/src_c/Space")
 include_directories("../src/src_c/Grid")
 include_directories("../src/src_c/Fields")
 include_directories("../src/src_c/Operators")
+include_directories("../src/src_c/Operators/BasicOperators")
+include_directories("../src/src_c/Operators/CompoundOperators")
+include_directories("../src/src_c/Operators/ModeOperators")
+include_directories("../src/src_c/Operators/MultiHarmonicOperators")
+include_directories("../src/src_c/Operators/TimeOperators")
+
 include_directories("../src/src_c/NOX_Pimpact")
 include_directories("../src/src_c/MultiGrid")
 

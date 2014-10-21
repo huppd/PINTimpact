@@ -340,7 +340,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_LinearStokes, defaultctor ) {
 //  typedef int O;
 //  typedef Pimpact::VectorField<S,O> VF;
 //  typedef Pimpact::MultiField<VF> MVF;
-//  typedef Pimpact::Nonlinear<S,O>  OP;
+//  typedef Pimpact::ConvectionOp<S,O>  OP;
 //  typedef Pimpact::OperatorBase<MVF>  BOP;
 //
 //  auto fS = Pimpact::createFieldSpace<O>();

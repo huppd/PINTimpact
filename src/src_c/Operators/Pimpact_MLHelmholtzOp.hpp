@@ -92,6 +92,7 @@ void OP_HelmholtzGetRowEntries(
 /// \ingroup BaseOperator
 /// \todo make Adat pretty
 /// \todo make mulL better
+/// \deprecated
 template< class Scalar, class Ordinal >
 class MLHelmholtzOp {
 

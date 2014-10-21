@@ -8,10 +8,7 @@
 
 #include "Pimpact_Space.hpp"
 
-#include "Pimpact_ScalarField.hpp"
 #include "Pimpact_VectorField.hpp"
-
-#include "Pimpact_OperatorMV.hpp"
 
 
 

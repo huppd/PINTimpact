@@ -1,6 +1,6 @@
 #pragma once
-#ifndef PIMPACT_MGVDIVGRADOP_HPP
 #define PIMPACT_MGVDIVGRADOP_HPP
+#ifndef PIMPACT_MGVDIVGRADOP_HPP
 
 #include "Pimpact_Types.hpp"
 #include "Pimpact_ScalarField.hpp"
@@ -27,6 +27,7 @@ void OP_MGV(
 ///
 /// uses bicgstab, and multigrid from Impact
 /// \ingroup BaseOperator
+/// \deprecated
 template<class Scalar=double,class Ordinal=int, int dimension=3>
 class MGVDivGradOp {
 

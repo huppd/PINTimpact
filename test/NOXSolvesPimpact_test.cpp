@@ -32,12 +32,13 @@
 
 namespace {
 
+bool testMpi = true;
 typedef double S;
 typedef int O;
 
-bool testMpi = true;
-S errorTolSlack = 1e+1;
 S eps = 1.e1;
+bool isImpactInit = false;
+
 
 
 TEUCHOS_STATIC_SETUP() {
@@ -48,9 +49,6 @@ TEUCHOS_STATIC_SETUP() {
       "Test MPI (if available) or force test of serial.  In a serial build,"
       " this option is ignored and a serial comm is always used." );
   clp.setOption(
-      "error-tol-slack", &errorTolSlack,
-      "Slack off of machine epsilon used to check test results" );
-  clp.setOption(
       "eps", &eps,
       "epsilon used to check test results" );
 }
@@ -58,8 +56,8 @@ TEUCHOS_STATIC_SETUP() {
 
 
 
-TEUCHOS_UNIT_TEST( NOXPimpact_Group, createGroup ) {
-  init_impact(0,0);
+//TEUCHOS_UNIT_TEST( NOXPimpact_Group, createGroup ) {
+//  init_impact(0,0);
 //
 //  typedef double S;
 //  typedef int O;
@@ -126,7 +124,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, createGroup ) {
 //    Teuchos::rcp(new Teuchos::ParameterList);
 //
 //  // Select the solver (this is the default)
-//  solverParametersPtr->set("Nonlinear Solver", "Line Search Based");
+//  solverParametersPtr->set("ConvectionOp Solver", "Line Search Based");
 //
 //  // Create the directions parameters sublist
 ////  solverParametersPtr->sublist("Direction").set("Method","NonlinearCG");
@@ -157,7 +155,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, createGroup ) {
 ////
 ////  // Print the answer
 ////  if(rank==0) std::cout << "\n" << "-- Final Solution From Solver --" << "\n";
-}
+//}
 
 
 
@@ -166,7 +164,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, createGroup ) {
 //  typedef int O;
 //  typedef Pimpact::VectorField<S,O> VF;
 //  typedef Pimpact::MultiField<VF> MVF;
-////  typedef Pimpact::Nonlinear<S,O>  OP;
+////  typedef Pimpact::ConvectionOp<S,O>  OP;
 //  typedef Pimpact::HelmholtzOp<S,O>  Op;
 //  typedef Pimpact::HelmholtzOp<S,O>  JOp;
 ////  typedef Pimpact::OperatorBase<MVF>  BOP;
@@ -225,12 +223,12 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, createGroup ) {
 //    Teuchos::rcp(new Teuchos::ParameterList);
 //
 ////   Select the solver (this is the default)
-////  solverParametersPtr->set("Nonlinear Solver", "Line Search Based");
+////  solverParametersPtr->set("ConvectionOp Solver", "Line Search Based");
 //
 //  // Create the directions parameters sublist
 ////  Teuchos::ParameterList&  sl = solverParametersPtr->sublist("Direction");
 ////  sl.set("Method","NonlinearCG");
-////  Teuchos::ParameterList&  sll = sl.sublist("Nonlinear CG");
+////  Teuchos::ParameterList&  sll = sl.sublist("ConvectionOp CG");
 ////  sll.set( "Precondition", "On" );
 //////  sll.set( "Restart Frequency", 10  );
 //
@@ -272,7 +270,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, createGroup ) {
 //  typedef int O;
 //  typedef Pimpact::VectorField<S,O> VF;
 //  typedef Pimpact::MultiField<VF> MVF;
-//  typedef Pimpact::Nonlinear<S,O>  Op;
+//  typedef Pimpact::ConvectionOp<S,O>  Op;
 //  typedef Pimpact::NonlinearJacobian<S,O>  JOp;
 ////  typedef Pimpact::OperatorBase<MVF>  BOP;
 //
@@ -341,12 +339,12 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, createGroup ) {
 //    Teuchos::rcp(new Teuchos::ParameterList);
 //
 ////   Select the solver (this is the default)
-////  solverParametersPtr->set("Nonlinear Solver", "Line Search Based");
+////  solverParametersPtr->set("ConvectionOp Solver", "Line Search Based");
 //
 //  // Create the directions parameters sublist
 ////  Teuchos::ParameterList&  sl = solverParametersPtr->sublist("Direction");
 ////  sl.set("Method","NonlinearCG");
-////  Teuchos::ParameterList&  sll = sl.sublist("Nonlinear CG");
+////  Teuchos::ParameterList&  sll = sl.sublist("ConvectionOp CG");
 ////  sll.set( "Precondition", "On" );
 //////  sll.set( "Restart Frequency", 10  );
 //
@@ -388,7 +386,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, createGroup ) {
 //  typedef int O;
 //  typedef Pimpact::VectorField<S,O> VF;
 //  typedef Pimpact::MultiField<VF> MVF;
-//  typedef Pimpact::Nonlinear<S,O>  Op;
+//  typedef Pimpact::ConvectionOp<S,O>  Op;
 //  typedef Pimpact::NonlinearJacobian<S,O>  JOp;
 //  typedef Pimpact::OperatorBase<MVF>  BOp;
 //
@@ -467,12 +465,12 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, createGroup ) {
 //    Teuchos::rcp(new Teuchos::ParameterList);
 //
 ////   Select the solver (this is the default)
-////  solverParametersPtr->set("Nonlinear Solver", "Line Search Based");
+////  solverParametersPtr->set("ConvectionOp Solver", "Line Search Based");
 //
 //  // Create the directions parameters sublist
 ////  Teuchos::ParameterList&  sl = solverParametersPtr->sublist("Direction");
 ////  sl.set("Method","NonlinearCG");
-////  Teuchos::ParameterList&  sll = sl.sublist("Nonlinear CG");
+////  Teuchos::ParameterList&  sll = sl.sublist("ConvectionOp CG");
 ////  sll.set( "Precondition", "On" );
 //////  sll.set( "Restart Frequency", 10  );
 //
@@ -513,7 +511,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
 
   typedef Pimpact::VectorField<S,O> VF;
   typedef Pimpact::MultiField<VF> MVF;
-  typedef Pimpact::Nonlinear<S,O>  Op1;
+  typedef Pimpact::ConvectionOp<S,O>  Op1;
   typedef Pimpact::HelmholtzOp<S,O>  Op2;
   typedef Pimpact::MultiOpWrap<Pimpact::Add2Op<Op1,Op2> >  Op;
   typedef Pimpact::NonlinearJacobian<S,O>  JOp1;
@@ -525,7 +523,11 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
 
   int rank = 0;
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  auto space = Pimpact::createSpace( pl, !isImpactInit );
+
+  if( !isImpactInit ) isImpactInit=true;
 
   auto vel = Pimpact::createVectorField<S,O>(space);
 
@@ -539,7 +541,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
   auto op = Pimpact::createOperatorBase<MVF,Op>(
       Pimpact::createMultiOpWrap(
           Pimpact::createAdd2Op<Op1,Op2>(
-              Pimpact::createNonlinear<S,O>(),
+              Pimpact::createConvectionOp<S,O>( space ),
               Pimpact::createHelmholtzOp<S,O>( space, 0., eps ),
               vel->clone() ) ) );
 
@@ -600,12 +602,12 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
     Teuchos::rcp(new Teuchos::ParameterList);
 
 //   Select the solver (this is the default)
-//  solverParametersPtr->set("Nonlinear Solver", "Line Search Based");
+//  solverParametersPtr->set("ConvectionOp Solver", "Line Search Based");
 
   // Create the directions parameters sublist
 //  Teuchos::ParameterList&  sl = solverParametersPtr->sublist("Direction");
 //  sl.set("Method","NonlinearCG");
-//  Teuchos::ParameterList&  sll = sl.sublist("Nonlinear CG");
+//  Teuchos::ParameterList&  sll = sl.sublist("ConvectionOp CG");
 //  sll.set( "Precondition", "On" );
 ////  sll.set( "Restart Frequency", 10  );
 

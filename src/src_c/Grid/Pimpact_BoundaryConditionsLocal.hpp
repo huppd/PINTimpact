@@ -14,13 +14,13 @@
 
 
 extern "C" {
-void fgetBCLoc(
-    int& BC_1L_,
-    int& BC_1U_,
-    int& BC_2L_,
-    int& BC_2U_,
-    int& BC_3L_,
-    int& BC_3U_ );
+//void fgetBCLoc(
+//    int& BC_1L_,
+//    int& BC_1U_,
+//    int& BC_2L_,
+//    int& BC_2U_,
+//    int& BC_3L_,
+//    int& BC_3U_ );
 void fsetBCLoc(
     const int& BC_1L_,
     const int& BC_1U_,
@@ -117,31 +117,31 @@ public:
 
 
 
-/// \relates BoundaryConditionsLocal
-Teuchos::RCP<const BoundaryConditionsLocal> createBoudaryConditionsLocal() {
-  typedef const Teuchos::Tuple<int,3> TBC3;
-
-  TBC3 BCL;
-  TBC3 BCU;
-
-  fgetBCLoc(
-    BCL[0],
-    BCU[0],
-    BCL[1],
-    BCU[1],
-    BCL[2],
-    BCU[2] );
-
-  return(
-      Teuchos::rcp(
-          new BoundaryConditionsLocal(
-              EBCType( BCL[0] ),
-              EBCType( BCU[0] ),
-              EBCType( BCL[1] ),
-              EBCType( BCU[1] ),
-              EBCType( BCL[2] ),
-              EBCType( BCU[2] )   ) ) );
-}
+///// \relates BoundaryConditionsLocal
+//Teuchos::RCP<const BoundaryConditionsLocal> createBoudaryConditionsLocal() {
+//  typedef const Teuchos::Tuple<int,3> TBC3;
+//
+//  TBC3 BCL;
+//  TBC3 BCU;
+//
+//  fgetBCLoc(
+//    BCL[0],
+//    BCU[0],
+//    BCL[1],
+//    BCU[1],
+//    BCL[2],
+//    BCU[2] );
+//
+//  return(
+//      Teuchos::rcp(
+//          new BoundaryConditionsLocal(
+//              EBCType( BCL[0] ),
+//              EBCType( BCU[0] ),
+//              EBCType( BCL[1] ),
+//              EBCType( BCU[1] ),
+//              EBCType( BCL[2] ),
+//              EBCType( BCU[2] )   ) ) );
+//}
 
 
 template< class O, int d >

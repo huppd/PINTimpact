@@ -19,7 +19,6 @@
 #include "Pimpact_MultiField.hpp"
 
 #include "Pimpact_Operator.hpp"
-#include "Pimpact_OperatorMV.hpp"
 #include "Pimpact_OperatorBase.hpp"
 #include "Pimpact_OperatorFactory.hpp"
 
@@ -58,7 +57,7 @@ TEUCHOS_UNIT_TEST( AelosPimpactMV, MultiFieldScalar ) {
 
   pl->set( "domain", domain);
 
-  auto space = Pimpact::createSpace( pl, false );
+  auto space = Pimpact::createSpace( pl );
 
   auto p = Pimpact::createScalarField<double,int>( space );
 
@@ -80,11 +79,11 @@ TEUCHOS_UNIT_TEST( AelosPimpactMV, MultiFieldVector ) {
 
   pl->set( "domain", domain);
 
-  auto space = Pimpact::createSpace( pl, false );
+  auto space = Pimpact::createSpace( pl );
 
-  auto vel = Pimpact::createVectorField<double,int>(space);
+  auto vel = Pimpact::createVectorField(space);
 
-  auto mvec = Pimpact::createMultiField<Pimpact::VectorField<double,int> >(*vel,5);
+  auto mvec = Pimpact::createMultiField( *vel, 5 );
 
   // Create an output manager to handle the I/O from the solver
   Teuchos::RCP<Belos::OutputManager<double> > MyOM = Teuchos::rcp( new Belos::OutputManager<double>(Belos::Warnings,rcp(&out,false)) );
@@ -101,10 +100,10 @@ TEUCHOS_UNIT_TEST( AelosPimpactMV, MultiFieldScalarMode ) {
 
   pl->set( "domain", domain);
 
-  auto space = Pimpact::createSpace( pl, false );
+  auto space = Pimpact::createSpace( pl );
 
-  auto pc = Pimpact::createScalarField<double,int>(space);
-  auto ps = Pimpact::createScalarField<double,int>(space);
+  auto pc = Pimpact::createScalarField(space);
+  auto ps = Pimpact::createScalarField(space);
 
   auto vel = Pimpact::createModeField( pc, ps );
 
@@ -127,7 +126,7 @@ TEUCHOS_UNIT_TEST( AelosPimpactMV, MultiFieldVectorMode ) {
 
   pl->set( "domain", domain);
 
-  auto space = Pimpact::createSpace( pl, false );
+  auto space = Pimpact::createSpace( pl );
 
   auto velc = Pimpact::createVectorField<double,int>(space);
   auto vels = Pimpact::createVectorField<double,int>(space);
@@ -159,7 +158,7 @@ TEUCHOS_UNIT_TEST( AelosPimpactMV, MultiFieldCompound ) {
 
   pl->set( "domain", domain);
 
-  auto space = Pimpact::createSpace( pl, false );
+  auto space = Pimpact::createSpace( pl );
 
   auto vel = Pimpact::createVectorField<S,O>( space );
   auto sca = Pimpact::createScalarField<S,O>( space );
@@ -191,7 +190,7 @@ TEUCHOS_UNIT_TEST( AelosPimpactMV, MultiFieldCompoundMode ) {
 
   pl->set( "domain", domain);
 
-  auto space = Pimpact::createSpace( pl, false );
+  auto space = Pimpact::createSpace( pl );
 
   auto velc = Pimpact::createVectorField<double,int>(space);
   auto vels = Pimpact::createVectorField<double,int>(space);
@@ -231,7 +230,7 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, HelmholtzMV ) {
 
   pl->set( "domain", domain);
 
-  auto space = Pimpact::createSpace( pl, false );
+  auto space = Pimpact::createSpace( pl );
 
   auto field = Pimpact::createVectorField<S,O>(space);
 
@@ -267,7 +266,7 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, DtLapOp ) {
 
   pl->set( "domain", domain);
 
-  auto space = Pimpact::createSpace( pl, false );
+  auto space = Pimpact::createSpace( pl, true );
 
   auto fieldc = Pimpact::createVectorField<S,O>(space);
   auto fields = fieldc->clone();
@@ -303,7 +302,7 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, DivGrad ) {
 
   pl->set( "domain", domain);
 
-  auto space = Pimpact::createSpace( pl, false );
+  auto space = Pimpact::createSpace( pl );
 
   auto temp = Pimpact::createVectorField<S,O>( space );
 

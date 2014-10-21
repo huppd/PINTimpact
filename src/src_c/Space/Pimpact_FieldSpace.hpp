@@ -15,6 +15,7 @@ namespace Pimpact {
 
 
 /// \todo refector name to something like Stencil stuff
+/// \ingroup Space
 template< class Ordinal=int, int dim=3>
 class FieldSpace {
 
@@ -27,8 +28,8 @@ public:
 
 
 protected:
-//  static const int dim_nc = 2;
-//  static const int dim_nc = 3;
+  //  static const int dim_nc = 2;
+  //  static const int dim_nc = 3;
   static const int dim_nc = 4;
 
   typedef  Teuchos::Tuple<  Teuchos::Tuple<int,dim_nc>,3> TStenc;
@@ -90,20 +91,19 @@ protected:
     gu_(),
     nl_(),
     nu_(),
-    ls_(Teuchos::tuple(-1,-1,-1))
-    {
+    ls_(Teuchos::tuple(-1,-1,-1) ) {
 
     for( int i=0; i<3; ++i ) {
       //--- Anzahl Stencil-Koeffizienten (Rand) -------------------------------------------------------------------
-//      // note dim_nc has to be 2
-//      ncbC_[i] = Teuchos::tuple( 2, 3 );
-//      ncbD_[i] = Teuchos::tuple( 2, 2 );
-//      ncbG_[i] = Teuchos::tuple( 0, 2 );
-//
-//      // note dim_nc has to be 3
-//      ncbC_[i] = Teuchos::tuple( 3, 4, 5 );
-//      ncbD_[i] = Teuchos::tuple( 3, 4, 4 );
-//      ncbG_[i] = Teuchos::tuple( 2, 3, 4 );
+      //      // note dim_nc has to be 2
+      //      ncbC_[i] = Teuchos::tuple( 2, 3 );
+      //      ncbD_[i] = Teuchos::tuple( 2, 2 );
+      //      ncbG_[i] = Teuchos::tuple( 0, 2 );
+      //
+      //      // note dim_nc has to be 3
+      //      ncbC_[i] = Teuchos::tuple( 3, 4, 5 );
+      //      ncbD_[i] = Teuchos::tuple( 3, 4, 4 );
+      //      ncbG_[i] = Teuchos::tuple( 2, 3, 4 );
 
       // Stabil   (xi >= 2, Re=10000, N=17)
       // note dim_nc has to be 4
@@ -111,23 +111,23 @@ protected:
       ncbD_[i] = Teuchos::tuple( 4, 4, 6, 6 );
       ncbG_[i] = Teuchos::tuple( 3, 4, 4, 6 );
 
-//      // Instabil (äquidistant, Re=10000, N=17)
-//      // note dim_nc has to be 5
-//      ncbC_[i] = Teuchos::tuple( 5, 6, 6, 7, 9 );
-//      ncbD_[i] = Teuchos::tuple( 5, 4, 6, 8, 8 );
-//      ncbG_[i] = Teuchos::tuple( 0, 5, 4, 6, 8 );
-//
-//      // Instabil (äquidistant, Re=10000, N=17)
-//      // note dim_nc has to be 6
-//      ncbC_[i] = Teuchos::tuple( 6, 7, 7, 7,  9, 11 );
-//      ncbD_[i] = Teuchos::tuple( 6, 6, 6, 8, 10, 10 );
-//      ncbG_[i] = Teuchos::tuple( 5, 6, 6, 6,  8, 10 );
-//
-//      // Stabil  (Re=10000, N=65, leicht gestreckt, explizites Forcing)
-//      // note dim_nc has to be 5
-//      ncbC_[i] = Teuchos::tuple( 3, 7, 7, 7, 9 );
-//      ncbD_[i] = Teuchos::tuple( 6, 6, 6, 8, 8 );
-//      ncbG_[i] = Teuchos::tuple( 0, 6, 6, 6, 8 );
+      //      // Instabil (äquidistant, Re=10000, N=17)
+      //      // note dim_nc has to be 5
+      //      ncbC_[i] = Teuchos::tuple( 5, 6, 6, 7, 9 );
+      //      ncbD_[i] = Teuchos::tuple( 5, 4, 6, 8, 8 );
+      //      ncbG_[i] = Teuchos::tuple( 0, 5, 4, 6, 8 );
+      //
+      //      // Instabil (äquidistant, Re=10000, N=17)
+      //      // note dim_nc has to be 6
+      //      ncbC_[i] = Teuchos::tuple( 6, 7, 7, 7,  9, 11 );
+      //      ncbD_[i] = Teuchos::tuple( 6, 6, 6, 8, 10, 10 );
+      //      ncbG_[i] = Teuchos::tuple( 5, 6, 6, 6,  8, 10 );
+      //
+      //      // Stabil  (Re=10000, N=65, leicht gestreckt, explizites Forcing)
+      //      // note dim_nc has to be 5
+      //      ncbC_[i] = Teuchos::tuple( 3, 7, 7, 7, 9 );
+      //      ncbD_[i] = Teuchos::tuple( 6, 6, 6, 8, 8 );
+      //      ncbG_[i] = Teuchos::tuple( 0, 6, 6, 6, 8 );
 
     }
 
@@ -172,28 +172,20 @@ protected:
     if( 4==dim ) nl_[3] = bl_[3];
     if( 4==dim ) nu_[3] = bu_[3];
 
-  };
+};
 
   /// \brief constructor
   ///
   /// \param bl lower bound of storage
   /// \param bu upper bound of storage
   FieldSpace(
-//      Ordinal dimension,
+      //      Ordinal dimension,
       TO bl,
       TO bu ):
         bl_(bl),
         bu_(bu),
         ls_(Teuchos::tuple(-1,-1,-1))
   {};
-
-//  /// \todo necessary?
-//  FieldSpace(
-//      const FieldSpace& fs ):
-//        bl_(fs.bl_),
-//        bu_(fs.bu_),
-//        ls_(Teuchos::tuple(-1,-1,-1))
-//  {};
 
 public:
 
@@ -215,9 +207,9 @@ public:
     out << "ls: " << ls_ << "\n";
   }
 
-        Ordinal  getDimNcbC( int i ) const { return( ncbC_[i].size() ); }
-        Ordinal  getDimNcbD( int i ) const { return( ncbD_[i].size() ); }
-        Ordinal  getDimNcbG( int i ) const { return( ncbG_[i].size() ); }
+  Ordinal  getDimNcbC( int i ) const { return( ncbC_[i].size() ); }
+  Ordinal  getDimNcbD( int i ) const { return( ncbD_[i].size() ); }
+  Ordinal  getDimNcbG( int i ) const { return( ncbG_[i].size() ); }
 
   const Ordinal* getNcbC( int i ) const { return( ncbC_[i].getRawPtr() ); }
   const Ordinal* getNcbD( int i ) const { return( ncbD_[i].getRawPtr() ); }

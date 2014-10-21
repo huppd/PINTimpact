@@ -41,6 +41,8 @@ class ScalarField : private AbstractField<S,O> {
   template<class S1,class O1,int dimension1>
   friend class InterpolateV2S;
   template<class S1,class O1,int dimension1>
+  friend class InterpolateS2V;
+  template<class S1,class O1,int dimension1>
   friend class DivGradOp;
   template<class S1,class O1,int dimension1>
   friend class MGVDivGradOp;

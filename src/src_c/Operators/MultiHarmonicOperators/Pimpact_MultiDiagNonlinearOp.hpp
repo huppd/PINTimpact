@@ -9,7 +9,7 @@
 #include "Pimpact_VectorField.hpp"
 #include "Pimpact_MultiHarmonicField.hpp"
 
-#include "Pimpact_NonlinearOp.hpp"
+#include "Pimpact_ConvectionOp.hpp"
 
 
 
@@ -32,9 +32,9 @@ public:
 protected:
 
   Teuchos::RCP<DomainFieldT> u_;
-//  Teuchos::RCP<DomainFieldT> mtemp_;
-//  Teuchos::RCP<VectorField<S,O> > temp_;
-  Teuchos::RCP<Nonlinear<S,O> > op_;
+  //  Teuchos::RCP<DomainFieldT> mtemp_;
+  //  Teuchos::RCP<VectorField<S,O> > temp_;
+  Teuchos::RCP<ConvectionOp<S,O> > op_;
 
   const bool isNewton_;
 
@@ -42,23 +42,26 @@ public:
 
   MultiHarmonicDiagNonlinearJacobian( const bool& isNewton=true ):
     u_(Teuchos::null),
-//    mtemp_(Teuchos::null),
-//    temp_(Teuchos::null),
-    op_( Teuchos::rcp( new Nonlinear<S,O>() )),
+    //    mtemp_(Teuchos::null),
+    //    temp_(Teuchos::null),
+    op_( Teuchos::rcp( new ConvectionOp<S,O>() )),
     isNewton_(isNewton) {};
 
-  MultiHarmonicDiagNonlinearJacobian( const Teuchos::RCP<DomainFieldT>& temp, const bool& isNewton=true ):
-    u_(temp->clone()),
-//    mtemp_(temp->clone()),
-//    temp_(temp->get0FieldPtr()->clone()),
-    op_( Teuchos::rcp( new Nonlinear<S,O>() )),
-    isNewton_(isNewton) {};
+  MultiHarmonicDiagNonlinearJacobian(
+      const Teuchos::RCP<const Space<S,O,3> >& space,
+      const Teuchos::RCP<DomainFieldT>& temp,
+      const bool& isNewton=true ):
+        u_(temp->clone()),
+        //    mtemp_(temp->clone()),
+        //    temp_(temp->get0FieldPtr()->clone()),
+        op_( Teuchos::rcp( new ConvectionOp<S,O>( space ) )),
+        isNewton_(isNewton) {};
 
   void assignField( const DomainFieldT& mv ) {
     if( Teuchos::is_null( u_ ) )
-       u_ = mv.clone();
-     else
-       u_->assign( mv );
+      u_ = mv.clone();
+    else
+      u_->assign( mv );
   };
 
 protected:
@@ -70,33 +73,33 @@ protected:
 
     // computing zero mode of y
     op_->apply( x.getConst0Field(), y.getConst0Field(), z.get0Field(), 1. );
-//    z.get0Field().add( 1., z.getConst0Field(), 1., *temp_ );
+    //    z.get0Field().add( 1., z.getConst0Field(), 1., *temp_ );
 
 
     for( int i=1; i<=Nf; ++i ) {
       // computing cos mode of y
       op_->apply( x.getConst0Field(), y.getConstCField(i-1), z.getCField(i-1), 1. );
-//      z.getCField(i-1).add( 1., z.getConstCField(i-1), 1., *temp_ );
+      //      z.getCField(i-1).add( 1., z.getConstCField(i-1), 1., *temp_ );
 
       // computing sin mode of y
       op_->apply( x.getConst0Field(), y.getConstSField(i-1), z.getSField(i-1), 1. );
-//      z.getSField(i-1).add( 1., z.getConstSField(i-1), 1., *temp_ );
+      //      z.getSField(i-1).add( 1., z.getConstSField(i-1), 1., *temp_ );
 
       if( 2*i<=Nf ) {
 
         // computing cos mode of y
         op_->apply( x.getConstCField(i+i-1), y.getConstCField(i-1), z.getCField(i-1), 0.5 );
-//        z.getCField(i-1).add( 1., z.getConstCField(i-1), 0.5, *temp_ );
+        //        z.getCField(i-1).add( 1., z.getConstCField(i-1), 0.5, *temp_ );
 
         op_->apply( x.getConstSField(i+i-1), y.getConstSField(i-1), z.getCField(i-1), 0.5 );
-//        z.getCField(i-1).add( 1., z.getConstCField(i-1), 0.5, *temp_ );
+        //        z.getCField(i-1).add( 1., z.getConstCField(i-1), 0.5, *temp_ );
 
         // computing sin mode of y
         op_->apply( x.getConstCField(i+i-1), y.getConstSField(i-1), z.getSField(i-1), -0.5 );
-//        z.getSField(i-1).add( 1., z.getConstSField(i-1), -0.5, *temp_ );
+        //        z.getSField(i-1).add( 1., z.getConstSField(i-1), -0.5, *temp_ );
 
         op_->apply( x.getConstSField(i+i-1), y.getConstCField(i-1), z.getSField(i-1), 0.5 );
-//        z.getSField(i-1).add( 1., z.getConstSField(i-1), 0.5, *temp_ );
+        //        z.getSField(i-1).add( 1., z.getConstSField(i-1), 0.5, *temp_ );
 
       }
 
@@ -124,8 +127,10 @@ public:
 /// \relates MultiHarmonicDiagNonlinearJacobianOp
 template< class S, class O>
 Teuchos::RCP<MultiHarmonicDiagNonlinearJacobian<S,O> > createMultiHarmonicDiagNonlinearJacobian(
-    const Teuchos::RCP<typename MultiHarmonicDiagNonlinearJacobian<S,O>::DomainFieldT>& u = Teuchos::null, const bool& isNewton=true ) {
-  return( Teuchos::rcp( new MultiHarmonicDiagNonlinearJacobian<S,O>( u, isNewton ) ) );
+    const Teuchos::RCP<const Space<S,O,3> >& space,
+    const Teuchos::RCP<typename MultiHarmonicDiagNonlinearJacobian<S,O>::DomainFieldT>& u = Teuchos::null,
+    const bool& isNewton=true ) {
+  return( Teuchos::rcp( new MultiHarmonicDiagNonlinearJacobian<S,O>( space, u, isNewton ) ) );
 }
 
 

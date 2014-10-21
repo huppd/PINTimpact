@@ -53,8 +53,8 @@ int main(int argi, char** argv ) {
   typedef Pimpact::TimeField< Pimpact::VectorField<S,O,4> > VF;
   typedef Pimpact::TimeField< Pimpact::ScalarField<S,O,4> > SF;
   typedef Pimpact::CompoundField< VF, SF> CF;
-  typedef Pimpact::MultiField<VF> MVF;
-  typedef Pimpact::MultiField<SF> MSF;
+//  typedef Pimpact::MultiField<VF> MVF;
+//  typedef Pimpact::MultiField<SF> MSF;
   typedef Pimpact::MultiField<CF> MF;
 
   typedef Pimpact::ForcingOp<VF> Fo;
@@ -190,7 +190,7 @@ int main(int argi, char** argv ) {
   // end of parsing
 
   // starting with ininializing
-//  int rank = Pimpact::init_impact_pre();
+  //  int rank = Pimpact::init_impact_pre();
 
 
   // starting with ininializing
@@ -265,7 +265,7 @@ int main(int argi, char** argv ) {
   x->init( 0. );
   //  x->random();
   auto fu   = x->clone(Pimpact::ShallowCopy);
-//  fu->init( 0. );
+  //  fu->init( 0. );
 
   Teuchos::RCP<VF> force=Teuchos::null;
   Teuchos::RCP<VF> forcem1=Teuchos::null;
@@ -276,7 +276,7 @@ int main(int argi, char** argv ) {
             x->getConstFieldPtr(0)->getConstVFieldPtr()->clone( Pimpact::ShallowCopy ),
             Pimpact::OscilatingDisc2D,
             xm*l1, ym*l2, rad, amp );
-//    force->write(500);
+    //    force->write(500);
     Pimpact::initVectorTimeField(
         fu->getFieldPtr(0)->getVFieldPtr(),
         Pimpact::OscilatingDisc2DVel,
@@ -314,16 +314,16 @@ int main(int argi, char** argv ) {
   auto lap = Pimpact::createTimeOpWrap< Pimpact::HelmholtzOp<S,O,4>, cny >(
       Pimpact::createHelmholtzOp<S,O,4>( space, 0., 1./re ),
       Pimpact::createVectorField<S,O,4>( space ) );
-  auto adv = Pimpact::createTimeOpWrap<Pimpact::Nonlinear<S,O,4>,cny>  (
-      Pimpact::createNonlinear<S,O,4>(),
+  auto conv = Pimpact::createTimeOpWrap<Pimpact::ConvectionOp<S,O,4>,cny>  (
+      Pimpact::createConvectionOp<S,O,4>( space ),
       Pimpact::createVectorField<S,O,4>( space ) );
 
-//  auto opV2V =
-//      Pimpact::createAdd3Op(
-//          x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
-//          dt,
-//          lap,
-//          adv );
+  //  auto opV2V =
+  //      Pimpact::createAdd3Op(
+  //          x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+  //          dt,
+  //          lap,
+  //          conv );
   auto opV2V =
       Pimpact::createAdd3Op(
           x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
@@ -334,33 +334,33 @@ int main(int argi, char** argv ) {
                   x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
                   dt,
                   lap,
-                  adv ) ),
-           forcingOp );
+                  conv ) ),
+                  forcingOp );
 
   auto opS2V =
       Pimpact::createCompositionOp(
           x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
           forcingm1Op,
-//          Pimpact::createTimeOpWrap<Pimpact::GradOp<S,O,4>,cny>(
+          //          Pimpact::createTimeOpWrap<Pimpact::GradOp<S,O,4>,cny>(
           Pimpact::createTimeOpWrap(
               Pimpact::createGradOp<S,O,4>( space ),
               Pimpact::createVectorField<S,O,4>( space ) ) );
 
-//  auto opV2S = Pimpact::createTimeOpWrap< Pimpact::DivOp<S,O,4>,cny >(
+  //  auto opV2S = Pimpact::createTimeOpWrap< Pimpact::DivOp<S,O,4>,cny >(
   auto opV2S = Pimpact::createTimeOpWrap(
-              Pimpact::createDivOp<S,O,4>( space ),
-              Pimpact::createScalarField<S,O,4>( space ) );
-//  auto opV2S = Pimpact::createTimeOpWrap< Pimpact::DivOp<S,O,4> >();
+      Pimpact::createDivOp<S,O,4>( space ),
+      Pimpact::createScalarField<S,O,4>( space ) );
+  //  auto opV2S = Pimpact::createTimeOpWrap< Pimpact::DivOp<S,O,4> >();
 
-//  auto opV2S =
-//      Pimpact::createCompositionOp(
-//          x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
-//          Pimpact::createTimeOpWrap<Pimpact::DivOp<S,O,4>,cny>(
-////          Pimpact::createTimeOpWrap<Pimpact::DivOp<S,O,4> >(
-//              Pimpact::createDivOp<S,O,4>(),
-//              Pimpact::createScalarField<S,O,4>( space ) ),
-//          forcingm1Op
-//              );
+  //  auto opV2S =
+  //      Pimpact::createCompositionOp(
+  //          x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+  //          Pimpact::createTimeOpWrap<Pimpact::DivOp<S,O,4>,cny>(
+  ////          Pimpact::createTimeOpWrap<Pimpact::DivOp<S,O,4> >(
+  //              Pimpact::createDivOp<S,O,4>(),
+  //              Pimpact::createScalarField<S,O,4>( space ) ),
+  //          forcingm1Op
+  //              );
 
   auto op =
       Pimpact::createMultiOperatorBase<MF>(
@@ -374,15 +374,15 @@ int main(int argi, char** argv ) {
 
   Teuchos::RCP<BOp> jop;
   {
-//    auto opV2V =
-//        Pimpact::createAdd3Op(
-//            x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
-//            dt,
-//            lap,
-//            Pimpact::createTimeNonlinearJacobian<S,O>(
-//                Teuchos::null,
-//                isNewton,
-//                Pimpact::createVectorField<S,O,4>(space) ) );
+    //    auto opV2V =
+    //        Pimpact::createAdd3Op(
+    //            x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+    //            dt,
+    //            lap,
+    //            Pimpact::createTimeNonlinearJacobian<S,O>(
+    //                Teuchos::null,
+    //                isNewton,
+    //                Pimpact::createVectorField<S,O,4>(space) ) );
     auto opV2V =
         Pimpact::createAdd3Op(
             x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
@@ -397,7 +397,7 @@ int main(int argi, char** argv ) {
                         x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
                         isNewton,
                         Pimpact::createVectorField<S,O,4>( space )) ) ),
-             forcingOp );
+                        forcingOp );
 
     jop =
         Pimpact::createMultiOperatorBase<MF>(
@@ -420,361 +420,103 @@ int main(int argi, char** argv ) {
   precParams->set( "Output Stream", outPrec );
 
   if( 1==precType ) {
+    if(0==rank) std::cout << "\n\t---\tprec Type(10): linear block Schur complement\t: not available ---\n";
     para->set( "Maximum Iterations", 500 );
-    if(0==rank) std::cout << "\n\t---\tprec Type(10): linear block Schur complement\t---\n";
 
-    S pi = 4.*std::atan(1.);
-    S deltat = 2.*pi/((S)space->nGlo()[3]);
-    auto mglap =
-        Pimpact::createMultiOperatorBase<MVF>(
-            Pimpact::createTimeOpWrap(
-                Pimpact::createMGVHelmholtzOp<S,O,4>( alpha2/re/deltat, 1./re, true ) ) );
-
-
-    auto A = Pimpact::createMultiOperatorBase<MVF>(
-        Pimpact::createTimeOpWrap(
-            Pimpact::createHelmholtzOp<S,O,4>( space, alpha2/re/deltat, 1./re ) ) );
-
-    auto prob2 =
-        Pimpact::createLinearProblem<MVF>(
-            A,
-            Pimpact::createMultiField( fu->getConstFieldPtr(0)->getConstVFieldPtr()->clone() ),
-            Pimpact::createMultiField( fu->getConstFieldPtr(0)->getConstVFieldPtr()->clone() ),
-            precParams, "GMRES" );
-//            Teuchos::null, "PCPG" );
-    prob2->setLeftPrec( mglap );
-
-    auto opV2Vinv = Pimpact::createInverseOperatorBase( prob2 );
-
-    // opS2Sinv alias schurcomplement ...
-    auto opSchur =
-           Pimpact::createOperatorBase< MSF >(
-               Pimpact::createTripleCompositionOp(
-                   Pimpact::createMultiField(fu->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy)),
-                   Pimpact::createMultiField(fu->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy)),
-//                   fu->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
-                   Pimpact::createMultiOpWrap(opV2S),
-                   opV2Vinv,
-                   Pimpact::createMultiOpWrap(opS2V)
-               )
-           );//
-
-    auto lp_ = Pimpact::createLinearProblem< MSF >( opSchur, Teuchos::null, Teuchos::null, schurParams, "GMRES");
-    /// simple prec
-    auto lappre = Pimpact::createMultiOperatorBase< MSF >(
-        Pimpact::createTimeOpWrap( Pimpact::createMGVDivGradOp<S,O,4>(true) ) );
-    lp_->setLeftPrec(lappre);
-    lp_->setRightPrec(lappre);
-    ///
-    auto opS2Sinv = Pimpact::createInverseOperatorBase( lp_ );
-
-    auto invSchur = Pimpact::createInverseTriangularOp(
-          x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
-          x->getConstFieldPtr(0)->getConstSFieldPtr()->clone(Pimpact::ShallowCopy),
-          opV2Vinv,
-          opS2V,
-          opS2Sinv );
-
-    lprec =
-        Pimpact::createMultiOperatorBase<MF>(
-            invSchur );
   }
   else
-  if( 2==precType ) {
-      para->set( "Maximum Iterations", 300 );
+    if( 2==precType ) {
 
-     if(0==rank) std::cout << "\n\t---\tprec Type(10): linear block commuter Schur complement\t---\n";
+      if(0==rank) std::cout << "\n\t---\tprec Type(10): linear block commuter Schur complement:\t not available---\n";
+    }
+    else
+      if( 3==precType ) {
+        if(0==rank) std::cout << "\n\t---\tprec Type(10): linear block commuter Schur complement\t--- not available\n";
 
-//     S pi = 4.*std::atan(1.);
-//     S deltat = 2.*pi/((S)space->nGlo()[3]);
-     auto helMGV =
-         Pimpact::createMultiOperatorBase<MVF>(
-             Pimpact::createTimeOpWrap<Pimpact::MGVHelmholtzOp<S,O,4>,false>(
-                 Pimpact::createMGVHelmholtzOp<S,O,4>( alpha2*idt/re, 1./re, true ) ) );
-//                 Pimpact::createMGVHelmholtzOp<S,O,4>( alpha2*idt/re, 0., true ) ) );
+      }
+  //  else if( 3==precType ) {
+  //
+  //    if(0==rank) std::cout << "\n\t---\tprec Type(10): full Schur complement\t---\n";
+  //
+  //    auto opV2V =
+  //        Pimpact::createAdd3Op(
+  //            x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+  //            Pimpact::createCompositionOp(
+  //                x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+  //                forcingm1Op,
+  //                Pimpact::createAdd3Op(
+  //                    x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+  //                    dt,
+  //                    lap,
+  //                    Pimpact::createTimeNonlinearJacobian<S,O,cny>(
+  //                        Teuchos::null,
+  //                        isNewton,
+  //                        Pimpact::createVectorField<S,O,4>( space )) ) ),
+  //             forcingOp );
+  //
+  //    auto lp_ =
+  //        Pimpact::createLinearProblem<MVF>(
+  //            Pimpact::createMultiOperatorBase<MVF>(opV2V),
+  //            Teuchos::null,
+  //            Teuchos::null,
+  //            precParams,
+  ////            "GCRODR" );
+  //            linSolName );
+  //
+  //    auto opV2Vinv = Pimpact::createInverseOperatorBase<MVF>( lp_ );
+  //
+  //    auto invSchur = Pimpact::createInverseSchurOp(
+  //        x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
+  //        x->getConstFieldPtr(0)->getConstSFieldPtr()->clone(Pimpact::ShallowCopy),
+  //        opV2Vinv,
+  //        opS2V,
+  //        opV2S,
+  //        schurParams );
+  //
+  //    lprec =
+  //        Pimpact::createMultiOperatorBase<MF>(
+  //            invSchur );
+  //  }
+  //  else if( 4==precType ) {
+  //     if(0==rank) std::cout << "\n\t---\tprec Type(10): linear block diag\t---\n";
+  //
+  //     S pi = 4.*std::atan(1.);
+  //     S deltat = 2.*pi/((S)space->nGlo()[3]);
+  //     auto prec =
+  //         Pimpact::createMultiOperatorBase<MVF>(
+  //             Pimpact::createTimeOpWrap(
+  //                 Pimpact::createMGVHelmholtzOp<S,O,4>( alpha2/re/deltat, 1./re, true ) ) );
+  //
+  //
+  //     auto A = Pimpact::createMultiOperatorBase<MVF>(
+  //         Pimpact::createTimeOpWrap(
+  //             Pimpact::createHelmholtzOp<S,O,4>( alpha2/re/deltat, 1./re ) ) );
+  //
+  //     auto prob2 =
+  //         Pimpact::createLinearProblem<MVF>(
+  //             A,
+  //             Pimpact::createMultiField( fu->getConstFieldPtr(0)->getConstVFieldPtr()->clone() ),
+  //             Pimpact::createMultiField( fu->getConstFieldPtr(0)->getConstVFieldPtr()->clone() ),
+  //             precParams, "CG" );
+  //     prob2->setLeftPrec( prec );
+  //
+  //     auto opV2Vinv = Pimpact::createInverseOperatorBase( prob2 );
+  //
+  //
+  //     auto invSchur = Pimpact::createInverseSchurOp(
+  //         x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
+  //         x->getConstFieldPtr(0)->getConstSFieldPtr()->clone(Pimpact::ShallowCopy),
+  //         opV2Vinv,
+  //         opS2V,
+  //         opV2S,
+  //         schurParams );
+  //
+  //     lprec =
+  //         Pimpact::createMultiOperatorBase<MF>(
+  //             invSchur );
+  //   }
 
-
-//     auto helOp = Pimpact::createMultiOperatorBase<MVF>(
-//         Pimpact::createTimeOpWrap< Pimpact::HelmholtzOp<S,O,4>, false>(
-//             Pimpact::createHelmholtzOp<S,O,4>( alpha2*idt/re, 1./re ) ) );
-////             Pimpact::createHelmholtzOp<S,O,4>( alpha2*idt/re, 0. ) ) );
-//////             Pimpact::createVectorField( space ) ) );
-     auto helOp = Pimpact::createMultiOperatorBase<MVF>(opV2V);
-
-     auto helProb =
-         Pimpact::createLinearProblem<MVF>(
-             helOp,
-             Pimpact::createMultiField( fu->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy) ),
-             Pimpact::createMultiField( fu->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy) ),
-             precParams, "GMRES" );
-//             precParams, "GCRODR" );
-//             precParams, "TFQMR" );
-//             precParams, "CG" );
- //            Teuchos::null, "PCPG" );
-//     helProb->setLeftPrec( helMGV );
-
-     auto opV2Vinv = Pimpact::createInverseOperatorBase( helProb );
-
-     // opS2Sinv alias schurcomplement ...
-     auto opSchur =
-            Pimpact::createMultiOperatorBase< MSF >(
-                Pimpact::createTripleCompositionOp(
-                    fu->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
-                    fu->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
-                    opV2S,
-                    opV2V,
-                    opS2V
-                )
-            );
-
-     //--- inverse DivGrad
-     auto divGradPrec =
-         Pimpact::createMultiOperatorBase< Pimpact::MultiField<SF> >(
-             Pimpact::createTimeOpWrap( Pimpact::createMGVDivGradOp<S,O,4>(true) ) );
-     auto divGradProb =
-         Pimpact::createLinearProblem< MSF >(
-             Pimpact::createMultiOperatorBase< Pimpact::MultiField<SF> >(
-                 Pimpact::createTimeOpWrap(
-                     Pimpact::createDivGradOp<S,O,4>(
-                         x->getConstFieldPtr(0)->getConstVFieldPtr()->getConstFieldPtr(0)->clone(),
-                         Pimpact::createDivOp<S,O,4>( space ),
-                         Pimpact::createGradOp<S,O,4>( space )
-                     )
-                 )
-             ),
-             Teuchos::null,
-             Teuchos::null,
-             schurParams,
-             "GMRES"
-         );
-     divGradProb->setRightPrec( divGradPrec );
-     auto divGradInv = Pimpact::createInverseOperatorBase( divGradProb );
-
-     auto opS2Sinv =
-            Pimpact::createOperatorBase< MSF >(
-                Pimpact::createTripleCompositionOp(
-                    Pimpact::createMultiField( fu->getConstFieldPtr(0)->getConstSFieldPtr()->clone(Pimpact::ShallowCopy) ),
-                    Pimpact::createMultiField( fu->getConstFieldPtr(0)->getConstSFieldPtr()->clone(Pimpact::ShallowCopy) ),
-                    divGradInv,
-                    opSchur,
-                    divGradInv
-                )
-            );
-
-////     auto lp_ = Pimpact::createLinearProblem< Pimpact::MultiField<SF> >( opSchur, Teuchos::null, Teuchos::null, schurParams, "GMRES" );
-////
-////     auto opS2Sinv = Pimpact::createInverseOperatorBase( lp_ );
-
-     auto invSchur = Pimpact::createInverseTriangularOp(
-           x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
-           x->getConstFieldPtr(0)->getConstSFieldPtr()->clone(Pimpact::ShallowCopy),
-           opV2Vinv,
-           opS2V,
-           opS2Sinv );
-
-     lprec =
-         Pimpact::createMultiOperatorBase<MF>(
-             invSchur );
-  }
-  else
-  if( 3==precType ) {
-     if(0==rank) std::cout << "\n\t---\tprec Type(10): linear block commuter Schur complement\t---\n";
-
-     S pi = 4.*std::atan(1.);
-     S deltat = 2.*pi/((S)space->nGlo()[3]);
-     auto mglap =
-         Pimpact::createMultiOperatorBase<MVF>(
-             Pimpact::createTimeOpWrap(
-                 Pimpact::createMGVHelmholtzOp<S,O,4>( alpha2/re/deltat, 1./re, true ) ) );
-
-
-     auto A = Pimpact::createMultiOperatorBase<MVF>(
-         Pimpact::createTimeOpWrap(
-             Pimpact::createHelmholtzOp<S,O,4>( space, alpha2/re/deltat, 1./re ) ) );
-
-     auto prob2 =
-         Pimpact::createLinearProblem<MVF>(
-             A,
-             Pimpact::createMultiField( fu->getConstFieldPtr(0)->getConstVFieldPtr()->clone() ),
-             Pimpact::createMultiField( fu->getConstFieldPtr(0)->getConstVFieldPtr()->clone() ),
-//             precParams, "GMRES" );
-             precParams, "CG" );
- //            Teuchos::null, "PCPG" );
-     prob2->setLeftPrec( mglap );
-
-     auto opV21Vinv = Pimpact::createInverseOperatorBase( prob2 );
-    auto opV2V =
-        Pimpact::createAdd3Op(
-            x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
-            Pimpact::createCompositionOp(
-                x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
-                forcingm1Op,
-                Pimpact::createAdd3Op(
-                    x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
-                    dt,
-                    lap,
-                    Pimpact::createTimeNonlinearJacobian<S,O,cny>(
-                        Teuchos::null,
-                        isNewton,
-                        Pimpact::createVectorField<S,O,4>( space )) ) ),
-             forcingOp );
-
-    auto lp_ =
-        Pimpact::createLinearProblem<MVF>(
-            Pimpact::createMultiOperatorBase<MVF>(opV2V),
-            Teuchos::null,
-            Teuchos::null,
-            precParams,
-//            "GCRODR" );
-            linSolName );
-    lp_->setRightPrec( opV21Vinv );
-
-    auto opV2Vinv = Pimpact::createInverseOperatorBase<MVF>( lp_ );
-
-     // opS2Sinv alias schurcomplement ...
-     auto opSchur =
-            Pimpact::createMultiOperatorBase< MSF >(
-                Pimpact::createTripleCompositionOp(
-                    fu->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
-                    fu->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
-                    opV2S,
-                    opV2V,
-                    opS2V
-                )
-            );
-
-     //--- inverse DivGrad
-     auto divGradPrec =
-         Pimpact::createMultiOperatorBase< Pimpact::MultiField<SF> >(
-             Pimpact::createTimeOpWrap( Pimpact::createMGVDivGradOp<S,O,4>(true) ) );
-     auto divGradProb =
-         Pimpact::createLinearProblem< MSF >(
-             Pimpact::createMultiOperatorBase< Pimpact::MultiField<SF> >(
-                 Pimpact::createTimeOpWrap(
-                     Pimpact::createDivGradOp<S,O,4>(
-                         x->getConstFieldPtr(0)->getConstVFieldPtr()->getConstFieldPtr(0)->clone(),
-                         Pimpact::createDivOp<S,O,4>( space ),
-                         Pimpact::createGradOp<S,O,4>( space )
-                     )
-                 )
-             ),
-             Teuchos::null,
-             Teuchos::null,
-             schurParams,
-             "GMRES"
-         );
-     divGradProb->setRightPrec( divGradPrec );
-     auto divGradInv = Pimpact::createInverseOperatorBase( divGradProb );
-
-     auto opS2Sinv =
-            Pimpact::createOperatorBase< MSF >(
-                Pimpact::createTripleCompositionOp(
-                    Pimpact::createMultiField( fu->getConstFieldPtr(0)->getConstSFieldPtr()->clone(Pimpact::ShallowCopy) ),
-                    Pimpact::createMultiField( fu->getConstFieldPtr(0)->getConstSFieldPtr()->clone(Pimpact::ShallowCopy) ),
-                    divGradInv,
-                    opSchur,
-                    divGradInv
-                )
-            );
-
-////     auto lp_ = Pimpact::createLinearProblem< Pimpact::MultiField<SF> >( opSchur, Teuchos::null, Teuchos::null, schurParams, "GMRES" );
-////
-////     auto opS2Sinv = Pimpact::createInverseOperatorBase( lp_ );
-
-     auto invSchur = Pimpact::createInverseTriangularOp(
-           x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
-           x->getConstFieldPtr(0)->getConstSFieldPtr()->clone(Pimpact::ShallowCopy),
-           opV2Vinv,
-           opS2V,
-           opS2Sinv );
-
-     lprec =
-         Pimpact::createMultiOperatorBase<MF>(
-             invSchur );
-  }
-//  else if( 3==precType ) {
-//
-//    if(0==rank) std::cout << "\n\t---\tprec Type(10): full Schur complement\t---\n";
-//
-//    auto opV2V =
-//        Pimpact::createAdd3Op(
-//            x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
-//            Pimpact::createCompositionOp(
-//                x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
-//                forcingm1Op,
-//                Pimpact::createAdd3Op(
-//                    x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
-//                    dt,
-//                    lap,
-//                    Pimpact::createTimeNonlinearJacobian<S,O,cny>(
-//                        Teuchos::null,
-//                        isNewton,
-//                        Pimpact::createVectorField<S,O,4>( space )) ) ),
-//             forcingOp );
-//
-//    auto lp_ =
-//        Pimpact::createLinearProblem<MVF>(
-//            Pimpact::createMultiOperatorBase<MVF>(opV2V),
-//            Teuchos::null,
-//            Teuchos::null,
-//            precParams,
-////            "GCRODR" );
-//            linSolName );
-//
-//    auto opV2Vinv = Pimpact::createInverseOperatorBase<MVF>( lp_ );
-//
-//    auto invSchur = Pimpact::createInverseSchurOp(
-//        x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
-//        x->getConstFieldPtr(0)->getConstSFieldPtr()->clone(Pimpact::ShallowCopy),
-//        opV2Vinv,
-//        opS2V,
-//        opV2S,
-//        schurParams );
-//
-//    lprec =
-//        Pimpact::createMultiOperatorBase<MF>(
-//            invSchur );
-//  }
-//  else if( 4==precType ) {
-//     if(0==rank) std::cout << "\n\t---\tprec Type(10): linear block diag\t---\n";
-//
-//     S pi = 4.*std::atan(1.);
-//     S deltat = 2.*pi/((S)space->nGlo()[3]);
-//     auto prec =
-//         Pimpact::createMultiOperatorBase<MVF>(
-//             Pimpact::createTimeOpWrap(
-//                 Pimpact::createMGVHelmholtzOp<S,O,4>( alpha2/re/deltat, 1./re, true ) ) );
-//
-//
-//     auto A = Pimpact::createMultiOperatorBase<MVF>(
-//         Pimpact::createTimeOpWrap(
-//             Pimpact::createHelmholtzOp<S,O,4>( alpha2/re/deltat, 1./re ) ) );
-//
-//     auto prob2 =
-//         Pimpact::createLinearProblem<MVF>(
-//             A,
-//             Pimpact::createMultiField( fu->getConstFieldPtr(0)->getConstVFieldPtr()->clone() ),
-//             Pimpact::createMultiField( fu->getConstFieldPtr(0)->getConstVFieldPtr()->clone() ),
-//             precParams, "CG" );
-//     prob2->setLeftPrec( prec );
-//
-//     auto opV2Vinv = Pimpact::createInverseOperatorBase( prob2 );
-//
-//
-//     auto invSchur = Pimpact::createInverseSchurOp(
-//         x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
-//         x->getConstFieldPtr(0)->getConstSFieldPtr()->clone(Pimpact::ShallowCopy),
-//         opV2Vinv,
-//         opS2V,
-//         opV2S,
-//         schurParams );
-//
-//     lprec =
-//         Pimpact::createMultiOperatorBase<MF>(
-//             invSchur );
-//   }
-
-//      if( 10==precType ) {
+  //      if( 10==precType ) {
   //      if(0==rank) std::cout << "\n\t---\tprec Type(10): full Newton iteration Schur complement\t---\n";
   //      auto opV2V =
   //          Pimpact::createMultiOperatorBase<MVF>(
@@ -1020,7 +762,7 @@ int main(int argi, char** argv ) {
   //
   //
   //    if( 10!=fixType ) {
-//  para->set( "Output Stream", outLinSolve );
+  //  para->set( "Output Stream", outLinSolve );
   auto lp_ = Pimpact::createLinearProblem<MF>(
       jop, x->clone(), fu->clone(), para, linSolName );
   if( leftPrec )

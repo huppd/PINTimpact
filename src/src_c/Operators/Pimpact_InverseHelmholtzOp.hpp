@@ -1,6 +1,6 @@
 #pragma once
-#ifndef PIMPACT_INVERSEHELMHOLTZOP_HPP
 #define PIMPACT_INVERSEHELMHOLTZOP_HPP
+#ifndef PIMPACT_INVERSEHELMHOLTZOP_HPP
 
 #include "Pimpact_Types.hpp"
 #include "Pimpact_ScalarField.hpp"
@@ -30,6 +30,7 @@ void OP_SolveHelmholtz(
 ///
 /// uses bicgstab, and multigrid from Impact
 /// \ingroup BaseOperator
+/// \deprecated
 template<class Scalar,class Ordinal>
 class InverseHelmholtzOp {
 

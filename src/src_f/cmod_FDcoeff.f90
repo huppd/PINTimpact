@@ -236,15 +236,15 @@ contains
     !> \brief calculates finite differences coefficients.
     !!
     !! \param[in] rank only needed for error handling
-    !! \param[in] Nmax dimension of cc and xc,xs
-    !! \param[in] bl  coordinate lower bound
-    !! \param[in] bu  coordinate upper bound
-    !! \param[in] cl  stencil lower bound
-    !! \param[in] cu  stencil upper bound
-    !! \param[in] BCL local lower Boundary conditions
-    !! \param[in] BCU local upper Boundary conditions
-    !! \param[in] SShift shift in procgrid
-    !! \param[in] grid_type (5: p, 1: u, 2: v, 3:w )
+    !! \param[in] Nmax dimension of cc and xc,xs corresponds to \c GridSizeLocal
+    !! \param[in] bl  coordinate lower bound \c FieldSpace
+    !! \param[in] bu  coordinate upper bound \c FieldSpace
+    !! \param[in] cl  stencil lower bound \c FieldSpace
+    !! \param[in] cu  stencil upper bound \c FieldSpace
+    !! \param[in] BCL local lower Boundary conditions \c BoundaryConditionsLocal
+    !! \param[in] BCU local upper Boundary conditions \c BoundaryConditionsLocal
+    !! \param[in] SShift shift in \c ProcGrid
+    !! \param[in] grid_type (5: p, 1: u, 2: v, 3:w ) used weridly
     !! \param[in] dir direction
     !! \param[in] abl degree of derivative
     !! \param[in] upwind (0: central, 1: up, -1: low)

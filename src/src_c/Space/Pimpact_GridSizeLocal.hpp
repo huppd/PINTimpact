@@ -20,7 +20,7 @@ void fsetLS(
     const int& n2,
     const int& n3 );
 
-void SVS_get_nLoc(int&,int&,int&);
+//void SVS_get_nLoc(int&,int&,int&);
 
 }
 
@@ -34,6 +34,7 @@ namespace Pimpact{
 /// \brief local grid size
 /// generated from \c GridSizeGlobal and \c ProcGridSize
 /// \ingroup Space
+/// \todo think about inheriting from Tuple
 template< class Ordinal=int, int dim=3 >
 class GridSizeLocal {
 
@@ -136,18 +137,18 @@ Teuchos::RCP<const GridSizeLocal<O,d> > createGridSizeLocal(
 }
 
 
-/// \brief creates GridSizeLocal from Impact
-/// \relates GridSizeLocal
-template< class O=int, int d=3 >
-Teuchos::RCP<const GridSizeLocal<O,d> > createGridSizeLocal() {
-
-  Teuchos::Tuple<O,d> bla;
-  SVS_get_nLoc(bla[0],bla[1],bla[2]);
-  if( 4==d ) bla[3] = 1;
-  return(
-      Teuchos::rcp(
-          new GridSizeLocal<O,d>(bla) ) );
-}
+///// \brief creates GridSizeLocal from Impact
+///// \relates GridSizeLocal
+//template< class O=int, int d=3 >
+//Teuchos::RCP<const GridSizeLocal<O,d> > createGridSizeLocal() {
+//
+//  Teuchos::Tuple<O,d> bla;
+//  SVS_get_nLoc(bla[0],bla[1],bla[2]);
+//  if( 4==d ) bla[3] = 1;
+//  return(
+//      Teuchos::rcp(
+//          new GridSizeLocal<O,d>(bla) ) );
+//}
 
 
 

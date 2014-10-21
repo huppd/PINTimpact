@@ -1,6 +1,6 @@
 #pragma once
-#ifndef PIMPACT_MGVHELMHOLTZOP_HPP
 #define PIMPACT_MGVHELMHOLTZOP_HPP
+#ifndef PIMPACT_MGVHELMHOLTZOP_HPP
 
 #include "Pimpact_Types.hpp"
 #include "Pimpact_VectorField.hpp"
@@ -27,6 +27,7 @@ void OP_MGV(
 ///
 /// uses bicgstab, and multigrid from Impact
 /// \ingroup BaseOperator
+/// \deprecated
 template<class Scalar,class Ordinal, int dimension=3>
 class MGVHelmholtzOp {
 

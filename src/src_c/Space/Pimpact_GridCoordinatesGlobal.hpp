@@ -61,7 +61,7 @@ protected:
   GridCoordinatesGlobal(
       const Teuchos::RCP<const GridSizeGlobal<Ordinal,dim> >& gridSize,
       const Teuchos::RCP<const DomainSize<Scalar> >& domainSize ):
-    gridSize_( gridSize ) {
+        gridSize_( gridSize ) {
 
     for( int i=0; i<dim; ++i ) {
       xS_[i] = new Scalar[ gridSize_->get(i) ];

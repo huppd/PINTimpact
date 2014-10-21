@@ -9,9 +9,7 @@
 !> \brief module providing Helmholtz
 module cmod_DivOp
   
-  
     use iso_c_binding
-  
   
 contains
 

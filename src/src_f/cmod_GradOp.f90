@@ -21,9 +21,7 @@ contains
         N,              &
         bL,bU,          &
         gL,gU,          &
-        BC_L,BC_U,      &
         SS,NN,          &
-        SB,NB,          &
         c,              &
         phi,            &
         grad ) bind (c,name='OP_grad')
@@ -41,14 +39,8 @@ contains
         integer(c_int), intent(in)  :: gL(3)
         integer(c_int), intent(in)  :: gU(3)
 
-        integer(c_int), intent(in)  :: BC_L(3)
-        integer(c_int), intent(in)  :: BC_U(3)
-
         integer(c_int), intent(in)  :: SS(3)
         integer(c_int), intent(in)  :: NN(3)
-
-        integer(c_int), intent(in)  :: SB(3)
-        integer(c_int), intent(in)  :: NB(3)
 
         real(c_double), intent(in)  :: c(gL(dir):gU(dir),0:N(dir))
 
@@ -113,6 +105,34 @@ contains
         end if
         !===========================================================================================================
 
+    end subroutine OP_grad
+
+
+    !>  \brief sets non block boundary conditions to zero
+    subroutine OP_SetBCZero(    &
+        N,                      &
+        bL,bU,                  &
+        BC_L,BC_U,              &
+        SB,NB,                  &
+        grad ) bind (c,name='OP_SetBCZero')
+
+
+        implicit none
+
+
+        integer(c_int), intent(in)  :: N(3)
+
+        integer(c_int), intent(in)  :: bL(3)
+        integer(c_int), intent(in)  :: bU(3)
+
+        integer(c_int), intent(in)  :: BC_L(3)
+        integer(c_int), intent(in)  :: BC_U(3)
+
+        integer(c_int), intent(in)  :: SB(3)
+        integer(c_int), intent(in)  :: NB(3)
+
+        real(c_double), intent(inout) :: grad(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+
         !--- Boundary conditions ------------------------------------------------------------------------------------
         if (BC_L(1) > 0) grad(SB(1)      ,SB(2):NB(2),SB(3):NB(3)) = 0.
         if (BC_U(1) > 0) grad(      NB(1),SB(2):NB(2),SB(3):NB(3)) = 0.
@@ -122,7 +142,6 @@ contains
         if (BC_U(3) > 0) grad(SB(1):NB(1),SB(2):NB(2),      NB(3)) = 0.
 
   
-    end subroutine OP_grad
-
+    end subroutine OP_SetBCZero
   
 end module cmod_GradOp

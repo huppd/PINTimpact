@@ -18,7 +18,6 @@
 #include "Pimpact_FieldFactory.hpp"
 
 #include "Pimpact_Operator.hpp"
-#include "Pimpact_OperatorMV.hpp"
 #include "Pimpact_OperatorBase.hpp"
 #include "Pimpact_OperatorFactory.hpp"
 
@@ -54,19 +53,18 @@ TEUCHOS_STATIC_SETUP() {
 
 TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 
-  if( !isImpactInit ) {
-    init_impact(0,0);
-    isImpactInit=true;
-  }
-
   typedef Pimpact::VectorField<S,O> VF;
   typedef Pimpact::MultiField<VF> MVF;
 
-//  typedef Pimpact::HelmholtzOp<S,O> Op;
-//  typedef Pimpact::MultiOpWrap<Op> MOp;
   typedef Pimpact::OperatorBase<MVF> BOp;
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", 1);
+
+  auto space = Pimpact::createSpace( pl, !isImpactInit );
+
+  if( !isImpactInit ) isImpactInit=true;
 
   auto x = Pimpact::createMultiField( Pimpact::createVectorField<S,O>(space) );
   auto b = Pimpact::createMultiField( Pimpact::createVectorField<S,O>(space) );
@@ -75,7 +73,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 
   auto op = Pimpact::createMultiOperatorBase<MVF>( Pimpact::createHelmholtzOp(space) );
 
-  auto para = Pimpact::createLinSolverParameter("GMRES",1.e-3);
+  auto para = Pimpact::createLinSolverParameter("GMRES",errorTolSlack);
 
   Belos::SolverFactory<S, MVF, BOp> factory;
 
@@ -102,93 +100,6 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 
 
 
-TEUCHOS_UNIT_TEST( BelosSolver, PrecDivGrad ) {
-
-  if( !isImpactInit ) {
-    init_impact(0,0);
-    isImpactInit=true;
-  }
-
-//  typedef Pimpact::VectorField<S,O> VF;
-
-  typedef Pimpact::ScalarField<S,O> SF;
-  typedef Pimpact::MultiField<SF> MSF;
-
-//  typedef Pimpact::HelmholtzOp<S,O> Op;
-  typedef Pimpact::OperatorBase<MSF> BOp;
-
-
-	auto space = Pimpact::createSpace();
-
-  auto u   = Pimpact::createVectorField<S,O>( space );
-  auto temp= Pimpact::createVectorField<S,O>( space );
-
-  auto rhs = Pimpact::createScalarField<S,O>( space );
-  auto sol = Pimpact::createScalarField<S,O>( space );
-
-  auto lap = Pimpact::createHelmholtzOp<S,O>( space, 0., 1. );
-
-  auto div = Pimpact::createDivOp<S,O>( space );
-
-  u->initField( Pimpact::PoiseuilleFlow2D_inX );
-  u->write();
-
-
-  lap->apply( *u, *temp );
-  div->apply( *temp, *rhs );
-
-  rhs->write(0);
-  auto b = Pimpact::createMultiField( rhs );
-  auto x = Pimpact::createMultiField( sol );
-//  b->random();
-  b->init(1.);
-  x->init(0.);
-
-  auto op = Pimpact::createMultiOperatorBase<MSF>(
-      Pimpact::createDivGradOp<S,O>(
-          u->clone(),
-          Pimpact::createDivOp( space ),
-          Pimpact::createGradOp( space )
-      )
-  );
-
-  auto prec = Pimpact::createMultiOperatorBase<MSF>(
-      Pimpact::createMGVDivGradOp<S,O>(true) );
-
-  auto para = Pimpact::createLinSolverParameter("GMRES",1.e-6,1);
-//  auto para = Teuchos::parameterList();
-  para->set( "Maximum Iterations", 10000 );
-
-
-  Belos::SolverFactory<S, MSF, BOp> factory;
-
-  // Create the GMRES solver.
-  Teuchos::RCP<Belos::SolverManager<S, MSF, BOp > > solver =
-//      factory.create( "LSQR", para );
-      factory.create( "GMRES", para );
-//      factory.create( "TFQMR", para );
-//      factory.create( "CG", para ); < not working
-
-  // Create a LinearProblem struct with the problem to solve.
-  // A, X, B, and M are passed by (smart) pointer, not copied.
-  auto problem = Teuchos::rcp( new Belos::LinearProblem<S, MSF, BOp >( op, x, b) );
-
-  problem->setProblem(x,b);
-//  problem->setLeftPrec( prec );
-  problem->setRightPrec( prec );
-
-  // Tell the solver what problem you want to solve.
-  solver->setProblem( problem );
-
-//  Belos::ReturnType ret =
-  solver->solve();
-  x->write(222);
-
-  TEST_EQUALITY( solver->achievedTol()<errorTolSlack, true );
-
-}
-
-
 
 TEUCHOS_UNIT_TEST( BelosSolver, DtLapOp ) {
 
@@ -201,15 +112,18 @@ TEUCHOS_UNIT_TEST( BelosSolver, DtLapOp ) {
   typedef Pimpact::ModeField<VF> MVF;
   typedef Pimpact::MultiField<MVF> BVF;
 
-//  typedef Pimpact::DtLapOp<S,O> Op;
-//  typedef Pimpact::MultiOpWrap<Op> OpMV;
   typedef Pimpact::OperatorBase<BVF> OpBase;
-  //  typedef Pimpact::OperatorPimpldep<BVF,Op> OpPimpl;
-  typedef OpBase  BOp;
-  //  Teuchos::RCP<Pimpact::OperatorBase<Pimpact::MultiField<Field> > >
-  //  typedef OpBase BOp;
 
-	auto space = Pimpact::createSpace();
+  typedef OpBase  BOp;
+
+
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", 1);
+
+  auto space = Pimpact::createSpace( pl, !isImpactInit );
+
+  if( !isImpactInit ) isImpactInit=true;
 
   auto b = Pimpact::createInitMVF<S,O>( Pimpact::Streaming2DFlow, space );
   auto x = Pimpact::createInitMVF<S,O>( Pimpact::Zero2DFlow, space );
@@ -217,7 +131,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, DtLapOp ) {
 
   auto op = Pimpact::createMultiOperatorBase<BVF>( Pimpact::createDtLapOp(space) );
 
-  auto para = Pimpact::createLinSolverParameter("GMRES",1.e-3);
+  auto para = Pimpact::createLinSolverParameter("GMRES",errorTolSlack);
 
   Belos::SolverFactory<S, BVF, BOp > factory;
   // Make an empty new parameter list.
@@ -247,21 +161,21 @@ TEUCHOS_UNIT_TEST( BelosSolver, DtLapOp ) {
 
 TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
 
-  if( !isImpactInit ) {
-    init_impact(0,0);
-    isImpactInit=true;
-  }
-
   typedef Pimpact::ScalarField<S,O> SF;
   typedef Pimpact::MultiField<SF> BSF;
 
   typedef Pimpact::DivGradOp<S,O> Op;
   typedef Pimpact::MultiOpWrap<Op> MuOp;
   typedef Pimpact::OperatorBase<BSF> OpBase;
-//  typedef Pimpact::OperatorPimpl<BSF,MuOp> OpPimpl;
   typedef OpBase  BOp;
 
-	auto space = Pimpact::createSpace();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", 1);
+
+  auto space = Pimpact::createSpace( pl, !isImpactInit );
+
+  if( !isImpactInit ) isImpactInit=true;
 
   auto temp = Pimpact::createVectorField<double,int>( space );
   temp->initField(Pimpact::PoiseuilleFlow2D_inX);
@@ -291,7 +205,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
   x->init( 0. );
   b->write(99);
 
-  auto para = Pimpact::createLinSolverParameter("GMRES",1.e-9);
+  auto para = Pimpact::createLinSolverParameter("GMRES",errorTolSlack);
   para->set( "Num Blocks", 500 );
 
   //  auto para = Teuchos::parameterList();

@@ -1,13 +1,11 @@
 #pragma once
-#ifndef PIMPACT_GRADOP_HPP
-#define PIMPACT_GRADOP_HPP
+#ifndef PIMPACT_INTERPOLATES2VDOP_HPP
+#define PIMPACT_INTERPOLATES2VDOP_HPP
 
 #include "Pimpact_extern_FDCoeff.hpp"
 
 #include "Pimpact_Types.hpp"
 #include "Pimpact_ScalarField.hpp"
-#include "Pimpact_VectorField.hpp"
-
 
 
 
@@ -15,32 +13,26 @@ namespace Pimpact{
 
 
 extern "C" {
-//  void OP_grad( const int& m, double* phi, double *grad );
-  void OP_grad(
-      const int& dir,
-//      const int& dimens,
-      const int* const N,
-      const int* const bl,
-      const int* const bu,
-      const int* const gl,
-      const int* const gu,
-      const int* const BC_L,
-      const int* const BC_U,
-      const int* const ss,
-      const int* const nn,
-      const int* const sb,
-      const int* const nb,
-      const double* const c,
-      const double* const phi,
-      double* const grad );
 
-  void OP_bc_extrapolation( const int& m, double* phi );
+void OP_grad(
+    const int& dir,
+    const int* const N,
+    const int* const bl,
+    const int* const bu,
+    const int* const gl,
+    const int* const gu,
+    const int* const ss,
+    const int* const nn,
+    const double* const c,
+    const double* const phi,
+    double* const grad );
+
 }
 
 
 /// \ingroup BaseOperator
 template<class Scalar, class Ordinal, int dimension=3>
-class GradOp {
+class InterpolateS2V {
 
 protected:
 
@@ -53,9 +45,9 @@ protected:
 public:
 
   typedef ScalarField<Scalar,Ordinal,dimension>  DomainFieldT;
-  typedef VectorField<Scalar,Ordinal,dimension>  RangeFieldT;
+  typedef ScalarField<Scalar,Ordinal,dimension>  RangeFieldT;
 
-  GradOp( const Teuchos::RCP< const Space<Scalar,Ordinal,dimension> >& space):
+  InterpolateS2V( const Teuchos::RCP< const Space<Scalar,Ordinal,dimension> >& space):
     space_(space) {
     for( int i=0; i<3; ++i ) {
       Ordinal nTemp = ( space_->nLoc(i) + 1 )*( space_->gu(i) - space_->gl(i) + 1);
@@ -74,7 +66,7 @@ public:
             space_->getShift(i),
             2,
             i+1,
-            1,
+            0,
             0,
             true,
             space_->getFieldSpace()->getDimNcbG(i),
@@ -87,7 +79,7 @@ public:
   };
 
 
-  ~GradOp() {
+  ~InterpolateS2V() {
     for( int i=0; i<3; ++i ) {
       delete[] c_[i];
     }
@@ -96,42 +88,37 @@ public:
 
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
-    int dim = x.dim();
-    for( int i=0; i<dim; ++i) {
-      x.exchange(i);
-//      OP_grad( i+1, x.s_, y.vec_[i] );
-//      OP_grad( i+1, x.s_, y.vec(i) );
-//        c_[0],
-//        c_[1],
-//        c_[2],
-//        x.vecC(0),
-//        x.vecC(1),
-//        x.vecC(2),
-//        y.s_ );
-  OP_grad(
-      i+1,
-//      space_->dim(),
-      space_->nLoc(),
-      space_->bl(),
-      space_->bu(),
-      space_->gl(),
-      space_->gu(),
-      space_->getDomain()->getBCLocal()->getBCL(),
-      space_->getDomain()->getBCLocal()->getBCU(),
-      y.getField(i).sInd(),
-      y.getField(i).eInd(),
-      y.getField(i).sIndB(),
-      y.getField(i).eIndB(),
-      c_[i],
-      x.s_,
-      y.vec(i) );
-//      OP_bc_extrapolation( i+1, y.vec_[i] ); // doesnot work with Schurcomplement, not cleary what it does anyway
-    }
+    TEUCHOS_TEST_FOR_EXCEPTION(
+        x.fType_ != S,
+        std::logic_error,
+        "Pimpact::InterpolateV2S:: can only interpolate from VectorField!!!\n");
+
+    TEUCHOS_TEST_FOR_EXCEPTION(
+        y.fType_ == S,
+        std::logic_error,
+        "Pimpact::InterpolateV2S:: can only interpolate to Scalar!!!\n");
+
+    int m = (int)y.fType_;
+
+//    int dim = x.dim();
+    x.exchange(m);
+
+    OP_grad(
+        m+1,
+        space_->nLoc(),
+        space_->bl(),
+        space_->bu(),
+        space_->gl(),
+        space_->gu(),
+        y.sInd(),
+        y.eInd(),
+        c_[m],
+        x.s_,
+        y.s_ );
     y.changed();
   }
 
   void assignField( const RangeFieldT& mv ) {};
-  void assignField( const DomainFieldT& mv ) {};
 
   bool hasApplyTranspose() const { return( false ); }
 
@@ -147,18 +134,18 @@ public:
     }
   }
 
-}; // end of class GradOp
+}; // end of class InterpolateS2V
 
 
 
-/// \relates GradOp
+/// \relates InterpolateS2V
 template<class S=double, class O=int, int d=3>
-Teuchos::RCP< GradOp<S,O,d> > createGradOp( const Teuchos::RCP< const Space<S,O,d> >& space ) {
-  return( Teuchos::rcp( new GradOp<S,O,d>(space) ) );
+Teuchos::RCP< InterpolateS2V<S,O,d> > createInterpolateS2V( const Teuchos::RCP< const Space<S,O,d> >& space ) {
+  return( Teuchos::rcp( new InterpolateS2V<S,O,d>(space) ) );
 }
 
 
 } // end of namespace Pimpact
 
 
-#endif // end of #ifndef PIMPACT_GRADOP_HPP
+#endif // end of #ifndef PIMPACT_INTERPOLATES2VDOP_HPP

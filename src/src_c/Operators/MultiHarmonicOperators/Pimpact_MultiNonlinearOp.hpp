@@ -9,7 +9,7 @@
 #include "Pimpact_VectorField.hpp"
 #include "Pimpact_MultiHarmonicField.hpp"
 
-#include "Pimpact_NonlinearOp.hpp"
+#include "Pimpact_ConvectionOp.hpp"
 
 
 
@@ -31,16 +31,14 @@ public:
 
 protected:
 
-//  Teuchos::RCP<VectorField<S,O> > temp_;
-  Teuchos::RCP<Nonlinear<S,O> > op;
+  Teuchos::RCP<ConvectionOp<S,O> > op;
 
 public:
 
   MultiHarmonicNonlinear(
-//      const Teuchos::RCP<VectorField<S,O> >& temp=Teuchos::null
+      const Teuchos::RCP<const Space<S,O,3> >& space
       ):
-//    temp_(temp),
-    op( Teuchos::rcp( new Nonlinear<S,O>() )) {};
+    op( Teuchos::rcp( new ConvectionOp<S,O>( space ) ) ) {};
 
   void assignField( const DomainFieldT& mv ) {
   };
@@ -128,9 +126,10 @@ public:
 /// \relates MultiHarmonicNonlinearOp
 template< class S, class O>
 Teuchos::RCP<MultiHarmonicNonlinear<S,O> > createMultiHarmonicNonlinear(
+    const Teuchos::RCP<const Space<S,O,3> >& space
 //    const Teuchos::RCP< VectorField<S,O> >& u = Teuchos::null
     ) {
-  return( Teuchos::rcp( new MultiHarmonicNonlinear<S,O>( /*u*/ ) ) );
+  return( Teuchos::rcp( new MultiHarmonicNonlinear<S,O>( space /*u*/ ) ) );
 }
 
 

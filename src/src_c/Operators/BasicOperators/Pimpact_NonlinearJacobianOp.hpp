@@ -77,10 +77,7 @@ public:
           u_->vec(0), u_->vec(1), u_->vec(2),
           x. vecC(0), x. vecC(1), x. vecC(2),
           y.  vec(0), y.  vec(1), y.  vec(2),
-//        u_->vec_[0], u_->vec_[1], u_->vec_[2],
-//        x.  vec_[0], x.  vec_[1], x.  vec_[2],
-//        y.  vec_[0], y.  vec_[1], y.  vec_[2],
-        mul );
+          mul );
 
     if( isNewton_ ) {
       OP_nonlinear(

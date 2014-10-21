@@ -378,7 +378,7 @@ int main(int argi, char** argv ) {
                 Pimpact::createAdd3Op(
                     x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
                     dtl,
-                    Pimpact::createMultiHarmonicNonlinear<S,O>()
+                    Pimpact::createMultiHarmonicNonlinear<S,O>( space )
                 )
             ),
             forcingOp
@@ -420,8 +420,12 @@ int main(int argi, char** argv ) {
                       x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
                       dtl,
                       Pimpact::createMultiHarmonicNonlinearJacobian<S,O>(
-                          x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy)  ) ) ),
-                          forcingOp );
+                          space,
+                          x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy)
+                      )
+                  )
+              ),
+              forcingOp );
       jop =
           Pimpact::createMultiOperatorBase<MF>(
               Pimpact::createCompoundOpWrap(
@@ -443,8 +447,12 @@ int main(int argi, char** argv ) {
                       x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
                       dtl,
                       Pimpact::createMultiHarmonicNonlinearJacobian<S,O>(
-                          x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy), false ) ) ),
-                          forcingOp
+                          space,
+                          x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy), false
+                      )
+                  )
+              ),
+              forcingOp
           );
 
       jop =
@@ -468,7 +476,10 @@ int main(int argi, char** argv ) {
                       x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
                       dtl,
                       Pimpact::createMultiHarmonicDiagNonlinearJacobian<S,O>(
-                          x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy), true )
+                          space,
+                          x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
+                          true
+                      )
                   )
               ),
               forcingOp
@@ -496,7 +507,10 @@ int main(int argi, char** argv ) {
                       x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
                       dtl,
                       Pimpact::createMultiHarmonicDiagNonlinearJacobian<S,O>(
-                          x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy), false )
+                          space,
+                          x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
+                          false
+                      )
                   )
               ),
               forcingOp
@@ -609,8 +623,14 @@ int main(int argi, char** argv ) {
                           x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
                           dtl ,//),
                           Pimpact::createMultiHarmonicNonlinearJacobian<S,O>(
-                              x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy) ) ) ),
-                              forcingOp ) );
+                              space,
+                              x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy)
+                          )
+                      )
+                  ),
+                  forcingOp
+              )
+          );
 
       auto lp_ = Pimpact::createLinearProblem<MVF>(
           opV2V,
@@ -681,8 +701,12 @@ int main(int argi, char** argv ) {
                       x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
                       dtl,
                       Pimpact::createMultiHarmonicNonlinearJacobian<S,O>(
-                          x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy)  ) ) ),
-                          forcingOp );
+                          space,
+                          x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy)
+                      )
+                  )
+              ),
+              forcingOp );
 
       auto opV2Vprob =
           Pimpact::createLinearProblem<MVF>(

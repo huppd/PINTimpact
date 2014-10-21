@@ -18,18 +18,18 @@
 
 extern "C" {
 
-void SG_getCommCart(       MPI_Fint& comm );
+//void SG_getCommCart(       MPI_Fint& comm );
 void SG_setCommCart( const MPI_Fint& comm );
 
-void SG_getRank(       int& rank_ );
+//void SG_getRank(       int& rank_ );
 void SG_setRank( const int& rank_ );
 
-void SG_getIB(       int* const iB_);
+//void SG_getIB(       int* const iB_);
 void SG_setIB( const int* const iB_);
 
 void SG_setShift( const int* const shift);
 
-void SG_getRankLU(       int* const rankl,       int* const ranku );
+//void SG_getRankLU(       int* const rankl,       int* const ranku );
 void SG_setRankLU( const int* const rankl, const int* const ranku );
 
 void SG_setCommSlice( const int& slice1, const int& slice2, const int& slice3 );
@@ -42,6 +42,7 @@ namespace Pimpact{
 
 /// \brief ProcGrid, needs ProcGridSize, globalBoundaryConditions, GridSizeLocal
 /// and sets Impact accordingly
+/// \ingroup Space
 /// \tparam dim default 3 or 4
 template< class Ordinal=int, int dim=3 >
 class ProcGrid {
@@ -90,7 +91,6 @@ public:
 
   Teuchos::Tuple<int,3> rankSlice_;
   Teuchos::Tuple<int,3> rankBar_;
-
 
 protected:
 
@@ -312,35 +312,35 @@ public:
   const int* getShift() const { return( shift_.getRawPtr() ); }
 };
 
-/// \relates ProcGrid
-template< class O=int, int d=3 >
-Teuchos::RCP<const ProcGrid<O,d> > createProcGrid() {
-
-
-  MPI_Fint comm;
-  SG_getCommCart( comm );
-
-  int rank;
-  SG_getRank( rank );
-
-  Teuchos::Tuple<int,3> ib;
-  SG_getIB( ib.getRawPtr() );
-
-  Teuchos::Tuple<int,3> rankL;
-  Teuchos::Tuple<int,3> rankU;
-  SG_getRankLU( rankL.getRawPtr(), rankU.getRawPtr() );
-
-
-  return(
-      Teuchos::rcp( new ProcGrid<O,d>(
-          comm,
-          MPI_Comm_f2c(comm),
-          rank,
-          ib,
-          rankL,
-          rankU ) ) );
-
-}
+///// \relates ProcGrid
+//template< class O=int, int d=3 >
+//Teuchos::RCP<const ProcGrid<O,d> > createProcGrid() {
+//
+//
+//  MPI_Fint comm;
+//  SG_getCommCart( comm );
+//
+//  int rank;
+//  SG_getRank( rank );
+//
+//  Teuchos::Tuple<int,3> ib;
+//  SG_getIB( ib.getRawPtr() );
+//
+//  Teuchos::Tuple<int,3> rankL;
+//  Teuchos::Tuple<int,3> rankU;
+//  SG_getRankLU( rankL.getRawPtr(), rankU.getRawPtr() );
+//
+//
+//  return(
+//      Teuchos::rcp( new ProcGrid<O,d>(
+//          comm,
+//          MPI_Comm_f2c(comm),
+//          rank,
+//          ib,
+//          rankL,
+//          rankU ) ) );
+//
+//}
 
 /// \relates ProcGrid
 template< class O=int, int d=3 >

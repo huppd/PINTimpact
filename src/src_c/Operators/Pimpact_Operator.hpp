@@ -17,13 +17,14 @@
 #include "Pimpact_DivGradOp.hpp"
 #include "Pimpact_HelmholtzOp.hpp"
 #include "Pimpact_InterpolateV2SOp.hpp"
+#include "Pimpact_InterpolateS2VOp.hpp"
+#include "Pimpact_ConvectionOp.hpp"
+#include "Pimpact_NonlinearJacobianOp.hpp"
 #include "Pimpact_InverseHelmholtzOp.hpp"
 #include "Pimpact_MLHelmholtzOp.hpp"
 #include "Pimpact_MGVHelmholtzOp.hpp"
 #include "Pimpact_MGVDivGradOp.hpp"
 #include "Pimpact_ForcingOp.hpp"
-#include "Pimpact_NonlinearOp.hpp"
-#include "Pimpact_NonlinearJacobianOp.hpp"
 
 
 /// \defgroup TimeOperator Time Operator
@@ -50,7 +51,6 @@
 /// \defgroup CompoundOperator Compound Operator
 /// \ingroup Operator
 /// Operator operate on compound fields: \c Pimpact::CompoundField
-#include "Pimpact_CompoundStokesOp.hpp"
 #include "Pimpact_CompoundOpWrap.hpp"
 #include "Pimpact_InverseSchurOp.hpp"
 #include "Pimpact_InverseTriangularOp.hpp"
