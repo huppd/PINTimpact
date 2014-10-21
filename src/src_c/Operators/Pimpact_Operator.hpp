@@ -8,6 +8,8 @@
 #include "Pimpact_CompositionOp.hpp"
 #include "Pimpact_TripleCompositionOp.hpp"
 #include "Pimpact_InverseOperator.hpp"
+#include "Pimpact_ForcingOp.hpp"
+
 
 /// \defgroup BaseOperator Basic Operator
 /// \ingroup Operator
@@ -20,11 +22,6 @@
 #include "Pimpact_InterpolateS2VOp.hpp"
 #include "Pimpact_ConvectionOp.hpp"
 #include "Pimpact_NonlinearJacobianOp.hpp"
-#include "Pimpact_InverseHelmholtzOp.hpp"
-#include "Pimpact_MLHelmholtzOp.hpp"
-#include "Pimpact_MGVHelmholtzOp.hpp"
-#include "Pimpact_MGVDivGradOp.hpp"
-#include "Pimpact_ForcingOp.hpp"
 
 
 /// \defgroup TimeOperator Time Operator
@@ -63,8 +60,6 @@
 #include "Pimpact_MultiNonlinearJacobianOp.hpp"
 #include "Pimpact_MultiHarmonicOpWrap.hpp"
 #include "Pimpact_MultiDiagNonlinearOp.hpp"
-#include "Pimpact_MultiHarmonicMLPrec.hpp"
-
 
 
 #endif // end of #ifndef PIMPACT_OPERATOR_HPP
