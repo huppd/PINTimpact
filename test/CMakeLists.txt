@@ -1,5 +1,4 @@
 
-#set(CMAKE_INCLUDE_CURRENT_DIR ../src)
 include_directories("../src/src_c")
 include_directories("../src/src_c/Space")
 include_directories("../src/src_c/Grid")
@@ -10,7 +9,6 @@ include_directories("../src/src_c/Operators/CompoundOperators")
 include_directories("../src/src_c/Operators/ModeOperators")
 include_directories("../src/src_c/Operators/MultiHarmonicOperators")
 include_directories("../src/src_c/Operators/TimeOperators")
-
 include_directories("../src/src_c/NOX_Pimpact")
 include_directories("../src/src_c/MultiGrid")
 
@@ -91,29 +89,3 @@ add_test(NAME NOXSolvesPimpactTest COMMAND mpirun -np 4 NOXSolvesPimpactTest)
 ADD_EXECUTABLE( MultiGridTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_MultiGrid_test.cpp )
 TARGET_LINK_LIBRARIES( MultiGridTest ${Pimpact_TPL_LIBRARIES} ) 
 add_test( NAME MultiGridTest COMMAND mpirun -np 4 MultiGridTest )
-#INCLUDE(TribitsAddExecutableAndTest)
-
-#project("")
-#Tribits_ADD_EXECUTABLE_AND_TEST(
-  #Simple_UnitTests
-  #SOURCES
-	#Int_UnitTests.cpp
-	##TemplateFunc_UnitTests.cpp
-	##vector_UnitTests.cpp
-	#${TEUCHOS_STD_UNIT_TEST_MAIN}
-  #NUM_MPI_PROCS 1
-  #STANDARD_PASS_OUTPUT
-  #)
-#pimpact_ADD_EXECUTABLE_AND_TEST(
-#ADD_EXECUTABLE(
-#set(pimpact_TEST_CATEGORIES hello)
-#Tribits_ADD_EXECUTABLE_AND_TEST(
-  #MyUnitTests
-  #SOURCES
-	#UnitTestMain.cpp
-	#Int_UnitTests.cpp
-	##... other unit test files ...
-  #STANDARD_PASS_OUTPUT
-  #)
-#ADD_EXECUTABLE(MyUnitTests ${TEUCHOS_STD_UNIT_TEST_MAIN} UnitTestMain.cpp )
-#ADD_EXECUTABLE(MyUnitTests ${TEUCHOS_STD_UNIT_TEST_MAIN} UnitTestMain.cpp )

@@ -308,21 +308,21 @@ contains
   
         real(c_double),  intent(out)  :: cc(cL:cU,0:Nmax)
   
-        integer               :: n_coeff
-        integer               :: dim_n_coeff_bound
-        integer               :: i, ii, iC, iStart
-        integer               :: k, kk
+        integer(c_int)        :: n_coeff
+        integer(c_int)        :: dim_n_coeff_bound
+        integer(c_int)        :: i, ii, iC, iStart
+        integer(c_int)        :: k, kk
 
-        integer               :: left, right
+        integer(c_int)        :: left, right
   
-        real                  :: dxi(1:2)
+        real(c_double)        :: dxi(1:2)
   
-        real                  :: dxL, dxU ! Für Integrationskoeffizienten
+        real(c_double)        :: dxL, dxU ! Für Integrationskoeffizienten
   
-        real   , allocatable  :: cc_xi(:,:)
-        real   , allocatable  :: deltaX(:)
+        real(c_double), allocatable  :: cc_xi(:,:)
+        real(c_double), allocatable  :: deltaX(:)
   
-        logical               :: filter_yes
+        logical(c_bool)              :: filter_yes
 
         integer               :: merror
   
@@ -681,10 +681,10 @@ contains
 
         implicit none
 
-        integer, intent(in   ) ::  abl
-        integer, intent(in   ) ::  n_coeff
-        real   , intent(in   ) ::  deltaX
-        real   , intent(out  ) ::  cc(1:n_coeff)
+        integer(c_int), intent(in   ) ::  abl
+        integer(c_int), intent(in   ) ::  n_coeff
+        real(c_double), intent(in   ) ::  deltaX
+        real(c_double), intent(out  ) ::  cc(1:n_coeff)
 
         ! TEST!!!
         ! - korrekt ausgerichtet?
@@ -1002,12 +1002,12 @@ contains
 
         implicit none
 
-        integer, intent(in)   ::  rank
-        integer, intent(in)   ::  abl
-        logical, intent(in)   ::  filter_yes
-        integer, intent(in)   ::  n_coeff
-        real   , intent(in)   ::  deltaX(1:n_coeff)
-        real   , intent(out)  ::  cc    (1:n_coeff)
+        integer(c_int) , intent(in)   ::  rank
+        integer(c_int) , intent(in)   ::  abl
+        logical(c_bool), intent(in)   ::  filter_yes
+        integer(c_int) , intent(in)   ::  n_coeff
+        real(c_double) , intent(in)   ::  deltaX(1:n_coeff)
+        real(c_double) , intent(out)  ::  cc    (1:n_coeff)
 
         integer               ::  i, j
 
@@ -1075,12 +1075,12 @@ contains
 
         implicit none
 
-        integer, intent(in)   ::  rank
+        integer(c_int), intent(in)   ::  rank
 
-        integer, intent(in)   ::  n_coeff
-        real   , intent(in)   ::  deltaX(1:n_coeff)
-        real   , intent(out)  ::  cc    (1:n_coeff)
-        real   , intent(in)   ::  dxL, dxU
+        integer(c_int), intent(in)   ::  n_coeff
+        real(c_double), intent(in)   ::  deltaX(1:n_coeff)
+        real(c_double), intent(out)  ::  cc    (1:n_coeff)
+        real(c_double)   , intent(in)   ::  dxL, dxU
 
         integer               ::  i, j, k
 
