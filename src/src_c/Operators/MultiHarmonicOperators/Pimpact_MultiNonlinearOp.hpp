@@ -9,7 +9,7 @@
 #include "Pimpact_VectorField.hpp"
 #include "Pimpact_MultiHarmonicField.hpp"
 
-#include "Pimpact_ConvectionVOp.hpp"
+#include "Pimpact_ConvectionOp.hpp"
 
 
 

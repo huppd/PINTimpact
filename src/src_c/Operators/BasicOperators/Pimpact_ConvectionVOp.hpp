@@ -5,6 +5,8 @@
 
 #include "Pimpact_Types.hpp"
 
+#include "Pimpact_Space.hpp"
+
 #include "Pimpact_VectorField.hpp"
 
 #include "Pimpact_InterpolateS2VOp.hpp"
@@ -27,8 +29,9 @@ void OP_nonlinear(
 
 
 /// \ingroup BaseOperator
+/// this Operator should be consisten to the old one... but will be probably redundant soon
 template<class Scalar,class Ordinal, int dimension=3>
-class ConvectionOp {
+class ConvectionVOp {
 
 public:
 
@@ -39,10 +42,31 @@ private:
 
   Teuchos::RCP<const Space<Scalar,Ordinal,dimension> > space_;
 
+  Teuchos::RCP< InterpolateS2V<Scalar,Ordinal,dimension> > interpolateS2V_;
+  Teuchos::RCP< InterpolateV2S<Scalar,Ordinal,dimension> > interpolateV2S_;
+
+  Teuchos::RCP< ConvectionSOp<Scalar,Ordinal,dimension> > convectionSOp_;
+
+  // Teuchos::RCP< ScalarField<Scalar,Ordinal,dimension> temp_;
+  // Teuchos::Tuple< Teuchos::Tuple<Teuchos::RCP<ScalarField<Scalar,Ordinal,dimension> >, 3>, 3> u_;
+
 public:
 
-  ConvectionOp( const Teuchos::RCP<const Space<Scalar,Ordinal,dimension> >& space  ):
-    space_(space) {};
+  ConvectionVOp( const Teuchos::RCP<const Space<Scalar,Ordinal,dimension> >& space  ):
+    space_(space),
+    interpolateS2V_( createInterpolateS2V<Scalar,Ordinal,dimension>(space) ),
+    interpolateV2S_( space->getInterpolateV2S() ),
+    convectionSOp_( createConvectionSOp<Scalar,Ordinal,dimension>( space ) ) {};
+
+  ConvectionVOp(
+      const Teuchos::RCP<const Space<Scalar,Ordinal,dimension> >& space,
+      const Teuchos::RCP< InterpolateS2V<Scalar,Ordinal,dimension> >& interpolateS2V,
+      const Teuchos::RCP< InterpolateV2S<Scalar,Ordinal,dimension> >& interpolateV2S,
+      const Teuchos::RCP< ConvectionSOp<Scalar,Ordinal,dimension> >& convectionSOp ):
+    space_(space),
+    interpolateS2V_(interpolateS2V),
+    interpolateV2S_(interpolateV2S),
+    convectionSOp_(convectionSOp) {};
 
   void assignField( const DomainFieldT& mv ) {};
 
@@ -54,21 +78,21 @@ public:
 
   void apply( const DomainFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mul=0. ) const {
 
-    for( int vel_dir=0; vel_dir<space_->dim(); ++vel_dir )
-      x.exchange( vel_dir, vel_dir );
-    y.exchange();
+//    for( int vel_dir=0; vel_dir<space_->dim(); ++vel_dir )
+//      x[vel_dir].exchange( vel_dir, vel_dir );
 
-    if( std::abs(mul) < 1.e-12 ) {
-      z.init( 0. );
-      mul = 1.;
+//    y.exchange();
+    for( int i=0; i<space_->dim(); ++i ) {
+      interpolateV2S_->apply( x.getConstField(i), *temp_ );
+      for( int j=0; j<space_->dim(); ++j ) {
+        interpolateS2V_->apply( *temp_, *u_[j][i] );
+      }
     }
-    OP_nonlinear(
-        x.sFields_[0]->getRawPtr(),x.sFields_[1]->getRawPtr(),x.sFields_[2]->getRawPtr(),
-        y.sFields_[0]->getRawPtr(),y.sFields_[1]->getRawPtr(),y.sFields_[2]->getRawPtr(),
-        z.sFields_[0]->getRawPtr(),z.sFields_[1]->getRawPtr(),z.sFields_[2]->getRawPtr(),
-        mul );
 
-    z.changed();
+    for( int i=0; i<space_->dim(); ++i ) {
+      convectionSOp_( u_[i], y.getConstField(i), x.getField(i) );
+
+    }
 
   }
 
@@ -76,15 +100,15 @@ public:
   bool hasApplyTranspose() const { return( false ); }
 
 
-}; // end of class ConvectionOp
+}; // end of class ConvectionVOp
 
 
 
-/// \relates ConvectionOp
+/// \relates ConvectionVOp
 template< class S=double, class O=int, int d=3 >
-Teuchos::RCP<ConvectionOp<S,O,d> > createConvectionOp(
+Teuchos::RCP<ConvectionVOp<S,O,d> > createConvectionVOp(
     const Teuchos::RCP<const Space<S,O,d> >& space ) {
-  return( Teuchos::rcp( new ConvectionOp<S,O,d>( space ) ) );
+  return( Teuchos::rcp( new ConvectionVOp<S,O,d>( space ) ) );
 }
 
 

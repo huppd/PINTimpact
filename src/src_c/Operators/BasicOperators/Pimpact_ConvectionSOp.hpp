@@ -168,7 +168,7 @@ public:
             space_->getFieldSpace()->getNcbC(i),
             space_->getCoordinatesLocal()->getX( i, i ),
             space_->getCoordinatesLocal()->getX( i, i ),
-            cVD_[i] );
+            cVU_[i] );
     }
 
   };
@@ -239,8 +239,8 @@ public:
        out << "\ni: " << i << "\n( ";
        Ordinal nTemp = ( space_->nLoc(i) + 1 )*( space_->nu(i) - space_->nl(i) + 1);
        for( int j=0; j<nTemp; ++j ) {
-         out << cSD_[i][j] <<"\t";
-         out << cSU_[i][j] <<"\t";
+         out << cSD_[i][j] <<", ";
+         out << cVU_[i][j] <<"\t";
        }
        out << ")\n";
      }
@@ -249,7 +249,7 @@ public:
        out << "\ni: " << i << "\n( ";
        Ordinal nTemp = ( space_->nLoc(i) + 1 )*( space_->nu(i) - space_->nl(i) + 1);
        for( int j=0; j<nTemp; ++j ) {
-         out << cVD_[i][j] <<"\t";
+         out << cVD_[i][j] <<", ";
          out << cVU_[i][j] <<"\t";
        }
        out << ")\n";
