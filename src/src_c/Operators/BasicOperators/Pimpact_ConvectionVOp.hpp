@@ -1,12 +1,14 @@
 #pragma once
-#ifndef PIMPACT_CONVECTIONOP_HPP
-#define PIMPACT_CONVECTIONOP_HPP
+#ifndef PIMPACT_CONVECTIONVOP_HPP
+#define PIMPACT_CONVECTIONVOP_HPP
 
 
 #include "Pimpact_Types.hpp"
 
 #include "Pimpact_VectorField.hpp"
+
 #include "Pimpact_InterpolateS2VOp.hpp"
+#include "Pimpact_ConvectionSOp.hpp"
 
 
 
@@ -52,7 +54,7 @@ public:
 
   void apply( const DomainFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mul=0. ) const {
 
-    for( int vel_dir=0; vel_dir<x.dim(); ++vel_dir )
+    for( int vel_dir=0; vel_dir<space_->dim(); ++vel_dir )
       x.exchange( vel_dir, vel_dir );
     y.exchange();
 
@@ -90,4 +92,4 @@ Teuchos::RCP<ConvectionOp<S,O,d> > createConvectionOp(
 } // end of namespace Pimpact
 
 
-#endif // end of #ifndef PIMPACT_CONVECTIONOP_HPP
+#endif // end of #ifndef PIMPACT_CONVECTIONVOP_HPP

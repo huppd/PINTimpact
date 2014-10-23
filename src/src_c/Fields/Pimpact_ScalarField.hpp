@@ -8,8 +8,8 @@
 
 #include "Teuchos_RCP.hpp"
 #include "BelosTypes.hpp"
-#include "Teuchos_ScalarTraitsDecl.hpp"
-#include "Teuchos_SerialDenseMatrix.hpp"
+//#include "Teuchos_ScalarTraitsDecl.hpp"
+//#include "Teuchos_SerialDenseMatrix.hpp"
 
 #include "Pimpact_Types.hpp"
 #include "Pimpact_Space.hpp"
@@ -30,7 +30,7 @@ namespace Pimpact {
 /// \note all indexing is done in Fortran
 /// \ingroup Field
 template< class S=double, class O=int, int d=3 >
-class ScalarField : private AbstractField<S,O> {
+class ScalarField : private AbstractField<S,O,d> {
 
   template<class S1,class O1,int dimension1>
   friend class VectorField;
@@ -42,6 +42,8 @@ class ScalarField : private AbstractField<S,O> {
   friend class InterpolateV2S;
   template<class S1,class O1,int dimension1>
   friend class InterpolateS2V;
+  template<class S1,class O1,int dimension1>
+  friend class ConvectionSOp;
   template<class S1,class O1,int dimension1>
   friend class DivGradOp;
   template<class S1,class O1,int dimension1>
@@ -58,7 +60,7 @@ public:
 
   static const int dimension = d;
 
-  typedef Space<Scalar,Ordinal,dimension> SpaceT;
+  typedef typename AbstractField<S,O,d>::SpaceT SpaceT;
 
 
 protected:
@@ -66,8 +68,6 @@ protected:
   typedef Scalar* ScalarArray;
   typedef ScalarField<Scalar,Ordinal,dimension> MV;
   typedef Teuchos::Tuple<bool,3> State;
-
-  Teuchos::RCP<const SpaceT > space_;
 
   ScalarArray s_;
 
@@ -79,15 +79,9 @@ protected:
 
 public:
 
-  ScalarField( EField fType=EField::S ):
-    s_(0),
-    space_(Teuchos::null),
-    owning_(true),
-    exchangedState_( Teuchos::tuple(true,true,true) ),
-    fType_(fType) {};
 
-  ScalarField( const Teuchos::RCP<const SpaceT >& space, bool owning=true, EField fType=EField::S ):
-    space_(space),
+  ScalarField( const Teuchos::RCP<SpaceT>& space, bool owning, EField fType=EField::S ):
+    AbstractField<S,O,d>( space ),
     owning_(owning),
     exchangedState_( Teuchos::tuple(true,true,true) ),
     fType_(fType) {
@@ -110,8 +104,8 @@ public:
   /// \param sF
   /// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
   ScalarField( const ScalarField& sF, ECopyType copyType=DeepCopy ):
-    space_(sF.space_),
-    owning_(sF.owning_),
+    AbstractField<S,O,d>( sF.space() ),
+    owning_( sF.owning_ ),
     exchangedState_( sF.exchangedState_ ),
     fType_( sF.fType_ ) {
 
@@ -150,29 +144,31 @@ public:
   /// \brief returns the length of Field.
   Ordinal getLength( bool dummy=false ) const {
 
-    auto bc = space_->getDomain()->getBCGlobal();
+//    auto bc = space_->getDomain()->getBCGlobal();
+    auto bc = AbstractField<S,O,d>::space_->getDomain()->getBCGlobal();
+//    auto bc = this->space_->getDomain()->getBCGlobal();
 
     Ordinal vl = 1;
 
     switch( fType_ ) {
     case EField::S: {
-      for(int i = 0; i<dim(); ++i)
+      for(int i = 0; i<space()->dim(); ++i)
         if( PeriodicBC==bc->getBCL(i) )
-          vl *= nGlo(i)-1;
+          vl *= space()->nGlo(i)-1;
         else
-          vl *= nGlo(i);
+          vl *= space()->nGlo(i);
       break;
     }
     default: {
-      for( int j=0; j<dim(); ++j) {
+      for( int j=0; j<space()->dim(); ++j) {
         if( fType_==j ) {
-          vl *= nGlo(j)-1;
+          vl *= space()->nGlo(j)-1;
         }
         else {
           if( PeriodicBC==bc->getBCL(j) )
-            vl *= nGlo(j)-2+1;
+            vl *= space()->nGlo(j)-2+1;
           else
-            vl *= nGlo(j)-2;
+            vl *= space()->nGlo(j)-2;
         }
       }
       break;
@@ -197,20 +193,29 @@ public:
       scale( alpha+beta );
     else if( s_==A.s_ && s_!=B.s_ )
       SF_add2(
-          nLoc(), bl(), bu(),
-          sInd(), eInd(),
+          space()->nLoc(),
+          space()->bl(),
+          space()->bu(),
+          space()->sInd(fType_),
+          space()->eInd(fType_),
           s_, B.s_,
           alpha, beta );
     else if( s_!=A.s_ && s_==B.s_ )
       SF_add2(
-          nLoc(), bl(), bu(),
-          sInd(), eInd(),
+          space()->nLoc(),
+          space()->bl(),
+          space()->bu(),
+          space()->sInd(fType_),
+          space()->eInd(fType_),
           s_, A.s_,
           beta, alpha );
     else if( s_!=A.s_ && s_!=B.s_ )
       SF_add(
-          nLoc(), bl(), bu(),
-          sInd(), eInd(),
+          space()->nLoc(),
+          space()->bl(),
+          space()->bu(),
+          space()->sInd(fType_),
+          space()->eInd(fType_),
           s_, A.s_, B.s_,
           alpha, beta );
     changed();
@@ -227,10 +232,13 @@ public:
   void abs(const MV& y) {
     // add test for consistent VectorSpaces in debug mode
     SF_abs(
-        nLoc(),
-        bl(), bu(),
-        sInd(), eInd(),
-        s_, y.s_ );
+        space()->nLoc(),
+        space()->bl(),
+        space()->bu(),
+        space()->sInd(fType_),
+        space()->eInd(fType_),
+        s_,
+        y.s_ );
     changed();
   }
 
@@ -244,10 +252,13 @@ public:
   void reciprocal(const MV& y){
     // add test for consistent VectorSpaces in debug mode
     SF_reciprocal(
-        nLoc(),
-        bl(), bu(),
-        sInd(), eInd(),
-        s_, y.s_ );
+        space()->nLoc(),
+        space()->bl(),
+        space()->bu(),
+        space()->sInd(fType_),
+        space()->eInd(fType_),
+        s_,
+        y.s_ );
     changed();
   }
 
@@ -255,10 +266,13 @@ public:
   /// \brief Scale each element of the vector with \c alpha.
   void scale( const Scalar& alpha ) {
     SF_scale(
-        nLoc(),
-        bl(), bu(),
-        sInd(), eInd(),
-        s_, alpha);
+        space()->nLoc(),
+        space()->bl(),
+        space()->bu(),
+        space()->sInd(fType_),
+        space()->eInd(fType_),
+        s_,
+        alpha);
     changed();
   }
 
@@ -272,9 +286,11 @@ public:
   void scale(const MV& a) {
     // add test for consistent VectorSpaces in debug mode
     SF_scale2(
-        nLoc(),
-        bl(), bu(),
-        sInd(), eInd(),
+        space()->nLoc(),
+        space()->bl(),
+        space()->bu(),
+        space()->sInd(fType_),
+        space()->eInd(fType_),
         s_, a.s_ );
     changed();
   }
@@ -286,16 +302,16 @@ public:
     Scalar b = 0.;
 
     SF_dot(
-        nLoc(),
-        bl(),
-        bu(),
-        sInd(),
-        eInd(),
+        space()->nLoc(),
+        space()->bl(),
+        space()->bu(),
+        space()->sInd(fType_),
+        space()->eInd(fType_),
         s_,
         a.s_,
         b );
 
-    if( global ) this->reduceNorm( comm(), b );
+    if( global ) this->reduceNorm( space()->comm(), b );
 
     return( b );
   }
@@ -316,31 +332,37 @@ public:
     switch(type) {
     case Belos::OneNorm:
       SF_comp1Norm(
-          nLoc(),
-          bl(), bu(),
-          sInd(), eInd(),
+          space()->nLoc(),
+          space()->bl(),
+          space()->bu(),
+          space()->sInd(fType_),
+          space()->eInd(fType_),
           s_,
           normvec );
       break;
     case Belos::TwoNorm:
       SF_comp2Norm(
-          nLoc(),
-          bl(), bu(),
-          sInd(), eInd(),
+          space()->nLoc(),
+          space()->bl(),
+          space()->bu(),
+          space()->sInd(fType_),
+          space()->eInd(fType_),
           s_,
           normvec );
       break;
     case Belos::InfNorm:
       SF_compInfNorm(
-          nLoc(),
-          bl(), bu(),
-          sInd(), eInd(),
+          space()->nLoc(),
+          space()->bl(),
+          space()->bu(),
+          space()->sInd(fType_),
+          space()->eInd(fType_),
           s_,
           normvec );
       break;
     }
 
-    if( global ) this->reduceNorm( comm(), normvec, type );
+    if( global ) this->reduceNorm( space()->comm(), normvec, type );
 
     return( normvec );
   }
@@ -357,13 +379,15 @@ public:
     Scalar normvec = 0.;
 
     SF_weightedNorm(
-        nLoc(),
-        bl(), bu(),
-        sInd(), eInd(),
+        space()->nLoc(),
+        space()->bl(),
+        space()->bu(),
+        space()->sInd(fType_ ),
+        space()->eInd(fType_),
         s_, weights.s_,
         normvec );
 
-    if( global ) this->reduceNorm( comm(), normvec, Belos::TwoNorm );
+    if( global ) this->reduceNorm( space()->comm(), normvec, Belos::TwoNorm );
 
     return( normvec );
 
@@ -382,14 +406,16 @@ public:
   /// \note "indexing" is done c++
   void assign( const MV& a ) {
     SF_assign(
-        nLoc(),
-        bl(), bu(),
-        sInd(), eInd(),
+        space()->nLoc(),
+        space()->bl(),
+        space()->bu(),
+        space()->sInd(fType_ ),
+        space()->eInd(fType_),
         s_, a.s_ );
     changed();
     //    Ordinal N = 1;
     //    for(int i=0; i<3; ++i)
-    //      N *= nLoc(i)+bu(i)-bl(i);
+    //      N *= space()->nLoc(i)+space()->bu(i)-space()->bl(i);
     //
     //    for(int i=0; i<N; ++i)
     //      s_[i] = a.s_[i];
@@ -403,9 +429,11 @@ public:
   /// depending on Fortrans \c Random_number implementation, with always same seed => not save, if good randomness is requiered
   void random( bool useSeed = false, int seed = 1 ) {
     SF_random(
-        nLoc(),
-        bl(), bu(),
-        sInd(), eInd(),
+        space()->nLoc(),
+        space()->bl(),
+        space()->bu(),
+        space()->sInd(fType_),
+        space()->eInd(fType_),
         s_);
     changed();
   }
@@ -414,9 +442,11 @@ public:
   /// \brief Replace each element of the vector  with \c alpha.
   void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero() ) {
     SF_init(
-        nLoc(),
-        bl(), bu(),
-        sInd(), eInd(),
+        space()->nLoc(),
+        space()->bl(),
+        space()->bu(),
+        space()->sInd(fType_),
+        space()->eInd(fType_),
         s_, alpha);
     changed();
   }
@@ -427,56 +457,56 @@ public:
     switch( fieldType ) {
     case ZeroField :
       SF_init(
-          nLoc(),
-          bl(),
-          bu(),
-          sIndB(),
-          eIndB(),
+          space()->nLoc(),
+          space()->bl(),
+          space()->bu(),
+          space()->sIndB(fType_),
+          space()->eIndB(fType_),
           s_,
           0. );
       break;
     case Poiseuille2D_inX :
       SF_init_2DPoiseuilleX(
-          nLoc(),
-          bl(),
-          bu(),
-          sIndB(),
-          eIndB(),
-          space_->getDomain()->getDomainSize()->getSize( Y ),
-          space_->getCoordinatesLocal()->getX(Y,fType_),
+          space()->nLoc(),
+          space()->bl(),
+          space()->bu(),
+          space()->sIndB(fType_),
+          space()->eIndB(fType_),
+          space()->getDomain()->getDomainSize()->getSize( Y ),
+          space()->getCoordinatesLocal()->getX(Y,fType_),
           s_ );
       break;
     case Poiseuille2D_inY :
       SF_init_2DPoiseuilleY(
-          nLoc(),
-          bl(),
-          bu(),
-          sIndB(),
-          eIndB(),
-          space_->getDomain()->getDomainSize()->getSize( X ),
-          space_->getCoordinatesLocal()->getX(X,fType_),
+          space()->nLoc(),
+          space()->bl(),
+          space()->bu(),
+          space()->sIndB(fType_),
+          space()->eIndB(fType_),
+          space()->getDomain()->getDomainSize()->getSize( X ),
+          space()->getCoordinatesLocal()->getX(X,fType_),
           s_ );
       break;
     case Grad2D_inX :
       SF_init_2DGradX(
-          nLoc(),
-          bl(),
-          bu(),
-          sIndB(),
-          eIndB(),
-          space_->getDomain()->getDomainSize()->getSize(),
-          space_->getCoordinatesLocal()->getX( X, fType_ ),
+          space()->nLoc(),
+          space()->bl(),
+          space()->bu(),
+          space()->sIndB(fType_),
+          space()->eIndB(fType_),
+          space()->getDomain()->getDomainSize()->getSize(),
+          space()->getCoordinatesLocal()->getX( X, fType_ ),
           s_ );
       break;
     case Grad2D_inY :
       SF_init_2DGradY(
-          nLoc(),
-          bl(),
-          bu(),
-          sIndB(),
-          eIndB(),
-          space_->getDomain()->getDomainSize()->getSize(),
-          space_->getCoordinatesLocal()->getX( Y, fType_ ),
+          space()->nLoc(),
+          space()->bl(),
+          space()->bu(),
+          space()->sIndB(fType_),
+          space()->eIndB(fType_),
+          space()->getDomain()->getDomainSize()->getSize(),
+          space()->getCoordinatesLocal()->getX( Y, fType_ ),
           s_ );
       break;
     }
@@ -489,10 +519,11 @@ public:
   /// Print the vector.  To be used for debugging only.
   void print( std::ostream& os=std::cout )  const {
     SF_print(
-        nLoc(),
-        bl(), bu(),
-        sIndB(),
-        eIndB(),
+        space()->nLoc(),
+        space()->bl(),
+        space()->bu(),
+        space()->sIndB(fType_),
+        space()->eIndB(fType_),
         s_ );
 
   }
@@ -500,39 +531,40 @@ public:
 
   void write( int count=0 ) {
 
-    if( 0==space_->rankST() )
+    if( 0==space()->rankST() )
       std::cout << "writing pressure field (" << count << ") ...\n";
 
-    if( 2==space_->dim() )
+    if( 2==space()->dim() )
       write_hdf5_2D(
-          space_->rankST(),
-          space_->commf(),
-          space_->nGlo(),
-          space_->getDomain()->getBCGlobal()->getBCL(),
-          space_->getDomain()->getBCGlobal()->getBCU(),
-          space_->nLoc(),
-          space_->bl(),
-          space_->bu(),
-          sInd(),
-          eInd(),
-          space_->getFieldSpace()->getLS(),
-          space_->getProcGridSize()->get(),
-          space_->getProcGrid()->getIB(),
-          space_->getProcGrid()->getShift(),
+          space()->rankST(),
+          space()->commf(),
+          space()->nGlo(),
+          space()->getDomain()->getBCGlobal()->getBCL(),
+          space()->getDomain()->getBCGlobal()->getBCU(),
+          space()->nLoc(),
+          space()->bl(),
+          space()->bu(),
+          space()->sInd(fType_),
+          space()->eInd(fType_),
+          space()->getFieldSpace()->getLS(),
+          space()->getProcGridSize()->get(),
+          space()->getProcGrid()->getIB(),
+          space()->getProcGrid()->getShift(),
           fType_,
           count,
           9,
           s_,
-          space_->getCoordinatesGlobal()->get(0,EField::S),
-          space_->getCoordinatesGlobal()->get(1,EField::S),
-          space_->getDomain()->getDomainSize()->getRe(),
-          space_->getDomain()->getDomainSize()->getAlpha2() );
-    if( 3==space_->dim() )
+          space()->getCoordinatesGlobal()->get(0,EField::S),
+          space()->getCoordinatesGlobal()->get(1,EField::S),
+          space()->getDomain()->getDomainSize()->getRe(),
+          space()->getDomain()->getDomainSize()->getAlpha2() );
+    if( 3==space()->dim() )
       SF_write3D(
-          nLoc(),
-          bl(), bu(),
-          sInd(),
-          eInd(),
+          space()->nLoc(),
+          space()->bl(),
+          space()->bu(),
+          space()->sInd(fType_),
+          space()->eInd(fType_),
           s_, count );
   }
 
@@ -540,17 +572,11 @@ public:
 
 public:
 
-  const MPI_Fint& commf() const { return( space_->commf() ); }
-  MPI_Comm        comm()  const { return( space_->comm() ); }
-  const int&      dim()   const { return( space_->dim()   ); }
-
-  Teuchos::RCP<const SpaceT> getSpace() const { return( space_ ); };
-
   Ordinal getStorageSize() const {
 
     Ordinal n = 1;
     for(int i=0; i<3; ++i)
-      n *= nLoc()[i]+bu()[i]-bl()[i]+1; // there a one was added for AMG, but it is not neede error seem to be in Impact there it should be (B1L+1:N1+B1U) probably has to be changed aganin for 3D
+      n *= space()->nLoc(i)+space()->bu(i)-space()->bl(i)+1; // there a one was added for AMG, but it is not neede error seem to be in Impact there it should be (B1L+1:N1+B1U) probably has to be changed aganin for 3D
 
     return( n );
   }
@@ -567,37 +593,9 @@ public:
     return( s_ );
   }
 
+  Teuchos::RCP<SpaceT> space() const { return( AbstractField<S,O,d>::space_ ); }
+
 protected:
-
-//  const Ordinal* nGlo()  const { return( space_->nGlo() ); }
-  const Ordinal& nGlo(int i)  const { return( space_->nGlo()[i] ); }
-
-  const Ordinal* nLoc()      const { return( space_->nLoc() ) ; }
-  const Ordinal& nLoc(int i) const { return( space_->nLoc(i) ) ; }
-
-  const Ordinal* bl() const { return( space_->bl() ); }
-  const Ordinal& bl(int i) const { return( space_->bl(i) ); }
-
-  const Ordinal* bu() const { return( space_->bu() ); }
-  const Ordinal& bu(int i) const { return( space_->bu(i) ); }
-
-  const Ordinal* sInd() const { return( space_->sInd( (int)fType_ ) ); }
-  const Ordinal& sInd(int i) const { return( space_->sInd( (int)fType_ )[i] ); }
-
-  const Ordinal* eInd() const { return( space_->eInd( (int)fType_ ) ); }
-  const Ordinal& eInd(int i) const { return( space_->eInd( (int)fType_ )[i] ); }
-
-  const Ordinal* sIndB() const { return( space_->sIndB( (int)fType_ ) ); }
-  const Ordinal& sIndB(int i) const { return( space_->sIndB( (int)fType_ )[i] ); }
-
-  const Ordinal* eIndB() const { return( space_->eIndB( (int)fType_ ) ); }
-  const Ordinal& eIndB(int i) const { return( space_->eIndB( (int)fType_ )[i] ); }
-
-  const int*     bcL() const { return( space_->getDomain()->getBCLocal()->getBCL() ); }
-  const int*     bcU() const { return( space_->getDomain()->getBCLocal()->getBCU() ); }
-
-  const int* rankL() const { return( space_->getProcGrid()->getRankL() ); }
-  const int* rankU() const { return( space_->getProcGrid()->getRankU() ); }
 
   void changed( const int& dir ) const {
     exchangedState_[dir] = false;
@@ -606,7 +604,7 @@ protected:
 public:
 
   void changed() const {
-    for( int dir=0; dir<dim(); ++dir )
+    for( int dir=0; dir<space()->dim(); ++dir )
       changed( dir );
   }
 
@@ -617,7 +615,7 @@ protected:
   }
   bool is_exchanged() const {
     bool all_exchanged = true;
-    for( int dir=0; dir<dim(); ++dir )
+    for( int dir=0; dir<space()->dim(); ++dir )
       all_exchanged = all_exchanged && is_exchanged(dir);
     return( all_exchanged );
   }
@@ -627,28 +625,27 @@ protected:
     int ones[3] = {1,1,1};
     if( !exchangedState_[dir] ) {
       F_exchange(
-          dim(),
-          commf(),
-          rankL(), rankU(),
-          nLoc(),
-          bl(),
-          bu(),
-          bcL(),
-          bcU(),
-          space_->sInd(EField::S),
-          space_->eInd(EField::S),
-//          sInd(), eInd(),
+          space()->dim(),
+          space()->commf(),
+          space()->getProcGrid()->getRankL(),
+          space()->getProcGrid()->getRankU(),
+          space()->nLoc(),
+          space()->bl(),
+          space()->bu(),
+          space()->getDomain()->getBCLocal()->getBCL(),
+          space()->getDomain()->getBCLocal()->getBCU(),
+          space()->sInd(EField::S),
+          space()->eInd(EField::S),
           ones,
-          nLoc(),
+          space()->nLoc(),
           1+dir,
           1+(int)fType_,
-//          0,
           s_);
       exchangedState_[dir] = true;
     }
   }
   void exchange() const {
-    for( int dir=0; dir<dim(); ++dir )
+    for( int dir=0; dir<space()->dim(); ++dir )
       exchange( dir );
   }
 
@@ -665,11 +662,11 @@ protected:
 template<class S=double, class O=int, int d=3>
 Teuchos::RCP< ScalarField<S,O,d> >
 createScalarField(
-    const Teuchos::RCP<const Space<S,O,d> >& space=Teuchos::null,
+    const Teuchos::RCP<const Space<S,O,d> >& space,
     EField fType=EField::S ) {
 
   return( Teuchos::rcp(
-      new ScalarField<S,O,d>( space, fType ) ) );
+      new ScalarField<S,O,d>( space, true, fType ) ) );
 }
 
 

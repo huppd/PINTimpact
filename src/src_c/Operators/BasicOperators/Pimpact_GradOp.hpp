@@ -100,7 +100,7 @@ public:
 
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
-    int dim = x.dim();
+    int dim = space_->dim();
     for( int i=0; i<dim; ++i) {
       x.exchange(i);
 
@@ -111,22 +111,23 @@ public:
           space_->bu(),
           space_->gl(),
           space_->gu(),
-          y.getField(i).sInd(),
-          y.getField(i).eInd(),
+          space_->sInd(i),
+          space_->eInd(i),
           c_[i],
           x.s_,
           y.vec(i) );
-      // necessary&
+      // necessary?
       OP_SetBCZero(
           space_->nLoc(),
           space_->bl(),
           space_->bu(),
           space_->getDomain()->getBCLocal()->getBCL(),
           space_->getDomain()->getBCLocal()->getBCU(),
-          y.getField(i).sIndB(),
-          y.getField(i).eIndB(),
+          space_->sIndB(i),
+          space_->eIndB(i),
           y.vec(i) );
-      //      OP_bc_extrapolation( i+1, y.vec_[i] ); // doesnot work with Schurcomplement, not cleary what it does anyway
+      // necessary?
+      // OP_bc_extrapolation( i+1, y.vec_[i] ); // doesnot work with Schurcomplement, not cleary what it does anyway
     }
     y.changed();
   }

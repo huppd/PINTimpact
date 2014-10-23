@@ -1314,7 +1314,7 @@ contains
     !! \f[ \mathrm{nl = pp*\partial_i vel}\f]
     !! \test Teile davon (nur zentrale Operationen!) koennten jeweils durch interpolate2_pre_vel/interpolate2_vel_pre, first_adv_pre/first_adv_vel
     !!         ersetzt werden (beachte aber Addition von nl!)
-    !! \test umbenennen in advect... (?)
+    !! \test umbenennen in convection ... (?)
     !! \relates Pimpact::Nonlinear
     !! \todo extract interpolate vel
     subroutine OP_nonlinear(   &

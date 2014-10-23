@@ -20,7 +20,8 @@
 #include "Pimpact_HelmholtzOp.hpp"
 #include "Pimpact_InterpolateV2SOp.hpp"
 #include "Pimpact_InterpolateS2VOp.hpp"
-#include "Pimpact_ConvectionOp.hpp"
+#include "Pimpact_ConvectionSOp.hpp"
+#include "Pimpact_ConvectionVOp.hpp"
 #include "Pimpact_NonlinearJacobianOp.hpp"
 
 

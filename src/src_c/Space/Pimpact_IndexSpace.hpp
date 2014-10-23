@@ -22,14 +22,9 @@ namespace Pimpact {
 
 
 extern "C" {
-//void SVS_get_sInd(int&,int&,int&);
-//void SVS_get_eInd(int&,int&,int&);
 
 void SVS_set_sInd(const int* const);
 void SVS_set_eInd(const int* const);
-
-//void VS_get_sIndU(int&,int&,int&);
-//void VS_get_eIndU(int&,int&,int&);
 
 void VS_set_sIndU(const int* const);
 void VS_set_eIndU(const int* const);
@@ -37,17 +32,11 @@ void VS_set_eIndU(const int* const);
 void VS_set_sIndUB(const int* const);
 void VS_set_eIndUB(const int* const);
 
-//void VS_get_sIndV(int&,int&,int&);
-//void VS_get_eIndV(int&,int&,int&);
-
 void VS_set_sIndV(const int* const);
 void VS_set_eIndV(const int* const);
 
 void VS_set_sIndVB(const int* const);
 void VS_set_eIndVB(const int* const);
-
-//void VS_get_sIndW(int&,int&,int&);
-//void VS_get_eIndW(int&,int&,int&);
 
 void VS_set_sIndW(const int* const);
 void VS_set_eIndW(const int* const);
@@ -55,14 +44,6 @@ void VS_set_eIndW(const int* const);
 void VS_set_sIndWB(const int* const);
 void VS_set_eIndWB(const int* const);
 
-//void VS_get_sIndUB(int&,int&,int&);
-//void VS_get_eIndUB(int&,int&,int&);
-
-//void VS_get_sIndVB(int&,int&,int&);
-//void VS_get_eIndVB(int&,int&,int&);
-
-//void VS_get_sIndWB(int&,int&,int&);
-//void VS_get_eIndWB(int&,int&,int&);
 }
 
 

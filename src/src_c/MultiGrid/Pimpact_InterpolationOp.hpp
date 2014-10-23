@@ -146,22 +146,24 @@ public:
 
   void apply( const DomainFieldT& x, RangeFieldT& y ) {
 
-    TEUCHOS_TEST_FOR_EXCEPTION( x.fType_!=y.fType_     , std::logic_error, "Error!!! has to be of same FieldType!!!");
+    EField fType = x.fType_;
 
-    if( EField::S==x.fType_ ) {
+    TEUCHOS_TEST_FOR_EXCEPTION( fType!=y.fType_     , std::logic_error, "Error!!! has to be of same FieldType!!!");
+
+    if( EField::S==fType ) {
       x.exchange();
       MG_interpolate(
-          x.dim(),
-          x.nLoc(),
-          x.bl(),
-          x.bu(),
+          spaceC_->dim(),
+          spaceC_->nLoc(),
+          spaceC_->bl(),
+          spaceC_->bu(),
 //          x.sInd(),
 //          x.eInd(),
-          x.bcL(),
-          x.bcU(),
-          y.nLoc(),
-          y.bl(),
-          y.bu(),
+          spaceC_->getDomain()->getBCGlobal()->getBCL(),
+          spaceC_->getDomain()->getBCGlobal()->getBCU(),
+          spaceF_->nLoc(),
+          spaceF_->bl(),
+          spaceF_->bu(),
 //          y.sInd(),
 //          y.eInd(),
           cIS_[0],
@@ -172,27 +174,27 @@ public:
       y.changed();
     }
     else {
-      int dir = x.fType_;
+      int dir = fType;
       x.exchange();
 //      for( int i=0; i<3; ++i ) {
 //          std::cout << "SSc["<<i<<"]: " <<  y.sIndB()[i] << "\n";
 //          std::cout << "NNc["<<i<<"]: " <<  y.eIndB()[i] << "\n";
 //      }
       MG_interpolateV(
-          x.dim(),
+          spaceC_->dim(),
           dir+1,
-          x.nLoc(),
-          x.bl(),
-          x.bu(),
-          x.sInd(),
-          x.eInd(),
-          y.nLoc(),
-          y.bl(),
-          y.bu(),
-          y.sInd(),
-          y.eInd(),
-          y.bcL(),
-          y.bcU(),
+          spaceC_->nLoc(),
+          spaceC_->bl(),
+          spaceC_->bu(),
+          spaceC_->sInd(fType),
+          spaceC_->eInd(fType),
+          spaceF_->nLoc(),
+          spaceF_->bl(),
+          spaceF_->bu(),
+          spaceF_->sInd(fType),
+          spaceF_->eInd(fType),
+          spaceF_->getDomain()->getBCGlobal()->getBCL(),
+          spaceF_->getDomain()->getBCGlobal()->getBCU(),
           cIV_[dir],
           cIS_[0],
           cIS_[1],

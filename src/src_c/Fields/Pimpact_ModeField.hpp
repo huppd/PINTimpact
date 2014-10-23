@@ -25,27 +25,35 @@ namespace Pimpact {
 /// vector for wrapping 2 fields into one mode
 /// \ingroup Field
 template<class Field>
-class ModeField : AbstractField< typename Field::Scalar, typename Field::Ordinal> {
+class ModeField : private AbstractField< typename Field::Scalar, typename Field::Ordinal, Field::dimension> {
 
 public:
+
   typedef typename Field::Scalar Scalar;
   typedef typename Field::Ordinal Ordinal;
 
   static const int dimension = Field::dimension;
 
-  typedef Space<Scalar,Ordinal,dimension> SpaceT;
+  typedef typename AbstractField<Scalar,Ordinal,dimension>::SpaceT SpaceT;
 
-private:
+protected:
 
   typedef ModeField<Field> MV;
+
+  typedef AbstractField< typename Field::Scalar, typename Field::Ordinal, Field::dimension> AF;
+
+  Teuchos::RCP<Field> fieldc_;
+  Teuchos::RCP<Field> fields_;
 
 public:
 
 
   ModeField(
-      const Teuchos::RCP<Field>& fieldc=Teuchos::null,
-      const Teuchos::RCP<Field>& fields=Teuchos::null):
-        fieldc_(fieldc),fields_(fields) {};
+      const Teuchos::RCP<Field>& fieldc,
+      const Teuchos::RCP<Field>& fields ):
+        AF( fieldc->space() ),
+        fieldc_(fieldc),
+        fields_(fields) {};
 
 
   /// \brief copy constructor.
@@ -54,6 +62,8 @@ public:
   /// \param vF
   /// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
   ModeField(const ModeField& vF, ECopyType copyType=DeepCopy):
+    AF( vF.space() ),
+//    space_( vF.space() ),
     fieldc_( vF.fieldc_->clone(copyType) ),
     fields_( vF.fields_->clone(copyType) )
   {};
@@ -84,6 +94,7 @@ public:
   const Field& getConstCField() const { return( *fieldc_ ); }
   const Field& getConstSField() const { return( *fields_ ); }
 
+  Teuchos::RCP<SpaceT> space() const { return( AF::space_ ); }
 
   /// \brief returns the length of Field.
   ///
@@ -161,7 +172,7 @@ public:
 
     b = fieldc_->dot( *a.fieldc_, false ) + fields_->dot( *a.fields_, false );
 
-    if( global ) this->reduceNorm( comm(), b );
+    if( global ) this->reduceNorm( space()->comm(), b );
 
     return( b );
   }
@@ -189,7 +200,7 @@ public:
       break;
     }
 
-    if( global ) this->reduceNorm( comm(), normvec, type );
+    if( global ) this->reduceNorm( space()->comm(), normvec, type );
 
     return( normvec );
   }
@@ -204,7 +215,7 @@ public:
 
     double normvec=fieldc_->norm(*weights.fieldc_,false)+fields_->norm(*weights.fields_,false);
 
-    if( global ) this->reduceNorm( comm(), normvec, Belos::TwoNorm );
+    if( global ) this->reduceNorm( space()->comm(), normvec, Belos::TwoNorm );
 
     return( normvec );
 
@@ -245,12 +256,6 @@ public:
     fieldc_->write(count);
     fields_->write(count+1);
   }
-
-  MPI_Comm comm() const { return( fieldc_->comm() ); }
-
-protected:
-  Teuchos::RCP<Field> fieldc_;
-  Teuchos::RCP<Field> fields_;
 
 
 }; // end of class ModeField

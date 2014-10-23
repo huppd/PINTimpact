@@ -35,7 +35,7 @@ namespace Pimpact {
 /// \todo maybe move functionality in Scalar/VectorField<S,O,4>
 /// \ingroup Field
 template<class Field>
-class TimeField : private AbstractField<typename Field::Scalar,typename Field::Ordinal> {
+class TimeField : private AbstractField<typename Field::Scalar,typename Field::Ordinal,4> {
 
   template<class Op,bool CNY>
   friend class TimeOpWrap;
@@ -53,14 +53,16 @@ public:
 
   static const int dimension = 4;
 
-  typedef Space<Scalar,Ordinal,4> SpaceT;
+  typedef typename AbstractField<Scalar,Ordinal,dimension>::SpaceT SpaceT;
 
 public:
 
   typedef Pimpact::TimeField<Field> MV;
+
   typedef Scalar* ScalarArray;
 
-  Teuchos::RCP<const SpaceT > space_;
+  typedef AbstractField< typename Field::Scalar, typename Field::Ordinal, 4> AF;
+
 
   Teuchos::Array< Teuchos::RCP<Field> > mfs_;
 
@@ -80,15 +82,16 @@ protected:
 
 public:
 
-  TimeField( Teuchos::RCP<const SpaceT > space ):
-    space_(space),exchangedState_(true) {
+  TimeField( Teuchos::RCP<SpaceT> space ):
+    AF( space ),
+    exchangedState_(true) {
 
-    Ordinal nt = space_->nLoc()[3]+space_->bu()[3]-space_->bl()[3];
+    Ordinal nt = space()->nLoc()[3]+space()->bu()[3]-space()->bl()[3];
 
     mfs_ = Teuchos::Array< Teuchos::RCP<Field> >( nt );
 
     for( int i=0; i<nt; ++i )
-      mfs_[i] = Teuchos::rcp( new Field( space_, false ) );
+      mfs_[i] = Teuchos::rcp( new Field( space, false ) );
 
     Ordinal nx = mfs_[0]->getStorageSize();
 
@@ -99,8 +102,8 @@ public:
     for( int i=0; i<nt; ++i )
       mfs_[i]->setStoragePtr( array_+i*nx );
 
-    beginI_ = mfs_.begin()-space_->bl()[3];
-    endI_   = mfs_.end()  -space_->bu()[3];
+    beginI_ = mfs_.begin()-space()->bl()[3];
+    endI_   = mfs_.end()  -space()->bu()[3];
 
   }
 
@@ -112,14 +115,16 @@ public:
   /// \param vF
   /// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
   TimeField(const TimeField& field, ECopyType copyType=DeepCopy):
-    space_(field.space_),exchangedState_(field.exchangedState_) {
+    AF( field.space() ),
+//    space()(field.space()),
+    exchangedState_(field.exchangedState_) {
 
-    Ordinal nt = space_->nLoc()[3]+space_->bu()[3]-space_->bl()[3];
+    Ordinal nt = space()->nLoc()[3]+space()->bu()[3]-space()->bl()[3];
 
     mfs_ = Teuchos::Array< Teuchos::RCP<Field> >(nt);
 
     for( int i=0; i<nt; ++i )
-      mfs_[i] = Teuchos::rcp( new Field( space_, false ) );
+      mfs_[i] = Teuchos::rcp( new Field( space(), false ) );
 //      mfs_[i] = field.mfs_[i]->clone(copyType);
 
     Ordinal nx = mfs_[0]->getStorageSize();
@@ -137,8 +142,8 @@ public:
       for( int i=0; i<nt*nx; ++i )
         array_[i] = 0.;
 
-    beginI_ = mfs_.begin()-space_->bl()[3];
-    endI_ = mfs_.end()-space_->bu()[3];
+    beginI_ = mfs_.begin()-space()->bl()[3];
+    endI_ = mfs_.end()-space()->bu()[3];
 
     if( ShallowCopy ) exchangedState_ = true;
   }
@@ -161,7 +166,7 @@ public:
   /// \param nox_vec if \c TimeField is used for NOX the Vector length is
   /// considered for all Fields
   Ordinal getLength( bool noxVec=true ) const {
-    return( space_->nGlo()[3]*mfs_[0]->getLength(noxVec) );
+    return( space()->nGlo()[3]*mfs_[0]->getLength(noxVec) );
   }
 
 
@@ -352,15 +357,15 @@ public:
 
   void write( int count=0 )  {
     //    for( Iter i=mfs_.begin(); i<mfs_.end(); ++i )
-    //      (*i)->write(count++ + 2.*space_->getShift()[3] );
+    //      (*i)->write(count++ + 2.*space()->getShift()[3] );
     for( Iter i=beginI_; i<endI_; ++i )
-      (*i)->write(count++ + space_->getShift()[3] );
+      (*i)->write(count++ + space()->getShift()[3] );
   }
 
 
-  MPI_Comm comm() const { return( space_->commST() ); }
+  MPI_Comm comm() const { return( space()->commST() ); }
 
-  Teuchos::RCP<const SpaceT > getSpace() const { return( space_ ); }
+  Teuchos::RCP<SpaceT> space() const { return( AF::space_ ); }
 
 
 public:
@@ -371,14 +376,14 @@ public:
   void exchange()   {
 
     if( !exchangedState_ ) {
-      if( space_->getNProc(3)>=1 ) {
+      if( space()->getNProc(3)>=1 ) {
         int transL = beginI_-mfs_.begin();
         //      int transU = mfs_.end()-endI_;
 
         //    std::cout << "transl: " <<  transl<< "\n";
         //    std::cout << "transu: " <<  transu<< "\n";
-        int rankU = space_->getProcGrid()->getRankU(3);
-        int rankL = space_->getProcGrid()->getRankL(3);
+        int rankU = space()->getProcGrid()->getRankU(3);
+        int rankL = space()->getProcGrid()->getRankL(3);
 
         MPI_Request reqL;
         //      MPI_Request reqU;
@@ -450,7 +455,7 @@ initVectorTimeField(
   typedef TimeField<VectorField<S,O,4> > Field;
   typedef typename Field::Iter Iter;
 
-  auto space = field->getSpace();
+  auto space = field->space();
 
   auto offset = space->getShift()[3];
 

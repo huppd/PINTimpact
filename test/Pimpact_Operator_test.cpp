@@ -280,8 +280,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
   auto bs= Pimpact::createVectorField(space);
   auto b = Pimpact::createVectorField(space);
 
-  double mulI = 0.;
-  double mulL = 1.;
+  double mulI = 5.;
+  double mulL = 3.;
 
   auto op= Pimpact::createHelmholtzOp( space, mulI, mulL );
 
@@ -317,16 +317,18 @@ TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
 
   // the circle test
   x->initField( Pimpact::Circle2D );
-  bs->init( 0. );
+  bs->initField( Pimpact::Circle2D );
+  bs->scale( mulI );
 
   op->apply( *x, *b );
 
-//  bs->add( 1., *bs, -1, *b );
+  bs->add( 1., *bs, -1, *b );
   x->write(4);
   b->write(5);
+  bs->write(6);
 
   std::cout << "error: " << bs->norm() << "\n";
-  TEST_EQUALITY( b->norm()<errorTolSlack, true );
+  TEST_EQUALITY( bs->norm()<errorTolSlack, true );
 
 }
 
@@ -391,6 +393,79 @@ TEUCHOS_UNIT_TEST( ModeOperator, HelmholtzOp ) {
 
   op->apply(*mv,*mv2);
 }
+
+
+TEUCHOS_UNIT_TEST( BasicOperator, ConvectionSOp ) {
+
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", 1);
+  pl->set( "nx", 9);
+  pl->set( "ny", 9);
+
+  pl->set( "npx", 1);
+  pl->set( "npy", 1);
+
+  auto space = Pimpact::createSpace( pl, !isImpactInit );
+
+  if( !isImpactInit ) isImpactInit=true;
+
+  using Teuchos::ParameterList;
+  using Teuchos::parameterList;
+  using Teuchos::RCP;
+  using Teuchos::rcp; // Save some typing
+
+
+  auto u =
+      Teuchos::tuple(
+          Teuchos::tuple(
+              Pimpact::createScalarField<S,O>( space, Pimpact::U ),
+              Pimpact::createScalarField<S,O>( space, Pimpact::U ),
+              Pimpact::createScalarField<S,O>( space, Pimpact::U )
+          ),
+          Teuchos::tuple(
+              Pimpact::createScalarField<S,O>( space, Pimpact::V ),
+              Pimpact::createScalarField<S,O>( space, Pimpact::V ),
+              Pimpact::createScalarField<S,O>( space, Pimpact::V )
+          ),
+          Teuchos::tuple(
+              Pimpact::createScalarField<S,O>( space, Pimpact::W ),
+              Pimpact::createScalarField<S,O>( space, Pimpact::W ),
+              Pimpact::createScalarField<S,O>( space, Pimpact::W )
+          )
+      );
+
+  auto x = Pimpact::createVectorField<S,O>( space );
+  auto y = Pimpact::createVectorField<S,O>( space );
+
+  auto op = Pimpact::createConvectionSOp( space ) ;
+
+  op->print();
+
+  for( int i=0; i<space->dim(); ++i )
+    for( int j=0; j<space->dim(); ++j )
+      u[i][j]->init( 1. );
+
+
+  x->getFieldPtr(0)->initField( Pimpact::Grad2D_inX );
+//  x->getFieldPtr(1)->initField( Pimpact::Grad2D_inY );
+
+  x->write(0);
+  y->init(0.);
+
+  for( int i=0; i<3; ++i)
+    std::cout << "norm: " << u[0][i]->norm(Belos::InfNorm);
+
+  op->apply( u[0], x->getConstField(0), y->getField(0), 1. );
+//  for( int i=0; i<space->dim(); ++i ) {
+//    op->apply( u[i], x->getConstField(i), y->getField(i), 1. );
+////    y->getFieldPtr(i)->write(i);
+//  }
+
+  y->write(1);
+
+}
+
 
 
 

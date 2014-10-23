@@ -110,8 +110,8 @@ public:
         space_->bu(),
         space_->gl(),
         space_->gu(),
-        y.sInd(),
-        y.eInd(),
+        space_->sInd(m),
+        space_->eInd(m),
         c_[m],
         x.s_,
         y.s_ );

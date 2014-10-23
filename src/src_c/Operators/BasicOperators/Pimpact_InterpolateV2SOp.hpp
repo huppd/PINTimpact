@@ -114,7 +114,7 @@ public:
         std::logic_error,
         "Pimpact::InterpolateV2S:: can only interpolate to Scalar!!!\n");
 
-    auto space = x.getSpace();
+    auto space = x.space();
 
     int m = (int)x.fType_;
 
@@ -127,12 +127,11 @@ public:
         space->bu(),
         space->dl(m),
         space->du(m),
-        y.sInd(),
-        y.eInd(),
+        space->sInd(S),
+        space->eInd(S),
         c_[m],
         x.s_,
         y.s_ );
-
 
     y.changed();
 

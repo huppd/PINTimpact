@@ -26,7 +26,7 @@ namespace Pimpact {
 /// vector for wrapping 2 fields into one mode
 /// \ingroup Field
 template<class VField, class SField>
-class CompoundField : private AbstractField<typename VField::Scalar ,typename VField::Ordinal > {
+class CompoundField : private AbstractField<typename VField::Scalar, typename VField::Ordinal, VField::dimension > {
 
 public:
 
@@ -35,18 +35,25 @@ public:
 
   static const int dimension = VField::dimension;
 
-  typedef Space<Scalar,Ordinal,dimension> SpaceT;
+  typedef typename AbstractField<Scalar,Ordinal,dimension>::SpaceT SpaceT;
 
-private:
+protected:
 
   typedef CompoundField<VField,SField> MV;
+
+  typedef AbstractField< Scalar, Ordinal, dimension> AF;
+
+  Teuchos::RCP<VField> vfield_;
+  Teuchos::RCP<SField> sfield_;
 
 public:
 
   CompoundField(
-      const Teuchos::RCP<VField>& vfield=Teuchos::null,
-      const Teuchos::RCP<SField>& sfield=Teuchos::null ):
-        vfield_(vfield),sfield_(sfield) {};
+      const Teuchos::RCP<VField>& vfield,
+      const Teuchos::RCP<SField>& sfield ):
+        AF( vfield->space() ),
+        vfield_(vfield),
+        sfield_(sfield) {};
 
 
   /// \brief copy constructor.
@@ -55,6 +62,7 @@ public:
   /// \param sF
   /// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
   CompoundField(const CompoundField& vF, ECopyType copyType=DeepCopy):
+    AF( vF.space() ),
     vfield_( vF.vfield_->clone(copyType) ),
     sfield_( vF.sfield_->clone(copyType) )
   {};
@@ -68,8 +76,8 @@ public:
   //@{
 
   /// \warning it is assumed that both fields have the same \c FieldSpace
-//  /// \return field space of \c cfield_
-//  Teuchos::RCP<const FieldSpace<Ordinal> > getFieldSpace() const { return( vfield_->getFieldSpace() );}
+  //  /// \return field space of \c cfield_
+  //  Teuchos::RCP<const FieldSpace<Ordinal> > getFieldSpace() const { return( vfield_->getFieldSpace() );}
 
   VField& getVField() { return( *vfield_ ); }
   SField& getSField() { return( *sfield_ ); }
@@ -82,6 +90,8 @@ public:
 
   Teuchos::RCP<const VField> getConstVFieldPtr() const { return( vfield_ ); }
   Teuchos::RCP<const SField> getConstSFieldPtr() const { return( sfield_ ); }
+
+  Teuchos::RCP<SpaceT> space() const { return( AF::space_ ); }
 
 
   /// \brief get Vect length
@@ -158,7 +168,7 @@ public:
 
     b = vfield_->dot( *a.vfield_, false ) + sfield_->dot( *a.sfield_, false );
 
-    if( global ) this->reduceNorm( comm(), b );
+    if( global ) this->reduceNorm( space()->comm(), b );
 
     return( b );
   }
@@ -175,20 +185,20 @@ public:
     Scalar normvec=0;
 
     switch(type) {
-//    case Belos::OneNorm:
+    //    case Belos::OneNorm:
     default:
       normvec = vfield_->norm(type,false) + sfield_->norm(type,false);
       break;
-//    case Belos::TwoNorm:
-//      normvec = vfield_->norm(type,false) + sfield_->norm(type,false);
-////      normvec = std::pow(vfield_->norm(type,false),2) + std::pow(sfield_->norm(type,false),2);
-//      break;
+      //    case Belos::TwoNorm:
+      //      normvec = vfield_->norm(type,false) + sfield_->norm(type,false);
+      ////      normvec = std::pow(vfield_->norm(type,false),2) + std::pow(sfield_->norm(type,false),2);
+      //      break;
     case Belos::InfNorm:
       normvec = std::max(vfield_->norm(type,false), sfield_->norm(type,false) ) ;
       break;
     }
 
-    if( global ) this->reduceNorm( comm(), normvec, type );
+    if( global ) this->reduceNorm( space()->comm(), normvec, type );
 
     return( normvec );
   }
@@ -206,7 +216,7 @@ public:
         vfield_->norm( *weights.vfield_, false ) +
         sfield_->norm( *weights.sfield_, false );
 
-    if( global ) this->reduceNorm( comm(), normvec, Belos::TwoNorm );
+    if( global ) this->reduceNorm( space()->comm(), normvec, Belos::TwoNorm );
 
     return( normvec );
 
@@ -253,12 +263,8 @@ public:
     sfield_->write(count);
   }
 
-  MPI_Comm comm() const { return( vfield_->comm() ); }
 
 
-protected:
-  Teuchos::RCP<VField> vfield_;
-  Teuchos::RCP<SField> sfield_;
 
 }; // end of class CompoundField
 

@@ -28,7 +28,7 @@ namespace Pimpact {
 /// vector for wrapping many fields into one multiharmonic field
 /// \ingroup Field
 template<class Field>
-class MultiHarmonicField : private AbstractField<typename Field::Scalar,typename Field::Ordinal> {
+class MultiHarmonicField : private AbstractField<typename Field::Scalar,typename Field::Ordinal,Field::dimension> {
 
 public:
 
@@ -37,18 +37,26 @@ public:
 
   static const int dimension = Field::dimension;
 
-  typedef Space<Scalar,Ordinal,dimension> SpaceT;
+  typedef typename AbstractField<Scalar,Ordinal,dimension>::SpaceT SpaceT;
 
 
-private:
+protected:
 
   typedef MultiHarmonicField<Field> MV;
+
+  typedef AbstractField< typename Field::Scalar, typename Field::Ordinal, Field::dimension> AF;
+
+
+  Teuchos::RCP<Field> field0_;
+  Teuchos::RCP< MultiField< ModeField<Field> > > fields_;
+
 
 public:
 
   MultiHarmonicField(
-      const Teuchos::RCP<Field>& field0=Teuchos::null,
-      const Teuchos::RCP< MultiField< ModeField<Field> > >& fields=Teuchos::null):
+      const Teuchos::RCP<Field>& field0,
+      const Teuchos::RCP< MultiField< ModeField<Field> > >& fields):
+        AF( field0->space() ),
         field0_(field0),
         fields_(fields) {};
 
@@ -59,6 +67,8 @@ public:
   /// \param vF
   /// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
   MultiHarmonicField( const MultiHarmonicField& vF, ECopyType copyType=DeepCopy ):
+    AF( vF.space() ),
+//    space_(vF.space_),
     field0_( vF.field0_->clone(copyType) ),
     fields_( vF.fields_->clone(copyType) )
   {};
@@ -101,6 +111,8 @@ public:
   Teuchos::RCP<      Field> getSFieldPtr     ( int i )       { return( fields_->getFieldPtr     (i)->getSFieldPtr()      ); }
   Teuchos::RCP<const Field> getConstSFieldPtr( int i ) const { return( fields_->getConstFieldPtr(i)->getConstSFieldPtr() ); }
 
+
+  Teuchos::RCP<SpaceT> space() const { return( AF::space_ ); }
 
   /// \brief returns the length of Field.
   ///
@@ -277,13 +289,9 @@ public:
     }
   }
 
-  MPI_Comm comm() const { return( field0_->comm() ); }
+  MPI_Comm comm() const { return( field0_->space()->comm() ); }
 
 
-protected:
-
-  Teuchos::RCP<Field> field0_;
-  Teuchos::RCP< MultiField< ModeField<Field> > > fields_;
 
 
 }; // end of class MultiHarmonicField

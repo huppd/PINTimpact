@@ -14,17 +14,17 @@ namespace Pimpact{
 
 
 extern "C" {
-  void OP_DtHelmholtz(
-      const int& dimens,
-      const int* const N,
-      const int* const bL,
-      const int* const bU,
-      const int& m,
-      const double& mulI,
-      const double& multL,
-      double* const phiI,
-      double* const phiL,
-      double* const Lap);
+void OP_DtHelmholtz(
+    const int& dimens,
+    const int* const N,
+    const int* const bL,
+    const int* const bU,
+    const int& m,
+    const double& mulI,
+    const double& multL,
+    double* const phiI,
+    double* const phiL,
+    double* const Lap);
 }
 
 
@@ -32,6 +32,8 @@ extern "C" {
 /// \todo move HelmholtzOp to MultiDtHelmholtzOp(is not ModeOp)
 template<class Scalar,class Ordinal>
 class DtLapOp {
+
+  Teuchos::RCP<const Space<Scalar,Ordinal,3> > space_;
 
   Scalar alpha2_;
   Scalar iRe_;
@@ -43,13 +45,14 @@ public:
   typedef ModeField<VectorField<Scalar,Ordinal> >  RangeFieldT;
 
   DtLapOp(
-      const Teuchos::RCP<const Space<Scalar,Ordinal,3> >& space=Teuchos::null,
+      const Teuchos::RCP<const Space<Scalar,Ordinal,3> >& space,
       Scalar alpha2=1.,
       Scalar iRe=1.,
       const Teuchos::RCP<HelmholtzOp<Scalar,Ordinal> >& L=Teuchos::null ):
-    alpha2_(alpha2),
-    iRe_(iRe),
-    L_(L) {
+        space_(space),
+        alpha2_(alpha2),
+        iRe_(iRe),
+        L_(L) {
     if( L_.is_null() )
       L_ = createHelmholtzOp<Scalar,Ordinal>( space, 0, iRe );
   };
@@ -62,41 +65,41 @@ public:
   /// \begin{bmatrix} \hat{\mathbf{x}}^c \\ \hat{\mathbf{x}}^s  \end{bmatrix} \f]
   void apply(const DomainFieldT& x, RangeFieldT& y, int k=1 ) const {
 
-    const Ordinal& dim = y.getConstCField().dim();
+    const Ordinal& dim = space_->dim();
 
     for( int i=0; i<dim; ++i ) {
 
-         for( int dir=0; dir<dim; ++dir ) {
-           if( !x.getConstCField().is_exchanged(i,dir) ) x.getConstCField().exchange( i, dir );
-           if( !x.getConstSField().is_exchanged(i,dir) ) x.getConstSField().exchange( i, dir );
-         }
+      for( int dir=0; dir<dim; ++dir ) {
+        if( !x.getConstCField().is_exchanged(i,dir) ) x.getConstCField().exchange( i, dir );
+        if( !x.getConstSField().is_exchanged(i,dir) ) x.getConstSField().exchange( i, dir );
+      }
 
-         OP_DtHelmholtz(
-             dim,
-             y.getConstCField().nLoc(),
-             y.getConstCField().bl(),
-             y.getConstCField().bu(),
-             i+1,
-             alpha2_*k,
-             iRe_,
-             x.getConstSField().vecC(i),
-             x.getConstCField().vecC(i),
-             y.getCField().vec(i) ) ;
+      OP_DtHelmholtz(
+          dim,
+          space_->nLoc(),
+          space_->bl(),
+          space_->bu(),
+          i+1,
+          alpha2_*k,
+          iRe_,
+          x.getConstSField().vecC(i),
+          x.getConstCField().vecC(i),
+          y.getCField().vec(i) ) ;
 
-         OP_DtHelmholtz(
-             dim,
-             y.getConstCField().nLoc(),
-             y.getConstCField().bl(),
-             y.getConstCField().bu(),
-             i+1,
-             -alpha2_*k,
-             iRe_,
-             x.getConstCField().vecC(i),
-             x.getConstSField().vecC(i),
-             y.getSField().vec(i) ) ;
-       }
-       y.getCField().changed();
-       y.getSField().changed();
+      OP_DtHelmholtz(
+          dim,
+          space_->nLoc(),
+          space_->bl(),
+          space_->bu(),
+          i+1,
+          -alpha2_*k,
+          iRe_,
+          x.getConstCField().vecC(i),
+          x.getConstSField().vecC(i),
+          y.getSField().vec(i) ) ;
+    }
+    y.getCField().changed();
+    y.getSField().changed();
   }
 
   void assignField( const DomainFieldT& mv ) {};

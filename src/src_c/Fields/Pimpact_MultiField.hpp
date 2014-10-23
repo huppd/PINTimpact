@@ -34,7 +34,7 @@ namespace Pimpact {
 /// \note for better documentation, look at the equivalent documentation in the \c Belos::...
 /// \ingroup Field
 template<class Field>
-class MultiField : private AbstractField<typename Field::Scalar, typename Field::Ordinal> {
+class MultiField : private AbstractField<typename Field::Scalar, typename Field::Ordinal,Field::dimension> {
 
 public:
 
@@ -43,19 +43,23 @@ public:
 
   static const int dimension = Field::dimension;
 
-  typedef Space<Scalar,Ordinal,dimension> SpaceT;
+  typedef typename AbstractField<Scalar,Ordinal,dimension>::SpaceT SpaceT;
 
 private:
 
   typedef Pimpact::MultiField<Field> MV;
+
+  typedef AbstractField< typename Field::Scalar, typename Field::Ordinal, Field::dimension> AF;
+
   Teuchos::Array<Teuchos::RCP<Field> > mfs_;
 
 public:
-  MultiField():mfs_(Teuchos::null) {};
 
   /// \brief constructor taking a \c Field constructing multiple shallow copys.
   /// \note maybe hide and make it private
-  MultiField( const Field& field, const int numvecs, ECopyType ctyp=ShallowCopy ):mfs_(numvecs) {
+  MultiField( const Field& field, const int numvecs, ECopyType ctyp=ShallowCopy ):
+    AF( field.space() ),
+    mfs_(numvecs) {
     for( int i=0; i<numvecs; ++i )
       mfs_[i] = field.clone(ctyp);
   }
@@ -64,20 +68,26 @@ public:
   /// \brief cheap constructor from one Field.
   ///
   /// creates simple wrapper from Field(no coppying).
-  MultiField( const Teuchos::RCP<Field>& field ):mfs_(1) {
+  MultiField( const Teuchos::RCP<Field>& field ):
+    AF( field->space() ),
+    mfs_(1) {
     mfs_[0] = field;
   }
 
 
   /// \brief copy constructor creating a view
   /// note clear if here only referencing or copy is happening
-  MultiField( const MV& mv ):mfs_(mv.mfs_) {}
+  MultiField( const MV& mv ):
+    AF( mv->space() ),
+    mfs_(mv.mfs_) {}
 
 
   /// \brief  constructor, creates \c numvecs  empty Fields
   /// \param numvecs
   /// @return
-  MultiField( int numvecs ):mfs_(numvecs) {}
+  MultiField( const Teuchos::RCP<SpaceT>& space, int numvecs ):
+    AF( space ),
+    mfs_(numvecs) {}
 
 
   /// \brief Create a new \c MultiField with \c numvecs columns.
@@ -96,7 +106,9 @@ public:
   /// more parallel processes) Its entries are not initialized and have undefined
   /// values.
   Teuchos::RCP< MV > clone( ECopyType ctype = DeepCopy ) const {
-    auto mv_ = Teuchos::rcp( new MV(getNumberVecs()) );
+    auto mv_ =
+        Teuchos::rcp(
+            new MV( space(), getNumberVecs() ) );
     for( int i=0; i<getNumberVecs(); ++i ) {
       mv_->mfs_[i] = mfs_[i]->clone(ctype);
     }
@@ -115,7 +127,7 @@ public:
   /// \param index
   /// \return
   Teuchos::RCP<MV>  CloneCopy( const std::vector<int>& index ) const {
-    auto mv_ = Teuchos::rcp( new MV(index.size()) );
+    auto mv_ = Teuchos::rcp( new MV( space(), index.size() ) );
     for( unsigned int i=0; i<index.size(); ++i ) {
       mv_->mfs_[i] = Teuchos::rcp( new Field( *mfs_[ index[i] ], DeepCopy ) );
     }
@@ -127,7 +139,7 @@ public:
   /// \param index here index means an interval
   /// @return
   Teuchos::RCP<MV> CloneCopy( const Teuchos::Range1D& index) const {
-    auto mv_ = Teuchos::rcp( new MV(index.size()) );
+    auto mv_ = Teuchos::rcp( new MV(space(), index.size()) );
     int j = 0;
     for( int i=index.lbound(); i<=index.ubound(); ++i ) {
       mv_->mfs_[j] = Teuchos::rcp( new Field( *mfs_[ i ], DeepCopy ) );
@@ -140,7 +152,7 @@ public:
   /// \param index
   /// @return nonConst View
   Teuchos::RCP<MV> CloneViewNonConst( const std::vector<int>& index) {
-    auto mv_ = Teuchos::rcp( new MV( index.size() ) );
+    auto mv_ = Teuchos::rcp( new MV( space(), index.size() ) );
     for( unsigned int i=0; i<index.size(); ++i ) {
       mv_->mfs_[i] =  mfs_[ index[i] ];
     }
@@ -149,7 +161,7 @@ public:
 
 
   Teuchos::RCP<MV> CloneViewNonConst( const Teuchos::Range1D& index ) {
-    auto mv_ = Teuchos::rcp( new MV(index.size()) );
+    auto mv_ = Teuchos::rcp( new MV( space(), index.size()) );
     int j=0;
     for( int i=index.lbound(); i<=index.ubound(); ++i ) {
       mv_->mfs_[j++] =  mfs_[i];
@@ -159,7 +171,7 @@ public:
 
 
   Teuchos::RCP<const MV > CloneView( const std::vector<int>& index ) const {
-    auto mv_ = Teuchos::rcp( new MV(index.size()) );
+    auto mv_ = Teuchos::rcp( new MV( space(), index.size()) );
     for( unsigned int i=0; i<index.size(); ++i ) {
       mv_->mfs_[i] =  mfs_[ index[i] ];
     }
@@ -168,7 +180,7 @@ public:
 
 
   Teuchos::RCP<const MV > CloneView( const Teuchos::Range1D& index ) const {
-    auto mv_ = Teuchos::rcp( new MV(index.size()) );
+    auto mv_ = Teuchos::rcp( new MV( space(), index.size()) );
     int j=0;
     for( int i=index.lbound(); i<=index.ubound(); ++i ) {
       mv_->mfs_[j++] =  mfs_[i];
@@ -343,7 +355,7 @@ public:
     for( int i=0; i<n; ++i)
       temp[i] = A.mfs_[i]->dot( *mfs_[i], false );
 
-    MPI_Allreduce( temp, dots.data(), n, MPI_REAL8, MPI_SUM, comm() );
+    MPI_Allreduce( temp, dots.data(), n, MPI_REAL8, MPI_SUM, space()->comm() );
     delete[] temp;
 
   }
@@ -358,7 +370,7 @@ public:
     for( int i=0; i<n; ++i )
       b+= mfs_[i]->dot( *A.mfs_[i], false );
 
-    if( global ) this->reduceNorm( comm(), b );
+    if( global ) this->reduceNorm( space()->comm(), b );
 
     return( b );
   }
@@ -378,19 +390,19 @@ public:
     case Belos::OneNorm:
       for( int i=0; i<n; ++i )
         temp[i] = mfs_[i]->norm(type,false);
-      MPI_Allreduce( temp, normvec.data(), n, MPI_REAL8, MPI_SUM, comm() );
+      MPI_Allreduce( temp, normvec.data(), n, MPI_REAL8, MPI_SUM, space()->comm() );
       break;
     case Belos::TwoNorm:
       for( int i=0; i<n; ++i )
         temp[i] = mfs_[i]->norm(type,false);
-      MPI_Allreduce( temp, normvec.data(), n, MPI_REAL8, MPI_SUM, comm() );
+      MPI_Allreduce( temp, normvec.data(), n, MPI_REAL8, MPI_SUM, space()->comm() );
       for( int i=0; i<n; ++i )
         normvec[i] = std::sqrt( normvec[i] );
       break;
     case Belos::InfNorm:
       for( int i=0; i<n; ++i )
         temp[i] = mfs_[i]->norm(type,false);
-      MPI_Allreduce( temp, normvec.data(), n, MPI_REAL8, MPI_MAX, comm() );
+      MPI_Allreduce( temp, normvec.data(), n, MPI_REAL8, MPI_MAX, space()->comm() );
       break;
     }
     delete[] temp;
@@ -418,7 +430,7 @@ public:
           }
     }
 
-    if( global ) this->reduceNorm( comm(), normvec, type );
+    if( global ) this->reduceNorm( space()->comm(), normvec, type );
 
     return( normvec );
   }
@@ -436,7 +448,7 @@ public:
     for( int i=0; i<getNumberVecs(); ++i )
       nor += mfs_[i]->norm( *weights.mfs_[i], false );
 
-    if( global ) this->reduceNorm( comm(), nor, Belos::TwoNorm );
+    if( global ) this->reduceNorm( space()->comm(), nor, Belos::TwoNorm );
 
     return( nor );
   }
@@ -502,7 +514,8 @@ public:
   Teuchos::RCP<Field>       getFieldPtr     (int i)       { return( mfs_[i] ); }
   Teuchos::RCP<const Field> getConstFieldPtr(int i) const { return( mfs_[i] ); }
 
-  MPI_Comm comm() const { return( mfs_[0]->comm() ); }
+  Teuchos::RCP<SpaceT> space() const { return( AF::space_ ); }
+
 
 }; // end of class MultiField
 
@@ -510,7 +523,8 @@ public:
 /// \brief factory for \c MultiField
 /// \relates MultiField
 template<class Field>
-Teuchos::RCP< MultiField<Field> > createMultiField( const Field& field,
+Teuchos::RCP< MultiField<Field> > createMultiField(
+    const Field& field,
     const int numvecs, ECopyType ctype = ShallowCopy ) {
 
   return( Teuchos::rcp( new MultiField<Field>( field, numvecs, ctype ) ) );

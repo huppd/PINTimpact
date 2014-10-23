@@ -43,7 +43,7 @@ protected:
 
   typedef const Teuchos::Tuple<Scalar*,3> TO;
 
-  Teuchos::RCP< const Space<Scalar,Ordinal,dimension> > space_;
+  Teuchos::RCP<const Space<Scalar,Ordinal,dimension> > space_;
 
   TO c_;
 
@@ -94,7 +94,7 @@ public:
   void apply(const DomainFieldT& x, RangeFieldT& y,
       Belos::ETrans trans=Belos::NOTRANS ) const {
 
-    for( int dir=0; dir<x.dim(); ++dir )
+    for( int dir=0; dir<space_->dim(); ++dir )
       x.exchange( dir, dir );
 
     OP_div(
@@ -104,16 +104,15 @@ public:
         space_->bu(),
         space_->dl(),
         space_->du(),
-        y.sInd(),
-        y.eInd(),
+        space_->sInd(S),
+        space_->eInd(S),
         c_[0],
         c_[1],
         c_[2],
-        x.vecC(0),
-        x.vecC(1),
-        x.vecC(2),
+        x.vecC(U),
+        x.vecC(V),
+        x.vecC(W),
         y.s_ );
-
 
     y.changed();
 

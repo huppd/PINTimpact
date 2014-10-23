@@ -34,7 +34,9 @@ void OP_helmholtz(
 
 
 
-/// \brief HelmholtzOp operator
+/// \brief Helmholtz operator
+///
+/// computes \f$ y = ( mulI_ I - mulL_ \Delta) x
 /// \ingroup BaseOperator
 template<class Scalar,class Ordinal,int dimension=3>
 class HelmholtzOp {
@@ -134,55 +136,51 @@ public:
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
 
-        for( int vel_dir=0; vel_dir<x.dim(); ++vel_dir )
-          for( int dir=0; dir<x.dim(); ++dir )
-            if( !x.is_exchanged(vel_dir,dir) )
-              x.exchange( vel_dir, dir );
-//    x.exchange();
+    x.exchange();
 
     OP_helmholtz(
-        x.dim(),
-        x.nLoc(),
-        x.bl(),
-        x.bu(),
-        x.sInd(0),
-        x.eInd(0),
+        space_->dim(),
+        space_->nLoc(),
+        space_->bl(),
+        space_->bu(),
+        space_->sInd(U),
+        space_->eInd(U),
         cV_[0],
         cS_[1],
         cS_[2],
         mulI_,
         mulL_,
-        x.vecC(0),
-        y.vec(0) );
+        x.vecC(U),
+        y.vec (U) );
     OP_helmholtz(
-        x.dim(),
-        x.nLoc(),
-        x.bl(),
-        x.bu(),
-        x.sInd(1),
-        x.eInd(1),
+        space_->dim(),
+        space_->nLoc(),
+        space_->bl(),
+        space_->bu(),
+        space_->sInd(V),
+        space_->eInd(V),
         cS_[0],
         cV_[1],
         cS_[2],
         mulI_,
         mulL_,
-        x.vecC(1),
-        y.vec(1) );
+        x.vecC(V),
+        y.vec (V) );
     if( 3==space_->dim() )
       OP_helmholtz(
-          x.dim(),
-          x.nLoc(),
-          x.bl(),
-          x.bu(),
-          x.sInd(2),
-          x.eInd(2),
+          space_->dim(),
+          space_->nLoc(),
+          space_->bl(),
+          space_->bu(),
+          space_->sInd(W),
+          space_->eInd(W),
           cS_[0],
           cS_[1],
           cV_[2],
           mulI_,
           mulL_,
-          x.vecC(2),
-          y.vec(2) );
+          x.vecC(W),
+          y.vec (W) );
     y.changed();
   }
 

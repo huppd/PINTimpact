@@ -3,16 +3,30 @@
 #define PIMPACT_ABSTRACTFIELD_HPP
 
 #include "mpi.h"
+
+#include "Teuchos_RCP.hpp"
+
 #include "BelosTypes.hpp"
+
+#include "Pimpact_Space.hpp"
 
 
 
 namespace Pimpact {
 
-template< class Scalar=double, class Ordinal=int >
+template< class Scalar=double, class Ordinal=int, int dimension=3 >
 class AbstractField {
 
+public:
+
+  typedef const Space<Scalar,Ordinal,dimension> SpaceT;
+
+  AbstractField( const Teuchos::RCP<SpaceT>& space ):space_(space) {};
+
 protected:
+
+  Teuchos::RCP<SpaceT> space_;
+
 
   void reduceNorm( const MPI_Comm& comm, double& norm, Belos::NormType type = Belos::OneNorm ) const {
 
@@ -32,7 +46,6 @@ protected:
       norm = normGlob;
       break;
     }
-//    return( norm );
   }
 
 }; // end of class AbstractField

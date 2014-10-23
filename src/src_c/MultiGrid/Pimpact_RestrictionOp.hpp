@@ -130,22 +130,24 @@ public:
 
   void apply( const DomainFieldT& x, RangeFieldT& y ) {
 
-    TEUCHOS_TEST_FOR_EXCEPTION( x.fType_!=y.fType_     , std::logic_error, "Error!!! has to be of same FieldType!!!");
+    EField fType = x.fType_;
 
-    if( EField::S==x.fType_ ) {
+    TEUCHOS_TEST_FOR_EXCEPTION( fType!=y.fType_, std::logic_error, "Error!!! has to be of same FieldType!!!");
+
+    if( EField::S==fType ) {
       x.exchange();
       MG_restrict(
-          x.dim(),
-          x.nLoc(),
-          x.bl(),
-          x.bu(),
-          x.sInd(),
-          x.eInd(),
-          y.nLoc(),
-          y.bl(),
-          y.bu(),
-          y.sInd(),
-          y.eInd(),
+          spaceF_->dim(),
+          spaceF_->nLoc(),
+          spaceF_->bl(),
+          spaceF_->bu(),
+          spaceF_->sInd(fType),
+          spaceF_->eInd(fType),
+          spaceC_->nLoc(),
+          spaceC_->bl(),
+          spaceC_->bu(),
+          spaceC_->sInd(fType),
+          spaceC_->eInd(fType),
           cRS_[0],
           cRS_[1],
           cRS_[2],
@@ -154,25 +156,25 @@ public:
       y.changed();
     }
     else {
-      int dir = x.fType_;
+      int dir = fType;
       x.exchange( dir );
 //      for( int i=0; i<3; ++i ) {
 //          std::cout << "SSc["<<i<<"]: " <<  y.sIndB()[i] << "\n";
 //          std::cout << "NNc["<<i<<"]: " <<  y.eIndB()[i] << "\n";
 //      }
       MG_restrictV(
-          x.dim(),
+          spaceF_->dim(),
           dir+1,
-          x.nLoc(),
-          x.bl(),
-          x.bu(),
-          x.sIndB(),
-          x.eIndB(),
-          y.nLoc(),
-          y.bl(),
-          y.bu(),
-          y.sIndB(),
-          y.eIndB(),
+          spaceF_->nLoc(),
+          spaceF_->bl(),
+          spaceF_->bu(),
+          spaceF_->sIndB(fType),
+          spaceF_->eIndB(fType),
+          spaceC_->nLoc(),
+          spaceC_->bl(),
+          spaceC_->bu(),
+          spaceC_->sInd(fType),
+          spaceC_->eInd(fType),
           cRV_[dir],
           x.s_,
           y.s_ );
