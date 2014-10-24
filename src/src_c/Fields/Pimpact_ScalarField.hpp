@@ -144,9 +144,9 @@ public:
   /// \brief returns the length of Field.
   Ordinal getLength( bool dummy=false ) const {
 
-//    auto bc = space_->getDomain()->getBCGlobal();
+    //    auto bc = space_->getDomain()->getBCGlobal();
     auto bc = AbstractField<S,O,d>::space_->getDomain()->getBCGlobal();
-//    auto bc = this->space_->getDomain()->getBCGlobal();
+    //    auto bc = this->space_->getDomain()->getBCGlobal();
 
     Ordinal vl = 1;
 
@@ -532,33 +532,81 @@ public:
   void write( int count=0 ) {
 
     if( 0==space()->rankST() )
-      std::cout << "writing pressure field (" << count << ") ...\n";
+      switch(fType_){
+      case U:
+        std::cout << "writing velocity field x(" << count << ") ...\n";
+        break;
+      case V:
+        std::cout << "writing velocity field y(" << count << ") ...\n";
+        break;
+      case W:
+        std::cout << "writing velocity field z(" << count << ") ...\n";
+        break;
+      case EField::S:
+        std::cout << "writing pressure field  (" << count << ") ...\n";
+        break;
+      }
 
-    if( 2==space()->dim() )
-      write_hdf5_2D(
-          space()->rankST(),
-          space()->commf(),
-          space()->nGlo(),
-          space()->getDomain()->getBCGlobal()->getBCL(),
-          space()->getDomain()->getBCGlobal()->getBCU(),
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sInd(fType_),
-          space()->eInd(fType_),
-          space()->getFieldSpace()->getLS(),
-          space()->getProcGridSize()->get(),
-          space()->getProcGrid()->getIB(),
-          space()->getProcGrid()->getShift(),
-          fType_,
-          count,
-          9,
-          s_,
-          space()->getCoordinatesGlobal()->get(0,EField::S),
-          space()->getCoordinatesGlobal()->get(1,EField::S),
-          space()->getDomain()->getDomainSize()->getRe(),
-          space()->getDomain()->getDomainSize()->getAlpha2() );
-    if( 3==space()->dim() )
+
+    if( 2==space()->dim() ) {
+      if( EField::S==fType_ ) {
+        write_hdf5_2D(
+            space()->rankST(),
+            space()->commf(),
+            space()->nGlo(),
+            space()->getDomain()->getBCGlobal()->getBCL(),
+            space()->getDomain()->getBCGlobal()->getBCU(),
+            space()->nLoc(),
+            space()->bl(),
+            space()->bu(),
+            space()->sInd(EField::S),
+            space()->eInd(EField::S),
+            space()->getFieldSpace()->getLS(),
+            space()->getProcGridSize()->get(),
+            space()->getProcGrid()->getIB(),
+            space()->getProcGrid()->getShift(),
+            fType_,
+            count,
+            9,
+            s_,
+            space()->getCoordinatesGlobal()->get(0,EField::S),
+            space()->getCoordinatesGlobal()->get(1,EField::S),
+            space()->getDomain()->getDomainSize()->getRe(),
+            space()->getDomain()->getDomainSize()->getAlpha2() );
+      }
+      else {
+        auto temp =
+            Teuchos::rcp(
+                new ScalarField<S,O,d>( space(), true, EField::S ) );
+
+        space()->getInterpolateV2S()->apply( *this, *temp );
+
+        write_hdf5_2D(
+            space()->rankST(),
+            space()->commf(),
+            space()->nGlo(),
+            space()->getDomain()->getBCGlobal()->getBCL(),
+            space()->getDomain()->getBCGlobal()->getBCU(),
+            space()->nLoc(),
+            space()->bl(),
+            space()->bu(),
+            space()->sInd(EField::S),
+            space()->eInd(EField::S),
+            space()->getFieldSpace()->getLS(),
+            space()->getProcGridSize()->get(),
+            space()->getProcGrid()->getIB(),
+            space()->getProcGrid()->getShift(),
+            (int)fType_,
+            count,
+            10,
+            temp->s_,
+            space()->getCoordinatesGlobal()->get(0,EField::S),
+            space()->getCoordinatesGlobal()->get(1,EField::S),
+            space()->getDomain()->getDomainSize()->getRe(),
+            space()->getDomain()->getDomainSize()->getAlpha2() );
+      }
+    }
+    else if( 3==space()->dim() ) {
       SF_write3D(
           space()->nLoc(),
           space()->bl(),
@@ -566,6 +614,7 @@ public:
           space()->sInd(fType_),
           space()->eInd(fType_),
           s_, count );
+    }
   }
 
 

@@ -410,6 +410,74 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionSOp ) {
 
 
 
+TEUCHOS_UNIT_TEST( BasicOperator, ConvectionVOp ) {
+
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", 1);
+//  pl->set( "nx", 9);
+//  pl->set( "ny", 9);
+//
+//  pl->set( "npx", 1);
+//  pl->set( "npy", 1);
+
+  auto space = Pimpact::createSpace( pl, !isImpactInit );
+
+  if( !isImpactInit ) isImpactInit=true;
+
+  using Teuchos::ParameterList;
+  using Teuchos::parameterList;
+  using Teuchos::RCP;
+  using Teuchos::rcp; // Save some typing
+
+
+  auto u =
+      Teuchos::tuple(
+          Teuchos::tuple(
+              Pimpact::createScalarField<S,O>( space, Pimpact::U ),
+              Pimpact::createScalarField<S,O>( space, Pimpact::U ),
+              Pimpact::createScalarField<S,O>( space, Pimpact::U )
+          ),
+          Teuchos::tuple(
+              Pimpact::createScalarField<S,O>( space, Pimpact::V ),
+              Pimpact::createScalarField<S,O>( space, Pimpact::V ),
+              Pimpact::createScalarField<S,O>( space, Pimpact::V )
+          ),
+          Teuchos::tuple(
+              Pimpact::createScalarField<S,O>( space, Pimpact::W ),
+              Pimpact::createScalarField<S,O>( space, Pimpact::W ),
+              Pimpact::createScalarField<S,O>( space, Pimpact::W )
+          )
+      );
+
+  auto x = Pimpact::createVectorField<S,O>( space );
+  auto y = Pimpact::createVectorField<S,O>( space );
+  auto z = Pimpact::createVectorField<S,O>( space );
+
+  auto op = Pimpact::createConvectionVOp( space ) ;
+
+
+
+//  x->write(0);
+  x->init( 2. );
+  y->getFieldPtr(0)->initField( Pimpact::Grad2D_inX );
+  y->getFieldPtr(1)->initField( Pimpact::Grad2D_inY );
+  z->random();
+
+  op->apply( *x, *y, *z );
+
+  for( int i=0; i<space->dim(); ++i ) {
+    TEST_FLOATING_EQUALITY( 2., z->getFieldPtr(i)->norm(Belos::InfNorm), errorTolSlack );
+    TEST_FLOATING_EQUALITY( 2.* (double) z->getFieldPtr(i)->getLength()  , z->getFieldPtr(i)->norm(Belos::OneNorm), errorTolSlack );
+    TEST_FLOATING_EQUALITY( std::sqrt( 4.* z->getFieldPtr(i)->getLength() ), z->getFieldPtr(i)->norm(Belos::TwoNorm), errorTolSlack );
+  }
+
+  z->write(1);
+
+}
+
+
+
 TEUCHOS_UNIT_TEST( BasicOperator, ConvectionOp ) {
 
   auto pl = Teuchos::parameterList();

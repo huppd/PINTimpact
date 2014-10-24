@@ -42,13 +42,13 @@ private:
 
   Teuchos::RCP<const Space<Scalar,Ordinal,dimension> > space_;
 
-  Teuchos::RCP< InterpolateS2V<Scalar,Ordinal,dimension> > interpolateS2V_;
-  Teuchos::RCP< InterpolateV2S<Scalar,Ordinal,dimension> > interpolateV2S_;
+  Teuchos::RCP<const InterpolateS2V<Scalar,Ordinal,dimension> > interpolateS2V_;
+  Teuchos::RCP<const InterpolateV2S<Scalar,Ordinal,dimension> > interpolateV2S_;
 
-  Teuchos::RCP< ConvectionSOp<Scalar,Ordinal,dimension> > convectionSOp_;
+  Teuchos::RCP<const ConvectionSOp<Scalar,Ordinal,dimension> > convectionSOp_;
 
-  // Teuchos::RCP< ScalarField<Scalar,Ordinal,dimension> temp_;
-  // Teuchos::Tuple< Teuchos::Tuple<Teuchos::RCP<ScalarField<Scalar,Ordinal,dimension> >, 3>, 3> u_;
+  Teuchos::RCP< ScalarField<Scalar,Ordinal,dimension> > temp_;
+  Teuchos::Tuple< Teuchos::Tuple<Teuchos::RCP<ScalarField<Scalar,Ordinal,dimension> >, 3>, 3> u_;
 
 public:
 
@@ -56,7 +56,27 @@ public:
     space_(space),
     interpolateS2V_( createInterpolateS2V<Scalar,Ordinal,dimension>(space) ),
     interpolateV2S_( space->getInterpolateV2S() ),
-    convectionSOp_( createConvectionSOp<Scalar,Ordinal,dimension>( space ) ) {};
+    convectionSOp_( createConvectionSOp<Scalar,Ordinal,dimension>( space ) ),
+    temp_( createScalarField<Scalar,Ordinal,dimension>( space ) ),
+    u_(
+        Teuchos::tuple(
+            Teuchos::tuple(
+                createScalarField<Scalar,Ordinal,dimension>( space, U ),
+                createScalarField<Scalar,Ordinal,dimension>( space, U ),
+                createScalarField<Scalar,Ordinal,dimension>( space, U )
+            ),
+            Teuchos::tuple(
+                createScalarField<Scalar,Ordinal,dimension>( space, V ),
+                createScalarField<Scalar,Ordinal,dimension>( space, V ),
+                createScalarField<Scalar,Ordinal,dimension>( space, V )
+            ),
+            Teuchos::tuple(
+                createScalarField<Scalar,Ordinal,dimension>( space, W ),
+                createScalarField<Scalar,Ordinal,dimension>( space, W ),
+                createScalarField<Scalar,Ordinal,dimension>( space, W )
+            )
+        )
+    ) {};
 
   ConvectionVOp(
       const Teuchos::RCP<const Space<Scalar,Ordinal,dimension> >& space,
@@ -66,7 +86,27 @@ public:
     space_(space),
     interpolateS2V_(interpolateS2V),
     interpolateV2S_(interpolateV2S),
-    convectionSOp_(convectionSOp) {};
+    convectionSOp_(convectionSOp),
+    temp_( createScalarField<Scalar,Ordinal,dimension>( space ) ),
+    u_(
+        Teuchos::tuple(
+            Teuchos::tuple(
+                createScalarField<Scalar,Ordinal,dimension>( space, U ),
+                createScalarField<Scalar,Ordinal,dimension>( space, U ),
+                createScalarField<Scalar,Ordinal,dimension>( space, U )
+            ),
+            Teuchos::tuple(
+                createScalarField<Scalar,Ordinal,dimension>( space, V ),
+                createScalarField<Scalar,Ordinal,dimension>( space, V ),
+                createScalarField<Scalar,Ordinal,dimension>( space, V )
+            ),
+            Teuchos::tuple(
+                createScalarField<Scalar,Ordinal,dimension>( space, W ),
+                createScalarField<Scalar,Ordinal,dimension>( space, W ),
+                createScalarField<Scalar,Ordinal,dimension>( space, W )
+            )
+        )
+    ) {};
 
   void assignField( const DomainFieldT& mv ) {};
 
@@ -78,19 +118,16 @@ public:
 
   void apply( const DomainFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mul=0. ) const {
 
-//    for( int vel_dir=0; vel_dir<space_->dim(); ++vel_dir )
-//      x[vel_dir].exchange( vel_dir, vel_dir );
-
-//    y.exchange();
     for( int i=0; i<space_->dim(); ++i ) {
       interpolateV2S_->apply( x.getConstField(i), *temp_ );
       for( int j=0; j<space_->dim(); ++j ) {
         interpolateS2V_->apply( *temp_, *u_[j][i] );
+        u_[j][i]->write((1+i)*(1+j));
       }
     }
 
     for( int i=0; i<space_->dim(); ++i ) {
-      convectionSOp_( u_[i], y.getConstField(i), x.getField(i) );
+      convectionSOp_->apply( u_[i], y.getConstField(i), z.getField(i) );
 
     }
 

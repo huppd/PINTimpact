@@ -75,13 +75,9 @@ protected:
   typedef VectorField<Scalar,Ordinal,dimension> VF;
   typedef ScalarField<Scalar,Ordinal,dimension> SF;
 
-//  Teuchos::RCP<SpaceT > space();
-
   ScalarArray vec_;
 
   const bool owning_;
-
-//  State exchangedState_; // obsolete > SF
 
   Teuchos::Tuple< Teuchos::RCP<SF>, 3 > sFields_;
 
@@ -91,7 +87,7 @@ public:
   VectorField( const Teuchos::RCP< const SpaceT >& space, bool owning=true ):
     AbstractField<S,O,d>( space ),
     owning_(owning)//,
-  {
+    {
 
     for( int i=0; i<3; ++i )
       sFields_[i] = Teuchos::rcp( new SF( space, false, EField(i) ) );
@@ -109,7 +105,7 @@ public:
         sFields_[i]->setStoragePtr( vec_+i*N );
     }
 
-  };
+    };
 
 
   /// \brief copy constructor.
@@ -387,7 +383,9 @@ public:
           space()->getDomain()->getDomainSize()->getSize(1),
           space()->getCoordinatesLocal()->getX(Y,EField::S),
           re, om, px,
-          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
+          sFields_[U]->getRawPtr(),
+          sFields_[V]->getRawPtr(),
+          sFields_[W]->getRawPtr() );
       break;
     case Pulsatile2D_inYC :
       VF_init_2DPulsatileYC(
@@ -403,7 +401,9 @@ public:
           space()->getDomain()->getDomainSize()->getSize(0),
           space()->getCoordinatesLocal()->getX(X,EField::S),
           re, om, px,
-          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
+          sFields_[U]->getRawPtr(),
+          sFields_[V]->getRawPtr(),
+          sFields_[W]->getRawPtr() );
       break;
     case Pulsatile2D_inXS :
       VF_init_2DPulsatileXS(
@@ -419,7 +419,9 @@ public:
           space()->getDomain()->getDomainSize()->getSize(1),
           space()->getCoordinatesLocal()->getX(Y,EField::S),
           re, om, px,
-          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
+          sFields_[U]->getRawPtr(),
+          sFields_[V]->getRawPtr(),
+          sFields_[W]->getRawPtr() );
       break;
     case Pulsatile2D_inYS:
       VF_init_2DPulsatileYS(
@@ -435,7 +437,9 @@ public:
           space()->getDomain()->getDomainSize()->getSize(0),
           space()->getCoordinatesLocal()->getX(X,EField::S),
           re, om, px,
-          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
+          sFields_[U]->getRawPtr(),
+          sFields_[V]->getRawPtr(),
+          sFields_[W]->getRawPtr() );
       break;
     case Streaming2D:
       VF_init_StreamingS(
@@ -451,7 +455,9 @@ public:
           space()->getDomain()->getDomainSize()->getSize(0),
           space()->getCoordinatesLocal()->getX(X,EField::S),
           re,
-          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
+          sFields_[U]->getRawPtr(),
+          sFields_[V]->getRawPtr(),
+          sFields_[W]->getRawPtr() );
       break;
     case Streaming2DC:
       VF_init_StreamingC(
@@ -467,7 +473,9 @@ public:
           space()->getDomain()->getDomainSize()->getSize(0),
           space()->getCoordinatesLocal()->getX(X,EField::S),
           re,
-          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
+          sFields_[U]->getRawPtr(),
+          sFields_[V]->getRawPtr(),
+          sFields_[W]->getRawPtr() );
       break;
     case Streaming2DS:
       VF_init_StreamingS(
@@ -483,7 +491,9 @@ public:
           space()->getDomain()->getDomainSize()->getSize(0),
           space()->getCoordinatesLocal()->getX(X,EField::S),
           re,
-          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
+          sFields_[U]->getRawPtr(),
+          sFields_[V]->getRawPtr(),
+          sFields_[W]->getRawPtr() );
       break;
     case Circle2D:
       VF_init_Circle(
@@ -499,7 +509,9 @@ public:
           space()->getDomain()->getDomainSize()->getSize(),
           space()->getCoordinatesLocal()->getX(X,EField::S),
           space()->getCoordinatesLocal()->getX(Y,EField::S),
-          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
+          sFields_[U]->getRawPtr(),
+          sFields_[V]->getRawPtr(),
+          sFields_[W]->getRawPtr() );
       break;
     case RankineVortex2D:
       VF_init_RankineVortex(
@@ -517,7 +529,9 @@ public:
           space()->getCoordinatesLocal()->getX(Y,EField::S),
           space()->getCoordinatesLocal()->getX(X,EField::U),
           space()->getCoordinatesLocal()->getX(Y,EField::V),
-          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
+          sFields_[U]->getRawPtr(),
+          sFields_[V]->getRawPtr(),
+          sFields_[W]->getRawPtr() );
       break;
     case GaussianForcing1D:
       VF_init_GaussianForcing1D(
@@ -532,7 +546,9 @@ public:
           space()->eIndB(W),
           space()->getDomain()->getDomainSize()->getSize(0),
           space()->getCoordinatesLocal()->getX(X,EField::U),
-          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
+          sFields_[U]->getRawPtr(),
+          sFields_[V]->getRawPtr(),
+          sFields_[W]->getRawPtr() );
       break;
     case BoundaryFilter1D:
       VF_init_BoundaryFilter1D(
@@ -547,7 +563,9 @@ public:
           space()->eIndB(W),
           space()->getDomain()->getDomainSize()->getSize(0),
           space()->getCoordinatesLocal()->getX(X,EField::U),
-          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
+          sFields_[U]->getRawPtr(),
+          sFields_[V]->getRawPtr(),
+          sFields_[W]->getRawPtr() );
       break;
     case GaussianForcing2D:
       VF_init_GaussianForcing2D(
@@ -565,7 +583,9 @@ public:
           space()->getCoordinatesLocal()->getX(Y,EField::S),
           space()->getCoordinatesLocal()->getX(X,EField::U),
           space()->getCoordinatesLocal()->getX(Y,EField::V),
-          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
+          sFields_[U]->getRawPtr(),
+          sFields_[V]->getRawPtr(),
+          sFields_[W]->getRawPtr() );
       break;
     case BoundaryFilter2D:
       VF_init_BoundaryFilter2D(
@@ -583,7 +603,9 @@ public:
           space()->getCoordinatesLocal()->getX(Y,EField::S),
           space()->getCoordinatesLocal()->getX(X,EField::U),
           space()->getCoordinatesLocal()->getX(Y,EField::V),
-          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
+          sFields_[U]->getRawPtr(),
+          sFields_[V]->getRawPtr(),
+          sFields_[W]->getRawPtr() );
       break;
     case VPoint2D:
       VF_init_Vpoint(
@@ -600,7 +622,9 @@ public:
           space()->getCoordinatesLocal()->getX(X,EField::U),
           space()->getCoordinatesLocal()->getX(Y,EField::S),
           re,
-          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
+          sFields_[U]->getRawPtr(),
+          sFields_[V]->getRawPtr(),
+          sFields_[W]->getRawPtr() );
       break;
     case Disc2D:
       VF_init_Disc(
@@ -619,7 +643,9 @@ public:
           space()->getCoordinatesLocal()->getX(X,EField::U),
           space()->getCoordinatesLocal()->getX(Y,EField::V),
           re, om, px,
-          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
+          sFields_[U]->getRawPtr(),
+          sFields_[V]->getRawPtr(),
+          sFields_[W]->getRawPtr() );
       break;
     case RotationDisc2D:
       VF_init_RotatingDisc(
@@ -635,7 +661,9 @@ public:
           space()->getCoordinatesLocal()->getX(X,EField::S),
           space()->getCoordinatesLocal()->getX(Y,EField::S),
           re, om, px,
-          sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr() );
+          sFields_[U]->getRawPtr(),
+          sFields_[V]->getRawPtr(),
+          sFields_[W]->getRawPtr() );
       break;
     }
     //    }
@@ -663,40 +691,10 @@ public:
 
   void write( int count=0 ) {
 
-    if( 0==space()->rankST() )
-      std::cout << "writing velocity field (" << count << ") ...\n";
-
-    auto temp = createScalarField<Scalar,Ordinal,dimension>( space() );
-
-    for( int i=0; i<space()->dim(); ++i ) {
-      space()->getInterpolateV2S()->apply( getConstField(i), *temp );
-
-      write_hdf5_2D(
-          space()->rankST(),
-          space()->commf(),
-          space()->nGlo(),
-          space()->getDomain()->getBCGlobal()->getBCL(),
-          space()->getDomain()->getBCGlobal()->getBCU(),
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sInd(EField::S),
-          space()->eInd(EField::S),
-          space()->getFieldSpace()->getLS(),
-          space()->getProcGridSize()->get(),
-          space()->getProcGrid()->getIB(),
-          space()->getProcGrid()->getShift(),
-          i,
-          count,
-          10,
-          temp->s_,
-          space()->getCoordinatesGlobal()->get(0,EField::S),
-          space()->getCoordinatesGlobal()->get(1,EField::S),
-          space()->getDomain()->getDomainSize()->getRe(),
-          space()->getDomain()->getDomainSize()->getAlpha2() );
-    }
-//    exchange();
-//    VF_write( sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr(), count*100 );
+    for( int i=0; i<space()->dim(); ++i )
+      getFieldPtr(i)->write( count );
+    //    exchange();
+    //    VF_write( sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr(), count*100 );
   }
 
 
@@ -704,17 +702,10 @@ public:
 
 
   Ordinal getStorageSize() const {
-
     return( sFields_[0]->getStorageSize()*3 );
-    //    Ordinal n = 1;
-    //    for(int i=0; i<3; ++i)
-    //      n *= space()->nLoc(i)+space()->bu(i)-space()->bl(i)+1;
-    //
-    //    return( 3*n );
   }
 
   void setStoragePtr( Scalar*  array ) {
-
     Ordinal n = getStorageSize()/3;
 
     vec_ = array;
@@ -737,9 +728,6 @@ public:
 
 protected:
 
-  const int* rankL() const { return( space()->getProcGrid()->getRankL() ); }
-  const int* rankU() const { return( space()->getProcGrid()->getRankU() ); }
-
   Scalar* vec ( int i )       { return( sFields_[i]->s_ ); }
   Scalar* vecC( int i ) const { return( sFields_[i]->s_ ); }
 
@@ -758,44 +746,27 @@ public:
 
 protected:
 
-
-
   bool is_exchanged( const int& vel_dir, const int& dir ) const {
     return( getConstFieldPtr( vel_dir )->is_exchanged( dir ) );
   }
+
   bool is_exchanged() const {
+
     bool all_exchanged = true;
     for( int vel_dir=0; vel_dir<space()->dim(); ++vel_dir )
       for( int dir=0; dir<space()->dim(); ++dir )
         all_exchanged = all_exchanged && is_exchanged(vel_dir,dir);
+
     return( all_exchanged );
+
   }
 
   /// \brief updates ghost layers
   void exchange( const int& vel_dir, const int& dir ) const {
-//    int ones[3] = {1,1,1};
 
-//    if( !is_exchanged(vel_dir,dir) ) {
-      getConstFieldPtr(vel_dir)->exchange(dir);
-//      F_exchange(
-//          space()->dim(),
-//          space()->commf(),
-//          rankL(),
-//          rankU(),
-//          space()->nLoc(),
-//          space()->bl), bu(),
-//          bcL(), bcU(),
-//          space()->sInd(EField::S),
-//          eInd(EField::S),
-//          ones,
-//          space()->nLoc(),
-//          dir+1,
-//          vel_dir+1,
-          //          vec_[vel_dir]);
-//          sFields_[vel_dir]->getRawPtr() );
-//      exchangedState_[vel_dir][dir] = true;
-//    }
+    getConstFieldPtr(vel_dir)->exchange(dir);
   }
+
   void exchange() const {
     for( int vel_dir=0; vel_dir<space()->dim(); ++vel_dir )
       for( int dir=0; dir<space()->dim(); ++dir )
