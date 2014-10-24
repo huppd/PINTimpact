@@ -29,7 +29,7 @@ typedef double S;
 typedef int O;
 
 bool testMpi = true;
-S errorTolSlack = 1e-8;
+S errorTolSlack = 1e-12;
 
 bool isImpactInit = false;
 
@@ -43,7 +43,7 @@ TEUCHOS_STATIC_SETUP() {
       "Test MPI (if available) or force test of serial.  In a serial build,"
       " this option is ignored and a serial comm is always used." );
   clp.setOption(
-      "error-tol-slack", &errorTolSlack,
+      "errorTolSlack", &errorTolSlack,
       "Slack off of machine epsilon used to check test results" );
 }
 
@@ -126,9 +126,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateV2SOp ) {
   auto vel = Pimpact::createVectorField( space );
 
   auto op = Pimpact::createInterpolateV2S( space );
-  op->print();
 
-  // zero test
+  // PoiseuilleFlow2D_inX test
   vel->initField( Pimpact::PoiseuilleFlow2D_inX );
 
   for( int i=0; i<space->dim(); ++i ) {
@@ -137,7 +136,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateV2SOp ) {
     p->write(i);
   }
 
-  // zero test
+  // PoiseuilleFlow2D_inY test
   vel->initField( Pimpact::PoiseuilleFlow2D_inY );
 
   for( int i=0; i<space->dim(); ++i ) {
@@ -146,6 +145,14 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateV2SOp ) {
     p->write( i+space->dim() );
   }
 
+  // PoiseuilleFlow2D_inY test
+   vel->init( 1. );
+
+   for( int i=0; i<space->dim(); ++i ) {
+     p->random();
+     op->apply( vel->getConstField( i ), *p );
+     p->write( i+space->dim()*2 );
+   }
 //  TEST_EQUALITY( p->norm()<errorTolSlack, true );
 
 
@@ -431,48 +438,38 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionVOp ) {
   using Teuchos::rcp; // Save some typing
 
 
-  auto u =
-      Teuchos::tuple(
-          Teuchos::tuple(
-              Pimpact::createScalarField<S,O>( space, Pimpact::U ),
-              Pimpact::createScalarField<S,O>( space, Pimpact::U ),
-              Pimpact::createScalarField<S,O>( space, Pimpact::U )
-          ),
-          Teuchos::tuple(
-              Pimpact::createScalarField<S,O>( space, Pimpact::V ),
-              Pimpact::createScalarField<S,O>( space, Pimpact::V ),
-              Pimpact::createScalarField<S,O>( space, Pimpact::V )
-          ),
-          Teuchos::tuple(
-              Pimpact::createScalarField<S,O>( space, Pimpact::W ),
-              Pimpact::createScalarField<S,O>( space, Pimpact::W ),
-              Pimpact::createScalarField<S,O>( space, Pimpact::W )
-          )
-      );
-
   auto x = Pimpact::createVectorField<S,O>( space );
   auto y = Pimpact::createVectorField<S,O>( space );
   auto z = Pimpact::createVectorField<S,O>( space );
+  auto z2 = Pimpact::createVectorField<S,O>( space );
 
   auto op = Pimpact::createConvectionVOp( space ) ;
+  auto op2 = Pimpact::createConvectionOp( space ) ;
 
 
+  for(int i=0; i<10; ++i )
+    x->write(i);
 
 //  x->write(0);
-  x->init( 2. );
+  x->initField( Pimpact::ConstFlow, 2., 2., 2. );
   y->getFieldPtr(0)->initField( Pimpact::Grad2D_inX );
   y->getFieldPtr(1)->initField( Pimpact::Grad2D_inY );
   z->random();
 
   op->apply( *x, *y, *z );
+  op2->apply( *x, *y, *z2 );
 
+  // test is not exact because the boundaries of x are zero, and
   for( int i=0; i<space->dim(); ++i ) {
     TEST_FLOATING_EQUALITY( 2., z->getFieldPtr(i)->norm(Belos::InfNorm), errorTolSlack );
     TEST_FLOATING_EQUALITY( 2.* (double) z->getFieldPtr(i)->getLength()  , z->getFieldPtr(i)->norm(Belos::OneNorm), errorTolSlack );
     TEST_FLOATING_EQUALITY( std::sqrt( 4.* z->getFieldPtr(i)->getLength() ), z->getFieldPtr(i)->norm(Belos::TwoNorm), errorTolSlack );
   }
+  z2->add( -1, *z2, 1, *z );
 
-  z->write(1);
+  TEST_FLOATING_EQUALITY( z2->norm(), 0., errorTolSlack );
+
+//  z->write(1);
 
 }
 

@@ -42,8 +42,10 @@ class ScalarField;
 
 /// \brief Interpolation operator.
 /// \ingroup BaseOperator
-/// relates io+ nonlinear
-/// \todo move to space
+/// \ingroup Space
+///
+/// is used in the \c ScalarField::write method to interpolate the velocity to the pressure points, also used in \c ConvectionVOp
+/// \todo check boundaries some fixing necessary
 template<class Scalar,class Ordinal,int dimension=3>
 class InterpolateV2S {
 
@@ -142,7 +144,7 @@ public:
   bool hasApplyTranspose() const { return( false ); }
 
 
-  void print( std::ostream& out=std::cout ) const {}
+  void print( std::ostream& out=std::cout ) const { }
 
 };
 
@@ -150,7 +152,7 @@ public:
 
 /// \relates InterpolateV2S
 template< class S, class O, int d=3 >
-Teuchos::RCP< InterpolateV2S<S,O,d> > createInterpolateV2S(
+Teuchos::RCP<const InterpolateV2S<S,O,d> > createInterpolateV2S(
     const Teuchos::RCP<const ProcGrid<O,d> >&  procGrid,
     const Teuchos::RCP<const GridSizeLocal<O,d> >& gridSizeLocal,
     const Teuchos::RCP<const FieldSpace<O,d> >& fieldSpace,
@@ -168,23 +170,21 @@ Teuchos::RCP< InterpolateV2S<S,O,d> > createInterpolateV2S(
 }
 
 
-
 template<class S,class O, int d>
 class Space;
 
-
-
 /// \relates InterpolateV2S
 template< class S, class O, int d=3 >
-Teuchos::RCP< InterpolateV2S<S,O,d> > createInterpolateV2S(
+Teuchos::RCP<const InterpolateV2S<S,O,d> > createInterpolateV2S(
     const Teuchos::RCP<const Space<S,O,d> >& space ) {
-  return( Teuchos::rcp( new InterpolateV2S<S,O,d>(
-      space->getProcGrid(),
-      space->getGridSizeLocal(),
-      space->getFieldSpace(),
-      space->getDomain(),
-      space->getCoordinatesLocal()
-  ) ) );
+  return( space->getInterpolateV2S() );
+//  return( Teuchos::rcp( new InterpolateV2S<S,O,d>(
+//      space->getProcGrid(),
+//      space->getGridSizeLocal(),
+//      space->getFieldSpace(),
+//      space->getDomain(),
+//      space->getCoordinatesLocal()
+//  ) ) );
 }
 
 } // end of namespace Pimpact

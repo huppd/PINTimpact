@@ -35,10 +35,11 @@ enum EFlowField {
   VPoint2D=16,
   Disc2D=17,
   RotationDisc2D=18,
+  ConstFlow=19
 };
 
 enum EScalarField {
-  ZeroField=0,
+  ConstField=0,
   Poiseuille2D_inX=1,
   Poiseuille2D_inY=2,
   Grad2D_inX =3,

@@ -33,7 +33,7 @@ void PI_getGlobalCoordinates(
 
 }
 
-/// \brief global grid coordinates( independent of Field Type)
+/// \brief global grid coordinates
 /// \ingroup Space
 template<class Scalar=double, class Ordinal=int, int dim=3 >
 class GridCoordinatesGlobal {

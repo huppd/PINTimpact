@@ -123,7 +123,7 @@ public:
 
 
 
-/// \relates MultiHarmonicNonlinearOp
+/// \relates MultiHarmonicNonlinear
 template< class S, class O>
 Teuchos::RCP<MultiHarmonicNonlinear<S,O> > createMultiHarmonicNonlinear(
     const Teuchos::RCP<const Space<S,O,3> >& space

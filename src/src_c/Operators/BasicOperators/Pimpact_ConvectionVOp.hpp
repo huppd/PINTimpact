@@ -120,9 +120,9 @@ public:
 
     for( int i=0; i<space_->dim(); ++i ) {
       interpolateV2S_->apply( x.getConstField(i), *temp_ );
+      temp_->write( i );
       for( int j=0; j<space_->dim(); ++j ) {
         interpolateS2V_->apply( *temp_, *u_[j][i] );
-        u_[j][i]->write((1+i)*(1+j));
       }
     }
 

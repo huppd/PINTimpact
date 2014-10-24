@@ -41,7 +41,8 @@ extern "C" {
   void openH5F();
   void closeH5F();
 }
-/// \brief manages all Space component, one big composition
+/// \brief Space in the sense of a VectorSpace, it is the connection between Field and Operators
+///
 /// \ingroup Space
 template< class Scalar=double, class Ordinal=int, int dimension=3 >
 class Space {
@@ -240,54 +241,27 @@ public:
 
   void print(  std::ostream& out=std::cout ) const {
 
-    if( true || 0==rankST() ) {
+    if( 0==rankST() ) {
       out << "\t---Space: ---\n";
 
-      if( !fieldSpace_.is_null() )
-        fieldSpace_->print( out );
-      else
-        out << "fieldSpace_ is null\n";
-      //    MPI_Barrier( commST() );
+      fieldSpace_->print( out );
 
-      if( !gridSizeGlobal_.is_null() ) {
-        out <<"---GridSizeGlobal: ---\n";
-        gridSizeGlobal_->print( out );
-      }
-      else
-        out << "gridSizeGlobal_ is null\n";
-      //    MPI_Barrier( commST() );
+      out <<"---GridSizeGlobal: ---\n";
+      gridSizeGlobal_->print( out );
 
-      if( !gridSizeLocal_.is_null() ) {
-        out <<"---GridSizeLocal: ---\n";
-        gridSizeLocal_->print( out );
-      }
-      else
-        out << "gridSizeLocal_ is null\n";
-      //    MPI_Barrier( commST() );
+      out <<"---GridSizeLocal: ---\n";
+      gridSizeLocal_->print( out );
 
-      if( !scalarIS_.is_null() )
-        scalarIS_->print(out);
-      else
-        out << "scalarIS_ is null\n";
-      //    MPI_Barrier( commST() );
+      scalarIS_->print(out);
 
-      for( int i=0; i<2; ++i ) {
+      for( int i=0; i<3; ++i ) {
         innerIS_[i]->print( out );
         fullIS_[i]->print( out );
       }
-      //    MPI_Barrier( comm() );
 
-      if( !procGridSize_.is_null() )
-        procGridSize_->print( out );
-      else
-        out << "procGridSize_ is null\n";
-      //    MPI_Barrier( commST() );
+      procGridSize_->print( out );
 
-      if( !procGrid_.is_null() )
-        procGrid_->print( out );
-      else
-        out << "procGrid_ is null\n";
-      //    MPI_Barrier( commST() );
+      procGrid_->print( out );
     }
 
   }
@@ -363,7 +337,7 @@ public:
 
 
 /// \relates Space
-/// \param setImpact \deprecated should be uneccessary in the future
+/// \deprecated \param setImpact should be uneccessary in the future
 template<class S=double, class O=int, int d=3>
 Teuchos::RCP<const Space<S,O,d> > createSpace(
     Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::null,

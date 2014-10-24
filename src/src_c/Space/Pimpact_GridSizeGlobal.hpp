@@ -12,20 +12,22 @@
 extern "C" {
 
 void fsetGS(const int& n1, const int& n2, const int& n3 );
-void SVS_get_nGlo(int&,int&,int&);
+//void SVS_get_nGlo(int&,int&,int&);
 
 }
 
 namespace Pimpact{
 
 
-/// \brief global grid size( independent of Field Type)
+/// \brief global grid size(independent of FieldType)
+///
+/// one could think about inheriting from Tuple, or generalize for global and local use
 /// \ingroup Space
 template< class Ordinal=int, int dim=3 >
 class GridSizeGlobal {
 
-  template<class OT,int dT>
-  friend Teuchos::RCP<const GridSizeGlobal<OT,dT> > createGridSizeGlobal();
+//  template<class OT,int dT>
+//  friend Teuchos::RCP<const GridSizeGlobal<OT,dT> > createGridSizeGlobal();
 
   template<class OT,int dT>
   friend Teuchos::RCP<const GridSizeGlobal<OT,dT> > createGridSizeGlobal( OT n1, OT n2, OT n3, OT nt=1 );
@@ -74,19 +76,19 @@ public:
 }; // end of class GridSizeGlobal
 
 
-/// \brief create GridSize Global from Impact
-/// \relates GridSizeGlobal
-template< class O=int, int d=3 >
-Teuchos::RCP<const GridSizeGlobal<O,d> > createGridSizeGlobal() {
-
-  Teuchos::Tuple<O,d> bla;
-  SVS_get_nGlo(bla[0],bla[1],bla[2]);
-  if( 4==d ) bla[3] = 2;
-
-  return(
-      Teuchos::rcp(
-          new GridSizeGlobal<O,d>( bla ) ) );
-}
+///// \brief create GridSize Global from Impact
+///// \relates GridSizeGlobal
+//template< class O=int, int d=3 >
+//Teuchos::RCP<const GridSizeGlobal<O,d> > createGridSizeGlobal() {
+//
+//  Teuchos::Tuple<O,d> bla;
+//  SVS_get_nGlo(bla[0],bla[1],bla[2]);
+//  if( 4==d ) bla[3] = 2;
+//
+//  return(
+//      Teuchos::rcp(
+//          new GridSizeGlobal<O,d>( bla ) ) );
+//}
 
 
 /// \brief create GridSize Global

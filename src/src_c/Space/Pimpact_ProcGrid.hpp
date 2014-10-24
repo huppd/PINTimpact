@@ -41,7 +41,7 @@ void SG_setRankSliceBar( const int* const rankSlice, const int* const rankBar );
 namespace Pimpact{
 
 /// \brief ProcGrid, needs ProcGridSize, globalBoundaryConditions, GridSizeLocal
-/// and sets Impact accordingly
+/// provides information about neighboring mpi processes
 /// \ingroup Space
 /// \tparam dim default 3 or 4
 template< class Ordinal=int, int dim=3 >

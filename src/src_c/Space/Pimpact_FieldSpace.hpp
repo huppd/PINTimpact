@@ -14,7 +14,11 @@
 namespace Pimpact {
 
 
-/// \todo refector name to something like Stencil stuff
+/// \brief contains the dimesnion and bounds of the different stencils.
+///
+/// there are three different kind of stencil the central ones for helmholtz, than the one for divergence
+/// and the gradient like.
+/// \todo refector rename to something like Stencil stuff
 /// \ingroup Space
 template< class Ordinal=int, int dim=3>
 class FieldSpace {

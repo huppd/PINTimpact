@@ -145,8 +145,9 @@ public:
   Ordinal getLength( bool dummy=false ) const {
 
     //    auto bc = space_->getDomain()->getBCGlobal();
-    auto bc = AbstractField<S,O,d>::space_->getDomain()->getBCGlobal();
-    //    auto bc = this->space_->getDomain()->getBCGlobal();
+//    auto bc = AbstractField<S,O,d>::space_->getDomain()->getBCGlobal();
+//        auto bc = this->space_->getDomain()->getBCGlobal();
+        auto bc = space()->getDomain()->getBCGlobal();
 
     Ordinal vl = 1;
 
@@ -453,9 +454,9 @@ public:
 
 
   ///  \brief initializes VectorField with the initial field defined in Fortran
-  void initField( EScalarField fieldType = Poiseuille2D_inX, double re=1., double om=1., double px = 1. ) {
+  void initField( EScalarField fieldType = Poiseuille2D_inX, double re=0. ) {
     switch( fieldType ) {
-    case ZeroField :
+    case ConstField :
       SF_init(
           space()->nLoc(),
           space()->bl(),
@@ -463,7 +464,7 @@ public:
           space()->sIndB(fType_),
           space()->eIndB(fType_),
           s_,
-          0. );
+          re );
       break;
     case Poiseuille2D_inX :
       SF_init_2DPoiseuilleX(
@@ -615,6 +616,9 @@ public:
           space()->eInd(fType_),
           s_, count );
     }
+    //    exchange();
+    //    VF_write( sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr(), count*100 );
+
   }
 
 

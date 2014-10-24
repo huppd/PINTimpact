@@ -13,7 +13,6 @@
 
 
 extern "C" {
-//void fgetPGS(      int& np1,       int& np2,       int& np3 );
 void fsetPGS(const int& np1, const int& np2, const int& np3 );
 }
 
@@ -35,8 +34,8 @@ public:
   typedef const Teuchos::Tuple<Ordinal,dim> TO;
 
 
-  template<class OT>
-  friend Teuchos::RCP<const ProcGridSize<OT,3> > createProcGridSize();
+//  template<class OT>
+//  friend Teuchos::RCP<const ProcGridSize<OT,3> > createProcGridSize();
 
   template< class OT, int dT >
   friend Teuchos::RCP<const ProcGridSize<OT,dT> > createProcGridSize( OT np1, OT np2, OT np3, OT npt=0 );
@@ -77,7 +76,6 @@ protected:
 
 public:
 
-
   void set_Impact() const {
     fsetPGS( procGridSize_[0], procGridSize_[1], procGridSize_[2] );
   };
@@ -96,22 +94,6 @@ public:
     out<< "\n";
   };
 };
-
-
-
-///// \relates ProcGridSize
-//template<class Ordinal=int>
-//Teuchos::RCP<const ProcGridSize<Ordinal,3> > createProcGridSize() {
-//  typedef const Teuchos::Tuple<Ordinal,3> TO;
-//
-//  TO procGridSize;
-//
-//  fgetPGS( procGridSize[0], procGridSize[1], procGridSize[2] );
-//
-//  return(
-//      Teuchos::rcp(
-//          new ProcGridSize<Ordinal,3>( procGridSize ) ) );
-//}
 
 
 

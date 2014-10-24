@@ -27,6 +27,7 @@ void OP_nonlinear(
 
 
 /// \ingroup BaseOperator
+/// \deprecated depends on an initialized IMPACT. But can be used to test consistency with new code use \c ConvectionVOp instead.
 template<class Scalar,class Ordinal, int dimension=3>
 class ConvectionOp {
 

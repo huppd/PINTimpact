@@ -48,8 +48,8 @@ void VS_set_eIndWB(const int* const);
 
 
 /// \ingroup Space
-/// \brief public class, that stores neccessary information for indexing \c ScalarField and \c VectorField in Fortran
-/// \todo check constant make variables protected SF friend class
+/// \brief class that stores neccessary lower and upper indexes for \c ScalarField for different FieldTypes
+/// and including Boundaries or excluding them.
 template< class Ordinal = int >
 class IndexSpace {
 
@@ -364,88 +364,6 @@ createFullFieldIndexSpaces(
 
   return( fIS );
 }
-
-
-///// \brief function that creates ScaparIndexSpace
-///// by getting values from \c IMPACT
-///// \relates IndexSpace
-//template<class Ordinal=int>
-//Teuchos::RCP<const IndexSpace<Ordinal> >
-//createScalarIndexSpace(){
-//
-//  typedef typename IndexSpace<Ordinal>::TO3 TO3;
-//
-//  TO3 sInd;
-//  SVS_get_sInd( sInd[0], sInd[1], sInd[2] );
-//
-//  TO3 eInd;
-//  SVS_get_eInd( eInd[0], eInd[1], eInd[2] );
-//
-//  return( Teuchos::rcp(
-//      new IndexSpace<Ordinal>( EField::S, sInd, eInd ) ) );
-//
-//}
-
-
-///// \brief function that creates ScaparIndexSpace
-/////
-///// by getting values from impact
-///// \todo make construction clean without copying
-///// \relates IndexSpace
-//template<class Ordinal=int>
-//Teuchos::ArrayRCP< Teuchos::RCP< const IndexSpace<Ordinal> > > createInnerFieldIndexSpaces(){
-//
-//  typedef typename IndexSpace<Ordinal>::TO3 TO3;
-//
-//  Teuchos::ArrayRCP< Teuchos::RCP<const IndexSpace<Ordinal> > > fIS(3);
-//
-//  TO3 sInd;
-//  TO3 eInd;
-//
-//  VS_get_sIndU( sInd[0], sInd[1], sInd[2] );
-//  VS_get_eIndU( eInd[0], eInd[1], eInd[2] );
-//  fIS[0] =	Teuchos::rcp( new IndexSpace<Ordinal>( EField::U, sInd, eInd ) );
-//
-//  VS_get_sIndV( sInd[0], sInd[1], sInd[2] );
-//  VS_get_eIndV( eInd[0], eInd[1], eInd[2] );
-//  fIS[1] =	Teuchos::rcp( new IndexSpace<Ordinal>( EField::V, sInd, eInd ) );
-//
-//  VS_get_sIndW( sInd[0], sInd[1], sInd[2] );
-//  VS_get_eIndW( eInd[0], eInd[1], eInd[2] );
-//  fIS[2] =	Teuchos::rcp( new IndexSpace<Ordinal>( EField::W, sInd, eInd ) );
-//
-//  return( fIS );
-//}
-
-
-///// \brief function that creates ScaparIndexSpace
-///// by getting values from impact
-///// \todo make construction clean without copying
-///// \relates IndexSpace
-//template<class Ordinal>
-//Teuchos::ArrayRCP< Teuchos::RCP< const IndexSpace<Ordinal> > > createFullFieldIndexSpaces(){
-//
-//  typedef typename IndexSpace<Ordinal>::TO3 TO3;
-//
-//  Teuchos::ArrayRCP< Teuchos::RCP<const IndexSpace<Ordinal> > > fIS(3);
-//
-//  TO3 sInd;
-//  TO3 eInd;
-//
-//  VS_get_sIndUB( sInd[0], sInd[1], sInd[2] );
-//  VS_get_eIndUB( eInd[0], eInd[1], eInd[2] );
-//  fIS[0] =	Teuchos::rcp( new IndexSpace<Ordinal>( EField::U, sInd, eInd ) );
-//
-//  VS_get_sIndVB( sInd[0], sInd[1], sInd[2] );
-//  VS_get_eIndVB( eInd[0], eInd[1], eInd[2] );
-//  fIS[1] =	Teuchos::rcp( new IndexSpace<Ordinal>( EField::V, sInd, eInd ) );
-//
-//  VS_get_sIndWB( sInd[0], sInd[1], sInd[2] );
-//  VS_get_eIndWB( eInd[0], eInd[1], eInd[2] );
-//  fIS[2] =	Teuchos::rcp( new IndexSpace<Ordinal>( EField::W, sInd, eInd ) );
-//
-//  return( fIS );
-//}
 
 
 } // end of namespace Pimpact

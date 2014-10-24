@@ -10,9 +10,6 @@
 #include "Pimpact_VectorField.hpp"
 #include "Pimpact_TimeField.hpp"
 
-//#include "Pimpact_FieldFactory.hpp"
-
-
 
 
 extern "C" {
@@ -24,6 +21,7 @@ void OP_nonlinear(
       const double& mul );
 
 }
+
 
 
 
@@ -158,9 +156,6 @@ Teuchos::RCP<TimeNonlinearJacobian<S,O,CNY> > createTimeNonlinearJacobian(
     const bool& isNewton=true,
     const Teuchos::RCP< VectorField<S,O,4> >& temp=Teuchos::null ) {
 
-//  if( Teuchos::is_null(u) )
-//    return( Teuchos::rcp( new TimeNonlinearJacobian<S,O,CNY>( isNewton, temp ) ) );
-//  else
     return( Teuchos::rcp( new TimeNonlinearJacobian<S,O,CNY>( u, isNewton, temp ) ) );
 
 }

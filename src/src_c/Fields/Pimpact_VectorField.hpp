@@ -350,24 +350,29 @@ public:
 
   ///  \brief initializes VectorField with the initial field defined in Fortran
   void initField( EFlowField flowType = PoiseuilleFlow2D_inX, double re=1., double om=1., double px = 1. ) {
-    switch( flowType) {
+    switch( flowType ) {
     case ZeroFlow :
       for( int i=0; i<space()->dim(); ++i )
-        sFields_[i]->initField( ZeroField );
+        sFields_[i]->initField( ConstField );
+      break;
+    case ConstFlow :
+        sFields_[0]->initField( ConstField, re );
+        sFields_[1]->initField( ConstField, om );
+        sFields_[2]->initField( ConstField, px );
       break;
     case PoiseuilleFlow2D_inX :
       for( int i=0; i<space()->dim(); ++i )
         if( U==i )
           sFields_[i]->initField( Poiseuille2D_inX );
         else
-          sFields_[i]->initField( ZeroField );
+          sFields_[i]->initField( ConstField );
       break;
     case PoiseuilleFlow2D_inY :
       for( int i=0; i<space()->dim(); ++i )
         if( V==i )
           sFields_[i]->initField( Poiseuille2D_inY );
         else
-          sFields_[i]->initField( ZeroField );
+          sFields_[i]->initField( ConstField );
       break;
     case Pulsatile2D_inXC :
       VF_init_2DPulsatileXC(
@@ -693,8 +698,6 @@ public:
 
     for( int i=0; i<space()->dim(); ++i )
       getFieldPtr(i)->write( count );
-    //    exchange();
-    //    VF_write( sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr(), count*100 );
   }
 
 
