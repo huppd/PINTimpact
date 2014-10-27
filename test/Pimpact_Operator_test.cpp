@@ -29,7 +29,7 @@ typedef double S;
 typedef int O;
 
 bool testMpi = true;
-S errorTolSlack = 1e-12;
+S errorTolSlack = 1e-10;
 
 bool isImpactInit = false;
 
@@ -459,7 +459,6 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionVOp ) {
   op->apply( *x, *y, *z );
   op2->apply( *x, *y, *z2 );
 
-  // test is not exact because the boundaries of x are zero, and
   for( int i=0; i<space->dim(); ++i ) {
     TEST_FLOATING_EQUALITY( 2., z->getFieldPtr(i)->norm(Belos::InfNorm), errorTolSlack );
     TEST_FLOATING_EQUALITY( 2.* (double) z->getFieldPtr(i)->getLength()  , z->getFieldPtr(i)->norm(Belos::OneNorm), errorTolSlack );
@@ -472,6 +471,61 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionVOp ) {
 //  z->write(1);
 
 }
+
+
+
+
+TEUCHOS_UNIT_TEST( BasicOperator, ConvectionJacobianVOp ) {
+
+    auto pl = Teuchos::parameterList();
+
+    pl->set( "domain", 1);
+
+    auto space = Pimpact::createSpace( pl, !isImpactInit );
+
+    if( !isImpactInit ) isImpactInit=true;
+
+    using Teuchos::ParameterList;
+    using Teuchos::parameterList;
+    using Teuchos::RCP;
+    using Teuchos::rcp; // Save some typing
+
+
+    auto x = Pimpact::createVectorField<S,O>( space );
+    auto y = Pimpact::createVectorField<S,O>( space );
+    auto z = Pimpact::createVectorField<S,O>( space );
+    auto z2 = Pimpact::createVectorField<S,O>( space );
+
+    auto op = Pimpact::createConvectionJacobianOp( space, false ) ;
+    auto op2 = Pimpact::createConvectionOp( space ) ;
+
+    x->initField( Pimpact::ConstFlow, 2., 2., 2. );
+
+    y->getFieldPtr(0)->initField( Pimpact::Grad2D_inX );
+    y->getFieldPtr(1)->initField( Pimpact::Grad2D_inY );
+
+    z->random();
+
+    op->assignField( *x );
+    op->apply( *y, *z );
+
+    op2->apply( *x, *y, *z2 );
+
+    // test is not exact because the boundaries of x are zero, and
+    for( int i=0; i<space->dim(); ++i ) {
+      TEST_FLOATING_EQUALITY( 2., z->getFieldPtr(i)->norm(Belos::InfNorm), errorTolSlack );
+      TEST_FLOATING_EQUALITY( 2.* (double) z->getFieldPtr(i)->getLength()  , z->getFieldPtr(i)->norm(Belos::OneNorm), errorTolSlack );
+      TEST_FLOATING_EQUALITY( std::sqrt( 4.* z->getFieldPtr(i)->getLength() ), z->getFieldPtr(i)->norm(Belos::TwoNorm), errorTolSlack );
+    }
+    z2->add( -1, *z2, 1, *z );
+
+    TEST_FLOATING_EQUALITY( z2->norm(), 0., errorTolSlack );
+
+    z2->write(2);
+    z->write(1);
+
+}
+
 
 
 
@@ -544,39 +598,6 @@ TEUCHOS_UNIT_TEST( BasicOperator, ForcingOp ) {
 
 
 
-TEUCHOS_UNIT_TEST( ModeOperator, HelmholtzOp ) {
-
-  auto pl = Teuchos::parameterList();
-
-  pl->set( "domain", 1);
-
-  auto space = Pimpact::createSpace( pl, !isImpactInit );
-
-  if( !isImpactInit ) isImpactInit=true;
-
-
-  auto velc = Pimpact::createVectorField<S,O>(space);
-  auto vels = Pimpact::createVectorField<S,O>(space);
-
-  auto vel = Pimpact::createModeField( velc, vels );
-
-  auto mv = Pimpact::createMultiField<Pimpact::ModeField<Pimpact::VectorField<S,O> > >(*vel,10);
-
-  auto mv2 = mv->clone(11);
-
-  auto op = Pimpact::createMultiOpWrap<Pimpact::ModeOpWrap<Pimpact::HelmholtzOp<S,O> > >(
-      Pimpact::createModeOpWrap( Pimpact::createHelmholtzOp<S,O>(space) ) );
-
-  op->apply(*mv,*mv2);
-}
-
-
-
-
-
-
-
-
 
 TEUCHOS_UNIT_TEST( BasicOperator, Add2Op ) {
 
@@ -632,6 +653,35 @@ TEUCHOS_UNIT_TEST( BasicOperator, Add2Op ) {
 
 
 
+TEUCHOS_UNIT_TEST( ModeOperator, HelmholtzOp ) {
+
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", 1);
+
+  auto space = Pimpact::createSpace( pl, !isImpactInit );
+
+  if( !isImpactInit ) isImpactInit=true;
+
+
+  auto velc = Pimpact::createVectorField<S,O>(space);
+  auto vels = Pimpact::createVectorField<S,O>(space);
+
+  auto vel = Pimpact::createModeField( velc, vels );
+
+  auto mv = Pimpact::createMultiField<Pimpact::ModeField<Pimpact::VectorField<S,O> > >(*vel,10);
+
+  auto mv2 = mv->clone(11);
+
+  auto op = Pimpact::createMultiOpWrap<Pimpact::ModeOpWrap<Pimpact::HelmholtzOp<S,O> > >(
+      Pimpact::createModeOpWrap( Pimpact::createHelmholtzOp<S,O>(space) ) );
+
+  op->apply(*mv,*mv2);
+}
+
+
+
+
 TEUCHOS_UNIT_TEST( ModeOperator, DtModeOp ) {
 
   auto pl = Teuchos::parameterList();
@@ -668,6 +718,7 @@ TEUCHOS_UNIT_TEST( ModeOperator, DtModeOp ) {
   TEST_EQUALITY( mv->getConstFieldPtr(0)->getConstSFieldPtr()->norm(), mv2->getConstFieldPtr(0)->getConstCFieldPtr()->norm() );
   Belos::OperatorTraits<S,MF,BOp>::Apply(*op,*mv,*mv2);
 }
+
 
 
 
@@ -737,8 +788,7 @@ TEUCHOS_UNIT_TEST( ModeOperator, DtLapOp ) {
 
 
 
-
-TEUCHOS_UNIT_TEST( ModeOperator, TripleCompostion) {
+TEUCHOS_UNIT_TEST( ModeOperator, TripleCompostion ) {
 
   auto pl = Teuchos::parameterList();
 
@@ -784,7 +834,9 @@ TEUCHOS_UNIT_TEST( ModeOperator, TripleCompostion) {
   );
 
   schur->apply( *B, *X );
+
 }
+
 
 
 

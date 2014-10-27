@@ -647,8 +647,8 @@ int main(int argi, char** argv ) {
   //    //        Pimpact::createMultiOpWrap(
   //    //            Pimpact::createAdd2Op<Pimpact::AddOp<JAdv,DtL>,Fo>(
   //    //                Pimpact::createAdd2Op<JAdv,DtL>(
-  //    //                    Pimpact::createMultiHarmonicOpWrap<Pimpact::NonlinearJacobian<S,O> >(
-  //    //                        Pimpact::createNonlinearJacobian<S,O>( temp->getFieldPtr(0)->get0FieldPtr(), isNewton ) ),
+  //    //                    Pimpact::createMultiHarmonicOpWrap<Pimpact::ConvectionJacobianOp<S,O> >(
+  //    //                        Pimpact::createConvectionJacobianOp<S,O>( temp->getFieldPtr(0)->get0FieldPtr(), isNewton ) ),
   //    //                    Pimpact::createMultiDtHelmholtz<S,O>( alpha2, 0., 1./re ),
   //    //                    temp->getFieldPtr(0)->clone() ) ,
   //    //                Pimpact::createMultiHarmonicOpWrap( Pimpact::createForcingOp<S,O>( force ) ) ,
@@ -672,8 +672,8 @@ int main(int argi, char** argv ) {
   //    //        Pimpact::createMultiOpWrap(
   //    //            Pimpact::createAdd2Op<Pimpact::AddOp<JAdv,DtL>,Fo>(
   //    //                Pimpact::createAdd2Op<JAdv,DtL>(
-  //    //                    Pimpact::createMultiHarmonicOpWrap<Pimpact::NonlinearJacobian<S,O> >(
-  //    //                        Pimpact::createNonlinearJacobian<S,O>( temp->getFieldPtr(0)->get0FieldPtr(), false ) ),
+  //    //                    Pimpact::createMultiHarmonicOpWrap<Pimpact::ConvectionJacobianOp<S,O> >(
+  //    //                        Pimpact::createConvectionJacobianOp<S,O>( temp->getFieldPtr(0)->get0FieldPtr(), false ) ),
   //    //                    Pimpact::createMultiDtHelmholtz<S,O>( alpha2, 0., 1./re ),
   //    //                    temp->getFieldPtr(0)->clone() ) ,
   //    //                Pimpact::createMultiHarmonicOpWrap( Pimpact::createForcingOp<S,O>( force ) ) ,
@@ -696,8 +696,8 @@ int main(int argi, char** argv ) {
   //    //        Pimpact::createMultiOpWrap(
   //    //            Pimpact::createAdd2Op<Pimpact::AddOp<JAdv,DtL>,Fo>(
   //    //                Pimpact::createAdd2Op<JAdv,DtL>(
-  //    //                    Pimpact::createMultiHarmonicOpWrap<Pimpact::NonlinearJacobian<S,O> >(
-  //    //                        Pimpact::createNonlinearJacobian<S,O>( temp->getFieldPtr(0)->get0FieldPtr(), isNewton) ),
+  //    //                    Pimpact::createMultiHarmonicOpWrap<Pimpact::ConvectionJacobianOp<S,O> >(
+  //    //                        Pimpact::createConvectionJacobianOp<S,O>( temp->getFieldPtr(0)->get0FieldPtr(), isNewton) ),
   //    //                    Pimpact::createMultiDtHelmholtz<S,O>( 0., 0., 1./re ),
   //    //                    temp->getFieldPtr(0)->clone() ) ,
   //    //                Pimpact::createMultiHarmonicOpWrap( Pimpact::createForcingOp<S,O>( force ) ) ,
@@ -719,8 +719,8 @@ int main(int argi, char** argv ) {
   //    //        Pimpact::createMultiOpWrap(
   //    //            Pimpact::createAdd2Op<Pimpact::AddOp<JAdv,DtL>,Fo>(
   //    //                Pimpact::createAdd2Op<JAdv,DtL>(
-  //    //                    Pimpact::createMultiHarmonicOpWrap<Pimpact::NonlinearJacobian<S,O> >(
-  //    //                        Pimpact::createNonlinearJacobian<S,O>( temp->getFieldPtr(0)->get0FieldPtr(), false) ),
+  //    //                    Pimpact::createMultiHarmonicOpWrap<Pimpact::ConvectionJacobianOp<S,O> >(
+  //    //                        Pimpact::createConvectionJacobianOp<S,O>( temp->getFieldPtr(0)->get0FieldPtr(), false) ),
   //    //                    Pimpact::createMultiDtHelmholtz<S,O>( 0., 0., 1./re ),
   //    //                    temp->getFieldPtr(0)->clone() ) ,
   //    //                Pimpact::createMultiHarmonicOpWrap( Pimpact::createForcingOp<S,O>( force ) ) ,

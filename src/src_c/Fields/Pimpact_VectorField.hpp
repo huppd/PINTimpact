@@ -26,13 +26,9 @@ namespace Pimpact {
 
 
 /// \brief important basic Vector class
-/// vector for a vector field, e.g.: velocity,
-/// here also happens the fortran wrapping
+/// it wraps three ScalarFields.
 /// \ingroup Field
-/// \todo There is one issue: update methods changes state but could be
-///implemented, such that they keep the state, but then the boundary conditions
-///have to be taken care of
-/// \todo move exhange to \c ScalarField
+///
 template<class S=double, class O=int, int d=3 >
 class VectorField : private AbstractField<S,O,d> {
 
@@ -45,7 +41,7 @@ class VectorField : private AbstractField<S,O,d> {
   template<class S1,class O1, int d1>
   friend class ConvectionOp;
   template<class S1,class O1, int dimension1>
-  friend class NonlinearJacobian;
+  friend class ConvectionJacobianOp;
   template<class S1,class O1>
   friend class DtLapOp;
   template<class S1,class O1>
@@ -67,7 +63,7 @@ public:
 
   typedef typename AbstractField<S,O,d>::SpaceT SpaceT;
 
-  typedef Teuchos::Tuple<Teuchos::Tuple<bool,3>,3> State; // obsolte in ScalarField
+//  typedef Teuchos::Tuple<Teuchos::Tuple<bool,3>,3> State; // obsolte in ScalarField
 
 protected:
 
@@ -113,12 +109,13 @@ public:
   /// shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
   /// \param vF
   /// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
-  VectorField(const VectorField& vF, ECopyType copyType=DeepCopy):
+  VectorField( const VectorField& vF, ECopyType copyType=DeepCopy ):
     AbstractField<S,O,d>( vF.space() ),
     owning_(vF.owning_) {
 
     for( int i=0; i<3; ++i )
-      sFields_[i] = Teuchos::rcp( new SF( space(), false, EField(i) ) );
+//      sFields_[i] = Teuchos::rcp( new SF( space(), false, EField(i) ) );
+      sFields_[i] = vF.getConstFieldPtr(i)->clone(); // copytype doesnot matter here, because it's not owning
 
     if( owning_ ) {
 
@@ -135,9 +132,11 @@ public:
           vec_[i] = 0.;
         break;
       case DeepCopy:
-        for( int i=0; i<space()->dim(); ++i )
-          sFields_[i]->assign( *vF.sFields_[i] );
-        changed();
+        for( int i=0; i<3*n; ++i )
+          vec_[i] = vF.vec_[i];
+//        for( int i=0; i<space()->dim(); ++i )
+//          sFields_[i]->assign( *vF.sFields_[i] );
+//        changed();
         break;
       }
     }

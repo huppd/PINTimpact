@@ -22,7 +22,7 @@
 #include "Pimpact_InterpolateS2VOp.hpp"
 #include "Pimpact_ConvectionSOp.hpp"
 #include "Pimpact_ConvectionVOp.hpp"
-#include "Pimpact_NonlinearJacobianOp.hpp"
+#include "Pimpact_ConvectionJacobianOp.hpp"
 
 
 /// \defgroup TimeOperator Time Operator

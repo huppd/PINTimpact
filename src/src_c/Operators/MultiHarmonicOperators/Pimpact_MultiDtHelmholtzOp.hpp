@@ -6,6 +6,7 @@
 #include "Pimpact_Types.hpp"
 
 #include "Pimpact_VectorField.hpp"
+#include "Pimpact_MultiHarmonicField.hpp"
 
 #include "Pimpact_DtLapOp.hpp"
 
@@ -15,6 +16,7 @@ namespace Pimpact{
 
 /// \ingroup MultiHarmonicOperator
 /// for generalizing this(MultiHarmonicwrapper for ModeOperator), ModeOperator needs a non Mode representation
+/// \relates DtLapOp
 template<class Scalar,class Ordinal>
 class MultiDtHelmholtz {
 

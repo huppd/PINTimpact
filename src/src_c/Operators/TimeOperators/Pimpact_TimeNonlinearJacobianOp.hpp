@@ -29,7 +29,7 @@ namespace Pimpact {
 
 
 /// \ingroup TimeOperator
-/// \todo better design would be to wrap NonlinearJacobian
+/// \todo better design would be to wrap ConvectionJacobianOp
 /// \note u_ has to contain appropriate BC, temp_ and y doesnot matter, x should have zero BC
 template<class Scalar,class Ordinal,bool CrankNicolsonYes=false >
 class TimeNonlinearJacobian {

@@ -14,22 +14,14 @@
 
 
 
+
 namespace Pimpact {
 
 
-extern "C" {
 
-void OP_nonlinear(
-    double* const phi1U, double* const phi1V, double* const phi1W,
-    double* const phi2U, double* const phi2V, double* const phi2W,
-    double* const nl1,   double* const nl2,   double* const nl3,
-    const double& mul );
-
-}
-
-
+/// \brief Convection Operator for Velocity fields
 /// \ingroup BaseOperator
-/// this Operator should be consisten to the old one... but will be probably redundant soon
+/// \relates ConvectionSOp
 template<class Scalar,class Ordinal, int dimension=3>
 class ConvectionVOp {
 
@@ -120,15 +112,19 @@ public:
 
     for( int i=0; i<space_->dim(); ++i ) {
       interpolateV2S_->apply( x.getConstField(i), *temp_ );
-      temp_->write( i );
+//      temp_->write( i );
       for( int j=0; j<space_->dim(); ++j ) {
         interpolateS2V_->apply( *temp_, *u_[j][i] );
       }
     }
 
-    for( int i=0; i<space_->dim(); ++i ) {
-      convectionSOp_->apply( u_[i], y.getConstField(i), z.getField(i) );
+    if( mul<1.e-12 ) {
+      z.init(0);
+      mul=1.;
+    }
 
+    for( int i=0; i<space_->dim(); ++i ) {
+      convectionSOp_->apply( u_[i], y.getConstField(i), z.getField(i), mul );
     }
 
   }
