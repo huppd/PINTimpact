@@ -373,7 +373,8 @@ public:
     exchangedState_ = false;
   }
 
-  void exchange()   {
+  /// \note shoud be constant but weridly then Iter becomes const iter and can't be converted to int
+  void exchange() {
 
     if( !exchangedState_ ) {
       if( space()->getNProc(3)>=1 ) {

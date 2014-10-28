@@ -1,6 +1,6 @@
 #pragma once
-#ifndef PIMPACT_MULTIDIAGNONLINEARJACOBIANOP_HPP
-#define PIMPACT_MULTIDIAGNONLINEARJACOBIANOP_HPP
+#ifndef PIMPACT_MULTIDIAGCONVECTIONJACOBIANOP_HPP
+#define PIMPACT_MULTIDIAGCONVECTIONJACOBIANOP_HPP
 
 
 #include "Pimpact_Types.hpp"
@@ -19,7 +19,7 @@ namespace Pimpact {
 
 /// \ingroup MultiHarmonicOperator
 template<class Scalar,class Ordinal>
-class MultiHarmonicDiagNonlinearJacobian {
+class MultiDiagConvectionJacobianOp {
 
   typedef Scalar S;
   typedef Ordinal O;
@@ -32,29 +32,17 @@ public:
 protected:
 
   Teuchos::RCP<DomainFieldT> u_;
-  //  Teuchos::RCP<DomainFieldT> mtemp_;
-  //  Teuchos::RCP<VectorField<S,O> > temp_;
-  Teuchos::RCP<ConvectionOp<S,O> > op_;
+  Teuchos::RCP<ConvectionVOp<S,O> > op_;
 
   const bool isNewton_;
 
 public:
 
-  MultiHarmonicDiagNonlinearJacobian( const bool& isNewton=true ):
-    u_(Teuchos::null),
-    //    mtemp_(Teuchos::null),
-    //    temp_(Teuchos::null),
-    op_( Teuchos::rcp( new ConvectionOp<S,O>() )),
-    isNewton_(isNewton) {};
-
-  MultiHarmonicDiagNonlinearJacobian(
+  MultiDiagConvectionJacobianOp(
       const Teuchos::RCP<const Space<S,O,3> >& space,
-      const Teuchos::RCP<DomainFieldT>& temp,
       const bool& isNewton=true ):
-        u_(temp->clone()),
-        //    mtemp_(temp->clone()),
-        //    temp_(temp->get0FieldPtr()->clone()),
-        op_( Teuchos::rcp( new ConvectionOp<S,O>( space ) )),
+        u_(Teuchos::null),
+        op_( createConvectionVOp<S,O,3>( space ) ),
         isNewton_(isNewton) {};
 
   void assignField( const DomainFieldT& mv ) {
@@ -120,17 +108,19 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
-}; // end of class MultiHarmonicDiagNonlinearJacobianOp
+}; // end of class MultiDiagConvectionJacobianOp
 
 
 
-/// \relates MultiHarmonicDiagNonlinearJacobianOp
+/// \relates MultiDiagConvectionJacobianOp
 template< class S, class O>
-Teuchos::RCP<MultiHarmonicDiagNonlinearJacobian<S,O> > createMultiHarmonicDiagNonlinearJacobian(
+Teuchos::RCP<MultiDiagConvectionJacobianOp<S,O> >
+createMultiDiagConvectionJacobianOp(
     const Teuchos::RCP<const Space<S,O,3> >& space,
-    const Teuchos::RCP<typename MultiHarmonicDiagNonlinearJacobian<S,O>::DomainFieldT>& u = Teuchos::null,
     const bool& isNewton=true ) {
-  return( Teuchos::rcp( new MultiHarmonicDiagNonlinearJacobian<S,O>( space, u, isNewton ) ) );
+
+  return( Teuchos::rcp( new MultiDiagConvectionJacobianOp<S,O>( space, isNewton ) ) );
+
 }
 
 
@@ -139,4 +129,4 @@ Teuchos::RCP<MultiHarmonicDiagNonlinearJacobian<S,O> > createMultiHarmonicDiagNo
 
 
 
-#endif // end of #ifndef PIMPACT_MULTIDIAGNONLINEARJACOBIANOP_HPP
+#endif // end of #ifndef PIMPACT_MULTIDIAGCONVECTIONJACOBIANOP_HPP

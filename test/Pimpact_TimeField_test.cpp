@@ -148,7 +148,8 @@ TEUCHOS_UNIT_TEST( TimeFieldVector, all ) {
 
 
   auto op = Pimpact::createTimeOpWrap<Pimpact::HelmholtzOp<S,O,4> >(
-      Pimpact::createHelmholtzOp<S,O,4>(space ) );
+      Pimpact::createHelmholtzOp<S,O,4>(space ),
+      field2->getFieldPtr(0)->clone() );
 
   field1->random();
   op->apply( *field1, *field2 );
@@ -173,7 +174,7 @@ TEUCHOS_UNIT_TEST( TimeFieldVector, all ) {
 
   field2->write(50);
 
-  auto adv = Pimpact::createTimeNonlinearJacobian();
+  auto adv = Pimpact::createTimeNonlinearJacobian( space );
   adv->assignField( *field1 );
   adv->apply( *field1, *field2 );
 

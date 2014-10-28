@@ -28,7 +28,7 @@ namespace Pimpact {
 /// \brief important basic Vector class
 /// it wraps three ScalarFields.
 /// \ingroup Field
-///
+/// \relates ScalarField
 template<class S=double, class O=int, int d=3 >
 class VectorField : private AbstractField<S,O,d> {
 
@@ -53,7 +53,6 @@ class VectorField : private AbstractField<S,O,d> {
   template< class S1, class O1, bool CNY >
   friend class TimeNonlinearJacobian;
 
-
 public:
 
   typedef S Scalar;
@@ -62,8 +61,6 @@ public:
   static const int dimension = d;
 
   typedef typename AbstractField<S,O,d>::SpaceT SpaceT;
-
-//  typedef Teuchos::Tuple<Teuchos::Tuple<bool,3>,3> State; // obsolte in ScalarField
 
 protected:
 
@@ -114,7 +111,6 @@ public:
     owning_(vF.owning_) {
 
     for( int i=0; i<3; ++i )
-//      sFields_[i] = Teuchos::rcp( new SF( space(), false, EField(i) ) );
       sFields_[i] = vF.getConstFieldPtr(i)->clone(); // copytype doesnot matter here, because it's not owning
 
     if( owning_ ) {

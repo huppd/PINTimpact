@@ -16,6 +16,7 @@
 #include "Pimpact_Operator.hpp"
 #include "Pimpact_OperatorBase.hpp"
 #include "Pimpact_OperatorFactory.hpp"
+#include "Pimpact_ConvectionOp.hpp"
 
 #include "Pimpact_LinSolverParameter.hpp"
 
@@ -936,7 +937,7 @@ TEUCHOS_UNIT_TEST( ModeOperator, EddyPrec ) {
 
 
 
-TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicNonlinear ) {
+TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicConvectionOp ) {
 
   auto pl = Teuchos::parameterList();
 
@@ -951,7 +952,7 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicNonlinear ) {
   auto mv1 = Pimpact::createMultiHarmonicVectorField<S,O>( space, 10 );
   auto mv2 = Pimpact::createMultiHarmonicVectorField<S,O>( space, 10 );
 
-  auto op = Pimpact::createMultiHarmonicNonlinear<S,O>( space );
+  auto op = Pimpact::createMultiHarmonicConvectionOp<S,O>( space );
 
   op->apply( *mv1, *mv2 );
 }
@@ -1029,7 +1030,7 @@ TEUCHOS_UNIT_TEST( CompoundOperator, CompoundOpWrap ) {
   auto opV2V =
       Pimpact::createAdd2Op(
           Pimpact::createMultiDtHelmholtz<S,O>( space, 1., 1. ),
-          Pimpact::createMultiHarmonicNonlinear<S,O>( space ),
+          Pimpact::createMultiHarmonicConvectionOp<S,O>( space ),
           x->getConstFieldPtr(0)->getConstVFieldPtr()->clone()
       );
 

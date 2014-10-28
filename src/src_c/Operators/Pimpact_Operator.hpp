@@ -57,10 +57,10 @@
 /// \ingroup Operator
 /// Operator operate on multi-harmonic fields: \c Pimpact::MultiHarmonicField
 #include "Pimpact_MultiDtHelmholtzOp.hpp"
-#include "Pimpact_MultiNonlinearOp.hpp"
-#include "Pimpact_MultiNonlinearJacobianOp.hpp"
+#include "Pimpact_MultiConvectionOp.hpp"
+#include "Pimpact_MultiConvectionJacobianOp.hpp"
 #include "Pimpact_MultiHarmonicOpWrap.hpp"
-#include "Pimpact_MultiDiagNonlinearOp.hpp"
+#include "Pimpact_MultiDiagConvectionOp.hpp"
 
 
 #endif // end of #ifndef PIMPACT_OPERATOR_HPP

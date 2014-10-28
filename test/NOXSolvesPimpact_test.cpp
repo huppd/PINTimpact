@@ -99,7 +99,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
       Pimpact::createOperatorBase<MVF>(
           Pimpact::createMultiOpWrap(
               Pimpact::createAdd2Op(
-                  Pimpact::createConvectionOp( space ),
+                  Pimpact::createConvectionVOp( space ),
                   Pimpact::createHelmholtzOp( space, 0., eps ),
                   vel->clone() ) ) );
 

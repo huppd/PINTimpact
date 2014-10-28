@@ -10,9 +10,6 @@
 #include "Teuchos_ScalarTraitsDecl.hpp"
 #include "Teuchos_SerialDenseMatrix.hpp"
 
-//#include "Pimpact_FieldSpace.hpp"
-//#include "Pimpact_IndexSpace.hpp"
-
 #include "Pimpact_ModeField.hpp"
 #include "Pimpact_MultiField.hpp"
 
@@ -39,7 +36,6 @@ public:
 
   typedef typename AbstractField<Scalar,Ordinal,dimension>::SpaceT SpaceT;
 
-
 protected:
 
   typedef MultiHarmonicField<Field> MV;
@@ -49,7 +45,6 @@ protected:
 
   Teuchos::RCP<Field> field0_;
   Teuchos::RCP< MultiField< ModeField<Field> > > fields_;
-
 
 public:
 
@@ -68,7 +63,6 @@ public:
   /// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
   MultiHarmonicField( const MultiHarmonicField& vF, ECopyType copyType=DeepCopy ):
     AF( vF.space() ),
-//    space_(vF.space_),
     field0_( vF.field0_->clone(copyType) ),
     fields_( vF.fields_->clone(copyType) )
   {};

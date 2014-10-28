@@ -128,7 +128,7 @@ public:
   /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
   /// \todo implement me
-  void abs(const MV& y) {
+  void abs( const MV& y ) {
     fieldc_->abs( *y.fieldc_ );
     fields_->abs( *y.fields_ );
   }
@@ -140,7 +140,7 @@ public:
   /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
   /// \return Reference to this object
   /// \todo implement me
-  void reciprocal(const MV& y){
+  void reciprocal( const MV& y ) {
     fieldc_->reciprocal( *y.fieldc_ );
     fields_->reciprocal( *y.fields_ );
   }

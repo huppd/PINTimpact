@@ -10,18 +10,7 @@
 #include "Pimpact_VectorField.hpp"
 #include "Pimpact_TimeField.hpp"
 
-
-
-extern "C" {
-
-void OP_nonlinear(
-      double* const phi1U, double* const phi1V, double* const phi1W,
-      double* const phi2U, double* const phi2V, double* const phi2W,
-      double* const nl1,   double* const nl2,   double* const nl3,
-      const double& mul );
-
-}
-
+#include "Pimpact_ConvectionVOp.hpp"
 
 
 
@@ -29,7 +18,7 @@ namespace Pimpact {
 
 
 /// \ingroup TimeOperator
-/// \todo better design would be to wrap ConvectionJacobianOp
+/// \todo better design would be to wrap ConvectionJacobianOp(no because then you would store stencil mutliple times, so one would have to abstract Jacobian)
 /// \note u_ has to contain appropriate BC, temp_ and y doesnot matter, x should have zero BC
 template<class Scalar,class Ordinal,bool CrankNicolsonYes=false >
 class TimeNonlinearJacobian {
@@ -47,19 +36,18 @@ protected:
 
   Teuchos::RCP< VectorField<Scalar,Ordinal,4> > temp_;
 
+  Teuchos::RCP<const ConvectionVOp<Scalar,Ordinal,4> > op_;
+
 public:
 
-  TimeNonlinearJacobian( const bool& isNewton=true ):
-    u_(Teuchos::null),
-    isNewton_(isNewton) {};
-
   TimeNonlinearJacobian(
-      const Teuchos::RCP<DomainFieldT>& u,
-      const bool& isNewton=true,
-      const Teuchos::RCP< VectorField<Scalar,Ordinal,4> >& temp=Teuchos::null ):
-    u_( u ),
+      const Teuchos::RCP<const Space<Scalar,Ordinal,4> >& space,
+      const bool& isNewton=true ):
+    u_( Teuchos::null ),
     isNewton_(isNewton),
-    temp_(temp) {};
+    temp_( createVectorField<Scalar,Ordinal,4>(space) ),
+    op_( createConvectionVOp<Scalar,Ordinal,4>(space) )
+  {};
 
   void assignField( const DomainFieldT& mv ) {
 
@@ -86,21 +74,24 @@ public:
       typename RangeFieldT::Iter  j = y.  mfs_.begin();
 //      typename RangeFieldT::Iter  j = y.beginI_-1;
       for( typename DomainFieldT::Iter i = const_cast<DomainFieldT&>(x).mfs_.begin(); i<x.endI_; ++i ) {
+
         (*i)->exchange();
         temp_->init(0);
 
-        OP_nonlinear(
-            (*k)->vec(0), (*k)->vec(1), (*k)->vec(2),
-            (*i)->vec(0), (*i)->vec(1), (*i)->vec(2),
-            temp_->vec(0), temp_->vec(1), temp_->vec(2),
-            1. );
+        op_->apply( **k, **i, *temp_, 1. );
+//        OP_nonlinear(
+//            (*k)->vec(0), (*k)->vec(1), (*k)->vec(2),
+//            (*i)->vec(0), (*i)->vec(1), (*i)->vec(2),
+//            temp_->vec(0), temp_->vec(1), temp_->vec(2),
+//            1. );
 
         if( isNewton_ ) {
-          OP_nonlinear(
-              (*i)->vec(0), (*i)->vec(1), (*i)->vec(2),
-              (*k)->vec(0), (*k)->vec(1), (*k)->vec(2),
-              temp_->vec(0), temp_->vec(1), temp_->vec(2),
-              1. );
+          op_->apply( **i, **k, *temp_, 1. );
+//          OP_nonlinear(
+//              (*i)->vec(0), (*i)->vec(1), (*i)->vec(2),
+//              (*k)->vec(0), (*k)->vec(1), (*k)->vec(2),
+//              temp_->vec(0), temp_->vec(1), temp_->vec(2),
+//              1. );
         }
         if( j>=y.beginI_ )
           (*j)->add( 1., **j, 0.5, *temp_ );
@@ -120,18 +111,20 @@ public:
       typename RangeFieldT::Iter  j = y.beginI_;
       for( typename DomainFieldT::Iter i = const_cast<DomainFieldT&>(x).beginI_; i<x.endI_; ++i ) {
         (*i)->exchange();
-        OP_nonlinear(
-            (*k)->vec(0), (*k)->vec(1), (*k)->vec(2),
-            (*i)->vec(0), (*i)->vec(1), (*i)->vec(2),
-            (*j)->vec(0), (*j)->vec(1), (*j)->vec(2),
-            1. );
+        op_->apply( **k, **i, **j, 1. );
+//        OP_nonlinear(
+//            (*k)->vec(0), (*k)->vec(1), (*k)->vec(2),
+//            (*i)->vec(0), (*i)->vec(1), (*i)->vec(2),
+//            (*j)->vec(0), (*j)->vec(1), (*j)->vec(2),
+//            1. );
 
         if( isNewton_ ) {
-          OP_nonlinear(
-              (*i)->vec(0), (*i)->vec(1), (*i)->vec(2),
-              (*k)->vec(0), (*k)->vec(1), (*k)->vec(2),
-              (*j)->vec(0), (*j)->vec(1), (*j)->vec(2),
-              1. );
+          op_->apply( **i, **k, **j, 1. );
+//          OP_nonlinear(
+//              (*i)->vec(0), (*i)->vec(1), (*i)->vec(2),
+//              (*k)->vec(0), (*k)->vec(1), (*k)->vec(2),
+//              (*j)->vec(0), (*j)->vec(1), (*j)->vec(2),
+//              1. );
         }
         (*j)->changed();
         ++j; ++k;
@@ -152,11 +145,10 @@ public:
 /// \relates TimeNonlinearJacobian
 template< class S=double, class O=int, bool CNY=false >
 Teuchos::RCP<TimeNonlinearJacobian<S,O,CNY> > createTimeNonlinearJacobian(
-    const Teuchos::RCP<typename TimeNonlinearJacobian<S,O>::DomainFieldT>& u = Teuchos::null,
-    const bool& isNewton=true,
-    const Teuchos::RCP< VectorField<S,O,4> >& temp=Teuchos::null ) {
+    const Teuchos::RCP<const Space<S,O,4> >& space,
+    const bool& isNewton=true ) {
 
-    return( Teuchos::rcp( new TimeNonlinearJacobian<S,O,CNY>( u, isNewton, temp ) ) );
+    return( Teuchos::rcp( new TimeNonlinearJacobian<S,O,CNY>( space, isNewton ) ) );
 
 }
 

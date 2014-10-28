@@ -3142,7 +3142,7 @@ module mod_coeffs
   end do
   
   
-  ! sicherheitshalber (cdg3 = 0. sollte eigentlich schon erf�llt sein):
+  ! sicherheitshalber (cdg3 = 0. sollte eigentlich schon erfüllt sein):
   if (dimens == 2) cdg3 = 0.
   
   

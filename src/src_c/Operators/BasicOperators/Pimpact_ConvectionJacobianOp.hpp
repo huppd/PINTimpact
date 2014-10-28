@@ -6,7 +6,6 @@
 #include "Pimpact_Types.hpp"
 
 #include "Pimpact_VectorField.hpp"
-//#include "Pimpact_FieldFactory.hpp"
 
 #include "Pimpact_ConvectionVOp.hpp"
 
@@ -42,7 +41,6 @@ public:
 
   ConvectionJacobianOp(
       const Teuchos::RCP<const Space<Scalar,Ordinal,dimension> >& space,
-//      const Teuchos::RCP<DomainFieldT>& u,
       const bool& isNewton=true ):
     u_( Teuchos::null ),
     convectionVOp_( createConvectionVOp( space ) ),
@@ -95,7 +93,6 @@ public:
 template< class S=double, class O=int, int d=3>
 Teuchos::RCP<ConvectionJacobianOp<S,O,d> > createConvectionJacobianOp(
     const Teuchos::RCP<const Space<S,O,d> >& space,
-//    const Teuchos::RCP<typename ConvectionJacobianOp<S,O,d>::DomainFieldT>& u = Teuchos::null,
     const bool& isNewton=true ) {
 
     return( Teuchos::rcp( new ConvectionJacobianOp<S,O,d>( space, isNewton ) ) );
@@ -106,7 +103,6 @@ Teuchos::RCP<ConvectionJacobianOp<S,O,d> > createConvectionJacobianOp(
 template< class S=double, class O=int, int d=3>
 Teuchos::RCP<ConvectionJacobianOp<S,O,d> > createConvectionJacobianOp(
     const Teuchos::RCP<const ConvectionVOp<S,O,d> >& convectionVOp,
-//    const Teuchos::RCP<typename ConvectionJacobianOp<S,O,d>::DomainFieldT>& u = Teuchos::null,
     const bool& isNewton=true ) {
 
     return( Teuchos::rcp( new ConvectionJacobianOp<S,O,d>( convectionVOp, isNewton ) ) );

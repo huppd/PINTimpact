@@ -29,13 +29,7 @@ public:
   typedef MultiHarmonicField<typename Operator::DomainFieldT> DomainFieldT;
   typedef MultiHarmonicField<typename Operator::RangeFieldT> RangeFieldT;
 
-//  MultiHarmonicOpWrap():op_(  ) {};
-  MultiHarmonicOpWrap( const Teuchos::RCP<Operator>& op/*=Teuchos::null*/ ):
-    op_(op) {
-//    if( op_.is_null() )
-//      op_ = Teuchos::rcp( new Operator() );
-  };
-//  ~MultiHarmonicOpWrap() {op_=Teuchos::null;};
+  MultiHarmonicOpWrap( const Teuchos::RCP<Operator>& op ): op_(op) {};
 
 
   void apply( const DomainFieldT& x,
@@ -67,11 +61,9 @@ public:
 
 /// \relates MultiHarmonicOpWrap
 template<class Operator>
-Teuchos::RCP< MultiHarmonicOpWrap<Operator> > createMultiHarmonicOpWrap( const Teuchos::RCP<Operator>& op/*=Teuchos::null*/) {
-//  if( Teuchos::is_null(op) )
-//    return( Teuchos::rcp( new MultiHarmonicOpWrap<Operator>( Teuchos::rcp( new Operator() ) ) ) );
-//  else
-    return( Teuchos::rcp( new MultiHarmonicOpWrap<Operator>( op ) ) );
+Teuchos::RCP< MultiHarmonicOpWrap<Operator> >
+createMultiHarmonicOpWrap( const Teuchos::RCP<Operator>& op) {
+  return( Teuchos::rcp( new MultiHarmonicOpWrap<Operator>( op ) ) );
 }
 
 

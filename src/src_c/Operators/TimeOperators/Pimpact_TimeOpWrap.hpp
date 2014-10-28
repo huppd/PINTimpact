@@ -34,15 +34,10 @@ protected:
 
 public:
 
-//  TimeOpWrap():op_( Teuchos::rcp( new Operator() ) ) {};
-
   TimeOpWrap(
       const Teuchos::RCP<Operator>& op,
-      const Teuchos::RCP<typename Operator::RangeFieldT>& temp=Teuchos::null ):
+      const Teuchos::RCP<typename Operator::RangeFieldT>& temp ):
         op_(op),temp_(temp) {};
-
-//  ~TimeOpWrap() { op_=Teuchos::null; };
-
 
   /// \brief default apply
   void apply( const DomainFieldT& x,
@@ -53,6 +48,7 @@ public:
 
 
       const_cast<DomainFieldT&>(x).exchange();
+//      x.exchange();
 //      y.init(0.);
 
       typename DomainFieldT::Iter i= const_cast<DomainFieldT&>(x).mfs_.begin();
@@ -94,12 +90,11 @@ public:
 /// \relates TimeOpWrap
 template< class Operator, bool CNY=false >
 Teuchos::RCP< TimeOpWrap<Operator,CNY> > createTimeOpWrap(
-    const Teuchos::RCP<Operator>& op/*=Teuchos::null*/,
-    const Teuchos::RCP<typename Operator::RangeFieldT>& temp=Teuchos::null ) {
-//  if( Teuchos::is_null(op) )
-//    return( Teuchos::rcp( new TimeOpWrap<Operator,CNY>( Teuchos::rcp(new Operator()), temp ) ) );
-//  else
+    const Teuchos::RCP<Operator>& op,
+    const Teuchos::RCP<typename Operator::RangeFieldT>& temp ) {
+
     return( Teuchos::rcp( new TimeOpWrap<Operator,CNY>( op, temp ) ) );
+
 }
 
 
