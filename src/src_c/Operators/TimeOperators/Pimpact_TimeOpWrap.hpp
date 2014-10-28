@@ -46,9 +46,7 @@ public:
 
     if( true==CNyes ) {
 
-
-      const_cast<DomainFieldT&>(x).exchange();
-//      x.exchange();
+      x.exchange();
 //      y.init(0.);
 
       typename DomainFieldT::Iter i= const_cast<DomainFieldT&>(x).mfs_.begin();
@@ -58,17 +56,17 @@ public:
 
         op_->apply( **(i), *temp_ );
 
-        if( j>=y.beginI_ )
+        if( j>=y.sInd_ )
           (*j)->add( 1., **j, 0.5, *temp_ );
         ++j;
-        if( j<y.endI_ )
+        if( j<y.eInd_ )
           (*j)->add( 0., **j, 0.5, *temp_ );
       }
 
     }
     else{
-      typename RangeFieldT::Iter j = y.beginI_;
-      for( typename DomainFieldT::Iter i=x.beginI_; i<x.endI_; ++i )
+      typename RangeFieldT::Iter j = y.sInd_;
+      for( typename DomainFieldT::Iter i=x.sInd_; i<x.eInd_; ++i )
         op_->apply( **i , **(j++) );
     }
     y.changed();

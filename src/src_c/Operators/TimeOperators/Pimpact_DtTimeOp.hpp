@@ -31,14 +31,15 @@ public:
 
 
   void apply( const DomainFieldT& x, RangeFieldT& y ) const {
-    const_cast<DomainFieldT&>(x).exchange();
 
+    x.exchange();
 
-    typename RangeFieldT::Iter j = x.beginI_;
-    for( typename DomainFieldT::Iter i=y.beginI_; i<y.endI_; ++i ) {
+    typename RangeFieldT::Iter j = x.sInd_;
+    for( typename DomainFieldT::Iter i=y.sInd_; i<y.eInd_; ++i ) {
        (*i)->add( alpha2_, **j, -alpha2_, **( j-1 )  );
        ++j;
     }
+
     y.changed();
   }
 

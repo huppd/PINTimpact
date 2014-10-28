@@ -475,7 +475,7 @@ int main(int argi, char** argv ) {
                   Pimpact::createAdd3Op(
                       x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
                       dtl,
-                      Pimpact::createMultiHarmonicDiagConvectionJacobianOp<S,O>(
+                      Pimpact::createMultiDiagConvectionJacobianOp<S,O>(
                           space,
                           true
                       )
@@ -505,7 +505,7 @@ int main(int argi, char** argv ) {
                   Pimpact::createAdd3Op(
                       x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
                       dtl,
-                      Pimpact::createMultiHarmonicDiagConvectionJacobianOp<S,O>(
+                      Pimpact::createMultiDiagConvectionJacobianOp<S,O>(
                           space,
                           false
                       )

@@ -65,15 +65,14 @@ public:
 
   void apply( const DomainFieldT& x, RangeFieldT& y, Scalar mul=0. ) const {
 
-    const_cast<DomainFieldT&>(x).exchange();
-
+    x.exchange();
 
     if( CrankNicolsonYes ) {
 
       typename DomainFieldT::Iter k = u_->mfs_.begin();
       typename RangeFieldT::Iter  j = y.  mfs_.begin();
-//      typename RangeFieldT::Iter  j = y.beginI_-1;
-      for( typename DomainFieldT::Iter i = const_cast<DomainFieldT&>(x).mfs_.begin(); i<x.endI_; ++i ) {
+//      typename RangeFieldT::Iter  j = y.sInd_-1;
+      for( typename DomainFieldT::Iter i = const_cast<DomainFieldT&>(x).mfs_.begin(); i<x.eInd_; ++i ) {
 
         (*i)->exchange();
         temp_->init(0);
@@ -93,10 +92,10 @@ public:
 //              temp_->vec(0), temp_->vec(1), temp_->vec(2),
 //              1. );
         }
-        if( j>=y.beginI_ )
+        if( j>=y.sInd_ )
           (*j)->add( 1., **j, 0.5, *temp_ );
         ++j;
-        if( j<y.endI_ ) {
+        if( j<y.eInd_ ) {
           (*j)->add( 0., **j, 0.5, *temp_ );
           (*j)->changed();
         }
@@ -107,9 +106,9 @@ public:
     else {
       y.init(0.);
 
-      typename DomainFieldT::Iter k = u_->beginI_;
-      typename RangeFieldT::Iter  j = y.beginI_;
-      for( typename DomainFieldT::Iter i = const_cast<DomainFieldT&>(x).beginI_; i<x.endI_; ++i ) {
+      typename DomainFieldT::Iter k = u_->sInd_;
+      typename RangeFieldT::Iter  j = y.sInd_;
+      for( typename DomainFieldT::Iter i = const_cast<DomainFieldT&>(x).sInd_; i<x.eInd_; ++i ) {
         (*i)->exchange();
         op_->apply( **k, **i, **j, 1. );
 //        OP_nonlinear(
