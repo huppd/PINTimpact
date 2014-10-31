@@ -1,6 +1,6 @@
 #pragma once
-#ifndef PIMPACT_FIELDSPACE_HPP
-#define PIMPACT_FIELDSPACE_HPP
+#ifndef PIMPACT_STENCILWIDTHS_HPP
+#define PIMPACT_STENCILWIDTHS_HPP
 
 #include "mpi.h"
 
@@ -18,13 +18,12 @@ namespace Pimpact {
 ///
 /// there are three different kind of stencil the central ones for helmholtz, than the one for divergence
 /// and the gradient like.
-/// \todo refector rename to something like Stencil stuff
 /// \ingroup Space
 template< class Ordinal=int, int dim=3>
-class FieldSpace {
+class StencilWidths {
 
   template< class OT, int dT >
-  friend const Teuchos::RCP<const FieldSpace<OT,dT> > createFieldSpace();
+  friend const Teuchos::RCP<const StencilWidths<OT,dT> > createStencilWidths();
 
 public:
 
@@ -49,7 +48,7 @@ protected:
 
   /// \{ \name Intervallgrenzen der Differenzen-Koeffizienten-Arrays
 
-  /// \{ \brief central
+  /// \{ \brief Central
   TO bl_;
   TO bu_;
   /// \}
@@ -83,7 +82,7 @@ protected:
   ///
   /// \param bl lower bound of storage
   /// \param bu upper bound of storage
-  FieldSpace():
+  StencilWidths():
     ncbC_(),
     ncbD_(),
     ncbG_(),
@@ -182,7 +181,7 @@ protected:
   ///
   /// \param bl lower bound of storage
   /// \param bu upper bound of storage
-  FieldSpace(
+  StencilWidths(
       //      Ordinal dimension,
       TO bl,
       TO bu ):
@@ -246,24 +245,24 @@ public:
   const Ordinal* getLS()        const { return( ls_.getRawPtr() ); }
   const Ordinal& getLS( int i ) const { return( ls_[i] ); }
 
-}; // end of class FieldSpace
+}; // end of class StencilWidths
 
 
 
-/// \brief function that creates \c Pimpact:FieldSpace
+/// \brief function that creates \c Pimpact:StencilWidths
 /// by getting values from \c IMPACT
 /// should be changed by getting vallues from \c ProcGridSize and \c GridSize
-/// \relates FieldSpace
+/// \relates StencilWidths
 template< class O=int, int d=3 >
-const Teuchos::RCP<const FieldSpace<O,d> > createFieldSpace(){
+const Teuchos::RCP<const StencilWidths<O,d> > createStencilWidths(){
 
   return(
-      Teuchos::RCP<const FieldSpace<O,d> > (
-          new FieldSpace<O,d>() ) );
+      Teuchos::RCP<const StencilWidths<O,d> > (
+          new StencilWidths<O,d>() ) );
 }
 
 
 } // end of namespace Pimpact
 
 
-#endif // end of #ifndef PIMPACT_FIELDSPACE_HPP
+#endif // end of #ifndef PIMPACT_STENCILWIDTHS_HPP

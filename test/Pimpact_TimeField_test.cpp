@@ -1,21 +1,18 @@
-// Pimpact_SalarVectorSpace_test.cpp
+#include <iostream>
 
 #include "mpi.h"
+
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_RCP.hpp"
-#include <Teuchos_Array.hpp>
-#include <Teuchos_Tuple.hpp>
+#include "Teuchos_Array.hpp"
+#include "Teuchos_Tuple.hpp"
 #include "Teuchos_Range1D.hpp"
-#include <Teuchos_CommHelpers.hpp>
+#include "Teuchos_CommHelpers.hpp"
 
 #include "BelosOutputManager.hpp"
 #include "BelosMVOPTester.hpp"
 
 #include "BelosPimpactAdapter.hpp"
-
-
-#include "pimpact.hpp"
-#include "Pimpact_Space.hpp"
 
 #include "Pimpact_ScalarField.hpp"
 #include "Pimpact_VectorField.hpp"
@@ -28,7 +25,6 @@
 #include "Pimpact_DtTimeOp.hpp"
 #include "Pimpact_TimeNonlinearJacobianOp.hpp"
 
-#include <iostream>
 
 
 

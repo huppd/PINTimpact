@@ -4,18 +4,16 @@
 
 #include <vector>
 #include <iostream>
+
 #include "mpi.h"
 
 #include "Teuchos_RCP.hpp"
-#include "BelosTypes.hpp"
 #include "Teuchos_ScalarTraitsDecl.hpp"
 #include "Teuchos_SerialDenseMatrix.hpp"
 
-#include "Pimpact_FieldSpace.hpp"
-#include "Pimpact_IndexSpace.hpp"
+#include "BelosTypes.hpp"
 
 #include "Pimpact_AbstractField.hpp"
-
 
 
 
@@ -75,9 +73,9 @@ public:
   /// \name Attribute methods
   //@{
 
-  /// \warning it is assumed that both fields have the same \c FieldSpace
+  // \warning it is assumed that both fields have the same \c StencilWidths
   //  /// \return field space of \c cfield_
-  //  Teuchos::RCP<const FieldSpace<Ordinal> > getFieldSpace() const { return( vfield_->getFieldSpace() );}
+  //  Teuchos::RCP<const StencilWidths<Ordinal> > getFieldSpace() const { return( vfield_->getFieldSpace() );}
 
   VField& getVField() { return( *vfield_ ); }
   SField& getSField() { return( *sfield_ ); }

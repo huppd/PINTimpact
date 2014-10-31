@@ -6,20 +6,16 @@
 !* Apr 2012                                                                                                  *
 !*************************************************************************************************************
 
+!> \obsolete
 module cmod_write_info
   
-  
-    !    use mod_dims
-    !    use mod_vars
-    !    use mod_exchange
-    !    use mod_lib
     use HDF5
   
-    !    use mpi
-
     use iso_c_binding
 
+
     private
+
   
     public write_hdf_infoReal
     public write_hdf_infoINT

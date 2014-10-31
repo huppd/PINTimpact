@@ -174,7 +174,7 @@ int main(int argi, char** argv ) {
 
 
   // init Spaces
-//  auto fS = Pimpact::createFieldSpace<O>();
+//  auto fS = Pimpact::createStencilWidths<O>();
 //
 //  auto iS = Pimpact::createScalarIndexSpace<O>();
 //  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();

@@ -15,6 +15,7 @@ module cmod_GradOp
   
 contains
 
+
     !>  \brief computes \f$ \mathrm{grad = \nabla\phi } \f$
     subroutine OP_grad( &
         dir,            &
@@ -106,6 +107,7 @@ contains
         !===========================================================================================================
 
     end subroutine OP_grad
+
 
 
     !>  \brief sets non block boundary conditions to zero

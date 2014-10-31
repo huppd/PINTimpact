@@ -79,7 +79,7 @@ public:
   /// \name Attribute methods
   //@{
 
-  /// \warning it is assumed that both fields have the same \c FieldSpace
+  /// \warning it is assumed that both fields have the same \c StencilWidths
 
 
   Field&                    get0Field()               { return( *field0_ ); }

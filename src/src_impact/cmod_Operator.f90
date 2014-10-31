@@ -5,6 +5,7 @@
 !*************************************************************************************************************
 
 !> \brief module providing many routines to compute derivatives ...
+!! \deprecated Operators get there own module
 module cmod_operator
   
   

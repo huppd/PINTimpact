@@ -1,24 +1,16 @@
-// Pimpact_SalarVectorSpace_test.cpp
+#include <iostream>
 
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_RCP.hpp"
-#include <Teuchos_Array.hpp>
-#include <Teuchos_Tuple.hpp>
-#include <Teuchos_CommHelpers.hpp>
-
-#include "pimpact.hpp"
+#include "Teuchos_Array.hpp"
+#include "Teuchos_Tuple.hpp"
+#include "Teuchos_CommHelpers.hpp"
 
 #include "Pimpact_Space.hpp"
-#include "Pimpact_FieldSpace.hpp"
-#include "Pimpact_IndexSpace.hpp"
 
-//#include "Pimpact_BoundaryConditionsGlobal.hpp"
-//#include "Pimpact_BoundaryConditionsLocal.hpp"
-//#include "Pimpact_DomainSize.hpp"
 #include "Pimpact_Domain.hpp"
 #include "Pimpact_ProcGrid.hpp"
 
-#include <iostream>
 
 
 namespace {
@@ -45,14 +37,14 @@ TEUCHOS_STATIC_SETUP() {
 
 
 // test shows that nLoc is not consistent with start and end indexes
-TEUCHOS_UNIT_TEST( FieldSpace, local_consistency ) {
+TEUCHOS_UNIT_TEST( StencilWidths, local_consistency ) {
   // init impact
   if( !isImpactInit ) {
     init_impact(0,0);
     isImpactInit=true;
   }
 
-  auto sVS = Pimpact::createFieldSpace<O>();
+  auto sVS = Pimpact::createStencilWidths<O>();
 
   sVS->print();
 
@@ -60,14 +52,14 @@ TEUCHOS_UNIT_TEST( FieldSpace, local_consistency ) {
 
 
 //// shows that local start/end  indexs are consisten wich nGlo
-//TEUCHOS_UNIT_TEST( FieldSpace, global_consistency ) {
+//TEUCHOS_UNIT_TEST( StencilWidths, global_consistency ) {
 //  // init impact
 //  if( !isImpactInit ) {
 //    init_impact(0,0);
 //    isImpactInit=true;
 //  }
 //
-//  auto sVS = Pimpact::createFieldSpace<O>();
+//  auto sVS = Pimpact::createStencilWidths<O>();
 //
 //  auto sIS = Pimpact::createScalarIndexSpace<O>();
 //  auto fIIS = Pimpact::createInnerFieldIndexSpaces<O>();
@@ -105,7 +97,7 @@ TEUCHOS_UNIT_TEST( FieldSpace, local_consistency ) {
 //    isImpactInit=true;
 //  }
 //
-////  auto sVS = Pimpact::createFieldSpace<O>();
+////  auto sVS = Pimpact::createStencilWidths<O>();
 //  auto bcg = Pimpact::createBoudaryConditionsGlobal();
 //  auto gsl = Pimpact::createGridSizeLocal();
 //  auto pgs = Pimpact::createProcGridSize<O>(2,2,1);

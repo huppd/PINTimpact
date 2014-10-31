@@ -1,13 +1,13 @@
-// Pimpact_SalarVector_test.cpp
+#include <iostream>
+#include <cmath>
 
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_RCP.hpp"
-#include <Teuchos_Array.hpp>
-#include <Teuchos_Tuple.hpp>
-#include <Teuchos_CommHelpers.hpp>
-#include "BelosTypes.hpp"
+#include "Teuchos_Array.hpp"
+#include "Teuchos_Tuple.hpp"
+#include "Teuchos_CommHelpers.hpp"
 
-#include "Pimpact_Space.hpp"
+#include "BelosTypes.hpp"
 
 #include "Pimpact_ScalarField.hpp"
 #include "Pimpact_VectorField.hpp"
@@ -20,8 +20,6 @@
 
 #include "Pimpact_LinSolverParameter.hpp"
 
-#include <iostream>
-#include <cmath>
 
 
 namespace {

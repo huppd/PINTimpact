@@ -327,7 +327,7 @@ contains
   
   
     !> \brief intializes comunicator, COMM_CART, slice
-    !! \todo should be extended for 4 dimension for the time dimens or subcommunicatos have to be used
+    !! here extension for 4 dimension for the time dimens or subcommunicatos have to be used
     subroutine init_parallel()
   
         implicit none

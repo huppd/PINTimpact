@@ -19,8 +19,6 @@
 #include "Pimpact_ProcGridSize.hpp"
 
 #include "Pimpact_Space.hpp"
-#include "Pimpact_FieldSpace.hpp"
-#include "Pimpact_IndexSpace.hpp"
 
 #include "Pimpact_ScalarField.hpp"
 #include "Pimpact_VectorField.hpp"

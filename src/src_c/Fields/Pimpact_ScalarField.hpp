@@ -52,6 +52,8 @@ class ScalarField : private AbstractField<S,O,d> {
   friend class RestrictionOp;
   template<class S1,class O1,int dimension1>
   friend class InterpolationOp;
+  template<class Field>
+  friend class TimeField;
 
 public:
 
@@ -403,7 +405,7 @@ public:
   ///
   /// Assign (deep copy) \c a into \c this.
   /// total deep, boundaries and everythin.
-  /// \note the \c FieldSpace is not take care of assuming every field is generated with one
+  /// \note the \c StencilWidths is not take care of assuming every field is generated with one
   /// \note "indexing" is done c++
   void assign( const MV& a ) {
     SF_assign(
@@ -530,10 +532,12 @@ public:
   }
 
 
+  /// Write the ScalarField to an hdf5 file, the velocities are interpolated to the pressure points
+  /// \todo add 3d case here
   void write( int count=0 ) {
 
     if( 0==space()->rankST() )
-      switch(fType_){
+      switch(fType_) {
       case U:
         std::cout << "writing velocity field x(" << count << ") ...\n";
         break;
@@ -548,6 +552,11 @@ public:
         break;
       }
 
+    Teuchos::RCP< ScalarField<S,O,d> > temp;
+
+    if( EField::S==fType_ )
+      temp = Teuchos::rcp(
+          new ScalarField<S,O,d>( space(), true, EField::S ) );
 
     if( 2==space()->dim() ) {
       if( EField::S==fType_ ) {
@@ -576,9 +585,6 @@ public:
             space()->getDomain()->getDomainSize()->getAlpha2() );
       }
       else {
-        auto temp =
-            Teuchos::rcp(
-                new ScalarField<S,O,d>( space(), true, EField::S ) );
 
         space()->getInterpolateV2S()->apply( *this, *temp );
 
@@ -608,16 +614,20 @@ public:
       }
     }
     else if( 3==space()->dim() ) {
-      SF_write3D(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sInd(fType_),
-          space()->eInd(fType_),
-          s_, count );
+      if( EField::S==fType_ ) {
+
+      }
+      else {
+
+      }
+//      SF_write3D(
+//          space()->nLoc(),
+//          space()->bl(),
+//          space()->bu(),
+//          space()->sInd(fType_),
+//          space()->eInd(fType_),
+//          s_, count );
     }
-    //    exchange();
-    //    VF_write( sFields_[U]->getRawPtr(), sFields_[V]->getRawPtr(), sFields_[W]->getRawPtr(), count*100 );
 
   }
 
@@ -654,18 +664,17 @@ protected:
     exchangedState_[dir] = false;
   }
 
-public:
 
   void changed() const {
     for( int dir=0; dir<space()->dim(); ++dir )
       changed( dir );
   }
 
-protected:
 
   bool is_exchanged( const int& dir ) const {
     return( exchangedState_[dir] );
   }
+
   bool is_exchanged() const {
     bool all_exchanged = true;
     for( int dir=0; dir<space()->dim(); ++dir )
@@ -697,6 +706,7 @@ protected:
       exchangedState_[dir] = true;
     }
   }
+
   void exchange() const {
     for( int dir=0; dir<space()->dim(); ++dir )
       exchange( dir );
@@ -707,7 +717,7 @@ protected:
 
 
 
-/// \brief creates a scalar field(vector) belonging to a FieldSpace
+/// \brief creates a scalar field(vector) belonging to a StencilWidths
 ///
 /// \param fS scalar Vector Space to which returned vector belongs
 /// \return scalar vector

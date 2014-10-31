@@ -9,7 +9,7 @@
 #include "Teuchos_ParameterList.hpp"
 #include "Teuchos_XMLParameterListCoreHelpers.hpp"
 
-#include "Pimpact_FieldSpace.hpp"
+#include "Pimpact_StencilWidths.hpp"
 #include "Pimpact_GridSizeGlobal.hpp"
 #include "Pimpact_GridSizeLocal.hpp"
 #include "Pimpact_IndexSpace.hpp"
@@ -52,7 +52,7 @@ public:
   typedef Teuchos::ArrayRCP< Teuchos::RCP<const IndexSpace<Ordinal> > >  IndexSpaces;
 
   Space(
-      const Teuchos::RCP<const FieldSpace<Ordinal,dimension> >& fieldSpace,
+      const Teuchos::RCP<const StencilWidths<Ordinal,dimension> >& fieldSpace,
       const Teuchos::RCP<const IndexSpace<Ordinal> >& scalarIS,
       const IndexSpaces& innerIS,
       const IndexSpaces& fullIS,
@@ -84,7 +84,7 @@ public:
 
 protected:
 
-  Teuchos::RCP<const FieldSpace<Ordinal,dimension> > fieldSpace_;
+  Teuchos::RCP<const StencilWidths<Ordinal,dimension> > fieldSpace_;
 
   Teuchos::RCP<const IndexSpace<Ordinal> > scalarIS_;
 
@@ -109,7 +109,7 @@ protected:
 
 public:
 
-  Teuchos::RCP<const FieldSpace<Ordinal,dimension> > getFieldSpace() const { return( fieldSpace_ ); }
+  Teuchos::RCP<const StencilWidths<Ordinal,dimension> > getFieldSpace() const { return( fieldSpace_ ); }
 
   Teuchos::RCP<const IndexSpace<Ordinal> > getScalarIndexSpace() const { return( scalarIS_ ); }
 
@@ -379,7 +379,7 @@ Teuchos::RCP<const Space<S,O,d> > createSpace(
   auto boundaryConditionsLocal = Pimpact::createBoudaryConditionsLocal( boundaryConditionsGlobal, procGridSize, procGrid );
   if( setImpact ) boundaryConditionsLocal->set_Impact();
 
-  auto fieldSpace = Pimpact::createFieldSpace<O,d>();
+  auto fieldSpace = Pimpact::createStencilWidths<O,d>();
 
   auto scalarIndexSpace = Pimpact::createScalarIndexSpace<O,d>( fieldSpace, gridSizeLocal, boundaryConditionsLocal, setImpact );
 

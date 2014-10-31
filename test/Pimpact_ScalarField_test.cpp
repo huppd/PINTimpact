@@ -1,20 +1,17 @@
-// Pimpact_SalarVector_test.cpp
-
-#include "Teuchos_UnitTestHarness.hpp"
-#include "Teuchos_RCP.hpp"
-#include <Teuchos_Array.hpp>
-#include <Teuchos_Tuple.hpp>
-#include <Teuchos_CommHelpers.hpp>
-#include "BelosTypes.hpp"
-
-#include "pimpact.hpp"
-#include "Pimpact_FieldSpace.hpp"
-#include "Pimpact_ScalarField.hpp"
-
 #include <iostream>
 #include <cmath>
 
-//#include "hdf5.h"
+#include "Teuchos_UnitTestHarness.hpp"
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_Array.hpp"
+#include "Teuchos_Tuple.hpp"
+#include "Teuchos_CommHelpers.hpp"
+
+//#include "BelosTypes.hpp"
+
+#include "Pimpact_ScalarField.hpp"
+
+
 
 
 namespace {
@@ -22,6 +19,7 @@ namespace {
 bool testMpi = true;
 double errorTolSlack = 1e-6;
 int domain = 1;
+int dim = 2;
 
 TEUCHOS_STATIC_SETUP() {
   Teuchos::CommandLineProcessor &clp = Teuchos::UnitTestRepository::getCLP();
@@ -36,6 +34,9 @@ TEUCHOS_STATIC_SETUP() {
   clp.setOption(
       "domain", &domain,
       "domain" );
+  clp.setOption(
+      "dim", &dim,
+      "dim" );
 }
 
 
@@ -44,7 +45,9 @@ TEUCHOS_UNIT_TEST( ScalarField, create_init_print ) {
 
   auto pl = Teuchos::parameterList();
 
-  pl->set( "domain", domain);
+  pl->set( "domain", domain );
+
+  pl->set( "dim", dim );
 
   auto space = Pimpact::createSpace( pl, false );
 
@@ -63,6 +66,8 @@ TEUCHOS_UNIT_TEST( ScalarField, InfNorm_and_init ) {
   auto pl = Teuchos::parameterList();
 
   pl->set( "domain", domain);
+
+  pl->set( "dim", dim );
 
   auto space = Pimpact::createSpace( pl, false );
 
@@ -100,6 +105,8 @@ TEUCHOS_UNIT_TEST( ScalarField, OneNorm_and_init ) {
 
   pl->set( "domain", domain);
 
+  pl->set( "dim", dim );
+
   auto space = Pimpact::createSpace( pl, false );
 
   auto p = Pimpact::createScalarField(space);
@@ -121,6 +128,8 @@ TEUCHOS_UNIT_TEST( ScalarField, TwoNorm_and_init ) {
 
   pl->set( "domain", domain);
 
+  pl->set( "dim", dim );
+
   auto space = Pimpact::createSpace( pl, false );
 
   auto p = Pimpact::createScalarField(space);
@@ -138,6 +147,8 @@ TEUCHOS_UNIT_TEST( ScalarField, dot ) {
   auto pl = Teuchos::parameterList();
 
   pl->set( "domain", domain);
+
+  pl->set( "dim", dim );
 
   auto space = Pimpact::createSpace( pl, true );
 
@@ -166,6 +177,8 @@ TEUCHOS_UNIT_TEST( ScalarField, scale ) {
 
   pl->set( "domain", domain);
 
+  pl->set( "dim", dim );
+
   auto space = Pimpact::createSpace( pl, false );
 
   auto p = Pimpact::createScalarField(space);
@@ -185,6 +198,8 @@ TEUCHOS_UNIT_TEST( ScalarField, random ) {
   auto pl = Teuchos::parameterList();
 
   pl->set( "domain", domain);
+
+  pl->set( "dim", dim );
 
   auto space = Pimpact::createSpace( pl, false );
 
@@ -206,6 +221,8 @@ TEUCHOS_UNIT_TEST( ScalarField, add ) {
 
   pl->set( "domain", domain);
 
+  pl->set( "dim", dim );
+
   auto space = Pimpact::createSpace( pl, false );
 
   auto q = Pimpact::createScalarField(space);
@@ -224,11 +241,14 @@ TEUCHOS_UNIT_TEST( ScalarField, add ) {
   TEST_EQUALITY( std::sqrt(N), norm)
 }
 
+
 TEUCHOS_UNIT_TEST( ScalarField, write ) {
 
   auto pl = Teuchos::parameterList();
 
   pl->set( "domain", domain);
+
+  pl->set( "dim", dim );
 
   auto space = Pimpact::createSpace( pl, false );
 
@@ -250,6 +270,8 @@ TEUCHOS_UNIT_TEST( ScalarField, initField ) {
   auto pl = Teuchos::parameterList();
 
   pl->set( "domain", domain );
+
+  pl->set( "dim", dim );
 
   pl->set( "lx", 2. );
   pl->set( "ly", 2. );

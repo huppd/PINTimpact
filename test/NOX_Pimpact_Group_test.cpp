@@ -4,17 +4,15 @@
 
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_RCP.hpp"
-#include <Teuchos_Array.hpp>
-#include <Teuchos_Tuple.hpp>
-#include <Teuchos_CommHelpers.hpp>
+#include "Teuchos_Array.hpp"
+#include "Teuchos_Tuple.hpp"
+#include "Teuchos_CommHelpers.hpp"
+
 #include "BelosTypes.hpp"
 
-#include "pimpact.hpp"
-#include "Pimpact_FieldSpace.hpp"
-#include "Pimpact_IndexSpace.hpp"
 #include "Pimpact_ScalarField.hpp"
 #include "Pimpact_VectorField.hpp"
-//#include "Pimpact_ModeField.hpp"
+
 #include "Pimpact_CompoundField.hpp"
 #include "Pimpact_FieldFactory.hpp"
 
@@ -60,7 +58,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, createGroup ) {
 //  typedef NOX::Pimpact::Vector<CF> NV;
 //  typedef NOX::Pimpact::Interface<> Interface;
 //
-//  auto fS  = Pimpact::createFieldSpace<O>();
+//  auto fS  = Pimpact::createStencilWidths<O>();
 //  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
 //  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 //
@@ -112,7 +110,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, createGroup ) {
 //  typedef NOX::Pimpact::Vector<CF> NV;
 //  typedef NOX::Pimpact::LinearStokes Interface;
 //
-//  auto fS  = Pimpact::createFieldSpace<O>();
+//  auto fS  = Pimpact::createStencilWidths<O>();
 //  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
 //  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
 //

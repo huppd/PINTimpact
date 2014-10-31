@@ -8,7 +8,6 @@
 !! should be moved to cmod_Operator
 module cmod_laplace
 
-
     use mod_dims
     use mod_vars
     use mod_diff
@@ -16,7 +15,6 @@ module cmod_laplace
   
     use iso_c_binding
   
-
     private
   
     public product_div_grad, product_div_grad_transp
@@ -28,8 +26,6 @@ contains
     !pgi$g unroll = n:8
     !!pgi$r unroll = n:8
     !!pgi$l unroll = n:8
-  
-  
   
     !> \brief computes first \c lap = \c div( \c grad( \c phi))
     !! computes realy first \c grad then \c div
@@ -61,25 +57,17 @@ contains
   
         do m = 1, dimens
             call gradient        (m,phi,dig)
-!            call bc_extrapolation(m,dig    )
+            !            call bc_extrapolation(m,dig    )
             call divergence      (m,dig,Lap)
         !     Lap(S1p:N1p,S2p:N2p,S3p:N3p) = com(S1p:N1p,S2p:N2p,S3p:N3p) + Lap(S1p:N1p,S2p:N2p,S3p:N3p)
         end do
   
-    if (ccorner_yes) call handle_corner_Lap(1,Lap)
-!    !  if (ccorner_yes) call handle_corner_Lap(1,pre)
+        if (ccorner_yes) call handle_corner_Lap(1,Lap)
+    !    !  if (ccorner_yes) call handle_corner_Lap(1,pre)
   
     !  Lap(:,:,:) = 0 + pre(:,:,:)
   
     end subroutine product_div_grad
-  
-  
-  
-  
-  
-  
-  
-  
   
   
   
@@ -115,11 +103,6 @@ contains
   
   
     end subroutine product_div_grad_transp
-  
-  
-  
-  
-  
   
   
   
@@ -298,10 +281,6 @@ contains
   
   
   
-  
-  
-  
-  
     ! Habe RB-Linienrelaxation herausgeschmissen, weil die Gewinne in der Geschwindigkeit zu gering waren.
     ! Gleichzeitig war der Code viel zu lang und unuebersichtlich.
     subroutine relaxation_div_grad(init_yes,n_relax,g,bb,rel) ! TEST!!! reine 2D-Variante fehlt noch ... ! TEST!!! aufraeumen und Variablen substituieren ...
@@ -387,21 +366,21 @@ contains
   
   
         !----------------------------------------------------------------------------------------------------------!
-        ! Anmerkungen: - Null-Setzen am Rand nicht notwendig, da Startindizes entsprechend gew�hlt sind!           !
-        !              - Bei der Initialisierung m�ssen die Intervallgrenzen SiR:NiR anstelle von SiiR:NiiR        !
-        !                gew�hlt werden, da beim  Aufbau der RHS ("vec") innerhalb der Linienrelaxation IMMER auch !
-        !                die Randbereiche SiR und NiR aufgebaut aber ggf. mit einer Korrektur wieder �berschrieben !
-        !                werden. Ansonsten w�re eine Initialisierung allein im Feldbereich SiiR:NiiR ausreichend,  !
-        !                kann aber z.B. zu Floating Point Exceptions f�hren (die f�r die eigentliche Rechnung      !
-        !                allerdings irrelevant w�ren)!                                                             !
-        !              - obere Stirnfl�chen werden bei der Initialisierung ebenfalls ber�cksichtigt, da ggf.       !
+        ! Anmerkungen: - Null-Setzen am Rand nicht notwendig, da Startindizes entsprechend gewählt sind!           !
+        !              - Bei der Initialisierung müssen die Intervallgrenzen SiR:NiR anstelle von SiiR:NiiR        !
+        !                gewählt werden, da beim  Aufbau der RHS ("vec") innerhalb der Linienrelaxation IMMER auch !
+        !                die Randbereiche SiR und NiR aufgebaut aber ggf. mit einer Korrektur wieder überschrieben !
+        !                werden. Ansonsten wäre eine Initialisierung allein im Feldbereich SiiR:NiiR ausreichend,  !
+        !                kann aber z.B. zu Floating Point Exceptions führen (die für die eigentliche Rechnung      !
+        !                allerdings irrelevant wären)!                                                             !
+        !              - obere Stirnflächen werden bei der Initialisierung ebenfalls berücksichtigt, da ggf.       !
         !                verschiedene Richtungen nacheinander bearbeitet werden und dies beim Aufbauen der rechten !
-        !                Seite sonst ber�cksichtigt werden m�sste. ==> geringerer Mehraufwand beim Rechnen,        !
+        !                Seite sonst berücksichtigt werden müsste. ==> geringerer Mehraufwand beim Rechnen,        !
         !                weniger Programmierdetails.                                                               !
         !              - LU-Zerlegung (d.h. band, mult) kann gespeichert werden, wenn mindestens eine Richtung     !
-        !                �quidistant ist. Der L�sungsaufwand w�rde sich etwa halbieren!!                           !
+        !                äquidistant ist. Der Lösungsaufwand würde sich etwa halbieren!!                           !
         !              - "r == 1 .AND. init_yes" sollte idealerweise aus den Schleifen herausgezogen werden, was   !
-        !                hier aber aus Gr�nden der �bersicht bisher nicht ausgef�hrt wurde.                        !
+        !                hier aber aus Gründen der Übersicht bisher nicht ausgeführt wurde.                        !
         !----------------------------------------------------------------------------------------------------------!
   
   
@@ -600,14 +579,14 @@ contains
                     if (RBGS_mode > 0) then
                         !-------------------------------------------------------------------------------------------------!
                         ! Hinweis:                                                                                        !
-                        ! Die Red-Black-Sortierung sollte f�r eine gute Performance global sein, d.h. ueber die Bl�cke    !
+                        ! Die Red-Black-Sortierung sollte für eine gute Performance global sein, d.h. ueber die Blöcke    !
                         ! hinweg implementiert sein. Die aktuelle Umsetzung macht sich zunutze, dass im Parallelbetrieb   !
                         ! die Anzahl der Gitterpunkte in jeder Raumrichtung automatisch eine gerade Zahl ist (die Tat-    !
-                        ! sache, dass in Randbl�cken ggf. eine ungerade Anzahl Gitterpunkte abgearbeitet wird hat damit   !
+                        ! sache, dass in Randblöcken ggf. eine ungerade Anzahl Gitterpunkte abgearbeitet wird hat damit   !
                         ! nichts zu tun!). Daher kann sich der Shift "ss" in jedem Block einfach auf den lokalen Gitter-  !
                         ! punkt rel(1,1,1) beziehen.                                                                      !
                         !                                                                                                 !
-                        ! Die aktuelle Schreibweise in den Schleifen ist �quivalent zu:                                   !
+                        ! Die aktuelle Schreibweise in den Schleifen ist äquivalent zu:                                   !
                         ! DO k = S33R, N33R                                                                               !
                         !    DO j = S22R, N22R                                                                            !
                         !       DO i = S11R, N11R                                                                         !
@@ -1321,7 +1300,7 @@ contains
                             end if
               
               
-                            !--- mit RB �berschreiben ----------------------------------------------------------------------
+                            !--- mit RB überschreiben ----------------------------------------------------------------------
                             if (BC_1L > 0) then
                                 band1(1,S1R) = cdg1(0,S1R,g)
                                 band1(2,S1R) = bb  (S1R,j,k)
@@ -1484,7 +1463,7 @@ contains
                             end if
               
               
-                            !--- mit RB �berschreiben ----------------------------------------------------------------------
+                            !--- mit RB überschreiben ----------------------------------------------------------------------
                             if (BC_2L > 0) then
                                 band2(1,S2R) = cdg2(0,S2R,g)
                                 band2(2,S2R) = bb  (i,S2R,k)
@@ -1648,7 +1627,7 @@ contains
                             end if
               
               
-                            !--- mit RB �berschreiben ----------------------------------------------------------------------
+                            !--- mit RB überschreiben ----------------------------------------------------------------------
                             if (BC_3L > 0) then
                                 band3(1,S3R) = cdg3(0,S3R,g)
                                 band3(2,S3R) = bb  (i,j,S3R)
@@ -1833,21 +1812,21 @@ contains
   
   
         !----------------------------------------------------------------------------------------------------------!
-        ! Anmerkungen: - Null-Setzen am Rand nicht notwendig, da Startindizes entsprechend gew�hlt sind!           !
-        !              - Bei der Initialisierung m�ssen die Intervallgrenzen SiR:NiR anstelle von SiiR:NiiR        !
-        !                gew�hlt werden, da beim  Aufbau der RHS ("vec") innerhalb der Linienrelaxation IMMER auch !
-        !                die Randbereiche SiR und NiR aufgebaut aber ggf. mit einer Korrektur wieder �berschrieben !
-        !                werden. Ansonsten w�re eine Initialisierung allein im Feldbereich SiiR:NiiR ausreichend,  !
-        !                kann aber z.B. zu Floating Point Exceptions f�hren (die f�r die eigentliche Rechnung      !
-        !                allerdings irrelevant w�ren)!                                                             !
-        !              - obere Stirnfl�chen werden bei der Initialisierung ebenfalls ber�cksichtigt, da ggf.       !
+        ! Anmerkungen: - Null-Setzen am Rand nicht notwendig, da Startindizes entsprechend gewählt sind!           !
+        !              - Bei der Initialisierung müssen die Intervallgrenzen SiR:NiR anstelle von SiiR:NiiR        !
+        !                gewählt werden, da beim  Aufbau der RHS ("vec") innerhalb der Linienrelaxation IMMER auch !
+        !                die Randbereiche SiR und NiR aufgebaut aber ggf. mit einer Korrektur wieder überschrieben !
+        !                werden. Ansonsten wäre eine Initialisierung allein im Feldbereich SiiR:NiiR ausreichend,  !
+        !                kann aber z.B. zu Floating Point Exceptions führen (die für die eigentliche Rechnung      !
+        !                allerdings irrelevant wären)!                                                             !
+        !              - obere Stirnflächen werden bei der Initialisierung ebenfalls berücksichtigt, da ggf.       !
         !                verschiedene Richtungen nacheinander bearbeitet werden und dies beim Aufbauen der rechten !
-        !                Seite sonst ber�cksichtigt werden m�sste. ==> geringerer Mehraufwand beim Rechnen,        !
+        !                Seite sonst berücksichtigt werden müsste. ==> geringerer Mehraufwand beim Rechnen,        !
         !                weniger Programmierdetails.                                                               !
         !              - LU-Zerlegung (d.h. band, mult) kann gespeichert werden, wenn mindestens eine Richtung     !
-        !                �quidistant ist. Der L�sungsaufwand w�rde sich etwa halbieren!!                           !
+        !                äquidistant ist. Der Lösungsaufwand würde sich etwa halbieren!!                           !
         !              - "r == 1 .AND. init_yes" sollte idealerweise aus den Schleifen herausgezogen werden, was   !
-        !                hier aber aus Gr�nden der �bersicht bisher nicht ausgef�hrt wurde.                        !
+        !                hier aber aus Gründen der übersicht bisher nicht ausgeführt wurde.                        !
         !----------------------------------------------------------------------------------------------------------!
   
   
@@ -2046,14 +2025,14 @@ contains
                     if (RBGS_mode > 0) then
                         !-------------------------------------------------------------------------------------------------!
                         ! Hinweis:                                                                                        !
-                        ! Die Red-Black-Sortierung sollte f�r eine gute Performance global sein, d.h. ueber die Bl�cke    !
+                        ! Die Red-Black-Sortierung sollte für eine gute Performance global sein, d.h. ueber die Blöcke    !
                         ! hinweg implementiert sein. Die aktuelle Umsetzung macht sich zunutze, dass im Parallelbetrieb   !
                         ! die Anzahl der Gitterpunkte in jeder Raumrichtung automatisch eine gerade Zahl ist (die Tat-    !
-                        ! sache, dass in Randbl�cken ggf. eine ungerade Anzahl Gitterpunkte abgearbeitet wird hat damit   !
+                        ! sache, dass in Randblöcken ggf. eine ungerade Anzahl Gitterpunkte abgearbeitet wird hat damit   !
                         ! nichts zu tun!). Daher kann sich der Shift "ss" in jedem Block einfach auf den lokalen Gitter-  !
                         ! punkt rel(1,1,1) beziehen.                                                                      !
                         !                                                                                                 !
-                        ! Die aktuelle Schreibweise in den Schleifen ist �quivalent zu:                                   !
+                        ! Die aktuelle Schreibweise in den Schleifen ist äquivalent zu:                                   !
                         ! DO k = S33R, N33R                                                                               !
                         !    DO j = S22R, N22R                                                                            !
                         !       DO i = S11R, N11R                                                                         !
@@ -2223,7 +2202,7 @@ contains
                             if (r == 1 .and. init_yes) then
                                 do k = S33R, N33R
                                     do j = S22R, N22R
-                                        ss = MOD(j+k+S11R,2) ! "+k" ist offenbar elementar f�r grosse Konvergenzrate. Symmetrie zu relaxation_div_grad_inv ist hier interessanterweise kontraproduktiv!
+                                        ss = MOD(j+k+S11R,2) ! "+k" ist offenbar elementar für grosse Konvergenzrate. Symmetrie zu relaxation_div_grad_inv ist hier interessanterweise kontraproduktiv!
                                         !pgi$ unroll = n:8
                                         do i = ss+S11R, N11R, 2
                                             if (SOR_yes) then
@@ -2234,7 +2213,7 @@ contains
                                         end do
                                     end do
                                 end do
-                                !CALL exchange_relax(g,0,0,0,0,.TRUE.,rel) ! TEST!!! Austausch bringt praktisch nichts, macht aber die Gl�ttung unabh�ngig von der Parallelisierung (sonst teilweise Jacobi-Iteration)!
+                                !CALL exchange_relax(g,0,0,0,0,.TRUE.,rel) ! TEST!!! Austausch bringt praktisch nichts, macht aber die Glättung unabhängig von der Parallelisierung (sonst teilweise Jacobi-Iteration)!
                                 do k = S33R, N33R
                                     do j = S22R, N22R
                                         ss = MOD(j+k+S11R+1,2)
@@ -2307,7 +2286,7 @@ contains
                             if (r == 1 .and. init_yes) then
                                 do k = N33R, S33R, -1
                                     do j = S22R, N22R
-                                        ss = MOD(j+k+S11R,2) ! "+k" ist offenbar elementar f�r grosse Konvergenzrate. Symmetrie zu relaxation_div_grad_inv ist hier interessanterweise kontraproduktiv!
+                                        ss = MOD(j+k+S11R,2) ! "+k" ist offenbar elementar für grosse Konvergenzrate. Symmetrie zu relaxation_div_grad_inv ist hier interessanterweise kontraproduktiv!
                                         !pgi$ unroll = n:8
                                         do i = ss+S11R, N11R, 2
                                             if (SOR_yes) then
@@ -2768,7 +2747,7 @@ contains
                             end if
               
               
-                            !--- mit RB �berschreiben ----------------------------------------------------------------------
+                            !--- mit RB überschreiben ----------------------------------------------------------------------
                             if (BC_3L > 0) then
                                 band3(1,S3R) = cdg3(0,S3R,g)
                                 band3(2,S3R) = bb  (i,j,S3R)
@@ -2932,7 +2911,7 @@ contains
                             end if
               
               
-                            !--- mit RB �berschreiben ----------------------------------------------------------------------
+                            !--- mit RB überschreiben ----------------------------------------------------------------------
                             if (BC_2L > 0) then
                                 band2(1,S2R) = cdg2(0,S2R,g)
                                 band2(2,S2R) = bb  (i,S2R,k)

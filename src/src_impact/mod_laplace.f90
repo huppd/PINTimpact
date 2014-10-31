@@ -6,12 +6,10 @@
 
 module mod_laplace
 
-
   use mod_dims
   use mod_vars
   use mod_diff
   use mod_exchange
-  
   
   private
   
@@ -115,7 +113,7 @@ module mod_laplace
   
   
   
-  
+  !>
   subroutine product_div_grad_relax(g,phi,Lap) ! TEST!!! aufraeumen und Variablen substituieren ...
   
   implicit none

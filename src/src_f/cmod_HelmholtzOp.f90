@@ -15,6 +15,7 @@ module cmod_HelmholtzOp
   
 contains
 
+
     !>  \brief computes \f$ \mathrm{lap_m = mulI phi_m - mulL \Delta phi_m} \f$
     !!
     !! used for mod_rhs and for product_Helmholtz(so boundary conditions are included?)

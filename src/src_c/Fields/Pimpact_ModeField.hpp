@@ -78,9 +78,9 @@ public:
   /// \name Attribute methods
   //@{
 
-  /// \warning it is assumed that both fields have the same \c FieldSpace
+  /// \warning it is assumed that both fields have the same \c StencilWidths
   /// @return field space of \c fieldc_
-//  Teuchos::RCP<const FieldSpace<Ordinal> > getFieldSpace() const {return( fieldc_->getFieldSpace() );}
+//  Teuchos::RCP<const StencilWidths<Ordinal> > getFieldSpace() const {return( fieldc_->getFieldSpace() );}
 
   Teuchos::RCP<Field> getCFieldPtr() { return( fieldc_ ); }
   Teuchos::RCP<Field> getSFieldPtr() { return( fields_ ); }

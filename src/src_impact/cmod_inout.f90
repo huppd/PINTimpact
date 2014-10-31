@@ -8,7 +8,6 @@
 
 module cmod_inout
   
-  
     use mod_dims
     use mod_vars
     use mod_exchange
@@ -47,7 +46,6 @@ module cmod_inout
     integer(HSSIZE_T)              ::  offset_file(1:3)
   
     integer                        ::  i, j, k ! TEST!!! wo brauchts das global?
-  
   
 contains
 

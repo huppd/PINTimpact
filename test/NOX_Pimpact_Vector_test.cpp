@@ -4,21 +4,19 @@
 
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_RCP.hpp"
-#include <Teuchos_Array.hpp>
-#include <Teuchos_Tuple.hpp>
-#include <Teuchos_CommHelpers.hpp>
+#include "Teuchos_Array.hpp"
+#include "Teuchos_Tuple.hpp"
+#include "Teuchos_CommHelpers.hpp"
+
 #include "BelosTypes.hpp"
 
-#include "pimpact.hpp"
-#include "Pimpact_FieldSpace.hpp"
-#include "Pimpact_IndexSpace.hpp"
 #include "Pimpact_ScalarField.hpp"
 #include "Pimpact_VectorField.hpp"
-//#include "Pimpact_ModeField.hpp"
 #include "Pimpact_CompoundField.hpp"
 #include "Pimpact_FieldFactory.hpp"
 
 #include "NOX_Pimpact_Vector.hpp"
+
 
 
 namespace {

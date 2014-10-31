@@ -1072,7 +1072,7 @@ module mod_solvers
      end do
   end if
   
-  if (problem_type == 4 .or. problem_type == 5) then
+  if ( problem_type == 4 .or. problem_type == 5 ) then
      do k = S3R, N3R
         do j = S2R, N2R
            do i = S1R, N1R

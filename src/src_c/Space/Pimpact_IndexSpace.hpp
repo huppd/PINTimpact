@@ -12,7 +12,7 @@
 
 #include "Pimpact_Types.hpp"
 
-#include "Pimpact_FieldSpace.hpp"
+#include "Pimpact_StencilWidths.hpp"
 #include "Pimpact_GridSizeLocal.hpp"
 #include "Pimpact_BoundaryConditionsLocal.hpp"
 
@@ -88,7 +88,7 @@ public:
 template<class O=int, int d=3>
 Teuchos::RCP<const IndexSpace<O> >
 createScalarIndexSpace(
-    const Teuchos::RCP<const FieldSpace<O,d> >& fS,
+    const Teuchos::RCP<const StencilWidths<O,d> >& fS,
     const Teuchos::RCP<const GridSizeLocal<O,d> >& nLoc,
     const Teuchos::RCP<const BoundaryConditionsLocal>& bc,
     bool setImpact=true ){
@@ -127,7 +127,7 @@ createScalarIndexSpace(
 template<class O=int, int d=3>
 Teuchos::ArrayRCP< Teuchos::RCP< const IndexSpace<O> > >
 createInnerFieldIndexSpaces(
-    const Teuchos::RCP<const FieldSpace<O,d> >& fS,
+    const Teuchos::RCP<const StencilWidths<O,d> >& fS,
     const Teuchos::RCP<const GridSizeLocal<O,d> >& nLoc,
     const Teuchos::RCP<const BoundaryConditionsLocal>& bc,
     bool setImpact=true ){
@@ -251,7 +251,7 @@ createInnerFieldIndexSpaces(
 template<class O=int, int d=3>
 Teuchos::ArrayRCP< Teuchos::RCP< const IndexSpace<O> > >
 createFullFieldIndexSpaces(
-    const Teuchos::RCP<const FieldSpace<O,d> >& fS,
+    const Teuchos::RCP<const StencilWidths<O,d> >& fS,
     const Teuchos::RCP<const GridSizeLocal<O,d> >& nLoc,
     const Teuchos::RCP<const BoundaryConditionsLocal>& bc,
     bool setImpact=true ){

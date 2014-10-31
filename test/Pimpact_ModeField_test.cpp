@@ -1,23 +1,18 @@
-// Pimpact_SalarVector_test.cpp
-
-#include "Teuchos_UnitTestHarness.hpp"
-#include "Teuchos_RCP.hpp"
-#include <Teuchos_Array.hpp>
-#include <Teuchos_Tuple.hpp>
-#include <Teuchos_CommHelpers.hpp>
-#include "BelosTypes.hpp"
-
-#include "pimpact.hpp"
-#include "Pimpact_FieldSpace.hpp"
-#include "Pimpact_IndexSpace.hpp"
-#include "Pimpact_ScalarField.hpp"
-#include "Pimpact_VectorField.hpp"
-#include "Pimpact_ModeField.hpp"
-
 #include <iostream>
 #include <vector>
 #include <cmath>
 
+#include "Teuchos_UnitTestHarness.hpp"
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_Array.hpp"
+#include "Teuchos_Tuple.hpp"
+#include "Teuchos_CommHelpers.hpp"
+
+#include "BelosTypes.hpp"
+
+#include "Pimpact_ScalarField.hpp"
+#include "Pimpact_VectorField.hpp"
+#include "Pimpact_ModeField.hpp"
 
 
 
