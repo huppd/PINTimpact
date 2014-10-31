@@ -4,17 +4,17 @@
 
 #include <vector>
 #include <iostream>
+
 #include "mpi.h"
 
 #include "Teuchos_RCP.hpp"
-#include "BelosTypes.hpp"
 #include "Teuchos_ScalarTraitsDecl.hpp"
 #include "Teuchos_SerialDenseMatrix.hpp"
 
-//#include "Pimpact_FieldSpace.hpp"
-//#include "Pimpact_IndexSpace.hpp"
+#include "BelosTypes.hpp"
 
 #include "Pimpact_AbstractField.hpp"
+
 
 
 
@@ -77,10 +77,6 @@ public:
 
   /// \name Attribute methods
   //@{
-
-  /// \warning it is assumed that both fields have the same \c StencilWidths
-  /// @return field space of \c fieldc_
-//  Teuchos::RCP<const StencilWidths<Ordinal> > getFieldSpace() const {return( fieldc_->getFieldSpace() );}
 
   Teuchos::RCP<Field> getCFieldPtr() { return( fieldc_ ); }
   Teuchos::RCP<Field> getSFieldPtr() { return( fields_ ); }

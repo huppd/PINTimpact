@@ -554,7 +554,7 @@ public:
 
     Teuchos::RCP< ScalarField<S,O,d> > temp;
 
-    if( EField::S==fType_ )
+    if( EField::S != fType_ )
       temp = Teuchos::rcp(
           new ScalarField<S,O,d>( space(), true, EField::S ) );
 
@@ -571,7 +571,7 @@ public:
             space()->bu(),
             space()->sInd(EField::S),
             space()->eInd(EField::S),
-            space()->getFieldSpace()->getLS(),
+            space()->getStencilWidths()->getLS(),
             space()->getProcGridSize()->get(),
             space()->getProcGrid()->getIB(),
             space()->getProcGrid()->getShift(),
@@ -599,7 +599,7 @@ public:
             space()->bu(),
             space()->sInd(EField::S),
             space()->eInd(EField::S),
-            space()->getFieldSpace()->getLS(),
+            space()->getStencilWidths()->getLS(),
             space()->getProcGridSize()->get(),
             space()->getProcGrid()->getIB(),
             space()->getProcGrid()->getShift(),

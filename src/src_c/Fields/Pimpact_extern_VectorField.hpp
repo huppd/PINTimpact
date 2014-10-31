@@ -2,17 +2,6 @@
 #ifndef PIMPACT_EXTERN_VECTORFIELD_HPP
 #define PIMPACT_EXTERN_VECTORFIELD_HPP
 
-//#include <iostream>
-//#include "mpi.h"
-//
-//#include "Teuchos_RCP.hpp"
-//#include "BelosTypes.hpp"
-//#include "Teuchos_ScalarTraitsDecl.hpp"
-//#include "Teuchos_SerialDenseMatrix.hpp"
-//
-//#include "Pimpact_Types.hpp"
-//#include "Pimpact_FieldSpace.hpp"
-//#include "Pimpact_IndexSpace.hpp"
 
 
 

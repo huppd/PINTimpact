@@ -73,10 +73,6 @@ public:
   /// \name Attribute methods
   //@{
 
-  // \warning it is assumed that both fields have the same \c StencilWidths
-  //  /// \return field space of \c cfield_
-  //  Teuchos::RCP<const StencilWidths<Ordinal> > getFieldSpace() const { return( vfield_->getFieldSpace() );}
-
   VField& getVField() { return( *vfield_ ); }
   SField& getSField() { return( *sfield_ ); }
 

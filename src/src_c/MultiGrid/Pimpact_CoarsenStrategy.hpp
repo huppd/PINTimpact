@@ -102,23 +102,23 @@ protected:
     auto procGrid = Pimpact::createProcGrid<Ordinal,dimension>(
         gridSizeLocal, domain->getBCGlobal(), procGridSize );
 
-    auto fieldSpace = space->getFieldSpace();
+    auto stencilWidths = space->getStencilWidths();
 
     auto scalarIndexSpace = Pimpact::createScalarIndexSpace<Ordinal,dimension>(
-        fieldSpace, gridSizeLocal, boundaryConditionsLocal, false );
+        stencilWidths, gridSizeLocal, boundaryConditionsLocal, false );
 
     auto innerIndexSpace = Pimpact::createInnerFieldIndexSpaces<Ordinal,dimension>(
-        fieldSpace, gridSizeLocal, boundaryConditionsLocal, false );
+        stencilWidths, gridSizeLocal, boundaryConditionsLocal, false );
 
     auto  fullIndexSpace = Pimpact::createFullFieldIndexSpaces<Ordinal,dimension>(
-        fieldSpace, gridSizeLocal, boundaryConditionsLocal, false );
+        stencilWidths, gridSizeLocal, boundaryConditionsLocal, false );
 
     auto  coordGlobal = Pimpact::createGridCoordinatesGlobal<Scalar,Ordinal,dimension>(
         gridSizeGlobal,
         domain->getDomainSize() );
 
     auto  coordLocal = Pimpact::createGridCoordinatesLocal<Scalar,Ordinal,dimension>(
-        fieldSpace,
+        stencilWidths,
         domain->getDomainSize(),
         gridSizeGlobal,
         gridSizeLocal,
@@ -131,14 +131,14 @@ protected:
         Pimpact::createInterpolateV2S<Scalar,Ordinal,dimension>(
             procGrid,
             gridSizeLocal,
-            fieldSpace,
+            stencilWidths,
             domain,
             coordLocal );
 
     return(
          Teuchos::rcp(
              new SpaceT(
-                 fieldSpace,
+                 stencilWidths,
                  scalarIndexSpace,
                  innerIndexSpace,
                  fullIndexSpace,

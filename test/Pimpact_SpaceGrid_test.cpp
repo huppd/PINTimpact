@@ -36,58 +36,20 @@ TEUCHOS_STATIC_SETUP() {
 }
 
 
+
 // test shows that nLoc is not consistent with start and end indexes
 TEUCHOS_UNIT_TEST( StencilWidths, local_consistency ) {
-  // init impact
-  if( !isImpactInit ) {
-    init_impact(0,0);
-    isImpactInit=true;
-  }
 
-  auto sVS = Pimpact::createStencilWidths<O>();
 
-  sVS->print();
+  auto sW32 = Pimpact::createStencilWidths<3,2>();
+
+  sW32->print();
+
+  auto sW34 = Pimpact::createStencilWidths<3>();
+
+  sW34->print();
 
 }
-
-
-//// shows that local start/end  indexs are consisten wich nGlo
-//TEUCHOS_UNIT_TEST( StencilWidths, global_consistency ) {
-//  // init impact
-//  if( !isImpactInit ) {
-//    init_impact(0,0);
-//    isImpactInit=true;
-//  }
-//
-//  auto sVS = Pimpact::createStencilWidths<O>();
-//
-//  auto sIS = Pimpact::createScalarIndexSpace<O>();
-//  auto fIIS = Pimpact::createInnerFieldIndexSpaces<O>();
-//  auto fFIS = Pimpact::createFullFieldIndexSpaces<O>();
-//
-//  sVS->print();
-//  sIS->print();
-//  const int dim = 2;
-//
-//  for(int i=0; i<dim; ++i) {
-//    fIIS[i]->print();
-//    fFIS[i]->print();
-//  }
-//
-//  Teuchos::Tuple<O,dim> nloc;
-//  for(int i=0; i<dim; ++i)
-//    nloc[i] = sIS->eInd_[i]-sIS->sInd_[i];
-//
-//  std::cout << "nloc: " << nloc << "\n";
-//  Teuchos::Tuple<O,dim> nglo;
-//
-////  MPI_Allreduce( nloc.getRawPtr(), nglo.getRawPtr(), dim,
-////      MPI_INT, MPI_SUM, sVS->comm_);
-//
-//  //  for(int i=0; i<dim; ++i)
-//  //    TEST_EQUALITY( sVS->nGlo_[i], nglo[i] );
-//}
-
 
 
 //TEUCHOS_UNIT_TEST( ProcGrid, initialization3D ) {
@@ -188,7 +150,7 @@ TEUCHOS_UNIT_TEST( Space, LocalGridCoordinates ) {
   auto space = Pimpact::createSpace();
 
   auto coord = Pimpact::createGridCoordinatesLocal(
-      space->getFieldSpace(),
+      space->getStencilWidths(),
       space->getDomain()->getDomainSize(),
       space->getGridSizeGlobal(),
       space->getGridSizeLocal(),

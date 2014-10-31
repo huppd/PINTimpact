@@ -2,12 +2,13 @@
 #ifndef PIMPACT_STENCILWIDTHS_HPP
 #define PIMPACT_STENCILWIDTHS_HPP
 
+#include <iostream>
+
 #include "mpi.h"
 
 #include "Teuchos_Tuple.hpp"
 #include "Teuchos_RCP.hpp"
 
-#include <iostream>
 
 
 
@@ -19,30 +20,29 @@ namespace Pimpact {
 /// there are three different kind of stencil the central ones for helmholtz, than the one for divergence
 /// and the gradient like.
 /// \ingroup Space
-template< class Ordinal=int, int dim=3>
+/// \todo think about making it independent of directions, same stencil in every direction
+/// \tparam dim dimension of grid can be 3 or 4
+/// \tparam dim_nc dimension of stencil
+/// - 4: Stabil   (xi >= 2, Re=10000, N=17)
+/// - 5: Stabil  (Re=10000, N=65, leicht gestreckt, explizites Forcing)
+/// - 6: Instabil (äquidistant, Re=10000, N=17)
+template< int dim=3, int dim_nc = 4 >
 class StencilWidths {
 
-  template< class OT, int dT >
-  friend const Teuchos::RCP<const StencilWidths<OT,dT> > createStencilWidths();
-
-public:
-
-  typedef const Teuchos::Tuple<Ordinal,dim> TO;
-
+  template< int d, int dnc >
+  friend const Teuchos::RCP<const StencilWidths<d,dnc> > createStencilWidths();
 
 protected:
-  //  static const int dim_nc = 2;
-  //  static const int dim_nc = 3;
-  static const int dim_nc = 4;
+
+  typedef const Teuchos::Tuple<int,dim> TO;
 
   typedef  Teuchos::Tuple<  Teuchos::Tuple<int,dim_nc>,3> TStenc;
+
   /// \{ \name Konvergenzordnung der Differenzenkoeffizienten (Anzahl Koeffizienten)
   /// \{ \brief Anzahl Stencil-Koeffizienten (Rand)
-
   TStenc ncbC_;
   TStenc ncbD_;
   TStenc ncbG_;
-
   ///\}
   ///\}
 
@@ -74,14 +74,11 @@ protected:
 
   /// \}
 
-  Teuchos::Tuple<Ordinal,3> ls_; /// < \brief Ueberlappungskonvention der Blöcke (Multigrid, siehe mod_setup)
+  Teuchos::Tuple<int,3> ls_; /// < \brief Ueberlappungskonvention der Blöcke (Multigrid, siehe mod_setup)
 
 protected:
 
   /// \brief constructor
-  ///
-  /// \param bl lower bound of storage
-  /// \param bu upper bound of storage
   StencilWidths():
     ncbC_(),
     ncbD_(),
@@ -96,41 +93,80 @@ protected:
     nu_(),
     ls_(Teuchos::tuple(-1,-1,-1) ) {
 
+    //--- Anzahl Stencil-Koeffizienten (Rand) -------------------------------------------------------------------
+    // implementation here is a little bit fuzzy, because Tuple has no nice templated constructor we copy
     for( int i=0; i<3; ++i ) {
-      //--- Anzahl Stencil-Koeffizienten (Rand) -------------------------------------------------------------------
-      //      // note dim_nc has to be 2
-      //      ncbC_[i] = Teuchos::tuple( 2, 3 );
-      //      ncbD_[i] = Teuchos::tuple( 2, 2 );
-      //      ncbG_[i] = Teuchos::tuple( 0, 2 );
-      //
-      //      // note dim_nc has to be 3
-      //      ncbC_[i] = Teuchos::tuple( 3, 4, 5 );
-      //      ncbD_[i] = Teuchos::tuple( 3, 4, 4 );
-      //      ncbG_[i] = Teuchos::tuple( 2, 3, 4 );
+      switch(dim_nc) {
+      case(2): {
 
-      // Stabil   (xi >= 2, Re=10000, N=17)
-      // note dim_nc has to be 4
-      ncbC_[i] = Teuchos::tuple( 4, 5, 5, 7 );
-      ncbD_[i] = Teuchos::tuple( 4, 4, 6, 6 );
-      ncbG_[i] = Teuchos::tuple( 3, 4, 4, 6 );
+        auto tempC = Teuchos::tuple( 2, 3 );
+        auto tempD = Teuchos::tuple( 2, 2 );
+        auto tempG = Teuchos::tuple( 0, 2 );
 
-      //      // Instabil (äquidistant, Re=10000, N=17)
-      //      // note dim_nc has to be 5
-      //      ncbC_[i] = Teuchos::tuple( 5, 6, 6, 7, 9 );
-      //      ncbD_[i] = Teuchos::tuple( 5, 4, 6, 8, 8 );
-      //      ncbG_[i] = Teuchos::tuple( 0, 5, 4, 6, 8 );
-      //
-      //      // Instabil (äquidistant, Re=10000, N=17)
-      //      // note dim_nc has to be 6
-      //      ncbC_[i] = Teuchos::tuple( 6, 7, 7, 7,  9, 11 );
-      //      ncbD_[i] = Teuchos::tuple( 6, 6, 6, 8, 10, 10 );
-      //      ncbG_[i] = Teuchos::tuple( 5, 6, 6, 6,  8, 10 );
-      //
-      //      // Stabil  (Re=10000, N=65, leicht gestreckt, explizites Forcing)
-      //      // note dim_nc has to be 5
-      //      ncbC_[i] = Teuchos::tuple( 3, 7, 7, 7, 9 );
-      //      ncbD_[i] = Teuchos::tuple( 6, 6, 6, 8, 8 );
-      //      ncbG_[i] = Teuchos::tuple( 0, 6, 6, 6, 8 );
+        for( int j=0; j<dim_nc; ++j ) {
+          ncbC_[i][j] = tempC[j];
+          ncbD_[i][j] = tempD[j];
+          ncbG_[i][j] = tempG[j];
+        }
+        break;
+      }
+      case(3): {
+            auto tempC = Teuchos::tuple( 3, 4, 5 );
+            auto tempD = Teuchos::tuple( 3, 4, 4 );
+            auto tempG = Teuchos::tuple( 2, 3, 4 );
+
+        for( int j=0; j<dim_nc; ++j ) {
+          ncbC_[i][j] = tempC[j];
+          ncbD_[i][j] = tempD[j];
+          ncbG_[i][j] = tempG[j];
+        }
+        break;
+      }
+      case(4): {
+        // Stabil   (xi >= 2, Re=10000, N=17)
+        auto tempC = Teuchos::tuple( 4, 5, 5, 7 );
+        auto tempD = Teuchos::tuple( 4, 4, 6, 6 );
+        auto tempG = Teuchos::tuple( 3, 4, 4, 6 );
+        for( int j=0; j<dim_nc; ++j ) {
+          ncbC_[i][j] = tempC[j];
+          ncbD_[i][j] = tempD[j];
+          ncbG_[i][j] = tempG[j];
+        }
+        break;
+      }
+      case(5): {
+        // Instabil (äquidistant, Re=10000, N=17)
+        // auto tempC = Teuchos::tuple( 5, 6, 6, 7, 9 );
+        // auto tempD = Teuchos::tuple( 5, 4, 6, 8, 8 );
+        // auto tempG = Teuchos::tuple( 0, 5, 4, 6, 8 );
+        // Stabil  (Re=10000, N=65, leicht gestreckt, explizites Forcing)
+        auto tempC = Teuchos::tuple( 3, 7, 7, 7, 9 );
+        auto tempD = Teuchos::tuple( 6, 6, 6, 8, 8 );
+        auto tempG = Teuchos::tuple( 0, 6, 6, 6, 8 );
+
+        for( int j=0; j<dim_nc; ++j ) {
+          ncbC_[i][j] = tempC[j];
+          ncbD_[i][j] = tempD[j];
+          ncbG_[i][j] = tempG[j];
+        }
+        break;
+      }
+      case(6): {
+        // Instabil (äquidistant, Re=10000, N=17)
+        auto tempC = Teuchos::tuple( 6, 7, 7, 7,  9, 11 );
+        auto tempD = Teuchos::tuple( 6, 6, 6, 8, 10, 10 );
+        auto tempG = Teuchos::tuple( 5, 6, 6, 6,  8, 10 );
+        for( int j=0; j<dim_nc; ++j ) {
+          ncbC_[i][j] = tempC[j];
+          ncbD_[i][j] = tempD[j];
+          ncbG_[i][j] = tempG[j];
+        }
+        break;
+      }
+      default:
+        // throw exeption
+        ;
+      }
 
     }
 
@@ -182,7 +218,7 @@ protected:
   /// \param bl lower bound of storage
   /// \param bu upper bound of storage
   StencilWidths(
-      //      Ordinal dimension,
+      //      int dimension,
       TO bl,
       TO bu ):
         bl_(bl),
@@ -210,40 +246,44 @@ public:
     out << "ls: " << ls_ << "\n";
   }
 
-  Ordinal  getDimNcbC( int i ) const { return( ncbC_[i].size() ); }
-  Ordinal  getDimNcbD( int i ) const { return( ncbD_[i].size() ); }
-  Ordinal  getDimNcbG( int i ) const { return( ncbG_[i].size() ); }
+  int  getDimNcbC( int i ) const { return( ncbC_[i].size() ); }
+  int  getDimNcbD( int i ) const { return( ncbD_[i].size() ); }
+  int  getDimNcbG( int i ) const { return( ncbG_[i].size() ); }
 
-  const Ordinal* getNcbC( int i ) const { return( ncbC_[i].getRawPtr() ); }
-  const Ordinal* getNcbD( int i ) const { return( ncbD_[i].getRawPtr() ); }
-  const Ordinal* getNcbG( int i ) const { return( ncbG_[i].getRawPtr() ); }
+//  const int&  getDimNcbC( int i ) const { return( dim_nc ); }
+//  const int&  getDimNcbD( int i ) const { return( dim_nc ); }
+//  const int&  getDimNcbG( int i ) const { return( dim_nc ); }
 
-  const Ordinal* getBL()        const { return( bl_.getRawPtr() ); }
-  const Ordinal& getBL( int i ) const { return( bl_[i] ); }
+  const int* getNcbC( int i ) const { return( ncbC_[i].getRawPtr() ); }
+  const int* getNcbD( int i ) const { return( ncbD_[i].getRawPtr() ); }
+  const int* getNcbG( int i ) const { return( ncbG_[i].getRawPtr() ); }
 
-  const Ordinal* getBU()        const { return( bu_.getRawPtr() ); }
-  const Ordinal& getBU( int i ) const { return( bu_[i] ); }
+  const int* getBL()        const { return( bl_.getRawPtr() ); }
+  const int& getBL( int i ) const { return( bl_[i] ); }
 
-  const Ordinal* getDL()        const { return( dl_.getRawPtr() ); }
-  const Ordinal& getDL( int i ) const { return( dl_[i] ); }
+  const int* getBU()        const { return( bu_.getRawPtr() ); }
+  const int& getBU( int i ) const { return( bu_[i] ); }
 
-  const Ordinal* getDU()        const { return( du_.getRawPtr() ); }
-  const Ordinal& getDU( int i ) const { return( du_[i] ); }
+  const int* getDL()        const { return( dl_.getRawPtr() ); }
+  const int& getDL( int i ) const { return( dl_[i] ); }
 
-  const Ordinal* getGL()        const { return( gl_.getRawPtr() ); }
-  const Ordinal& getGL( int i ) const { return( gl_[i] ); }
+  const int* getDU()        const { return( du_.getRawPtr() ); }
+  const int& getDU( int i ) const { return( du_[i] ); }
 
-  const Ordinal* getGU()        const { return( gu_.getRawPtr() ); }
-  const Ordinal& getGU( int i ) const { return( gu_[i] ); }
+  const int* getGL()        const { return( gl_.getRawPtr() ); }
+  const int& getGL( int i ) const { return( gl_[i] ); }
 
-  const Ordinal* getNL()        const { return( nl_.getRawPtr() ); }
-  const Ordinal& getNL( int i ) const { return( nl_[i] ); }
+  const int* getGU()        const { return( gu_.getRawPtr() ); }
+  const int& getGU( int i ) const { return( gu_[i] ); }
 
-  const Ordinal* getNU()        const { return( nu_.getRawPtr() ); }
-  const Ordinal& getNU( int i ) const { return( nu_[i] ); }
+  const int* getNL()        const { return( nl_.getRawPtr() ); }
+  const int& getNL( int i ) const { return( nl_[i] ); }
 
-  const Ordinal* getLS()        const { return( ls_.getRawPtr() ); }
-  const Ordinal& getLS( int i ) const { return( ls_[i] ); }
+  const int* getNU()        const { return( nu_.getRawPtr() ); }
+  const int& getNU( int i ) const { return( nu_[i] ); }
+
+  const int* getLS()        const { return( ls_.getRawPtr() ); }
+  const int& getLS( int i ) const { return( ls_[i] ); }
 
 }; // end of class StencilWidths
 
@@ -253,12 +293,12 @@ public:
 /// by getting values from \c IMPACT
 /// should be changed by getting vallues from \c ProcGridSize and \c GridSize
 /// \relates StencilWidths
-template< class O=int, int d=3 >
-const Teuchos::RCP<const StencilWidths<O,d> > createStencilWidths(){
+template< int d=3, int dnc = 4  >
+const Teuchos::RCP<const StencilWidths<d,dnc> > createStencilWidths(){
 
   return(
-      Teuchos::RCP<const StencilWidths<O,d> > (
-          new StencilWidths<O,d>() ) );
+      Teuchos::RCP<const StencilWidths<d,dnc> > (
+          new StencilWidths<d,dnc>() ) );
 }
 
 

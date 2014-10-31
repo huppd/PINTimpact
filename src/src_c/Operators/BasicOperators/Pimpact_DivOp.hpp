@@ -75,8 +75,8 @@ public:
             1,
             0,
             true,
-            space_->getFieldSpace()->getDimNcbD(i),
-            space_->getFieldSpace()->getNcbD(i),
+            space_->getStencilWidths()->getDimNcbD(i),
+            space_->getStencilWidths()->getNcbD(i),
             space_->getCoordinatesLocal()->getX( i, i ),
             space_->getCoordinatesLocal()->getX( i, EField::S ),
             c_[i] );

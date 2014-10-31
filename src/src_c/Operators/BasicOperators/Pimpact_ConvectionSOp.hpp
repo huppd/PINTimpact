@@ -38,12 +38,6 @@ void OP_convection(
     const double* nlu,
     const double& mul );
 
-//void OP_nonlinear(
-//    double* const phi1U, double* const phi1V, double* const phi1W,
-//    double* const phi2U, double* const phi2V, double* const phi2W,
-//    double* const nl1,   double* const nl2,   double* const nl3,
-//    const double& mul );
-
 }
 
 
@@ -95,8 +89,8 @@ public:
             1,
             -1,
             true,
-            space_->getFieldSpace()->getDimNcbC(i),
-            space_->getFieldSpace()->getNcbC(i),
+            space_->getStencilWidths()->getDimNcbC(i),
+            space_->getStencilWidths()->getNcbC(i),
             space_->getCoordinatesLocal()->getX( i, EField::S ),
             space_->getCoordinatesLocal()->getX( i, EField::S ),
             cSD_[i] );
@@ -118,8 +112,8 @@ public:
             1,
             +1,
             true,
-            space_->getFieldSpace()->getDimNcbC(i),
-            space_->getFieldSpace()->getNcbC(i),
+            space_->getStencilWidths()->getDimNcbC(i),
+            space_->getStencilWidths()->getNcbC(i),
             space_->getCoordinatesLocal()->getX( i, EField::S ),
             space_->getCoordinatesLocal()->getX( i, EField::S ),
             cSU_[i] );
@@ -141,8 +135,8 @@ public:
             1,
             -1,
             true,
-            space_->getFieldSpace()->getDimNcbC(i),
-            space_->getFieldSpace()->getNcbC(i),
+            space_->getStencilWidths()->getDimNcbC(i),
+            space_->getStencilWidths()->getNcbC(i),
             space_->getCoordinatesLocal()->getX( i, i ),
             space_->getCoordinatesLocal()->getX( i, i ),
             cVD_[i] );
@@ -164,8 +158,8 @@ public:
             1,
             +1,
             true,
-            space_->getFieldSpace()->getDimNcbC(i),
-            space_->getFieldSpace()->getNcbC(i),
+            space_->getStencilWidths()->getDimNcbC(i),
+            space_->getStencilWidths()->getNcbC(i),
             space_->getCoordinatesLocal()->getX( i, i ),
             space_->getCoordinatesLocal()->getX( i, i ),
             cVU_[i] );

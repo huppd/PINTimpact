@@ -88,8 +88,8 @@ public:
             2,
             0,
             true,
-            space_->getFieldSpace()->getDimNcbC(i),
-            space_->getFieldSpace()->getNcbC(i),
+            space_->getStencilWidths()->getDimNcbC(i),
+            space_->getStencilWidths()->getNcbC(i),
             space_->getCoordinatesLocal()->getX( i, EField::S ),
             space_->getCoordinatesLocal()->getX( i, EField::S ),
             cS_[i] );
@@ -111,8 +111,8 @@ public:
             2,
             0,
             true,
-            space_->getFieldSpace()->getDimNcbC(i),
-            space_->getFieldSpace()->getNcbC(i),
+            space_->getStencilWidths()->getDimNcbC(i),
+            space_->getStencilWidths()->getNcbC(i),
             space_->getCoordinatesLocal()->getX( i, i ),
             space_->getCoordinatesLocal()->getX( i, i ),
             cV_[i] );

@@ -46,7 +46,7 @@ class GridCoordinatesLocal {
 
   template<class ST,class OT,int dT>
   friend Teuchos::RCP<const GridCoordinatesLocal<ST,OT,dT> > createGridCoordinatesLocal(
-      const Teuchos::RCP<const StencilWidths<OT,dT> >& fieldSpace,
+      const Teuchos::RCP<const StencilWidths<dT> >& fieldSpace,
       const Teuchos::RCP<const DomainSize<ST> >& domainSize,
       const Teuchos::RCP<const GridSizeGlobal<OT,dT> >& gridSizeGlobal,
       const Teuchos::RCP<const GridSizeLocal<OT,dT> >& gridSize,
@@ -70,7 +70,7 @@ protected:
   TO dxV_;
 
   GridCoordinatesLocal(
-      const Teuchos::RCP<const StencilWidths<Ordinal,dim> >& fieldSpace,
+      const Teuchos::RCP<const StencilWidths<dim> >& fieldSpace,
       const Teuchos::RCP<const DomainSize<Scalar> >& domainSize,
       const Teuchos::RCP<const GridSizeGlobal<Ordinal,dim> >& gridSizeGlobal,
       const Teuchos::RCP<const GridSizeLocal<Ordinal,dim> >& gridSize,
@@ -180,7 +180,7 @@ public:
 /// \relates GridCoordinatesLocal
 template<class S=double, class O=int, int d=3 >
 Teuchos::RCP<const GridCoordinatesLocal<S,O,d> > createGridCoordinatesLocal(
-    const Teuchos::RCP<const StencilWidths<O,d> >& fieldSpace,
+    const Teuchos::RCP<const StencilWidths<d> >& fieldSpace,
     const Teuchos::RCP<const DomainSize<S> >& domainSize,
     const Teuchos::RCP<const GridSizeGlobal<O,d> >& gridSizeGlobal,
     const Teuchos::RCP<const GridSizeLocal<O,d> >& gridSize,

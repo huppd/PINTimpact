@@ -51,8 +51,9 @@ public:
 
   typedef Teuchos::ArrayRCP< Teuchos::RCP<const IndexSpace<Ordinal> > >  IndexSpaces;
 
+//  FieldSpace
   Space(
-      const Teuchos::RCP<const StencilWidths<Ordinal,dimension> >& fieldSpace,
+      const Teuchos::RCP<const StencilWidths<dimension> >& stencilWidths,
       const Teuchos::RCP<const IndexSpace<Ordinal> >& scalarIS,
       const IndexSpaces& innerIS,
       const IndexSpaces& fullIS,
@@ -64,7 +65,7 @@ public:
       const Teuchos::RCP<const GridCoordinatesLocal<Scalar,Ordinal,dimension> >& coordLocal,
       const Teuchos::RCP<const Domain<Scalar> >& domain,
       const Teuchos::RCP<const InterpolateV2S<Scalar,Ordinal,dimension> >& interV2S ):
-        fieldSpace_(fieldSpace),
+        stencilWidths_(stencilWidths),
         scalarIS_(scalarIS),
         innerIS_(innerIS),
         fullIS_(fullIS),
@@ -84,7 +85,7 @@ public:
 
 protected:
 
-  Teuchos::RCP<const StencilWidths<Ordinal,dimension> > fieldSpace_;
+  Teuchos::RCP<const StencilWidths<dimension> > stencilWidths_;
 
   Teuchos::RCP<const IndexSpace<Ordinal> > scalarIS_;
 
@@ -109,7 +110,7 @@ protected:
 
 public:
 
-  Teuchos::RCP<const StencilWidths<Ordinal,dimension> > getFieldSpace() const { return( fieldSpace_ ); }
+  Teuchos::RCP<const StencilWidths<dimension> > getStencilWidths() const { return( stencilWidths_ ); }
 
   Teuchos::RCP<const IndexSpace<Ordinal> > getScalarIndexSpace() const { return( scalarIS_ ); }
 
@@ -154,29 +155,29 @@ public:
   const Ordinal* nLoc()        const { return( gridSizeLocal_->get()  ); }
   const Ordinal& nLoc( int i ) const { return( gridSizeLocal_->get(i) ); }
 
-  const Ordinal* bl()         const { return( fieldSpace_->getBL()   ); }
-  const Ordinal& bl( int i )  const { return( fieldSpace_->getBL(i)  ); }
+  const Ordinal* bl()         const { return( stencilWidths_->getBL()   ); }
+  const Ordinal& bl( int i )  const { return( stencilWidths_->getBL(i)  ); }
 
-  const Ordinal* bu()         const { return( fieldSpace_->getBU()   ); }
-  const Ordinal& bu( int i )  const { return( fieldSpace_->getBU(i)  ); }
+  const Ordinal* bu()         const { return( stencilWidths_->getBU()   ); }
+  const Ordinal& bu( int i )  const { return( stencilWidths_->getBU(i)  ); }
 
-  const Ordinal* dl()         const { return( fieldSpace_->getDL()   ); }
-  const Ordinal& dl( int i )  const { return( fieldSpace_->getDL(i)  ); }
+  const Ordinal* dl()         const { return( stencilWidths_->getDL()   ); }
+  const Ordinal& dl( int i )  const { return( stencilWidths_->getDL(i)  ); }
 
-  const Ordinal* du()         const { return( fieldSpace_->getDU()   ); }
-  const Ordinal& du( int i )  const { return( fieldSpace_->getDU(i)  ); }
+  const Ordinal* du()         const { return( stencilWidths_->getDU()   ); }
+  const Ordinal& du( int i )  const { return( stencilWidths_->getDU(i)  ); }
 
-  const Ordinal* gl()         const { return( fieldSpace_->getGL()   ); }
-  const Ordinal& gl( int i )  const { return( fieldSpace_->getGL(i)  ); }
+  const Ordinal* gl()         const { return( stencilWidths_->getGL()   ); }
+  const Ordinal& gl( int i )  const { return( stencilWidths_->getGL(i)  ); }
 
-  const Ordinal* gu()         const { return( fieldSpace_->getGU()   ); }
-  const Ordinal& gu( int i )  const { return( fieldSpace_->getGU(i)  ); }
+  const Ordinal* gu()         const { return( stencilWidths_->getGU()   ); }
+  const Ordinal& gu( int i )  const { return( stencilWidths_->getGU(i)  ); }
 
-  const Ordinal* nl()         const { return( fieldSpace_->getNL()   ); }
-  const Ordinal& nl( int i )  const { return( fieldSpace_->getNL(i)  ); }
+  const Ordinal* nl()         const { return( stencilWidths_->getNL()   ); }
+  const Ordinal& nl( int i )  const { return( stencilWidths_->getNL(i)  ); }
 
-  const Ordinal* nu()         const { return( fieldSpace_->getNU()   ); }
-  const Ordinal& nu( int i )  const { return( fieldSpace_->getNU(i)  ); }
+  const Ordinal* nu()         const { return( stencilWidths_->getNU()   ); }
+  const Ordinal& nu( int i )  const { return( stencilWidths_->getNU(i)  ); }
 
 
   const Ordinal* sInd( int fieldType ) const {
@@ -244,7 +245,7 @@ public:
     if( 0==rankST() ) {
       out << "\t---Space: ---\n";
 
-      fieldSpace_->print( out );
+      stencilWidths_->print( out );
 
       out <<"---GridSizeGlobal: ---\n";
       gridSizeGlobal_->print( out );
@@ -379,7 +380,7 @@ Teuchos::RCP<const Space<S,O,d> > createSpace(
   auto boundaryConditionsLocal = Pimpact::createBoudaryConditionsLocal( boundaryConditionsGlobal, procGridSize, procGrid );
   if( setImpact ) boundaryConditionsLocal->set_Impact();
 
-  auto fieldSpace = Pimpact::createStencilWidths<O,d>();
+  auto fieldSpace = Pimpact::createStencilWidths<d>();
 
   auto scalarIndexSpace = Pimpact::createScalarIndexSpace<O,d>( fieldSpace, gridSizeLocal, boundaryConditionsLocal, setImpact );
 

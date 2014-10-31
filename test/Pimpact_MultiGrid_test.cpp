@@ -16,7 +16,6 @@ namespace {
 bool testMpi = true;
 double errorTolSlack = 1e-6;
 
-bool isImpactInit = false;
 int domain = 1;
 int ftype = 0;
 
@@ -54,11 +53,9 @@ TEUCHOS_UNIT_TEST( MultiGrid, constructor3D ) {
 
   auto space = Pimpact::createSpace( pl );
 
-  if( !isImpactInit ) isImpactInit=true;
-
-  auto asdf = Pimpact::createMultiGrid<SF,CS>( space, 4 );
-  std::cout << "nGridLevels: " << asdf->getNGrids() << "\n";
-  asdf->print();
+  auto multiGrid = Pimpact::createMultiGrid<SF,CS>( space, 4 );
+  std::cout << "nGridLevels: " << multiGrid->getNGrids() << "\n";
+  multiGrid->print();
 
 }
 
@@ -98,12 +95,11 @@ TEUCHOS_UNIT_TEST( MultiGrid, constructor4D ) {
 
   auto space = Pimpact::createSpace<S,O,4>( pl );
 
-
   space->print();
 
-  auto asdf = Pimpact::createMultiGrid<SF,CS>( space, 2 );
-  std::cout << "nGridLevels: " << asdf->getNGrids() << "\n";
-  asdf->print();
+  auto multiGrid = Pimpact::createMultiGrid<SF,CS>( space, 2 );
+  std::cout << "nGridLevels: " << multiGrid->getNGrids() << "\n";
+  multiGrid->print();
 
 
 }
@@ -152,12 +148,12 @@ TEUCHOS_UNIT_TEST( MultiGrid, Restrictor3D ) {
     //      int i = ftype;
     std::cout << "type: " << i << "\n";
 
-    auto asdf = Pimpact::createMultiGrid<SF,CS>( space, 2, type[i] );
+    auto multiGrid = Pimpact::createMultiGrid<SF,CS>( space, 2, type[i] );
 
-    auto fieldf = asdf->getField( 0 );
-    auto fieldc = asdf->getField( 1 );
+    auto fieldf = multiGrid->getField( 0 );
+    auto fieldc = multiGrid->getField( 1 );
 
-    auto op = asdf->getRestrictionOp( 0 );
+    auto op = multiGrid->getRestrictionOp( 0 );
 
     // the zero test
     fieldf->init( 0. );
@@ -167,7 +163,6 @@ TEUCHOS_UNIT_TEST( MultiGrid, Restrictor3D ) {
 
     TEST_FLOATING_EQUALITY( 0., fieldf->norm(), errorTolSlack );
     TEST_FLOATING_EQUALITY( 0., fieldc->norm(), errorTolSlack );
-
 
     // the random test
     fieldf->random();
@@ -179,13 +174,11 @@ TEUCHOS_UNIT_TEST( MultiGrid, Restrictor3D ) {
     TEST_INEQUALITY( 0., fieldc->norm() );
 
 
-    fieldf->write( 0 );
-    fieldc->write( 1 );
     //      op->print();
     //      fieldc->print();
 
     // the init test
-    fieldf->init(1.);
+    fieldf->initField( Pimpact::ConstField,1. );
 
     TEST_FLOATING_EQUALITY( 1., fieldf->norm(Belos::InfNorm), errorTolSlack );
 
@@ -197,6 +190,8 @@ TEUCHOS_UNIT_TEST( MultiGrid, Restrictor3D ) {
 
     op->apply( *fieldf, *fieldc );
 
+    fieldf->write( 0 );
+    fieldc->write( 1 );
 
     TEST_FLOATING_EQUALITY( 1., fieldc->norm(Belos::InfNorm), errorTolSlack );
 
@@ -256,31 +251,30 @@ TEUCHOS_UNIT_TEST( MultiGrid, Interpolator3D ) {
     //      int i = ftype;
     std::cout << "type: " << i << "\n";
 
-    auto asdf = Pimpact::createMultiGrid<SF,CS>( space, 2, type[i] );
+    auto multiGrid = Pimpact::createMultiGrid<SF,CS>( space, 2, type[i] );
 
-    asdf->getSpace(0)->print();
-    asdf->getSpace(1)->print();
+    multiGrid->getSpace(0)->print();
+    multiGrid->getSpace(1)->print();
 
-    auto fieldf = asdf->getField( 0 );
-    auto fieldc = asdf->getField( 1 );
+    auto fieldf = multiGrid->getField( 0 );
+    auto fieldc = multiGrid->getField( 1 );
 
-    auto op = asdf->getInterpolationOp( 0 );
-    //      auto op = Pimpact::createInterpolationOp( asdf->getSpace(1), asdf->getSpace(0) );
+    auto op = multiGrid->getInterpolationOp( 0 );
+    //      auto op = Pimpact::createInterpolationOp( multiGrid->getSpace(1), multiGrid->getSpace(0) );
 
     op->print();
     // the zero test
 
     fieldf->init( 1. );
-    fieldf->write(7);
 
-    fieldc->init( 1. );
-    fieldf->init( 0. );
+    fieldc->initField( Pimpact::ConstField, 0. );
 
     op->apply( *fieldc, *fieldf );
 
     TEST_FLOATING_EQUALITY( 0., fieldf->norm(), errorTolSlack );
     TEST_FLOATING_EQUALITY( 0., fieldc->norm(), errorTolSlack );
-    fieldf->write(i);
+
+
     //      fieldc->print();
     fieldf->print();
 
@@ -297,7 +291,7 @@ TEUCHOS_UNIT_TEST( MultiGrid, Interpolator3D ) {
 
 
     // the stronger init test
-    fieldc->init(1.);
+    fieldc->initField( Pimpact::ConstField, 1. );
 
     TEST_FLOATING_EQUALITY( 1., fieldc->norm(Belos::InfNorm), errorTolSlack );
 
@@ -309,6 +303,8 @@ TEUCHOS_UNIT_TEST( MultiGrid, Interpolator3D ) {
 
     op->apply( *fieldc, *fieldf );
 
+    fieldf->write(0);
+    fieldc->write(1);
 
     TEST_FLOATING_EQUALITY( 1., fieldf->norm(Belos::InfNorm), errorTolSlack );
 
