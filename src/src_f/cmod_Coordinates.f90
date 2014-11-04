@@ -4,10 +4,9 @@
 !* Mai 2005 - Dec 2011                                                                                       *
 !*************************************************************************************************************
 
-!> \brief module providing routine, that initializes the coordinates, which are stored in mod_vars
-!! could be easily transfered to c++
+!> \brief module providing routine, that initializes the coordinates
 !!  by using get_coords
-module cmod_geometry
+module cmod_Coordinates
 
     use iso_c_binding
   
@@ -18,7 +17,8 @@ contains
     !! \note if ii0U==ii0L equidastant grid is used
     !! \param[in] Lmax Li
     !! \param[in] iimax Mi
-    !! \param[in] ii index
+    !! \param[in] ii0U index
+    !! \param[in] ii0L index
     !! \param[out] xx
     !! \param[out] dx
     subroutine coord_tanh(Lmax,iimax,ii0L,ii0U,ii,xx,dx)
@@ -77,11 +77,11 @@ contains
     !!             y1p(1 ) = 0.
     !!             y1p(M1) = L1
     !!                etc.
-    subroutine PI_getGlobalCoordinates(  &
-        L, M,               &
-        y_origin,           &
-        ys,yv,dys,dyv       &
-        ) bind(c,name='PI_getGlobalCoordinates')
+    subroutine PI_getGlobalCoordinates( &
+        L, M,                           &
+        y_origin,                       &
+        ys,yv,dys,dyv                   &
+        ) bind ( c, name='PI_getGlobalCoordinates' )
 
 
         implicit none
@@ -92,13 +92,13 @@ contains
 
         real(c_double),intent(in)   :: y_origin
 
-        real(c_double),intent(inout)  :: ys(1:M)
+        real(c_double),intent(inout):: ys(1:M)
 
-        real(c_double),intent(inout)  :: yv(0:M)
+        real(c_double),intent(inout):: yv(0:M)
 
-        real(c_double),intent(inout)  :: dys(1:M)
+        real(c_double),intent(inout):: dys(1:M)
 
-        real(c_double),intent(inout)  :: dyv(0:M)
+        real(c_double),intent(inout):: dyv(0:M)
 
         integer     ::  i
 
@@ -245,4 +245,4 @@ contains
 
 
 
-end module cmod_geometry
+end module cmod_Coordinates

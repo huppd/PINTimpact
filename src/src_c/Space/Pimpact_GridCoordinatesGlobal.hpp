@@ -19,7 +19,6 @@
 namespace Pimpact{
 
 
-
 extern "C" {
 
 void PI_getGlobalCoordinates(
@@ -33,7 +32,14 @@ void PI_getGlobalCoordinates(
 
 }
 
+
 /// \brief global grid coordinates
+///
+/// Coordinate | index   | domain
+/// -----------| --------| -------
+/// xS         | 1..nGlo | 0..L
+/// xV         | 0..nGlo | 0.5..L+0.5
+///
 /// \ingroup Space
 template<class Scalar=double, class Ordinal=int, int dim=3 >
 class GridCoordinatesGlobal {
@@ -64,9 +70,9 @@ protected:
         gridSize_( gridSize ) {
 
     for( int i=0; i<dim; ++i ) {
-      xS_[i] = new Scalar[ gridSize_->get(i) ];
-      xV_[i] = new Scalar[ gridSize_->get(i)+1 ];
-      dxS_[i] = new Scalar[ gridSize_->get(i) ];
+      xS_[i]  = new Scalar[ gridSize_->get(i)   ];
+      xV_[i]  = new Scalar[ gridSize_->get(i)+1 ];
+      dxS_[i] = new Scalar[ gridSize_->get(i)   ];
       dxV_[i] = new Scalar[ gridSize_->get(i)+1 ];
       if( i<3 )
         PI_getGlobalCoordinates(
@@ -101,7 +107,7 @@ public:
   };
 
 
-  /// \todo  include getdx
+  /// \todo include getdx
   const Scalar* getX( ECoord dir, EField ftype ) const  {
     if( EField::S==ftype )
       return( xS_[dir] );

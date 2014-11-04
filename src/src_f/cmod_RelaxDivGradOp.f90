@@ -7,7 +7,7 @@
 
 
 !> \brief module providing Helmholtz
-module cmod_RelaxDivGradOp.f90
+module cmod_RelaxDivGradOp
   
     use iso_c_binding
   
@@ -15,4 +15,4 @@ contains
 
 
   
-end module cmod_RelaxDivGradOp.f90
+end module cmod_RelaxDivGradOp

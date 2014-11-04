@@ -47,9 +47,32 @@ void VS_set_eIndWB(const int* const);
 }
 
 
-/// \ingroup Space
 /// \brief class that stores neccessary lower and upper indexes for \c ScalarField for different FieldTypes
+///
+/// Index         | BoundaryConditionslocal>0 | BoundaryConditionslocal<=0
+/// ------------- | --------------------------| -------------
+/// sInd          | 1                         | 1
+/// eInd          | nLoc                      | nLoc-1
+///
+/// Index           | BoundaryConditionslocal>0 | BoundaryConditionslocal<=0 | symmetryBoundaryConditions
+/// --------------- | --------------------------| ---------------------------| ---------------------------
+/// sInd[dir==field]| 1                         | 2                          | 1
+/// sInd[dir!=field]| 2                         | 2                          | 1
+/// eInd[dir==field]| nLoc-1                    | nLoc-1                     | nLoc-1
+/// eInd[dir!=field]| nLoc-1                    | nLoc-1                     | nLoc
+///
+/// Index            | BoundaryConditionslocal>0 | BoundaryConditionslocal<=0 | symmetryBoundaryConditions
+/// ---------------- | --------------------------| ---------------------------| ---------------------------
+/// sIndB[dir==field]| 0                         | 1                          | 1
+/// sIndB[dir!=field]| 1                         | 1                          | 1
+/// eIndB[dir==field]| nLoc                      | nLoc-1                     | nLoc-1
+/// eIndB[dir!=field]| nLoc                      | nLoc-1                     | nLoc
+///
 /// and including Boundaries or excluding them.
+/// \todo remove fieldType_
+/// \todo move handling from space here
+/// \todo make constructor private
+/// \ingroup Space
 template< class Ordinal = int >
 class IndexSpace {
 
@@ -81,17 +104,17 @@ public:
 
 
 
-/// \brief function that creates ScaparIndexSpace
-/// by getting values from \c IMPACT
+/// \brief function that creates IndexSpace for \c EFieldType::S
+///
 /// \relates IndexSpace
-/// setImpact should be \depracted soon
+/// \deprecated  \param setImpact
 template<class O=int, int d=3>
 Teuchos::RCP<const IndexSpace<O> >
 createScalarIndexSpace(
-    const Teuchos::RCP<const StencilWidths<d> >& fS,
+    const Teuchos::RCP<const StencilWidths<d> >& sW,
     const Teuchos::RCP<const GridSizeLocal<O,d> >& nLoc,
     const Teuchos::RCP<const BoundaryConditionsLocal>& bc,
-    bool setImpact=true ){
+    bool setImpact=true ) {
 
   typedef typename IndexSpace<O>::TO3 TO3;
 
@@ -99,8 +122,8 @@ createScalarIndexSpace(
   TO3 eInd;
 
   for( int i=0; i<3; ++i ) {
-    sInd[i] = 2            + fS->getLS(i);
-    eInd[i] = nLoc->get(i) + fS->getLS(i);
+    sInd[i] = 2            + sW->getLS(i);
+    eInd[i] = nLoc->get(i) + sW->getLS(i);
     if( bc->BCL_int_[i] > 0 )
       sInd[i] = 1;
     if( bc->BCU_int_[i] > 0 )
@@ -112,26 +135,23 @@ createScalarIndexSpace(
     SVS_set_eInd( eInd.getRawPtr() );
   }
 
-
   return( Teuchos::rcp(
       new IndexSpace<O>( EField::S, sInd, eInd ) ) );
 
 }
 
 
-/// \brief function that creates ScaparIndexSpace
+/// \brief function that creates IndexSpace for inner Velocity Field
 ///
-/// by getting values from impact
 /// \todo make construction clean without copying
 /// \relates IndexSpace
 template<class O=int, int d=3>
 Teuchos::ArrayRCP< Teuchos::RCP< const IndexSpace<O> > >
 createInnerFieldIndexSpaces(
-    const Teuchos::RCP<const StencilWidths<d> >& fS,
+    const Teuchos::RCP<const StencilWidths<d> >& sW,
     const Teuchos::RCP<const GridSizeLocal<O,d> >& nLoc,
     const Teuchos::RCP<const BoundaryConditionsLocal>& bc,
     bool setImpact=true ){
-
 
   typedef typename IndexSpace<O>::TO3 TO3;
 
@@ -147,14 +167,14 @@ createInnerFieldIndexSpaces(
   TO3 eIndW;
 
   for( int i=0; i<3; ++i ) {
-    sIndU[i] = 2            + fS->getLS(i);
-    eIndU[i] = nLoc->get(i) + fS->getLS(i);
+    sIndU[i] = 2            + sW->getLS(i);
+    eIndU[i] = nLoc->get(i) + sW->getLS(i);
 
-    sIndV[i] = 2            + fS->getLS(i);
-    eIndV[i] = nLoc->get(i) + fS->getLS(i);
+    sIndV[i] = 2            + sW->getLS(i);
+    eIndV[i] = nLoc->get(i) + sW->getLS(i);
 
-    sIndW[i] = 2            + fS->getLS(i);
-    eIndW[i] = nLoc->get(i) + fS->getLS(i);
+    sIndW[i] = 2            + sW->getLS(i);
+    eIndW[i] = nLoc->get(i) + sW->getLS(i);
   }
 
   // Lower index in x-direction
@@ -251,7 +271,7 @@ createInnerFieldIndexSpaces(
 template<class O=int, int d=3>
 Teuchos::ArrayRCP< Teuchos::RCP< const IndexSpace<O> > >
 createFullFieldIndexSpaces(
-    const Teuchos::RCP<const StencilWidths<d> >& fS,
+    const Teuchos::RCP<const StencilWidths<d> >& sW,
     const Teuchos::RCP<const GridSizeLocal<O,d> >& nLoc,
     const Teuchos::RCP<const BoundaryConditionsLocal>& bc,
     bool setImpact=true ){
@@ -271,36 +291,33 @@ createFullFieldIndexSpaces(
   TO3 eIndW;
 
   for( int i=0; i<3; ++i ) {
-    sIndU[i] = 2            + fS->getLS(i);
-    eIndU[i] = nLoc->get(i) + fS->getLS(i);
+    sIndU[i] = 2            + sW->getLS(i);
+    eIndU[i] = nLoc->get(i) + sW->getLS(i);
 
-    sIndV[i] = 2            + fS->getLS(i);
-    eIndV[i] = nLoc->get(i) + fS->getLS(i);
+    sIndV[i] = 2            + sW->getLS(i);
+    eIndV[i] = nLoc->get(i) + sW->getLS(i);
 
-    sIndW[i] = 2            + fS->getLS(i);
-    eIndW[i] = nLoc->get(i) + fS->getLS(i);
+    sIndW[i] = 2            + sW->getLS(i);
+    eIndW[i] = nLoc->get(i) + sW->getLS(i);
   }
 
   // Lower index in x-direction
-  int i = 0;
-  if( bc->BCL_int_[i] > 0 ) {
-    sIndU[i] = 0;
-    sIndV[i] = 1;
-    sIndW[i] = 1;
+  if( bc->BCL_int_[0] > 0 ) {
+    sIndU[0] = 0;
+    sIndV[0] = 1;
+    sIndW[0] = 1;
   }
   // lower index in y-direction
-  i = 1;
-  if( bc->BCL_int_[i] > 0 ) {
-    sIndU[i] = 1;
-    sIndV[i] = 0;
-    sIndW[i] = 1;
+  if( bc->BCL_int_[1] > 0 ) {
+    sIndU[1] = 1;
+    sIndV[1] = 0;
+    sIndW[1] = 1;
   }
   // lower index in z-direction
-  i = 2;
-  if( bc->BCL_int_[i] > 0 ) {
-    sIndU[i] = 1;
-    sIndV[i] = 1;
-    sIndW[i] = 0;
+  if( bc->BCL_int_[2] > 0 ) {
+    sIndU[2] = 1;
+    sIndV[2] = 1;
+    sIndW[2] = 0;
   }
 
   // lower index for symmetriBC
@@ -320,27 +337,24 @@ createFullFieldIndexSpaces(
     }
 
   // upper index in x-direction for symmetricBC
-  i=0;
-  if( bc->BCU_local_[i]==SymmetryBC ) {
-    eIndU[i] = nLoc->get(i)-1;
-    eIndV[i] = nLoc->get(i);
-    eIndW[i] = nLoc->get(i);
+  if( bc->BCU_local_[0]==SymmetryBC ) {
+    eIndU[0] = nLoc->get(0)-1;
+    eIndV[0] = nLoc->get(0);
+    eIndW[0] = nLoc->get(0);
   }
 
   // upper index in y-direction for symmetricBC
-  i=1;
-  if( bc->BCU_local_[i]==SymmetryBC ) {
-    eIndU[i] = nLoc->get(i);
-    eIndV[i] = nLoc->get(i)-1;
-    eIndW[i] = nLoc->get(i);
+  if( bc->BCU_local_[1]==SymmetryBC ) {
+    eIndU[1] = nLoc->get(1);
+    eIndV[1] = nLoc->get(1)-1;
+    eIndW[1] = nLoc->get(1);
   }
 
   // upper index in z-direction for symmetricBC
-  i=2;
-  if( bc->BCU_local_[i]==SymmetryBC ) {
-    eIndU[i] = nLoc->get(i);
-    eIndV[i] = nLoc->get(i);
-    eIndW[i] = nLoc->get(i)-1;
+  if( bc->BCU_local_[2]==SymmetryBC ) {
+    eIndU[2] = nLoc->get(2);
+    eIndV[2] = nLoc->get(2);
+    eIndW[2] = nLoc->get(2)-1;
   }
 
 

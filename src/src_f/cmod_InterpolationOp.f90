@@ -5,6 +5,7 @@ module cmod_InterpolationOp
 
 contains
 
+    !> \todo fix that, for first entry we get the weights 0.4/0.6
     subroutine MG_getCIS(   &
         N,                  &
         bL, bU,             &
@@ -71,7 +72,7 @@ contains
 
         integer(c_int), intent(in)    :: Nc
 
-        integer(c_int), intent(in)    :: bLc,bUc
+        integer(c_int), intent(in)    :: bLc, bUc
 
         integer(c_int), intent(in)    :: SSc
         integer(c_int), intent(in)    :: NNc
@@ -80,7 +81,7 @@ contains
 
         integer(c_int), intent(in)    :: Nf
 
-        integer(c_int), intent(in)    :: bLf,bUf
+        integer(c_int), intent(in)    :: bLf, bUf
 
         integer(c_int), intent(in)    :: SSf
         !        integer(c_int), intent(in)    :: NNf
@@ -90,7 +91,7 @@ contains
 
         real(c_double), intent(in)    :: xf( bLf:(Nf+bUf) )
 
-        real(c_double), intent(inout) :: cIV( -1:2, 0:Nc )
+        real(c_double), intent(inout) :: cIV( 1:2, 0:Nf )
 
         integer(c_int)                ::  i, ic, dd
         real(c_double)                ::  Dx1a, Dx12
@@ -100,68 +101,46 @@ contains
         !=== Interpolation, linienweise, 1d ========================================================================
         !===========================================================================================================
         ! fine
-        !    xf(i-2)        xf(i-1)        xf(i)       xf(i+1)      xf(i+2)
+        !    xf(i-1)        xf(i)         xf(i+1)       xf(i+1)      xf(i+2)
         !  ---->-------------->--------------->----------->----------->------------
-        !                     |--------Dx1a---------|
-        !                                     |Dx1a-|
-        !                                           |Dx1a-|
-        !                                           |-------Dx1a------|
-        !             |-----------Dx12--------------|-----------Dx12--------------|
+        !             |--Dx1a-|
+        !             |-----------Dx12--------------|
         !  ----------->----------------------------->----------------------------->----------
-        !          xc(i-1)                        xc(i)                         xc(i+1)
+        !          xc(ic)                      xc(ic+1)                        xc(ic+1)
         ! coarse
 
         cIV = 0.
 
         dd = (Nf-1)/(Nc-1)
 
+        do i = 0, Nf
+            ic = ( i )/dd
 
-        do ic = 0, Nc
-            i = (ic-SSc)*dd + SSf
+            Dx1a = xc(ic)-xf(i   )
+            Dx12 = xc(ic)-xc(ic+1)
 
-            Dx1a = xc(ic)-xf(i -1)
-            Dx12 = xc(ic)-xc(ic-1)
-
-            cIV(1,ic) = 1-Dx1a/Dx12
-
-            Dx1a = xc(ic)-xf(i)
-
-            cIV(0,ic) = 1-Dx1a/Dx12
-
-            Dx1a = xf(i +1)-xc(ic)
-            Dx12 = xc(ic+1)-xc(ic)
-
-            cIV(1,ic) = 1-Dx1a/Dx12
-
-            Dx1a = xf(i+2)-xc(ic)
-
-            cIV(2,ic) = 1-Dx1a/Dx12
+            cIV(1,i) = 1-Dx1a/Dx12
+            cIV(2,i) =   Dx1a/Dx12
 
         end do
 
         ! a little bit shaky, please verify this when IO is ready
         if (BC_L > 0) then
-            cIV( :,  0) = 0.
-            cIV(-1,SSc) = 0.
-            cIV( 0,SSc) = 1.
+            cIV( 1,0) = 1.
+            cIV( 2,0) = 0.
         end if
 
         ! maybe false
         if (BC_L == -2) then
-            cIV(-1:0,SSc) = 0.
-            cIV(  : ,  0) = 0.
+            cIV(1:2,0) = 0.
         end if
 
         if (BC_U > 0) then
-            cIV(1,NNc) = 1.
-            cIV(2,NNc) = 0.
-
-            cIV(:, Nc) = 0.
-
+            cIV(1,Nf) = 0.
+            cIV(2,Nf) = 1.
         end if
         if (BC_U == -2) then
-            cIV(1:2,NNc) = 0.
-            cIV(  :, Nc) = 0.
+            cIV(1:2,Nf) = 0.
         end if
 
     end subroutine MG_getCIV
@@ -189,6 +168,7 @@ contains
     !!
     !! - Geschwindigkeit ist trotz Prefetching / Vektorisierung stark durch die Speicherzugriffszeit limitiert
     !! - Das wird z.B. deutlich bei Single- vs. Dualcorebetrieb
+    !! \note right now we have fixed the weights, so that gridscretching is not yet usable
     subroutine MG_interpolate( &
         dimens,             &
         Nc,                 &
@@ -227,7 +207,7 @@ contains
 
 
 
-        integer                ::  i
+        integer                ::  i,ic
         integer                ::  j
         integer                ::  k
 
@@ -268,10 +248,11 @@ contains
         if( dd(3) /= 1 ) then ! (dimens == 2) <==> (dk == 1) automatisch erfüllt!
 
             do k = 1+1, Nf(3)-1, dd(3)
+                ic = k/dd(3)
                 do j = 1, Nf(2), dd(2)
                     !pgi$ unroll = n:8
                     do i = 1, Nf(1), dd(1)
-                        phif(i,j,k) = cI3(1,k/dd(3))*phif(i,j,k-1) + cI3(2,k/dd(3))*phif(i,j,k+1)
+                        phif(i,j,k) = cI3(1,ic)*phif(i,j,k-1) + cI3(2,ic)*phif(i,j,k+1)
                     end do
                 end do
             end do
@@ -282,9 +263,11 @@ contains
 
             do k = 1, Nf(3)
                 do j = 1+1, Nf(2)-1, dd(2)
+                    ic = j/dd(2)
                     !pgi$ unroll = n:8
                     do i = 1, Nf(1), dd(1)
-                        phif(i,j,k) = cI2(1,j/dd(2))*phif(i,j-1,k) + cI2(2,j/dd(2))*phif(i,j+1,k)
+!                        phif(i,j,k) = cI2(1,ic)*phif(i,j-1,k) + cI2(2,ic)*phif(i,j+1,k)
+                        phif(i,j,k) = 0.5*phif(i,j-1,k) + 0.5*phif(i,j+1,k)
                     end do
                 end do
             end do
@@ -297,7 +280,9 @@ contains
                 do j = 1, Nf(2)
                     !pgi$ unroll = n:8
                     do i = 1+1, Nf(1)-1, dd(1)
-                        phif(i,j,k) = cI1(1,i/dd(1))*phif(i-1,j,k) + cI1(2,i/dd(1))*phif(i+1,j,k)
+                        ic = i/dd(1)
+!                        phif(i,j,k) = cI1(1,ic)*phif(i-1,j,k) + cI1(2,ic)*phif(i+1,j,k)
+                        phif(i,j,k) = 0.5*phif(i-1,j,k) + 0.5*phif(i+1,j,k)
                     end do
                 end do
             end do
@@ -311,7 +296,8 @@ contains
 
 
     !> \todo solve dirty hack
-    !! \todo test 3d
+    !! \todo implement correctly witch exchange
+    !! \todo implement 3d
     subroutine MG_interpolateV( &
         dimens,                 &
         dir,                    &
@@ -354,7 +340,7 @@ contains
         integer(c_int), intent(in)     :: BCL(1:3)
         integer(c_int), intent(in)     :: BCU(1:3)
 
-        real(c_double),  intent(in)    :: cIV ( -1:2, 0:Nc(dir) )
+        real(c_double),  intent(in)    :: cIV ( 1:2, 0:Nf(dir) )
 
         real(c_double),  intent(in)    :: cI1 ( 1:2, 1:Nc(1) )
         real(c_double),  intent(in)    :: cI2 ( 1:2, 1:Nc(2) )
@@ -380,64 +366,82 @@ contains
 
         do i = 1,3
             dd(i) = ( Nf(i)-1 )/( Nc(i)-1 )
-
-            if( 0 < BCL(i) ) then
-                S(i) = 0
-            else
-                S(i) = SSf(i)
-            end if
-
-            if( 0 < BCU(i) ) then
-                N(i) = NNf(i)+1
-            else
-                N(i) = NNf(i)+1
-            end if
-
+        !
+        !            if( 0 < BCL(i) ) then
+        !                S(i) = 0
+        !            else
+        !                S(i) = SSf(i)
+        !            end if
+        !
+        !            if( 0 < BCU(i) ) then
+        !                N(i) = NNf(i)+1
+        !            else
+        !                N(i) = NNf(i)+1
+        !            end if
+        !
         end do
-        S(dir) = SSf(dir)
+        !        S(dir) = SSf(dir)
 
 
         if( 1==dir ) then
-            do k = SSf(3), NNf(3)
+
+            do k = 1, Nf(3), dd(3)
                 kc = k/dd(3)
-                !                if( 2==dimens )
-                kc = k
-                do j = S(2), N(2), dd(2)
-                    jc = ( j )/dd(2)
-                    do i = S(1), N(1)
+                do j = 1, Nf(2), dd(2)
+                    jc = ( j+1 )/dd(2) ! holy shit
+                    do i = 0, Nf(1)
                         ic = ( i )/dd(1)
-!                        phif(i,j,k) = cIV(1,ic)*phic(ic,jc,kc)+cIV(2,ic+1)*phic(ic+1,jc,kc)
-                        phif(i,j,k) = 0.5*phic(ic,jc,kc)+0.5*phic(ic+1,jc,kc)
+                        phif(i,j,k) = cIV(1,i)*phic(ic,jc,kc)+cIV(2,i)*phic(ic+1,jc,kc)
                     end do
                 end do
             end do
 
             if( dd(2) /= 1 ) then ! TEST!!! in 2D wird hier doppelte Arbeit geleistet! (NNf(3) == 2??)
 
-                do k = SSf(3), NNf(3)
-                    do j = S(2)+1, N(2)-1, dd(2)
-                        jc = j/dd(2)
+                do k = 1, Nf(3), dd(3)
+                    do j = 2, Nf(2)-1, dd(2)
+                        jc = (  j  )/dd(2)
                         !pgi$ unroll = n:8
-                        do i = S(1), N(1)
-                            phif(i,j,k) = cI2(1,jc)*phif(i,j-1,k) + cI2(2,jc)*phif(i,j+1,k)
+                        do i = 0, Nf(1)
+!                            phif(i,j,k) = cI2(1,jc)*phif(i,j-1,k) + cI2(2,jc)*phif(i,j+1,k)
+                            phif(i,j,k) = 0.5*phif(i,j-1,k) + 0.5*phif(i,j+1,k)
                         end do
                     end do
                 end do
 
-!                ! dirty hack
-!                if( BCL(2) > 0 ) then
-!                    phif( SSf(1):NNf(1),SSf(2),SSf(3):NNf(3) ) = phif( SSf(1):NNf(1),SSf(2)+1,SSf(3):NNf(3) )
-!!                    phif( SSf(1):NNf(1),SSf(2),SSf(3):NNf(3) ) = phif( SSf(1):NNf(1),SSf(2)+1,SSf(3):NNf(3) )
-!!                    phif( SSf(1):NNf(1),SSf(2),SSf(3):NNf(3) ) = 2
-!                end if
-!                if( BCU(2) > 0 ) then
-!                    phif( SSf(1):NNf(1),NNf(2),SSf(3):NNf(3) ) = phif( SSf(1):NNf(1),NNf(2)-1,SSf(3):NNf(3) )
-!                end if
-
             end if
 
+!            phif(SSf(1):NNf(1),SSf(2):NNf(2),SSf(3):NNf(3)) = 1
 
-        else
+        end if
+
+        if( 2==dir ) then
+
+!            phif(SSf(1):NNf(1),SSf(2):NNf(2),SSf(3):NNf(3)) = 1
+            do k = 1, Nf(3), dd(3)
+                kc = k/dd(3)
+                do j = 0, Nf(2)
+                    jc = ( j )/dd(2)
+                    do i = 1, Nf(1), dd(1)
+                        ic = ( i )/dd(1)
+                        phif(i,j,k) = cIV(1,j)*phic(ic,jc,kc)+cIV(2,j)*phic(ic,jc+1,kc)
+                    end do
+                end do
+            end do
+
+            if( dd(1) /= 1 ) then ! TEST!!! in 2D wird hier doppelte Arbeit geleistet! (NNf(3) == 2??)
+
+                do k = 1, Nf(3), dd(3)
+                    do j = 0, Nf(2)
+                        jc = j/dd(2)
+                        !pgi$ unroll = n:8
+                        do i = 2, Nf(1),dd(1)
+                            phif(i,j,k) = cI1(1,ic)*phif(i-1,j,k) + cI1(2,ic)*phif(i+1,j,k)
+                        end do
+                    end do
+                end do
+
+            end if
         end if
     end subroutine MG_interpolateV
 

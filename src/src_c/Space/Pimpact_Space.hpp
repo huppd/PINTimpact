@@ -242,7 +242,6 @@ public:
 
   void print(  std::ostream& out=std::cout ) const {
 
-    if( 0==rankST() ) {
       out << "\t---Space: ---\n";
 
       stencilWidths_->print( out );
@@ -263,7 +262,10 @@ public:
       procGridSize_->print( out );
 
       procGrid_->print( out );
-    }
+
+      coordGlobal_->print(out);
+
+      coordLocal_->print(out);
 
   }
 

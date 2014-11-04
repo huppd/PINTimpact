@@ -116,7 +116,7 @@ public:
           spaceC_->getCoordinatesLocal()->getX( i, EField::S ),
           cIS_[i] );
 
-      cIV_[i] = new Scalar[ 4*( spaceC_->nLoc(i)-0+1 ) ];
+      cIV_[i] = new Scalar[ 2*( spaceF_->nLoc(i)-0+1 ) ];
 //      if( i<spaceC_->dim() )
         MG_getCIV(
             spaceC_->nLoc(i),
@@ -148,51 +148,42 @@ public:
 
     EField fType = x.fType_;
 
-    TEUCHOS_TEST_FOR_EXCEPTION( fType!=y.fType_     , std::logic_error, "Error!!! has to be of same FieldType!!!");
+    TEUCHOS_TEST_FOR_EXCEPTION( fType!=y.fType_, std::logic_error, "Error!!! has to be of same FieldType!!!");
+
+    x.exchange();
 
     if( EField::S==fType ) {
-      x.exchange();
       MG_interpolate(
           spaceC_->dim(),
           spaceC_->nLoc(),
           spaceC_->bl(),
           spaceC_->bu(),
-//          x.sInd(),
-//          x.eInd(),
-          spaceC_->getDomain()->getBCGlobal()->getBCL(),
-          spaceC_->getDomain()->getBCGlobal()->getBCU(),
+          spaceC_->getDomain()->getBCLocal()->getBCL(),
+          spaceC_->getDomain()->getBCLocal()->getBCU(),
           spaceF_->nLoc(),
           spaceF_->bl(),
           spaceF_->bu(),
-//          y.sInd(),
-//          y.eInd(),
           cIS_[0],
           cIS_[1],
           cIS_[2],
           x.s_,
           y.s_ );
-      y.changed();
     }
     else {
       int dir = fType;
-      x.exchange();
-//      for( int i=0; i<3; ++i ) {
-//          std::cout << "SSc["<<i<<"]: " <<  y.sIndB()[i] << "\n";
-//          std::cout << "NNc["<<i<<"]: " <<  y.eIndB()[i] << "\n";
-//      }
       MG_interpolateV(
           spaceC_->dim(),
           dir+1,
           spaceC_->nLoc(),
           spaceC_->bl(),
           spaceC_->bu(),
-          spaceC_->sInd(fType),
-          spaceC_->eInd(fType),
+          spaceC_->sIndB(fType),
+          spaceC_->eIndB(fType),
           spaceF_->nLoc(),
           spaceF_->bl(),
           spaceF_->bu(),
-          spaceF_->sInd(fType),
-          spaceF_->eInd(fType),
+          spaceF_->sIndB(fType),
+          spaceF_->eIndB(fType),
           spaceF_->getDomain()->getBCGlobal()->getBCL(),
           spaceF_->getDomain()->getBCGlobal()->getBCU(),
           cIV_[dir],
@@ -201,11 +192,13 @@ public:
           cIS_[2],
           x.s_,
           y.s_ );
-      y.changed();
     }
+    y.changed();
+
   }
 
   void print(  std::ostream& out=std::cout ) const {
+
     for( int j=0; j<3; ++j ) {
       out << "\n Scalar dir: " << j << ":\n";
       for( int i=0; i<2*( spaceC_->eInd(EField::S)[j]-spaceC_->sInd(EField::S)[j]+1 ); ++i)
@@ -215,10 +208,15 @@ public:
     for( int j=0; j<3; ++j ) {
       out << "\n Vector dir: " << j << ":\n";
 //      for( int i=0; i<4*( spaceC_->eIndB(j)[j]-spaceC_->sIndB(j)[j]+1 ); ++i)
-      for( int i=0; i<4*( spaceC_->nLoc(j)-0+1 ); ++i)
-        out << cIV_[j][i] << "\t";
+      for( int i=0; i<( spaceF_->nLoc(j)-0+1 ); ++i) {
+        for( int k=0; k<2; ++k ) {
+          out << cIV_[j][i*2+k] << ", ";
+        }
+        out << "\n";
+      }
     }
     out << "\n";
+
   }
 
 }; // end of class InterpolationOp

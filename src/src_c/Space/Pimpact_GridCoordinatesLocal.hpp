@@ -40,6 +40,12 @@ void PI_getLocalCoordinates(
 }
 
 /// \brief local grid coordinates
+///
+/// Coordinate | index
+/// -----------| --------------------------
+/// xS         | bl..nLoc+bu+(ib-1)*(NB-1)
+/// xV         | bl..nLoc+bu+(ib-1)*(NB-1)
+///
 /// \ingroup Space
 template<class Scalar=double, class Ordinal=int, int dim=3 >
 class GridCoordinatesLocal {
@@ -70,7 +76,7 @@ protected:
   TO dxV_;
 
   GridCoordinatesLocal(
-      const Teuchos::RCP<const StencilWidths<dim> >& fieldSpace,
+      const Teuchos::RCP<const StencilWidths<dim> >& stencilWidths,
       const Teuchos::RCP<const DomainSize<Scalar> >& domainSize,
       const Teuchos::RCP<const GridSizeGlobal<Ordinal,dim> >& gridSizeGlobal,
       const Teuchos::RCP<const GridSizeLocal<Ordinal,dim> >& gridSize,
@@ -81,7 +87,7 @@ protected:
         gridSize_( gridSize ) {
 
     for( int i=0; i<dim; ++i ) {
-      Ordinal nTemp = gridSize_->get(i)+fieldSpace->getBU(i)-fieldSpace->getBL(i)+1;
+      Ordinal nTemp = gridSize_->get(i)+stencilWidths->getBU(i)-stencilWidths->getBL(i)+1;
       xS_[i]  = new Scalar[ nTemp ];
       xV_[i]  = new Scalar[ nTemp ];
       dxS_[i] = new Scalar[ gridSize_->get(i) ];
@@ -92,8 +98,8 @@ protected:
             domainSize->getSize(i),
             gridSizeGlobal->get(i),
             gridSize_->get(i),
-            fieldSpace->getBL(i),
-            fieldSpace->getBU(i),
+            stencilWidths->getBL(i),
+            stencilWidths->getBU(i),
             bcGlobal->getBCL(i),
             bcGlobal->getBCU(i),
             bcLocal->getBCL(i),
@@ -110,8 +116,8 @@ protected:
             4.*std::atan(1.),
             gridSizeGlobal->get(i),
             gridSize_->get(i),
-            fieldSpace->getBL(i),
-            fieldSpace->getBU(i),
+            stencilWidths->getBL(i),
+            stencilWidths->getBU(i),
             bcGlobal->getBCL(i),
             bcGlobal->getBCU(i),
             bcLocal->getBCL(i),
@@ -159,13 +165,13 @@ public:
 
   void print( std::ostream& out=std::cout ) const {
     for( int i=0; i<dim; ++i ) {
-      out << "ScalarField dir: " << i << ":\n(";
+      out << "ScalarField dir X: " << i << ":\n(";
       for( int j=0; j<gridSize_->get(i); ++j )
         out << xS_[i][j] << "\t";
       out << ")\n";
     }
     for( int i=0; i<dim; ++i ) {
-      out << "VectorField dir: " << i << ":\n(";
+      out << "VectorField dir X: " << i << ":\n(";
       for( int j=0; j<gridSize_->get(i)+1; ++j )
         out << xV_[i][j] << "\t";
       out << ")\n";
@@ -180,7 +186,7 @@ public:
 /// \relates GridCoordinatesLocal
 template<class S=double, class O=int, int d=3 >
 Teuchos::RCP<const GridCoordinatesLocal<S,O,d> > createGridCoordinatesLocal(
-    const Teuchos::RCP<const StencilWidths<d> >& fieldSpace,
+    const Teuchos::RCP<const StencilWidths<d> >& stencilWidths,
     const Teuchos::RCP<const DomainSize<S> >& domainSize,
     const Teuchos::RCP<const GridSizeGlobal<O,d> >& gridSizeGlobal,
     const Teuchos::RCP<const GridSizeLocal<O,d> >& gridSize,
@@ -193,7 +199,7 @@ Teuchos::RCP<const GridCoordinatesLocal<S,O,d> > createGridCoordinatesLocal(
   return(
       Teuchos::rcp(
           new GridCoordinatesLocal<S,O,d>(
-              fieldSpace,
+              stencilWidths,
               domainSize,
               gridSizeGlobal,
               gridSize,
