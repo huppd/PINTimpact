@@ -191,19 +191,31 @@ public:
   void print( std::ostream& out=std::cout ) const {
     out << " --- scalar stencil: ---";
     for( int i=0; i<3; ++i ) {
-      out << "\ni: " << i << "\n( ";
-      Ordinal nTemp = ( space_->nLoc(i) + 1 )*( space_->bu(i) - space_->bl(i) + 1);
-      for( int j=0; j<nTemp; ++j )
-        out << cS_[i][j] <<"\t";
-      out << ")\n";
+      out << "\ndir: " << i << "\n";
+      Ordinal nTemp1 = ( space_->nLoc(i) + 1 );
+      Ordinal nTemp2 = ( space_->bu(i) - space_->bl(i) + 1 );
+      for( int j=0; j<nTemp1; ++j ) {
+        out << "\ni: " << j << "\t(";
+        for( int k=0; k<nTemp2; ++k ) {
+          out << cS_[i][k+nTemp2*j] <<", ";
+        }
+        out << ")\n";
+      }
+      out << "\n";
     }
     out << " --- velocity stencil: ---";
     for( int i=0; i<3; ++i ) {
-      out << "\ni: " << i << "\n( ";
-      Ordinal nTemp = ( space_->nLoc(i) + 1 )*( space_->bu(i) - space_->bl(i) + 1);
-      for( int j=0; j<nTemp; ++j )
-        out << cV_[i][j] <<"\t";
-      out << ")\n";
+      out << "\ndir: " << i << "\n";
+      Ordinal nTemp1 = ( space_->nLoc(i) + 1 );
+      Ordinal nTemp2 = ( space_->bu(i) - space_->bl(i) + 1 );
+      for( int j=0; j<nTemp1; ++j ) {
+        out << "\ni: " << j << "\t(";
+        for( int k=0; k<nTemp2; ++k ) {
+          out << cV_[i][k+nTemp2*j] <<", ";
+        }
+        out << ")\n";
+      }
+      out << "\n";
     }
   }
 

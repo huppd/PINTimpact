@@ -14,6 +14,7 @@
 namespace Pimpact {
 
 
+
 /// \brief first model implementation, where one coarsens until every processor has 3 dofs.
 ///
 /// it should be that the coardinates are taken from the fine grid and are halved.
@@ -104,13 +105,7 @@ protected:
 
     auto stencilWidths = space->getStencilWidths();
 
-    auto scalarIndexSpace = Pimpact::createScalarIndexSpace<Ordinal,dimension>(
-        stencilWidths, gridSizeLocal, boundaryConditionsLocal, false );
-
-    auto innerIndexSpace = Pimpact::createInnerFieldIndexSpaces<Ordinal,dimension>(
-        stencilWidths, gridSizeLocal, boundaryConditionsLocal, false );
-
-    auto  fullIndexSpace = Pimpact::createFullFieldIndexSpaces<Ordinal,dimension>(
+    auto indexSpace = Pimpact::createIndexSpace<Ordinal,dimension>(
         stencilWidths, gridSizeLocal, boundaryConditionsLocal, false );
 
     auto  coordGlobal = Pimpact::createGridCoordinatesGlobal<Scalar,Ordinal,dimension>(
@@ -139,9 +134,7 @@ protected:
          Teuchos::rcp(
              new SpaceT(
                  stencilWidths,
-                 scalarIndexSpace,
-                 innerIndexSpace,
-                 fullIndexSpace,
+                 indexSpace,
                  gridSizeGlobal,
                  gridSizeLocal,
                  procGridSize,
@@ -149,8 +142,9 @@ protected:
                  coordGlobal,
                  coordLocal,
                  domain,
-                 interV2S ) ) );
-
+                 interV2S )
+         )
+    );
 
   }
 

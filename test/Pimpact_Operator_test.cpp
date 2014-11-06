@@ -290,7 +290,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
 
   auto op= Pimpact::createHelmholtzOp( space, mulI, mulL );
 
-//  op->print();
+  op->print();
 
   // test in x direction
   x->initField( Pimpact::PoiseuilleFlow2D_inX );
@@ -566,7 +566,61 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionOp ) {
 }
 
 
+TEUCHOS_UNIT_TEST( BasicOperator, DivGrad2ndOOp ) {
+  auto pl = Teuchos::parameterList();
 
+  pl->set( "domain", 1);
+
+  pl->set( "lx", 2. );
+  pl->set( "ly", 2. );
+  pl->set( "lz", 1. );
+
+
+  pl->set("nx", 49 );
+  pl->set("ny", 49 );
+  pl->set("nz", 2 );
+
+  auto space = Pimpact::createSpace( pl );
+
+  auto x = Pimpact::createScalarField( space );
+  auto b = Pimpact::createScalarField( space );
+
+  // zero test
+  b->initField();
+  x->init(2.);
+
+  auto op = Pimpact::createDivGrad2ndOOp( space );
+
+  op->print();
+
+  op->apply(*b,*x);
+
+  x->write(0);
+
+  TEST_EQUALITY( x->norm()<errorTolSlack, true );
+
+
+  // random test
+  b->random();
+  x->init(2.);
+
+  op->apply(*b,*x);
+
+  x->write(1);
+
+  TEST_EQUALITY( x->norm()>errorTolSlack, true );
+
+  // circle test
+  b->initField( Pimpact::Grad2D_inX );
+  x->init(2.);
+
+  op->apply(*b,*x);
+
+  TEST_EQUALITY( x->norm()<errorTolSlack, true );
+
+  x->write(2);
+
+}
 
 TEUCHOS_UNIT_TEST( BasicOperator, ForcingOp ) {
 

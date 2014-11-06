@@ -21,6 +21,7 @@ double errorTolSlack = 1e+1;
 bool isImpactInit = false;
 
 typedef int O;
+typedef double S;
 
 
 TEUCHOS_STATIC_SETUP() {
@@ -51,6 +52,40 @@ TEUCHOS_UNIT_TEST( StencilWidths, local_consistency ) {
 
 }
 
+
+
+TEUCHOS_UNIT_TEST( IndexSpace, local_consistency ) {
+
+  const int d = 3;
+
+  auto pl = Teuchos::parameterList();
+  auto domainSize = Pimpact::createDomainSize(
+      pl->get("dim",2),
+      pl->get("Re",1.),
+      pl->get("alpha2",1.),
+      pl->get("lx",2.),
+      pl->get("ly",2.),
+      pl->get("lz",1.) );
+
+  auto boundaryConditionsGlobal = Pimpact::createBoudaryConditionsGlobal( Pimpact::EDomainType( pl->get("domain",2) ) );
+
+  auto procGridSize = Pimpact::createProcGridSize<O,d>( pl->get("npx",2), pl->get("npy",2), pl->get("npz",1), pl->get("npf",1) );
+
+  auto gridSizeGlobal = Pimpact::createGridSizeGlobal<O,d>( pl->get("nx",33), pl->get("ny",33), pl->get("nz",2), pl->get("nf",32) );
+
+  auto gridSizeLocal = Pimpact::createGridSizeLocal<O,d>( gridSizeGlobal, procGridSize );
+
+  auto procGrid = Pimpact::createProcGrid<O,d>( gridSizeLocal, boundaryConditionsGlobal, procGridSize );
+
+  auto boundaryConditionsLocal = Pimpact::createBoudaryConditionsLocal( boundaryConditionsGlobal, procGridSize, procGrid );
+
+  auto fieldSpace = Pimpact::createStencilWidths<d>();
+
+  auto indexSpace = Pimpact::createIndexSpace<O,d>( fieldSpace, gridSizeLocal, boundaryConditionsLocal, false );
+
+  indexSpace->print();
+
+}
 
 //TEUCHOS_UNIT_TEST( ProcGrid, initialization3D ) {
 //  // init impact

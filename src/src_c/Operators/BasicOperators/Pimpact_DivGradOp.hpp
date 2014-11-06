@@ -8,14 +8,18 @@
 #include "Pimpact_DivOp.hpp"
 #include "Pimpact_GradOp.hpp"
 
+
+
+
 namespace Pimpact{
 
 
 extern "C" {
-  void OP_div_grad( const bool& corner_yes, double* phi, double* lap );
+
   void SF_level( double* const phi );
 
 }
+
 
 /// \brief "laplace" for pressure.
 /// \ingroup BaseOperator
@@ -34,10 +38,6 @@ public:
   typedef ScalarField<Scalar,Ordinal,dimension>  DomainFieldT;
   typedef ScalarField<Scalar,Ordinal,dimension>  RangeFieldT;
 
-//  DivGradOp():
-//    temp_(Teuchos::null),
-//    div_(Teuchos::rcp(new DivOp<Scalar,Ordinal,dimension>() )),
-//    grad_(Teuchos::rcp(new GradOp<Scalar,Ordinal,dimension>() )) {};
 
   DivGradOp(
       const Teuchos::RCP<VectorField<Scalar,Ordinal,dimension> >& temp,
@@ -52,10 +52,9 @@ public:
     grad_->apply( x, *temp_ );
     div_->apply( *temp_, y );
 
-//    x.exchange();
 //    OP_div_grad( true, x.s_, y.s_ );
 //    SF_level( y.s_ );
-//    y.changed();
+//    y.change();
 
   }
 

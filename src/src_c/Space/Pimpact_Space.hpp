@@ -49,14 +49,9 @@ class Space {
 
 public:
 
-  typedef Teuchos::ArrayRCP< Teuchos::RCP<const IndexSpace<Ordinal> > >  IndexSpaces;
-
-//  FieldSpace
   Space(
       const Teuchos::RCP<const StencilWidths<dimension> >& stencilWidths,
-      const Teuchos::RCP<const IndexSpace<Ordinal> >& scalarIS,
-      const IndexSpaces& innerIS,
-      const IndexSpaces& fullIS,
+      const Teuchos::RCP<const IndexSpace<Ordinal> >& indexSpace,
       const Teuchos::RCP<const GridSizeGlobal<Ordinal,dimension> >& gridSizeGlobal,
       const Teuchos::RCP<const GridSizeLocal<Ordinal,dimension> >& gridSizeLocal,
       const Teuchos::RCP<const ProcGridSize<Ordinal,dimension> >& procGridSize,
@@ -66,9 +61,7 @@ public:
       const Teuchos::RCP<const Domain<Scalar> >& domain,
       const Teuchos::RCP<const InterpolateV2S<Scalar,Ordinal,dimension> >& interV2S ):
         stencilWidths_(stencilWidths),
-        scalarIS_(scalarIS),
-        innerIS_(innerIS),
-        fullIS_(fullIS),
+        indexSpace_(indexSpace),
         gridSizeGlobal_(gridSizeGlobal),
         gridSizeLocal_(gridSizeLocal),
         procGridSize_(procGridSize),
@@ -87,10 +80,7 @@ protected:
 
   Teuchos::RCP<const StencilWidths<dimension> > stencilWidths_;
 
-  Teuchos::RCP<const IndexSpace<Ordinal> > scalarIS_;
-
-  IndexSpaces innerIS_;
-  IndexSpaces fullIS_;
+  Teuchos::RCP<const IndexSpace<Ordinal> > indexSpace_;
 
   Teuchos::RCP<const GridSizeGlobal<Ordinal,dimension> > gridSizeGlobal_;
 
@@ -112,11 +102,7 @@ public:
 
   Teuchos::RCP<const StencilWidths<dimension> > getStencilWidths() const { return( stencilWidths_ ); }
 
-  Teuchos::RCP<const IndexSpace<Ordinal> > getScalarIndexSpace() const { return( scalarIS_ ); }
-
-  IndexSpaces getInnerIndexSpace() const { return( innerIS_ ); }
-
-  IndexSpaces getFullIndexSpace() const { return( fullIS_ ); }
+  Teuchos::RCP<const IndexSpace<Ordinal> > getIndexSpace() const { return( indexSpace_ ); }
 
   Teuchos::RCP<const GridSizeGlobal<Ordinal,dimension> > getGridSizeGlobal() const { return( gridSizeGlobal_ );  }
 
@@ -181,55 +167,31 @@ public:
 
 
   const Ordinal* sInd( int fieldType ) const {
-    if( EField::S == (EField)fieldType )
-      return( scalarIS_->sInd_.getRawPtr()  );
-    else
-      return( innerIS_[fieldType]->sInd_.getRawPtr() );
+    return( indexSpace_->sInd( fieldType ) );
   }
   const Ordinal* eInd(  int fieldType ) const {
-    if( EField::S == (EField)fieldType )
-      return( scalarIS_->eInd_.getRawPtr()  );
-    else
-      return( innerIS_[fieldType]->eInd_.getRawPtr() );
+    return( indexSpace_->eInd( fieldType ) );
   }
 
   const Ordinal* sIndB( int fieldType ) const {
-    if( EField::S == (EField)fieldType )
-      return( scalarIS_->sInd_.getRawPtr()  );
-    else
-      return( fullIS_[fieldType]->sInd_.getRawPtr()  );
+    return( indexSpace_->sIndB( fieldType ) );
   }
   const Ordinal* eIndB( int fieldType ) const {
-    if( EField::S == (EField)fieldType )
-      return( scalarIS_->eInd_.getRawPtr()  );
-    else
-      return( fullIS_[fieldType]->eInd_.getRawPtr()  );
+    return( indexSpace_->eIndB( fieldType ) );
   }
 
   const Ordinal& sInd( int fieldType, int dir ) const {
-    if( EField::S == (EField)fieldType )
-      return( scalarIS_->sInd_[dir]  );
-    else
-      return( innerIS_[fieldType]->sInd_[dir] );
+    return( indexSpace_->sInd( fieldType, dir ) );
   }
-  const Ordinal* eInd(  int fieldType, int dir ) const {
-    if( EField::S == (EField)fieldType )
-      return( scalarIS_->eInd_[dir]  );
-    else
-      return( innerIS_[fieldType]->eInd_[dir] );
+  const Ordinal& eInd(  int fieldType, int dir ) const {
+    return( indexSpace_->eInd( fieldType, dir ) );
   }
 
-  const Ordinal* sIndB( int fieldType, int dir ) const {
-    if( EField::S == (EField)fieldType )
-      return( scalarIS_->sInd_[dir]  );
-    else
-      return( fullIS_[fieldType]->sInd_.getRawPtr()  );
+  const Ordinal& sIndB( int fieldType, int dir ) const {
+    return( indexSpace_->sIndB( fieldType, dir ) );
   }
-  const Ordinal* eIndB( int fieldType, int dir ) const {
-    if( EField::S == (EField)fieldType )
-      return( scalarIS_->eInd_[dir]  );
-    else
-      return( fullIS_[fieldType]->eInd_[dir]  );
+  const Ordinal& eIndB( int fieldType, int dir ) const {
+    return( indexSpace_->eIndB( fieldType, dir ) );
   }
 
   const Ordinal* procCoordinate() const { return( procGrid_->getIB()  ); }
@@ -252,12 +214,7 @@ public:
       out <<"---GridSizeLocal: ---\n";
       gridSizeLocal_->print( out );
 
-      scalarIS_->print(out);
-
-      for( int i=0; i<3; ++i ) {
-        innerIS_[i]->print( out );
-        fullIS_[i]->print( out );
-      }
+      indexSpace_->print(out);
 
       procGridSize_->print( out );
 
@@ -384,10 +341,7 @@ Teuchos::RCP<const Space<S,O,d> > createSpace(
 
   auto fieldSpace = Pimpact::createStencilWidths<d>();
 
-  auto scalarIndexSpace = Pimpact::createScalarIndexSpace<O,d>( fieldSpace, gridSizeLocal, boundaryConditionsLocal, setImpact );
-
-  auto innerIndexSpace = Pimpact::createInnerFieldIndexSpaces<O,d>( fieldSpace, gridSizeLocal, boundaryConditionsLocal, setImpact );
-  auto  fullIndexSpace = Pimpact::createFullFieldIndexSpaces<O,d>(  fieldSpace, gridSizeLocal, boundaryConditionsLocal, setImpact );
+  auto indexSpace = Pimpact::createIndexSpace<O,d>( fieldSpace, gridSizeLocal, boundaryConditionsLocal, setImpact );
 
   if( setImpact ) Pimpact::init_impact_postpost();
 
@@ -420,9 +374,7 @@ Teuchos::RCP<const Space<S,O,d> > createSpace(
        Teuchos::rcp(
            new Space<S,O,d>(
                fieldSpace,
-               scalarIndexSpace,
-               innerIndexSpace,
-               fullIndexSpace,
+               indexSpace,
                gridSizeGlobal,
                gridSizeLocal,
                procGridSize,

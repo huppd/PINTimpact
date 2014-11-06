@@ -17,6 +17,7 @@
 #include "Pimpact_DivOp.hpp"
 #include "Pimpact_GradOp.hpp"
 #include "Pimpact_DivGradOp.hpp"
+#include "Pimpact_DivGrad2ndOOp.hpp"
 #include "Pimpact_HelmholtzOp.hpp"
 #include "Pimpact_InterpolateV2SOp.hpp"
 #include "Pimpact_InterpolateS2VOp.hpp"

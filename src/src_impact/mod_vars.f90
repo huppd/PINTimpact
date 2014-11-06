@@ -757,12 +757,17 @@ module mod_vars
   
   !> \{ \brief field properties
   integer                ::  n_gather(1:3,1:n_grids_max)
+  !> corresponds to N1,N2,N3 on different grid levels, are equal for g=1
   integer                ::  NN (1:3,1:n_grids_max)
+  !> corresponds to NB1,NB2,NB3 on different grid levels, are equal for g=1
   integer                ::  NB (1:3,1:n_grids_max)
+  !> corresponds to iB1,iB2,iB3 on different grid levels, are equal for g=1
   integer                ::  iB (1:3,1:n_grids_max)
+  !> first index is lower start/end index, second index direction, third index grid level
   integer                ::  SNF(1:2,1:3,1:n_grids_max)
+  !> cooresponds to S1p,N1p,... first index is lower start/end index, second index direction, third index grid level
   integer                ::  SNB(1:2,1:3,1:n_grids_max)
-  !> first index lower upper/ second index direction, third index grid level
+  !> cooresponds to non BC kind of first index lower upper/ second index direction, third index grid level
   integer                ::  BC (1:2,1:3,1:n_grids_max)
   integer                ::  ngb(1:2,1:3,1:n_grids_max)
   integer                ::  comm1(1:n_grids_max), comm2(1:n_grids_max)

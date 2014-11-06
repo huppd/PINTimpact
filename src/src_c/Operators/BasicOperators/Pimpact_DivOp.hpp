@@ -127,11 +127,17 @@ public:
   void print( std::ostream& out=std::cout ) const {
     out << " --- stencil: ---";
     for( int i=0; i<3; ++i ) {
-      out << "\ni: " << i << "\n( ";
-      Ordinal nTemp = ( space_->nLoc(i) + 1 )*( space_->bu(i) - space_->bl(i) + 1);
-      for( int j=0; j<nTemp; ++j )
-        out << c_[i][j] <<"\t";
-      out << ")\n";
+      out << "\ndir: " << i << "\n";
+      Ordinal nTemp1 = ( space_->nLoc(i) + 1 );
+      Ordinal nTemp2 = ( space_->du(i) - space_->dl(i) + 1);
+      for( int j=0; j<nTemp1; ++j ) {
+        out << "\ni: " << j << "\t(";
+        for( int k=0; k<nTemp2; ++k ) {
+          out << c_[i][k+nTemp2*j] <<", ";
+        }
+        out << ")\n";
+      }
+      out << "\n";
     }
   }
 

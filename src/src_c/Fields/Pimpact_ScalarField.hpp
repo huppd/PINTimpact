@@ -8,8 +8,6 @@
 
 #include "Teuchos_RCP.hpp"
 #include "BelosTypes.hpp"
-//#include "Teuchos_ScalarTraitsDecl.hpp"
-//#include "Teuchos_SerialDenseMatrix.hpp"
 
 #include "Pimpact_Types.hpp"
 #include "Pimpact_Space.hpp"
@@ -39,6 +37,8 @@ class ScalarField : private AbstractField<S,O,d> {
   template<class S1,class O1,int dimension1>
   friend class DivOp;
   template<class S1,class O1,int dimension1>
+  friend class DivGrad2ndOOp;
+  template<class S1,class O1,int dimension1>
   friend class InterpolateV2S;
   template<class S1,class O1,int dimension1>
   friend class InterpolateS2V;
@@ -63,7 +63,6 @@ public:
   static const int dimension = d;
 
   typedef typename AbstractField<S,O,d>::SpaceT SpaceT;
-
 
 protected:
 

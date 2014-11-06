@@ -39,8 +39,8 @@ class GridSizeLocal {
       const Teuchos::RCP<const GridSizeGlobal<OT,dT> >& gsg,
       const Teuchos::RCP<const ProcGridSize<OT,dT> >& pgs );
 
-  template< class OT, int dT >
-  friend Teuchos::RCP<const GridSizeLocal<OT,dT> > createGridSizeLocal();
+//  template< class OT, int dT >
+//  friend Teuchos::RCP<const GridSizeLocal<OT,dT> > createGridSizeLocal();
 
 public:
 
