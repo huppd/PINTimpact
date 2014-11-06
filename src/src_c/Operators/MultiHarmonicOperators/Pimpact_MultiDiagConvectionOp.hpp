@@ -18,31 +18,31 @@ namespace Pimpact {
 
 
 /// \ingroup MultiHarmonicOperator
-template<class Scalar,class Ordinal>
+template<class SpaceT>
 class MultiDiagConvectionJacobianOp {
 
-  typedef Scalar S;
-  typedef Ordinal O;
+  typedef typename SpaceT::Scalar Scalar;
+  typedef typename SpaceT::Ordinal Ordinal;
 
 public:
 
-  typedef MultiHarmonicField< VectorField<Scalar,Ordinal> >  DomainFieldT;
-  typedef MultiHarmonicField< VectorField<Scalar,Ordinal> >  RangeFieldT;
+  typedef MultiHarmonicField< VectorField<SpaceT> >  DomainFieldT;
+  typedef MultiHarmonicField< VectorField<SpaceT> >  RangeFieldT;
 
 protected:
 
   Teuchos::RCP<DomainFieldT> u_;
-  Teuchos::RCP<ConvectionVOp<S,O> > op_;
+  Teuchos::RCP<ConvectionVOp<SpaceT> > op_;
 
   const bool isNewton_;
 
 public:
 
   MultiDiagConvectionJacobianOp(
-      const Teuchos::RCP<const Space<S,O,3> >& space,
+      const Teuchos::RCP<const SpaceT>& space,
       const bool& isNewton=true ):
         u_(Teuchos::null),
-        op_( createConvectionVOp<S,O,3>( space ) ),
+        op_( createConvectionVOp<SpaceT>( space ) ),
         isNewton_(isNewton) {};
 
   void assignField( const DomainFieldT& mv ) {
@@ -113,13 +113,13 @@ public:
 
 
 /// \relates MultiDiagConvectionJacobianOp
-template< class S, class O>
-Teuchos::RCP<MultiDiagConvectionJacobianOp<S,O> >
+template<class SpaceT>
+Teuchos::RCP<MultiDiagConvectionJacobianOp<SpaceT> >
 createMultiDiagConvectionJacobianOp(
-    const Teuchos::RCP<const Space<S,O,3> >& space,
+    const Teuchos::RCP<const SpaceT>& space,
     const bool& isNewton=true ) {
 
-  return( Teuchos::rcp( new MultiDiagConvectionJacobianOp<S,O>( space, isNewton ) ) );
+  return( Teuchos::rcp( new MultiDiagConvectionJacobianOp<SpaceT>( space, isNewton ) ) );
 
 }
 

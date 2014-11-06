@@ -84,13 +84,16 @@ void MG_interpolateV(
 
 
 
-template< class Scalar=double, class Ordinal=int, int dimension=3 >
+template<class SpaceT>
 class InterpolationOp {
 
-  typedef ScalarField<Scalar,Ordinal,dimension>  DomainFieldT;
-  typedef ScalarField<Scalar,Ordinal,dimension>  RangeFieldT;
+  typedef typename SpaceT::Scalar Scalar;
+  typedef typename SpaceT::Ordinal Ordinal;
 
-  typedef Space<Scalar,Ordinal,dimension> SpaceT;
+  typedef ScalarField<SpaceT>  DomainFieldT;
+  typedef ScalarField<SpaceT>  RangeFieldT;
+
+//  typedef Space<Scalar,Ordinal,dimension> SpaceT;
 
   Teuchos::RCP<const SpaceT> spaceC_;
   Teuchos::RCP<const SpaceT> spaceF_;
@@ -223,12 +226,12 @@ public:
 
 
 
-template<class S=double, class O=int, int d=3>
-Teuchos::RCP< InterpolationOp<S,O,d> > createInterpolationOp(
-    const Teuchos::RCP<const Space<S,O,d> >& spaceC,
-    const Teuchos::RCP<const Space<S,O,d> >& spaceF ) {
+template<class SpaceT>
+Teuchos::RCP< InterpolationOp<SpaceT> > createInterpolationOp(
+    const Teuchos::RCP<const SpaceT>& spaceC,
+    const Teuchos::RCP<const SpaceT>& spaceF ) {
 
-  return( Teuchos::rcp( new InterpolationOp<S,O,d>(spaceC,spaceF) ) );
+  return( Teuchos::rcp( new InterpolationOp<SpaceT>(spaceC,spaceF) ) );
 
 }
 

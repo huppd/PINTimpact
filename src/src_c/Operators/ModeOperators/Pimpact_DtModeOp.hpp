@@ -13,8 +13,15 @@ namespace Pimpact{
 
 
 /// \ingroup ModeOperator
-template<class Scalar,class Ordinal>
+template<class SpaceT>
 class DtModeOp {
+
+public:
+
+  typedef typename SpaceT::Scalar Scalar;
+  typedef typename SpaceT::Ordinal Ordinal;
+
+protected:
 
   Scalar alpha2_;
 
@@ -23,8 +30,8 @@ public:
   DtModeOp():alpha2_(1.) {};
   DtModeOp(Scalar alpha2):alpha2_(alpha2) {};
 
-  typedef ModeField<VectorField<Scalar,Ordinal> >  DomainFieldT;
-  typedef ModeField<VectorField<Scalar,Ordinal> >  RangeFieldT;
+  typedef ModeField<VectorField<SpaceT> >  DomainFieldT;
+  typedef ModeField<VectorField<SpaceT> >  RangeFieldT;
 
 
   void apply(const DomainFieldT& x, RangeFieldT& y ) const {
@@ -41,9 +48,9 @@ public:
 
 
 /// \relates DtModeOp
-template< class Scalar, class Ordinal>
-Teuchos::RCP< DtModeOp<Scalar,Ordinal> > createDtModeOp( Scalar alpha2 = 1. ) {
-  return( Teuchos::rcp( new DtModeOp<Scalar,Ordinal>( alpha2 ) ) );
+template<class SpaceT>
+Teuchos::RCP< DtModeOp<SpaceT> > createDtModeOp( typename SpaceT::Scalar alpha2 = 1. ) {
+  return( Teuchos::rcp( new DtModeOp<SpaceT>( alpha2 ) ) );
 }
 
 } // end of namespace Pimpact

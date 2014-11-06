@@ -38,16 +38,19 @@ void OP_helmholtz(
 ///
 /// computes \f$ y = ( mulI_ I - mulL_ \Delta) x
 /// \ingroup BaseOperator
-template<class Scalar,class Ordinal,int dimension=3>
+template<class SpaceT>
 class HelmholtzOp {
 
 public:
+
+  typedef typename SpaceT::Scalar Scalar;
+  typedef typename SpaceT::Ordinal Ordinal;
 
   typedef const Teuchos::Tuple<Scalar*,3> TO;
 
 protected:
 
-  Teuchos::RCP< const Space<Scalar,Ordinal,dimension> > space_;
+  Teuchos::RCP<const SpaceT> space_;
 
   Scalar mulI_;
   Scalar mulL_;
@@ -57,11 +60,11 @@ protected:
 
 public:
 
-  typedef VectorField<Scalar,Ordinal,dimension>  DomainFieldT;
-  typedef VectorField<Scalar,Ordinal,dimension>  RangeFieldT;
+  typedef VectorField<SpaceT>  DomainFieldT;
+  typedef VectorField<SpaceT>  RangeFieldT;
 
   HelmholtzOp(
-      const Teuchos::RCP<const Space<Scalar,Ordinal,dimension> >& space,
+      const Teuchos::RCP<const SpaceT>& space,
       Scalar mulI=1.,
       Scalar mulL=1. ):
         space_(space),
@@ -225,13 +228,13 @@ public:
 
 
 /// \relates HelmholtzOp
-template<class S=double,class O=int,int d=3>
-Teuchos::RCP<HelmholtzOp<S,O,d> > createHelmholtzOp(
-    const Teuchos::RCP<const Space<S,O,d> >& space,
-    S mulI=0.,
-    S mulL=1. ) {
+template<class SpaceT>
+Teuchos::RCP<HelmholtzOp<SpaceT> > createHelmholtzOp(
+    const Teuchos::RCP<const SpaceT>& space,
+    typename SpaceT::Scalar mulI=0.,
+    typename SpaceT::Scalar mulL=1. ) {
   return(
-      Teuchos::rcp( new HelmholtzOp<S,O,d>( space, mulI, mulL ) )
+      Teuchos::rcp( new HelmholtzOp<SpaceT>( space, mulI, mulL ) )
   );
 }
 

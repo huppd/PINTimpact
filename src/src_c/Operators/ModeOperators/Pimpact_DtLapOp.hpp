@@ -10,6 +10,7 @@
 
 
 
+
 namespace Pimpact{
 
 
@@ -30,31 +31,38 @@ void OP_DtHelmholtz(
 
 /// \ingroup ModeOperator
 /// \todo move HelmholtzOp to MultiDtHelmholtzOp(is not ModeOp)
-template<class Scalar,class Ordinal>
+template<class SpaceT>
 class DtLapOp {
-
-  Teuchos::RCP<const Space<Scalar,Ordinal,3> > space_;
-
-  Scalar alpha2_;
-  Scalar iRe_;
-  Teuchos::RCP<HelmholtzOp<Scalar,Ordinal> > L_; // necesary for 0 mode
 
 public:
 
-  typedef ModeField<VectorField<Scalar,Ordinal> >  DomainFieldT;
-  typedef ModeField<VectorField<Scalar,Ordinal> >  RangeFieldT;
+  typedef typename SpaceT::Scalar Scalar;
+  typedef typename SpaceT::Ordinal Ordinal;
+
+protected:
+
+  Teuchos::RCP<const SpaceT> space_;
+
+  Scalar alpha2_;
+  Scalar iRe_;
+  Teuchos::RCP<HelmholtzOp<SpaceT> > L_; // necesary for 0 mode
+
+public:
+
+  typedef ModeField<VectorField<SpaceT> >  DomainFieldT;
+  typedef ModeField<VectorField<SpaceT> >  RangeFieldT;
 
   DtLapOp(
-      const Teuchos::RCP<const Space<Scalar,Ordinal,3> >& space,
+      const Teuchos::RCP<const SpaceT>& space,
       Scalar alpha2=1.,
       Scalar iRe=1.,
-      const Teuchos::RCP<HelmholtzOp<Scalar,Ordinal> >& L=Teuchos::null ):
+      const Teuchos::RCP<HelmholtzOp<SpaceT> >& L=Teuchos::null ):
         space_(space),
         alpha2_(alpha2),
         iRe_(iRe),
         L_(L) {
     if( L_.is_null() )
-      L_ = createHelmholtzOp<Scalar,Ordinal>( space, 0, iRe );
+      L_ = createHelmholtzOp<SpaceT>( space, 0, iRe );
   };
 
 
@@ -104,7 +112,7 @@ public:
 
   void assignField( const DomainFieldT& mv ) {};
 
-  Teuchos::RCP< HelmholtzOp<Scalar,Ordinal> > getInnerOpPtr() {
+  Teuchos::RCP< HelmholtzOp<SpaceT> > getInnerOpPtr() {
     return( L_ );
   }
 
@@ -115,9 +123,13 @@ public:
 
 
 /// \relates DtLapOp
-template< class S, class O>
-Teuchos::RCP< DtLapOp<S,O> > createDtLapOp( const Teuchos::RCP<const Space<S,O,3> >& space, S alpha2=1., S iRe=1. ) {
-  return( Teuchos::rcp( new DtLapOp<S,O>( space, alpha2, iRe ) ) );
+template< class SpaceT>
+Teuchos::RCP< DtLapOp<SpaceT> >
+createDtLapOp(
+    const Teuchos::RCP<const SpaceT>& space,
+    typename SpaceT::Scalar alpha2=1.,
+    typename SpaceT::Scalar iRe=1. ) {
+  return( Teuchos::rcp( new DtLapOp<SpaceT>( space, alpha2, iRe ) ) );
 }
 
 

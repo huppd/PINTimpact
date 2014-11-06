@@ -16,8 +16,14 @@ namespace Pimpact{
 
 
 /// \ingroup TimeOperator
-template<class Scalar=double,class Ordinal=int>
+template<class SpaceT>
 class DtTimeOp {
+
+public:
+
+  typedef typename SpaceT::Scalar Scalar;
+
+protected:
 
   Scalar alpha2_;
 
@@ -26,8 +32,8 @@ public:
   DtTimeOp():alpha2_(1.) {};
   DtTimeOp(Scalar alpha2):alpha2_(alpha2) {};
 
-  typedef TimeField< VectorField<Scalar,Ordinal,4> >  DomainFieldT;
-  typedef TimeField< VectorField<Scalar,Ordinal,4> >  RangeFieldT;
+  typedef TimeField< VectorField<SpaceT> >  DomainFieldT;
+  typedef TimeField< VectorField<SpaceT> >  RangeFieldT;
 
 
   void apply( const DomainFieldT& x, RangeFieldT& y ) const {
@@ -52,9 +58,9 @@ public:
 
 
 /// \relates DtTimeOp
-template< class Scalar=double, class Ordinal=int>
-Teuchos::RCP< DtTimeOp<Scalar,Ordinal> > createDtTimeOp( Scalar alpha2 = 1. ) {
-  return( Teuchos::rcp( new DtTimeOp<Scalar,Ordinal>( alpha2 ) ) );
+template< class SpaceT>
+Teuchos::RCP< DtTimeOp<SpaceT> > createDtTimeOp( typename SpaceT::Scalar alpha2 = 1. ) {
+  return( Teuchos::rcp( new DtTimeOp<SpaceT>( alpha2 ) ) );
 }
 
 } // end of namespace Pimpact

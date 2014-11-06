@@ -27,17 +27,17 @@ namespace Pimpact {
 /// \relates MultiField
 /// \relates ModeField
 /// \relates VectorField
-template<class Scalar, class Ordinal>
-Teuchos::RCP< MultiField<ModeField<VectorField<Scalar,Ordinal> > > >
-createMultiModeVectorField( const Teuchos::RCP<const Space<Scalar,Ordinal,3> >& space, int n=1 ) {
+template<class SpaceT>
+Teuchos::RCP< MultiField<ModeField<VectorField<SpaceT> > > >
+createMultiModeVectorField( const Teuchos::RCP<const SpaceT>& space, int n=1 ) {
 
 
-  auto velc = createVectorField<Scalar,Ordinal>( space );
-  auto vels = createVectorField<Scalar,Ordinal>( space );
+  auto velc = createVectorField<SpaceT>( space );
+  auto vels = createVectorField<SpaceT>( space );
 
   auto vel = createModeField( velc, vels );
 
-  return( createMultiField<ModeField<VectorField<Scalar,Ordinal> > >( *vel, n ) );
+  return( createMultiField<ModeField<VectorField<SpaceT> > >( *vel, n ) );
 }
 
 
@@ -45,16 +45,16 @@ createMultiModeVectorField( const Teuchos::RCP<const Space<Scalar,Ordinal,3> >& 
 /// \relates MultiField
 /// \relates ModeField
 /// \relates ScalarField
-template<class Scalar, class Ordinal>
-Teuchos::RCP< MultiField<ModeField<ScalarField<Scalar,Ordinal> > > >
-createMultiModeScalarField( const Teuchos::RCP<const Space<Scalar,Ordinal,3> >& space, int n=1 ) {
+template<class SpaceT>
+Teuchos::RCP< MultiField<ModeField<ScalarField<SpaceT> > > >
+createMultiModeScalarField( const Teuchos::RCP<const SpaceT>& space, int n=1 ) {
 
-  auto scalc = createScalarField<Scalar,Ordinal>(space);
-  auto scals = createScalarField<Scalar,Ordinal>(space);
+  auto scalc = createScalarField<SpaceT>(space);
+  auto scals = createScalarField<SpaceT>(space);
 
   auto scal = createModeField( scalc, scals );
 
-  return( createMultiField<ModeField<ScalarField<Scalar,Ordinal> > >( *scal, n ) );
+  return( createMultiField<ModeField<ScalarField<SpaceT> > >( *scal, n ) );
 }
 
 
@@ -62,18 +62,21 @@ createMultiModeScalarField( const Teuchos::RCP<const Space<Scalar,Ordinal,3> >& 
 /// \relates MultiField
 /// \relates ModeField
 /// \relates VectorField
-template<class Scalar, class Ordinal>
-Teuchos::RCP< MultiField<ModeField<VectorField<Scalar,Ordinal> > > > createInitMVF(
+template<class SpaceT>
+Teuchos::RCP< MultiField<ModeField<VectorField<SpaceT> > > > createInitMVF(
     EFlowType flowType,
-    const Teuchos::RCP<const Space<Scalar,Ordinal> >& space,
-    Scalar re=1., Scalar omega=1., Scalar px=1.) {
+    const Teuchos::RCP<const SpaceT>& space,
+    typename SpaceT::Scalar re=1.,
+    typename SpaceT::Scalar omega=1.,
+    typename SpaceT::Scalar px=1.) {
 
-  auto velc = createVectorField<double,int>(space);
-  auto vels = createVectorField<double,int>(space);
+
+  auto velc = createVectorField<SpaceT>(space);
+  auto vels = createVectorField<SpaceT>(space);
 
   auto vel  = createModeField( velc, vels );
 
-  auto u   = Pimpact::createMultiField< ModeField<VectorField<Scalar,Ordinal> > >(*vel,1);
+  auto u   = Pimpact::createMultiField< ModeField<VectorField<SpaceT> > >(*vel,1);
 
   switch( EFlowType( flowType ) ) {
   case Pimpact::Zero2DFlow :
@@ -121,16 +124,16 @@ Teuchos::RCP< MultiField<ModeField<VectorField<Scalar,Ordinal> > > > createInitM
 /// \relates MultiField
 /// \relates ModeField
 /// \relates ScalarField
-template<class Scalar, class Ordinal>
-Teuchos::RCP< MultiField<ModeField<ScalarField<Scalar,Ordinal> > > > createInitMSF(
-    const Teuchos::RCP< const Space<Scalar,Ordinal> > space ) {
+template<class SpaceT>
+Teuchos::RCP< MultiField<ModeField<ScalarField<SpaceT> > > > createInitMSF(
+    const Teuchos::RCP< const SpaceT >& space ) {
 
-  auto scac = Pimpact::createScalarField<Scalar,Ordinal>(space);
-  auto scas = Pimpact::createScalarField<Scalar,Ordinal>(space);
+  auto scac = Pimpact::createScalarField<SpaceT>(space);
+  auto scas = Pimpact::createScalarField<SpaceT>(space);
 
   auto sca = Pimpact::createModeField( scac, scas );
 
-  return( Pimpact::createMultiField<ModeField<ScalarField<Scalar,Ordinal> > >(*sca,1) );
+  return( Pimpact::createMultiField<ModeField<ScalarField<SpaceT> > >(*sca,1) );
 }
 
 
@@ -142,16 +145,16 @@ Teuchos::RCP< MultiField<ModeField<ScalarField<Scalar,Ordinal> > > > createInitM
 /// \param fS scalar Vector Space to which returned vector belongs
 /// \param nf amount of modes
 /// \return field vector
-template<class S, class O>
-Teuchos::RCP< MultiHarmonicField< ScalarField<S,O> > > createMultiHarmonicScalarField(
-    const Teuchos::RCP<const Space<S,O> >& space,
+template<class SpaceT>
+Teuchos::RCP< MultiHarmonicField< ScalarField<SpaceT> > > createMultiHarmonicScalarField(
+    const Teuchos::RCP<const SpaceT >& space,
     int nf) {
-  auto field0 = createScalarField<S,O>( space );
-  auto mfield = createModeField< ScalarField<S,O> >( field0, field0 );
-  auto fields = createMultiField< ModeField< ScalarField<S,O> > >( *mfield, nf );
+  auto field0 = createScalarField<SpaceT>( space );
+  auto mfield = createModeField< ScalarField<SpaceT> >( field0, field0 );
+  auto fields = createMultiField< ModeField< ScalarField<SpaceT> > >( *mfield, nf );
   return(
       Teuchos::rcp(
-          new MultiHarmonicField< ScalarField<S,O> >( field0, fields ) ) );
+          new MultiHarmonicField< ScalarField<SpaceT> >( field0, fields ) ) );
 }
 
 
@@ -160,21 +163,18 @@ Teuchos::RCP< MultiHarmonicField< ScalarField<S,O> > > createMultiHarmonicScalar
 ///
 /// \relates MultiHarmonicField
 /// \relates VectorField
-/// \param fieldS scalar Vector Space to which returned vector belongs
-/// \param innerIS
-/// \param fullIS
 /// \param nf amount of modes
 /// \return field vector
-template<class S, class O>
-Teuchos::RCP< MultiHarmonicField< VectorField<S,O> > >
+template<class SpaceT>
+Teuchos::RCP< MultiHarmonicField< VectorField<SpaceT> > >
 createMultiHarmonicVectorField(
-    const Teuchos::RCP< const Space<S,O> >& space,
+    const Teuchos::RCP< const SpaceT>& space,
     int nf ) {
-  auto field0 = createVectorField<S,O>( space );
-  auto mfield = createModeField< VectorField<S,O> >( field0, field0 );
-  auto fields = createMultiField< ModeField< VectorField<S,O> > >( *mfield, nf );
+  auto field0 = createVectorField<SpaceT>( space );
+  auto mfield = createModeField< VectorField<SpaceT> >( field0, field0 );
+  auto fields = createMultiField< ModeField< VectorField<SpaceT> > >( *mfield, nf );
   return( Teuchos::rcp(
-      new MultiHarmonicField< VectorField<S,O> >( field0, fields ) ) );
+      new MultiHarmonicField< VectorField<SpaceT> >( field0, fields ) ) );
 }
 
 

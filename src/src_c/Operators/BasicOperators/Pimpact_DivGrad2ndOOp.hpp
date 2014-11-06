@@ -57,24 +57,28 @@ void OP_DivGrad2ndOOp(
 /// \ingroup BaseOperator
 /// \todo instead of hardcode 2nd Order it would be pretty to use new space with StencilWidth<3,2>
 /// \todo handle corner
-template<class Scalar,class Ordinal, int dimension=3>
+template<class SpaceT>
 class DivGrad2ndOOp {
+
+public:
+  typedef typename SpaceT::Scalar Scalar;
+  typedef typename SpaceT::Ordinal Ordinal;
+
+  typedef ScalarField<SpaceT>  DomainFieldT;
+  typedef ScalarField<SpaceT>  RangeFieldT;
 
 protected:
 
   typedef const Teuchos::Tuple<Scalar*,3> TO;
 
-  const Teuchos::RCP<const Space<Scalar,Ordinal,dimension> > space_;
+  const Teuchos::RCP<const SpaceT> space_;
 
   TO c_;
 
 public:
 
-  typedef ScalarField<Scalar,Ordinal,dimension>  DomainFieldT;
-  typedef ScalarField<Scalar,Ordinal,dimension>  RangeFieldT;
 
-
-  DivGrad2ndOOp( const Teuchos::RCP<const Space<Scalar,Ordinal,dimension> >& space ):
+  DivGrad2ndOOp( const Teuchos::RCP<const SpaceT>& space ):
     space_(space) {
 
     for( int i=0; i<3; ++i ) {
@@ -153,11 +157,11 @@ public:
 
 
 /// \relates DivGrad2ndOOp
-template<class S, class O, int d=3>
-Teuchos::RCP< DivGrad2ndOOp<S,O,d> > createDivGrad2ndOOp(
-    const Teuchos::RCP<const Space<S,O,d> >& space ) {
+template<class SpaceT>
+Teuchos::RCP< DivGrad2ndOOp<SpaceT> > createDivGrad2ndOOp(
+    const Teuchos::RCP<const SpaceT>& space ) {
   return(
-      Teuchos::rcp( new DivGrad2ndOOp<S,O,d>(space) ) );
+      Teuchos::rcp( new DivGrad2ndOOp<SpaceT>(space) ) );
 }
 
 

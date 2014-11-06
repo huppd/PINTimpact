@@ -12,6 +12,11 @@
 
 namespace {
 
+typedef double S;
+typedef int O;
+
+typedef Pimpact::Space<S,O,3> Space3T;
+typedef Pimpact::Space<S,O,4> Space4T;
 
 bool testMpi = true;
 double errorTolSlack = 1e-6;
@@ -19,8 +24,6 @@ double errorTolSlack = 1e-6;
 int domain = 1;
 int ftype = 0;
 
-typedef double S;
-typedef int O;
 
 
 TEUCHOS_STATIC_SETUP() {
@@ -46,7 +49,7 @@ TEUCHOS_STATIC_SETUP() {
 // test shows that nLoc is not consistent with start and end indexes
 TEUCHOS_UNIT_TEST( MultiGrid, constructor3D ) {
 
-  typedef Pimpact::ScalarField<S,O,3> SF;
+  typedef Pimpact::ScalarField<Space3T> SF;
   typedef Pimpact::CoarsenStrategy<SF> CS;
 
   auto pl = Teuchos::parameterList();
@@ -64,7 +67,7 @@ TEUCHOS_UNIT_TEST( MultiGrid, constructor3D ) {
 
 TEUCHOS_UNIT_TEST( MultiGrid, constructor4D ) {
 
-  typedef Pimpact::ScalarField<S,O,4> SF;
+  typedef Pimpact::ScalarField<Space4T> SF;
 
   typedef Pimpact::CoarsenStrategy<SF> CS;
 
@@ -109,7 +112,7 @@ TEUCHOS_UNIT_TEST( MultiGrid, constructor4D ) {
 
 TEUCHOS_UNIT_TEST( MultiGrid, Restrictor3D ) {
 
-  typedef Pimpact::ScalarField<S,O,3> SF;
+  typedef Pimpact::ScalarField<Space3T> SF;
 
   typedef Pimpact::CoarsenStrategy<SF> CS;
 
@@ -220,7 +223,7 @@ TEUCHOS_UNIT_TEST( MultiGrid, Restrictor3D ) {
 
 TEUCHOS_UNIT_TEST( MultiGrid, Interpolator3D ) {
 
-  typedef Pimpact::ScalarField<S,O,3> SF;
+  typedef Pimpact::ScalarField<Space3T> SF;
 
   typedef Pimpact::CoarsenStrategy<SF> CS;
 

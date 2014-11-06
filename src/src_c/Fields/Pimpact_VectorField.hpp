@@ -22,51 +22,54 @@
 #include "Pimpact_ScalarField.hpp"
 
 
+
+
 namespace Pimpact {
+
 
 
 /// \brief important basic Vector class
 /// it wraps three ScalarFields.
 /// \ingroup Field
 /// \relates ScalarField
-template<class S=double, class O=int, int d=3 >
-class VectorField : private AbstractField<S,O,d> {
+template<class SpaceType>
+class VectorField : private AbstractField<SpaceType> {
 
-  template<class S1, class O1, int dimension1>
-  friend class GradOp;
-  template<class S1,class O1, int dimension1>
+  template<class SpaceTT>
   friend class DivOp;
-  template<class S1,class O1, int dimension1>
+  template<class SpaceTT>
+  friend class GradOp;
+  template<class SpaceTT>
   friend class HelmholtzOp;
-  template<class S1,class O1, int d1>
+  template<class SpaceTT>
   friend class ConvectionOp;
-  template<class S1,class O1, int dimension1>
+  template<class SpaceTT>
   friend class ConvectionJacobianOp;
-  template<class S1,class O1>
+  template<class SpaceTT>
   friend class DtLapOp;
-  template<class S1,class O1>
-  friend class MLHelmholtzOp;
-  template<class S1,class O1>
-  friend class InverseHelmholtzOp;
-  template<class S1,class O1,int dimension1>
-  friend class MGVHelmholtzOp;
-  template< class S1, class O1, bool CNY >
+//  template<class SpaceTT>
+//  friend class MLHelmholtzOp;
+//  template<class SpaceTT>
+//  friend class InverseHelmholtzOp;
+//  template<class SpaceTT>
+//  friend class MGVHelmholtzOp;
+  template<class SpaceTT, bool CNY>
   friend class TimeNonlinearJacobian;
 
 public:
 
-  typedef S Scalar;
-  typedef O Ordinal;
+  typedef SpaceType SpaceT;
 
-  static const int dimension = d;
+  typedef typename SpaceT::Scalar Scalar;
+  typedef typename SpaceT::Ordinal Ordinal;
 
-  typedef typename AbstractField<S,O,d>::SpaceT SpaceT;
+  static const int dimension = SpaceT::dimension;
 
 protected:
 
   typedef Scalar* ScalarArray;
-  typedef VectorField<Scalar,Ordinal,dimension> VF;
-  typedef ScalarField<Scalar,Ordinal,dimension> SF;
+  typedef VectorField<SpaceT> VF;
+  typedef ScalarField<SpaceT> SF;
 
   ScalarArray vec_;
 
@@ -78,7 +81,7 @@ public:
 
 
   VectorField( const Teuchos::RCP< const SpaceT >& space, bool owning=true ):
-    AbstractField<S,O,d>( space ),
+    AbstractField<SpaceT>( space ),
     owning_(owning)//,
     {
 
@@ -107,7 +110,7 @@ public:
   /// \param vF
   /// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
   VectorField( const VectorField& vF, ECopyType copyType=DeepCopy ):
-    AbstractField<S,O,d>( vF.space() ),
+    AbstractField<SpaceT>( vF.space() ),
     owning_(vF.owning_) {
 
     for( int i=0; i<3; ++i )
@@ -722,7 +725,7 @@ public:
   Teuchos::RCP<const SF> getConstFieldPtr( int i ) const { return(  sFields_[i] ); }
   const SF&  getConstField   ( int i ) const { return( *sFields_[i] ); }
 
-  Teuchos::RCP<SpaceT> space() const { return( AbstractField<S,O,d>::space_ ); }
+  Teuchos::RCP<const SpaceT> space() const { return( AbstractField<SpaceT>::space_ ); }
 
 protected:
 
@@ -779,11 +782,11 @@ protected:
 
 /// \brief creates a vector field belonging to a \c Space
 /// \relates VectorField
-template<class S=double, class O=int, int d=3>
-Teuchos::RCP< VectorField<S,O,d> > createVectorField( const Teuchos::RCP< const Space<S,O,d> >& space ) {
+template<class SpaceT=Space<double,int,3> >
+Teuchos::RCP< VectorField<SpaceT> > createVectorField( const Teuchos::RCP<const SpaceT>& space ) {
 
   return( Teuchos::rcp(
-      new VectorField<S,O,d>( space ) ) );
+      new VectorField<SpaceT>( space ) ) );
 
 }
 

@@ -29,9 +29,12 @@
 #include <iostream>
 
 
+
+
 /// \defgroup Space Space
 ///
 /// overloaded class managing indexing, grid ...
+
 
 
 namespace Pimpact {
@@ -41,13 +44,20 @@ extern "C" {
   void openH5F();
   void closeH5F();
 }
+
+
 /// \brief Space in the sense of a VectorSpace, it is the connection between Field and Operators
 ///
 /// \ingroup Space
-template< class Scalar=double, class Ordinal=int, int dimension=3 >
+template< class S=double, class O=int, int d=3 >
 class Space {
 
 public:
+
+  typedef S Scalar;
+  typedef O Ordinal;
+
+  static const int dimension = d;
 
   Space(
       const Teuchos::RCP<const StencilWidths<dimension> >& stencilWidths,
@@ -227,8 +237,8 @@ public:
   }
 
   static Teuchos::RCP<const Teuchos::ParameterList>  getValidParameters()  {
-    typedef Scalar S;
-    typedef Ordinal O;
+//    typedef Scalar S;
+//    typedef Ordinal O;
 
     static Teuchos::RCP<const Teuchos::ParameterList> validPL;
     // Set all the valid parameters and their default values.

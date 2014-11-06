@@ -24,9 +24,12 @@
 
 
 
-
-
 namespace {
+
+typedef double  S;
+typedef int     O;
+
+typedef Pimpact::Space<S,O,3> SpaceT;
 
 bool testMpi = true;
 double errorTolSlack = 1e+1;
@@ -48,31 +51,24 @@ TEUCHOS_STATIC_SETUP() {
 
 TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 
-	using Teuchos::ParameterList;
-	using Teuchos::parameterList;
-	using Teuchos::RCP;
-	using Teuchos::rcp; // Save some typing
-	typedef double  S;
-	typedef int     O;
-	typedef Pimpact::MultiField< Pimpact::VectorField<S,O> > MF;
+	typedef Pimpact::MultiField< Pimpact::VectorField<SpaceT> > MF;
 
-//	typedef Pimpact::MultiOpWrap< Pimpact::HelmholtzOp<S,O> >  Op;
 
 
 	auto space = Pimpact::createSpace();
 
-	auto vel = Pimpact::createVectorField<S,O>(space);
+	auto vel = Pimpact::createVectorField(space);
 
-	auto x = Pimpact::createMultiField<Pimpact::VectorField<S,O> >(*vel,1);
-	auto b = Pimpact::createMultiField<Pimpact::VectorField<S,O> >(*vel,1);
+	auto x = Pimpact::createMultiField(*vel,1);
+	auto b = Pimpact::createMultiField(*vel,1);
 
 	x->init(0.);
 	b->init(1.);
 
-	auto A = Pimpact::createMultiOperatorBase< MF, Pimpact::HelmholtzOp<S,O> >( Pimpact::createHelmholtzOp<S,O>(space) );
+	auto A = Pimpact::createMultiOperatorBase< MF, Pimpact::HelmholtzOp<SpaceT> >( Pimpact::createHelmholtzOp(space) );
 
 
-	RCP<ParameterList> param = Pimpact::createLinSolverParameter("GMRES",1.e-4);
+	auto param = Pimpact::createLinSolverParameter("GMRES",1.e-4);
 
 	auto linprob = Pimpact::createLinearProblem<MF>(A,x,b,param,"GMRES");
 

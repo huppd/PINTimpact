@@ -25,7 +25,7 @@ namespace Pimpact {
 /// vector for wrapping 2 fields into one mode
 /// \ingroup Field
 template<class Field>
-class ModeField : private AbstractField< typename Field::Scalar, typename Field::Ordinal, Field::dimension> {
+class ModeField : private AbstractField<typename Field::SpaceT> {
 
 public:
 
@@ -34,13 +34,13 @@ public:
 
   static const int dimension = Field::dimension;
 
-  typedef typename AbstractField<Scalar,Ordinal,dimension>::SpaceT SpaceT;
+  typedef typename Field::SpaceT SpaceT;
 
 protected:
 
   typedef ModeField<Field> MV;
 
-  typedef AbstractField< typename Field::Scalar, typename Field::Ordinal, Field::dimension> AF;
+  typedef AbstractField< typename Field::SpaceT> AF;
 
   Teuchos::RCP<Field> fieldc_;
   Teuchos::RCP<Field> fields_;
@@ -90,7 +90,7 @@ public:
   const Field& getConstCField() const { return( *fieldc_ ); }
   const Field& getConstSField() const { return( *fields_ ); }
 
-  Teuchos::RCP<SpaceT> space() const { return( AF::space_ ); }
+  Teuchos::RCP<const SpaceT> space() const { return( AF::space_ ); }
 
   /// \brief returns the length of Field.
   ///

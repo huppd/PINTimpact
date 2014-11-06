@@ -43,8 +43,11 @@ int main(int argi, char** argv ) {
 
   typedef double S;
   typedef int O;
-  typedef Pimpact::VectorField<S,O> VF;
-  typedef Pimpact::ScalarField<S,O> SF;
+
+  typedef Pimpact::Space<S,O,3> SpaceT;
+
+  typedef Pimpact::VectorField<SpaceT> VF;
+  typedef Pimpact::ScalarField<SpaceT> SF;
   typedef Pimpact::MultiField<VF>  MVF;
   typedef Pimpact::MultiField<SF>  MSF;
 
@@ -163,8 +166,8 @@ int main(int argi, char** argv ) {
 
 
   // init vectors
-  auto sca = Pimpact::createScalarField<S,O>( space );
-  auto vel = Pimpact::createVectorField<S,O>( space );
+  auto sca = Pimpact::createScalarField( space );
+  auto vel = Pimpact::createVectorField( space );
 
   auto p     = Pimpact::createMultiField<SF>(*sca,1);
   auto temps = Pimpact::createMultiField<SF>(*sca,1);
@@ -188,9 +191,9 @@ int main(int argi, char** argv ) {
   // init operators
   auto lap  =
       Pimpact::createMultiOperatorBase<MVF>(
-          Pimpact::createHelmholtzOp<S,O>( space, 0., 1./re ) );
-  auto div  = Pimpact::createMultiOpWrap( Pimpact::createDivOp<S,O>( space ) );
-  auto grad = Pimpact::createMultiOpWrap( Pimpact::createGradOp<S,O>( space ) );
+          Pimpact::createHelmholtzOp( space, 0., 1./re ) );
+  auto div  = Pimpact::createMultiOpWrap( Pimpact::createDivOp( space ) );
+  auto grad = Pimpact::createMultiOpWrap( Pimpact::createGradOp( space ) );
 
   // init rhs
   lap->apply( *u, *fu );

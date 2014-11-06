@@ -44,22 +44,14 @@ int main(int argi, char** argv ) {
 
   typedef double S;
   typedef int O;
-  typedef Pimpact::MultiHarmonicField< Pimpact::VectorField<S,O> > VF;
-  typedef Pimpact::MultiHarmonicField< Pimpact::ScalarField<S,O> > SF;
+
+  typedef Pimpact::Space<S,O,3> SpaceT;
+  typedef Pimpact::MultiHarmonicField< Pimpact::VectorField<SpaceT> > VF;
+  typedef Pimpact::MultiHarmonicField< Pimpact::ScalarField<SpaceT> > SF;
   typedef Pimpact::CompoundField< VF, SF> CF;
   typedef Pimpact::MultiField<CF> MF;
 
-
-//  typedef Pimpact::MultiHarmonicOpWrap< Pimpact::GradOp<S,O> > OpS2V;
-//  typedef Pimpact::MultiHarmonicOpWrap< Pimpact::DivOp<S,O> >  OpV2S;
-
-//  typedef Pimpact::MultiDtHelmholtz<S,O>  DtL;
-//  typedef Pimpact::MultiHarmonicConvectionOp<S,O>  MAdv;
-//  typedef Pimpact::Add2Op<DtL,MAdv> OpV2V;
-//  typedef Pimpact::MultiOpWrap< Pimpact::CompoundOpWrap<OpV2V,OpS2V,OpV2S> > Op;
-
   typedef Pimpact::OperatorBase<MF> BOp;
-
 
   typedef NOX::Pimpact::Interface<MF> Inter;
   typedef NOX::Pimpact::Vector<typename Inter::Field> NV;
@@ -184,8 +176,8 @@ int main(int argi, char** argv ) {
 
   // init vectors
   auto x    = Pimpact::createMultiField( Pimpact::createCompoundField(
-      Pimpact::createMultiHarmonicVectorField<S,O>( space, nfs ),
-      Pimpact::createMultiHarmonicScalarField<S,O>( space, nfs )) );
+      Pimpact::createMultiHarmonicVectorField( space, nfs ),
+      Pimpact::createMultiHarmonicScalarField( space, nfs )) );
   //  auto temp = x->clone();
   auto fu   = x->clone();
   //  auto force = x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone();
@@ -232,12 +224,12 @@ int main(int argi, char** argv ) {
 
     auto opV2V =
         Pimpact::createAdd2Op(
-            Pimpact::createMultiDtHelmholtz<S,O>( space, alpha2/re, 1./re ),
-            Pimpact::createMultiHarmonicConvectionOp<S,O>( space /*,x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone()*/ ),
+            Pimpact::createMultiDtHelmholtz( space, alpha2/re, 1./re ),
+            Pimpact::createMultiHarmonicConvectionOp( space /*,x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone()*/ ),
             x->getConstFieldPtr(0)->getConstVFieldPtr()->clone()
         );
-    auto opS2V = Pimpact::createMultiHarmonicOpWrap( Pimpact::createGradOp<S,O>( space ) );
-    auto opV2S = Pimpact::createMultiHarmonicOpWrap( Pimpact::createDivOp<S,O>( space ) );
+    auto opS2V = Pimpact::createMultiHarmonicOpWrap( Pimpact::createGradOp( space ) );
+    auto opV2S = Pimpact::createMultiHarmonicOpWrap( Pimpact::createDivOp( space ) );
 
     auto op =
         Pimpact::createMultiOperatorBase<MF>(
@@ -251,8 +243,8 @@ int main(int argi, char** argv ) {
         Pimpact::createCompoundOpWrap(
             x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
             Pimpact::createAdd2Op(
-                Pimpact::createMultiDtHelmholtz<S,O>( space, alpha2/re, 1./re ),
-                Pimpact::createMultiHarmonicConvectionJacobianOp<S,O>(
+                Pimpact::createMultiDtHelmholtz( space, alpha2/re, 1./re ),
+                Pimpact::createMultiHarmonicConvectionJacobianOp(
                     space,
                     //                    x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone(),
                     x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::DeepCopy) ),

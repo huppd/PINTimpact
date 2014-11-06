@@ -16,16 +16,15 @@ namespace Pimpact {
 
 
 /// \ingroup ModeOperator
-template<class Scalar,class Ordinal>
+template<class SpaceT>
 class EddyPrec {
 
-  typedef Scalar S;
-  typedef Ordinal O;
+  typedef typename SpaceT::Scalar Scalar;
 
 public:
 
-  typedef ModeField< VectorField<S,O> > DomainFieldT;
-  typedef ModeField< VectorField<S,O> > RangeFieldT;
+  typedef ModeField< VectorField<SpaceT> > DomainFieldT;
+  typedef ModeField< VectorField<SpaceT> > RangeFieldT;
 
   typedef MultiField<DomainFieldT> MVF;
 
@@ -69,11 +68,11 @@ public:
 
 
 /// \relates EddyPrec
-template<class S, class O>
-Teuchos::RCP<EddyPrec<S,O> > createEddyPrec(
-    const Teuchos::RCP<typename EddyPrec<S,O>::MVF> & temp,
-    const Teuchos::RCP<typename EddyPrec<S,O>::Op> op ) {
-  return( Teuchos::rcp( new EddyPrec<S,O>( temp, op ) ) );
+template<class SpaceT>
+Teuchos::RCP<EddyPrec<SpaceT> > createEddyPrec(
+    const Teuchos::RCP<typename EddyPrec<SpaceT>::MVF> & temp,
+    const Teuchos::RCP<typename EddyPrec<SpaceT>::Op> op ) {
+  return( Teuchos::rcp( new EddyPrec<SpaceT>( temp, op ) ) );
 }
 
 

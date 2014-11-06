@@ -34,6 +34,8 @@ namespace {
 typedef double S;
 typedef int O;
 
+typedef Pimpact::Space<S,O,3> SpaceT;
+
 bool testMpi = true;
 double errorTolSlack = 1e-4;
 
@@ -54,7 +56,7 @@ TEUCHOS_STATIC_SETUP() {
 
 TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 
-  typedef Pimpact::VectorField<S,O> VF;
+  typedef Pimpact::VectorField<SpaceT> VF;
   typedef Pimpact::MultiField<VF> MVF;
 
   typedef Pimpact::OperatorBase<MVF> BOp;
@@ -67,8 +69,8 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 
   if( !isImpactInit ) isImpactInit=true;
 
-  auto x = Pimpact::createMultiField( Pimpact::createVectorField<S,O>(space) );
-  auto b = Pimpact::createMultiField( Pimpact::createVectorField<S,O>(space) );
+  auto x = Pimpact::createMultiField( Pimpact::createVectorField(space) );
+  auto b = Pimpact::createMultiField( Pimpact::createVectorField(space) );
 
   b->init( 1. );
 
@@ -109,7 +111,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, DtLapOp ) {
     isImpactInit=true;
   }
 
-  typedef Pimpact::VectorField<S,O> VF;
+  typedef Pimpact::VectorField<SpaceT> VF;
   typedef Pimpact::ModeField<VF> MVF;
   typedef Pimpact::MultiField<MVF> BVF;
 
@@ -126,8 +128,8 @@ TEUCHOS_UNIT_TEST( BelosSolver, DtLapOp ) {
 
   if( !isImpactInit ) isImpactInit=true;
 
-  auto b = Pimpact::createInitMVF<S,O>( Pimpact::Streaming2DFlow, space );
-  auto x = Pimpact::createInitMVF<S,O>( Pimpact::Zero2DFlow, space );
+  auto b = Pimpact::createInitMVF( Pimpact::Streaming2DFlow, space );
+  auto x = Pimpact::createInitMVF( Pimpact::Zero2DFlow, space );
 
 
   auto op = Pimpact::createMultiOperatorBase<BVF>( Pimpact::createDtLapOp(space) );
@@ -162,10 +164,10 @@ TEUCHOS_UNIT_TEST( BelosSolver, DtLapOp ) {
 
 TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
 
-  typedef Pimpact::ScalarField<S,O> SF;
+  typedef Pimpact::ScalarField<SpaceT> SF;
   typedef Pimpact::MultiField<SF> BSF;
 
-  typedef Pimpact::DivGradOp<S,O> Op;
+  typedef Pimpact::DivGradOp<SpaceT> Op;
   typedef Pimpact::MultiOpWrap<Op> MuOp;
   typedef Pimpact::OperatorBase<BSF> OpBase;
   typedef OpBase  BOp;
@@ -178,16 +180,16 @@ TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
 
   if( !isImpactInit ) isImpactInit=true;
 
-  auto temp = Pimpact::createVectorField<double,int>( space );
+  auto temp = Pimpact::createVectorField( space );
   temp->initField(Pimpact::PoiseuilleFlow2D_inX);
   //  temp->init(0.);
 
-  auto p = Pimpact::createScalarField<S,O>(space);
+  auto p = Pimpact::createScalarField(space);
 
   auto x = Pimpact::createMultiField<SF>(*p,1);
   auto b = x->clone();
 
-  auto div = Teuchos::rcp( new Pimpact::DivOp<S,O>( space ) );
+//  auto div = Pimpact::createDivOp( space );
 
   temp->initField(Pimpact::ZeroFlow);
   auto op = Pimpact::createOperatorBase<BSF,MuOp>(

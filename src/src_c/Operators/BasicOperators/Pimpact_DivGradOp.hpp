@@ -26,23 +26,23 @@ extern "C" {
 /// \todo not workin properly?
 /// \todo add temporary variable
 /// \warning does not hold test.
-template<class Scalar,class Ordinal, int dimension=3>
+template<class SpaceT>
 class DivGradOp {
 
-  Teuchos::RCP<VectorField<Scalar,Ordinal,dimension> > temp_;
-  Teuchos::RCP<DivOp<Scalar,Ordinal,dimension> > div_;
-  Teuchos::RCP<GradOp<Scalar,Ordinal,dimension> > grad_;
+  Teuchos::RCP<VectorField<SpaceT> > temp_;
+  Teuchos::RCP<DivOp<SpaceT> > div_;
+  Teuchos::RCP<GradOp<SpaceT> > grad_;
 
 public:
 
-  typedef ScalarField<Scalar,Ordinal,dimension>  DomainFieldT;
-  typedef ScalarField<Scalar,Ordinal,dimension>  RangeFieldT;
+  typedef ScalarField<SpaceT>  DomainFieldT;
+  typedef ScalarField<SpaceT>  RangeFieldT;
 
 
   DivGradOp(
-      const Teuchos::RCP<VectorField<Scalar,Ordinal,dimension> >& temp,
-      const Teuchos::RCP< DivOp<Scalar,Ordinal,dimension> >& div,
-      const Teuchos::RCP< GradOp<Scalar,Ordinal,dimension> >& grad ):
+      const Teuchos::RCP<VectorField<SpaceT> >& temp,
+      const Teuchos::RCP< DivOp<SpaceT> >& div,
+      const Teuchos::RCP< GradOp<SpaceT> >& grad ):
     temp_(temp),
     div_ (div),
     grad_(grad) {};
@@ -67,13 +67,13 @@ public:
 
 
 /// \relates DivGradOp
-template<class S, class O, int d=3>
-Teuchos::RCP< DivGradOp<S,O,d> > createDivGradOp(
-    const Teuchos::RCP<VectorField<S,O,d> >& temp,
-    const Teuchos::RCP< DivOp<S,O,d> >& div,
-    const Teuchos::RCP< GradOp<S,O,d> >& grad ) {
+template<class SpaceT>
+Teuchos::RCP< DivGradOp<SpaceT> > createDivGradOp(
+    const Teuchos::RCP<VectorField<SpaceT> >& temp,
+    const Teuchos::RCP< DivOp<SpaceT> >& div,
+    const Teuchos::RCP< GradOp<SpaceT> >& grad ) {
   return(
-      Teuchos::rcp( new DivGradOp<S,O,d>( temp, div, grad ) ) );
+      Teuchos::rcp( new DivGradOp<SpaceT>( temp, div, grad ) ) );
 }
 
 

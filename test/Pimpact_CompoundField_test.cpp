@@ -46,8 +46,8 @@ TEUCHOS_UNIT_TEST( VectorModeField, create_init_print ) {
 
   auto space = Pimpact::createSpace( pl, false );
 
-	auto vel = Pimpact::createVectorField<double,int>( space );
-	auto p = Pimpact::createScalarField<double,int>( space );
+	auto vel = Pimpact::createVectorField( space );
+	auto p = Pimpact::createScalarField( space );
 
 	auto um = Pimpact::createCompoundField( vel, p );
 
@@ -64,8 +64,8 @@ TEUCHOS_UNIT_TEST( VectorModeField, InfNorm_and_init ) {
 
   auto space = Pimpact::createSpace( pl, false );
 
-	auto vel = Pimpact::createVectorField<double,int>( space );
-	auto p = Pimpact::createScalarField<double,int>( space );
+	auto vel = Pimpact::createVectorField( space );
+	auto p = Pimpact::createScalarField( space );
 
 	auto um = Pimpact::createCompoundField( vel, p );
 
@@ -100,8 +100,8 @@ TEUCHOS_UNIT_TEST( VectorModeField, TwoNorm_and_init ) {
 
   auto space = Pimpact::createSpace( pl, false );
 
-	auto vel = Pimpact::createVectorField<double,int>( space );
-	auto p = Pimpact::createScalarField<double,int>( space );
+	auto vel = Pimpact::createVectorField( space );
+	auto p = Pimpact::createScalarField( space );
 
 	auto q = Pimpact::createCompoundField( vel, p );
 
@@ -127,10 +127,10 @@ TEUCHOS_UNIT_TEST( VectorModeField, dot ) {
 
   auto space = Pimpact::createSpace( pl, false );
 
-	auto vel = Pimpact::createVectorField<double,int>( space );
-	auto p = Pimpact::createScalarField<double,int>( space );
-	auto vel3 = Pimpact::createVectorField<double,int>( space );
-	auto p3 = Pimpact::createScalarField<double,int>( space );
+	auto vel = Pimpact::createVectorField( space );
+	auto p = Pimpact::createScalarField( space );
+	auto vel3 = Pimpact::createVectorField( space );
+	auto p3 = Pimpact::createScalarField( space );
 
 	auto vel1 = Pimpact::createCompoundField( vel, p );
 	auto vel2 = Pimpact::createCompoundField( vel3, p3 );
@@ -173,8 +173,8 @@ TEUCHOS_UNIT_TEST( VectorModeField, scale ) {
 
   auto space = Pimpact::createSpace( pl, false );
 
-	auto vel = Pimpact::createVectorField<double,int>( space );
-	auto p = Pimpact::createScalarField<double,int>( space );
+	auto vel = Pimpact::createVectorField( space );
+	auto p = Pimpact::createScalarField( space );
 
 	auto q = Pimpact::createCompoundField( vel, p );
 
@@ -198,8 +198,8 @@ TEUCHOS_UNIT_TEST( VectorModeField, random ) {
 
   auto space = Pimpact::createSpace( pl, false );
 
-	auto vel = Pimpact::createVectorField<double,int>( space );
-	auto p = Pimpact::createScalarField<double,int>( space );
+	auto vel = Pimpact::createVectorField( space );
+	auto p = Pimpact::createScalarField( space );
 
 	auto q = Pimpact::createCompoundField( vel, p );
 
@@ -223,13 +223,13 @@ TEUCHOS_UNIT_TEST( VectorModeField, add ) {
 
   auto space = Pimpact::createSpace( pl, false );
 
-	auto vel1c = Pimpact::createVectorField<double,int>(space);
-	auto vel2c = Pimpact::createVectorField<double,int>(space);
-	auto vel3c = Pimpact::createVectorField<double,int>(space);
+	auto vel1c = Pimpact::createVectorField(space);
+	auto vel2c = Pimpact::createVectorField(space);
+	auto vel3c = Pimpact::createVectorField(space);
 
-	auto vel1s = Pimpact::createScalarField<double,int>( space );
-	auto vel2s = Pimpact::createScalarField<double,int>( space );
-	auto vel3s = Pimpact::createScalarField<double,int>( space );
+	auto vel1s = Pimpact::createScalarField( space );
+	auto vel2s = Pimpact::createScalarField( space );
+	auto vel3s = Pimpact::createScalarField( space );
 
 	auto vel1 = Pimpact::createCompoundField( vel1c, vel1s );
 	auto vel2 = Pimpact::createCompoundField( vel2c, vel2s );
@@ -279,8 +279,8 @@ TEUCHOS_UNIT_TEST( VectorModeField, write ) {
 
   auto space = Pimpact::createSpace( pl, false );
 
-	auto vel = Pimpact::createVectorField<double,int>( space );
-	auto p = Pimpact::createScalarField<double,int>( space );
+	auto vel = Pimpact::createVectorField( space );
+	auto p = Pimpact::createScalarField( space );
 
 	auto q = Pimpact::createCompoundField( vel, p );
 

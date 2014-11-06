@@ -50,8 +50,10 @@ int main(int argi, char** argv ) {
   typedef double S;
   typedef int O;
 
-  typedef Pimpact::TimeField< Pimpact::VectorField<S,O,4> > VF;
-  typedef Pimpact::TimeField< Pimpact::ScalarField<S,O,4> > SF;
+  typedef Pimpact::Space<S,O,4> SpaceT;
+
+  typedef Pimpact::TimeField< Pimpact::VectorField<SpaceT> > VF;
+  typedef Pimpact::TimeField< Pimpact::ScalarField<SpaceT> > SF;
   typedef Pimpact::CompoundField< VF, SF> CF;
 //  typedef Pimpact::MultiField<VF> MVF;
 //  typedef Pimpact::MultiField<SF> MSF;
@@ -252,8 +254,8 @@ int main(int argi, char** argv ) {
   // init vectors
   auto x = Pimpact::createMultiField(
       Pimpact::createCompoundField(
-          Pimpact::createTimeField< Pimpact::VectorField<S,O,4> >( space ),
-          Pimpact::createTimeField< Pimpact::ScalarField<S,O,4> >( space ) ) );
+          Pimpact::createTimeField< Pimpact::VectorField<SpaceT> >( space ),
+          Pimpact::createTimeField< Pimpact::ScalarField<SpaceT> >( space ) ) );
 
 
   // init Fields, init and rhs
@@ -306,13 +308,13 @@ int main(int argi, char** argv ) {
   S idt = ((S)space->nGlo()[3])/2./pi;
 
 
-  auto dt  = Pimpact::createDtTimeOp<S,O>( alpha2*idt/re );
-  auto lap = Pimpact::createTimeOpWrap< Pimpact::HelmholtzOp<S,O,4>, cny >(
-      Pimpact::createHelmholtzOp<S,O,4>( space, 0., 1./re ),
-      Pimpact::createVectorField<S,O,4>( space ) );
-  auto conv = Pimpact::createTimeOpWrap<Pimpact::ConvectionVOp<S,O,4>,cny>  (
-      Pimpact::createConvectionVOp<S,O,4>( space ),
-      Pimpact::createVectorField<S,O,4>( space ) );
+  auto dt  = Pimpact::createDtTimeOp<SpaceT>( alpha2*idt/re );
+  auto lap = Pimpact::createTimeOpWrap< Pimpact::HelmholtzOp<SpaceT>, cny >(
+      Pimpact::createHelmholtzOp( space, 0., 1./re ),
+      Pimpact::createVectorField( space ) );
+  auto conv = Pimpact::createTimeOpWrap<Pimpact::ConvectionVOp<SpaceT>,cny>  (
+      Pimpact::createConvectionVOp( space ),
+      Pimpact::createVectorField( space ) );
 
   //  auto opV2V =
   //      Pimpact::createAdd3Op(
@@ -337,22 +339,21 @@ int main(int argi, char** argv ) {
       Pimpact::createCompositionOp(
           x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
           forcingm1Op,
-          //          Pimpact::createTimeOpWrap<Pimpact::GradOp<S,O,4>,cny>(
           Pimpact::createTimeOpWrap(
-              Pimpact::createGradOp<S,O,4>( space ),
-              Pimpact::createVectorField<S,O,4>( space ) ) );
+              Pimpact::createGradOp( space ),
+              Pimpact::createVectorField( space ) ) );
 
   auto opV2S = Pimpact::createTimeOpWrap(
-      Pimpact::createDivOp<S,O,4>( space ),
-      Pimpact::createScalarField<S,O,4>( space ) );
+      Pimpact::createDivOp( space ),
+      Pimpact::createScalarField( space ) );
 
   //  auto opV2S =
   //      Pimpact::createCompositionOp(
   //          x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
-  //          Pimpact::createTimeOpWrap<Pimpact::DivOp<S,O,4>,cny>(
-  ////          Pimpact::createTimeOpWrap<Pimpact::DivOp<S,O,4> >(
-  //              Pimpact::createDivOp<S,O,4>(),
-  //              Pimpact::createScalarField<S,O,4>( space ) ),
+  //          Pimpact::createTimeOpWrap<Pimpact::DivOp,cny>(
+  ////          Pimpact::createTimeOpWrap<Pimpact::DivOp >(
+  //              Pimpact::createDivOp(),
+  //              Pimpact::createScalarField( space ) ),
   //          forcingm1Op
   //              );
 
@@ -376,7 +377,7 @@ int main(int argi, char** argv ) {
     //            Pimpact::createTimeNonlinearJacobian<S,O>(
     //                Teuchos::null,
     //                isNewton,
-    //                Pimpact::createVectorField<S,O,4>(space) ) );
+    //                Pimpact::createVectorField(space) ) );
     auto opV2V =
         Pimpact::createAdd3Op(
             x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
@@ -387,7 +388,7 @@ int main(int argi, char** argv ) {
                     x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
                     dt,
                     lap,
-                    Pimpact::createTimeNonlinearJacobian<S,O,cny>(
+                    Pimpact::createTimeNonlinearJacobian<SpaceT,cny>(
                         space,
                         isNewton
                     )
@@ -448,7 +449,7 @@ int main(int argi, char** argv ) {
   //                    Pimpact::createTimeNonlinearJacobian<S,O,cny>(
   //                        Teuchos::null,
   //                        isNewton,
-  //                        Pimpact::createVectorField<S,O,4>( space )) ) ),
+  //                        Pimpact::createVectorField( space )) ) ),
   //             forcingOp );
   //
   //    auto lp_ =
@@ -482,12 +483,12 @@ int main(int argi, char** argv ) {
   //     auto prec =
   //         Pimpact::createMultiOperatorBase<MVF>(
   //             Pimpact::createTimeOpWrap(
-  //                 Pimpact::createMGVHelmholtzOp<S,O,4>( alpha2/re/deltat, 1./re, true ) ) );
+  //                 Pimpact::createMGVHelmholtzOp( alpha2/re/deltat, 1./re, true ) ) );
   //
   //
   //     auto A = Pimpact::createMultiOperatorBase<MVF>(
   //         Pimpact::createTimeOpWrap(
-  //             Pimpact::createHelmholtzOp<S,O,4>( alpha2/re/deltat, 1./re ) ) );
+  //             Pimpact::createHelmholtzOp( alpha2/re/deltat, 1./re ) ) );
   //
   //     auto prob2 =
   //         Pimpact::createLinearProblem<MVF>(

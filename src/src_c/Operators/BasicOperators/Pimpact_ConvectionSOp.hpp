@@ -43,20 +43,23 @@ void OP_convection(
 
 /// \brief convection operator, that takes the free interpolated velocity components and advects accordingly
 /// \ingroup BaseOperator
-template<class Scalar,class Ordinal, int dimension=3>
+template<class SpaceT>
 class ConvectionSOp {
 
 public:
 
-  typedef Teuchos::Tuple< Teuchos::RCP< ScalarField<Scalar,Ordinal,dimension> >, 3 > FluxFieldT;
-  typedef ScalarField<Scalar,Ordinal,dimension>  DomainFieldT;
-  typedef ScalarField<Scalar,Ordinal,dimension>  RangeFieldT;
+  typedef typename SpaceT::Scalar Scalar;
+  typedef typename SpaceT::Ordinal Ordinal;
+
+  typedef Teuchos::Tuple< Teuchos::RCP< ScalarField<SpaceT> >, 3 > FluxFieldT;
+  typedef ScalarField<SpaceT>  DomainFieldT;
+  typedef ScalarField<SpaceT>  RangeFieldT;
 
 protected:
 
   typedef const Teuchos::Tuple<Scalar*,3> TO;
 
-  Teuchos::RCP<const Space<Scalar,Ordinal,dimension> > space_;
+  Teuchos::RCP<const SpaceT> space_;
 
   TO cSD_;
   TO cVD_;
@@ -66,7 +69,7 @@ protected:
 
 public:
 
-  ConvectionSOp( const Teuchos::RCP<const Space<Scalar,Ordinal,dimension> >& space  ):
+  ConvectionSOp( const Teuchos::RCP<const SpaceT>& space  ):
     space_(space) {
 
     for( int i=0; i<3; ++i ) {
@@ -259,10 +262,10 @@ public:
 
 
 /// \relates ConvectionSOp
-template< class S=double, class O=int, int d=3 >
-Teuchos::RCP<ConvectionSOp<S,O,d> > createConvectionSOp(
-    const Teuchos::RCP<const Space<S,O,d> >& space ) {
-  return( Teuchos::rcp( new ConvectionSOp<S,O,d>( space ) ) );
+template<class SpaceT>
+Teuchos::RCP<ConvectionSOp<SpaceT> > createConvectionSOp(
+    const Teuchos::RCP<const SpaceT>& space ) {
+  return( Teuchos::rcp( new ConvectionSOp<SpaceT>( space ) ) );
 }
 
 

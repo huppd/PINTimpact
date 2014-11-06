@@ -40,8 +40,11 @@ int main(int argi, char** argv ) {
 
   typedef double S;
   typedef int O;
-  typedef Pimpact::ModeField<Pimpact::VectorField<S,O> > VF;
-  typedef Pimpact::ModeField<Pimpact::ScalarField<S,O> >  SF;
+
+  typedef Pimpact::Space<S,O,3> SpaceT;
+
+  typedef Pimpact::ModeField<Pimpact::VectorField<SpaceT> > VF;
+  typedef Pimpact::ModeField<Pimpact::ScalarField<SpaceT> >  SF;
   typedef Pimpact::MultiField<VF> MVF;
   typedef Pimpact::MultiField<SF> MSF;
 
@@ -187,13 +190,13 @@ int main(int argi, char** argv ) {
 
 
   // init vectors
-  auto p     = Pimpact::createInitMSF<S,O>( space );
+  auto p     = Pimpact::createInitMSF( space );
   auto temps = p->clone();
   auto fp    = p->clone();
 
-  auto u     = Pimpact::createInitMVF<S,O>( Pimpact::EFlowType(flow), space, alpha2, px );
-  auto tempv = Pimpact::createInitMVF<S,O>( Pimpact::Zero2DFlow, space );
-  auto fu    = Pimpact::createInitMVF<S,O>( Pimpact::Zero2DFlow, space );
+  auto u     = Pimpact::createInitMVF( Pimpact::EFlowType(flow), space, alpha2, px );
+  auto tempv = Pimpact::createInitMVF( Pimpact::Zero2DFlow, space );
+  auto fu    = Pimpact::createInitMVF( Pimpact::Zero2DFlow, space );
 
   u->write(3);
 
@@ -205,8 +208,8 @@ int main(int argi, char** argv ) {
 
   // init Belos operators
   auto H  =
-      Pimpact::createMultiOperatorBase<MVF,Pimpact::DtLapOp<S,O> >(
-          Pimpact::createDtLapOp<S,O>( space, alpha2, 1./re ) );
+      Pimpact::createMultiOperatorBase<MVF,Pimpact::DtLapOp<SpaceT> >(
+          Pimpact::createDtLapOp( space, alpha2, 1./re ) );
 
 
   // create choosen preconditioner
@@ -217,8 +220,8 @@ int main(int argi, char** argv ) {
     if(rank==0) std::cout << "\n\tprecType: 1, -Dt/omega\n";
 
     lprec =
-        Pimpact::createMultiOperatorBase<MVF,Pimpact::DtModeOp<S,O> >(
-            Pimpact::createDtModeOp<S,O>( -1./alpha2 ) );
+        Pimpact::createMultiOperatorBase<MVF,Pimpact::DtModeOp<SpaceT> >(
+            Pimpact::createDtModeOp<SpaceT>( -1./alpha2 ) );
     break;
   }
   case 2: {
@@ -226,7 +229,7 @@ int main(int argi, char** argv ) {
 
     auto solverParams = Pimpact::createLinSolverParameter( "CG", tol*l1*l2/n1/n2/1000 );
     solverParams->set ("Verbosity", int( Belos::Errors) );
-    auto op = Pimpact::createMultiModeOperatorBase<MVF,Pimpact::HelmholtzOp<S,O> >( Pimpact::createHelmholtzOp<S,O>( space, 0., 1./re ) );
+    auto op = Pimpact::createMultiModeOperatorBase<MVF,Pimpact::HelmholtzOp<SpaceT> >( Pimpact::createHelmholtzOp( space, 0., 1./re ) );
     // Create the Pimpact::LinearSolver solver.
     auto prob =
         Pimpact::createLinearProblem<MVF>(
@@ -242,9 +245,9 @@ int main(int argi, char** argv ) {
 
     auto solverParams = Pimpact::createLinSolverParameter( "CG", tol*l1*l2/n1/n2/1000 );
     solverParams->set ("Verbosity", int( Belos::Errors) );
-    auto A = Pimpact::createMultiModeOperatorBase<MVF,Pimpact::HelmholtzOp<S,O> >( Pimpact::createHelmholtzOp<S,O>( space, alpha2, 1./re ) );
+    auto A = Pimpact::createMultiModeOperatorBase<MVF,Pimpact::HelmholtzOp<SpaceT> >( Pimpact::createHelmholtzOp( space, alpha2, 1./re ) );
     auto prob2 = Pimpact::createLinearProblem<MVF>( A, fu->clone(), fu->clone(), solverParams, "CG" );
-    auto op2 = Pimpact::createEddyPrec<S,O>( fu->clone(), Pimpact::createInverseOperatorBase<MVF>(prob2) ) ;
+    auto op2 = Pimpact::createEddyPrec<SpaceT>( fu->clone(), Pimpact::createInverseOperatorBase<MVF>(prob2) ) ;
     lprec = Pimpact::createMultiOperatorBase<MVF >( op2 );
     break;
   }
@@ -252,8 +255,8 @@ int main(int argi, char** argv ) {
   //    if(rank==0) std::cout << "\n\tprecType: 4, EddyPrec(ML)\n";
   //
   //    auto bla = Pimpact::createMultiModeOperatorBase<MVF>(
-  //        Pimpact::createMLHelmholtzOp<S,O>( space, 20, alpha2, 1./re, tol*l1*l2/n1/n2/1000 ) );
-  //    auto op2 = Pimpact::createEddyPrec<S,O>( fu->clone(), bla ) ;
+  //        Pimpact::createMLHelmholtzOp( space, 20, alpha2, 1./re, tol*l1*l2/n1/n2/1000 ) );
+  //    auto op2 = Pimpact::createEddyPrec<SpaceT>( fu->clone(), bla ) ;
   //    lprec = Pimpact::createMultiOperatorBase<MVF>( op2 );
   //    break;
   //  }
@@ -261,8 +264,8 @@ int main(int argi, char** argv ) {
     if(rank==0) std::cout << "\n\tprecType: 5, EddyPrec(ImpactSolver)\n";
 
 //    auto bla = Pimpact::createMultiModeOperatorBase<MVF>(
-//        Pimpact::createInverseHelmholtzOp<S,O>( alpha2, 1./re, tol*l1*l2/n1/n2/1000, 1000, true, true, false ) );
-//    auto op2 = Pimpact::createEddyPrec<S,O>( fu->clone(), bla ) ;
+//        Pimpact::createInverseHelmholtzOp( alpha2, 1./re, tol*l1*l2/n1/n2/1000, 1000, true, true, false ) );
+//    auto op2 = Pimpact::createEddyPrec<SpaceT>( fu->clone(), bla ) ;
 //    lprec = Pimpact::createMultiOperatorBase<MVF>( op2 );
 //    break;
   }
@@ -270,12 +273,12 @@ int main(int argi, char** argv ) {
     if(rank==0) std::cout << "\n\tprecType: 6, EddyPrec(CG+ImpactSolver)\n";
 
 //    auto bla = Pimpact::createMultiModeOperatorBase<MVF>(
-//        Pimpact::createMGVHelmholtzOp<S,O>( alpha2, 1./re, false ) );
+//        Pimpact::createMGVHelmholtzOp( alpha2, 1./re, false ) );
 //
 //    auto solverParams = Pimpact::createLinSolverParameter( "CG", tol*l1*l2/n1/n2/100 );
 //    solverParams->set ("Verbosity", int( Belos::Errors) );
 //
-//    auto A = Pimpact::createMultiModeOperatorBase<MVF,Pimpact::HelmholtzOp<S,O> >( Pimpact::createHelmholtzOp<S,O>( space, alpha2, 1./re ) );
+//    auto A = Pimpact::createMultiModeOperatorBase<MVF,Pimpact::HelmholtzOp >( Pimpact::createHelmholtzOp( space, alpha2, 1./re ) );
 //
 //    auto prob2 = Pimpact::createLinearProblem<MVF>( A, fu->clone(), fu->clone(), solverParams, "CG" );
 //    if( leftPrec )
@@ -283,7 +286,7 @@ int main(int argi, char** argv ) {
 //    else
 //      prob2->setRightPrec( bla );
 //
-//    auto op2 = Pimpact::createEddyPrec<S,O>( fu->clone(), Pimpact::createInverseOperatorBase<MVF>(prob2) ) ;
+//    auto op2 = Pimpact::createEddyPrec<SpaceT>( fu->clone(), Pimpact::createInverseOperatorBase<MVF>(prob2) ) ;
 //    lprec = Pimpact::createMultiOperatorBase<MVF >( op2 );
     break;
   }
@@ -295,9 +298,9 @@ int main(int argi, char** argv ) {
 
   // init MV operators
   auto div  =
-      Pimpact::createMultiModeOpWrap( Pimpact::createDivOp<S,O>(space) );
+      Pimpact::createMultiModeOpWrap( Pimpact::createDivOp(space) );
   auto grad =
-      Pimpact::createMultiModeOpWrap( Pimpact::createGradOp<S,O>(space) );
+      Pimpact::createMultiModeOpWrap( Pimpact::createGradOp(space) );
 
 
   // init boundary conditions
@@ -309,7 +312,7 @@ int main(int argi, char** argv ) {
   fu->write(6);
   fp->write(6);
 
-  u = Pimpact::createInitMVF<S,O>( Pimpact::Zero2DFlow, space );
+  u = Pimpact::createInitMVF( Pimpact::Zero2DFlow, space );
 
   // create parameter for linsovlers
   auto solverParams = Pimpact::createLinSolverParameter( solver_name_1, tol*l1*l2/n1/n2 );

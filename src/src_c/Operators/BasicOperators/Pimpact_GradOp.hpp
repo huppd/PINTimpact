@@ -43,23 +43,28 @@ void OP_bc_extrapolation( const int& m, double* phi );
 
 
 /// \ingroup BaseOperator
-template<class Scalar, class Ordinal, int dimension=3>
+template<class SpaceT>
 class GradOp {
+
+public:
+
+  typedef typename SpaceT::Scalar Scalar;
+  typedef typename SpaceT::Ordinal Ordinal;
 
 protected:
 
   typedef const Teuchos::Tuple<Scalar*,3> TO;
 
-  Teuchos::RCP< const Space<Scalar,Ordinal,dimension> > space_;
+  Teuchos::RCP<const SpaceT> space_;
 
   TO c_;
 
 public:
 
-  typedef ScalarField<Scalar,Ordinal,dimension>  DomainFieldT;
-  typedef VectorField<Scalar,Ordinal,dimension>  RangeFieldT;
+  typedef ScalarField<SpaceT>  DomainFieldT;
+  typedef VectorField<SpaceT>  RangeFieldT;
 
-  GradOp( const Teuchos::RCP< const Space<Scalar,Ordinal,dimension> >& space):
+  GradOp( const Teuchos::RCP< const SpaceT>& space):
     space_(space) {
 
     for( int i=0; i<3; ++i ) {
@@ -162,9 +167,9 @@ public:
 
 
 /// \relates GradOp
-template<class S=double, class O=int, int d=3>
-Teuchos::RCP< GradOp<S,O,d> > createGradOp( const Teuchos::RCP< const Space<S,O,d> >& space ) {
-  return( Teuchos::rcp( new GradOp<S,O,d>(space) ) );
+template<class SpaceT>
+Teuchos::RCP< GradOp<SpaceT> > createGradOp( const Teuchos::RCP< const SpaceT>& space ) {
+  return( Teuchos::rcp( new GradOp<SpaceT>(space) ) );
 }
 
 

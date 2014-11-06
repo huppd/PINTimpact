@@ -76,13 +76,20 @@ void MG_restrictV(
 
 
 
-template< class Scalar=double, class Ordinal=int, int dimension=3 >
+template<class SpaceT>
 class RestrictionOp {
 
-  typedef ScalarField<Scalar,Ordinal,dimension>  DomainFieldT;
-  typedef ScalarField<Scalar,Ordinal,dimension>  RangeFieldT;
+public:
 
-  typedef Space<Scalar,Ordinal,dimension> SpaceT;
+  typedef typename SpaceT::Scalar Scalar;
+  typedef typename SpaceT::Ordinal Ordinal;
+
+protected:
+
+  typedef ScalarField<SpaceT>  DomainFieldT;
+  typedef ScalarField<SpaceT>  RangeFieldT;
+
+//  typedef Space<Scalar,Ordinal,dimension> SpaceT;
 
   Teuchos::RCP<const SpaceT> spaceF_;
   Teuchos::RCP<const SpaceT> spaceC_;
@@ -201,12 +208,12 @@ public:
 
 
 
-template<class S=double, class O=int, int d=3>
-Teuchos::RCP< RestrictionOp<S,O,d> > createRestrictionOp(
-    const Teuchos::RCP<const Space<S,O,d> >& spaceF,
-    const Teuchos::RCP<const Space<S,O,d> >& spaceC ) {
+template<class SpaceT>
+Teuchos::RCP< RestrictionOp<SpaceT> > createRestrictionOp(
+    const Teuchos::RCP<const SpaceT>& spaceF,
+    const Teuchos::RCP<const SpaceT>& spaceC ) {
 
-  return( Teuchos::rcp( new RestrictionOp<S,O,d>(spaceF,spaceC) ) );
+  return( Teuchos::rcp( new RestrictionOp<SpaceT>(spaceF,spaceC) ) );
 
 }
 

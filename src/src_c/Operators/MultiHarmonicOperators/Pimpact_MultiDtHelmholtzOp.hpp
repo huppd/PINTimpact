@@ -17,21 +17,22 @@ namespace Pimpact{
 /// \ingroup MultiHarmonicOperator
 /// for generalizing this(MultiHarmonicwrapper for ModeOperator), ModeOperator needs a non Mode representation
 /// \relates DtLapOp
-template<class Scalar,class Ordinal>
+template<class SpaceT>
 class MultiDtHelmholtz {
 
-  Teuchos::RCP<DtLapOp<Scalar,Ordinal> > op_;
+  Teuchos::RCP<DtLapOp<SpaceT> > op_;
 
 public:
+  typedef typename SpaceT::Scalar Scalar;
 
-  typedef MultiHarmonicField< VectorField<Scalar,Ordinal> >  DomainFieldT;
-  typedef MultiHarmonicField< VectorField<Scalar,Ordinal> >  RangeFieldT;
+  typedef MultiHarmonicField< VectorField<SpaceT> >  DomainFieldT;
+  typedef MultiHarmonicField< VectorField<SpaceT> >  RangeFieldT;
 
 
-  MultiDtHelmholtz( const Teuchos::RCP< const Space<Scalar,Ordinal,3> >& space, Scalar alpha2=1., Scalar iRe=1.):
-    op_( createDtLapOp<Scalar,Ordinal>( space, alpha2, iRe) ) {};
+  MultiDtHelmholtz( const Teuchos::RCP<const SpaceT>& space, Scalar alpha2=1., Scalar iRe=1.):
+    op_( createDtLapOp<SpaceT>( space, alpha2, iRe) ) {};
 
-  MultiDtHelmholtz( const Teuchos::RCP<DtLapOp<Scalar,Ordinal> >& op ):
+  MultiDtHelmholtz( const Teuchos::RCP<DtLapOp<SpaceT> >& op ):
     op_(op) {};
 
 
@@ -48,7 +49,7 @@ public:
   void assignField( const DomainFieldT& mv ) {};
 
 
-  Teuchos::RCP< HelmholtzOp<Scalar,Ordinal> > getInnerOpPtr() {
+  Teuchos::RCP< HelmholtzOp<SpaceT> > getInnerOpPtr() {
     return( op_ );
   }
 
@@ -60,12 +61,12 @@ public:
 
 
 /// \relates MultiDtHelmholtz
-template< class S, class O>
-Teuchos::RCP< MultiDtHelmholtz<S,O> > createMultiDtHelmholtz(
-    const Teuchos::RCP< const Space<S,O,3> >& space,
-    S omega=1.,
-    S mulL=1. ) {
-  return( Teuchos::rcp( new MultiDtHelmholtz<S,O>( space, omega, mulL ) ) );
+template<class SpaceT>
+Teuchos::RCP< MultiDtHelmholtz<SpaceT> > createMultiDtHelmholtz(
+    const Teuchos::RCP< const SpaceT>& space,
+    typename SpaceT::Scalar omega=1.,
+    typename SpaceT::Scalar mulL=1. ) {
+  return( Teuchos::rcp( new MultiDtHelmholtz<SpaceT>( space, omega, mulL ) ) );
 }
 
 

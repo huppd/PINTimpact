@@ -28,21 +28,23 @@ void OP_nonlinear(
 
 /// \ingroup BaseOperator
 /// \deprecated depends on an initialized IMPACT. But can be used to test consistency with new code use \c ConvectionVOp instead.
-template<class Scalar,class Ordinal, int dimension=3>
+template<class SpaceT>
 class ConvectionOp {
 
 public:
+  typedef typename SpaceT::Scalar Scalar;
+  typedef typename SpaceT::Ordinal Ordinal;
 
-  typedef VectorField<Scalar,Ordinal,dimension>  DomainFieldT;
-  typedef VectorField<Scalar,Ordinal,dimension>  RangeFieldT;
+  typedef VectorField<SpaceT>  DomainFieldT;
+  typedef VectorField<SpaceT>  RangeFieldT;
 
 private:
 
-  Teuchos::RCP<const Space<Scalar,Ordinal,dimension> > space_;
+  Teuchos::RCP<const SpaceT> space_;
 
 public:
 
-  ConvectionOp( const Teuchos::RCP<const Space<Scalar,Ordinal,dimension> >& space  ):
+  ConvectionOp( const Teuchos::RCP<const SpaceT>& space  ):
     space_(space) {};
 
   void assignField( const DomainFieldT& mv ) {};
@@ -82,10 +84,10 @@ public:
 
 
 /// \relates ConvectionOp
-template< class S=double, class O=int, int d=3 >
-Teuchos::RCP<ConvectionOp<S,O,d> > createConvectionOp(
-    const Teuchos::RCP<const Space<S,O,d> >& space ) {
-  return( Teuchos::rcp( new ConvectionOp<S,O,d>( space ) ) );
+template<class SpaceT>
+Teuchos::RCP<ConvectionOp<SpaceT> > createConvectionOp(
+    const Teuchos::RCP<const SpaceT>& space ) {
+  return( Teuchos::rcp( new ConvectionOp<SpaceT>( space ) ) );
 }
 
 

@@ -25,22 +25,22 @@ namespace Pimpact {
 /// vector for wrapping many fields into one multiharmonic field
 /// \ingroup Field
 template<class Field>
-class MultiHarmonicField : private AbstractField<typename Field::Scalar,typename Field::Ordinal,Field::dimension> {
+class MultiHarmonicField : private AbstractField<typename Field::SpaceT> {
 
 public:
 
-  typedef typename Field::Scalar Scalar;
-  typedef typename Field::Ordinal Ordinal;
+  typedef typename Field::SpaceT SpaceT;
 
-  static const int dimension = Field::dimension;
+  typedef typename SpaceT::Scalar Scalar;
+  typedef typename SpaceT::Ordinal Ordinal;
 
-  typedef typename AbstractField<Scalar,Ordinal,dimension>::SpaceT SpaceT;
+  static const int dimension = SpaceT::dimension;
 
 protected:
 
   typedef MultiHarmonicField<Field> MV;
 
-  typedef AbstractField< typename Field::Scalar, typename Field::Ordinal, Field::dimension> AF;
+  typedef AbstractField<SpaceT> AF;
 
 
   Teuchos::RCP<Field> field0_;
@@ -106,7 +106,7 @@ public:
   Teuchos::RCP<const Field> getConstSFieldPtr( int i ) const { return( fields_->getConstFieldPtr(i)->getConstSFieldPtr() ); }
 
 
-  Teuchos::RCP<SpaceT> space() const { return( AF::space_ ); }
+  Teuchos::RCP<const SpaceT> space() const { return( AF::space_ ); }
 
   /// \brief returns the length of Field.
   ///

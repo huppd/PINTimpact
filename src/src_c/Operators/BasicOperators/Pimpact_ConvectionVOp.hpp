@@ -22,80 +22,85 @@ namespace Pimpact {
 /// \brief Convection Operator for Velocity fields
 /// \ingroup BaseOperator
 /// \relates ConvectionSOp
-template<class Scalar,class Ordinal, int dimension=3>
+template<class SpaceT>
 class ConvectionVOp {
 
 public:
 
-  typedef VectorField<Scalar,Ordinal,dimension>  DomainFieldT;
-  typedef VectorField<Scalar,Ordinal,dimension>  RangeFieldT;
+  typedef typename SpaceT::Scalar Scalar;
+  typedef typename SpaceT::Ordinal Ordinal;
+
+  static const int dimension = SpaceT::dimension;
+
+  typedef VectorField<SpaceT>  DomainFieldT;
+  typedef VectorField<SpaceT>  RangeFieldT;
 
 private:
 
-  Teuchos::RCP<const Space<Scalar,Ordinal,dimension> > space_;
+  Teuchos::RCP<const SpaceT> space_;
 
-  Teuchos::RCP<const InterpolateS2V<Scalar,Ordinal,dimension> > interpolateS2V_;
+  Teuchos::RCP<const InterpolateS2V<SpaceT> > interpolateS2V_;
   Teuchos::RCP<const InterpolateV2S<Scalar,Ordinal,dimension> > interpolateV2S_;
 
-  Teuchos::RCP<const ConvectionSOp<Scalar,Ordinal,dimension> > convectionSOp_;
+  Teuchos::RCP<const ConvectionSOp<SpaceT> > convectionSOp_;
 
-  Teuchos::RCP< ScalarField<Scalar,Ordinal,dimension> > temp_;
-  Teuchos::Tuple< Teuchos::Tuple<Teuchos::RCP<ScalarField<Scalar,Ordinal,dimension> >, 3>, 3> u_;
+  Teuchos::RCP< ScalarField<SpaceT> > temp_;
+  Teuchos::Tuple< Teuchos::Tuple<Teuchos::RCP<ScalarField<SpaceT> >, 3>, 3> u_;
 
 public:
 
-  ConvectionVOp( const Teuchos::RCP<const Space<Scalar,Ordinal,dimension> >& space  ):
+  ConvectionVOp( const Teuchos::RCP<const SpaceT>& space  ):
     space_(space),
-    interpolateS2V_( createInterpolateS2V<Scalar,Ordinal,dimension>(space) ),
+    interpolateS2V_( createInterpolateS2V<SpaceT>(space) ),
     interpolateV2S_( space->getInterpolateV2S() ),
-    convectionSOp_( createConvectionSOp<Scalar,Ordinal,dimension>( space ) ),
-    temp_( createScalarField<Scalar,Ordinal,dimension>( space ) ),
+    convectionSOp_( createConvectionSOp<SpaceT>( space ) ),
+    temp_( createScalarField<SpaceT>( space ) ),
     u_(
         Teuchos::tuple(
             Teuchos::tuple(
-                createScalarField<Scalar,Ordinal,dimension>( space, U ),
-                createScalarField<Scalar,Ordinal,dimension>( space, U ),
-                createScalarField<Scalar,Ordinal,dimension>( space, U )
+                createScalarField<SpaceT>( space, U ),
+                createScalarField<SpaceT>( space, U ),
+                createScalarField<SpaceT>( space, U )
             ),
             Teuchos::tuple(
-                createScalarField<Scalar,Ordinal,dimension>( space, V ),
-                createScalarField<Scalar,Ordinal,dimension>( space, V ),
-                createScalarField<Scalar,Ordinal,dimension>( space, V )
+                createScalarField<SpaceT>( space, V ),
+                createScalarField<SpaceT>( space, V ),
+                createScalarField<SpaceT>( space, V )
             ),
             Teuchos::tuple(
-                createScalarField<Scalar,Ordinal,dimension>( space, W ),
-                createScalarField<Scalar,Ordinal,dimension>( space, W ),
-                createScalarField<Scalar,Ordinal,dimension>( space, W )
+                createScalarField<SpaceT>( space, W ),
+                createScalarField<SpaceT>( space, W ),
+                createScalarField<SpaceT>( space, W )
             )
         )
     ) {};
 
   ConvectionVOp(
-      const Teuchos::RCP<const Space<Scalar,Ordinal,dimension> >& space,
-      const Teuchos::RCP< InterpolateS2V<Scalar,Ordinal,dimension> >& interpolateS2V,
+      const Teuchos::RCP<const SpaceT>& space,
+      const Teuchos::RCP< InterpolateS2V<SpaceT> >& interpolateS2V,
       const Teuchos::RCP< InterpolateV2S<Scalar,Ordinal,dimension> >& interpolateV2S,
-      const Teuchos::RCP< ConvectionSOp<Scalar,Ordinal,dimension> >& convectionSOp ):
+      const Teuchos::RCP< ConvectionSOp<SpaceT> >& convectionSOp ):
     space_(space),
     interpolateS2V_(interpolateS2V),
     interpolateV2S_(interpolateV2S),
     convectionSOp_(convectionSOp),
-    temp_( createScalarField<Scalar,Ordinal,dimension>( space ) ),
+    temp_( createScalarField<SpaceT>( space ) ),
     u_(
         Teuchos::tuple(
             Teuchos::tuple(
-                createScalarField<Scalar,Ordinal,dimension>( space, U ),
-                createScalarField<Scalar,Ordinal,dimension>( space, U ),
-                createScalarField<Scalar,Ordinal,dimension>( space, U )
+                createScalarField<SpaceT>( space, U ),
+                createScalarField<SpaceT>( space, U ),
+                createScalarField<SpaceT>( space, U )
             ),
             Teuchos::tuple(
-                createScalarField<Scalar,Ordinal,dimension>( space, V ),
-                createScalarField<Scalar,Ordinal,dimension>( space, V ),
-                createScalarField<Scalar,Ordinal,dimension>( space, V )
+                createScalarField<SpaceT>( space, V ),
+                createScalarField<SpaceT>( space, V ),
+                createScalarField<SpaceT>( space, V )
             ),
             Teuchos::tuple(
-                createScalarField<Scalar,Ordinal,dimension>( space, W ),
-                createScalarField<Scalar,Ordinal,dimension>( space, W ),
-                createScalarField<Scalar,Ordinal,dimension>( space, W )
+                createScalarField<SpaceT>( space, W ),
+                createScalarField<SpaceT>( space, W ),
+                createScalarField<SpaceT>( space, W )
             )
         )
     ) {};
@@ -138,10 +143,10 @@ public:
 
 
 /// \relates ConvectionVOp
-template< class S=double, class O=int, int d=3 >
-Teuchos::RCP<ConvectionVOp<S,O,d> > createConvectionVOp(
-    const Teuchos::RCP<const Space<S,O,d> >& space ) {
-  return( Teuchos::rcp( new ConvectionVOp<S,O,d>( space ) ) );
+template<class SpaceT>
+Teuchos::RCP<ConvectionVOp<SpaceT> > createConvectionVOp(
+    const Teuchos::RCP<const SpaceT>& space ) {
+  return( Teuchos::rcp( new ConvectionVOp<SpaceT>( space ) ) );
 }
 
 

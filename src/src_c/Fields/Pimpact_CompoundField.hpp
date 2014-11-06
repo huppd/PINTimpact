@@ -24,22 +24,23 @@ namespace Pimpact {
 /// vector for wrapping 2 fields into one mode
 /// \ingroup Field
 template<class VField, class SField>
-class CompoundField : private AbstractField<typename VField::Scalar, typename VField::Ordinal, VField::dimension > {
+class CompoundField : private AbstractField<typename VField::SpaceT> {
 
 public:
 
-  typedef typename VField::Scalar Scalar;
-  typedef typename VField::Ordinal Ordinal;
+  typedef typename VField::SpaceT SpaceT;
 
-  static const int dimension = VField::dimension;
+  typedef typename SpaceT::Scalar Scalar;
+  typedef typename SpaceT::Ordinal Ordinal;
 
-  typedef typename AbstractField<Scalar,Ordinal,dimension>::SpaceT SpaceT;
+  static const int dimension = SpaceT::dimension;
+
 
 protected:
 
   typedef CompoundField<VField,SField> MV;
 
-  typedef AbstractField< Scalar, Ordinal, dimension> AF;
+  typedef AbstractField<SpaceT> AF;
 
   Teuchos::RCP<VField> vfield_;
   Teuchos::RCP<SField> sfield_;
@@ -85,7 +86,7 @@ public:
   Teuchos::RCP<const VField> getConstVFieldPtr() const { return( vfield_ ); }
   Teuchos::RCP<const SField> getConstSFieldPtr() const { return( sfield_ ); }
 
-  Teuchos::RCP<SpaceT> space() const { return( AF::space_ ); }
+  Teuchos::RCP<const SpaceT> space() const { return( AF::space_ ); }
 
 
   /// \brief get Vect length

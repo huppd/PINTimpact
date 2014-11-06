@@ -14,19 +14,23 @@
 
 namespace Pimpact {
 
-template< class Scalar=double, class Ordinal=int, int dimension=3 >
+template< class SpaceT=Space<double,int,3> >
 class AbstractField {
 
 public:
 
-  typedef const Space<Scalar,Ordinal,dimension> SpaceT;
+//  typedef const SpaceT SpaceT;
 
-  AbstractField( const Teuchos::RCP<SpaceT>& space ):space_(space) {};
+  typedef typename SpaceT::Scalar Scalar;
+  typedef typename SpaceT::Ordinal Ordinal;
+
+  static const int dimension = SpaceT::dimension;
+
+  AbstractField( const Teuchos::RCP<const SpaceT>& space ):space_(space) {};
 
 protected:
 
-  Teuchos::RCP<SpaceT> space_;
-
+  Teuchos::RCP<const SpaceT> space_;
 
   void reduceNorm( const MPI_Comm& comm, double& norm, Belos::NormType type = Belos::OneNorm ) const {
 

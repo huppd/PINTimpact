@@ -34,7 +34,7 @@ namespace Pimpact {
 /// \note for better documentation, look at the equivalent documentation in the \c Belos::...
 /// \ingroup Field
 template<class Field>
-class MultiField : private AbstractField<typename Field::Scalar, typename Field::Ordinal,Field::dimension> {
+class MultiField : private AbstractField<typename Field::SpaceT> {
 
 public:
 
@@ -43,13 +43,13 @@ public:
 
   static const int dimension = Field::dimension;
 
-  typedef typename AbstractField<Scalar,Ordinal,dimension>::SpaceT SpaceT;
+  typedef typename Field::SpaceT SpaceT;
 
 private:
 
   typedef Pimpact::MultiField<Field> MV;
 
-  typedef AbstractField< typename Field::Scalar, typename Field::Ordinal, Field::dimension> AF;
+  typedef AbstractField<SpaceT> AF;
 
   Teuchos::Array<Teuchos::RCP<Field> > mfs_;
 
@@ -85,7 +85,7 @@ public:
   /// \brief  constructor, creates \c numvecs  empty Fields
   /// \param numvecs
   /// @return
-  MultiField( const Teuchos::RCP<SpaceT>& space, int numvecs ):
+  MultiField( const Teuchos::RCP<const SpaceT>& space, int numvecs ):
     AF( space ),
     mfs_(numvecs) {}
 
@@ -514,7 +514,7 @@ public:
   Teuchos::RCP<Field>       getFieldPtr     (int i)       { return( mfs_[i] ); }
   Teuchos::RCP<const Field> getConstFieldPtr(int i) const { return( mfs_[i] ); }
 
-  Teuchos::RCP<SpaceT> space() const { return( AF::space_ ); }
+  Teuchos::RCP<const SpaceT> space() const { return( AF::space_ ); }
 
 
 }; // end of class MultiField

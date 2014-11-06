@@ -30,9 +30,11 @@
 
 namespace {
 
-bool testMpi = true;
 typedef double S;
 typedef int O;
+
+typedef Pimpact::Space<S,O,3> SpaceT;
+bool testMpi = true;
 
 S eps = 1.e1;
 bool isImpactInit = false;
@@ -55,12 +57,13 @@ TEUCHOS_STATIC_SETUP() {
 
 TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
 
-  typedef Pimpact::VectorField<S,O> VF;
+  typedef Pimpact::VectorField<SpaceT> VF;
+
   typedef Pimpact::MultiField<VF> MVF;
-//  typedef Pimpact::ConvectionOp<S,O>  Op1;
-//  typedef Pimpact::HelmholtzOp<S,O>  Op2;
-  typedef Pimpact::ConvectionJacobianOp<S,O>  JOp1;
-  typedef Pimpact::HelmholtzOp<S,O>  JOp2;
+
+  typedef Pimpact::ConvectionJacobianOp<SpaceT>  JOp1;
+  typedef Pimpact::HelmholtzOp<SpaceT>  JOp2;
+
   typedef Pimpact::MultiOpWrap<Pimpact::Add2Op<JOp1,JOp2> > JOp;
 
   typedef NOX::Pimpact::Interface<MVF> Inter;
@@ -84,12 +87,12 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
 
   if( !isImpactInit ) isImpactInit=true;
 
-  auto vel = Pimpact::createVectorField<S,O>( space );
+  auto vel = Pimpact::createVectorField( space );
 
   vel->initField( Pimpact::ZeroFlow );
 
-  auto x = Pimpact::createMultiField<VF>( *vel->clone(), 1 );
-  auto f = Pimpact::createMultiField<VF>( *vel->clone(), 1 );
+  auto x = Pimpact::createMultiField( *vel->clone(), 1 );
+  auto f = Pimpact::createMultiField( *vel->clone(), 1 );
 
 
   auto op =

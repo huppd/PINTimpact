@@ -20,13 +20,16 @@ namespace Pimpact {
 /// \ingroup TimeOperator
 /// \todo better design would be to wrap ConvectionJacobianOp(no because then you would store stencil mutliple times, so one would have to abstract Jacobian)
 /// \note u_ has to contain appropriate BC, temp_ and y doesnot matter, x should have zero BC
-template<class Scalar,class Ordinal,bool CrankNicolsonYes=false >
+/// \todo add expcetion for space::dimension!=4
+template<class SpaceT,bool CrankNicolsonYes=false >
 class TimeNonlinearJacobian {
 
 public:
 
-  typedef TimeField< VectorField<Scalar,Ordinal,4> > DomainFieldT;
-  typedef TimeField< VectorField<Scalar,Ordinal,4> > RangeFieldT;
+  typedef typename SpaceT::Scalar Scalar;
+
+  typedef TimeField< VectorField<SpaceT> > DomainFieldT;
+  typedef TimeField< VectorField<SpaceT> > RangeFieldT;
 
 protected:
 
@@ -34,19 +37,19 @@ protected:
 
   const bool isNewton_;
 
-  Teuchos::RCP< VectorField<Scalar,Ordinal,4> > temp_;
+  Teuchos::RCP< VectorField<SpaceT> > temp_;
 
-  Teuchos::RCP<const ConvectionVOp<Scalar,Ordinal,4> > op_;
+  Teuchos::RCP<const ConvectionVOp<SpaceT> > op_;
 
 public:
 
   TimeNonlinearJacobian(
-      const Teuchos::RCP<const Space<Scalar,Ordinal,4> >& space,
+      const Teuchos::RCP<const SpaceT>& space,
       const bool& isNewton=true ):
     u_( Teuchos::null ),
     isNewton_(isNewton),
-    temp_( createVectorField<Scalar,Ordinal,4>(space) ),
-    op_( createConvectionVOp<Scalar,Ordinal,4>(space) )
+    temp_( createVectorField<SpaceT>(space) ),
+    op_( createConvectionVOp<SpaceT>(space) )
   {};
 
   void assignField( const DomainFieldT& mv ) {
@@ -142,12 +145,13 @@ public:
 
 
 /// \relates TimeNonlinearJacobian
-template< class S=double, class O=int, bool CNY=false >
-Teuchos::RCP<TimeNonlinearJacobian<S,O,CNY> > createTimeNonlinearJacobian(
-    const Teuchos::RCP<const Space<S,O,4> >& space,
+template< class SpaceT, bool CNY=false >
+Teuchos::RCP<TimeNonlinearJacobian<SpaceT,CNY> >
+createTimeNonlinearJacobian(
+    const Teuchos::RCP<const SpaceT>& space,
     const bool& isNewton=true ) {
 
-    return( Teuchos::rcp( new TimeNonlinearJacobian<S,O,CNY>( space, isNewton ) ) );
+    return( Teuchos::rcp( new TimeNonlinearJacobian<SpaceT,CNY>( space, isNewton ) ) );
 
 }
 

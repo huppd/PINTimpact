@@ -17,13 +17,13 @@ namespace Pimpact {
 
 
 /// \ingroup MultiHarmonicOperator
-template<class S,class O>
-class MultiHarmonicConvectionJacobianOp : private MultiHarmonicConvectionOp<S,O> {
+template<class SpaceT>
+class MultiHarmonicConvectionJacobianOp : private MultiHarmonicConvectionOp<SpaceT> {
 
 public:
 
-  typedef typename MultiHarmonicConvectionOp<S,O>::DomainFieldT DomainFieldT;
-  typedef typename MultiHarmonicConvectionOp<S,O>::RangeFieldT RangeFieldT;
+  typedef typename MultiHarmonicConvectionOp<SpaceT>::DomainFieldT DomainFieldT;
+  typedef typename MultiHarmonicConvectionOp<SpaceT>::RangeFieldT RangeFieldT;
 
 protected:
 
@@ -34,10 +34,10 @@ protected:
 public:
 
   MultiHarmonicConvectionJacobianOp(
-      const Teuchos::RCP<const Space<S,O,3> >& space,
+      const Teuchos::RCP<const SpaceT>& space,
       const Teuchos::RCP<DomainFieldT>& u=Teuchos::null,
       const bool& isNewton=true ):
-        MultiHarmonicConvectionOp<S,O>(space),
+        MultiHarmonicConvectionOp<SpaceT>(space),
         u_(u),
         isNewton_(isNewton) {};
 
@@ -50,10 +50,10 @@ public:
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
 
-    MultiHarmonicConvectionOp<S,O>::apply( *u_,  x,  y, true );
+    MultiHarmonicConvectionOp<SpaceT>::apply( *u_,  x,  y, true );
 
     if( isNewton_ )
-      MultiHarmonicConvectionOp<S,O>::apply(  x,  *u_, y, false );
+      MultiHarmonicConvectionOp<SpaceT>::apply(  x,  *u_, y, false );
 
   }
 
@@ -64,13 +64,13 @@ public:
 
 
 /// \relates MultiHarmonicConvectionJacobianOp
-template< class S=double , class O=int >
-Teuchos::RCP<MultiHarmonicConvectionJacobianOp<S,O> > createMultiHarmonicConvectionJacobianOp(
-    const Teuchos::RCP<const Space<S,O,3> >& space,
-    const Teuchos::RCP<typename MultiHarmonicConvectionJacobianOp<S,O>::DomainFieldT>& u = Teuchos::null,
+template<class SpaceT>
+Teuchos::RCP<MultiHarmonicConvectionJacobianOp<SpaceT> > createMultiHarmonicConvectionJacobianOp(
+    const Teuchos::RCP<const SpaceT>& space,
+    const Teuchos::RCP<typename MultiHarmonicConvectionJacobianOp<SpaceT>::DomainFieldT>& u = Teuchos::null,
     const bool& isNewton=true ) {
 
-  return( Teuchos::rcp( new MultiHarmonicConvectionJacobianOp<S,O>( space, u, isNewton ) ) );
+  return( Teuchos::rcp( new MultiHarmonicConvectionJacobianOp<SpaceT>( space, u, isNewton ) ) );
 
 }
 

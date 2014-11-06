@@ -31,23 +31,25 @@ void OP_grad(
 
 
 /// \ingroup BaseOperator
-template<class Scalar, class Ordinal, int dimension=3>
+template<class SpaceT>
 class InterpolateS2V {
 
 protected:
+  typedef typename SpaceT::Scalar Scalar;
+  typedef typename SpaceT::Ordinal Ordinal;
 
   typedef const Teuchos::Tuple<Scalar*,3> TO;
 
-  Teuchos::RCP< const Space<Scalar,Ordinal,dimension> > space_;
+  Teuchos::RCP< const SpaceT> space_;
 
   TO c_;
 
 public:
 
-  typedef ScalarField<Scalar,Ordinal,dimension>  DomainFieldT;
-  typedef ScalarField<Scalar,Ordinal,dimension>  RangeFieldT;
+  typedef ScalarField<SpaceT>  DomainFieldT;
+  typedef ScalarField<SpaceT>  RangeFieldT;
 
-  InterpolateS2V( const Teuchos::RCP< const Space<Scalar,Ordinal,dimension> >& space):
+  InterpolateS2V( const Teuchos::RCP<const SpaceT>& space):
     space_(space) {
     for( int i=0; i<3; ++i ) {
       Ordinal nTemp = ( space_->nLoc(i) + 1 )*( space_->gu(i) - space_->gl(i) + 1);
@@ -139,9 +141,9 @@ public:
 
 
 /// \relates InterpolateS2V
-template<class S=double, class O=int, int d=3>
-Teuchos::RCP< InterpolateS2V<S,O,d> > createInterpolateS2V( const Teuchos::RCP< const Space<S,O,d> >& space ) {
-  return( Teuchos::rcp( new InterpolateS2V<S,O,d>(space) ) );
+template<class SpaceT>
+Teuchos::RCP< InterpolateS2V<SpaceT> > createInterpolateS2V( const Teuchos::RCP< const SpaceT>& space ) {
+  return( Teuchos::rcp( new InterpolateS2V<SpaceT>(space) ) );
 }
 
 

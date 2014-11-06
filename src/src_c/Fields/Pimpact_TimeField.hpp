@@ -35,13 +35,13 @@ namespace Pimpact {
 /// \todo maybe move functionality in Scalar/VectorField<S,O,4>
 /// \ingroup Field
 template<class Field>
-class TimeField : private AbstractField<typename Field::Scalar,typename Field::Ordinal,4> {
+class TimeField : private AbstractField<typename Field::SpaceT> {
 
   template<class Op,bool CNY>
   friend class TimeOpWrap;
-  template<class S, class O>
+  template<class SpaceTT>
   friend class DtTimeOp;
-  template<class S, class O,bool CNY>
+  template<class SpaceTT, bool CNY>
   friend class TimeNonlinearJacobian;
 //  template<class S,class O>
 //  friend void initVectorTimeField();
@@ -51,17 +51,15 @@ public:
   typedef typename Field::Scalar Scalar;
   typedef typename Field::Ordinal Ordinal;
 
-  static const int dimension = 4;
+  static const int dimension = Field::dimension;
 
-  typedef typename AbstractField<Scalar,Ordinal,dimension>::SpaceT SpaceT;
-
-public:
+  typedef typename Field::SpaceT SpaceT;
 
   typedef Pimpact::TimeField<Field> MV;
 
   typedef Scalar* ScalarArray;
 
-  typedef AbstractField< typename Field::Scalar, typename Field::Ordinal, 4> AF;
+  typedef AbstractField<SpaceT> AF;
 
 
   Teuchos::Array< Teuchos::RCP<Field> > mfs_;
@@ -82,7 +80,7 @@ protected:
 
 public:
 
-  TimeField( Teuchos::RCP<SpaceT> space ):
+  TimeField( Teuchos::RCP<const SpaceT> space ):
     AF( space ),
     exchangedState_(true) {
 
@@ -365,7 +363,7 @@ public:
 
   MPI_Comm comm() const { return( space()->commST() ); }
 
-  Teuchos::RCP<SpaceT> space() const { return( AF::space_ ); }
+  Teuchos::RCP<const SpaceT> space() const { return( AF::space_ ); }
 
 public:
 
@@ -448,16 +446,20 @@ createTimeField( const Teuchos::RCP<const Space<typename Field::Scalar,typename 
 #include "Pimpact_VectorField.hpp"
 #include "cmath"
 
-template<class S,class O>
-Teuchos::RCP<TimeField<VectorField<S,O,4> > >
+template<class SpaceT>
+Teuchos::RCP<TimeField<VectorField<SpaceT> > >
 initVectorTimeField(
-    Teuchos::RCP<TimeField<VectorField<S,O,4> > > field,
+    Teuchos::RCP<TimeField<VectorField<SpaceT> > > field,
     EFlowType flowType=Zero2DFlow,
-    S xm=0.5,
-    S ym=0.5,
-    S rad=0.1,
-    S amp=0.25 ) {
-  typedef TimeField<VectorField<S,O,4> > Field;
+    typename SpaceT::Scalar xm=0.5,
+    typename SpaceT::Scalar ym=0.5,
+    typename SpaceT::Scalar rad=0.1,
+    typename SpaceT::Scalar amp=0.25 ) {
+
+  typedef typename SpaceT::Scalar S;
+  typedef typename SpaceT::Ordinal O;
+
+  typedef TimeField<VectorField<SpaceT> > Field;
   typedef typename Field::Iter Iter;
 
   auto space = field->space();

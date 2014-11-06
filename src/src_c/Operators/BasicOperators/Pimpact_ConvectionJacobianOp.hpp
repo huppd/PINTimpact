@@ -21,33 +21,35 @@ namespace Pimpact {
 ///   have zero boundary conditions if used for linear solver.
 /// \note if heavily used one should do the interpolation in the assignField method.
 /// \relates ConvectionVOp
-template<class Scalar,class Ordinal, int dimension=3>
+template<class SpaceT>
 class ConvectionJacobianOp {
 
 public:
+  typedef typename SpaceT::Scalar Scalar;
+  typedef typename SpaceT::Ordinal Ordinal;
 
-  typedef VectorField<Scalar,Ordinal,dimension>  DomainFieldT;
-  typedef VectorField<Scalar,Ordinal,dimension>  RangeFieldT;
+  typedef VectorField<SpaceT>  DomainFieldT;
+  typedef VectorField<SpaceT>  RangeFieldT;
 
 protected:
 
   Teuchos::RCP<DomainFieldT> u_;
 
-  Teuchos::RCP<const ConvectionVOp<Scalar,Ordinal,dimension> > convectionVOp_;
+  Teuchos::RCP<const ConvectionVOp<SpaceT> > convectionVOp_;
 
   const bool isNewton_;
 
 public:
 
   ConvectionJacobianOp(
-      const Teuchos::RCP<const Space<Scalar,Ordinal,dimension> >& space,
+      const Teuchos::RCP<const SpaceT>& space,
       const bool& isNewton=true ):
     u_( Teuchos::null ),
     convectionVOp_( createConvectionVOp( space ) ),
     isNewton_(isNewton) {};
 
   ConvectionJacobianOp(
-      const Teuchos::RCP<const ConvectionVOp<Scalar,Ordinal,dimension> >& convectionVOp,
+      const Teuchos::RCP<const ConvectionVOp<SpaceT> >& convectionVOp,
       const Teuchos::RCP<DomainFieldT>& u,
       const bool& isNewton=true ):
     u_( Teuchos::null ),
@@ -90,22 +92,22 @@ public:
 
 
 /// \relates ConvectionJacobianOp
-template< class S=double, class O=int, int d=3>
-Teuchos::RCP<ConvectionJacobianOp<S,O,d> > createConvectionJacobianOp(
-    const Teuchos::RCP<const Space<S,O,d> >& space,
+template< class SpaceT>
+Teuchos::RCP<ConvectionJacobianOp<SpaceT> > createConvectionJacobianOp(
+    const Teuchos::RCP<const SpaceT>& space,
     const bool& isNewton=true ) {
 
-    return( Teuchos::rcp( new ConvectionJacobianOp<S,O,d>( space, isNewton ) ) );
+    return( Teuchos::rcp( new ConvectionJacobianOp<SpaceT>( space, isNewton ) ) );
 
 }
 
 /// \relates ConvectionJacobianOp
-template< class S=double, class O=int, int d=3>
-Teuchos::RCP<ConvectionJacobianOp<S,O,d> > createConvectionJacobianOp(
-    const Teuchos::RCP<const ConvectionVOp<S,O,d> >& convectionVOp,
+template<class SpaceT>
+Teuchos::RCP<ConvectionJacobianOp<SpaceT> > createConvectionJacobianOp(
+    const Teuchos::RCP<const ConvectionVOp<SpaceT> >& convectionVOp,
     const bool& isNewton=true ) {
 
-    return( Teuchos::rcp( new ConvectionJacobianOp<S,O,d>( convectionVOp, isNewton ) ) );
+    return( Teuchos::rcp( new ConvectionJacobianOp<SpaceT>( convectionVOp, isNewton ) ) );
 
 }
 

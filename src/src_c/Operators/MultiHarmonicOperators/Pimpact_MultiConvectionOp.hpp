@@ -18,24 +18,24 @@ namespace Pimpact {
 
 
 /// \ingroup MultiHarmonicOperator
-template<class Scalar,class Ordinal>
+template<class SpaceT>
 class MultiHarmonicConvectionOp {
 
-  typedef Scalar S;
-  typedef Ordinal O;
+  typedef typename SpaceT::Scalar Scalar;
+  typedef typename SpaceT::Ordinal Ordinal;
 
 public:
 
-  typedef MultiHarmonicField< VectorField<Scalar,Ordinal> >  DomainFieldT;
-  typedef MultiHarmonicField< VectorField<Scalar,Ordinal> >  RangeFieldT;
+  typedef MultiHarmonicField< VectorField<SpaceT> >  DomainFieldT;
+  typedef MultiHarmonicField< VectorField<SpaceT> >  RangeFieldT;
 
 protected:
 
-  Teuchos::RCP<const ConvectionVOp<S,O,3> > op_;
+  Teuchos::RCP<const ConvectionVOp<SpaceT> > op_;
 
 public:
 
-  MultiHarmonicConvectionOp( const Teuchos::RCP<const Space<S,O,3> >& space ):
+  MultiHarmonicConvectionOp( const Teuchos::RCP<const SpaceT>& space ):
     op_( createConvectionVOp(space) ) {};
 
   void assignField( const DomainFieldT& mv ) {
@@ -122,11 +122,11 @@ public:
 
 
 /// \relates MultiHarmonicConvectionOp
-template< class S, class O>
-Teuchos::RCP<MultiHarmonicConvectionOp<S,O> >
-createMultiHarmonicConvectionOp( const Teuchos::RCP<const Space<S,O,3> >& space ) {
+template<class SpaceT>
+Teuchos::RCP<MultiHarmonicConvectionOp<SpaceT> >
+createMultiHarmonicConvectionOp( const Teuchos::RCP<const SpaceT>& space ) {
 
-  return( Teuchos::rcp( new MultiHarmonicConvectionOp<S,O>( space ) ) );
+  return( Teuchos::rcp( new MultiHarmonicConvectionOp<SpaceT>( space ) ) );
 
 }
 

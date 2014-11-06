@@ -36,23 +36,26 @@ extern "C" {
 
 /// \brief Divergence operator.
 /// \ingroup BaseOperator
-template<class Scalar,class Ordinal,int dimension=3>
+template<class SpaceT>
 class DivOp {
+
+  typedef typename SpaceT::Scalar Scalar;
+  typedef typename SpaceT::Ordinal Ordinal;
 
 protected:
 
   typedef const Teuchos::Tuple<Scalar*,3> TO;
 
-  Teuchos::RCP<const Space<Scalar,Ordinal,dimension> > space_;
+  Teuchos::RCP<const SpaceT> space_;
 
   TO c_;
 
 public:
 
-  typedef VectorField<Scalar,Ordinal,dimension>  DomainFieldT;
-  typedef ScalarField<Scalar,Ordinal,dimension>  RangeFieldT;
+  typedef VectorField<SpaceT>  DomainFieldT;
+  typedef ScalarField<SpaceT>  RangeFieldT;
 
-  DivOp( const Teuchos::RCP<const Space<Scalar,Ordinal,dimension> >& space ):
+  DivOp( const Teuchos::RCP<const SpaceT>& space ):
     space_(space) {
 
     for( int i=0; i<3; ++i ) {
@@ -145,10 +148,10 @@ public:
 
 
 /// \relates DivOp
-template< class S, class O, int d=3 >
-Teuchos::RCP< DivOp<S,O,d> > createDivOp(
-    const Teuchos::RCP<const Space<S,O,d> >& space ) {
-  return( Teuchos::rcp( new DivOp<S,O,d>( space ) ) );
+template<class SpaceT>
+Teuchos::RCP< DivOp<SpaceT> > createDivOp(
+    const Teuchos::RCP<const SpaceT>& space ) {
+  return( Teuchos::rcp( new DivOp<SpaceT>( space ) ) );
 }
 
 } // end of namespace Pimpact

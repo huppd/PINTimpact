@@ -27,47 +27,48 @@ namespace Pimpact {
 /// vector for a scalar field, e.g.: pressure,
 /// \note all indexing is done in Fortran
 /// \ingroup Field
-template< class S=double, class O=int, int d=3 >
-class ScalarField : private AbstractField<S,O,d> {
+template< class SpaceType=Space<double,int,3> >
+class ScalarField : private AbstractField< SpaceType > {
 
-  template<class S1,class O1,int dimension1>
+  template<class SpaceTT>
   friend class VectorField;
-  template<class S1,class O1,int dimension1>
-  friend class GradOp;
-  template<class S1,class O1,int dimension1>
+  template<class SpaceTT>
   friend class DivOp;
-  template<class S1,class O1,int dimension1>
+  template<class SpaceTT>
+  friend class GradOp;
+  template<class SpaceTT>
   friend class DivGrad2ndOOp;
   template<class S1,class O1,int dimension1>
   friend class InterpolateV2S;
-  template<class S1,class O1,int dimension1>
+  template<class SpaceTT>
   friend class InterpolateS2V;
-  template<class S1,class O1,int dimension1>
+  template<class SpaceTT>
   friend class ConvectionSOp;
-  template<class S1,class O1,int dimension1>
+  template<class SpaceTT>
   friend class DivGradOp;
-  template<class S1,class O1,int dimension1>
+  template<class SpaceTT>
   friend class MGVDivGradOp;
-  template<class S1,class O1,int dimension1>
+  template<class SpaceTT>
   friend class RestrictionOp;
-  template<class S1,class O1,int dimension1>
+  template<class SpaceTT>
   friend class InterpolationOp;
   template<class Field>
   friend class TimeField;
 
 public:
 
-  typedef S Scalar;
-  typedef O Ordinal;
+  typedef SpaceType SpaceT;
 
-  static const int dimension = d;
+  typedef typename SpaceT::Scalar Scalar;
+  typedef typename SpaceT::Ordinal Ordinal;
 
-  typedef typename AbstractField<S,O,d>::SpaceT SpaceT;
+  static const int dimension = SpaceT::dimension;
+
 
 protected:
 
   typedef Scalar* ScalarArray;
-  typedef ScalarField<Scalar,Ordinal,dimension> MV;
+  typedef ScalarField< SpaceT > MV;
   typedef Teuchos::Tuple<bool,3> State;
 
   ScalarArray s_;
@@ -81,8 +82,8 @@ protected:
 public:
 
 
-  ScalarField( const Teuchos::RCP<SpaceT>& space, bool owning, EField fType=EField::S ):
-    AbstractField<S,O,d>( space ),
+  ScalarField( const Teuchos::RCP<const SpaceT>& space, bool owning, EField fType=EField::S ):
+    AbstractField<SpaceT>( space ),
     owning_(owning),
     exchangedState_( Teuchos::tuple(true,true,true) ),
     fType_(fType) {
@@ -105,7 +106,7 @@ public:
   /// \param sF
   /// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
   ScalarField( const ScalarField& sF, ECopyType copyType=DeepCopy ):
-    AbstractField<S,O,d>( sF.space() ),
+    AbstractField<SpaceT>( sF.space() ),
     owning_( sF.owning_ ),
     exchangedState_( sF.exchangedState_ ),
     fType_( sF.fType_ ) {
@@ -551,11 +552,11 @@ public:
         break;
       }
 
-    Teuchos::RCP< ScalarField<S,O,d> > temp;
+    Teuchos::RCP< ScalarField<SpaceT> > temp;
 
     if( EField::S != fType_ )
       temp = Teuchos::rcp(
-          new ScalarField<S,O,d>( space(), true, EField::S ) );
+          new ScalarField<SpaceT>( space(), true, EField::S ) );
 
     if( 2==space()->dim() ) {
       if( EField::S==fType_ ) {
@@ -655,7 +656,7 @@ public:
     return( s_ );
   }
 
-  Teuchos::RCP<SpaceT> space() const { return( AbstractField<S,O,d>::space_ ); }
+  Teuchos::RCP<const SpaceT> space() const { return( AbstractField<SpaceT>::space_ ); }
 
 protected:
 
@@ -721,14 +722,14 @@ protected:
 /// \param fS scalar Vector Space to which returned vector belongs
 /// \return scalar vector
 /// \relates ScalarField
-template<class S=double, class O=int, int d=3>
-Teuchos::RCP< ScalarField<S,O,d> >
+template<class SpaceT=Space<double,int,3> >
+Teuchos::RCP< ScalarField<SpaceT> >
 createScalarField(
-    const Teuchos::RCP<const Space<S,O,d> >& space,
+    const Teuchos::RCP<const SpaceT >& space,
     EField fType=EField::S ) {
 
   return( Teuchos::rcp(
-      new ScalarField<S,O,d>( space, true, fType ) ) );
+      new ScalarField<SpaceT>( space, true, fType ) ) );
 }
 
 

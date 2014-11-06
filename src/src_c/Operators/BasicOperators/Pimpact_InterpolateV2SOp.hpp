@@ -37,8 +37,11 @@ void OP_interpolateV2S(
 
 }
 
-template<class S, class O, int d>
+template<class SpaceT>
 class ScalarField;
+
+template< class S,class O, int d>
+class Space;
 
 /// \brief Interpolation operator.
 /// \ingroup BaseOperator
@@ -57,8 +60,8 @@ protected:
 
 public:
 
-  typedef ScalarField<Scalar,Ordinal,dimension>  DomainFieldT;
-  typedef ScalarField<Scalar,Ordinal,dimension>  RangeFieldT;
+  typedef ScalarField< Space<Scalar,Ordinal,dimension> >  DomainFieldT;
+  typedef ScalarField< Space<Scalar,Ordinal,dimension> > RangeFieldT;
 
   InterpolateV2S(
       const Teuchos::RCP<const ProcGrid<Ordinal,dimension> >&  procGrid,

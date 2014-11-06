@@ -30,8 +30,9 @@ class MultiGrid {
   static const int dimension = Field::dimension;
 
   typedef typename Field::SpaceT SpaceT;
-  typedef RestrictionOp<Scalar,Ordinal,dimension> RestrictionOpT;
-  typedef InterpolationOp<Scalar,Ordinal,dimension> InterpolationOpT;
+
+  typedef RestrictionOp<SpaceT> RestrictionOpT;
+  typedef InterpolationOp<SpaceT> InterpolationOpT;
 
   template<class FieldT, class CoarsenStrategy>
   friend
@@ -93,10 +94,12 @@ template<class Field, class CoarsenStrategy>
 Teuchos::RCP< MultiGrid<Field> >
 createMultiGrid( const Teuchos::RCP<const typename Field::SpaceT>& space, int maxGrids=10, EField type=EField::S ) {
 
-  typedef typename Field::Scalar  S;
-  typedef typename Field::Ordinal O;
+//  typedef typename Field::Scalar  S;
+//  typedef typename Field::Ordinal O;
 
-  static const int d = Field::dimension;
+  typedef typename Field::SpaceT SpaceT;
+
+//  static const int d = Field::dimension;
 
   std::vector<Teuchos::RCP<const typename Field::SpaceT> > spaces =
       CoarsenStrategy::getMultiSpace( space, maxGrids );
@@ -110,8 +113,8 @@ createMultiGrid( const Teuchos::RCP<const typename Field::SpaceT>& space, int ma
   std::vector< Teuchos::RCP< typename MultiGrid<Field>::InterpolationOpT> > interpolationOp;
 
   for( unsigned i=0; i<spaces.size()-1; ++i ) {
-    restrictOp.push_back( createRestrictionOp<S,O,d>( spaces[i], spaces[i+1] ) );
-    interpolationOp.push_back( createInterpolationOp<S,O,d>( spaces[i+1], spaces[i] ) );
+    restrictOp.push_back( createRestrictionOp<SpaceT>( spaces[i], spaces[i+1] ) );
+    interpolationOp.push_back( createInterpolationOp<SpaceT>( spaces[i+1], spaces[i] ) );
   }
 
   return( Teuchos::rcp( new MultiGrid<Field>( spaces, fields, restrictOp, interpolationOp ) ) );

@@ -26,7 +26,7 @@ namespace Pimpact {
 /// - 4: Stabil   (xi >= 2, Re=10000, N=17)
 /// - 5: Stabil  (Re=10000, N=65, leicht gestreckt, explizites Forcing)
 /// - 6: Instabil (äquidistant, Re=10000, N=17)
-template< int dim=3, int dim_nc = 2 >
+template< int dim=3, int dim_nc = 4 >
 class StencilWidths {
 
   template< int d, int dnc >
@@ -293,7 +293,7 @@ public:
 /// by getting values from \c IMPACT
 /// should be changed by getting vallues from \c ProcGridSize and \c GridSize
 /// \relates StencilWidths
-template< int d=3, int dnc = 2  >
+template< int d=3, int dnc = 4  >
 const Teuchos::RCP<const StencilWidths<d,dnc> > createStencilWidths(){
 
   return(
