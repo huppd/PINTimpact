@@ -41,7 +41,7 @@ void PI_getGlobalCoordinates(
 /// xV         | 0..nGlo | 0.5..L+0.5
 ///
 /// \ingroup Space
-template<class Scalar=double, class Ordinal=int, int dim=3 >
+template<class Scalar, class Ordinal, int dim>
 class GridCoordinatesGlobal {
 
 
@@ -148,7 +148,7 @@ public:
 
 /// \brief create Grid coordinates Global
 /// \relates GridCoordinatesGlobal
-template<class S=double, class O=int, int d=3 >
+template<class S, class O, int d>
 Teuchos::RCP<const GridCoordinatesGlobal<S,O,d> > createGridCoordinatesGlobal(
     const Teuchos::RCP<const GridSizeGlobal<O,d> >& gridSize,
     const Teuchos::RCP<const DomainSize<S> >& domainSize ) {

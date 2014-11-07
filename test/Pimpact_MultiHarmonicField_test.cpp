@@ -20,7 +20,7 @@ namespace {
 
 
 bool testMpi = true;
-double errorTolSlack = 1e-6;
+double eps = 1e-6;
 int domain = 1;
 
 
@@ -36,7 +36,7 @@ TEUCHOS_STATIC_SETUP() {
       "Test MPI (if available) or force test of serial.  In a serial build,"
       " this option is ignored and a serial comm is always used." );
   clp.setOption(
-      "error-tol-slack", &errorTolSlack,
+      "error-tol-slack", &eps,
       "Slack off of machine epsilon used to check test results" );
   clp.setOption(
       "domain", &domain,
@@ -103,7 +103,7 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarFieldScalar, TwoNorm_and_init ) {
 	// test different float values, assures that initial and norm work smoothly
 	for( S i=0.; i< 200.1; ++i ) {
 	  field->init(i/2.);
-    TEST_FLOATING_EQUALITY( std::sqrt(std::pow(i/2.,2)*n), field->norm(Belos::TwoNorm), errorTolSlack );
+    TEST_FLOATING_EQUALITY( std::sqrt(std::pow(i/2.,2)*n), field->norm(Belos::TwoNorm), eps );
 	}
 
 }
@@ -182,7 +182,7 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, TwoNorm_and_init ) {
 
 	for( S i=0.; i< 200.1; ++i ) {
 		field->init(i/2.);
-    TEST_FLOATING_EQUALITY( std::sqrt(std::pow(i/2.,2)*N), field->norm(Belos::TwoNorm), errorTolSlack );
+    TEST_FLOATING_EQUALITY( std::sqrt(std::pow(i/2.,2)*N), field->norm(Belos::TwoNorm), eps );
 	}
 
 }
@@ -300,7 +300,7 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, add ) {
 
 	field1->add( 2., *field2, 0., *field3);
 	norm = field1->norm(Belos::TwoNorm);
-  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, errorTolSlack );
+  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, eps );
 
 	field1->init(0.);
 	field2->init(1./2.);
@@ -308,7 +308,7 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, add ) {
 
 	field1->add( 0., *field2, 3., *field3);
 	norm = field1->norm(Belos::TwoNorm);
-  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, errorTolSlack );
+  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, eps );
 
 	field1->init(0.);
 	field2->init(1.);
@@ -316,7 +316,7 @@ TEUCHOS_UNIT_TEST( MultiHarmonicScalarField, add ) {
 
 	field1->add( 0.5, *field2, 0.5, *field3);
 	norm = field1->norm(Belos::TwoNorm);
-  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, errorTolSlack );
+  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, eps );
 
 }
 
@@ -376,7 +376,7 @@ TEUCHOS_UNIT_TEST( MultiHarmonicVectorFieldScalar, TwoNorm_and_init ) {
   // test different float values, assures that initial and norm work smoothly
   for( S i=0.; i< 200.1; ++i ) {
     field->init(i/2.);
-    TEST_FLOATING_EQUALITY( std::sqrt(std::pow(i/2.,2)*n), field->norm(Belos::TwoNorm), errorTolSlack );
+    TEST_FLOATING_EQUALITY( std::sqrt(std::pow(i/2.,2)*n), field->norm(Belos::TwoNorm), eps );
   }
 
 }
@@ -456,7 +456,7 @@ TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, TwoNorm_and_init ) {
   for( S i=0.; i< 200.1; ++i ) {
     field->init(i/2.);
     norm = field->norm(Belos::TwoNorm);
-    TEST_FLOATING_EQUALITY( std::sqrt(std::pow(i/2.,2)*N), norm, errorTolSlack );
+    TEST_FLOATING_EQUALITY( std::sqrt(std::pow(i/2.,2)*N), norm, eps );
   }
 
 }
@@ -573,7 +573,7 @@ TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, add ) {
 
   field1->add( 2., *field2, 0., *field3);
   norm = field1->norm(Belos::TwoNorm);
-  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, errorTolSlack );
+  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, eps );
 
 
   field1->init(0.);
@@ -582,7 +582,7 @@ TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, add ) {
 
   field1->add( 0., *field2, 3., *field3);
   norm = field1->norm(Belos::TwoNorm);
-  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, errorTolSlack );
+  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, eps );
 
   field1->init(0.);
   field2->init(1.);
@@ -590,7 +590,7 @@ TEUCHOS_UNIT_TEST( MultiHarmonicVectorField, add ) {
 
   field1->add( 0.5, *field2, 0.5, *field3);
   norm = field1->norm(Belos::TwoNorm);
-  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, errorTolSlack );
+  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, eps );
 
 }
 

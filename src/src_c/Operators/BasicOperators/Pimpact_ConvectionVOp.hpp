@@ -32,6 +32,8 @@ public:
 
   static const int dimension = SpaceT::dimension;
 
+  static const int dimNC = SpaceT::dimNC;
+
   typedef VectorField<SpaceT>  DomainFieldT;
   typedef VectorField<SpaceT>  RangeFieldT;
 
@@ -40,7 +42,7 @@ private:
   Teuchos::RCP<const SpaceT> space_;
 
   Teuchos::RCP<const InterpolateS2V<SpaceT> > interpolateS2V_;
-  Teuchos::RCP<const InterpolateV2S<Scalar,Ordinal,dimension> > interpolateV2S_;
+  Teuchos::RCP<const InterpolateV2S<Scalar,Ordinal,dimension,dimNC> > interpolateV2S_;
 
   Teuchos::RCP<const ConvectionSOp<SpaceT> > convectionSOp_;
 
@@ -78,7 +80,7 @@ public:
   ConvectionVOp(
       const Teuchos::RCP<const SpaceT>& space,
       const Teuchos::RCP< InterpolateS2V<SpaceT> >& interpolateS2V,
-      const Teuchos::RCP< InterpolateV2S<Scalar,Ordinal,dimension> >& interpolateV2S,
+      const Teuchos::RCP< InterpolateV2S<Scalar,Ordinal,dimension,dimNC> >& interpolateV2S,
       const Teuchos::RCP< ConvectionSOp<SpaceT> >& convectionSOp ):
     space_(space),
     interpolateS2V_(interpolateS2V),

@@ -25,7 +25,7 @@ namespace Pimpact{
 /// \brief size of processor grid
 /// \ingroup Space
 /// \todo maybe inherit from Tuple
-template<class Ordinal=int,int dim=3>
+template<class Ordinal, int dim>
 class ProcGridSize {
 
 public:
@@ -98,7 +98,7 @@ public:
 
 
 /// \relates ProcGridSize
-template< class O=int, int d=3 >
+template<class O=int, int d>
 Teuchos::RCP<const ProcGridSize<O,d> > createProcGridSize( O np1, O np2, O np3, O npt=0 ) {
 
   Teuchos::Tuple<O,d> temp;

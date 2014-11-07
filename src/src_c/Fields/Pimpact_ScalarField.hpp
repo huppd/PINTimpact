@@ -41,6 +41,8 @@ class ScalarField : private AbstractField< SpaceType > {
   friend class InterpolateV2S;
   template<class SpaceTT>
   friend class InterpolateS2V;
+  template<class FSpaceTT, class CSpaceTT>
+  friend class TransferOp;
   template<class SpaceTT>
   friend class ConvectionSOp;
   template<class SpaceTT>
@@ -140,7 +142,7 @@ public:
   }
 
   /// \name Attribute methods
-  ///@{
+  ///\{
 
   /// \brief returns the length of Field.
   Ordinal getLength( bool dummy=false ) const {
@@ -184,9 +186,9 @@ public:
   int getNumberVecs() const { return( 1 ); }
 
 
-  //@}
-  /// @name Update methods
-  //@{
+  //\}
+  /// \name Update methods
+  //\{
 
   /// \brief Replace \c this with \f$\alpha A + \beta B\f$.
   void add( const Scalar& alpha, const MV& A, const Scalar& beta, const MV& B ) {
@@ -319,9 +321,9 @@ public:
   }
 
 
-  ///@}
-  /// @name Norm method
-  ///@{
+  ///\}
+  /// \name Norm method
+  ///\{
 
 
   /// \brief compute the norm
@@ -396,9 +398,9 @@ public:
   }
 
 
-  //@}
-  /// @name Initialization methods
-  //@{
+  //\}
+  /// \name Initialization methods
+  //\{
 
   /// \brief mv := A
   ///
@@ -516,7 +518,7 @@ public:
   }
 
 
-  //@}
+  //\}
 
   /// Print the vector.  To be used for debugging only.
   void print( std::ostream& os=std::cout )  const {
@@ -716,9 +718,9 @@ protected:
 
 
 
-/// \brief creates a scalar field(vector) belonging to a StencilWidths
+/// \brief creates a scalar field(vector) belonging to a space
 ///
-/// \param fS scalar Vector Space to which returned vector belongs
+/// \param space scalar Vector Space to which returned vector belongs
 /// \return scalar vector
 /// \relates ScalarField
 template<class SpaceT>

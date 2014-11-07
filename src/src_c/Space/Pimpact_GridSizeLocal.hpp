@@ -31,7 +31,7 @@ namespace Pimpact{
 /// generated from \c GridSizeGlobal and \c ProcGridSize
 /// \ingroup Space
 /// \todo think about inheriting from Tuple or generalize for use Global/Local
-template< class Ordinal=int, int dim=3 >
+template<class Ordinal, int dim>
 class GridSizeLocal {
 
   template< class OT, int dT >
@@ -124,7 +124,7 @@ protected:
 
 /// \brief creates GridSizeLocal
 /// \relates GridSizeLocal
-template< class O=int, int d=3 >
+template< class O, int d>
 Teuchos::RCP<const GridSizeLocal<O,d> > createGridSizeLocal(
     const Teuchos::RCP<const GridSizeGlobal<O,d> >& gsg,
     const Teuchos::RCP<const ProcGridSize<O,d> >& pgs ) {

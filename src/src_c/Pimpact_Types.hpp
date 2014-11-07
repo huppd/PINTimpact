@@ -18,6 +18,7 @@ enum ECopyType {
   ShallowCopy };
 
 
+/// \relates VectorField::initField
 enum EFlowField {
   ZeroFlow=0,
   PoiseuilleFlow2D_inX=1, PoiseuilleFlow2D_inY=2,
@@ -38,6 +39,8 @@ enum EFlowField {
   ConstFlow=19
 };
 
+
+/// \relates ScalarField::initField
 enum EScalarField {
   ConstField=0,
   Poiseuille2D_inX=1,
@@ -49,9 +52,12 @@ enum EScalarField {
 
 enum EFlowType {
   Zero2DFlow = 0,
-  Poiseuille_inX=1, Poiseuille_inY=2,
-  Pulsatile_inX=3, Pulsatile_inY=4,
-  Streaming2DFlow=5, Streaming2DFlow2=6,
+  Poiseuille_inX=1,
+  Poiseuille_inY=2,
+  Pulsatile_inX=3,
+  Pulsatile_inY=4,
+  Streaming2DFlow=5,
+  Streaming2DFlow2=6,
   Streaming2DFlow3=7,
   OscilatingDisc2D=8,
   OscilatingDisc2DVel=9

@@ -51,62 +51,60 @@ public:
 
 
   /// \brief Create a new deep copy of multivector.
-  static Teuchos::RCP<Pimpact::MultiField<Field> > CloneCopy( const Pimpact::MultiField<Field>& mv )
-        {
-    return mv.CloneCopy();
-        }
+  static Teuchos::RCP<Pimpact::MultiField<Field> > CloneCopy( const Pimpact::MultiField<Field>& mv ) {
+    return( mv.CloneCopy() );
+  }
 
 
   /// \brief Create a new deep copy of multivector, considering only the \c Field's of \c index.
-  static Teuchos::RCP<Pimpact::MultiField<Field> > CloneCopy( const Pimpact::MultiField<Field>& mv, const std::vector<int>& index )
-        {
-    return mv.CloneCopy(index);
-        }
+  static Teuchos::RCP<Pimpact::MultiField<Field> > CloneCopy( const Pimpact::MultiField<Field>& mv, const std::vector<int>& index ) {
+    return( mv.CloneCopy(index) );
+  }
 
 
   /// \brief Create a new deep copy of multivector, considering only the \c Field's in the range of \c index.
   static Teuchos::RCP<Pimpact::MultiField<Field> >
-  CloneCopy (const Pimpact::MultiField<Field>& mv,
-      const Teuchos::Range1D& index)
-      {
-    return mv.CloneCopy(index);
-      }
+  CloneCopy(
+      const Pimpact::MultiField<Field>& mv,
+      const Teuchos::Range1D& index) {
+    return( mv.CloneCopy(index) );
+  }
 
 
   /// \brief Create a new view to multivector, considering only the \c Field's of \c index.
   static Teuchos::RCP<Pimpact::MultiField<Field> >
-  CloneViewNonConst (Pimpact::MultiField<Field>& mv,
-      const std::vector<int>& index)
-      {
-    return mv.CloneViewNonConst(index);
-      }
+  CloneViewNonConst(
+      Pimpact::MultiField<Field>& mv,
+      const std::vector<int>& index) {
+    return( mv.CloneViewNonConst(index) );
+  }
 
 
   /// \brief Create a new view to multivector, considering only the \c Field's in the range of \c index.
   static Teuchos::RCP<Pimpact::MultiField<Field> >
-  CloneViewNonConst (Pimpact::MultiField<Field>& mv,
-      const Teuchos::Range1D& index)
-      {
-    return mv.CloneViewNonConst(index);
-      }
+  CloneViewNonConst(
+      Pimpact::MultiField<Field>& mv,
+      const Teuchos::Range1D& index) {
+    return( mv.CloneViewNonConst(index) );
+  }
 
 
   /// \brief Create a new const view to multivector, considering only the \c Field's of \c index.
   static Teuchos::RCP<const Pimpact::MultiField<Field> >
-  CloneView (const Pimpact::MultiField<Field>& mv,
-      const std::vector<int>& index)
-      {
-    return mv.CloneView(index);
-      }
+  CloneView(
+      const Pimpact::MultiField<Field>& mv,
+      const std::vector<int>& index) {
+    return( mv.CloneView(index) );
+  }
 
 
   /// \brief Create a new const view to multivector, considering only the \c Field's in the range of \c index.
   static Teuchos::RCP<const Pimpact::MultiField<Field> >
-  CloneView (const Pimpact::MultiField<Field>& mv,
-      const Teuchos::Range1D& index)
-      {
-    return mv.CloneView(index);
-      }
+  CloneView(
+      const Pimpact::MultiField<Field>& mv,
+      const Teuchos::Range1D& index ) {
+    return( mv.CloneView(index) );
+  }
 
 
   /// \brief return the number of the Vector/Field length, it is assumed that every \c Field of the multivector has the same.
@@ -240,65 +238,6 @@ public:
 
 
 
-//////////////////////////////////////////////////////////////////////
-////
-//// Implementation of the Belos::OperatorTraits for Pimpact::OperatorMV.
-////
-//////////////////////////////////////////////////////////////////////
-//
-///// \brief Partial specialization of \c Belos::OperatorTraits for \c Pimpact::OperatorMV.
-/////
-///// it has three template parameters Scalar, Field, and the inner Operator
-///// \note sadly Belos allows only Operators having the same domain and range
-///// \deprecated doesnot allow preconditioner from another type
-//template <class Scalar, class Field, class Operator>
-//class OperatorTraits <Scalar, Pimpact::MultiField<Field>, Pimpact::OperatorMV<Operator> > {
-//
-//public:
-//  	/// \brief applys the inner \c Operator, such that \c Y:= \c Op( \c X)
-//  	/// \note up to now only no NOTRANS operators can be handled
-//    static void
-//    Apply (const Pimpact::OperatorMV<Operator>& Op,
-//           const Pimpact::MultiField<Field>& X,
-//           Pimpact::MultiField<Field>& Y,
-//           Belos::ETrans trans=NOTRANS) {
-////				std::cout << "x.getVecLength(): " << X.GetVecLength()<< "\n";
-////      		std::cout << "y.getVecLength(): " << Y.GetVecLength()<< "\n";
-//          Op.apply(X,Y,NOTRANS);
-//    }
-////      switch (trans) {
-////        case NOTRANS:
-////          Op.apply(X,Y,NOTRANS);
-////          break;
-////        case TRANS:
-//////          Op.apply(X,Y,TRANS);
-////          break;
-////        case CONJTRANS:
-//////          Op.apply(X,Y,CONJTRANS);
-////          break;
-////      default:
-////        const std::string scalarName = Teuchos::TypeNameTraits<Scalar>::name();
-////        const std::string loName = Teuchos::TypeNameTraits<LO>::name();
-////        const std::string goName = Teuchos::TypeNameTraits<GO>::name();
-////        const std::string nodeName = Teuchos::TypeNameTraits<Node>::name();
-////        const std::string otName = "Belos::OperatorTraits<" + scalarName
-////          + "," + loName + "," + goName + "," + nodeName + ">";
-////        TEUCHOS_TEST_FOR_EXCEPTION(true, std::logic_error, otName << ": Should never "
-////                           "get here; fell through a switch statement.  "
-////                           "Please report this bug to the Belos developers.");
-////      }
-//
-//
-//  /**
-//   * @param Op
-//   * @return \c true if Op has a transpose implemented
-//   */
-//  static bool HasApplyTranspose (const Pimpact::OperatorMV<Operator>& Op) {
-//  	return( Op.hasTransposeApply() );
-//  }
-//
-//}; // end of class OperatorTraits
-
 
 
 ////////////////////////////////////////////////////////////////////
@@ -327,8 +266,8 @@ public:
     Op.apply( X, Y, NOTRANS);
   }
 
-  /// @param Op
-  /// @return \c true if Op has a transpose implemented
+  /// \param Op
+  /// \return \c true if Op has a transpose implemented
   static bool HasApplyTranspose( const Pimpact::OperatorBase<Pimpact::MultiField<Field> > & Op ) {
     return( Op.hasTransposeApply() );
   }

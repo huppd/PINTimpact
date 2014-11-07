@@ -25,7 +25,7 @@ namespace Pimpact{
 
 
 /// \ingroup domain
-template<class Scalar=double>
+template<class Scalar>
 class Domain {
 
 public:
@@ -67,7 +67,7 @@ protected:
 
 
 /// \relates Domain
-template<class S=double>
+template<class S>
 Teuchos::RCP<const Domain<S> > createDomain(
     const Teuchos::RCP<const DomainSize<S> >& domainSize,
     const Teuchos::RCP<const BoundaryConditionsGlobal> bcGlo,

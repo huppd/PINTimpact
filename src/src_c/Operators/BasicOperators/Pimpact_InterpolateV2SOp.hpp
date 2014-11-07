@@ -49,7 +49,7 @@ class ScalarField;
 ///
 /// is used in the \c ScalarField::write method to interpolate the velocity to the pressure points, also used in \c ConvectionVOp
 /// \todo check boundaries some fixing necessary
-template< class Scalar, class Ordinal, int dimension=3, int dimNC=4 >
+template< class Scalar, class Ordinal, int dimension, int dimNC >
 class InterpolateV2S {
 
 protected:
@@ -154,17 +154,17 @@ public:
 
 
 /// \relates InterpolateV2S
-template< class S, class O, int d=3 >
-Teuchos::RCP<const InterpolateV2S<S,O,d> > createInterpolateV2S(
+template< class S, class O, int d, int dimNC >
+Teuchos::RCP<const InterpolateV2S<S,O,d,dimNC> > createInterpolateV2S(
     const Teuchos::RCP<const ProcGrid<O,d> >&  procGrid,
     const Teuchos::RCP<const GridSizeLocal<O,d> >& gridSizeLocal,
-    const Teuchos::RCP<const StencilWidths<d> >& fieldSpace,
+    const Teuchos::RCP<const StencilWidths<d,dimNC> >& fieldSpace,
     const Teuchos::RCP<const Domain<S> >& domain,
     const Teuchos::RCP<const GridCoordinatesLocal<S,O,d> >& coordinatesLocal ) {
 
   return(
       Teuchos::rcp(
-          new InterpolateV2S<S,O,d>(
+          new InterpolateV2S<S,O,d,dimNC>(
               procGrid,
               gridSizeLocal,
               fieldSpace,
@@ -175,7 +175,7 @@ Teuchos::RCP<const InterpolateV2S<S,O,d> > createInterpolateV2S(
 
 
 /// \relates InterpolateV2S
-template< class S, class O, int d=3, int dimNC=4 >
+template< class S, class O, int d, int dimNC >
 Teuchos::RCP<const InterpolateV2S<S,O,d,dimNC> > createInterpolateV2S(
     const Teuchos::RCP<const Space<S,O,d,dimNC> >& space ) {
   return( space->getInterpolateV2S() );

@@ -28,7 +28,7 @@ namespace Pimpact{
 
 /// \brief Domain or physical set up would be better names
 /// \ingroup domain
-template< class Scalar=double >
+template<class Scalar>
 class DomainSize {
 
   template<class ST>
@@ -134,7 +134,7 @@ Teuchos::RCP<const DomainSize<Scalar> > createDomainSize( int dim, Scalar L1, Sc
 
 
 /// \relates DomainSize
-template<class Scalar=double>
+template<class Scalar>
 Teuchos::RCP<const DomainSize<Scalar> > createDomainSize( int dim, Scalar re, Scalar alpha2, Scalar L1, Scalar L2, Scalar L3 ) {
   return(
       Teuchos::rcp(

@@ -502,8 +502,6 @@ initVectorTimeField(
       (*j)->initField( ZeroFlow );
       break;
     }
-//  field->changed();
-//  field->exchange();
 
   return( field );
 

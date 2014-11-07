@@ -30,7 +30,7 @@ typedef Pimpact::Space<S,O> SpaceT;
 
 
 bool testMpi = true;
-S errorTolSlack = 1e-10;
+S eps = 1e-10;
 
 bool isImpactInit = false;
 
@@ -44,7 +44,7 @@ TEUCHOS_STATIC_SETUP() {
       "Test MPI (if available) or force test of serial.  In a serial build,"
       " this option is ignored and a serial comm is always used." );
   clp.setOption(
-      "errorTolSlack", &errorTolSlack,
+      "eps", &eps,
       "Slack off of machine epsilon used to check test results" );
 }
 
@@ -80,7 +80,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivOp ) {
 
   p->write(0);
 
-  TEST_EQUALITY( p->norm()<errorTolSlack, true );
+  TEST_EQUALITY( p->norm()<eps, true );
 
 
   // random test
@@ -91,7 +91,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivOp ) {
 
   p->write(1);
 
-  TEST_EQUALITY( p->norm()>errorTolSlack, true );
+  TEST_EQUALITY( p->norm()>eps, true );
 
   // circle test
   vel->initField( Pimpact::Circle2D );
@@ -99,7 +99,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivOp ) {
 
   op->apply(*vel,*p);
 
-  TEST_EQUALITY( p->norm()<errorTolSlack, true );
+  TEST_EQUALITY( p->norm()<eps, true );
 
   p->write(2);
 
@@ -154,7 +154,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateV2SOp ) {
      op->apply( vel->getConstField( i ), *p );
      p->write( i+space->dim()*2 );
    }
-//  TEST_EQUALITY( p->norm()<errorTolSlack, true );
+//  TEST_EQUALITY( p->norm()<eps, true );
 
 
 }
@@ -202,11 +202,59 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateS2VOp ) {
   }
   vel->write(1);
 
-//  TEST_EQUALITY( p->norm()<errorTolSlack, true );
+//  TEST_EQUALITY( p->norm()<eps, true );
 
 
 }
 
+
+
+TEUCHOS_UNIT_TEST( BasicOperator, TransferOp ) {
+
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "domain", 1);
+
+  pl->set( "lx", 2. );
+  pl->set( "ly", 2. );
+  pl->set( "lz", 1. );
+
+
+  pl->set("nx", 49 );
+  pl->set("ny", 49 );
+  pl->set("nz", 2 );
+
+  auto fSpace = Pimpact::createSpace<S,O,3,4>( pl );
+  auto cSpace = Pimpact::createSpace<S,O,3,2>( pl );
+
+//  auto fx = Pimpact::createScalarField( fSpace );
+//  auto cx = Pimpact::createScalarField( cSpace );
+//
+//  auto op = Pimpact::createTransferOp( fSpace, cSpace );
+//
+//  // zero test
+//  fx->initField( Pimpact::Poiseuille2D_inX );
+//  cx->random();
+//
+//  op->apply( *fx, *cx );
+//
+//  TEST_FLOATING_EQUALITY( fx->norm(Belos::OneNorm), cx->norm(Belos::OneNorm), eps );
+//  TEST_FLOATING_EQUALITY( fx->norm(Belos::TwoNorm), cx->norm(Belos::TwoNorm), eps );
+//  TEST_FLOATING_EQUALITY( fx->norm(Belos::InfNorm), cx->norm(Belos::InfNorm), eps );
+//
+//  cx->write(0);
+//
+//  fx->random();
+//
+//  op->apply( *cx, *fx );
+//
+//  TEST_FLOATING_EQUALITY( fx->norm(Belos::OneNorm), cx->norm(Belos::OneNorm), eps );
+//  TEST_FLOATING_EQUALITY( fx->norm(Belos::TwoNorm), cx->norm(Belos::TwoNorm), eps );
+//  TEST_FLOATING_EQUALITY( fx->norm(Belos::InfNorm), cx->norm(Belos::InfNorm), eps );
+//
+//  fx->write(1);
+
+}
 
 
 
@@ -245,8 +293,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, GradOp ) {
 
   op->apply(*p,*v);
 
-  TEST_EQUALITY( (v->getConstFieldPtr(Pimpact::U)->norm()-std::sqrt( std::pow(1.,2)*p->getLength() ))<errorTolSlack, true );
-  TEST_EQUALITY( v->getConstFieldPtr(Pimpact::V)->norm()<errorTolSlack, true );
+  TEST_EQUALITY( (v->getConstFieldPtr(Pimpact::U)->norm()-std::sqrt( std::pow(1.,2)*p->getLength() ))<eps, true );
+  TEST_EQUALITY( v->getConstFieldPtr(Pimpact::V)->norm()<eps, true );
 
   v->write(0);
 
@@ -256,8 +304,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, GradOp ) {
 
   op->apply(*p,*v);
 
-  TEST_EQUALITY(  v->getConstFieldPtr(Pimpact::U)->norm()<errorTolSlack, true );
-  TEST_EQUALITY( (v->getConstFieldPtr(Pimpact::V)->norm()-std::sqrt( std::pow(1.,2)*p->getLength() ))<errorTolSlack, true );
+  TEST_EQUALITY(  v->getConstFieldPtr(Pimpact::U)->norm()<eps, true );
+  TEST_EQUALITY( (v->getConstFieldPtr(Pimpact::V)->norm()-std::sqrt( std::pow(1.,2)*p->getLength() ))<eps, true );
 
   v->write(1);
 
@@ -306,7 +354,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
   bs->write(1);
 
   std::cout << "error: " << bs->norm() << "\n";
-  TEST_EQUALITY( bs->norm()<errorTolSlack, true );
+  TEST_EQUALITY( bs->norm()<eps, true );
 
   // test in y direction
   x->initField( Pimpact::PoiseuilleFlow2D_inY );
@@ -320,7 +368,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
   bs->write(3);
 
   std::cout << "error: " << bs->norm() << "\n";
-  TEST_EQUALITY( bs->norm()<errorTolSlack, true );
+  TEST_EQUALITY( bs->norm()<eps, true );
 
   // the circle test
   x->initField( Pimpact::Circle2D );
@@ -335,7 +383,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
   bs->write(6);
 
   std::cout << "error: " << bs->norm() << "\n";
-  TEST_EQUALITY( bs->norm()<errorTolSlack, true );
+  TEST_EQUALITY( bs->norm()<eps, true );
 
 }
 
@@ -407,9 +455,9 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionSOp ) {
   }
 
   for( int i=0; i<space->dim(); ++i ) {
-    TEST_FLOATING_EQUALITY( 2., y->getFieldPtr(i)->norm(Belos::InfNorm), errorTolSlack );
-    TEST_FLOATING_EQUALITY( 2.* (double) y->getFieldPtr(i)->getLength()  , y->getFieldPtr(i)->norm(Belos::OneNorm), errorTolSlack );
-    TEST_FLOATING_EQUALITY( std::sqrt( 4.* y->getFieldPtr(i)->getLength() ), y->getFieldPtr(i)->norm(Belos::TwoNorm), errorTolSlack );
+    TEST_FLOATING_EQUALITY( 2., y->getFieldPtr(i)->norm(Belos::InfNorm), eps );
+    TEST_FLOATING_EQUALITY( 2.* (double) y->getFieldPtr(i)->getLength()  , y->getFieldPtr(i)->norm(Belos::OneNorm), eps );
+    TEST_FLOATING_EQUALITY( std::sqrt( 4.* y->getFieldPtr(i)->getLength() ), y->getFieldPtr(i)->norm(Belos::TwoNorm), eps );
   }
 
   y->write(1);
@@ -461,13 +509,13 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionVOp ) {
   op2->apply( *x, *y, *z2 );
 
   for( int i=0; i<space->dim(); ++i ) {
-    TEST_FLOATING_EQUALITY( 2., z->getFieldPtr(i)->norm(Belos::InfNorm), errorTolSlack );
-    TEST_FLOATING_EQUALITY( 2.* (double) z->getFieldPtr(i)->getLength()  , z->getFieldPtr(i)->norm(Belos::OneNorm), errorTolSlack );
-    TEST_FLOATING_EQUALITY( std::sqrt( 4.* z->getFieldPtr(i)->getLength() ), z->getFieldPtr(i)->norm(Belos::TwoNorm), errorTolSlack );
+    TEST_FLOATING_EQUALITY( 2., z->getFieldPtr(i)->norm(Belos::InfNorm), eps );
+    TEST_FLOATING_EQUALITY( 2.* (double) z->getFieldPtr(i)->getLength()  , z->getFieldPtr(i)->norm(Belos::OneNorm), eps );
+    TEST_FLOATING_EQUALITY( std::sqrt( 4.* z->getFieldPtr(i)->getLength() ), z->getFieldPtr(i)->norm(Belos::TwoNorm), eps );
   }
   z2->add( -1, *z2, 1, *z );
 
-  TEST_FLOATING_EQUALITY( z2->norm(), 0., errorTolSlack );
+  TEST_FLOATING_EQUALITY( z2->norm(), 0., eps );
 
   z2->write(1);
 
@@ -514,13 +562,13 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionJacobianVOp ) {
 
     // test is not exact because the boundaries of x are zero, and
     for( int i=0; i<space->dim(); ++i ) {
-      TEST_FLOATING_EQUALITY( 2., z->getFieldPtr(i)->norm(Belos::InfNorm), errorTolSlack );
-      TEST_FLOATING_EQUALITY( 2.* (double) z->getFieldPtr(i)->getLength()  , z->getFieldPtr(i)->norm(Belos::OneNorm), errorTolSlack );
-      TEST_FLOATING_EQUALITY( std::sqrt( 4.* z->getFieldPtr(i)->getLength() ), z->getFieldPtr(i)->norm(Belos::TwoNorm), errorTolSlack );
+      TEST_FLOATING_EQUALITY( 2., z->getFieldPtr(i)->norm(Belos::InfNorm), eps );
+      TEST_FLOATING_EQUALITY( 2.* (double) z->getFieldPtr(i)->getLength()  , z->getFieldPtr(i)->norm(Belos::OneNorm), eps );
+      TEST_FLOATING_EQUALITY( std::sqrt( 4.* z->getFieldPtr(i)->getLength() ), z->getFieldPtr(i)->norm(Belos::TwoNorm), eps );
     }
     z2->add( -1, *z2, 1, *z );
 
-    TEST_FLOATING_EQUALITY( z2->norm(), 0., errorTolSlack );
+    TEST_FLOATING_EQUALITY( z2->norm(), 0., eps );
 
     z2->write(2);
     z->write(1);
@@ -599,7 +647,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGrad2ndOOp ) {
 
   x->write(0);
 
-  TEST_EQUALITY( x->norm()<errorTolSlack, true );
+  TEST_EQUALITY( x->norm()<eps, true );
 
 
   // random test
@@ -610,7 +658,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGrad2ndOOp ) {
 
   x->write(1);
 
-  TEST_EQUALITY( x->norm()>errorTolSlack, true );
+  TEST_EQUALITY( x->norm()>eps, true );
 
   // circle test
   b->initField( Pimpact::Grad2D_inX );
@@ -618,7 +666,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGrad2ndOOp ) {
 
   op->apply(*b,*x);
 
-  TEST_EQUALITY( x->norm()<errorTolSlack, true );
+  TEST_EQUALITY( x->norm()<eps, true );
 
   x->write(2);
 

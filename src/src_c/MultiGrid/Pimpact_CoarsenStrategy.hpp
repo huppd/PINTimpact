@@ -17,27 +17,35 @@ namespace Pimpact {
 
 /// \brief first model implementation, where one coarsens until every processor has 3 dofs.
 ///
+/// \tparam SpaceTF space on finest level not necessary the same for the coarse grids( difference in \c dim_nc).
 /// it should be that the coardinates are taken from the fine grid and are halved.
 /// \todo compute coordinates correctly (grid stretching only on finest grid, afterwards simple coarsening),
 /// cleanest version would be to use same grid stretching on every level, makes interpolation and restriction slightly more complicated.
-template<class Field>
+template<class SpaceTF>
 class CoarsenStrategy {
 
-  typedef typename Field::Scalar  Scalar;
-  typedef typename Field::Ordinal Ordinal;
+  typedef typename SpaceTF::Scalar  Scalar;
+  typedef typename SpaceTF::Ordinal Ordinal;
 
-  static const int dimension = Field::dimension;
+  /// should be same for finest space and coarse spaces
+  static const int dimension = SpaceTF::dimension;
 
-  typedef typename Field::SpaceT SpaceT;
+  /// can be different for finest and coarse spaces
+  static const int dimNCF = SpaceTF::dimNC;
+
+  /// could be template parameter or chosen by a space
+  static const int dimNCC = 4;
+
+  /// could be template parameter or chosen by a space
+  typedef Space<Scalar,Ordinal,dimension,dimNCC> SpaceTC;
 
 public:
 
-
-  static std::vector<Teuchos::RCP<const SpaceT> > getMultiSpace(
-      const Teuchos::RCP<const SpaceT> space,
+  static std::vector<Teuchos::RCP<const SpaceTC> > getMultiSpace(
+      const Teuchos::RCP<const SpaceTF> space,
       int maxGrids=10 ) {
 
-    std::vector<Teuchos::RCP<const SpaceT> > multiSpace( 1, space );
+    std::vector<Teuchos::RCP<const SpaceTC> > multiSpace( 1, space );
 
     const Ordinal* nLoc_ = space->nLoc();
     Ordinal nLoc[dimension];
@@ -79,9 +87,13 @@ public:
 
 protected:
 
+  template<class SpaceT>
   static Teuchos::RCP< const SpaceT > createCoarseSpace(
       const Teuchos::RCP<const SpaceT>& space,
       bool coarsen_dir[dimension] ) {
+
+//    Teuchos::RCP<const StencilWidths<dimension,Space::dimNC> > stencilWidths;
+    auto stencilWidths = space->getStencilWidths();
 
     auto domain = space->getDomain();
 
@@ -95,6 +107,7 @@ protected:
       if( coarsen_dir[i] )
         gridSizeGlobalTup[i] = (gridSizeGlobalTup[i]-1)/2 +1;
 
+    // which template paramters are necessary?
     auto gridSizeGlobal = createGridSizeGlobal<Ordinal,dimension>( gridSizeGlobalTup ); //coarsen
 
     auto gridSizeLocal = Pimpact::createGridSizeLocal<Ordinal,dimension>(
@@ -103,7 +116,6 @@ protected:
     auto procGrid = Pimpact::createProcGrid<Ordinal,dimension>(
         gridSizeLocal, domain->getBCGlobal(), procGridSize );
 
-    auto stencilWidths = space->getStencilWidths();
 
     auto indexSpace = Pimpact::createIndexSpace<Ordinal,dimension>(
         stencilWidths, gridSizeLocal, boundaryConditionsLocal, false );
@@ -132,7 +144,7 @@ protected:
 
     return(
          Teuchos::rcp(
-             new SpaceT(
+             new SpaceTF(
                  stencilWidths,
                  indexSpace,
                  gridSizeGlobal,

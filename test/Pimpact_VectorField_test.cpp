@@ -18,7 +18,7 @@
 namespace {
 
 bool testMpi = true;
-double errorTolSlack = 1e-6;
+double eps = 1e-6;
 int domain = 1;
 
 
@@ -30,7 +30,7 @@ TEUCHOS_STATIC_SETUP() {
       "Test MPI (if available) or force test of serial.  In a serial build,"
       " this option is ignored and a serial comm is always used." );
   clp.setOption(
-      "error-tol-slack", &errorTolSlack,
+      "error-tol-slack", &eps,
       "Slack off of machine epsilon used to check test results" );
   clp.setOption(
       "domain", &domain,

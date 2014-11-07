@@ -151,7 +151,7 @@ int main(int argi, char** argv ) {
   gs->print( *outPar );
   *outPar << " \tnf=" << nf << "\n";
 
-  auto pgs = Pimpact::createProcGridSize<O>( np1, np2, np3 );
+  auto pgs = Pimpact::createProcGridSize<O,3>( np1, np2, np3 );
   pgs->set_Impact();
   pgs->print( *outPar );
 

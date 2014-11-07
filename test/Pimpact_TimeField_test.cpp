@@ -32,7 +32,7 @@ namespace {
 
 
 bool testMpi = true;
-double errorTolSlack = 3e-1;
+double eps = 3e-1;
 //bool isImpactInit=false;
 
 typedef double S;
@@ -58,7 +58,7 @@ TEUCHOS_STATIC_SETUP() {
       "Test MPI (if available) or force test of serial.  In a serial build,"
       " this option is ignored and a serial comm is always used." );
   clp.setOption(
-      "error-tol-slack", &errorTolSlack,
+      "error-tol-slack", &eps,
       "Slack off of machine epsilon used to check test results" );
 }
 

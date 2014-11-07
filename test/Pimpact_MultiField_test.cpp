@@ -19,7 +19,7 @@ namespace {
 
 
 bool testMpi = true;
-double errorTolSlack = 1e-6;
+double eps = 1e-6;
 int domain = 1;
 
 
@@ -32,7 +32,7 @@ TEUCHOS_STATIC_SETUP() {
       "Test MPI (if available) or force test of serial.  In a serial build,"
       " this option is ignored and a serial comm is always used." );
   clp.setOption(
-      "error-tol-slack", &errorTolSlack,
+      "error-tol-slack", &eps,
       "Slack off of machine epsilon used to check test results" );
   clp.setOption(
       "domain", &domain,
@@ -83,7 +83,7 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarScalar, TwoNorm_and_init ) {
     mv->init(i/2.);
     mv->norm(normval,Belos::TwoNorm);
     for( int j=0; j<m; ++j )
-      TEST_FLOATING_EQUALITY( std::sqrt(std::pow(i/2.,2)*n), normval[j], errorTolSlack );
+      TEST_FLOATING_EQUALITY( std::sqrt(std::pow(i/2.,2)*n), normval[j], eps );
   }
 }
 
@@ -444,7 +444,7 @@ TEUCHOS_UNIT_TEST( MultiFieldScalar, TimesMatAdd ) {
   mv2->norm(norm2);
 
   for( unsigned int i=0; i<n1; ++i) {
-    TEST_FLOATING_EQUALITY( norm1[i], norm2[i], errorTolSlack  );
+    TEST_FLOATING_EQUALITY( norm1[i], norm2[i], eps  );
     TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm2[i], 3.e-1 );
   }
 
@@ -465,7 +465,7 @@ TEUCHOS_UNIT_TEST( MultiFieldScalar, TimesMatAdd ) {
   mv2->norm(norm2);
 
   for( unsigned int i=0; i<n1; ++i) {
-    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm2[i], errorTolSlack );
+    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm2[i], eps );
   }
 }
 
@@ -513,7 +513,7 @@ TEUCHOS_UNIT_TEST( MultiFieldScalar, add ) {
   mv2->norm(norm2);
 
   for( unsigned int i=0; i<n1; ++i)
-    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm2[i], errorTolSlack );
+    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm2[i], eps );
 
   mv1->init(1.);
   mv2->init(1.);
@@ -527,8 +527,8 @@ TEUCHOS_UNIT_TEST( MultiFieldScalar, add ) {
   mv2->norm(norm2);
 
   for( unsigned int i=0; i<n1; ++i) {
-    TEST_FLOATING_EQUALITY( norm1[i], norm2[i], errorTolSlack  );
-    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm1[i], errorTolSlack );
+    TEST_FLOATING_EQUALITY( norm1[i], norm2[i], eps  );
+    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm1[i], eps );
   }
 
 }
@@ -692,7 +692,7 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, TwoNorm_and_init ) {
     mv->init(i/2.);
     mv->norm(normval,Belos::TwoNorm);
     for( int j=0; j<m; ++j )
-      TEST_FLOATING_EQUALITY( std::sqrt(std::pow(i/2.,2)*n), normval[j], errorTolSlack );
+      TEST_FLOATING_EQUALITY( std::sqrt(std::pow(i/2.,2)*n), normval[j], eps );
   }
 
 }
@@ -1107,7 +1107,7 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, TimesMatAdd ) {
   mv2->norm(norm2);
 
   for( unsigned int i=0; i<n1; ++i) {
-    TEST_FLOATING_EQUALITY( norm1[i], norm2[i], errorTolSlack   );
+    TEST_FLOATING_EQUALITY( norm1[i], norm2[i], eps   );
     TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm2[i], 3.e-1  );
   }
 
@@ -1134,7 +1134,7 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, TimesMatAdd ) {
 
   for( unsigned int i=0; i<n1; ++i) {
     //          TEST_EQUALITY( norm1[i], norm2[i] );
-    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm2[i], errorTolSlack );
+    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm2[i], eps );
   }
 
 }
@@ -1193,7 +1193,7 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, add ) {
   mv2->norm(norm2);
 
   for( unsigned int i=0; i<n1; ++i)
-    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm2[i], errorTolSlack );
+    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm2[i], eps );
 
   mv1->init(1.);
   mv2->init(1.);
@@ -1209,7 +1209,7 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, add ) {
 
   for( unsigned int i=0; i<n1; ++i) {
     TEST_EQUALITY( norm1[i], norm2[i] );
-    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm1[i], errorTolSlack );
+    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm1[i], eps );
   }
 }
 
@@ -1380,7 +1380,7 @@ TEUCHOS_UNIT_TEST( MultiFieldVector, TwoNorm_and_init ) {
     mv->init(i/2.);
     mv->norm(normval,Belos::TwoNorm);
     for( int j=0; j<m; ++j )
-      TEST_FLOATING_EQUALITY( std::sqrt(std::pow(i/2.,2)*n), normval[j], errorTolSlack );
+      TEST_FLOATING_EQUALITY( std::sqrt(std::pow(i/2.,2)*n), normval[j], eps );
   }
 
 }
@@ -1786,7 +1786,7 @@ TEUCHOS_UNIT_TEST( MultiFieldVector, TimesMatAdd ) {
   mv2->norm(norm2);
 
   for( unsigned int i=0; i<n1; ++i)
-    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm2[i], errorTolSlack );
+    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm2[i], eps );
 
 }
 
@@ -1843,7 +1843,7 @@ TEUCHOS_UNIT_TEST( MultiFieldVector, add ) {
   mv2->norm(norm2);
 
   for( unsigned int i=0; i<n1; ++i)
-    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm2[i], errorTolSlack );
+    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm2[i], eps );
 
   mv1->init(1.);
   mv2->init(1.);
@@ -1858,7 +1858,7 @@ TEUCHOS_UNIT_TEST( MultiFieldVector, add ) {
 
   for( unsigned int i=0; i<n1; ++i) {
     TEST_EQUALITY( norm1[i], norm2[i] );
-    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm1[i], errorTolSlack );
+    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm1[i], eps );
   }
 
 }
@@ -2051,7 +2051,7 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, TwoNorm_and_init ) {
     mv->init(i/2.);
     mv->norm(normval,Belos::TwoNorm);
     for( int j=0; j<m; ++j )
-      TEST_FLOATING_EQUALITY( std::sqrt(std::pow(i/2.,2)*n), normval[j], errorTolSlack );
+      TEST_FLOATING_EQUALITY( std::sqrt(std::pow(i/2.,2)*n), normval[j], eps );
   }
 
 }
@@ -2499,7 +2499,7 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, TimesMatAdd ) {
   mv2->norm(norm2);
 
   for( unsigned int i=0; i<n1; ++i) {
-    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm2[i], errorTolSlack );
+    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm2[i], eps );
   }
 
 }
@@ -2559,7 +2559,7 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, add ) {
   mv2->norm(norm2);
 
   for( unsigned int i=0; i<n1; ++i) {
-    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm2[i], errorTolSlack );
+    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm2[i], eps );
   }
 
   mv1->init(1.);
@@ -2575,7 +2575,7 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, add ) {
 
   for( unsigned int i=0; i<n1; ++i) {
     TEST_EQUALITY( norm1[i], norm2[i] );
-    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm1[i], errorTolSlack );
+    TEST_FLOATING_EQUALITY( std::sqrt((double)mv1->getLength()), norm1[i], eps );
   }
 
 }

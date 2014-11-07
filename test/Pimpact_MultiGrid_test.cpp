@@ -15,11 +15,11 @@ namespace {
 typedef double S;
 typedef int O;
 
-typedef Pimpact::Space<S,O,3> Space3T;
-typedef Pimpact::Space<S,O,4> Space4T;
+typedef Pimpact::Space<S,O,3,4> Space3T;
+typedef Pimpact::Space<S,O,4,4> Space4T;
 
 bool testMpi = true;
-double errorTolSlack = 1e-6;
+double eps = 1e-6;
 
 int domain = 1;
 int ftype = 0;
@@ -34,7 +34,7 @@ TEUCHOS_STATIC_SETUP() {
       "Test MPI (if available) or force test of serial.  In a serial build,"
       " this option is ignored and a serial comm is always used." );
   clp.setOption(
-      "error-tol-slack", &errorTolSlack,
+      "error-tol-slack", &eps,
       "Slack off of machine epsilon used to check test results" );
   clp.setOption(
       "domain", &domain,
@@ -50,13 +50,13 @@ TEUCHOS_STATIC_SETUP() {
 TEUCHOS_UNIT_TEST( MultiGrid, constructor3D ) {
 
   typedef Pimpact::ScalarField<Space3T> SF;
-  typedef Pimpact::CoarsenStrategy<SF> CS;
+  typedef Pimpact::CoarsenStrategy<Space3T> CS;
 
   auto pl = Teuchos::parameterList();
 
   auto space = Pimpact::createSpace( pl );
 
-  auto multiGrid = Pimpact::createMultiGrid<SF,CS>( space, 4 );
+  auto multiGrid = Pimpact::createMultiGrid<SF,SF,CS>( space, 4 );
   std::cout << "nGridLevels: " << multiGrid->getNGrids() << "\n";
   if( space->rankST()==0 )
     multiGrid->print();
@@ -68,8 +68,7 @@ TEUCHOS_UNIT_TEST( MultiGrid, constructor3D ) {
 TEUCHOS_UNIT_TEST( MultiGrid, constructor4D ) {
 
   typedef Pimpact::ScalarField<Space4T> SF;
-
-  typedef Pimpact::CoarsenStrategy<SF> CS;
+  typedef Pimpact::CoarsenStrategy<Space4T> CS;
 
   auto pl = Teuchos::parameterList();
 
@@ -102,7 +101,7 @@ TEUCHOS_UNIT_TEST( MultiGrid, constructor4D ) {
 
   space->print();
 
-  auto multiGrid = Pimpact::createMultiGrid<SF,CS>( space, 2 );
+  auto multiGrid = Pimpact::createMultiGrid<SF,SF,CS>( space, 2 );
   std::cout << "nGridLevels: " << multiGrid->getNGrids() << "\n";
   multiGrid->print();
 
@@ -113,8 +112,7 @@ TEUCHOS_UNIT_TEST( MultiGrid, constructor4D ) {
 TEUCHOS_UNIT_TEST( MultiGrid, Restrictor3D ) {
 
   typedef Pimpact::ScalarField<Space3T> SF;
-
-  typedef Pimpact::CoarsenStrategy<SF> CS;
+  typedef Pimpact::CoarsenStrategy<Space3T> CS;
 
   auto pl = Teuchos::parameterList();
 
@@ -151,7 +149,7 @@ TEUCHOS_UNIT_TEST( MultiGrid, Restrictor3D ) {
   for( int i=0; i<3; ++i ) {
     std::cout << "type: " << i << "\n";
 
-    auto multiGrid = Pimpact::createMultiGrid<SF,CS>( space, 2, type[i] );
+    auto multiGrid = Pimpact::createMultiGrid<SF,SF,CS>( space, 2, type[i] );
 
     auto fieldf = multiGrid->getField( 0 );
     auto fieldc = multiGrid->getField( 1 );
@@ -164,8 +162,8 @@ TEUCHOS_UNIT_TEST( MultiGrid, Restrictor3D ) {
 
     op->apply( *fieldf, *fieldc );
 
-    TEST_FLOATING_EQUALITY( 0., fieldf->norm(), errorTolSlack );
-    TEST_FLOATING_EQUALITY( 0., fieldc->norm(), errorTolSlack );
+    TEST_FLOATING_EQUALITY( 0., fieldf->norm(), eps );
+    TEST_FLOATING_EQUALITY( 0., fieldc->norm(), eps );
 
     // the random test
     fieldf->random();
@@ -179,11 +177,11 @@ TEUCHOS_UNIT_TEST( MultiGrid, Restrictor3D ) {
     // the strong test
     fieldf->initField( Pimpact::ConstField,1. );
 
-    TEST_FLOATING_EQUALITY( 1., fieldf->norm(Belos::InfNorm), errorTolSlack );
+    TEST_FLOATING_EQUALITY( 1., fieldf->norm(Belos::InfNorm), eps );
 
-    TEST_FLOATING_EQUALITY( (S)fieldf->getLength(), fieldf->norm(Belos::OneNorm), errorTolSlack  );
+    TEST_FLOATING_EQUALITY( (S)fieldf->getLength(), fieldf->norm(Belos::OneNorm), eps  );
 
-    TEST_FLOATING_EQUALITY( std::sqrt( (S)fieldf->getLength() ), fieldf->norm(Belos::TwoNorm), errorTolSlack  );
+    TEST_FLOATING_EQUALITY( std::sqrt( (S)fieldf->getLength() ), fieldf->norm(Belos::TwoNorm), eps  );
 
     fieldc->init(0.);
 
@@ -192,11 +190,11 @@ TEUCHOS_UNIT_TEST( MultiGrid, Restrictor3D ) {
     fieldf->write( 0 );
     fieldc->write( 1 );
 
-    TEST_FLOATING_EQUALITY( 1., fieldc->norm(Belos::InfNorm), errorTolSlack );
+    TEST_FLOATING_EQUALITY( 1., fieldc->norm(Belos::InfNorm), eps );
 
-    TEST_FLOATING_EQUALITY( (S)fieldc->getLength(), fieldc->norm(Belos::OneNorm), errorTolSlack  );
+    TEST_FLOATING_EQUALITY( (S)fieldc->getLength(), fieldc->norm(Belos::OneNorm), eps  );
 
-    TEST_FLOATING_EQUALITY( std::sqrt( (S)fieldc->getLength() ), fieldc->norm(Belos::TwoNorm), errorTolSlack  );
+    TEST_FLOATING_EQUALITY( std::sqrt( (S)fieldc->getLength() ), fieldc->norm(Belos::TwoNorm), eps  );
 
     // the hard test
     fieldf->initField( Pimpact::Grad2D_inX,1. );
@@ -208,11 +206,11 @@ TEUCHOS_UNIT_TEST( MultiGrid, Restrictor3D ) {
     fieldf->write( 0 );
     fieldc->write( 1 );
 
-//    TEST_FLOATING_EQUALITY( 1., fieldc->norm(Belos::InfNorm), errorTolSlack );
+//    TEST_FLOATING_EQUALITY( 1., fieldc->norm(Belos::InfNorm), eps );
 //
-//    TEST_FLOATING_EQUALITY( (S)fieldc->getLength(), fieldc->norm(Belos::OneNorm), errorTolSlack  );
+//    TEST_FLOATING_EQUALITY( (S)fieldc->getLength(), fieldc->norm(Belos::OneNorm), eps  );
 //
-//    TEST_FLOATING_EQUALITY( std::sqrt( (S)fieldc->getLength() ), fieldc->norm(Belos::TwoNorm), errorTolSlack  );
+//    TEST_FLOATING_EQUALITY( std::sqrt( (S)fieldc->getLength() ), fieldc->norm(Belos::TwoNorm), eps  );
 
 
   }
@@ -224,8 +222,7 @@ TEUCHOS_UNIT_TEST( MultiGrid, Restrictor3D ) {
 TEUCHOS_UNIT_TEST( MultiGrid, Interpolator3D ) {
 
   typedef Pimpact::ScalarField<Space3T> SF;
-
-  typedef Pimpact::CoarsenStrategy<SF> CS;
+  typedef Pimpact::CoarsenStrategy<Space3T> CS;
 
   auto pl = Teuchos::parameterList();
 
@@ -270,7 +267,7 @@ TEUCHOS_UNIT_TEST( MultiGrid, Interpolator3D ) {
     //      int i = ftype;
     std::cout << "type: " << i << "\n";
 
-    auto multiGrid = Pimpact::createMultiGrid<SF,CS>( space, 2, type[i] );
+    auto multiGrid = Pimpact::createMultiGrid<SF,SF,CS>( space, 2, type[i] );
 
 //    multiGrid->getSpace(0)->print();
 //    multiGrid->getSpace(1)->print();
@@ -295,8 +292,8 @@ TEUCHOS_UNIT_TEST( MultiGrid, Interpolator3D ) {
 //    fieldf->write(0);
 //    fieldc->write(1);
 
-    TEST_FLOATING_EQUALITY( 0., fieldf->norm(), errorTolSlack );
-    TEST_FLOATING_EQUALITY( 0., fieldc->norm(), errorTolSlack );
+    TEST_FLOATING_EQUALITY( 0., fieldf->norm(), eps );
+    TEST_FLOATING_EQUALITY( 0., fieldc->norm(), eps );
 
     //   fieldc->print();
     //   fieldf->print();
@@ -325,13 +322,13 @@ TEUCHOS_UNIT_TEST( MultiGrid, Interpolator3D ) {
     fieldf->write(2);
     fieldc->write(3);
 
-    TEST_FLOATING_EQUALITY( 1., fieldc->norm(Belos::InfNorm), errorTolSlack );
-    TEST_FLOATING_EQUALITY( (S)fieldc->getLength(), fieldc->norm(Belos::OneNorm), errorTolSlack  );
-    TEST_FLOATING_EQUALITY( std::sqrt( (S)fieldc->getLength() ), fieldc->norm(Belos::TwoNorm), errorTolSlack  );
+    TEST_FLOATING_EQUALITY( 1., fieldc->norm(Belos::InfNorm), eps );
+    TEST_FLOATING_EQUALITY( (S)fieldc->getLength(), fieldc->norm(Belos::OneNorm), eps  );
+    TEST_FLOATING_EQUALITY( std::sqrt( (S)fieldc->getLength() ), fieldc->norm(Belos::TwoNorm), eps  );
 
-    TEST_FLOATING_EQUALITY( 1., fieldf->norm(Belos::InfNorm), errorTolSlack );
-    TEST_FLOATING_EQUALITY( (S)fieldf->getLength(), fieldf->norm(Belos::OneNorm), errorTolSlack  );
-    TEST_FLOATING_EQUALITY( std::sqrt( (S)fieldf->getLength() ), fieldf->norm(Belos::TwoNorm), errorTolSlack  );
+    TEST_FLOATING_EQUALITY( 1., fieldf->norm(Belos::InfNorm), eps );
+    TEST_FLOATING_EQUALITY( (S)fieldf->getLength(), fieldf->norm(Belos::OneNorm), eps  );
+    TEST_FLOATING_EQUALITY( std::sqrt( (S)fieldf->getLength() ), fieldf->norm(Belos::TwoNorm), eps  );
 
     // hardcore test init test in X
     fieldc->initField( Pimpact::Grad2D_inX );
@@ -350,7 +347,7 @@ TEUCHOS_UNIT_TEST( MultiGrid, Interpolator3D ) {
     std::cout << "error GradX: " << fieldf->norm() << "\n";
 
     TEST_FLOATING_EQUALITY( fieldf->norm()/std::sqrt( (S)fieldf->getLength() ),
-                            fieldc->norm()/std::sqrt( (S)fieldc->getLength() ), errorTolSlack*1e5  );
+                            fieldc->norm()/std::sqrt( (S)fieldc->getLength() ), eps*1e5  );
 
 
 
@@ -369,7 +366,7 @@ TEUCHOS_UNIT_TEST( MultiGrid, Interpolator3D ) {
     sol->write(91);
 
     TEST_FLOATING_EQUALITY( fieldf->norm()/std::sqrt( (S)fieldf->getLength() ),
-                            fieldc->norm()/std::sqrt( (S)fieldc->getLength() ), errorTolSlack*1e5  );
+                            fieldc->norm()/std::sqrt( (S)fieldc->getLength() ), eps*1e5  );
 
     std::cout << "error GradY: " << fieldf->norm() << "\n";
 

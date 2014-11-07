@@ -22,11 +22,11 @@ namespace Pimpact {
 /// \ingroup Space
 /// \todo think about making it independent of directions, same stencil in every direction
 /// \tparam dim dimension of grid can be 3 or 4
-/// \tparam dim_nc dimension of stencil
+/// \tparam dimNC dimension of stencil
 /// - 4: Stabil   (xi >= 2, Re=10000, N=17)
 /// - 5: Stabil  (Re=10000, N=65, leicht gestreckt, explizites Forcing)
 /// - 6: Instabil (äquidistant, Re=10000, N=17)
-template< int dim=3, int dim_nc = 4 >
+template< int dim, int dimNC >
 class StencilWidths {
 
   template< int d, int dnc >
@@ -36,7 +36,7 @@ protected:
 
   typedef const Teuchos::Tuple<int,dim> TO;
 
-  typedef  Teuchos::Tuple<  Teuchos::Tuple<int,dim_nc>,3> TStenc;
+  typedef  Teuchos::Tuple<  Teuchos::Tuple<int,dimNC>,3> TStenc;
 
   /// \{ \name Konvergenzordnung der Differenzenkoeffizienten (Anzahl Koeffizienten)
   /// \{ \brief Anzahl Stencil-Koeffizienten (Rand)
@@ -96,14 +96,14 @@ protected:
     //--- Anzahl Stencil-Koeffizienten (Rand) -------------------------------------------------------------------
     // implementation here is a little bit fuzzy, because Tuple has no nice templated constructor we copy
     for( int i=0; i<3; ++i ) {
-      switch(dim_nc) {
+      switch(dimNC) {
       case(2): {
 
         auto tempC = Teuchos::tuple( 2, 3 );
         auto tempD = Teuchos::tuple( 2, 2 );
         auto tempG = Teuchos::tuple( 0, 2 );
 
-        for( int j=0; j<dim_nc; ++j ) {
+        for( int j=0; j<dimNC; ++j ) {
           ncbC_[i][j] = tempC[j];
           ncbD_[i][j] = tempD[j];
           ncbG_[i][j] = tempG[j];
@@ -115,7 +115,7 @@ protected:
             auto tempD = Teuchos::tuple( 3, 4, 4 );
             auto tempG = Teuchos::tuple( 2, 3, 4 );
 
-        for( int j=0; j<dim_nc; ++j ) {
+        for( int j=0; j<dimNC; ++j ) {
           ncbC_[i][j] = tempC[j];
           ncbD_[i][j] = tempD[j];
           ncbG_[i][j] = tempG[j];
@@ -127,7 +127,7 @@ protected:
         auto tempC = Teuchos::tuple( 4, 5, 5, 7 );
         auto tempD = Teuchos::tuple( 4, 4, 6, 6 );
         auto tempG = Teuchos::tuple( 3, 4, 4, 6 );
-        for( int j=0; j<dim_nc; ++j ) {
+        for( int j=0; j<dimNC; ++j ) {
           ncbC_[i][j] = tempC[j];
           ncbD_[i][j] = tempD[j];
           ncbG_[i][j] = tempG[j];
@@ -144,7 +144,7 @@ protected:
         auto tempD = Teuchos::tuple( 6, 6, 6, 8, 8 );
         auto tempG = Teuchos::tuple( 0, 6, 6, 6, 8 );
 
-        for( int j=0; j<dim_nc; ++j ) {
+        for( int j=0; j<dimNC; ++j ) {
           ncbC_[i][j] = tempC[j];
           ncbD_[i][j] = tempD[j];
           ncbG_[i][j] = tempG[j];
@@ -156,7 +156,7 @@ protected:
         auto tempC = Teuchos::tuple( 6, 7, 7, 7,  9, 11 );
         auto tempD = Teuchos::tuple( 6, 6, 6, 8, 10, 10 );
         auto tempG = Teuchos::tuple( 5, 6, 6, 6,  8, 10 );
-        for( int j=0; j<dim_nc; ++j ) {
+        for( int j=0; j<dimNC; ++j ) {
           ncbC_[i][j] = tempC[j];
           ncbD_[i][j] = tempD[j];
           ncbG_[i][j] = tempG[j];
@@ -175,8 +175,8 @@ protected:
     Teuchos::Tuple<int,3> ncS;
 
     for( int i=0; i<3; ++i ) {
-      ncC[i] = ncbC_[i][dim_nc-1];
-      ncS[i] = ncbG_[i][dim_nc-1];
+      ncC[i] = ncbC_[i][dimNC-1];
+      ncS[i] = ncbG_[i][dimNC-1];
     }
 
     // zentral
@@ -250,9 +250,9 @@ public:
   int  getDimNcbD( int i ) const { return( ncbD_[i].size() ); }
   int  getDimNcbG( int i ) const { return( ncbG_[i].size() ); }
 
-//  const int&  getDimNcbC( int i ) const { return( dim_nc ); }
-//  const int&  getDimNcbD( int i ) const { return( dim_nc ); }
-//  const int&  getDimNcbG( int i ) const { return( dim_nc ); }
+//  const int&  getDimNcbC( int i ) const { return( dimNC ); }
+//  const int&  getDimNcbD( int i ) const { return( dimNC ); }
+//  const int&  getDimNcbG( int i ) const { return( dimNC ); }
 
   const int* getNcbC( int i ) const { return( ncbC_[i].getRawPtr() ); }
   const int* getNcbD( int i ) const { return( ncbD_[i].getRawPtr() ); }
@@ -293,7 +293,7 @@ public:
 /// by getting values from \c IMPACT
 /// should be changed by getting vallues from \c ProcGridSize and \c GridSize
 /// \relates StencilWidths
-template< int d=3, int dnc = 4  >
+template< int d, int dnc  >
 const Teuchos::RCP<const StencilWidths<d,dnc> > createStencilWidths(){
 
   return(

@@ -21,35 +21,43 @@
 namespace Pimpact {
 
 
-template<class Field>
+template<class FField, class CField>
 class MultiGrid {
 
-  typedef typename Field::Scalar  Scalar;
-  typedef typename Field::Ordinal Ordinal;
+  typedef typename FField::SpaceT FSpaceT;
+  typedef typename CField::SpaceT CSpaceT;
 
-  static const int dimension = Field::dimension;
+  typedef typename FSpaceT::Scalar  Scalar;
+  typedef typename FSpaceT::Ordinal Ordinal;
 
-  typedef typename Field::SpaceT SpaceT;
+  static const int dimension = FSpaceT::dimension;
 
-  typedef RestrictionOp<SpaceT> RestrictionOpT;
-  typedef InterpolationOp<SpaceT> InterpolationOpT;
+  static const int dimNCF = FSpaceT::dimNC;
+  static const int dimNCC = CSpaceT::dimNC;
 
-  template<class FieldT, class CoarsenStrategy>
+
+  typedef RestrictionOp<CSpaceT> RestrictionOpT;
+  typedef InterpolationOp<CSpaceT> InterpolationOpT;
+
+  template<class FFieldT, class CFieldT, class CoarsenStrategyT>
   friend
-  Teuchos::RCP< MultiGrid<FieldT> >
-  createMultiGrid( const Teuchos::RCP<const typename FieldT::SpaceT>& space, int nGridsMax=10, EField type=EField::S );
+  Teuchos::RCP< MultiGrid<FFieldT,CFieldT> >
+  createMultiGrid(
+      const Teuchos::RCP<const typename FFieldT::SpaceT>& space,
+      int nGridsMax=10,
+      EField type=EField::S );
 
 protected:
 
-  std::vector< Teuchos::RCP<const SpaceT> > multiSpace_;
-  std::vector< Teuchos::RCP<Field> >        multiField_;
+  std::vector< Teuchos::RCP<const CSpaceT> > multiSpace_;
+  std::vector< Teuchos::RCP<CField> >        multiField_;
   std::vector< Teuchos::RCP<RestrictionOpT> > restrictionOps_;
   std::vector< Teuchos::RCP<InterpolationOpT> > interpolationOps_;
 
 
   MultiGrid(
-      const std::vector<Teuchos::RCP<const SpaceT> >& multiSpace,
-      const std::vector<Teuchos::RCP<Field> >& multiField,
+      const std::vector<Teuchos::RCP<const CSpaceT> >& multiSpace,
+      const std::vector<Teuchos::RCP<CField> >& multiField,
       const std::vector<Teuchos::RCP<RestrictionOpT> >& restrictionOps,
       const std::vector<Teuchos::RCP<InterpolationOpT> >& interpolationOps ):
     multiSpace_(multiSpace),
@@ -63,8 +71,8 @@ public:
   int getNGrids() const {
     return( multiSpace_.size() );
   }
-  Teuchos::RCP<const SpaceT>      getSpace          ( int i ) const { return( multiSpace_[i] ); }
-  Teuchos::RCP<Field>             getField          ( int i ) const { return( multiField_[i] ); }
+  Teuchos::RCP<const CSpaceT>      getSpace          ( int i ) const { return( multiSpace_[i] ); }
+  Teuchos::RCP<CField>            getField          ( int i ) const { return( multiField_[i] ); }
   Teuchos::RCP<RestrictionOpT>    getRestrictionOp  ( int i ) const { return( restrictionOps_[i] ); }
   Teuchos::RCP<InterpolationOpT>  getInterpolationOp( int i ) const { return( interpolationOps_[i] ); }
 
@@ -89,35 +97,36 @@ public:
 }; // end of class MultiGrid
 
 
+
 /// \relates MultiGrid
-template<class Field, class CoarsenStrategy>
-Teuchos::RCP< MultiGrid<Field> >
-createMultiGrid( const Teuchos::RCP<const typename Field::SpaceT>& space, int maxGrids=10, EField type=EField::S ) {
+template<class FField, class CField, class CoarsenStrategy>
+Teuchos::RCP< MultiGrid<FField,CField> >
+createMultiGrid(
+    const Teuchos::RCP<const typename FField::SpaceT>& space,
+    int maxGrids=10,
+    EField type=EField::S ) {
 
-//  typedef typename Field::Scalar  S;
-//  typedef typename Field::Ordinal O;
+//  typedef typename FField::SpaceT FSpaceT;
+  typedef typename CField::SpaceT CSpaceT;
 
-  typedef typename Field::SpaceT SpaceT;
 
-//  static const int d = Field::dimension;
-
-  std::vector<Teuchos::RCP<const typename Field::SpaceT> > spaces =
+  std::vector<Teuchos::RCP<const CSpaceT> > spaces =
       CoarsenStrategy::getMultiSpace( space, maxGrids );
 
-  std::vector< Teuchos::RCP<Field> > fields;
+  std::vector< Teuchos::RCP<CField> > fields;
 
   for( unsigned i=0; i<spaces.size(); ++i )
-    fields.push_back( Teuchos::rcp( new Field(spaces[i],true,type) ) );
+    fields.push_back( Teuchos::rcp( new CField(spaces[i],true,type) ) );
 
-  std::vector< Teuchos::RCP< typename MultiGrid<Field>::RestrictionOpT> > restrictOp;
-  std::vector< Teuchos::RCP< typename MultiGrid<Field>::InterpolationOpT> > interpolationOp;
+  std::vector< Teuchos::RCP< typename MultiGrid<FField,CField>::RestrictionOpT> > restrictOp;
+  std::vector< Teuchos::RCP< typename MultiGrid<FField,CField>::InterpolationOpT> > interpolationOp;
 
   for( unsigned i=0; i<spaces.size()-1; ++i ) {
-    restrictOp.push_back( createRestrictionOp<SpaceT>( spaces[i], spaces[i+1] ) );
-    interpolationOp.push_back( createInterpolationOp<SpaceT>( spaces[i+1], spaces[i] ) );
+    restrictOp.push_back( createRestrictionOp( spaces[i], spaces[i+1] ) );
+    interpolationOp.push_back( createInterpolationOp( spaces[i+1], spaces[i] ) );
   }
 
-  return( Teuchos::rcp( new MultiGrid<Field>( spaces, fields, restrictOp, interpolationOp ) ) );
+  return( Teuchos::rcp( new MultiGrid<FField,CField>( spaces, fields, restrictOp, interpolationOp ) ) );
 
 }
 

@@ -20,7 +20,7 @@ namespace {
 
 
 bool testMpi = true;
-double errorTolSlack = 1e-6;
+double eps = 1e-6;
 int domain = 1;
 
 
@@ -32,7 +32,7 @@ TEUCHOS_STATIC_SETUP() {
       "Test MPI (if available) or force test of serial.  In a serial build,"
       " this option is ignored and a serial comm is always used." );
   clp.setOption(
-      "error-tol-slack", &errorTolSlack,
+      "error-tol-slack", &eps,
       "Slack off of machine epsilon used to check test results" );
   clp.setOption(
       "domain", &domain,
@@ -254,7 +254,7 @@ TEUCHOS_UNIT_TEST( ScalarModeField, add ) {
 
   vel1->add( 2., *vel2, 0., *vel3);
   norm = vel1->norm(Belos::TwoNorm);
-  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, errorTolSlack );
+  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, eps );
 
   vel1->init(0.);
   vel2->init(1./2.);
@@ -262,7 +262,7 @@ TEUCHOS_UNIT_TEST( ScalarModeField, add ) {
 
   vel1->add( 0., *vel2, 3., *vel3);
   norm = vel1->norm(Belos::TwoNorm);
-  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, errorTolSlack );
+  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, eps );
 
   vel1->init(0.);
   vel2->init(1.);
@@ -270,7 +270,7 @@ TEUCHOS_UNIT_TEST( ScalarModeField, add ) {
 
   vel1->add( 0.5, *vel2, 0.5, *vel3);
   norm = vel1->norm(Belos::TwoNorm);
-  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, errorTolSlack );
+  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, eps );
 }
 
 
@@ -374,7 +374,7 @@ TEUCHOS_UNIT_TEST( VectorModeField, TwoNorm_and_init ) {
   for( double i=0.; i< 200.1; ++i ) {
     vel->init(i/2.);
     norm = vel->norm(Belos::TwoNorm);
-    TEST_FLOATING_EQUALITY( std::sqrt(std::pow(i/2.,2)*N), norm, errorTolSlack );
+    TEST_FLOATING_EQUALITY( std::sqrt(std::pow(i/2.,2)*N), norm, eps );
   }
 }
 
@@ -446,7 +446,7 @@ TEUCHOS_UNIT_TEST( VectorModeField, scale ) {
   vel->init(1.);
   vel->scale(2.);
   norm = vel->norm(Belos::TwoNorm);
-  TEST_FLOATING_EQUALITY( std::sqrt(4*N), norm, errorTolSlack );
+  TEST_FLOATING_EQUALITY( std::sqrt(4*N), norm, eps );
 
 }
 
@@ -509,7 +509,7 @@ TEUCHOS_UNIT_TEST( VectorModeField, add ) {
 
   vel1->add( 2., *vel2, 0., *vel3);
   norm = vel1->norm(Belos::TwoNorm);
-  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, errorTolSlack );
+  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, eps );
 
   vel1->init(0.);
   vel2->init(1./2.);
@@ -517,7 +517,7 @@ TEUCHOS_UNIT_TEST( VectorModeField, add ) {
 
   vel1->add( 0., *vel2, 3., *vel3);
   norm = vel1->norm(Belos::TwoNorm);
-  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, errorTolSlack );
+  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, eps );
 
   vel1->init(0.);
   vel2->init(1.);
@@ -525,7 +525,7 @@ TEUCHOS_UNIT_TEST( VectorModeField, add ) {
 
   vel1->add( 0.5, *vel2, 0.5, *vel3);
   norm = vel1->norm(Belos::TwoNorm);
-  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, errorTolSlack );
+  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, eps );
 
 }
 

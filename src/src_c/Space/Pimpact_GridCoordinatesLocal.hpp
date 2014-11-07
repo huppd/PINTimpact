@@ -47,12 +47,12 @@ void PI_getLocalCoordinates(
 /// xV         | bl..nLoc+bu+(ib-1)*(NB-1)
 ///
 /// \ingroup Space
-template<class Scalar=double, class Ordinal=int, int dim=3 >
+template<class Scalar, class Ordinal, int dim>
 class GridCoordinatesLocal {
 
-  template<class ST,class OT,int dT>
+  template<class ST,class OT,int dT, int dNC>
   friend Teuchos::RCP<const GridCoordinatesLocal<ST,OT,dT> > createGridCoordinatesLocal(
-      const Teuchos::RCP<const StencilWidths<dT> >& fieldSpace,
+      const Teuchos::RCP<const StencilWidths<dT,dNC> >& fieldSpace,
       const Teuchos::RCP<const DomainSize<ST> >& domainSize,
       const Teuchos::RCP<const GridSizeGlobal<OT,dT> >& gridSizeGlobal,
       const Teuchos::RCP<const GridSizeLocal<OT,dT> >& gridSize,
@@ -75,8 +75,9 @@ protected:
   TO dxS_;
   TO dxV_;
 
+  template<int dimNC>
   GridCoordinatesLocal(
-      const Teuchos::RCP<const StencilWidths<dim> >& stencilWidths,
+      const Teuchos::RCP<const StencilWidths<dim,dimNC> >& stencilWidths,
       const Teuchos::RCP<const DomainSize<Scalar> >& domainSize,
       const Teuchos::RCP<const GridSizeGlobal<Ordinal,dim> >& gridSizeGlobal,
       const Teuchos::RCP<const GridSizeLocal<Ordinal,dim> >& gridSize,
@@ -130,7 +131,7 @@ protected:
             dxS_[i],
             dxV_[i] );
     }
-  };
+  }
 
 public:
 
@@ -184,9 +185,9 @@ public:
 
 /// \brief create Grid coordinates Global
 /// \relates GridCoordinatesLocal
-template<class S=double, class O=int, int d=3 >
+template<class S, class O, int d, int dNC>
 Teuchos::RCP<const GridCoordinatesLocal<S,O,d> > createGridCoordinatesLocal(
-    const Teuchos::RCP<const StencilWidths<d> >& stencilWidths,
+    const Teuchos::RCP<const StencilWidths<d,dNC> >& stencilWidths,
     const Teuchos::RCP<const DomainSize<S> >& domainSize,
     const Teuchos::RCP<const GridSizeGlobal<O,d> >& gridSizeGlobal,
     const Teuchos::RCP<const GridSizeLocal<O,d> >& gridSize,

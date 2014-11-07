@@ -16,7 +16,7 @@
 namespace {
 
 bool testMpi = true;
-double errorTolSlack = 1e+1;
+double eps = 1e+1;
 
 bool isImpactInit = false;
 
@@ -32,7 +32,7 @@ TEUCHOS_STATIC_SETUP() {
       "Test MPI (if available) or force test of serial.  In a serial build,"
       " this option is ignored and a serial comm is always used." );
   clp.setOption(
-      "error-tol-slack", &errorTolSlack,
+      "error-tol-slack", &eps,
       "Slack off of machine epsilon used to check test results" );
 }
 
@@ -46,7 +46,7 @@ TEUCHOS_UNIT_TEST( StencilWidths, local_consistency ) {
 
   sW32->print();
 
-  auto sW34 = Pimpact::createStencilWidths<3>();
+  auto sW34 = Pimpact::createStencilWidths<3,4>();
 
   sW34->print();
 
@@ -79,7 +79,7 @@ TEUCHOS_UNIT_TEST( IndexSpace, local_consistency ) {
 
   auto boundaryConditionsLocal = Pimpact::createBoudaryConditionsLocal( boundaryConditionsGlobal, procGridSize, procGrid );
 
-  auto fieldSpace = Pimpact::createStencilWidths<d>();
+  auto fieldSpace = Pimpact::createStencilWidths<d,4>();
 
   auto indexSpace = Pimpact::createIndexSpace<O,d>( fieldSpace, gridSizeLocal, boundaryConditionsLocal, false );
 
@@ -87,77 +87,7 @@ TEUCHOS_UNIT_TEST( IndexSpace, local_consistency ) {
 
 }
 
-//TEUCHOS_UNIT_TEST( ProcGrid, initialization3D ) {
-//  // init impact
-//  if( !isImpactInit ) {
-//    init_impact(0,0);
-//    isImpactInit=true;
-//  }
-//
-////  auto sVS = Pimpact::createStencilWidths<O>();
-//  auto bcg = Pimpact::createBoudaryConditionsGlobal();
-//  auto gsl = Pimpact::createGridSizeLocal();
-//  auto pgs = Pimpact::createProcGridSize<O>(2,2,1);
-//
-//  auto pg = Pimpact::createProcGrid<O>( gsl, bcg, pgs );
-//
-//}
 
-
-
-//TEUCHOS_UNIT_TEST( ProcGrid, initialization4D ) {
-//  // init impact
-//  if( !isImpactInit ) {
-//    init_impact(0,0);
-//    isImpactInit=true;
-//  }
-//
-//  auto gsl = Pimpact::createGridSizeLocal<O,4>();
-//  auto bcg = Pimpact::createBoudaryConditionsGlobal();
-//  auto pgs = Pimpact::createProcGridSize<O,4>(2,1,1,2);
-//
-//  auto pg = Pimpact::createProcGrid<O,4>( gsl, bcg, pgs );
-//
-//}
-
-//TEUCHOS_UNIT_TEST( BoundaryConditionsGlobal, createFromImpact ) {
-//  // init impact
-//  if( !isImpactInit ) {
-//    init_impact(0,0);
-//    isImpactInit=true;
-//  }
-//  auto bc = Pimpact::createBoudaryConditionsGlobal();
-//
-//  bc->print();
-//
-//}
-
-//TEUCHOS_UNIT_TEST( BoundaryConditionsLocal, createFromImpact ) {
-//  // init impact
-//  if( !isImpactInit ) {
-//    init_impact(0,0);
-//    isImpactInit=true;
-//  }
-//  auto bc = Pimpact::createBoudaryConditionsLocal();
-//
-//  bc->print();
-//
-//}
-
-
-
-
-//TEUCHOS_UNIT_TEST( Space, create ) {
-//  // init impact
-//  if( !isImpactInit ) {
-//    init_impact(0,0);
-//    isImpactInit=true;
-//  }
-//  auto space = Pimpact::createSpace();
-//
-//  space->print();
-//
-//}
 
 TEUCHOS_UNIT_TEST( Space, GlobalGridCoordinates ) {
   // init impact
@@ -167,8 +97,6 @@ TEUCHOS_UNIT_TEST( Space, GlobalGridCoordinates ) {
   }
   auto space = Pimpact::createSpace();
 
-//  auto coord =
-//      Pimpact::createGridCoordinatesGlobal(space->getGridSizeGlobal(),space->getDomain()->getDomainSize());
   auto coord = space->getCoordinatesGlobal();
 
   coord->print();

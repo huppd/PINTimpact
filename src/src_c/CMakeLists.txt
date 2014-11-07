@@ -45,15 +45,6 @@ TARGET_LINK_LIBRARIES( stat_stokes  ${Pimpact_TPL_LIBRARIES} )
 add_executable( peri_stokes peri_stokes.cxx )
 TARGET_LINK_LIBRARIES( peri_stokes  ${Pimpact_TPL_LIBRARIES} )
 
-#add_executable( peri_stokes2 peri_stokes2.cxx )
-#TARGET_LINK_LIBRARIES( peri_stokes2  ${Pimpact_TPL_LIBRARIES} ) 
-
-add_executable( peri_burgers peri_burgers.cxx )
-TARGET_LINK_LIBRARIES( peri_burgers  ${Pimpact_TPL_LIBRARIES} ) 
-
-add_executable( peri_burgers_timing peri_burgers_timing.cxx )
-TARGET_LINK_LIBRARIES( peri_burgers_timing  ${Pimpact_TPL_LIBRARIES} ) 
-
 add_executable( peri_navier peri_navier.cxx )
 TARGET_LINK_LIBRARIES( peri_navier ${Pimpact_TPL_LIBRARIES} ) 
 

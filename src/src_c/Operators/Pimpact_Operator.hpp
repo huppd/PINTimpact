@@ -21,6 +21,7 @@
 #include "Pimpact_HelmholtzOp.hpp"
 #include "Pimpact_InterpolateV2SOp.hpp"
 #include "Pimpact_InterpolateS2VOp.hpp"
+#include "Pimpact_TransferOp.hpp"
 #include "Pimpact_ConvectionSOp.hpp"
 #include "Pimpact_ConvectionVOp.hpp"
 #include "Pimpact_ConvectionJacobianOp.hpp"

@@ -37,7 +37,7 @@ typedef int O;
 typedef Pimpact::Space<S,O,3> SpaceT;
 
 bool testMpi = true;
-double errorTolSlack = 1e-4;
+double eps = 1e-4;
 
 bool isImpactInit = false;
 
@@ -49,7 +49,7 @@ TEUCHOS_STATIC_SETUP() {
       "Test MPI (if available) or force test of serial.  In a serial build,"
       " this option is ignored and a serial comm is always used." );
   clp.setOption(
-      "error-tol-slack", &errorTolSlack,
+      "error-tol-slack", &eps,
       "Slack off of machine epsilon used to check test results" );
 }
 
@@ -76,7 +76,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 
   auto op = Pimpact::createMultiOperatorBase<MVF>( Pimpact::createHelmholtzOp(space) );
 
-  auto para = Pimpact::createLinSolverParameter("GMRES",errorTolSlack);
+  auto para = Pimpact::createLinSolverParameter("GMRES",eps);
 
   Belos::SolverFactory<S, MVF, BOp> factory;
 
@@ -95,7 +95,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
   solver->setProblem( problem );
 
   solver->solve();
-  TEST_EQUALITY( solver->achievedTol()<errorTolSlack, true );
+  TEST_EQUALITY( solver->achievedTol()<eps, true );
 
   x->write(111);
 
@@ -134,7 +134,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, DtLapOp ) {
 
   auto op = Pimpact::createMultiOperatorBase<BVF>( Pimpact::createDtLapOp(space) );
 
-  auto para = Pimpact::createLinSolverParameter("GMRES",errorTolSlack);
+  auto para = Pimpact::createLinSolverParameter("GMRES",eps);
 
   Belos::SolverFactory<S, BVF, BOp > factory;
   // Make an empty new parameter list.
@@ -154,7 +154,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, DtLapOp ) {
   solver->setProblem( problem );
 
   solver->solve();
-  TEST_EQUALITY( solver->achievedTol()<errorTolSlack, true );
+  TEST_EQUALITY( solver->achievedTol()<eps, true );
 
   x->write(20);
 
@@ -208,7 +208,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
   x->init( 0. );
   b->write(99);
 
-  auto para = Pimpact::createLinSolverParameter("GMRES",errorTolSlack);
+  auto para = Pimpact::createLinSolverParameter("GMRES",eps);
   para->set( "Num Blocks", 500 );
 
   //  auto para = Teuchos::parameterList();
@@ -235,7 +235,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
   //       std::cout << *problem;
 
   solver->solve();
-  TEST_EQUALITY( solver->achievedTol()<errorTolSlack, true );
+  TEST_EQUALITY( solver->achievedTol()<eps, true );
 
   x->write(999);
   temp->write(999);

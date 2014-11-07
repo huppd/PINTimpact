@@ -28,7 +28,7 @@ namespace Pimpact{
 ///
 /// one could think about inheriting from Tuple, or generalize for global and local use
 /// \ingroup Space
-template< class Ordinal=int, int dim=3 >
+template<class Ordinal, int dim>
 class GridSizeGlobal {
 
   template<class OT,int dT>
@@ -103,7 +103,7 @@ Teuchos::RCP<const GridSizeGlobal<O,d> > createGridSizeGlobal( O n1, O n2, O n3,
 
 /// \brief create GridSize Global
 /// \relates GridSizeGlobal
-template< class O=int, int d=3 >
+template<class O, int d>
 Teuchos::RCP<const GridSizeGlobal<O,d> > createGridSizeGlobal( const Teuchos::Tuple<O,d>& to  ) {
 
   return(

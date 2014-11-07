@@ -17,7 +17,7 @@
 namespace {
 
 bool testMpi = true;
-double errorTolSlack = 1e-6;
+double eps = 1e-6;
 int domain = 1;
 int dim = 2;
 
@@ -29,7 +29,7 @@ TEUCHOS_STATIC_SETUP() {
       "Test MPI (if available) or force test of serial.  In a serial build,"
       " this option is ignored and a serial comm is always used." );
   clp.setOption(
-      "error-tol-slack", &errorTolSlack,
+      "error-tol-slack", &eps,
       "Slack off of machine epsilon used to check test results" );
   clp.setOption(
       "domain", &domain,
@@ -79,7 +79,7 @@ TEUCHOS_UNIT_TEST( ScalarField, InfNorm_and_init ) {
   for( double i=0.; i< 200.1; ++i ) {
     p->init(i/2.);
     norm = p->norm(Belos::InfNorm);
-    TEST_FLOATING_EQUALITY( i/2., norm, errorTolSlack );
+    TEST_FLOATING_EQUALITY( i/2., norm, eps );
 
   }
 
@@ -92,7 +92,7 @@ TEUCHOS_UNIT_TEST( ScalarField, InfNorm_and_init ) {
     init = (init<0)?-init:init;
     p->init(rank*i-1.);
     norm = p->norm(Belos::InfNorm);
-    TEST_FLOATING_EQUALITY( init, norm, errorTolSlack );
+    TEST_FLOATING_EQUALITY( init, norm, eps );
 
   }
 }
@@ -115,7 +115,7 @@ TEUCHOS_UNIT_TEST( ScalarField, OneNorm_and_init ) {
   for( double i=0.; i< 200.1; ++i ) {
     p->init(i/2.);
 //    TEST_EQUALITY( (i/2.)*p->getLength(), p->norm(Belos::OneNorm) );
-    TEST_FLOATING_EQUALITY( (i/2.)*p->getLength(), p->norm(Belos::OneNorm), errorTolSlack );
+    TEST_FLOATING_EQUALITY( (i/2.)*p->getLength(), p->norm(Belos::OneNorm), eps );
 
   }
 }
@@ -165,7 +165,7 @@ TEUCHOS_UNIT_TEST( ScalarField, dot ) {
   q->init(1.);
   dot = p->dot(*q);
 
-  TEST_FLOATING_EQUALITY( 1.*Np, dot, errorTolSlack );
+  TEST_FLOATING_EQUALITY( 1.*Np, dot, eps );
 
 }
 
