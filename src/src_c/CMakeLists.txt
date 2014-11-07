@@ -10,7 +10,8 @@ include_directories("./Operators/CompoundOperators")
 include_directories("./Operators/ModeOperators")
 include_directories("./Operators/MultiHarmonicOperators")
 include_directories("./Operators/TimeOperators")
-include_directories("./NOX_Pimpact")
+include_directories("./BelosPimpact")
+include_directories("./NOXPimpact")
 include_directories("./MultiGrid")
 
  

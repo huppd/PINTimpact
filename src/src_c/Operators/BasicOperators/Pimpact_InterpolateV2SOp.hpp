@@ -13,8 +13,6 @@
 #include "Pimpact_GridCoordinatesLocal.hpp"
 
 
-//#include "Pimpact_ScalarField.hpp"
-//#include "Pimpact_VectorField.hpp"
 
 
 namespace Pimpact{
@@ -37,11 +35,13 @@ void OP_interpolateV2S(
 
 }
 
+
+template< class S,class O, int d, int dimNC>
+class Space;
+
 template<class SpaceT>
 class ScalarField;
 
-template< class S,class O, int d>
-class Space;
 
 /// \brief Interpolation operator.
 /// \ingroup BaseOperator
@@ -49,7 +49,7 @@ class Space;
 ///
 /// is used in the \c ScalarField::write method to interpolate the velocity to the pressure points, also used in \c ConvectionVOp
 /// \todo check boundaries some fixing necessary
-template<class Scalar,class Ordinal,int dimension=3>
+template< class Scalar, class Ordinal, int dimension=3, int dimNC=4 >
 class InterpolateV2S {
 
 protected:
@@ -60,13 +60,13 @@ protected:
 
 public:
 
-  typedef ScalarField< Space<Scalar,Ordinal,dimension> >  DomainFieldT;
-  typedef ScalarField< Space<Scalar,Ordinal,dimension> > RangeFieldT;
+  typedef ScalarField< Space<Scalar,Ordinal,dimension,dimNC> >  DomainFieldT;
+  typedef ScalarField< Space<Scalar,Ordinal,dimension,dimNC> > RangeFieldT;
 
   InterpolateV2S(
       const Teuchos::RCP<const ProcGrid<Ordinal,dimension> >&  procGrid,
       const Teuchos::RCP<const GridSizeLocal<Ordinal,dimension> >& gridSizeLocal,
-      const Teuchos::RCP<const StencilWidths<dimension> >& fieldSpace,
+      const Teuchos::RCP<const StencilWidths<dimension,dimNC> >& fieldSpace,
       const Teuchos::RCP<const Domain<Scalar> >& domain,
       const Teuchos::RCP<const GridCoordinatesLocal<Scalar,Ordinal,dimension> >& coordinatesLocal ) {
 
@@ -173,21 +173,12 @@ Teuchos::RCP<const InterpolateV2S<S,O,d> > createInterpolateV2S(
 }
 
 
-template<class S,class O, int d>
-class Space;
 
 /// \relates InterpolateV2S
-template< class S, class O, int d=3 >
-Teuchos::RCP<const InterpolateV2S<S,O,d> > createInterpolateV2S(
-    const Teuchos::RCP<const Space<S,O,d> >& space ) {
+template< class S, class O, int d=3, int dimNC=4 >
+Teuchos::RCP<const InterpolateV2S<S,O,d,dimNC> > createInterpolateV2S(
+    const Teuchos::RCP<const Space<S,O,d,dimNC> >& space ) {
   return( space->getInterpolateV2S() );
-//  return( Teuchos::rcp( new InterpolateV2S<S,O,d>(
-//      space->getProcGrid(),
-//      space->getGridSizeLocal(),
-//      space->getStencilWidths(),
-//      space->getDomain(),
-//      space->getCoordinatesLocal()
-//  ) ) );
 }
 
 } // end of namespace Pimpact

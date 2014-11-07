@@ -14,7 +14,7 @@
 
 namespace Pimpact {
 
-template< class SpaceT=Space<double,int,3> >
+template<class SpaceT>
 class AbstractField {
 
 public:

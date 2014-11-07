@@ -19,7 +19,6 @@
 
 
 
-
 namespace Pimpact {
 
 
@@ -27,7 +26,7 @@ namespace Pimpact {
 /// vector for a scalar field, e.g.: pressure,
 /// \note all indexing is done in Fortran
 /// \ingroup Field
-template< class SpaceType=Space<double,int,3> >
+template<class SpaceType>
 class ScalarField : private AbstractField< SpaceType > {
 
   template<class SpaceTT>
@@ -38,7 +37,7 @@ class ScalarField : private AbstractField< SpaceType > {
   friend class GradOp;
   template<class SpaceTT>
   friend class DivGrad2ndOOp;
-  template<class S1,class O1,int dimension1>
+  template<class S1,class O1,int dimension1,int dimNC>
   friend class InterpolateV2S;
   template<class SpaceTT>
   friend class InterpolateS2V;
@@ -722,7 +721,7 @@ protected:
 /// \param fS scalar Vector Space to which returned vector belongs
 /// \return scalar vector
 /// \relates ScalarField
-template<class SpaceT=Space<double,int,3> >
+template<class SpaceT>
 Teuchos::RCP< ScalarField<SpaceT> >
 createScalarField(
     const Teuchos::RCP<const SpaceT >& space,

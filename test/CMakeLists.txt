@@ -1,4 +1,3 @@
-
 include_directories("../src/src_c")
 include_directories("../src/src_c/Space")
 include_directories("../src/src_c/Grid")
@@ -9,7 +8,8 @@ include_directories("../src/src_c/Operators/CompoundOperators")
 include_directories("../src/src_c/Operators/ModeOperators")
 include_directories("../src/src_c/Operators/MultiHarmonicOperators")
 include_directories("../src/src_c/Operators/TimeOperators")
-include_directories("../src/src_c/NOX_Pimpact")
+include_directories("../src/src_c/BelosPimpact")
+include_directories("../src/src_c/NOXPimpact")
 include_directories("../src/src_c/MultiGrid")
 
 enable_testing()

@@ -29,12 +29,13 @@ class ModeField : private AbstractField<typename Field::SpaceT> {
 
 public:
 
-  typedef typename Field::Scalar Scalar;
-  typedef typename Field::Ordinal Ordinal;
-
-  static const int dimension = Field::dimension;
-
   typedef typename Field::SpaceT SpaceT;
+
+  typedef typename SpaceT::Scalar Scalar;
+  typedef typename SpaceT::Ordinal Ordinal;
+
+  static const int dimension = SpaceT::dimension;
+
 
 protected:
 

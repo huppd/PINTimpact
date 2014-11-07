@@ -49,7 +49,7 @@ extern "C" {
 /// \brief Space in the sense of a VectorSpace, it is the connection between Field and Operators
 ///
 /// \ingroup Space
-template< class S=double, class O=int, int d=3 >
+template< class S=double, class O=int, int d=3, int dim_nc=4>
 class Space {
 
 public:
@@ -60,7 +60,7 @@ public:
   static const int dimension = d;
 
   Space(
-      const Teuchos::RCP<const StencilWidths<dimension> >& stencilWidths,
+      const Teuchos::RCP<const StencilWidths<dimension,dim_nc> >& stencilWidths,
       const Teuchos::RCP<const IndexSpace<Ordinal> >& indexSpace,
       const Teuchos::RCP<const GridSizeGlobal<Ordinal,dimension> >& gridSizeGlobal,
       const Teuchos::RCP<const GridSizeLocal<Ordinal,dimension> >& gridSizeLocal,
@@ -69,7 +69,7 @@ public:
       const Teuchos::RCP<const GridCoordinatesGlobal<Scalar,Ordinal,dimension> >& coordGlobal,
       const Teuchos::RCP<const GridCoordinatesLocal<Scalar,Ordinal,dimension> >& coordLocal,
       const Teuchos::RCP<const Domain<Scalar> >& domain,
-      const Teuchos::RCP<const InterpolateV2S<Scalar,Ordinal,dimension> >& interV2S ):
+      const Teuchos::RCP<const InterpolateV2S<Scalar,Ordinal,dimension,dim_nc> >& interV2S ):
         stencilWidths_(stencilWidths),
         indexSpace_(indexSpace),
         gridSizeGlobal_(gridSizeGlobal),
@@ -88,7 +88,7 @@ public:
 
 protected:
 
-  Teuchos::RCP<const StencilWidths<dimension> > stencilWidths_;
+  Teuchos::RCP<const StencilWidths<dimension,dim_nc> > stencilWidths_;
 
   Teuchos::RCP<const IndexSpace<Ordinal> > indexSpace_;
 
@@ -110,7 +110,7 @@ protected:
 
 public:
 
-  Teuchos::RCP<const StencilWidths<dimension> > getStencilWidths() const { return( stencilWidths_ ); }
+  Teuchos::RCP<const StencilWidths<dimension,dim_nc> > getStencilWidths() const { return( stencilWidths_ ); }
 
   Teuchos::RCP<const IndexSpace<Ordinal> > getIndexSpace() const { return( indexSpace_ ); }
 
@@ -308,8 +308,8 @@ public:
 
 /// \relates Space
 /// \deprecated \param setImpact should be uneccessary in the future
-template<class S=double, class O=int, int d=3>
-Teuchos::RCP<const Space<S,O,d> > createSpace(
+template<class S=double, class O=int, int d=3, int dim_nc=4>
+Teuchos::RCP<const Space<S,O,d,dim_nc> > createSpace(
     Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::null,
     bool setImpact=false ) {
 
