@@ -22,6 +22,7 @@
 
 
 
+
 namespace {
 
 typedef double S;
@@ -47,6 +48,7 @@ TEUCHOS_STATIC_SETUP() {
       "eps", &eps,
       "Slack off of machine epsilon used to check test results" );
 }
+
 
 
 TEUCHOS_UNIT_TEST( BasicOperator, DivOp ) {
@@ -106,6 +108,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivOp ) {
 }
 
 
+
 TEUCHOS_UNIT_TEST( BasicOperator, InterpolateV2SOp ) {
 
   auto pl = Teuchos::parameterList();
@@ -147,14 +150,14 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateV2SOp ) {
   }
 
   // PoiseuilleFlow2D_inY test
-   vel->init( 1. );
+  vel->init( 1. );
 
-   for( int i=0; i<space->dim(); ++i ) {
-     p->random();
-     op->apply( vel->getConstField( i ), *p );
-     p->write( i+space->dim()*2 );
-   }
-//  TEST_EQUALITY( p->norm()<eps, true );
+  for( int i=0; i<space->dim(); ++i ) {
+    p->random();
+    op->apply( vel->getConstField( i ), *p );
+    p->write( i+space->dim()*2 );
+  }
+  //  TEST_EQUALITY( p->norm()<eps, true );
 
 
 }
@@ -202,7 +205,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateS2VOp ) {
   }
   vel->write(1);
 
-//  TEST_EQUALITY( p->norm()<eps, true );
+  //  TEST_EQUALITY( p->norm()<eps, true );
 
 
 }
@@ -227,32 +230,32 @@ TEUCHOS_UNIT_TEST( BasicOperator, TransferOp ) {
   auto fSpace = Pimpact::createSpace<S,O,3,4>( pl );
   auto cSpace = Pimpact::createSpace<S,O,3,2>( pl );
 
-//  auto fx = Pimpact::createScalarField( fSpace );
-//  auto cx = Pimpact::createScalarField( cSpace );
-//
-//  auto op = Pimpact::createTransferOp( fSpace, cSpace );
-//
-//  // zero test
-//  fx->initField( Pimpact::Poiseuille2D_inX );
-//  cx->random();
-//
-//  op->apply( *fx, *cx );
-//
-//  TEST_FLOATING_EQUALITY( fx->norm(Belos::OneNorm), cx->norm(Belos::OneNorm), eps );
-//  TEST_FLOATING_EQUALITY( fx->norm(Belos::TwoNorm), cx->norm(Belos::TwoNorm), eps );
-//  TEST_FLOATING_EQUALITY( fx->norm(Belos::InfNorm), cx->norm(Belos::InfNorm), eps );
-//
-//  cx->write(0);
-//
-//  fx->random();
-//
-//  op->apply( *cx, *fx );
-//
-//  TEST_FLOATING_EQUALITY( fx->norm(Belos::OneNorm), cx->norm(Belos::OneNorm), eps );
-//  TEST_FLOATING_EQUALITY( fx->norm(Belos::TwoNorm), cx->norm(Belos::TwoNorm), eps );
-//  TEST_FLOATING_EQUALITY( fx->norm(Belos::InfNorm), cx->norm(Belos::InfNorm), eps );
-//
-//  fx->write(1);
+  auto fx = Pimpact::createScalarField( fSpace );
+  auto cx = Pimpact::createScalarField( cSpace );
+
+  auto op = Pimpact::createTransferOp( fSpace, cSpace );
+
+  // test
+  fx->initField( Pimpact::Poiseuille2D_inX );
+  cx->random();
+
+  op->apply( *fx, *cx );
+
+  TEST_FLOATING_EQUALITY( fx->norm(Belos::OneNorm), cx->norm(Belos::OneNorm), eps );
+  TEST_FLOATING_EQUALITY( fx->norm(Belos::TwoNorm), cx->norm(Belos::TwoNorm), eps );
+  TEST_FLOATING_EQUALITY( fx->norm(Belos::InfNorm), cx->norm(Belos::InfNorm), eps );
+
+  cx->write(0);
+
+  fx->random();
+
+  op->apply( *cx, *fx );
+
+  TEST_FLOATING_EQUALITY( fx->norm(Belos::OneNorm), cx->norm(Belos::OneNorm), eps );
+  TEST_FLOATING_EQUALITY( fx->norm(Belos::TwoNorm), cx->norm(Belos::TwoNorm), eps );
+  TEST_FLOATING_EQUALITY( fx->norm(Belos::InfNorm), cx->norm(Belos::InfNorm), eps );
+
+  fx->write(1);
 
 }
 
@@ -273,10 +276,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, GradOp ) {
   pl->set("ny", 49 );
   pl->set("nz", 2 );
 
-//  // processor grid size
-//  pl->set("npx", 3 );
-//  pl->set("npy", 3 );
-//  pl->set("npz", 1 );
+  //  // processor grid size
+  //  pl->set("npx", 3 );
+  //  pl->set("npy", 3 );
+  //  pl->set("npz", 1 );
 
   auto space = Pimpact::createSpace( pl );
 
@@ -395,11 +398,11 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionSOp ) {
   auto pl = Teuchos::parameterList();
 
   pl->set( "domain", 1);
-//  pl->set( "nx", 9);
-//  pl->set( "ny", 9);
-//
-//  pl->set( "npx", 1);
-//  pl->set( "npy", 1);
+  //  pl->set( "nx", 9);
+  //  pl->set( "ny", 9);
+  //
+  //  pl->set( "npx", 1);
+  //  pl->set( "npy", 1);
 
   auto space = Pimpact::createSpace( pl, !isImpactInit );
 
@@ -444,12 +447,12 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionSOp ) {
 
   x->getFieldPtr(0)->initField( Pimpact::Grad2D_inX );
   x->getFieldPtr(1)->initField( Pimpact::Grad2D_inY );
-//  x->scale();
+  //  x->scale();
 
   x->write(0);
   y->random();
 
-//  op->apply( u[0], x->getConstField(0), y->getField(0), 1. );
+  //  op->apply( u[0], x->getConstField(0), y->getField(0), 1. );
   for( int i=0; i<space->dim(); ++i ) {
     op->apply( u[i], x->getConstField(i), y->getField(i) );
   }
@@ -471,11 +474,11 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionVOp ) {
   auto pl = Teuchos::parameterList();
 
   pl->set( "domain", 1);
-//  pl->set( "nx", 9);
-//  pl->set( "ny", 9);
-//
-//  pl->set( "npx", 1);
-//  pl->set( "npy", 1);
+  //  pl->set( "nx", 9);
+  //  pl->set( "ny", 9);
+  //
+  //  pl->set( "npx", 1);
+  //  pl->set( "npy", 1);
 
   auto space = Pimpact::createSpace( pl, !isImpactInit );
 
@@ -499,7 +502,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionVOp ) {
   for(int i=0; i<10; ++i )
     x->write(i);
 
-//  x->write(0);
+  //  x->write(0);
   x->initField( Pimpact::ConstFlow, 2., 2., 2. );
   y->getFieldPtr(0)->initField( Pimpact::Grad2D_inX );
   y->getFieldPtr(1)->initField( Pimpact::Grad2D_inY );
@@ -526,52 +529,52 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionVOp ) {
 
 TEUCHOS_UNIT_TEST( BasicOperator, ConvectionJacobianVOp ) {
 
-    auto pl = Teuchos::parameterList();
+  auto pl = Teuchos::parameterList();
 
-    pl->set( "domain", 1);
+  pl->set( "domain", 1);
 
-    auto space = Pimpact::createSpace( pl, !isImpactInit );
+  auto space = Pimpact::createSpace( pl, !isImpactInit );
 
-    if( !isImpactInit ) isImpactInit=true;
+  if( !isImpactInit ) isImpactInit=true;
 
-    using Teuchos::ParameterList;
-    using Teuchos::parameterList;
-    using Teuchos::RCP;
-    using Teuchos::rcp; // Save some typing
+  using Teuchos::ParameterList;
+  using Teuchos::parameterList;
+  using Teuchos::RCP;
+  using Teuchos::rcp; // Save some typing
 
 
-    auto x = Pimpact::createVectorField( space );
-    auto y = Pimpact::createVectorField( space );
-    auto z = Pimpact::createVectorField( space );
-    auto z2 = Pimpact::createVectorField( space );
+  auto x = Pimpact::createVectorField( space );
+  auto y = Pimpact::createVectorField( space );
+  auto z = Pimpact::createVectorField( space );
+  auto z2 = Pimpact::createVectorField( space );
 
-    auto op = Pimpact::createConvectionJacobianOp( space, false ) ;
-    auto op2 = Pimpact::createConvectionOp( space ) ;
+  auto op = Pimpact::createConvectionJacobianOp( space, false ) ;
+  auto op2 = Pimpact::createConvectionOp( space ) ;
 
-    x->initField( Pimpact::ConstFlow, 2., 2., 2. );
+  x->initField( Pimpact::ConstFlow, 2., 2., 2. );
 
-    y->getFieldPtr(0)->initField( Pimpact::Grad2D_inX );
-    y->getFieldPtr(1)->initField( Pimpact::Grad2D_inY );
+  y->getFieldPtr(0)->initField( Pimpact::Grad2D_inX );
+  y->getFieldPtr(1)->initField( Pimpact::Grad2D_inY );
 
-    z->random();
+  z->random();
 
-    op->assignField( *x );
-    op->apply( *y, *z );
+  op->assignField( *x );
+  op->apply( *y, *z );
 
-    op2->apply( *x, *y, *z2 );
+  op2->apply( *x, *y, *z2 );
 
-    // test is not exact because the boundaries of x are zero, and
-    for( int i=0; i<space->dim(); ++i ) {
-      TEST_FLOATING_EQUALITY( 2., z->getFieldPtr(i)->norm(Belos::InfNorm), eps );
-      TEST_FLOATING_EQUALITY( 2.* (double) z->getFieldPtr(i)->getLength()  , z->getFieldPtr(i)->norm(Belos::OneNorm), eps );
-      TEST_FLOATING_EQUALITY( std::sqrt( 4.* z->getFieldPtr(i)->getLength() ), z->getFieldPtr(i)->norm(Belos::TwoNorm), eps );
-    }
-    z2->add( -1, *z2, 1, *z );
+  // test is not exact because the boundaries of x are zero, and
+  for( int i=0; i<space->dim(); ++i ) {
+    TEST_FLOATING_EQUALITY( 2., z->getFieldPtr(i)->norm(Belos::InfNorm), eps );
+    TEST_FLOATING_EQUALITY( 2.* (double) z->getFieldPtr(i)->getLength()  , z->getFieldPtr(i)->norm(Belos::OneNorm), eps );
+    TEST_FLOATING_EQUALITY( std::sqrt( 4.* z->getFieldPtr(i)->getLength() ), z->getFieldPtr(i)->norm(Belos::TwoNorm), eps );
+  }
+  z2->add( -1, *z2, 1, *z );
 
-    TEST_FLOATING_EQUALITY( z2->norm(), 0., eps );
+  TEST_FLOATING_EQUALITY( z2->norm(), 0., eps );
 
-    z2->write(2);
-    z->write(1);
+  z2->write(2);
+  z->write(1);
 
 }
 

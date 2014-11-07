@@ -17,35 +17,44 @@ namespace Pimpact {
 
 /// \brief first model implementation, where one coarsens until every processor has 3 dofs.
 ///
-/// \tparam SpaceTF space on finest level not necessary the same for the coarse grids( difference in \c dim_nc).
+/// \tparam FSpaceT space on finest level not necessary the same for the coarse grids( difference in \c dim_nc).
 /// it should be that the coardinates are taken from the fine grid and are halved.
 /// \todo compute coordinates correctly (grid stretching only on finest grid, afterwards simple coarsening),
 /// cleanest version would be to use same grid stretching on every level, makes interpolation and restriction slightly more complicated.
-template<class SpaceTF>
+template<class FSpaceT,class CSpaceT>
 class CoarsenStrategy {
 
-  typedef typename SpaceTF::Scalar  Scalar;
-  typedef typename SpaceTF::Ordinal Ordinal;
+  typedef typename FSpaceT::Scalar  Scalar;
+  typedef typename FSpaceT::Ordinal Ordinal;
 
   /// should be same for finest space and coarse spaces
-  static const int dimension = SpaceTF::dimension;
+  static const int dimension = FSpaceT::dimension;
 
   /// can be different for finest and coarse spaces
-  static const int dimNCF = SpaceTF::dimNC;
+  static const int dimNCF = FSpaceT::dimNC;
 
-  /// could be template parameter or chosen by a space
-  static const int dimNCC = 4;
-
-  /// could be template parameter or chosen by a space
-  typedef Space<Scalar,Ordinal,dimension,dimNCC> SpaceTC;
+  static const int dimNCC = CSpaceT::dimNC;
 
 public:
 
-  static std::vector<Teuchos::RCP<const SpaceTC> > getMultiSpace(
-      const Teuchos::RCP<const SpaceTF> space,
+  static std::vector<Teuchos::RCP<const CSpaceT> > getMultiSpace(
+      const Teuchos::RCP<const FSpaceT> space,
       int maxGrids=10 ) {
 
-    std::vector<Teuchos::RCP<const SpaceTC> > multiSpace( 1, space );
+    // FSpace>CSpace if necessary
+//    Teuchos::RCP<const CSpaceT> tempSpace;
+//    Teuchos::RCP<const Space<typename CSpaceT::Scalar,typename CSpaceT::Ordinal,CSpaceT::dimension,CSpaceT::dimNC> > tempSpace;
+
+//    if( dimNCF==dimNCC )
+      // doesnot work, would be nice feature makes only seens when one would
+      // also work on the finest level with second order, then otherwise some
+      // uncesary pointers are stored
+//      tempSpace = space;
+      //
+//    else {
+      auto tempSpace = createCoarseSpaceT( space );
+//    }
+    std::vector<Teuchos::RCP<const CSpaceT> > multiSpace( 1, tempSpace );
 
     const Ordinal* nLoc_ = space->nLoc();
     Ordinal nLoc[dimension];
@@ -144,7 +153,66 @@ protected:
 
     return(
          Teuchos::rcp(
-             new SpaceTF(
+             new SpaceT(
+                 stencilWidths,
+                 indexSpace,
+                 gridSizeGlobal,
+                 gridSizeLocal,
+                 procGridSize,
+                 procGrid,
+                 coordGlobal,
+                 coordLocal,
+                 domain,
+                 interV2S )
+         )
+    );
+
+  }
+
+  static Teuchos::RCP< const CSpaceT > createCoarseSpaceT(
+      const Teuchos::RCP<const FSpaceT>& space ) {
+
+    auto stencilWidths = createStencilWidths<dimension,dimNCC>();
+
+    auto domain = space->getDomain();
+
+    auto boundaryConditionsLocal = domain->getBCLocal();
+
+    auto procGridSize = space->getProcGridSize();
+
+    auto gridSizeGlobalTup = space->getGridSizeGlobal()->getTuple();
+
+    auto gridSizeGlobal = space->getGridSizeGlobal();
+
+    auto gridSizeLocal = space->getGridSizeLocal();
+
+    auto procGrid = space->getProcGrid();
+
+    auto indexSpace = space->getIndexSpace();
+
+    auto  coordGlobal = space->getCoordinatesGlobal();
+
+    auto  coordLocal = Pimpact::createGridCoordinatesLocal(
+        stencilWidths,
+        domain->getDomainSize(),
+        gridSizeGlobal,
+        gridSizeLocal,
+        domain->getBCGlobal(),
+        domain->getBCLocal(),
+        procGrid,
+        coordGlobal );
+
+    auto interV2S =
+        Pimpact::createInterpolateV2S(
+            procGrid,
+            gridSizeLocal,
+            stencilWidths,
+            domain,
+            coordLocal );
+
+    return(
+         Teuchos::rcp(
+             new CSpaceT(
                  stencilWidths,
                  indexSpace,
                  gridSizeGlobal,

@@ -18,6 +18,9 @@ typedef int O;
 typedef Pimpact::Space<S,O,3,4> Space3T;
 typedef Pimpact::Space<S,O,4,4> Space4T;
 
+typedef Pimpact::Space<S,O,3,2> CSpace3T;
+typedef Pimpact::Space<S,O,4,2> CSpace4T;
+
 bool testMpi = true;
 double eps = 1e-6;
 
@@ -46,17 +49,17 @@ TEUCHOS_STATIC_SETUP() {
 
 
 
-// test shows that nLoc is not consistent with start and end indexes
 TEUCHOS_UNIT_TEST( MultiGrid, constructor3D ) {
 
-  typedef Pimpact::ScalarField<Space3T> SF;
-  typedef Pimpact::CoarsenStrategy<Space3T> CS;
+  typedef Pimpact::ScalarField<Space3T> FSF;
+  typedef Pimpact::ScalarField<CSpace3T> CSF;
+  typedef Pimpact::CoarsenStrategy<Space3T,CSpace3T> CS;
 
   auto pl = Teuchos::parameterList();
 
   auto space = Pimpact::createSpace( pl );
 
-  auto multiGrid = Pimpact::createMultiGrid<SF,SF,CS>( space, 4 );
+  auto multiGrid = Pimpact::createMultiGrid<FSF,CSF,CS>( space, 4 );
   std::cout << "nGridLevels: " << multiGrid->getNGrids() << "\n";
   if( space->rankST()==0 )
     multiGrid->print();
@@ -68,7 +71,8 @@ TEUCHOS_UNIT_TEST( MultiGrid, constructor3D ) {
 TEUCHOS_UNIT_TEST( MultiGrid, constructor4D ) {
 
   typedef Pimpact::ScalarField<Space4T> SF;
-  typedef Pimpact::CoarsenStrategy<Space4T> CS;
+  typedef Pimpact::ScalarField<CSpace4T> CSF;
+  typedef Pimpact::CoarsenStrategy<Space4T,CSpace4T> CS;
 
   auto pl = Teuchos::parameterList();
 
@@ -101,7 +105,7 @@ TEUCHOS_UNIT_TEST( MultiGrid, constructor4D ) {
 
   space->print();
 
-  auto multiGrid = Pimpact::createMultiGrid<SF,SF,CS>( space, 2 );
+  auto multiGrid = Pimpact::createMultiGrid<SF,CSF,CS>( space, 2 );
   std::cout << "nGridLevels: " << multiGrid->getNGrids() << "\n";
   multiGrid->print();
 
@@ -112,7 +116,8 @@ TEUCHOS_UNIT_TEST( MultiGrid, constructor4D ) {
 TEUCHOS_UNIT_TEST( MultiGrid, Restrictor3D ) {
 
   typedef Pimpact::ScalarField<Space3T> SF;
-  typedef Pimpact::CoarsenStrategy<Space3T> CS;
+  typedef Pimpact::ScalarField<CSpace3T> CSF;
+  typedef Pimpact::CoarsenStrategy<Space3T,CSpace3T> CS;
 
   auto pl = Teuchos::parameterList();
 
@@ -149,7 +154,7 @@ TEUCHOS_UNIT_TEST( MultiGrid, Restrictor3D ) {
   for( int i=0; i<3; ++i ) {
     std::cout << "type: " << i << "\n";
 
-    auto multiGrid = Pimpact::createMultiGrid<SF,SF,CS>( space, 2, type[i] );
+    auto multiGrid = Pimpact::createMultiGrid<SF,CSF,CS>( space, 2, type[i] );
 
     auto fieldf = multiGrid->getField( 0 );
     auto fieldc = multiGrid->getField( 1 );
@@ -222,7 +227,8 @@ TEUCHOS_UNIT_TEST( MultiGrid, Restrictor3D ) {
 TEUCHOS_UNIT_TEST( MultiGrid, Interpolator3D ) {
 
   typedef Pimpact::ScalarField<Space3T> SF;
-  typedef Pimpact::CoarsenStrategy<Space3T> CS;
+  typedef Pimpact::ScalarField<CSpace3T> CSF;
+  typedef Pimpact::CoarsenStrategy<Space3T,CSpace3T> CS;
 
   auto pl = Teuchos::parameterList();
 
@@ -267,7 +273,7 @@ TEUCHOS_UNIT_TEST( MultiGrid, Interpolator3D ) {
     //      int i = ftype;
     std::cout << "type: " << i << "\n";
 
-    auto multiGrid = Pimpact::createMultiGrid<SF,SF,CS>( space, 2, type[i] );
+    auto multiGrid = Pimpact::createMultiGrid<SF,CSF,CS>( space, 2, type[i] );
 
 //    multiGrid->getSpace(0)->print();
 //    multiGrid->getSpace(1)->print();

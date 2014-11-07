@@ -69,6 +69,7 @@ void VS_set_eIndWB(const int* const);
 /// eIndB[dir==field]| nLoc                      | nLoc-1                     | nLoc-1
 /// eIndB[dir!=field]| nLoc                      | nLoc-1                     | nLoc
 ///
+/// \note if one would remove ls_ one could decouple with \c StencilWidths
 /// \ingroup Space
 template<class Ordinal>
 class IndexSpace {

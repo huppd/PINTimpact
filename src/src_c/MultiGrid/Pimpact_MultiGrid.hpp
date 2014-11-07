@@ -2,17 +2,14 @@
 #ifndef PIMPACT_MULTIGRID_HPP
 #define PIMPACT_MULTIGRID_HPP
 
+#include <vector>
 
 #include "Teuchos_RCP.hpp"
-//#include "Teuchos_Array.hpp"
-#include <vector>
 
 #include "Pimpact_Space.hpp"
 
 #include "Pimpact_CoarsenStrategy.hpp"
-
 #include "Pimpact_RestrictionOp.hpp"
-
 #include "Pimpact_InterpolationOp.hpp"
 
 
@@ -49,6 +46,7 @@ class MultiGrid {
 
 protected:
 
+  Teuchos::RCP<const FSpaceT> space_;
   std::vector< Teuchos::RCP<const CSpaceT> > multiSpace_;
   std::vector< Teuchos::RCP<CField> >        multiField_;
   std::vector< Teuchos::RCP<RestrictionOpT> > restrictionOps_;
@@ -56,10 +54,12 @@ protected:
 
 
   MultiGrid(
+      const Teuchos::RCP<const FSpaceT>& space,
       const std::vector<Teuchos::RCP<const CSpaceT> >& multiSpace,
       const std::vector<Teuchos::RCP<CField> >& multiField,
       const std::vector<Teuchos::RCP<RestrictionOpT> >& restrictionOps,
       const std::vector<Teuchos::RCP<InterpolationOpT> >& interpolationOps ):
+    space_(space),
     multiSpace_(multiSpace),
     multiField_(multiField),
     restrictionOps_(restrictionOps),
@@ -71,7 +71,8 @@ public:
   int getNGrids() const {
     return( multiSpace_.size() );
   }
-  Teuchos::RCP<const CSpaceT>      getSpace          ( int i ) const { return( multiSpace_[i] ); }
+  Teuchos::RCP<const FSpaceT>     getSpace          ()        const { return( space_ ); }
+  Teuchos::RCP<const CSpaceT>     getSpace          ( int i ) const { return( multiSpace_[i] ); }
   Teuchos::RCP<CField>            getField          ( int i ) const { return( multiField_[i] ); }
   Teuchos::RCP<RestrictionOpT>    getRestrictionOp  ( int i ) const { return( restrictionOps_[i] ); }
   Teuchos::RCP<InterpolationOpT>  getInterpolationOp( int i ) const { return( interpolationOps_[i] ); }
@@ -126,7 +127,14 @@ createMultiGrid(
     interpolationOp.push_back( createInterpolationOp( spaces[i+1], spaces[i] ) );
   }
 
-  return( Teuchos::rcp( new MultiGrid<FField,CField>( spaces, fields, restrictOp, interpolationOp ) ) );
+  return(
+      Teuchos::rcp(
+          new MultiGrid<FField,CField>(
+              space,
+              spaces,
+              fields,
+              restrictOp,
+              interpolationOp ) ) );
 
 }
 
