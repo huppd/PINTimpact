@@ -49,7 +49,7 @@ int main(int argi, char** argv ) {
   typedef double S;
   typedef int O;
 
-  typedef Pimpact::Space<S,O,3> SpaceT;
+  typedef Pimpact::Space<S,O,3,4> SpaceT;
 
   typedef Pimpact::MultiHarmonicField< Pimpact::VectorField<SpaceT> > VF;
   typedef Pimpact::MultiHarmonicField< Pimpact::ScalarField<SpaceT> > SF;
@@ -757,7 +757,7 @@ int main(int argi, char** argv ) {
       auto divGradInv = Pimpact::createInverseOperatorBase( divGradProb );
 
       auto opS2Sinv =
-          Pimpact::createOperatorBase< MSF >(
+          Pimpact::createOperatorBase(
               Pimpact::createTripleCompositionOp(
                   Pimpact::createMultiField( f->getConstFieldPtr(0)->getConstSFieldPtr()->clone(Pimpact::ShallowCopy) ),
                   Pimpact::createMultiField( f->getConstFieldPtr(0)->getConstSFieldPtr()->clone(Pimpact::ShallowCopy) ),

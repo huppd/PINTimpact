@@ -1,6 +1,6 @@
 #pragma once
-#ifndef PIMPACT_DIVGRAD2NDOP_HPP
-#define PIMPACT_DIVGRAD2NDOP_HPP
+#ifndef PIMPACT_DIVGRADO2OP_HPP
+#define PIMPACT_DIVGRADO2OP_HPP
 
 #include "Pimpact_Types.hpp"
 
@@ -36,7 +36,7 @@ void Op_getCDG(
     double* const cdg2,
     double* const cdg3 );
 
-void OP_DivGrad2ndOOp(
+void OP_DivGradO2Op(
     const int& dimens,
     const int* const N,
     const int* const BL,
@@ -49,16 +49,29 @@ void OP_DivGrad2ndOOp(
     const double* const phi,
           double* const Lap );
 
+void SF_handle_corner(
+    const int* const N,
+    const int* const BL,
+    const int* const BU,
+    const int* const BCL,
+    const int* const BCU,
+    double* const phi );
+
 }
 
 
 
 /// \brief "laplace" for pressure 2nd Order.
+///
+/// independent of \c StencilWidths
 /// \ingroup BaseOperator
-/// \todo instead of hardcode 2nd Order it would be pretty to use new space with StencilWidth<3,2>
+/// \todo instead of hardcode 2nd Order it would be pretty to use new space with \c StencilWidths<3,2>
 /// \todo handle corner
 template<class SpaceT>
-class DivGrad2ndOOp {
+class DivGradO2Op {
+
+  template<class SpaceTT>
+  friend class DivGradO2JSmoother;
 
 public:
   typedef typename SpaceT::Scalar Scalar;
@@ -78,7 +91,7 @@ protected:
 public:
 
 
-  DivGrad2ndOOp( const Teuchos::RCP<const SpaceT>& space ):
+  DivGradO2Op( const Teuchos::RCP<const SpaceT>& space ):
     space_(space) {
 
     for( int i=0; i<3; ++i ) {
@@ -109,11 +122,12 @@ public:
 
   }
 
+
   void apply(const DomainFieldT& x, RangeFieldT& y,
       Belos::ETrans trans=Belos::NOTRANS ) const {
 
     x.exchange();
-    OP_DivGrad2ndOOp(
+    OP_DivGradO2Op(
         space_->dim(),
         space_->nLoc(),
         space_->bl(),
@@ -125,8 +139,15 @@ public:
         c_[2],
         x.s_,
         y.s_ );
-    //    SF_level( y.s_ );
-    // handlecorners
+
+    SF_handle_corner(
+        space_->nLoc(),
+        space_->bl(),
+        space_->bu(),
+        space_->getDomain()->getBCLocal()->getBCL(),
+        space_->getDomain()->getBCLocal()->getBCU(),
+        y.s_ );
+
     y.changed();
 
   }
@@ -142,7 +163,7 @@ public:
       Ordinal nTemp1 = space_->nLoc(i) - 1 + 1;
       Ordinal nTemp2 = 3;
       for( int j=0; j<nTemp1; ++j ) {
-        out << "\ni: " << j << "\t(";
+        out << "\ni: " << j+1 << "\t(";
         for( int k=0; k<nTemp2; ++k ) {
           out << c_[i][k+nTemp2*j] <<", ";
         }
@@ -152,19 +173,19 @@ public:
     }
   }
 
-}; // end of class DivGrad2ndOOp
+}; // end of class DivGradO2Op
 
 
 
-/// \relates DivGrad2ndOOp
+/// \relates DivGradO2Op
 template<class SpaceT>
-Teuchos::RCP< DivGrad2ndOOp<SpaceT> > createDivGrad2ndOOp(
+Teuchos::RCP< DivGradO2Op<SpaceT> > createDivGradO2Op(
     const Teuchos::RCP<const SpaceT>& space ) {
   return(
-      Teuchos::rcp( new DivGrad2ndOOp<SpaceT>(space) ) );
+      Teuchos::rcp( new DivGradO2Op<SpaceT>(space) ) );
 }
 
 
 } // end of namespace Pimpact
 
-#endif // end of #ifndef PIMPACT_DIVGRAD2NDOP_HPP
+#endif // end of #ifndef PIMPACT_DIVGRADO2OP_HPP

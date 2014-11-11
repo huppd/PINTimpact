@@ -14,11 +14,9 @@
 namespace Pimpact{
 
 
-extern "C" {
-
-  void SF_level( double* const phi );
-
-}
+//extern "C" {
+//  void SF_level( double* const phi );
+//}
 
 
 /// \brief "laplace" for pressure.
@@ -49,12 +47,9 @@ public:
 
   void apply(const DomainFieldT& x, RangeFieldT& y,
       Belos::ETrans trans=Belos::NOTRANS ) const {
+
     grad_->apply( x, *temp_ );
     div_->apply( *temp_, y );
-
-//    OP_div_grad( true, x.s_, y.s_ );
-//    SF_level( y.s_ );
-//    y.change();
 
   }
 

@@ -33,7 +33,7 @@ contains
         cdg1,               &
         cdg2,               &
         cdg3                &
-        ) bind(c,name='Op_getCDG')
+        ) bind( c, name='Op_getCDG' )
 
         implicit none
 
@@ -276,17 +276,17 @@ contains
 
 
     !>  \brief computes \f$ \mathrm{div = \nabla\cdot\phi } \f$
-    subroutine OP_DivGrad2ndOOp(    &
+    subroutine OP_DivGradO2Op(    &
         dimens,                     &
         N,                          &
         bL,bU,                      &
         BCL,BCU,                    &
-!        SS,NN,                      &
+        !        SS,NN,                      &
         cdg1,                       &
         cdg2,                       &
         cdg3,                       &
         phi,                        &
-        Lap ) bind (c,name='OP_DivGrad2ndOOp')
+        Lap ) bind (c,name='OP_DivGradO2Op')
   
         implicit none
   
@@ -313,82 +313,82 @@ contains
         integer                ::  k,  S3R, N3R, S33R, N33R
 
 
+        !--------------------------------------------------------------
+        !            SNB(1:2,1,g) = (/2+ls1,NN(1,g)+ls1/)
+        !            SNB(1:2,2,g) = (/2+ls2,NN(2,g)+ls2/)
+        !            SNB(1:2,3,g) = (/2+ls3,NN(3,g)+ls3/)
+
+        S1R = 1
+        N1R = N(1)-1
+
+        if (BCL(1) >   0) S1R = 1
+        if (BCL(1) == -2) S1R = 1
+        if (BCU(1) >   0) N1R = N(1)
+        if (BCU(1) == -2) N1R = N(1)
+
+        S2R = 1
+        N2R = N(2)-1
+
+        if (BCL(2) >   0) S2R = 1
+        if (BCL(2) == -2) S2R = 1
+        if (BCU(2) >   0) N2R = N(2)
+        if (BCU(2) == -2) N2R = N(2)
+
+        S3R = 1
+        N3R = N(3)-1
+
+        if (BCL(3) >   0) S3R = 1
+        if (BCL(3) == -2) S3R = 1
+        if (BCU(3) >   0) N3R = N(3)
+        if (BCU(3) == -2) N3R = N(3)
+        !--------------------------------------------------------------
+
+        !--------------------------------------------------------------
+        !            SNF(1:2,1,g) = (/2+ls1,NN(1,g)+ls1/)
+        !            SNF(1:2,2,g) = (/2+ls2,NN(2,g)+ls2/)
+        !            SNF(1:2,3,g) = (/2+ls3,NN(3,g)+ls3/)
+
+        S11R = 1
+        N11R = N(1)-1
+
+        if (BCL(1) >   0) S11R = 2
+        if (BCL(1) == -2) S11R = 1
+        if (BCU(1) >   0) N11R = N(1)-1
+        if (BCU(1) == -2) N11R = N(1)
+
+        S22R = 1
+        N22R = N(2)-1
+
+        if (BCL(2) >   0) S22R = 2
+        if (BCL(2) == -2) S2R = 1
+        if (BCU(2) >   0) N22R = N(2)-1
+        if (BCU(2) == -2) N22R = N(2)
+
+        S33R = 1
+        N33R = N(3)-1
+
+        if (BCL(3) >   0) S33R = 2
+        if (BCL(3) == -2) S33R = 1
+        if (BCU(3) >   0) N33R = N(3)-1
+        if (BCU(3) == -2) N33R = N(3)
             !--------------------------------------------------------------
-!            SNB(1:2,1,g) = (/2+ls1,NN(1,g)+ls1/)
-!            SNB(1:2,2,g) = (/2+ls2,NN(2,g)+ls2/)
-!            SNB(1:2,3,g) = (/2+ls3,NN(3,g)+ls3/)
 
-            S1R = 1
-            N1R = N(1)-1
-
-            if (BCL(1) >   0) S1R = 1
-            if (BCL(1) == -2) S1R = 1
-            if (BCU(1) >   0) N1R = N(1)
-            if (BCU(1) == -2) N1R = N(1)
-
-            S2R = 1
-            N2R = N(2)-1
-
-            if (BCL(2) >   0) S2R = 1
-            if (BCL(2) == -2) S2R = 1
-            if (BCU(2) >   0) N2R = N(2)
-            if (BCU(2) == -2) N2R = N(2)
-
-            S3R = 1
-            N3R = N(3)-1
-
-            if (BCL(3) >   0) S3R = 1
-            if (BCL(3) == -2) S3R = 1
-            if (BCU(3) >   0) N3R = N(3)
-            if (BCU(3) == -2) N3R = N(3)
-            !--------------------------------------------------------------
-
-            !--------------------------------------------------------------
-!            SNF(1:2,1,g) = (/2+ls1,NN(1,g)+ls1/)
-!            SNF(1:2,2,g) = (/2+ls2,NN(2,g)+ls2/)
-!            SNF(1:2,3,g) = (/2+ls3,NN(3,g)+ls3/)
-
-            S11R = 1
-            N11R = N(1)-1
-
-            if (BCL(1) >   0) S11R = 2
-            if (BCL(1) == -2) S11R = 1
-            if (BCU(1) >   0) N11R = N(1)-1
-            if (BCU(1) == -2) N11R = N(1)
-
-            S22R = 1
-            N22R = N(2)-1
-
-            if (BCL(2) >   0) S22R = 2
-            if (BCL(2) == -2) S2R = 1
-            if (BCU(2) >   0) N22R = N(2)-1
-            if (BCU(2) == -2) N22R = N(2)
-
-            S33R = 1
-            N33R = N(3)-1
-
-            if (BCL(3) >   0) S33R = 2
-            if (BCL(3) == -2) S33R = 1
-            if (BCU(3) >   0) N33R = N(3)-1
-            if (BCU(3) == -2) N33R = N(3)
-            !--------------------------------------------------------------
-
-!        S1R  = SNB(1,1,g)
-!        S2R  = SNB(1,2,g)
-!        S3R  = SNB(1,3,g)
-!
-!        N1R  = SNB(2,1,g)
-!        N2R  = SNB(2,2,g)
-!        N3R  = SNB(2,3,g)
-!
-!        S11R = SNF(1,1,g)
-!        S22R = SNF(1,2,g)
-!        S33R = SNF(1,3,g)
-!
-!        N11R = SNF(2,1,g)
-!        N22R = SNF(2,2,g)
-!        N33R = SNF(2,3,g)
-!        !*****************************************************************************************
+        !        S1R  = SNB(1,1,g)
+        !        S2R  = SNB(1,2,g)
+        !        S3R  = SNB(1,3,g)
+        !
+        !        N1R  = SNB(2,1,g)
+        !        N2R  = SNB(2,2,g)
+        !        N3R  = SNB(2,3,g)
+        !
+        !        S11R = SNF(1,1,g)
+        !        S22R = SNF(1,2,g)
+        !        S33R = SNF(1,3,g)
+        !
+        !        N11R = SNF(2,1,g)
+        !        N22R = SNF(2,2,g)
+        !        N33R = SNF(2,3,g)
+        !        !*****************************************************************************************
   
   
         !-----------------------------------------------------------------------------------------------------!
@@ -410,9 +410,9 @@ contains
                     !pgi$ unroll = n:8
                     do i = S11R, N11R
                         Lap(i,j,k) =  cdg1(-1,i)*phi(i-1,j  ,k  ) + cdg1(1,i)*phi(i+1,j  ,k  )   &
-                                &  +  cdg2(-1,j)*phi(i  ,j-1,k  ) + cdg2(1,j)*phi(i  ,j+1,k  )   &
-                                &  +  cdg3(-1,k)*phi(i  ,j  ,k-1) + cdg3(1,k)*phi(i  ,j  ,k+1)   &
-                                 &  + (cdg1(0,i) + cdg2(0,j) + cdg3(0,k))*phi(i,j,k)
+                            &  +  cdg2(-1,j)*phi(i  ,j-1,k  ) + cdg2(1,j)*phi(i  ,j+1,k  )   &
+                            &  +  cdg3(-1,k)*phi(i  ,j  ,k-1) + cdg3(1,k)*phi(i  ,j  ,k+1)   &
+                            &  + (cdg1(0,i) + cdg2(0,j) + cdg3(0,k))*phi(i,j,k)
                     end do
                 end do
             end do
@@ -425,8 +425,8 @@ contains
                     !pgi$ unroll = n:8
                     do i = S11R, N11R
                         Lap(i,j,k) =  cdg1(-1,i)*phi(i-1,j  ,k) + cdg1(1,i)*phi(i+1,j  ,k)   &
-                                &  +  cdg2(-1,j)*phi(i  ,j-1,k) + cdg2(1,j)*phi(i  ,j+1,k)   &
-                                &  + (cdg1(0,i) + cdg2(0,j))*phi(i,j,k)
+                            &  +  cdg2(-1,j)*phi(i  ,j-1,k) + cdg2(1,j)*phi(i  ,j+1,k)   &
+                            &  + (cdg1(0,i) + cdg2(0,j))*phi(i,j,k)
                     end do
                 end do
             end do
@@ -439,7 +439,7 @@ contains
         !=== Randbedingungen =======================================================================================
         !===========================================================================================================
 
-!        if (BC_1L > 0) then
+        !        if (BC_1L > 0) then
         if (BCL(1) > 0) then
             i = 1
             do k = S3R, N3R
@@ -450,7 +450,7 @@ contains
             end do
         end if
 
-!        if (BC_1U > 0) then
+        !        if (BC_1U > 0) then
         if (BCU(1) > 0) then
             i = N(1)
             do k = S3R, N3R
@@ -463,7 +463,7 @@ contains
 
         !===========================================================================================================
 
-!        if (BC_2L > 0) then
+        !        if (BC_2L > 0) then
         if (BCL(2) > 0) then
             j = 1
             do k = S3R, N3R
@@ -474,7 +474,7 @@ contains
             end do
         end if
 
-!        if (BC_2U > 0) then
+        !        if (BC_2U > 0) then
         if (BCU(2) > 0) then
             j = N(2)
             do k = S3R, N3R
@@ -487,7 +487,7 @@ contains
 
         !===========================================================================================================
 
-!        if (BC_3L > 0) then
+        !        if (BC_3L > 0) then
         if (BCL(3) > 0) then
             k = 1
             do j = S2R, N2R
@@ -498,7 +498,7 @@ contains
             end do
         end if
 
-!        if (BC_3U > 0) then
+        !        if (BC_3U > 0) then
         if (BCU(3) > 0) then
             k = N(3)
             do j = S2R, N2R
@@ -512,10 +512,329 @@ contains
         !===========================================================================================================
 
 
-!        if (corner_yes) call handle_corner_Lap(g,Lap)
+    !        if (corner_yes) call handle_corner_Lap(g,Lap)
 
 
-    end subroutine OP_DivGrad2ndOOp
+    end subroutine OP_DivGradO2Op
+
+
+
+    !>  \brief computes \f$ \mathrm{div = \nabla\cdot\phi } \f$
+    subroutine OP_DivGradO2JSmoother(   &
+        dimens,                         &
+        N,                              &
+        bL,bU,                          &
+        BCL,BCU,                        &
+        cdg1,                           &
+        cdg2,                           &
+        cdg3,                           &
+        omega,                          &
+        b,                              &
+        phi,                            &
+        temp ) bind (c,name='OP_DivGradO2JSmoother')
+
+        implicit none
+
+        integer(c_int), intent(in)    :: dimens
+
+        integer(c_int), intent(in)    :: N(3)
+
+        integer(c_int), intent(in)    :: bL(3)
+        integer(c_int), intent(in)    :: bU(3)
+
+        integer(c_int), intent(in)    :: BCL(3)
+        integer(c_int), intent(in)    :: BCU(3)
+
+        real(c_double), intent(in)    :: cdg1(-1:1,1:N(1))
+        real(c_double), intent(in)    :: cdg2(-1:1,1:N(2))
+        real(c_double), intent(in)    :: cdg3(-1:1,1:N(3))
+
+        real(c_double), intent(in)    :: omega
+
+        real(c_double), intent(in)    :: b (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+
+        real(c_double), intent(in)    :: phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double), intent(inout) :: temp(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+
+        integer                ::  i,  S1R, N1R, S11R, N11R
+        integer                ::  j,  S2R, N2R, S22R, N22R
+        integer                ::  k,  S3R, N3R, S33R, N33R
+
+
+        !--------------------------------------------------------------
+        !            SNB(1:2,1,g) = (/2+ls1,NN(1,g)+ls1/)
+        !            SNB(1:2,2,g) = (/2+ls2,NN(2,g)+ls2/)
+        !            SNB(1:2,3,g) = (/2+ls3,NN(3,g)+ls3/)
+
+        S1R = 1
+        N1R = N(1)-1
+
+        if (BCL(1) >   0) S1R = 1
+        if (BCL(1) == -2) S1R = 1
+        if (BCU(1) >   0) N1R = N(1)
+        if (BCU(1) == -2) N1R = N(1)
+
+        S2R = 1
+        N2R = N(2)-1
+
+        if (BCL(2) >   0) S2R = 1
+        if (BCL(2) == -2) S2R = 1
+        if (BCU(2) >   0) N2R = N(2)
+        if (BCU(2) == -2) N2R = N(2)
+
+        S3R = 1
+        N3R = N(3)-1
+
+        if (BCL(3) >   0) S3R = 1
+        if (BCL(3) == -2) S3R = 1
+        if (BCU(3) >   0) N3R = N(3)
+        if (BCU(3) == -2) N3R = N(3)
+        !--------------------------------------------------------------
+
+        !--------------------------------------------------------------
+        !            SNF(1:2,1,g) = (/2+ls1,NN(1,g)+ls1/)
+        !            SNF(1:2,2,g) = (/2+ls2,NN(2,g)+ls2/)
+        !            SNF(1:2,3,g) = (/2+ls3,NN(3,g)+ls3/)
+
+        S11R = 1
+        N11R = N(1)-1
+
+        if (BCL(1) >   0) S11R = 2
+        if (BCL(1) == -2) S11R = 1
+        if (BCU(1) >   0) N11R = N(1)-1
+        if (BCU(1) == -2) N11R = N(1)
+
+        S22R = 1
+        N22R = N(2)-1
+
+        if (BCL(2) >   0) S22R = 2
+        if (BCL(2) == -2) S2R = 1
+        if (BCU(2) >   0) N22R = N(2)-1
+        if (BCU(2) == -2) N22R = N(2)
+
+        S33R = 1
+        N33R = N(3)-1
+
+        if (BCL(3) >   0) S33R = 2
+        if (BCL(3) == -2) S33R = 1
+        if (BCU(3) >   0) N33R = N(3)-1
+        if (BCU(3) == -2) N33R = N(3)
+            !--------------------------------------------------------------
+
+        !        S1R  = SNB(1,1,g)
+        !        S2R  = SNB(1,2,g)
+        !        S3R  = SNB(1,3,g)
+        !
+        !        N1R  = SNB(2,1,g)
+        !        N2R  = SNB(2,2,g)
+        !        N3R  = SNB(2,3,g)
+        !
+        !        S11R = SNF(1,1,g)
+        !        S22R = SNF(1,2,g)
+        !        S33R = SNF(1,3,g)
+        !
+        !        N11R = SNF(2,1,g)
+        !        N22R = SNF(2,2,g)
+        !        N33R = SNF(2,3,g)
+        !        !*****************************************************************************************
+
+
+        !-----------------------------------------------------------------------------------------------------!
+        ! Anmerkung: - Null-Setzen am Rand nicht notwendig, da Startindizes entsprechend gewählt sind!        !
+        !            - Direktes Verbinden mit Restriktion erscheint nicht sehr attraktiv, da Lap auf dem      !
+        !              jeweils feineren Gitter ohnehin benötigt wird und coarse nur per MOD( , ) oder IF-     !
+        !              Abfrage belegt werden könnte. Zum anderen Wird das redundante feinere Feld auch bei    !
+        !              der Interpolation verwendet (ebenfalls zur Vereinfachung der Programmierung) und ist   !
+        !              somit ohnehin vorhanden. Geschwindigkeitsmässig ist vermutlich auch nicht mehr viel zu !
+        !              holen.                                                                                 !
+        !-----------------------------------------------------------------------------------------------------!
+
+
+        !===========================================================================================================
+        if (dimens == 3) then
+
+            do k = S33R, N33R
+                do j = S22R, N22R
+                    !pgi$ unroll = n:8
+                    do i = S11R, N11R
+                        temp(i,j,k) = (1-omega)*phi(i,j,k) +                                    &
+                            &    omega/(cdg1(0,i) + cdg2(0,j) + cdg3(0,k))*(                    &
+                            &     b(i,j,k)                                                    &
+                            &  -  cdg1(-1,i)*phi(i-1,j  ,k  ) - cdg1(1,i)*phi(i+1,j  ,k  )      &
+                            &  -  cdg2(-1,j)*phi(i  ,j-1,k  ) - cdg2(1,j)*phi(i  ,j+1,k  )      &
+                            &  -  cdg3(-1,k)*phi(i  ,j  ,k-1) - cdg3(1,k)*phi(i  ,j  ,k+1)      &
+                            &   )
+!                            &  - (cdg1(0,i) + cdg2(0,j) + cdg3(0,k))*phi(i,j,k) )
+
+                    end do
+                end do
+            end do
+
+        !===========================================================================================================
+        else
+
+            do k = S33R, N33R
+                do j = S22R, N22R
+                    !pgi$ unroll = n:8
+                    do i = S11R, N11R
+                        temp(i,j,k) = (1-omega)*phi(i,j,k) +                            &
+                            &   omega/(cdg1(0,i) + cdg2(0,j))*(                         &
+                            &   b(i,j,k) -                                              &
+                            &     cdg1(-1,i)*phi(i-1,j  ,k) - cdg1(1,i)*phi(i+1,j  ,k)  &
+                            &  -  cdg2(-1,j)*phi(i  ,j-1,k) - cdg2(1,j)*phi(i  ,j+1,k)  &
+                            &   )
+!                            &  - (cdg1(0,i) + cdg2(0,j))*phi(i,j,k) )
+                    end do
+                end do
+            end do
+
+        end if
+        !===========================================================================================================
+
+
+        !===========================================================================================================
+        !=== Randbedingungen =======================================================================================
+        !===========================================================================================================
+
+        !        if (BC_1L > 0) then
+        if (BCL(1) > 0) then
+            i = 1
+            do k = S33R, N33R
+!            do k = S3R, N3R
+                !pgi$ unroll = n:8
+                do j = S22R, N22R
+!                do j = S2R, N2R
+!                    temp(i,j,k) = (1-omega)*phi(i,j,k) + omega/cdg1(0,1)*( b(i,j,k) - cdg1(0,i)*phi(i,j,k) - cdg1(1,i)*phi(i+1,j,k) )
+                    temp(i,j,k) = (1-omega)*phi(i,j,k) + omega/cdg1(0,1)*( b(i,j,k) - cdg1(1,i)*phi(i+1,j,k) )
+                end do
+            end do
+        end if
+
+        !        if (BC_1U > 0) then
+        if (BCU(1) > 0) then
+            i = N(1)
+            do k = S33R, N33R
+!            do k = S3R, N3R
+                !pgi$ unroll = n:8
+                do j = S22R, N22R
+!                do j = S2R, N2R
+!                    temp(i,j,k) = (1-omega)*phi(i,j,k) + omega/cdg1(0,i)*( b(i,j,k) - cdg1(-1,i)*phi(i-1,j,k) - cdg1(0,i)*phi(i,j,k) )
+                    temp(i,j,k) = (1-omega)*phi(i,j,k) + omega/cdg1(0,i)*( b(i,j,k) - cdg1(-1,i)*phi(i-1,j,k)  )
+                end do
+            end do
+        end if
+
+        !===========================================================================================================
+
+        !        if (BC_2L > 0) then
+        if (BCL(2) > 0) then
+            j = 1
+            do k = S33R, N33R
+!            do k = S3R, N3R
+                !pgi$ unroll = n:8
+                do i = S11R, N11R
+!                    temp(i,j,k) = (1-omega)*phi(i,j,k) + omega/cdg2(0,j)*( b(i,j,k) - cdg2(0,j)*phi(i,j,k) - cdg2(1,j)*phi(i,j+1,k) )
+                    temp(i,j,k) = (1-omega)*phi(i,j,k) + omega/cdg2(0,j)*( b(i,j,k) - cdg2(1,j)*phi(i,j+1,k) )
+                end do
+            end do
+        end if
+
+        !        if (BC_2U > 0) then
+        if (BCU(2) > 0) then
+            j = N(2)
+            do k = S33R, N33R
+!            do k = S3R, N3R
+                !pgi$ unroll = n:8
+                do i = S11R, N11R
+!                do i = S1R, N1R
+!                    temp(i,j,k) = (1-omega)*phi(i,j,k) + omega/cdg2(0,j)*( b(i,j,k) - cdg2(-1,j)*phi(i,j-1,k) - cdg2(0,j)*phi(i,j,k) )
+                    temp(i,j,k) = (1-omega)*phi(i,j,k) + omega/cdg2(0,j)*( b(i,j,k) - cdg2(-1,j)*phi(i,j-1,k) )
+                end do
+            end do
+        end if
+
+        !===========================================================================================================
+
+        !        if (BC_3L > 0) then
+        if (BCL(3) > 0) then
+            k = 1
+!            do j = S2R, N2R
+            do j = S22R, N22R
+                !pgi$ unroll = n:8
+!                do i = S1R, N1R
+                do i = S11R, N11R
+!                    temp(i,j,k) = (1-omega)*phi(i,j,k) + omega/cdg3(0,k)*( b(i,j,k) - cdg3(0,k)*phi(i,j,k) - cdg3(1,k)*phi(i,j,k+1) )
+                    temp(i,j,k) = (1-omega)*phi(i,j,k) + omega/cdg3(0,k)*( b(i,j,k) - cdg3(1,k)*phi(i,j,k+1) )
+                end do
+            end do
+        end if
+
+        !        if (BC_3U > 0) then
+        if (BCU(3) > 0) then
+            k = N(3)
+!            do j = S2R, N2R
+            do j = S22R, N22R
+                !pgi$ unroll = n:8
+                do i = S11R, N11R
+!                    temp(i,j,k) = (1-omega)*phi(i,j,k) + omega/cdg3(0,k)*( b(i,j,k) - cdg3(-1,k)*phi(i,j,k-1) - cdg3(0,k)*phi(i,j,k) )
+                    temp(i,j,k) = (1-omega)*phi(i,j,k) + omega/cdg3(0,k)*( b(i,j,k) - cdg3(-1,k)*phi(i,j,k-1) )
+                end do
+            end do
+        end if
+
+        !===========================================================================================================
+
+    end subroutine OP_DivGradO2JSmoother
+
+
+
+    !> \brief sets corner to zero
+    !! \note
+    !!    - Diese Routine dient dazu, den unbestimmten Druck in den Ecken und Kanten explizit zu
+    !!      behandeln und gleichzeitig das Konvergenzverhalten der Löser (BiCGstab oder Richardson)
+    !!      möglichst nicht zu beeinträchtigen.
+    !!    - Der Druck wird hier direkt zu Null gesetzt, um innerhalb des iterativen Lösers kein
+    !!      Residuum zu erzeugen (anstelle über die RHS).
+    !!    - Der Druck wird erst bei Bedarf (z.B. vor einem Ausschrieb) auf einen sinnvollen Wert gesetzt.
+    !!    - Siehe dazu auch die korrespondierende Subroutine "handle_corner_rhs"!
+    subroutine SF_handle_corner(    &
+        N,                          &
+        bL,bU,                      &
+        BCL,BCU,                    &
+        phi) bind( c, name='SF_handle_corner' )
+
+        implicit none
+
+        integer(c_int), intent(in)    :: N(3)
+
+        integer(c_int), intent(in)    :: BL(3)
+        integer(c_int), intent(in)    :: BU(3)
+
+        integer(c_int), intent(in)    :: BCL(3)
+        integer(c_int), intent(in)    :: BCU(3)
+
+        real(c_double), intent(inout) :: phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+
+
+        if (BCL(1) > 0 .and. BCL(2) > 0) phi(1   ,1   ,1:N(3)) = 0. ! TEST!!! verifizieren ...
+        if (BCL(1) > 0 .and. BCU(2) > 0) phi(1   ,N(2),1:N(3)) = 0.
+        if (BCU(1) > 0 .and. BCL(2) > 0) phi(N(1),1   ,1:N(3)) = 0.
+        if (BCU(1) > 0 .and. BCU(2) > 0) phi(N(1),N(2),1:N(3)) = 0.
+
+        if (BCL(1) > 0 .and. BCL(3) > 0) phi(1   ,1:N(2),1   ) = 0.
+        if (BCL(1) > 0 .and. BCU(3) > 0) phi(1   ,1:N(2),N(3)) = 0.
+        if (BCU(1) > 0 .and. BCL(3) > 0) phi(N(1),1:N(2),1   ) = 0.
+        if (BCU(1) > 0 .and. BCU(3) > 0) phi(N(1),1:N(2),N(3)) = 0.
+
+        if (BCL(2) > 0 .and. BCL(3) > 0) phi(1:N(1),1   ,1   ) = 0.
+        if (BCL(2) > 0 .and. BCU(3) > 0) phi(1:N(1),1   ,N(3)) = 0.
+        if (BCU(2) > 0 .and. BCL(3) > 0) phi(1:N(1),N(2),1   ) = 0.
+        if (BCU(2) > 0 .and. BCU(3) > 0) phi(1:N(1),N(2),N(3)) = 0.
+
+
+    end subroutine SF_handle_corner
+
 
   
 end module cmod_DivGrad2ndOOp
+

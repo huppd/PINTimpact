@@ -50,13 +50,12 @@ int main(int argi, char** argv ) {
   typedef double S;
   typedef int O;
 
-  typedef Pimpact::Space<S,O,4> SpaceT;
+  typedef Pimpact::Space<S,O,4,4> SpaceT;
 
   typedef Pimpact::TimeField< Pimpact::VectorField<SpaceT> > VF;
   typedef Pimpact::TimeField< Pimpact::ScalarField<SpaceT> > SF;
   typedef Pimpact::CompoundField< VF, SF> CF;
-//  typedef Pimpact::MultiField<VF> MVF;
-//  typedef Pimpact::MultiField<SF> MSF;
+
   typedef Pimpact::MultiField<CF> MF;
 
   typedef Pimpact::ForcingOp<VF> Fo;

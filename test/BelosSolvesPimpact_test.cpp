@@ -27,19 +27,20 @@
 
 
 
-
 namespace {
 
 
 typedef double S;
 typedef int O;
 
-typedef Pimpact::Space<S,O,3> SpaceT;
+typedef Pimpact::Space<S,O,3,4> SpaceT;
 
 bool testMpi = true;
 double eps = 1e-4;
 
 bool isImpactInit = false;
+
+
 
 TEUCHOS_STATIC_SETUP() {
   Teuchos::CommandLineProcessor &clp = Teuchos::UnitTestRepository::getCLP();
@@ -52,6 +53,7 @@ TEUCHOS_STATIC_SETUP() {
       "error-tol-slack", &eps,
       "Slack off of machine epsilon used to check test results" );
 }
+
 
 
 TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
@@ -100,7 +102,6 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
   x->write(111);
 
 }
-
 
 
 
@@ -167,10 +168,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
   typedef Pimpact::ScalarField<SpaceT> SF;
   typedef Pimpact::MultiField<SF> BSF;
 
-  typedef Pimpact::DivGradOp<SpaceT> Op;
-  typedef Pimpact::MultiOpWrap<Op> MuOp;
-  typedef Pimpact::OperatorBase<BSF> OpBase;
-  typedef OpBase  BOp;
+  typedef Pimpact::OperatorBase<BSF>  BOp;
 
   auto pl = Teuchos::parameterList();
 
@@ -186,13 +184,12 @@ TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
 
   auto p = Pimpact::createScalarField(space);
 
-  auto x = Pimpact::createMultiField<SF>(*p,1);
+  auto x = Pimpact::createMultiField( *p, 1 );
   auto b = x->clone();
 
-//  auto div = Pimpact::createDivOp( space );
 
   temp->initField(Pimpact::ZeroFlow);
-  auto op = Pimpact::createOperatorBase<BSF,MuOp>(
+  auto op = Pimpact::createOperatorBase(
       Pimpact::createMultiOpWrap(
           Pimpact::createDivGradOp(
               temp,
@@ -242,5 +239,6 @@ TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
 
 }
 
-} // end of namespace
 
+
+} // end of namespace

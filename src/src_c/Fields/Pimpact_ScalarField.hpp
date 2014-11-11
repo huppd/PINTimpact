@@ -36,7 +36,9 @@ class ScalarField : private AbstractField< SpaceType > {
   template<class SpaceTT>
   friend class GradOp;
   template<class SpaceTT>
-  friend class DivGrad2ndOOp;
+  friend class DivGradO2Op;
+  template<class SpaceTT>
+  friend class DivGradO2JSmoother;
   template<class S1,class O1,int dimension1,int dimNC>
   friend class InterpolateV2S;
   template<class SpaceTT>

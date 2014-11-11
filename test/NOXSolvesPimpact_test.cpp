@@ -28,12 +28,14 @@
 
 
 
+
 namespace {
+
 
 typedef double S;
 typedef int O;
 
-typedef Pimpact::Space<S,O,3> SpaceT;
+typedef Pimpact::Space<S,O,3,4> SpaceT;
 bool testMpi = true;
 
 S eps = 1.e1;
@@ -64,7 +66,6 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
   typedef Pimpact::ConvectionJacobianOp<SpaceT>  JOp1;
   typedef Pimpact::HelmholtzOp<SpaceT>  JOp2;
 
-  typedef Pimpact::MultiOpWrap<Pimpact::Add2Op<JOp1,JOp2> > JOp;
 
   typedef NOX::Pimpact::Interface<MVF> Inter;
   typedef NOX::Pimpact::Vector<typename Inter::Field> NV;
@@ -85,6 +86,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
 
   auto space = Pimpact::createSpace( pl, !isImpactInit );
 
+
   if( !isImpactInit ) isImpactInit=true;
 
   auto vel = Pimpact::createVectorField( space );
@@ -96,16 +98,19 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
 
 
   auto op =
-      Pimpact::createOperatorBase<MVF>(
+      Pimpact::createOperatorBase(
           Pimpact::createMultiOpWrap(
               Pimpact::createAdd2Op(
                   Pimpact::createConvectionVOp( space ),
                   Pimpact::createHelmholtzOp( space, 0., eps ),
-                  vel->clone() ) ) );
+                  vel->clone()
+              )
+          )
+      );
 
 
   auto jop =
-      Pimpact::createOperatorBase<MVF,JOp>(
+      Pimpact::createOperatorBase(
           Pimpact::createMultiOpWrap(
               Pimpact::createAdd2Op<JOp1,JOp2>(
                   Pimpact::createConvectionJacobianOp(
@@ -187,6 +192,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
   Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(999);
 
 }
+
 
 
 } // namespace

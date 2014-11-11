@@ -34,8 +34,6 @@ public:
   typedef MultiField  DomainFieldT;
   typedef MultiField  RangeFieldT;
 
-//  typedef NonModeOp OpType;
-
 protected:
 
   Teuchos::RCP< LinearProblem<MF> > linprob_;
@@ -66,13 +64,12 @@ public:
 
 /// \relates InverseOperator
 template< class MF>
-Teuchos::RCP< InverseOperator<MF> > createInverseOperator(
-    const Teuchos::RCP<LinearProblem<MF> > linprob=Teuchos::null ) {
+Teuchos::RCP< InverseOperator<MF> >
+createInverseOperator(
+    const Teuchos::RCP<LinearProblem<MF> >& linprob ) {
 
-  if( Teuchos::is_null( linprob) )
-    return( Teuchos::rcp( new InverseOperator<MF>() ) );
-  else
     return( Teuchos::rcp( new InverseOperator<MF>( linprob ) ) );
+
 }
 
 

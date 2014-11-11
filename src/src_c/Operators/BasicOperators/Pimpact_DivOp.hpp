@@ -147,12 +147,15 @@ public:
 };
 
 
+
 /// \relates DivOp
 template<class SpaceT>
 Teuchos::RCP< DivOp<SpaceT> > createDivOp(
     const Teuchos::RCP<const SpaceT>& space ) {
   return( Teuchos::rcp( new DivOp<SpaceT>( space ) ) );
 }
+
+
 
 } // end of namespace Pimpact
 

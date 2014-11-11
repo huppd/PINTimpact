@@ -24,7 +24,7 @@ namespace {
 typedef double S;
 typedef int O;
 
-typedef typename Pimpact::Space<S,O,3> SpaceT;
+typedef typename Pimpact::Space<S,O,3,4> SpaceT;
 
 bool testMpi = true;
 double eps = 1e+1;

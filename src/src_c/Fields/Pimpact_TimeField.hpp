@@ -434,11 +434,11 @@ public:
 
 /// \brief factory for \c TimeField
 /// \relates TimeField
-template<class Field>
-Teuchos::RCP< TimeField<Field> >
-createTimeField( const Teuchos::RCP<const Space<typename Field::Scalar,typename Field::Ordinal,4> >& space ) {
+template<class FieldT, class SpaceT>
+Teuchos::RCP< TimeField<FieldT> >
+createTimeField( const Teuchos::RCP<const SpaceT>& space ) {
 
-  return( Teuchos::rcp( new TimeField<Field>( space ) ) );
+  return( Teuchos::rcp( new TimeField<FieldT>( space ) ) );
 
 }
 

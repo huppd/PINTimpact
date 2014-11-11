@@ -45,7 +45,7 @@ int main(int argi, char** argv ) {
   typedef double S;
   typedef int O;
 
-  typedef Pimpact::Space<S,O,3> SpaceT;
+  typedef Pimpact::Space<S,O,3,4> SpaceT;
   typedef Pimpact::MultiHarmonicField< Pimpact::VectorField<SpaceT> > VF;
   typedef Pimpact::MultiHarmonicField< Pimpact::ScalarField<SpaceT> > SF;
   typedef Pimpact::CompoundField< VF, SF> CF;

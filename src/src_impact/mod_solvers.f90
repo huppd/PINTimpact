@@ -2760,7 +2760,7 @@ module mod_solvers
   
   
   
-  !> \brief first phase of MG
+  !> \brief first stage of MG,
   !!
   !! (sometimes nullspace befor, only on coarase)
   !! calls first restrict_***, than product_***, and restrict

@@ -9,7 +9,7 @@ namespace Pimpact {
 
 /// \brief Operator base class for type erasure.
 /// \ingroup Operator
-template<class DomainField,class RangeField=DomainField>
+template<class DomainField, class RangeField=DomainField>
 class OperatorBase {
 
 public:
@@ -30,22 +30,22 @@ public:
 
 
 
-template< class DomainField, class Op, class RangeField=DomainField >
-class OperatorPimpl : public virtual OperatorBase<DomainField,RangeField> {
+template<class Op>
+class OperatorPimpl : public virtual OperatorBase<typename Op::DomainFieldT, typename Op::RangeFieldT> {
   Teuchos::RCP<Op> opm_;
 public:
-  typedef DomainField DomainFieldT;
-  typedef RangeField RangeFieldT;
+  typedef typename Op::DomainFieldT DomainFieldT;
+  typedef typename Op::RangeFieldT RangeFieldT;
 
   OperatorPimpl( const Teuchos::RCP<Op>& opm ):opm_(opm) {};
 
   virtual ~OperatorPimpl() {opm_=Teuchos::null;};
 
-  virtual void apply( const DomainField& x, RangeField& y, Belos::ETrans trans=Belos::NOTRANS ) const {
+  virtual void apply( const DomainFieldT& x, RangeFieldT& y, Belos::ETrans trans=Belos::NOTRANS ) const {
     opm_->apply( x, y, trans );
   }
 
-  virtual void assignField( const DomainField& field ) {
+  virtual void assignField( const DomainFieldT& field ) {
     opm_->assignField( field );
   };
 
@@ -64,12 +64,17 @@ public:
 
 /// \relates OperatorBase
 /// \relates OperatorPimpl
-template<class DF, class Op, class RF=DF>
-Teuchos::RCP<OperatorBase<DF,RF> > createOperatorBase( const Teuchos::RCP<Op>& op/*=Teuchos::null*/ ) {
-//  if( Teuchos::is_null( op ) )
-//    return( Teuchos::rcp( new OperatorPimpl<DF,Op,RF>( Teuchos::rcp(new Op()) ) ) );
-//  else
-    return( Teuchos::rcp( new OperatorPimpl<DF,Op,RF>( op ) ) );
+template<class Op>
+Teuchos::RCP< OperatorBase<typename Op::DomainFieldT, typename Op::RangeFieldT> >
+createOperatorBase( const Teuchos::RCP<Op>& op ) {
+
+    return(
+        Teuchos::rcp_dynamic_cast< OperatorBase<typename Op::DomainFieldT, typename Op::RangeFieldT>  >(
+            Teuchos::rcp( new OperatorPimpl<Op>( op )
+            )
+        )
+    );
+
 }
 
 

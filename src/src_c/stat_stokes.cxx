@@ -44,7 +44,7 @@ int main(int argi, char** argv ) {
   typedef double S;
   typedef int O;
 
-  typedef Pimpact::Space<S,O,3> SpaceT;
+  typedef Pimpact::Space<S,O,3,4> SpaceT;
 
   typedef Pimpact::VectorField<SpaceT> VF;
   typedef Pimpact::ScalarField<SpaceT> SF;
@@ -223,7 +223,7 @@ int main(int argi, char** argv ) {
 
   auto lap_inv = Pimpact::createInverseOperator( lap_problem );
 
-  auto schur = Pimpact::createOperatorBase<MSF>(
+  auto schur = Pimpact::createOperatorBase(
       Pimpact::createTripleCompositionOp(
           u->clone(),u->clone(), div, lap_inv, grad ) );
 

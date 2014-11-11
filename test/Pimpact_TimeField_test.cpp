@@ -38,7 +38,7 @@ double eps = 3e-1;
 typedef double S;
 typedef int O;
 
-typedef Pimpact::Space<S,O,4> SpaceT;
+typedef Pimpact::Space<S,O,4,4> SpaceT;
 
 typedef Pimpact::VectorField<SpaceT> VF;
 typedef Pimpact::ScalarField<SpaceT> SF;

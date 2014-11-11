@@ -41,7 +41,7 @@ int main(int argi, char** argv ) {
   typedef double S;
   typedef int O;
 
-  typedef Pimpact::Space<S,O,3> SpaceT;
+  typedef Pimpact::Space<S,O,3,4> SpaceT;
 
   typedef Pimpact::ModeField<Pimpact::VectorField<SpaceT> > VF;
   typedef Pimpact::ModeField<Pimpact::ScalarField<SpaceT> >  SF;
@@ -237,7 +237,7 @@ int main(int argi, char** argv ) {
             fu,
             fu, solverParams, "CG" );
 
-    lprec = Pimpact::createOperatorBase< MVF, Pimpact::InverseOperator<MVF> >( Pimpact::createInverseOperator<MVF>( prob ) );
+    lprec = Pimpact::createOperatorBase( Pimpact::createInverseOperator<MVF>( prob ) );
     break;
   }
   case 3: {
@@ -339,7 +339,7 @@ int main(int argi, char** argv ) {
   auto H_inv = Pimpact::createInverseOperator( H_prob );
 
   auto schur =
-      Pimpact::createOperatorBase<MSF>(
+      Pimpact::createOperatorBase(
           Pimpact::createTripleCompositionOp(
               u->clone(),
               u->clone(),
@@ -387,7 +387,7 @@ int main(int argi, char** argv ) {
 //    auto divGradInv = Pimpact::createInverseOperatorBase( divGradProb );
 //
 //    precSchur =
-//        Pimpact::createOperatorBase< MSF >(
+//        Pimpact::createOperatorBase(
 //            Pimpact::createTripleCompositionOp(
 //                temps->clone(Pimpact::ShallowCopy),
 //                temps->clone(Pimpact::ShallowCopy),

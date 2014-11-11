@@ -29,7 +29,7 @@ namespace {
 typedef double  S;
 typedef int     O;
 
-typedef Pimpact::Space<S,O,3> SpaceT;
+typedef Pimpact::Space<S,O,3,4> SpaceT;
 
 bool testMpi = true;
 double eps = 1e+1;
@@ -65,7 +65,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 	x->init(0.);
 	b->init(1.);
 
-	auto A = Pimpact::createMultiOperatorBase< MF, Pimpact::HelmholtzOp<SpaceT> >( Pimpact::createHelmholtzOp(space) );
+	auto A = Pimpact::createMultiOperatorBase<MF>( Pimpact::createHelmholtzOp(space) );
 
 
 	auto param = Pimpact::createLinSolverParameter("GMRES",1.e-4);

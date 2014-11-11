@@ -31,19 +31,15 @@ public:
   typedef CompoundField<VF,SF>  RangeFieldT;
 
   CompoundOpWrap(
-      const Teuchos::RCP<VF> temp/*=Teuchos::null*/,
-      const Teuchos::RCP<OpV2V>& opV2V/*=Teuchos::null*/,
-      const Teuchos::RCP<OpS2V>& opS2V/*=Teuchos::null*/,
-      const Teuchos::RCP<OpV2S>& opV2S/*=Teuchos::null*/
+      const Teuchos::RCP<VF> temp,
+      const Teuchos::RCP<OpV2V>& opV2V,
+      const Teuchos::RCP<OpS2V>& opS2V,
+      const Teuchos::RCP<OpV2S>& opV2S
       ):
         temp_(temp),
         opV2V_(opV2V),
         opS2V_(opS2V),
-        opV2S_(opV2S) {
-//    if( opV2V_.is_null() ) opV2V_ = Teuchos::rcp( new OpV2V() );
-//    if( opV2S_.is_null() ) opV2S_ = Teuchos::rcp( new OpV2S() );
-//    if( opS2V_.is_null() ) opS2V_ = Teuchos::rcp( new OpS2V() );
-  };
+        opV2S_(opV2S) {};
 
   void apply(const DomainFieldT& x, RangeFieldT& y,
       Belos::ETrans trans=Belos::NOTRANS  ) const {

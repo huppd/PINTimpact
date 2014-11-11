@@ -33,7 +33,7 @@ int domain = 1;
 typedef double S;
 typedef int O;
 
-typedef typename Pimpact::Space<S,O,3> SpaceT;
+typedef typename Pimpact::Space<S,O,3,4> SpaceT;
 
 
 TEUCHOS_STATIC_SETUP() {
@@ -218,7 +218,6 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, HelmholtzMV ) {
   typedef Pimpact::MultiField<VF> MVF;
 
   typedef Pimpact::HelmholtzOp<SpaceT> Op;
-  typedef Pimpact::MultiOpWrap<Op> MuOp;
   typedef Pimpact::OperatorBase<MVF> OpBase;
 
   auto pl = Teuchos::parameterList();
@@ -233,7 +232,7 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, HelmholtzMV ) {
 
   auto opm = Pimpact::createMultiOpWrap<Op>( Pimpact::createHelmholtzOp(space) );
 
-  auto op = Pimpact::createOperatorBase<MVF,MuOp>( opm );
+  auto op = Pimpact::createOperatorBase( opm );
 
   Teuchos::RCP<Belos::OutputManager<S> > MyOM = Teuchos::rcp(
       new Belos::OutputManager<S>(Belos::Warnings,rcp(&out,false)) );
@@ -284,8 +283,6 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, DivGrad ) {
   typedef Pimpact::ScalarField<SpaceT> SF;
   typedef Pimpact::MultiField<SF> BSF;
 
-  typedef Pimpact::DivGradOp<SpaceT> Op;
-  typedef Pimpact::MultiOpWrap<Op> MuOp;
   typedef Pimpact::OperatorBase<BSF> OpBase;
 
 
@@ -302,7 +299,7 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, DivGrad ) {
   auto mv = Pimpact::createMultiField(*p,10);
   auto mv2 = mv->clone();
 
-  auto lap = Pimpact::createOperatorBase<BSF,MuOp>(
+  auto lap = Pimpact::createOperatorBase(
       Pimpact::createMultiOpWrap(
           Pimpact::createDivGradOp(
               temp,
