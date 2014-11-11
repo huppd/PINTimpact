@@ -3,9 +3,7 @@
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_RCP.hpp"
 
-#include "Pimpact_ScalarField.hpp"
-#include "Pimpact_MultiGrid.hpp"
-#include "Pimpact_CoarsenStrategy.hpp"
+#include "Pimpact_MGTransfers.hpp"
 
 
 
@@ -15,8 +13,8 @@ namespace {
 typedef double S;
 typedef int O;
 
-typedef Pimpact::Space<S,O,3,4> Space3T;
-typedef Pimpact::Space<S,O,4,4> Space4T;
+typedef Pimpact::Space<S,O,3,4> FSpace3T;
+typedef Pimpact::Space<S,O,4,4> FSpace4T;
 
 typedef Pimpact::Space<S,O,3,2> CSpace3T;
 typedef Pimpact::Space<S,O,4,2> CSpace4T;
@@ -27,6 +25,7 @@ double eps = 1e-6;
 int domain = 1;
 int ftype = 0;
 
+auto pl = Teuchos::parameterList();
 
 
 TEUCHOS_STATIC_SETUP() {
@@ -49,32 +48,25 @@ TEUCHOS_STATIC_SETUP() {
 
 
 
-TEUCHOS_UNIT_TEST( MultiGrid, constructor3D ) {
+TEUCHOS_UNIT_TEST( MGSpaces, constructor3D ) {
 
-  typedef Pimpact::ScalarField<Space3T> FSF;
-  typedef Pimpact::ScalarField<CSpace3T> CSF;
-  typedef Pimpact::CoarsenStrategy<Space3T,CSpace3T> CS;
-
-  auto pl = Teuchos::parameterList();
+  typedef Pimpact::CoarsenStrategy<FSpace3T,CSpace3T> CS;
 
   auto space = Pimpact::createSpace( pl );
 
-  auto multiGrid = Pimpact::createMultiGrid<FSF,CSF,CS>( space, 4 );
-  std::cout << "nGridLevels: " << multiGrid->getNGrids() << "\n";
+  auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, 10 );
+  std::cout << "nGridLevels: " << mgSpaces->getNGrids() << "\n";
   if( space->rankST()==0 )
-    multiGrid->print();
+    mgSpaces->print();
 
 }
 
 
 
-TEUCHOS_UNIT_TEST( MultiGrid, constructor4D ) {
+TEUCHOS_UNIT_TEST( MGSpaces, constructor4D ) {
 
-  typedef Pimpact::ScalarField<Space4T> SF;
-  typedef Pimpact::ScalarField<CSpace4T> CSF;
-  typedef Pimpact::CoarsenStrategy<Space4T,CSpace4T> CS;
+  typedef Pimpact::CoarsenStrategy<FSpace4T,CSpace4T> CS;
 
-  auto pl = Teuchos::parameterList();
 
   pl->set( "Re", 1. );
   pl->set( "alpha2", 1. );
@@ -105,9 +97,10 @@ TEUCHOS_UNIT_TEST( MultiGrid, constructor4D ) {
 
   space->print();
 
-  auto multiGrid = Pimpact::createMultiGrid<SF,CSF,CS>( space, 2 );
-  std::cout << "nGridLevels: " << multiGrid->getNGrids() << "\n";
-  multiGrid->print();
+  auto mgSpaces = Pimpact::createMGSpaces<FSpace4T,CSpace4T,CS>( space, 10 );
+  std::cout << "nGridLevels: " << mgSpaces->getNGrids() << "\n";
+  if( 0==space->rankST() )
+    mgSpaces->print();
 
 }
 
@@ -115,9 +108,7 @@ TEUCHOS_UNIT_TEST( MultiGrid, constructor4D ) {
 
 TEUCHOS_UNIT_TEST( MultiGrid, Restrictor3D ) {
 
-  typedef Pimpact::ScalarField<Space3T> SF;
-  typedef Pimpact::ScalarField<CSpace3T> CSF;
-  typedef Pimpact::CoarsenStrategy<Space3T,CSpace3T> CS;
+  typedef Pimpact::CoarsenStrategy<FSpace3T,CSpace3T> CS;
 
   auto pl = Teuchos::parameterList();
 
@@ -147,19 +138,19 @@ TEUCHOS_UNIT_TEST( MultiGrid, Restrictor3D ) {
 
   auto space = Pimpact::createSpace<S,O,3>( pl );
 
-  space->print();
+  auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, 2 );
+
+  auto mgTransfers = Pimpact::createMGTransfers( mgSpaces );
 
   Pimpact::EField type[] = {Pimpact::EField::S, Pimpact::EField::U, Pimpact::EField::V };
 
   for( int i=0; i<3; ++i ) {
     std::cout << "type: " << i << "\n";
 
-    auto multiGrid = Pimpact::createMultiGrid<SF,CSF,CS>( space, 2, type[i] );
+    auto fieldf = Pimpact::createScalarField( mgSpaces->get( 0 ), type[i] );
+    auto fieldc = Pimpact::createScalarField( mgSpaces->get( 1 ), type[i] );
 
-    auto fieldf = multiGrid->getField( 0 );
-    auto fieldc = multiGrid->getField( 1 );
-
-    auto op = multiGrid->getRestrictionOp( 0 );
+    auto op = mgTransfers->getRestrictionOp( 0 );
 
     // the zero test
     fieldf->init( 0. );
@@ -226,9 +217,7 @@ TEUCHOS_UNIT_TEST( MultiGrid, Restrictor3D ) {
 
 TEUCHOS_UNIT_TEST( MultiGrid, Interpolator3D ) {
 
-  typedef Pimpact::ScalarField<Space3T> SF;
-  typedef Pimpact::ScalarField<CSpace3T> CSF;
-  typedef Pimpact::CoarsenStrategy<Space3T,CSpace3T> CS;
+  typedef Pimpact::CoarsenStrategy<FSpace3T,CSpace3T> CS;
 
   auto pl = Teuchos::parameterList();
 
@@ -264,25 +253,19 @@ TEUCHOS_UNIT_TEST( MultiGrid, Interpolator3D ) {
 
   auto space = Pimpact::createSpace<S,O,3>( pl );
 
-  //    space->print();
+  auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, 2 );
+
+  auto mgTransfers = Pimpact::createMGTransfers( mgSpaces );
 
   Pimpact::EField type[] = { Pimpact::EField::S, Pimpact::EField::U, Pimpact::EField::V };
 
   for( int i=0; i<1; ++i ) {
-    //    {
-    //      int i = ftype;
     std::cout << "type: " << i << "\n";
 
-    auto multiGrid = Pimpact::createMultiGrid<SF,CSF,CS>( space, 2, type[i] );
+    auto fieldf = Pimpact::createScalarField( mgSpaces->get( 0 ), type[i] );
+    auto fieldc = Pimpact::createScalarField( mgSpaces->get( 1 ), type[i] );
 
-//    multiGrid->getSpace(0)->print();
-//    multiGrid->getSpace(1)->print();
-
-    auto fieldf = multiGrid->getField( 0 );
-    auto fieldc = multiGrid->getField( 1 );
-
-    auto op = multiGrid->getInterpolationOp( 0 );
-    //      auto op = Pimpact::createInterpolationOp( multiGrid->getSpace(1), multiGrid->getSpace(0) );
+    auto op = mgTransfers->getInterpolationOp( 0 );
 
     if( space->rankST()==0 )
       op->print();

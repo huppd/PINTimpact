@@ -147,7 +147,7 @@ public:
     }
   }
 
-  void apply( const DomainFieldT& x, RangeFieldT& y ) {
+  void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
     EField fType = x.fType_;
 
@@ -227,7 +227,7 @@ public:
 
 
 template<class SpaceT>
-Teuchos::RCP< InterpolationOp<SpaceT> > createInterpolationOp(
+Teuchos::RCP<const InterpolationOp<SpaceT> > createInterpolationOp(
     const Teuchos::RCP<const SpaceT>& spaceC,
     const Teuchos::RCP<const SpaceT>& spaceF ) {
 

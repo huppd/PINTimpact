@@ -135,7 +135,7 @@ public:
     }
   }
 
-  void apply( const DomainFieldT& x, RangeFieldT& y ) {
+  void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
     EField fType = x.fType_;
 
@@ -209,7 +209,7 @@ public:
 
 
 template<class SpaceT>
-Teuchos::RCP< RestrictionOp<SpaceT> > createRestrictionOp(
+Teuchos::RCP<const RestrictionOp<SpaceT> > createRestrictionOp(
     const Teuchos::RCP<const SpaceT>& spaceF,
     const Teuchos::RCP<const SpaceT>& spaceC ) {
 

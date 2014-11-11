@@ -18,7 +18,7 @@
 namespace Pimpact {
 
 
-template<class FField, class CField>
+template<class FField, class CField, class OperatorT, class SmootherT, class CGridSolverT>
 class MultiGrid {
 
   typedef typename FField::SpaceT FSpaceT;
@@ -47,30 +47,38 @@ class MultiGrid {
 protected:
 
   Teuchos::RCP<const FSpaceT> space_;
-  std::vector< Teuchos::RCP<const CSpaceT> > multiSpace_;
-  std::vector< Teuchos::RCP<CField> >        multiField_;
-  std::vector< Teuchos::RCP<RestrictionOpT> > restrictionOps_;
+  std::vector< Teuchos::RCP<const CSpaceT> >  multiSpace_;
+
+  std::vector< Teuchos::RCP<CField> >          xFields_;
+  std::vector< Teuchos::RCP<CField> >          bFields_;
+
+  std::vector< Teuchos::RCP<RestrictionOpT> >   restrictionOps_;
   std::vector< Teuchos::RCP<InterpolationOpT> > interpolationOps_;
+
+  std::vector< Teuchos::RCP<OperatorT> >        operators_;
+  std::vector< Teuchos::RCP<SmootherT> >      smootherOps_;
+
+  Teuchos::RCP< CGridSolverT >                  cGridSolver_;
 
 
   MultiGrid(
       const Teuchos::RCP<const FSpaceT>& space,
       const std::vector<Teuchos::RCP<const CSpaceT> >& multiSpace,
-      const std::vector<Teuchos::RCP<CField> >& multiField,
+      const std::vector<Teuchos::RCP<CField> >& xFields,
+      const std::vector<Teuchos::RCP<CField> >& bFields,
       const std::vector<Teuchos::RCP<RestrictionOpT> >& restrictionOps,
       const std::vector<Teuchos::RCP<InterpolationOpT> >& interpolationOps ):
     space_(space),
-    multiSpace_(multiSpace),
-    multiField_(multiField),
+    xFields_(xFields),
+    bFields_(bFields),
     restrictionOps_(restrictionOps),
     interpolationOps_(interpolationOps)
     {}
 
 public:
 
-  int getNGrids() const {
-    return( multiSpace_.size() );
-  }
+  int getNGrids() const { return( multiSpace_.size() ); }
+
   Teuchos::RCP<const FSpaceT>     getSpace          ()        const { return( space_ ); }
   Teuchos::RCP<const CSpaceT>     getSpace          ( int i ) const { return( multiSpace_[i] ); }
   Teuchos::RCP<CField>            getField          ( int i ) const { return( multiField_[i] ); }

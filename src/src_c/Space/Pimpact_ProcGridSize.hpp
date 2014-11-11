@@ -13,13 +13,15 @@
 
 
 extern "C" {
+
 void fsetPGS(const int& np1, const int& np2, const int& np3 );
+
 }
 
 
 
-namespace Pimpact{
 
+namespace Pimpact{
 
 
 /// \brief size of processor grid
@@ -30,16 +32,10 @@ class ProcGridSize {
 
 public:
 
-
   typedef const Teuchos::Tuple<Ordinal,dim> TO;
-
-
-//  template<class OT>
-//  friend Teuchos::RCP<const ProcGridSize<OT,3> > createProcGridSize();
 
   template< class OT, int dT >
   friend Teuchos::RCP<const ProcGridSize<OT,dT> > createProcGridSize( OT np1, OT np2, OT np3, OT npt=0 );
-
 
 protected:
 
@@ -118,6 +114,9 @@ Teuchos::RCP<const ProcGridSize<O,d> > createProcGridSize( O np1, O np2, O np3, 
           new ProcGridSize<O,d>( temp ) ) );
 }
 
+
+
 } // end of namespace Pimpact
+
 
 #endif // end of #ifndef PIMPACT_PROCGRIDSIZE_HPP

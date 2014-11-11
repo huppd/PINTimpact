@@ -1,0 +1,94 @@
+#pragma once
+#ifndef PIMPACT_MGSPACES_HPP
+#define PIMPACT_MGSPACES_HPP
+
+#include <vector>
+
+#include "Pimpact_Space.hpp"
+#include "Pimpact_CoarsenStrategy.hpp"
+
+
+
+
+namespace Pimpact {
+
+
+/// \brief contains hierarchy of Spaces
+/// \tparam FSpaceT \c Space type on finest level
+/// \tparam CSpaceT \c Space type on coarser levels allows to have tighter boundaries, less memory used, less comunication
+template<class FFSpaceT, class CCSpaceT>
+class MGSpaces {
+
+public:
+
+  typedef FFSpaceT FSpaceT;
+  typedef CCSpaceT CSpaceT;
+
+  typedef typename FSpaceT::Scalar  Scalar;
+  typedef typename FSpaceT::Ordinal Ordinal;
+
+  static const int dimension = FSpaceT::dimension;
+
+  static const int dimNCF = FSpaceT::dimNC;
+  static const int dimNCC = CSpaceT::dimNC;
+
+
+protected:
+
+  template<class FSpaceTT, class CSpaceTT, class CoarsenStrategyT>
+  friend Teuchos::RCP<const MGSpaces<FSpaceTT,CSpaceTT> > createMGSpaces( const Teuchos::RCP<const FSpaceTT>& space, int nGridsMax=10 );
+
+  Teuchos::RCP<const FSpaceT> space_;
+  std::vector< Teuchos::RCP<const CSpaceT> > spaces_;
+
+//public:
+
+  MGSpaces(
+      const Teuchos::RCP<const FSpaceT>& space,
+      const std::vector<Teuchos::RCP<const CSpaceT> >& spaces ):
+    space_(space),
+    spaces_(spaces) {}
+
+public:
+
+  int getNGrids() const {
+    return( spaces_.size() );
+  }
+  Teuchos::RCP<const FSpaceT>     get()        const { return( space_ ); }
+  Teuchos::RCP<const CSpaceT>     get( int i ) const { return( spaces_[i] ); }
+
+  void print(  std::ostream& out=std::cout ) const {
+
+    for( int i = 0; i<spaces_.size(); ++i ) {
+      out << "-------- space: "<< i << "--------\n";
+      spaces_[i]->print(out);
+    }
+  }
+
+}; // end of class MGSpaces
+
+
+
+/// \relates MGSpaces
+template<class FSpaceT, class CSpaceT, class CoarsenStrategy>
+Teuchos::RCP<const MGSpaces<FSpaceT,CSpaceT> >
+createMGSpaces(
+    const Teuchos::RCP<const FSpaceT>& space,
+    int maxGrids=10 ) {
+
+  std::vector<Teuchos::RCP<const CSpaceT> > spaces =
+      CoarsenStrategy::getMultiSpace( space, maxGrids );
+
+  return(
+      Teuchos::rcp(
+          new MGSpaces<FSpaceT,CSpaceT>(
+              space,
+              spaces ) ) );
+
+}
+
+
+
+} // end of namespace Pimpact
+
+#endif // end of #ifndef PIMPACT_MGSPACES_HPP
