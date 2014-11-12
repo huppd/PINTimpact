@@ -22,10 +22,18 @@ namespace Pimpact {
 template<class OpV2Vinv,class OpS2V, class OpV2S>
 class InverseSchurOp {
 
-protected:
 
   typedef typename OpS2V::RangeFieldT  VF;
   typedef typename OpS2V::DomainFieldT  SF;
+
+public:
+
+  typedef CompoundField<VF,SF>  DomainFieldT;
+  typedef CompoundField<VF,SF>  RangeFieldT;
+
+  typedef typename DomainFieldT::SpaceT SpaceT;
+
+protected:
 
   Teuchos::RCP<VF> tempv_;
   Teuchos::RCP<SF> temps_;
@@ -37,9 +45,6 @@ protected:
   Teuchos::RCP< LinearProblem< MultiField<SF> > > lp_;
 
 public:
-
-  typedef CompoundField<VF,SF>  DomainFieldT;
-  typedef CompoundField<VF,SF>  RangeFieldT;
 
   InverseSchurOp(
       const Teuchos::RCP<VF> tempv,

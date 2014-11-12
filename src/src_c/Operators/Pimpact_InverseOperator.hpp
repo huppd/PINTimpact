@@ -3,15 +3,6 @@
 #define PIMPACT_INVERSEOPERATOR_HPP
 
 #include "Pimpact_Types.hpp"
-
-#include "Teuchos_RCP.hpp"
-//#include "Pimpact_ScalarField.hpp"
-//#include "Pimpact_VectorField.hpp"
-//#include "Pimpact_MultiField.hpp"
-
-//#include "Pimpact_HelmholtzOp.hpp"
-//#include "Pimpact_OperatorMV.hpp"
-
 #include "Pimpact_LinearProblem.hpp"
 
 
@@ -20,19 +11,22 @@
 namespace Pimpact{
 
 
+
 /// \ingroup Operator
-/// \tparam MultiField has to be of type \c Pimpact::MultiField
-template< class MultiField >
+/// \tparam FieldT has to be of type \c Pimpact::MultiField
+template< class FieldT >
 class InverseOperator {
 
-  typedef MultiField           MF;
+  typedef FieldT               MF;
   typedef typename MF::Scalar  S;
   typedef OperatorBase<MF>     Op;
 
 public:
 
-  typedef MultiField  DomainFieldT;
-  typedef MultiField  RangeFieldT;
+  typedef FieldT  DomainFieldT;
+  typedef FieldT  RangeFieldT;
+
+  typedef typename DomainFieldT::SpaceT SpaceT;
 
 protected:
 

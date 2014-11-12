@@ -36,10 +36,12 @@ void OP_helmholtz(
 ///
 /// computes \f$ y = ( mulI_ I - mulL_ \Delta) x
 /// \ingroup BaseOperator
-template<class SpaceT>
+template<class ST>
 class HelmholtzOp {
 
 public:
+
+  typedef ST SpaceT;
 
   typedef typename SpaceT::Scalar Scalar;
   typedef typename SpaceT::Ordinal Ordinal;

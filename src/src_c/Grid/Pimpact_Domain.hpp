@@ -6,7 +6,6 @@
 #include <ostream>
 
 #include "Teuchos_RCP.hpp"
-//#include "Teuchos_Tuple.hpp"
 
 #include "Pimpact_Types.hpp"
 

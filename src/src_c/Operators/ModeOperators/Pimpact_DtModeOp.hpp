@@ -13,10 +13,12 @@ namespace Pimpact{
 
 
 /// \ingroup ModeOperator
-template<class SpaceT>
+template<class ST>
 class DtModeOp {
 
 public:
+
+  typedef ST SpaceT;
 
   typedef typename SpaceT::Scalar Scalar;
   typedef typename SpaceT::Ordinal Ordinal;

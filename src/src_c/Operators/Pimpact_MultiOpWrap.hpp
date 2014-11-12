@@ -5,11 +5,10 @@
 
 #include "Teuchos_RCP.hpp"
 
-//#include <BelosTypes.hpp>
-
 #include "Pimpact_Types.hpp"
 
 #include "Pimpact_MultiField.hpp"
+
 
 
 
@@ -22,17 +21,21 @@ namespace Pimpact {
 template<class Operator>
 class MultiOpWrap  {
 
-  Teuchos::RCP<Operator> op_;
-
 public:
 
   typedef MultiField<typename Operator::DomainFieldT> DomainFieldT;
   typedef MultiField<typename Operator::RangeFieldT> RangeFieldT;
 
-//  MultiOpWrap():op_( Teuchos::rcp( new Operator() ) ) {};
+  typedef typename DomainFieldT::SpaceT SpaceT;
+
+protected:
+
+  Teuchos::RCP<Operator> op_;
+
+public:
+
   MultiOpWrap( const Teuchos::RCP<Operator>& op ):op_(op) {};
   ~MultiOpWrap() {op_=Teuchos::null;};
-
 
   /// \brief default apply
   void apply( const DomainFieldT& x,

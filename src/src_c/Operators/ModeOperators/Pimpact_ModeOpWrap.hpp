@@ -22,13 +22,18 @@ namespace Pimpact {
 template<class Operator>
 class ModeOpWrap  {
 
-	Teuchos::RCP<Operator> op_;
-
 public:
 
 	typedef ModeField<typename Operator::DomainFieldT> DomainFieldT;
 	typedef ModeField<typename Operator::RangeFieldT>  RangeFieldT;
-//	typedef typename Operator::OpType OpType;
+
+  typedef typename DomainFieldT::SpaceT SpaceT;
+
+protected:
+
+	Teuchos::RCP<Operator> op_;
+
+public:
 
 	ModeOpWrap():op_( Teuchos::rcp( new Operator() ) ) {};
 	ModeOpWrap( const Teuchos::RCP<Operator>& op ):op_(op) {};

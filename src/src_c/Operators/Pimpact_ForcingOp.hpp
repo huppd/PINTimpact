@@ -26,6 +26,8 @@ public:
   typedef Field  DomainFieldT;
   typedef Field  RangeFieldT;
 
+  typedef typename DomainFieldT::SpaceT SpaceT;
+
 protected:
 
   Teuchos::RCP<DomainFieldT> forcing_;

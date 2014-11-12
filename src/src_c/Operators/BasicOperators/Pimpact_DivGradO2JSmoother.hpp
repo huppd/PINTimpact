@@ -45,11 +45,15 @@ void SF_handle_corner(
 ///
 /// \ingroup BaseOperator
 /// \todo instead of hardcode 2nd Order it would be pretty to use new space with StencilWidth<3,2>
+/// \todo add ParameterList
 /// \todo handle corner
-template<class SpaceT>
+template<class ST>
 class DivGradO2JSmoother {
 
 public:
+
+  typedef ST SpaceT;
+
   typedef typename SpaceT::Scalar Scalar;
   typedef typename SpaceT::Ordinal Ordinal;
 
@@ -67,10 +71,11 @@ protected:
 
 public:
 
-
-  DivGradO2JSmoother( const Teuchos::RCP<const DivGradO2Op<SpaceT> >& op, Scalar omega=0.8, int nIter=10 ):
-    omega_(omega),
-    nIter_(nIter),
+  DivGradO2JSmoother(
+      const Teuchos::RCP<const DivGradO2Op<SpaceT> >& op,
+      Teuchos::RCP<Teuchos::ParameterList> pl ):
+    omega_( pl->get("ommega",0.8) ),
+    nIter_( pl->get("numIters",10) ),
     space_(op->space_),
     temp_( createScalarField<SpaceT>( space_ ) ),
     op_(op) {}
@@ -106,6 +111,7 @@ public:
           space_->getDomain()->getBCLocal()->getBCU(),
           temp_->s_);
 
+      // attention: could lead to problems when ScalarField is used as part of a higherlevel class
       std::swap( y.s_, temp_->s_ );
       y.changed();
     }
@@ -117,6 +123,9 @@ public:
   bool hasApplyTranspose() const { return( false ); }
 
   void print( std::ostream& out=std::cout ) const {
+    out << "\n --- Jacobian smoother ---\n";
+    out << "\t omega: " << omega_ << "\n";
+    out << "\t numIter: " << nIter_ << "\n";
     op_->print( out );
   }
 
@@ -129,11 +138,10 @@ template<class SpaceT>
 Teuchos::RCP< DivGradO2JSmoother<SpaceT> >
 createDivGradO2JSmoother(
     const Teuchos::RCP<const DivGradO2Op<SpaceT> >& op,
-    typename SpaceT::Scalar omega=0.8,
-    int nIter=10 ) {
+    Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ) {
 
   return(
-      Teuchos::rcp( new DivGradO2JSmoother<SpaceT>( op, omega, nIter ) ) );
+      Teuchos::rcp( new DivGradO2JSmoother<SpaceT>( op, pl ) ) );
 
 }
 

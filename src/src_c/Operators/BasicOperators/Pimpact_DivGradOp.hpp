@@ -24,8 +24,17 @@ namespace Pimpact{
 /// \todo not workin properly?
 /// \todo add temporary variable
 /// \warning does not hold test.
-template<class SpaceT>
+template<class ST>
 class DivGradOp {
+
+public:
+
+  typedef ST SpaceT;
+
+  typedef ScalarField<SpaceT>  DomainFieldT;
+  typedef ScalarField<SpaceT>  RangeFieldT;
+
+protected:
 
   Teuchos::RCP<VectorField<SpaceT> > temp_;
   Teuchos::RCP<DivOp<SpaceT> > div_;
@@ -33,9 +42,10 @@ class DivGradOp {
 
 public:
 
-  typedef ScalarField<SpaceT>  DomainFieldT;
-  typedef ScalarField<SpaceT>  RangeFieldT;
-
+  DivGradOp( const Teuchos::RCP<const SpaceT>& space ):
+    temp_( createVectorField( space ) ),
+    div_ ( createDivOp( space ) ),
+    grad_( createGradOp( space ) ) {};
 
   DivGradOp(
       const Teuchos::RCP<VectorField<SpaceT> >& temp,
@@ -67,8 +77,10 @@ Teuchos::RCP< DivGradOp<SpaceT> > createDivGradOp(
     const Teuchos::RCP<VectorField<SpaceT> >& temp,
     const Teuchos::RCP< DivOp<SpaceT> >& div,
     const Teuchos::RCP< GradOp<SpaceT> >& grad ) {
+
   return(
       Teuchos::rcp( new DivGradOp<SpaceT>( temp, div, grad ) ) );
+
 }
 
 

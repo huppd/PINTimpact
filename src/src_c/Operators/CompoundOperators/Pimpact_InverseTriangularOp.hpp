@@ -7,21 +7,16 @@
 #include "Pimpact_CompoundField.hpp"
 #include "Pimpact_MultiField.hpp"
 
-//#include "Pimpact_TripleCompositionOp.hpp"
-//#include "Pimpact_LinearProblem.hpp"
-
-//#include "Pimpact_OperatorFactory.hpp"
 
 
 
 namespace Pimpact {
 
 
+
 /// \ingroup CompoundOperator
 template<class OpV2Vinv,class OpS2V, class OpS2Sinv>
 class InverseTriangularOp {
-
-protected:
 
   typedef typename OpS2V::RangeFieldT  VF;
   typedef typename OpS2V::DomainFieldT  SF;
@@ -31,6 +26,10 @@ public:
   typedef CompoundField<VF,SF>  DomainFieldT;
   typedef CompoundField<VF,SF>  RangeFieldT;
 
+  typedef typename DomainFieldT::SpaceT SpaceT;
+
+protected:
+
   Teuchos::RCP<VF> tempv_;
   Teuchos::RCP<SF> temps_;
 
@@ -38,7 +37,7 @@ public:
   Teuchos::RCP<OpS2V>    opS2V_;
   Teuchos::RCP<OpS2Sinv> opS2Sinv_;
 
-
+public:
 
   InverseTriangularOp(
       const Teuchos::RCP<VF> tempv=Teuchos::null,
@@ -48,7 +47,7 @@ public:
       const Teuchos::RCP<OpS2Sinv>& opS2Sinv=Teuchos::null ):
         tempv_(tempv),
         temps_(temps),
-  		opV2Vinv_(opV2V),
+        opV2Vinv_(opV2V),
         opS2V_(opS2V),
         opS2Sinv_(opS2Sinv) {
 
@@ -70,7 +69,7 @@ public:
     tempv_->add( -1., *tempv_, 1., x.getConstVField() );
 
     opV2Vinv_->apply( *createMultiField(tempv_), *createMultiField( y.getVFieldPtr() ) );
-//        y.getSFieldPtr()->add( 0., y.getConstSField(), 1., x.getConstSField() );
+    //        y.getSFieldPtr()->add( 0., y.getConstSField(), 1., x.getConstSField() );
     // ~ (D H^{-1} G)^{-1} p = D H^{-1} f_u - f_p
 
   }
@@ -78,8 +77,8 @@ public:
   /// \todo fixme
   void assignField( const DomainFieldT& mv ) {
     opV2Vinv_->assignField( *createMultiField( Teuchos::rcp_const_cast<VF>(mv.getConstVFieldPtr()) ) );
-//    opS2V_->assignField( mv.getConstVField() );
-//    opV2Sinv_->assignField( mv.getConstVField() );
+    //    opS2V_->assignField( mv.getConstVField() );
+    //    opV2Sinv_->assignField( mv.getConstVField() );
   };
 
   bool hasApplyTranspose() const { return( false ); }
@@ -98,7 +97,7 @@ createInverseTriangularOp(
     const Teuchos::RCP<OpS2V>& opS2V,
     const Teuchos::RCP<OpS2S>& opS2Sinv=Teuchos::null ) {
 
-//  return Teuchos::null;
+  //  return Teuchos::null;
   return(
       Teuchos::rcp( new InverseTriangularOp<OpV2V,OpS2V,OpS2S>(tempv,temps,opV2V,opS2V,opS2Sinv) ) );
 

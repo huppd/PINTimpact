@@ -2,15 +2,9 @@
 #ifndef PIMPACT_MULTIGRID_HPP
 #define PIMPACT_MULTIGRID_HPP
 
-#include <vector>
 
-#include "Teuchos_RCP.hpp"
 
-#include "Pimpact_Space.hpp"
-
-#include "Pimpact_CoarsenStrategy.hpp"
-#include "Pimpact_RestrictionOp.hpp"
-#include "Pimpact_InterpolationOp.hpp"
+#include "Pimpact_MGSpaces.hpp"
 
 
 
@@ -18,48 +12,41 @@
 namespace Pimpact {
 
 
-template<class FField, class CField, class OperatorT, class SmootherT, class CGridSolverT>
+
+template<
+class FSpaceT,
+class CSpaceT,
+template<class> class FieldT,
+template<class> class FOperatorT,
+template<class> class COperatorT,
+class SmootherT,
+class CGridSolverT >
 class MultiGrid {
 
-  typedef typename FField::SpaceT FSpaceT;
-  typedef typename CField::SpaceT CSpaceT;
+  typedef MGSpaces<FSpaceT,CSpaceT> MGSpacesT;
 
-  typedef typename FSpaceT::Scalar  Scalar;
-  typedef typename FSpaceT::Ordinal Ordinal;
+  typedef MGFields<MGSpacesT,FieldT> MGFieldsT;
 
-  static const int dimension = FSpaceT::dimension;
-
-  static const int dimNCF = FSpaceT::dimNC;
-  static const int dimNCC = CSpaceT::dimNC;
+  typedef MGOperators<MGSpacesT, template<class> class FOT, template<class> class COT> MGOperatorsT;
 
 
-  typedef RestrictionOp<CSpaceT> RestrictionOpT;
-  typedef InterpolationOp<CSpaceT> InterpolationOpT;
-
-  template<class FFieldT, class CFieldT, class CoarsenStrategyT>
-  friend
-  Teuchos::RCP< MultiGrid<FFieldT,CFieldT> >
-  createMultiGrid(
-      const Teuchos::RCP<const typename FFieldT::SpaceT>& space,
-      int nGridsMax=10,
-      EField type=EField::S );
+//  template<class FFieldT, class CFieldT, class CoarsenStrategyT>
+//  friend Teuchos::RCP< MultiGrid<FFieldT,CFieldT> >
+//  createMultiGrid(
+//      const Teuchos::RCP<const typename FFieldT::SpaceT>& space,
+//      int nGridsMax=10,
+//      EField type=EField::S );
 
 protected:
 
-  Teuchos::RCP<const FSpaceT> space_;
-  std::vector< Teuchos::RCP<const CSpaceT> >  multiSpace_;
+  Teuchos::RCP<const MGSpacesT> mgSpaces_;
 
-  std::vector< Teuchos::RCP<CField> >          xFields_;
-  std::vector< Teuchos::RCP<CField> >          bFields_;
+  Teuchos::RCP<MGFieldsT> x_;
+  Teuchos::RCP<MGFieldsT> b_;
 
-  std::vector< Teuchos::RCP<RestrictionOpT> >   restrictionOps_;
-  std::vector< Teuchos::RCP<InterpolationOpT> > interpolationOps_;
+  Teuchos::RCP<MGOperatorsT> mgOps_;
 
-  std::vector< Teuchos::RCP<OperatorT> >        operators_;
-  std::vector< Teuchos::RCP<SmootherT> >      smootherOps_;
-
-  Teuchos::RCP< CGridSolverT >                  cGridSolver_;
-
+  Teuchos::RCP<const CGridSolverT> cGridSolver_;
 
   MultiGrid(
       const Teuchos::RCP<const FSpaceT>& space,
@@ -149,5 +136,6 @@ createMultiGrid(
 
 
 } // end of namespace Pimpact
+
 
 #endif // end of #ifndef PIMPACT_MULTIGRID_HPP

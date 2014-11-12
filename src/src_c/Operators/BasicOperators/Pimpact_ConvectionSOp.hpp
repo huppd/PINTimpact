@@ -43,10 +43,12 @@ void OP_convection(
 
 /// \brief convection operator, that takes the free interpolated velocity components and advects accordingly
 /// \ingroup BaseOperator
-template<class SpaceT>
+template<class ST>
 class ConvectionSOp {
 
 public:
+
+  typedef ST SpaceT;
 
   typedef typename SpaceT::Scalar Scalar;
   typedef typename SpaceT::Ordinal Ordinal;

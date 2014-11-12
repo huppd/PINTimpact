@@ -600,7 +600,13 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2JSmoother ) {
   auto b = Pimpact::createScalarField( space );
 
   auto op = Pimpact::createDivGradO2Op( space );
-  auto smoother = Pimpact::createDivGradO2JSmoother<SpaceT>( op, omega, nIter );
+
+  auto ppl = Teuchos::parameterList();
+
+  ppl->set("omega", 0.66 );
+  ppl->set("numIters",100);
+
+  auto smoother = Pimpact::createDivGradO2JSmoother<SpaceT>( op, ppl );
 
   smoother->print();
 

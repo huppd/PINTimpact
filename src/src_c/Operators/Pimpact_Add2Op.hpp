@@ -21,17 +21,16 @@ namespace Pimpact {
 /// \ingroup Operator
 template< class OP1, class OP2 >
 class Add2Op {
+
 public:
-//  typedef MultiField<ModeField<VectorField<Scalar,Ordinal> > > MVF;
-//  typedef typename MVF::Scalar S;
-//  typedef typename MVF::Ordinal O;
 
   typedef typename OP1::DomainFieldT DomainFieldT;
   typedef typename OP2::RangeFieldT  RangeFieldT;
 
-//  typedef OperatorBase<MVF> OP;
-//  typedef NonModeOp OpType;
-private:
+  typedef typename DomainFieldT::SpaceT SpaceT;
+
+protected:
+
   Teuchos::RCP<OP1> op1_;
   Teuchos::RCP<OP2> op2_;
   Teuchos::RCP<typename OP1::RangeFieldT> temp_;

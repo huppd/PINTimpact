@@ -12,16 +12,18 @@
 
 
 
+
 namespace Pimpact {
 
 
+
 /// \ingroup ModeOperator
-template<class SpaceT>
+template<class ST>
 class EddyPrec {
 
-  typedef typename SpaceT::Scalar Scalar;
-
 public:
+
+  typedef ST SpaceT;
 
   typedef ModeField< VectorField<SpaceT> > DomainFieldT;
   typedef ModeField< VectorField<SpaceT> > RangeFieldT;
@@ -30,7 +32,9 @@ public:
 
   typedef OperatorBase<MVF> Op;
 
-private:
+protected:
+
+  typedef typename SpaceT::Scalar Scalar;
 
   Teuchos::RCP<MVF> temp_;
   Teuchos::RCP<Op> op_;

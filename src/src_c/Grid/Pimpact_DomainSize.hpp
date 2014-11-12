@@ -13,11 +13,7 @@
 
 
 extern "C" {
-
-//void FS_get_dim(int&);
 void fsetDS( const double& L1, const double& L2, const double& L3 );
-//void fgetDS(       double& L1,       double& L2,       double& L3 );
-
 }
 
 
@@ -106,23 +102,6 @@ public:
 
 
 
-///// \relates DomainSize
-//template<class S=double>
-//Teuchos::RCP<const DomainSize<S> > createDomainSize() {
-//
-//  int dim;
-//  FS_get_dim( dim );
-//
-//  Teuchos::Tuple<S,3> L;
-//
-//  fgetDS( L[0],L[1],L[2] );
-//
-//  return(
-//      Teuchos::rcp(
-//          new DomainSize<S>( dim, 1., 1., L[0], L[1], L[2] ) ) );
-//}
-
-
 /// \relates DomainSize
 template<class Scalar=double>
 Teuchos::RCP<const DomainSize<Scalar> > createDomainSize( int dim, Scalar L1, Scalar L2, Scalar L3 ) {
@@ -144,6 +123,7 @@ Teuchos::RCP<const DomainSize<Scalar> > createDomainSize( int dim, Scalar re, Sc
 
 
 } // end of namespace Pimpact
+
 
 
 #endif // end of #ifndef PIMPACT_DOMAINSIZE_HPP

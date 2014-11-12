@@ -67,7 +67,7 @@ public:
       bool setImpact ) {
 
     if( setImpact ) Pimpact::init_impact_pre();
-    if( pl.is_null() ) pl = Teuchos::parameterList();
+//    if( pl.is_null() ) pl = Teuchos::parameterList();
 
     pl->validateParametersAndSetDefaults( *getValidParameters() );
 
@@ -76,25 +76,25 @@ public:
     stencilWidths_ = Pimpact::createStencilWidths<dimension,dimNC>();
 
     auto domainSize = Pimpact::createDomainSize<S>(
-        pl->get("dim",2),
-        pl->get("Re",1.),
-        pl->get("alpha2",1.),
-        pl->get("lx",2.),
-        pl->get("ly",2.),
-        pl->get("lz",1.) );
+        pl->get<int>("dim"),
+        pl->get<S>("Re"),
+        pl->get<S>("alpha2"),
+        pl->get<S>("lx"),
+        pl->get<S>("ly"),
+        pl->get<S>("lz") );
     if( setImpact ) domainSize->set_Impact();
 
     // are all template paramter needed here?
     auto boundaryConditionsGlobal =
-        Pimpact::createBoudaryConditionsGlobal( Pimpact::EDomainType( pl->get("domain",2) ) );
+        Pimpact::createBoudaryConditionsGlobal( Pimpact::EDomainType( pl->get<int>("domain") ) );
     if( setImpact ) boundaryConditionsGlobal->set_Impact();
 
     procGridSize_ =
-        Pimpact::createProcGridSize<O,d>( pl->get("npx",2), pl->get("npy",2), pl->get("npz",1), pl->get("npf",1) );
+        Pimpact::createProcGridSize<O,d>( pl->get<O>("npx"), pl->get<O>("npy",2), pl->get<O>("npz",1), pl->get<O>("npf") );
     if( setImpact ) procGridSize_->set_Impact();
 
     gridSizeGlobal_ =
-        Pimpact::createGridSizeGlobal<O,d>( pl->get("nx",33), pl->get("ny",33), pl->get("nz",2), pl->get("nf",32) );
+        Pimpact::createGridSizeGlobal<O,d>( pl->get<O>("nx"), pl->get<O>("ny"), pl->get<O>("nz"), pl->get<O>("nf") );
     if( setImpact ) gridSizeGlobal_->set_Impact();
 
     gridSizeLocal_ =
@@ -413,7 +413,7 @@ public:
 /// \deprecated \param setImpact should be uneccessary in the future
 template<class S=double, class O=int, int d=3, int dimNC=4>
 Teuchos::RCP<const Space<S,O,d,dimNC> > createSpace(
-    Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::null,
+    Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList(),
     bool setImpact=false ) {
 
   return( Teuchos::rcp( new Space<S,O,d,dimNC>( pl, setImpact ) ) );

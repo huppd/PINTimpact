@@ -6,7 +6,10 @@
 #include "Teuchos_RCP.hpp"
 
 
+
+
 namespace Pimpact {
+
 
 
 /// \brief make the composition of two operators.
@@ -24,7 +27,9 @@ public:
 
   typedef typename OP2::RangeFieldT TempFieldT;
 
-private:
+  typedef typename DomainFieldT::SpaceT SpaceT;
+
+protected:
 
   Teuchos::RCP<TempFieldT> temp_;
 

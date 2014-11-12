@@ -3,7 +3,14 @@
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_RCP.hpp"
 
+
+#include "Pimpact_MGFields.hpp"
+#include "Pimpact_MGOperators.hpp"
 #include "Pimpact_MGTransfers.hpp"
+#include "Pimpact_MGSmoothers.hpp"
+
+#include "Pimpact_ScalarField.hpp"
+#include "Pimpact_Operator.hpp"
 
 
 
@@ -101,6 +108,76 @@ TEUCHOS_UNIT_TEST( MGSpaces, constructor4D ) {
   std::cout << "nGridLevels: " << mgSpaces->getNGrids() << "\n";
   if( 0==space->rankST() )
     mgSpaces->print();
+
+}
+
+
+
+TEUCHOS_UNIT_TEST( MGFields, constructor3D ) {
+
+  typedef Pimpact::CoarsenStrategy<FSpace3T,CSpace3T> CS;
+
+  typedef Pimpact::MGSpaces<FSpace3T,CSpace3T> MGST;
+  auto space = Pimpact::createSpace( pl );
+
+  auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, 10 );
+  std::cout << "nGridLevels: " << mgSpaces->getNGrids() << "\n";
+  if( space->rankST()==0 )
+    mgSpaces->print();
+
+  auto mgFields = Pimpact::createMGFields<MGST,Pimpact::ScalarField>( mgSpaces );
+
+  auto field = mgFields->get( 2 );
+  field->random();
+  field->write(0);
+
+}
+
+
+
+TEUCHOS_UNIT_TEST( MGOperators, constructor3D ) {
+
+  typedef Pimpact::CoarsenStrategy<FSpace3T,CSpace3T> CS;
+
+
+  auto space = Pimpact::createSpace( pl );
+
+  auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, 10 );
+
+  auto mgOps = Pimpact::createMGOperators<Pimpact::DivGradO2Op>( mgSpaces );
+
+  auto mgOps2 = Pimpact::createMGOperators<Pimpact::DivGradOp,Pimpact::DivGradO2Op>( mgSpaces );
+
+
+  auto op = mgOps->get( 2 );
+
+  op->print();
+//  field->random();
+//  field->write(0);
+
+}
+
+
+
+TEUCHOS_UNIT_TEST( MGSmoothers, constructor3D ) {
+
+  typedef Pimpact::CoarsenStrategy<FSpace3T,CSpace3T> CS;
+
+
+  auto space = Pimpact::createSpace( pl );
+
+  auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, 10 );
+
+
+  auto mgOps = Pimpact::createMGOperators<Pimpact::DivGradOp,Pimpact::DivGradO2Op>( mgSpaces );
+
+  auto mgSmoother = Pimpact::createMGSmoothers<Pimpact::DivGradO2JSmoother>( mgOps );
+
+  auto op = mgSmoother->get( 2 );
+  op->print();
+
+//  field->random();
+//  field->write(0);
 
 }
 

@@ -22,13 +22,18 @@ namespace Pimpact {
 template<class Operator>
 class MultiHarmonicOpWrap  {
 
-  Teuchos::RCP<Operator> op_;
-
 public:
 
   typedef MultiHarmonicField<typename Operator::DomainFieldT> DomainFieldT;
   typedef MultiHarmonicField<typename Operator::RangeFieldT> RangeFieldT;
-//  typedef typename Operator::OpType OpType;
+
+  typedef typename DomainFieldT::SpaceT SpaceT;
+
+protected:
+
+  Teuchos::RCP<Operator> op_;
+
+public:
 
   MultiHarmonicOpWrap():op_( Teuchos::rcp( new Operator() ) ) {};
   MultiHarmonicOpWrap( const Teuchos::RCP<Operator>& op ):op_(op) {};

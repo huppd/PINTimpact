@@ -22,7 +22,9 @@ public:
   typedef typename OP1::DomainFieldT DomainFieldT;
   typedef typename OP1::RangeFieldT  RangeFieldT;
 
-private:
+  typedef typename DomainFieldT::SpaceT SpaceT;
+
+protected:
 
   Teuchos::RCP<RangeFieldT> temp_;
 

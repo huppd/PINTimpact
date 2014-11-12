@@ -27,6 +27,8 @@ public:
   typedef TimeField<typename Operator::DomainFieldT> DomainFieldT;
   typedef TimeField<typename Operator::RangeFieldT> RangeFieldT;
 
+  typedef typename DomainFieldT::SpaceT SpaceT;
+
 protected:
 
   Teuchos::RCP<Operator> op_;

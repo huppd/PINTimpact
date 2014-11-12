@@ -31,10 +31,12 @@ void OP_DtHelmholtz(
 
 /// \ingroup ModeOperator
 /// \todo move HelmholtzOp to MultiDtHelmholtzOp(is not ModeOp)
-template<class SpaceT>
+template<class ST>
 class DtLapOp {
 
 public:
+
+  typedef ST SpaceT;
 
   typedef typename SpaceT::Scalar Scalar;
   typedef typename SpaceT::Ordinal Ordinal;

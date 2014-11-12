@@ -21,10 +21,13 @@ namespace Pimpact {
 ///   have zero boundary conditions if used for linear solver.
 /// \note if heavily used one should do the interpolation in the assignField method.
 /// \relates ConvectionVOp
-template<class SpaceT>
+template<class ST>
 class ConvectionJacobianOp {
 
 public:
+
+  typedef ST SpaceT;
+
   typedef typename SpaceT::Scalar Scalar;
   typedef typename SpaceT::Ordinal Ordinal;
 

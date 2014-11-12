@@ -67,13 +67,16 @@ void SF_handle_corner(
 /// \ingroup BaseOperator
 /// \todo instead of hardcode 2nd Order it would be pretty to use new space with \c StencilWidths<3,2>
 /// \todo handle corner
-template<class SpaceT>
+template<class ST>
 class DivGradO2Op {
 
   template<class SpaceTT>
   friend class DivGradO2JSmoother;
 
 public:
+
+  typedef ST SpaceT;
+
   typedef typename SpaceT::Scalar Scalar;
   typedef typename SpaceT::Ordinal Ordinal;
 

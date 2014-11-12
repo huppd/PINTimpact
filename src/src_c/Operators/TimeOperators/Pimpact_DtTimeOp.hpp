@@ -16,10 +16,12 @@ namespace Pimpact{
 
 
 /// \ingroup TimeOperator
-template<class SpaceT>
+template<class ST>
 class DtTimeOp {
 
 public:
+
+  typedef ST SpaceT;
 
   typedef typename SpaceT::Scalar Scalar;
 

@@ -23,6 +23,8 @@ namespace Pimpact {
 /// \brief important basic Vector class.
 ///
 /// vector for wrapping many fields into one multiharmonic field
+/// \todo SpaceT constructor
+/// \todo continous memory
 /// \ingroup Field
 template<class Field>
 class MultiHarmonicField : private AbstractField<typename Field::SpaceT> {
@@ -41,7 +43,6 @@ protected:
   typedef MultiHarmonicField<Field> MV;
 
   typedef AbstractField<SpaceT> AF;
-
 
   Teuchos::RCP<Field> field0_;
   Teuchos::RCP< MultiField< ModeField<Field> > > fields_;

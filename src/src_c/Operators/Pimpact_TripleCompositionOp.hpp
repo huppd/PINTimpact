@@ -24,7 +24,9 @@ public:
   typedef typename OP3::DomainFieldT DomainFieldT;
   typedef typename OP1::RangeFieldT  RangeFieldT;
 
-private:
+  typedef typename DomainFieldT::SpaceT SpaceT;
+
+protected:
 
   Teuchos::RCP<typename OP2::RangeFieldT> temp1_; // has to be equal to OP2::DomainFieldT
   Teuchos::RCP<typename OP2::DomainFieldT> temp2_; // has to be euqal to OP3::DomainFieldT

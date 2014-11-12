@@ -3,9 +3,8 @@
 #define PIMPACT_MULTIFIELD_HPP
 
 
-/// \file Pimpact_MultiField.hpp
-
 #include <vector>
+
 #include <Teuchos_Array.hpp>
 #include "Teuchos_RCP.hpp"
 #include <Teuchos_Range1D.hpp>
@@ -20,7 +19,9 @@
 
 
 
+
 namespace Pimpact {
+
 
 
 /// \brief templated class which is the interface to \c Belos and \c NOX
@@ -32,6 +33,8 @@ namespace Pimpact {
 /// that only done once per MV not per Field
 ///
 /// \note for better documentation, look at the equivalent documentation in the \c Belos::...
+/// \todo SpaceT constructor
+/// \todo continous memory
 /// \ingroup Field
 template<class Field>
 class MultiField : private AbstractField<typename Field::SpaceT> {
@@ -520,6 +523,7 @@ public:
 }; // end of class MultiField
 
 
+
 /// \brief factory for \c MultiField
 /// \relates MultiField
 template<class Field>
@@ -529,6 +533,7 @@ Teuchos::RCP< MultiField<Field> > createMultiField(
 
   return( Teuchos::rcp( new MultiField<Field>( field, numvecs, ctype ) ) );
 }
+
 
 
 /// \brief factory for \c MultiField.

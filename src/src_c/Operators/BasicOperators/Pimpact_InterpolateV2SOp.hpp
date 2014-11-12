@@ -52,6 +52,13 @@ class ScalarField;
 template< class Scalar, class Ordinal, int dimension, int dimNC >
 class InterpolateV2S {
 
+public:
+
+  typedef Space<Scalar,Ordinal,dimension,dimNC> SpaceT;
+
+  typedef ScalarField< SpaceT >  DomainFieldT;
+  typedef ScalarField< SpaceT > RangeFieldT;
+
 protected:
 
   typedef const Teuchos::Tuple<Scalar*,3> TO;
@@ -59,9 +66,6 @@ protected:
   TO c_;
 
 public:
-
-  typedef ScalarField< Space<Scalar,Ordinal,dimension,dimNC> >  DomainFieldT;
-  typedef ScalarField< Space<Scalar,Ordinal,dimension,dimNC> > RangeFieldT;
 
   InterpolateV2S(
       const Teuchos::RCP<const ProcGrid<Ordinal,dimension> >&  procGrid,

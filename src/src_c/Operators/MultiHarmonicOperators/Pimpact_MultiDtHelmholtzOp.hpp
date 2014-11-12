@@ -17,17 +17,23 @@ namespace Pimpact{
 /// \ingroup MultiHarmonicOperator
 /// for generalizing this(MultiHarmonicwrapper for ModeOperator), ModeOperator needs a non Mode representation
 /// \relates DtLapOp
-template<class SpaceT>
+template<class ST>
 class MultiDtHelmholtz {
 
-  Teuchos::RCP<DtLapOp<SpaceT> > op_;
-
 public:
+
+  typedef ST SpaceT;
+
   typedef typename SpaceT::Scalar Scalar;
 
   typedef MultiHarmonicField< VectorField<SpaceT> >  DomainFieldT;
   typedef MultiHarmonicField< VectorField<SpaceT> >  RangeFieldT;
 
+protected:
+
+  Teuchos::RCP<DtLapOp<SpaceT> > op_;
+
+public:
 
   MultiDtHelmholtz( const Teuchos::RCP<const SpaceT>& space, Scalar alpha2=1., Scalar iRe=1.):
     op_( createDtLapOp<SpaceT>( space, alpha2, iRe) ) {};

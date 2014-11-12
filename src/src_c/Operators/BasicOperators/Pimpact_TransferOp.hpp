@@ -40,12 +40,23 @@ void OP_Transfer(
 /// \tparam CSpaceT coase space type
 /// \ingroup BaseOperator
 /// \todo add test if nloc is equal
-template<class FSpaceT, class CSpaceT>
+template<class FST, class CST>
 class TransferOp {
 
-protected:
+public:
+
+  typedef FST SpaceT;
+
+  typedef FST FSpaceT;
+  typedef CST CSpaceT;
+
   typedef typename FSpaceT::Scalar Scalar;
   typedef typename FSpaceT::Ordinal Ordinal;
+
+  typedef ScalarField<FSpaceT>  DomainFieldT;
+  typedef ScalarField<CSpaceT>  RangeFieldT;
+
+protected:
 
   typedef const Teuchos::Tuple<Scalar*,3> TO;
 
@@ -53,9 +64,6 @@ protected:
   Teuchos::RCP<const CSpaceT> cSpace_;
 
 public:
-
-  typedef ScalarField<FSpaceT>  DomainFieldT;
-  typedef ScalarField<CSpaceT>  RangeFieldT;
 
   TransferOp(
       const Teuchos::RCP<const FSpaceT>& fSpace,

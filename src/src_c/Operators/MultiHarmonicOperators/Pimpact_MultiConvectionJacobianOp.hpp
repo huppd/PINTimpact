@@ -17,10 +17,12 @@ namespace Pimpact {
 
 
 /// \ingroup MultiHarmonicOperator
-template<class SpaceT>
-class MultiHarmonicConvectionJacobianOp : private MultiHarmonicConvectionOp<SpaceT> {
+template<class ST>
+class MultiHarmonicConvectionJacobianOp : private MultiHarmonicConvectionOp<ST> {
 
 public:
+
+  typedef ST SpaceT;
 
   typedef typename MultiHarmonicConvectionOp<SpaceT>::DomainFieldT DomainFieldT;
   typedef typename MultiHarmonicConvectionOp<SpaceT>::RangeFieldT RangeFieldT;

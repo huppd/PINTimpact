@@ -22,10 +22,12 @@ namespace Pimpact {
 /// \brief Convection Operator for Velocity fields
 /// \ingroup BaseOperator
 /// \relates ConvectionSOp
-template<class SpaceT>
+template<class ST>
 class ConvectionVOp {
 
 public:
+
+  typedef ST SpaceT;
 
   typedef typename SpaceT::Scalar Scalar;
   typedef typename SpaceT::Ordinal Ordinal;

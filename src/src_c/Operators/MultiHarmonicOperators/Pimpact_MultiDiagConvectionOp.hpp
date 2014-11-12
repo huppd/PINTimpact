@@ -18,13 +18,15 @@ namespace Pimpact {
 
 
 /// \ingroup MultiHarmonicOperator
-template<class SpaceT>
+template<class ST>
 class MultiDiagConvectionJacobianOp {
 
-  typedef typename SpaceT::Scalar Scalar;
-  typedef typename SpaceT::Ordinal Ordinal;
+  typedef typename ST::Scalar Scalar;
+  typedef typename ST::Ordinal Ordinal;
 
 public:
+
+  typedef ST SpaceT;
 
   typedef MultiHarmonicField< VectorField<SpaceT> >  DomainFieldT;
   typedef MultiHarmonicField< VectorField<SpaceT> >  RangeFieldT;

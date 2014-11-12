@@ -10,7 +10,7 @@
 #include "BelosTypes.hpp"
 
 #include "Pimpact_Types.hpp"
-#include "Pimpact_Space.hpp"
+//#include "Pimpact_Space.hpp"
 
 #include "Pimpact_extern_ScalarField.hpp"
 
@@ -26,6 +26,7 @@ namespace Pimpact {
 /// vector for a scalar field, e.g.: pressure,
 /// \note all indexing is done in Fortran
 /// \ingroup Field
+/// \todo think about using Teuchos::ArrayRCP instead of Scalar* should make delete
 template<class SpaceType>
 class ScalarField : private AbstractField< SpaceType > {
 

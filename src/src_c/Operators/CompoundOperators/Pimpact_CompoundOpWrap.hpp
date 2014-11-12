@@ -14,10 +14,17 @@ namespace Pimpact {
 template<class OpV2V,class OpS2V, class OpV2S>
 class CompoundOpWrap {
 
-protected:
+public:
 
   typedef typename OpV2V::DomainFieldT  VF;
   typedef typename OpS2V::DomainFieldT  SF;
+
+  typedef CompoundField<VF,SF>  DomainFieldT;
+  typedef CompoundField<VF,SF>  RangeFieldT;
+
+  typedef typename VF::SpaceT SpaceT;
+
+protected:
 
   Teuchos::RCP<VF> temp_;
 
@@ -26,9 +33,6 @@ protected:
   Teuchos::RCP<OpV2S> opV2S_;
 
 public:
-
-  typedef CompoundField<VF,SF>  DomainFieldT;
-  typedef CompoundField<VF,SF>  RangeFieldT;
 
   CompoundOpWrap(
       const Teuchos::RCP<VF> temp,

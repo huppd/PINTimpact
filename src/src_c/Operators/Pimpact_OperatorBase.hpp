@@ -19,6 +19,8 @@ public:
   typedef DomainField DomainFieldT;
   typedef RangeField RangeFieldT;
 
+  typedef typename DomainFieldT::SpaceT SpaceT;
+
   virtual void apply( const DomainField& x, RangeField& y, Belos::ETrans trans=Belos::NOTRANS ) const {} ;
 
   virtual void assignField( const DomainField& mv ) {};
@@ -32,10 +34,19 @@ public:
 
 template<class Op>
 class OperatorPimpl : public virtual OperatorBase<typename Op::DomainFieldT, typename Op::RangeFieldT> {
-  Teuchos::RCP<Op> opm_;
+
 public:
+
   typedef typename Op::DomainFieldT DomainFieldT;
   typedef typename Op::RangeFieldT RangeFieldT;
+
+  typedef typename DomainFieldT::SpaceT SpaceT;
+
+protected:
+
+  Teuchos::RCP<Op> opm_;
+
+public:
 
   OperatorPimpl( const Teuchos::RCP<Op>& opm ):opm_(opm) {};
 
@@ -52,9 +63,6 @@ public:
   virtual bool hasApplyTranspose() const {
     return( opm_->hasApplyTranspose() );
   };
-
-
-
 
   Teuchos::RCP<Op> getOperatorPtr() { return( opm_ ); }
 

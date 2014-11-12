@@ -36,11 +36,18 @@ extern "C" {
 
 /// \brief Divergence operator.
 /// \ingroup BaseOperator
-template<class SpaceT>
+template<class ST>
 class DivOp {
+
+public:
+
+  typedef ST SpaceT;
 
   typedef typename SpaceT::Scalar Scalar;
   typedef typename SpaceT::Ordinal Ordinal;
+
+  typedef VectorField<SpaceT>  DomainFieldT;
+  typedef ScalarField<SpaceT>  RangeFieldT;
 
 protected:
 
@@ -51,9 +58,6 @@ protected:
   TO c_;
 
 public:
-
-  typedef VectorField<SpaceT>  DomainFieldT;
-  typedef ScalarField<SpaceT>  RangeFieldT;
 
   DivOp( const Teuchos::RCP<const SpaceT>& space ):
     space_(space) {

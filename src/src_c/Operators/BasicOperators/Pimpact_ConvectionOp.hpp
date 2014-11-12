@@ -28,10 +28,13 @@ void OP_nonlinear(
 
 /// \ingroup BaseOperator
 /// \deprecated depends on an initialized IMPACT. But can be used to test consistency with new code use \c ConvectionVOp instead.
-template<class SpaceT>
+template<class ST>
 class ConvectionOp {
 
 public:
+
+  typedef ST SpaceT;
+
   typedef typename SpaceT::Scalar Scalar;
   typedef typename SpaceT::Ordinal Ordinal;
 

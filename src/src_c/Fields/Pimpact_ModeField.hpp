@@ -17,6 +17,7 @@
 
 
 
+#include"Teuchos_ArrayRCP.hpp"
 
 namespace Pimpact {
 
@@ -24,6 +25,8 @@ namespace Pimpact {
 /// \brief important basic Vector class
 /// vector for wrapping 2 fields into one mode
 /// \ingroup Field
+/// \todo SpaceT constructor
+/// \todo continous memory
 template<class Field>
 class ModeField : private AbstractField<typename Field::SpaceT> {
 

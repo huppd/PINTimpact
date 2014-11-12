@@ -43,10 +43,12 @@ void OP_bc_extrapolation( const int& m, double* phi );
 
 
 /// \ingroup BaseOperator
-template<class SpaceT>
+template<class ST>
 class GradOp {
 
 public:
+
+  typedef ST SpaceT;
 
   typedef typename SpaceT::Scalar Scalar;
   typedef typename SpaceT::Ordinal Ordinal;

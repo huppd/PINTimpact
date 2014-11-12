@@ -31,12 +31,21 @@ void OP_grad(
 
 
 /// \ingroup BaseOperator
-template<class SpaceT>
+template<class ST>
 class InterpolateS2V {
 
-protected:
+public:
+
+  typedef ST SpaceT;
+
   typedef typename SpaceT::Scalar Scalar;
   typedef typename SpaceT::Ordinal Ordinal;
+
+
+  typedef ScalarField<SpaceT>  DomainFieldT;
+  typedef ScalarField<SpaceT>  RangeFieldT;
+
+protected:
 
   typedef const Teuchos::Tuple<Scalar*,3> TO;
 
@@ -45,9 +54,6 @@ protected:
   TO c_;
 
 public:
-
-  typedef ScalarField<SpaceT>  DomainFieldT;
-  typedef ScalarField<SpaceT>  RangeFieldT;
 
   InterpolateS2V( const Teuchos::RCP<const SpaceT>& space):
     space_(space) {
