@@ -34,7 +34,6 @@ module cmod_operator
     public Helmholtz_pre_explicit ! TEST!!!
   
   
-  
 contains
   
   
@@ -165,27 +164,27 @@ contains
 
 
 
-    !> \brief applies gradient
-    !! to phi, which is a scalar field, and stores the grad in a vector field, the
-    !! boundary condtions for Dirichlet and Neumann are set to zero
-    !! \param[in] m direction in which gradient si calculated
-    !! \param[inout] phi ScalarField from which the gradient is taken
-    !! \param[out] grad gradient in m direction
-    !! \todo add parameterers:
-    !!    - N1,N2,N3,
-    !!    - b1L, b2L, b3L, b1U,b2U,b3U
-    !!    - bC1L, bC2L, bC3L, bC1U,bC2U,bC3U
-    !!    - S11,S21,S31,N11,N21,N31
-    !!    - S12,S22,S32,N12,N22,N32
-    !!    - S13,S23,S33,N13,N23,N33
-    !!    - S11B,S21B,S31B,N11B,N21B,N31B
-    !!    - S12B,S22B,S32B,N12B,N22B,N32B
-    !!    - S13B,S23B,S33B,N13B,N23B,N33B
-    !!    - dimens
-    !!    - cGp1, cGp2, cGp3
-    !!    - g1L,g2L,g3L
-    !!    - g1U,g2U,g3U
-    !! maybe extract setting BC to zero
+!    !> \brief applies gradient
+!    !! to phi, which is a scalar field, and stores the grad in a vector field, the
+!    !! boundary condtions for Dirichlet and Neumann are set to zero
+!    !! \param[in] m direction in which gradient si calculated
+!    !! \param[inout] phi ScalarField from which the gradient is taken
+!    !! \param[out] grad gradient in m direction
+!    !! \todo add parameterers:
+!    !!    - N1,N2,N3,
+!    !!    - b1L, b2L, b3L, b1U,b2U,b3U
+!    !!    - bC1L, bC2L, bC3L, bC1U,bC2U,bC3U
+!    !!    - S11,S21,S31,N11,N21,N31
+!    !!    - S12,S22,S32,N12,N22,N32
+!    !!    - S13,S23,S33,N13,N23,N33
+!    !!    - S11B,S21B,S31B,N11B,N21B,N31B
+!    !!    - S12B,S22B,S32B,N12B,N22B,N32B
+!    !!    - S13B,S23B,S33B,N13B,N23B,N33B
+!    !!    - dimens
+!    !!    - cGp1, cGp2, cGp3
+!    !!    - g1L,g2L,g3L
+!    !!    - g1U,g2U,g3U
+!    !! maybe extract setting BC to zero
 !    subroutine OP_grad(m,phi,grad) bind(c,name='OP_grad')
 !
 !        implicit none
@@ -465,15 +464,15 @@ contains
   
   
   
-    !>  \brief computes \f$ \mathrm{lap_m = mulI phi_m - mulL \Delta phi_m} \f$
-    !!
-    !! used for mod_rhs and for product_Helmholtz(so boundary conditions are included?)
-    !! \param[in] m dimension from one to three
-    !! \param[in] mulI factor which coresponds to the factor of the identity part
-    !! \param[in] mulL factor which coresponds to the factor of the laplace part
-    !! \param[inout] phi
-    !! \param[out] Lap
-    !! \todo parameters: bl,bu,N, SS,NN,dimens, cu11,cp11,cv22,cp22, cw33, cp33 ...
+!    !>  \brief computes \f$ \mathrm{lap_m = mulI phi_m - mulL \Delta phi_m} \f$
+!    !!
+!    !! used for mod_rhs and for product_Helmholtz(so boundary conditions are included?)
+!    !! \param[in] m dimension from one to three
+!    !! \param[in] mulI factor which coresponds to the factor of the identity part
+!    !! \param[in] mulL factor which coresponds to the factor of the laplace part
+!    !! \param[inout] phi
+!    !! \param[out] Lap
+!    !! \todo parameters: bl,bu,N, SS,NN,dimens, cu11,cp11,cv22,cp22, cw33, cp33 ...
 !    subroutine OP_helmholtz( m, mulI, mulL, phi, Lap ) bind (c,name='OP_helmholtz')
 !
 !        implicit none
@@ -613,7 +612,7 @@ contains
 !
 
   
-     !>  \brief computes \f$ \mathrm{lap_m = mulI phi_m - mulL \Delta phi_m} \f$
+    !>  \brief computes \f$ \mathrm{lap_m = mulI phi_m - mulL \Delta phi_m} \f$
     !!
     !! used for mod_rhs and for product_Helmholtz(so boundary conditions are included?)
     !! \param[in] m dimension from one to three
@@ -621,6 +620,7 @@ contains
     !! \param[in] mulL factor which coresponds to the factor of the laplace part
     !! \param[inout] phi
     !! \param[out] Lap
+    !! \deprecated
     subroutine OP_innerhelmholtz(    &
         m,    &
         SS,   &
@@ -768,11 +768,7 @@ contains
     !>  \brief computes \f$ \mathrm{lap_m = mulI phi_m - mulL \Delta phi_m} \f$
     !!
     !! used for mod_rhs and for product_Helmholtz(so boundary conditions are included?)
-    !! \param[in] m dimension from one to three
-    !! \param[in] mulI factor which coresponds to the factor of the identity part
-    !! \param[in] mulL factor which coresponds to the factor of the laplace part
-    !! \param[inout] phi
-    !! \param[out] Lap
+    !! \deprecated
     subroutine OP_HelmholtzGetRowEntries(    &
         m,             &
         SS,            &
@@ -1127,15 +1123,19 @@ contains
 
     end subroutine OP_HelmholtzGetRowEntries
 
+
+
     !>  \brief computes \f$ \mathrm{lap_m = mulI phiI_m - mulL \Delta phiL_m} \f$
     !!
     !! \param[in] dimens dimension 2 or 3
-    !! \param[in] N local amount of
+    !! \param[in] N local amount of grid points
     !! \param[in] m dimension from one to three
     !! \param[in] mulI factor which coresponds to the factor of the identity part
     !! \param[in] mulL factor which coresponds to the factor of the laplace part
-    !! \param[inout] phi
+    !! \param[in] phiI
+    !! \param[in] phiL
     !! \param[out] Lap
+    !! \todo shoudl include stencil from PIMP, move to folder src_f
     subroutine OP_DtHelmholtz(   &
         dimens,                 &
         N,                      &
@@ -1145,26 +1145,25 @@ contains
         mulL,                   &
         phiI,                   &
         phiL,                   &
-        !    Lapc,                   &
         Lap ) bind (c,name='OP_DtHelmholtz')
 
         implicit none
 
-        integer(c_int), intent(in)    ::  dimens
+        integer(c_int), intent(in)   ::  dimens
 
-        integer(c_int), intent(in)    ::  N(3)
+        integer(c_int), intent(in)   ::  N(3)
 
-        integer(c_int), intent(in)    ::  bL(3)
-        integer(c_int), intent(in)    ::  bU(3)
+        integer(c_int), intent(in)   ::  bL(3)
+        integer(c_int), intent(in)   ::  bU(3)
 
-        integer(c_int), intent(in   ) ::  m
-        real(c_double), intent(in   ) ::  mulI
-        real(c_double), intent(in   ) ::  mulL
+        integer(c_int), intent(in   )::  m
+        real(c_double), intent(in   )::  mulI
+        real(c_double), intent(in   )::  mulL
 
-        real(c_double), intent(inout) ::  phiI(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double), intent(inout) ::  phiL(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double), intent(inout)::  phiI(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double), intent(inout)::  phiL(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-        real(c_double),  intent(out)  ::  Lap (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double), intent(out)  ::  Lap (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
         integer                ::  i, ii
         integer                ::  j, jj
@@ -1304,12 +1303,6 @@ contains
 
 
     !> \brief computes nonlinear terms.
-    !! \todo:
-    !!    - (parameter in dimension)
-    !!    - parameter in work123
-    !!    - (parameter2 in work123)
-    !!    - exchange vel/work123
-    !!    - interpolate_vel
     !!
     !! first interpolates worki to pp, then \f$\partial_i\f$ \c vel then
     !! \f[ \mathrm{nl = pp*\partial_i vel}\f]
@@ -1317,7 +1310,7 @@ contains
     !!         ersetzt werden (beachte aber Addition von nl!)
     !! \test umbenennen in convection ... (?)
     !! \relates Pimpact::Nonlinear
-    !! \todo extract interpolate vel
+    !! \deprecated
     subroutine OP_nonlinear(   &
         phi1U,phi1V,phi1W,  &
         phi2U,phi2V,phi2W,  &
@@ -1807,6 +1800,7 @@ contains
     !! \param[in] m dimension
     !! \param[inout] phi input field
     !! \param[inout] inter output field
+    !! \deprecated
     subroutine interpolate2_pre_vel(m,phi,inter)
 
         implicit none
@@ -1879,6 +1873,7 @@ contains
     !> \brief interpolates velocity to pressure grid
     !!
     !! Wie interpolate_vel_pre, allerdings mit fixen Index-Limiten (ohne Rand)
+    !! \deprecated
     subroutine interpolate2_vel_pre(m,phi,inter)
 
         implicit none

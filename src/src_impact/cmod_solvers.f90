@@ -45,14 +45,7 @@ contains
   
     !> \brief solves Helmholtz probelm with IMPACT bicg+multigrid
     !!
-    !! \param m direction
-    !! \param epsU tolerance
-    !! \param n_it_max number of iterations
-    !! \param init_yes init starting vector with zero
-    !! \param bb right hand side
-    !! \param phi solution
-    !! \param quiet_yes1
-    !! \param quiet_yes2
+    !! \deprecated
     subroutine csolve_Helmholtz( &
         m,                      &
         mulL,                   &
@@ -113,7 +106,7 @@ contains
   
     !> \brief heavily overloaded fortran interface for GeometricMultiGrid v-solver
     !!
-    !! \param[in] problem_type 1: Helmholtz, 3: conc Helmholtz, 2: divGrad, 4: divGrad_trans, 5: divgrad?
+    !! \deprecated
     subroutine cmultigridV( &
         m,                  &
         mulL,               &
@@ -277,6 +270,7 @@ contains
   
   
   
+    !> \deprecated
     subroutine cmultigridF(init_yes,gstart,bb,phi,problem_type)
   
         implicit none
@@ -403,6 +397,7 @@ contains
   
 
 
+    !> \deprecated
     subroutine clevel_pressure( &
         phi ) bind ( c, name='SF_level' )
 

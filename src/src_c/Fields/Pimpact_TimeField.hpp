@@ -161,7 +161,7 @@ public:
 
   /// \brief returns the length of Field.
   ///
-  /// \param nox_vec if \c TimeField is used for NOX the Vector length is
+  /// \param noxVec if \c TimeField is used for NOX the Vector length is
   /// considered for all Fields
   Ordinal getLength( bool noxVec=true ) const {
     return( space()->nGlo()[3]*mfs_[0]->getLength(noxVec) );
@@ -434,6 +434,8 @@ public:
 
 /// \brief factory for \c TimeField
 /// \relates TimeField
+/// \todo substitue
+/// \deprecated
 template<class FieldT, class SpaceT>
 Teuchos::RCP< TimeField<FieldT> >
 createTimeField( const Teuchos::RCP<const SpaceT>& space ) {

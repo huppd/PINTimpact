@@ -18,6 +18,17 @@
 namespace {
 
 
+
+typedef double S;
+typedef int O;
+
+typedef typename Pimpact::Space<S,O,3,4> SpaceT;
+typedef typename Pimpact::ScalarField<SpaceT> SF;
+typedef typename Pimpact::VectorField<SpaceT> VF;
+typedef typename Pimpact::ModeField<SF>       MSF;
+typedef typename Pimpact::ModeField<VF>       MVF;
+
+
 bool testMpi = true;
 double eps = 1e-6;
 int domain = 1;
@@ -658,7 +669,7 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, constructor ) {
   auto pc = Pimpact::createScalarField(space);
   auto ps = Pimpact::createScalarField(space);
 
-  auto vel = Pimpact::createModeField( pc, ps );
+  auto vel = Pimpact::create<MSF>( space );
 
   auto mv = Pimpact::createMultiField(*vel,10);
 
@@ -679,7 +690,7 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, TwoNorm_and_init ) {
   auto pc = Pimpact::createScalarField(space);
   auto ps = Pimpact::createScalarField(space);
 
-  auto vel = Pimpact::createModeField( pc, ps );
+  auto vel = Pimpact::create<MSF>( space );
 
   auto mv = Pimpact::createMultiField(*vel,10);
 
@@ -710,7 +721,7 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, clone ) {
   auto pc = Pimpact::createScalarField(space);
   auto ps = Pimpact::createScalarField(space);
 
-  auto vel = Pimpact::createModeField( pc, ps );
+  auto vel = Pimpact::create<MSF>( space );
 
   auto mv = Pimpact::createMultiField( *vel, 1 );
 
@@ -741,7 +752,7 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, CloneCopy ) {
   auto pc = Pimpact::createScalarField(space);
   auto ps = Pimpact::createScalarField(space);
 
-  auto vel = Pimpact::createModeField( pc, ps );
+  auto vel = Pimpact::create<MSF>( space );
 
   auto mv = Pimpact::createMultiField(*vel,10);
 
@@ -780,7 +791,7 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, CloneCopy2 ) {
   auto pc = Pimpact::createScalarField(space);
   auto ps = Pimpact::createScalarField(space);
 
-  auto vel = Pimpact::createModeField( pc, ps );
+  auto vel = Pimpact::create<MSF>( space );
 
   auto mv = Pimpact::createMultiField(*vel,10);
 
@@ -825,7 +836,7 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, CloneCopy3 ) {
   auto pc = Pimpact::createScalarField(space);
   auto ps = Pimpact::createScalarField(space);
 
-  auto vel = Pimpact::createModeField( pc, ps );
+  auto vel = Pimpact::create<MSF>( space );
 
   auto mv1 = Pimpact::createMultiField(*vel,10);
 
@@ -868,7 +879,7 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, CloneViewNonConst1 ) {
   auto pc = Pimpact::createScalarField(space);
   auto ps = Pimpact::createScalarField(space);
 
-  auto vel = Pimpact::createModeField( pc, ps );
+  auto vel = Pimpact::create<MSF>( space );
 
   auto mv1 = Pimpact::createMultiField(*vel,10);
 
@@ -916,7 +927,7 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, CloneViewNonConst2 ) {
   auto pc = Pimpact::createScalarField(space);
   auto ps = Pimpact::createScalarField(space);
 
-  auto vel = Pimpact::createModeField( pc, ps );
+  auto vel = Pimpact::create<MSF>( space );
 
   auto mv1 = Pimpact::createMultiField(*vel,10);
 
@@ -961,7 +972,7 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, CloneView1 ) {
   auto pc = Pimpact::createScalarField(space);
   auto ps = Pimpact::createScalarField(space);
 
-  auto vel = Pimpact::createModeField( pc, ps );
+  auto vel = Pimpact::create<MSF>( space );
 
   auto mv1 = Pimpact::createMultiField(*vel,10);
 
@@ -1009,7 +1020,7 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, CloneViewt2 ) {
   auto pc = Pimpact::createScalarField(space);
   auto ps = Pimpact::createScalarField(space);
 
-  auto vel = Pimpact::createModeField( pc, ps );
+  auto vel = Pimpact::create<MSF>( space );
 
   auto mv1 = Pimpact::createMultiField(*vel,10);
 
@@ -1055,7 +1066,7 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, TimesMatAdd ) {
   auto pc = Pimpact::createScalarField(space);
   auto ps = Pimpact::createScalarField(space);
 
-  auto vel = Pimpact::createModeField( pc, ps );
+  auto vel = Pimpact::create<MSF>( space );
 
   auto mv1 = Pimpact::createMultiField(*vel,10);
 
@@ -1152,7 +1163,7 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, add ) {
   auto pc = Pimpact::createScalarField(space);
   auto ps = Pimpact::createScalarField(space);
 
-  auto vel = Pimpact::createModeField( pc, ps );
+  auto vel = Pimpact::create<MSF>( space );
 
   auto mv1 = Pimpact::createMultiField(*vel,10);
 
@@ -1226,7 +1237,7 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, dot ) {
   auto pc = Pimpact::createScalarField(space);
   auto ps = Pimpact::createScalarField(space);
 
-  auto vel = Pimpact::createModeField( pc, ps );
+  auto vel = Pimpact::create<MSF>( space );
 
   auto mv1 = Pimpact::createMultiField(*vel,10);
 
@@ -1288,7 +1299,7 @@ TEUCHOS_UNIT_TEST( MultiFieldScalarMode, Trans ) {
   auto pc = Pimpact::createScalarField(space);
   auto ps = Pimpact::createScalarField(space);
 
-  auto vel = Pimpact::createModeField( pc, ps );
+  auto vel = Pimpact::create<MSF>( space );
 
   auto mv1 = Pimpact::createMultiField(*vel,10);
 
@@ -1347,7 +1358,7 @@ TEUCHOS_UNIT_TEST( MultiFieldVector, constructor ) {
   auto space = Pimpact::createSpace( pl, false );
 
 
-  auto vel = Pimpact::createVectorField(space);
+  auto vel = Pimpact::create<Pimpact::VectorField>(space);
 
   auto mv = Pimpact::createMultiField(*vel,10);
 
@@ -1367,7 +1378,7 @@ TEUCHOS_UNIT_TEST( MultiFieldVector, TwoNorm_and_init ) {
   auto space = Pimpact::createSpace( pl, false );
 
 
-  auto vel = Pimpact::createVectorField(space);
+  auto vel = Pimpact::create<Pimpact::VectorField>(space);
 
   auto mv = Pimpact::createMultiField(*vel,10);
 
@@ -1396,7 +1407,7 @@ TEUCHOS_UNIT_TEST( MultiFieldVector, clone ) {
   auto space = Pimpact::createSpace( pl, false );
 
 
-  auto vel = Pimpact::createVectorField(space);
+  auto vel = Pimpact::create<Pimpact::VectorField>(space);
 
   auto mv = Pimpact::createMultiField(*vel,1);
 
@@ -1424,7 +1435,7 @@ TEUCHOS_UNIT_TEST( MultiFieldVector, CloneCopy ) {
   auto space = Pimpact::createSpace( pl, false );
 
 
-  auto vel = Pimpact::createVectorField(space);
+  auto vel = Pimpact::create<Pimpact::VectorField>(space);
 
   auto mv = Pimpact::createMultiField(*vel,10);
 
@@ -1459,7 +1470,7 @@ TEUCHOS_UNIT_TEST( MultiFieldVector, CloneCopy2 ) {
 
   auto space = Pimpact::createSpace( pl, false );
 
-  auto vel = Pimpact::createVectorField(space);
+  auto vel = Pimpact::create<Pimpact::VectorField>(space);
 
   auto mv = Pimpact::createMultiField(*vel,10);
 
@@ -1500,7 +1511,7 @@ TEUCHOS_UNIT_TEST( MultiFieldVector, CloneCopy3 ) {
 
   auto space = Pimpact::createSpace( pl, false );
 
-  auto vel = Pimpact::createVectorField(space);
+  auto vel = Pimpact::create<Pimpact::VectorField>(space);
 
   auto mv1 = Pimpact::createMultiField(*vel,10);
 
@@ -1540,7 +1551,7 @@ TEUCHOS_UNIT_TEST( MultiFieldVector, CloneViewNonConst1 ) {
   auto space = Pimpact::createSpace( pl, false );
 
 
-  auto vel = Pimpact::createVectorField(space);
+  auto vel = Pimpact::create<Pimpact::VectorField>(space);
 
   auto mv1 = Pimpact::createMultiField(*vel,10);
 
@@ -1586,7 +1597,7 @@ TEUCHOS_UNIT_TEST( MultiFieldVector, CloneViewNonConst2 ) {
   auto space = Pimpact::createSpace( pl, false );
 
 
-  auto vel = Pimpact::createVectorField(space);
+  auto vel = Pimpact::create<Pimpact::VectorField>(space);
 
   auto mv1 = Pimpact::createMultiField(*vel,10);
 
@@ -1628,7 +1639,7 @@ TEUCHOS_UNIT_TEST( MultiFieldVector, CloneView1 ) {
   auto space = Pimpact::createSpace( pl, false );
 
 
-  auto vel = Pimpact::createVectorField(space);
+  auto vel = Pimpact::create<Pimpact::VectorField>(space);
 
   auto mv1 = Pimpact::createMultiField(*vel,10);
 
@@ -1675,7 +1686,7 @@ TEUCHOS_UNIT_TEST( MultiFieldVector, CloneViewt2 ) {
   auto space = Pimpact::createSpace( pl, false );
 
 
-  auto vel = Pimpact::createVectorField(space);
+  auto vel = Pimpact::create<Pimpact::VectorField>(space);
 
   auto mv1 = Pimpact::createMultiField(*vel,10);
 
@@ -1718,7 +1729,7 @@ TEUCHOS_UNIT_TEST( MultiFieldVector, TimesMatAdd ) {
   auto space = Pimpact::createSpace( pl, false );
 
 
-  auto vel = Pimpact::createVectorField(space);
+  auto vel = Pimpact::create<Pimpact::VectorField>(space);
 
   auto mv1 = Pimpact::createMultiField(*vel,10);
 
@@ -1801,7 +1812,7 @@ TEUCHOS_UNIT_TEST( MultiFieldVector, add ) {
   auto space = Pimpact::createSpace( pl, false );
 
 
-  auto vel = Pimpact::createVectorField(space);
+  auto vel = Pimpact::create<Pimpact::VectorField>(space);
 
   auto mv1 = Pimpact::createMultiField(*vel,10);
 
@@ -1874,7 +1885,7 @@ TEUCHOS_UNIT_TEST( MultiFieldVector, dot ) {
   auto space = Pimpact::createSpace( pl, false );
 
 
-  auto vel = Pimpact::createVectorField(space);
+  auto vel = Pimpact::create<Pimpact::VectorField>(space);
 
   auto mv1 = Pimpact::createMultiField(*vel,10);
 
@@ -1939,7 +1950,7 @@ TEUCHOS_UNIT_TEST( MultiFieldVector, Trans ) {
   auto space = Pimpact::createSpace( pl, false );
 
 
-  auto vel = Pimpact::createVectorField(space);
+  auto vel = Pimpact::create<Pimpact::VectorField>(space);
 
   auto mv1 = Pimpact::createMultiField(*vel,10);
 
@@ -2014,10 +2025,10 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, constructor ) {
   auto space = Pimpact::createSpace( pl, false );
 
 
-  auto velc = Pimpact::createVectorField(space);
-  auto vels = Pimpact::createVectorField(space);
+  auto velc = Pimpact::create<Pimpact::VectorField>(space);
+  auto vels = Pimpact::create<Pimpact::VectorField>(space);
 
-  auto vel = Pimpact::createModeField( velc, vels );
+  auto vel = Pimpact::create<MVF>( space );
 
   auto mv = Pimpact::createMultiField(*vel,10);
 
@@ -2035,10 +2046,10 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, TwoNorm_and_init ) {
   auto space = Pimpact::createSpace( pl, false );
 
 
-  auto velc = Pimpact::createVectorField(space);
-  auto vels = Pimpact::createVectorField(space);
+  auto velc = Pimpact::create<Pimpact::VectorField>(space);
+  auto vels = Pimpact::create<Pimpact::VectorField>(space);
 
-  auto vel = Pimpact::createModeField( velc, vels );
+  auto vel = Pimpact::create<MVF>( space );
 
   auto mv = Pimpact::createMultiField(*vel,10);
 
@@ -2067,10 +2078,10 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, clone ) {
   auto space = Pimpact::createSpace( pl, false );
 
 
-  auto velc = Pimpact::createVectorField(space);
-  auto vels = Pimpact::createVectorField(space);
+  auto velc = Pimpact::create<Pimpact::VectorField>(space);
+  auto vels = Pimpact::create<Pimpact::VectorField>(space);
 
-  auto vel = Pimpact::createModeField( velc, vels );
+  auto vel = Pimpact::create<MVF>( space );
 
   auto mv = Pimpact::createMultiField(*vel,1);
 
@@ -2100,10 +2111,10 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, CloneCopy ) {
   auto space = Pimpact::createSpace( pl, false );
 
 
-  auto velc = Pimpact::createVectorField(space);
-  auto vels = Pimpact::createVectorField(space );
+  auto velc = Pimpact::create<Pimpact::VectorField>(space);
+  auto vels = Pimpact::create<Pimpact::VectorField>(space );
 
-  auto vel = Pimpact::createModeField( velc, vels );
+  auto vel = Pimpact::create<MVF>( space );
 
   auto mv = Pimpact::createMultiField(*vel,10);
 
@@ -2140,10 +2151,10 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, CloneCopy2 ) {
   auto space = Pimpact::createSpace( pl, false );
 
 
-  auto velc = Pimpact::createVectorField(space );
-  auto vels = Pimpact::createVectorField(space);
+  auto velc = Pimpact::create<Pimpact::VectorField>(space );
+  auto vels = Pimpact::create<Pimpact::VectorField>(space);
 
-  auto vel = Pimpact::createModeField( velc, vels );
+  auto vel = Pimpact::create<MVF>( space );
 
   auto mv = Pimpact::createMultiField(*vel,10);
 
@@ -2186,10 +2197,10 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, CloneCopy3 ) {
   auto space = Pimpact::createSpace( pl, false );
 
 
-  auto velc = Pimpact::createVectorField(space);
-  auto vels = Pimpact::createVectorField(space);
+  auto velc = Pimpact::create<Pimpact::VectorField>(space);
+  auto vels = Pimpact::create<Pimpact::VectorField>(space);
 
-  auto vel = Pimpact::createModeField( velc, vels );
+  auto vel = Pimpact::create<MVF>( space );
 
   auto mv1 = Pimpact::createMultiField(*vel,10);
 
@@ -2230,10 +2241,10 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, CloneViewNonConst1 ) {
   auto space = Pimpact::createSpace( pl, false );
 
 
-  auto velc = Pimpact::createVectorField(space);
-  auto vels = Pimpact::createVectorField(space);
+  auto velc = Pimpact::create<Pimpact::VectorField>(space);
+  auto vels = Pimpact::create<Pimpact::VectorField>(space);
 
-  auto vel = Pimpact::createModeField( velc, vels );
+  auto vel = Pimpact::create<MVF>( space );
 
   auto mv1 = Pimpact::createMultiField(*vel,10);
 
@@ -2279,10 +2290,10 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, CloneViewNonConst2 ) {
   auto space = Pimpact::createSpace( pl, false );
 
 
-  auto velc = Pimpact::createVectorField(space );
-  auto vels = Pimpact::createVectorField(space);
+  auto velc = Pimpact::create<Pimpact::VectorField>(space );
+  auto vels = Pimpact::create<Pimpact::VectorField>(space);
 
-  auto vel = Pimpact::createModeField( velc, vels );
+  auto vel = Pimpact::create<MVF>( space );
 
   auto mv1 = Pimpact::createMultiField(*vel,10);
 
@@ -2325,10 +2336,10 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, CloneView1 ) {
   auto space = Pimpact::createSpace( pl, false );
 
 
-  auto velc = Pimpact::createVectorField(space);
-  auto vels = Pimpact::createVectorField(space);
+  auto velc = Pimpact::create<Pimpact::VectorField>(space);
+  auto vels = Pimpact::create<Pimpact::VectorField>(space);
 
-  auto vel = Pimpact::createModeField( velc, vels );
+  auto vel = Pimpact::create<MVF>( space );
 
   auto mv1 = Pimpact::createMultiField(*vel,10);
 
@@ -2374,10 +2385,10 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, CloneViewt2 ) {
   auto space = Pimpact::createSpace( pl, false );
 
 
-  auto velc = Pimpact::createVectorField(space);
-  auto vels = Pimpact::createVectorField(space);
+  auto velc = Pimpact::create<Pimpact::VectorField>(space);
+  auto vels = Pimpact::create<Pimpact::VectorField>(space);
 
-  auto vel = Pimpact::createModeField( velc, vels );
+  auto vel = Pimpact::create<MVF>( space );
 
   auto mv1 = Pimpact::createMultiField(*vel,10);
 
@@ -2423,10 +2434,10 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, TimesMatAdd ) {
   auto space = Pimpact::createSpace( pl, false );
 
 
-  auto velc = Pimpact::createVectorField(space);
-  auto vels = Pimpact::createVectorField(space);
+  auto velc = Pimpact::create<Pimpact::VectorField>(space);
+  auto vels = Pimpact::create<Pimpact::VectorField>(space);
 
-  auto vel = Pimpact::createModeField( velc, vels );
+  auto vel = Pimpact::create<MVF>( space );
 
   auto mv1 = Pimpact::createMultiField(*vel,10);
 
@@ -2515,10 +2526,10 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, add ) {
   auto space = Pimpact::createSpace( pl, false );
 
 
-  auto velc = Pimpact::createVectorField( space );
-  auto vels = Pimpact::createVectorField( space );
+  auto velc = Pimpact::create<Pimpact::VectorField>( space );
+  auto vels = Pimpact::create<Pimpact::VectorField>( space );
 
-  auto vel = Pimpact::createModeField( velc, vels );
+  auto vel = Pimpact::create<MVF>( space );
 
   auto mv1 = Pimpact::createMultiField(*vel,10);
 
@@ -2591,10 +2602,10 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, dot ) {
   auto space = Pimpact::createSpace( pl, false );
 
 
-  auto velc = Pimpact::createVectorField( space );
-  auto vels = Pimpact::createVectorField( space );
+  auto velc = Pimpact::create<Pimpact::VectorField>( space );
+  auto vels = Pimpact::create<Pimpact::VectorField>( space );
 
-  auto vel = Pimpact::createModeField( velc, vels );
+  auto vel = Pimpact::create<MVF>( space );
 
   auto mv1 = Pimpact::createMultiField(*vel,10);
 
@@ -2655,10 +2666,10 @@ TEUCHOS_UNIT_TEST( MultiFieldVectorMode, Trans ) {
   auto space = Pimpact::createSpace( pl, false );
 
 
-  auto velc = Pimpact::createVectorField( space );
-  auto vels = Pimpact::createVectorField( space );
+  auto velc = Pimpact::create<Pimpact::VectorField>( space );
+  auto vels = Pimpact::create<Pimpact::VectorField>( space );
 
-  auto vel = Pimpact::createModeField( velc, vels );
+  auto vel = Pimpact::create<MVF>( space );
 
   auto mv1 = Pimpact::createMultiField(*vel,10);
 

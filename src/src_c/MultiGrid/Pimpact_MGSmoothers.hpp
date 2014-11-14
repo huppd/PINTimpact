@@ -14,6 +14,7 @@
 namespace Pimpact {
 
 
+/// \ingroup MG
 /// \todo add constructro from FOperator
 /// \todo generalize MGContainer, specify to Fields and Operators
 template<class MGSpacesT, template<class> class ST>
@@ -29,7 +30,7 @@ protected:
 
   template< template<class> class STT, class MGOpsT >
   friend
-  Teuchos::RCP< MGSmoothers<typename MGOpsT::MGSpacesT,STT> >
+  Teuchos::RCP<const MGSmoothers<typename MGOpsT::MGSpacesT,STT> >
   createMGSmoothers( const Teuchos::RCP<const MGOpsT>& mgOps, Teuchos::RCP<Teuchos::ParameterList> pl );
 
   Teuchos::RCP<const MGSpacesT> mgSpaces_;
@@ -64,7 +65,7 @@ public:
 
 /// \relates MGSmoothers
 template< template<class> class SmootherT, class MGOperatorsT >
-Teuchos::RCP< MGSmoothers<typename MGOperatorsT::MGSpacesT, SmootherT> >
+Teuchos::RCP<const MGSmoothers<typename MGOperatorsT::MGSpacesT, SmootherT> >
 createMGSmoothers(
     const Teuchos::RCP<const MGOperatorsT>& mgOperators,
     Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ) {

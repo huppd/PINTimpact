@@ -15,6 +15,7 @@ namespace Pimpact {
 
 
 
+/// \ingroup MG
 template<class MGSpacesT, template<class> class FieldT>
 class MGFields {
 
@@ -28,17 +29,19 @@ public:
 
 protected:
 
-  template<class MGSpacesTT, template<class> class FieldTT>
-  friend
-  Teuchos::RCP< MGFields<MGSpacesTT,FieldTT> >
-  createMGFields(
-      const Teuchos::RCP<const MGSpacesTT>& space,
-      EField type=EField::S  );
+//  template< template<class> class FieldTT, class MGSpacesTT >
+//  friend
+//  Teuchos::RCP< MGFields<MGSpacesTT,FieldTT> >
+//  createMGFields(
+//      const Teuchos::RCP<const MGSpacesTT>& space,
+//      EField type=EField::S  );
 
   Teuchos::RCP<const MGSpacesT> mgSpaces_;
 
   Teuchos::RCP< FFieldT >                fField_;
   std::vector< Teuchos::RCP<CFieldT> >  cFields_;
+
+public:
 
   MGFields( const Teuchos::RCP<const MGSpacesT>& mgSpaces,
       EField type=EField::S  ):
@@ -67,7 +70,7 @@ public:
 
 
 /// \relates MGFields
-template<class MGSpacesT, template<class> class FieldT>
+template< template<class> class FieldT, class MGSpacesT >
 Teuchos::RCP< MGFields<MGSpacesT,FieldT> >
 createMGFields(
     const Teuchos::RCP<const MGSpacesT>& mgSpaces,

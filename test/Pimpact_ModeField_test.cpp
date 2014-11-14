@@ -18,6 +18,14 @@
 
 namespace {
 
+typedef double S;
+typedef int O;
+
+typedef typename Pimpact::Space<S,O,3,4> SpaceT;
+typedef typename Pimpact::ScalarField<SpaceT> SF;
+typedef typename Pimpact::VectorField<SpaceT> VF;
+typedef typename Pimpact::ModeField<SF>       MSF;
+typedef typename Pimpact::ModeField<VF>       MVF;
 
 bool testMpi = true;
 double eps = 1e-6;
@@ -49,10 +57,7 @@ TEUCHOS_UNIT_TEST( ScalarModeField, create_init_print ) {
 
   auto space = Pimpact::createSpace( pl, false );
 
-  auto pc = Pimpact::createScalarField( space );
-  auto ps = Pimpact::createScalarField( space );
-
-  auto vel = Pimpact::createModeField( pc, ps );
+  auto vel = Pimpact::create<MSF>( space );
 
   vel->init( space->rankST() );
 }
@@ -71,7 +76,7 @@ TEUCHOS_UNIT_TEST( ScalarModeField, InfNorm_and_init ) {
   auto pc = Pimpact::createScalarField( space );
   auto ps = Pimpact::createScalarField( space );
 
-  auto vel = Pimpact::createModeField( pc, ps );
+  auto vel = Pimpact::create<MSF>( space );
 
   double norm;
   // test different float values, assures that initial and norm work smoothly
@@ -108,7 +113,7 @@ TEUCHOS_UNIT_TEST( ScalarModeField, TwoNorm_and_init ) {
   auto pc = Pimpact::createScalarField( space );
   auto ps = Pimpact::createScalarField( space );
 
-  auto vel = Pimpact::createModeField( pc, ps );
+  auto vel = Pimpact::create<MSF>( space );
 
   double norm;
   int N = vel->getLength();
@@ -131,14 +136,8 @@ TEUCHOS_UNIT_TEST( ScalarModeField, dot ) {
 
   auto space = Pimpact::createSpace( pl, false );
 
-  auto p1c = Pimpact::createScalarField( space );
-  auto p1s = Pimpact::createScalarField( space );
-
-  auto p2c = Pimpact::createScalarField( space );
-  auto p2s = Pimpact::createScalarField( space );
-
-  auto vel1 = Pimpact::createModeField( p1c, p1s );
-  auto vel2 = Pimpact::createModeField( p2c, p2s );
+  auto vel1 = Pimpact::create<MSF>( space );
+  auto vel2 = Pimpact::create<MSF>( space );
 
   double dot;
 
@@ -181,7 +180,7 @@ TEUCHOS_UNIT_TEST( ScalarModeField, scale ) {
   auto pc = Pimpact::createScalarField( space );
   auto ps = Pimpact::createScalarField( space );
 
-  auto vel = Pimpact::createModeField( pc, ps );
+  auto vel = Pimpact::create<MSF>( space );
 
   int N = vel->getLength();
   double norm;
@@ -206,7 +205,7 @@ TEUCHOS_UNIT_TEST( ScalarModeField, random ) {
   auto pc = Pimpact::createScalarField( space );
   auto ps = Pimpact::createScalarField( space );
 
-  auto vel = Pimpact::createModeField( pc, ps );
+  auto vel = Pimpact::create<MSF>( space );
 
   int N = vel->getLength();
   double norm;
@@ -237,9 +236,9 @@ TEUCHOS_UNIT_TEST( ScalarModeField, add ) {
   auto p3c = Pimpact::createScalarField( space );
   auto p3s = Pimpact::createScalarField( space );
 
-  auto vel1 = Pimpact::createModeField( p1c, p1s );
-  auto vel2 = Pimpact::createModeField( p2c, p2s );
-  auto vel3 = Pimpact::createModeField( p3c, p3s );
+  auto vel1 = Pimpact::create<MSF>( space );
+  auto vel2 = Pimpact::create<MSF>( space );
+  auto vel3 = Pimpact::create<MSF>( space );
 
   TEST_EQUALITY( vel1->getLength(), vel2->getLength() )
   TEST_EQUALITY( vel2->getLength(), vel3->getLength() )
@@ -283,10 +282,7 @@ TEUCHOS_UNIT_TEST( ScalarModeField, write ) {
 
   auto space = Pimpact::createSpace( pl, false );
 
-  auto pc = Pimpact::createScalarField(space);
-  auto ps = Pimpact::createScalarField(space);
-
-  auto vel = Pimpact::createModeField( pc, ps );
+  auto vel = Pimpact::create<MSF>( space );
 
   vel->init( 1. );
   vel->write();
@@ -308,10 +304,10 @@ TEUCHOS_UNIT_TEST( VectorModeField, create_init_print ) {
 
   auto space = Pimpact::createSpace( pl, false );
 
-  auto velc = Pimpact::createVectorField(space);
-  auto vels = Pimpact::createVectorField(space);
+  auto velc = Pimpact::create<Pimpact::VectorField>(space);
+  auto vels = Pimpact::create<Pimpact::VectorField>(space);
 
-  auto um = Pimpact::createModeField( velc, vels );
+  auto um = Pimpact::create<MVF>( space );
 
   um->init();
 }
@@ -326,10 +322,10 @@ TEUCHOS_UNIT_TEST( VectorModeField, InfNorm_and_init ) {
 
   auto space = Pimpact::createSpace( pl, false );
 
-  auto velc = Pimpact::createVectorField(space);
-  auto vels = Pimpact::createVectorField(space);
+  auto velc = Pimpact::create<Pimpact::VectorField>(space);
+  auto vels = Pimpact::create<Pimpact::VectorField>(space);
 
-  auto um = Pimpact::createModeField( velc, vels );
+  auto um = Pimpact::create<MVF>( space );
 
   double norm;
   // test different float values, assures that initial and norm work smoothly
@@ -362,10 +358,10 @@ TEUCHOS_UNIT_TEST( VectorModeField, TwoNorm_and_init ) {
 
   auto space = Pimpact::createSpace( pl, false );
 
-  auto velc = Pimpact::createVectorField( space );
-  auto vels = Pimpact::createVectorField( space );
+  auto velc = Pimpact::create<Pimpact::VectorField>( space );
+  auto vels = Pimpact::create<Pimpact::VectorField>( space );
 
-  auto vel = Pimpact::createModeField( velc, vels );
+  auto vel = Pimpact::create<MVF>( space );
 
   double norm;
   int N = vel->getLength();
@@ -388,14 +384,9 @@ TEUCHOS_UNIT_TEST( VectorModeField, dot ) {
 
   auto space = Pimpact::createSpace( pl, false );
 
-  auto vel1c = Pimpact::createVectorField( space );
-  auto vel2c = Pimpact::createVectorField( space );
 
-  auto vel1s = Pimpact::createVectorField( space );
-  auto vel2s = Pimpact::createVectorField( space );
-
-  auto vel1 = Pimpact::createModeField( vel1c, vel1s );
-  auto vel2 = Pimpact::createModeField( vel2c, vel2s );
+  auto vel1 = Pimpact::create<MVF>( space );
+  auto vel2 = Pimpact::create<MVF>( space );
 
   double dot;
 
@@ -435,10 +426,10 @@ TEUCHOS_UNIT_TEST( VectorModeField, scale ) {
 
   auto space = Pimpact::createSpace( pl, false );
 
-  auto velc = Pimpact::createVectorField( space );
-  auto vels = Pimpact::createVectorField( space );
+  auto velc = Pimpact::create<Pimpact::VectorField>( space );
+  auto vels = Pimpact::create<Pimpact::VectorField>( space );
 
-  auto vel = Pimpact::createModeField( velc, vels );
+  auto vel = Pimpact::create<MVF>( space );
 
   int N = vel->getLength();
   double norm;
@@ -459,10 +450,10 @@ TEUCHOS_UNIT_TEST( VectorModeField, random ) {
 
   auto space = Pimpact::createSpace( pl, false );
 
-  auto velc = Pimpact::createVectorField( space );
-  auto vels = Pimpact::createVectorField( space );
+  auto velc = Pimpact::create<Pimpact::VectorField>( space );
+  auto vels = Pimpact::create<Pimpact::VectorField>( space );
 
-  auto vel = Pimpact::createModeField( velc, vels );
+  auto vel = Pimpact::create<MVF>( space );
 
   int N = vel->getLength();
   double norm;
@@ -483,17 +474,9 @@ TEUCHOS_UNIT_TEST( VectorModeField, add ) {
 
   auto space = Pimpact::createSpace( pl, false );
 
-  auto vel1c = Pimpact::createVectorField( space );
-  auto vel2c = Pimpact::createVectorField( space );
-  auto vel3c = Pimpact::createVectorField( space );
-
-  auto vel1s = Pimpact::createVectorField( space );
-  auto vel2s = Pimpact::createVectorField( space );
-  auto vel3s = Pimpact::createVectorField( space );
-
-  auto vel1 = Pimpact::createModeField( vel1c, vel1s );
-  auto vel2 = Pimpact::createModeField( vel2c, vel2s );
-  auto vel3 = Pimpact::createModeField( vel3c, vel3s );
+  auto vel1 = Pimpact::create<MVF>( space );
+  auto vel2 = Pimpact::create<MVF>( space );
+  auto vel3 = Pimpact::create<MVF>( space );
 
 
   TEST_EQUALITY( vel1->getLength(), vel2->getLength() )
@@ -539,10 +522,10 @@ TEUCHOS_UNIT_TEST( VectorModeField, write ) {
 
   auto space = Pimpact::createSpace( pl, false );
 
-  auto velc = Pimpact::createVectorField( space );
-  auto vels = Pimpact::createVectorField( space );
+  auto velc = Pimpact::create<Pimpact::VectorField>( space );
+  auto vels = Pimpact::create<Pimpact::VectorField>( space );
 
-  auto vel = Pimpact::createModeField( velc, vels );
+  auto vel = Pimpact::create<MVF>( space );
 
   vel->init( 1. );
   vel->write();

@@ -25,12 +25,12 @@ void OP_DtHelmholtz(
     const double& multL,
     double* const phiI,
     double* const phiL,
-    double* const Lap);
+    double* const Lap );
 }
 
 
 /// \ingroup ModeOperator
-/// \todo move HelmholtzOp to MultiDtHelmholtzOp(is not ModeOp)
+/// \todo move c_ from Helmholtz
 template<class ST>
 class DtLapOp {
 

@@ -19,7 +19,7 @@ contains
     !>  \brief computes \f$ \mathrm{lap_m = mulI phi_m - mulL \Delta phi_m} \f$
     !!
     !! used for mod_rhs and for product_Helmholtz(so boundary conditions are included?)
-    !! \param[in] m dimension from one to three
+    !! \param[in] dimens differentiation beween 2-d and 3-d
     !! \param[in] mulI factor which coresponds to the factor of the identity part
     !! \param[in] mulL factor which coresponds to the factor of the laplace part
     !! \param[inout] phi
@@ -52,8 +52,8 @@ contains
         real(c_double), intent(in)  :: mulI
         real(c_double), intent(in)  :: mulL
 
-        real(c_double), intent(in)  :: phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double), intent(out) :: lap (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double), intent(in)   :: phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double), intent(inout):: lap (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
   
         integer                ::  i, ii

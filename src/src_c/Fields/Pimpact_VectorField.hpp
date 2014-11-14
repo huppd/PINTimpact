@@ -12,8 +12,6 @@
 
 #include "Pimpact_Types.hpp"
 
-#include "Pimpact_Space.hpp"
-
 #include "Pimpact_extern_ScalarField.hpp"
 #include "Pimpact_extern_VectorField.hpp"
 
@@ -780,19 +778,8 @@ protected:
 
 
 
-/// \brief creates a vector field belonging to a \c Space
-/// \relates VectorField
-template<class SpaceT>
-Teuchos::RCP< VectorField<SpaceT> > createVectorField( const Teuchos::RCP<const SpaceT>& space ) {
-
-  return( Teuchos::rcp(
-      new VectorField<SpaceT>( space ) ) );
-
-}
-
-
-
 } // end of namespace Pimpact
+
 
 
 #endif // end of #ifndef PIMPACT_VECTORFIELD_HPP

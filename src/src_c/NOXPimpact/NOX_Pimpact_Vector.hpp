@@ -201,9 +201,6 @@ public:
   /// values are not copied into the vector). Note that there is <em>no
   /// assumption</em> that a vector created by ShapeCopy is initialized to zeros.
   /// \return Pointer to newly created vector or NULL if clone is not supported.
-  /// \todo implement
-  /// \warning only Deep copy is working
-  /// \todo fix schallow copy
   virtual Teuchos::RCP<NOX::Abstract::Vector>
   clone(NOX::CopyType type = NOX::DeepCopy) const {
     switch(type) {

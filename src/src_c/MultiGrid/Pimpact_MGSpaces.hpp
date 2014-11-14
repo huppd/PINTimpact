@@ -14,6 +14,7 @@ namespace Pimpact {
 
 
 /// \brief contains hierarchy of Spaces
+/// \ingroup MG
 /// \tparam FSpaceT \c Space type on finest level
 /// \tparam CSpaceT \c Space type on coarser levels allows to have tighter boundaries, less memory used, less comunication
 template<class FST, class CST>

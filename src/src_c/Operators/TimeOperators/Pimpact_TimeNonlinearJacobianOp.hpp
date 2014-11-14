@@ -50,7 +50,7 @@ public:
       const bool& isNewton=true ):
     u_( Teuchos::null ),
     isNewton_(isNewton),
-    temp_( createVectorField<SpaceT>(space) ),
+    temp_( create<Pimpact::VectorField>(space) ),
     op_( createConvectionVOp<SpaceT>(space) )
   {};
 

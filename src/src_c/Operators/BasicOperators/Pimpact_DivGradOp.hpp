@@ -22,7 +22,6 @@ namespace Pimpact{
 /// \brief "laplace" for pressure.
 /// \ingroup BaseOperator
 /// \todo not workin properly?
-/// \todo add temporary variable
 /// \warning does not hold test.
 template<class ST>
 class DivGradOp {
@@ -43,7 +42,7 @@ protected:
 public:
 
   DivGradOp( const Teuchos::RCP<const SpaceT>& space ):
-    temp_( createVectorField( space ) ),
+    temp_( create<Pimpact::VectorField>( space ) ),
     div_ ( createDivOp( space ) ),
     grad_( createGradOp( space ) ) {};
 
@@ -79,7 +78,8 @@ Teuchos::RCP< DivGradOp<SpaceT> > createDivGradOp(
     const Teuchos::RCP< GradOp<SpaceT> >& grad ) {
 
   return(
-      Teuchos::rcp( new DivGradOp<SpaceT>( temp, div, grad ) ) );
+      Teuchos::rcp( new DivGradOp<SpaceT>( temp, div, grad ) )
+  );
 
 }
 

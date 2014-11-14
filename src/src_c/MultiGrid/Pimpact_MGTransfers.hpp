@@ -14,6 +14,7 @@
 namespace Pimpact {
 
 
+/// \ingroup MG
 template<class MGSpacesT>
 class MGTransfers {
 

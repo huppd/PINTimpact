@@ -34,6 +34,10 @@ typedef double S;
 typedef int O;
 
 typedef typename Pimpact::Space<S,O,3,4> SpaceT;
+typedef typename Pimpact::ScalarField<SpaceT> SF;
+typedef typename Pimpact::VectorField<SpaceT> VF;
+typedef typename Pimpact::ModeField<SF>       MSF;
+typedef typename Pimpact::ModeField<VF>       MVF;
 
 
 TEUCHOS_STATIC_SETUP() {
@@ -82,7 +86,7 @@ TEUCHOS_UNIT_TEST( AelosPimpactMV, MultiFieldVector ) {
 
   auto space = Pimpact::createSpace( pl );
 
-  auto vel = Pimpact::createVectorField(space);
+  auto vel = Pimpact::create<Pimpact::VectorField>(space);
 
   auto mvec = Pimpact::createMultiField( *vel, 5 );
 
@@ -103,12 +107,13 @@ TEUCHOS_UNIT_TEST( AelosPimpactMV, MultiFieldScalarMode ) {
 
   auto space = Pimpact::createSpace( pl );
 
-  auto pc = Pimpact::createScalarField(space);
-  auto ps = Pimpact::createScalarField(space);
+//  auto pc = Pimpact::createScalarField(space);
+//  auto ps = Pimpact::createScalarField(space);
+//
+//  auto vel = Pimpact::createModeField( pc, ps );
+  auto vel = Pimpact::create<MSF>( space );
 
-  auto vel = Pimpact::createModeField( pc, ps );
-
-  auto mvec = Pimpact::createMultiField<Pimpact::ModeField<Pimpact::ScalarField<SpaceT> > >( *vel, 5 );
+  auto mvec = Pimpact::createMultiField( *vel, 5 );
 
   // Create an output manager to handle the I/O from the solver
   Teuchos::RCP<Belos::OutputManager<S> > MyOM =
@@ -129,10 +134,7 @@ TEUCHOS_UNIT_TEST( AelosPimpactMV, MultiFieldVectorMode ) {
 
   auto space = Pimpact::createSpace( pl );
 
-  auto velc = Pimpact::createVectorField(space);
-  auto vels = Pimpact::createVectorField(space);
-
-  auto vel = Pimpact::createModeField( velc, vels );
+  auto vel = Pimpact::create<MVF>( space );
 
   auto mvec = Pimpact::createMultiField<Pimpact::ModeField<Pimpact::VectorField<SpaceT> > >( *vel, 5 );
 
@@ -159,7 +161,7 @@ TEUCHOS_UNIT_TEST( AelosPimpactMV, MultiFieldCompound ) {
 
   auto space = Pimpact::createSpace( pl );
 
-  auto vel = Pimpact::createVectorField( space );
+  auto vel = Pimpact::create<Pimpact::VectorField>( space );
   auto sca = Pimpact::createScalarField( space );
 
   auto q = Pimpact::createCompoundField( vel, sca );
@@ -189,15 +191,9 @@ TEUCHOS_UNIT_TEST( AelosPimpactMV, MultiFieldCompoundMode ) {
 
   auto space = Pimpact::createSpace( pl );
 
-  auto velc = Pimpact::createVectorField(space);
-  auto vels = Pimpact::createVectorField(space);
+  auto vel = Pimpact::create<MVF>( space );
 
-  auto vel = Pimpact::createModeField( velc, vels );
-
-  auto scac = Pimpact::createScalarField( space );
-  auto scas = Pimpact::createScalarField( space );
-
-  auto sca = Pimpact::createModeField( scac, scas );
+  auto sca = Pimpact::create<MSF>( space );
 
   auto q = Pimpact::createCompoundField( vel, sca );
 
@@ -226,7 +222,7 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, HelmholtzMV ) {
 
   auto space = Pimpact::createSpace( pl );
 
-  auto field = Pimpact::createVectorField(space);
+  auto field = Pimpact::create<Pimpact::VectorField>(space);
 
   auto mv = Pimpact::createMultiField<VF>( *field, 10 );
 
@@ -245,8 +241,6 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, HelmholtzMV ) {
 
 TEUCHOS_UNIT_TEST( BelosOperatorMV, DtLapOp ) {
 
-  typedef Pimpact::VectorField<SpaceT> VF;
-  typedef Pimpact::ModeField<VF> MVF;
   typedef Pimpact::MultiField<MVF> BVF;
 
   //  typedef Pimpact::DtLapOp<S,O> Op;
@@ -260,10 +254,7 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, DtLapOp ) {
 
   auto space = Pimpact::createSpace( pl, true );
 
-  auto fieldc = Pimpact::createVectorField(space);
-  auto fields = fieldc->clone();
-
-  auto field = Pimpact::createModeField( fieldc, fields );
+  auto field = Pimpact::create<MVF>( space );
 
   auto mv = Pimpact::createMultiField<MVF>( *field, 10 );
 
@@ -292,7 +283,7 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, DivGrad ) {
 
   auto space = Pimpact::createSpace( pl );
 
-  auto temp = Pimpact::createVectorField( space );
+  auto temp = Pimpact::create<Pimpact::VectorField>( space );
 
   auto p = Pimpact::createScalarField( space );
 

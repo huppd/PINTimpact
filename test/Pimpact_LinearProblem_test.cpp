@@ -57,7 +57,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 
 	auto space = Pimpact::createSpace();
 
-	auto vel = Pimpact::createVectorField(space);
+	auto vel = Pimpact::create<Pimpact::VectorField>(space);
 
 	auto x = Pimpact::createMultiField(*vel,1);
 	auto b = Pimpact::createMultiField(*vel,1);

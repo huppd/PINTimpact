@@ -4,10 +4,13 @@
 #include "Teuchos_RCP.hpp"
 
 
-#include "Pimpact_MGFields.hpp"
-#include "Pimpact_MGOperators.hpp"
-#include "Pimpact_MGTransfers.hpp"
-#include "Pimpact_MGSmoothers.hpp"
+//#include "Pimpact_MGFields.hpp"
+//#include "Pimpact_MGOperators.hpp"
+//#include "Pimpact_MGTransfers.hpp"
+//#include "Pimpact_MGSmoothers.hpp"
+#include "Pimpact_MultiGrid.hpp"
+
+
 
 #include "Pimpact_ScalarField.hpp"
 #include "Pimpact_Operator.hpp"
@@ -117,7 +120,6 @@ TEUCHOS_UNIT_TEST( MGFields, constructor3D ) {
 
   typedef Pimpact::CoarsenStrategy<FSpace3T,CSpace3T> CS;
 
-  typedef Pimpact::MGSpaces<FSpace3T,CSpace3T> MGST;
   auto space = Pimpact::createSpace( pl );
 
   auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, 10 );
@@ -125,7 +127,7 @@ TEUCHOS_UNIT_TEST( MGFields, constructor3D ) {
   if( space->rankST()==0 )
     mgSpaces->print();
 
-  auto mgFields = Pimpact::createMGFields<MGST,Pimpact::ScalarField>( mgSpaces );
+  auto mgFields = Pimpact::createMGFields<Pimpact::ScalarField>( mgSpaces );
 
   auto field = mgFields->get( 2 );
   field->random();
@@ -139,7 +141,6 @@ TEUCHOS_UNIT_TEST( MGOperators, constructor3D ) {
 
   typedef Pimpact::CoarsenStrategy<FSpace3T,CSpace3T> CS;
 
-
   auto space = Pimpact::createSpace( pl );
 
   auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, 10 );
@@ -152,8 +153,8 @@ TEUCHOS_UNIT_TEST( MGOperators, constructor3D ) {
   auto op = mgOps->get( 2 );
 
   op->print();
-//  field->random();
-//  field->write(0);
+  //  field->random();
+  //  field->write(0);
 
 }
 
@@ -176,8 +177,8 @@ TEUCHOS_UNIT_TEST( MGSmoothers, constructor3D ) {
   auto op = mgSmoother->get( 2 );
   op->print();
 
-//  field->random();
-//  field->write(0);
+  //  field->random();
+  //  field->write(0);
 
 }
 
@@ -279,11 +280,11 @@ TEUCHOS_UNIT_TEST( MultiGrid, Restrictor3D ) {
     fieldf->write( 0 );
     fieldc->write( 1 );
 
-//    TEST_FLOATING_EQUALITY( 1., fieldc->norm(Belos::InfNorm), eps );
-//
-//    TEST_FLOATING_EQUALITY( (S)fieldc->getLength(), fieldc->norm(Belos::OneNorm), eps  );
-//
-//    TEST_FLOATING_EQUALITY( std::sqrt( (S)fieldc->getLength() ), fieldc->norm(Belos::TwoNorm), eps  );
+    //    TEST_FLOATING_EQUALITY( 1., fieldc->norm(Belos::InfNorm), eps );
+    //
+    //    TEST_FLOATING_EQUALITY( (S)fieldc->getLength(), fieldc->norm(Belos::OneNorm), eps  );
+    //
+    //    TEST_FLOATING_EQUALITY( std::sqrt( (S)fieldc->getLength() ), fieldc->norm(Belos::TwoNorm), eps  );
 
 
   }
@@ -310,10 +311,10 @@ TEUCHOS_UNIT_TEST( MultiGrid, Interpolator3D ) {
 
   pl->set("nx", 33 );
   pl->set("ny", 33 );
-//  pl->set("nx", 17 );
-//  pl->set("ny", 17 );
-//  pl->set("nx", 9 );
-//  pl->set("ny", 9);
+  //  pl->set("nx", 17 );
+  //  pl->set("ny", 17 );
+  //  pl->set("nx", 9 );
+  //  pl->set("ny", 9);
   pl->set("nz", 2 );
 
   pl->set("nf", 0 );
@@ -323,8 +324,8 @@ TEUCHOS_UNIT_TEST( MultiGrid, Interpolator3D ) {
   // processor grid size
   pl->set("npx", 2 );
   pl->set("npy", 2 );
-//  pl->set("npx", 1 );
-//  pl->set("npy", 1 );
+  //  pl->set("npx", 1 );
+  //  pl->set("npy", 1 );
   pl->set("npz", 1 );
   pl->set("npf", 1 );
 
@@ -355,8 +356,8 @@ TEUCHOS_UNIT_TEST( MultiGrid, Interpolator3D ) {
 
     op->apply( *fieldc, *fieldf );
 
-//    fieldf->write(0);
-//    fieldc->write(1);
+    //    fieldf->write(0);
+    //    fieldc->write(1);
 
     TEST_FLOATING_EQUALITY( 0., fieldf->norm(), eps );
     TEST_FLOATING_EQUALITY( 0., fieldc->norm(), eps );
@@ -406,14 +407,13 @@ TEUCHOS_UNIT_TEST( MultiGrid, Interpolator3D ) {
     fieldf->write(4);
     fieldc->write(5);
 
-
     sol->add( 1., *sol, -1., *fieldf );
     sol->write(90);
 
     std::cout << "error GradX: " << fieldf->norm() << "\n";
 
     TEST_FLOATING_EQUALITY( fieldf->norm()/std::sqrt( (S)fieldf->getLength() ),
-                            fieldc->norm()/std::sqrt( (S)fieldc->getLength() ), eps*1e5  );
+        fieldc->norm()/std::sqrt( (S)fieldc->getLength() ), eps*1e5  );
 
 
 
@@ -432,12 +432,29 @@ TEUCHOS_UNIT_TEST( MultiGrid, Interpolator3D ) {
     sol->write(91);
 
     TEST_FLOATING_EQUALITY( fieldf->norm()/std::sqrt( (S)fieldf->getLength() ),
-                            fieldc->norm()/std::sqrt( (S)fieldc->getLength() ), eps*1e5  );
+        fieldc->norm()/std::sqrt( (S)fieldc->getLength() ), eps*1e5  );
 
     std::cout << "error GradY: " << fieldf->norm() << "\n";
 
   }
 
 }
+
+
+TEUCHOS_UNIT_TEST( MultiGrid, constructor3D ) {
+
+  typedef Pimpact::CoarsenStrategy<FSpace3T,CSpace3T> CS;
+
+
+  auto space = Pimpact::createSpace( pl );
+
+  auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, 10 );
+
+
+//  auto mg =
+//      Pimpact::createMultiGrid<Pimpact::ScalarField,Pimpact::DivGradOp,Pimpact::DivGradO2Op,Pimpact::DivGradO2JSmoother,Pimpact::DivGradO2JSmoother<CSpace3T> >( mgSpaces );
+
+}
+
 
 } // end of namespace

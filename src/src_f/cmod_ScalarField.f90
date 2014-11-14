@@ -12,13 +12,13 @@ module cmod_ScalarField
 contains
 
 
-    !> \brief computes scalar product of two scalar fields(neccessary condition belong to same sVS)
+    !> \brief computes scalar product of two scalar fields
     !!
     !! \param[in] N ammount of local elements in 1-direction
-    !! \param[in] SS start index
-    !! \param[in] NN end index
     !! \param[in] bL start index of storage in 1-direction
     !! \param[in] bU end offset of storage in 1-direction
+    !! \param[in] SS start index
+    !! \param[in] NN end index
     !! \param[in] phi first vector from which is taken the product
     !! \param[in] phi1 first vector from which is taken the product
     !! \param[in] phi2 second vector from which is taken the product
@@ -54,13 +54,13 @@ contains
     end subroutine SF_add
 
 
-    !> \brief computes scalar product of two scalar fields(neccessary condition belong to same sVS)
+    !> \brief computes scalar product of two scalar fields
     !!
     !! \param[in] N ammount of local elements in 1-direction
-    !! \param[in] SS start index
-    !! \param[in] NN end index
     !! \param[in] bL start index of storage in 1-direction
     !! \param[in] bU end offset of storage in 1-direction
+    !! \param[in] SS start index
+    !! \param[in] NN end index
     !! \param[in] phi first vector from which is taken the product
     !! \param[in] phi1 first vector from which is taken the product
     subroutine SF_add2( &
@@ -96,14 +96,13 @@ contains
 
 
     !> \brief copys absolute value from \c phi1 in \phi
-    !! \param[in] N ammount of local elements in 1-direction
-    !! \param[in] SS start index
-    !! \param[in] NN end index
+    !! \param[in] N ammount of local grid points
     !! \param[in] bL start index of storage in 1-direction
     !! \param[in] bU end offset of storage in 1-direction
-    !! \param[in] phi1 first vector from which is taken the product
-    !! \param[in] phi2 second vector from which is taken the product
-    !! \param[in] weighting_yes if weighting schould be used, using the \c weights from \c mod_vars
+    !! \param[in] SS start index
+    !! \param[in] NN end index
+    !! \param[in] phi field that gets assigned
+    !! \param[in] phi1 field thats absolute values are taken
     subroutine SF_abs(  &
         N,              &
         bL, bU,         &
@@ -130,13 +129,13 @@ contains
 
 
     !> \brief copys reciprocal value from \c phi1 in \phi
-    !! \param[in] N ammount of local elements in 1-direction
-    !! \param[in] SS start index
-    !! \param[in] NN end index
+    !! \param[in] N ammount of local elements
     !! \param[in] bL start index of storage in 1-direction
     !! \param[in] bU end offset of storage in 1-direction
-    !! \param[in] phi1 first vector from which is taken the product
-    !! \param[in] phi2 second vector from which is taken the product
+    !! \param[in] SS start index
+    !! \param[in] NN end index
+    !! \param[in] phi field that gets assigned
+    !! \param[in] phi1 field from which the reciprocal values are taken
     subroutine SF_reciprocal(   &
         N,                      &
         bL, bU,                 &
@@ -212,16 +211,13 @@ contains
 
 
     !> \brief scales \c phi with \phi1.
-    !! \param[in] N ammount of local elements in 1-direction
+    !! \param[in] N ammount of local grid points
+    !! \param[in] bL start index of storage
+    !! \param[in] bU end offset of storage
     !! \param[in] SS start index
     !! \param[in] NN end index
-    !! \param[in] bL start index of storage in 1-direction
-    !! \param[in] bU end offset of storage in 1-direction
-    !! \param[in] phi1 first vector from which is taken the product
-    !! \param[in] phi2 second vector from which is taken the product
-    !! \param[in] weighting_yes if weighting schould be used, using the \c weights from \c mod_vars
-    !! \param[in] inf_yes if true infinity norm is computed
-    !! \param[in] two_yes if trhue two norm is computed
+    !! \param[in] phi first vector from which is taken the product
+    !! \param[in] phi second vector from which is taken the product
     subroutine SF_scale2(   &
         N,                  &
         bL, bU,             &
@@ -477,16 +473,15 @@ contains
     end subroutine SF_weightedNorm
 
 
-    !> \brief computes scalar product of two scalar fields(neccessary condition belong to same sVS)
+    !> \brief assigns field
     !!
-    !! \param[in] N ammount of local elements in 1-direction
+    !! \param[in] N ammount of local elements
     !! \param[in] SS start index
     !! \param[in] NN end index
-    !! \param[in] bL start index of storage in 1-direction
-    !! \param[in] bU end offset of storage in 1-direction
-    !! \param[in] phi first vector from which is taken the product
-    !! \param[in] phi1 first vector from which is taken the product
-    !! \param[in] phi2 second vector from which is taken the product
+    !! \param[in] bL start index of storage in
+    !! \param[in] bU end offset of storage
+    !! \param[in] phi field that gets assigned
+    !! \param[in] phi1 field from which phi is assigned
     subroutine SF_assign(   &
         N,                  &
         bL,bU,              &

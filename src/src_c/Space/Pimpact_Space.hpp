@@ -67,7 +67,6 @@ public:
       bool setImpact ) {
 
     if( setImpact ) Pimpact::init_impact_pre();
-//    if( pl.is_null() ) pl = Teuchos::parameterList();
 
     pl->validateParametersAndSetDefaults( *getValidParameters() );
 
@@ -418,6 +417,28 @@ Teuchos::RCP<const Space<S,O,d,dimNC> > createSpace(
 
   return( Teuchos::rcp( new Space<S,O,d,dimNC>( pl, setImpact ) ) );
 
+}
+
+
+
+/// \brief awesome
+template< template<class> class SpaceObjectT, class SpaceT>
+Teuchos::RCP< SpaceObjectT<SpaceT> >
+create( const Teuchos::RCP<const SpaceT>& space ) {
+  return(
+      Teuchos::rcp( new SpaceObjectT<SpaceT>( space) )
+  );
+}
+
+
+
+/// \brief awesome
+template< class SpaceObjectT, class SpaceT>
+Teuchos::RCP< SpaceObjectT >
+create( const Teuchos::RCP<const SpaceT>& space ) {
+  return(
+      Teuchos::rcp( new SpaceObjectT( space ) )
+  );
 }
 
 

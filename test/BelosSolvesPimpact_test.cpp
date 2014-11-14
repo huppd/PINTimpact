@@ -71,8 +71,8 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 
   if( !isImpactInit ) isImpactInit=true;
 
-  auto x = Pimpact::createMultiField( Pimpact::createVectorField(space) );
-  auto b = Pimpact::createMultiField( Pimpact::createVectorField(space) );
+  auto x = Pimpact::createMultiField( Pimpact::create<Pimpact::VectorField>(space) );
+  auto b = Pimpact::createMultiField( Pimpact::create<Pimpact::VectorField>(space) );
 
   b->init( 1. );
 
@@ -178,7 +178,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
 
   if( !isImpactInit ) isImpactInit=true;
 
-  auto temp = Pimpact::createVectorField( space );
+  auto temp = Pimpact::create<Pimpact::VectorField>( space );
   temp->initField(Pimpact::PoiseuilleFlow2D_inX);
   //  temp->init(0.);
 

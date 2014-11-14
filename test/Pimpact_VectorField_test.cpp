@@ -45,7 +45,7 @@ TEUCHOS_UNIT_TEST( VectorField, create_init_print ) {
 
   auto space = Pimpact::createSpace( pl, false );
 
-  auto vel = Pimpact::createVectorField( space );
+  auto vel = Pimpact::create<Pimpact::VectorField>( space );
 
   vel->init( space->rankST() );
   vel->print();
@@ -61,7 +61,7 @@ TEUCHOS_UNIT_TEST( VectorField, OneNorm_and_init ) {
 
   auto space = Pimpact::createSpace( pl, false );
 
-  auto x = Pimpact::createVectorField(space);
+  auto x = Pimpact::create<Pimpact::VectorField>(space);
 
   // test different float values, assures that initial and norm work smoothly
   for( double i=0.; i< 200.1; ++i ) {
@@ -81,7 +81,7 @@ TEUCHOS_UNIT_TEST( VectorField, InfNorm_and_init ) {
 
   auto space = Pimpact::createSpace( pl, false );
 
-  auto vel = Pimpact::createVectorField( space );
+  auto vel = Pimpact::create<Pimpact::VectorField>( space );
 
   double norm;
   // test different float values, assures that initial and norm work smoothly
@@ -113,7 +113,7 @@ TEUCHOS_UNIT_TEST( VectorField, InfNorm_and_initvec2d ) {
 
   auto space = Pimpact::createSpace( pl, false );
 
-  auto vel = Pimpact::createVectorField( space );
+  auto vel = Pimpact::create<Pimpact::VectorField>( space );
 
   double norm;
 
@@ -143,7 +143,7 @@ TEUCHOS_UNIT_TEST( VectorField, TwoNorm_and_init ) {
 
   auto space = Pimpact::createSpace( pl, false );
 
-  auto vel = Pimpact::createVectorField( space );
+  auto vel = Pimpact::create<Pimpact::VectorField>( space );
 
   double norm;
   int N = vel->getLength();
@@ -165,8 +165,8 @@ TEUCHOS_UNIT_TEST( VectorField, dot ) {
 
   auto space = Pimpact::createSpace( pl, false );
 
-  auto vel1 = Pimpact::createVectorField(space);
-  auto vel2 = Pimpact::createVectorField(space);
+  auto vel1 = Pimpact::create<Pimpact::VectorField>(space);
+  auto vel2 = Pimpact::create<Pimpact::VectorField>(space);
 
   double dot;
 
@@ -205,7 +205,7 @@ TEUCHOS_UNIT_TEST( VectorField, scale ) {
 
   auto space = Pimpact::createSpace( pl, false );
 
-  auto vel = Pimpact::createVectorField( space );
+  auto vel = Pimpact::create<Pimpact::VectorField>( space );
 
   int N = vel->getLength();
   double norm;
@@ -227,7 +227,7 @@ TEUCHOS_UNIT_TEST( VectorField, random ) {
 
   auto space = Pimpact::createSpace( pl, false );
 
-  auto vel = Pimpact::createVectorField( space );
+  auto vel = Pimpact::create<Pimpact::VectorField>( space );
 
   int N = vel->getLength();
   double norm;
@@ -249,9 +249,9 @@ TEUCHOS_UNIT_TEST( VectorField, add ) {
 
   auto space = Pimpact::createSpace( pl, false );
 
-  auto vel1 = Pimpact::createVectorField(space);
-  auto vel2 = Pimpact::createVectorField(space);
-  auto vel3 = Pimpact::createVectorField(space);
+  auto vel1 = Pimpact::create<Pimpact::VectorField>(space);
+  auto vel2 = Pimpact::create<Pimpact::VectorField>(space);
+  auto vel3 = Pimpact::create<Pimpact::VectorField>(space);
 
   TEST_EQUALITY( vel1->getLength(), vel2->getLength() )
   TEST_EQUALITY( vel2->getLength(), vel3->getLength() )
@@ -296,7 +296,7 @@ TEUCHOS_UNIT_TEST( VectorField, write ) {
 
   auto space = Pimpact::createSpace( pl, false );
 
-  auto vel = Pimpact::createVectorField(space);
+  auto vel = Pimpact::create<Pimpact::VectorField>(space);
 
   vel->init( 1. );
   vel->write();
@@ -331,7 +331,7 @@ TEUCHOS_UNIT_TEST( VectorField, initField ) {
 
   auto space = Pimpact::createSpace( pl, false );
 
-  auto vel = Pimpact::createVectorField( space );
+  auto vel = Pimpact::create<Pimpact::VectorField>( space );
 
   for( int i=0; i<=19; ++i ) {
     vel->initField( Pimpact::EFlowField(i) );

@@ -89,7 +89,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
 
   if( !isImpactInit ) isImpactInit=true;
 
-  auto vel = Pimpact::createVectorField( space );
+  auto vel = Pimpact::create<Pimpact::VectorField>( space );
 
   vel->initField( Pimpact::ZeroFlow );
 

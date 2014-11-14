@@ -68,7 +68,6 @@ public:
 
   static const int dimension = SpaceT::dimension;
 
-
 protected:
 
   typedef Scalar* ScalarArray;
@@ -86,7 +85,7 @@ protected:
 public:
 
 
-  ScalarField( const Teuchos::RCP<const SpaceT>& space, bool owning, EField fType=EField::S ):
+  ScalarField( const Teuchos::RCP<const SpaceT>& space, bool owning=true, EField fType=EField::S ):
     AbstractField<SpaceT>( space ),
     owning_(owning),
     exchangedState_( Teuchos::tuple(true,true,true) ),
@@ -721,9 +720,11 @@ protected:
 
 
 
+
 /// \brief creates a scalar field(vector) belonging to a space
 ///
 /// \param space scalar Vector Space to which returned vector belongs
+/// \param fType
 /// \return scalar vector
 /// \relates ScalarField
 template<class SpaceT>

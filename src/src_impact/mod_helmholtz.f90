@@ -769,11 +769,11 @@ module mod_helmholtz
   
   
   !-----------------------------------------------------------------------------------------------------!
-  ! Anmerkung: - Null-Setzen am Rand nicht notwendig, da Startindizes entsprechend gew�hlt sind!        !
+  ! Anmerkung: - Null-Setzen am Rand nicht notwendig, da Startindizes entsprechend gewählt sind!        !
   !            - Reihenfolge der Randbedingungen analog zu product_Helmholtz!                           !
   !-----------------------------------------------------------------------------------------------------!
   
-  ! Alternative: hier direkt auf Druckgitter differenzieren und gleiche Restriktion wie f�r Druck verwenden!
+  ! Alternative: hier direkt auf Druckgitter differenzieren und gleiche Restriktion wie für Druck verwenden!
   
   g = 1
   

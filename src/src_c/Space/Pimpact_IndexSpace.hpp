@@ -89,10 +89,11 @@ public:
   typedef Teuchos::Tuple< Teuchos::Tuple<Ordinal, 3>, 3 > TTO3;
 
 protected:
+
   /// \brief constructor
-  /// \param fieldType says which kind of field is taken
-  /// \param sInd start index of gridpoints
-  /// \param eInd last index of gridpoints
+  /// \param sW with of differenct stencils
+  /// \param nLoc amount of grid points stored localy on this node
+  /// \param bc local boundary conditions
   template<int d, int dimNC>
   IndexSpace(
       const Teuchos::RCP<const StencilWidths<d,dimNC> >& sW,

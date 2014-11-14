@@ -8,6 +8,7 @@
 #include "mpi.h"
 
 #include "Teuchos_RCP.hpp"
+#include "Teuchos_ArrayRCP.hpp"
 #include "Teuchos_ScalarTraitsDecl.hpp"
 #include "Teuchos_SerialDenseMatrix.hpp"
 
@@ -17,9 +18,9 @@
 
 
 
-#include"Teuchos_ArrayRCP.hpp"
 
 namespace Pimpact {
+
 
 
 /// \brief important basic Vector class
@@ -51,6 +52,12 @@ protected:
 
 public:
 
+  ModeField( const Teuchos::RCP<const SpaceT>& space ):
+        AF( space ),
+        fieldc_( create<Field>(space) ),
+        fields_( create<Field>(space) ) {};
+
+protected:
 
   ModeField(
       const Teuchos::RCP<Field>& fieldc,
@@ -58,6 +65,8 @@ public:
         AF( fieldc->space() ),
         fieldc_(fieldc),
         fields_(fields) {};
+
+public:
 
 
   /// \brief copy constructor.
@@ -127,7 +136,6 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  /// \todo implement me
   void abs( const MV& y ) {
     fieldc_->abs( *y.fieldc_ );
     fields_->abs( *y.fields_ );
@@ -139,7 +147,6 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
   /// \return Reference to this object
-  /// \todo implement me
   void reciprocal( const MV& y ) {
     fieldc_->reciprocal( *y.fieldc_ );
     fields_->reciprocal( *y.fields_ );
@@ -158,7 +165,6 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  /// \todo implement me
   void scale(const MV& a) {
     fieldc_->scale( *a.fieldc_ );
     fields_->scale( *a.fields_ );
@@ -185,8 +191,6 @@ public:
   /// \brief Compute the norm of Field.
   ///
   /// Upon return, \c normvec[i] holds the value of \f$||this_i||_2\f$, the \c i-th column of \c this.
-  /// \todo implement OneNorm
-  /// \todo implement in fortran
   Scalar norm(  Belos::NormType type=Belos::TwoNorm, bool global=true ) const {
 
     Scalar normvec = 0;
@@ -262,16 +266,17 @@ public:
 
 
 
-/// \brief creates a scalar/vector mode field(vector)
-///
-/// \param sVS scalar Vector Space to which returned vector belongs
-/// \return field vector
-/// \relates ModeField
-template<class Field>
-Teuchos::RCP< ModeField<Field> > createModeField( const Teuchos::RCP<Field>&  fieldc, const Teuchos::RCP<Field>& fields ) {
-  return( Teuchos::rcp(
-      new ModeField<Field>( fieldc, fields ) ) );
-}
+///// \brief creates a scalar/vector mode field(vector)
+/////
+///// \relates ModeField
+//template<class Field>
+//Teuchos::RCP< ModeField<Field> > createModeField( const Teuchos::RCP<Field>&  fieldc, const Teuchos::RCP<Field>& fields ) {
+////  return( Teuchos::rcp(
+////      new ModeField<Field>( fieldc, fields ) ) );
+////      new ModeField<Field>( fieldc->space() ) ) );
+//  return( create< ModeField<Field> >( fieldc->space() ) );
+//}
+
 
 
 } // end of namespace Pimpact

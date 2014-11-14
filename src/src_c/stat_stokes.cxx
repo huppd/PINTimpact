@@ -167,7 +167,7 @@ int main(int argi, char** argv ) {
 
   // init vectors
   auto sca = Pimpact::createScalarField( space );
-  auto vel = Pimpact::createVectorField( space );
+  auto vel = Pimpact::create<Pimpact::VectorField>( space );
 
   auto p     = Pimpact::createMultiField<SF>(*sca,1);
   auto temps = Pimpact::createMultiField<SF>(*sca,1);
