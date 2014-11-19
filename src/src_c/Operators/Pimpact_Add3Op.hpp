@@ -9,6 +9,8 @@
 namespace Pimpact {
 
 
+
+
 /// \brief combines three operators.
 ///
 /// Both operators are applied and the result is added.

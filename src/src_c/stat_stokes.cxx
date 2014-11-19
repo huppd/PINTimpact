@@ -191,9 +191,9 @@ int main(int argi, char** argv ) {
   // init operators
   auto lap  =
       Pimpact::createMultiOperatorBase<MVF>(
-          Pimpact::createHelmholtzOp( space, 0., 1./re ) );
-  auto div  = Pimpact::createMultiOpWrap( Pimpact::createDivOp( space ) );
-  auto grad = Pimpact::createMultiOpWrap( Pimpact::createGradOp( space ) );
+          Pimpact::create<Pimpact::HelmholtzOp>( space ) );
+  auto div  = Pimpact::createMultiOpWrap( Pimpact::create<Pimpact::DivOp>( space ) );
+  auto grad = Pimpact::createMultiOpWrap( Pimpact::create<Pimpact::GradOp>( space ) );
 
   // init rhs
   lap->apply( *u, *fu );

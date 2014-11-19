@@ -43,22 +43,25 @@ void SF_handle_corner(
 /// \brief \f$\omega\f$-Jacobian smoother for second Order DivGradOp.
 ///
 ///
+/// \relates DivGradO2Op
 /// \ingroup BaseOperator
 /// \todo instead of hardcode 2nd Order it would be pretty to use new space with StencilWidth<3,2>
 /// \todo add ParameterList
 /// \todo handle corner
-template<class ST>
+template<class OperatorT>
 class DivGradO2JSmoother {
 
 public:
 
-  typedef ST SpaceT;
+  typedef typename OperatorT::SpaceT SpaceT;
 
   typedef typename SpaceT::Scalar Scalar;
   typedef typename SpaceT::Ordinal Ordinal;
 
   typedef ScalarField<SpaceT>  DomainFieldT;
   typedef ScalarField<SpaceT>  RangeFieldT;
+
+//  typedef DivGradO2Op<SpaceT> OperatorT;
 
 protected:
 
@@ -67,15 +70,15 @@ protected:
 
   const Teuchos::RCP<const SpaceT> space_;
   Teuchos::RCP<DomainFieldT> temp_;
-  const Teuchos::RCP<const DivGradO2Op<SpaceT> > op_;
+  const Teuchos::RCP<const OperatorT> op_;
 
 public:
 
   DivGradO2JSmoother(
-      const Teuchos::RCP<const DivGradO2Op<SpaceT> >& op,
-      Teuchos::RCP<Teuchos::ParameterList> pl ):
-    omega_( pl->get("ommega",0.8) ),
-    nIter_( pl->get("numIters",10) ),
+      const Teuchos::RCP<const OperatorT>& op,
+      Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ):
+    omega_( pl->get("omega",0.8) ),
+    nIter_( pl->get("numIters",4) ),
     space_(op->space_),
     temp_( createScalarField<SpaceT>( space_ ) ),
     op_(op) {}
@@ -111,7 +114,7 @@ public:
           space_->getDomain()->getBCLocal()->getBCU(),
           temp_->s_);
 
-      // attention: could lead to problems when ScalarField is used as part of a higherlevel class
+      // attention: could lead to problems when ScalarField is used as part of a higherlevel class (s is shared)
       std::swap( y.s_, temp_->s_ );
       y.changed();
     }
@@ -133,17 +136,29 @@ public:
 
 
 
-/// \relates DivGradO2JSmoother
-template<class SpaceT>
-Teuchos::RCP< DivGradO2JSmoother<SpaceT> >
-createDivGradO2JSmoother(
-    const Teuchos::RCP<const DivGradO2Op<SpaceT> >& op,
-    Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ) {
+template<template<class> class SmootherT, class OperatorT>
+Teuchos::RCP< SmootherT<OperatorT> >
+create(
+    const Teuchos::RCP<OperatorT>& op,
+    Teuchos::RCP<Teuchos::ParameterList> pl ) {
 
   return(
-      Teuchos::rcp( new DivGradO2JSmoother<SpaceT>( op, pl ) ) );
+      Teuchos::rcp( new SmootherT<OperatorT>( op, pl ) ) );
 
 }
+
+
+template<class SmootherT, class OperatorT>
+Teuchos::RCP< SmootherT >
+create(
+    const Teuchos::RCP< OperatorT>& op,
+    Teuchos::RCP<Teuchos::ParameterList> pl ) {
+
+  return(
+      Teuchos::rcp( new SmootherT( op, pl ) ) );
+
+}
+
 
 
 } // end of namespace Pimpact

@@ -64,7 +64,7 @@ public:
         iRe_(iRe),
         L_(L) {
     if( L_.is_null() )
-      L_ = createHelmholtzOp<SpaceT>( space, 0, iRe );
+      L_ = create<HelmholtzOp>( space );
   };
 
 

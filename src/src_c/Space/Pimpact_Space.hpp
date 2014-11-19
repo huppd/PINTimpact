@@ -411,7 +411,8 @@ public:
 /// \relates Space
 /// \deprecated \param setImpact should be uneccessary in the future
 template<class S=double, class O=int, int d=3, int dimNC=4>
-Teuchos::RCP<const Space<S,O,d,dimNC> > createSpace(
+Teuchos::RCP<const Space<S,O,d,dimNC> >
+createSpace(
     Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList(),
     bool setImpact=false ) {
 
@@ -426,10 +427,18 @@ template< template<class> class SpaceObjectT, class SpaceT>
 Teuchos::RCP< SpaceObjectT<SpaceT> >
 create( const Teuchos::RCP<const SpaceT>& space ) {
   return(
-      Teuchos::rcp( new SpaceObjectT<SpaceT>( space) )
+      Teuchos::rcp( new SpaceObjectT<SpaceT>(space) )
   );
 }
 
+/// \brief awesome
+template< template<class> class SpaceObjectT, class SpaceT>
+Teuchos::RCP< SpaceObjectT<SpaceT> >
+create( const Teuchos::RCP< SpaceT>& space ) {
+  return(
+      Teuchos::rcp( new SpaceObjectT<SpaceT>(space) )
+  );
+}
 
 
 /// \brief awesome
@@ -440,6 +449,16 @@ create( const Teuchos::RCP<const SpaceT>& space ) {
       Teuchos::rcp( new SpaceObjectT( space ) )
   );
 }
+
+/// \brief awesome
+template< class SpaceObjectT, class SpaceT>
+Teuchos::RCP< SpaceObjectT >
+create( const Teuchos::RCP< SpaceT>& space ) {
+  return(
+      Teuchos::rcp( new SpaceObjectT( space ) )
+  );
+}
+
 
 
 

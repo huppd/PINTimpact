@@ -17,27 +17,29 @@ namespace Pimpact {
 /// \ingroup MG
 /// \todo add constructro from FOperator
 /// \todo generalize MGContainer, specify to Fields and Operators
-template<class MGSpacesT, template<class> class ST>
+template<class MGOperatorsT, template<class> class ST>
 class MGSmoothers {
 
 public:
 
-  typedef typename MGSpacesT::CSpaceT CSpaceT;
+  typedef typename MGOperatorsT::MGSpacesT MGSpacesT;
+  typedef typename MGOperatorsT::COperatorT COperatorT;
 
-  typedef ST<CSpaceT> SmootherT;
+  typedef ST<COperatorT> SmootherT;
 
 protected:
 
   template< template<class> class STT, class MGOpsT >
   friend
-  Teuchos::RCP<const MGSmoothers<typename MGOpsT::MGSpacesT,STT> >
+  Teuchos::RCP<const MGSmoothers<MGOpsT,STT> >
   createMGSmoothers( const Teuchos::RCP<const MGOpsT>& mgOps, Teuchos::RCP<Teuchos::ParameterList> pl );
 
   Teuchos::RCP<const MGSpacesT> mgSpaces_;
 
   std::vector< Teuchos::RCP<SmootherT> >  smoothers_;
 
-  template<class MGOperatorsT>
+public:
+//  template<class MGOperatorsT>
   MGSmoothers(
       const Teuchos::RCP<const MGOperatorsT>& mgOperators,
       Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ):
@@ -46,6 +48,7 @@ protected:
 
     for( int i=0; i<mgSpaces_->getNGrids(); ++i )
       smoothers_[i] = Teuchos::rcp( new SmootherT( mgOperators->get(i), pl ) );
+//      smoothers_[i] = create<SmootherT>( mgOperators->get(i), pl );
 
     smoothers_.shrink_to_fit();
 
@@ -53,7 +56,13 @@ protected:
 
 public:
 
-  Teuchos::RCP<SmootherT> get( int i ) const { return( smoothers_[i] ); }
+  /// \brief gets ith smoother, similar to python i=-1 is gets you the coarses space
+  Teuchos::RCP<SmootherT> get( int i ) const {
+    if( i<0 )
+      return( smoothers_[mgSpaces_->getNGrids()+i] );
+  else
+      return( smoothers_[i] );
+  }
 
   //  void print(  std::ostream& out=std::cout ) const {
   //
@@ -65,14 +74,14 @@ public:
 
 /// \relates MGSmoothers
 template< template<class> class SmootherT, class MGOperatorsT >
-Teuchos::RCP<const MGSmoothers<typename MGOperatorsT::MGSpacesT, SmootherT> >
+Teuchos::RCP<const MGSmoothers< MGOperatorsT, SmootherT> >
 createMGSmoothers(
     const Teuchos::RCP<const MGOperatorsT>& mgOperators,
     Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ) {
 
   return(
       Teuchos::rcp(
-          new MGSmoothers<typename MGOperatorsT::MGSpacesT,SmootherT>(
+          new MGSmoothers<MGOperatorsT,SmootherT>(
               mgOperators,
               pl
           )

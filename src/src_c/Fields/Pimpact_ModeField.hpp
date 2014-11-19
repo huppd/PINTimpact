@@ -26,14 +26,13 @@ namespace Pimpact {
 /// \brief important basic Vector class
 /// vector for wrapping 2 fields into one mode
 /// \ingroup Field
-/// \todo SpaceT constructor
 /// \todo continous memory
-template<class Field>
-class ModeField : private AbstractField<typename Field::SpaceT> {
+template<class FieldT>
+class ModeField : private AbstractField<typename FieldT::SpaceT> {
 
 public:
 
-  typedef typename Field::SpaceT SpaceT;
+  typedef typename FieldT::SpaceT SpaceT;
 
   typedef typename SpaceT::Scalar Scalar;
   typedef typename SpaceT::Ordinal Ordinal;
@@ -43,31 +42,21 @@ public:
 
 protected:
 
-  typedef ModeField<Field> MV;
+  typedef ModeField<FieldT> MV;
 
-  typedef AbstractField< typename Field::SpaceT> AF;
+  typedef AbstractField< typename FieldT::SpaceT> AF;
 
-  Teuchos::RCP<Field> fieldc_;
-  Teuchos::RCP<Field> fields_;
+  Teuchos::RCP<FieldT> fieldc_;
+  Teuchos::RCP<FieldT> fields_;
 
 public:
 
   ModeField( const Teuchos::RCP<const SpaceT>& space ):
-        AF( space ),
-        fieldc_( create<Field>(space) ),
-        fields_( create<Field>(space) ) {};
+    AF( space ),
+    fieldc_( create<FieldT>(space) ),
+    fields_( create<FieldT>(space) ) {};
 
 protected:
-
-  ModeField(
-      const Teuchos::RCP<Field>& fieldc,
-      const Teuchos::RCP<Field>& fields ):
-        AF( fieldc->space() ),
-        fieldc_(fieldc),
-        fields_(fields) {};
-
-public:
-
 
   /// \brief copy constructor.
   ///
@@ -76,32 +65,30 @@ public:
   /// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
   ModeField(const ModeField& vF, ECopyType copyType=DeepCopy):
     AF( vF.space() ),
-//    space_( vF.space() ),
     fieldc_( vF.fieldc_->clone(copyType) ),
     fields_( vF.fields_->clone(copyType) )
   {};
 
+public:
 
   Teuchos::RCP<MV> clone( ECopyType ctype=DeepCopy ) const {
-    return( Teuchos::rcp( new MV( fieldc_->clone(ctype), fields_->clone(ctype) ) ) );
+    return( Teuchos::rcp( new MV( *this, ctype ) ) );
   }
-
-
 
   /// \name Attribute methods
   //@{
 
-  Teuchos::RCP<Field> getCFieldPtr() { return( fieldc_ ); }
-  Teuchos::RCP<Field> getSFieldPtr() { return( fields_ ); }
+  Teuchos::RCP<FieldT> getCFieldPtr() { return( fieldc_ ); }
+  Teuchos::RCP<FieldT> getSFieldPtr() { return( fields_ ); }
 
-  Teuchos::RCP<const Field> getConstCFieldPtr() const { return( fieldc_ ); }
-  Teuchos::RCP<const Field> getConstSFieldPtr() const { return( fields_ ); }
+  Teuchos::RCP<const FieldT> getConstCFieldPtr() const { return( fieldc_ ); }
+  Teuchos::RCP<const FieldT> getConstSFieldPtr() const { return( fields_ ); }
 
-  Field& getCField() { return( *fieldc_ ); }
-  Field& getSField() { return( *fields_ ); }
+  FieldT& getCField() { return( *fieldc_ ); }
+  FieldT& getSField() { return( *fields_ ); }
 
-  const Field& getConstCField() const { return( *fieldc_ ); }
-  const Field& getConstSField() const { return( *fields_ ); }
+  const FieldT& getConstCField() const { return( *fieldc_ ); }
+  const FieldT& getConstSField() const { return( *fields_ ); }
 
   Teuchos::RCP<const SpaceT> space() const { return( AF::space_ ); }
 

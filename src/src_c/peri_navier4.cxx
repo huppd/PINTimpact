@@ -309,7 +309,7 @@ int main(int argi, char** argv ) {
 
   auto dt  = Pimpact::createDtTimeOp<SpaceT>( alpha2*idt/re );
   auto lap = Pimpact::createTimeOpWrap< Pimpact::HelmholtzOp<SpaceT>, cny >(
-      Pimpact::createHelmholtzOp( space, 0., 1./re ),
+      Pimpact::create<Pimpact::HelmholtzOp>( space ),
       Pimpact::create<Pimpact::VectorField>( space ) );
   auto conv = Pimpact::createTimeOpWrap<Pimpact::ConvectionVOp<SpaceT>,cny>  (
       Pimpact::createConvectionVOp( space ),
@@ -343,8 +343,8 @@ int main(int argi, char** argv ) {
               Pimpact::create<Pimpact::VectorField>( space ) ) );
 
   auto opV2S = Pimpact::createTimeOpWrap(
-      Pimpact::createDivOp( space ),
-      Pimpact::createScalarField( space ) );
+      Pimpact::create<Pimpact::DivOp>( space ),
+      Pimpact::create<Pimpact::ScalarField>( space ) );
 
   //  auto opV2S =
   //      Pimpact::createCompositionOp(

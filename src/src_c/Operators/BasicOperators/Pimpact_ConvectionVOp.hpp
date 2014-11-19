@@ -55,9 +55,9 @@ public:
 
   ConvectionVOp( const Teuchos::RCP<const SpaceT>& space  ):
     space_(space),
-    interpolateS2V_( createInterpolateS2V<SpaceT>(space) ),
-    interpolateV2S_( space->getInterpolateV2S() ),
-    convectionSOp_( createConvectionSOp<SpaceT>( space ) ),
+    interpolateS2V_( create<InterpolateS2V>(space) ),
+    interpolateV2S_( createInterpolateV2S( space ) ),
+    convectionSOp_(  create<ConvectionSOp>(space) ),
     temp_( createScalarField<SpaceT>( space ) ),
     u_(
         Teuchos::tuple(

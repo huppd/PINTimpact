@@ -146,12 +146,6 @@ public:
 
 
 
-/// \relates InterpolateS2V
-template<class SpaceT>
-Teuchos::RCP< InterpolateS2V<SpaceT> > createInterpolateS2V( const Teuchos::RCP< const SpaceT>& space ) {
-  return( Teuchos::rcp( new InterpolateS2V<SpaceT>(space) ) );
-}
-
 
 } // end of namespace Pimpact
 

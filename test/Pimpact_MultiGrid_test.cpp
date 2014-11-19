@@ -3,14 +3,7 @@
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_RCP.hpp"
 
-
-//#include "Pimpact_MGFields.hpp"
-//#include "Pimpact_MGOperators.hpp"
-//#include "Pimpact_MGTransfers.hpp"
-//#include "Pimpact_MGSmoothers.hpp"
 #include "Pimpact_MultiGrid.hpp"
-
-
 
 #include "Pimpact_ScalarField.hpp"
 #include "Pimpact_Operator.hpp"
@@ -28,6 +21,14 @@ typedef Pimpact::Space<S,O,4,4> FSpace4T;
 
 typedef Pimpact::Space<S,O,3,2> CSpace3T;
 typedef Pimpact::Space<S,O,4,2> CSpace4T;
+
+template<class ST> using BSF = Pimpact::MultiField< Pimpact::ScalarField<ST> >;
+//template<class T> using BVF = Pimpact::MultiField< Pimpact::VectorField<T> >;
+
+template<class ST> using BOPF = Pimpact::MultiOpWrap< Pimpact::DivGradOp<ST> >;
+template<class ST> using BOPC = Pimpact::MultiOpWrap< Pimpact::DivGradO2Op<ST> >;
+template<class ST> using BSM = Pimpact::MultiOpWrap< Pimpact::DivGradO2JSmoother<ST> >;
+
 
 bool testMpi = true;
 double eps = 1e-6;
@@ -54,6 +55,16 @@ TEUCHOS_STATIC_SETUP() {
   clp.setOption(
       "ftype", &ftype,
       "Slack off of machine epsilon used to check test results" );
+  //  // processor grid size
+    pl->set( "nx", 257 );
+    pl->set( "ny", 257 );
+//    pl->set("nz", 2 );
+//    pl->set("nf", 2 );
+  //  pl->set("npx", 2 );
+  //  pl->set("npy", 2 );
+  //  pl->set("npz", 2 );
+  //  pl->set("npf", 2 );
+
 }
 
 
@@ -95,13 +106,6 @@ TEUCHOS_UNIT_TEST( MGSpaces, constructor4D ) {
   pl->set("nf", 256 );
   //  pl->set("nfs", 0 );
   //  pl->set("nfe", 0 );
-
-  // processor grid size
-  pl->set("npx", 2 );
-  pl->set("npy", 1 );
-  pl->set("npz", 1 );
-  pl->set("npf", 2 );
-
 
   auto space = Pimpact::createSpace<S,O,4>( pl );
 
@@ -177,8 +181,6 @@ TEUCHOS_UNIT_TEST( MGSmoothers, constructor3D ) {
   auto op = mgSmoother->get( 2 );
   op->print();
 
-  //  field->random();
-  //  field->write(0);
 
 }
 
@@ -207,12 +209,6 @@ TEUCHOS_UNIT_TEST( MultiGrid, Restrictor3D ) {
   pl->set("nf", 0 );
   //  pl->set("nfs", 0 );
   //  pl->set("nfe", 0 );
-
-  // processor grid size
-  pl->set("npx", 2 );
-  pl->set("npy", 2 );
-  pl->set("npz", 1 );
-  pl->set("npf", 1 );
 
   auto space = Pimpact::createSpace<S,O,3>( pl );
 
@@ -320,14 +316,6 @@ TEUCHOS_UNIT_TEST( MultiGrid, Interpolator3D ) {
   pl->set("nf", 0 );
   //  pl->set("nfs", 0 );
   //  pl->set("nfe", 0 );
-
-  // processor grid size
-  pl->set("npx", 2 );
-  pl->set("npy", 2 );
-  //  pl->set("npx", 1 );
-  //  pl->set("npy", 1 );
-  pl->set("npz", 1 );
-  pl->set("npf", 1 );
 
   auto space = Pimpact::createSpace<S,O,3>( pl );
 
@@ -440,21 +428,63 @@ TEUCHOS_UNIT_TEST( MultiGrid, Interpolator3D ) {
 
 }
 
+////template<class T> using ptr = T*;
+template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
 
-TEUCHOS_UNIT_TEST( MultiGrid, constructor3D ) {
+TEUCHOS_UNIT_TEST( MultiGrid, apply ) {
 
   typedef Pimpact::CoarsenStrategy<FSpace3T,CSpace3T> CS;
 
 
   auto space = Pimpact::createSpace( pl );
 
-  auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, 10 );
+  auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, 2 );
 
 
-//  auto mg =
-//      Pimpact::createMultiGrid<Pimpact::ScalarField,Pimpact::DivGradOp,Pimpact::DivGradO2Op,Pimpact::DivGradO2JSmoother,Pimpact::DivGradO2JSmoother<CSpace3T> >( mgSpaces );
+  auto mg =
+      Pimpact::createMultiGrid<
+        Pimpact::ScalarField,
+        Pimpact::DivGradOp,
+        Pimpact::DivGradO2Op,
+        Pimpact::DivGradO2JSmoother,
+        MOP>( mgSpaces );
+
+  auto x = Pimpact::create<Pimpact::ScalarField>( space );
+  auto b = Pimpact::create<Pimpact::ScalarField>( space );
+  auto op = Pimpact::create<Pimpact::DivGradOp>( space );
+
+
+  // Grad in x
+   x->initField( Pimpact::Grad2D_inX );
+   x->write(0);
+
+   op->apply(*x,*b);
+   b->write(1);
+
+   x->init();
+   auto e = x->clone();
+
+   e->init( 1. );
+   auto sol = x->clone();
+//   auto  = x->clone();
+   sol->initField( Pimpact::Grad2D_inX );
+
+   S bla = b->dot(*e)/x->getLength();
+   std::cout<< " rhs nullspace: " << bla << "\n";
+   for( int i=0; i<3; ++i ) {
+     mg->apply( *b, *x );
+     x->level();
+     x->write(i+10);
+
+     sol->add( -1, *x, 1., *sol );
+     std::cout << "error: " << sol->norm() << "\n";
+     TEST_EQUALITY( sol->norm()<0.5, true );
+   }
+
+   x->write(2);
 
 }
+
 
 
 } // end of namespace

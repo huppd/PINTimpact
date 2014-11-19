@@ -152,12 +152,13 @@ public:
 
 
 
-/// \relates DivOp
-template<class SpaceT>
-Teuchos::RCP< DivOp<SpaceT> > createDivOp(
-    const Teuchos::RCP<const SpaceT>& space ) {
-  return( Teuchos::rcp( new DivOp<SpaceT>( space ) ) );
-}
+///// \relates DivOp
+//template<class SpaceT>
+//Teuchos::RCP< DivOp<SpaceT> > createDivOp(
+//    const Teuchos::RCP<const SpaceT>& space ) {
+////  return( Teuchos::rcp( new DivOp<SpaceT>( space ) ) );
+//  return( create< DivOp<SpaceT> >( space ) );
+//}
 
 
 

@@ -179,11 +179,23 @@ Teuchos::RCP<const InterpolateV2S<S,O,d,dimNC> > createInterpolateV2S(
 
 
 /// \relates InterpolateV2S
+/// \todo make specalization of create<Inter>( space)
 template< class S, class O, int d, int dimNC >
 Teuchos::RCP<const InterpolateV2S<S,O,d,dimNC> > createInterpolateV2S(
     const Teuchos::RCP<const Space<S,O,d,dimNC> >& space ) {
   return( space->getInterpolateV2S() );
 }
+
+///// \relates InterpolateV2S
+///// \todo make specalization of create<Inter>( space)
+//template< class SpaceT >
+//Teuchos::RCP<const InterpolateV2S<typename SpaceT::Scalar,typename SpaceT::Ordinal,SpaceT::dimension,SpaceT::dimNC> >
+//create< InterpolateV2S<typename SpaceT::Scalar,typename SpaceT::Ordinal,SpaceT::dimension,SpaceT::dimNC> >(
+//    const Teuchos::RCP<const SpaceT >& space ) {
+//  return( space->getInterpolateV2S() );
+//}
+
+
 
 } // end of namespace Pimpact
 

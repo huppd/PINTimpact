@@ -50,12 +50,20 @@ protected:
 public:
 
   MultiHarmonicField(
+      const Teuchos::RCP<const SpaceT>& space ):
+        AF( space ),
+        field0_( create<Field>(space) ),
+        fields_( create<MultiField< ModeField<Field> > >(space) ) {};
+
+  /// \deprecated
+  MultiHarmonicField(
       const Teuchos::RCP<Field>& field0,
       const Teuchos::RCP< MultiField< ModeField<Field> > >& fields):
         AF( field0->space() ),
         field0_(field0),
         fields_(fields) {};
 
+protected:
 
   /// \brief copy constructor.
   ///
@@ -66,8 +74,9 @@ public:
     AF( vF.space() ),
     field0_( vF.field0_->clone(copyType) ),
     fields_( vF.fields_->clone(copyType) )
-  {};
+{};
 
+public:
 
   Teuchos::RCP<MV> clone( ECopyType ctype=DeepCopy ) const {
     return( Teuchos::rcp( new MV( field0_->clone(ctype), fields_->clone(ctype) ) ) );
@@ -89,19 +98,19 @@ public:
   Teuchos::RCP<const Field> getConst0FieldPtr() const { return(  field0_ ); }
 
 
-  ModeField<Field>&               getField        ( int i )       { return( fields_->getField        (i) ); }
+  ModeField<Field>&                     getField        ( int i )       { return( fields_->getField        (i) ); }
   const ModeField<Field>&               getConstField   ( int i ) const { return( fields_->getConstField   (i) ); }
   Teuchos::RCP<      ModeField<Field> > getFieldPtr     ( int i )       { return( fields_->getFieldPtr     (i) ); }
   Teuchos::RCP<const ModeField<Field> > getConstFieldPtr( int i ) const { return( fields_->getConstFieldPtr(i) ); }
 
 
-  Field&              getCField        ( int i )       { return( fields_->getFieldPtr     (i)->getCField()      ); }
+  Field&                    getCField        ( int i )       { return( fields_->getFieldPtr     (i)->getCField()      ); }
   const Field&              getConstCField   ( int i ) const { return( fields_->getConstFieldPtr(i)->getConstCField() ); }
   Teuchos::RCP<      Field> getCFieldPtr     ( int i )       { return( fields_->getFieldPtr     (i)->getCFieldPtr()   ); }
   Teuchos::RCP<const Field> getConstCFieldPtr( int i ) const { return( fields_->getConstFieldPtr(i)->getConstCFieldPtr() ); }
 
 
-  Field&              getSField        ( int i )       { return( fields_->getFieldPtr     (i)->getSField()         ); }
+  Field&                    getSField        ( int i )       { return( fields_->getFieldPtr     (i)->getSField()         ); }
   const Field&              getConstSField   ( int i ) const { return( fields_->getConstFieldPtr(i)->getConstSField()    ); }
   Teuchos::RCP<      Field> getSFieldPtr     ( int i )       { return( fields_->getFieldPtr     (i)->getSFieldPtr()      ); }
   Teuchos::RCP<const Field> getConstSFieldPtr( int i ) const { return( fields_->getConstFieldPtr(i)->getConstSFieldPtr() ); }

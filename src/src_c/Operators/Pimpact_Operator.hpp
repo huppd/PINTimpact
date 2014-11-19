@@ -3,11 +3,13 @@
 #define PIMPACT_OPERATOR_HPP
 
 /// \defgroup Operator Operators
+/// \todo think about adding a compResidual( x, b, res ) method to Operators
 #include "Pimpact_Add2Op.hpp"
 #include "Pimpact_Add3Op.hpp"
 #include "Pimpact_CompositionOp.hpp"
 #include "Pimpact_TripleCompositionOp.hpp"
 #include "Pimpact_InverseOperator.hpp"
+#include "Pimpact_InverseOp.hpp"
 #include "Pimpact_ForcingOp.hpp"
 
 
@@ -48,6 +50,7 @@
 /// \ingroup Operator
 /// Operator operate on multi fields: \c Pimpact::MultiField
 #include "Pimpact_MultiOpWrap.hpp"
+#include "Pimpact_MultiOpUnWrap.hpp"
 
 /// \defgroup CompoundOperator Compound Operator
 /// \ingroup Operator

@@ -42,9 +42,9 @@ protected:
 public:
 
   DivGradOp( const Teuchos::RCP<const SpaceT>& space ):
-    temp_( create<Pimpact::VectorField>( space ) ),
-    div_ ( createDivOp( space ) ),
-    grad_( createGradOp( space ) ) {};
+    temp_( create<VectorField>( space ) ),
+    div_ ( create<DivOp>( space ) ),
+    grad_( create<GradOp>( space ) ) {};
 
   DivGradOp(
       const Teuchos::RCP<VectorField<SpaceT> >& temp,

@@ -51,7 +51,7 @@ Teuchos::RCP< OperatorBase<MF> > createMultiOperatorBase( const Teuchos::RCP<Op>
 /// \relates MultiOpWrap
 /// \relates ModeOpWrap
 template<class MF, class Op>
-Teuchos::RCP<OperatorBase<MF> > createMultiModeOperatorBase( const Teuchos::RCP<Op>& op ) {
+Teuchos::RCP<const OperatorBase<MF> > createMultiModeOperatorBase( const Teuchos::RCP<Op>& op ) {
 
   return(
       createOperatorBase(

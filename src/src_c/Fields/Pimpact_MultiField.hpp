@@ -28,39 +28,41 @@ namespace Pimpact {
 ///
 /// has multiple \c Field's, where \c Field can be a \c Pimpact:ScalarField, \c
 /// Pimpact:VectorField or some combination with \c Pimpact::ModeField or \c
-/// Pimpact::CompoundField \note if this is heavily used for many Field's, then
-/// the implementation should be improved such that communication is done such
-/// that only done once per MV not per Field
+/// Pimpact::CompoundField
 ///
 /// \note for better documentation, look at the equivalent documentation in the \c Belos::...
 /// \todo SpaceT constructor
 /// \todo continous memory
 /// \ingroup Field
-template<class Field>
-class MultiField : private AbstractField<typename Field::SpaceT> {
+template<class FT>
+class MultiField : private AbstractField<typename FT::SpaceT> {
 
 public:
 
-  typedef typename Field::Scalar Scalar;
-  typedef typename Field::Ordinal Ordinal;
+  typedef FT FieldT;
 
-  static const int dimension = Field::dimension;
+  typedef typename FieldT::SpaceT SpaceT;
 
-  typedef typename Field::SpaceT SpaceT;
+  typedef typename FieldT::Scalar Scalar;
+  typedef typename FieldT::Ordinal Ordinal;
+
+  static const int dimension = FieldT::dimension;
+
 
 private:
 
-  typedef Pimpact::MultiField<Field> MV;
+  typedef Pimpact::MultiField<FieldT> MV;
 
   typedef AbstractField<SpaceT> AF;
 
-  Teuchos::Array<Teuchos::RCP<Field> > mfs_;
+  Teuchos::Array<Teuchos::RCP<FieldT> > mfs_;
 
 public:
 
-  /// \brief constructor taking a \c Field constructing multiple shallow copys.
+
+  /// \brief constructor taking a \c FieldT constructing multiple shallow copys.
   /// \note maybe hide and make it private
-  MultiField( const Field& field, const int numvecs, ECopyType ctyp=ShallowCopy ):
+  MultiField( const FieldT& field, const int numvecs, ECopyType ctyp=ShallowCopy ):
     AF( field.space() ),
     mfs_(numvecs) {
     for( int i=0; i<numvecs; ++i )
@@ -68,10 +70,10 @@ public:
   }
 
 
-  /// \brief cheap constructor from one Field.
+  /// \brief cheap constructor from one FieldT.
   ///
-  /// creates simple wrapper from Field(no coppying).
-  MultiField( const Teuchos::RCP<Field>& field ):
+  /// creates simple wrapper from field(no coppying).
+  MultiField( const Teuchos::RCP<FieldT>& field ):
     AF( field->space() ),
     mfs_(1) {
     mfs_[0] = field;
@@ -85,12 +87,17 @@ public:
     mfs_(mv.mfs_) {}
 
 
-  /// \brief  constructor, creates \c numvecs  empty Fields
+  /// \brief  constructor, creates \c numvecs  empty fields
   /// \param numvecs
   /// @return
-  MultiField( const Teuchos::RCP<const SpaceT>& space, int numvecs ):
+  MultiField( const Teuchos::RCP<const SpaceT>& space, int numvecs=1 ):
     AF( space ),
-    mfs_(numvecs) {}
+    mfs_(numvecs) {
+
+    for( int i=0; i<numvecs; ++i )
+      mfs_[i] = create<FieldT>( space );
+
+  }
 
 
   /// \brief Create a new \c MultiField with \c numvecs columns.
@@ -132,7 +139,8 @@ public:
   Teuchos::RCP<MV>  CloneCopy( const std::vector<int>& index ) const {
     auto mv_ = Teuchos::rcp( new MV( space(), index.size() ) );
     for( unsigned int i=0; i<index.size(); ++i ) {
-      mv_->mfs_[i] = Teuchos::rcp( new Field( *mfs_[ index[i] ], DeepCopy ) );
+      //      mv_->mfs_[i] = Teuchos::rcp( new FieldT( *mfs_[ index[i] ], DeepCopy ) );
+      mv_->mfs_[i] = mfs_[ index[i] ]->clone( DeepCopy );
     }
     return( mv_ );
   }
@@ -145,7 +153,8 @@ public:
     auto mv_ = Teuchos::rcp( new MV(space(), index.size()) );
     int j = 0;
     for( int i=index.lbound(); i<=index.ubound(); ++i ) {
-      mv_->mfs_[j] = Teuchos::rcp( new Field( *mfs_[ i ], DeepCopy ) );
+      //      mv_->mfs_[j] = Teuchos::rcp( new FieldT( *mfs_[ i ], DeepCopy ) );
+      mv_->mfs_[j] = mfs_[i]->clone( DeepCopy );
       ++j;
     }
     return( mv_ );
@@ -192,7 +201,7 @@ public:
   }
 
 
-  /// \brief returns the length of Field.
+  /// \brief returns the length of MultiField.
   ///
   /// \param nox_vec if \c MultiField is used for NOX the Vector length is
   /// considered for all Fields
@@ -221,7 +230,7 @@ public:
   //@{
 
   /// \brief addes new field at end
-  void push_back( const Teuchos::RCP<Field>& field=Teuchos::null ) {
+  void push_back( const Teuchos::RCP<FieldT>& field=Teuchos::null ) {
     if( Teuchos::is_null(field) )
       mfs_.push_back( mfs_.back()->clone(ShallowCopy) );
     else
@@ -421,16 +430,16 @@ public:
 
     for( int i=0; i<n; ++i ) {
       switch(type) {
-          case Belos::OneNorm:
-            normvec += mfs_[i]->norm(type,false);
-            break;
-          case Belos::TwoNorm:
-            normvec += mfs_[i]->norm(type,false);
-            break;
-          case Belos::InfNorm:
-            normvec = std::max( mfs_[i]->norm(type,false), normvec ) ;
-            break;
-          }
+      case Belos::OneNorm:
+        normvec += mfs_[i]->norm(type,false);
+        break;
+      case Belos::TwoNorm:
+        normvec += mfs_[i]->norm(type,false);
+        break;
+      case Belos::InfNorm:
+        normvec = std::max( mfs_[i]->norm(type,false), normvec ) ;
+        break;
+      }
     }
 
     if( global ) this->reduceNorm( space()->comm(), normvec, type );
@@ -511,11 +520,11 @@ public:
   }
 
 
-  Field&       getField     (int i)       { return( *mfs_[i] ); }
-  const Field& getConstField(int i) const { return( *mfs_[i] ); }
+  FieldT&       getField     (int i)       { return( *mfs_[i] ); }
+  const FieldT& getConstField(int i) const { return( *mfs_[i] ); }
 
-  Teuchos::RCP<Field>       getFieldPtr     (int i)       { return( mfs_[i] ); }
-  Teuchos::RCP<const Field> getConstFieldPtr(int i) const { return( mfs_[i] ); }
+  Teuchos::RCP<FieldT>       getFieldPtr     (int i)       { return( mfs_[i] ); }
+  Teuchos::RCP<const FieldT> getConstFieldPtr(int i) const { return( mfs_[i] ); }
 
   Teuchos::RCP<const SpaceT> space() const { return( AF::space_ ); }
 
@@ -526,12 +535,12 @@ public:
 
 /// \brief factory for \c MultiField
 /// \relates MultiField
-template<class Field>
-Teuchos::RCP< MultiField<Field> > createMultiField(
-    const Field& field,
+template<class FieldT>
+Teuchos::RCP< MultiField<FieldT> > createMultiField(
+    const FieldT& field,
     const int numvecs, ECopyType ctype = ShallowCopy ) {
 
-  return( Teuchos::rcp( new MultiField<Field>( field, numvecs, ctype ) ) );
+  return( Teuchos::rcp( new MultiField<FieldT>( field, numvecs, ctype ) ) );
 }
 
 
@@ -540,9 +549,9 @@ Teuchos::RCP< MultiField<Field> > createMultiField(
 ///
 /// simple wrapper.
 /// \relates MultiField
-template<class Field>
-Teuchos::RCP< MultiField<Field> > createMultiField( const Teuchos::RCP<Field>& field ) {
-  return( Teuchos::rcp( new MultiField<Field>( field ) ) );
+template<class FieldT>
+Teuchos::RCP< MultiField<FieldT> > createMultiField( const Teuchos::RCP<FieldT>& field ) {
+  return( Teuchos::rcp( new MultiField<FieldT>( field ) ) );
 }
 
 

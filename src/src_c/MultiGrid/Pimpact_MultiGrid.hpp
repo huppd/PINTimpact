@@ -25,16 +25,18 @@ namespace Pimpact {
 /// \ingroup MG
 /// \todo think about templeting everything MGSpaces,  MGOperators,...
 template<
-class FSpaceT,
-class CSpaceT,
+class MGSpacesT,
 template<class> class FieldT,
 template<class> class FOperatorT,
 template<class> class COperatorT,
 template<class> class SmootherT,
-class CGridSolverT >
+template<class> class CGST >
 class MultiGrid {
 
-  typedef MGSpaces<FSpaceT,CSpaceT> MGSpacesT;
+  typedef typename MGSpacesT::FSpaceT FSpaceT;
+  typedef typename MGSpacesT::CSpaceT CSpaceT;
+
+  //  typedef MGSpaces<FSpaceT,CSpaceT> MGSpacesT;
 
   typedef MGTransfers<MGSpacesT> MGTransfersT;
 
@@ -42,7 +44,12 @@ class MultiGrid {
 
   typedef MGOperators<MGSpacesT,FOperatorT,COperatorT>   MGOperatorsT;
 
-  typedef MGSmoothers<MGSpacesT, SmootherT> MGSmoothersT;
+  typedef MGSmoothers<MGOperatorsT, SmootherT> MGSmoothersT;
+
+  typedef FieldT<FSpaceT>  DomainFieldT;
+  typedef FieldT<FSpaceT>  RangeFieldT;
+
+  typedef CGST< COperatorT<CSpaceT> > CGridSolverT;
 
 protected:
 
@@ -54,28 +61,83 @@ protected:
 
   Teuchos::RCP<const MGSmoothersT> mgSms_;
 
-  Teuchos::RCP<const CGridSolverT> cGridSolver_;
-
   Teuchos::RCP<MGFieldsT> x_;
+  Teuchos::RCP<MGFieldsT> temp_;
   Teuchos::RCP<MGFieldsT> b_;
+
+  Teuchos::RCP<CGridSolverT> cGridSolver_;
+
+public:
 
   MultiGrid(
       const Teuchos::RCP<const MGSpacesT>& mgSpaces,
-      const Teuchos::RCP<const CGridSolverT>& cGridSolver,
       EField type = EField::S ):
         mgSpaces_(mgSpaces),
         mgTrans_( createMGTransfers(mgSpaces) ),
         mgOps_( Pimpact::createMGOperators<FOperatorT,COperatorT>(mgSpaces) ),
-        mgSms_( Pimpact::createMGOperators<FOperatorT,COperatorT>(mgSpaces) ),
-        x_( createMGField(mgSpaces, type ) ),
-        b_( createMGField(mgSpaces, type ) ),
-        cGridSolver_(cGridSolver) {}
+        mgSms_( Pimpact::createMGSmoothers<SmootherT>(mgOps_) ),
+        x_( createMGFields<FieldT>(mgSpaces, type ) ),
+        temp_( createMGFields<FieldT>(mgSpaces, type ) ),
+        b_( createMGFields<FieldT>(mgSpaces, type ) ),
+        cGridSolver_( create<CGridSolverT>( mgOps_->get(-1) ) )
+{}
 
-public:
 
-  //  void print(  std::ostream& out=std::cout ) const {}
 
-  //  }
+  /// \brief solves \f$ L y = x \f$
+  /// defect correction\f$ \hat{L}u_{k+1} = f-L u_k +\hat{L}u_k \f$ and V-cylce for solving with \f$\hat{L}\f$
+  /// \todo extract smooth/restrict/interpolate method
+  /// \todo template cycle method
+  void apply( const DomainFieldT& x, RangeFieldT& y ) const {
+
+    for( int j=0; j<2; ++j ) {
+      // defect correction rhs \hat{f}= b = x - L y
+      mgOps_->get()->apply( y, *b_->get() );
+      b_->get()->add( 1., x, -1., *b_->get() );
+
+      // transfer init y and \hat{f} to coarsest coarse
+      mgTrans_->getTransferOp()->apply( y, *x_->get(0) );
+      mgTrans_->getTransferOp()->apply( *b_->get(), *b_->get(0) );
+
+      //  temp = \hat(L) y
+      mgOps_->get(0)->apply( *x_->get(0), *temp_->get(0) );
+      // b = x - L y +\hat{L} y
+      b_->get(0)->add( 1., *b_->get(0), 1, *temp_->get(0) );
+      // for singular laplace
+      //    b_->get(0)->level();
+
+      // smooth and restrict defect( todo extract this as method )
+      int i;
+      for( i=0; i<mgSpaces_->getNGrids()-1; ++i ) {
+        x_->get(i)->init(0.); // necessary?
+        mgSms_->get( i )->apply( *b_->get(i), *x_->get(i) );
+        mgOps_->get( i )->apply( *x_->get(i), *temp_->get(i) );
+        temp_->get(i)->add( -1., *temp_->get(i), 1., *b_->get(i) );
+        mgTrans_->getRestrictionOp(i)->apply( *temp_->get(i), *b_->get(i+1) );
+      }
+
+      // coarse grid solution
+      i = -1;
+      b_->get(i)->level();
+      x_->get(i)->init(0.);
+      cGridSolver_->apply( *b_->get(i), *x_->get(i) );
+
+      for( i=-2; i>=-mgSpaces_->getNGrids(); --i ) {
+        // interpolate/correct/smooth
+        mgTrans_->getInterpolationOp(i)->apply( *x_->get(i+1), *temp_->get(i) );
+        x_->get(i)->add( 1., *temp_->get(i), 1., *x_->get(i) );
+        //      x_->get(0)->write( 98 );
+        mgSms_->get( i )->apply( *b_->get(i), *x_->get(i) );
+        //      x_->get(0)->write(99);
+
+      }
+      mgTrans_->getTransferOp()->apply( *x_->get(0), y );
+      //    y.level();// only laplace
+
+    }
+
+  }
+
 
 }; // end of class MultiGrid
 
@@ -87,54 +149,21 @@ template<class> class FieldT,
 template<class> class FOperatorT,
 template<class> class COperatorT,
 template<class> class SmootherT,
-class CGridSolverT,
+template<class> class CGridSolverT,
 class MGSpacesT >
-Teuchos::RCP< MultiGrid<typename MGSpacesT::FSpaceT,typename MGSpacesT::CSpaceT,FieldT,FOperatorT,COperatorT,SmootherT,CGridSolverT> >
+Teuchos::RCP< MultiGrid<MGSpacesT,FieldT,FOperatorT,COperatorT,SmootherT,CGridSolverT> >
 createMultiGrid(
     const Teuchos::RCP<const MGSpacesT>& mgSpaces,
-    const Teuchos::RCP<const CGridSolverT>& cGridSolver,
     EField type = EField::S  ) {
 
   return(
       Teuchos::rcp(
-          new MultiGrid<typename MGSpacesT::FSpaceT,typename MGSpacesT::CSpaceT,FieldT,FOperatorT,COperatorT,SmootherT,CGridSolverT>(
-              mgSpaces, cGridSolver,type)
+          new MultiGrid<MGSpacesT,FieldT,FOperatorT,COperatorT,SmootherT,CGridSolverT>(
+              mgSpaces, type)
       )
   );
 
 }
-//
-////  typedef typename FField::SpaceT FSpaceT;
-//  typedef typename CField::SpaceT CSpaceT;
-//
-//
-//  std::vector<Teuchos::RCP<const CSpaceT> > spaces =
-//      CoarsenStrategy::getMultiSpace( space, maxGrids );
-//
-//  std::vector< Teuchos::RCP<CField> > fields;
-//
-//  for( unsigned i=0; i<spaces.size(); ++i )
-//    fields.push_back( Teuchos::rcp( new CField(spaces[i],true,type) ) );
-//
-//  std::vector< Teuchos::RCP< typename MultiGrid<FField,CField>::RestrictionOpT> > restrictOp;
-//  std::vector< Teuchos::RCP< typename MultiGrid<FField,CField>::InterpolationOpT> > interpolationOp;
-//
-//  for( unsigned i=0; i<spaces.size()-1; ++i ) {
-//    restrictOp.push_back( createRestrictionOp( spaces[i], spaces[i+1] ) );
-//    interpolationOp.push_back( createInterpolationOp( spaces[i+1], spaces[i] ) );
-//  }
-//
-//  return(
-//      Teuchos::rcp(
-//          new MultiGrid<FField,CField>(
-//              space,
-//              spaces,
-//              fields,
-//              restrictOp,
-//              interpolationOp ) ) );
-//
-//}
-
 
 
 } // end of namespace Pimpact

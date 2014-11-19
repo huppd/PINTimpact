@@ -40,6 +40,7 @@ public:
 	~ModeOpWrap() {op_=Teuchos::null;};
 
 
+	/// \todo apply for helmholtx k=...
 	void apply( const DomainFieldT& x, RangeFieldT& y,
 			Belos::ETrans trans=Belos::NOTRANS) const {
 
@@ -65,10 +66,7 @@ public:
 
 /// \relates ModeOpWrap
 template<class Operator>
-Teuchos::RCP< ModeOpWrap<Operator> > createModeOpWrap( const Teuchos::RCP<Operator>& op/*=Teuchos::null*/) {
-//  if( Teuchos::is_null(op) )
-//    return( Teuchos::rcp( new ModeOpWrap<Operator>( Teuchos::rcp( new Operator() ) ) ) );
-//  else
+Teuchos::RCP< ModeOpWrap<Operator> > createModeOpWrap( const Teuchos::RCP<Operator>& op ) {
     return( Teuchos::rcp( new ModeOpWrap<Operator>( op ) ) );
 }
 

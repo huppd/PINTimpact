@@ -10,7 +10,6 @@
 #include "BelosTypes.hpp"
 
 #include "Pimpact_Types.hpp"
-//#include "Pimpact_Space.hpp"
 
 #include "Pimpact_extern_ScalarField.hpp"
 
@@ -517,6 +516,19 @@ public:
       break;
     }
     changed();
+  }
+
+
+  void level() {
+    SF_level(
+        space()->commf(),
+        getLength(),
+        space()->nLoc(),
+        space()->bl(),
+        space()->bu(),
+        space()->sIndB(fType_),
+        space()->eIndB(fType_),
+        s_ );
   }
 
 

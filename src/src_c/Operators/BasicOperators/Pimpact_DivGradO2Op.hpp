@@ -155,7 +155,7 @@ public:
 
   }
 
-  void assignField( const DomainFieldT& mv ) {};
+  void assignField ( const DomainFieldT& mv ) const {};
 
   bool hasApplyTranspose() const { return( false ); }
 
@@ -176,13 +176,15 @@ public:
     }
   }
 
+  Teuchos::RCP<const SpaceT> getSpace() const { return( space_ ); }
+
 }; // end of class DivGradO2Op
 
 
 
 /// \relates DivGradO2Op
 template<class SpaceT>
-Teuchos::RCP< DivGradO2Op<SpaceT> > createDivGradO2Op(
+Teuchos::RCP<const DivGradO2Op<SpaceT> > createDivGradO2Op(
     const Teuchos::RCP<const SpaceT>& space ) {
   return(
       Teuchos::rcp( new DivGradO2Op<SpaceT>(space) ) );

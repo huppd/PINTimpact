@@ -272,6 +272,15 @@ void SF_init_2DGradY(
     const double* const x2,
           double* const phi );
 
+void SF_level(
+    const int& COMM_CART,
+    const int& M,
+    const int* const N,
+    const int* const bL,
+    const int* const bU,
+    const int* const SS,
+    const int* const NN,
+    double* const phi );
 
 
 } // end of extern 'C'

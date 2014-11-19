@@ -41,11 +41,16 @@ protected:
 
 public:
 
-  int getNGrids() const {
-    return( spaces_.size() );
-  }
+  int getNGrids() const { return( spaces_.size() ); }
   Teuchos::RCP<const FSpaceT>  get()        const { return( space_ ); }
-  Teuchos::RCP<const CSpaceT>  get( int i ) const { return( spaces_[i] ); }
+
+  /// \brief gets ith space, similar to python i=-1 is gets you the coarses space
+  Teuchos::RCP<const CSpaceT>  get( int i ) const {
+    if( i<0 )
+      return( spaces_[ getNGrids()+i ] );
+    else
+      return( spaces_[i] );
+  }
 
   void print(  std::ostream& out=std::cout ) const {
 

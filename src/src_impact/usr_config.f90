@@ -471,11 +471,11 @@ subroutine configuration() bind ( c, name='configuration_' )
     !         step such that the corresponding pressure-Poisson problems have at least one solution
     !       - "nullspace_coarse_yes" (for the multigrid problems) is normally not necessary
     !
-    nullspace_yes        = .false.
-    nullspace_coarse_yes = .false.
+    !    nullspace_yes        = .false.
+    !    nullspace_coarse_yes = .false.
 
-    !  nullspace_yes        = .true.
-    !  nullspace_coarse_yes = .true.
+      nullspace_yes        = .true.
+      nullspace_coarse_yes = .true.
   
     !--- read null space base vectors instead of recomputing them ---
     read_nullspace_yes = .false.

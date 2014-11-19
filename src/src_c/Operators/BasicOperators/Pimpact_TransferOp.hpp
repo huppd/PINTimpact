@@ -71,7 +71,7 @@ public:
         fSpace_(fSpace),cSpace_(cSpace) {}
 
 
-  void apply(const DomainFieldT& x, RangeFieldT& y) const {
+  void apply( const DomainFieldT& x, RangeFieldT& y ) const {
     auto fType = x.fType_;
 
     TEUCHOS_TEST_FOR_EXCEPTION(
@@ -95,7 +95,7 @@ public:
     y.changed();
   }
 
-  void apply(const RangeFieldT& x, DomainFieldT& y) const {
+  void apply( const RangeFieldT& x, DomainFieldT& y ) const {
     auto fType = x.fType_;
 
     TEUCHOS_TEST_FOR_EXCEPTION(

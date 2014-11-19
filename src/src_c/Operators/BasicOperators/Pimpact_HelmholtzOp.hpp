@@ -52,8 +52,8 @@ protected:
 
   Teuchos::RCP<const SpaceT> space_;
 
-  Scalar mulI_;
-  Scalar mulL_;
+//  Scalar mulI_;
+//  Scalar mulL_;
 
   TO cS_;
   TO cV_;
@@ -64,12 +64,11 @@ public:
   typedef VectorField<SpaceT>  RangeFieldT;
 
   HelmholtzOp(
-      const Teuchos::RCP<const SpaceT>& space,
-      Scalar mulI=1.,
-      Scalar mulL=1. ):
-        space_(space),
-        mulI_(mulI),
-        mulL_(mulL) {
+      const Teuchos::RCP<const SpaceT>& space ):
+        space_(space)//,
+//        mulI_(mulI),
+//        mulL_(mulL)
+  {
 
     for( int i=0; i<3; ++i ) {
       Ordinal nTemp = ( space_->nLoc(i) + 1 )*( space_->bu(i) - space_->bl(i) + 1);
@@ -130,14 +129,17 @@ public:
     }
   }
 
-  void setMulI(Scalar mulI){ mulI_ = mulI;};
-  void setMulL(Scalar mulL){ mulL_ = mulL;};
+//  void setMulI(Scalar mulI){ mulI_ = mulI;};
+//  void setMulL(Scalar mulL){ mulL_ = mulL;};
+//
+//  Scalar getMulI() const { return(mulI_); };
+//  Scalar getMulL() const { return(mulL_); };
 
-  Scalar getMulI() const { return(mulI_); };
-  Scalar getMulL() const { return(mulL_); };
 
+  void apply(const DomainFieldT& x, RangeFieldT& y, int k=0 ) const {
 
-  void apply(const DomainFieldT& x, RangeFieldT& y) const {
+    Scalar mulI_ = k*space_->getDomain()->getDomainSize()->getAlpha2();
+    Scalar mulL_ = 1./space_->getDomain()->getDomainSize()->getRe();
 
     x.exchange();
 
@@ -222,21 +224,25 @@ public:
     }
   }
 
+  Teuchos::RCP<const SpaceT> getSpace() const { return( space_ ); }
+
+
 }; // end of class HelmholtzOp
 
 
 
 
-/// \relates HelmholtzOp
-template<class SpaceT>
-Teuchos::RCP<HelmholtzOp<SpaceT> > createHelmholtzOp(
-    const Teuchos::RCP<const SpaceT>& space,
-    typename SpaceT::Scalar mulI=0.,
-    typename SpaceT::Scalar mulL=1. ) {
-  return(
-      Teuchos::rcp( new HelmholtzOp<SpaceT>( space, mulI, mulL ) )
-  );
-}
+///// \relates HelmholtzOp
+//template<class SpaceT>
+//Teuchos::RCP<HelmholtzOp<SpaceT> > createHelmholtzOp(
+//    const Teuchos::RCP<const SpaceT>& space ) {
+////  return(
+////      Teuchos::rcp( new HelmholtzOp<SpaceT>( space, mulI, mulL ) )
+////  );
+//  return(
+//      create<HelmholtzOp>( space )
+//  );
+//}
 
 
 

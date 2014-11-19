@@ -397,38 +397,38 @@ contains
   
 
 
-    !> \deprecated
-    subroutine clevel_pressure( &
-        phi ) bind ( c, name='SF_level' )
-
-        implicit none
-
-        real(c_double),  intent(inout) :: phi(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
-
-        integer                ::  i, j, k
-        real                   ::  pre0, pre0_global
-
-
-
-        pre0 = 0.
-
-        do k = S3p, N3p
-            do j = S2p, N2p
-                !pgi$ unroll = n:8
-                do i = S1p, N1p
-                    pre0 = pre0 + phi(i,j,k)
-                end do
-            end do
-        end do
-
-        call MPI_ALLREDUCE(pre0,pre0_global,1,MPI_REAL8,MPI_SUM,COMM_CART,merror)
-
-        pre0 = pre0_global/REAL(dim1)/REAL(dim2)/REAL(dim3) ! TEST!!! wegen i4 gefaehrlich!
-
-        phi(S1p:N1p,S2p:N2p,S3p:N3p) = phi(S1p:N1p,S2p:N2p,S3p:N3p) - pre0
-
-
-    end subroutine clevel_pressure
+!    !> \deprecated
+!    subroutine clevel_pressure( &
+!        phi ) bind ( c, name='SF_level' )
+!
+!        implicit none
+!
+!        real(c_double),  intent(inout) :: phi(b1L:(N1+b1U),b2L:(N2+b2U),b3L:(N3+b3U))
+!
+!        integer                ::  i, j, k
+!        real                   ::  pre0, pre0_global
+!
+!
+!
+!        pre0 = 0.
+!
+!        do k = S3p, N3p
+!            do j = S2p, N2p
+!                !pgi$ unroll = n:8
+!                do i = S1p, N1p
+!                    pre0 = pre0 + phi(i,j,k)
+!                end do
+!            end do
+!        end do
+!
+!        call MPI_ALLREDUCE(pre0,pre0_global,1,MPI_REAL8,MPI_SUM,COMM_CART,merror)
+!
+!        pre0 = pre0_global/REAL(dim1)/REAL(dim2)/REAL(dim3) ! TEST!!! wegen i4 gefaehrlich!
+!
+!        phi(S1p:N1p,S2p:N2p,S3p:N3p) = phi(S1p:N1p,S2p:N2p,S3p:N3p) - pre0
+!
+!
+!    end subroutine clevel_pressure
 
 
 end module cmod_solvers

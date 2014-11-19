@@ -84,6 +84,8 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
   pl->set("nx", 65 );
   pl->set("ny", 65 );
 
+  pl->set("Re", 1./eps );
+
   auto space = Pimpact::createSpace( pl, !isImpactInit );
 
 
@@ -102,7 +104,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
           Pimpact::createMultiOpWrap(
               Pimpact::createAdd2Op(
                   Pimpact::createConvectionVOp( space ),
-                  Pimpact::createHelmholtzOp( space, 0., eps ),
+                  Pimpact::create<Pimpact::HelmholtzOp>( space ),
                   vel->clone()
               )
           )
@@ -116,7 +118,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
                   Pimpact::createConvectionJacobianOp(
                       space,
                       true ),
-                      Pimpact::createHelmholtzOp( space, 0.,eps),
+                      Pimpact::create<Pimpact::HelmholtzOp>( space ),
                       vel->clone() ) ) );
 
 

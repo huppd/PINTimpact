@@ -228,8 +228,8 @@ int main(int argi, char** argv ) {
             Pimpact::createMultiHarmonicConvectionOp( space /*,x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone()*/ ),
             x->getConstFieldPtr(0)->getConstVFieldPtr()->clone()
         );
-    auto opS2V = Pimpact::createMultiHarmonicOpWrap( Pimpact::createGradOp( space ) );
-    auto opV2S = Pimpact::createMultiHarmonicOpWrap( Pimpact::createDivOp( space ) );
+    auto opS2V = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::GradOp>( space ) );
+    auto opV2S = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::DivOp>( space ) );
 
     auto op =
         Pimpact::createMultiOperatorBase<MF>(

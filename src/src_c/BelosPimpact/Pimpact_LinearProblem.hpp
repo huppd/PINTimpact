@@ -4,21 +4,22 @@
 
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_ParameterList.hpp"
+
 #include "BelosSolverFactory.hpp"
 
+#include "BelosPimpactAdapter.hpp"
 #include "Pimpact_OperatorBase.hpp"
-#include"BelosPimpactAdapter.hpp"
 
 
 
 namespace Pimpact {
 
 
-/// \tparam MultiField has to be of type \c Pimpact::MultiField
-template< class MultiField >
+/// \tparam MultiFieldT has to be of type \c Pimpact::MultiField
+template< class MultiFieldT >
 class LinearProblem {
 
-  typedef MultiField MF;
+  typedef MultiFieldT MF;
   typedef typename MF::Scalar Scalar;
   typedef OperatorBase<MF> Op;
 
@@ -46,7 +47,7 @@ public:
   }
 
   Belos::ReturnType solve( const Teuchos::RCP<MF>& x, const Teuchos::RCP<const MF>& rhs) {
-    problem_->setProblem(x,rhs);
+    problem_->setProblem( x, rhs );
     return( solver_->solve() );
   }
 

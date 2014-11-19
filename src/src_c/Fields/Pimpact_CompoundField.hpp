@@ -47,6 +47,11 @@ protected:
 
 public:
 
+  CompoundField( const Teuchos::RCP<const SpaceT>& space ):
+        AF( space ),
+        vfield_( create<VField>(space) ),
+        sfield_( create<SField>(space) ) {};
+
   CompoundField(
       const Teuchos::RCP<VField>& vfield,
       const Teuchos::RCP<SField>& sfield ):
@@ -54,6 +59,7 @@ public:
         vfield_(vfield),
         sfield_(sfield) {};
 
+protected:
 
   /// \brief copy constructor.
   ///
@@ -64,8 +70,9 @@ public:
     AF( vF.space() ),
     vfield_( vF.vfield_->clone(copyType) ),
     sfield_( vF.sfield_->clone(copyType) )
-  {};
+{};
 
+public:
 
   Teuchos::RCP<MV> clone( ECopyType ctype=DeepCopy ) const {
     return( Teuchos::rcp( new MV( vfield_->clone(ctype), sfield_->clone(ctype) ) ) );

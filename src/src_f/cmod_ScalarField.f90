@@ -7,6 +7,8 @@ module cmod_ScalarField
 
     use iso_c_binding
 
+    use mpi
+
     implicit none
 
 contains
@@ -730,7 +732,7 @@ contains
             do j = SS(2), NN(2)
                 !pgi$ unroll = n:8
                 do i = SS(1), NN(1)
-!                    phi(i,j,k) = 8*( x1(i)-L(1)/2 )/L(2)/L(2)/L(1)
+                    !                    phi(i,j,k) = 8*( x1(i)-L(1)/2 )/L(2)/L(2)/L(1)
                     phi(i,j,k) = ( x1(i)-L(1)/2 )
                 end do
             end do
@@ -772,12 +774,65 @@ contains
             do j = SS(2), NN(2)
                 !pgi$ unroll = n:8
                 do i = SS(1), NN(1)
-!                    phi(i,j,k) = 8.*( x2(j)-L(2)/2 )/L(1)/L(1)/L(2)
+                    !                    phi(i,j,k) = 8.*( x2(j)-L(2)/2 )/L(1)/L(1)/L(2)
                     phi(i,j,k) = ( x2(j)-L(2)/2 )
                 end do
             end do
         end do
 
     end subroutine SF_init_2DGradY
+
+
+
+    subroutine SF_level(    &
+        COMM_CART,          &
+        M,                  &
+        N,                  &
+        bL,bU,              &
+        SS,NN,              &
+        phi ) bind ( c, name='SF_level' )
+
+        implicit none
+
+        integer(c_int), intent(in)    :: COMM_CART
+
+        integer(c_int), intent(in)    :: M
+
+        integer(c_int), intent(in)    :: N(3)
+
+        integer(c_int), intent(in)    :: bL(3)
+        integer(c_int), intent(in)    :: bU(3)
+
+        integer(c_int), intent(in)    :: SS(3)
+        integer(c_int), intent(in)    :: NN(3)
+
+        real(c_double),  intent(out)  :: phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+
+        integer                       ::  i, j, k, merror
+        real                          ::  pre0, pre0_global
+
+
+
+        pre0 = 0.
+
+        do k = SS(3), NN(3)
+            do j = SS(2), NN(2)
+                !pgi$ unroll = n:8
+                do i = SS(1), NN(1)
+                    pre0 = pre0 + phi(i,j,k)
+                end do
+            end do
+        end do
+
+        call MPI_ALLREDUCE(pre0,pre0_global,1,MPI_REAL8,MPI_SUM,COMM_CART,merror)
+
+        pre0 = pre0_global/REAL(M) ! TEST!!! wegen i4 gefaehrlich!
+
+        phi( SS(1):NN(1), SS(2):NN(2), SS(3):NN(3) ) = phi( SS(1):NN(1), SS(2):NN(2), SS(3):NN(3) ) - pre0
+
+
+    end subroutine SF_level
+
+
 
 end module cmod_ScalarField

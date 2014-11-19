@@ -385,7 +385,7 @@ int main(int argi, char** argv ) {
                 Pimpact::createGradOp( space )
             )
         );
-    auto opV2S = Pimpact::createMultiHarmonicOpWrap< Pimpact::DivOp<SpaceT> >( Pimpact::createDivOp( space ) );
+    auto opV2S = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::DivOp>( space ) );
 
     auto op =
         Pimpact::createMultiOperatorBase<MF>(

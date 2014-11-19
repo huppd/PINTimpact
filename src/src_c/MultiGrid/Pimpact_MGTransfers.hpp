@@ -70,9 +70,23 @@ public:
 
   //  int getNGrids() const { return( multiSpace_.size() ); }
 
-  Teuchos::RCP<const RestrictionOpT>    getTransferOp     (       ) const { return( transferOp_ ); }
-  Teuchos::RCP<const RestrictionOpT>    getRestrictionOp  ( int i ) const { return( restrictionOps_[i] ); }
-  Teuchos::RCP<const InterpolationOpT>  getInterpolationOp( int i ) const { return( interpolationOps_[i] ); }
+  Teuchos::RCP<const TransferOpT>       getTransferOp     (       ) const { return( transferOp_ ); }
+
+  /// \brief gets ith RestrictionOp, similar to python i=-1 is gets you the coarses space
+  Teuchos::RCP<const RestrictionOpT>    getRestrictionOp  ( int i ) const {
+    if( i<0 )
+      return( restrictionOps_[mgSpaces_->getNGrids()+i] );
+    else
+      return( restrictionOps_[i] );
+  }
+
+  /// \brief gets ith InterpolationOp, similar to python i=-1 is gets you the coarses space
+  Teuchos::RCP<const InterpolationOpT>  getInterpolationOp( int i ) const {
+    if( i<0 )
+      return( interpolationOps_[mgSpaces_->getNGrids()+i] );
+    else
+      return( interpolationOps_[i] );
+  }
 
   void print(  std::ostream& out=std::cout ) const {
 
