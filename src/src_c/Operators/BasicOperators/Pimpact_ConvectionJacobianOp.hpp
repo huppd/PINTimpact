@@ -21,6 +21,8 @@ namespace Pimpact {
 ///   have zero boundary conditions if used for linear solver.
 /// \note if heavily used one should do the interpolation in the assignField method.
 /// \relates ConvectionVOp
+/// \todo remodel
+/// \deprecated implement Newton in stencils
 template<class ST>
 class ConvectionJacobianOp {
 
@@ -39,6 +41,7 @@ protected:
   Teuchos::RCP<DomainFieldT> u_;
 
   Teuchos::RCP<const ConvectionVOp<SpaceT> > convectionVOp_;
+  Teuchos::RCP<const ConvectionVOp<SpaceT> > convectionVOp2_;
 
   const bool isNewton_;
 
@@ -47,30 +50,28 @@ public:
   ConvectionJacobianOp(
       const Teuchos::RCP<const SpaceT>& space,
       const bool& isNewton=true ):
-    u_( Teuchos::null ),
-    convectionVOp_( createConvectionVOp( space ) ),
-    isNewton_(isNewton) {};
-
-  ConvectionJacobianOp(
-      const Teuchos::RCP<const ConvectionVOp<SpaceT> >& convectionVOp,
-      const Teuchos::RCP<DomainFieldT>& u,
-      const bool& isNewton=true ):
-    u_( Teuchos::null ),
-    convectionVOp_(convectionVOp),
-    isNewton_(isNewton) {};
+        u_( Teuchos::null ),
+        convectionVOp_( createConvectionVOp( space ) ),
+        isNewton_(isNewton) {
+    if( isNewton_ )
+      convectionVOp2_ = createConvectionVOp( space );
+  };
 
 
   /// \todo danger different behavior BC are not necessarily treated, assign
   ///doesnot care about BC( fixed, but always whole copy is not efficient)
   void assignField( const DomainFieldT& mv ) {
 
-    if( u_.is_null() )
-      u_ = mv.clone(DeepCopy);
-    else
-      u_->assign( mv );
+    convectionVOp_->assignField( mv );
 
-    u_->exchange();
+    if( isNewton_ ) {
+      if( u_.is_null() )
+        u_ = mv.clone(DeepCopy);
+      else
+        u_->assign( mv );
 
+      u_->exchange();
+    }
   };
 
   void apply( const DomainFieldT& x, RangeFieldT& y, Scalar mul=0. ) const {
@@ -80,10 +81,10 @@ public:
       mul=1.;
     }
 
-    convectionVOp_->apply( *u_, x, y, mul );
+    convectionVOp_->apply( x, y, mul );
 
     if( isNewton_ )
-      convectionVOp_->apply(  x, *u_, y, mul );
+      convectionVOp2_->apply(  x, *u_, y, mul );
 
   }
 
@@ -100,17 +101,7 @@ Teuchos::RCP<ConvectionJacobianOp<SpaceT> > createConvectionJacobianOp(
     const Teuchos::RCP<const SpaceT>& space,
     const bool& isNewton=true ) {
 
-    return( Teuchos::rcp( new ConvectionJacobianOp<SpaceT>( space, isNewton ) ) );
-
-}
-
-/// \relates ConvectionJacobianOp
-template<class SpaceT>
-Teuchos::RCP<ConvectionJacobianOp<SpaceT> > createConvectionJacobianOp(
-    const Teuchos::RCP<const ConvectionVOp<SpaceT> >& convectionVOp,
-    const bool& isNewton=true ) {
-
-    return( Teuchos::rcp( new ConvectionJacobianOp<SpaceT>( convectionVOp, isNewton ) ) );
+  return( Teuchos::rcp( new ConvectionJacobianOp<SpaceT>( space, isNewton ) ) );
 
 }
 

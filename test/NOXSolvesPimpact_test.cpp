@@ -35,10 +35,13 @@ namespace {
 typedef double S;
 typedef int O;
 
-typedef Pimpact::Space<S,O,3,4> SpaceT;
+const int d = 3;
+const int dNC = 2;
+
+typedef Pimpact::Space<S,O,d,dNC> SpaceT;
 bool testMpi = true;
 
-S eps = 1.e1;
+S eps = 1.e0;
 bool isImpactInit = false;
 
 
@@ -63,8 +66,8 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
 
   typedef Pimpact::MultiField<VF> MVF;
 
-  typedef Pimpact::ConvectionJacobianOp<SpaceT>  JOp1;
-  typedef Pimpact::HelmholtzOp<SpaceT>  JOp2;
+//  typedef Pimpact::ConvectionJacobianOp<SpaceT>  JOp1;
+//  typedef Pimpact::HelmholtzOp<SpaceT>  JOp2;
 
 
   typedef NOX::Pimpact::Interface<MVF> Inter;
@@ -75,18 +78,19 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
   auto pl = Teuchos::parameterList();
   pl->set( "domain", 1 );
 
-//  pl->set("nx", 257 );
-//  pl->set("ny", 257 );
+  pl->set("nx", 257 );
+  pl->set("ny", 257 );
+  pl->set("lx", 2. );
+  pl->set("ly", 2. );
 //
-//  pl->set("nx", 125 );
-//  pl->set("ny", 125 );
+//  pl->set("nx", 125 ); pl->set("ny", 125 );
 
-  pl->set("nx", 65 );
-  pl->set("ny", 65 );
+//  pl->set("nx", 65 );
+//  pl->set("ny", 65 );
 
   pl->set("Re", 1./eps );
 
-  auto space = Pimpact::createSpace( pl, !isImpactInit );
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, !isImpactInit );
 
 
   if( !isImpactInit ) isImpactInit=true;
@@ -98,28 +102,32 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
   auto x = Pimpact::createMultiField( *vel->clone(), 1 );
   auto f = Pimpact::createMultiField( *vel->clone(), 1 );
 
+  auto sop = Pimpact::create<Pimpact::ConvectionDiffusionSOp>( space ) ;
+
 
   auto op =
       Pimpact::createOperatorBase(
           Pimpact::createMultiOpWrap(
-              Pimpact::createAdd2Op(
-                  Pimpact::createConvectionVOp( space ),
-                  Pimpact::create<Pimpact::HelmholtzOp>( space ),
-                  vel->clone()
+              Pimpact::create<Pimpact::ConvectionVOp>(
+                  Pimpact::create<Pimpact::ConvectionVWrap>(
+                      sop
+                  )
               )
           )
       );
 
-
-  auto jop =
+  auto smoother =
       Pimpact::createOperatorBase(
           Pimpact::createMultiOpWrap(
-              Pimpact::createAdd2Op<JOp1,JOp2>(
-                  Pimpact::createConvectionJacobianOp(
-                      space,
-                      true ),
-                      Pimpact::create<Pimpact::HelmholtzOp>( space ),
-                      vel->clone() ) ) );
+              Pimpact::create<Pimpact::ConvectionVOp>(
+                  Pimpact::create<Pimpact::ConvectionVWrap>(
+                      Pimpact::create<Pimpact::ConvectionDiffusionSORSmoother>( sop )
+                  )
+              )
+          )
+      );
+
+  auto jop = op;
 
 
   // init Fields, init and rhs
@@ -127,6 +135,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
   f->getFieldPtr(0)->initField( Pimpact::ZeroFlow );
 
   x->write( 97 );
+  op->assignField(*x);
   op->apply( *x, *f );
   f->write( 98 );
 
@@ -136,6 +145,9 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
 
   auto lp_ = Pimpact::createLinearProblem<MVF>(
       jop, x->clone(), f->clone(), para , "GMRES" );
+
+  lp_->setRightPrec( smoother );
+//  lp_->setLeftPrec( smoother );
 
   auto lp = Pimpact::createInverseOperatorBase<MVF>( lp_ );
 
@@ -181,6 +193,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
   Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() )->getConstFieldPtr()->write(99);
 
   auto sol = Teuchos::rcp_const_cast<VF>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() )->getConstFieldPtr()->getConstFieldPtr(0));
+  sol->write(888);
 
   vel->initField( Pimpact::RankineVortex2D );
 
@@ -189,6 +202,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
   er->add( 1., *sol, -1., *vel );
   er->write(100);
 
+  std::cout << " error: " << er->norm() << "\n";
   TEST_EQUALITY( er->norm() < 1.e-6, true );
 
   Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(999);

@@ -46,6 +46,10 @@ class MultiGrid {
 
   typedef MGSmoothers<MGOperatorsT, SmootherT> MGSmoothersT;
 
+public:
+
+  typedef FSpaceT SpaceT;
+
   typedef FieldT<FSpaceT>  DomainFieldT;
   typedef FieldT<FSpaceT>  RangeFieldT;
 
@@ -79,8 +83,7 @@ public:
         x_( createMGFields<FieldT>(mgSpaces, type ) ),
         temp_( createMGFields<FieldT>(mgSpaces, type ) ),
         b_( createMGFields<FieldT>(mgSpaces, type ) ),
-        cGridSolver_( create<CGridSolverT>( mgOps_->get(-1) ) )
-{}
+        cGridSolver_( create<CGridSolverT>( mgOps_->get(-1) ) ) {}
 
 
 
@@ -90,7 +93,8 @@ public:
   /// \todo template cycle method
   void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
-    for( int j=0; j<2; ++j ) {
+    int out =0;
+    for( int j=0; j<1; ++j ) {
       // defect correction rhs \hat{f}= b = x - L y
       mgOps_->get()->apply( y, *b_->get() );
       b_->get()->add( 1., x, -1., *b_->get() );
@@ -103,15 +107,16 @@ public:
       mgOps_->get(0)->apply( *x_->get(0), *temp_->get(0) );
       // b = x - L y +\hat{L} y
       b_->get(0)->add( 1., *b_->get(0), 1, *temp_->get(0) );
+//      b_->get(0)->write(out++);
       // for singular laplace
-      //    b_->get(0)->level();
+//          b_->get(0)->level();
 
       // smooth and restrict defect( todo extract this as method )
       int i;
       for( i=0; i<mgSpaces_->getNGrids()-1; ++i ) {
-        x_->get(i)->init(0.); // necessary?
-        mgSms_->get( i )->apply( *b_->get(i), *x_->get(i) );
-        mgOps_->get( i )->apply( *x_->get(i), *temp_->get(i) );
+        if(i>0) x_->get(i)->init(0.); // necessary?
+        mgSms_->get(i)->apply( *b_->get(i), *x_->get(i) );
+        mgOps_->get(i)->apply( *x_->get(i), *temp_->get(i) );
         temp_->get(i)->add( -1., *temp_->get(i), 1., *b_->get(i) );
         mgTrans_->getRestrictionOp(i)->apply( *temp_->get(i), *b_->get(i+1) );
       }
@@ -121,6 +126,8 @@ public:
       b_->get(i)->level();
       x_->get(i)->init(0.);
       cGridSolver_->apply( *b_->get(i), *x_->get(i) );
+//      b_->get(i)->write(98);
+//      x_->get(i)->write(99);
 
       for( i=-2; i>=-mgSpaces_->getNGrids(); --i ) {
         // interpolate/correct/smooth
@@ -137,6 +144,14 @@ public:
     }
 
   }
+
+  /// \todo implement
+  void assignField( const DomainFieldT& mv ) {
+
+  };
+
+
+  bool hasApplyTranspose() const { return( false ); }
 
 
 }; // end of class MultiGrid

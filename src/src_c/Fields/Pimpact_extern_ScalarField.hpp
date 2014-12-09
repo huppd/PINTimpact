@@ -164,15 +164,15 @@ void SF_print(
     const double* const phi );
 
 
-void SF_write2D(
-    const int* const N,
-    const int* const bL,
-    const int* const bU,
-    const int* const SS,
-    const int* const NN,
-    const int* const shift,
-    const double* const phi,
-    const int& count );
+//void SF_write2D(
+    //const int* const N,
+    //const int* const bL,
+    //const int* const bU,
+    //const int* const SS,
+    //const int* const NN,
+    //const int* const shift,
+    //const double* const phi,
+    //const int& count );
 
 void write_hdf5_2D(
         const int& rank,
@@ -199,16 +199,44 @@ void write_hdf5_2D(
         const double& Re,
         const double& alpha2 );
 
-
-
-void SF_write3D(
+void write_hdf_3D(
+    const int& rank,
+    const int& COMM_CART,
+    const int* const M,
+    const int* const BC_L_global,
+    const int* const BC_U_global,
     const int* const N,
     const int* const bL,
     const int* const bU,
     const int* const SS,
     const int* const NN,
+    const int* const ls,         
+    const int* const NB,
+    const int* const iB,
+    const int* const iShift,
+    const int& vel_dir,
+    const int& filecount,
+    const int& namelen,
+    const int* const stride,
     const double* const phi,
-    const int& count );
+    const double* const y1p,
+    const double* const y2p,
+    const double* const y3p,
+    const double* const y1u,
+    const double* const y2v,
+    const double* const y3w,
+    const double& Re,
+    const double& alpha2 );
+
+
+//void SF_write3D(
+//    const int* const N,
+//    const int* const bL,
+//    const int* const bU,
+//    const int* const SS,
+//    const int* const NN,
+//    const double* const phi,
+//    const int& count );
 
 
 void F_exchange(

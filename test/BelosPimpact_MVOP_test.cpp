@@ -257,7 +257,7 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, DtLapOp ) {
 
   auto mv = Pimpact::createMultiField<MVF>( *field, 10 );
 
-  auto op = Pimpact::createMultiOperatorBase<BVF>( Pimpact::createDtLapOp(space) );
+  auto op = Pimpact::createMultiOperatorBase( Pimpact::createDtLapOp(space) );
 
   Teuchos::RCP<Belos::OutputManager<S> > myOM = Teuchos::rcp(
       new Belos::OutputManager<S>(Belos::Warnings+Belos::TimingDetails,rcp(&out,false)) );

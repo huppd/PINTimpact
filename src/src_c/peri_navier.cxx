@@ -371,7 +371,7 @@ int main(int argi, char** argv ) {
                 Pimpact::createAdd3Op(
                     x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
                     dtl,
-                    Pimpact::createMultiHarmonicConvectionOp( space )
+                    Pimpact::createMultiHarmonicConvectionOp( space, nf )
                 )
             ),
             forcingOp

@@ -22,8 +22,9 @@ module cmod_exchange
   
 contains
   
+
+
     !> \brief exchanges ghost layer
-    !! \note Routine exakt identisch zu "exchange", allerdings mit variablen Intervallgrenzen
     !!---------------------------------------------------------------------------------------------------------------------!
     !! \note: - [Sij,Nij] ist Untermenge von [Sip,Nip]                                                                     !
     !!        - [Sip,Nip] ist Untermenge von [1,Ni]                                                                  !
@@ -105,12 +106,15 @@ contains
         !======================================================================================================================
         if (dir == 1) then
      
+            ! derterming length of message
             length1L = (NN(2)-SS(2)+1)*(NN(3)-SS(3)+1)*ABS(bL(1))
             length1U = (NN(2)-SS(2)+1)*(NN(3)-SS(3)+1)*ABS(bU(1))
      
+            ! reciving message
             if (BCL(1) == 0) call MPI_IRECV(ghost1UR,length1L,MPI_REAL8,rankL(1),1,COMM,req1L,merror)
             if (BCU(1) == 0) call MPI_IRECV(ghost1LR,length1U,MPI_REAL8,rankU(1),2,COMM,req1U,merror)
      
+            ! copying into sending array
             if (BCU(1) == 0) then
                 do i = bL(1), -1
                     ghost1US(i,SS(2):NN(2),SS(3):NN(3)) = phi((Np(1)+1+i),SS(2):NN(2),SS(3):NN(3))
@@ -122,15 +126,18 @@ contains
                 end do
             end if
      
+            ! sending array
             if (BCU(1) == 0) call MPI_SEND(ghost1US,length1L,MPI_REAL8,rankU(1),1,COMM,merror)
             if (BCL(1) == 0) call MPI_SEND(ghost1LS,length1U,MPI_REAL8,rankL(1),2,COMM,merror)
      
+            ! wait for ariving message
             if (BCL(1) == 0) call MPI_WAIT(req1L,status,merror)
             if (BCU(1) == 0) call MPI_WAIT(req1U,status,merror)
      
             if (BCL(1) == 0) call pseudocall(ghost1UR) ! Soll den Compiler daran hindern, das Umspeichern mit MPI_WAIT zu vertauschen.
             if (BCU(1) == 0) call pseudocall(ghost1LR)
      
+            ! copying recevied message
             if (BCL(1) == 0) then
                 do i = bL(1), -1
                     phi((Sp(1)+i),SS(2):NN(2),SS(3):NN(3)) = ghost1UR(i,SS(2):NN(2),SS(3):NN(3))

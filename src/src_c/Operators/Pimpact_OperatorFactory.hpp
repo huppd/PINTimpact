@@ -31,16 +31,12 @@ createMultiModeOpWrap( const Teuchos::RCP<Op>& op ) {
 /// \relates MultiOpWrap
 /// \relates OperatorBase
 /// \todo substitute tparam MF with MultiField<OP::DomainFIeld>...
-template<class MF, class Op>
-Teuchos::RCP< OperatorBase<MF> > createMultiOperatorBase( const Teuchos::RCP<Op>& op ) {
+template<class Op>
+Teuchos::RCP< OperatorBase< MultiField<typename Op::DomainFieldT>,MultiField<typename Op::RangeFieldT> > >
+createMultiOperatorBase( const Teuchos::RCP<Op>& op ) {
 
-//  return(
-//      createOperatorBase(
-//          createMultiOpWrap<Op>( op )
-//      )
-//  );
   return(
-      Teuchos::rcp_dynamic_cast< OperatorBase<MF> >(
+      Teuchos::rcp_dynamic_cast< OperatorBase<MultiField<typename Op::DomainFieldT>,MultiField<typename Op::RangeFieldT> > >(
           Teuchos::rcp( new OperatorPimpl< MultiOpWrap<Op> >( createMultiOpWrap<Op>(op) ) ) )
   );
 
@@ -56,17 +52,10 @@ Teuchos::RCP<const OperatorBase<MF> > createMultiModeOperatorBase( const Teuchos
   return(
       createOperatorBase(
           createMultiOpWrap(
-              createModeOpWrap(op)
+              createModeOpWrap( op )
           )
       )
   );
-//  return(
-//      Teuchos::rcp_dynamic_cast< OperatorBase<MF> >(
-//          Teuchos::rcp(
-//              new OperatorPimpl< MultiOpWrap<ModeOpWrap<Op> > >(
-//                  createMultiOpWrap(
-//                      createModeOpWrap(op) )
-//              ) ) ) );
 
 }
 
@@ -80,7 +69,7 @@ createInverseOperatorBase( const Teuchos::RCP< LinearProblem<MF> >& linProb ) {
 
   return(
       createOperatorBase(
-          createInverseOperator<MF>(linProb)
+          createInverseOperator<MF>( linProb )
       )
   );
 

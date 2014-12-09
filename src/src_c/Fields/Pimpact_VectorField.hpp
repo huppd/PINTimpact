@@ -80,8 +80,7 @@ public:
 
   VectorField( const Teuchos::RCP< const SpaceT >& space, bool owning=true ):
     AbstractField<SpaceT>( space ),
-    owning_(owning)//,
-    {
+    owning_(owning) {
 
     for( int i=0; i<3; ++i )
       sFields_[i] = Teuchos::rcp( new SF( space, false, EField(i) ) );
@@ -99,7 +98,7 @@ public:
         sFields_[i]->setStoragePtr( vec_+i*N );
     }
 
-    };
+  };
 
 
   /// \brief copy constructor.
@@ -261,7 +260,6 @@ public:
   ///
   /// Upon return, \c normvec[i] holds the value of \f$||this_i||_2^2\f$, the \c i-th column of \c this.
   /// \attention the two norm is not the real two norm but its square
-  /// \todo implement OneNorm
   Scalar norm(  Belos::NormType type = Belos::TwoNorm, bool global=true ) const {
 
     Scalar normvec = 0.;
@@ -675,25 +673,17 @@ public:
   //@}
 
   /// Print the vector.  To be used for debugging only.
-  void print( std::ostream& os=std::cout )  {
-    int rank;
-    MPI_Comm_rank(space()->comm(),&rank);
+  void print( std::ostream& out=std::cout )  {
     for(int i=0; i<space()->dim(); ++i) {
-      os << "rank: " << rank << " :dir: " << i << "\n";
-      os << "rank: " << rank << " :dirs: " << sFields_[i]->fType_ << "\n";
-      os << "rank: " << rank << " :nGlo: " << space()->nGlo(i) << "\n";
-      os << "rank: " << rank << " :nLoc: " << space()->nLoc(i) << "\n";
-      os << "rank: " << rank << " :bl: " << space()->bl(i) << "\n";
-      os << "rank: " << rank << " :bu: " << space()->bu(i) << "\n\n";
+      sFields_[i]->print( out );
     }
-    std::cout << "rank: " << rank << "\n";
   }
 
 
-  void write( int count=0 ) {
+  void write( int count=0, bool restart=false ) {
 
     for( int i=0; i<space()->dim(); ++i )
-      getFieldPtr(i)->write( count );
+      getFieldPtr(i)->write( count, restart );
   }
 
 

@@ -48,6 +48,10 @@ public:
       auto opPrec = Teuchos::rcp_const_cast<Op>( prob->getLeftPrec() );
       opPrec->assignField( mv );
     }
+    if( prob->isRightPrec() ) {
+      auto opPrec = Teuchos::rcp_const_cast<Op>( prob->getRightPrec() );
+      opPrec->assignField( mv );
+    }
   };
 
   bool hasApplyTranspose() const { return( false ); }

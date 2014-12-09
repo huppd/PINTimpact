@@ -39,6 +39,7 @@ void OP_helmholtz(
 template<class ST>
 class HelmholtzOp {
 
+
 public:
 
   typedef ST SpaceT;
@@ -52,9 +53,6 @@ protected:
 
   Teuchos::RCP<const SpaceT> space_;
 
-//  Scalar mulI_;
-//  Scalar mulL_;
-
   TO cS_;
   TO cV_;
 
@@ -65,10 +63,7 @@ public:
 
   HelmholtzOp(
       const Teuchos::RCP<const SpaceT>& space ):
-        space_(space)//,
-//        mulI_(mulI),
-//        mulL_(mulL)
-  {
+        space_(space) {
 
     for( int i=0; i<3; ++i ) {
       Ordinal nTemp = ( space_->nLoc(i) + 1 )*( space_->bu(i) - space_->bl(i) + 1);
@@ -129,12 +124,6 @@ public:
     }
   }
 
-//  void setMulI(Scalar mulI){ mulI_ = mulI;};
-//  void setMulL(Scalar mulL){ mulL_ = mulL;};
-//
-//  Scalar getMulI() const { return(mulI_); };
-//  Scalar getMulL() const { return(mulL_); };
-
 
   void apply(const DomainFieldT& x, RangeFieldT& y, int k=0 ) const {
 
@@ -143,50 +132,26 @@ public:
 
     x.exchange();
 
-    OP_helmholtz(
-        space_->dim(),
-        space_->nLoc(),
-        space_->bl(),
-        space_->bu(),
-        space_->sInd(U),
-        space_->eInd(U),
-        cV_[0],
-        cS_[1],
-        cS_[2],
-        mulI_,
-        mulL_,
-        x.vecC(U),
-        y.vec (U) );
-    OP_helmholtz(
-        space_->dim(),
-        space_->nLoc(),
-        space_->bl(),
-        space_->bu(),
-        space_->sInd(V),
-        space_->eInd(V),
-        cS_[0],
-        cV_[1],
-        cS_[2],
-        mulI_,
-        mulL_,
-        x.vecC(V),
-        y.vec (V) );
-    if( 3==space_->dim() )
+    for( int i=0; i<space_->dim(); ++i ) {
+      EField fType = (EField)i;
       OP_helmholtz(
           space_->dim(),
           space_->nLoc(),
           space_->bl(),
           space_->bu(),
-          space_->sInd(W),
-          space_->eInd(W),
-          cS_[0],
-          cS_[1],
-          cV_[2],
+          space_->sInd(fType),
+          space_->eInd(fType),
+          getC(X,fType),
+          getC(Y,fType),
+          getC(Z,fType),
           mulI_,
           mulL_,
-          x.vecC(W),
-          y.vec (W) );
+          x.vecC(fType),
+          y.vec (fType) );
+    }
+
     y.changed();
+
   }
 
   void assignField( const DomainFieldT& mv ) {};
@@ -225,6 +190,11 @@ public:
   }
 
   Teuchos::RCP<const SpaceT> getSpace() const { return( space_ ); }
+
+
+  const Scalar* getC( const ECoord& dir, const EField& ftype ) const  {
+      return( ((int)dir==(int)ftype)?cV_[dir]:cS_[dir] );
+  }
 
 
 }; // end of class HelmholtzOp

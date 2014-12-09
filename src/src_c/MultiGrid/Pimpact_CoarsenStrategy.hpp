@@ -76,8 +76,12 @@ public:
       for( int j=0; j<dimension; ++j ) {
         coarsen_dir[j] = false;
         if( j<3 ) {
-          if( ( (nLoc[j]-1)%2 )==0 && nLoc[j]>=5 ) {
-//          if( ( (nLoc[j]-1)%2 )==0 && nLoc[j]>=3 ) {
+          // in Impact here was 5 used, which was good because the storage
+          // stencil width was 3, now this is flexible and for MG most of the
+          // time we use 1
+//          if( ( (nLoc[j]-1)%2 )==0 && (nLoc[j]-1)/2 + 1 > space->bl(j) ) {
+          if( ( (nLoc[j]-1)%2 )==0 && ( (nLoc[j]-1)/2 + 1 )%2!=0 && (nLoc[j]-1)/2 + 1>2 ) {
+//          if( ( (nLoc[j]-1)%2 )==0 && nLoc[j]>=5 ) {
             nLoc[j] = (nLoc[j]-1)/2 + 1;
             coarsen_yes = true;
             coarsen_dir[j] = true;
@@ -124,8 +128,8 @@ protected:
     // which template paramters are necessary?
     auto gridSizeGlobal = createGridSizeGlobal<Ordinal,dimension>( gridSizeGlobalTup ); //coarsen
 
-    auto gridSizeLocal = Pimpact::createGridSizeLocal<Ordinal,dimension>(
-        gridSizeGlobal, procGridSize );
+    auto gridSizeLocal = Pimpact::createGridSizeLocal<Ordinal,dimension,dimNCC>(
+        gridSizeGlobal, procGridSize, stencilWidths );
 
     auto procGrid = Pimpact::createProcGrid<Ordinal,dimension>(
         gridSizeLocal, domain->getBCGlobal(), procGridSize );

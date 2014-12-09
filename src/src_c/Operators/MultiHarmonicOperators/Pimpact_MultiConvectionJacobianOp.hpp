@@ -17,6 +17,7 @@ namespace Pimpact {
 
 
 /// \ingroup MultiHarmonicOperator
+/// \deprecated
 template<class ST>
 class MultiHarmonicConvectionJacobianOp : private MultiHarmonicConvectionOp<ST> {
 

@@ -6,6 +6,7 @@
 !* Apr 2012                                                                                                  *
 !*************************************************************************************************************
 
+!> \depcerated
 module cmod_inout
   
     use mod_dims
@@ -102,7 +103,6 @@ contains
     end subroutine SF_write3D
 
 
-!      !> \todo include ls1, BC_global, IB, y1p ...
 !    ! TEST!!! evtl. schoener: write_hdf_2D??
 !    ! Anmerkung: Unterscheidet sich im Wesentlichen durch die Dimensionen und den Rang von phi ...
 !    subroutine SF_write_HDF5_2D(    &
@@ -576,9 +576,6 @@ contains
   
   
   
-  
-  
-    !> \todo implement
     subroutine write_restart
   
         implicit none
@@ -646,13 +643,6 @@ contains
   
   
     end subroutine write_restart
-  
-  
-  
-  
-  
-  
-  
   
   
   
@@ -799,14 +789,6 @@ contains
   
   
   
-  
-  
-  
-  
-  
-  
-  
-    !> \todo
     subroutine write_hdf(filename,dsetname,SS1,SS2,SS3,NN1,NN2,NN3,vel_dir,stride,phi)
   
         implicit none
@@ -1266,7 +1248,6 @@ contains
   
   
   
-    !> \todo include ls1, BC_global, IB, y1p ...
     ! TEST!!! evtl. schoener: write_hdf_2D??
     ! Anmerkung: Unterscheidet sich im Wesentlichen durch die Dimensionen und den Rang von phi ...
     subroutine write_2D_hdf(filename,dsetname,N1,N2,SS1,SS2,NN1,NN2,iShift,jShift,dir,phi)

@@ -166,16 +166,15 @@ public:
 
   void print( std::ostream& out=std::cout ) const {
     for( int i=0; i<dim; ++i ) {
-      out << "ScalarField dir X: " << i << ":\n(";
+      out << "Local coordinates of scalars in dir: " << i << "\n";
+      out << "i\txS\n";
       for( int j=0; j<gridSize_->get(i); ++j )
-        out << xS_[i][j] << "\t";
-      out << ")\n";
+        out << j+1 << "\t" << xS_[i][j] << "\n";
     }
     for( int i=0; i<dim; ++i ) {
-      out << "VectorField dir X: " << i << ":\n(";
+      out << "Local coordinates of velocities in dir: " << i << "\n";
       for( int j=0; j<gridSize_->get(i)+1; ++j )
-        out << xV_[i][j] << "\t";
-      out << ")\n";
+        out << j<< "\t" << xV_[i][j] << "\n";
     }
   };
 

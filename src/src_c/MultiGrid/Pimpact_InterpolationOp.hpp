@@ -153,9 +153,9 @@ public:
 
     TEUCHOS_TEST_FOR_EXCEPTION( fType!=y.fType_, std::logic_error, "Error!!! has to be of same FieldType!!!");
 
-    x.exchange();
 
     if( EField::S==fType ) {
+      x.exchange();
       MG_interpolate(
           spaceC_->dim(),
           spaceC_->nLoc(),
@@ -173,7 +173,10 @@ public:
           y.s_ );
     }
     else {
+
       int dir = fType;
+      x.exchange( dir==1 );
+
       MG_interpolateV(
           spaceC_->dim(),
           dir+1,
@@ -202,18 +205,28 @@ public:
 
   void print(  std::ostream& out=std::cout ) const {
 
+    out << "\n";
     for( int j=0; j<3; ++j ) {
       out << "\n Scalar dir: " << j << ":\n";
-      for( int i=0; i<2*( spaceC_->eInd(EField::S)[j]-spaceC_->sInd(EField::S)[j]+1 ); ++i)
-        out << cIS_[j][i] << "\t";
+      out << "i:\tcI(1,i)\tcI(2,i)\n";
+      for( int i=0; i<( spaceC_->eInd(EField::S)[j]-spaceC_->sInd(EField::S)[j]+1 ); ++i) {
+        out <<  i + spaceC_->sInd(EField::S)[j] << "\t";
+        for( int k=0; k<2; ++k ) {
+          out << cIS_[j][i*2+k] << "\t";
+        }
+        out << "\n";
+      }
+
     }
+
     out << "\n";
     for( int j=0; j<3; ++j ) {
       out << "\n Vector dir: " << j << ":\n";
-//      for( int i=0; i<4*( spaceC_->eIndB(j)[j]-spaceC_->sIndB(j)[j]+1 ); ++i)
+      out << "i:\tcV(1,i)\tcV(2,i)\n";
       for( int i=0; i<( spaceF_->nLoc(j)-0+1 ); ++i) {
+        out << i << "\t";
         for( int k=0; k<2; ++k ) {
-          out << cIV_[j][i*2+k] << ", ";
+          out << cIV_[j][i*2+k] << "\t";
         }
         out << "\n";
       }

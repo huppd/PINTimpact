@@ -21,9 +21,11 @@ contains
     !! \param[in] bU end offset of storage in 1-direction
     !! \param[in] SS start index
     !! \param[in] NN end index
-    !! \param[in] phi first vector from which is taken the product
+    !! \param[out] phi first vector from which is taken the product
     !! \param[in] phi1 first vector from which is taken the product
     !! \param[in] phi2 second vector from which is taken the product
+    !! \param[in] scalar1 factor for phi1
+    !! \param[in] scalar2 factor for phi2
     subroutine SF_add(      &
         N,                  &
         bL,bU,              &

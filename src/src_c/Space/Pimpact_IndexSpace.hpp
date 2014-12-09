@@ -71,11 +71,11 @@ void VS_set_eIndWB(const int* const);
 ///
 /// \note if one would remove ls_ one could decouple with \c StencilWidths
 /// \ingroup Space
-template<class Ordinal>
+template<class Ordinal, int dimension>
 class IndexSpace {
 
   template<class O, int d, int dimNC>
-  friend Teuchos::RCP<const IndexSpace<O> >
+  friend Teuchos::RCP<const IndexSpace<O,d> >
   createIndexSpace(
       const Teuchos::RCP<const StencilWidths<d,dimNC> >& sW,
       const Teuchos::RCP<const GridSizeLocal<O,d> >& nLoc,
@@ -84,20 +84,29 @@ class IndexSpace {
 
 public:
 
-  typedef Teuchos::Tuple<Ordinal,3> TO3;
+  typedef Teuchos::Tuple<Ordinal,dimension> TO;
 
-  typedef Teuchos::Tuple< Teuchos::Tuple<Ordinal, 3>, 3 > TTO3;
+  typedef Teuchos::Tuple< Teuchos::Tuple<Ordinal, dimension>, 3 > TTO;
 
 protected:
+
+  TO sIndS_;
+  TO eIndS_;
+
+  TTO sIndU_;
+  TTO eIndU_;
+
+  TTO sIndUB_;
+  TTO eIndUB_;
 
   /// \brief constructor
   /// \param sW with of differenct stencils
   /// \param nLoc amount of grid points stored localy on this node
   /// \param bc local boundary conditions
-  template<int d, int dimNC>
+  template<int dimNC>
   IndexSpace(
-      const Teuchos::RCP<const StencilWidths<d,dimNC> >& sW,
-      const Teuchos::RCP<const GridSizeLocal<Ordinal,d> >& nLoc,
+      const Teuchos::RCP<const StencilWidths<dimension,dimNC> >& sW,
+      const Teuchos::RCP<const GridSizeLocal<Ordinal,dimension> >& nLoc,
       const Teuchos::RCP<const BoundaryConditionsLocal>& bc,
       bool setImpact=true ) {
 
@@ -113,6 +122,11 @@ protected:
         sIndS_[i] = 1;
       if( bc->BCU_local_[i]==SymmetryBC )
         eIndS_[i] = nLoc->get(i);
+    }
+
+    if( 4==dimension ) {
+      sIndS_[3] = 0 - sW->getBL(3);
+      eIndS_[3] = nLoc->get(3) + sW->getBU(3) - sW->getBL(3);
     }
 
     if( setImpact ) {
@@ -181,6 +195,13 @@ protected:
       eIndU_[U][2] = nLoc->get(2);
       eIndU_[V][2] = nLoc->get(2);
       eIndU_[W][2] = nLoc->get(2)-1;
+    }
+
+    if( 4==dimension ) {
+      for( int i=0; i<3; ++i ) {
+        sIndU_[i][3] = 0 - sW->getBL(3);
+        eIndU_[i][3] = nLoc->get(3) + sW->getBU(3) - sW->getBL(3);
+      }
     }
 
     if( setImpact ) {
@@ -260,6 +281,13 @@ protected:
       eIndUB_[W][2] = nLoc->get(2)-1;
     }
 
+    // time direction automatically periodic BC
+    if( 4==dimension ) {
+      for( int i=0; i<3; ++i ) {
+        sIndUB_[i][3] = 0 - sW->getBL(3);
+        eIndUB_[i][3] = nLoc->get(3) + sW->getBU(3) - sW->getBL(3);
+      }
+    }
 
     if( setImpact ) {
       VS_set_sIndUB( sIndUB_[U].getRawPtr() );
@@ -343,23 +371,13 @@ public:
       return( eIndUB_[fieldType][dir]  );
   }
 
-protected:
-
-  TO3 sIndS_;
-  TO3 eIndS_;
-
-  TTO3 sIndU_;
-  TTO3 eIndU_;
-
-  TTO3 sIndUB_;
-  TTO3 eIndUB_;
 
 }; // end of class IndexSpace
 
 
 
 template<class O, int d, int dimNC>
-Teuchos::RCP<const IndexSpace<O> >
+Teuchos::RCP<const IndexSpace<O,d> >
 createIndexSpace(
     const Teuchos::RCP<const StencilWidths<d,dimNC> >& sW,
     const Teuchos::RCP<const GridSizeLocal<O,d> >& nLoc,
@@ -367,7 +385,7 @@ createIndexSpace(
     bool setImpact=true ) {
   return(
       Teuchos::rcp(
-          new IndexSpace<O>( sW,nLoc,bc )
+          new IndexSpace<O,d>( sW,nLoc,bc )
       )
   );
 

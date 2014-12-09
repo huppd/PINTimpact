@@ -59,9 +59,12 @@ public:
 
   /// Compute the function, F, given the specified input vector x.
   NOX::Abstract::Group::ReturnType computeF(const Field& x, Field& f ) {
+
+    op_->assignField( x );
     op_->apply( x, f );
     f.add( 1., f, -1., *fu_ );
     return( NOX::Abstract::Group::Ok );
+
   }
 
 

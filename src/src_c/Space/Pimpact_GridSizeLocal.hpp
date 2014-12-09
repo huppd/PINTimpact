@@ -9,6 +9,7 @@
 
 #include "Pimpact_GridSizeGlobal.hpp"
 #include "Pimpact_ProcGridSize.hpp"
+#include "Pimpact_StencilWidths.hpp"
 #include "Pimpact_Types.hpp"
 
 
@@ -34,10 +35,11 @@ namespace Pimpact{
 template<class Ordinal, int dim>
 class GridSizeLocal {
 
-  template< class OT, int dT >
+  template< class OT, int dT, int dNC >
   friend Teuchos::RCP<const GridSizeLocal<OT,dT> > createGridSizeLocal(
       const Teuchos::RCP<const GridSizeGlobal<OT,dT> >& gsg,
-      const Teuchos::RCP<const ProcGridSize<OT,dT> >& pgs );
+      const Teuchos::RCP<const ProcGridSize<OT,dT> >& pgs,
+      const Teuchos::RCP<const StencilWidths<dT,dNC> >&      stencilWidths);
 
 //  template< class OT, int dT >
 //  friend Teuchos::RCP<const GridSizeLocal<OT,dT> > createGridSizeLocal();
@@ -51,13 +53,24 @@ protected:
   TO gridSize_;
 
 
-  GridSizeLocal( TO gridSize ): gridSize_( gridSize ) {
-    test();
-  }
+//  GridSizeLocal( TO gridSize ): gridSize_( gridSize ) {
+//    // tests if local grid size is useable for multigrid and is big enough
+//      for( int i=0; i<2; ++i )
+//          TEUCHOS_TEST_FOR_EXCEPTION(
+//              gridSize_[i] < 3,
+//              std::logic_error,
+//              "!!!ERROR!GridSizeLocal!!!\n" );
+//        for( int i=0; i<2; ++i )
+//          TEUCHOS_TEST_FOR_EXCEPTION(
+//              (gridSize_[i]-1)%2 != 0,
+//              std::logic_error,
+//              "!!!ERROR! GridSizeLocal: cannot be used for multigrid!!!\n" );  }
 
+  template<int dNC>
   GridSizeLocal(
       const Teuchos::RCP<const GridSizeGlobal<Ordinal,dim> >& gridSizeGlobal,
-      const Teuchos::RCP<const ProcGridSize  <Ordinal,dim> >& procGridSize ):
+      const Teuchos::RCP<const ProcGridSize  <Ordinal,dim> >& procGridSize,
+      const Teuchos::RCP<const StencilWidths<dim,dNC> >&      stencilWidths ):
         gridSize_() {
 
     for( int i=0; i<dim; ++i )
@@ -72,8 +85,25 @@ protected:
     if( 4==dim )
       gridSize_[3] = gridSizeGlobal->get(3)/procGridSize->get(3);
 
-    test();
-  };
+  // tests if local grid size is useable for multigrid and is big enough
+    for( int i=0; i<2; ++i ) {
+        TEUCHOS_TEST_FOR_EXCEPTION(
+            gridSize_[i] < stencilWidths->getBL(i),
+            std::logic_error,
+            "!!!ERROR!GridSizeLocal!!!\n" );
+        TEUCHOS_TEST_FOR_EXCEPTION(
+            gridSize_[i] <= 2,
+            std::logic_error,
+            "!!!ERROR!GridSizeLocal!!!\n" );
+    }
+    // problem is used for MultiGridSpace
+//      for( int i=0; i<2; ++i )
+//        if( (gridSize_[i]-1)!=1 )
+//          TEUCHOS_TEST_FOR_EXCEPTION(
+//              (gridSize_[i]-1)%2 != 0,
+//              std::logic_error,
+//              "!!!ERROR! GridSizeLocal: "<< gridSize_[i] << " cannot be used for multigrid!!!\n" );
+  }
 
 
 public:
@@ -102,21 +132,6 @@ public:
     out << "\n";
   };
 
-protected:
-
-  /// \brief tests if local grid size is useable for multigrid and is big enough
-  void test() {
-    for( int i=0; i<2; ++i )
-      TEUCHOS_TEST_FOR_EXCEPTION(
-          gridSize_[i] < 3,
-          std::logic_error,
-          "!!!ERROR!GridSizeLocal!!!\n" );
-    for( int i=0; i<2; ++i )
-      TEUCHOS_TEST_FOR_EXCEPTION(
-          (gridSize_[i]-1)%2 != 0,
-          std::logic_error,
-          "!!!ERROR! GridSizeLocal: cannot be used for multigrid!!!\n" );
-  }
 
 }; // end of class GridSizeLocal
 
@@ -124,13 +139,14 @@ protected:
 
 /// \brief creates GridSizeLocal
 /// \relates GridSizeLocal
-template< class O, int d>
+template< class O, int d, int dNC>
 Teuchos::RCP<const GridSizeLocal<O,d> > createGridSizeLocal(
     const Teuchos::RCP<const GridSizeGlobal<O,d> >& gsg,
-    const Teuchos::RCP<const ProcGridSize<O,d> >& pgs ) {
+    const Teuchos::RCP<const ProcGridSize<O,d> >& pgs,
+    const Teuchos::RCP<const StencilWidths<d,dNC> >& sW ) {
   return(
       Teuchos::rcp(
-          new GridSizeLocal<O,d>( gsg, pgs ) ) );
+          new GridSizeLocal<O,d>( gsg, pgs, sW ) ) );
 }
 
 

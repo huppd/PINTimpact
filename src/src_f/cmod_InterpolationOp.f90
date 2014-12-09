@@ -266,7 +266,7 @@ contains
                     ic = j/dd(2)
                     !pgi$ unroll = n:8
                     do i = 1, Nf(1), dd(1)
-!                        phif(i,j,k) = cI2(1,ic)*phif(i,j-1,k) + cI2(2,ic)*phif(i,j+1,k)
+                        !                        phif(i,j,k) = cI2(1,ic)*phif(i,j-1,k) + cI2(2,ic)*phif(i,j+1,k)
                         phif(i,j,k) = 0.5*phif(i,j-1,k) + 0.5*phif(i,j+1,k)
                     end do
                 end do
@@ -281,7 +281,7 @@ contains
                     !pgi$ unroll = n:8
                     do i = 1+1, Nf(1)-1, dd(1)
                         ic = i/dd(1)
-!                        phif(i,j,k) = cI1(1,ic)*phif(i-1,j,k) + cI1(2,ic)*phif(i+1,j,k)
+                        !                        phif(i,j,k) = cI1(1,ic)*phif(i-1,j,k) + cI1(2,ic)*phif(i+1,j,k)
                         phif(i,j,k) = 0.5*phif(i-1,j,k) + 0.5*phif(i+1,j,k)
                     end do
                 end do
@@ -296,8 +296,8 @@ contains
 
 
     !> \todo solve dirty hack
-    !! \todo implement correctly witch exchange
     !! \todo implement 3d
+    !! \todo make fallunterscheidung for dd(dir)==0 (simple copy then)
     subroutine MG_interpolateV( &
         dimens,                 &
         dir,                    &
@@ -385,24 +385,26 @@ contains
 
         if( 1==dir ) then
 
-            do k = 1, Nf(3), dd(3)
+            do k = SSf(3), Nf(3), dd(3)
                 kc = k/dd(3)
-                do j = 1, Nf(2), dd(2)
+                do j = SSf(2), Nf(2), dd(2)
                     jc = ( j+1 )/dd(2) ! holy shit
-                    do i = 0, Nf(1)
+                    do i = SSf(1), Nf(1) ! zero for dirichlet
                         ic = ( i )/dd(1)
                         phif(i,j,k) = cIV(1,i)*phic(ic,jc,kc)+cIV(2,i)*phic(ic+1,jc,kc)
+                    !                        phif(i,j,k) = 0.5*phic(ic,jc,kc)+0.5*phic(ic+1,jc,kc)
                     end do
                 end do
             end do
 
-            if( dd(2) /= 1 ) then ! TEST!!! in 2D wird hier doppelte Arbeit geleistet! (NNf(3) == 2??)
+            if( dd(2) /= 1 ) then
 
                 do k = 1, Nf(3), dd(3)
-                    do j = 2, Nf(2)-1, dd(2)
-                        jc = (  j  )/dd(2)
+                    !                    do j = 2, Nf(2), dd(2)
+                    do j = SSf(2)+1, Nf(2)-1, dd(2)
+                        jc = (  j+1  )/dd(2)
                         !pgi$ unroll = n:8
-                        do i = 0, Nf(1)
+                        do i = SSf(1), Nf(1)
 !                            phif(i,j,k) = cI2(1,jc)*phif(i,j-1,k) + cI2(2,jc)*phif(i,j+1,k)
                             phif(i,j,k) = 0.5*phif(i,j-1,k) + 0.5*phif(i,j+1,k)
                         end do
@@ -411,37 +413,36 @@ contains
 
             end if
 
-!            phif(SSf(1):NNf(1),SSf(2):NNf(2),SSf(3):NNf(3)) = 1
-
         end if
 
         if( 2==dir ) then
 
-!            phif(SSf(1):NNf(1),SSf(2):NNf(2),SSf(3):NNf(3)) = 1
-            do k = 1, Nf(3), dd(3)
+            do k = SSf(3), Nf(3), dd(3)
                 kc = k/dd(3)
-                do j = 0, Nf(2)
+                do j = SSf(2), Nf(2) ! zero for dirichlet
                     jc = ( j )/dd(2)
-                    do i = 1, Nf(1), dd(1)
-                        ic = ( i )/dd(1)
+                    do i = SSf(1), Nf(1), dd(1)
+                        ic = ( i+1 )/dd(2) ! holy shit
                         phif(i,j,k) = cIV(1,j)*phic(ic,jc,kc)+cIV(2,j)*phic(ic,jc+1,kc)
                     end do
                 end do
             end do
 
-            if( dd(1) /= 1 ) then ! TEST!!! in 2D wird hier doppelte Arbeit geleistet! (NNf(3) == 2??)
+            if( dd(1) /= 1 ) then
 
                 do k = 1, Nf(3), dd(3)
-                    do j = 0, Nf(2)
-                        jc = j/dd(2)
+                    do j = SSf(2), Nf(2)
                         !pgi$ unroll = n:8
-                        do i = 2, Nf(1),dd(1)
-                            phif(i,j,k) = cI1(1,ic)*phif(i-1,j,k) + cI1(2,ic)*phif(i+1,j,k)
+                        do i = SSf(1)+1, Nf(1)-1, dd(1)
+                            ic = (  i+1  )/dd(1)
+!                            phif(i,j,k) = cI1(1,ic)*phif(i-1,j,k) + cI1(2,ic)*phif(i+1,j,k)
+                            phif(i,j,k) = 0.5*phif(i-1,j,k) + 0.5*phif(i+1,j,k)
                         end do
                     end do
                 end do
 
             end if
+
         end if
     end subroutine MG_interpolateV
 

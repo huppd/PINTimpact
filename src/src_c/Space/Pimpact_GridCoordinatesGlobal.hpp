@@ -83,7 +83,7 @@ protected:
             xV_[i],
             dxS_[i],
             dxV_[i] );
-      else if( 4==i )
+      else if( 3==i )
         PI_getGlobalCoordinates(
             4.*std::atan(1.),
             gridSize_->get(i),
@@ -129,16 +129,16 @@ public:
 
   void print( std::ostream& out=std::cout ) const {
     for( int i=0; i<dim; ++i ) {
-      out << "ScalarField dir: " << i << ":\n(";
+      out << "Global coordinates of scalars in dir: " << i << "\n";
+      out << "i\txS\n";
       for( int j=0; j<gridSize_->get(i); ++j )
-        out << xS_[i][j] << "\t";
-      out << ")\n";
+        out << j+1 << "\t" << xS_[i][j] << "\n";
     }
     for( int i=0; i<dim; ++i ) {
-      out << "VectorField dir: " << i << ":\n(";
+      out << "Global coordinates of scalars in dir: " << i << "\n";
+      out << "i\txS\n";
       for( int j=0; j<gridSize_->get(i)+1; ++j )
-        out << xV_[i][j] << "\t";
-      out << ")\n";
+        out << j<< "\t" << xV_[i][j] << "\n";
     }
   };
 

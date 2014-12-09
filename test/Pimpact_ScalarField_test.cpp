@@ -19,9 +19,12 @@ namespace {
 bool testMpi = true;
 double eps = 1e-6;
 int domain = 1;
-int dim = 2;
+int dim = 3;
+
+auto pl = Teuchos::parameterList();
 
 TEUCHOS_STATIC_SETUP() {
+
   Teuchos::CommandLineProcessor &clp = Teuchos::UnitTestRepository::getCLP();
   clp.addOutputSetupOptions(true);
   clp.setOption(
@@ -37,17 +40,31 @@ TEUCHOS_STATIC_SETUP() {
   clp.setOption(
       "dim", &dim,
       "dim" );
+
+  pl->set( "domain", domain );
+  pl->set( "dim", dim );
+
+  pl->set( "lx", 2. );
+  pl->set( "ly", 2. );
+  pl->set( "lz", 1. );
+
+
+  pl->set("nx", (48*3)+1 );
+  pl->set("ny", 49 );
+  pl->set("nz", 17 );
+
+//  // processor grid size
+  pl->set("npx", 1 );
+  pl->set("npy", 2 );
+  pl->set("npz", 2 );
+//  pl->set("npx", 1 );
+//  pl->set("npy", 1 );
+//  pl->set("npz", 1 );
 }
 
 
 
 TEUCHOS_UNIT_TEST( ScalarField, create_init_print ) {
-
-  auto pl = Teuchos::parameterList();
-
-  pl->set( "domain", domain );
-
-  pl->set( "dim", dim );
 
   auto space = Pimpact::createSpace( pl, false );
 
@@ -62,12 +79,6 @@ TEUCHOS_UNIT_TEST( ScalarField, create_init_print ) {
 
 
 TEUCHOS_UNIT_TEST( ScalarField, InfNorm_and_init ) {
-
-  auto pl = Teuchos::parameterList();
-
-  pl->set( "domain", domain);
-
-  pl->set( "dim", dim );
 
   auto space = Pimpact::createSpace( pl, false );
 
@@ -101,12 +112,6 @@ TEUCHOS_UNIT_TEST( ScalarField, InfNorm_and_init ) {
 
 TEUCHOS_UNIT_TEST( ScalarField, OneNorm_and_init ) {
 
-  auto pl = Teuchos::parameterList();
-
-  pl->set( "domain", domain);
-
-  pl->set( "dim", dim );
-
   auto space = Pimpact::createSpace( pl, false );
 
   auto p = Pimpact::createScalarField(space);
@@ -124,12 +129,6 @@ TEUCHOS_UNIT_TEST( ScalarField, OneNorm_and_init ) {
 
 TEUCHOS_UNIT_TEST( ScalarField, TwoNorm_and_init ) {
 
-  auto pl = Teuchos::parameterList();
-
-  pl->set( "domain", domain);
-
-  pl->set( "dim", dim );
-
   auto space = Pimpact::createSpace( pl, false );
 
   auto p = Pimpact::createScalarField(space);
@@ -143,12 +142,6 @@ TEUCHOS_UNIT_TEST( ScalarField, TwoNorm_and_init ) {
 
 
 TEUCHOS_UNIT_TEST( ScalarField, dot ) {
-
-  auto pl = Teuchos::parameterList();
-
-  pl->set( "domain", domain);
-
-  pl->set( "dim", dim );
 
   auto space = Pimpact::createSpace( pl, true );
 
@@ -173,12 +166,6 @@ TEUCHOS_UNIT_TEST( ScalarField, dot ) {
 
 TEUCHOS_UNIT_TEST( ScalarField, scale ) {
 
-  auto pl = Teuchos::parameterList();
-
-  pl->set( "domain", domain);
-
-  pl->set( "dim", dim );
-
   auto space = Pimpact::createSpace( pl, false );
 
   auto p = Pimpact::createScalarField(space);
@@ -190,16 +177,11 @@ TEUCHOS_UNIT_TEST( ScalarField, scale ) {
   p->scale(2.);
   norm = p->norm(Belos::TwoNorm);
   TEST_EQUALITY( std::sqrt(4*N), norm)
+
 }
 
 
 TEUCHOS_UNIT_TEST( ScalarField, random ) {
-
-  auto pl = Teuchos::parameterList();
-
-  pl->set( "domain", domain);
-
-  pl->set( "dim", dim );
 
   auto space = Pimpact::createSpace( pl, false );
 
@@ -217,12 +199,6 @@ TEUCHOS_UNIT_TEST( ScalarField, random ) {
 
 TEUCHOS_UNIT_TEST( ScalarField, add ) {
 
-  auto pl = Teuchos::parameterList();
-
-  pl->set( "domain", domain);
-
-  pl->set( "dim", dim );
-
   auto space = Pimpact::createSpace( pl, false );
 
   auto q = Pimpact::createScalarField(space);
@@ -239,16 +215,11 @@ TEUCHOS_UNIT_TEST( ScalarField, add ) {
   p->add( 0., *q, 3., *r);
   norm = p->norm(Belos::TwoNorm);
   TEST_EQUALITY( std::sqrt(N), norm)
+
 }
 
 
 TEUCHOS_UNIT_TEST( ScalarField, write ) {
-
-  auto pl = Teuchos::parameterList();
-
-  pl->set( "domain", domain);
-
-  pl->set( "dim", dim );
 
   auto space = Pimpact::createSpace( pl, false );
 
@@ -263,29 +234,23 @@ TEUCHOS_UNIT_TEST( ScalarField, write ) {
   TEST_EQUALITY( 0, 0)
 }
 
+TEUCHOS_UNIT_TEST( ScalarField, write_restart ) {
+
+  auto space = Pimpact::createSpace( pl, false );
+
+  auto p = Pimpact::createScalarField(space);
+
+  p->init(1.);
+  p->write();
+
+  p->random();
+  p->write( 99, true );
+
+  TEST_EQUALITY( 0, 0)
+}
+
 
 TEUCHOS_UNIT_TEST( ScalarField, initField ) {
-//  H5open();
-
-  auto pl = Teuchos::parameterList();
-
-  pl->set( "domain", domain );
-
-  pl->set( "dim", dim );
-
-  pl->set( "lx", 2. );
-  pl->set( "ly", 2. );
-  pl->set( "lz", 1. );
-
-
-  pl->set("nx", (48*3)+1 );
-  pl->set("ny", 49 );
-  pl->set("nz", 2 );
-
-//  // processor grid size
-//  pl->set("npx", 2 );
-//  pl->set("npy", 2 );
-//  pl->set("npz", 1 );
 
   auto space = Pimpact::createSpace( pl, false );
 

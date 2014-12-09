@@ -31,10 +31,10 @@ class ScalarField : private AbstractField< SpaceType > {
 
   template<class SpaceTT>
   friend class VectorField;
-  template<class SpaceTT>
-  friend class DivOp;
-  template<class SpaceTT>
-  friend class GradOp;
+//  template<class SpaceTT>
+//  friend class DivOp;
+//  template<class SpaceTT>
+//  friend class GradOp;
   template<class SpaceTT>
   friend class DivGradO2Op;
   template<class SpaceTT>
@@ -47,6 +47,12 @@ class ScalarField : private AbstractField< SpaceType > {
   friend class TransferOp;
   template<class SpaceTT>
   friend class ConvectionSOp;
+  template<class SpaceTT>
+  friend class ConvectionDiffusionSOp;
+  template<class OperatorTT>
+  friend class ConvectionDiffusionSORSmoother;
+  template<class OperatorTT>
+  friend class ConvectionDiffusionJSmoother;
   template<class SpaceTT>
   friend class DivGradOp;
   template<class SpaceTT>
@@ -149,9 +155,9 @@ public:
   Ordinal getLength( bool dummy=false ) const {
 
     //    auto bc = space_->getDomain()->getBCGlobal();
-//    auto bc = AbstractField<S,O,d>::space_->getDomain()->getBCGlobal();
-//        auto bc = this->space_->getDomain()->getBCGlobal();
-        auto bc = space()->getDomain()->getBCGlobal();
+    //    auto bc = AbstractField<S,O,d>::space_->getDomain()->getBCGlobal();
+    //        auto bc = this->space_->getDomain()->getBCGlobal();
+    auto bc = space()->getDomain()->getBCGlobal();
 
     Ordinal vl = 1;
 
@@ -410,23 +416,23 @@ public:
   /// \note the \c StencilWidths is not take care of assuming every field is generated with one
   /// \note "indexing" is done c++
   void assign( const MV& a ) {
-    SF_assign(
-        space()->nLoc(),
-        space()->bl(),
-        space()->bu(),
-        space()->sInd(fType_ ),
-        space()->eInd(fType_),
-        s_, a.s_ );
-    changed();
-    //    Ordinal N = 1;
-    //    for(int i=0; i<3; ++i)
-    //      N *= space()->nLoc(i)+space()->bu(i)-space()->bl(i);
-    //
-    //    for(int i=0; i<N; ++i)
-    //      s_[i] = a.s_[i];
-    //
-    //    for( int dir=0; dir<dim(); ++dir )
-    //      exchangedState_[dir] = a.exchangedState_[dir];
+
+//    SF_assign(
+//        space()->nLoc(),
+//        space()->bl(),
+//        space()->bu(),
+//        space()->sInd(fType_ ),
+//        space()->eInd(fType_),
+//        s_, a.s_ );
+//
+//    changed();
+
+
+    for(int i=0; i<getStorageSize(); ++i)
+      s_[i] = a.s_[i];
+
+    for( int dir=0; dir<space()->dim(); ++dir )
+      exchangedState_[dir] = a.exchangedState_[dir];
   }
 
 
@@ -532,10 +538,16 @@ public:
   }
 
 
-  //\}
+  /// \}
 
   /// Print the vector.  To be used for debugging only.
-  void print( std::ostream& os=std::cout )  const {
+  void print( std::ostream& out=std::cout )  const {
+
+    out << "--- FieldType: " << fType_ << "--- \n";
+    out << "--- StorageSize: " << getStorageSize() << "---\n";
+    out << "--- owning: " << owning_ << "---\n";
+    out << "--- exchangedState: " << exchangedState_ << "--\n";
+
     SF_print(
         space()->nLoc(),
         space()->bl(),
@@ -549,7 +561,8 @@ public:
 
   /// Write the ScalarField to an hdf5 file, the velocities are interpolated to the pressure points
   /// \todo add 3d case here
-  void write( int count=0 ) {
+  /// \todo add restart
+  void write( int count=0 , bool restart=false ) {
 
     if( 0==space()->rankST() )
       switch(fType_) {
@@ -567,41 +580,16 @@ public:
         break;
       }
 
-    Teuchos::RCP< ScalarField<SpaceT> > temp;
+    if( !restart ) {
+      Teuchos::RCP< ScalarField<SpaceT> > temp;
 
-    if( EField::S != fType_ )
-      temp = Teuchos::rcp(
-          new ScalarField<SpaceT>( space(), true, EField::S ) );
-
-    if( 2==space()->dim() ) {
-      if( EField::S==fType_ ) {
-        write_hdf5_2D(
-            space()->rankST(),
-            space()->commf(),
-            space()->nGlo(),
-            space()->getDomain()->getBCGlobal()->getBCL(),
-            space()->getDomain()->getBCGlobal()->getBCU(),
-            space()->nLoc(),
-            space()->bl(),
-            space()->bu(),
-            space()->sInd(EField::S),
-            space()->eInd(EField::S),
-            space()->getStencilWidths()->getLS(),
-            space()->getProcGridSize()->get(),
-            space()->getProcGrid()->getIB(),
-            space()->getProcGrid()->getShift(),
-            fType_,
-            count,
-            9,
-            s_,
-            space()->getCoordinatesGlobal()->get(0,EField::S),
-            space()->getCoordinatesGlobal()->get(1,EField::S),
-            space()->getDomain()->getDomainSize()->getRe(),
-            space()->getDomain()->getDomainSize()->getAlpha2() );
-      }
-      else {
-
+      if( EField::S != fType_ ) {
+        temp = Teuchos::rcp(
+            new ScalarField<SpaceT>( space(), true, EField::S ) );
         space()->getInterpolateV2S()->apply( *this, *temp );
+      }
+
+      if( 2==space()->dim() ) {
 
         write_hdf5_2D(
             space()->rankST(),
@@ -620,28 +608,81 @@ public:
             space()->getProcGrid()->getShift(),
             (int)fType_,
             count,
-            10,
-            temp->s_,
+            (EField::S==fType_)?9:10,
+                (EField::S==fType_)?s_:temp->s_,
+                    space()->getCoordinatesGlobal()->get(0,EField::S),
+                    space()->getCoordinatesGlobal()->get(1,EField::S),
+                    space()->getDomain()->getDomainSize()->getRe(),
+                    space()->getDomain()->getDomainSize()->getAlpha2() );
+      }
+      else if( 3==space()->dim() ) {
+
+        int stride[3] = {1,1,1};
+
+        write_hdf_3D(
+            space()->rankST(),
+            space()->commf(),
+            space()->nGlo(),
+            space()->getDomain()->getBCGlobal()->getBCL(),
+            space()->getDomain()->getBCGlobal()->getBCU(),
+            space()->nLoc(),
+            space()->bl(),
+            space()->bu(),
+            space()->sInd(EField::S),
+            space()->eInd(EField::S),
+            space()->getStencilWidths()->getLS(),
+            space()->getProcGridSize()->get(),
+            space()->getProcGrid()->getIB(),
+            space()->getProcGrid()->getShift(),
+            (int)fType_+1,
+            count,
+            (EField::S==fType_)?9:10,
+            stride,
+            (EField::S==fType_)?s_:temp->s_,
             space()->getCoordinatesGlobal()->get(0,EField::S),
             space()->getCoordinatesGlobal()->get(1,EField::S),
+            space()->getCoordinatesGlobal()->get(2,EField::S),
+            space()->getCoordinatesGlobal()->get(0,EField::U),
+            space()->getCoordinatesGlobal()->get(1,EField::V),
+            space()->getCoordinatesGlobal()->get(2,EField::W),
             space()->getDomain()->getDomainSize()->getRe(),
             space()->getDomain()->getDomainSize()->getAlpha2() );
+
       }
     }
-    else if( 3==space()->dim() ) {
-      if( EField::S==fType_ ) {
+    else {
 
-      }
-      else {
+      int stride[3] = {1,1,1};
 
-      }
-//      SF_write3D(
-//          space()->nLoc(),
-//          space()->bl(),
-//          space()->bu(),
-//          space()->sInd(fType_),
-//          space()->eInd(fType_),
-//          s_, count );
+      write_hdf_3D(
+          space()->rankST(),
+          space()->commf(),
+          space()->nGlo(),
+          space()->getDomain()->getBCGlobal()->getBCL(),
+          space()->getDomain()->getBCGlobal()->getBCU(),
+          space()->nLoc(),
+          space()->bl(),
+          space()->bu(),
+          space()->sInd(fType_),
+          space()->eInd(fType_),
+          space()->getStencilWidths()->getLS(),
+          space()->getProcGridSize()->get(),
+          space()->getProcGrid()->getIB(),
+          space()->getProcGrid()->getShift(),
+          (int)fType_+1,
+          count,
+          (EField::S==fType_)?9:10,
+          stride,
+          s_,
+          space()->getCoordinatesGlobal()->get(0,EField::S),
+          space()->getCoordinatesGlobal()->get(1,EField::S),
+          space()->getCoordinatesGlobal()->get(2,EField::S),
+          space()->getCoordinatesGlobal()->get(0,EField::U),
+          space()->getCoordinatesGlobal()->get(1,EField::V),
+          space()->getCoordinatesGlobal()->get(2,EField::W),
+          space()->getDomain()->getDomainSize()->getRe(),
+          space()->getDomain()->getDomainSize()->getAlpha2() );
+
     }
 
   }
@@ -650,11 +691,18 @@ public:
 
 public:
 
+  const EField& getType() const { return( fType_ ); }
+
+   /// \name storage methods.
+   /// \brief highly dependent on underlying storage should only be used by Operator or on top field implementer.
+   ///
+   ///\{
+
   Ordinal getStorageSize() const {
 
     Ordinal n = 1;
     for(int i=0; i<3; ++i)
-      n *= space()->nLoc(i)+space()->bu(i)-space()->bl(i)+1; // there a one was added for AMG, but it is not neede error seem to be in Impact there it should be (B1L+1:N1+B1U) probably has to be changed aganin for 3D
+      n *= space()->nLoc(i)+space()->bu(i)-space()->bl(i)+1; // seems wrong: there a one was added for AMG, but it is not neede error seem to be in Impact there it should be (B1L+1:N1+B1U) probably has to be changed aganin for 3D
 
     return( n );
   }
@@ -671,9 +719,16 @@ public:
     return( s_ );
   }
 
+
+  ///\}
+
   Teuchos::RCP<const SpaceT> space() const { return( AbstractField<SpaceT>::space_ ); }
 
-protected:
+  /// \name comunication methods.
+  /// \brief highly dependent on underlying storage should only be used by Operator or on top field implementer.
+  ///
+  ///\{
+//protected:
 
   void changed( const int& dir ) const {
     exchangedState_[dir] = false;
@@ -699,7 +754,7 @@ protected:
 
   /// \brief updates ghost layers
   void exchange( const int& dir ) const {
-    int ones[3] = {1,1,1};
+//    int ones[3] = {1,1,1};
     if( !exchangedState_[dir] ) {
       F_exchange(
           space()->dim(),
@@ -713,7 +768,9 @@ protected:
           space()->getDomain()->getBCLocal()->getBCU(),
           space()->sInd(EField::S),
           space()->eInd(EField::S),
-          ones,
+          space()->sIndB(fType_), // should it work
+//          space()->eIndB(fType_),
+//          ones,
           space()->nLoc(),
           1+dir,
           1+(int)fType_,
@@ -722,10 +779,16 @@ protected:
     }
   }
 
-  void exchange() const {
-    for( int dir=0; dir<space()->dim(); ++dir )
-      exchange( dir );
+  void exchange( bool forward=true ) const {
+    if(forward)
+      for( int dir=0; dir<space()->dim(); ++dir )
+        exchange( dir );
+    else
+      for( int dir=space()->dim()-1; dir>=0; --dir )
+        exchange( dir );
   }
+
+  ///\}
 
 }; // end of class ScalarField
 

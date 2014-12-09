@@ -3,15 +3,8 @@
 #define PIMPACT_CONVECTIONVOP_HPP
 
 
-#include "Pimpact_Types.hpp"
-
-#include "Pimpact_Space.hpp"
-
-#include "Pimpact_VectorField.hpp"
-
-#include "Pimpact_InterpolateS2VOp.hpp"
-#include "Pimpact_ConvectionSOp.hpp"
-
+#include "Pimpact_ConvectionVWrap.hpp"
+#include "Pimpact_ConvectionField.hpp"
 
 
 
@@ -20,14 +13,15 @@ namespace Pimpact {
 
 
 /// \brief Convection Operator for Velocity fields
+/// \todo make wind template parameter as well.
 /// \ingroup BaseOperator
 /// \relates ConvectionSOp
-template<class ST>
+template<class ConvVWrapT>
 class ConvectionVOp {
 
 public:
 
-  typedef ST SpaceT;
+  typedef typename ConvVWrapT::SpaceT SpaceT;
 
   typedef typename SpaceT::Scalar Scalar;
   typedef typename SpaceT::Ordinal Ordinal;
@@ -39,104 +33,46 @@ public:
   typedef VectorField<SpaceT>  DomainFieldT;
   typedef VectorField<SpaceT>  RangeFieldT;
 
-private:
+protected:
 
-  Teuchos::RCP<const SpaceT> space_;
+  Teuchos::RCP<const ConvVWrapT> convVWrap_;
 
-  Teuchos::RCP<const InterpolateS2V<SpaceT> > interpolateS2V_;
-  Teuchos::RCP<const InterpolateV2S<Scalar,Ordinal,dimension,dimNC> > interpolateV2S_;
+  Teuchos::RCP< ConvectionField<SpaceT> > convField_;
 
-  Teuchos::RCP<const ConvectionSOp<SpaceT> > convectionSOp_;
-
-  Teuchos::RCP< ScalarField<SpaceT> > temp_;
-  Teuchos::Tuple< Teuchos::Tuple<Teuchos::RCP<ScalarField<SpaceT> >, 3>, 3> u_;
 
 public:
 
-  ConvectionVOp( const Teuchos::RCP<const SpaceT>& space  ):
-    space_(space),
-    interpolateS2V_( create<InterpolateS2V>(space) ),
-    interpolateV2S_( createInterpolateV2S( space ) ),
-    convectionSOp_(  create<ConvectionSOp>(space) ),
-    temp_( createScalarField<SpaceT>( space ) ),
-    u_(
-        Teuchos::tuple(
-            Teuchos::tuple(
-                createScalarField<SpaceT>( space, U ),
-                createScalarField<SpaceT>( space, U ),
-                createScalarField<SpaceT>( space, U )
-            ),
-            Teuchos::tuple(
-                createScalarField<SpaceT>( space, V ),
-                createScalarField<SpaceT>( space, V ),
-                createScalarField<SpaceT>( space, V )
-            ),
-            Teuchos::tuple(
-                createScalarField<SpaceT>( space, W ),
-                createScalarField<SpaceT>( space, W ),
-                createScalarField<SpaceT>( space, W )
-            )
-        )
-    ) {};
+//  ConvectionVOp(
+//      const Teuchos::RCP<const SpaceT>& space ):
+//        convVWrap_( create<ConvVWrapT>( space ) ),
+//        convField_( create<ConvectionField>( space ) ) {};
 
   ConvectionVOp(
-      const Teuchos::RCP<const SpaceT>& space,
-      const Teuchos::RCP< InterpolateS2V<SpaceT> >& interpolateS2V,
-      const Teuchos::RCP< InterpolateV2S<Scalar,Ordinal,dimension,dimNC> >& interpolateV2S,
-      const Teuchos::RCP< ConvectionSOp<SpaceT> >& convectionSOp ):
-    space_(space),
-    interpolateS2V_(interpolateS2V),
-    interpolateV2S_(interpolateV2S),
-    convectionSOp_(convectionSOp),
-    temp_( createScalarField<SpaceT>( space ) ),
-    u_(
-        Teuchos::tuple(
-            Teuchos::tuple(
-                createScalarField<SpaceT>( space, U ),
-                createScalarField<SpaceT>( space, U ),
-                createScalarField<SpaceT>( space, U )
-            ),
-            Teuchos::tuple(
-                createScalarField<SpaceT>( space, V ),
-                createScalarField<SpaceT>( space, V ),
-                createScalarField<SpaceT>( space, V )
-            ),
-            Teuchos::tuple(
-                createScalarField<SpaceT>( space, W ),
-                createScalarField<SpaceT>( space, W ),
-                createScalarField<SpaceT>( space, W )
-            )
-        )
-    ) {};
+      const Teuchos::RCP<const ConvVWrapT>& convVWrap ):
+        convVWrap_( convVWrap ),
+        convField_( create<ConvectionField>( convVWrap->space() ) ) {};
 
-  void assignField( const DomainFieldT& mv ) {};
 
-  void apply(const DomainFieldT& x, RangeFieldT& y) const {
+  void assignField( const DomainFieldT& mv ) const {
 
-    apply( x, x, y);
+    convField_->assignField( mv );
 
-  }
+  };
 
-  void apply( const DomainFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mul=0. ) const {
-
-    for( int i=0; i<space_->dim(); ++i ) {
-      interpolateV2S_->apply( x.getConstField(i), *temp_ );
-//      temp_->write( i );
-      for( int j=0; j<space_->dim(); ++j ) {
-        interpolateS2V_->apply( *temp_, *u_[j][i] );
-      }
-    }
+  /// \note Operator's wind has to be assigned correctly
+  /// \deprecated
+  void apply( const DomainFieldT& x, RangeFieldT& y, Scalar mul=0. ) const {
 
     if( mul<1.e-12 ) {
-      z.init(0);
+      y.init(0);
       mul=1.;
     }
 
-    for( int i=0; i<space_->dim(); ++i ) {
-      convectionSOp_->apply( u_[i], y.getConstField(i), z.getField(i), mul );
-    }
+    convVWrap_->apply( convField_->get(), x, y, mul );
 
   }
+
+  void apply(const DomainFieldT& z, const DomainFieldT& x, RangeFieldT& y, Scalar mul=0. ) const {};
 
 
   bool hasApplyTranspose() const { return( false ); }
@@ -148,10 +84,17 @@ public:
 
 /// \relates ConvectionVOp
 template<class SpaceT>
-Teuchos::RCP<ConvectionVOp<SpaceT> > createConvectionVOp(
+Teuchos::RCP<ConvectionVOp<ConvectionVWrap<ConvectionSOp<SpaceT> > > > createConvectionVOp(
     const Teuchos::RCP<const SpaceT>& space ) {
-  return( Teuchos::rcp( new ConvectionVOp<SpaceT>( space ) ) );
+
+  auto sop = Pimpact::create<Pimpact::ConvectionSOp>( space ) ;
+  auto wrap = Pimpact::create<Pimpact::ConvectionVWrap>( sop );
+
+  return( Teuchos::rcp( new ConvectionVOp<ConvectionVWrap<ConvectionSOp<SpaceT> > >( wrap ) ) );
+
 }
+
+
 
 
 

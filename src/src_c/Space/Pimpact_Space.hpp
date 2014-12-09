@@ -93,11 +93,15 @@ public:
     if( setImpact ) procGridSize_->set_Impact();
 
     gridSizeGlobal_ =
-        Pimpact::createGridSizeGlobal<O,d>( pl->get<O>("nx"), pl->get<O>("ny"), pl->get<O>("nz"), pl->get<O>("nf") );
+        Pimpact::createGridSizeGlobal<O,d>(
+            pl->get<O>("nx"),
+            pl->get<O>("ny"),
+            (pl->get<int>("dim")==2)?2:pl->get<O>("nz"),
+            pl->get<O>("nf") );
     if( setImpact ) gridSizeGlobal_->set_Impact();
 
     gridSizeLocal_ =
-        Pimpact::createGridSizeLocal<O,d>( gridSizeGlobal_, procGridSize_ );
+        Pimpact::createGridSizeLocal<O,d,dNC>( gridSizeGlobal_, procGridSize_, stencilWidths_ );
     if( setImpact ) gridSizeLocal_->set_Impact();
 
 
@@ -164,7 +168,7 @@ public:
 
   Space(
       const Teuchos::RCP<const StencilWidths<dimension,dimNC> >& stencilWidths,
-      const Teuchos::RCP<const IndexSpace<Ordinal> >& indexSpace,
+      const Teuchos::RCP<const IndexSpace<Ordinal,dimension> >& indexSpace,
       const Teuchos::RCP<const GridSizeGlobal<Ordinal,dimension> >& gridSizeGlobal,
       const Teuchos::RCP<const GridSizeLocal<Ordinal,dimension> >& gridSizeLocal,
       const Teuchos::RCP<const ProcGridSize<Ordinal,dimension> >& procGridSize,
@@ -192,7 +196,7 @@ protected:
 
   Teuchos::RCP<const StencilWidths<dimension,dimNC> > stencilWidths_;
 
-  Teuchos::RCP<const IndexSpace<Ordinal> > indexSpace_;
+  Teuchos::RCP<const IndexSpace<Ordinal,dimension> > indexSpace_;
 
   Teuchos::RCP<const GridSizeGlobal<Ordinal,dimension> > gridSizeGlobal_;
 
@@ -214,7 +218,7 @@ public:
 
   Teuchos::RCP<const StencilWidths<dimension,dimNC> > getStencilWidths() const { return( stencilWidths_ ); }
 
-  Teuchos::RCP<const IndexSpace<Ordinal> > getIndexSpace() const { return( indexSpace_ ); }
+  Teuchos::RCP<const IndexSpace<Ordinal,dimension> > getIndexSpace() const { return( indexSpace_ ); }
 
   Teuchos::RCP<const GridSizeGlobal<Ordinal,dimension> > getGridSizeGlobal() const { return( gridSizeGlobal_ );  }
 
@@ -339,70 +343,96 @@ public:
   }
 
   static Teuchos::RCP<const Teuchos::ParameterList>  getValidParameters()  {
-    //    typedef Scalar S;
-    //    typedef Ordinal O;
 
     static Teuchos::RCP<const Teuchos::ParameterList> validPL;
+
     // Set all the valid parameters and their default values.
     if(is_null(validPL)) {
+
       Teuchos::RCP<Teuchos::ParameterList> pl = Teuchos::parameterList("Space");
-      pl->set("Re", 1., "Re");
-      pl->set("alpha2", 1.,
-          "\alpha^2");
+      pl->set<S>("Re", 1., "Reynolds number");
+      pl->set<S>("alpha2", 1.,
+          "Womersley square \alpha^2");
       // domain type
-      pl->set( "domain", 2,
+      pl->set<int>( "domain", 2,
           "Domain type: 0:all dirichlet, 1:dirichlet 2d channel, 2: periodic 2d channel" );
 
       // domain size
-      int dim = 2;
-      pl->set("dim", dim, "dimension of problem" );
+      pl->set<int>("dim", 2, "dimension of problem" );
 
-      S l1 = 1.;
-      pl->set( "lx", l1, "length in x-direction" );
-
-      S l2 = 1.;
-      pl->set("ly", l2, "length in y-direction" );
-
-      S l3 = 1.;
-      pl->set("lz", l3, "length in z-direction" );
+      pl->set<S>( "lx", 1., "length in x-direction" );
+      pl->set<S>( "ly", 1., "length in y-direction" );
+      pl->set<S>( "lz", 1., "length in z-direction" );
 
 
       // grid size
-      O n1 = 33;
-      pl->set("nx", n1, "amount of grid points in x-direction: a*2**q+1" );
+      pl->set<O>("nx", 33, "amount of grid points in x-direction: a*2**q+1" );
+      pl->set<O>("ny", 33, "amount of grid points in y-direction: a*2**q+1" );
+      pl->set<O>("nz", 2, "amount of grid points in z-direction: a*2**q+1" );
+      pl->set<O>("nf", 4, "amount of grid points in f-direction" );
 
-      O n2 = 33;
-      pl->set("ny", n2, "amount of grid points in y-direction: a*2**q+1" );
-
-      O n3 = 2.;
-      pl->set("nz", n3, "amount of grid points in z-direction: a*2**q+1" );
-
-      O nf = 4.;
-      pl->set("nf", nf, "amount of grid points in f-direction" );
-
-      O nfs = 1.;
-      pl->set("nfs", nfs, "start amount of grid points in f-direction" );
-
-      O nfe = 1.;
-      pl->set("nfe", nfe, "end amount of grid points in f-direction" );
+      pl->set<O>("nfs", 1, "start amount of grid points in f-direction" );
+      pl->set<O>("nfe", 1, "end amount of grid points in f-direction" );
 
       // processor grid size
-      O np1 = 2;
-      pl->set("npx", np1, "amount of processors in x-direction" );
+      pl->set<O>("npx", 2, "amount of processors in x-direction" );
+      pl->set<O>("npy", 2, "amount of processors in y-direction" );
+      pl->set<O>("npz", 1, "amount of processors in z-direction" );
+      pl->set<O>("npf", 1, "amount of processors in f-direction" );
 
-      O np2 = 2;
-      pl->set("npy", np2, "amount of processors in y-direction" );
-
-      O np3 = 1.;
-      pl->set("npz", np3, "amount of processors in z-direction" );
-      validPL = pl;
-
-      O npf = 1.;
-      pl->set("npf", npf, "amount of processors in f-direction" );
       validPL = pl;
     }
     return( validPL );
   }
+
+
+//  /// \todo make something like this work
+//  static Teuchos::RCP<Teuchos::ParameterList>  getParameters( Teuchos::CommandLineProcessor& clp )  {
+//
+//    // processor grid size
+//    O npx = 2;
+//    clp.setOption( "npx", &npx, "amount of processors in x-direction" );
+//
+//    O npy = 2;
+//    clp.setOption( "npy", &npy, "amount of processors in y-direction" );
+//
+//    O npz = 1.;
+//    clp.setOption( "npz", &npz, "amount of processors in z-direction" );
+//
+//
+//      Teuchos::RCP<Teuchos::ParameterList> pl = Teuchos::parameterList("Space");
+////      pl->set<S>("Re", 1., "Reynolds number");
+////      pl->set<S>("alpha2", 1.,
+////          "Womersley square \alpha^2");
+////      // domain type
+////      pl->set<int>( "domain", 2,
+////          "Domain type: 0:all dirichlet, 1:dirichlet 2d channel, 2: periodic 2d channel" );
+////
+////      // domain size
+////      pl->set<int>("dim", 2, "dimension of problem" );
+////
+////      pl->set<S>( "lx", 1., "length in x-direction" );
+////      pl->set<S>( "ly", 1., "length in y-direction" );
+////      pl->set<S>( "lz", 1., "length in z-direction" );
+//
+//
+////      // grid size
+////      pl->set<O>("nx", 33, "amount of grid points in x-direction: a*2**q+1" );
+////      pl->set<O>("ny", 33, "amount of grid points in y-direction: a*2**q+1" );
+////      pl->set<O>("nz", 2, "amount of grid points in z-direction: a*2**q+1" );
+////      pl->set<O>("nf", 4, "amount of grid points in f-direction" );
+////
+////      pl->set<O>("nfs", 1, "start amount of grid points in f-direction" );
+////      pl->set<O>("nfe", 1, "end amount of grid points in f-direction" );
+//
+//      // processor grid size
+//      pl->set<O>("npx", npx, "amount of processors in x-direction" );
+//      pl->set<O>("npy", npy, "amount of processors in y-direction" );
+//      pl->set<O>("npz", npz, "amount of processors in z-direction" );
+////      pl->set<O>("npf", n, "amount of processors in f-direction" );
+//
+//    return( pl );
+//  }
 
 }; // end of class Space
 
@@ -422,7 +452,7 @@ createSpace(
 
 
 
-/// \brief awesome
+
 template< template<class> class SpaceObjectT, class SpaceT>
 Teuchos::RCP< SpaceObjectT<SpaceT> >
 create( const Teuchos::RCP<const SpaceT>& space ) {
@@ -431,7 +461,7 @@ create( const Teuchos::RCP<const SpaceT>& space ) {
   );
 }
 
-/// \brief awesome
+
 template< template<class> class SpaceObjectT, class SpaceT>
 Teuchos::RCP< SpaceObjectT<SpaceT> >
 create( const Teuchos::RCP< SpaceT>& space ) {
@@ -441,7 +471,6 @@ create( const Teuchos::RCP< SpaceT>& space ) {
 }
 
 
-/// \brief awesome
 template< class SpaceObjectT, class SpaceT>
 Teuchos::RCP< SpaceObjectT >
 create( const Teuchos::RCP<const SpaceT>& space ) {
@@ -450,10 +479,46 @@ create( const Teuchos::RCP<const SpaceT>& space ) {
   );
 }
 
-/// \brief awesome
+
 template< class SpaceObjectT, class SpaceT>
 Teuchos::RCP< SpaceObjectT >
 create( const Teuchos::RCP< SpaceT>& space ) {
+  return(
+      Teuchos::rcp( new SpaceObjectT( space ) )
+  );
+}
+
+
+template< template<class> class SpaceObjectT, class SpaceT>
+Teuchos::RCP<const SpaceObjectT<SpaceT> >
+createConst( const Teuchos::RCP<const SpaceT>& space ) {
+  return(
+      Teuchos::rcp( new SpaceObjectT<SpaceT>(space) )
+  );
+}
+
+
+template< template<class> class SpaceObjectT, class SpaceT>
+Teuchos::RCP<const SpaceObjectT<SpaceT> >
+createConst( const Teuchos::RCP< SpaceT>& space ) {
+  return(
+      Teuchos::rcp( new SpaceObjectT<SpaceT>(space) )
+  );
+}
+
+
+template< class SpaceObjectT, class SpaceT>
+Teuchos::RCP<const SpaceObjectT >
+createConst( const Teuchos::RCP<const SpaceT>& space ) {
+  return(
+      Teuchos::rcp( new SpaceObjectT( space ) )
+  );
+}
+
+
+template< class SpaceObjectT, class SpaceT>
+Teuchos::RCP<const SpaceObjectT >
+createConst( const Teuchos::RCP< SpaceT>& space ) {
   return(
       Teuchos::rcp( new SpaceObjectT( space ) )
   );

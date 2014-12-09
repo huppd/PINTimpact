@@ -123,7 +123,7 @@ public:
           space_->sInd(i),
           space_->eInd(i),
           c_[i],
-          x.s_,
+          x.getConstRawPtr(),
           y.vec(i) );
       // necessary?
       OP_SetBCZero(

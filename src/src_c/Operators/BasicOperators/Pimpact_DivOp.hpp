@@ -119,7 +119,7 @@ public:
         x.vecC(U),
         x.vecC(V),
         x.vecC(W),
-        y.s_ );
+        y.getRawPtr() );
 
     y.changed();
 

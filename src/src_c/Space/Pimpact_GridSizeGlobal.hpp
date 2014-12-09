@@ -67,6 +67,7 @@ public:
   }
 
   void print( std::ostream& out=std::cout ) const {
+    out << " --- GridSizeGlobal: " << "\n";
     out << " \tnx=" << gridSize_[0];
     out << " \tny=" << gridSize_[1];
     out << " \tnz=" << gridSize_[2];

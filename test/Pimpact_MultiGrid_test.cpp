@@ -8,6 +8,8 @@
 #include "Pimpact_ScalarField.hpp"
 #include "Pimpact_Operator.hpp"
 
+#include "Pimpact_LinearProblem.hpp"
+#include "Pimpact_LinSolverParameter.hpp"
 
 
 
@@ -56,14 +58,13 @@ TEUCHOS_STATIC_SETUP() {
       "ftype", &ftype,
       "Slack off of machine epsilon used to check test results" );
   //  // processor grid size
-    pl->set( "nx", 257 );
-    pl->set( "ny", 257 );
-//    pl->set("nz", 2 );
-//    pl->set("nf", 2 );
-  //  pl->set("npx", 2 );
-  //  pl->set("npy", 2 );
-  //  pl->set("npz", 2 );
-  //  pl->set("npf", 2 );
+//    pl->set( "nx", 65 );
+//    pl->set( "ny", 65 );
+    pl->set( "nx", 1025 );
+    pl->set( "ny", 1025 );
+
+    pl->set("npx", 2 );
+    pl->set("npy", 2 );
 
 }
 
@@ -181,7 +182,6 @@ TEUCHOS_UNIT_TEST( MGSmoothers, constructor3D ) {
   auto op = mgSmoother->get( 2 );
   op->print();
 
-
 }
 
 
@@ -189,26 +189,6 @@ TEUCHOS_UNIT_TEST( MGSmoothers, constructor3D ) {
 TEUCHOS_UNIT_TEST( MultiGrid, Restrictor3D ) {
 
   typedef Pimpact::CoarsenStrategy<FSpace3T,CSpace3T> CS;
-
-  auto pl = Teuchos::parameterList();
-
-  pl->set( "Re", 1. );
-  pl->set( "alpha2", 1. );
-  pl->set( "domain", domain );
-
-  pl->set( "lx", 1. );
-  pl->set( "ly", 1. );
-  pl->set( "lz", 1. );
-
-  pl->set( "dim", 2 );
-
-  pl->set("nx", 129 );
-  pl->set("ny", 129 );
-  pl->set("nz", 2 );
-
-  pl->set("nf", 0 );
-  //  pl->set("nfs", 0 );
-  //  pl->set("nfe", 0 );
 
   auto space = Pimpact::createSpace<S,O,3>( pl );
 
@@ -267,21 +247,22 @@ TEUCHOS_UNIT_TEST( MultiGrid, Restrictor3D ) {
     TEST_FLOATING_EQUALITY( std::sqrt( (S)fieldc->getLength() ), fieldc->norm(Belos::TwoNorm), eps  );
 
     // the hard test
-    fieldf->initField( Pimpact::Grad2D_inX,1. );
+    fieldf->initField( Pimpact::Grad2D_inX, 1. );
 
     fieldc->init(0.);
+    auto sol = fieldc->clone();
+    sol->initField( Pimpact::Grad2D_inX, 1. );
+
 
     op->apply( *fieldf, *fieldc );
 
     fieldf->write( 0 );
     fieldc->write( 1 );
 
-    //    TEST_FLOATING_EQUALITY( 1., fieldc->norm(Belos::InfNorm), eps );
-    //
-    //    TEST_FLOATING_EQUALITY( (S)fieldc->getLength(), fieldc->norm(Belos::OneNorm), eps  );
-    //
-    //    TEST_FLOATING_EQUALITY( std::sqrt( (S)fieldc->getLength() ), fieldc->norm(Belos::TwoNorm), eps  );
+    sol->add( 1., *sol, -1., *fieldc );
+    sol->write(3);
 
+//    TEST_FLOATING_EQUALITY( 0., sol->norm(), eps ); // boundaries?
 
   }
 
@@ -289,29 +270,16 @@ TEUCHOS_UNIT_TEST( MultiGrid, Restrictor3D ) {
 
 
 
+/// \todo remove corners for test
 TEUCHOS_UNIT_TEST( MultiGrid, Interpolator3D ) {
 
   typedef Pimpact::CoarsenStrategy<FSpace3T,CSpace3T> CS;
-
-  auto pl = Teuchos::parameterList();
 
   pl->set( "Re", 1. );
   pl->set( "alpha2", 1. );
   pl->set( "domain", domain );
 
-  pl->set( "lx", 1. );
-  pl->set( "ly", 1. );
-  pl->set( "lz", 1. );
-
   pl->set( "dim", 2 );
-
-  pl->set("nx", 33 );
-  pl->set("ny", 33 );
-  //  pl->set("nx", 17 );
-  //  pl->set("ny", 17 );
-  //  pl->set("nx", 9 );
-  //  pl->set("ny", 9);
-  pl->set("nz", 2 );
 
   pl->set("nf", 0 );
   //  pl->set("nfs", 0 );
@@ -325,7 +293,7 @@ TEUCHOS_UNIT_TEST( MultiGrid, Interpolator3D ) {
 
   Pimpact::EField type[] = { Pimpact::EField::S, Pimpact::EField::U, Pimpact::EField::V };
 
-  for( int i=0; i<1; ++i ) {
+  for( int i=1; i<3; ++i ) {
     std::cout << "type: " << i << "\n";
 
     auto fieldf = Pimpact::createScalarField( mgSpaces->get( 0 ), type[i] );
@@ -352,7 +320,6 @@ TEUCHOS_UNIT_TEST( MultiGrid, Interpolator3D ) {
 
     //   fieldc->print();
     //   fieldf->print();
-
 
     // the random test
     fieldc->random();
@@ -387,27 +354,27 @@ TEUCHOS_UNIT_TEST( MultiGrid, Interpolator3D ) {
 
     // hardcore test init test in X
     fieldc->initField( Pimpact::Grad2D_inX );
-    fieldf->init(0.);
+    fieldf->initField( Pimpact::ConstField, 0. );
     auto sol = fieldf->clone();
+    auto er = fieldf->clone();
     sol->initField( Pimpact::Grad2D_inX );
 
     op->apply( *fieldc, *fieldf );
     fieldf->write(4);
     fieldc->write(5);
 
-    sol->add( 1., *sol, -1., *fieldf );
-    sol->write(90);
+    er->add( 1., *sol, -1., *fieldf );
+    er->write(90);
 
-    std::cout << "error GradX: " << fieldf->norm() << "\n";
+    std::cout << "error GradX: " << er->norm() << "\n";
 
-    TEST_FLOATING_EQUALITY( fieldf->norm()/std::sqrt( (S)fieldf->getLength() ),
-        fieldc->norm()/std::sqrt( (S)fieldc->getLength() ), eps*1e5  );
-
+    TEST_EQUALITY( er->norm()/std::sqrt( (S)er->getLength() )< eps, true  );
 
 
-    // hardcore test init test in X
+
+    // hardcore test init test in Y
     fieldc->initField( Pimpact::Grad2D_inY );
-    fieldf->init(0.);
+    fieldf->initField( Pimpact::ConstField, 0. );
     sol->initField( Pimpact::Grad2D_inY );
     sol->write(81);
 
@@ -416,29 +383,29 @@ TEUCHOS_UNIT_TEST( MultiGrid, Interpolator3D ) {
     fieldf->write(6);
     fieldc->write(7);
 
-    sol->add( 1., *sol, -1., *fieldf );
-    sol->write(91);
+    er->add( 1., *sol, -1., *fieldf );
+    er->write(91);
 
-    TEST_FLOATING_EQUALITY( fieldf->norm()/std::sqrt( (S)fieldf->getLength() ),
-        fieldc->norm()/std::sqrt( (S)fieldc->getLength() ), eps*1e5  );
+    std::cout << "error GradY: " << er->norm()/std::sqrt( (S)er->getLength() ) << "\n";
 
-    std::cout << "error GradY: " << fieldf->norm() << "\n";
+    TEST_EQUALITY( er->norm()/std::sqrt( (S)er->getLength() ) < eps, true  );
 
   }
 
 }
 
-////template<class T> using ptr = T*;
+
 template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
 
-TEUCHOS_UNIT_TEST( MultiGrid, apply ) {
+
+TEUCHOS_UNIT_TEST( MultiGrid, DivGradOp ) {
 
   typedef Pimpact::CoarsenStrategy<FSpace3T,CSpace3T> CS;
 
 
   auto space = Pimpact::createSpace( pl );
 
-  auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, 2 );
+  auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, 5 );
 
 
   auto mg =
@@ -453,6 +420,9 @@ TEUCHOS_UNIT_TEST( MultiGrid, apply ) {
   auto b = Pimpact::create<Pimpact::ScalarField>( space );
   auto op = Pimpact::create<Pimpact::DivGradOp>( space );
 
+  std::ofstream ofs;
+  if( space()->rankST()==0 )
+    ofs.open("MG.txt", std::ofstream::out);
 
   // Grad in x
    x->initField( Pimpact::Grad2D_inX );
@@ -461,7 +431,8 @@ TEUCHOS_UNIT_TEST( MultiGrid, apply ) {
    op->apply(*x,*b);
    b->write(1);
 
-   x->init();
+   x->init( 0. );
+   x->random();
    auto e = x->clone();
 
    e->init( 1. );
@@ -471,20 +442,135 @@ TEUCHOS_UNIT_TEST( MultiGrid, apply ) {
 
    S bla = b->dot(*e)/x->getLength();
    std::cout<< " rhs nullspace: " << bla << "\n";
-   for( int i=0; i<3; ++i ) {
+   for( int i=0; i<40; ++i ) {
      mg->apply( *b, *x );
      x->level();
      x->write(i+10);
 
-     sol->add( -1, *x, 1., *sol );
-     std::cout << "error: " << sol->norm() << "\n";
+     op->apply(*x,*sol);
+     sol->add( -1, *b, 1., *sol );
+     double res = sol->norm();
+     std::cout << "res: " << res << "\n";
+
+     if( space()->rankST()==0 )
+       ofs << res << "\n";
      TEST_EQUALITY( sol->norm()<0.5, true );
    }
 
    x->write(2);
 
+   if( space()->rankST()==0 )
+     ofs.close();
+
+   auto xm = Pimpact::createMultiField( x );
+   auto bm = Pimpact::createMultiField( b );
+
+   xm->init(0.);
+
+   auto opc = Pimpact::create<Pimpact::DivGradOp>( space );
+
+   auto prec = Pimpact::createMultiOperatorBase( mg );
+
+   auto param = Pimpact::createLinSolverParameter("GMRES",1.e-9);
+   auto bop = Pimpact::createMultiOperatorBase( opc );
+
+   auto linprob = Pimpact::createLinearProblem<Pimpact::MultiField<Pimpact::ScalarField<FSpace3T> > >( bop, xm, bm, param, "GMRES" );
+   linprob->setRightPrec(prec);
+
+   linprob->solve(xm,bm);
+   xm->write();
+//   auto bop = Pimpact::createMultiOperatorBase( mg );
+
 }
 
+
+
+template<class ST> using ConvDiffOp = Pimpact::ConvectionVOp< Pimpact::ConvectionVWrap< Pimpact::ConvectionDiffusionSOp<ST> > >;
+
+
+TEUCHOS_UNIT_TEST( MultiGrid, ConvDiffOp ) {
+
+  typedef Pimpact::CoarsenStrategy<FSpace3T,CSpace3T> CS;
+
+
+  auto space = Pimpact::createSpace( pl );
+
+  auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, 5 );
+
+
+//  auto mg =
+//      Pimpact::createMultiGrid<
+//        Pimpact::ScalarField,
+//        ConvDiffOp,
+//        ConvDiffOp,
+//        Pimpact::DivGradO2JSmoother,
+//        MOP>( mgSpaces );
+
+  auto x = Pimpact::create<Pimpact::ScalarField>( space );
+  auto b = Pimpact::create<Pimpact::ScalarField>( space );
+//  auto op = Pimpact::create< ConvDiffOp<FSpace3T> >( space );
+
+//  std::ofstream ofs;
+//  if( space()->rankST()==0 )
+//    ofs.open("MG.txt", std::ofstream::out);
+//
+//  // Grad in x
+//   x->initField( Pimpact::Grad2D_inX );
+//   x->write(0);
+//
+//   op->apply(*x,*b);
+//   b->write(1);
+//
+//   x->init( 0. );
+//   x->random();
+//   auto e = x->clone();
+//
+//   e->init( 1. );
+//   auto sol = x->clone();
+////   auto  = x->clone();
+//   sol->initField( Pimpact::Grad2D_inX );
+//
+//   S bla = b->dot(*e)/x->getLength();
+//   std::cout<< " rhs nullspace: " << bla << "\n";
+//   for( int i=0; i<40; ++i ) {
+//     mg->apply( *b, *x );
+//     x->level();
+//     x->write(i+10);
+//
+//     op->apply(*x,*sol);
+//     sol->add( -1, *b, 1., *sol );
+//     double res = sol->norm();
+//     std::cout << "res: " << res << "\n";
+//
+//     if( space()->rankST()==0 )
+//       ofs << res << "\n";
+//     TEST_EQUALITY( sol->norm()<0.5, true );
+//   }
+//
+//   x->write(2);
+//
+//   if( space()->rankST()==0 )
+//     ofs.close();
+//
+//   auto xm = Pimpact::createMultiField( x );
+//   auto bm = Pimpact::createMultiField( b );
+//
+//   xm->init(0.);
+//
+//   auto opc = Pimpact::create<Pimpact::DivGradOp>( space );
+//
+//   auto prec = Pimpact::createMultiOperatorBase( mg );
+//
+//   auto param = Pimpact::createLinSolverParameter("GMRES",1.e-9);
+//   auto bop = Pimpact::createMultiOperatorBase( opc );
+//
+//   auto linprob = Pimpact::createLinearProblem<Pimpact::MultiField<Pimpact::ScalarField<FSpace3T> > >( bop, xm, bm, param, "GMRES" );
+//   linprob->setRightPrec(prec);
+//
+//   linprob->solve(xm,bm);
+//   xm->write();
+////   auto bop = Pimpact::createMultiOperatorBase( mg );
+}
 
 
 } // end of namespace

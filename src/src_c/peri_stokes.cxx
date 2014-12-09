@@ -208,7 +208,7 @@ int main(int argi, char** argv ) {
 
   // init Belos operators
   auto H  =
-      Pimpact::createMultiOperatorBase<MVF,Pimpact::DtLapOp<SpaceT> >(
+      Pimpact::createMultiOperatorBase(
           Pimpact::createDtLapOp( space, alpha2, 1./re ) );
 
 
@@ -220,7 +220,7 @@ int main(int argi, char** argv ) {
     if(rank==0) std::cout << "\n\tprecType: 1, -Dt/omega\n";
 
     lprec =
-        Pimpact::createMultiOperatorBase<MVF,Pimpact::DtModeOp<SpaceT> >(
+        Pimpact::createMultiOperatorBase(
             Pimpact::createDtModeOp<SpaceT>( -1./alpha2 ) );
     break;
   }
@@ -254,7 +254,7 @@ int main(int argi, char** argv ) {
         );
     auto prob2 = Pimpact::createLinearProblem<MVF>( A, fu->clone(), fu->clone(), solverParams, "CG" );
     auto op2 = Pimpact::createEddyPrec<SpaceT>( fu->clone(), Pimpact::createInverseOperatorBase<MVF>(prob2) ) ;
-    lprec = Pimpact::createMultiOperatorBase<MVF >( op2 );
+    lprec = Pimpact::createMultiOperatorBase( op2 );
     break;
   }
   //  case 4: {

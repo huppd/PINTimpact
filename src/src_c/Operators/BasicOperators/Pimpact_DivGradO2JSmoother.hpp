@@ -61,15 +61,15 @@ public:
   typedef ScalarField<SpaceT>  DomainFieldT;
   typedef ScalarField<SpaceT>  RangeFieldT;
 
-//  typedef DivGradO2Op<SpaceT> OperatorT;
-
 protected:
 
   Scalar omega_;
   int nIter_;
 
   const Teuchos::RCP<const SpaceT> space_;
+
   Teuchos::RCP<DomainFieldT> temp_;
+
   const Teuchos::RCP<const OperatorT> op_;
 
 public:
@@ -88,7 +88,7 @@ public:
   void apply(const DomainFieldT& x, RangeFieldT& y,
       Belos::ETrans trans=Belos::NOTRANS ) const {
 
-    for( int i=0; i<nIter_; ++ i) {
+    for( int i=0; i<nIter_; ++i) {
       y.exchange();
 
       OP_DivGradO2JSmoother(

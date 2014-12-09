@@ -46,6 +46,12 @@ void OP_convection(
 template<class ST>
 class ConvectionSOp {
 
+  template<class OT>
+  friend class ConvectionDiffusionSORSmoother;
+
+  template<class OT>
+  friend class ConvectionDiffusionJSmoother;
+
 public:
 
   typedef ST SpaceT;
@@ -186,8 +192,6 @@ public:
          "Pimpact::ConvectionSOP can only be applied to same fieldType !!!\n");
 
 
-
-
     for( int i =0; i<space_->dim(); ++i ) {
       TEUCHOS_TEST_FOR_EXCEPTION(
           x[i]->fType_ != y.fType_,
@@ -215,12 +219,12 @@ public:
         space_->nu(),
         space_->sInd(m),
         space_->eInd(m),
-        (m==0)?cVD_[0]:cSD_[0],
-        (m==1)?cVD_[1]:cSD_[1],
-        (m==2)?cVD_[2]:cSD_[2],
-        (m==0)?cVU_[0]:cSU_[0],
-        (m==1)?cVU_[1]:cSU_[1],
-        (m==2)?cVU_[2]:cSU_[2],
+        getCD(X,z.fType_),
+        getCD(Y,z.fType_),
+        getCD(Z,z.fType_),
+        getCU(X,z.fType_),
+        getCU(Y,z.fType_),
+        getCU(Z,z.fType_),
         x[0]->s_,
         x[1]->s_,
         x[2]->s_,
@@ -258,6 +262,15 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
+  Teuchos::RCP<const SpaceT>  space() const { return( space_ ); }
+
+  const Scalar* getCU( const ECoord& dir, const EField& ftype ) const  {
+      return( ((int)dir==(int)ftype)?cVU_[dir]:cSU_[dir] );
+  }
+
+  const Scalar* getCD( const ECoord& dir, const EField& ftype ) const  {
+      return( ((int)dir==(int)ftype)?cVD_[dir]:cSD_[dir] );
+  }
 
 }; // end of class ConvectionSOp
 

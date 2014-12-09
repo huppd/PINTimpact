@@ -307,7 +307,7 @@ int main(int argi, char** argv ) {
   S idt = ((S)space->nGlo()[3])/2./pi;
 
 
-  auto dt  = Pimpact::createDtTimeOp<SpaceT>( alpha2*idt/re );
+  auto dt  = Pimpact::create<Pimpact::DtTimeOp>(space);
   auto lap = Pimpact::createTimeOpWrap< Pimpact::HelmholtzOp<SpaceT>, cny >(
       Pimpact::create<Pimpact::HelmholtzOp>( space ),
       Pimpact::create<Pimpact::VectorField>( space ) );

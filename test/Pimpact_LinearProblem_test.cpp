@@ -65,8 +65,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 	x->init(0.);
 	b->init(1.);
 
-	auto A = Pimpact::createMultiOperatorBase<MF>( Pimpact::create<Pimpact::HelmholtzOp>( space ) );
-
+	auto A = Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::HelmholtzOp>( space ) );
 
 	auto param = Pimpact::createLinSolverParameter("GMRES",1.e-4);
 

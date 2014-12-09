@@ -43,8 +43,6 @@ class TimeField : private AbstractField<typename Field::SpaceT> {
   friend class DtTimeOp;
   template<class SpaceTT, bool CNY>
   friend class TimeNonlinearJacobian;
-//  template<class S,class O>
-//  friend void initVectorTimeField();
 
 public:
 
@@ -69,6 +67,7 @@ public:
   typedef Teuchos::Array< Teuchos::RCP<Field> > FieldArray;
   typedef typename FieldArray::iterator Iter;
 
+  /// \todo move to IndexSpace
   Iter sInd_;
   Iter eInd_;
 
@@ -106,6 +105,7 @@ public:
   }
 
 
+protected:
 
   /// \brief copy constructor.
   ///
@@ -114,7 +114,7 @@ public:
   /// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
   TimeField(const TimeField& field, ECopyType copyType=DeepCopy):
     AF( field.space() ),
-//    space()(field.space()),
+    //    space()(field.space()),
     exchangedState_(field.exchangedState_) {
 
     Ordinal nt = space()->nLoc(3) + space()->bu(3) - space()->bl(3);
@@ -122,7 +122,7 @@ public:
     mfs_ = Teuchos::Array< Teuchos::RCP<Field> >(nt);
 
     for( int i=0; i<nt; ++i )
-//      mfs_[i] = Teuchos::rcp( new Field( space(), false ) );
+      //      mfs_[i] = Teuchos::rcp( new Field( space(), false ) );
       mfs_[i] = field.mfs_[i]->clone(copyType);
 
     Ordinal nx = mfs_[0]->getStorageSize();
@@ -146,10 +146,12 @@ public:
     if( ShallowCopy ) exchangedState_ = true;
   }
 
+
+public:
+
   ~TimeField() {
     delete[] array_;
   }
-
 
 
   /// \brief Create a new \c TimeField with
@@ -190,11 +192,13 @@ public:
   ///	the same thing as <tt>mv := 0*mv + alpha*A + beta*B</tt> in IEEE 754
   ///	floating-point arithmetic. (Remember that NaN*0 = NaN.)
   void add( Scalar alpha, const MV& A, Scalar beta, const MV& B ) {
-    Iter j = const_cast<MV&>(A).sInd_;
-    Iter k = const_cast<MV&>(B).sInd_;
-    for( Iter i=sInd_; i<eInd_; ++i ) {
-      (*i)->add( alpha, **(j++), beta, **(k++) );
-    }
+    //    Iter j = const_cast<MV&>(A).sInd_;
+    //    Iter k = const_cast<MV&>(B).sInd_;
+    //    for( Iter i=sInd_; i<eInd_; ++i ) {
+    //      (*i)->add( alpha, **(j++), beta, **(k++) );
+    //    }
+    for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
+      mfs_[i]->add( alpha, *A.mfs_[i], beta, *B.mfs_[i] );
     changed();
   }
 
@@ -206,9 +210,12 @@ public:
   /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
   void abs(const MV& y) {
-    Iter j=const_cast<MV&>(y).sInd_;
-    for( Iter i=sInd_; i<eInd_; ++i )
-      (*i)->abs( **(j++) );
+    //    Iter j=const_cast<MV&>(y).sInd_;
+    //    for( Iter i=sInd_; i<eInd_; ++i )
+    //      (*i)->abs( **(j++) );
+    //    Iter j=const_cast<MV&>(y).sInd_;
+    for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
+      mfs_[i]->abs( *y.mfs_[i] );
     changed();
   }
 
@@ -219,9 +226,11 @@ public:
   /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
   /// \return Reference to this object
   void reciprocal(const MV& y){
-    Iter j=const_cast<MV&>(y).sInd_;
-    for( Iter i=sInd_; i<eInd_; ++i )
-      (*i)->reciprocal( **(j++) );
+    //    Iter j=const_cast<MV&>(y).sInd_;
+    //    for( Iter i=sInd_; i<eInd_; ++i )
+    //      (*i)->reciprocal( **(j++) );
+    for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
+      mfs_[i]->reciprocal( *y.mfs_[i] );
     changed();
   }
 
@@ -231,8 +240,10 @@ public:
   /// Here x represents on \c Field, and we update it as
   /// \f[ x_i = \alpha x_i \quad \mbox{for } i=1,\dots,n \f]
   void scale( const Scalar& alpha ) {
-    for( Iter i=sInd_; i<eInd_; ++i )
-      (*i)->scale(alpha);
+    //    for( Iter i=sInd_; i<eInd_; ++i )
+    //      (*i)->scale(alpha);
+    for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
+      mfs_[i]->scale(alpha);
     changed();
   }
 
@@ -243,9 +254,11 @@ public:
   /// \f[ x_i = x_i \cdot y_i \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
   void scale(const MV& y) {
-    Iter j=const_cast<MV&>(y).sInd_;
-    for( Iter i=sInd_; i<eInd_; ++i )
-      (*i)->scale( **(j++) );
+    //    Iter j=const_cast<MV&>(y).sInd_;
+    //    for( Iter i=sInd_; i<eInd_; ++i )
+    //      (*i)->scale( **(j++) );
+    for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
+      mfs_[i]->scale( y.mfs_[i] );
     changed();
   }
 
@@ -260,9 +273,11 @@ public:
 
     Scalar b = 0.;
 
-    Iter j = const_cast<MV&>(A).sInd_;
-    for( Iter i=sInd_; i<eInd_; ++i )
-      b+= (*i)->dot( **(j++), false );
+    //    Iter j = const_cast<MV&>(A).sInd_;
+    //    for( Iter i=sInd_; i<eInd_; ++i )
+    //      b+= (*i)->dot( **(j++), false );
+    for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
+      b+= mfs_[i]->dot( *A.mfs_[i], false );
 
     if( global ) this->reduceNorm( comm(), b );
 
@@ -277,16 +292,29 @@ public:
 
     Scalar normvec = 0.;
 
-    for( Iter i=sInd_; i<eInd_; ++i ) {
+    //    for( Iter i=sInd_; i<eInd_; ++i ) {
+    //      switch(type) {
+    //      case Belos::OneNorm:
+    //        normvec += (*i)->norm(type,false);
+    //        break;
+    //      case Belos::TwoNorm:
+    //        normvec += (*i)->norm(type,false);
+    //        break;
+    //      case Belos::InfNorm:
+    //        normvec = std::max( (*i)->norm(type,false), normvec ) ;
+    //        break;
+    //      }
+    //    }
+    for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i ) {
       switch(type) {
       case Belos::OneNorm:
-        normvec += (*i)->norm(type,false);
+        normvec += mfs_[i]->norm(type,false);
         break;
       case Belos::TwoNorm:
-        normvec += (*i)->norm(type,false);
+        normvec += mfs_[i]->norm(type,false);
         break;
       case Belos::InfNorm:
-        normvec = std::max( (*i)->norm(type,false), normvec ) ;
+        normvec = std::max( mfs_[i]->norm(type,false), normvec ) ;
         break;
       }
     }
@@ -309,8 +337,10 @@ public:
 
     Iter j = const_cast<MV&>(weights).sInd_;
 
-    for( Iter i=sInd_; i<eInd_; ++i )
-      nor+= (*i)->norm( **(j++) );
+    //    for( Iter i=sInd_; i<eInd_; ++i )
+    //      nor+= (*i)->norm( **(j++) );
+    for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
+      nor+= mfs_[i]->norm( **(j++) );
 
     if( global ) this->reduceNorm( comm(), nor, Belos::TwoNorm );
 
@@ -322,33 +352,42 @@ public:
   ///
   /// assign (deep copy) A into mv.
   void assign( const MV& A ) {
-    Iter j = const_cast<MV&>(A).sInd_;
-    for( Iter i=sInd_; i<eInd_; ++i )
-      (*i)->assign( **(j++) );
+    //    Iter j = const_cast<MV&>(A).sInd_;
+    //    for( Iter i=sInd_; i<eInd_; ++i )
+    //      (*i)->assign( **(j++) );
+    //    Iter j = const_cast<MV&>(A).sInd_;
+    for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
+      mfs_[i]->assign( *A.mfs_[i] );
     changed();
   }
 
 
   /// \brief Replace the vectors with a random vectors.
   void random(bool useSeed = false, int seed = 1) {
-    for( Iter i=sInd_; i<eInd_; ++i )
-      (*i)->random();
+    //    for( Iter i=sInd_; i<eInd_; ++i )
+    //      (*i)->random();
+    for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
+      mfs_[i]->random();
     changed();
   }
 
 
   /// \brief \f[ *this = \alpha \f]
   void init( Scalar alpha = Teuchos::ScalarTraits<Scalar>::zero() ) {
-    for( Iter i=sInd_; i<eInd_; ++i )
-      (*i)->init(alpha);
+    //    for( Iter i=sInd_; i<eInd_; ++i )
+    //      (*i)->init(alpha);
+    for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
+      mfs_[i]->init(alpha);
     changed();
   }
 
 
   /// \param os
   void print( std::ostream& os ) {
-    for( Iter i=mfs_.begin(); i<mfs_.end(); ++i )
-      (*i)->print( os );
+    //    for( Iter i=mfs_.begin(); i<mfs_.end(); ++i )
+    //      (*i)->print( os );
+    for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
+      mfs_[i]->print( os );
   }
 
 
@@ -356,8 +395,10 @@ public:
   void write( int count=0 )  {
     //    for( Iter i=mfs_.begin(); i<mfs_.end(); ++i )
     //      (*i)->write(count++ + 2.*space()->getShift()[3] );
-    for( Iter i=sInd_; i<eInd_; ++i )
-      (*i)->write(count++ + space()->getShift()[3] );
+    //    for( Iter i=sInd_; i<eInd_; ++i )
+    //      (*i)->write(count++ + space()->getShift()[3] );
+    for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
+      mfs_[i]->write(count++ + space()->getShift()[3] );
   }
 
 
@@ -378,7 +419,7 @@ public:
       if( space()->getNProc(3)>=1 ) {
 
         int transL = std::abs( space()->bl(3) );
-//        int transU = std::abs( space()->bu(3) );
+        //        int transU = std::abs( space()->bu(3) );
 
         // std::cout << "transl: " <<  transl<< "\n";
         // std::cout << "transu: " <<  transu<< "\n";
@@ -387,16 +428,16 @@ public:
         int rankL = space()->getProcGrid()->getRankL(3);
 
         MPI_Request reqL;
-//        MPI_Request reqU;
+        //        MPI_Request reqU;
 
         MPI_Status statusL;
-//        MPI_Status statusU;
+        //        MPI_Status statusU;
 
         Ordinal lengthL = transL * mfs_[0]->getStorageSize();
-//        Ordinal lengthU = transU * mfs_[0]->getStorageSize();
+        //        Ordinal lengthU = transU * mfs_[0]->getStorageSize();
 
         Scalar* ghostUR = mfs_[0]->getRawPtr();
-//        Scalar* ghostLR = (*(eInd_))->getRawPtr();
+        //        Scalar* ghostLR = (*(eInd_))->getRawPtr();
 
         Scalar* ghostUS = ( *(eInd_-transL) )->getRawPtr();
         //      Scalar* ghostLS = ;
@@ -410,7 +451,7 @@ public:
         // depends on if field from sender was exchanged, so to be sure
         mfs_[0]->changed();
         if( transL>0 ) MPI_Wait( &reqL, &statusL );
-//        if( transU>0 ) MPI_Wait( &reqU, &statusU );
+        //        if( transU>0 ) MPI_Wait( &reqU, &statusU );
 
       }
       else {
@@ -461,9 +502,6 @@ initVectorTimeField(
   typedef typename SpaceT::Scalar S;
   typedef typename SpaceT::Ordinal O;
 
-  typedef TimeField<VectorField<SpaceT> > Field;
-  typedef typename Field::Iter Iter;
-
   auto space = field->space();
 
   auto offset = space->getShift()[3];
@@ -471,37 +509,38 @@ initVectorTimeField(
   O i = -1;
   S pi = 4.*std::atan(1.);
 
-//  for( Iter j = field->sInd_; j<field->eInd_; ++j )
-  for( Iter j = field->mfs_.begin(); j<field->mfs_.end(); ++j )
+  //  for( Iter j = field->sInd_; j<field->eInd_; ++j )
+  //  for( Iter j = field->mfs_.begin(); j<field->mfs_.end(); ++j )
+  for( O i=space->sInd(EField::S,3); i<space->eInd(EField::S,3); ++i )
     switch( flowType ) {
     case Zero2DFlow:
-      (*j)->initField( ZeroFlow );
+      field->getFieldPtr(i)->initField( ZeroFlow );
       break;
     case Poiseuille_inX:
-      (*j)->initField( PoiseuilleFlow2D_inX );
+      field->getFieldPtr(i)->initField( PoiseuilleFlow2D_inX );
       break;
     case Poiseuille_inY:
-      (*j)->initField( PoiseuilleFlow2D_inY );
+      field->getFieldPtr(i)->initField( PoiseuilleFlow2D_inY );
       break;
     case Streaming2DFlow: {
       S ampt = std::sin( 2.*pi*((S)i+++(S)offset)/(S)space->nGlo()[3] );
-      (*j)->initField( Streaming2D, ampt );
+      field->getFieldPtr(i)->initField( Streaming2D, ampt );
       break;
     }
     case OscilatingDisc2D: {
       S ymt = ym+amp*std::sin( 2.*pi*((S)i+++(S)offset)/(S)space->nGlo()[3] );
       S xmt = xm;
-      (*j)->initField( Disc2D, xmt, ymt, rad );
+      field->getFieldPtr(i)->initField( Disc2D, xmt, ymt, rad );
       break;
     }
     case OscilatingDisc2DVel: {
       S yvelt = amp*std::cos( 2.*pi*((S)i+++(S)offset)/(S)space->nGlo()[3] );
       S xvelt = 0;
-      (*j)->init( Teuchos::tuple( xvelt, yvelt, 0.) );
+      field->getFieldPtr(i)->init( Teuchos::tuple( xvelt, yvelt, 0.) );
       break;
     }
     default:
-      (*j)->initField( ZeroFlow );
+      field->getFieldPtr(i)->initField( ZeroFlow );
       break;
     }
 
