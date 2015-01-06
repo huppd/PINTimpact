@@ -68,9 +68,9 @@ contains
 
         real(c_double), intent(inout) ::  nlu(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-        real(c_double), intent(in)  :: mul
         real(c_double), intent(in)  :: mulI
         real(c_double), intent(in)  :: mulL
+        real(c_double), intent(in)  :: mul
 
         real                   ::  ddU, ddV, ddW, dd1
 
@@ -170,7 +170,7 @@ contains
                             dd1 = dd1 + c22(jj,j)*phi(i,j+jj,k)
                         end do
 
-                        nlu(i,j,k) = mulI*nlu(i,j,k) + mul*(phiU(i,j,k)*ddU + phiV(i,j,k)*ddV  ) - mulL*dd1
+                        nlu(i,j,k) = mulI*nlu(i,j,k) + mul*( phiU(i,j,k)*ddU + phiV(i,j,k)*ddV  ) - mulL*dd1
 
                     end if
 
@@ -190,6 +190,7 @@ contains
         nL,nU,                              &
         SS,NN,                              &
         dir,                                &
+        loopOrder,                          &
         c1D,c2D,c3D,                        &
         c1U,c2U,c3U,                        &
         c11,c22,c33,                        &
@@ -199,50 +200,51 @@ contains
         mulI,                               &
         mulL,                               &
         mul,                                &
-        om) bind (c,name='OP_convectionDiffusionSOR')
+        om ) bind (c,name='OP_convectionDiffusionSOR')
 
         implicit none
 
-        integer(c_int), intent(in)  :: dimens
+        integer(c_int),   intent(in)  :: dimens
 
-        integer(c_int), intent(in)  :: N(3)
+        integer(c_int),   intent(in)    :: N(3)
 
-        integer(c_int), intent(in)  :: bL(3)
-        integer(c_int), intent(in)  :: bU(3)
+        integer(c_int),   intent(in)    :: bL(3)
+        integer(c_int),   intent(in)    :: bU(3)
 
-        integer(c_int), intent(in)  :: nL(3)
-        integer(c_int), intent(in)  :: nU(3)
+        integer(c_int),   intent(in)    :: nL(3)
+        integer(c_int),   intent(in)    :: nU(3)
 
-        integer(c_int), intent(in)  :: SS(3)
-        integer(c_int), intent(in)  :: NN(3)
+        integer(c_int),   intent(in)    :: SS(3)
+        integer(c_int),   intent(in)    :: NN(3)
 
-        integer(c_int), intent(in)  :: dir(3)
+        integer(c_short), intent(in)    :: dir(3)
+        integer(c_short), intent(in)    :: loopOrder(3)
 
-        real(c_double), intent(in)  :: c1D(nL(1):nU(1),0:N(1))
-        real(c_double), intent(in)  :: c2D(nL(2):nU(2),0:N(2))
-        real(c_double), intent(in)  :: c3D(nL(3):nU(3),0:N(3))
+        real(c_double),   intent(in)    :: c1D(nL(1):nU(1),0:N(1))
+        real(c_double),   intent(in)    :: c2D(nL(2):nU(2),0:N(2))
+        real(c_double),   intent(in)    :: c3D(nL(3):nU(3),0:N(3))
 
-        real(c_double), intent(in)  :: c1U(nL(1):nU(1),0:N(1))
-        real(c_double), intent(in)  :: c2U(nL(2):nU(2),0:N(2))
-        real(c_double), intent(in)  :: c3U(nL(3):nU(3),0:N(3))
+        real(c_double),   intent(in)    :: c1U(nL(1):nU(1),0:N(1))
+        real(c_double),   intent(in)    :: c2U(nL(2):nU(2),0:N(2))
+        real(c_double),   intent(in)    :: c3U(nL(3):nU(3),0:N(3))
 
-        real(c_double), intent(in)  :: c11(bL(1):bU(1),0:N(1))
-        real(c_double), intent(in)  :: c22(bL(2):bU(2),0:N(2))
-        real(c_double), intent(in)  :: c33(bL(3):bU(3),0:N(3))
-
-
-        real(c_double), intent(in   ) ::  phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double), intent(in   ) ::  phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double), intent(in   ) ::  phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-
-        real(c_double), intent(in   ) ::  b(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-
-        real(c_double), intent(inout) ::  phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double),   intent(in)    :: c11(bL(1):bU(1),0:N(1))
+        real(c_double),   intent(in)    :: c22(bL(2):bU(2),0:N(2))
+        real(c_double),   intent(in)    :: c33(bL(3):bU(3),0:N(3))
 
 
-        real(c_double), intent(in)  :: mul
+        real(c_double),   intent(in)    ::  phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double),   intent(in)    ::  phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double),   intent(in)    ::  phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+
+        real(c_double),   intent(in)    ::  b(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+
+        real(c_double),   intent(inout) ::  phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+
+
         real(c_double), intent(in)  :: mulI
         real(c_double), intent(in)  :: mulL
+        real(c_double), intent(in)  :: mul
         real(c_double), intent(in)  :: om
 
 
@@ -251,6 +253,8 @@ contains
         integer                ::  i, ii
         integer                ::  j, jj
         integer                ::  k, kk
+
+        integer                ::  ind(3)
 
         integer(c_int)         :: SSS(3)
         integer(c_int)         :: NNN(3)
@@ -265,110 +269,120 @@ contains
             end if
         end do
 
+        do k = SSS(loopOrder(3)), NNN(loopOrder(3)), dir(loopOrder(3))
+            do j = SSS(loopOrder(2)), NNN(loopOrder(2)), dir(loopOrder(2))
+                do i = SSS(loopOrder(1)), NNN(loopOrder(1)), dir(loopOrder(1))
+                    !        do k = SSS(3), NNN(3), dir(3)
+                    !            do j = SSS(2), NNN(2), dir(2)
+                    !                do i = SSS(1), NNN(1), dir(1)
 
+                    ind(loopOrder(1)) = i
+                    ind(loopOrder(2)) = j
+                    ind(loopOrder(3)) = k
 
-        do k = SSS(3), NNN(3), dir(3)
-            do j = SSS(2), NNN(2), dir(2)
-                do i = SSS(1), NNN(1), dir(1)
                     dd = 0
                     !===========================================================================================================
                     !=== u*d /dx ===============================================================================================
                     !===========================================================================================================
-                    if( phiU(i,j,k) >= 0. ) then
-                        ddU = c1U(nL(1),i)*phi(i+nL(1),j,k)
+                    if( phiU( ind(1),ind(2),ind(3) ) >= 0. ) then
+                        ddU = c1U( nL(1),ind(1) )*phi( ind(1)+nL(1),ind(2),ind(3) )
                         !pgi$ unroll = n:8
                         do ii = nL(1)+1, nU(1)
-                            if( ii/=0 ) ddU = ddU + c1U(ii,i)*phi(i+ii,j,k)
+                            if( ii/=0 ) ddU = ddU + c1U( ii,ind(1) )*phi( ind(1)+ii,ind(2),ind(3) )
                         end do
-                        dd = dd + mul*c1U(0,i)*phiU(i,j,k)
+                        dd = dd + mul*c1U( 0,ind(1) )*phiU( ind(1),ind(2),ind(3) )
                     else
-                        ddU = c1D(nL(1),i)*phi(i+nL(1),j,k)
+                        ddU = c1D( nL(1),ind(1) )*phi( ind(1)+nL(1),ind(2),ind(3) )
                         !pgi$ unroll = n:8
                         do ii = nL(1)+1, nU(1)
-                            if( ii/=0 ) ddU = ddU + c1D(ii,i)*phi(i+ii,j,k)
+                            if( ii/=0 ) ddU = ddU + c1D( ii,ind(1) )*phi( ind(1)+ii,ind(2),ind(3) )
                         end do
-                        dd = dd + mul*c1D(0,i)*phiU(i,j,k)
+                        dd = dd + mul*c1D( 0,ind(1) )*phiU( ind(1),ind(2),ind(3) )
                     end if
-
                     !===========================================================================================================
                     !=== v*d /dy ===============================================================================================
                     !===========================================================================================================
-                    if( phiV(i,j,k) >= 0. ) then
-                        ddV = c2U(nL(2),j)*phi(i,j+nL(2),k)
+                    if( phiV( ind(1),ind(2),ind(3) ) >= 0. ) then
+                        ddV = c2U( nL(2),ind(2) )*phi( ind(1),ind(2)+nL(2),ind(3) )
                         !pgi$ unroll = n:8
                         do jj = nL(2)+1, nU(2)
-                            if( jj/=0 )ddV = ddV + c2U(jj,j)*phi(i,j+jj,k)
+                            if( jj/=0 ) ddV = ddV + c2U( jj,ind(2) )*phi( ind(1),ind(2)+jj,ind(3) )
                         end do
-                        dd = dd + mul*c2U(0,j)*phiV(i,j,k)
+                        dd = dd + mul*c2U( 0,ind(2) )*phiV( ind(1),ind(2),ind(3) )
                     else
-                        ddV = c2D(nL(2),j)*phi(i,j+nL(2),k)
+                        ddV = c2D(nL(2),ind(2))*phi( ind(1),ind(2)+nL(2),ind(3) )
                         !pgi$ unroll = n:8
                         do jj = nL(2)+1, nU(2)
-                            if( jj/=0 ) ddV = ddV + c2D(jj,j)*phi(i,j+jj,k)
+                            if( jj/=0 ) ddV = ddV + c2D( jj,ind(2) )*phi( ind(1),ind(2)+jj,ind(3) )
                         end do
-                        dd = dd + mul*c2D(0,j)*phiV(i,j,k)
+                        dd = dd + mul*c2D( 0,ind(2) )*phiV( ind(1),ind(2),ind(3) )
                     end if
+
 
                     if (dimens == 3) then
 
                         !===========================================================================================================
                         !=== w*d /dz ===============================================================================================
                         !===========================================================================================================
-                        if( phiW(i,j,k) >= 0. ) then
-                            ddW = c3U(nL(3),k)*phi(i,j,k+nL(3))
+                        if( phiW( ind(1),ind(2),ind(3) ) >= 0. ) then
+                            ddW = c3U(nL(3),ind(3))*phi(ind(1),ind(2),ind(3)+nL(3))
                             !pgi$ unroll = n:8
                             do kk = nL(3)+1, nU(3)
-                                if( kk/=0 )ddW = ddW + c3U(kk,k)*phi(i,j,k+kk)
+                                if( kk/=0 )ddW = ddW + c3U(kk,ind(3))*phi(ind(1),ind(2),ind(3)+kk)
                             end do
-                            dd = dd + mul*c3U(0,k)*phiW(i,j,k)
+                            dd = dd + mul*c3U(0,ind(3))*phiW(ind(1),ind(2),ind(3))
                         else
-                            ddW = c3D(nL(3),k)*phi(i,j,k+nL(3))
+                            ddW = c3D(nL(3),ind(3))*phi(ind(1),ind(2),ind(3)+nL(3))
                             !pgi$ unroll = n:8
                             do kk = nL(3)+1, nU(3)
-                                if( kk/=0 ) ddW = ddW + c3D(kk,k)*phi(i,j,k+kk)
+                                if( kk/=0 ) ddW = ddW + c3D(kk,ind(3))*phi(ind(1),ind(2),ind(3)+kk)
                             end do
-                            dd = dd + mul*c3D(0,k)*phiW(i,j,k)
+                            dd = dd + mul*c3D(0,ind(3))*phiW(ind(1),ind(2),ind(3))
                         end if
 
                         !===========================================================================================================
                         !=== d^2 /dx^2 + d^2 /dy^2 + d^2 /dz^2 ===============================================================================================
                         !===========================================================================================================
-                        dd1 = c11(bL(1),i)*phi(i+bL(1),j,k)
+                        dd1 = c11(bL(1),ind(1))*phi(ind(1)+bL(1),ind(2),ind(3))
                         !pgi$ unroll = n:8
                         do ii = bL(1)+1, bU(1)
-                            if( ii/=0 ) dd1 = dd1 + c11(ii,i)*phi(i+ii,j,k)
+                            if( ii/=0 ) dd1 = dd1 + c11(ii,ind(1))*phi(ind(1)+ii,ind(2),ind(3))
                         end do
                         !pgi$ unroll = n:8
                         do jj = bL(2), bU(2)
-                            if( jj/=0 ) dd1 = dd1 + c22(jj,j)*phi(i,j+jj,k)
+                            if( jj/=0 ) dd1 = dd1 + c22(jj,ind(2))*phi(i,ind(2)+jj,ind(3))
                         end do
                         !pgi$ unroll = n:8
                         do kk = bL(3), bU(3)
-                            if( kk/=0 )dd1 = dd1 + c33(kk,k)*phi(i,j,k+kk)
+                            if( kk/=0 )dd1 = dd1 + c33(kk,ind(3))*phi(ind(1),ind(2),ind(3)+kk)
                         end do
-                        dd = dd - mulL*( c11(0,i) + c22(0,j) +c33(0,k) ) + mulI
+                        dd = dd - mulL*( c11(0,ind(1)) + c22(0,ind(2)) +c33(0,ind(3)) ) + mulI
 
-                        phi(i,j,k) = (1-om)*phi(i,j,k) + om/dd*( b(i,j,k) - mul*(phiU(i,j,k)*ddU + phiV(i,j,k)*ddV + phiW(i,j,k)*ddW ) + mulL*dd1 )
+                        phi(ind(1),ind(2),ind(3)) = (1-om)*phi(ind(1),ind(2),ind(3)) + om/dd*( b(ind(1),ind(2),ind(3)) - mul*(phiU(ind(1),ind(2),ind(3))*ddU + phiV(ind(1),ind(2),ind(3))*ddV + phiW(ind(1),ind(2),ind(3))*ddW ) + mulL*dd1 )
 
                     else
 
                         !===========================================================================================================
                         !=== d^2 /dx^2 + d^2 /dy^2 ===============================================================================================
                         !===========================================================================================================
-                        dd1 = c11(bL(1),i)*phi(i+bL(1),j,k)
+                        dd1 = c11( bL(1),ind(1) )*phi( ind(1)+bL(1),ind(2),ind(3) )
                         !pgi$ unroll = n:8
                         do ii = bL(1)+1, bU(1)
-                            if( ii/=0 )dd1 = dd1 + c11(ii,i)*phi(i+ii,j,k)
+                            if( ii/=0 ) dd1 = dd1 + c11( ii,ind(1) )*phi( ind(1)+ii,ind(2),ind(3) )
                         end do
                         !pgi$ unroll = n:8
                         do jj = bL(2), bU(2)
-                            if( jj/=0 )dd1 = dd1 + c22(jj,j)*phi(i,j+jj,k)
+                            if( jj/=0 ) dd1 = dd1 + c22( jj,ind(2) )*phi( ind(1),ind(2)+jj,ind(3) )
                         end do
 
-                        dd = dd - mulL*( c11(0,i) + c22(0,j) ) + mulI
+                        dd = dd - mulL*( c11( 0,ind(1) ) + c22( 0,ind(2) ) ) + mulI
 
-                        !! check
-                        phi(i,j,k) = (1-om)*phi(i,j,k) + om/dd*( b(i,j,k) - mul*phiU(i,j,k)*ddU - mul*phiV(i,j,k)*ddV   + mulL*dd1 )
+                        phi( ind(1),ind(2),ind(3) ) =                       &
+                             (1-om)*phi(ind(1),ind(2),ind(3))               &
+                            + om/dd*( b(ind(1),ind(2),ind(3))               &
+                                    - mul*phiU(ind(1),ind(2),ind(3))*ddU    &
+                                    - mul*phiV(ind(1),ind(2),ind(3))*ddV    &
+                                    + mulL*dd1 )
 
                     end if
 
@@ -380,13 +394,13 @@ contains
     end subroutine OP_convectionDiffusionSOR
 
 
-       subroutine OP_convectionDiffusionJSmoother(  &
+    subroutine OP_convectionDiffusionJSmoother(  &
         dimens,                                     &
         N,                                          &
         bL,bU,                                      &
         nL,nU,                                      &
         SS,NN,                                      &
-!        dir,                                        &
+        !        dir,                                        &
         c1D,c2D,c3D,                                &
         c1U,c2U,c3U,                                &
         c11,c22,c33,                                &
@@ -414,7 +428,7 @@ contains
         integer(c_int), intent(in)  :: SS(3)
         integer(c_int), intent(in)  :: NN(3)
 
-!        integer(c_int), intent(in)  :: dir(3)
+        !        integer(c_int), intent(in)  :: dir(3)
 
         real(c_double), intent(in)  :: c1D(nL(1):nU(1),0:N(1))
         real(c_double), intent(in)  :: c2D(nL(2):nU(2),0:N(2))

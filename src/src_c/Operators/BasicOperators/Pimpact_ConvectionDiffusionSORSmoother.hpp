@@ -29,7 +29,8 @@ void OP_convectionDiffusionSOR(
     const int* const nU,
     const int* const SS,
     const int* const NN,
-    const int* const dir,
+    const short int* const dir,
+    const short int* const loopOrder,
     const double* const c1D,
     const double* const c2D,
     const double* const c3D,
@@ -65,6 +66,7 @@ public:
   typedef typename SpaceT::Ordinal Ordinal;
 
   typedef Teuchos::Tuple< Teuchos::RCP< ScalarField<SpaceT> >, 3 > FluxFieldT;
+
   typedef ScalarField<SpaceT>  DomainFieldT;
   typedef ScalarField<SpaceT>  RangeFieldT;
 
@@ -72,6 +74,12 @@ protected:
 
   Scalar omega_;
   int nIter_;
+
+  int ordering_;
+
+  Teuchos::Tuple<short int,3> dirs_;
+
+  Teuchos::Tuple<short int,3> loopOrder_;
 
   Teuchos::RCP<const SpaceT> space_;
 
@@ -84,12 +92,20 @@ public:
       Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ):
         omega_( pl->get("omega", 1. ) ),
         nIter_( pl->get("numIters", 1 ) ),
+        ordering_( pl->get("Ordering",1 ) ),
+        loopOrder_( Teuchos::tuple<short int>(1,2,3) ),
         space_(op->space_),
         op_(op) {
 
     if( 4==SpaceT::dimNC )
       if( 0==op->space_->rankST() )
-        std::cout << "Warning!!! ConvectionDiffusionSORSmoother strange behavior for dimNC=4\n";
+        std::cout << "Warning!!! ConvectionDiffusionSORSmoother strange behavior for dimNC=4, problems at outflow\n";
+
+    if( 0==ordering_ ) {
+      dirs_[0] = pl->get<short int>( "dir X", 1 );
+      dirs_[1] = pl->get<short int>( "dir Y", 1 );
+      dirs_[2] = pl->get<short int>( "dir Z", 1 );
+    }
 
   }
 
@@ -100,56 +116,57 @@ public:
 
   void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mul=1. ) const {
 
-    Teuchos::Tuple<int,3> dirs = Teuchos::tuple(-1,-1,-1);
+//    x[0]->write(666);
+    // testing field consistency
+    TEUCHOS_TEST_FOR_EXCEPT(
+        z.getType() != y.getType() );
 
-    TEUCHOS_TEST_FOR_EXCEPTION(
-        z.fType_ != y.fType_,
-        std::logic_error,
-        "Pimpact::ConvectionDiffusionSORSmoother can only be applied to same fieldType !!!\n");
+    for( int i=0; i<space_->dim(); ++i )
+      TEUCHOS_TEST_FOR_EXCEPT( x[i]->getType() != y.getType() );
 
-
-    for( int i =0; i<space_->dim(); ++i ) {
-      TEUCHOS_TEST_FOR_EXCEPTION(
-          x[i]->fType_ != y.fType_,
-          std::logic_error,
-          "Pimpact::ConvectionSOP can only be applied to same fieldType !!!\n");
-    }
-
+    // exchange wind and "rhs"
     for( int vel_dir=0; vel_dir<space_->dim(); ++vel_dir )
       x[vel_dir]->exchange();
 
+    y.exchange();
+
     for( int i=0; i<nIter_; ++i ) {
 
-      for( dirs[2]=-1; dirs[2]<2; dirs[2]+=2 )
-        for( dirs[1]=-1; dirs[1]<2; dirs[1]+=2 )
-          for( dirs[0]=-1; dirs[0]<2; dirs[0]+=2 )
-            apply( x, y, z, dirs, mul );
+      if( ordering_==0 )
+        apply(x,y,z,dirs_,loopOrder_,mul);
+      else
+        applyNPoint(x,y,z,mul);
 
     }
 
   }
 
-  void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, const Teuchos::Tuple<int,3>& dirs, Scalar mul=1. ) const {
+protected:
 
-    int m = (int)z.fType_;
+  void applyNPoint( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z,
+      Scalar mul=1. ) const {
 
-    TEUCHOS_TEST_FOR_EXCEPTION(
-        z.fType_ != y.fType_,
-        std::logic_error,
-        "Pimpact::ConvectionSOP can only be applied to same fieldType !!!\n");
+      if( 3==space_->dim() )
+        for( dirs_[2]=-1; dirs_[2]<2; dirs_[2]+=2 )
+          for( dirs_[1]=-1; dirs_[1]<2; dirs_[1]+=2 )
+            for( dirs_[0]=-1; dirs_[0]<2; dirs_[0]+=2 )
+              apply( x, y, z, dirs_, loopOrder_, mul );
+      else {
+        dirs_[2] = 1 ;
+        for( dirs_[1]=-1; dirs_[1]<2; dirs_[1]+=2 )
+          for( dirs_[0]=-1; dirs_[0]<2; dirs_[0]+=2 )
+            apply( x, y, z, dirs_, loopOrder_, mul );
+      }
+
+  }
 
 
-    for( int i =0; i<space_->dim(); ++i ) {
-      TEUCHOS_TEST_FOR_EXCEPTION(
-          x[i]->fType_ != y.fType_,
-          std::logic_error,
-          "Pimpact::ConvectionSOP can only be applied to same fieldType !!!\n");
-    }
+  /// \brief little helper
+  void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z,
+      const Teuchos::Tuple<short int,3>& dirs,
+      const Teuchos::Tuple<short int,3>& loopOrder,
+      Scalar mul=1. ) const {
 
-    for( int vel_dir=0; vel_dir<space_->dim(); ++vel_dir )
-      x[vel_dir]->exchange();
-
-    y.exchange();
     z.exchange();
     OP_convectionDiffusionSOR(
         space_->dim(),
@@ -158,18 +175,31 @@ public:
         space_->bu(),
         space_->nl(),
         space_->nu(),
-        space_->sInd(m),
-        space_->eInd(m),
+        space_->sInd(z.getType()),
+        space_->eInd(z.getType()),
         dirs.getRawPtr(),
-        op_->convSOp_->getCD(X,z.fType_),
-        op_->convSOp_->getCD(Y,z.fType_),
-        op_->convSOp_->getCD(Z,z.fType_),
-        op_->convSOp_->getCU(X,z.fType_),
-        op_->convSOp_->getCU(Y,z.fType_),
-        op_->convSOp_->getCU(Z,z.fType_),
-        op_->helmOp_->getC(X,z.fType_),
-        op_->helmOp_->getC(Y,z.fType_),
-        op_->helmOp_->getC(Z,z.fType_),
+        loopOrder.getRawPtr(),
+        op_->convSOp_->getCD( X, z.getType() ),
+        op_->convSOp_->getCD( Y, z.getType() ),
+        op_->convSOp_->getCD( Z, z.getType() ),
+        op_->convSOp_->getCU( X, z.getType() ),
+        op_->convSOp_->getCU( Y, z.getType() ),
+        op_->convSOp_->getCU( Z, z.getType() ),
+//        op_->convSOp_->getCD( Y, (z.getType()==U)?V:U ),
+//        op_->convSOp_->getCD( Y, z.getType() ),
+//        op_->convSOp_->getCD( Z, z.getType() ),
+//        op_->convSOp_->getCU( Y, (z.getType()==U)?V:U ),
+//        op_->convSOp_->getCU( Y, z.getType() ),
+//        op_->convSOp_->getCU( Z, z.getType() ),
+//        op_->convSOp_->getCD( X, U ),
+//        op_->convSOp_->getCD( X, U ),
+//        op_->convSOp_->getCD( Z, U ),
+//        op_->convSOp_->getCU( X, U ),
+//        op_->convSOp_->getCU( X, U ),
+//        op_->convSOp_->getCU( Z, U ),
+        op_->helmOp_->getC( X,z.getType() ),
+        op_->helmOp_->getC( Y,z.getType() ),
+        op_->helmOp_->getC( Z,z.getType() ),
         x[0]->getRawPtr(),
         x[1]->getRawPtr(),
         x[2]->getRawPtr(),
@@ -182,9 +212,9 @@ public:
 
     z.changed();
 
-
   }
 
+public:
 
   void print( std::ostream& out=std::cout ) const {
 

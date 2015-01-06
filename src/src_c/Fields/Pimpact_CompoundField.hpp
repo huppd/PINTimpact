@@ -79,7 +79,7 @@ public:
   }
 
   /// \name Attribute methods
-  //@{
+  /// \{
 
   VField& getVField() { return( *vfield_ ); }
   SField& getSField() { return( *sfield_ ); }
@@ -110,9 +110,9 @@ public:
   int getNumberVecs() const { return( 1 ); }
 
 
-  //@}
+  /// \}
   /// \name Update methods
-  //@{
+  /// \{
 
   /// \brief Replace \c this with \f$\alpha A + \beta B\f$.
   void add( const Scalar& alpha, const MV& A, const Scalar& beta, const MV& B ) {
@@ -176,12 +176,11 @@ public:
   }
 
 
-  //@}
-  /// @name Norm method
-  //@{
+  /// \}
+  /// \name Norm method
+  /// \{
 
   /// \brief Compute the norm of the field.
-  /// \todo implement OneNorm
   Scalar norm(  Belos::NormType type = Belos::TwoNorm, bool global=true) const {
 
     Scalar normvec=0;
@@ -225,9 +224,9 @@ public:
   }
 
 
-  //@}
+  /// \}
   /// \name Initialization methods
-  //@{
+  /// \{
 
   /// \brief mv := A
   /// Assign (deep copy) A into mv.
@@ -251,7 +250,7 @@ public:
   }
 
 
-  //@}
+  /// \}
 
   /// Print the vector.  To be used for debugging only.
   void print( std::ostream& os )  {

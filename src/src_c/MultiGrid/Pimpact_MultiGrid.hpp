@@ -93,7 +93,7 @@ public:
   /// \todo template cycle method
   void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
-    int out =0;
+//    int out =0;
     for( int j=0; j<1; ++j ) {
       // defect correction rhs \hat{f}= b = x - L y
       mgOps_->get()->apply( y, *b_->get() );

@@ -3,6 +3,7 @@
 #define PIMPACT_ADD2OP_HPP
 
 #include "Teuchos_RCP.hpp"
+#include "BelosTypes.hpp"
 
 
 
@@ -14,7 +15,6 @@ namespace Pimpact {
 ///
 /// Both operators are applied and the result is added.
 /// the \c DomainFieldT  \c RangeFieldT has to be equal for both \c OP1 \c OP2.
-/// both operators should have the same OpType(OpType is obsolete)
 /// \ingroup Operator
 template< class OP1, class OP2 >
 class Add2Op {

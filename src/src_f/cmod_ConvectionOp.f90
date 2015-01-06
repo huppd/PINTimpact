@@ -9,9 +9,7 @@
 !> \brief module providing convection
 module cmod_ConvectionOp
   
-  
     use iso_c_binding
-  
   
 contains
 
@@ -130,7 +128,7 @@ contains
 
                     else
 
-                        nlu(i,j,k) = nlu(i,j,k) + mul*(phiU(i,j,k)*ddU + phiV(i,j,k)*ddV  )
+                        nlu(i,j,k) = nlu(i,j,k) + mul*( phiU(i,j,k)*ddU + phiV(i,j,k)*ddV  )
 
                     end if
 

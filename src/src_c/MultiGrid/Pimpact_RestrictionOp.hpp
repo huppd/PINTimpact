@@ -106,6 +106,7 @@ public:
         spaceF_(spaceF),spaceC_(spaceC) {
 
     for( int i=0; i<3; ++i ) {
+
       cRS_[i] = new Scalar[ 3*(spaceC_->eInd(EField::S)[i]-spaceC_->sInd(EField::S)[i]+1) ];
       MG_getCRS(
           spaceC_->sInd(EField::S)[i],
@@ -113,6 +114,7 @@ public:
           spaceC_->getDomain()->getBCLocal()->getBCL(i),
           spaceC_->getDomain()->getBCLocal()->getBCU(i),
           cRS_[i] );
+
       cRV_[i] = new Scalar[ 2*( spaceC_->eIndB(i)[i]-spaceC_->sIndB(i)[i]+1 ) ];
       MG_getCRV(
           spaceC_->getGridSizeLocal()->get(i),
@@ -137,9 +139,9 @@ public:
 
   void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
-    EField fType = x.fType_;
+    TEUCHOS_TEST_FOR_EXCEPT( x.getType()!=y.getType() );
 
-    TEUCHOS_TEST_FOR_EXCEPTION( fType!=y.fType_, std::logic_error, "Error!!! has to be of same FieldType!!!");
+    EField fType = x.getType();
 
     if( EField::S==fType ) {
       x.exchange();
@@ -158,8 +160,8 @@ public:
           cRS_[0],
           cRS_[1],
           cRS_[2],
-          x.s_,
-          y.s_ );
+          x.getConstRawPtr(),
+          y.getRawPtr() );
       y.changed();
     }
     else {
@@ -183,8 +185,8 @@ public:
           spaceC_->sInd(fType),
           spaceC_->eInd(fType),
           cRV_[dir],
-          x.s_,
-          y.s_ );
+          x.getConstRawPtr(),
+          y.getRawPtr() );
       y.changed();
     }
   }

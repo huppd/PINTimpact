@@ -180,9 +180,9 @@ public:
   /// \brief is true
   bool HasConstantStride() const { return( true ); }
 
-  //@}
+  /// \}
   /// \name Update methods
-  //@{
+  /// \{
 
 
   /// \brief <tt>mv := alpha*A + beta*B</tt>
@@ -264,7 +264,7 @@ public:
 
 
 
-  //@}
+  /// \}
 
 
 
@@ -287,7 +287,6 @@ public:
 
 
   /// \brief Compute the norm for the \c TimeField as it is considered as one Vector .
-  /// \todo implement OneNorm
   Scalar norm(  Belos::NormType type = Belos::TwoNorm, bool global=true ) const {
 
     Scalar normvec = 0.;

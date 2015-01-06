@@ -72,12 +72,10 @@ public:
 
 
   void apply( const DomainFieldT& x, RangeFieldT& y ) const {
-    auto fType = x.fType_;
 
-    TEUCHOS_TEST_FOR_EXCEPTION(
-        fType != y.fType_,
-        std::logic_error,
-        "Pimpact::TransferOp!!!\n");
+    auto fType = x.getType();
+
+    TEUCHOS_TEST_FOR_EXCEPT( fType != y.getType() );
 
     OP_Transfer(
         fSpace_->nLoc(),
@@ -89,19 +87,18 @@ public:
         cSpace_->bu(),
         cSpace_->sInd(fType),
         cSpace_->eInd(fType),
-        x.s_,
-        y.s_ );
+        x.getConstRawPtr(),
+        y.getRawPtr() );
 
     y.changed();
+
   }
 
   void apply( const RangeFieldT& x, DomainFieldT& y ) const {
-    auto fType = x.fType_;
 
-    TEUCHOS_TEST_FOR_EXCEPTION(
-        fType != y.fType_,
-        std::logic_error,
-        "Pimpact::TransferOp!!!\n");
+    auto fType = x.getType();
+
+    TEUCHOS_TEST_FOR_EXCEPT( fType != y.getType() );
 
     OP_Transfer(
         cSpace_->nLoc(),
@@ -113,8 +110,8 @@ public:
         fSpace_->bu(),
         fSpace_->sInd(fType),
         fSpace_->eInd(fType),
-        x.s_,
-        y.s_ );
+        x.getConstRawPtr(),
+        y.getRawPtr() );
 
     y.changed();
   }

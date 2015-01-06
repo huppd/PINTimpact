@@ -2,23 +2,14 @@
 #ifndef PIMPACT_FIELDFACTORY_HPP
 #define PIMPACT_FIELDFACTORY_HPP
 
-//#include "Teuchos_RCP.hpp"
 
 #include "Pimpact_Space.hpp"
-//#include "Pimpact_IndexSpace.hpp"
 
-//#include "Pimpact_ScalarField.hpp"
-//#include "Pimpact_VectorField.hpp"
-//#include "Pimpact_ModeField.hpp"
-//#include "Pimpact_MultiField.hpp"
-//#include "Pimpact_MultiHarmonicField.hpp"
 #include "Pimpact_Fields.hpp"
 
 
 
 /// \file
-/// \todo make general templated create function
-
 
 
 namespace Pimpact {
@@ -31,13 +22,10 @@ template<class SpaceT>
 Teuchos::RCP< MultiField<ModeField<VectorField<SpaceT> > > >
 createMultiModeVectorField( const Teuchos::RCP<const SpaceT>& space, int n=1 ) {
 
-
-//  auto velc = create<Pimpact::VectorField>( space );
-//  auto vels = create<Pimpact::VectorField>( space );
-
   auto vel = create< ModeField< VectorField<SpaceT> > >( space );
 
   return( createMultiField<ModeField<VectorField<SpaceT> > >( *vel, n ) );
+
 }
 
 
@@ -49,12 +37,10 @@ template<class SpaceT>
 Teuchos::RCP< MultiField<ModeField<ScalarField<SpaceT> > > >
 createMultiModeScalarField( const Teuchos::RCP<const SpaceT>& space, int n=1 ) {
 
-//  auto scalc = createScalarField<SpaceT>(space);
-//  auto scals = createScalarField<SpaceT>(space);
-
   auto scal = create< ModeField<ScalarField<SpaceT> > >( space );
 
   return( createMultiField<ModeField<ScalarField<SpaceT> > >( *scal, n ) );
+
 }
 
 
@@ -127,6 +113,7 @@ Teuchos::RCP< MultiField<ModeField<ScalarField<SpaceT> > > > createInitMSF(
   auto sca = Pimpact::create< ModeField<ScalarField<SpaceT> > >( space );
 
   return( Pimpact::createMultiField<ModeField<ScalarField<SpaceT> > >(*sca,1) );
+
 }
 
 
@@ -157,6 +144,7 @@ Teuchos::RCP< MultiHarmonicField< ScalarField<SpaceT> > > createMultiHarmonicSca
 /// \relates MultiHarmonicField
 /// \relates VectorField
 /// \param nf amount of modes
+/// \param space
 /// \return field vector
 template<class SpaceT>
 Teuchos::RCP< MultiHarmonicField< VectorField<SpaceT> > >

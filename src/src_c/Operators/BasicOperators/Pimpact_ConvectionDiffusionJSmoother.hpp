@@ -55,6 +55,7 @@ void OP_convectionDiffusionJSmoother(
 
 /// \brief convection operator, that takes the free interpolated velocity components and advects accordingly
 /// \ingroup BaseOperator
+/// \todo merge with SORSmoother or make interface
 template<class OperatorT>
 class ConvectionDiffusionJSmoother {
 
@@ -97,7 +98,7 @@ public:
 
   void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mul=1. ) const {
 
-    int m = (int)z.fType_;
+    int m = (int)z.getType();
 
     TEUCHOS_TEST_FOR_EXCEPTION(
         z.getType() != y.getType(),
@@ -107,7 +108,7 @@ public:
 
     for( int i =0; i<space_->dim(); ++i ) {
       TEUCHOS_TEST_FOR_EXCEPTION(
-          x[i]->fType_ != y.fType_,
+          x[i]->getType() != y.getType(),
           std::logic_error,
           "Pimpact::ConvectionSOP can only be applied to same fieldType !!!\n");
     }
@@ -138,12 +139,12 @@ public:
           op_->helmOp_->getC(X,z.getType()),
           op_->helmOp_->getC(Y,z.getType()),
           op_->helmOp_->getC(Z,z.getType()),
-          x[0]->s_,
-          x[1]->s_,
-          x[2]->s_,
-          y.s_,
-          z.s_,
-          temp_->s_,
+          x[0]->getConstRawPtr(),
+          x[1]->getConstRawPtr(),
+          x[2]->getRawPtr(),
+          y.getConstRawPtr(),
+          z.getRawPtr(),
+          temp_->getRawPtr(),
           0.,
           1./space_->getDomain()->getDomainSize()->getRe(),
           mul,
@@ -154,6 +155,8 @@ public:
       z.changed();
 
     }
+    if( 0!=(nIter_%2) )
+      std::swap( z.s_, temp_->s_ );
 
   }
 

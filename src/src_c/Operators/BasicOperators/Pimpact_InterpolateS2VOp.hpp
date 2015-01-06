@@ -96,19 +96,19 @@ public:
 
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
+
     TEUCHOS_TEST_FOR_EXCEPTION(
-        x.fType_ != S,
+        x.getType() != S,
         std::logic_error,
         "Pimpact::InterpolateV2S:: can only interpolate from VectorField!!!\n");
 
     TEUCHOS_TEST_FOR_EXCEPTION(
-        y.fType_ == S,
+        y.getType() == S,
         std::logic_error,
         "Pimpact::InterpolateV2S:: can only interpolate to Scalar!!!\n");
 
-    int m = (int)y.fType_;
+    int m = (int)y.getType();
 
-//    int dim = x.dim();
     x.exchange(m);
 
     OP_grad(
@@ -121,8 +121,8 @@ public:
         space_->sInd(m),
         space_->eInd(m),
         c_[m],
-        x.s_,
-        y.s_ );
+        x.getConstRawPtr(),
+        y.getRawPtr() );
     y.changed();
   }
 

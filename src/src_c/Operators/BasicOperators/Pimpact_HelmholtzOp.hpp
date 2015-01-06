@@ -147,7 +147,7 @@ public:
           mulI_,
           mulL_,
           x.vecC(fType),
-          y.vec (fType) );
+          y.getRawPtr(fType) );
     }
 
     y.changed();
@@ -159,6 +159,7 @@ public:
   bool hasApplyTranspose() const { return( false ); }
 
   void print( std::ostream& out=std::cout ) const {
+
     out << " --- scalar stencil: ---";
     for( int i=0; i<3; ++i ) {
       out << "\ndir: " << i << "\n";
@@ -198,21 +199,6 @@ public:
 
 
 }; // end of class HelmholtzOp
-
-
-
-
-///// \relates HelmholtzOp
-//template<class SpaceT>
-//Teuchos::RCP<HelmholtzOp<SpaceT> > createHelmholtzOp(
-//    const Teuchos::RCP<const SpaceT>& space ) {
-////  return(
-////      Teuchos::rcp( new HelmholtzOp<SpaceT>( space, mulI, mulL ) )
-////  );
-//  return(
-//      create<HelmholtzOp>( space )
-//  );
-//}
 
 
 

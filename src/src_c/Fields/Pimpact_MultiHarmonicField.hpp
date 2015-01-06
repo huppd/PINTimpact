@@ -87,7 +87,7 @@ public:
   }
 
   /// \name Attribute methods
-  //@{
+  /// \{
 
   /// \warning it is assumed that both fields have the same \c StencilWidths
 
@@ -135,9 +135,9 @@ public:
   int getNumberModes() const { return( fields_->getNumberVecs() ); }
 
 
-  //@}
+  /// \}
   /// \name Update methods
-  //@{
+  /// \{
 
   /// \brief Replace \c this with \f$\alpha A + \beta B\f$.
   void add( const Scalar& alpha, const MV& A, const Scalar& beta, const MV& B ) {
@@ -182,7 +182,6 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  /// \todo implement me
   void scale(const MV& a) {
     field0_->scale( *a.field0_ );
     fields_->scale( *a.fields_ );
@@ -190,7 +189,6 @@ public:
 
 
   /// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
-  /// \todo has to be redone
   Scalar dot ( const MV& a, bool global=true ) const {
 
     Scalar b = 0.;
@@ -204,14 +202,12 @@ public:
   }
 
 
-  //@}
+  /// \}
   /// \name Norm method
-  //@{
+  /// \{
 
   /// \brief Compute the norm of Field.
   /// Upon return, \c normvec[i] holds the value of \f$||this_i||_2\f$, the \c i-th column of \c this.
-  /// \todo implement OneNorm
-  /// \todo implement in fortran
   Scalar norm(  Belos::NormType type = Belos::TwoNorm, bool global=true ) const {
 
     Scalar normvec = 0.;
@@ -251,9 +247,9 @@ public:
   }
 
 
-  //@}
+  /// \}
   /// \name Initialization methods
-  //@{
+  /// \{
 
 
   /// \brief mv := A
@@ -277,7 +273,7 @@ public:
     fields_->init(alpha);
   }
 
-  //@}
+  /// \}
 
   /// Print the vector.  To be used for debugging only.
   void print( std::ostream& os )  {
@@ -305,7 +301,7 @@ public:
 /// \brief creates a scalar/vector mode field(vector)
 ///
 /// \param field0 scalar Vector Space to which returned vector belongs
-/// \return fields vector
+/// \param fields vector
 /// \relates MultiHarmonicField
 template<class Field>
 Teuchos::RCP< MultiHarmonicField<Field> > createMultiHarmonicField(

@@ -14,7 +14,6 @@ namespace Pimpact{
 
 extern "C" {
 
-//  void SF_level( double* const phi );
 void Op_getCDG(
     const int& dimens,
     const int* const M,
@@ -140,8 +139,8 @@ public:
         c_[0],
         c_[1],
         c_[2],
-        x.s_,
-        y.s_ );
+        x.getConstRawPtr(),
+        y.getRawPtr() );
 
     SF_handle_corner(
         space_->nLoc(),
@@ -149,7 +148,7 @@ public:
         space_->bu(),
         space_->getDomain()->getBCLocal()->getBCL(),
         space_->getDomain()->getBCLocal()->getBCU(),
-        y.s_ );
+        y.getRawPtr() );
 
     y.changed();
 

@@ -11,6 +11,7 @@
 
 
 
+
 namespace Pimpact {
 
 
@@ -35,7 +36,7 @@ void OP_convection(
     const double* const phiV,
     const double* const phiW,
     const double* const phi,
-    const double* nlu,
+    double* const nlu,
     const double& mul );
 
 }
@@ -45,12 +46,6 @@ void OP_convection(
 /// \ingroup BaseOperator
 template<class ST>
 class ConvectionSOp {
-
-  template<class OT>
-  friend class ConvectionDiffusionSORSmoother;
-
-  template<class OT>
-  friend class ConvectionDiffusionJSmoother;
 
 public:
 
@@ -184,17 +179,17 @@ public:
 
   void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mul=0. ) const {
 
-    int m = (int)z.fType_;
+    int m = (int)z.getType();
 
     TEUCHOS_TEST_FOR_EXCEPTION(
-         z.fType_ != y.fType_,
+         z.getType() != y.getType(),
          std::logic_error,
          "Pimpact::ConvectionSOP can only be applied to same fieldType !!!\n");
 
 
     for( int i =0; i<space_->dim(); ++i ) {
       TEUCHOS_TEST_FOR_EXCEPTION(
-          x[i]->fType_ != y.fType_,
+          x[i]->getType() != y.getType(),
           std::logic_error,
           "Pimpact::ConvectionSOP can only be applied to same fieldType !!!\n");
     }
@@ -219,17 +214,23 @@ public:
         space_->nu(),
         space_->sInd(m),
         space_->eInd(m),
-        getCD(X,z.fType_),
-        getCD(Y,z.fType_),
-        getCD(Z,z.fType_),
-        getCU(X,z.fType_),
-        getCU(Y,z.fType_),
-        getCU(Z,z.fType_),
-        x[0]->s_,
-        x[1]->s_,
-        x[2]->s_,
-        y.s_,
-        z.s_,
+        getCD(X,z.getType()),
+        getCD(Y,z.getType()),
+        getCD(Z,z.getType()),
+        getCU(X,z.getType()),
+        getCU(Y,z.getType()),
+        getCU(Z,z.getType()),
+//        getCD(X,U),
+//        getCD(X,U),
+//        getCD(Z,z.getType()),
+//        getCU(X,U),
+//        getCU(X,U),
+//        getCU(Z,z.getType()),
+        x[0]->getConstRawPtr(),
+        x[1]->getConstRawPtr(),
+        x[2]->getConstRawPtr(),
+        y.getConstRawPtr(),
+        z.getRawPtr(),
         mul );
 
     z.changed();
@@ -237,27 +238,46 @@ public:
   }
 
   void print( std::ostream& out=std::cout ) const {
-     out << " --- scalar stencil: ---";
+     out << " --- ConvectioSOp ---\n";
      for( int i=0; i<3; ++i ) {
-       out << "\ni: " << i << "\n( ";
-       Ordinal nTemp = ( space_->nLoc(i) + 1 )*( space_->nu(i) - space_->nl(i) + 1);
-       for( int j=0; j<nTemp; ++j ) {
-         out << cSD_[i][j] <<", ";
-         out << cVU_[i][j] <<"\t";
+       out << "dir: " << i << "\n ";
+       out << "i\n";// cSD,\t\t cVD,\t\t cSU,\t\t cVU\n ";
+       for( Ordinal j=0; j<( space_->nLoc(i) + 1 ); ++j ) {
+         out << j << "\n";
+         Ordinal km = ( space_->nu(i) - space_->nl(i) + 1);
+         out << "cSD:\t";
+         for( Ordinal k=0; k<km; ++k )
+           out << getCD((ECoord)i,S)[k+j*km] <<",\t";
+         out << "\ncVD:\t";
+         for( Ordinal k=0; k<km; ++k )
+           out << getCD((ECoord)i,(EField)i)[k+j*km] <<",\t";
+         out << "\ncSU:\t";
+         for( Ordinal k=0; k<km; ++k )
+           out << getCU((ECoord)i,S)[k+j*km] <<",\t";
+         out << "\ncVU:\t";
+         for( Ordinal k=0; k<km; ++k )
+           out << getCU((ECoord)i,(EField)i)[k+j*km] <<",\t";
+         out << "\n";
        }
-       out << ")\n";
+//       out << "i\t cSD,\t\t cVD,\t\t cSU,\t\t cVU\n ";
+//       for( Ordinal j=0; j<( space_->nLoc(i) + 1 ); ++j ) {
+//         out << j << "\t ";
+//         Ordinal km = ( space_->nu(i) - space_->nl(i) + 1);
+//         for( Ordinal k=0; k<km; ++k )
+//           out << getCD((ECoord)i,S)[k+j*km] <<", ";
+//         out << "\t";
+//         for( Ordinal k=0; k<km; ++k )
+//           out << getCD((ECoord)i,(EField)i)[k+j*km] <<", ";
+//         out << "\t";
+//         for( Ordinal k=0; k<km; ++k )
+//           out << getCU((ECoord)i,S)[k+j*km] <<", ";
+//         out << "\t";
+//         for( Ordinal k=0; k<km; ++k )
+//           out << getCU((ECoord)i,(EField)i)[k+j*km] <<", ";
+//         out << "\n";
+//       }
      }
-     out << " --- velocity stencil: ---";
-     for( int i=0; i<3; ++i ) {
-       out << "\ni: " << i << "\n( ";
-       Ordinal nTemp = ( space_->nLoc(i) + 1 )*( space_->nu(i) - space_->nl(i) + 1);
-       for( int j=0; j<nTemp; ++j ) {
-         out << cVD_[i][j] <<", ";
-         out << cVU_[i][j] <<"\t";
-       }
-       out << ")\n";
-     }
-   }
+  }
 
 
   bool hasApplyTranspose() const { return( false ); }
@@ -265,23 +285,16 @@ public:
   Teuchos::RCP<const SpaceT>  space() const { return( space_ ); }
 
   const Scalar* getCU( const ECoord& dir, const EField& ftype ) const  {
-      return( ((int)dir==(int)ftype)?cVU_[dir]:cSU_[dir] );
+    return( ( ((int)dir)==((int)ftype) )?cVU_[dir]:cSU_[dir] );
+//      return( cVU_[dir] );
   }
 
   const Scalar* getCD( const ECoord& dir, const EField& ftype ) const  {
-      return( ((int)dir==(int)ftype)?cVD_[dir]:cSD_[dir] );
+    return( ( ((int)dir)==((int)ftype) )?cVD_[dir]:cSD_[dir] );
+//      return( cVD_[dir] );
   }
 
 }; // end of class ConvectionSOp
-
-
-
-/// \relates ConvectionSOp
-template<class SpaceT>
-Teuchos::RCP<ConvectionSOp<SpaceT> > createConvectionSOp(
-    const Teuchos::RCP<const SpaceT>& space ) {
-  return( Teuchos::rcp( new ConvectionSOp<SpaceT>( space ) ) );
-}
 
 
 

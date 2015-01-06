@@ -321,26 +321,26 @@ public:
 
   const Ordinal* sInd( int fieldType ) const {
     if( EField::S == (EField)fieldType )
-      return( sIndS_.getRawPtr()  );
+      return( sIndS_.getRawPtr() );
     else
       return( sIndU_[fieldType].getRawPtr() );
   }
-  const Ordinal* eInd(  int fieldType ) const {
+  const Ordinal* eInd( int fieldType ) const {
     if( EField::S == (EField)fieldType )
-      return( eIndS_.getRawPtr()  );
+      return( eIndS_.getRawPtr() );
     else
       return( eIndU_[fieldType].getRawPtr() );
   }
 
   const Ordinal* sIndB( int fieldType ) const {
     if( EField::S == (EField)fieldType )
-      return( sIndS_.getRawPtr()  );
+      return( sIndS_.getRawPtr() );
     else
       return( sIndUB_[fieldType].getRawPtr()  );
   }
   const Ordinal* eIndB( int fieldType ) const {
     if( EField::S == (EField)fieldType )
-      return( eIndS_.getRawPtr()  );
+      return( eIndS_.getRawPtr() );
     else
       return( eIndUB_[fieldType].getRawPtr()  );
   }

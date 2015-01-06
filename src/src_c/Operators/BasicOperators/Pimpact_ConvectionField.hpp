@@ -33,7 +33,6 @@ public:
 
   typedef VectorField<SpaceT>  DomainFieldT;
 
-
 protected:
 
   /// \todo remove
@@ -115,7 +114,9 @@ public:
   };
 
 
-  const FieldTensor& get() { return( u_ ); }
+  const FieldTensor& get() const { return( u_ ); }
+
+  FieldTensor& get() { return( u_ ); }
 
 
 }; // end of class ConvectionField

@@ -33,26 +33,6 @@ namespace Pimpact {
 template<class SpaceType>
 class VectorField : private AbstractField<SpaceType> {
 
-  template<class SpaceTT>
-  friend class DivOp;
-  template<class SpaceTT>
-  friend class GradOp;
-  template<class SpaceTT>
-  friend class HelmholtzOp;
-  template<class SpaceTT>
-  friend class ConvectionOp;
-  template<class SpaceTT>
-  friend class ConvectionJacobianOp;
-  template<class SpaceTT>
-  friend class DtLapOp;
-//  template<class SpaceTT>
-//  friend class MLHelmholtzOp;
-//  template<class SpaceTT>
-//  friend class InverseHelmholtzOp;
-//  template<class SpaceTT>
-//  friend class MGVHelmholtzOp;
-  template<class SpaceTT, bool CNY>
-  friend class TimeNonlinearJacobian;
 
 public:
 
@@ -66,6 +46,7 @@ public:
 protected:
 
   typedef Scalar* ScalarArray;
+
   typedef VectorField<SpaceT> VF;
   typedef ScalarField<SpaceT> SF;
 
@@ -76,7 +57,6 @@ protected:
   Teuchos::Tuple< Teuchos::RCP<SF>, 3 > sFields_;
 
 public:
-
 
   VectorField( const Teuchos::RCP< const SpaceT >& space, bool owning=true ):
     AbstractField<SpaceT>( space ),
@@ -238,7 +218,6 @@ public:
 
 
   /// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
-  /// \todo add test in debuging mode for testing equality of VectorSpaces
   Scalar dot ( const VF& a, bool global=true ) const {
     Scalar b = 0.;
 
@@ -252,9 +231,9 @@ public:
   }
 
 
-  //@}
+  ///\}
   /// @name Norm method
-  //@{
+  ///\{
 
   /// \brief Compute the norm of each individual vector.
   ///
@@ -334,7 +313,7 @@ public:
   }
 
 
-  /// \brief Replace each element of the vector \c vec[i] with \c alpha[i].
+  /// \brief Replace each element of the vector \c getRawPtr[i] with \c alpha[i].
   void init( const Teuchos::Tuple<Scalar,3>& alpha ) {
     for( int i=0; i<space()->dim(); ++i )
       sFields_[i]->init( alpha[i] );
@@ -707,6 +686,10 @@ public:
     return( vec_ );
   }
 
+  Scalar* getRawPtr ( int i )       { return( sFields_[i]->getRawPtr() ); }
+  Scalar* vecC( int i ) const { return( sFields_[i]->getRawPtr() ); }
+
+
   Teuchos::RCP<SF> getFieldPtr( int i ) { return(  sFields_[i] ); }
   SF& getField   ( int i ) { return( *sFields_[i] ); }
 
@@ -716,9 +699,6 @@ public:
   Teuchos::RCP<const SpaceT> space() const { return( AbstractField<SpaceT>::space_ ); }
 
 protected:
-
-  Scalar* vec ( int i )       { return( sFields_[i]->s_ ); }
-  Scalar* vecC( int i ) const { return( sFields_[i]->s_ ); }
 
   void changed( const int& vel_dir, const int& dir ) const {
     getConstFieldPtr( vel_dir )->changed( dir );
@@ -733,11 +713,12 @@ public:
       }
   }
 
-protected:
 
   bool is_exchanged( const int& vel_dir, const int& dir ) const {
     return( getConstFieldPtr( vel_dir )->is_exchanged( dir ) );
   }
+
+protected:
 
   bool is_exchanged() const {
 
@@ -749,6 +730,8 @@ protected:
     return( all_exchanged );
 
   }
+
+public:
 
   /// \brief updates ghost layers
   void exchange( const int& vel_dir, const int& dir ) const {

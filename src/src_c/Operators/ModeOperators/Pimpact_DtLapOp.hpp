@@ -94,7 +94,7 @@ public:
           iRe_,
           x.getConstSField().vecC(i),
           x.getConstCField().vecC(i),
-          y.getCField().vec(i) ) ;
+          y.getCField().getRawPtr(i) ) ;
 
       OP_DtHelmholtz(
           dim,
@@ -106,7 +106,7 @@ public:
           iRe_,
           x.getConstCField().vecC(i),
           x.getConstSField().vecC(i),
-          y.getSField().vec(i) ) ;
+          y.getSField().getRawPtr(i) ) ;
     }
     y.getCField().changed();
     y.getSField().changed();

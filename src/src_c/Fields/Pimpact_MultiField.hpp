@@ -32,7 +32,7 @@ namespace Pimpact {
 ///
 /// \note for better documentation, look at the equivalent documentation in the \c Belos::...
 /// \todo SpaceT constructor
-/// \todo continous memory
+/// \note continous memory is not necessarily desirable because also views are used
 /// \ingroup Field
 template<class FT>
 class MultiField : private AbstractField<typename FT::SpaceT> {
@@ -89,7 +89,7 @@ public:
 
   /// \brief  constructor, creates \c numvecs  empty fields
   /// \param numvecs
-  /// @return
+  /// \return
   MultiField( const Teuchos::RCP<const SpaceT>& space, int numvecs=1 ):
     AF( space ),
     mfs_(numvecs) {
@@ -148,7 +148,7 @@ public:
 
   /// deep copy of \c index fields, the new \c MultiFields stores \c index.size()
   /// \param index here index means an interval
-  /// @return
+  /// \return
   Teuchos::RCP<MV> CloneCopy( const Teuchos::Range1D& index) const {
     auto mv_ = Teuchos::rcp( new MV(space(), index.size()) );
     int j = 0;
@@ -162,7 +162,7 @@ public:
 
 
   /// \param index
-  /// @return nonConst View
+  /// \return nonConst View
   Teuchos::RCP<MV> CloneViewNonConst( const std::vector<int>& index) {
     auto mv_ = Teuchos::rcp( new MV( space(), index.size() ) );
     for( unsigned int i=0; i<index.size(); ++i ) {
@@ -225,9 +225,9 @@ public:
   bool HasConstantStride() const { return( true ); }
 
 
-  //@}
+  /// \}
   /// \name Update methods
-  //@{
+  /// \{
 
   /// \brief addes new field at end
   void push_back( const Teuchos::RCP<FieldT>& field=Teuchos::null ) {
@@ -355,10 +355,9 @@ public:
   }
 
 
-  //@}
+  /// \}
 
   /// For all columns j of A, set <tt>dots[j] := A[j]^T * B[j]</tt>.
-  /// \todo make reduction over vector
   void dot( const MV& A, std::vector<Scalar>& dots) const {
 
     const int n = getNumberVecs();
@@ -390,7 +389,6 @@ public:
 
   /// \brief Compute the norm of each individual vector.
   /// Upon return, \c normvec[i] holds the value of \f$||this_i||_2\f$, the \c i-th column of \c this.
-  /// \todo implement OneNorm
   void norm(
       std::vector<typename Teuchos::ScalarTraits<Scalar>::magnitudeType> &normvec,
       Belos::NormType type=Belos::TwoNorm ) const {
@@ -422,7 +420,6 @@ public:
 
 
   /// \brief Compute the norm for the \c MultiField as it is considered as one Vector .
-  /// \todo implement OneNorm
   Scalar norm(  Belos::NormType type = Belos::TwoNorm, bool global=true ) const {
 
     int n = getNumberVecs();
@@ -504,7 +501,6 @@ public:
       mfs_[i]->init(alpha);
   }
 
-  /// \todo add os to \c ScalarField and \c VectorField
   /// \param os
   void print( std::ostream& os ) {
     const int n = getNumberVecs();

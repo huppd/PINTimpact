@@ -149,10 +149,9 @@ public:
 
   void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
-    EField fType = x.fType_;
+    EField fType = x.getType();
 
-    TEUCHOS_TEST_FOR_EXCEPTION( fType!=y.fType_, std::logic_error, "Error!!! has to be of same FieldType!!!");
-
+    TEUCHOS_TEST_FOR_EXCEPT( x.getType()!=y.getType() );
 
     if( EField::S==fType ) {
       x.exchange();
@@ -169,8 +168,8 @@ public:
           cIS_[0],
           cIS_[1],
           cIS_[2],
-          x.s_,
-          y.s_ );
+          x.getConstRawPtr(),
+          y.getRawPtr() );
     }
     else {
 
@@ -196,8 +195,8 @@ public:
           cIS_[0],
           cIS_[1],
           cIS_[2],
-          x.s_,
-          y.s_ );
+          x.getConstRawPtr(),
+          y.getRawPtr() );
     }
     y.changed();
 

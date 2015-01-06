@@ -56,7 +56,7 @@ public:
 
   typedef Space<Scalar,Ordinal,dimension,dimNC> SpaceT;
 
-  typedef ScalarField< SpaceT >  DomainFieldT;
+  typedef ScalarField< SpaceT > DomainFieldT;
   typedef ScalarField< SpaceT > RangeFieldT;
 
 protected:
@@ -114,18 +114,18 @@ public:
   void apply( const DomainFieldT& x, RangeFieldT& y, Belos::ETrans trans=Belos::NOTRANS ) const {
 
     TEUCHOS_TEST_FOR_EXCEPTION(
-        x.fType_ == S,
+        x.getType() == S,
         std::logic_error,
         "Pimpact::InterpolateV2S:: can only interpolate from VectorField!!!\n");
 
     TEUCHOS_TEST_FOR_EXCEPTION(
-        y.fType_ != S,
+        y.getType() != S,
         std::logic_error,
         "Pimpact::InterpolateV2S:: can only interpolate to Scalar!!!\n");
 
     auto space = x.space();
 
-    int m = (int)x.fType_;
+    int m = (int)x.getType();
 
     x.exchange( m );
 
@@ -139,8 +139,8 @@ public:
         space->sInd(S),
         space->eInd(S),
         c_[m],
-        x.s_,
-        y.s_ );
+        x.getConstRawPtr(),
+        y.getRawPtr() );
 
     y.changed();
 

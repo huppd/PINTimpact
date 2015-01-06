@@ -76,7 +76,7 @@ public:
   }
 
   /// \name Attribute methods
-  //@{
+  /// \{
 
   Teuchos::RCP<FieldT> getCFieldPtr() { return( fieldc_ ); }
   Teuchos::RCP<FieldT> getSFieldPtr() { return( fields_ ); }
@@ -105,9 +105,9 @@ public:
   int getNumberVecs() const { return( 1 ); }
 
 
-  //@}
+  /// \}
   /// \name Update methods
-  //@{
+  /// \{
 
   /// \brief Replace \c this with \f$\alpha A + \beta B\f$.
   void add( const Scalar& alpha, const MV& A, const Scalar& beta, const MV& B ) {
@@ -171,9 +171,9 @@ public:
   }
 
 
-  //@}
+  /// \}
   /// \name Norm method
-  //@{
+  /// \{
 
   /// \brief Compute the norm of Field.
   ///
@@ -213,9 +213,9 @@ public:
   }
 
 
-  //@}
+  /// \}
   /// \name Initialization methods
-  //@{
+  /// \{
 
   /// \brief mv := A
   /// Assign (deep copy) A into mv.
@@ -236,7 +236,7 @@ public:
     fields_->init(alpha);
   }
 
-  //@}
+  /// \}
   /// Print the vector.  To be used for debugging only.
   void print( std::ostream& os )  {
     fieldc_->print( os );

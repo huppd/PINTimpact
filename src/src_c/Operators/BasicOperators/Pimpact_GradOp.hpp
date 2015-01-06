@@ -124,7 +124,7 @@ public:
           space_->eInd(i),
           c_[i],
           x.getConstRawPtr(),
-          y.vec(i) );
+          y.getRawPtr(i) );
       // necessary?
       OP_SetBCZero(
           space_->nLoc(),
@@ -134,7 +134,7 @@ public:
           space_->getDomain()->getBCLocal()->getBCU(),
           space_->sIndB(i),
           space_->eIndB(i),
-          y.vec(i) );
+          y.getRawPtr(i) );
       // necessary?
       // OP_bc_extrapolation( i+1, y.vec_[i] ); // doesnot work with Schurcomplement, not cleary what it does anyway
     }

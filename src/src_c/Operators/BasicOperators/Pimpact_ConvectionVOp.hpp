@@ -14,6 +14,7 @@ namespace Pimpact {
 
 /// \brief Convection Operator for Velocity fields
 /// \todo make wind template parameter as well.
+/// \todo make constructor so wind can be shared by different operators.
 /// \ingroup BaseOperator
 /// \relates ConvectionSOp
 template<class ConvVWrapT>
@@ -74,8 +75,17 @@ public:
 
   void apply(const DomainFieldT& z, const DomainFieldT& x, RangeFieldT& y, Scalar mul=0. ) const {};
 
+  Teuchos::RCP< ConvectionField<SpaceT> >
+  getConvField() const {
+    return( convField_ );
+  }
+
 
   bool hasApplyTranspose() const { return( false ); }
+
+  void print( std::ostream& out=std::cout ) const {
+    convVWrap_->print(out);
+  }
 
 
 }; // end of class ConvectionVOp

@@ -30,37 +30,9 @@ template<class SpaceType>
 class ScalarField : private AbstractField< SpaceType > {
 
   template<class SpaceTT>
-  friend class VectorField;
-//  template<class SpaceTT>
-//  friend class DivOp;
-//  template<class SpaceTT>
-//  friend class GradOp;
-  template<class SpaceTT>
-  friend class DivGradO2Op;
-  template<class SpaceTT>
   friend class DivGradO2JSmoother;
-  template<class S1,class O1,int dimension1,int dimNC>
-  friend class InterpolateV2S;
-  template<class SpaceTT>
-  friend class InterpolateS2V;
-  template<class FSpaceTT, class CSpaceTT>
-  friend class TransferOp;
-  template<class SpaceTT>
-  friend class ConvectionSOp;
-  template<class SpaceTT>
-  friend class ConvectionDiffusionSOp;
-  template<class OperatorTT>
-  friend class ConvectionDiffusionSORSmoother;
   template<class OperatorTT>
   friend class ConvectionDiffusionJSmoother;
-  template<class SpaceTT>
-  friend class DivGradOp;
-  template<class SpaceTT>
-  friend class MGVDivGradOp;
-  template<class SpaceTT>
-  friend class RestrictionOp;
-  template<class SpaceTT>
-  friend class InterpolationOp;
   template<class Field>
   friend class TimeField;
 
@@ -149,7 +121,7 @@ public:
   }
 
   /// \name Attribute methods
-  ///\{
+  /// \{
 
   /// \brief returns the length of Field.
   Ordinal getLength( bool dummy=false ) const {
@@ -193,9 +165,9 @@ public:
   int getNumberVecs() const { return( 1 ); }
 
 
-  //\}
+  /// \}
   /// \name Update methods
-  //\{
+  /// \{
 
   /// \brief Replace \c this with \f$\alpha A + \beta B\f$.
   void add( const Scalar& alpha, const MV& A, const Scalar& beta, const MV& B ) {
@@ -239,7 +211,6 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  /// \todo implement me
   void abs(const MV& y) {
     // add test for consistent VectorSpaces in debug mode
     SF_abs(
@@ -259,7 +230,6 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
   /// \return Reference to this object
-  /// \todo implement me
   void reciprocal(const MV& y){
     // add test for consistent VectorSpaces in debug mode
     SF_reciprocal(
@@ -293,7 +263,6 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  /// \todo implement me
   void scale(const MV& a) {
     // add test for consistent VectorSpaces in debug mode
     SF_scale2(
@@ -308,7 +277,6 @@ public:
 
 
   /// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
-  /// \todo add test in debuging mode for testing equality of VectorSpaces
   Scalar dot ( const MV& a, bool global=true ) const {
     Scalar b = 0.;
 
@@ -335,7 +303,6 @@ public:
 
   /// \brief compute the norm
   /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
-  /// \todo implement OneNorm
   Scalar norm(  Belos::NormType type = Belos::TwoNorm, bool global=true ) const {
 
     Scalar normvec = 0.;

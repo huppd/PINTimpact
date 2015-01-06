@@ -66,6 +66,11 @@ public:
   Teuchos::RCP<const SpaceT> space() const { return( convectionSOp_->space() ); }
 
 
+  void print( std::ostream& out=std::cout ) const {
+    convectionSOp_->print(out);
+  }
+
+
 }; // end of class ConvectionVWrap
 
 

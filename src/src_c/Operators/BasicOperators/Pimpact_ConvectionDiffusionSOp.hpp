@@ -41,7 +41,7 @@ void OP_convectionDiffusion(
     const double* const phiU,
     const double* const phiV,
     const double* const phiW,
-          double* const phi,
+    const double* const phi,
     const double* nlu,
     const double& mulI,
     const double& mulL,
@@ -90,20 +90,12 @@ public:
 
   void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mul=0. ) const {
 
-    int m = (int)z.fType_;
+//    int m = (int)z.getType();
 
-    TEUCHOS_TEST_FOR_EXCEPTION(
-         z.fType_ != y.fType_,
-         std::logic_error,
-         "Pimpact::ConvectionSOP can only be applied to same fieldType !!!\n");
+    TEUCHOS_TEST_FOR_EXCEPT( z.getType() != y.getType() );
 
-
-    for( int i =0; i<space_->dim(); ++i ) {
-      TEUCHOS_TEST_FOR_EXCEPTION(
-          x[i]->fType_ != y.fType_,
-          std::logic_error,
-          "Pimpact::ConvectionSOP can only be applied to same fieldType !!!\n");
-    }
+    for( int i =0; i<space_->dim(); ++i )
+      TEUCHOS_TEST_FOR_EXCEPT( x[i]->getType() != y.getType() );
 
     for( int vel_dir=0; vel_dir<space_->dim(); ++vel_dir )
       x[vel_dir]->exchange();
@@ -123,23 +115,30 @@ public:
         space_->bu(),
         space_->nl(),
         space_->nu(),
-        space_->sInd(m),
-        space_->eInd(m),
-        convSOp_->getCD(X,z.fType_),
-        convSOp_->getCD(Y,z.fType_),
-        convSOp_->getCD(Z,z.fType_),
-        convSOp_->getCU(X,z.fType_),
-        convSOp_->getCU(Y,z.fType_),
-        convSOp_->getCU(Z,z.fType_),
-        helmOp_->getC(X,z.fType_),
-        helmOp_->getC(Y,z.fType_),
-        helmOp_->getC(Z,z.fType_),
-        x[0]->s_,
-        x[1]->s_,
-        x[2]->s_,
-        y.s_,
-        z.s_,
-        mul,
+        space_->sInd(z.getType()),
+        space_->eInd(z.getType()),
+        convSOp_->getCD(X,z.getType()),
+        convSOp_->getCD(Y,z.getType()),
+        convSOp_->getCD(Z,z.getType()),
+        convSOp_->getCU(X,z.getType()),
+        convSOp_->getCU(Y,z.getType()),
+        convSOp_->getCU(Z,z.getType()),
+//        convSOp_->getCD(X,U),
+//        convSOp_->getCD(Y,V),
+//        convSOp_->getCD(Z,W),
+//        convSOp_->getCU(X,U),
+//        convSOp_->getCU(Y,V),
+//        convSOp_->getCU(Z,W),
+        helmOp_->getC(X,z.getType()),
+        helmOp_->getC(Y,z.getType()),
+        helmOp_->getC(Z,z.getType()),
+        x[0]->getConstRawPtr(),
+        x[1]->getConstRawPtr(),
+        x[2]->getConstRawPtr(),
+        y.getConstRawPtr(),
+        z.getRawPtr(),
+//        mul,
+        1.,
         1./space_->getDomain()->getDomainSize()->getRe(),
         mul );
 
