@@ -54,7 +54,7 @@ void OP_convectionDiffusionSOR(
 
 
 /// \brief convection operator, that takes the free interpolated velocity components and advects accordingly
-/// \ingroup BaseOperator
+/// \ingroup NonliearOperator
 template<class OperatorT>
 class ConvectionDiffusionSORSmoother {
 

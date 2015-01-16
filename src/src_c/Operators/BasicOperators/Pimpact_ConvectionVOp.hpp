@@ -13,16 +13,20 @@ namespace Pimpact {
 
 
 /// \brief Convection Operator for Velocity fields
-/// \todo make wind template parameter as well.
+/// \todo make wind template parameter as well.(necessary when different winds
+/// are wanted, meaning moving interpolation steps from assign to apply
 /// \todo make constructor so wind can be shared by different operators.
+/// \todo make Smoother
 /// \ingroup BaseOperator
-/// \relates ConvectionSOp
-template<class ConvVWrapT>
+/// \ingroup NonlinearOperator
+template<class CSOPT>
 class ConvectionVOp {
 
 public:
 
-  typedef typename ConvVWrapT::SpaceT SpaceT;
+  typedef CSOPT ConvSOpT;
+
+  typedef typename ConvSOpT::SpaceT SpaceT;
 
   typedef typename SpaceT::Scalar Scalar;
   typedef typename SpaceT::Ordinal Ordinal;
@@ -36,32 +40,26 @@ public:
 
 protected:
 
-  Teuchos::RCP<const ConvVWrapT> convVWrap_;
+  Teuchos::RCP<const ConvectionVWrap<ConvSOpT> > convVWrap_;
 
   Teuchos::RCP< ConvectionField<SpaceT> > convField_;
 
-
 public:
 
-//  ConvectionVOp(
-//      const Teuchos::RCP<const SpaceT>& space ):
-//        convVWrap_( create<ConvVWrapT>( space ) ),
-//        convField_( create<ConvectionField>( space ) ) {};
+    ConvectionVOp( const Teuchos::RCP<const SpaceT>& space ):
+      convVWrap_( createConst<ConvectionVWrap<ConvSOpT> >( createConst<ConvSOpT>(space) ) ),
+      convField_( create<ConvectionField>( space ) ) {};
 
-  ConvectionVOp(
-      const Teuchos::RCP<const ConvVWrapT>& convVWrap ):
-        convVWrap_( convVWrap ),
-        convField_( create<ConvectionField>( convVWrap->space() ) ) {};
+    template< class ConvSOpTT >
+    ConvectionVOp( const Teuchos::RCP<const ConvSOpTT>& op ):
+      convVWrap_( createConst<ConvectionVWrap<ConvSOpT> >( createConst<ConvSOpT>( op->getSpace() ) ) ),
+      convField_( op->getConvField() ) {}
 
 
-  void assignField( const DomainFieldT& mv ) const {
+  void assignField( const DomainFieldT& mv ) const { convField_->assignField( mv ); };
 
-    convField_->assignField( mv );
-
-  };
 
   /// \note Operator's wind has to be assigned correctly
-  /// \deprecated
   void apply( const DomainFieldT& x, RangeFieldT& y, Scalar mul=0. ) const {
 
     if( mul<1.e-12 ) {
@@ -73,11 +71,23 @@ public:
 
   }
 
-  void apply(const DomainFieldT& z, const DomainFieldT& x, RangeFieldT& y, Scalar mul=0. ) const {};
+
+  /// \depcecated
+  void apply(const DomainFieldT& z, const DomainFieldT& x, RangeFieldT& y, Scalar mul=0. ) const { std::cout << "!!!depcreated!!!\n"; };
+
+
+  Teuchos::RCP<const SpaceT> space() const {
+    return( convVWrap_->space() );
+  }
 
   Teuchos::RCP< ConvectionField<SpaceT> >
   getConvField() const {
     return( convField_ );
+  }
+
+  Teuchos::RCP<const ConvSOpT>
+  getSOp() const {
+    return( convVWrap_->getSOp() );
   }
 
 

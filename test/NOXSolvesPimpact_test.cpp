@@ -44,6 +44,7 @@ bool testMpi = true;
 S eps = 1.e0;
 bool isImpactInit = false;
 
+template<class T> using ConvDiffOpT = Pimpact::ConvectionVOp<Pimpact::ConvectionDiffusionSOp<T> >;
 
 
 TEUCHOS_STATIC_SETUP() {
@@ -102,28 +103,26 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
   auto x = Pimpact::createMultiField( *vel->clone(), 1 );
   auto f = Pimpact::createMultiField( *vel->clone(), 1 );
 
-  auto sop = Pimpact::create<Pimpact::ConvectionDiffusionSOp>( space ) ;
+
+ auto sop = Pimpact::create<ConvDiffOpT>( space ); ;
 
 
   auto op =
       Pimpact::createOperatorBase(
           Pimpact::createMultiOpWrap(
-              Pimpact::create<Pimpact::ConvectionVOp>(
-                  Pimpact::create<Pimpact::ConvectionVWrap>(
-                      sop
-                  )
-              )
+              sop
           )
       );
 
   auto smoother =
       Pimpact::createOperatorBase(
           Pimpact::createMultiOpWrap(
-              Pimpact::create<Pimpact::ConvectionVOp>(
-                  Pimpact::create<Pimpact::ConvectionVWrap>(
-                      Pimpact::create<Pimpact::ConvectionDiffusionSORSmoother>( sop )
-                  )
-              )
+              Pimpact::create<
+                          Pimpact::ConvectionVSmoother<
+                            ConvDiffOpT<Pimpact::Space<S,O,d,dNC> > ,
+                            Pimpact::ConvectionDiffusionSORSmoother > > (
+                                sop
+                            )
           )
       );
 

@@ -54,7 +54,7 @@ void OP_convectionDiffusionJSmoother(
 
 
 /// \brief convection operator, that takes the free interpolated velocity components and advects accordingly
-/// \ingroup BaseOperator
+/// \ingroup NonliearOperator
 /// \todo merge with SORSmoother or make interface
 template<class OperatorT>
 class ConvectionDiffusionJSmoother {

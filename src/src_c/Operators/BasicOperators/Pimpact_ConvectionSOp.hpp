@@ -43,7 +43,7 @@ void OP_convection(
 
 
 /// \brief convection operator, that takes the free interpolated velocity components and advects accordingly
-/// \ingroup BaseOperator
+/// \ingroup NonliearOperator
 template<class ST>
 class ConvectionSOp {
 
@@ -220,12 +220,6 @@ public:
         getCU(X,z.getType()),
         getCU(Y,z.getType()),
         getCU(Z,z.getType()),
-//        getCD(X,U),
-//        getCD(X,U),
-//        getCD(Z,z.getType()),
-//        getCU(X,U),
-//        getCU(X,U),
-//        getCU(Z,z.getType()),
         x[0]->getConstRawPtr(),
         x[1]->getConstRawPtr(),
         x[2]->getConstRawPtr(),

@@ -16,6 +16,10 @@
 /// \defgroup BaseOperator Basic Operator
 /// \ingroup Operator
 /// Operator operate on basic fields, \c Pimpact::ScalarField and \c Pimpact::VectorField
+
+/// \defgroup NonliearOperator  Nonlinear Operators
+/// \ingroup BaseOperator
+//// Basic Operator that are nonlinear, such that the can be wrapped by \c Pimpact::ConvectionVWrap
 #include "Pimpact_DivOp.hpp"
 #include "Pimpact_GradOp.hpp"
 #include "Pimpact_DivGradOp.hpp"
@@ -30,6 +34,8 @@
 #include "Pimpact_ConvectionDiffusionSORSmoother.hpp"
 #include "Pimpact_ConvectionDiffusionJSmoother.hpp"
 #include "Pimpact_ConvectionVOp.hpp"
+#include "Pimpact_ConvectionVSmoother.hpp"
+#include "Pimpact_ConvectionVWrap.hpp"
 #include "Pimpact_ConvectionJacobianOp.hpp"
 
 

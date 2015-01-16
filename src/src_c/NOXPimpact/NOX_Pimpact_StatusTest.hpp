@@ -17,7 +17,7 @@ namespace NOX{
 namespace Pimpact {
 
 
-Teuchos::RCP<NOX::StatusTest::Generic> createStatusTest( int maxI=10, double tolF=1.e-6, double tolUpdate=1.e-4 ) {
+Teuchos::RCP<NOX::StatusTest::Generic> createStatusTest( int maxI=10, double tolF=1.e-6, double tolUpdate=1.e-6 ) {
 
   Teuchos::ParameterList stl;
   stl.set( "Test Type", "Combo" );

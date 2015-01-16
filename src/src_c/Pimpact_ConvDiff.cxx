@@ -6,6 +6,7 @@ typedef double S;
 typedef int O;
 const int d = 3;
 
+template<class T> using ConvDiffOpT = Pimpact::ConvectionVOp<Pimpact::ConvectionDiffusionSOp<T> >;
 
 int main( int argi, char** argv ) {
 
@@ -20,10 +21,11 @@ int main( int argi, char** argv ) {
 
   //  int nwinds = 360*2;
 //  int nwinds = 360;
-//    int nwinds = 360/2;
+    int nwinds = 360/2;
 //    int nwinds = 360/4;
 //    int nwinds = 360/6;
-    int nwinds = 32;
+//    int nwinds = 64;
+//    int nwinds = 32;
 //    int nwinds = 16;
 //    int nwinds = 8;
 //    int nwinds = 4;
@@ -34,12 +36,12 @@ int main( int argi, char** argv ) {
   pl->set<S>( "Re", 10000 );
 //  pl->set<S>( "lx", 1 );
 //  pl->set<S>( "ly", 1 );
-    pl->set<O>( "nx", 513 );
-    pl->set<O>( "ny", 513 );
+//    pl->set<O>( "nx", 513 );
+//    pl->set<O>( "ny", 513 );
 //    pl->set<O>( "nx", 257 );
 //    pl->set<O>( "ny", 257 );
-//    pl->set<O>( "nx", 129 );
-//    pl->set<O>( "ny", 129 );
+    pl->set<O>( "nx", 129 );
+    pl->set<O>( "ny", 129 );
 //    pl->set<O>( "nx", 65 );
 //    pl->set<O>( "ny", 65 );
 //  pl->set<O>( "nx", 17 );
@@ -52,20 +54,14 @@ int main( int argi, char** argv ) {
   auto z = Pimpact::create<Pimpact::VectorField>( space );
   auto z2 = Pimpact::create<Pimpact::VectorField>( space );
 
-  auto sop = Pimpact::create<Pimpact::ConvectionDiffusionSOp>( space ) ;
-  sop->print();
 
-  auto op =
-      Pimpact::create<Pimpact::ConvectionVOp>(
-          Pimpact::create<Pimpact::ConvectionVWrap>(
-              sop
-          )
-      );
+  auto op = Pimpact::create<ConvDiffOpT>( space );
 
   for(short int dirx=-1; dirx<4; dirx+=2 ) {
     for(short int diry=-1; diry<2; diry+=2 ) {
 
       if( 3==dirx && diry==1 ) break;
+
       auto pls = Teuchos::parameterList();
       pls->set( "omega", 1. );
       pls->set( "numIter", 1 );
@@ -75,11 +71,12 @@ int main( int argi, char** argv ) {
       pls->set<short int>( "dir Z", 1 );
 
       auto smoother =
-          Pimpact::create<Pimpact::ConvectionVOp>(
-              Pimpact::create<Pimpact::ConvectionVWrap>(
-                  Pimpact::create<Pimpact::ConvectionDiffusionSORSmoother>( sop, pls )
-              )
-          );
+           Pimpact::create<
+             Pimpact::ConvectionVSmoother<
+               ConvDiffOpT<Pimpact::Space<S,O,d,2> > ,
+               Pimpact::ConvectionDiffusionSORSmoother > > (
+                   op,
+                   pls );
 
       std::ofstream phifile;
 
@@ -115,7 +112,7 @@ int main( int argi, char** argv ) {
         z->initField( Pimpact::ConstFlow, 0., 0., 0. );
 
         op->assignField( *wind );
-        smoother->assignField( *wind );
+//        smoother->assignField( *wind );
 
         // constructing rhs
         op->apply( *y, *z );

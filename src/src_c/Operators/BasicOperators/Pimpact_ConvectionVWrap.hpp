@@ -65,6 +65,9 @@ public:
 
   Teuchos::RCP<const SpaceT> space() const { return( convectionSOp_->space() ); }
 
+  Teuchos::RCP<const SOpT> getSOp() const {
+    return( convectionSOp_ );
+  }
 
   void print( std::ostream& out=std::cout ) const {
     convectionSOp_->print(out);

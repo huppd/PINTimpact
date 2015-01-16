@@ -15,6 +15,7 @@ namespace Pimpact {
 
 
 /// \ingroup MG
+/// \todo make Interpolation/Restriction templated
 template<class MGSpacesT>
 class MGTransfers {
 
