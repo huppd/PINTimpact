@@ -39,7 +39,6 @@ void OP_Transfer(
 /// \tparam FSpaceT fine space type in the sense of stencil order.
 /// \tparam CSpaceT coase space type
 /// \ingroup BaseOperator
-/// \todo add test if nloc is equal
 template<class FST, class CST>
 class TransferOp {
 
@@ -71,49 +70,31 @@ public:
         fSpace_(fSpace),cSpace_(cSpace) {}
 
 
-  void apply( const DomainFieldT& x, RangeFieldT& y ) const {
+  template< class SP1T, class SP2T>
+  void apply( const ScalarField<SP1T>& x, ScalarField<SP2T>& y ) const {
 
     auto fType = x.getType();
 
     TEUCHOS_TEST_FOR_EXCEPT( fType != y.getType() );
 
+    for( int i=0; i< x.space()->dim(); ++i )
+      TEUCHOS_TEST_FOR_EXCEPT( x.space()->nLoc(i) != y.space()->nLoc(i) );
+
     OP_Transfer(
-        fSpace_->nLoc(),
-        fSpace_->bl(),
-        fSpace_->bu(),
-        fSpace_->sInd(fType),
-        fSpace_->eInd(fType),
-        cSpace_->bl(),
-        cSpace_->bu(),
-        cSpace_->sInd(fType),
-        cSpace_->eInd(fType),
+        x.space()->nLoc(),
+        x.space()->bl(),
+        x.space()->bu(),
+        x.space()->sInd(fType),
+        x.space()->eInd(fType),
+        y.space()->bl(),
+        y.space()->bu(),
+        y.space()->sInd(fType),
+        y.space()->eInd(fType),
         x.getConstRawPtr(),
         y.getRawPtr() );
 
     y.changed();
 
-  }
-
-  void apply( const RangeFieldT& x, DomainFieldT& y ) const {
-
-    auto fType = x.getType();
-
-    TEUCHOS_TEST_FOR_EXCEPT( fType != y.getType() );
-
-    OP_Transfer(
-        cSpace_->nLoc(),
-        cSpace_->bl(),
-        cSpace_->bu(),
-        cSpace_->sInd(fType),
-        cSpace_->eInd(fType),
-        fSpace_->bl(),
-        fSpace_->bu(),
-        fSpace_->sInd(fType),
-        fSpace_->eInd(fType),
-        x.getConstRawPtr(),
-        y.getRawPtr() );
-
-    y.changed();
   }
 
   void assignField( const RangeFieldT& mv ) {};
