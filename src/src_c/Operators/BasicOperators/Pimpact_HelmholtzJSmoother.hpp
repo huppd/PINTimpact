@@ -1,6 +1,6 @@
 #pragma once
 #ifndef PIMPACT_HELMHOLTZOP_HPP
-#define PIMPACT_HELMHOLTDOP_HPP
+#define PIMPACT_HELMHOLTZOP_HPP
 
 #include "Pimpact_extern_FDCoeff.hpp"
 

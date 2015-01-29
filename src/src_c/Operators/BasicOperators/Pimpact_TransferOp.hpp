@@ -77,7 +77,7 @@ public:
 
     TEUCHOS_TEST_FOR_EXCEPT( fType != y.getType() );
 
-    for( int i=0; i< x.space()->dim(); ++i )
+    for( int i=0; i<x.space()->dim(); ++i )
       TEUCHOS_TEST_FOR_EXCEPT( x.space()->nLoc(i) != y.space()->nLoc(i) );
 
     OP_Transfer(
@@ -104,22 +104,6 @@ public:
 
 }; // end of class TransferOp
 
-
-
-/// \relates TransferOp
-template<class FSpaceT, class CSpaceT>
-Teuchos::RCP<const TransferOp<FSpaceT,CSpaceT> >
-createTransferOp(
-    const Teuchos::RCP<const FSpaceT>& fSpace,
-    const Teuchos::RCP<const CSpaceT>& cSpace ) {
-
-  return(
-      Teuchos::rcp(
-          new TransferOp<FSpaceT,CSpaceT>(fSpace,cSpace)
-      )
-  );
-
-}
 
 
 } // end of namespace Pimpact

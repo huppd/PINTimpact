@@ -84,6 +84,9 @@ public:
   typedef typename SpaceT::Scalar Scalar;
   typedef typename SpaceT::Ordinal Ordinal;
 
+  typedef SpaceT FSpaceT;
+  typedef SpaceT CSpaceT;
+
 protected:
 
   typedef ScalarField<SpaceT>  DomainFieldT;
@@ -130,6 +133,8 @@ public:
     }
 
   }
+
+
   ~RestrictionOp() {
     for( int i=0; i<3; ++i ) {
       delete[] cRS_[i];
@@ -210,12 +215,22 @@ public:
 
 
 
-template<class SpaceT>
-Teuchos::RCP<const RestrictionOp<SpaceT> > createRestrictionOp(
+//template<class SpaceT>
+//Teuchos::RCP<const RestrictionOp<SpaceT> > createRestrictionOp(
+//    const Teuchos::RCP<const SpaceT>& spaceF,
+//    const Teuchos::RCP<const SpaceT>& spaceC ) {
+//
+//  return( Teuchos::rcp( new RestrictionOp<SpaceT>(spaceF,spaceC) ) );
+//
+//}
+
+/// \todo colect all create methods in one file
+template<template<class> class OpT, class SpaceT>
+Teuchos::RCP<const OpT<SpaceT> > create(
     const Teuchos::RCP<const SpaceT>& spaceF,
     const Teuchos::RCP<const SpaceT>& spaceC ) {
 
-  return( Teuchos::rcp( new RestrictionOp<SpaceT>(spaceF,spaceC) ) );
+  return( Teuchos::rcp( new OpT<SpaceT>(spaceF,spaceC) ) );
 
 }
 

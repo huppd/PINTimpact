@@ -29,10 +29,10 @@ public:
 
 protected:
 
-  template< template<class> class STT, class MGOpsT >
-  friend
-  Teuchos::RCP<const MGSmoothers<MGOpsT,STT> >
-  createMGSmoothers( const Teuchos::RCP<const MGOpsT>& mgOps, Teuchos::RCP<Teuchos::ParameterList> pl );
+//  template< template<class> class STT, class MGOpsT >
+//  friend
+//  Teuchos::RCP<const MGSmoothers<MGOpsT,STT> >
+//  createMGSmoothers( const Teuchos::RCP<const MGOpsT>& mgOps, Teuchos::RCP<Teuchos::ParameterList> pl );
 
   Teuchos::RCP<const MGSpacesT> mgSpaces_;
 
@@ -54,7 +54,7 @@ public:
 
   }
 
-public:
+//public:
 
   /// \brief gets ith smoother, similar to python i=-1 is gets you the coarses space
   Teuchos::RCP<SmootherT> get( int i ) const {

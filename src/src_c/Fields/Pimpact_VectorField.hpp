@@ -649,7 +649,12 @@ public:
   }
 
 
+  /// dirty hack(necessary for MG)
+  /// \todo fixme
+  void level() {}
+
   //@}
+
 
   /// Print the vector.  To be used for debugging only.
   void print( std::ostream& out=std::cout )  {

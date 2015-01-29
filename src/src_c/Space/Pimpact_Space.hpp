@@ -525,7 +525,20 @@ createConst( const Teuchos::RCP< SpaceT>& space ) {
 }
 
 
+/// \relates TransferOp
+template<class OpT>
+Teuchos::RCP<const OpT >
+create(
+    const Teuchos::RCP<const typename OpT::FSpaceT>& fSpace,
+    const Teuchos::RCP<const typename OpT::CSpaceT>& cSpace ) {
 
+  return(
+      Teuchos::rcp(
+          new OpT( fSpace, cSpace )
+      )
+  );
+
+}
 
 } // end of namespace Pimpact
 

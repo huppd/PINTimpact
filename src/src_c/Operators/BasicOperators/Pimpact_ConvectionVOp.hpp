@@ -76,9 +76,15 @@ public:
   void apply(const DomainFieldT& z, const DomainFieldT& x, RangeFieldT& y, Scalar mul=0. ) const { std::cout << "!!!depcreated!!!\n"; };
 
 
+  /// \{ \todo unifiy
   Teuchos::RCP<const SpaceT> space() const {
     return( convVWrap_->space() );
   }
+
+  Teuchos::RCP<const SpaceT> getSpace() const {
+    return( convVWrap_->space() );
+  }
+  /// \}
 
   Teuchos::RCP< ConvectionField<SpaceT> >
   getConvField() const {

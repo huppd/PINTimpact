@@ -14,9 +14,13 @@
 namespace Pimpact {
 
 
+
 /// \ingroup MG
 /// \todo make Interpolation/Restriction templated
-template<class MGSpacesT>
+template<class MGSpacesT,
+  template<class,class> class TransT,
+  template<class> class RestrT,
+  template<class> class InterT >
 class MGTransfers {
 
 public:
@@ -33,15 +37,19 @@ public:
   static const int dimNCC = CSpaceT::dimNC;
 
 
-  typedef TransferOp<FSpaceT,CSpaceT> TransferOpT;
-  typedef RestrictionOp<CSpaceT> RestrictionOpT;
-  typedef InterpolationOp<CSpaceT> InterpolationOpT;
+  typedef TransT<FSpaceT,CSpaceT> TransferOpT;
+  typedef RestrT<CSpaceT> RestrictionOpT;
+  typedef InterT<CSpaceT> InterpolationOpT;
 
-  template<class MGSpacesTT>
-  friend
-  Teuchos::RCP<const MGTransfers<MGSpacesTT> >
-  createMGTransfers(
-      const Teuchos::RCP<const MGSpacesTT>& space );
+//  template<
+//    class MGSpacesTT,
+//    template<class,class> class TransTT,
+//    template<class> class RestrTT,
+//    template<class> class InterTT >
+//  friend
+//  Teuchos::RCP<const MGTransfers<MGSpacesTT,TransTT,RestrTT,InterTT> >
+//  createMGTransfers(
+//      const Teuchos::RCP<const MGSpacesTT>& space );
 
 protected:
 
@@ -52,6 +60,8 @@ protected:
   std::vector< Teuchos::RCP<const RestrictionOpT> >   restrictionOps_;
   std::vector< Teuchos::RCP<const InterpolationOpT> > interpolationOps_;
 
+public:
+
   MGTransfers(
       const Teuchos::RCP<const MGSpacesT>& mgSpaces ):
         mgSpaces_(mgSpaces),
@@ -59,17 +69,18 @@ protected:
         restrictionOps_(),
         interpolationOps_() {
 
-    transferOp_ = createTransferOp( mgSpaces_->get(), mgSpaces_->get(0) );
+    transferOp_ = create<TransferOpT>( mgSpaces_->get(), mgSpaces_->get(0) );
 
     for( unsigned i=0; i < mgSpaces_->getNGrids()-1; ++i ) {
-      restrictionOps_.push_back( createRestrictionOp( mgSpaces_->get(i), mgSpaces_->get(i+1) ) );
-      interpolationOps_.push_back( createInterpolationOp( mgSpaces_->get(i+1), mgSpaces_->get(i) ) );
+      restrictionOps_.push_back( create<RestrT>( mgSpaces_->get(i), mgSpaces_->get(i+1) ) );
+      interpolationOps_.push_back( create<InterT>( mgSpaces_->get(i+1), mgSpaces_->get(i) ) );
     }
+    restrictionOps_.shrink_to_fit();
+    interpolationOps_.shrink_to_fit();
+
   }
 
 public:
-
-  //  int getNGrids() const { return( multiSpace_.size() ); }
 
   Teuchos::RCP<const TransferOpT>       getTransferOp     (       ) const { return( transferOp_ ); }
 
@@ -108,14 +119,18 @@ public:
 
 
 /// \relates MGTransfers
-template<class MGSpacesT>
-Teuchos::RCP<const MGTransfers<MGSpacesT> >
+template<
+  template<class,class> class TransT,
+  template<class> class RestrT,
+  template<class> class InterT,
+  class MGSpacesT >
+Teuchos::RCP<const MGTransfers<MGSpacesT,TransT,RestrT,InterT> >
 createMGTransfers(
     const Teuchos::RCP<const MGSpacesT>& mgSpaces ) {
 
   return(
       Teuchos::rcp(
-          new MGTransfers<MGSpacesT>( mgSpaces )
+          new MGTransfers<MGSpacesT,TransT,RestrT,InterT>( mgSpaces )
       )
   );
 

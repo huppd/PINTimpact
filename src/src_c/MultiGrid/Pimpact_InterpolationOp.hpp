@@ -93,6 +93,7 @@ class InterpolationOp {
   typedef ScalarField<SpaceT>  DomainFieldT;
   typedef ScalarField<SpaceT>  RangeFieldT;
 
+
 //  typedef Space<Scalar,Ordinal,dimension> SpaceT;
 
   Teuchos::RCP<const SpaceT> spaceC_;
@@ -103,6 +104,9 @@ class InterpolationOp {
   Teuchos::Tuple<Scalar*,3> cIV_;
 
 public:
+
+  typedef SpaceT FSpaceT;
+  typedef SpaceT CSpaceT;
 
   InterpolationOp(
       const Teuchos::RCP<const SpaceT>& spaceC,
@@ -174,7 +178,7 @@ public:
     else {
 
       int dir = fType;
-      x.exchange( dir==1 );
+      x.exchange( dir==1 ); //???
 
       MG_interpolateV(
           spaceC_->dim(),
@@ -237,15 +241,6 @@ public:
 }; // end of class InterpolationOp
 
 
-
-template<class SpaceT>
-Teuchos::RCP<const InterpolationOp<SpaceT> > createInterpolationOp(
-    const Teuchos::RCP<const SpaceT>& spaceC,
-    const Teuchos::RCP<const SpaceT>& spaceF ) {
-
-  return( Teuchos::rcp( new InterpolationOp<SpaceT>(spaceC,spaceF) ) );
-
-}
 
 
 } // end of namespace Pimpact

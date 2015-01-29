@@ -25,20 +25,22 @@ namespace Pimpact {
 /// \ingroup MG
 /// \todo think about templeting everything MGSpaces,  MGOperators,...
 template<
-class MGSpacesT,
-template<class> class FieldT,
-template<class> class FOperatorT,
-template<class> class COperatorT,
-template<class> class SmootherT,
-template<class> class CGST >
+  class MGSpacesT,
+  template<class> class FieldT,
+  template<class,class> class TransT,
+  template<class> class RestrT,
+  template<class> class InterT,
+  template<class> class FOperatorT,
+  template<class> class COperatorT,
+  template<class> class SmootherT,
+  template<class> class CGST >
 class MultiGrid {
 
   typedef typename MGSpacesT::FSpaceT FSpaceT;
   typedef typename MGSpacesT::CSpaceT CSpaceT;
 
-  //  typedef MGSpaces<FSpaceT,CSpaceT> MGSpacesT;
 
-  typedef MGTransfers<MGSpacesT> MGTransfersT;
+  typedef MGTransfers<MGSpacesT,TransT,RestrT,InterT> MGTransfersT;
 
   typedef MGFields<MGSpacesT,FieldT> MGFieldsT;
 
@@ -77,7 +79,7 @@ public:
       const Teuchos::RCP<const MGSpacesT>& mgSpaces,
       EField type = EField::S ):
         mgSpaces_(mgSpaces),
-        mgTrans_( createMGTransfers(mgSpaces) ),
+        mgTrans_( createMGTransfers<TransT,RestrT,InterT>(mgSpaces) ),
         mgOps_( Pimpact::createMGOperators<FOperatorT,COperatorT>(mgSpaces) ),
         mgSms_( Pimpact::createMGSmoothers<SmootherT>(mgOps_) ),
         x_( createMGFields<FieldT>(mgSpaces, type ) ),
@@ -123,6 +125,7 @@ public:
 
       // coarse grid solution
       i = -1;
+      /// \todo add level for singular stuff
       b_->get(i)->level();
       x_->get(i)->init(0.);
       cGridSolver_->apply( *b_->get(i), *x_->get(i) );
@@ -145,8 +148,17 @@ public:
 
   }
 
-  /// \todo implement
+
   void assignField( const DomainFieldT& mv ) {
+
+    mgOps_->get()->assignField( mv );
+    mgTrans_->getTransferOp()->apply( mv, *temp_->get(0) );
+    mgOps_->get(0)->assignField( *temp_->get(0) );
+
+    for( int i=0; i<mgSpaces_->getNGrids()-1; ++i )  {
+      mgTrans_->getRestrictionOp(i)->apply( *temp_->get(i), *temp_->get(i+1) );
+      mgOps_->get(i+1)->assignField( *temp_->get(i+1) );
+    }
 
   };
 
@@ -160,20 +172,23 @@ public:
 
 /// \relates MultiGrid
 template<
-template<class> class FieldT,
-template<class> class FOperatorT,
-template<class> class COperatorT,
-template<class> class SmootherT,
-template<class> class CGridSolverT,
-class MGSpacesT >
-Teuchos::RCP< MultiGrid<MGSpacesT,FieldT,FOperatorT,COperatorT,SmootherT,CGridSolverT> >
+  template<class> class FieldT,
+  template<class,class> class TransT,
+  template<class> class RestrT,
+  template<class> class InterT,
+  template<class> class FOperatorT,
+  template<class> class COperatorT,
+  template<class> class SmootherT,
+  template<class> class CGridSolverT,
+  class MGSpacesT >
+Teuchos::RCP< MultiGrid<MGSpacesT,FieldT,TransT,RestrT,InterT,FOperatorT,COperatorT,SmootherT,CGridSolverT> >
 createMultiGrid(
     const Teuchos::RCP<const MGSpacesT>& mgSpaces,
     EField type = EField::S  ) {
 
   return(
       Teuchos::rcp(
-          new MultiGrid<MGSpacesT,FieldT,FOperatorT,COperatorT,SmootherT,CGridSolverT>(
+          new MultiGrid<MGSpacesT,FieldT,TransT,RestrT,InterT,FOperatorT,COperatorT,SmootherT,CGridSolverT>(
               mgSpaces, type)
       )
   );
