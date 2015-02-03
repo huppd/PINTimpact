@@ -61,7 +61,7 @@ public:
 
   /// \note Operator's wind has to be assigned correctly
   /// \deprecated
-  void apply( const DomainFieldT& x, RangeFieldT& y, Scalar mul=0. ) const {
+  void apply( const DomainFieldT& x, RangeFieldT& y, Scalar mul=1. ) const {
 
     if( mul<1.e-12 ) {
       y.init(0);

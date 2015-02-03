@@ -86,8 +86,8 @@ public:
   ConvectionDiffusionJSmoother(
       const Teuchos::RCP<const OperatorT>& op,
       Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ):
-        omega_( pl->get("omega", 1. ) ),
-        nIter_( pl->get("numIters", 4 ) ),
+        omega_( pl->get("omega", 0.8 ) ),
+        nIter_( pl->get("numIters", 10 ) ),
         space_(op->space_),
         op_(op),
         temp_( create<DomainFieldT>(op_->space_) ) {}

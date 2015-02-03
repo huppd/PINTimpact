@@ -38,6 +38,8 @@ typedef typename Pimpact::VectorField<SpaceT> VF;
 typedef typename Pimpact::ModeField<SF>       MSF;
 typedef typename Pimpact::ModeField<VF>       MVF;
 
+template<class T> using ConvDiffOpT = Pimpact::ConvectionVOp<Pimpact::ConvectionDiffusionSOp<T> >;
+template<class T> using ConvDiffSORT = Pimpact::ConvectionVSmoother<T,Pimpact::ConvectionDiffusionSORSmoother >;
 
 
 bool testMpi = true;
@@ -211,7 +213,6 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionVOp ) {
 
 
 
-template<class T> using ConvDiffOpT = Pimpact::ConvectionVOp<Pimpact::ConvectionDiffusionSOp<T> >;
 //Pimpact::ConvectionDiffusionSORSmoother
 
 TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionOp  ) {
@@ -345,6 +346,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionOp  ) {
 
 
 
+
 TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionSORSmoother ) {
 
   pl->set<S>("Re",1000);
@@ -375,13 +377,15 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionSORSmoother ) {
   pls->set<short int>( "dir Z",  1 );
   //  pls->set( "numIters",10)
 
-  auto smoother =
-      Pimpact::create<
-        Pimpact::ConvectionVSmoother<
-          ConvDiffOpT<Pimpact::Space<S,O,d,2> > ,
-          Pimpact::ConvectionDiffusionSORSmoother > > (
-              op,
-              pls );
+//  auto smoother =
+//      Pimpact::create<
+//        Pimpact::ConvectionVSmoother<
+//          ConvDiffOpT<Pimpact::Space<S,O,d,2> > ,
+//          Pimpact::ConvectionDiffusionSORSmoother > > (
+//              op,
+//              pls );
+
+  auto smoother = Pimpact::create< ConvDiffSORT >( op,pls );
 
   smoother->print();
 

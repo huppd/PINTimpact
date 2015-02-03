@@ -19,6 +19,7 @@ bool testMpi = true;
 double eps = 1e+1;
 
 bool isImpactInit = false;
+int dim = 2;
 
 typedef int O;
 typedef double S;
@@ -34,6 +35,9 @@ TEUCHOS_STATIC_SETUP() {
   clp.setOption(
       "error-tol-slack", &eps,
       "Slack off of machine epsilon used to check test results" );
+  clp.setOption(
+      "dim", &dim,
+      "dim" );
 }
 
 
@@ -60,7 +64,7 @@ TEUCHOS_UNIT_TEST( IndexSpace, local_consistency ) {
 
   auto pl = Teuchos::parameterList();
   auto domainSize = Pimpact::createDomainSize(
-      pl->get("dim",2),
+      pl->get( "dim", dim ),
       pl->get("Re",1.),
       pl->get("alpha2",1.),
       pl->get("lx",2.),

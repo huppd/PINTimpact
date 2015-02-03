@@ -49,493 +49,445 @@ TEUCHOS_STATIC_SETUP() {
 
 
 
-TEUCHOS_UNIT_TEST( ScalarModeField, create_init_print ) {
 
-  auto pl = Teuchos::parameterList();
 
-  pl->set( "domain", domain);
 
-  auto space = Pimpact::createSpace( pl, false );
 
-  auto vel = Pimpact::create<MSF>( space );
+//TEUCHOS_UNIT_TEST( ScalarModeField, TwoNorm_and_init ) {
 
-  vel->init( space->rankST() );
-}
 
+  //auto pl = Teuchos::parameterList();
 
+  //pl->set( "domain", domain);
 
-TEUCHOS_UNIT_TEST( ScalarModeField, InfNorm_and_init ) {
+  //auto space = Pimpact::createSpace( pl, false );
 
+  //auto pc = Pimpact::createScalarField( space );
+  //auto ps = Pimpact::createScalarField( space );
 
-  auto pl = Teuchos::parameterList();
+  //auto vel = Pimpact::create<MSF>( space );
 
-  pl->set( "domain", domain);
+  //double norm;
+  //int N = vel->getLength();
 
-  auto space = Pimpact::createSpace( pl, false );
+  //// test different float values, assures that initial and norm work smoothly
+  //for( double i=0.; i< 200.1; ++i ) {
+    //vel->init(i/2.);
+    //norm = vel->norm(Belos::TwoNorm);
+    //TEST_EQUALITY( std::sqrt(std::pow(i/2.,2)*N), norm );
+  //}
+//}
 
-  auto pc = Pimpact::createScalarField( space );
-  auto ps = Pimpact::createScalarField( space );
 
-  auto vel = Pimpact::create<MSF>( space );
 
-  double norm;
-  // test different float values, assures that initial and norm work smoothly
-  for( double i=0.; i< 200.1; ++i ) {
-    vel->init(i/2.);
-    norm = vel->norm(Belos::InfNorm);
-    TEST_EQUALITY( i/2., norm );
-  }
+//TEUCHOS_UNIT_TEST( ScalarModeField, dot ) {
 
-  // one test with infty-norm
-  int rank;
-  double init;
-  MPI_Comm_rank( space->comm(), &rank );
-  for( double i = 0.; i<200.1; ++i) {
-    init = 3*i-1.;
-    init = (init<0)?-init:init;
-    vel->init(rank*i-1.);
-    norm = vel->norm(Belos::InfNorm);
-    TEST_EQUALITY( init, norm );
-  }
-}
+  //auto pl = Teuchos::parameterList();
 
+  //pl->set( "domain", domain);
 
+  //auto space = Pimpact::createSpace( pl, false );
 
-TEUCHOS_UNIT_TEST( ScalarModeField, TwoNorm_and_init ) {
+  //auto vel1 = Pimpact::create<MSF>( space );
+  //auto vel2 = Pimpact::create<MSF>( space );
 
+  //double dot;
 
-  auto pl = Teuchos::parameterList();
+  //TEST_EQUALITY( vel1->getLength(), vel2->getLength() )
 
-  pl->set( "domain", domain);
+  //int N = vel1->getLength();
 
-  auto space = Pimpact::createSpace( pl, false );
+  //vel1->init(0.);
+  //vel2->init(1.);
+  //dot = vel1->dot(*vel2);
+  //TEST_EQUALITY( 0, dot );
 
-  auto pc = Pimpact::createScalarField( space );
-  auto ps = Pimpact::createScalarField( space );
+  //vel1->init(1.);
+  //vel2->init(1.);
+  //dot = vel2->dot(*vel1);
+  //TEST_EQUALITY( N, dot );
 
-  auto vel = Pimpact::create<MSF>( space );
+  //vel1->init(2.);
+  //vel2->init(1.);
+  //dot = vel1->dot(*vel2);
+  //TEST_EQUALITY( 2*N, dot );
 
-  double norm;
-  int N = vel->getLength();
+  //vel1->init(1.);
+  //vel2->init(2.);
+  //dot = vel1->dot(*vel2);
+  //TEST_EQUALITY( 2*N, dot );
 
-  // test different float values, assures that initial and norm work smoothly
-  for( double i=0.; i< 200.1; ++i ) {
-    vel->init(i/2.);
-    norm = vel->norm(Belos::TwoNorm);
-    TEST_EQUALITY( std::sqrt(std::pow(i/2.,2)*N), norm );
-  }
-}
+//}
 
 
 
-TEUCHOS_UNIT_TEST( ScalarModeField, dot ) {
+//TEUCHOS_UNIT_TEST( ScalarModeField, scale ) {
 
-  auto pl = Teuchos::parameterList();
+  //auto pl = Teuchos::parameterList();
 
-  pl->set( "domain", domain);
+  //pl->set( "domain", domain);
 
-  auto space = Pimpact::createSpace( pl, false );
+  //auto space = Pimpact::createSpace( pl, false );
 
-  auto vel1 = Pimpact::create<MSF>( space );
-  auto vel2 = Pimpact::create<MSF>( space );
+  //auto pc = Pimpact::createScalarField( space );
+  //auto ps = Pimpact::createScalarField( space );
 
-  double dot;
+  //auto vel = Pimpact::create<MSF>( space );
 
-  TEST_EQUALITY( vel1->getLength(), vel2->getLength() )
+  //int N = vel->getLength();
+  //double norm;
 
-  int N = vel1->getLength();
+  //vel->init(1.);
+  //vel->scale(2.);
+  //norm = vel->norm(Belos::TwoNorm);
+  //TEST_EQUALITY( std::sqrt(4*N), norm)
 
-  vel1->init(0.);
-  vel2->init(1.);
-  dot = vel1->dot(*vel2);
-  TEST_EQUALITY( 0, dot );
+//}
 
-  vel1->init(1.);
-  vel2->init(1.);
-  dot = vel2->dot(*vel1);
-  TEST_EQUALITY( N, dot );
 
-  vel1->init(2.);
-  vel2->init(1.);
-  dot = vel1->dot(*vel2);
-  TEST_EQUALITY( 2*N, dot );
 
-  vel1->init(1.);
-  vel2->init(2.);
-  dot = vel1->dot(*vel2);
-  TEST_EQUALITY( 2*N, dot );
+//TEUCHOS_UNIT_TEST( ScalarModeField, random ) {
 
-}
+  //auto pl = Teuchos::parameterList();
 
+  //pl->set( "domain", domain);
 
+  //auto space = Pimpact::createSpace( pl, false );
 
-TEUCHOS_UNIT_TEST( ScalarModeField, scale ) {
+  //auto pc = Pimpact::createScalarField( space );
+  //auto ps = Pimpact::createScalarField( space );
 
-  auto pl = Teuchos::parameterList();
+  //auto vel = Pimpact::create<MSF>( space );
 
-  pl->set( "domain", domain);
+  //int N = vel->getLength();
+  //double norm;
 
-  auto space = Pimpact::createSpace( pl, false );
+  //vel->init(1.);
+  //vel->random();
+  //norm = vel->norm(Belos::TwoNorm);
+  //TEST_INEQUALITY( std::sqrt(N), norm)
 
-  auto pc = Pimpact::createScalarField( space );
-  auto ps = Pimpact::createScalarField( space );
+//}
 
-  auto vel = Pimpact::create<MSF>( space );
 
-  int N = vel->getLength();
-  double norm;
 
-  vel->init(1.);
-  vel->scale(2.);
-  norm = vel->norm(Belos::TwoNorm);
-  TEST_EQUALITY( std::sqrt(4*N), norm)
+//TEUCHOS_UNIT_TEST( ScalarModeField, add ) {
 
-}
+  //auto pl = Teuchos::parameterList();
 
+  //pl->set( "domain", domain);
 
+  //auto space = Pimpact::createSpace( pl, false );
 
-TEUCHOS_UNIT_TEST( ScalarModeField, random ) {
+  //auto p1c = Pimpact::createScalarField( space );
+  //auto p1s = Pimpact::createScalarField( space );
 
-  auto pl = Teuchos::parameterList();
+  //auto p2c = Pimpact::createScalarField( space );
+  //auto p2s = Pimpact::createScalarField( space );
 
-  pl->set( "domain", domain);
+  //auto p3c = Pimpact::createScalarField( space );
+  //auto p3s = Pimpact::createScalarField( space );
 
-  auto space = Pimpact::createSpace( pl, false );
+  //auto vel1 = Pimpact::create<MSF>( space );
+  //auto vel2 = Pimpact::create<MSF>( space );
+  //auto vel3 = Pimpact::create<MSF>( space );
 
-  auto pc = Pimpact::createScalarField( space );
-  auto ps = Pimpact::createScalarField( space );
+  //TEST_EQUALITY( vel1->getLength(), vel2->getLength() )
+  //TEST_EQUALITY( vel2->getLength(), vel3->getLength() )
+  //TEST_EQUALITY( vel1->getLength(), vel3->getLength() )
 
-  auto vel = Pimpact::create<MSF>( space );
+  //double norm;
+  //int N = vel1->getLength();
 
-  int N = vel->getLength();
-  double norm;
+  //vel1->init(0.);
+  //vel2->init(1./2.);
+  //vel3->init(1./3.);
 
-  vel->init(1.);
-  vel->random();
-  norm = vel->norm(Belos::TwoNorm);
-  TEST_INEQUALITY( std::sqrt(N), norm)
+  //vel1->add( 2., *vel2, 0., *vel3);
+  //norm = vel1->norm(Belos::TwoNorm);
+  //TEST_FLOATING_EQUALITY( std::sqrt(N), norm, eps );
 
-}
+  //vel1->init(0.);
+  //vel2->init(1./2.);
+  //vel3->init(1./3.);
 
+  //vel1->add( 0., *vel2, 3., *vel3);
+  //norm = vel1->norm(Belos::TwoNorm);
+  //TEST_FLOATING_EQUALITY( std::sqrt(N), norm, eps );
 
+  //vel1->init(0.);
+  //vel2->init(1.);
+  //vel3->init(1.);
 
-TEUCHOS_UNIT_TEST( ScalarModeField, add ) {
+  //vel1->add( 0.5, *vel2, 0.5, *vel3);
+  //norm = vel1->norm(Belos::TwoNorm);
+  //TEST_FLOATING_EQUALITY( std::sqrt(N), norm, eps );
+//}
 
-  auto pl = Teuchos::parameterList();
 
-  pl->set( "domain", domain);
 
-  auto space = Pimpact::createSpace( pl, false );
+//TEUCHOS_UNIT_TEST( ScalarModeField, write ) {
 
-  auto p1c = Pimpact::createScalarField( space );
-  auto p1s = Pimpact::createScalarField( space );
+  //auto pl = Teuchos::parameterList();
 
-  auto p2c = Pimpact::createScalarField( space );
-  auto p2s = Pimpact::createScalarField( space );
+  //pl->set( "domain", domain);
 
-  auto p3c = Pimpact::createScalarField( space );
-  auto p3s = Pimpact::createScalarField( space );
+  //auto space = Pimpact::createSpace( pl, false );
 
-  auto vel1 = Pimpact::create<MSF>( space );
-  auto vel2 = Pimpact::create<MSF>( space );
-  auto vel3 = Pimpact::create<MSF>( space );
+  //auto vel = Pimpact::create<MSF>( space );
 
-  TEST_EQUALITY( vel1->getLength(), vel2->getLength() )
-  TEST_EQUALITY( vel2->getLength(), vel3->getLength() )
-  TEST_EQUALITY( vel1->getLength(), vel3->getLength() )
+  //vel->init( 1. );
+  //vel->write();
 
-  double norm;
-  int N = vel1->getLength();
+  //vel->random();
+  //vel->write( 2 );
 
-  vel1->init(0.);
-  vel2->init(1./2.);
-  vel3->init(1./3.);
+  //TEST_EQUALITY( 0, 0 )
 
-  vel1->add( 2., *vel2, 0., *vel3);
-  norm = vel1->norm(Belos::TwoNorm);
-  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, eps );
+//}
 
-  vel1->init(0.);
-  vel2->init(1./2.);
-  vel3->init(1./3.);
 
-  vel1->add( 0., *vel2, 3., *vel3);
-  norm = vel1->norm(Belos::TwoNorm);
-  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, eps );
 
-  vel1->init(0.);
-  vel2->init(1.);
-  vel3->init(1.);
+//TEUCHOS_UNIT_TEST( VectorModeField, create_init_print ) {
 
-  vel1->add( 0.5, *vel2, 0.5, *vel3);
-  norm = vel1->norm(Belos::TwoNorm);
-  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, eps );
-}
+  //auto pl = Teuchos::parameterList();
 
+  //pl->set( "domain", domain);
 
+  //auto space = Pimpact::createSpace( pl, false );
 
-TEUCHOS_UNIT_TEST( ScalarModeField, write ) {
+  //auto velc = Pimpact::create<Pimpact::VectorField>(space);
+  //auto vels = Pimpact::create<Pimpact::VectorField>(space);
 
-  auto pl = Teuchos::parameterList();
+  //auto um = Pimpact::create<MVF>( space );
 
-  pl->set( "domain", domain);
+  //um->init();
+//}
 
-  auto space = Pimpact::createSpace( pl, false );
 
-  auto vel = Pimpact::create<MSF>( space );
 
-  vel->init( 1. );
-  vel->write();
+//TEUCHOS_UNIT_TEST( VectorModeField, InfNorm_and_init ) {
 
-  vel->random();
-  vel->write( 2 );
+  //auto pl = Teuchos::parameterList();
 
-  TEST_EQUALITY( 0, 0 )
+  //pl->set( "domain", domain);
 
-}
+  //auto space = Pimpact::createSpace( pl, false );
 
+  //auto velc = Pimpact::create<Pimpact::VectorField>(space);
+  //auto vels = Pimpact::create<Pimpact::VectorField>(space);
 
+  //auto um = Pimpact::create<MVF>( space );
 
-TEUCHOS_UNIT_TEST( VectorModeField, create_init_print ) {
+  //double norm;
+  //// test different float values, assures that initial and norm work smoothly
+  //for( double i=0.; i< 200.1; ++i ) {
+    //um->init(i/2.);
+    //norm = um->norm(Belos::InfNorm);
+    //TEST_EQUALITY( i/2., norm );
+  //}
 
-  auto pl = Teuchos::parameterList();
+  //// one test with infty-norm
+  //int rank;
+  //double init;
+  //MPI_Comm_rank(space->comm(),&rank);
+  //for( double i = 0.; i<200.1; ++i) {
+    //init = 3*i-1.;
+    //init = (init<0)?-init:init;
+    //um->init(rank*i-1.);
+    //norm = um->norm(Belos::InfNorm);
+    //TEST_EQUALITY( init, norm );
+  //}
+//}
 
-  pl->set( "domain", domain);
 
-  auto space = Pimpact::createSpace( pl, false );
 
-  auto velc = Pimpact::create<Pimpact::VectorField>(space);
-  auto vels = Pimpact::create<Pimpact::VectorField>(space);
+//TEUCHOS_UNIT_TEST( VectorModeField, TwoNorm_and_init ) {
 
-  auto um = Pimpact::create<MVF>( space );
+  //auto pl = Teuchos::parameterList();
 
-  um->init();
-}
+  //pl->set( "domain", domain);
 
+  //auto space = Pimpact::createSpace( pl, false );
 
+  //auto velc = Pimpact::create<Pimpact::VectorField>( space );
+  //auto vels = Pimpact::create<Pimpact::VectorField>( space );
 
-TEUCHOS_UNIT_TEST( VectorModeField, InfNorm_and_init ) {
+  //auto vel = Pimpact::create<MVF>( space );
 
-  auto pl = Teuchos::parameterList();
+  //double norm;
+  //int N = vel->getLength();
 
-  pl->set( "domain", domain);
+  //// test different float values, assures that initial and norm work smoothly
+  //for( double i=0.; i< 200.1; ++i ) {
+    //vel->init(i/2.);
+    //norm = vel->norm(Belos::TwoNorm);
+    //TEST_FLOATING_EQUALITY( std::sqrt(std::pow(i/2.,2)*N), norm, eps );
+  //}
+//}
 
-  auto space = Pimpact::createSpace( pl, false );
 
-  auto velc = Pimpact::create<Pimpact::VectorField>(space);
-  auto vels = Pimpact::create<Pimpact::VectorField>(space);
 
-  auto um = Pimpact::create<MVF>( space );
+//TEUCHOS_UNIT_TEST( VectorModeField, dot ) {
 
-  double norm;
-  // test different float values, assures that initial and norm work smoothly
-  for( double i=0.; i< 200.1; ++i ) {
-    um->init(i/2.);
-    norm = um->norm(Belos::InfNorm);
-    TEST_EQUALITY( i/2., norm );
-  }
+  //auto pl = Teuchos::parameterList();
 
-  // one test with infty-norm
-  int rank;
-  double init;
-  MPI_Comm_rank(space->comm(),&rank);
-  for( double i = 0.; i<200.1; ++i) {
-    init = 3*i-1.;
-    init = (init<0)?-init:init;
-    um->init(rank*i-1.);
-    norm = um->norm(Belos::InfNorm);
-    TEST_EQUALITY( init, norm );
-  }
-}
+  //pl->set( "domain", domain);
 
+  //auto space = Pimpact::createSpace( pl, false );
 
 
-TEUCHOS_UNIT_TEST( VectorModeField, TwoNorm_and_init ) {
+  //auto vel1 = Pimpact::create<MVF>( space );
+  //auto vel2 = Pimpact::create<MVF>( space );
 
-  auto pl = Teuchos::parameterList();
+  //double dot;
 
-  pl->set( "domain", domain);
+  //TEST_EQUALITY( vel1->getLength(), vel2->getLength() )
 
-  auto space = Pimpact::createSpace( pl, false );
+  //int N = vel1->getLength();
 
-  auto velc = Pimpact::create<Pimpact::VectorField>( space );
-  auto vels = Pimpact::create<Pimpact::VectorField>( space );
+  //vel1->init(0.);
+  //vel2->init(1.);
+  //dot = vel1->dot(*vel2);
+  //TEST_EQUALITY( 0, dot );
 
-  auto vel = Pimpact::create<MVF>( space );
+  //vel1->init(1.);
+  //vel2->init(1.);
+  //dot = vel2->dot(*vel1);
+  //TEST_EQUALITY( N, dot );
 
-  double norm;
-  int N = vel->getLength();
+  //vel1->init(2.);
+  //vel2->init(1.);
+  //dot = vel1->dot(*vel2);
+  //TEST_EQUALITY( 2*N, dot );
 
-  // test different float values, assures that initial and norm work smoothly
-  for( double i=0.; i< 200.1; ++i ) {
-    vel->init(i/2.);
-    norm = vel->norm(Belos::TwoNorm);
-    TEST_FLOATING_EQUALITY( std::sqrt(std::pow(i/2.,2)*N), norm, eps );
-  }
-}
+  //vel1->init(1.);
+  //vel2->init(2.);
+  //dot = vel1->dot(*vel2);
+  //TEST_EQUALITY( 2*N, dot );
 
+//}
 
 
-TEUCHOS_UNIT_TEST( VectorModeField, dot ) {
 
-  auto pl = Teuchos::parameterList();
+//TEUCHOS_UNIT_TEST( VectorModeField, scale ) {
 
-  pl->set( "domain", domain);
+  //auto pl = Teuchos::parameterList();
 
-  auto space = Pimpact::createSpace( pl, false );
+  //pl->set( "domain", domain);
 
+  //auto space = Pimpact::createSpace( pl, false );
 
-  auto vel1 = Pimpact::create<MVF>( space );
-  auto vel2 = Pimpact::create<MVF>( space );
+  //auto velc = Pimpact::create<Pimpact::VectorField>( space );
+  //auto vels = Pimpact::create<Pimpact::VectorField>( space );
 
-  double dot;
+  //auto vel = Pimpact::create<MVF>( space );
 
-  TEST_EQUALITY( vel1->getLength(), vel2->getLength() )
+  //int N = vel->getLength();
+  //double norm;
 
-  int N = vel1->getLength();
+  //vel->init(1.);
+  //vel->scale(2.);
+  //norm = vel->norm(Belos::TwoNorm);
+  //TEST_FLOATING_EQUALITY( std::sqrt(4*N), norm, eps );
 
-  vel1->init(0.);
-  vel2->init(1.);
-  dot = vel1->dot(*vel2);
-  TEST_EQUALITY( 0, dot );
+//}
 
-  vel1->init(1.);
-  vel2->init(1.);
-  dot = vel2->dot(*vel1);
-  TEST_EQUALITY( N, dot );
 
-  vel1->init(2.);
-  vel2->init(1.);
-  dot = vel1->dot(*vel2);
-  TEST_EQUALITY( 2*N, dot );
+//TEUCHOS_UNIT_TEST( VectorModeField, random ) {
 
-  vel1->init(1.);
-  vel2->init(2.);
-  dot = vel1->dot(*vel2);
-  TEST_EQUALITY( 2*N, dot );
+  //auto pl = Teuchos::parameterList();
 
-}
+  //pl->set( "domain", domain);
 
+  //auto space = Pimpact::createSpace( pl, false );
 
+  //auto velc = Pimpact::create<Pimpact::VectorField>( space );
+  //auto vels = Pimpact::create<Pimpact::VectorField>( space );
 
-TEUCHOS_UNIT_TEST( VectorModeField, scale ) {
+  //auto vel = Pimpact::create<MVF>( space );
 
-  auto pl = Teuchos::parameterList();
+  //int N = vel->getLength();
+  //double norm;
 
-  pl->set( "domain", domain);
+  //vel->init(1.);
+  //vel->random();
+  //norm = vel->norm(Belos::TwoNorm);
+  //TEST_INEQUALITY( std::sqrt(N), norm)
 
-  auto space = Pimpact::createSpace( pl, false );
+//}
 
-  auto velc = Pimpact::create<Pimpact::VectorField>( space );
-  auto vels = Pimpact::create<Pimpact::VectorField>( space );
 
-  auto vel = Pimpact::create<MVF>( space );
+//TEUCHOS_UNIT_TEST( VectorModeField, add ) {
 
-  int N = vel->getLength();
-  double norm;
+  //auto pl = Teuchos::parameterList();
 
-  vel->init(1.);
-  vel->scale(2.);
-  norm = vel->norm(Belos::TwoNorm);
-  TEST_FLOATING_EQUALITY( std::sqrt(4*N), norm, eps );
+  //pl->set( "domain", domain);
 
-}
+  //auto space = Pimpact::createSpace( pl, false );
 
+  //auto vel1 = Pimpact::create<MVF>( space );
+  //auto vel2 = Pimpact::create<MVF>( space );
+  //auto vel3 = Pimpact::create<MVF>( space );
 
-TEUCHOS_UNIT_TEST( VectorModeField, random ) {
 
-  auto pl = Teuchos::parameterList();
+  //TEST_EQUALITY( vel1->getLength(), vel2->getLength() )
+  //TEST_EQUALITY( vel2->getLength(), vel3->getLength() )
+  //TEST_EQUALITY( vel1->getLength(), vel3->getLength() )
 
-  pl->set( "domain", domain);
+  //double norm;
+  //int N = vel1->getLength();
 
-  auto space = Pimpact::createSpace( pl, false );
+  //vel1->init(0.);
+  //vel2->init(1./2.);
+  //vel3->init(1./3.);
 
-  auto velc = Pimpact::create<Pimpact::VectorField>( space );
-  auto vels = Pimpact::create<Pimpact::VectorField>( space );
+  //vel1->add( 2., *vel2, 0., *vel3);
+  //norm = vel1->norm(Belos::TwoNorm);
+  //TEST_FLOATING_EQUALITY( std::sqrt(N), norm, eps );
 
-  auto vel = Pimpact::create<MVF>( space );
+  //vel1->init(0.);
+  //vel2->init(1./2.);
+  //vel3->init(1./3.);
 
-  int N = vel->getLength();
-  double norm;
+  //vel1->add( 0., *vel2, 3., *vel3);
+  //norm = vel1->norm(Belos::TwoNorm);
+  //TEST_FLOATING_EQUALITY( std::sqrt(N), norm, eps );
 
-  vel->init(1.);
-  vel->random();
-  norm = vel->norm(Belos::TwoNorm);
-  TEST_INEQUALITY( std::sqrt(N), norm)
+  //vel1->init(0.);
+  //vel2->init(1.);
+  //vel3->init(1.);
 
-}
+  //vel1->add( 0.5, *vel2, 0.5, *vel3);
+  //norm = vel1->norm(Belos::TwoNorm);
+  //TEST_FLOATING_EQUALITY( std::sqrt(N), norm, eps );
 
+//}
 
-TEUCHOS_UNIT_TEST( VectorModeField, add ) {
 
-  auto pl = Teuchos::parameterList();
 
-  pl->set( "domain", domain);
+//TEUCHOS_UNIT_TEST( VectorModeField, write ) {
 
-  auto space = Pimpact::createSpace( pl, false );
+  //auto pl = Teuchos::parameterList();
 
-  auto vel1 = Pimpact::create<MVF>( space );
-  auto vel2 = Pimpact::create<MVF>( space );
-  auto vel3 = Pimpact::create<MVF>( space );
+  //pl->set( "domain", domain);
 
+  //auto space = Pimpact::createSpace( pl, false );
 
-  TEST_EQUALITY( vel1->getLength(), vel2->getLength() )
-  TEST_EQUALITY( vel2->getLength(), vel3->getLength() )
-  TEST_EQUALITY( vel1->getLength(), vel3->getLength() )
+  //auto velc = Pimpact::create<Pimpact::VectorField>( space );
+  //auto vels = Pimpact::create<Pimpact::VectorField>( space );
 
-  double norm;
-  int N = vel1->getLength();
+  //auto vel = Pimpact::create<MVF>( space );
 
-  vel1->init(0.);
-  vel2->init(1./2.);
-  vel3->init(1./3.);
+  //vel->init( 1. );
+  //vel->write();
 
-  vel1->add( 2., *vel2, 0., *vel3);
-  norm = vel1->norm(Belos::TwoNorm);
-  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, eps );
+  //vel->random();
+  //vel->write( 2 );
 
-  vel1->init(0.);
-  vel2->init(1./2.);
-  vel3->init(1./3.);
+  //TEST_EQUALITY( 0, 0 )
 
-  vel1->add( 0., *vel2, 3., *vel3);
-  norm = vel1->norm(Belos::TwoNorm);
-  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, eps );
-
-  vel1->init(0.);
-  vel2->init(1.);
-  vel3->init(1.);
-
-  vel1->add( 0.5, *vel2, 0.5, *vel3);
-  norm = vel1->norm(Belos::TwoNorm);
-  TEST_FLOATING_EQUALITY( std::sqrt(N), norm, eps );
-
-}
-
-
-
-TEUCHOS_UNIT_TEST( VectorModeField, write ) {
-
-  auto pl = Teuchos::parameterList();
-
-  pl->set( "domain", domain);
-
-  auto space = Pimpact::createSpace( pl, false );
-
-  auto velc = Pimpact::create<Pimpact::VectorField>( space );
-  auto vels = Pimpact::create<Pimpact::VectorField>( space );
-
-  auto vel = Pimpact::create<MVF>( space );
-
-  vel->init( 1. );
-  vel->write();
-
-  vel->random();
-  vel->write( 2 );
-
-  TEST_EQUALITY( 0, 0 )
-
-}
+//}
 
 
 } // end of namespace

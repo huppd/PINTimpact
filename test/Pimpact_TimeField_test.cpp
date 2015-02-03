@@ -33,6 +33,8 @@ namespace {
 
 bool testMpi = true;
 double eps = 3e-1;
+int domain = 1;
+int dim = 2;
 //bool isImpactInit=false;
 
 typedef double S;
@@ -60,6 +62,12 @@ TEUCHOS_STATIC_SETUP() {
   clp.setOption(
       "error-tol-slack", &eps,
       "Slack off of machine epsilon used to check test results" );
+  clp.setOption(
+      "domain", &domain,
+      "domain" );
+  clp.setOption(
+      "dim", &dim,
+      "dim" );
 }
 
 
@@ -70,19 +78,19 @@ TEUCHOS_UNIT_TEST( TimeFieldVector, all ) {
 
   pl->set( "Re", 1. );
   pl->set( "alpha2", 1. );
-  pl->set( "domain", 1 );
+  pl->set( "domain", domain );
 
   pl->set( "lx", 1. );
   pl->set( "ly", 1. );
   pl->set( "lz", 1. );
 
-  pl->set( "dim", 2 );
+  pl->set( "dim", dim );
 
   pl->set("nx", 33 );
   pl->set("ny", 33 );
   pl->set("nz", 2 );
 
-  pl->set("nf", 32 );
+  pl->set("nf", 33 );
 //  pl->set("nfs", 0 );
 //  pl->set("nfe", 0 );
 

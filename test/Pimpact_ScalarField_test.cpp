@@ -7,14 +7,28 @@
 #include "Teuchos_Tuple.hpp"
 #include "Teuchos_CommHelpers.hpp"
 
-//#include "BelosTypes.hpp"
-
 #include "Pimpact_ScalarField.hpp"
+#include "Pimpact_VectorField.hpp"
+#include "Pimpact_ModeField.hpp"
+#include "Pimpact_CompoundField.hpp"
 
 
 
 
 namespace {
+
+typedef double S;
+typedef int O;
+const int d = 3;
+const int dNC = 4;
+
+typedef Pimpact::Space<S,O,d,dNC>                SpaceT;
+typedef typename Pimpact::ScalarField<SpaceT>    SF;
+typedef typename Pimpact::VectorField<SpaceT>    VF;
+typedef typename Pimpact::ModeField<SF>          MSF;
+typedef typename Pimpact::ModeField<VF>          MVF;
+typedef typename Pimpact::CompoundField<VF,SF>   CF;
+typedef typename Pimpact::CompoundField<MVF,MSF> CMF;
 
 bool testMpi = true;
 double eps = 1e-6;
@@ -46,43 +60,46 @@ TEUCHOS_STATIC_SETUP() {
 
   pl->set( "lx", 2. );
   pl->set( "ly", 2. );
-  pl->set( "lz", 1. );
-
+  pl->set( "lz", 2. );
 
   pl->set("nx", (48*3)+1 );
   pl->set("ny", 49 );
   pl->set("nz", 17 );
 
-//  // processor grid size
-  pl->set("npx", 1 );
+  // processor grid size
+  pl->set("npx", 2 );
   pl->set("npy", 2 );
   pl->set("npz", 2 );
-//  pl->set("npx", 1 );
-//  pl->set("npy", 1 );
-//  pl->set("npz", 1 );
 }
 
 
 
-TEUCHOS_UNIT_TEST( ScalarField, create_init_print ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, create_init_print, FType ) {
 
-  auto space = Pimpact::createSpace( pl, false );
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, false );
 
   space->print();
 
-  auto p = Pimpact::createScalarField(space);
+  auto p = Pimpact::create<FType>(space);
 
   p->init( space->rankST() );
 
 }
 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, create_init_print, SF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, create_init_print, VF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, create_init_print, MSF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, create_init_print, MVF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, create_init_print, CF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, create_init_print, CMF )
 
 
-TEUCHOS_UNIT_TEST( ScalarField, InfNorm_and_init ) {
 
-  auto space = Pimpact::createSpace( pl, false );
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, InfNorm_and_init, FType ) {
 
-  auto p = Pimpact::createScalarField(space);
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, false );
+
+  auto p = Pimpact::create<FType>(space);
 
   double norm;
 
@@ -96,10 +113,12 @@ TEUCHOS_UNIT_TEST( ScalarField, InfNorm_and_init ) {
 
   // one test with infty-norm
   int rank;
+  int size;
   double init;
   MPI_Comm_rank(space->comm(),&rank);
+  MPI_Comm_size(space->comm(),&size);
   for( double i = 0.; i<200.1; ++i) {
-    init = 3*i-1.;
+    init = (size-1)*i-1.;
     init = (init<0)?-init:init;
     p->init(rank*i-1.);
     norm = p->norm(Belos::InfNorm);
@@ -108,13 +127,20 @@ TEUCHOS_UNIT_TEST( ScalarField, InfNorm_and_init ) {
   }
 }
 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, InfNorm_and_init, SF ) 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, InfNorm_and_init, VF ) 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, InfNorm_and_init, MSF ) 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, InfNorm_and_init, MVF ) 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, InfNorm_and_init, CF ) 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, InfNorm_and_init, CMF ) 
 
 
-TEUCHOS_UNIT_TEST( ScalarField, OneNorm_and_init ) {
 
-  auto space = Pimpact::createSpace( pl, false );
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, OneNorm_and_init, FType ) {
 
-  auto p = Pimpact::createScalarField(space);
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, false );
+
+  auto p = Pimpact::create<FType>(space);
 
   // test different float values, assures that initial and norm work smoothly
   for( double i=0.; i< 200.1; ++i ) {
@@ -125,50 +151,87 @@ TEUCHOS_UNIT_TEST( ScalarField, OneNorm_and_init ) {
   }
 }
 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, OneNorm_and_init, SF ) 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, OneNorm_and_init, VF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, OneNorm_and_init, MSF ) 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, OneNorm_and_init, MVF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, OneNorm_and_init, CF ) 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, OneNorm_and_init, CMF )
 
 
-TEUCHOS_UNIT_TEST( ScalarField, TwoNorm_and_init ) {
 
-  auto space = Pimpact::createSpace( pl, false );
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, TwoNorm_and_init, FType ) {
 
-  auto p = Pimpact::createScalarField(space);
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, false );
+
+  auto p = Pimpact::create<FType>(space);
 
   // test different float values, assures that initial and norm work smoothly
   for( double i=0.; i< 200.1; ++i ) {
     p->init(i/2.);
-    TEST_EQUALITY( std::sqrt( std::pow(i/2.,2)*p->getLength() ), p->norm(Belos::TwoNorm) );
+    TEST_FLOATING_EQUALITY( std::sqrt( std::pow(i/2.,2)*p->getLength() ), p->norm(Belos::TwoNorm), eps );
   }
 }
 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, TwoNorm_and_init, SF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, TwoNorm_and_init, VF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, TwoNorm_and_init, MSF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, TwoNorm_and_init, MVF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, TwoNorm_and_init, CF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, TwoNorm_and_init, CMF )
 
-TEUCHOS_UNIT_TEST( ScalarField, dot ) {
 
-  auto space = Pimpact::createSpace( pl, true );
 
-  auto p = Pimpact::createScalarField( space );
-  auto q = Pimpact::createScalarField( space );
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, dot, FType ) {
 
-  int Np = p->getLength();
-  int Nq = q->getLength();
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, false );
+
+  auto vel1 = Pimpact::create<FType>(space);
+  auto vel2 = Pimpact::create<FType>(space);
+
+  int Np = vel1->getLength();
+  int Nq = vel2->getLength();
   double dot;
 
   TEST_EQUALITY( Np , Nq );
+  int N = Np;
 
-  p->init(1.);
-  q->init(1.);
-  dot = p->dot(*q);
+  vel1->init(0.);
+  vel2->init(1.);
+  dot = vel1->dot(*vel2);
+  TEST_EQUALITY( dot<eps, true );
 
-  TEST_FLOATING_EQUALITY( 1.*Np, dot, eps );
+  vel1->init(1.);
+  vel2->init(1.);
+  dot = vel2->dot(*vel1);
+  TEST_FLOATING_EQUALITY( (S)N, dot, eps );
+
+  vel1->init(2.);
+  vel2->init(1.);
+  dot = vel1->dot(*vel2);
+  TEST_FLOATING_EQUALITY( 2.*N, dot, eps );
+
+  vel1->init(1.);
+  vel2->init(2.);
+  dot = vel1->dot(*vel2);
+  TEST_FLOATING_EQUALITY( 2.*N, dot, eps );
 
 }
 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, dot, SF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, dot, VF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, dot, MSF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, dot, MVF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, dot, CF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, dot, CMF )
 
 
-TEUCHOS_UNIT_TEST( ScalarField, scale ) {
 
-  auto space = Pimpact::createSpace( pl, false );
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, scale, FType ) {
 
-  auto p = Pimpact::createScalarField(space);
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, false );
+
+  auto p = Pimpact::create<FType>(space);
 
   double norm;
   int N = p->getLength();
@@ -180,12 +243,20 @@ TEUCHOS_UNIT_TEST( ScalarField, scale ) {
 
 }
 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, scale, SF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, scale, VF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, scale, MSF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, scale, MVF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, scale, CF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, scale, CMF )
 
-TEUCHOS_UNIT_TEST( ScalarField, random ) {
 
-  auto space = Pimpact::createSpace( pl, false );
 
-  auto p = Pimpact::createScalarField(space);
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, random, FType ) {
+
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, false );
+
+  auto p = Pimpact::create<FType>(space);
 
   double norm;
   int N = p->getLength();
@@ -194,36 +265,73 @@ TEUCHOS_UNIT_TEST( ScalarField, random ) {
   p->random();
   norm = p->norm(Belos::TwoNorm);
   TEST_INEQUALITY( N, norm)
+
 }
 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, random, SF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, random, VF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, random, MSF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, random, MVF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, random, CF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, random, CMF )
 
-TEUCHOS_UNIT_TEST( ScalarField, add ) {
+	
 
-  auto space = Pimpact::createSpace( pl, false );
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TemplateField, add, FType ) {
 
-  auto q = Pimpact::createScalarField(space);
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, false );
 
-  auto r(q);
-  auto p(q);
+  auto vel1 = Pimpact::create<FType>(space);
+  auto vel2 = Pimpact::create<FType>(space);
+  auto vel3 = Pimpact::create<FType>(space);
+
+  TEST_EQUALITY( vel1->getLength(), vel2->getLength() )
+  TEST_EQUALITY( vel2->getLength(), vel3->getLength() )
+  TEST_EQUALITY( vel1->getLength(), vel3->getLength() )
 
   double norm;
-  int N = p->getLength();
+  int N = vel1->getLength();
 
-  q->init(1.);
-  r->init(1./3.);
+  vel1->init(0.);
+  vel2->init(1./2.);
+  vel3->init(1./3.);
 
-  p->add( 0., *q, 3., *r);
-  norm = p->norm(Belos::TwoNorm);
-  TEST_EQUALITY( std::sqrt(N), norm)
+  vel1->add( 2., *vel2, 0., *vel3);
+  norm = vel1->norm(Belos::TwoNorm);
+  TEST_EQUALITY( std::sqrt(N), norm )
+
+  vel1->init(0.);
+  vel2->init(1./2.);
+  vel3->init(1./3.);
+
+  vel1->add( 0., *vel2, 3., *vel3);
+  norm = vel1->norm(Belos::TwoNorm);
+  TEST_EQUALITY( std::sqrt(N), norm )
+
+  vel1->init(0.);
+  vel2->init(1.);
+  vel3->init(1.);
+
+  vel1->add( 0.5, *vel2, 0.5, *vel3);
+  norm = vel1->norm(Belos::TwoNorm);
+  TEST_EQUALITY( std::sqrt(N), norm )
 
 }
 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TemplateField, add, SF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TemplateField, add, VF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TemplateField, add, MSF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TemplateField, add, MVF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TemplateField, add, CF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TemplateField, add, CMF )
 
-TEUCHOS_UNIT_TEST( ScalarField, write ) {
 
-  auto space = Pimpact::createSpace( pl, false );
 
-  auto p = Pimpact::createScalarField(space);
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, write, FType ) {
+
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, false );
+
+  auto p = Pimpact::create<FType>( space );
 
   p->init(1.);
   p->write();
@@ -234,11 +342,20 @@ TEUCHOS_UNIT_TEST( ScalarField, write ) {
   TEST_EQUALITY( 0, 0)
 }
 
-TEUCHOS_UNIT_TEST( ScalarField, write_restart ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, write, SF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, write, VF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, write, MSF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, write, MVF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, write, CF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, write, CMF )
 
-  auto space = Pimpact::createSpace( pl, false );
 
-  auto p = Pimpact::createScalarField(space);
+
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, write_restart, FType ) {
+
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, false );
+
+  auto p = Pimpact::create<FType>(space);
 
   p->init(1.);
   p->write();
@@ -246,9 +363,12 @@ TEUCHOS_UNIT_TEST( ScalarField, write_restart ) {
   p->random();
   p->write( 99, true );
 
-  TEST_EQUALITY( 0, 0)
 }
 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, write_restart, SF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, write_restart, VF )
+
+	
 
 TEUCHOS_UNIT_TEST( ScalarField, initField ) {
 

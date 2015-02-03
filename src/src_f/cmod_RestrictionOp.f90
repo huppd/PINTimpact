@@ -482,7 +482,7 @@ contains
 
         dd=1
         do i=1,dimens
-            dd(i) = ( NNf(i)-SSf(i) )/( NNc(i)-SSc(i) )
+          if( 0/=NNc(i)-SSc(i) ) dd(i) = ( NNf(i)-SSf(i) )/( NNc(i)-SSc(i) )
         end do
 
 

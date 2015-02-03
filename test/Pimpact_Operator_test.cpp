@@ -18,6 +18,8 @@
 #include "Pimpact_OperatorFactory.hpp"
 #include "Pimpact_ConvectionOp.hpp"
 
+#include "Pimpact_VectorFieldOpWrap.hpp"
+
 #include "Pimpact_LinSolverParameter.hpp"
 
 
@@ -45,6 +47,7 @@ S eps = 1e-10;
 S omega = 0.8;
 S winds = 1;
 int nIter = 1000;
+int dim = 2;
 
 bool isImpactInit = false;
 
@@ -72,20 +75,26 @@ TEUCHOS_STATIC_SETUP() {
   clp.setOption(
       "nIter", &nIter,
       "Slack off of machine epsilon used to check test results" );
+  clp.setOption(
+      "dim", &dim,
+      "dim" );
 
   pl->set( "domain", 1);
 
   //  pl->set( "lz", 1. );
+  
+  pl->set( "dim", dim );
 
 
-  //  pl->set("nx", 125 );
-  //  pl->set("ny", 125 );
+   pl->set("nx", 125 );
+   pl->set("ny", 125 );
+   //pl->set("nz", 125 );
   //  pl->set("nx", 65 );
   //  pl->set("ny", 65 );
   //  pl->set("nz", 2 );
   //
-  pl->set("npx", 1 );
-  pl->set("npy", 1 );
+  pl->set("npx", 2 );
+  pl->set("npy", 2 );
   //  pl->set("npz", 1 );
 
   // integer coefficients:
@@ -227,16 +236,57 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateS2VOp ) {
 
 TEUCHOS_UNIT_TEST( BasicOperator, TransferOp ) {
 
+  typedef Pimpact::Space<S,O,d,4> FSpaceT;
+  typedef Pimpact::Space<S,O,d,2> CSpaceT;
+
   auto fSpace = Pimpact::createSpace<S,O,d,4>( pl );
   auto cSpace = Pimpact::createSpace<S,O,d,2>( pl );
 
   auto fx = Pimpact::create<Pimpact::ScalarField>( fSpace );
   auto cx = Pimpact::create<Pimpact::ScalarField>( cSpace );
 
-  auto op = Pimpact::createTransferOp( fSpace, cSpace );
+  auto op = Pimpact::create< Pimpact::TransferOp<FSpaceT,CSpaceT> >( fSpace, cSpace );
 
   // test
   fx->initField( Pimpact::Poiseuille2D_inX );
+  cx->random();
+
+  op->apply( *fx, *cx );
+
+  TEST_FLOATING_EQUALITY( fx->norm(Belos::OneNorm), cx->norm(Belos::OneNorm), eps );
+  TEST_FLOATING_EQUALITY( fx->norm(Belos::TwoNorm), cx->norm(Belos::TwoNorm), eps );
+  TEST_FLOATING_EQUALITY( fx->norm(Belos::InfNorm), cx->norm(Belos::InfNorm), eps );
+
+  cx->write(0);
+
+  fx->random();
+
+  op->apply( *cx, *fx );
+
+  TEST_FLOATING_EQUALITY( fx->norm(Belos::OneNorm), cx->norm(Belos::OneNorm), eps );
+  TEST_FLOATING_EQUALITY( fx->norm(Belos::TwoNorm), cx->norm(Belos::TwoNorm), eps );
+  TEST_FLOATING_EQUALITY( fx->norm(Belos::InfNorm), cx->norm(Belos::InfNorm), eps );
+
+  fx->write(1);
+
+}
+
+
+
+TEUCHOS_UNIT_TEST( BasicOperator, VectorFieldOpWrap ) {
+  typedef Pimpact::Space<S,O,d,4> FSpaceT;
+  typedef Pimpact::Space<S,O,d,2> CSpaceT;
+
+  auto fSpace = Pimpact::createSpace<S,O,d,4>( pl );
+  auto cSpace = Pimpact::createSpace<S,O,d,2>( pl );
+
+  auto fx = Pimpact::create<Pimpact::VectorField>( fSpace );
+  auto cx = Pimpact::create<Pimpact::VectorField>( cSpace );
+
+  auto op = Pimpact::create< Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<FSpaceT,CSpaceT> > >( fSpace, cSpace );
+
+  // test
+  fx->initField( Pimpact::PoiseuilleFlow2D_inX );
   cx->random();
 
   op->apply( *fx, *cx );
@@ -764,12 +814,13 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, TripleCompostion ) {
 
 
   typedef Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<SpaceT> > > MVF;
+  typedef Pimpact::MultiField<Pimpact::ModeField<Pimpact::ScalarField<SpaceT> > > MSF;
 
 
-  auto X = Pimpact::createMultiModeScalarField( space );
-  auto B = Pimpact::createMultiModeScalarField( space );
+  auto X = Pimpact::create<MSF>( space );
+  auto B = Pimpact::create<MSF>( space );
 
-  auto temp = Pimpact::createMultiModeVectorField( space );
+  auto temp = Pimpact::create<MVF>( space );
 
   X->init(0.);
   B->random();
@@ -782,7 +833,8 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, TripleCompostion ) {
   H->apply( *temp, *temp );
 
   // Make an empty new parameter list.
-  auto solverParams = Teuchos::parameterList();
+  //auto solverParams = Teuchos::parameterList();
+  auto solverParams = Pimpact::createLinSolverParameter( "GMRES", 1.e-1 );
 
   // Create the Pimpact::LinearSolver solver.
   auto Hprob = Pimpact::createLinearProblem<MVF>( H, temp, temp, solverParams,"GMRES" );

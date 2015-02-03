@@ -105,40 +105,48 @@ public:
       mgTrans_->getTransferOp()->apply( y, *x_->get(0) );
       mgTrans_->getTransferOp()->apply( *b_->get(), *b_->get(0) );
 
-      //  temp = \hat(L) y
+      // residual temp = \hat(L) y
       mgOps_->get(0)->apply( *x_->get(0), *temp_->get(0) );
       // b = x - L y +\hat{L} y
       b_->get(0)->add( 1., *b_->get(0), 1, *temp_->get(0) );
-//      b_->get(0)->write(out++);
-      // for singular laplace
-//          b_->get(0)->level();
 
+			//b_->get(0)->write(78);
+			//x_->get(0)->write(79);
       // smooth and restrict defect( todo extract this as method )
       int i;
       for( i=0; i<mgSpaces_->getNGrids()-1; ++i ) {
-        if(i>0) x_->get(i)->init(0.); // necessary?
+				if(i>0) x_->get(i)->init(0.); // necessary? for DivGradOp yes
+				//b_->get(i)->write(98);
         mgSms_->get(i)->apply( *b_->get(i), *x_->get(i) );
+				//x_->get(i)->write(98);
         mgOps_->get(i)->apply( *x_->get(i), *temp_->get(i) );
         temp_->get(i)->add( -1., *temp_->get(i), 1., *b_->get(i) );
+				//temp_->get(i)->write(98);
         mgTrans_->getRestrictionOp(i)->apply( *temp_->get(i), *b_->get(i+1) );
+				//b_->get(i+1)->write(98);
       }
+			//b_->get(1)->write(88);
+			//x_->get(1)->write(89);
 
       // coarse grid solution
       i = -1;
       /// \todo add level for singular stuff
       b_->get(i)->level();
       x_->get(i)->init(0.);
-      cGridSolver_->apply( *b_->get(i), *x_->get(i) );
-//      b_->get(i)->write(98);
-//      x_->get(i)->write(99);
+			//for( int j=0; j<1; ++j )
+		  cGridSolver_->apply( *b_->get(i), *x_->get(i) );
+			 //b_->get(i)->write(98);
+			 //x_->get(i)->write(98);
 
       for( i=-2; i>=-mgSpaces_->getNGrids(); --i ) {
         // interpolate/correct/smooth
         mgTrans_->getInterpolationOp(i)->apply( *x_->get(i+1), *temp_->get(i) );
+				//temp_->get(i)->write(98);
         x_->get(i)->add( 1., *temp_->get(i), 1., *x_->get(i) );
-        //      x_->get(0)->write( 98 );
-        mgSms_->get( i )->apply( *b_->get(i), *x_->get(i) );
-        //      x_->get(0)->write(99);
+				//b_->get(i)->write(97);
+				//x_->get(i)->write( 98 );
+				mgSms_->get( i )->apply( *b_->get(i), *x_->get(i) );
+				//x_->get(i)->write(99);
 
       }
       mgTrans_->getTransferOp()->apply( *x_->get(0), y );
