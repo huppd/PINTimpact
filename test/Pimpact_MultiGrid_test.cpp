@@ -32,6 +32,13 @@ template<class ST> using BOPF = Pimpact::MultiOpWrap< Pimpact::DivGradOp<ST> >;
 template<class ST> using BOPC = Pimpact::MultiOpWrap< Pimpact::DivGradO2Op<ST> >;
 template<class ST> using BSM = Pimpact::MultiOpWrap< Pimpact::DivGradO2JSmoother<ST> >;
 
+template<class T> using ConvDiffOpT = Pimpact::ConvectionVOp<Pimpact::ConvectionDiffusionSOp<T> >;
+
+//template<class T> using ConvDiffOpT = Pimpact::ConvectionVOp<Pimpact::ConvectionDiffusionSOp<T> >;
+
+template<class T> using ConvDiffSORT = Pimpact::ConvectionVSmoother<T,Pimpact::ConvectionDiffusionSORSmoother >;
+
+template<class T> using ConvDiffJT = Pimpact::ConvectionVSmoother<T,Pimpact::ConvectionDiffusionJSmoother >;
 
 bool testMpi = true;
 double eps = 1e-6;
@@ -188,7 +195,6 @@ TEUCHOS_UNIT_TEST( MGOperators, SF_constructor3D ) {
 
 
 
-template<class T> using ConvDiffOpT = Pimpact::ConvectionVOp<Pimpact::ConvectionDiffusionSOp<T> >;
 
 TEUCHOS_UNIT_TEST( MGOperators, VF_constructor3D ) {
 
@@ -700,10 +706,6 @@ TEUCHOS_UNIT_TEST( MultiGrid, DivGradOp ) {
 
 
 
-template<class T> using ConvDiffOpT = Pimpact::ConvectionVOp<Pimpact::ConvectionDiffusionSOp<T> >;
-template<class T> using ConvDiffSORT = Pimpact::ConvectionVSmoother<T,Pimpact::ConvectionDiffusionSORSmoother >;
-
-template<class T> using ConvDiffJT = Pimpact::ConvectionVSmoother<T,Pimpact::ConvectionDiffusionJSmoother >;
 
 TEUCHOS_UNIT_TEST( MultiGrid, ConvDiffOp ) {
 
@@ -736,6 +738,13 @@ TEUCHOS_UNIT_TEST( MultiGrid, ConvDiffOp ) {
 
   auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, 10 );
 
+	auto mgPL = Teuchos::parameterList();
+	mgPL->sublist("Smoother").set("omega",0.8);
+	mgPL->sublist("Smoother").set("numIters",10);
+	//mgPL->sublist("Smoother").set("Ordering",0);
+	//mgPL->sublist("Smoother").set<short int>("dir X",-1);
+	//mgPL->sublist("Smoother").set<short int>("dir Y",-1);
+
 
   auto mg =
       Pimpact::createMultiGrid<
@@ -749,7 +758,7 @@ TEUCHOS_UNIT_TEST( MultiGrid, ConvDiffOp ) {
 				//ConvDiffJT,
 				//ConvDiffSORT
 				MOP
-		> ( mgSpaces );
+		> ( mgSpaces, mgPL );
 
   auto x = Pimpact::create<Pimpact::VectorField>( space );
   auto b = Pimpact::create<Pimpact::VectorField>( space );
@@ -766,14 +775,16 @@ TEUCHOS_UNIT_TEST( MultiGrid, ConvDiffOp ) {
     mg->assignField( *wind );
   }
 
-
   std::ofstream ofs;
   if( space()->rankST()==0 )
     ofs.open("MG2.txt", std::ofstream::out);
 
   // Grad in x
+	x->getFieldPtr(0)->initField( Pimpact::Grad2D_inX );
 	x->getFieldPtr(0)->initField( Pimpact::Grad2D_inY );
-	x->getFieldPtr(1)->initField( Pimpact::Grad2D_inX );
+	//x->getFieldPtr(0)->initField( Pimpact::ConstField, 0. );
+	//x->getFieldPtr(1)->initField( Pimpact::Grad2D_inX );
+	//x->getFieldPtr(1)->initField( Pimpact::Grad2D_inY );
   auto sol = x->clone( Pimpact::DeepCopy );
   x->write(0);
   //sol->write(3);
@@ -790,9 +801,9 @@ TEUCHOS_UNIT_TEST( MultiGrid, ConvDiffOp ) {
 	 x->initField( Pimpact::ConstFlow, 0., 0., 0. );
 	//x->random();
 
-   for( int i=0; i<40; ++i ) {
+   for( int i=0; i<20; ++i ) {
      mg->apply( *b, *x );
-     x->write(i+10);
+     //x->write(i+10);
 
      temp->add( -1, *x, 1., *sol );
      double res = temp->norm();

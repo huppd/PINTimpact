@@ -112,34 +112,6 @@ public:
 
 
 
-///// \relates BoundaryConditionsGlobal
-//Teuchos::RCP<const BoundaryConditionsGlobal>
-//createBoudaryConditionsGlobal() {
-//
-//  typedef const Teuchos::Tuple<int,3> TBC3;
-//
-//  TBC3 BCL;
-//  TBC3 BCU;
-//
-//  fgetBC(
-//    BCL[0],
-//    BCU[0],
-//    BCL[1],
-//    BCU[1],
-//    BCL[2],
-//    BCU[2] );
-//
-//  return(
-//      Teuchos::rcp(
-//          new BoundaryConditionsGlobal(
-//              EBCType( BCL[0] ),
-//              EBCType( BCU[0] ),
-//              EBCType( BCL[1] ),
-//              EBCType( BCU[1] ),
-//              EBCType( BCL[2] ),
-//              EBCType( BCU[2] )   ) ) );
-//}
-
 
 /// \relates BoundaryConditionsGlobal
 Teuchos::RCP<const BoundaryConditionsGlobal>

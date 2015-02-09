@@ -66,8 +66,6 @@ public:
 
   };
 
-//protected:
-//public:
 
 //  void apply( const DomainFieldT& x, const DomainFieldT& y, RangeFieldT& z, bool init_yes=true ) const {
   void apply( const DomainFieldT& y, RangeFieldT& z, bool init_yes=true ) const {

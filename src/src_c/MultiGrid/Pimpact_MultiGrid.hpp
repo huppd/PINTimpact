@@ -77,11 +77,12 @@ public:
 
   MultiGrid(
       const Teuchos::RCP<const MGSpacesT>& mgSpaces,
+			const Teuchos::RCP<Teuchos::ParameterList>& pl,
       EField type = EField::S ):
         mgSpaces_(mgSpaces),
         mgTrans_( createMGTransfers<TransT,RestrT,InterT>(mgSpaces) ),
         mgOps_( Pimpact::createMGOperators<FOperatorT,COperatorT>(mgSpaces) ),
-        mgSms_( Pimpact::createMGSmoothers<SmootherT>(mgOps_) ),
+        mgSms_( Pimpact::createMGSmoothers<SmootherT>( mgOps_, Teuchos::rcpFromRef(pl->sublist("Smoother")) ) ),
         x_( createMGFields<FieldT>(mgSpaces, type ) ),
         temp_( createMGFields<FieldT>(mgSpaces, type ) ),
         b_( createMGFields<FieldT>(mgSpaces, type ) ),
@@ -192,12 +193,13 @@ template<
 Teuchos::RCP< MultiGrid<MGSpacesT,FieldT,TransT,RestrT,InterT,FOperatorT,COperatorT,SmootherT,CGridSolverT> >
 createMultiGrid(
     const Teuchos::RCP<const MGSpacesT>& mgSpaces,
+		const Teuchos::RCP<Teuchos::ParameterList>& pl=Teuchos::parameterList(),
     EField type = EField::S  ) {
 
   return(
       Teuchos::rcp(
           new MultiGrid<MGSpacesT,FieldT,TransT,RestrT,InterT,FOperatorT,COperatorT,SmootherT,CGridSolverT>(
-              mgSpaces, type)
+              mgSpaces, pl, type)
       )
   );
 

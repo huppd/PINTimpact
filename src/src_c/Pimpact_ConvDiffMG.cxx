@@ -1,12 +1,32 @@
 #include <cmath>
 
 #include "Pimpact_Operator.hpp"
+#include "Pimpact_VectorFieldOpWrap.hpp"
+#include "Pimpact_MultiGrid.hpp"
 
 typedef double S;
 typedef int O;
 const int d = 3;
+const int dNC=4;
+
+typedef Pimpact::Space<S,O,d,dNC> FSpaceT;
+typedef Pimpact::Space<S,O,d,2> CSpaceT;
+
+typedef Pimpact::CoarsenStrategy<FSpaceT,CSpaceT> CS;
+
+template<class T1,class T2> using TransVF = Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<T1,T2> >;
+template<class T> using RestrVF = Pimpact::VectorFieldOpWrap<Pimpact::RestrictionOp<T> >;
+template<class T> using InterVF = Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<T> >;
+
 
 template<class T> using ConvDiffOpT = Pimpact::ConvectionVOp<Pimpact::ConvectionDiffusionSOp<T> >;
+template<class T> using ConvDiffSORT = Pimpact::ConvectionVSmoother<T,Pimpact::ConvectionDiffusionSORSmoother >;
+
+template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
+
+
+
+
 
 int main( int argi, char** argv ) {
 
@@ -21,33 +41,38 @@ int main( int argi, char** argv ) {
 
   //  int nwinds = 360*2;
 //  int nwinds = 360;
-    int nwinds = 360/2;
+    //int nwinds = 360/2;
 //    int nwinds = 360/4;
 //    int nwinds = 360/6;
 //    int nwinds = 64;
 //    int nwinds = 32;
-//    int nwinds = 16;
+	 int nwinds = 16;
 //    int nwinds = 8;
 //    int nwinds = 4;
 //    int nwinds = 1;
 
   S pi = (S)4. * std::atan( (S)1. ) ;
 
-  pl->set<S>( "Re", 10000 );
+  //pl->set<S>( "Re", 1000 );
+  pl->set<S>( "Re", 100 );
 //  pl->set<S>( "lx", 1 );
 //  pl->set<S>( "ly", 1 );
 //    pl->set<O>( "nx", 513 );
 //    pl->set<O>( "ny", 513 );
 //    pl->set<O>( "nx", 257 );
 //    pl->set<O>( "ny", 257 );
-    pl->set<O>( "nx", 129 );
-    pl->set<O>( "ny", 129 );
-//    pl->set<O>( "nx", 65 );
-//    pl->set<O>( "ny", 65 );
-//  pl->set<O>( "nx", 17 );
-//  pl->set<O>( "ny", 17 );
-  auto space = Pimpact::createSpace<S,O,d,2>( pl );
+		//pl->set<O>( "nx", 129 );
+		//pl->set<O>( "ny", 129 );
+	 pl->set<O>( "nx", 65 );
+	 pl->set<O>( "ny", 65 );
+ //pl->set<O>( "nx", 17 );
+ //pl->set<O>( "ny", 17 );
 
+
+
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+
+  auto mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, 10 );
 
   auto wind = Pimpact::create<Pimpact::VectorField>( space );
   auto y = Pimpact::create<Pimpact::VectorField>( space );
@@ -63,20 +88,25 @@ int main( int argi, char** argv ) {
       if( 3==dirx && diry==1 ) break;
 
       auto pls = Teuchos::parameterList();
-      pls->set( "omega", 1. );
-      pls->set( "numIter", 1 );
-      pls->set<int>( "Ordering", (dirx==3)?1:0 );
-      pls->set<short int>( "dir X", dirx );
-      pls->set<short int>( "dir Y", diry );
-      pls->set<short int>( "dir Z", 1 );
+      pls->sublist("Smoother").set( "omega", 1. );
+      pls->sublist("Smoother").set( "numIter", (dirx==3)?1:10 );
+      pls->sublist("Smoother").set<int>( "Ordering", (dirx==3)?1:0 );
+      pls->sublist("Smoother").set<short int>( "dir X", dirx );
+      pls->sublist("Smoother").set<short int>( "dir Y", diry );
+      pls->sublist("Smoother").set<short int>( "dir Z", 1 );
 
       auto smoother =
-           Pimpact::create<
-             Pimpact::ConvectionVSmoother<
-               ConvDiffOpT<Pimpact::Space<S,O,d,2> > ,
-               Pimpact::ConvectionDiffusionSORSmoother > > (
-                   op,
-                   pls );
+				Pimpact::createMultiGrid<
+					Pimpact::VectorField,
+        	TransVF,
+        	RestrVF,
+        	InterVF,
+        	ConvDiffOpT,
+        	ConvDiffOpT,
+					ConvDiffSORT,
+					//ConvDiffJT,
+					//ConvDiffSORT
+					MOP > ( mgSpaces, pls );
 
       std::ofstream phifile;
 
@@ -112,7 +142,7 @@ int main( int argi, char** argv ) {
         z->initField( Pimpact::ConstFlow, 0., 0., 0. );
 
         op->assignField( *wind );
-//        smoother->assignField( *wind );
+			 	smoother->assignField( *wind );
 
         // constructing rhs
         op->apply( *y, *z );
@@ -151,7 +181,7 @@ int main( int argi, char** argv ) {
           iter++;
 
         }
-        while( error>1.e-6 );
+        while( error>1.e-2 );
 
         if( space()->rankST()==0 )
 //          phifile << error << "\n";

@@ -20,12 +20,16 @@ void OP_DtHelmholtz(
     const int* const N,
     const int* const bL,
     const int* const bU,
-    const int& m,
+    const int* const ss,
+    const int* const nn,
+    const double* const c11,
+    const double* const c22,
+    const double* const c33,
     const double& mulI,
     const double& multL,
-    double* const phiI,
-    double* const phiL,
-    double* const Lap );
+    const double* const phiI,
+    const double* const phiL,
+    	    double* const Lap );
 }
 
 
@@ -84,12 +88,18 @@ public:
         if( !x.getConstSField().is_exchanged(i,dir) ) x.getConstSField().exchange( i, dir );
       }
 
+      EField fType = (EField)i;
+
       OP_DtHelmholtz(
           dim,
           space_->nLoc(),
           space_->bl(),
           space_->bu(),
-          i+1,
+          space_->sInd(fType),
+          space_->eInd(fType),
+          L_->getC(X,fType),
+          L_->getC(Y,fType),
+          L_->getC(Z,fType),
           alpha2_*k,
           iRe_,
           x.getConstSField().vecC(i),
@@ -101,15 +111,21 @@ public:
           space_->nLoc(),
           space_->bl(),
           space_->bu(),
-          i+1,
+          space_->sInd(fType),
+          space_->eInd(fType),
+          L_->getC(X,fType),
+          L_->getC(Y,fType),
+          L_->getC(Z,fType),
           -alpha2_*k,
           iRe_,
           x.getConstCField().vecC(i),
           x.getConstSField().vecC(i),
           y.getSField().getRawPtr(i) ) ;
     }
+
     y.getCField().changed();
     y.getSField().changed();
+
   }
 
   void assignField( const DomainFieldT& mv ) {};

@@ -206,7 +206,7 @@ public:
   /// \param nox_vec if \c MultiField is used for NOX the Vector length is
   /// considered for all Fields
   Ordinal getLength( bool nox_vec=false ) const {
-    if( nox_vec ){
+    if( nox_vec ) {
       Ordinal n = 0;
       for( int i=0; i<getNumberVecs(); ++i )
         n += mfs_[i]->getLength(nox_vec);

@@ -29,7 +29,6 @@ void OP_convectionDiffusionJSmoother(
     const int* const nU,
     const int* const SS,
     const int* const NN,
-//    const int* const dir,
     const double* const c1D,
     const double* const c2D,
     const double* const c3D,
@@ -46,8 +45,8 @@ void OP_convectionDiffusionJSmoother(
     const double* const phi,
           double* const phio,
     const double& mulI,
+    const double& mulC,
     const double& mulL,
-    const double& mul,
     const double& om );
 
 }
@@ -83,6 +82,11 @@ protected:
 
 public:
 
+	/// \brief constructor
+	///
+  /// These options include the following:
+	/// - "omega" - damping parameter
+  /// - "numIters" - an \c int specifying the maximum number of iterations the 
   ConvectionDiffusionJSmoother(
       const Teuchos::RCP<const OperatorT>& op,
       Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ):
@@ -96,22 +100,18 @@ public:
   void assignField( const RangeFieldT& mv ) {};
 
 
-  void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mul=1. ) const {
 
-    int m = (int)z.getType();
+  void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mul, Scalar mulI, Scalar mulC, Scalar mulL ) const { std::cout << "not implmented\n"; }
 
-    TEUCHOS_TEST_FOR_EXCEPTION(
-        z.getType() != y.getType(),
-        std::logic_error,
-        "Pimpact::ConvectionSOP can only be applied to same fieldType !!!\n");
+  void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mul=0. ) const {
+
+    //int m = (int)z.getType();
+
+    TEUCHOS_TEST_FOR_EXCEPT( z.getType() != y.getType() );
 
 
-    for( int i =0; i<space_->dim(); ++i ) {
-      TEUCHOS_TEST_FOR_EXCEPTION(
-          x[i]->getType() != y.getType(),
-          std::logic_error,
-          "Pimpact::ConvectionSOP can only be applied to same fieldType !!!\n");
-    }
+    for( int i =0; i<space_->dim(); ++i )
+      TEUCHOS_TEST_FOR_EXCEPT( x[i]->getType() != y.getType() );
 
     for( int vel_dir=0; vel_dir<space_->dim(); ++vel_dir )
       x[vel_dir]->exchange();
@@ -128,26 +128,26 @@ public:
           space_->bu(),
           space_->nl(),
           space_->nu(),
-          space_->sInd(m),
-          space_->eInd(m),
+          space_->sInd(z.getType()),
+          space_->eInd(z.getType()),
           op_->convSOp_->getCD(X,z.getType()),
           op_->convSOp_->getCD(Y,z.getType()),
           op_->convSOp_->getCD(Z,z.getType()),
           op_->convSOp_->getCU(X,z.getType()),
           op_->convSOp_->getCU(Y,z.getType()),
           op_->convSOp_->getCU(Z,z.getType()),
-          op_->helmOp_->getC(X,z.getType()),
-          op_->helmOp_->getC(Y,z.getType()),
-          op_->helmOp_->getC(Z,z.getType()),
+        	op_->helmOp_->getC( X, z.getType() ),
+        	op_->helmOp_->getC( Y, z.getType() ),
+        	op_->helmOp_->getC( Z, z.getType() ),
           x[0]->getConstRawPtr(),
           x[1]->getConstRawPtr(),
           x[2]->getRawPtr(),
           y.getConstRawPtr(),
-          z.getRawPtr(),
+          z.getConstRawPtr(),
           temp_->getRawPtr(),
           0.,
+          1.,
           1./space_->getDomain()->getDomainSize()->getRe(),
-          mul,
           omega_ );
 
       // attention: could lead to problems when ScalarField is used as part of a higherlevel class (s is shared)
@@ -157,7 +157,6 @@ public:
     }
     if( 0!=(nIter_%2) )
       std::swap( z.s_, temp_->s_ );
-
   }
 
   void print( std::ostream& out=std::cout ) const {

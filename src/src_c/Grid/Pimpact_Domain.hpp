@@ -52,18 +52,6 @@ protected:
 };
 
 
-///// \relates Domain
-//template<class S=double>
-//Teuchos::RCP<const Domain<S> > createDomain() {
-//  return(
-//      Teuchos::rcp(
-//          new Domain<S>(
-//              createDomainSize<S>(),
-//              createBoudaryConditionsGlobal(),
-//              createBoudaryConditionsLocal() ) ) );
-//
-//}
-
 
 /// \relates Domain
 template<class S>

@@ -43,9 +43,10 @@ void OP_convectionDiffusion(
     const double* const phiW,
     const double* const phi,
     const double* nlu,
+    const double& mul,
     const double& mulI,
-    const double& mulL,
-    const double& mul );
+    const double& mulC,
+    const double& mulL );
 
 }
 
@@ -88,9 +89,16 @@ public:
   void assignField( const RangeFieldT& mv ) {};
 
 
+	/// \f[ z = mul z + (x\cdot\nabla) y - \frac{1}{Re} \Delta z \f]
   void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mul=0. ) const {
+		
+		apply( x, y, z, mul, 0., 1., 1./space_->getDomain()->getDomainSize()->getRe() );
 
-//    int m = (int)z.getType();
+  }
+
+	/// \f[ z = mul z + mulI y + mulC(x\cdot\nabla)y - mulL \Delta y \f]
+  void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z,
+			Scalar mul, Scalar mulI, Scalar mulC, Scalar mulL ) const {
 
     TEUCHOS_TEST_FOR_EXCEPT( z.getType() != y.getType() );
 
@@ -101,12 +109,6 @@ public:
       x[vel_dir]->exchange();
 
     y.exchange();
-
-    // why not use default parameter 1? because one has to init z equal 0.
-    if( std::abs(mul) < 1.e-16 ) {
-      z.init( 0. );
-      mul = 1.;
-    }
 
     OP_convectionDiffusion(
         space_->dim(),
@@ -123,12 +125,6 @@ public:
         convSOp_->getCU(X,z.getType()),
         convSOp_->getCU(Y,z.getType()),
         convSOp_->getCU(Z,z.getType()),
-//        convSOp_->getCD(X,U),
-//        convSOp_->getCD(Y,V),
-//        convSOp_->getCD(Z,W),
-//        convSOp_->getCU(X,U),
-//        convSOp_->getCU(Y,V),
-//        convSOp_->getCU(Z,W),
         helmOp_->getC(X,z.getType()),
         helmOp_->getC(Y,z.getType()),
         helmOp_->getC(Z,z.getType()),
@@ -137,10 +133,10 @@ public:
         x[2]->getConstRawPtr(),
         y.getConstRawPtr(),
         z.getRawPtr(),
-//        mul,
-        1.,
-        1./space_->getDomain()->getDomainSize()->getRe(),
-        mul );
+			 	mul,
+        mulI,
+				mulC,
+        mulL );
 
     z.changed();
 

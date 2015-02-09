@@ -313,6 +313,26 @@ Teuchos::RCP< MultiHarmonicField<Field> > createMultiHarmonicField(
 }
 
 
+/// \brief creates a multi-harmonic scalar field.
+///
+/// \relates MultiHarmonicField
+/// \param space scalar Vector Space to which returned vector belongs
+/// \param nf amount of modes are created in multi-harmonic field
+/// \return a multi-harmonic \c ScalarField
+template<class FieldT>
+Teuchos::RCP< MultiHarmonicField< FieldT > > createMultiHarmonic(
+    const Teuchos::RCP<const typename FieldT::SpaceT >& space,
+    int nf) {
+
+  auto field0 = create<FieldT>( space );
+  auto mfield = create< ModeField< FieldT > >( space );
+  auto fields = createMultiField< ModeField< FieldT > >( *mfield, nf );
+  return(
+      Teuchos::rcp(
+          new MultiHarmonicField< FieldT >( field0, fields ) ) );
+
+}
+
 
 } // end of namespace Pimpact
 

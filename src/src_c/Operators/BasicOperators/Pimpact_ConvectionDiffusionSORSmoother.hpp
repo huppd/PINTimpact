@@ -46,8 +46,8 @@ void OP_convectionDiffusionSOR(
     const double* const b,
     double* const phi,
     const double& mulI,
+    const double& mulC,
     const double& mulL,
-    const double& mul,
     const double& om );
 
 }
@@ -114,12 +114,12 @@ public:
   void assignField( const RangeFieldT& mv ) {};
 
 
-  void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mul=1. ) const {
+  void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mul, Scalar mulI, Scalar mulC, Scalar mulL ) const { std::cout << "not implmented\n"; }
 
-//    x[0]->write(666);
+  void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mul=0. ) const {
+
     // testing field consistency
-    TEUCHOS_TEST_FOR_EXCEPT(
-        z.getType() != y.getType() );
+    TEUCHOS_TEST_FOR_EXCEPT( z.getType() != y.getType() );
 
     for( int i=0; i<space_->dim(); ++i )
       TEUCHOS_TEST_FOR_EXCEPT( x[i]->getType() != y.getType() );
@@ -133,9 +133,9 @@ public:
     for( int i=0; i<nIter_; ++i ) {
 
       if( ordering_==0 )
-        apply(x,y,z,dirs_,loopOrder_,mul);
+        apply(x,y,z,dirs_,loopOrder_ );
       else
-        applyNPoint(x,y,z,mul);
+        applyNPoint( x, y, z );
 
     }
 
@@ -143,19 +143,18 @@ public:
 
 protected:
 
-  void applyNPoint( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z,
-      Scalar mul=1. ) const {
+  void applyNPoint( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z ) const {
 
       if( 3==space_->dim() )
         for( dirs_[2]=-1; dirs_[2]<2; dirs_[2]+=2 )
           for( dirs_[1]=-1; dirs_[1]<2; dirs_[1]+=2 )
             for( dirs_[0]=-1; dirs_[0]<2; dirs_[0]+=2 )
-              apply( x, y, z, dirs_, loopOrder_, mul );
+              apply( x, y, z, dirs_, loopOrder_ );
       else {
         dirs_[2] = 1 ;
         for( dirs_[1]=-1; dirs_[1]<2; dirs_[1]+=2 )
           for( dirs_[0]=-1; dirs_[0]<2; dirs_[0]+=2 )
-            apply( x, y, z, dirs_, loopOrder_, mul );
+            apply( x, y, z, dirs_, loopOrder_ );
       }
 
   }
@@ -164,8 +163,7 @@ protected:
   /// \brief little helper
   void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z,
       const Teuchos::Tuple<short int,3>& dirs,
-      const Teuchos::Tuple<short int,3>& loopOrder,
-      Scalar mul=1. ) const {
+      const Teuchos::Tuple<short int,3>& loopOrder ) const {
 
     z.exchange();
     OP_convectionDiffusionSOR(
@@ -185,29 +183,17 @@ protected:
         op_->convSOp_->getCU( X, z.getType() ),
         op_->convSOp_->getCU( Y, z.getType() ),
         op_->convSOp_->getCU( Z, z.getType() ),
-//        op_->convSOp_->getCD( Y, (z.getType()==U)?V:U ),
-//        op_->convSOp_->getCD( Y, z.getType() ),
-//        op_->convSOp_->getCD( Z, z.getType() ),
-//        op_->convSOp_->getCU( Y, (z.getType()==U)?V:U ),
-//        op_->convSOp_->getCU( Y, z.getType() ),
-//        op_->convSOp_->getCU( Z, z.getType() ),
-//        op_->convSOp_->getCD( X, U ),
-//        op_->convSOp_->getCD( X, U ),
-//        op_->convSOp_->getCD( Z, U ),
-//        op_->convSOp_->getCU( X, U ),
-//        op_->convSOp_->getCU( X, U ),
-//        op_->convSOp_->getCU( Z, U ),
-        op_->helmOp_->getC( X,z.getType() ),
-        op_->helmOp_->getC( Y,z.getType() ),
-        op_->helmOp_->getC( Z,z.getType() ),
+        op_->helmOp_->getC( X, z.getType() ),
+        op_->helmOp_->getC( Y, z.getType() ),
+        op_->helmOp_->getC( Z, z.getType() ),
         x[0]->getRawPtr(),
         x[1]->getRawPtr(),
         x[2]->getRawPtr(),
         y.getConstRawPtr(),
         z.getRawPtr(),
         0.,
+        1.,
         1./space_->getDomain()->getDomainSize()->getRe(),
-        mul,
         omega_ );
 
     z.changed();

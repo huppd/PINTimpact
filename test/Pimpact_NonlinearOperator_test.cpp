@@ -86,8 +86,8 @@ TEUCHOS_STATIC_SETUP() {
   //  pl->set("ny", 65 );
   //  pl->set("nz", 2 );
   //
-  pl->set("npx", 1 );
-  pl->set("npy", 1 );
+  //pl->set("npx", 1 );
+  //pl->set("npy", 1 );
   //  pl->set("npz", 1 );
 
   // integer coefficients:
@@ -101,13 +101,12 @@ TEUCHOS_STATIC_SETUP() {
 
 
 
-
-
 TEUCHOS_UNIT_TEST( BasicOperator, ConvectionSOp ) {
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, !isImpactInit );
 
-  if( !isImpactInit ) isImpactInit=true;
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, !isImpactInit );
+		
+	isImpactInit=true;
 
   auto u =
       Teuchos::tuple(
@@ -146,7 +145,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionSOp ) {
   if( space->rankST()==0 )
     x->print();
 
-  x->write(0);
+  //x->write(0);
   y->random();
 
   //  op->apply( u[0], x->getConstField(0), y->getField(0), 1. );
@@ -160,7 +159,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionSOp ) {
     TEST_FLOATING_EQUALITY( std::sqrt( 4.* y->getFieldPtr(i)->getLength() ), y->getFieldPtr(i)->norm(Belos::TwoNorm), eps );
   }
 
-  y->write(1);
+  //y->write(1);
 
 }
 
@@ -174,7 +173,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionVOp ) {
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl, !isImpactInit );
 
-  if( !isImpactInit ) isImpactInit=true;
+	isImpactInit=true;
 
   auto x = Pimpact::create<Pimpact::VectorField>( space );
   auto y = Pimpact::create<Pimpact::VectorField>( space );
@@ -201,25 +200,23 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionVOp ) {
     TEST_FLOATING_EQUALITY( 2.* (double) z->getFieldPtr(i)->getLength()  , z->getFieldPtr(i)->norm(Belos::OneNorm), eps );
     TEST_FLOATING_EQUALITY( std::sqrt( 4.* z->getFieldPtr(i)->getLength() ), z->getFieldPtr(i)->norm(Belos::TwoNorm), eps );
   }
-  z->write(2);
-  z2->write(3);
+  //z->write(2);
+  //z2->write(3);
   z2->add( -1, *z2, 1, *z );
 
   TEST_FLOATING_EQUALITY( z2->norm(), 0., eps );
 
-  z2->write(1);
+  //z2->write(1);
 
 }
 
 
 
-//Pimpact::ConvectionDiffusionSORSmoother
-
 TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionOp  ) {
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl, !isImpactInit );
 
-  if( !isImpactInit ) isImpactInit=true;
+	isImpactInit=true;
 
   auto x = Pimpact::create<Pimpact::VectorField>( space );
   auto y = Pimpact::create<Pimpact::VectorField>( space );
@@ -253,9 +250,9 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionOp  ) {
   op2->assignField( *x );
   op2->apply(  *y, *z2 );
 
-  z->write(2);
-  z2->write(3);
-  sol->write(5);
+  //z->write(2);
+  //z2->write(3);
+  //sol->write(5);
   z2->add( -1, *z2, 1, *z );
   sol->add(-1, *sol,1, *z );
 
@@ -263,8 +260,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionOp  ) {
 
   TEST_EQUALITY( sol->norm() < eps, true );
 
-  z2->write(1);
-  sol->write(4);
+  //z2->write(1);
+  //sol->write(4);
 
   // test against flow dir
   y->getFieldPtr(0)->initField( Pimpact::Grad2D_inY );
@@ -279,9 +276,9 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionOp  ) {
   op2->assignField( *x );
   op2->apply(  *y, *z2 );
 
-  z->write(2);
-  z2->write(3);
-  sol->write(5);
+  //z->write(2);
+  //z2->write(3);
+  //sol->write(5);
   z2->add( -1, *z2, 1, *z );
   sol->add(-1, *sol,1, *z );
 
@@ -289,8 +286,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionOp  ) {
 
   TEST_EQUALITY( sol->norm()<eps, true );
 
-  z2->write(1);
-  sol->write(4);
+  //z2->write(1);
+  //sol->write(4);
 
   // test against flow dir
   y->initField( Pimpact::PoiseuilleFlow2D_inX );
@@ -304,9 +301,9 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionOp  ) {
   op2->assignField( *x );
   op2->apply(  *y, *z2 );
 
-  z->write(2);
-  z2->write(3);
-  sol->write(5);
+  //z->write(2);
+  //z2->write(3);
+  //sol->write(5);
   z2->add( -1, *z2, 1, *z );
   sol->add(-1, *sol,1, *z );
 
@@ -314,8 +311,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionOp  ) {
 
   TEST_EQUALITY( sol->getConstFieldPtr(1)->norm()<eps, true );
 
-  z2->write(1);
-  sol->write(4);
+  //z2->write(1);
+  //sol->write(4);
 
   // test against flow dir
   y->initField( Pimpact::PoiseuilleFlow2D_inY );
@@ -329,9 +326,9 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionOp  ) {
   op2->assignField( *x );
   op2->apply(  *y, *z2 );
 
-  z->write(2);
-  z2->write(3);
-  sol->write(5);
+  //z->write(2);
+  //z2->write(3);
+  //sol->write(5);
   z2->add( -1, *z2, 1, *z );
   sol->add(-1, *sol,1, *z );
 
@@ -339,8 +336,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionOp  ) {
 
   TEST_EQUALITY( sol->getConstFieldPtr(0)->norm()<eps, true );
 
-  z2->write(1);
-  sol->write(4);
+  //z2->write(1);
+  //sol->write(4);
 
 }
 
@@ -350,15 +347,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionOp  ) {
 TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionSORSmoother ) {
 
   pl->set<S>("Re",1000);
-  //  pl->set<S>("Re",1.e-3);
-  //  pl->set<O>("nx",9);
-  //  pl->set<O>("ny",9);
-  //  pl->set<O>("nx",17);
-  //  pl->set<O>("ny",17);
-  //  pl->set<int>("dim",3);
+
   auto space = Pimpact::createSpace<S,O,d,2>( pl, !isImpactInit );
 
-  if( !isImpactInit ) isImpactInit=true;
+	isImpactInit=true;
 
   auto wind = Pimpact::create<Pimpact::VectorField>( space );
   auto y = Pimpact::create<Pimpact::VectorField>( space );
@@ -377,15 +369,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionSORSmoother ) {
   pls->set<short int>( "dir Z",  1 );
   //  pls->set( "numIters",10)
 
-//  auto smoother =
-//      Pimpact::create<
-//        Pimpact::ConvectionVSmoother<
-//          ConvDiffOpT<Pimpact::Space<S,O,d,2> > ,
-//          Pimpact::ConvectionDiffusionSORSmoother > > (
-//              op,
-//              pls );
-
-  auto smoother = Pimpact::create< ConvDiffSORT >( op,pls );
+  auto smoother = Pimpact::create< ConvDiffSORT >( op, pls );
 
   smoother->print();
 
@@ -422,12 +406,12 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionSORSmoother ) {
 
   double n;
 
-  for(int i=0; i<200; ++i) {
+  for(int i=0; i<20; ++i) {
     y->write(10+i);
-    smoother->apply( *z, *y, 1. );
+    smoother->apply( *z, *y );
 
     z2->add( -1, *sol, 1, *y );
-    z2->write(100+i);
+    //z2->write(100+i);
 
     n = z2->norm();
     if( space()->rankST()==0 )
@@ -438,7 +422,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionSORSmoother ) {
 
   }
 
-  TEST_EQUALITY_CONST( z2->norm()<eps, true );
+  TEST_EQUALITY_CONST( z2->norm()/z2->getLength()<eps, true );
 
   if( space()->rankST()==0 )
     ofs.close();
@@ -451,10 +435,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionSORSmoother ) {
 
 TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
 
-  pl->set<S>("Re",100);
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, !isImpactInit );
+  pl->set<S>("Re",1);
+  auto space = Pimpact::createSpace<S,O,d,2>( pl, !isImpactInit );
 
-  if( !isImpactInit ) isImpactInit=true;
+	isImpactInit=true;
 
   auto wind = Pimpact::create<Pimpact::VectorField>( space );
   auto y = Pimpact::create<Pimpact::VectorField>( space );
@@ -465,13 +449,13 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
 
 
   auto pls = Teuchos::parameterList();
-  pls->set( "omega", 0.5 );
+  pls->set( "omega", 0.6 );
   pls->set( "numIters", 10 );
 
   auto smoother =
       Pimpact::create<
         Pimpact::ConvectionVSmoother<
-          ConvDiffOpT<SpaceT> ,
+          ConvDiffOpT<Pimpact::Space<S,O,d,2> > ,
           Pimpact::ConvectionDiffusionJSmoother > > (
               op,
               pls );
@@ -496,7 +480,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
     z->add( 1., *z, -1., *bc );
   }
 
-  z->write(3);
+  //z->write(3);
 
   y->initField( Pimpact::ConstFlow, 0., 0., 0. );
   //  y->init(0);
@@ -510,12 +494,12 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
 
 //  smoother->assignField( *wind );
 
-  for(int i=0; i<20; ++i) {
-    y->write(10+i);
-    smoother->apply( *z, *y, 1. );
+  for(int i=0; i<200; ++i) {
+    //y->write(10+i);
+    smoother->apply( *z, *y );
 
     z2->add( -1, *sol, 1, *y );
-    z2->write(100+i);
+    //z2->write(100+i);
 
     double n = z2->norm();
     if( space()->rankST()==0 )
@@ -526,7 +510,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
 
   }
 
-  TEST_EQUALITY_CONST( z2->norm()<eps, true );
+  TEST_EQUALITY_CONST( z2->norm()/z2->getLength()<eps, true );
 
   if( space()->rankST()==0 )
     ofs.close();
@@ -536,15 +520,11 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
 
 
 
-
-
-
-
 TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicConvectionOp ) {
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl, !isImpactInit );
 
-  if( !isImpactInit ) isImpactInit=true;
+	isImpactInit=true;
 
   auto vel = Pimpact::create<Pimpact::VectorField>( space );
 

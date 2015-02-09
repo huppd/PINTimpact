@@ -14,6 +14,8 @@ module cmod_ConvectionOp
 contains
 
 
+    !> \brief Convection operator
+    !! \f[ nlu = mul nlu + mulI phi + mulC (U \cdot \Delta ) phi \f]
     subroutine OP_convection(   &
         dimens,                 &
         N,                      &
@@ -25,7 +27,9 @@ contains
         phiU,phiV,phiW,         &
         phi,                    &
         nlu,                    &
-        mul ) bind (c,name='OP_convection')
+        mul,                    &
+        mulI,                   &
+        mulC ) bind (c,name='OP_convection')
 
         implicit none
 
@@ -59,6 +63,8 @@ contains
         real(c_double), intent(inout) ::  nlu(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
         real(c_double), intent(in)    :: mul
+        real(c_double), intent(in)    :: mulI
+        real(c_double), intent(in)    :: mulc
 
         real                   ::  ddU, ddV, ddW
 
@@ -124,11 +130,11 @@ contains
                             end do
                         end if
 
-                        nlu(i,j,k) = nlu(i,j,k) + mul*(phiU(i,j,k)*ddU + phiV(i,j,k)*ddV + mul*phiW(i,j,k)*ddW )
+                        nlu(i,j,k) = mul*nlu(i,j,k) + mulI*phi(i,j,k) + mulC*(phiU(i,j,k)*ddU + phiV(i,j,k)*ddV + mul*phiW(i,j,k)*ddW )
 
                     else
 
-                        nlu(i,j,k) = nlu(i,j,k) + mul*( phiU(i,j,k)*ddU + phiV(i,j,k)*ddV  )
+                        nlu(i,j,k) = mul*nlu(i,j,k) + mulI*phi(i,j,k) + mulC*( phiU(i,j,k)*ddU + phiV(i,j,k)*ddV  )
 
                     end if
 

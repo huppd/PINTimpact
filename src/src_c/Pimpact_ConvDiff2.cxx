@@ -115,7 +115,7 @@ int main( int argi, char** argv ) {
       int iter=0;
       do {
 
-        smoother->apply( *z, *y, 1. );
+        smoother->apply( *z, *y );
 
         z2->add( -1, *sol, 1, *y );
 

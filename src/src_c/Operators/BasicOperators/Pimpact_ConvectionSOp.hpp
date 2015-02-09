@@ -37,7 +37,9 @@ void OP_convection(
     const double* const phiW,
     const double* const phi,
     double* const nlu,
-    const double& mul );
+    const double& mul,
+    const double& mulI,
+    const double& mulC );
 
 }
 
@@ -176,6 +178,8 @@ public:
   void assignField( const RangeFieldT& mv ) {};
 
 
+  void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mul, Scalar mulI, Scalar mulC, Scalar mulL ) const { std::cout << "not implmented\n"; }
+
 
   void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mul=0. ) const {
 
@@ -199,12 +203,6 @@ public:
 
     y.exchange();
 
-    // why not use default parameter 1? because one has to init z equal 0.
-    if( std::abs(mul) < 1.e-16 ) {
-      z.init( 0. );
-      mul = 1.;
-    }
-
     OP_convection(
         space_->dim(),
         space_->nLoc(),
@@ -225,7 +223,9 @@ public:
         x[2]->getConstRawPtr(),
         y.getConstRawPtr(),
         z.getRawPtr(),
-        mul );
+        mul,
+			  0.,
+				1. );
 
     z.changed();
 

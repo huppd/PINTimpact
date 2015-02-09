@@ -29,6 +29,9 @@ TARGET_LINK_LIBRARIES( peri_stokes  ${Pimpact_TPL_LIBRARIES} )
 add_executable( conv_diff Pimpact_ConvDiff.cxx )
 TARGET_LINK_LIBRARIES( conv_diff  ${Pimpact_TPL_LIBRARIES} )
 
+add_executable( conv_diff_mg Pimpact_ConvDiffMG.cxx )
+TARGET_LINK_LIBRARIES( conv_diff_mg  ${Pimpact_TPL_LIBRARIES} )
+
 add_executable( conv_diff2 Pimpact_ConvDiff2.cxx )
 TARGET_LINK_LIBRARIES( conv_diff2  ${Pimpact_TPL_LIBRARIES} )
 
@@ -38,6 +41,6 @@ TARGET_LINK_LIBRARIES( conv_diff2  ${Pimpact_TPL_LIBRARIES} )
 #add_executable( peri_navier4 peri_navier4.cxx )
 #TARGET_LINK_LIBRARIES( peri_navier4 ${Pimpact_TPL_LIBRARIES} ) 
 
-#add_executable( peri_navier_timing peri_navier_timing.cxx )
-#TARGET_LINK_LIBRARIES( peri_navier_timing ${Pimpact_TPL_LIBRARIES} ) 
+add_executable( peri_navier_timing peri_navier_timing.cxx )
+TARGET_LINK_LIBRARIES( peri_navier_timing ${Pimpact_TPL_LIBRARIES} ) 
 

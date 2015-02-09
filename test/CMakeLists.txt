@@ -24,40 +24,41 @@ TARGET_LINK_LIBRARIES(ScalarFieldTest ${Pimpact_TPL_LIBRARIES} )
 ADD_EXECUTABLE(VectorFieldTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_VectorField_test.cpp )
 TARGET_LINK_LIBRARIES( VectorFieldTest ${Pimpact_TPL_LIBRARIES} ) 
 
+ADD_EXECUTABLE( MultiFieldTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_MultiField_test.cpp )
+TARGET_LINK_LIBRARIES( MultiFieldTest ${Pimpact_TPL_LIBRARIES} ) 
+
+ADD_EXECUTABLE( MultiHarmonicFieldTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_MultiHarmonicField_test.cpp )
+TARGET_LINK_LIBRARIES( MultiHarmonicFieldTest ${Pimpact_TPL_LIBRARIES} ) 
+
+ADD_EXECUTABLE(OperatorTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_Operator_test.cpp )
+TARGET_LINK_LIBRARIES( OperatorTest ${Pimpact_TPL_LIBRARIES} ) 
+
 foreach(dim RANGE 2 3)
-foreach(domain RANGE 1 5)
-	add_test(NAME "ScalarFieldTest_domain_${domain}_${dim}" COMMAND mpirun -np 8 ScalarFieldTest --domain=${domain} --dim=${dim} )
-	add_test(NAME "VectorFieldTest_domain_${domain}_${dim}" COMMAND mpirun -np 8 VectorFieldTest --domain=${domain} --dim=${dim} ) 
-endforeach( domain )
+	foreach(domain RANGE 1 5)
+		add_test(NAME "ScalarFieldTest_domain${domain}_dim${dim}" COMMAND mpirun -np 8 ScalarFieldTest --domain=${domain} --dim=${dim} )
+		add_test(NAME "VectorFieldTest_domain_domain${domain}_dim${dim}" COMMAND mpirun -np 8 VectorFieldTest --domain=${domain} --dim=${dim} ) 
+		add_test( NAME "MultiFieldTest_domain${domain}_dim${dim}" COMMAND mpirun -np 4 MultiFieldTest --domain=${domain} --dim=${dim} )
+		add_test(NAME "MultiHarmonicFieldTest_domain${domain}_dim${dim}" COMMAND mpirun -np 4 MultiHarmonicFieldTest --domain=${domain} --dim=${dim} )
+	endforeach( domain )
+	add_test(NAME "OperatorTest_dim${dim}" COMMAND mpirun -np 4 OperatorTest --dim=${dim} )
 endforeach( dim )
 
 ADD_EXECUTABLE( TimeFieldTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_TimeField_test.cpp )
 TARGET_LINK_LIBRARIES( TimeFieldTest ${Pimpact_TPL_LIBRARIES} ) 
 add_test( NAME TimeFieldTest COMMAND mpirun -np 8 TimeFieldTest )
 
-ADD_EXECUTABLE( ModeFieldTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_ModeField_test.cpp )
-TARGET_LINK_LIBRARIES( ModeFieldTest ${Pimpact_TPL_LIBRARIES} ) 
-add_test(NAME ModeFieldTest COMMAND mpirun -np 4 ModeFieldTest)
+#ADD_EXECUTABLE( ModeFieldTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_ModeField_test.cpp )
+#TARGET_LINK_LIBRARIES( ModeFieldTest ${Pimpact_TPL_LIBRARIES} ) 
+#add_test(NAME ModeFieldTest COMMAND mpirun -np 4 ModeFieldTest)
 
-ADD_EXECUTABLE(CompoundFieldTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_CompoundField_test.cpp )
-TARGET_LINK_LIBRARIES( CompoundFieldTest ${Pimpact_TPL_LIBRARIES} ) 
-add_test(NAME CompoundFieldTest COMMAND mpirun -np 4 CompoundFieldTest)
-
-ADD_EXECUTABLE( MultiHarmonicFieldTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_MultiHarmonicField_test.cpp )
-TARGET_LINK_LIBRARIES( MultiHarmonicFieldTest ${Pimpact_TPL_LIBRARIES} ) 
-add_test(NAME MultiHarmonicFieldTest COMMAND mpirun -np 4 MultiHarmonicFieldTest)
-
-ADD_EXECUTABLE( MultiFieldTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_MultiField_test.cpp )
-TARGET_LINK_LIBRARIES( MultiFieldTest ${Pimpact_TPL_LIBRARIES} ) 
-add_test( NAME MultiFieldTest COMMAND mpirun -np 4 MultiFieldTest )
+#ADD_EXECUTABLE(CompoundFieldTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_CompoundField_test.cpp )
+#TARGET_LINK_LIBRARIES( CompoundFieldTest ${Pimpact_TPL_LIBRARIES} ) 
+#add_test(NAME CompoundFieldTest COMMAND mpirun -np 4 CompoundFieldTest)
 
 ADD_EXECUTABLE(BelosMVOPTest Teuchos_StandardParallelUnitTestMain.cpp BelosPimpact_MVOP_test.cpp )
 TARGET_LINK_LIBRARIES( BelosMVOPTest ${Pimpact_TPL_LIBRARIES} ) 
 add_test(NAME BelosMVOPTest COMMAND mpirun -np 4 BelosMVOPTest)
 
-ADD_EXECUTABLE(OperatorTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_Operator_test.cpp )
-TARGET_LINK_LIBRARIES( OperatorTest ${Pimpact_TPL_LIBRARIES} ) 
-add_test(NAME OperatorTest COMMAND mpirun -np 4 OperatorTest)
 
 ADD_EXECUTABLE(NonlinearOperatorTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_NonlinearOperator_test.cpp )
 TARGET_LINK_LIBRARIES( NonlinearOperatorTest ${Pimpact_TPL_LIBRARIES} ) 

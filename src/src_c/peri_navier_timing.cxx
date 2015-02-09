@@ -74,7 +74,7 @@ int main(int argi, char** argv ) {
   int domain = 2;
 
   // domain size
-  int dim = 2;
+  int dim = 3;
   S l1 = 1.;
   S l2 = 1.;
   S l3 = 1.;
@@ -82,18 +82,19 @@ int main(int argi, char** argv ) {
   // grid size
   O n1 = 65;
   O n2 = 65;
-  O n3 = 2.;
+  O n3 = 65;
+  //O n3 = 2.;
 
   O nf = 4.;
 
   O nfs = 1.;
 
-  O nfe = 1.;
+  O nfe = 8.;
 
   // processor grid size
   O np1 = 2;
   O np2 = 2;
-  O np3 = 1.;
+  O np3 = 2.;
 
   // solver stuff
   std::string linSolName = "GMRES";
@@ -117,7 +118,32 @@ int main(int argi, char** argv ) {
     nf=nfe;
   }
   // starting with ininializing
-  int rank = Pimpact::init_impact_pre();
+  auto pl = Teuchos::parameterList();
+
+  pl->set( "Re", re );
+  pl->set( "alpha2", alpha2 );
+  pl->set( "domain", domain );
+
+  pl->set( "lx", l1 );
+  pl->set( "ly", l2 );
+  pl->set( "lz", l3 );
+
+  pl->set( "dim", dim );
+
+  pl->set("nx", n1 );
+  pl->set("ny", n2 );
+  pl->set("nz", n3 );
+
+  pl->set("nf", nf );
+  pl->set("nfs", nfs );
+  pl->set("nfe", nfe );
+
+  // processor grid size
+  pl->set("npx", np1 );
+  pl->set("npy", np2 );
+  pl->set("npz", np3 );
+
+  auto space = Pimpact::createSpace<S,O,3>( pl );
 
   // outputs
   Teuchos::RCP<std::ostream> outPar;
@@ -126,83 +152,45 @@ int main(int argi, char** argv ) {
   //  Teuchos::RCP<std::ostream> outLap2;
   //  Teuchos::RCP<std::ostream> outSchur;
 
-  if(rank==0) {
+  if( space->rankST()==0 ) {
     outPar   = Teuchos::rcp( new std::ofstream("para_case.txt") );
     outLinSolve  = Teuchos::rcp( new std::ofstream("stats_linSolve.txt") );
     outPrec  = Teuchos::rcp( new std::ofstream("stats_solvPrec.txt") );
-    //    outSchur = Teuchos::rcp( new std::ofstream("stats_solvSchur.txt") );
   } else
-    //    outPar = Teuchos::rcp( &blackhole, false) ;
     outPar = Teuchos::rcp( new Teuchos::oblackholestream() ) ;
 
   *outPar << " \tflow=" << flow << "\n";
   *outPar << " \tdomain=" << domain << "\n";
 
-  auto ds = Pimpact::createDomainSize<S>( dim, re, alpha2, l1, l2, l3 );
-  ds->set_Impact();
-  ds->print( *outPar );
 
-  //  auto bc = Pimpact::createBC( Pimpact::AllPeriodic );
-  auto bc = Pimpact::createBoudaryConditionsGlobal( Pimpact::EDomainType(domain) );
-  bc->set_Impact();
 
-  auto gs = Pimpact::createGridSizeGlobal( n1, n2, n3 );
-  gs->set_Impact();
-  gs->print( *outPar );
-  *outPar << " \tnf=" << nf << "\n";
-
-  auto pgs = Pimpact::createProcGridSize<O,3>( np1, np2, np3 );
-  pgs->set_Impact();
-  pgs->print( *outPar );
-
-  if(rank==0) {
+  if( space->rankST()==0 ) {
     Teuchos::rcp_static_cast<std::ofstream>(outPar)->close();
   }
   outPar = Teuchos::null;
 
-
-  // init IMPACT
-  Pimpact::init_impact_post();
-
-
-  // init Spaces
-//  auto fS = Pimpact::createStencilWidths<O>();
-//
-//  auto iS = Pimpact::createScalarIndexSpace<O>();
-//  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
-//  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
-
-  auto space = Pimpact::createSpace();
-
   // init vectors
-  auto x    = Pimpact::createMultiField( Pimpact::createCompoundField(
-      Pimpact::createMultiHarmonicVectorField( space, nfs ),
-      Pimpact::createMultiHarmonicScalarField( space, nfs )) );
-  //  auto temp = x->clone();
+  auto x    = Pimpact::createMultiField(
+			Pimpact::createCompoundField(
+      	Pimpact::createMultiHarmonicVectorField( space, nfs ),
+      	Pimpact::createMultiHarmonicScalarField( space, nfs )) );
   auto fu   = x->clone();
-  //  auto force = x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone();
 
   // init Fields, init and rhs
-  //  fu->init(1.);
-  //  x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->initField( Pimpact::EFlowField(flow), re, alpha2/re );
   x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::EFlowField(flow), 1 );
 
-  //  x->init( 0. );
   fu->init( 0. );
-  //  x->random();
 
 
 
   /******************************************************************************************/
-  //  for( nf=nfs; nf<nfe; ++nf) {
-  //  for( nf=nfs; nf<nfe; nf+=2 ) {
   for( nf=nfs; nf<nfe; nf*=2) {
 
     if( nf!=nfs ) {
       S toltemp = x->getConstFieldPtr(0)->getConstVFieldPtr()->getConstFieldPtr(x->getConstFieldPtr(0)->getConstVFieldPtr()->getNumberModes()-1)->norm()/std::sqrt(l1*l2/n1/n2);
-      if(0==rank) std::cout << "\n\t--- ||u_Nf||: "<<toltemp<<"\t---\n";
+      if( 0==space->rankST() ) std::cout << "\n\t--- ||u_Nf||: "<<toltemp<<"\t---\n";
       if( toltemp < tolNF ) {
-        if(0==rank) std::cout << "\n\t--- Nf: "<<x->getConstFieldPtr(0)->getConstVFieldPtr()->getNumberModes()<<"\tdof: "<<x->getLength(true)<<"\t---\n";
+        if( 0==space->rankST() ) std::cout << "\n\t--- Nf: "<<x->getConstFieldPtr(0)->getConstVFieldPtr()->getNumberModes()<<"\tdof: "<<x->getLength(true)<<"\t---\n";
         break;
       }
       do {
@@ -214,8 +202,6 @@ int main(int argi, char** argv ) {
       tolNOX /= 10;
     }
 
-    //    if(0==rank) std::cout << "\n\t--- Nf: "<<x->getConstFieldPtr(0)->getConstVFieldPtr()->getNumberModes()<<"\tdof: "<<x->getLength(true)<<"\t---\n";
-
     auto para = Pimpact::createLinSolverParameter( linSolName, tolBelos*l1*l2/n1/n2*(nfe-1)/nf, -1 );
     para->set( "Maximum Iterations", 3000 );
     para->set( "Implicit Residual Scaling", "Norm of RHS" );
@@ -223,41 +209,45 @@ int main(int argi, char** argv ) {
 
 
     auto opV2V =
-        Pimpact::createAdd2Op(
-            Pimpact::createMultiDtHelmholtz( space, alpha2/re, 1./re ),
-            Pimpact::createMultiHarmonicConvectionOp( space /*,x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone()*/ ),
-            x->getConstFieldPtr(0)->getConstVFieldPtr()->clone()
-        );
+				Pimpact::createAdd2Op(
+						Pimpact::createMultiDtHelmholtz( space, alpha2/re, 1./re ),
+						Pimpact::createMultiHarmonicConvectionOp( space, nf ),
+						x->getConstFieldPtr(0)->getConstVFieldPtr()->clone()
+				);
+				//Pimpact::createMultiDtConvectionDiffusionOp( space, nf );
     auto opS2V = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::GradOp>( space ) );
     auto opV2S = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::DivOp>( space ) );
 
     auto op =
-        Pimpact::createMultiOperatorBase<MF>(
+        Pimpact::createMultiOperatorBase(
             Pimpact::createCompoundOpWrap(
-                x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(), opV2V, opS2V, opV2S )
+                x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+								opV2V,
+								opS2V,
+								opV2S )
         );
 
 
     Teuchos::RCP<BOp> jop;
-    jop = Pimpact::createMultiOperatorBase<MF>(
-        Pimpact::createCompoundOpWrap(
-            x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
-            Pimpact::createAdd2Op(
-                Pimpact::createMultiDtHelmholtz( space, alpha2/re, 1./re ),
-                Pimpact::createMultiHarmonicConvectionJacobianOp(
-                    space,
-                    //                    x->getConstFieldPtr(0)->getConstVFieldPtr()->getConst0FieldPtr()->clone(),
-                    x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::DeepCopy) ),
-                    x->getConstFieldPtr(0)->getConstVFieldPtr()->clone() ),
-                    opS2V, opV2S )
-    );
+		jop = op;
+    //jop = Pimpact::createMultiOperatorBase<MF>(
+        //Pimpact::createCompoundOpWrap(
+            //x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
+            //Pimpact::createAdd2Op(
+                //Pimpact::createMultiDtHelmholtz( space, alpha2/re, 1./re ),
+                ////Pimpact::createMultiHarmonicConvectionJacobianOp(
+                    ////space,
+                    ////x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::DeepCopy) ),
+										//opV2V,
+                    //x->getConstFieldPtr(0)->getConstVFieldPtr()->clone() ),
+                    //opS2V, opV2S
+										//)
+    //);
 
 
     auto lp_ = Pimpact::createLinearProblem<MF>(
         jop, x->clone(), fu->clone(), para, linSolName );
     auto lp = Pimpact::createInverseOperatorBase<MF>( lp_ );
-
-    //    lp->setLeftPrec( lprec );
 
     auto inter = NOX::Pimpact::createInterface<MF>( fu, op, lp );
 
@@ -279,28 +269,13 @@ int main(int argi, char** argv ) {
         NOX::Solver::buildSolver( group, statusTest, solverParametersPtr);
 
     // Solve the nonlinear system
-    //    NOX::StatusTest::StatusType status =
-    solver->solve();
+		solver->solve();
 
-    // Print the parameter list
-    //    if( nf==nfs ) {
-    //      if(rank==0) std::cout << "\n" << "-- Parameter List From Solver --" << "\n";
-    //      if(rank==0) std::cout << "\n" << status << "\n";
-    //      if(rank==0) solver->getList().print(std::cout);
-    //    }
 
     // Get the answer
     *group = solver->getSolutionGroup();
 
-    // Print the answer if(rank==0) std::cout << "\n" << "-- Final Solution From Solver --" << "\n";
-
-    //    Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() )->getConstFieldPtr()->write(800);
-    //    Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(900);
-
     x = Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr();
-    //    x = Teuchos::rcp_const_cast<NV>( group->getXPtr() )->getFieldPtr();
-
-    //    x->write(nf*100);
   }
   /******************************************************************************************/
   x->write(800);

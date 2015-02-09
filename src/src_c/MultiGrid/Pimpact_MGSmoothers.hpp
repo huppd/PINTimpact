@@ -42,7 +42,7 @@ public:
 //  template<class MGOperatorsT>
   MGSmoothers(
       const Teuchos::RCP<const MGOperatorsT>& mgOperators,
-      Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ):
+      Teuchos::RCP<Teuchos::ParameterList> pl ):
     mgSpaces_( mgOperators->getMGSpaces() ),
     smoothers_( mgSpaces_->getNGrids() ) {
 

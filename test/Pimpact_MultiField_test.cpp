@@ -35,6 +35,7 @@ typedef typename Pimpact::ModeField<VF>       MVF;
 bool testMpi = true;
 double eps = 1e-6;
 int domain = 1;
+int dim = 2;
 
 auto pl = Teuchos::parameterList();
 
@@ -52,10 +53,22 @@ TEUCHOS_STATIC_SETUP() {
   clp.setOption(
       "domain", &domain,
       "domain" );
+  clp.setOption(
+      "dim", &dim,
+      "dim" );
 
-  auto pl = Teuchos::parameterList();
+  pl->set( "domain", domain );
+  pl->set( "dim", dim );
 
-  pl->set( "domain", domain);
+  pl->set("nx", (48*3)+1 );
+  pl->set("ny", 49 );
+  pl->set("nz", 17 );
+
+  // processor grid size
+  //pl->set("npx", 2 );
+  //pl->set("npy", 2 );
+  //pl->set("npz", 2 );
+
 }
 
 
@@ -88,16 +101,16 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, TwoNorm_and_init, FType ) {
 
   auto p = Pimpact::create<FType>( space );
 
-  auto mv = Pimpact::createMultiField(*p,10);
+  auto mv = Pimpact::createMultiField( *p, 10 );
 
-  const int m = mv->getNumberVecs();
-  const int n = mv->getLength();
-  std::vector<double> normval(m);
+  const O m = mv->getNumberVecs();
+  const O n = mv->getLength();
+  std::vector<S> normval(m);
 
   // test different float values, assures that initial and norm work smoothly
-  for( double i=0.; i< 200.1; ++i ) {
-    mv->init(i/2.);
-    mv->norm(normval,Belos::TwoNorm);
+  for( S i=0.; i< 200.1; ++i ) {
+    mv->init( i/2. );
+    mv->norm( normval, Belos::TwoNorm );
     for( int j=0; j<m; ++j )
       TEST_FLOATING_EQUALITY( std::sqrt(std::pow(i/2.,2)*n), normval[j], eps );
   }

@@ -61,18 +61,13 @@ public:
 
   /// \note Operator's wind has to be assigned correctly
   /// \deprecated
-  void apply( const DomainFieldT& x, RangeFieldT& y, Scalar mul=1. ) const {
+  void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
-    if( mul<1.e-12 ) {
-      y.init(0);
-      mul=1.;
-    }
-
-    convVWrap_->apply( convField_->get(), x, y, mul );
+    convVWrap_->apply( convField_->get(), x, y );
 
   }
 
-  void apply(const DomainFieldT& z, const DomainFieldT& x, RangeFieldT& y, Scalar mul=0. ) const {};
+  //void apply(const DomainFieldT& z, const DomainFieldT& x, RangeFieldT& y, Scalar mul=0. ) const {};
 
   Teuchos::RCP< ConvectionField<SpaceT> >
   getConvField() const {

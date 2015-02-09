@@ -16,6 +16,8 @@ module cmod_ConvectionDiffusionOp
 contains
 
 
+    !> \brief convection diffusion 
+    !! \f[ nlu = mul nlu + mulI phi + mulC ( U\cdot\nabla) phi - mulL \Delta phi
     subroutine OP_convectionDiffusion(  &
         dimens,                         &
         N,                              &
@@ -28,9 +30,10 @@ contains
         phiU,phiV,phiW,                 &
         phi,                            &
         nlu,                            &
+        mul,                            &
         mulI,                           &
-        mulL,                           &
-        mul ) bind (c,name='OP_convectionDiffusion')
+        mulC,                           &
+        mulL ) bind (c,name='OP_convectionDiffusion')
 
         implicit none
 
@@ -68,9 +71,10 @@ contains
 
         real(c_double), intent(inout) ::  nlu(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-        real(c_double), intent(in)  :: mulI
-        real(c_double), intent(in)  :: mulL
         real(c_double), intent(in)  :: mul
+        real(c_double), intent(in)  :: mulI
+        real(c_double), intent(in)  :: mulC
+        real(c_double), intent(in)  :: mulL
 
         real                   ::  ddU, ddV, ddW, dd1
 
@@ -153,7 +157,7 @@ contains
                             dd1 = dd1 + c33(kk,k)*phi(i,j,k+kk)
                         end do
 
-                        nlu(i,j,k) = mulI*nlu(i,j,k) + mul*(phiU(i,j,k)*ddU + phiV(i,j,k)*ddV + mul*phiW(i,j,k)*ddW ) - mulL*dd1
+                        nlu(i,j,k) = mul*nlu(i,j,k) + mulI*phi(i,j,k) + mulC*(phiU(i,j,k)*ddU + phiV(i,j,k)*ddV + mul*phiW(i,j,k)*ddW ) - mulL*dd1
 
                     else
 
@@ -170,7 +174,7 @@ contains
                             dd1 = dd1 + c22(jj,j)*phi(i,j+jj,k)
                         end do
 
-                        nlu(i,j,k) = mulI*nlu(i,j,k) + mul*( phiU(i,j,k)*ddU + phiV(i,j,k)*ddV  ) - mulL*dd1
+                        nlu(i,j,k) = mul*nlu(i,j,k) + mulI*phi(i,j,k) + mulC*( phiU(i,j,k)*ddU + phiV(i,j,k)*ddV  ) - mulL*dd1
 
                     end if
 
@@ -183,6 +187,7 @@ contains
 
 
 
+    !> \brief convection diffusion SOR
     subroutine OP_convectionDiffusionSOR(   &
         dimens,                             &
         N,                                  &
@@ -198,8 +203,8 @@ contains
         b,                                  &
         phi,                                &
         mulI,                               &
+        mulC,                               &
         mulL,                               &
-        mul,                                &
         om ) bind (c,name='OP_convectionDiffusionSOR')
 
         implicit none
@@ -243,8 +248,8 @@ contains
 
 
         real(c_double), intent(in)  :: mulI
+        real(c_double), intent(in)  :: mulC
         real(c_double), intent(in)  :: mulL
-        real(c_double), intent(in)  :: mul
         real(c_double), intent(in)  :: om
 
 
@@ -290,14 +295,14 @@ contains
                         do ii = nL(1)+1, nU(1)
                             if( ii/=0 ) ddU = ddU + c1U( ii,ind(1) )*phi( ind(1)+ii,ind(2),ind(3) )
                         end do
-                        dd = dd + mul*c1U( 0,ind(1) )*phiU( ind(1),ind(2),ind(3) )
+                        dd = dd + mulC*c1U( 0,ind(1) )*phiU( ind(1),ind(2),ind(3) )
                     else
                         ddU = c1D( nL(1),ind(1) )*phi( ind(1)+nL(1),ind(2),ind(3) )
                         !pgi$ unroll = n:8
                         do ii = nL(1)+1, nU(1)
                             if( ii/=0 ) ddU = ddU + c1D( ii,ind(1) )*phi( ind(1)+ii,ind(2),ind(3) )
                         end do
-                        dd = dd + mul*c1D( 0,ind(1) )*phiU( ind(1),ind(2),ind(3) )
+                        dd = dd + mulC*c1D( 0,ind(1) )*phiU( ind(1),ind(2),ind(3) )
                     end if
                     !===========================================================================================================
                     !=== v*d /dy ===============================================================================================
@@ -308,14 +313,14 @@ contains
                         do jj = nL(2)+1, nU(2)
                             if( jj/=0 ) ddV = ddV + c2U( jj,ind(2) )*phi( ind(1),ind(2)+jj,ind(3) )
                         end do
-                        dd = dd + mul*c2U( 0,ind(2) )*phiV( ind(1),ind(2),ind(3) )
+                        dd = dd + mulC*c2U( 0,ind(2) )*phiV( ind(1),ind(2),ind(3) )
                     else
                         ddV = c2D(nL(2),ind(2))*phi( ind(1),ind(2)+nL(2),ind(3) )
                         !pgi$ unroll = n:8
                         do jj = nL(2)+1, nU(2)
                             if( jj/=0 ) ddV = ddV + c2D( jj,ind(2) )*phi( ind(1),ind(2)+jj,ind(3) )
                         end do
-                        dd = dd + mul*c2D( 0,ind(2) )*phiV( ind(1),ind(2),ind(3) )
+                        dd = dd + mulC*c2D( 0,ind(2) )*phiV( ind(1),ind(2),ind(3) )
                     end if
 
 
@@ -330,14 +335,14 @@ contains
                             do kk = nL(3)+1, nU(3)
                                 if( kk/=0 )ddW = ddW + c3U(kk,ind(3))*phi(ind(1),ind(2),ind(3)+kk)
                             end do
-                            dd = dd + mul*c3U(0,ind(3))*phiW(ind(1),ind(2),ind(3))
+                            dd = dd + mulC*c3U(0,ind(3))*phiW(ind(1),ind(2),ind(3))
                         else
                             ddW = c3D(nL(3),ind(3))*phi(ind(1),ind(2),ind(3)+nL(3))
                             !pgi$ unroll = n:8
                             do kk = nL(3)+1, nU(3)
                                 if( kk/=0 ) ddW = ddW + c3D(kk,ind(3))*phi(ind(1),ind(2),ind(3)+kk)
                             end do
-                            dd = dd + mul*c3D(0,ind(3))*phiW(ind(1),ind(2),ind(3))
+                            dd = dd + mulC*c3D(0,ind(3))*phiW(ind(1),ind(2),ind(3))
                         end if
 
                         !===========================================================================================================
@@ -358,7 +363,7 @@ contains
                         end do
                         dd = dd - mulL*( c11(0,ind(1)) + c22(0,ind(2)) +c33(0,ind(3)) ) + mulI
 
-                        phi(ind(1),ind(2),ind(3)) = (1-om)*phi(ind(1),ind(2),ind(3)) + om/dd*( b(ind(1),ind(2),ind(3)) - mul*(phiU(ind(1),ind(2),ind(3))*ddU + phiV(ind(1),ind(2),ind(3))*ddV + phiW(ind(1),ind(2),ind(3))*ddW ) + mulL*dd1 )
+                        phi(ind(1),ind(2),ind(3)) = (1-om)*phi(ind(1),ind(2),ind(3)) + om/dd*( b(ind(1),ind(2),ind(3)) - mulC*(phiU(ind(1),ind(2),ind(3))*ddU + phiV(ind(1),ind(2),ind(3))*ddV + phiW(ind(1),ind(2),ind(3))*ddW ) + mulL*dd1 )
 
                     else
 
@@ -380,8 +385,8 @@ contains
                         phi( ind(1),ind(2),ind(3) ) =                       &
                              (1-om)*phi(ind(1),ind(2),ind(3))               &
                             + om/dd*( b(ind(1),ind(2),ind(3))               &
-                                    - mul*phiU(ind(1),ind(2),ind(3))*ddU    &
-                                    - mul*phiV(ind(1),ind(2),ind(3))*ddV    &
+                                    - mulC*phiU(ind(1),ind(2),ind(3))*ddU    &
+                                    - mulC*phiV(ind(1),ind(2),ind(3))*ddV    &
                                     + mulL*dd1 )
 
                     end if
@@ -394,24 +399,23 @@ contains
     end subroutine OP_convectionDiffusionSOR
 
 
-    subroutine OP_convectionDiffusionJSmoother(  &
-        dimens,                                     &
-        N,                                          &
-        bL,bU,                                      &
-        nL,nU,                                      &
-        SS,NN,                                      &
-        !        dir,                                        &
-        c1D,c2D,c3D,                                &
-        c1U,c2U,c3U,                                &
-        c11,c22,c33,                                &
-        phiU,phiV,phiW,                             &
-        b,                                          &
-        phi,                                        &
-        phiout,                                     &
-        mulI,                                       &
-        mulL,                                       &
-        mul,                                        &
-        om) bind (c,name='OP_convectionDiffusionJSmoother')
+    subroutine OP_convectionDiffusionJSmoother( &
+        dimens,                                 &
+        N,                                      &
+        bL,bU,                                  &
+        nL,nU,                                  &
+        SS,NN,                                  &
+        c1D,c2D,c3D,                            &
+        c1U,c2U,c3U,                            &
+        c11,c22,c33,                            &
+        phiU,phiV,phiW,                         &
+        b,                                      &
+        phi,                                    &
+        phiout,                                 &
+        mulI,                                   &
+        mulC,                                   &
+        mulL,                                   &
+        om ) bind (c,name='OP_convectionDiffusionJSmoother')
 
         implicit none
 
@@ -454,8 +458,8 @@ contains
         real(c_double), intent(  out) ::  phiout(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
 
-        real(c_double), intent(in)  :: mul
         real(c_double), intent(in)  :: mulI
+        real(c_double), intent(in)  :: mulC
         real(c_double), intent(in)  :: mulL
         real(c_double), intent(in)  :: om
 
@@ -464,7 +468,6 @@ contains
         integer                ::  i, ii
         integer                ::  j, jj
         integer                ::  k, kk
-
 
 
 
@@ -481,14 +484,14 @@ contains
                         do ii = nL(1)+1, nU(1)
                             if( ii/=0 ) ddU = ddU + c1U(ii,i)*phi(i+ii,j,k)
                         end do
-                        dd = dd + mul*c1U(0,i)*phiU(i,j,k)
+                        dd = dd + mulC*c1U(0,i)*phiU(i,j,k)
                     else
                         ddU = c1D(nL(1),i)*phi(i+nL(1),j,k)
                         !pgi$ unroll = n:8
                         do ii = nL(1)+1, nU(1)
                             if( ii/=0 ) ddU = ddU + c1D(ii,i)*phi(i+ii,j,k)
                         end do
-                        dd = dd + mul*c1D(0,i)*phiU(i,j,k)
+                        dd = dd + mulC*c1D(0,i)*phiU(i,j,k)
                     end if
 
                     !===========================================================================================================
@@ -500,14 +503,14 @@ contains
                         do jj = nL(2)+1, nU(2)
                             if( jj/=0 )ddV = ddV + c2U(jj,j)*phi(i,j+jj,k)
                         end do
-                        dd = dd + mul*c2U(0,j)*phiV(i,j,k)
+                        dd = dd + mulC*c2U(0,j)*phiV(i,j,k)
                     else
                         ddV = c2D(nL(2),j)*phi(i,j+nL(2),k)
                         !pgi$ unroll = n:8
                         do jj = nL(2)+1, nU(2)
                             if( jj/=0 ) ddV = ddV + c2D(jj,j)*phi(i,j+jj,k)
                         end do
-                        dd = dd + mul*c2D(0,j)*phiV(i,j,k)
+                        dd = dd + mulC*c2D(0,j)*phiV(i,j,k)
                     end if
 
                     if (dimens == 3) then
@@ -521,14 +524,14 @@ contains
                             do kk = nL(3)+1, nU(3)
                                 if( kk/=0 )ddW = ddW + c3U(kk,k)*phi(i,j,k+kk)
                             end do
-                            dd = dd + mul*c3U(0,k)*phiW(i,j,k)
+                            dd = dd + mulC*c3U(0,k)*phiW(i,j,k)
                         else
                             ddW = c3D(nL(3),k)*phi(i,j,k+nL(3))
                             !pgi$ unroll = n:8
                             do kk = nL(3)+1, nU(3)
                                 if( kk/=0 ) ddW = ddW + c3D(kk,k)*phi(i,j,k+kk)
                             end do
-                            dd = dd + mul*c3D(0,k)*phiW(i,j,k)
+                            dd = dd + mulC*c3D(0,k)*phiW(i,j,k)
                         end if
 
                         !===========================================================================================================
@@ -549,7 +552,7 @@ contains
                         end do
                         dd = dd - mulL*( c11(0,i) + c22(0,j) +c33(0,k) ) + mulI
 
-                        phiout(i,j,k) = (1-om)*phi(i,j,k) + om/dd*( b(i,j,k) - mul*(phiU(i,j,k)*ddU + phiV(i,j,k)*ddV + phiW(i,j,k)*ddW ) + mulL*dd1 )
+                        phiout(i,j,k) = (1-om)*phi(i,j,k) + om/dd*( b(i,j,k) - mulC*(phiU(i,j,k)*ddU + phiV(i,j,k)*ddV + phiW(i,j,k)*ddW ) + mulL*dd1 )
 
                     else
 
@@ -569,7 +572,7 @@ contains
                         dd = dd - mulL*( c11(0,i) + c22(0,j) ) + mulI
 
                         !! check
-                        phiout(i,j,k) = (1-om)*phi(i,j,k) + om/dd*( b(i,j,k) - mul*phiU(i,j,k)*ddU - mul*phiV(i,j,k)*ddV   + mulL*dd1 )
+                        phiout(i,j,k) = (1-om)*phi(i,j,k) + om/dd*( b(i,j,k) - mulC*phiU(i,j,k)*ddU - mulC*phiV(i,j,k)*ddV + mulL*dd1 )
 
                     end if
 
