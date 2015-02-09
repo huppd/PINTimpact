@@ -28,7 +28,7 @@ public:
 protected:
 
   template<class FSpaceTT, class CSpaceTT, class CoarsenStrategyT>
-  friend Teuchos::RCP<const MGSpaces<FSpaceTT,CSpaceTT> > createMGSpaces( const Teuchos::RCP<const FSpaceTT>& space, int nGridsMax=10 );
+  friend Teuchos::RCP<const MGSpaces<FSpaceTT,CSpaceTT> > createMGSpaces( const Teuchos::RCP<const FSpaceTT>& space, int nGridsMax );
 
   Teuchos::RCP<const FSpaceT> space_;
   std::vector< Teuchos::RCP<const CSpaceT> > spaces_;

@@ -50,7 +50,8 @@ public:
       smoothers_[i] = Teuchos::rcp( new SmootherT( mgOperators->get(i), pl ) );
 //      smoothers_[i] = create<SmootherT>( mgOperators->get(i), pl );
 
-    smoothers_.shrink_to_fit();
+	// not working on brutus
+    //smoothers_.shrink_to_fit();
 
   }
 

@@ -35,7 +35,7 @@ public:
   typedef const Teuchos::Tuple<Ordinal,dim> TO;
 
   template< class OT, int dT>
-  friend Teuchos::RCP<const ProcGridSize<OT,dT> > createProcGridSize( OT np1, OT np2, OT np3, OT npt=0 );
+  friend Teuchos::RCP<const ProcGridSize<OT,dT> > createProcGridSize( OT np1, OT np2, OT np3, OT npt );
 
 protected:
 

@@ -97,7 +97,9 @@ public:
       if( coarsen_yes )  multiSpace.push_back( createCoarseSpace( multiSpace.back(), coarsen_dir ) );
     }
 
-    multiSpace.shrink_to_fit();
+
+	// not working on brutus
+    //multiSpace.shrink_to_fit();
 
     return( multiSpace );
 

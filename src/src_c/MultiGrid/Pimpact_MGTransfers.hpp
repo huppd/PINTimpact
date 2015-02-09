@@ -75,8 +75,9 @@ public:
       restrictionOps_.push_back( create<RestrT>( mgSpaces_->get(i), mgSpaces_->get(i+1) ) );
       interpolationOps_.push_back( create<InterT>( mgSpaces_->get(i+1), mgSpaces_->get(i) ) );
     }
-    restrictionOps_.shrink_to_fit();
-    interpolationOps_.shrink_to_fit();
+
+	// not working on brutus
+    //interpolationOps_.shrink_to_fit();
 
   }
 

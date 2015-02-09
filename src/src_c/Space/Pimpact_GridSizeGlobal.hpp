@@ -32,7 +32,7 @@ template<class Ordinal, int dim>
 class GridSizeGlobal {
 
   template<class OT,int dT>
-  friend Teuchos::RCP<const GridSizeGlobal<OT,dT> > createGridSizeGlobal( OT n1, OT n2, OT n3, OT nt=1 );
+  friend Teuchos::RCP<const GridSizeGlobal<OT,dT> > createGridSizeGlobal( OT n1, OT n2, OT n3, OT nt );
 
   template<class OT,int dT>
   friend Teuchos::RCP<const GridSizeGlobal<OT,dT> > createGridSizeGlobal( const Teuchos::Tuple<OT,dT>& tuple );

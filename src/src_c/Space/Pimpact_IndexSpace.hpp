@@ -80,7 +80,7 @@ class IndexSpace {
       const Teuchos::RCP<const StencilWidths<d,dimNC> >& sW,
       const Teuchos::RCP<const GridSizeLocal<O,d> >& nLoc,
       const Teuchos::RCP<const BoundaryConditionsLocal>& bc,
-      bool setImpact=true );
+      bool setImpact );
 
 public:
 
