@@ -59,7 +59,7 @@ contains
 
     subroutine SVS_set_sInd( sInd_ ) bind(c,name='SVS_set_sInd')
         implicit none
-        INTEGER(c_int), intent(out)  :: sInd_(3)
+        INTEGER(c_int), intent(in)  :: sInd_(3)
 
         S1p = sInd_(1)
         S2p = sInd_(2)
@@ -82,7 +82,7 @@ contains
 
     subroutine SVS_set_eInd( eInd_ ) bind(c,name='SVS_set_eInd')
         implicit none
-        INTEGER(c_int), intent(out)  :: eInd_(3)
+        INTEGER(c_int), intent(in)  :: eInd_(3)
 
         N1p = eInd_(1)
         N2p = eInd_(2)
@@ -115,7 +115,7 @@ contains
 
     subroutine VS_set_sIndU( sInd_ ) bind(c,name='VS_set_sIndU')
         implicit none
-        INTEGER(c_int), intent(out)  :: sInd_(3)
+        INTEGER(c_int), intent(in)  :: sInd_(3)
 
         S11 = sInd_(1)
         S21 = sInd_(2)
@@ -125,7 +125,7 @@ contains
 
     subroutine VS_set_eIndU( eInd_ ) bind(c,name='VS_set_eIndU')
         implicit none
-        INTEGER(c_int), intent(out)  :: eInd_(3)
+        INTEGER(c_int), intent(in)  :: eInd_(3)
 
         N11 = eInd_(1)
         N21 = eInd_(2)
@@ -135,7 +135,7 @@ contains
 
     subroutine VS_set_sIndUB( sInd_ ) bind(c,name='VS_set_sIndUB')
         implicit none
-        INTEGER(c_int), intent(out)  :: sInd_(3)
+        INTEGER(c_int), intent(in)  :: sInd_(3)
 
         S11B = sInd_(1)
         S21B = sInd_(2)
@@ -145,7 +145,7 @@ contains
 
     subroutine VS_set_eIndUB( eInd_ ) bind(c,name='VS_set_eIndUB')
         implicit none
-        INTEGER(c_int), intent(out)  :: eInd_(3)
+        INTEGER(c_int), intent(in)  :: eInd_(3)
 
         N11B = eInd_(1)
         N21B = eInd_(2)
@@ -167,7 +167,7 @@ contains
 
     subroutine VS_set_sIndV( sInd_ ) bind(c,name='VS_set_sIndV')
         implicit none
-        INTEGER(c_int), intent(out)  :: sInd_(3)
+        INTEGER(c_int), intent(in)  :: sInd_(3)
 
         S12 = sInd_(1)
         S22 = sInd_(2)
@@ -178,7 +178,7 @@ contains
 
     subroutine VS_set_eIndV( eInd_ ) bind(c,name='VS_set_eIndV')
         implicit none
-        INTEGER(c_int), intent(out)  :: eInd_(3)
+        INTEGER(c_int), intent(in)  :: eInd_(3)
 
         N12 = eInd_(1)
         N22 = eInd_(2)
@@ -189,7 +189,7 @@ contains
 
     subroutine VS_set_sIndVB( sInd_ ) bind(c,name='VS_set_sIndVB')
         implicit none
-        INTEGER(c_int), intent(out)  :: sInd_(3)
+        INTEGER(c_int), intent(in)  :: sInd_(3)
 
         S12B = sInd_(1)
         S22B = sInd_(2)
@@ -200,7 +200,7 @@ contains
 
     subroutine VS_set_eIndVB( eInd_ ) bind(c,name='VS_set_eIndVB')
         implicit none
-        INTEGER(c_int), intent(out)  :: eInd_(3)
+        INTEGER(c_int), intent(in)  :: eInd_(3)
 
         N12B = eInd_(1)
         N22B = eInd_(2)
@@ -244,7 +244,7 @@ contains
 
     subroutine VS_set_sIndW( sInd_ ) bind(c,name='VS_set_sIndW')
         implicit none
-        INTEGER(c_int), intent(out)  :: sInd_(3)
+        INTEGER(c_int), intent(in)  :: sInd_(3)
 
         S13 = sInd_(1)
         S23 = sInd_(2)
@@ -255,7 +255,7 @@ contains
 
     subroutine VS_set_eIndW( eInd_ ) bind(c,name='VS_set_eIndW')
         implicit none
-        INTEGER(c_int), intent(out)  :: eInd_(3)
+        INTEGER(c_int), intent(in)  :: eInd_(3)
 
         N13 = eInd_(1)
         N23 = eInd_(2)
@@ -265,7 +265,7 @@ contains
 
     subroutine VS_set_sIndWB( sInd_ ) bind(c,name='VS_set_sIndWB')
         implicit none
-        INTEGER(c_int), intent(out)  :: sInd_(3)
+        INTEGER(c_int), intent(in)  :: sInd_(3)
 
         S13B = sInd_(1)
         S23B = sInd_(2)
@@ -276,7 +276,7 @@ contains
 
     subroutine VS_set_eIndWB( eInd_ ) bind(c,name='VS_set_eIndWB')
         implicit none
-        INTEGER(c_int), intent(out)  :: eInd_(3)
+        INTEGER(c_int), intent(in)  :: eInd_(3)
 
         N13B = eInd_(1)
         N23B = eInd_(2)

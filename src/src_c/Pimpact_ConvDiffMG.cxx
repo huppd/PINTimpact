@@ -53,8 +53,9 @@ int main( int argi, char** argv ) {
 
   S pi = (S)4. * std::atan( (S)1. ) ;
 
-  //pl->set<S>( "Re", 1000 );
-  pl->set<S>( "Re", 100 );
+	//pl->set<S>( "Re", 10000 );
+  //pl->set<S>( "Re", 100 );
+	pl->set<S>( "Re", 1 );
 //  pl->set<S>( "lx", 1 );
 //  pl->set<S>( "ly", 1 );
 //    pl->set<O>( "nx", 513 );
@@ -72,7 +73,7 @@ int main( int argi, char** argv ) {
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
-  auto mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, 10 );
+  auto mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, 2 );
 
   auto wind = Pimpact::create<Pimpact::VectorField>( space );
   auto y = Pimpact::create<Pimpact::VectorField>( space );
@@ -89,7 +90,7 @@ int main( int argi, char** argv ) {
 
       auto pls = Teuchos::parameterList();
       pls->sublist("Smoother").set( "omega", 1. );
-      pls->sublist("Smoother").set( "numIter", (dirx==3)?1:10 );
+      pls->sublist("Smoother").set( "numIter", (dirx==3)?1:4 );
       pls->sublist("Smoother").set<int>( "Ordering", (dirx==3)?1:0 );
       pls->sublist("Smoother").set<short int>( "dir X", dirx );
       pls->sublist("Smoother").set<short int>( "dir Y", diry );
@@ -135,9 +136,10 @@ int main( int argi, char** argv ) {
         y->getFieldPtr(1)->initField( Pimpact::Grad2D_inX );
 
         auto sol = y->clone( Pimpact::DeepCopy );
+				sol->write(3333);
 
         wind->initField( Pimpact::ConstFlow, std::cos( phi ), std::sin( phi ), 0. );
-//        wind->write(1111);
+			 	wind->write(1111);
 
         z->initField( Pimpact::ConstFlow, 0., 0., 0. );
 
@@ -152,7 +154,7 @@ int main( int argi, char** argv ) {
            op->apply( *y, *bc );
            z->add( 1., *z, -1., *bc );
         }
-//        z->write(2222);
+			 	z->write(2222);
 
         y->initField( Pimpact::ConstFlow, 0., 0., 0. );
 
@@ -181,7 +183,7 @@ int main( int argi, char** argv ) {
           iter++;
 
         }
-        while( error>1.e-2 );
+        while( error>1.e-1 );
 
         if( space()->rankST()==0 )
 //          phifile << error << "\n";
