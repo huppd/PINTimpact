@@ -50,7 +50,7 @@ SET(CMAKE_C_COMPILER ${Trilinos_C_COMPILER} )
 SET(CMAKE_Fortran_COMPILER ${Trilinos_Fortran_COMPILER} )
 
 
-SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${Trilinos_CXX_COMPILER_FLAGS}  -std=c++0x -Wall -pedantic")
+SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${Trilinos_CXX_COMPILER_FLAGS}  -std=c++11 -Wall -pedantic")
 SET(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} ${Trilinos_C_COMPILER_FLAGS}   -Wall -pedantic")
 SET(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} ${Trilinos_C_COMPILER_FLAGS}")
 SET(CMAKE_Fortran_FLAGS  "${CMAKE_Fortran_FLAGS} ${Trilinos_Fortran_COMPILER_FLAGS} -Wall" )
