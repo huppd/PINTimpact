@@ -7,7 +7,7 @@
 typedef double S;
 typedef int O;
 const int d = 3;
-const int dNC=4;
+const int dNC=2;
 
 typedef Pimpact::Space<S,O,d,dNC> FSpaceT;
 typedef Pimpact::Space<S,O,d,2> CSpaceT;
@@ -39,36 +39,36 @@ int main( int argi, char** argv ) {
 
   pl->set( "domain", 1);
 
-  //  int nwinds = 360*2;
-//  int nwinds = 360;
-    //int nwinds = 360/2;
-//    int nwinds = 360/4;
-//    int nwinds = 360/6;
-//    int nwinds = 64;
-//    int nwinds = 32;
-	 int nwinds = 16;
-//    int nwinds = 8;
-//    int nwinds = 4;
-//    int nwinds = 1;
+	//int nwinds = 360*2;
+	//int nwinds = 360;
+	//int nwinds = 360/2;
+	//int nwinds = 360/4;
+	//int nwinds = 360/6;
+	//int nwinds = 64;
+	int nwinds = 32;
+	//int nwinds = 16;
+	//int nwinds = 8;
+	//int nwinds = 4;
+	//int nwinds = 1;
 
   S pi = (S)4. * std::atan( (S)1. ) ;
 
 	//pl->set<S>( "Re", 10000 );
+	pl->set<S>( "Re", 1000 );
   //pl->set<S>( "Re", 100 );
-	pl->set<S>( "Re", 1 );
-//  pl->set<S>( "lx", 1 );
-//  pl->set<S>( "ly", 1 );
-//    pl->set<O>( "nx", 513 );
-//    pl->set<O>( "ny", 513 );
-//    pl->set<O>( "nx", 257 );
-//    pl->set<O>( "ny", 257 );
-		//pl->set<O>( "nx", 129 );
-		//pl->set<O>( "ny", 129 );
-	 pl->set<O>( "nx", 65 );
-	 pl->set<O>( "ny", 65 );
- //pl->set<O>( "nx", 17 );
- //pl->set<O>( "ny", 17 );
-
+	//pl->set<S>( "Re", 10 );
+	//pl->set<S>( "Re", 1 );
+	//
+	//pl->set<O>( "nx", 513 );
+	//pl->set<O>( "ny", 513 );
+	//pl->set<O>( "nx", 257 );
+	//pl->set<O>( "ny", 257 );
+	//pl->set<O>( "nx", 129 );
+	//pl->set<O>( "ny", 129 );
+	pl->set<O>( "nx", 65 );
+	pl->set<O>( "ny", 65 );
+	//pl->set<O>( "nx", 17 );
+	//pl->set<O>( "ny", 17 );
 
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
@@ -90,7 +90,7 @@ int main( int argi, char** argv ) {
 
       auto pls = Teuchos::parameterList();
       pls->sublist("Smoother").set( "omega", 1. );
-      pls->sublist("Smoother").set( "numIter", (dirx==3)?1:4 );
+      pls->sublist("Smoother").set( "numIter", (dirx==3)?1:10 );
       pls->sublist("Smoother").set<int>( "Ordering", (dirx==3)?1:0 );
       pls->sublist("Smoother").set<short int>( "dir X", dirx );
       pls->sublist("Smoother").set<short int>( "dir Y", diry );
@@ -136,10 +136,10 @@ int main( int argi, char** argv ) {
         y->getFieldPtr(1)->initField( Pimpact::Grad2D_inX );
 
         auto sol = y->clone( Pimpact::DeepCopy );
-				sol->write(3333);
+				//sol->write(3333);
 
         wind->initField( Pimpact::ConstFlow, std::cos( phi ), std::sin( phi ), 0. );
-			 	wind->write(1111);
+				//wind->write(1111);
 
         z->initField( Pimpact::ConstFlow, 0., 0., 0. );
 
@@ -154,7 +154,7 @@ int main( int argi, char** argv ) {
            op->apply( *y, *bc );
            z->add( 1., *z, -1., *bc );
         }
-			 	z->write(2222);
+				//z->write(2222);
 
         y->initField( Pimpact::ConstFlow, 0., 0., 0. );
 
