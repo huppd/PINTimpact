@@ -238,8 +238,6 @@ TEUCHOS_UNIT_TEST( MGSmoothers, SF_constructor3D ) {
 
 
 
-template<class T> using ConvDiffSORT = Pimpact::ConvectionVSmoother<T,Pimpact::ConvectionDiffusionSORSmoother >;
-
 TEUCHOS_UNIT_TEST( MGSmoothers, VF_constructor3D ) {
 
   typedef Pimpact::CoarsenStrategy<FSpace3T,CSpace3T> CS;
