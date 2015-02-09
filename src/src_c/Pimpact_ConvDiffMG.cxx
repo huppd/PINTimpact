@@ -114,7 +114,7 @@ int main( int argi, char** argv ) {
       if( space()->rankST()==0 ) {
         std::string fname = "phin.txt";
         if( 3==dirx )
-          fname.insert( 4, std::to_string( 8 ) );
+          fname.insert( 4, std::to_string( (int)8 ) );
         else
           fname.insert( 4, std::to_string( dirx+diry*2+3 ) );
         phifile.open( fname, std::ofstream::out);
