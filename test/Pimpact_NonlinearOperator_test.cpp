@@ -30,7 +30,7 @@ typedef double S;
 typedef int O;
 const int d = 3;
 const int dNC = 4;
-//const int dNC = 2;
+
 
 typedef Pimpact::Space<S,O,d,dNC> SpaceT;
 typedef typename Pimpact::ScalarField<SpaceT> SF;
@@ -47,6 +47,9 @@ S eps = 1e-10;
 S omega = 0.8;
 S winds = 1;
 int nIter = 1000;
+
+int dim = 2;
+int domain = 1;
 
 bool isImpactInit = false;
 
@@ -74,28 +77,27 @@ TEUCHOS_STATIC_SETUP() {
   clp.setOption(
       "nIter", &nIter,
       "Slack off of machine epsilon used to check test results" );
+  clp.setOption(
+      "domain", &domain,
+      "domain" );
+  clp.setOption(
+      "dim", &dim,
+      "dim" );
 
-  pl->set( "domain", 1);
+	pl->set( "dim", dim );
+  pl->set( "domain", domain );
 
-  //  pl->set( "lz", 1. );
-
-
-  //  pl->set("nx", 125 );
-  //  pl->set("ny", 125 );
-  //  pl->set("nx", 65 );
-  //  pl->set("ny", 65 );
-  //  pl->set("nz", 2 );
-  //
-  //pl->set("npx", 1 );
-  //pl->set("npy", 1 );
-  //  pl->set("npz", 1 );
-
-  // integer coefficients:
-  //  pl->set("nx", 9 );
-  //  pl->set("ny", 9 );
-  //  pl->set( "lx", 8. );
-  //  pl->set( "ly", 8. );
-
+	pl->set("nx", 125 );
+	//  pl->set("ny", 125 );
+	//  pl->set("nx", 65 );
+	pl->set("ny", 65 );
+	//  pl->set("nz", 2 );
+	pl->set("nz", 33 );
+	
+	//pl->set("npx", 1 );
+	//pl->set("npy", 1 );
+	//  pl->set("npz", 1 );
+	
 }
 
 

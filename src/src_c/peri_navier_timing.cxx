@@ -74,7 +74,7 @@ int main(int argi, char** argv ) {
   int domain = 2;
 
   // domain size
-  int dim = 3;
+  int dim = 2;
   S l1 = 1.;
   S l2 = 1.;
   S l3 = 1.;
@@ -82,7 +82,7 @@ int main(int argi, char** argv ) {
   // grid size
   O n1 = 65;
   O n2 = 65;
-  O n3 = 65;
+  O n3 = 2;
   //O n3 = 2.;
 
   O nf = 4.;
@@ -94,7 +94,7 @@ int main(int argi, char** argv ) {
   // processor grid size
   O np1 = 2;
   O np2 = 2;
-  O np3 = 2.;
+  O np3 = 1.;
 
   // solver stuff
   std::string linSolName = "GMRES";
@@ -143,7 +143,7 @@ int main(int argi, char** argv ) {
   pl->set("npy", np2 );
   pl->set("npz", np3 );
 
-  auto space = Pimpact::createSpace<S,O,3>( pl );
+  auto space = Pimpact::createSpace<S,O,3,4>( pl );
 
   // outputs
   Teuchos::RCP<std::ostream> outPar;

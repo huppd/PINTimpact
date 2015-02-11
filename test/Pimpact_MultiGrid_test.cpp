@@ -50,31 +50,29 @@ auto pl = Teuchos::parameterList();
 
 
 TEUCHOS_STATIC_SETUP() {
-  Teuchos::CommandLineProcessor &clp = Teuchos::UnitTestRepository::getCLP();
-  clp.addOutputSetupOptions(true);
-  clp.setOption(
-      "test-mpi", "test-serial", &testMpi,
-      "Test MPI (if available) or force test of serial.  In a serial build,"
-      " this option is ignored and a serial comm is always used." );
-  clp.setOption(
-      "error-tol-slack", &eps,
-      "Slack off of machine epsilon used to check test results" );
-  clp.setOption(
-      "domain", &domain,
-      "Slack off of machine epsilon used to check test results" );
-  clp.setOption(
-      "ftype", &ftype,
-      "Slack off of machine epsilon used to check test results" );
-  //  // processor grid size
-//    pl->set( "nx", 65 );
-//    pl->set( "ny", 65 );
-    pl->set( "nx", 1025 );
-    pl->set( "ny", 1025 );
-
-    pl->set("npx", 2 );
-    pl->set("npy", 2 );
-//    pl->set("npx", 1 );
-//    pl->set("npy", 1 );
+	Teuchos::CommandLineProcessor &clp = Teuchos::UnitTestRepository::getCLP();
+	clp.addOutputSetupOptions(true);
+	clp.setOption(
+	    "test-mpi", "test-serial", &testMpi,
+	    "Test MPI (if available) or force test of serial.  In a serial build,"
+	    " this option is ignored and a serial comm is always used." );
+	clp.setOption(
+	    "error-tol-slack", &eps,
+	    "Slack off of machine epsilon used to check test results" );
+	clp.setOption(
+	    "domain", &domain,
+	    "Slack off of machine epsilon used to check test results" );
+	clp.setOption(
+	    "ftype", &ftype,
+	    "Slack off of machine epsilon used to check test results" );
+	pl->set( "nx", 65 );
+	pl->set( "ny", 65 );
+	//pl->set( "nx", 1025 );
+	//pl->set( "ny", 1025 );
+	
+	// processor grid size
+  pl->set("npx", 2 );
+  pl->set("npy", 2 );
 
 }
 
@@ -183,7 +181,6 @@ TEUCHOS_UNIT_TEST( MGOperators, SF_constructor3D ) {
   auto mgOps = Pimpact::createMGOperators<Pimpact::DivGradO2Op>( mgSpaces );
 
   auto mgOps2 = Pimpact::createMGOperators<Pimpact::DivGradOp,Pimpact::DivGradO2Op>( mgSpaces );
-
 
   auto op = mgOps->get( 2 );
 
@@ -298,7 +295,7 @@ TEUCHOS_UNIT_TEST( MultiGrid, Restrictor3D ) {
     TEST_INEQUALITY( 0., fieldc->norm() );
 
     // the strong test
-    fieldf->initField( Pimpact::ConstField,1. );
+    fieldf->initField( Pimpact::ConstField, 1. );
 
     TEST_FLOATING_EQUALITY( 1., fieldf->norm(Belos::InfNorm), eps );
 
@@ -306,7 +303,7 @@ TEUCHOS_UNIT_TEST( MultiGrid, Restrictor3D ) {
 
     TEST_FLOATING_EQUALITY( std::sqrt( (S)fieldf->getLength() ), fieldf->norm(Belos::TwoNorm), eps  );
 
-    fieldc->init(0.);
+    fieldc->init( 0. );
 
     op->apply( *fieldf, *fieldc );
 
@@ -319,23 +316,46 @@ TEUCHOS_UNIT_TEST( MultiGrid, Restrictor3D ) {
 
     TEST_FLOATING_EQUALITY( std::sqrt( (S)fieldc->getLength() ), fieldc->norm(Belos::TwoNorm), eps  );
 
-    // the hard test
+    // the hard test in X
     fieldf->initField( Pimpact::Grad2D_inX, 1. );
 
-    fieldc->init(0.);
+    fieldc->initField( Pimpact::ConstField, 0. );
     auto sol = fieldc->clone();
-    sol->initField( Pimpact::Grad2D_inX, 1. );
+		auto er = fieldc->clone();
 
+    sol->initField( Pimpact::Grad2D_inX, 1. );
+    er->initField( Pimpact::ConstField, 0. );
 
     op->apply( *fieldf, *fieldc );
 
     fieldf->write( 0 );
     fieldc->write( 1 );
 
-    sol->add( 1., *sol, -1., *fieldc );
-    sol->write(3);
+    er->add( 1., *sol, -1., *fieldc );
+    er->write(3);
 
-//    TEST_FLOATING_EQUALITY( 0., sol->norm(), eps ); // boundaries?
+		TEST_EQUALITY( er->norm()<eps, true ); // boundaries?
+
+    // the hard test in Y
+    fieldf->initField( Pimpact::Grad2D_inY, 1. );
+
+    fieldc->initField( Pimpact::ConstField, 0. );
+    sol = fieldc->clone();
+		er = fieldc->clone();
+
+    sol->initField( Pimpact::Grad2D_inY, 1. );
+    er->initField( Pimpact::ConstField, 0. );
+
+    op->apply( *fieldf, *fieldc );
+
+    fieldf->write( 4 );
+    fieldc->write( 5 );
+
+    er->add( 1., *sol, -1., *fieldc );
+    er->write(6);
+
+		TEST_EQUALITY( er->norm()<eps, true ); // boundaries?
+		
 
   }
 
@@ -727,8 +747,8 @@ TEUCHOS_UNIT_TEST( MultiGrid, ConvDiffOp ) {
   //pl->set( "lx", 2. );
   //pl->set( "ly", 2. );
 
-	pl->set("npx", 2 );
-	pl->set("npy", 2 );
+	pl->set("npx", 1 );
+	pl->set("npy", 1 );
 	pl->set("npz", 1 );
 
   //auto space = Pimpact::createSpace<S,O,3,2>( pl );
@@ -737,11 +757,11 @@ TEUCHOS_UNIT_TEST( MultiGrid, ConvDiffOp ) {
   auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, 10 );
 
 	auto mgPL = Teuchos::parameterList();
-	mgPL->sublist("Smoother").set("omega",0.8);
-	mgPL->sublist("Smoother").set("numIters",10);
-	//mgPL->sublist("Smoother").set("Ordering",0);
-	//mgPL->sublist("Smoother").set<short int>("dir X",-1);
-	//mgPL->sublist("Smoother").set<short int>("dir Y",-1);
+	mgPL->sublist("Smoother").set( "omega", 1. );
+	mgPL->sublist("Smoother").set( "numIters", 4 );
+	mgPL->sublist("Smoother").set( "Ordering", 1 );
+	mgPL->sublist("Smoother").set<short int>( "dir X", -1 );
+	mgPL->sublist("Smoother").set<short int>( "dir Y", -1 );
 
 
   auto mg =
@@ -758,12 +778,11 @@ TEUCHOS_UNIT_TEST( MultiGrid, ConvDiffOp ) {
 				MOP
 		> ( mgSpaces, mgPL );
 
+  auto op = Pimpact::create< ConvDiffOpT >( space );
+
   auto x = Pimpact::create<Pimpact::VectorField>( space );
   auto b = Pimpact::create<Pimpact::VectorField>( space );
-
   auto temp = x->clone();
-
-  auto op = Pimpact::create< ConvDiffOpT<FSpace3T> >( space );
 
   {
     auto wind = x->clone();
@@ -778,11 +797,12 @@ TEUCHOS_UNIT_TEST( MultiGrid, ConvDiffOp ) {
     ofs.open("MG2.txt", std::ofstream::out);
 
   // Grad in x
-	x->getFieldPtr(0)->initField( Pimpact::Grad2D_inX );
-	x->getFieldPtr(0)->initField( Pimpact::Grad2D_inY );
-	//x->getFieldPtr(0)->initField( Pimpact::ConstField, 0. );
-	//x->getFieldPtr(1)->initField( Pimpact::Grad2D_inX );
-	//x->getFieldPtr(1)->initField( Pimpact::Grad2D_inY );
+	x->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inY );
+	x->getFieldPtr(Pimpact::V)->initField( Pimpact::ConstField, 0. );
+	//x->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inX );
+	//x->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inY );
+	//x->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inX );
+	//x->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inY );
   auto sol = x->clone( Pimpact::DeepCopy );
   x->write(0);
   //sol->write(3);
@@ -799,12 +819,12 @@ TEUCHOS_UNIT_TEST( MultiGrid, ConvDiffOp ) {
 	 x->initField( Pimpact::ConstFlow, 0., 0., 0. );
 	//x->random();
 
-   for( int i=0; i<20; ++i ) {
+   for( int i=0; i<40; ++i ) {
      mg->apply( *b, *x );
      //x->write(i+10);
 
      temp->add( -1, *x, 1., *sol );
-     double res = temp->norm();
+     S res = temp->norm();
      std::cout << "res: " << res << "\n";
 
      if( space()->rankST()==0 )

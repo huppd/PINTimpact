@@ -7,7 +7,7 @@
 typedef double S;
 typedef int O;
 const int d = 3;
-const int dNC=2;
+const int dNC=4;
 
 typedef Pimpact::Space<S,O,d,dNC> FSpaceT;
 typedef Pimpact::Space<S,O,d,2> CSpaceT;
@@ -49,6 +49,7 @@ int main( int argi, char** argv ) {
 	//int nwinds = 16;
 	//int nwinds = 8;
 	//int nwinds = 4;
+	//int nwinds = 2;
 	//int nwinds = 1;
 
   S pi = (S)4. * std::atan( (S)1. ) ;
@@ -73,7 +74,7 @@ int main( int argi, char** argv ) {
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
-  auto mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, 2 );
+  auto mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, 10 );
 
   auto wind = Pimpact::create<Pimpact::VectorField>( space );
   auto y = Pimpact::create<Pimpact::VectorField>( space );
@@ -90,7 +91,7 @@ int main( int argi, char** argv ) {
 
       auto pls = Teuchos::parameterList();
       pls->sublist("Smoother").set( "omega", 1. );
-      pls->sublist("Smoother").set( "numIter", (dirx==3)?1:10 );
+      pls->sublist("Smoother").set( "numIter", (dirx==3)?1:4 );
       pls->sublist("Smoother").set<int>( "Ordering", (dirx==3)?1:0 );
       pls->sublist("Smoother").set<short int>( "dir X", dirx );
       pls->sublist("Smoother").set<short int>( "dir Y", diry );
@@ -122,18 +123,15 @@ int main( int argi, char** argv ) {
 
       for( int phii=0; phii<nwinds; ++phii ) {
 
-        S phi = phii*2.*pi/(nwinds);
-//        S phi = 2.*pi/(nwinds)*0.25;
-//        S phi = 2.*pi/(nwinds)*0.;
-//        S phi = phi*2.*pi/(nwinds);
+        S phi = 2.*pi*phii/(nwinds);
 
         if( space()->rankST()==0 )
           phifile << phi << "\t";
 
-
         // init solution
-        y->getFieldPtr(0)->initField( Pimpact::Grad2D_inY );
-        y->getFieldPtr(1)->initField( Pimpact::Grad2D_inX );
+        y->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inY );
+        //y->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inX );
+				y->getFieldPtr(Pimpact::V)->initField( Pimpact::ConstField, 0. );
 
         auto sol = y->clone( Pimpact::DeepCopy );
 				//sol->write(3333);
@@ -141,10 +139,10 @@ int main( int argi, char** argv ) {
         wind->initField( Pimpact::ConstFlow, std::cos( phi ), std::sin( phi ), 0. );
 				//wind->write(1111);
 
-        z->initField( Pimpact::ConstFlow, 0., 0., 0. );
-
         op->assignField( *wind );
 			 	smoother->assignField( *wind );
+
+        z->initField( Pimpact::ConstFlow, 0., 0., 0. );
 
         // constructing rhs
         op->apply( *y, *z );
