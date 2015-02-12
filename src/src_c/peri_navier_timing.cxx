@@ -74,7 +74,7 @@ int main(int argi, char** argv ) {
   int domain = 2;
 
   // domain size
-  int dim = 2;
+  int dim = 3;
   S l1 = 1.;
   S l2 = 1.;
   S l3 = 1.;
@@ -82,14 +82,14 @@ int main(int argi, char** argv ) {
   // grid size
   O n1 = 65;
   O n2 = 65;
-  O n3 = 2;
+  O n3 = 17;
   //O n3 = 2.;
 
-  O nf = 4.;
+  O nf = 2.;
 
   O nfs = 1.;
 
-  O nfe = 8.;
+  O nfe = 4.;
 
   // processor grid size
   O np1 = 2;
@@ -203,18 +203,18 @@ int main(int argi, char** argv ) {
     }
 
     auto para = Pimpact::createLinSolverParameter( linSolName, tolBelos*l1*l2/n1/n2*(nfe-1)/nf, -1 );
-    para->set( "Maximum Iterations", 3000 );
+    para->set( "Maximum Iterations", 1000 );
     para->set( "Implicit Residual Scaling", "Norm of RHS" );
     para->set( "Explicit Residual Scaling", "Norm of RHS" );
 
 
     auto opV2V =
-				Pimpact::createAdd2Op(
-						Pimpact::createMultiDtHelmholtz( space, alpha2/re, 1./re ),
-						Pimpact::createMultiHarmonicConvectionOp( space, nf ),
-						x->getConstFieldPtr(0)->getConstVFieldPtr()->clone()
-				);
-				//Pimpact::createMultiDtConvectionDiffusionOp( space, nf );
+				//Pimpact::createAdd2Op(
+						//Pimpact::createMultiDtHelmholtz( space, alpha2/re, 1./re ),
+						//Pimpact::createMultiHarmonicConvectionOp( space, nf ),
+						//x->getConstFieldPtr(0)->getConstVFieldPtr()->clone()
+				//);
+				Pimpact::createMultiDtConvectionDiffusionOp( space, nf );
     auto opS2V = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::GradOp>( space ) );
     auto opV2S = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::DivOp>( space ) );
 
