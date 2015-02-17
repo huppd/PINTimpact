@@ -23,7 +23,6 @@ namespace Pimpact {
 
 
 /// \ingroup MG
-/// \todo think about templeting everything MGSpaces,  MGOperators,...
 template<
   class MGSpacesT,
   template<class> class FieldT,
@@ -171,6 +170,7 @@ public:
 
   };
 
+	Teuchos::RCP<const SpaceT> space() const { return(mgSpaces_->get()); };
 
   bool hasApplyTranspose() const { return( false ); }
 

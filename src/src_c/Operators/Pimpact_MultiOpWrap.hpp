@@ -30,7 +30,6 @@ public:
   typedef MultiField<typename OperatorT::DomainFieldT> DomainFieldT;
   typedef MultiField<typename OperatorT::RangeFieldT> RangeFieldT;
 
-
 protected:
 
   Teuchos::RCP<OperatorT> op_;
@@ -65,7 +64,8 @@ public:
 
   Teuchos::RCP<OperatorT> getOperatorPtr() { return( op_ ); }
 
-  Teuchos::RCP<const SpaceT> getSpace() const { return( op_->getSpace() ); }
+  Teuchos::RCP<const SpaceT> getSpace() const { return( op_->getSpace() ); };
+  Teuchos::RCP<const SpaceT> space() const { return( op_->space() ); };
 
 }; // end of class MultiOpWrap
 

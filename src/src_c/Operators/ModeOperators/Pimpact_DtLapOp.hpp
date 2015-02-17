@@ -47,8 +47,6 @@ public:
 
 protected:
 
-  Teuchos::RCP<const SpaceT> space_;
-
   Scalar alpha2_;
   Scalar iRe_;
   Teuchos::RCP<HelmholtzOp<SpaceT> > L_; // necesary for 0 mode
@@ -63,7 +61,6 @@ public:
       Scalar alpha2=1.,
       Scalar iRe=1.,
       const Teuchos::RCP<HelmholtzOp<SpaceT> >& L=Teuchos::null ):
-        space_(space),
         alpha2_(alpha2),
         iRe_(iRe),
         L_(L) {
@@ -79,7 +76,7 @@ public:
   /// \begin{bmatrix} \hat{\mathbf{x}}^c \\ \hat{\mathbf{x}}^s  \end{bmatrix} \f]
   void apply(const DomainFieldT& x, RangeFieldT& y, int k=1 ) const {
 
-    const Ordinal& dim = space_->dim();
+    const Ordinal& dim = space()->dim();
 
     for( int i=0; i<dim; ++i ) {
 
@@ -92,11 +89,11 @@ public:
 
       OP_DtHelmholtz(
           dim,
-          space_->nLoc(),
-          space_->bl(),
-          space_->bu(),
-          space_->sInd(fType),
-          space_->eInd(fType),
+          space()->nLoc(),
+          space()->bl(),
+          space()->bu(),
+          space()->sInd(fType),
+          space()->eInd(fType),
           L_->getC(X,fType),
           L_->getC(Y,fType),
           L_->getC(Z,fType),
@@ -108,11 +105,11 @@ public:
 
       OP_DtHelmholtz(
           dim,
-          space_->nLoc(),
-          space_->bl(),
-          space_->bu(),
-          space_->sInd(fType),
-          space_->eInd(fType),
+          space()->nLoc(),
+          space()->bl(),
+          space()->bu(),
+          space()->sInd(fType),
+          space()->eInd(fType),
           L_->getC(X,fType),
           L_->getC(Y,fType),
           L_->getC(Z,fType),
@@ -129,6 +126,8 @@ public:
   }
 
   void assignField( const DomainFieldT& mv ) {};
+
+	Teuchos::RCP<const SpaceT> space() const { return(L_->space()); };
 
   Teuchos::RCP< HelmholtzOp<SpaceT> > getInnerOpPtr() {
     return( L_ );

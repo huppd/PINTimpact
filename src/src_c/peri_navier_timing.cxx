@@ -209,11 +209,6 @@ int main(int argi, char** argv ) {
 
 
     auto opV2V =
-				//Pimpact::createAdd2Op(
-						//Pimpact::createMultiDtHelmholtz( space, alpha2/re, 1./re ),
-						//Pimpact::createMultiHarmonicConvectionOp( space, nf ),
-						//x->getConstFieldPtr(0)->getConstVFieldPtr()->clone()
-				//);
 				Pimpact::createMultiDtConvectionDiffusionOp( space, nf );
     auto opS2V = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::GradOp>( space ) );
     auto opV2S = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::DivOp>( space ) );
@@ -221,7 +216,6 @@ int main(int argi, char** argv ) {
     auto op =
         Pimpact::createMultiOperatorBase(
             Pimpact::createCompoundOpWrap(
-                x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
 								opV2V,
 								opS2V,
 								opV2S )
@@ -230,19 +224,6 @@ int main(int argi, char** argv ) {
 
     Teuchos::RCP<BOp> jop;
 		jop = op;
-    //jop = Pimpact::createMultiOperatorBase<MF>(
-        //Pimpact::createCompoundOpWrap(
-            //x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(),
-            //Pimpact::createAdd2Op(
-                //Pimpact::createMultiDtHelmholtz( space, alpha2/re, 1./re ),
-                ////Pimpact::createMultiHarmonicConvectionJacobianOp(
-                    ////space,
-                    ////x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::DeepCopy) ),
-										//opV2V,
-                    //x->getConstFieldPtr(0)->getConstVFieldPtr()->clone() ),
-                    //opS2V, opV2S
-										//)
-    //);
 
 
     auto lp_ = Pimpact::createLinearProblem<MF>(

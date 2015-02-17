@@ -216,14 +216,15 @@ int main(int argi, char** argv ) {
   Teuchos::RCP<Pimpact::OperatorBase<MVF> > lprec = Teuchos::null;
 
   switch(precType) {
-  case 1: {
-    if(rank==0) std::cout << "\n\tprecType: 1, -Dt/omega\n";
+		
+  //case 1: { // didn't realy work
+    //if(rank==0) std::cout << "\n\tprecType: 1, -Dt/omega\n";
 
-    lprec =
-        Pimpact::createMultiOperatorBase(
-            Pimpact::createDtModeOp<SpaceT>( -1./alpha2 ) );
-    break;
-  }
+    //lprec =
+        //Pimpact::createMultiOperatorBase(
+            //Pimpact::createDtModeOp<SpaceT>( -1./alpha2 ) );
+    //break;
+  //}
   case 2: {
     if(rank==0) std::cout << "\n\tprecType: 2, Lap^-1\n";
 
@@ -347,8 +348,6 @@ int main(int argi, char** argv ) {
   auto schur =
       Pimpact::createOperatorBase(
           Pimpact::createTripleCompositionOp(
-              u->clone(),
-              u->clone(),
               div,
               H_inv,
               grad
@@ -395,8 +394,6 @@ int main(int argi, char** argv ) {
 //    precSchur =
 //        Pimpact::createOperatorBase(
 //            Pimpact::createTripleCompositionOp(
-//                temps->clone(Pimpact::ShallowCopy),
-//                temps->clone(Pimpact::ShallowCopy),
 //                divGradInv,
 //                Pimpact::createInverseOperator( schurProb ),
 //                divGradInv ) );

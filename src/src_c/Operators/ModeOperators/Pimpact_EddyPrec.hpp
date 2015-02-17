@@ -65,6 +65,9 @@ public:
 //    op_->assignField( createMultiField(Teuchos::rcpFromRef(mv))  );
   };
 
+
+	Teuchos::RCP<const SpaceT> space() const { return(op_->space()); };
+
   bool hasApplyTranspose() const { return( false ); }
 
 }; // end of class EddyPrec

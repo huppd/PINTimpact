@@ -37,14 +37,12 @@ protected:
 public:
 
   /// \todo constructor from space
-  /// \depcreated temp from space
   CompoundOpWrap(
-      const Teuchos::RCP<VF> temp,
       const Teuchos::RCP<OpV2V>& opV2V,
       const Teuchos::RCP<OpS2V>& opS2V,
       const Teuchos::RCP<OpV2S>& opV2S
       ):
-        temp_(temp),
+        temp_( create<VF>(opV2V->space()) ),
         opV2V_(opV2V),
         opS2V_(opS2V),
         opV2S_(opV2S) {};
@@ -66,6 +64,8 @@ public:
 //    opV2S_->assignField( mv.getConstVField() );
   };
 
+	Teuchos::RCP<const SpaceT> space() const { return(opV2V_->space()); };
+
   bool hasApplyTranspose() const { return( false ); }
 
 }; // end of class CompoundOpWrap
@@ -75,13 +75,12 @@ public:
 /// \relates CompoundOpWrap
 template< class OpV2V, class OpS2V, class OpV2S >
 Teuchos::RCP<CompoundOpWrap<OpV2V,OpS2V,OpV2S> > createCompoundOpWrap(
-    const Teuchos::RCP<typename OpV2V::DomainFieldT>& temp,
     const Teuchos::RCP<OpV2V>& opV2V=Teuchos::null,
     const Teuchos::RCP<OpS2V>& opS2V=Teuchos::null,
     const Teuchos::RCP<OpV2S>& opV2S=Teuchos::null ) {
 
   return(
-      Teuchos::rcp( new CompoundOpWrap<OpV2V,OpS2V,OpV2S>(temp,opV2V,opS2V,opV2S) ) );
+      Teuchos::rcp( new CompoundOpWrap<OpV2V,OpS2V,OpV2S>(opV2V,opS2V,opV2S) ) );
 }
 
 

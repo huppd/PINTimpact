@@ -74,8 +74,6 @@ protected:
   Scalar omega_;
   int nIter_;
 
-  Teuchos::RCP<const SpaceT> space_;
-
   const Teuchos::RCP<const OperatorT> op_;
 
   Teuchos::RCP<DomainFieldT> temp_;
@@ -92,9 +90,8 @@ public:
       Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ):
         omega_( pl->get("omega", 0.8 ) ),
         nIter_( pl->get("numIters", 10 ) ),
-        space_(op->space_),
         op_(op),
-        temp_( create<DomainFieldT>(op_->space_) ) {}
+        temp_( create<DomainFieldT>(op_->space()) ) {}
 
 
   void assignField( const RangeFieldT& mv ) {};
@@ -110,10 +107,10 @@ public:
     TEUCHOS_TEST_FOR_EXCEPT( z.getType() != y.getType() );
 
 
-    for( int i =0; i<space_->dim(); ++i )
+    for( int i =0; i<space()->dim(); ++i )
       TEUCHOS_TEST_FOR_EXCEPT( x[i]->getType() != y.getType() );
 
-    for( int vel_dir=0; vel_dir<space_->dim(); ++vel_dir )
+    for( int vel_dir=0; vel_dir<space()->dim(); ++vel_dir )
       x[vel_dir]->exchange();
 
     for( int i=0; i<nIter_; ++i ) {
@@ -122,14 +119,14 @@ public:
       z.exchange();
 
       OP_convectionDiffusionJSmoother(
-          space_->dim(),
-          space_->nLoc(),
-          space_->bl(),
-          space_->bu(),
-          space_->nl(),
-          space_->nu(),
-          space_->sInd(z.getType()),
-          space_->eInd(z.getType()),
+          space()->dim(),
+          space()->nLoc(),
+          space()->bl(),
+          space()->bu(),
+          space()->nl(),
+          space()->nu(),
+          space()->sInd(z.getType()),
+          space()->eInd(z.getType()),
           op_->convSOp_->getCD(X,z.getType()),
           op_->convSOp_->getCD(Y,z.getType()),
           op_->convSOp_->getCD(Z,z.getType()),
@@ -147,7 +144,7 @@ public:
           temp_->getRawPtr(),
           0.,
           1.,
-          1./space_->getDomain()->getDomainSize()->getRe(),
+          1./space()->getDomain()->getDomainSize()->getRe(),
           omega_ );
 
       // attention: could lead to problems when ScalarField is used as part of a higherlevel class (s is shared)
@@ -159,6 +156,8 @@ public:
       std::swap( z.s_, temp_->s_ );
   }
 
+	Teuchos::RCP<const SpaceT> space() const { return(op_->space()); };
+
   void print( std::ostream& out=std::cout ) const {
     op_->print();
   }
@@ -166,7 +165,6 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
-  Teuchos::RCP<const SpaceT>  space() const { return( space_ ); }
 
 }; // end of class ConvectionDiffusionJSmoother
 

@@ -66,7 +66,6 @@ protected:
   Scalar omega_;
   int nIter_;
 
-  const Teuchos::RCP<const SpaceT> space_;
 
   Teuchos::RCP<DomainFieldT> temp_;
 
@@ -79,8 +78,7 @@ public:
       Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ):
     omega_( pl->get("omega",0.8) ),
     nIter_( pl->get("numIters",4) ),
-    space_(op->space_),
-    temp_( createScalarField<SpaceT>( space_ ) ),
+    temp_( createScalarField<SpaceT>( op->space() ) ),
     op_(op) {}
 
 
@@ -92,12 +90,12 @@ public:
       y.exchange();
 
       OP_DivGradO2JSmoother(
-          space_->dim(),
-          space_->nLoc(),
-          space_->bl(),
-          space_->bu(),
-          space_->getDomain()->getBCLocal()->getBCL(),
-          space_->getDomain()->getBCLocal()->getBCU(),
+          space()->dim(),
+          space()->nLoc(),
+          space()->bl(),
+          space()->bu(),
+          space()->getDomain()->getBCLocal()->getBCL(),
+          space()->getDomain()->getBCLocal()->getBCU(),
           op_->c_[0],
           op_->c_[1],
           op_->c_[2],
@@ -107,11 +105,11 @@ public:
           temp_->s_);
 
       SF_handle_corner(
-          space_->nLoc(),
-          space_->bl(),
-          space_->bu(),
-          space_->getDomain()->getBCLocal()->getBCL(),
-          space_->getDomain()->getBCLocal()->getBCU(),
+          space()->nLoc(),
+          space()->bl(),
+          space()->bu(),
+          space()->getDomain()->getBCLocal()->getBCL(),
+          space()->getDomain()->getBCLocal()->getBCU(),
           temp_->s_);
 
       // attention: could lead to problems when ScalarField is used as part of a higherlevel class (s is shared)
@@ -124,6 +122,8 @@ public:
   void assignField( const DomainFieldT& mv ) {};
 
   bool hasApplyTranspose() const { return( false ); }
+
+	Teuchos::RCP<const SpaceT> space() const { return(op_->space()); };
 
   void print( std::ostream& out=std::cout ) const {
     out << "\n --- Jacobian smoother ---\n";

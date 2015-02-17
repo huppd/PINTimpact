@@ -23,6 +23,8 @@ class LinearProblem {
   typedef typename MF::Scalar Scalar;
   typedef OperatorBase<MF> Op;
 
+  typedef typename Op::SpaceT SpaceT;
+
   Teuchos::RCP< Belos::SolverManager<Scalar, MF, Op> >	solver_;
   Teuchos::RCP< Belos::LinearProblem<Scalar, MF, Op> > problem_;
 
@@ -61,6 +63,10 @@ public:
   const Teuchos::RCP<const Belos::LinearProblem<Scalar, MF, Op> > getProblem() const {
     return( problem_ );
   }
+
+	Teuchos::RCP<const SpaceT> space() const {
+		return(problem_->getOperator()->space());
+	};
 
 
   //@}

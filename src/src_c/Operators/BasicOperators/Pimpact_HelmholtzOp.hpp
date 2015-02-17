@@ -194,8 +194,10 @@ public:
     }
   }
 
-  Teuchos::RCP<const SpaceT> getSpace() const { return( space_ ); }
+	/// \todo unifyt
+  Teuchos::RCP<const SpaceT> getSpace() const { return( space() ); }
 
+	Teuchos::RCP<const SpaceT> space() const { return(space_); };
 
   const Scalar* getC( const ECoord& dir, const EField& ftype ) const  {
       return( ((int)dir==(int)ftype)?cV_[dir]:cS_[dir] );

@@ -746,7 +746,7 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, DtModeOp ) {
   mv2->init(0.);
 
   auto op = Pimpact::createMultiOperatorBase(
-      Pimpact::createDtModeOp<SpaceT>() );
+      Pimpact::create<Pimpact::DtModeOp>(space) );
 
   op->apply(*mv,*mv2);
 
@@ -845,8 +845,6 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, TripleCompostion ) {
   auto Hinv  = Pimpact::createInverseOperator( Hprob );
 
   auto schur = Pimpact::createTripleCompositionOp(
-      temp->clone(),
-      temp->clone(),
       Pimpact::createMultiModeOpWrap( Pimpact::create<Pimpact::DivOp>( space ) ),
       Hinv,
       Pimpact::createMultiModeOpWrap( Pimpact::create<Pimpact::GradOp>( space ))
@@ -1031,7 +1029,10 @@ TEUCHOS_UNIT_TEST( CompoundOperator, CompoundOpWrap ) {
   auto op =
       Pimpact::createMultiOperatorBase(
           Pimpact::createCompoundOpWrap(
-              x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(), opV2V, opS2V, opV2S ) );
+              opV2V,
+							opS2V,
+							opV2S )
+					);
 
   // vector to vector operator
   fu->init(0.);

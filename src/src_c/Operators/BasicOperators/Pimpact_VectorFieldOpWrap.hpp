@@ -26,12 +26,13 @@ template<class SOpT>
 class VectorFieldOpWrap {
 
 public:
+	
 
-//  typedef FST SpaceT;
-//
   typedef typename SOpT::FSpaceT FSpaceT;
   typedef typename SOpT::CSpaceT CSpaceT;
-//
+
+	typedef FSpaceT SpaceT;
+
 //  typedef typename FSpaceT::Scalar Scalar;
 //  typedef typename FSpaceT::Ordinal Ordinal;
 
@@ -64,6 +65,8 @@ public:
 //  void assignField( const RangeFieldT& mv ) {};
 
 //  bool hasApplyTranspose() const { return( false ); }
+//
+	Teuchos::RCP<const SpaceT> space() const { return(sop_->space()); };
 
   void print(  std::ostream& out=std::cout ) const {
     sop_->print();

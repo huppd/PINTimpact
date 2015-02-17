@@ -55,6 +55,8 @@ public:
     op2_->assignField( mv );
   };
 
+	Teuchos::RCP<const SpaceT> space() const { return(op1_->space()); };
+
   bool hasApplyTranspose() const { return( op1_->hasApplyTranspose() && op2_->hasApplyTranspose() ); }
 
 }; // end of class Add2Op

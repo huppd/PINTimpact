@@ -47,10 +47,9 @@ public:
     grad_( create<GradOp>( space ) ) {};
 
   DivGradOp(
-      const Teuchos::RCP<VectorField<SpaceT> >& temp,
       const Teuchos::RCP< DivOp<SpaceT> >& div,
       const Teuchos::RCP< GradOp<SpaceT> >& grad ):
-    temp_(temp),
+    temp_( create<VectorField>( div->space() ) ),
     div_ (div),
     grad_(grad) {};
 
@@ -66,6 +65,8 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
+	Teuchos::RCP<const SpaceT> space() const { return(div_->space() ); };
+
 }; // end of DivGradOp
 
 
@@ -73,12 +74,11 @@ public:
 /// \relates DivGradOp
 template<class SpaceT>
 Teuchos::RCP< DivGradOp<SpaceT> > createDivGradOp(
-    const Teuchos::RCP<VectorField<SpaceT> >& temp,
     const Teuchos::RCP< DivOp<SpaceT> >& div,
     const Teuchos::RCP< GradOp<SpaceT> >& grad ) {
 
   return(
-      Teuchos::rcp( new DivGradOp<SpaceT>( temp, div, grad ) )
+      Teuchos::rcp( new DivGradOp<SpaceT>( div, grad ) )
   );
 
 }

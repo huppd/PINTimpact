@@ -41,25 +41,15 @@ protected:
 
 public:
 
-  /// \todo update
   InverseTriangularOp(
-      const Teuchos::RCP<VF> tempv=Teuchos::null,
-      const Teuchos::RCP<SF> temps=Teuchos::null,
-      const Teuchos::RCP<OpV2V>& opV2V=Teuchos::null,
-      const Teuchos::RCP<OpS2V>& opS2V=Teuchos::null,
-      const Teuchos::RCP<OpS2S>& opS2S=Teuchos::null ):
-        tempv_(tempv),
-        temps_(temps),
+      const Teuchos::RCP<OpV2V>& opV2V,
+      const Teuchos::RCP<OpS2V>& opS2V,
+      const Teuchos::RCP<OpS2S>& opS2S ):
+        tempv_( create<VF>(opV2V->space()) ),
+        temps_( create<SF>(opV2V->space()) ),
         opV2V_(opV2V),
         opS2V_(opS2V),
-        opS2S_(opS2S) {
-
-    if( opV2V_.is_null() ) opV2V_ = Teuchos::rcp( new OpV2V() );
-    if( opS2V_.is_null() )    opS2V_ = Teuchos::rcp( new OpS2V() );
-    if( opS2S_.is_null() )  opS2S_ = Teuchos::rcp( new OpS2S() );
-
-
-  };
+        opS2S_(opS2S) {};
 
   void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
@@ -94,15 +84,14 @@ public:
 template< class OpV2V, class OpS2V, class OpS2S >
 Teuchos::RCP< InverseTriangularOp<OpV2V,OpS2V,OpS2S> >
 createInverseTriangularOp(
-    const Teuchos::RCP<typename OpS2V::RangeFieldT>& tempv,
-    const Teuchos::RCP<typename OpS2V::DomainFieldT>& temps,
     const Teuchos::RCP<OpV2V>& opV2V,
     const Teuchos::RCP<OpS2V>& opS2V,
-    const Teuchos::RCP<OpS2S>& opS2S=Teuchos::null ) {
+    const Teuchos::RCP<OpS2S>& opS2S ) {
 
   //  return Teuchos::null;
   return(
-      Teuchos::rcp( new InverseTriangularOp<OpV2V,OpS2V,OpS2S>(tempv,temps,opV2V,opS2V,opS2S) ) );
+      Teuchos::rcp( new InverseTriangularOp<OpV2V,OpS2V,OpS2S>(opV2V,opS2V,opS2S) )
+			);
 
 }
 

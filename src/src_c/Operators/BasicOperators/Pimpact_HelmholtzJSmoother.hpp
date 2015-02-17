@@ -191,6 +191,8 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
+	Teuchos::RCP<const SpaceT> space() const { return( space_; ) };
+
   void print( std::ostream& out=std::cout ) const {
     out << " --- scalar stencil: ---";
     for( int i=0; i<3; ++i ) {

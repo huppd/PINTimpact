@@ -88,6 +88,9 @@ public:
 
   }
 
+
+	Teuchos::RCP<const SpaceT> space() const { return(convectionVOp_->space()); };
+
   bool hasApplyTranspose() const { return( false ); }
 
 

@@ -226,7 +226,9 @@ int main(int argi, char** argv ) {
 
   auto schur = Pimpact::createOperatorBase(
       Pimpact::createTripleCompositionOp(
-          u->clone(),u->clone(), div, lap_inv, grad ) );
+          div,
+					lap_inv,
+					grad ) );
 
   solveParaGMRES->set( "Output Stream", outSchur );
   auto schur_prob = Pimpact::createLinearProblem<MSF>( schur, p, temps, solveParaGMRES, "GMRES" );

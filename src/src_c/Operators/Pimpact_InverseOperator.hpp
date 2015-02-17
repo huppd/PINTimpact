@@ -54,6 +54,8 @@ public:
     }
   };
 
+	Teuchos::RCP<const SpaceT> space() const { return(linprob_->space()); };
+
   bool hasApplyTranspose() const { return( false ); }
 
 }; // end of class InverseOperator

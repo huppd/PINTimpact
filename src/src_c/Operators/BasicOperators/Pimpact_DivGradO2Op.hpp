@@ -158,6 +158,9 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
+	Teuchos::RCP<const SpaceT> space() const { return(space_); };
+  Teuchos::RCP<const SpaceT> getSpace() const { return( space_ ); }
+
   void print( std::ostream& out=std::cout ) const {
     out << " --- stencil: ---";
     for( int i=0; i<3; ++i ) {
@@ -175,7 +178,6 @@ public:
     }
   }
 
-  Teuchos::RCP<const SpaceT> getSpace() const { return( space_ ); }
 
 }; // end of class DivGradO2Op
 

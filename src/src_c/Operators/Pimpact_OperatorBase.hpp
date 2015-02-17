@@ -25,6 +25,8 @@ public:
 
   virtual void assignField( const DomainField& mv ) {};
 
+	virtual Teuchos::RCP<const SpaceT> space() const{ return(Teuchos::null); };
+
   virtual bool hasApplyTranspose() const {return( false );};
 
 
@@ -63,6 +65,8 @@ public:
   virtual bool hasApplyTranspose() const {
     return( opm_->hasApplyTranspose() );
   };
+
+	Teuchos::RCP<const SpaceT> space() const { return(opm_->space()); };
 
   Teuchos::RCP<Op> getOperatorPtr() { return( opm_ ); }
 

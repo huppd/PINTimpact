@@ -81,7 +81,7 @@ protected:
 
   Teuchos::Tuple<short int,3> loopOrder_;
 
-  Teuchos::RCP<const SpaceT> space_;
+  //Teuchos::RCP<const SpaceT> space_;
 
   const Teuchos::RCP<const OperatorT> op_;
 
@@ -94,11 +94,11 @@ public:
         nIter_( pl->get("numIters", 1 ) ),
         ordering_( pl->get("Ordering",1 ) ),
         loopOrder_( Teuchos::tuple<short int>(1,2,3) ),
-        space_(op->space_),
+        //space_(op->space_),
         op_(op) {
 
     if( 4==SpaceT::dimNC )
-      if( 0==op->space_->rankST() )
+      if( 0==op->space()->rankST() )
         std::cout << "Warning!!! ConvectionDiffusionSORSmoother strange behavior for dimNC=4, problems at outflow\n";
 
     if( 0==ordering_ ) {
@@ -110,8 +110,7 @@ public:
   }
 
 
-  /// \todo finding direction here.
-  void assignField( const RangeFieldT& mv ) {};
+  /// \todo finding direction here.  void assignField( const RangeFieldT& mv ) {};
 
 
   void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mul, Scalar mulI, Scalar mulC, Scalar mulL ) const { std::cout << "not implmented\n"; }
@@ -121,11 +120,11 @@ public:
     // testing field consistency
     TEUCHOS_TEST_FOR_EXCEPT( z.getType() != y.getType() );
 
-    for( int i=0; i<space_->dim(); ++i )
+    for( int i=0; i<space()->dim(); ++i )
       TEUCHOS_TEST_FOR_EXCEPT( x[i]->getType() != y.getType() );
 
     // exchange wind and "rhs"
-    for( int vel_dir=0; vel_dir<space_->dim(); ++vel_dir )
+    for( int vel_dir=0; vel_dir<space()->dim(); ++vel_dir )
       x[vel_dir]->exchange();
 
     y.exchange();
@@ -145,7 +144,7 @@ protected:
 
   void applyNPoint( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z ) const {
 
-      if( 3==space_->dim() )
+      if( 3==space()->dim() )
         for( dirs_[2]=-1; dirs_[2]<2; dirs_[2]+=2 )
           for( dirs_[1]=-1; dirs_[1]<2; dirs_[1]+=2 )
             for( dirs_[0]=-1; dirs_[0]<2; dirs_[0]+=2 )
@@ -167,14 +166,14 @@ protected:
 
     z.exchange();
     OP_convectionDiffusionSOR(
-        space_->dim(),
-        space_->nLoc(),
-        space_->bl(),
-        space_->bu(),
-        space_->nl(),
-        space_->nu(),
-        space_->sInd(z.getType()),
-        space_->eInd(z.getType()),
+        space()->dim(),
+        space()->nLoc(),
+        space()->bl(),
+        space()->bu(),
+        space()->nl(),
+        space()->nu(),
+        space()->sInd(z.getType()),
+        space()->eInd(z.getType()),
         dirs.getRawPtr(),
         loopOrder.getRawPtr(),
         op_->convSOp_->getCD( X, z.getType() ),
@@ -193,7 +192,7 @@ protected:
         z.getRawPtr(),
         0.,
         1.,
-        1./space_->getDomain()->getDomainSize()->getRe(),
+        1./space()->getDomain()->getDomainSize()->getRe(),
         omega_ );
 
     z.changed();
@@ -212,7 +211,7 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
-  Teuchos::RCP<const SpaceT>  space() const { return( space_ ); }
+  Teuchos::RCP<const SpaceT> space() const { return(op_->space()); }
 
 }; // end of class ConvectionDiffusionSORSmoother
 

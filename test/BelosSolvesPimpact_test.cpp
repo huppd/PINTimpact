@@ -191,11 +191,8 @@ TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
   temp->initField(Pimpact::ZeroFlow);
   auto op = Pimpact::createOperatorBase(
       Pimpact::createMultiOpWrap(
-          Pimpact::createDivGradOp(
-              temp,
-              Pimpact::create<Pimpact::DivOp>( space ),
-              Pimpact::create<Pimpact::GradOp>( space )
-          )
+				Pimpact::create< Pimpact::DivGradOp<SpaceT> >(space)
+          //Pimpact::createDivGradOp(space)
       )
   );
 

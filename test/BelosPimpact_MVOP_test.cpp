@@ -292,7 +292,6 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, DivGrad ) {
   auto lap = Pimpact::createOperatorBase(
       Pimpact::createMultiOpWrap(
           Pimpact::createDivGradOp(
-              temp,
               Pimpact::create<Pimpact::DivOp>( space ),
               Pimpact::create<Pimpact::GradOp>(space )
           )

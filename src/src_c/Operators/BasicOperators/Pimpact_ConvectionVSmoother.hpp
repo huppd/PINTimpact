@@ -77,6 +77,8 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
+	Teuchos::RCP<const SpaceT> space() const { return(convVWrap_->space()); };
+
   void print( std::ostream& out=std::cout ) const {
     convVWrap_->print(out);
   }

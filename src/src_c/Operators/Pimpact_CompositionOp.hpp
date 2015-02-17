@@ -4,6 +4,7 @@
 
 
 #include "Teuchos_RCP.hpp"
+#include "Pimpact_Space.hpp"
 
 
 
@@ -39,11 +40,11 @@ protected:
 public:
 
   CompositionOp(
-      const Teuchos::RCP<TempFieldT>& temp=Teuchos::null,
-      const Teuchos::RCP<OP1>&           op1=Teuchos::null,
-      const Teuchos::RCP<OP2>&           op2=Teuchos::null ):
-        temp_(temp),
-        op1_(op1), op2_(op2)//, op3_(op3)
+      const Teuchos::RCP<OP1>& op1,
+      const Teuchos::RCP<OP2>& op2 ):
+        temp_( create<TempFieldT>(op1->space()) ),
+        op1_(op1),
+				op2_(op2)
 {};
 
   void apply(
@@ -67,6 +68,8 @@ public:
       op2_->assignField( field );
   };
 
+	Teuchos::RCP<const SpaceT> space() const { return(op1_->space()); };
+
   bool hasApplyTranspose() const { return( op1_->hasApplyTranspose() && op2_->hasApplyTranspose() /*&& op3_->hasApplyTranspose()*/ ); }
 
 }; // end of class CompositionOp
@@ -76,11 +79,10 @@ public:
 /// \relates CompositionOp
 template<class OP1, class OP2>
 Teuchos::RCP< CompositionOp<OP1, OP2> > createCompositionOp(
-    const Teuchos::RCP<typename OP2::RangeFieldT>& temp=Teuchos::null,
     const Teuchos::RCP<OP1>& op1=Teuchos::null,
     const Teuchos::RCP<OP2>& op2=Teuchos::null
       ) {
-  return( Teuchos::rcp( new CompositionOp<OP1,OP2>( temp, op1, op2 ) ) );
+  return( Teuchos::rcp( new CompositionOp<OP1,OP2>( op1, op2 ) ) );
 }
 
 

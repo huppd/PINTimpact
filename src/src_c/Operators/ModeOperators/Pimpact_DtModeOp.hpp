@@ -25,12 +25,15 @@ public:
 
 protected:
 
+	const Teuchos::RCP<const SpaceT> space_;
+
   Scalar alpha2_;
 
 public:
 
-  DtModeOp():alpha2_(1.) {};
-  DtModeOp(Scalar alpha2):alpha2_(alpha2) {};
+  DtModeOp( const Teuchos::RCP<const SpaceT>& space ):
+		space_(space),
+		alpha2_( space->getDomain()->getDomainSize()->getAlpha2()/space->getDomain()->getDomainSize()->getRe() ) {};
 
   typedef ModeField<VectorField<SpaceT> >  DomainFieldT;
   typedef ModeField<VectorField<SpaceT> >  RangeFieldT;
@@ -43,17 +46,19 @@ public:
 
   void assignField( const DomainFieldT& mv ) {};
 
+	Teuchos::RCP<const SpaceT> space() const { return(space_); };
+
   bool hasApplyTranspose() const { return( false ); }
 
 }; // end of class DtModeOp
 
 
 
-/// \relates DtModeOp
-template<class SpaceT>
-Teuchos::RCP< DtModeOp<SpaceT> > createDtModeOp( typename SpaceT::Scalar alpha2 = 1. ) {
-  return( Teuchos::rcp( new DtModeOp<SpaceT>( alpha2 ) ) );
-}
+///// \relates DtModeOp
+//template<class SpaceT>
+//Teuchos::RCP< DtModeOp<SpaceT> > createDtModeOp( typename SpaceT::Scalar alpha2 = 1. ) {
+  //return( Teuchos::rcp( new DtModeOp<SpaceT>( alpha2 ) ) );
+//}
 
 } // end of namespace Pimpact
 

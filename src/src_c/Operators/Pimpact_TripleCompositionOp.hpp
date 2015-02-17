@@ -11,11 +11,10 @@ namespace Pimpact {
 
 /// \brief make the composition of two operators.
 ///
-/// \f[ op1 op2 op3 \mathbf{x} = \mathbf{y}
+/// \f[ op1 op2 op3 \mathbf{x} = \mathbf{y} \f]
 /// Both operators are applied sequentially.
 /// the \c DomainFieldT \c OP1 has to equal to the \c RangeFieldT \c OP2.
 /// \todo insert static_assert
-/// \todo remove dirty hack with MultiField casting
 /// \ingroup Operator
 template< class OP1, class OP2, class OP3=OP2 >
 class TripleCompositionOp {
@@ -39,14 +38,12 @@ protected:
 public:
 
   TripleCompositionOp(
-      const Teuchos::RCP<typename OP2::DomainFieldT>& temp1,
-      const Teuchos::RCP<typename OP2::RangeFieldT>& temp2,
       const Teuchos::RCP<OP1>&          op1,
       const Teuchos::RCP<OP2>&          op2,
       const Teuchos::RCP<OP3>&          op3
       ):
-        temp1_(temp1),
-        temp2_(temp2),
+        temp1_( create<typename OP2::DomainFieldT>(op1->space()) ),
+        temp2_( create<typename OP2::RangeFieldT>(op1->space()) ),
         op1_(op1),
         op2_(op2),
         op3_(op3)
@@ -76,6 +73,8 @@ public:
 //      op2_->assignField( field );
 //  };
 
+	Teuchos::RCP<const SpaceT> space() const { return(op1_->space()); };
+
   bool hasApplyTranspose() const { return( op1_->hasApplyTranspose() && op2_->hasApplyTranspose() && op3_->hasApplyTranspose() ); }
 
 }; // end of class TripleCompositionOp
@@ -85,13 +84,13 @@ public:
 /// \relates TripleCompositionOp
 template<class OP1, class OP2, class OP3>
 Teuchos::RCP< TripleCompositionOp<OP1, OP2, OP3> > createTripleCompositionOp(
-    const Teuchos::RCP<typename OP2::DomainFieldT>& temp1,
-    const Teuchos::RCP<typename OP2::RangeFieldT>& temp2,
     const Teuchos::RCP<OP1>& op1,
     const Teuchos::RCP<OP2>& op2,
     const Teuchos::RCP<OP3>& op3
       ) {
-  return( Teuchos::rcp( new TripleCompositionOp<OP1,OP2,OP3>( temp1, temp2, op1, op2, op3 ) ) );
+
+  return( Teuchos::rcp(	new TripleCompositionOp<OP1,OP2,OP3>( op1, op2, op3 ) ) );
+
 }
 
 

@@ -57,6 +57,8 @@ public:
 
   bool hasApplyTranspose() const { return( op_->hasApplyTranspose() ); }
 
+	Teuchos::RCP<const SpaceT> space() const { return(op_->space()); };
+
   Teuchos::RCP<Operator> getOperatorPtr() { return( op_ ); }
 
 

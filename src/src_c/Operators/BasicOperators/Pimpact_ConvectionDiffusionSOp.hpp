@@ -74,7 +74,6 @@ public:
 
 protected:
 
-  Teuchos::RCP<const SpaceT> space_;
 
   Teuchos::RCP<const ConvectionSOp<SpaceT> > convSOp_;
   Teuchos::RCP<const HelmholtzOp<SpaceT> > helmOp_;
@@ -82,9 +81,8 @@ protected:
 public:
 
   ConvectionDiffusionSOp( const Teuchos::RCP<const SpaceT>& space  ):
-    space_(space),
-    convSOp_( create<ConvectionSOp>(space_) ),
-    helmOp_( create<HelmholtzOp>(space_) ) {};
+    convSOp_( create<ConvectionSOp>(space) ),
+    helmOp_( create<HelmholtzOp>(space) ) {};
 
   void assignField( const RangeFieldT& mv ) {};
 
@@ -92,7 +90,7 @@ public:
 	/// \f[ z = mul z + (x\cdot\nabla) y - \frac{1}{Re} \Delta z \f]
   void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mul=0. ) const {
 		
-		apply( x, y, z, mul, 0., 1., 1./space_->getDomain()->getDomainSize()->getRe() );
+		apply( x, y, z, mul, 0., 1., 1./space()->getDomain()->getDomainSize()->getRe() );
 
   }
 
@@ -102,23 +100,23 @@ public:
 
     TEUCHOS_TEST_FOR_EXCEPT( z.getType() != y.getType() );
 
-    for( int i =0; i<space_->dim(); ++i )
+    for( int i =0; i<space()->dim(); ++i )
       TEUCHOS_TEST_FOR_EXCEPT( x[i]->getType() != y.getType() );
 
-    for( int vel_dir=0; vel_dir<space_->dim(); ++vel_dir )
+    for( int vel_dir=0; vel_dir<space()->dim(); ++vel_dir )
       x[vel_dir]->exchange();
 
     y.exchange();
 
     OP_convectionDiffusion(
-        space_->dim(),
-        space_->nLoc(),
-        space_->bl(),
-        space_->bu(),
-        space_->nl(),
-        space_->nu(),
-        space_->sInd(z.getType()),
-        space_->eInd(z.getType()),
+        space()->dim(),
+        space()->nLoc(),
+        space()->bl(),
+        space()->bu(),
+        space()->nl(),
+        space()->nu(),
+        space()->sInd(z.getType()),
+        space()->eInd(z.getType()),
         convSOp_->getCD(X,z.getType()),
         convSOp_->getCD(Y,z.getType()),
         convSOp_->getCD(Z,z.getType()),
@@ -142,6 +140,8 @@ public:
 
   }
 
+	Teuchos::RCP<const SpaceT> space() const { return(helmOp_->space()); };
+
   void print( std::ostream& out=std::cout ) const {
     convSOp_->print(out);
     helmOp_->print(out);
@@ -150,7 +150,6 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
-  Teuchos::RCP<const SpaceT>  space() const { return( space_ ); }
 
 }; // end of class ConvectionDiffusionSOp
 
