@@ -128,7 +128,7 @@ protected:
         gridSizeGlobalTup[i] = (gridSizeGlobalTup[i]-1)/2 +1;
 
     // which template paramters are necessary?
-    auto gridSizeGlobal = createGridSizeGlobal<Ordinal,dimension>( gridSizeGlobalTup ); //coarsen
+    auto gridSizeGlobal = createGridSizeGlobal<Ordinal>( gridSizeGlobalTup ); //coarsen
 
     auto gridSizeLocal = Pimpact::createGridSizeLocal<Ordinal,dimension,dimNCC>(
         gridSizeGlobal, procGridSize, stencilWidths );

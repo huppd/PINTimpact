@@ -37,7 +37,7 @@ class GridSizeLocal {
 
   template< class OT, int dT, int dNC >
   friend Teuchos::RCP<const GridSizeLocal<OT,dT> > createGridSizeLocal(
-      const Teuchos::RCP<const GridSizeGlobal<OT,dT> >& gsg,
+      const Teuchos::RCP<const GridSizeGlobal<OT> >& gsg,
       const Teuchos::RCP<const ProcGridSize<OT,dT> >& pgs,
       const Teuchos::RCP<const StencilWidths<dT,dNC> >&      stencilWidths);
 
@@ -68,7 +68,7 @@ protected:
 
   template<int dNC>
   GridSizeLocal(
-      const Teuchos::RCP<const GridSizeGlobal<Ordinal,dim> >& gridSizeGlobal,
+      const Teuchos::RCP<const GridSizeGlobal<Ordinal> >& gridSizeGlobal,
       const Teuchos::RCP<const ProcGridSize  <Ordinal,dim> >& procGridSize,
       const Teuchos::RCP<const StencilWidths<dim,dNC> >&      stencilWidths ):
         gridSize_() {
@@ -141,7 +141,7 @@ public:
 /// \relates GridSizeLocal
 template< class O, int d, int dNC>
 Teuchos::RCP<const GridSizeLocal<O,d> > createGridSizeLocal(
-    const Teuchos::RCP<const GridSizeGlobal<O,d> >& gsg,
+    const Teuchos::RCP<const GridSizeGlobal<O> >& gsg,
     const Teuchos::RCP<const ProcGridSize<O,d> >& pgs,
     const Teuchos::RCP<const StencilWidths<d,dNC> >& sW ) {
   return(

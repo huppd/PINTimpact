@@ -93,7 +93,7 @@ public:
     if( setImpact ) procGridSize_->set_Impact();
 
     gridSizeGlobal_ =
-        Pimpact::createGridSizeGlobal<O,d>(
+        Pimpact::createGridSizeGlobal<O>(
             pl->get<O>("nx"),
             pl->get<O>("ny"),
             (pl->get<int>("dim")==2)?2:pl->get<O>("nz"),
@@ -169,7 +169,7 @@ public:
   Space(
       const Teuchos::RCP<const StencilWidths<dimension,dimNC> >& stencilWidths,
       const Teuchos::RCP<const IndexSpace<Ordinal,dimension> >& indexSpace,
-      const Teuchos::RCP<const GridSizeGlobal<Ordinal,dimension> >& gridSizeGlobal,
+      const Teuchos::RCP<const GridSizeGlobal<Ordinal> >& gridSizeGlobal,
       const Teuchos::RCP<const GridSizeLocal<Ordinal,dimension> >& gridSizeLocal,
       const Teuchos::RCP<const ProcGridSize<Ordinal,dimension> >& procGridSize,
       const Teuchos::RCP<const ProcGrid<Ordinal,dimension> >& procGrid,
@@ -198,7 +198,7 @@ protected:
 
   Teuchos::RCP<const IndexSpace<Ordinal,dimension> > indexSpace_;
 
-  Teuchos::RCP<const GridSizeGlobal<Ordinal,dimension> > gridSizeGlobal_;
+  Teuchos::RCP<const GridSizeGlobal<Ordinal> > gridSizeGlobal_;
 
   Teuchos::RCP<const GridSizeLocal<Ordinal,dimension> > gridSizeLocal_;
 
@@ -220,7 +220,7 @@ public:
 
   Teuchos::RCP<const IndexSpace<Ordinal,dimension> > getIndexSpace() const { return( indexSpace_ ); }
 
-  Teuchos::RCP<const GridSizeGlobal<Ordinal,dimension> > getGridSizeGlobal() const { return( gridSizeGlobal_ );  }
+  Teuchos::RCP<const GridSizeGlobal<Ordinal> > getGridSizeGlobal() const { return( gridSizeGlobal_ );  }
 
   Teuchos::RCP<const GridSizeLocal<Ordinal,dimension> > getGridSizeLocal() const { return( gridSizeLocal_ );  }
 

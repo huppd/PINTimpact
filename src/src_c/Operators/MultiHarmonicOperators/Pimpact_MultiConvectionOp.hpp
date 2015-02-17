@@ -169,12 +169,19 @@ public:
 /// \relates MultiHarmonicConvectionOp
 template<class SpaceT>
 Teuchos::RCP<MultiHarmonicConvectionOp<ConvectionVWrap<ConvectionSOp<SpaceT> > > >
-createMultiHarmonicConvectionOp( const Teuchos::RCP<const SpaceT>& space, int nf ) {
+createMultiHarmonicConvectionOp( const Teuchos::RCP<const SpaceT>& space, int nf=-1 ) {
 
   auto sop = Pimpact::create<Pimpact::ConvectionSOp>( space ) ;
   auto wrap = Pimpact::create<Pimpact::ConvectionVWrap>( sop );
 
-  return( Teuchos::rcp( new MultiHarmonicConvectionOp<ConvectionVWrap<ConvectionSOp<SpaceT> > >( wrap, nf ) ) );
+	if( nf<0 )
+		return(
+				Teuchos::rcp(
+					new MultiHarmonicConvectionOp<ConvectionVWrap<ConvectionSOp<SpaceT> > >( wrap, space->nGlo(3) ) ) );
+
+  return(
+			Teuchos::rcp(
+				new MultiHarmonicConvectionOp<ConvectionVWrap<ConvectionSOp<SpaceT> > >( wrap, nf ) ) );
 
 }
 

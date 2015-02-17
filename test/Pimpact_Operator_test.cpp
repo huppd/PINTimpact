@@ -87,13 +87,10 @@ TEUCHOS_STATIC_SETUP() {
 
   pl->set( "dim", dim );
 
-  pl->set("nx", 125 );
-  //pl->set("ny", 125 );
-  //pl->set("nz", 125 );
-  //pl->set("nx", 65 );
-	pl->set("ny", 65 );
-	pl->set("nz", 33 );
-  //  pl->set("nz", 2 );
+	pl->set("nx", 33 );
+	pl->set("ny", 17 );
+	pl->set("nz", 9 );
+	pl->set("nf", 4 );
   //
   pl->set("npx", 2 );
   pl->set("npy", 2 );
@@ -1006,12 +1003,10 @@ TEUCHOS_UNIT_TEST( CompoundOperator, CompoundOpWrap ) {
 
   if( !isImpactInit ) isImpactInit=true;
 
-  int nfs = 4;
-
   auto x =
 		Pimpact::createMultiField( Pimpact::createCompoundField(
-					Pimpact::createMultiHarmonic<VF>( space, nfs ),
-      		Pimpact::createMultiHarmonic<SF>( space, nfs )) );
+					Pimpact::createMultiHarmonic<VF>( space ),
+      		Pimpact::createMultiHarmonic<SF>( space )) );
   auto fu   = x->clone();
   x->init(1.);
   x->random();
@@ -1019,7 +1014,7 @@ TEUCHOS_UNIT_TEST( CompoundOperator, CompoundOpWrap ) {
   auto opV2V =
       Pimpact::createAdd2Op(
           Pimpact::createMultiDtHelmholtz( space, 1., 1. ),
-          Pimpact::createMultiHarmonicConvectionOp( space, nfs ),
+          Pimpact::createMultiHarmonicConvectionOp( space ),
           x->getConstFieldPtr(0)->getConstVFieldPtr()->clone()
 					);
 

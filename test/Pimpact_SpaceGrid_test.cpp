@@ -77,7 +77,7 @@ TEUCHOS_UNIT_TEST( IndexSpace, local_consistency ) {
 
   auto procGridSize = Pimpact::createProcGridSize<O,d>( pl->get("npx",2), pl->get("npy",2), pl->get("npz",1), pl->get("npf",1) );
 
-  auto gridSizeGlobal = Pimpact::createGridSizeGlobal<O,d>( pl->get("nx",33), pl->get("ny",33), pl->get("nz",2), pl->get("nf",32) );
+  auto gridSizeGlobal = Pimpact::createGridSizeGlobal<O>( pl->get("nx",33), pl->get("ny",33), pl->get("nz",2), pl->get("nf",32) );
 
   auto gridSizeLocal = Pimpact::createGridSizeLocal<O,d>( gridSizeGlobal, procGridSize, stencilWidths );
 

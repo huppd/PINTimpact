@@ -53,7 +53,7 @@ public:
       const Teuchos::RCP<const SpaceT>& space ):
         AF( space ),
         field0_( create<Field>(space) ),
-        fields_( create<MultiField< ModeField<Field> > >(space) ) {};
+        fields_( Teuchos::rcp( new MultiField< ModeField<Field> >(space,space->nGlo(3)) ) ) {};
 
   /// \deprecated
   MultiHarmonicField(
@@ -322,15 +322,23 @@ Teuchos::RCP< MultiHarmonicField<Field> > createMultiHarmonicField(
 template<class FieldT>
 Teuchos::RCP< MultiHarmonicField< FieldT > > createMultiHarmonic(
     const Teuchos::RCP<const typename FieldT::SpaceT >& space,
-    int nf ) {
+    int nf=-1 ) {
 
   
-  auto field0 = create<FieldT>( space );
-  auto mfield = create< ModeField< FieldT > >( space );
-  auto fields = createMultiField< ModeField< FieldT > >( *mfield, nf );
-  return(
-      Teuchos::rcp(
-          new MultiHarmonicField< FieldT >( field0, fields ) ) );
+	if( nf>0 ) {
+		auto field0 = create<FieldT>( space );
+		auto mfield = create< ModeField< FieldT > >( space );
+		auto fields = createMultiField< ModeField< FieldT > >( *mfield, nf );
+		return(
+				Teuchos::rcp(
+					new MultiHarmonicField< FieldT >( field0, fields ) ) );
+	}
+	//else {
+		return(
+				//Teuchos::rcp(
+					create< MultiHarmonicField<FieldT> >( space ) );
+	//}
+
 
 }
 

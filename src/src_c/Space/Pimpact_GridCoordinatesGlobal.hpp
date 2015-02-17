@@ -47,7 +47,7 @@ class GridCoordinatesGlobal {
 
   template<class ST,class OT,int dT>
   friend Teuchos::RCP<const GridCoordinatesGlobal<ST,OT,dT> > createGridCoordinatesGlobal(
-      const Teuchos::RCP<const GridSizeGlobal<OT,dT> >& gridSize,
+      const Teuchos::RCP<const GridSizeGlobal<OT> >& gridSize,
       const Teuchos::RCP<const DomainSize<ST> >& domainSize );
 
 public:
@@ -56,7 +56,7 @@ public:
 
 protected:
 
-  Teuchos::RCP<const GridSizeGlobal<Ordinal,dim> > gridSize_;
+  Teuchos::RCP<const GridSizeGlobal<Ordinal> > gridSize_;
 
   TO xS_;
   TO xV_;
@@ -65,7 +65,7 @@ protected:
   TO dxV_;
 
   GridCoordinatesGlobal(
-      const Teuchos::RCP<const GridSizeGlobal<Ordinal,dim> >& gridSize,
+      const Teuchos::RCP<const GridSizeGlobal<Ordinal> >& gridSize,
       const Teuchos::RCP<const DomainSize<Scalar> >& domainSize ):
         gridSize_( gridSize ) {
 
@@ -150,7 +150,7 @@ public:
 /// \relates GridCoordinatesGlobal
 template<class S, class O, int d>
 Teuchos::RCP<const GridCoordinatesGlobal<S,O,d> > createGridCoordinatesGlobal(
-    const Teuchos::RCP<const GridSizeGlobal<O,d> >& gridSize,
+    const Teuchos::RCP<const GridSizeGlobal<O> >& gridSize,
     const Teuchos::RCP<const DomainSize<S> >& domainSize ) {
 
   return(

@@ -282,12 +282,10 @@ int main(int argi, char** argv ) {
 							)
 					);
 
-			//auto invSchur = Pimpact::createInverseTriangularOp(
-					//x->getConstFieldPtr(0)->getConstVFieldPtr()->clone(Pimpact::ShallowCopy),
-					//x->getConstFieldPtr(0)->getConstSFieldPtr()->clone(Pimpact::ShallowCopy),
-					//opV2Vinv,
-					//opS2V,
-					//opS2Sinv );
+			auto invSchur = Pimpact::createInverseTriangularOp(
+					opV2Vinv,
+					opS2V,
+					opS2Sinv );
 
 			//lprec =
 					//Pimpact::createMultiOperatorBase<MF>(
