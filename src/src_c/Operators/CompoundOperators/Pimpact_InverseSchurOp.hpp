@@ -19,7 +19,12 @@ namespace Pimpact {
 
 /// \ingroup CompoundOperator
 /// \relates TripleComposition
-template<class OpV2Vinv,class OpS2V, class OpV2S>
+///
+/// \f[
+///		\begin{bmatrix} I & 0 \\ opV2S opV2V & -I \end{bmatrix}^{-1}
+///		\begin{bmatrix} opV2V^{-1} & opS2V \\ 0 & - (opV2S opV2V^{-1} opV2S)^{-1} \end{bmatrix}^{-1}
+///		\mathbf{x} = \mathbf{y} \f]
+template<class OpV2V,class OpS2V, class OpV2S>
 class InverseSchurOp {
 
 
@@ -38,7 +43,7 @@ protected:
   Teuchos::RCP<VF> tempv_;
   Teuchos::RCP<SF> temps_;
 
-  Teuchos::RCP<OpV2Vinv> opV2Vinv_;
+  Teuchos::RCP<OpV2V> opV2V_;
   Teuchos::RCP<OpS2V> opS2V_;
   Teuchos::RCP<OpV2S> opV2S_;
 
@@ -49,13 +54,13 @@ public:
   InverseSchurOp(
       const Teuchos::RCP<VF> tempv,
       const Teuchos::RCP<SF> temps,
-      const Teuchos::RCP<OpV2Vinv>& opV2V,
+      const Teuchos::RCP<OpV2V>& opV2V,
       const Teuchos::RCP<OpS2V>& opS2V,
       const Teuchos::RCP<OpV2S>& opV2S,
       const Teuchos::RCP<Teuchos::ParameterList>& para=Teuchos::null):
         tempv_(tempv),
         temps_(temps),
-        opV2Vinv_(opV2V),
+        opV2V_(opV2V),
         opS2V_(opS2V),
         opV2S_(opV2S) {
 
@@ -67,7 +72,7 @@ public:
                 createMultiField( tempv_->clone(Pimpact::ShallowCopy) ),
                 createMultiField( tempv_->clone(Pimpact::ShallowCopy) ),
                 createMultiOpWrap( opV2S_ ),
-                opV2Vinv_,
+                opV2V_,
                 createMultiOpWrap( opS2V_ )
             )
         );
@@ -82,7 +87,7 @@ public:
   void apply(const DomainFieldT& x, RangeFieldT& y ) const {
     //----full Schur complement
     // ~ H^{-1} f_u
-    opV2Vinv_->apply( *createMultiField( Teuchos::rcp_const_cast<VF>(x.getConstVFieldPtr()) ), *createMultiField(tempv_) ); // should be correct
+    opV2V_->apply( *createMultiField( Teuchos::rcp_const_cast<VF>(x.getConstVFieldPtr()) ), *createMultiField(tempv_) ); // should be correct
     // ~ D H^{-1} f_u
     opV2S_->apply( *tempv_, *temps_ );
     // ~ D H^{-1} f_u - f_p
@@ -94,10 +99,10 @@ public:
     // ~ f_u - G p
     tempv_->add( -1., *tempv_, 1., x.getConstVField() );
     // ~ H^{-1}(f_u -G p)
-    opV2Vinv_->apply( *createMultiField(tempv_), *createMultiField( y.getVFieldPtr() ) );
+    opV2V_->apply( *createMultiField(tempv_), *createMultiField( y.getVFieldPtr() ) );
 
 //    //----Diag Schur
-//    opV2Vinv_->apply( *createMultiField( Teuchos::rcp_const_cast<VF>(x.getConstVFieldPtr()) ), *createMultiField(y.getVFieldPtr()) ); // should be correct
+//    opV2V_->apply( *createMultiField( Teuchos::rcp_const_cast<VF>(x.getConstVFieldPtr()) ), *createMultiField(y.getVFieldPtr()) ); // should be correct
 ////    y.getSFieldPtr()->add( 0., y.getConstSField(), 1., x.getConstSField() );
 //    // ~ (D H^{-1} G)^{-1} p = D H^{-1} f_u - f_p
 //    lp_->solve(
@@ -111,7 +116,7 @@ public:
 //    opS2V_->apply( y.getConstSField(), *tempv_ );
 //    tempv_->add( -1., *tempv_, 1., x.getConstVField() );
 //
-//    opV2Vinv_->apply( *createMultiField(tempv_), *createMultiField( y.getVFieldPtr() ) );
+//    opV2V_->apply( *createMultiField(tempv_), *createMultiField( y.getVFieldPtr() ) );
 ////    y.getSFieldPtr()->add( 0., y.getConstSField(), 1., x.getConstSField() );
 //    // ~ (D H^{-1} G)^{-1} p = D H^{-1} f_u - f_p
 
@@ -119,7 +124,7 @@ public:
 
   /// \todo fixme
   void assignField( const DomainFieldT& mv ) {
-    opV2Vinv_->assignField( *createMultiField( Teuchos::rcp_const_cast<VF>(mv.getConstVFieldPtr()) ) );
+    opV2V_->assignField( *createMultiField( Teuchos::rcp_const_cast<VF>(mv.getConstVFieldPtr()) ) );
 //    opS2V_->assignField( mv.getConstVField() );
 //    opV2S_->assignField( mv.getConstVField() );
   };

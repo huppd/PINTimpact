@@ -45,8 +45,8 @@ int main( int argi, char** argv ) {
 	//int nwinds = 360/4;
 	//int nwinds = 360/6;
 	//int nwinds = 64;
-	int nwinds = 32;
-	//int nwinds = 16;
+	//int nwinds = 32;
+	int nwinds = 16;
 	//int nwinds = 8;
 	//int nwinds = 4;
 	//int nwinds = 2;
@@ -74,7 +74,7 @@ int main( int argi, char** argv ) {
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
-  auto mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, 10 );
+  auto mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, 2 );
 
   auto wind = Pimpact::create<Pimpact::VectorField>( space );
   auto y = Pimpact::create<Pimpact::VectorField>( space );
@@ -91,8 +91,8 @@ int main( int argi, char** argv ) {
 
       auto pls = Teuchos::parameterList();
       pls->sublist("Smoother").set( "omega", 1. );
-      pls->sublist("Smoother").set( "numIter", (dirx==3)?1:4 );
-      pls->sublist("Smoother").set<int>( "Ordering", (dirx==3)?1:0 );
+      pls->sublist("Smoother").set( "numIter", (dirx==3)?1:1 );
+      pls->sublist("Smoother").set<int>( "Ordering", (dirx==3)?1:1 );
       pls->sublist("Smoother").set<short int>( "dir X", dirx );
       pls->sublist("Smoother").set<short int>( "dir Y", diry );
       pls->sublist("Smoother").set<short int>( "dir Z", 1 );
@@ -129,9 +129,9 @@ int main( int argi, char** argv ) {
           phifile << phi << "\t";
 
         // init solution
-        y->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inY );
-        //y->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inX );
-				y->getFieldPtr(Pimpact::V)->initField( Pimpact::ConstField, 0. );
+		y->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inY );
+		y->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inX );
+		//y->getFieldPtr(Pimpact::V)->initField( Pimpact::ConstField, 0. );
 
         auto sol = y->clone( Pimpact::DeepCopy );
 				//sol->write(3333);
@@ -174,14 +174,14 @@ int main( int argi, char** argv ) {
           error = z2->norm()/sol->norm();
 //          error = z2->norm();
 
-          if( iter>1000) error=-1;
+          if( iter>100) error=-1;
 
           if( space()->rankST()==0 ) ofs << error << "\n";
 
           iter++;
 
         }
-        while( error>1.e-1 );
+        while( error>1.e-6 );
 
         if( space()->rankST()==0 )
 //          phifile << error << "\n";

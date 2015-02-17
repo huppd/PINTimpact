@@ -11,6 +11,7 @@ namespace Pimpact {
 
 /// \brief make the composition of two operators.
 ///
+/// \f[ op1 op2 op3 \mathbf{x} = \mathbf{y}
 /// Both operators are applied sequentially.
 /// the \c DomainFieldT \c OP1 has to equal to the \c RangeFieldT \c OP2.
 /// \todo insert static_assert

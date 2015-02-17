@@ -322,8 +322,9 @@ Teuchos::RCP< MultiHarmonicField<Field> > createMultiHarmonicField(
 template<class FieldT>
 Teuchos::RCP< MultiHarmonicField< FieldT > > createMultiHarmonic(
     const Teuchos::RCP<const typename FieldT::SpaceT >& space,
-    int nf) {
+    int nf ) {
 
+  
   auto field0 = create<FieldT>( space );
   auto mfield = create< ModeField< FieldT > >( space );
   auto fields = createMultiField< ModeField< FieldT > >( *mfield, nf );

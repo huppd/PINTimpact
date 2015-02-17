@@ -172,10 +172,7 @@ public:
     else {
       int dir = fType;
       x.exchange( dir );
-//      for( int i=0; i<3; ++i ) {
-//          std::cout << "SSc["<<i<<"]: " <<  y.sIndB()[i] << "\n";
-//          std::cout << "NNc["<<i<<"]: " <<  y.eIndB()[i] << "\n";
-//      }
+
       MG_restrictV(
           spaceF_->dim(),
           dir+1,
@@ -192,23 +189,51 @@ public:
           cRV_[dir],
           x.getConstRawPtr(),
           y.getRawPtr() );
+
       y.changed();
     }
   }
 
   void print(  std::ostream& out=std::cout ) const {
+
+    out << " --- scalar stencil: ---";
     for( int j=0; j<3; ++j ) {
-      out << "\n Scalar dir: " << j << ":\n";
-      for( int i=0; i<3*( spaceC_->eInd(EField::S)[j]-spaceC_->sInd(EField::S)[j]+1 ); ++i)
-        out << cRS_[j][i] << "\t";
+
+      out << "\ndir: " << j << "\n";
+
+      Ordinal nTemp1 = spaceC_->eInd(EField::S)[j]-spaceC_->sInd(EField::S)[j]+1;
+      Ordinal nTemp2 = 3;
+
+      //for( int i=0; i<3*( spaceC_->eInd(EField::S)[j]-spaceC_->sInd(EField::S)[j]+1 ); ++i)
+		  //for( int k=0; k<
+	  for( int i=0; i<nTemp1; ++i ) {
+		out << "\ni: " << i << "\t(";
+		for( int k=0; k<nTemp2; ++k ) {
+          out << cRS_[j][k+nTemp2*i] << ", ";
+		}
+        out << ")\n";
     }
     out << "\n";
+	}
+
+    out << " --- velocity stencil: ---";
     for( int j=0; j<3; ++j ) {
-      out << "\n Vector dir: " << j << ":\n";
-      for( int i=0; i<2*( spaceC_->eIndB(j)[j]-spaceC_->sIndB(j)[j]+1 ); ++i)
-        out << cRV_[j][i] << "\t";
-    }
+
+      out << "\ndir: " << j << "\n";
+
+      Ordinal nTemp1 = spaceC_->eIndB(j)[j]-spaceC_->sIndB(j)[j]+1 ;
+      Ordinal nTemp2 = 2;
+
+	  for( int i=0; i<nTemp1; ++i ) {
+		out << "\ni: " << i << "\t(";
+		for( int k=0; k<nTemp2; ++k ) {
+          out << cRV_[j][k+nTemp2*i] << ", ";
+		}
+        out << ")\n";
+      }
     out << "\n";
+	}
+
   }
 
 }; // end of class RestrictionOp

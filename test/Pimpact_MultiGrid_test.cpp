@@ -65,14 +65,16 @@ TEUCHOS_STATIC_SETUP() {
 	clp.setOption(
 	    "ftype", &ftype,
 	    "Slack off of machine epsilon used to check test results" );
+
+  pl->set( "domain", 1 );
 	pl->set( "nx", 65 );
 	pl->set( "ny", 65 );
 	//pl->set( "nx", 1025 );
 	//pl->set( "ny", 1025 );
 	
 	// processor grid size
-  pl->set("npx", 2 );
-  pl->set("npy", 2 );
+  pl->set("npx", 1 );
+  pl->set("npy", 1 );
 
 }
 
@@ -99,7 +101,6 @@ TEUCHOS_UNIT_TEST( MGSpaces, constructor4D ) {
 
   pl->set( "Re", 1. );
   pl->set( "alpha2", 1. );
-  pl->set( "domain", 1 );
 
   pl->set( "lx", 1. );
   pl->set( "ly", 1. );
@@ -276,6 +277,8 @@ TEUCHOS_UNIT_TEST( MultiGrid, Restrictor3D ) {
 
     auto op = mgTransfers->getRestrictionOp( 0 );
 
+	op->print();
+
     // the zero test
     fieldf->init( 0. );
     fieldc->init( 1. );
@@ -341,7 +344,7 @@ TEUCHOS_UNIT_TEST( MultiGrid, Restrictor3D ) {
 
     fieldc->initField( Pimpact::ConstField, 0. );
     sol = fieldc->clone();
-		er = fieldc->clone();
+	er = fieldc->clone();
 
     sol->initField( Pimpact::Grad2D_inY, 1. );
     er->initField( Pimpact::ConstField, 0. );
@@ -354,7 +357,7 @@ TEUCHOS_UNIT_TEST( MultiGrid, Restrictor3D ) {
     er->add( 1., *sol, -1., *fieldc );
     er->write(6);
 
-		TEST_EQUALITY( er->norm()<eps, true ); // boundaries?
+	TEST_EQUALITY( er->norm()<eps, true ); // boundaries?
 		
 
   }

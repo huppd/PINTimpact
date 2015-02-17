@@ -542,6 +542,70 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicConvectionOp ) {
 
 
 
+TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicDtConvectionDiffusionOp ) {
+
+  pl->set<S>( "Re", 1.e1 );
+  pl->set<S>( "alpha2", 20. );
+
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, !isImpactInit );
+
+	S re = space->getDomain()->getDomainSize()->getRe();
+	S alpha2 = space->getDomain()->getDomainSize()->getAlpha2();
+	O nf = 4;
+
+  isImpactInit=true;
+
+  auto vel = Pimpact::create<Pimpact::VectorField>( space );
+
+  auto wind = Pimpact::createMultiHarmonicVectorField( space, nf );
+  auto x = Pimpact::createMultiHarmonicVectorField( space, nf );
+  auto y1 = Pimpact::createMultiHarmonicVectorField( space, nf );
+  auto y2 = Pimpact::createMultiHarmonicVectorField( space, nf );
+  auto diff = Pimpact::createMultiHarmonicVectorField( space, nf );
+
+
+  auto op1 =
+	  Pimpact::createAdd2Op(
+			  Pimpact::createMultiDtHelmholtz( space, alpha2/re, 1./re ),
+			  Pimpact::createMultiHarmonicConvectionOp( space, nf ),
+			  x->clone()
+			  );
+
+  auto op2 =
+		Pimpact::createMultiDtConvectionDiffusionOp( space, nf );
+
+  // init zero wind 
+	wind->get0FieldPtr()->initField( Pimpact::ConstFlow, 1, 1, 0 );
+	for( int i=0; i<nf; ++i ) {
+		wind->getCFieldPtr(i)->initField( Pimpact::ConstFlow, 1, 1, 1 );
+		wind->getSFieldPtr(i)->initField( Pimpact::ConstFlow, 1, 1, 1 );
+	}
+	// init const x
+	//x->get0FieldPtr()->initField( Pimpact::ConstFlow, 1, 1, 1 );
+	x->get0FieldPtr()->initField( Pimpact::PoiseuilleFlow2D_inX );
+	for( int i=0; i<nf; ++i ) {
+		x->getCFieldPtr(i)->initField( Pimpact::PoiseuilleFlow2D_inX );
+		x->getSFieldPtr(i)->initField( Pimpact::PoiseuilleFlow2D_inX );
+	}
+
+	op1->assignField( *wind );
+	op2->assignField( *wind );
+
+  op1->apply( *x, *y1 );
+  op2->apply( *x, *y2 );
+
+	diff->add( 1., *y1, -1.,  *y2 );
+	y1->write( 10 );
+	y2->write( 20 );
+	diff->write( 0 );
+
+	std::cout << "error: " << diff->norm()/std::sqrt( diff->getLength() ) << "\n";
+  TEST_EQUALITY_CONST( diff->norm()/std::sqrt( diff->getLength() ) <eps, true );
+
+}
+
+
+
 
 
 } // namespace

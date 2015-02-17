@@ -11,6 +11,8 @@ namespace Pimpact {
 
 
 /// \ingroup CompoundOperator
+///
+/// \f[ \begin{bmatrix} opV2V & opS2V \\ opV2S & 0 \end{bmatrix} \mathbf{x} = \mathbf{y} \f]
 template<class OpV2V,class OpS2V, class OpV2S>
 class CompoundOpWrap {
 
@@ -34,6 +36,8 @@ protected:
 
 public:
 
+  /// \todo constructor from space
+  /// \depcreated temp from space
   CompoundOpWrap(
       const Teuchos::RCP<VF> temp,
       const Teuchos::RCP<OpV2V>& opV2V,

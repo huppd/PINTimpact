@@ -63,7 +63,7 @@ public:
 			Scalar mul, Scalar mulI, Scalar mulC, Scalar mulL ) const {
 
     for( int i=0; i<x.space()->dim(); ++i ) {
-      convectionSOp_->apply( u[i], x.getConstField(i), y.getField(i), mul, mulI, mulC, mulI );
+      convectionSOp_->apply( u[i], x.getConstField(i), y.getField(i), mul, mulI, mulC, mulL );
     }
 
   }

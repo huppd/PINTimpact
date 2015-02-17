@@ -126,10 +126,10 @@ contains
 
         ! a little bit shaky, please verify this when IO is ready
         if (BC_L > 0) then
-            cRV(1,SS) = 1.
-            cRV(2,SS) = 0.
-            cRV(1,SS+1) = 0.
-            cRV(2,SS+1) = 1.
+            !cRV(1,SS) = 0.
+            !cRV(2,SS) = 1.
+            !cRV(1,SS+1) = 0.
+            !cRV(2,SS+1) = 1.
         end if
         if (BC_L == -2) then
             cRV(:,SS) = 0.
@@ -496,7 +496,9 @@ contains
                     j = dd(2)*jj-1
                     do ii = SSc(1), NNc(1)
                         i = dd(1)*ii-1
-                        phic(ii,jj,kk) = cRV(1,ii)*phif(i-1,j,k) + cRV(2,ii)*phif(i,j,k)
+                        !phic(ii,jj,kk) = cRV(1,ii)*phif(i-1,j,k) + cRV(2,ii)*phif(i,j,k)
+                        !phic(ii,jj,kk) = cRV(1,ii)*phif(i,j,k) + cRV(2,ii)*phif(i+1,j,k)
+                        phic(ii,jj,kk) = 0.5*phif(i,j,k) + 0.5*phif(i+1,j,k)
                     end do
                 end do
             else
@@ -514,7 +516,7 @@ contains
 
         end if
         !===========================================================================================================
-        if( dir==2 ) then
+        if( 2==dir ) then
 
             if( 2==dimens ) then
                 kk = SSc(3)
@@ -523,7 +525,9 @@ contains
                     j = dd(2)*jj-1
                     do ii = SSc(1), NNc(1)
                         i = dd(1)*ii-1
-                        phic(ii,jj,kk) = cRV(1,jj)*phif(i,j-1,k) + cRV(2,jj)*phif(i,j,k)
+                        !phic(ii,jj,kk) = cRV(1,jj)*phif(i,j-1,k) + cRV(2,jj)*phif(i,j,k)
+                        !phic(ii,jj,kk) = cRV(1,jj)*phif(i,j,k) + cRV(2,jj)*phif(i,j+1,k)
+                        phic(ii,jj,kk) = 0.5*phif(i,j,k) + 0.5*phif(i,j+1,k)
                     end do
                 end do
             else

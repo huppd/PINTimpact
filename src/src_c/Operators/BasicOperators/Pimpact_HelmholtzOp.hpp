@@ -161,10 +161,14 @@ public:
   void print( std::ostream& out=std::cout ) const {
 
     out << " --- scalar stencil: ---";
+
     for( int i=0; i<3; ++i ) {
+
       out << "\ndir: " << i << "\n";
+
       Ordinal nTemp1 = ( space_->nLoc(i) + 1 );
       Ordinal nTemp2 = ( space_->bu(i) - space_->bl(i) + 1 );
+
       for( int j=0; j<nTemp1; ++j ) {
         out << "\ni: " << j << "\t(";
         for( int k=0; k<nTemp2; ++k ) {
