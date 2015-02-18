@@ -150,6 +150,7 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
+	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
   void print( std::ostream& out=std::cout ) const { }
 

@@ -53,6 +53,9 @@ protected:
 
   Teuchos::RCP<const SpaceT> space_;
 
+	Scalar mulI_;
+	Scalar mulL_ = 1./space_->getDomain()->getDomainSize()->getRe();
+	
   TO cS_;
   TO cV_;
 
@@ -61,9 +64,11 @@ public:
   typedef VectorField<SpaceT>  DomainFieldT;
   typedef VectorField<SpaceT>  RangeFieldT;
 
-  HelmholtzOp(
-      const Teuchos::RCP<const SpaceT>& space ):
-        space_(space) {
+	HelmholtzOp(
+			const Teuchos::RCP<const SpaceT>& space ):
+		space_(space),
+		mulI_( (Scalar)0. ),
+		mulL_( 1./space_->getDomain()->getDomainSize()->getRe() )	{
 
     for( int i=0; i<3; ++i ) {
       Ordinal nTemp = ( space_->nLoc(i) + 1 )*( space_->bu(i) - space_->bl(i) + 1);
@@ -125,10 +130,7 @@ public:
   }
 
 
-  void apply(const DomainFieldT& x, RangeFieldT& y, int k=0 ) const {
-
-    Scalar mulI_ = k*space_->getDomain()->getDomainSize()->getAlpha2();
-    Scalar mulL_ = 1./space_->getDomain()->getDomainSize()->getRe();
+  void apply(const DomainFieldT& x, RangeFieldT& y ) const {
 
     x.exchange();
 
@@ -202,6 +204,11 @@ public:
   const Scalar* getC( const ECoord& dir, const EField& ftype ) const  {
       return( ((int)dir==(int)ftype)?cV_[dir]:cS_[dir] );
   }
+
+	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {
+		mulI_ = para->get<Scalar>( "mulI", 0. );
+		mulL_ = para->get<Scalar>( "mulL", 1./space_->getDomain()->getDomainSize()->getRe() );
+	}
 
 
 }; // end of class HelmholtzOp

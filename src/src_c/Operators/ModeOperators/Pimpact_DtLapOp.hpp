@@ -129,6 +129,8 @@ public:
 
 	Teuchos::RCP<const SpaceT> space() const { return(L_->space()); };
 
+	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+
   Teuchos::RCP< HelmholtzOp<SpaceT> > getInnerOpPtr() {
     return( L_ );
   }

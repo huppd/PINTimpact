@@ -64,6 +64,23 @@ Teuchos::RCP< Teuchos::ParameterList > createLinSolverParameter(
     parameter_->set( "Output Style",							style	 );
     parameter_->set( "Timer Label",								"Belos");
   }
+  else if( solver_name=="Block GMRES" ) {
+    parameter_->set( "Num Blocks",								300	  );
+    parameter_->set( "Maximum Iterations",        30000  );
+    parameter_->set( "Maximum Restarts",					100	  );
+
+    parameter_->set( "Flexible Gmres", true );
+
+    parameter_->set( "Convergence Tolerance",			tol           );
+    parameter_->set( "Implicit Residual Scaling",	"Norm of RHS" );
+    parameter_->set( "Explicit Residual Scaling",	"Norm of RHS" );
+    parameter_->set( "Orthogonalization",					"DGKS"        );
+
+    parameter_->set( "Verbosity",									verbo	 );
+    parameter_->set( "Output Frequency",					outfreq);
+    parameter_->set( "Output Style",							style	 );
+    parameter_->set( "Timer Label",								"Belos");
+  }
   else if( solver_name=="GCRODR" ) {
     parameter_->set( "Num Blocks",								100 	 );
     parameter_->set( "Maximum Iterations",        30000   );

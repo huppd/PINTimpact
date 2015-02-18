@@ -97,6 +97,9 @@ public:
   }
 
 
+	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+
+
   bool hasApplyTranspose() const { return( false ); }
 
   void print( std::ostream& out=std::cout ) const {

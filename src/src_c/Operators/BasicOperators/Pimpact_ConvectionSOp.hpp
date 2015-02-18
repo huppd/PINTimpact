@@ -281,6 +281,9 @@ public:
 
   Teuchos::RCP<const SpaceT>  space() const { return( space_ ); }
 
+	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+
+
   const Scalar* getCU( const ECoord& dir, const EField& ftype ) const  {
     return( ( ((int)dir)==((int)ftype) )?cVU_[dir]:cSU_[dir] );
 //      return( cVU_[dir] );

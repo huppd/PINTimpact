@@ -67,6 +67,8 @@ public:
 
 	Teuchos::RCP<const SpaceT> space() const { return(div_->space() ); };
 
+	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+
 }; // end of DivGradOp
 
 

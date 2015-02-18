@@ -70,6 +70,11 @@ public:
 
 	Teuchos::RCP<const SpaceT> space() const { return(op1_->space()); };
 
+	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
+    if( !op1_.is_null() ) op1_->setParameter( para );
+    if( !op2_.is_null() ) op2_->setParameter( para );
+	}
+
   bool hasApplyTranspose() const { return( op1_->hasApplyTranspose() && op2_->hasApplyTranspose() /*&& op3_->hasApplyTranspose()*/ ); }
 
 }; // end of class CompositionOp

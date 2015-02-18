@@ -125,6 +125,8 @@ public:
 
 	Teuchos::RCP<const SpaceT> space() const { return(op_->space()); };
 
+	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+
   void print( std::ostream& out=std::cout ) const {
     out << "\n --- Jacobian smoother ---\n";
     out << "\t omega: " << omega_ << "\n";

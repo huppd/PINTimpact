@@ -96,7 +96,7 @@ public:
   void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
 //    int out =0;
-    for( int j=0; j<1; ++j ) {
+    for( int j=0; j<(FSpaceT::dimNC-CSpaceT::dimNC+1); ++j ) {
       // defect correction rhs \hat{f}= b = x - L y
       mgOps_->get()->apply( y, *b_->get() );
       b_->get()->add( 1., x, -1., *b_->get() );
@@ -171,6 +171,8 @@ public:
   };
 
 	Teuchos::RCP<const SpaceT> space() const { return(mgSpaces_->get()); };
+
+	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {}
 
   bool hasApplyTranspose() const { return( false ); }
 

@@ -91,8 +91,9 @@ public:
 
 	Teuchos::RCP<const SpaceT> space() const { return(convectionVOp_->space()); };
 
-  bool hasApplyTranspose() const { return( false ); }
+	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
+  bool hasApplyTranspose() const { return( false ); }
 
 }; // end of class ConvectionJacobianOp
 

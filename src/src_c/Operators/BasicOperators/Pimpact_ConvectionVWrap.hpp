@@ -70,6 +70,8 @@ public:
 
   Teuchos::RCP<const SpaceT> space() const { return( convectionSOp_->space() ); }
 
+	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+
   Teuchos::RCP<const SOpT> getSOp() const {
     return( convectionSOp_ );
   }

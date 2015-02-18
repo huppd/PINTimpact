@@ -66,6 +66,8 @@ public:
 
 	Teuchos::RCP<const SpaceT> space() const { return(opV2V_->space()); };
 
+	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+
   bool hasApplyTranspose() const { return( false ); }
 
 }; // end of class CompoundOpWrap

@@ -28,6 +28,9 @@
 #include "Pimpact_OperatorFactory.hpp"
 
 #include "Pimpact_LinSolverParameter.hpp"
+
+#include "Pimpact_MultiGrid.hpp"
+
 #include "BelosPimpactAdapter.hpp"
 
 #include "NOX_Pimpact_Vector.hpp"
@@ -40,25 +43,41 @@
 
 
 
+
+typedef double S;
+typedef int O;
+
+typedef Pimpact::Space<S,O,3,4> SpaceT;
+
+typedef Pimpact::Space<S,O,3,4> FSpaceT;
+typedef Pimpact::Space<S,O,3,2> CSpaceT;
+
+typedef Pimpact::CoarsenStrategy<FSpaceT,CSpaceT> CS;
+
+typedef Pimpact::MultiHarmonicField< Pimpact::VectorField<SpaceT> > VF;
+typedef Pimpact::MultiHarmonicField< Pimpact::ScalarField<SpaceT> > SF;
+
+typedef Pimpact::MultiField<VF> MVF;
+typedef Pimpact::MultiField<SF> MSF;
+
+typedef Pimpact::CompoundField< VF, SF> CF;
+typedef Pimpact::MultiField<CF> MF;
+
+typedef Pimpact::OperatorBase<MF> BOp;
+
+typedef NOX::Pimpact::Interface<MF> Inter;
+typedef NOX::Pimpact::Vector<typename Inter::Field> NV;
+
+
+//template<class ST> using BOPF = Pimpact::MultiOpWrap< Pimpact::DivGradOp<ST> >;
+//template<class ST> using BOPC = Pimpact::MultiOpWrap< Pimpact::DivGradO2Op<ST> >;
+//template<class ST> using BSM = Pimpact::MultiOpWrap< Pimpact::DivGradO2JSmoother<ST> >;
+
+template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
+
+
 int main(int argi, char** argv ) {
 
-  typedef double S;
-  typedef int O;
-
-  typedef Pimpact::Space<S,O,3,4> SpaceT;
-  typedef Pimpact::MultiHarmonicField< Pimpact::VectorField<SpaceT> > VF;
-  typedef Pimpact::MultiHarmonicField< Pimpact::ScalarField<SpaceT> > SF;
-
-  typedef Pimpact::MultiField<VF> MVF;
-  typedef Pimpact::MultiField<SF> MSF;
-
-  typedef Pimpact::CompoundField< VF, SF> CF;
-  typedef Pimpact::MultiField<CF> MF;
-
-  typedef Pimpact::OperatorBase<MF> BOp;
-
-  typedef NOX::Pimpact::Interface<MF> Inter;
-  typedef NOX::Pimpact::Vector<typename Inter::Field> NV;
 
   // intialize MPI
   MPI_Init( &argi, &argv );
@@ -78,7 +97,7 @@ int main(int argi, char** argv ) {
   int domain = 2;
 
   // domain size
-  int dim = 3;
+  int dim = 2;
   S l1 = 1.;
   S l2 = 1.;
   S l3 = 1.;
@@ -89,26 +108,28 @@ int main(int argi, char** argv ) {
   O n3 = 17;
   //O n3 = 2.;
 
-  O nf = 2.;
+  O nf = 4;
 
-  O nfs = 1.;
+  O nfs = 4;
 
-  O nfe = 4.;
+  O nfe = 4;
 
   // processor grid size
-  O np1 = 2;
-  O np2 = 2;
+  O np1 = 1;
+  O np2 = 1;
   O np3 = 1.;
 
   // solver stuff
-  std::string linSolName = "GMRES";
+  std::string linSolName = "Block GMRES";
   std::string nonLinSolName = "Newton";
 
   std::string lineSearchName = "Backtrack";
 
+	bool withprec=true;
+
   int maxIter = 10;
 
-  S tolBelos = 1.e-1;
+  S tolBelos = 2.e-1;
   S tolNOX   = 1.e-1;
   S tolNF    = 1.e-1;
 
@@ -159,8 +180,8 @@ int main(int argi, char** argv ) {
   if( space->rankST()==0 ) {
     outPar   = Teuchos::rcp( new std::ofstream("para_case.txt") );
     outLinSolve  = Teuchos::rcp( new std::ofstream("stats_linSolve.txt") );
-    outPrec  = Teuchos::rcp( new std::ofstream("stats_solvPrec.txt") );
-    outSchur     = Teuchos::rcp( new std::ofstream("solvSchur.txt") );
+    outPrec  = Teuchos::rcp( new std::ofstream("stats_DtConvDif.txt") );
+    outSchur     = Teuchos::rcp( new std::ofstream("stats_DivGrad.txt") );
   } else
     outPar = Teuchos::rcp( new Teuchos::oblackholestream() ) ;
 
@@ -184,12 +205,16 @@ int main(int argi, char** argv ) {
   // init Fields, init and rhs
   x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::EFlowField(flow), 1 );
 
+	x->init(0.);
   fu->init( 0. );
 
 
+	//tolBelos*=l1*l2/n1/n2*(nfe-1)/nfs;
 
   /******************************************************************************************/
   for( nf=nfs; nf<nfe; nf*=2) {
+
+	tolBelos/=2;
 
     if( nf!=nfs ) {
       S toltemp = x->getConstFieldPtr(0)->getConstVFieldPtr()->getConstFieldPtr(x->getConstFieldPtr(0)->getConstVFieldPtr()->getNumberModes()-1)->norm()/std::sqrt(l1*l2/n1/n2);
@@ -207,10 +232,23 @@ int main(int argi, char** argv ) {
       tolNOX /= 10;
     }
 
-    auto para = Pimpact::createLinSolverParameter( linSolName, tolBelos*l1*l2/n1/n2*(nfe-1)/nf, -1 );
-    para->set( "Maximum Iterations", 1000 );
-    para->set( "Implicit Residual Scaling", "Norm of RHS" );
-    para->set( "Explicit Residual Scaling", "Norm of RHS" );
+    auto para = Pimpact::createLinSolverParameter( linSolName, tolBelos, -1 );
+		para->set( "Maximum Iterations", 1000 );
+		para->set( "Implicit Residual Scaling", "Norm of RHS" );
+		para->set( "Explicit Residual Scaling", "Norm of RHS" );
+		para->set( "Flexible Gmres", true );
+		para->set( "Output Frequency", 1 );
+		para->set( "Verbosity",	
+				Belos::Errors +
+				Belos::Warnings +
+				Belos::IterationDetails +
+				Belos::OrthoDetails +
+				Belos::FinalSummary +
+				Belos::TimingDetails +
+				Belos::StatusTestDetails +
+				Belos::Debug
+				);
+
 
 
     auto opV2V =
@@ -231,7 +269,9 @@ int main(int argi, char** argv ) {
 		jop = op;
 
     Teuchos::RCP<BOp> lprec;
-		{
+		if( withprec ) {
+
+			auto mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, 2 );
 
 			auto opV2Vprob =
 					Pimpact::createLinearProblem<MVF>(
@@ -239,7 +279,7 @@ int main(int argi, char** argv ) {
 									opV2V ),
 									Teuchos::null,
 									Teuchos::null,
-									Pimpact::createLinSolverParameter( "GMRES", tolBelos/10, -1, outPrec ),
+									Pimpact::createLinSolverParameter( "GMRES", 1.e-6, -1, outPrec ),
 									"GMRES" );
 
 			auto opV2Vinv = Pimpact::createInverseOperatorBase( opV2Vprob );
@@ -268,8 +308,23 @@ int main(int argi, char** argv ) {
 							divGradOp ,
 							Teuchos::null,
 							Teuchos::null,
-							Pimpact::createLinSolverParameter( "GMRES", tolBelos/100, -1, outSchur ),
-							"GMRES" );
+							Pimpact::createLinSolverParameter( "Block GMRES", 1.e-9, -1, outSchur ),
+							"Block GMRES" );
+
+			auto mg_divGrad =
+				Pimpact::createMultiOperatorBase(
+						Pimpact::createMultiHarmonicOpWrap(
+							Pimpact::createMultiGrid<
+								Pimpact::ScalarField,
+								Pimpact::TransferOp,
+								Pimpact::RestrictionOp,
+								Pimpact::InterpolationOp,
+								Pimpact::DivGradOp,
+								Pimpact::DivGradO2Op,
+								Pimpact::DivGradO2JSmoother,
+								MOP>( mgSpaces ) ) );
+
+			divGradProb->setRightPrec( mg_divGrad );
 
 			auto divGradInv = Pimpact::createInverseOperatorBase( divGradProb );
 
@@ -287,13 +342,15 @@ int main(int argi, char** argv ) {
 					opS2V,
 					opS2Sinv );
 
-			//lprec =
-					//Pimpact::createMultiOperatorBase<MF>(
-							//invSchur );
+			lprec =
+				Pimpact::createMultiOperatorBase(
+						invSchur );
 		}
 
 
     auto lp_ = Pimpact::createLinearProblem<MF>( jop, x->clone(), fu->clone(), para, linSolName );
+		if( withprec ) lp_->setRightPrec( lprec );
+
     auto lp = Pimpact::createInverseOperatorBase( lp_ );
 
     auto inter = NOX::Pimpact::createInterface( fu, op, lp );

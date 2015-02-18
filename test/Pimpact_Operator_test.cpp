@@ -347,8 +347,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, GradOp ) {
 TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
 
 
-  double mulI = 5.;
-  double mulL = 3.;
+  S mulI = 5.;
+  S mulL = 3.;
 
   pl->set( "alpha2", mulI );
   pl->set( "Re", 1./mulL );
@@ -372,7 +372,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
   bs->init( Teuchos::tuple( 8./std::pow(space->getDomain()->getDomainSize()->getSize(Pimpact::Y),2), 0., 0. ) );
   bs->add( mulI, *x, mulL, *bs );
 
-  op->apply( *x, *b, 1 );
+	auto para = Teuchos::parameterList();
+	para->set<S>( "mulI", mulI );
+	op->setParameter( para );
+  op->apply( *x, *b );
 
   bs->add( 1., *bs, -1, *b);
   b->write();
@@ -386,7 +389,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
   bs->init( Teuchos::tuple( 0., 8./std::pow(space->getDomain()->getDomainSize()->getSize(Pimpact::X),2), 0. ) );
   bs->add( mulI, *x, mulL, *bs );
 
-  op->apply( *x, *b, 1 );
+  op->apply( *x, *b );
 
   bs->add( 1., *bs, -1, *b);
   b->write(2);
@@ -400,7 +403,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
   bs->initField( Pimpact::Circle2D );
   bs->scale( mulI );
 
-  op->apply( *x, *b, 1 );
+  op->apply( *x, *b );
 
   bs->add( 1., *bs, -1, *b );
   x->write(4);
@@ -721,6 +724,9 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, HelmholtzOp ) {
 
 TEUCHOS_UNIT_TEST( MultiModeOperator, DtModeOp ) {
 
+	pl->set<S>("Re", 1., "Reynolds number");
+	pl->set<S>("alpha2", 1.,
+			"Womersley square \alpha^2");
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl, !isImpactInit );
 
   if( !isImpactInit ) isImpactInit=true;
@@ -788,7 +794,6 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, DtLapOp ) {
   mv2->init(0.);
 
   auto A2 = Pimpact::createMultiOpWrap( Pimpact::createDtLapOp( space, 0., 1. ) );
-  //  auto A3 = Pimpact::createMultiOpWrap( Pimpact::createModeOpWrap( Pimpact::create<Pimpact::HelmholtzOp>( space, 0., 1. ) ) );
   auto A3 = Pimpact::createMultiOpWrap( Pimpact::createModeOpWrap( Pimpact::create<Pimpact::HelmholtzOp>( space ) ) );
 
   A2->apply(*mv,*mv2);
@@ -900,13 +905,12 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, InverseOperator ) {
 
 TEUCHOS_UNIT_TEST( MultiModeOperator, EddyPrec ) {
 
-  //pl->set("alpha2",1.); pl->set("Re",1./14.);
+  //pl->set("alpha2",1.);
+	//pl->set("Re",1./14.);
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl, !isImpactInit );
 
   if( !isImpactInit ) isImpactInit=true;
 
-  typedef Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<SpaceT> > > MVF;
-  typedef Pimpact::HelmholtzOp<SpaceT>  Op;
 
   auto temp = Pimpact::createMultiModeVectorField( space );
 
@@ -920,21 +924,29 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, EddyPrec ) {
   auto solverParams = Pimpact::createLinSolverParameter("CG",1.e-1);
 
   // Create the Pimpact::LinearSolver solver.
-  auto A = Pimpact::createMultiModeOperatorBase<MVF,Op>( Pimpact::create<Pimpact::HelmholtzOp>( space ) );
+	auto A =
+		Pimpact::createMultiOperatorBase(
+				Pimpact::create<Pimpact::HelmholtzOp>( space )
+				);
 
-  A->apply( *temp, *temp );
+	auto prob =
+		Pimpact::createLinearProblem<Pimpact::MultiField<Pimpact::VectorField<SpaceT> > >(
+				A,
+				Teuchos::null,
+				Teuchos::null,
+				solverParams,
+				"CG" );
 
-  auto prob = Pimpact::createLinearProblem<MVF>( A, temp, temp, solverParams,"CG" );
-
-  prob->solve(temp,temp);
-
-  auto op = Pimpact::createEddyPrec<SpaceT>( temp, Pimpact::createInverseOperatorBase(prob) ) ;
+	auto op =
+		Pimpact::createEddyPrec(
+				Pimpact::createMultiOpUnWrap(
+					Pimpact::createInverseOperatorBase(prob) ) );
 
   op->apply( X->getField(0), B->getField(0) );
 
-  auto schur = Pimpact::createMultiOperatorBase( op );
+	auto schur = Pimpact::createMultiOperatorBase( op );
 
-  schur->apply( *B, *X );
+	schur->apply( *B, *X );
 
 }
 

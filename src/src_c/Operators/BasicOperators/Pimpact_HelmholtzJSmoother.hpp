@@ -193,6 +193,8 @@ public:
 
 	Teuchos::RCP<const SpaceT> space() const { return( space_; ) };
 
+	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+
   void print( std::ostream& out=std::cout ) const {
     out << " --- scalar stencil: ---";
     for( int i=0; i<3; ++i ) {

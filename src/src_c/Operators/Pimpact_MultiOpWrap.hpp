@@ -64,8 +64,11 @@ public:
 
   Teuchos::RCP<OperatorT> getOperatorPtr() { return( op_ ); }
 
-  Teuchos::RCP<const SpaceT> getSpace() const { return( op_->getSpace() ); };
   Teuchos::RCP<const SpaceT> space() const { return( op_->space() ); };
+
+	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
+		op_->setParameter( para );
+	}
 
 }; // end of class MultiOpWrap
 

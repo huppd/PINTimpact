@@ -27,6 +27,8 @@ public:
 
 	virtual Teuchos::RCP<const SpaceT> space() const{ return(Teuchos::null); };
 
+	virtual void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {}
+
   virtual bool hasApplyTranspose() const {return( false );};
 
 
@@ -66,9 +68,11 @@ public:
     return( opm_->hasApplyTranspose() );
   };
 
-	Teuchos::RCP<const SpaceT> space() const { return(opm_->space()); };
+	virtual Teuchos::RCP<const SpaceT> space() const { return(opm_->space()); };
 
-  Teuchos::RCP<Op> getOperatorPtr() { return( opm_ ); }
+	virtual void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) { opm_->setParameter(para); }
+
+  virtual Teuchos::RCP<Op> getOperatorPtr() { return( opm_ ); }
 
 }; // end of OperatorPimpl
 

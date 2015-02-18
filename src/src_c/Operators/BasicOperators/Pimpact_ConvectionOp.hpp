@@ -83,6 +83,9 @@ public:
 
 	Teuchos::RCP<const SpaceT> space() const { return(space_); };
 
+	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+
+
 }; // end of class ConvectionOp
 
 

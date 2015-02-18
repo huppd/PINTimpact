@@ -67,12 +67,17 @@ public:
 
   }
 
+
   /// \todo fixme
   void assignField( const DomainFieldT& mv ) {
     opV2V_->assignField( *createMultiField( Teuchos::rcp_const_cast<VF>(mv.getConstVFieldPtr()) ) );
     //    opS2V_->assignField( mv.getConstVField() );
     //    opV2S_->assignField( mv.getConstVField() );
   };
+
+	Teuchos::RCP<const SpaceT> space() const { return(opV2V_->space()); };
+
+	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
   bool hasApplyTranspose() const { return( false ); }
 

@@ -142,6 +142,8 @@ public:
 
 	Teuchos::RCP<const SpaceT> space() const { return(helmOp_->space()); };
 
+	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+
   void print( std::ostream& out=std::cout ) const {
     convSOp_->print(out);
     helmOp_->print(out);

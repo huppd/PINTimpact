@@ -48,6 +48,8 @@ public:
 
 	Teuchos::RCP<const SpaceT> space() const { return(space_); };
 
+	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+
   bool hasApplyTranspose() const { return( false ); }
 
 }; // end of class DtModeOp

@@ -62,6 +62,8 @@ public:
 
 	Teuchos::RCP<const SpaceT> space() const { return(u_->space()); };
 
+	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+
   bool hasApplyTranspose() const { return( false ); }
 
 }; // end of class MultiHarmonicConvectionJacobianOp

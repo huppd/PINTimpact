@@ -52,6 +52,10 @@ public:
     y.scale( *forcing_ );
   }
 
+	Teuchos::RCP<const SpaceT> space() const { return(forcing_->space()); };
+
+	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+
   void assignField( const DomainFieldT& field ) {};
 
   bool hasApplyTranspose() const { return( false ); }

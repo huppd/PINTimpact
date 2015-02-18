@@ -129,6 +129,10 @@ public:
 //    opV2S_->assignField( mv.getConstVField() );
   };
 
+	Teuchos::RCP<const SpaceT> space() const { return(opV2V_->space()); };
+
+	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+
   bool hasApplyTranspose() const { return( false ); }
 
 }; // end of class InverseSchurOp

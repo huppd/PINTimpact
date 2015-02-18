@@ -3,6 +3,8 @@
 #define PIMPACT_ADD2OP_HPP
 
 #include "Teuchos_RCP.hpp"
+#include "Teuchos_ParameterList.hpp"
+
 #include "BelosTypes.hpp"
 
 
@@ -56,6 +58,11 @@ public:
   };
 
 	Teuchos::RCP<const SpaceT> space() const { return(op1_->space()); };
+
+	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
+		op1_->setParameter( para );
+		op2_->setParameter( para );
+	}
 
   bool hasApplyTranspose() const { return( op1_->hasApplyTranspose() && op2_->hasApplyTranspose() ); }
 

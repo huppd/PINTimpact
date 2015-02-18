@@ -99,6 +99,8 @@ public:
 
   void assignField( const RangeFieldT& mv ) {};
 
+	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+
   bool hasApplyTranspose() const { return( false ); }
 
 

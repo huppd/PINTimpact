@@ -79,6 +79,8 @@ public:
 
 	Teuchos::RCP<const SpaceT> space() const { return(convVWrap_->space()); };
 
+	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+
   void print( std::ostream& out=std::cout ) const {
     convVWrap_->print(out);
   }

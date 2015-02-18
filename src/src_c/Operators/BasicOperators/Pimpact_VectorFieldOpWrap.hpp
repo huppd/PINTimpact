@@ -68,6 +68,8 @@ public:
 //
 	Teuchos::RCP<const SpaceT> space() const { return(sop_->space()); };
 
+	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+
   void print(  std::ostream& out=std::cout ) const {
     sop_->print();
   }
