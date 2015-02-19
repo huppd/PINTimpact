@@ -73,7 +73,7 @@ public:
   /// \name setter methods
   //@{
 
-  /// \brief Set the parameters to use when solving the linear problem.
+  /// \brief Set the parameters of the solver to use when solving the linear problem.
   ///
   /// \param params [in/out] List of parameters to use when solving
   ///   the linear problem.  This list will be modified as necessary

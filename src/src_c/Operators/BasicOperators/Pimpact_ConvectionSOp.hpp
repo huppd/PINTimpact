@@ -223,12 +223,12 @@ public:
         x[2]->getConstRawPtr(),
         y.getConstRawPtr(),
         z.getRawPtr(),
-        //mul,
-				//0.,
-				//1. );
-				1.,
+				mul,
 				0.,
-				mul );
+				1. );
+//				1.,
+//				0.,
+//				mul );
 
     z.changed();
 

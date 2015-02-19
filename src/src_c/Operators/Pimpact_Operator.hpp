@@ -75,6 +75,7 @@
 #include "Pimpact_MultiConvectionOp.hpp"
 #include "Pimpact_MultiConvectionJacobianOp.hpp"
 #include "Pimpact_MultiHarmonicOpWrap.hpp"
+#include "Pimpact_MultiHarmonicDiagOp.hpp"
 #include "Pimpact_MultiDiagConvectionOp.hpp"
 #include "Pimpact_MultiDtConvectionDiffusionOp.hpp"
 

@@ -37,7 +37,7 @@ public:
 
 protected:
 
-  Teuchos::RCP<const ConvectionVWrap< ConvectionDiffusionSOp<SpaceT> > > op_;
+  Teuchos::RCP<ConvectionVWrap< ConvectionDiffusionSOp<SpaceT> > > op_;
 
   Teuchos::RCP< ConvectionField<SpaceT> > wind0_;
   Teuchos::Array< Teuchos::RCP<ConvectionField<SpaceT> > > windc_;
@@ -47,7 +47,7 @@ public:
 
   /// \todo get nf from grid
   MultiDtConvectionDiffusionOp( const Teuchos::RCP<const SpaceT>& space, int nf ):
-    op_( createConst<ConvectionVWrap>( createConst<ConvectionDiffusionSOp<SpaceT> >(space) ) ),
+    op_( create<ConvectionVWrap>( create<ConvectionDiffusionSOp<SpaceT> >(space) ) ),
     wind0_( create<ConvectionField>(space) ),
     windc_( nf ),
     winds_( nf ) {

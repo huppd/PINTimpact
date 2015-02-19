@@ -37,15 +37,11 @@ public:
 
 protected:
 
-
-  Teuchos::RCP<const SOpT> convectionSOp_;
+  Teuchos::RCP<SOpT> convectionSOp_;
 
 public:
 
-//  ConvectionVWrap( const Teuchos::RCP<const SpaceT>& space  ):
-//    convectionSOp_(  create<SOpT>(space) ) {};
-
-  ConvectionVWrap( const Teuchos::RCP<const SOpT>& sop ):
+  ConvectionVWrap( const Teuchos::RCP<SOpT>& sop ):
     convectionSOp_( sop ) {};
 
 
@@ -70,7 +66,9 @@ public:
 
   Teuchos::RCP<const SpaceT> space() const { return( convectionSOp_->space() ); }
 
-	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
+		convectionSOp_->setParameter( para );
+	}
 
   Teuchos::RCP<const SOpT> getSOp() const {
     return( convectionSOp_ );

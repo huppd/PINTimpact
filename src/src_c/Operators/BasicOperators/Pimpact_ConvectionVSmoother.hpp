@@ -41,7 +41,7 @@ public:
 
 protected:
 
-  Teuchos::RCP<const ConvectionVWrap<SSmootherT> > convVWrap_;
+  Teuchos::RCP<ConvectionVWrap<SSmootherT> > convVWrap_;
 
   Teuchos::RCP< ConvectionField<SpaceT> > convField_;
 
@@ -79,7 +79,9 @@ public:
 
 	Teuchos::RCP<const SpaceT> space() const { return(convVWrap_->space()); };
 
-	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
+		convVWrap_->setParameter( para );
+	}
 
   void print( std::ostream& out=std::cout ) const {
     convVWrap_->print(out);

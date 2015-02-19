@@ -40,19 +40,19 @@ public:
 
 protected:
 
-  Teuchos::RCP<const ConvectionVWrap<ConvSOpT> > convVWrap_;
+  Teuchos::RCP<ConvectionVWrap<ConvSOpT> > convVWrap_;
 
   Teuchos::RCP< ConvectionField<SpaceT> > convField_;
 
 public:
 
     ConvectionVOp( const Teuchos::RCP<const SpaceT>& space ):
-      convVWrap_( createConst<ConvectionVWrap<ConvSOpT> >( createConst<ConvSOpT>(space) ) ),
+      convVWrap_( create<ConvectionVWrap<ConvSOpT> >( create<ConvSOpT>(space) ) ),
       convField_( create<ConvectionField>( space ) ) {};
 
     template< class ConvSOpTT >
     ConvectionVOp( const Teuchos::RCP<const ConvSOpTT>& op ):
-      convVWrap_( createConst<ConvectionVWrap<ConvSOpT> >( createConst<ConvSOpT>( op->getSpace() ) ) ),
+      convVWrap_( create<ConvectionVWrap<ConvSOpT> >( create<ConvSOpT>( op->getSpace() ) ) ),
       convField_( op->getConvField() ) {}
 
 
@@ -97,7 +97,9 @@ public:
   }
 
 
-	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
+		convVWrap_->setParameter( para );
+	}
 
 
   bool hasApplyTranspose() const { return( false ); }

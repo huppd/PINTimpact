@@ -333,11 +333,8 @@ Teuchos::RCP< MultiHarmonicField< FieldT > > createMultiHarmonic(
 				Teuchos::rcp(
 					new MultiHarmonicField< FieldT >( field0, fields ) ) );
 	}
-	//else {
 		return(
-				//Teuchos::rcp(
 					create< MultiHarmonicField<FieldT> >( space ) );
-	//}
 
 
 }

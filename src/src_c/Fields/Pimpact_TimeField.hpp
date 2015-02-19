@@ -64,12 +64,12 @@ public:
 
 public:
 
-  typedef Teuchos::Array< Teuchos::RCP<Field> > FieldArray;
-  typedef typename FieldArray::iterator Iter;
+	typedef Teuchos::Array< Teuchos::RCP<Field> > FieldArray;
+	typedef typename FieldArray::iterator Iter;
 
-  /// \todo move to IndexSpace
-  Iter sInd_;
-  Iter eInd_;
+	/// \todo move to IndexSpace
+	Iter sInd_;
+	Iter eInd_;
 
 protected:
 
@@ -114,7 +114,6 @@ protected:
   /// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
   TimeField(const TimeField& field, ECopyType copyType=DeepCopy):
     AF( field.space() ),
-    //    space()(field.space()),
     exchangedState_(field.exchangedState_) {
 
     Ordinal nt = space()->nLoc(3) + space()->bu(3) - space()->bl(3);
@@ -226,9 +225,6 @@ public:
   /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
   /// \return Reference to this object
   void reciprocal(const MV& y){
-    //    Iter j=const_cast<MV&>(y).sInd_;
-    //    for( Iter i=sInd_; i<eInd_; ++i )
-    //      (*i)->reciprocal( **(j++) );
     for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
       mfs_[i]->reciprocal( *y.mfs_[i] );
     changed();
@@ -240,8 +236,6 @@ public:
   /// Here x represents on \c Field, and we update it as
   /// \f[ x_i = \alpha x_i \quad \mbox{for } i=1,\dots,n \f]
   void scale( const Scalar& alpha ) {
-    //    for( Iter i=sInd_; i<eInd_; ++i )
-    //      (*i)->scale(alpha);
     for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
       mfs_[i]->scale(alpha);
     changed();
@@ -254,9 +248,6 @@ public:
   /// \f[ x_i = x_i \cdot y_i \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
   void scale(const MV& y) {
-    //    Iter j=const_cast<MV&>(y).sInd_;
-    //    for( Iter i=sInd_; i<eInd_; ++i )
-    //      (*i)->scale( **(j++) );
     for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
       mfs_[i]->scale( y.mfs_[i] );
     changed();
@@ -273,15 +264,13 @@ public:
 
     Scalar b = 0.;
 
-    //    Iter j = const_cast<MV&>(A).sInd_;
-    //    for( Iter i=sInd_; i<eInd_; ++i )
-    //      b+= (*i)->dot( **(j++), false );
     for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
       b+= mfs_[i]->dot( *A.mfs_[i], false );
 
     if( global ) this->reduceNorm( comm(), b );
 
     return( b );
+
   }
 
 
@@ -291,19 +280,6 @@ public:
 
     Scalar normvec = 0.;
 
-    //    for( Iter i=sInd_; i<eInd_; ++i ) {
-    //      switch(type) {
-    //      case Belos::OneNorm:
-    //        normvec += (*i)->norm(type,false);
-    //        break;
-    //      case Belos::TwoNorm:
-    //        normvec += (*i)->norm(type,false);
-    //        break;
-    //      case Belos::InfNorm:
-    //        normvec = std::max( (*i)->norm(type,false), normvec ) ;
-    //        break;
-    //      }
-    //    }
     for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i ) {
       switch(type) {
       case Belos::OneNorm:
@@ -336,8 +312,6 @@ public:
 
     Iter j = const_cast<MV&>(weights).sInd_;
 
-    //    for( Iter i=sInd_; i<eInd_; ++i )
-    //      nor+= (*i)->norm( **(j++) );
     for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
       nor+= mfs_[i]->norm( **(j++) );
 
@@ -351,10 +325,6 @@ public:
   ///
   /// assign (deep copy) A into mv.
   void assign( const MV& A ) {
-    //    Iter j = const_cast<MV&>(A).sInd_;
-    //    for( Iter i=sInd_; i<eInd_; ++i )
-    //      (*i)->assign( **(j++) );
-    //    Iter j = const_cast<MV&>(A).sInd_;
     for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
       mfs_[i]->assign( *A.mfs_[i] );
     changed();
@@ -363,8 +333,6 @@ public:
 
   /// \brief Replace the vectors with a random vectors.
   void random(bool useSeed = false, int seed = 1) {
-    //    for( Iter i=sInd_; i<eInd_; ++i )
-    //      (*i)->random();
     for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
       mfs_[i]->random();
     changed();
@@ -373,8 +341,6 @@ public:
 
   /// \brief \f[ *this = \alpha \f]
   void init( Scalar alpha = Teuchos::ScalarTraits<Scalar>::zero() ) {
-    //    for( Iter i=sInd_; i<eInd_; ++i )
-    //      (*i)->init(alpha);
     for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
       mfs_[i]->init(alpha);
     changed();
@@ -383,8 +349,6 @@ public:
 
   /// \param os
   void print( std::ostream& os ) {
-    //    for( Iter i=mfs_.begin(); i<mfs_.end(); ++i )
-    //      (*i)->print( os );
     for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
       mfs_[i]->print( os );
   }
@@ -392,11 +356,7 @@ public:
 
 
   void write( int count=0 )  {
-    //    for( Iter i=mfs_.begin(); i<mfs_.end(); ++i )
-    //      (*i)->write(count++ + 2.*space()->getShift()[3] );
-    //    for( Iter i=sInd_; i<eInd_; ++i )
-    //      (*i)->write(count++ + space()->getShift()[3] );
-    for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
+		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
       mfs_[i]->write(count++ + space()->getShift()[3] );
   }
 

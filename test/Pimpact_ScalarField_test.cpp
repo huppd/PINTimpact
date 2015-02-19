@@ -17,6 +17,7 @@
 
 namespace {
 
+
 typedef double S;
 typedef int O;
 const int d = 3;

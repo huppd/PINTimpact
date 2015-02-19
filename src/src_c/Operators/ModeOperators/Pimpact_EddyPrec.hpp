@@ -2,13 +2,10 @@
 #ifndef PIMPACT_EDDYPREC_HPP
 #define PIMPACT_EDDYPREC_HPP
 
+
 #include "Teuchos_RCP.hpp"
 
-#include "Pimpact_VectorField.hpp"
-#include "Pimpact_MultiField.hpp"
-
-#include "Pimpact_Operator.hpp"
-#include "Pimpact_OperatorBase.hpp"
+#include "Pimpact_ModeField.hpp"
 
 
 

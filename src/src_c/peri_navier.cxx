@@ -69,6 +69,11 @@ typedef NOX::Pimpact::Interface<MF> Inter;
 typedef NOX::Pimpact::Vector<typename Inter::Field> NV;
 
 
+template<class T> using ConvDiffOpT = Pimpact::ConvectionVOp<Pimpact::ConvectionDiffusionSOp<T> >;
+
+template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
+
+
 //template<class ST> using BOPF = Pimpact::MultiOpWrap< Pimpact::DivGradOp<ST> >;
 //template<class ST> using BOPC = Pimpact::MultiOpWrap< Pimpact::DivGradO2Op<ST> >;
 //template<class ST> using BSM = Pimpact::MultiOpWrap< Pimpact::DivGradO2JSmoother<ST> >;
@@ -86,9 +91,9 @@ int main(int argi, char** argv ) {
   Teuchos::CommandLineProcessor my_CLP;
 
   // physical constants
-  S re = 1.e2;
+  S re = 1.e1;
 
-  S alpha2 = 1.e3;
+  S alpha2 = 1.e2;
 
   // flow type
   int flow = 7;
@@ -120,29 +125,30 @@ int main(int argi, char** argv ) {
   O np3 = 1.;
 
   // solver stuff
-  std::string linSolName = "Block GMRES";
   std::string nonLinSolName = "Newton";
 
   std::string lineSearchName = "Backtrack";
 
-	bool withprec=true;
+	bool withprec=false;
 
   int maxIter = 10;
 
-  S tolBelos = 2.e-1;
-  S tolNOX   = 1.e-1;
-  S tolNF    = 1.e-1;
+  S tolBelos = 1.e-1;
+  S tolNOX   = 1.e-3;
 
+
+	// start of parsing
+  my_CLP.setOption( "withprec","noprec", &withprec, "type of fixpoint iteration matrix: 1=Newton, 2=Piccard, 3=lin diag... " );
+
+  my_CLP.recogniseAllOptions(true);
+  my_CLP.throwExceptions(true);
+
+  my_CLP.parse(argi,argv);
   // end of parsing
+  // start of ininializing
+	
+  std::string linSolName = withprec?"Block GMRES":"GMRES";
 
-  if( nfs==nfe ) {
-    nfs=nf;
-    nfe=nf+1;
-  }
-  else {
-    nf=nfe;
-  }
-  // starting with ininializing
   auto pl = Teuchos::parameterList();
 
   pl->set( "Re", re );
@@ -212,25 +218,8 @@ int main(int argi, char** argv ) {
 	//tolBelos*=l1*l2/n1/n2*(nfe-1)/nfs;
 
   /******************************************************************************************/
-  for( nf=nfs; nf<nfe; nf*=2) {
+	{
 
-	tolBelos/=2;
-
-    if( nf!=nfs ) {
-      S toltemp = x->getConstFieldPtr(0)->getConstVFieldPtr()->getConstFieldPtr(x->getConstFieldPtr(0)->getConstVFieldPtr()->getNumberModes()-1)->norm()/std::sqrt(l1*l2/n1/n2);
-      if( 0==space->rankST() ) std::cout << "\n\t--- ||u_Nf||: "<<toltemp<<"\t---\n";
-      if( toltemp < tolNF ) {
-        if( 0==space->rankST() ) std::cout << "\n\t--- Nf: "<<x->getConstFieldPtr(0)->getConstVFieldPtr()->getNumberModes()<<"\tdof: "<<x->getLength(true)<<"\t---\n";
-        break;
-      }
-      do {
-        x->getFieldPtr(0)->getVFieldPtr()->push_back();
-        x->getFieldPtr(0)->getSFieldPtr()->push_back();
-        fu->getFieldPtr(0)->getVFieldPtr()->push_back();
-        fu->getFieldPtr(0)->getSFieldPtr()->push_back();
-      } while( x->getConstFieldPtr(0)->getConstVFieldPtr()->getNumberModes() < nf );
-      tolNOX /= 10;
-    }
 
     auto para = Pimpact::createLinSolverParameter( linSolName, tolBelos, -1 );
 		para->set( "Maximum Iterations", 1000 );
@@ -271,20 +260,31 @@ int main(int argi, char** argv ) {
     Teuchos::RCP<BOp> lprec;
 		if( withprec ) {
 
+			// create Muli space
 			auto mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, 2 );
 
+			// create Hinv
 			auto opV2Vprob =
 					Pimpact::createLinearProblem<MVF>(
 							Pimpact::createMultiOperatorBase(
 									opV2V ),
 									Teuchos::null,
 									Teuchos::null,
-									Pimpact::createLinSolverParameter( "GMRES", 1.e-6, -1, outPrec ),
-									"GMRES" );
+									Pimpact::createLinSolverParameter( "Block GMRES", 1.e-6, -1, outPrec ),
+									"Block GMRES" );
 
+			// creat Hinv prec
+			auto zeroOp = Pimpact::create<ConvDiffOpT>( space );
+			auto zeroInv = Pimpact::create<MOP>( zeroOp );
+
+			auto opV2Vprec = Pimpact::createMultiOperatorBase(
+					Pimpact::createMultiHarmonicDiagOp(zeroInv) );
+			
+			opV2Vprob->setRightPrec( opV2Vprec );
+			
 			auto opV2Vinv = Pimpact::createInverseOperatorBase( opV2Vprob );
 
-			// opS2Sinv alias schurcomplement ...
+			// schurcomplement approximator ...
 			auto opSchur =
 					Pimpact::createMultiOperatorBase(
 							Pimpact::createTripleCompositionOp(
@@ -362,7 +362,7 @@ int main(int argi, char** argv ) {
     auto group = NOX::Pimpact::createGroup<Inter>( bla, inter, nx );
 
     // Set up the status tests
-    auto statusTest = NOX::Pimpact::createStatusTest( maxIter, tolNOX, tolBelos );
+    auto statusTest = NOX::Pimpact::createStatusTest( maxIter, tolNOX, tolBelos/100 );
 
     // Create the list of solver parameters
     auto solverParametersPtr =

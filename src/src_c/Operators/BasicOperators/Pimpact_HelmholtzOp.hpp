@@ -205,7 +205,7 @@ public:
       return( ((int)dir==(int)ftype)?cV_[dir]:cS_[dir] );
   }
 
-	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {
+	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
 		mulI_ = para->get<Scalar>( "mulI", 0. );
 		mulL_ = para->get<Scalar>( "mulL", 1./space_->getDomain()->getDomainSize()->getRe() );
 	}

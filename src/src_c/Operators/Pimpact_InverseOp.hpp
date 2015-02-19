@@ -70,7 +70,9 @@ public:
 
 	Teuchos::RCP<const SpaceT> space() const { return(linprob_->space()); };
 	
-	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
+		Teuchos::rcp_const_cast<Op>( linprob_->getProblem()->getOperator() )->setParameter( para );
+	}
 
   bool hasApplyTranspose() const { return( false ); }
 

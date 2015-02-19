@@ -78,19 +78,35 @@ protected:
   Teuchos::RCP<const ConvectionSOp<SpaceT> > convSOp_;
   Teuchos::RCP<const HelmholtzOp<SpaceT> > helmOp_;
 
+	Scalar mul_;
+	Scalar mulI_;
+	Scalar mulC_;
+	Scalar mulL_;
+
 public:
 
   ConvectionDiffusionSOp( const Teuchos::RCP<const SpaceT>& space  ):
     convSOp_( create<ConvectionSOp>(space) ),
-    helmOp_( create<HelmholtzOp>(space) ) {};
+    helmOp_( create<HelmholtzOp>(space) ),
+ 		mul_(0.),
+		mulI_(0.),
+		mulC_(1.),
+		mulL_(1./space()->getDomain()->getDomainSize()->getRe())	{};
 
   void assignField( const RangeFieldT& mv ) {};
 
 
-	/// \f[ z = mul z + (x\cdot\nabla) y - \frac{1}{Re} \Delta z \f]
-  void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mul=0. ) const {
+	/// \f[ z =   (x\cdot\nabla) y - \frac{1}{Re} \Delta z \f]
+  void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z ) const {
 		
-		apply( x, y, z, mul, 0., 1., 1./space()->getDomain()->getDomainSize()->getRe() );
+		apply( x, y, z, mul_, mulI_, mulC_, mulL_ );
+
+  }
+
+	/// \f[ z = mul z + (x\cdot\nabla) y - \frac{1}{Re} \Delta z \f]
+  void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mul ) const {
+		
+		apply( x, y, z, mul, mulI_, mulC_, mulL_ );
 
   }
 
@@ -142,7 +158,12 @@ public:
 
 	Teuchos::RCP<const SpaceT> space() const { return(helmOp_->space()); };
 
-	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
+		mul_ = para->get<Scalar>( "mul", 0. );
+		mulI_ = para->get<Scalar>( "mulI", 0. );
+		mulC_ = para->get<Scalar>( "mulC", 1. );
+		mulL_ = para->get<Scalar>( "mulL", 1./space()->getDomain()->getDomainSize()->getRe() );
+	}
 
   void print( std::ostream& out=std::cout ) const {
     convSOp_->print(out);

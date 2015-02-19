@@ -531,7 +531,7 @@ public:
   /// \todo add restart
   void write( int count=0 , bool restart=false ) {
 
-    if( 0==space()->rankST() )
+    if( 0==space()->rankS() )
       switch(fType_) {
       case U:
         std::cout << "writing velocity field x(" << count << ") ...\n";
@@ -559,7 +559,7 @@ public:
       if( 2==space()->dim() ) {
 
         write_hdf5_2D(
-            space()->rankST(),
+            space()->rankS(),
             space()->commf(),
             space()->nGlo(),
             space()->getDomain()->getBCGlobal()->getBCL(),
@@ -587,7 +587,7 @@ public:
         int stride[3] = {1,1,1};
 
         write_hdf_3D(
-            space()->rankST(),
+            space()->rankS(),
             space()->commf(),
             space()->nGlo(),
             space()->getDomain()->getBCGlobal()->getBCL(),
@@ -622,7 +622,7 @@ public:
       int stride[3] = {1,1,1};
 
       write_hdf_3D(
-          space()->rankST(),
+          space()->rankS(),
           space()->commf(),
           space()->nGlo(),
           space()->getDomain()->getBCGlobal()->getBCL(),

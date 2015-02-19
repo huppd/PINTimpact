@@ -26,18 +26,29 @@
 
 namespace {
 
+
+typedef double S;
+typedef int O;
+const int d = 3;
+const int dNC = 4;
+
 bool testMpi = true;
 double eps = 1.e-6;
 int domain = 1;
 
-typedef double S;
-typedef int O;
 
-typedef typename Pimpact::Space<S,O,3,4> SpaceT;
+typedef typename Pimpact::Space<S,O,d,dNC> SpaceT;
+
 typedef typename Pimpact::ScalarField<SpaceT> SF;
 typedef typename Pimpact::VectorField<SpaceT> VF;
 typedef typename Pimpact::ModeField<SF>       MSF;
 typedef typename Pimpact::ModeField<VF>       MVF;
+
+typedef Pimpact::CompoundField<VF,SF> CF;
+typedef Pimpact::CompoundField<MVF,MSF> CMF;
+
+
+auto pl = Teuchos::parameterList();
 
 
 TEUCHOS_STATIC_SETUP() {
@@ -53,158 +64,36 @@ TEUCHOS_STATIC_SETUP() {
   clp.setOption(
       "domain", &domain,
       "domain" );
-}
-
-
-TEUCHOS_UNIT_TEST( AelosPimpactMV, MultiFieldScalar ) {
-
-  auto pl = Teuchos::parameterList();
 
   pl->set( "domain", domain);
-
-  auto space = Pimpact::createSpace( pl );
-
-  auto p = Pimpact::createScalarField( space );
-
-
-  auto mvec = Pimpact::createMultiField(*p,5);
-
-  // Create an output manager to handle the I/O from the solver
-  Teuchos::RCP<Belos::OutputManager<S> > MyOM = Teuchos::rcp( new Belos::OutputManager<S>(Belos::Warnings,rcp(&out,false)) );
-
-  bool res = Belos::TestMultiVecTraits<S,Pimpact::MultiField<Pimpact::ScalarField<SpaceT> > >(MyOM,mvec);
-  TEST_EQUALITY_CONST(res,true);
 
 }
 
 
-TEUCHOS_UNIT_TEST( AelosPimpactMV, MultiFieldVector ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, BelosMVTest, FType ) {
 
-  auto pl = Teuchos::parameterList();
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
-  pl->set( "domain", domain);
-
-  auto space = Pimpact::createSpace( pl );
-
-  auto vel = Pimpact::create<Pimpact::VectorField>(space);
-
-  auto mvec = Pimpact::createMultiField( *vel, 5 );
-
-  // Create an output manager to handle the I/O from the solver
-  Teuchos::RCP<Belos::OutputManager<S> > MyOM = Teuchos::rcp( new Belos::OutputManager<S>(Belos::Warnings,rcp(&out,false)) );
-
-  bool res = Belos::TestMultiVecTraits<S,Pimpact::MultiField<Pimpact::VectorField<SpaceT> > >(MyOM,mvec);
-  TEST_EQUALITY_CONST(res,true);
-
-}
-
-
-TEUCHOS_UNIT_TEST( AelosPimpactMV, MultiFieldScalarMode ) {
-
-  auto pl = Teuchos::parameterList();
-
-  pl->set( "domain", domain);
-
-  auto space = Pimpact::createSpace( pl );
-
-//  auto pc = Pimpact::createScalarField(space);
-//  auto ps = Pimpact::createScalarField(space);
-//
-//  auto vel = Pimpact::createModeField( pc, ps );
-  auto vel = Pimpact::create<MSF>( space );
+  auto vel = Pimpact::create<FType>( space );
 
   auto mvec = Pimpact::createMultiField( *vel, 5 );
 
   // Create an output manager to handle the I/O from the solver
   Teuchos::RCP<Belos::OutputManager<S> > MyOM =
-      Teuchos::rcp( new Belos::OutputManager<S>(Belos::Warnings,rcp(&out,false)) );
+		Teuchos::rcp( new Belos::OutputManager<S>(Belos::Warnings,rcp(&out,false)) );
 
-  bool res =
-      Belos::TestMultiVecTraits<S,Pimpact::MultiField<Pimpact::ModeField<Pimpact::ScalarField<SpaceT> > > >(MyOM,mvec);
-
-  TEST_EQUALITY_CONST(res,true);
-}
-
-
-TEUCHOS_UNIT_TEST( AelosPimpactMV, MultiFieldVectorMode ) {
-
-  auto pl = Teuchos::parameterList();
-
-  pl->set( "domain", domain);
-
-  auto space = Pimpact::createSpace( pl );
-
-  auto vel = Pimpact::create<MVF>( space );
-
-  auto mvec = Pimpact::createMultiField<Pimpact::ModeField<Pimpact::VectorField<SpaceT> > >( *vel, 5 );
-
-  // Create an output manager to handle the I/O from the solver
-  Teuchos::RCP<Belos::OutputManager<S> > MyOM = Teuchos::rcp( new Belos::OutputManager<S>(Belos::Warnings,rcp(&out,false)) );
-
-  bool res = Belos::TestMultiVecTraits<S,Pimpact::MultiField< Pimpact::ModeField<Pimpact::VectorField<SpaceT> > > >(MyOM,mvec);
+  bool res = Belos::TestMultiVecTraits<S,Pimpact::MultiField<FType> >(MyOM,mvec);
   TEST_EQUALITY_CONST(res,true);
 
 }
 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, BelosMVTest, SF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, BelosMVTest, VF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, BelosMVTest, MSF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, BelosMVTest, MVF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, BelosMVTest, CF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, BelosMVTest, CMF )
 
-
-TEUCHOS_UNIT_TEST( AelosPimpactMV, MultiFieldCompound ) {
-
-  typedef Pimpact::ScalarField<SpaceT> SF;
-  typedef Pimpact::VectorField<SpaceT> VF;
-  typedef Pimpact::CompoundField<VF,SF> CF;
-  typedef Pimpact::MultiField<CF> MV;
-
-  auto pl = Teuchos::parameterList();
-
-  pl->set( "domain", domain);
-
-  auto space = Pimpact::createSpace( pl );
-
-  auto vel = Pimpact::create<Pimpact::VectorField>( space );
-  auto sca = Pimpact::createScalarField( space );
-
-  auto q = Pimpact::createCompoundField( vel, sca );
-
-  auto mvec = Pimpact::createMultiField< CF >( *q, 5 );
-
-  // Create an output manager to handle the I/O from the solver
-  Teuchos::RCP<Belos::OutputManager<S> > MyOM = Teuchos::rcp( new Belos::OutputManager<S>(Belos::Warnings,rcp(&out,false)) );
-
-  bool res = Belos::TestMultiVecTraits< S, MV >(MyOM,mvec);
-  TEST_EQUALITY_CONST(res,true);
-}
-
-
-TEUCHOS_UNIT_TEST( AelosPimpactMV, MultiFieldCompoundMode ) {
-
-  typedef Pimpact::ScalarField<SpaceT> SF;
-  typedef Pimpact::VectorField<SpaceT> VF;
-  typedef Pimpact::ModeField<SF> MSF;
-  typedef Pimpact::ModeField<VF> MVF;
-  typedef Pimpact::CompoundField<MVF,MSF> CF;
-  typedef Pimpact::MultiField<CF> MV;
-
-  auto pl = Teuchos::parameterList();
-
-  pl->set( "domain", domain);
-
-  auto space = Pimpact::createSpace( pl );
-
-  auto vel = Pimpact::create<MVF>( space );
-
-  auto sca = Pimpact::create<MSF>( space );
-
-  auto q = Pimpact::createCompoundField( vel, sca );
-
-  auto mvec = Pimpact::createMultiField<CF>( *q, 5 );
-
-  // Create an output manager to handle the I/O from the solver
-  Teuchos::RCP<Belos::OutputManager<S> > MyOM = Teuchos::rcp( new Belos::OutputManager<S>(Belos::Warnings,rcp(&out,false)) );
-
-  bool res = Belos::TestMultiVecTraits<S,MV>(MyOM,mvec);
-  TEST_EQUALITY_CONST(res,true);
-}
 
 
 
@@ -215,9 +104,6 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, HelmholtzMV ) {
 
   typedef Pimpact::OperatorBase<MVF> OpBase;
 
-  auto pl = Teuchos::parameterList();
-
-  pl->set( "domain", domain);
 
   auto space = Pimpact::createSpace( pl );
 
@@ -238,18 +124,12 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, HelmholtzMV ) {
 }
 
 
+
 TEUCHOS_UNIT_TEST( BelosOperatorMV, DtLapOp ) {
 
   typedef Pimpact::MultiField<MVF> BVF;
 
-  //  typedef Pimpact::DtLapOp<S,O> Op;
-  //  typedef Pimpact::MultiOpWrap<Op> MuOp;
   typedef Pimpact::OperatorBase<BVF> OpBase;
-
-
-  auto pl = Teuchos::parameterList();
-
-  pl->set( "domain", domain);
 
   auto space = Pimpact::createSpace( pl, true );
 
@@ -268,6 +148,7 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, DtLapOp ) {
 }
 
 
+
 TEUCHOS_UNIT_TEST( BelosOperatorMV, DivGrad ) {
 
   typedef Pimpact::ScalarField<SpaceT> SF;
@@ -275,10 +156,6 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, DivGrad ) {
 
   typedef Pimpact::OperatorBase<BSF> OpBase;
 
-
-  auto pl = Teuchos::parameterList();
-
-  pl->set( "domain", domain);
 
   auto space = Pimpact::createSpace( pl );
 
@@ -308,6 +185,7 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, DivGrad ) {
       Belos::TestOperatorTraits< S, BSF, OpBase > (MyOM,mv,lap);
 
   TEST_EQUALITY( res, true );
+
 }
 
 

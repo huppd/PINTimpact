@@ -247,7 +247,7 @@ public:
   const MPI_Comm& commST()  const { return( procGrid_->commSpaceTime_  ); }
 
   int rankST() const { return( procGrid_->getRank() ); }
-  //  int rank  () const { return( procGrid_->rank_   ); }
+  int rankS () const { return( procGrid_->getRankS() ); }
 
   const int&      dim()   const { return( domain_->getDomainSize()->getDim() ); }
 
