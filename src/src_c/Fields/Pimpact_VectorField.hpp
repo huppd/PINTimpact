@@ -322,7 +322,7 @@ public:
 
 
   ///  \brief initializes VectorField with the initial field defined in Fortran
-  void initField( EFlowField flowType = PoiseuilleFlow2D_inX, double re=1., double om=1., double px = 1. ) {
+  void initField( EFlowField flowType = ConstFlow, Scalar re=0., Scalar om=0., Scalar px = 0. ) {
     switch( flowType ) {
     case ZeroFlow :
       for( int i=0; i<space()->dim(); ++i )

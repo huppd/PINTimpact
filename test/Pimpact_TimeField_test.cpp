@@ -389,16 +389,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TimeField, all, FType ) {
 
 
 
-//	// op test
-// auto dt = Pimpact::create<Pimpact::DtTimeOp>( space );
-//
-////  field1->random();
-// Pimpact::initVectorTimeField( field1, Pimpact::OscilatingDisc2D );
-// field2->init(0);
-//
-// dt->apply( *field1, *field2 );
-//
-// field2->write( 50 );
 
 
 }
@@ -470,5 +460,30 @@ TEUCHOS_UNIT_TEST( TimeOpearotr, TimeOpWrap ) {
 
   TEST_EQUALITY( res, true );
 }
+
+
+
+TEUCHOS_UNIT_TEST( TimeOperator, DtTimeOp ) {
+
+	auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+
+	auto field = Pimpact::create<TVF>( space );
+	auto field1 = field->clone();
+	auto field2 = field->clone();
+
+	// op test
+	auto dt = Pimpact::create<Pimpact::DtTimeOp>( space );
+
+	Pimpact::initVectorTimeField( field1, Pimpact::OscilatingDisc2DVel );
+	field2->init(0);
+
+	dt->apply( *field1, *field2 );
+
+	field2->write( 50 );
+
+
+}
+
+
 
 } // end of namespace

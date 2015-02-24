@@ -64,7 +64,7 @@ int main( int argi, char** argv ) {
 
       auto pls = Teuchos::parameterList();
       pls->set( "omega", 1. );
-      pls->set( "numIter", 1 );
+      pls->set( "numIters", 1 );
       pls->set<int>( "Ordering", (dirx==3)?1:0 );
       pls->set<short int>( "dir X", dirx );
       pls->set<short int>( "dir Y", diry );
@@ -101,8 +101,8 @@ int main( int argi, char** argv ) {
 
 
         // init solution
-        y->getFieldPtr(0)->initField( Pimpact::Grad2D_inY );
-        y->getFieldPtr(1)->initField( Pimpact::Grad2D_inX );
+        y->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inY );
+        y->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inX );
 
         auto sol = y->clone( Pimpact::DeepCopy );
 

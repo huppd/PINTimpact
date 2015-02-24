@@ -51,7 +51,7 @@ public:
     ConvectionVSmoother(
         const Teuchos::RCP<const ConvVOpT>& op,
         Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ):
-      convVWrap_( createConst<ConvectionVWrap<SSmootherT> >( create<SSmootherT>( op->getSOp(), pl ) ) ),
+      convVWrap_( create<ConvectionVWrap<SSmootherT> >( create<SSmootherT>( op->getSOp(), pl ) ) ),
       convField_( op->getConvField() ) {};
 
 

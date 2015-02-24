@@ -448,6 +448,7 @@ createTimeField( const Teuchos::RCP<const SpaceT>& space ) {
 #include "Pimpact_VectorField.hpp"
 #include "cmath"
 
+/// \todo move to initField
 template<class SpaceT>
 Teuchos::RCP<TimeField<VectorField<SpaceT> > >
 initVectorTimeField(

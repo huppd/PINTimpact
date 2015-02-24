@@ -38,15 +38,14 @@ public:
  		temp_( create<DomainFieldT>(op->space()) ),
  		op_(op) {};
 
+
  	void apply(const DomainFieldT& x, RangeFieldT& y) {
 
- 		temp_->getCFieldPtr()->add( 1., x.getConstCField(),  1., x.getConstSField() );
- 		temp_->getSFieldPtr()->add( 1., x.getConstCField(), -1., x.getConstSField() );
+ 		temp_->getCFieldPtr()->add( 0.5, x.getConstCField(),  0.5, x.getConstSField() );
+ 		temp_->getSFieldPtr()->add( 0.5, x.getConstCField(), -0.5, x.getConstSField() );
 
- 		op_->apply( temp_->getConstCField(), y.getCField() );
- 		op_->apply( temp_->getConstSField(), y.getSField() );
-
- 		y.scale( (Scalar)0.5 );
+		op_->apply( temp_->getConstCField(), y.getCField() );
+		op_->apply( temp_->getConstSField(), y.getSField() );
 
  	}
 

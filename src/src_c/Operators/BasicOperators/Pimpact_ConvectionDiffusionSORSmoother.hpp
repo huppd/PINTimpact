@@ -91,7 +91,7 @@ public:
       const Teuchos::RCP<const OperatorT>& op,
       Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ):
         omega_( pl->get("omega", 1. ) ),
-        nIter_( pl->get("numIters", 1 ) ),
+        nIter_( pl->get("numIters", 10 ) ),
         ordering_( pl->get("Ordering",1 ) ),
         loopOrder_( Teuchos::tuple<short int>(1,2,3) ),
         //space_(op->space_),

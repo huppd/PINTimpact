@@ -91,9 +91,9 @@ int main(int argi, char** argv ) {
   Teuchos::CommandLineProcessor my_CLP;
 
   // physical constants
-  S re = 1.e1;
+  S re = 100;
 
-  S alpha2 = 1.e2;
+  S alpha2 = 125;
 
   // flow type
   int flow = 7;
@@ -108,10 +108,12 @@ int main(int argi, char** argv ) {
   S l3 = 1.;
 
   // grid size
-  O n1 = 65;
-  O n2 = 65;
-  O n3 = 17;
-  //O n3 = 2.;
+// O n1 = 125;
+// O n2 = 125;
+ O n1 = 33;
+ O n2 = 33;
+//  O n3 = 17;
+	O n3 = 2.;
 
   O nf = 4;
 
@@ -133,7 +135,7 @@ int main(int argi, char** argv ) {
 
   int maxIter = 10;
 
-  S tolBelos = 1.e-1;
+  S tolBelos = 1.e-4;
   S tolNOX   = 1.e-3;
 
 
@@ -260,8 +262,8 @@ int main(int argi, char** argv ) {
     Teuchos::RCP<BOp> lprec;
 		if( withprec ) {
 
-			// create Muli space
-			auto mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, 2 );
+			// create Mulit space
+			auto mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, 4 );
 
 			// create Hinv
 			auto opV2Vprob =
@@ -270,8 +272,10 @@ int main(int argi, char** argv ) {
 									opV2V ),
 									Teuchos::null,
 									Teuchos::null,
-									Pimpact::createLinSolverParameter( "Block GMRES", 1.e-6, -1, outPrec ),
-									"Block GMRES" );
+//									Pimpact::createLinSolverParameter( "Block GMRES", tolBelos/100, -1, outPrec ),
+//									"Block GMRES" );
+									Pimpact::createLinSolverParameter( "GMRES", tolBelos/100, -1, outPrec ),
+									"GMRES" );
 
 			// creat Hinv prec
 			auto zeroOp = Pimpact::create<ConvDiffOpT>( space );
@@ -280,7 +284,7 @@ int main(int argi, char** argv ) {
 			auto opV2Vprec = Pimpact::createMultiOperatorBase(
 					Pimpact::createMultiHarmonicDiagOp(zeroInv) );
 			
-			opV2Vprob->setRightPrec( opV2Vprec );
+//			opV2Vprob->setRightPrec( opV2Vprec );
 			
 			auto opV2Vinv = Pimpact::createInverseOperatorBase( opV2Vprob );
 
@@ -308,7 +312,7 @@ int main(int argi, char** argv ) {
 							divGradOp ,
 							Teuchos::null,
 							Teuchos::null,
-							Pimpact::createLinSolverParameter( "Block GMRES", 1.e-9, -1, outSchur ),
+							Pimpact::createLinSolverParameter( "Block GMRES", tolBelos/100, -1, outSchur ),
 							"Block GMRES" );
 
 			auto mg_divGrad =
@@ -337,14 +341,14 @@ int main(int argi, char** argv ) {
 							)
 					);
 
-			auto invSchur = Pimpact::createInverseTriangularOp(
+			auto invTriangOp = Pimpact::createInverseTriangularOp(
 					opV2Vinv,
 					opS2V,
 					opS2Sinv );
 
 			lprec =
 				Pimpact::createMultiOperatorBase(
-						invSchur );
+						invTriangOp );
 		}
 
 

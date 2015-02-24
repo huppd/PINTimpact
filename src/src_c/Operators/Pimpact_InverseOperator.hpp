@@ -14,6 +14,8 @@ namespace Pimpact{
 
 /// \ingroup Operator
 /// \tparam FieldT has to be of type \c Pimpact::MultiField
+/// \todo merge with InverseOp
+/// \deprecated
 template< class FieldT >
 class InverseOperator {
 
@@ -37,23 +39,30 @@ public:
   InverseOperator( const Teuchos::RCP< LinearProblem<MF> >& linprob=Teuchos::null ):
     linprob_(linprob) {};
 
-  void apply(const MF& x, MF& y, Belos::ETrans trans=Belos::NOTRANS ) const {
+  void apply( const MF& x, MF& y, Belos::ETrans trans=Belos::NOTRANS ) const {
     linprob_->solve( Teuchos::rcpFromRef(y), Teuchos::rcpFromRef(x) );
   }
 
+
   void assignField( const DomainFieldT& mv ) {
+
     auto prob = linprob_->getProblem();
+
     Teuchos::rcp_const_cast<Op>( prob->getOperator() )->assignField( mv );
+
     if( prob->isLeftPrec() ) {
       auto opPrec = Teuchos::rcp_const_cast<Op>( prob->getLeftPrec() );
       opPrec->assignField( mv );
     }
+
     if( prob->isRightPrec() ) {
       auto opPrec = Teuchos::rcp_const_cast<Op>( prob->getRightPrec() );
       opPrec->assignField( mv );
     }
+
   };
 
+	
 	Teuchos::RCP<const SpaceT> space() const { return(linprob_->space()); };
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}

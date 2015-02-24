@@ -431,7 +431,7 @@ public:
 
 
   ///  \brief initializes VectorField with the initial field defined in Fortran
-  void initField( EScalarField fieldType = Poiseuille2D_inX, double re=0. ) {
+  void initField( EScalarField fieldType = ConstField, Scalar re=0. ) {
     switch( fieldType ) {
     case ConstField :
       SF_init(

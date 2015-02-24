@@ -21,6 +21,7 @@ template<class T> using InterVF = Pimpact::VectorFieldOpWrap<Pimpact::Interpolat
 
 template<class T> using ConvDiffOpT = Pimpact::ConvectionVOp<Pimpact::ConvectionDiffusionSOp<T> >;
 template<class T> using ConvDiffSORT = Pimpact::ConvectionVSmoother<T,Pimpact::ConvectionDiffusionSORSmoother >;
+template<class T> using ConvDiffJT = Pimpact::ConvectionVSmoother<T,Pimpact::ConvectionDiffusionJSmoother >;
 
 template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
 
@@ -41,40 +42,46 @@ int main( int argi, char** argv ) {
 
 	//int nwinds = 360*2;
 	//int nwinds = 360;
-	//int nwinds = 360/2;
-	//int nwinds = 360/4;
-	//int nwinds = 360/6;
-	//int nwinds = 64;
-	//int nwinds = 32;
-	int nwinds = 16;
-	//int nwinds = 8;
-	//int nwinds = 4;
-	//int nwinds = 2;
-	//int nwinds = 1;
+	//int nwinds = 180;
+	int nwinds = 90;
+//	int nwinds = 64;
+//	int nwinds = 32;
+//	int nwinds = 16;
+//	int nwinds = 8;
+//	int nwinds = 4;
+//	int nwinds = 2;
+//	int nwinds = 1;
 
   S pi = (S)4. * std::atan( (S)1. ) ;
 
-	//pl->set<S>( "Re", 10000 );
+//	pl->set<S>( "Re", 10000 );
 	pl->set<S>( "Re", 1000 );
-  //pl->set<S>( "Re", 100 );
-	//pl->set<S>( "Re", 10 );
-	//pl->set<S>( "Re", 1 );
-	//
+//	pl->set<S>( "Re", 100 );
+//	pl->set<S>( "Re", 10 );
+//	pl->set<S>( "Re", 1 );
+//	pl->set<S>( "Re", 0.1 );
+//	pl->set<S>( "Re", 0.01 );
+//	pl->set<S>( "Re", 0.001 );
+//	pl->set<S>( "Re", 0.0001 );
+
+
 	//pl->set<O>( "nx", 513 );
 	//pl->set<O>( "ny", 513 );
 	//pl->set<O>( "nx", 257 );
 	//pl->set<O>( "ny", 257 );
-	//pl->set<O>( "nx", 129 );
-	//pl->set<O>( "ny", 129 );
+//	pl->set<O>( "nx", 129 );
+//	pl->set<O>( "ny", 129 );
 	pl->set<O>( "nx", 65 );
 	pl->set<O>( "ny", 65 );
+//	pl->set<O>( "nx", 33 );
+//	pl->set<O>( "ny", 33 );
 	//pl->set<O>( "nx", 17 );
 	//pl->set<O>( "ny", 17 );
 
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
-  auto mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, 2 );
+  auto mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, 5 );
 
   auto wind = Pimpact::create<Pimpact::VectorField>( space );
   auto y = Pimpact::create<Pimpact::VectorField>( space );
@@ -90,8 +97,9 @@ int main( int argi, char** argv ) {
       if( 3==dirx && diry==1 ) break;
 
       auto pls = Teuchos::parameterList();
-      pls->sublist("Smoother").set( "omega", 1. );
-      pls->sublist("Smoother").set( "numIter", (dirx==3)?1:4 );
+		 pls->sublist("Smoother").set( "omega", 1. );
+//			pls->sublist("Smoother").set( "omega", 0.5 );
+      pls->sublist("Smoother").set( "numIters", ((dirx==3)?1:4)*1 );
       pls->sublist("Smoother").set<int>( "Ordering", (dirx==3)?1:0 );
       pls->sublist("Smoother").set<short int>( "dir X", dirx );
       pls->sublist("Smoother").set<short int>( "dir Y", diry );
@@ -105,10 +113,11 @@ int main( int argi, char** argv ) {
         	InterVF,
         	ConvDiffOpT,
         	ConvDiffOpT,
+//					ConvDiffJT,
 					ConvDiffSORT,
-					//ConvDiffJT,
-					//ConvDiffSORT
-					MOP > ( mgSpaces, pls );
+//					ConvDiffSORT
+					MOP
+						> ( mgSpaces, pls );
 
       std::ofstream phifile;
 
@@ -129,14 +138,16 @@ int main( int argi, char** argv ) {
           phifile << phi << "\t";
 
         // init solution
-		y->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inY );
-		y->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inX );
-		//y->getFieldPtr(Pimpact::V)->initField( Pimpact::ConstField, 0. );
+				y->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inX );
+				y->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inY );
 
         auto sol = y->clone( Pimpact::DeepCopy );
 				//sol->write(3333);
 
-        wind->initField( Pimpact::ConstFlow, std::cos( phi ), std::sin( phi ), 0. );
+//			 wind->initField( Pimpact::ConstFlow, std::cos( phi ), std::sin( phi ), 0. );
+			 wind->getFieldPtr(Pimpact::U)->init( std::cos( phi ) );
+			 wind->getFieldPtr(Pimpact::V)->init( std::sin( phi ) );
+//				wind->initField( Pimpact::ConstFlow, 0., 0., 0. );
 				//wind->write(1111);
 
         op->assignField( *wind );
@@ -174,18 +185,21 @@ int main( int argi, char** argv ) {
           error = z2->norm()/sol->norm();
 //          error = z2->norm();
 
-          if( iter>100) error=-1;
 
           if( space()->rankST()==0 ) ofs << error << "\n";
 
           iter++;
+//          if( iter>4) break;
+//				 if( iter>10) break;
+//				 if( iter>100) break;
+					if( iter>100) error=-1;
 
         }
         while( error>1.e-6 );
 
         if( space()->rankST()==0 )
-//          phifile << error << "\n";
-          phifile << iter << "\n";
+//					phifile << error << "\n";
+				 phifile << iter << "\n";
 
 
         if( space()->rankST()==0 )

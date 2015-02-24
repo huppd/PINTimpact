@@ -5,6 +5,7 @@
 #include "Pimpact_Types.hpp"
 #include "Pimpact_LinearProblem.hpp"
 
+#include "Pimpact_LinSolverParameter.hpp"
 
 
 
@@ -41,7 +42,7 @@ public:
         createOperatorBase(op),
         create<MF>( op->getSpace() ),
         create<MF>( op->getSpace() ),
-        Teuchos::parameterList(),
+        createLinSolverParameter("GMRES",1.e-6,-1),
         "GMRES" );
   }
 
@@ -51,30 +52,46 @@ public:
         createOperatorBase( create<OperatorT>(op) ),
         create<MF>( op->getSpace() ),
         create<MF>( op->getSpace() ),
-        Teuchos::parameterList(),
+//        createLinSolverParameter("GMRES",1.e-6,-1),
+			 Teuchos::parameterList(),
         "GMRES" );
   }
+
 
   void apply( const MF& x, MF& y, Belos::ETrans trans=Belos::NOTRANS ) const {
     linprob_->solve( Teuchos::rcpFromRef(y), Teuchos::rcpFromRef(x) );
   }
 
+
   void assignField( const DomainFieldT& mv ) {
+
     auto prob = linprob_->getProblem();
+
     Teuchos::rcp_const_cast<Op>( prob->getOperator() )->assignField( mv );
+
     if( prob->isLeftPrec() ) {
       auto opPrec = Teuchos::rcp_const_cast<Op>( prob->getLeftPrec() );
       opPrec->assignField( mv );
     }
+
+    if( prob->isRightPrec() ) {
+      auto opPrec = Teuchos::rcp_const_cast<Op>( prob->getRightPrec() );
+      opPrec->assignField( mv );
+    }
+
   };
+
 
 	Teuchos::RCP<const SpaceT> space() const { return(linprob_->space()); };
 	
+
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
 		Teuchos::rcp_const_cast<Op>( linprob_->getProblem()->getOperator() )->setParameter( para );
 	}
 
+
   bool hasApplyTranspose() const { return( false ); }
+
 
 }; // end of class InverseOp
 
