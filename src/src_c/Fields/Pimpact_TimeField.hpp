@@ -345,6 +345,7 @@ public:
       mfs_[i]->init(alpha);
     changed();
   }
+	
 
 
   /// \param os

@@ -108,10 +108,12 @@ int main(int argi, char** argv ) {
   S l3 = 1.;
 
   // grid size
-// O n1 = 125;
-// O n2 = 125;
- O n1 = 33;
- O n2 = 33;
+//	O n1 = 125;
+//	O n2 = 125;
+	O n1 = 65;
+	O n2 = 65;
+// O n1 = 33;
+// O n2 = 33;
 //  O n3 = 17;
 	O n3 = 2.;
 
@@ -122,8 +124,8 @@ int main(int argi, char** argv ) {
   O nfe = 4;
 
   // processor grid size
-  O np1 = 1;
-  O np2 = 1;
+  O np1 = 2;
+  O np2 = 2;
   O np3 = 1.;
 
   // solver stuff

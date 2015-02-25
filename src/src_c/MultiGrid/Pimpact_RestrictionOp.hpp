@@ -68,6 +68,8 @@ void MG_restrictV(
     const int* const bUc,
     const int* const SSc,
     const int* const NNc,
+//    const int& BC_L,
+//    const int& BC_U,
     const double* const cRV,
     const double* const phif,
     double* const phic );
@@ -91,8 +93,6 @@ protected:
 
   typedef ScalarField<SpaceT>  DomainFieldT;
   typedef ScalarField<SpaceT>  RangeFieldT;
-
-//  typedef Space<Scalar,Ordinal,dimension> SpaceT;
 
   Teuchos::RCP<const SpaceT> spaceF_;
   Teuchos::RCP<const SpaceT> spaceC_;
@@ -184,8 +184,8 @@ public:
           spaceC_->nLoc(),
           spaceC_->bl(),
           spaceC_->bu(),
-          spaceC_->sInd(fType),
-          spaceC_->eInd(fType),
+          spaceC_->sIndB(fType),
+          spaceC_->eIndB(fType),
           cRV_[dir],
           x.getConstRawPtr(),
           y.getRawPtr() );

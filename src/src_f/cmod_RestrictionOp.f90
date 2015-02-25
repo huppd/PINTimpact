@@ -483,7 +483,8 @@ contains
 
         dd=1
         do i=1,dimens
-          if( 0/=NNc(i)-SSc(i) ) dd(i) = ( NNf(i)-SSf(i) )/( NNc(i)-SSc(i) )
+          !if( 0/=NNc(i)-SSc(i) ) dd(i) = ( NNf(i)-SSf(i) )/( NNc(i)-SSc(i) )
+          if( 0/=Nc(i) ) dd(i) = ( Nf(i) )/( Nc(i) )
         end do
 
 
@@ -499,9 +500,9 @@ contains
                         i = dd(1)*ii-1
                         !phic(ii,jj,kk) = cRV(1,ii)*phif(i-1,j,k) + cRV(2,ii)*phif(i,j,k)
                         !phic(ii,jj,kk) = cRV(1,ii)*phif(i,j,k) + cRV(2,ii)*phif(i+1,j,k)
-                        !phic(ii,jj,kk) = 0.5*phif(i,j,k) + 0.5*phif(i+1,j,k)! this one kind of works
+                        phic(ii,jj,kk) = 0.5*phif(i,j,k) + 0.5*phif(i+1,j,k)! this one kind of works
 
-                        phic(ii,jj,kk) = 1./8.*phif(i,j+1,k) + 1./8.*phif(i+1,j+1,k) + 2./8.*phif(i,j  ,k) + 2./8.*phif(i+1,j  ,k) + 1./8.*phif(i,j-1,k) + 1./8.*phif(i+1,j-1,k)
+                        !phic(ii,jj,kk) = 1./8.*phif(i,j+1,k) + 1./8.*phif(i+1,j+1,k) + 2./8.*phif(i,j  ,k) + 2./8.*phif(i+1,j  ,k) + 1./8.*phif(i,j-1,k) + 1./8.*phif(i+1,j-1,k)
                                      
                     end do
                 end do
@@ -531,9 +532,9 @@ contains
                         i = dd(1)*ii-1
                         !phic(ii,jj,kk) = cRV(1,jj)*phif(i,j-1,k) + cRV(2,jj)*phif(i,j,k)
                         !phic(ii,jj,kk) = cRV(1,jj)*phif(i,j,k) + cRV(2,jj)*phif(i,j+1,k)
-                        !phic(ii,jj,kk) = 0.5*phif(i,j,k) + 0.5*phif(i,j+1,k) ! This one works
+                        phic(ii,jj,kk) = 0.5*phif(i,j,k) + 0.5*phif(i,j+1,k) ! This one works
 
-                        phic(ii,jj,kk) = 1./8.*phif(i+1,j,k) + 1./8.*phif(i+1,j+1,k) + 2./8.*phif(i,j,k) + 2./8.*phif(i,j+1,k) + 1./8.*phif(i-1,j,k) + 1./8.*phif(i-1,j+1,k)! This one works
+                        !phic(ii,jj,kk) = 1./8.*phif(i+1,j,k) + 1./8.*phif(i+1,j+1,k) + 2./8.*phif(i,j,k) + 2./8.*phif(i,j+1,k) + 1./8.*phif(i-1,j,k) + 1./8.*phif(i-1,j+1,k)! This one works
                     end do
                 end do
             else
