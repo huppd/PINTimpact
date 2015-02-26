@@ -224,7 +224,7 @@ public:
     for( int i=0; i<space()->dim(); ++i )
       b += sFields_[i]->dot( *a.sFields_[i], false );
 
-    if( global ) this->reduceNorm( space()->comm(), b );
+    if( global ) this->reduceNorm( comm(), b );
 
     return( b );
 
@@ -253,7 +253,7 @@ public:
         break;
       }
 
-    if( global ) this->reduceNorm( space()->comm(), normvec, type );
+    if( global ) this->reduceNorm( comm(), normvec, type );
 
     return( normvec );
 
@@ -271,7 +271,7 @@ public:
     for( int i=0; i<space()->dim(); ++i )
       normvec += sFields_[i]->norm( *weights.sFields_[i], false);
 
-    if( global ) this->reduceNorm( space()->comm(), normvec, Belos::TwoNorm );
+    if( global ) this->reduceNorm( comm(), normvec, Belos::TwoNorm );
 
     return( normvec );
 
@@ -702,6 +702,8 @@ public:
   const SF&  getConstField   ( int i ) const { return( *sFields_[i] ); }
 
   Teuchos::RCP<const SpaceT> space() const { return( AbstractField<SpaceT>::space_ ); }
+
+  const MPI_Comm& comm() const { return(space()->comm()); }
 
 protected:
 

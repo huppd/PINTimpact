@@ -637,8 +637,7 @@ TEUCHOS_UNIT_TEST( MultiOperator, Add2Op ) {
       Pimpact::createMultiOpWrap(
           Pimpact::createAdd2Op(
               Pimpact::create<Pimpact::HelmholtzOp>( space ),
-              Pimpact::createConvectionOp( space ),
-              velx->clone() ) ) );
+              Pimpact::createConvectionOp( space ) ) ) );
 
 
   for( O i=0; i<10; ++i ) {
@@ -670,8 +669,7 @@ TEUCHOS_UNIT_TEST( MultiOperator, MulitOpUnWrap ) {
       Pimpact::createMultiOpWrap(
           Pimpact::createAdd2Op(
               Pimpact::create<Pimpact::HelmholtzOp>( space ),
-              Pimpact::createConvectionOp( space ),
-              x->clone() ) ) );
+              Pimpact::createConvectionOp( space ) ) ) );
 
   auto opUW = Pimpact::create<Pimpact::MultiOpUnWrap>( op );
 
@@ -1026,9 +1024,7 @@ TEUCHOS_UNIT_TEST( CompoundOperator, CompoundOpWrap ) {
   auto opV2V =
       Pimpact::createAdd2Op(
           Pimpact::createMultiDtHelmholtz( space, 1., 1. ),
-          Pimpact::createMultiHarmonicConvectionOp( space ),
-          x->getConstFieldPtr(0)->getConstVFieldPtr()->clone()
-					);
+          Pimpact::createMultiHarmonicConvectionOp(space)	);
 
   auto opS2V = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::GradOp>( space ) );
   auto opV2S = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::DivOp>( space ) );

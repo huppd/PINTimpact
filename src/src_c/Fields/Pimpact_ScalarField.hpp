@@ -290,7 +290,7 @@ public:
         a.s_,
         b );
 
-    if( global ) this->reduceNorm( space()->comm(), b );
+    if( global ) this->reduceNorm( comm(), b );
 
     return( b );
   }
@@ -340,7 +340,7 @@ public:
       break;
     }
 
-    if( global ) this->reduceNorm( space()->comm(), normvec, type );
+    if( global ) this->reduceNorm( comm(), normvec, type );
 
     return( normvec );
   }
@@ -365,7 +365,7 @@ public:
         s_, weights.s_,
         normvec );
 
-    if( global ) this->reduceNorm( space()->comm(), normvec, Belos::TwoNorm );
+    if( global ) this->reduceNorm( comm(), normvec, Belos::TwoNorm );
 
     return( normvec );
 
@@ -690,6 +690,8 @@ public:
   ///\}
 
   Teuchos::RCP<const SpaceT> space() const { return( AbstractField<SpaceT>::space_ ); }
+
+  const MPI_Comm& comm() const { return(space()->comm()); }
 
   /// \name comunication methods.
   /// \brief highly dependent on underlying storage should only be used by Operator or on top field implementer.

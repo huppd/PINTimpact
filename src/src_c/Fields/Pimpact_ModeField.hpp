@@ -92,6 +92,8 @@ public:
 
   Teuchos::RCP<const SpaceT> space() const { return( AF::space_ ); }
 
+  const MPI_Comm& comm() const { return(fieldc_->comm()); }
+
   /// \brief returns the length of Field.
   ///
   /// should be the same as 2*fieldc_->getVecLength()
@@ -165,7 +167,7 @@ public:
 
     b = fieldc_->dot( *a.fieldc_, false ) + fields_->dot( *a.fields_, false );
 
-    if( global ) this->reduceNorm( space()->comm(), b );
+    if( global ) this->reduceNorm( comm(), b );
 
     return( b );
   }
@@ -191,7 +193,7 @@ public:
       break;
     }
 
-    if( global ) this->reduceNorm( space()->comm(), normvec, type );
+    if( global ) this->reduceNorm( comm(), normvec, type );
 
     return( normvec );
   }
@@ -206,7 +208,7 @@ public:
 
     double normvec=fieldc_->norm(*weights.fieldc_,false)+fields_->norm(*weights.fields_,false);
 
-    if( global ) this->reduceNorm( space()->comm(), normvec, Belos::TwoNorm );
+    if( global ) this->reduceNorm( comm(), normvec, Belos::TwoNorm );
 
     return( normvec );
 

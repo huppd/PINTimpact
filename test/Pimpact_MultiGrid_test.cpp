@@ -259,108 +259,120 @@ TEUCHOS_UNIT_TEST( MGSmoothers, VF_constructor3D ) {
 
 TEUCHOS_UNIT_TEST( MultiGrid, Restrictor3D ) {
 
-  typedef Pimpact::CoarsenStrategy<FSpace3T,CSpace3T> CS;
+	typedef Pimpact::CoarsenStrategy<FSpace3T,CSpace3T> CS;
 
-  auto space = Pimpact::createSpace<S,O,3>( pl );
+	auto space = Pimpact::createSpace<S,O,3>( pl );
 
-  auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, 2 );
+	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, 3 );
 
-  auto mgTransfers = Pimpact::createMGTransfers<Pimpact::TransferOp,Pimpact::RestrictionOp,Pimpact::InterpolationOp>( mgSpaces );
+	auto mgTransfers = Pimpact::createMGTransfers<Pimpact::TransferOp,Pimpact::RestrictionOp,Pimpact::InterpolationOp>( mgSpaces );
 
-  Pimpact::EField type[] = {Pimpact::EField::S, Pimpact::EField::U, Pimpact::EField::V };
+	Pimpact::EField type[] = {Pimpact::EField::S, Pimpact::EField::U, Pimpact::EField::V };
 
-  for( int i=0; i<3; ++i ) {
-    std::cout << "type: " << i << "\n";
+	for( int i=0; i<3; ++i ) {
+		std::cout << "type: " << i << "\n";
 
-    auto fieldf = Pimpact::createScalarField( mgSpaces->get( 0 ), type[i] );
-    auto fieldc = Pimpact::createScalarField( mgSpaces->get( 1 ), type[i] );
+		auto fieldff = Pimpact::createScalarField( mgSpaces->get( 0 ), type[i] );
+		auto fieldf = Pimpact::createScalarField( mgSpaces->get( 1 ), type[i] );
+		auto fieldc = Pimpact::createScalarField( mgSpaces->get( 2 ), type[i] );
 
-    auto op = mgTransfers->getRestrictionOp( 0 );
+		auto op1 = mgTransfers->getRestrictionOp( 0 );
+		auto op2 = mgTransfers->getRestrictionOp( 1 );
 
-	op->print();
+		op2->print();
 
-    // the zero test
-    fieldf->init( 0. );
-    fieldc->init( 1. );
+		// the zero test
+		fieldff->init(0. );
+		fieldf->initField( Pimpact::ConstField, 0. );
+		fieldc->init( 1. );
 
-    op->apply( *fieldf, *fieldc );
+		op1->apply( *fieldff, *fieldf );
+		op2->apply( *fieldf, *fieldc );
 
-    TEST_FLOATING_EQUALITY( 0., fieldf->norm(), eps );
-    TEST_FLOATING_EQUALITY( 0., fieldc->norm(), eps );
+		TEST_FLOATING_EQUALITY( 0., fieldf->norm(), eps );
+		TEST_FLOATING_EQUALITY( 0., fieldc->norm(), eps );
 
-    // the random test
-    fieldf->random();
+		// the random test
+		fieldff->random();
+		fieldf->random();
 
-    TEST_INEQUALITY( 0., fieldf->norm() );
+		TEST_INEQUALITY( 0., fieldf->norm() );
 
-    op->apply( *fieldf, *fieldc );
+		op1->apply( *fieldff, *fieldf );
+		op2->apply( *fieldf, *fieldc );
 
-    TEST_INEQUALITY( 0., fieldc->norm() );
+		TEST_INEQUALITY( 0., fieldc->norm() );
 
-    // the strong test
-    fieldf->initField( Pimpact::ConstField, 1. );
+		// the strong test
+		fieldff->initField( Pimpact::ConstField, 1. );
+		fieldf->initField( Pimpact::ConstField, 0. );
+		fieldc->initField( Pimpact::ConstField, 0. );
 
-    TEST_FLOATING_EQUALITY( 1., fieldf->norm(Belos::InfNorm), eps );
+		TEST_FLOATING_EQUALITY( 1., fieldff->norm(Belos::InfNorm), eps );
 
-    TEST_FLOATING_EQUALITY( (S)fieldf->getLength(), fieldf->norm(Belos::OneNorm), eps  );
+		TEST_FLOATING_EQUALITY( (S)fieldff->getLength(), fieldff->norm(Belos::OneNorm), eps  );
 
-    TEST_FLOATING_EQUALITY( std::sqrt( (S)fieldf->getLength() ), fieldf->norm(Belos::TwoNorm), eps  );
+		TEST_FLOATING_EQUALITY( std::sqrt( (S)fieldff->getLength() ), fieldff->norm(Belos::TwoNorm), eps  );
 
-    fieldc->init( 0. );
+		fieldc->init( 0. );
 
-    op->apply( *fieldf, *fieldc );
+		op1->apply( *fieldff, *fieldf );
+		op2->apply( *fieldf, *fieldc );
 
-    fieldf->write( 0 );
-    fieldc->write( 1 );
+		fieldf->write( 0 );
+		fieldc->write( 1 );
 
-    TEST_FLOATING_EQUALITY( 1., fieldc->norm(Belos::InfNorm), eps );
+		TEST_FLOATING_EQUALITY( 1., fieldc->norm(Belos::InfNorm), eps );
 
-    TEST_FLOATING_EQUALITY( (S)fieldc->getLength(), fieldc->norm(Belos::OneNorm), eps  );
+		TEST_FLOATING_EQUALITY( (S)fieldc->getLength(), fieldc->norm(Belos::OneNorm), eps  );
 
-    TEST_FLOATING_EQUALITY( std::sqrt( (S)fieldc->getLength() ), fieldc->norm(Belos::TwoNorm), eps  );
+		TEST_FLOATING_EQUALITY( std::sqrt( (S)fieldc->getLength() ), fieldc->norm(Belos::TwoNorm), eps  );
 
-    // the hard test in X
-    fieldf->initField( Pimpact::Grad2D_inX, 1. );
+		// the hard test in X
+		fieldff->initField( Pimpact::Grad2D_inX, 1. );
+		fieldf->initField( Pimpact::ConstField, 0. );
+		fieldc->initField( Pimpact::ConstField, 0. );
 
-    fieldc->initField( Pimpact::ConstField, 0. );
-    auto sol = fieldc->clone();
+		auto sol = fieldc->clone();
 		auto er = fieldc->clone();
 
-    sol->initField( Pimpact::Grad2D_inX, 1. );
-    er->initField( Pimpact::ConstField, 0. );
+		sol->initField( Pimpact::Grad2D_inX, 1. );
+		er->initField( Pimpact::ConstField, 0. );
 
-    op->apply( *fieldf, *fieldc );
+		op1->apply( *fieldff, *fieldf );
+		op2->apply( *fieldf, *fieldc );
 
-    fieldf->write( 0 );
-    fieldc->write( 1 );
+		fieldf->write( 0 );
+		fieldc->write( 1 );
 
-    er->add( 1., *sol, -1., *fieldc );
-    er->write(3);
+		er->add( 1., *sol, -1., *fieldc );
+		er->write(3);
 
 		TEST_EQUALITY( er->norm()<eps, true ); // boundaries?
 
-    // the hard test in Y
-    fieldf->initField( Pimpact::Grad2D_inY, 1. );
+		// the hard test in Y
+		fieldff->initField( Pimpact::Grad2D_inY, 1.);
+		fieldf->initField( Pimpact::ConstField, 0. );
+		fieldc->initField( Pimpact::ConstField, 0. );
 
-    fieldc->initField( Pimpact::ConstField, 0. );
-    sol = fieldc->clone();
-	er = fieldc->clone();
+		sol = fieldc->clone();
+		er = fieldc->clone();
 
-    sol->initField( Pimpact::Grad2D_inY, 1. );
-    er->initField( Pimpact::ConstField, 0. );
+		sol->initField( Pimpact::Grad2D_inY, 1. );
+		er->initField( Pimpact::ConstField, 0. );
 
-    op->apply( *fieldf, *fieldc );
+		op1->apply( *fieldff, *fieldf );
+		op2->apply( *fieldf, *fieldc );
 
-    fieldf->write( 4 );
-    fieldc->write( 5 );
+		fieldf->write( 4 );
+		fieldc->write( 5 );
 
-    er->add( 1., *sol, -1., *fieldc );
-    er->write(6);
+		er->add( 1., *sol, -1., *fieldc );
+		er->write(6);
 
-	TEST_EQUALITY( er->norm()<eps, true ); // boundaries?
-		
+		TEST_EQUALITY( er->norm()<eps, true ); // boundaries?
 
-  }
+	}
 
 }
 

@@ -228,10 +228,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionOp  ) {
 
 
   auto op = Pimpact::createAdd2Op(
-      Pimpact::create< ConvOpT<SpaceT> >( space ),
-      Pimpact::create<Pimpact::HelmholtzOp>( space ),
-      Pimpact::create<Pimpact::VectorField>( space )
-  );
+      Pimpact::create< ConvOpT<SpaceT> >(space),
+      Pimpact::create<Pimpact::HelmholtzOp>(space) );
 
   auto op2 =
       Pimpact::create< ConvDiffOpT<SpaceT> >( space );
@@ -564,12 +562,10 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicDtConvectionDiffusionOp )
   auto diff = Pimpact::createMultiHarmonicVectorField( space, nf );
 
 
-  auto op1 =
-	  Pimpact::createAdd2Op(
-			  Pimpact::createMultiDtHelmholtz( space, alpha2/re, 1./re ),
-			  Pimpact::createMultiHarmonicConvectionOp( space, nf ),
-			  x->clone()
-			  );
+	auto op1 =
+		Pimpact::createAdd2Op(
+				Pimpact::createMultiDtHelmholtz( space, alpha2/re, 1./re ),
+				Pimpact::createMultiHarmonicConvectionOp( space, nf ) );
 
   auto op2 =
 		Pimpact::createMultiDtConvectionDiffusionOp( space, nf );

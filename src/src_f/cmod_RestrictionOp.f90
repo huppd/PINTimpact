@@ -127,8 +127,8 @@ contains
 
         ! a little bit shaky, please verify this when IO is ready
         if (BC_L > 0) then
-            !cRV(1,SS) = 0.
-            !cRV(2,SS) = 1.
+            cRV(1,SS) = 0.
+            cRV(2,SS) = 1.
             !cRV(1,SS+1) = 0.
             !cRV(2,SS+1) = 1.
         end if
@@ -137,8 +137,8 @@ contains
         end if
 
         if (BC_U > 0) then
-            cRV(1,NN) = 0.
-            cRV(2,NN) = 1.
+            cRV(1,NN) = 1.
+            cRV(2,NN) = 0.
         end if
         if (BC_U == -2) then
             cRV(:,NN) = 0.
@@ -484,8 +484,9 @@ contains
         dd=1
         do i=1,dimens
           !if( 0/=NNc(i)-SSc(i) ) dd(i) = ( NNf(i)-SSf(i) )/( NNc(i)-SSc(i) )
-          if( 0/=Nc(i) ) dd(i) = ( Nf(i) )/( Nc(i) )
+          if( 0/=Nc(i) ) dd(i) = ( Nf(i) )/( Nc(i)-1 )
         end do
+        !write(*,*) dd
 
 
         !===========================================================================================================
@@ -495,12 +496,13 @@ contains
                 kk = SSc(3)
                 k = SSc(3)
                 do jj = SSc(2), NNc(2)
-                    j = dd(2)*jj-1
+                    j = dd(2)*jj-1 !> why?
+                    !j = dd(2)*jj
                     do ii = SSc(1), NNc(1)
-                        i = dd(1)*ii-1
+                        i = dd(1)*ii-1 !> make sense
                         !phic(ii,jj,kk) = cRV(1,ii)*phif(i-1,j,k) + cRV(2,ii)*phif(i,j,k)
-                        !phic(ii,jj,kk) = cRV(1,ii)*phif(i,j,k) + cRV(2,ii)*phif(i+1,j,k)
-                        phic(ii,jj,kk) = 0.5*phif(i,j,k) + 0.5*phif(i+1,j,k)! this one kind of works
+                        phic(ii,jj,kk) = cRV(1,ii)*phif(i,j,k) + cRV(2,ii)*phif(i+1,j,k)
+                        !phic(ii,jj,kk) = 0.5*phif(i,j,k) + 0.5*phif(i+1,j,k)! this one kind of works
 
                         !phic(ii,jj,kk) = 1./8.*phif(i,j+1,k) + 1./8.*phif(i+1,j+1,k) + 2./8.*phif(i,j  ,k) + 2./8.*phif(i+1,j  ,k) + 1./8.*phif(i,j-1,k) + 1./8.*phif(i+1,j-1,k)
                                      
@@ -531,8 +533,8 @@ contains
                     do ii = SSc(1), NNc(1)
                         i = dd(1)*ii-1
                         !phic(ii,jj,kk) = cRV(1,jj)*phif(i,j-1,k) + cRV(2,jj)*phif(i,j,k)
-                        !phic(ii,jj,kk) = cRV(1,jj)*phif(i,j,k) + cRV(2,jj)*phif(i,j+1,k)
-                        phic(ii,jj,kk) = 0.5*phif(i,j,k) + 0.5*phif(i,j+1,k) ! This one works
+                        phic(ii,jj,kk) = cRV(1,jj)*phif(i,j,k) + cRV(2,jj)*phif(i,j+1,k)
+                        !phic(ii,jj,kk) = 0.5*phif(i,j,k) + 0.5*phif(i,j+1,k) ! This one works
 
                         !phic(ii,jj,kk) = 1./8.*phif(i+1,j,k) + 1./8.*phif(i+1,j+1,k) + 2./8.*phif(i,j,k) + 2./8.*phif(i,j+1,k) + 1./8.*phif(i-1,j,k) + 1./8.*phif(i-1,j+1,k)! This one works
                     end do

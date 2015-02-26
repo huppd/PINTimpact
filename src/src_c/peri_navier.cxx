@@ -215,7 +215,7 @@ int main(int argi, char** argv ) {
   // init Fields, init and rhs
   x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::EFlowField(flow), 1 );
 
-	x->init(0.);
+//	x->init(0.);
   fu->init( 0. );
 
 
@@ -223,7 +223,6 @@ int main(int argi, char** argv ) {
 
   /******************************************************************************************/
 	{
-
 
     auto para = Pimpact::createLinSolverParameter( linSolName, tolBelos, -1 );
 		para->set( "Maximum Iterations", 1000 );
@@ -241,7 +240,6 @@ int main(int argi, char** argv ) {
 				Belos::StatusTestDetails +
 				Belos::Debug
 				);
-
 
 
     auto opV2V =
@@ -276,8 +274,8 @@ int main(int argi, char** argv ) {
 									Teuchos::null,
 //									Pimpact::createLinSolverParameter( "Block GMRES", tolBelos/100, -1, outPrec ),
 //									"Block GMRES" );
-									Pimpact::createLinSolverParameter( "GMRES", tolBelos/100, -1, outPrec ),
-									"GMRES" );
+//									Pimpact::createLinSolverParameter( "GMRES", tolBelos/100, -1, outPrec ), "GMRES" );
+									Pimpact::createLinSolverParameter( "GMRES", 0.9, -1, outPrec ), "GMRES" );
 
 			// creat Hinv prec
 			auto zeroOp = Pimpact::create<ConvDiffOpT>( space );
@@ -288,7 +286,8 @@ int main(int argi, char** argv ) {
 			
 //			opV2Vprob->setRightPrec( opV2Vprec );
 			
-			auto opV2Vinv = Pimpact::createInverseOperatorBase( opV2Vprob );
+			auto opV2Vinv =
+				Pimpact::createInverseOperatorBase( opV2Vprob );
 
 			// schurcomplement approximator ...
 			auto opSchur =

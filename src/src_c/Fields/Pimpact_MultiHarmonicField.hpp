@@ -118,6 +118,8 @@ public:
 
   Teuchos::RCP<const SpaceT> space() const { return( AF::space_ ); }
 
+  const MPI_Comm& comm() const { return(fields_->comm()); }
+
   /// \brief returns the length of Field.
   ///
   /// the vector length is with regard to the inner points
@@ -288,10 +290,6 @@ public:
       getSFieldPtr(i)->write( count+2*i+2 );
     }
   }
-
-  MPI_Comm comm() const { return( field0_->space()->comm() ); }
-
-
 
 
 }; // end of class MultiHarmonicField

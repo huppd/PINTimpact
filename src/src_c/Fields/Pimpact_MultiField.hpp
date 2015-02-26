@@ -366,7 +366,7 @@ public:
     for( int i=0; i<n; ++i)
       temp[i] = A.mfs_[i]->dot( *mfs_[i], false );
 
-    MPI_Allreduce( temp, dots.data(), n, MPI_REAL8, MPI_SUM, space()->comm() );
+    MPI_Allreduce( temp, dots.data(), n, MPI_REAL8, MPI_SUM, comm() );
     delete[] temp;
 
   }
@@ -381,7 +381,7 @@ public:
     for( int i=0; i<n; ++i )
       b+= mfs_[i]->dot( *A.mfs_[i], false );
 
-    if( global ) this->reduceNorm( space()->comm(), b );
+    if( global ) this->reduceNorm( comm(), b );
 
     return( b );
   }
@@ -400,19 +400,19 @@ public:
     case Belos::OneNorm:
       for( int i=0; i<n; ++i )
         temp[i] = mfs_[i]->norm(type,false);
-      MPI_Allreduce( temp, normvec.data(), n, MPI_REAL8, MPI_SUM, space()->comm() );
+      MPI_Allreduce( temp, normvec.data(), n, MPI_REAL8, MPI_SUM, comm() );
       break;
     case Belos::TwoNorm:
       for( int i=0; i<n; ++i )
         temp[i] = mfs_[i]->norm(type,false);
-      MPI_Allreduce( temp, normvec.data(), n, MPI_REAL8, MPI_SUM, space()->comm() );
+      MPI_Allreduce( temp, normvec.data(), n, MPI_REAL8, MPI_SUM, comm() );
       for( int i=0; i<n; ++i )
         normvec[i] = std::sqrt( normvec[i] );
       break;
     case Belos::InfNorm:
       for( int i=0; i<n; ++i )
         temp[i] = mfs_[i]->norm(type,false);
-      MPI_Allreduce( temp, normvec.data(), n, MPI_REAL8, MPI_MAX, space()->comm() );
+      MPI_Allreduce( temp, normvec.data(), n, MPI_REAL8, MPI_MAX, comm() );
       break;
     }
     delete[] temp;
@@ -439,7 +439,7 @@ public:
       }
     }
 
-    if( global ) this->reduceNorm( space()->comm(), normvec, type );
+    if( global ) this->reduceNorm( comm(), normvec, type );
 
     return( normvec );
   }
@@ -457,7 +457,7 @@ public:
     for( int i=0; i<getNumberVecs(); ++i )
       nor += mfs_[i]->norm( *weights.mfs_[i], false );
 
-    if( global ) this->reduceNorm( space()->comm(), nor, Belos::TwoNorm );
+    if( global ) this->reduceNorm( comm(), nor, Belos::TwoNorm );
 
     return( nor );
   }
@@ -523,6 +523,8 @@ public:
   Teuchos::RCP<const FieldT> getConstFieldPtr(int i) const { return( mfs_[i] ); }
 
   Teuchos::RCP<const SpaceT> space() const { return( AF::space_ ); }
+
+  const MPI_Comm& comm() const { return(mfs_[0]->comm()); }
 
 
 }; // end of class MultiField
