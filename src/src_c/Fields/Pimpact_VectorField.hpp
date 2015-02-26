@@ -664,10 +664,10 @@ public:
   }
 
 
-  void write( int count=0, bool restart=false ) {
+  void write( int count=0, bool restart=false ) const {
 
     for( int i=0; i<space()->dim(); ++i )
-      getFieldPtr(i)->write( count, restart );
+      getConstFieldPtr(i)->write( count, restart );
   }
 
 

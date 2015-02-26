@@ -249,11 +249,9 @@ public:
   /// \return Reference to this object
   void scale(const MV& y) {
     for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
-      mfs_[i]->scale( y.mfs_[i] );
+      mfs_[i]->scale( *y.mfs_[i] );
     changed();
   }
-
-
 
   /// \}
 

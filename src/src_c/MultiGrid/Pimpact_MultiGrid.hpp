@@ -159,8 +159,10 @@ public:
 
   void assignField( const DomainFieldT& mv ) {
 
+//		mv.write(0);
     mgOps_->get()->assignField( mv );
     mgTrans_->getTransferOp()->apply( mv, *temp_->get(0) );
+//		temp_->get(0)->write(1);
 
     for( int i=0; i<mgSpaces_->getNGrids()-1; ++i )  {
 //			temp_->get(i)->write(i);
@@ -169,12 +171,14 @@ public:
     }
 
 //		temp_->get(-1)->write(99);
-		cGridSolver_->assignField( *temp_->get(-1) );
+		mgOps_->get(-1)->assignField( *temp_->get(-1) );
+//		cGridSolver_->assignField( *temp_->get(-1) );
 
 		// cleaning temp field up
 		temp_->get()->initField();
     for( int i=0; i<mgSpaces_->getNGrids(); ++i )
 			temp_->get(i)->initField();
+
 
   };
 

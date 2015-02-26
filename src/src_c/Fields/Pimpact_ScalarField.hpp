@@ -529,7 +529,7 @@ public:
   /// Write the ScalarField to an hdf5 file, the velocities are interpolated to the pressure points
   /// \todo add 3d case here
   /// \todo add restart
-  void write( int count=0 , bool restart=false ) {
+  void write( int count=0 , bool restart=false ) const {
 
     if( 0==space()->rankS() )
       switch(fType_) {

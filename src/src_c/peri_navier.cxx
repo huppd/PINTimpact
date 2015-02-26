@@ -230,7 +230,7 @@ int main(int argi, char** argv ) {
 		para->set( "Implicit Residual Scaling", "Norm of RHS" );
 		para->set( "Explicit Residual Scaling", "Norm of RHS" );
 		para->set( "Flexible Gmres", true );
-		para->set( "Output Frequency", 1 );
+		para->set( "Output Frequency", withprec?1:100 );
 		para->set( "Verbosity",	
 				Belos::Errors +
 				Belos::Warnings +

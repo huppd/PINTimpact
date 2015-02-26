@@ -38,12 +38,15 @@ protected:
 
 public:
 
-  DtTimeOp( const Teuchos::RCP<const SpaceT>& space ):space_(space) {
-    Scalar pi = 4.*std::atan(1.);
-    Scalar idt = ((Scalar)space_->nGlo()[3])/2./pi;
-    mulI_ =
-			space_->getDomain()->getDomainSize()->getAlpha2()*idt/space_->getDomain()->getDomainSize()->getRe();
-  };
+	DtTimeOp( const Teuchos::RCP<const SpaceT>& space ):
+		space_(space) {
+
+			Scalar pi = 4.*std::atan(1.);
+			Scalar idt = ((Scalar)space_->nGlo()[3])/2./pi;
+			mulI_ =
+				space_->getDomain()->getDomainSize()->getAlpha2()*idt/space_->getDomain()->getDomainSize()->getRe();
+
+		};
 
 
   void apply( const DomainFieldT& x, RangeFieldT& y ) const {
@@ -61,6 +64,8 @@ public:
   void assignField( const DomainFieldT& mv ) {};
 
   bool hasApplyTranspose() const { return( false ); }
+
+	Teuchos::RCP<const SpaceT> space() const { return(space_); };
 
 }; // end of class DtTimeOp
 

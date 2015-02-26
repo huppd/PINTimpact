@@ -39,11 +39,10 @@ protected:
 public:
 
   Add3Op(
-      const Teuchos::RCP<DomainFieldT>& temp=Teuchos::null,
-      const Teuchos::RCP<OP1>&           op1=Teuchos::null,
-      const Teuchos::RCP<OP2>&           op2=Teuchos::null,
-      const Teuchos::RCP<OP3>&           op3=Teuchos::null ):
-        temp_(temp),
+      const Teuchos::RCP<OP1>& op1,
+      const Teuchos::RCP<OP2>& op2=Teuchos::null,
+      const Teuchos::RCP<OP3>& op3=Teuchos::null ):
+        temp_(op1->space()),
         op1_(op1), op2_(op2), op3_(op3) {};
 
   void apply(const DomainFieldT& x, RangeFieldT& y,
@@ -94,12 +93,12 @@ public:
 /// \relates Add3Op
 template<class OP1, class OP2, class OP3=OP1 >
 Teuchos::RCP< Add3Op<OP1, OP2, OP3> > createAdd3Op(
-    const Teuchos::RCP<typename OP1::DomainFieldT>& temp=Teuchos::null,
-    const Teuchos::RCP<OP1>& op1=Teuchos::null,
+    const Teuchos::RCP<OP1>& op1,
     const Teuchos::RCP<OP2>& op2=Teuchos::null,
-    const Teuchos::RCP<OP3>& op3=Teuchos::null
-      ) {
-  return( Teuchos::rcp( new Add3Op<OP1,OP2,OP3>( temp, op1, op2, op3) ) );
+    const Teuchos::RCP<OP3>& op3=Teuchos::null ) {
+
+  return( Teuchos::rcp( new Add3Op<OP1,OP2,OP3>( op1, op2, op3 ) ) );
+
 }
 
 

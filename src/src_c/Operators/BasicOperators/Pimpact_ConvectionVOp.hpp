@@ -42,7 +42,7 @@ protected:
 
   Teuchos::RCP<ConvectionVWrap<ConvSOpT> > convVWrap_;
 
-  Teuchos::RCP< ConvectionField<SpaceT> > convField_;
+  Teuchos::RCP<ConvectionField<SpaceT> > convField_;
 
 public:
 
@@ -51,7 +51,7 @@ public:
       convField_( create<ConvectionField>( space ) ) {};
 
     template< class ConvSOpTT >
-    ConvectionVOp( const Teuchos::RCP<const ConvSOpTT>& op ):
+    ConvectionVOp( const Teuchos::RCP<ConvSOpTT>& op ):
       convVWrap_( create<ConvectionVWrap<ConvSOpT> >( create<ConvSOpT>( op->getSpace() ) ) ),
       convField_( op->getConvField() ) {}
 
@@ -119,9 +119,9 @@ Teuchos::RCP<ConvectionVOp<ConvectionVWrap<ConvectionSOp<SpaceT> > > > createCon
     const Teuchos::RCP<const SpaceT>& space ) {
 
   auto sop = Pimpact::create<Pimpact::ConvectionSOp>( space ) ;
-  auto wrap = Pimpact::create<Pimpact::ConvectionVWrap>( sop );
+//  auto wrap = Pimpact::create<Pimpact::ConvectionVWrap>( sop );
 
-  return( Teuchos::rcp( new ConvectionVOp<ConvectionVWrap<ConvectionSOp<SpaceT> > >( wrap ) ) );
+  return( Teuchos::rcp( new ConvectionVOp< ConvectionSOp<SpaceT> >( sop ) ) );
 
 }
 

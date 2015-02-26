@@ -7,6 +7,8 @@
 
 #include "BelosTypes.hpp"
 
+#include "Pimpact_Space.hpp" // just for create<>
+
 
 
 
@@ -37,13 +39,13 @@ protected:
 public:
 
   Add2Op(
-      const Teuchos::RCP<OP1>& op1=Teuchos::null,
-      const Teuchos::RCP<OP2>& op2=Teuchos::null,
-      const Teuchos::RCP<DomainFieldT>& temp=Teuchos::null ):
+      const Teuchos::RCP<OP1>& op1,
+      const Teuchos::RCP<OP2>& op2 ):
         op1_(op1),
         op2_(op2),
-        temp_(temp)
+        temp_( create<typename OP1::RangeFieldT>(op1_->space()) )
         {};
+
 
   void apply(const DomainFieldT& x, RangeFieldT& y,
       Belos::ETrans trans=Belos::NOTRANS ) const {
@@ -74,10 +76,8 @@ public:
 template<class OP1, class OP2 >
 Teuchos::RCP< Add2Op<OP1, OP2> > createAdd2Op(
     const Teuchos::RCP<OP1>& op1,
-    const Teuchos::RCP<OP2>& op2,
-    const Teuchos::RCP<typename OP1::DomainFieldT>& temp
-      ) {
-  return( Teuchos::rcp( new Add2Op<OP1,OP2>( op1, op2, temp ) ) );
+    const Teuchos::RCP<OP2>& op2 ) {
+  return( Teuchos::rcp( new Add2Op<OP1,OP2>(op1,op2) ) );
 }
 
 

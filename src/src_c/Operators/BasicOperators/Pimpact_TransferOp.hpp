@@ -84,12 +84,12 @@ public:
         x.space()->nLoc(),
         x.space()->bl(),
         x.space()->bu(),
-        x.space()->sInd(fType),
-        x.space()->eInd(fType),
+        x.space()->sIndB(fType),
+        x.space()->eIndB(fType),
         y.space()->bl(),
         y.space()->bu(),
-        y.space()->sInd(fType),
-        y.space()->eInd(fType),
+        y.space()->sIndB(fType),
+        y.space()->eIndB(fType),
         x.getConstRawPtr(),
         y.getRawPtr() );
 
