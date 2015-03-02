@@ -53,7 +53,7 @@ public:
       const Teuchos::RCP<const SpaceT>& space ):
         AF( space ),
         field0_( create<Field>(space) ),
-        fields_( Teuchos::rcp( new MultiField< ModeField<Field> >(space,space->nGlo(3)) ) ) {};
+        fields_( Teuchos::rcp( new MultiField< ModeField<Field> >(space, space->nGlo(3)) ) ) {};
 
   /// \deprecated
   MultiHarmonicField(
@@ -283,11 +283,11 @@ public:
     fields_->print( os );
   }
 
-  void write( int count=0 ) {
+  void write( int count=0 ) const {
     field0_->write(count);
     for( int i=0; i<getNumberModes(); ++i ) {
-      getCFieldPtr(i)->write( count+2*i+1 );
-      getSFieldPtr(i)->write( count+2*i+2 );
+      getConstCFieldPtr(i)->write( count+2*i+1 );
+      getConstSFieldPtr(i)->write( count+2*i+2 );
     }
   }
 
@@ -331,8 +331,8 @@ Teuchos::RCP< MultiHarmonicField< FieldT > > createMultiHarmonic(
 				Teuchos::rcp(
 					new MultiHarmonicField< FieldT >( field0, fields ) ) );
 	}
-		return(
-					create< MultiHarmonicField<FieldT> >( space ) );
+	return(
+			create< MultiHarmonicField<FieldT> >( space ) );
 
 
 }

@@ -97,9 +97,9 @@ int main( int argi, char** argv ) {
       if( 3==dirx && diry==1 ) break;
 
       auto pls = Teuchos::parameterList();
-		 pls->sublist("Smoother").set( "omega", 1. );
+			pls->sublist("Smoother").set( "omega", 1. );
 //			pls->sublist("Smoother").set( "omega", 0.5 );
-      pls->sublist("Smoother").set( "numIters", ((dirx==3)?1:4)*1 );
+			pls->sublist("Smoother").set( "numIters", ((dirx==3)?1:4)*1 );
       pls->sublist("Smoother").set<int>( "Ordering", (dirx==3)?1:0 );
       pls->sublist("Smoother").set<short int>( "dir X", dirx );
       pls->sublist("Smoother").set<short int>( "dir Y", diry );

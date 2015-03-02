@@ -46,6 +46,7 @@ public:
 
   void assignField( const DomainFieldT& mv ) {
 
+//		mv.write( 99 );
     zeroOp_->assignField( mv.getConst0Field() );
 
   };

@@ -46,13 +46,13 @@ protected:
 public:
 
   /// \todo get nf from grid
-  MultiDtConvectionDiffusionOp( const Teuchos::RCP<const SpaceT>& space, int nf ):
+  MultiDtConvectionDiffusionOp( const Teuchos::RCP<const SpaceT>& space ):
     op_( create<ConvectionVWrap>( create<ConvectionDiffusionSOp<SpaceT> >(space) ) ),
     wind0_( create<ConvectionField>(space) ),
-    windc_( nf ),
-    winds_( nf ) {
+    windc_( space->nGlo(3) ),
+    winds_( space->nGlo(3) ) {
 
-    for( int i=0; i<nf; ++i ) {
+    for( int i=0; i<space->nGlo(3); ++i ) {
       windc_[i] = create<ConvectionField>( space );
       winds_[i] = create<ConvectionField>( space );
     }
@@ -171,9 +171,9 @@ public:
 /// \relates MultiDtConvectionDiffusionOp
 template<class SpaceT>
 Teuchos::RCP<MultiDtConvectionDiffusionOp<SpaceT> >
-createMultiDtConvectionDiffusionOp( const Teuchos::RCP<const SpaceT>& space, int nf ) {
+createMultiDtConvectionDiffusionOp( const Teuchos::RCP<const SpaceT>& space ) {
 
-  return( Teuchos::rcp( new MultiDtConvectionDiffusionOp<SpaceT>( space, nf ) ) );
+  return( Teuchos::rcp( new MultiDtConvectionDiffusionOp<SpaceT>( space ) ) );
 
 }
 

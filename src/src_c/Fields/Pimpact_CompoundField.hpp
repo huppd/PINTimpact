@@ -261,7 +261,7 @@ public:
   }
 
 
-  void write( int count=0 ) {
+  void write( int count=0 ) const {
     vfield_->write(count);
     sfield_->write(count);
   }

@@ -245,7 +245,7 @@ public:
     fields_->print( os );
   }
 
-  void write( int count=0 ) {
+  void write( int count=0 ) const {
     fieldc_->write(count);
     fields_->write(count+1);
   }

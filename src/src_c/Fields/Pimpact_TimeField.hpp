@@ -354,7 +354,7 @@ public:
 
 
 
-  void write( int count=0 )  {
+  void write( int count=0 ) const {
 		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
       mfs_[i]->write(count++ + space()->getShift()[3] );
   }

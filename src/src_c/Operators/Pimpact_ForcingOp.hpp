@@ -6,8 +6,6 @@
 
 #include "Pimpact_Types.hpp"
 
-//#include "Pimpact_VectorField.hpp"
-
 
 
 namespace Pimpact{

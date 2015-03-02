@@ -42,7 +42,7 @@ public:
         createOperatorBase(op),
         create<MF>( op->getSpace() ),
         create<MF>( op->getSpace() ),
-        createLinSolverParameter("GMRES",1.e-6,-1),
+        createLinSolverParameter("GMRES",1.e-12,-1),
         "GMRES" );
   }
 
@@ -52,7 +52,7 @@ public:
         createOperatorBase( create<OperatorT>(op) ),
         create<MF>( op->getSpace() ),
         create<MF>( op->getSpace() ),
-//        createLinSolverParameter("GMRES",1.e-6,-1),
+//				createLinSolverParameter("GMRES",1.e-12,-1),
 			 Teuchos::parameterList(),
         "GMRES" );
   }

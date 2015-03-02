@@ -43,6 +43,166 @@
 
 
 
+/// \brief gets \c ParameterList from command Line
+template<class S, class O>
+Teuchos::RCP<Teuchos::ParameterList>
+getSpaceParametersFromCL( int argi, char** argv  )  {
+
+	Teuchos::CommandLineProcessor my_CLP;
+
+	// Space parameters
+  // physical constants
+	S re = 100.;
+
+	S alpha2 = 125.;
+
+  // domain type
+  int domain = 2;
+
+  // domain size
+  int dim = 2;
+  S lx = 1.;
+  S ly = 1.;
+  S lz = 1.;
+
+  // grid size
+	O nx = 33;
+	O ny = 33;
+	O nz = 2;
+	O nf = 4;
+
+	O nfs = 4;
+	O nfe = 4;
+
+  // processor grid size
+  O npx = 1;
+  O npy = 1;
+  O npz = 1.;
+  O npf = 1.;
+
+	// flow and forcing type
+  int flow = 7;
+  int forcing = 0;
+
+	// solver parameters
+  std::string nonLinSolName = "Newton";
+
+  std::string lineSearchName = "Backtrack";
+
+  std::string linSolName = "GMRES";
+
+	int withprec=0;
+
+  int maxIter = 10;
+
+  S tolBelos = 1.e-1;
+  S tolInnerBelos = 1.e-3;
+  S tolNOX   = 1.e-3;
+
+	// Space parameters
+  my_CLP.setOption( "re", &re, "Reynolds number" );
+
+  my_CLP.setOption( "alpha2", &alpha2, "introduced frequency" );
+
+  my_CLP.setOption( "domain", &domain,
+      "Domain type: 0:all dirichlet, 1:dirichlet 2d channel, 2: periodic 2d channel" );
+
+  // domain size
+  my_CLP.setOption( "lx", &lx, "length in x-direction" );
+  my_CLP.setOption( "ly", &ly, "length in y-direction" );
+  my_CLP.setOption( "lz", &lz, "length in z-direction" );
+
+  my_CLP.setOption( "dim", &dim, "dimension of problem" );
+
+  // grid size
+  my_CLP.setOption( "nx", &nx, "amount of grid points in x-direction: a*2**q+1" );
+  my_CLP.setOption( "ny", &ny, "amount of grid points in y-direction: a*2**q+1" );
+  my_CLP.setOption( "nz", &nz, "amount of grid points in z-direction: a*2**q+1" );
+  my_CLP.setOption( "nf", &nf, "amount of grid points in f-direction" );
+
+  my_CLP.setOption( "nfs", &nfs, "start amount of grid points in f-direction" );
+  my_CLP.setOption( "nfe", &nfe, "end amount of grid points in f-direction" );
+
+  // processor grid size
+  my_CLP.setOption( "npx", &npx, "amount of processors in x-direction" );
+  my_CLP.setOption( "npy", &npy, "amount of processors in y-direction" );
+  my_CLP.setOption( "npz", &npz, "amount of processors in z-direction" );
+
+	// flow and forcint
+  my_CLP.setOption( "flow", &flow,
+      "Flow type" );
+  my_CLP.setOption( "force", &forcing,
+      "forcing, ja?" );
+
+	// solver parameters
+  my_CLP.setOption("nonLinSolver", &nonLinSolName, "Newton");
+  my_CLP.setOption("linSearch", &lineSearchName, "Backtrack");
+  my_CLP.setOption("linSolver", &linSolName, "bla");
+  my_CLP.setOption("withprec", &withprec, "withprec");
+  my_CLP.setOption("maxIter", &maxIter, "bla");
+  my_CLP.setOption("tolBelos", &tolBelos, "bla");
+  my_CLP.setOption("tolInnerBelos", &tolInnerBelos, "bla");
+  my_CLP.setOption("tolNOX", &tolNOX, "bla");
+
+
+  my_CLP.recogniseAllOptions(true);
+  my_CLP.throwExceptions(true);
+
+  my_CLP.parse(argi,argv);
+
+
+	// Set all the valid parameters and their default values.
+	Teuchos::RCP<Teuchos::ParameterList> pl = Teuchos::parameterList("Pimpact");
+
+
+	// Space parameters
+	pl->sublist("Space").set<S>("Re", re, "Reynolds number");
+	pl->sublist("Space").set<S>("alpha2", alpha2,
+			"Womersley square \alpha^2");
+	// domain type
+	pl->sublist("Space").set<int>( "domain", domain,
+			"Domain type: 0:all dirichlet, 1:dirichlet 2d channel, 2: periodic 2d channel" );
+
+	// domain size
+	pl->sublist("Space").set<int>("dim", dim, "dimension of problem" );
+
+	pl->sublist("Space").set<S>( "lx", lx, "length in x-direction" );
+	pl->sublist("Space").set<S>( "ly", ly, "length in y-direction" );
+	pl->sublist("Space").set<S>( "lz", lz, "length in z-direction" );
+
+
+	// grid size
+	pl->sublist("Space").set<O>("nx", nx, "amount of grid points in x-direction: a*2**q+1" );
+	pl->sublist("Space").set<O>("ny", ny, "amount of grid points in y-direction: a*2**q+1" );
+	pl->sublist("Space").set<O>("nz", nz, "amount of grid points in z-direction: a*2**q+1" );
+	pl->sublist("Space").set<O>("nf", nf, "amount of grid points in f-direction" );
+
+	pl->sublist("Space").set<O>("nfs", nfs, "start amount of grid points in f-direction" );
+	pl->sublist("Space").set<O>("nfe", nfe, "end amount of grid points in f-direction" );
+
+	// processor grid size
+	pl->sublist("Space").set<O>("npx", npx, "amount of processors in x-direction" );
+	pl->sublist("Space").set<O>("npy", npx, "amount of processors in y-direction" );
+	pl->sublist("Space").set<O>("npz", npz, "amount of processors in z-direction" );
+	pl->sublist("Space").set<O>("npf", npf, "amount of processors in f-direction" );
+
+	// flow and forcint
+	pl->set<int>( "flow", flow, "Flow type: depending on main" );
+	pl->set<int>( "forcing", forcing, "forcing, ja?" );
+
+	// solver parameters
+  pl->sublist("Solver").set("nonLinSolver", nonLinSolName );
+  pl->sublist("Solver").set("linSearch", lineSearchName );
+  pl->sublist("Solver").set("linSolver", linSolName );
+  pl->sublist("Solver").set("withprec", withprec );
+  pl->sublist("Solver").set("maxIter", maxIter );
+  pl->sublist("Solver").set("tolBelos", tolBelos );
+  pl->sublist("Solver").set("tolInnerBelos", tolInnerBelos );
+  pl->sublist("Solver").set("tolNOX", tolNOX );
+
+	return( pl );
+}
+
 
 typedef double S;
 typedef int O;
@@ -78,8 +238,6 @@ template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact
 //template<class ST> using BOPC = Pimpact::MultiOpWrap< Pimpact::DivGradO2Op<ST> >;
 //template<class ST> using BSM = Pimpact::MultiOpWrap< Pimpact::DivGradO2JSmoother<ST> >;
 
-template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
-
 
 int main(int argi, char** argv ) {
 
@@ -87,99 +245,33 @@ int main(int argi, char** argv ) {
   // intialize MPI
   MPI_Init( &argi, &argv );
 
-  //// get problem values form Comand line
-  Teuchos::CommandLineProcessor my_CLP;
 
-  // physical constants
-  S re = 100;
+	
 
-  S alpha2 = 125;
 
-  // flow type
-  int flow = 7;
+	Teuchos::RCP<Teuchos::ParameterList> pl = getSpaceParametersFromCL<S,O>( argi, argv  ) ;
 
-  // domain type
-  int domain = 2;
-
-  // domain size
-  int dim = 2;
-  S l1 = 1.;
-  S l2 = 1.;
-  S l3 = 1.;
-
-  // grid size
-//	O n1 = 125;
-//	O n2 = 125;
-	O n1 = 65;
-	O n2 = 65;
-// O n1 = 33;
-// O n2 = 33;
-//  O n3 = 17;
-	O n3 = 2.;
-
-  O nf = 4;
-
-  O nfs = 4;
-
-  O nfe = 4;
-
-  // processor grid size
-  O np1 = 2;
-  O np2 = 2;
-  O np3 = 1.;
+	pl->print();
 
   // solver stuff
-  std::string nonLinSolName = "Newton";
+  std::string nonLinSolName = pl->sublist("Solver").get<std::string>("nonLinSolver");
+  std::string lineSearchName = pl->sublist("Solver").get<std::string>( "linSearch" );
 
-  std::string lineSearchName = "Backtrack";
+	S tolNOX   = pl->sublist("Solver").get<S>("tolNOX");
+  int maxIter = pl->sublist("Solver").get<int>("maxIter");
+  S tolBelos = pl->sublist("Solver").get<S>("tolBelos");
+  S tolInnerBelos = pl->sublist("Solver").get<S>("tolInnerBelos");
 
-	bool withprec=false;
+	int withprec=pl->sublist("Solver").get<int>("withprec");
 
-  int maxIter = 10;
+//  std::string linSolName = withprec?"Block GMRES":"GMRES";
+//  std::string linSolName = false?"Block GMRES":"GMRES";
+  std::string linSolName  = pl->sublist("Solver").get<std::string>( "linSolver" );
 
-  S tolBelos = 1.e-4;
-  S tolNOX   = 1.e-3;
+	auto space = Pimpact::createSpace<S,O,3,4>( Teuchos::rcpFromRef( pl->sublist("Space", true) ) );
+//  auto space = Pimpact::createSpace<S,O,3,4>( pl );
 
-
-	// start of parsing
-  my_CLP.setOption( "withprec","noprec", &withprec, "type of fixpoint iteration matrix: 1=Newton, 2=Piccard, 3=lin diag... " );
-
-  my_CLP.recogniseAllOptions(true);
-  my_CLP.throwExceptions(true);
-
-  my_CLP.parse(argi,argv);
-  // end of parsing
-  // start of ininializing
-	
-  std::string linSolName = withprec?"Block GMRES":"GMRES";
-
-  auto pl = Teuchos::parameterList();
-
-  pl->set( "Re", re );
-  pl->set( "alpha2", alpha2 );
-  pl->set( "domain", domain );
-
-  pl->set( "lx", l1 );
-  pl->set( "ly", l2 );
-  pl->set( "lz", l3 );
-
-  pl->set( "dim", dim );
-
-  pl->set("nx", n1 );
-  pl->set("ny", n2 );
-  pl->set("nz", n3 );
-
-  pl->set("nf", nf );
-  pl->set("nfs", nfs );
-  pl->set("nfe", nfe );
-
-  // processor grid size
-  pl->set("npx", np1 );
-  pl->set("npy", np2 );
-  pl->set("npz", np3 );
-
-  auto space = Pimpact::createSpace<S,O,3,4>( pl );
-
+	int flow = pl->get<int>("flow");
   // outputs
   Teuchos::RCP<std::ostream> outPar;
   Teuchos::RCP<std::ostream> outLinSolve;
@@ -195,10 +287,6 @@ int main(int argi, char** argv ) {
   } else
     outPar = Teuchos::rcp( new Teuchos::oblackholestream() ) ;
 
-  *outPar << " \tflow=" << flow << "\n";
-  *outPar << " \tdomain=" << domain << "\n";
-
-
 
   if( space->rankST()==0 ) {
     Teuchos::rcp_static_cast<std::ofstream>(outPar)->close();
@@ -208,14 +296,14 @@ int main(int argi, char** argv ) {
   // init vectors
   auto x    = Pimpact::createMultiField(
 			Pimpact::createCompoundField(
-      	Pimpact::createMultiHarmonicVectorField( space, nfs ),
-      	Pimpact::createMultiHarmonicScalarField( space, nfs )) );
+      	Pimpact::createMultiHarmonic< Pimpact::VectorField<SpaceT> >( space ),
+      	Pimpact::createMultiHarmonic< Pimpact::ScalarField<SpaceT> >( space )) );
   auto fu   = x->clone();
 
   // init Fields, init and rhs
   x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::EFlowField(flow), 1 );
 
-//	x->init(0.);
+	x->init(0.);
   fu->init( 0. );
 
 
@@ -243,7 +331,7 @@ int main(int argi, char** argv ) {
 
 
     auto opV2V =
-				Pimpact::createMultiDtConvectionDiffusionOp( space, nf );
+				Pimpact::createMultiDtConvectionDiffusionOp( space );
     auto opS2V = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::GradOp>( space ) );
     auto opV2S = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::DivOp>( space ) );
 
@@ -263,7 +351,7 @@ int main(int argi, char** argv ) {
 		if( withprec ) {
 
 			// create Mulit space
-			auto mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, 4 );
+			auto mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, 3 );
 
 			// create Hinv
 			auto opV2Vprob =
@@ -272,10 +360,8 @@ int main(int argi, char** argv ) {
 									opV2V ),
 									Teuchos::null,
 									Teuchos::null,
-//									Pimpact::createLinSolverParameter( "Block GMRES", tolBelos/100, -1, outPrec ),
-//									"Block GMRES" );
-//									Pimpact::createLinSolverParameter( "GMRES", tolBelos/100, -1, outPrec ), "GMRES" );
-									Pimpact::createLinSolverParameter( "GMRES", 0.9, -1, outPrec ), "GMRES" );
+									Pimpact::createLinSolverParameter( "Block GMRES", tolInnerBelos, 100, outPrec ), "Block GMRES" );
+//										Pimpact::createLinSolverParameter( "GMRES", tolInnerBelos, 100, outPrec ), "GMRES" );
 
 			// creat Hinv prec
 			auto zeroOp = Pimpact::create<ConvDiffOpT>( space );
@@ -284,10 +370,21 @@ int main(int argi, char** argv ) {
 			auto opV2Vprec = Pimpact::createMultiOperatorBase(
 					Pimpact::createMultiHarmonicDiagOp(zeroInv) );
 			
-//			opV2Vprob->setRightPrec( opV2Vprec );
+			opV2Vprob->setRightPrec( opV2Vprec );
 			
 			auto opV2Vinv =
 				Pimpact::createInverseOperatorBase( opV2Vprob );
+
+//			opV2Vinv = opV2Vprec;
+//			auto eye = x->getFieldPtr(0)->getVFieldPtr()->clone();
+//			for( O i=0; i<nf; ++i ) {
+//				eye->getCFieldPtr(i)->initField( Pimpact::ConstFlow, 1., 1., 1. );
+//				eye->getSFieldPtr(i)->initField( Pimpact::ConstFlow, 1., 1., 1. );
+//			}
+//
+//			auto opV2Vinv = 
+//				Pimpact::createMultiOperatorBase(
+//						Pimpact::createForcingOp( eye ) );
 
 			// schurcomplement approximator ...
 			auto opSchur =
@@ -313,8 +410,9 @@ int main(int argi, char** argv ) {
 							divGradOp ,
 							Teuchos::null,
 							Teuchos::null,
-							Pimpact::createLinSolverParameter( "Block GMRES", tolBelos/100, -1, outSchur ),
-							"Block GMRES" );
+//							Pimpact::createLinSolverParameter( "Block GMRES", tolInnerBelos, -1, outSchur ), "Block GMRES" );
+							Pimpact::createLinSolverParameter( "GMRES", tolInnerBelos, -1, outSchur ), "GMRES" );
+//							Pimpact::createLinSolverParameter( "CG", tolInnerBelos, -1, outSchur ), "CG" );
 
 			auto mg_divGrad =
 				Pimpact::createMultiOperatorBase(
@@ -329,9 +427,10 @@ int main(int argi, char** argv ) {
 								Pimpact::DivGradO2JSmoother,
 								MOP>( mgSpaces ) ) );
 
-			divGradProb->setRightPrec( mg_divGrad );
+//			divGradProb->setRightPrec( mg_divGrad );
 
 			auto divGradInv = Pimpact::createInverseOperatorBase( divGradProb );
+//			divGradInv = mg_divGrad;
 
 			auto opS2Sinv =
 					Pimpact::createOperatorBase(
@@ -355,6 +454,7 @@ int main(int argi, char** argv ) {
 
     auto lp_ = Pimpact::createLinearProblem<MF>( jop, x->clone(), fu->clone(), para, linSolName );
 		if( withprec ) lp_->setRightPrec( lprec );
+//		if( withprec ) lp_->setLeftPrec( lprec );
 
     auto lp = Pimpact::createInverseOperatorBase( lp_ );
 

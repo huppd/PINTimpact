@@ -163,6 +163,10 @@ public:
 		mulI_ = para->get<Scalar>( "mulI", 0. );
 		mulC_ = para->get<Scalar>( "mulC", 1. );
 		mulL_ = para->get<Scalar>( "mulL", 1./space()->getDomain()->getDomainSize()->getRe() );
+//		std::cout << "mul: " << mul_ << "\n";
+//		std::cout << "mulI: " << mulI_ << "\n";
+//		std::cout << "mulC: " << mulC_ << "\n";
+//		std::cout << "mulL: " << mulL_ << "\n";
 	}
 
   void print( std::ostream& out=std::cout ) const {
