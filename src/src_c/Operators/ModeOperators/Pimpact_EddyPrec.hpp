@@ -41,8 +41,9 @@ public:
 
  	void apply(const DomainFieldT& x, RangeFieldT& y) {
 
- 		temp_->getCFieldPtr()->add( 0.5, x.getConstCField(),  0.5, x.getConstSField() );
- 		temp_->getSFieldPtr()->add( 0.5, x.getConstCField(), -0.5, x.getConstSField() );
+		// where is the minus best
+ 		temp_->getCFieldPtr()->add( 0.5, x.getConstCField(), -0.5, x.getConstSField() );
+ 		temp_->getSFieldPtr()->add( 0.5, x.getConstCField(),  0.5, x.getConstSField() );
 
 		op_->apply( temp_->getConstCField(), y.getCField() );
 		op_->apply( temp_->getConstSField(), y.getSField() );
@@ -68,17 +69,7 @@ public:
 
 
 
-/// \relates EddyPrec
-template<class OpT>
-Teuchos::RCP<EddyPrec<OpT> > createEddyPrec(
-		const Teuchos::RCP<OpT>& op ) {
-
-	return( Teuchos::rcp( new EddyPrec<OpT>( op ) ) );
-
-}
-
-
-
 } // end of namespace Pimpact
+
 
 #endif // end of #ifndef PIMPACT_EDDYPREC_HPP

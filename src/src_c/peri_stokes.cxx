@@ -270,7 +270,7 @@ int main(int argi, char** argv ) {
 					"CG" );
 
 		auto op2 =
-			Pimpact::createEddyPrec(
+			Pimpact::create<Pimpact::EddyPrec>(
 					Pimpact::createMultiOpUnWrap(
 						Pimpact::createInverseOperatorBase(prob2) ) );
 

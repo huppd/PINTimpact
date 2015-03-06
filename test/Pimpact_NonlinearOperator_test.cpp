@@ -542,14 +542,15 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicConvectionOp ) {
 
 TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicDtConvectionDiffusionOp ) {
 
+	O nf = 4;
   pl->set<S>( "Re", 1.e1 );
   pl->set<S>( "alpha2", 20. );
+  pl->set<O>( "nf", nf );
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl, !isImpactInit );
 
 	S re = space->getDomain()->getDomainSize()->getRe();
 	S alpha2 = space->getDomain()->getDomainSize()->getAlpha2();
-	O nf = 4;
 
   isImpactInit=true;
 
@@ -565,10 +566,10 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicDtConvectionDiffusionOp )
 	auto op1 =
 		Pimpact::createAdd2Op(
 				Pimpact::createMultiDtHelmholtz( space, alpha2/re, 1./re ),
-				Pimpact::createMultiHarmonicConvectionOp( space, nf ) );
+				Pimpact::createMultiHarmonicConvectionOp( space ) );
 
   auto op2 =
-		Pimpact::createMultiDtConvectionDiffusionOp( space, nf );
+		Pimpact::createMultiDtConvectionDiffusionOp( space );
 
   // init zero wind 
 	wind->get0FieldPtr()->initField( Pimpact::ConstFlow, 1, 1, 0 );

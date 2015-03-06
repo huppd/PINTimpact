@@ -58,6 +58,8 @@ public:
 
 protected:
 
+	int numCycles_;
+
   Teuchos::RCP<const MGSpacesT> mgSpaces_;
 
   Teuchos::RCP<const MGTransfersT> mgTrans_;
@@ -78,6 +80,7 @@ public:
       const Teuchos::RCP<const MGSpacesT>& mgSpaces,
 			const Teuchos::RCP<Teuchos::ParameterList>& pl,
       EField type = EField::S ):
+				numCycles_( pl->get<int>("numCycles",FSpaceT::dimNC-CSpaceT::dimNC+1) ),
         mgSpaces_(mgSpaces),
         mgTrans_( createMGTransfers<TransT,RestrT,InterT>(mgSpaces) ),
         mgOps_( Pimpact::createMGOperators<FOperatorT,COperatorT>(mgSpaces) ),
@@ -96,7 +99,7 @@ public:
   void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
 //    int out =0;
-    for( int j=0; j<(FSpaceT::dimNC-CSpaceT::dimNC+1); ++j ) {
+    for( int j=0; j<numCycles_; ++j ) {
       // defect correction rhs \hat{f}= b = x - L y
       mgOps_->get()->apply( y, *b_->get() );
       b_->get()->add( 1., x, -1., *b_->get() );
@@ -109,6 +112,8 @@ public:
       mgOps_->get(0)->apply( *x_->get(0), *temp_->get(0) );
       // b = x - L y +\hat{L} y
       b_->get(0)->add( 1., *b_->get(0), 1, *temp_->get(0) );
+			b_->get(0)->level();
+			/// use residual here
 
 			//b_->get(0)->write(78);
 			//x_->get(0)->write(79);
@@ -117,8 +122,10 @@ public:
       for( i=0; i<mgSpaces_->getNGrids()-1; ++i ) {
 				if(i>0) x_->get(i)->init(0.); // necessary? for DivGradOp yes
 				//b_->get(i)->write(98);
+//				b_->get(i)->level();
         mgSms_->get(i)->apply( *b_->get(i), *x_->get(i) );
 				//x_->get(i)->write(98);
+//				x_->get(i)->level();
         mgOps_->get(i)->apply( *x_->get(i), *temp_->get(i) );
         temp_->get(i)->add( -1., *temp_->get(i), 1., *b_->get(i) );
 				//temp_->get(i)->write(98);
@@ -131,7 +138,7 @@ public:
       // coarse grid solution
       i = -1;
       /// \todo add level for singular stuff
-      b_->get(i)->level();
+			b_->get(i)->level();
       x_->get(i)->init(0.);
 			//for( int j=0; j<1; ++j )
 		  cGridSolver_->apply( *b_->get(i), *x_->get(i) );
@@ -149,8 +156,10 @@ public:
 				//x_->get(i)->write(99);
 
       }
-      mgTrans_->getTransferOp()->apply( *x_->get(0), y );
-      //    y.level();// only laplace
+
+			x_->get(0)->level();// only laplace
+			// use temp as stopping cirterion
+			mgTrans_->getTransferOp()->apply( *x_->get(0), y );
 
     }
 
@@ -179,12 +188,13 @@ public:
     for( int i=0; i<mgSpaces_->getNGrids(); ++i )
 			temp_->get(i)->initField();
 
-
   };
 
 	Teuchos::RCP<const SpaceT> space() const { return(mgSpaces_->get()); };
 
-	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {}
+	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
+		mgOps_->setParameter( para );
+	}
 
   bool hasApplyTranspose() const { return( false ); }
 

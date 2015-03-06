@@ -936,7 +936,7 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, EddyPrec ) {
 				"CG" );
 
 	auto op =
-		Pimpact::createEddyPrec(
+		Pimpact::create<Pimpact::EddyPrec>(
 				Pimpact::createMultiOpUnWrap(
 					Pimpact::createInverseOperatorBase(prob) ) );
 

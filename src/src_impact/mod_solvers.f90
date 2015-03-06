@@ -5649,7 +5649,7 @@ module mod_solvers
   
   
   
-  !> Anmerkungen: Siehe Subroutine "handle_corner_Lap"!                                                     !
+  !> Anmerkungen: Siehe Subroutine "handle_corner_Lap"!!
   subroutine handle_corner_rhs(g,phi) ! TEST!!! Ersetzen mit einheitlicher Routine?? ! TEST!!! validieren ...
   
   implicit none

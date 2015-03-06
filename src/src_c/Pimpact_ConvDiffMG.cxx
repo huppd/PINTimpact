@@ -1,7 +1,6 @@
 #include <cmath>
 
 #include "Pimpact_Operator.hpp"
-#include "Pimpact_VectorFieldOpWrap.hpp"
 #include "Pimpact_MultiGrid.hpp"
 
 typedef double S;

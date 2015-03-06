@@ -142,9 +142,9 @@ public:
           y.getConstRawPtr(),
           z.getConstRawPtr(),
           temp_->getRawPtr(),
-          0.,
-          1.,
-          1./space()->getDomain()->getDomainSize()->getRe(),
+          op_->mulI_,
+          op_->mulC_,
+          op_->mulC_,
           omega_ );
 
       // attention: could lead to problems when ScalarField is used as part of a higherlevel class (s is shared)

@@ -45,7 +45,7 @@ public:
 
   template<class IOperatorT>
   MultiOpUnWrap( const Teuchos::RCP<IOperatorT>& op, Teuchos::RCP<Teuchos::ParameterList> pl ):
-    op_( create<MOperatorT>( op, pl ) ) {}
+    op_( Teuchos::rcp( new MOperatorT( op, pl ) ) ) {}
 
 
   /// \brief default apply

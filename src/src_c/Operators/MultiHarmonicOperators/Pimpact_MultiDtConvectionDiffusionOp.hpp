@@ -61,6 +61,8 @@ public:
 
   void assignField( const DomainFieldT& mv ) {
 
+//		mv.write(99);
+
     wind0_->assignField( mv.getConst0Field() );
     int Nf = mv.getNumberModes();
 

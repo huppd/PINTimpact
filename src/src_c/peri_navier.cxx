@@ -95,9 +95,15 @@ getSpaceParametersFromCL( int argi, char** argv  )  {
 
   int maxIter = 10;
 
+  int initZero = 1;
+
   S tolBelos = 1.e-1;
   S tolInnerBelos = 1.e-3;
   S tolNOX   = 1.e-3;
+
+	// multi grid parameters
+	int maxGrids = 2;
+	int numCycles = 20;
 
 	// Space parameters
   my_CLP.setOption( "re", &re, "Reynolds number" );
@@ -127,6 +133,7 @@ getSpaceParametersFromCL( int argi, char** argv  )  {
   my_CLP.setOption( "npx", &npx, "amount of processors in x-direction" );
   my_CLP.setOption( "npy", &npy, "amount of processors in y-direction" );
   my_CLP.setOption( "npz", &npz, "amount of processors in z-direction" );
+  my_CLP.setOption( "npf", &npf, "amount of processors in f-direction" );
 
 	// flow and forcint
   my_CLP.setOption( "flow", &flow,
@@ -138,11 +145,16 @@ getSpaceParametersFromCL( int argi, char** argv  )  {
   my_CLP.setOption("nonLinSolver", &nonLinSolName, "Newton");
   my_CLP.setOption("linSearch", &lineSearchName, "Backtrack");
   my_CLP.setOption("linSolver", &linSolName, "bla");
-  my_CLP.setOption("withprec", &withprec, "withprec");
+  my_CLP.setOption("withprec", &withprec, "0: no preconditioner, 1: block triangular, 2: block traingular with inner MG multigrid, 3: block triangular with mg solver");
   my_CLP.setOption("maxIter", &maxIter, "bla");
+  my_CLP.setOption("initZero", &initZero, "bla");
   my_CLP.setOption("tolBelos", &tolBelos, "bla");
   my_CLP.setOption("tolInnerBelos", &tolInnerBelos, "bla");
   my_CLP.setOption("tolNOX", &tolNOX, "bla");
+
+	// multi grid parameters
+  my_CLP.setOption("maxGrids", &maxGrids, "bla");
+  my_CLP.setOption("numCycles", &numCycles, "bla");
 
 
   my_CLP.recogniseAllOptions(true);
@@ -196,9 +208,14 @@ getSpaceParametersFromCL( int argi, char** argv  )  {
   pl->sublist("Solver").set("linSolver", linSolName );
   pl->sublist("Solver").set("withprec", withprec );
   pl->sublist("Solver").set("maxIter", maxIter );
+  pl->sublist("Solver").set("initZero", initZero );
   pl->sublist("Solver").set("tolBelos", tolBelos );
   pl->sublist("Solver").set("tolInnerBelos", tolInnerBelos );
   pl->sublist("Solver").set("tolNOX", tolNOX );
+
+	// Multi Grid parameters
+  pl->sublist("Multi Grid").set("maxGrids", maxGrids );
+  pl->sublist("Multi Grid").set("numCycles", numCycles );
 
 	return( pl );
 }
@@ -229,14 +246,19 @@ typedef NOX::Pimpact::Interface<MF> Inter;
 typedef NOX::Pimpact::Vector<typename Inter::Field> NV;
 
 
+template<class T1,class T2> using TransVF = Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<T1,T2> >;
+template<class T> using RestrVF = Pimpact::VectorFieldOpWrap<Pimpact::RestrictionOp<T> >;
+template<class T> using InterVF = Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<T> >;
+
 template<class T> using ConvDiffOpT = Pimpact::ConvectionVOp<Pimpact::ConvectionDiffusionSOp<T> >;
+template<class T> using ConvDiffSORT = Pimpact::ConvectionVSmoother<T,Pimpact::ConvectionDiffusionSORSmoother >;
+
 
 template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
 
 
-//template<class ST> using BOPF = Pimpact::MultiOpWrap< Pimpact::DivGradOp<ST> >;
-//template<class ST> using BOPC = Pimpact::MultiOpWrap< Pimpact::DivGradO2Op<ST> >;
-//template<class ST> using BSM = Pimpact::MultiOpWrap< Pimpact::DivGradO2JSmoother<ST> >;
+
+
 
 
 int main(int argi, char** argv ) {
@@ -244,9 +266,6 @@ int main(int argi, char** argv ) {
 
   // intialize MPI
   MPI_Init( &argi, &argv );
-
-
-	
 
 
 	Teuchos::RCP<Teuchos::ParameterList> pl = getSpaceParametersFromCL<S,O>( argi, argv  ) ;
@@ -259,14 +278,14 @@ int main(int argi, char** argv ) {
 
 	S tolNOX   = pl->sublist("Solver").get<S>("tolNOX");
   int maxIter = pl->sublist("Solver").get<int>("maxIter");
+  int initZero = pl->sublist("Solver").get<int>("initZero");
   S tolBelos = pl->sublist("Solver").get<S>("tolBelos");
   S tolInnerBelos = pl->sublist("Solver").get<S>("tolInnerBelos");
 
 	int withprec=pl->sublist("Solver").get<int>("withprec");
 
-//  std::string linSolName = withprec?"Block GMRES":"GMRES";
-//  std::string linSolName = false?"Block GMRES":"GMRES";
   std::string linSolName  = pl->sublist("Solver").get<std::string>( "linSolver" );
+	linSolName = (withprec>0)?"Block GMRES":"GMRES";
 
 	auto space = Pimpact::createSpace<S,O,3,4>( Teuchos::rcpFromRef( pl->sublist("Space", true) ) );
 //  auto space = Pimpact::createSpace<S,O,3,4>( pl );
@@ -303,7 +322,8 @@ int main(int argi, char** argv ) {
   // init Fields, init and rhs
   x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::EFlowField(flow), 1 );
 
-	x->init(0.);
+	if( 0==initZero )
+		x->init(0.);
   fu->init( 0. );
 
 
@@ -312,12 +332,12 @@ int main(int argi, char** argv ) {
   /******************************************************************************************/
 	{
 
-    auto para = Pimpact::createLinSolverParameter( linSolName, tolBelos, -1 );
+    auto para = Pimpact::createLinSolverParameter( linSolName, tolBelos, -1, outLinSolve );
 		para->set( "Maximum Iterations", 1000 );
 		para->set( "Implicit Residual Scaling", "Norm of RHS" );
 		para->set( "Explicit Residual Scaling", "Norm of RHS" );
 		para->set( "Flexible Gmres", true );
-		para->set( "Output Frequency", withprec?1:100 );
+//		para->set( "Output Frequency", withprec?1:100 );
 		para->set( "Verbosity",	
 				Belos::Errors +
 				Belos::Warnings +
@@ -328,6 +348,8 @@ int main(int argi, char** argv ) {
 				Belos::StatusTestDetails +
 				Belos::Debug
 				);
+//		if( outFile )
+//			para->set( "Output Stream", outLineSolve);
 
 
     auto opV2V =
@@ -348,10 +370,10 @@ int main(int argi, char** argv ) {
 		jop = op;
 
     Teuchos::RCP<BOp> lprec;
-		if( withprec ) {
+		if( withprec>0 ) {
 
 			// create Mulit space
-			auto mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, 3 );
+			auto mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, pl->sublist("Multi Grid").get<int>("maxGrids") );
 
 			// create Hinv
 			auto opV2Vprob =
@@ -360,22 +382,52 @@ int main(int argi, char** argv ) {
 									opV2V ),
 									Teuchos::null,
 									Teuchos::null,
-									Pimpact::createLinSolverParameter( "Block GMRES", tolInnerBelos, 100, outPrec ), "Block GMRES" );
+//									Pimpact::createLinSolverParameter( "Block GMRES", tolInnerBelos, 100, outPrec ), "Block GMRES" );
+									Pimpact::createLinSolverParameter( (2==withprec)?"Block GMRES":"GMRES", tolInnerBelos, 100, outPrec ), (2==withprec)?"Block GMRES":"GMRES" );
 //										Pimpact::createLinSolverParameter( "GMRES", tolInnerBelos, 100, outPrec ), "GMRES" );
 
 			// creat Hinv prec
-			auto zeroOp = Pimpact::create<ConvDiffOpT>( space );
-			auto zeroInv = Pimpact::create<MOP>( zeroOp );
+      auto pls = Teuchos::parameterList();
+			pls->set( "numCycles", pl->sublist("Multi Grid").get<int>("numCycles") );
+			pls->sublist("Smoother").set( "omega", 1. );
+			pls->sublist("Smoother").set( "numIters", 1 );
+      pls->sublist("Smoother").set<int>( "Ordering", 1 );
 
-			auto opV2Vprec = Pimpact::createMultiOperatorBase(
-					Pimpact::createMultiHarmonicDiagOp(zeroInv) );
+			auto mgConvDiff =
+//				Pimpact::createMultiOperatorBase(
+						Pimpact::createMultiGrid<
+						Pimpact::VectorField,
+						TransVF,
+						RestrVF,
+						InterVF,
+						ConvDiffOpT,
+						ConvDiffOpT,
+						ConvDiffSORT,
+						MOP > ( mgSpaces, pls ) ;
+
+//			auto zeroOp = Pimpact::create<ConvDiffOpT>( space );
+//
+//			auto zeroInv = Pimpact::create<MOP>( zeroOp );
+//
+//			zeroInv->getOperatorPtr()->getLinearProblem()->setParameters(
+//					Pimpact::createLinSolverParameter( "GMRES", tolInnerBelos/10, -1, outLinSolve ) );
+//
+//			zeroInv->getOperatorPtr()->getLinearProblem()->setRightPrec( Pimpact::createMultiOperatorBase(mgConvDiff) );
+
+			auto opV2Vprec =
+				Pimpact::createMultiOperatorBase(
+//					Pimpact::createMultiHarmonicDiagOp(zeroInv) );
+					Pimpact::createMultiHarmonicDiagOp(mgConvDiff) );
 			
-			opV2Vprob->setRightPrec( opV2Vprec );
+			if( 2==withprec )
+				opV2Vprob->setRightPrec( opV2Vprec );
 			
 			auto opV2Vinv =
 				Pimpact::createInverseOperatorBase( opV2Vprob );
 
-//			opV2Vinv = opV2Vprec;
+			if( 3==withprec )
+				opV2Vinv = opV2Vprec;
+
 //			auto eye = x->getFieldPtr(0)->getVFieldPtr()->clone();
 //			for( O i=0; i<nf; ++i ) {
 //				eye->getCFieldPtr(i)->initField( Pimpact::ConstFlow, 1., 1., 1. );
@@ -410,10 +462,17 @@ int main(int argi, char** argv ) {
 							divGradOp ,
 							Teuchos::null,
 							Teuchos::null,
+							Pimpact::createLinSolverParameter( (withprec==2)?"Block GMRES":"GMRES", tolInnerBelos, -1, outSchur ), (withprec==2)?"Block GMRES":"GMRES" );
 //							Pimpact::createLinSolverParameter( "Block GMRES", tolInnerBelos, -1, outSchur ), "Block GMRES" );
-							Pimpact::createLinSolverParameter( "GMRES", tolInnerBelos, -1, outSchur ), "GMRES" );
+//							Pimpact::createLinSolverParameter( "GMRES", tolInnerBelos, -1, outSchur ), "GMRES" );
 //							Pimpact::createLinSolverParameter( "CG", tolInnerBelos, -1, outSchur ), "CG" );
 
+			/// init multigrid divgrad
+			auto plmg = Teuchos::parameterList("MultiGrid");
+			plmg->set<int>("numCycles",pl->sublist("Multi Grid").get<int>("numCycles"));
+			plmg->sublist("Smoother").set<S>("omega",0.8);
+			plmg->sublist("Smoother").set<int>("numIters",4);
+		
 			auto mg_divGrad =
 				Pimpact::createMultiOperatorBase(
 						Pimpact::createMultiHarmonicOpWrap(
@@ -425,12 +484,15 @@ int main(int argi, char** argv ) {
 								Pimpact::DivGradOp,
 								Pimpact::DivGradO2Op,
 								Pimpact::DivGradO2JSmoother,
-								MOP>( mgSpaces ) ) );
+								MOP>( mgSpaces, plmg ) ) );
 
-//			divGradProb->setRightPrec( mg_divGrad );
+
+			if( 2==withprec or 3==withprec )
+				divGradProb->setRightPrec( mg_divGrad );
 
 			auto divGradInv = Pimpact::createInverseOperatorBase( divGradProb );
-//			divGradInv = mg_divGrad;
+//			if( 3==withprec )
+//				divGradInv = mg_divGrad;
 
 			auto opS2Sinv =
 					Pimpact::createOperatorBase(

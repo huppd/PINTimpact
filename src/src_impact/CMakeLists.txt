@@ -15,7 +15,7 @@ add_library(limpact ${limpact_srcs} )
 
 add_executable(impact impact.f90)
 
-add_test( run_impact mpirun -np 4 impact)
+#add_test( run_impact mpirun -np 4 impact)
 
 set_target_properties(impact limpact PROPERTIES 
 	COMPILE_FLAGS "${CMAKE_Fortran_COMPILE_FLAGS}")

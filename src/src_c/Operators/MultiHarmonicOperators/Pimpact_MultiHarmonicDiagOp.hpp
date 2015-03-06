@@ -70,6 +70,7 @@ public:
 		zeroOp_->setParameter( para );
 
     zeroOp_->apply( x.getConst0Field(), y.get0Field() );
+
     for( int i=0; i<Nf; ++i ) {
 			// set parameters
 			para->set<Scalar>( "mulI", a2*(i+1) );

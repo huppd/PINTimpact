@@ -28,14 +28,6 @@ void OP_DivGradO2JSmoother(
     const double* const x,
           double* const temp );
 
-void SF_handle_corner(
-    const int* const N,
-    const int* const BL,
-    const int* const BU,
-    const int* const BCL,
-    const int* const BCU,
-    double* const phi );
-
 }
 
 
@@ -76,8 +68,8 @@ public:
   DivGradO2JSmoother(
       const Teuchos::RCP<const OperatorT>& op,
       Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ):
-    omega_( pl->get("omega",0.8) ),
-    nIter_( pl->get("numIters",4) ),
+    omega_( pl->get<Scalar>("omega",0.8) ),
+    nIter_( pl->get<int>("numIters",4) ),
     temp_( createScalarField<SpaceT>( op->space() ) ),
     op_(op) {}
 
@@ -104,13 +96,13 @@ public:
           y.s_,
           temp_->s_);
 
-      SF_handle_corner(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->getDomain()->getBCLocal()->getBCL(),
-          space()->getDomain()->getBCLocal()->getBCU(),
-          temp_->s_);
+		 SF_handle_corner(
+				 space()->nLoc(),
+				 space()->bl(),
+				 space()->bu(),
+				 space()->getDomain()->getBCLocal()->getBCL(),
+				 space()->getDomain()->getBCLocal()->getBCU(),
+				 temp_->s_);
 
       // attention: could lead to problems when ScalarField is used as part of a higherlevel class (s is shared)
       std::swap( y.s_, temp_->s_ );

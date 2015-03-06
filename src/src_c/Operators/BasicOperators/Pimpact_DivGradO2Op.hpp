@@ -48,14 +48,6 @@ void OP_DivGradO2Op(
     const double* const phi,
           double* const Lap );
 
-void SF_handle_corner(
-    const int* const N,
-    const int* const BL,
-    const int* const BU,
-    const int* const BCL,
-    const int* const BCU,
-    double* const phi );
-
 }
 
 
@@ -142,13 +134,13 @@ public:
         x.getConstRawPtr(),
         y.getRawPtr() );
 
-    SF_handle_corner(
-        space_->nLoc(),
-        space_->bl(),
-        space_->bu(),
-        space_->getDomain()->getBCLocal()->getBCL(),
-        space_->getDomain()->getBCLocal()->getBCU(),
-        y.getRawPtr() );
+	 SF_handle_corner(
+			 space_->nLoc(),
+			 space_->bl(),
+			 space_->bu(),
+			 space_->getDomain()->getBCLocal()->getBCL(),
+			 space_->getDomain()->getBCLocal()->getBCU(),
+			 y.getRawPtr() );
 
     y.changed();
 

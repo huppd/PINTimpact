@@ -37,6 +37,7 @@
 #include "Pimpact_ConvectionVSmoother.hpp"
 #include "Pimpact_ConvectionVWrap.hpp"
 #include "Pimpact_ConvectionJacobianOp.hpp"
+#include "Pimpact_VectorFieldOpWrap.hpp"
 
 
 /// \defgroup TimeOperator Time Operator

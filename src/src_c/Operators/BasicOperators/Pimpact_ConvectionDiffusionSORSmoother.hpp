@@ -190,9 +190,9 @@ protected:
         x[2]->getRawPtr(),
         y.getConstRawPtr(),
         z.getRawPtr(),
-        0.,
-        1.,
-        1./space()->getDomain()->getDomainSize()->getRe(),
+        op_->mulI_,
+        op_->mulC_,
+        op_->mulL_,
         omega_ );
 
     z.changed();

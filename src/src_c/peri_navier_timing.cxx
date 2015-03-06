@@ -209,7 +209,7 @@ int main(int argi, char** argv ) {
 
 
     auto opV2V =
-				Pimpact::createMultiDtConvectionDiffusionOp( space, nf );
+				Pimpact::createMultiDtConvectionDiffusionOp( space );
     auto opS2V = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::GradOp>( space ) );
     auto opV2S = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::DivOp>( space ) );
 

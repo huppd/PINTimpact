@@ -76,9 +76,14 @@ public:
       return( cOperator_[i] );
   }
 
-  //  void print(  std::ostream& out=std::cout ) const {
-  //
-  //  }
+	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) const {
+
+		fOperator_->setParameter( para );
+
+    for( int i=0; i<mgSpaces_->getNGrids(); ++i )
+      cOperator_[i]->setParameter( para );
+
+	}
 
 }; // end of class MGOperators
 

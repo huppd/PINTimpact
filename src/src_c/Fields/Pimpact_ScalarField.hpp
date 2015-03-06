@@ -492,17 +492,34 @@ public:
   }
 
 
-  void level() {
-    SF_level(
-        space()->commf(),
-        getLength(),
-        space()->nLoc(),
-        space()->bl(),
-        space()->bu(),
-        space()->sIndB(fType_),
-        space()->eIndB(fType_),
-        s_ );
-  }
+	void level() {
+		// set corners to zero, such that level depends only on inner field
+//		SF_handle_corner(
+//				space()->nLoc(),
+//				space()->bl(),
+//				space()->bu(),
+//				space()->getDomain()->getBCLocal()->getBCL(),
+//				space()->getDomain()->getBCLocal()->getBCU(),
+//				s_ );
+
+		SF_level(
+				space()->commf(),
+				getLength(),
+				space()->nLoc(),
+				space()->bl(),
+				space()->bu(),
+				space()->sIndB(fType_),
+				space()->eIndB(fType_),
+				s_ );
+
+//		SF_handle_corner(
+//				space()->nLoc(),
+//				space()->bl(),
+//				space()->bu(),
+//				space()->getDomain()->getBCLocal()->getBCL(),
+//				space()->getDomain()->getBCLocal()->getBCU(),
+//				s_ );
+	}
 
 
   /// \}

@@ -67,14 +67,16 @@ TEUCHOS_STATIC_SETUP() {
 	    "Slack off of machine epsilon used to check test results" );
 
   pl->set( "domain", 1 );
-	pl->set( "nx", 65 );
-	pl->set( "ny", 65 );
+//	pl->set( "nx", 65 );
+//	pl->set( "ny", 65 );
+	pl->set( "nx", 129 );
+	pl->set( "ny", 129 );
 	//pl->set( "nx", 1025 );
 	//pl->set( "ny", 1025 );
 	
 	// processor grid size
-  pl->set("npx", 1 );
-  pl->set("npy", 1 );
+  pl->set("npx", 2 );
+  pl->set("npy", 2 );
 
 }
 
@@ -86,7 +88,7 @@ TEUCHOS_UNIT_TEST( MGSpaces, constructor3D ) {
 
   auto space = Pimpact::createSpace( pl );
 
-  auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, 10 );
+  auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, 4 );
   std::cout << "nGridLevels: " << mgSpaces->getNGrids() << "\n";
   if( space->rankST()==0 )
     mgSpaces->print();
@@ -645,13 +647,16 @@ TEUCHOS_UNIT_TEST( MultiGrid, DivGradOp ) {
 
   typedef Pimpact::CoarsenStrategy<FSpace3T,CSpace3T> CS;
 
-  pl->set("nx", 33 );
-  pl->set("ny", 65 );
-  pl->set("nz", 2 );
+//  pl->set("nx", 33 );
+//  pl->set("ny", 65 );
+//  pl->set("nz", 2 );
+
+//	pl->set("domain",2);
 
   auto space = Pimpact::createSpace( pl );
 
-  auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, 5 );
+  auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, 4 );
+	if( space->rankST()==0 ) mgSpaces->print();
 
 
   auto mg =
@@ -674,7 +679,7 @@ TEUCHOS_UNIT_TEST( MultiGrid, DivGradOp ) {
     ofs.open("MG.txt", std::ofstream::out);
 
   // Grad in x
-   x->initField( Pimpact::Grad2D_inX );
+   x->initField( Pimpact::Grad2D_inY );
    x->write(0);
 
    op->apply(*x,*b);
@@ -687,11 +692,11 @@ TEUCHOS_UNIT_TEST( MultiGrid, DivGradOp ) {
    e->init( 1. );
    auto sol = x->clone();
 //   auto  = x->clone();
-   sol->initField( Pimpact::Grad2D_inX );
+   sol->initField( Pimpact::Grad2D_inY );
 
    S bla = b->dot(*e)/x->getLength();
    std::cout<< " rhs nullspace: " << bla << "\n";
-   for( int i=0; i<40; ++i ) {
+   for( int i=0; i<20; ++i ) {
      mg->apply( *b, *x );
      x->level();
      x->write(i+10);
@@ -700,11 +705,12 @@ TEUCHOS_UNIT_TEST( MultiGrid, DivGradOp ) {
      sol->add( -1, *b, 1., *sol );
      double res = sol->norm();
      std::cout << "res: " << res << "\n";
+//		 if( res<1.e-5 ) break;
 
      if( space()->rankST()==0 )
        ofs << res << "\n";
    }
-   TEST_EQUALITY( sol->norm()<0.5, true );
+   TEST_EQUALITY( sol->norm()<1.e-5, true );
 
    x->write(2);
 
@@ -722,8 +728,9 @@ TEUCHOS_UNIT_TEST( MultiGrid, DivGradOp ) {
 //   auto solvName = "Block GMRES";
    auto solvName = "GMRES";
 
-   auto param = Pimpact::createLinSolverParameter(solvName,1.e-6);
+   auto param = Pimpact::createLinSolverParameter(solvName,1.e-8);
    param->set( "Output Frequency", 1);
+	 param->set( "Maximum Iterations", 10 );
 //   param->set( "Flexible Gmres", true );
 
    auto bop = Pimpact::createMultiOperatorBase( op );
@@ -750,21 +757,9 @@ TEUCHOS_UNIT_TEST( MultiGrid, ConvDiffOp ) {
 	//pl->set<S>( "Re", 1. );
 	//pl->set<S>( "Re", 0.01 );
 
-	//pl->set( "nx", 256 );
-	//pl->set( "ny", 256 );
-	pl->set( "nx", 129 );
-	pl->set( "ny", 129 );
-  //pl->set( "nx", 65 );
-  //pl->set( "ny", 65 );
-  //pl->set( "nx", 33 );
-  //pl->set( "ny", 33 );
-
   //pl->set( "lx", 2. );
   //pl->set( "ly", 2. );
 
-	pl->set("npx", 1 );
-	pl->set("npy", 1 );
-	pl->set("npz", 1 );
 
   //auto space = Pimpact::createSpace<S,O,3,2>( pl );
   auto space = Pimpact::createSpace( pl );

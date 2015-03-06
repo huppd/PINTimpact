@@ -300,6 +300,7 @@ void SF_init_2DGradY(
     const double* const x2,
           double* const phi );
 
+
 void SF_level(
     const int& COMM_CART,
     const int& M,
@@ -308,6 +309,15 @@ void SF_level(
     const int* const bU,
     const int* const SS,
     const int* const NN,
+    double* const phi );
+
+
+void SF_handle_corner(
+    const int* const N,
+    const int* const BL,
+    const int* const BU,
+    const int* const BCL,
+    const int* const BCU,
     double* const phi );
 
 

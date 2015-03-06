@@ -57,6 +57,18 @@ public:
         "GMRES" );
   }
 
+  template<class IOperatorT>
+  InverseOp(
+			const Teuchos::RCP<IOperatorT>& op,
+		  Teuchos::RCP<Teuchos::ParameterList> pl ) {
+    linprob_ = createLinearProblem<MF>(
+        createOperatorBase( create<OperatorT>(op) ),
+        create<MF>( op->getSpace() ),
+        create<MF>( op->getSpace() ),
+				Teuchos::rcpFromRef( pl->sublist("Solver") ), 
+        pl->get<std::string>("Solver name") );
+  }
+
 
   void apply( const MF& x, MF& y, Belos::ETrans trans=Belos::NOTRANS ) const {
     linprob_->solve( Teuchos::rcpFromRef(y), Teuchos::rcpFromRef(x) );
@@ -83,7 +95,8 @@ public:
 
 
 	Teuchos::RCP<const SpaceT> space() const { return(linprob_->space()); };
-	
+
+	Teuchos::RCP< LinearProblem<MF> > getLinearProblem() { return(linprob_); }
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
 		Teuchos::rcp_const_cast<Op>( linprob_->getProblem()->getOperator() )->setParameter( para );

@@ -788,52 +788,6 @@ contains
 
 
 
-    !> \brief sets corner to zero
-    !! \note
-    !!    - Diese Routine dient dazu, den unbestimmten Druck in den Ecken und Kanten explizit zu
-    !!      behandeln und gleichzeitig das Konvergenzverhalten der Löser (BiCGstab oder Richardson)
-    !!      möglichst nicht zu beeinträchtigen.
-    !!    - Der Druck wird hier direkt zu Null gesetzt, um innerhalb des iterativen Lösers kein
-    !!      Residuum zu erzeugen (anstelle über die RHS).
-    !!    - Der Druck wird erst bei Bedarf (z.B. vor einem Ausschrieb) auf einen sinnvollen Wert gesetzt.
-    !!    - Siehe dazu auch die korrespondierende Subroutine "handle_corner_rhs"!
-    subroutine SF_handle_corner(    &
-        N,                          &
-        bL,bU,                      &
-        BCL,BCU,                    &
-        phi) bind( c, name='SF_handle_corner' )
-
-        implicit none
-
-        integer(c_int), intent(in)    :: N(3)
-
-        integer(c_int), intent(in)    :: BL(3)
-        integer(c_int), intent(in)    :: BU(3)
-
-        integer(c_int), intent(in)    :: BCL(3)
-        integer(c_int), intent(in)    :: BCU(3)
-
-        real(c_double), intent(inout) :: phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-
-
-        if (BCL(1) > 0 .and. BCL(2) > 0) phi(1   ,1   ,1:N(3)) = 0. ! TEST!!! verifizieren ...
-        if (BCL(1) > 0 .and. BCU(2) > 0) phi(1   ,N(2),1:N(3)) = 0.
-        if (BCU(1) > 0 .and. BCL(2) > 0) phi(N(1),1   ,1:N(3)) = 0.
-        if (BCU(1) > 0 .and. BCU(2) > 0) phi(N(1),N(2),1:N(3)) = 0.
-
-        if (BCL(1) > 0 .and. BCL(3) > 0) phi(1   ,1:N(2),1   ) = 0.
-        if (BCL(1) > 0 .and. BCU(3) > 0) phi(1   ,1:N(2),N(3)) = 0.
-        if (BCU(1) > 0 .and. BCL(3) > 0) phi(N(1),1:N(2),1   ) = 0.
-        if (BCU(1) > 0 .and. BCU(3) > 0) phi(N(1),1:N(2),N(3)) = 0.
-
-        if (BCL(2) > 0 .and. BCL(3) > 0) phi(1:N(1),1   ,1   ) = 0.
-        if (BCL(2) > 0 .and. BCU(3) > 0) phi(1:N(1),1   ,N(3)) = 0.
-        if (BCU(2) > 0 .and. BCL(3) > 0) phi(1:N(1),N(2),1   ) = 0.
-        if (BCU(2) > 0 .and. BCU(3) > 0) phi(1:N(1),N(2),N(3)) = 0.
-
-
-    end subroutine SF_handle_corner
-
 
   
 end module cmod_DivGrad2ndOOp

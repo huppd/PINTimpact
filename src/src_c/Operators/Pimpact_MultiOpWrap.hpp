@@ -79,11 +79,11 @@ public:
 
 
 /// \relates MultiOpWrap
-/// \todo offer version where create<SpaceObject> is used
+/// \deprecated use create<MultiOpWrap>( op ) instead
 template<class OperatorT>
 Teuchos::RCP< MultiOpWrap<OperatorT> > createMultiOpWrap( const Teuchos::RCP<OperatorT>& op ) {
 
-    return( Teuchos::rcp( new MultiOpWrap<OperatorT>( op ) ) );
+	 return( Teuchos::rcp( new MultiOpWrap<OperatorT>( op ) ) );
 
 }
 
