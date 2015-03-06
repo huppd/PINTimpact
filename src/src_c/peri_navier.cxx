@@ -89,7 +89,7 @@ getSpaceParametersFromCL( int argi, char** argv  )  {
 
   std::string lineSearchName = "Backtrack";
 
-  std::string linSolName = "GMRES";
+  std::string linSolName = "";
 
 	int withprec=0;
 
@@ -285,7 +285,8 @@ int main(int argi, char** argv ) {
 	int withprec=pl->sublist("Solver").get<int>("withprec");
 
   std::string linSolName  = pl->sublist("Solver").get<std::string>( "linSolver" );
-	linSolName = (withprec>0)?"Block GMRES":"GMRES";
+	if( linSolName.size()< 2 )
+		linSolName = (withprec>0)?"Block GMRES":"GMRES";
 
 	auto space = Pimpact::createSpace<S,O,3,4>( Teuchos::rcpFromRef( pl->sublist("Space", true) ) );
 //  auto space = Pimpact::createSpace<S,O,3,4>( pl );

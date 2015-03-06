@@ -54,7 +54,7 @@ protected:
   Teuchos::RCP<const SpaceT> space_;
 
 	Scalar mulI_;
-	Scalar mulL_ = 1./space_->getDomain()->getDomainSize()->getRe();
+	Scalar mulL_;
 	
   TO cS_;
   TO cV_;
