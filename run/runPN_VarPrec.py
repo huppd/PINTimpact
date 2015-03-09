@@ -17,12 +17,18 @@ npy= 1
 npt= 1
 
 
-case_consts = ' --npx='+str(npx)+' --npy='+str(npy)+' --npf='+str(npt)+' --tolNOX=1.e-6  --tolBelos=1.e-4  --maxIter=5  --lx=2. --ly=2.  --initZero=0 --tolInnerBelos=1.e-6 --numCycles=2 --maxGrids=4 '
+case_consts = ' --npx='+str(npx)+' --npy='+str(npy)+' --npf='+str(npt)+' --tolNOX=1.e-6  --tolBelos=1.e-4  --maxIter=5  --lx=2. --ly=2.  --initZero=0 --tolInnerBelos=1.e-6 --numCycles=2 '
 
 precTypes = [ 0, 1, 2, 3 ]
 ns        = [ 4, 5, 6 ]
+ns        = [  5, 6 ]
 res       = [ 1, 10, 100 ]
 alpha2s   = [ 1, 10, 100 ]
+
+precTypes = [ 2, 3 ]
+precTypes = [ 3 ]
+res       = [ 10 ]
+alpha2s   = [ 10 ]
 
 #data_path = '/cluster/scratch_xp/public/huppd'
 
@@ -46,8 +52,7 @@ for alpha2 in alpha2s:
 					os.mkdir( data_path+case_path[0]+case_path[1]+case_path[2]+case_path[3] )
 				os.chdir( data_path+case_path[0]+case_path[1]+case_path[2]+case_path[3] )
 				os.system(' rm ./* -r -v  ')
-				case_consts = ' --npx='+str(npx)+' --npy='+str(npy)+' --npf='+str(npt)+' --tolNOX=1.e-6  --tolBelos=1.e-4  --maxIter=5  --lx=2. --ly=2.  --initZero=0 --tolInnerBelos=1.e-6 --numCycles=2 --maxGrids=3 '
-				case_para = ' --nx='+str(2**n+1)+' --ny='+str(2**n+1)+' --nf='+str(8)+' --withprec='+str(precType)+'  --re='+str(re)+' --alpha2='+str(alpha2)+'  ' 
+				case_para = ' --nx='+str(2**n+1)+' --ny='+str(2**n+1)+' --nf='+str(8)+' --withprec='+str(precType)+'  --re='+str(re)+' --alpha2='+str(alpha2)+' --maxGrids='+str(n-2)+' ' 
 				#os.system( exe_pre(npx*npy*npt,' -R lustre ')+exe_path+exe+case_para+case_consts )
-				os.system( exe_pre(npx*npy*npt)+exe_path+exe+case_para+case_consts +' > output ' )
 				print( exe_pre(npx*npy*npt)+exe_path+exe+case_para+case_consts +' > output ' )
+				os.system( exe_pre(npx*npy*npt)+exe_path+exe+case_para+case_consts +' > output ' )
