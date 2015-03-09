@@ -71,11 +71,15 @@ public:
 
       vec_ = new Scalar[3*N];
 
-      for( int i=0; i<3*N; ++i )
-        vec_[i] = 0.;
-
       for( int i=0; i<3; ++i )
         sFields_[i]->setStoragePtr( vec_+i*N );
+
+//#ifdef DEBUG
+//		 for( int i=0; i<3*N; ++i )
+//			 vec_[i] = 0.;
+//#endif // end of #ifdef DEBUG
+			initField();
+
     }
 
   };
@@ -104,8 +108,11 @@ public:
 
       switch( copyType ) {
       case ShallowCopy:
-        for( int i=0; i<3*n; ++i )
-          vec_[i] = 0.;
+//#ifdef DEBUG
+//			 for( int i=0; i<3*n; ++i )
+//				 vec_[i] = 0.;
+//#endif // end of #ifdef DEBUG
+				initField();
         break;
       case DeepCopy:
         for( int i=0; i<3*n; ++i )

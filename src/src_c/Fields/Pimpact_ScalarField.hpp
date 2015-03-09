@@ -74,8 +74,11 @@ public:
 
       s_ = new Scalar[N];
 
-      for(int i=0; i<N; ++i)
-        s_[i] = 0.;
+//#ifdef DEBUG
+//		 for(int i=0; i<N; ++i)
+//			 s_[i] = 0.;
+//#endif // end of #ifdef DEBUG
+			initField();
     }
   };
 
@@ -99,8 +102,11 @@ public:
 
       switch( copyType ) {
       case ShallowCopy:
-        for(int i=0; i<N; ++i)
-          s_[i] = 0;
+//#ifdef DEBUG
+//			 for(int i=0; i<N; ++i)
+//				 s_[i] = 0;
+//#endif // end of #ifdef DEBUG
+				initField();
         break;
       case DeepCopy:
         for( int i=0; i<N; ++i)
@@ -511,7 +517,7 @@ public:
 				space()->sIndB(fType_),
 				space()->eIndB(fType_),
 				s_ );
-
+		changed();
 //		SF_handle_corner(
 //				space()->nLoc(),
 //				space()->bl(),

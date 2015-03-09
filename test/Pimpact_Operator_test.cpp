@@ -812,6 +812,8 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, DtLapOp ) {
 
 TEUCHOS_UNIT_TEST( MultiModeOperator, TripleCompostion ) {
 
+	pl->set( "Re", 1. );
+	pl->set( "alpha2", 1. );
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl, !isImpactInit );
 
   if( !isImpactInit ) isImpactInit=true;
@@ -827,7 +829,8 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, TripleCompostion ) {
   auto temp = Pimpact::create<MVF>( space );
 
   X->init(0.);
-  B->random();
+//  B->random();
+  B->init(1.);
 
 
   auto H =
@@ -847,7 +850,7 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, TripleCompostion ) {
   auto schur = Pimpact::createTripleCompositionOp(
       Pimpact::createMultiModeOpWrap( Pimpact::create<Pimpact::DivOp>( space ) ),
       Hinv,
-      Pimpact::createMultiModeOpWrap( Pimpact::create<Pimpact::GradOp>( space ))
+      Pimpact::createMultiModeOpWrap( Pimpact::create<Pimpact::GradOp>( space ) )
   );
 
   schur->apply( *B, *X );
@@ -916,7 +919,8 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, EddyPrec ) {
   auto B = Pimpact::createMultiModeVectorField( space );
 
   X->init(0.);
-  B->random();
+//  B->random();
+  B->init(1.);
 
   // Make an empty new parameter list.
   auto solverParams = Pimpact::createLinSolverParameter("CG",1.e-1);

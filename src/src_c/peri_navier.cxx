@@ -457,16 +457,20 @@ int main(int argi, char** argv ) {
 							)
 						);
 
+			auto pl_divGrad = Pimpact::createLinSolverParameter( (withprec==2||withprec==3)?"Block GMRES":"GMRES", tolInnerBelos, -1, outSchur );
+
+				//Pimpact::createLinSolverParameter( "TFQMR", tolInnerBelos, -1, outSchur ), "TFQMR" ); // gives nan
+//							Pimpact::createLinSolverParameter( "Block GMRES", tolInnerBelos, -1, outSchur ), "Block GMRES" );
+//							Pimpact::createLinSolverParameter( "GMRES", tolInnerBelos, -1, outSchur ), "GMRES" );
+//							Pimpact::createLinSolverParameter( "CG", tolInnerBelos, -1, outSchur ), "CG" );
 
 			auto divGradProb =
 					Pimpact::createLinearProblem<MSF>(
 							divGradOp ,
 							Teuchos::null,
 							Teuchos::null,
-							Pimpact::createLinSolverParameter( (withprec==2)?"Block GMRES":"GMRES", tolInnerBelos, -1, outSchur ), (withprec==2)?"Block GMRES":"GMRES" );
-//							Pimpact::createLinSolverParameter( "Block GMRES", tolInnerBelos, -1, outSchur ), "Block GMRES" );
-//							Pimpact::createLinSolverParameter( "GMRES", tolInnerBelos, -1, outSchur ), "GMRES" );
-//							Pimpact::createLinSolverParameter( "CG", tolInnerBelos, -1, outSchur ), "CG" );
+							pl_divGrad,
+							(withprec==2||withprec==3)?"Block GMRES":"GMRES" );
 
 			/// init multigrid divgrad
 			auto plmg = Teuchos::parameterList("MultiGrid");

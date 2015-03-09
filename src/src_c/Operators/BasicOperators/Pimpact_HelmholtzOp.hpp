@@ -196,8 +196,6 @@ public:
     }
   }
 
-	/// \todo unifyt
-  Teuchos::RCP<const SpaceT> getSpace() const { return( space() ); }
 
 	Teuchos::RCP<const SpaceT> space() const { return(space_); };
 

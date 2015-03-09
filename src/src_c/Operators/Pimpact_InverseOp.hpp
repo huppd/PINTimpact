@@ -40,8 +40,8 @@ public:
   InverseOp( const Teuchos::RCP<OperatorT>& op ) {
     linprob_ = createLinearProblem<MF>(
         createOperatorBase(op),
-        create<MF>( op->getSpace() ),
-        create<MF>( op->getSpace() ),
+        create<MF>( op->space() ),
+        create<MF>( op->space() ),
         createLinSolverParameter("GMRES",1.e-12,-1),
         "GMRES" );
   }
@@ -50,8 +50,8 @@ public:
   InverseOp( const Teuchos::RCP<IOperatorT>& op ) {
     linprob_ = createLinearProblem<MF>(
         createOperatorBase( create<OperatorT>(op) ),
-        create<MF>( op->getSpace() ),
-        create<MF>( op->getSpace() ),
+        create<MF>( op->space() ),
+        create<MF>( op->space() ),
 //				createLinSolverParameter("GMRES",1.e-12,-1),
 			 Teuchos::parameterList(),
         "GMRES" );
@@ -63,8 +63,8 @@ public:
 		  Teuchos::RCP<Teuchos::ParameterList> pl ) {
     linprob_ = createLinearProblem<MF>(
         createOperatorBase( create<OperatorT>(op) ),
-        create<MF>( op->getSpace() ),
-        create<MF>( op->getSpace() ),
+        create<MF>( op->space() ),
+        create<MF>( op->space() ),
 				Teuchos::rcpFromRef( pl->sublist("Solver") ), 
         pl->get<std::string>("Solver name") );
   }

@@ -151,7 +151,6 @@ public:
   bool hasApplyTranspose() const { return( false ); }
 
 	Teuchos::RCP<const SpaceT> space() const { return(space_); };
-  Teuchos::RCP<const SpaceT> getSpace() const { return( space_ ); }
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 

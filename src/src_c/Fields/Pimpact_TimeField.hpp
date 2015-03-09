@@ -93,8 +93,10 @@ public:
     Ordinal nx = mfs_[0]->getStorageSize();
 
     array_ = new Scalar[nx*nt];
+//#ifdef DEBUG
     for( int i=0; i<nt; ++i )
       array_[i] = 0.;
+//#endif // end of #ifdef DEBUG
 
     for( int i=0; i<nt; ++i )
       mfs_[i]->setStoragePtr( array_+i*nx );
@@ -135,9 +137,12 @@ protected:
       for( int i=0; i<nt; ++i ) {
         mfs_[i]->assign( *(field.mfs_[i]) );
       }
-    else
+    else {
+//#ifdef DEBUG
       for( int i=0; i<nt*nx; ++i )
         array_[i] = 0.;
+//#endif // end of #ifdef DEBUG
+		}
 
     sInd_ = mfs_.begin() - space()->bl(3);
     eInd_ = mfs_.end() - space()->bu(3);

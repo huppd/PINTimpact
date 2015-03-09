@@ -106,6 +106,7 @@ public:
 
       // attention: could lead to problems when ScalarField is used as part of a higherlevel class (s is shared)
       std::swap( y.s_, temp_->s_ );
+//			y.level();
       y.changed();
     }
 
