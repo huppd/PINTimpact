@@ -12,7 +12,7 @@ os.chdir( exe_path )
 
 os.system( 'make '+exe+' -j4' )
 
-case_consts = ' --npx='+str(1)+' --npy='+str(1)+' --npf='+str(1)+' --tolNOX=1.e-6  --tolBelos=1.e-4  --maxIter=5  --lx=2. --ly=2.  --initZero=0 --tolInnerBelos=1.e-6 --numCycles=2 --maxGrids=4  --withprec=2 '
+case_consts = ' --nx=65 --ny=65 --nf=8 --npx='+str(1)+' --npy='+str(1)+' --npf='+str(1)+' --tolNOX=1.e-6  --tolBelos=1.e-4  --maxIter=5  --lx=2. --ly=2.  --initZero=0 --tolInnerBelos=1.e-6 --numCycles=2 --maxGrids=4  --withprec=2 --re=10 --alpha2=10 --linSolver=TFQMR '
 
 os.chdir( data_path )
 f = open( 'timingNavier.txt','a' )

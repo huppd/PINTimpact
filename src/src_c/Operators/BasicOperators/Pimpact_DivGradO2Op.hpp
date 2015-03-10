@@ -142,7 +142,8 @@ public:
 			 space_->getDomain()->getBCLocal()->getBCU(),
 			 y.getRawPtr() );
 
-    y.changed();
+	 y.level();
+	 y.changed();
 
   }
 
