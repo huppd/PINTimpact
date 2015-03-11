@@ -337,7 +337,7 @@ int main(int argi, char** argv ) {
 		if( 3==withprec || withprec==0 ) {
 			para->set( "Num Blocks",         20  	);
 			para->set( "Maximum Iterations", 1000 );
-			para->set( "Maximum Restarts",   20	  );
+			para->set( "Maximum Restarts",   50	  );
 		}
 //		para->set( "Flexible Gmres", true );
 //		para->set( "Output Frequency", withprec?1:100 );
@@ -481,7 +481,7 @@ int main(int argi, char** argv ) {
 
 			auto pl_divGrad = Pimpact::createLinSolverParameter( (withprec==2||withprec==3)?"Block GMRES":"GMRES", tolInnerBelos, -1, outSchur );
 			if( withprec>1 ) {
-				pl_divGrad->set( "Num Blocks",				5	  );
+				pl_divGrad->set( "Num Blocks",				6	  );
 				pl_divGrad->set( "Maximum Iterations",120 );
 				pl_divGrad->set( "Maximum Restarts",	20  );
 			}
