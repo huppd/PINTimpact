@@ -17,7 +17,7 @@ npy= 1
 npt= 1
 
 
-case_consts = ' --npx='+str(npx)+' --npy='+str(npy)+' --npf='+str(npt)+' --tolNOX=1.e-6  --tolBelos=1.e-1  --maxIter=2  --lx=2. --ly=2.  --initZero=0 --tolInnerBelos=1.e-1 --numCycles=2 '#--linSolver=GCRODR '
+case_consts = ' --npx='+str(npx)+' --npy='+str(npy)+' --npf='+str(npt)+' --tolNOX=1.e-6  --tolBelos=1.e-1  --maxIter=10  --lx=2. --ly=2.  --initZero=0 --tolInnerBelos=1.e-1 --numCycles=2 '#--linSolver=GCRODR '
 
 precTypes = [ 0, 1, 2, 3 ]
 #precTypes = [ 2, 3 ]
