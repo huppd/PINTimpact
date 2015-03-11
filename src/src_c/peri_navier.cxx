@@ -406,19 +406,24 @@ int main(int argi, char** argv ) {
 						ConvDiffSORT,
 						MOP > ( mgSpaces, pls ) ;
 
-//			auto zeroOp = Pimpact::create<ConvDiffOpT>( space );
-//
-//			auto zeroInv = Pimpact::create<MOP>( zeroOp );
-//
-//			zeroInv->getOperatorPtr()->getLinearProblem()->setParameters(
-//					Pimpact::createLinSolverParameter( "GMRES", tolInnerBelos/10, -1, outLinSolve ) );
-//
-//			zeroInv->getOperatorPtr()->getLinearProblem()->setRightPrec( Pimpact::createMultiOperatorBase(mgConvDiff) );
+			auto zeroOp = Pimpact::create<ConvDiffOpT>( space );
+			auto zeroInv = Pimpact::create<MOP>( zeroOp );
 
-			auto opV2Vprec =
-				Pimpact::createMultiOperatorBase(
-//					Pimpact::createMultiHarmonicDiagOp(zeroInv) );
-					Pimpact::createMultiHarmonicDiagOp(mgConvDiff) );
+			zeroInv->getOperatorPtr()->getLinearProblem()->setParameters(
+					Pimpact::createLinSolverParameter( "GMRES", tolInnerBelos, -1, outPrec ) );
+
+			zeroInv->getOperatorPtr()->getLinearProblem()->setRightPrec( Pimpact::createMultiOperatorBase(mgConvDiff) );
+
+			Teuchos::RCP<Pimpact::OperatorBase<Pimpact::MultiField<Pimpact::MultiHarmonicField<Pimpact::VectorField<SpaceT> > > > >
+				opV2Vprec = Teuchos::null;
+			if( withprec==3 )
+				opV2Vprec = 
+					Pimpact::createMultiOperatorBase(
+							Pimpact::createMultiHarmonicDiagOp(zeroInv) );
+			else
+				opV2Vprec = 
+					Pimpact::createMultiOperatorBase(
+							Pimpact::createMultiHarmonicDiagOp(mgConvDiff) );
 			
 			if( 2==withprec )
 				opV2Vprob->setRightPrec( opV2Vprec );
@@ -458,11 +463,12 @@ int main(int argi, char** argv ) {
 						);
 
 			auto pl_divGrad = Pimpact::createLinSolverParameter( (withprec==2||withprec==3)?"Block GMRES":"GMRES", tolInnerBelos, -1, outSchur );
+			if( withprec>1 ) {
+				pl_divGrad->set( "Num Blocks",				6	  );
+				pl_divGrad->set( "Maximum Iterations",120 );
+				pl_divGrad->set( "Maximum Restarts",	20  );
+			}
 
-				//Pimpact::createLinSolverParameter( "TFQMR", tolInnerBelos, -1, outSchur ), "TFQMR" ); // gives nan
-//							Pimpact::createLinSolverParameter( "Block GMRES", tolInnerBelos, -1, outSchur ), "Block GMRES" );
-//							Pimpact::createLinSolverParameter( "GMRES", tolInnerBelos, -1, outSchur ), "GMRES" );
-//							Pimpact::createLinSolverParameter( "CG", tolInnerBelos, -1, outSchur ), "CG" );
 
 			auto divGradProb =
 					Pimpact::createLinearProblem<MSF>(
