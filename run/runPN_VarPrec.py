@@ -17,23 +17,23 @@ npy= 1
 npt= 1
 
 
-case_consts = ' --npx='+str(npx)+' --npy='+str(npy)+' --npf='+str(npt)+' --tolNOX=1.e-6  --tolBelos=1.e-4  --maxIter=5  --lx=2. --ly=2.  --initZero=0 --tolInnerBelos=1.e-6 --numCycles=2  '
+case_consts = ' --npx='+str(npx)+' --npy='+str(npy)+' --npf='+str(npt)+' --tolNOX=1.e-6  --tolBelos=1.e-4  --maxIter=5  --lx=2. --ly=2.  --initZero=0 --tolInnerBelos=1.e-6 --numCycles=2 '#--linSolver=GCRODR '
 
 precTypes = [ 0, 1, 2, 3 ]
 #precTypes = [ 2, 3 ]
-ns        = [ 4, 5, 6, 7 ]
+ns        = [ 5, 6, 7, 8 ]
 #ns        = [  5, 6 ]
-res       = [ 1, 10, 100 ]
-alpha2s   = [ 1, 10, 100 ]
+res       = [ 1, 50, 100 ]
+alpha2s   = [ 1, 25, 100 ]
 
 #precTypes = [ 2, 3 ]
-##precTypes = [ 3 ]
-#res       = [ 10 ]
-#alpha2s   = [ 10 ]
+#precTypes = [ 3 ]
+#res       = [ 100 ]
+#alpha2s   = [ 100 ]
 
 #data_path = '/cluster/scratch_xp/public/huppd'
 
-#ns  = [ 7 ]
+#ns  = [ 6, 7 ]
 
 for alpha2 in alpha2s:
 	case_path[0] = '/a2_'+str(alpha2)

@@ -334,10 +334,12 @@ int main(int argi, char** argv ) {
 	{
 
     auto para = Pimpact::createLinSolverParameter( linSolName, tolBelos, -1, outLinSolve );
-		para->set( "Maximum Iterations", 1000 );
-		para->set( "Implicit Residual Scaling", "Norm of RHS" );
-		para->set( "Explicit Residual Scaling", "Norm of RHS" );
-		para->set( "Flexible Gmres", true );
+		if( 3==withprec || withprec==0 ) {
+			para->set( "Num Blocks",         50  	);
+			para->set( "Maximum Iterations", 1000 );
+			para->set( "Maximum Restarts",   20	  );
+		}
+//		para->set( "Flexible Gmres", true );
 //		para->set( "Output Frequency", withprec?1:100 );
 		para->set( "Verbosity",	
 				Belos::Errors +
@@ -377,15 +379,18 @@ int main(int argi, char** argv ) {
 			auto mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, pl->sublist("Multi Grid").get<int>("maxGrids") );
 
 			// create Hinv
+			auto v2v_para = Pimpact::createLinSolverParameter( (2==withprec)?"Block GMRES":"GMRES", tolInnerBelos, -1, outPrec );
+			v2v_para->set( "Num Blocks",				 20	  );
+			v2v_para->set( "Maximum Iterations", 1000 );
+			v2v_para->set( "Maximum Restarts",	 50   );
 			auto opV2Vprob =
 					Pimpact::createLinearProblem<MVF>(
 							Pimpact::createMultiOperatorBase(
 									opV2V ),
 									Teuchos::null,
 									Teuchos::null,
-//									Pimpact::createLinSolverParameter( "Block GMRES", tolInnerBelos, 100, outPrec ), "Block GMRES" );
-									Pimpact::createLinSolverParameter( (2==withprec)?"Block GMRES":"GMRES", tolInnerBelos, 100, outPrec ), (2==withprec)?"Block GMRES":"GMRES" );
-//										Pimpact::createLinSolverParameter( "GMRES", tolInnerBelos, 100, outPrec ), "GMRES" );
+									v2v_para,
+									(2==withprec)?"Block GMRES":"GMRES" );
 
 			// creat Hinv prec
       auto pls = Teuchos::parameterList();
@@ -409,21 +414,32 @@ int main(int argi, char** argv ) {
 			auto zeroOp = Pimpact::create<ConvDiffOpT>( space );
 			auto zeroInv = Pimpact::create<MOP>( zeroOp );
 
-			zeroInv->getOperatorPtr()->getLinearProblem()->setParameters(
-					Pimpact::createLinSolverParameter( "GMRES", tolInnerBelos, -1, outPrec ) );
+			if( withprec==3 ) {
+				auto bla = Pimpact::createLinSolverParameter( "GMRES", tolInnerBelos, -1, outPrec );
+				bla->set( "Num Blocks",				 	5   );
+				bla->set( "Maximum Iterations", 100 );
+				bla->set( "Maximum Restarts",	  20  );
+				zeroInv->getOperatorPtr()->getLinearProblem()->setParameters( bla );
+			else {
+				auto bla = Pimpact::createLinSolverParameter( "GMRES", tolInnerBelos, -1 );
+				bla->set( "Num Blocks",				 	5   );
+				bla->set( "Maximum Iterations", 100 );
+				bla->set( "Maximum Restarts",	  20  );
+				zeroInv->getOperatorPtr()->getLinearProblem()->setParameters( bla );
+			}
 
 			zeroInv->getOperatorPtr()->getLinearProblem()->setRightPrec( Pimpact::createMultiOperatorBase(mgConvDiff) );
 
 			Teuchos::RCP<Pimpact::OperatorBase<Pimpact::MultiField<Pimpact::MultiHarmonicField<Pimpact::VectorField<SpaceT> > > > >
 				opV2Vprec = Teuchos::null;
-			if( withprec==3 )
+//			if( withprec==3 )
 				opV2Vprec = 
 					Pimpact::createMultiOperatorBase(
 							Pimpact::createMultiHarmonicDiagOp(zeroInv) );
-			else
-				opV2Vprec = 
-					Pimpact::createMultiOperatorBase(
-							Pimpact::createMultiHarmonicDiagOp(mgConvDiff) );
+//			else
+//				opV2Vprec = 
+//					Pimpact::createMultiOperatorBase(
+//							Pimpact::createMultiHarmonicDiagOp(mgConvDiff) );
 			
 			if( 2==withprec )
 				opV2Vprob->setRightPrec( opV2Vprec );

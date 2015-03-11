@@ -98,8 +98,21 @@ public:
 
 	Teuchos::RCP< LinearProblem<MF> > getLinearProblem() { return(linprob_); }
 
+
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
-		Teuchos::rcp_const_cast<Op>( linprob_->getProblem()->getOperator() )->setParameter( para );
+    auto prob = linprob_->getProblem();
+
+		Teuchos::rcp_const_cast<Op>( prob->getOperator() )->setParameter( para );
+
+    if( prob->isLeftPrec() ) {
+      auto opPrec = Teuchos::rcp_const_cast<Op>( prob->getLeftPrec() );
+      opPrec->setParameter( para );
+    }
+
+    if( prob->isRightPrec() ) {
+      auto opPrec = Teuchos::rcp_const_cast<Op>( prob->getRightPrec() );
+      opPrec->setParameter( para );
+    }
 	}
 
 

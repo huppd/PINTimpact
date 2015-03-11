@@ -52,9 +52,9 @@ Teuchos::RCP< Teuchos::ParameterList > createLinSolverParameter(
 //    parameter_->set( "Num Blocks",			300	  );
 //    parameter_->set( "Maximum Iterations",    1000  );
 //    parameter_->set( "Maximum Restarts",		20	  );
-    parameter_->set( "Num Blocks",				10	  );
-    parameter_->set( "Maximum Iterations",      1000  );
-    parameter_->set( "Maximum Restarts",		100	  );
+    parameter_->set( "Num Blocks",         10	  );
+    parameter_->set( "Maximum Iterations", 1000 );
+    parameter_->set( "Maximum Restarts",   100	);
 
     parameter_->set( "Convergence Tolerance",			tol           );
     parameter_->set( "Implicit Residual Scaling",	"Norm of RHS" );
@@ -71,9 +71,9 @@ Teuchos::RCP< Teuchos::ParameterList > createLinSolverParameter(
 //    parameter_->set( "Num Blocks",								300	  );
 //    parameter_->set( "Maximum Iterations",        1000  );
 //    parameter_->set( "Maximum Restarts",					20	  );
-    parameter_->set( "Num Blocks",				10	  );
-    parameter_->set( "Maximum Iterations",      1000  );
-    parameter_->set( "Maximum Restarts",		100	  );
+    parameter_->set( "Num Blocks",         10	  );
+    parameter_->set( "Maximum Iterations", 1000 );
+    parameter_->set( "Maximum Restarts",   100	);
 
     parameter_->set( "Flexible Gmres", true );
 
@@ -88,9 +88,9 @@ Teuchos::RCP< Teuchos::ParameterList > createLinSolverParameter(
     parameter_->set( "Timer Label",								"Belos");
   }
   else if( solver_name=="GCRODR" ) {
-    parameter_->set( "Num Blocks",			20	  );
-    parameter_->set( "Maximum Iterations",  1000  );
-    parameter_->set( "Maximum Restarts",	50	  );
+    parameter_->set( "Num Blocks",         5	  );
+    parameter_->set( "Maximum Iterations", 1000 );
+    parameter_->set( "Maximum Restarts",   200	);
 
     parameter_->set( "Num Recycled Blocks",				2		 );
 
