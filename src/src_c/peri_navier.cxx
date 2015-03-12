@@ -335,9 +335,9 @@ int main(int argi, char** argv ) {
 
     auto para = Pimpact::createLinSolverParameter( linSolName, tolBelos, -1, outLinSolve );
 		if( 3==withprec || withprec==0 ) {
-			para->set( "Num Blocks",         20  	);
-			para->set( "Maximum Iterations", 1000 );
-			para->set( "Maximum Restarts",   100	  );
+			para->set( "Num Blocks",         100 	);
+			para->set( "Maximum Iterations", 500  );
+			para->set( "Maximum Restarts",   5	  );
 		}
 //		para->set( "Flexible Gmres", true );
 //		para->set( "Output Frequency", withprec?1:100 );
@@ -380,9 +380,9 @@ int main(int argi, char** argv ) {
 
 			// create Hinv
 			auto v2v_para = Pimpact::createLinSolverParameter( (2==withprec)?"Block GMRES":"GMRES", tolInnerBelos, -1, outPrec );
-			v2v_para->set( "Num Blocks",				 20	  );
-			v2v_para->set( "Maximum Iterations", 1000 );
-			v2v_para->set( "Maximum Restarts",	 50  );
+			v2v_para->set( "Num Blocks",				 100 );
+			v2v_para->set( "Maximum Iterations", 500 );
+			v2v_para->set( "Maximum Restarts",	 5   );
 			auto opV2Vprob =
 					Pimpact::createLinearProblem<MVF>(
 							Pimpact::createMultiOperatorBase(
@@ -416,16 +416,16 @@ int main(int argi, char** argv ) {
 
 			if( withprec==3 ) {
 				auto bla = Pimpact::createLinSolverParameter( "GMRES", tolInnerBelos, -1, outPrec );
-				bla->set( "Num Blocks",				 	1   );
+				bla->set( "Num Blocks",				 	5   );
 				bla->set( "Maximum Iterations", 100 );
-				bla->set( "Maximum Restarts",	  25  );
+				bla->set( "Maximum Restarts",	  20  );
 				zeroInv->getOperatorPtr()->getLinearProblem()->setParameters( bla );
 			}
 			else {
-				auto bla = Pimpact::createLinSolverParameter( "GMRES", tolInnerBelos, -1 );
-				bla->set( "Num Blocks",				 	1   );
+				auto bla = Pimpact::createLinSolverParameter( "GMRES", tolInnerBelos, -1, Teuchos::rcp( new Teuchos::oblackholestream() ) );
+				bla->set( "Num Blocks",				 	5   );
 				bla->set( "Maximum Iterations", 100 );
-				bla->set( "Maximum Restarts",	  25  );
+				bla->set( "Maximum Restarts",	  20  );
 				zeroInv->getOperatorPtr()->getLinearProblem()->setParameters( bla );
 			}
 
@@ -481,9 +481,9 @@ int main(int argi, char** argv ) {
 
 			auto pl_divGrad = Pimpact::createLinSolverParameter( (withprec==2||withprec==3)?"Block GMRES":"GMRES", tolInnerBelos, -1, outSchur );
 			if( withprec>1 ) {
-				pl_divGrad->set( "Num Blocks",				2	  );
+				pl_divGrad->set( "Num Blocks",				5	  );
 				pl_divGrad->set( "Maximum Iterations",100 );
-				pl_divGrad->set( "Maximum Restarts",	25  );
+				pl_divGrad->set( "Maximum Restarts",	20  );
 			}
 
 

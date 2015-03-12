@@ -71,12 +71,18 @@ public:
 
     zeroOp_->apply( x.getConst0Field(), y.get0Field() );
 
-    for( int i=0; i<Nf; ++i ) {
-			// set parameters
-			para->set<Scalar>( "mulI", a2*(i+1) );
-			zeroOp_->setParameter( para );
-			modeOp_->apply( x.getConstField(i), y.getField(i) );
-    }
+		for( int i=0; i<Nf; ++i ) {
+//			if( a2*(i+1)<iRe ) {
+//				zeroOp_->apply( x.getConstCField(i), y.getCField(i) );
+//				zeroOp_->apply( x.getConstSField(i), y.getSField(i) );
+//			}
+//			else{
+				// set parameters
+				para->set<Scalar>( "mulI", a2*(i+1) );
+				zeroOp_->setParameter( para );
+				modeOp_->apply( x.getConstField(i), y.getField(i) );
+//			}
+		}
 
   }
 
