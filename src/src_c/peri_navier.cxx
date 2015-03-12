@@ -321,7 +321,8 @@ int main(int argi, char** argv ) {
   auto fu   = x->clone();
 
   // init Fields, init and rhs
-  x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::EFlowField(flow), 1 );
+//  x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->initField( Pimpact::PoiseuilleFlow2D_inX, 1. );
+  x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::EFlowField(flow), 1. );
 
 	if( 0==initZero )
 		x->init(0.);
@@ -335,9 +336,9 @@ int main(int argi, char** argv ) {
 
     auto para = Pimpact::createLinSolverParameter( linSolName, tolBelos, -1, outLinSolve );
 	if( 3==withprec || withprec==0 ) {
-		para->set( "Num Blocks",         50   );
+		para->set( "Num Blocks",         100  );
 		para->set( "Maximum Iterations", 500  );
-		para->set( "Maximum Restarts",   10	  );
+		para->set( "Maximum Restarts",   5	  );
 	}
 //		para->set( "Flexible Gmres", true );
 //		para->set( "Output Frequency", withprec?1:100 );

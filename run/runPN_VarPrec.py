@@ -17,21 +17,21 @@ npy= 1
 npt= 1
 
 
-case_consts = ' --npx='+str(npx)+' --npy='+str(npy)+' --npf='+str(npt)+' --tolNOX=1.e-6  --tolBelos=1.e-4 --tolInnerBelos=1.e-4 --maxIter=10  --lx=2. --ly=2.  --initZero=0 --numCycles=2 '#--linSolver=GCRODR '
+case_consts = ' --npx='+str(npx)+' --npy='+str(npy)+' --npf='+str(npt)+' --tolNOX=1.e-6  --tolBelos=1.e-2 --tolInnerBelos=1.e-4 --maxIter=10  --lx=2. --ly=2.  --initZero=0 --numCycles=2 '#--domain=1 --linSolver=GCRODR '
 
 precTypes = [ 0, 1, 2, 3 ]
 #precTypes = [ 2, 3 ]
-ns        = [ 5, 6, 7 ]
+ns        = [ 5, 6, 7, 8 ]
 #ns        = [  5, 6 ]
 res       = [ 1, 50, 100 ]
 alpha2s   = [ 1, 25, 100 ]
 
-precTypes = [ 2, 3 ]
-precTypes = [ 2 ]
-precTypes = [ 3 ]
-ns = [ 7 ]
-res       = [ 100 ]
-alpha2s   = [ 25 ]
+#precTypes = [ 2, 3 ]
+#precTypes = [ 2 ]
+#precTypes = [ 3 ]
+#ns = [ 5 ]
+#res       = [ 100 ]
+#alpha2s   = [ 100 ]
 
 #data_path = '/cluster/scratch_xp/public/huppd'
 
