@@ -334,11 +334,11 @@ int main(int argi, char** argv ) {
 	{
 
     auto para = Pimpact::createLinSolverParameter( linSolName, tolBelos, -1, outLinSolve );
-		if( 3==withprec || withprec==0 ) {
-			para->set( "Num Blocks",         100 	);
-			para->set( "Maximum Iterations", 500  );
-			para->set( "Maximum Restarts",   5	  );
-		}
+	if( 3==withprec || withprec==0 ) {
+		para->set( "Num Blocks",         50   );
+		para->set( "Maximum Iterations", 500  );
+		para->set( "Maximum Restarts",   10	  );
+	}
 //		para->set( "Flexible Gmres", true );
 //		para->set( "Output Frequency", withprec?1:100 );
 		para->set( "Verbosity",	
@@ -380,9 +380,9 @@ int main(int argi, char** argv ) {
 
 			// create Hinv
 			auto v2v_para = Pimpact::createLinSolverParameter( (2==withprec)?"Block GMRES":"GMRES", tolInnerBelos, -1, outPrec );
-			v2v_para->set( "Num Blocks",				 100 );
+			v2v_para->set( "Num Blocks",		 50  );
 			v2v_para->set( "Maximum Iterations", 500 );
-			v2v_para->set( "Maximum Restarts",	 5   );
+			v2v_para->set( "Maximum Restarts",	 10  );
 			auto opV2Vprob =
 					Pimpact::createLinearProblem<MVF>(
 							Pimpact::createMultiOperatorBase(
