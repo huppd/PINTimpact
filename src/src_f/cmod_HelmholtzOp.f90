@@ -9,10 +9,10 @@
 !> \brief module providing Helmholtz
 module cmod_HelmholtzOp
   
-  
     use iso_c_binding
   
-  
+    implicit none
+
 contains
 
 

@@ -9,14 +9,14 @@
 !> \brief module providing Helmholtz
 module cmod_GradOp
   
-  
     use iso_c_binding
   
-  
+    implicit none
+
 contains
 
-
-    !>  \brief computes \f$ \mathrm{grad = \nabla\phi } \f$
+    !> \brief computes \f$ \mathrm{grad = \nabla\phi } \f$
+    !! is used for inner field
     subroutine OP_grad( &
         dir,            &
         N,              &

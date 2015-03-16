@@ -9,24 +9,14 @@
 module cmod_SFinout
   
   
-    use HDF5
-  
-    use mpi
-
-    !    use mod_lib, only: num_to_string
-
     use iso_c_binding
+    use mpi
+    use HDF5
 
-    private
-  
-    public SF_write_hdf5_2D
-    public SF_write_hdf5_3D
-    public  openH5F
-    public closeH5F
-
+    implicit none
+ 
     integer         ::  herror
     integer         ::  merror
-
 
 contains
 

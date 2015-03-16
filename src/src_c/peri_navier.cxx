@@ -81,6 +81,7 @@ getSpaceParametersFromCL( int argi, char** argv  )  {
   O npf = 1.;
 
 	// flow and forcing type
+  int baseflow = 0;
   int flow = 7;
   int forcing = 0;
 
@@ -95,7 +96,7 @@ getSpaceParametersFromCL( int argi, char** argv  )  {
 
   int maxIter = 10;
 
-  int initZero = 1;
+  int initZero = 0;
 
   S tolBelos = 1.e-1;
   S tolInnerBelos = 1.e-3;
@@ -103,7 +104,7 @@ getSpaceParametersFromCL( int argi, char** argv  )  {
 
 	// multi grid parameters
 	int maxGrids = 2;
-	int numCycles = 20;
+	int numCycles = 2;
 
 	// Space parameters
   my_CLP.setOption( "re", &re, "Reynolds number" );
@@ -136,6 +137,8 @@ getSpaceParametersFromCL( int argi, char** argv  )  {
   my_CLP.setOption( "npf", &npf, "amount of processors in f-direction" );
 
 	// flow and forcint
+  my_CLP.setOption( "baseflow", &baseflow,
+      "Flow type" );
   my_CLP.setOption( "flow", &flow,
       "Flow type" );
   my_CLP.setOption( "force", &forcing,
@@ -199,6 +202,7 @@ getSpaceParametersFromCL( int argi, char** argv  )  {
 	pl->sublist("Space").set<O>("npf", npf, "amount of processors in f-direction" );
 
 	// flow and forcint
+	pl->set<int>( "baseflow", baseflow, "Flow type: depending on main" );
 	pl->set<int>( "flow", flow, "Flow type: depending on main" );
 	pl->set<int>( "forcing", forcing, "forcing, ja?" );
 
@@ -291,6 +295,7 @@ int main(int argi, char** argv ) {
 	auto space = Pimpact::createSpace<S,O,3,4>( Teuchos::rcpFromRef( pl->sublist("Space", true) ) );
 //  auto space = Pimpact::createSpace<S,O,3,4>( pl );
 
+	int baseflow = pl->get<int>("baseflow");
 	int flow = pl->get<int>("flow");
   // outputs
   Teuchos::RCP<std::ostream> outPar;
@@ -321,8 +326,13 @@ int main(int argi, char** argv ) {
   auto fu   = x->clone();
 
   // init Fields, init and rhs
-//  x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->initField( Pimpact::PoiseuilleFlow2D_inX, 1. );
-  x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::EFlowField(flow), 1. );
+	if( baseflow==0 )
+		x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::EFlowField(flow), 1. );
+	else {
+		x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->initField( Pimpact::EFlowField(baseflow), 1. );
+		x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::EFlowField(flow), 0.,1,0.1,0.1 );
+		x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->getFieldPtr(Pimpact::U)->initField();
+	}
 
 	if( 0==initZero )
 		x->init(0.);
@@ -334,14 +344,12 @@ int main(int argi, char** argv ) {
   /******************************************************************************************/
 	{
 
-    auto para = Pimpact::createLinSolverParameter( linSolName, tolBelos, -1, outLinSolve );
-	if( 3==withprec || withprec==0 ) {
-		para->set( "Num Blocks",         100  );
-		para->set( "Maximum Iterations", 500  );
-		para->set( "Maximum Restarts",   5	  );
-	}
-//		para->set( "Flexible Gmres", true );
-//		para->set( "Output Frequency", withprec?1:100 );
+		auto para = Pimpact::createLinSolverParameter( linSolName, tolBelos, -1, outLinSolve );
+		if( 3==withprec || withprec==0 ) {
+			para->set( "Num Blocks",         100  );
+			para->set( "Maximum Iterations", 2000 );
+			para->set( "Maximum Restarts",   20	  );
+		}
 		para->set( "Verbosity",	
 				Belos::Errors +
 				Belos::Warnings +
@@ -356,8 +364,7 @@ int main(int argi, char** argv ) {
 //			para->set( "Output Stream", outLineSolve);
 
 
-    auto opV2V =
-				Pimpact::createMultiDtConvectionDiffusionOp( space );
+    auto opV2V = Pimpact::createMultiDtConvectionDiffusionOp( space );
     auto opS2V = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::GradOp>( space ) );
     auto opV2S = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::DivOp>( space ) );
 
@@ -368,7 +375,6 @@ int main(int argi, char** argv ) {
 								opS2V,
 								opV2S )
         );
-
 
     Teuchos::RCP<BOp> jop;
 		jop = op;
@@ -381,9 +387,9 @@ int main(int argi, char** argv ) {
 
 			// create Hinv
 			auto v2v_para = Pimpact::createLinSolverParameter( (2==withprec)?"Block GMRES":"GMRES", tolInnerBelos, -1, outPrec );
-			v2v_para->set( "Num Blocks",		 50  );
-			v2v_para->set( "Maximum Iterations", 500 );
-			v2v_para->set( "Maximum Restarts",	 10  );
+			v2v_para->set( "Num Blocks",		     50  );
+			v2v_para->set( "Maximum Iterations", 2000 );
+			v2v_para->set( "Maximum Restarts",	 40  );
 			auto opV2Vprob =
 					Pimpact::createLinearProblem<MVF>(
 							Pimpact::createMultiOperatorBase(
@@ -495,6 +501,7 @@ int main(int argi, char** argv ) {
 							Teuchos::null,
 							pl_divGrad,
 							(withprec==2||withprec==3)?"Block GMRES":"GMRES" );
+//							"GMRES" );
 
 			/// init multigrid divgrad
 			auto plmg = Teuchos::parameterList("MultiGrid");

@@ -10,6 +10,8 @@
 module cmod_ConvectionOp
   
     use iso_c_binding
+
+    implicit none
   
 contains
 

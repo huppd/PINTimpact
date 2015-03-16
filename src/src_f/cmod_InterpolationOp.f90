@@ -3,6 +3,8 @@ module cmod_InterpolationOp
 
     use iso_c_binding
 
+    implicit none
+
 contains
 
     !> \todo fix that, for first entry we get the weights 0.4/0.6

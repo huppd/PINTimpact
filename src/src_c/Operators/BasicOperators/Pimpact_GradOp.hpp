@@ -15,6 +15,7 @@ namespace Pimpact{
 
 
 extern "C" {
+
 void OP_grad(
     const int& dir,
     const int* const N,
@@ -39,6 +40,7 @@ void OP_SetBCZero(
     const double* phi );
 
 void OP_bc_extrapolation( const int& m, double* phi );
+
 }
 
 
@@ -109,8 +111,10 @@ public:
 
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
-    int dim = space_->dim();
+
+		int dim = space_->dim();
     for( int i=0; i<dim; ++i) {
+//			x.level();
       x.exchange(i);
 
       OP_grad(
@@ -126,15 +130,15 @@ public:
           x.getConstRawPtr(),
           y.getRawPtr(i) );
       // necessary?
-      OP_SetBCZero(
-          space_->nLoc(),
-          space_->bl(),
-          space_->bu(),
-          space_->getDomain()->getBCLocal()->getBCL(),
-          space_->getDomain()->getBCLocal()->getBCU(),
-          space_->sIndB(i),
-          space_->eIndB(i),
-          y.getRawPtr(i) );
+//      OP_SetBCZero(
+//          space_->nLoc(),
+//          space_->bl(),
+//          space_->bu(),
+//          space_->getDomain()->getBCLocal()->getBCL(),
+//          space_->getDomain()->getBCLocal()->getBCU(),
+//          space_->sIndB(i),
+//          space_->eIndB(i),
+//          y.getRawPtr(i) );
       // necessary?
       // OP_bc_extrapolation( i+1, y.vec_[i] ); // doesnot work with Schurcomplement, not cleary what it does anyway
     }

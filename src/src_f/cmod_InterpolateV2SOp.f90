@@ -9,10 +9,10 @@
 !> \brief module providing Helmholtz
 module cmod_InterpolateV2SOp
   
-  
     use iso_c_binding
   
-  
+    implicit none
+
 contains
 
     !>  \brief interpolates vel 2 scalar

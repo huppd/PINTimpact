@@ -329,7 +329,7 @@ public:
 
 
   ///  \brief initializes VectorField with the initial field defined in Fortran
-  void initField( EFlowField flowType = ConstFlow, Scalar re=0., Scalar om=0., Scalar px = 0. ) {
+  void initField( EFlowField flowType = ConstFlow, Scalar re=0., Scalar om=0., Scalar px = 0., Scalar sca=1. ) {
     switch( flowType ) {
     case ZeroFlow :
       for( int i=0; i<space()->dim(); ++i )
@@ -627,7 +627,7 @@ public:
           space()->getCoordinatesLocal()->getX(Z,EField::S),
           space()->getCoordinatesLocal()->getX(X,EField::U),
           space()->getCoordinatesLocal()->getX(Y,EField::V),
-          re, om, px,
+          re, om, px,sca,
           sFields_[U]->getRawPtr(),
           sFields_[V]->getRawPtr(),
           sFields_[W]->getRawPtr() );

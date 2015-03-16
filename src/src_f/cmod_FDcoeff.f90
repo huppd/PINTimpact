@@ -10,9 +10,7 @@ module cmod_FDcoeff
     use iso_c_binding
     use mpi
 
-    private
-
-    public  ::  FD_getDiffCoeff
+    implicit none
   
 contains
   

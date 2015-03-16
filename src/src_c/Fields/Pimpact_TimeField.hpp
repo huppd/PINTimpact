@@ -348,6 +348,12 @@ public:
       mfs_[i]->init(alpha);
     changed();
   }
+
+  void level() {
+    for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
+      mfs_[i]->level();
+    changed();
+  }
 	
 
 

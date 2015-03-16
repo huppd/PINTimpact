@@ -238,7 +238,7 @@ void VF_init_Disc(
     const double* const x3p,
     const double* const x1u,
     const double* const x2v,
-    const double& xm, const double& ym, const double& rad,
+    const double& xm, const double& ym, const double& rad,const double& sca,
     double* const phiU, double* const phiV, double* const phiW );
 
 void VF_init_RotatingDisc(

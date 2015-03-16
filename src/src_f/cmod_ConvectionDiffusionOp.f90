@@ -9,10 +9,10 @@
 !> \brief module providing convection
 module cmod_ConvectionDiffusionOp
   
-  
     use iso_c_binding
   
-  
+    implicit none
+
 contains
 
 

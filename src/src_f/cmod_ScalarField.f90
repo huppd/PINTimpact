@@ -6,7 +6,6 @@
 module cmod_ScalarField
 
     use iso_c_binding
-
     use mpi
 
     implicit none

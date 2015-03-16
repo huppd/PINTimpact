@@ -11,6 +11,8 @@ module cmod_DivGrad2ndOOp
   
     use iso_c_binding
   
+    implicit none
+
 contains
 
     subroutine Op_getCDG(   &

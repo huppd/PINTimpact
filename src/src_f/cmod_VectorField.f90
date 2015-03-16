@@ -1386,7 +1386,7 @@ contains
         SW,NW,                  &
         x1p,x2p,x3p,            &
         x1u,x2v,                &
-        xm,ym, rad,             &
+        xm,ym, rad,sca,         &
         phiU,phiV,phiW ) bind ( c, name='VF_init_Disc' )
 
         implicit none
@@ -1419,6 +1419,7 @@ contains
         real(c_double), intent(in)    :: xm
         real(c_double), intent(in)    :: ym
         real(c_double), intent(in)    :: rad
+        real(c_double), intent(in)    :: sca
 
 
         real    :: dr
@@ -1443,7 +1444,7 @@ contains
         do k = SU(3), NU(3)
             do j = SU(2), NU(2)
                 do i = SU(1), NU(1)
-                    phiU(i,j,k) = distance2ib( x1u(i),x2p(j),x3p(k),xm,ym,rad,dr )
+                    phiU(i,j,k) = sca*distance2ib( x1u(i),x2p(j),x3p(k),xm,ym,rad,dr )
                 end do
             end do
         end do
@@ -1451,7 +1452,7 @@ contains
         do k = SV(3), NV(3)
             do j = SV(2), NV(2)
                 do i = SV(1), NV(1)
-                    phiV(i,j,k) = distance2ib( x1p(i),x2v(j),x3p(k),xm,ym,rad,dr )
+                    phiV(i,j,k) = sca*distance2ib( x1p(i),x2v(j),x3p(k),xm,ym,rad,dr )
                 end do
             end do
         end do

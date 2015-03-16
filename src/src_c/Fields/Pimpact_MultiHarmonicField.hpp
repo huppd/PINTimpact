@@ -275,6 +275,11 @@ public:
     fields_->init(alpha);
   }
 
+  void level() {
+    field0_->level();
+    fields_->level();
+  }
+
   /// \}
 
   /// Print the vector.  To be used for debugging only.

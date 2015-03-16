@@ -238,6 +238,11 @@ public:
     fields_->init(alpha);
   }
 
+  void level() {
+    fieldc_->level();
+    fields_->level();
+  }
+
   /// \}
   /// Print the vector.  To be used for debugging only.
   void print( std::ostream& os )  {

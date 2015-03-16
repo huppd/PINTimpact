@@ -4,9 +4,8 @@
 !! helps \c Pimpact::FieldSpace to extract varibales from impact
 module cmod_FieldSpace
 
-
-    use iso_c_binding
     use mpi
+    use iso_c_binding
 
     use mod_dims
     use mod_vars
@@ -19,7 +18,7 @@ contains
 !        implicit none
 !        INTEGER(c_int), intent(out)  ::  dim_
 !
-!        dim_ = dimens
+       !dim_ = dimens
 !
 !    END subroutine FS_get_dim
 

@@ -6,16 +6,15 @@
 
 !> \brief module that exchanges ghost layers
 module cmod_exchange
-  
-    use iso_c_binding
 
+    use iso_c_binding
     use mpi
   
+    implicit none
+    !private
   
-    private
-  
-    !  public exchange, exchange2, exchange_all_all, exchange_relax, exchange_part
-    public F_exchange
+    !!  public exchange, exchange2, exchange_all_all, exchange_relax, exchange_part
+    !public F_exchange
   
   
     integer :: status(MPI_STATUS_SIZE) ! TEST!!! Warum steht das eigentlich hier lokal? gleiches gilt auch fuer die anderen Module ...

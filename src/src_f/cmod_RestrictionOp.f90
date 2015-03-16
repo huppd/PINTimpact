@@ -3,6 +3,8 @@ module cmod_RestrictionOp
 
     use iso_c_binding
 
+    implicit none
+
 contains
 
     subroutine MG_getCRS(   &
