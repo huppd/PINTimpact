@@ -28,17 +28,17 @@ contains
   
         implicit none
   
-        real   , intent(in)    ::  Lmax
-        real   , intent(in)    ::  iimax
+        real(c_double), intent(in)    ::  Lmax
+        real(c_double), intent(in)    ::  iimax
   
-        real   , intent(in)    ::  ii0L
-        real   , intent(in)    ::  ii0U
+        real(c_double), intent(in)    ::  ii0L
+        real(c_double), intent(in)    ::  ii0U
   
-        real   , intent(in)    ::  ii
-        real   , intent(out)   ::  xx
-        real   , intent(out)   ::  dx
+        real(c_double), intent(in)    ::  ii
+        real(c_double), intent(out)   ::  xx
+        real(c_double), intent(out)   ::  dx
   
-        real                   ::  yy, cmin, cmax
+        real(c_double) ::  yy, cmin, cmax
   
   
         if (ii0U == ii0L) then
@@ -102,7 +102,7 @@ contains
 
         real(c_double),intent(inout):: dyv(0:M)
 
-        integer     ::  i
+        integer(c_int) ::  i
 
 
 
@@ -168,9 +168,9 @@ contains
         real(c_double),intent(inout) ::  dxs(1:N)
         real(c_double),intent(inout) ::  dxv(0:N)
 
-        integer                      ::  i, iiShift
+        integer(c_int)               ::  i, iiShift
 
-        real                         ::  ysR(bL:(M+bU)), yvR(bL:(M+bU))
+        real(c_double)               ::  ysR(bL:(M+bU)), yvR(bL:(M+bU))
 
 
 

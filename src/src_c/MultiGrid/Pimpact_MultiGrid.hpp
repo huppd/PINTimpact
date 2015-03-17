@@ -100,6 +100,7 @@ public:
 
 //    int out =0;
     for( int j=0; j<numCycles_; ++j ) {
+
       // defect correction rhs \hat{f}= b = x - L y
       mgOps_->get()->apply( y, *b_->get() );
       b_->get()->add( 1., x, -1., *b_->get() );
@@ -115,46 +116,30 @@ public:
 			b_->get(0)->level();
 			/// use residual here
 
-			//b_->get(0)->write(78);
-			//x_->get(0)->write(79);
       // smooth and restrict defect( todo extract this as method )
       int i;
       for( i=0; i<mgSpaces_->getNGrids()-1; ++i ) {
-				if(i>0) x_->get(i)->init(0.); // necessary? for DivGradOp yes
-				//b_->get(i)->write(98);
-//				b_->get(i)->level();
+//				if(i>0 && 0==j ) x_->get(i)->init(0.); // necessary? for DivGradOp yes
+				if( i>0 ) x_->get(i)->init(0.); // necessary? for DivGradOp yes
         mgSms_->get(i)->apply( *b_->get(i), *x_->get(i) );
-				//x_->get(i)->write(98);
-//				x_->get(i)->level();
         mgOps_->get(i)->apply( *x_->get(i), *temp_->get(i) );
         temp_->get(i)->add( -1., *temp_->get(i), 1., *b_->get(i) );
-				//temp_->get(i)->write(98);
         mgTrans_->getRestrictionOp(i)->apply( *temp_->get(i), *b_->get(i+1) );
-				//b_->get(i+1)->write(98);
       }
-			//b_->get(1)->write(88);
-			//x_->get(1)->write(89);
 
-      // coarse grid solution
-      i = -1;
-      /// \todo add level for singular stuff
+			// coarse grid solution
+			i = -1;
+			/// \todo add level for singular stuff
 			b_->get(i)->level();
-      x_->get(i)->init(0.);
-			//for( int j=0; j<1; ++j )
+			x_->get(i)->init(0.);
+
 		  cGridSolver_->apply( *b_->get(i), *x_->get(i) );
-			 //b_->get(i)->write(98);
-			 //x_->get(i)->write(98);
 
       for( i=-2; i>=-mgSpaces_->getNGrids(); --i ) {
         // interpolate/correct/smooth
         mgTrans_->getInterpolationOp(i)->apply( *x_->get(i+1), *temp_->get(i) );
-				//temp_->get(i)->write(98);
         x_->get(i)->add( 1., *temp_->get(i), 1., *x_->get(i) );
-				//b_->get(i)->write(97);
-				//x_->get(i)->write( 98 );
 				mgSms_->get( i )->apply( *b_->get(i), *x_->get(i) );
-				//x_->get(i)->write(99);
-
       }
 
 			x_->get(0)->level();// only laplace

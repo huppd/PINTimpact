@@ -209,11 +209,11 @@ contains
 
 
 
-        integer                ::  i,ic
-        integer                ::  j
-        integer                ::  k
+        integer(c_int)               ::  i,ic
+        integer(c_int)               ::  j
+        integer(c_int)               ::  k
 
-        integer                :: dd(3)
+        integer(c_int)                :: dd(3)
 
 
         dd = 1
@@ -352,18 +352,16 @@ contains
 
         real(c_double),  intent(out)  :: phif (bLf(1):(Nf(1)+bUf(1)),bLf(2):(Nf(2)+bUf(2)),bLf(3):(Nf(3)+bUf(3)))
 
+        integer(c_int)                ::  i, ic
+        integer(c_int)                ::  j, jc
+        integer(c_int)                ::  k, kc
 
+        integer(c_int)                :: l
 
-        integer                ::  i, ic
-        integer                ::  j, jc
-        integer                ::  k, kc
+        integer(c_int)                :: dd(1:3)
 
-        integer                :: l
-
-        integer                :: dd(1:3)
-
-        integer                :: S(1:3)
-        integer                :: N(1:3)
+        integer(c_int)                :: S(1:3)
+        integer(c_int)                :: N(1:3)
 
 
         do i = 1,3

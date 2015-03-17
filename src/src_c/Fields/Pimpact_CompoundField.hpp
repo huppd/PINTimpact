@@ -251,7 +251,7 @@ public:
     sfield_->init(alpha);
   }
 
-  void level() {
+  void level() const {
     vfield_->level();
     sfield_->level();
   }

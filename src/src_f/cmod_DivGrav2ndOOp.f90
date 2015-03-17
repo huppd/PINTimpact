@@ -67,16 +67,16 @@ contains
         real(c_double), intent(inout) :: cdg2(-1:1,1:N(2))
         real(c_double), intent(inout) :: cdg3(-1:1,1:N(3))
 
-        real                          :: cDu1R(-1:0,1:N(1))
-        real                          :: cDv2R(-1:0,1:N(2))
-        real                          :: cDw3R(-1:0,1:N(3))
+        real(c_double)                :: cDu1R(-1:0,1:N(1))
+        real(c_double)                :: cDv2R(-1:0,1:N(2))
+        real(c_double)                :: cDw3R(-1:0,1:N(3))
 
-        real                          :: cGp1R( 0:1,0:N(1))
-        real                          :: cGp2R( 0:1,0:N(2))
-        real                          :: cGp3R( 0:1,0:N(3))
+        real(c_double)                :: cGp1R( 0:1,0:N(1))
+        real(c_double)                :: cGp2R( 0:1,0:N(2))
+        real(c_double)                :: cGp3R( 0:1,0:N(3))
 
-        integer                       :: i, j, k
-        integer                       :: imax, jmax, kmax
+        integer(c_int)                :: i, j, k
+        integer(c_int)                :: imax, jmax, kmax
 
         cdg1 = 0.
         cdg2 = 0.
@@ -310,9 +310,9 @@ contains
 
         real(c_double), intent(inout) :: Lap (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-        integer                ::  i,  S1R, N1R, S11R, N11R
-        integer                ::  j,  S2R, N2R, S22R, N22R
-        integer                ::  k,  S3R, N3R, S33R, N33R
+        integer(c_int)                ::  i,  S1R, N1R, S11R, N11R
+        integer(c_int)                ::  j,  S2R, N2R, S22R, N22R
+        integer(c_int)                ::  k,  S3R, N3R, S33R, N33R
 
 
         !--------------------------------------------------------------
@@ -558,9 +558,9 @@ contains
         real(c_double), intent(in)    :: phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
         real(c_double), intent(inout) :: temp(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-        integer                ::  i,  S1R, N1R, S11R, N11R
-        integer                ::  j,  S2R, N2R, S22R, N22R
-        integer                ::  k,  S3R, N3R, S33R, N33R
+        integer(c_int)                ::  i,  S1R, N1R, S11R, N11R
+        integer(c_int)                ::  j,  S2R, N2R, S22R, N22R
+        integer(c_int)                ::  k,  S3R, N3R, S33R, N33R
 
 
         !--------------------------------------------------------------

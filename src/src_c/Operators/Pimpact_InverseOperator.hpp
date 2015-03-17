@@ -41,6 +41,7 @@ public:
 
   void apply( const MF& x, MF& y, Belos::ETrans trans=Belos::NOTRANS ) const {
     linprob_->solve( Teuchos::rcpFromRef(y), Teuchos::rcpFromRef(x) );
+		y.level();
   }
 
 

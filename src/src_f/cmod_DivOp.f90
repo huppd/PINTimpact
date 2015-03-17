@@ -54,11 +54,11 @@ contains
         real(c_double), intent(out) :: div (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
   
-        integer                ::  i, ii
-        integer                ::  j, jj
-        integer                ::  k, kk
+        integer(c_int)                ::  i, ii
+        integer(c_int)                ::  j, jj
+        integer(c_int)                ::  k, kk
   
-        real                   ::  dd1
+        !real(c_double)                   ::  dd1
   
 
         !===========================================================================================================
@@ -78,7 +78,7 @@ contains
                         end do
                         !pgi$ unroll = n:8
                         do kk = dL(3), dU(3)
-                            div(i,j,k) = div(i,j,k) + c3(kk,k)*phiV(i,j,k+kk)
+                            div(i,j,k) = div(i,j,k) + c3(kk,k)*phiW(i,j,k+kk)
                         end do
                     end do
                 end do

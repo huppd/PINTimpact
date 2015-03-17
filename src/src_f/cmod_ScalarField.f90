@@ -160,7 +160,7 @@ contains
         real(c_double), intent(inout) ::  phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3) ))
         real(c_double), intent(in)    ::  phi1(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3) ))
 
-        integer                       :: i,j,k
+        integer(c_int)                :: i,j,k
 
 
         do k = SS(3), NN(3)
@@ -280,7 +280,7 @@ contains
         real(c_double), intent(in)    ::  phi2(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3) ))
 
         real(c_double), intent(inout) ::  scalar
-        integer                       ::  i, j, k
+        integer(c_int)                ::  i, j, k
 
 
         do k = SS(3), NN(3)
@@ -325,7 +325,7 @@ contains
 
         real(c_double), intent(inout) ::  norm
 
-        integer                       ::  i, j, k
+        integer(c_int)                ::  i, j, k
 
 
         do k = SS(3), NN(3)
@@ -370,7 +370,7 @@ contains
 
         real(c_double), intent(inout) ::  norm
 
-        integer                       ::  i, j, k
+        integer(c_int)                ::  i, j, k
 
 
         do k = SS(3), NN(3)
@@ -414,7 +414,7 @@ contains
 
         real(c_double), intent(inout) ::  norm
 
-        integer                       ::  i, j, k
+        integer(c_int)                ::  i, j, k
 
 
         do k = SS(3), NN(3)
@@ -461,7 +461,7 @@ contains
 
         real(c_double), intent(inout) ::  norm
 
-        integer                     ::  i, j, k
+        integer(c_int)                ::  i, j, k
 
 
         do k = SS(3), NN(3)
@@ -603,7 +603,7 @@ contains
 
         real(c_double), intent(in)   ::  phi(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3) ))
 
-        integer                      ::  i,j,k
+        integer(c_int)               ::  i,j,k
 
 
         do k = SS(3), NN(3)
@@ -644,7 +644,7 @@ contains
 
         real(c_double),  intent(out)   :: phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-        integer                ::  i, j, k
+        integer(c_int)                 ::  i, j, k
 
         !--- initial conditions for velocity ---
         do k = SS(3), NN(3)
@@ -685,7 +685,7 @@ contains
 
         real(c_double),  intent(out)   :: phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-        integer                ::  i, j, k
+        integer(c_int)                 ::  i, j, k
 
         !--- initial conditions for velocity ---
         do k = SS(3), NN(3)
@@ -726,7 +726,7 @@ contains
 
         real(c_double),  intent(out)   :: phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-        integer                ::  i, j, k
+        integer(c_int)                 ::  i, j, k
 
         !--- initial conditions for velocity ---
         do k = SS(3), NN(3)
@@ -768,7 +768,7 @@ contains
 
         real(c_double),  intent(out)   :: phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-        integer                ::  i, j, k
+        integer(c_int)                 ::  i, j, k
 
         !--- initial conditions for velocity ---
         do k = SS(3), NN(3)
@@ -809,8 +809,8 @@ contains
 
         real(c_double),  intent(out)  :: phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-        integer                       ::  i, j, k, merror
-        real                          ::  pre0, pre0_global
+        integer(c_int)                :: i, j, k, merror
+        real(c_double)                :: pre0, pre0_global
 
 
 
@@ -825,9 +825,10 @@ contains
             end do
         end do
 
+
         call MPI_ALLREDUCE(pre0,pre0_global,1,MPI_REAL8,MPI_SUM,COMM_CART,merror)
 
-        pre0 = pre0_global/REAL(M) ! TEST!!! wegen i4 gefaehrlich!
+        pre0 = pre0_global/real(M,c_double) ! TEST!!! wegen i4 gefaehrlich!
 
         phi( SS(1):NN(1), SS(2):NN(2), SS(3):NN(3) ) = phi( SS(1):NN(1), SS(2):NN(2), SS(3):NN(3) ) - pre0
 

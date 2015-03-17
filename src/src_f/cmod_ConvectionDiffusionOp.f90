@@ -76,11 +76,11 @@ contains
         real(c_double), intent(in)  :: mulC
         real(c_double), intent(in)  :: mulL
 
-        real                   ::  ddU, ddV, ddW, dd1
+        real(c_double)              ::  ddU, ddV, ddW, dd1
 
-        integer                ::  i, ii
-        integer                ::  j, jj
-        integer                ::  k, kk
+        integer(c_int)              ::  i, ii
+        integer(c_int)              ::  j, jj
+        integer(c_int)              ::  k, kk
 
 
         do k = SS(3), NN(3)
@@ -253,13 +253,13 @@ contains
         real(c_double), intent(in)  :: om
 
 
-        real                   ::  ddU, ddV, ddW, dd1, dd
+        real(c_double) ::  ddU, ddV, ddW, dd1, dd
 
-        integer                ::  i, ii
-        integer                ::  j, jj
-        integer                ::  k, kk
+        integer(c_int) ::  i, ii
+        integer(c_int) ::  j, jj
+        integer(c_int) ::  k, kk
 
-        integer                ::  ind(3)
+        integer(c_int) ::  ind(3)
 
         integer(c_int)         :: SSS(3)
         integer(c_int)         :: NNN(3)
@@ -463,11 +463,11 @@ contains
         real(c_double), intent(in)  :: mulL
         real(c_double), intent(in)  :: om
 
-        real                   ::  ddU, ddV, ddW, dd1, dd
+        real(c_double) :: ddU, ddV, ddW, dd1, dd
 
-        integer                ::  i, ii
-        integer                ::  j, jj
-        integer                ::  k, kk
+        integer(c_int) ::  i, ii
+        integer(c_int) ::  j, jj
+        integer(c_int) ::  k, kk
 
 
 

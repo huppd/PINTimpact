@@ -68,11 +68,11 @@ contains
         real(c_double), intent(in)    :: mulI
         real(c_double), intent(in)    :: mulc
 
-        real                   ::  ddU, ddV, ddW
+        real(c_double) ::  ddU, ddV, ddW
 
-        integer                ::  i, ii
-        integer                ::  j, jj
-        integer                ::  k, kk
+        integer(c_int) ::  i, ii
+        integer(c_int) ::  j, jj
+        integer(c_int) ::  k, kk
 
 
 

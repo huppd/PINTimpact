@@ -500,7 +500,7 @@ public:
 
 	void level() const {
 
-		if( EField::S != fType_ ) {
+		if( EField::S == fType_ ) {
 
 			//		set corners to zero, such that level depends only on inner field
 			SF_handle_corner(

@@ -657,8 +657,7 @@ public:
 
 
   /// dirty hack(necessary for MG)
-  /// \todo fixme
-  void level() {}
+  void level() const {}
 
   //@}
 

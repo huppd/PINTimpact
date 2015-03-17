@@ -309,7 +309,7 @@ contains
         integer(c_int)        :: n_coeff
         integer(c_int)        :: dim_n_coeff_bound
         integer(c_int)        :: i, ii, iC, iStart
-        integer(c_int)        :: k, kk
+        integer(c_int)        :: k!, kk
 
         integer(c_int)        :: left, right
   
@@ -322,7 +322,7 @@ contains
   
         logical(c_bool)              :: filter_yes
 
-        integer               :: merror
+        integer(c_int)               :: merror
   
   
         !----------------------------------------------------------------------------------------------------------!
@@ -1007,12 +1007,12 @@ contains
         real(c_double) , intent(in)   ::  deltaX(1:n_coeff)
         real(c_double) , intent(out)  ::  cc    (1:n_coeff)
 
-        integer               ::  i, j
+        integer(c_int)               ::  i, j
 
-        real                  ::  polyn_vals    (1:n_coeff,1:n_coeff)
-        real                  ::  polyn_vals_inv(1:n_coeff,1:n_coeff)
+        real(c_double)                  ::  polyn_vals    (1:n_coeff,1:n_coeff)
+        real(c_double)                  ::  polyn_vals_inv(1:n_coeff,1:n_coeff)
 
-        real                  ::  const
+        real(c_double)                  ::  const
 
 
         !===========================================================================================================
@@ -1080,12 +1080,12 @@ contains
         real(c_double), intent(out)  ::  cc    (1:n_coeff)
         real(c_double)   , intent(in)   ::  dxL, dxU
 
-        integer               ::  i, j, k
+        integer(c_int)               ::  i, j!, k
 
-        real                  ::  polyn_vals    (1:n_coeff,1:n_coeff)
-        real                  ::  polyn_vals_inv(1:n_coeff,1:n_coeff)
+        real(c_double)                  ::  polyn_vals    (1:n_coeff,1:n_coeff)
+        real(c_double)                  ::  polyn_vals_inv(1:n_coeff,1:n_coeff)
 
-        real                  ::  const
+        !real(c_double)                  ::  const
 
 
         !===========================================================================================================
@@ -1807,18 +1807,18 @@ contains
 
         implicit none
 
-        integer, intent(in)  ::  rank
-        integer, intent(in)  ::  N
-        real   , intent(in)  ::  matrix     (1:N,1:N)
-        real   , intent(out) ::  matrix_inv (1:N,1:N)
+        integer(c_int), intent(in)  ::  rank
+        integer(c_int), intent(in)  ::  N
+        real(c_double), intent(in)  ::  matrix     (1:N,1:N)
+        real(c_double), intent(out) ::  matrix_inv (1:N,1:N)
 
-        real                 ::  matrix_left(1:N,1:N)
-        real                 ::  mult1, mult2
-        real                 ::  eps
-        integer              ::  i, j, k
+        real(c_double)              ::  matrix_left(1:N,1:N)
+        real(c_double)              ::  mult1, mult2
+        real(c_double)              ::  eps
+        integer(c_int)              ::  i, j, k
 
-        real                 ::  store
-        integer              ::  maxValue, maxValuePos
+        real(c_double)              ::  store
+        integer(c_int)              ::  maxValue, maxValuePos
 
 
 
@@ -1845,11 +1845,11 @@ contains
             ! Pivoting == Umsortieren der aktuellen Untermatrix (j:N,j:N)
             ! (Diagonalelemente der linken Dreiecksmatrix sind betragsmaessig zu maximieren)
             ! Groesster Wert in Spalte j = zukuenftiges Diagonalelement j,j
-            maxValue    = ABS(matrix_left(j,j))
+            maxValue    = int( abs(matrix_left(j,j)), c_int )
             maxValuePos = j
             do i = j+1, N
                 if (ABS(matrix_left(i,j)) > maxValue) then
-                    maxValue    = ABS(matrix_left(i,j))
+                    maxValue    = int( ABS(matrix_left(i,j)), c_int )
                     maxValuePos = i
                 end if
             end do

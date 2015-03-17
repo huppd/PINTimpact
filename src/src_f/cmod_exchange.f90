@@ -74,32 +74,32 @@ contains
   
         real(c_double), intent(inout) ::  phi(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
   
-        real                   ::  ghost1LR( 1:bU(1),SS(2):NN(2),SS(3):NN(3))
-        real                   ::  ghost1LS( 1:bU(1),SS(2):NN(2),SS(3):NN(3))
-        real                   ::  ghost1UR(bL(1):-1,SS(2):NN(2),SS(3):NN(3))
-        real                   ::  ghost1US(bL(1):-1,SS(2):NN(2),SS(3):NN(3))
+        real(c_double)                   ::  ghost1LR( 1:bU(1),SS(2):NN(2),SS(3):NN(3))
+        real(c_double)                   ::  ghost1LS( 1:bU(1),SS(2):NN(2),SS(3):NN(3))
+        real(c_double)                   ::  ghost1UR(bL(1):-1,SS(2):NN(2),SS(3):NN(3))
+        real(c_double)                   ::  ghost1US(bL(1):-1,SS(2):NN(2),SS(3):NN(3))
   
-        real                   ::  ghost2LR(SS(1):NN(1), 1:bU(2),SS(3):NN(3))
-        real                   ::  ghost2LS(SS(1):NN(1), 1:bU(2),SS(3):NN(3))
-        real                   ::  ghost2UR(SS(1):NN(1),bL(2):-1,SS(3):NN(3))
-        real                   ::  ghost2US(SS(1):NN(1),bL(2):-1,SS(3):NN(3))
+        real(c_double)                   ::  ghost2LR(SS(1):NN(1), 1:bU(2),SS(3):NN(3))
+        real(c_double)                   ::  ghost2LS(SS(1):NN(1), 1:bU(2),SS(3):NN(3))
+        real(c_double)                   ::  ghost2UR(SS(1):NN(1),bL(2):-1,SS(3):NN(3))
+        real(c_double)                   ::  ghost2US(SS(1):NN(1),bL(2):-1,SS(3):NN(3))
   
-        real                   ::  ghost3LR(SS(1):NN(1),SS(2):NN(2), 1:bU(3))
-        real                   ::  ghost3LS(SS(1):NN(1),SS(2):NN(2), 1:bU(3))
-        real                   ::  ghost3UR(SS(1):NN(1),SS(2):NN(2),bL(3):-1)
-        real                   ::  ghost3US(SS(1):NN(1),SS(2):NN(2),bL(3):-1)
+        real(c_double)                   ::  ghost3LR(SS(1):NN(1),SS(2):NN(2), 1:bU(3))
+        real(c_double)                   ::  ghost3LS(SS(1):NN(1),SS(2):NN(2), 1:bU(3))
+        real(c_double)                   ::  ghost3UR(SS(1):NN(1),SS(2):NN(2),bL(3):-1)
+        real(c_double)                   ::  ghost3US(SS(1):NN(1),SS(2):NN(2),bL(3):-1)
   
-        integer                ::  length1L, length1U
-        integer                ::  length2L, length2U
-        integer                ::  length3L, length3U
+        integer(c_int)                ::  length1L, length1U
+        integer(c_int)                ::  length2L, length2U
+        integer(c_int)                ::  length3L, length3U
 
-        integer                ::  req1L, req1U
-        integer                ::  req2L, req2U
-        integer                ::  req3L, req3U
+        integer(c_int)                ::  req1L, req1U
+        integer(c_int)                ::  req2L, req2U
+        integer(c_int)                ::  req3L, req3U
 
-        integer                :: merror
+        integer(c_int)                :: merror
   
-        integer                ::  i, j, k
+        integer(c_int)                ::  i, j, k
         !  integer                ::  dummy
   
         !======================================================================================================================

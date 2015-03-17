@@ -16,7 +16,7 @@ contains
 
         implicit none
 
-        integer               ::  i
+        integer(c_int)               ::  i
 
         integer(c_int), intent(in)  :: S
         integer(c_int), intent(in)  :: N
@@ -191,10 +191,10 @@ contains
         real(c_double),  intent(out)   :: phic (bLc(1):(Nc(1)+bUc(1)),bLc(2):(Nc(2)+bUc(2)),bLc(3):(Nc(3)+bUc(3)))
 
 
-        integer                ::  i, ii!, di, imax, iimax
-        integer                ::  j, jj!, dj, jmax, jjmax
-        integer                ::  k, kk!, dk, kmax, kkmax
-        integer                         :: dd(3)
+        integer(c_int)                ::  i, ii!, di, imax, iimax
+        integer(c_int)                ::  j, jj!, dj, jmax, jjmax
+        integer(c_int)                ::  k, kk!, dk, kmax, kkmax
+        integer(c_int)                         :: dd(3)
 
                 !        integer                ::  sizsg(1:3), offsg(1:3), dispg
                 !        real   , allocatable   ::  sendbuf(:,:,:)
@@ -453,11 +453,11 @@ contains
         real(c_double),  intent(out)   :: phic (bLc(1):(Nc(1)+bUc(1)),bLc(2):(Nc(2)+bUc(2)),bLc(3):(Nc(3)+bUc(3)))
 
 
-        integer                ::  i, ii
-        integer                ::  j, jj
-        integer                ::  k, kk
+        integer(c_int)               ::  i, ii
+        integer(c_int)               ::  j, jj
+        integer(c_int)               ::  k, kk
 
-        integer                :: dd(1:3)
+        integer(c_int)               :: dd(1:3)
 
 
                 !----------------------------------------------------------------------------------------------------------!

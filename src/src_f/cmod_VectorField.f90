@@ -19,18 +19,18 @@ contains
 
         IMPLICIT NONE
 
-        REAL, INTENT(IN)  ::  x,y,z
+        REAL(c_double), INTENT(IN)  ::  x,y,z
 
-        REAL, intent(in)  ::  x0
-        REAL, intent(in)  ::  y0
+        REAL(c_double), intent(in)  ::  x0
+        REAL(c_double), intent(in)  ::  y0
 
-        REAL, intent(in)  ::  R
+        REAL(c_double), intent(in)  ::  R
 
-        REAL, intent(in)  ::  dr
+        REAL(c_double), intent(in)  ::  dr
 
-        REAL              ::  z0
+        REAL(c_double)              ::  z0
 
-        REAL              ::  dis
+        REAL(c_double)              ::  dis
 
 
         ! geometric properties of disc
@@ -98,7 +98,7 @@ contains
         real(c_double),  intent(out)   ::  phioV(SV(1):NV(1),SV(2):NV(2),SV(3):NV(3))
         real(c_double),  intent(out)   ::  phioW(SW(1):NW(1),SW(2):NW(2),SW(3):NW(3))
 
-        integer                       ::  i, j, k
+        integer(c_int)                       ::  i, j, k
 
 
         do k = SU(3), NU(3)
@@ -170,7 +170,7 @@ contains
         real(c_double),  intent(out)   ::  phioV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
         real(c_double),  intent(out)   ::  phioW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-        integer                       ::  i, j, k
+        integer(c_int)                       ::  i, j, k
 
 
         do k = SU(3), NU(3)
@@ -257,11 +257,11 @@ contains
         real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
         real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-        real :: pi
-        real :: Lh
-        real :: mu
-        real :: ny
-        real :: c
+        real(c_double) :: pi
+        real(c_double) :: Lh
+        real(c_double) :: mu
+        real(c_double) :: ny
+        real(c_double) :: c
 
 
 
@@ -356,13 +356,13 @@ contains
         real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
         real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-        real :: pi
-        real :: Lh
-        real :: mu
-        real :: ny
-        real :: c
+        real(c_double):: pi
+        real(c_double):: Lh
+        real(c_double):: mu
+        real(c_double):: ny
+        real(c_double):: c
 
-        integer                ::  i, j, k
+        integer(c_int)                ::  i, j, k
 
         !--- initial conditions for velocity ---
         ! note: - cf. sketch in file "usr_geometry.f90"
@@ -453,13 +453,13 @@ contains
         real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
         real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-        real :: pi
-        real :: Lh
-        real :: mu
-        real :: ny
-        real :: c
+        real(c_double):: pi
+        real(c_double):: Lh
+        real(c_double):: mu
+        real(c_double):: ny
+        real(c_double):: c
 
-        integer                ::  i, j, k
+        integer(c_int)               ::  i, j, k
 
         !--- initial conditions for velocity ---
         ! note: - cf. sketch in file "usr_geometry.f90"
@@ -549,13 +549,13 @@ contains
         real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
         real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-        real :: pi
-        real :: Lh
-        real :: mu
-        real :: ny
-        real :: c
+        real(c_double) :: pi
+        real(c_double) :: Lh
+        real(c_double) :: mu
+        real(c_double) :: ny
+        real(c_double) :: c
 
-        integer                ::  i, j, k
+        integer(c_int)                ::  i, j, k
 
         !--- initial conditions for velocity ---
         ! note: - cf. sketch in file "usr_geometry.f90"
@@ -642,9 +642,9 @@ contains
         real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
         real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-        real :: pi
+        real(c_double) :: pi
 
-        integer                ::  i, j, k
+        integer(c_int)                ::  i, j, k
 
         !--- initial conditions for velocity ---
         ! note: - cf. sketch in file "usr_geometry.f90"
@@ -726,9 +726,9 @@ contains
         real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
 
-        integer                       ::  i, j, k
+        integer(c_int)                      ::  i, j, k
 
-        real :: pi
+        real(c_double) :: pi
 
 
         !--- initial conditions for velocity ---
@@ -814,7 +814,7 @@ contains
         real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
 
-        integer                ::  i, j, k
+        integer(c_int)               ::  i, j, k
 
         !--- initial conditions for velocity ---
         ! note: - cf. sketch in file "usr_geometry.f90"
@@ -975,13 +975,13 @@ contains
         real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
         real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-        real :: circ
-        real :: rad
-        real :: r
-        real :: pi
+        real(c_double):: circ
+        real(c_double):: rad
+        real(c_double):: r
+        real(c_double):: pi
 
 
-        integer                ::  i, j, k
+        integer(c_int)               ::  i, j, k
 
         !--- initial conditions for velocity ---
         ! note: - cf. sketch in file "usr_geometry.f90"
@@ -1069,9 +1069,9 @@ contains
         real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
         real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-        real :: sig
+        real(c_double):: sig
 
-        integer                ::  i, j, k
+        integer(c_int)               ::  i, j, k
 
         !--- initial conditions for velocity ---
         ! note: - cf. sketch in file "usr_geometry.f90"
@@ -1154,9 +1154,9 @@ contains
         real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
         real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
         real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real :: sig
+        real(c_double):: sig
 
-        integer                ::  i, j, k
+        integer(c_int)               ::  i, j, k
 
         !--- initial conditions for velocity ---
         ! note: - cf. sketch in file "usr_geometry.f90"
@@ -1241,11 +1241,11 @@ contains
         real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
         real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-        real :: h
-        real :: h2
+        real(c_double):: h
+        real(c_double):: h2
 
-        integer                ::  i, j, k
-
+        integer(c_int)                ::  i, j, k
+                 
         !--- initial conditions for velocity ---
         ! note: - cf. sketch in file "usr_geometry.f90"
         !
@@ -1328,10 +1328,10 @@ contains
         real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
         real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-        real :: h
-        real :: h2
+        real(c_double):: h
+        real(c_double):: h2
 
-        integer                ::  i, j, k
+        integer(c_int)               ::  i, j, k
 
         !--- initial conditions for velocity ---
         ! note: - cf. sketch in file "usr_geometry.f90"
@@ -1422,9 +1422,9 @@ contains
         real(c_double), intent(in)    :: sca
 
 
-        real    :: dr
+        real(c_double)   :: dr
 
-        integer ::  i, j, k
+        integer(c_int) ::  i, j, k
 
         !--- initial conditions for velocity ---
         ! note: - cf. sketch in file "usr_geometry.f90"
@@ -1507,7 +1507,7 @@ contains
         real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
 
-        integer                ::  i, j, k
+        integer(c_int)               ::  i, j, k
 
         !--- initial conditions for velocity ---
         ! note: - cf. sketch in file "usr_geometry.f90"

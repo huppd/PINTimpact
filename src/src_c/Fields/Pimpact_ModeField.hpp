@@ -238,7 +238,7 @@ public:
     fields_->init(alpha);
   }
 
-  void level() {
+  void level() const {
     fieldc_->level();
     fields_->level();
   }

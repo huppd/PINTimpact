@@ -347,9 +347,15 @@ int main(int argi, char** argv ) {
 		auto para = Pimpact::createLinSolverParameter( linSolName, tolBelos, -1, outLinSolve );
 		if( 3==withprec || withprec==0 ) {
 			para->set( "Num Blocks",         100  );
-			para->set( "Maximum Iterations", 2000 );
-			para->set( "Maximum Restarts",   20	  );
+			para->set( "Maximum Iterations", 4000 );
+			para->set( "Maximum Restarts",   40	  );
 		}
+		else {
+			para->set( "Num Blocks",         10  );
+			para->set( "Maximum Iterations", 1000 );
+			para->set( "Maximum Restarts",   10	  );
+		}
+
 		para->set( "Verbosity",	
 				Belos::Errors +
 				Belos::Warnings +
@@ -487,6 +493,7 @@ int main(int argi, char** argv ) {
 						);
 
 			auto pl_divGrad = Pimpact::createLinSolverParameter( (withprec==2||withprec==3)?"Block GMRES":"GMRES", tolInnerBelos, -1, outSchur );
+//			auto pl_divGrad = Pimpact::createLinSolverParameter( "GMRES", tolInnerBelos, -1, outSchur );
 			if( withprec>1 ) {
 				pl_divGrad->set( "Num Blocks",				5	  );
 				pl_divGrad->set( "Maximum Iterations",100 );
@@ -565,7 +572,7 @@ int main(int argi, char** argv ) {
     auto group = NOX::Pimpact::createGroup<Inter>( bla, inter, nx );
 
     // Set up the status tests
-    auto statusTest = NOX::Pimpact::createStatusTest( maxIter, tolNOX, tolBelos/100 );
+    auto statusTest = NOX::Pimpact::createStatusTest( maxIter, tolNOX, 1.e-12 );
 
     // Create the list of solver parameters
     auto solverParametersPtr =

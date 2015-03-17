@@ -56,6 +56,7 @@ public:
     y.getVField().add( 1., y.getConstVField(), 1., *temp_ );
     // ~div
     opV2S_->apply( x.getConstVField(), y.getSField() );
+//		y.getSField().level();
   }
 
   void assignField( const DomainFieldT& mv ) {

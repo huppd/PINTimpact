@@ -134,13 +134,13 @@ public:
         x.getConstRawPtr(),
         y.getRawPtr() );
 
-	 SF_handle_corner(
-			 space_->nLoc(),
-			 space_->bl(),
-			 space_->bu(),
-			 space_->getDomain()->getBCLocal()->getBCL(),
-			 space_->getDomain()->getBCLocal()->getBCU(),
-			 y.getRawPtr() );
+		SF_handle_corner(
+				space_->nLoc(),
+				space_->bl(),
+				space_->bu(),
+				space_->getDomain()->getBCLocal()->getBCL(),
+				space_->getDomain()->getBCLocal()->getBCU(),
+				y.getRawPtr() );
 
 //	 y.level();
 	 y.changed();

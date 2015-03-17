@@ -43,8 +43,9 @@ int main( int argi, char** argv ) {
 	//int nwinds = 360;
 	//int nwinds = 180;
 //	int nwinds = 90;
+	int nwinds = 128;
 //	int nwinds = 64;
-	int nwinds = 32;
+//	int nwinds = 32;
 //	int nwinds = 16;
 //	int nwinds = 8;
 //	int nwinds = 4;
@@ -137,8 +138,9 @@ int main( int argi, char** argv ) {
           phifile << phi << "\t";
 
         // init solution
-				y->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inX );
-				y->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inY );
+//				y->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inX );
+//				y->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inY );
+				y->initField( Pimpact::RankineVortex2D );
 
         auto sol = y->clone( Pimpact::DeepCopy );
 				//sol->write(3333);
@@ -186,11 +188,9 @@ int main( int argi, char** argv ) {
 
 
           if( space()->rankST()==0 ) ofs << error << "\n";
+          if( space()->rankST()==0 ) std::cout <<"iter: " <<iter <<" " << error << "\n";
 
           iter++;
-//          if( iter>4) break;
-//				 if( iter>10) break;
-//				 if( iter>100) break;
 					if( iter>1000) error=-1;
 
         }

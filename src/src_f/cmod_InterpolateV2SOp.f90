@@ -48,9 +48,9 @@ contains
         real(c_double), intent(out) :: inter (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
   
-        integer                ::  i, ii
-        integer                ::  j, jj
-        integer                ::  k, kk
+        integer(c_int)              ::  i, ii
+        integer(c_int)              ::  j, jj
+        integer(c_int)              ::  k, kk
   
 
         !===========================================================================================================

@@ -349,7 +349,7 @@ public:
     changed();
   }
 
-  void level() {
+  void level() const {
     for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
       mfs_[i]->level();
     changed();
@@ -377,7 +377,7 @@ public:
 
 public:
 
-  void changed() {
+  void changed() const {
     exchangedState_ = false;
   }
 

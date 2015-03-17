@@ -275,7 +275,7 @@ public:
     fields_->init(alpha);
   }
 
-  void level() {
+  void level() const {
     field0_->level();
     fields_->level();
   }
