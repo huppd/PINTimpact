@@ -5,6 +5,7 @@ from pylab import pi
 from platform_paths import *
 
 
+data_path = '/cluster/home04/math/huppd/trunk/data2/'
 exe = 'peri_navier'
 
 
@@ -17,14 +18,16 @@ npy= 1
 npt= 1
 
 
-case_consts = ' --npx='+str(npx)+' --npy='+str(npy)+' --npf='+str(npt)+' --tolNOX=1.e-6  --tolBelos=1.e-2 --tolInnerBelos=1.e-2 --maxIter=10  --lx=2. --ly=2.  --initZero=0 --numCycles=2 '#--domain=1 --linSolver=GCRODR '
+case_consts = ' --npx='+str(npx)+' --npy='+str(npy)+' --npf='+str(npt)+' --tolNOX=1.e-6  --tolBelos=1.e-2 --tolInnerBelos=1.e-2 --maxIter=20  --lx=2. --ly=2.  --initZero=0 --numCycles=2 '#--domain=1 --linSolver=GCRODR '
 
 precTypes = [ 0, 1, 2 ]
-#precTypes = [ 2, 3 ]
+precTypes = [ 2 ]
 ns        = [ 4, 5, 6, 7 ]
 #ns        = [  5, 6 ]
 res       = [ 1, 25, 50, 75, 100 ]
+res = np.arange(1,220,20)
 alpha2s   = [ 1, 9, 25, 64, 100 ]
+alpha2s   = np.arange(1,16,2)**2
 
 #precTypes = [ 2, 3 ]
 #precTypes = [ 2 ]
