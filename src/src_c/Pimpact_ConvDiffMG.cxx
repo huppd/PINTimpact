@@ -43,8 +43,8 @@ int main( int argi, char** argv ) {
 	//int nwinds = 360;
 	//int nwinds = 180;
 //	int nwinds = 90;
-	int nwinds = 128;
-//	int nwinds = 64;
+//	int nwinds = 128;
+	int nwinds = 64;
 //	int nwinds = 32;
 //	int nwinds = 16;
 //	int nwinds = 8;
@@ -67,10 +67,10 @@ int main( int argi, char** argv ) {
 
 	//pl->set<O>( "nx", 513 );
 	//pl->set<O>( "ny", 513 );
-	//pl->set<O>( "nx", 257 );
-	//pl->set<O>( "ny", 257 );
-	pl->set<O>( "nx", 129 );
-	pl->set<O>( "ny", 129 );
+	pl->set<O>( "nx", 257 );
+	pl->set<O>( "ny", 257 );
+//	pl->set<O>( "nx", 129 );
+//	pl->set<O>( "ny", 129 );
 //	pl->set<O>( "nx", 65 );
 //	pl->set<O>( "ny", 65 );
 //	pl->set<O>( "nx", 33 );
@@ -91,10 +91,14 @@ int main( int argi, char** argv ) {
 
   auto op = Pimpact::create<ConvDiffOpT>( space );
 
-  for(short int dirx=-1; dirx<4; dirx+=2 ) {
-    for(short int diry=-1; diry<2; diry+=2 ) {
+//  for(short int dirx=3; dirx<4; dirx+=2 )
+	{
+//    for(short int diry=1; diry<2; diry+=2 )
+	 short int dirx=1;
+	 short int diry=1;
+		{
 
-      if( 3==dirx && diry==1 ) break;
+//      if( 3==dirx && diry==1 ) break;
 
       auto pls = Teuchos::parameterList();
 			pls->sublist("Smoother").set( "omega", 1. );
@@ -138,9 +142,9 @@ int main( int argi, char** argv ) {
           phifile << phi << "\t";
 
         // init solution
-//				y->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inX );
-//				y->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inY );
-				y->initField( Pimpact::RankineVortex2D );
+				y->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inX );
+				y->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inY );
+//				y->initField( Pimpact::RankineVortex2D );
 
         auto sol = y->clone( Pimpact::DeepCopy );
 				//sol->write(3333);
@@ -181,7 +185,9 @@ int main( int argi, char** argv ) {
 
           smoother->apply( *z, *y );
 
-          z2->add( -1, *sol, 1, *y );
+				 z2->add( -1, *sol, 1, *y );
+//					op->apply( *y, *z2 );
+//					z2->add( 1., *z2, -1., *z );
 
           error = z2->norm()/sol->norm();
 //          error = z2->norm();

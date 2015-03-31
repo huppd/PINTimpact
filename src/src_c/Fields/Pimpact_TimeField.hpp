@@ -367,7 +367,7 @@ public:
 
   void write( int count=0 ) const {
 		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
-      mfs_[i]->write(count++ + space()->getShift()[3] );
+      mfs_[i]->write(count++ + space()->getShift(3) );
   }
 
 
@@ -384,14 +384,19 @@ public:
   /// \note shoud be constant but weirdly then Iter becomes const iter and can't be converted to int
   void exchange() const {
 
+//		if( exchangedState_ )
+//			std::cout << "exchangeState: " << exchangedState_<< "\n";
+//		else
+//			std::cout << "bla\n";
+
     if( !exchangedState_ ) {
       if( space()->getNProc(3)>=1 ) {
 
-        int transL = std::abs( space()->bl(3) );
-        //        int transU = std::abs( space()->bu(3) );
+			 int transL = std::abs( space()->bl(3) );
+//			 int transU = std::abs( space()->bu(3) );
 
-        // std::cout << "transl: " <<  transl<< "\n";
-        // std::cout << "transu: " <<  transu<< "\n";
+//				std::cout << "transL: " <<  transL << "\n";
+//				std::cout << "transu: " <<  transu<< "\n";
 
         int rankU = space()->getProcGrid()->getRankU(3);
         int rankL = space()->getProcGrid()->getRankL(3);
@@ -460,7 +465,7 @@ createTimeField( const Teuchos::RCP<const SpaceT>& space ) {
 
 /// \todo move to initField
 template<class SpaceT>
-Teuchos::RCP<TimeField<VectorField<SpaceT> > >
+void
 initVectorTimeField(
     Teuchos::RCP<TimeField<VectorField<SpaceT> > > field,
     EFlowType flowType=Zero2DFlow,
@@ -474,17 +479,18 @@ initVectorTimeField(
 
   auto space = field->space();
 
-  auto offset = space->getShift()[3];
-
-  O i = -1;
   S pi = 4.*std::atan(1.);
 
-  //  for( Iter j = field->sInd_; j<field->eInd_; ++j )
-  //  for( Iter j = field->mfs_.begin(); j<field->mfs_.end(); ++j )
+	S nt = space->nGlo(3);
+  S offset = space->getShift(3) - space->sInd(EField::S,3);
+
   for( O i=space->sInd(EField::S,3); i<space->eInd(EField::S,3); ++i )
     switch( flowType ) {
     case Zero2DFlow:
       field->getFieldPtr(i)->initField( ZeroFlow );
+      break;
+    case Const2DFlow:
+      field->getFieldPtr(i)->initField( ConstFlow, xm, ym, rad );
       break;
     case Poiseuille_inX:
       field->getFieldPtr(i)->initField( PoiseuilleFlow2D_inX );
@@ -493,18 +499,18 @@ initVectorTimeField(
       field->getFieldPtr(i)->initField( PoiseuilleFlow2D_inY );
       break;
     case Streaming2DFlow: {
-      S ampt = std::sin( 2.*pi*((S)i+++(S)offset)/(S)space->nGlo()[3] );
+      S ampt = std::sin( 2.*pi*((S)i+offset)/nt );
       field->getFieldPtr(i)->initField( Streaming2D, ampt );
       break;
     }
     case OscilatingDisc2D: {
-      S ymt = ym+amp*std::sin( 2.*pi*((S)i+++(S)offset)/(S)space->nGlo()[3] );
+      S ymt = ym+amp*std::sin( 2.*pi*((S)i+offset)/nt );
       S xmt = xm;
       field->getFieldPtr(i)->initField( Disc2D, xmt, ymt, rad );
       break;
     }
     case OscilatingDisc2DVel: {
-      S yvelt = amp*std::cos( 2.*pi*((S)i+++(S)offset)/(S)space->nGlo()[3] );
+      S yvelt = amp*std::cos( 2.*pi*((S)i+offset)/nt );
       S xvelt = 0;
       field->getFieldPtr(i)->init( Teuchos::tuple( xvelt, yvelt, 0.) );
       break;
@@ -514,7 +520,7 @@ initVectorTimeField(
       break;
     }
 
-  return( field );
+	field->changed();
 
 }
 

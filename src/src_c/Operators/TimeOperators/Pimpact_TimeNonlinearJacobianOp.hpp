@@ -21,6 +21,7 @@ namespace Pimpact {
 /// \todo better design would be to wrap ConvectionJacobianOp(no because then you would store stencil mutliple times, so one would have to abstract Jacobian)
 /// \note u_ has to contain appropriate BC, temp_ and y doesnot matter, x should have zero BC
 /// \todo add expcetion for space::dimension!=4
+/// \deprecated
 template<class ST,bool CrankNicolsonYes=false >
 class TimeNonlinearJacobian {
 

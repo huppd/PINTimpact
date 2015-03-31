@@ -46,6 +46,7 @@
 #include "Pimpact_DtTimeOp.hpp"
 #include "Pimpact_TimeNonlinearJacobianOp.hpp"
 #include "Pimpact_TimeOpWrap.hpp"
+#include "Pimpact_TimeDtConvectionDiffusionOp.hpp"
 
 
 /// \defgroup ModeOperator Mode Operator

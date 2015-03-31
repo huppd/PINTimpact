@@ -51,7 +51,8 @@ enum EScalarField {
 
 
 enum EFlowType {
-  Zero2DFlow = 0,
+  Zero2DFlow = 0, 
+  Const2DFlow = 10, 
   Poiseuille_inX=1,
   Poiseuille_inY=2,
   Pulsatile_inX=3,

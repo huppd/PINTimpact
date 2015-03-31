@@ -32,7 +32,6 @@ typedef double S;
 typedef int O;
 const int d = 3;
 const int dNC = 4;
-//const int dNC = 2;
 
 typedef Pimpact::Space<S,O,d,dNC>             SpaceT;
 

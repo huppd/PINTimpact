@@ -59,6 +59,7 @@ typedef Pimpact::OperatorBase<MTVF> VOpBase;
 
 auto pl = Teuchos::parameterList();
 
+
 TEUCHOS_STATIC_SETUP() {
   Teuchos::CommandLineProcessor &clp = Teuchos::UnitTestRepository::getCLP();
   clp.addOutputSetupOptions(true);
@@ -474,14 +475,105 @@ TEUCHOS_UNIT_TEST( TimeOperator, DtTimeOp ) {
 	// op test
 	auto dt = Pimpact::create<Pimpact::DtTimeOp>( space );
 
-	Pimpact::initVectorTimeField( field1, Pimpact::OscilatingDisc2DVel );
+
+	// zero test
+	Pimpact::initVectorTimeField( field1, Pimpact::Poiseuille_inX );
 	field2->init(0);
 
 	dt->apply( *field1, *field2 );
 
-	field2->write( 50 );
+	TEST_EQUALITY( field2()->norm()<eps, true );
+
+	// cos test
+	Pimpact::initVectorTimeField( field, Pimpact::OscilatingDisc2DVel,0.,0.,0.,1. );
+	field1->init(0);
+	field2->init(0);
+
+	dt->apply( *field, *field1 );
+	dt->apply( *field1, *field2 );
+
+	S a2 = space->getDomain()->getDomainSize()->getAlpha2()/space->getDomain()->getDomainSize()->getRe();
+
+	S bla = a2*a2;
+
+	field->add( bla, *field, 1, *field2 );
+
+	field->write();
+  std::cout << "bla: " << bla << "\n";
+	std::cout << "error: " << field()->norm() << "\n";
 
 
+}
+
+
+
+TEUCHOS_UNIT_TEST( TimeOperator, TimeDtConvectionDiffusionOp ) {
+
+	auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+
+	auto field = Pimpact::create<TVF>( space );
+	auto field1 = field->clone();
+	auto field2 = field->clone();
+	auto wind = field->clone();
+
+
+	auto op = Pimpact::create<Pimpact::TimeDtConvectionDiffusionOp<SpaceT,true> >( space );
+
+
+	// Const diffusion test
+	Pimpact::initVectorTimeField( field1, Pimpact::Poiseuille_inX );
+	field2->init(0);
+
+	op->apply( *field1, *field2 );
+
+  initVectorTimeField( field1, Pimpact::Const2DFlow, 8./std::pow(space->getDomain()->getDomainSize()->getSize(Pimpact::Y),2), 0., 0. );
+	field->add( 1., *field1, -1., *field2 );
+
+	TEST_EQUALITY( field()->norm()<eps, true );
+
+	// cos test
+	Pimpact::initVectorTimeField( field, Pimpact::OscilatingDisc2DVel,0.,0.,0.,1. );
+	field1->init(0);
+	field2->init(0);
+
+	op->apply( *field, *field1 );
+	op->apply( *field1, *field2 );
+
+	S a2 = space->getDomain()->getDomainSize()->getAlpha2()/space->getDomain()->getDomainSize()->getRe();
+
+	S bla = a2*a2;
+
+	field->add( bla, *field, 1, *field2 );
+
+	field->write();
+	 std::cout << "bla: " << bla << "\n";
+	std::cout << "error: " << field()->norm() << "\n";
+
+  // test against flow dir
+	for( O i=space->sInd(Pimpact::U,3); i<space->eInd(Pimpact::U,3); ++i ) {
+		wind->getFieldPtr(i)->initField( Pimpact::ConstFlow, 2., 2., 2. );
+		field1->getFieldPtr(i)->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inY );
+		field1->getFieldPtr(i)->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inX );
+		field2->getFieldPtr(i)->init( Teuchos::tuple(2.,2.,2.) );
+		wind->changed();
+		field1->changed();
+		field2->changed();
+	}
+
+//	wind->write();
+//	field1->write(10);
+//	field2->write(20);
+
+  op->assignField( *wind );
+  op->apply( *field1, *field );
+
+	field->write(30);
+
+	field->add( 1., *field, -1., *field2 );
+
+	field->write(40);
+
+	std::cout << "error: " << field()->norm() << "\n";
 }
 
 

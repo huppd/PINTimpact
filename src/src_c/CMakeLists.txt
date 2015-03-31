@@ -32,6 +32,9 @@ TARGET_LINK_LIBRARIES( conv_diff  ${Pimpact_TPL_LIBRARIES} )
 add_executable( conv_diff_mg Pimpact_ConvDiffMG.cxx )
 TARGET_LINK_LIBRARIES( conv_diff_mg  ${Pimpact_TPL_LIBRARIES} )
 
+add_executable( conv_diff_mg2 Pimpact_ConvDiffMG2.cxx )
+TARGET_LINK_LIBRARIES( conv_diff_mg2  ${Pimpact_TPL_LIBRARIES} )
+
 add_executable( conv_diff2 Pimpact_ConvDiff2.cxx )
 TARGET_LINK_LIBRARIES( conv_diff2  ${Pimpact_TPL_LIBRARIES} )
 
