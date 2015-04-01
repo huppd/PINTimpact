@@ -268,15 +268,17 @@ int main(int argi, char** argv ) {
   Teuchos::RCP<VF> force=Teuchos::null;
   Teuchos::RCP<VF> forcem1=Teuchos::null;
 
-	if( 0!=forcing ) {
+//	if( 0!=forcing )
+	{
 
-		force =
-			Pimpact::initVectorTimeField(
-					x->getConstFieldPtr(0)->getConstVFieldPtr()->clone( Pimpact::ShallowCopy ),
-					Pimpact::OscilatingDisc2D,
-					xm*l1, ym*l2, rad, amp );
-		//    force->write(500);
-		//
+		force = x->getConstFieldPtr(0)->getConstVFieldPtr()->clone( Pimpact::ShallowCopy );
+
+		Pimpact::initVectorTimeField(
+				force,
+				Pimpact::OscilatingDisc2D,
+				xm*l1, ym*l2, rad, amp );
+//		force->write(500);
+//
 		Pimpact::initVectorTimeField(
 				fu->getFieldPtr(0)->getVFieldPtr(),
 				Pimpact::OscilatingDisc2DVel,
@@ -302,7 +304,8 @@ int main(int argi, char** argv ) {
 
   Teuchos::RCP<Fo> forcingOp = Teuchos::null;
   Teuchos::RCP<Fo> forcingm1Op = Teuchos::null;
-  if( 0!=forcing ) {
+//  if( 0!=forcing )
+	{
     forcingOp   = Pimpact::createForcingOp( force   );
     forcingm1Op = Pimpact::createForcingOp( forcem1 );
   }
@@ -310,41 +313,13 @@ int main(int argi, char** argv ) {
 //  S pi = 4.*std::atan(1.);
 //  S idt = ((S)space->nGlo()[3])/2./pi;
 
-
-  auto dt  = Pimpact::create<Pimpact::DtTimeOp>(space);
-  auto lap = Pimpact::createTimeOpWrap< Pimpact::HelmholtzOp<SpaceT>, cny >(
-      Pimpact::create<Pimpact::HelmholtzOp>( space ) );
-
-	// conv has to be reimplemented
-	//  auto conv = Pimpact::createTimeOpWrap(
-	//      Pimpact::createConvectionVOp( space ) );
-
-	// no forcing
-  //  auto opV2V =
-  //      Pimpact::createAdd3Op(
-  //          dt,
-  //          lap,
-  //          conv );
-	//
-	// with forcing
-	//  auto opV2V =
-	//      Pimpact::createAdd3Op(
-	//          Pimpact::createCompositionOp(
-	//              forcingm1Op,
-	//              Pimpact::createAdd3Op(
-	//                  dt,
-	//                  lap,
-	//                  conv ) ),
-	//                  forcingOp );
 	
-	// stokes forcinv
+
 	auto opV2V =
 		Pimpact::createAdd2Op(
 				Pimpact::createCompositionOp(
 					forcingm1Op,
-					Pimpact::createAdd2Op(
-						dt,
-						lap )
+					Pimpact::create<Pimpact::TimeDtConvectionDiffusionOp<SpaceT,true> >( space )
 					),
 				forcingOp );
 
@@ -415,16 +390,14 @@ int main(int argi, char** argv ) {
     para->set( "Maximum Iterations", 500 );
 
   }
-  else
-    if( 2==precType ) {
+	else if( 2==precType ) {
 
-      if(0==rank) std::cout << "\n\t---\tprec Type(10): linear block commuter Schur complement:\t not available---\n";
-    }
-    else
-      if( 3==precType ) {
-        if(0==rank) std::cout << "\n\t---\tprec Type(10): linear block commuter Schur complement\t--- not available\n";
+		if(0==rank) std::cout << "\n\t---\tprec Type(10): linear block commuter Schur complement:\t not available---\n";
+	}
+	else if( 3==precType ) {
+		if(0==rank) std::cout << "\n\t---\tprec Type(10): linear block commuter Schur complement\t--- not available\n";
+	}
 
-      }
   auto lp_ = Pimpact::createLinearProblem<MF>(
       jop, x->clone(), fu->clone(), para, linSolName );
   if( leftPrec )
