@@ -846,39 +846,39 @@ contains
     !!    - Der Druck wird erst bei Bedarf (z.B. vor einem Ausschrieb) auf einen sinnvollen Wert gesetzt.
     !!    - Siehe dazu auch die korrespondierende Subroutine "handle_corner_rhs"!
     subroutine SF_handle_corner(    &
-        N,                          &
+        n,                          &
         bL,bU,                      &
-        BCL,BCU,                    &
+        bcl,bcu,                    &
         phi) bind( c, name='SF_handle_corner' )
 
         implicit none
 
-        integer(c_int), intent(in)    :: N(3)
+        integer(c_int), intent(in)    :: n(3)
 
-        integer(c_int), intent(in)    :: BL(3)
-        integer(c_int), intent(in)    :: BU(3)
+        integer(c_int), intent(in)    :: bl(3)
+        integer(c_int), intent(in)    :: bu(3)
 
-        integer(c_int), intent(in)    :: BCL(3)
-        integer(c_int), intent(in)    :: BCU(3)
+        integer(c_int), intent(in)    :: bcl(3)
+        integer(c_int), intent(in)    :: bcu(3)
 
         real(c_double), intent(inout) :: phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
 
 
-        if (BCL(1) > 0 .and. BCL(2) > 0) phi(1   ,1   ,1:N(3)) = 0. ! TEST!!! verifizieren ...
-        if (BCL(1) > 0 .and. BCU(2) > 0) phi(1   ,N(2),1:N(3)) = 0.
-        if (BCU(1) > 0 .and. BCL(2) > 0) phi(N(1),1   ,1:N(3)) = 0.
-        if (BCU(1) > 0 .and. BCU(2) > 0) phi(N(1),N(2),1:N(3)) = 0.
-
-        if (BCL(1) > 0 .and. BCL(3) > 0) phi(1   ,1:N(2),1   ) = 0.
-        if (BCL(1) > 0 .and. BCU(3) > 0) phi(1   ,1:N(2),N(3)) = 0.
-        if (BCU(1) > 0 .and. BCL(3) > 0) phi(N(1),1:N(2),1   ) = 0.
-        if (BCU(1) > 0 .and. BCU(3) > 0) phi(N(1),1:N(2),N(3)) = 0.
-
-        if (BCL(2) > 0 .and. BCL(3) > 0) phi(1:N(1),1   ,1   ) = 0.
-        if (BCL(2) > 0 .and. BCU(3) > 0) phi(1:N(1),1   ,N(3)) = 0.
-        if (BCU(2) > 0 .and. BCL(3) > 0) phi(1:N(1),N(2),1   ) = 0.
-        if (BCU(2) > 0 .and. BCU(3) > 0) phi(1:N(1),N(2),N(3)) = 0.
+        if( bcl(1) > 0 .and. bcl(2) > 0 ) phi(1   ,1   ,1:n(3)) = 0. ! test!!! verifizieren ...
+        if( bcl(1) > 0 .and. bcu(2) > 0 ) phi(1   ,n(2),1:n(3)) = 0.
+        if( bcu(1) > 0 .and. bcl(2) > 0 ) phi(n(1),1   ,1:n(3)) = 0.
+        if( bcu(1) > 0 .and. bcu(2) > 0 ) phi(n(1),n(2),1:n(3)) = 0.
+            
+        if( bcl(1) > 0 .and. bcl(3) > 0 ) phi(1   ,1:n(2),1   ) = 0.
+        if( bcl(1) > 0 .and. bcu(3) > 0 ) phi(1   ,1:n(2),n(3)) = 0.
+        if( bcu(1) > 0 .and. bcl(3) > 0 ) phi(n(1),1:n(2),1   ) = 0.
+        if( bcu(1) > 0 .and. bcu(3) > 0 ) phi(n(1),1:n(2),n(3)) = 0.
+            
+        if( bcl(2) > 0 .and. bcl(3) > 0 ) phi(1:n(1),1   ,1   ) = 0.
+        if( bcl(2) > 0 .and. bcu(3) > 0 ) phi(1:n(1),1   ,n(3)) = 0.
+        if( bcu(2) > 0 .and. bcl(3) > 0 ) phi(1:n(1),n(2),1   ) = 0.
+        if( bcu(2) > 0 .and. bcu(3) > 0 ) phi(1:n(1),n(2),n(3)) = 0.
 
 
     end subroutine SF_handle_corner

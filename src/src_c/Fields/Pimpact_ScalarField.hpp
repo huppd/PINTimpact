@@ -501,6 +501,27 @@ public:
 	void level() const {
 
 		if( EField::S == fType_ ) {
+			auto m = getLength();
+			auto n = space()->nGlo();
+
+			auto bcl =  space()->getDomain()->getBCGlobal()->getBCL();
+			auto bcu =  space()->getDomain()->getBCGlobal()->getBCL();
+
+			if( bcl[0]>0 && bcl[1]>0 ) m -= n[2]-1;
+			if( bcl[0]>0 && bcu[1]>0 ) m -= n[2]-1;
+			if( bcu[0]>0 && bcl[1]>0 ) m -= n[2]-1;
+			if( bcu[0]>0 && bcu[1]>0 ) m -= n[2]-1;
+					
+			if( bcl[0]>0 && bcl[2]>0 ) m -= n[1]-1;
+			if( bcl[0]>0 && bcu[2]>0 ) m -= n[1]-1;
+			if( bcu[0]>0 && bcl[2]>0 ) m -= n[1]-1;
+			if( bcu[0]>0 && bcu[2]>0 ) m -= n[1]-1;
+					
+			if( bcl[1]>0 && bcl[2]>0 ) m -= n[0]-1;
+			if( bcl[1]>0 && bcu[2]>0 ) m -= n[0]-1;
+			if( bcu[1]>0 && bcl[2]>0 ) m -= n[0]-1;
+			if( bcu[1]>0 && bcu[2]>0 ) m -= n[0]-1;
+
 
 			//		set corners to zero, such that level depends only on inner field
 			SF_handle_corner(
@@ -513,7 +534,7 @@ public:
 
 			SF_level(
 					space()->commf(),
-					getLength(),
+					m,
 					space()->nLoc(),
 					space()->bl(),
 					space()->bu(),
