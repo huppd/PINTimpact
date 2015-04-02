@@ -51,15 +51,15 @@ public:
 
   void apply(const DomainFieldT& x, RangeFieldT& y, Belos::ETrans trans=Belos::NOTRANS) const {
 
-		temp1_->init(0.);
-		x.level();
+//		temp1_->init(0.);
+//		x.level();
 
     op3_->apply( x, *temp1_);
 
     op2_->apply( *temp1_, *temp2_ );
 
-		y.init(0.);
-		temp2_->level();
+//		y.init(0.);
+//		temp2_->level();
 
     op1_->apply( *temp2_, y );
 

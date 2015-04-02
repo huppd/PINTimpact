@@ -494,7 +494,8 @@ int main(int argi, char** argv ) {
 							)
 						);
 
-			auto pl_divGrad = Pimpact::createLinSolverParameter( (withprec==2||withprec==3)?"Block GMRES":"GMRES", tolInnerBelos, -1, outSchur );
+			auto pl_divGrad =
+				Pimpact::createLinSolverParameter( (withprec==2||withprec==3)?"Block GMRES":"GMRES", tolInnerBelos, -1, outSchur );
 //			auto pl_divGrad = Pimpact::createLinSolverParameter( "GMRES", tolInnerBelos, -1, outSchur );
 //			if( withprec>1 ) {
 //				pl_divGrad->set( "Num Blocks",				5	  );
