@@ -157,7 +157,7 @@ contains
                             dd1 = dd1 + c33(kk,k)*phi(i,j,k+kk)
                         end do
 
-                        nlu(i,j,k) = mul*nlu(i,j,k) + mulI*phi(i,j,k) + mulC*(phiU(i,j,k)*ddU + phiV(i,j,k)*ddV + mul*phiW(i,j,k)*ddW ) - mulL*dd1
+                        nlu(i,j,k) = mul*nlu(i,j,k) + mulI*phi(i,j,k) + mulC*( phiU(i,j,k)*ddU + phiV(i,j,k)*ddV + phiW(i,j,k)*ddW ) - mulL*dd1
 
                     else
 

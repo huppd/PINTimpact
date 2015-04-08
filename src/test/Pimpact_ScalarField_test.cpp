@@ -60,13 +60,13 @@ TEUCHOS_STATIC_SETUP() {
   pl->set( "dim", dim );
   pl->set( "domain", domain );
 
-  pl->set( "lx", 2. );
-  pl->set( "ly", 2. );
-  pl->set( "lz", 2. );
+  pl->set( "lx", 12. );
+  pl->set( "ly", 6. );
+  pl->set( "lz", 3. );
 
-  pl->set("nx", (48*3)+1 );
-  pl->set("ny", 49 );
-  pl->set("nz", 17 );
+  pl->set("nx", 33 );
+  pl->set("ny", 17 );
+  pl->set("nz", 9 );
 
   // processor grid size
   pl->set("npx", 2 );
@@ -106,7 +106,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, InfNorm_and_init, FType ) {
   double norm;
 
   // test different float values, assures that initial and norm work smoothly
-  for( double i=0.; i< 200.1; ++i ) {
+  for( double i=0.; i< 10.1; ++i ) {
     p->init(i/2.);
     norm = p->norm(Belos::InfNorm);
     TEST_FLOATING_EQUALITY( i/2., norm, eps );
@@ -119,7 +119,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, InfNorm_and_init, FType ) {
   double init;
   MPI_Comm_rank(space->comm(),&rank);
   MPI_Comm_size(space->comm(),&size);
-  for( double i = 0.; i<200.1; ++i) {
+  for( double i = 0.; i<10.1; ++i) {
     init = (size-1)*i-1.;
     init = (init<0)?-init:init;
     p->init(rank*i-1.);
@@ -145,7 +145,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, OneNorm_and_init, FType ) {
   auto p = Pimpact::create<FType>(space);
 
   // test different float values, assures that initial and norm work smoothly
-  for( double i=0.; i< 200.1; ++i ) {
+  for( double i=0.; i< 10.1; ++i ) {
     p->init(i/2.);
 //    TEST_EQUALITY( (i/2.)*p->getLength(), p->norm(Belos::OneNorm) );
     TEST_FLOATING_EQUALITY( (i/2.)*p->getLength(), p->norm(Belos::OneNorm), eps );
@@ -169,7 +169,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, TwoNorm_and_init, FType ) {
   auto p = Pimpact::create<FType>(space);
 
   // test different float values, assures that initial and norm work smoothly
-  for( double i=0.; i< 200.1; ++i ) {
+  for( double i=0.; i< 10.1; ++i ) {
     p->init(i/2.);
     TEST_FLOATING_EQUALITY( std::sqrt( std::pow(i/2.,2)*p->getLength() ), p->norm(Belos::TwoNorm), eps );
   }
@@ -378,7 +378,7 @@ TEUCHOS_UNIT_TEST( ScalarField, initField ) {
 
   auto x = Pimpact::createScalarField( space );
 
-  for( int i=0; i<=4; ++i ) {
+  for( int i=0; i<=6; ++i ) {
     x->initField( Pimpact::EScalarField(i) );
     x->write( i );
   }

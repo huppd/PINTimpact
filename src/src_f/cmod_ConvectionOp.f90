@@ -17,7 +17,7 @@ contains
 
 
     !> \brief Convection operator
-    !! \f[ nlu = mul nlu + mulI phi + mulC (U \cdot \Delta ) phi \f]
+    !! \f[ nlu = mul nlu + mulI phi + mulC (U \cdot \nabla ) phi \f]
     subroutine OP_convection(   &
         dimens,                 &
         N,                      &
@@ -132,7 +132,7 @@ contains
                             end do
                         end if
 
-                        nlu(i,j,k) = mul*nlu(i,j,k) + mulI*phi(i,j,k) + mulC*(phiU(i,j,k)*ddU + phiV(i,j,k)*ddV + mul*phiW(i,j,k)*ddW )
+                        nlu(i,j,k) = mul*nlu(i,j,k) + mulI*phi(i,j,k) + mulC*( phiU(i,j,k)*ddU + phiV(i,j,k)*ddV + phiW(i,j,k)*ddW )
 
                     else
 

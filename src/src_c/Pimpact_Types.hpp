@@ -4,28 +4,66 @@
 
 #include "BelosTypes.hpp"
 
+
+
+
 namespace Pimpact {
 
-enum EField { U=0, V=1, W=2, S=4 };
-
-enum ECoord { X=0, Y=1, Z=2, T=4 };
 
 /// Copy Type
 enum ECopyType {
   /// Deep Copy, means that everything is copied including boundaries
   DeepCopy,
   /// Schallow Copy, up to now new field is initialized to zero.
-  ShallowCopy };
+  ShallowCopy
+};
+
+
+enum ECoord { X=0, Y=1, Z=2, T=4 };
+enum EField { U=0, V=1, W=2, S=4 };
+
+
+enum EBCType {
+  SymmetryBC = -2,
+  PeriodicBC = -1,
+  NeighborBC = 0,
+  DirichletBC = 1,
+  NeumannBC = 2,
+  RobinBC = 3
+};
+
+
+enum EDomainType {
+  AllDirichlet = 0,
+  Dirichelt2DChannel = 1,
+  Periodic2DChannel = 2,
+  AllNeumann2D = 3,
+  AllPeriodic = 4,
+  Neumann1Periodic2 = 5
+};
+
+
+/// \relates ScalarField::initField
+enum EScalarField {
+	ConstField = 0,
+	Poiseuille2D_inX = 1,
+  Poiseuille2D_inY = 2,
+  Poiseuille2D_inZ = 6,
+  Grad2D_inX = 3,
+  Grad2D_inY = 4,
+  Grad2D_inZ = 5
+};
 
 
 /// \relates VectorField::initField
 enum EFlowField {
   ZeroFlow=0,
-  PoiseuilleFlow2D_inX=1, PoiseuilleFlow2D_inY=2,
+  PoiseuilleFlow2D_inX=1, PoiseuilleFlow2D_inY=2, PoiseuilleFlow2D_inZ=20,
   Pulsatile2D_inXC=3, Pulsatile2D_inXS=5,
   Pulsatile2D_inYC=4, Pulsatile2D_inYS=6,
   Streaming2D=7,
   Circle2D=8,
+  Circle2D_inXZ=21,
   RankineVortex2D=9,
   GaussianForcing1D=10,
   BoundaryFilter1D=11,
@@ -40,16 +78,8 @@ enum EFlowField {
 };
 
 
-/// \relates ScalarField::initField
-enum EScalarField {
-  ConstField=0,
-  Poiseuille2D_inX=1,
-  Poiseuille2D_inY=2,
-  Grad2D_inX =3,
-  Grad2D_inY =4
-};
-
-
+/// \brief used in mains
+/// \relates initTimeVectorField
 enum EFlowType {
   Zero2DFlow = 0, 
   Const2DFlow = 10, 
@@ -73,24 +103,6 @@ enum EForceType {
 };
 
 
-enum EBCType {
-  SymmetryBC = -2,
-  PeriodicBC = -1,
-  NeighborBC = 0,
-  DirichletBC = 1,
-  NeumannBC = 2,
-  RobinBC = 3
-};
-
-
-enum EDomainType {
-  AllDirichlet = 0,
-  Dirichelt2DChannel = 1,
-  Periodic2DChannel = 2,
-  AllNeumann2D = 3,
-  AllPeriodic = 4,
-  Neumann1Periodic2 = 5
-};
 
 }
 

@@ -328,10 +328,12 @@ int main(int argi, char** argv ) {
   // init Fields, init and rhs
 	if( baseflow==0 )
 		x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::EFlowField(flow), 1. );
-	else {
+	else  {
 		x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->initField( Pimpact::EFlowField(baseflow), 1. );
-		x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::EFlowField(flow), 0.,1,0.1,0.1 );
-		x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->getFieldPtr(Pimpact::U)->initField();
+		if( 0 != flow ) {
+			x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::EFlowField(flow), 0., 0.5, 0., 0.1 );
+			x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->getFieldPtr(Pimpact::U)->initField();
+		}
 	}
 
 	if( 0==initZero )
@@ -492,13 +494,14 @@ int main(int argi, char** argv ) {
 							)
 						);
 
-			auto pl_divGrad = Pimpact::createLinSolverParameter( (withprec==2||withprec==3)?"Block GMRES":"GMRES", tolInnerBelos, -1, outSchur );
+			auto pl_divGrad =
+				Pimpact::createLinSolverParameter( (withprec==2||withprec==3)?"Block GMRES":"GMRES", tolInnerBelos, -1, outSchur );
 //			auto pl_divGrad = Pimpact::createLinSolverParameter( "GMRES", tolInnerBelos, -1, outSchur );
-			if( withprec>1 ) {
-				pl_divGrad->set( "Num Blocks",				5	  );
-				pl_divGrad->set( "Maximum Iterations",100 );
-				pl_divGrad->set( "Maximum Restarts",	20  );
-			}
+//			if( withprec>1 ) {
+//				pl_divGrad->set( "Num Blocks",				5	  );
+//				pl_divGrad->set( "Maximum Iterations",100 );
+//				pl_divGrad->set( "Maximum Restarts",	20  );
+//			}
 
 
 			auto divGradProb =

@@ -46,7 +46,7 @@ public:
 
 
   /// \note Operator's wind has to be assigned correctly
-  void apply( const FieldTensor& u, const DomainFieldT& x, RangeFieldT& y, Scalar mul=0. ) const {
+  void apply( const FieldTensor& u, const DomainFieldT& x, RangeFieldT& y, Scalar mul=0., Scalar mulC=1. ) const {
 
     for( int i=0; i<x.space()->dim(); ++i ) {
       convectionSOp_->apply( u[i], x.getConstField(i), y.getField(i), mul );

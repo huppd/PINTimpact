@@ -178,10 +178,13 @@ public:
   void assignField( const RangeFieldT& mv ) {};
 
 
-  void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mul, Scalar mulI, Scalar mulC, Scalar mulL ) const { std::cout << "not implmented\n"; }
+  void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z,
+			Scalar mul, Scalar mulI, Scalar mulC, Scalar mulL ) const {
+		apply( x, y, z, mul, mulC );
+	}
 
 
-  void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mul=0. ) const {
+  void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mul=0., Scalar mulC=1. ) const {
 
     int m = (int)z.getType();
 
@@ -225,10 +228,7 @@ public:
         z.getRawPtr(),
 				mul,
 				0.,
-				1. );
-//				1.,
-//				0.,
-//				mul );
+				mulC );
 
     z.changed();
 

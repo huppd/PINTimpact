@@ -109,25 +109,6 @@ void VF_init_StreamingS(
     const double& amp,
     double* const phiU, double* const phiV, double* const phiW );
 
-
-void VF_init_Circle(
-    const int* const N,
-    const int* const bL,
-    const int* const bU,
-    const int* const SU,
-    const int* const NU,
-    const int* const SV,
-    const int* const NV,
-    const int* const SW,
-    const int* const NW,
-    const double* const L,
-    const double* const x1,
-    const double* const x2,
-    double* const phiU,
-    double* const phiV,
-    double* const phiW );
-
-
 void VF_init_RankineVortex(
     const int* const N,
     const int* const bL,
