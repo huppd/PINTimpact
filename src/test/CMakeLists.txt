@@ -40,7 +40,7 @@ foreach(dim RANGE 3 3)
 		add_test( NAME "MultiFieldTest_domain${domain}_dim${dim}" COMMAND mpirun -np 4 MultiFieldTest --domain=${domain} --dim=${dim} )
 		add_test( NAME "MultiHarmonicFieldTest_domain${domain}_dim${dim}" COMMAND mpirun -np 4 MultiHarmonicFieldTest --domain=${domain} --dim=${dim} )
 	endforeach( domain )
-	add_test( NAME "OperatorTest_dim${dim}" COMMAND mpirun -np 4 OperatorTest --dim=${dim} )
+	add_test( NAME "OperatorTest_dim${dim}" COMMAND mpirun -np 8 OperatorTest --dim=${dim} )
 endforeach( dim )
 
 ADD_EXECUTABLE( TimeFieldTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_TimeField_test.cpp )
@@ -55,7 +55,7 @@ add_test(NAME BelosMVOPTest COMMAND mpirun -np 4 BelosMVOPTest)
 
 ADD_EXECUTABLE(NonlinearOperatorTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_NonlinearOperator_test.cpp )
 TARGET_LINK_LIBRARIES( NonlinearOperatorTest ${Pimpact_TPL_LIBRARIES} ) 
-add_test(NAME NonlinearOperatorTest COMMAND mpirun -np 4 NonlinearOperatorTest)
+add_test(NAME NonlinearOperatorTest COMMAND mpirun -np 8 NonlinearOperatorTest)
 
 ADD_EXECUTABLE(BelosSolverTest Teuchos_StandardParallelUnitTestMain.cpp BelosSolvesPimpact_test.cpp )
 TARGET_LINK_LIBRARIES( BelosSolverTest ${Pimpact_TPL_LIBRARIES} ) 

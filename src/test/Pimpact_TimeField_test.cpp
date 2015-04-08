@@ -38,8 +38,8 @@ const int dNC = 4;
 
 bool testMpi = true;
 double eps = 3e-1;
-int domain = 1;
-int dim = 2;
+int domain = 0;
+int dim = 3;
 //bool isImpactInit=false;
 
 
@@ -87,9 +87,9 @@ TEUCHOS_STATIC_SETUP() {
 
   pl->set( "dim", dim );
 
-  pl->set("nx", 33 );
+  pl->set("nx", 25 );
   pl->set("ny", 17 );
-  pl->set("nz", 2 );
+  pl->set("nz", 9 );
 
   pl->set("nf", 8 );
 
@@ -527,7 +527,9 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeDtConvectionDiffusionOp ) {
 
   initVectorTimeField( field1, Pimpact::Const2DFlow, 8./std::pow(space->getDomain()->getDomainSize()->getSize(Pimpact::Y),2), 0., 0. );
 	field->add( 1., *field1, -1., *field2 );
+	field->write(100);
 
+	std::cout << "error: " << field()->norm() << "\n";
 	TEST_EQUALITY( field()->norm()<eps, true );
 
 	// cos test
@@ -544,15 +546,16 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeDtConvectionDiffusionOp ) {
 
 	field->add( bla, *field, 1, *field2 );
 
-	field->write();
+//	field->write();
 	 std::cout << "bla: " << bla << "\n";
 	std::cout << "error: " << field()->norm() << "\n";
 
   // test against flow dir
 	for( O i=space->sInd(Pimpact::U,3); i<space->eInd(Pimpact::U,3); ++i ) {
 		wind->getFieldPtr(i)->initField( Pimpact::ConstFlow, 2., 2., 2. );
-		field1->getFieldPtr(i)->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inY );
-		field1->getFieldPtr(i)->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inX );
+		field1->getFieldPtr(i)->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inX );
+		field1->getFieldPtr(i)->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inY );
+		field1->getFieldPtr(i)->getFieldPtr(Pimpact::W)->initField( Pimpact::Grad2D_inZ );
 		field2->getFieldPtr(i)->init( Teuchos::tuple(2.,2.,2.) );
 		wind->changed();
 		field1->changed();
@@ -566,11 +569,11 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeDtConvectionDiffusionOp ) {
   op->assignField( *wind );
   op->apply( *field1, *field );
 
-	field->write(30);
+//	field->write(30);
 
 	field->add( 1., *field, -1., *field2 );
 
-	field->write(40);
+//	field->write(40);
 
 	std::cout << "error: " << field()->norm() << "\n";
 
