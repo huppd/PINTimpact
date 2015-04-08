@@ -29,6 +29,7 @@ typedef typename Pimpact::Space<S,O,3,4> SpaceT;
 bool testMpi = true;
 double eps = 1e+1;
 
+auto pl = Teuchos::parameterList();
 
 TEUCHOS_STATIC_SETUP() {
 	Teuchos::CommandLineProcessor &clp = Teuchos::UnitTestRepository::getCLP();
@@ -40,13 +41,15 @@ TEUCHOS_STATIC_SETUP() {
 	clp.setOption(
 			"error-tol-slack", &eps,
 			"Slack off of machine epsilon used to check test results" );
+
+	pl->set( "dim", 3 );
+	pl->set( "domain", 0 );
+
 }
 
 
 
 TEUCHOS_UNIT_TEST( NOXPimpactVector, create_init_print ) {
-
-	int rank = init_impact(0,0);
 
 	typedef Pimpact::ScalarField<SpaceT> SF;
 	typedef Pimpact::VectorField<SpaceT> VF;
@@ -58,7 +61,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, create_init_print ) {
 	typedef NOX::Pimpact ::Vector<CF> NV;
 
 
-	auto space = Pimpact::createSpace();
+	auto space = Pimpact::createSpace( pl );
 
 	auto xv = Pimpact::createInitMVF(Pimpact::Zero2DFlow, space );
 
@@ -68,7 +71,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, create_init_print ) {
 
 	Teuchos::RCP<NV> nx = Teuchos::rcp(new NV(x) );
 
-	nx->init( rank );
+	nx->init( space->rankST() );
 }
 
 
@@ -84,7 +87,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, InfNorm_and_init ) {
   typedef NOX::Pimpact ::Vector<CF> NV;
 
 
-	auto space = Pimpact::createSpace();
+	auto space = Pimpact::createSpace( pl );
 
 	auto xv = Pimpact::createInitMVF(Pimpact::Zero2DFlow, space );
 
@@ -129,7 +132,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, TwoNorm_and_init ) {
   typedef NOX::Pimpact ::Vector<CF> NV;
 
 
-	auto space = Pimpact::createSpace();
+	auto space = Pimpact::createSpace( pl );
 
 	auto xv = Pimpact::createInitMVF(Pimpact::Zero2DFlow, space );
 
@@ -165,7 +168,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, add ) {
   typedef NOX::Pimpact ::Vector<CF> NV;
 
 
-	auto space = Pimpact::createSpace();
+	auto space = Pimpact::createSpace( pl );
 
   auto xv = Pimpact::createInitMVF(Pimpact::Zero2DFlow, space );
 
@@ -212,7 +215,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, reciprocal ) {
   typedef NOX::Pimpact ::Vector<CF> NV;
 
 
-	auto space = Pimpact::createSpace();
+	auto space = Pimpact::createSpace( pl );
 
   auto xv = Pimpact::createInitMVF(Pimpact::Zero2DFlow, space );
 
@@ -264,7 +267,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, norm_weighted ) {
   typedef NOX::Pimpact ::Vector<CF> NV;
 
 
-	auto space = Pimpact::createSpace();
+	auto space = Pimpact::createSpace( pl );
 
   auto xv = Pimpact::createInitMVF(Pimpact::Zero2DFlow, space );
 
@@ -323,7 +326,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, scale2 ) {
   typedef NOX::Pimpact ::Vector<CF> NV;
 
 
-	auto space = Pimpact::createSpace();
+	auto space = Pimpact::createSpace( pl );
 
   auto xv = Pimpact::createInitMVF(Pimpact::Zero2DFlow, space );
 
@@ -379,7 +382,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, innerProduct ) {
   typedef NOX::Pimpact ::Vector<CF> NV;
 
 
-	auto space = Pimpact::createSpace();
+	auto space = Pimpact::createSpace( pl );
 
 	auto xv = Pimpact::createInitMVF(Pimpact::Zero2DFlow, space );
 
@@ -430,7 +433,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, scale ) {
   typedef NOX::Pimpact ::Vector<CF> NV;
 
 
-	auto space = Pimpact::createSpace();
+	auto space = Pimpact::createSpace( pl );
 
 	auto xv = Pimpact::createInitMVF(Pimpact::Zero2DFlow, space );
 
@@ -463,7 +466,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, random ) {
   typedef NOX::Pimpact ::Vector<CF> NV;
 
 
-	auto space = Pimpact::createSpace();
+	auto space = Pimpact::createSpace( pl );
 
 	auto xv = Pimpact::createInitMVF(Pimpact::Zero2DFlow, space );
 
@@ -497,7 +500,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, update ) {
   typedef NOX::Pimpact ::Vector<CF> NV;
 
 
-	auto space = Pimpact::createSpace();
+	auto space = Pimpact::createSpace( pl );
 
 	auto xv = Pimpact::createInitMVF(Pimpact::Zero2DFlow, space );
 
