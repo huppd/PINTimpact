@@ -49,7 +49,7 @@ TEUCHOS_STATIC_SETUP() {
 
 
 
-TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
+TEUCHOS_UNIT_TEST( LinearProblem, HelmholtzMV ) {
 
 	typedef Pimpact::MultiField< Pimpact::VectorField<SpaceT> > MF;
 

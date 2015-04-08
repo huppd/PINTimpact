@@ -65,7 +65,11 @@ TEUCHOS_STATIC_SETUP() {
       "domain", &domain,
       "domain" );
 
-  pl->set( "domain", domain);
+  pl->set( "domain", 0 );
+  pl->set( "dim", 3 );
+  pl->set( "nx", 24 );
+  pl->set( "ny", 17 );
+  pl->set( "nz", 9 );
 
 }
 
@@ -131,7 +135,7 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, DtLapOp ) {
 
   typedef Pimpact::OperatorBase<BVF> OpBase;
 
-  auto space = Pimpact::createSpace( pl, true );
+  auto space = Pimpact::createSpace( pl );
 
   auto field = Pimpact::create<MVF>( space );
 
