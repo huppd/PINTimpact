@@ -67,68 +67,45 @@ public:
   };
 
 
-//  void apply( const DomainFieldT& x, const DomainFieldT& y, RangeFieldT& z, bool init_yes=true ) const {
   void apply( const DomainFieldT& y, RangeFieldT& z, bool init_yes=true ) const {
 
     int Nf = z.getNumberModes();
-    if( init_yes )
-      z.init( 0. );
 
     // computing zero mode of y
-//    op_->apply( x.getConst0Field(), y.getConst0Field(), z.get0Field(), 1.);
-    op_->apply( wind0_->get(), y.getConst0Field(), z.get0Field(), 1.);
+    op_->apply( wind0_->get(), y.getConst0Field(), z.get0Field(), 0., 0., 1., 0.);
 
     for( int i=1; i<=Nf; ++i ) {
-//      op_->apply( x.getConstCField(i-1), y.getConstCField(i-1), z.get0Field(), 0.5 );
-//      op_->apply( x.getConstSField(i-1), y.getConstSField(i-1), z.get0Field(), 0.5 );
-      op_->apply( windc_[i-1]->get(), y.getConstCField(i-1), z.get0Field(), 0.5 );
-      op_->apply( winds_[i-1]->get(), y.getConstSField(i-1), z.get0Field(), 0.5 );
+      op_->apply( windc_[i-1]->get(), y.getConstCField(i-1), z.get0Field(), 1., 0., 0.5, 0. );
+      op_->apply( winds_[i-1]->get(), y.getConstSField(i-1), z.get0Field(), 1., 0., 0.5, 0. );
     }
 
 
     // computing cos mode of y
     for( int i=1; i<=Nf; ++i ) {
-//      op_->apply( x.getConst0Field(), y.getConstCField(i-1), z.getCField(i-1), 1. );
-      op_->apply( wind0_->get(), y.getConstCField(i-1), z.getCField(i-1), 1. );
-
-//      op_->apply( x.getConstCField(i-1), y.getConst0Field(), z.getCField(i-1), 1. );
-      op_->apply( windc_[i-1]->get(), y.getConst0Field(), z.getCField(i-1), 1. );
+      op_->apply( wind0_->get(), y.getConstCField(i-1), z.getCField(i-1), 0., 0., 1., 0. );
+      op_->apply( windc_[i-1]->get(), y.getConst0Field(), z.getCField(i-1), 1., 0., 1., 0. );
 
       for( int k=1; k+i<=Nf; ++k ) {
-//        op_->apply( x.getConstCField(k+i-1), y.getConstCField(k-1), z.getCField(i-1), 0.5 );
-        op_->apply( windc_[k+i-1]->get(), y.getConstCField(k-1), z.getCField(i-1), 0.5 );
+        op_->apply( windc_[k+i-1]->get(), y.getConstCField(k-1), z.getCField(i-1), 1., 0., 0.5, 0. );
 
-//        op_->apply( x.getConstCField(k-1), y.getConstCField(k+i-1), z.getCField(i-1), 0.5 );
-        op_->apply( windc_[k-1]->get(), y.getConstCField(k+i-1), z.getCField(i-1), 0.5 );
+        op_->apply( windc_[k-1]->get(), y.getConstCField(k+i-1), z.getCField(i-1), 1., 0., 0.5, 0. );
 
-//        op_->apply( x.getConstSField(k+i-1), y.getConstSField(k-1), z.getCField(i-1), 0.5 );
-        op_->apply( winds_[k+i-1]->get(), y.getConstSField(k-1), z.getCField(i-1), 0.5 );
+        op_->apply( winds_[k+i-1]->get(), y.getConstSField(k-1), z.getCField(i-1), 1., 0., 0.5, 0. );
 
-//        op_->apply( x.getConstSField(k-1), y.getConstSField(k+i-1), z.getCField(i-1), 0.5 );
-        op_->apply( winds_[k-1]->get(), y.getConstSField(k+i-1), z.getCField(i-1), 0.5 );
+        op_->apply( winds_[k-1]->get(), y.getConstSField(k+i-1), z.getCField(i-1), 1., 0., 0.5, 0. );
       }
     }
 
     // computing sin mode of y
     for( int i=1; i<=Nf; ++i ) {
-//      op_->apply( x.getConst0Field(), y.getConstSField(i-1), z.getSField(i-1), 1. );
-      op_->apply( wind0_->get(), y.getConstSField(i-1), z.getSField(i-1), 1. );
-
-//      op_->apply( x.getConstSField(i-1), y.getConst0Field(), z.getSField(i-1), 1. );
-      op_->apply( winds_[i-1]->get(), y.getConst0Field(), z.getSField(i-1), 1. );
+      op_->apply( wind0_->get(),   y.getConstSField(i-1), z.getSField(i-1), 0., 0., 1., 0. );
+      op_->apply( winds_[i-1]->get(), y.getConst0Field(), z.getSField(i-1), 1., 0., 1., 0. );
 
       for( int k=1; k+i<=Nf; ++k ) {
-//        op_->apply( x.getConstCField(k+i-1), y.getConstSField(k-1), z.getSField(i-1), -0.5 );
-        op_->apply( windc_[k+i-1]->get(), y.getConstSField(k-1), z.getSField(i-1), -0.5 );
-
-//        op_->apply( x.getConstCField(k-1), y.getConstSField(k+i-1), z.getSField(i-1), 0.5 );
-        op_->apply( windc_[k-1]->get(), y.getConstSField(k+i-1), z.getSField(i-1), 0.5 );
-
-//        op_->apply( x.getConstSField(k+i-1), y.getConstCField(k-1), z.getSField(i-1), 0.5 );
-        op_->apply( winds_[k+i-1]->get(), y.getConstCField(k-1), z.getSField(i-1), 0.5 );
-
-//        op_->apply( x.getConstSField(k-1), y.getConstCField(k+i-1), z.getSField(i-1), -0.5 );
-        op_->apply( winds_[k-1]->get(), y.getConstCField(k+i-1), z.getSField(i-1), -0.5 );
+        op_->apply( windc_[k+i-1]->get(), y.getConstSField(k-1), z.getSField(i-1), 1., 0., -0.5, 0. );
+        op_->apply( windc_[k-1]->get(), y.getConstSField(k+i-1), z.getSField(i-1), 1., 0.,  0.5, 0. );
+        op_->apply( winds_[k+i-1]->get(), y.getConstCField(k-1), z.getSField(i-1), 1., 0., 0.5, 0. );
+        op_->apply( winds_[k-1]->get(), y.getConstCField(k+i-1), z.getSField(i-1), 1., 0., -0.5, 0. );
       }
     }
 
@@ -138,15 +115,11 @@ public:
       for( int l=1; l<=Nf; ++l ) {
         i = k+l;
         if( i<=Nf ) {
-//          op_->apply( x.getConstCField(k-1), y.getConstCField(l-1), z.getCField(i-1), 0.5 );
-//          op_->apply( x.getConstSField(k-1), y.getConstSField(l-1), z.getCField(i-1), -0.5 );
-          op_->apply( windc_[k-1]->get(), y.getConstCField(l-1), z.getCField(i-1), 0.5 );
-          op_->apply( winds_[k-1]->get(), y.getConstSField(l-1), z.getCField(i-1), -0.5 );
+          op_->apply( windc_[k-1]->get(), y.getConstCField(l-1), z.getCField(i-1), 1., 0., 0.5, 0. );
+          op_->apply( winds_[k-1]->get(), y.getConstSField(l-1), z.getCField(i-1), 1., 0.,-0.5, 0. );
 
-//          op_->apply( x.getConstCField(k-1), y.getConstSField(l-1), z.getSField(i-1), 0.5 );
-//          op_->apply( x.getConstSField(k-1), y.getConstCField(l-1), z.getSField(i-1), 0.5 );
-          op_->apply( windc_[k-1]->get(), y.getConstSField(l-1), z.getSField(i-1), 0.5 );
-          op_->apply( winds_[k-1]->get(), y.getConstCField(l-1), z.getSField(i-1), 0.5 );
+          op_->apply( windc_[k-1]->get(), y.getConstSField(l-1), z.getSField(i-1), 1., 0., 0.5, 0. );
+          op_->apply( winds_[k-1]->get(), y.getConstCField(l-1), z.getSField(i-1), 1., 0., 0.5, 0. );
         }
       }
     }

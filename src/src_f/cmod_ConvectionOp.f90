@@ -17,7 +17,7 @@ contains
 
 
     !> \brief Convection operator
-    !! \f[ nlu = mul nlu + mulI phi + mulC (U \cdot \Delta ) phi \f]
+    !! \f[ nlu = mul nlu + mulI phi + mulC (U \cdot \nabla ) phi \f]
     subroutine OP_convection(   &
         dimens,                 &
         N,                      &

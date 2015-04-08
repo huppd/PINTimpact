@@ -86,8 +86,10 @@ public:
     if( setImpact ) domainSize->set_Impact();
 
     // are all template paramter needed here?
+		int domain = pl->get<int>("domain");
+		domain = ( 2==pl->get<int>("dim") && 0==domain )?1:domain;
     auto boundaryConditionsGlobal =
-        Pimpact::createBoudaryConditionsGlobal( Pimpact::EDomainType( pl->get<int>("domain") ) );
+        Pimpact::createBoudaryConditionsGlobal( Pimpact::EDomainType( domain ) );
     if( setImpact ) boundaryConditionsGlobal->set_Impact();
 
     procGridSize_ =
@@ -98,7 +100,7 @@ public:
         Pimpact::createGridSizeGlobal<O>(
             pl->get<O>("nx"),
             pl->get<O>("ny"),
-            (pl->get<int>("dim")==2)?2:pl->get<O>("nz"),
+            ( 2==pl->get<int>("dim") )?2:pl->get<O>("nz"),
             pl->get<O>("nf") );
     if( setImpact ) gridSizeGlobal_->set_Impact();
 

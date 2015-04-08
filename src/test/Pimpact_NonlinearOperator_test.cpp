@@ -51,7 +51,6 @@ int nIter = 1000;
 int dim = 3;
 int domain = 0;
 
-bool isImpactInit = false;
 
 Teuchos::RCP<Teuchos::ParameterList> pl = Teuchos::parameterList();
 
@@ -91,9 +90,9 @@ TEUCHOS_STATIC_SETUP() {
 	pl->set("ny", 17 );
 	pl->set("nz", 9 );
 	
-	//pl->set("npx", 1 );
-	//pl->set("npy", 1 );
-	//  pl->set("npz", 1 );
+	pl->set("npx", 1 );
+	pl->set("npy", 1 );
+	pl->set("npz", 1 );
 	
 }
 
@@ -103,10 +102,8 @@ TEUCHOS_STATIC_SETUP() {
 TEUCHOS_UNIT_TEST( BasicOperator, ConvectionSOp ) {
 
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, !isImpactInit );
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 		
-	isImpactInit=true;
-
   auto u =
       Teuchos::tuple(
           Teuchos::tuple(
@@ -134,79 +131,82 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionSOp ) {
 
 //  op->print();
 
-  for( int i=0; i<space->dim(); ++i )
-    for( int j=0; j<space->dim(); ++j )
-      u[i][j]->initField( Pimpact::ConstField, 2. );
+	for( int dir=-1; dir<2; dir+= 2 ) {
 
-	solv->initField( Pimpact::ConstFlow, 2., 2., 2. );
+		for( int i=0; i<space->dim(); ++i )
+			for( int j=0; j<space->dim(); ++j )
+				u[i][j]->initField( Pimpact::ConstField, 2.*dir );
+
+		solv->initField( Pimpact::ConstFlow, 2.*dir, 2.*dir, 2.*dir );
 
 
-	// dx test
-  x->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inX );
-  x->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inX );
-  x->getFieldPtr(Pimpact::W)->initField( Pimpact::Grad2D_inX );
+		// dx test
+		x->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inX );
+		x->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inX );
+		x->getFieldPtr(Pimpact::W)->initField( Pimpact::Grad2D_inX );
 
-//	x->write(0);
-  y->random();
+	//	x->write(0);
+		y->random();
 
-  //  op->apply( u[0], x->getConstField(0), y->getField(0), 1. );
-  for( int i=0; i<space->dim(); ++i ) {
-    op->apply( u[i], x->getConstField(i), y->getField(i) );
-  }
+		//  op->apply( u[0], x->getConstField(0), y->getField(0), 1. );
+		for( int i=0; i<space->dim(); ++i ) {
+			op->apply( u[i], x->getConstField(i), y->getField(i) );
+		}
 
-//	y->write(1);
+	//	y->write(1);
 
-	for( int i=0; i<space->dim(); ++i ){
-		auto sol = solv->getFieldPtr( i );
-		sol->add( 1., *sol, -1., y->getField(i) );
-		std::cout << "error in "<< i << ": " << sol->norm() << "\n";
-		TEST_EQUALITY( sol->norm()<eps, true );
-	}
-	solv->initField( Pimpact::ConstFlow, 2., 2., 2. );
+		for( int i=0; i<space->dim(); ++i ){
+			auto sol = solv->getFieldPtr( i );
+			sol->add( 1., *sol, -1., y->getField(i) );
+			std::cout << "error in "<< i << ": " << sol->norm() << "\n";
+			TEST_EQUALITY( sol->norm()<eps, true );
+		}
+		solv->initField( Pimpact::ConstFlow, 2.*dir, 2.*dir, 2.*dir );
 
-	// dy test
-  x->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inY );
-  x->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inY );
-  x->getFieldPtr(Pimpact::W)->initField( Pimpact::Grad2D_inY );
+		// dy test
+		x->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inY );
+		x->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inY );
+		x->getFieldPtr(Pimpact::W)->initField( Pimpact::Grad2D_inY );
 
-//	x->write(0);
-  y->random();
+	//	x->write(0);
+		y->random();
 
-  //  op->apply( u[0], x->getConstField(0), y->getField(0), 1. );
-  for( int i=0; i<space->dim(); ++i ) {
-    op->apply( u[i], x->getConstField(i), y->getField(i) );
-  }
+		//  op->apply( u[0], x->getConstField(0), y->getField(0), 1. );
+		for( int i=0; i<space->dim(); ++i ) {
+			op->apply( u[i], x->getConstField(i), y->getField(i) );
+		}
 
-//	y->write(1);
+	//	y->write(1);
 
-	for( int i=0; i<space->dim(); ++i ){
-		auto sol = solv->getFieldPtr( i );
-		sol->add( 1., *sol, -1., y->getField(i) );
-		std::cout << "error in "<< i << ": " << sol->norm() << "\n";
-		TEST_EQUALITY( sol->norm()<eps, true );
-	}
-	solv->initField( Pimpact::ConstFlow, 2., 2., 2. );
+		for( int i=0; i<space->dim(); ++i ){
+			auto sol = solv->getFieldPtr( i );
+			sol->add( 1., *sol, -1., y->getField(i) );
+			std::cout << "error in "<< i << ": " << sol->norm() << "\n";
+			TEST_EQUALITY( sol->norm()<eps, true );
+		}
+		solv->initField( Pimpact::ConstFlow, 2.*dir, 2.*dir, 2.*dir );
 
-	// dz test
-  x->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inZ );
-  x->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inZ );
-  x->getFieldPtr(Pimpact::W)->initField( Pimpact::Grad2D_inZ );
+		// dz test
+		x->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inZ );
+		x->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inZ );
+		x->getFieldPtr(Pimpact::W)->initField( Pimpact::Grad2D_inZ );
 
-//	x->write(0);
-  y->random();
+	//	x->write(0);
+		y->random();
 
-  //  op->apply( u[0], x->getConstField(0), y->getField(0), 1. );
-  for( int i=0; i<space->dim(); ++i ) {
-    op->apply( u[i], x->getConstField(i), y->getField(i) );
-  }
+		//  op->apply( u[0], x->getConstField(0), y->getField(0), 1. );
+		for( int i=0; i<space->dim(); ++i ) {
+			op->apply( u[i], x->getConstField(i), y->getField(i) );
+		}
 
-//	y->write(1);
+	//	y->write(1);
 
-	for( int i=0; i<space->dim(); ++i ){
-		auto sol = solv->getFieldPtr( i );
-		sol->add( 1., *sol, -1., y->getField(i) );
-		std::cout << "error in "<< i << ": " << sol->norm() << "\n";
-		TEST_EQUALITY( sol->norm()<eps, true );
+		for( int i=0; i<space->dim(); ++i ){
+			auto sol = solv->getFieldPtr( i );
+			sol->add( 1., *sol, -1., y->getField(i) );
+			std::cout << "error in "<< i << ": " << sol->norm() << "\n";
+			TEST_EQUALITY( sol->norm()<eps, true );
+		}
 	}
 
 }
@@ -219,9 +219,7 @@ template<class T> using ConvOpT = Pimpact::ConvectionVOp<Pimpact::ConvectionSOp<
 
 TEUCHOS_UNIT_TEST( BasicOperator, ConvectionVOp ) {
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, !isImpactInit );
-
-	isImpactInit=true;
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto x = Pimpact::create<Pimpact::VectorField>( space );
   auto y = Pimpact::create<Pimpact::VectorField>( space );
@@ -231,30 +229,97 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionVOp ) {
 
   auto op = Pimpact::create<ConvOpT>( space  ) ;
 
-  auto op2 = Pimpact::createConvectionOp( space ) ;
+	for(int dir=-1; dir<2; dir+=2 ) {
+		// x test
+		x->initField( Pimpact::ConstFlow, 2.*dir, 2.*dir, 2.*dir );
+		y->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inX );
+		y->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inX );
+		y->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inX );
+		z->random();
+		z2->initField( Pimpact::ConstFlow, 2.*dir, 2.*dir, 2.*dir );
 
+		op->assignField( *x );
+		op->apply( *y, *z );
 
-  x->initField( Pimpact::ConstFlow, 2., 2., 2. );
-  y->getFieldPtr(0)->initField( Pimpact::Grad2D_inX );
-  y->getFieldPtr(1)->initField( Pimpact::Grad2D_inY );
-  z->random();
+		z2->add( -1, *z2, 1, *z );
 
-  op->assignField( *x );
-  op->apply( *y, *z );
-  op2->apply( *x, *y, *z2 );
+		TEST_EQUALITY( z2->norm()<eps, true );
 
-  for( int i=0; i<space->dim(); ++i ) {
-    TEST_FLOATING_EQUALITY( 2., z->getFieldPtr(i)->norm(Belos::InfNorm), eps );
-    TEST_FLOATING_EQUALITY( 2.* (double) z->getFieldPtr(i)->getLength()  , z->getFieldPtr(i)->norm(Belos::OneNorm), eps );
-    TEST_FLOATING_EQUALITY( std::sqrt( 4.* z->getFieldPtr(i)->getLength() ), z->getFieldPtr(i)->norm(Belos::TwoNorm), eps );
-  }
-  //z->write(2);
-  //z2->write(3);
-  z2->add( -1, *z2, 1, *z );
+		// y test
+		x->initField( Pimpact::ConstFlow, 2.*dir, 2.*dir, 2.*dir );
+		y->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inY );
+		y->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inY );
+		y->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inY );
+		z->random();
+		z2->initField( Pimpact::ConstFlow, 2.*dir, 2.*dir, 2.*dir );
 
-  TEST_FLOATING_EQUALITY( z2->norm(), 0., eps );
+		op->assignField( *x );
+		op->apply( *y, *z );
 
-  //z2->write(1);
+		z2->add( -1, *z2, 1, *z );
+
+		TEST_EQUALITY( z2->norm()<eps, true );
+
+		// z test
+		x->initField( Pimpact::ConstFlow, 2.*dir, 2.*dir, 2.*dir );
+		y->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inZ );
+		y->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inZ );
+		y->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inZ );
+		z->random();
+		z2->initField( Pimpact::ConstFlow, 2.*dir, 2.*dir, 2.*dir );
+
+		op->assignField( *x );
+		op->apply( *y, *z );
+
+		z2->add( -1, *z2, 1, *z );
+
+		TEST_EQUALITY( z2->norm()<eps, true );
+	}
+
+	// x test
+	x->initField( Pimpact::PoiseuilleFlow2D_inX );
+	y->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inX );
+	y->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inY );
+	y->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inZ );
+	z->random();
+	z2->initField( Pimpact::PoiseuilleFlow2D_inX );
+
+	op->assignField( *x );
+	op->apply( *y, *z );
+
+	z2->add( -1, *z2, 1, *z );
+
+	TEST_EQUALITY( z2->norm()<eps, true );
+
+	// y test
+	x->initField( Pimpact::PoiseuilleFlow2D_inY );
+	y->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inX );
+	y->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inY );
+	y->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inZ );
+	z->random();
+	z2->initField( Pimpact::PoiseuilleFlow2D_inY );
+
+	op->assignField( *x );
+	op->apply( *y, *z );
+
+	z2->add( -1, *z2, 1, *z );
+
+	TEST_EQUALITY( z2->norm()<eps, true );
+
+	// z test
+	x->initField( Pimpact::PoiseuilleFlow2D_inZ );
+	y->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inX );
+	y->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inY );
+	y->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inZ );
+	z->random();
+	z2->initField( Pimpact::PoiseuilleFlow2D_inZ );
+
+	op->assignField( *x );
+	op->apply( *y, *z );
+
+	z2->add( -1, *z2, 1, *z );
+
+	TEST_EQUALITY( z2->norm()<eps, true );
 
 }
 
@@ -262,9 +327,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionVOp ) {
 
 TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionOp  ) {
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, !isImpactInit );
-
-	isImpactInit=true;
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto x = Pimpact::create<Pimpact::VectorField>( space );
   auto y = Pimpact::create<Pimpact::VectorField>( space );
@@ -286,9 +349,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionOp  ) {
   x->initField( Pimpact::ConstFlow, 2., 2., 2. );
   sol->init( Teuchos::tuple(2.,2.,2.) );
 
-  // test in flow dir
-  y->getFieldPtr(0)->initField( Pimpact::Grad2D_inX );
-  y->getFieldPtr(1)->initField( Pimpact::Grad2D_inY );
+  // x test 
+  y->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inX );
+  y->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inX );
+  y->getFieldPtr(Pimpact::W)->initField( Pimpact::Grad2D_inX );
 
   op->assignField( *x );
   op->apply( *y, *z );
@@ -297,24 +361,17 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionOp  ) {
   op2->assignField( *x );
   op2->apply(  *y, *z2 );
 
-  //z->write(2);
-  //z2->write(3);
-  //sol->write(5);
   z2->add( -1, *z2, 1, *z );
   sol->add(-1, *sol,1, *z );
 
   TEST_EQUALITY( z2->norm() < eps, true );
-
   TEST_EQUALITY( sol->norm() < eps, true );
 
-  //z2->write(1);
-  //sol->write(4);
-
-  // test against flow dir
-  y->getFieldPtr(0)->initField( Pimpact::Grad2D_inY );
-  y->getFieldPtr(1)->initField( Pimpact::Grad2D_inX );
+  // y test 
+  y->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inY );
+  y->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inY );
+  y->getFieldPtr(Pimpact::W)->initField( Pimpact::Grad2D_inY );
   sol->init( Teuchos::tuple(2.,2.,2.) );
-  z->random();
 
   op->assignField( *x );
   op->apply( *y, *z );
@@ -323,18 +380,31 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionOp  ) {
   op2->assignField( *x );
   op2->apply(  *y, *z2 );
 
-  //z->write(2);
-  //z2->write(3);
-  //sol->write(5);
   z2->add( -1, *z2, 1, *z );
   sol->add(-1, *sol,1, *z );
 
-  TEST_EQUALITY( z2->norm()<eps, true );
+  TEST_EQUALITY( z2->norm() < eps, true );
+  TEST_EQUALITY( sol->norm() < eps, true );
 
-  TEST_EQUALITY( sol->norm()<eps, true );
+  // z test 
+  y->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inZ );
+  y->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inZ );
+  y->getFieldPtr(Pimpact::W)->initField( Pimpact::Grad2D_inZ );
+  sol->init( Teuchos::tuple(2.,2.,2.) );
 
-  //z2->write(1);
-  //sol->write(4);
+  op->assignField( *x );
+  op->apply( *y, *z );
+
+  // connsistent test
+  op2->assignField( *x );
+  op2->apply(  *y, *z2 );
+
+  z2->add( -1, *z2, 1, *z );
+  sol->add(-1, *sol,1, *z );
+
+  TEST_EQUALITY( z2->norm() < eps, true );
+  TEST_EQUALITY( sol->norm() < eps, true );
+
 
   // test against flow dir
   y->initField( Pimpact::PoiseuilleFlow2D_inX );
@@ -357,8 +427,6 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionOp  ) {
 
   TEST_EQUALITY( sol->getConstFieldPtr(1)->norm()<eps, true );
 
-  //z2->write(1);
-  //sol->write(4);
 
   // test against flow dir
   y->initField( Pimpact::PoiseuilleFlow2D_inY );
@@ -372,18 +440,25 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionOp  ) {
   op2->assignField( *x );
   op2->apply(  *y, *z2 );
 
-  //z->write(2);
-  //z2->write(3);
-  //sol->write(5);
   z2->add( -1, *z2, 1, *z );
   sol->add(-1, *sol,1, *z );
 
   TEST_EQUALITY( z2->norm()<eps, true );
 
-//  TEST_EQUALITY( sol->getConstFieldPtr(0)->norm()<eps, true );
+  // test against flow dir
+  y->initField( Pimpact::PoiseuilleFlow2D_inZ );
+  z->random();
 
-  //z2->write(1);
-  //sol->write(4);
+  op->assignField( *x );
+  op->apply( *y, *z );
+
+  // connsistent test
+  op2->assignField( *x );
+  op2->apply(  *y, *z2 );
+
+  z2->add( -1, *z2, 1, *z );
+
+  TEST_EQUALITY( z2->norm()<eps, true );
 
 }
 
@@ -394,9 +469,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionSORSmoother ) {
 
   pl->set<S>("Re",1000);
 
-  auto space = Pimpact::createSpace<S,O,d,2>( pl, !isImpactInit );
-
-	isImpactInit=true;
+  auto space = Pimpact::createSpace<S,O,d,2>( pl );
 
   auto wind = Pimpact::create<Pimpact::VectorField>( space );
   auto y = Pimpact::create<Pimpact::VectorField>( space );
@@ -413,7 +486,6 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionSORSmoother ) {
   pls->set<short int>( "dir X",  1 );
   pls->set<short int>( "dir Y",  1 );
   pls->set<short int>( "dir Z",  1 );
-  //  pls->set( "numIters",10)
 
   auto smoother = Pimpact::create< ConvDiffSORT >( op, pls );
 
@@ -421,13 +493,14 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionSORSmoother ) {
 
   wind->initField( Pimpact::ConstFlow, winds, winds, winds );
 
+	// X test
   z->initField( Pimpact::ConstFlow, 0., 0., 0. );
 
-  y->getFieldPtr(0)->initField( Pimpact::Grad2D_inY );
-  y->getFieldPtr(1)->initField( Pimpact::Grad2D_inX );
+  y->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inX );
+  y->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inX );
+  y->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inX );
 
   auto sol = y->clone( Pimpact::DeepCopy );
-  //  sol->write(2);
 
   op->assignField( *wind );
 
@@ -439,40 +512,93 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionSORSmoother ) {
     op->apply( *y, *bc );
     z->add( 1., *z, -1., *bc );
   }
-  z->write(7777);
 
 
   y->initField( Pimpact::ConstFlow, 0., 0., 0. );
-  //  y->init(0);
-  //  y->random();
-
-  std::ofstream ofs;
-  if( space()->rankST()==0 )
-    ofs.open("GS.txt", std::ofstream::out);
 
   double n;
 
   for(int i=0; i<20; ++i) {
-    y->write(10+i);
     smoother->apply( *z, *y );
-
     z2->add( -1, *sol, 1, *y );
-    //z2->write(100+i);
-
     n = z2->norm();
     if( space()->rankST()==0 )
       std::cout << "error: " << n << "\n";
 
-    if( space()->rankST()==0 )
-      ofs << n << "\n";
 
   }
 
   TEST_EQUALITY_CONST( z2->norm()/z2->getLength()<eps, true );
 
-  if( space()->rankST()==0 )
-    ofs.close();
+	// Y test
+  z->initField( Pimpact::ConstFlow, 0., 0., 0. );
 
+  y->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inY );
+  y->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inY );
+  y->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inY );
+
+  sol = y->clone( Pimpact::DeepCopy );
+
+  op->assignField( *wind );
+
+  op->apply( *y, *z );
+
+  {
+    y->init(0);
+    auto bc = z->clone( Pimpact::ShallowCopy );
+    op->apply( *y, *bc );
+    z->add( 1., *z, -1., *bc );
+  }
+
+  y->initField( Pimpact::ConstFlow, 0., 0., 0. );
+
+  for(int i=0; i<20; ++i) {
+    smoother->apply( *z, *y );
+
+    z2->add( -1, *sol, 1, *y );
+
+    n = z2->norm();
+    if( space()->rankST()==0 )
+      std::cout << "error: " << n << "\n";
+
+  }
+
+  TEST_EQUALITY_CONST( z2->norm()/z2->getLength()<eps, true );
+
+	// Z test
+  z->initField( Pimpact::ConstFlow, 0., 0., 0. );
+
+  y->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inZ );
+  y->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inZ );
+  y->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inZ );
+
+  sol = y->clone( Pimpact::DeepCopy );
+
+  op->assignField( *wind );
+
+  op->apply( *y, *z );
+
+  {
+    y->init(0);
+    auto bc = z->clone( Pimpact::ShallowCopy );
+    op->apply( *y, *bc );
+    z->add( 1., *z, -1., *bc );
+  }
+
+  y->initField( Pimpact::ConstFlow, 0., 0., 0. );
+
+  for(int i=0; i<20; ++i) {
+    smoother->apply( *z, *y );
+
+    z2->add( -1, *sol, 1, *y );
+
+    n = z2->norm();
+    if( space()->rankST()==0 )
+      std::cout << "error: " << n << "\n";
+
+  }
+
+  TEST_EQUALITY_CONST( z2->norm()/z2->getLength()<eps, true );
 
 }
 
@@ -482,9 +608,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionSORSmoother ) {
 TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
 
   pl->set<S>("Re",1);
-  auto space = Pimpact::createSpace<S,O,d,2>( pl, !isImpactInit );
-
-	isImpactInit=true;
+  auto space = Pimpact::createSpace<S,O,d,2>( pl );
 
   auto wind = Pimpact::create<Pimpact::VectorField>( space );
   auto y = Pimpact::create<Pimpact::VectorField>( space );
@@ -495,8 +619,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
 
 
   auto pls = Teuchos::parameterList();
-  pls->set( "omega", 0.6 );
-  pls->set( "numIters", 10 );
+  pls->set( "omega", 0.9 );
+  pls->set( "numIters", 1 );
 
   auto smoother =
       Pimpact::create<
@@ -509,11 +633,11 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
   wind->initField( Pimpact::ConstFlow, winds, winds, winds );
   z->initField( Pimpact::ConstFlow, 0., 0., 0. );
 
-  y->getFieldPtr(0)->initField( Pimpact::Grad2D_inY );
-  y->getFieldPtr(1)->initField( Pimpact::Grad2D_inX );
+  y->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inX );
+  y->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inY );
+  y->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inZ );
 
   auto sol = y->clone( Pimpact::DeepCopy );
-  //  sol->write(2);
 
   op->assignField( *wind );
 
@@ -526,51 +650,28 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
     z->add( 1., *z, -1., *bc );
   }
 
-  //z->write(3);
-
   y->initField( Pimpact::ConstFlow, 0., 0., 0. );
-  //  y->init(0);
-  //  y->random();
 
-  std::ofstream ofs;
-  if( space()->rankST()==0 )
-    ofs.open("GS.txt", std::ofstream::out);
-
-  //  ofs << "lorem ipsum";
-
-//  smoother->assignField( *wind );
-
-  for(int i=0; i<200; ++i) {
-    //y->write(10+i);
+  for(int i=0; i<100; ++i) {
     smoother->apply( *z, *y );
 
     z2->add( -1, *sol, 1, *y );
-    //z2->write(100+i);
 
-    double n = z2->norm();
+    double n = z2->norm()/z2->getLength() ;
     if( space()->rankST()==0 )
       std::cout << "error: " << n << "\n";
 
-    if( space()->rankST()==0 )
-      ofs << n << "\n";
-
   }
 
-  TEST_EQUALITY_CONST( z2->norm()/z2->getLength()<eps, true );
-
-  if( space()->rankST()==0 )
-    ofs.close();
+  TEST_EQUALITY_CONST( z2->norm()/z2->getLength()<0.1, true );
 
 }
 
 
 
-
 TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicConvectionOp ) {
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, !isImpactInit );
-
-	isImpactInit=true;
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto vel = Pimpact::create<Pimpact::VectorField>( space );
 
@@ -589,23 +690,21 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicConvectionOp ) {
 TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicDtConvectionDiffusionOp ) {
 
 	O nf = 4;
-  pl->set<S>( "Re", 1.e1 );
-  pl->set<S>( "alpha2", 20. );
+  pl->set<S>( "Re", 1.e0 );
+  pl->set<S>( "alpha2", 12.0 );
   pl->set<O>( "nf", nf );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, !isImpactInit );
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
 	S re = space->getDomain()->getDomainSize()->getRe();
 	S alpha2 = space->getDomain()->getDomainSize()->getAlpha2();
 
-  isImpactInit=true;
-
   auto vel = Pimpact::create<Pimpact::VectorField>( space );
 
   auto wind = Pimpact::createMultiHarmonicVectorField( space, nf );
-  auto x = Pimpact::createMultiHarmonicVectorField( space, nf );
-  auto y1 = Pimpact::createMultiHarmonicVectorField( space, nf );
-  auto y2 = Pimpact::createMultiHarmonicVectorField( space, nf );
+  auto x    = Pimpact::createMultiHarmonicVectorField( space, nf );
+  auto y1   = Pimpact::createMultiHarmonicVectorField( space, nf );
+  auto y2   = Pimpact::createMultiHarmonicVectorField( space, nf );
   auto diff = Pimpact::createMultiHarmonicVectorField( space, nf );
 
 
@@ -617,14 +716,56 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicDtConvectionDiffusionOp )
   auto op2 =
 		Pimpact::createMultiDtConvectionDiffusionOp( space );
 
-  // init zero wind 
-	wind->get0FieldPtr()->initField( Pimpact::ConstFlow, 1, 1, 0 );
+  // init const wind 
+	wind->get0FieldPtr()->initField( Pimpact::ConstFlow, 1., 1., 1. );
 	for( int i=0; i<nf; ++i ) {
-		wind->getCFieldPtr(i)->initField( Pimpact::ConstFlow, 1, 1, 1 );
-		wind->getSFieldPtr(i)->initField( Pimpact::ConstFlow, 1, 1, 1 );
+		wind->getCFieldPtr(i)->initField( Pimpact::ConstFlow, 1., 1., 1. );
+		wind->getSFieldPtr(i)->initField( Pimpact::ConstFlow, 1., 1., 1. );
 	}
-	// init const x
-	//x->get0FieldPtr()->initField( Pimpact::ConstFlow, 1, 1, 1 );
+
+	// init const dt
+	x->get0FieldPtr()->initField( Pimpact::ConstFlow, 1., 1., 1. );
+	for( int i=0; i<nf; ++i ) {
+		x->getCFieldPtr(i)->initField( Pimpact::ConstFlow, 1., 1., 1. );
+		x->getSFieldPtr(i)->initField( Pimpact::ConstFlow, 1., 1., 1. );
+	}
+
+	op1->assignField( *wind );
+	op2->assignField( *wind );
+
+  op1->apply( *x, *y1 );
+  op2->apply( *x, *y2 );
+
+	diff->add( 1., *y1, -1.,  *y2 );
+
+	std::cout << "error: " << diff->norm()/std::sqrt( diff->getLength() ) << "\n";
+  TEST_EQUALITY_CONST( diff->norm()/std::sqrt( diff->getLength() ) <eps, true );
+
+	// init const udx 
+	x->get0FieldPtr()->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inX );
+	x->get0FieldPtr()->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inY );
+	x->get0FieldPtr()->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inZ );
+	for( int i=0; i<nf; ++i ) {
+		x->getCFieldPtr(i)->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inX );
+		x->getCFieldPtr(i)->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inY );
+		x->getCFieldPtr(i)->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inZ );
+		x->getSFieldPtr(i)->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inX, -1. );
+		x->getSFieldPtr(i)->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inY, -1. );
+		x->getSFieldPtr(i)->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inZ, -1. );
+	}
+
+	op1->assignField( *wind );
+	op2->assignField( *wind );
+
+  op1->apply( *x, *y1 );
+  op2->apply( *x, *y2 );
+
+	diff->add( 1., *y1, -1.,  *y2 );
+
+	std::cout << "error: " << diff->norm()/std::sqrt( diff->getLength() ) << "\n";
+  TEST_EQUALITY_CONST( diff->norm()/std::sqrt( diff->getLength() ) <eps, true );
+
+	// init const ddx 
 	x->get0FieldPtr()->initField( Pimpact::PoiseuilleFlow2D_inX );
 	for( int i=0; i<nf; ++i ) {
 		x->getCFieldPtr(i)->initField( Pimpact::PoiseuilleFlow2D_inX );
@@ -638,9 +779,6 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicDtConvectionDiffusionOp )
   op2->apply( *x, *y2 );
 
 	diff->add( 1., *y1, -1.,  *y2 );
-	y1->write( 10 );
-	y2->write( 20 );
-	diff->write( 0 );
 
 	std::cout << "error: " << diff->norm()/std::sqrt( diff->getLength() ) << "\n";
   TEST_EQUALITY_CONST( diff->norm()/std::sqrt( diff->getLength() ) <eps, true );

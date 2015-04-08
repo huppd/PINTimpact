@@ -502,7 +502,6 @@ TEUCHOS_UNIT_TEST( TimeOperator, DtTimeOp ) {
   std::cout << "bla: " << bla << "\n";
 	std::cout << "error: " << field()->norm() << "\n";
 
-
 }
 
 
@@ -574,6 +573,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeDtConvectionDiffusionOp ) {
 	field->write(40);
 
 	std::cout << "error: " << field()->norm() << "\n";
+
 }
 
 
