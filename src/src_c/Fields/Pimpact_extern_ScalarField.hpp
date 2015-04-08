@@ -279,15 +279,27 @@ void SF_init_2DPoiseuilleY(
           double* const phi );
 
 
+void SF_init_2DPoiseuilleZ(
+    const int* const N,
+    const int* const bL,
+    const int* const bU,
+    const int* const SS,
+    const int* const NN,
+    const double& L1,
+    const double* const x1,
+          double* const phi );
+
+
 void SF_init_2DGradX(
     const int* const N,
     const int* const bL,
     const int* const bU,
     const int* const SS,
     const int* const NN,
-    const double* L,
+    const double& L,
     const double* const x1,
-          double* const phi );
+          double* const phi,
+	 const double& alpha );
 
 
 void SF_init_2DGradY(
@@ -296,9 +308,22 @@ void SF_init_2DGradY(
     const int* const bU,
     const int* const SS,
     const int* const NN,
-    const double* L,
+    const double& L,
     const double* const x2,
-          double* const phi );
+          double* const phi,
+	 const double& alpha );
+
+
+void SF_init_2DGradZ(
+    const int* const N,
+    const int* const bL,
+    const int* const bU,
+    const int* const SS,
+    const int* const NN,
+    const double& L,
+    const double* const x2,
+          double* const phi,
+	 const double& alpha );
 
 
 void SF_level(

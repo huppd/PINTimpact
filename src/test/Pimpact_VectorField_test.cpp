@@ -46,9 +46,9 @@ TEUCHOS_STATIC_SETUP() {
   pl->set( "lz", 1. );
 
 
-  pl->set("nx", (48*3)+1 );
-  pl->set("ny", 49 );
-  pl->set("nz", 17 );
+  pl->set("nx", 25 );
+  pl->set("ny", 17 );
+  pl->set("nz", 9 );
 
   // processor grid size
   pl->set("npx", 2 );
@@ -94,7 +94,7 @@ TEUCHOS_UNIT_TEST( VectorField, initField ) {
 
   auto vel = Pimpact::create<Pimpact::VectorField>( space );
 
-  for( int i=0; i<=19; ++i ) {
+  for( int i=0; i<=21; ++i ) {
     vel->initField( Pimpact::EFlowField(i) );
     vel->write( i );
   }

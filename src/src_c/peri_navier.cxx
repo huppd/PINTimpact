@@ -331,7 +331,7 @@ int main(int argi, char** argv ) {
 	else  {
 		x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->initField( Pimpact::EFlowField(baseflow), 1. );
 		if( 0 != flow ) {
-			x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::EFlowField(flow), 0.,1,0.1,0.1 );
+			x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::EFlowField(flow), 0., 0.5, 0., 0.1 );
 			x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->getFieldPtr(Pimpact::U)->initField();
 		}
 	}

@@ -437,7 +437,7 @@ public:
 
 
   ///  \brief initializes VectorField with the initial field defined in Fortran
-  void initField( EScalarField fieldType = ConstField, Scalar re=0. ) {
+  void initField( EScalarField fieldType = ConstField, Scalar alpha=0. ) {
     switch( fieldType ) {
     case ConstField :
       SF_init(
@@ -447,7 +447,43 @@ public:
           space()->sIndB(fType_),
           space()->eIndB(fType_),
           s_,
-          re );
+          alpha );
+      break;
+    case Grad2D_inX :
+      SF_init_2DGradX(
+          space()->nLoc(),
+          space()->bl(),
+          space()->bu(),
+          space()->sIndB(fType_),
+          space()->eIndB(fType_),
+          space()->getDomain()->getDomainSize()->getSize( X ),
+          space()->getCoordinatesLocal()->getX( X, fType_ ),
+          s_,
+				 	(std::abs(alpha)<1.e-16)?1.:alpha	);
+      break;
+    case Grad2D_inY :
+      SF_init_2DGradY(
+          space()->nLoc(),
+          space()->bl(),
+          space()->bu(),
+          space()->sIndB(fType_),
+          space()->eIndB(fType_),
+          space()->getDomain()->getDomainSize()->getSize( Y ),
+          space()->getCoordinatesLocal()->getX( Y, fType_ ),
+          s_ ,
+				 	(std::abs(alpha)<1.e-16)?1.:alpha	);
+      break;
+    case Grad2D_inZ :
+      SF_init_2DGradZ(
+          space()->nLoc(),
+          space()->bl(),
+          space()->bu(),
+          space()->sIndB(fType_),
+          space()->eIndB(fType_),
+          space()->getDomain()->getDomainSize()->getSize( Z ),
+          space()->getCoordinatesLocal()->getX( Z, fType_ ),
+          s_ ,
+				 	(std::abs(alpha)<1.e-16)?1.:alpha	);
       break;
     case Poiseuille2D_inX :
       SF_init_2DPoiseuilleX(
@@ -456,8 +492,8 @@ public:
           space()->bu(),
           space()->sIndB(fType_),
           space()->eIndB(fType_),
-          space()->getDomain()->getDomainSize()->getSize( Y ),
-          space()->getCoordinatesLocal()->getX(Y,fType_),
+          space()->getDomain()->getDomainSize()->getSize( X ),
+          space()->getCoordinatesLocal()->getX( X, fType_ ),
           s_ );
       break;
     case Poiseuille2D_inY :
@@ -467,30 +503,19 @@ public:
           space()->bu(),
           space()->sIndB(fType_),
           space()->eIndB(fType_),
-          space()->getDomain()->getDomainSize()->getSize( X ),
-          space()->getCoordinatesLocal()->getX(X,fType_),
-          s_ );
-      break;
-    case Grad2D_inX :
-      SF_init_2DGradX(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sIndB(fType_),
-          space()->eIndB(fType_),
-          space()->getDomain()->getDomainSize()->getSize(),
-          space()->getCoordinatesLocal()->getX( X, fType_ ),
-          s_ );
-      break;
-    case Grad2D_inY :
-      SF_init_2DGradY(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sIndB(fType_),
-          space()->eIndB(fType_),
-          space()->getDomain()->getDomainSize()->getSize(),
+          space()->getDomain()->getDomainSize()->getSize( Y ),
           space()->getCoordinatesLocal()->getX( Y, fType_ ),
+          s_ );
+      break;
+    case Poiseuille2D_inZ :
+      SF_init_2DPoiseuilleZ(
+          space()->nLoc(),
+          space()->bl(),
+          space()->bu(),
+          space()->sIndB(fType_),
+          space()->eIndB(fType_),
+          space()->getDomain()->getDomainSize()->getSize( Z ),
+          space()->getCoordinatesLocal()->getX( Z, fType_ ),
           s_ );
       break;
     }

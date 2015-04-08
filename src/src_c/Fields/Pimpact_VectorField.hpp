@@ -336,21 +336,28 @@ public:
         sFields_[i]->initField( ConstField );
       break;
     case ConstFlow :
-        sFields_[0]->initField( ConstField, re );
-        sFields_[1]->initField( ConstField, om );
-        sFields_[2]->initField( ConstField, px );
+        sFields_[U]->initField( ConstField, re );
+        sFields_[V]->initField( ConstField, om );
+        sFields_[W]->initField( ConstField, px );
       break;
     case PoiseuilleFlow2D_inX :
       for( int i=0; i<space()->dim(); ++i )
         if( U==i )
-          sFields_[i]->initField( Poiseuille2D_inX );
+          sFields_[i]->initField( Poiseuille2D_inY );
         else
           sFields_[i]->initField( ConstField );
       break;
     case PoiseuilleFlow2D_inY :
       for( int i=0; i<space()->dim(); ++i )
         if( V==i )
-          sFields_[i]->initField( Poiseuille2D_inY );
+          sFields_[i]->initField( Poiseuille2D_inX );
+        else
+          sFields_[i]->initField( ConstField );
+      break;
+    case PoiseuilleFlow2D_inZ :
+      for( int i=0; i<space()->dim(); ++i )
+        if( W==i )
+          sFields_[i]->initField( Poiseuille2D_inX );
         else
           sFields_[i]->initField( ConstField );
       break;
@@ -481,22 +488,14 @@ public:
           sFields_[W]->getRawPtr() );
       break;
     case Circle2D:
-      VF_init_Circle(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sIndB(U),
-          space()->eIndB(U),
-          space()->sIndB(V),
-          space()->eIndB(V),
-          space()->sIndB(W),
-          space()->eIndB(W),
-          space()->getDomain()->getDomainSize()->getSize(),
-          space()->getCoordinatesLocal()->getX(X,EField::S),
-          space()->getCoordinatesLocal()->getX(Y,EField::S),
-          sFields_[U]->getRawPtr(),
-          sFields_[V]->getRawPtr(),
-          sFields_[W]->getRawPtr() );
+			sFields_[U]->initField( Grad2D_inY, -1. );
+			sFields_[V]->initField( Grad2D_inX,  1. );
+			sFields_[W]->initField();
+      break;
+    case Circle2D_inXZ:
+			sFields_[U]->initField( Grad2D_inY, -1. );
+			sFields_[V]->initField();
+			sFields_[W]->initField( Grad2D_inX,  1. );
       break;
     case RankineVortex2D:
       VF_init_RankineVortex(

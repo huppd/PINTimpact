@@ -129,7 +129,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, InfNorm_and_init, FType ) {
   double norm;
 
   // test different float values, assures that initial and norm work smoothly
-  for( double i=0.; i< 200.1; ++i ) {
+  for( double i=0.; i< 10.1; ++i ) {
     p->init(i/2.);
     norm = p->norm(Belos::InfNorm);
     TEST_FLOATING_EQUALITY( i/2., norm, eps );
@@ -142,7 +142,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, InfNorm_and_init, FType ) {
   double init;
   MPI_Comm_rank(space->comm(),&rank);
   MPI_Comm_size(space->comm(),&size);
-  for( double i = 0.; i<200.1; ++i) {
+  for( double i = 0.; i<10.1; ++i) {
     init = (size-1)*i-1.;
     init = (init<0)?-init:init;
     p->init(rank*i-1.);
@@ -165,7 +165,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, OneNorm_and_init, FType ) {
   auto p = Pimpact::create<FType>(space);
 
   // test different float values, assures that initial and norm work smoothly
-  for( double i=0.; i< 200.1; ++i ) {
+  for( double i=0.; i< 10.1; ++i ) {
     p->init(i/2.);
 //    TEST_EQUALITY( (i/2.)*p->getLength(), p->norm(Belos::OneNorm) );
     TEST_FLOATING_EQUALITY( (i/2.)*p->getLength(), p->norm(Belos::OneNorm), eps );
@@ -185,7 +185,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, TwoNorm_and_init, FType ) {
   auto p = Pimpact::create<FType>(space);
 
   // test different float values, assures that initial and norm work smoothly
-  for( double i=0.; i< 200.1; ++i ) {
+  for( double i=0.; i< 10.1; ++i ) {
     p->init(i/2.);
     TEST_FLOATING_EQUALITY( std::sqrt( std::pow(i/2.,2)*p->getLength() ), p->norm(Belos::TwoNorm), eps );
   }
@@ -360,7 +360,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TimeField, all, FType ) {
   std::cout << "field1: length: " << field1->getLength() << "\n";
   std::cout << "field2: length: " << field2->getLength() << "\n";
 
-  for( S i=0.; i< 200.1; ++i ) {
+  for( S i=0.; i< 10.1; ++i ) {
     field1->init(i/2.);
     S norm_ = field1->norm(Belos::InfNorm);
     TEST_EQUALITY( i/2., norm_ );
@@ -369,7 +369,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TimeField, all, FType ) {
     TEST_EQUALITY( i/2., norm_ );
   }
   field2->init(1.);
-  for( double i=0.; i< 200.1; ++i ) {
+  for( double i=0.; i< 10.1; ++i ) {
     field1->init(i/2.);
     TEST_EQUALITY( (i/2.)*field1->getLength(), field1->norm(Belos::OneNorm) );
     TEST_EQUALITY( (i/2.)*field1->getLength(), field1->dot(*field2) );
