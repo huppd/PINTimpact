@@ -89,11 +89,10 @@ TEUCHOS_STATIC_SETUP() {
 	pl->set("ny", 17 );
 	pl->set("nz", 9 );
 	pl->set("nf", 4 );
-  //
+
   pl->set("npx", 2 );
   pl->set("npy", 2 );
   pl->set("npz", 2 );
-  //  pl->set("npz", 1 );
 
 }
 

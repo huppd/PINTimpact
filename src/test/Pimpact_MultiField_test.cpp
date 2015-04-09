@@ -34,8 +34,8 @@ typedef typename Pimpact::ModeField<VF>       MVF;
 
 bool testMpi = true;
 double eps = 1e-6;
-int domain = 1;
-int dim = 2;
+int domain = 0;
+int dim = 3;
 
 auto pl = Teuchos::parameterList();
 
@@ -60,14 +60,14 @@ TEUCHOS_STATIC_SETUP() {
   pl->set( "domain", domain );
   pl->set( "dim", dim );
 
-  pl->set("nx", (48*3)+1 );
-  pl->set("ny", 49 );
-  pl->set("nz", 17 );
+  pl->set("nx", 33 );
+  pl->set("ny", 17 );
+  pl->set("nz", 9 );
 
   // processor grid size
-  //pl->set("npx", 2 );
-  //pl->set("npy", 2 );
-  //pl->set("npz", 2 );
+	pl->set("npx", 2 );
+	pl->set("npy", 2 );
+	pl->set("npz", 2 );
 
 }
 
@@ -76,7 +76,7 @@ TEUCHOS_STATIC_SETUP() {
 // test shows that nLoc is not consistent with start and end indexes
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, constructor, FType ) {
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, false );
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>(space);
 
@@ -97,7 +97,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, constructor, MVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, TwoNorm_and_init, FType ) {
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, false );
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>( space );
 
@@ -126,7 +126,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, TwoNorm_and_init, MVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, clone, FType ) {
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, false );
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>( space );
 
@@ -151,7 +151,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, clone, MVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneCopy, FType ) {
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, false );
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>( space );
 
@@ -184,7 +184,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, CloneCopy, MVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneCopy2, FType ) {
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, false );
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>( space );
 
@@ -225,7 +225,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, CloneCopy2, MVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneCopy3, FType ) {
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, false );
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>( space );
 
@@ -262,7 +262,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, CloneCopy3, MVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneViewNonConst1, FType ) {
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, false );
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>( space );
 
@@ -305,7 +305,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, CloneViewNonConst1, MVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneViewNonConst2, FType ) {
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, false );
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>( space );
 
@@ -345,7 +345,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, CloneViewNonConst2, MVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneView1, FType ) {
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, false );
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>( space );
 
@@ -389,7 +389,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, CloneView1, MVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneView2, FType ) {
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, false );
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>( space );
 
@@ -430,7 +430,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, CloneView2, MVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, TimesMatAdd, FType ) {
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, false );
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>( space );
 
@@ -508,7 +508,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, TimesMatAdd, MVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, add, FType ) {
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, false );
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>( space );
 
@@ -573,7 +573,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, add, MVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, dot, FType ) {
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, false );
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>( space );
 
@@ -628,7 +628,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, dot, MVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, Trans, FType ) {
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, false );
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>( space );
 

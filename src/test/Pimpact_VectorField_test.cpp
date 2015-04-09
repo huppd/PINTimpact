@@ -16,8 +16,9 @@ namespace {
 
 bool testMpi = true;
 double eps = 1e-6;
-int domain = 1;
+
 int dim = 3;
+int domain = 0;
 
 auto pl = Teuchos::parameterList();
 
@@ -39,8 +40,9 @@ TEUCHOS_STATIC_SETUP() {
       "dim", &dim,
       "dim" );
 
-  pl->set( "domain", domain );
   pl->set( "dim", dim );
+  pl->set( "domain", domain );
+
   pl->set( "lx", 2. );
   pl->set( "ly", 2. );
   pl->set( "lz", 1. );

@@ -16,7 +16,7 @@ contains
 
         implicit none
 
-        integer(c_int)               ::  i
+        integer(c_int)              ::  i
 
         integer(c_int), intent(in)  :: S
         integer(c_int), intent(in)  :: N
@@ -517,7 +517,7 @@ contains
                         j = dd(2)*jj-1
                         do ii = SSc(1), NNc(1)
                             i = dd(1)*ii-1
-                            phic(ii,jj,kk) = cRV(1,ii)*phif(i-1,j,k) + cRV(2,ii)*phif(i,j,k)
+                            phic(ii,jj,kk) = cRV(1,ii)*phif(i,j,k) + cRV(2,ii)*phif(i+1,j,k)
                         end do
                     end do
                 end do
@@ -548,7 +548,7 @@ contains
                         j = dd(2)*jj-1
                         do ii = SSc(1), NNc(1)
                             i = dd(1)*ii-1
-                            phic(ii,jj,kk) = cRV(1,jj)*phif(i,j-1,k) + cRV(2,jj)*phif(i,j,k)
+                            phic(ii,jj,kk) = cRV(1,jj)*phif(i,j,k) + cRV(2,jj)*phif(i,j+1,k)
                         end do
                     end do
                 end do
@@ -564,7 +564,7 @@ contains
                     j = dd(2)*jj-1
                     do ii = SSc(1), NNc(1)
                         i = dd(1)*ii-1
-                        phic(ii,jj,kk) = cRV(1,kk)*phif(i,j,k-1) + cRV(2,kk)*phif(i,j,k)
+                        phic(ii,jj,kk) = cRV(1,kk)*phif(i,j,k) + cRV(2,kk)*phif(i,j,k+1)
                     end do
                 end do
             end do

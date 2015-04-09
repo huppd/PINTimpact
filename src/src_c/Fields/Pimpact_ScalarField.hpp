@@ -798,7 +798,8 @@ public:
 
   /// \brief updates ghost layers
   void exchange( const int& dir ) const {
-//    int ones[3] = {1,1,1};
+
+//		int ones[3] = {1,1,1};
     if( !exchangedState_[dir] ) {
       F_exchange(
           space()->dim(),
@@ -823,14 +824,12 @@ public:
     }
   }
 
-  void exchange( bool forward=true ) const {
-    if(forward)
-      for( int dir=0; dir<space()->dim(); ++dir )
-        exchange( dir );
-    else
-      for( int dir=space()->dim()-1; dir>=0; --dir )
-        exchange( dir );
-  }
+	void exchange() const {
+
+		for( int dir=0; dir<space()->dim(); ++dir )
+			exchange( dir );
+
+	}
 
   ///\}
 

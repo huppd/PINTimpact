@@ -68,7 +68,7 @@ public:
   DivGradO2JSmoother(
       const Teuchos::RCP<const OperatorT>& op,
       Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ):
-    omega_( pl->get<Scalar>("omega",0.8) ),
+    omega_( pl->get<Scalar>("omega", (2==op->space()->dim())?0.8:6./7. ) ),
     nIter_( pl->get<int>("numIters",4) ),
     temp_( createScalarField<SpaceT>( op->space() ) ),
     op_(op) {}

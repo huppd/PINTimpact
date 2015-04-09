@@ -34,7 +34,7 @@ const int dNC = 4;
 
 bool testMpi = true;
 double eps = 1.e-6;
-int domain = 1;
+int domain = 0;
 
 
 typedef typename Pimpact::Space<S,O,d,dNC> SpaceT;
@@ -65,7 +65,7 @@ TEUCHOS_STATIC_SETUP() {
       "domain", &domain,
       "domain" );
 
-  pl->set( "domain", 0 );
+  pl->set( "domain", domain );
   pl->set( "dim", 3 );
   pl->set( "nx", 24 );
   pl->set( "ny", 17 );

@@ -177,8 +177,26 @@ public:
     }
     else {
 
-      int dir = fType;
-      x.exchange( dir==1 ); //???
+			int dir = fType;
+
+			switch( fType ) {
+				case EField::U:
+					x.exchange(2);
+					x.exchange(1);
+					x.exchange(0);
+					break;
+				case EField::V:
+					x.exchange(2);
+					x.exchange(0);
+					x.exchange(1);
+					break;
+				case EField::W:
+					x.exchange(0);
+					x.exchange(1);
+					x.exchange(2);
+				case EField::S:
+					break;
+			}
 
       MG_interpolateV(
           spaceC_->dim(),

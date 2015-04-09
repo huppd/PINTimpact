@@ -45,6 +45,10 @@ TEUCHOS_STATIC_SETUP() {
 	pl->set( "dim", 3 );
 	pl->set( "domain", 0 );
 
+	pl->set( "nx", 25 );
+	pl->set( "ny", 17 );
+	pl->set( "nz",  9 );
+
 }
 
 

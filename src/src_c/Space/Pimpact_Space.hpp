@@ -447,10 +447,10 @@ public:
 template<class S=double, class O=int, int d=3, int dimNC=4>
 Teuchos::RCP<const Space<S,O,d,dimNC> >
 createSpace(
-    Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList(),
+    Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList()  ,
     bool setImpact=false ) {
 
-  return( Teuchos::rcp( new Space<S,O,d,dimNC>( pl, setImpact ) ) );
+  return( Teuchos::rcp( new Space<S,O,d,dimNC>( pl, false ) ) );
 
 }
 
