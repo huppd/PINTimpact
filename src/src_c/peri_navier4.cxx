@@ -453,14 +453,6 @@ int main(int argi, char** argv ) {
   //
   Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() )->getConstFieldPtr()->write();
   Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(1000);
-  //
-  //  x = Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr();
-  //  x = Teuchos::rcp_const_cast<NV>( group->getXPtr() )->getFieldPtr();
-
-
-
-  //  write solution
-  //  x->write();
 
   if(rank==0) {
     Teuchos::rcp_static_cast<std::ofstream>(outPrec)->close();

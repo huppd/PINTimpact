@@ -4,207 +4,689 @@
 !! \author huppd
 module cmod_VectorField
 
-    use iso_c_binding
+  use iso_c_binding
 
-    implicit none
+  implicit none
 
 contains
 
-    !> \brief calculate distance to immersed boundary
-    !! \author huppd
-    !! \param[in] x
-    !! \param[in] y
-    !! \param[in] z
-    FUNCTION distance2ib( x, y, z, x0, y0, R, dr ) RESULT(dis)
+  !> \brief calculate distance to immersed boundary
+  !! \author huppd
+  !! \param[in] x
+  !! \param[in] y
+  !! \param[in] z
+  FUNCTION distance2ib( x, y, z, x0, y0, R, dr ) RESULT(dis)
 
-        IMPLICIT NONE
+    IMPLICIT NONE
 
-        REAL(c_double), INTENT(IN)  ::  x,y,z
+    REAL(c_double), INTENT(IN)  ::  x,y,z
 
-        REAL(c_double), intent(in)  ::  x0
-        REAL(c_double), intent(in)  ::  y0
+    REAL(c_double), intent(in)  ::  x0
+    REAL(c_double), intent(in)  ::  y0
 
-        REAL(c_double), intent(in)  ::  R
+    REAL(c_double), intent(in)  ::  R
 
-        REAL(c_double), intent(in)  ::  dr
+    REAL(c_double), intent(in)  ::  dr
 
-        REAL(c_double)              ::  z0
+    REAL(c_double)              ::  z0
 
-        REAL(c_double)              ::  dis
+    REAL(c_double)              ::  dis
 
 
-        ! geometric properties of disc
-        !        x0 = L1/2. + L1*amp*SIN(2.*pi*freq*subtime)
-        !        y0 = L2/4.
-        !        z0 = L3/2.
+    ! geometric properties of disc
+    !        x0 = L1/2. + L1*amp*SIN(2.*pi*freq*subtime)
+    !        y0 = L2/4.
+    !        z0 = L3/2.
 
-        !        R = L1/10.
-        !  write(*,*) 'dr=',dr
+    !        R = L1/10.
+    !  write(*,*) 'dr=',dr
 
-        dis = SQRT( (x0-x)**2 + (y0-y)**2 )
+    dis = SQRT( (x0-x)**2 + (y0-y)**2 )
 
-        !        IF( dis <= R) THEN
-        !            dis = 1.
-        !        ELSE
-        IF( Abs(dis-R) < dr) THEN
-            dis = ABS(1./( 1. + EXP(1./(-ABS(dis-R)/dr) + 1./(1.-Abs(dis-R)/dr) ) ));
-        !    dis = (1-(dis-R)/dr)
-        ELSE
-            dis = 0.
-        END IF
+    if( dis <= R) then
+      dis = 1.
+    else if( dis <= R+dr) then
+      dis = ABS(1./( 1. + EXP(1./(-ABS(dis-R)/dr) + 1./(1.-Abs(dis-R)/dr) ) ));
+    else
+      !IF( Abs(dis-R) < dr) THEN
+      !dis = ABS(1./( 1. + EXP(1./(-ABS(dis-R)/dr) + 1./(1.-Abs(dis-R)/dr) ) ));
+      !!    dis = (1-(dis-R)/dr)
+      !ELSE
+      dis = 0.
+    end if
     !    dis = 0.
 
-    END FUNCTION distance2ib
+  END FUNCTION distance2ib
 
 
 
+  SUBROUTINE init_value_bl_equation( kappa, sweep_angle_degrees, fxxGuess, gxGuess )
+
+    implicit none
+
+    !----------- mjohn 101111 ---------------------------------------------------------------------------------------
+    ! -- get initial slope/curvature for boundary layer equations as a function of sweep angle and suction velocity
+    ! - INPUT VARIABLES
+    real(c_double), intent(in)    :: kappa                            !< non-dimensional boundary layer suction velocity
+    real(c_double), intent(in)    :: sweep_angle_degrees              !< sweep angle (in degrees for ease of interpolation)
+    ! - AUXILIARY VARIABLES
+    real(c_double)   :: fxx(1:10,7), gx(1:10,7)            ! initial value matrices for f and g (structure see where declared)
+    real(c_double)   ::   fxx1, fxx2, fxx3, fxx4           ! interpolation stencil (2D, since kappa and sweep_angle vary) for f
+    real(c_double)   ::   gx1, gx2, gx3, gx4               ! interpolation stencil (2D, since kappa and sweep_angle vary) for g
+    real(c_double)   ::   dK, dPhi                         ! interpolation increment remainders (interpolation weights)
+    real(c_double)   ::   fxxLo, fxxHi, gxLo, gxHi         ! more dummy variables...
+    ! - OUTPUT VARIABLES
+    real(c_double), intent(out)   ::   fxxGuess, gxGuess                !< final guess values (return values)
+    !----------------------------------------------------------------------------------------------------------------
+
+
+    ! v''(0) for kappa = (0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0) and 
+    ! phi =       (     0        10        20        30        40        50        60        70        80      90   )
+    fxx(1:10,1) = (/ 1.232578, 1.204596, 1.122776, 0.993369, 0.826410, 0.635208, 0.435783, 0.246543, 0.089191, 0.0 /)
+    fxx(1:10,2) = (/ 1.541729, 1.509206, 1.413891, 1.262421, 1.065455, 0.854631, 0.594496, 0.357035, 0.147418, 0.0 /)
+    fxx(1:10,3) = (/ 1.889298, 1.851881, 1.742007, 1.566680, 1.337148, 1.068325, 0.778115, 0.486851, 0.217475, 0.0 /)
+    fxx(1:10,4) = (/ 2.279667, 2.236852, 2.110903, 1.909177, 1.643485, 1.329463, 0.985815, 0.633578, 0.295836, 0.0 /) !! DUMMY VALUES (mere interpolation of line above and below)
+    fxx(1:10,5) = (/ 2.670036, 2.621822, 2.479798, 2.251675, 1.949821, 1.590600, 1.193515, 0.780304, 0.374196, 0.0 /)
+    fxx(1:10,6) = (/ 3.098327, 3.044144, 2.884339, 2.626989, 2.285053, 1.884300, 1.419229, 0.938387, 0.457070, 0.0 /) !! DUMMY VALUES (mere interpolation of line above and below)
+    fxx(1:10,7) = (/ 3.526617, 3.466466, 3.288879, 3.002302, 2.620284, 2.178000, 1.644944, 1.096470, 0.539944, 0.0 /)
+    ! w'(0):
+    gx(1:10,1) = (/ 0.570454, 0.566105, 0.552986, 0.530868, 0.499286, 0.457358, 0.403374, 0.333619, 0.237717, 0.0 /)
+    gx(1:10,2) = (/ 0.921733, 0.917607, 0.905180, 0.884295, 0.854631, 0.815588, 0.766028, 0.703608, 0.622597, 0.5 /)
+    gx(1:10,3) = (/ 1.323674, 1.319995, 1.308946, 1.290479, 1.264492, 1.230778, 1.188932, 1.138139, 1.076642, 1.0 /)
+    gx(1:10,4) = (/ 1.767516, 1.764282, 1.754585, 1.738445, 1.715877, 1.686874, 1.651353, 1.609055, 1.559273, 1.5 /) !! DUMMY VALUES (mere interpolation of line above and below)
+    gx(1:10,5) = (/ 2.211359, 2.208569, 2.200225, 2.186411, 2.167263, 2.142970, 2.113775, 2.079971, 2.041903, 2.0 /)
+    gx(1:10,6) = (/ 2.682235, 2.679764, 2.672382, 2.660189, 2.643351, 2.622097, 2.596728, 2.567613, 2.535191, 2.5 /) !! DUMMY VALUES (mere interpolation of line above and below)
+    gx(1:10,7) = (/ 3.153111, 3.150959, 3.144539, 3.133967, 3.119438, 3.101224, 3.079682, 3.055254, 3.028479, 3.0 /)
+
+
+    ! get interpolation stencil for v'' between starting values in sweep_angle and kappa direction
+    fxx1 = fxx(floor(sweep_angle_degrees/10.)+1,  floor(kappa/0.5)+1)
+    fxx2 = fxx(floor(sweep_angle_degrees/10.)+1,  ceiling(kappa/0.5)+1)
+    fxx3 = fxx(ceiling(sweep_angle_degrees/10.)+1,floor(kappa/0.5)+1)
+    fxx4 = fxx(ceiling(sweep_angle_degrees/10.)+1,ceiling(kappa/0.5)+1)
+    ! get interpolation stencil for w' between starting values in sweep_angle and kappa direction
+    gx1 = gx(floor(sweep_angle_degrees/10.)+1,  floor(kappa/0.5)+1)
+    gx2 = gx(floor(sweep_angle_degrees/10.)+1,  ceiling(kappa/0.5)+1)
+    gx3 = gx(ceiling(sweep_angle_degrees/10.)+1,floor(kappa/0.5)+1)
+    gx4 = gx(ceiling(sweep_angle_degrees/10.)+1,ceiling(kappa/0.5)+1)
+
+
+    ! get remainders in kappa and sweep_angle dimension
+    dK = mod(kappa,0.5)
+    dPhi = mod(sweep_angle_degrees,10.0)
+
+
+    ! interpolate inside 4 point stencil for v'' 
+    fxxLo = ((0.5-dK)*fxx1 + dK*fxx2)/0.5
+    fxxHi = ((0.5-dK)*fxx3 + dK*fxx4)/0.5
+    fxxGuess = ((10-dPhi)*fxxLo + dPhi*fxxHi)/10.0
+    ! interpolate inside 4 point stencil for w' 
+    gxLo = ((0.5-dK)*gx1 + dK*gx2)/0.5
+    gxHi = ((0.5-dK)*gx3 + dK*gx4)/0.5
+    gxGuess = ((10-dPhi)*gxLo + dPhi*gxHi)/10.0
+
+
+    !   ! --- FOR DEBUGGING PURPOSES ONLY
+    !    write(*,*) 'Kappa and Phi are', kappa, ', ', sweep_angle_degrees, '.'
+    !    write(*,*) 'Interpolation for f between the four values'
+    !    write(*,*) fxx1, ', ', fxx2, ', ', fxx3, ', ', fxx4
+    !    write(*,*) 'resulted in initial guess', fxxGuess, '.'
+    !    write(*,*)
+    !    write(*,*) 'Interpolation for g between the four values'
+    !    write(*,*) gx1, ', ', gx2, ', ', gx3, ', ', gx4
+    !    write(*,*) 'resulted in initial guess', gxGuess, '.'
+
+
+  END SUBROUTINE init_value_bl_equation
 
 
 
-    !> extracts field to field without ghostlayers or boundaries
-    subroutine extract_dof(    &
-        dimens,                &
-        N,                     &
-        bL,bU,                 &
-        SU,NU,                 &
-        SV,NV,                 &
-        SW,NW,                 &
-        phiiU,phiiV,phiiW,     &
-        phioU,phioV,phioW ) bind ( c, name='VF_extract_dof' )
+  SUBROUTINE shoot_v(v,grid,n,sweep_angle,angle_attack,kappa,s,r,rank)
+    !!!***********************************************************************
 
-        implicit none
+    implicit none
 
-        integer(c_int), intent(in)    ::  dimens
+    !!!-----------------------------------------------------------------------
+    integer(c_int), intent(in)    :: n             !< number of grid points
+    real(c_double), intent(out)   :: v(n,3)        !< OUTPUT: solution vector
+    real(c_double), intent(in)    :: grid(n)       !< array of grid points
+    real(c_double), intent(inout) :: s,r           !< starting and end value for shooting
+    real(c_double), intent(in)    :: sweep_angle   !< sweep angle PHI
+    real(c_double), intent(in)    :: angle_attack  !< sweep angle ALPHA
+    real(c_double), intent(in)    :: kappa         !< boundary suction KAPPA
+    integer(c_int), intent(in)    :: rank          !< rank of processor (for write)
+    !!!-----------------------------------------------------------------------
+    real(c_double) :: rhs(3)        !value of right-hand side
+    real(c_double) :: g(3)          !intermediate value in Runge-Kutta integration
+    real(c_double) :: t(3)          !intermediate value of v at x
+    real(c_double) :: rk1(3), rk2(3)!Runge-Kutta coefficients
+    real(c_double) :: dx            !integration step
+    real(c_double) :: x             !independent variable
+    !integer(c_int) :: i, j, k    !counters
+    integer(c_int) :: i, k    !counters
+    real(c_double) :: cosPhi        !cos(sweep_angle)
+    real(c_double) :: sinAlpha      !sin(angle_attack)
+    real(c_double) :: upperBound    !upper interval boundary for integration
+    !!!=====================================================================
 
-        integer(c_int), intent(in)    ::  N(3)
+    !!set Runge-Kutta coefficients
+    rk1(1) = 0.
+    rk1(2) = -5./9. 
+    rk1(3) = -153./128.
+    rk2(1) = 1./3.
+    rk2(2) = 15./16.
+    rk2(3) = 8./15.
 
-        integer(c_int), intent(in)    ::  bL(3)
-        integer(c_int), intent(in)    ::  bU(3)
+    !!set initial condition: v(0) = kappa, v'(0) = 0, initial guess depends on kappa, phi, alpha
+    i = 1
+    upperBound = 50.0
 
-        integer(c_int), intent(in)    ::  SU(3)
-        integer(c_int), intent(in)    ::  NU(3)
+    cosPhi = cos(sweep_angle)
+    sinAlpha = sin(angle_attack)
 
-        integer(c_int), intent(in)    ::  SV(3)
-        integer(c_int), intent(in)    ::  NV(3)
+    t(1) = -kappa
+    t(2) = 0.
+    t(3) = s
+    x = 0.
 
-        integer(c_int), intent(in)    ::  SW(3)
-        integer(c_int), intent(in)    ::  NW(3)
+    do
+      ! -- mjohn 111111
+      !! catch values in order to prevent divergence collapse (floating point overflow)
+      IF (rank .EQ. 0 .AND. abs(t(1)) .ge. 1e6) THEN
+        r = t(2) + cosPhi;
+        exit
+      end if
+      ! -- mjohn 111111
+     
+      !! save error and integration value
+      r = t(2) + cosPhi;
+      IF (x .EQ. grid(i)) THEN
+        v(i,1:3) = t
+        i = i + 1
+      end if
 
-        real(c_double),  intent(in)   ::  phiiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(in)   ::  phiiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(in)   ::  phiiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+      !! exit condition (compute until full grid is integrated AND 30 is reached)
+      IF (i .gt. n .and. x .ge. upperBound) EXIT
 
-        real(c_double),  intent(out)   ::  phioU(SU(1):NU(1),SU(2):NU(2),SU(3):NU(3))
-        real(c_double),  intent(out)   ::  phioV(SV(1):NV(1),SV(2):NV(2),SV(3):NV(3))
-        real(c_double),  intent(out)   ::  phioW(SW(1):NW(1),SW(2):NW(2),SW(3):NW(3))
+      !! standard step size
+      dx = 1.e-5
 
-        integer(c_int)                       ::  i, j, k
+      !! reduce step size accordingly if grid point is approached
+      IF (i.le.n .and. x+dx .GT. grid(i)) THEN
+        dx = grid(i)-x
+        x = grid(i)
+      else
+        x = x+dx
+      END IF
 
+      !!three step runge-kutta
+      g = 0.
 
-        do k = SU(3), NU(3)
-            do j = SU(2), NU(2)
-                !pgi$ unroll = n:8
-                do i = SU(1), NU(1)
-                    phioU(i,j,k) =  phiiU(i,j,k)
-                end do
-            end do
-        end do
-
-        do k = SV(3), NV(3)
-            do j = SV(2), NV(2)
-                !pgi$ unroll = n:8
-                do i = SV(1), NV(1)
-                    phioV(i,j,k) =  phiiV(i,j,k)
-                end do
-            end do
-        end do
-
-        if (dimens == 3) then
-            do k = SW(3), NW(3)
-                do j = SW(2), NW(2)
-                    !pgi$ unroll = n:8
-                    do i = SW(1), NW(1)
-                        phioW(i,j,k) =  phiiW(i,j,k)
-                    end do
-                end do
-            end do
+      do k = 1, 3
+        if( x .le. upperBound ) then
+          rhs(1) = t(2)
+          rhs(2) = t(3)
+          rhs(3) = t(3)*t(1) + cosPhi**2 - t(2)**2
+        else
+          rhs(1) = t(2)
+          rhs(2) = 0.
+          rhs(3) = 0.
         end if
 
-    end subroutine extract_dof
+        g = rk1(k)*g + rhs
+        t = t + rk2(k)*dx*g
+
+      end do
+
+    end do
+
+  END SUBROUTINE shoot_v
 
 
-    subroutine extract_dof_reverse(    &
-        dimens,                &
-        N,                     &
-        bL,bU,                 &
-        SU,NU,                 &
-        SV,NV,                 &
-        SW,NW,                 &
-        phiiU,phiiV,phiiW,     &
-        phioU,phioV,phioW ) bind ( c, name='VF_extract_dof_reverse' )
 
-        implicit none
+  SUBROUTINE shoot_w(w,v,grid,n,sweep_angle,sweep_angle_degrees,kappa,sv,sw,r,blThick)
 
-        integer(c_int), intent(in)    ::  dimens
+    implicit none
 
-        integer(c_int), intent(in)    ::  N(3)
+    !!!-----------------------------------------------------------------------
+    integer(c_int), intent(in) :: n          !number of grid points
+    real(c_double), intent(out):: w(n,2)        !OUTPUT: solution vector
+    real(c_double), intent(out):: v(n,3)        !OUTPUT: solution vector
+    real(c_double), intent(in) :: grid(n)       !array of grid points
+    real(c_double), intent(inout):: sv,sw,r       !starting and end value for shooting
+    real(c_double), intent(in)   :: sweep_angle   ! sweep angle PHI
+    real(c_double), intent(in)   :: sweep_angle_degrees ! sweep angle PHI
+    real(c_double), intent(in)   :: kappa         ! boundary suction KAPPA
+    real(c_double), intent(out)  :: blThick       ! blThickness (mathematical, non-dimensionalized)
+    !!!-----------------------------------------------------------------------
+    real(c_double) :: rhs(5)        !value of right-hand side
+    real(c_double) :: g(5)          !intermediate value in Runge-Kutta integration
+    real(c_double) :: t(5)          !intermediate value of v at x
+    real(c_double) :: rk1(3), rk2(3)!Runge-Kutta coefficients
+    real(c_double) :: dx            !integration step
+    real(c_double) :: x             !independent variable
+    !integer(c_int) :: i, j, k          !counters
+    integer(c_int) :: i,  k          !counters
+    real(c_double) :: cosPhi        !cos(sweep_angle)
+    real(c_double) :: upperBound    !upper interval boundary for integration
+    !!!=====================================================================
 
-        integer(c_int), intent(in)    ::  bL(3)
-        integer(c_int), intent(in)    ::  bU(3)
+    !!set Runge-Kutta coefficients
+    rk1(1) = 0.
+    rk1(2) = -5./9. 
+    rk1(3) = -153./128.
+    rk2(1) = 1./3.
+    rk2(2) = 15./16.
+    rk2(3) = 8./15.
 
-        integer(c_int), intent(in)    ::  SU(3)
-        integer(c_int), intent(in)    ::  NU(3)
+    !!set initial condition: v(0) = kappa, v'(0) = 0, initial guess depends on kappa, phi, alpha
+    cosPhi = cos(sweep_angle)
 
-        integer(c_int), intent(in)    ::  SV(3)
-        integer(c_int), intent(in)    ::  NV(3)
+    i = 1
+    t(1) = -kappa
+    t(2) = 0.
+    t(3) = sv
+    t(4) = 0.
+    t(5) = sw
+    x = 0.
 
-        integer(c_int), intent(in)    ::  SW(3)
-        integer(c_int), intent(in)    ::  NW(3)
+    !! w needs special treatment for phi = 90° and kappa = 0, since solution becomes trivial
+    !! activate VERY large integration domain for large phi and small kappa
+    if (kappa .LT. 0.01 .AND. sweep_angle_degrees .GT. 85.0) then
+      upperBound = min(2/(kappa+epsilon(upperbound)),200.0);
+    else
+      upperBound = 50.0;
+    end if
 
+    ! initialize boundary layer thickness to 0
+    blThick = 0;
 
-        real(c_double),  intent(in)  ::  phiiU(SU(1):NU(1),SU(2):NU(2),SU(3):NU(3))
-        real(c_double),  intent(in)  ::  phiiV(SV(1):NV(1),SV(2):NV(2),SV(3):NV(3))
-        real(c_double),  intent(in)  ::  phiiW(SW(1):NW(1),SW(2):NW(2),SW(3):NW(3))
+    !! numerical integration loop (let coordinate x run from 0 to infinity)
+    do
 
-        real(c_double),  intent(out)   ::  phioU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(out)   ::  phioV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(out)   ::  phioW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+      !!save values
+      r = t(4) - 1.;
+      IF (x .EQ. grid(i)) THEN
+        v(i,1:3) = t(1:3)
+        w(i,1:2) = t(4:5)
+        i = i + 1
+      END IF
 
-        integer(c_int)                       ::  i, j, k
+      !! exit condition
+      IF (i .gt. n .and. x .ge. upperBound) EXIT
+      dx = 1.e-5
 
+      IF (i.le.n .and. x+dx .GT. grid(i)) THEN
+        dx = grid(i)-x
+        x = grid(i)
+      ELSE
+        x = x+dx
+      END IF
 
-        do k = SU(3), NU(3)
-            do j = SU(2), NU(2)
-                !pgi$ unroll = n:8
-                do i = SU(1), NU(1)
-                    phioU(i,j,k) =  phiiU(i,j,k)
-                end do
-            end do
-        end do
-
-        do k = SV(3), NV(3)
-            do j = SV(2), NV(2)
-                !pgi$ unroll = n:8
-                do i = SV(1), NV(1)
-                    phioV(i,j,k) =  phiiV(i,j,k)
-                end do
-            end do
-        end do
-
-        if (dimens == 3) then
-            do k = SW(3), NW(3)
-                do j = SW(2), NW(2)
-                    !pgi$ unroll = n:8
-                    do i = SW(1), NW(1)
-                        phioW(i,j,k) =  phiiW(i,j,k)
-                    end do
-                end do
-            end do
+      !!three step runge-kutta
+      g = 0.
+      do k = 1, 3
+        if (x < upperBound) then
+          rhs(1) = t(2)
+          rhs(2) = t(3)
+          rhs(3) = t(3)*t(1) + cosPhi**2 - t(2)**2
+          rhs(4) = t(5)
+          rhs(5) = t(5)*t(1)
+        else
+          rhs(1) = t(2)
+          rhs(2) = 0.
+          rhs(3) = 0.
+          rhs(4) = 0.
+          rhs(5) = 0.
         end if
+        g = rk1(k)*g + rhs
+        t = t + rk2(k)*dx*g
+      end do
 
-    end subroutine extract_dof_reverse
+      !! carry out first order integral: int_0^\inf (g * (1-g)) dx
+      blThick = blThick + (t(4)*(1-t(4))) *dx;
+
+      if(blThick .ge. 0.25 * upperBound) then
+        write(*,*) 'WARNING. B.L. THICKNESS GREATER THAN 25 % OF INTEGRATION INTERVAL. BASE FLOW PROFILE MIGHT BE WRONG.'
+      end if
+
+    end do
+
+  END SUBROUTINE shoot_w
 
 
+
+  !> \brief calculate a laminar swept attachment-line flow
+  !!
+  !!   based on calcbasicflow by obristd, 1999/10/11
+  !!
+  !!  extended by mjohn, 2011/11/08
+  !!  Purpose: calculate a generalized 3D boundary layer flow
+  !!  with SWEEP ANGLE and boundary suction (wall-normal) KAPPA
+  !!
+  !!  11/11/28: modified: baseflow now contains "real" profile, not only
+  !!  integration routine, i.e. multiplication with 1/Re, sin(phi), x3
+  !!  is performed before ub, vb, wb are returned
+  !!
+  !!  12/10/05: modified: baseflow may now be non-dimensionalized
+  !!  according to SHBL formalism (1 d.o.f.), wing formalism (2 d.o.f.)
+  !!  or novel scaling (1 d.o.f.)
+  !!
+  !!  at a later stage: to be extended to allow for ANGLE OF ATTACK 
+  subroutine calcbasicflow( &
+      rank,                 &
+      kappa,                &
+      sweep_angle_degrees,  &
+      sweep_angle,          &
+      angle_attack,         &
+      n, grid, ub, vb, wb, blthick )
+
+    !USE mod_vars
+    !USE usr_vars 
+  
+    implicit none
+
+    integer(c_int), intent(in)    :: rank          
+    real(c_double), intent(in)    :: kappa         !< boundary suction KAPPA
+    real(c_double), intent(in)    :: sweep_angle_degrees !< sweep angle PHI
+    real(c_double), intent(in)    :: sweep_angle   !< sweep angle PHI
+    real(c_double), intent(in)    :: angle_attack  
+    integer(c_int), intent(in)    :: n             !< number of grid points
+    real(c_double), intent(in)    :: grid(n)       !< array of grid points
+    real(c_double), intent(inout) :: ub(n)         !< chordwise baseflow profile u
+    real(c_double), intent(inout) :: vb(n)         !< wall-normal baseflow profile v
+    real(c_double), intent(inout) :: wb(n)         !< spanwise baseflow profile w
+
+    real(c_double),allocatable :: v(:,:)       ! dependent variable v and its derivatives
+    real(c_double),allocatable :: w(:,:)       ! dependent variable w and its derivatives
+
+    real(c_double), intent(out) :: blThick
+
+    real(c_double) :: initv1, initv2 !starting values for v equation
+    real(c_double) :: initw1, initw2 !starting values for w equation
+    real(c_double) :: sv, s0, s1, s1old  !starting values
+    real(c_double) :: r0, r1         !values of object function
+    real(c_double) :: vxxGuess, wxGuess                ! final guess values (return values)  !-- mjohn 101111
+
+    integer(c_int) :: i
+
+    real(c_double) :: pi 
+
+
+    allocate(v(n,3),w(n,2))   !! allocate local memory
+    pi = 4.*atan(1.)    !!set constants
+
+
+    !!! ---------------------------------------------------------- INITIALIZE SHOOTING ROUTINE (GET STARTING VALUES) ----------------------------------------------------
+    !----------- mjohn 101111 
+    ! -- get initial slope/curvature for boundary layer equations as a function of sweep angle and suction velocity
+    call init_value_bl_equation( kappa, sweep_angle_degrees, vxxguess, wxguess )
+
+    !!!*** solve equation for v
+    ! move to VectorField::initField
+    if (rank .EQ. 0 .AND. (kappa.GT.3.0 .OR. kappa.LT.0.0 .OR. sweep_angle_degrees.GT.90.0  .OR. sweep_angle_degrees.LT.0.0 )) then
+      WRITE(*,*) 'WARNING: kappa or sweep angle outside allowed interval!! Shooting integration might fail.'
+    end if
+
+    initv1 = -vxxGuess*(1+1e-3) !value of ddv for first shot
+    initv2 = -vxxGuess*(1-1e-3) !value of ddv for second shot
+    initw1 =   wxGuess*(1+1e-3) !value of dw for first shot
+    initw2 =   wxGuess*(1-1e-3) !value of dw for second shot
+    !----------- mjohn 101111 
+
+    !!! ---------------------------------------------------------- SOLVE SHOOTING INTEGRATION PROBLEM FOR VELOCITY V ----------------------------------------------------
+    if (rank.eq.0) then
+      WRITE(*,*) ' Solving equation v'''''' = cos^2(sweep_angle) - v''^2  + v v'''' for v'
+    end if
+
+    !!set initial values
+    s0 = initv1
+    s1 = initv2
+
+    !! two initial shots
+    call shoot_v(v,grid,n,sweep_angle,angle_attack,kappa,s0,r0,rank)
+    call shoot_v(v,grid,n,sweep_angle,angle_attack,kappa,s1,r1,rank)
+
+    i = 1
+    !! controlled shooting loop
+    do
+
+      !!calculate new initial value (only if residuum is large enough!)
+      if( abs(r1) .gt. 1E-13 .and. abs(r0-r1) .gt. 1E-13) then
+        s1old = s1
+        s1 = (r0*s1 - r1*s0)/(r0-r1)
+        s0 = s1old
+        r0 = r1
+      end if
+
+      call shoot_v(v,grid,n,sweep_angle,angle_attack,kappa,s1,r1,rank)
+
+      if(abs(r1) .le. 1e-10) then
+        !!goal reached
+        exit
+      elseif ((s1 .eq. s0) .or. (r1 .eq. r0)) then
+        !!no more progress
+        exit
+      end if
+    end do
+
+    !! save starting value
+    sv = s1
+
+    !! print output  
+    if (rank.eq.0) then
+      !      write(*,*) '   Ended shoot_v successfully. ddy(v)|0 = ', v(1,3)
+      write(*,*) ' residuum =', r1
+      !      if ( ((initv1+initv2)/2.0) .NE. 0.0) then
+      !         write(*,*) 'Relative deviation from initial guess:', (v(1,3)-((initv1+initv2)/2))/((initv1+initv2)/2)
+      !      else
+      !         write(*,*) 'Total deviation from initial guess:   ', v(1,3)
+      !      end if
+      !      write(*,*) 
+    end if
+
+    !!! ---------------------------------------------------------- SOLVE SHOOTING INTEGRATION PROBLEM FOR VELOCITY W ----------------------------------------------------
+    if (rank.eq.0) then
+      WRITE(*,*) ' Solving equation w'''' = v w'' for w'
+    end if
+
+    !! set initial values
+    s0 = initw1
+    s1 = initw2
+
+    !! two initial shots
+    call shoot_w(w,v,grid,n,sweep_angle,sweep_angle_degrees,kappa,sv,s0,r0,blThick)
+    call shoot_w(w,v,grid,n,sweep_angle,sweep_angle_degrees,kappa,sv,s1,r1,blThick)
+
+    !! controlled shooting loop
+    do
+
+    !!calculate new initial value
+    s1old = s1
+    s1 = (r0*s1 - r1*s0)/(r0-r1)
+    s0 = s1old
+    r0 = r1
+    !!shoot
+    call shoot_w(w,v,grid,n,sweep_angle,sweep_angle_degrees,kappa,sv,s1,r1,blThick)
+
+    !!check result
+    IF(abs(r1) .LE. 1E-10) THEN
+      !!goal reached
+      EXIT
+    ELSEIF ((s1 .EQ. s0) .OR. (r1 .EQ. r0)) THEN
+      !!no more progress
+      EXIT
+    END IF
+    END DO
+
+    !! print output
+    if (rank.eq.0) then
+      !      write(*,*) '   Ended shoot_w successfully. dy(w)|0 = ', w(1,2)
+      write(*,*) ' residuum =', r1
+      write(*,*)
+      !      if (((initw1+initw2)/2).NE.0) then
+      !         write(*,*) 'Relative deviation from initial guess:', (w(1,2)-((initw1+initw2)/2))/((initw1+initw2)/2)
+      !      else
+      !         write(*,*) 'Total deviation from initial guess:   ', w(1,2)
+      !      end if
+      !      write(*,*) 
+    end if
+
+
+    !!! ---------------------------------------------------------- CONVERT INTEGRATION RESULTS TO VERITABLE VELOCITIES --------------------------------------------------
+    ub = -v(:,2)
+    vb = v(:,1)
+    wb = w(:,1)
+
+    !! deallocate local memory
+    deallocate(v,w)
+
+  END SUBROUTINE calcbasicflow
+
+
+
+  !> extracts field to field without ghostlayers or boundaries
+  subroutine extract_dof(    &
+      dimens,                &
+      N,                     &
+      bL,bU,                 &
+      SU,NU,                 &
+      SV,NV,                 &
+      SW,NW,                 &
+      phiiU,phiiV,phiiW,     &
+      phioU,phioV,phioW ) bind ( c, name='VF_extract_dof' )
+
+    implicit none
+
+    integer(c_int), intent(in)    ::  dimens
+
+    integer(c_int), intent(in)    ::  N(3)
+
+    integer(c_int), intent(in)    ::  bL(3)
+    integer(c_int), intent(in)    ::  bU(3)
+
+    integer(c_int), intent(in)    ::  SU(3)
+    integer(c_int), intent(in)    ::  NU(3)
+
+    integer(c_int), intent(in)    ::  SV(3)
+    integer(c_int), intent(in)    ::  NV(3)
+
+    integer(c_int), intent(in)    ::  SW(3)
+    integer(c_int), intent(in)    ::  NW(3)
+
+    real(c_double),  intent(in)   ::  phiiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(in)   ::  phiiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(in)   ::  phiiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+
+    real(c_double),  intent(out)   ::  phioU(SU(1):NU(1),SU(2):NU(2),SU(3):NU(3))
+    real(c_double),  intent(out)   ::  phioV(SV(1):NV(1),SV(2):NV(2),SV(3):NV(3))
+    real(c_double),  intent(out)   ::  phioW(SW(1):NW(1),SW(2):NW(2),SW(3):NW(3))
+
+    integer(c_int)                       ::  i, j, k
+
+
+    do k = SU(3), NU(3)
+      do j = SU(2), NU(2)
+        !pgi$ unroll = n:8
+        do i = SU(1), NU(1)
+          phioU(i,j,k) =  phiiU(i,j,k)
+        end do
+      end do
+    end do
+
+    do k = SV(3), NV(3)
+      do j = SV(2), NV(2)
+        !pgi$ unroll = n:8
+        do i = SV(1), NV(1)
+          phioV(i,j,k) =  phiiV(i,j,k)
+        end do
+      end do
+    end do
+
+    if (dimens == 3) then
+      do k = SW(3), NW(3)
+        do j = SW(2), NW(2)
+          !pgi$ unroll = n:8
+          do i = SW(1), NW(1)
+            phioW(i,j,k) =  phiiW(i,j,k)
+          end do
+        end do
+      end do
+    end if
+
+  end subroutine extract_dof
+
+
+  subroutine extract_dof_reverse(    &
+      dimens,                &
+      N,                     &
+      bL,bU,                 &
+      SU,NU,                 &
+      SV,NV,                 &
+      SW,NW,                 &
+      phiiU,phiiV,phiiW,     &
+      phioU,phioV,phioW ) bind ( c, name='VF_extract_dof_reverse' )
+
+    implicit none
+
+    integer(c_int), intent(in)    ::  dimens
+
+    integer(c_int), intent(in)    ::  N(3)
+
+    integer(c_int), intent(in)    ::  bL(3)
+    integer(c_int), intent(in)    ::  bU(3)
+
+    integer(c_int), intent(in)    ::  SU(3)
+    integer(c_int), intent(in)    ::  NU(3)
+
+    integer(c_int), intent(in)    ::  SV(3)
+    integer(c_int), intent(in)    ::  NV(3)
+
+    integer(c_int), intent(in)    ::  SW(3)
+    integer(c_int), intent(in)    ::  NW(3)
+
+
+    real(c_double),  intent(in)  ::  phiiU(SU(1):NU(1),SU(2):NU(2),SU(3):NU(3))
+    real(c_double),  intent(in)  ::  phiiV(SV(1):NV(1),SV(2):NV(2),SV(3):NV(3))
+    real(c_double),  intent(in)  ::  phiiW(SW(1):NW(1),SW(2):NW(2),SW(3):NW(3))
+
+    real(c_double),  intent(out)   ::  phioU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(out)   ::  phioV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(out)   ::  phioW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+
+    integer(c_int)                       ::  i, j, k
+
+
+    do k = SU(3), NU(3)
+      do j = SU(2), NU(2)
+        !pgi$ unroll = n:8
+        do i = SU(1), NU(1)
+          phioU(i,j,k) =  phiiU(i,j,k)
+        end do
+      end do
+    end do
+
+    do k = SV(3), NV(3)
+      do j = SV(2), NV(2)
+        !pgi$ unroll = n:8
+        do i = SV(1), NV(1)
+          phioV(i,j,k) =  phiiV(i,j,k)
+        end do
+      end do
+    end do
+
+    if (dimens == 3) then
+      do k = SW(3), NW(3)
+        do j = SW(2), NW(2)
+          !pgi$ unroll = n:8
+          do i = SW(1), NW(1)
+            phioW(i,j,k) =  phiiW(i,j,k)
+          end do
+        end do
+      end do
+    end if
+
+  end subroutine extract_dof_reverse
 
 
 
@@ -1468,6 +1950,183 @@ contains
 
     end subroutine VF_init_RotatingDisc
 
+
+
+    subroutine VF_init_SHBF(  &
+        rank,                 &
+        iShift,               &
+        IB1,                  &
+        M,                    &
+        N,                    &
+        bL,bU,                &
+        dL,dU,                &
+        SU,NU,                &
+        SV,NV,                &
+        SW,NW,                &
+        y1p,                  &
+        y1u,                  &
+        x3w,                  &
+        cIup,                 &
+        Re,                   &
+        nonDim,               &
+        kappa,                &
+        sweep_angle_degrees,  &
+        sweep_angle,          &
+        angle_attack,         &
+        velU,velV,velW ) bind ( c, name='VF_init_SHBF' )
+        ! (basic subroutine)
+
+        implicit none
+
+        integer(c_int), intent(in)     :: rank
+        integer(c_int), intent(in)     :: iShift
+        integer(c_int), intent(in)     :: IB1
+
+        integer(c_int), intent(in)     :: M(3)
+        integer(c_int), intent(in)     :: N(3)
+
+        integer(c_int), intent(in)     :: bL(3)
+        integer(c_int), intent(in)     :: bU(3)
+
+        integer(c_int), intent(in)     :: dL(3)
+        integer(c_int), intent(in)     :: dU(3)
+
+        integer(c_int), intent(in)     :: SU(3)
+        integer(c_int), intent(in)     :: NU(3)
+
+        integer(c_int), intent(in)     :: SV(3)
+        integer(c_int), intent(in)     :: NV(3)
+
+        integer(c_int), intent(in)     :: SW(3)
+        integer(c_int), intent(in)     :: NW(3)
+
+        real(c_double), intent(in)     :: y1p( 1:M(1) )
+
+        real(c_double), intent(in)     :: y1u( 0:M(1) )
+
+        !real(c_double), intent(in)     :: x1p( bL(1):(N(1)+bU(1)) )
+        !real(c_double), intent(in)     :: x2p( bL(2):(N(2)+bU(2)) )
+
+        real(c_double), intent(in)     :: x3w( bL(3):(N(3)+bU(3)) )
+
+        real(c_double), intent(in)     :: cIup( dU(1):dL(1), 0:N(1) )
+
+        real(c_double), intent(in)     :: Re              
+        integer(c_int), intent(in)     :: nonDim
+        real(c_double), intent(in)     :: kappa               !< Properties of swept Hiemenz flow
+        real(c_double), intent(in)     :: sweep_angle_degrees !< Properties of swept Hiemenz flow
+        real(c_double), intent(in)     :: sweep_angle         !< Properties of swept Hiemenz flow
+        real(c_double), intent(in)     :: angle_attack        !< Properties of swept Hiemenz flow
+
+        real(c_double),  intent(inout) :: velU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double),  intent(inout) :: velV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double),  intent(inout) :: velW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+
+        integer(c_int)                ::  i, ii, j, k
+
+        !! mjohn 051012 - variables required for changing the nondimensionalization
+        real(c_double)                ::  blThick
+        !! mjohn 051012
+        
+        real(c_double)                ::  y1u_temp(0:M(1))
+        
+
+        real(c_double)                ::  baseflow_global(bL(1):(M(1)+bU(1)),1:3)
+        real(c_double)                ::  baseflow       (bL(1):(N(1)+bU(1)),1:3)
+        !real(c_double)                ::  baseflow1p     (bL(1):(N(1)+bU(1)))
+ 
+
+        !---- mjohn 120207  ------------------------------------------------ SWEPT HIEMENZ BASE FLOW -----------------------------------------------------------------------
+        
+        ! initialize variables
+        velU = 0.
+        velV = 0.
+        velW = 0.
+        
+        baseflow_global = 0.
+        baseflow        = 0.
+
+        ! notice: - baseflow_global(*,1) need to run from 0 to M1, i.e. full axis, on u grid, since interpolated to p grid by init_BC
+        !         - baseflow_global(*,2) and (*,3) are computed on p grid, since they start exactly on p(1) wall
+
+        ! difficulty: - full u grid serves also negative values below the wall, where shooting integration is invalid
+        ! solution:   - compute velocity for y = 0 and y > 0 on u grid, then extrapolate from 0 to first (negative) u value
+        !             - perform extrapolation not on all ranks, but only those which touch the ground
+        !             - since only one value below the wall is relevant for interpolation, extrapolation formula reads:
+        !                      base(0,1)|_u = ( base(0,1)|_p - sum_0^d1U{cIup(j,1)*base(1+j,1)|_u} ) / cIup(-1,1)
+
+        ! ------------------------- get two tangential base flow components (staggered grid! need information on p grid)
+        ! get global basic flow (exactly FULL y axis, over all ranks) on yp grid, store in baseflow_global, for two tangent coordinates
+        call calcbasicflow( rank, kappa, sweep_angle_degrees, sweep_angle, angle_attack, M(1),y1p(1),baseflow_global(1,3),baseflow_global(1,1),baseflow_global(1,2), blThick)
+        ! --- mjohn 051012
+        ! set different velocity fields if integration with Hiemenz is performed
+        ! integration routines however are unaltered (see below), because variables are overwritten (see usr_config.f90)
+        select case (nonDim)
+        case(0)
+          if(rank .eq. 0) then
+            write(*,'(a)') 'classical non-dimensionalization applied'
+          end if
+          ! traditinoal SHBL case
+          baseflow(bL(1):(N(1)+bU(1)),2) = baseflow_global((bL(1)+iShift):(N(1)+bU(1)+iShift),2)
+        case default
+          if(rank .eq. 0) then
+            write(*,'(a)') 'novel non-dimensionalization applied'
+          end if
+          ! 2 degrees of freedom and novel formalism (cases 1 and 2)
+          baseflow(bL(1):(N(1)+bU(1)),2) = baseflow_global((bL(1)+iShift):(N(1)+bU(1)+iShift),2) * sin(sweep_angle)
+        end select
+        baseflow(bL(1):(N(1)+bU(1)),3) = baseflow_global((bL(1)+iShift):(N(1)+bU(1)+iShift),3) / Re
+
+        ! ------------------------- get wall-normal base flow component (staggered grid! need information on u grid)
+        ! get global basic flow (ENTIRE y axis, excluding points beyond boundaries, over all ranks) on u grid, store in baseflow_global, for wall-normal coordinate
+        y1u_temp(1:M(1))  = y1u(1:M(1))
+        y1u_temp(0     )  = 0.
+
+        call calcbasicflow(rank, kappa, sweep_angle_degrees, sweep_angle, angle_attack,M(1)+1,y1u_temp(0),baseflow_global(0,3),baseflow_global(0,1),baseflow_global(0,2), blThick)
+
+        if( 1==IB1 ) then
+          do ii = 0, dU(1)
+            baseflow_global(0,1) = baseflow_global(0,1) - cIup(ii,1)*baseflow_global(1+ii,1)
+          end do
+          baseflow_global(0,1) = baseflow_global(0,1) / cIup(-1,1)
+        end if
+        baseflow(bL(1):(N(1)+bU(1)),1) = baseflow_global((bL(1)+iShift):(N(1)+bU(1)+iShift),1) / Re
+
+!         ! TEST!!! - debugging purposes only
+!         write(*,*) "distance, velocity (both in x1-direction)"
+!         DO i = S11B, N11B
+!          write(*,*) x1u(i)-vortex_x1pos, baseflow(i,1)
+!         end do
+!         write(*,*)
+!         write(*,*) "distance, velocity (both in x3-direction)"
+!         DO k = S31B, N31B
+!          write(*,*) x3p(k)-vortex_x3pos, baseflow(i,3)*x3w(k)
+!         end do
+
+        do k = SU(3), NU(3)
+            do j = SU(2), NU(2)
+                do i = SU(1), NU(1)
+                velU(i,j,k) = velU(i,j,k) + baseflow(i,1)
+              END DO
+          END DO
+        END DO
+        do k = SV(3), NV(3)
+            do j = SV(2), NV(2)
+                do i = SV(1), NV(1)
+                 velV(i,j,k) = velV(i,j,k) + baseflow(i,2)
+              END DO
+           END DO
+        END DO
+        do k = SW(3), NW(3)
+            do j = SW(2), NW(2)
+                do i = SW(1), NW(1)
+                 velW(i,j,k) = velW(i,j,k) + baseflow(i,3)*x3w(k)
+              END DO
+           END DO
+        END DO
+
+
+    end subroutine VF_init_SHBF
 
 
 end module cmod_VectorField

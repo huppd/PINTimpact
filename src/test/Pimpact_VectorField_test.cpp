@@ -50,12 +50,14 @@ TEUCHOS_STATIC_SETUP() {
 
   pl->set("nx", 25 );
   pl->set("ny", 17 );
-  pl->set("nz", 9 );
+	if(  3==dim )
+		pl->set("nz", 9 );
 
   // processor grid size
   pl->set("npx", 2 );
   pl->set("npy", 2 );
-  pl->set("npz", 2 );
+	if(  3==dim )
+		pl->set("npz", 2 );
 
 }
 
@@ -65,7 +67,7 @@ TEUCHOS_STATIC_SETUP() {
 
 TEUCHOS_UNIT_TEST( VectorField, InfNorm_and_initvec2d ) {
 
-  auto space = Pimpact::createSpace( pl, false );
+  auto space = Pimpact::createSpace( pl );
 
   auto vel = Pimpact::create<Pimpact::VectorField>( space );
 
@@ -92,12 +94,16 @@ TEUCHOS_UNIT_TEST( VectorField, InfNorm_and_initvec2d ) {
 
 TEUCHOS_UNIT_TEST( VectorField, initField ) {
 
-  auto space = Pimpact::createSpace( pl, false );
+	pl->set( "Re", 400. );
+  auto space = Pimpact::createSpace( pl );
 
   auto vel = Pimpact::create<Pimpact::VectorField>( space );
 
-  for( int i=0; i<=21; ++i ) {
-    vel->initField( Pimpact::EFlowField(i) );
+  for( int i=0; i<=22; ++i ) {
+		if( 17==i )
+			vel->initField( Pimpact::EVectorField(i), 1., 1., 0.25 );
+		else
+			vel->initField( Pimpact::EVectorField(i) );
     vel->write( i );
   }
 

@@ -33,9 +33,9 @@ void OP_helmholtz(
 
 
 /// \brief Helmholtz operator
-///
-/// computes \f$ y = ( mulI_ I - mulL_ \Delta) x
 /// \ingroup BaseOperator
+///
+/// computes \f$ y = ( mulI_ I - mulL_ \Delta) x \f$
 template<class ST>
 class HelmholtzOp {
 

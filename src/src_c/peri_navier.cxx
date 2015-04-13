@@ -318,20 +318,20 @@ int main(int argi, char** argv ) {
   }
   outPar = Teuchos::null;
 
-  // init vectors
-  auto x    = Pimpact::createMultiField(
+	// init vectors
+	auto x = Pimpact::createMultiField(
 			Pimpact::createCompoundField(
-      	Pimpact::createMultiHarmonic< Pimpact::VectorField<SpaceT> >( space ),
-      	Pimpact::createMultiHarmonic< Pimpact::ScalarField<SpaceT> >( space )) );
+				Pimpact::createMultiHarmonic< Pimpact::VectorField<SpaceT> >( space ),
+				Pimpact::createMultiHarmonic< Pimpact::ScalarField<SpaceT> >( space )) );
   auto fu   = x->clone();
 
   // init Fields, init and rhs
 	if( baseflow==0 )
-		x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::EFlowField(flow), 1. );
+		x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::EVectorField(flow), 1. );
 	else  {
-		x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->initField( Pimpact::EFlowField(baseflow), 1. );
+		x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->initField( Pimpact::EVectorField(baseflow), 1. );
 		if( 0 != flow ) {
-			x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::EFlowField(flow), 0., 0.5, 0., 0.1 );
+			x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::EVectorField(flow), 0., 0.5, 0., 0.1 );
 			x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->getFieldPtr(Pimpact::U)->initField();
 		}
 	}
@@ -564,7 +564,38 @@ int main(int argi, char** argv ) {
 		if( withprec ) lp_->setRightPrec( lprec );
 //		if( withprec ) lp_->setLeftPrec( lprec );
 
+
     auto lp = Pimpact::createInverseOperatorBase( lp_ );
+
+// forceme
+		if( pl->get<int>("forcing") ) {
+			auto force = x->clone();
+			// set force
+			force->init( 1. );
+			auto bla = Pimpact::create<Pimpact::VectorField>( space );
+			bla->initField( Pimpact::Disc2D, 0.5, 0.5, 0.1, 1. );
+			force->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->add( 1., force->getFieldPtr(0)->getVFieldPtr()->get0Field(), -1., *bla );
+			for( int i=0; i<space->nGlo(3); ++i ) {
+				force->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(i)->add( 1., force->getFieldPtr(0)->getVFieldPtr()->getCField(i), -1., *bla );
+				force->getFieldPtr(0)->getVFieldPtr()->getSFieldPtr(i)->add( 1., force->getFieldPtr(0)->getVFieldPtr()->getSField(i), -1., *bla );
+			}
+			force->write(1000);
+			auto forcingOp = Pimpact::createForcingOp( force );
+			op =
+				Pimpact::createOperatorBase(
+						Pimpact::createCompositionOp( forcingOp, op )
+					);
+			lp =
+				Pimpact::createOperatorBase(
+						Pimpact::createCompositionOp( forcingOp, lp )
+					);
+
+			forcingOp->apply( *x, *x );
+			x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->init( Teuchos::tuple(0., 0.1, 0.) );
+
+		}
+
+
 
     auto inter = NOX::Pimpact::createInterface( fu, op, lp );
 
@@ -592,10 +623,11 @@ int main(int argi, char** argv ) {
     // Get the answer
     *group = solver->getSolutionGroup();
 
-    x = Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr();
+    Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr()->write( 800 );
+		Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(500);
   }
-  /******************************************************************************************/
-  x->write(800);
+	/******************************************************************************************/
+//  x->write(800);
 
   MPI_Finalize();
   return( 0 );

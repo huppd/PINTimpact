@@ -329,7 +329,7 @@ public:
 
 
   ///  \brief initializes VectorField with the initial field defined in Fortran
-  void initField( EFlowField flowType = ConstFlow, Scalar re=0., Scalar om=0., Scalar px = 0., Scalar sca=1. ) {
+  void initField( EVectorField flowType = ConstFlow, Scalar re=0., Scalar om=0., Scalar px = 0., Scalar sca=1. ) {
     switch( flowType ) {
     case ZeroFlow :
       for( int i=0; i<space()->dim(); ++i )
@@ -649,7 +649,38 @@ public:
           sFields_[V]->getRawPtr(),
           sFields_[W]->getRawPtr() );
       break;
-    }
+		case SweptHiemenzFlow:
+			VF_init_SHBF( 
+					space()->rankST(),      
+					space()->getProcGrid()->getShift(0),
+					space()->getProcGrid()->getIB(0),
+					space()->nGlo(),
+					space()->nLoc(),
+					space()->bl(),
+					space()->bu(),
+					space()->dl(),
+					space()->du(),
+          space()->sIndB(U),
+          space()->eIndB(U),
+          space()->sIndB(V),
+          space()->eIndB(V),
+          space()->sIndB(W),
+          space()->eIndB(W),
+          space()->getCoordinatesGlobal()->getX(X,EField::S),
+          space()->getCoordinatesGlobal()->getX(X,EField::U),
+          space()->getCoordinatesLocal()->getX(Z,EField::W),
+					space()->getInterpolateV2S()->getC( X ),
+					space()->getDomain()->getDomainSize()->getRe(),
+					1,  // nonDim  
+					0., // kappa
+					0., // sweep_angle_degrees,  
+					0., // sweep_angle,          
+					0., // angle_attack,         
+          sFields_[U]->getRawPtr(),
+          sFields_[V]->getRawPtr(),
+          sFields_[W]->getRawPtr() );
+			break;
+		}
     //    }
     changed();
   }

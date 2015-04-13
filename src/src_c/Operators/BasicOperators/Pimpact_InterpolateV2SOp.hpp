@@ -154,6 +154,10 @@ public:
 
   void print( std::ostream& out=std::cout ) const { }
 
+  const Scalar* getC( const ECoord& dir ) const  {
+      return( c_[(int)dir] );
+  }
+
 };
 
 

@@ -46,7 +46,11 @@ public:
 
   /// \brief \f[ y = force*x \f]
   void apply( const DomainFieldT& x, RangeFieldT& y ) const {
-    y.add( mul_, x, 0., y );
+		if( std::abs(mul_-1.) < 1.e-16 ) {
+			y.assign( x );
+		}
+		else
+			y.add( mul_, x, 0., y );
     y.scale( *forcing_ );
   }
 

@@ -237,6 +237,37 @@ void VF_init_RotatingDisc(
     const double& xm, const double& ym, const double& omega,
     double* const phiU, double* const phiV, double* const phiW );
 
+
+void VF_init_SHBF( 
+		const int& rank,      
+    const int& iShift,    
+    const int& IB1,       
+    const int* const M,         
+    const int* const N,         
+    const int* const bL,
+		const int* const bU,     
+    const int* const dL,
+		const int* const dU,     
+    const int* const SU,
+		const int* const NU,     
+    const int* const SV,
+		const int* const NV,     
+    const int* const SW,
+		const int* const NW,     
+		const double* const y1p,       
+		const double* const y1u,       
+		const double* const x3w,       
+		const double* const cIup,      
+		const double& Re,        
+		const int& nonDim,    
+		const double& kappa,     
+		const double& sweep_angle_degrees,  
+		const double& sweep_angle,          
+		const double& angle_attack,         
+		double* const velU,
+		double* const velV,
+		double* const velW ); 
+
 } // end of extern 'C'
 
 

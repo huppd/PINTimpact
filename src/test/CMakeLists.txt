@@ -71,4 +71,4 @@ add_test(NAME NOXSolvesPimpactTest COMMAND mpirun -np 4 NOXSolvesPimpactTest)
 
 ADD_EXECUTABLE( MultiGridTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_MultiGrid_test.cpp )
 TARGET_LINK_LIBRARIES( MultiGridTest ${Pimpact_TPL_LIBRARIES} ) 
-add_test( NAME MultiGridTest COMMAND mpirun -np 4 MultiGridTest )
+add_test( NAME MultiGridTest COMMAND mpirun -np 8 MultiGridTest )
