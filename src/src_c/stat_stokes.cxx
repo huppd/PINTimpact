@@ -180,11 +180,11 @@ int main(int argi, char** argv ) {
   vel = Teuchos::null;
 
   p->init(0.);
-  u->getField(0).initField( Pimpact::EFlowField(flow) );
+  u->getField(0).initField( Pimpact::EVectorField(flow) );
   u->init(0);
   u->write(1);
 
-  tempv->getField(0).initField( Pimpact::EFlowField(flow) );
+  tempv->getField(0).initField( Pimpact::EVectorField(flow) );
   fu->getField(0).initField( Pimpact::ZeroFlow );
 
 

@@ -671,11 +671,39 @@ public:
           space()->getCoordinatesLocal()->getX(Z,EField::W),
 					space()->getInterpolateV2S()->getC( X ),
 					space()->getDomain()->getDomainSize()->getRe(),
-					1,  // nonDim  
+					0,  // nonDim  
 					0., // kappa
 					0., // sweep_angle_degrees,  
 					0., // sweep_angle,          
 					0., // angle_attack,         
+          sFields_[U]->getRawPtr(),
+          sFields_[V]->getRawPtr(),
+          sFields_[W]->getRawPtr() );
+			break;
+		case Disturbance:
+			VF_init_Dist(
+					space()->rankST(),      
+					space()->nLoc(),
+					space()->bl(),
+					space()->bu(),
+          space()->sIndB(U),
+          space()->eIndB(U),
+          space()->sIndB(V),
+          space()->eIndB(V),
+          space()->sIndB(W),
+          space()->eIndB(W),
+					space()->getDomain()->getBCGlobal()->getBCL( Z ),
+          space()->getCoordinatesLocal()->getX( X, EField::U ),
+          space()->getCoordinatesLocal()->getX( X, EField::S ),
+          space()->getCoordinatesLocal()->getX( Y, EField::S ),
+          space()->getCoordinatesLocal()->getX( Z, EField::W ),
+          space()->getCoordinatesLocal()->getX( Z, EField::S ),
+					3, // dist_type,          
+					0.15, // vortex_ampli_prim,  
+					3., // vortex_x1pos,       
+					3., // vortex_x3pos,       
+					3., // vortex_radius,      
+					10, // vortex_band,        
           sFields_[U]->getRawPtr(),
           sFields_[V]->getRawPtr(),
           sFields_[W]->getRawPtr() );

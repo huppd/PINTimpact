@@ -2129,4 +2129,299 @@ contains
     end subroutine VF_init_SHBF
 
 
+
+
+  function eddy(x1,x2,dir) result(fn_val)
+  
+    implicit none
+
+    real(c_double), intent(in   ) ::  x1
+    real(c_double), intent(in   ) ::  x2
+    integer(c_int), intent(in   ) ::  dir
+
+    real(c_double)                ::  length, orient, pi
+    real(c_double)                ::  fn_val
+
+
+    pi = 4.*atan(1.)    !!set constants
+
+    if (1 == 2) then
+
+      length = sqrt(x1**2+x2**2)
+      orient = atan2(x2,x1)
+
+      fn_val = sin(pi*erf(1.*length))
+
+      !if (dir == 1) fn_val = -fn_val*sin(orient)
+      !if (dir == 2) fn_val =  fn_val*cos(orient)
+      !if (dir == 3) fn_val =  fn_val*cos(orient)
+      if (dir == 1) fn_val =  fn_val*sin(orient)
+      if (dir == 2) fn_val = -fn_val*cos(orient)
+      if (dir == 3) fn_val = -fn_val*cos(orient)
+
+    else
+
+      if (x1 .ge. -1. .and. x1 .le. 1. .and. x2 .ge. -1. .and. x2 .le. 1.) then
+        !! if (dir == 1) fn_val = -sin(pi*x1)*(1.+cos(pi*x2))/2. ! "quatropol" mit sich teilender instabilitaet (eine verbleibt in der symmetriefläche)
+        !! if (dir == 2) fn_val =  sin(pi*x2)*(1.+cos(pi*x1))/2.
+        !! if (dir == 3) fn_val =  sin(pi*x2)*(1.+cos(pi*x1))/2.
+        ! if (dir == 1) fn_val = -sin(pi*x2)*(1.+cos(pi*x1))/2.
+        ! if (dir == 2) fn_val =  sin(pi*x1)*(1.+cos(pi*x2))/2.
+        ! if (dir == 3) fn_val =  sin(pi*x1)*(1.+cos(pi*x2))/2.
+        if (dir == 1) fn_val =  sin(pi*x2)*(1.+cos(pi*x1))/2.
+        if (dir == 2) fn_val = -sin(pi*x1)*(1.+cos(pi*x2))/2.
+        if (dir == 3) fn_val = -sin(pi*x1)*(1.+cos(pi*x2))/2.
+      else
+        fn_val = 0.
+      end if
+
+      !if (x1 .lt. -1. .or. x1 .gt. 1.) fn_val = 0.
+      !if (x2 .lt. -1. .or. x2 .gt. 1.) fn_val = 0.
+
+    end if
+
+    return
+
+
+  end function eddy
+
+  !>  0 generic GH
+  !!  1 counter-rotating primary vortices, even secondary vortices
+  !!  2 counter-rotating primary vortices, odd secondary vortices
+  !!  3 pair of antisymmetric streaks 
+  !!  4 array of periodic vortices 
+  !!  5 line of exaggerated spanwise velocity
+  !!  6 Goertler-Haemmerlin disturbance in w component (spanwise)
+  !!  7 generic noise (OU process)
+  !!  8 pair of counter-rotating vortices with d/dz (init cond)
+  !!  9 array of counter-rotating vortices with d/dz (init cond)
+  subroutine VF_init_Dist(  &
+      rank,                 &
+      N,                    &
+      bL,bU,                &
+      SU,NU,                &
+      SV,NV,                &
+      SW,NW,                &
+      BC_3L_global,         &
+      x1u,                  &
+      x1p,                  &
+      x2p,                  &
+      x3w,                  &
+      x3p,                  &
+      dist_type,            &
+      vortex_ampli_prim,    &
+      vortex_x1pos,         &
+      vortex_x3pos,         &
+      vortex_radius,        &
+      vortex_band,          &
+      velU,velV,velW ) bind ( c, name='VF_init_Dist' )
+
+    implicit none
+
+    integer(c_int), intent(in)     :: rank
+
+    integer(c_int), intent(in)     :: N(3)
+
+    integer(c_int), intent(in)     :: bL(3)
+    integer(c_int), intent(in)     :: bU(3)
+
+    integer(c_int), intent(in)     :: SU(3)
+    integer(c_int), intent(in)     :: NU(3)
+
+    integer(c_int), intent(in)     :: SV(3)
+    integer(c_int), intent(in)     :: NV(3)
+
+    integer(c_int), intent(in)     :: SW(3)
+    integer(c_int), intent(in)     :: NW(3)
+
+    integer(c_int), intent(in)     :: BC_3L_global
+    
+
+    real(c_double), intent(in)     :: x1u( bL(1):(N(1)+bU(1)) )
+    real(c_double), intent(in)     :: x1p( bL(1):(N(1)+bU(1)) )
+    real(c_double), intent(in)     :: x2p( bL(2):(N(2)+bU(2)) )
+
+    real(c_double), intent(in)     :: x3p( bL(3):(N(3)+bU(3)) )
+    real(c_double), intent(in)     :: x3w( bL(3):(N(3)+bU(3)) )
+
+
+    integer(c_int), intent(in)     :: dist_type
+
+    real(c_double), intent(in)     :: vortex_ampli_prim
+    real(c_double), intent(in)     :: vortex_x1pos, vortex_x3pos
+    real(c_double), intent(in)     :: vortex_radius, vortex_band
+
+    real(c_double),  intent(inout) :: velU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: velV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: velW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+
+    integer(c_int)                ::  i, ii, j, k
+
+    !! mjohn 051012 - variables required for changing the nondimensionalization
+    integer(c_int)                ::  No, Ne, aborted, merror
+    real(c_double)                ::  pi
+    !! mjohn 051012
+
+
+    velU( SU(1):NU(1),SU(2):NU(2),SU(3):NU(3) ) = 0.
+    velV( SV(1):NV(1),SV(2):NV(2),SV(3):NV(3) ) = 0.
+    velW( SW(1):NW(1),SW(2):NW(2),SW(3):NW(3) ) = 0.
+
+
+    aborted = 0
+  
+    pi = 4.*atan(1.)    !!set constants
+
+
+    ! wall-normal v component
+    do k = SU(3), NU(3)
+      do j = SU(2), NU(2)
+        do i = SU(1), NU(1)
+          select case (dist_type)
+          case (0)                 !----- mjohn 301111 - generic inflow
+            aborted = 1
+            ! do nothing
+          case (1)                 !----- mjohn 301111 - pair of primary vortices, even secondary forcing
+            if( BC_3L_global == -2 ) then
+              velU(i,j,k) = velU(i,j,k) + vortex_ampli_prim*eddy((x1u(i)-vortex_x1pos)/vortex_radius,(x3p(k)-vortex_x3pos)/vortex_radius,1)
+            ELSE
+              velU(i,j,k) = velU(i,j,k) + vortex_ampli_prim*eddy((x1u(i)-vortex_x1pos)/vortex_radius,(x3p(k)-vortex_x3pos)/vortex_radius,1)
+              velU(i,j,k) = velU(i,j,k) - vortex_ampli_prim*eddy((x1u(i)-vortex_x1pos)/vortex_radius,(x3p(k)+vortex_x3pos)/vortex_radius,1)
+            END IF
+          CASE (2)                 !----- mjohn 301111 - odd secondary forcing
+            IF (BC_3L_global == -2) THEN
+              WRITE(*,*) "ERROR! Wrong disturbance selected. Symmetric setup does not allow for odd secondary forcing. Simulation aborted."
+              CALL MPI_FINALIZE(merror)
+            ELSE
+              velU(i,j,k) = velU(i,j,k) + vortex_ampli_prim*eddy((x1u(i)-vortex_x1pos)/vortex_radius,(x3p(k)-vortex_x3pos)/vortex_radius,1)
+              velU(i,j,k) = velU(i,j,k) - vortex_ampli_prim*eddy((x1u(i)-vortex_x1pos)/vortex_radius,(x3p(k)+vortex_x3pos)/vortex_radius,1)
+            END IF
+          CASE (3)                 !----- mjohn 301111 - mixed secondary forcing
+            IF (BC_3L_global == -2) THEN
+              WRITE(*,*) "ERROR! Wrong disturbance selected. Symmetric setup does not allow for mixed secondary forcing. Simulation aborted."
+              CALL MPI_FINALIZE(merror)
+            ELSE
+              velU(i,j,k) = velU(i,j,k) + vortex_ampli_prim*eddy((x1u(i)-vortex_x1pos)/vortex_radius,(x3p(k)-vortex_x3pos)/vortex_radius,1)
+              velU(i,j,k) = velU(i,j,k) + vortex_ampli_prim*eddy((x1u(i)-vortex_x1pos)/vortex_radius,(x3p(k)+vortex_x3pos)/vortex_radius,1)
+              velU(i,j,k) = velU(i,j,k) - vortex_ampli_prim*eddy((x1u(i)-vortex_x1pos)/vortex_radius,(x3p(k)             )/vortex_radius,1)
+            END IF
+          CASE (4)                 !----- mjohn 260912 - array of primary vortices, no secondary forcing (without distinction between symmetric and non-symmetric case / without IF(BC_3L_..) statement)
+            ! get number of even and odd vortices to be initialized within domain
+            Ne =   floor((vortex_band/vortex_x3pos +1)/4)
+            No = ceiling((vortex_band/vortex_x3pos -1)/4)
+            Ne = min(Ne,No)
+            No = min(Ne,No)
+            ! initialize No odd vortices at positions (1*x3pos, 5*x3pos, ...) and Ne even vortices (with opposite sign) at positions (3*x3pos, 7*x3pos, ...)
+            do ii = -ceiling((No-1)/2.0), floor((No-1)/2.0)
+              velU(i,j,k) = velU(i,j,k) + vortex_ampli_prim*eddy((x1u(i)-vortex_x1pos)/vortex_radius,(x3p(k) - vortex_x3pos - 4*ii*vortex_x3pos)/vortex_radius,1)
+              velU(i,j,k) = velU(i,j,k) - vortex_ampli_prim*eddy((x1u(i)-vortex_x1pos)/vortex_radius,(x3p(k) + vortex_x3pos + 4*ii*vortex_x3pos)/vortex_radius,1)
+            end do
+          CASE (5)
+            aborted = 1
+          CASE (6)
+            aborted = 1
+          CASE (7)
+            aborted = 1
+          CASE (8)                 !----- mjohn 300513 - pair of primary vortices with modulation in 2 (z) direction
+            velU(i,j,k) = velU(i,j,k) + vortex_ampli_prim*eddy((x1u(i)-vortex_x1pos)/vortex_radius,(x3p(k)-vortex_x3pos)/vortex_radius,1)*(0.75+0.25*sin(2*pi*x2p(j)/(4*vortex_radius)))
+            velU(i,j,k) = velU(i,j,k) - vortex_ampli_prim*eddy((x1u(i)-vortex_x1pos)/vortex_radius,(x3p(k)+vortex_x3pos)/vortex_radius,1)*(0.75+0.25*sin(2*pi*x2p(j)/(4*vortex_radius)))
+          CASE (9)                 !----- mjohn 310513 - array of primary vortices with modulation in 2 (z) direction
+            ! get number of even and odd vortices to be initialized within domain
+            Ne =   floor((vortex_band/vortex_x3pos +1)/4)
+            No = ceiling((vortex_band/vortex_x3pos -1)/4)
+            Ne = min(Ne,No)
+            No = min(Ne,No)
+            ! initialize No odd vortices at positions (1*x3pos, 5*x3pos, ...) and Ne even vortices (with opposite sign) at positions (3*x3pos, 7*x3pos, ...)
+            do ii = -ceiling((No-1)/2.0), floor((No-1)/2.0)
+              velU(i,j,k) = velU(i,j,k) + vortex_ampli_prim*eddy((x1u(i)-vortex_x1pos)/vortex_radius,(x3p(k) - vortex_x3pos - 4*ii*vortex_x3pos)/vortex_radius,1)*(0.75+0.25*sin(2*pi*x2p(j)/(4*vortex_radius)))
+              velU(i,j,k) = velU(i,j,k) - vortex_ampli_prim*eddy((x1u(i)-vortex_x1pos)/vortex_radius,(x3p(k) + vortex_x3pos + 4*ii*vortex_x3pos)/vortex_radius,1)*(0.75+0.25*sin(2*pi*x2p(j)/(4*vortex_radius)))
+              end do
+
+            case default
+              aborted = 1
+              ! do nothing
+            end select
+          end do
+        end do
+      end do
+
+
+      ! chordwise u component
+      do k = SW(3), NW(3)
+        do j = SW(2), NW(2)
+          do i = SW(1), NW(1)
+            select case (dist_type)
+            case (0)                 !----- mjohn 301111 - generic inflow conditions of gh-type
+              aborted = 1
+              ! do nothing
+            case (1)                 !----- mjohn 301111 - even secondary forcing
+              if (BC_3L_global == -2) then
+                velW(i,j,k) = velW(i,j,k) + vortex_ampli_prim*eddy((x1p(i)-vortex_x1pos)/vortex_radius,(x3w(k)-vortex_x3pos)/vortex_radius,3)
+              else
+                velW(i,j,k) = velW(i,j,k) + vortex_ampli_prim*eddy((x1p(i)-vortex_x1pos)/vortex_radius,(x3w(k)-vortex_x3pos)/vortex_radius,3)
+                velW(i,j,k) = velW(i,j,k) - vortex_ampli_prim*eddy((x1p(i)-vortex_x1pos)/vortex_radius,(x3w(k)+vortex_x3pos)/vortex_radius,3)
+              end if
+            case (2)                 !----- mjohn 301111 - odd secondary forcing
+              IF (BC_3L_global == -2) THEN
+                WRITE(*,*) "ERROR! Wrong disturbance selected. Symmetric setup does not allow for odd secondary forcing. Simulation aborted."
+                CALL MPI_FINALIZE(merror)
+              else
+                velW(i,j,k) = velW(i,j,k) + vortex_ampli_prim*eddy((x1p(i)-vortex_x1pos)/vortex_radius,(x3w(k)-vortex_x3pos)/vortex_radius,3)
+                velW(i,j,k) = velW(i,j,k) - vortex_ampli_prim*eddy((x1p(i)-vortex_x1pos)/vortex_radius,(x3w(k)+vortex_x3pos)/vortex_radius,3)
+              end if
+            case (3)                 !----- mjohn 301111 - mixed secondary forcing
+              IF (BC_3L_global == -2) THEN
+                WRITE(*,*) "ERROR! Wrong disturbance selected. Symmetric setup does not allow for mixed secondary forcing. Simulation aborted."
+                CALL MPI_FINALIZE(merror)
+              else
+                velW(i,j,k) = velW(i,j,k) + vortex_ampli_prim*eddy((x1p(i)-vortex_x1pos)/vortex_radius,(x3w(k)-vortex_x3pos)/vortex_radius,3)
+                velW(i,j,k) = velW(i,j,k) + vortex_ampli_prim*eddy((x1p(i)-vortex_x1pos)/vortex_radius,(x3w(k)+vortex_x3pos)/vortex_radius,3)
+                velW(i,j,k) = velW(i,j,k) - vortex_ampli_prim*eddy((x1p(i)-vortex_x1pos)/vortex_radius,(x3w(k)             )/vortex_radius,3)
+              END IF
+            case (4)                 !----- mjohn 260912 - array of primary vortices, no secondary forcing (without distinction between symmetric and non-symmetric case / without IF(BC_3L_..) statement)
+              ! get number of even and odd vortices to be initialized within domain
+              Ne =   floor((vortex_band/vortex_x3pos +1)/4)
+              No = ceiling((vortex_band/vortex_x3pos -1)/4)
+              Ne = min(Ne,No)
+              No = min(Ne,No)
+              ! initialize No odd vortices at positions (1*x3pos, 5*x3pos, ...) and Ne even (with opposite sign) vortices at positions (3*x3pos, 7*x3pos, ...)
+              do ii = -ceiling((No-1)/2.0), floor((No-1)/2.0)
+                velW(i,j,k) = velW(i,j,k) + vortex_ampli_prim*eddy((x1p(i)-vortex_x1pos)/vortex_radius,(x3w(k) - vortex_x3pos - 4*ii*vortex_x3pos)/vortex_radius,3)
+                velW(i,j,k) = velW(i,j,k) - vortex_ampli_prim*eddy((x1p(i)-vortex_x1pos)/vortex_radius,(x3w(k) + vortex_x3pos + 4*ii*vortex_x3pos)/vortex_radius,3)
+              end do
+            case (5)
+              aborted = 1
+            case (6)
+              aborted = 1
+            case (7)
+              aborted = 1
+            case (8)                 !----- mjohn 300513 - pair of primary vortices with modulation in 2 (z) direction
+              velU(i,j,k) = velU(i,j,k) + vortex_ampli_prim*eddy((x1u(i)-vortex_x1pos)/vortex_radius,(x3p(k)-vortex_x3pos)/vortex_radius,1)*(0.75+0.25*sin(2*pi*x2p(j)/(4*vortex_radius)))
+              velU(i,j,k) = velU(i,j,k) - vortex_ampli_prim*eddy((x1u(i)-vortex_x1pos)/vortex_radius,(x3p(k)+vortex_x3pos)/vortex_radius,1)*(0.75+0.25*sin(2*pi*x2p(j)/(4*vortex_radius)))
+            case (9)                 !----- mjohn 310513 - array of primary vortices with modulation in 2 (z) direction
+              ! get number of even and odd vortices to be initialized within domain
+              Ne =   floor((vortex_band/vortex_x3pos +1)/4)
+              No = ceiling((vortex_band/vortex_x3pos -1)/4)
+              Ne = min(Ne,No)
+              No = min(Ne,No)
+              ! initialize No odd vortices at positions (1*x3pos, 5*x3pos, ...) and Ne even (with opposite sign) vortices at positions (3*x3pos, 7*x3pos, ...)
+              do ii = -ceiling((No-1)/2.0), floor((No-1)/2.0)
+                velW(i,j,k) = velW(i,j,k) + vortex_ampli_prim*eddy((x1p(i)-vortex_x1pos)/vortex_radius,(x3w(k) - vortex_x3pos - 4*ii*vortex_x3pos)/vortex_radius,3)*(0.75+0.25*sin(2*pi*x2p(j)/(4*vortex_radius)))
+                velW(i,j,k) = velW(i,j,k) - vortex_ampli_prim*eddy((x1p(i)-vortex_x1pos)/vortex_radius,(x3w(k) + vortex_x3pos + 4*ii*vortex_x3pos)/vortex_radius,3)*(0.75+0.25*sin(2*pi*x2p(j)/(4*vortex_radius)))
+              end do
+            case default
+              aborted = 1
+              ! do nothing
+            end select
+          end do
+        end do
+      end do
+
+      !----- mjohn 260912
+      IF(rank == 0 .AND. aborted .eq. 1) THEN
+        WRITE(*,*) "WARNING! No valid initial disturbance defined. Initial conditions equal to baseflow only."
+      END IF
+
+  end subroutine VF_init_Dist
+
 end module cmod_VectorField

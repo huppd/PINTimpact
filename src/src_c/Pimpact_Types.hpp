@@ -75,7 +75,8 @@ enum EVectorField {
   Disc2D=17,
   RotationDisc2D=18,
   ConstFlow=19,
-	SweptHiemenzFlow=22
+	SweptHiemenzFlow=22,
+	Disturbance=23
 };
 
 

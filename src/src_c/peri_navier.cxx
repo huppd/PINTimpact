@@ -343,7 +343,7 @@ int main(int argi, char** argv ) {
 
 	//tolBelos*=l1*l2/n1/n2*(nfe-1)/nfs;
 
-  /******************************************************************************************/
+  /******1***********************************************************************************/
 	{
 
 		auto para = Pimpact::createLinSolverParameter( linSolName, tolBelos, -1, outLinSolve );

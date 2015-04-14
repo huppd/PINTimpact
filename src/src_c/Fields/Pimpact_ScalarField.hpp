@@ -604,36 +604,36 @@ public:
   /// Write the ScalarField to an hdf5 file, the velocities are interpolated to the pressure points
   /// \todo add 3d case here
   /// \todo add restart
-  void write( int count=0 , bool restart=false ) const {
+	void write( int count=0 , bool restart=false ) const {
 
-    if( 0==space()->rankS() )
-      switch(fType_) {
+		if( 0==space()->rankS() )
+			switch(fType_) {
       case U:
-        std::cout << "writing velocity field x(" << count << ") ...\n";
-        break;
-      case V:
-        std::cout << "writing velocity field y(" << count << ") ...\n";
-        break;
-      case W:
-        std::cout << "writing velocity field z(" << count << ") ...\n";
-        break;
-      case EField::S:
-        std::cout << "writing pressure field  (" << count << ") ...\n";
-        break;
-      }
+				std::cout << "writing velocity field x(" << count << ") ...\n";
+				break;
+			case V:
+				std::cout << "writing velocity field y(" << count << ") ...\n";
+				break;
+			case W:
+				std::cout << "writing velocity field z(" << count << ") ...\n";
+				break;
+			case EField::S:
+				std::cout << "writing pressure field  (" << count << ") ...\n";
+				break;
+			}
 
-    if( !restart ) {
-      Teuchos::RCP< ScalarField<SpaceT> > temp;
+		if( !restart ) {
+			Teuchos::RCP< ScalarField<SpaceT> > temp;
 
-      if( EField::S != fType_ ) {
-        temp = Teuchos::rcp(
-            new ScalarField<SpaceT>( space(), true, EField::S ) );
-        space()->getInterpolateV2S()->apply( *this, *temp );
-      }
+			if( EField::S != fType_ ) {
+				temp = Teuchos::rcp(
+						new ScalarField<SpaceT>( space(), true, EField::S ) );
+				space()->getInterpolateV2S()->apply( *this, *temp );
+			}
 
-      if( 2==space()->dim() ) {
+			if( 2==space()->dim() ) {
 
-        write_hdf5_2D(
+				write_hdf5_2D(
             space()->rankS(),
             space()->commf(),
             space()->nGlo(),
@@ -651,11 +651,11 @@ public:
             (int)fType_,
             count,
             (EField::S==fType_)?9:10,
-                (EField::S==fType_)?s_:temp->s_,
-                    space()->getCoordinatesGlobal()->get(0,EField::S),
-                    space()->getCoordinatesGlobal()->get(1,EField::S),
-                    space()->getDomain()->getDomainSize()->getRe(),
-                    space()->getDomain()->getDomainSize()->getAlpha2() );
+						(EField::S==fType_)?s_:temp->s_,
+						space()->getCoordinatesGlobal()->get(0,EField::S),
+						space()->getCoordinatesGlobal()->get(1,EField::S),
+						space()->getDomain()->getDomainSize()->getRe(),
+						space()->getDomain()->getDomainSize()->getAlpha2() );
       }
       else if( 3==space()->dim() ) {
 
@@ -676,7 +676,8 @@ public:
             space()->getProcGridSize()->get(),
             space()->getProcGrid()->getIB(),
             space()->getProcGrid()->getShift(),
-            (int)fType_+1,
+						(int)fType_+1,
+						(int)EField::S+1,
             count,
             (EField::S==fType_)?9:10,
             stride,
@@ -711,6 +712,7 @@ public:
           space()->getProcGridSize()->get(),
           space()->getProcGrid()->getIB(),
           space()->getProcGrid()->getShift(),
+          (int)fType_+1,
           (int)fType_+1,
           count,
           (EField::S==fType_)?9:10,

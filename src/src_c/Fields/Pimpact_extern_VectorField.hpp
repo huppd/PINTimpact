@@ -268,6 +268,36 @@ void VF_init_SHBF(
 		double* const velV,
 		double* const velW ); 
 
+
+void VF_init_Dist(
+		const int& rank,      
+    const int* const N,         
+    const int* const bL,
+		const int* const bU,     
+    const int* const SU,
+		const int* const NU,     
+    const int* const SV,
+		const int* const NV,     
+    const int* const SW,
+		const int* const NW,     
+    const int& BC_3L_global,       
+    const double* const x1u,                
+    const double* const x1p,                
+    const double* const x2p,                
+    const double* const x3w,                
+    const double* const x3p,                
+		const int& dist_type,          
+		const double& vortex_ampli_prim,  
+		const double& vortex_x1pos,       
+		const double& vortex_x3pos,       
+		const double& vortex_radius,      
+		const double& vortex_band,        
+		double* const velU,
+		double* const velV,
+		double* const velW ); 
+
+
+
 } // end of extern 'C'
 
 

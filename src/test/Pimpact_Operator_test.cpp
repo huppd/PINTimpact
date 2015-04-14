@@ -675,22 +675,22 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2JSmoother ) {
 
 TEUCHOS_UNIT_TEST( BasicOperator, ForcingOp ) {
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+	auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
-  auto vel = Pimpact::create<Pimpact::VectorField>( space );
-  auto force = Pimpact::create<Pimpact::VectorField>( space );
-  auto res = Pimpact::create<Pimpact::VectorField>( space );
+	auto vel = Pimpact::create<Pimpact::VectorField>( space );
+	auto force = Pimpact::create<Pimpact::VectorField>( space );
+	auto res = Pimpact::create<Pimpact::VectorField>( space );
 
 	vel->init(1.);
-	force->initField( Pimpact::EFlowField(11) );
- res->random();
+	force->initField( Pimpact::EVectorField(11) );
+	res->random();
 
- auto op = Pimpact::createForcingOp( force, 1. );
+	auto op = Pimpact::createForcingOp( force, 1. );
 
- op->apply( *vel, *res );
- vel->add( 1., *res, -1., *force );
+	op->apply( *vel, *res );
+	vel->add( 1., *res, -1., *force );
 
- TEST_EQUALITY( vel->norm()<eps, true );
+	TEST_EQUALITY( vel->norm()<eps, true );
 }
 
 
