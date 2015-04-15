@@ -3110,7 +3110,7 @@ module mod_solvers
   !--- Grob-Gitter Lösung -------------------------------------
   if (participate_yes(n_grids)) then
      if (gstart == n_grids) then
-                           call relax_bottom(init_yes,.false.             ,n_grids,psi_rel1 ,bb    ,phi   ,problem_type) ! Achtung: psi_rel1 ist i.A. zu gross! (nullspace_coarse == .FALSE. <-- unsch�n!)
+                           call relax_bottom(init_yes,.false.             ,n_grids,psi_rel1 ,bb    ,phi   ,problem_type) ! Achtung: psi_rel1 ist i.A. zu gross! (nullspace_coarse == .FALSE. <-- unschön!)
      else
         if (n_grids == 2 ) call relax_bottom(.true.  ,nullspace_coarse_yes,n_grids,psi_rel2 ,vec2A ,vec2B ,problem_type)
         if (n_grids == 3 ) call relax_bottom(.true.  ,nullspace_coarse_yes,n_grids,psi_rel3 ,vec3A ,vec3B ,problem_type)
@@ -3243,7 +3243,7 @@ module mod_solvers
   !--- Grob-Gitter Lösung -------------------------------------
   if (participate_yes(n_grids)) then
      if (gstart == n_grids) then
-                           call relax_bottom(init_yes,.false.             ,n_grids,psi_rel1 ,bb    ,phi   ,problem_type) ! Achtung: psi_rel1 ist i.A. zu gross! (nullspace_coarse == .FALSE. <-- unsch�n!)
+                           call relax_bottom(init_yes,.false.             ,n_grids,psi_rel1 ,bb    ,phi   ,problem_type) ! Achtung: psi_rel1 ist i.A. zu gross! (nullspace_coarse == .FALSE. <-- unschön!)
      else
         if (n_grids == 2 ) call relax_bottom(.true.  ,nullspace_coarse_yes,n_grids,psi_rel2 ,vec2A ,vec2B ,problem_type)
         if (n_grids == 3 ) call relax_bottom(.true.  ,nullspace_coarse_yes,n_grids,psi_rel3 ,vec3A ,vec3B ,problem_type)

@@ -60,6 +60,30 @@ typedef Pimpact::OperatorBase<MTVF> VOpBase;
 auto pl = Teuchos::parameterList();
 
 
+
+double slope(const std::vector<double>& x, const std::vector<double>& y){
+	double n = x.size();
+
+	double avgX = std::accumulate(x.begin(), x.end(), 0.0) / n;
+	double avgY = std::accumulate(y.begin(), y.end(), 0.0) / n;
+
+	double numerator = 0.0;
+	double denominator = 0.0;
+
+	for(int i=0; i<n; ++i){
+		numerator += (x[i] - avgX) * (y[i] - avgY);
+		denominator += (x[i] - avgX) * (x[i] - avgX);
+	}
+
+	if(denominator == 0){
+		return 0;
+	}
+
+	return numerator / denominator;
+}
+
+
+
 TEUCHOS_STATIC_SETUP() {
   Teuchos::CommandLineProcessor &clp = Teuchos::UnitTestRepository::getCLP();
   clp.addOutputSetupOptions(true);
@@ -87,7 +111,7 @@ TEUCHOS_STATIC_SETUP() {
 
   pl->set( "dim", dim );
 
-  pl->set("nx", 25 );
+  pl->set("nx", 33 );
   pl->set("ny", 17 );
   pl->set("nz", 9 );
 
@@ -466,42 +490,65 @@ TEUCHOS_UNIT_TEST( TimeOpearotr, TimeOpWrap ) {
 
 TEUCHOS_UNIT_TEST( TimeOperator, DtTimeOp ) {
 
-	auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+	pl->set("nx", 33 );
+	pl->set("ny", 17 );
+    	pl->set("nz", 9 );
+    
+	double pi = 4.*std::atan(1.);
 
-	auto field = Pimpact::create<TVF>( space );
-	auto field1 = field->clone();
-	auto field2 = field->clone();
+	int l = 7;
+	std::vector<double> error(l);
+	std::vector<double> idt(l);
 
-	// op test
-	auto dt = Pimpact::create<Pimpact::DtTimeOp>( space );
+	for (int q = 3; q < 3+l; q++ ) {
+
+		pl->set("nf", int(std::pow(2,q)) );
+
+		auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+
+		auto field = Pimpact::create<TVF>( space );
+		auto field1 = field->clone();
+		auto field2 = field->clone();
+
+		// op test
+		auto dt = Pimpact::create<Pimpact::DtTimeOp>( space );
 
 
-	// zero test
-	Pimpact::initVectorTimeField( field1, Pimpact::Poiseuille_inX );
-	field2->init(0);
+		// zero test
+		Pimpact::initVectorTimeField( field1, Pimpact::Poiseuille_inX );
+		field2->init(0);
 
-	dt->apply( *field1, *field2 );
+		dt->apply( *field1, *field2 );
 
-	TEST_EQUALITY( field2()->norm()<eps, true );
+		TEST_EQUALITY( field2()->norm()<eps, true );
 
-	// cos test
-	Pimpact::initVectorTimeField( field, Pimpact::OscilatingDisc2DVel,0.,0.,0.,1. );
-	field1->init(0);
-	field2->init(0);
+		// cos test
+		Pimpact::initVectorTimeField( field, Pimpact::OscilatingDisc2DVel,0.,0.,0.,1. );
+		//field->write();
+		field1->init(0);
+		field2->init(0);
 
-	dt->apply( *field, *field1 );
-	dt->apply( *field1, *field2 );
+		dt->apply( *field, *field1 );
+		dt->apply( *field1, *field2 );
 
-	S a2 = space->getDomain()->getDomainSize()->getAlpha2()/space->getDomain()->getDomainSize()->getRe();
+		S a2 = space->getDomain()->getDomainSize()->getAlpha2()/space->getDomain()->getDomainSize()->getRe();
 
-	S bla = a2*a2;
+		S bla = a2*a2;
 
-	field->add( bla, *field, 1, *field2 );
+		field->add( bla, *field, 1, *field2 );
 
-	field->write();
-  std::cout << "bla: " << bla << "\n";
-	std::cout << "error: " << field()->norm() << "\n";
+		//std::cout << "bla: " << bla << "\n";
+		//std::cout << "error: " << field()->norm() << "\n";
 
+		error[q-3] = std::log(field()->norm()); 
+		idt[q-3]   = std::log(((double)space->nGlo()[3])/2./pi);
+
+	}
+
+	double sl = std::abs(slope(idt,error));
+	std::cout << "slope: " << sl << "\n";
+
+	TEST_EQUALITY( std::abs(sl - 0.5) <  0.05, true );
 }
 
 
