@@ -13,7 +13,7 @@
 
 
 
-extern "C" {
+//extern "C" {
 //void fgetBCLoc(
 //    int& BC_1L_,
 //    int& BC_1U_,
@@ -21,14 +21,14 @@ extern "C" {
 //    int& BC_2U_,
 //    int& BC_3L_,
 //    int& BC_3U_ );
-void fsetBCLoc(
-    const int& BC_1L_,
-    const int& BC_1U_,
-    const int& BC_2L_,
-    const int& BC_2U_,
-    const int& BC_3L_,
-    const int& BC_3U_ );
-}
+//void fsetBCLoc(
+//    const int& BC_1L_,
+//    const int& BC_1U_,
+//    const int& BC_2L_,
+//    const int& BC_2U_,
+//    const int& BC_3L_,
+//    const int& BC_3U_ );
+//}
 
 
 
@@ -46,7 +46,7 @@ public:
 
   template< class OT, int dT >
   friend Teuchos::RCP<const BoundaryConditionsLocal>  createBoudaryConditionsLocal(
-        const Teuchos::RCP<const BoundaryConditionsGlobal >& bcg,
+        const Teuchos::RCP<const BoundaryConditionsGlobal<dT> >& bcg,
         const Teuchos::RCP<const ProcGridSize<OT,dT> >&  pgs,
         const Teuchos::RCP<const ProcGrid<OT,dT> >&  pg );
 
@@ -89,15 +89,15 @@ protected:
 
 public:
 
-  void set_Impact() const {
-    fsetBCLoc(
-        BCL_local_[0],
-        BCU_local_[0],
-        BCL_local_[1],
-        BCU_local_[1],
-        BCL_local_[2],
-        BCU_local_[2] );
-  }
+//  void set_Impact() const {
+//    fsetBCLoc(
+//        BCL_local_[0],
+//        BCU_local_[0],
+//        BCL_local_[1],
+//        BCU_local_[1],
+//        BCL_local_[2],
+//        BCU_local_[2] );
+//  }
 
   const int* getBCL() const { return( BCL_int_.getRawPtr() ); }
   const int& getBCL( int i ) const { return( BCL_int_[i] ); }
@@ -146,7 +146,7 @@ public:
 
 template< class O, int d >
 Teuchos::RCP<const BoundaryConditionsLocal>  createBoudaryConditionsLocal(
-      const Teuchos::RCP<const BoundaryConditionsGlobal >& bcg,
+      const Teuchos::RCP<const BoundaryConditionsGlobal<d> >& bcg,
       const Teuchos::RCP<const ProcGridSize<O,d> >&  pgs,
       const Teuchos::RCP<const ProcGrid<O,d> >&  pg ) {
 

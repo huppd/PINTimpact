@@ -230,19 +230,19 @@ public:
   /// prints to \c std::cout, only for debuging purpose
   void print( std::ostream& out=std::cout ) const {
     out << "\t---FieldSpace: ---\n";
-    out << "comput dim: " << dim << "\n";
-    out << "ncbC: " << ncbC_ << "\n";
-    out << "ncbD: " << ncbD_ << "\n";
-    out << "ncbG: " << ncbG_ << "\n";
-    out << "bl: " << bl_ << "\n";
-    out << "bu: " << bu_ << "\n";
-    out << "dl: " << dl_ << "\n";
-    out << "du: " << du_ << "\n";
-    out << "gl: " << gl_ << "\n";
-    out << "gu: " << gu_ << "\n";
-    out << "nl: " << nl_ << "\n";
-    out << "nu: " << nu_ << "\n";
-    out << "ls: " << ls_ << "\n";
+    out << "\tcomput dim: " << dim << "\n";
+    out << "\tncbC: " << ncbC_ << "\n";
+    out << "\tncbD: " << ncbD_ << "\n";
+    out << "\tncbG: " << ncbG_ << "\n";
+    out << "\tbl: " << bl_ << "\n";
+    out << "\tbu: " << bu_ << "\n";
+    out << "\tdl: " << dl_ << "\n";
+    out << "\tdu: " << du_ << "\n";
+    out << "\tgl: " << gl_ << "\n";
+    out << "\tgu: " << gu_ << "\n";
+    out << "\tnl: " << nl_ << "\n";
+    out << "\tnu: " << nu_ << "\n";
+    out << "\tls: " << ls_ << "\n";
   }
 
   int  getDimNcbC( int i ) const { return( ncbC_[i].size() ); }

@@ -108,12 +108,17 @@ public:
   typedef SpaceT FSpaceT;
   typedef SpaceT CSpaceT;
 
-  InterpolationOp(
-      const Teuchos::RCP<const SpaceT>& spaceC,
-      const Teuchos::RCP<const SpaceT>& spaceF ):
-        spaceC_(spaceC),spaceF_(spaceF) {
+	InterpolationOp(
+			const Teuchos::RCP<const SpaceT>& spaceC,
+			const Teuchos::RCP<const SpaceT>& spaceF,
+			Teuchos::Tuple<int,3> nb=Teuchos::tuple(0,0,0) ):
+		spaceC_(spaceC),
+		spaceF_(spaceF) {
 
-    for( int i=0; i<3; ++i ) {
+		if( 0==nb[0] ) 
+			nb = spaceF_->getProcGridSize()->getTuple();
+
+		for( int i=0; i<3; ++i ) {
 
       cIS_[i] = new Scalar[ 2*( spaceC_->nLoc(i)-1+1 ) ];
       MG_getCIS(

@@ -296,7 +296,7 @@ int main(int argi, char** argv ) {
 //  auto space = Pimpact::createSpace<S,O,3,4>( pl );
 
 	int baseflow = pl->get<int>("baseflow");
-	int flow = pl->get<int>("flow");
+//	int flow = pl->get<int>("flow");
   // outputs
   Teuchos::RCP<std::ostream> outPar;
   Teuchos::RCP<std::ostream> outLinSolve;

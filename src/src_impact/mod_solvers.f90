@@ -3403,21 +3403,21 @@ module mod_solvers
   
   
   if (1 == 2) then ! TEST!!!
-     if (add_yes) then
-!pgi$ unroll = n:8
-        coarse(1:iimax,1:jjmax,1:kkmax) = fine1(1:imax:di,1:jmax:dj,1:kmax:dk) - fine2(1:imax:di,1:jmax:dj,1:kmax:dk)
-     else
-        coarse(1:iimax,1:jjmax,1:kkmax) = fine1(1:imax:di,1:jmax:dj,1:kmax:dk)
-     end if
+    if (add_yes) then
+      !pgi$ unroll = n:8
+      coarse(1:iimax,1:jjmax,1:kkmax) = fine1(1:imax:di,1:jmax:dj,1:kmax:dk) - fine2(1:imax:di,1:jmax:dj,1:kmax:dk)
+    else
+      coarse(1:iimax,1:jjmax,1:kkmax) = fine1(1:imax:di,1:jmax:dj,1:kmax:dk)
+    end if
      
   else
      
-     if (add_yes) then ! TEST!!! etwas seriöser einbauen ...
+    if (add_yes) then ! TEST!!! etwas seriöser einbauen ...
      
-     call exchange_relax(g,0,0,0,0,.true.,fine1)
-     call exchange_relax(g,0,0,0,0,.true.,fine2)
+      call exchange_relax(g,0,0,0,0,.true.,fine1)
+      call exchange_relax(g,0,0,0,0,.true.,fine2)
      
-     if (dimens == 3) then
+      if (dimens == 3) then
         do kk = 1, kkmax
            k = dk*(kk-1)+1
            do jj = 1, jjmax
@@ -3434,7 +3434,7 @@ module mod_solvers
               end do
            end do
         end do
-     else
+      else
         k  = 1
         kk = 1
         do jj = 1, jjmax
@@ -3448,9 +3448,9 @@ module mod_solvers
                       &              cR2( 1,jj,g+1)*(fine1(i,j+1,k)-fine2(i,j+1,k))) / 2.
            end do
         end do
-     end if
+      end if
      
-     else
+    else
      
      call exchange_relax(g,0,0,0,0,.true.,fine1)
      

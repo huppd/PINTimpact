@@ -12,11 +12,11 @@
 
 
 
-extern "C" {
-
-void fsetPGS(const int& np1, const int& np2, const int& np3 );
-
-}
+//extern "C" {
+//
+//void fsetPGS(const int& np1, const int& np2, const int& np3 );
+//
+//}
 
 
 
@@ -37,45 +37,43 @@ public:
   template< class OT, int dT>
   friend Teuchos::RCP<const ProcGridSize<OT,dT> > createProcGridSize( OT np1, OT np2, OT np3, OT npt );
 
+  template< class OT, int dT>
+  friend Teuchos::RCP<const ProcGridSize<OT,dT> > createProcGridSize( const Teuchos::Tuple<OT,dT>  );
+
+  template< class OT, int dT>
+  friend Teuchos::RCP<const ProcGridSize<OT,dT> > createProcGridSize( const Teuchos::Tuple<OT,dT>, const MPI_Comm&  );
+
+  template< class OT, int dT>
+  friend Teuchos::RCP<const ProcGridSize<OT,dT> > createProcGridSize( const Teuchos::Tuple<OT,dT>, const MPI_Comm&, bool test_yes  );
 protected:
 
   TO procGridSize_;
 
-  void test() const {
+  void test( const MPI_Comm& comm ) const {
 
     int commSize;
-    MPI_Comm_size( MPI_COMM_WORLD, &commSize );
+    MPI_Comm_size( comm, &commSize );
 
     int procSize = 1;
 
     for( int i=0; i<dim; ++i )
       procSize *= procGridSize_[i];
 
-    TEUCHOS_TEST_FOR_EXCEPTION(
-        procSize != commSize,
-        std::logic_error,
-        "!!!ERROR! ProcGridSize:  differs from number of allocated processors !!!" );
+		TEUCHOS_TEST_FOR_EXCEPT( procSize != commSize );
+
     for( int i=0; i<dim; ++i )
-      TEUCHOS_TEST_FOR_EXCEPTION(
-          procGridSize_[i]<1,
-        std::logic_error,
-        "!!!ERROR! ProcGridSize: has to be greater than one!!!" );
+			TEUCHOS_TEST_FOR_EXCEPT( procGridSize_[i]<1 );
   }
 
 
-  ProcGridSize( TO procGridSize ):
-    procGridSize_( procGridSize ) {
+  ProcGridSize( TO procGridSize, const MPI_Comm& comm, bool test_yes ):
+		procGridSize_( procGridSize ) {
 
-    test();
+			if( test_yes ) test( comm );
 
   };
 
 public:
-
-  void set_Impact() const {
-    fsetPGS( procGridSize_[0], procGridSize_[1], procGridSize_[2] );
-  };
-
 
   const Ordinal& get( int i ) const {
     return( procGridSize_[i] );
@@ -84,11 +82,14 @@ public:
     return( procGridSize_.getRawPtr() );
   }
 
+  TO getTuple() const {
+    return( procGridSize_ );
+  }
+
   void print( std::ostream& out=std::cout ) const {
-    for( int i=0; i<dim; ++i)
-      out << "\t#proc"<<i<<": "<<procGridSize_[i];
-    out<< "\n";
+		out << "---ProcGridSize: "<<procGridSize_ << " ---\n";
   };
+
 };
 
 
@@ -98,22 +99,29 @@ template<class O=int, int d=3>
 Teuchos::RCP<const ProcGridSize<O,d> > createProcGridSize( O np1, O np2, O np3, O npt=0 ) {
 
   Teuchos::Tuple<O,d> temp;
-  if( 3==d ) {
-    temp[0] = np1;
-    temp[1] = np2;
-    temp[2] = np3;
-  }
-  else if( 4==d ) {
-    temp[0] = np1;
-    temp[1] = np2;
-    temp[2] = np3;
-    temp[3] = npt;
-  }
+
+	temp[0] = np1;
+	temp[1] = np2;
+	temp[2] = np3;
+	if( 4==d ) temp[3] = npt;
+
   return(
       Teuchos::rcp(
-          new ProcGridSize<O,d>( temp ) ) );
+          new ProcGridSize<O,d>( temp, MPI_COMM_WORLD, true ) ) );
 }
 
+
+
+/// \relates ProcGridSize
+template<class O=int, int d=3>
+Teuchos::RCP<const ProcGridSize<O,d> >
+createProcGridSize( const Teuchos::Tuple<O,d> temp, const MPI_Comm& comm=MPI_COMM_WORLD, bool test_yes=true ){ 
+
+  return(
+      Teuchos::rcp(
+          new ProcGridSize<O,d>( temp, comm, test_yes ) ) );
+
+}
 
 
 } // end of namespace Pimpact

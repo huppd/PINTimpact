@@ -215,7 +215,7 @@ int main(int argi, char** argv ) {
   pl->set("npz", np3 );
   pl->set("npf", np4 );
 
-  auto space = Pimpact::createSpace<S,O,4>( pl, true );
+  auto space = Pimpact::createSpace<S,O,4>( pl );
 	//  space->print();
   int rank = space->getProcGrid()->getRank();
 

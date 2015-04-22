@@ -10,6 +10,7 @@
 #include "Pimpact_MGOperators.hpp"
 #include "Pimpact_MGTransfers.hpp"
 #include "Pimpact_MGSmoothers.hpp"
+#include "Pimpact_CoarsenStrategyGlobal.hpp"
 
 
 /// \defgroup MG MultiGrid
@@ -121,26 +122,33 @@ public:
       for( i=0; i<mgSpaces_->getNGrids()-1; ++i ) {
 //				if(i>0 && 0==j ) x_->get(i)->init(0.); // necessary? for DivGradOp yes
 				if( i>0 ) x_->get(i)->init(0.); // necessary? for DivGradOp yes
-        mgSms_->get(i)->apply( *b_->get(i), *x_->get(i) );
-        mgOps_->get(i)->apply( *x_->get(i), *temp_->get(i) );
-        temp_->get(i)->add( -1., *temp_->get(i), 1., *b_->get(i) );
-        mgTrans_->getRestrictionOp(i)->apply( *temp_->get(i), *b_->get(i+1) );
+
+				if( mgSpaces_->participating(i) ) {
+					mgSms_->get(i)->apply( *b_->get(i), *x_->get(i) );
+					mgOps_->get(i)->apply( *x_->get(i), *temp_->get(i) );
+					temp_->get(i)->add( -1., *temp_->get(i), 1., *b_->get(i) );
+				}
+				mgTrans_->getRestrictionOp(i)->apply( *temp_->get(i), *b_->get(i+1) );
       }
 
 			// coarse grid solution
 			i = -1;
-			/// \todo add level for singular stuff
-			b_->get(i)->level();
-			x_->get(i)->init(0.);
+			if( mgSpaces_->participating(i) ) {
+				/// \todo add level for singular stuff
+				b_->get(i)->level();
+				x_->get(i)->init(0.);
 
-		  cGridSolver_->apply( *b_->get(i), *x_->get(i) );
+				cGridSolver_->apply( *b_->get(i), *x_->get(i) );
+			}
 
-      for( i=-2; i>=-mgSpaces_->getNGrids(); --i ) {
-        // interpolate/correct/smooth
-        mgTrans_->getInterpolationOp(i)->apply( *x_->get(i+1), *temp_->get(i) );
-        x_->get(i)->add( 1., *temp_->get(i), 1., *x_->get(i) );
-				mgSms_->get( i )->apply( *b_->get(i), *x_->get(i) );
-      }
+			for( i=-2; i>=-mgSpaces_->getNGrids(); --i ) {
+				// interpolate/correct/smooth
+				mgTrans_->getInterpolationOp(i)->apply( *x_->get(i+1), *temp_->get(i) );
+				if( mgSpaces_->participating(i) ) {
+					x_->get(i)->add( 1., *temp_->get(i), 1., *x_->get(i) );
+					mgSms_->get( i )->apply( *b_->get(i), *x_->get(i) );
+				}
+			}
 
 			x_->get(0)->level();// only laplace
 			// use temp as stopping cirterion

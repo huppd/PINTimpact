@@ -12,9 +12,9 @@
 
 
 
-extern "C" {
-void fsetDS( const double& L1, const double& L2, const double& L3 );
-}
+//extern "C" {
+//void fsetDS( const double& L1, const double& L2, const double& L3 );
+//}
 
 
 
@@ -85,9 +85,9 @@ public:
 
   const Scalar& getAlpha2() const { return( alpha2_ ); }
 
-  void set_Impact() const {
-    fsetDS( domainSize_[0], domainSize_[1], domainSize_[2] );
-  };
+//  void set_Impact() const {
+//    fsetDS( domainSize_[0], domainSize_[1], domainSize_[2] );
+//  };
 
   void print( std::ostream& out=std::cout ) const {
     out << "\tspatial dim: " << dim_ << "\n"

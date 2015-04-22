@@ -47,7 +47,8 @@ public:
     smoothers_( mgSpaces_->getNGrids() ) {
 
     for( int i=0; i<mgSpaces_->getNGrids(); ++i )
-      smoothers_[i] = Teuchos::rcp( new SmootherT( mgOperators->get(i), pl ) );
+			if( mgSpaces_->participating(i) )
+				smoothers_[i] = Teuchos::rcp( new SmootherT( mgOperators->get(i), pl ) );
 //      smoothers_[i] = create<SmootherT>( mgOperators->get(i), pl );
 
 	// not working on brutus

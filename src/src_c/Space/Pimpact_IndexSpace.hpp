@@ -21,30 +21,30 @@
 namespace Pimpact {
 
 
-extern "C" {
-
-void SVS_set_sInd(const int* const);
-void SVS_set_eInd(const int* const);
-
-void VS_set_sIndU(const int* const);
-void VS_set_eIndU(const int* const);
-
-void VS_set_sIndUB(const int* const);
-void VS_set_eIndUB(const int* const);
-
-void VS_set_sIndV(const int* const);
-void VS_set_eIndV(const int* const);
-
-void VS_set_sIndVB(const int* const);
-void VS_set_eIndVB(const int* const);
-
-void VS_set_sIndW(const int* const);
-void VS_set_eIndW(const int* const);
-
-void VS_set_sIndWB(const int* const);
-void VS_set_eIndWB(const int* const);
-
-}
+//extern "C" {
+//
+//void SVS_set_sInd(const int* const);
+//void SVS_set_eInd(const int* const);
+//
+//void VS_set_sIndU(const int* const);
+//void VS_set_eIndU(const int* const);
+//
+//void VS_set_sIndUB(const int* const);
+//void VS_set_eIndUB(const int* const);
+//
+//void VS_set_sIndV(const int* const);
+//void VS_set_eIndV(const int* const);
+//
+//void VS_set_sIndVB(const int* const);
+//void VS_set_eIndVB(const int* const);
+//
+//void VS_set_sIndW(const int* const);
+//void VS_set_eIndW(const int* const);
+//
+//void VS_set_sIndWB(const int* const);
+//void VS_set_eIndWB(const int* const);
+//
+//}
 
 
 /// \brief class that stores neccessary lower and upper indexes for \c ScalarField for different FieldTypes
@@ -79,8 +79,7 @@ class IndexSpace {
   createIndexSpace(
       const Teuchos::RCP<const StencilWidths<d,dimNC> >& sW,
       const Teuchos::RCP<const GridSizeLocal<O,d> >& nLoc,
-      const Teuchos::RCP<const BoundaryConditionsLocal>& bc,
-      bool setImpact );
+      const Teuchos::RCP<const BoundaryConditionsLocal>& bc );
 
 public:
 
@@ -107,8 +106,7 @@ protected:
   IndexSpace(
       const Teuchos::RCP<const StencilWidths<dimension,dimNC> >& sW,
       const Teuchos::RCP<const GridSizeLocal<Ordinal,dimension> >& nLoc,
-      const Teuchos::RCP<const BoundaryConditionsLocal>& bc,
-      bool setImpact=true ) {
+      const Teuchos::RCP<const BoundaryConditionsLocal>& bc ) {
 
     // ------------------init IndS_--------------------
     for( int i=0; i<3; ++i ) {
@@ -129,10 +127,10 @@ protected:
       eIndS_[3] = nLoc->get(3) + sW->getBU(3) - sW->getBL(3);
     }
 
-    if( setImpact ) {
-      SVS_set_sInd( sIndS_.getRawPtr() );
-      SVS_set_eInd( eIndS_.getRawPtr() );
-    }
+//    if( setImpact ) {
+//      SVS_set_sInd( sIndS_.getRawPtr() );
+//      SVS_set_eInd( eIndS_.getRawPtr() );
+//    }
     // --- init IndU_ -------------------------------
 
     for( int field=0; field<3; ++field )
@@ -204,14 +202,14 @@ protected:
       }
     }
 
-    if( setImpact ) {
-      VS_set_sIndU( sIndU_[U].getRawPtr() );
-      VS_set_eIndU( eIndU_[U].getRawPtr() );
-      VS_set_sIndV( sIndU_[V].getRawPtr() );
-      VS_set_eIndV( eIndU_[V].getRawPtr() );
-      VS_set_sIndW( sIndU_[W].getRawPtr() );
-      VS_set_eIndW( eIndU_[W].getRawPtr() );
-    }
+//    if( setImpact ) {
+//      VS_set_sIndU( sIndU_[U].getRawPtr() );
+//      VS_set_eIndU( eIndU_[U].getRawPtr() );
+//      VS_set_sIndV( sIndU_[V].getRawPtr() );
+//      VS_set_eIndV( eIndU_[V].getRawPtr() );
+//      VS_set_sIndW( sIndU_[W].getRawPtr() );
+//      VS_set_eIndW( eIndU_[W].getRawPtr() );
+//    }
 
     // --- init IndUB_ -------------------------------
     for( int i=0; i<3; ++i ) {
@@ -288,15 +286,15 @@ protected:
         eIndUB_[i][3] = nLoc->get(3) + sW->getBU(3) - sW->getBL(3);
       }
     }
-
-    if( setImpact ) {
-      VS_set_sIndUB( sIndUB_[U].getRawPtr() );
-      VS_set_eIndUB( eIndUB_[U].getRawPtr() );
-      VS_set_sIndVB( sIndUB_[V].getRawPtr() );
-      VS_set_eIndVB( eIndUB_[V].getRawPtr() );
-      VS_set_sIndWB( sIndUB_[W].getRawPtr() );
-      VS_set_eIndWB( eIndUB_[W].getRawPtr() );
-    }
+//
+//    if( setImpact ) {
+//      VS_set_sIndUB( sIndUB_[U].getRawPtr() );
+//      VS_set_eIndUB( eIndUB_[U].getRawPtr() );
+//      VS_set_sIndVB( sIndUB_[V].getRawPtr() );
+//      VS_set_eIndVB( eIndUB_[V].getRawPtr() );
+//      VS_set_sIndWB( sIndUB_[W].getRawPtr() );
+//      VS_set_eIndWB( eIndUB_[W].getRawPtr() );
+//    }
 
   }
 
@@ -304,18 +302,18 @@ public:
 
   void print( std::ostream& out=std::cout ) const {
     out << "\t---IndexSpace: ---\n";
-    out << "fieldType: S\n";
-    out << "sInd: " << sIndS_ << "\n";
-    out << "eInd: " << eIndS_ << "\n";
+    out << "\tfieldType: S\n";
+    out << "\tsInd: " << sIndS_ << "\n";
+    out << "\teInd: " << eIndS_ << "\n";
     for( int field=0; field<3; ++field ) {
-      out << "inner field: " << field << "\n";
-      out << "sInd: " << sIndU_[field] << "\n";
-      out << "eInd: " << eIndU_[field] << "\n";
+      out << "\tinner field: " << field << "\n";
+      out << "\tsInd: " << sIndU_[field] << "\n";
+      out << "\teInd: " << eIndU_[field] << "\n";
     }
     for( int field=0; field<3; ++field ) {
-      out << "full field: " << field << "\n";
-      out << "sInd: " << sIndUB_[field] << "\n";
-      out << "eInd: " << eIndUB_[field] << "\n";
+      out << "\tfull field: " << field << "\n";
+      out << "\tsInd: " << sIndUB_[field] << "\n";
+      out << "\teInd: " << eIndUB_[field] << "\n";
     }
   }
 
@@ -381,11 +379,10 @@ Teuchos::RCP<const IndexSpace<O,d> >
 createIndexSpace(
     const Teuchos::RCP<const StencilWidths<d,dimNC> >& sW,
     const Teuchos::RCP<const GridSizeLocal<O,d> >& nLoc,
-    const Teuchos::RCP<const BoundaryConditionsLocal>& bc,
-    bool setImpact=true ) {
+    const Teuchos::RCP<const BoundaryConditionsLocal>& bc ) {
   return(
       Teuchos::rcp(
-          new IndexSpace<O,d>( sW,nLoc,bc )
+          new IndexSpace<O,d>( sW, nLoc, bc )
       )
   );
 

@@ -24,28 +24,28 @@ namespace Pimpact{
 
 
 /// \ingroup domain
-template<class Scalar>
+template<class Scalar, int dim>
 class Domain {
 
 public:
 
   Domain(
       const Teuchos::RCP<const DomainSize<Scalar> >& domainSize,
-      const Teuchos::RCP<const BoundaryConditionsGlobal> bcGlo,
+      const Teuchos::RCP<const BoundaryConditionsGlobal<dim> > bcGlo,
       const Teuchos::RCP<const BoundaryConditionsLocal> bcLoc ):
         domainSize_( domainSize ),
         bcGlo_( bcGlo ),
         bcLoc_( bcLoc ) {}
 
   Teuchos::RCP<const DomainSize<Scalar> >      getDomainSize() const { return( domainSize_ ); }
-  Teuchos::RCP<const BoundaryConditionsGlobal> getBCGlobal()   const { return( bcGlo_ ); }
+  Teuchos::RCP<const BoundaryConditionsGlobal<dim> > getBCGlobal()   const { return( bcGlo_ ); }
   Teuchos::RCP<const BoundaryConditionsLocal>  getBCLocal()    const { return( bcLoc_ ); }
 
 protected:
 
   Teuchos::RCP<const DomainSize<Scalar> > domainSize_;
 
-  Teuchos::RCP<const BoundaryConditionsGlobal> bcGlo_;
+  Teuchos::RCP<const BoundaryConditionsGlobal<dim> > bcGlo_;
   Teuchos::RCP<const BoundaryConditionsLocal> bcLoc_;
 
 
@@ -54,14 +54,14 @@ protected:
 
 
 /// \relates Domain
-template<class S>
-Teuchos::RCP<const Domain<S> > createDomain(
+template<class S, int d>
+Teuchos::RCP<const Domain<S,d> > createDomain(
     const Teuchos::RCP<const DomainSize<S> >& domainSize,
-    const Teuchos::RCP<const BoundaryConditionsGlobal> bcGlo,
+    const Teuchos::RCP<const BoundaryConditionsGlobal<d> > bcGlo,
     const Teuchos::RCP<const BoundaryConditionsLocal> bcLoc ) {
   return(
       Teuchos::rcp(
-          new Domain<S>( domainSize, bcGlo, bcLoc ) ) );
+          new Domain<S,d>( domainSize, bcGlo, bcLoc ) ) );
 }
 
 

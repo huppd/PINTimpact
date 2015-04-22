@@ -371,7 +371,7 @@ public:
   }
 
 
-  const MPI_Comm& comm() const { return( space()->commST() ); }
+  const MPI_Comm& comm() const { return( space()->getProcGrid()->getCommWorld() ); }
 
   Teuchos::RCP<const SpaceT> space() const { return( AF::space_ ); }
 

@@ -558,7 +558,7 @@ public:
 					s_ );
 
 			SF_level(
-					space()->commf(),
+					MPI_Comm_c2f( space()->comm() ),
 					m,
 					space()->nLoc(),
 					space()->bl(),
@@ -635,7 +635,7 @@ public:
 
 				write_hdf5_2D(
             space()->rankS(),
-            space()->commf(),
+            MPI_Comm_c2f( space()->comm() ),
             space()->nGlo(),
             space()->getDomain()->getBCGlobal()->getBCL(),
             space()->getDomain()->getBCGlobal()->getBCU(),
@@ -663,7 +663,7 @@ public:
 
         write_hdf_3D(
             space()->rankS(),
-            space()->commf(),
+            MPI_Comm_c2f( space()->comm() ),
             space()->nGlo(),
             space()->getDomain()->getBCGlobal()->getBCL(),
             space()->getDomain()->getBCGlobal()->getBCU(),
@@ -699,7 +699,7 @@ public:
 
       write_hdf_3D(
           space()->rankS(),
-          space()->commf(),
+          MPI_Comm_c2f( space()->comm() ),
           space()->nGlo(),
           space()->getDomain()->getBCGlobal()->getBCL(),
           space()->getDomain()->getBCGlobal()->getBCU(),
@@ -768,7 +768,7 @@ public:
 
   Teuchos::RCP<const SpaceT> space() const { return( AbstractField<SpaceT>::space_ ); }
 
-  const MPI_Comm& comm() const { return(space()->comm()); }
+  const MPI_Comm& comm() const { return( space()->comm() ); }
 
   /// \name comunication methods.
   /// \brief highly dependent on underlying storage should only be used by Operator or on top field implementer.
@@ -805,7 +805,7 @@ public:
     if( !exchangedState_[dir] ) {
       F_exchange(
           space()->dim(),
-          space()->commf(),
+          MPI_Comm_c2f( space()->getProcGrid()->getCommWorld() ),
           space()->getProcGrid()->getRankL(),
           space()->getProcGrid()->getRankU(),
           space()->nLoc(),
