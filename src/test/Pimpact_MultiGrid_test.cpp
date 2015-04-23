@@ -98,8 +98,8 @@ TEUCHOS_STATIC_SETUP() {
 	
 // processor grid size
 	pl->set("npx", 4 );
-	pl->set("npy", 2 );
-	pl->set("npz", 2 );
+	pl->set("npy", 1 );
+	pl->set("npz", 1 );
 
 }
 
@@ -334,12 +334,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Restrictor3D, CS ) {
 		Teuchos::RCP<const Pimpact::RestrictionOp<CSpace3T> > op2;
 
 		if( mgSpaces->participating(-3) ) {
-			std::cout << "rank: " << space->rankST() << "op-3\n";
+			std::cout << "\nrank: " << space->rankST() << "\top-3\n";
 			op1 = mgTransfers->getRestrictionOp( -3 );
 //			op1->print();
 		}
 		if( mgSpaces->participating(-2) ) {
-			std::cout << "rank: " << space->rankST() << "---op: -2\n";
+			std::cout << "\nrank: " << space->rankST() << "\top: 2\n";
 			op2 = mgTransfers->getRestrictionOp( -2 );
 			if( 1==space->rankST() )
 				op2->print();
@@ -348,10 +348,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Restrictor3D, CS ) {
 		// the zero test
 		if( mgSpaces->participating(-3) )
 			fieldff->init( 0. );
-		if( mgSpaces->participating(-2) )
+		if( mgSpaces->participating(-2) ) {
 			fieldf->initField( Pimpact::ConstField, 0. );
-		if( mgSpaces->participating(-2) )
 			fieldf->init( 1. );
+		}
 		if( mgSpaces->participating(-1) )
 			fieldc->init( 1. );
 
@@ -798,24 +798,24 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 
 	auto mg =
 		Pimpact::createMultiGrid<
-			Pimpact::ScalarField,
-			Pimpact::TransferOp,
-			Pimpact::RestrictionOp,
-			Pimpact::InterpolationOp,
-			Pimpact::DivGradOp,
-			Pimpact::DivGradO2Op,
-			Pimpact::DivGradO2JSmoother,
-			MOP>( mgSpaces );
+		Pimpact::ScalarField,
+		Pimpact::TransferOp,
+		Pimpact::RestrictionOp,
+		Pimpact::InterpolationOp,
+		Pimpact::DivGradOp,
+		Pimpact::DivGradO2Op,
+		Pimpact::DivGradO2JSmoother,
+		MOP>( mgSpaces );
 
- auto x = Pimpact::create<Pimpact::ScalarField>( space );
- auto b = Pimpact::create<Pimpact::ScalarField>( space );
- auto op = Pimpact::create<Pimpact::DivGradOp>( space );
+	auto x = Pimpact::create<Pimpact::ScalarField>( space );
+	auto b = Pimpact::create<Pimpact::ScalarField>( space );
+	auto op = Pimpact::create<Pimpact::DivGradOp>( space );
 
- std::ofstream ofs;
- if( space()->rankST()==0 )
-	 ofs.open("MG.txt", std::ofstream::out);
+	std::ofstream ofs;
+	if( space()->rankST()==0 )
+		ofs.open("MG.txt", std::ofstream::out);
 
-	// Grad in x
+	//	Grad in x
 	x->initField( Pimpact::Grad2D_inZ );
 	x->write(0);
 
@@ -848,7 +848,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 	}
 	TEST_EQUALITY( sol->norm()<1.e-3, true );
 
-	x->write(2);
+//	x->write(2);
 
 	if( space()->rankST()==0 )
 		ofs.close();

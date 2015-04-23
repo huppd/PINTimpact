@@ -225,38 +225,40 @@ public:
 				MPI_Group_free( &baseGroup );
 				delete[] newRanks;
 				// ------------------------- offsI_, sizsI_
-				int rank_comm2;
-				MPI_Comm_rank( comm2_, &rank_comm2 );
+				if( spaceF_->getProcGrid()->participating() )  {
+					int rank_comm2;
+					MPI_Comm_rank( comm2_, &rank_comm2 );
 
-				std::vector<Ordinal> offs_global(3*nGatherTotal);
-				std::vector<Ordinal> sizs_global(3*nGatherTotal);
+					std::vector<Ordinal> offs_global(3*nGatherTotal);
+					std::vector<Ordinal> sizs_global(3*nGatherTotal);
 
-				for( Ordinal i=0; i<3*nGatherTotal; ++i ) {
-					offs_global[i] = 0;
-					sizs_global[i] = 0;
+					for( Ordinal i=0; i<3*nGatherTotal; ++i ) {
+						offs_global[i] = 0;
+						sizs_global[i] = 0;
+					}
+
+					for( Ordinal i=0; i<3; ++i ) {
+						offs_global[ i + rank_comm2*3 ] = iiShift_[i];
+						sizs_global[ i + rank_comm2*3 ] = iimax_[i];
+					}
+
+					MPI_Allreduce( offs_global.data(), offsI_, 3*nGatherTotal, MPI_INTEGER, MPI_SUM, comm2_ );
+					MPI_Allreduce( sizs_global.data(), sizsI_, 3*nGatherTotal, MPI_INTEGER, MPI_SUM, comm2_ );
+
+					Ordinal counter = 0;
+					for( int k=0; k<nGather_[2]; ++k )
+						for( int j=0; j<nGather_[1]; ++j )
+							for( int i=0; i<nGather_[0]; ++i ) {
+								recvI_[ i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ]
+									= sizsI_[ 0 + 3*( i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ) ]
+									* sizsI_[ 1 + 3*( i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ) ]
+									* sizsI_[ 2 + 3*( i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ) ];
+
+								dispI_[ i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ] = counter;
+								counter += recvI_[ i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ];
+							}
+
 				}
-
-				for( Ordinal i=0; i<3; ++i ) {
-					offs_global[ i + rank_comm2*3 ] = iiShift_[i];
-					sizs_global[ i + rank_comm2*3 ] = iimax_[i];
-				}
-			
-				MPI_Allreduce( offs_global.data(), offsI_, 3*nGatherTotal, MPI_INTEGER, MPI_SUM, comm2_ );
-				MPI_Allreduce( sizs_global.data(), sizsI_, 3*nGatherTotal, MPI_INTEGER, MPI_SUM, comm2_ );
-
-				Ordinal counter = 0;
-				for( int k=0; k<nGather_[2]; ++k )
-					for( int j=0; j<nGather_[1]; ++j )
-						for( int i=0; i<nGather_[0]; ++i ) {
-							recvI_[ i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ]
-								= sizsI_[ 0 + 3*( i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ) ]
-								* sizsI_[ 1 + 3*( i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ) ]
-								* sizsI_[ 2 + 3*( i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ) ];
-
-							dispI_[ i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ] = counter;
-							counter += recvI_[ i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ];
-						}
-
 			}
 			// ------------------ cIS, cIV
 			for( int i=0; i<3; ++i ) {

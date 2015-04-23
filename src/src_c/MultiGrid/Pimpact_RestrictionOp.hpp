@@ -204,7 +204,7 @@ public:
 							MPI_Group_free( &newGroup );
 
 							if( member_yes ) {
-								MPI_Cart_create( commTemp, 3, nGather_.getRawPtr(), periodic.getRawPtr(), true, &comm2_ );
+								MPI_Cart_create( commTemp, 3, nGather_.getRawPtr(), periodic.getRawPtr(), false, &comm2_ );
 								MPI_Comm_free( &commTemp );
 								int rank_comm2 = 0;
 								if( spaceC_->getProcGrid()->participating() ) 
@@ -219,41 +219,54 @@ public:
 				delete[] newRanks;
 				// ------------------------- offsR_, sizsR_
 
-				int rank_comm2;
-				MPI_Comm_rank( comm2_, &rank_comm2 );
+//				{
+//					int size=0;
+//					if( comm2_!=MPI_COMM_NULL ) {
+//						MPI_Comm_size( comm2_, &size );
+//						std::cout << " rank: " << spaceF_->rankST() << " comm2_sze: " << size << "\n";
+//					}
+//					else
+//						std::cout << " rank: " << spaceF_->rankST() << " no comm\n";
+//				}
+				if( spaceF_->getProcGrid()->participating() )  {
+//					std::cout << " rank: " << spaceF_->rankST() << " comm2_: " << comm2_ << "\n";
+					int rank_comm2;
+//					if( comm2_!=MPI_COMM_NULL )
+					MPI_Comm_rank( comm2_, &rank_comm2 );
 
-				std::vector<Ordinal> offs_global(3*nGatherTotal);
-				std::vector<Ordinal> sizs_global(3*nGatherTotal);
+					std::vector<Ordinal> offs_global(3*nGatherTotal);
+					std::vector<Ordinal> sizs_global(3*nGatherTotal);
 
-				for( Ordinal i=0; i<3*nGatherTotal; ++i ) {
-					offs_global[i] = 0;
-					sizs_global[i] = 0;
+					for( Ordinal i=0; i<3*nGatherTotal; ++i ) {
+						offs_global[i] = 0;
+						sizs_global[i] = 0;
+					}
+
+
+					for( Ordinal i=0; i<3; ++i ) {
+						offs_global[ i + rank_comm2*3 ] = iiShift[i];
+						sizs_global[ i + rank_comm2*3 ] = iimax_[i];
+					}
+
+					//				std::cout << "rank_comm2: " << rank_comm2 << "\n" << "nGather: " << nGather_ << "\n"<< "nGatherTotal: " << nGatherTotal << "\n";
+
+					MPI_Allreduce( offs_global.data(), offsR_, 3*nGatherTotal, MPI_INTEGER, MPI_SUM, comm2_ );
+					MPI_Allreduce( sizs_global.data(), sizsR_, 3*nGatherTotal, MPI_INTEGER, MPI_SUM, comm2_ );
+
+					Ordinal counter = 0;
+					for( int k=0; k<nGather_[2]; ++k )
+						for( int j=0; j<nGather_[1]; ++j )
+							for( int i=0; i<nGather_[0]; ++i ) {
+								recvR_[ i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ]
+									= sizsR_[ 0 + 3*( i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ) ]
+									* sizsR_[ 1 + 3*( i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ) ]
+									* sizsR_[ 2 + 3*( i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ) ];
+
+								dispR_[ i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ] = counter;
+								counter += recvR_[ i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ];
+							}
+
 				}
-
-
-				for( Ordinal i=0; i<3; ++i ) {
-					offs_global[ i + rank_comm2*3 ] = iiShift[i];
-					sizs_global[ i + rank_comm2*3 ] = iimax_[i];
-				}
-
-//				std::cout << "rank_comm2: " << rank_comm2 << "\n" << "nGather: " << nGather_ << "\n"<< "nGatherTotal: " << nGatherTotal << "\n";
-
-				MPI_Allreduce( offs_global.data(), offsR_, 3*nGatherTotal, MPI_INTEGER, MPI_SUM, comm2_ );
-				MPI_Allreduce( sizs_global.data(), sizsR_, 3*nGatherTotal, MPI_INTEGER, MPI_SUM, comm2_ );
-
-				Ordinal counter = 0;
-				for( int k=0; k<nGather_[2]; ++k )
-					for( int j=0; j<nGather_[1]; ++j )
-						for( int i=0; i<nGather_[0]; ++i ) {
-							recvR_[ i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ]
-								= sizsR_[ 0 + 3*( i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ) ]
-								* sizsR_[ 1 + 3*( i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ) ]
-								* sizsR_[ 2 + 3*( i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ) ];
-
-							dispR_[ i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ] = counter;
-							counter += recvR_[ i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ];
-						}
-
 			}
 
 			// ------------------------- CRS, CRV
@@ -417,6 +430,12 @@ public:
 		}
 
 	}
+
+
+//	int getRankC2() const { return( rankc2_ ); }
+//	MPI_Comm getComm2() const { return( comm2_ ); }
+
+
 
 }; // end of class RestrictionOp
 
