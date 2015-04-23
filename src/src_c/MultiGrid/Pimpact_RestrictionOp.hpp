@@ -46,14 +46,6 @@ void MG_restrict(
     const int* const bUc,
 		const int* const iimax,          
 		const int* const dd,             
-//		const int* const n_gather,       
-//		const bool& participate_yes,
-//		const int& rankc2,         
-//		const int& comm2,          
-//		const int* const recvR,          
-//		const int* const dispR,          
-//		const int* const sizsR,          
-//		const int* const offsR,          
     const double* const cR1,
     const double* const cR2,
     const double* const cR3,
@@ -73,7 +65,8 @@ void MG_restrictV(
     const int* const bUc,
     const int* const SSc,
     const int* const NNc,
-    const int& iimax,
+		const int* const iimax,          
+		const int* const dd,             
 //    const int& BC_L,
 //    const int& BC_U,
     const double* const cRV,
@@ -82,19 +75,10 @@ void MG_restrictV(
 
 
 void MG_RestrictGather(
-//		const int& dimens,
-//    const int* const Nf,
-//    const int* const bLf,
-//    const int* const bUf,
-//    const int* const SSf,
-//    const int* const NNf,
     const int* const Nc,
     const int* const bLc,
     const int* const bUc,
-//    const int* const SSc,
-//    const int* const NNc,
 		const int* const iimax,          
-//		const int* const dd,             
 		const int* const n_gather,       
 		const bool& participate_yes,
 		const int& rankc2,         
@@ -103,10 +87,6 @@ void MG_RestrictGather(
 		const int* const dispR,          
 		const int* const sizsR,          
 		const int* const offsR,          
-//    const double* const cR1,
-//    const double* const cR2,
-//    const double* const cR3,
-//    const double* const phif,
     double* const phic );
 }
 
@@ -146,7 +126,6 @@ protected:
   Ordinal* dispR_;
 
   Teuchos::Tuple<Scalar*,3> cRS_;
-
   Teuchos::Tuple<Scalar*,3> cRV_;
 
 public:
@@ -157,7 +136,7 @@ public:
 		  Teuchos::Tuple<int,3> nb=Teuchos::tuple(0,0,0) ):
 		spaceF_(spaceF),
 		spaceC_(spaceC),
-		comm2_( MPI_COMM_NULL)	{
+		comm2_( MPI_COMM_NULL) {
 
 			// ------------- nGather_, iimax_
 			if( 0==nb[0] ) {
@@ -257,7 +236,7 @@ public:
 					sizs_global[ i + rank_comm2*3 ] = iimax_[i];
 				}
 
-				std::cout << "rank_comm2: " << rank_comm2 << "\n" << "nGather: " << nGather_ << "\n"<< "nGatherTotal: " << nGatherTotal << "\n";
+//				std::cout << "rank_comm2: " << rank_comm2 << "\n" << "nGather: " << nGather_ << "\n"<< "nGatherTotal: " << nGatherTotal << "\n";
 
 				MPI_Allreduce( offs_global.data(), offsR_, 3*nGatherTotal, MPI_INTEGER, MPI_SUM, comm2_ );
 				MPI_Allreduce( sizs_global.data(), sizsR_, 3*nGatherTotal, MPI_INTEGER, MPI_SUM, comm2_ );
@@ -345,47 +324,50 @@ public:
 					x.getConstRawPtr(),
 					y.getRawPtr() );
 
-			if( nGather_[0]*nGather_[1]*nGather_[2]>1 )
-				MG_RestrictGather(
-						spaceC_->nLoc(),
-						spaceC_->bl(),
-						spaceC_->bu(),
-						iimax_.getRawPtr(),
-						nGather_.getRawPtr(),
-						spaceC_->getProcGrid()->participating(),
-						rankc2_,
-						MPI_Comm_c2f(comm2_),
-						recvR_,          
-						dispR_,          
-						sizsR_,          
-						offsR_,          
-						y.getRawPtr() );
-
     }
-    else {
-      int dir = fType;
-      x.exchange( dir );
+		else {
+			int dir = fType;
+			x.exchange( dir );
 
-      MG_restrictV(
-          spaceF_->dim(),
-          dir+1,
-          spaceF_->nLoc(),
-          spaceF_->bl(),
-          spaceF_->bu(),
-          spaceF_->sIndB(fType),
-          spaceF_->eIndB(fType),
-          spaceC_->nLoc(),
-          spaceC_->bl(),
-          spaceC_->bu(),
-          spaceC_->sIndB(fType),
-          spaceC_->eIndB(fType),
-          iimax_[dir],
-          cRV_[dir],
-          x.getConstRawPtr(),
-          y.getRawPtr() );
+			MG_restrictV(
+					spaceF_->dim(),
+					dir+1,
+					spaceF_->nLoc(),
+					spaceF_->bl(),
+					spaceF_->bu(),
+					spaceF_->sIndB(fType),
+					spaceF_->eIndB(fType),
+					spaceC_->nLoc(),
+					spaceC_->bl(),
+					spaceC_->bu(),
+					spaceC_->sIndB(fType),
+					spaceC_->eIndB(fType),
+					iimax_.getRawPtr(),
+					dd_.getRawPtr(),
+					cRV_[dir],
+					x.getConstRawPtr(),
+					y.getRawPtr() );
 
-    }
+		}
+
+		if( nGather_[0]*nGather_[1]*nGather_[2]>1 )
+			MG_RestrictGather(
+					spaceC_->nLoc(),
+					spaceC_->bl(),
+					spaceC_->bu(),
+					iimax_.getRawPtr(),
+					nGather_.getRawPtr(),
+					spaceC_->getProcGrid()->participating(),
+					rankc2_,
+					MPI_Comm_c2f(comm2_),
+					recvR_,          
+					dispR_,          
+					sizsR_,          
+					offsR_,          
+					y.getRawPtr() );
+
 		y.changed();
+
   }
 
 

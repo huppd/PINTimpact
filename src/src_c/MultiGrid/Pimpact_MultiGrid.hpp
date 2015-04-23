@@ -89,7 +89,7 @@ public:
         x_( createMGFields<FieldT>(mgSpaces, type ) ),
         temp_( createMGFields<FieldT>(mgSpaces, type ) ),
         b_( createMGFields<FieldT>(mgSpaces, type ) ),
-        cGridSolver_( create<CGridSolverT>( mgOps_->get(-1) ) ) {}
+        cGridSolver_( mgSpaces_->participating(-1)?create<CGridSolverT>( mgOps_->get(-1) ):Teuchos::null ) {}
 
 
 

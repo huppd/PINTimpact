@@ -2,6 +2,7 @@
 module cmod_InterpolationOp
 
   use iso_c_binding
+  use mpi
 
   implicit none
 
@@ -69,7 +70,8 @@ contains
       bLf, bUf,           &
       SSf,                &
       !        NNf,                &
-      xc,xf,              &
+    xc,xf,              &
+      dd,                 &
       cIV ) bind(c,name='MG_getCIV')
 
 
@@ -97,9 +99,12 @@ contains
 
     real(c_double), intent(in)    :: xf( bLf:(Nf+bUf) )
 
+    integer(c_int), intent(in)    :: dd
+
     real(c_double), intent(inout) :: cIV( 1:2, 0:Nf )
 
-    integer(c_int)                ::  i, ic, dd
+
+    integer(c_int)                ::  i, ic
     real(c_double)                ::  Dx1a, Dx12
 
 
@@ -116,8 +121,6 @@ contains
     ! coarse
 
     cIV = 0.
-
-    dd = (Nf-1)/(Nc-1)
 
     do i = 0, Nf
       ic = ( i )/dd
@@ -152,6 +155,44 @@ contains
 
 
 
+  subroutine MG_InterpolateCorners( &
+      Nc,                           &
+      bLc,bUc,                      &
+      BCL, BCU,                     &
+      phic ) bind(c,name='MG_InterpolateCorners')
+
+    implicit none
+
+    integer(c_int), intent(in)     :: Nc(3)
+
+    integer(c_int), intent(in)     :: bLc(3)
+    integer(c_int), intent(in)     :: bUc(3)
+
+    integer(c_int), intent(in)     :: BCL(3)
+    integer(c_int), intent(in)     :: BCU(3)
+
+    real(c_double),  intent(inout) :: phic (bLc(1):(Nc(1)+bUc(1)),bLc(2):(Nc(2)+bUc(2)),bLc(3):(Nc(3)+bUc(3)))
+
+
+    if (BCL(1) > 0 .and. BCL(2) > 0) phic( 1,     1,     1:Nc(3) ) = ( phic(1+1,     1,     1:Nc(3)) + phic(1    , 1+1,     1:Nc(3)) + phic(1+1,     1+1,     1:Nc(3)) )/3.
+    if (BCL(1) > 0 .and. BCU(2) > 0) phic( 1,     Nc(2), 1:Nc(3) ) = ( phic(1+1,     Nc(2), 1:Nc(3)) + phic(1    , Nc(2)-1, 1:Nc(3)) + phic(1+1,     Nc(2)-1, 1:Nc(3)) )/3.
+    if (BCU(1) > 0 .and. BCL(2) > 0) phic( Nc(1), 1,     1:Nc(3) ) = ( phic(Nc(1)-1, 1,     1:Nc(3)) + phic(Nc(1), 1+1,     1:Nc(3)) + phic(Nc(1)-1, 1+1,     1:Nc(3)) )/3.
+    if (BCU(1) > 0 .and. BCU(2) > 0) phic( Nc(1), Nc(2), 1:Nc(3) ) = ( phic(Nc(1)-1, Nc(2), 1:Nc(3)) + phic(Nc(1), Nc(2)-1, 1:Nc(3)) + phic(Nc(1)-1, Nc(2)-1, 1:Nc(3)) )/3.
+
+    if (BCL(1) > 0 .and. BCL(3) > 0) phic( 1,     1:Nc(2), 1 )     = ( phic(1+1,     1:Nc(2), 1    ) + phic(1,     1:Nc(2), 1+1)     + phic(1+1,     1:Nc(2), 1+1)     )/3.
+    if (BCL(1) > 0 .and. BCU(3) > 0) phic( 1,     1:Nc(2), Nc(3) ) = ( phic(1+1,     1:Nc(2), Nc(3)) + phic(1,     1:Nc(2), Nc(3)-1) + phic(1+1,     1:Nc(2), Nc(3)-1) )/3.
+    if (BCU(1) > 0 .and. BCL(3) > 0) phic( Nc(1), 1:Nc(2), 1 )     = ( phic(Nc(1)-1, 1:Nc(2), 1    ) + phic(Nc(1), 1:Nc(2), 1+1)     + phic(Nc(1)-1, 1:Nc(2), 1+1)     )/3.
+    if (BCU(1) > 0 .and. BCU(3) > 0) phic( Nc(1), 1:Nc(2), Nc(3) ) = ( phic(Nc(1)-1, 1:Nc(2), Nc(3)) + phic(Nc(1), 1:Nc(2), Nc(3)-1) + phic(Nc(1)-1, 1:Nc(2), Nc(3)-1) )/3.
+
+    if (BCL(2) > 0 .and. BCL(3) > 0) phic( 1:Nc(1), 1,     1     ) = ( phic(1:Nc(1), 1+1,     1    ) + phic(1:Nc(1), 1,     1+1    ) + phic(1:Nc(1), 1+1,     1+1)     )/3.
+    if (BCL(2) > 0 .and. BCU(3) > 0) phic( 1:Nc(1), 1,     Nc(3) ) = ( phic(1:Nc(1), 1+1,     Nc(3)) + phic(1:Nc(1), 1,     Nc(3)-1) + phic(1:Nc(1), 1+1,     Nc(3)-1) )/3.
+    if (BCU(2) > 0 .and. BCL(3) > 0) phic( 1:Nc(1), Nc(2), 1     ) = ( phic(1:Nc(1), Nc(2)-1, 1    ) + phic(1:Nc(1), Nc(2), 1+1    ) + phic(1:Nc(1), Nc(2)-1, 1+1)     )/3.
+    if (BCU(2) > 0 .and. BCU(3) > 0) phic( 1:Nc(1), Nc(2), Nc(3) ) = ( phic(1:Nc(1), Nc(2)-1, Nc(3)) + phic(1:Nc(1), Nc(2), Nc(3)-1) + phic(1:Nc(1), Nc(2)-1, Nc(3)-1) )/3.
+
+  end subroutine MG_InterpolateCorners
+
+
+
   !----------------------------------------------------------------------------------------------------------!
   !> \note:       - für allgemeine dd geeignet                                                        !
   !!              - dd(i) /= 1 <===> N(i) /= 1                                                                     !
@@ -175,14 +216,15 @@ contains
   !! - Das wird z.B. deutlich bei Single- vs. Dualcorebetrieb
   !! \note right now we have fixed the weights, so that gridscretching is not yet usable
   subroutine MG_interpolate( &
-      dimens,             &
-      Nc,                 &
-      bLc,bUc,            &
-      BCL, BCU,           &
-      Nf,                 &
-      bLf,bUf,            &
-      cI1,cI2,cI3,        &
-      phic,               &
+      dimens,                &
+      Nc,                    &
+      bLc,bUc,               &
+      Nf,                    &
+      bLf,bUf,               &
+      iimax,                 &
+      dd,                    &
+      cI1,cI2,cI3,           &
+      phic,                  &
       phif ) bind(c,name='MG_interpolate')
 
     implicit none
@@ -194,19 +236,19 @@ contains
     integer(c_int), intent(in)     :: bLc(3)
     integer(c_int), intent(in)     :: bUc(3)
 
-    integer(c_int), intent(in)     :: BCL(3)
-    integer(c_int), intent(in)     :: BCU(3)
-
     integer(c_int), intent(in)     :: Nf(3)
 
     integer(c_int), intent(in)     :: bLf(3)
     integer(c_int), intent(in)     :: bUf(3)
 
+    integer(c_int), intent(in)     :: iimax(3)
+    integer(c_int), intent(in)     :: dd(3)
+
     real(c_double),  intent(in)    :: cI1 ( 1:2, 1:Nc(1) )
     real(c_double),  intent(in)    :: cI2 ( 1:2, 1:Nc(2) )
     real(c_double),  intent(in)    :: cI3 ( 1:2, 1:Nc(3) )
 
-    real(c_double),  intent(inout) :: phic (bLc(1):(Nc(1)+bUc(1)),bLc(2):(Nc(2)+bUc(2)),bLc(3):(Nc(3)+bUc(3)))
+    real(c_double),  intent(in) :: phic (bLc(1):(Nc(1)+bUc(1)),bLc(2):(Nc(2)+bUc(2)),bLc(3):(Nc(3)+bUc(3)))
 
     real(c_double),  intent(out)   :: phif (bLf(1):(Nf(1)+bUf(1)),bLf(2):(Nf(2)+bUf(2)),bLf(3):(Nf(3)+bUf(3)))
 
@@ -214,35 +256,11 @@ contains
     integer(c_int)               ::  j
     integer(c_int)               ::  k
 
-    integer(c_int)                :: dd(3)
-
-
-    dd = 1
-    do i=1,dimens
-      dd(i) = ( Nf(i)-1 )/( Nc(i)-1 )
-    end do
-
-
-    if (BCL(1) > 0 .and. BCL(2) > 0) phic( 1,     1,     1:Nc(3) ) = ( phic(1+1,     1,     1:Nc(3)) + phic(1    , 1+1,     1:Nc(3)) + phic(1+1,     1+1,     1:Nc(3)) )/3.
-    if (BCL(1) > 0 .and. BCU(2) > 0) phic( 1,     Nc(2), 1:Nc(3) ) = ( phic(1+1,     Nc(2), 1:Nc(3)) + phic(1    , Nc(2)-1, 1:Nc(3)) + phic(1+1,     Nc(2)-1, 1:Nc(3)) )/3.
-    if (BCU(1) > 0 .and. BCL(2) > 0) phic( Nc(1), 1,     1:Nc(3) ) = ( phic(Nc(1)-1, 1,     1:Nc(3)) + phic(Nc(1), 1+1,     1:Nc(3)) + phic(Nc(1)-1, 1+1,     1:Nc(3)) )/3.
-    if (BCU(1) > 0 .and. BCU(2) > 0) phic( Nc(1), Nc(2), 1:Nc(3) ) = ( phic(Nc(1)-1, Nc(2), 1:Nc(3)) + phic(Nc(1), Nc(2)-1, 1:Nc(3)) + phic(Nc(1)-1, Nc(2)-1, 1:Nc(3)) )/3.
-
-    if (BCL(1) > 0 .and. BCL(3) > 0) phic( 1,     1:Nc(2), 1 )     = ( phic(1+1,     1:Nc(2), 1    ) + phic(1,     1:Nc(2), 1+1)     + phic(1+1,     1:Nc(2), 1+1)     )/3.
-    if (BCL(1) > 0 .and. BCU(3) > 0) phic( 1,     1:Nc(2), Nc(3) ) = ( phic(1+1,     1:Nc(2), Nc(3)) + phic(1,     1:Nc(2), Nc(3)-1) + phic(1+1,     1:Nc(2), Nc(3)-1) )/3.
-    if (BCU(1) > 0 .and. BCL(3) > 0) phic( Nc(1), 1:Nc(2), 1 )     = ( phic(Nc(1)-1, 1:Nc(2), 1    ) + phic(Nc(1), 1:Nc(2), 1+1)     + phic(Nc(1)-1, 1:Nc(2), 1+1)     )/3.
-    if (BCU(1) > 0 .and. BCU(3) > 0) phic( Nc(1), 1:Nc(2), Nc(3) ) = ( phic(Nc(1)-1, 1:Nc(2), Nc(3)) + phic(Nc(1), 1:Nc(2), Nc(3)-1) + phic(Nc(1)-1, 1:Nc(2), Nc(3)-1) )/3.
-
-    if (BCL(2) > 0 .and. BCL(3) > 0) phic( 1:Nc(1), 1,     1     ) = ( phic(1:Nc(1), 1+1,     1    ) + phic(1:Nc(1), 1,     1+1    ) + phic(1:Nc(1), 1+1,     1+1)     )/3.
-    if (BCL(2) > 0 .and. BCU(3) > 0) phic( 1:Nc(1), 1,     Nc(3) ) = ( phic(1:Nc(1), 1+1,     Nc(3)) + phic(1:Nc(1), 1,     Nc(3)-1) + phic(1:Nc(1), 1+1,     Nc(3)-1) )/3.
-    if (BCU(2) > 0 .and. BCL(3) > 0) phic( 1:Nc(1), Nc(2), 1     ) = ( phic(1:Nc(1), Nc(2)-1, 1    ) + phic(1:Nc(1), Nc(2), 1+1    ) + phic(1:Nc(1), Nc(2)-1, 1+1)     )/3.
-    if (BCU(2) > 0 .and. BCU(3) > 0) phic( 1:Nc(1), Nc(2), Nc(3) ) = ( phic(1:Nc(1), Nc(2)-1, Nc(3)) + phic(1:Nc(1), Nc(2), Nc(3)-1) + phic(1:Nc(1), Nc(2)-1, Nc(3)-1) )/3.
-
 
 
     !***********************************************************************************************************
     !pgi$ unroll = n:8
-    phif( 1:Nf(1):dd(1), 1:Nf(2):dd(2), 1:Nf(3):dd(3) )  =  phic( 1:Nc(1), 1:Nc(2), 1:Nc(3) )
+    phif( 1:Nf(1):dd(1), 1:Nf(2):dd(2), 1:Nf(3):dd(3) )  =  phic( 1:iimax(1), 1:iimax(2), 1:iimax(3) )
     !***********************************************************************************************************
 
     !===========================================================================================================
@@ -279,279 +297,364 @@ contains
       do k = 1, Nf(3)
         do j = 1, Nf(2)
           !pgi$ unroll = n:8
-            do i = 1+1, Nf(1)-1, dd(1)
-              ic = i/dd(1)
-              phif(i,j,k) = cI1(1,ic)*phif(i-1,j,k) + cI1(2,ic)*phif(i+1,j,k)
+          do i = 1+1, Nf(1)-1, dd(1)
+            ic = i/dd(1)
+            phif(i,j,k) = cI1(1,ic)*phif(i-1,j,k) + cI1(2,ic)*phif(i+1,j,k)
+          end do
+        end do
+      end do
+
+    end if
+    !===========================================================================================================
+
+  end subroutine MG_interpolate
+
+
+
+  !> \brief interpolating 
+  !! \todo implement 3d
+  !! \test make fallunterscheidung for dd(dir)==0 (simple copy then)
+  subroutine MG_interpolateV( &
+      dimens,                 &
+      dir,                    &
+      Nc,                     &
+      bLc,bUc,                &
+      SSc,NNc,                &
+      Nf,                     &
+      bLf,bUf,                &
+      SSf,NNf,                &
+      iimax,                  &
+      dd,                     &
+      cIV,                    &
+      cI1,                    &
+      cI2,                    &
+      cI3,                    &
+      phic,                   &
+      phif ) bind (c,name='MG_interpolateV')
+
+    implicit none
+
+    integer(c_int), intent(in)     :: dimens
+
+    integer(c_int), intent(in)     :: dir
+
+    integer(c_int), intent(in)     :: Nc(1:3)
+
+    integer(c_int), intent(in)     :: bLc(1:3)
+    integer(c_int), intent(in)     :: bUc(1:3)
+
+    integer(c_int), intent(in)     :: SSc(1:3)
+    integer(c_int), intent(in)     :: NNc(1:3)
+
+    integer(c_int), intent(in)     :: Nf(1:3)
+
+    integer(c_int), intent(in)     :: bLf(1:3)
+    integer(c_int), intent(in)     :: bUf(1:3)
+
+    integer(c_int), intent(in)     :: SSf(1:3)
+    integer(c_int), intent(in)     :: NNf(1:3)
+
+    !integer(c_int), intent(in)     :: BCL(1:3)
+    !integer(c_int), intent(in)     :: BCU(1:3)
+
+    integer(c_int), intent(in)     :: iimax(1:3)
+    integer(c_int), intent(in)     :: dd(1:3)
+
+    real(c_double),  intent(in)    :: cIV ( 1:2, 0:Nf(dir) )
+
+    real(c_double),  intent(in)    :: cI1 ( 1:2, 1:Nc(1) )
+    real(c_double),  intent(in)    :: cI2 ( 1:2, 1:Nc(2) )
+    real(c_double),  intent(in)    :: cI3 ( 1:2, 1:Nc(3) )
+
+    real(c_double),  intent(in)   :: phic (bLc(1):(Nc(1)+bUc(1)),bLc(2):(Nc(2)+bUc(2)),bLc(3):(Nc(3)+bUc(3)))
+
+    real(c_double),  intent(out)  :: phif (bLf(1):(Nf(1)+bUf(1)),bLf(2):(Nf(2)+bUf(2)),bLf(3):(Nf(3)+bUf(3)))
+
+    integer(c_int)                ::  i, ic
+    integer(c_int)                ::  j, jc
+    integer(c_int)                ::  k, kc
+
+    integer(c_int)                :: l
+
+
+    integer(c_int)                :: S(1:3)
+    integer(c_int)                :: N(1:3)
+
+
+
+    if( 1==dir ) then
+
+      if( dd(1) /= 1 ) then
+
+        do k = SSf(3), Nf(3), dd(3)
+          kc = ( k+1 )/dd(3)
+          do j = SSf(2), Nf(2), dd(2)
+            jc = ( j+1 )/dd(2) ! holy shit
+            do i = SSf(1), Nf(1) ! zero for dirichlet
+              ic = ( i )/dd(1)
+              phif(i,j,k) = cIV(1,i)*phic(ic,jc,kc)+cIV(2,i)*phic(ic+1,jc,kc)
+            end do
+          end do
+        end do
+
+    !phif( SSf(1):Nf(1):dd(1), 1:Nf(2):dd(2), 1:Nf(3):dd(3) )  =  phic( SSf(1):iimax(1), 1:iimax(2), 1:iimax(3) )
+      else
+
+        do k = SSf(3), Nf(3), dd(3)
+          kc = ( k+1 )/dd(3)
+          do j = SSf(2), Nf(2), dd(2)
+            jc = ( j+1 )/dd(2) 
+            do i = SSf(1), Nf(1)
+              phif(i,j,k) = phic(i,jc,kc)
             end do
           end do
         end do
 
       end if
-      !===========================================================================================================
 
-    end subroutine MG_interpolate
+      if( dd(2) /= 1 ) then
+
+        do k = 1, Nf(3), dd(3)
+          do j = SSf(2)+1, Nf(2)-1, dd(2)
+            jc = (  j+1  )/dd(2)
+            !pgi$ unroll = n:8
+            do i = SSf(1), Nf(1)
+              phif(i,j,k) = 0.5*phif(i,j-1,k) + 0.5*phif(i,j+1,k)
+            end do
+          end do
+        end do
+
+      end if
+
+      if( dd(3) /= 1 ) then
+
+        do k = SSf(3)+1, Nf(3)-1, dd(3)
+          do j = SSf(2), Nf(2)
+            !pgi$ unroll = n:8
+            do i = SSf(1), Nf(1)
+              phif(i,j,k) = 0.5*phif(i,j,k-1) + 0.5*phif(i,j,k+1)
+            end do
+          end do
+        end do
+
+      end if
+
+    end if
+
+    if( 2==dir ) then
+
+      if( dd(2) /= 1 ) then
+
+        do k = SSf(3), Nf(3), dd(3)
+          kc = ( k+1 )/dd(3)
+          do j = SSf(2), Nf(2) ! zero for dirichlet
+            jc = ( j )/dd(2)
+            do i = SSf(1), Nf(1), dd(1)
+              ic = ( i+1 )/dd(2) ! holy shit
+              phif(i,j,k) = cIV(1,j)*phic(ic,jc,kc)+cIV(2,j)*phic(ic,jc+1,kc)
+            end do
+          end do
+        end do
+
+      else
+
+        do k = SSf(3), Nf(3), dd(3)
+          kc = ( k+1 )/dd(3)
+          do j = SSf(2), Nf(2) 
+            do i = SSf(1), Nf(1), dd(1)
+              ic = ( i+1 )/dd(2) 
+              phif(i,j,k) = phic(ic,j,kc)
+            end do
+          end do
+        end do
+
+      end if
+
+      if( dd(1) /= 1 ) then
+
+        do k = 1, Nf(3), dd(3)
+          do j = SSf(2), Nf(2)
+            !pgi$ unroll = n:8
+            do i = SSf(1)+1, Nf(1)-1, dd(1)
+              phif(i,j,k) = 0.5*phif(i-1,j,k) + 0.5*phif(i+1,j,k)
+            end do
+          end do
+        end do
+
+      end if
+
+      if( dd(3) /= 1 ) then
+
+        do k = SSf(3)+1, Nf(3)-1, dd(3)
+          do j = SSf(2), Nf(2)
+            !pgi$ unroll = n:8
+            do i = SSf(1), Nf(1)
+              phif(i,j,k) = 0.5*phif(i,j,k-1) + 0.5*phif(i,j,k+1)
+            end do
+          end do
+        end do
+
+      end if
+
+    end if
+
+    if( 3==dir ) then
+
+      if( dd(3) /= 1 ) then
+
+        do k = SSf(3), Nf(3)
+          kc = ( k )/dd(3)
+          do j = SSf(2), Nf(2), dd(2) ! zero for dirichlet
+            jc = ( j+1 )/dd(2)
+            do i = SSf(1), Nf(1), dd(1)
+              ic = ( i+1 )/dd(2) ! holy shit
+              phif(i,j,k) = cIV(1,k)*phic(ic,jc,kc)+cIV(2,k)*phic(ic,jc,kc+1)
+            end do
+          end do
+        end do
+
+      else
+
+        do k = SSf(3), Nf(3)
+          do j = SSf(2), Nf(2), dd(2)
+            jc = ( j+1 )/dd(2)
+            do i = SSf(1), Nf(1), dd(1)
+              ic = ( i+1 )/dd(2)
+              phif(i,j,k) = phic(ic,jc,k)
+            end do
+          end do
+        end do
+
+      end if
+
+      if( dd(1) /= 1 ) then
+
+        do k = SSf(3), Nf(3)
+          do j = 1, Nf(2), dd(2)
+          !pgi$ unroll = n:8
+          do i = SSf(1)+1, Nf(1)-1, dd(1)
+          phif(i,j,k) = 0.5*phif(i-1,j,k) + 0.5*phif(i+1,j,k)
+          end do
+          end do
+        end do
+
+      end if
+
+      if( dd(2) /= 1 ) then
+
+        do k = SSf(3), Nf(3)
+        do j = SSf(2)+1, Nf(2)-1, dd(2)
+        !pgi$ unroll = n:8
+        do i = SSf(1), Nf(1)
+        phif(i,j,k) = 0.5*phif(i,j-1,k) + 0.5*phif(i,j+1,k)
+        end do
+        end do
+        end do
+
+      end if
+
+    end if
+
+  end subroutine MG_interpolateV
 
 
 
-    !> \brief interpolating 
-    !! \todo implement 3d
-    !! \test make fallunterscheidung for dd(dir)==0 (simple copy then)
-    subroutine MG_interpolateV( &
-        dimens,                 &
-        dir,                    &
-        Nc,                     &
-        bLc,bUc,                &
-        SSc,NNc,                &
-        Nf,                     &
-        bLf,bUf,                &
-        SSf,NNf,                &
-        BCL,BCU,                &
-        cIV,                    &
-        cI1,                    &
-        cI2,                    &
-        cI3,                    &
-        phic,                   &
-        phif ) bind (c,name='MG_interpolateV')
+  !> \todo ununderstand recevbuf size not coorect
+  subroutine MG_InterpolateScatter( &
+      Nc,                       &
+      bLc,bUc,                  &
+      iimax,                    &
+      !iiShift,                  &
+      n_gather,                 &
+      participate_yes,          &
+      rankc2,                   &
+      comm2,                    &
+      !recvI,                    &
+      dispI,                    &
+      !sizsI,                    &
+      offsI,                    &
+      phic ) bind(c,name='MG_InterpolateScatter')
 
-      implicit none
-
-      integer(c_int), intent(in)     :: dimens
-
-      integer(c_int), intent(in)     :: dir
-
-      integer(c_int), intent(in)     :: Nc(1:3)
-
-      integer(c_int), intent(in)     :: bLc(1:3)
-      integer(c_int), intent(in)     :: bUc(1:3)
-
-      integer(c_int), intent(in)     :: SSc(1:3)
-      integer(c_int), intent(in)     :: NNc(1:3)
-
-      integer(c_int), intent(in)     :: Nf(1:3)
-
-      integer(c_int), intent(in)     :: bLf(1:3)
-      integer(c_int), intent(in)     :: bUf(1:3)
-
-      integer(c_int), intent(in)     :: SSf(1:3)
-      integer(c_int), intent(in)     :: NNf(1:3)
-
-      integer(c_int), intent(in)     :: BCL(1:3)
-      integer(c_int), intent(in)     :: BCU(1:3)
-
-      real(c_double),  intent(in)    :: cIV ( 1:2, 0:Nf(dir) )
-
-      real(c_double),  intent(in)    :: cI1 ( 1:2, 1:Nc(1) )
-      real(c_double),  intent(in)    :: cI2 ( 1:2, 1:Nc(2) )
-      real(c_double),  intent(in)    :: cI3 ( 1:2, 1:Nc(3) )
-
-      real(c_double),  intent(in)   :: phic (bLc(1):(Nc(1)+bUc(1)),bLc(2):(Nc(2)+bUc(2)),bLc(3):(Nc(3)+bUc(3)))
-
-      real(c_double),  intent(out)  :: phif (bLf(1):(Nf(1)+bUf(1)),bLf(2):(Nf(2)+bUf(2)),bLf(3):(Nf(3)+bUf(3)))
-
-      integer(c_int)                ::  i, ic
-      integer(c_int)                ::  j, jc
-      integer(c_int)                ::  k, kc
-
-      integer(c_int)                :: l
-
-      integer(c_int)                :: dd(1:3)
-
-      integer(c_int)                :: S(1:3)
-      integer(c_int)                :: N(1:3)
+    implicit none
 
 
-      do i = 1,3
-        dd(i) = ( Nf(i)-1 )/( Nc(i)-1 )
-        !
-        !            if( 0 < BCL(i) ) then
-        !                S(i) = 0
-        !            else
-        !                S(i) = SSf(i)
-        !            end if
-        !
-        !            if( 0 < BCU(i) ) then
-        !                N(i) = NNf(i)+1
-        !            else
-        !                N(i) = NNf(i)+1
-        !            end if
-        !
+    integer(c_int), intent(in)     :: Nc(3)
+
+    integer(c_int), intent(in)     :: bLc(3)
+    integer(c_int), intent(in)     :: bUc(3)
+
+    integer(c_int), intent(in)     :: iimax(3)
+    !integer(c_int), intent(in)     :: iiShift(3)
+
+    integer(c_int), intent(in)     :: n_gather(3)
+
+    logical(c_bool), intent(in)     :: participate_yes
+
+    integer(c_int), intent(in)     :: rankc2
+
+    integer(c_int), intent(in)     :: comm2
+
+    !integer(c_int), intent(in)     :: recvI(     1:n_gather(1)*n_gather(2)*n_gather(3) )
+    integer(c_int), intent(in)     :: dispI(     1:n_gather(1)*n_gather(2)*n_gather(3) )
+    !integer(c_int), intent(in)     :: sizsI(1:3, 1:n_gather(1)*n_gather(2)*n_gather(3) )
+    integer(c_int), intent(in)     :: offsI(1:3, 1:n_gather(1)*n_gather(2)*n_gather(3) )
+
+
+    real(c_double),intent(inout)   :: phic (bLc(1):(Nc(1)+bUc(1)),bLc(2):(Nc(2)+bUc(2)),bLc(3):(Nc(3)+bUc(3)))
+
+
+    integer(c_int)                ::  i, ii
+    integer(c_int)                ::  j, jj
+    integer(c_int)                ::  k, kk
+
+    integer(c_int)                ::  merror
+    real(c_double), allocatable   ::  recvbuf(:,:,:)
+    !integer(c_int)                ::  sizsg(1:3), offsg(1:3), dispg
+    integer(c_int)                ::  offsg(1:3), dispg
+    !real(c_double)                ::  sendbuf( 1:( ( Nc(1)+NB(1)-1 )*( Nc(2)+NB(2)-1 )*( Nc(3)+NB(2)-1 ) ) )
+    real(c_double)                ::  sendbuf( 1:( ( Nc(1)+3 )*( Nc(2)+3 )*( Nc(3)+3 ) ) )
+
+
+
+    if( participate_yes ) then
+
+      do k = 1, n_gather(3)
+        do j = 1, n_gather(2)
+          do i = 1, n_gather(1)
+
+            dispg      = dispI(    i+(j-1)*n_gather(1)+(k-1)*n_gather(1)*n_gather(2))
+            offsg(1:3) = offsI(1:3,i+(j-1)*n_gather(1)+(k-1)*n_gather(1)*n_gather(2))
+
+            do kk = 1, iimax(3)
+              do jj = 1, iimax(2)
+                do ii = 1, iimax(1)
+                  !recvbuf(dispg+ii+(jj-1)*iimax+(kk-1)*iimax*jjmax) = coarse(ii+offsg(1),jj+offsg(2),kk+offsg(3))
+                  sendbuf(dispg+ii+(jj-1)*iimax(1)+(kk-1)*iimax(1)*iimax(2)) = phic(ii+offsg(1),jj+offsg(2),kk+offsg(3))
+
+                end do
+              end do
+            end do
+
+          end do
+        end do
       end do
-      !        S(dir) = SSf(dir)
+
+    end if
+
+    allocate(recvbuf(1:iimax(1),1:iimax(2),1:iimax(3))) ! Anmerkung: Besser nicht fest allocieren um Speicherplatz zu sparen, ODER gleich "phic" verwenden!
+
+    !call MPI_GATHERv(sendbuf,iimax(1)*iimax(2)*iimax(3),MPI_REAL8,recvbuf,recvR,dispR,MPI_REAL8,rankc2,comm2,merror)
+    call MPI_SCATTER(sendbuf,iimax(1)*iimax(2)*iimax(3),MPI_REAL8,recvbuf,iimax(1)*iimax(2)*iimax(3),MPI_REAL8,rankc2,comm2,merror)
+
+    phic(1:iimax(1),1:iimax(2),1:iimax(2)) = recvbuf(1:iimax(1),1:iimax(2),1:iimax(2))
 
 
-      if( 1==dir ) then
+    deallocate(recvbuf)
+    !------------------------------------------------------------------------------
 
-        if( dd(1) /= 1 ) then
 
-          do k = SSf(3), Nf(3), dd(3)
-            kc = ( k+1 )/dd(3)
-            do j = SSf(2), Nf(2), dd(2)
-              jc = ( j+1 )/dd(2) ! holy shit
-              do i = SSf(1), Nf(1) ! zero for dirichlet
-                ic = ( i )/dd(1)
-                phif(i,j,k) = cIV(1,i)*phic(ic,jc,kc)+cIV(2,i)*phic(ic+1,jc,kc)
-              end do
-            end do
-          end do
+  end subroutine MG_InterpolateScatter
 
-        else
-
-          do k = SSf(3), Nf(3), dd(3)
-            kc = ( k+1 )/dd(3)
-            do j = SSf(2), Nf(2), dd(2)
-              jc = ( j+1 )/dd(2) 
-              do i = SSf(1), Nf(1)
-                phif(i,j,k) = phic(i,jc,kc)
-              end do
-            end do
-          end do
-
-        end if
-
-        if( dd(2) /= 1 ) then
-
-          do k = 1, Nf(3), dd(3)
-            do j = SSf(2)+1, Nf(2)-1, dd(2)
-              jc = (  j+1  )/dd(2)
-              !pgi$ unroll = n:8
-              do i = SSf(1), Nf(1)
-                phif(i,j,k) = 0.5*phif(i,j-1,k) + 0.5*phif(i,j+1,k)
-              end do
-            end do
-          end do
-
-        end if
-
-        if( dd(3) /= 1 ) then
-
-          do k = SSf(3)+1, Nf(3)-1, dd(3)
-            do j = SSf(2), Nf(2)
-              !pgi$ unroll = n:8
-              do i = SSf(1), Nf(1)
-                phif(i,j,k) = 0.5*phif(i,j,k-1) + 0.5*phif(i,j,k+1)
-              end do
-            end do
-          end do
-
-        end if
-
-      end if
-
-      if( 2==dir ) then
-
-        if( dd(2) /= 1 ) then
-
-          do k = SSf(3), Nf(3), dd(3)
-            kc = ( k+1 )/dd(3)
-            do j = SSf(2), Nf(2) ! zero for dirichlet
-              jc = ( j )/dd(2)
-              do i = SSf(1), Nf(1), dd(1)
-                ic = ( i+1 )/dd(2) ! holy shit
-                phif(i,j,k) = cIV(1,j)*phic(ic,jc,kc)+cIV(2,j)*phic(ic,jc+1,kc)
-              end do
-            end do
-          end do
-
-        else
-
-          do k = SSf(3), Nf(3), dd(3)
-            kc = ( k+1 )/dd(3)
-            do j = SSf(2), Nf(2) 
-              do i = SSf(1), Nf(1), dd(1)
-                ic = ( i+1 )/dd(2) 
-                phif(i,j,k) = phic(ic,j,kc)
-              end do
-            end do
-          end do
-
-        end if
-
-        if( dd(1) /= 1 ) then
-
-          do k = 1, Nf(3), dd(3)
-            do j = SSf(2), Nf(2)
-              !pgi$ unroll = n:8
-              do i = SSf(1)+1, Nf(1)-1, dd(1)
-                phif(i,j,k) = 0.5*phif(i-1,j,k) + 0.5*phif(i+1,j,k)
-              end do
-            end do
-          end do
-
-        end if
-
-        if( dd(3) /= 1 ) then
-
-          do k = SSf(3)+1, Nf(3)-1, dd(3)
-            do j = SSf(2), Nf(2)
-              !pgi$ unroll = n:8
-              do i = SSf(1), Nf(1)
-                phif(i,j,k) = 0.5*phif(i,j,k-1) + 0.5*phif(i,j,k+1)
-              end do
-            end do
-          end do
-
-        end if
-
-      end if
-
-      if( 3==dir ) then
-
-        if( dd(3) /= 1 ) then
-
-          do k = SSf(3), Nf(3)
-            kc = ( k )/dd(3)
-            do j = SSf(2), Nf(2), dd(2) ! zero for dirichlet
-              jc = ( j+1 )/dd(2)
-              do i = SSf(1), Nf(1), dd(1)
-                ic = ( i+1 )/dd(2) ! holy shit
-                phif(i,j,k) = cIV(1,k)*phic(ic,jc,kc)+cIV(2,k)*phic(ic,jc,kc+1)
-              end do
-            end do
-          end do
-
-        else
-
-          do k = SSf(3), Nf(3)
-            do j = SSf(2), Nf(2), dd(2)
-              jc = ( j+1 )/dd(2)
-              do i = SSf(1), Nf(1), dd(1)
-                ic = ( i+1 )/dd(2)
-                phif(i,j,k) = phic(ic,jc,k)
-              end do
-            end do
-          end do
-
-        end if
-
-        if( dd(1) /= 1 ) then
-
-          do k = SSf(3), Nf(3)
-            do j = 1, Nf(2), dd(2)
-              !pgi$ unroll = n:8
-              do i = SSf(1)+1, Nf(1)-1, dd(1)
-                phif(i,j,k) = 0.5*phif(i-1,j,k) + 0.5*phif(i+1,j,k)
-              end do
-            end do
-          end do
-
-        end if
-
-        if( dd(2) /= 1 ) then
-
-          do k = SSf(3), Nf(3)
-            do j = SSf(2)+1, Nf(2)-1, dd(2)
-              !pgi$ unroll = n:8
-              do i = SSf(1), Nf(1)
-                phif(i,j,k) = 0.5*phif(i,j-1,k) + 0.5*phif(i,j+1,k)
-              end do
-            end do
-          end do
-
-        end if
-
-      end if
-
-    end subroutine MG_interpolateV
 
 
 end module cmod_InterpolationOp

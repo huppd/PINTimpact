@@ -82,7 +82,15 @@ public:
 								)
 							)
 						);
-				interpolationOps_.push_back( create<InterT>( mgSpaces_->get(i+1), mgSpaces_->get(i) ) );
+				interpolationOps_.push_back(
+						Teuchos::rcp( 
+							new InterT<CSpaceT>(
+								mgSpaces_->get(i+1),
+								mgSpaces_->get(i),
+								mgSpaces_->get()->getProcGridSize()->getTuple()
+								)
+							)
+						);
 			}
 		}
 

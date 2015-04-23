@@ -81,7 +81,7 @@ contains
         N,                  &
         bL, bU,             &
         SS,                 &
-        NN,                 &
+        iimax,              &
         BC_L, BC_U,         &
         xs,xv,              &
         cRV ) bind(c,name='MG_getCRV')
@@ -95,14 +95,14 @@ contains
         integer(c_int),intent(in)    :: bL,bU
 
         integer(c_int),intent(in)    :: SS
-        integer(c_int),intent(in)    :: NN
+        integer(c_int),intent(in)    :: iimax
 
         integer(c_int),intent(in)    :: BC_L,BC_U
 
         real(c_double),intent(in)    :: xs(bL:(N+bU))
         real(c_double),intent(in)    :: xv(bL:(N+bU))
 
-        real(c_double),intent(inout) :: cRV(1:2,0:NN)
+        real(c_double),intent(inout) :: cRV(1:2,0:iimax)
 
         integer(c_int)        ::  i
         real(c_double)        ::  Dx12, Dx1a
@@ -122,7 +122,7 @@ contains
         cRV = 0.
 
 
-        do i = 0, NN
+        do i = 0, iimax
             Dx1a = xs(i)-xv(i-1)
             Dx12 = xv(i)-xv(i-1)
 
@@ -140,11 +140,11 @@ contains
         end if
 
         if (BC_U > 0) then
-            cRV(1,NN) = 1.
-            cRV(2,NN) = 0.
+            cRV(1,iimax) = 1.
+            cRV(2,iimax) = 0.
         end if
         if (BC_U == -2) then
-            cRV(:,NN) = 0.
+            cRV(:,iimax) = 0.
         end if
 
     end subroutine MG_getCRV
@@ -242,49 +242,6 @@ contains
         !
 
 
-
-        !            if (add_yes) then ! TEST!!! etwas seriöser einbauen ...
-        !
-        !                call exchange_relax(g,0,0,0,0,.true.,fine1)
-        !                call exchange_relax(g,0,0,0,0,.true.,fine2)
-        !
-        !                if (dimens == 3) then
-        !                    do kk = 1, kkmax
-        !                        k = dk*(kk-1)+1
-        !                        do jj = 1, jjmax
-        !                            j = dj*(jj-1)+1
-        !                            do ii = 1, iimax
-        !                                i = di*(ii-1)+1
-        !                                coarse(ii,jj,kk) = ((cR1(0,ii,g+1)+cR2(0,jj,g+1)+cR3(0,kk,g+1))*(fine1(i,j,k)-fine2(i,j,k)) +   &
-        !                                    &              cR1(-1,ii,g+1)*(fine1(i-1,j,k)-fine2(i-1,j,k)) +  &
-        !                                    &              cR1( 1,ii,g+1)*(fine1(i+1,j,k)-fine2(i+1,j,k)) +  &
-        !                                    &              cR2(-1,jj,g+1)*(fine1(i,j-1,k)-fine2(i,j-1,k)) +  &
-        !                                    &              cR2( 1,jj,g+1)*(fine1(i,j+1,k)-fine2(i,j+1,k)) +  &
-        !                                    &              cR3(-1,kk,g+1)*(fine1(i,j,k-1)-fine2(i,j,k-1)) +  &
-        !                                    &              cR3( 1,kk,g+1)*(fine1(i,j,k+1)-fine2(i,j,k+1))) / 3.
-        !                            end do
-        !                        end do
-        !                    end do
-        !                else
-        !                    k  = 1
-        !                    kk = 1
-        !                    do jj = 1, jjmax
-        !                        j = dj*(jj-1)+1
-        !                        do ii = 1, iimax
-        !                            i = di*(ii-1)+1
-        !                            coarse(ii,jj,kk) = ((cR1(0,ii,g+1)+cR2(0,jj,g+1))*(fine1(i,j,k)-fine2(i,j,k)) +   &
-        !                                &              cR1(-1,ii,g+1)*(fine1(i-1,j,k)-fine2(i-1,j,k)) +  &
-        !                                &              cR1( 1,ii,g+1)*(fine1(i+1,j,k)-fine2(i+1,j,k)) +  &
-        !                                &              cR2(-1,jj,g+1)*(fine1(i,j-1,k)-fine2(i,j-1,k)) +  &
-        !                                &              cR2( 1,jj,g+1)*(fine1(i,j+1,k)-fine2(i,j+1,k))) / 2.
-        !                        end do
-        !                    end do
-        !                end if
-        !
-        !            else
-        !
-        !                call exchange_relax(g,0,0,0,0,.true.,fine1)
-
         if (dimens == 3) then
             do kk = 1, iimax(3)
                 k = dd(3)*(kk-1)+1
@@ -335,6 +292,7 @@ contains
         bLc,bUc,                &
         SSc,NNc,                &
         iimax,                  &
+        dd,                     &
         cRV,                    &
         phif,                   &
         phic ) bind (c,name='MG_restrictV')
@@ -361,9 +319,11 @@ contains
         integer(c_int), intent(in)     :: SSc(1:3)
         integer(c_int), intent(in)     :: NNc(1:3)
 
-        integer(c_int), intent(in)     :: iimax
+        integer(c_int), intent(in)     :: iimax(1:3)
 
-        real(c_double),  intent(in)    :: cRV ( 1:2, 0:iimax )
+        integer(c_int), intent(in)     :: dd(1:3)
+
+        real(c_double),  intent(in)    :: cRV ( 1:2, 0:iimax(dir) )
 
         real(c_double),  intent(in)    :: phif (bLf(1):(Nf(1)+bUf(1)),bLf(2):(Nf(2)+bUf(2)),bLf(3):(Nf(3)+bUf(3)))
 
@@ -374,7 +334,6 @@ contains
         integer(c_int)               ::  j, jj
         integer(c_int)               ::  k, kk
 
-        integer(c_int)               :: dd(1:3)
 
 
                 !----------------------------------------------------------------------------------------------------------!
@@ -400,12 +359,12 @@ contains
 
 
 
-        dd=1
-        do i=1,dimens
-          !if( 0/=NNc(i)-SSc(i) ) dd(i) = ( NNf(i)-SSf(i) )/( NNc(i)-SSc(i) )
-          if( 0/=Nc(i) ) dd(i) = ( Nf(i) )/( Nc(i)-1 )
-        end do
-        !write(*,*) dd
+        !dd=1
+        !do i=1,dimens
+          !!if( 0/=NNc(i)-SSc(i) ) dd(i) = ( NNf(i)-SSf(i) )/( NNc(i)-SSc(i) )
+          !if( 0/=Nc(i) ) dd(i) = ( Nf(i) )/( Nc(i)-1 )
+        !end do
+        !!write(*,*) dd
 
 
         !===========================================================================================================
@@ -414,25 +373,23 @@ contains
             if( 2==dimens ) then
                 kk = SSc(3)
                 k = SSc(3)
-                do jj = SSc(2), NNc(2)
+                do jj = SSc(2), iimax(2)
                     j = dd(2)*jj-1 !> why?
                     !j = dd(2)*jj
-                    do ii = SSc(1), NNc(1)
+                    do ii = SSc(1), iimax(1)
                         i = dd(1)*ii-1 !> make sense
                         !phic(ii,jj,kk) = cRV(1,ii)*phif(i-1,j,k) + cRV(2,ii)*phif(i,j,k)
                         phic(ii,jj,kk) = cRV(1,ii)*phif(i,j,k) + cRV(2,ii)*phif(i+1,j,k)
                         !phic(ii,jj,kk) = 0.5*phif(i,j,k) + 0.5*phif(i+1,j,k)! this one kind of works
-
-                        !phic(ii,jj,kk) = 1./8.*phif(i,j+1,k) + 1./8.*phif(i+1,j+1,k) + 2./8.*phif(i,j  ,k) + 2./8.*phif(i+1,j  ,k) + 1./8.*phif(i,j-1,k) + 1./8.*phif(i+1,j-1,k)
                                      
                     end do
                 end do
             else
-                do kk = SSc(3), NNc(3)
+                do kk = SSc(3), iimax(3)
                     k = dd(3)*kk-1
-                    do jj = SSc(2), NNc(2)
+                    do jj = SSc(2), iimax(2)
                         j = dd(2)*jj-1
-                        do ii = SSc(1), NNc(1)
+                        do ii = SSc(1), iimax(1)
                             i = dd(1)*ii-1
                             phic(ii,jj,kk) = cRV(1,ii)*phif(i,j,k) + cRV(2,ii)*phif(i+1,j,k)
                         end do
@@ -447,9 +404,9 @@ contains
             if( 2==dimens ) then
                 kk = SSc(3)
                 k = SSc(3)
-                do jj = SSc(2), NNc(2)
+                do jj = SSc(2), iimax(2)
                     j = dd(2)*jj-1
-                    do ii = SSc(1), NNc(1)
+                    do ii = SSc(1), iimax(1)
                         i = dd(1)*ii-1
                         !phic(ii,jj,kk) = cRV(1,jj)*phif(i,j-1,k) + cRV(2,jj)*phif(i,j,k)
                         phic(ii,jj,kk) = cRV(1,jj)*phif(i,j,k) + cRV(2,jj)*phif(i,j+1,k)
@@ -459,11 +416,11 @@ contains
                     end do
                 end do
             else
-                do kk = SSc(3), NNc(3)
+                do kk = SSc(3), iimax(3)
                     k = dd(3)*kk-1
-                    do jj = SSc(2), NNc(2)
+                    do jj = SSc(2), iimax(2)
                         j = dd(2)*jj-1
-                        do ii = SSc(1), NNc(1)
+                        do ii = SSc(1), iimax(1)
                             i = dd(1)*ii-1
                             phic(ii,jj,kk) = cRV(1,jj)*phif(i,j,k) + cRV(2,jj)*phif(i,j+1,k)
                         end do
@@ -475,11 +432,11 @@ contains
         !===========================================================================================================
         if( 3==dimens .and. dir==3 ) then
 
-            do kk = SSc(3), NNc(3)
+            do kk = SSc(3), iimax(3)
                 k = dd(3)*kk-1
-                do jj = SSc(2), NNc(2)
+                do jj = SSc(2), iimax(2)
                     j = dd(2)*jj-1
-                    do ii = SSc(1), NNc(1)
+                    do ii = SSc(1), iimax(1)
                         i = dd(1)*ii-1
                         phic(ii,jj,kk) = cRV(1,kk)*phif(i,j,k) + cRV(2,kk)*phif(i,j,k+1)
                     end do
@@ -494,20 +451,19 @@ contains
 
     
 
-    !> \todo maybe use SS and NN with boundary instead should be more cleaner
-    !! \todo make restriction proper in 3d not just in 1d!!!
+    !> \todo ununderstand recevbuf size not coorect
     subroutine MG_RestrictGather( &
-        Nc,                 &
-        bLc,bUc,            &
-        iimax,              &
-        n_gather,           &
-        participate_yes,    &
-        rankc2,             &
-        comm2,              &
-        recvR,              &
-        dispR,              &
-        sizsR,              &
-        offsR,              &
+        Nc,                       &
+        bLc,bUc,                  &
+        iimax,                    &
+        n_gather,                 &
+        participate_yes,          &
+        rankc2,                   &
+        comm2,                    &
+        recvR,                    &
+        dispR,                    &
+        sizsR,                    &
+        offsR,                    &
         phic ) bind(c,name='MG_RestrictGather')
 
         implicit none
