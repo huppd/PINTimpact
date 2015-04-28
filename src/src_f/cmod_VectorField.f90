@@ -381,9 +381,6 @@ contains
       angle_attack,         &
       n, grid, ub, vb, wb, blthick )
 
-    !USE mod_vars
-    !USE usr_vars 
-  
     implicit none
 
     integer(c_int), intent(in)    :: rank          
@@ -2085,23 +2082,31 @@ contains
         call calcbasicflow(rank, kappa, sweep_angle_degrees, sweep_angle, angle_attack,M(1)+1,y1u_temp(0),baseflow_global(0,3),baseflow_global(0,1),baseflow_global(0,2), blThick)
 
         if( 1==IB1 ) then
+          write(*,*) "blabla"
           do ii = 0, dU(1)
+            write(*,*) ii, cIup(ii,1),baseflow_global(0,1)
             baseflow_global(0,1) = baseflow_global(0,1) - cIup(ii,1)*baseflow_global(1+ii,1)
           end do
           baseflow_global(0,1) = baseflow_global(0,1) / cIup(-1,1)
         end if
         baseflow(bL(1):(N(1)+bU(1)),1) = baseflow_global((bL(1)+iShift):(N(1)+bU(1)+iShift),1) / Re
 
-!         ! TEST!!! - debugging purposes only
-!         write(*,*) "distance, velocity (both in x1-direction)"
-!         DO i = S11B, N11B
-!          write(*,*) x1u(i)-vortex_x1pos, baseflow(i,1)
-!         end do
-!         write(*,*)
-!         write(*,*) "distance, velocity (both in x3-direction)"
-!         DO k = S31B, N31B
-!          write(*,*) x3p(k)-vortex_x3pos, baseflow(i,3)*x3w(k)
-!         end do
+        write(*,*) ii, cIup(-1,1),baseflow_global(0,1)
+        ! TEST!!! - debugging purposes only
+        write(*,*) "distance, velocity (both in x1-direction)"
+        DO i = SU(1), NU(1)
+          write(*,*)  baseflow(i,1)
+        end do
+        write(*,*)
+        write(*,*) "distance, velocity (both in x2-direction)"
+        DO i = SV(1), NV(1)
+          write(*,*)  baseflow(i,2)
+        end do
+        write(*,*)
+        write(*,*) "distance, velocity (both in x3-direction)"
+        DO k = SW(1), NW(1)
+         write(*,*) , baseflow(i,3)*x3w(k)
+        end do
 
         do k = SU(3), NU(3)
             do j = SU(2), NU(2)

@@ -12,11 +12,6 @@
 
 
 
-//extern "C" {
-//
-//void fsetGS(const int& n1, const int& n2, const int& n3 );
-//
-//}
 
 
 
@@ -36,11 +31,11 @@ class GridSizeGlobal {
   friend Teuchos::RCP<const GridSizeGlobal<OT,d> > createGridSizeGlobal( OT n1, OT n2, OT n3, OT nt );
 
   template<class OT, int d>
-  friend Teuchos::RCP<const GridSizeGlobal<OT,d> > createGridSizeGlobal( const Teuchos::Tuple<OT,d>& tuple );
+  friend Teuchos::RCP<const GridSizeGlobal<OT,d> > createGridSizeGlobal( const Teuchos::Tuple<OT,4>& tuple );
 
 public:
 
-  typedef Teuchos::Tuple<Ordinal,dimension> TO;
+  typedef Teuchos::Tuple<Ordinal,4> TO;
 
 protected:
 
@@ -70,11 +65,11 @@ public:
 /// \relates GridSizeGlobal
 template< class O=int, int d>
 Teuchos::RCP<const GridSizeGlobal<O,d> > createGridSizeGlobal( O n1, O n2, O n3, O nt=1 ) {
-  Teuchos::Tuple<O,d> temp;
+  Teuchos::Tuple<O,4> temp;
     temp[0] = n1;
     temp[1] = n2;
     temp[2] = n3;
-		if( 4==d )
+//		if( 4==d )
 			temp[3] = nt;
   return(
       Teuchos::rcp(
@@ -85,7 +80,7 @@ Teuchos::RCP<const GridSizeGlobal<O,d> > createGridSizeGlobal( O n1, O n2, O n3,
 /// \brief create GridSize Global
 /// \relates GridSizeGlobal
 template<class O, int d>
-Teuchos::RCP<const GridSizeGlobal<O,d> > createGridSizeGlobal( const Teuchos::Tuple<O,d>& to  ) {
+Teuchos::RCP<const GridSizeGlobal<O,d> > createGridSizeGlobal( const Teuchos::Tuple<O,4>& to  ) {
 
   return(
       Teuchos::rcp(

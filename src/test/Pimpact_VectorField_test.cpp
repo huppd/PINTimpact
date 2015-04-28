@@ -106,15 +106,16 @@ TEUCHOS_UNIT_TEST( VectorField, initField ) {
 	pl->set("nz", 97 );
 
   // processor grid size
-  pl->set("npx", 2 );
+  pl->set("npx", 1 );
   pl->set("npy", 1 );
-	pl->set("npz", 2 );
+	pl->set("npz", 1 );
 
   auto space = Pimpact::createSpace( pl );
 
+	space->getInterpolateV2S()->print();
   auto vel = Pimpact::create<Pimpact::VectorField>( space );
 
-  for( int i=0; i<=23; ++i ) {
+  for( int i=22; i<=23; ++i ) {
 		if( 17==i )
 			vel->initField( Pimpact::EVectorField(i), 1., 1., 0.25 );
 		else

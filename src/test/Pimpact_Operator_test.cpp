@@ -88,7 +88,7 @@ TEUCHOS_STATIC_SETUP() {
 	pl->set("nx", 33 );
 	pl->set("ny", 17 );
 	pl->set("nz", 9 );
-	pl->set("nf", 4 );
+	pl->set("nf", 10);
 
   pl->set("npx", 2 );
   pl->set("npy", 2 );
@@ -1124,76 +1124,81 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicOpWrap ) {
 
 TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiDtHelmholtz) {
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+	auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
-  auto mv1 = Pimpact::createMultiHarmonicVectorField( space, 10 );
-  auto mv2 = Pimpact::createMultiHarmonicVectorField( space, 10 );
+	auto mv1 = Pimpact::createMultiHarmonicVectorField( space, 10 );
+	auto mv2 = Pimpact::createMultiHarmonicVectorField( space, 10 );
 
-  auto op = Pimpact::createMultiDtHelmholtz( space );
+	auto op = Pimpact::createMultiDtHelmholtz( space );
 
-  op->apply( *mv1, *mv2 );
+	op->apply( *mv1, *mv2 );
+
 }
 
 
 
 TEUCHOS_UNIT_TEST( CompoundOperator, CompoundOpWrap ) {
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+	auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
-  auto x =
-		Pimpact::createMultiField( Pimpact::createCompoundField(
-					Pimpact::createMultiHarmonic<VF>( space ),
-      		Pimpact::createMultiHarmonic<SF>( space )) );
-  auto fu   = x->clone();
-  x->init(1.);
-  x->random();
+	auto x =
+		Pimpact::createMultiField(
+				Pimpact::createCompoundField(
+					Pimpact::createMultiHarmonic<VF>( space, 10 ),
+					Pimpact::createMultiHarmonic<SF>( space, 10 )
+					)
+				);
 
-  auto opV2V =
-      Pimpact::createAdd2Op(
-          Pimpact::createMultiDtHelmholtz( space, 1., 1. ),
-          Pimpact::createMultiHarmonicConvectionOp(space)	);
+	auto fu   = x->clone();
+	x->init(1.);
+	x->random();
 
-  auto opS2V = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::GradOp>( space ) );
-  auto opV2S = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::DivOp>( space ) );
+	auto opV2V =
+		Pimpact::createAdd2Op(
+				Pimpact::createMultiDtHelmholtz( space, 1., 1. ),
+				Pimpact::createMultiHarmonicConvectionOp(space)	);
 
-  auto op =
-      Pimpact::createMultiOperatorBase(
-          Pimpact::createCompoundOpWrap(
-              opV2V,
-							opS2V,
-							opV2S )
-					);
+	auto opS2V = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::GradOp>( space ) );
+	auto opV2S = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::DivOp>( space ) );
 
-  // vector to vector operator
-  fu->init(0.);
-  TEST_EQUALITY( 0., fu->norm() );
+	auto op =
+		Pimpact::createMultiOperatorBase(
+				Pimpact::createCompoundOpWrap(
+					opV2V,
+					opS2V,
+					opV2S )
+				);
 
-  opV2V->apply( x->getConstFieldPtr(0)->getConstVField(), fu->getFieldPtr(0)->getVField() );
+	// vector to vector operator
+	fu->init(0.);
+	TEST_EQUALITY( 0., fu->norm() );
 
-  TEST_INEQUALITY( 0., fu->norm() );
+	opV2V->apply( x->getConstFieldPtr(0)->getConstVField(), fu->getFieldPtr(0)->getVField() );
+
+	TEST_INEQUALITY( 0., fu->norm() );
 
 
-  // scalar to vector operator
-  fu->init(0.);
-  TEST_EQUALITY( 0., fu->norm() );
+	// scalar to vector operator
+	fu->init(0.);
+	TEST_EQUALITY( 0., fu->norm() );
 
-  opS2V->apply( x->getConstFieldPtr(0)->getConstSField(), fu->getFieldPtr(0)->getVField() );
+	opS2V->apply( x->getConstFieldPtr(0)->getConstSField(), fu->getFieldPtr(0)->getVField() );
 
-  TEST_INEQUALITY( 0., fu->norm() );
+	TEST_INEQUALITY( 0., fu->norm() );
 
-  // vector to scalar operator
-  fu->init(0.);
-  TEST_EQUALITY( 0., fu->norm() );
+	// vector to scalar operator
+	fu->init(0.);
+	TEST_EQUALITY( 0., fu->norm() );
 
-  opV2S->apply( x->getConstFieldPtr(0)->getConstVField(), fu->getFieldPtr(0)->getSField() );
+	opV2S->apply( x->getConstFieldPtr(0)->getConstVField(), fu->getFieldPtr(0)->getSField() );
 
-  TEST_INEQUALITY( 0., fu->norm() );
+	TEST_INEQUALITY( 0., fu->norm() );
 
-  // compound operator
-  fu->init(0.);
-  TEST_EQUALITY( 0., fu->norm() );
-  op->apply(*x,*fu);
-  TEST_INEQUALITY( 0., fu->norm() );
+	// compound operator
+	fu->init(0.);
+	TEST_EQUALITY( 0., fu->norm() );
+	op->apply(*x,*fu);
+	TEST_INEQUALITY( 0., fu->norm() );
 
 }
 

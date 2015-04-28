@@ -116,7 +116,7 @@ protected:
 				gridSizeGlobalTup[3] = gridSizeGlobalTup[3]/2;
 		}
 
-    auto gridSizeGlobal = createGridSizeGlobal<Ordinal>( gridSizeGlobalTup );
+    auto gridSizeGlobal = createGridSizeGlobal<Ordinal,dimension>( gridSizeGlobalTup );
 
     auto procGridSize = space->getProcGridSize();
 

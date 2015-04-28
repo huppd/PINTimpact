@@ -605,6 +605,7 @@ contains
 
         integer(c_int)               ::  i,j,k
 
+        write(*,*) "i,           j,           k,           phi(i,j,k)"
 
         do k = SS(3), NN(3)
             do j = SS(2), NN(2)

@@ -152,7 +152,15 @@ public:
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
-  void print( std::ostream& out=std::cout ) const { }
+  void print( std::ostream& out=std::cout ) const {
+//    out << " --- InterpolateV2S stencil: ---";
+//    for( int i=0; i<3; ++i ) {
+//      out << "\ndir: " << i << "\n( ";
+//      Ordinal nTemp = ( space_->nLoc(i) + 1 )*( space_->du(i) - space_->dl(i) + 1);
+//      for( int j=0; j<nTemp; ++j )
+//        out << c_[i][j] <<"\t";
+//      out << ")\n";
+    }
 
   const Scalar* getC( const ECoord& dir ) const  {
       return( c_[(int)dir] );

@@ -273,6 +273,11 @@ public:
 
 				cIV_[i] = new Scalar[ 2*( spaceF_->nLoc(i)-0+1 ) ];
 				//      if( i<spaceC_->dim() )
+				
+				Ordinal offset = 0;
+				if( 1!=nGather_[i] )
+					offset = (iimax_[i]-1)*( spaceF_->procCoordinate()[i]-1 );
+
 				MG_getCIV(
 						spaceC_->nLoc(i),
 						spaceC_->bl(i),
@@ -284,7 +289,8 @@ public:
 						spaceF_->nLoc(i),
 						spaceF_->bl(i),
 						spaceF_->bu(i),
-						spaceF_->sInd(i)[i],
+						offset,
+						//						spaceF_->sInd(i)[i],
 						//            spaceF_->eIndB(i)[i],
 						spaceC_->getCoordinatesLocal()->getX( i, i ),
 						spaceF_->getCoordinatesLocal()->getX( i, i ),
@@ -402,6 +408,8 @@ public:
 //						sizsI_,          
 						offsI_,          
 						x.getConstRawPtr() );
+//				if( !spaceC_->getProcGrid()->participating() )
+//						x.print();
 			}
 
 		 MG_interpolateV(
@@ -427,7 +435,9 @@ public:
 				 cIS_[2],
 				 x.getConstRawPtr(),
 				 y.getRawPtr() );
+
     }
+
     y.changed();
 
   }
@@ -437,6 +447,7 @@ public:
 		out << "=== Interpolation OP ===\n";
 		out << "nGather:\t" << nGather_ << "\n";
 		out << "dd:\t" << dd_ << "\n";
+		out << "iimax:\t" << iimax_ << "\n";
 		out << "rankc2:\t" << rankc2_ << "\n";
 		out << "comm2:\t" << comm2_ << "\n";
     out << "\n";

@@ -26,7 +26,7 @@ namespace Pimpact {
 ///the exception in GridSilzeLocal has to be adapted on StencilWidths
 /// \ingroup MG
 /// \todo add template parameter for coarses gridSize, and some procGrid stuff
-template<class FSpaceT,class CSpaceT>
+template<class FSpaceT,class CSpaceT, int cgsize=5>
 class CoarsenStrategyGlobal {
 
   typedef typename FSpaceT::Scalar  Scalar;
@@ -53,7 +53,7 @@ public:
 
     std::vector<Teuchos::RCP<const CSpaceT> > multiSpace( 1, tempSpace );
 
-		TO nGlo = space->getGridSizeGlobal()->getTuple();
+		Teuchos::Tuple<Ordinal,4> nGlo = space->getGridSizeGlobal()->getTuple();
 
 //    for( int i=0; i<dimension; ++i )
 //      nGlo[i] = space->nGlo(i);
@@ -78,7 +78,7 @@ public:
       for( int j=0; j<dimension; ++j ) {
         coarsen_dir[j] = false;
         if( j<3 ) {
-				 if( ( (nGlo[j]-1)%2 )==0 && nGlo[j]>=5 ) {
+				 if( ( (nGlo[j]-1)%2 )==0 && nGlo[j]>=cgsize ) {
             nGlo[j] = (nGlo[j]-1)/2 + 1;
             coarsen_yes = true;
             coarsen_dir[j] = true;
@@ -130,7 +130,7 @@ protected:
   static Teuchos::RCP< const SpaceT > createCoarseSpace(
       const Teuchos::RCP<const SpaceT>& space,
       const Teuchos::Tuple<bool,dimension>& coarsen_dir,
-      const Teuchos::Tuple<Ordinal,dimension>& gridSizeGlobalTup,
+      const Teuchos::Tuple<Ordinal,4>& gridSizeGlobalTup,
 		 	TO& stride,
 			const TO& NB,
 			const TO& IB	) {
@@ -161,7 +161,7 @@ protected:
 							npNew[i] = j;
 				}
 				// --- enforce gathering of coarsest grid to one processor ---
-				if( ( (gridSizeGlobalTup[i]-1)%2!=0 || gridSizeGlobalTup[i]<5  ) && npNew[i]>1 )
+				if( ( (gridSizeGlobalTup[i]-1)%2!=0 || gridSizeGlobalTup[i]<cgsize  ) && npNew[i]>1 )
 					npNew[i] = 1;
 			}
 		}

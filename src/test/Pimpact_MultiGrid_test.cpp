@@ -26,7 +26,7 @@ typedef Pimpact::Space<S,O,3,2> CSpace3T;
 typedef Pimpact::Space<S,O,4,2> CSpace4T;
 
 typedef Pimpact::CoarsenStrategy<FSpace3T,CSpace3T> CS3L;
-typedef Pimpact::CoarsenStrategyGlobal<FSpace3T,CSpace3T> CS3G;
+typedef Pimpact::CoarsenStrategyGlobal<FSpace3T,CSpace3T,5> CS3G;
 
 template<class ST> using BSF = Pimpact::MultiField< Pimpact::ScalarField<ST> >;
 //template<class T> using BVF = Pimpact::MultiField< Pimpact::VectorField<T> >;
@@ -84,6 +84,7 @@ TEUCHOS_STATIC_SETUP() {
 	pl->set( "nx", 33 );
 	pl->set( "ny", 33 );
 	pl->set( "nz", 33 );
+//	pl->set( "nz", 33 );
 //	pl->set( "nx", 65 );
 //	pl->set( "ny", 65 );
 //	pl->set( "nz", 65 );
@@ -97,9 +98,9 @@ TEUCHOS_STATIC_SETUP() {
 //	pl->set( "ny", 1025 );
 	
 // processor grid size
-	pl->set("npx", 4 );
+	pl->set("npx", 1 );
 	pl->set("npy", 1 );
-	pl->set("npz", 1 );
+	pl->set("npz", 2 );
 
 }
 
@@ -511,9 +512,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator3D, CS ) {
     auto er = fieldf->clone();
 
 
-    // the zero test
-    fieldf->init( 1. );
-    fieldc->initField( Pimpact::ConstField, 0. );
+	 // the zero test
+	 fieldf->init( 1. );
+	 fieldc->initField( Pimpact::ConstField, 0. );
 
 		if( mgSpaces->participating(-2) )
 				op->apply( *fieldc, *fieldf );
@@ -524,9 +525,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator3D, CS ) {
 			TEST_EQUALITY( eps>fieldc->norm(), true );
 
 
-    // the random test
-    fieldc->random();
-    fieldf->init(0.);
+	 // the random test
+	 fieldc->random();
+	 fieldf->init(0.);
 
 		if( mgSpaces->participating(-1) )
 			TEST_INEQUALITY( 0., fieldc->norm() );
@@ -539,7 +540,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator3D, CS ) {
 
 
     // the stronger init test
-    fieldc->initField( Pimpact::ConstField, 1. );
+		if( mgSpaces->participating(-1) )
+			fieldc->initField( Pimpact::ConstField, 1. );
+		else
+			fieldc->initField();
     fieldf->initField( Pimpact::ConstField, 0. );
     sol->initField( Pimpact::ConstField, 1. );
 		er->random();
@@ -550,6 +554,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator3D, CS ) {
 		er->add( 1., *sol, -1., *fieldf );
 		if( mgSpaces->participating(-2) ) {
 			er->write(0);
+			if( 1==space->rankST() ) fieldf->print();
 		}
 
 		if( mgSpaces->participating(-2) )
@@ -559,14 +564,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator3D, CS ) {
 			TEST_EQUALITY( er->norm()/std::sqrt( (S)er->getLength() ) < eps, true  );
 
 
-    // hardcore test init test in X
+	 // hardcore test init test in X
 
 		if( mgSpaces->participating(-1) )
 			fieldc->initField( Pimpact::Grad2D_inX );
 		else
 			fieldc->initField();
-    fieldf->initField( Pimpact::ConstField, 0. );
-    sol->initField( Pimpact::Grad2D_inX );
+	 fieldf->initField( Pimpact::ConstField, 0. );
+	 sol->initField( Pimpact::Grad2D_inX );
 		er->random();
 
 		if( mgSpaces->participating(-1) )
@@ -577,7 +582,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator3D, CS ) {
 		if( mgSpaces->participating(-2) )
 			op->apply( *fieldc, *fieldf );
 
-    er->add( 1., *sol, -1., *fieldf );
+	 er->add( 1., *sol, -1., *fieldf );
 
 		if( mgSpaces->participating(-1) )
 			fieldc->write(1000);
@@ -586,6 +591,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator3D, CS ) {
 
 		if( mgSpaces->participating(-2) ){
 			er->write(1);
+//			if( 1==space->rankST() ) er->print();
 			fieldf->write(10);
 			sol->write(100);
 		}
@@ -598,10 +604,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator3D, CS ) {
 				TEST_EQUALITY( er->norm()/std::sqrt( (S)er->getLength() )< eps, true  );
 
 
-    // hardcore test init test in Y
-    fieldc->initField( Pimpact::Grad2D_inY );
-    fieldf->initField( Pimpact::ConstField, 0. );
-    sol->initField( Pimpact::Grad2D_inY );
+	 // hardcore test init test in Y
+		if( mgSpaces->participating(-1) )
+			fieldc->initField( Pimpact::Grad2D_inY );
+		else
+			fieldc->initField();
+	 fieldf->initField( Pimpact::ConstField, 0. );
+	 sol->initField( Pimpact::Grad2D_inY );
 		er->random();
 
 		if( mgSpaces->participating(-2) )
@@ -622,10 +631,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator3D, CS ) {
 				TEST_EQUALITY( er->norm()/std::sqrt( (S)er->getLength() ) < eps, true  );
 
 
-    // hardcore test init test in Z
-    fieldc->initField( Pimpact::Grad2D_inZ );
-    fieldf->initField( Pimpact::ConstField, 0. );
-    sol->initField( Pimpact::Grad2D_inZ );
+	 // hardcore test init test in Z
+		if( mgSpaces->participating(-1) )
+			fieldc->initField( Pimpact::Grad2D_inZ );
+		else
+			fieldc->initField();
+	 fieldf->initField( Pimpact::ConstField, 0. );
+	 sol->initField( Pimpact::Grad2D_inZ );
 		er->random();
 
 		if( mgSpaces->participating(-2) )
@@ -634,6 +646,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator3D, CS ) {
 		er->add( 1., *sol, -1., *fieldf );
 
 		if( mgSpaces->participating(-2) ) er->write(3);
+		if( mgSpaces->participating(-2) ) fieldf->write(30);
 
 		if( mgSpaces->participating(-2) )
 			std::cout << "error GradZ: " << er->norm()/std::sqrt( (S)er->getLength() ) << "\n";
@@ -641,7 +654,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator3D, CS ) {
 		if( i>0 ) // corners for scalar are "wrong"
 			if( mgSpaces->participating(-2) )
 				TEST_EQUALITY( er->norm()/std::sqrt( (S)er->getLength() ) < eps, true  );
-  }
+	}
 
 }
 
@@ -654,13 +667,13 @@ template<class T1,class T2> using TransVF = Pimpact::VectorFieldOpWrap<Pimpact::
 template<class T> using RestrVF = Pimpact::VectorFieldOpWrap<Pimpact::RestrictionOp<T> >;
 template<class T> using InterVF = Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<T> >;
 
-TEUCHOS_UNIT_TEST( MultiGrid, MGTransfersVF ) {
 
-	typedef Pimpact::CoarsenStrategy<FSpace3T,CSpace3T> CS;
+
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MGTransfersVF, CS ) {
+
 
 //  pl->set( "Re", 1. );
 //  pl->set( "alpha2", 1. );
-//  pl->set( "domain", domain );
 //
 //  pl->set( "dim", 2 );
 //
@@ -784,6 +797,9 @@ TEUCHOS_UNIT_TEST( MultiGrid, MGTransfersVF ) {
 }
 
 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, MGTransfersVF, CS3L )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, MGTransfersVF, CS3G )
+
 
 template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
 
@@ -881,14 +897,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 
 }
 
-
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, DivGradOp, CS3L )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, DivGradOp, CS3G )
 
 
-TEUCHOS_UNIT_TEST( MultiGrid, ConvDiffOp ) {
 
-  typedef Pimpact::CoarsenStrategy<FSpace3T,CSpace3T> CS;
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffOp, CS ) {
 
 	pl->set<S>( "Re", 1000 );
 	//pl->set<S>( "Re", 100. );
@@ -927,8 +941,10 @@ TEUCHOS_UNIT_TEST( MultiGrid, ConvDiffOp ) {
 				MOP
 		>( mgSpaces, mgPL );
 
+	std::cout << "blabla\n";
   auto op = Pimpact::create< ConvDiffOpT >( space );
 
+	std::cout << "blupblup\n";
   auto x = Pimpact::create<Pimpact::VectorField>( space );
   auto b = Pimpact::create<Pimpact::VectorField>( space );
   auto temp = x->clone();
@@ -984,6 +1000,11 @@ TEUCHOS_UNIT_TEST( MultiGrid, ConvDiffOp ) {
      ofs.close();
 
 }
+
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, ConvDiffOp, CS3L )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, ConvDiffOp, CS3G )
+
+
 
 
 } // end of namespace

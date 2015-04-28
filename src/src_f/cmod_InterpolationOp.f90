@@ -68,9 +68,8 @@ contains
       BC_L, BC_U,         &
       Nf,                 &
       bLf, bUf,           &
-      SSf,                &
-      !        NNf,                &
-    xc,xf,              &
+      offset,             &
+      xc,xf,              &
       dd,                 &
       cIV ) bind(c,name='MG_getCIV')
 
@@ -91,9 +90,7 @@ contains
 
     integer(c_int), intent(in)    :: bLf, bUf
 
-    integer(c_int), intent(in)    :: SSf
-    !        integer(c_int), intent(in)    :: NNf
-
+    integer(c_int), intent(in)    :: offset
 
     real(c_double), intent(in)    :: xc( bLc:(Nc+bUc) )
 
@@ -123,7 +120,7 @@ contains
     cIV = 0.
 
     do i = 0, Nf
-      ic = ( i )/dd
+      ic = ( i )/dd + offset
 
       Dx1a = xc(ic)-xf(i   )
       Dx12 = xc(ic)-xc(ic+1)
@@ -376,9 +373,15 @@ contains
 
     integer(c_int)                :: l
 
-
     integer(c_int)                :: S(1:3)
     integer(c_int)                :: N(1:3)
+    integer(c_int)                :: ds(1:3)
+
+    ds = dd
+
+    do i = 1,3
+      if( iimax(i)<Nc(i) ) ds = 1
+    end do
 
 
 
@@ -391,13 +394,12 @@ contains
           do j = SSf(2), Nf(2), dd(2)
             jc = ( j+1 )/dd(2) ! holy shit
             do i = SSf(1), Nf(1) ! zero for dirichlet
-              ic = ( i )/dd(1)
-              phif(i,j,k) = cIV(1,i)*phic(ic,jc,kc)+cIV(2,i)*phic(ic+1,jc,kc)
+              ic = ( i )/dd(1)+1
+              phif(i,j,k) = cIV(1,i)*phic(ic-1,jc,kc)+cIV(2,i)*phic(ic,jc,kc)
             end do
           end do
         end do
 
-    !phif( SSf(1):Nf(1):dd(1), 1:Nf(2):dd(2), 1:Nf(3):dd(3) )  =  phic( SSf(1):iimax(1), 1:iimax(2), 1:iimax(3) )
       else
 
         do k = SSf(3), Nf(3), dd(3)
@@ -414,7 +416,7 @@ contains
 
       if( dd(2) /= 1 ) then
 
-        do k = 1, Nf(3), dd(3)
+        do k = SSf(3), Nf(3), dd(3)
           do j = SSf(2)+1, Nf(2)-1, dd(2)
             jc = (  j+1  )/dd(2)
             !pgi$ unroll = n:8
@@ -642,11 +644,13 @@ contains
     end if
 
     allocate(recvbuf(1:iimax(1),1:iimax(2),1:iimax(3))) ! Anmerkung: Besser nicht fest allocieren um Speicherplatz zu sparen, ODER gleich "phic" verwenden!
+    !allocate(recvbuf(0:iimax(1),0:iimax(2),0:iimax(3))) ! Anmerkung: Besser nicht fest allocieren um Speicherplatz zu sparen, ODER gleich "phic" verwenden!
 
-    !call MPI_GATHERv(sendbuf,iimax(1)*iimax(2)*iimax(3),MPI_REAL8,recvbuf,recvR,dispR,MPI_REAL8,rankc2,comm2,merror)
     call MPI_SCATTER(sendbuf,iimax(1)*iimax(2)*iimax(3),MPI_REAL8,recvbuf,iimax(1)*iimax(2)*iimax(3),MPI_REAL8,rankc2,comm2,merror)
+    !call MPI_SCATTER(sendbuf,(iimax(1)+1)*(iimax(2)+1)*(iimax(3)+1),MPI_REAL8,recvbuf,(iimax(1)+1)*(iimax(2)+1)*(iimax(3)+1),MPI_REAL8,rankc2,comm2,merror)
 
     phic(1:iimax(1),1:iimax(2),1:iimax(2)) = recvbuf(1:iimax(1),1:iimax(2),1:iimax(2))
+    !phic(0:iimax(1),0:iimax(2),0:iimax(2)) = recvbuf(0:iimax(1),0:iimax(2),0:iimax(2))
 
 
     deallocate(recvbuf)
