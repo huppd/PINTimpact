@@ -239,7 +239,7 @@ public:
 
 					for( Ordinal i=0; i<3; ++i ) {
 						offs_global[ i + rank_comm2*3 ] = iiShift_[i];
-						sizs_global[ i + rank_comm2*3 ] = iimax_[i];
+						sizs_global[ i + rank_comm2*3 ] = iimax_[i]+1;
 					}
 
 					MPI_Allreduce( offs_global.data(), offsI_, 3*nGatherTotal, MPI_INTEGER, MPI_SUM, comm2_ );
@@ -290,8 +290,6 @@ public:
 						spaceF_->bl(i),
 						spaceF_->bu(i),
 						offset,
-						//						spaceF_->sInd(i)[i],
-						//            spaceF_->eIndB(i)[i],
 						spaceC_->getCoordinatesLocal()->getX( i, i ),
 						spaceF_->getCoordinatesLocal()->getX( i, i ),
 						dd_[i],
@@ -321,13 +319,13 @@ public:
 
 		if( EField::S==fType ) {
 
-			MG_InterpolateCorners(
-				 spaceC_->nLoc(),
-				 spaceC_->bl(),
-				 spaceC_->bu(),
-				 spaceC_->getDomain()->getBCLocal()->getBCL(),
-				 spaceC_->getDomain()->getBCLocal()->getBCU(),
-				 x.getConstRawPtr() );
+//			MG_InterpolateCorners(
+//				 spaceC_->nLoc(),
+//				 spaceC_->bl(),
+//				 spaceC_->bu(),
+//				 spaceC_->getDomain()->getBCLocal()->getBCL(),
+//				 spaceC_->getDomain()->getBCLocal()->getBCU(),
+//				 x.getConstRawPtr() );
 
 			if( spaceC_->getProcGrid()->participating() )
 				x.exchange();
@@ -342,9 +340,7 @@ public:
 						spaceC_->getProcGrid()->participating(),
 						rankc2_,
 						MPI_Comm_c2f(comm2_),
-//						recvI_,          
 						dispI_,          
-//						sizsI_,          
 						offsI_,          
 						x.getConstRawPtr() );
 			}
@@ -375,18 +371,18 @@ public:
 			if( spaceC_->getProcGrid()->participating() ) {
 				switch( fType ) {
 					case EField::U:
-						x.exchange(2);
 						x.exchange(1);
+						x.exchange(2);
 						x.exchange(0);
 						break;
 					case EField::V:
-						x.exchange(2);
 						x.exchange(0);
+						x.exchange(2);
 						x.exchange(1);
 						break;
 					case EField::W:
-						x.exchange(0);
 						x.exchange(1);
+						x.exchange(0);
 						x.exchange(2);
 					case EField::S:
 						break;

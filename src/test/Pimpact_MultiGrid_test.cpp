@@ -98,8 +98,8 @@ TEUCHOS_STATIC_SETUP() {
 //	pl->set( "ny", 1025 );
 	
 // processor grid size
-	pl->set("npx", 1 );
-	pl->set("npy", 1 );
+	pl->set("npx", 2 );
+	pl->set("npy", 2 );
 	pl->set("npz", 2 );
 
 }

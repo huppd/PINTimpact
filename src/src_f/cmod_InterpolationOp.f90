@@ -390,9 +390,17 @@ contains
       if( dd(1) /= 1 ) then
 
         do k = SSf(3), Nf(3), dd(3)
-          kc = ( k+1 )/dd(3)
+          if( 1==dd(3) ) then
+            kc = k
+          else
+            kc = ( k+1 )/dd(3)
+          end if
           do j = SSf(2), Nf(2), dd(2)
-            jc = ( j+1 )/dd(2) ! holy shit
+            if( 1==dd(2) ) then
+              jc = j
+            else
+              jc = ( j+1 )/dd(2) ! holy shit
+            end if
             do i = SSf(1), Nf(1) ! zero for dirichlet
               ic = ( i )/dd(1)+1
               phif(i,j,k) = cIV(1,i)*phic(ic-1,jc,kc)+cIV(2,i)*phic(ic,jc,kc)
@@ -403,9 +411,17 @@ contains
       else
 
         do k = SSf(3), Nf(3), dd(3)
-          kc = ( k+1 )/dd(3)
+          if( 1==dd(3) ) then
+            kc = k
+          else
+            kc = ( k+1 )/dd(3)
+          end if
           do j = SSf(2), Nf(2), dd(2)
-            jc = ( j+1 )/dd(2) 
+            if( 1==dd(2) ) then
+              jc = j
+            else
+              jc = ( j+1 )/dd(2) ! holy shit
+            end if
             do i = SSf(1), Nf(1)
               phif(i,j,k) = phic(i,jc,kc)
             end do
@@ -448,11 +464,19 @@ contains
       if( dd(2) /= 1 ) then
 
         do k = SSf(3), Nf(3), dd(3)
-          kc = ( k+1 )/dd(3)
+          if( 1==dd(3) ) then
+            kc = k
+          else
+            kc = ( k+1 )/dd(3)
+          end if
           do j = SSf(2), Nf(2) ! zero for dirichlet
             jc = ( j )/dd(2)
             do i = SSf(1), Nf(1), dd(1)
-              ic = ( i+1 )/dd(2) ! holy shit
+              if( 1==dd(1) ) then
+                ic = i
+              else
+                ic = ( i+1 )/dd(1) ! holy shit
+              end if
               phif(i,j,k) = cIV(1,j)*phic(ic,jc,kc)+cIV(2,j)*phic(ic,jc+1,kc)
             end do
           end do
@@ -461,10 +485,18 @@ contains
       else
 
         do k = SSf(3), Nf(3), dd(3)
-          kc = ( k+1 )/dd(3)
+          if( 1==dd(3) ) then
+            kc = k
+          else
+            kc = ( k+1 )/dd(3)
+          end if
           do j = SSf(2), Nf(2) 
             do i = SSf(1), Nf(1), dd(1)
-              ic = ( i+1 )/dd(2) 
+              if( 1==dd(1) ) then
+                ic = i
+              else
+                ic = ( i+1 )/dd(1) ! holy shit
+              end if
               phif(i,j,k) = phic(ic,j,kc)
             end do
           end do
@@ -507,9 +539,17 @@ contains
         do k = SSf(3), Nf(3)
           kc = ( k )/dd(3)
           do j = SSf(2), Nf(2), dd(2) ! zero for dirichlet
-            jc = ( j+1 )/dd(2)
+            if( 1==dd(2) ) then
+              jc = j
+            else
+              jc = ( j+1 )/dd(2)
+            end if
             do i = SSf(1), Nf(1), dd(1)
-              ic = ( i+1 )/dd(2) ! holy shit
+              if( 1==dd(1) ) then
+                ic = i
+              else
+                ic = ( i+1 )/dd(1) ! holy shit
+              end if
               phif(i,j,k) = cIV(1,k)*phic(ic,jc,kc)+cIV(2,k)*phic(ic,jc,kc+1)
             end do
           end do
@@ -519,9 +559,17 @@ contains
 
         do k = SSf(3), Nf(3)
           do j = SSf(2), Nf(2), dd(2)
-            jc = ( j+1 )/dd(2)
+            if( 1==dd(2) ) then
+              jc = j
+            else
+              jc = ( j+1 )/dd(2)
+            end if
             do i = SSf(1), Nf(1), dd(1)
-              ic = ( i+1 )/dd(2)
+              if( 1==dd(1) ) then
+                ic = i
+              else
+                ic = ( i+1 )/dd(1) ! holy shit
+              end if
               phif(i,j,k) = phic(ic,jc,k)
             end do
           end do
@@ -533,10 +581,10 @@ contains
 
         do k = SSf(3), Nf(3)
           do j = 1, Nf(2), dd(2)
-          !pgi$ unroll = n:8
-          do i = SSf(1)+1, Nf(1)-1, dd(1)
-          phif(i,j,k) = 0.5*phif(i-1,j,k) + 0.5*phif(i+1,j,k)
-          end do
+            !pgi$ unroll = n:8
+            do i = SSf(1)+1, Nf(1)-1, dd(1)
+              phif(i,j,k) = 0.5*phif(i-1,j,k) + 0.5*phif(i+1,j,k)
+            end do
           end do
         end do
 
@@ -545,12 +593,12 @@ contains
       if( dd(2) /= 1 ) then
 
         do k = SSf(3), Nf(3)
-        do j = SSf(2)+1, Nf(2)-1, dd(2)
-        !pgi$ unroll = n:8
-        do i = SSf(1), Nf(1)
-        phif(i,j,k) = 0.5*phif(i,j-1,k) + 0.5*phif(i,j+1,k)
-        end do
-        end do
+          do j = SSf(2)+1, Nf(2)-1, dd(2)
+            !pgi$ unroll = n:8
+            do i = SSf(1), Nf(1)
+              phif(i,j,k) = 0.5*phif(i,j-1,k) + 0.5*phif(i,j+1,k)
+            end do
+          end do
         end do
 
       end if
@@ -566,14 +614,11 @@ contains
       Nc,                       &
       bLc,bUc,                  &
       iimax,                    &
-      !iiShift,                  &
       n_gather,                 &
       participate_yes,          &
       rankc2,                   &
       comm2,                    &
-      !recvI,                    &
       dispI,                    &
-      !sizsI,                    &
       offsI,                    &
       phic ) bind(c,name='MG_InterpolateScatter')
 
@@ -586,7 +631,6 @@ contains
     integer(c_int), intent(in)     :: bUc(3)
 
     integer(c_int), intent(in)     :: iimax(3)
-    !integer(c_int), intent(in)     :: iiShift(3)
 
     integer(c_int), intent(in)     :: n_gather(3)
 
@@ -596,9 +640,7 @@ contains
 
     integer(c_int), intent(in)     :: comm2
 
-    !integer(c_int), intent(in)     :: recvI(     1:n_gather(1)*n_gather(2)*n_gather(3) )
     integer(c_int), intent(in)     :: dispI(     1:n_gather(1)*n_gather(2)*n_gather(3) )
-    !integer(c_int), intent(in)     :: sizsI(1:3, 1:n_gather(1)*n_gather(2)*n_gather(3) )
     integer(c_int), intent(in)     :: offsI(1:3, 1:n_gather(1)*n_gather(2)*n_gather(3) )
 
 
@@ -611,10 +653,9 @@ contains
 
     integer(c_int)                ::  merror
     real(c_double), allocatable   ::  recvbuf(:,:,:)
-    !integer(c_int)                ::  sizsg(1:3), offsg(1:3), dispg
     integer(c_int)                ::  offsg(1:3), dispg
     !real(c_double)                ::  sendbuf( 1:( ( Nc(1)+NB(1)-1 )*( Nc(2)+NB(2)-1 )*( Nc(3)+NB(2)-1 ) ) )
-    real(c_double)                ::  sendbuf( 1:( ( Nc(1)+3 )*( Nc(2)+3 )*( Nc(3)+3 ) ) )
+    real(c_double)                ::  sendbuf( 0:( ( Nc(1)+3 )*( Nc(2)+3 )*( Nc(3)+3 ) ) )
 
 
 
@@ -627,12 +668,10 @@ contains
             dispg      = dispI(    i+(j-1)*n_gather(1)+(k-1)*n_gather(1)*n_gather(2))
             offsg(1:3) = offsI(1:3,i+(j-1)*n_gather(1)+(k-1)*n_gather(1)*n_gather(2))
 
-            do kk = 1, iimax(3)
-              do jj = 1, iimax(2)
-                do ii = 1, iimax(1)
-                  !recvbuf(dispg+ii+(jj-1)*iimax+(kk-1)*iimax*jjmax) = coarse(ii+offsg(1),jj+offsg(2),kk+offsg(3))
-                  sendbuf(dispg+ii+(jj-1)*iimax(1)+(kk-1)*iimax(1)*iimax(2)) = phic(ii+offsg(1),jj+offsg(2),kk+offsg(3))
-
+            do kk = 0, iimax(3)
+              do jj = 0, iimax(2)
+                do ii = 0, iimax(1)
+                  sendbuf( dispg + ii + jj*(iimax(1)+1) + kk*(iimax(1)+1)*(iimax(2)+1) ) = phic(ii+offsg(1),jj+offsg(2),kk+offsg(3))
                 end do
               end do
             end do
@@ -643,14 +682,11 @@ contains
 
     end if
 
-    allocate(recvbuf(1:iimax(1),1:iimax(2),1:iimax(3))) ! Anmerkung: Besser nicht fest allocieren um Speicherplatz zu sparen, ODER gleich "phic" verwenden!
-    !allocate(recvbuf(0:iimax(1),0:iimax(2),0:iimax(3))) ! Anmerkung: Besser nicht fest allocieren um Speicherplatz zu sparen, ODER gleich "phic" verwenden!
+    allocate(recvbuf(0:iimax(1),0:iimax(2),0:iimax(3))) ! Anmerkung: Besser nicht fest allocieren um Speicherplatz zu sparen, ODER gleich "phic" verwenden!
 
-    call MPI_SCATTER(sendbuf,iimax(1)*iimax(2)*iimax(3),MPI_REAL8,recvbuf,iimax(1)*iimax(2)*iimax(3),MPI_REAL8,rankc2,comm2,merror)
-    !call MPI_SCATTER(sendbuf,(iimax(1)+1)*(iimax(2)+1)*(iimax(3)+1),MPI_REAL8,recvbuf,(iimax(1)+1)*(iimax(2)+1)*(iimax(3)+1),MPI_REAL8,rankc2,comm2,merror)
+    call MPI_SCATTER(sendbuf,(iimax(1)+1)*(iimax(2)+1)*(iimax(3)+1),MPI_REAL8,recvbuf,(iimax(1)+1)*(iimax(2)+1)*(iimax(3)+1),MPI_REAL8,rankc2,comm2,merror)
 
-    phic(1:iimax(1),1:iimax(2),1:iimax(2)) = recvbuf(1:iimax(1),1:iimax(2),1:iimax(2))
-    !phic(0:iimax(1),0:iimax(2),0:iimax(2)) = recvbuf(0:iimax(1),0:iimax(2),0:iimax(2))
+    phic(0:iimax(1),0:iimax(2),0:iimax(3)) = recvbuf(0:iimax(1),0:iimax(2),0:iimax(3))
 
 
     deallocate(recvbuf)
