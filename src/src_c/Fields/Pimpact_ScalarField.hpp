@@ -419,6 +419,15 @@ public:
         space()->sInd(fType_),
         space()->eInd(fType_),
         s_);
+		if( !space()->getProcGrid()->participating() )
+			SF_init(
+          space()->nLoc(),
+          space()->bl(),
+          space()->bu(),
+          space()->sIndB(fType_),
+          space()->eIndB(fType_),
+          s_,
+          0. );
     changed();
   }
 
@@ -432,6 +441,15 @@ public:
         space()->sInd(fType_),
         space()->eInd(fType_),
         s_, alpha);
+		if( !space()->getProcGrid()->participating() )
+			SF_init(
+          space()->nLoc(),
+          space()->bl(),
+          space()->bu(),
+          space()->sIndB(fType_),
+          space()->eIndB(fType_),
+          s_,
+          0. );
     changed();
   }
 
@@ -519,6 +537,16 @@ public:
           s_ );
       break;
     }
+
+		if( !space()->getProcGrid()->participating() )
+			SF_init(
+          space()->nLoc(),
+          space()->bl(),
+          space()->bu(),
+          space()->sIndB(fType_),
+          space()->eIndB(fType_),
+          s_,
+          0. );
     changed();
   }
 

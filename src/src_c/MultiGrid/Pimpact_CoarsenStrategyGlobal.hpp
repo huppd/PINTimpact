@@ -117,8 +117,8 @@ public:
 		file.close();
 
 
-	// not working on brutus
-    //multiSpace.shrink_to_fit();
+		// not working on brutus
+		//multiSpace.shrink_to_fit();
 
     return( multiSpace );
 
@@ -175,7 +175,7 @@ protected:
 //					npNew[3] = 1;
 			}
 		}
-//		std::cout << "rank: " << space->rankST()<< "\t procGridSiz: " << npNew << "\n";
+		std::cout << "rank: " << space->rankST()<< "\t procGridSiz: " << npNew << "\n";
 
 		bool procGridChanged=false;
 		for( int i=0; i<dimension; ++i )
@@ -218,6 +218,7 @@ protected:
 				for( int i=0; i<dimension; ++i ) 
 					n *= npNew[i];
 				int* newRanks = new int[n];
+				std::cout << "rankWorld: " << rankWorld << "n: " << n << "\n";
 
 				TO rankCoord;
 
@@ -242,9 +243,10 @@ protected:
 								MPI_Cart_rank(
 										commWorld,
 										rankCoord.getRawPtr(),
-										&newRanks[i+j*npNew[0]+k*npNew[0]*npNew[2] ] );
-								if( rankWorld==newRanks[i+j*npNew[0]+k*npNew[0]*npNew[2] ])
+										&newRanks[i+j*npNew[0]+k*npNew[0]*npNew[1] ] );
+								if( rankWorld==newRanks[i+j*npNew[0]+k*npNew[0]*npNew[1] ])
 									participating = true;
+//							std::cout << "rankWorld: " << rankWorld << "\t strid: "<< stride << "\n\tt" << "rankCOrd: " << rankCoord << "\n";
 
 							}
 					}

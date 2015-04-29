@@ -312,6 +312,7 @@ public:
 
 	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
+		y.initField();
 
 		EField fType = x.getType();
 
@@ -319,13 +320,13 @@ public:
 
 		if( EField::S==fType ) {
 
-//			MG_InterpolateCorners(
-//				 spaceC_->nLoc(),
-//				 spaceC_->bl(),
-//				 spaceC_->bu(),
-//				 spaceC_->getDomain()->getBCLocal()->getBCL(),
-//				 spaceC_->getDomain()->getBCLocal()->getBCU(),
-//				 x.getConstRawPtr() );
+			MG_InterpolateCorners(
+				 spaceC_->nLoc(),
+				 spaceC_->bl(),
+				 spaceC_->bu(),
+				 spaceC_->getDomain()->getBCLocal()->getBCL(),
+				 spaceC_->getDomain()->getBCLocal()->getBCU(),
+				 x.getConstRawPtr() );
 
 			if( spaceC_->getProcGrid()->participating() )
 				x.exchange();
@@ -350,8 +351,6 @@ public:
           spaceC_->nLoc(),
           spaceC_->bl(),
           spaceC_->bu(),
-//          spaceC_->getDomain()->getBCLocal()->getBCL(),
-//          spaceC_->getDomain()->getBCLocal()->getBCU(),
           spaceF_->nLoc(),
           spaceF_->bl(),
           spaceF_->bu(),
@@ -371,18 +370,18 @@ public:
 			if( spaceC_->getProcGrid()->participating() ) {
 				switch( fType ) {
 					case EField::U:
-						x.exchange(1);
 						x.exchange(2);
+						x.exchange(1);
 						x.exchange(0);
 						break;
 					case EField::V:
-						x.exchange(0);
 						x.exchange(2);
+						x.exchange(0);
 						x.exchange(1);
 						break;
 					case EField::W:
-						x.exchange(1);
 						x.exchange(0);
+						x.exchange(1);
 						x.exchange(2);
 					case EField::S:
 						break;
@@ -399,13 +398,9 @@ public:
 						spaceC_->getProcGrid()->participating(),
 						rankc2_,
 						MPI_Comm_c2f(comm2_),
-//						recvI_,          
 						dispI_,          
-//						sizsI_,          
 						offsI_,          
 						x.getConstRawPtr() );
-//				if( !spaceC_->getProcGrid()->participating() )
-//						x.print();
 			}
 
 		 MG_interpolateV(
@@ -421,8 +416,6 @@ public:
 				 spaceF_->bu(),
 				 spaceF_->sIndB(fType),
 				 spaceF_->eIndB(fType),
-//				 spaceF_->getDomain()->getBCGlobal()->getBCL(),
-//				 spaceF_->getDomain()->getBCGlobal()->getBCU(),
 				 iimax_.getRawPtr(),
 				 dd_.getRawPtr(),
 				 cIV_[dir],

@@ -150,6 +150,57 @@ contains
     end subroutine MG_getCRV
 
 
+    subroutine MG_RestrictCorners(  &
+        Nc,                           &
+        bLc,bUc,                      &
+        BCL, BCU,                     &
+        phif ) bind(c,name='MG_RestrictCorners')
+
+      implicit none
+
+      integer(c_int), intent(in)     :: Nc(3)
+
+      integer(c_int), intent(in)     :: bLc(3)
+      integer(c_int), intent(in)     :: bUc(3)
+
+      integer(c_int), intent(in)     :: BCL(3)
+      integer(c_int), intent(in)     :: BCU(3)
+
+      real(c_double), intent(inout)  :: phif (bLc(1):(Nc(1)+bUc(1)),bLc(2):(Nc(2)+bUc(2)),bLc(3):(Nc(3)+bUc(3)))
+
+      !if (BC(1,1,g) > 0 .and. BC(1,2,g) > 0) fine1(  1      ,  1      ,1:NN(3,g)) = (fine1(2        ,1      ,1:NN(3,g)) + fine1(1      ,2        ,1:NN(3,g)))/2.
+      !if (BC(1,1,g) > 0 .and. BC(2,2,g) > 0) fine1(  1      ,  NN(2,g),1:NN(3,g)) = (fine1(2        ,NN(2,g),1:NN(3,g)) + fine1(1      ,NN(2,g)-1,1:NN(3,g)))/2.
+      !if (BC(2,1,g) > 0 .and. BC(1,2,g) > 0) fine1(  NN(1,g),  1      ,1:NN(3,g)) = (fine1(NN(1,g)-1,1      ,1:NN(3,g)) + fine1(NN(1,g),2        ,1:NN(3,g)))/2.
+      !if (BC(2,1,g) > 0 .and. BC(2,2,g) > 0) fine1(  NN(1,g),  NN(2,g),1:NN(3,g)) = (fine1(NN(1,g)-1,NN(2,g),1:NN(3,g)) + fine1(NN(1,g),NN(2,g)-1,1:NN(3,g)))/2.
+
+      if (BCL(1) > 0 .and. BCL(2) > 0) phif( 1,     1,     1:Nc(3) ) = ( phif(1+1,     1,     1:Nc(3)) + phif(1    , 1+1,     1:Nc(3)) )/2.
+      if (BCL(1) > 0 .and. BCU(2) > 0) phif( 1,     Nc(2), 1:Nc(3) ) = ( phif(1+1,     Nc(2), 1:Nc(3)) + phif(1    , Nc(2)-1, 1:Nc(3)) )/2.
+      if (BCU(1) > 0 .and. BCL(2) > 0) phif( Nc(1), 1,     1:Nc(3) ) = ( phif(Nc(1)-1, 1,     1:Nc(3)) + phif(Nc(1), 1+1,     1:Nc(3)) )/2.
+      if (BCU(1) > 0 .and. BCU(2) > 0) phif( Nc(1), Nc(2), 1:Nc(3) ) = ( phif(Nc(1)-1, Nc(2), 1:Nc(3)) + phif(Nc(1), Nc(2)-1, 1:Nc(3)) )/2.
+        
+      !if (BC(1,1,g) > 0 .and. BC(1,3,g) > 0) fine1(  1      ,1:NN(2,g),  1      ) = (fine1(2        ,1:NN(2,g),1      ) + fine1(1      ,1:NN(2,g),2        ))/2.
+      !if (BC(1,1,g) > 0 .and. BC(2,3,g) > 0) fine1(  1      ,1:NN(2,g),  NN(3,g)) = (fine1(2        ,1:NN(2,g),NN(3,g)) + fine1(1      ,1:NN(2,g),NN(3,g)-1))/2.
+      !if (BC(2,1,g) > 0 .and. BC(1,3,g) > 0) fine1(  NN(1,g),1:NN(2,g),  1      ) = (fine1(NN(1,g)-1,1:NN(2,g),1      ) + fine1(NN(1,g),1:NN(2,g),2        ))/2.
+      !if (BC(2,1,g) > 0 .and. BC(2,3,g) > 0) fine1(  NN(1,g),1:NN(2,g),  NN(3,g)) = (fine1(NN(1,g)-1,1:NN(2,g),NN(3,g)) + fine1(NN(1,g),1:NN(2,g),NN(3,g)-1))/2.
+
+      if (BCL(1) > 0 .and. BCL(3) > 0) phif( 1,     1:Nc(2), 1 )     = ( phif(1+1,     1:Nc(2), 1    ) + phif(1,     1:Nc(2), 1+1)      )/2.
+      if (BCL(1) > 0 .and. BCU(3) > 0) phif( 1,     1:Nc(2), Nc(3) ) = ( phif(1+1,     1:Nc(2), Nc(3)) + phif(1,     1:Nc(2), Nc(3)-1)  )/2.
+      if (BCU(1) > 0 .and. BCL(3) > 0) phif( Nc(1), 1:Nc(2), 1 )     = ( phif(Nc(1)-1, 1:Nc(2), 1    ) + phif(Nc(1), 1:Nc(2), 1+1)      )/2.
+      if (BCU(1) > 0 .and. BCU(3) > 0) phif( Nc(1), 1:Nc(2), Nc(3) ) = ( phif(Nc(1)-1, 1:Nc(2), Nc(3)) + phif(Nc(1), 1:Nc(2), Nc(3)-1)  )/2.
+        
+      !if (BC(1,2,g) > 0 .and. BC(1,3,g) > 0) fine1(1:NN(1,g),  1      ,  1      ) = (fine1(1:NN(1,g),2        ,1      ) + fine1(1:NN(1,g),1      ,2        ))/2.
+      !if (BC(1,2,g) > 0 .and. BC(2,3,g) > 0) fine1(1:NN(1,g),  1      ,  NN(3,g)) = (fine1(1:NN(1,g),2        ,NN(3,g)) + fine1(1:NN(1,g),1      ,NN(3,g)-1))/2.
+      !if (BC(2,2,g) > 0 .and. BC(1,3,g) > 0) fine1(1:NN(1,g),  NN(2,g),  1      ) = (fine1(1:NN(1,g),NN(2,g)-1,1      ) + fine1(1:NN(1,g),NN(2,g),2        ))/2.
+      !if (BC(2,2,g) > 0 .and. BC(2,3,g) > 0) fine1(1:NN(1,g),  NN(2,g),  NN(3,g)) = (fine1(1:NN(1,g),NN(2,g)-1,NN(3,g)) + fine1(1:NN(1,g),NN(2,g),NN(3,g)-1))/2.
+        
+      if (BCL(2) > 0 .and. BCL(3) > 0) phif( 1:Nc(1), 1,     1     ) = ( phif(1:Nc(1), 1+1,     1    ) + phif(1:Nc(1), 1,     1+1    ) )/2.
+      if (BCL(2) > 0 .and. BCU(3) > 0) phif( 1:Nc(1), 1,     Nc(3) ) = ( phif(1:Nc(1), 1+1,     Nc(3)) + phif(1:Nc(1), 1,     Nc(3)-1) )/2.
+      if (BCU(2) > 0 .and. BCL(3) > 0) phif( 1:Nc(1), Nc(2), 1     ) = ( phif(1:Nc(1), Nc(2)-1, 1    ) + phif(1:Nc(1), Nc(2), 1+1    ) )/2.
+      if (BCU(2) > 0 .and. BCU(3) > 0) phif( 1:Nc(1), Nc(2), Nc(3) ) = ( phif(1:Nc(1), Nc(2)-1, Nc(3)) + phif(1:Nc(1), Nc(2), Nc(3)-1) )/2.
+        
+
+  end subroutine MG_RestrictCorners
+
 
     subroutine MG_restrict( &
         dimens,             &
@@ -209,37 +260,6 @@ contains
 
 
 
-        !        if (BC(1,1,g) > 0 .and. BC(1,2,g) > 0) fine1(  1      ,  1      ,1:NN(3,g)) = (fine1(2        ,1      ,1:NN(3,g)) + fine1(1      ,2        ,1:NN(3,g)))/2.
-        !        if (BC(1,1,g) > 0 .and. BC(2,2,g) > 0) fine1(  1      ,  NN(2,g),1:NN(3,g)) = (fine1(2        ,NN(2,g),1:NN(3,g)) + fine1(1      ,NN(2,g)-1,1:NN(3,g)))/2.
-        !        if (BC(2,1,g) > 0 .and. BC(1,2,g) > 0) fine1(  NN(1,g),  1      ,1:NN(3,g)) = (fine1(NN(1,g)-1,1      ,1:NN(3,g)) + fine1(NN(1,g),2        ,1:NN(3,g)))/2.
-        !        if (BC(2,1,g) > 0 .and. BC(2,2,g) > 0) fine1(  NN(1,g),  NN(2,g),1:NN(3,g)) = (fine1(NN(1,g)-1,NN(2,g),1:NN(3,g)) + fine1(NN(1,g),NN(2,g)-1,1:NN(3,g)))/2.
-        !
-        !        if (BC(1,1,g) > 0 .and. BC(1,3,g) > 0) fine1(  1      ,1:NN(2,g),  1      ) = (fine1(2        ,1:NN(2,g),1      ) + fine1(1      ,1:NN(2,g),2        ))/2.
-        !        if (BC(1,1,g) > 0 .and. BC(2,3,g) > 0) fine1(  1      ,1:NN(2,g),  NN(3,g)) = (fine1(2        ,1:NN(2,g),NN(3,g)) + fine1(1      ,1:NN(2,g),NN(3,g)-1))/2.
-        !        if (BC(2,1,g) > 0 .and. BC(1,3,g) > 0) fine1(  NN(1,g),1:NN(2,g),  1      ) = (fine1(NN(1,g)-1,1:NN(2,g),1      ) + fine1(NN(1,g),1:NN(2,g),2        ))/2.
-        !        if (BC(2,1,g) > 0 .and. BC(2,3,g) > 0) fine1(  NN(1,g),1:NN(2,g),  NN(3,g)) = (fine1(NN(1,g)-1,1:NN(2,g),NN(3,g)) + fine1(NN(1,g),1:NN(2,g),NN(3,g)-1))/2.
-        !
-        !        if (BC(1,2,g) > 0 .and. BC(1,3,g) > 0) fine1(1:NN(1,g),  1      ,  1      ) = (fine1(1:NN(1,g),2        ,1      ) + fine1(1:NN(1,g),1      ,2        ))/2.
-        !        if (BC(1,2,g) > 0 .and. BC(2,3,g) > 0) fine1(1:NN(1,g),  1      ,  NN(3,g)) = (fine1(1:NN(1,g),2        ,NN(3,g)) + fine1(1:NN(1,g),1      ,NN(3,g)-1))/2.
-        !        if (BC(2,2,g) > 0 .and. BC(1,3,g) > 0) fine1(1:NN(1,g),  NN(2,g),  1      ) = (fine1(1:NN(1,g),NN(2,g)-1,1      ) + fine1(1:NN(1,g),NN(2,g),2        ))/2.
-        !        if (BC(2,2,g) > 0 .and. BC(2,3,g) > 0) fine1(1:NN(1,g),  NN(2,g),  NN(3,g)) = (fine1(1:NN(1,g),NN(2,g)-1,NN(3,g)) + fine1(1:NN(1,g),NN(2,g),NN(3,g)-1))/2.
-        !
-        !
-        !        if (BC(1,1,g) > 0 .and. BC(1,2,g) > 0) fine2(  1      ,  1      ,1:NN(3,g)) = (fine2(2        ,1      ,1:NN(3,g)) + fine2(1      ,2        ,1:NN(3,g)))/2.
-        !        if (BC(1,1,g) > 0 .and. BC(2,2,g) > 0) fine2(  1      ,  NN(2,g),1:NN(3,g)) = (fine2(2        ,NN(2,g),1:NN(3,g)) + fine2(1      ,NN(2,g)-1,1:NN(3,g)))/2.
-        !        if (BC(2,1,g) > 0 .and. BC(1,2,g) > 0) fine2(  NN(1,g),  1      ,1:NN(3,g)) = (fine2(NN(1,g)-1,1      ,1:NN(3,g)) + fine2(NN(1,g),2        ,1:NN(3,g)))/2.
-        !        if (BC(2,1,g) > 0 .and. BC(2,2,g) > 0) fine2(  NN(1,g),  NN(2,g),1:NN(3,g)) = (fine2(NN(1,g)-1,NN(2,g),1:NN(3,g)) + fine2(NN(1,g),NN(2,g)-1,1:NN(3,g)))/2.
-        !
-        !        if (BC(1,1,g) > 0 .and. BC(1,3,g) > 0) fine2(  1      ,1:NN(2,g),  1      ) = (fine2(2        ,1:NN(2,g),1      ) + fine2(1      ,1:NN(2,g),2        ))/2.
-        !        if (BC(1,1,g) > 0 .and. BC(2,3,g) > 0) fine2(  1      ,1:NN(2,g),  NN(3,g)) = (fine2(2        ,1:NN(2,g),NN(3,g)) + fine2(1      ,1:NN(2,g),NN(3,g)-1))/2.
-        !        if (BC(2,1,g) > 0 .and. BC(1,3,g) > 0) fine2(  NN(1,g),1:NN(2,g),  1      ) = (fine2(NN(1,g)-1,1:NN(2,g),1      ) + fine2(NN(1,g),1:NN(2,g),2        ))/2.
-        !        if (BC(2,1,g) > 0 .and. BC(2,3,g) > 0) fine2(  NN(1,g),1:NN(2,g),  NN(3,g)) = (fine2(NN(1,g)-1,1:NN(2,g),NN(3,g)) + fine2(NN(1,g),1:NN(2,g),NN(3,g)-1))/2.
-        !
-        !        if (BC(1,2,g) > 0 .and. BC(1,3,g) > 0) fine2(1:NN(1,g),  1      ,  1      ) = (fine2(1:NN(1,g),2        ,1      ) + fine2(1:NN(1,g),1      ,2        ))/2.
-        !        if (BC(1,2,g) > 0 .and. BC(2,3,g) > 0) fine2(1:NN(1,g),  1      ,  NN(3,g)) = (fine2(1:NN(1,g),2        ,NN(3,g)) + fine2(1:NN(1,g),1      ,NN(3,g)-1))/2.
-        !        if (BC(2,2,g) > 0 .and. BC(1,3,g) > 0) fine2(1:NN(1,g),  NN(2,g),  1      ) = (fine2(1:NN(1,g),NN(2,g)-1,1      ) + fine2(1:NN(1,g),NN(2,g),2        ))/2.
-        !        if (BC(2,2,g) > 0 .and. BC(2,3,g) > 0) fine2(1:NN(1,g),  NN(2,g),  NN(3,g)) = (fine2(1:NN(1,g),NN(2,g)-1,NN(3,g)) + fine2(1:NN(1,g),NN(2,g),NN(3,g)-1))/2.
-        !
 
 
         if (dimens == 3) then
@@ -370,78 +390,121 @@ contains
         !===========================================================================================================
         if( 1==dir ) then
 
-            if( 2==dimens ) then
-                kk = SSc(3)
-                k = SSc(3)
-                do jj = SSc(2), iimax(2)
-                    j = dd(2)*jj-1 !> why?
-                    !j = dd(2)*jj
-                    do ii = SSc(1), iimax(1)
-                        i = dd(1)*ii-1 !> make sense
-                        !phic(ii,jj,kk) = cRV(1,ii)*phif(i-1,j,k) + cRV(2,ii)*phif(i,j,k)
-                        phic(ii,jj,kk) = cRV(1,ii)*phif(i,j,k) + cRV(2,ii)*phif(i+1,j,k)
-                        !phic(ii,jj,kk) = 0.5*phif(i,j,k) + 0.5*phif(i+1,j,k)! this one kind of works
-                                     
-                    end do
+          if( 2==dimens ) then
+
+            kk = SSc(3)
+            k = SSc(3)
+            do jj = SSc(2), iimax(2)
+              j = dd(2)*jj-1 !> why?
+              do ii = SSc(1), iimax(1)
+                i = dd(1)*ii-1 !> make sense
+                phic(ii,jj,kk) = cRV(1,ii)*phif(i,j,k) + cRV(2,ii)*phif(i+1,j,k)
+              end do
+            end do
+
+          else
+
+            do kk = SSc(3), iimax(3)
+              if( 1==dd(3) ) then
+                k = kk
+              else
+                k = dd(3)*kk-1
+              end if
+              do jj = SSc(2), iimax(2)
+                if( 1==dd(2) ) then
+                  j = jj
+                else
+                  j = dd(2)*jj-1
+                end if
+                do ii = SSc(1), iimax(1)
+                  if( 1==dd(1) ) then
+                    i = ii
+                    phic(ii,jj,kk) = phif(i,j,k)
+                  else
+                    i = dd(1)*ii-1
+                    phic(ii,jj,kk) = cRV(1,ii)*phif(i,j,k) + cRV(2,ii)*phif(i+1,j,k)
+                  end if
                 end do
-            else
-                do kk = SSc(3), iimax(3)
-                    k = dd(3)*kk-1
-                    do jj = SSc(2), iimax(2)
-                        j = dd(2)*jj-1
-                        do ii = SSc(1), iimax(1)
-                            i = dd(1)*ii-1
-                            phic(ii,jj,kk) = cRV(1,ii)*phif(i,j,k) + cRV(2,ii)*phif(i+1,j,k)
-                        end do
-                    end do
-                end do
-            end if
+              end do
+            end do
+
+          end if
 
         end if
         !===========================================================================================================
         if( 2==dir ) then
 
-            if( 2==dimens ) then
-                kk = SSc(3)
-                k = SSc(3)
-                do jj = SSc(2), iimax(2)
-                    j = dd(2)*jj-1
-                    do ii = SSc(1), iimax(1)
-                        i = dd(1)*ii-1
-                        !phic(ii,jj,kk) = cRV(1,jj)*phif(i,j-1,k) + cRV(2,jj)*phif(i,j,k)
-                        phic(ii,jj,kk) = cRV(1,jj)*phif(i,j,k) + cRV(2,jj)*phif(i,j+1,k)
-                        !phic(ii,jj,kk) = 0.5*phif(i,j,k) + 0.5*phif(i,j+1,k) ! This one works
+          if( 2==dimens ) then
+            kk = SSc(3)
+            k = SSc(3)
+            do jj = SSc(2), iimax(2)
+              j = dd(2)*jj-1
+              do ii = SSc(1), iimax(1)
+                i = dd(1)*ii-1
+                phic(ii,jj,kk) = cRV(1,jj)*phif(i,j,k) + cRV(2,jj)*phif(i,j+1,k)
 
-                        !phic(ii,jj,kk) = 1./8.*phif(i+1,j,k) + 1./8.*phif(i+1,j+1,k) + 2./8.*phif(i,j,k) + 2./8.*phif(i,j+1,k) + 1./8.*phif(i-1,j,k) + 1./8.*phif(i-1,j+1,k)! This one works
-                    end do
                 end do
+              end do
             else
-                do kk = SSc(3), iimax(3)
-                    k = dd(3)*kk-1
-                    do jj = SSc(2), iimax(2)
-                        j = dd(2)*jj-1
-                        do ii = SSc(1), iimax(1)
-                            i = dd(1)*ii-1
-                            phic(ii,jj,kk) = cRV(1,jj)*phif(i,j,k) + cRV(2,jj)*phif(i,j+1,k)
-                        end do
-                    end do
+              do kk = SSc(3), iimax(3)
+                if( 1==dd(3) ) then
+                  k = kk
+                else
+                  k = dd(3)*kk-1
+                end if
+                do jj = SSc(2), iimax(2)
+                  if( 1==dd(2) ) then
+                    j = jj
+                  else
+                    j = dd(2)*jj-1
+                  end if
+                  do ii = SSc(1), iimax(1)
+                    if( 1==dd(1) ) then
+                      i = ii
+                    else
+                      i = dd(1)*ii-1
+                    end if
+                    if( 1==dd(2) ) then
+                      phic(ii,jj,kk) = phif(i,j,k)
+                    else
+                      phic(ii,jj,kk) = cRV(1,jj)*phif(i,j,k) + cRV(2,jj)*phif(i,j+1,k)
+                    end if
+                  end do
                 end do
+              end do
+
             end if
 
         end if
         !===========================================================================================================
         if( 3==dimens .and. dir==3 ) then
 
-            do kk = SSc(3), iimax(3)
-                k = dd(3)*kk-1
-                do jj = SSc(2), iimax(2)
-                    j = dd(2)*jj-1
-                    do ii = SSc(1), iimax(1)
-                        i = dd(1)*ii-1
-                        phic(ii,jj,kk) = cRV(1,kk)*phif(i,j,k) + cRV(2,kk)*phif(i,j,k+1)
-                    end do
-                end do
+          do kk = SSc(3), iimax(3)
+            if( 1==dd(3) ) then
+              k = kk
+            else
+              k = dd(3)*kk-1
+            end if
+            do jj = SSc(2), iimax(2)
+              if( 1==dd(2) ) then
+                j = jj
+              else
+                j = dd(2)*jj-1
+              end if
+              do ii = SSc(1), iimax(1)
+                if( 1==dd(1) ) then
+                  i = ii
+                else
+                  i = dd(1)*ii-1
+                end if
+                if( 1==dd(3) ) then
+                  phic(ii,jj,kk) = phif(i,j,k)
+                else
+                  phic(ii,jj,kk) = cRV(1,kk)*phif(i,j,k) + cRV(2,kk)*phif(i,j,k+1)
+                end if
+              end do
             end do
+          end do
 
         end if
     !===========================================================================================================

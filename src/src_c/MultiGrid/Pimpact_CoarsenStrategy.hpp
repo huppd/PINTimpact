@@ -61,13 +61,10 @@ public:
 
     for( Ordinal i=1; i<maxGrids; ++i ) {
       coarsen_yes = false;
-
       for( Ordinal j=0; j<dimension; ++j ) {
         coarsen_dir[j] = false;
         if( j<3 ) {
-//          if( ( (nLoc[j]-1)%2 )==0 && (nLoc[j]-1)/2 + 1 > space->bl(j) ) {
           if( ( (nLoc[j]-1)%2 )==0 && ( (nLoc[j]-1)/2 + 1 )%2!=0 && (nLoc[j]-1)/2 + 1>2 ) {
-//          if( ( (nLoc[j]-1)%2 )==0 && nLoc[j]>=5 ) {
             nLoc[j] = (nLoc[j]-1)/2 + 1;
             coarsen_yes = true;
             coarsen_dir[j] = true;
