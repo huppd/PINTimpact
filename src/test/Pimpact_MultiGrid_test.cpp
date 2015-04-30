@@ -950,7 +950,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 			ofs << res << "\n";
 		}
 	}
-	TEST_EQUALITY( sol->norm()<1.e-3, true );
+	TEST_EQUALITY( sol->norm()/std::sqrt( (S)sol->getLength() )<1.e-3, true );
 
 //	x->write(2);
 
