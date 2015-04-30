@@ -52,23 +52,23 @@ getSpaceParametersFromCL( int argi, char** argv  )  {
 
 	// Space parameters
   // physical constants
-	S re = 400.;
+	S re = 1500.;
 
 	S alpha2 = 125.;
 
   // domain type
-  int domain = 0;
+  int domain = 1;
 
   // domain size
   int dim = 3;
-  S lx = 30.;
-  S ly = 20.;
-  S lz = 20.;
+  S lx = 4.;
+  S ly = 2.;
+  S lz = 4.;
 
   // grid size
 	O nx = 65;
-	O ny = 49;
-	O nz = 97;
+	O ny = 33;
+	O nz = 65;
 	O nf = 1;
 
 	O nfs = 1;
@@ -81,8 +81,8 @@ getSpaceParametersFromCL( int argi, char** argv  )  {
   O npf = 1.;
 
 	// flow and forcing type
-  int baseflow = 22;
-  int flow = 7;
+  int baseflow = 1;
+  int flow = 0;
   int forcing = 0;
 
 	// solver parameters
@@ -96,7 +96,7 @@ getSpaceParametersFromCL( int argi, char** argv  )  {
 
   int maxIter = 10;
 
-  int initZero = 1;
+  int initZero = 0;
 
   S tolBelos = 1.e-1;
   S tolInnerBelos = 1.e-3;
@@ -197,7 +197,7 @@ getSpaceParametersFromCL( int argi, char** argv  )  {
 
 	// processor grid size
 	pl->sublist("Space").set<O>("npx", npx, "amount of processors in x-direction" );
-	pl->sublist("Space").set<O>("npy", npx, "amount of processors in y-direction" );
+	pl->sublist("Space").set<O>("npy", npy, "amount of processors in y-direction" );
 	pl->sublist("Space").set<O>("npz", npz, "amount of processors in z-direction" );
 	pl->sublist("Space").set<O>("npf", npf, "amount of processors in f-direction" );
 
@@ -233,7 +233,7 @@ typedef Pimpact::Space<S,O,3,4> SpaceT;
 typedef Pimpact::Space<S,O,3,4> FSpaceT;
 typedef Pimpact::Space<S,O,3,2> CSpaceT;
 
-typedef Pimpact::CoarsenStrategy<FSpaceT,CSpaceT> CS;
+typedef Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT,10> CS;
 
 typedef Pimpact::MultiHarmonicField< Pimpact::VectorField<SpaceT> > VF;
 typedef Pimpact::MultiHarmonicField< Pimpact::ScalarField<SpaceT> > SF;
@@ -296,7 +296,7 @@ int main(int argi, char** argv ) {
 //  auto space = Pimpact::createSpace<S,O,3,4>( pl );
 
 	int baseflow = pl->get<int>("baseflow");
-//	int flow = pl->get<int>("flow");
+	int flow = pl->get<int>("flow");
   // outputs
   Teuchos::RCP<std::ostream> outPar;
   Teuchos::RCP<std::ostream> outLinSolve;
@@ -327,10 +327,10 @@ int main(int argi, char** argv ) {
 
   // init Fields, init and rhs
 	x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->initField( Pimpact::EVectorField(baseflow), 1. );
-//		if( 0 != flow ) {
-//			x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::EVectorField(flow), 0., 0.5, 0., 0.1 );
-//			x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->getFieldPtr(Pimpact::U)->initField();
-//		}
+		if( 0 != flow ) {
+			x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::EVectorField(flow), 0., 0.5, 0., 0.1 );
+			x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->getFieldPtr(Pimpact::U)->initField();
+		}
 
 	auto sol = x->getFieldPtr(0)->getVFieldPtr()->clone( Pimpact::DeepCopy );
 
@@ -382,9 +382,9 @@ int main(int argi, char** argv ) {
 								opS2V,
 								opV2S )
         );
-		op->apply( *x, *fu);
-		fu->write( 10000 );
-		std::cout << "divMax: " << fu->getFieldPtr(0)->getSFieldPtr()->norm(Belos::InfNorm) << "\n";
+//		op->apply( *x, *fu);
+//		fu->write( 10000 );
+//		std::cout << "divMax: " << fu->getFieldPtr(0)->getSFieldPtr()->norm(Belos::InfNorm) << "\n";
 
     Teuchos::RCP<BOp> jop;
 		jop = op;

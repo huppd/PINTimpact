@@ -870,7 +870,7 @@ public:
   /// \brief updates ghost layers
   void exchange( const int& dir ) const {
 
-//		int ones[3] = {1,1,1};
+		int ones[3] = {0,0,0};
     if( !exchangedState_[dir] ) {
       F_exchange(
           space()->dim(),
@@ -884,9 +884,9 @@ public:
           space()->getDomain()->getBCLocal()->getBCU(),
           space()->sInd(EField::S),
           space()->eInd(EField::S),
-          space()->sIndB(fType_), // should it work
+//				 space()->sIndB(fType_), // should it work
 //          space()->eIndB(fType_),
-//          ones,
+				 ones,
           space()->nLoc(),
           1+dir,
           1+(int)fType_,

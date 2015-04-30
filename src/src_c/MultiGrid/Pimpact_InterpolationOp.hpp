@@ -370,8 +370,8 @@ public:
 			if( spaceC_->getProcGrid()->participating() ) {
 				switch( fType ) {
 					case EField::U:
-						x.exchange(2);
 						x.exchange(1);
+						x.exchange(2);
 						x.exchange(0);
 						break;
 					case EField::V:

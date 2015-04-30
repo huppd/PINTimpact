@@ -52,8 +52,9 @@ public:
         createOperatorBase( create<OperatorT>(op) ),
         create<MF>( op->space() ),
         create<MF>( op->space() ),
-//				createLinSolverParameter("GMRES",1.e-12,-1),
-			 Teuchos::parameterList(),
+//				createLinSolverParameter("GMRES",1.e-1,-1, Teuchos::rcp(&std::cout,false), 1000 ),
+				createLinSolverParameter("GMRES",1.e-4,-1, Teuchos::rcp( new Teuchos::oblackholestream()), 1000 ),
+//			 Teuchos::parameterList(),
         "GMRES" );
   }
 

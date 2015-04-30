@@ -103,7 +103,7 @@ public:
 				multiSpace.back()->print(file);
 				file.close();
 
-				multiSpace.push_back( createCoarseSpace( multiSpace.back(), coarsen_dir, nGlo, stride, NB, IB ) );
+				multiSpace.push_back( createCoarseSpace( multiSpace.back(), coarsen_dir, nGlo, stride, NB, IB, i==maxGrids-1 ) );
 			}
 
 
@@ -133,7 +133,8 @@ protected:
       const Teuchos::Tuple<Ordinal,4>& gridSizeGlobalTup,
 		 	TO& stride,
 			const TO& NB,
-			const TO& IB	) {
+			const TO& IB,
+			bool maxGrid_yes=false	) {
 
     auto stencilWidths = space->getStencilWidths();
 
@@ -161,7 +162,7 @@ protected:
 							npNew[i] = j;
 				}
 				// --- enforce gathering of coarsest grid to one processor ---
-				if( ( (gridSizeGlobalTup[i]-1)%2!=0 || gridSizeGlobalTup[i]<cgsize  ) && npNew[i]>1 )
+				if( ( (gridSizeGlobalTup[i]-1)%2!=0 || gridSizeGlobalTup[i]<cgsize || maxGrid_yes ) && npNew[i]>1 )
 					npNew[i] = 1;
 			}
 		}
