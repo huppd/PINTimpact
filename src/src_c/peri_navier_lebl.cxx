@@ -601,7 +601,6 @@ int main(int argi, char** argv ) {
     *group = solver->getSolutionGroup();
 
     x = Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr();
-    Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr()->write( 800 );
 		Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(500);
   }
 	/******************************************************************************************/
@@ -609,6 +608,7 @@ int main(int argi, char** argv ) {
 //	auto er = x->clone(Pimpact::ShallowCopy);
 	sol->add( 1., *sol, -1, *x->getFieldPtr(0)->getVFieldPtr());
 
+	sol->write( 900 );
 	auto er = sol->norm();
 	if( 0==space->rankST() )
 		std::cout << "error: " << er << "\n";

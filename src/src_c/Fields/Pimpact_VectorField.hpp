@@ -650,6 +650,9 @@ public:
           sFields_[W]->getRawPtr() );
       break;
 		case SweptHiemenzFlow:
+			S kappa = 0.;
+			S sweep_angle = 0.;
+			S pi = 4.*std::atan(1.);
 			VF_init_SHBF( 
 					space()->rankST(),      
 					space()->getProcGrid()->getShift(0),
@@ -672,9 +675,9 @@ public:
 					space()->getInterpolateV2S()->getC( X ),
 					space()->getDomain()->getDomainSize()->getRe(),
 					0,  // nonDim  
-					0., // kappa
-					0., // sweep_angle_degrees,  
-					0., // sweep_angle,          
+					kapp, // kappa
+					sweep_angle, // sweep_angle_degrees,  
+					sweep_angle*pi/180., // sweep_angle,          
 					0., // angle_attack,         
           sFields_[U]->getRawPtr(),
           sFields_[V]->getRawPtr(),

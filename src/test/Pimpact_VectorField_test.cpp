@@ -9,6 +9,7 @@
 #include "Teuchos_CommHelpers.hpp"
 //#include "Pimpact_Types.hpp"
 #include "Pimpact_VectorField.hpp"
+#include "Pimpact_DivOp.hpp"
 
 
 
@@ -105,6 +106,10 @@ TEUCHOS_UNIT_TEST( VectorField, initField ) {
   pl->set("ny", 49 );
 	pl->set("nz", 97 );
 
+  pl->set("nx", 257 );
+  pl->set("ny", 257 );
+  pl->set("nz", 257 );
+
   // processor grid size
   pl->set("npx", 1 );
   pl->set("npy", 1 );
@@ -113,7 +118,10 @@ TEUCHOS_UNIT_TEST( VectorField, initField ) {
   auto space = Pimpact::createSpace( pl );
 
 	space->getInterpolateV2S()->print();
-  auto vel = Pimpact::create<Pimpact::VectorField>( space );
+	auto vel = Pimpact::create<Pimpact::VectorField>( space );
+	auto divVec = Pimpact::create<Pimpact::ScalarField>( space );
+
+  auto divOp = Pimpact::create<Pimpact::DivOp>( space );
 
   for( int i=22; i<=23; ++i ) {
 		if( 17==i )
@@ -121,6 +129,11 @@ TEUCHOS_UNIT_TEST( VectorField, initField ) {
 		else
 			vel->initField( Pimpact::EVectorField(i) );
     vel->write( i );
+		divOp->apply( *vel, *divVec );
+		auto bla = divVec->norm( Belos::InfNorm );
+		if( 0==space->rankST() )
+			std::cout << "EField: " << i << "\tmax div: " << bla << "\n";
+		divVec->write( i*2 );
   }
 
 }
