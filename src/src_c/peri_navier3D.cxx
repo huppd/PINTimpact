@@ -52,7 +52,7 @@ getSpaceParametersFromCL( int argi, char** argv  )  {
 
 	// Space parameters
   // physical constants
-	S re = 1500.;
+	S re = 1600.;
 
 	S alpha2 = 125.;
 
@@ -328,11 +328,12 @@ int main(int argi, char** argv ) {
   // init Fields, init and rhs
 	x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->initField( Pimpact::EVectorField(baseflow), 1. );
 		if( 0 != flow ) {
-			x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::EVectorField(flow), 0., 0.5, 0., 0.1 );
+			x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::EVectorField(flow), 0., 1., 0., 0.1 );
 			x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->getFieldPtr(Pimpact::U)->initField();
 		}
 
 	auto sol = x->getFieldPtr(0)->getVFieldPtr()->clone( Pimpact::DeepCopy );
+	x->write(700);
 
 	if( 0==initZero )
 		x->init(0.);

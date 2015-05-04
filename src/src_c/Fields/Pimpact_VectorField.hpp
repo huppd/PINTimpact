@@ -649,10 +649,10 @@ public:
           sFields_[V]->getRawPtr(),
           sFields_[W]->getRawPtr() );
       break;
-		case SweptHiemenzFlow:
-			S kappa = 0.;
-			S sweep_angle = 0.;
-			S pi = 4.*std::atan(1.);
+		case SweptHiemenzFlow: {
+			Scalar kappa = 0.;
+			Scalar sweep_angle = 30.;
+			Scalar pi = 4.*std::atan(1.);
 			VF_init_SHBF( 
 					space()->rankST(),      
 					space()->getProcGrid()->getShift(0),
@@ -675,7 +675,7 @@ public:
 					space()->getInterpolateV2S()->getC( X ),
 					space()->getDomain()->getDomainSize()->getRe(),
 					0,  // nonDim  
-					kapp, // kappa
+					kappa, // kappa
 					sweep_angle, // sweep_angle_degrees,  
 					sweep_angle*pi/180., // sweep_angle,          
 					0., // angle_attack,         
@@ -683,6 +683,7 @@ public:
           sFields_[V]->getRawPtr(),
           sFields_[W]->getRawPtr() );
 			break;
+		}
 		case Disturbance:
 			VF_init_Dist(
 					space()->rankST(),      

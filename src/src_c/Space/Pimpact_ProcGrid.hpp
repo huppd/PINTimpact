@@ -29,14 +29,15 @@ namespace Pimpact{
 template< class Ordinal, int dim>
 class ProcGrid {
 
-  template< class OT, int dT >
-  friend Teuchos::RCP<const ProcGrid<OT,dT> > createProcGrid();
+//  template< class OT, int dT >
+//  friend Teuchos::RCP<const ProcGrid<OT,dT> > createProcGrid();
 
   template< class OT, int dT >
   friend Teuchos::RCP<const ProcGrid<OT,dT> > createProcGrid(
       const Teuchos::RCP<const GridSizeLocal<OT,dT> >& gsl,
       const Teuchos::RCP<const BoundaryConditionsGlobal<dT> >& bcg,
-      const Teuchos::RCP<const ProcGridSize<OT,dT> >& procGridSize );
+      const Teuchos::RCP<const ProcGridSize<OT,dT> >& procGridSize,
+		 	bool participating	);
 
 protected:
 
@@ -76,8 +77,9 @@ protected:
   ProcGrid(
       const Teuchos::RCP<const GridSizeLocal<Ordinal,dim> >& gridSizeLocal,
       const Teuchos::RCP<const BoundaryConditionsGlobal<dim> >& bcg,
-      const Teuchos::RCP<const ProcGridSize<Ordinal,dim> >& procGridSize ):
-        participating_(true),
+      const Teuchos::RCP<const ProcGridSize<Ordinal,dim> >& procGridSize,
+		 	bool participating ):
+        participating_(participating),
 				commWorld_(),
 				commSub_(),
 				rankWorld_(0),
@@ -95,15 +97,6 @@ protected:
 
     Teuchos::Tuple<int,dim> ijkB;      // mpi grid coordinates
     Teuchos::Tuple<int,dim> periodic = bcg->periodic();  // array for mpir to signal where periodic grid is, from manual should be bool
-
-    // init periodic
-//    for( int i=0; i<3; ++i ) {
-//      if( bcg->getBCL(i)==PeriodicBC )
-//        periodic[i] = 1;
-//      else
-//        periodic[i] = 0;
-//    }
-//    if( 4==dim ) periodic[3] = 1;
 
 
     // true means ranking may be reorderd
@@ -125,7 +118,10 @@ protected:
       commSub_ = commWorld_;
 
       // gets rank from COMM_CART
-      MPI_Comm_rank( commSub_, &rankSub_ );
+			if( commSub_==MPI_COMM_NULL )
+				rankSub_ = -1;
+			else 
+				MPI_Comm_rank( commSub_, &rankSub_ );
       rankWorld_ = rankSub_;
 
     }
@@ -135,17 +131,26 @@ protected:
 			MPI_Cart_sub( commWorld_, temp, &commSub_ );
 
       // gets rank from COMM_CART
-      MPI_Comm_rank( commWorld_, &rankWorld_ );
-      MPI_Comm_rank( commSub_, &rankSub_ );
-      //      std::cout << "rank in commSub: " << rankSub_ << "\trank in commWorld: " << rankWorld_ << "\n";
+			if( commWorld_==MPI_COMM_NULL )
+				rankWorld_ = -1;
+			else
+				MPI_Comm_rank( commWorld_, &rankWorld_ );
+			if( commSub_==MPI_COMM_NULL )
+				rankSub_ = -1;
+			else 
+				MPI_Comm_rank( commSub_, &rankSub_ );
     }
 
     // gets coordinates in xyz direction from rankWorld and commWorld
-    MPI_Cart_coords(
-        commWorld_,
-        rankWorld_,
-        dim,
-        ijkB.getRawPtr() );
+		if( commWorld_!=MPI_COMM_NULL )
+			MPI_Cart_coords(
+					commWorld_,
+					rankWorld_,
+					dim,
+					ijkB.getRawPtr() );
+		else
+			for( int i=0; i<dim; ++i )
+				ijkB[i] = 0;
 
 		//    std::cout << "rankWorld: " << rankWorld_ << " coord: " << ijkB << "\n";
 
@@ -161,59 +166,29 @@ protected:
       shift_[3] = (iB_[3]-1)*( gridSizeLocal->get(3) );
 
 
-    for( int i = 0; i<dim; ++i )
-      MPI_Cart_shift( commWorld_, i, 1, &rankL_[i], &rankU_[i] );
-    //                            ^  ^          ^      ^
-    //                            |  |          |      |
-    //                            d  d          r      r
-    //                            i  i          a      a
-    //                            r  s          n      n
-    //                            e  p          k      k
-    //                            c  l          s      d
-    //                            t  a          o      e
-    //                            i  c          u      s
-    //                            o  m          r      t
-    //                            n  e          c
-    //                               n          e
-    //                               t       
-
-
-//    {
-//      int temp[] = {0,1,1};
-//      MPI_Cart_sub( commSub_, temp, &commSlice_[0] );
-//    }{
-//      int temp[] = {1,0,1};
-//      MPI_Cart_sub( commSub_, temp, &commSlice_[1] );
-//    }{
-//      int temp[] = {1,1,0};
-//      MPI_Cart_sub( commSub_, temp, &commSlice_[2] );
-//    }
-
-//    {
-//      int temp[] = {1,0,0};
-//      MPI_Cart_sub( commSub_, temp, &commBar_[0] );
-//    }{
-//      int temp[] = {0,1,0};
-//      MPI_Cart_sub( commSub_, temp, &commBar_[1] );
-//    }{
-//      int temp[] = {0,0,1};
-//      MPI_Cart_sub( commSub_, temp, &commBar_[2] );
-//    }
-
-//    for( int i=0; i<3; ++i ) {
-//      MPI_Comm_rank( commSlice_[i], &rankSlice_[i] );
-//
-//      MPI_Comm_rank( commBar_[i], &rankBar_[i] );
-//    }
+		if( commWorld_!=MPI_COMM_NULL )
+			for( int i = 0; i<dim; ++i )
+				MPI_Cart_shift( commWorld_, i, 1, &rankL_[i], &rankU_[i] );
+		//   		                         ^  ^          ^      ^
+		//   		                         |  |          |      |
+		//   		                         d  d          r      r
+		//   		                         i  i          a      a
+		//   		                         r  s          n      n
+		//   		                         e  p          k      k
+		//   		                         c  l          s      d
+		//   		                         t  a          o      e
+		//   		                         i  c          u      s
+		//   		                         o  m          r      t
+		//   		                         n  e          c
+		//   		                            n          e
+		//   		                            t       
 
 
     // maybe dispensable...
-    MPI_Errhandler_set(commWorld_, MPI_ERRORS_ARE_FATAL );
-    MPI_Errhandler_set(commSub_, MPI_ERRORS_ARE_FATAL );
-//    for( int i=0; i<3; ++i ) {
-//      MPI_Errhandler_set( commSlice_[i], MPI_ERRORS_ARE_FATAL );
-//      MPI_Errhandler_set( commBar_[i],   MPI_ERRORS_ARE_FATAL );
-//    }
+		if( commWorld_!=MPI_COMM_NULL )
+			MPI_Errhandler_set(commWorld_, MPI_ERRORS_ARE_FATAL );
+		if( commSub_!=MPI_COMM_NULL )
+			MPI_Errhandler_set(commSub_, MPI_ERRORS_ARE_FATAL );
 
   }
 
@@ -282,10 +257,11 @@ template<class O, int d>
 Teuchos::RCP<const ProcGrid<O,d> > createProcGrid(
     const Teuchos::RCP<const GridSizeLocal<O,d> >& gsl,
     const Teuchos::RCP<const BoundaryConditionsGlobal<d> >& bcg,
-    const Teuchos::RCP<const ProcGridSize<O,d> >& procGridSize ) {
+    const Teuchos::RCP<const ProcGridSize<O,d> >& procGridSize,
+	 	bool participating=true	) {
 
   return(
-      Teuchos::rcp( new ProcGrid<O,d>( gsl, bcg, procGridSize ) ) );
+      Teuchos::rcp( new ProcGrid<O,d>( gsl, bcg, procGridSize, participating ) ) );
 
 }
 

@@ -110,17 +110,17 @@ TEUCHOS_STATIC_SETUP() {
 
 
 //	pl->set( "nx", 33 );
-//	pl->set( "ny", 33 );
 //	pl->set( "nz", 33 );
 	pl->set( "nx", 65 );
+//	pl->set( "ny", 33 );
 	pl->set( "ny", 65 );
-	pl->set( "nz", 65 );
+	pl->set( "nz", 33 );
 //	pl->set( "nx", 49 );
 //	pl->set( "ny", 49 );
 //	pl->set( "nz", 49 );
 //	pl->set( "nx", 129 );
 //	pl->set( "ny", 129 );
-	pl->set( "nz", 129 );
+//	pl->set( "nz", 129 );
 //	pl->set( "nx", 257 );
 //	pl->set( "ny", 257 );
 //	pl->set( "nz", 257 );
@@ -144,6 +144,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSpaces, constructor3D, CS ) {
 	pl->set("npz", npz );
 
 	auto space = Pimpact::createSpace( pl );
+
+	space->print();
 
 	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids);
 	std::cout << "rank: " << space->rankST() << "\tnGridLevels: " << mgSpaces->getNGrids() << "\n";
@@ -1021,17 +1023,17 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffOp, CS ) {
 	mgPL->sublist("Smoother").set<short int>( "dir Y", -1 );
 
 
-  auto mg =
-      Pimpact::createMultiGrid<
-        Pimpact::VectorField,
-        TransVF,
-        RestrVF,
-        InterVF,
-        ConvDiffOpT,
-        ConvDiffOpT,
-				ConvDiffSORT,
-				MOP
-		>( mgSpaces, mgPL );
+	auto mg =
+		Pimpact::createMultiGrid<
+			Pimpact::VectorField,
+			TransVF,
+			RestrVF,
+			InterVF,
+			ConvDiffOpT,
+			ConvDiffOpT,
+			ConvDiffSORT,
+			MOP
+				>( mgSpaces, mgPL );
 
 	std::cout << "blabla\n";
   auto op = Pimpact::create< ConvDiffOpT >( space );

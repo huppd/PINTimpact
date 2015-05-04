@@ -176,7 +176,7 @@ protected:
 //					npNew[3] = 1;
 			}
 		}
-		std::cout << "rank: " << space->rankST()<< "\t procGridSiz: " << npNew << "\n";
+//		std::cout << "rank: " << space->rankST()<< "\t procGridSiz: " << npNew << "\n";
 
 		bool procGridChanged=false;
 		for( int i=0; i<dimension; ++i )
@@ -219,7 +219,7 @@ protected:
 				for( int i=0; i<dimension; ++i ) 
 					n *= npNew[i];
 				int* newRanks = new int[n];
-				std::cout << "rankWorld: " << rankWorld << "n: " << n << "\n";
+//				std::cout << "rankWorld: " << rankWorld << "n: " << n << "\n";
 
 				TO rankCoord;
 
@@ -307,7 +307,11 @@ protected:
 			// necessary because offset has to be recomputed
 			procGrid =
 				Pimpact::createProcGrid<Ordinal,dimension>(
-						gridSizeLocal, domain->getBCGlobal(), procGridSize );
+						gridSizeLocal,
+						domain->getBCGlobal(),
+						procGridSize,
+						space()->getProcGrid()->participating()
+						);
 
 		}
 
