@@ -102,11 +102,11 @@ getSpaceParametersFromCL( int argi, char** argv  )  {
   S tolInnerBelos = 1.e-3;
   S tolNOX   = 1.e-3;
 
-	// multi grid parameters
-	int maxGrids = 2;
-	int numCycles = 2;
+  // multi grid parameters
+  int maxGrids = 10;
+  int numCycles = 2;
 
-	// Space parameters
+  // Space parameters
   my_CLP.setOption( "re", &re, "Reynolds number" );
 
   my_CLP.setOption( "alpha2", &alpha2, "introduced frequency" );
@@ -333,7 +333,7 @@ int main(int argi, char** argv ) {
 		}
 
 	auto sol = x->getFieldPtr(0)->getVFieldPtr()->clone( Pimpact::DeepCopy );
-	x->write(700);
+	//x->write(700);
 
 	if( 0==initZero )
 		x->init(0.);
