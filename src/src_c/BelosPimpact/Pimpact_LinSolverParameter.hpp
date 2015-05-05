@@ -69,6 +69,9 @@ Teuchos::RCP< Teuchos::ParameterList > createLinSolverParameter(
     parameter_->set( "Timer Label",								"HelloBelos");
   }
   else if( solver_name=="Block GMRES" ) {
+
+    parameter_->set( "Block Size", 1);
+		parameter_->set( "Adaptive Block Size", true );		
 //    parameter_->set( "Num Blocks",								300	  );
 //    parameter_->set( "Maximum Iterations",        1000  );
 //    parameter_->set( "Maximum Restarts",					20	  );

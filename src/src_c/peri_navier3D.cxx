@@ -92,7 +92,7 @@ getSpaceParametersFromCL( int argi, char** argv  )  {
 
   std::string linSolName = "";
 
-	int withprec=0;
+	int withprec=2;
 
   int maxIter = 10;
 
@@ -337,6 +337,11 @@ int main(int argi, char** argv ) {
 
 	if( 0==initZero )
 		x->init(0.);
+	else if( 1==initZero ) {
+		x->random();
+		S re = space->getDomain()->getDomainSize()->getRe();
+		x->scale(1./re/re);
+	}
   fu->init( 0. );
 
 
@@ -494,41 +499,40 @@ int main(int argi, char** argv ) {
 			////--- inverse DivGrad
 			auto divGradOp =
 				Pimpact::createMultiOperatorBase(
-						Pimpact::createCompositionOp(
-							opV2S,
-							opS2V
-							)
+//						Pimpact::createMultiHarmonicOpWrap(
+							Pimpact::createCompositionOp(
+								opV2S->getOperatorPtr(),
+								opS2V->getOperatorPtr()
+								)
+//							)
 						);
 
 			auto pl_divGrad =
-				Pimpact::createLinSolverParameter( (withprec==2||withprec==3)?"Block GMRES":"GMRES", tolInnerBelos, -1, outSchur );
+				Pimpact::createLinSolverParameter( (withprec==2||withprec==3)?"Block GMRES":"GMRES", 1.e-6, -1, outSchur );
 			pl_divGrad->set( "Timer Label",	"DivGrad");
-//			auto pl_divGrad = Pimpact::createLinSolverParameter( "GMRES", tolInnerBelos, -1, outSchur );
-//			if( withprec>1 ) {
-//				pl_divGrad->set( "Num Blocks",				5	  );
-//				pl_divGrad->set( "Maximum Iterations",100 );
-//				pl_divGrad->set( "Maximum Restarts",	20  );
-//			}
+//			pl_divGrad->set( "Block Size", 2*pl->get<O>("nf")+1 );
+//			pl_divGrad->set( "Block Size", std::max( space->nGlo(2)/2, 1) );
+			pl_divGrad->set( "Block Size", space->nGlo(2) );
+//			pl_divGrad->set( "Block Size", 3 );
 
 
 			auto divGradProb =
-					Pimpact::createLinearProblem<MSF>(
+					Pimpact::createLinearProblem<Pimpact::MultiField<Pimpact::ScalarField<SpaceT> > >(
 							divGradOp ,
 							Teuchos::null,
 							Teuchos::null,
 							pl_divGrad,
 							(withprec==2||withprec==3)?"Block GMRES":"GMRES" );
-//							"GMRES" );
 
 			/// init multigrid divgrad
 			auto plmg = Teuchos::parameterList("MultiGrid");
 			plmg->set<int>("numCycles",pl->sublist("Multi Grid").get<int>("numCycles"));
-			plmg->sublist("Smoother").set<S>("omega",0.8);
-			plmg->sublist("Smoother").set<int>("numIters",4);
+//			plmg->sublist("Smoother").set<S>("omega",0.8);
+//			plmg->sublist("Smoother").set<int>("numIters",4);
 		
 			auto mg_divGrad =
 				Pimpact::createMultiOperatorBase(
-						Pimpact::createMultiHarmonicOpWrap(
+//						Pimpact::createMultiHarmonicOpWrap(
 							Pimpact::createMultiGrid<
 								Pimpact::ScalarField,
 								Pimpact::TransferOp,
@@ -537,15 +541,22 @@ int main(int argi, char** argv ) {
 								Pimpact::DivGradOp,
 								Pimpact::DivGradO2Op,
 								Pimpact::DivGradO2JSmoother,
-								MOP>( mgSpaces, plmg ) ) );
-
+								MOP>( mgSpaces, plmg )
+//									)
+						);
 
 			if( 2==withprec or 3==withprec )
 				divGradProb->setRightPrec( mg_divGrad );
 
-			auto divGradInv = Pimpact::createInverseOperatorBase( divGradProb );
-//			if( 3==withprec )
-//				divGradInv = mg_divGrad;
+			auto divGradInv =
+				Pimpact::createMultiOperatorBase(
+						Pimpact::createMultiHarmonicMultiOpWrap( // fuse
+//						Pimpact::createMultiHarmonicOpWrap( // fuse
+//							Pimpact::createMultiOpUnWrap(
+								Pimpact::createInverseOperatorBase( divGradProb )
+								)
+//							)
+						);
 
 			auto opS2Sinv =
 					Pimpact::createOperatorBase(
