@@ -5,8 +5,8 @@ from pylab import pi
 from platform_paths import *
 
 
-data_path = '/cluster/home04/math/huppd/trunk/data2/'
-exe = 'peri_navier'
+data_path = '/cluster/home04/math/huppd/trunk/data/'
+exe = 'peri_navier3D'
 
 
 os.chdir( exe_path )
@@ -18,23 +18,22 @@ npy= 1
 npt= 1
 
 
-case_consts = ' --npx='+str(npx)+' --npy='+str(npy)+' --npf='+str(npt)+' --tolNOX=1.e-6  --tolBelos=1.e-3 --tolInnerBelos=1.e-4 --maxIter=40  --lx=2. --ly=2.  --initZero=0 --numCycles=2 '#--domain=1 --linSolver=GCRODR '
+case_consts = '  --maxGrids=10 --baseflow=1 --flow=17 --re=1600 --alpha2=125 --tolNOX=1.e-6  --tolBelos=1.e-1 --tolInnerBelos=1.e-3 --maxIter=20  --lx=4. --ly=2. --ly=4 --initZero=0 --numCycles=2 --domain=1 '
+case_consts = ' --maxGrids=10  --baseflow=22 --flow=23 --re=400 --alpha2=125 --tolNOX=1.e-6  --tolBelos=1.e-1 --tolInnerBelos=1.e-3 --maxIter=20  --lx=30. --ly=30. --ly=30 --initZero=0 --numCycles=2 --domain=0 --dim=3 '
 
-precTypes = [ 0, 1, 2 ]
 precTypes = [ 2 ]
-ns        = [ 4, 5, 6, 7 ]
-#ns        = [  5, 6 ]
+ns        = [ 6 ]
+ns        = [ 1, 2, 3, 4 ]
 res       = [ 1, 25, 50, 75, 100 ]
-#res = np.arange(1,220,20)
 alpha2s   = [ 1, 9, 25, 64, 100 ]
-#alpha2s   = np.arange(1,16,2)**2
 
 #precTypes = [ 2, 3 ]
 #precTypes = [ 2 ]
 #precTypes = [ 3 ]
 #ns = [ 5 ]
-#res       = [ 100 ]
-#alpha2s   = [ 100 ]
+res       = [ 1600 ]
+res       = [ 400 ]
+alpha2s   = [ 125 ]
 
 #data_path = '/cluster/scratch_xp/public/huppd'
 
@@ -58,7 +57,7 @@ for alpha2 in alpha2s:
 					os.mkdir( data_path+case_path[0]+case_path[1]+case_path[2]+case_path[3] )
 				os.chdir( data_path+case_path[0]+case_path[1]+case_path[2]+case_path[3] )
 				os.system(' rm ./* -r -v  ')
-				case_para = ' --nx='+str(2**n+1)+' --ny='+str(2**n+1)+' --nf='+str(2*(n-1))+' --withprec='+str(precType)+'  --re='+str(re)+' --alpha2='+str(alpha2)+' --maxGrids='+str(n-2)+' ' 
+				case_para = ' --nx='+str(64*n+1)+' --ny='+str(32*n+1)+' --nz='+str(64*n+1)+' --nf=8 --withprec=2  --npx='+str(n)+' --npy='+str( n )+' --npz='+str(n)+' '
 				#os.system( exe_pre(npx*npy*npt,' -R lustre ')+exe_path+exe+case_para+case_consts )
-				print( exe_pre(npx*npy*npt)+exe_path+exe+case_para+case_consts +' > output ' )
-				os.system( exe_pre(npx*npy*npt)+exe_path+exe+case_para+case_consts +' > output ' )
+				print( exe_pre(n*n*n)+exe_path+exe+case_para+case_consts +' > output ' )
+				os.system( exe_pre(n*n*n)+exe_path+exe+case_para+case_consts +' > output ' )
