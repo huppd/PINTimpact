@@ -651,7 +651,7 @@ public:
       break;
 		case SweptHiemenzFlow: {
 			Scalar kappa = 0.;
-			Scalar sweep_angle = 30.;
+			Scalar sweep_angle = 60.;
 			Scalar pi = 4.*std::atan(1.);
 			VF_init_SHBF( 
 					space()->rankST(),      

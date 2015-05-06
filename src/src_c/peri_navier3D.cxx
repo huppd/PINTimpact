@@ -512,8 +512,8 @@ int main(int argi, char** argv ) {
 			pl_divGrad->set( "Timer Label",	"DivGrad");
 //			pl_divGrad->set( "Block Size", 2*pl->get<O>("nf")+1 );
 //			pl_divGrad->set( "Block Size", std::max( space->nGlo(2)/2, 1) );
-			pl_divGrad->set( "Block Size", space->nGlo(2) );
-//			pl_divGrad->set( "Block Size", 3 );
+//			pl_divGrad->set( "Block Size", space->nGlo(2) );
+			pl_divGrad->set( "Block Size", 1 );
 
 
 			auto divGradProb =
