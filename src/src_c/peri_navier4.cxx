@@ -42,7 +42,7 @@
 
 
 
-auto CompTime = Teuchos::TimeMonitor::getNewCounter("Pimpact:: Solving Time");
+//auto CompTime = Teuchos::TimeMonitor::getNewCounter("Pimpact:: Solving Time");
 
 
 int main(int argi, char** argv ) {
@@ -431,7 +431,7 @@ int main(int argi, char** argv ) {
   if(0==rank) std::cout << "\n\t--- Nf: 0\tdof: "<<x->getLength(true)<<"\t---\n";
   // Solve the nonlinear system
   {
-    Teuchos::TimeMonitor LocalTimer(*CompTime);
+    Teuchos::TimeMonitor LocalTimer(*Teuchos::TimeMonitor::getNewCounter("Pimpact:: Solving Time"));
     //    NOX::StatusTest::StatusType status =
     solver->solve();
   }
