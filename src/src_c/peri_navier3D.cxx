@@ -606,7 +606,10 @@ int main(int argi, char** argv ) {
         NOX::Solver::buildSolver( group, statusTest, solverParametersPtr);
 
     // Solve the nonlinear system
-		solver->solve();
+		{
+			Teuchos::TimeMonitor LocalTimer(*Teuchos::TimeMonitor::getNewCounter("Pimpact:: Solving Time"));
+			solver->solve();
+		}
 
 
     // Get the answer
