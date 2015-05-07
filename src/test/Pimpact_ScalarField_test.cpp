@@ -35,7 +35,7 @@ bool testMpi = true;
 double eps = 1e-6;
 
 int dim = 3;
-int domain = 0;
+int domain = 1;
 
 auto pl = Teuchos::parameterList();
 

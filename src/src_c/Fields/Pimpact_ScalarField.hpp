@@ -647,6 +647,12 @@ public:
 				break;
 			case EField::S:
 				std::cout << "writing pressure field  (" << count << ") ...\n";
+				Teuchos::Tuple<Ordinal,3> N;
+				for( int i=0; i<3; ++i ) {
+					N[i] = space()->nGlo(i);
+          if( space()->getDomain()->getBCGlobal()->getBCL(i)==Pimpact::PeriodicBC )
+						N[i] = N[i]-1;
+				}
 				std::ofstream xfile;
 				std::ostringstream ss;
 				ss << std::setw( 5 ) << std::setfill( '0' ) << count;
@@ -655,24 +661,24 @@ public:
 				xfile<< "<Xdmf xmlns:xi=\"http://www.w3.org/2003/XInclude\" Version=\"2.1\">\n";
 				xfile << "\t<Domain>\n";
 				xfile << "\t\t<Grid Name=\"3DRectMesh\" GridType=\"Uniform\">\n";
-				xfile << "\t\t\t<Topology TopologyType=\"3DRectMesh\" Dimensions=\""<< space()->nGlo(2) << " " << space()->nGlo(1) << " " << space()->nGlo(0) << "\"/>\n";
+				xfile << "\t\t\t<Topology TopologyType=\"3DRectMesh\" Dimensions=\""<< N[2] << " " << N[1] << " " << N[0] << "\"/>\n";
 				xfile << "\t\t\t<Geometry GeometryType=\"VXVYVZ\">\n";
 				xfile << "\t\t\t\t<DataItem ItemType=\"Uniform\"\n";
-				xfile << "\t\t\t\t\tDimensions=\""<< space()->nGlo(0) << "\"\n";
+				xfile << "\t\t\t\t\tDimensions=\""<< N[0] << "\"\n";
 				xfile << "\t\t\t\t\tNumberType=\"Float\"\n";
 				xfile << "\t\t\t\t\tPrecision=\"8\"\n";
 				xfile << "\t\t\t\t\tFormat=\"HDF\">\n";
 				xfile << "\t\t\t\t\t" << fname << ".h5:/VectorX\n";
 				xfile << "\t\t\t\t</DataItem>\n";
 				xfile << "\t\t\t\t<DataItem ItemType=\"Uniform\"\n";
-				xfile << "\t\t\t\t\tDimensions=\""<< space()->nGlo(1) << "\"\n";
+				xfile << "\t\t\t\t\tDimensions=\""<< N[1] << "\"\n";
 				xfile << "\t\t\t\t\tNumberType=\"Float\"\n";
 				xfile << "\t\t\t\t\tPrecision=\"8\"\n";
 				xfile << "\t\t\t\t\tFormat=\"HDF\">\n";
 				xfile << "\t\t\t\t\t" << fname << ".h5:/VectorY\n";
 				xfile << "\t\t\t\t</DataItem>\n";
 				xfile << "\t\t\t\t<DataItem ItemType=\"Uniform\"\n";
-				xfile << "\t\t\t\t\tDimensions=\""<< space()->nGlo(2) << "\"\n";
+				xfile << "\t\t\t\t\tDimensions=\""<< N[2] << "\"\n";
 				xfile << "\t\t\t\t\tNumberType=\"Float\"\n";
 				xfile << "\t\t\t\t\tPrecision=\"8\"\n";
 				xfile << "\t\t\t\t\tFormat=\"HDF\">\n";
@@ -680,7 +686,7 @@ public:
 				xfile << "\t\t\t\t</DataItem>\n";
 				xfile << "\t\t\t</Geometry>\n";
 				xfile << "\t\t\t<Attribute Name=\"Pressure\" AttributeType=\"Scalar\" Center=\"Node\">\n";
-				xfile << "\t\t\t\t<DataItem Dimensions=\""<< space()->nGlo(2) << " " << space()->nGlo(1) << " " << space()->nGlo(0) << "\" NumberType=\"Float\" Precision=\"8\" Format=\"HDF\">\n";
+				xfile << "\t\t\t\t<DataItem Dimensions=\""<< N[2] << " " << N[1] << " " << N[0] << "\" NumberType=\"Float\" Precision=\"8\" Format=\"HDF\">\n";
 				xfile << "\t\t\t\t\t" << fname << ".h5:/pre\n";
 				xfile << "\t\t\t\t</DataItem>\n";
 				xfile << "\t\t\t</Attribute>\n";
