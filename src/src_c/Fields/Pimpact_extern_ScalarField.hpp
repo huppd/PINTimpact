@@ -309,6 +309,21 @@ void SF_init_2DGradZ(
 	 const double& alpha );
 
 
+void SF_init_Vpoint(
+    const int* const N,
+    const int* const bL,
+    const int* const bU,
+    const int* const SS,
+    const int* const NN,
+    const double* const x1,
+    const double* const x2,
+    const double* const x3,
+    const double* const xc,
+		const double& amp,
+    const double* const sig,
+		double* const phi );
+
+
 void SF_level(
     const int& COMM_CART,
     const int& M,

@@ -51,7 +51,8 @@ enum EScalarField {
   Poiseuille2D_inZ = 6,
   Grad2D_inX = 3,
   Grad2D_inY = 4,
-  Grad2D_inZ = 5
+  Grad2D_inZ = 5,
+  FPoint = 7
 };
 
 

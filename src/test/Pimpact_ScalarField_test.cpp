@@ -378,7 +378,7 @@ TEUCHOS_UNIT_TEST( ScalarField, initField ) {
 
   auto x = Pimpact::createScalarField( space );
 
-  for( int i=0; i<=6; ++i ) {
+  for( int i=0; i<=7; ++i ) {
     x->initField( Pimpact::EScalarField(i) );
     x->write( i );
   }

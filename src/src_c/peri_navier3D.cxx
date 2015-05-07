@@ -52,16 +52,16 @@ getSpaceParametersFromCL( int argi, char** argv  )  {
 
 	// Space parameters
   // physical constants
-	S re = 1600.;
+	S re = 200.;
 
-	S alpha2 = 125.;
+	S alpha2 = 64.;
 
   // domain type
   int domain = 1;
 
   // domain size
   int dim = 3;
-  S lx = 4.;
+  S lx = 8.;
   S ly = 2.;
   S lz = 4.;
 
@@ -297,6 +297,8 @@ int main(int argi, char** argv ) {
 
 	int baseflow = pl->get<int>("baseflow");
 	int flow = pl->get<int>("flow");
+	int force = pl->get<int>("forcing");
+
   // outputs
   Teuchos::RCP<std::ostream> outPar;
   Teuchos::RCP<std::ostream> outLinSolve;
@@ -327,10 +329,10 @@ int main(int argi, char** argv ) {
 
   // init Fields, init and rhs
 	x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->initField( Pimpact::EVectorField(baseflow), 1. );
-		if( 0 != flow ) {
-			x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::EVectorField(flow), 0., 1., 0., 0.1 );
-			x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->getFieldPtr(Pimpact::U)->initField();
-		}
+//		if( 0 != flow ) {
+//			x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::EVectorField(flow), 0., 1., 0., 0.1 );
+//			x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->getFieldPtr(Pimpact::U)->initField();
+//		}
 
 	auto sol = x->getFieldPtr(0)->getVFieldPtr()->clone( Pimpact::DeepCopy );
 	//x->write(700);
@@ -342,7 +344,15 @@ int main(int argi, char** argv ) {
 		S re = space->getDomain()->getDomainSize()->getRe();
 		x->scale(1./re/re);
 	}
-  fu->init( 0. );
+	if( 0==force )
+		fu->init( 0. );
+	else {
+		S re = space->getDomain()->getDomainSize()->getRe();
+//		fu->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->getFieldPtr(Pimpact::U)->initField( Pimpact::FPoint,  2.0/re );
+		fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->getFieldPtr(Pimpact::U)->initField( Pimpact::FPoint, 0.1/re );
+		fu->getFieldPtr(0)->getVFieldPtr()->getSFieldPtr(0)->getFieldPtr(Pimpact::W)->initField( Pimpact::FPoint, 0.1/re );
+	}
+	fu->write( 700 );
 
 
 	//tolBelos*=l1*l2/n1/n2*(nfe-1)/nfs;

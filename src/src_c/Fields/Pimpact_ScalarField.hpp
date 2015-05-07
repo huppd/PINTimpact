@@ -227,7 +227,7 @@ public:
         space()->eInd(fType_),
         s_,
         y.s_ );
-    changed();
+		changed();
   }
 
 
@@ -535,6 +535,28 @@ public:
           space()->getDomain()->getDomainSize()->getSize( Z ),
           space()->getCoordinatesLocal()->getX( Z, fType_ ),
           s_ );
+      break;
+		case FPoint :
+			Scalar xc[3] =
+			{ 
+				space()->getDomain()->getDomainSize()->getSize( X )/4.,
+				space()->getDomain()->getDomainSize()->getSize( Y )/2.,
+				space()->getDomain()->getDomainSize()->getSize( Z )/2. };
+			Scalar amp = alpha; //2./space()->getDomain()->getDomainSize()->getRe();
+			Scalar sig[3] = { 0.1, 0.1, 0.1 };
+      SF_init_Vpoint(
+					space()->nLoc(),
+					space()->bl(),
+					space()->bu(),
+					space()->sIndB(fType_),
+					space()->eIndB(fType_),
+					space()->getCoordinatesLocal()->getX( X, fType_ ),
+					space()->getCoordinatesLocal()->getX( Y, fType_ ),
+					space()->getCoordinatesLocal()->getX( Z, fType_ ),
+					xc,
+					amp,
+					sig,
+					s_ );
       break;
     }
 
