@@ -349,10 +349,10 @@ int main(int argi, char** argv ) {
 	else {
 		S re = space->getDomain()->getDomainSize()->getRe();
 //		fu->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->getFieldPtr(Pimpact::U)->initField( Pimpact::FPoint,  2.0/re );
-		fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->getFieldPtr(Pimpact::U)->initField( Pimpact::FPoint, 0.1/re );
+		fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->getFieldPtr(Pimpact::V)->initField( Pimpact::FPoint, 0.1/re );
 		fu->getFieldPtr(0)->getVFieldPtr()->getSFieldPtr(0)->getFieldPtr(Pimpact::W)->initField( Pimpact::FPoint, 0.1/re );
 	}
-	fu->write( 700 );
+//	fu->write( 700 );
 
 
 	//tolBelos*=l1*l2/n1/n2*(nfe-1)/nfs;
@@ -518,7 +518,8 @@ int main(int argi, char** argv ) {
 						);
 
 			auto pl_divGrad =
-				Pimpact::createLinSolverParameter( (withprec==2||withprec==3)?"Block GMRES":"GMRES", 1.e-6, -1, outSchur );
+//				Pimpact::createLinSolverParameter( (withprec==2||withprec==3)?"Block GMRES":"GMRES", 1.e-6, -1, outSchur );
+				Pimpact::createLinSolverParameter( (withprec==2||withprec==3)?"Block GMRES":"GMRES", tolInnerBelos, -1, outSchur );
 			pl_divGrad->set( "Timer Label",	"DivGrad");
 //			pl_divGrad->set( "Block Size", 2*pl->get<O>("nf")+1 );
 //			pl_divGrad->set( "Block Size", std::max( space->nGlo(2)/2, 1) );
