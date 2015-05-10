@@ -85,8 +85,8 @@ public:
   NOX::Abstract::Group::ReturnType applyJacobianInverse( Teuchos::ParameterList &params, const Field& x, Field& y ) {
 
     jop_->apply( x, y );
-
     return( NOX::Abstract::Group::Ok );
+
   }
 
 

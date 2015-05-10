@@ -545,7 +545,7 @@ public:
 //				space()->getDomain()->getDomainSize()->getSize( Y )/2.,
 				space()->getDomain()->getDomainSize()->getSize( Z )/2. };
 			Scalar amp = alpha; //2./space()->getDomain()->getDomainSize()->getRe();
-			Scalar sig[3] = { 0.1, 0.1, 0.1 };
+			Scalar sig[3] = { 0.2, 0.2, 0.2 };
       SF_init_Vpoint(
 					space()->nLoc(),
 					space()->bl(),

@@ -100,6 +100,7 @@ protected:
 	Teuchos::RCP<Teuchos::Time> noxCompF_;
 	Teuchos::RCP<Teuchos::Time> noxUpdateX_;
 	Teuchos::RCP<Teuchos::Time> noxCompdx_;
+	Teuchos::RCP<Teuchos::Time> noxAssign_;
 
 public:
 
@@ -128,7 +129,8 @@ public:
 		linearResidCompDisabled(false),
 		noxCompF_( Teuchos::TimeMonitor::getNewCounter("NOX: compute F") ),
 		noxUpdateX_( Teuchos::TimeMonitor::getNewCounter("NOX: update X") ),
-		noxCompdx_( Teuchos::TimeMonitor::getNewCounter("NOX: solve dx") ) {
+		noxCompdx_( Teuchos::TimeMonitor::getNewCounter("NOX: solve dx") ),
+		noxAssign_( Teuchos::TimeMonitor::getNewCounter("NOX: assign DF") ) {
 
 			// Set all isValid flags to false
 			resetIsValid();
@@ -152,7 +154,8 @@ public:
 		linearResidCompDisabled(source.linearResidCompDisabled),
 		noxCompF_( Teuchos::TimeMonitor::getNewCounter("NOX: compute F") ),
 		noxUpdateX_( Teuchos::TimeMonitor::getNewCounter("NOX: update X") ),
-		noxCompdx_( Teuchos::TimeMonitor::getNewCounter("NOX: solve dx") ) {
+		noxCompdx_( Teuchos::TimeMonitor::getNewCounter("NOX: solve dx") ),
+		noxAssign_( Teuchos::TimeMonitor::getNewCounter("NOX: assign DF") ) {
 
 			switch (type) {
 			case DeepCopy:
@@ -234,6 +237,7 @@ public:
 		noxCompF_   = source.noxCompF_  ;
 		noxUpdateX_ = source.noxUpdateX_;
 		noxCompdx_  = source.noxCompdx_ ;
+		noxAssign_  = source.noxAssign_ ;
 
     return( *this );
   }
@@ -305,6 +309,8 @@ public:
 
 
   virtual NOX::Abstract::Group::ReturnType computeJacobian() {
+
+		Teuchos::TimeMonitor bla(*noxAssign_);
 
     // Skip if the Jacobian is already valid
     if (isJacobian())

@@ -348,11 +348,11 @@ int main(int argi, char** argv ) {
 		fu->init( 0. );
 	else {
 		S re = space->getDomain()->getDomainSize()->getRe();
-//		fu->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->getFieldPtr(Pimpact::U)->initField( Pimpact::FPoint,  2.0/re );
-		fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->getFieldPtr(Pimpact::V)->initField( Pimpact::FPoint, 0.1/re );
-		fu->getFieldPtr(0)->getVFieldPtr()->getSFieldPtr(0)->getFieldPtr(Pimpact::W)->initField( Pimpact::FPoint, 0.1/re );
+		fu->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->getFieldPtr(Pimpact::U)->initField( Pimpact::FPoint,  -2. );
+		fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->getFieldPtr(Pimpact::V)->initField( Pimpact::FPoint, 0.1 );
+		fu->getFieldPtr(0)->getVFieldPtr()->getSFieldPtr(0)->getFieldPtr(Pimpact::W)->initField( Pimpact::FPoint, 0.1 );
 	}
-//	fu->write( 700 );
+//	fu->getFieldPtr(0)->getVFieldPtr()->write( 700,true );
 
 
 	//tolBelos*=l1*l2/n1/n2*(nfe-1)/nfs;
@@ -361,16 +361,9 @@ int main(int argi, char** argv ) {
 	{
 
 		auto para = Pimpact::createLinSolverParameter( linSolName, tolBelos, -1, outLinSolve );
-		if( 3==withprec || withprec==0 ) {
-			para->set( "Num Blocks",         100  );
-			para->set( "Maximum Iterations", 4000 );
-			para->set( "Maximum Restarts",   40	  );
-		}
-		else {
-			para->set( "Num Blocks",         10  );
-			para->set( "Maximum Iterations", 1000 );
-			para->set( "Maximum Restarts",   10	  );
-		}
+		para->set( "Num Blocks",         10  );
+		para->set( "Maximum Iterations", 100 );
+		para->set( "Maximum Restarts",   5	 );
 
     para->set( "Timer Label",	"Linear Problem");
 		para->set( "Verbosity",	
@@ -379,17 +372,14 @@ int main(int argi, char** argv ) {
 				Belos::IterationDetails +
 				Belos::OrthoDetails +
 				Belos::FinalSummary +
-//				Belos::TimingDetails +
 				Belos::StatusTestDetails +
 				Belos::Debug
 				);
-//		if( outFile )
-//			para->set( "Output Stream", outLineSolve);
 
 
-    auto opV2V = Pimpact::createMultiDtConvectionDiffusionOp( space );
-    auto opS2V = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::GradOp>( space ) );
-    auto opV2S = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::DivOp>( space ) );
+		auto opV2V = Pimpact::createMultiDtConvectionDiffusionOp( space );
+		auto opS2V = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::GradOp>( space ) );
+		auto opV2S = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::DivOp>( space ) );
 
     auto op =
         Pimpact::createMultiOperatorBase(
@@ -398,9 +388,6 @@ int main(int argi, char** argv ) {
 								opS2V,
 								opV2S )
         );
-//		op->apply( *x, *fu);
-//		fu->write( 10000 );
-//		std::cout << "divMax: " << fu->getFieldPtr(0)->getSFieldPtr()->norm(Belos::InfNorm) << "\n";
 
     Teuchos::RCP<BOp> jop;
 		jop = op;
@@ -413,9 +400,9 @@ int main(int argi, char** argv ) {
 
 			// create Hinv
 			auto v2v_para = Pimpact::createLinSolverParameter( (2==withprec)?"Block GMRES":"GMRES", tolInnerBelos, -1, outPrec );
-			v2v_para->set( "Num Blocks",		     50  );
-			v2v_para->set( "Maximum Iterations", 2000 );
-			v2v_para->set( "Maximum Restarts",	 40  );
+			v2v_para->set( "Num Blocks",		     10  );
+			v2v_para->set( "Maximum Iterations", 100 );
+			v2v_para->set( "Maximum Restarts",	 10  );
 			v2v_para->set( "Timer Label",	"F_inv");
 			auto opV2Vprob =
 					Pimpact::createLinearProblem<MVF>(
@@ -434,7 +421,6 @@ int main(int argi, char** argv ) {
       pls->sublist("Smoother").set<int>( "Ordering", 1 );
 
 			auto mgConvDiff =
-//				Pimpact::createMultiOperatorBase(
 						Pimpact::createMultiGrid<
 						Pimpact::VectorField,
 						TransVF,
@@ -448,35 +434,23 @@ int main(int argi, char** argv ) {
 			auto zeroOp = Pimpact::create<ConvDiffOpT>( space );
 			auto zeroInv = Pimpact::create<MOP>( zeroOp );
 
-			if( withprec==3 ) {
-				auto bla = Pimpact::createLinSolverParameter( "GMRES", tolInnerBelos, -1, outPrec );
-				bla->set( "Num Blocks",				 	5   );
-				bla->set( "Maximum Iterations", 100 );
-				bla->set( "Maximum Restarts",	  20  );
-				bla->set( "Timer Label",	"F_zero_inv");
-				zeroInv->getOperatorPtr()->getLinearProblem()->setParameters( bla );
-			}
-			else {
-				auto bla = Pimpact::createLinSolverParameter( "GMRES", tolInnerBelos, -1, Teuchos::rcp( new Teuchos::oblackholestream() ) );
-				bla->set( "Num Blocks",				 	5   );
-				bla->set( "Maximum Iterations", 100 );
-				bla->set( "Maximum Restarts",	  20  );
-				bla->set( "Timer Label",	"F_zero_inv");
-				zeroInv->getOperatorPtr()->getLinearProblem()->setParameters( bla );
-			}
+			auto bla = Pimpact::createLinSolverParameter( "GMRES", tolInnerBelos/10., -1, Teuchos::rcp( new Teuchos::oblackholestream() ) );
+//			auto bla = Pimpact::createLinSolverParameter( "GMRES", 1.e-6, -1, Teuchos::rcp( new Teuchos::oblackholestream() ) );
+//			auto bla = Pimpact::createLinSolverParameter( "GMRES", tolInnerBelos/10., -1, Teuchos::rcp( &std::cout, false  ) );
+			bla->set( "Num Blocks",				 	10   );
+			bla->set( "Maximum Iterations", 100 );
+			bla->set( "Maximum Restarts",	  10  );
+			bla->set( "Timer Label",	"F_zero_inv");
+
+			zeroInv->getOperatorPtr()->getLinearProblem()->setParameters( bla );
 
 			zeroInv->getOperatorPtr()->getLinearProblem()->setRightPrec( Pimpact::createMultiOperatorBase(mgConvDiff) );
 
 			Teuchos::RCP<Pimpact::OperatorBase<Pimpact::MultiField<Pimpact::MultiHarmonicField<Pimpact::VectorField<SpaceT> > > > >
 				opV2Vprec = Teuchos::null;
-//			if( withprec==3 )
 				opV2Vprec = 
 					Pimpact::createMultiOperatorBase(
 							Pimpact::createMultiHarmonicDiagOp(zeroInv) );
-//			else
-//				opV2Vprec = 
-//					Pimpact::createMultiOperatorBase(
-//							Pimpact::createMultiHarmonicDiagOp(mgConvDiff) );
 			
 			if( 2==withprec )
 				opV2Vprob->setRightPrec( opV2Vprec );
@@ -484,18 +458,6 @@ int main(int argi, char** argv ) {
 			auto opV2Vinv =
 				Pimpact::createInverseOperatorBase( opV2Vprob );
 
-			if( 3==withprec )
-				opV2Vinv = opV2Vprec;
-
-//			auto eye = x->getFieldPtr(0)->getVFieldPtr()->clone();
-//			for( O i=0; i<nf; ++i ) {
-//				eye->getCFieldPtr(i)->initField( Pimpact::ConstFlow, 1., 1., 1. );
-//				eye->getSFieldPtr(i)->initField( Pimpact::ConstFlow, 1., 1., 1. );
-//			}
-//
-//			auto opV2Vinv = 
-//				Pimpact::createMultiOperatorBase(
-//						Pimpact::createForcingOp( eye ) );
 
 			// schurcomplement approximator ...
 			auto opSchur =
@@ -518,8 +480,8 @@ int main(int argi, char** argv ) {
 						);
 
 			auto pl_divGrad =
-//				Pimpact::createLinSolverParameter( (withprec==2||withprec==3)?"Block GMRES":"GMRES", 1.e-6, -1, outSchur );
-				Pimpact::createLinSolverParameter( (withprec==2||withprec==3)?"Block GMRES":"GMRES", tolInnerBelos, -1, outSchur );
+				Pimpact::createLinSolverParameter( (withprec==2||withprec==3)?"Block GMRES":"GMRES", 1.e-6, -1, outSchur );
+//				Pimpact::createLinSolverParameter( (withprec==2||withprec==3)?"Block GMRES":"GMRES", tolInnerBelos, -1, outSchur );
 			pl_divGrad->set( "Timer Label",	"DivGrad");
 //			pl_divGrad->set( "Block Size", 2*pl->get<O>("nf")+1 );
 //			pl_divGrad->set( "Block Size", std::max( space->nGlo(2)/2, 1) );
@@ -628,10 +590,11 @@ int main(int argi, char** argv ) {
 
     x = Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr();
     Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr()->write( 800 );
-		Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(500);
+    Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr()->getFieldPtr(0)->getVFieldPtr()->write( 400, true );
+		Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(900);
   }
 	/******************************************************************************************/
-	x->write(800);
+//	x->write(800);
 //	auto er = x->clone(Pimpact::ShallowCopy);
 	sol->add( 1., *sol, -1, *x->getFieldPtr(0)->getVFieldPtr());
 
