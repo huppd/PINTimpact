@@ -72,7 +72,7 @@ public:
     transferOp_ = create<TransferOpT>( mgSpaces_->get(), mgSpaces_->get(0) );
 
 		for( unsigned i=0; i < mgSpaces_->getNGrids()-1; ++i ) {
-				std::cout << " grid: " << i << "\n";
+//				std::cout << " grid: " << i << "\n";
 				restrictionOps_.push_back(
 						Teuchos::rcp(
 							new RestrT<CSpaceT>(
