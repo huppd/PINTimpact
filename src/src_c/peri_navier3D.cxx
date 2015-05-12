@@ -578,6 +578,8 @@ int main(int argi, char** argv ) {
     Teuchos::RCP<NOX::Solver::Generic> solver =
         NOX::Solver::buildSolver( group, statusTest, solverParametersPtr);
 
+		if( 0==space->rankST() ) std::cout << "\n\t--- Nf: 0\tdof: "<<x->getLength(true)<<"\t---\n";
+
     // Solve the nonlinear system
 		{
 			Teuchos::TimeMonitor LocalTimer(*Teuchos::TimeMonitor::getNewCounter("Pimpact:: Solving Time"));
