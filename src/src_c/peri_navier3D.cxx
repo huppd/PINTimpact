@@ -586,6 +586,7 @@ int main(int argi, char** argv ) {
 			solver->solve();
 		}
 
+		Teuchos::TimeMonitor::summarize();
 
     // Get the answer
     *group = solver->getSolutionGroup();
@@ -604,7 +605,6 @@ int main(int argi, char** argv ) {
 	if( 0==space->rankST() )
 		std::cout << "error: " << er << "\n";
 
-	Teuchos::TimeMonitor::summarize();
 
   MPI_Finalize();
   return( 0 );
