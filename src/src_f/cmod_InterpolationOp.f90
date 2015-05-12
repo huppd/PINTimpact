@@ -653,7 +653,7 @@ contains
     real(c_double), allocatable   ::  recvbuf(:,:,:)
     integer(c_int)                ::  offsg(1:3), dispg
     !real(c_double)                ::  sendbuf( 1:( ( Nc(1)+NB(1)-1 )*( Nc(2)+NB(2)-1 )*( Nc(3)+NB(2)-1 ) ) )
-    real(c_double)                ::  sendbuf( 0:( ( Nc(1)+10 )*( Nc(2)+10 )*( Nc(3)+10 ) ) )
+    real(c_double)                ::  sendbuf( 0:( ( Nc(1)+14 )*( Nc(2)+14 )*( Nc(3)+14 ) ) )
 
 
 
