@@ -344,7 +344,7 @@ int main(int argi, char** argv ) {
 		x->getFieldPtr(0)->getVFieldPtr()->random();
 //		x->random();
 		S re = space->getDomain()->getDomainSize()->getRe();
-		x->scale(1.e-16);
+		x->scale(1.e-32);
 	}
 	if( 0==force )
 		fu->init( 0. );
