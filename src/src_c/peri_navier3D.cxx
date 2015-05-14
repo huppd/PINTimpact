@@ -487,7 +487,7 @@ int main(int argi, char** argv ) {
 			pl_divGrad->set( "Timer Label",	"DivGrad");
 			//			pl_divGrad->set( "Block Size", std::max( space->nGlo(3)/2, 1) );
 			//			pl_divGrad->set( "Block Size", space->nGlo(3) );
-			pl_divGrad->set( "Block Size", space->nGlo(3)*2+1 );
+			pl_divGrad->set( "Block Size", std::min(space->nGlo(3)*2+1, 9 );
 			pl_divGrad->set( "Adaptive Block Size", false );		
 			//			pl_divGrad->set( "Block Size", 1 );
 
