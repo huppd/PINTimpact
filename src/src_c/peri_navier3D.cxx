@@ -96,7 +96,7 @@ getSpaceParametersFromCL( int argi, char** argv  )  {
 
   int maxIter = 10;
 
-  int initZero = 0;
+  int initZero = 1;
 
   S tolBelos = 1.e-1;
   S tolInnerBelos = 1.e-3;
@@ -340,9 +340,11 @@ int main(int argi, char** argv ) {
 	if( 0==initZero )
 		x->init(0.);
 	else if( 1==initZero ) {
-		x->random();
+		x->getFieldPtr(0)->getSFieldPtr()->init(0.);
+		x->getFieldPtr(0)->getVFieldPtr()->random();
+//		x->random();
 		S re = space->getDomain()->getDomainSize()->getRe();
-		x->scale(1./re/re);
+		x->scale(1.e-16);
 	}
 	if( 0==force )
 		fu->init( 0. );
@@ -480,14 +482,14 @@ int main(int argi, char** argv ) {
 						);
 
 			auto pl_divGrad =
-				Pimpact::createLinSolverParameter( (withprec==2||withprec==3)?"Block GMRES":"GMRES", 1.e-6, -1, outSchur );
-//				Pimpact::createLinSolverParameter( (withprec==2||withprec==3)?"Block GMRES":"GMRES", tolInnerBelos, -1, outSchur );
+				Pimpact::createLinSolverParameter( (withprec==2||withprec==3)?"Block GMRES":"GMRES", tolInnerBelos/100., -1, outSchur );
+			//				Pimpact::createLinSolverParameter( (withprec==2||withprec==3)?"Block GMRES":"GMRES", tolInnerBelos, -1, outSchur );
 			pl_divGrad->set( "Timer Label",	"DivGrad");
-//			pl_divGrad->set( "Block Size", 2*pl->get<O>("nf")+1 );
-//			pl_divGrad->set( "Block Size", std::max( space->nGlo(2)/2, 1) );
-//			pl_divGrad->set( "Block Size", space->nGlo(2) );
-			pl_divGrad->set( "Block Size", 1 );
-
+			//			pl_divGrad->set( "Block Size", std::max( space->nGlo(3)/2, 1) );
+			//			pl_divGrad->set( "Block Size", space->nGlo(3) );
+			pl_divGrad->set( "Block Size", space->nGlo(3)*2+1 );
+			pl_divGrad->set( "Adaptive Block Size", false );		
+			//			pl_divGrad->set( "Block Size", 1 );
 
 			auto divGradProb =
 					Pimpact::createLinearProblem<Pimpact::MultiField<Pimpact::ScalarField<SpaceT> > >(
@@ -568,7 +570,7 @@ int main(int argi, char** argv ) {
     auto group = NOX::Pimpact::createGroup<Inter>( bla, inter, nx );
 
     // Set up the status tests
-    auto statusTest = NOX::Pimpact::createStatusTest( maxIter, tolNOX, 1.e-12 );
+    auto statusTest = NOX::Pimpact::createStatusTest( maxIter, tolNOX, 1.e-16 );
 
     // Create the list of solver parameters
     auto solverParametersPtr =
