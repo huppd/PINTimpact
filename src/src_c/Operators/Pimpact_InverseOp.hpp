@@ -49,8 +49,9 @@ public:
   template<class IOperatorT>
   InverseOp( const Teuchos::RCP<IOperatorT>& op ) {
 		auto para = 
-			createLinSolverParameter("GMRES",1.e-3,-1, Teuchos::rcp( new Teuchos::oblackholestream()), 1000 );
+			//createLinSolverParameter("GMRES",1.e-3,-1, Teuchos::rcp( new Teuchos::oblackholestream()), 1000 );
 //			createLinSolverParameter("GMRES",1.e-2,-1, Teuchos::rcp( &std::cout, false ), 100 );
+			createLinSolverParameter("GMRES",1.e-2,-1, Teuchos::rcp( new Teuchos::oblackholestream() ), 100 );
 		para->set( "Timer Label",	"Coarse Grid");
     para->set( "Num Blocks",         20	  );
 		linprob_ = createLinearProblem<MF>(
