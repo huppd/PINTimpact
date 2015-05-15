@@ -46,7 +46,7 @@ template<class T> using ConvDiffJT = Pimpact::ConvectionVSmoother<T,Pimpact::Con
 bool testMpi = true;
 double eps = 1e-6;
 
-int domain = 1;
+int domain = 0;
 int ftype = 0;
 
 int fs = 0;
@@ -56,9 +56,9 @@ int npx = 1;
 int npy = 1;
 int npz = 1;
 
-int nx = 33;
-int ny = 17;
-int nz = 33;
+int nx = 97;
+int ny = 25;
+int nz = 49;
 
 int rankbla = 1;
 
@@ -115,35 +115,19 @@ TEUCHOS_STATIC_SETUP() {
 	    "" );
 
   pl->set( "dim", 3 );
-  pl->set( "domain", 0 );
+  pl->set( "domain", domain );
 
-//	pl->set( "lx", 2. );
-//	pl->set( "ly", 1. );
-	pl->set( "lz", 1. );
+  pl->set( "lx", 8. );
+  pl->set( "ly", 2. );
+  pl->set( "lz", 4. );
 
+	pl->set<S>( "Re", 1000 );
 
-//	pl->set( "nx", 33 );
-//	pl->set( "nz", 33 );
-//	pl->set( "nx", 65 );
-////	pl->set( "ny", 33 );
-//	pl->set( "ny", 65 );
-//	pl->set( "nz", 33 );
-//	pl->set( "nx", 49 );
-//	pl->set( "ny", 49 );
-//	pl->set( "nz", 49 );
-//	pl->set( "nx", 129 );
-//	pl->set( "ny", 129 );
-//	pl->set( "nz", 129 );
-//	pl->set( "nx", 257 );
-//	pl->set( "ny", 257 );
-//	pl->set( "nz", 257 );
-//	pl->set( "nx", 1025 );
-//	pl->set( "ny", 1025 );
-	
 	//  grid size
 	pl->set("nx", nx );
 	pl->set("ny", ny );
 	pl->set("nz", nz );
+  pl->set("nf", 65 );
 
 	// processor grid size
 	pl->set("npx", npx );
@@ -186,20 +170,6 @@ TEUCHOS_UNIT_TEST( MGSpaces, constructor4D ) {
 
   typedef Pimpact::CoarsenStrategy<FSpace4T,CSpace4T> CS;
 
-  pl->set( "Re", 1. );
-  pl->set( "alpha2", 1. );
-
-  pl->set( "lx", 1. );
-  pl->set( "ly", 1. );
-  pl->set( "lz", 1. );
-
-//  pl->set( "dim", 2 );
-
-//  pl->set("nx", 33 );
-//  pl->set("ny", 17 );
-//  pl->set("nz", 9 );
-//
-//
 	//  grid size
 	pl->set("nx", nx );
 	pl->set("ny", ny );
@@ -210,7 +180,6 @@ TEUCHOS_UNIT_TEST( MGSpaces, constructor4D ) {
 	pl->set("npy", npy );
 	pl->set("npz", npz );
 
-  pl->set("nf", 65 );
 
   auto space = Pimpact::createSpace<S,O,4>( pl );
 
@@ -493,10 +462,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Restrictor3D, CS ) {
 		if( mgSpaces->participating(-2) )
 			op2->apply( *fieldf, *fieldc );
 
-		if( mgSpaces->participating(-2)&& i>0 )
+//		if( mgSpaces->participating(-2)&& i>0 )
+		if( mgSpaces->participating(-2) )
 			TEST_FLOATING_EQUALITY( 0., fieldf->norm(), eps );
 
-		if( mgSpaces->participating(-1)&&i>0 ) 
+//		if( mgSpaces->participating(-1)&&i>0 ) 
+		if( mgSpaces->participating(-1) )
 			TEST_FLOATING_EQUALITY( 0., fieldc->norm(), eps );
 
 
@@ -508,7 +479,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Restrictor3D, CS ) {
 		if( mgSpaces->participating(-2) )
 			op2->apply( *fieldf, *fieldc );
 
-		if( mgSpaces->participating(-1)&&i>0 )
+//		if( mgSpaces->participating(-1)&&i>0 )
+		if( mgSpaces->participating(-1) )
 			TEST_INEQUALITY( 0., fieldc->norm() );
 
 		// the strong test
@@ -527,9 +499,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Restrictor3D, CS ) {
 		if( mgSpaces->participating(-1) ) {
 
 			er->add( 1., *sol, -1., *fieldc );
-			std::cout << "error Const: " << er->norm() << "\n";
-			if( i>0 )
-				TEST_EQUALITY( er->norm()<eps, true ); // boundaries?
+			std::cout << "error Const: " << er->norm(Belos::InfNorm) << "\n";
+//			if( i>0 )
+				TEST_EQUALITY( er->norm(Belos::InfNorm)<eps, true ); // boundaries?
 			er->write(0);
 		}
 
@@ -553,9 +525,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Restrictor3D, CS ) {
 
 		if( mgSpaces->participating(-1) ) {
 			er->add( 1., *sol, -1., *fieldc );
-			std::cout << "error GradX: " << er->norm() << "\n";
-			if( i>0 )
-				TEST_EQUALITY( er->norm()<eps, true ); // boundaries?
+			std::cout << "error GradX: " << er->norm(Belos::InfNorm) << "\n";
+//			if( i>0 )
+				TEST_EQUALITY( er->norm(Belos::InfNorm)<eps, true ); // boundaries?
 			er->write(1);
 			fieldc->write(10);
 			sol->write(100);
@@ -577,9 +549,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Restrictor3D, CS ) {
 
 		if( mgSpaces->participating(-1) ) {
 			er->add( 1., *sol, -1., *fieldc );
-			std::cout << "error GradY: " << er->norm() << "\n";
-			if( i>0 )
-				TEST_EQUALITY( er->norm()<eps, true ); // boundaries?
+			std::cout << "error GradY: " << er->norm(Belos::InfNorm) << "\n";
+//			if( i>0 )
+				TEST_EQUALITY( er->norm(Belos::InfNorm)<eps, true ); // boundaries?
 			er->write(2);
 			fieldc->write(20);
 			sol->write(200);
@@ -605,9 +577,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Restrictor3D, CS ) {
 		if( mgSpaces->participating(-1) ) {
 			er->add( 1., *sol, -1., *fieldc );
 
-			std::cout << "error GradZ: " << er->norm() << "\n";
-			if( i>0 )
-				TEST_EQUALITY( er->norm()<eps, true ); // boundaries?
+			std::cout << "error GradZ: " << er->norm(Belos::InfNorm) << "\n";
+//			if( i>0 )
+				TEST_EQUALITY( er->norm(Belos::InfNorm)<eps, true ); // boundaries?
 			er->write(3);
 			fieldc->write(30);
 			sol->write(300);
@@ -665,7 +637,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator3D, CS ) {
 				op->apply( *fieldc, *fieldf );
 
 		if( mgSpaces->participating(-2) )
-			TEST_EQUALITY( eps>fieldf->norm(), true );
+			TEST_EQUALITY( eps>fieldf->norm(Belos::InfNorm), true );
 		if( mgSpaces->participating(-1) )
 			TEST_EQUALITY( eps>fieldc->norm(), true );
 
@@ -700,10 +672,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator3D, CS ) {
 		}
 
 		if( mgSpaces->participating(-2) )
-			std::cout << "error Const: " << er->norm()/std::sqrt( (S)er->getLength() ) << "\n";
+			std::cout << "error Const: " << er->norm(Belos::InfNorm) << "\n";
 
 		if( mgSpaces->participating(-2) )
-			TEST_EQUALITY( er->norm()/std::sqrt( (S)er->getLength() ) < eps, true  );
+			TEST_EQUALITY( er->norm(Belos::InfNorm) < eps, true  );
 
 
 		// hardcore test init test in X
@@ -736,7 +708,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator3D, CS ) {
 //			}
 //			if( rankbla==space->rankST() )
 			{
-				auto bla = er->norm( Belos::TwoNorm, false );
+				auto bla = er->norm( Belos::InfNorm, false );
 				std::cout << "rank: " << space->rankST() << " procCord: " << space->procCoordinate()[0] << ", " << space->procCoordinate()[1] << ", "<< space->procCoordinate()[2] << ", local error:" << bla << "\n";
 //				if( bla>1.e-12 ) 
 				if( rankbla==space->rankST() ) {
@@ -753,11 +725,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator3D, CS ) {
 		}
 
 		if( mgSpaces->participating(-2) )
-			std::cout << "error GradX: " << er->norm() << "\n";
+			std::cout << "error GradX: " << er->norm(Belos::InfNorm) << "\n";
 
-		if( i>0 ) // corners for scalar are "wrong"
+//		if( i>0 ) // corners for scalar are "wrong"
 			if( mgSpaces->participating(-2) )
-				TEST_EQUALITY( er->norm()/std::sqrt( (S)er->getLength() )< eps, true  );
+				TEST_EQUALITY( er->norm(Belos::InfNorm)< eps, true  );
 
 
 		// hardcore test init test in Y
@@ -777,11 +749,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator3D, CS ) {
 		}
 
 		if( mgSpaces->participating(-2) )
-			std::cout << "error GradY: " << er->norm()/std::sqrt( (S)er->getLength() ) << "\n";
+			std::cout << "error GradY: " << er->norm(Belos::InfNorm) << "\n";
 
-		if( i>0 ) // corners for scalar are "wrong"
+//		if( i>0 ) // corners for scalar are "wrong"
 			if( mgSpaces->participating(-2) )
-				TEST_EQUALITY( er->norm()/std::sqrt( (S)er->getLength() ) < eps, true  );
+				TEST_EQUALITY( er->norm(Belos::InfNorm) < eps, true  );
 
 
 	 // hardcore test init test in Z
@@ -799,11 +771,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator3D, CS ) {
 		if( mgSpaces->participating(-2) ) fieldf->write(30);
 
 		if( mgSpaces->participating(-2) )
-			std::cout << "error GradZ: " << er->norm()/std::sqrt( (S)er->getLength() ) << "\n";
+			std::cout << "error GradZ: " << er->norm(Belos::InfNorm) << "\n";
 
-		if( i>0 ) // corners for scalar are "wrong"
+//		if( i>0 ) // corners for scalar are "wrong"
 			if( mgSpaces->participating(-2) )
-				TEST_EQUALITY( er->norm()/std::sqrt( (S)er->getLength() ) < eps, true  );
+				TEST_EQUALITY( er->norm(Belos::InfNorm) < eps, true  );
 	}
 
 }
@@ -976,7 +948,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
 	if( space->rankST()==0 ) mgSpaces->print();
 
-
 	auto mg =
 		Pimpact::createMultiGrid<
 		Pimpact::ScalarField,
@@ -1008,7 +979,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 
 	e->init( 1. );
 	auto sol = x->clone();
-	sol->initField( Pimpact::Grad2D_inZ );
+	sol->initField( Pimpact::Grad2D_inX );
 
 	S bla = b->dot(*e)/x->getLength();
 	std::cout<< " rhs nullspace: " << bla << "\n";
@@ -1066,7 +1037,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 
 	linprob->solve(xm,bm);
 	xm->write();
-//   auto bop = Pimpact::createMultiOperatorBase( mg );
 
 }
 
@@ -1077,16 +1047,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, DivGradOp, CS3G )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffOp, CS ) {
 
-	pl->set<S>( "Re", 1000 );
-	//pl->set<S>( "Re", 100. );
-	//pl->set<S>( "Re", 10. );
-	//pl->set<S>( "Re", 1. );
-	//pl->set<S>( "Re", 0.01 );
-
-  //pl->set( "lx", 2. );
-  //pl->set( "ly", 2. );
-//	pl->set( "nx", 65 );
-//	pl->set( "ny", 65 );
 
 	//  grid size
 	pl->set("nx", nx );
