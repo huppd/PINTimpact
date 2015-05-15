@@ -335,6 +335,8 @@ public:
 
     procGrid_->print( out );
 
+		getDomain()->getBCLocal()->print( out );
+
 //    coordGlobal_->print(out);
 //
 //    coordLocal_->print(out);

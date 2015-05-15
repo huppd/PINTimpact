@@ -321,12 +321,12 @@ public:
 		if( EField::S==fType ) {
 
 			MG_InterpolateCorners(
-				 spaceC_->nLoc(),
-				 spaceC_->bl(),
-				 spaceC_->bu(),
-				 spaceC_->getDomain()->getBCLocal()->getBCL(),
-				 spaceC_->getDomain()->getBCLocal()->getBCU(),
-				 x.getConstRawPtr() );
+					spaceC_->nLoc(),
+					spaceC_->bl(),
+					spaceC_->bu(),
+					spaceC_->getDomain()->getBCLocal()->getBCL(),
+					spaceC_->getDomain()->getBCLocal()->getBCU(),
+					x.getConstRawPtr() );
 
 			if( spaceC_->getProcGrid()->participating() )
 				x.exchange();
@@ -346,25 +346,25 @@ public:
 						x.getConstRawPtr() );
 			}
 
-      MG_interpolate(
-          spaceC_->dim(),
-          spaceC_->nLoc(),
-          spaceC_->bl(),
-          spaceC_->bu(),
-          spaceF_->nLoc(),
-          spaceF_->bl(),
-          spaceF_->bu(),
+			MG_interpolate(
+					spaceC_->dim(),
+					spaceC_->nLoc(),
+					spaceC_->bl(),
+					spaceC_->bu(),
+					spaceF_->nLoc(),
+					spaceF_->bl(),
+					spaceF_->bu(),
 					iimax_.getRawPtr(),
 					dd_.getRawPtr(),
-          cIS_[0],
-          cIS_[1],
-          cIS_[2],
-          x.getConstRawPtr(),
-          y.getRawPtr() );
-    }
-    else {
+					cIS_[0],
+					cIS_[1],
+					cIS_[2],
+					x.getConstRawPtr(),
+					y.getRawPtr() );
+		}
+		else {
 
-//		y.initField();
+			//		y.initField();
 			int dir = fType;
 
 			if( spaceC_->getProcGrid()->participating() ) {
@@ -403,33 +403,33 @@ public:
 						x.getConstRawPtr() );
 			}
 
-		 MG_interpolateV(
-				 spaceC_->dim(),
-				 dir+1,
-				 spaceC_->nLoc(),
-				 spaceC_->bl(),
-				 spaceC_->bu(),
-				 spaceC_->sIndB(fType),
-				 spaceC_->eIndB(fType),
-				 spaceF_->nLoc(),
-				 spaceF_->bl(),
-				 spaceF_->bu(),
-				 spaceF_->sIndB(fType),
-				 spaceF_->eIndB(fType),
-				 iimax_.getRawPtr(),
-				 dd_.getRawPtr(),
-				 cIV_[dir],
-				 cIS_[0],
-				 cIS_[1],
-				 cIS_[2],
-				 x.getConstRawPtr(),
-				 y.getRawPtr() );
+			MG_interpolateV(
+					spaceC_->dim(),
+					dir+1,
+					spaceC_->nLoc(),
+					spaceC_->bl(),
+					spaceC_->bu(),
+					spaceC_->sIndB(fType),
+					spaceC_->eIndB(fType),
+					spaceF_->nLoc(),
+					spaceF_->bl(),
+					spaceF_->bu(),
+					spaceF_->sIndB(fType),
+					spaceF_->eIndB(fType),
+					iimax_.getRawPtr(),
+					dd_.getRawPtr(),
+					cIV_[dir],
+					cIS_[0],
+					cIS_[1],
+					cIS_[2],
+					x.getConstRawPtr(),
+					y.getRawPtr() );
 
-    }
+		}
 
-    y.changed();
+		y.changed();
 
-  }
+	}
 
   void print(  std::ostream& out=std::cout ) const {
 

@@ -46,7 +46,7 @@ template<class T> using ConvDiffJT = Pimpact::ConvectionVSmoother<T,Pimpact::Con
 bool testMpi = true;
 double eps = 1e-6;
 
-int domain = 0;
+int domain = 1;
 int ftype = 0;
 
 int fs = 0;
@@ -60,7 +60,7 @@ int nx = 97;
 int ny = 25;
 int nz = 49;
 
-int rankbla = 1;
+int rankbla = -1;
 
 int maxGrids = 10;
 

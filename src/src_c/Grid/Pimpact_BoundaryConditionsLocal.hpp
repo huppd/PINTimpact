@@ -106,9 +106,9 @@ public:
   const int& getBCU( int i ) const { return( BCU_int_[i] ); }
 
   void print( std::ostream& out=std::cout ) const {
-    out << "---BoundaryConditionsGlobal: ---\n";
-    out << " BCL_local: " << BCL_local_ << "\n";
-    out << " BCU_local: " << BCU_local_ << "\n";
+    out << "\t--- local BoundaryConditions: ---\n";
+    out << "\tlower: " << BCL_local_ << "\n";
+    out << "\tupper: " << BCU_local_ << "\n";
   }
 
 }; // end of class BoundaryConditionsLocal
