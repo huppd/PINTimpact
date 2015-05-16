@@ -51,9 +51,10 @@ public:
 		auto para = 
 			//createLinSolverParameter("GMRES",1.e-3,-1, Teuchos::rcp( new Teuchos::oblackholestream()), 1000 );
 //			createLinSolverParameter("GMRES",1.e-2,-1, Teuchos::rcp( &std::cout, false ), 100 );
-			createLinSolverParameter("GMRES",1.e-2,-1, Teuchos::rcp( new Teuchos::oblackholestream() ), 100 );
+			createLinSolverParameter("GMRES",1.e-2,-1, Teuchos::rcp( new Teuchos::oblackholestream() ), 40 );
 		para->set( "Timer Label",	"Coarse Grid");
     para->set( "Num Blocks",         20	  );
+    para->set( "Maximum Restarts",   2	);
 		linprob_ = createLinearProblem<MF>(
         createOperatorBase( create<OperatorT>(op) ),
         create<MF>( op->space() ),

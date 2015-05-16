@@ -363,9 +363,9 @@ int main(int argi, char** argv ) {
 	{
 
 		auto para = Pimpact::createLinSolverParameter( linSolName, tolBelos, -1, outLinSolve );
-		para->set( "Num Blocks",         10  );
+		para->set( "Num Blocks",         5   );
 		para->set( "Maximum Iterations", 100 );
-		para->set( "Maximum Restarts",   5	 );
+		para->set( "Maximum Restarts",   20	 );
 
     para->set( "Timer Label",	"Linear Problem");
 		para->set( "Verbosity",	
@@ -436,7 +436,7 @@ int main(int argi, char** argv ) {
 			auto zeroOp = Pimpact::create<ConvDiffOpT>( space );
 			auto zeroInv = Pimpact::create<MOP>( zeroOp );
 
-			auto bla = Pimpact::createLinSolverParameter( "GMRES", tolInnerBelos/10., -1, Teuchos::rcp( new Teuchos::oblackholestream() ) );
+			auto bla = Pimpact::createLinSolverParameter( "GMRES", tolInnerBelos/100., -1, Teuchos::rcp( new Teuchos::oblackholestream() ) );
 //			auto bla = Pimpact::createLinSolverParameter( "GMRES", 1.e-6, -1, Teuchos::rcp( new Teuchos::oblackholestream() ) );
 //			auto bla = Pimpact::createLinSolverParameter( "GMRES", tolInnerBelos/10., -1, Teuchos::rcp( &std::cout, false  ) );
 			bla->set( "Num Blocks",				 	10   );
@@ -482,8 +482,12 @@ int main(int argi, char** argv ) {
 						);
 
 			auto pl_divGrad =
+//				Pimpact::createLinSolverParameter( (withprec==2||withprec==3)?"Block GMRES":"GMRES", tolInnerBelos/100., -1, outSchur );
 				Pimpact::createLinSolverParameter( (withprec==2||withprec==3)?"Block GMRES":"GMRES", tolInnerBelos/100., -1, outSchur );
 			//				Pimpact::createLinSolverParameter( (withprec==2||withprec==3)?"Block GMRES":"GMRES", tolInnerBelos, -1, outSchur );
+			pl_divGrad->set( "Num Blocks",				 5   );
+			pl_divGrad->set( "Maximum Iterations", 100 );
+			pl_divGrad->set( "Maximum Restarts",	  20 );
 			pl_divGrad->set( "Timer Label",	"DivGrad");
 			//			pl_divGrad->set( "Block Size", std::max( space->nGlo(3)/2, 1) );
 			//			pl_divGrad->set( "Block Size", space->nGlo(3) );

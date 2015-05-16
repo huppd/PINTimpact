@@ -540,9 +540,9 @@ public:
 			Scalar xc[3] =
 			{ 
 				1.,
-				1.,
+//				1.,
 //				space()->getDomain()->getDomainSize()->getSize( X )/4.,
-//				space()->getDomain()->getDomainSize()->getSize( Y )/2.,
+				space()->getDomain()->getDomainSize()->getSize( Y )/2.,
 				space()->getDomain()->getDomainSize()->getSize( Z )/2. };
 			Scalar amp = alpha; //2./space()->getDomain()->getDomainSize()->getRe();
 			Scalar sig[3] = { 0.2, 0.2, 0.2 };
