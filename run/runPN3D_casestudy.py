@@ -20,11 +20,14 @@ npy= 1
 npt= 1
 
 
-case_consts = [' --baseflow=1 --force=1  --domain=1 --nf=8  --tolNOX=1.e-6  --tolInnerBelos=1.e-1 --maxIter=5 --lx=8. --ly=2. --lz=4.']
+case_consts = [' --baseflow=1 --force=1  --domain=0 --nf=8  --tolNOX=1.e-6  --tolInnerBelos=1.e-1 --maxIter=5 --lx=8. --ly=2. --lz=4.']
 
 ns        = [ 4 ]
-res       = [  200 ]
-alpha2s   = [  144, 576 ]
+res       = [ 100, 200, 400 ]
+alpha2s   = [ 144, 576 ]
+
+res = [100]
+alpha2s = [576]
 
 n = ns[0]
 
