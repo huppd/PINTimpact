@@ -9,6 +9,7 @@
 #include "Teuchos_CommHelpers.hpp"
 //#include "Pimpact_Types.hpp"
 #include "Pimpact_VectorField.hpp"
+#include "Pimpact_DivOp.hpp"
 
 
 
@@ -16,8 +17,9 @@ namespace {
 
 bool testMpi = true;
 double eps = 1e-6;
-int domain = 1;
+
 int dim = 3;
+int domain = 1;
 
 auto pl = Teuchos::parameterList();
 
@@ -39,8 +41,9 @@ TEUCHOS_STATIC_SETUP() {
       "dim", &dim,
       "dim" );
 
-  pl->set( "domain", domain );
   pl->set( "dim", dim );
+  pl->set( "domain", domain );
+
   pl->set( "lx", 2. );
   pl->set( "ly", 2. );
   pl->set( "lz", 1. );
@@ -48,12 +51,14 @@ TEUCHOS_STATIC_SETUP() {
 
   pl->set("nx", 25 );
   pl->set("ny", 17 );
-  pl->set("nz", 9 );
+	if(  3==dim )
+		pl->set("nz", 9 );
 
   // processor grid size
   pl->set("npx", 2 );
   pl->set("npy", 2 );
-  pl->set("npz", 2 );
+	if(  3==dim )
+		pl->set("npz", 2 );
 
 }
 
@@ -63,7 +68,7 @@ TEUCHOS_STATIC_SETUP() {
 
 TEUCHOS_UNIT_TEST( VectorField, InfNorm_and_initvec2d ) {
 
-  auto space = Pimpact::createSpace( pl, false );
+  auto space = Pimpact::createSpace( pl );
 
   auto vel = Pimpact::create<Pimpact::VectorField>( space );
 
@@ -90,13 +95,45 @@ TEUCHOS_UNIT_TEST( VectorField, InfNorm_and_initvec2d ) {
 
 TEUCHOS_UNIT_TEST( VectorField, initField ) {
 
-  auto space = Pimpact::createSpace( pl, false );
+	pl->set( "Re", 400. );
 
-  auto vel = Pimpact::create<Pimpact::VectorField>( space );
+  pl->set( "lx", 30. );
+  pl->set( "ly", 20. );
+  pl->set( "lz", 20. );
 
-  for( int i=0; i<=21; ++i ) {
-    vel->initField( Pimpact::EFlowField(i) );
+
+  pl->set("nx", 65 );
+  pl->set("ny", 49 );
+	pl->set("nz", 97 );
+
+  pl->set("nx", 257 );
+  pl->set("ny", 257 );
+  pl->set("nz", 257 );
+
+  // processor grid size
+  pl->set("npx", 1 );
+  pl->set("npy", 1 );
+	pl->set("npz", 1 );
+
+  auto space = Pimpact::createSpace( pl );
+
+	space->getInterpolateV2S()->print();
+	auto vel = Pimpact::create<Pimpact::VectorField>( space );
+	auto divVec = Pimpact::create<Pimpact::ScalarField>( space );
+
+  auto divOp = Pimpact::create<Pimpact::DivOp>( space );
+
+  for( int i=22; i<=23; ++i ) {
+		if( 17==i )
+			vel->initField( Pimpact::EVectorField(i), 1., 1., 0.25 );
+		else
+			vel->initField( Pimpact::EVectorField(i) );
     vel->write( i );
+		divOp->apply( *vel, *divVec );
+		auto bla = divVec->norm( Belos::InfNorm );
+		if( 0==space->rankST() )
+			std::cout << "EField: " << i << "\tmax div: " << bla << "\n";
+		divVec->write( i*2 );
   }
 
 }

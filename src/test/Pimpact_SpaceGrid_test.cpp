@@ -18,8 +18,7 @@ namespace {
 bool testMpi = true;
 double eps = 1e+1;
 
-bool isImpactInit = false;
-int dim = 2;
+int dim = 3;
 
 typedef int O;
 typedef double S;
@@ -44,7 +43,6 @@ TEUCHOS_STATIC_SETUP() {
 
 // test shows that nLoc is not consistent with start and end indexes
 TEUCHOS_UNIT_TEST( StencilWidths, local_consistency ) {
-
 
   auto sW32 = Pimpact::createStencilWidths<3,2>();
 
@@ -77,7 +75,7 @@ TEUCHOS_UNIT_TEST( IndexSpace, local_consistency ) {
 
   auto procGridSize = Pimpact::createProcGridSize<O,d>( pl->get("npx",2), pl->get("npy",2), pl->get("npz",1), pl->get("npf",1) );
 
-  auto gridSizeGlobal = Pimpact::createGridSizeGlobal<O>( pl->get("nx",33), pl->get("ny",33), pl->get("nz",2), pl->get("nf",32) );
+  auto gridSizeGlobal = Pimpact::createGridSizeGlobal<O,d>( pl->get("nx",33), pl->get("ny",33), pl->get("nz",2), pl->get("nf",32) );
 
   auto gridSizeLocal = Pimpact::createGridSizeLocal<O,d>( gridSizeGlobal, procGridSize, stencilWidths );
 
@@ -87,7 +85,7 @@ TEUCHOS_UNIT_TEST( IndexSpace, local_consistency ) {
 
   auto fieldSpace = Pimpact::createStencilWidths<d,4>();
 
-  auto indexSpace = Pimpact::createIndexSpace<O,d>( fieldSpace, gridSizeLocal, boundaryConditionsLocal, false );
+  auto indexSpace = Pimpact::createIndexSpace<O,d>( fieldSpace, gridSizeLocal, boundaryConditionsLocal );
 
   indexSpace->print();
 
@@ -96,11 +94,7 @@ TEUCHOS_UNIT_TEST( IndexSpace, local_consistency ) {
 
 
 TEUCHOS_UNIT_TEST( Space, GlobalGridCoordinates ) {
-  // init impact
-  if( !isImpactInit ) {
-    init_impact(0,0);
-    isImpactInit=true;
-  }
+
   auto space = Pimpact::createSpace();
 
   auto coord = space->getCoordinatesGlobal();
@@ -111,11 +105,7 @@ TEUCHOS_UNIT_TEST( Space, GlobalGridCoordinates ) {
 
 
 TEUCHOS_UNIT_TEST( Space, LocalGridCoordinates ) {
-  // init impact
-  if( !isImpactInit ) {
-    init_impact(0,0);
-    isImpactInit=true;
-  }
+
   auto space = Pimpact::createSpace();
 
   auto coord = Pimpact::createGridCoordinatesLocal(

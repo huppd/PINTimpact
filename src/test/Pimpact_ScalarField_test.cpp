@@ -78,7 +78,7 @@ TEUCHOS_STATIC_SETUP() {
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, create_init_print, FType ) {
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, false );
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   space->print();
 
@@ -99,7 +99,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, create_init_print, CMF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, InfNorm_and_init, FType ) {
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, false );
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>(space);
 
@@ -140,7 +140,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, InfNorm_and_init, CMF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, OneNorm_and_init, FType ) {
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, false );
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>(space);
 
@@ -164,7 +164,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, OneNorm_and_init, CMF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, TwoNorm_and_init, FType ) {
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, false );
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>(space);
 
@@ -186,7 +186,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, TwoNorm_and_init, CMF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, dot, FType ) {
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, false );
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto vel1 = Pimpact::create<FType>(space);
   auto vel2 = Pimpact::create<FType>(space);
@@ -231,7 +231,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, dot, CMF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, scale, FType ) {
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, false );
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>(space);
 
@@ -256,7 +256,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, scale, CMF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, random, FType ) {
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, false );
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>(space);
 
@@ -281,7 +281,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, random, CMF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TemplateField, add, FType ) {
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, false );
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto vel1 = Pimpact::create<FType>(space);
   auto vel2 = Pimpact::create<FType>(space);
@@ -331,7 +331,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TemplateField, add, CMF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, write, FType ) {
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, false );
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>( space );
 
@@ -355,7 +355,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, write, CMF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, write_restart, FType ) {
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, false );
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>(space);
 
@@ -374,11 +374,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, write_restart, VF )
 
 TEUCHOS_UNIT_TEST( ScalarField, initField ) {
 
-  auto space = Pimpact::createSpace( pl, false );
+  auto space = Pimpact::createSpace( pl );
 
   auto x = Pimpact::createScalarField( space );
 
-  for( int i=0; i<=6; ++i ) {
+  for( int i=0; i<=7; ++i ) {
     x->initField( Pimpact::EScalarField(i) );
     x->write( i );
   }
