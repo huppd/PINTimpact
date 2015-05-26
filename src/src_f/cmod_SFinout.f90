@@ -292,6 +292,7 @@ contains
         NB,                     &
         iB,                     &
         iShift,                 &
+        dir_name,               &
         vel_dir,                &
         filecount,              &
         namelen,                &
@@ -334,6 +335,8 @@ contains
         integer(c_int), intent(in) :: iB(1:3)
 
         integer(c_int), intent(in) :: iShift(1:3)
+
+        integer(c_int), intent(in) :: dir_name
 
         integer(c_int), intent(in) :: vel_dir
 
@@ -380,8 +383,6 @@ contains
 
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-
-        !        integer, intent(in)    ::  vel_dir > ftype
         integer(c_int), intent(in)    ::  stride(1:3)
 
 
@@ -404,16 +405,16 @@ contains
         !===========================================================================================================
         !  call num_to_string(5,write_count,count_char)
         call num_to_string(rank,5,filecount,count_char)
-        if( 1==vel_dir ) filename = 'velX_'//count_char
-        if( 2==vel_dir ) filename = 'velY_'//count_char
-        if( 3==vel_dir ) filename = 'velZ_'//count_char
-        if( 5==vel_dir ) filename = 'pre_'//count_char
+        if( 1==dir_name ) filename = 'velX_'//count_char
+        if( 2==dir_name ) filename = 'velY_'//count_char
+        if( 3==dir_name ) filename = 'velZ_'//count_char
+        if( 5==dir_name ) filename = 'pre_'//count_char
         !        filename = 'pre_'//count_char
         !
-        if( 1==vel_dir ) dsetname = 'velX'
-        if( 2==vel_dir ) dsetname = 'velY'
-        if( 3==vel_dir ) dsetname = 'velZ'
-        if( 5==vel_dir ) dsetname = 'pre'
+        if( 1==dir_name ) dsetname = 'velX'
+        if( 2==dir_name ) dsetname = 'velY'
+        if( 3==dir_name ) dsetname = 'velZ'
+        if( 5==dir_name ) dsetname = 'pre'
         !        dsetname = 'pre'
         !===========================================================================================================
 

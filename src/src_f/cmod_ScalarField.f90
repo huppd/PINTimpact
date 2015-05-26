@@ -605,6 +605,7 @@ contains
 
         integer(c_int)               ::  i,j,k
 
+        write(*,*) "i,           j,           k,           phi(i,j,k)"
 
         do k = SS(3), NN(3)
             do j = SS(2), NN(2)
@@ -874,6 +875,57 @@ contains
         end do
 
     end subroutine SF_init_2DGradZ
+
+
+
+    subroutine SF_init_Vpoint(  &
+        N,                      &
+        bL,bU,                  &
+        SS,NN,                  &
+        x1,                     &
+        x2,                     &
+        x3,                     &
+        xc,                     &
+        amp,                    &
+        sig,                    &
+        phi ) bind ( c, name='SF_init_Vpoint' )
+        ! (basic subroutine)
+
+        implicit none
+
+        integer(c_int), intent(in)    ::  N(3)
+
+        integer(c_int), intent(in)     :: bL(3)
+        integer(c_int), intent(in)     :: bU(3)
+
+        integer(c_int), intent(in)     :: SS(3)
+        integer(c_int), intent(in)     :: NN(3)
+
+
+        real(c_double), intent(in)     :: x1( bL(1):(N(1)+bU(1)) )
+        real(c_double), intent(in)     :: x2( bL(2):(N(2)+bU(2)) )
+        real(c_double), intent(in)     :: x3( bL(2):(N(2)+bU(2)) )
+
+        real(c_double), intent(in)     :: xc(3)
+
+        real(c_double), intent(in)     :: sig(3)
+        real(c_double), intent(in)     :: amp
+
+        real(c_double),  intent(inout) :: phi(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+
+
+        integer(c_int)               ::  i, j, k
+
+
+        do k = SS(3), NN(3)
+            do j = SS(2), NN(2)
+                do i = SS(1), NN(1)
+                    phi(i,j,k) = amp*exp( -( (x1(i)-xc(1) )/sig(1) )**2 -( ( x2(j)-xc(2) )/sig(2) )**2 -( ( x3(k)-xc(3) )/sig(3) )**2 )
+                end do
+            end do
+        end do
+
+    end subroutine SF_init_Vpoint
 
 
 
