@@ -39,10 +39,11 @@ const int d = 3;
 const int dNC = 2;
 
 typedef Pimpact::Space<S,O,d,dNC> SpaceT;
-bool testMpi = true;
 
+
+bool testMpi = true;
 S eps = 1.e0;
-bool isImpactInit = false;
+auto pl = Teuchos::parameterList();
 
 template<class T> using ConvDiffOpT = Pimpact::ConvectionVOp<Pimpact::ConvectionDiffusionSOp<T> >;
 
@@ -57,44 +58,449 @@ TEUCHOS_STATIC_SETUP() {
   clp.setOption(
       "eps", &eps,
       "epsilon used to check test results" );
+
+  pl->set( "dim", 3 );
+  pl->set( "domain", 0 );
+
+  pl->set("nx", 65 );
+  pl->set("ny", 65 );
+  pl->set("nz", 9 );
+
+  pl->set("lx", 2. );
+  pl->set("ly", 2. );
+
+  pl->set("Re", 1. );
 }
 
+
+
+//TEUCHOS_UNIT_TEST( NOXPimpact_LinearStokes, createLinearStokes ) {
+//
+//
+//  typedef double S;
+//  typedef int O;
+//  typedef Pimpact::ScalarField<S,O> SF;
+//  typedef Pimpact::VectorField<S,O> VF;
+//  typedef Pimpact::ModeField<SF> MSF;
+//  typedef Pimpact::ModeField<VF> MVF;
+//  typedef Pimpact::MultiField<MSF> BMSF;
+//  typedef Pimpact::MultiField<MVF> BMVF;
+//  typedef Pimpact::CompoundField< BMVF, BMSF > CF;
+//  typedef NOX::Pimpact::Vector<CF> NV;
+//  typedef NOX::Pimpact::LinearStokes Interface;
+//
+//  auto fS  = Pimpact::createStencilWidths<O>();
+//  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+//  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+//
+//  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFlow, fS, iIS, fIS );
+//
+//  auto xs = Pimpact::createInitMSF<S,O>( fS );
+//
+//  auto x  = Pimpact::createCompoundField( xv, xs );
+//
+//  auto dtL = Pimpact::createMultiOperatorBase<BMVF,Pimpact::DtL<S,O> >( Pimpact::createDtL<S,O>(1.,0.,1.) );
+//
+//  // Make an empty new parameter list.
+//  auto solverName = "GMRES";
+//  auto solverParams = Pimpact::createLinSolverParameter( solverName, 1.e-1 );
+//  solverParams->set ("Verbosity",  Belos::Errors );
+//
+//// Create the Pimpact::LinearSolver solver.
+//  auto lp_DTL = Pimpact::createLinearProblem<Interface::BVF>(
+//      dtL, xv->clone(), xv->clone(), solverParams, solverName );
+//
+//  auto schur = Pimpact::createMultiOperatorBase< BMSF, Pimpact::DivDtLinvGrad<S,O> >(
+//      Pimpact::createDivDtLinvGrad<S,O>( xv->clone(), lp_DTL ) );
+//
+//  auto lp_Schur = Pimpact::createLinearProblem<Interface::BSF>(
+//      schur, xs->clone(), xs->clone(), solverParams, solverName );
+//
+//  auto stockie = NOX::Pimpact::createLinearStokes(xv->clone(),xs->clone(),lp_DTL,lp_Schur);
+//}
+
+
+
+//TEUCHOS_UNIT_TEST( NOXPimpact_LinearStokes, computeF ) {
+//
+//  typedef double S;
+//  typedef int O;
+//  typedef Pimpact::ScalarField<S,O> SF;
+//  typedef Pimpact::VectorField<S,O> VF;
+//  typedef Pimpact::ModeField<SF> MSF;
+//  typedef Pimpact::ModeField<VF> MVF;
+//  typedef Pimpact::MultiField< MSF> BMSF;
+//  typedef Pimpact::MultiField< MVF> BMVF;
+//  typedef Pimpact::CompoundField< BMVF, BMSF > CF;
+//  typedef NOX::Pimpact::Vector<CF> NV;
+//  typedef NOX::Pimpact::LinearStokes Interface;
+//
+//  auto fS  = Pimpact::createStencilWidths<O>();
+//  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+//  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+//
+//  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFlow, fS, iIS, fIS );
+//
+//  auto xs = Pimpact::createInitMSF<S,O>( fS );
+//
+//  auto x  = Pimpact::createCompoundField( xv, xs );
+//
+//  Teuchos::RCP<NV> X = Teuchos::rcp(new NV(x) );
+//  Teuchos::RCP<NV> F = Teuchos::rcp_dynamic_cast<NV>( X->clone() );
+//
+//  auto dtL = Pimpact::createMultiOperatorBase<BMVF,Pimpact::DtL<S,O> >( Pimpact::createDtL<S,O>(1.,0.,1.) );
+//
+//  // Make an empty new parameter list.
+//  auto solverName = "GMRES";
+//  auto solverParams = Pimpact::createLinSolverParameter( solverName, 1.e-1 );
+//  solverParams->set ("Verbosity",  Belos::Errors );
+//
+//// Create the Pimpact::LinearSolver solver.
+//  auto lp_DTL = Pimpact::createLinearProblem<Interface::BVF>(
+//      dtL, xv->clone(), xv->clone(), solverParams, solverName );
+//
+//  auto schur = Pimpact::createMultiOperatorBase< BMSF, Pimpact::DivDtLinvGrad<S,O> >(
+//      Pimpact::createDivDtLinvGrad<S,O>( xv->clone(), lp_DTL ) );
+//
+//  auto lp_Schur = Pimpact::createLinearProblem<Interface::BSF>(
+//      schur, xs->clone(), xs->clone(), solverParams, solverName );
+//
+//  auto stockie = NOX::Pimpact::createLinearStokes(xv->clone(),xs->clone(),lp_DTL,lp_Schur);
+//
+//
+//  NOX::Abstract::Group::ReturnType succes = stockie->computeF( X->getConstField(), F->getField() );
+//
+//  TEST_EQUALITY( NOX::Abstract::Group::Ok, succes);
+//}
+
+
+
+//TEUCHOS_UNIT_TEST( NOXPimpact_LinearStokes, computeJacobian ) {
+//
+//  typedef double S;
+//  typedef int O;
+//  typedef Pimpact::ScalarField<S,O> SF;
+//  typedef Pimpact::VectorField<S,O> VF;
+//  typedef Pimpact::ModeField<SF> MSF;
+//  typedef Pimpact::ModeField<VF> MVF;
+//  typedef Pimpact::MultiField< MSF> BMSF;
+//  typedef Pimpact::MultiField< MVF> BMVF;
+//  typedef Pimpact::CompoundField< BMVF, BMSF > CF;
+//  typedef NOX::Pimpact::Vector<CF> NV;
+//  typedef NOX::Pimpact::LinearStokes Interface;
+//
+//  auto fS  = Pimpact::createStencilWidths<O>();
+//  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+//  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+//
+//  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFlow, fS, iIS, fIS );
+//
+//  auto xs = Pimpact::createInitMSF<S,O>( fS );
+//
+//  auto x  = Pimpact::createCompoundField( xv, xs );
+//
+//  Teuchos::RCP<NV> X = Teuchos::rcp(new NV(x) );
+//  Teuchos::RCP<NV> F = Teuchos::rcp_dynamic_cast<NV>( X->clone() );
+//
+//  auto dtL = Pimpact::createMultiOperatorBase<BMVF,Pimpact::DtL<S,O> >( Pimpact::createDtL<S,O>(1.,0.,1.) );
+//
+//  // Make an empty new parameter list.
+//  auto solverName = "GMRES";
+//  auto solverParams = Pimpact::createLinSolverParameter( solverName, 1.e-1 );
+//  solverParams->set ("Verbosity",  Belos::Errors );
+//
+//// Create the Pimpact::LinearSolver solver.
+//  auto lp_DTL = Pimpact::createLinearProblem<Interface::BVF>(
+//      dtL, xv->clone(), xv->clone(), solverParams, solverName );
+//
+//  auto schur = Pimpact::createMultiOperatorBase< BMSF, Pimpact::DivDtLinvGrad<S,O> >(
+//      Pimpact::createDivDtLinvGrad<S,O>( xv->clone(), lp_DTL ) );
+//
+//  auto lp_Schur = Pimpact::createLinearProblem<Interface::BSF>(
+//      schur, xs->clone(), xs->clone(), solverParams, solverName );
+//
+//  auto stockie = NOX::Pimpact::createLinearStokes(xv->clone(), xs->clone(),lp_DTL,lp_Schur);
+//
+//
+//  NOX::Abstract::Group::ReturnType succes = stockie->computeJacobian( X->getConstField() );
+//
+//  TEST_EQUALITY( NOX::Abstract::Group::Ok, succes);
+//}
+
+
+
+//TEUCHOS_UNIT_TEST( NOXPimpact_LinearStokes, applyJacobian ) {
+//
+//  typedef double S;
+//  typedef int O;
+//  typedef Pimpact::ScalarField<S,O> SF;
+//  typedef Pimpact::VectorField<S,O> VF;
+//  typedef Pimpact::ModeField<SF> MSF;
+//  typedef Pimpact::ModeField<VF> MVF;
+//  typedef Pimpact::MultiField< MSF> BMSF;
+//  typedef Pimpact::MultiField< MVF> BMVF;
+//  typedef Pimpact::CompoundField< BMVF, BMSF > CF;
+//  typedef NOX::Pimpact::Vector<CF> NV;
+//  typedef NOX::Pimpact::LinearStokes Interface;
+//
+//  auto fS  = Pimpact::createStencilWidths<O>();
+//  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+//  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+//
+//  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFlow, fS, iIS, fIS );
+//
+//  auto xs = Pimpact::createInitMSF<S,O>( fS );
+//
+//  auto x  = Pimpact::createCompoundField( xv, xs );
+//
+//  Teuchos::RCP<NV> X = Teuchos::rcp(new NV(x) );
+//  Teuchos::RCP<NV> F = Teuchos::rcp_dynamic_cast<NV>( X->clone() );
+//
+//  auto dtL = Pimpact::createMultiOperatorBase<BMVF,Pimpact::DtL<S,O> >( Pimpact::createDtL<S,O>(1.,0.,1.) );
+//
+//  // Make an empty new parameter list.
+//  auto solverName = "GMRES";
+//  auto solverParams = Pimpact::createLinSolverParameter( solverName, 1.e-1 );
+//  solverParams->set ("Verbosity",  Belos::Errors );
+//
+//// Create the Pimpact::LinearSolver solver.
+//  auto lp_DTL = Pimpact::createLinearProblem<Interface::BVF>(
+//      dtL, xv->clone(), xv->clone(), solverParams, solverName );
+//
+//  auto schur = Pimpact::createMultiOperatorBase< BMSF, Pimpact::DivDtLinvGrad<S,O> >(
+//      Pimpact::createDivDtLinvGrad<S,O>( xv->clone(), lp_DTL ) );
+//
+//  auto lp_Schur = Pimpact::createLinearProblem<Interface::BSF>(
+//      schur, xs->clone(), xs->clone(), solverParams, solverName );
+//
+//  auto stockie = NOX::Pimpact::createLinearStokes(xv->clone(),xs->clone(),lp_DTL,lp_Schur);
+//
+//
+//  NOX::Abstract::Group::ReturnType succes = stockie->applyJacobian( X->getConstField(), F->getField() );
+//
+//  TEST_EQUALITY( NOX::Abstract::Group::Ok, succes);
+//}
+
+
+//TEUCHOS_UNIT_TEST( NOXPimpact_LinearStokes, applyJacobianInverse ) {
+//
+//  typedef double S;
+//  typedef int O;
+//  typedef Pimpact::ScalarField<S,O> SF;
+//  typedef Pimpact::VectorField<S,O> VF;
+//  typedef Pimpact::ModeField<SF> MSF;
+//  typedef Pimpact::ModeField<VF> MVF;
+//  typedef Pimpact::MultiField< MSF> BMSF;
+//  typedef Pimpact::MultiField< MVF> BMVF;
+//  typedef Pimpact::CompoundField< BMVF, BMSF > CF;
+//  typedef NOX::Pimpact::Vector<CF> NV;
+//  typedef NOX::Pimpact::LinearStokes Interface;
+//
+//  auto fS  = Pimpact::createStencilWidths<O>();
+//  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+//  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+//
+//  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFlow, fS, iIS, fIS );
+//
+//  auto xs = Pimpact::createInitMSF<S,O>( fS );
+//
+//  auto x  = Pimpact::createCompoundField( xv, xs );
+//
+//  Teuchos::RCP<NV> X = Teuchos::rcp(new NV(x) );
+//  Teuchos::RCP<NV> F = Teuchos::rcp_dynamic_cast<NV>( X->clone() );
+//
+//  auto dtL = Pimpact::createMultiOperatorBase<BMVF,Pimpact::DtL<S,O> >( Pimpact::createDtL<S,O>(1.,0.,1.) );
+//
+//  // Make an empty new parameter list.
+//  auto solverName = "GMRES";
+//  auto solverParams = Pimpact::createLinSolverParameter( solverName, 1.e-1 );
+//  solverParams->set ("Verbosity",  Belos::Errors );
+//
+//// Create the Pimpact::LinearSolver solver.
+//  auto lp_DTL = Pimpact::createLinearProblem<Interface::BVF>(
+//      dtL, xv->clone(), xv->clone(), solverParams, solverName );
+//
+//  auto schur = Pimpact::createMultiOperatorBase< BMSF, Pimpact::DivDtLinvGrad<S,O> >(
+//      Pimpact::createDivDtLinvGrad<S,O>( xv->clone(), lp_DTL ) );
+//
+//  auto lp_Schur = Pimpact::createLinearProblem<Interface::BSF>(
+//      schur, xs->clone(), xs->clone(), solverParams, solverName );
+//
+//  auto stockie = NOX::Pimpact::createLinearStokes(xv->clone(),xs->clone(),lp_DTL,lp_Schur);
+//
+//
+////  NOX::Abstract::Group::ReturnType succes = stockie->applyJacobianInverse(Teuchos::parameterList(), X->getConstField(), F->getField() );
+//
+////  TEST_EQUALITY( NOX::Abstract::Group::Ok, succes);
+//}
+
+
+//TEUCHOS_UNIT_TEST( NOXPimpact_SimpleNonlinear, computeF ) {
+//
+//  using Teuchos::ParameterList;
+//  using Teuchos::parameterList;
+//  using Teuchos::RCP;
+//  using Teuchos::rcp; // Save some typing
+//
+//  typedef double S;
+//  typedef int O;
+//  typedef Pimpact::VectorField<S,O> VF;
+//  typedef Pimpact::MultiField<VF> MVF;
+//  typedef Pimpact::ConvectionOp<S,O>  OP;
+//  typedef Pimpact::OperatorBase<MVF>  BOP;
+//
+//  auto fS = Pimpact::createStencilWidths<O>();
+//  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+//  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+//
+//  auto vel = Pimpact::createVectorField<S,O>(fS,iIS,fIS);
+//
+//
+//  auto x = Pimpact::createMultiField<VF>(*vel->clone(),10);
+//  auto y = Pimpact::createMultiField<VF>(*vel->clone(),10);
+//
+//  auto op = Pimpact::createMultiOperatorBase<MVF,OP>();
+//
+//  for( int i=0; i<10; ++i ) {
+//    x->getFieldPtr(i)->initField(Pimpact::Circle2D );
+//  }
+////  x->random();
+//x->getFieldPtr(0)->write();
+//
+//  op->apply( *x, *y);
+//
+//  y->getFieldPtr(0)->write(99);
+//
+//  auto lp = Pimpact::createLinearProblem<MVF>(
+//        op, x->clone(), y->clone(), Pimpact::createLinSolverParameter("GMRES",1.e-12), "GMRES");
+//  auto inter = NOX::Pimpact::createSimpleNonlinear( y, op, lp );
+//
+////  bool succes = inter->computeF( *x, *f );
+//
+////  TEST_EQUALITY( true, succes);
+//}
+
+
+
+//TEUCHOS_UNIT_TEST( NOXPimpact_Group, createGroup ) {
+//
+//  typedef double S;
+//  typedef int O;
+//  typedef Pimpact::ScalarField<S,O> SF;
+//  typedef Pimpact::VectorField<S,O> VF;
+//  typedef Pimpact::ModeField<SF> MSF;
+//  typedef Pimpact::ModeField<VF> MVF;
+//  typedef Pimpact::MultiField< MSF> BMSF;
+//  typedef Pimpact::MultiField< MVF> BMVF;
+//  typedef Pimpact::CompoundField< BMVF, BMSF > CF;
+//  typedef NOX::Pimpact::Vector<CF> NV;
+//  typedef NOX::Pimpact::Interface<> Interface;
+//
+//  auto fS  = Pimpact::createStencilWidths<O>();
+//  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+//  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+//
+//  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFlow, fS, iIS, fIS );
+//
+//  auto xs = Pimpact::createInitMSF<S,O>( fS );
+//
+//  auto x  = Pimpact::createCompoundField( xv, xs );
+//
+//  auto dtL = Pimpact::createMultiOperatorBase<BMVF,Pimpact::DtL<S,O> >( Pimpact::createDtL<S,O>(1.,0.,1.) );
+//
+//  // Make an empty new parameter list.
+//  auto solverName = "GMRES";
+//  auto solverParams = Pimpact::createLinSolverParameter( solverName, 1.e-1 );
+//  solverParams->set ("Verbosity",  Belos::Errors );
+//
+//// Create the Pimpact::LinearSolver solver.
+//  auto lp_DTL = Pimpact::createLinearProblem<Interface::BVF>(
+//      dtL, xv->clone(), xv->clone(), solverParams, solverName );
+//
+//  auto schur = Pimpact::createMultiOperatorBase< BMSF, Pimpact::DivDtLinvGrad<S,O> >(
+//      Pimpact::createDivDtLinvGrad<S,O>( xv->clone(), lp_DTL ) );
+//
+//  auto lp_Schur = Pimpact::createLinearProblem<Interface::BSF>(
+//      schur, xs->clone(), xs->clone(), solverParams, solverName );
+//
+//  auto stockie = NOX::Pimpact::createLinearStokes(xv->clone(),xs->clone(),lp_DTL,lp_Schur);
+//
+//  Teuchos::RCP<NV> nx = Teuchos::rcp(new NV(x) );
+//
+//  auto bla = Teuchos::parameterList();
+//  NOX::Pimpact::Group<NOX::Pimpact::LinearStokes> asdfasdf( *bla, stockie, *nx );
+//
+//  auto blabla = NOX::Pimpact::createGroup<NOX::Pimpact::LinearStokes>( bla, stockie, nx );
+//}
+
+
+//TEUCHOS_UNIT_TEST( NOXPimpact_Group, computeF ) {
+//
+//  typedef double S;
+//  typedef int O;
+//  typedef Pimpact::ScalarField<S,O> SF;
+//  typedef Pimpact::VectorField<S,O> VF;
+//  typedef Pimpact::ModeField<SF> MSF;
+//  typedef Pimpact::ModeField<VF> MVF;
+//  typedef Pimpact::MultiField< MSF> BMSF;
+//  typedef Pimpact::MultiField< MVF> BMVF;
+//  typedef Pimpact::CompoundField< BMVF, BMSF > CF;
+//  typedef NOX::Pimpact::Vector<CF> NV;
+//  typedef NOX::Pimpact::LinearStokes Interface;
+//
+//  auto fS  = Pimpact::createStencilWidths<O>();
+//  auto iIS = Pimpact::createInnerFieldIndexSpaces<O>();
+//  auto fIS = Pimpact::createFullFieldIndexSpaces<O>();
+//
+//  auto xv = Pimpact::createInitMVF<S,O>(Pimpact::Zero2DFlow, fS, iIS, fIS );
+//
+//  auto xs = Pimpact::createInitMSF<S,O>( fS );
+//
+//  auto x  = Pimpact::createCompoundField( xv, xs );
+//
+//  auto dtL = Pimpact::createMultiOperatorBase<BMVF,Pimpact::DtL<S,O> >( Pimpact::createDtL<S,O>(1.,0.,1.) );
+//
+//  // Make an empty new parameter list.
+//  auto solverName = "GMRES";
+//  auto solverParams = Pimpact::createLinSolverParameter( solverName, 1.e-1 );
+//  solverParams->set ("Verbosity",  Belos::Errors );
+//
+//// Create the Pimpact::LinearSolver solver.
+//  auto lp_DTL = Pimpact::createLinearProblem<Interface::BVF>(
+//      dtL, xv->clone(), xv->clone(), solverParams, solverName );
+//
+//  auto schur = Pimpact::createMultiOperatorBase< BMSF, Pimpact::DivDtLinvGrad<S,O> >(
+//      Pimpact::createDivDtLinvGrad<S,O>( xv->clone(), lp_DTL ) );
+//
+//  auto lp_Schur = Pimpact::createLinearProblem<Interface::BSF>(
+//      schur, xs->clone(), xs->clone(), solverParams, solverName );
+//
+//  auto stockie = NOX::Pimpact::createLinearStokes(xv->clone(),xs->clone(),lp_DTL,lp_Schur);
+//
+//  Teuchos::RCP<NV> nx = Teuchos::rcp(new NV(x) );
+//
+//  auto bla = Teuchos::parameterList();
+//  NOX::Pimpact::Group<NOX::Pimpact::LinearStokes> group( *bla, stockie, *nx );
+//
+//  group.computeF();
+//
+//}
 
 
 TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
 
   typedef Pimpact::VectorField<SpaceT> VF;
 
-  typedef Pimpact::MultiField<VF> MVF;
-
-//  typedef Pimpact::ConvectionJacobianOp<SpaceT>  JOp1;
-//  typedef Pimpact::HelmholtzOp<SpaceT>  JOp2;
+	typedef Pimpact::MultiField<VF> MVF;
 
 
   typedef NOX::Pimpact::Interface<MVF> Inter;
   typedef NOX::Pimpact::Vector<typename Inter::Field> NV;
 
-  int rank = 0;
 
-  auto pl = Teuchos::parameterList();
-  pl->set( "domain", 1 );
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
-  pl->set("nx", 257 );
-  pl->set("ny", 257 );
-  pl->set("lx", 2. );
-  pl->set("ly", 2. );
-//
-//  pl->set("nx", 125 ); pl->set("ny", 125 );
-
-//  pl->set("nx", 65 );
-//  pl->set("ny", 65 );
-
-  pl->set("Re", 1./eps );
-
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl, !isImpactInit );
-
-
-  if( !isImpactInit ) isImpactInit=true;
+  int rank = space->rankST();
 
   auto vel = Pimpact::create<Pimpact::VectorField>( space );
 
@@ -106,105 +512,103 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
 
  auto sop = Pimpact::create<ConvDiffOpT>( space ); ;
 
+ auto op =
+	 Pimpact::createOperatorBase(
+			 Pimpact::createMultiOpWrap(
+				 sop
+				 )
+			 );
 
-  auto op =
-      Pimpact::createOperatorBase(
-          Pimpact::createMultiOpWrap(
-              sop
-          )
-      );
+ auto smoother =
+	 Pimpact::createOperatorBase(
+			 Pimpact::createMultiOpWrap(
+				 Pimpact::create<
+				 Pimpact::ConvectionVSmoother<
+				 ConvDiffOpT<Pimpact::Space<S,O,d,dNC> > ,
+				 Pimpact::ConvectionDiffusionSORSmoother > > (
+					 sop
+					 )
+				 )
+			 );
 
-  auto smoother =
-      Pimpact::createOperatorBase(
-          Pimpact::createMultiOpWrap(
-              Pimpact::create<
-                          Pimpact::ConvectionVSmoother<
-                            ConvDiffOpT<Pimpact::Space<S,O,d,dNC> > ,
-                            Pimpact::ConvectionDiffusionSORSmoother > > (
-                                sop
-                            )
-          )
-      );
+ auto jop = op;
 
-  auto jop = op;
+ // init Fields, init and rhs
+ x->getFieldPtr(0)->initField( Pimpact::RankineVortex2D );
+ f->getFieldPtr(0)->initField( Pimpact::ZeroFlow );
 
+// x->write( 97 );
+ op->assignField(*x);
+ op->apply( *x, *f );
+// f->write( 98 );
 
-  // init Fields, init and rhs
-  x->getFieldPtr(0)->initField( Pimpact::RankineVortex2D );
-  f->getFieldPtr(0)->initField( Pimpact::ZeroFlow );
+ x->init( 0. );
 
-  x->write( 97 );
-  op->assignField(*x);
-  op->apply( *x, *f );
-  f->write( 98 );
+ auto para = Pimpact::createLinSolverParameter("GMRES",1.e-6);
 
-  x->init( 0. );
+ auto lp_ = Pimpact::createLinearProblem<MVF>(
+		 jop, x->clone(), f->clone(), para , "GMRES" );
 
-  auto para = Pimpact::createLinSolverParameter("GMRES",1.e-6);
-
-  auto lp_ = Pimpact::createLinearProblem<MVF>(
-      jop, x->clone(), f->clone(), para , "GMRES" );
-
-  lp_->setRightPrec( smoother );
+ lp_->setRightPrec( smoother );
 //  lp_->setLeftPrec( smoother );
 
-  auto lp = Pimpact::createInverseOperatorBase<MVF>( lp_ );
+ auto lp = Pimpact::createInverseOperatorBase<MVF>( lp_ );
 
-  auto inter = NOX::Pimpact::createInterface<MVF>( f, op, lp );
+ auto inter = NOX::Pimpact::createInterface<MVF>( f, op, lp );
 
-  auto nx = NOX::Pimpact::createVector( x );
+ auto nx = NOX::Pimpact::createVector( x );
 
-  auto bla = Teuchos::parameterList();
+ auto bla = Teuchos::parameterList();
 
-  auto group = NOX::Pimpact::createGroup( bla, inter, nx );
+ auto group = NOX::Pimpact::createGroup( bla, inter, nx );
 
-  // Set up the status tests
-  auto statusTest = NOX::Pimpact::createStatusTest();
+ // Set up the status tests
+ auto statusTest = NOX::Pimpact::createStatusTest();
 
-  // Create the list of solver parameters
-  Teuchos::RCP<Teuchos::ParameterList> solverParametersPtr =
-    Teuchos::rcp(new Teuchos::ParameterList);
-
-
-  // Create the line search parameters sublist
-  Teuchos::ParameterList& lineSearchParameters = solverParametersPtr->sublist("Line Search");
-  lineSearchParameters.set("Method","Backtrack");
-  lineSearchParameters.sublist("Backtrack").set("Recovery Step",1.e-12/2.);
+ // Create the list of solver parameters
+ Teuchos::RCP<Teuchos::ParameterList> solverParametersPtr =
+	 Teuchos::rcp(new Teuchos::ParameterList);
 
 
-  // Create the solver
-  Teuchos::RCP<NOX::Solver::Generic> solver =
-    NOX::Solver::buildSolver( group, statusTest, solverParametersPtr);
+ // Create the line search parameters sublist
+ Teuchos::ParameterList& lineSearchParameters = solverParametersPtr->sublist("Line Search");
+ lineSearchParameters.set("Method","Backtrack");
+ lineSearchParameters.sublist("Backtrack").set("Recovery Step",1.e-12/2.);
 
-  // Solve the nonlinear system
-  NOX::StatusTest::StatusType status = solver->solve();
 
-  // Print the parameter list
-  if(rank==0) std::cout << "\n" << "-- Parameter List From Solver --" << "\n";
-  if(rank==0) std::cout << "\n" << status << "\n";
-  if(rank==0) solver->getList().print(std::cout);
+ // Create the solver
+ Teuchos::RCP<NOX::Solver::Generic> solver =
+	 NOX::Solver::buildSolver( group, statusTest, solverParametersPtr);
 
-  // Get the answer
-  *group = solver->getSolutionGroup();
+ // Solve the nonlinear system
+ NOX::StatusTest::StatusType status = solver->solve();
 
-  // Print the answer
-  if(rank==0) std::cout << "\n" << "-- Final Solution From Solver --" << "\n";
-  Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() )->getConstFieldPtr()->write(99);
+ // Print the parameter list
+ if(rank==0) std::cout << "\n" << "-- Parameter List From Solver --" << "\n";
+ if(rank==0) std::cout << "\n" << status << "\n";
+ if(rank==0) solver->getList().print(std::cout);
 
-  auto sol = Teuchos::rcp_const_cast<VF>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() )->getConstFieldPtr()->getConstFieldPtr(0));
-  sol->write(888);
+ // Get the answer
+ *group = solver->getSolutionGroup();
 
-  vel->initField( Pimpact::RankineVortex2D );
+ // Print the answer
+ if(rank==0) std::cout << "\n" << "-- Final Solution From Solver --" << "\n";
+// Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() )->getConstFieldPtr()->write(99);
 
-  auto er = vel->clone();
-  er->initField( Pimpact::ZeroFlow );
-  er->add( 1., *sol, -1., *vel );
-  er->write(100);
+ auto sol = Teuchos::rcp_const_cast<VF>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() )->getConstFieldPtr()->getConstFieldPtr(0) );
+// sol->write(888);
 
-  std::cout << " error: " << er->norm() << "\n";
-  TEST_EQUALITY( er->norm() < 1.e-6, true );
+ vel->initField( Pimpact::RankineVortex2D );
 
-  Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(999);
+ auto er = vel->clone();
+ er->initField( Pimpact::ZeroFlow );
+ er->add( 1., *sol, -1., *vel );
+// er->write(100);
+
+ std::cout << " error: " << er->norm() << "\n";
+ TEST_EQUALITY( er->norm() < 1.e-4, true );
+
+// Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(999);
 
 }
 

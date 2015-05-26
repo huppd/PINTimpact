@@ -37,8 +37,8 @@ foreach(dim RANGE 3 3)
 	foreach( domain RANGE 1 1 )
 		add_test( NAME "ScalarFieldTest_domain${domain}_dim${dim}" COMMAND mpirun -np 8 ScalarFieldTest --domain=${domain} --dim=${dim} )
 		add_test( NAME "VectorFieldTest_domain_domain${domain}_dim${dim}" COMMAND mpirun -np 8 VectorFieldTest --domain=${domain} --dim=${dim} ) 
-		add_test( NAME "MultiFieldTest_domain${domain}_dim${dim}" COMMAND mpirun -np 4 MultiFieldTest --domain=${domain} --dim=${dim} )
-		add_test( NAME "MultiHarmonicFieldTest_domain${domain}_dim${dim}" COMMAND mpirun -np 4 MultiHarmonicFieldTest --domain=${domain} --dim=${dim} )
+		add_test( NAME "MultiFieldTest_domain${domain}_dim${dim}" COMMAND mpirun -np 8 MultiFieldTest --domain=${domain} --dim=${dim} )
+		add_test( NAME "MultiHarmonicFieldTest_domain${domain}_dim${dim}" COMMAND mpirun -np 8 MultiHarmonicFieldTest --domain=${domain} --dim=${dim} )
 	endforeach( domain )
 	add_test( NAME "OperatorTest_dim${dim}" COMMAND mpirun -np 8 OperatorTest --dim=${dim} )
 endforeach( dim )
@@ -57,14 +57,6 @@ ADD_EXECUTABLE(NonlinearOperatorTest Teuchos_StandardParallelUnitTestMain.cpp Pi
 TARGET_LINK_LIBRARIES( NonlinearOperatorTest ${Pimpact_TPL_LIBRARIES} ) 
 add_test(NAME NonlinearOperatorTest COMMAND mpirun -np 8 NonlinearOperatorTest)
 
-ADD_EXECUTABLE(BelosSolverTest Teuchos_StandardParallelUnitTestMain.cpp BelosSolvesPimpact_test.cpp )
-TARGET_LINK_LIBRARIES( BelosSolverTest ${Pimpact_TPL_LIBRARIES} ) 
-add_test(NAME BelosSolverTest COMMAND mpirun -np 4 BelosSolverTest)
-
-# ADD_EXECUTABLE(BelosSolverTestBC Teuchos_StandardParallelUnitTestMain.cpp BelosSolvesPimpactBC_test.cpp )
-# TARGET_LINK_LIBRARIES( BelosSolverTestBC ${Pimpact_TPL_LIBRARIES} ) 
-# add_test(NAME BelosSolverTestBC COMMAND mpirun -np 4 BelosSolverTestBC)
-
 ADD_EXECUTABLE(LinearProblemTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_LinearProblem_test.cpp )
 TARGET_LINK_LIBRARIES( LinearProblemTest ${Pimpact_TPL_LIBRARIES} ) 
 add_test(NAME LinearProblemTest COMMAND mpirun -np 4 LinearProblemTest)
@@ -73,18 +65,10 @@ ADD_EXECUTABLE( NOXVectorTest Teuchos_StandardParallelUnitTestMain.cpp NOX_Pimpa
 TARGET_LINK_LIBRARIES( NOXVectorTest ${Pimpact_TPL_LIBRARIES} ) 
 add_test(NAME NOXVectorTest COMMAND mpirun -np 4 NOXVectorTest)
 
-ADD_EXECUTABLE( NOXInterfaceTest Teuchos_StandardParallelUnitTestMain.cpp NOX_Pimpact_Interface_test.cpp )
-TARGET_LINK_LIBRARIES( NOXInterfaceTest ${Pimpact_TPL_LIBRARIES} ) 
-add_test(NAME NOXInterfaceTest COMMAND mpirun -np 4 NOXInterfaceTest)
-
-ADD_EXECUTABLE( NOXGroupTest Teuchos_StandardParallelUnitTestMain.cpp NOX_Pimpact_Group_test.cpp )
-TARGET_LINK_LIBRARIES( NOXGroupTest ${Pimpact_TPL_LIBRARIES} ) 
-add_test(NAME NOXGroupTest COMMAND mpirun -np 4 NOXGroupTest)
-
 ADD_EXECUTABLE( NOXSolvesPimpactTest Teuchos_StandardParallelUnitTestMain.cpp NOXSolvesPimpact_test.cpp )
 TARGET_LINK_LIBRARIES( NOXSolvesPimpactTest ${Pimpact_TPL_LIBRARIES} ) 
 add_test(NAME NOXSolvesPimpactTest COMMAND mpirun -np 4 NOXSolvesPimpactTest)
 
 ADD_EXECUTABLE( MultiGridTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_MultiGrid_test.cpp )
 TARGET_LINK_LIBRARIES( MultiGridTest ${Pimpact_TPL_LIBRARIES} ) 
-add_test( NAME MultiGridTest COMMAND mpirun -np 4 MultiGridTest )
+add_test( NAME MultiGridTest COMMAND mpirun -np 8 MultiGridTest )
