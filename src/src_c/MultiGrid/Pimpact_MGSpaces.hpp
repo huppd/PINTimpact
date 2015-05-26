@@ -52,10 +52,16 @@ public:
       return( spaces_[i] );
   }
 
+	bool participating( int i ) const {
+		return( get(i)->getProcGrid()->participating() );
+	}
+
   void print(  std::ostream& out=std::cout ) const {
 
     for( int i = 0; i<spaces_.size(); ++i ) {
-      out << "-------- space: "<< i << "--------\n";
+      out << "-------------------------\n";
+      out << "-------- grid : "<< i << "--------\n";
+      out << "-------------------------\n";
       spaces_[i]->print(out);
     }
   }

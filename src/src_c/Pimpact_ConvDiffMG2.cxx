@@ -52,7 +52,7 @@ int main( int argi, char** argv ) {
 //	int nwinds = 2;
 	int nwinds = 1;
 
-  S pi = (S)4. * std::atan( (S)1. ) ;
+//  S pi = (S)4. * std::atan( (S)1. ) ;
 
 	for( S re=1.; re<1e6; re*=10 ) {
 //	pl->set<S>( "Re", 100000 );
@@ -135,7 +135,7 @@ int main( int argi, char** argv ) {
 
       for( int phii=0; phii<nwinds; ++phii ) {
 
-        S phi = 2.*pi*phii/(nwinds);
+//        S phi = 2.*pi*phii/(nwinds);
 
         if( space()->rankST()==0 )
           phifile << re << "\t";

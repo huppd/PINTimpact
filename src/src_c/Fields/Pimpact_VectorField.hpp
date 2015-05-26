@@ -329,7 +329,7 @@ public:
 
 
   ///  \brief initializes VectorField with the initial field defined in Fortran
-  void initField( EFlowField flowType = ConstFlow, Scalar re=0., Scalar om=0., Scalar px = 0., Scalar sca=1. ) {
+  void initField( EVectorField flowType = ConstFlow, Scalar re=0., Scalar om=0., Scalar px = 0., Scalar sca=1. ) {
     switch( flowType ) {
     case ZeroFlow :
       for( int i=0; i<space()->dim(); ++i )
@@ -649,7 +649,70 @@ public:
           sFields_[V]->getRawPtr(),
           sFields_[W]->getRawPtr() );
       break;
-    }
+		case SweptHiemenzFlow: {
+			Scalar kappa = 0.;
+			Scalar sweep_angle = 60.;
+			Scalar pi = 4.*std::atan(1.);
+			VF_init_SHBF( 
+					space()->rankST(),      
+					space()->getProcGrid()->getShift(0),
+					space()->getProcGrid()->getIB(0),
+					space()->nGlo(),
+					space()->nLoc(),
+					space()->bl(),
+					space()->bu(),
+					space()->dl(),
+					space()->du(),
+          space()->sIndB(U),
+          space()->eIndB(U),
+          space()->sIndB(V),
+          space()->eIndB(V),
+          space()->sIndB(W),
+          space()->eIndB(W),
+          space()->getCoordinatesGlobal()->getX(X,EField::S),
+          space()->getCoordinatesGlobal()->getX(X,EField::U),
+          space()->getCoordinatesLocal()->getX(Z,EField::W),
+					space()->getInterpolateV2S()->getC( X ),
+					space()->getDomain()->getDomainSize()->getRe(),
+					0,  // nonDim  
+					kappa, // kappa
+					sweep_angle, // sweep_angle_degrees,  
+					sweep_angle*pi/180., // sweep_angle,          
+					0., // angle_attack,         
+          sFields_[U]->getRawPtr(),
+          sFields_[V]->getRawPtr(),
+          sFields_[W]->getRawPtr() );
+			break;
+		}
+		case Disturbance:
+			VF_init_Dist(
+					space()->rankST(),      
+					space()->nLoc(),
+					space()->bl(),
+					space()->bu(),
+          space()->sIndB(U),
+          space()->eIndB(U),
+          space()->sIndB(V),
+          space()->eIndB(V),
+          space()->sIndB(W),
+          space()->eIndB(W),
+					space()->getDomain()->getBCGlobal()->getBCL( Z ),
+          space()->getCoordinatesLocal()->getX( X, EField::U ),
+          space()->getCoordinatesLocal()->getX( X, EField::S ),
+          space()->getCoordinatesLocal()->getX( Y, EField::S ),
+          space()->getCoordinatesLocal()->getX( Z, EField::W ),
+          space()->getCoordinatesLocal()->getX( Z, EField::S ),
+					3, // dist_type,          
+					0.15, // vortex_ampli_prim,  
+					3., // vortex_x1pos,       
+					3., // vortex_x3pos,       
+					3., // vortex_radius,      
+					10, // vortex_band,        
+          sFields_[U]->getRawPtr(),
+          sFields_[V]->getRawPtr(),
+          sFields_[W]->getRawPtr() );
+			break;
+		}
     //    }
     changed();
   }
@@ -669,11 +732,70 @@ public:
   }
 
 
-  void write( int count=0, bool restart=false ) const {
+	void write( int count=0, bool restart=false ) const {
 
-    for( int i=0; i<space()->dim(); ++i )
-      getConstFieldPtr(i)->write( count, restart );
-  }
+		if( 0==space()->rankST() ) {
+			Teuchos::Tuple<Ordinal,3> N;
+			for( int i=0; i<3; ++i ) {
+				N[i] = space()->nGlo(i);
+				if( space()->getDomain()->getBCGlobal()->getBCL(i)==Pimpact::PeriodicBC )
+					N[i] = N[i]-1;
+			}
+			std::ofstream xfile;
+			std::ostringstream ss;
+			ss << std::setw( 5 ) << std::setfill( '0' ) << count;
+			//        std::string fname = "v_"+ss.str();
+			xfile.open( "vel_"+ ss.str() +".xmf", std::ofstream::out );
+			xfile<< "<Xdmf xmlns:xi=\"http://www.w3.org/2003/XInclude\" Version=\"2.1\">\n";
+			xfile << "\t<Domain>\n";
+			xfile << "\t\t<Grid Name=\"3DRectMesh\" GridType=\"Uniform\">\n";
+			xfile << "\t\t\t<Topology TopologyType=\"3DRectMesh\" Dimensions=\""<< N[2] << " " << N[1] << " " << N[0] << "\"/>\n";
+			xfile << "\t\t\t<Geometry GeometryType=\"VXVYVZ\">\n";
+			xfile << "\t\t\t\t<DataItem ItemType=\"Uniform\"\n";
+			xfile << "\t\t\t\t\tDimensions=\""<< N[0] << "\"\n";
+			xfile << "\t\t\t\t\tNumberType=\"Float\"\n";
+			xfile << "\t\t\t\t\tPrecision=\"8\"\n";
+			xfile << "\t\t\t\t\tFormat=\"HDF\">\n";
+			xfile << "\t\t\t\t\tvelX_"<< ss.str() << ".h5:/VectorX\n";
+			xfile << "\t\t\t\t</DataItem>\n";
+			xfile << "\t\t\t\t<DataItem ItemType=\"Uniform\"\n";
+			xfile << "\t\t\t\t\tDimensions=\""<< N[1] << "\"\n";
+			xfile << "\t\t\t\t\tNumberType=\"Float\"\n";
+			xfile << "\t\t\t\t\tPrecision=\"8\"\n";
+			xfile << "\t\t\t\t\tFormat=\"HDF\">\n";
+			xfile << "\t\t\t\t\tvelX_"<< ss.str() << ".h5:/VectorY\n";
+			xfile << "\t\t\t\t</DataItem>\n";
+			xfile << "\t\t\t\t<DataItem ItemType=\"Uniform\"\n";
+				xfile << "\t\t\t\t\tDimensions=\""<< N[2] << "\"\n";
+			xfile << "\t\t\t\t\tNumberType=\"Float\"\n";
+			xfile << "\t\t\t\t\tPrecision=\"8\"\n";
+			xfile << "\t\t\t\t\tFormat=\"HDF\">\n";
+			xfile << "\t\t\t\t\tvelX_"<< ss.str() << ".h5:/VectorZ\n";
+			xfile << "\t\t\t\t</DataItem>\n";
+			xfile << "\t\t\t</Geometry>\n";
+			xfile << "\t\t\t<Attribute Name=\"VelX\" AttributeType=\"Scalar\" Center=\"Node\">\n";
+			xfile << "\t\t\t\t<DataItem Dimensions=\""<< N[2] << " " << N[1] << " " << N[0] << "\" NumberType=\"Float\" Precision=\"8\" Format=\"HDF\">\n";
+			xfile << "\t\t\t\t\tvelX_"<< ss.str() << ".h5:/velX\n";
+			xfile << "\t\t\t\t</DataItem>\n";
+			xfile << "\t\t\t</Attribute>\n";
+			xfile << "\t\t\t<Attribute Name=\"VelY\" AttributeType=\"Scalar\" Center=\"Node\">\n";
+			xfile << "\t\t\t\t<DataItem Dimensions=\""<< N[2] << " " << N[1] << " " << N[0] << "\" NumberType=\"Float\" Precision=\"8\" Format=\"HDF\">\n";
+			xfile << "\t\t\t\t\tvelY_"<< ss.str() << ".h5:/velY\n";
+			xfile << "\t\t\t\t</DataItem>\n";
+			xfile << "\t\t\t</Attribute>\n";
+			xfile << "\t\t\t<Attribute Name=\"VelZ\" AttributeType=\"Scalar\" Center=\"Node\">\n";
+			xfile << "\t\t\t\t<DataItem Dimensions=\""<< N[2] << " " << N[1] << " " << N[0] << "\" NumberType=\"Float\" Precision=\"8\" Format=\"HDF\">\n";
+			xfile << "\t\t\t\t\tvelZ_"<< ss.str() << ".h5:/velZ\n";
+			xfile << "\t\t\t\t</DataItem>\n";
+			xfile << "\t\t\t</Attribute>\n";
+			xfile << "\t\t</Grid>\n";
+			xfile << "\t</Domain>\n";
+			xfile << "</Xdmf>\n";
+			xfile.close();
+		}
+		for( int i=0; i<space()->dim(); ++i )
+			getConstFieldPtr(i)->write( count, restart );
+	}
 
 
 public:

@@ -227,7 +227,7 @@ public:
         space()->eInd(fType_),
         s_,
         y.s_ );
-    changed();
+		changed();
   }
 
 
@@ -419,6 +419,15 @@ public:
         space()->sInd(fType_),
         space()->eInd(fType_),
         s_);
+		if( !space()->getProcGrid()->participating() )
+			SF_init(
+          space()->nLoc(),
+          space()->bl(),
+          space()->bu(),
+          space()->sIndB(fType_),
+          space()->eIndB(fType_),
+          s_,
+          0. );
     changed();
   }
 
@@ -432,6 +441,15 @@ public:
         space()->sInd(fType_),
         space()->eInd(fType_),
         s_, alpha);
+		if( !space()->getProcGrid()->participating() )
+			SF_init(
+          space()->nLoc(),
+          space()->bl(),
+          space()->bu(),
+          space()->sIndB(fType_),
+          space()->eIndB(fType_),
+          s_,
+          0. );
     changed();
   }
 
@@ -518,7 +536,41 @@ public:
           space()->getCoordinatesLocal()->getX( Z, fType_ ),
           s_ );
       break;
+		case FPoint :
+			Scalar xc[3] =
+			{ 
+				1.,
+//				1.,
+//				space()->getDomain()->getDomainSize()->getSize( X )/4.,
+				space()->getDomain()->getDomainSize()->getSize( Y )/2.,
+				space()->getDomain()->getDomainSize()->getSize( Z )/2. };
+			Scalar amp = alpha; //2./space()->getDomain()->getDomainSize()->getRe();
+			Scalar sig[3] = { 0.2, 0.2, 0.2 };
+      SF_init_Vpoint(
+					space()->nLoc(),
+					space()->bl(),
+					space()->bu(),
+					space()->sIndB(fType_),
+					space()->eIndB(fType_),
+					space()->getCoordinatesLocal()->getX( X, fType_ ),
+					space()->getCoordinatesLocal()->getX( Y, fType_ ),
+					space()->getCoordinatesLocal()->getX( Z, fType_ ),
+					xc,
+					amp,
+					sig,
+					s_ );
+      break;
     }
+
+		if( !space()->getProcGrid()->participating() )
+			SF_init(
+          space()->nLoc(),
+          space()->bl(),
+          space()->bu(),
+          space()->sIndB(fType_),
+          space()->eIndB(fType_),
+          s_,
+          0. );
     changed();
   }
 
@@ -558,7 +610,7 @@ public:
 					s_ );
 
 			SF_level(
-					space()->commf(),
+					MPI_Comm_c2f( space()->comm() ),
 					m,
 					space()->nLoc(),
 					space()->bl(),
@@ -604,38 +656,85 @@ public:
   /// Write the ScalarField to an hdf5 file, the velocities are interpolated to the pressure points
   /// \todo add 3d case here
   /// \todo add restart
-  void write( int count=0 , bool restart=false ) const {
+	void write( int count=0 , bool restart=false ) const {
 
-    if( 0==space()->rankS() )
-      switch(fType_) {
+		if( 0==space()->rankS() )
+			switch(fType_) {
       case U:
-        std::cout << "writing velocity field x(" << count << ") ...\n";
-        break;
-      case V:
-        std::cout << "writing velocity field y(" << count << ") ...\n";
-        break;
-      case W:
-        std::cout << "writing velocity field z(" << count << ") ...\n";
-        break;
-      case EField::S:
-        std::cout << "writing pressure field  (" << count << ") ...\n";
-        break;
-      }
+				std::cout << "writing velocity field x(" << count << ") ...\n";
+				break;
+			case V:
+				std::cout << "writing velocity field y(" << count << ") ...\n";
+				break;
+			case W:
+				std::cout << "writing velocity field z(" << count << ") ...\n";
+				break;
+			case EField::S:
+				std::cout << "writing pressure field  (" << count << ") ...\n";
+				Teuchos::Tuple<Ordinal,3> N;
+				for( int i=0; i<3; ++i ) {
+					N[i] = space()->nGlo(i);
+          if( space()->getDomain()->getBCGlobal()->getBCL(i)==Pimpact::PeriodicBC )
+						N[i] = N[i]-1;
+				}
+				std::ofstream xfile;
+				std::ostringstream ss;
+				ss << std::setw( 5 ) << std::setfill( '0' ) << count;
+        std::string fname = "pre_"+ss.str();
+				xfile.open( fname+".xmf", std::ofstream::out );
+				xfile<< "<Xdmf xmlns:xi=\"http://www.w3.org/2003/XInclude\" Version=\"2.1\">\n";
+				xfile << "\t<Domain>\n";
+				xfile << "\t\t<Grid Name=\"3DRectMesh\" GridType=\"Uniform\">\n";
+				xfile << "\t\t\t<Topology TopologyType=\"3DRectMesh\" Dimensions=\""<< N[2] << " " << N[1] << " " << N[0] << "\"/>\n";
+				xfile << "\t\t\t<Geometry GeometryType=\"VXVYVZ\">\n";
+				xfile << "\t\t\t\t<DataItem ItemType=\"Uniform\"\n";
+				xfile << "\t\t\t\t\tDimensions=\""<< N[0] << "\"\n";
+				xfile << "\t\t\t\t\tNumberType=\"Float\"\n";
+				xfile << "\t\t\t\t\tPrecision=\"8\"\n";
+				xfile << "\t\t\t\t\tFormat=\"HDF\">\n";
+				xfile << "\t\t\t\t\t" << fname << ".h5:/VectorX\n";
+				xfile << "\t\t\t\t</DataItem>\n";
+				xfile << "\t\t\t\t<DataItem ItemType=\"Uniform\"\n";
+				xfile << "\t\t\t\t\tDimensions=\""<< N[1] << "\"\n";
+				xfile << "\t\t\t\t\tNumberType=\"Float\"\n";
+				xfile << "\t\t\t\t\tPrecision=\"8\"\n";
+				xfile << "\t\t\t\t\tFormat=\"HDF\">\n";
+				xfile << "\t\t\t\t\t" << fname << ".h5:/VectorY\n";
+				xfile << "\t\t\t\t</DataItem>\n";
+				xfile << "\t\t\t\t<DataItem ItemType=\"Uniform\"\n";
+				xfile << "\t\t\t\t\tDimensions=\""<< N[2] << "\"\n";
+				xfile << "\t\t\t\t\tNumberType=\"Float\"\n";
+				xfile << "\t\t\t\t\tPrecision=\"8\"\n";
+				xfile << "\t\t\t\t\tFormat=\"HDF\">\n";
+				xfile << "\t\t\t\t\t" << fname << ".h5:/VectorZ\n";
+				xfile << "\t\t\t\t</DataItem>\n";
+				xfile << "\t\t\t</Geometry>\n";
+				xfile << "\t\t\t<Attribute Name=\"Pressure\" AttributeType=\"Scalar\" Center=\"Node\">\n";
+				xfile << "\t\t\t\t<DataItem Dimensions=\""<< N[2] << " " << N[1] << " " << N[0] << "\" NumberType=\"Float\" Precision=\"8\" Format=\"HDF\">\n";
+				xfile << "\t\t\t\t\t" << fname << ".h5:/pre\n";
+				xfile << "\t\t\t\t</DataItem>\n";
+				xfile << "\t\t\t</Attribute>\n";
+				xfile << "\t\t</Grid>\n";
+				xfile << "\t</Domain>\n";
+				xfile << "</Xdmf>\n";
+				xfile.close();
+				break;
+			}
 
-    if( !restart ) {
-      Teuchos::RCP< ScalarField<SpaceT> > temp;
+		if( !restart ) {
+			Teuchos::RCP< ScalarField<SpaceT> > temp;
 
-      if( EField::S != fType_ ) {
-        temp = Teuchos::rcp(
-            new ScalarField<SpaceT>( space(), true, EField::S ) );
-        space()->getInterpolateV2S()->apply( *this, *temp );
-      }
+			if( EField::S != fType_ ) {
+				temp = Teuchos::rcp(
+						new ScalarField<SpaceT>( space(), true, EField::S ) );
+				space()->getInterpolateV2S()->apply( *this, *temp );
+			}
 
-      if( 2==space()->dim() ) {
+			if( 2==space()->dim() ) {
 
-        write_hdf5_2D(
+				write_hdf5_2D(
             space()->rankS(),
-            space()->commf(),
+            MPI_Comm_c2f( space()->comm() ),
             space()->nGlo(),
             space()->getDomain()->getBCGlobal()->getBCL(),
             space()->getDomain()->getBCGlobal()->getBCU(),
@@ -651,11 +750,11 @@ public:
             (int)fType_,
             count,
             (EField::S==fType_)?9:10,
-                (EField::S==fType_)?s_:temp->s_,
-                    space()->getCoordinatesGlobal()->get(0,EField::S),
-                    space()->getCoordinatesGlobal()->get(1,EField::S),
-                    space()->getDomain()->getDomainSize()->getRe(),
-                    space()->getDomain()->getDomainSize()->getAlpha2() );
+						(EField::S==fType_)?s_:temp->s_,
+						space()->getCoordinatesGlobal()->get(0,EField::S),
+						space()->getCoordinatesGlobal()->get(1,EField::S),
+						space()->getDomain()->getDomainSize()->getRe(),
+						space()->getDomain()->getDomainSize()->getAlpha2() );
       }
       else if( 3==space()->dim() ) {
 
@@ -663,7 +762,7 @@ public:
 
         write_hdf_3D(
             space()->rankS(),
-            space()->commf(),
+            MPI_Comm_c2f( space()->comm() ),
             space()->nGlo(),
             space()->getDomain()->getBCGlobal()->getBCL(),
             space()->getDomain()->getBCGlobal()->getBCU(),
@@ -676,7 +775,8 @@ public:
             space()->getProcGridSize()->get(),
             space()->getProcGrid()->getIB(),
             space()->getProcGrid()->getShift(),
-            (int)fType_+1,
+						(int)fType_+1,
+						(int)EField::S+1,
             count,
             (EField::S==fType_)?9:10,
             stride,
@@ -698,7 +798,7 @@ public:
 
       write_hdf_3D(
           space()->rankS(),
-          space()->commf(),
+          MPI_Comm_c2f( space()->comm() ),
           space()->nGlo(),
           space()->getDomain()->getBCGlobal()->getBCL(),
           space()->getDomain()->getBCGlobal()->getBCU(),
@@ -711,6 +811,7 @@ public:
           space()->getProcGridSize()->get(),
           space()->getProcGrid()->getIB(),
           space()->getProcGrid()->getShift(),
+          (int)fType_+1,
           (int)fType_+1,
           count,
           (EField::S==fType_)?9:10,
@@ -766,7 +867,7 @@ public:
 
   Teuchos::RCP<const SpaceT> space() const { return( AbstractField<SpaceT>::space_ ); }
 
-  const MPI_Comm& comm() const { return(space()->comm()); }
+  const MPI_Comm& comm() const { return( space()->comm() ); }
 
   /// \name comunication methods.
   /// \brief highly dependent on underlying storage should only be used by Operator or on top field implementer.
@@ -798,11 +899,12 @@ public:
 
   /// \brief updates ghost layers
   void exchange( const int& dir ) const {
-//    int ones[3] = {1,1,1};
+
+		int ones[3] = {0,0,0};
     if( !exchangedState_[dir] ) {
       F_exchange(
           space()->dim(),
-          space()->commf(),
+          MPI_Comm_c2f( space()->getProcGrid()->getCommWorld() ),
           space()->getProcGrid()->getRankL(),
           space()->getProcGrid()->getRankU(),
           space()->nLoc(),
@@ -812,9 +914,9 @@ public:
           space()->getDomain()->getBCLocal()->getBCU(),
           space()->sInd(EField::S),
           space()->eInd(EField::S),
-          space()->sIndB(fType_), // should it work
+//				 space()->sIndB(fType_), // should it work
 //          space()->eIndB(fType_),
-//          ones,
+				 ones,
           space()->nLoc(),
           1+dir,
           1+(int)fType_,
@@ -823,14 +925,12 @@ public:
     }
   }
 
-  void exchange( bool forward=true ) const {
-    if(forward)
-      for( int dir=0; dir<space()->dim(); ++dir )
-        exchange( dir );
-    else
-      for( int dir=space()->dim()-1; dir>=0; --dir )
-        exchange( dir );
-  }
+	void exchange() const {
+
+		for( int dir=0; dir<space()->dim(); ++dir )
+			exchange( dir );
+
+	}
 
   ///\}
 

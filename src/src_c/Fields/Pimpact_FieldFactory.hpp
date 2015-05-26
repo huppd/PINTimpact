@@ -97,6 +97,10 @@ Teuchos::RCP< MultiField<ModeField<VectorField<SpaceT> > > > createInitMVF(
     break;
   case OscilatingDisc2DVel:
     break;
+	default:
+    u->getField(0).getCFieldPtr()->initField( ZeroFlow );
+    u->getField(0).getSFieldPtr()->initField( ZeroFlow );
+    break;
   }
   return( u );
 }

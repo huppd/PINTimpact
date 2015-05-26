@@ -71,10 +71,27 @@ public:
 
     transferOp_ = create<TransferOpT>( mgSpaces_->get(), mgSpaces_->get(0) );
 
-    for( unsigned i=0; i < mgSpaces_->getNGrids()-1; ++i ) {
-      restrictionOps_.push_back( create<RestrT>( mgSpaces_->get(i), mgSpaces_->get(i+1) ) );
-      interpolationOps_.push_back( create<InterT>( mgSpaces_->get(i+1), mgSpaces_->get(i) ) );
-    }
+		for( unsigned i=0; i < mgSpaces_->getNGrids()-1; ++i ) {
+//				std::cout << " grid: " << i << "\n";
+				restrictionOps_.push_back(
+						Teuchos::rcp(
+							new RestrT<CSpaceT>(
+								mgSpaces_->get(i),
+								mgSpaces_->get(i+1),
+								mgSpaces_->get()->getProcGridSize()->getTuple()
+								)
+							)
+						);
+				interpolationOps_.push_back(
+						Teuchos::rcp( 
+							new InterT<CSpaceT>(
+								mgSpaces_->get(i+1),
+								mgSpaces_->get(i),
+								mgSpaces_->get()->getProcGridSize()->getTuple()
+								)
+							)
+						);
+		}
 
 	// not working on brutus
     //interpolationOps_.shrink_to_fit();
@@ -106,12 +123,16 @@ public:
     transferOp_->print(out);
 
     for( int i = 0; i<restrictionOps_.size(); ++i ) {
-      out << "-------- restrictor: "<< i << "--------\n";
-      restrictionOps_[i]->print(out);
+			if( mgSpaces_->participating(i) ) {
+					out << "-------- restrictor: "<< i << "--------\n";
+					restrictionOps_[i]->print(out);
+			}
     }
     for( int i = 0; i<interpolationOps_.size(); ++i ) {
-      out << "-------- interpolator: "<< i << "--------\n";
-      interpolationOps_[i]->print(out);
+			if( mgSpaces_->participating(i) ) {
+				out << "-------- interpolator: "<< i << "--------\n";
+				interpolationOps_[i]->print(out);
+			}
     }
   }
 

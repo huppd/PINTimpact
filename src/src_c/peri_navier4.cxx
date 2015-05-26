@@ -42,7 +42,7 @@
 
 
 
-auto CompTime = Teuchos::TimeMonitor::getNewCounter("Pimpact:: Solving Time");
+//auto CompTime = Teuchos::TimeMonitor::getNewCounter("Pimpact:: Solving Time");
 
 
 int main(int argi, char** argv ) {
@@ -215,7 +215,7 @@ int main(int argi, char** argv ) {
   pl->set("npz", np3 );
   pl->set("npf", np4 );
 
-  auto space = Pimpact::createSpace<S,O,4>( pl, true );
+  auto space = Pimpact::createSpace<S,O,4>( pl );
 	//  space->print();
   int rank = space->getProcGrid()->getRank();
 
@@ -431,7 +431,7 @@ int main(int argi, char** argv ) {
   if(0==rank) std::cout << "\n\t--- Nf: 0\tdof: "<<x->getLength(true)<<"\t---\n";
   // Solve the nonlinear system
   {
-    Teuchos::TimeMonitor LocalTimer(*CompTime);
+    Teuchos::TimeMonitor LocalTimer(*Teuchos::TimeMonitor::getNewCounter("Pimpact:: Solving Time"));
     //    NOX::StatusTest::StatusType status =
     solver->solve();
   }
@@ -453,14 +453,6 @@ int main(int argi, char** argv ) {
   //
   Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() )->getConstFieldPtr()->write();
   Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(1000);
-  //
-  //  x = Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr();
-  //  x = Teuchos::rcp_const_cast<NV>( group->getXPtr() )->getFieldPtr();
-
-
-
-  //  write solution
-  //  x->write();
 
   if(rank==0) {
     Teuchos::rcp_static_cast<std::ofstream>(outPrec)->close();

@@ -103,6 +103,7 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
+  void print( std::ostream& out=std::cout ) const { }
 
 }; // end of class TransferOp
 

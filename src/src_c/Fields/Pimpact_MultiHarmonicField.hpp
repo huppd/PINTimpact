@@ -288,12 +288,37 @@ public:
     fields_->print( os );
   }
 
-  void write( int count=0 ) const {
-    field0_->write(count);
-    for( int i=0; i<getNumberModes(); ++i ) {
-      getConstCFieldPtr(i)->write( count+2*i+1 );
-      getConstSFieldPtr(i)->write( count+2*i+2 );
-    }
+  void write( int count=0, bool time_evol_yes=false ) const {
+
+		if( time_evol_yes ) {
+			Scalar pi = 4.*std::atan(1.);
+			Ordinal nf = getNumberModes();
+			Ordinal nt = 4*nf;
+			auto temp = getConst0FieldPtr()->clone( Pimpact::ShallowCopy );
+			for( Ordinal i=0; i<nt;  ++i ) {
+				temp->assign( getConst0Field() );
+//				temp->initField(  );
+				for( Ordinal j=0; j<nf; ++j ) {
+					temp->add(
+							1., *temp,
+							std::sin( 2.*pi*i*((Scalar)j+1.)/nt ), getConstSField(j) );
+					temp->add(
+							std::cos( 2.*pi*i*((Scalar)j+1.)/nt ), getConstCField(j),
+							1., *temp );
+					temp->write( count+i );
+				}
+
+
+			}
+
+		}
+		else{
+			field0_->write(count);
+			for( int i=0; i<getNumberModes(); ++i ) {
+				getConstCFieldPtr(i)->write( count+2*i+1 );
+				getConstSFieldPtr(i)->write( count+2*i+2 );
+			}
+		}
   }
 
 

@@ -85,36 +85,35 @@ protected:
 public:
 
 
-  DivGradO2Op( const Teuchos::RCP<const SpaceT>& space ):
-    space_(space) {
+	DivGradO2Op( const Teuchos::RCP<const SpaceT>& space ):
+		space_(space) {
 
-    for( int i=0; i<3; ++i ) {
-      Ordinal nTemp = 3*( space_->nLoc(i) - 1 + 1 );
-      c_[i] = new Scalar[ nTemp ];
-    }
+			for( int i=0; i<3; ++i ) {
+				Ordinal nTemp = 3*( space_->nLoc(i) - 1 + 1 );
+				c_[i] = new Scalar[ nTemp ];
+			}
 
-        Op_getCDG(
-            space_->dim(),
-            space_->nGlo(),
-            space_->nLoc(),
-            space_->bl(),
-            space_->bu(),
-            space_->getDomain()->getBCLocal()->getBCL(),
-            space_->getDomain()->getBCLocal()->getBCU(),
-            space_->getCoordinatesGlobal()->getX( ECoord::X, EField::U ),
-            space_->getCoordinatesGlobal()->getX( ECoord::Y, EField::V ),
-            space_->getCoordinatesGlobal()->getX( ECoord::Z, EField::W ),
-            space_->getCoordinatesLocal()->getX( ECoord::X, EField::S ),
-            space_->getCoordinatesLocal()->getX( ECoord::Y, EField::S ),
-            space_->getCoordinatesLocal()->getX( ECoord::Z, EField::S ),
-            space_->getCoordinatesLocal()->getX( ECoord::X, EField::U ),
-            space_->getCoordinatesLocal()->getX( ECoord::Y, EField::V ),
-            space_->getCoordinatesLocal()->getX( ECoord::Z, EField::W ),
-            c_[0],
-            c_[1],
-            c_[2] );
-
-  }
+			Op_getCDG(
+					space_->dim(),
+					space_->nGlo(),
+					space_->nLoc(),
+					space_->bl(),
+					space_->bu(),
+					space_->getDomain()->getBCLocal()->getBCL(),
+					space_->getDomain()->getBCLocal()->getBCU(),
+					space_->getCoordinatesGlobal()->getX( ECoord::X, EField::U ),
+					space_->getCoordinatesGlobal()->getX( ECoord::Y, EField::V ),
+					space_->getCoordinatesGlobal()->getX( ECoord::Z, EField::W ),
+					space_->getCoordinatesLocal()->getX( ECoord::X, EField::S ),
+					space_->getCoordinatesLocal()->getX( ECoord::Y, EField::S ),
+					space_->getCoordinatesLocal()->getX( ECoord::Z, EField::S ),
+					space_->getCoordinatesLocal()->getX( ECoord::X, EField::U ),
+					space_->getCoordinatesLocal()->getX( ECoord::Y, EField::V ),
+					space_->getCoordinatesLocal()->getX( ECoord::Z, EField::W ),
+					c_[0],
+					c_[1],
+					c_[2] );
+		}
 
 
   void apply(const DomainFieldT& x, RangeFieldT& y,

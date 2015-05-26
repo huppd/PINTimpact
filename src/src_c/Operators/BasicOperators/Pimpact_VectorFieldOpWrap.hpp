@@ -50,11 +50,18 @@ public:
   VectorFieldOpWrap(
       const Teuchos::RCP<const SP1T>& fSpace,
       const Teuchos::RCP<const SP2T>& cSpace ):
-        sop_( create<SOpT>( fSpace, cSpace ) ) {}
+		sop_( create<SOpT>( fSpace, cSpace ) ) {}
+
+  template< class SP1T, class SP2T>
+	VectorFieldOpWrap(
+			const Teuchos::RCP<const SP1T>& fSpace,
+      const Teuchos::RCP<const SP2T>& cSpace,
+			Teuchos::Tuple<int,3> nb ):
+		sop_( Teuchos::rcp( new SOpT( fSpace, cSpace, nb )  ) ) {}
 
 
   template< class SP1T, class SP2T>
-  void apply( const VectorField<SP1T >& x, VectorField<SP2T>& y ) const {
+  void apply( const VectorField<SP1T>& x, VectorField<SP2T>& y ) const {
 
     for( int i=0; i<x.space()->dim(); ++i ) {
       sop_->apply( x.getConstField(i), y.getField(i) );

@@ -55,7 +55,8 @@ public:
     cOperator_( mgSpaces_->getNGrids() ) {
 
     for( int i=0; i<mgSpaces_->getNGrids(); ++i )
-      cOperator_[i] = Teuchos::rcp( new COperatorT( mgSpaces_->get(i) ) );
+			if( mgSpaces_->participating(i) )
+					cOperator_[i] = Teuchos::rcp( new COperatorT( mgSpaces_->get(i) ) );
 
 	// not working on brutus
     //cOperator_.shrink_to_fit();
@@ -81,7 +82,8 @@ public:
 		fOperator_->setParameter( para );
 
     for( int i=0; i<mgSpaces_->getNGrids(); ++i )
-      cOperator_[i]->setParameter( para );
+			if( mgSpaces_->participating(i) )
+					cOperator_[i]->setParameter( para );
 
 	}
 

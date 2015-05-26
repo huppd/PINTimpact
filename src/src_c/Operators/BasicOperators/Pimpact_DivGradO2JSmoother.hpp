@@ -68,8 +68,8 @@ public:
   DivGradO2JSmoother(
       const Teuchos::RCP<const OperatorT>& op,
       Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ):
-    omega_( pl->get<Scalar>("omega",0.8) ),
-    nIter_( pl->get<int>("numIters",4) ),
+    omega_( pl->get<Scalar>("omega", (2==op->space()->dim())?0.8:6./7. ) ),
+    nIter_( pl->get<int>("numIters",3) ),
     temp_( createScalarField<SpaceT>( op->space() ) ),
     op_(op) {}
 
@@ -105,9 +105,36 @@ public:
 				 temp_->s_ );
 
       // attention: could lead to problems when ScalarField is used as part of a higherlevel class (s is shared)
-      std::swap( y.s_, temp_->s_ );
+//      std::swap( y.s_, temp_->s_ );
+//		 y.assign(*temp_);
 //			y.level();
-      y.changed();
+
+		 temp_->changed();
+		 temp_->exchange();
+
+		 OP_DivGradO2JSmoother(
+				 space()->dim(),
+				 space()->nLoc(),
+				 space()->bl(),
+				 space()->bu(),
+				 space()->getDomain()->getBCLocal()->getBCL(),
+				 space()->getDomain()->getBCLocal()->getBCU(),
+				 op_->c_[0],
+				 op_->c_[1],
+				 op_->c_[2],
+				 omega_,
+				 x.s_,
+				 temp_->s_,
+				 y.s_ );
+
+		 SF_handle_corner(
+				 space()->nLoc(),
+				 space()->bl(),
+				 space()->bu(),
+				 space()->getDomain()->getBCLocal()->getBCL(),
+				 space()->getDomain()->getBCLocal()->getBCU(),
+				 y.s_ );
+		 y.changed();
     }
 
   }

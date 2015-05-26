@@ -177,7 +177,7 @@ int main(int argi, char** argv ) {
   auto fu   = x->clone();
 
   // init Fields, init and rhs
-  x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::EFlowField(flow), 1 );
+  x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::EVectorField(flow), 1 );
 
   fu->init( 0. );
 

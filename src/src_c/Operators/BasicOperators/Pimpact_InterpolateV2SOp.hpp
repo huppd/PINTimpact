@@ -71,7 +71,7 @@ public:
       const Teuchos::RCP<const ProcGrid<Ordinal,dimension> >&  procGrid,
       const Teuchos::RCP<const GridSizeLocal<Ordinal,dimension> >& gridSizeLocal,
       const Teuchos::RCP<const StencilWidths<dimension,dimNC> >& fieldSpace,
-      const Teuchos::RCP<const Domain<Scalar> >& domain,
+      const Teuchos::RCP<const Domain<Scalar,dimension> >& domain,
       const Teuchos::RCP<const GridCoordinatesLocal<Scalar,Ordinal,dimension> >& coordinatesLocal ) {
 
 
@@ -152,7 +152,19 @@ public:
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
-  void print( std::ostream& out=std::cout ) const { }
+  void print( std::ostream& out=std::cout ) const {
+//    out << " --- InterpolateV2S stencil: ---";
+//    for( int i=0; i<3; ++i ) {
+//      out << "\ndir: " << i << "\n( ";
+//      Ordinal nTemp = ( space_->nLoc(i) + 1 )*( space_->du(i) - space_->dl(i) + 1);
+//      for( int j=0; j<nTemp; ++j )
+//        out << c_[i][j] <<"\t";
+//      out << ")\n";
+    }
+
+  const Scalar* getC( const ECoord& dir ) const  {
+      return( c_[(int)dir] );
+  }
 
 };
 
@@ -164,7 +176,7 @@ Teuchos::RCP<const InterpolateV2S<S,O,d,dimNC> > createInterpolateV2S(
     const Teuchos::RCP<const ProcGrid<O,d> >&  procGrid,
     const Teuchos::RCP<const GridSizeLocal<O,d> >& gridSizeLocal,
     const Teuchos::RCP<const StencilWidths<d,dimNC> >& fieldSpace,
-    const Teuchos::RCP<const Domain<S> >& domain,
+    const Teuchos::RCP<const Domain<S,d> >& domain,
     const Teuchos::RCP<const GridCoordinatesLocal<S,O,d> >& coordinatesLocal ) {
 
   return(

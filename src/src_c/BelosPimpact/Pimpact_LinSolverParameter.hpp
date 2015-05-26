@@ -18,7 +18,8 @@ Teuchos::RCP< Teuchos::ParameterList > createLinSolverParameter(
     const std::string& solver_name="GMRES",
     double tol=1.e-6,
     int outfreq=100,
-    const Teuchos::RCP<std::ostream>& outStream=Teuchos::rcp(&std::cout,false) ) {
+    const Teuchos::RCP<std::ostream>& outStream=Teuchos::rcp(&std::cout,false),
+	 	int maxIters=1000	) {
 
   auto parameter_ = Teuchos::parameterList(solver_name);
   int verbo;
@@ -29,7 +30,7 @@ Teuchos::RCP< Teuchos::ParameterList > createLinSolverParameter(
       Belos::IterationDetails +
       Belos::OrthoDetails +
       Belos::FinalSummary +
-      Belos::TimingDetails +
+//      Belos::TimingDetails +
       Belos::StatusTestDetails +
       Belos::Debug ;
   //  else
@@ -43,9 +44,9 @@ Teuchos::RCP< Teuchos::ParameterList > createLinSolverParameter(
   int style = Belos::Brief;
 
   if( solver_name=="CG" ) {
-    parameter_->set( "Maximum Iterations",    500    );
-    parameter_->set( "Verbosity",			  verbo	 );
-    parameter_->set( "Output Style",		  style	 );
+    parameter_->set( "Maximum Iterations",	maxIters    );
+    parameter_->set( "Verbosity",			  		verbo	 );
+    parameter_->set( "Output Style",		  	style	 );
     parameter_->set( "Convergence Tolerance", tol    );
   }
   else if( solver_name=="GMRES" ) {
@@ -53,7 +54,7 @@ Teuchos::RCP< Teuchos::ParameterList > createLinSolverParameter(
 //    parameter_->set( "Maximum Iterations",    1000  );
 //    parameter_->set( "Maximum Restarts",		20	  );
     parameter_->set( "Num Blocks",         10	  );
-    parameter_->set( "Maximum Iterations", 1000 );
+    parameter_->set( "Maximum Iterations", maxIters );
     parameter_->set( "Maximum Restarts",   100	);
 
     parameter_->set( "Convergence Tolerance",			tol           );
@@ -65,14 +66,17 @@ Teuchos::RCP< Teuchos::ParameterList > createLinSolverParameter(
     parameter_->set( "Verbosity",									verbo	 );
     parameter_->set( "Output Frequency",					outfreq);
     parameter_->set( "Output Style",							style	 );
-    parameter_->set( "Timer Label",								"Belos");
+    parameter_->set( "Timer Label",								"HelloBelos");
   }
   else if( solver_name=="Block GMRES" ) {
+
+    parameter_->set( "Block Size", 1);
+		parameter_->set( "Adaptive Block Size", true );		
 //    parameter_->set( "Num Blocks",								300	  );
 //    parameter_->set( "Maximum Iterations",        1000  );
 //    parameter_->set( "Maximum Restarts",					20	  );
     parameter_->set( "Num Blocks",         10	  );
-    parameter_->set( "Maximum Iterations", 1000 );
+    parameter_->set( "Maximum Iterations", maxIters );
     parameter_->set( "Maximum Restarts",   100	);
 
     parameter_->set( "Flexible Gmres", true );
@@ -85,11 +89,11 @@ Teuchos::RCP< Teuchos::ParameterList > createLinSolverParameter(
     parameter_->set( "Verbosity",									verbo	 );
     parameter_->set( "Output Frequency",					outfreq);
     parameter_->set( "Output Style",							style	 );
-    parameter_->set( "Timer Label",								"Belos");
+    parameter_->set( "Timer Label",								"HelloBelos");
   }
   else if( solver_name=="GCRODR" ) {
     parameter_->set( "Num Blocks",         20	  );
-    parameter_->set( "Maximum Iterations", 1000 );
+    parameter_->set( "Maximum Iterations", maxIters );
     parameter_->set( "Maximum Restarts",   50	);
 
     parameter_->set( "Num Recycled Blocks",				2		 );
@@ -99,7 +103,7 @@ Teuchos::RCP< Teuchos::ParameterList > createLinSolverParameter(
     parameter_->set( "Output Frequency",					outfreq);
     parameter_->set( "Verbosity",									verbo	 );
     parameter_->set( "Output Style",							style	 );
-    parameter_->set( "Timer Label",								"Belos");
+    parameter_->set( "Timer Label",								"HelloBelos");
   }
   else if( solver_name=="LSQR" ) {
     parameter_->set( "Maximum Iterations",				1000	 );
@@ -113,15 +117,15 @@ Teuchos::RCP< Teuchos::ParameterList > createLinSolverParameter(
     parameter_->set( "Output Frequency",					outfreq);
     parameter_->set( "Output Style",							style	 );
     //		parameter_->set( "Lambda",										1.e-12 );
-    parameter_->set( "Timer Label",								"Belos");
+    parameter_->set( "Timer Label",								"HelloBelos");
   }
   else if( solver_name=="TFQMR" ) {
-    parameter_->set( "Maximum Iterations",				1000	 );
+    parameter_->set( "Maximum Iterations",				maxIters	 );
     parameter_->set( "Convergence Tolerance",			tol    );
     parameter_->set( "Verbosity",									verbo	 );
     parameter_->set( "Output Style",							style	 );
     parameter_->set( "Output Frequency",					outfreq);
-    parameter_->set( "Timer Label",								"Belos");
+    parameter_->set( "Timer Label",								"HelloBelos");
   }
   else {
     std::cout << "!!!Warning!!! solver_name:\t" << solver_name << "\tnot known in Pimpact!";

@@ -142,21 +142,37 @@ public:
 
 protected:
 
-  void applyNPoint( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z ) const {
+	void applyNPoint( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z ) const {
 
-      if( 3==space()->dim() )
-        for( dirs_[2]=-1; dirs_[2]<2; dirs_[2]+=2 )
-          for( dirs_[1]=-1; dirs_[1]<2; dirs_[1]+=2 )
-            for( dirs_[0]=-1; dirs_[0]<2; dirs_[0]+=2 )
-              apply( x, y, z, dirs_, loopOrder_ );
-      else {
-        dirs_[2] = 1 ;
-        for( dirs_[1]=-1; dirs_[1]<2; dirs_[1]+=2 )
-          for( dirs_[0]=-1; dirs_[0]<2; dirs_[0]+=2 )
-            apply( x, y, z, dirs_, loopOrder_ );
-      }
+		auto ib = space()->procCoordinate();
+	
+		Teuchos::Tuple<int,3>	dirS;
+		Teuchos::Tuple<int,3>	inc;
 
-  }
+		for( int i=0; i<3; ++i ) {
+			if( (ib[i]-1)%2 == 0 ) {
+			 dirS[i] = -1; 
+			 inc[i] = 2;
+			}
+			else {
+			 dirS[i] = 1; 
+			 inc[i] = -2;
+			}
+		}
+
+		if( 3==space()->dim() )
+			for( dirs_[2]=dirS[2]; std::abs(dirs_[2])<=1; dirs_[2]+=inc[2] )
+				for( dirs_[1]=dirS[1]; std::abs(dirs_[1])<=1; dirs_[1]+=inc[1] )
+					for( dirs_[0]=dirS[0]; std::abs(dirs_[0])<=1; dirs_[0]+=inc[0] )
+						apply( x, y, z, dirs_, loopOrder_ );
+		else {
+			dirs_[2] = 1 ;
+			for( dirs_[1]=-1; dirs_[1]<2; dirs_[1]+=2 )
+				for( dirs_[0]=-1; dirs_[0]<2; dirs_[0]+=2 )
+					apply( x, y, z, dirs_, loopOrder_ );
+		}
+
+	}
 
 
   /// \brief little helper

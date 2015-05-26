@@ -164,16 +164,6 @@ void SF_print(
     const double* const phi );
 
 
-//void SF_write2D(
-    //const int* const N,
-    //const int* const bL,
-    //const int* const bU,
-    //const int* const SS,
-    //const int* const NN,
-    //const int* const shift,
-    //const double* const phi,
-    //const int& count );
-
 void write_hdf5_2D(
         const int& rank,
         const int& COMM_CART,
@@ -199,6 +189,7 @@ void write_hdf5_2D(
         const double& Re,
         const double& alpha2 );
 
+
 void write_hdf_3D(
     const int& rank,
     const int& COMM_CART,
@@ -214,6 +205,7 @@ void write_hdf_3D(
     const int* const NB,
     const int* const iB,
     const int* const iShift,
+    const int& dir_name,
     const int& vel_dir,
     const int& filecount,
     const int& namelen,
@@ -228,15 +220,6 @@ void write_hdf_3D(
     const double& Re,
     const double& alpha2 );
 
-
-//void SF_write3D(
-//    const int* const N,
-//    const int* const bL,
-//    const int* const bU,
-//    const int* const SS,
-//    const int* const NN,
-//    const double* const phi,
-//    const int& count );
 
 
 void F_exchange(
@@ -324,6 +307,21 @@ void SF_init_2DGradZ(
     const double* const x2,
           double* const phi,
 	 const double& alpha );
+
+
+void SF_init_Vpoint(
+    const int* const N,
+    const int* const bL,
+    const int* const bU,
+    const int* const SS,
+    const int* const NN,
+    const double* const x1,
+    const double* const x2,
+    const double* const x3,
+    const double* const xc,
+		const double& amp,
+    const double* const sig,
+		double* const phi );
 
 
 void SF_level(

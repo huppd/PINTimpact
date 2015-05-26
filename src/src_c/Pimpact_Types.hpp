@@ -51,12 +51,13 @@ enum EScalarField {
   Poiseuille2D_inZ = 6,
   Grad2D_inX = 3,
   Grad2D_inY = 4,
-  Grad2D_inZ = 5
+  Grad2D_inZ = 5,
+  FPoint = 7
 };
 
 
 /// \relates VectorField::initField
-enum EFlowField {
+enum EVectorField {
   ZeroFlow=0,
   PoiseuilleFlow2D_inX=1, PoiseuilleFlow2D_inY=2, PoiseuilleFlow2D_inZ=20,
   Pulsatile2D_inXC=3, Pulsatile2D_inXS=5,
@@ -74,7 +75,9 @@ enum EFlowField {
   VPoint2D=16,
   Disc2D=17,
   RotationDisc2D=18,
-  ConstFlow=19
+  ConstFlow=19,
+	SweptHiemenzFlow=22,
+	Disturbance=23
 };
 
 

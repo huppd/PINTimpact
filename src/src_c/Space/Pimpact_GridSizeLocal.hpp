@@ -29,7 +29,9 @@ namespace Pimpact{
 
 
 /// \brief local grid size
+///
 /// generated from \c GridSizeGlobal and \c ProcGridSize
+/// \f$ nLoc = (nGlo-1)/nProc + 1 \f$
 /// \ingroup Space
 /// \todo think about inheriting from Tuple or generalize for use Global/Local
 template<class Ordinal, int dim>
@@ -37,7 +39,7 @@ class GridSizeLocal {
 
   template< class OT, int dT, int dNC >
   friend Teuchos::RCP<const GridSizeLocal<OT,dT> > createGridSizeLocal(
-      const Teuchos::RCP<const GridSizeGlobal<OT> >& gsg,
+      const Teuchos::RCP<const GridSizeGlobal<OT,dT> >& gsg,
       const Teuchos::RCP<const ProcGridSize<OT,dT> >& pgs,
       const Teuchos::RCP<const StencilWidths<dT,dNC> >&      stencilWidths);
 
@@ -68,7 +70,7 @@ protected:
 
   template<int dNC>
   GridSizeLocal(
-      const Teuchos::RCP<const GridSizeGlobal<Ordinal> >& gridSizeGlobal,
+      const Teuchos::RCP<const GridSizeGlobal<Ordinal,dim> >& gridSizeGlobal,
       const Teuchos::RCP<const ProcGridSize  <Ordinal,dim> >& procGridSize,
       const Teuchos::RCP<const StencilWidths<dim,dNC> >&      stencilWidths ):
         gridSize_() {
@@ -87,14 +89,8 @@ protected:
 
   // tests if local grid size is useable for multigrid and is big enough
     for( int i=0; i<2; ++i ) {
-        TEUCHOS_TEST_FOR_EXCEPTION(
-            gridSize_[i] < stencilWidths->getBL(i),
-            std::logic_error,
-            "!!!ERROR!GridSizeLocal!!!\n" );
-        TEUCHOS_TEST_FOR_EXCEPTION(
-            gridSize_[i] <= 2,
-            std::logic_error,
-            "!!!ERROR!GridSizeLocal!!!\n" );
+				TEUCHOS_TEST_FOR_EXCEPT( gridSize_[i] < stencilWidths->getBL(i) );
+				TEUCHOS_TEST_FOR_EXCEPT( gridSize_[i] < stencilWidths->getBU(i) );
     }
     // problem is used for MultiGridSpace
 //      for( int i=0; i<2; ++i )
@@ -141,7 +137,7 @@ public:
 /// \relates GridSizeLocal
 template< class O, int d, int dNC>
 Teuchos::RCP<const GridSizeLocal<O,d> > createGridSizeLocal(
-    const Teuchos::RCP<const GridSizeGlobal<O> >& gsg,
+    const Teuchos::RCP<const GridSizeGlobal<O,d> >& gsg,
     const Teuchos::RCP<const ProcGridSize<O,d> >& pgs,
     const Teuchos::RCP<const StencilWidths<d,dNC> >& sW ) {
   return(

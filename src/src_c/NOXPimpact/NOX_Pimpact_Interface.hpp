@@ -71,7 +71,7 @@ public:
   /// \brief Compute the Jacobian Operator, given the specified input vector x.
   NOX::Abstract::Group::ReturnType computeJacobian( const Field& x ) {
 
-    jop_->assignField( x );
+	 jop_->assignField( x );
     return( NOX::Abstract::Group::Ok );
 
   }
@@ -85,8 +85,8 @@ public:
   NOX::Abstract::Group::ReturnType applyJacobianInverse( Teuchos::ParameterList &params, const Field& x, Field& y ) {
 
     jop_->apply( x, y );
-
     return( NOX::Abstract::Group::Ok );
+
   }
 
 

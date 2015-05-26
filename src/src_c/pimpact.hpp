@@ -1,7 +1,8 @@
 #pragma once
-#ifndef PIMPACT_HPP
 #define PIMPACT_HPP
+#ifndef PIMPACT_HPP
 
+/// \file \deprecated move to src_impact
 #include <iostream>
 #include <mpi.h>
 

@@ -52,27 +52,27 @@ getSpaceParametersFromCL( int argi, char** argv  )  {
 
 	// Space parameters
   // physical constants
-	S re = 100.;
+	S re = 400.;
 
 	S alpha2 = 125.;
 
   // domain type
-  int domain = 2;
+  int domain = 0;
 
   // domain size
-  int dim = 2;
-  S lx = 1.;
-  S ly = 1.;
-  S lz = 1.;
+  int dim = 3;
+  S lx = 30.;
+  S ly = 20.;
+  S lz = 20.;
 
   // grid size
-	O nx = 33;
-	O ny = 33;
-	O nz = 2;
-	O nf = 4;
+	O nx = 65;
+	O ny = 49;
+	O nz = 97;
+	O nf = 1;
 
-	O nfs = 4;
-	O nfe = 4;
+	O nfs = 1;
+	O nfe = 1;
 
   // processor grid size
   O npx = 1;
@@ -81,7 +81,7 @@ getSpaceParametersFromCL( int argi, char** argv  )  {
   O npf = 1.;
 
 	// flow and forcing type
-  int baseflow = 0;
+  int baseflow = 22;
   int flow = 7;
   int forcing = 0;
 
@@ -96,7 +96,7 @@ getSpaceParametersFromCL( int argi, char** argv  )  {
 
   int maxIter = 10;
 
-  int initZero = 0;
+  int initZero = 1;
 
   S tolBelos = 1.e-1;
   S tolInnerBelos = 1.e-3;
@@ -233,7 +233,7 @@ typedef Pimpact::Space<S,O,3,4> SpaceT;
 typedef Pimpact::Space<S,O,3,4> FSpaceT;
 typedef Pimpact::Space<S,O,3,2> CSpaceT;
 
-typedef Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT> CS;
+typedef Pimpact::CoarsenStrategy<FSpaceT,CSpaceT> CS;
 
 typedef Pimpact::MultiHarmonicField< Pimpact::VectorField<SpaceT> > VF;
 typedef Pimpact::MultiHarmonicField< Pimpact::ScalarField<SpaceT> > SF;
@@ -296,7 +296,7 @@ int main(int argi, char** argv ) {
 //  auto space = Pimpact::createSpace<S,O,3,4>( pl );
 
 	int baseflow = pl->get<int>("baseflow");
-	int flow = pl->get<int>("flow");
+//	int flow = pl->get<int>("flow");
   // outputs
   Teuchos::RCP<std::ostream> outPar;
   Teuchos::RCP<std::ostream> outLinSolve;
@@ -326,15 +326,13 @@ int main(int argi, char** argv ) {
   auto fu   = x->clone();
 
   // init Fields, init and rhs
-	if( baseflow==0 )
-		x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::EVectorField(flow), 1. );
-	else  {
-		x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->initField( Pimpact::EVectorField(baseflow), 1. );
-		if( 0 != flow ) {
-			x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::EVectorField(flow), 0., 0.5, 0., 0.1 );
-			x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->getFieldPtr(Pimpact::U)->initField();
-		}
-	}
+	x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->initField( Pimpact::EVectorField(baseflow), 1. );
+//		if( 0 != flow ) {
+//			x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->initField( Pimpact::EVectorField(flow), 0., 0.5, 0., 0.1 );
+//			x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->getFieldPtr(Pimpact::U)->initField();
+//		}
+
+	auto sol = x->getFieldPtr(0)->getVFieldPtr()->clone( Pimpact::DeepCopy );
 
 	if( 0==initZero )
 		x->init(0.);
@@ -343,7 +341,7 @@ int main(int argi, char** argv ) {
 
 	//tolBelos*=l1*l2/n1/n2*(nfe-1)/nfs;
 
-  /******************************************************************************************/
+  /******1***********************************************************************************/
 	{
 
 		auto para = Pimpact::createLinSolverParameter( linSolName, tolBelos, -1, outLinSolve );
@@ -358,13 +356,14 @@ int main(int argi, char** argv ) {
 			para->set( "Maximum Restarts",   10	  );
 		}
 
+    para->set( "Timer Label",	"Linear Problem");
 		para->set( "Verbosity",	
 				Belos::Errors +
 				Belos::Warnings +
 				Belos::IterationDetails +
 				Belos::OrthoDetails +
 				Belos::FinalSummary +
-				Belos::TimingDetails +
+//				Belos::TimingDetails +
 				Belos::StatusTestDetails +
 				Belos::Debug
 				);
@@ -383,6 +382,9 @@ int main(int argi, char** argv ) {
 								opS2V,
 								opV2S )
         );
+		op->apply( *x, *fu);
+		fu->write( 10000 );
+		std::cout << "divMax: " << fu->getFieldPtr(0)->getSFieldPtr()->norm(Belos::InfNorm) << "\n";
 
     Teuchos::RCP<BOp> jop;
 		jop = op;
@@ -398,6 +400,7 @@ int main(int argi, char** argv ) {
 			v2v_para->set( "Num Blocks",		     50  );
 			v2v_para->set( "Maximum Iterations", 2000 );
 			v2v_para->set( "Maximum Restarts",	 40  );
+			v2v_para->set( "Timer Label",	"F_inv");
 			auto opV2Vprob =
 					Pimpact::createLinearProblem<MVF>(
 							Pimpact::createMultiOperatorBase(
@@ -434,6 +437,7 @@ int main(int argi, char** argv ) {
 				bla->set( "Num Blocks",				 	5   );
 				bla->set( "Maximum Iterations", 100 );
 				bla->set( "Maximum Restarts",	  20  );
+				bla->set( "Timer Label",	"F_zero_inv");
 				zeroInv->getOperatorPtr()->getLinearProblem()->setParameters( bla );
 			}
 			else {
@@ -441,6 +445,7 @@ int main(int argi, char** argv ) {
 				bla->set( "Num Blocks",				 	5   );
 				bla->set( "Maximum Iterations", 100 );
 				bla->set( "Maximum Restarts",	  20  );
+				bla->set( "Timer Label",	"F_zero_inv");
 				zeroInv->getOperatorPtr()->getLinearProblem()->setParameters( bla );
 			}
 
@@ -496,6 +501,7 @@ int main(int argi, char** argv ) {
 
 			auto pl_divGrad =
 				Pimpact::createLinSolverParameter( (withprec==2||withprec==3)?"Block GMRES":"GMRES", tolInnerBelos, -1, outSchur );
+			pl_divGrad->set( "Timer Label",	"DivGrad");
 //			auto pl_divGrad = Pimpact::createLinSolverParameter( "GMRES", tolInnerBelos, -1, outSchur );
 //			if( withprec>1 ) {
 //				pl_divGrad->set( "Num Blocks",				5	  );
@@ -567,35 +573,6 @@ int main(int argi, char** argv ) {
 
     auto lp = Pimpact::createInverseOperatorBase( lp_ );
 
-// forceme
-		if( pl->get<int>("forcing") ) {
-			auto force = x->clone();
-			// set force
-			force->init( 1. );
-			auto bla = Pimpact::create<Pimpact::VectorField>( space );
-			bla->initField( Pimpact::Disc2D, 0.5, 0.5, 0.1, 1. );
-			force->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->add( 1., force->getFieldPtr(0)->getVFieldPtr()->get0Field(), -1., *bla );
-			for( int i=0; i<space->nGlo(3); ++i ) {
-				force->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(i)->add( 1., force->getFieldPtr(0)->getVFieldPtr()->getCField(i), -1., *bla );
-				force->getFieldPtr(0)->getVFieldPtr()->getSFieldPtr(i)->add( 1., force->getFieldPtr(0)->getVFieldPtr()->getSField(i), -1., *bla );
-			}
-			force->write(1000);
-			auto forcingOp = Pimpact::createForcingOp( force );
-			op =
-				Pimpact::createOperatorBase(
-						Pimpact::createCompositionOp( forcingOp, op )
-					);
-			lp =
-				Pimpact::createOperatorBase(
-						Pimpact::createCompositionOp( forcingOp, lp )
-					);
-
-			forcingOp->apply( *x, *x );
-			x->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->init( Teuchos::tuple(0., 0.1, 0.) );
-
-		}
-
-
 
     auto inter = NOX::Pimpact::createInterface( fu, op, lp );
 
@@ -623,11 +600,20 @@ int main(int argi, char** argv ) {
     // Get the answer
     *group = solver->getSolutionGroup();
 
-    Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr()->write( 800 );
+    x = Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr();
 		Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(500);
   }
 	/******************************************************************************************/
-//  x->write(800);
+	x->write(800);
+//	auto er = x->clone(Pimpact::ShallowCopy);
+	sol->add( 1., *sol, -1, *x->getFieldPtr(0)->getVFieldPtr());
+
+	sol->write( 900 );
+	auto er = sol->norm();
+	if( 0==space->rankST() )
+		std::cout << "error: " << er << "\n";
+
+	Teuchos::TimeMonitor::summarize();
 
   MPI_Finalize();
   return( 0 );

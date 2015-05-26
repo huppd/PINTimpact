@@ -50,7 +50,8 @@ public:
     cFields_( mgSpaces_->getNGrids() ) {
 
     for( int i=0; i<mgSpaces_->getNGrids(); ++i )
-      cFields_[i] = Teuchos::rcp( new CFieldT( mgSpaces_->get(i), type ) );
+//			if( 0==i || mgSpaces_->participating(i-1) )
+				cFields_[i] = Teuchos::rcp( new CFieldT( mgSpaces_->get(i), type ) );
 
 	// not working on brutus
     //cFields_.shrink_to_fit();

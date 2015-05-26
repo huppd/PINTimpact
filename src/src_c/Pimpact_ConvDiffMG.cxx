@@ -11,7 +11,7 @@ const int dNC=4;
 typedef Pimpact::Space<S,O,d,dNC> FSpaceT;
 typedef Pimpact::Space<S,O,d,2> CSpaceT;
 
-typedef Pimpact::CoarsenStrategy<FSpaceT,CSpaceT> CS;
+typedef Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT> CS;
 
 template<class T1,class T2> using TransVF = Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<T1,T2> >;
 template<class T> using RestrVF = Pimpact::VectorFieldOpWrap<Pimpact::RestrictionOp<T> >;
@@ -34,8 +34,8 @@ int main( int argi, char** argv ) {
   MPI_Init( &argi, &argv );
 
   auto pl = Teuchos::parameterList();
-  pl->set("npy",1);
-  pl->set("npx",1);
+  pl->set("npy",2);
+  pl->set("npx",2);
 
   pl->set( "domain", 1);
 
