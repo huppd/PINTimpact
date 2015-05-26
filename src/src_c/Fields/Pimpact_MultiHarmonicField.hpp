@@ -296,8 +296,8 @@ public:
 			Ordinal nt = 4*nf;
 			auto temp = getConst0FieldPtr()->clone( Pimpact::ShallowCopy );
 			for( Ordinal i=0; i<nt;  ++i ) {
-//				temp->assign( getConst0Field() );
-				temp->initField(  );
+				temp->assign( getConst0Field() );
+//				temp->initField(  );
 				for( Ordinal j=0; j<nf; ++j ) {
 					temp->add(
 							1., *temp,

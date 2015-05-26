@@ -1,7 +1,7 @@
 import os
 from numpy import linspace
 import numpy as np
-from pylab import pi
+from math import pi
 from platform_paths import *
 
 
@@ -20,7 +20,7 @@ npy= 1
 npt= 1
 
 
-case_consts = [' --baseflow=1 --force=1  --domain=0 --nf=8  --tolNOX=1.e-6  --tolInnerBelos=1.e-1 --maxIter=5 --lx=8. --ly=2. --lz=4.']
+case_consts = [' --baseflow=1 --force=1  --domain=0 --nf=2  --tolNOX=1.e-6  --tolInnerBelos=1.e-1 --maxIter=5 --lx=8. --ly=2. --lz=4.']
 
 ns        = [ 4 ]
 res       = [ 100, 200, 400 ]
@@ -52,4 +52,5 @@ for alpha2 in alpha2s:
 		case_para = ' --nx='+str(256+1)+' --ny='+str(64+1)+' --nz='+str(128+1)+' --npx='+str(n)+' --npy='+str( max(n/4,1) )+' --npz='+str(max(n/2,1))+' --maxGrids='+str(5)+' --re='+str(re)+' --alpha2='+str(alpha2)+' ' 
 		#os.system( exe_pre(npx*npy*npt,' -R lustre ')+exe_path+exe+case_para+case_consts )
 		print( exe_pre(n*max(n/2,1)*max(n/4,1),' -W 21:00 ')+exe_path+exe+case_para+case_consts[0] +' > output ' )
-		os.system( exe_pre(n*max(n/2,1)*max(n/4,1),' -W 21:00 ' )+exe_path+exe+case_para+case_consts[0] +'  ' )
+		os.system( exe_pre(n*max(n/2,1)*max(n/4,1),' -W 21:00 ' )+exe_path+exe+case_para+case_consts[0] +' > output ' )
+

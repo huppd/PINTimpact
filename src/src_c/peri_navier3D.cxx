@@ -482,7 +482,7 @@ int main(int argi, char** argv ) {
 						);
 
 			auto pl_divGrad =
-				Pimpact::createLinSolverParameter( (withprec==2||withprec==3)?"Block GMRES":"GMRES", tolInnerBelos/100., -1, outSchur );
+				Pimpact::createLinSolverParameter( (withprec==2||withprec==3)?"Block GMRES":"GMRES", tolInnerBelos/10., -1, outSchur );
 			//				Pimpact::createLinSolverParameter( (withprec==2||withprec==3)?"Block GMRES":"GMRES", tolInnerBelos, -1, outSchur );
 			pl_divGrad->set( "Num Blocks",				 5   );
 			pl_divGrad->set( "Maximum Iterations", 100 );
@@ -490,7 +490,7 @@ int main(int argi, char** argv ) {
 			pl_divGrad->set( "Timer Label",	"DivGrad");
 			//			pl_divGrad->set( "Block Size", std::max( space->nGlo(3)/2, 1) );
 			//			pl_divGrad->set( "Block Size", space->nGlo(3) );
-			pl_divGrad->set( "Block Size", std::min(space->nGlo(3)*2+1, 9) );
+			pl_divGrad->set( "Block Size", std::min(space->nGlo(3)/2+1, 9) );
 			pl_divGrad->set( "Adaptive Block Size", false );		
 			//			pl_divGrad->set( "Block Size", 1 );
 
