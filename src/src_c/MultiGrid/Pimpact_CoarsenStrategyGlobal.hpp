@@ -85,15 +85,13 @@ public:
           }
         }
         else
-          if( ( (nGlo[j])%2 )==0 && nGlo[j]>1 ) {
+          if( ( (nGlo[j])%2 )==0 && nGlo[j]>1 && (nGlo[j]/2)>=space->getNProc(j) ) {
             nGlo[j] = (nGlo[j])/2;
             coarsen_yes = true;
             coarsen_dir[j] = true;
           }
       }
 
-
-			
 			if( coarsen_yes ) {
 				std::ofstream file;
 				std::string fname = "bla.txt";
@@ -153,28 +151,31 @@ protected:
     TO np = space->getProcGridSize()->getTuple();
 		TO npNew = np;
 //		std::cout << "rank: " << space->rankST()<< "\t procGridSizOld: " << npNew << "\n";
-    for( int i=0; i<3; ++i ) {
-      if( coarsen_dir[i] ) {
-				npNew[i] = 1;
-				for( int j=2; j<=np[i]; ++j ) {
-					if( ((gridSizeGlobalTup[i]-1)%j)==0 && (np[i]%j)==0 )
-						if( ((gridSizeGlobalTup[i]-1)/j)%2==0 && (gridSizeGlobalTup[i]-1)/j>=2 )
-							npNew[i] = j;
-				}
-				// --- enforce gathering of coarsest grid to one processor ---
-				if( ( (gridSizeGlobalTup[i]-1)%2!=0 || gridSizeGlobalTup[i]<cgsize || maxGrid_yes ) && npNew[i]>1 )
+    for( int i=0; i<dimension; ++i ) {
+			if( i<3 ) {
+				if( coarsen_dir[i] ) {
 					npNew[i] = 1;
+					for( int j=2; j<=np[i]; ++j ) {
+						if( ((gridSizeGlobalTup[i]-1)%j)==0 && (np[i]%j)==0 )
+							if( ((gridSizeGlobalTup[i]-1)/j)%2==0 && (gridSizeGlobalTup[i]-1)/j>=2 )
+								npNew[i] = j;
+					}
+					// --- enforce gathering of coarsest grid to one processor ---
+					if( ( (gridSizeGlobalTup[i]-1)%2!=0 || gridSizeGlobalTup[i]<cgsize || maxGrid_yes ) && npNew[i]>1 )
+						npNew[i] = 1;
+				}
 			}
-		}
-    if( 4==dimension ) {
-      if( coarsen_dir[3] ) {
-//				for( int j=1; j<np[3]; ++j ) {
-//					if( (gridSizeGlobalTup[3]%j)==0 && (procSizeTup[3]/j)>=2 )
-//						npNew[3] = j;
-//				}
-//				if( (gridSizeGlobalTup[3]%2)!=0  && npNew[3]>1 )
-//					npNew[3] = 1;
+			else {
+				if( coarsen_dir[3] ) {
+					for( int j=1; j<np[3]; ++j ) {
+						if( (gridSizeGlobalTup[3]%j)==0 && (gridSizeGlobalTup[3]/j)>=2 )
+							npNew[3] = j;
+					}
+					if( (gridSizeGlobalTup[3]%2)!=0  && npNew[3]>1 )
+						npNew[3] = 1;
+				}
 			}
+
 		}
 //		std::cout << "rank: " << space->rankST()<< "\t procGridSiz: " << npNew << "\n";
 
