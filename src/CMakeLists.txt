@@ -94,18 +94,6 @@ INCLUDE_DIRECTORIES( ${inc_dir} ${Trilinos_INCLUDE_DIRS} ${Trilinos_TPL_INCLUDE_
 LINK_DIRECTORIES( ${Trilinos_LIBRARY_DIRS} ${Trilinos_TPL_LIBRARY_DIRS} )
 
 
-#find_path(STDIO_INCLUDE_PATH stdio.h)
-#include_directories("${STDIO_INCLUDE_PATH}/dummy/../")
-
-#ADD_LIBRARY(myappLib src_file.cpp src_file.hpp)
-
-#ADD_EXECUTABLE(MyApp.exe main_file.cpp)
-
-#TARGET_LINK_LIBRARIES(MyApp.exe  myappLib  ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES}) 
-
-#enable_testing()
-#add_test(NAME MyTest COMMAND MyApp.exe)
-
 # Appends the cmake/modules path inside the MAKE_MODULE_PATH variable which stores the
 # directories of additional CMake modules (ie. MacroOutOfSourceBuild.cmake):
 set( CMAKE_MODULE_PATH ${pimpact_SOURCE_DIR}/cmake/modules ${CMAKE_MODULE_PATH} )

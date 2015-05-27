@@ -770,7 +770,10 @@ module mod_vars
   !> cooresponds to non BC kind of first index lower upper/ second index direction, third index grid level
   integer                ::  BC (1:2,1:3,1:n_grids_max)
   integer                ::  ngb(1:2,1:3,1:n_grids_max)
-  integer                ::  comm1(1:n_grids_max), comm2(1:n_grids_max)
+  !> used for bicg2 on coarser grids( only in mod_solvers)
+  integer                ::  comm1(1:n_grids_max) 
+  !> used for interolation/restricion ( only in mod_solvers) 
+  integer                ::  comm2(1:n_grids_max)  
   integer                ::  rankc2(1:n_grids_max)
   logical                ::  participate_yes(1:n_grids_max)
   integer, allocatable   ::  recvR(  :,:), recvI(  :,:)
