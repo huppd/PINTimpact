@@ -34,6 +34,8 @@ typedef Pimpact::CoarsenStrategyGlobal<FSpace4T,CSpace4T,5> CS4G;
 template<class ST> using BSF = Pimpact::MultiField< Pimpact::ScalarField<ST> >;
 //template<class T> using BVF = Pimpact::MultiField< Pimpact::VectorField<T> >;
 
+template<class ST> using TSF = Pimpact::TimeField< Pimpact::ScalarField<ST> >;
+
 template<class ST> using BOPF = Pimpact::MultiOpWrap< Pimpact::DivGradOp<ST> >;
 template<class ST> using BOPC = Pimpact::MultiOpWrap< Pimpact::DivGradO2Op<ST> >;
 template<class ST> using BSM = Pimpact::MultiOpWrap< Pimpact::DivGradO2JSmoother<ST> >;
@@ -185,14 +187,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGFields, SF_constructor4D, CS ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-  auto space = Pimpact::createSpace( pl );
+  auto space = Pimpact::createSpace<S,O,4>( pl );
 
   auto mgSpaces = Pimpact::createMGSpaces<FSpace4T,CSpace4T,CS>( space, maxGrids );
   std::cout << "nGridLevels: " << mgSpaces->getNGrids() << "\n";
   if( space->rankST()==0 )
     mgSpaces->print();
 
-  auto mgFields = Pimpact::createMGFields<Pimpact::ScalarField>( mgSpaces );
+  auto mgFields = Pimpact::createMGFields<TSF>( mgSpaces );
 
   auto field = mgFields->get( -1 );
 	if( mgSpaces->participating(-1) ){
