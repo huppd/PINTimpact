@@ -79,7 +79,7 @@ protected:
 
 public:
 
-  TimeField( Teuchos::RCP<const SpaceT> space ):
+  TimeField( Teuchos::RCP<const SpaceT> space, EField dummy=EField::S ):
     AF( space ),
     exchangedState_(true) {
 
