@@ -81,7 +81,7 @@ public:
 /// \relates
 template< class OpT >
 Teuchos::RCP< InterpolationTimeOp<OpT> > createInterpolationTimeOp(
-    const Teuchos::RCP<const typename OpT::CSpaceT>& spaceC, const Teuchos::RCP<const typename Opt::FSpaceT>& spaceF ) {
+    const Teuchos::RCP<const typename OpT::CSpaceT>& spaceC, const Teuchos::RCP<const typename OpT::FSpaceT>& spaceF ) {
 
 	return( Teuchos::rcp( new InterpolationTimeOp<OpT>( spaceC,spaceF ) ) );
 
