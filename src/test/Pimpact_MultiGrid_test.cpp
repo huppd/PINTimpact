@@ -28,6 +28,9 @@ typedef Pimpact::Space<S,O,4,2> CSpace4T;
 typedef Pimpact::CoarsenStrategy<FSpace3T,CSpace3T> CS3L;
 typedef Pimpact::CoarsenStrategyGlobal<FSpace3T,CSpace3T,5> CS3G;
 
+typedef Pimpact::CoarsenStrategy<FSpace4T,CSpace4T> CS4L;
+typedef Pimpact::CoarsenStrategyGlobal<FSpace4T,CSpace4T,5> CS4G;
+
 template<class ST> using BSF = Pimpact::MultiField< Pimpact::ScalarField<ST> >;
 //template<class T> using BVF = Pimpact::MultiField< Pimpact::VectorField<T> >;
 
@@ -46,7 +49,7 @@ template<class T> using ConvDiffJT = Pimpact::ConvectionVSmoother<T,Pimpact::Con
 bool testMpi = true;
 double eps = 1e-6;
 
-int domain = 1;
+int domain = 0;
 int ftype = 0;
 
 int fs = 0;
@@ -55,10 +58,12 @@ int fe = 4;
 int npx = 1;
 int npy = 1;
 int npz = 1;
+int npf = 1;
 
 int nx = 97;
 int ny = 25;
 int nz = 49;
+int nf = 32;
 
 int rankbla = -1;
 
@@ -99,6 +104,9 @@ TEUCHOS_STATIC_SETUP() {
 	    "npz", &npz,
 	    "" );
 	clp.setOption(
+	    "npf", &npf,
+	    "" );
+	clp.setOption(
 	    "nx", &nx,
 	    "" );
 	clp.setOption(
@@ -106,6 +114,9 @@ TEUCHOS_STATIC_SETUP() {
 	    "" );
 	clp.setOption(
 	    "nz", &nz,
+	    "" );
+	clp.setOption(
+	    "nf", &nf,
 	    "" );
 	clp.setOption(
 	    "rank", &rankbla,
@@ -123,17 +134,6 @@ TEUCHOS_STATIC_SETUP() {
 
 	pl->set<S>( "Re", 1000 );
 
-	//  grid size
-	pl->set("nx", nx );
-	pl->set("ny", ny );
-	pl->set("nz", nz );
-  pl->set("nf", 65 );
-
-	// processor grid size
-	pl->set("npx", npx );
-	pl->set("npy", npy );
-	pl->set("npz", npz );
-
 }
 
 
@@ -144,11 +144,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSpaces, constructor3D, CS ) {
 	pl->set("nx", nx );
 	pl->set("ny", ny );
 	pl->set("nz", nz );
+	pl->set("nf", nf );
 
 	// processor grid size
 	pl->set("npx", npx );
 	pl->set("npy", npy );
 	pl->set("npz", npz );
+	pl->set("npf", npf );
 
 	auto space = Pimpact::createSpace( pl );
 
@@ -166,19 +168,21 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSpaces, constructor3D, CS3G )
 
 
 
-TEUCHOS_UNIT_TEST( MGSpaces, constructor4D ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSpaces, constructor4D, CS ) {
 
-  typedef Pimpact::CoarsenStrategy<FSpace4T,CSpace4T> CS;
+//  typedef Pimpact::CoarsenStrategy<FSpace4T,CSpace4T> CS;
 
 	//  grid size
 	pl->set("nx", nx );
 	pl->set("ny", ny );
 	pl->set("nz", nz );
+	pl->set("nf", nf );
 
 	// processor grid size
 	pl->set("npx", npx );
 	pl->set("npy", npy );
 	pl->set("npz", npz );
+	pl->set("npf", npf );
 
 
   auto space = Pimpact::createSpace<S,O,4>( pl );
@@ -193,6 +197,9 @@ TEUCHOS_UNIT_TEST( MGSpaces, constructor4D ) {
 
 }
 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSpaces, constructor4D, CS4L )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSpaces, constructor4D, CS4G )
+
 
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGFields, SF_constructor3D, CS ) {
@@ -201,11 +208,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGFields, SF_constructor3D, CS ) {
 	pl->set("nx", nx );
 	pl->set("ny", ny );
 	pl->set("nz", nz );
+	pl->set("nf", nf );
 
 	// processor grid size
 	pl->set("npx", npx );
 	pl->set("npy", npy );
 	pl->set("npz", npz );
+	pl->set("npf", npf );
 
   auto space = Pimpact::createSpace( pl );
 
@@ -238,11 +247,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGFields, VF_constructor3D, CS ) {
 	pl->set("nx", nx );
 	pl->set("ny", ny );
 	pl->set("nz", nz );
+	pl->set("nf", nf );
 
 	// processor grid size
 	pl->set("npx", npx );
 	pl->set("npy", npy );
 	pl->set("npz", npz );
+	pl->set("npf", npf );
 
   auto space = Pimpact::createSpace( pl );
 
@@ -275,11 +286,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGOperators, SF_constructor3D, CS ) {
 	pl->set("nx", nx );
 	pl->set("ny", ny );
 	pl->set("nz", nz );
+	pl->set("nf", nf );
 
 	// processor grid size
 	pl->set("npx", npx );
 	pl->set("npy", npy );
 	pl->set("npz", npz );
+	pl->set("npf", npf );
 
   auto space = Pimpact::createSpace( pl );
 
@@ -307,11 +320,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGOperators, VF_constructor3D, CS ) {
 	pl->set("nx", nx );
 	pl->set("ny", ny );
 	pl->set("nz", nz );
+	pl->set("nf", nf );
 
 	// processor grid size
 	pl->set("npx", npx );
 	pl->set("npy", npy );
 	pl->set("npz", npz );
+	pl->set("npf", npf );
 
   auto space = Pimpact::createSpace( pl );
 
@@ -339,11 +354,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSmoothers, SF_constructor3D, CS ) {
 	pl->set("nx", nx );
 	pl->set("ny", ny );
 	pl->set("nz", nz );
+	pl->set("nf", nf );
 
 	// processor grid size
 	pl->set("npx", npx );
 	pl->set("npy", npy );
 	pl->set("npz", npz );
+	pl->set("npf", npf );
 
   auto space = Pimpact::createSpace( pl );
 
@@ -372,11 +389,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSmoothers, VF_constructor3D, CS ) {
 	pl->set("nx", nx );
 	pl->set("ny", ny );
 	pl->set("nz", nz );
+	pl->set("nf", nf );
 
 	// processor grid size
 	pl->set("npx", npx );
 	pl->set("npy", npy );
 	pl->set("npz", npz );
+	pl->set("npf", npf );
 
   auto space = Pimpact::createSpace( pl );
 
@@ -405,11 +424,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Restrictor3D, CS ) {
 	pl->set("nx", nx );
 	pl->set("ny", ny );
 	pl->set("nz", nz );
+	pl->set("nf", nf );
 
 	// processor grid size
 	pl->set("npx", npx );
 	pl->set("npy", npy );
 	pl->set("npz", npz );
+	pl->set("npf", npf );
 
 	auto space = Pimpact::createSpace<S,O,3>( pl );
 
@@ -618,11 +639,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator3D, CS ) {
 	pl->set("nx", nx );
 	pl->set("ny", ny );
 	pl->set("nz", nz );
+	pl->set("nf", nf );
 
 	// processor grid size
 	pl->set("npx", npx );
 	pl->set("npy", npy );
 	pl->set("npz", npz );
+	pl->set("npf", npf );
 
   auto space = Pimpact::createSpace<S,O,3>( pl );
 
@@ -814,11 +837,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MGTransfersVF, CS ) {
 	pl->set("nx", nx );
 	pl->set("ny", ny );
 	pl->set("nz", nz );
+	pl->set("nf", nf );
 
 	// processor grid size
 	pl->set("npx", npx );
 	pl->set("npy", npy );
 	pl->set("npz", npz );
+	pl->set("npf", npf );
 
 	auto space = Pimpact::createSpace<S,O,3>( pl );
 
@@ -954,11 +979,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 	pl->set("nx", nx );
 	pl->set("ny", ny );
 	pl->set("nz", nz );
+	pl->set("nf", nf );
 
 	// processor grid size
 	pl->set("npx", npx );
 	pl->set("npy", npy );
 	pl->set("npz", npz );
+	pl->set("npf", npf );
 
 	auto space = Pimpact::createSpace( pl );
 
@@ -1070,11 +1097,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffOp, CS ) {
 	pl->set("nx", nx );
 	pl->set("ny", ny );
 	pl->set("nz", nz );
+	pl->set("nf", nf );
 
 	// processor grid size
 	pl->set("npx", npx );
 	pl->set("npy", npy );
 	pl->set("npz", npz );
+	pl->set("npf", npf );
 
   //auto space = Pimpact::createSpace<S,O,3,2>( pl );
   auto space = Pimpact::createSpace( pl );
