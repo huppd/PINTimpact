@@ -1,3 +1,4 @@
+
 #pragma once
 #ifndef PIMPACT_TIMEFIELD_HPP
 #define PIMPACT_TIMEFIELD_HPP
@@ -524,6 +525,11 @@ initVectorTimeField(
 
 }
 
+
+extern template class TimeField<ScalarField< Space<double,int,4,2> > >;
+extern template class TimeField<ScalarField< Space<double,int,4,4> > >;
+extern template class TimeField<VectorField< Space<double,int,4,2> > >;
+extern template class TimeField<VectorField< Space<double,int,4,4> > >;
 
 } // end of namespace Pimpact
 

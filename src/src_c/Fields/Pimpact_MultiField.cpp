@@ -559,19 +559,6 @@ Teuchos::RCP< MultiField<FieldT> > createMultiField( const Teuchos::RCP<FieldT>&
 }
 
 
-//extern template class MultiField< ScalarField< Space<double,int,3,2> > >;
-//extern template class MultiField< ScalarField< Space<double,int,3,4> > >;
-//extern template class MultiField< ScalarField< Space<double,int,4,2> > >;
-//extern template class MultiField< ScalarField< Space<double,int,4,4> > >;
-//extern template class MultiField< VectorField< Space<double,int,3,2> > >;
-//extern template class MultiField< VectorField< Space<double,int,3,4> > >;
-//extern template class MultiField< VectorField< Space<double,int,4,2> > >;
-//extern template class MultiField< VectorField< Space<double,int,4,4> > >;
-//extern template class MultiField< TimeField<ScalarField< Space<double,int,4,2> > > >;
-//extern template class MultiField< TimeField<ScalarField< Space<double,int,4,4> > > >;
-//extern template class MultiField< TimeField<VectorField< Space<double,int,4,2> > > >;
-//extern template class MultiField< TimeField<VectorField< Space<double,int,4,4> > > >;
-
 
 } // end of namespace Pimpact
 

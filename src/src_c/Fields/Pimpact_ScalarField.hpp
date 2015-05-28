@@ -2,11 +2,14 @@
 #ifndef PIMPACT_SCALARFIELD_HPP
 #define PIMPACT_SCALARFIELD_HPP
 
+
 #include <vector>
 #include <iostream>
 #include "mpi.h"
 
 #include "Teuchos_RCP.hpp"
+#include "Teuchos_ScalarTraits.hpp"
+
 #include "BelosTypes.hpp"
 
 #include "Pimpact_Types.hpp"
@@ -29,10 +32,10 @@ namespace Pimpact {
 template<class SpaceType>
 class ScalarField : private AbstractField< SpaceType > {
 
-  template<class SpaceTT>
-  friend class DivGradO2JSmoother;
-  template<class OperatorTT>
-  friend class ConvectionDiffusionJSmoother;
+//  template<class SpaceTT>
+//  friend class DivGradO2JSmoother;
+//  template<class OperatorTT>
+//  friend class ConvectionDiffusionJSmoother;
   template<class Field>
   friend class TimeField;
 
@@ -956,6 +959,10 @@ createScalarField(
       new ScalarField<SpaceT>( space, true, fType ) ) );
 }
 
+extern template class ScalarField< Space<double,int,3,2> >;
+extern template class ScalarField< Space<double,int,3,4> >;
+extern template class ScalarField< Space<double,int,4,2> >;
+extern template class ScalarField< Space<double,int,4,4> >;
 
 } // end of namespace Pimpact
 

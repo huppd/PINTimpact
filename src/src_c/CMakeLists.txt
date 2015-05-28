@@ -17,6 +17,7 @@ include_directories("./NOXPimpact")
 include_directories("./MultiGrid")
 
 add_subdirectory("./Space")
+add_subdirectory("./Fields")
  
  
 #message("cxx compiler:  ${CMAKE_CXX_COMPILER}")

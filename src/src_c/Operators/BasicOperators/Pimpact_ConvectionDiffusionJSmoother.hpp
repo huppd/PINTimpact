@@ -89,7 +89,7 @@ public:
       const Teuchos::RCP<const OperatorT>& op,
       Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ):
         omega_( pl->get("omega", 0.8 ) ),
-        nIter_( pl->get("numIters", 10 ) ),
+        nIter_( pl->get("numIters", 5 ) ),
         op_(op),
         temp_( create<DomainFieldT>(op_->space()) ) {}
 
@@ -115,8 +115,8 @@ public:
 
     for( int i=0; i<nIter_; ++i ) {
 
-      y.exchange();
-      z.exchange();
+			y.exchange();
+			z.exchange();
 
       OP_convectionDiffusionJSmoother(
           space()->dim(),
@@ -147,13 +147,42 @@ public:
           op_->mulC_,
           omega_ );
 
-      // attention: could lead to problems when ScalarField is used as part of a higherlevel class (s is shared)
-      std::swap( z.s_, temp_->s_ );
+      temp_->changed();
+			temp_->exchange();
+
+      OP_convectionDiffusionJSmoother(
+          space()->dim(),
+          space()->nLoc(),
+          space()->bl(),
+          space()->bu(),
+          space()->nl(),
+          space()->nu(),
+          space()->sInd(z.getType()),
+          space()->eInd(z.getType()),
+          op_->convSOp_->getCD(X,z.getType()),
+          op_->convSOp_->getCD(Y,z.getType()),
+          op_->convSOp_->getCD(Z,z.getType()),
+          op_->convSOp_->getCU(X,z.getType()),
+          op_->convSOp_->getCU(Y,z.getType()),
+          op_->convSOp_->getCU(Z,z.getType()),
+        	op_->helmOp_->getC( X, z.getType() ),
+        	op_->helmOp_->getC( Y, z.getType() ),
+        	op_->helmOp_->getC( Z, z.getType() ),
+          x[0]->getConstRawPtr(),
+          x[1]->getConstRawPtr(),
+          x[2]->getRawPtr(),
+          y.getConstRawPtr(),
+          temp_->getRawPtr(),
+          z.getConstRawPtr(),
+          op_->mulI_,
+          op_->mulC_,
+          op_->mulC_,
+          omega_ );
+
       z.changed();
 
     }
-    if( 0!=(nIter_%2) )
-      std::swap( z.s_, temp_->s_ );
+//    if( 0!=(nIter_%2) ) std::swap( z.s_, temp_->s_ );
   }
 
 	Teuchos::RCP<const SpaceT> space() const { return(op_->space()); };

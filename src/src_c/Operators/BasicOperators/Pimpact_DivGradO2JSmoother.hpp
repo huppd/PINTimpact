@@ -92,9 +92,9 @@ public:
           op_->c_[1],
           op_->c_[2],
           omega_,
-          x.s_,
-          y.s_,
-          temp_->s_);
+          x.getConstRawPtr(),
+          y.getRawPtr(),
+          temp_->getRawPtr() );
 
 		 SF_handle_corner(
 				 space()->nLoc(),
@@ -102,7 +102,7 @@ public:
 				 space()->bu(),
 				 space()->getDomain()->getBCLocal()->getBCL(),
 				 space()->getDomain()->getBCLocal()->getBCU(),
-				 temp_->s_ );
+				 temp_->getRawPtr() );
 
       // attention: could lead to problems when ScalarField is used as part of a higherlevel class (s is shared)
 //      std::swap( y.s_, temp_->s_ );
@@ -123,9 +123,9 @@ public:
 				 op_->c_[1],
 				 op_->c_[2],
 				 omega_,
-				 x.s_,
-				 temp_->s_,
-				 y.s_ );
+				 x.getConstRawPtr(),
+				 temp_->getRawPtr(),
+				 y.getRawPtr() );
 
 		 SF_handle_corner(
 				 space()->nLoc(),
@@ -133,7 +133,7 @@ public:
 				 space()->bu(),
 				 space()->getDomain()->getBCLocal()->getBCL(),
 				 space()->getDomain()->getBCLocal()->getBCU(),
-				 y.s_ );
+				 y.getRawPtr() );
 		 y.changed();
     }
 
