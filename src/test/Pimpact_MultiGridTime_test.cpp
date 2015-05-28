@@ -35,6 +35,9 @@ template<class ST> using BSF = Pimpact::MultiField< Pimpact::ScalarField<ST> >;
 //template<class T> using BVF = Pimpact::MultiField< Pimpact::VectorField<T> >;
 
 template<class ST> using TSF = Pimpact::TimeField< Pimpact::ScalarField<ST> >;
+template<class ST> using TOPF = Pimpact::TimeOpWrap< Pimpact::DivGradOp<ST> >;
+template<class ST> using TOPC = Pimpact::TimeOpWrap< Pimpact::DivGradO2Op<ST> >;
+
 
 template<class ST> using BOPF = Pimpact::MultiOpWrap< Pimpact::DivGradOp<ST> >;
 template<class ST> using BOPC = Pimpact::MultiOpWrap< Pimpact::DivGradO2Op<ST> >;
@@ -212,7 +215,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGFields, SF_constructor4D, CS4G )
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGFields, VF_constructor3D, CS ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGFields, VF_constructor4D, CS ) {
 
 	//  grid size
 	pl->set("nx", nx );
@@ -226,14 +229,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGFields, VF_constructor3D, CS ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-  auto space = Pimpact::createSpace( pl );
+  auto space = Pimpact::createSpace<S,O,4>( pl );
 
-  auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
+  auto mgSpaces = Pimpact::createMGSpaces<FSpace4T,CSpace4T,CS>( space, maxGrids );
   std::cout << "nGridLevels: " << mgSpaces->getNGrids() << "\n";
   if( space->rankST()==0 )
     mgSpaces->print();
 
-  auto mgFields = Pimpact::createMGFields<Pimpact::VectorField>( mgSpaces );
+  auto mgFields = Pimpact::createMGFields<TSF>( mgSpaces );
 
   auto field = mgFields->get( -1 );
 	if( mgSpaces->participating(-1) ){
@@ -246,12 +249,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGFields, VF_constructor3D, CS ) {
 
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGFields, VF_constructor3D, CS3L )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGFields, VF_constructor3D, CS3G )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGFields, VF_constructor4D, CS4L )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGFields, VF_constructor4D, CS4G )
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGOperators, SF_constructor3D, CS ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGOperators, SF_constructor4D, CS ) {
 
 	//  grid size
 	pl->set("nx", nx );
@@ -265,23 +268,27 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGOperators, SF_constructor3D, CS ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-  auto space = Pimpact::createSpace( pl );
+  auto space = Pimpact::createSpace<S,O,4>( pl );
 
-  auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
+  auto mgSpaces = Pimpact::createMGSpaces<FSpace4T,CSpace4T,CS>( space, maxGrids );
 
-  auto mgOps = Pimpact::createMGOperators<Pimpact::DivGradO2Op>( mgSpaces );
+  //auto OpsT = Pimpact::createTimeOpWrap< Pimpact::DivGradOp<SpaceT>, true >(
+    //  Pimpact::create<Pimpact::DivGradOp>( space ) );
 
-  auto mgOps2 = Pimpact::createMGOperators<Pimpact::DivGradOp,Pimpact::DivGradO2Op>( mgSpaces );
+  //auto Ops2T = Pimpact::createTimeOpWrap< Pimpact::DivGradO2Op<SpaceT>, true >(
+    //  Pimpact::create<Pimpact::DivGradO2Op>( space ) );
 
-  auto op = mgOps->get( -1 );
+  auto mgOps2 = Pimpact::createMGOperators<TOPF,TOPC>( mgSpaces );
+
+  auto op = mgOps2->get( -1 );
 
 	if( mgSpaces->participating(-1) )
 		op->print();
 
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGOperators, SF_constructor3D, CS3L )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGOperators, SF_constructor3D, CS3G )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGOperators, SF_constructor4D, CS4L )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGOperators, SF_constructor4D, CS4G )
 
 
 
@@ -641,7 +648,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator3D, CS ) {
 
 	 // the zero test
 	 fieldf->init( 1. );
-	 fieldc->initField( Pimpact::ConstField, 0. );
+	 fieldc->initField( Pimpact::ConstField, 0. );// this will be a loop on the time field
 
 		if( mgSpaces->participating(-2) )
 				op->apply( *fieldc, *fieldf );
