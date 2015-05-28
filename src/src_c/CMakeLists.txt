@@ -1,6 +1,8 @@
 # Include the directory itself as a path to include directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+
+include_directories("./")
 include_directories("./Space")
 include_directories("./Grid")
 include_directories("./Fields")
@@ -14,6 +16,7 @@ include_directories("./BelosPimpact")
 include_directories("./NOXPimpact")
 include_directories("./MultiGrid")
 
+add_subdirectory("./Space")
  
  
 #message("cxx compiler:  ${CMAKE_CXX_COMPILER}")

@@ -21,31 +21,6 @@
 namespace Pimpact {
 
 
-//extern "C" {
-//
-//void SVS_set_sInd(const int* const);
-//void SVS_set_eInd(const int* const);
-//
-//void VS_set_sIndU(const int* const);
-//void VS_set_eIndU(const int* const);
-//
-//void VS_set_sIndUB(const int* const);
-//void VS_set_eIndUB(const int* const);
-//
-//void VS_set_sIndV(const int* const);
-//void VS_set_eIndV(const int* const);
-//
-//void VS_set_sIndVB(const int* const);
-//void VS_set_eIndVB(const int* const);
-//
-//void VS_set_sIndW(const int* const);
-//void VS_set_eIndW(const int* const);
-//
-//void VS_set_sIndWB(const int* const);
-//void VS_set_eIndWB(const int* const);
-//
-//}
-
 
 /// \brief class that stores neccessary lower and upper indexes for \c ScalarField for different FieldTypes
 /// and including Boundaries or excluding them.
@@ -360,7 +335,7 @@ public:
     if( EField::S == (EField)fieldType )
       return( sIndS_[dir]  );
     else
-      return( sIndUB_[fieldType].getRawPtr()  );
+      return( sIndUB_[fieldType].getRawPtr()[dir]  );
   }
   const Ordinal& eIndB( int fieldType, int dir ) const {
     if( EField::S == (EField)fieldType )

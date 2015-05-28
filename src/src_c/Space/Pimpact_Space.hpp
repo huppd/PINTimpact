@@ -41,11 +41,11 @@
 
 namespace Pimpact {
 
-
 extern "C" {
 void openH5F();
 void closeH5F();
 }
+
 
 
 /// \brief Space in the sense of a VectorSpace, it is the connection between Field and Operators
@@ -66,8 +66,6 @@ public:
 
 	Space( Teuchos::RCP<Teuchos::ParameterList> pl ) {
 
-//    if( setImpact ) Pimpact::init_impact_pre();
-
     pl->validateParametersAndSetDefaults( *getValidParameters() );
 
     Teuchos::writeParameterListToXmlFile( *pl, "parameterOut.xml" );
@@ -81,18 +79,15 @@ public:
         pl->get<S>("lx"),
         pl->get<S>("ly"),
         pl->get<S>("lz") );
-//    if( setImpact ) domainSize->set_Impact();
 
     // are all template paramter needed here?
 		int domain = pl->get<int>("domain");
 		domain = ( 2==pl->get<int>("dim") && 0==domain )?1:domain;
     auto boundaryConditionsGlobal =
         Pimpact::createBoudaryConditionsGlobal<d>( Pimpact::EDomainType( domain ) );
-//    if( setImpact ) boundaryConditionsGlobal->set_Impact();
 
     procGridSize_ =
         Pimpact::createProcGridSize<O,d>( pl->get<O>("npx"), pl->get<O>("npy",2), pl->get<O>("npz",1), pl->get<O>("npf") );
-//    if( setImpact ) procGridSize_->set_Impact();
 
     gridSizeGlobal_ =
         Pimpact::createGridSizeGlobal<O,d>(
@@ -100,14 +95,9 @@ public:
             pl->get<O>("ny"),
             ( 2==pl->get<int>("dim") )?2:pl->get<O>("nz"),
             pl->get<O>("nf") );
-//    if( setImpact ) gridSizeGlobal_->set_Impact();
 
     gridSizeLocal_ =
         Pimpact::createGridSizeLocal<O,d,dNC>( gridSizeGlobal_, procGridSize_, stencilWidths_ );
-//    if( setImpact ) gridSizeLocal_->set_Impact();
-
-
-//    if( setImpact ) Pimpact::init_impact_mid();
 
 
     procGrid_ =
@@ -121,16 +111,12 @@ public:
             boundaryConditionsGlobal,
             procGridSize_,
             procGrid_ );
-//    if( setImpact ) boundaryConditionsLocal->set_Impact();
 
     indexSpace_ =
         Pimpact::createIndexSpace<O,d>(
             stencilWidths_,
             gridSizeLocal_,
             boundaryConditionsLocal );
-
-
-//    if( setImpact ) Pimpact::init_impact_postpost();
 
 
     domain_ =
@@ -449,7 +435,10 @@ createSpace( Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ) 
 
 }
 
-
+extern template class Space<double,int,3,2>;
+extern template class Space<double,int,3,4>;
+extern template class Space<double,int,4,2>;
+extern template class Space<double,int,4,4>;
 
 
 
