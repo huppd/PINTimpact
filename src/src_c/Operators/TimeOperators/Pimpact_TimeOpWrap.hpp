@@ -39,6 +39,11 @@ protected:
 public:
 
   TimeOpWrap(
+			const Teuchos::RCP<const SpaceT>& space ):
+		op_( create<OperatorT>(space) ),
+		temp_( create<typename OperatorT::RangeFieldT>(space) ) {};
+
+  TimeOpWrap(
 			const Teuchos::RCP<OperatorT>& op ):
 		op_(op),
 		temp_( create<typename OperatorT::RangeFieldT>(op->space()) ) {};
