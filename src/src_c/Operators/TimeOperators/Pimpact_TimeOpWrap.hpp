@@ -90,6 +90,10 @@ public:
 		op_->setParameter( para );
 	}
 
+  void print( std::ostream& out=std::cout ) const {
+		op_->print(out);
+	}
+
 
 }; // end of class TimeOpWrap
 
