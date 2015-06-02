@@ -83,7 +83,6 @@ public:
 template<class MOperatorT>
 Teuchos::RCP< MultiOpUnWrap<MOperatorT> > createMultiOpUnWrap( const Teuchos::RCP<MOperatorT>& op ) {
 
-//    return( Teuchos::rcp( new MultiOpUnWrap<MOperatorT>( op ) ) );
     return( create<MultiOpUnWrap,MOperatorT>( op ) );
 
 }

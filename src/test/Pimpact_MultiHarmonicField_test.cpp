@@ -7,8 +7,7 @@
 #include "Teuchos_Range1D.hpp"
 #include "Teuchos_CommHelpers.hpp"
 
-#include "Pimpact_ScalarField.hpp"
-#include "Pimpact_VectorField.hpp"
+#include "Pimpact_Fields.hpp"
 
 #include "Pimpact_MultiHarmonicField.hpp"
 #include "Pimpact_FieldFactory.hpp"

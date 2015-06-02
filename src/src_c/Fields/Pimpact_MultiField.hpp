@@ -5,11 +5,12 @@
 
 #include <vector>
 
-#include <Teuchos_Array.hpp>
+#include "Teuchos_Array.hpp"
 #include "Teuchos_RCP.hpp"
-#include <Teuchos_Range1D.hpp>
+#include "Teuchos_Range1D.hpp"
+#include "Teuchos_SerialDenseMatrix.hpp"
 
-#include <BelosTypes.hpp>
+#include "BelosTypes.hpp"
 
 
 #include "Pimpact_Types.hpp"
@@ -83,7 +84,7 @@ public:
   /// \brief copy constructor creating a view
   /// note clear if here only referencing or copy is happening
   MultiField( const MV& mv ):
-    AF( mv->space() ),
+    AF( mv.space() ),
     mfs_(mv.mfs_) {}
 
 
@@ -558,19 +559,6 @@ Teuchos::RCP< MultiField<FieldT> > createMultiField( const Teuchos::RCP<FieldT>&
   return( Teuchos::rcp( new MultiField<FieldT>( field ) ) );
 }
 
-
-//extern template class MultiField< ScalarField< Space<double,int,3,2> > >;
-//extern template class MultiField< ScalarField< Space<double,int,3,4> > >;
-//extern template class MultiField< ScalarField< Space<double,int,4,2> > >;
-//extern template class MultiField< ScalarField< Space<double,int,4,4> > >;
-//extern template class MultiField< VectorField< Space<double,int,3,2> > >;
-//extern template class MultiField< VectorField< Space<double,int,3,4> > >;
-//extern template class MultiField< VectorField< Space<double,int,4,2> > >;
-//extern template class MultiField< VectorField< Space<double,int,4,4> > >;
-//extern template class MultiField< TimeField<ScalarField< Space<double,int,4,2> > > >;
-//extern template class MultiField< TimeField<ScalarField< Space<double,int,4,4> > > >;
-//extern template class MultiField< TimeField<VectorField< Space<double,int,4,2> > > >;
-//extern template class MultiField< TimeField<VectorField< Space<double,int,4,4> > > >;
 
 
 } // end of namespace Pimpact

@@ -942,7 +942,6 @@ public:
 
 
 
-
 /// \brief creates a scalar field(vector) belonging to a space
 ///
 /// \param space scalar Vector Space to which returned vector belongs
@@ -959,10 +958,6 @@ createScalarField(
       new ScalarField<SpaceT>( space, true, fType ) ) );
 }
 
-extern template class ScalarField< Space<double,int,3,2> >;
-extern template class ScalarField< Space<double,int,3,4> >;
-extern template class ScalarField< Space<double,int,4,2> >;
-extern template class ScalarField< Space<double,int,4,4> >;
 
 } // end of namespace Pimpact
 

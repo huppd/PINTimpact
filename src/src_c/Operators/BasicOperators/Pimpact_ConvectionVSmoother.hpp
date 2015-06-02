@@ -28,7 +28,6 @@ public:
 
   typedef ST<typename ConvVOpT::ConvSOpT> SSmootherT;
 
-
   typedef typename SpaceT::Scalar Scalar;
   typedef typename SpaceT::Ordinal Ordinal;
 
@@ -44,7 +43,6 @@ protected:
   Teuchos::RCP<ConvectionVWrap<SSmootherT> > convVWrap_;
 
   Teuchos::RCP< ConvectionField<SpaceT> > convField_;
-
 
 public:
 

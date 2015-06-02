@@ -435,10 +435,13 @@ createSpace( Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ) 
 
 }
 
+
+#ifdef COMPILE_ETI
 extern template class Space<double,int,3,2>;
 extern template class Space<double,int,3,4>;
 extern template class Space<double,int,4,2>;
 extern template class Space<double,int,4,4>;
+#endif
 
 
 

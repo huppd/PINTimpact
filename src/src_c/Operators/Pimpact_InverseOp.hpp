@@ -8,7 +8,6 @@
 #include "Pimpact_LinSolverParameter.hpp"
 
 
-
 namespace Pimpact{
 
 

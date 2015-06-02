@@ -77,6 +77,8 @@ public:
 
     TEUCHOS_TEST_FOR_EXCEPT( fType != y.getType() );
 
+//		std::cout << "ftype: " << ftype << "\n";
+
     for( int i=0; i<x.space()->dim(); ++i )
       TEUCHOS_TEST_FOR_EXCEPT( x.space()->nLoc(i) != y.space()->nLoc(i) );
 

@@ -9,9 +9,7 @@
 
 #include "BelosTypes.hpp"
 
-#include "Pimpact_ScalarField.hpp"
-#include "Pimpact_VectorField.hpp"
-#include "Pimpact_FieldFactory.hpp"
+#include "Pimpact_Fields.hpp"
 
 #include "Pimpact_Operator.hpp"
 #include "Pimpact_OperatorBase.hpp"
