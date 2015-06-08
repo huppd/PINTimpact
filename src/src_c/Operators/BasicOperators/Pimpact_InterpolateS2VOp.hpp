@@ -14,7 +14,7 @@ namespace Pimpact{
 
 extern "C" {
 
-void OP_grad(
+void OP_S2VOp(
     const int& dir,
     const int* const N,
     const int* const bl,
@@ -111,7 +111,7 @@ public:
 
     x.exchange(m);
 
-    OP_grad(
+    OP_S2VOp(
         m+1,
         space_->nLoc(),
         space_->bl(),
