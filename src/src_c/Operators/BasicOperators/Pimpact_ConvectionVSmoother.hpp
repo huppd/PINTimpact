@@ -89,24 +89,15 @@ public:
 }; // end of class ConvectionVSmoother
 
 
-
-///// \relates ConvectionVSmoother
-//template<class SpaceT>
-//Teuchos::RCP<ConvectionVSmoother<ConvectionVWrap<ConvectionSOp<SpaceT> > > > createConvectionVSmoother(
-//    const Teuchos::RCP<const SpaceT>& space ) {
-//
-//  auto sop = Pimpact::create<Pimpact::ConvectionSOp>( space ) ;
-//  auto wrap = Pimpact::create<Pimpact::ConvectionVWrap>( sop );
-//
-//  return( Teuchos::rcp( new ConvectionVSmoother<ConvectionVWrap<ConvectionSOp<SpaceT> > >( wrap ) ) );
-//
-//}
-
-
-
-
-
 } // end of namespace Pimpact
+
+
+#ifdef COMPILE_ETI
+extern template class Pimpact::ConvectionVSmoother< Pimpact::ConvectionVOp< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,3,2> > >, Pimpact::ConvectionDiffusionSORSmoother>;
+extern template class Pimpact::ConvectionVSmoother< Pimpact::ConvectionVOp< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,3,4> > >, Pimpact::ConvectionDiffusionSORSmoother>;
+extern template class Pimpact::ConvectionVSmoother< Pimpact::ConvectionVOp< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,4,2> > >, Pimpact::ConvectionDiffusionSORSmoother>;
+extern template class Pimpact::ConvectionVSmoother< Pimpact::ConvectionVOp< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,4,4> > >, Pimpact::ConvectionDiffusionSORSmoother>;
+#endif
 
 
 #endif // end of #ifndef PIMPACT_CONVECTIONVSMOOTHER_HPP

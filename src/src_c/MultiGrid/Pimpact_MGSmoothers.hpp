@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "Teuchos_RCP.hpp"
+#include "Teuchos_ParameterList.hpp"
 
 #include "Pimpact_Types.hpp"
 
@@ -66,9 +67,7 @@ public:
       return( smoothers_[i] );
   }
 
-  //  void print(  std::ostream& out=std::cout ) const {
-  //
-  //  }
+	//  void print(  std::ostream& out=std::cout ) const { }
 
 }; // end of class MGSmoothers
 
@@ -95,5 +94,20 @@ createMGSmoothers(
 
 
 } // end of namespace Pimpact
+
+
+#ifdef COMPILE_ETI
+#include "Pimpact_MGSpaces.hpp"
+#include "Pimpact_MGOperators.hpp"
+#include "Pimpact_DivGradO2JSmoother.hpp"
+//template<class T> using ConvDiffOpT = Pimpact::ConvectionVOp<Pimpact::ConvectionDiffusionSOp<T> >;
+extern template class Pimpact::MGSmoothers< Pimpact::MGOperators< Pimpact::MGSpaces< Pimpact::Space<double,int,3,4>, Pimpact::Space<double,int,3,2> >, Pimpact::DivGradOp, Pimpact::DivGradOp >, Pimpact::DivGradO2JSmoother>;
+extern template class Pimpact::MGSmoothers< Pimpact::MGOperators< Pimpact::MGSpaces< Pimpact::Space<double,int,4,4>, Pimpact::Space<double,int,4,2> >, Pimpact::DivGradOp, Pimpact::DivGradOp >, Pimpact::DivGradO2JSmoother>;
+//extern template class Pimpact::MGSmoothers< Pimpact::MGOperators< Pimpact::MGSpaces< Pimpact::Space<double,int,3,4>, Pimpact::Space<double,int,3,2> >, Pimpact::DivGradOp, Pimpact::DivGradO2Op >, >;
+//extern template class Pimpact::MGSmoothers< Pimpact::MGOperators< Pimpact::MGSpaces< Pimpact::Space<double,int,4,4>, Pimpact::Space<double,int,4,2> >, Pimpact::DivGradOp, Pimpact::DivGradO2Op >, >;
+//extern template class Pimpact::MGSmoothers< Pimpact::MGOperators< Pimpact::MGSpaces< Pimpact::Space<double,int,3,4>, Pimpact::Space<double,int,3,2> >, ConvDiffOpT,ConvDiffOpT >, >;
+//extern template class Pimpact::MGSmoothers< Pimpact::MGOperators< Pimpact::MGSpaces< Pimpact::Space<double,int,4,4>, Pimpact::Space<double,int,4,2> >, ConvDiffOpT,ConvDiffOpT >, >;
+#endif
+
 
 #endif // end of #ifndef PIMPACT_MGSMOOTHERS_HPP

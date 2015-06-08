@@ -154,17 +154,15 @@ public:
 };
 
 
-
-///// \relates DivOp
-//template<class SpaceT>
-//Teuchos::RCP< DivOp<SpaceT> > createDivOp(
-//    const Teuchos::RCP<const SpaceT>& space ) {
-////  return( Teuchos::rcp( new DivOp<SpaceT>( space ) ) );
-//  return( create< DivOp<SpaceT> >( space ) );
-//}
-
-
-
 } // end of namespace Pimpact
+
+
+
+#ifdef COMPILE_ETI
+extern template class Pimpact::DivOp< Pimpact::Space<double,int,3,2> >;
+extern template class Pimpact::DivOp< Pimpact::Space<double,int,3,4> >;
+extern template class Pimpact::DivOp< Pimpact::Space<double,int,4,2> >;
+extern template class Pimpact::DivOp< Pimpact::Space<double,int,4,4> >;
+#endif
 
 #endif // end of #ifndef PIMPACT_DIVOP_HPP

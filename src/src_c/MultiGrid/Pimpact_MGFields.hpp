@@ -2,12 +2,12 @@
 #ifndef PIMPACT_MGFIELDS_HPP
 #define PIMPACT_MGFIELDS_HPP
 
+
 #include <vector>
 
 #include "Teuchos_RCP.hpp"
 
 #include "Pimpact_Types.hpp"
-
 
 
 
@@ -97,5 +97,17 @@ createMGFields(
 
 
 } // end of namespace Pimpact
+
+
+#ifdef COMPILE_ETI
+#include "Pimpact_MGSpaces.hpp"
+#include "Pimpact_ScalarField.hpp"
+#include "Pimpact_VectorField.hpp"
+extern template class Pimpact::MGFields< Pimpact::MGSpaces< Pimpact::Space<double,int,3,4>, Pimpact::Space<double,int,3,2> >, Pimpact::ScalarField >;
+extern template class Pimpact::MGFields< Pimpact::MGSpaces< Pimpact::Space<double,int,4,4>, Pimpact::Space<double,int,4,2> >, Pimpact::ScalarField >;
+extern template class Pimpact::MGFields< Pimpact::MGSpaces< Pimpact::Space<double,int,3,4>, Pimpact::Space<double,int,3,2> >, Pimpact::VectorField >;
+extern template class Pimpact::MGFields< Pimpact::MGSpaces< Pimpact::Space<double,int,4,4>, Pimpact::Space<double,int,4,2> >, Pimpact::VectorField >;
+#endif
+
 
 #endif // end of #ifndef PIMPACT_MGFIELDS_HPP

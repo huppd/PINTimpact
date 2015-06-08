@@ -1,3 +1,4 @@
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set( CMAKE_INCLUDE_CURRENT_DIR ON )
 
-set( field_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Pimpact_Fields.cpp  PARENT_SCOPE) 
+file( GLOB field_SOURCES *.cpp )
+set( field_SOURCES ${field_SOURCES} PARENT_SCOPE ) 

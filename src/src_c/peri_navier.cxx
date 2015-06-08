@@ -30,6 +30,7 @@
 #include "Pimpact_LinSolverParameter.hpp"
 
 #include "Pimpact_MultiGrid.hpp"
+#include "Pimpact_CoarsenStrategyGlobal.hpp"
 
 #include "BelosPimpactAdapter.hpp"
 

@@ -56,11 +56,6 @@ void OP_convectionDiffusion(
 template<class ST>
 class ConvectionDiffusionSOp {
 
-  template<class OT>
-  friend class ConvectionDiffusionSORSmoother;
-  template<class OT>
-  friend class ConvectionDiffusionJSmoother;
-
 public:
 
   typedef ST SpaceT;
@@ -169,11 +164,18 @@ public:
 //		std::cout << "mulL: " << mulL_ << "\n";
 	}
 
+  Teuchos::RCP<const ConvectionSOp<SpaceT> > getConvSOp() const { return( convSOp_ ); }
+  Teuchos::RCP<const HelmholtzOp<SpaceT> > getHelmOp() const { return( helmOp_ ); }
+
   void print( std::ostream& out=std::cout ) const {
     convSOp_->print(out);
     helmOp_->print(out);
    }
 
+	const Scalar& getMul() const { return( mul_ ); }
+	const Scalar& getMulI() const { return( mulI_); }
+	const Scalar& getMulC() const { return( mulC_); }
+	const Scalar& getMulL() const { return( mulL_); }
 
   bool hasApplyTranspose() const { return( false ); }
 
@@ -184,6 +186,14 @@ public:
 
 
 } // end of namespace Pimpact
+
+
+#ifdef COMPILE_ETI
+extern template class Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,3,2> >;
+extern template class Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,3,4> >;
+extern template class Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,4,2> >;
+extern template class Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,4,4> >;
+#endif
 
 
 #endif // end of #ifndef PIMPACT_CONVECTIONDIFFUSIONSOP_HPP

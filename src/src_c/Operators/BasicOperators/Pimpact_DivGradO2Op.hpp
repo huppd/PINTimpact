@@ -61,9 +61,6 @@ void OP_DivGradO2Op(
 template<class ST>
 class DivGradO2Op {
 
-  template<class SpaceTT>
-  friend class DivGradO2JSmoother;
-
 public:
 
   typedef ST SpaceT;
@@ -127,9 +124,9 @@ public:
         space_->bu(),
         space_->getDomain()->getBCLocal()->getBCL(),
         space_->getDomain()->getBCLocal()->getBCU(),
-        c_[0],
-        c_[1],
-        c_[2],
+        getC(X),
+        getC(Y),
+        getC(Z),
         x.getConstRawPtr(),
         y.getRawPtr() );
 
@@ -171,6 +168,10 @@ public:
     }
   }
 
+  const Scalar* getC( const ECoord& dir) const  {
+      return( c_[dir] );
+  }
+
 
 }; // end of class DivGradO2Op
 
@@ -186,5 +187,14 @@ Teuchos::RCP<const DivGradO2Op<SpaceT> > createDivGradO2Op(
 
 
 } // end of namespace Pimpact
+
+
+#ifdef COMPILE_ETI
+extern template class Pimpact::DivGradO2Op< Pimpact::Space<double,int,3,2> >;
+extern template class Pimpact::DivGradO2Op< Pimpact::Space<double,int,3,4> >;
+extern template class Pimpact::DivGradO2Op< Pimpact::Space<double,int,4,2> >;
+extern template class Pimpact::DivGradO2Op< Pimpact::Space<double,int,4,4> >;
+#endif
+
 
 #endif // end of #ifndef PIMPACT_DIVGRADO2OP_HPP

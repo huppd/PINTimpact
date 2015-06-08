@@ -3,45 +3,6 @@
 
 #ifdef COMPILE_ETI
 namespace Pimpact {
-	// ScalarFields
-	template class ScalarField< Space<double,int,3,2> >;
-	template class ScalarField< Space<double,int,3,4> >;
-	template class ScalarField< Space<double,int,4,2> >;
-	template class ScalarField< Space<double,int,4,4> >;
-
-	// VectorFields
-	template class VectorField< Space<double,int,3,2> >;
-	template class VectorField< Space<double,int,3,4> >;
-	template class VectorField< Space<double,int,4,2> >;
-	template class VectorField< Space<double,int,4,4> >;
-
-	// TimeFields
-	template class TimeField< ScalarField< Space<double,int,4,2> > >;
-	template class TimeField< ScalarField< Space<double,int,4,4> > >;
-	template class TimeField< VectorField< Space<double,int,4,2> > >;
-	template class TimeField< VectorField< Space<double,int,4,4> > >;
-
-	// ModeFields
-	template class ModeField< ScalarField< Space<double,int,3,2> > >;
-	template class ModeField< ScalarField< Space<double,int,3,4> > >;
-	template class ModeField< VectorField< Space<double,int,3,2> > >;
-	template class ModeField< VectorField< Space<double,int,3,4> > >;
-
-	// MultiHarmonicFields
-	template class MultiHarmonicField< ScalarField< Space<double,int,3,2> > >;
-	template class MultiHarmonicField< ScalarField< Space<double,int,3,4> > >;
-	template class MultiHarmonicField< VectorField< Space<double,int,3,2> > >;
-	template class MultiHarmonicField< VectorField< Space<double,int,3,4> > >;
-
-	// CompoundFields
-	template class CompoundField< VectorField< Space<double,int,3,2> >, ScalarField< Space<double,int,3,2> > >;
-	template class CompoundField< VectorField< Space<double,int,3,4> >, ScalarField< Space<double,int,3,4> > >;
-	template class CompoundField< TimeField< VectorField< Space<double,int,4,2> > >, TimeField< ScalarField< Space<double,int,4,2> > > >;
-	template class CompoundField< TimeField< VectorField< Space<double,int,4,4> > >, TimeField< ScalarField< Space<double,int,4,4> > > >;
-	template class CompoundField< ModeField< VectorField< Space<double,int,3,2> > >, ModeField< ScalarField< Space<double,int,3,2> > > >;
-	template class CompoundField< ModeField< VectorField< Space<double,int,3,4> > >, ModeField< ScalarField< Space<double,int,3,4> > > >;
-	template class CompoundField< MultiHarmonicField< VectorField< Space<double,int,3,2> > >, MultiHarmonicField< ScalarField< Space<double,int,3,2> > > >;
-	template class CompoundField< MultiHarmonicField< VectorField< Space<double,int,3,4> > >, MultiHarmonicField< ScalarField< Space<double,int,3,4> > > >;
 
 	// MultiFields
 	// ScalarFields

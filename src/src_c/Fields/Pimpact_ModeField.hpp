@@ -259,20 +259,15 @@ public:
 }; // end of class ModeField
 
 
-
-///// \brief creates a scalar/vector mode field(vector)
-/////
-///// \relates ModeField
-//template<class Field>
-//Teuchos::RCP< ModeField<Field> > createModeField( const Teuchos::RCP<Field>&  fieldc, const Teuchos::RCP<Field>& fields ) {
-////  return( Teuchos::rcp(
-////      new ModeField<Field>( fieldc, fields ) ) );
-////      new ModeField<Field>( fieldc->space() ) ) );
-//  return( create< ModeField<Field> >( fieldc->space() ) );
-//}
-
-
-
 } // end of namespace Pimpact
+
+
+#ifdef COMPILE_ETI
+#include "Pimpact_VectorField.hpp"
+extern template class Pimpact::ModeField< Pimpact::ScalarField< Pimpact::Space<double,int,3,2> > >;
+extern template class Pimpact::ModeField< Pimpact::ScalarField< Pimpact::Space<double,int,3,4> > >;
+extern template class Pimpact::ModeField< Pimpact::VectorField< Pimpact::Space<double,int,3,2> > >;
+extern template class Pimpact::ModeField< Pimpact::VectorField< Pimpact::Space<double,int,3,4> > >;
+#endif
 
 #endif // end of #ifndef PIMPACT_MODEFIELD_HPP

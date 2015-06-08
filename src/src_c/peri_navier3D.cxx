@@ -29,6 +29,7 @@
 
 #include "Pimpact_LinSolverParameter.hpp"
 
+#include "Pimpact_CoarsenStrategyGlobal.hpp"
 #include "Pimpact_MultiGrid.hpp"
 
 #include "BelosPimpactAdapter.hpp"
@@ -52,12 +53,12 @@ getSpaceParametersFromCL( int argi, char** argv  )  {
 
 	// Space parameters
   // physical constants
-	S re = 200.;
+	S re = 100.;
 
-	S alpha2 = 64.;
+	S alpha2 = 24.;
 
   // domain type
-  int domain = 1;
+  int domain = 0;
 
   // domain size
   int dim = 3;
@@ -66,7 +67,7 @@ getSpaceParametersFromCL( int argi, char** argv  )  {
   S lz = 4.;
 
   // grid size
-	O nx = 65;
+	O nx = 129;
 	O ny = 33;
 	O nz = 65;
 	O nf = 1;
@@ -83,7 +84,7 @@ getSpaceParametersFromCL( int argi, char** argv  )  {
 	// flow and forcing type
   int baseflow = 1;
   int flow = 0;
-  int forcing = 0;
+  int forcing = 1;
 
 	// solver parameters
   std::string nonLinSolName = "Newton";
@@ -99,8 +100,8 @@ getSpaceParametersFromCL( int argi, char** argv  )  {
   int initZero = 1;
 
   S tolBelos = 1.e-1;
-  S tolInnerBelos = 1.e-3;
-  S tolNOX   = 1.e-3;
+  S tolInnerBelos = 1.e-2;
+  S tolNOX   = 1.e-6;
 
   // multi grid parameters
   int maxGrids = 10;
@@ -350,9 +351,9 @@ int main(int argi, char** argv ) {
 		fu->init( 0. );
 	else {
 		S re = space->getDomain()->getDomainSize()->getRe();
-		fu->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->getFieldPtr(Pimpact::U)->initField( Pimpact::FPoint,  -2. );
+//		fu->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->getFieldPtr(Pimpact::U)->initField( Pimpact::FPoint,  -2. );
 		fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->getFieldPtr(Pimpact::V)->initField( Pimpact::FPoint, 1. );
-		fu->getFieldPtr(0)->getVFieldPtr()->getSFieldPtr(0)->getFieldPtr(Pimpact::W)->initField( Pimpact::FPoint, 1. );
+//		fu->getFieldPtr(0)->getVFieldPtr()->getSFieldPtr(0)->getFieldPtr(Pimpact::W)->initField( Pimpact::FPoint, 1. );
 	}
 //	fu->getFieldPtr(0)->getVFieldPtr()->write( 700,true );
 

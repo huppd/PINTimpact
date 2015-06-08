@@ -2,6 +2,7 @@
 
 #include "Pimpact_Operator.hpp"
 #include "Pimpact_MultiGrid.hpp"
+#include "Pimpact_CoarsenStrategyGlobal.hpp"
 
 typedef double S;
 typedef int O;

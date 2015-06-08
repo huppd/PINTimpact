@@ -18,49 +18,8 @@
 
 #include "Pimpact_FieldFactory.hpp"
 
-
 #ifdef COMPILE_ETI
 namespace Pimpact {
-
-	// ScalarFields
-	extern template class ScalarField< Space<double,int,3,2> >;
-	extern template class ScalarField< Space<double,int,3,4> >;
-	extern template class ScalarField< Space<double,int,4,2> >;
-	extern template class ScalarField< Space<double,int,4,4> >;
-
-	// VectorFields
-	extern template class VectorField< Space<double,int,3,2> >;
-	extern template class VectorField< Space<double,int,3,4> >;
-	extern template class VectorField< Space<double,int,4,2> >;
-	extern template class VectorField< Space<double,int,4,4> >;
-
-	// TimeFields
-	extern template class TimeField<ScalarField< Space<double,int,4,2> > >;
-	extern template class TimeField<ScalarField< Space<double,int,4,4> > >;
-	extern template class TimeField<VectorField< Space<double,int,4,2> > >;
-	extern template class TimeField<VectorField< Space<double,int,4,4> > >;
-
-	// ModeFields
-	extern template class ModeField< ScalarField< Space<double,int,3,2> > >;
-	extern template class ModeField< ScalarField< Space<double,int,3,4> > >;
-	extern template class ModeField< VectorField< Space<double,int,3,2> > >;
-	extern template class ModeField< VectorField< Space<double,int,3,4> > >;
-
-	// MultiHarmonicFields
-	extern template class MultiHarmonicField< ScalarField< Space<double,int,3,2> > >;
-	extern template class MultiHarmonicField< ScalarField< Space<double,int,3,4> > >;
-	extern template class MultiHarmonicField< VectorField< Space<double,int,3,2> > >;
-	extern template class MultiHarmonicField< VectorField< Space<double,int,3,4> > >;
-
-	// CompoundFields
-	extern template class CompoundField< VectorField< Space<double,int,3,2> >, ScalarField< Space<double,int,3,2> > >;
-	extern template class CompoundField< VectorField< Space<double,int,3,4> >, ScalarField< Space<double,int,3,4> > >;
-	extern template class CompoundField< TimeField< VectorField< Space<double,int,4,2> > >, TimeField< ScalarField< Space<double,int,4,2> > > >;
-	extern template class CompoundField< TimeField< VectorField< Space<double,int,4,4> > >, TimeField< ScalarField< Space<double,int,4,4> > > >;
-	extern template class CompoundField< ModeField< VectorField< Space<double,int,3,2> > >, ModeField< ScalarField< Space<double,int,3,2> > > >;
-	extern template class CompoundField< ModeField< VectorField< Space<double,int,3,4> > >, ModeField< ScalarField< Space<double,int,3,4> > > >;
-	extern template class CompoundField< MultiHarmonicField< VectorField< Space<double,int,3,2> > >, MultiHarmonicField< ScalarField< Space<double,int,3,2> > > >;
-	extern template class CompoundField< MultiHarmonicField< VectorField< Space<double,int,3,4> > >, MultiHarmonicField< ScalarField< Space<double,int,3,4> > > >;
 
 	// MultiFields
 	// ScalarFields
@@ -105,6 +64,7 @@ namespace Pimpact {
 
 } // end of namespace Pimpact
 #endif
+
 
 
 #endif // end of #ifndef PIMPACT_FIELDS_HPP

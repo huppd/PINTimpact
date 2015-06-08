@@ -1,6 +1,7 @@
 #include <cmath>
 
 #include "Pimpact_Operator.hpp"
+#include "Pimpact_CoarsenStrategy.hpp"
 #include "Pimpact_MultiGrid.hpp"
 
 typedef double S;

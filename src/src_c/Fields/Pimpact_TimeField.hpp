@@ -1,4 +1,3 @@
-
 #pragma once
 #ifndef PIMPACT_TIMEFIELD_HPP
 #define PIMPACT_TIMEFIELD_HPP
@@ -14,11 +13,12 @@
 #include <BelosTypes.hpp>
 
 
-#include "Pimpact_Space.hpp"
 #include "Pimpact_Types.hpp"
 
 #include "Pimpact_AbstractField.hpp"
 
+#include "Pimpact_VectorField.hpp"
+#include "cmath"
 
 
 namespace Pimpact {
@@ -461,8 +461,6 @@ createTimeField( const Teuchos::RCP<const SpaceT>& space ) {
 }
 
 
-#include "Pimpact_VectorField.hpp"
-#include "cmath"
 
 /// \todo move to initField
 template<class SpaceT>
@@ -528,6 +526,14 @@ initVectorTimeField(
 
 
 } // end of namespace Pimpact
+
+
+#ifdef COMPILE_ETI
+extern template class Pimpact::TimeField< Pimpact::ScalarField< Pimpact::Space<double,int,4,2> > >;
+extern template class Pimpact::TimeField< Pimpact::ScalarField< Pimpact::Space<double,int,4,4> > >;
+extern template class Pimpact::TimeField< Pimpact::VectorField< Pimpact::Space<double,int,4,2> > >;
+extern template class Pimpact::TimeField< Pimpact::VectorField< Pimpact::Space<double,int,4,4> > >;
+#endif
 
 
 #endif // end of #ifndef PIMPACT_TIMEFIELD_HPP

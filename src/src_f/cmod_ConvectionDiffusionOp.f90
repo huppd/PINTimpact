@@ -359,7 +359,7 @@ contains
                         end do
                         !pgi$ unroll = n:8
                         do kk = bL(3), bU(3)
-                            if( kk/=0 )dd1 = dd1 + c33(kk,ind(3))*phi(ind(1),ind(2),ind(3)+kk)
+                            if( kk/=0 ) dd1 = dd1 + c33(kk,ind(3))*phi(ind(1),ind(2),ind(3)+kk)
                         end do
                         dd = dd - mulL*( c11(0,ind(1)) + c22(0,ind(2)) +c33(0,ind(3)) ) + mulI
 
@@ -501,7 +501,7 @@ contains
                         ddV = c2U(nL(2),j)*phi(i,j+nL(2),k)
                         !pgi$ unroll = n:8
                         do jj = nL(2)+1, nU(2)
-                            if( jj/=0 )ddV = ddV + c2U(jj,j)*phi(i,j+jj,k)
+                            if( jj/=0 ) ddV = ddV + c2U(jj,j)*phi(i,j+jj,k)
                         end do
                         dd = dd + mulC*c2U(0,j)*phiV(i,j,k)
                     else
@@ -522,7 +522,7 @@ contains
                             ddW = c3U(nL(3),k)*phi(i,j,k+nL(3))
                             !pgi$ unroll = n:8
                             do kk = nL(3)+1, nU(3)
-                                if( kk/=0 )ddW = ddW + c3U(kk,k)*phi(i,j,k+kk)
+                                if( kk/=0 ) ddW = ddW + c3U(kk,k)*phi(i,j,k+kk)
                             end do
                             dd = dd + mulC*c3U(0,k)*phiW(i,j,k)
                         else
@@ -548,9 +548,9 @@ contains
                         end do
                         !pgi$ unroll = n:8
                         do kk = bL(3), bU(3)
-                            if( kk/=0 )dd1 = dd1 + c33(kk,k)*phi(i,j,k+kk)
+                            if( kk/=0 ) dd1 = dd1 + c33(kk,k)*phi(i,j,k+kk)
                         end do
-                        dd = dd - mulL*( c11(0,i) + c22(0,j) +c33(0,k) ) + mulI
+                        dd = dd - mulL*( c11(0,i) + c22(0,j) + c33(0,k) ) + mulI
 
                         phiout(i,j,k) = (1-om)*phi(i,j,k) + om/dd*( b(i,j,k) - mulC*(phiU(i,j,k)*ddU + phiV(i,j,k)*ddV + phiW(i,j,k)*ddW ) + mulL*dd1 )
 
@@ -566,7 +566,7 @@ contains
                         end do
                         !pgi$ unroll = n:8
                         do jj = bL(2), bU(2)
-                            if( jj/=0 )dd1 = dd1 + c22(jj,j)*phi(i,j+jj,k)
+                            if( jj/=0 ) dd1 = dd1 + c22(jj,j)*phi(i,j+jj,k)
                         end do
 
                         dd = dd - mulL*( c11(0,i) + c22(0,j) ) + mulI
