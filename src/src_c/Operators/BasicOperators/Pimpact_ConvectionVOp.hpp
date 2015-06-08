@@ -13,10 +13,6 @@ namespace Pimpact {
 
 
 /// \brief Convection Operator for Velocity fields
-/// \todo make wind template parameter as well.(necessary when different winds
-/// are wanted, meaning moving interpolation steps from assign to apply
-/// \todo make constructor so wind can be shared by different operators.
-/// \todo make Smoother
 /// \ingroup BaseOperator
 /// \ingroup NonlinearOperator
 template<class CSOPT>

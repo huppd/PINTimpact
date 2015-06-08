@@ -269,11 +269,84 @@ public:
   /// \param Op
   /// \return \c true if Op has a transpose implemented
   static bool HasApplyTranspose( const Pimpact::OperatorBase<Pimpact::MultiField<Field> > & Op ) {
-    return( Op.hasTransposeApply() );
+    return( Op.hasApplyTranspose() );
   }
 
 }; // end of class OperatorTraits
 
 } // end of namespace Belos
+
+
+
+#ifdef COMPILE_ETI
+#include "Pimpact_ScalarField.hpp"
+#include "Pimpact_VectorField.hpp"
+#include "Pimpact_MultiHarmonicField.hpp"
+#include "Pimpact_CompoundField.hpp"
+#include "Pimpact_MultiField.hpp"
+
+
+// ScalarFields
+extern template class Belos::MultiVecTraits< double, Pimpact::MultiField< Pimpact::ScalarField< Pimpact::Space<double,int,3,2> > > >;
+extern template class Belos::MultiVecTraits< double, Pimpact::MultiField< Pimpact::ScalarField< Pimpact::Space<double,int,3,4> > > >;
+extern template class Belos::MultiVecTraits< double, Pimpact::MultiField< Pimpact::ScalarField< Pimpact::Space<double,int,4,2> > > >;
+extern template class Belos::MultiVecTraits< double, Pimpact::MultiField< Pimpact::ScalarField< Pimpact::Space<double,int,4,4> > > >;
+
+// VectorFields
+extern template class Belos::MultiVecTraits< double, Pimpact::MultiField< Pimpact::VectorField< Pimpact::Space<double,int,3,2> > > >;
+extern template class Belos::MultiVecTraits< double, Pimpact::MultiField< Pimpact::VectorField< Pimpact::Space<double,int,3,4> > > >;
+extern template class Belos::MultiVecTraits< double, Pimpact::MultiField< Pimpact::VectorField< Pimpact::Space<double,int,4,2> > > >;
+extern template class Belos::MultiVecTraits< double, Pimpact::MultiField< Pimpact::VectorField< Pimpact::Space<double,int,4,4> > > >;
+
+// MultiHarmonicFieldsBelos
+extern template class Belos::MultiVecTraits< double, Pimpact::MultiField< Pimpact::MultiHarmonicField< Pimpact::ScalarField< Pimpact::Space<double,int,3,2> > > > >;
+extern template class Belos::MultiVecTraits< double, Pimpact::MultiField< Pimpact::MultiHarmonicField< Pimpact::ScalarField< Pimpact::Space<double,int,3,4> > > > >;
+extern template class Belos::MultiVecTraits< double, Pimpact::MultiField< Pimpact::MultiHarmonicField< Pimpact::VectorField< Pimpact::Space<double,int,3,2> > > > >;
+extern template class Belos::MultiVecTraits< double, Pimpact::MultiField< Pimpact::MultiHarmonicField< Pimpact::VectorField< Pimpact::Space<double,int,3,4> > > > >;
+
+// TimeFields 
+extern template class Belos::MultiVecTraits< double, Pimpact::MultiField< Pimpact::TimeField< Pimpact::ScalarField< Pimpact::Space<double,int,4,2> > > > >;
+extern template class Belos::MultiVecTraits< double, Pimpact::MultiField< Pimpact::TimeField< Pimpact::ScalarField< Pimpact::Space<double,int,4,4> > > > >;
+extern template class Belos::MultiVecTraits< double, Pimpact::MultiField< Pimpact::TimeField< Pimpact::VectorField< Pimpact::Space<double,int,4,2> > > > >;
+extern template class Belos::MultiVecTraits< double, Pimpact::MultiField< Pimpact::TimeField< Pimpact::VectorField< Pimpact::Space<double,int,4,4> > > > >;
+
+// CompoundFields
+extern template class Belos::MultiVecTraits< double, Pimpact::MultiField< Pimpact::CompoundField< Pimpact::MultiHarmonicField< Pimpact::VectorField< Pimpact::Space<double,int,3,2> > >, Pimpact::MultiHarmonicField< Pimpact::ScalarField< Pimpact::Space<double,int,3,2> > > > > >;
+extern template class Belos::MultiVecTraits< double, Pimpact::MultiField< Pimpact::CompoundField< Pimpact::MultiHarmonicField< Pimpact::VectorField< Pimpact::Space<double,int,3,4> > >, Pimpact::MultiHarmonicField< Pimpact::ScalarField< Pimpact::Space<double,int,3,4> > > > > >;
+extern template class Belos::MultiVecTraits< double, Pimpact::MultiField< Pimpact::CompoundField< Pimpact::TimeField< Pimpact::VectorField< Pimpact::Space<double,int,4,2> > >, Pimpact::TimeField< Pimpact::ScalarField< Pimpact::Space<double,int,4,2> > > > > >;
+extern template class Belos::MultiVecTraits< double, Pimpact::MultiField< Pimpact::CompoundField< Pimpact::TimeField< Pimpact::VectorField< Pimpact::Space<double,int,4,4> > >, Pimpact::TimeField< Pimpact::ScalarField< Pimpact::Space<double,int,4,4> > > > > >;
+
+
+// ScalarFields
+extern template class Belos::OperatorTraits< double, Pimpact::MultiField< Pimpact::ScalarField< Pimpact::Space<double,int,3,2> > >, Pimpact::OperatorBase< Pimpact::MultiField< Pimpact::ScalarField< Pimpact::Space<double,int,3,2> > > > >;
+extern template class Belos::OperatorTraits< double, Pimpact::MultiField< Pimpact::ScalarField< Pimpact::Space<double,int,3,4> > >, Pimpact::OperatorBase< Pimpact::MultiField< Pimpact::ScalarField< Pimpact::Space<double,int,3,4> > > > >;
+extern template class Belos::OperatorTraits< double, Pimpact::MultiField< Pimpact::ScalarField< Pimpact::Space<double,int,4,2> > >, Pimpact::OperatorBase< Pimpact::MultiField< Pimpact::ScalarField< Pimpact::Space<double,int,4,2> > > > >;
+extern template class Belos::OperatorTraits< double, Pimpact::MultiField< Pimpact::ScalarField< Pimpact::Space<double,int,4,4> > >, Pimpact::OperatorBase< Pimpact::MultiField< Pimpact::ScalarField< Pimpact::Space<double,int,4,4> > > > >;
+
+// VectorFields
+extern template class Belos::OperatorTraits< double, Pimpact::MultiField< Pimpact::VectorField< Pimpact::Space<double,int,3,2> > >, Pimpact::OperatorBase< Pimpact::MultiField< Pimpact::VectorField< Pimpact::Space<double,int,3,2> > > > >;
+extern template class Belos::OperatorTraits< double, Pimpact::MultiField< Pimpact::VectorField< Pimpact::Space<double,int,3,4> > >, Pimpact::OperatorBase< Pimpact::MultiField< Pimpact::VectorField< Pimpact::Space<double,int,3,4> > > > >;
+extern template class Belos::OperatorTraits< double, Pimpact::MultiField< Pimpact::VectorField< Pimpact::Space<double,int,4,2> > >, Pimpact::OperatorBase< Pimpact::MultiField< Pimpact::VectorField< Pimpact::Space<double,int,4,2> > > > >;
+extern template class Belos::OperatorTraits< double, Pimpact::MultiField< Pimpact::VectorField< Pimpact::Space<double,int,4,4> > >, Pimpact::OperatorBase< Pimpact::MultiField< Pimpact::VectorField< Pimpact::Space<double,int,4,4> > > > >;
+
+// MultiHarmonicFieldsBelos::
+extern template class Belos::OperatorTraits< double, Pimpact::MultiField< Pimpact::MultiHarmonicField< Pimpact::ScalarField< Pimpact::Space<double,int,3,2> > > >, Pimpact::OperatorBase< Pimpact::MultiField< Pimpact::MultiHarmonicField< Pimpact::ScalarField< Pimpact::Space<double,int,3,2> > > > > >;
+extern template class Belos::OperatorTraits< double, Pimpact::MultiField< Pimpact::MultiHarmonicField< Pimpact::ScalarField< Pimpact::Space<double,int,3,4> > > >, Pimpact::OperatorBase< Pimpact::MultiField< Pimpact::MultiHarmonicField< Pimpact::ScalarField< Pimpact::Space<double,int,3,4> > > > > >;
+extern template class Belos::OperatorTraits< double, Pimpact::MultiField< Pimpact::MultiHarmonicField< Pimpact::VectorField< Pimpact::Space<double,int,3,2> > > >, Pimpact::OperatorBase< Pimpact::MultiField< Pimpact::MultiHarmonicField< Pimpact::VectorField< Pimpact::Space<double,int,3,2> > > > > >;
+extern template class Belos::OperatorTraits< double, Pimpact::MultiField< Pimpact::MultiHarmonicField< Pimpact::VectorField< Pimpact::Space<double,int,3,4> > > >, Pimpact::OperatorBase< Pimpact::MultiField< Pimpact::MultiHarmonicField< Pimpact::VectorField< Pimpact::Space<double,int,3,4> > > > > >;
+
+// TimeFields 
+extern template class Belos::OperatorTraits< double, Pimpact::MultiField< Pimpact::TimeField< Pimpact::ScalarField< Pimpact::Space<double,int,4,2> > > >, Pimpact::OperatorBase< Pimpact::MultiField< Pimpact::TimeField< Pimpact::ScalarField< Pimpact::Space<double,int,4,2> > > > > >;
+extern template class Belos::OperatorTraits< double, Pimpact::MultiField< Pimpact::TimeField< Pimpact::ScalarField< Pimpact::Space<double,int,4,4> > > >, Pimpact::OperatorBase< Pimpact::MultiField< Pimpact::TimeField< Pimpact::ScalarField< Pimpact::Space<double,int,4,4> > > > > >;
+extern template class Belos::OperatorTraits< double, Pimpact::MultiField< Pimpact::TimeField< Pimpact::VectorField< Pimpact::Space<double,int,4,2> > > >, Pimpact::OperatorBase< Pimpact::MultiField< Pimpact::TimeField< Pimpact::VectorField< Pimpact::Space<double,int,4,2> > > > > >;
+extern template class Belos::OperatorTraits< double, Pimpact::MultiField< Pimpact::TimeField< Pimpact::VectorField< Pimpact::Space<double,int,4,4> > > >, Pimpact::OperatorBase< Pimpact::MultiField< Pimpact::TimeField< Pimpact::VectorField< Pimpact::Space<double,int,4,4> > > > > >;
+
+// CompoundFields
+extern template class Belos::OperatorTraits< double, Pimpact::MultiField< Pimpact::CompoundField< Pimpact::MultiHarmonicField< Pimpact::VectorField< Pimpact::Space<double,int,3,2> > >, Pimpact::MultiHarmonicField< Pimpact::ScalarField< Pimpact::Space<double,int,3,2> > > > >, Pimpact::OperatorBase< Pimpact::MultiField< Pimpact::CompoundField< Pimpact::MultiHarmonicField< Pimpact::VectorField< Pimpact::Space<double,int,3,2> > >, Pimpact::MultiHarmonicField< Pimpact::ScalarField< Pimpact::Space<double,int,3,2> > > > > > >;
+extern template class Belos::OperatorTraits< double, Pimpact::MultiField< Pimpact::CompoundField< Pimpact::MultiHarmonicField< Pimpact::VectorField< Pimpact::Space<double,int,3,4> > >, Pimpact::MultiHarmonicField< Pimpact::ScalarField< Pimpact::Space<double,int,3,4> > > > >, Pimpact::OperatorBase< Pimpact::MultiField< Pimpact::CompoundField< Pimpact::MultiHarmonicField< Pimpact::VectorField< Pimpact::Space<double,int,3,4> > >, Pimpact::MultiHarmonicField< Pimpact::ScalarField< Pimpact::Space<double,int,3,4> > > > > > >;
+extern template class Belos::OperatorTraits< double, Pimpact::MultiField< Pimpact::CompoundField< Pimpact::TimeField< Pimpact::VectorField< Pimpact::Space<double,int,4,2> > >, Pimpact::TimeField< Pimpact::ScalarField< Pimpact::Space<double,int,4,2> > > > >, Pimpact::OperatorBase< Pimpact::MultiField< Pimpact::CompoundField< Pimpact::TimeField< Pimpact::VectorField< Pimpact::Space<double,int,4,2> > >, Pimpact::TimeField< Pimpact::ScalarField< Pimpact::Space<double,int,4,2> > > > > > >;
+extern template class Belos::OperatorTraits< double, Pimpact::MultiField< Pimpact::CompoundField< Pimpact::TimeField< Pimpact::VectorField< Pimpact::Space<double,int,4,4> > >, Pimpact::TimeField< Pimpact::ScalarField< Pimpact::Space<double,int,4,4> > > > >, Pimpact::OperatorBase< Pimpact::MultiField< Pimpact::CompoundField< Pimpact::TimeField< Pimpact::VectorField< Pimpact::Space<double,int,4,4> > >, Pimpact::TimeField< Pimpact::ScalarField< Pimpact::Space<double,int,4,4> > > > > > >;
+#endif
+
 
 #endif // end of file BELOSPIMPACTADAPTER_HPP
