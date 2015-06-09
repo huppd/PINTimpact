@@ -66,6 +66,7 @@ public:
   typedef typename SpaceT::Ordinal Ordinal;
 
   typedef Teuchos::Tuple< Teuchos::RCP< ScalarField<SpaceT> >, 3 > FluxFieldT;
+
   typedef ScalarField<SpaceT>  DomainFieldT;
   typedef ScalarField<SpaceT>  RangeFieldT;
 
@@ -94,9 +95,6 @@ public:
         temp_( create<DomainFieldT>(op_->space()) ) {}
 
 
-  void assignField( const RangeFieldT& mv ) {};
-
-
 
   void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mul, Scalar mulI, Scalar mulC, Scalar mulL ) const { std::cout << "not implmented\n"; }
 
@@ -115,7 +113,6 @@ public:
 
     for( int i=0; i<nIter_; ++i ) {
 
-			y.exchange();
 			z.exchange();
 
       OP_convectionDiffusionJSmoother(
@@ -178,7 +175,7 @@ public:
 					op_->getMulC(),
 					op_->getMulL(),
           omega_ );
-//			std::cout << "muls: " << op_->mulI_ << "\t" << op_->mulC_ << "\t" << op_->mulL_ << "\n";
+
       z.changed();
 
     }

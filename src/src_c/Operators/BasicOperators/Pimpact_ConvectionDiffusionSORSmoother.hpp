@@ -81,7 +81,6 @@ protected:
 
   Teuchos::Tuple<short int,3> loopOrder_;
 
-  //Teuchos::RCP<const SpaceT> space_;
 
   const Teuchos::RCP<const OperatorT> op_;
 
@@ -110,8 +109,6 @@ public:
   }
 
 
-  /// \todo finding direction here.  void assignField( const RangeFieldT& mv ) {};
-
 
   void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mul, Scalar mulI, Scalar mulC, Scalar mulL ) const { std::cout << "not implmented\n"; }
 
@@ -126,8 +123,6 @@ public:
     // exchange wind and "rhs"
     for( int vel_dir=0; vel_dir<space()->dim(); ++vel_dir )
       x[vel_dir]->exchange();
-
-    y.exchange();
 
     for( int i=0; i<nIter_; ++i ) {
 
@@ -182,6 +177,7 @@ protected:
       const Teuchos::Tuple<short int,3>& loopOrder ) const {
 
     z.exchange();
+
     OP_convectionDiffusionSOR(
         space()->dim(),
         space()->nLoc(),

@@ -129,7 +129,7 @@ public:
 				op_->getGradOp()->getC(Y),
 				op_->getGradOp()->getC(Z),
 				mulI,                 
-				re,                 
+				1./re,                 
 				xu->getConstFieldPtr(i-1)->getConstRawPtr(),
 				xu->getConstFieldPtr(i)->getConstRawPtr(),
 				xp->getConstFieldPtr(i)->getConstRawPtr(),
