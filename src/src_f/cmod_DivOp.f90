@@ -24,8 +24,6 @@ contains
         SS,NN,          &
         c1,c2,c3,       &
         phiU,           &
-        phiV,           &
-        phiW,           &
         div ) bind (c,name='OP_div')
   
         implicit none
@@ -47,9 +45,7 @@ contains
         real(c_double), intent(in)  :: c2(dL(2):dU(2),0:N(2))
         real(c_double), intent(in)  :: c3(dL(3):dU(3),0:N(3))
 
-        real(c_double), intent(in)  :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double), intent(in)  :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double), intent(in)  :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+        real(c_double), intent(in)  :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)), 1:3 )
 
         real(c_double), intent(out) :: div (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
@@ -58,8 +54,6 @@ contains
         integer(c_int)                ::  j, jj
         integer(c_int)                ::  k, kk
   
-        !real(c_double)                   ::  dd1
-  
 
         !===========================================================================================================
         if( 3==dimens) then
@@ -67,18 +61,18 @@ contains
             do k = SS(3), NN(3)
                 do j = SS(2), NN(2)
                     do i = SS(1), NN(1)
-                        div(i,j,k) = c1(dL(1),i)*phiU(i+dL(1),j,k)
+                        div(i,j,k) = c1(dL(1),i)*phiU(i+dL(1),j,k,1)
                         !pgi$ unroll = n:8
                         do ii = dL(1)+1, dU(1)
-                            div(i,j,k) = div(i,j,k) + c1(ii,i)*phiU(i+ii,j,k)
+                            div(i,j,k) = div(i,j,k) + c1(ii,i)*phiU(i+ii,j,k,1)
                         end do
                         !pgi$ unroll = n:8
                         do jj = dL(2), dU(2)
-                            div(i,j,k) = div(i,j,k) + c2(jj,j)*phiV(i,j+jj,k)
+                            div(i,j,k) = div(i,j,k) + c2(jj,j)*phiU(i,j+jj,k,2)
                         end do
                         !pgi$ unroll = n:8
                         do kk = dL(3), dU(3)
-                            div(i,j,k) = div(i,j,k) + c3(kk,k)*phiW(i,j,k+kk)
+                            div(i,j,k) = div(i,j,k) + c3(kk,k)*phiU(i,j,k+kk,3)
                         end do
                     end do
                 end do
@@ -89,14 +83,14 @@ contains
             do k = SS(3), NN(3)
                 do j = SS(2), NN(2)
                     do i = SS(1), NN(1)
-                        div(i,j,k) = c1(dL(1),i)*phiU(i+dL(1),j,k)
+                        div(i,j,k) = c1(dL(1),i)*phiU(i+dL(1),j,k,1)
                         !pgi$ unroll = n:8
                         do ii = dL(1)+1, dU(1)
-                            div(i,j,k) = div(i,j,k) + c1(ii,i)*phiU(i+ii,j,k)
+                            div(i,j,k) = div(i,j,k) + c1(ii,i)*phiU(i+ii,j,k,1)
                         end do
                         !pgi$ unroll = n:8
                         do jj = dL(2), dU(2)
-                            div(i,j,k) = div(i,j,k) + c2(jj,j)*phiV(i,j+jj,k)
+                            div(i,j,k) = div(i,j,k) + c2(jj,j)*phiU(i,j+jj,k,2)
                         end do
                     end do
                 end do
