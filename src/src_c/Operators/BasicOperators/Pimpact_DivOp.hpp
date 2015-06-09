@@ -9,6 +9,9 @@
 #include "Pimpact_ScalarField.hpp"
 #include "Pimpact_VectorField.hpp"
 
+
+
+
 namespace Pimpact{
 
 
@@ -27,9 +30,7 @@ extern "C" {
       const double* const c2,
       const double* const c3,
       const double* const phiU,
-      const double* const phiV,
-      const double* const phiW,
-      double* const lap );
+      double* const phi );
 
 }
 
@@ -113,12 +114,10 @@ public:
         space_->du(),
         space_->sInd(S),
         space_->eInd(S),
-        c_[X],
-        c_[Y],
-        c_[Z],
-        x.vecC(U),
-        x.vecC(V),
-        x.vecC(W),
+        getC(X),
+        getC(Y),
+        getC(Z),
+        x.getConstRawPtr(),
         y.getRawPtr() );
 
     y.changed();
@@ -131,6 +130,10 @@ public:
   bool hasApplyTranspose() const { return( false ); }
 
 	Teuchos::RCP<const SpaceT> space() const { return(space_); };
+
+  const Scalar* getC( const ECoord& dir ) const {
+      return( c_[dir] );
+  }
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 

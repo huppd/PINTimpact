@@ -853,17 +853,11 @@ public:
     return( n );
   }
 
-  void setStoragePtr( Scalar*  array ) {
-    s_ = array;
-  }
+	void setStoragePtr( Scalar*  array ) { s_ = array; }
 
-  ScalarArray getRawPtr() {
-    return( s_ );
-  }
+	ScalarArray getRawPtr() { return( s_ ); }
 
-  const Scalar* getConstRawPtr() const {
-    return( s_ );
-  }
+	const Scalar* getConstRawPtr() const { return( s_ ); }
 
 
   ///\}

@@ -70,7 +70,7 @@ public:
     }
     else{
 
-      typename RangeFieldT::Iter j = y.sInd_;
+//      typename RangeFieldT::Iter j = y.sInd_;
       for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
         op_->apply( x.getConstField(i) , y.getField(i) );
 

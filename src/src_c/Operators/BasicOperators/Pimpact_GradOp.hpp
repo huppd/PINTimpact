@@ -137,9 +137,9 @@ public:
 				space_->eInd(V),
 				space_->sInd(W),
 				space_->eInd(W),
-				c_[0],
-				c_[1],
-				c_[2],
+        getC(X),
+        getC(Y),
+        getC(Z),
 				x.getConstRawPtr(),
 				y.getRawPtr() );
 		// necessary?
@@ -163,6 +163,10 @@ public:
   bool hasApplyTranspose() const { return( false ); }
 
 	Teuchos::RCP<const SpaceT> space() const { return(space_); };
+
+  const Scalar* getC( const ECoord& dir ) const {
+      return( c_[dir] );
+  }
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {}
 

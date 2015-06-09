@@ -41,7 +41,7 @@ typedef typename Pimpact::ModeField<VF>       MVF;
 
 
 bool testMpi = true;
-S eps = 1e-10;
+S eps = 1e-8;
 S omega = 0.8;
 S winds = 1;
 int nIter = 1000;
@@ -921,10 +921,17 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, DtLapOp ) {
   auto A = Pimpact::createMultiOpWrap( Pimpact::createDtLapOp( space, 1., 0. ) );
 
 	mv->random();
-  A->apply(*mv,*mv2);
 
-  TEST_FLOATING_EQUALITY( mv->getConstFieldPtr(0)->getConstCFieldPtr()->norm(), mv2->getConstFieldPtr(0)->getConstSFieldPtr()->norm(), eps );
-  TEST_FLOATING_EQUALITY( mv->getConstFieldPtr(0)->getConstSFieldPtr()->norm(), mv2->getConstFieldPtr(0)->getConstCFieldPtr()->norm(), eps );
+  A->apply( *mv, *mv2 );
+
+	auto diff = mv->getConstFieldPtr(0)->getConstCFieldPtr()->clone(Pimpact::ShallowCopy);
+
+	diff->add( 1., mv->getConstFieldPtr(0)->getConstCField(), -1.,  mv2->getConstFieldPtr(0)->getConstSField() );
+
+  TEST_EQUALITY( diff->norm(Belos::InfNorm)<eps, true );
+
+	diff->add( 1., mv->getConstFieldPtr(0)->getConstSField(), -1.,  mv2->getConstFieldPtr(0)->getConstCField() );
+  TEST_EQUALITY( diff->norm(Belos::InfNorm)<eps, true );
 
   mv2->init(0.);
 
@@ -934,13 +941,11 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, DtLapOp ) {
   A2->apply(*mv,*mv2);
   A3->apply(*mv,*mv3);
 
-  std::vector<S> norm2( 1, 0. );
-  std::vector<S> norm3( 1, 0. );
 
-  mv2->norm(norm2);
-  mv3->norm(norm3);
+	auto diff2 = mv2->clone();
+	diff2->add( 1., *mv2, -1., *mv3 );
 
-  TEST_EQUALITY( norm2[0] , norm3[0] );
+  TEST_EQUALITY( diff2->norm(Belos::InfNorm)<eps, true );
 
 }
 

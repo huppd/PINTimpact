@@ -36,7 +36,11 @@ bool testMpi = true;
 double eps = 3e-1;
 int domain = 0;
 int dim = 3;
-//bool isImpactInit=false;
+
+int npx = 2;
+int npy = 2;
+int npz = 1;
+int npf = 2;
 
 
 typedef Pimpact::Space<S,O,d,dNC> SpaceT;
@@ -96,6 +100,18 @@ TEUCHOS_STATIC_SETUP() {
   clp.setOption(
       "dim", &dim,
       "dim" );
+	clp.setOption(
+	    "npx", &npx,
+	    "" );
+	clp.setOption(
+	    "npy", &npy,
+	    "" );
+	clp.setOption(
+	    "npz", &npz,
+	    "" );
+	clp.setOption(
+	    "npf", &npf,
+	    "" );
 
   pl->set( "Re", 1. );
   pl->set( "alpha2", 1. );
@@ -107,23 +123,23 @@ TEUCHOS_STATIC_SETUP() {
 
   pl->set( "dim", dim );
 
-  pl->set("nx", 33 );
-  pl->set("ny", 17 );
+  pl->set("nx", 9 );
+  pl->set("ny", 9 );
   pl->set("nz", 9 );
 
   pl->set("nf", 8 );
-
-  // processor grid size
-  pl->set("npx", 2 );
-  pl->set("npy", 2 );
-  pl->set("npz", 1 );
-  pl->set("npf", 2 );
 
 }
 
 
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, create_init_print, FType ) {
+
+	// processor grid size
+	pl->set("npx", npx );
+	pl->set("npy", npy );
+	pl->set("npz", npz );
+	pl->set("npf", npf );
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
@@ -141,6 +157,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, create_init_print, TVF )
 
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, InfNorm_and_init, FType ) {
+
+	// processor grid size
+	pl->set("npx", npx );
+	pl->set("npy", npy );
+	pl->set("npz", npz );
+	pl->set("npf", npf );
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
@@ -180,6 +202,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, InfNorm_and_init, TVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, OneNorm_and_init, FType ) {
 
+	// processor grid size
+	pl->set("npx", npx );
+	pl->set("npy", npy );
+	pl->set("npz", npz );
+	pl->set("npf", npf );
+
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>(space);
@@ -200,6 +228,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, OneNorm_and_init, TVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, TwoNorm_and_init, FType ) {
 
+	// processor grid size
+	pl->set("npx", npx );
+	pl->set("npy", npy );
+	pl->set("npz", npz );
+	pl->set("npf", npf );
+
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>(space);
@@ -217,6 +251,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, TwoNorm_and_init, TVF )
 
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, dot, FType ) {
+
+	// processor grid size
+	pl->set("npx", npx );
+	pl->set("npy", npy );
+	pl->set("npz", npz );
+	pl->set("npf", npf );
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
@@ -259,6 +299,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, dot, TVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, scale, FType ) {
 
+	// processor grid size
+	pl->set("npx", npx );
+	pl->set("npy", npy );
+	pl->set("npz", npz );
+	pl->set("npf", npf );
+
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>(space);
@@ -280,6 +326,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, scale, TVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, random, FType ) {
 
+	// processor grid size
+	pl->set("npx", npx );
+	pl->set("npy", npy );
+	pl->set("npz", npz );
+	pl->set("npf", npf );
+
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>(space);
@@ -300,6 +352,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, random, TVF )
 
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TemplateField, add, FType ) {
+
+	// processor grid size
+	pl->set("npx", npx );
+	pl->set("npy", npy );
+	pl->set("npz", npz );
+	pl->set("npf", npf );
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
@@ -347,6 +405,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TemplateField, add, TVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, write, FType ) {
 
+	// processor grid size
+	pl->set("npx", npx );
+	pl->set("npy", npy );
+	pl->set("npz", npz );
+	pl->set("npf", npf );
+
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>( space );
@@ -368,6 +432,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, write, TVF )
 
 // test shows that nLoc is not consistent with start and end indexes
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TimeField, all, FType ) {
+
+	// processor grid size
+	pl->set("npx", npx );
+	pl->set("npy", npy );
+	pl->set("npz", npz );
+	pl->set("npf", npf );
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
@@ -421,6 +491,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TimeField, all, VF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TimeField, BelosMVTest, FType ) {
 
+	// processor grid size
+	pl->set("npx", npx );
+	pl->set("npy", npy );
+	pl->set("npz", npz );
+	pl->set("npf", npf );
+
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto vel = Pimpact::create<FType>( space );
@@ -442,6 +518,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TimeField, BelosMVTest, TVF )
 
 
 TEUCHOS_UNIT_TEST( TimeOpearotr, TimeOpWrap ) {
+
+	// processor grid size
+	pl->set("npx", npx );
+	pl->set("npy", npy );
+	pl->set("npz", npz );
+	pl->set("npf", npf );
 
 	auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
@@ -485,6 +567,12 @@ TEUCHOS_UNIT_TEST( TimeOpearotr, TimeOpWrap ) {
 
 
 TEUCHOS_UNIT_TEST( TimeOperator, DtTimeOp ) {
+
+	// processor grid size
+	pl->set("npx", npx );
+	pl->set("npy", npy );
+	pl->set("npz", npz );
+	pl->set("npf", npf );
 
 	pl->set("nx", 33 );
 	pl->set("ny", 17 );
@@ -553,6 +641,12 @@ TEUCHOS_UNIT_TEST( TimeOperator, DtTimeOp ) {
 
 
 TEUCHOS_UNIT_TEST( TimeOperator, TimeDtConvectionDiffusionOp ) {
+
+	// processor grid size
+	pl->set("npx", npx );
+	pl->set("npy", npy );
+	pl->set("npz", npz );
+	pl->set("npf", npf );
 
 	auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
@@ -626,5 +720,41 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeDtConvectionDiffusionOp ) {
 }
 
 
+
+TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOp ) {
+
+	// processor grid size
+	pl->set("npx", npx );
+	pl->set("npy", npy );
+	pl->set("npz", npz );
+	pl->set("npf", npf );
+
+	typedef Pimpact::TimeStokesOp<SpaceT> OpT;
+
+	auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+
+
+	auto op = Pimpact::create<OpT>( space );
+
+	auto x = Pimpact::create<typename OpT::DomainFieldT>( space );
+	auto y = Pimpact::create<typename OpT::RangeFieldT>( space );
+
+	// Const diffusion test
+	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Poiseuille_inX );
+
+	x->write(1000);
+	y->init(0);
+
+	op->apply( *x, *y );
+	y->write(0);
+
+	initVectorTimeField( x->getVFieldPtr(), Pimpact::Const2DFlow, 8./std::pow(space->getDomain()->getDomainSize()->getSize(Pimpact::Y),2), 0., 0. );
+	x->add( 1., *x, -1., *y );
+	x->write(100);
+
+	std::cout << "error: " << x->norm() << "\n";
+	TEST_EQUALITY( x->norm()<eps, true );
+
+}
 
 } // end of namespace

@@ -148,7 +148,7 @@ public:
           getC(Z,fType),
           mulI_,
           mulL_,
-          x.vecC(fType),
+          x.getConstRawPtr(fType),
           y.getRawPtr(fType) );
     }
 

@@ -66,5 +66,12 @@ namespace Pimpact {
 	template class ConvectionVSmoother< ConvectionVOp< ConvectionDiffusionSOp< Space<double,int,3,4> > >, ConvectionDiffusionSORSmoother>;
 	template class ConvectionVSmoother< ConvectionVOp< ConvectionDiffusionSOp< Space<double,int,4,2> > >, ConvectionDiffusionSORSmoother>;
 	template class ConvectionVSmoother< ConvectionVOp< ConvectionDiffusionSOp< Space<double,int,4,4> > >, ConvectionDiffusionSORSmoother>;
+
 } // end of namespace Pimpact
+
+template class Pimpact::TimeStokesOp< Pimpact::Space<double,int,4,2> >;
+template class Pimpact::TimeStokesOp< Pimpact::Space<double,int,4,4> >;
+template class Pimpact::TimeStokesBSmoother< Pimpact::TimeStokesOp< Pimpact::Space<double,int,4,2> > >;
+template class Pimpact::TimeStokesBSmoother< Pimpact::TimeStokesOp< Pimpact::Space<double,int,4,4> > >;
+
 #endif

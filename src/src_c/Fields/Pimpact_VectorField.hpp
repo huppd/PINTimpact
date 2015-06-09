@@ -814,12 +814,13 @@ public:
       sFields_[i]->setStoragePtr( vec_+i*n );
   }
 
-  Scalar* getRawPtr() {
-    return( vec_ );
-  }
+	Scalar* getRawPtr() { return( vec_ ); }
+
+	const Scalar* getConstRawPtr() const { return( vec_ ); }
 
   Scalar* getRawPtr ( int i )       { return( sFields_[i]->getRawPtr() ); }
-  Scalar* vecC( int i ) const { return( sFields_[i]->getRawPtr() ); }
+
+  const Scalar* getConstRawPtr ( int i )  const  { return( sFields_[i]->getRawPtr() ); }
 
 
   Teuchos::RCP<SF> getFieldPtr( int i ) { return(  sFields_[i] ); }
