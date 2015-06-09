@@ -7,8 +7,9 @@
 #include "Teuchos_Array.hpp"
 #include "Teuchos_Tuple.hpp"
 #include "Teuchos_CommHelpers.hpp"
-//#include "Pimpact_Types.hpp"
-#include "Pimpact_VectorField.hpp"
+
+#include "Pimpact_Fields.hpp"
+
 #include "Pimpact_DivOp.hpp"
 
 

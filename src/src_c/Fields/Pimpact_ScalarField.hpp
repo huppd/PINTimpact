@@ -2,11 +2,14 @@
 #ifndef PIMPACT_SCALARFIELD_HPP
 #define PIMPACT_SCALARFIELD_HPP
 
+
 #include <vector>
 #include <iostream>
 #include "mpi.h"
 
 #include "Teuchos_RCP.hpp"
+#include "Teuchos_ScalarTraits.hpp"
+
 #include "BelosTypes.hpp"
 
 #include "Pimpact_Types.hpp"
@@ -29,10 +32,10 @@ namespace Pimpact {
 template<class SpaceType>
 class ScalarField : private AbstractField< SpaceType > {
 
-  template<class SpaceTT>
-  friend class DivGradO2JSmoother;
-  template<class OperatorTT>
-  friend class ConvectionDiffusionJSmoother;
+//  template<class SpaceTT>
+//  friend class DivGradO2JSmoother;
+//  template<class OperatorTT>
+//  friend class ConvectionDiffusionJSmoother;
   template<class Field>
   friend class TimeField;
 
@@ -850,17 +853,11 @@ public:
     return( n );
   }
 
-  void setStoragePtr( Scalar*  array ) {
-    s_ = array;
-  }
+	void setStoragePtr( Scalar*  array ) { s_ = array; }
 
-  ScalarArray getRawPtr() {
-    return( s_ );
-  }
+	ScalarArray getRawPtr() { return( s_ ); }
 
-  const Scalar* getConstRawPtr() const {
-    return( s_ );
-  }
+	const Scalar* getConstRawPtr() const { return( s_ ); }
 
 
   ///\}
@@ -939,7 +936,6 @@ public:
 
 
 
-
 /// \brief creates a scalar field(vector) belonging to a space
 ///
 /// \param space scalar Vector Space to which returned vector belongs
@@ -958,6 +954,15 @@ createScalarField(
 
 
 } // end of namespace Pimpact
+
+
+#ifdef COMPILE_ETI
+#include "Pimpact_Space.hpp"
+extern template class Pimpact::ScalarField< Pimpact::Space<double,int,3,2> >;
+extern template class Pimpact::ScalarField< Pimpact::Space<double,int,3,4> >;
+extern template class Pimpact::ScalarField< Pimpact::Space<double,int,4,2> >;
+extern template class Pimpact::ScalarField< Pimpact::Space<double,int,4,4> >;
+#endif
 
 
 #endif // end of #ifndef PIMPACT_SCALARFIELD_HPP

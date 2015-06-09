@@ -3,10 +3,13 @@
 #include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_RCP.hpp"
 
+#include "Pimpact_Fields.hpp"
+
 #include "Pimpact_VectorFieldOpWrap.hpp"
 #include "Pimpact_MultiGrid.hpp"
+#include "Pimpact_CoarsenStrategy.hpp"
+#include "Pimpact_CoarsenStrategyGlobal.hpp"
 
-#include "Pimpact_ScalarField.hpp"
 #include "Pimpact_Operator.hpp"
 
 #include "Pimpact_LinearProblem.hpp"
@@ -28,11 +31,7 @@ typedef Pimpact::Space<S,O,4,2> CSpace4T;
 typedef Pimpact::CoarsenStrategy<FSpace3T,CSpace3T> CS3L;
 typedef Pimpact::CoarsenStrategyGlobal<FSpace3T,CSpace3T,5> CS3G;
 
-typedef Pimpact::CoarsenStrategy<FSpace4T,CSpace4T> CS4L;
-typedef Pimpact::CoarsenStrategyGlobal<FSpace4T,CSpace4T,5> CS4G;
-
 template<class ST> using BSF = Pimpact::MultiField< Pimpact::ScalarField<ST> >;
-//template<class T> using BVF = Pimpact::MultiField< Pimpact::VectorField<T> >;
 
 template<class ST> using BOPF = Pimpact::MultiOpWrap< Pimpact::DivGradOp<ST> >;
 template<class ST> using BOPC = Pimpact::MultiOpWrap< Pimpact::DivGradO2Op<ST> >;
@@ -40,11 +39,13 @@ template<class ST> using BSM = Pimpact::MultiOpWrap< Pimpact::DivGradO2JSmoother
 
 template<class T> using ConvDiffOpT = Pimpact::ConvectionVOp<Pimpact::ConvectionDiffusionSOp<T> >;
 
-//template<class T> using ConvDiffOpT = Pimpact::ConvectionVOp<Pimpact::ConvectionDiffusionSOp<T> >;
-
 template<class T> using ConvDiffSORT = Pimpact::ConvectionVSmoother<T,Pimpact::ConvectionDiffusionSORSmoother >;
 
 template<class T> using ConvDiffJT = Pimpact::ConvectionVSmoother<T,Pimpact::ConvectionDiffusionJSmoother >;
+
+template<class T1,class T2> using TransVF = Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<T1,T2> >;
+template<class T> using RestrVF = Pimpact::VectorFieldOpWrap<Pimpact::RestrictionOp<T> >;
+template<class T> using InterVF = Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<T> >;
 
 bool testMpi = true;
 double eps = 1e-6;
@@ -165,40 +166,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSpaces, constructor3D, CS ) {
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSpaces, constructor3D, CS3L )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSpaces, constructor3D, CS3G )
-
-
-
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSpaces, constructor4D, CS ) {
-
-//  typedef Pimpact::CoarsenStrategy<FSpace4T,CSpace4T> CS;
-
-	//  grid size
-	pl->set("nx", nx );
-	pl->set("ny", ny );
-	pl->set("nz", nz );
-	pl->set("nf", nf );
-
-	// processor grid size
-	pl->set("npx", npx );
-	pl->set("npy", npy );
-	pl->set("npz", npz );
-	pl->set("npf", npf );
-
-
-  auto space = Pimpact::createSpace<S,O,4>( pl );
-
-  space->print();
-
-  auto mgSpaces = Pimpact::createMGSpaces<FSpace4T,CSpace4T,CS>( space, maxGrids );
-  std::cout << "nGridLevels: " << mgSpaces->getNGrids() << "\n";
-
-	if( 0==space->rankST() )
-		mgSpaces->print();
-
-}
-
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSpaces, constructor4D, CS4L )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSpaces, constructor4D, CS4G )
 
 
 
@@ -418,7 +385,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSmoothers, VF_constructor3D, CS3G )
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Restrictor3D, CS ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Restrictor3D, CS ) {
 
 	//  grid size
 	pl->set("nx", nx );
@@ -525,7 +492,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Restrictor3D, CS ) {
 			if( 0==space->rankST() )
 				std::cout << "error Const: " << bla << "\n";
 //			if( i>0 )
-			TEST_EQUALITY( er->norm(Belos::InfNorm)<eps, true ); // boundaries?
+			TEST_EQUALITY( bla<eps, true ); // boundaries?
 			if( bla>=eps )
 				er->write(0);
 		}
@@ -580,9 +547,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Restrictor3D, CS ) {
 			er->add( 1., *sol, -1., *fieldc );
 			double bla = er->norm(Belos::InfNorm);
 			if( 0==space->rankST() )
-				std::cout << "error GradY: " << er->norm(Belos::InfNorm) << "\n";
+				std::cout << "error GradY: " << bla << "\n";
 //			if( i>0 )
-			TEST_EQUALITY( er->norm(Belos::InfNorm)<eps, true ); // boundaries?
+			TEST_EQUALITY( bla<eps, true ); // boundaries?
 			if( bla>=eps ) {
 				er->write(2);
 				fieldc->write(20);
@@ -611,9 +578,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Restrictor3D, CS ) {
 			er->add( 1., *sol, -1., *fieldc );
 			double bla = er->norm(Belos::InfNorm);
 			if( 0==space->rankST() )
-				std::cout << "error GradZ: " << er->norm(Belos::InfNorm) << "\n";
+				std::cout << "error GradZ: " << bla << "\n";
 //			if( i>0 )
-			TEST_EQUALITY( er->norm(Belos::InfNorm)<eps, true ); // boundaries?
+			TEST_EQUALITY( bla<eps, true ); // boundaries?
 			if( bla>=eps ) {
 				er->write(3);
 				fieldc->write(30);
@@ -626,14 +593,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Restrictor3D, CS ) {
 } // end of TEUCHOS_UNIT_TEST_TEMPLATE
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, Restrictor3D, CS3L )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, Restrictor3D, CS3G )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, Restrictor3D, CS3L )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, Restrictor3D, CS3G )
 
 
 
 
 /// \todo remove corners for test(Scalar case)
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator3D, CS ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator3D, CS ) {
 
 	//  grid size
 	pl->set("nx", nx );
@@ -647,39 +614,37 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator3D, CS ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-  auto space = Pimpact::createSpace<S,O,3>( pl );
+	auto space = Pimpact::createSpace<S,O,3>( pl );
 
-  auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
+	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
 
-  auto mgTransfers = Pimpact::createMGTransfers<Pimpact::TransferOp,Pimpact::RestrictionOp,Pimpact::InterpolationOp>( mgSpaces );
+	auto mgTransfers = Pimpact::createMGTransfers<Pimpact::TransferOp,Pimpact::RestrictionOp,Pimpact::InterpolationOp>( mgSpaces );
 
 	auto op = mgTransfers->getInterpolationOp( -2 );
-//	if( 0==space->rankST() ) op->print();
 
 	Pimpact::EField type[] = { Pimpact::EField::S, Pimpact::EField::U, Pimpact::EField::V, Pimpact::EField::W };
 
-  for( int i=fs; i<fe; ++i ) {
+	for( int i=fs; i<fe; ++i ) {
 		if( 0==space->rankST() )
 			std::cout << "type: " << i << "\n";
 
-    auto fieldf = Pimpact::createScalarField( mgSpaces->get( -2 ), type[i] );
-    auto fieldc = Pimpact::createScalarField( mgSpaces->get( -1 ), type[i] );
-    auto sol = fieldf->clone();
-    auto er = fieldf->clone();
+		auto fieldf = Pimpact::createScalarField( mgSpaces->get( -2 ), type[i] );
+		auto fieldc = Pimpact::createScalarField( mgSpaces->get( -1 ), type[i] );
+		auto sol = fieldf->clone();
+		auto er = fieldf->clone();
 
 
-	 // the zero test
-	 fieldf->init( 1. );
-	 fieldc->initField( Pimpact::ConstField, 0. );
+		// the zero test
+		fieldf->init( 1. );
+		fieldc->initField( Pimpact::ConstField, 0. );
 
 		if( mgSpaces->participating(-2) )
-				op->apply( *fieldc, *fieldf );
+			op->apply( *fieldc, *fieldf );
 
 		if( mgSpaces->participating(-2) )
 			TEST_EQUALITY( eps>fieldf->norm(Belos::InfNorm), true );
 		if( mgSpaces->participating(-1) )
-			TEST_EQUALITY( eps>fieldc->norm(), true );
-
+			TEST_EQUALITY( eps>fieldc->norm(Belos::InfNorm), true );
 
 	 // the random test
 	 fieldc->random();
@@ -705,9 +670,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator3D, CS ) {
 			op->apply( *fieldc, *fieldf );
 
 
+		er->add( 1., *sol, -1., *fieldf );
 		if( mgSpaces->participating(-2) ) {
-			er->add( 1., *sol, -1., *fieldf );
-			double bla = er->norm(Belos::InfNorm);
+			double bla = er->norm( Belos::InfNorm );
 			if( 0==space->rankST() )
 				std::cout << "error Const: " << bla << "\n";
 			TEST_EQUALITY( bla < eps, true  );
@@ -723,18 +688,18 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator3D, CS ) {
 		sol->initField( Pimpact::Grad2D_inX );
 		er->random();
 
-		if( mgSpaces->participating(-1) )
-			fieldc->write(1001);
+//		if( mgSpaces->participating(-1) )
+//			fieldc->write(1001);
 //		else
 //			fieldc->print();
 
 		if( mgSpaces->participating(-2) )
 			op->apply( *fieldc, *fieldf );
 
-	 er->add( 1., *sol, -1., *fieldf );
+		er->add( 1., *sol, -1., *fieldf );
 
-		if( mgSpaces->participating(-1) )
-			fieldc->write(1000);
+//		if( mgSpaces->participating(-1) )
+//			fieldc->write(1000);
 //		else
 //			fieldc->print();
 
@@ -744,18 +709,18 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator3D, CS ) {
 //				std::cout << "rank: " << space->rankST() << " procCord: " << space->	procCoordinate()[0] << ", " << space->	procCoordinate()[1] << ", "<< space->	procCoordinate()[2] << "\n";
 //			}
 //			if( rankbla==space->rankST() )
-			{
-				auto bla = er->norm( Belos::InfNorm, false );
-				std::cout << "rank: " << space->rankST() << " procCord: " << space->procCoordinate()[0] << ", " << space->procCoordinate()[1] << ", "<< space->procCoordinate()[2] << ", local error:" << bla << "\n";
+//			{
+//				auto bla = er->norm( Belos::InfNorm, false );
+//				std::cout << "rank: " << space->rankST() << " procCord: " << space->procCoordinate()[0] << ", " << space->procCoordinate()[1] << ", "<< space->procCoordinate()[2] << ", local error:" << bla << "\n";
 //				if( bla>1.e-12 ) 
-				if( rankbla==space->rankST() ) {
-					er->print();
-					fieldf->print();
-					sol->print();
-					mgSpaces->get(-2)->getIndexSpace()->print();
-					op->print();
-				}
-			}
+//				if( rankbla==space->rankST() ) {
+//					er->print();
+//					fieldf->print();
+//					sol->print();
+//					mgSpaces->get(-2)->getIndexSpace()->print();
+//					op->print();
+//				}
+//			}
 
 			double bla = er->norm(Belos::InfNorm);
 			if( 0==space->rankST() )
@@ -804,7 +769,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator3D, CS ) {
 
 		er->add( 1., *sol, -1., *fieldf );
 
-
 		if( mgSpaces->participating(-2) ) {
 			double bla = er->norm(Belos::InfNorm);
 			if( 0==space->rankST() )
@@ -820,18 +784,247 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator3D, CS ) {
 
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, Interpolator3D, CS3L )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, Interpolator3D, CS3G )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, Interpolator3D, CS3L )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, Interpolator3D, CS3G )
 
 
 
-template<class T1,class T2> using TransVF = Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<T1,T2> >;
-template<class T> using RestrVF = Pimpact::VectorFieldOpWrap<Pimpact::RestrictionOp<T> >;
-template<class T> using InterVF = Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<T> >;
+
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
+
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
+
+	// processor grid size
+	pl->set("npx", npx );
+	pl->set("npy", npy );
+	pl->set("npz", npz );
+	pl->set("npf", npf );
+
+	auto space = Pimpact::createSpace<S,O,3>( pl );
+
+	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
+
+	auto mgTransfers = Pimpact::createMGTransfers<
+		Pimpact::TransferOp,Pimpact::RestrictionOp,Pimpact::InterpolationOp>(
+				mgSpaces );
+
+  auto x = Pimpact::createMGFields<Pimpact::ScalarField>( mgSpaces );
+
+	auto fieldf = x->get();
+	auto fieldc = x->get(-1);
+
+	// interpolation 
+	{
+		auto sol = fieldf->clone( Pimpact::ShallowCopy );
+		auto er = fieldf->clone( Pimpact::ShallowCopy );
+
+
+		// the zero test
+		fieldf->init( 1. );
+		fieldc->initField();
+
+		mgTransfers->interpolation( x );
+
+		if( mgSpaces->participating(0) )
+			TEST_EQUALITY( fieldf->norm()<eps, true );
+		if( mgSpaces->participating(-1) )
+			TEST_EQUALITY( fieldc->norm()<eps, true );
+
+
+		// the random test
+		fieldc->random();
+		fieldf->init(0.);
+
+		if( mgSpaces->participating(-1) )
+			TEST_INEQUALITY( 0., fieldc->norm() );
+
+		mgTransfers->interpolation( x );
+
+		if( mgSpaces->participating(-1) )
+			TEST_INEQUALITY( 0., fieldc->norm() );
+
+
+		// the stronger init test
+		fieldc->initField( Pimpact::ConstField, 1. );
+		fieldf->initField();
+		sol->initField( Pimpact::ConstField, 1. );
+
+		mgTransfers->interpolation( x );
+
+		er->add( 1., *sol, -1., *fieldf );
+		if( mgSpaces->participating(0) )
+			er->write(0);
+
+		if( mgSpaces->participating(0) )
+			std::cout << "error Const: " << er->norm() << "\n";
+		if( mgSpaces->participating(0) )
+			TEST_EQUALITY( er->norm()/std::sqrt( (S)er->getLength() )< eps, true  );
+
+
+		// hardcore test init test in X
+		fieldc->initField( Pimpact::Grad2D_inX );
+		fieldf->initField();
+
+		sol->initField( Pimpact::Grad2D_inX );
+
+		mgTransfers->interpolation( x );
+
+		er->add( 1., *sol, -1., *fieldf );
+		er->write(1);
+
+		std::cout << "error GradX: " << er->norm() << "\n";
+
+		TEST_EQUALITY( er->norm()/std::sqrt( (S)er->getLength() )< eps, true  );
+
+		// hardcore test init test in Y
+		fieldc->initField( Pimpact::Grad2D_inY );
+		fieldf->initField();
+
+		sol->initField( Pimpact::Grad2D_inY );
+
+		mgTransfers->interpolation( x );
+
+		er->add( 1., *sol, -1., *fieldf );
+		er->write(2);
+
+		std::cout << "error GradY: " << er->norm()/std::sqrt( (S)er->getLength() ) << "\n";
+
+		TEST_EQUALITY( er->norm()/std::sqrt( (S)er->getLength() ) < eps, true  );
+
+		// hardcore test init test in Z
+		fieldc->initField( Pimpact::Grad2D_inZ );
+		fieldf->initField();
+
+		sol->initField( Pimpact::Grad2D_inZ );
+
+		mgTransfers->interpolation( x );
+
+		er->add( 1., *sol, -1., *fieldf );
+		er->write(2);
+
+		std::cout << "error GradZ: " << er->norm()/std::sqrt( (S)er->getLength() ) << "\n";
+
+		TEST_EQUALITY( er->norm()/std::sqrt( (S)er->getLength() ) < eps, true  );
+
+	}
+
+	// restriction 
+	{
+		auto sol = fieldc->clone( Pimpact::ShallowCopy );
+		auto er = fieldc->clone( Pimpact::ShallowCopy );
+
+
+		// the zero test
+		fieldf->initField();
+		fieldc->init( 1. );
+
+		mgTransfers->restriction( x );
+
+		if( mgSpaces->participating(0) )
+			TEST_EQUALITY( fieldf->norm()<eps, true );
+		if( mgSpaces->participating(-1) )
+			TEST_EQUALITY( fieldc->norm()<eps, true );
+
+
+		// the random test
+		fieldf->random();
+		fieldc->init(0.);
+
+		if( mgSpaces->participating(0) )
+			TEST_INEQUALITY( 0., fieldf->norm() );
+
+		mgTransfers->restriction( x );
+
+		if( mgSpaces->participating(-1) )
+			TEST_INEQUALITY( 0., fieldc->norm() );
+
+
+		// the stronger init test
+		fieldf->initField( Pimpact::ConstField, 1. );
+		fieldc->initField();
+		sol->initField( Pimpact::ConstField, 1. );
+
+		mgTransfers->restriction( x );
+
+		er->add( 1., *sol, -1., *fieldc );
+		if( mgSpaces->participating(-1) )
+			er->write(0);
+
+		if( mgSpaces->participating(-1) )
+			std::cout << "error Const: " << er->norm() << "\n";
+		if( mgSpaces->participating(-1) )
+			TEST_EQUALITY( er->norm()/std::sqrt( (S)er->getLength() )< eps, true  );
+
+
+		// hardcore test init test in X
+		fieldf->initField( Pimpact::Grad2D_inX );
+		fieldc->initField();
+
+		sol->initField( Pimpact::Grad2D_inX );
+
+		mgTransfers->restriction( x );
+
+		er->add( 1., *sol, -1., *fieldc );
+		if( mgSpaces->participating(-1) )
+			er->write(1);
+
+		if( mgSpaces->participating(-1) )
+			std::cout << "error GradX: " << er->norm() << "\n";
+
+		if( mgSpaces->participating(-1) )
+			TEST_EQUALITY( er->norm()/std::sqrt( (S)er->getLength() )< eps, true  );
+
+		// hardcore test init test in Y
+		fieldf->initField( Pimpact::Grad2D_inY );
+		fieldc->initField();
+
+		sol->initField( Pimpact::Grad2D_inY );
+
+		mgTransfers->restriction( x );
+
+		er->add( 1., *sol, -1., *fieldc );
+		if( mgSpaces->participating(-1) )
+			er->write(2);
+
+		if( mgSpaces->participating(-1) )
+			std::cout << "error GradY: " << er->norm()/std::sqrt( (S)er->getLength() ) << "\n";
+
+		if( mgSpaces->participating(-1) )
+			TEST_EQUALITY( er->norm()/std::sqrt( (S)er->getLength() ) < eps, true  );
+
+		// hardcore test init test in Z
+		fieldf->initField( Pimpact::Grad2D_inZ );
+		fieldc->initField();
+
+		sol->initField( Pimpact::Grad2D_inZ );
+
+		mgTransfers->restriction( x );
+
+		er->add( 1., *sol, -1., *fieldc );
+		if( mgSpaces->participating(-1) )
+			er->write(2);
+
+		if( mgSpaces->participating(-1) )
+			std::cout << "error GradZ: " << er->norm()/std::sqrt( (S)er->getLength() ) << "\n";
+
+		if( mgSpaces->participating(-1) )
+			TEST_EQUALITY( er->norm()/std::sqrt( (S)er->getLength() ) < eps, true  );
+
+	}
+
+}
+
+
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, MGTransfersSF, CS3L )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, MGTransfersSF, CS3G )
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MGTransfersVF, CS ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersVF, CS ) {
 
 	//  grid size
 	pl->set("nx", nx );
@@ -852,122 +1045,265 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MGTransfersVF, CS ) {
 	auto mgTransfers = Pimpact::createMGTransfers<
       TransVF,RestrVF,InterVF>( mgSpaces );
 
-	auto fieldf = Pimpact::create<Pimpact::VectorField>( mgSpaces->get( 0 ) );
-	auto fieldc = Pimpact::create<Pimpact::VectorField>( mgSpaces->get( 1 ) );
+  auto x = Pimpact::createMGFields<Pimpact::VectorField>( mgSpaces );
 
-	auto sol = fieldf->clone( Pimpact::ShallowCopy );
-	auto er = fieldf->clone( Pimpact::ShallowCopy );
+	auto fieldf = x->get();
+	auto fieldc = x->get(-1);
 
-	auto op = mgTransfers->getInterpolationOp( 0 );
-
-	if( space->rankST()==1 ) op->print();
-
-
-	// the zero test
-	fieldf->init( 1. );
-	fieldc->initField( Pimpact::ConstFlow, 0., 0., 0. );
-
-	op->apply( *fieldc, *fieldf );
+	// interpolation 
+	{
+		auto sol = fieldf->clone( Pimpact::ShallowCopy );
+		auto er = fieldf->clone( Pimpact::ShallowCopy );
 
 
-	if( mgSpaces->participating(0) )
-		TEST_EQUALITY( fieldf->norm()<eps, true );
-	if( mgSpaces->participating(1) )
-		TEST_EQUALITY( fieldc->norm()<eps, true );
+		// the zero test
+		fieldf->init( 1. );
+		fieldc->initField( Pimpact::ConstFlow, 0., 0., 0. );
+
+		mgTransfers->interpolation( x );
+
+		if( mgSpaces->participating(0) )
+			TEST_EQUALITY( fieldf->norm()<eps, true );
+		if( mgSpaces->participating(-1) )
+			TEST_EQUALITY( fieldc->norm()<eps, true );
 
 
-	// the random test
-	fieldc->random();
-	fieldf->init(0.);
+		// the random test
+		fieldc->random();
+		fieldf->init(0.);
 
-	if( mgSpaces->participating(1) )
-		TEST_INEQUALITY( 0., fieldc->norm() );
+		if( mgSpaces->participating(-1) )
+			TEST_INEQUALITY( 0., fieldc->norm() );
 
-	op->apply( *fieldc, *fieldf );
+		mgTransfers->interpolation( x );
 
-	if( mgSpaces->participating(1) )
-		TEST_INEQUALITY( 0., fieldc->norm() );
-
-
-	// the stronger init test
-	fieldc->initField( Pimpact::ConstFlow, 1., 1., 1. );
-	fieldf->init(0.);
-	sol->initField( Pimpact::ConstFlow, 1., 1., 1. );
-
-	op->apply( *fieldc, *fieldf );
-
-	er->add( 1., *sol, -1., *fieldf );
-	if( mgSpaces->participating(0) )
-		er->write(0);
-
-	if( mgSpaces->participating(0) )
-		std::cout << "error Const: " << er->norm() << "\n";
-	if( mgSpaces->participating(0) )
-		TEST_EQUALITY( er->norm()/std::sqrt( (S)er->getLength() )< eps, true  );
+		if( mgSpaces->participating(0) )
+			TEST_INEQUALITY( 0., fieldf->norm() );
 
 
-	// hardcore test init test in X
-	fieldc->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inX );
-	fieldc->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inX );
-	fieldc->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inX );
-	fieldf->initField( Pimpact::ConstFlow, 0., 0., 0. );
+		// the stronger init test
+		fieldc->initField( Pimpact::ConstFlow, 1., 1., 1. );
+		fieldf->init(0.);
+		sol->initField( Pimpact::ConstFlow, 1., 1., 1. );
 
-	sol->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inX );
-	sol->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inX );
-	sol->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inX );
+		mgTransfers->interpolation( x );
 
-	op->apply( *fieldc, *fieldf );
+		er->add( 1., *sol, -1., *fieldf );
 
-	er->add( 1., *sol, -1., *fieldf );
-	er->write(1);
+		if( mgSpaces->participating(0) ) {
+			S rel_error = er->norm()/std::sqrt( (S)er->getLength() );
+			std::cout << "\nint. error Const: " << rel_error << "\n";
+			TEST_EQUALITY( rel_error < eps, true  );
+			if( rel_error>eps ) {
+				er->write(0);
+			}
+		}
 
-	std::cout << "error GradX: " << er->norm() << "\n";
 
-	TEST_EQUALITY( er->norm()/std::sqrt( (S)er->getLength() )< eps, true  );
+		// hardcore test init test in X
+		fieldc->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inX );
+		fieldc->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inX );
+		fieldc->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inX );
+		fieldf->initField( Pimpact::ConstFlow, 0., 0., 0. );
 
-	// hardcore test init test in Y
-	fieldc->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inY );
-	fieldc->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inY );
-	fieldc->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inY );
-	fieldf->initField( Pimpact::ConstFlow, 0., 0., 0. );
+		sol->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inX );
+		sol->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inX );
+		sol->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inX );
 
-	sol->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inY );
-	sol->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inY );
-	sol->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inY );
+		mgTransfers->interpolation( x );
 
-	op->apply( *fieldc, *fieldf );
+		er->add( 1., *sol, -1., *fieldf );
 
-	er->add( 1., *sol, -1., *fieldf );
-	er->write(2);
+		if( mgSpaces->participating(0) ) {
+			S rel_error = er->norm()/std::sqrt( (S)er->getLength() );
+			std::cout << "int. error GradX: " << rel_error << "\n";
+			TEST_EQUALITY( rel_error<eps, true  );
+			if( rel_error>eps ) {
+				er->write(1);
+				fieldf->write(10);
+				sol->write(100);
+			}
+		}
 
-	std::cout << "error GradY: " << er->norm()/std::sqrt( (S)er->getLength() ) << "\n";
+		// hardcore test init test in Y
+		fieldc->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inY );
+		fieldc->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inY );
+		fieldc->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inY );
+		fieldf->initField( Pimpact::ConstFlow, 0., 0., 0. );
 
-	TEST_EQUALITY( er->norm()/std::sqrt( (S)er->getLength() ) < eps, true  );
+		sol->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inY );
+		sol->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inY );
+		sol->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inY );
 
-	// hardcore test init test in Z
-	fieldc->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inZ );
-	fieldc->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inZ );
-	fieldc->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inZ );
-	fieldf->initField( Pimpact::ConstFlow, 0., 0., 0. );
+		mgTransfers->interpolation( x );
 
-	sol->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inZ );
-	sol->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inZ );
-	sol->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inZ );
+		er->add( 1., *sol, -1., *fieldf );
+		if( mgSpaces->participating(0) ) {
+			S rel_error = er->norm()/std::sqrt( (S)er->getLength() );
+			std::cout << "int. error GradY: " << rel_error << "\n";
+			TEST_EQUALITY( rel_error<eps, true  );
+			if( rel_error>eps ) {
+				er->write(2);
+				fieldf->write(20);
+				sol->write(200);
+			}
+		}
 
-	op->apply( *fieldc, *fieldf );
+		// hardcore test init test in Z
+		fieldc->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inZ );
+		fieldc->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inZ );
+		fieldc->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inZ );
+		fieldf->initField( Pimpact::ConstFlow, 0., 0., 0. );
 
-	er->add( 1., *sol, -1., *fieldf );
-	er->write(2);
+		sol->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inZ );
+		sol->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inZ );
+		sol->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inZ );
 
-	std::cout << "error GradZ: " << er->norm()/std::sqrt( (S)er->getLength() ) << "\n";
+		mgTransfers->interpolation( x );
 
-	TEST_EQUALITY( er->norm()/std::sqrt( (S)er->getLength() ) < eps, true  );
+		er->add( 1., *sol, -1., *fieldf );
+
+		if( mgSpaces->participating(0) ) {
+			S rel_error = er->norm()/std::sqrt( (S)er->getLength() );
+			std::cout << "int. error GradZ: " << rel_error << "\n";
+			TEST_EQUALITY( rel_error < eps, true  );
+			if( rel_error>eps ) {
+				er->write(3);
+				fieldf->write(30);
+				sol->write(300);
+			}
+		}
+
+	}
+	// restriction 
+	{
+		auto sol = fieldc->clone( Pimpact::ShallowCopy );
+		auto er = fieldc->clone( Pimpact::ShallowCopy );
+
+		// the zero test
+		fieldf->initField( Pimpact::ConstFlow, 0., 0., 0. );
+		fieldc->init( 1. );
+
+		mgTransfers->restriction( x );
+
+		if( mgSpaces->participating(0) )
+			TEST_EQUALITY( fieldf->norm()<eps, true );
+		if( mgSpaces->participating(-1) )
+			TEST_EQUALITY( fieldc->norm()<eps, true );
+
+
+		// the random test
+		fieldf->random();
+		fieldc->init(0.);
+
+		if( mgSpaces->participating(0) )
+			TEST_INEQUALITY( 0., fieldf->norm() );
+
+		mgTransfers->restriction( x );
+
+		if( mgSpaces->participating(-1) )
+			TEST_INEQUALITY( 0., fieldc->norm() );
+
+
+		// the stronger init test
+		fieldf->initField( Pimpact::ConstFlow, 1., 1., 1. );
+		fieldc->init(0.);
+		sol->initField( Pimpact::ConstFlow, 1., 1., 1. );
+
+		mgTransfers->restriction( x );
+
+		er->add( 1., *sol, -1., *fieldc );
+		if( mgSpaces->participating(-1) ) {
+			S rel_error = er->norm()/std::sqrt( (S)er->getLength() );
+			std::cout << "res. error Const: " << rel_error << "\n";
+			TEST_EQUALITY( rel_error<eps, true  );
+			if( rel_error>eps ) {
+				er->write(0);
+			}
+		}
+
+
+		// hardcore test init test in X
+		fieldf->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inX );
+		fieldf->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inX );
+		fieldf->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inX );
+		fieldc->initField( Pimpact::ConstFlow, 0., 0., 0. );
+
+		sol->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inX );
+		sol->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inX );
+		sol->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inX );
+
+		mgTransfers->restriction( x );
+
+		er->add( 1., *sol, -1., *fieldc );
+
+		if( mgSpaces->participating(-1) ) {
+			S rel_error = er->norm()/std::sqrt( (S)er->getLength() );
+			std::cout << "res. error GradX: " << rel_error << "\n";
+			TEST_EQUALITY( rel_error < eps, true  );
+			if( rel_error>eps ) {
+				er->write(1);
+				fieldf->write(10);
+				sol->write(100);
+			}
+		}
+
+		// hardcore test init test in Y
+		fieldf->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inY );
+		fieldf->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inY );
+		fieldf->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inY );
+		fieldc->initField( Pimpact::ConstFlow, 0., 0., 0. );
+
+		sol->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inY );
+		sol->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inY );
+		sol->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inY );
+
+		mgTransfers->restriction( x );
+
+		er->add( 1., *sol, -1., *fieldc );
+
+		if( mgSpaces->participating(-1) ) {
+			S rel_error = er->norm()/std::sqrt( (S)er->getLength() );
+			std::cout << "res. error GradY: " << rel_error << "\n";
+			TEST_EQUALITY( rel_error < eps, true  );
+			if( rel_error>eps ) {
+				er->write(2);
+				fieldf->write(20);
+				sol->write(200);
+			}
+		}
+
+		// hardcore test init test in Z
+		fieldf->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inZ );
+		fieldf->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inZ );
+		fieldf->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inZ );
+		fieldc->initField( Pimpact::ConstFlow, 0., 0., 0. );
+
+		sol->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inZ );
+		sol->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inZ );
+		sol->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inZ );
+
+		mgTransfers->restriction( x );
+
+		er->add( 1., *sol, -1., *fieldc );
+		if( mgSpaces->participating(-1) ) {
+			S rel_error = er->norm()/std::sqrt( (S)er->getLength() );
+			std::cout << "res. error GradZ: " << rel_error << "\n";
+			TEST_EQUALITY( rel_error < eps, true  );
+			if( rel_error>eps ) {
+				er->write(3);
+				fieldf->write(30);
+				sol->write(300);
+			}
+		}
+
+	}
 
 }
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, MGTransfersVF, CS3L )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, MGTransfersVF, CS3G )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, MGTransfersVF, CS3L )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, MGTransfersVF, CS3G )
 
 
 template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
@@ -1111,11 +1447,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffOp, CS ) {
   auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
 
 	auto mgPL = Teuchos::parameterList();
-	mgPL->sublist("Smoother").set( "omega", 1. );
-	mgPL->sublist("Smoother").set( "numIters", 4 );
+	mgPL->sublist("Smoother").set( "omega", 0.5 );
+	mgPL->sublist("Smoother").set( "numIters", 2 );
 	mgPL->sublist("Smoother").set( "Ordering", 1 );
 	mgPL->sublist("Smoother").set<short int>( "dir X", -1 );
 	mgPL->sublist("Smoother").set<short int>( "dir Y", -1 );
+	mgPL->sublist("Smoother").set<short int>( "dir Z", -1 );
 
 
 	auto mg =
@@ -1151,7 +1488,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffOp, CS ) {
     ofs.open("MG2.txt", std::ofstream::out);
 
   // 
-	x->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inY );
+	x->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inX );
 	x->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inY );
 	x->getFieldPtr(Pimpact::W)->initField( Pimpact::Grad2D_inZ );
   auto sol = x->clone( Pimpact::DeepCopy );
@@ -1200,6 +1537,115 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffOp, CS ) {
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, ConvDiffOp, CS3L )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, ConvDiffOp, CS3G )
 
+
+
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffOp2, CS ) {
+
+
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
+
+	// processor grid size
+	pl->set("npx", npx );
+	pl->set("npy", npy );
+	pl->set("npz", npz );
+	pl->set("npf", npf );
+	pl->set<S>("Re", 1. );
+
+  //auto space = Pimpact::createSpace<S,O,3,2>( pl );
+  auto space = Pimpact::createSpace( pl );
+
+  auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
+
+	auto mgPL = Teuchos::parameterList();
+	mgPL->sublist("Smoother").set( "omega", 0.75 );
+	mgPL->sublist("Smoother").set( "numIters", 10 );
+
+
+	auto mg =
+		Pimpact::createMultiGrid<
+			Pimpact::VectorField,
+			TransVF,
+			RestrVF,
+			InterVF,
+			ConvDiffOpT,
+			ConvDiffOpT,
+			ConvDiffJT,
+			MOP
+				>( mgSpaces, mgPL );
+
+	std::cout << "blabla\n";
+  auto op = Pimpact::create< ConvDiffOpT >( space );
+
+	std::cout << "blupblup\n";
+  auto x = Pimpact::create<Pimpact::VectorField>( space );
+  auto b = Pimpact::create<Pimpact::VectorField>( space );
+  auto temp = x->clone();
+
+  {
+    auto wind = x->clone();
+		wind->initField( Pimpact::ConstFlow, 0., 0., 0. );
+//		wind->initField( Pimpact::ConstFlow, 1., 1., 1. );
+    op->assignField( *wind );
+    mg->assignField( *wind );
+  }
+
+  std::ofstream ofs;
+  if( space()->rankST()==0 )
+    ofs.open("MG2.txt", std::ofstream::out);
+
+  // 
+	x->getFieldPtr(Pimpact::U)->initField( Pimpact::Poiseuille2D_inX );
+	x->getFieldPtr(Pimpact::V)->initField( Pimpact::Poiseuille2D_inY );
+	x->getFieldPtr(Pimpact::W)->initField( Pimpact::Poiseuille2D_inZ );
+  auto sol = x->clone( Pimpact::DeepCopy );
+	
+	op->apply(*x,*b);
+	{
+		x->init(0);
+	 	auto bc = x->clone( Pimpact::ShallowCopy );
+	 	op->apply( *x, *bc );
+	 	b->add( 1., *b, -1., *bc );
+	 }
+   b->write(1);
+
+	 x->initField( Pimpact::ConstFlow, 0., 0., 0. );
+	//x->random();
+
+	 temp->add( -1, *x, 1., *sol );
+	 S res = temp->norm()/std::sqrt( temp->getLength() );
+
+	 if( space()->rankST()==0 ) {
+		 std::cout << "res: " << res << "\n";
+		 ofs << res << "\n";
+	 }
+   for( int i=0; i<20; ++i ) {
+     mg->apply( *b, *x );
+     //x->write(i+10);
+
+     temp->add( -1, *x, 1., *sol );
+     S res = temp->norm()/std::sqrt( temp->getLength() );
+
+     if( space()->rankST()==0 ) {
+			 std::cout << "res: " << res << "\n";
+       ofs << res << "\n";
+		 }
+   }
+
+   TEST_EQUALITY( temp->norm()<0.5, true );
+
+   x->write(2);
+
+   if( space()->rankST()==0 )
+     ofs.close();
+
+}
+
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, ConvDiffOp2, CS3L )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, ConvDiffOp2, CS3G )
 
 
 

@@ -5,9 +5,11 @@
 
 #include "Pimpact_MGSpaces.hpp"
 #include "Pimpact_TransferOp.hpp"
+
 #include "Pimpact_RestrictionOp.hpp"
 #include "Pimpact_InterpolationOp.hpp"
 
+#include "Pimpact_MGFields.hpp"
 
 
 
@@ -16,7 +18,6 @@ namespace Pimpact {
 
 
 /// \ingroup MG
-/// \todo make Interpolation/Restriction templated
 template<class MGSpacesT,
   template<class,class> class TransT,
   template<class> class RestrT,
@@ -135,6 +136,27 @@ public:
 			}
     }
   }
+
+	template< template<class> class FieldT>
+	void interpolation( const Teuchos::RCP< MGFields<MGSpacesT,FieldT> >& x ) const {
+
+		for( int i=-2; i>=-mgSpaces_->getNGrids(); --i ) 
+			if( mgSpaces_->participating(i) ) 
+				getInterpolationOp(i)->apply( *x->get(i+1), *x->get(i) );
+		
+		getTransferOp()->apply( *x->get(0), *x->get() );
+
+	}
+
+	template< template<class> class FieldT>
+	void restriction( const Teuchos::RCP< MGFields<MGSpacesT,FieldT> >& x ) const {
+
+		getTransferOp()->apply( *x->get(), *x->get(0) );
+		for( int i=0; i<mgSpaces_->getNGrids()-1; ++i ) 
+			if( mgSpaces_->participating(i) ) 
+				getRestrictionOp(i)->apply( *x->get(i), *x->get(i+1) );
+		
+	}
 
 }; // end of class MGTransfers
 

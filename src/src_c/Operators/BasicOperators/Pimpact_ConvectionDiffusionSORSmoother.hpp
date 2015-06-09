@@ -160,10 +160,11 @@ protected:
 			}
 		}
 
+		dirs_[0] = -1;
 		if( 3==space()->dim() )
 			for( dirs_[2]=dirS[2]; std::abs(dirs_[2])<=1; dirs_[2]+=inc[2] )
 				for( dirs_[1]=dirS[1]; std::abs(dirs_[1])<=1; dirs_[1]+=inc[1] )
-					for( dirs_[0]=dirS[0]; std::abs(dirs_[0])<=1; dirs_[0]+=inc[0] )
+//					for( dirs_[0]=dirS[0]; std::abs(dirs_[0])<=1; dirs_[0]+=inc[0] )
 						apply( x, y, z, dirs_, loopOrder_ );
 		else {
 			dirs_[2] = 1 ;
@@ -192,23 +193,23 @@ protected:
         space()->eInd(z.getType()),
         dirs.getRawPtr(),
         loopOrder.getRawPtr(),
-        op_->convSOp_->getCD( X, z.getType() ),
-        op_->convSOp_->getCD( Y, z.getType() ),
-        op_->convSOp_->getCD( Z, z.getType() ),
-        op_->convSOp_->getCU( X, z.getType() ),
-        op_->convSOp_->getCU( Y, z.getType() ),
-        op_->convSOp_->getCU( Z, z.getType() ),
-        op_->helmOp_->getC( X, z.getType() ),
-        op_->helmOp_->getC( Y, z.getType() ),
-        op_->helmOp_->getC( Z, z.getType() ),
+        op_->getConvSOp()->getCD( X, z.getType() ),
+        op_->getConvSOp()->getCD( Y, z.getType() ),
+        op_->getConvSOp()->getCD( Z, z.getType() ),
+        op_->getConvSOp()->getCU( X, z.getType() ),
+        op_->getConvSOp()->getCU( Y, z.getType() ),
+        op_->getConvSOp()->getCU( Z, z.getType() ),
+        op_->getHelmOp()->getC( X, z.getType() ),
+        op_->getHelmOp()->getC( Y, z.getType() ),
+        op_->getHelmOp()->getC( Z, z.getType() ),
         x[0]->getRawPtr(),
         x[1]->getRawPtr(),
         x[2]->getRawPtr(),
         y.getConstRawPtr(),
         z.getRawPtr(),
-        op_->mulI_,
-        op_->mulC_,
-        op_->mulL_,
+        op_->getMulI(),
+        op_->getMulC(),
+        op_->getMulL(),
         omega_ );
 
     z.changed();
@@ -232,13 +233,22 @@ public:
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
 
+
+
 }; // end of class ConvectionDiffusionSORSmoother
 
 
 
-
-
 } // end of namespace Pimpact
+
+
+#ifdef COMPILE_ETI
+extern template class Pimpact::ConvectionDiffusionSORSmoother< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,3,2> > >;
+extern template class Pimpact::ConvectionDiffusionSORSmoother< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,3,4> > >;
+extern template class Pimpact::ConvectionDiffusionSORSmoother< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,4,2> > >;
+extern template class Pimpact::ConvectionDiffusionSORSmoother< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,4,4> > >;
+#endif
+
 
 
 #endif // end of #ifndef PIMPACT_CONVECTIONDIFFUSIONSORSMOOTHER_HPP

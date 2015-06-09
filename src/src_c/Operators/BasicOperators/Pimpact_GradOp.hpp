@@ -17,15 +17,21 @@ namespace Pimpact{
 extern "C" {
 
 void OP_grad(
-    const int& dir,
+    const int& dimens,
     const int* const N,
     const int* const bl,
     const int* const bu,
     const int* const gl,
     const int* const gu,
-    const int* const ss,
-    const int* const nn,
-    const double* const c,
+    const int* const su,
+    const int* const nu,
+    const int* const sv,
+    const int* const nv,
+    const int* const sw,
+    const int* const nw,
+    const double* const c1,
+    const double* const c2,
+    const double* const c3,
     const double* const phi,
     double* const grad );
 
@@ -116,32 +122,38 @@ public:
     for( int i=0; i<dim; ++i) {
 //			x.level();
       x.exchange(i);
-
-      OP_grad(
-          i+1,
-          space_->nLoc(),
-          space_->bl(),
-          space_->bu(),
-          space_->gl(),
-          space_->gu(),
-          space_->sInd(i),
-          space_->eInd(i),
-          c_[i],
-          x.getConstRawPtr(),
-          y.getRawPtr(i) );
-      // necessary?
-//      OP_SetBCZero(
-//          space_->nLoc(),
-//          space_->bl(),
-//          space_->bu(),
-//          space_->getDomain()->getBCLocal()->getBCL(),
-//          space_->getDomain()->getBCLocal()->getBCU(),
-//          space_->sIndB(i),
-//          space_->eIndB(i),
-//          y.getRawPtr(i) );
-      // necessary?
-      // OP_bc_extrapolation( i+1, y.vec_[i] ); // doesnot work with Schurcomplement, not cleary what it does anyway
     }
+
+		OP_grad(
+				space_->dim(),
+				space_->nLoc(),
+				space_->bl(),
+				space_->bu(),
+				space_->gl(),
+				space_->gu(),
+				space_->sInd(U),
+				space_->eInd(U),
+				space_->sInd(V),
+				space_->eInd(V),
+				space_->sInd(W),
+				space_->eInd(W),
+        getC(X),
+        getC(Y),
+        getC(Z),
+				x.getConstRawPtr(),
+				y.getRawPtr() );
+		// necessary?
+		//      OP_SetBCZero(
+		//          space_->nLoc(),
+		//          space_->bl(),
+		//          space_->bu(),
+		//          space_->getDomain()->getBCLocal()->getBCL(),
+		//          space_->getDomain()->getBCLocal()->getBCU(),
+		//          space_->sIndB(i),
+		//          space_->eIndB(i),
+		//          y.getRawPtr(i) );
+		// necessary?
+		// OP_bc_extrapolation( i+1, y.vec_[i] ); // doesnot work with Schurcomplement, not cleary what it does anyway
     y.changed();
   }
 
@@ -151,6 +163,10 @@ public:
   bool hasApplyTranspose() const { return( false ); }
 
 	Teuchos::RCP<const SpaceT> space() const { return(space_); };
+
+  const Scalar* getC( const ECoord& dir ) const {
+      return( c_[dir] );
+  }
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {}
 
@@ -174,15 +190,15 @@ public:
 }; // end of class GradOp
 
 
-
-/// \relates GradOp
-template<class SpaceT>
-Teuchos::RCP< GradOp<SpaceT> > createGradOp( const Teuchos::RCP< const SpaceT>& space ) {
-  return( Teuchos::rcp( new GradOp<SpaceT>(space) ) );
-}
-
-
 } // end of namespace Pimpact
+
+
+#ifdef COMPILE_ETI
+extern template class Pimpact::GradOp< Pimpact::Space<double,int,3,2> >;
+extern template class Pimpact::GradOp< Pimpact::Space<double,int,3,4> >;
+extern template class Pimpact::GradOp< Pimpact::Space<double,int,4,2> >;
+extern template class Pimpact::GradOp< Pimpact::Space<double,int,4,4> >;
+#endif
 
 
 #endif // end of #ifndef PIMPACT_GRADOP_HPP

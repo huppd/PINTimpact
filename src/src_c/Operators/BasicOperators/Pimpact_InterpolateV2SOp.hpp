@@ -199,17 +199,16 @@ Teuchos::RCP<const InterpolateV2S<S,O,d,dimNC> > createInterpolateV2S(
   return( space->getInterpolateV2S() );
 }
 
-///// \relates InterpolateV2S
-///// \todo make specalization of create<Inter>( space)
-//template< class SpaceT >
-//Teuchos::RCP<const InterpolateV2S<typename SpaceT::Scalar,typename SpaceT::Ordinal,SpaceT::dimension,SpaceT::dimNC> >
-//create< InterpolateV2S<typename SpaceT::Scalar,typename SpaceT::Ordinal,SpaceT::dimension,SpaceT::dimNC> >(
-//    const Teuchos::RCP<const SpaceT >& space ) {
-//  return( space->getInterpolateV2S() );
-//}
-
-
 
 } // end of namespace Pimpact
+
+
+#ifdef COMPILE_ETI
+extern template class Pimpact::InterpolateV2S<double,int,3,2>;
+extern template class Pimpact::InterpolateV2S<double,int,3,4>;
+extern template class Pimpact::InterpolateV2S<double,int,4,2>;
+extern template class Pimpact::InterpolateV2S<double,int,4,4>;
+#endif
+
 
 #endif // end of #ifndef PIMPACT_INTERPOLATEVTOSOP_HPP

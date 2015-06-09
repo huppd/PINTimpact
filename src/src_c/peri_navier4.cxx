@@ -327,7 +327,7 @@ int main(int argi, char** argv ) {
       Pimpact::createCompositionOp(
           forcingm1Op,
           Pimpact::createTimeOpWrap(
-              Pimpact::createGradOp(space)
+              Pimpact::create<Pimpact::GradOp>(space)
 						)
 					);
 

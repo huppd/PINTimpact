@@ -9,9 +9,7 @@
 
 #include "BelosTypes.hpp"
 
-#include "Pimpact_ScalarField.hpp"
-#include "Pimpact_VectorField.hpp"
-#include "Pimpact_FieldFactory.hpp"
+#include "Pimpact_Fields.hpp"
 
 #include "Pimpact_Operator.hpp"
 #include "Pimpact_OperatorBase.hpp"
@@ -90,9 +88,9 @@ TEUCHOS_STATIC_SETUP() {
 	pl->set("ny", 17 );
 	pl->set("nz", 9 );
 	
-	pl->set("npx", 2 );
-	pl->set("npy", 2 );
-	pl->set("npz", 2 );
+	pl->set("npx", 1 );
+	pl->set("npy", 1 );
+	pl->set("npz", 1 );
 	
 }
 
@@ -619,8 +617,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
 
 
   auto pls = Teuchos::parameterList();
-  pls->set( "omega", 0.9 );
-  pls->set( "numIters", 1 );
+  pls->set( "omega", 0.75 );
+  pls->set( "numIters", 2 );
 
   auto smoother =
       Pimpact::create<
@@ -630,12 +628,13 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
               op,
               pls );
 
-  wind->initField( Pimpact::ConstFlow, winds, winds, winds );
+//  wind->initField( Pimpact::ConstFlow, winds, winds, winds );
+  wind->initField( Pimpact::ConstFlow, 0., 0., 0. );
   z->initField( Pimpact::ConstFlow, 0., 0., 0. );
 
-  y->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inX );
-  y->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inY );
-  y->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inZ );
+//	y->getFieldPtr( Pimpact::U )->initField( Pimpact::Poiseuille2D_inX );
+//	y->getFieldPtr( Pimpact::V )->initField( Pimpact::Poiseuille2D_inY );
+//	y->getFieldPtr( Pimpact::W )->initField( Pimpact::Poiseuille2D_inZ );
 
   auto sol = y->clone( Pimpact::DeepCopy );
 
@@ -652,12 +651,18 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
 
   y->initField( Pimpact::ConstFlow, 0., 0., 0. );
 
-  for(int i=0; i<100; ++i) {
+	y->assign( *sol ); 
+
+	z2->add( -1, *sol, 1, *y );
+	S error0 = z2->norm();
+	if( space()->rankST()==0 )
+		std::cout << "\nerror: " << error0 << "\n";
+  for(int i=0; i<1; ++i) {
     smoother->apply( *z, *y );
 
     z2->add( -1, *sol, 1, *y );
 
-    double n = z2->norm()/z2->getLength() ;
+    double n = z2->norm();///error0;
     if( space()->rankST()==0 )
       std::cout << "error: " << n << "\n";
 

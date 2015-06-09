@@ -130,20 +130,20 @@ contains
     end do
 
     ! a little bit shaky, please verify this when IO is ready
-    if (BC_L > 0) then
-      cIV( 1,0) = 1.
-      cIV( 2,0) = 0.
-    end if
+    !if (BC_L > 0) then
+      !cIV( 1,0) = 0.
+      !cIV( 2,0) = 1.
+    !end if
 
-    ! maybe false
+    !maybe false
     if (BC_L == -2) then
       cIV(1:2,0) = 0.
     end if
 
-    if (BC_U > 0) then
-      cIV(1,Nf) = 0.
-      cIV(2,Nf) = 1.
-    end if
+    !if (BC_U > 0) then
+      !cIV(1,Nf) = 1.
+      !cIV(2,Nf) = 0.
+    !end if
     if (BC_U == -2) then
       cIV(1:2,Nf) = 0.
     end if

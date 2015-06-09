@@ -75,69 +75,67 @@ public:
 
 
   /// \f[ y_k = (1-\omega) y_k + \omega D^{-1}( x - A y_k ) \f]
-  void apply(const DomainFieldT& x, RangeFieldT& y,
-      Belos::ETrans trans=Belos::NOTRANS ) const {
+	void apply(const DomainFieldT& x, RangeFieldT& y,
+			Belos::ETrans trans=Belos::NOTRANS ) const {
 
-    for( int i=0; i<nIter_; ++i) {
-      y.exchange();
+		for( int i=0; i<nIter_; ++i) {
+			y.exchange();
 
-      OP_DivGradO2JSmoother(
-          space()->dim(),
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->getDomain()->getBCLocal()->getBCL(),
-          space()->getDomain()->getBCLocal()->getBCU(),
-          op_->c_[0],
-          op_->c_[1],
-          op_->c_[2],
-          omega_,
-          x.s_,
-          y.s_,
-          temp_->s_);
+			OP_DivGradO2JSmoother(
+					space()->dim(),
+					space()->nLoc(),
+					space()->bl(),
+					space()->bu(),
+					space()->getDomain()->getBCLocal()->getBCL(),
+					space()->getDomain()->getBCLocal()->getBCU(),
+					op_->getC(X),
+					op_->getC(Y),
+					op_->getC(Z),
+					omega_,
+					x.getConstRawPtr(),
+					y.getRawPtr(),
+					temp_->getRawPtr() );
 
-		 SF_handle_corner(
-				 space()->nLoc(),
-				 space()->bl(),
-				 space()->bu(),
-				 space()->getDomain()->getBCLocal()->getBCL(),
-				 space()->getDomain()->getBCLocal()->getBCU(),
-				 temp_->s_ );
+			SF_handle_corner(
+					space()->nLoc(),
+					space()->bl(),
+					space()->bu(),
+					space()->getDomain()->getBCLocal()->getBCL(),
+					space()->getDomain()->getBCLocal()->getBCU(),
+					temp_->getRawPtr() );
 
-      // attention: could lead to problems when ScalarField is used as part of a higherlevel class (s is shared)
-//      std::swap( y.s_, temp_->s_ );
-//		 y.assign(*temp_);
-//			y.level();
+			//		 y.assign(*temp_);
+			//			y.level();
 
-		 temp_->changed();
-		 temp_->exchange();
+			temp_->changed();
+			temp_->exchange();
 
-		 OP_DivGradO2JSmoother(
-				 space()->dim(),
-				 space()->nLoc(),
-				 space()->bl(),
-				 space()->bu(),
-				 space()->getDomain()->getBCLocal()->getBCL(),
-				 space()->getDomain()->getBCLocal()->getBCU(),
-				 op_->c_[0],
-				 op_->c_[1],
-				 op_->c_[2],
-				 omega_,
-				 x.s_,
-				 temp_->s_,
-				 y.s_ );
+			OP_DivGradO2JSmoother(
+					space()->dim(),
+					space()->nLoc(),
+					space()->bl(),
+					space()->bu(),
+					space()->getDomain()->getBCLocal()->getBCL(),
+					space()->getDomain()->getBCLocal()->getBCU(),
+					op_->getC(X),
+					op_->getC(Y),
+					op_->getC(Z),
+					omega_,
+					x.getConstRawPtr(),
+					temp_->getRawPtr(),
+					y.getRawPtr() );
 
-		 SF_handle_corner(
-				 space()->nLoc(),
-				 space()->bl(),
-				 space()->bu(),
-				 space()->getDomain()->getBCLocal()->getBCL(),
-				 space()->getDomain()->getBCLocal()->getBCU(),
-				 y.s_ );
-		 y.changed();
-    }
+			SF_handle_corner(
+					space()->nLoc(),
+					space()->bl(),
+					space()->bu(),
+					space()->getDomain()->getBCLocal()->getBCL(),
+					space()->getDomain()->getBCLocal()->getBCU(),
+					y.getRawPtr() );
+			y.changed();
+		}
 
-  }
+	}
 
   void assignField( const DomainFieldT& mv ) {};
 
@@ -158,6 +156,7 @@ public:
 
 
 
+/// \todo move somewhere better
 template<template<class> class SmootherT, class OperatorT>
 Teuchos::RCP< SmootherT<OperatorT> >
 create(
@@ -170,6 +169,7 @@ create(
 }
 
 
+/// \todo move somewhere better
 template<class SmootherT, class OperatorT>
 Teuchos::RCP< SmootherT >
 create(
@@ -184,5 +184,14 @@ create(
 
 
 } // end of namespace Pimpact
+
+
+#ifdef COMPILE_ETI
+extern template class Pimpact::DivGradO2JSmoother< Pimpact::DivGradO2Op< Pimpact::Space<double,int,3,2> > >;
+extern template class Pimpact::DivGradO2JSmoother< Pimpact::DivGradO2Op< Pimpact::Space<double,int,3,4> > >;
+extern template class Pimpact::DivGradO2JSmoother< Pimpact::DivGradO2Op< Pimpact::Space<double,int,4,2> > >;
+extern template class Pimpact::DivGradO2JSmoother< Pimpact::DivGradO2Op< Pimpact::Space<double,int,4,4> > >;
+#endif
+
 
 #endif // end of #ifndef PIMPACT_DIVGRADO2JSMOOTHER_HPP

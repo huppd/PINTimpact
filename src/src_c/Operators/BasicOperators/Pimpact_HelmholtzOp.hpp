@@ -148,7 +148,7 @@ public:
           getC(Z,fType),
           mulI_,
           mulL_,
-          x.vecC(fType),
+          x.getConstRawPtr(fType),
           y.getRawPtr(fType) );
     }
 
@@ -199,7 +199,7 @@ public:
 
 	Teuchos::RCP<const SpaceT> space() const { return(space_); };
 
-  const Scalar* getC( const ECoord& dir, const EField& ftype ) const  {
+  const Scalar* getC( const ECoord& dir, const EField& ftype ) const {
       return( ((int)dir==(int)ftype)?cV_[dir]:cS_[dir] );
   }
 
@@ -215,5 +215,13 @@ public:
 
 } // end of namespace Pimpact
 
+
+#ifdef COMPILE_ETI
+extern template class Pimpact::HelmholtzOp< Pimpact::Space<double,int,3,2> >;
+extern template class Pimpact::HelmholtzOp< Pimpact::Space<double,int,3,4> >;
+extern template class Pimpact::HelmholtzOp< Pimpact::Space<double,int,4,2> >;
+extern template class Pimpact::HelmholtzOp< Pimpact::Space<double,int,4,4> >;
+#endif
+	
 
 #endif // end of #ifndef PIMPACT_HELMHOLTZOP_HPP

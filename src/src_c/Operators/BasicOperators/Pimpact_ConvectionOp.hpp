@@ -18,8 +18,8 @@ namespace Pimpact {
 extern "C" {
 
 void OP_nonlinear(
-    double* const phi1U, double* const phi1V, double* const phi1W,
-    double* const phi2U, double* const phi2V, double* const phi2W,
+    const double* const phi1U, const double* const phi1V, const double* const phi1W,
+    const double* const phi2U, const double* const phi2V, const double* const phi2W,
     double* const nl1,   double* const nl2,   double* const nl3,
     const double& mul );
 
@@ -69,8 +69,8 @@ public:
       mul = 1.;
     }
     OP_nonlinear(
-        x.vecC(0),x.vecC(1),x.vecC(2),
-        y.vecC(0),y.vecC(1),y.vecC(2),
+        x.getConstRawPtr(0),x.getConstRawPtr(1),x.getConstRawPtr(2),
+        y.getConstRawPtr(0),y.getConstRawPtr(1),y.getConstRawPtr(2),
         z.getRawPtr(0),z.getRawPtr(1),z.getRawPtr(2),
         mul );
 

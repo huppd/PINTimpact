@@ -1,0 +1,4 @@
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+file(GLOB mg_SOURCES *.cpp)
+set( mg_SOURCES ${mg_SOURCES} PARENT_SCOPE ) 

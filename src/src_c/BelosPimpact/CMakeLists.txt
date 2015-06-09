@@ -1,0 +1,4 @@
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+file(GLOB belosETI_SOURCES *.cpp)
+set( belosETI_SOURCES ${belosETI_SOURCES} PARENT_SCOPE) 

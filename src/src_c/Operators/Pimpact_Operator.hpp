@@ -2,6 +2,8 @@
 #ifndef PIMPACT_OPERATOR_HPP
 #define PIMPACT_OPERATOR_HPP
 
+#include "Pimpact_Fields.hpp" // ETI
+
 /// \defgroup Operator Operators
 /// \todo think about adding a compResidual( x, b, res ) method to Operators
 #include "Pimpact_Add2Op.hpp"
@@ -26,18 +28,20 @@
 #include "Pimpact_DivGradO2Op.hpp"
 #include "Pimpact_DivGradO2JSmoother.hpp"
 #include "Pimpact_HelmholtzOp.hpp"
-#include "Pimpact_InterpolateV2SOp.hpp"
 #include "Pimpact_InterpolateS2VOp.hpp"
+#include "Pimpact_InterpolateV2SOp.hpp"
 #include "Pimpact_TransferOp.hpp"
 #include "Pimpact_ConvectionSOp.hpp"
 #include "Pimpact_ConvectionDiffusionSOp.hpp"
-#include "Pimpact_ConvectionDiffusionSORSmoother.hpp"
 #include "Pimpact_ConvectionDiffusionJSmoother.hpp"
+#include "Pimpact_ConvectionDiffusionSORSmoother.hpp"
 #include "Pimpact_ConvectionVOp.hpp"
 #include "Pimpact_ConvectionVSmoother.hpp"
 #include "Pimpact_ConvectionVWrap.hpp"
 #include "Pimpact_ConvectionJacobianOp.hpp"
 #include "Pimpact_VectorFieldOpWrap.hpp"
+
+
 
 
 /// \defgroup TimeOperator Time Operator
@@ -69,6 +73,8 @@
 #include "Pimpact_CompoundOpWrap.hpp"
 #include "Pimpact_InverseSchurOp.hpp"
 #include "Pimpact_InverseTriangularOp.hpp"
+#include "Pimpact_TimeStokesOp.hpp"
+#include "Pimpact_TimeStokesBSmoother.hpp"
 
 /// \defgroup MultiHarmonicOperator Multi-harmonic Operator
 /// \ingroup Operator

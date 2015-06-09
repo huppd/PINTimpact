@@ -2,11 +2,10 @@
 #ifndef PIMPACT_MGSPACES_HPP
 #define PIMPACT_MGSPACES_HPP
 
+
 #include <vector>
 
 #include "Pimpact_Space.hpp"
-#include "Pimpact_CoarsenStrategy.hpp"
-
 
 
 
@@ -91,5 +90,12 @@ createMGSpaces(
 
 
 } // end of namespace Pimpact
+
+
+#ifdef COMPILE_ETI
+extern template class Pimpact::MGSpaces< Pimpact::Space<double,int,3,4>, Pimpact::Space<double,int,3,2> >;
+extern template class Pimpact::MGSpaces< Pimpact::Space<double,int,4,4>, Pimpact::Space<double,int,4,2> >;
+#endif
+
 
 #endif // end of #ifndef PIMPACT_MGSPACES_HPP

@@ -8,9 +8,6 @@
 
 #include "Pimpact_Space.hpp"
 
-#include "Pimpact_Domain.hpp"
-#include "Pimpact_ProcGrid.hpp"
-
 
 
 namespace {

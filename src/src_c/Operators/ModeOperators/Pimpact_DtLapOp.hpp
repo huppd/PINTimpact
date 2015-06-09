@@ -99,8 +99,8 @@ public:
           L_->getC(Z,fType),
           alpha2_*k,
           iRe_,
-          x.getConstSField().vecC(i),
-          x.getConstCField().vecC(i),
+          x.getConstSField().getConstRawPtr(i),
+          x.getConstCField().getConstRawPtr(i),
           y.getCField().getRawPtr(i) ) ;
 
       OP_DtHelmholtz(
@@ -115,8 +115,8 @@ public:
           L_->getC(Z,fType),
           -alpha2_*k,
           iRe_,
-          x.getConstCField().vecC(i),
-          x.getConstSField().vecC(i),
+          x.getConstSField().getConstRawPtr(i),
+          x.getConstCField().getConstRawPtr(i),
           y.getSField().getRawPtr(i) ) ;
     }
 

@@ -5,10 +5,12 @@
 
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_Array.hpp"
+#include "Teuchos_Tuple.hpp"
 
 #include "Teuchos_TestForException.hpp"
 
 #include "Pimpact_Space.hpp"
+#include "Pimpact_ScalarField.hpp"
 
 
 
@@ -320,13 +322,13 @@ public:
 
 		if( EField::S==fType ) {
 
-			MG_InterpolateCorners(
-					spaceC_->nLoc(),
-					spaceC_->bl(),
-					spaceC_->bu(),
-					spaceC_->getDomain()->getBCLocal()->getBCL(),
-					spaceC_->getDomain()->getBCLocal()->getBCU(),
-					x.getConstRawPtr() );
+//			MG_InterpolateCorners(
+//					spaceC_->nLoc(),
+//					spaceC_->bl(),
+//					spaceC_->bu(),
+//					spaceC_->getDomain()->getBCLocal()->getBCL(),
+//					spaceC_->getDomain()->getBCLocal()->getBCU(),
+//					x.getConstRawPtr() );
 
 			if( spaceC_->getProcGrid()->participating() )
 				x.exchange();
@@ -476,5 +478,11 @@ public:
 
 } // end of namespace Pimpact
 
+#ifdef COMPILE_ETI
+extern template class Pimpact::InterpolationOp< Pimpact::Space<double,int,3,2> >;
+extern template class Pimpact::InterpolationOp< Pimpact::Space<double,int,3,4> >;
+extern template class Pimpact::InterpolationOp< Pimpact::Space<double,int,4,2> >;
+extern template class Pimpact::InterpolationOp< Pimpact::Space<double,int,4,4> >;
+#endif
 
 #endif // end of #ifndef PIMPACT_INTERPOLATIONOP_HPP

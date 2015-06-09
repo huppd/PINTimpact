@@ -10,7 +10,6 @@
 #include "Pimpact_MGOperators.hpp"
 #include "Pimpact_MGTransfers.hpp"
 #include "Pimpact_MGSmoothers.hpp"
-#include "Pimpact_CoarsenStrategyGlobal.hpp"
 
 
 /// \defgroup MG MultiGrid

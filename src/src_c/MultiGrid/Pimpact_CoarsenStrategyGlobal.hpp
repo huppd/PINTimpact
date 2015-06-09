@@ -155,7 +155,7 @@ protected:
 			if( i<3 ) {
 				if( coarsen_dir[i] ) {
 					npNew[i] = 1;
-					for( int j=2; j<=np[i]; ++j ) {
+					for( int j=2; j<np[i]; ++j ) {
 						if( ((gridSizeGlobalTup[i]-1)%j)==0 && (np[i]%j)==0 )
 							if( ((gridSizeGlobalTup[i]-1)/j)%2==0 && (gridSizeGlobalTup[i]-1)/j>=2 )
 								npNew[i] = j;
@@ -436,5 +436,10 @@ protected:
 
 } // end of namespace Pimpact
 
+
+#ifdef COMPILE_ETI
+extern template class Pimpact::CoarsenStrategyGlobal< Pimpact::Space<double,int,3,4>, Pimpact::Space<double,int,3,2> >;
+extern template class Pimpact::CoarsenStrategyGlobal< Pimpact::Space<double,int,4,4>, Pimpact::Space<double,int,4,2> >;
+#endif
 
 #endif // end of #ifndef PIMPACT_COARSENSTRATEGYGLOBAL_HPP

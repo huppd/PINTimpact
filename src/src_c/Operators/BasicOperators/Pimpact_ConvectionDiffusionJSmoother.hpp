@@ -88,8 +88,8 @@ public:
   ConvectionDiffusionJSmoother(
       const Teuchos::RCP<const OperatorT>& op,
       Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ):
-        omega_( pl->get("omega", 0.8 ) ),
-        nIter_( pl->get("numIters", 10 ) ),
+        omega_( pl->get("omega", 0.5 ) ),
+        nIter_( pl->get("numIters", 5 ) ),
         op_(op),
         temp_( create<DomainFieldT>(op_->space()) ) {}
 
@@ -115,8 +115,8 @@ public:
 
     for( int i=0; i<nIter_; ++i ) {
 
-      y.exchange();
-      z.exchange();
+			y.exchange();
+			z.exchange();
 
       OP_convectionDiffusionJSmoother(
           space()->dim(),
@@ -127,33 +127,61 @@ public:
           space()->nu(),
           space()->sInd(z.getType()),
           space()->eInd(z.getType()),
-          op_->convSOp_->getCD(X,z.getType()),
-          op_->convSOp_->getCD(Y,z.getType()),
-          op_->convSOp_->getCD(Z,z.getType()),
-          op_->convSOp_->getCU(X,z.getType()),
-          op_->convSOp_->getCU(Y,z.getType()),
-          op_->convSOp_->getCU(Z,z.getType()),
-        	op_->helmOp_->getC( X, z.getType() ),
-        	op_->helmOp_->getC( Y, z.getType() ),
-        	op_->helmOp_->getC( Z, z.getType() ),
+					op_->getConvSOp()->getCD( X, z.getType() ),
+					op_->getConvSOp()->getCD( Y, z.getType() ),
+					op_->getConvSOp()->getCD( Z, z.getType() ),
+					op_->getConvSOp()->getCU( X, z.getType() ),
+					op_->getConvSOp()->getCU( Y, z.getType() ),
+					op_->getConvSOp()->getCU( Z, z.getType() ),
+					op_->getHelmOp()->getC( X, z.getType() ),
+					op_->getHelmOp()->getC( Y, z.getType() ),
+					op_->getHelmOp()->getC( Z, z.getType() ),
           x[0]->getConstRawPtr(),
           x[1]->getConstRawPtr(),
-          x[2]->getRawPtr(),
+          x[2]->getConstRawPtr(),
           y.getConstRawPtr(),
           z.getConstRawPtr(),
           temp_->getRawPtr(),
-          op_->mulI_,
-          op_->mulC_,
-          op_->mulC_,
+					op_->getMulI(),
+					op_->getMulC(),
+					op_->getMulL(),
           omega_ );
 
-      // attention: could lead to problems when ScalarField is used as part of a higherlevel class (s is shared)
-      std::swap( z.s_, temp_->s_ );
+      temp_->changed();
+			temp_->exchange();
+
+      OP_convectionDiffusionJSmoother(
+          space()->dim(),
+          space()->nLoc(),
+          space()->bl(),
+          space()->bu(),
+          space()->nl(),
+          space()->nu(),
+          space()->sInd(z.getType()),
+          space()->eInd(z.getType()),
+					op_->getConvSOp()->getCD( X, z.getType() ),
+					op_->getConvSOp()->getCD( Y, z.getType() ),
+					op_->getConvSOp()->getCD( Z, z.getType() ),
+					op_->getConvSOp()->getCU( X, z.getType() ),
+					op_->getConvSOp()->getCU( Y, z.getType() ),
+					op_->getConvSOp()->getCU( Z, z.getType() ),
+					op_->getHelmOp()->getC( X, z.getType() ),
+					op_->getHelmOp()->getC( Y, z.getType() ),
+					op_->getHelmOp()->getC( Z, z.getType() ),
+          x[0]->getConstRawPtr(),
+          x[1]->getConstRawPtr(),
+          x[2]->getConstRawPtr(),
+          y.getConstRawPtr(),
+          temp_->getConstRawPtr(),
+          z.getRawPtr(),
+					op_->getMulI(),
+					op_->getMulC(),
+					op_->getMulL(),
+          omega_ );
+//			std::cout << "muls: " << op_->mulI_ << "\t" << op_->mulC_ << "\t" << op_->mulL_ << "\n";
       z.changed();
 
     }
-    if( 0!=(nIter_%2) )
-      std::swap( z.s_, temp_->s_ );
   }
 
 	Teuchos::RCP<const SpaceT> space() const { return(op_->space()); };
@@ -175,6 +203,14 @@ public:
 
 
 } // end of namespace Pimpact
+
+
+#ifdef COMPILE_ETI
+extern template class Pimpact::ConvectionDiffusionJSmoother< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,3,2> > >;
+extern template class Pimpact::ConvectionDiffusionJSmoother< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,3,4> > >;
+extern template class Pimpact::ConvectionDiffusionJSmoother< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,4,2> > >;
+extern template class Pimpact::ConvectionDiffusionJSmoother< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,4,4> > >;
+#endif
 
 
 #endif // end of #ifndef PIMPACT_CONVECTIONDIFFUSIONJSMOOTHER_HPP

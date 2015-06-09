@@ -371,4 +371,12 @@ Teuchos::RCP< MultiHarmonicField< FieldT > > createMultiHarmonic(
 } // end of namespace Pimpact
 
 
+#ifdef COMPILE_ETI
+#include "Pimpact_VectorField.hpp"
+extern template class Pimpact::MultiHarmonicField< Pimpact::ScalarField< Pimpact::Space<double,int,3,2> > >;
+extern template class Pimpact::MultiHarmonicField< Pimpact::ScalarField< Pimpact::Space<double,int,3,4> > >;
+extern template class Pimpact::MultiHarmonicField< Pimpact::VectorField< Pimpact::Space<double,int,3,2> > >;
+extern template class Pimpact::MultiHarmonicField< Pimpact::VectorField< Pimpact::Space<double,int,3,4> > >;
+#endif
+
 #endif // end of #ifndef PIMPACT_MULTIHARMONICFIELD_HPP

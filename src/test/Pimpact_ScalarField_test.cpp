@@ -7,10 +7,7 @@
 #include "Teuchos_Tuple.hpp"
 #include "Teuchos_CommHelpers.hpp"
 
-#include "Pimpact_ScalarField.hpp"
-#include "Pimpact_VectorField.hpp"
-#include "Pimpact_ModeField.hpp"
-#include "Pimpact_CompoundField.hpp"
+#include "Pimpact_Fields.hpp"
 
 
 

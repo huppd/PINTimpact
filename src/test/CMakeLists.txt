@@ -1,6 +1,5 @@
 include_directories("../src_c")
 include_directories("../src_c/Space")
-include_directories("../src_c/Grid")
 include_directories("../src_c/Fields")
 include_directories("../src_c/Operators")
 include_directories("../src_c/Operators/BasicOperators")
