@@ -32,7 +32,7 @@ namespace Pimpact{
 ///
 /// generated from \c GridSizeGlobal and \c ProcGridSize
 /// \f$ nLoc = (nGlo-1)/nProc + 1 \f$
-/// \ingroup Space
+/// \ingroup SpaceObject
 /// \todo think about inheriting from Tuple or generalize for use Global/Local
 template<class Ordinal, int dim>
 class GridSizeLocal {

@@ -14,7 +14,7 @@ namespace Pimpact{
 
 
 
-/// \ingroup domain
+/// \ingroup SpaceObject
 template<int dim>
 class BoundaryConditionsGlobal {
 

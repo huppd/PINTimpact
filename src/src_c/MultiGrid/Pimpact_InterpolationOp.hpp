@@ -149,21 +149,9 @@ protected:
   Teuchos::Tuple<Scalar*,3> cIS_;
   Teuchos::Tuple<Scalar*,3> cIV_;
 
-public:
-
-  typedef SpaceT FSpaceT;
-  typedef SpaceT CSpaceT;
-
-	InterpolationOp(
-			const Teuchos::RCP<const SpaceT>& spaceC,
-			const Teuchos::RCP<const SpaceT>& spaceF ):
-		spaceC_(spaceC),
-		spaceF_(spaceF),
-		comm2_(MPI_COMM_NULL) {
+	void init( const Teuchos::Tuple<int,SpaceT::dimension> nb ) {
 
 			// ------------- nGather_, iimax_
-			auto nb = spaceF_->getProcGridSize()->getTuple();
-
 			Teuchos::Tuple<int,SpaceT::dimension> periodic = spaceF_->getDomain()->getBCGlobal()->periodic();
 
 			int nGatherTotal = 1; 
@@ -299,7 +287,22 @@ public:
 						cIV_[i] );
 			}
 
-		}
+	}
+
+public:
+
+	typedef SpaceT FSpaceT;
+  typedef SpaceT CSpaceT;
+
+	InterpolationOp( const Teuchos::RCP<const SpaceT>& spaceC, const Teuchos::RCP<const SpaceT>& spaceF ):
+		spaceC_(spaceC),
+		spaceF_(spaceF),
+		comm2_(MPI_COMM_NULL) {
+
+			auto nb = spaceF_->getProcGridSize()->getTuple();
+			init( nb );
+
+	}
 
 	InterpolationOp(
 			const Teuchos::RCP<const SpaceT>& spaceC,
@@ -309,143 +312,9 @@ public:
 		spaceF_(spaceF),
 		comm2_(MPI_COMM_NULL) {
 
-			// ------------- nGather_, iimax_
-			Teuchos::Tuple<int,SpaceT::dimension> periodic = spaceF_->getDomain()->getBCGlobal()->periodic();
+			init( nb );
 
-			int nGatherTotal = 1; 
-			for( int i=0; i<3; ++i ) {
-				nGather_[i] = spaceF_->getNProc(i)/spaceC_->getNProc(i); // check
-				nGatherTotal *= nGather_[i]; // check
-
-				iimax_[i] = (spaceC_->nLoc(i) - 1)/nGather_[i] + 1; // check
-				dd_[i] = (spaceF_->nLoc(i) - 1)/( iimax_[i] -1 ); // check
-
-				iiShift_[i] = ( iimax_[i] - 1 )*( ( spaceF_->procCoordinate()[i] -1 )%nGather_[i] ); // check
-			}
-			offsI_ = new Ordinal[3*nGatherTotal];
-			sizsI_ = new Ordinal[3*nGatherTotal];
-			recvI_ = new Ordinal[  nGatherTotal];
-			dispI_ = new Ordinal[  nGatherTotal];
-
-			// ------------- rank2_, comm2_
-			if( nGatherTotal>1 ) {
-				int * newRanks = new int[nGatherTotal];
-
-				MPI_Comm commWorld = spaceF_->getProcGrid()->getCommWorld();
-				MPI_Comm commTemp;
-				MPI_Group baseGroup, newGroup;
-				MPI_Comm_group( commWorld, &baseGroup );
-
-				for( int kk=0; kk<spaceC_->getNProc(2); ++kk )
-					for( int jj=0; jj<spaceC_->getNProc(1); ++jj )
-						for( int ii=0; ii<spaceC_->getNProc(0); ++ii ) {
-							bool member_yes = false;
-
-							for( int k=0; k<nGather_[2]; ++k )
-								for( int j=0; j<nGather_[1]; ++j )
-									for( int i=0; i<nGather_[0]; ++i ) {
-
-										int coord[3] = {
-											((ii*nGather_[0]+i)*nb[0]/spaceF_->getNProc(0))%nb[0],
-											((jj*nGather_[1]+j)*nb[1]/spaceF_->getNProc(1))%nb[1],
-											((kk*nGather_[2]+k)*nb[2]/spaceF_->getNProc(2))%nb[2] };
-
-										MPI_Cart_rank( commWorld, coord, &newRanks[i+nGather_[0]*j+nGather_[0]*nGather_[1]*k]  );
-										if( newRanks[i+nGather_[0]*j+nGather_[0]*nGather_[1]*k]==spaceF_->rankST() )
-											member_yes = true;
-									}
-
-							MPI_Group_incl( baseGroup, nGatherTotal, newRanks, &newGroup );
-							MPI_Comm_create( commWorld, newGroup, &commTemp );
-							MPI_Group_free( &newGroup );
-
-							if( member_yes ) {
-								MPI_Cart_create( commTemp, 3, nGather_.getRawPtr(), periodic.getRawPtr(), true, &comm2_ );
-								MPI_Comm_free( &commTemp );
-								int rank_comm2 = 0;
-								if( spaceC_->getProcGrid()->participating() ) 
-									MPI_Comm_rank( comm2_, &rank_comm2 );
-								MPI_Allreduce( &rank_comm2, &rankc2_, 1, MPI_INTEGER, MPI_SUM, comm2_ );
-
-							}
-
-						}
-
-				MPI_Group_free( &baseGroup );
-				delete[] newRanks;
-				// ------------------------- offsI_, sizsI_
-				if( spaceF_->getProcGrid()->participating() )  {
-					int rank_comm2;
-					MPI_Comm_rank( comm2_, &rank_comm2 );
-
-					std::vector<Ordinal> offs_global(3*nGatherTotal);
-					std::vector<Ordinal> sizs_global(3*nGatherTotal);
-
-					for( Ordinal i=0; i<3*nGatherTotal; ++i ) {
-						offs_global[i] = 0;
-						sizs_global[i] = 0;
-					}
-
-					for( Ordinal i=0; i<3; ++i ) {
-						offs_global[ i + rank_comm2*3 ] = iiShift_[i];
-						sizs_global[ i + rank_comm2*3 ] = iimax_[i]+1;
-					}
-
-					MPI_Allreduce( offs_global.data(), offsI_, 3*nGatherTotal, MPI_INTEGER, MPI_SUM, comm2_ );
-					MPI_Allreduce( sizs_global.data(), sizsI_, 3*nGatherTotal, MPI_INTEGER, MPI_SUM, comm2_ );
-
-					Ordinal counter = 0;
-					for( int k=0; k<nGather_[2]; ++k )
-						for( int j=0; j<nGather_[1]; ++j )
-							for( int i=0; i<nGather_[0]; ++i ) {
-								recvI_[ i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ]
-									= sizsI_[ 0 + 3*( i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ) ]
-									* sizsI_[ 1 + 3*( i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ) ]
-									* sizsI_[ 2 + 3*( i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ) ];
-
-								dispI_[ i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ] = counter;
-								counter += recvI_[ i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ];
-							}
-
-				}
-			}
-			// ------------------ cIS, cIV
-			for( int i=0; i<3; ++i ) {
-
-				cIS_[i] = new Scalar[ 2*( spaceC_->nLoc(i)-1+1 ) ];
-				MG_getCIS(
-						spaceC_->nLoc(i),
-						spaceC_->bl(i),
-						spaceC_->bu(i),
-						spaceC_->getCoordinatesLocal()->getX( i, EField::S ),
-						cIS_[i] );
-
-				cIV_[i] = new Scalar[ 2*( spaceF_->nLoc(i)-0+1 ) ];
-				//      if( i<spaceC_->dim() )
-				
-				Ordinal offset = 0;
-				if( 1!=nGather_[i] )
-					offset = (iimax_[i]-1)*( spaceF_->procCoordinate()[i]-1 );
-
-				MG_getCIV(
-						spaceC_->nLoc(i),
-						spaceC_->bl(i),
-						spaceC_->bu(i),
-						spaceC_->sInd(i)[i],
-						spaceC_->eInd(i)[i],
-						spaceF_->getDomain()->getBCLocal()->getBCL(i),
-						spaceF_->getDomain()->getBCLocal()->getBCU(i),
-						spaceF_->nLoc(i),
-						spaceF_->bl(i),
-						spaceF_->bu(i),
-						offset,
-						spaceC_->getCoordinatesLocal()->getX( i, i ),
-						spaceF_->getCoordinatesLocal()->getX( i, i ),
-						dd_[i],
-						cIV_[i] );
-			}
-
-		}
+	}
 
 
 	~InterpolationOp() {
@@ -469,13 +338,13 @@ public:
 
 		if( EField::S==fType ) {
 
-//			MG_InterpolateCorners(
-//					spaceC_->nLoc(),
-//					spaceC_->bl(),
-//					spaceC_->bu(),
-//					spaceC_->getDomain()->getBCLocal()->getBCL(),
-//					spaceC_->getDomain()->getBCLocal()->getBCU(),
-//					x.getConstRawPtr() );
+			MG_InterpolateCorners(
+					spaceC_->nLoc(),
+					spaceC_->bl(),
+					spaceC_->bu(),
+					spaceC_->getDomain()->getBCLocal()->getBCL(),
+					spaceC_->getDomain()->getBCLocal()->getBCU(),
+					x.getConstRawPtr() );
 
 			if( spaceC_->getProcGrid()->participating() )
 				x.exchange();

@@ -19,7 +19,7 @@ namespace Pimpact {
 ///
 /// there are three different kind of stencil the central ones for helmholtz, than the one for divergence
 /// and the gradient like.
-/// \ingroup Space
+/// \ingroup SpaceObject
 /// \tparam dim dimension of grid can be 3 or 4
 /// \tparam dimNC dimension of stencil
 /// - 4: Stabil   (xi >= 2, Re=10000, N=17)

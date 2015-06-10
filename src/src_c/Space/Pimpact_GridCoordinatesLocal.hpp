@@ -46,7 +46,7 @@ void PI_getLocalCoordinates(
 /// xS         | bl..nLoc+bu+(ib-1)*(NB-1)
 /// xV         | bl..nLoc+bu+(ib-1)*(NB-1)
 ///
-/// \ingroup Space
+/// \ingroup SpaceObject
 template<class Scalar, class Ordinal, int dim>
 class GridCoordinatesLocal {
 

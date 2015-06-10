@@ -23,7 +23,7 @@ namespace Pimpact{
 ///
 /// \todo include setter method, such that it gets update with enlarging Fourier modes!!!
 /// one could think about inheriting from Tuple, or generalize for global and local use
-/// \ingroup Space
+/// \ingroup SpaceObject
 template<class Ordinal, int dimension>
 class GridSizeGlobal {
 
