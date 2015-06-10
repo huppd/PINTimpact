@@ -393,21 +393,21 @@ public:
   /// \note "indexing" is done c++
   void assign( const MV& a ) {
 
-		SF_assign(
-				space()->nLoc(),
-				space()->bl(),
-				space()->bu(),
-				space()->sInd(fType_ ),
-				space()->eInd(fType_),
-				s_, a.s_ );
-
-		changed();
-
-//    for(int i=0; i<getStorageSize(); ++i)
-//      s_[i] = a.s_[i];
+//		SF_assign(
+//				space()->nLoc(),
+//				space()->bl(),
+//				space()->bu(),
+//				space()->sInd(fType_ ),
+//				space()->eInd(fType_),
+//				s_, a.s_ );
 //
-//    for( int dir=0; dir<space()->dim(); ++dir )
-//      exchangedState_[dir] = a.exchangedState_[dir];
+//		changed();
+
+	 for(int i=0; i<getStorageSize(); ++i)
+		 s_[i] = a.s_[i];
+
+	 for( int dir=0; dir<space()->dim(); ++dir )
+		 exchangedState_[dir] = a.exchangedState_[dir];
   }
 
 
