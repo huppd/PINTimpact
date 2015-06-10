@@ -327,13 +327,13 @@ public:
 
     EField fType = x.getType();
 
-//		MG_RestrictCorners(
-//				spaceF_->nLoc(),
-//				spaceF_->bl(),
-//				spaceF_->bu(),
-//				spaceF_->getDomain()->getBCLocal()->getBCL(),
-//				spaceF_->getDomain()->getBCLocal()->getBCU(),
-//				x.getConstRawPtr() );
+		MG_RestrictCorners(
+				spaceF_->nLoc(),
+				spaceF_->bl(),
+				spaceF_->bu(),
+				spaceF_->getDomain()->getBCLocal()->getBCL(),
+				spaceF_->getDomain()->getBCLocal()->getBCU(),
+				x.getConstRawPtr() );
 
     if( EField::S==fType ) {
       x.exchange();

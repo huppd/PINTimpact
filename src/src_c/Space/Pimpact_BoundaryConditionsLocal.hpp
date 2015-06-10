@@ -36,7 +36,7 @@ namespace Pimpact{
 
 
 
-/// \ingroup domain
+/// \ingroup SpaceObject
 //template< int dimension=3>
 class BoundaryConditionsLocal {
 

@@ -40,7 +40,7 @@ void PI_getGlobalCoordinates(
 /// xS         | 1..nGlo | 0..L
 /// xV         | 0..nGlo | 0.5..L+0.5
 ///
-/// \ingroup Space
+/// \ingroup SpaceObject
 template<class Scalar, class Ordinal, int dim>
 class GridCoordinatesGlobal {
 

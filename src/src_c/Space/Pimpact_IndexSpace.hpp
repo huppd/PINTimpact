@@ -45,7 +45,7 @@ namespace Pimpact {
 /// eIndB[dir!=field]| nLoc                      | nLoc-1                     | nLoc
 ///
 /// \note if one would remove ls_ one could decouple with \c StencilWidths
-/// \ingroup Space
+/// \ingroup SpaceObject
 template<class Ordinal, int dimension>
 class IndexSpace {
 

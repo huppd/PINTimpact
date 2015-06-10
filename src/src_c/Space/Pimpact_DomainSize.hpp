@@ -23,7 +23,7 @@ namespace Pimpact{
 
 
 /// \brief Domain or physical set up would be better names
-/// \ingroup domain
+/// \ingroup SpaceObject
 template<class Scalar>
 class DomainSize {
 

@@ -15,15 +15,12 @@
 
 
 
-// \defgroup domain Domain
-///
-/// overloaded class managing indexing, grid ...
 
 
 namespace Pimpact{
 
 
-/// \ingroup domain
+/// \ingroup SpaceObject
 template<class Scalar, int dim>
 class Domain {
 

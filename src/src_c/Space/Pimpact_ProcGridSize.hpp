@@ -25,7 +25,7 @@ namespace Pimpact{
 
 
 /// \brief size of processor grid
-/// \ingroup Space
+/// \ingroup SpaceObject
 /// \todo maybe inherit from Tuple
 template<class Ordinal, int dim>
 class ProcGridSize {
