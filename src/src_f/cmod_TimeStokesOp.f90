@@ -15,8 +15,64 @@ module cmod_TimeStokesOp
 
 contains
 
-  !> \brief computes Time dependent Stokes operator
-  !! is used for inner field
+  !> \brief computes \f$ \begin{bmatrix} r\_vel \\ r\_p \end{bmatrix} = \begin{pmatrix} mulI\partial_t -mulL\Delta & \nabla \\ \nabla \cdot \end{pmatrix}\begin{bmatrix} r\_vel \\ r\_p \end{bmatrix}  \f$
+  !!
+  !! \param dimens denotes spatial dimension can be either two or three is
+  !!        defined in \c Space::dim
+  !! \param N is the spatial local grid size in the three spatial direction can be get from \c Space::nLoc()
+  !! \param bl is the lower stencil width used for ghost layer and boundary
+  !!        condtions can be get from Space::bl()
+  !! \param bu is the upper stencil width used for ghost layer and boundary
+  !!        condtions can be get from \c Space::bu()
+  !! \param dl is the lower stencil width for the divergence stencil used for ghost layer and boundary
+  !!        condtions can be get from \c Space::dl()
+  !! \param bu is the upper stencil width for the divergence stencil used for ghost layer and boundary
+  !!        condtions can be get from \c Space::du()
+  !! \param gl is the lower stencil width for the gradiant stencil used for ghost layer and boundary
+  !!        condtions can be get from \c Space::gl()
+  !! \param gu is the upper stencil width for the gradiant stencil used for ghost layer and boundary
+  !!        condtions can be get from \c Space::gu()
+  !! \param SS starting index for pressure fields, can be get from \c
+  !!        Space::sInd(EFieldType)
+  !! \param NN end index for pressure fields, can be get from \c
+  !!        Space::eInd(EFieldType)
+  !! \param SU starting index for velocity fields in x-direction, can be get from \c
+  !!        Space::sInd(EFieldType::U)
+  !! \param NU end index for velocity fields in x-direction, can be get from \c
+  !!        Space::eInd(EFieldType::U)
+  !! \param SV starting index for velocity fields in y-direction, can be get from \c
+  !!        Space::sInd(EFieldType::V)
+  !! \param NV end index for velocity fields in y-direction, can be get from \c
+  !!        Space::eInd(EFieldType::V)
+  !! \param SW starting index for velocity fields in z-direction, can be get from \c
+  !!        Space::sInd(EFieldType::W)
+  !! \param NW end index for velocity fields in z-direction, can be get from \c
+  !!        Space::eInd(EFieldType::W)
+  !! \param c11p stencil coefficients for laplace operator in x-direction on
+  !!        pressure coordinates, can be get from \c HelmholtzOp::getC(X,S)
+  !! \param c22p stencil coefficients for laplace operator in y-direction on
+  !!        pressure coordinates, can be get from \c HelmholtzOp::getC(Y,S)
+  !! \param c33p stencil coefficients for laplace operator in z-direction on
+  !!        pressure coordinates, can be get from \c HelmholtzOp::getC(Z,S)
+  !! \param c11u stencil coefficients for laplace operator in x-direction on
+  !!        velocity coordinates, can be get from \c HelmholtzOp::getC(X,U)
+  !! \param c22v stencil coefficients for laplace operator in y-direction on
+  !!        velocity coordinates, can be get from \c HelmholtzOp::getC(Y,V)
+  !! \param c33w stencil coefficients for laplace operator in z-direction on
+  !!        velocity coordinates, can be get from \c HelmholtzOp::getC(Z,W)
+  !! \param cD1 stencil coefficients for divergence operator in x-direction, can be get from \c DivOp::getC(X)
+  !! \param cD2 stencil coefficients for divergence operator in y-direction, can be get from \c DivOp::getC(Y)
+  !! \param cD3 stencil coefficients for divergence operator in z-direction, can be get from \c DivOp::getC(Z)
+  !! \param cG1 stencil coefficients for divergence operator in x-direction, can be get from \c GradOp::getC(X)
+  !! \param cG2 stencil coefficients for divergence operator in y-direction, can be get from \c GradOp::getC(Y)
+  !! \param cG3 stencil coefficients for divergence operator in z-direction, can be get from \c GradOp::getC(Z)
+  !! \param mulI correspond to multiplicator of time derivative should be \f$ \frac{\alpha^2}{\mathrm{Re} \Delta t} \f$
+  !! \param mulL correspond to multiplicator of laplace operator should be \f$ \frac{1}{\mathrm{Re}} \f$
+  !! \param velp velocity field array of previous time step, can be get from \c VelocityField::getConstRawPtr    
+  !! \param veln velocity field array of next time step, can be get from \c VelocityField::getConstRawPtr    
+  !! \param pn pressure field array of next time step, can be get from \c VelocityField::getConstRawPtr    
+  !! \param[out] r_vel residual velocity field array of next time step, can be get from \c VelocityField::getConstRawPtr    
+  !! \param[out] r_p residual pressure field array of next time step, can be get from \c VelocityField::getConstRawPtr    
   subroutine OP_TimeStokes( &
       dimens,               &
       N,                    &

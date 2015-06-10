@@ -104,7 +104,6 @@ public:
 		auto yp = y.getSFieldPtr();
 
 		xu->exchange();
-//		xp->exchange();
 
 		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i ) {
 			xu->getConstFieldPtr(i-1)->exchange();
