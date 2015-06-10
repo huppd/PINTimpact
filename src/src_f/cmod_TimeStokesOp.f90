@@ -71,9 +71,9 @@ contains
     integer(c_int), intent(in)  :: SW(3)
     integer(c_int), intent(in)  :: NW(3)
 
-    real(c_double), intent(in)  :: c11p(bL(1):bU(1),0:N(1))
-    real(c_double), intent(in)  :: c22p(bL(2):bU(2),0:N(2))
-    real(c_double), intent(in)  :: c33p(bL(3):bU(3),0:N(3))
+    real(c_double), intent(in)  :: c11p( bL(1):bU(1), 0:N(1) )
+    real(c_double), intent(in)  :: c22p( bL(2):bU(2), 0:N(2) )
+    real(c_double), intent(in)  :: c33p( bL(3):bU(3), 0:N(3) )
 
     real(c_double), intent(in)  :: c11u(bL(1):bU(1),0:N(1))
     real(c_double), intent(in)  :: c22v(bL(2):bU(2),0:N(2))
@@ -94,7 +94,7 @@ contains
 
     real(c_double), intent(in)  :: veln ( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), 1:3 )
 
-    real(c_double), intent(out) :: pn   ( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)) )
+    real(c_double), intent(in) :: pn   ( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)) )
 
     real(c_double), intent(out) :: r_vel( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), 1:3 )
 
@@ -123,11 +123,11 @@ contains
             dd1 = c11u(bL(1),i)*veln(i+bL(1),j,k,1)
             !pgi$ unroll = n:8
             do ii = bL(1)+1, bU(1)
-            dd1 = dd1 + c11u(ii,i)*veln(i+ii,j,k,1)
+              dd1 = dd1 + c11u(ii,i)*veln(i+ii,j,k,1)
             end do
             !pgi$ unroll = n:8
             do jj = bL(2), bU(2)
-            dd1 = dd1 + c22p(jj,j)*veln(i,j+jj,k,1)
+              dd1 = dd1 + c22p(jj,j)*veln(i,j+jj,k,1)
             end do
             if( 3==dimens) then
               !pgi$ unroll = n:8

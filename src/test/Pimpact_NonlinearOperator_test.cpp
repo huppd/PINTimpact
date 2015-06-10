@@ -617,8 +617,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
 
 
   auto pls = Teuchos::parameterList();
-  pls->set( "omega", 0.75 );
-  pls->set( "numIters", 2 );
+  pls->set( "omega", 0.7 );
+  pls->set( "numIters", 1 );
 
   auto smoother =
       Pimpact::create<
@@ -632,9 +632,9 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
   wind->initField( Pimpact::ConstFlow, 0., 0., 0. );
   z->initField( Pimpact::ConstFlow, 0., 0., 0. );
 
-//	y->getFieldPtr( Pimpact::U )->initField( Pimpact::Poiseuille2D_inX );
-//	y->getFieldPtr( Pimpact::V )->initField( Pimpact::Poiseuille2D_inY );
-//	y->getFieldPtr( Pimpact::W )->initField( Pimpact::Poiseuille2D_inZ );
+	y->getFieldPtr( Pimpact::U )->initField( Pimpact::Poiseuille2D_inX );
+	y->getFieldPtr( Pimpact::V )->initField( Pimpact::Poiseuille2D_inY );
+	y->getFieldPtr( Pimpact::W )->initField( Pimpact::Poiseuille2D_inZ );
 
   auto sol = y->clone( Pimpact::DeepCopy );
 
@@ -652,6 +652,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
   y->initField( Pimpact::ConstFlow, 0., 0., 0. );
 
 	y->assign( *sol ); 
+	y->write(100);
 
 	z2->add( -1, *sol, 1, *y );
 	S error0 = z2->norm();

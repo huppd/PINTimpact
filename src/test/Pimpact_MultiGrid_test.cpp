@@ -1426,8 +1426,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, DivGradOp, CS3G )
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffOp, CS ) {
-
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffSOR, CS ) {
 
 	//  grid size
 	pl->set("nx", nx );
@@ -1447,7 +1446,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffOp, CS ) {
   auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
 
 	auto mgPL = Teuchos::parameterList();
-	mgPL->sublist("Smoother").set( "omega", 0.5 );
+	mgPL->sublist("Smoother").set( "omega", 1. );
 	mgPL->sublist("Smoother").set( "numIters", 2 );
 	mgPL->sublist("Smoother").set( "Ordering", 1 );
 	mgPL->sublist("Smoother").set<short int>( "dir X", -1 );
@@ -1534,13 +1533,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffOp, CS ) {
 
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, ConvDiffOp, CS3L )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, ConvDiffOp, CS3G )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, ConvDiffSOR, CS3L )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, ConvDiffSOR, CS3G )
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffOp2, CS ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffJ, CS ) {
 
+	pl->set<S>("Re", 1. );
 
 	//  grid size
 	pl->set("nx", nx );
@@ -1553,7 +1553,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffOp2, CS ) {
 	pl->set("npy", npy );
 	pl->set("npz", npz );
 	pl->set("npf", npf );
-	pl->set<S>("Re", 1. );
 
   //auto space = Pimpact::createSpace<S,O,3,2>( pl );
   auto space = Pimpact::createSpace( pl );
@@ -1561,7 +1560,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffOp2, CS ) {
   auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
 
 	auto mgPL = Teuchos::parameterList();
-	mgPL->sublist("Smoother").set( "omega", 0.75 );
+	mgPL->sublist("Smoother").set( "omega", 0.5 );
 	mgPL->sublist("Smoother").set( "numIters", 10 );
 
 
@@ -1577,10 +1576,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffOp2, CS ) {
 			MOP
 				>( mgSpaces, mgPL );
 
-	std::cout << "blabla\n";
   auto op = Pimpact::create< ConvDiffOpT >( space );
 
-	std::cout << "blupblup\n";
   auto x = Pimpact::create<Pimpact::VectorField>( space );
   auto b = Pimpact::create<Pimpact::VectorField>( space );
   auto temp = x->clone();
@@ -1598,8 +1595,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffOp2, CS ) {
     ofs.open("MG2.txt", std::ofstream::out);
 
   // 
-	x->getFieldPtr(Pimpact::U)->initField( Pimpact::Poiseuille2D_inX );
-	x->getFieldPtr(Pimpact::V)->initField( Pimpact::Poiseuille2D_inY );
+//	x->getFieldPtr(Pimpact::U)->initField( Pimpact::Poiseuille2D_inX );
+//	x->getFieldPtr(Pimpact::U)->initField( Pimpact::Poiseuille2D_inY );
+//	x->getFieldPtr(Pimpact::U)->initField( Pimpact::Poiseuille2D_inZ );
+//	x->getFieldPtr(Pimpact::V)->initField( Pimpact::Poiseuille2D_inY );
 	x->getFieldPtr(Pimpact::W)->initField( Pimpact::Poiseuille2D_inZ );
   auto sol = x->clone( Pimpact::DeepCopy );
 	
@@ -1644,8 +1643,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffOp2, CS ) {
 
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, ConvDiffOp2, CS3L )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, ConvDiffOp2, CS3G )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, ConvDiffJ, CS3L )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, ConvDiffJ, CS3G )
 
 
 

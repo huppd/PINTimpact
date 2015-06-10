@@ -154,7 +154,7 @@ public:
 	InterpolationOp(
 			const Teuchos::RCP<const SpaceT>& spaceC,
 			const Teuchos::RCP<const SpaceT>& spaceF,
-			Teuchos::Tuple<int,3> nb=Teuchos::tuple(0,0,0) ):
+			Teuchos::Tuple<int,SpaceT::dimension> nb=Teuchos::Tuple<int,SpaceT::dimension>( std::vector<int>( SpaceT::dimension, 0) ) ):
 		spaceC_(spaceC),
 		spaceF_(spaceF),
 		comm2_( MPI_COMM_NULL) {
