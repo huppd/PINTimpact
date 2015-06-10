@@ -116,7 +116,9 @@ void MG_interpolateV(
 template<class SpaceT>
 class InterpolationOp {
 
-	typedef typename SpaceT::Scalar Scalar;
+public: 
+
+  typedef typename SpaceT::Scalar Scalar;
   typedef typename SpaceT::Ordinal Ordinal;
 
   typedef ScalarField<SpaceT>  DomainFieldT;
@@ -124,6 +126,7 @@ class InterpolationOp {
 
 
 //  typedef Space<Scalar,Ordinal,dimension> SpaceT;
+protected:
 
   Teuchos::RCP<const SpaceT> spaceC_;
   Teuchos::RCP<const SpaceT> spaceF_;
