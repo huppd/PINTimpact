@@ -444,6 +444,10 @@ public:
   Teuchos::RCP<const Field> getConstFieldPtr( int i ) const { return(  mfs_[i] ); }
   const Field&  getConstField   ( int i ) const { return( *mfs_[i] ); }
 
+	ScalarArray getRawPtr() { return( array_ ); }
+
+	const Scalar* getConstRawPtr() const { return( array_ ); }
+
 }; // end of class TimeField
 
 

@@ -48,7 +48,7 @@ extern "C" {
       const double* const cG3,                  
       const double& mulI,                 
       const double& mulL,                 
-      const double* const velp,                 
+//      const double* const velp,                 
       const double* const veln,                 
       const double* const pn,                   
             double* const r_vel,                
@@ -109,18 +109,19 @@ public:
 			xu->getConstFieldPtr(i-1)->exchange();
 			xu->getConstFieldPtr(i)->exchange();
 			xp->getConstFieldPtr(i)->exchange();
+		}
 
-			OP_TimeStokes( 
-        space()->dim(),
-        space()->nLoc(),
-        space()->bl(),
-        space()->bu(),
-        space()->dl(),
-        space()->du(),
+		OP_TimeStokes( 
+				space()->dim(),
+				space()->nLoc(),
+				space()->bl(),
+				space()->bu(),
+				space()->dl(),
+				space()->du(),
 				space()->gl(),
 				space()->gu(),
-        space()->sInd(S),
-        space()->eInd(S),
+				space()->sInd(S),
+				space()->eInd(S),
 				space()->sInd(U),
 				space()->eInd(U),
 				space()->sInd(V),
@@ -141,15 +142,15 @@ public:
 				grad_->getC(Z),
 				mulI,                 
 				1./re,                 
-				xu->getConstFieldPtr(i-1)->getConstRawPtr(),
-				xu->getConstFieldPtr(i)->getConstRawPtr(),
-				xp->getConstFieldPtr(i)->getConstRawPtr(),
-				yu->getFieldPtr(i)->getRawPtr(),
-				yp->getFieldPtr(i)->getRawPtr() );
+				//				xu->getConstFieldPtr(i-1)->getConstRawPtr(),
+				xu->getConstRawPtr(),
+				xp->getConstRawPtr(),
+				yu->getRawPtr(),
+				yp->getRawPtr() );
 
+		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i ) {
 			yu->getFieldPtr(i)->changed();
 			yp->getFieldPtr(i)->changed();
-
 		}
 
 		yu->changed();
