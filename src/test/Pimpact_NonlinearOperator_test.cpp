@@ -14,7 +14,6 @@
 #include "Pimpact_Operator.hpp"
 #include "Pimpact_OperatorBase.hpp"
 #include "Pimpact_OperatorFactory.hpp"
-#include "Pimpact_ConvectionOp.hpp"
 
 #include "Pimpact_LinSolverParameter.hpp"
 

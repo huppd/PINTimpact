@@ -1561,7 +1561,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffJ, CS ) {
 	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
 
 	auto mgPL = Teuchos::parameterList();
-	mgPL->sublist("Smoother").set( "omega", 0.1 );
+	mgPL->sublist("Smoother").set( "omega", 0.5 );
 	mgPL->sublist("Smoother").set( "numIters", 4 );
 
 

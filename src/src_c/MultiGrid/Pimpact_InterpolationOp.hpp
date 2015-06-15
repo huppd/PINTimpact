@@ -146,7 +146,7 @@ class InterpolationOp {
   Teuchos::Tuple<Scalar*,3> cIS_;
   Teuchos::Tuple<Scalar*,3> cIV_;
 
-	void init( const Teuchos::Tuple<int,SpaceT::dimension> nb ) {
+	void init( const Teuchos::Tuple<int,SpaceT::dimension>& nb ) {
 
 			// ------------- nGather_, iimax_
 			Teuchos::Tuple<int,SpaceT::dimension> periodic = spaceF_->getDomain()->getBCGlobal()->periodic();
@@ -488,8 +488,9 @@ public:
 
 
 
-
 } // end of namespace Pimpact
+
+
 
 #ifdef COMPILE_ETI
 extern template class Pimpact::InterpolationOp< Pimpact::Space<double,int,3,2> >;
@@ -497,5 +498,7 @@ extern template class Pimpact::InterpolationOp< Pimpact::Space<double,int,3,4> >
 extern template class Pimpact::InterpolationOp< Pimpact::Space<double,int,4,2> >;
 extern template class Pimpact::InterpolationOp< Pimpact::Space<double,int,4,4> >;
 #endif
+
+
 
 #endif // end of #ifndef PIMPACT_INTERPOLATIONOP_HPP
