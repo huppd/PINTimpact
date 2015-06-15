@@ -33,7 +33,7 @@
 
 
 
-/// \defgroup SpaceObject SpaceObject
+/// \defgroup SpaceObject Space Objects
 ///
 /// overloaded class managing indexing, grid ...
 
@@ -48,7 +48,7 @@ void closeH5F();
 
 
 
-/// \brief Space in the sense of a VectorSpace, it is the connection between Field and Operators
+/// \brief Space in the sense of a vector space, it is the connection between Field and Operators
 ///
 /// \ingroup SpaceObject
 template<class S=double, class O=int, int d=3, int dNC=4>

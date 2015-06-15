@@ -99,7 +99,7 @@ public:
 			xu->getConstFieldPtr(i)->exchange();
 			xp->getConstFieldPtr(i)->exchange();
 
-			OP_TimeStokes( 
+			OP_TimeStokesBSmoother( 
         space()->dim(),
         space()->nLoc(),
         space()->bl(),

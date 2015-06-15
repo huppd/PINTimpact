@@ -46,9 +46,8 @@ public:
   /// \todo constructor from space
   TimeNSOp(
       const Teuchos::RCP<const SpaceT>& space ):
-//        temp_( create<VF>(opV2V->space()) ),
         opV2V_( create< TimeDtConvectionDiffusionOp<ST> >( space ) ),
-        opS2V_( create< DivOp<ST>(space),
+        opS2V_( create< DivOp <ST>(space),
         opV2S_( create< GradOp<ST>(space) ) {};
 
   void apply(const DomainFieldT& x, RangeFieldT& y,
@@ -65,8 +64,6 @@ public:
 
   void assignField( const DomainFieldT& mv ) {
     opV2V_->assignField( mv.getConstVField() );
-//    opS2V_->assignField( mv.getConstVField() );
-//    opV2S_->assignField( mv.getConstVField() );
   };
 
 	Teuchos::RCP<const SpaceT> space() const { return(opV2V_->space()); };
