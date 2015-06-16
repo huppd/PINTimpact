@@ -107,7 +107,7 @@ contains
     integer(c_int), intent(in)  :: N(4)
 
     integer(c_int), intent(in)  :: bL(4)
-    integer(c_int), intent(in)  :: bU(3)
+    integer(c_int), intent(in)  :: bU(4)
 
     integer(c_int), intent(in)  :: dL(4)
     integer(c_int), intent(in)  :: dU(4)
@@ -193,7 +193,7 @@ contains
                   dd1 = dd1 + c33p(kk,k)*veln(i,j,k+kk,1,t)
                 end do
               endif
-              r_vel(i,j,k,1,t) = r_vel(i,j,k,1) - mulL*dd1
+              r_vel(i,j,k,1,t) = r_vel(i,j,k,1,t) - mulL*dd1
 
               !--- compute gradient ------------------------------------------------------------------------------------ 
               !pgi$ unroll = n:8
@@ -225,7 +225,7 @@ contains
                   dd1 = dd1 + c33p(kk,k)*veln(i,j,k+kk,2,t)
                 end do
               endif
-              r_vel(i,j,k,2) = r_vel(i,j,k,2) - mulL*dd1
+              r_vel(i,j,k,2,t) = r_vel(i,j,k,2,t) - mulL*dd1
 
               !--- compute gradient ------------------------------------------------------------------------------------ 
               !pgi$ unroll = n:8
@@ -270,7 +270,7 @@ contains
             !===========================================================================================================
             if( 3==dimens ) then
 
-              r_p(i,j,k) = cD1(dL(1),i)*veln(i+dL(1),j,k,1,t)
+              r_p(i,j,k,t) = cD1(dL(1),i)*veln(i+dL(1),j,k,1,t)
               !pgi$ unroll = n:8
               do ii = dL(1)+1, dU(1)
                 r_p(i,j,k,t) = r_p(i,j,k,t) + cD1(ii,i)*veln(i+ii,j,k,1,t)
@@ -281,7 +281,7 @@ contains
               end do
               !pgi$ unroll = n:8
               do kk = dL(3), dU(3)
-                r_p(i,j,k,t) = r_p(i,j,k) + cD3(kk,k)*veln(i,j,k+kk,3,t)
+                r_p(i,j,k,t) = r_p(i,j,k,t) + cD3(kk,k)*veln(i,j,k+kk,3,t)
               end do
 
             else
@@ -331,11 +331,8 @@ contains
       cG3,                  &
       mulI,                 &
       mulL,                 &
-      velp,                 &
-      veln,                 &
-      velnn,                &
-      pp,                   &
-      pn,                   &
+      vel,                  &
+      p,                    &
       r_vel,                &
       r_p ) bind (c,name='OP_TimeStokesBSmoother')
 
@@ -344,28 +341,28 @@ contains
 
     integer(c_int), intent(in)  :: dimens
 
-    integer(c_int), intent(in)  :: N(3)
+    integer(c_int), intent(in)  :: N(4)
 
-    integer(c_int), intent(in)  :: bL(3)
-    integer(c_int), intent(in)  :: bU(3)
+    integer(c_int), intent(in)  :: bL(4)
+    integer(c_int), intent(in)  :: bU(4)
 
-    integer(c_int), intent(in)  :: dL(3)
-    integer(c_int), intent(in)  :: dU(3)
+    integer(c_int), intent(in)  :: dL(4)
+    integer(c_int), intent(in)  :: dU(4)
 
-    integer(c_int), intent(in)  :: gL(3)
-    integer(c_int), intent(in)  :: gU(3)
+    integer(c_int), intent(in)  :: gL(4)
+    integer(c_int), intent(in)  :: gU(4)
 
-    integer(c_int), intent(in)  :: SS(3)
-    integer(c_int), intent(in)  :: NN(3)
+    integer(c_int), intent(in)  :: SS(4)
+    integer(c_int), intent(in)  :: NN(4)
 
-    integer(c_int), intent(in)  :: SU(3)
-    integer(c_int), intent(in)  :: NU(3)
+    integer(c_int), intent(in)  :: SU(4)
+    integer(c_int), intent(in)  :: NU(4)
 
-    integer(c_int), intent(in)  :: SV(3)
-    integer(c_int), intent(in)  :: NV(3)
+    integer(c_int), intent(in)  :: SV(4)
+    integer(c_int), intent(in)  :: NV(4)
 
-    integer(c_int), intent(in)  :: SW(3)
-    integer(c_int), intent(in)  :: NW(3)
+    integer(c_int), intent(in)  :: SW(4)
+    integer(c_int), intent(in)  :: NW(4)
 
     real(c_double), intent(in)  :: c11p(bL(1):bU(1),0:N(1))
     real(c_double), intent(in)  :: c22p(bL(2):bU(2),0:N(2))
@@ -385,53 +382,48 @@ contains
 
     real(c_double), intent(in)  :: mulI
     real(c_double), intent(in)  :: mulL
+        
+    real(c_double), intent(in)  :: vel ( bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), 1:3, (bL(4)+1):(N(4)+bU(4)) )
 
-    real(c_double), intent(in)  :: velp ( bL(1):(N(1)+bU(1)), 
-bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), 1:3 )
+    real(c_double), intent(in)  :: p   ( bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), (bL(4)+1):(N(4)+bU(4)))
 
-    real(c_double), intent(in)  :: veln ( bL(1):(N(1)+bU(1)),
-bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), 1:3 ) ! 1:3 stys for the velocity
-compnents and previous indeces for the index
+    real(c_double), intent(out) :: r_vel( bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), 1:3, (bL(4)+1):(N(4)+bU(4)))
 
-    real(c_double), intent(in)  :: velnn ( bL(1):(N(1)+bU(1)),
-bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), 1:3 )
-
-    real(c_double), intent(out) :: pn   ( bL(1):(N(1)+bU(1)),
-bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)) )
-
-    real(c_double), intent(out) :: pp   ( bL(1):(N(1)+bU(1)),
-bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)) )
-
-    real(c_double), intent(out) :: r_vel( bL(1):(N(1)+bU(1)),
-bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), 1:3 )
-
-    real(c_double), intent(out) :: r_p   (bL(1):(N(1)+bU(1)),
-bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)) )
+    real(c_double), intent(out) :: r_p   (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), (bL(4)+1):(N(4)+bU(4)))
 
     integer(c_int)              ::  i, ii
     integer(c_int)              ::  j, jj
     integer(c_int)              ::  k, kk
+    integer(c_int)              ::  t
 
     !===========================================================================================================
 
 
-    integer (c_int), parameter :: block_size = 14 ! decompose this in time
-points + pressure...
-!    real(c_double)              :: cG(6)
-!    real(c_double)              :: cD(6)
-!    real(c_double)              :: dd(6)
-!    integer(c_int)              :: l
-
+    integer (c_int), parameter :: block_size = 14 ! decompose this in time points + pressure...
+    integer(c_int)             :: l
+    integer(c_int)             :: ll
+    integer(c_int)             :: ipiv(block_size)
+     
 
     real (c_double) A(block_size,block_size) ! fill with zeros?
     real (c_double) b(block_size)
 
+     ! ----- for the test -----!
+     integer(c_int) :: info
+     !real(c_double) :: vt(block_size,block_size)
+     !real(c_double) :: u(block_size,block_size)
+     !real(c_double) :: s(block_size)
+     !integer(c_int), parameter :: lwork = 5*block_size
+     !real(c_double) :: work(lwork)
+
+     ! ------------------------!
+
      A(1:block_size,1:block_size) = 0.0
 
-
-    do k = SS(3), NN(3)
-      do j = SS(2), NN(2)
-        do i = SS(1), NN(1)
+    do t = SS(4), NN(4) - 2 ! here should be -1
+    do k = SW(3), NW(3)
+      do j = SV(2), NV(2)
+        do i = SU(1), NU(1)
 
             ! from dL to DU loop? no for b.s. just small stencil. time
             ! periodcity?
@@ -443,44 +435,42 @@ points + pressure...
 
             ! diagonal: time derivative + diffusion (sign of dt?)
 
-            A(1,1) = - mulI -  mulL*c11u(bL(1)+1,i)
-            A(2,2) = - mulI -  mulL*c11u(bL(1)+1,i-1)
+            A(1,1) = mulI -  mulL*c11u(bL(1)+1,i)
+            A(2,2) = mulI -  mulL*c11u(bL(1)+1,i-1)
 
-            A(3,3) = - mulI -  mulL*c22v(bL(2)+1,j)
-            A(4,4) = - mulI -  mulL*c22v(bL(2)+1,j-1)
+            A(3,3) = mulI -  mulL*c22v(bL(2)+1,j)
+            A(4,4) = mulI -  mulL*c22v(bL(2)+1,j-1)
 
-            A(5,5) = - mulI -  mulL*c33w(bL(3)+1,k)
-            A(6,6) = - mulI -  mulL*c33w(bL(3)+1,k-1)
+            A(5,5) = mulI -  mulL*c33w(bL(3)+1,k)
+            A(6,6) = mulI -  mulL*c33w(bL(3)+1,k-1)
 
             ! sub/super-diagonal: diffusion
 
-            A(1,2) = mulL*c11u(bL(1),i)
-            A(2,1) = mulL*c11u(bU(1),i-1)
+            A(1,2) = - mulL*c11u(bL(1),i)
+            A(2,1) = - mulL*c11u(bU(1),i-1)
 
-            A(3,4) = mulL*c22v(bL(2),j)
-            A(4,3) = mulL*c22v(bU(2),j-1)
+            A(3,4) = - mulL*c22v(bL(2),j)
+            A(4,3) = - mulL*c22v(bU(2),j-1)
 
-            A(5,6) = mulL*c33w(bL(3),k)
-            A(6,5) = mulL*c33w(bU(3),k-1)
+            A(5,6) = - mulL*c33w(bL(3),k)
+            A(6,5) = - mulL*c33w(bU(3),k-1)
 
             ! copy in the lower block for the next time point
 
             A(7:12,7:12) = A(1:6,1:6)
 
-            ! pressure gradient (sign)?
-            A(1:6,13) = cG1(gL(1),i), cG1(gU(1),i-1), cG2(gL(2),j),
-cG2(gU(2),j-1), cG3(gL(3),k), cG3(gU(3),k-1)
+            ! pressure gradient 
+            A(1:6,13) = (/ cG1(gL(1),i), cG1(gU(1),i-1), cG2(gL(2),j),cG2(gU(2),j-1), cG3(gL(3),k), cG3(gU(3),k-1) /)
             A(7:12,14) = A(1:6,13)
 
             ! divergence on pressure points indeces are correct?
-            A(13,1:6) = cD1(dU(1),i), cD1(dL(1),i), cD2(dU(2),j), cD2(dL(2),j),
-cD3(dU(3),k), cD3(dL(3),k)
+            A(13,1:6) = (/ cD1(dU(1),i), cD1(dL(1),i), cD2(dU(2),j), cD2(dL(2),j),cD3(dU(3),k), cD3(dL(3),k)/)
             A(14,7:12) = A(13,1:6)
 
             ! time derivative 
 
             do l = 1,6
-            A(l+6,l) = mulI
+            A(l+6,l) = - mulI
             end do
 
             !===================================================
@@ -488,34 +478,108 @@ cD3(dU(3),k), cD3(dL(3),k)
             !===================================================
 
             ! diffusion
-
-            b(1:6) = mulL*( c11u(bU(1),i)*velp(i+1,j,k,1),
-c11u(bL(1),i-1)*velp(i-2,j,k,1),
-                            c22u(bU(2),j)*velp(i,j+1,k,2),
-c22u(bL(2),j-1)*velp(i,j-2,k,2),
-                            c33u(bU(3),k)*velp(i,j,k+1,3),
-c33u(bL(3),j-1)*velp(i,j,k-2,3),
-                            c11u(bU(1),i)*veln(i+1,j,k,1),
-c11u(bL(1),i-1)*veln(i-2,j,k,1),
-                            c22u(bU(2),j)*veln(i,j+1,k,2),
-c22u(bL(2),j-1)*veln(i,j-2,k,2),
-                            c33u(bU(3),k)*veln(i,j,k+1,3),
-c33u(bL(3),j-1)*veln(i,j,k-2,3) )
+                
+            b = mulL*(/ c11u(bU(1),i)*vel(i+1,j,k,1,t),c11u(bL(1),i-1)*vel(i-2,j,k,1,t),&
+                       c22v(bU(2),j)*vel(i,j+1,k,2,t),c22v(bL(2),j-1)*vel(i,j-2,k,2,t),&
+                       c33w(bU(3),k)*vel(i,j,k+1,3,t),c33w(bL(3),j-1)*vel(i,j,k-2,3,t),&
+                       c11u(bU(1),i)*vel(i+1,j,k,1,t+1),c11u(bL(1),i-1)*vel(i-2,j,k,1,t+1),&
+                       c22v(bU(2),j)*vel(i,j+1,k,2,t+1),c22v(bL(2),j-1)*vel(i,j-2,k,2,t+1),&
+                       c33w(bU(3),k)*vel(i,j,k+1,3,t+1),c33w(bL(3),j-1)*vel(i,j,k-2,3,t+1),&
+                       0, 0 /) ! -> divergence
 
             ! pressure gradient
-            b = b + ( cG1(gU,i)*pp(i+1,j,k),cG1(gL,i-1)*pp(i-1,j,k),
-                      cG2(gU,j)*pp(i,j+1,k),cG2(gL,j-1)*pp(i,j-1,k),
-                      cG3(gU,k)*pp(i,j,k+1),cG3(gL,k-1)*pp(i,j,k-1),
-                      cG1(gU,i)*pn(i+1,j,k),cG1(gL,i-1)*pn(i-1,j,k),
-                      cG2(gU,j)*pn(i,j+1,k),cG2(gL,j-1)*pn(i,j-1,k),
-                      cG3(gU,k)*pn(i,j,k+1),cG3(gL,k-1)*pn(i,j,k-1) )
+            b = b + (/ cG1(gU(1),i)*p(i+1,j,k,t),cG1(gL(1),i-1)*p(i-1,j,k,t),&
+                       cG2(gU(2),j)*p(i,j+1,k,t),cG2(gL(2),j-1)*p(i,j-1,k,t),&
+                       cG3(gU(3),k)*p(i,j,k+1,t),cG3(gL(3),k-1)*p(i,j,k-1,t),&
+                       cG1(gU(1),i)*p(i+1,j,k,t+1),cG1(gL(1),i-1)*p(i-1,j,k,t+1),&
+                       cG2(gU(2),j)*p(i,j+1,k,t+1),cG2(gL(2),j-1)*p(i,j-1,k,t+1),&
+                       cG3(gU(3),k)*p(i,j,k+1,t+1),cG3(gL(3),k-1)*p(i,j,k-1,t+1),&
+                       0, 0 /) ! -> divergence
 
             ! time stencil (just in the second time slice)
-            b(7:12) = b(7:12) + mulI*(velnn(i,j,k,1), velnn(i-1,j,k,1),
-velnn(i,j,k,2), velnn(i,j-1,k,2),velnn(i,j,k,3),velnn(i,j,k-1,3) )
+            b(1:6) = b(1:6) - mulI*(/ vel(i,j,k,1,t-1), vel(i-1,j,k,1,t-1),&
+                                        vel(i,j,k,2,t-1), vel(i,j-1,k,2,t-1),&
+                                        vel(i,j,k,3,t-1), vel(i,j,k-1,3,t-1) /)
 
-            ! divergence
-            b(13,14) = 0, 0
+! ---------- test the matrix A --------------!
+
+!write(*,*) i,j,k
+
+!print *,'-------- the matrix A ----------'
+
+!do l = 1, block_size
+!write(*,'(14F11.3)') (A(l,ll), ll = 1, block_size) 
+!end do
+!write(*,*)
+
+
+!call dgesvd ( 'A', 'A', block_size, block_size, A, block_size, s, u, block_size, vt, block_size, work, lwork , info )
+
+!if ( info /= 0 ) then
+!write ( *, '(a)' ) ' '
+!write ( *, '(a,i8)' ) '  DGESVD returned nonzero INFO = ', info
+!return
+!end if
+
+!print*,'------- singular values ---------'
+!print*, s
+
+! -------------------------------------------!
+
+
+!print*, '! -------- Factor the matrix A --------------!'
+
+  call dgetrf ( block_size, block_size, A, block_size, ipiv, info )
+  
+  if ( info /= 0 ) then
+    write ( *, '(a)' ) ' '
+    write ( *, '(a,i8)' ) '  DGETRF returned INFO = ', info
+    write ( *, '(a)' ) '  The matrix is numerically singular.'
+    return
+  end if
+  
+! print*, '------ matrix A -----'
+!do l = 1, block_size
+!write(*,'(14F8.1)') (A(l,ll), ll = 1, block_size) 
+!end do
+!write(*,*)
+  !print*, '---------------------'
+
+
+  call dgetrs ( 'N', block_size, 1, A, block_size, ipiv, b, block_size, info )
+
+  if ( info /= 0 ) then
+    write ( *, '(a)' ) ' '
+    write ( *, '(a)' ) '  Solution procedure failed!'
+    write ( *, '(a,i8)' ) '  INFO = ', info
+    return
+  end if
+
+!print*, '------------ result -------------'
+!print*, b
+!print*, '---------------------------------'
+
+        ! assign the solution (more general)     
+        
+        !print*, '------ max -------'
+        !print*, NU(1),NV(2),NW(3),NN(4)
+        !print*, '------- i j k t+1 -------'
+        !print*, i,j,k,t+1
+       
+        r_vel(i,j,k,1,t) = b(1)
+        r_vel(i,j,k,1,t+1) = b(7)
+        !r_vel(i-1,j,k,1,t:t+1) = (/ b(2), b(8) /)
+        !r_vel(i,j,k,2,t:t+1) = (/ b(3), b(9) /)
+        !r_vel(i,j-1,k,2,t:t+1) = (/ b(4), b(10) /)
+        !r_vel(i,j,k,3,t:t+1) = (/ b(5), b(11) /)
+        !r_vel(i,j,k-1,3,t:t+1) = (/ b(6), b(12) /) 
+
+        !r_p(i,j,k,t:t+1) = b(13:14)
+
+        end do
+      end do
+    end do
+    end do
 
   end subroutine OP_TimeStokesBSmoother
 

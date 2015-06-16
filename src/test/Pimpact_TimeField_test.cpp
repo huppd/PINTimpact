@@ -21,8 +21,7 @@
 #include "Pimpact_DtTimeOp.hpp"
 #include "Pimpact_TimeNonlinearJacobianOp.hpp"
 
-
-
+#include "Pimpact_TimeStokesBSmoother.hpp"
 
 namespace {
 
@@ -30,7 +29,7 @@ namespace {
 typedef double S;
 typedef int O;
 const int d = 4;
-const int dNC = 4;
+const int dNC = 2;
 
 bool testMpi = true;
 double eps = 3e-1;
@@ -754,5 +753,27 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOp ) {
 	TEST_EQUALITY( x->norm()<eps, true );
 
 }
+
+
+TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesBSmooth ) {
+
+	pl->set("npx", npx) ;
+	pl->set("npy", npy) ;
+	pl->set("npz", npz) ;
+	pl->set("npf", npf) ;
+
+	typedef Pimpact::TimeStokesOp<SpaceT> OpT;
+	auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+
+	auto op = Pimpact::create<OpT>( space );
+
+        auto x = Pimpact::create<typename OpT::DomainFieldT>( space );
+        auto y = Pimpact::create<typename OpT::RangeFieldT>( space );
+
+	auto BSmoother = Teuchos::rcp(new Pimpact::TimeStokesBSmoother<OpT>( op ));
+
+	BSmoother->apply(*x,*y);
+}
+
 
 } // end of namespace
