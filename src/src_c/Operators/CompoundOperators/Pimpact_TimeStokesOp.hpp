@@ -105,8 +105,8 @@ public:
 
 		xu->exchange();
 
-		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i ) {
-			xu->getConstFieldPtr(i-1)->exchange();
+		for( Ordinal i=space()->sInd(S,3)-1; i<space()->eInd(S,3); ++i ) {
+//			xu->getConstFieldPtr(i-1)->exchange();
 			xu->getConstFieldPtr(i)->exchange();
 			xp->getConstFieldPtr(i)->exchange();
 		}
@@ -142,13 +142,12 @@ public:
 				grad_->getC(Z),
 				mulI,                 
 				1./re,                 
-				//				xu->getConstFieldPtr(i-1)->getConstRawPtr(),
 				xu->getConstRawPtr(),
 				xp->getConstRawPtr(),
 				yu->getRawPtr(),
 				yp->getRawPtr() );
 
-		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i ) {
+		for( Ordinal i=space()->sInd(S,3)-1; i<space()->eInd(S,3); ++i ) {
 			yu->getFieldPtr(i)->changed();
 			yp->getFieldPtr(i)->changed();
 		}

@@ -68,7 +68,6 @@ contains
   !! \param cG3 stencil coefficients for divergence operator in z-direction, can be get from \c GradOp::getC(Z)
   !! \param mulI correspond to multiplicator of time derivative should be \f$ \frac{\alpha^2}{\mathrm{Re} \Delta t} \f$
   !! \param mulL correspond to multiplicator of laplace operator should be \f$ \frac{1}{\mathrm{Re}} \f$
-  !! \param velp velocity field array of previous time step, can be get from \c VelocityField::getConstRawPtr    
   !! \param veln velocity field array of next time step, can be get from \c VelocityField::getConstRawPtr    
   !! \param pn pressure field array of next time step, can be get from \c VelocityField::getConstRawPtr    
   !! \param[out] r_vel residual velocity field array of next time step, can be get from \c VelocityField::getConstRawPtr    
@@ -93,7 +92,6 @@ contains
       cG3,                  &
       mulI,                 &
       mulL,                 &
-      !velp,                 &
       veln,                 &
       pn,                   &
       r_vel,                &
@@ -131,30 +129,29 @@ contains
     real(c_double), intent(in)  :: c22p( bL(2):bU(2), 0:N(2) )
     real(c_double), intent(in)  :: c33p( bL(3):bU(3), 0:N(3) )
 
-    real(c_double), intent(in)  :: c11u(bL(1):bU(1),0:N(1))
-    real(c_double), intent(in)  :: c22v(bL(2):bU(2),0:N(2))
-    real(c_double), intent(in)  :: c33w(bL(3):bU(3),0:N(3))
+    real(c_double), intent(in)  :: c11u( bL(1):bU(1), 0:N(1) )
+    real(c_double), intent(in)  :: c22v( bL(2):bU(2), 0:N(2) )
+    real(c_double), intent(in)  :: c33w( bL(3):bU(3), 0:N(3) )
 
-    real(c_double), intent(in)  :: cD1(dL(1):dU(1),0:N(1))
-    real(c_double), intent(in)  :: cD2(dL(2):dU(2),0:N(2))
-    real(c_double), intent(in)  :: cD3(dL(3):dU(3),0:N(3))
+    real(c_double), intent(in)  :: cD1( dL(1):dU(1), 0:N(1) )
+    real(c_double), intent(in)  :: cD2( dL(2):dU(2), 0:N(2) )
+    real(c_double), intent(in)  :: cD3( dL(3):dU(3), 0:N(3) )
 
-    real(c_double), intent(in)  :: cG1(gL(1):gU(1),0:N(1))
-    real(c_double), intent(in)  :: cG2(gL(2):gU(2),0:N(2))
-    real(c_double), intent(in)  :: cG3(gL(3):gU(3),0:N(3))
+    real(c_double), intent(in)  :: cG1( gL(1):gU(1), 0:N(1) )
+    real(c_double), intent(in)  :: cG2( gL(2):gU(2), 0:N(2) )
+    real(c_double), intent(in)  :: cG3( gL(3):gU(3), 0:N(3) )
 
     real(c_double), intent(in)  :: mulI
     real(c_double), intent(in)  :: mulL
 
-    !real(c_double), intent(in)  :: velp ( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), 1:3 )
 
-    real(c_double), intent(in)  :: veln ( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), 1:3, (bL(4)+1):(N(4)+bU(4)) )
+    real(c_double), intent(in)  :: veln ( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), 1:3, 0:(N(4)+bU(4)-bL(4)) )
 
-    real(c_double), intent(in)  :: pn   ( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), (bL(4)+1):(N(4)+bU(4)))
+    real(c_double), intent(in)  :: pn   ( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)),      0:(N(4)+bU(4)-bL(4)) )
 
-    real(c_double), intent(out) :: r_vel( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), 1:3, (bL(4)+1):(N(4)+bU(4)) )
+    real(c_double), intent(out) :: r_vel( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), 1:3, 0:(N(4)+bU(4)-bL(4)) )
 
-    real(c_double), intent(out) :: r_p   (bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), (bL(4)+1):(N(4)+bU(4)) )
+    real(c_double), intent(out) :: r_p  ( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)),      0:(N(4)+bU(4)-bL(4)) )
 
 
     real(c_double)              :: dd1
@@ -167,7 +164,7 @@ contains
 
     !===========================================================================================================
 
-    do t = SS(4), NN(4)
+    do t = SS(4), N(4)
       do k = SS(3), NN(3)
         do j = SS(2), NN(2)
           do i = SS(1), NN(1)
@@ -383,13 +380,13 @@ contains
     real(c_double), intent(in)  :: mulI
     real(c_double), intent(in)  :: mulL
         
-    real(c_double), intent(in)  :: vel ( bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), 1:3, (bL(4)+1):(N(4)+bU(4)) )
+    real(c_double), intent(in)  :: vel  ( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), 1:3, 0:(N(4)+bU(4)-bL(4)) )
 
-    real(c_double), intent(in)  :: p   ( bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), (bL(4)+1):(N(4)+bU(4)))
+    real(c_double), intent(in)  :: p    ( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)),      0:(N(4)+bU(4)-bL(4)) )
 
-    real(c_double), intent(out) :: r_vel( bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), 1:3, (bL(4)+1):(N(4)+bU(4)))
+    real(c_double), intent(out) :: r_vel( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), 1:3, 0:(N(4)+bU(4)-bL(4)) )
 
-    real(c_double), intent(out) :: r_p   (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), (bL(4)+1):(N(4)+bU(4)))
+    real(c_double), intent(out) :: r_p  ( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)),      0:(N(4)+bU(4)-bL(4)) )
 
     integer(c_int)              ::  i, ii
     integer(c_int)              ::  j, jj
@@ -420,7 +417,7 @@ contains
 
      A(1:block_size,1:block_size) = 0.0
 
-    do t = SS(4), NN(4) - 2 ! here should be -1
+    do t = SS(4), N(4) - 1 ! here should be -1
     do k = SW(3), NW(3)
       do j = SV(2), NV(2)
         do i = SU(1), NU(1)
@@ -485,7 +482,7 @@ contains
                        c11u(bU(1),i)*vel(i+1,j,k,1,t+1),c11u(bL(1),i-1)*vel(i-2,j,k,1,t+1),&
                        c22v(bU(2),j)*vel(i,j+1,k,2,t+1),c22v(bL(2),j-1)*vel(i,j-2,k,2,t+1),&
                        c33w(bU(3),k)*vel(i,j,k+1,3,t+1),c33w(bL(3),j-1)*vel(i,j,k-2,3,t+1),&
-                       0, 0 /) ! -> divergence
+                       0., 0. /) ! -> divergence
 
             ! pressure gradient
             b = b + (/ cG1(gU(1),i)*p(i+1,j,k,t),cG1(gL(1),i-1)*p(i-1,j,k,t),&
@@ -494,7 +491,7 @@ contains
                        cG1(gU(1),i)*p(i+1,j,k,t+1),cG1(gL(1),i-1)*p(i-1,j,k,t+1),&
                        cG2(gU(2),j)*p(i,j+1,k,t+1),cG2(gL(2),j-1)*p(i,j-1,k,t+1),&
                        cG3(gU(3),k)*p(i,j,k+1,t+1),cG3(gL(3),k-1)*p(i,j,k-1,t+1),&
-                       0, 0 /) ! -> divergence
+                       0., 0. /) ! -> divergence
 
             ! time stencil (just in the second time slice)
             b(1:6) = b(1:6) - mulI*(/ vel(i,j,k,1,t-1), vel(i-1,j,k,1,t-1),&

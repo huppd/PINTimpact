@@ -99,13 +99,9 @@ protected:
 
     if( 4==dimension ) {
       sIndS_[3] = 0 - sW->getBL(3);
-      eIndS_[3] = nLoc->get(3) + sW->getBU(3) - sW->getBL(3);
+      eIndS_[3] = nLoc->get(3) - sW->getBL(3);
     }
 
-//    if( setImpact ) {
-//      SVS_set_sInd( sIndS_.getRawPtr() );
-//      SVS_set_eInd( eIndS_.getRawPtr() );
-//    }
     // --- init IndU_ -------------------------------
 
     for( int field=0; field<3; ++field )
@@ -173,18 +169,10 @@ protected:
     if( 4==dimension ) {
       for( int i=0; i<3; ++i ) {
         sIndU_[i][3] = 0 - sW->getBL(3);
-        eIndU_[i][3] = nLoc->get(3) + sW->getBU(3) - sW->getBL(3);
+        eIndU_[i][3] = nLoc->get(3) - sW->getBL(3);
       }
     }
 
-//    if( setImpact ) {
-//      VS_set_sIndU( sIndU_[U].getRawPtr() );
-//      VS_set_eIndU( eIndU_[U].getRawPtr() );
-//      VS_set_sIndV( sIndU_[V].getRawPtr() );
-//      VS_set_eIndV( eIndU_[V].getRawPtr() );
-//      VS_set_sIndW( sIndU_[W].getRawPtr() );
-//      VS_set_eIndW( eIndU_[W].getRawPtr() );
-//    }
 
     // --- init IndUB_ -------------------------------
     for( int i=0; i<3; ++i ) {
@@ -258,18 +246,9 @@ protected:
     if( 4==dimension ) {
       for( int i=0; i<3; ++i ) {
         sIndUB_[i][3] = 0 - sW->getBL(3);
-        eIndUB_[i][3] = nLoc->get(3) + sW->getBU(3) - sW->getBL(3);
+        eIndUB_[i][3] = nLoc->get(3) - sW->getBL(3);
       }
     }
-//
-//    if( setImpact ) {
-//      VS_set_sIndUB( sIndUB_[U].getRawPtr() );
-//      VS_set_eIndUB( eIndUB_[U].getRawPtr() );
-//      VS_set_sIndVB( sIndUB_[V].getRawPtr() );
-//      VS_set_eIndVB( eIndUB_[V].getRawPtr() );
-//      VS_set_sIndWB( sIndUB_[W].getRawPtr() );
-//      VS_set_eIndWB( eIndUB_[W].getRawPtr() );
-//    }
 
   }
 
