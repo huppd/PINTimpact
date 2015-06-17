@@ -36,45 +36,30 @@ protected:
 
 public:
 
-  InverseOp( const Teuchos::RCP<OperatorT>& op ) {
-    linprob_ = createLinearProblem<MF>(
-        createOperatorBase(op),
-        create<MF>( op->space() ),
-        create<MF>( op->space() ),
-        createLinSolverParameter("GMRES",1.e-12,-1),
-        "GMRES" );
-  }
+	template<class IOperatorT>
+	InverseOp( const Teuchos::RCP<IOperatorT>& op ) {
 
-  template<class IOperatorT>
-  InverseOp( const Teuchos::RCP<IOperatorT>& op ) {
 		auto para = 
-			createLinSolverParameter("GMRES",1.e-16,-1, Teuchos::rcp( new Teuchos::oblackholestream()), 1000 );
-//			createLinSolverParameter("GMRES",1.e-12,-1, Teuchos::rcp( &std::cout, false ), 200 );
-//			createLinSolverParameter("GMRES",1.e-2,-1, Teuchos::rcp( new Teuchos::oblackholestream() ), 40 );
-		para->set( "Timer Label",	"Coarse Grid");
-    para->set( "Num Blocks",         200	  );
-    para->set( "Maximum Restarts",   20	);
+			createLinSolverParameter("GMRES",1.e-12,-1, Teuchos::rcp( &std::cout, false ), 200 );
 		linprob_ = createLinearProblem<MF>(
-        createOperatorBase( create<OperatorT>(op) ),
-        create<MF>( op->space() ),
-        create<MF>( op->space() ),
+				createOperatorBase( create<OperatorT>(op) ),
+				create<MF>( op->space() ),
+				create<MF>( op->space() ),
 				para,
-//				createLinSolverParameter("GMRES",1.e-1,-1, Teuchos::rcp(&std::cout,false), 1000 ),
-//			 Teuchos::parameterList(),
-        "GMRES" );
-  }
+				"GMRES" );
+	}
 
-  template<class IOperatorT>
-  InverseOp(
-			const Teuchos::RCP<IOperatorT>& op,
-		  Teuchos::RCP<Teuchos::ParameterList> pl ) {
-    linprob_ = createLinearProblem<MF>(
-        createOperatorBase( create<OperatorT>(op) ),
-        create<MF>( op->space() ),
-        create<MF>( op->space() ),
-				Teuchos::rcpFromRef( pl->sublist("Solver") ), 
-        pl->get<std::string>("Solver name") );
-  }
+ template<class IOperatorT>
+ InverseOp( const Teuchos::RCP<IOperatorT>& op,
+		 Teuchos::RCP<Teuchos::ParameterList> pl ):
+	 linprob_( createLinearProblem<MF>(
+				 createOperatorBase( create<OperatorT>(op) ),
+				 create<MF>( op->space() ),
+				 create<MF>( op->space() ),
+				 Teuchos::rcpFromRef( pl->sublist("Solver") ), 
+				 pl->get<std::string>("Solver name","GMRES") ) ) { 
+		 pl->print();
+	 }
 
 
   void apply( const MF& x, MF& y, Belos::ETrans trans=Belos::NOTRANS ) const {

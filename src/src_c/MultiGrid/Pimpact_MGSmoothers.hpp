@@ -40,7 +40,7 @@ protected:
   std::vector< Teuchos::RCP<SmootherT> >  smoothers_;
 
 public:
-//  template<class MGOperatorsT>
+
   MGSmoothers(
       const Teuchos::RCP<const MGOperatorsT>& mgOperators,
       Teuchos::RCP<Teuchos::ParameterList> pl ):
