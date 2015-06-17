@@ -333,41 +333,43 @@ public:
 		delete[] dispR_;
   }
 
-  void apply( const DomainFieldT& x, RangeFieldT& y ) const {
-
-    TEUCHOS_TEST_FOR_EXCEPT( x.getType()!=y.getType() );
-
-    EField fType = x.getType();
 
 
-    if( EField::S==fType ) {
-      x.exchange();
+	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
-	  MG_RestrictCorners(
-			  spaceF_->nLoc(),
-			  spaceF_->bl(),
-			  spaceF_->bu(),
-			  spaceF_->getDomain()->getBCLocal()->getBCL(),
-			  spaceF_->getDomain()->getBCLocal()->getBCU(),
-			  x.getConstRawPtr() );
+		TEUCHOS_TEST_FOR_EXCEPT( x.getType()!=y.getType() );
 
-	  MG_restrict(
-			  spaceF_->dim(),
-			  spaceF_->nLoc(),
-			  spaceF_->bl(),
-			  spaceF_->bu(),
-			  spaceC_->nLoc(),
-			  spaceC_->bl(),
-			  spaceC_->bu(),
-			  iimax_.getRawPtr(),
-			  dd_.getRawPtr(),
-			  cRS_[0],
-			  cRS_[1],
-			  cRS_[2],
-			  x.getConstRawPtr(),
-			  y.getRawPtr() );
+		EField fType = x.getType();
 
-	}
+
+		if( EField::S==fType ) {
+			x.exchange();
+
+			MG_RestrictCorners(
+					spaceF_->nLoc(),
+					spaceF_->bl(),
+					spaceF_->bu(),
+					spaceF_->getDomain()->getBCLocal()->getBCL(),
+					spaceF_->getDomain()->getBCLocal()->getBCU(),
+					x.getConstRawPtr() );
+
+			MG_restrict(
+					spaceF_->dim(),
+					spaceF_->nLoc(),
+					spaceF_->bl(),
+					spaceF_->bu(),
+					spaceC_->nLoc(),
+					spaceC_->bl(),
+					spaceC_->bu(),
+					iimax_.getRawPtr(),
+					dd_.getRawPtr(),
+					cRS_[0],
+					cRS_[1],
+					cRS_[2],
+					x.getConstRawPtr(),
+					y.getRawPtr() );
+
+		}
 		else {
 			int dir = fType;
 			x.exchange( dir );
@@ -411,7 +413,7 @@ public:
 
 		y.changed();
 
-  }
+	}
 
 
 	void print(  std::ostream& out=std::cout ) const {

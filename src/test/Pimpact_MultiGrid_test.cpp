@@ -1559,9 +1559,19 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffJ, CS ) {
 	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
 
 	auto mgPL = Teuchos::parameterList();
-	mgPL->sublist("Smoother").set( "omega", 0.5 );
-	mgPL->sublist("Smoother").set( "numIters", 4 );
+	mgPL->set<int>("numCycles", 1 );
+	mgPL->sublist("Smoother").set( "omega", 0.8 );
+	mgPL->sublist("Smoother").set( "numIters", 1 );
 
+	mgPL->sublist("Coarse Grid Solver").set<std::string>("Solver name", "GMRES" );
+
+	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<Teuchos::RCP<std::ostream> >( "Output Stream", Teuchos::rcp( &std::cout, false ) );
+	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set("Verbosity", Belos::Errors + Belos::Warnings +
+			Belos::IterationDetails + Belos::OrthoDetails +
+			Belos::FinalSummary + Belos::TimingDetails +
+			Belos::StatusTestDetails + Belos::Debug );
+	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<std::string>("Timer Label", "Coarse Grid Solver" );
+	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<S>("Convergence Tolerance" , 1.e-16 );
 
 	auto mg =
 		Pimpact::createMultiGrid<
