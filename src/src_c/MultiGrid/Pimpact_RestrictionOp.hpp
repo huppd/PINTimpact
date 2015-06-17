@@ -339,34 +339,35 @@ public:
 
     EField fType = x.getType();
 
-//		MG_RestrictCorners(
-//				spaceF_->nLoc(),
-//				spaceF_->bl(),
-//				spaceF_->bu(),
-//				spaceF_->getDomain()->getBCLocal()->getBCL(),
-//				spaceF_->getDomain()->getBCLocal()->getBCU(),
-//				x.getConstRawPtr() );
 
     if( EField::S==fType ) {
       x.exchange();
 
-			MG_restrict(
-					spaceF_->dim(),
-					spaceF_->nLoc(),
-					spaceF_->bl(),
-					spaceF_->bu(),
-					spaceC_->nLoc(),
-					spaceC_->bl(),
-					spaceC_->bu(),
-					iimax_.getRawPtr(),
-					dd_.getRawPtr(),
-					cRS_[0],
-					cRS_[1],
-					cRS_[2],
-					x.getConstRawPtr(),
-					y.getRawPtr() );
+	  MG_RestrictCorners(
+			  spaceF_->nLoc(),
+			  spaceF_->bl(),
+			  spaceF_->bu(),
+			  spaceF_->getDomain()->getBCLocal()->getBCL(),
+			  spaceF_->getDomain()->getBCLocal()->getBCU(),
+			  x.getConstRawPtr() );
 
-    }
+	  MG_restrict(
+			  spaceF_->dim(),
+			  spaceF_->nLoc(),
+			  spaceF_->bl(),
+			  spaceF_->bu(),
+			  spaceC_->nLoc(),
+			  spaceC_->bl(),
+			  spaceC_->bu(),
+			  iimax_.getRawPtr(),
+			  dd_.getRawPtr(),
+			  cRS_[0],
+			  cRS_[1],
+			  cRS_[2],
+			  x.getConstRawPtr(),
+			  y.getRawPtr() );
+
+	}
 		else {
 			int dir = fType;
 			x.exchange( dir );
