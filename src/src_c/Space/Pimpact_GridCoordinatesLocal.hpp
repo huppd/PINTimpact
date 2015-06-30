@@ -75,52 +75,66 @@ protected:
   TO dxS_;
   TO dxV_;
 
-  template<int dimNC>
-  GridCoordinatesLocal(
-      const Teuchos::RCP<const StencilWidths<dim,dimNC> >& stencilWidths,
-      const Teuchos::RCP<const DomainSize<Scalar> >& domainSize,
-      const Teuchos::RCP<const GridSizeGlobal<Ordinal,dim> >& gridSizeGlobal,
-      const Teuchos::RCP<const GridSizeLocal<Ordinal,dim> >& gridSize,
-      const Teuchos::RCP<const BoundaryConditionsGlobal<dim> >& bcGlobal,
-      const Teuchos::RCP<const BoundaryConditionsLocal >& bcLocal,
-      const Teuchos::RCP<const ProcGrid<Ordinal,dim> >& procGrid,
-      const Teuchos::RCP<const GridCoordinatesGlobal<Scalar,Ordinal,dim> >& coordGlobal ):
-        gridSize_( gridSize ) {
+	template<int dimNC>
+		GridCoordinatesLocal(
+				const Teuchos::RCP<const StencilWidths<dim,dimNC> >& stencilWidths,
+				const Teuchos::RCP<const DomainSize<Scalar> >& domainSize,
+				const Teuchos::RCP<const GridSizeGlobal<Ordinal,dim> >& gridSizeGlobal,
+				const Teuchos::RCP<const GridSizeLocal<Ordinal,dim> >& gridSize,
+				const Teuchos::RCP<const BoundaryConditionsGlobal<dim> >& bcGlobal,
+				const Teuchos::RCP<const BoundaryConditionsLocal >& bcLocal,
+				const Teuchos::RCP<const ProcGrid<Ordinal,dim> >& procGrid,
+				const Teuchos::RCP<const GridCoordinatesGlobal<Scalar,Ordinal,dim> >& coordGlobal ):
+			gridSize_( gridSize ) {
 
-    for( int i=0; i<dim; ++i ) {
+				for( int i=0; i<dim; ++i ) {
 
-      if( i<3 ) {
-      Ordinal nTemp = gridSize_->get(i)+stencilWidths->getBU(i)-stencilWidths->getBL(i)+1;
-      xS_[i]  = new Scalar[ nTemp ];
-      xV_[i]  = new Scalar[ nTemp ];
-      dxS_[i] = new Scalar[ gridSize_->get(i) ];
-      dxV_[i] = new Scalar[ gridSize_->get(i)+1 ];
+					if( i<3 ) {
+						Ordinal nTemp = gridSize_->get(i)+stencilWidths->getBU(i)-stencilWidths->getBL(i)+1;
+						xS_[i]  = new Scalar[ nTemp ];
+						xV_[i]  = new Scalar[ nTemp ];
+						dxS_[i] = new Scalar[ gridSize_->get(i) ];
+						dxV_[i] = new Scalar[ gridSize_->get(i)+1 ];
 
-        PI_getLocalCoordinates(
-            domainSize->getSize(i),
-            gridSizeGlobal->get(i),
-            gridSize_->get(i),
-            stencilWidths->getBL(i),
-            stencilWidths->getBU(i),
-            bcGlobal->getBCL(i),
-            bcGlobal->getBCU(i),
-            bcLocal->getBCL(i),
-            bcLocal->getBCU(i),
-            procGrid->getIB(i),
-            coordGlobal->get( i, EField::S),
-            coordGlobal->get( i, i),
-            xS_[i],
-            xV_[i],
-            dxS_[i],
-            dxV_[i] );
-	}
-	else {
+						PI_getLocalCoordinates(
+								domainSize->getSize(i),
+								gridSizeGlobal->get(i),
+								gridSize_->get(i),
+								stencilWidths->getBL(i),
+								stencilWidths->getBU(i),
+								bcGlobal->getBCL(i),
+								bcGlobal->getBCU(i),
+								bcLocal->getBCL(i),
+								bcLocal->getBCU(i),
+								procGrid->getIB(i),
+								coordGlobal->get( i, EField::S ),
+								coordGlobal->get( i, i),
+								xS_[i],
+								xV_[i],
+								dxS_[i],
+								dxV_[i] );
+					}
+					else {
 
+						Ordinal nTemp = gridSize_->get(i)+stencilWidths->getBU(i)-stencilWidths->getBL(i);
 
-	
-        }
-    }
-  }
+						xS_[i]  = new Scalar[ nTemp ];
+						xV_[i]  = new Scalar[ nTemp ];
+						dxS_[i] = new Scalar[ gridSize_->get(i) ];
+						dxV_[i] = new Scalar[ gridSize_->get(i)+1 ];
+
+						Ordinal nt = gridSizeGlobal->get(i);
+						Scalar pi = 4.*std::atan(1.);
+						Scalar offset = procGrid->getShift(i) + stencilWidths->getBL(i);
+
+						for( Ordinal it=0; it<nTemp; ++it ) {
+							xS_[i][it] = 2.*pi*( (Scalar)it + offset )/nt;
+							xV_[i][it] = 2.*pi*( (Scalar)it + offset )/nt;
+						}
+
+					}
+				}
+			}
 
 public:
 
@@ -134,7 +148,7 @@ public:
   };
 
 
-  const Scalar* getX( ECoord dir, EField ftype ) const  {
+  const Scalar* getX( ECoord dir, EField ftype=EField::S ) const  {
     if( EField::S==ftype )
       return( xS_[dir] );
     else if( (int)dir==(int)ftype )

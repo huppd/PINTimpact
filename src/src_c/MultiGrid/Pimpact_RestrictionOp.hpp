@@ -9,6 +9,7 @@
 #include "Teuchos_TestForException.hpp"
 
 #include "Pimpact_Space.hpp"
+#include "Pimpact_ScalarField.hpp"
 
 
 
@@ -136,21 +137,9 @@ protected:
   Teuchos::Tuple<Scalar*,3> cRS_;
   Teuchos::Tuple<Scalar*,3> cRV_;
 
-public:
-
-	RestrictionOp(
-			const Teuchos::RCP<const SpaceT>& spaceF,
-			const Teuchos::RCP<const SpaceT>& spaceC,
-		  Teuchos::Tuple<int,3> nb=Teuchos::tuple(0,0,0) ):
-		spaceF_(spaceF),
-		spaceC_(spaceC),
-		comm2_( MPI_COMM_NULL) {
-
+	void init( const Teuchos::Tuple<int,SpaceT::dimension> nb ) {
+		
 			// ------------- nGather_, iimax_
-			if( 0==nb[0] ) {
-				nb = spaceF_->getProcGridSize()->getTuple();
-			}
-
 			Teuchos::Tuple<int,SpaceT::dimension> periodic = spaceF_->getDomain()->getBCGlobal()->periodic();
 			Teuchos::Tuple<Ordinal,3> iiShift;
 
@@ -305,7 +294,30 @@ public:
 						spaceC_->getCoordinatesLocal()->getX( i, i ),
 						cRV_[i] );
 			}
+	}
 
+public:
+
+	RestrictionOp(
+			const Teuchos::RCP<const SpaceT>& spaceF,
+			const Teuchos::RCP<const SpaceT>& spaceC ):
+		spaceF_(spaceF),
+		spaceC_(spaceC),
+		comm2_(MPI_COMM_NULL) {
+
+			init( spaceF_->getProcGridSize()->getTuple() );
+
+  }
+
+	RestrictionOp(
+			const Teuchos::RCP<const SpaceT>& spaceF,
+			const Teuchos::RCP<const SpaceT>& spaceC,
+		  Teuchos::Tuple<int,SpaceT::dimension> nb ):
+		spaceF_(spaceF),
+		spaceC_(spaceC),
+		comm2_(MPI_COMM_NULL) {
+
+			init( nb );
 
   }
 
@@ -321,22 +333,25 @@ public:
 		delete[] dispR_;
   }
 
-  void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
-    TEUCHOS_TEST_FOR_EXCEPT( x.getType()!=y.getType() );
 
-    EField fType = x.getType();
+	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
-		MG_RestrictCorners(
-				spaceF_->nLoc(),
-				spaceF_->bl(),
-				spaceF_->bu(),
-				spaceF_->getDomain()->getBCLocal()->getBCL(),
-				spaceF_->getDomain()->getBCLocal()->getBCU(),
-				x.getConstRawPtr() );
+		TEUCHOS_TEST_FOR_EXCEPT( x.getType()!=y.getType() );
 
-    if( EField::S==fType ) {
-      x.exchange();
+		EField fType = x.getType();
+
+
+		if( EField::S==fType ) {
+			x.exchange();
+
+			MG_RestrictCorners(
+					spaceF_->nLoc(),
+					spaceF_->bl(),
+					spaceF_->bu(),
+					spaceF_->getDomain()->getBCLocal()->getBCL(),
+					spaceF_->getDomain()->getBCLocal()->getBCU(),
+					x.getConstRawPtr() );
 
 			MG_restrict(
 					spaceF_->dim(),
@@ -354,7 +369,7 @@ public:
 					x.getConstRawPtr(),
 					y.getRawPtr() );
 
-    }
+		}
 		else {
 			int dir = fType;
 			x.exchange( dir );
@@ -398,7 +413,7 @@ public:
 
 		y.changed();
 
-  }
+	}
 
 
 	void print(  std::ostream& out=std::cout ) const {
@@ -458,15 +473,6 @@ public:
 
 
 
-//template<class SpaceT>
-//Teuchos::RCP<const RestrictionOp<SpaceT> > createRestrictionOp(
-//    const Teuchos::RCP<const SpaceT>& spaceF,
-//    const Teuchos::RCP<const SpaceT>& spaceC ) {
-//
-//  return( Teuchos::rcp( new RestrictionOp<SpaceT>(spaceF,spaceC) ) );
-//
-//}
-
 /// \todo colect all create methods in one file
 template<template<class> class OpT, class SpaceT>
 Teuchos::RCP<const OpT<SpaceT> > create(
@@ -479,6 +485,15 @@ Teuchos::RCP<const OpT<SpaceT> > create(
 
 
 } // end of namespace Pimpact
+
+
+
+#ifdef COMPILE_ETI
+extern template class Pimpact::RestrictionOp< Pimpact::Space<double,int,3,2> >;
+extern template class Pimpact::RestrictionOp< Pimpact::Space<double,int,3,4> >;
+extern template class Pimpact::RestrictionOp< Pimpact::Space<double,int,4,2> >;
+extern template class Pimpact::RestrictionOp< Pimpact::Space<double,int,4,4> >;
+#endif
 
 
 #endif // end of #ifndef PIMPACT_RESTRICTIONOP_HPP

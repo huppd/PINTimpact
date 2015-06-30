@@ -19,7 +19,7 @@ enum ECopyType {
 };
 
 
-enum ECoord { X=0, Y=1, Z=2, T=4 };
+enum ECoord { X=0, Y=1, Z=2, T=3 };
 enum EField { U=0, V=1, W=2, S=4 };
 
 

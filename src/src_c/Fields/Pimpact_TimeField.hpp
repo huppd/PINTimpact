@@ -506,8 +506,9 @@ initVectorTimeField(
       field->getFieldPtr(i)->initField( Streaming2D, ampt );
       break;
     }
-    case OscilatingDisc2D: {
-      S ymt = ym+amp*std::sin( 2.*pi*((S)i+offset)/nt );
+		case OscilatingDisc2D: {
+//			std::cout << "\ti: " << i << "\tt: " << 2.*pi*((S)i+offset)/nt << "\tt: " << space->getCoordinatesLocal()->getX(T)[i] << "\n";
+			S ymt = ym+amp*std::sin( space->getCoordinatesLocal()->getX(T)[i] );
       S xmt = xm;
       field->getFieldPtr(i)->initField( Disc2D, xmt, ymt, rad );
       break;

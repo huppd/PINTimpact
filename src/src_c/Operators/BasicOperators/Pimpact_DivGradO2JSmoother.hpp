@@ -93,7 +93,7 @@ public:
 					op_->getC(Z),
 					omega_,
 					x.getConstRawPtr(),
-					y.getRawPtr(),
+					y.getConstRawPtr(),
 					temp_->getRawPtr() );
 
 			SF_handle_corner(
@@ -104,7 +104,6 @@ public:
 					space()->getDomain()->getBCLocal()->getBCU(),
 					temp_->getRawPtr() );
 
-			//		 y.assign(*temp_);
 			//			y.level();
 
 			temp_->changed();
@@ -122,7 +121,7 @@ public:
 					op_->getC(Z),
 					omega_,
 					x.getConstRawPtr(),
-					temp_->getRawPtr(),
+					temp_->getConstRawPtr(),
 					y.getRawPtr() );
 
 			SF_handle_corner(

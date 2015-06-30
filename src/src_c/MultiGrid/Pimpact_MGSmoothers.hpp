@@ -40,7 +40,7 @@ protected:
   std::vector< Teuchos::RCP<SmootherT> >  smoothers_;
 
 public:
-//  template<class MGOperatorsT>
+
   MGSmoothers(
       const Teuchos::RCP<const MGOperatorsT>& mgOperators,
       Teuchos::RCP<Teuchos::ParameterList> pl ):
@@ -100,12 +100,17 @@ createMGSmoothers(
 #include "Pimpact_MGSpaces.hpp"
 #include "Pimpact_MGOperators.hpp"
 #include "Pimpact_DivGradO2JSmoother.hpp"
-//template<class T> using ConvDiffOpT = Pimpact::ConvectionVOp<Pimpact::ConvectionDiffusionSOp<T> >;
+#include "Pimpact_ConvectionVSmoother.hpp"
+#include "Pimpact_ConvectionDiffusionSORSmoother.hpp"
+#include "Pimpact_ConvectionDiffusionJSmoother.hpp"
+template<class T> using ConvDiffSORT = Pimpact::ConvectionVSmoother<T,Pimpact::ConvectionDiffusionSORSmoother >;
+
+//template<class T> using ConvDiffJT = Pimpact::ConvectionVSmoother<T,Pimpact::ConvectionDiffusionJSmoother >;
+
 extern template class Pimpact::MGSmoothers< Pimpact::MGOperators< Pimpact::MGSpaces< Pimpact::Space<double,int,3,4>, Pimpact::Space<double,int,3,2> >, Pimpact::DivGradOp, Pimpact::DivGradO2Op >, Pimpact::DivGradO2JSmoother >;
 extern template class Pimpact::MGSmoothers< Pimpact::MGOperators< Pimpact::MGSpaces< Pimpact::Space<double,int,4,4>, Pimpact::Space<double,int,4,2> >, Pimpact::DivGradOp, Pimpact::DivGradO2Op >, Pimpact::DivGradO2JSmoother >;
-//extern template class Pimpact::MGSmoothers< Pimpact::MGOperators< Pimpact::MGSpaces< Pimpact::Space<double,int,3,4>, Pimpact::Space<double,int,3,2> >, Pimpact::DivGradOp, Pimpact::DivGradO2Op >, >;
-//extern template class Pimpact::MGSmoothers< Pimpact::MGOperators< Pimpact::MGSpaces< Pimpact::Space<double,int,4,4>, Pimpact::Space<double,int,4,2> >, Pimpact::DivGradOp, Pimpact::DivGradO2Op >, >;
-//extern template class Pimpact::MGSmoothers< Pimpact::MGOperators< Pimpact::MGSpaces< Pimpact::Space<double,int,3,4>, Pimpact::Space<double,int,3,2> >, ConvDiffOpT,ConvDiffOpT >, >;
+//extern template class Pimpact::MGSmoothers< Pimpact::MGOperators< Pimpact::MGSpaces< Pimpact::Space<double,int,3,4>, Pimpact::Space<double,int,3,2> >, ConvDiffOpT,ConvDiffOpT >, ConvDiffSORT >;
+//extern template class Pimpact::MGSmoothers< Pimpact::MGOperators< Pimpact::MGSpaces< Pimpact::Space<double,int,3,4>, Pimpact::Space<double,int,3,2> >, ConvDiffOpT,ConvDiffOpT >, ConvDiffJT >;
 //extern template class Pimpact::MGSmoothers< Pimpact::MGOperators< Pimpact::MGSpaces< Pimpact::Space<double,int,4,4>, Pimpact::Space<double,int,4,2> >, ConvDiffOpT,ConvDiffOpT >, >;
 #endif
 

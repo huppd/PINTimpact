@@ -6,7 +6,6 @@
 
 
 
-!> \brief module providing Helmholtz
 module cmod_TimeStokesOp
 
   use iso_c_binding

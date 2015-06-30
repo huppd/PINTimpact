@@ -96,24 +96,26 @@ public:
 
 
 
-  void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mul, Scalar mulI, Scalar mulC, Scalar mulL ) const { std::cout << "not implmented\n"; }
+  void apply( const FluxFieldT& wind, const DomainFieldT& x, RangeFieldT& y, Scalar mul, Scalar mulI, Scalar mulC, Scalar mulL ) const { std::cout << "not implmented\n"; }
 
-  void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mul=0. ) const {
 
-    //int m = (int)z.getType();
 
-    TEUCHOS_TEST_FOR_EXCEPT( z.getType() != y.getType() );
+  void apply( const FluxFieldT& wind, const DomainFieldT& x, RangeFieldT& y, Scalar mul=0. ) const {
+
+    //int m = (int)y.getType();
+
+    TEUCHOS_TEST_FOR_EXCEPT( y.getType() != x.getType() );
 
 
     for( int i =0; i<space()->dim(); ++i )
-      TEUCHOS_TEST_FOR_EXCEPT( x[i]->getType() != y.getType() );
+      TEUCHOS_TEST_FOR_EXCEPT( wind[i]->getType() != x.getType() );
 
     for( int vel_dir=0; vel_dir<space()->dim(); ++vel_dir )
-      x[vel_dir]->exchange();
+      wind[vel_dir]->exchange();
 
     for( int i=0; i<nIter_; ++i ) {
 
-			z.exchange();
+			y.exchange();
 
       OP_convectionDiffusionJSmoother(
           space()->dim(),
@@ -122,22 +124,22 @@ public:
           space()->bu(),
           space()->nl(),
           space()->nu(),
-          space()->sInd(z.getType()),
-          space()->eInd(z.getType()),
-					op_->getConvSOp()->getCD( X, z.getType() ),
-					op_->getConvSOp()->getCD( Y, z.getType() ),
-					op_->getConvSOp()->getCD( Z, z.getType() ),
-					op_->getConvSOp()->getCU( X, z.getType() ),
-					op_->getConvSOp()->getCU( Y, z.getType() ),
-					op_->getConvSOp()->getCU( Z, z.getType() ),
-					op_->getHelmOp()->getC( X, z.getType() ),
-					op_->getHelmOp()->getC( Y, z.getType() ),
-					op_->getHelmOp()->getC( Z, z.getType() ),
-          x[0]->getConstRawPtr(),
-          x[1]->getConstRawPtr(),
-          x[2]->getConstRawPtr(),
+          space()->sInd(y.getType()),
+          space()->eInd(y.getType()),
+					op_->getConvSOp()->getCD( X, y.getType() ),
+					op_->getConvSOp()->getCD( Y, y.getType() ),
+					op_->getConvSOp()->getCD( Z, y.getType() ),
+					op_->getConvSOp()->getCU( X, y.getType() ),
+					op_->getConvSOp()->getCU( Y, y.getType() ),
+					op_->getConvSOp()->getCU( Z, y.getType() ),
+					op_->getHelmOp()->getC( X, y.getType() ),
+					op_->getHelmOp()->getC( Y, y.getType() ),
+					op_->getHelmOp()->getC( Z, y.getType() ),
+          wind[0]->getConstRawPtr(),
+          wind[1]->getConstRawPtr(),
+          wind[2]->getConstRawPtr(),
+          x.getConstRawPtr(),
           y.getConstRawPtr(),
-          z.getConstRawPtr(),
           temp_->getRawPtr(),
 					op_->getMulI(),
 					op_->getMulC(),
@@ -154,29 +156,29 @@ public:
           space()->bu(),
           space()->nl(),
           space()->nu(),
-          space()->sInd(z.getType()),
-          space()->eInd(z.getType()),
-					op_->getConvSOp()->getCD( X, z.getType() ),
-					op_->getConvSOp()->getCD( Y, z.getType() ),
-					op_->getConvSOp()->getCD( Z, z.getType() ),
-					op_->getConvSOp()->getCU( X, z.getType() ),
-					op_->getConvSOp()->getCU( Y, z.getType() ),
-					op_->getConvSOp()->getCU( Z, z.getType() ),
-					op_->getHelmOp()->getC( X, z.getType() ),
-					op_->getHelmOp()->getC( Y, z.getType() ),
-					op_->getHelmOp()->getC( Z, z.getType() ),
-          x[0]->getConstRawPtr(),
-          x[1]->getConstRawPtr(),
-          x[2]->getConstRawPtr(),
-          y.getConstRawPtr(),
+          space()->sInd(y.getType()),
+          space()->eInd(y.getType()),
+					op_->getConvSOp()->getCD( X, y.getType() ),
+					op_->getConvSOp()->getCD( Y, y.getType() ),
+					op_->getConvSOp()->getCD( Z, y.getType() ),
+					op_->getConvSOp()->getCU( X, y.getType() ),
+					op_->getConvSOp()->getCU( Y, y.getType() ),
+					op_->getConvSOp()->getCU( Z, y.getType() ),
+					op_->getHelmOp()->getC( X, y.getType() ),
+					op_->getHelmOp()->getC( Y, y.getType() ),
+					op_->getHelmOp()->getC( Z, y.getType() ),
+          wind[0]->getConstRawPtr(),
+          wind[1]->getConstRawPtr(),
+          wind[2]->getConstRawPtr(),
+          x.getConstRawPtr(),
           temp_->getConstRawPtr(),
-          z.getRawPtr(),
+          y.getRawPtr(),
 					op_->getMulI(),
 					op_->getMulC(),
 					op_->getMulL(),
           omega_ );
 
-      z.changed();
+      y.changed();
 
     }
   }
@@ -186,6 +188,7 @@ public:
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
   void print( std::ostream& out=std::cout ) const {
+    out << "--- ConvectionDiffusionJSmoother ---\n";
     op_->print();
   }
 

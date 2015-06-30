@@ -14,7 +14,6 @@
 #include "Pimpact_Operator.hpp"
 #include "Pimpact_OperatorBase.hpp"
 #include "Pimpact_OperatorFactory.hpp"
-#include "Pimpact_ConvectionOp.hpp"
 
 #include "Pimpact_VectorFieldOpWrap.hpp"
 
@@ -807,18 +806,14 @@ TEUCHOS_UNIT_TEST( MultiOperator, MulitOpUnWrap ) {
   auto y = Pimpact::create<Pimpact::VectorField>(space);
 
   auto op = Pimpact::createOperatorBase(
-      Pimpact::createMultiOpWrap(
-          Pimpact::createAdd2Op(
-              Pimpact::create<Pimpact::HelmholtzOp>( space ),
-              Pimpact::createConvectionOp( space ) ) ) );
+			Pimpact::createMultiOpWrap(
+				Pimpact::create<Pimpact::HelmholtzOp>( space)  ) );
 
   auto opUW = Pimpact::create<Pimpact::MultiOpUnWrap>( op );
 
   auto opUW2 =
       Pimpact::create<WUP>(
-          //      Pimpact::create<Pimpact::MultiOpWrap >(
           Pimpact::create<Pimpact::HelmholtzOp>(space)
-          //          ;
       );
 
 

@@ -192,8 +192,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, InfNorm_and_init, FType ) {
 }
 
 
-//TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, InfNorm_and_init, TSF ) 
-//TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, InfNorm_and_init, TVF ) 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, InfNorm_and_init, TSF ) 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, InfNorm_and_init, TVF ) 
 
 
 
@@ -218,8 +218,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, OneNorm_and_init, FType ) {
   }
 }
 
-//TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, OneNorm_and_init, TSF ) 
-//TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, OneNorm_and_init, TVF ) 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, OneNorm_and_init, TSF ) 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, OneNorm_and_init, TVF ) 
 
 
 
@@ -242,8 +242,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, TwoNorm_and_init, FType ) {
   }
 }
 
-//TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, TwoNorm_and_init, TSF )
-//TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, TwoNorm_and_init, TVF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, TwoNorm_and_init, TSF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, TwoNorm_and_init, TVF )
 
 
 
@@ -289,8 +289,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, dot, FType ) {
 
 }
 
-//TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, dot, TSF )
-//TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, dot, TVF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, dot, TSF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, dot, TVF )
 
 
 
@@ -316,8 +316,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, scale, FType ) {
 
 }
 
-//TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, scale, TSF )
-//TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, scale, TVF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, scale, TSF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, scale, TVF )
 
 
 
@@ -343,8 +343,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, random, FType ) {
 
 }
 
-//TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, random, TSF )
-//TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, random, TVF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, random, TSF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, random, TVF )
 
 
 
@@ -395,8 +395,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TemplateField, add, FType ) {
 
 }
 
-//TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TemplateField, add, TSF )
-//TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TemplateField, add, TVF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TemplateField, add, TSF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TemplateField, add, TVF )
 
 
 
@@ -422,8 +422,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, write, FType ) {
 
 }
 
-//TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, write, TSF )
-//TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, write, TVF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, write, TSF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, write, TVF )
 
 
 
@@ -481,8 +481,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TimeField, all, FType ) {
 
 }
 
-//TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TimeField, all, SF )
-//TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TimeField, all, VF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TimeField, all, SF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TimeField, all, VF )
 
 
 
@@ -509,8 +509,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TimeField, BelosMVTest, FType ) {
 
 }
 
-//TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TimeField, BelosMVTest, TSF )
-//TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TimeField, BelosMVTest, TVF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TimeField, BelosMVTest, TSF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TimeField, BelosMVTest, TVF )
 
 
 
@@ -684,7 +684,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeDtConvectionDiffusionOp ) {
 	field->add( bla, *field, 1, *field2 );
 
 //	field->write();
-	 std::cout << "bla: " << bla << "\n";
+//	 std::cout << "a^4: " << bla << "\n";
 	std::cout << "error: " << field()->norm() << "\n";
 
   // test against flow dir

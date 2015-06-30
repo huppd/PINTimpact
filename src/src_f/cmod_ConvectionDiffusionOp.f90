@@ -466,120 +466,238 @@ contains
 
         real(c_double) :: ddU, ddV, ddW, dd1, dd
 
-        integer(c_int) ::  i, ii
-        integer(c_int) ::  j, jj
-        integer(c_int) ::  k, kk
-
-
+        integer(c_int) :: ind(1:3)
+        integer(c_int) :: i, ii
+        integer(c_int) :: j, jj
+        integer(c_int) :: k, kk
 
         do k = SS(3), NN(3)
             do j = SS(2), NN(2)
                 do i = SS(1), NN(1)
+
+                    ind(1) = i
+                    ind(2) = j
+                    ind(3) = k
+
                     dd = 0
                     !===========================================================================================================
                     !=== u*d /dx ===============================================================================================
                     !===========================================================================================================
-                    if( phiU(i,j,k) >= 0. ) then
-                        ddU = c1U(nL(1),i)*phi(i+nL(1),j,k)
+                    if( phiU( ind(1),ind(2),ind(3) ) >= 0. ) then
+                        ddU = c1U( nL(1),ind(1) )*phi( ind(1)+nL(1),ind(2),ind(3) )
                         !pgi$ unroll = n:8
                         do ii = nL(1)+1, nU(1)
-                            if( ii/=0 ) ddU = ddU + c1U(ii,i)*phi(i+ii,j,k)
+                            if( ii/=0 ) ddU = ddU + c1U( ii,ind(1) )*phi( ind(1)+ii,ind(2),ind(3) )
                         end do
-                        dd = dd + mulC*c1U(0,i)*phiU(i,j,k)
+                        dd = dd + mulC*c1U( 0,ind(1) )*phiU( ind(1),ind(2),ind(3) )
                     else
-                        ddU = c1D(nL(1),i)*phi(i+nL(1),j,k)
+                        ddU = c1D( nL(1),ind(1) )*phi( ind(1)+nL(1),ind(2),ind(3) )
                         !pgi$ unroll = n:8
                         do ii = nL(1)+1, nU(1)
-                            if( ii/=0 ) ddU = ddU + c1D(ii,i)*phi(i+ii,j,k)
+                            if( ii/=0 ) ddU = ddU + c1D( ii,ind(1) )*phi( ind(1)+ii,ind(2),ind(3) )
                         end do
-                        dd = dd + mulC*c1D(0,i)*phiU(i,j,k)
+                        dd = dd + mulC*c1D( 0,ind(1) )*phiU( ind(1),ind(2),ind(3) )
                     end if
-
                     !===========================================================================================================
                     !=== v*d /dy ===============================================================================================
                     !===========================================================================================================
-                    if( phiV(i,j,k) >= 0. ) then
-                        ddV = c2U(nL(2),j)*phi(i,j+nL(2),k)
+                    if( phiV( ind(1),ind(2),ind(3) ) >= 0. ) then
+                        ddV = c2U( nL(2),ind(2) )*phi( ind(1),ind(2)+nL(2),ind(3) )
                         !pgi$ unroll = n:8
                         do jj = nL(2)+1, nU(2)
-                            if( jj/=0 ) ddV = ddV + c2U(jj,j)*phi(i,j+jj,k)
+                            if( jj/=0 ) ddV = ddV + c2U( jj,ind(2) )*phi( ind(1),ind(2)+jj,ind(3) )
                         end do
-                        dd = dd + mulC*c2U(0,j)*phiV(i,j,k)
+                        dd = dd + mulC*c2U( 0,ind(2) )*phiV( ind(1),ind(2),ind(3) )
                     else
-                        ddV = c2D(nL(2),j)*phi(i,j+nL(2),k)
+                        ddV = c2D(nL(2),ind(2))*phi( ind(1),ind(2)+nL(2),ind(3) )
                         !pgi$ unroll = n:8
                         do jj = nL(2)+1, nU(2)
-                            if( jj/=0 ) ddV = ddV + c2D(jj,j)*phi(i,j+jj,k)
+                            if( jj/=0 ) ddV = ddV + c2D( jj,ind(2) )*phi( ind(1),ind(2)+jj,ind(3) )
                         end do
-                        dd = dd + mulC*c2D(0,j)*phiV(i,j,k)
+                        dd = dd + mulC*c2D( 0,ind(2) )*phiV( ind(1),ind(2),ind(3) )
                     end if
+
 
                     if (dimens == 3) then
 
                         !===========================================================================================================
                         !=== w*d /dz ===============================================================================================
                         !===========================================================================================================
-                        if( phiW(i,j,k) >= 0. ) then
-                            ddW = c3U(nL(3),k)*phi(i,j,k+nL(3))
+                        if( phiW( ind(1),ind(2),ind(3) ) >= 0. ) then
+                            ddW = c3U(nL(3),ind(3))*phi(ind(1),ind(2),ind(3)+nL(3))
                             !pgi$ unroll = n:8
                             do kk = nL(3)+1, nU(3)
-                                if( kk/=0 ) ddW = ddW + c3U(kk,k)*phi(i,j,k+kk)
+                                if( kk/=0 )ddW = ddW + c3U(kk,ind(3))*phi(ind(1),ind(2),ind(3)+kk)
                             end do
-                            dd = dd + mulC*c3U(0,k)*phiW(i,j,k)
+                            dd = dd + mulC*c3U(0,ind(3))*phiW(ind(1),ind(2),ind(3))
                         else
-                            ddW = c3D(nL(3),k)*phi(i,j,k+nL(3))
+                            ddW = c3D(nL(3),ind(3))*phi(ind(1),ind(2),ind(3)+nL(3))
                             !pgi$ unroll = n:8
                             do kk = nL(3)+1, nU(3)
-                                if( kk/=0 ) ddW = ddW + c3D(kk,k)*phi(i,j,k+kk)
+                                if( kk/=0 ) ddW = ddW + c3D(kk,ind(3))*phi(ind(1),ind(2),ind(3)+kk)
                             end do
-                            dd = dd + mulC*c3D(0,k)*phiW(i,j,k)
+                            dd = dd + mulC*c3D(0,ind(3))*phiW(ind(1),ind(2),ind(3))
                         end if
 
                         !===========================================================================================================
                         !=== d^2 /dx^2 + d^2 /dy^2 + d^2 /dz^2 ===============================================================================================
                         !===========================================================================================================
-                        dd1 = c11(bL(1),i)*phi(i+bL(1),j,k)
+                        dd1 = c11(bL(1),ind(1))*phi(ind(1)+bL(1),ind(2),ind(3))
                         !pgi$ unroll = n:8
                         do ii = bL(1)+1, bU(1)
-                            if( ii/=0 ) dd1 = dd1 + c11(ii,i)*phi(i+ii,j,k)
+                            if( ii/=0 ) dd1 = dd1 + c11(ii,ind(1))*phi(ind(1)+ii,ind(2),ind(3))
                         end do
                         !pgi$ unroll = n:8
                         do jj = bL(2), bU(2)
-                            if( jj/=0 ) dd1 = dd1 + c22(jj,j)*phi(i,j+jj,k)
+                            if( jj/=0 ) dd1 = dd1 + c22(jj,ind(2))*phi(i,ind(2)+jj,ind(3))
                         end do
                         !pgi$ unroll = n:8
                         do kk = bL(3), bU(3)
-                            if( kk/=0 ) dd1 = dd1 + c33(kk,k)*phi(i,j,k+kk)
+                            if( kk/=0 ) dd1 = dd1 + c33(kk,ind(3))*phi(ind(1),ind(2),ind(3)+kk)
                         end do
-                        dd = dd - mulL*( c11(0,i) + c22(0,j) + c33(0,k) ) + mulI
+                        dd = dd - mulL*( c11(0,ind(1)) + c22(0,ind(2)) +c33(0,ind(3)) ) + mulI
 
-                        phiout(i,j,k) = (1-om)*phi(i,j,k) + om/dd*( b(i,j,k) - mulC*(phiU(i,j,k)*ddU + phiV(i,j,k)*ddV + phiW(i,j,k)*ddW ) + mulL*dd1 )
+                        phiout(ind(1),ind(2),ind(3)) = (1-om)*phi(ind(1),ind(2),ind(3)) + om/dd*( b(ind(1),ind(2),ind(3)) - mulC*(phiU(ind(1),ind(2),ind(3))*ddU + phiV(ind(1),ind(2),ind(3))*ddV + phiW(ind(1),ind(2),ind(3))*ddW ) + mulL*dd1 )
 
                     else
 
                         !===========================================================================================================
                         !=== d^2 /dx^2 + d^2 /dy^2 ===============================================================================================
                         !===========================================================================================================
-                        dd1 = c11(bL(1),i)*phi(i+bL(1),j,k)
+                        dd1 = c11( bL(1),ind(1) )*phi( ind(1)+bL(1),ind(2),ind(3) )
                         !pgi$ unroll = n:8
                         do ii = bL(1)+1, bU(1)
-                            if( ii/=0 )dd1 = dd1 + c11(ii,i)*phi(i+ii,j,k)
+                            if( ii/=0 ) dd1 = dd1 + c11( ii,ind(1) )*phi( ind(1)+ii,ind(2),ind(3) )
                         end do
                         !pgi$ unroll = n:8
                         do jj = bL(2), bU(2)
-                            if( jj/=0 ) dd1 = dd1 + c22(jj,j)*phi(i,j+jj,k)
+                            if( jj/=0 ) dd1 = dd1 + c22( jj,ind(2) )*phi( ind(1),ind(2)+jj,ind(3) )
                         end do
 
-                        dd = dd - mulL*( c11(0,i) + c22(0,j) ) + mulI
+                        dd = dd - mulL*( c11( 0,ind(1) ) + c22( 0,ind(2) ) ) + mulI
 
-                        !! check
-                        phiout(i,j,k) = (1-om)*phi(i,j,k) + om/dd*( b(i,j,k) - mulC*phiU(i,j,k)*ddU - mulC*phiV(i,j,k)*ddV + mulL*dd1 )
+                        phiout( ind(1),ind(2),ind(3) ) =                       &
+                             (1-om)*phi(ind(1),ind(2),ind(3))               &
+                            + om/dd*( b(ind(1),ind(2),ind(3))               &
+                                    - mulC*phiU(ind(1),ind(2),ind(3))*ddU    &
+                                    - mulC*phiV(ind(1),ind(2),ind(3))*ddV    &
+                                    + mulL*dd1 )
 
                     end if
 
                 end do
             end do
         end do
+
+
+        !do k = SS(3), NN(3)
+            !do j = SS(2), NN(2)
+                !do i = SS(1), NN(1)
+                    !dd = 0
+                    !!===========================================================================================================
+                    !!=== u*d /dx ===============================================================================================
+                    !!===========================================================================================================
+                    !if( phiU(i,j,k) >= 0. ) then
+                        !ddU = c1U(nL(1),i)*phi(i+nL(1),j,k)
+                        !!pgi$ unroll = n:8
+                        !do ii = nL(1)+1, nU(1)
+                            !if( ii/=0 ) ddU = ddU + c1U(ii,i)*phi(i+ii,j,k)
+                        !end do
+                        !dd = dd + mulC*c1U(0,i)*phiU(i,j,k)
+                    !else
+                        !ddU = c1D(nL(1),i)*phi(i+nL(1),j,k)
+                        !!pgi$ unroll = n:8
+                        !do ii = nL(1)+1, nU(1)
+                            !if( ii/=0 ) ddU = ddU + c1D(ii,i)*phi(i+ii,j,k)
+                        !end do
+                        !dd = dd + mulC*c1D(0,i)*phiU(i,j,k)
+                    !end if
+
+                    !!===========================================================================================================
+                    !!=== v*d /dy ===============================================================================================
+                    !!===========================================================================================================
+                    !if( phiV(i,j,k) >= 0. ) then
+                        !ddV = c2U(nL(2),j)*phi(i,j+nL(2),k)
+                        !!pgi$ unroll = n:8
+                        !do jj = nL(2)+1, nU(2)
+                            !if( jj/=0 ) ddV = ddV + c2U(jj,j)*phi(i,j+jj,k)
+                        !end do
+                        !dd = dd + mulC*c2U(0,j)*phiV(i,j,k)
+                    !else
+                        !ddV = c2D(nL(2),j)*phi(i,j+nL(2),k)
+                        !!pgi$ unroll = n:8
+                        !do jj = nL(2)+1, nU(2)
+                            !if( jj/=0 ) ddV = ddV + c2D(jj,j)*phi(i,j+jj,k)
+                        !end do
+                        !dd = dd + mulC*c2D(0,j)*phiV(i,j,k)
+                    !end if
+
+                    !if (dimens == 3) then
+
+                        !!===========================================================================================================
+                        !!=== w*d /dz ===============================================================================================
+                        !!===========================================================================================================
+                        !if( phiW(i,j,k) >= 0. ) then
+                            !ddW = c3U(nL(3),k)*phi(i,j,k+nL(3))
+                            !!pgi$ unroll = n:8
+                            !do kk = nL(3)+1, nU(3)
+                                !if( kk/=0 ) ddW = ddW + c3U(kk,k)*phi(i,j,k+kk)
+                            !end do
+                            !dd = dd + mulC*c3U(0,k)*phiW(i,j,k)
+                        !else
+                            !ddW = c3D(nL(3),k)*phi(i,j,k+nL(3))
+                            !!pgi$ unroll = n:8
+                            !do kk = nL(3)+1, nU(3)
+                                !if( kk/=0 ) ddW = ddW + c3D(kk,k)*phi(i,j,k+kk)
+                            !end do
+                            !dd = dd + mulC*c3D(0,k)*phiW(i,j,k)
+                        !end if
+
+                        !!===========================================================================================================
+                        !!=== d^2 /dx^2 + d^2 /dy^2 + d^2 /dz^2 ===============================================================================================
+                        !!===========================================================================================================
+                        !dd1 = c11(bL(1),i)*phi(i+bL(1),j,k)
+                        !!pgi$ unroll = n:8
+                        !do ii = bL(1)+1, bU(1)
+                            !if( ii/=0 ) dd1 = dd1 + c11(ii,i)*phi(i+ii,j,k)
+                        !end do
+                        !!pgi$ unroll = n:8
+                        !do jj = bL(2), bU(2)
+                            !if( jj/=0 ) dd1 = dd1 + c22(jj,j)*phi(i,j+jj,k)
+                        !end do
+                        !!pgi$ unroll = n:8
+                        !do kk = bL(3), bU(3)
+                            !if( kk/=0 ) dd1 = dd1 + c33(kk,k)*phi(i,j,k+kk)
+                        !end do
+                        !dd = dd - mulL*( c11(0,i) + c22(0,j) + c33(0,k) ) + mulI
+
+                        !phiout(i,j,k) = (1-om)*phi(i,j,k) + om/dd*( b(i,j,k) - mulC*(phiU(i,j,k)*ddU + phiV(i,j,k)*ddV + phiW(i,j,k)*ddW ) + mulL*dd1 )
+
+                    !else
+
+                        !!===========================================================================================================
+                        !!=== d^2 /dx^2 + d^2 /dy^2 ===============================================================================================
+                        !!===========================================================================================================
+                        !dd1 = c11(bL(1),i)*phi(i+bL(1),j,k)
+                        !!pgi$ unroll = n:8
+                        !do ii = bL(1)+1, bU(1)
+                            !if( ii/=0 )dd1 = dd1 + c11(ii,i)*phi(i+ii,j,k)
+                        !end do
+                        !!pgi$ unroll = n:8
+                        !do jj = bL(2), bU(2)
+                            !if( jj/=0 ) dd1 = dd1 + c22(jj,j)*phi(i,j+jj,k)
+                        !end do
+
+                        !dd = dd - mulL*( c11(0,i) + c22(0,j) ) + mulI
+
+                        !!! check
+                        !phiout(i,j,k) = (1-om)*phi(i,j,k) + om/dd*( b(i,j,k) - mulC*phiU(i,j,k)*ddU - mulC*phiV(i,j,k)*ddV + mulL*dd1 )
+
+                    !end if
+
+                !end do
+            !end do
+        !end do
 
 
     end subroutine OP_convectionDiffusionJSmoother
