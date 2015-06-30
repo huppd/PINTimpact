@@ -88,13 +88,14 @@ protected:
         gridSize_( gridSize ) {
 
     for( int i=0; i<dim; ++i ) {
+
+      if( i<3 ) {
       Ordinal nTemp = gridSize_->get(i)+stencilWidths->getBU(i)-stencilWidths->getBL(i)+1;
       xS_[i]  = new Scalar[ nTemp ];
       xV_[i]  = new Scalar[ nTemp ];
       dxS_[i] = new Scalar[ gridSize_->get(i) ];
       dxV_[i] = new Scalar[ gridSize_->get(i)+1 ];
 
-      if( i<3 )
         PI_getLocalCoordinates(
             domainSize->getSize(i),
             gridSizeGlobal->get(i),
@@ -112,24 +113,11 @@ protected:
             xV_[i],
             dxS_[i],
             dxV_[i] );
-      else if( 4==i )
-        PI_getLocalCoordinates(
-            4.*std::atan(1.),
-            gridSizeGlobal->get(i),
-            gridSize_->get(i),
-            stencilWidths->getBL(i),
-            stencilWidths->getBU(i),
-            bcGlobal->getBCL(i),
-            bcGlobal->getBCU(i),
-            bcLocal->getBCL(i),
-            bcLocal->getBCU(i),
-            procGrid->getIB(i),
-            coordGlobal->get( i, EField::S),
-            coordGlobal->get( i, i),
-            xS_[i],
-            xV_[i],
-            dxS_[i],
-            dxV_[i] );
+	else {
+
+
+	
+        }
     }
   }
 

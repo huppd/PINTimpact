@@ -76,8 +76,9 @@ enum EVectorField {
   Disc2D=17,
   RotationDisc2D=18,
   ConstFlow=19,
-	SweptHiemenzFlow=22,
-	Disturbance=23
+  SweptHiemenzFlow=22,
+  Disturbance=23,
+  Pulsatile2D_inX=24,
 };
 
 
@@ -94,7 +95,8 @@ enum EFlowType {
   Streaming2DFlow2=6,
   Streaming2DFlow3=7,
   OscilatingDisc2D=8,
-  OscilatingDisc2DVel=9
+  OscilatingDisc2DVel=9,
+  ConstVel_inX=11
 };
 
 

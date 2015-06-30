@@ -417,7 +417,7 @@ contains
 
      A(1:block_size,1:block_size) = 0.0
 
-    do t = SS(4), N(4) - 1 ! here should be -1
+    do t = SS(4), N(4) - 1 
     do k = SW(3), NW(3)
       do j = SV(2), NV(2)
         do i = SU(1), NU(1)
@@ -540,7 +540,7 @@ contains
 !write(*,'(14F8.1)') (A(l,ll), ll = 1, block_size) 
 !end do
 !write(*,*)
-  !print*, '---------------------'
+!print*, '---------------------'
 
 
   call dgetrs ( 'N', block_size, 1, A, block_size, ipiv, b, block_size, info )
@@ -563,15 +563,14 @@ contains
         !print*, '------- i j k t+1 -------'
         !print*, i,j,k,t+1
        
-        r_vel(i,j,k,1,t) = b(1)
-        r_vel(i,j,k,1,t+1) = b(7)
-        !r_vel(i-1,j,k,1,t:t+1) = (/ b(2), b(8) /)
-        !r_vel(i,j,k,2,t:t+1) = (/ b(3), b(9) /)
-        !r_vel(i,j-1,k,2,t:t+1) = (/ b(4), b(10) /)
-        !r_vel(i,j,k,3,t:t+1) = (/ b(5), b(11) /)
-        !r_vel(i,j,k-1,3,t:t+1) = (/ b(6), b(12) /) 
+        r_vel(i,j,k,1,t:t+1) = (/ b(1), b(7) /)
+        r_vel(i-1,j,k,1,t:t+1) = (/ b(2), b(8) /)
+        r_vel(i,j,k,2,t:t+1) = (/ b(3), b(9) /)
+        r_vel(i,j-1,k,2,t:t+1) = (/ b(4), b(10) /)
+        r_vel(i,j,k,3,t:t+1) = (/ b(5), b(11) /)
+        r_vel(i,j,k-1,3,t:t+1) = (/ b(6), b(12) /) 
 
-        !r_p(i,j,k,t:t+1) = b(13:14)
+        r_p(i,j,k,t:t+1) = b(13:14)
 
         end do
       end do

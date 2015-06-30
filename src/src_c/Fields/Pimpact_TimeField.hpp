@@ -518,6 +518,13 @@ initVectorTimeField(
       field->getFieldPtr(i)->init( Teuchos::tuple( xvelt, yvelt, 0.) );
       break;
     }
+    case ConstVel_inX:{
+    	field->getFieldPtr(i)->init( Teuchos::tuple( xm, ym, rad) ); // here rad is used as z velocity
+    }
+    case Pulsatile_inX: {
+      field->getFieldPtr(i)->initField( Pulsatile2D_inX, xm, i, ym); // the arguments are (xmt,ymt,rad) --> (re,t,px)
+      break;
+    }
     default:
       field->getFieldPtr(i)->initField( ZeroFlow );
       break;
