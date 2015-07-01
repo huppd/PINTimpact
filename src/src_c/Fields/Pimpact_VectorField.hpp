@@ -820,7 +820,7 @@ public:
 
   Scalar* getRawPtr ( int i )       { return( sFields_[i]->getRawPtr() ); }
 
-  const Scalar* getConstRawPtr ( int i )  const  { return( sFields_[i]->getRawPtr() ); }
+  const Scalar* getConstRawPtr ( int i )  const  { return( sFields_[i]->getConstRawPtr() ); }
 
 
   Teuchos::RCP<SF> getFieldPtr( int i ) { return(  sFields_[i] ); }

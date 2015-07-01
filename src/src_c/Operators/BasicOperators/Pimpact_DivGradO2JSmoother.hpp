@@ -79,7 +79,7 @@ public:
 			Belos::ETrans trans=Belos::NOTRANS ) const {
 
 		for( int i=0; i<nIter_; ++i) {
-			y.exchange();
+      y.exchange();
 
 			OP_DivGradO2JSmoother(
 					space()->dim(),
@@ -103,8 +103,6 @@ public:
 					space()->getDomain()->getBCLocal()->getBCL(),
 					space()->getDomain()->getBCLocal()->getBCU(),
 					temp_->getRawPtr() );
-
-			//			y.level();
 
 			temp_->changed();
 			temp_->exchange();
@@ -131,6 +129,7 @@ public:
 					space()->getDomain()->getBCLocal()->getBCL(),
 					space()->getDomain()->getBCLocal()->getBCU(),
 					y.getRawPtr() );
+
 			y.changed();
 		}
 

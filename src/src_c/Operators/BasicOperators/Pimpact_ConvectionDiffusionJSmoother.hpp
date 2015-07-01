@@ -135,9 +135,9 @@ public:
 					op_->getHelmOp()->getC( X, y.getType() ),
 					op_->getHelmOp()->getC( Y, y.getType() ),
 					op_->getHelmOp()->getC( Z, y.getType() ),
-          wind[0]->getConstRawPtr(),
-          wind[1]->getConstRawPtr(),
-          wind[2]->getConstRawPtr(),
+          wind[X]->getConstRawPtr(),
+          wind[Y]->getConstRawPtr(),
+          wind[Z]->getConstRawPtr(),
           x.getConstRawPtr(),
           y.getConstRawPtr(),
           temp_->getRawPtr(),
@@ -146,40 +146,44 @@ public:
 					op_->getMulL(),
           omega_ );
 
-      temp_->changed();
-			temp_->exchange();
+			temp_->changed();
+			y.assign( *temp_ );
+//			y.add( 1.,*temp_, 0., x );
 
-      OP_convectionDiffusionJSmoother(
-          space()->dim(),
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->nl(),
-          space()->nu(),
-          space()->sInd(y.getType()),
-          space()->eInd(y.getType()),
-					op_->getConvSOp()->getCD( X, y.getType() ),
-					op_->getConvSOp()->getCD( Y, y.getType() ),
-					op_->getConvSOp()->getCD( Z, y.getType() ),
-					op_->getConvSOp()->getCU( X, y.getType() ),
-					op_->getConvSOp()->getCU( Y, y.getType() ),
-					op_->getConvSOp()->getCU( Z, y.getType() ),
-					op_->getHelmOp()->getC( X, y.getType() ),
-					op_->getHelmOp()->getC( Y, y.getType() ),
-					op_->getHelmOp()->getC( Z, y.getType() ),
-          wind[0]->getConstRawPtr(),
-          wind[1]->getConstRawPtr(),
-          wind[2]->getConstRawPtr(),
-          x.getConstRawPtr(),
-          temp_->getConstRawPtr(),
-          y.getRawPtr(),
-					op_->getMulI(),
-					op_->getMulC(),
-					op_->getMulL(),
-          omega_ );
+//      temp_->changed();
+//			temp_->exchange();
 
-      y.changed();
-
+//      OP_convectionDiffusionJSmoother(
+//          space()->dim(),
+//          space()->nLoc(),
+//          space()->bl(),
+//          space()->bu(),
+//          space()->nl(),
+//          space()->nu(),
+//          space()->sInd(y.getType()),
+//          space()->eInd(y.getType()),
+//					op_->getConvSOp()->getCD( X, y.getType() ),
+//					op_->getConvSOp()->getCD( Y, y.getType() ),
+//					op_->getConvSOp()->getCD( Z, y.getType() ),
+//					op_->getConvSOp()->getCU( X, y.getType() ),
+//					op_->getConvSOp()->getCU( Y, y.getType() ),
+//					op_->getConvSOp()->getCU( Z, y.getType() ),
+//					op_->getHelmOp()->getC( X, y.getType() ),
+//					op_->getHelmOp()->getC( Y, y.getType() ),
+//					op_->getHelmOp()->getC( Z, y.getType() ),
+//          wind[0]->getConstRawPtr(),
+//          wind[1]->getConstRawPtr(),
+//          wind[2]->getConstRawPtr(),
+//          x.getConstRawPtr(),
+//          temp_->getConstRawPtr(),
+//          y.getRawPtr(),
+//					op_->getMulI(),
+//					op_->getMulC(),
+//					op_->getMulL(),
+//          omega_ );
+//
+//      y.changed();
+//
     }
   }
 

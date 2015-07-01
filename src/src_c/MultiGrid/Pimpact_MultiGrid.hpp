@@ -88,9 +88,10 @@ public:
         x_( createMGFields<FieldT>(mgSpaces, type ) ),
         temp_( createMGFields<FieldT>(mgSpaces, type ) ),
         b_( createMGFields<FieldT>(mgSpaces, type ) ),
-        cGridSolver_( mgSpaces_->participating(-1)?create<CGridSolverT>( mgOps_->get(-1), Teuchos::rcpFromRef(pl->sublist("Coarse Grid Solver")) ):Teuchos::null ) {
+			 cGridSolver_( mgSpaces_->participating(-1)?create<CGridSolverT>( mgOps_->get(-1), Teuchos::rcpFromRef(pl->sublist("Coarse Grid Solver")) ):Teuchos::null ) {
 
 //					pl->print();
+
 				}
 
 

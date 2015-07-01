@@ -14,10 +14,6 @@
 namespace Pimpact{
 
 
-//extern "C" {
-//  void SF_level( double* const phi );
-//}
-
 
 /// \brief "laplace" for pressure.
 /// \ingroup BaseOperator
@@ -57,17 +53,26 @@ public:
       Belos::ETrans trans=Belos::NOTRANS ) const {
 
     grad_->apply( x, *temp_ );
+//		for( int i=0; i<space()->dim(); ++ i)
+//			SF_handle_corner(
+//					space()->nLoc(),
+//					space()->bl(),
+//					space()->bu(),
+//					space()->getDomain()->getBCLocal()->getBCL(),
+//					space()->getDomain()->getBCLocal()->getBCU(),
+//					temp_->getRawPtr(i) );
+//		should be BC_extrapolation
     div_->apply( *temp_, y );
 
 //		OP_SetBCZero(
-//				space_->nLoc(),
-//				space_->bl(),
-//				space_->bu(),
-//				space_->getDomain()->getBCLocal()->getBCL(),
-//				space_->getDomain()->getBCLocal()->getBCU(),
-//				space_->sIndB(i),
-//				space_->eIndB(i),
-//				y.getRawPtr(i) );
+//				space()->nLoc(),
+//				space()->bl(),
+//				space()->bu(),
+//				space()->getDomain()->getBCLocal()->getBCL(),
+//				space()->getDomain()->getBCLocal()->getBCU(),
+//				space()->sIndB(S),
+//				space()->eIndB(S),
+//				y.getRawPtr() );
 		SF_handle_corner(
 				space()->nLoc(),
 				space()->bl(),

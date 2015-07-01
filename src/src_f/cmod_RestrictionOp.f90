@@ -395,10 +395,19 @@ contains
             kk = SSc(3)
             k = SSc(3)
             do jj = SSc(2), iimax(2)
-              j = dd(2)*jj-1 !> why?
+                if( 1==dd(2) ) then
+                  j = jj
+                else
+                  j = dd(2)*jj-1
+                endif
               do ii = SSc(1), iimax(1)
-                i = dd(1)*ii-1 !> make sense
-                phic(ii,jj,kk) = cRV(1,ii)*phif(i,j,k) + cRV(2,ii)*phif(i+1,j,k)
+                if( 1==dd(1) ) then
+                  i = ii
+                  phic(ii,jj,kk) = phif(i,j,k)
+                else
+                  i = dd(1)*ii-1
+                  phic(ii,jj,kk) = cRV(1,ii)*phif(i,j,k) + cRV(2,ii)*phif(i+1,j,k)
+                end if
               end do
             end do
 
@@ -435,17 +444,33 @@ contains
         if( 2==dir ) then
 
           if( 2==dimens ) then
+
             kk = SSc(3)
             k = SSc(3)
             do jj = SSc(2), iimax(2)
-              j = dd(2)*jj-1
+              if( 1==dd(2) ) then
+                j = jj
+              else
+                j = dd(2)*jj-1
+              end if
               do ii = SSc(1), iimax(1)
-                i = dd(1)*ii-1
-                phic(ii,jj,kk) = cRV(1,jj)*phif(i,j,k) + cRV(2,jj)*phif(i,j+1,k)
+
+                    if( 1==dd(1) ) then
+                      i = ii
+                    else
+                      i = dd(1)*ii-1
+                    end if
+                    if( 1==dd(2) ) then
+                      phic(ii,jj,kk) = phif(i,j,k)
+                    else
+                      phic(ii,jj,kk) = cRV(1,jj)*phif(i,j,k) + cRV(2,jj)*phif(i,j+1,k)
+                    end if
 
                 end do
               end do
+
             else
+
               do kk = SSc(3), iimax(3)
                 if( 1==dd(3) ) then
                   k = kk

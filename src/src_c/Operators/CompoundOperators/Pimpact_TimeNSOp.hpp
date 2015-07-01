@@ -35,8 +35,6 @@ public:
 
 protected:
 
-//  Teuchos::RCP<VF> temp_;
-
   Teuchos::RCP<const TimeDtConvectionDiffusionOp<ST> > opV2V_;
   Teuchos::RCP<const GradOp<ST> > opS2V_;
   Teuchos::RCP<const DivOp<ST> > opV2S_;

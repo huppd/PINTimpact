@@ -70,7 +70,7 @@ getSpaceParametersFromCL( int argi, char** argv  )  {
 	O nx = 129;
 	O ny = 33;
 	O nz = 65;
-	O nf = 1;
+	O nf = 2;
 
 	O nfs = 1;
 	O nfe = 1;
@@ -234,7 +234,7 @@ typedef Pimpact::Space<S,O,3,4> SpaceT;
 typedef Pimpact::Space<S,O,3,4> FSpaceT;
 typedef Pimpact::Space<S,O,3,2> CSpaceT;
 
-typedef Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT,5> CS;
+typedef Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT> CS;
 
 typedef Pimpact::MultiHarmonicField< Pimpact::VectorField<SpaceT> > VF;
 typedef Pimpact::MultiHarmonicField< Pimpact::ScalarField<SpaceT> > SF;
@@ -351,7 +351,7 @@ int main(int argi, char** argv ) {
 		fu->init( 0. );
 	else {
 		S re = space->getDomain()->getDomainSize()->getRe();
-//		fu->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->getFieldPtr(Pimpact::U)->initField( Pimpact::FPoint,  -2. );
+		fu->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->getFieldPtr(Pimpact::U)->initField( Pimpact::FPoint,  -2. );
 		fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->getFieldPtr(Pimpact::V)->initField( Pimpact::FPoint, 1. );
 //		fu->getFieldPtr(0)->getVFieldPtr()->getSFieldPtr(0)->getFieldPtr(Pimpact::W)->initField( Pimpact::FPoint, 1. );
 	}
@@ -360,7 +360,7 @@ int main(int argi, char** argv ) {
 
 	//tolBelos*=l1*l2/n1/n2*(nfe-1)/nfs;
 
-  /******1***********************************************************************************/
+  /******************************************************************************************/
 	{
 
 		auto para = Pimpact::createLinSolverParameter( linSolName, tolBelos, -1, outLinSolve );
@@ -491,9 +491,10 @@ int main(int argi, char** argv ) {
 			pl_divGrad->set( "Timer Label",	"DivGrad");
 			//			pl_divGrad->set( "Block Size", std::max( space->nGlo(3)/2, 1) );
 			//			pl_divGrad->set( "Block Size", space->nGlo(3) );
-			pl_divGrad->set( "Block Size", std::min(space->nGlo(3)/2+1, 9) );
-			pl_divGrad->set( "Adaptive Block Size", false );		
-			//			pl_divGrad->set( "Block Size", 1 );
+//			pl_divGrad->set( "Block Size", std::min(space->nGlo(3)/2+1, 9) );
+			pl_divGrad->set( "Block Size", 1 );
+//			pl_divGrad->set( "Adaptive Block Size", false );		
+			pl_divGrad->set( "Adaptive Block Size", true );		
 
 			auto divGradProb =
 					Pimpact::createLinearProblem<Pimpact::MultiField<Pimpact::ScalarField<SpaceT> > >(

@@ -143,17 +143,17 @@ public:
 				x.getConstRawPtr(),
 				y.getRawPtr() );
 		// necessary?
-		//      OP_SetBCZero(
-		//          space_->nLoc(),
-		//          space_->bl(),
-		//          space_->bu(),
-		//          space_->getDomain()->getBCLocal()->getBCL(),
-		//          space_->getDomain()->getBCLocal()->getBCU(),
-		//          space_->sIndB(i),
-		//          space_->eIndB(i),
-		//          y.getRawPtr(i) );
-		// necessary?
-		// OP_bc_extrapolation( i+1, y.vec_[i] ); // doesnot work with Schurcomplement, not cleary what it does anyway
+//		for( int i=0; i<space()->dim(); ++i )
+//			OP_SetBCZero(
+//					space_->nLoc(),
+//					space_->bl(),
+//					space_->bu(),
+//					space_->getDomain()->getBCLocal()->getBCL(),
+//					space_->getDomain()->getBCLocal()->getBCU(),
+//					space_->sIndB(i),
+//					space_->eIndB(i),
+//					y.getRawPtr(i) );
+
     y.changed();
   }
 

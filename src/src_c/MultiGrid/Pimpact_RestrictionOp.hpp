@@ -137,7 +137,7 @@ protected:
   Teuchos::Tuple<Scalar*,3> cRS_;
   Teuchos::Tuple<Scalar*,3> cRV_;
 
-	void init( const Teuchos::Tuple<int,SpaceT::dimension> nb ) {
+	void init( const Teuchos::Tuple<int,SpaceT::dimension>& nb ) {
 		
 			// ------------- nGather_, iimax_
 			Teuchos::Tuple<int,SpaceT::dimension> periodic = spaceF_->getDomain()->getBCGlobal()->periodic();
@@ -309,10 +309,11 @@ public:
 
   }
 
+
 	RestrictionOp(
 			const Teuchos::RCP<const SpaceT>& spaceF,
 			const Teuchos::RCP<const SpaceT>& spaceC,
-		  Teuchos::Tuple<int,SpaceT::dimension> nb ):
+		  const Teuchos::Tuple<int,SpaceT::dimension>& nb ):
 		spaceF_(spaceF),
 		spaceC_(spaceC),
 		comm2_(MPI_COMM_NULL) {

@@ -41,11 +41,14 @@ typedef typename Pimpact::ModeField<VF>       MVF;
 
 bool testMpi = true;
 S eps = 1e-8;
+
+int dim = 3;
+int domain = 0;
+
 S omega = 0.8;
 S winds = 1;
 int nIter = 1000;
-int dim = 3;
-int domain = 0;
+
 
 
 Teuchos::RCP<Teuchos::ParameterList> pl = Teuchos::parameterList();
@@ -62,34 +65,20 @@ TEUCHOS_STATIC_SETUP() {
   clp.setOption(
       "eps", &eps,
       "Slack off of machine epsilon used to check test results" );
-  clp.setOption(
-      "omega", &omega,
+	clp.setOption( "domain", &domain, "domain" );
+	clp.setOption( "dim", &dim, "dim" );
+	clp.setOption( "omega", &omega,
       "Slack off of machine epsilon used to check test results" );
-  clp.setOption(
-      "wind", &winds,
+	clp.setOption( "wind", &winds,
       "Slack off of machine epsilon used to check test results" );
-  clp.setOption(
-      "nIter", &nIter,
+	clp.setOption( "nIter", &nIter,
       "Slack off of machine epsilon used to check test results" );
-  clp.setOption(
-      "domain", &domain,
-      "domain" );
-  clp.setOption(
-      "dim", &dim,
-      "dim" );
 
-  pl->set( "domain", domain);
-
-  pl->set( "dim", dim );
 
 	pl->set("nx", 33 );
 	pl->set("ny", 17 );
 	pl->set("nz", 9 );
 	pl->set("nf", 10);
-
-  pl->set("npx", 2 );
-  pl->set("npy", 2 );
-  pl->set("npz", 2 );
 
 }
 
@@ -97,10 +86,19 @@ TEUCHOS_STATIC_SETUP() {
 
 TEUCHOS_UNIT_TEST( BasicOperator, DivOp ) {
 
+  pl->set( "domain", domain );
+  pl->set( "dim", dim );
+
+  // processor grid size
+  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npy",            2 );
+  pl->set("npz", (2==dim)?1:2 );
+
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto p   = Pimpact::create<Pimpact::ScalarField>( space );
   auto vel = Pimpact::create<Pimpact::VectorField>( space );
+	auto sol = p->clone( Pimpact::ShallowCopy );
 
   // zero test
   vel->initField();
@@ -144,7 +142,6 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivOp ) {
   p->random();
 
   op->apply(*vel,*p);
-	auto sol = p->clone( Pimpact::ShallowCopy );
 
 	sol->initField( Pimpact::ConstField, space->dim() );
 	sol->add( 1., *sol, -1., *p );
@@ -163,11 +160,32 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivOp ) {
 
 	std::cout << "erro: " << p->norm() << "\n";
 	TEST_EQUALITY( p->norm()<eps, true );
+
+	// Grad test
+	vel->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inY );
+	vel->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inZ );
+	vel->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inX );
+
+  p->random();
+
+  op->apply(*vel,*p);
+
+	std::cout << "erro: " << p->norm() << "\n";
+	TEST_EQUALITY( p->norm()<eps, true );
+
 }
 
 
 
 TEUCHOS_UNIT_TEST( BasicOperator, InterpolateV2SOp ) {
+
+  pl->set( "domain", domain );
+  pl->set( "dim", dim );
+
+  // processor grid size
+  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npy",            2 );
+  pl->set("npz", (2==dim)?1:2 );
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
@@ -250,6 +268,14 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateV2SOp ) {
 
 
 TEUCHOS_UNIT_TEST( BasicOperator, InterpolateS2VOp ) {
+
+  pl->set( "domain", domain );
+  pl->set( "dim", dim );
+
+  // processor grid size
+  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npy",            2 );
+  pl->set("npz", (2==dim)?1:2 );
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
@@ -336,6 +362,14 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateS2VOp ) {
 
 TEUCHOS_UNIT_TEST( BasicOperator, TransferOp ) {
 
+  pl->set( "domain", domain );
+  pl->set( "dim", dim );
+
+  // processor grid size
+  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npy",            2 );
+  pl->set("npz", (2==dim)?1:2 );
+
   typedef Pimpact::Space<S,O,d,4> FSpaceT;
   typedef Pimpact::Space<S,O,d,2> CSpaceT;
 
@@ -357,7 +391,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, TransferOp ) {
   TEST_FLOATING_EQUALITY( fx->norm(Belos::TwoNorm), cx->norm(Belos::TwoNorm), eps );
   TEST_FLOATING_EQUALITY( fx->norm(Belos::InfNorm), cx->norm(Belos::InfNorm), eps );
 
-  cx->write(0);
+//  cx->write(0);
 
   fx->random();
 
@@ -367,13 +401,21 @@ TEUCHOS_UNIT_TEST( BasicOperator, TransferOp ) {
   TEST_FLOATING_EQUALITY( fx->norm(Belos::TwoNorm), cx->norm(Belos::TwoNorm), eps );
   TEST_FLOATING_EQUALITY( fx->norm(Belos::InfNorm), cx->norm(Belos::InfNorm), eps );
 
-  fx->write(1);
+//  fx->write(1);
 
 }
 
 
 
 TEUCHOS_UNIT_TEST( BasicOperator, VectorFieldOpWrap ) {
+
+  pl->set( "domain", domain );
+  pl->set( "dim", dim );
+
+  // processor grid size
+  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npy",            2 );
+  pl->set("npz", (2==dim)?1:2 );
   typedef Pimpact::Space<S,O,d,4> FSpaceT;
   typedef Pimpact::Space<S,O,d,2> CSpaceT;
 
@@ -412,6 +454,14 @@ TEUCHOS_UNIT_TEST( BasicOperator, VectorFieldOpWrap ) {
 
 
 TEUCHOS_UNIT_TEST( BasicOperator, GradOp ) {
+
+  pl->set( "domain", domain );
+  pl->set( "dim", dim );
+
+  // processor grid size
+  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npy",            2 );
+  pl->set("npz", (2==dim)?1:2 );
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
@@ -464,6 +514,14 @@ TEUCHOS_UNIT_TEST( BasicOperator, GradOp ) {
 
 
 TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
+
+  pl->set( "domain", domain );
+  pl->set( "dim", dim );
+
+  // processor grid size
+  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npy",            2 );
+  pl->set("npz", (2==dim)?1:2 );
 
 
   S mulI = 5.;
@@ -558,6 +616,14 @@ TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
 
 TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
 
+  pl->set( "domain", domain );
+  pl->set( "dim", dim );
+
+  // processor grid size
+  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npy",            2 );
+  pl->set("npz", (2==dim)?1:2 );
+
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto x = Pimpact::create<Pimpact::ScalarField>( space );
@@ -608,6 +674,14 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
 
 TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2JSmoother ) {
 
+  pl->set( "domain", domain );
+  pl->set( "dim", dim );
+
+  // processor grid size
+  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npy",            2 );
+  pl->set("npz", (2==dim)?1:2 );
+
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto x = Pimpact::create<Pimpact::ScalarField>( space );
@@ -653,24 +727,34 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2JSmoother ) {
   TEST_EQUALITY( x->norm()/b->norm()<0.5, true );
 
   // Grad in Z
-  x->initField( Pimpact::Grad2D_inZ );
+	if( 3==dim ) {
+		x->initField( Pimpact::Grad2D_inZ );
 
-  op->apply(*x,*b);
+		op->apply(*x,*b);
 
-  x->initField();
+		x->initField();
 
-  smoother->apply( *b, *x );
+		smoother->apply( *b, *x );
 
-  b->initField( Pimpact::Grad2D_inZ );
-  x->add( -1, *x, 1., *b );
-  std::cout << "error: " << x->norm()/b->norm() << "\n";
-  TEST_EQUALITY( x->norm()/b->norm()<0.5, true );
+		b->initField( Pimpact::Grad2D_inZ );
+		x->add( -1, *x, 1., *b );
+		std::cout << "error: " << x->norm()/b->norm() << "\n";
+		TEST_EQUALITY( x->norm()/b->norm()<0.5, true );
+	}
 
 }
 
 
 
 TEUCHOS_UNIT_TEST( BasicOperator, ForcingOp ) {
+
+  pl->set( "domain", domain );
+  pl->set( "dim", dim );
+
+  // processor grid size
+  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npy",            2 );
+  pl->set("npz", (2==dim)?1:2 );
 
 	auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
@@ -698,6 +782,14 @@ template<class T> using MSFT = Pimpact::MultiField< Pimpact::ScalarField<T> >;
 template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
 
 TEUCHOS_UNIT_TEST( MultiOperator, InverseOp ) {
+
+  pl->set( "domain", domain );
+  pl->set( "dim", dim );
+
+  // processor grid size
+  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npy",            2 );
+  pl->set("npz", (2==dim)?1:2 );
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
@@ -757,6 +849,14 @@ TEUCHOS_UNIT_TEST( MultiOperator, InverseOp ) {
 
 TEUCHOS_UNIT_TEST( MultiOperator, Add2Op ) {
 
+  pl->set( "domain", domain );
+  pl->set( "dim", dim );
+
+  // processor grid size
+  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npy",            2 );
+  pl->set("npz", (2==dim)?1:2 );
+
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
 
@@ -800,6 +900,14 @@ template<class T> using WUP = Pimpact::MultiOpUnWrap<Pimpact::MultiOpWrap<T> >;
 
 TEUCHOS_UNIT_TEST( MultiOperator, MulitOpUnWrap ) {
 
+  pl->set( "domain", domain );
+  pl->set( "dim", dim );
+
+  // processor grid size
+  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npy",            2 );
+  pl->set("npz", (2==dim)?1:2 );
+
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto x = Pimpact::create<Pimpact::VectorField>(space);
@@ -831,6 +939,14 @@ TEUCHOS_UNIT_TEST( MultiOperator, MulitOpUnWrap ) {
 
 TEUCHOS_UNIT_TEST( MultiModeOperator, HelmholtzOp ) {
 
+  pl->set( "domain", domain );
+  pl->set( "dim", dim );
+
+  // processor grid size
+  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npy",            2 );
+  pl->set("npz", (2==dim)?1:2 );
+
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
 
@@ -855,6 +971,14 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, HelmholtzOp ) {
 
 
 TEUCHOS_UNIT_TEST( MultiModeOperator, DtModeOp ) {
+
+  pl->set( "domain", domain );
+  pl->set( "dim", dim );
+
+  // processor grid size
+  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npy",            2 );
+  pl->set("npz", (2==dim)?1:2 );
 
 	pl->set<S>("Re", 1., "Reynolds number");
 	pl->set<S>("alpha2", 1.,
@@ -894,53 +1018,59 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, DtModeOp ) {
 
 TEUCHOS_UNIT_TEST( MultiModeOperator, DtLapOp ) {
 
-	pl->set( "Re", 1. );
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  pl->set( "domain", domain );
+  pl->set( "dim", dim );
 
-  //if( !isImpactInit ) isImpactInit=true;
+  // processor grid size
+  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npy",            2 );
+  pl->set("npz", (2==dim)?1:2 );
 
-  auto velc = Pimpact::create<Pimpact::VectorField>(space);
-  auto vels = Pimpact::create<Pimpact::VectorField>(space);
-
-  auto vel = Pimpact::create<MVF>( space );
-
-  auto mv = Pimpact::createMultiField(*vel,1);
-
-  mv->random();
-
-  auto mv2 = mv->clone(1);
-  auto mv3 = mv->clone(1);
-  mv2->init(0.);
-  mv3->init(0.);
-
-  auto A = Pimpact::createMultiOpWrap( Pimpact::createDtLapOp( space, 1., 0. ) );
-
-	mv->random();
-
-  A->apply( *mv, *mv2 );
-
-	auto diff = mv->getConstFieldPtr(0)->getConstCFieldPtr()->clone(Pimpact::ShallowCopy);
-
-	diff->add( 1., mv->getConstFieldPtr(0)->getConstCField(), -1.,  mv2->getConstFieldPtr(0)->getConstSField() );
-
-  TEST_EQUALITY( diff->norm(Belos::InfNorm)<eps, true );
-
-	diff->add( 1., mv->getConstFieldPtr(0)->getConstSField(), -1.,  mv2->getConstFieldPtr(0)->getConstCField() );
-  TEST_EQUALITY( diff->norm(Belos::InfNorm)<eps, true );
-
-  mv2->init(0.);
-
-  auto A2 = Pimpact::createMultiOpWrap( Pimpact::createDtLapOp( space, 0., 1. ) );
-  auto A3 = Pimpact::createMultiOpWrap( Pimpact::createModeOpWrap( Pimpact::create<Pimpact::HelmholtzOp>( space ) ) );
-
-  A2->apply(*mv,*mv2);
-  A3->apply(*mv,*mv3);
-
-
-	auto diff2 = mv2->clone();
-	diff2->add( 1., *mv2, -1., *mv3 );
-
-  TEST_EQUALITY( diff2->norm(Belos::InfNorm)<eps, true );
+//	pl->set( "Re", 1. );
+//  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+//
+//  auto velc = Pimpact::create<Pimpact::VectorField>(space);
+//  auto vels = Pimpact::create<Pimpact::VectorField>(space);
+//
+//  auto vel = Pimpact::create<MVF>( space );
+//
+//  auto mv = Pimpact::createMultiField(*vel,1);
+//
+//  mv->random();
+//
+//  auto mv2 = mv->clone(1);
+//  auto mv3 = mv->clone(1);
+//  mv2->init(0.);
+//  mv3->init(0.);
+//
+//  auto A = Pimpact::createMultiOpWrap( Pimpact::createDtLapOp( space, 1., 0. ) );
+//
+//	mv->random();
+//
+//  A->apply( *mv, *mv2 );
+//
+//	auto diff = mv->getConstFieldPtr(0)->getConstCFieldPtr()->clone(Pimpact::ShallowCopy);
+//
+//	diff->add( 1., mv->getConstFieldPtr(0)->getConstCField(), -1.,  mv2->getConstFieldPtr(0)->getConstSField() );
+//
+//  TEST_EQUALITY( diff->norm(Belos::InfNorm)<eps, true );
+//
+//	diff->add( 1., mv->getConstFieldPtr(0)->getConstSField(), -1.,  mv2->getConstFieldPtr(0)->getConstCField() );
+//  TEST_EQUALITY( diff->norm(Belos::InfNorm)<eps, true );
+//
+//  mv2->init(0.);
+//
+//  auto A2 = Pimpact::createMultiOpWrap( Pimpact::createDtLapOp( space, 0., 1. ) );
+//  auto A3 = Pimpact::createMultiOpWrap( Pimpact::createModeOpWrap( Pimpact::create<Pimpact::HelmholtzOp>( space ) ) );
+//
+//  A2->apply(*mv,*mv2);
+//  A3->apply(*mv,*mv3);
+//
+//
+//	auto diff2 = mv2->clone();
+//	diff2->add( 1., *mv2, -1., *mv3 );
+//
+//  TEST_EQUALITY( diff2->norm(Belos::InfNorm)<eps, true );
 
 }
 
@@ -948,6 +1078,14 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, DtLapOp ) {
 
 
 TEUCHOS_UNIT_TEST( MultiModeOperator, TripleCompostion ) {
+
+  pl->set( "domain", domain );
+  pl->set( "dim", dim );
+
+  // processor grid size
+  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npy",            2 );
+  pl->set("npz", (2==dim)?1:2 );
 
 	pl->set( "Re", 1. );
 	pl->set( "alpha2", 1. );
@@ -996,6 +1134,14 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, TripleCompostion ) {
 
 TEUCHOS_UNIT_TEST( MultiModeOperator, InverseOperator ) {
 
+  pl->set( "domain", domain );
+  pl->set( "dim", dim );
+
+  // processor grid size
+  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npy",            2 );
+  pl->set("npz", (2==dim)?1:2 );
+
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   using Teuchos::ParameterList;
@@ -1037,6 +1183,14 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, InverseOperator ) {
 
 
 TEUCHOS_UNIT_TEST( MultiModeOperator, EddyPrec ) {
+
+  pl->set( "domain", domain );
+  pl->set( "dim", dim );
+
+  // processor grid size
+  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npy",            2 );
+  pl->set("npz", (2==dim)?1:2 );
 
   //pl->set("alpha2",1.);
 	//pl->set("Re",1./14.);
@@ -1086,6 +1240,14 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, EddyPrec ) {
 
 TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicConvectionOp ) {
 
+  pl->set( "domain", domain );
+  pl->set( "dim", dim );
+
+  // processor grid size
+  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npy",            2 );
+  pl->set("npz", (2==dim)?1:2 );
+
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto vel = Pimpact::create<Pimpact::VectorField>( space );
@@ -1103,6 +1265,14 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicConvectionOp ) {
 
 
 TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicOpWrap ) {
+
+  pl->set( "domain", domain );
+  pl->set( "dim", dim );
+
+  // processor grid size
+  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npy",            2 );
+  pl->set("npz", (2==dim)?1:2 );
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
@@ -1122,6 +1292,14 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicOpWrap ) {
 
 TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiDtHelmholtz) {
 
+  pl->set( "domain", domain );
+  pl->set( "dim", dim );
+
+  // processor grid size
+  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npy",            2 );
+  pl->set("npz", (2==dim)?1:2 );
+
 	auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
 	auto mv1 = Pimpact::createMultiHarmonicVectorField( space, 10 );
@@ -1136,6 +1314,14 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiDtHelmholtz) {
 
 
 TEUCHOS_UNIT_TEST( CompoundOperator, CompoundOpWrap ) {
+
+  pl->set( "domain", domain );
+  pl->set( "dim", dim );
+
+  // processor grid size
+  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npy",            2 );
+  pl->set("npz", (2==dim)?1:2 );
 
 	auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 

@@ -296,15 +296,14 @@ public:
 		spaceF_(spaceF),
 		comm2_(MPI_COMM_NULL) {
 
-			auto nb = spaceF_->getProcGridSize()->getTuple();
-			init( nb );
+			init( spaceF_->getProcGridSize()->getTuple() );
 
 	}
 
 	InterpolationOp(
 			const Teuchos::RCP<const SpaceT>& spaceC,
 			const Teuchos::RCP<const SpaceT>& spaceF,
-			Teuchos::Tuple<int,SpaceT::dimension> nb ):
+			const Teuchos::Tuple<int,SpaceT::dimension>& nb ):
 		spaceC_(spaceC),
 		spaceF_(spaceF),
 		comm2_(MPI_COMM_NULL) {
