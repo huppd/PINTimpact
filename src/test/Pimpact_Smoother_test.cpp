@@ -19,7 +19,7 @@
 #include "Pimpact_Operator.hpp"
 #include "Pimpact_TimeOpWrap.hpp"
 #include "Pimpact_DtTimeOp.hpp"
-#include "Pimpact_TimeNonlinearJacobianOp.hpp"
+//#include "Pimpact_TimeNonlinearJacobianOp.hpp"
 
 #include "Pimpact_TimeStokesBSmoother.hpp"
 
@@ -124,7 +124,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesBSmooth ) {
 
 	//bSmoother->apply(*x,*y);
 
-	// zero test
+	//zero test
 	//TEST_EQUALITY( y->norm()<eps, true );
 
 	// test smoothing properties
@@ -134,28 +134,32 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesBSmooth ) {
 	auto y_cc = x->clone(); // for the consistecy check
 	auto true_sol = x->clone();
 	auto error = x->clone();
+	
+	double p = 1.;
+	double alpha = std::sqrt(pl->get<double>("alpha2"));
 
 	// RHS
-	Pimpact::initVectorTimeField( y->getVFieldPtr(), Pimpact::ConstVel_inX,1.,0.,0. );	
+	Pimpact::initVectorTimeField( y->getVFieldPtr(), Pimpact::ConstVel_inX, p);	
 
-	// true solution
-	Pimpact::initVectorTimeField( true_sol->getVFieldPtr(), Pimpact::Pulsatile_inX,1.,1.,0. );
+	// true solution //pl->get<int> ("Block Size");
+	Pimpact::initVectorTimeField( true_sol->getVFieldPtr(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha );
 	
 	// consistecy check
 	op->apply(*y_cc,*true_sol);
-	error->add( 1., *y_cc, -1., *true_sol );
-	error->write();
+	error->add( 1., *y_cc, -1., *y );
+	
+	TEST_EQUALITY( error()->norm()<eps, true );
 	
 	// initial error
-	error->add( 1., *x, -1., *true_sol );
-	error->write(100);
+	//error->add( 1., *x, -1., *true_sol );
+	//error->write(100);
 
 	// aprrox. solution
-        bSmoother->apply(*x,*y);		
+        //bSmoother->apply(*x,*y);		
 
 	// final error
-	error->add( 1., *x, -1., *true_sol );
-	error->write(200);
+	//error->add( 1., *x, -1., *true_sol );
+	//error->write(200);
 	
 	//true_sol->write();
 	//x->write(1);

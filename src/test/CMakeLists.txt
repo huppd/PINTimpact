@@ -49,7 +49,7 @@ add_test( NAME TimeFieldTest COMMAND mpirun -np 8 TimeFieldTest )
 ADD_EXECUTABLE( SmootherTest Teuchos_StandardParallelUnitTestMain.cpp
 Pimpact_Smoother_test.cpp )
 TARGET_LINK_LIBRARIES( SmootherTest ${Pimpact_TPL_LIBRARIES} )
-add_test( NAME SmootherTest COMMAND mpirun -np 8 TimeFieldTest )
+add_test( NAME SmootherTest COMMAND mpirun -np 8 SmootherTest )
 
 ADD_EXECUTABLE(BelosMVOPTest Teuchos_StandardParallelUnitTestMain.cpp BelosPimpact_MVOP_test.cpp )
 TARGET_LINK_LIBRARIES( BelosMVOPTest ${Pimpact_TPL_LIBRARIES} ) 
