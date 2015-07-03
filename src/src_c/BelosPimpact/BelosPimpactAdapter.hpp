@@ -108,9 +108,15 @@ public:
 
 
   /// \brief return the number of the Vector/Field length, it is assumed that every \c Field of the multivector has the same.
+	/// \deprecated new version in belos is GetGlobalLength
   static int GetVecLength( const Pimpact::MultiField<Field>& mv ) {
     return( mv.getLength() );
   }
+
+
+	static ptrdiff_t GetGlobalLength (const MV& mv) {
+		return static_cast<ptrdiff_t>( mv.getLength() );
+	}
 
 
   /// \brief return the number of the Vector/Field's.

@@ -422,6 +422,15 @@ int main(int argi, char** argv ) {
 			pls->sublist("Smoother").set( "omega", 1. );
 			pls->sublist("Smoother").set( "numIters", 1 );
       pls->sublist("Smoother").set<int>( "Ordering", 1 );
+			pls->sublist("Coarse Grid Solver").set<std::string>("Solver name", "TFQMR" );
+
+//			pls->sublist("Coarse Grid Solver").sublist("Solver").set<Teuchos::RCP<std::ostream> >( "Output Stream", Teuchos::rcp( &std::cout, false ) );
+//			pls->sublist("Coarse Grid Solver").sublist("Solver").set("Verbosity", Belos::Errors + Belos::Warnings +
+//				Belos::IterationDetails + Belos::OrthoDetails +
+//				Belos::FinalSummary + Belos::TimingDetails +
+//				Belos::StatusTestDetails + Belos::Debug );
+			pls->sublist("Coarse Grid Solver").sublist("Solver").set<std::string>("Timer Label", "Coarse Grid Solver: ConvDiff" );
+			pls->sublist("Coarse Grid Solver").sublist("Solver").set<S>("Convergence Tolerance" , 0.1 );
 
 			auto mgConvDiff =
 						Pimpact::createMultiGrid<
@@ -509,7 +518,16 @@ int main(int argi, char** argv ) {
 			plmg->set<int>("numCycles",pl->sublist("Multi Grid").get<int>("numCycles"));
 //			plmg->sublist("Smoother").set<S>("omega",0.8);
 //			plmg->sublist("Smoother").set<int>("numIters",4);
-		
+			plmg->sublist("Coarse Grid Solver").set<std::string>("Solver name", "GMRES" );
+
+//			plmg->sublist("Coarse Grid Solver").sublist("Solver").set<Teuchos::RCP<std::ostream> >( "Output Stream", Teuchos::rcp( &std::cout, false ) );
+//			plmg->sublist("Coarse Grid Solver").sublist("Solver").set("Verbosity", Belos::Errors + Belos::Warnings +
+//					Belos::IterationDetails + Belos::OrthoDetails +
+//					Belos::FinalSummary + Belos::TimingDetails +
+//					Belos::StatusTestDetails + Belos::Debug );
+			plmg->sublist("Coarse Grid Solver").sublist("Solver").set<std::string>("Timer Label", "Coarse Grid Solver: DivGrad" );
+			plmg->sublist("Coarse Grid Solver").sublist("Solver").set<S>("Convergence Tolerance" , 0.1 );
+
 			auto mg_divGrad =
 				Pimpact::createMultiOperatorBase(
 //						Pimpact::createMultiHarmonicOpWrap(
