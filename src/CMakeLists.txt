@@ -43,6 +43,8 @@ MESSAGE( "End of Trilinos details\n" )
 
 PROJECT( pimpact CXX Fortran )
 
+option( enable_ETI "enable_ETI" OFF)
+
 # Make sure to use same compilers and flags as Trilinos
 SET(CMAKE_CXX_COMPILER ${Trilinos_CXX_COMPILER} )
 SET(CMAKE_C_COMPILER ${Trilinos_C_COMPILER} )
@@ -82,7 +84,6 @@ MESSAGE("Fortran flags: " ${CMAKE_Fortran_FLAGS})
 MESSAGE("CXX flags: " ${CMAKE_CXX_FLAGS})
 
 
-#set( Limpact_TPL_LIBRARIES hdf5hl_fortran hdf5_hl hdf5_fortran hdf5  z m lapack blas )
 set( Limpact_TPL_LIBRARIES hdf5hl_fortran hdf5_hl hdf5_fortran hdf5  z m ${Trilinos_TPL_LIBRARIES} )
 set( Pimpact_TPL_LIBRARIES limpact lpimpact ${Limpact_TPL_LIBRARIES} gfortran mpi_f77 mpi_f90  ${Trilinos_TPL_LIBRARIES} ${Trilinos_LIBRARIES} )
 
@@ -94,7 +95,7 @@ MESSAGE( "CMAKE_Fortran_COMPILE_FLAGS: ${CMAKE_Fortran_COMPILE_FLAGS}" )
 INCLUDE_DIRECTORIES( ${inc_dir} ${Trilinos_INCLUDE_DIRS} ${Trilinos_TPL_INCLUDE_DIRS} )
 LINK_DIRECTORIES( ${Trilinos_LIBRARY_DIRS} ${Trilinos_TPL_LIBRARY_DIRS} )
 
-add_definitions( -DCOMPILE_ETI )
+
 
 
 # Appends the cmake/modules path inside the MAKE_MODULE_PATH variable which stores the
@@ -107,6 +108,14 @@ get_property( link_dirs DIRECTORY PROPERTY LINK_DIRECTORIES )
 message( "Link dirs = ${link_dirs}" )
 
 enable_testing()
+
+
+if( enable_ETI )
+	add_definitions( -DCOMPILE_ETI )
+	message( "Pimpact:	enabled ETI" )
+else()
+	message( "Pimpact:	disabled ETI" )
+endif()
 
 add_subdirectory( src_impact )
 add_subdirectory( src_f )
