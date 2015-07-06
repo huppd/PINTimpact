@@ -1602,8 +1602,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffJ, CS ) {
 
 	auto mgPL = Teuchos::parameterList();
 	mgPL->set<int>("numCycles", 1 );
-	mgPL->sublist("Smoother").set( "omega", 0.8 );
-	mgPL->sublist("Smoother").set( "numIters", 1 );
+//	mgPL->sublist("Smoother").set( "omega", 0.6 );
+	mgPL->sublist("Smoother").set( "numIters", 4 );
 
 	mgPL->sublist("Coarse Grid Solver").set<std::string>("Solver name", "GMRES" );
 
@@ -1613,7 +1613,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffJ, CS ) {
 //			Belos::FinalSummary + Belos::TimingDetails +
 //			Belos::StatusTestDetails + Belos::Debug );
 	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<std::string>("Timer Label", "Coarse Grid Solver" );
-	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<S>("Convergence Tolerance" , 1.e-1 );
+	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<S>("Convergence Tolerance" , 1.e-6 );
 
 	auto mg =
 		Pimpact::createMultiGrid<
@@ -1636,7 +1636,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffJ, CS ) {
 	{
 		auto wind = x->clone();
 		wind->initField( Pimpact::ConstFlow, 0., 0., 0. );
-		//		wind->initField( Pimpact::ConstFlow, 1., 1., 1. );
+//		wind->initField( Pimpact::ConstFlow, 1., 1., 1. );
 		op->assignField( *wind );
 		mg->assignField( *wind );
 	}
@@ -1646,9 +1646,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffJ, CS ) {
 		ofs.open("MG2.txt", std::ofstream::out);
 
 	// 
-	x->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inX );
-	x->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inY );
-	x->getFieldPtr(Pimpact::W)->initField( Pimpact::Grad2D_inZ );
+//	x->getFieldPtr(Pimpact::V)->initField( Pimpact::Poiseuille2D_inY );
+//	x->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inX );
+//	x->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inY );
+	x->getFieldPtr(Pimpact::W)->initField( Pimpact::Grad2D_inY );
 	auto sol = x->clone( Pimpact::DeepCopy );
 
 	op->apply(*x,*b);
@@ -1670,7 +1671,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffJ, CS ) {
 		std::cout << "res: " << res << "\n";
 		ofs << res << "\n";
 	}
-	for( int i=0; i<10; ++i ) {
+	for( int i=0; i<20; ++i ) {
 		mg->apply( *b, *x );
 		//x->write(i+10);
 

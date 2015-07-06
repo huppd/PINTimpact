@@ -83,6 +83,7 @@ public:
     sop_->print();
   }
 
+	const std::string getLabel() const { return( "VectorFieldOpWrap( "+sop_->getLabel()+" ) " ); };
 
 }; // end of class VectorFieldOpWrap
 

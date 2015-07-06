@@ -154,6 +154,7 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
+	const std::string getLabel() const { return( "TimeStokesBSmoother " ); };
 
 }; // end of class TimeStokesBSmoother
 

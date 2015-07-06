@@ -86,9 +86,11 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
-	Teuchos::RCP<const SpaceT> space() const { return(div_->space() ); };
+	Teuchos::RCP<const SpaceT> space() const { return( div_->space() ); };
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+
+	const std::string getLabel() const { return( "DivGradOp " ); };
 
 }; // end of DivGradOp
 

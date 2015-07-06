@@ -110,6 +110,7 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
+	const std::string getLabel() const { return( linprob_->getProblem()->getOperator()->getLabel() + std::string("^-1 ")  ); };
 
 }; // end of class InverseOp
 

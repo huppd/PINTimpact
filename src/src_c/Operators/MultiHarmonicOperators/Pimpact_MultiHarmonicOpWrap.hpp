@@ -65,6 +65,7 @@ public:
 
   Teuchos::RCP<Operator> getOperatorPtr() { return( op_ ); }
 
+	const std::string getLabel() const { return( "MH( "+op_->getLabel()+" ) " ); };
 
 }; // end of class MultiHarmonicOpWrap
 

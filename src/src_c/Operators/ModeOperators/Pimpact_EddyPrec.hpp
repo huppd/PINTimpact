@@ -65,6 +65,8 @@ public:
 
  	bool hasApplyTranspose() const { return( false ); }
 
+	const std::string getLabel() const { return( "EddyPrec " ); };
+
 }; // end of class EddyPrec
 
 

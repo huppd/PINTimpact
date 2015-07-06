@@ -151,6 +151,7 @@ public:
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
   void print( std::ostream& out=std::cout ) const {
+    out << "--- " << getLabel() << " ---\n";
     out << " --- stencil: ---";
     for( int i=0; i<3; ++i ) {
       out << "\ndir: " << i << "\n";
@@ -175,6 +176,7 @@ public:
       return( c_[dir] );
   }
 
+	const std::string getLabel() const { return( "DivGradO2Op " ); };
 
 }; // end of class DivGradO2Op
 

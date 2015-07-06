@@ -216,7 +216,7 @@ public:
 
   void print( std::ostream& out=std::cout ) const {
 
-    out << "--- ConvectionDiffusionSORSmoother ---\n";
+    out << "--- " << getLabel() << "---\n";
     op_->print();
 
   }
@@ -227,8 +227,9 @@ public:
   Teuchos::RCP<const SpaceT> space() const { return(op_->space()); }
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+   
 
-
+	const std::string getLabel() const { return( "ConvectionDiffusionSORSmoother " ); };
 
 
 }; // end of class ConvectionDiffusionSORSmoother

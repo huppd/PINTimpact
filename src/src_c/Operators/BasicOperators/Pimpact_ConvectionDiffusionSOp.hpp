@@ -168,6 +168,7 @@ public:
   Teuchos::RCP<const HelmholtzOp<SpaceT> > getHelmOp() const { return( helmOp_ ); }
 
   void print( std::ostream& out=std::cout ) const {
+    out << "--- " << getLabel() << " ---\n";
     convSOp_->print(out);
     helmOp_->print(out);
    }
@@ -178,6 +179,8 @@ public:
 	const Scalar& getMulL() const { return( mulL_); }
 
   bool hasApplyTranspose() const { return( false ); }
+
+	const std::string getLabel() const { return( "ConvectionDiffusion " ); };
 
 
 }; // end of class ConvectionDiffusionSOp

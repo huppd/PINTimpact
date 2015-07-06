@@ -75,9 +75,11 @@ public:
   }
 
   void print( std::ostream& out=std::cout ) const {
+    out << "--- " << getLabel() << " ---\n";
     convectionSOp_->print(out);
   }
 
+	const std::string getLabel() const { return( "ConvectionVWrap " ); };
 
 }; // end of class ConvectionVWrap
 

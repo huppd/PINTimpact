@@ -137,6 +137,8 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
+	const std::string getLabel() const { return( "DtLapOp " ); };
+
 }; // end of class DtL
 
 

@@ -193,6 +193,7 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
+	const std::string getLabel() const { return( "MultiGrid( "+mgOps_->get()->getLabel()+" ) " ); };
 
 }; // end of class MultiGrid
 

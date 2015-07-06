@@ -94,6 +94,7 @@ public:
 		op_->print(out);
 	}
 
+	const std::string getLabel() const { return( "TimeOpWrap (" ); };
 
 }; // end of class TimeOpWrap
 

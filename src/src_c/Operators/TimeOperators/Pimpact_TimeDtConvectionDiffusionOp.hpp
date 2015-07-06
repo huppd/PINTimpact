@@ -123,18 +123,9 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
+	const std::string getLabel() const { return( "TimeDtConvectionDiffusionOp " ); };
+
 }; // end of class TimeDtConvectionDiffusionOp
-
-
-
-///// \relates TimeDtConvectionDiffusionOp
-//template<class SpaceT>
-//Teuchos::RCP<TimeDtConvectionDiffusionOp<SpaceT> >
-//createTimeDtConvectionDiffusionOp( const Teuchos::RCP<const SpaceT>& space ) {
-//
-//  return( Teuchos::rcp( new TimeDtConvectionDiffusionOp<SpaceT>( space ) ) );
-//
-//}
 
 
 

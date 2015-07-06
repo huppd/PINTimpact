@@ -98,6 +98,7 @@ public:
     convVWrap_->print(out);
   }
 
+	const std::string getLabel() const { return( convVWrap_->getSOp()->getLabel() + "VOp " ); };
 
 }; // end of class ConvectionVOp
 
@@ -112,6 +113,7 @@ Teuchos::RCP<ConvectionVOp<ConvectionVWrap<ConvectionSOp<SpaceT> > > > createCon
 //  auto wrap = Pimpact::create<Pimpact::ConvectionVWrap>( sop );
 
   return( Teuchos::rcp( new ConvectionVOp< ConvectionSOp<SpaceT> >( sop ) ) );
+
 
 }
 

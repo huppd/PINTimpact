@@ -144,11 +144,13 @@ public:
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
   void print( std::ostream& out=std::cout ) const {
-    out << "\n --- Jacobian smoother ---\n";
+    out << "--- " << getLabel() << " ---\n";
     out << "\t omega: " << omega_ << "\n";
     out << "\t numIter: " << nIter_ << "\n";
     op_->print( out );
   }
+
+	const std::string getLabel() const { return( "DivGradO2JSmoother " ); };
 
 }; // end of class DivGradO2JSmoother
 

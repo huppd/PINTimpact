@@ -137,7 +137,9 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
-}; // end of class MultiHarmonicNonlinearOp
+	const std::string getLabel() const { return( "MultiHarmonicConvectionOp " ); };
+
+}; // end of class MultiHarmonicConvectionOp
 
 
 

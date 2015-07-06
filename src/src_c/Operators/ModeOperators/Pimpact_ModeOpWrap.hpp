@@ -62,6 +62,7 @@ public:
 
 	Teuchos::RCP<Operator> getOperatorPtr() { return( op_ ); }
 
+	const std::string getLabel() const { return( "ModeOpWrap( "+op_->getLabel()+" ) " ); };
 
 }; // end of class ModeOpWrap
 

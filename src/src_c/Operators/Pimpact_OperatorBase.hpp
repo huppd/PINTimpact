@@ -31,6 +31,7 @@ public:
 
   virtual bool hasApplyTranspose() const {return( false );};
 
+	virtual const std::string getLabel() const { return( std::string("PImpact: ") ); };
 
 }; // end of class OperatorBase
 
@@ -73,6 +74,8 @@ public:
 	virtual void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) { opm_->setParameter(para); }
 
   virtual Teuchos::RCP<Op> getOperatorPtr() { return( opm_ ); }
+
+	virtual const std::string getLabel() const { return( opm_->getLabel() ); };
 
 }; // end of OperatorPimpl
 

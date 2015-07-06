@@ -30,20 +30,23 @@ class LinearProblem {
 
 public:
 
-  LinearProblem():solver_(Teuchos::null),problem_(Teuchos::null) {};
+//  LinearProblem():solver_(Teuchos::null),problem_(Teuchos::null) {};
+
   /// constructor
   LinearProblem(
       Teuchos::RCP< Belos::SolverManager<Scalar, MF, Op> >	solver,
       Teuchos::RCP< Belos::LinearProblem<Scalar, MF, Op> > problem ):
         solver_(solver),problem_(problem) {};
+//  LinearProblem(
+//      Teuchos::RCP< Belos::SolverManager<Scalar, MF, Op> >	solver,
+//      Teuchos::RCP< Belos::LinearProblem<Scalar, MF, Op> > problem ):
+//        solver_(solver),problem_(problem) {};
 
 
   /// \name base methods
   //@{
 
   /// \brief applys Operator of Linear problem.
-  ///
-  ///( not wokring properly yet).
   void apply( const Teuchos::RCP<const MF>& x, const Teuchos::RCP<MF> & y ) {
     problem_->applyOp( *x, *y );
   }
@@ -117,20 +120,23 @@ Teuchos::RCP< LinearProblem<MF> > createLinearProblem(
     const Teuchos::RCP<const MF>& b,
     Teuchos::RCP<Teuchos::ParameterList> param,
     const std::string& solvername="GMRES" ) {
-  typedef typename MF::Scalar S;
-  typedef OperatorBase<MF> Op;
 
-  Belos::SolverFactory<S,MF,Op> factory;
+	typedef typename MF::Scalar S;
+	typedef OperatorBase<MF> Op;
 
-  Teuchos::RCP<Belos::SolverManager<S,MF,Op> > solver =
-      factory.create( solvername, param );
+	Belos::SolverFactory<S,MF,Op> factory;
 
-  Teuchos::RCP<Belos::LinearProblem<S,MF,Op> > problem =
-      Teuchos::rcp( new Belos::LinearProblem<S,MF,Op> (A, x, b) );
+	Teuchos::RCP<Belos::SolverManager<S,MF,Op> > solver =
+		factory.create( solvername, param );
 
-  solver->setProblem(problem);
+	Teuchos::RCP<Belos::LinearProblem<S,MF,Op> > problem =
+		Teuchos::rcp( new Belos::LinearProblem<S,MF,Op> (A, x, b) );
 
-  return( Teuchos::rcp( new LinearProblem<MF>(solver,problem) ) );
+	problem->setLabel( A->getLabel() );
+
+	solver->setProblem(problem);
+
+	return( Teuchos::rcp( new LinearProblem<MF>(solver,problem) ) );
 
 }
 

@@ -62,6 +62,8 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
+	const std::string getLabel() const { return( "Forcing " ); };
+
 }; // end of ForcingOp
 
 

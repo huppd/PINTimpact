@@ -166,9 +166,13 @@ public:
   bool hasApplyTranspose() const { return( false ); }
 
 
+
   Teuchos::RCP<const HelmholtzOp<ST> > getHelmholtzOp() const { return( helm_ ); }
   Teuchos::RCP<const GradOp<ST> > getGradOp() const { return( grad_ ); }
   Teuchos::RCP<const DivOp<ST> > getDivOp() const { return( div_ ); }
+
+	const std::string getLabel() const { return( "TimeStokesOp " ); };
+
 }; // end of class TimeStokesOp
 
 
