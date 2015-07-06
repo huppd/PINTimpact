@@ -90,7 +90,7 @@ public:
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
-	const std::string getLabel() const { return( "DivGradOp " ); };
+	const std::string getLabel() const { return( "DivGrad" ); };
 
 }; // end of DivGradOp
 

@@ -96,7 +96,7 @@ createMGSmoothers(
 } // end of namespace Pimpact
 
 
-#ifdef COMPILE_ETI
+
 #include "Pimpact_MGSpaces.hpp"
 #include "Pimpact_MGOperators.hpp"
 #include "Pimpact_DivGradO2JSmoother.hpp"
@@ -107,11 +107,9 @@ template<class T> using ConvDiffSORT = Pimpact::ConvectionVSmoother<T,Pimpact::C
 
 //template<class T> using ConvDiffJT = Pimpact::ConvectionVSmoother<T,Pimpact::ConvectionDiffusionJSmoother >;
 
+#ifdef COMPILE_ETI
 extern template class Pimpact::MGSmoothers< Pimpact::MGOperators< Pimpact::MGSpaces< Pimpact::Space<double,int,3,4>, Pimpact::Space<double,int,3,2> >, Pimpact::DivGradOp, Pimpact::DivGradO2Op >, Pimpact::DivGradO2JSmoother >;
 extern template class Pimpact::MGSmoothers< Pimpact::MGOperators< Pimpact::MGSpaces< Pimpact::Space<double,int,4,4>, Pimpact::Space<double,int,4,2> >, Pimpact::DivGradOp, Pimpact::DivGradO2Op >, Pimpact::DivGradO2JSmoother >;
-//extern template class Pimpact::MGSmoothers< Pimpact::MGOperators< Pimpact::MGSpaces< Pimpact::Space<double,int,3,4>, Pimpact::Space<double,int,3,2> >, ConvDiffOpT,ConvDiffOpT >, ConvDiffSORT >;
-//extern template class Pimpact::MGSmoothers< Pimpact::MGOperators< Pimpact::MGSpaces< Pimpact::Space<double,int,3,4>, Pimpact::Space<double,int,3,2> >, ConvDiffOpT,ConvDiffOpT >, ConvDiffJT >;
-//extern template class Pimpact::MGSmoothers< Pimpact::MGOperators< Pimpact::MGSpaces< Pimpact::Space<double,int,4,4>, Pimpact::Space<double,int,4,2> >, ConvDiffOpT,ConvDiffOpT >, >;
 #endif
 
 

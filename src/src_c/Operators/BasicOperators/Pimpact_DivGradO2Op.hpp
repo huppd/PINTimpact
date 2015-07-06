@@ -176,7 +176,7 @@ public:
       return( c_[dir] );
   }
 
-	const std::string getLabel() const { return( "DivGradO2Op " ); };
+	const std::string getLabel() const { return( "DivGradO2Op" ); };
 
 }; // end of class DivGradO2Op
 

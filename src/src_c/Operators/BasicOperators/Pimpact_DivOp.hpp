@@ -155,7 +155,7 @@ public:
     }
   }
 
-	const std::string getLabel() const { return( "DivOp " ); };
+	const std::string getLabel() const { return( "Div" ); };
 
 };
 

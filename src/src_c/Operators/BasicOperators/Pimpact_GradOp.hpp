@@ -188,7 +188,7 @@ public:
     }
   }
 
-	const std::string getLabel() const { return( "GradOp " ); };
+	const std::string getLabel() const { return( "GradOp" ); };
 
 }; // end of class GradOp
 

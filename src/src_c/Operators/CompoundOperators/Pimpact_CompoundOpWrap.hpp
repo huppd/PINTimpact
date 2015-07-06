@@ -60,9 +60,9 @@ public:
   }
 
   void assignField( const DomainFieldT& mv ) {
+
     opV2V_->assignField( mv.getConstVField() );
-//    opS2V_->assignField( mv.getConstVField() );
-//    opV2S_->assignField( mv.getConstVField() );
+
   };
 
 	Teuchos::RCP<const SpaceT> space() const { return(opV2V_->space()); };
@@ -71,7 +71,7 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
-	const std::string getLabel() const { return( "CompoundOpWrap( "+opV2V_->getLabel()+", "+opS2V_->getLabel()+", "+opV2S_->getLabel() +" ) " ); };
+	const std::string getLabel() const { return( "Compound( "+opV2V_->getLabel()+", "+opS2V_->getLabel()+", "+opV2S_->getLabel() +" ) " ); };
 
 }; // end of class CompoundOpWrap
 
