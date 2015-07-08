@@ -132,6 +132,7 @@ Teuchos::RCP< LinearProblem<MF> > createLinearProblem(
 	Teuchos::RCP<Belos::LinearProblem<S,MF,Op> > problem =
 		Teuchos::rcp( new Belos::LinearProblem<S,MF,Op> (A, x, b) );
 
+//	if( !param->isParameter("Timer Label") )
 	problem->setLabel( A->getLabel() );
 
 	solver->setProblem(problem);

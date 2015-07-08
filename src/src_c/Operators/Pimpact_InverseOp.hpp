@@ -58,7 +58,7 @@ public:
 				 create<MF>( op->space() ),
 				 Teuchos::rcpFromRef( pl->sublist("Solver") ), 
 				 pl->get<std::string>("Solver name","GMRES") ) ) { 
-		 pl->print();
+//		 pl->print();
 	 }
 
 
