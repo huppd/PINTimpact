@@ -98,7 +98,7 @@ public:
     convVWrap_->print(out);
   }
 
-	const std::string getLabel() const { return( convVWrap_->getSOp()->getLabel() + "VOp " ); };
+	const std::string getLabel() const { return( convVWrap_->getSOp()->getLabel() + "VOp" ); };
 
 }; // end of class ConvectionVOp
 

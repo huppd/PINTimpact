@@ -268,14 +268,13 @@ template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact
 
 int main(int argi, char** argv ) {
 
-
   // intialize MPI
   MPI_Init( &argi, &argv );
-
 
 	Teuchos::RCP<Teuchos::ParameterList> pl = getSpaceParametersFromCL<S,O>( argi, argv  ) ;
 
 	pl->print();
+
 
   // solver stuff
   std::string nonLinSolName = pl->sublist("Solver").get<std::string>("nonLinSolver");
@@ -294,7 +293,7 @@ int main(int argi, char** argv ) {
 		linSolName = (withprec>0)?"Block GMRES":"GMRES";
 
 	auto space = Pimpact::createSpace<S,O,3,4>( Teuchos::rcpFromRef( pl->sublist("Space", true) ) );
-//  auto space = Pimpact::createSpace<S,O,3,4>( pl );
+
 
 	int baseflow = pl->get<int>("baseflow");
 	int flow = pl->get<int>("flow");
@@ -363,34 +362,18 @@ int main(int argi, char** argv ) {
   /******************************************************************************************/
 	{
 
-		auto para = Pimpact::createLinSolverParameter( linSolName, tolBelos, -1, outLinSolve );
-		para->set( "Num Blocks",         5   );
-		para->set( "Maximum Iterations", 100 );
-		para->set( "Maximum Restarts",   20	 );
-
-    para->set( "Timer Label",	"Linear Problem");
-		para->set( "Verbosity",	
-				Belos::Errors +
-				Belos::Warnings +
-				Belos::IterationDetails +
-				Belos::OrthoDetails +
-				Belos::FinalSummary +
-				Belos::StatusTestDetails +
-				Belos::Debug
-				);
-
-
 		auto opV2V = Pimpact::createMultiDtConvectionDiffusionOp( space );
 		auto opS2V = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::GradOp>( space ) );
 		auto opV2S = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::DivOp>( space ) );
 
-    auto op =
-        Pimpact::createMultiOperatorBase(
-            Pimpact::createCompoundOpWrap(
-								opV2V,
-								opS2V,
-								opV2S )
-        );
+		auto op =
+			Pimpact::createMultiOperatorBase(
+					Pimpact::createCompoundOpWrap(
+						opV2V,
+						opS2V,
+						opV2S )
+					);
+
 
     Teuchos::RCP<BOp> jop;
 		jop = op;
@@ -406,17 +389,21 @@ int main(int argi, char** argv ) {
 			v2v_para->set( "Num Blocks",		     10  );
 			v2v_para->set( "Maximum Iterations", 100 );
 			v2v_para->set( "Maximum Restarts",	 10  );
-			v2v_para->set( "Timer Label",	"F_inv");
+			v2v_para->set( "Timer Label",	opV2V->getLabel() );
+
 			auto opV2Vprob =
-					Pimpact::createLinearProblem<MVF>(
-							Pimpact::createMultiOperatorBase(
-									opV2V ),
-									Teuchos::null,
-									Teuchos::null,
-									v2v_para,
-									(2==withprec)?"Block GMRES":"GMRES" );
+				Pimpact::createLinearProblem<MVF>(
+						Pimpact::createMultiOperatorBase( opV2V ),
+						Teuchos::null,
+						Teuchos::null,
+						v2v_para,
+						(2==withprec)?"Block GMRES":"GMRES" );
+
 
 			// creat Hinv prec
+			auto zeroOp = Pimpact::create<ConvDiffOpT>( space );
+			auto zeroInv = Pimpact::create<MOP>( zeroOp );
+
       auto pls = Teuchos::parameterList();
 			pls->set( "numCycles", pl->sublist("Multi Grid").get<int>("numCycles") );
 			pls->sublist("Smoother").set( "omega", 1. );
@@ -429,7 +416,7 @@ int main(int argi, char** argv ) {
 //				Belos::IterationDetails + Belos::OrthoDetails +
 //				Belos::FinalSummary + Belos::TimingDetails +
 //				Belos::StatusTestDetails + Belos::Debug );
-			pls->sublist("Coarse Grid Solver").sublist("Solver").set<std::string>("Timer Label", "Coarse Grid Solver: ConvDiff" );
+			pls->sublist("Coarse Grid Solver").sublist("Solver").set<std::string>("Timer Label", "Coarse Grid Solver("+zeroOp->getLabel()+")" );
 			pls->sublist("Coarse Grid Solver").sublist("Solver").set<S>("Convergence Tolerance" , 0.1 );
 
 			auto mgConvDiff =
@@ -443,8 +430,6 @@ int main(int argi, char** argv ) {
 						ConvDiffSORT,
 						MOP > ( mgSpaces, pls ) ;
 
-			auto zeroOp = Pimpact::create<ConvDiffOpT>( space );
-			auto zeroInv = Pimpact::create<MOP>( zeroOp );
 
 			auto bla = Pimpact::createLinSolverParameter( "GMRES", tolInnerBelos/100., -1, Teuchos::rcp( new Teuchos::oblackholestream() ) );
 //			auto bla = Pimpact::createLinSolverParameter( "GMRES", 1.e-6, -1, Teuchos::rcp( new Teuchos::oblackholestream() ) );
@@ -452,7 +437,7 @@ int main(int argi, char** argv ) {
 			bla->set( "Num Blocks",				 	10   );
 			bla->set( "Maximum Iterations", 100 );
 			bla->set( "Maximum Restarts",	  10  );
-			bla->set( "Timer Label",	"F_zero_inv");
+			bla->set( "Timer Label",	zeroOp->getLabel() );
 
 			zeroInv->getOperatorPtr()->getLinearProblem()->setParameters( bla );
 
@@ -473,18 +458,19 @@ int main(int argi, char** argv ) {
 
 			// schurcomplement approximator ...
 			auto opSchur =
-					Pimpact::createMultiOperatorBase(
-							Pimpact::createTripleCompositionOp(
-									opV2S,
-									opV2V,
-									opS2V
+				Pimpact::createMultiOperatorBase(
+						Pimpact::createTripleCompositionOp(
+							opV2S,
+							opV2V,
+							opS2V
 							)
-					);
+						);
 			////--- inverse DivGrad
 			auto divGradOp =
 				Pimpact::createMultiOperatorBase(
 //						Pimpact::createMultiHarmonicOpWrap(
-							Pimpact::createCompositionOp(
+//							Pimpact::createCompositionOp(
+							Pimpact::createDivGradOp(
 								opV2S->getOperatorPtr(),
 								opS2V->getOperatorPtr()
 								)
@@ -525,7 +511,8 @@ int main(int argi, char** argv ) {
 //					Belos::IterationDetails + Belos::OrthoDetails +
 //					Belos::FinalSummary + Belos::TimingDetails +
 //					Belos::StatusTestDetails + Belos::Debug );
-			plmg->sublist("Coarse Grid Solver").sublist("Solver").set<std::string>("Timer Label", "Coarse Grid Solver: DivGrad" );
+//			plmg->sublist("Coarse Grid Solver").sublist("Solver").set<std::string>("Timer Label", "Coarse Grid Solver(DivGrad)" );
+			plmg->sublist("Coarse Grid Solver").sublist("Solver").set<std::string>("Timer Label", "Coarse Grid Solver("+divGradOp->getLabel()+")" );
 			plmg->sublist("Coarse Grid Solver").sublist("Solver").set<S>("Convergence Tolerance" , 0.1 );
 
 			auto mg_divGrad =
@@ -548,12 +535,9 @@ int main(int argi, char** argv ) {
 
 			auto divGradInv =
 				Pimpact::createMultiOperatorBase(
-						Pimpact::createMultiHarmonicMultiOpWrap( // fuse
-//						Pimpact::createMultiHarmonicOpWrap( // fuse
-//							Pimpact::createMultiOpUnWrap(
-								Pimpact::createInverseOperatorBase( divGradProb )
-								)
-//							)
+						Pimpact::createMultiHarmonicMultiOpWrap(
+							Pimpact::createInverseOperatorBase( divGradProb )
+							)
 						);
 
 			auto opS2Sinv =
@@ -575,6 +559,23 @@ int main(int argi, char** argv ) {
 						invTriangOp );
 		}
 
+
+		auto para = Pimpact::createLinSolverParameter( linSolName, tolBelos, -1, outLinSolve );
+
+		para->set( "Num Blocks",         5   );
+		para->set( "Maximum Iterations", 100 );
+		para->set( "Maximum Restarts",   20	 );
+
+    para->set( "Timer Label",	op->getLabel() );
+		para->set( "Verbosity",	
+				Belos::Errors +
+				Belos::Warnings +
+				Belos::IterationDetails +
+				Belos::OrthoDetails +
+				Belos::FinalSummary +
+				Belos::StatusTestDetails +
+				Belos::Debug
+				);
 
     auto lp_ = Pimpact::createLinearProblem<MF>( jop, x->clone(), fu->clone(), para, linSolName );
 		if( withprec ) lp_->setRightPrec( lprec );

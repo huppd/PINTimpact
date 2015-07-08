@@ -95,7 +95,7 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
-	const std::string getLabel() const { return( "ConvectionJacobianOp " ); };
+	const std::string getLabel() const { return( "ConvectionJacobianOp" ); };
 	
 }; // end of class ConvectionJacobianOp
 

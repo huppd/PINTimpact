@@ -109,7 +109,7 @@ public:
     out << "--- " << getLabel() << " ---\n";
 	}
 
-	const std::string getLabel() const { return( "TransferOp " ); };
+	const std::string getLabel() const { return( "TransferOp" ); };
 
 }; // end of class TransferOp
 

@@ -77,7 +77,7 @@ public:
 
   bool hasApplyTranspose() const { return( op1_->hasApplyTranspose() && op2_->hasApplyTranspose() /*&& op3_->hasApplyTranspose()*/ ); }
 
-	const std::string getLabel() const { return( op1_->getLabel() + std::string(" * ") + op2_->getLabel() ); };
+	const std::string getLabel() const { return( op1_->getLabel() + std::string("*") + op2_->getLabel() ); };
 
 }; // end of class CompositionOp
 

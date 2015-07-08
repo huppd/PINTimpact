@@ -209,7 +209,7 @@ public:
 		mulL_ = para->get<Scalar>( "mulL", 1./space_->getDomain()->getDomainSize()->getRe() );
 	}
 
-	const std::string getLabel() const { return( "HelmholtzOp " ); };
+	const std::string getLabel() const { return( "Helmholtz" ); };
 
 }; // end of class HelmholtzOp
 

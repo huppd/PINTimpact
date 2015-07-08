@@ -60,6 +60,8 @@ int ftype = 0;
 int fs = 0;
 int fe = 4;
 
+int level = -2;
+
 int npx = 1;
 int npy = 1;
 int npz = 1;
@@ -96,6 +98,7 @@ TEUCHOS_STATIC_SETUP() {
 			"Slack off of machine epsilon used to check test results" );
 	clp.setOption( "fe", &fe,
 			"Slack off of machine epsilon used to check test results" );
+	clp.setOption( "level", &level, "" );
 	clp.setOption( "npx", &npx, "" );
 	clp.setOption( "npy", &npy, "" );
 	clp.setOption( "npz", &npz, "" );
@@ -607,7 +610,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, Restrictor3D, CS3G )
 
 
 /// \todo remove corners for test(Scalar case)
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator3D, CS ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator, CS ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
@@ -624,13 +627,19 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator3D, CS ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
+
 	auto space = Pimpact::createSpace<S,O,3>( pl );
 
 	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
 
+	std::cout << "rank: " << space->rankST() << "\tnGridLevels: " << mgSpaces->getNGrids() << "\n";
+
 	auto mgTransfers = Pimpact::createMGTransfers<Pimpact::TransferOp,Pimpact::RestrictionOp,Pimpact::InterpolationOp>( mgSpaces );
 
-	auto op = mgTransfers->getInterpolationOp( -2 );
+	auto op = mgTransfers->getInterpolationOp( level );
+	if( space->rankST()==rankbla ) {
+		op->print();
+	}
 
 	Pimpact::EField type[] = { Pimpact::EField::S, Pimpact::EField::U, Pimpact::EField::V, Pimpact::EField::W };
 
@@ -638,8 +647,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator3D, CS ) {
 		if( 0==space->rankST() )
 			std::cout << "type: " << i << "\n";
 
-		auto fieldf = Pimpact::createScalarField( mgSpaces->get( -2 ), type[i] );
-		auto fieldc = Pimpact::createScalarField( mgSpaces->get( -1 ), type[i] );
+		auto fieldf = Pimpact::createScalarField( mgSpaces->get( level   ), type[i] );
+		auto fieldc = Pimpact::createScalarField( mgSpaces->get( level+1 ), type[i] );
 		auto sol = fieldf->clone();
 		auto er = fieldf->clone();
 
@@ -648,25 +657,25 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator3D, CS ) {
 		fieldf->init( 1. );
 		fieldc->initField( Pimpact::ConstField, 0. );
 
-		if( mgSpaces->participating(-2) )
+		if( mgSpaces->participating(level) )
 			op->apply( *fieldc, *fieldf );
 
-		if( mgSpaces->participating(-2) )
+		if( mgSpaces->participating(level) )
 			TEST_EQUALITY( eps>fieldf->norm(Belos::InfNorm), true );
-		if( mgSpaces->participating(-1) )
+		if( mgSpaces->participating(level+1) )
 			TEST_EQUALITY( eps>fieldc->norm(Belos::InfNorm), true );
 
 		// the random test
 		fieldc->random();
 		fieldf->init(0.);
 
-		if( mgSpaces->participating(-1) )
+		if( mgSpaces->participating(level+1) )
 			TEST_INEQUALITY( 0., fieldc->norm() );
 
-		if( mgSpaces->participating(-2) )
+		if( mgSpaces->participating(level) )
 			op->apply( *fieldc, *fieldf );
 
-		if( mgSpaces->participating(-1) )
+		if( mgSpaces->participating(level+1) )
 			TEST_INEQUALITY( 0., fieldc->norm() );
 
 
@@ -676,18 +685,22 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator3D, CS ) {
 		sol->initField( Pimpact::ConstField, 1. );
 		er->random();
 
-		if( mgSpaces->participating(-2) )
+		if( mgSpaces->participating(level) )
 			op->apply( *fieldc, *fieldf );
 
 
 		er->add( 1., *sol, -1., *fieldf );
-		if( mgSpaces->participating(-2) ) {
+		if( mgSpaces->participating(level) ) {
 			double bla = er->norm( Belos::InfNorm );
 			if( 0==space->rankST() )
 				std::cout << "error Const: " << bla << "\n";
 			TEST_EQUALITY( bla < eps, true  );
 			if( bla>=eps )
 				er->write(0);
+		}
+		if( er->norm(Belos::InfNorm, false )>=eps && space->rankST()==rankbla ){
+//			std::cout << "rank: " << space->rankST() << "\n";
+			er->print();
 		}
 
 
@@ -698,12 +711,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator3D, CS ) {
 		sol->initField( Pimpact::Grad2D_inX );
 		er->random();
 
-		if( mgSpaces->participating(-2) )
+		if( mgSpaces->participating(level) )
 			op->apply( *fieldc, *fieldf );
 
 		er->add( 1., *sol, -1., *fieldf );
 
-		if( mgSpaces->participating(-2) ){
+		if( mgSpaces->participating(level) ){
 
 			double bla = er->norm(Belos::InfNorm);
 			if( 0==space->rankST() )
@@ -716,6 +729,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator3D, CS ) {
 				sol->write(100);
 			}
 		}
+		std::cout << "rank: " << space->rankST() << " error GradX: " << er->norm(Belos::InfNorm, false ) << "\n";
+		if( er->norm(Belos::InfNorm, false )>=eps && space->rankST()==rankbla ){
+//			std::cout << "rank: " << space->rankST() << "\n";
+			er->print();
+		}
 
 
 		// hardcore test init test in Y
@@ -724,12 +742,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator3D, CS ) {
 		sol->initField( Pimpact::Grad2D_inY );
 		er->random();
 
-		if( mgSpaces->participating(-2) )
+		if( mgSpaces->participating(level) )
 			op->apply( *fieldc, *fieldf );
 
 		er->add( 1., *sol, -1., *fieldf );
 
-		if( mgSpaces->participating(-2) ) {
+		if( mgSpaces->participating(level) ) {
 			double bla = er->norm(Belos::InfNorm);
 			if( 0==space->rankST() )
 				std::cout << "error GradY: " <<  bla << "\n";
@@ -747,12 +765,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator3D, CS ) {
 		sol->initField( Pimpact::Grad2D_inZ );
 		er->random();
 
-		if( mgSpaces->participating(-2) )
+		if( mgSpaces->participating(level) )
 			op->apply( *fieldc, *fieldf );
 
 		er->add( 1., *sol, -1., *fieldf );
 
-		if( mgSpaces->participating(-2) ) {
+		if( mgSpaces->participating(level) ) {
 			double bla = er->norm(Belos::InfNorm);
 			if( 0==space->rankST() )
 				std::cout << "error GradZ: " << bla << "\n";
@@ -767,8 +785,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator3D, CS ) {
 
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, Interpolator3D, CS3L )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, Interpolator3D, CS3G )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, Interpolator, CS3L )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, Interpolator, CS3G )
 
 
 
@@ -1078,7 +1096,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersVF, CS ) {
 		if( mgSpaces->participating(0) )
 			TEST_INEQUALITY( 0., fieldf->norm() );
 
-
 		// the stronger init test
 		fieldc->initField( Pimpact::ConstFlow, 1., 1., 1. );
 		fieldf->init(0.);
@@ -1089,10 +1106,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersVF, CS ) {
 		er->add( 1., *sol, -1., *fieldf );
 
 		if( mgSpaces->participating(0) ) {
-			S rel_error = er->norm()/std::sqrt( (S)er->getLength() );
-			std::cout << "\nint. error Const: " << rel_error << "\n";
+			S rel_error = er->norm( Belos::InfNorm );
+			if( 0==space->rankST() )
+				std::cout << "\nint. error Const: " << rel_error << "\n";
 			TEST_EQUALITY( rel_error < eps, true  );
-			if( rel_error>eps ) {
+			if( rel_error>=eps || isnan(rel_error) ) {
 				er->write(0);
 			}
 		}
@@ -1113,10 +1131,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersVF, CS ) {
 		er->add( 1., *sol, -1., *fieldf );
 
 		if( mgSpaces->participating(0) ) {
-			S rel_error = er->norm()/std::sqrt( (S)er->getLength() );
-			std::cout << "int. error GradX: " << rel_error << "\n";
+			S rel_error = er->norm( Belos::InfNorm );
+			if( 0==space->rankST() )
+				std::cout << "int. error GradX: " << rel_error << "\n";
 			TEST_EQUALITY( rel_error<eps, true  );
-			if( rel_error>eps ) {
+			if( rel_error>=eps || isnan(rel_error) ) {
 				er->write(1);
 				fieldf->write(10);
 				sol->write(100);
@@ -1137,10 +1156,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersVF, CS ) {
 
 		er->add( 1., *sol, -1., *fieldf );
 		if( mgSpaces->participating(0) ) {
-			S rel_error = er->norm()/std::sqrt( (S)er->getLength() );
-			std::cout << "int. error GradY: " << rel_error << "\n";
+			S rel_error = er->norm( Belos::InfNorm );
+			if( 0==space->rankST() )
+				std::cout << "int. error GradY: " << rel_error << "\n";
 			TEST_EQUALITY( rel_error<eps, true  );
-			if( rel_error>eps ) {
+			if( rel_error>=eps || isnan(rel_error) ) {
 				er->write(2);
 				fieldf->write(20);
 				sol->write(200);
@@ -1162,10 +1182,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersVF, CS ) {
 		er->add( 1., *sol, -1., *fieldf );
 
 		if( mgSpaces->participating(0) ) {
-			S rel_error = er->norm()/std::sqrt( (S)er->getLength() );
-			std::cout << "int. error GradZ: " << rel_error << "\n";
+			S rel_error = er->norm( Belos::InfNorm );
+			if( 0==space->rankST() )
+				std::cout << "int. error GradZ: " << rel_error << "\n";
 			TEST_EQUALITY( rel_error < eps, true  );
-			if( rel_error>eps ) {
+			if( rel_error>=eps || isnan(rel_error) ) {
 				er->write(3);
 				fieldf->write(30);
 				sol->write(300);
@@ -1454,8 +1475,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, DivGradOp, CS3G )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffSOR, CS ) {
 
-  pl->set( "domain", domain );
-  pl->set( "dim", dim );
+	pl->set( "domain", domain );
+	pl->set( "dim", dim );
 
 	//  grid size
 	pl->set("nx", nx );
@@ -1483,16 +1504,16 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffSOR, CS ) {
 	mgPL->sublist("Smoother").set<short int>( "dir Y", -1 );
 	mgPL->sublist("Smoother").set<short int>( "dir Z", -1 );
 
-	mgPL->sublist("Coarse Grid Solver").set<std::string>("Solver name", "TFQMR" );
+	mgPL->sublist("Coarse Grid Solver").set<std::string>("Solver name", "GMRES" );
 
- mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<Teuchos::RCP<std::ostream> >( "Output Stream", Teuchos::rcp( &std::cout, false ) );
- mgPL->sublist("Coarse Grid Solver").sublist("Solver").set("Verbosity", Belos::Errors + Belos::Warnings +
-		 Belos::IterationDetails + Belos::OrthoDetails +
-		 Belos::FinalSummary + Belos::TimingDetails +
-		 Belos::StatusTestDetails + Belos::Debug );
- mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<std::string>("Timer Label", "Coarse Grid Solver" );
- mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<S>("Convergence Tolerance"
-, 0.1 );
+	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<Teuchos::RCP<std::ostream> >( "Output Stream", Teuchos::rcp( &std::cout, false ) );
+	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set("Verbosity",
+			Belos::Errors + Belos::Warnings + Belos::IterationDetails +
+			Belos::OrthoDetails + Belos::FinalSummary + Belos::TimingDetails +
+			Belos::StatusTestDetails + Belos::Debug );
+	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<std::string>("Timer Label", "Coarse Grid Solver" );
+	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<S>("Convergence Tolerance"
+			, 0.1 );
 
 	auto mg =
 		Pimpact::createMultiGrid<

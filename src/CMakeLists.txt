@@ -26,22 +26,22 @@ FIND_PACKAGE(Trilinos REQUIRED)
 
 
 # Echo trilinos build info just for fun
-MESSAGE( "\nFound Trilinos!  Here are the details: " )
-MESSAGE( "   Trilinos_DIR = ${Trilinos_DIR}" )
-MESSAGE( "   Trilinos_VERSION = ${Trilinos_VERSION}" )
-MESSAGE( "   Trilinos_PACKAGE_LIST = ${Trilinos_PACKAGE_LIST}" )
-MESSAGE( "   Trilinos_LIBRARIES = ${Trilinos_LIBRARIES}" )
-MESSAGE( "   Trilinos_INCLUDE_DIRS = ${Trilinos_INCLUDE_DIRS}" )
-MESSAGE( "   Trilinos_LIBRARY_DIRS = ${Trilinos_LIBRARY_DIRS}" )
-MESSAGE( "   Trilinos_TPL_LIST = ${Trilinos_TPL_LIST}" )
-MESSAGE( "   Trilinos_TPL_INCLUDE_DIRS = ${Trilinos_TPL_INCLUDE_DIRS}" )
-MESSAGE( "   Trilinos_TPL_LIBRARIES = ${Trilinos_TPL_LIBRARIES}" )
-MESSAGE( "   Trilinos_TPL_LIBRARY_DIRS = ${Trilinos_TPL_LIBRARY_DIRS}" )
-MESSAGE( "   Trilinos_BUILD_SHARED_LIBS = ${Trilinos_BUILD_SHARED_LIBS}" )
-MESSAGE( "End of Trilinos details\n" )
+message( "\nFound Trilinos!  Here are the details: " )
+message( "   Trilinos_DIR = ${Trilinos_DIR}" )
+message( "   Trilinos_VERSION = ${Trilinos_VERSION}" )
+message( "   Trilinos_PACKAGE_LIST = ${Trilinos_PACKAGE_LIST}" )
+message( "   Trilinos_LIBRARIES = ${Trilinos_LIBRARIES}" )
+message( "   Trilinos_INCLUDE_DIRS = ${Trilinos_INCLUDE_DIRS}" )
+message( "   Trilinos_LIBRARY_DIRS = ${Trilinos_LIBRARY_DIRS}" )
+message( "   Trilinos_TPL_LIST = ${Trilinos_TPL_LIST}" )
+message( "   Trilinos_TPL_INCLUDE_DIRS = ${Trilinos_TPL_INCLUDE_DIRS}" )
+message( "   Trilinos_TPL_LIBRARIES = ${Trilinos_TPL_LIBRARIES}" )
+message( "   Trilinos_TPL_LIBRARY_DIRS = ${Trilinos_TPL_LIBRARY_DIRS}" )
+message( "   Trilinos_BUILD_SHARED_LIBS = ${Trilinos_BUILD_SHARED_LIBS}" )
+message( "End of Trilinos details\n" )
 
 
-PROJECT( pimpact CXX Fortran )
+project( pimpact CXX Fortran )
 
 option( enable_ETI "enable_ETI" OFF)
 

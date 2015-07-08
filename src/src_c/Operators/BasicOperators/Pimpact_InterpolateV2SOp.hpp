@@ -167,7 +167,7 @@ public:
       return( c_[(int)dir] );
   }
 
-	const std::string getLabel() const { return( "InterpolateV2S " ); };
+	const std::string getLabel() const { return( "InterpolateV2S" ); };
 
 };
 

@@ -229,7 +229,7 @@ public:
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
    
 
-	const std::string getLabel() const { return( "ConvectionDiffusionSORSmoother " ); };
+	const std::string getLabel() const { return( "ConvectionDiffusionSORSmoother" ); };
 
 
 }; // end of class ConvectionDiffusionSORSmoother

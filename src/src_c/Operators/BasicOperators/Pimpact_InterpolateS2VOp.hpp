@@ -146,7 +146,7 @@ public:
     }
   }
 
-	const std::string getLabel() const { return( "InterpolateS2V " ); };
+	const std::string getLabel() const { return( "InterpolateS2V" ); };
 
 }; // end of class InterpolateS2V
 

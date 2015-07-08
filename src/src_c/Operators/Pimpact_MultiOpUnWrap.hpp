@@ -73,7 +73,7 @@ public:
 		op_->setParameter( para );
 	}
 
-	const std::string getLabel() const { return( std::string("MultiOpUnWrap( ")+ op_->getLabel() + std::string(") ")  ); };
+	const std::string getLabel() const { return( op_->getLabel() ); };
 
 }; // end of class MultiOpUnWrap
 

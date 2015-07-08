@@ -294,7 +294,7 @@ public:
 //      return( cVD_[dir] );
   }
 
-	const std::string getLabel() const { return( "ConvectionSOp " ); };
+	const std::string getLabel() const { return( "Convection" ); };
 
 }; // end of class ConvectionSOp
 

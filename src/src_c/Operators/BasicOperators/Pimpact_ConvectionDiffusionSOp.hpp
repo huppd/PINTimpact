@@ -180,7 +180,7 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
-	const std::string getLabel() const { return( "ConvectionDiffusion " ); };
+	const std::string getLabel() const { return( "ConvectionDiffusion" ); };
 
 
 }; // end of class ConvectionDiffusionSOp

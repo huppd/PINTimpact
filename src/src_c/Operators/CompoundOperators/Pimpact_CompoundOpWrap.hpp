@@ -71,7 +71,7 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
-	const std::string getLabel() const { return( "Compound( "+opV2V_->getLabel()+", "+opS2V_->getLabel()+", "+opV2S_->getLabel() +" ) " ); };
+	const std::string getLabel() const { return( "Compound( "+opV2V_->getLabel()+", "+opS2V_->getLabel()+", "+opV2S_->getLabel() +" )" ); };
 
 }; // end of class CompoundOpWrap
 

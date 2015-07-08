@@ -150,7 +150,7 @@ public:
     op_->print( out );
   }
 
-	const std::string getLabel() const { return( "DivGradO2JSmoother " ); };
+	const std::string getLabel() const { return( "DivGradO2JSmoother" ); };
 
 }; // end of class DivGradO2JSmoother
 

@@ -608,6 +608,7 @@ contains
 
 
   !> \todo ununderstand recevbuf size not coorect
+  !! \todo fix sendbuf size
   subroutine MG_InterpolateScatter( &
       Nc,                       &
       bLc,bUc,                  &

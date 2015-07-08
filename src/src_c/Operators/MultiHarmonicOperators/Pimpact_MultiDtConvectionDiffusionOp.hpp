@@ -165,7 +165,7 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
-	const std::string getLabel() const { return( "MultiDtConvectionDiffusionOp " ); };
+	const std::string getLabel() const { return( "MHDtConvectionDiffusion" ); };
 
 }; // end of class MultiDtConvectionDiffusionOp
 

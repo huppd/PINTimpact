@@ -325,7 +325,7 @@ public:
 
 //    coordGlobal_->print(out);
 //
-//    coordLocal_->print(out);
+		coordLocal_->print(out);
 
   }
 
