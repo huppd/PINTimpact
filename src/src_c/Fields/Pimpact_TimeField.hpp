@@ -520,7 +520,8 @@ initVectorTimeField(
       break;
     }
     case ConstVel_inX:{
-    	field->getFieldPtr(i)->init( Teuchos::tuple( 2*xm*std::cos(space->getCoordinatesLocal()->getX(T)[i]), 0., 0.) ); // here rad is used as z velocity
+    	field->getFieldPtr(i)->init( Teuchos::tuple( -2*xm*std::cos(space->getCoordinatesLocal()->getX(T)[i]), 0., 0.) ); // here xm = p
+    	break;
     }
     case Pulsatile_inX: {
       field->getFieldPtr(i)->initField( Pulsatile2D_inX, xm, space->getCoordinatesLocal()->getX(T)[i], ym, rad); // the arguments are (xmt,i,ymt,rad) --> (re,t,px,alpha)

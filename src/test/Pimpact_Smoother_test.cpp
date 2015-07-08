@@ -91,9 +91,9 @@ TEUCHOS_STATIC_SETUP() {
   pl->set( "alpha2", 1. );
   pl->set( "domain", domain );
 
-  pl->set( "lx", 1. );
-  pl->set( "ly", 1. );
-  pl->set( "lz", 1. );
+  pl->set( "lx", 2. );
+  pl->set( "ly", 2. );
+  pl->set( "lz", 2. );
 
   pl->set( "dim", dim );
 
@@ -135,7 +135,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesBSmooth ) {
 	auto true_sol = x->clone();
 	auto error = x->clone();
 	
-	double p = 1.;
+	double p = 0.5;
 	double alpha = std::sqrt(pl->get<double>("alpha2"));
 
 	// RHS
@@ -143,26 +143,40 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesBSmooth ) {
 
 	// true solution //pl->get<int> ("Block Size");
 	Pimpact::initVectorTimeField( true_sol->getVFieldPtr(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha );
-	
+		
 	// consistecy check
-	op->apply(*y_cc,*true_sol);
-	error->add( 1., *y_cc, -1., *y );
+	op->apply(*true_sol,*y_cc);
+ 	error->add( 1., *y_cc, -1., *y );
+
+	//y->write();
+	//y_cc->write(100);
 	
+	std::cout << "|| error || = " << error()->norm() << std::endl;
+
 	TEST_EQUALITY( error()->norm()<eps, true );
 	
-	// initial error
-	//error->add( 1., *x, -1., *true_sol );
-	//error->write(100);
 
+	// test smoothing
+	x->random();
+	
+	// initial error
+	error->add( 1., *x, -1., *true_sol );
+	error->write();
+		
 	// aprrox. solution
-        //bSmoother->apply(*x,*y);		
+        bSmoother->apply(*y,*x);		
 
 	// final error
-	//error->add( 1., *x, -1., *true_sol );
-	//error->write(200);
-	
-	//true_sol->write();
-	//x->write(1);
+	error->add( 1., *x, -1., *true_sol );
+	error->write(100);
+
+        // aprrox. solution2
+	bSmoother->apply(*y,*x);
+
+        // final error2
+        error->add( 1., *x, -1., *true_sol );
+        error->write(200);
+
 }
 
 

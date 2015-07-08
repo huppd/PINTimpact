@@ -82,8 +82,13 @@ MESSAGE("Fortran flags: " ${CMAKE_Fortran_FLAGS})
 MESSAGE("CXX flags: " ${CMAKE_CXX_FLAGS})
 
 
-set( Limpact_TPL_LIBRARIES hdf5hl_fortran hdf5_hl hdf5_fortran hdf5  z m lapack blas )
-set( Pimpact_TPL_LIBRARIES limpact lpimpact ${Limpact_TPL_LIBRARIES} gfortran mpi_f77 mpi_f90  ${Trilinos_TPL_LIBRARIES} ${Trilinos_LIBRARIES} )
+#<<<<<<< .mine
+set( Limpact_TPL_LIBRARIES hdf5hl_fortran hdf5_hl hdf5_fortran hdf5  z m openblas )
+set( Pimpact_TPL_LIBRARIES limpact lpimpact ${Limpact_TPL_LIBRARIES} gfortran mpi_f77 mpi_f90  openblas ${Trilinos_TPL_LIBRARIES} ${Trilinos_LIBRARIES} )
+#=======
+#set( Limpact_TPL_LIBRARIES hdf5hl_fortran hdf5_hl hdf5_fortran hdf5  z m lapack blas )
+#set( Pimpact_TPL_LIBRARIES limpact lpimpact ${Limpact_TPL_LIBRARIES} gfortran mpi_f77 mpi_f90  ${Trilinos_TPL_LIBRARIES} ${Trilinos_LIBRARIES} )
+#>>>>>>> .r306
 
 
 MESSAGE( "Fortran compiler: ${CMAKE_Fortran_COMPILER}" )

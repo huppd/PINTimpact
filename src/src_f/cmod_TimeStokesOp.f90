@@ -327,10 +327,10 @@ contains
       cG3,                  &
       mulI,                 &
       mulL,                 &
+      rhs_vel,              &
+      rhs_p,                &
       vel,                  &
-      p,                    &
-      r_vel,                &
-      r_p ) bind (c,name='OP_TimeStokesBSmoother')
+      p ) bind (c,name='OP_TimeStokesBSmoother')
 
 
     implicit none
@@ -379,33 +379,33 @@ contains
     real(c_double), intent(in)  :: mulI
     real(c_double), intent(in)  :: mulL
         
-    real(c_double), intent(in)  :: vel  ( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), 1:3, 0:(N(4)+bU(4)-bL(4)) )
+    real(c_double), intent(inout)  :: vel  ( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), 1:3, 0:(N(4)+bU(4)-bL(4)) )
 
-    real(c_double), intent(in)  :: p    ( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)),      0:(N(4)+bU(4)-bL(4)) )
+    real(c_double), intent(inout)  :: p    ( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)),      0:(N(4)+bU(4)-bL(4)) )
 
-    real(c_double), intent(out) :: r_vel( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), 1:3, 0:(N(4)+bU(4)-bL(4)) )
+    real(c_double), intent(in) :: rhs_vel( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), 1:3, 0:(N(4)+bU(4)-bL(4)) )
 
-    real(c_double), intent(out) :: r_p  ( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)),      0:(N(4)+bU(4)-bL(4)) )
+    real(c_double), intent(in) :: rhs_p  ( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)),      0:(N(4)+bU(4)-bL(4)) )
 
-    integer(c_int)              ::  i, ii
-    integer(c_int)              ::  j, jj
-    integer(c_int)              ::  k, kk
+    integer(c_int)              ::  i
+    integer(c_int)              ::  j
+    integer(c_int)              ::  k
     integer(c_int)              ::  t
 
     !===========================================================================================================
 
 
     integer (c_int), parameter :: block_size = 14 ! decompose this in time points + pressure...
-    integer(c_int)             :: l
-    integer(c_int)             :: ll
+    integer(c_int)             :: l, ll
     integer(c_int)             :: ipiv(block_size)
      
 
     real (c_double) A(block_size,block_size) ! fill with zeros?
     real (c_double) b(block_size)
 
+    integer(c_int) :: info
+
      ! ----- for the test -----!
-     integer(c_int) :: info
      !real(c_double) :: vt(block_size,block_size)
      !real(c_double) :: u(block_size,block_size)
      !real(c_double) :: s(block_size)
@@ -413,8 +413,12 @@ contains
      !real(c_double) :: work(lwork)
 
      ! ------------------------!
+        
+        print*, "u", rhs_vel(3,3,3,1,2)
+        print*, "v", rhs_vel(3,3,3,2,2)
+        print*, "w", rhs_vel(3,3,3,3,2)
 
-     A(1:block_size,1:block_size) = 0.0
+    A(1:block_size,1:block_size) = 0.0
 
     do t = SS(4), N(4) - 1 
     do k = SW(3), NW(3)
@@ -431,14 +435,14 @@ contains
 
             ! diagonal: time derivative + diffusion (sign of dt?)
 
-            A(1,1) = mulI -  mulL*c11u(bL(1)+1,i)
-            A(2,2) = mulI -  mulL*c11u(bL(1)+1,i-1)
+            A(1,1) = mulI - mulL*c11u(0,i)
+            A(2,2) = mulI - mulL*c11u(0,i-1)
 
-            A(3,3) = mulI -  mulL*c22v(bL(2)+1,j)
-            A(4,4) = mulI -  mulL*c22v(bL(2)+1,j-1)
+            A(3,3) = mulI - mulL*c22v(0,j)
+            A(4,4) = mulI - mulL*c22v(0,j-1)
 
-            A(5,5) = mulI -  mulL*c33w(bL(3)+1,k)
-            A(6,6) = mulI -  mulL*c33w(bL(3)+1,k-1)
+            A(5,5) = mulI - mulL*c33w(0,k)
+            A(6,6) = mulI - mulL*c33w(0,k-1)
 
             ! sub/super-diagonal: diffusion
 
@@ -473,15 +477,31 @@ contains
             !========== assembling the RHS =====================
             !===================================================
 
-            ! diffusion
+            ! diffusion 
+            do l = 0,1
+                do ll =0,1
                 
-            b = mulL*(/ c11u(bU(1),i)*vel(i+1,j,k,1,t),c11u(bL(1),i-1)*vel(i-2,j,k,1,t),&
+                b(l+1+6*ll) = c22p(bU(1),i-l)*vel(i-l,j+1,k,1,t+ll) + c22p(bL(1),i-l)*vel(i-l,j-1,k,1,t+ll) + &
+                           c33p(bU(1),i-l)*vel(i-l,j,k+1,1,t+ll) + c33p(bL(1),i-l)*vel(i-l,j,k-1,1,t+ll) 
+                        
+                b(l+3+6*ll) = c11p(bU(2),j-l)*vel(i+1,j-l,k,2,t+ll) + c11p(bL(2),j-l)*vel(i-1,j-l,k,2,t+ll) + &
+                           c33p(bU(2),j-l)*vel(i,j-l,k+1,2,t+ll) + c33p(bL(2),j-l)*vel(i,j-l,k-1,2,t+ll) 
+
+                b(l+5+6*ll) = c22p(bU(3),k-l)*vel(i,j+1,k-l,3,t+ll) + c22p(bL(3),k-l)*vel(i,j-1,k-l,3,t+ll) + &
+                           c11p(bU(3),k-l)*vel(i+1,j,k-l,3,t+ll) + c11p(bL(3),k-l)*vel(i-1,j,k-l,3,t+ll) 
+                end do
+           end do
+                
+
+            b = b + (/ c11u(bU(1),i)*vel(i+1,j,k,1,t),c11u(bL(1),i-1)*vel(i-2,j,k,1,t),&
                        c22v(bU(2),j)*vel(i,j+1,k,2,t),c22v(bL(2),j-1)*vel(i,j-2,k,2,t),&
-                       c33w(bU(3),k)*vel(i,j,k+1,3,t),c33w(bL(3),j-1)*vel(i,j,k-2,3,t),&
+                       c33w(bU(3),k)*vel(i,j,k+1,3,t),c33w(bL(3),k-1)*vel(i,j,k-2,3,t),&
                        c11u(bU(1),i)*vel(i+1,j,k,1,t+1),c11u(bL(1),i-1)*vel(i-2,j,k,1,t+1),&
                        c22v(bU(2),j)*vel(i,j+1,k,2,t+1),c22v(bL(2),j-1)*vel(i,j-2,k,2,t+1),&
-                       c33w(bU(3),k)*vel(i,j,k+1,3,t+1),c33w(bL(3),j-1)*vel(i,j,k-2,3,t+1),&
+                       c33w(bU(3),k)*vel(i,j,k+1,3,t+1),c33w(bL(3),k-1)*vel(i,j,k-2,3,t+1),&
                        0., 0. /) ! -> divergence
+                
+            b = mulL*b
 
             ! pressure gradient
             b = b + (/ cG1(gU(1),i)*p(i+1,j,k,t),cG1(gL(1),i-1)*p(i-1,j,k,t),&
@@ -492,10 +512,16 @@ contains
                        cG3(gU(3),k)*p(i,j,k+1,t+1),cG3(gL(3),k-1)*p(i,j,k-1,t+1),&
                        0., 0. /) ! -> divergence
 
-            ! time stencil (just in the second time slice)
+            ! time stencil (just in the first time slice)
             b(1:6) = b(1:6) - mulI*(/ vel(i,j,k,1,t-1), vel(i-1,j,k,1,t-1),&
                                         vel(i,j,k,2,t-1), vel(i,j-1,k,2,t-1),&
                                         vel(i,j,k,3,t-1), vel(i,j,k-1,3,t-1) /)
+        
+            ! add the RHS to b (boundary)
+            b = b + (/ rhs_vel(i,j,k,1:3,t),&
+                       rhs_vel(i,j,k,1:3,t+1),&
+                       rhs_p(i,j,k,t:t+1) /)
+
 
 ! ---------- test the matrix A --------------!
 
@@ -562,14 +588,14 @@ contains
         !print*, '------- i j k t+1 -------'
         !print*, i,j,k,t+1
        
-        r_vel(i,j,k,1,t:t+1) = (/ b(1), b(7) /)
-        r_vel(i-1,j,k,1,t:t+1) = (/ b(2), b(8) /)
-        r_vel(i,j,k,2,t:t+1) = (/ b(3), b(9) /)
-        r_vel(i,j-1,k,2,t:t+1) = (/ b(4), b(10) /)
-        r_vel(i,j,k,3,t:t+1) = (/ b(5), b(11) /)
-        r_vel(i,j,k-1,3,t:t+1) = (/ b(6), b(12) /) 
+        vel(i,j,k,1,t:t+1) = (/ b(1), b(7) /)
+        vel(i-1,j,k,1,t:t+1) = (/ b(2), b(8) /)
+        vel(i,j,k,2,t:t+1) = (/ b(3), b(9) /)
+        vel(i,j-1,k,2,t:t+1) = (/ b(4), b(10) /)
+        vel(i,j,k,3,t:t+1) = (/ b(5), b(11) /)
+        vel(i,j,k-1,3,t:t+1) = (/ b(6), b(12) /) 
 
-        r_p(i,j,k,t:t+1) = b(13:14)
+        p(i,j,k,t:t+1) = b(13:14)
 
         end do
       end do

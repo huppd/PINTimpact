@@ -253,13 +253,15 @@ subroutine VF_init_2DPulsatileX(   &
         real(c_double) :: lambda
         real(c_double) :: s1
         real(c_double) :: s2
+        real(c_double) :: alpha_Pimpact
 
         integer                ::  i, j, k
         
         ! -----------------------------------------!
-
-        mu = sqrt( 2*re_ )*alpha/2. !kk
-        lambda  = px/alpha**2       !k
+        
+        alpha_Pimpact = alpha/sqrt(re_)
+        mu = sqrt( 2*re_ )*alpha_Pimpact/2. !kk
+        lambda  = px/alpha_Pimpact**2       !k
         muL = mu*L
 
         do k = SU(3), NU(3)
@@ -269,7 +271,7 @@ subroutine VF_init_2DPulsatileX(   &
                     s1 = exp(muL + my)
                     s2 = exp(my)
                     phiU(i,j,k) = -(lambda*(2*sin(t + muL)*s1 + 2*sin(t - muL)*s1 - 2*exp(2*muL)*sin(t - my)                   &
-                                  - 2*exp(muL)*sin(t + muL - my) - 2*(s2**2)*sin(t + my) - 2*exp(muL + 2*my)*sin(t - muL + my)   &
+                                  - 2*exp(muL)*sin(t + muL - my) - 2*(s2**2)*sin(t + my) - 2*exp(muL + 2*my)*sin(t - muL + my) &
                                   + 2*s2*sin(t) + 2*exp(2*muL + my)*sin(t)))/(s2 + exp(2*muL + my) + 2*s1*cos(muL)) 
                 end do
             end do
