@@ -92,6 +92,13 @@ public:
 
 	const std::string getLabel() const { return( "DivGrad" ); };
 
+  void print( std::ostream& out=std::cout ) const {
+		out << "---" << getLabel() << "---\n";
+		div_->print( out );
+		grad_->print( out );
+
+  }
+
 }; // end of DivGradOp
 
 

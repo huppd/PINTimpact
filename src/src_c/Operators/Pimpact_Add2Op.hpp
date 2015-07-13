@@ -70,6 +70,12 @@ public:
 
 	const std::string getLabel() const { return( op1_->getLabel() + std::string(" + ") + op2_->getLabel() ); };
 
+  void print( std::ostream& out=std::cout ) const {
+		out << getLabel() << ":\n";
+		op1_->print( out );
+		op2_->print( out );
+  }
+
 }; // end of class Add2Op
 
 

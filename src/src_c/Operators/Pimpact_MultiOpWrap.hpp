@@ -76,6 +76,10 @@ public:
 
 	const std::string getLabel() const { return( op_->getLabel()  ); };
 
+  void print( std::ostream& out=std::cout ) const {
+    op_->print( out );
+  }
+
 }; // end of class MultiOpWrap
 
 

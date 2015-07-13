@@ -95,6 +95,12 @@ public:
 
 	const std::string getLabel() const { return( op1_->getLabel() + std::string("* ") + op2_->getLabel() + std::string("* ") + op3_->getLabel()   ); };
 
+  void print( std::ostream& out=std::cout ) const {
+		out << "TripleComposition:\n";
+		op1_->print( out );
+		op2_->print( out );
+		op3_->print( out );
+  }
 }; // end of class TripleCompositionOp
 
 

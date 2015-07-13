@@ -1602,7 +1602,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffJ, CS ) {
   pl->set( "domain", domain );
   pl->set( "dim", dim );
 
-	pl->set<S>("Re", 1. );
+	pl->set<S>("Re", 100. );
 
 	//  grid size
 	pl->set("nx", nx );
@@ -1624,7 +1624,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffJ, CS ) {
 	auto mgPL = Teuchos::parameterList();
 	mgPL->set<int>("numCycles", 1 );
 //	mgPL->sublist("Smoother").set( "omega", 0.6 );
-	mgPL->sublist("Smoother").set( "numIters", 4 );
+//	mgPL->sublist("Smoother").set( "numIters", 10 );
 
 	mgPL->sublist("Coarse Grid Solver").set<std::string>("Solver name", "GMRES" );
 
@@ -1634,7 +1634,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffJ, CS ) {
 //			Belos::FinalSummary + Belos::TimingDetails +
 //			Belos::StatusTestDetails + Belos::Debug );
 	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<std::string>("Timer Label", "Coarse Grid Solver" );
-	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<S>("Convergence Tolerance" , 1.e-6 );
+	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<S>("Convergence Tolerance" , 1.e-12 );
 
 	auto mg =
 		Pimpact::createMultiGrid<
@@ -1645,8 +1645,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffJ, CS ) {
 		ConvDiffOpT,
 		ConvDiffOpT,
 		ConvDiffJT,
+//		ConvDiffSORT,
 		MOP
 			>( mgSpaces, mgPL );
+
+	mg->print();
 
 	auto op = Pimpact::create< ConvDiffOpT >( space );
 
@@ -1658,6 +1661,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffJ, CS ) {
 		auto wind = x->clone();
 		wind->initField( Pimpact::ConstFlow, 0., 0., 0. );
 //		wind->initField( Pimpact::ConstFlow, 1., 1., 1. );
+//		wind->random();
+		wind->getFieldPtr(Pimpact::U)->initField( Pimpact::Poiseuille2D_inX );
+		wind->getFieldPtr(Pimpact::V)->random();
+		wind->getFieldPtr(Pimpact::V)->scale(0.1);
+		wind->getFieldPtr(Pimpact::W)->random();
+		wind->getFieldPtr(Pimpact::W)->scale(0.1);
 		op->assignField( *wind );
 		mg->assignField( *wind );
 	}
@@ -1673,17 +1682,18 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffJ, CS ) {
 	x->getFieldPtr(Pimpact::W)->initField( Pimpact::Grad2D_inY );
 	auto sol = x->clone( Pimpact::DeepCopy );
 
-	op->apply(*x,*b);
-	{
-		x->init(0);
-		auto bc = x->clone( Pimpact::ShallowCopy );
-		op->apply( *x, *bc );
-		b->add( 1., *b, -1., *bc );
-	}
-	b->write(1);
+//	op->apply(*x,*b);
+//	{
+//		x->init(0);
+//		auto bc = x->clone( Pimpact::ShallowCopy );
+//		op->apply( *x, *bc );
+//		b->add( 1., *b, -1., *bc );
+//	}
+//	b->write(1);
 
 	x->initField( Pimpact::ConstFlow, 0., 0., 0. );
-//	x->random();
+	sol->initField( Pimpact::ConstFlow, 0., 0., 0. );
+	x->random();
 
 	temp->add( -1, *x, 1., *sol );
 	S res = temp->norm()/std::sqrt( temp->getLength() );

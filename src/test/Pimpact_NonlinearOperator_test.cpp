@@ -609,19 +609,17 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
 	pl->set( "dim", dim );
   pl->set( "domain", domain );
 
-  pl->set<S>("Re",1);
+  pl->set<S>("Re",100);
   auto space = Pimpact::createSpace<S,O,d,2>( pl );
 
-  auto wind = Pimpact::create<Pimpact::VectorField>( space );
-  auto y = Pimpact::create<Pimpact::VectorField>( space );
-  auto z = Pimpact::create<Pimpact::VectorField>( space );
-  auto z2 = Pimpact::create<Pimpact::VectorField>( space );
+
 
   auto op = Pimpact::create<ConvDiffOpT>( space );
 
 
+	// init smoother
   auto pls = Teuchos::parameterList();
-  pls->set( "omega", 0.7 );
+//  pls->set( "omega", 0.7 );
   pls->set( "numIters", 1 );
 
   auto smoother =
@@ -632,48 +630,39 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
               op,
               pls );
 
-//  wind->initField( Pimpact::ConstFlow, winds, winds, winds );
-  wind->initField( Pimpact::ConstFlow, 0., 0., 0. );
-  z->initField( Pimpact::ConstFlow, 0., 0., 0. );
+	//  init wind
+	{
+		auto wind = Pimpact::create<Pimpact::VectorField>( space );
+//		wind->initField( Pimpact::ConstFlow, 0., 0., 0. );
+		wind->initField( Pimpact::ConstFlow, 1., 1., 1. );
+		op->assignField( *wind );
+	}
 
-	y->getFieldPtr( Pimpact::U )->initField( Pimpact::Poiseuille2D_inX );
-	y->getFieldPtr( Pimpact::V )->initField( Pimpact::Poiseuille2D_inY );
-	y->getFieldPtr( Pimpact::W )->initField( Pimpact::Poiseuille2D_inZ );
+	// init initial guess
+  auto x = Pimpact::create<Pimpact::VectorField>( space );
+	x->random();
 
-  auto sol = y->clone( Pimpact::DeepCopy );
+	// init rhs
+  auto y = Pimpact::create<Pimpact::VectorField>( space );
 
-  op->assignField( *wind );
 
-  op->apply( *y, *z );
-
-  {
-    y->init(0);
-    auto bc = z->clone( Pimpact::ShallowCopy );
-    op->apply( *y, *bc );
-    z->add( 1., *z, -1., *bc );
-  }
-
-  y->initField( Pimpact::ConstFlow, 0., 0., 0. );
-
-	y->assign( *sol ); 
-	y->write(100);
-
-	z2->add( -1, *sol, 1, *y );
-	S error0 = z2->norm();
+	S error0 = x->norm();
+	S error;
 	if( space()->rankST()==0 )
 		std::cout << "\nerror: " << error0 << "\n";
-  for(int i=0; i<1; ++i) {
-    smoother->apply( *z, *y );
 
-    z2->add( -1, *sol, 1, *y );
+	x->write( 0 );
+  for(int i=0; i<10; ++i) {
+    smoother->apply( *y, *x );
 
-    double n = z2->norm();///error0;
+    error = x->norm()/error0;
     if( space()->rankST()==0 )
-      std::cout << "error: " << n << "\n";
+      std::cout << "error: " << error << "\n";
 
+		x->write( i+1 );
   }
 
-  TEST_EQUALITY_CONST( z2->norm()/z2->getLength()<0.1, true );
+  TEST_EQUALITY_CONST( error<0.1, true );
 
 }
 

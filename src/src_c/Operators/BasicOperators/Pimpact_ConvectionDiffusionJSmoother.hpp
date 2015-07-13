@@ -86,17 +86,17 @@ public:
   /// These options include the following:
 	/// - "omega" - damping parameter
   /// - "numIters" - an \c int specifying the maximum number of iterations the 
-  ConvectionDiffusionJSmoother(
-      const Teuchos::RCP<const OperatorT>& op,
-      Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ):
+	ConvectionDiffusionJSmoother(
+			const Teuchos::RCP<const OperatorT>& op,
+			Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ):
 		omega_( pl->get<Scalar>("omega", (2==op->space()->dim())?0.8:6./7. ) ),
-        nIter_( pl->get("numIters", 5 ) ),
-        op_(op),
-        temp_( create<DomainFieldT>(op_->space()) ) {}
+		nIter_( pl->get("numIters", 4 ) ),
+		op_(op),
+		temp_( create<DomainFieldT>(op_->space()) ) {}
 
 
 
-  void apply( const FluxFieldT& wind, const DomainFieldT& x, RangeFieldT& y, Scalar mul, Scalar mulI, Scalar mulC, Scalar mulL ) const { std::cout << "not implmented\n"; }
+	void apply( const FluxFieldT& wind, const DomainFieldT& x, RangeFieldT& y, Scalar mul, Scalar mulI, Scalar mulC, Scalar mulL ) const { std::cout << "not implmented\n"; }
 
 
 

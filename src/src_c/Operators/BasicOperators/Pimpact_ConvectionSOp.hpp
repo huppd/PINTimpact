@@ -103,6 +103,7 @@ public:
             space_->getCoordinatesLocal()->getX( i, EField::S ),
             cSD_[i] );
 
+
       cSU_[i] = new Scalar[ nTemp ];
       if( i<space_->dim() )
         FD_getDiffCoeff(
@@ -171,6 +172,14 @@ public:
             space_->getCoordinatesLocal()->getX( i, i ),
             space_->getCoordinatesLocal()->getX( i, i ),
             cVU_[i] );
+
+			for( Ordinal j=0; j<nTemp; ++j ) {
+				if( std::isnan( cSD_[i][j] ) || std::isinf( cSD_[i][j] ) ) cSD_[i][j] = 0.;
+				if( std::isnan( cSU_[i][j] ) || std::isinf( cSU_[i][j] ) ) cSU_[i][j] = 0.;
+				if( std::isnan( cVD_[i][j] ) || std::isinf( cVD_[i][j] ) ) cVD_[i][j] = 0.;
+				if( std::isnan( cVU_[i][j] ) || std::isinf( cVU_[i][j] ) ) cVU_[i][j] = 0.;
+			}
+
     }
 
   };

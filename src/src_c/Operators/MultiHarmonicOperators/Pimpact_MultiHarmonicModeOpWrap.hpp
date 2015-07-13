@@ -70,6 +70,10 @@ public:
 
 	const std::string getLabel() const { return( "MultiHarmonicOpWrap " ); };
 
+  void print( std::ostream& out=std::cout ) const {
+		out << getLabel() << ":\n";
+		op_->print( out );
+  }
 
 }; // end of class MultiHarmonicOpWrap
 

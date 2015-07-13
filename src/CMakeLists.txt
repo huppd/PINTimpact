@@ -46,31 +46,25 @@ project( pimpact CXX Fortran )
 option( enable_ETI "enable_ETI" OFF)
 
 # Make sure to use same compilers and flags as Trilinos
-SET(CMAKE_CXX_COMPILER ${Trilinos_CXX_COMPILER} )
-SET(CMAKE_C_COMPILER ${Trilinos_C_COMPILER} )
-SET(CMAKE_Fortran_COMPILER ${Trilinos_Fortran_COMPILER} )
+SET( CMAKE_CXX_COMPILER     ${Trilinos_CXX_COMPILER}     )
+SET( CMAKE_C_COMPILER       ${Trilinos_C_COMPILER}       )
+SET( CMAKE_Fortran_COMPILER ${Trilinos_Fortran_COMPILER} )
 
 
-SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${Trilinos_CXX_COMPILER_FLAGS}  -std=c++11 -Wall -pedantic" )
-SET( CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} ${Trilinos_C_COMPILER_FLAGS}   -Wall -pedantic" )
-#SET( CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} ${Trilinos_C_COMPILER_FLAGS}" )
-SET( CMAKE_Fortran_FLAGS  "${CMAKE_Fortran_FLAGS} ${Trilinos_Fortran_COMPILER_FLAGS} -Wall" )
+SET( CMAKE_CXX_FLAGS     "${CMAKE_CXX_FLAGS}     ${Trilinos_CXX_COMPILER_FLAGS}     -std=c++11 -Wall -pedantic" )
+SET( CMAKE_C_FLAGS       "${CMAKE_C_FLAGS}       ${Trilinos_C_COMPILER_FLAGS}       -Wall -pedantic" )
+SET( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${Trilinos_Fortran_COMPILER_FLAGS} -Wall" )
 
 
 IF( CMAKE_COMPILER_IS_GNUCXX )
-	SET( CMAKE_Fortran_FLAGS  "${CMAKE_Fortran_FLAGS} -ffree-line-length-none -fdollar-ok -Wall " )
 	SET( CMAKE_CXX_FLAGS_RELEASE  "${CMAKE_CXX_FLAGS_RELEASE} -Ofast -ftree-vectorizer-verbose=2 -funroll-all-loops -ftree-vectorize  -ffast-math -funsafe-math-optimizations -fargument-noalias-global -march=native -malign-double")
-	SET( CMAKE_Fortran_FLAGS_RELEASE  " ${CMAKE_Fortran_FLAGS_RELEASE} -ftree-vectorizer-verbose=2  -ffast-math -funroll-all-loops -fpeel-loops -ftracer -funswitch-loops -ftree-vectorize -march=native -funsafe-math-optimizations -fomit-frame-pointer -fno-math-errno  -Ofast -fargument-noalias-global -march=native -malign-double" )
 	set( CMAKE_CXX_FLAGS_PROFILE "${CMAKE_CXX_FLAGS_PROFILE} ${CMAKE_CXX_FLAGS_RELEASE}  -g ")# -pg
-	#set( CMAKE_C_FLAGS_PROFILE "${CMAKE_C_FLAGS_PROFILE}  -g -march=native -malign-double ")# -pg
+	SET( CMAKE_Fortran_FLAGS  "${CMAKE_Fortran_FLAGS} -ffree-line-length-none -fdollar-ok -Wall " )
+	SET( CMAKE_Fortran_FLAGS_RELEASE  " ${CMAKE_Fortran_FLAGS_RELEASE} -ftree-vectorizer-verbose=2  -ffast-math -funroll-all-loops -fpeel-loops -ftracer -funswitch-loops -ftree-vectorize -march=native -funsafe-math-optimizations -fomit-frame-pointer -fno-math-errno  -Ofast -fargument-noalias-global -march=native -malign-double" )
 	set( CMAKE_Fortran_FLAGS_PROFILE "${CMAKE_Fortran_FLAGS_PROFILE} ${CMAKE_Fortran_FLAGS_RELEASE}  -g  ")  # -pg
-	#SET( CMAKE_Fortran_FLAGS_RELEASE  "${CMAKE_Fortran_FLAGS} -ftree-vectorizer-verbose=2 -ffree-line-length-none  -msse2 -ffast-math -funroll-all-loops -fpeel-loops -ftracer -funswitch-loops -ftree-vectorize -march=native -funsafe-math-optimizations  -fno-math-errno -fdollar-ok -Wall -pg " )
-	#SET( CMAKE_Fortran_COMPILE_FLAGS_RELEASE "${CMAKE_Fortran_COMPILE_FLAGS} ${Trilinos_Fortran_COMPILER_FLAGS} -xf95-cpp-input -fdefault-real-8 -fdefault-double-8 "  )
 	SET( CMAKE_Fortran_COMPILE_FLAGS "${CMAKE_Fortran_COMPILE_FLAGS} ${Trilinos_Fortran_COMPILER_FLAGS} -xf95-cpp-input -fdefault-real-8 -fdefault-double-8  "  )
-	#SET( CMAKE_CXX_COMPILE_FLAGS "${CMAKE_CXX_COMPILE_FLAGS} ${Trilinos_CXX_COMPILER_FLAGS}  -pg"  )
-	#SET( CMAKE_Fortran_LINK_FLAGS "${CMAKE_Fortran_LINK_FLAGS} ${Trilinos_Fortran_LINK_FLAGS} -pg "  )
-	#SET( CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} ${Trilinos_CXX_LINK_FLAGS} -pg "  )
-	#SET( CMAKE_Fortran_LINK_FLAGS "${CMAKE_Fortran_LINK_FLAGS} ${Trilinos_Fortran_LINK_FLAGS} -pg "  )
+	#SET( CMAKE_Fortran_COMPILE_FLAGS_RELEASE "${CMAKE_Fortran_COMPILE_FLAGS} ${Trilinos_Fortran_COMPILER_FLAGS} -xf95-cpp-input -fdefault-real-8 -fdefault-double-8 "  )
+	#SET( CMAKE_Fortran_FLAGS_RELEASE  "${CMAKE_Fortran_FLAGS} -ftree-vectorizer-verbose=2 -ffree-line-length-none  -msse2 -ffast-math -funroll-all-loops -fpeel-loops -ftracer -funswitch-loops -ftree-vectorize -march=native -funsafe-math-optimizations  -fno-math-errno -fdollar-ok -Wall -pg " )
 ELSE()
 	SET( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -vec-report2 -ip -fno-alias -msse2 " )
 	SET( CMAKE_Fortran_FLAGS_RELEASE  "${CMAKE_Fortran_FLAGS_RELEASE} -funroll-all-loops -march=native -fomit-frame-pointer -fno-math-errno -vec-report2 -ip -fno-alias -msse2 " )

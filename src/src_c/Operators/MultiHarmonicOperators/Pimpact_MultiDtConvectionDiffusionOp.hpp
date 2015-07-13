@@ -167,6 +167,11 @@ public:
 
 	const std::string getLabel() const { return( "MHDtConvectionDiffusion" ); };
 
+  void print( std::ostream& out=std::cout ) const {
+		out <<  getLabel() << ":\n";
+		op_->print( out );
+  }
+
 }; // end of class MultiDtConvectionDiffusionOp
 
 

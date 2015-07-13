@@ -86,7 +86,7 @@ public:
     convVWrap_->print(out);
   }
 
-	const std::string getLabel() const { return( "ConvectionVSmoother" ); };
+	const std::string getLabel() const { return( convVWrap_->getLabel() ); };
 
 }; // end of class ConvectionVSmoother
 

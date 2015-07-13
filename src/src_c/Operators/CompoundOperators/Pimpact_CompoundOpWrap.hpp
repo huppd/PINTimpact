@@ -73,6 +73,13 @@ public:
 
 	const std::string getLabel() const { return( "Compound( "+opV2V_->getLabel()+", "+opS2V_->getLabel()+", "+opV2S_->getLabel() +" )" ); };
 
+  void print( std::ostream& out=std::cout ) const {
+		out << getLabel() << ":\n";
+		opV2V_->print( out );
+		opS2V_->print( out );
+		opV2S_->print( out );
+  }
+
 }; // end of class CompoundOpWrap
 
 

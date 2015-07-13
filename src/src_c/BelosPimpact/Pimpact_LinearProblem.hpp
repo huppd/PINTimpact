@@ -108,6 +108,10 @@ public:
 
 
   //@}
+	
+  void print( std::ostream& out=std::cout ) const {
+		problem_->getOperator()->print( out );
+  }
 
 }; // end of class LinearProblem
 

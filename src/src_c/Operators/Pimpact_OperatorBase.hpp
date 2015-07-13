@@ -33,6 +33,8 @@ public:
 
 	virtual const std::string getLabel() const { return( std::string("PImpact: ") ); };
 
+	virtual void print( std::ostream& out=std::cout ) const {  };
+
 }; // end of class OperatorBase
 
 
@@ -76,6 +78,8 @@ public:
   virtual Teuchos::RCP<Op> getOperatorPtr() { return( opm_ ); }
 
 	virtual const std::string getLabel() const { return( opm_->getLabel() ); };
+
+	virtual void print( std::ostream& out=std::cout ) const { opm_->print( out ); };
 
 }; // end of OperatorPimpl
 

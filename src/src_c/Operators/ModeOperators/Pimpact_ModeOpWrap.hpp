@@ -64,6 +64,11 @@ public:
 
 	const std::string getLabel() const { return( "ModeOpWrap( "+op_->getLabel()+" ) " ); };
 
+  void print( std::ostream& out=std::cout ) const {
+		out << getLabel() << ":\n";
+		op_->print( out );
+  }
+
 }; // end of class ModeOpWrap
 
 

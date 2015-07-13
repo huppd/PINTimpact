@@ -54,6 +54,11 @@ public:
 
 	const std::string getLabel() const { return( "DtModeOp " ); };
 
+  void print( std::ostream& out=std::cout ) const {
+		out << getLabel() << ":\n";
+		out << "alpha2: " << alpha2_ << "\n";
+  }
+
 }; // end of class DtModeOp
 
 
