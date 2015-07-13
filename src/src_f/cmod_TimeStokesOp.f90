@@ -396,7 +396,7 @@ contains
 
 
     integer (c_int), parameter :: block_size = 14 ! decompose this in time points + pressure...
-    integer(c_int)             :: l, ll
+    integer(c_int)             :: l, ll, d, c
     integer(c_int)             :: ipiv(block_size)
      
 
@@ -414,16 +414,14 @@ contains
 
      ! ------------------------!
         
-        print*, "u", rhs_vel(3,3,3,1,2)
-        print*, "v", rhs_vel(3,3,3,2,2)
-        print*, "w", rhs_vel(3,3,3,3,2)
-
-    A(1:block_size,1:block_size) = 0.0
-
     do t = SS(4), N(4) - 1 
     do k = SW(3), NW(3)
       do j = SV(2), NV(2)
         do i = SU(1), NU(1)
+                        
+         A(1:block_size,1:block_size) = 0.0
+         b(1:block_size) = 0.0
+
 
             ! from dL to DU loop? no for b.s. just small stencil. time
             ! periodcity?
@@ -433,19 +431,19 @@ contains
         !========== assembling the matrix A ===========================
         !==============================================================
 
-            ! diagonal: time derivative + diffusion (sign of dt?)
+            ! diagonal: time derivative + diffusion 
 
-            A(1,1) = mulI - mulL*c11u(0,i)
-            A(2,2) = mulI - mulL*c11u(0,i-1)
+            A(1,1) = mulI - mulL*(c11u(0,i) + c11p(0,i))
+            A(2,2) = mulI - mulL*(c11u(0,i-1) + c11p(0,i-1))
 
-            A(3,3) = mulI - mulL*c22v(0,j)
-            A(4,4) = mulI - mulL*c22v(0,j-1)
+            A(3,3) = mulI - mulL*(c22v(0,j) + c22p(0,j))
+            A(4,4) = mulI - mulL*(c22v(0,j-1) + c22p(0,j-1))
 
-            A(5,5) = mulI - mulL*c33w(0,k)
-            A(6,6) = mulI - mulL*c33w(0,k-1)
+            A(5,5) = mulI - mulL*(c33w(0,k) + c33p(0,k))
+            A(6,6) = mulI - mulL*(c33w(0,k-1) + c33p(0,k-1))
 
             ! sub/super-diagonal: diffusion
-
+                
             A(1,2) = - mulL*c11u(bL(1),i)
             A(2,1) = - mulL*c11u(bU(1),i-1)
 
@@ -466,20 +464,22 @@ contains
             ! divergence on pressure points indeces are correct?
             A(13,1:6) = (/ cD1(dU(1),i), cD1(dL(1),i), cD2(dU(2),j), cD2(dL(2),j),cD3(dU(3),k), cD3(dL(3),k)/)
             A(14,7:12) = A(13,1:6)
-
+                
             ! time derivative 
 
-            do l = 1,6
-            A(l+6,l) = - mulI
+            do d = 1,6
+            A(d+6,d) = - mulI
             end do
 
             !===================================================
             !========== assembling the RHS =====================
             !===================================================
+                
+                ! boundary term !
 
             ! diffusion 
             do l = 0,1
-                do ll =0,1
+               do ll =0,1
                 
                 b(l+1+6*ll) = c22p(bU(1),i-l)*vel(i-l,j+1,k,1,t+ll) + c22p(bL(1),i-l)*vel(i-l,j-1,k,1,t+ll) + &
                            c33p(bU(1),i-l)*vel(i-l,j,k+1,1,t+ll) + c33p(bL(1),i-l)*vel(i-l,j,k-1,1,t+ll) 
@@ -492,7 +492,6 @@ contains
                 end do
            end do
                 
-
             b = b + (/ c11u(bU(1),i)*vel(i+1,j,k,1,t),c11u(bL(1),i-1)*vel(i-2,j,k,1,t),&
                        c22v(bU(2),j)*vel(i,j+1,k,2,t),c22v(bL(2),j-1)*vel(i,j-2,k,2,t),&
                        c33w(bU(3),k)*vel(i,j,k+1,3,t),c33w(bL(3),k-1)*vel(i,j,k-2,3,t),&
@@ -511,12 +510,15 @@ contains
                        cG2(gU(2),j)*p(i,j+1,k,t+1),cG2(gL(2),j-1)*p(i,j-1,k,t+1),&
                        cG3(gU(3),k)*p(i,j,k+1,t+1),cG3(gL(3),k-1)*p(i,j,k-1,t+1),&
                        0., 0. /) ! -> divergence
-
+            
             ! time stencil (just in the first time slice)
             b(1:6) = b(1:6) - mulI*(/ vel(i,j,k,1,t-1), vel(i-1,j,k,1,t-1),&
                                         vel(i,j,k,2,t-1), vel(i,j-1,k,2,t-1),&
                                         vel(i,j,k,3,t-1), vel(i,j,k-1,3,t-1) /)
-        
+            
+                ! new
+                b = -b
+                
             ! add the RHS to b (boundary)
             b = b + (/ rhs_vel(i,j,k,1:3,t),&
                        rhs_vel(i,j,k,1:3,t+1),&
@@ -530,9 +532,12 @@ contains
 !print *,'-------- the matrix A ----------'
 
 !do l = 1, block_size
-!write(*,'(14F11.3)') (A(l,ll), ll = 1, block_size) 
+!write(*,'(14F7.2)') (A(l,c), c = 1, block_size) 
 !end do
 !write(*,*)
+
+!print *,'-------- RHS ----------'
+!print*, b
 
 
 !call dgesvd ( 'A', 'A', block_size, block_size, A, block_size, s, u, block_size, vt, block_size, work, lwork , info )
@@ -545,13 +550,11 @@ contains
 
 !print*,'------- singular values ---------'
 !print*, s
+ !-------------------------------------------!
 
-! -------------------------------------------!
-
-
-!print*, '! -------- Factor the matrix A --------------!'
-
-  call dgetrf ( block_size, block_size, A, block_size, ipiv, info )
+!print*, '! -------- Solve the matrix A --------------!'
+! subroutine     dgesv (N, NRHS, A, LDA, IPIV, B, LDB, INFO)
+ call dgesv( block_size, 1, A, block_size, ipiv, b, block_size, info )
   
   if ( info /= 0 ) then
     write ( *, '(a)' ) ' '
@@ -559,34 +562,11 @@ contains
     write ( *, '(a)' ) '  The matrix is numerically singular.'
     return
   end if
-  
-! print*, '------ matrix A -----'
-!do l = 1, block_size
-!write(*,'(14F8.1)') (A(l,ll), ll = 1, block_size) 
-!end do
-!write(*,*)
-!print*, '---------------------'
 
-
-  call dgetrs ( 'N', block_size, 1, A, block_size, ipiv, b, block_size, info )
-
-  if ( info /= 0 ) then
-    write ( *, '(a)' ) ' '
-    write ( *, '(a)' ) '  Solution procedure failed!'
-    write ( *, '(a,i8)' ) '  INFO = ', info
-    return
-  end if
-
-!print*, '------------ result -------------'
+!print *,'-------- solution ----------'
 !print*, b
-!print*, '---------------------------------'
 
-        ! assign the solution (more general)     
-        
-        !print*, '------ max -------'
-        !print*, NU(1),NV(2),NW(3),NN(4)
-        !print*, '------- i j k t+1 -------'
-        !print*, i,j,k,t+1
+       !assign new solution  
        
         vel(i,j,k,1,t:t+1) = (/ b(1), b(7) /)
         vel(i-1,j,k,1,t:t+1) = (/ b(2), b(8) /)
@@ -603,5 +583,295 @@ contains
     end do
 
   end subroutine OP_TimeStokesBSmoother
+
+! new stuff
+
+  subroutine OP_TimeStokesLSmoother( &
+      dimens,               &
+      N,                    &
+      bL,bU,                &
+      dL,dU,                &
+      gL,gU,                &
+      SS,NN,                &
+      SU,NU,                &
+      SV,NV,                &
+      SW,NW,                &
+      c11p,c22p,c33p,       &
+      c11u,c22v,c33w,       &
+      cD1,                  &
+      cD2,                  &
+      cD3,                  &
+      cG1,                  &
+      cG2,                  &
+      cG3,                  &
+      mulI,                 &
+      mulL,                 &
+      rhs_vel,              &
+      rhs_p,                &
+      vel,                  &
+      p,                    &
+      t_size) bind (c,name='OP_TimeStokesLSmoother')
+
+
+    implicit none
+
+    integer(c_int), intent(in)  :: dimens
+
+    integer(c_int), intent(in)  :: N(4)
+
+    integer(c_int), intent(in)  :: bL(4)
+    integer(c_int), intent(in)  :: bU(4)
+
+    integer(c_int), intent(in)  :: dL(4)
+    integer(c_int), intent(in)  :: dU(4)
+
+    integer(c_int), intent(in)  :: gL(4)
+    integer(c_int), intent(in)  :: gU(4)
+
+    integer(c_int), intent(in)  :: SS(4)
+    integer(c_int), intent(in)  :: NN(4)
+
+    integer(c_int), intent(in)  :: SU(4)
+    integer(c_int), intent(in)  :: NU(4)
+
+    integer(c_int), intent(in)  :: SV(4)
+    integer(c_int), intent(in)  :: NV(4)
+
+    integer(c_int), intent(in)  :: SW(4)
+    integer(c_int), intent(in)  :: NW(4)
+
+    real(c_double), intent(in)  :: c11p(bL(1):bU(1),0:N(1))
+    real(c_double), intent(in)  :: c22p(bL(2):bU(2),0:N(2))
+    real(c_double), intent(in)  :: c33p(bL(3):bU(3),0:N(3))
+
+    real(c_double), intent(in)  :: c11u(bL(1):bU(1),0:N(1))
+    real(c_double), intent(in)  :: c22v(bL(2):bU(2),0:N(2))
+    real(c_double), intent(in)  :: c33w(bL(3):bU(3),0:N(3))
+
+    real(c_double), intent(in)  :: cD1(dL(1):dU(1),0:N(1))
+    real(c_double), intent(in)  :: cD2(dL(2):dU(2),0:N(2))
+    real(c_double), intent(in)  :: cD3(dL(3):dU(3),0:N(3))
+
+    real(c_double), intent(in)  :: cG1(gL(1):gU(1),0:N(1))
+    real(c_double), intent(in)  :: cG2(gL(2):gU(2),0:N(2))
+    real(c_double), intent(in)  :: cG3(gL(3):gU(3),0:N(3))
+
+    real(c_double), intent(in)  :: mulI
+    real(c_double), intent(in)  :: mulL
+        
+    real(c_double), intent(inout)  :: vel  ( bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), 1:3, 0:(N(4)+bU(4)-bL(4)) )
+
+    real(c_double), intent(inout)  :: p    ( bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)),   0:(N(4)+bU(4)-bL(4)) )
+
+    real(c_double), intent(in) :: rhs_vel( bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), 1:3, 0:(N(4)+bU(4)-bL(4)) )
+
+    real(c_double), intent(in) :: rhs_p  ( bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)),      0:(N(4)+bU(4)-bL(4)) )
+
+    integer(c_int), intent(in)  :: t_size
+
+    integer(c_int)              ::  i
+    integer(c_int)              ::  j
+    integer(c_int)              ::  k
+    integer(c_int)              ::  t
+
+    !===========================================================================================================
+
+    integer(c_int)             :: block_size 
+    integer(c_int)             :: l, ll, d, c
+    integer(c_int), allocatable :: ipiv(:)
+        
+    real (c_double), allocatable :: A(:,:) 
+    real (c_double), allocatable :: b(:)
+
+    integer(c_int) :: info
+
+write(*,*) "prova"
+print*, mulI
+print*, t_size
+
+    block_size = 7*t_size
+
+write(*,*) block_size
+
+    allocate(A(block_size,block_size),b(block_size),ipiv(block_size))
+ 
+    do t = SS(4),N(4) - (t_size-1),t_size-1
+    do k = SW(3), NW(3)
+      do j = SV(2), NV(2)
+        do i = SU(1), NU(1)
+            
+write(*,*) i,j,k
+            
+         A(1:block_size,1:block_size) = 0.0
+         b(1:block_size) = 0.0
+
+        !==============================================================
+        !========== assembling the matrix A ===========================
+        !==============================================================
+                
+write(*,*) i,j,k
+
+            ! diagonal: time derivative + diffusion 
+
+            A(1,1) = mulI - mulL*(c11u(0,i) + c11p(0,i))
+            A(2,2) = mulI - mulL*(c11u(0,i-1) + c11p(0,i-1))
+
+            A(3,3) = mulI - mulL*(c22v(0,j) + c22p(0,j))
+            A(4,4) = mulI - mulL*(c22v(0,j-1) + c22p(0,j-1))
+
+            A(5,5) = mulI - mulL*(c33w(0,k) + c33p(0,k))
+            A(6,6) = mulI - mulL*(c33w(0,k-1) + c33p(0,k-1))
+
+            ! sub/super-diagonal: diffusion
+                
+            A(1,2) = - mulL*c11u(bL(1),i)
+            A(2,1) = - mulL*c11u(bU(1),i-1)
+
+            A(3,4) = - mulL*c22v(bL(2),j)
+            A(4,3) = - mulL*c22v(bU(2),j-1)
+
+            A(5,6) = - mulL*c33w(bL(3),k)
+            A(6,5) = - mulL*c33w(bU(3),k-1)
+
+            ! pressure gradient
+            A(1:6,13) = (/ cG1(gL(1),i), cG1(gU(1),i-1),cG2(gL(2),j),cG2(gU(2),j-1), cG3(gL(3),k), cG3(gU(3),k-1) /)
+
+            ! divergence on pressure points indeces are correct?
+            A(13,1:6) = (/ cD1(dU(1),i), cD1(dL(1),i), cD2(dU(2),j),cD2(dL(2),j),cD3(dU(3),k), cD3(dL(3),k)/)
+
+            ! copy for others time slices
+            if ( t_size > 1) then
+                do l = 1, t_size - 1
+                    ! diffusion
+                    A(l*6+1:(l+1)*6,l*6+1:(l+1)*6) = A(1:6,1:6)
+
+                    ! p gradient
+                    A(l*6+1:(l+1)*6,6*t_size + 1 + l) = A(1:6,6*t_size + 1)
+
+                    ! divergence
+                    A(6*t_size + 1 + l,l*6+1:(l+1)*6) = A(6*t_size + 1,1:6)
+
+                    ! time derivative
+                    do d = l*6 - 5, l*6
+                        A(d+6,d) = - mulI
+                    end do
+
+                end do
+            end if
+
+write(*,*) i,j,k
+            !===================================================
+            !========== assembling the RHS =====================
+            !===================================================
+
+            ! diffusion 
+            do ll = 0,t_size-1
+
+                do l = 0,1
+
+                    b(l+1+6*ll) = c22p(bU(1),i-l)*vel(i-l,j+1,k,1,t+ll) + c22p(bL(1),i-l)*vel(i-l,j-1,k,1,t+ll) + &
+                           c33p(bU(1),i-l)*vel(i-l,j,k+1,1,t+ll) + c33p(bL(1),i-l)*vel(i-l,j,k-1,1,t+ll) 
+                        
+                    b(l+3+6*ll) = c11p(bU(2),j-l)*vel(i+1,j-l,k,2,t+ll) + c11p(bL(2),j-l)*vel(i-1,j-l,k,2,t+ll) + &
+                           c33p(bU(2),j-l)*vel(i,j-l,k+1,2,t+ll) + c33p(bL(2),j-l)*vel(i,j-l,k-1,2,t+ll) 
+
+                    b(l+5+6*ll) = c22p(bU(3),k-l)*vel(i,j+1,k-l,3,t+ll) + c22p(bL(3),k-l)*vel(i,j-1,k-l,3,t+ll) + &
+                           c11p(bU(3),k-l)*vel(i+1,j,k-l,3,t+ll) + c11p(bL(3),k-l)*vel(i-1,j,k-l,3,t+ll) 
+                end do
+
+                b(6*ll + 1 : 6*(ll+1)) = b(6*ll + 1 : 6*(ll+1)) + &
+                                             (/ c11u(bU(1),i)*vel(i+1,j,k,1,t+ll),c11u(bL(1),i-1)*vel(i-2,j,k,1,t+ll),&
+                                                c22v(bU(2),j)*vel(i,j+1,k,2,t+ll),c22v(bL(2),j-1)*vel(i,j-2,k,2,t+ll),&
+                                                c33w(bU(3),k)*vel(i,j,k+1,3,t+ll),c33w(bL(3),k-1)*vel(i,j,k-2,3,t+ll) /)
+            end do
+
+            b = mulL*b
+
+            do ll =0,t_size-1
+
+            ! pressure gradient
+            b(6*ll + 1 : 6*(ll+1)) = b(6*ll + 1 : 6*(ll+1)) + &
+                    (/ cG1(gU(1),i)*p(i+1,j,k,t),cG1(gL(1),i-1)*p(i-1,j,k,t),&
+                       cG2(gU(2),j)*p(i,j+1,k,t),cG2(gL(2),j-1)*p(i,j-1,k,t),&
+                       cG3(gU(3),k)*p(i,j,k+1,t),cG3(gL(3),k-1)*p(i,j,k-1,t)/)
+
+            end do
+
+            ! time stencil (just in the first time slice)
+            b(1:6) = b(1:6) - mulI*(/ vel(i,j,k,1,t-1), vel(i-1,j,k,1,t-1),&
+                                        vel(i,j,k,2,t-1), vel(i,j-1,k,2,t-1),&
+                                        vel(i,j,k,3,t-1), vel(i,j,k-1,3,t-1) /)
+            ! move it to the rhs
+            b = - b
+            
+            ! add the RHS to b (boundary)
+            ! velocity
+            do ll =0,t_size-1
+                 b(6*ll + 1 : 6*(ll+1)) = b(6*ll + 1 : 6*(ll+1)) + rhs_vel(i,j,k,1:3,t+ll)
+            end do
+            !pressure
+            b(block_size-t_size + 1:block_size) = b(block_size-t_size + 1:block_size) + rhs_p(i,j,k,t:t_size-1)
+
+! ---------- test the matrix A --------------!
+
+write(*,*) i,j,k
+
+print *,'-------- the matrix A ----------'
+
+do l = 1, block_size
+write(*,'(14F7.2)') (A(l,c), c = 1, block_size) 
+end do
+write(*,*)
+
+!print *,'-------- RHS ----------'
+!print*, b
+
+
+!call dgesvd ( 'A', 'A', block_size, block_size, A, block_size, s, u,
+!block_size, vt, block_size, work, lwork , info )
+
+!if ( info /= 0 ) then
+!write ( *, '(a)' ) ' '
+!write ( *, '(a,i8)' ) '  DGESVD returned nonzero INFO = ', info
+!return
+!end if
+
+!print*,'------- singular values ---------'
+!print*, s
+ !-------------------------------------------!
+
+!print*, '! -------- Solve the matrix A --------------!'
+! subroutine     dgesv (N, NRHS, A, LDA, IPIV, B, LDB, INFO)
+ call dgesv( block_size, 1, A, block_size, ipiv, b, block_size, info )
+  
+  if ( info /= 0 ) then
+    write ( *, '(a)' ) ' '
+    write ( *, '(a,i8)' ) '  DGETRF returned INFO = ', info
+    write ( *, '(a)' ) '  The matrix is numerically singular.'
+    return
+  end if
+
+!print *,'-------- solution ----------'
+!print*, b
+
+       !assign new solution  
+
+        do ll = 0,t_size-1
+            vel(i:i-1,j,k,1,t+ll) = b(6*ll+1:6*ll+2)
+            vel(i,j:j-1,k,2,t+ll) = b(6*ll+3:6*ll+4)
+            vel(i,j,k:k-1,3,t+ll) = b(6*ll+5:6*ll+6)
+
+        end do
+
+        p(i,j,k,t:t+t_size-1) = b(block_size-t_size+1:block_size)
+
+        end do
+      end do
+    end do
+    end do
+
+    deallocate(A,b,ipiv)
+
+  end subroutine OP_TimeStokesLSmoother
 
 end module cmod_TimeStokesOp

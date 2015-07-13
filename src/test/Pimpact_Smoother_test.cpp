@@ -22,6 +22,7 @@
 //#include "Pimpact_TimeNonlinearJacobianOp.hpp"
 
 #include "Pimpact_TimeStokesBSmoother.hpp"
+#include "Pimpact_TimeStokesLSmoother.hpp"
 
 namespace {
 
@@ -36,10 +37,10 @@ double eps = 3e-1;
 int domain = 1;
 int dim = 3;
 
-int npx = 2;
-int npy = 2;
+int npx = 1;
+int npy = 1;
 int npz = 1;
-int npf = 2;
+int npf = 1;
 
 
 typedef Pimpact::Space<S,O,d,dNC> SpaceT;
@@ -121,6 +122,8 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesBSmooth ) {
         //auto y = Pimpact::create<typename OpT::RangeFieldT>( space );
 
 	auto bSmoother = Teuchos::rcp(new Pimpact::TimeStokesBSmoother<OpT>( op ));
+	
+	auto lSmoother = Teuchos::rcp(new Pimpact::TimeStokesLSmoother<OpT>( op ));
 
 	//bSmoother->apply(*x,*y);
 
@@ -131,33 +134,36 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesBSmooth ) {
 	auto x = Pimpact::createCompoundField( Pimpact::createTimeField< Pimpact::VectorField<SpaceT> >( space ),
 					       Pimpact::createTimeField< Pimpact::ScalarField<SpaceT> >( space ));
 	auto y = x->clone();
-	auto y_cc = x->clone(); // for the consistecy check
-	auto true_sol = x->clone();
+	//auto y_cc = x->clone(); // for the consistecy check
+	//auto true_sol = x->clone();
 	auto error = x->clone();
+	auto pulsatile = x->clone();	
 	
-	double p = 0.5;
+	double p = 10;
 	double alpha = std::sqrt(pl->get<double>("alpha2"));
 
 	// RHS
 	Pimpact::initVectorTimeField( y->getVFieldPtr(), Pimpact::ConstVel_inX, p);	
 
 	// true solution //pl->get<int> ("Block Size");
-	Pimpact::initVectorTimeField( true_sol->getVFieldPtr(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha );
+	Pimpact::initVectorTimeField( pulsatile->getVFieldPtr(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha );
 		
 	// consistecy check
-	op->apply(*true_sol,*y_cc);
- 	error->add( 1., *y_cc, -1., *y );
+	//op->apply(*true_sol,*y_cc);
+ 	//error->add( 1., *y_cc, -1., *y );
 
 	//y->write();
 	//y_cc->write(100);
 	
-	std::cout << "|| error || = " << error()->norm() << std::endl;
+	//std::cout << "|| error || = " << error()->norm() << std::endl;
 
-	TEST_EQUALITY( error()->norm()<eps, true );
+	//TEST_EQUALITY( error()->norm()<eps, true );
 	
+	auto true_sol = pulsatile->clone();
 
 	// test smoothing
 	x->random();
+	x->scale(10);
 	
 	// initial error
 	error->add( 1., *x, -1., *true_sol );
@@ -175,9 +181,30 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesBSmooth ) {
 
         // final error2
         error->add( 1., *x, -1., *true_sol );
-        error->write(200);
-
+        error->write(200);	
 }
 
+TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesLSmooth ) {
 
-} // end of namespace
+        pl->set("npx", npx) ;
+        pl->set("npy", npy) ;
+        pl->set("npz", npz) ;
+        pl->set("npf", npf) ;
+
+        typedef Pimpact::TimeStokesOp<SpaceT> OpT;
+        auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+
+        auto op = Pimpact::create<OpT>( space );
+
+        auto x = Pimpact::create<typename OpT::DomainFieldT>( space );
+        auto y = Pimpact::create<typename OpT::RangeFieldT>( space );
+        
+        auto bSmoother = Teuchos::rcp(new Pimpact::TimeStokesBSmoother<OpT>( op ));      
+        auto lSmoother = Teuchos::rcp(new Pimpact::TimeStokesLSmoother<OpT>( op ));
+        
+        //bSmoother->apply(*x,*y);
+        lSmoother->apply(*x,*y,2);                                        
+	}
+}
+                                        
+
