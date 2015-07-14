@@ -626,14 +626,11 @@ int main(int argi, char** argv ) {
 	 Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr()->write( 800 );
 	 Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr()->getFieldPtr(0)->getVFieldPtr()->write( 400, true );
 //		Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(900);
-  }
-	/******************************************************************************************/
-//	auto er = x->clone(Pimpact::ShallowCopy);
-	sol->add( 1., *sol, -1, *x->getFieldPtr(0)->getVFieldPtr());
 
-	auto er = sol->norm();
-	if( 0==space->rankST() )
-		std::cout << "error: " << er << "\n";
+  } // test convergence
+	// spectral refinement
+	// loop
+	/******************************************************************************************/
 
 
   MPI_Finalize();
