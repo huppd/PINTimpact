@@ -363,25 +363,25 @@ public:
       break;
 	
 
-    case Pulsatile2D_inX :
-      VF_init_2DPulsatileX(
-         space()->nLoc(),
-         space()->bl(),
-         space()->bu(),
-         space()->sIndB(U),
-         space()->eIndB(U),
-         space()->sIndB(V),
-         space()->eIndB(V),
-         space()->sIndB(W),
-         space()->eIndB(W),
-         space()->getDomain()->getDomainSize()->getSize(1),
-         om, // om here as time
-	 space()->getCoordinatesLocal()->getX(Y,EField::S),
-         re, sca, px, // sca is fo alpha 
-         sFields_[U]->getRawPtr(),
-         sFields_[V]->getRawPtr(),
-         sFields_[W]->getRawPtr() );           
-         break;
+		case Pulsatile2D_inX :
+			VF_init_2DPulsatileX(
+					space()->nLoc(),
+					space()->bl(),
+					space()->bu(),
+					space()->sIndB(U),
+					space()->eIndB(U),
+					space()->sIndB(V),
+					space()->eIndB(V),
+					space()->sIndB(W),
+					space()->eIndB(W),
+					space()->getDomain()->getDomainSize()->getSize(1),
+					om, // om here as time
+					space()->getCoordinatesLocal()->getX(Y,EField::S),
+					re, sca, px, // sca is fo alpha 
+					sFields_[U]->getRawPtr(),
+					sFields_[V]->getRawPtr(),
+					sFields_[W]->getRawPtr() );           
+			break;
 
     case Pulsatile2D_inXC :
       VF_init_2DPulsatileXC(
@@ -671,73 +671,71 @@ public:
           sFields_[V]->getRawPtr(),
           sFields_[W]->getRawPtr() );
       break;
-	//	case SweptHiemenzFlow: {
-	//		Scalar kappa = 0.;
-	//		Scalar sweep_angle = 60.;
-	//		Scalar pi = 4.*std::atan(1.);
-	//		VF_init_SHBF( 
-	//				space()->rankST(),      
-	//				space()->getProcGrid()->getShift(0),
-	//				space()->getProcGrid()->getIB(0),
-	//				space()->nGlo(),
-	//				space()->nLoc(),
-	//				space()->bl(),
-	//				space()->bu(),
-	//				space()->dl(),
-	//				space()->du(),
-        //  space()->sIndB(U),
-        //  space()->eIndB(U),
-        //  space()->sIndB(V),
-        //  space()->eIndB(V),
-        //  space()->sIndB(W),
-        //  space()->eIndB(W),
-        //  space()->getCoordinatesGlobal()->getX(X,EField::S),
-        //  space()->getCoordinatesGlobal()->getX(X,EField::U),
-        //  space()->getCoordinatesLocal()->getX(Z,EField::W),
-	//				space()->getInterpolateV2S()->getC( X ),
-	//				space()->getDomain()->getDomainSize()->getRe(),
-	//				0,  // nonDim  
-	//				kappa, // kappa
-	//				sweep_angle, // sweep_angle_degrees,  
-	//				sweep_angle*pi/180., // sweep_angle,          
-	//				0., // angle_attack,         
-        //  sFields_[U]->getRawPtr(),
-        //  sFields_[V]->getRawPtr(),
-        //  sFields_[W]->getRawPtr() );
-	//		break;
-	//	}
-	//	case Disturbance:
-	//		VF_init_Dist(
-	//				space()->rankST(),      
-	//				space()->nLoc(),
-	//				space()->bl(),
-	//				space()->bu(),
-        //  space()->sIndB(U),
-        //  space()->eIndB(U),
-        //  space()->sIndB(V),
-        //  space()->eIndB(V),
-        //  space()->sIndB(W),
-        //  space()->eIndB(W),
-	//				space()->getDomain()->getBCGlobal()->getBCL( Z ),
-        //  space()->getCoordinatesLocal()->getX( X, EField::U ),
-        //  space()->getCoordinatesLocal()->getX( X, EField::S ),
-        //  space()->getCoordinatesLocal()->getX( Y, EField::S ),
-        //  space()->getCoordinatesLocal()->getX( Z, EField::W ),
-        //  space()->getCoordinatesLocal()->getX( Z, EField::S ),
-	//				3, // dist_type,          
-	//				0.15, // vortex_ampli_prim,  
-        //					3., // vortex_x1pos,       
-	//				3., // vortex_x3pos,       
-	//				3., // vortex_radius,      
-	//				10, // vortex_band,        
-        //  sFields_[U]->getRawPtr(),
-        //  sFields_[V]->getRawPtr(),
-        //  sFields_[W]->getRawPtr() );
-	//		break;
+//		case SweptHiemenzFlow: 
+//			Scalar kappa = 0.;
+//			Scalar sweep_angle = 60.;
+//			Scalar pi = 4.*std::atan(1.);
+//			VF_init_SHBF( 
+//					space()->rankST(),      
+//					space()->getProcGrid()->getShift(0),
+//					space()->getProcGrid()->getIB(0),
+//					space()->nGlo(),
+//					space()->nLoc(),
+//					space()->bl(),
+//					space()->bu(),
+//					space()->dl(),
+//					space()->du(),
+//				 space()->sIndB(U),
+//				 space()->eIndB(U),
+//				 space()->sIndB(V),
+//				 space()->eIndB(V),
+//				 space()->sIndB(W),
+//				 space()->eIndB(W),
+//				 space()->getCoordinatesGlobal()->getX(X,EField::S),
+//				 space()->getCoordinatesGlobal()->getX(X,EField::U),
+//				 space()->getCoordinatesLocal()->getX(Z,EField::W),
+//					space()->getInterpolateV2S()->getC( X ),
+//					space()->getDomain()->getDomainSize()->getRe(),
+//					0,  // nonDim  
+//					kappa, // kappa
+//					sweep_angle, // sweep_angle_degrees,  
+//					sweep_angle*pi/180., // sweep_angle,          
+//					0., // angle_attack,         
+//				 sFields_[U]->getRawPtr(),
+//				 sFields_[V]->getRawPtr(),
+//				 sFields_[W]->getRawPtr() );
+//			break;
+//		case Disturbance: 
+//			VF_init_Dist(
+//					space()->rankST(),      
+//					space()->nLoc(),
+//					space()->bl(),
+//					space()->bu(),
+//					space()->sIndB(U),
+//					space()->eIndB(U),
+//					space()->sIndB(V),
+//					space()->eIndB(V),
+//					space()->sIndB(W),
+//					space()->eIndB(W),
+//					space()->getDomain()->getBCGlobal()->getBCL( Z ),
+//					space()->getCoordinatesLocal()->getX( X, EField::U ),
+//					space()->getCoordinatesLocal()->getX( X, EField::S ),
+//					space()->getCoordinatesLocal()->getX( Y, EField::S ),
+//					space()->getCoordinatesLocal()->getX( Z, EField::W ),
+//					space()->getCoordinatesLocal()->getX( Z, EField::S ),
+//					3, // dist_type,          
+//					0.15, // vortex_ampli_prim,  
+//					3., // vortex_x1pos,       
+//					3., // vortex_x3pos,       
+//					3., // vortex_radius,      
+//					10, // vortex_band,        
+//					sFields_[U]->getRawPtr(),
+//					sFields_[V]->getRawPtr(),
+//					sFields_[W]->getRawPtr() );
+//			break;
 		}
-    //    }
-    changed();
-  }
+		changed();
+	}
 
 
   /// dirty hack(necessary for MG)
@@ -842,7 +840,7 @@ public:
 
   Scalar* getRawPtr ( int i )       { return( sFields_[i]->getRawPtr() ); }
 
-  const Scalar* getConstRawPtr ( int i )  const  { return( sFields_[i]->getRawPtr() ); }
+  const Scalar* getConstRawPtr ( int i )  const  { return( sFields_[i]->getConstRawPtr() ); }
 
 
   Teuchos::RCP<SF> getFieldPtr( int i ) { return(  sFields_[i] ); }

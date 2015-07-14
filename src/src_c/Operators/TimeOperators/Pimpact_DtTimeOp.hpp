@@ -67,6 +67,8 @@ public:
 
 	Teuchos::RCP<const SpaceT> space() const { return(space_); };
 
+	const std::string getLabel() const { return( "DtTimeOp " ); };
+
 }; // end of class DtTimeOp
 
 

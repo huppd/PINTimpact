@@ -90,7 +90,7 @@ public:
       const Teuchos::RCP<const OperatorT>& op,
       Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ):
         omega_( pl->get("omega", 1. ) ),
-        nIter_( pl->get("numIters", 10 ) ),
+        nIter_( pl->get("numIters", 1 ) ),
         ordering_( pl->get("Ordering",1 ) ),
         loopOrder_( Teuchos::tuple<short int>(1,2,3) ),
         //space_(op->space_),
@@ -198,9 +198,9 @@ protected:
         op_->getHelmOp()->getC( X, z.getType() ),
         op_->getHelmOp()->getC( Y, z.getType() ),
         op_->getHelmOp()->getC( Z, z.getType() ),
-        x[0]->getRawPtr(),
-        x[1]->getRawPtr(),
-        x[2]->getRawPtr(),
+        x[X]->getConstRawPtr(),
+        x[Y]->getConstRawPtr(),
+        x[Z]->getConstRawPtr(),
         y.getConstRawPtr(),
         z.getRawPtr(),
         op_->getMulI(),
@@ -216,7 +216,7 @@ public:
 
   void print( std::ostream& out=std::cout ) const {
 
-    out << "--- ConvectionDiffusionSORSmoother ---\n";
+    out << "--- " << getLabel() << "---\n";
     op_->print();
 
   }
@@ -227,8 +227,9 @@ public:
   Teuchos::RCP<const SpaceT> space() const { return(op_->space()); }
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+   
 
-
+	const std::string getLabel() const { return( "ConvectionDiffusionSORSmoother" ); };
 
 
 }; // end of class ConvectionDiffusionSORSmoother

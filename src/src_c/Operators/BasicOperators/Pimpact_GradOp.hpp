@@ -143,17 +143,17 @@ public:
 				x.getConstRawPtr(),
 				y.getRawPtr() );
 		// necessary?
-		//      OP_SetBCZero(
-		//          space_->nLoc(),
-		//          space_->bl(),
-		//          space_->bu(),
-		//          space_->getDomain()->getBCLocal()->getBCL(),
-		//          space_->getDomain()->getBCLocal()->getBCU(),
-		//          space_->sIndB(i),
-		//          space_->eIndB(i),
-		//          y.getRawPtr(i) );
-		// necessary?
-		// OP_bc_extrapolation( i+1, y.vec_[i] ); // doesnot work with Schurcomplement, not cleary what it does anyway
+//		for( int i=0; i<space()->dim(); ++i )
+//			OP_SetBCZero(
+//					space_->nLoc(),
+//					space_->bl(),
+//					space_->bu(),
+//					space_->getDomain()->getBCLocal()->getBCL(),
+//					space_->getDomain()->getBCLocal()->getBCU(),
+//					space_->sIndB(i),
+//					space_->eIndB(i),
+//					y.getRawPtr(i) );
+
     y.changed();
   }
 
@@ -171,6 +171,7 @@ public:
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {}
 
   void print( std::ostream& out=std::cout ) const {
+    out << "--- " << getLabel() << " ---\n";
     out << " --- stencil: ---";
     for( int i=0; i<3; ++i ) {
       out << "\ndir: " << i << "\n";
@@ -186,6 +187,8 @@ public:
       out << "\n";
     }
   }
+
+	const std::string getLabel() const { return( "Grad" ); };
 
 }; // end of class GradOp
 

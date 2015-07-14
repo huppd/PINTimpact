@@ -76,22 +76,21 @@ protected:
 
 public:
 
-  MultiGrid(
-      const Teuchos::RCP<const MGSpacesT>& mgSpaces,
+	MultiGrid(
+			const Teuchos::RCP<const MGSpacesT>& mgSpaces,
 			const Teuchos::RCP<Teuchos::ParameterList>& pl,
-      EField type = EField::S ):
-				numCycles_( pl->get<int>("numCycles",FSpaceT::dimNC-CSpaceT::dimNC+1) ),
-        mgSpaces_(mgSpaces),
-        mgTrans_( createMGTransfers<TransT,RestrT,InterT>(mgSpaces) ),
-        mgOps_( Pimpact::createMGOperators<FOperatorT,COperatorT>(mgSpaces) ),
-        mgSms_( Pimpact::createMGSmoothers<SmootherT>( mgOps_, Teuchos::rcpFromRef(pl->sublist("Smoother")) ) ),
-        x_( createMGFields<FieldT>(mgSpaces, type ) ),
-        temp_( createMGFields<FieldT>(mgSpaces, type ) ),
-        b_( createMGFields<FieldT>(mgSpaces, type ) ),
-        cGridSolver_( mgSpaces_->participating(-1)?create<CGridSolverT>( mgOps_->get(-1), Teuchos::rcpFromRef(pl->sublist("Coarse Grid Solver")) ):Teuchos::null ) {
+			EField type = EField::S ):
+		numCycles_( pl->get<int>("numCycles",FSpaceT::dimNC-CSpaceT::dimNC+1) ),
+		mgSpaces_(mgSpaces),
+		mgTrans_( createMGTransfers<TransT,RestrT,InterT>(mgSpaces) ),
+		mgOps_( Pimpact::createMGOperators<FOperatorT,COperatorT>(mgSpaces) ),
+		mgSms_( Pimpact::createMGSmoothers<SmootherT>( mgOps_, Teuchos::rcpFromRef(pl->sublist("Smoother")) ) ),
+		x_( createMGFields<FieldT>(mgSpaces, type ) ),
+		temp_( createMGFields<FieldT>(mgSpaces, type ) ),
+		b_( createMGFields<FieldT>(mgSpaces, type ) ),
+		cGridSolver_( mgSpaces_->participating(-1)?create<CGridSolverT>( mgOps_->get(-1), Teuchos::rcpFromRef(pl->sublist("Coarse Grid Solver")) ):Teuchos::null ) {
 
-//					pl->print();
-				}
+		}
 
 
 
@@ -101,7 +100,6 @@ public:
   /// \todo template cycle method
   void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
-//    int out =0;
     for( int j=0; j<numCycles_; ++j ) {
 
       // defect correction rhs \hat{f}= b = x - L y
@@ -123,7 +121,8 @@ public:
       int i;
       for( i=0; i<mgSpaces_->getNGrids()-1; ++i ) {
 //				if(i>0 && 0==j ) x_->get(i)->init(0.); // necessary? for DivGradOp yes
-				if( i>0 ) x_->get(i)->init(0.); // necessary? for DivGradOp yes
+//				if( i>0 )
+					x_->get(i)->init(0.); // necessary? for DivGradOp yes
 
 				if( mgSpaces_->participating(i) ) {
 					mgSms_->get(i)->apply( *b_->get(i), *x_->get(i) );
@@ -140,7 +139,16 @@ public:
 				b_->get(i)->level();
 				x_->get(i)->init(0.);
 
-				cGridSolver_->apply( *b_->get(i), *x_->get(i) );
+				try{
+					cGridSolver_->apply( *b_->get(i), *x_->get(i) );
+				}
+				catch( std::logic_error& e ) {
+					std::cout << "error in MG on coarse grid:\n";
+					cGridSolver_->print();
+					b_->get(i)->write(111);
+					x_->get(i)->write(222);
+					throw( e );
+				}
 			}
 
 			for( i=-2; i>=-mgSpaces_->getNGrids(); --i ) {
@@ -192,6 +200,20 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
+	const std::string getLabel() const { return( "MultiGrid( "+mgOps_->get()->getLabel()+" ) " ); };
+
+
+  void print( std::ostream& out=std::cout ) const {
+    out << "--- " << getLabel() << " ---\n";
+		out << "#grids: " << mgSpaces_->getNGrids() << "\n";
+		out << "FOperator: " << mgOps_->get()->getLabel() << " d" << FSpaceT::dimNC << "\n";
+		if( mgSpaces_->participating(0) )
+			out << "COperator: " << mgOps_->get(0)->getLabel()  << " d" << CSpaceT::dimNC << "\n";
+		if( mgSpaces_->participating(0) )
+			out << "Smoother: " << mgSms_->get(0)->getLabel() << "\n";
+		if( mgSpaces_->participating(-1) )
+			out << "Coarse Grid Solver: " << cGridSolver_->getLabel() << "\n";
+  }
 
 }; // end of class MultiGrid
 

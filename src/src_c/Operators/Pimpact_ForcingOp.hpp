@@ -62,6 +62,12 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
+	const std::string getLabel() const { return( "Forcing" ); };
+
+  void print( std::ostream& out=std::cout ) const {
+		out << getLabel() << ":\n";
+  }
+
 }; // end of ForcingOp
 
 

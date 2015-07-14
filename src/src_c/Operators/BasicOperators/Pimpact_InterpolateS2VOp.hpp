@@ -135,6 +135,7 @@ public:
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
   void print( std::ostream& out=std::cout ) const {
+    out << "--- " << getLabel() << " ---\n";
     out << " --- stencil: ---";
     for( int i=0; i<3; ++i ) {
       out << "\ni: " << i << "\n( ";
@@ -144,6 +145,8 @@ public:
       out << ")\n";
     }
   }
+
+	const std::string getLabel() const { return( "InterpolateS2V" ); };
 
 }; // end of class InterpolateS2V
 

@@ -98,11 +98,11 @@ TEUCHOS_STATIC_SETUP() {
 
   pl->set( "dim", dim );
 
-  pl->set("nx", 9 );
-  pl->set("ny", 9 );
-  pl->set("nz", 9 );
+  pl->set("nx",  9 );
+  pl->set("ny", 257 );
+  pl->set("nz",  9 );
 
-  pl->set("nf", 8 );
+  pl->set("nf", 64 );
 
 }
 
@@ -134,54 +134,56 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesBSmooth ) {
 	auto x = Pimpact::createCompoundField( Pimpact::createTimeField< Pimpact::VectorField<SpaceT> >( space ),
 					       Pimpact::createTimeField< Pimpact::ScalarField<SpaceT> >( space ));
 	auto y = x->clone();
-	//auto y_cc = x->clone(); // for the consistecy check
+	auto y_cc = x->clone(); // for the consistecy check
 	//auto true_sol = x->clone();
 	auto error = x->clone();
 	auto pulsatile = x->clone();	
 	
-	double p = 10;
+	double p = 1;
 	double alpha = std::sqrt(pl->get<double>("alpha2"));
 
 	// RHS
 	Pimpact::initVectorTimeField( y->getVFieldPtr(), Pimpact::ConstVel_inX, p);	
+//	y->write();
 
 	// true solution //pl->get<int> ("Block Size");
 	Pimpact::initVectorTimeField( pulsatile->getVFieldPtr(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha );
+//	pulsatile->write( 1000 );
 		
 	// consistecy check
-	//op->apply(*true_sol,*y_cc);
- 	//error->add( 1., *y_cc, -1., *y );
+	op->apply(*pulsatile,*y_cc);
+//	y_cc->write(2000);
+	error->add( 1., *y_cc, -1., *y );
+	error->write(3000);
 
-	//y->write();
-	//y_cc->write(100);
 	
-	//std::cout << "|| error || = " << error()->norm() << std::endl;
+	std::cout << "|| error || = " << error()->norm()/std::sqrt( error->getLength() ) << std::endl;
 
 	//TEST_EQUALITY( error()->norm()<eps, true );
 	
-	auto true_sol = pulsatile->clone();
-
-	// test smoothing
-	x->random();
-	x->scale(10);
-	
-	// initial error
-	error->add( 1., *x, -1., *true_sol );
-	error->write();
-		
-	// aprrox. solution
-        bSmoother->apply(*y,*x);		
-
-	// final error
-	error->add( 1., *x, -1., *true_sol );
-	error->write(100);
-
-        // aprrox. solution2
-	bSmoother->apply(*y,*x);
-
-        // final error2
-        error->add( 1., *x, -1., *true_sol );
-        error->write(200);	
+//	auto true_sol = pulsatile->clone();
+//
+//	// test smoothing
+//	x->random();
+//	x->scale(10);
+//	
+//	// initial error
+//	error->add( 1., *x, -1., *true_sol );
+//	error->write();
+//		
+//	// aprrox. solution
+//	bSmoother->apply(*y,*x);		
+//
+//	// final error
+//	error->add( 1., *x, -1., *true_sol );
+//	error->write(100);
+//
+//	// aprrox. solution2
+//	bSmoother->apply(*y,*x);
+//
+//	// final error2
+//	error->add( 1., *x, -1., *true_sol );
+//	error->write(200);	
 }
 
 TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesLSmooth ) {

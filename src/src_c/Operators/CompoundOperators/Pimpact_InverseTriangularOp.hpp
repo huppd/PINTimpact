@@ -85,6 +85,15 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
+	const std::string getLabel() const { return( "InverseTriangularOp " ); };
+
+  void print( std::ostream& out=std::cout ) const {
+		out << getLabel() << ":\n";
+    opV2V_->print( out );
+		opS2V_->print( out );
+		opS2S_->print( out );
+  }
+
 }; // end of class InverseTriangularOp
 
 

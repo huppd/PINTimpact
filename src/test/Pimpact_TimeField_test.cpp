@@ -110,8 +110,8 @@ TEUCHOS_STATIC_SETUP() {
 	    "npf", &npf,
 	    "" );
 
-  pl->set( "Re", 1. );
-  pl->set( "alpha2", 1. );
+  pl->set( "Re", 10. );
+  pl->set( "alpha2", 24. );
   pl->set( "domain", domain );
 
   pl->set( "lx", 1. );
@@ -594,7 +594,6 @@ TEUCHOS_UNIT_TEST( TimeOperator, DtTimeOp ) {
 		// op test
 		auto dt = Pimpact::create<Pimpact::DtTimeOp>( space );
 
-
 		// zero test
 		Pimpact::initVectorTimeField( field1, Pimpact::Poiseuille_inX );
 		field2->init(0);
@@ -618,8 +617,8 @@ TEUCHOS_UNIT_TEST( TimeOperator, DtTimeOp ) {
 
 		field->add( bla, *field, 1, *field2 );
 
-		//std::cout << "bla: " << bla << "\n";
-		//std::cout << "error: " << field()->norm() << "\n";
+		std::cout << "bla: " << bla << "\n";
+		std::cout << "error: " << field()->norm() << "\n";
 
 		error[q-3] = std::log(field()->norm()); 
 		idt[q-3]   = std::log(((double)space->nGlo()[3])/2./pi);
@@ -726,6 +725,9 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOp ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
+	S re = 100.;
+	pl->set<S>("Re", re );
+
 	typedef Pimpact::TimeStokesOp<SpaceT> OpT;
 
 	auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
@@ -736,22 +738,167 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOp ) {
 	auto x = Pimpact::create<typename OpT::DomainFieldT>( space );
 	auto y = Pimpact::create<typename OpT::RangeFieldT>( space );
 
-	// Const diffusion test
+	// Const diffusion test in X
 	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Poiseuille_inX );
 
-	x->write(1000);
-	y->init(0);
+	//	x->write(1000);
+	y->random();
 
 	op->apply( *x, *y );
-	y->write(0);
+	//	y->write(0);
 
-	initVectorTimeField( x->getVFieldPtr(), Pimpact::Const2DFlow, 8./std::pow(space->getDomain()->getDomainSize()->getSize(Pimpact::Y),2), 0., 0. );
+	initVectorTimeField( x->getVFieldPtr(), Pimpact::Const2DFlow, 8./std::pow(space->getDomain()->getDomainSize()->getSize(Pimpact::Y),2)/re, 0., 0. );
 	x->add( 1., *x, -1., *y );
-	x->write(100);
+	//	x->write(100);
 
-	std::cout << "error: " << x->norm() << "\n";
+	std::cout << "error in x: " << x->norm() << "\n";
+	TEST_EQUALITY( x->norm()<eps, true );
+
+	// Const diffusion test in Y
+	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Poiseuille_inY );
+
+	//	x->write(1000);
+	y->random();
+
+	op->apply( *x, *y );
+	//	y->write(0);
+
+	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Const2DFlow, 0., 8./std::pow(space->getDomain()->getDomainSize()->getSize(Pimpact::X),2)/re, 0. );
+	x->add( 1., *x, -1., *y );
+	//	x->write(100);
+
+	std::cout << "error in Y: " << x->norm() << "\n";
+	TEST_EQUALITY( x->norm()<eps, true );
+
+	// Gradient test in X
+	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Zero2DFlow );
+	for( O i=space->sInd(Pimpact::U,3); i<space->eInd(Pimpact::U,3); ++i ) {
+		x->getSFieldPtr()->getFieldPtr(i)->initField( Pimpact::Grad2D_inX );
+	}
+//	x->write();
+	y->random();
+	
+	op->apply( *x, *y );
+//	y->write(100);
+	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Const2DFlow, 1., 0., 0. );
+	x->getSFieldPtr()->init( 0. );
+	x->add( 1., *x, -1., *y );
+//	x->write(200);
+
+	std::cout << "error grad in X: " << x->norm() << "\n";
+	TEST_EQUALITY( x->norm()<eps, true );
+
+	// Gradient test in Y
+	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Zero2DFlow );
+	for( O i=space->sInd(Pimpact::U,3); i<space->eInd(Pimpact::U,3); ++i ) {
+		x->getSFieldPtr()->getFieldPtr(i)->initField( Pimpact::Grad2D_inY );
+	}
+//	x->write();
+	y->random();
+	
+	op->apply( *x, *y );
+//	y->write(100);
+	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Const2DFlow, 0., 1., 0. );
+	x->getSFieldPtr()->init( 0. );
+	x->add( 1., *x, -1., *y );
+//	x->write(200);
+
+	std::cout << "error grad in Y: " << x->norm() << "\n";
+	TEST_EQUALITY( x->norm()<eps, true );
+
+	// Gradient test in Z
+	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Zero2DFlow );
+	for( O i=space->sInd(Pimpact::U,3); i<space->eInd(Pimpact::U,3); ++i ) {
+		x->getSFieldPtr()->getFieldPtr(i)->initField( Pimpact::Grad2D_inZ );
+	}
+//	x->write();
+	y->random();
+	
+	op->apply( *x, *y );
+//	y->write(100);
+	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Const2DFlow, 0., 0., 1. );
+	x->getSFieldPtr()->init( 0. );
+	x->add( 1., *x, -1., *y );
+//	x->write(200);
+
+	std::cout << "error grad in Z: " << x->norm() << "\n";
 	TEST_EQUALITY( x->norm()<eps, true );
 
 }
+
+TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOpDT ) {
+
+	typedef Pimpact::TimeStokesOp<SpaceT> OpT;
+
+	// processor grid size
+	pl->set("npx", npx );
+	pl->set("npy", npy );
+	pl->set("npz", npz );
+	pl->set("npf", npf );
+
+
+	double pi = 4.*std::atan(1.);
+
+	int l = 7;
+	std::vector<double> error(l);
+	std::vector<double> idt(l);
+
+	for (int q = 3; q < 3+l; q++ ) {
+
+		pl->set("nf", int(std::pow(2,q)) );
+
+		auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+
+
+		auto field = Pimpact::create<typename OpT::DomainFieldT>( space );
+		auto field1 = Pimpact::create<typename OpT::RangeFieldT>( space );
+		auto field2 = Pimpact::create<typename OpT::RangeFieldT>( space );
+
+
+		// op test
+		auto dt = Pimpact::create<OpT>( space );
+
+		// zero test
+		Pimpact::initVectorTimeField( field1->getVFieldPtr(), Pimpact::Const2DFlow, 1., 1., 1. );
+		field2->random();
+
+		dt->apply( *field1, *field2 );
+
+		TEST_EQUALITY( field2()->norm()<eps, true );
+
+		// cos test
+		Pimpact::initVectorTimeField( field->getVFieldPtr(), Pimpact::OscilatingDisc2DVel,0.,0.,0.,1. );
+		//field->write();
+		field1->init(0);
+		field2->init(0);
+
+		dt->apply( *field, *field1 );
+		dt->apply( *field1, *field2 );
+
+		S a2 = space->getDomain()->getDomainSize()->getAlpha2()/space->getDomain()->getDomainSize()->getRe();
+
+		S bla = a2*a2;
+
+		field->add( bla, *field, 1, *field2 );
+
+		std::cout << "bla: " << bla << "\n";
+		std::cout << "error: " << field()->norm() << "\n";
+
+		error[q-3] = std::log(field()->norm()); 
+		idt[q-3]   = std::log(((double)space->nGlo()[3])/2./pi);
+
+	}
+
+	double sl = std::abs(slope(idt,error));
+	std::cout << "slope: " << sl << "\n";
+
+	TEST_EQUALITY( std::abs(sl - 0.5) <  0.05, true );
+
+	pl->set("nf", 8 );
+
+
+}
+
+
 
 } // end of namespace

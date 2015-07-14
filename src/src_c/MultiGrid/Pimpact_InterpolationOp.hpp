@@ -267,7 +267,9 @@ protected:
 				
 				Ordinal offset = 0;
 				if( 1!=nGather_[i] )
-					offset = (iimax_[i]-1)*( spaceF_->procCoordinate()[i]-1 );
+//					offset = ( iimax_[i]-1 )*( spaceF_->procCoordinate()[i]-1 );
+					offset = ( iimax_[i]-1 )*( spaceF_->procCoordinate()[i]-1 - nGather_[i]*(spaceC_->procCoordinate()[i]-1) );
+//				std::cout << "rank: " << spaceF_->rankST() << " offset: " << offset << "\n";
 
 				MG_getCIV(
 						spaceC_->nLoc(i),
@@ -299,15 +301,14 @@ public:
 		spaceF_(spaceF),
 		comm2_(MPI_COMM_NULL) {
 
-			auto nb = spaceF_->getProcGridSize()->getTuple();
-			init( nb );
+			init( spaceF_->getProcGridSize()->getTuple() );
 
 	}
 
 	InterpolationOp(
 			const Teuchos::RCP<const SpaceT>& spaceC,
 			const Teuchos::RCP<const SpaceT>& spaceF,
-			Teuchos::Tuple<int,SpaceT::dimension> nb ):
+			const Teuchos::Tuple<int,SpaceT::dimension>& nb ):
 		spaceC_(spaceC),
 		spaceF_(spaceF),
 		comm2_(MPI_COMM_NULL) {
@@ -457,6 +458,8 @@ public:
 		out << "iimax:\t" << iimax_ << "\n";
 		out << "rankc2:\t" << rankc2_ << "\n";
 		out << "comm2:\t" << comm2_ << "\n";
+//		out << "offsI:\t" << offsI_ << "\n";
+//		out << "dispI:\t" << dispI_ << "\n";
     out << "\n";
     for( int j=0; j<3; ++j ) {
       out << "\n Scalar dir: " << j << ":\n";

@@ -58,7 +58,7 @@ public:
 				 create<MF>( op->space() ),
 				 Teuchos::rcpFromRef( pl->sublist("Solver") ), 
 				 pl->get<std::string>("Solver name","GMRES") ) ) { 
-		 pl->print();
+//		 pl->print();
 	 }
 
 
@@ -110,6 +110,12 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
+	const std::string getLabel() const { return( linprob_->getProblem()->getOperator()->getLabel() + std::string("^-1 ")  ); };
+
+  void print( std::ostream& out=std::cout ) const {
+		out << "Inverse:\n";
+    linprob_->print( out );
+  }
 
 }; // end of class InverseOp
 

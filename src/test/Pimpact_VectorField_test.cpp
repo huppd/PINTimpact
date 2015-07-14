@@ -69,6 +69,14 @@ TEUCHOS_STATIC_SETUP() {
 
 TEUCHOS_UNIT_TEST( VectorField, InfNorm_and_initvec2d ) {
 
+  pl->set( "dim", dim );
+  pl->set( "domain", domain );
+
+  // processor grid size
+  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npy",            2 );
+  pl->set("npz", (2==dim)?1:2 );
+
   auto space = Pimpact::createSpace( pl );
 
   auto vel = Pimpact::create<Pimpact::VectorField>( space );
@@ -90,11 +98,20 @@ TEUCHOS_UNIT_TEST( VectorField, InfNorm_and_initvec2d ) {
   vel->init(alpha2);
   norm = vel->norm(Belos::InfNorm);
   TEST_FLOATING_EQUALITY( ( 2==space->dim() )?0.:1., norm, eps );
+
 }
 
 
 
 TEUCHOS_UNIT_TEST( VectorField, initField ) {
+
+  pl->set( "dim", dim );
+  pl->set( "domain", domain );
+
+  // processor grid size
+  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npy",            2 );
+  pl->set("npz", (2==dim)?1:2 );
 
 	pl->set( "Re", 400. );
 
@@ -111,10 +128,6 @@ TEUCHOS_UNIT_TEST( VectorField, initField ) {
   pl->set("ny", 257 );
   pl->set("nz", 257 );
 
-  // processor grid size
-  pl->set("npx", 1 );
-  pl->set("npy", 1 );
-	pl->set("npz", 1 );
 
   auto space = Pimpact::createSpace( pl );
 

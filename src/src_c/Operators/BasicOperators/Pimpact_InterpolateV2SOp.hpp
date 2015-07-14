@@ -153,6 +153,7 @@ public:
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
   void print( std::ostream& out=std::cout ) const {
+    out << "--- " << getLabel() << " ---\n";
 //    out << " --- InterpolateV2S stencil: ---";
 //    for( int i=0; i<3; ++i ) {
 //      out << "\ndir: " << i << "\n( ";
@@ -165,6 +166,8 @@ public:
   const Scalar* getC( const ECoord& dir ) const  {
       return( c_[(int)dir] );
   }
+
+	const std::string getLabel() const { return( "InterpolateV2S" ); };
 
 };
 

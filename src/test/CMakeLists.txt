@@ -17,8 +17,8 @@ ADD_EXECUTABLE( SpaceGridTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_S
 TARGET_LINK_LIBRARIES( SpaceGridTest  ${Pimpact_TPL_LIBRARIES} )
 add_test(NAME SpaceGridTest COMMAND mpirun -np 4 SpaceGridTest)
 
-ADD_EXECUTABLE(ScalarFieldTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_ScalarField_test.cpp )
-TARGET_LINK_LIBRARIES(ScalarFieldTest ${Pimpact_TPL_LIBRARIES} ) 
+ADD_EXECUTABLE( FieldTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_Field_test.cpp )
+TARGET_LINK_LIBRARIES( FieldTest ${Pimpact_TPL_LIBRARIES} ) 
 
 ADD_EXECUTABLE(VectorFieldTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_VectorField_test.cpp )
 TARGET_LINK_LIBRARIES( VectorFieldTest ${Pimpact_TPL_LIBRARIES} ) 
@@ -32,15 +32,16 @@ TARGET_LINK_LIBRARIES( MultiHarmonicFieldTest ${Pimpact_TPL_LIBRARIES} )
 ADD_EXECUTABLE(OperatorTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_Operator_test.cpp )
 TARGET_LINK_LIBRARIES( OperatorTest ${Pimpact_TPL_LIBRARIES} ) 
 
-foreach(dim RANGE 3 3)
-	foreach( domain RANGE 1 1 )
-		add_test( NAME "ScalarFieldTest_domain${domain}_dim${dim}" COMMAND mpirun -np 8 ScalarFieldTest --domain=${domain} --dim=${dim} )
-		add_test( NAME "VectorFieldTest_domain_domain${domain}_dim${dim}" COMMAND mpirun -np 8 VectorFieldTest --domain=${domain} --dim=${dim} ) 
+foreach(dim RANGE 2 3)
+	foreach( domain RANGE 0 4 )
+		add_test( NAME "FieldTest_domain${domain}_dim${dim}" COMMAND mpirun -np 8 FieldTest --domain=${domain} --dim=${dim} )
+		add_test( NAME "VectorFieldTest_domain${domain}_dim${dim}" COMMAND mpirun -np 8 VectorFieldTest --domain=${domain} --dim=${dim} ) 
 		add_test( NAME "MultiFieldTest_domain${domain}_dim${dim}" COMMAND mpirun -np 8 MultiFieldTest --domain=${domain} --dim=${dim} )
 		add_test( NAME "MultiHarmonicFieldTest_domain${domain}_dim${dim}" COMMAND mpirun -np 8 MultiHarmonicFieldTest --domain=${domain} --dim=${dim} )
 	endforeach( domain )
 	add_test( NAME "OperatorTest_dim${dim}" COMMAND mpirun -np 8 OperatorTest --dim=${dim} )
 endforeach( dim )
+
 
 ADD_EXECUTABLE( TimeFieldTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_TimeField_test.cpp )
 TARGET_LINK_LIBRARIES( TimeFieldTest ${Pimpact_TPL_LIBRARIES} ) 

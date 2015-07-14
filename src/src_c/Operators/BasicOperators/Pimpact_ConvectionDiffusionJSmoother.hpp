@@ -86,17 +86,17 @@ public:
   /// These options include the following:
 	/// - "omega" - damping parameter
   /// - "numIters" - an \c int specifying the maximum number of iterations the 
-  ConvectionDiffusionJSmoother(
-      const Teuchos::RCP<const OperatorT>& op,
-      Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ):
-        omega_( pl->get("omega", 0.5 ) ),
-        nIter_( pl->get("numIters", 5 ) ),
-        op_(op),
-        temp_( create<DomainFieldT>(op_->space()) ) {}
+	ConvectionDiffusionJSmoother(
+			const Teuchos::RCP<const OperatorT>& op,
+			Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ):
+		omega_( pl->get<Scalar>("omega", (2==op->space()->dim())?0.8:6./7. ) ),
+		nIter_( pl->get("numIters", 4 ) ),
+		op_(op),
+		temp_( create<DomainFieldT>(op_->space()) ) {}
 
 
 
-  void apply( const FluxFieldT& wind, const DomainFieldT& x, RangeFieldT& y, Scalar mul, Scalar mulI, Scalar mulC, Scalar mulL ) const { std::cout << "not implmented\n"; }
+	void apply( const FluxFieldT& wind, const DomainFieldT& x, RangeFieldT& y, Scalar mul, Scalar mulI, Scalar mulC, Scalar mulL ) const { std::cout << "not implmented\n"; }
 
 
 
@@ -135,9 +135,9 @@ public:
 					op_->getHelmOp()->getC( X, y.getType() ),
 					op_->getHelmOp()->getC( Y, y.getType() ),
 					op_->getHelmOp()->getC( Z, y.getType() ),
-          wind[0]->getConstRawPtr(),
-          wind[1]->getConstRawPtr(),
-          wind[2]->getConstRawPtr(),
+          wind[X]->getConstRawPtr(),
+          wind[Y]->getConstRawPtr(),
+          wind[Z]->getConstRawPtr(),
           x.getConstRawPtr(),
           y.getConstRawPtr(),
           temp_->getRawPtr(),
@@ -146,18 +146,22 @@ public:
 					op_->getMulL(),
           omega_ );
 
-      temp_->changed();
+//			temp_->changed();
+//			y.assign( *temp_ );
+////			y.add( 1.,*temp_, 0., x );
+
+			temp_->changed();
 			temp_->exchange();
 
-      OP_convectionDiffusionJSmoother(
-          space()->dim(),
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->nl(),
-          space()->nu(),
-          space()->sInd(y.getType()),
-          space()->eInd(y.getType()),
+			OP_convectionDiffusionJSmoother(
+					space()->dim(),
+					space()->nLoc(),
+					space()->bl(),
+					space()->bu(),
+					space()->nl(),
+					space()->nu(),
+					space()->sInd(y.getType()),
+					space()->eInd(y.getType()),
 					op_->getConvSOp()->getCD( X, y.getType() ),
 					op_->getConvSOp()->getCD( Y, y.getType() ),
 					op_->getConvSOp()->getCD( Z, y.getType() ),
@@ -167,18 +171,18 @@ public:
 					op_->getHelmOp()->getC( X, y.getType() ),
 					op_->getHelmOp()->getC( Y, y.getType() ),
 					op_->getHelmOp()->getC( Z, y.getType() ),
-          wind[0]->getConstRawPtr(),
-          wind[1]->getConstRawPtr(),
-          wind[2]->getConstRawPtr(),
-          x.getConstRawPtr(),
-          temp_->getConstRawPtr(),
-          y.getRawPtr(),
+					wind[X]->getConstRawPtr(),
+					wind[Y]->getConstRawPtr(),
+					wind[Z]->getConstRawPtr(),
+					x.getConstRawPtr(),
+					temp_->getConstRawPtr(),
+					y.getRawPtr(),
 					op_->getMulI(),
 					op_->getMulC(),
 					op_->getMulL(),
-          omega_ );
+					omega_ );
 
-      y.changed();
+			y.changed();
 
     }
   }
@@ -188,13 +192,14 @@ public:
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
   void print( std::ostream& out=std::cout ) const {
-    out << "--- ConvectionDiffusionJSmoother ---\n";
+    out << "--- " << getLabel() << " ---\n";
     op_->print();
   }
 
 
   bool hasApplyTranspose() const { return( false ); }
 
+	const std::string getLabel() const { return( "ConvectionDiffusionJSmoother " ); };
 
 }; // end of class ConvectionDiffusionJSmoother
 

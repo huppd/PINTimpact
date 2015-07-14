@@ -10,6 +10,7 @@
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_ParameterList.hpp"
 #include "Teuchos_XMLParameterListCoreHelpers.hpp"
+#include "Teuchos_oblackholestream.hpp"
 
 #include "pimpact.hpp"
 
@@ -325,7 +326,7 @@ public:
 
 //    coordGlobal_->print(out);
 //
-	 coordLocal_->print(out);
+		coordLocal_->print(out);
 
   }
 
@@ -435,6 +436,7 @@ createSpace( Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ) 
 
 }
 
+Teuchos::RCP<std::ostream> createOstream( const std::string& fname, int rank);
 
 #ifdef COMPILE_ETI
 extern template class Space<double,int,3,2>;

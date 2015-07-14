@@ -35,8 +35,6 @@ public:
 
 protected:
 
-//  Teuchos::RCP<VF> temp_;
-
   Teuchos::RCP<const TimeDtConvectionDiffusionOp<ST> > opV2V_;
   Teuchos::RCP<const GradOp<ST> > opS2V_;
   Teuchos::RCP<const DivOp<ST> > opV2S_;
@@ -71,6 +69,8 @@ public:
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
   bool hasApplyTranspose() const { return( false ); }
+
+	const std::string getLabel() const { return( "TimeNSOp " ); };
 
 }; // end of class TimeNSOp
 

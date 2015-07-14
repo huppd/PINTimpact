@@ -79,7 +79,7 @@ public:
 			Belos::ETrans trans=Belos::NOTRANS ) const {
 
 		for( int i=0; i<nIter_; ++i) {
-			y.exchange();
+      y.exchange();
 
 			OP_DivGradO2JSmoother(
 					space()->dim(),
@@ -103,8 +103,6 @@ public:
 					space()->getDomain()->getBCLocal()->getBCL(),
 					space()->getDomain()->getBCLocal()->getBCU(),
 					temp_->getRawPtr() );
-
-			//			y.level();
 
 			temp_->changed();
 			temp_->exchange();
@@ -131,6 +129,7 @@ public:
 					space()->getDomain()->getBCLocal()->getBCL(),
 					space()->getDomain()->getBCLocal()->getBCU(),
 					y.getRawPtr() );
+
 			y.changed();
 		}
 
@@ -145,11 +144,13 @@ public:
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
   void print( std::ostream& out=std::cout ) const {
-    out << "\n --- Jacobian smoother ---\n";
+    out << "--- " << getLabel() << " ---\n";
     out << "\t omega: " << omega_ << "\n";
     out << "\t numIter: " << nIter_ << "\n";
     op_->print( out );
   }
+
+	const std::string getLabel() const { return( "DivGradO2JSmoother" ); };
 
 }; // end of class DivGradO2JSmoother
 

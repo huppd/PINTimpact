@@ -74,7 +74,6 @@ public:
   };
 
 
-//  void apply( const DomainFieldT& x, const DomainFieldT& y, RangeFieldT& z, bool init_yes=true ) const {
   void apply( const DomainFieldT& y, RangeFieldT& z, bool init_yes=true ) const {
 		
 		int Nf = z.getNumberModes();
@@ -165,6 +164,13 @@ public:
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
   bool hasApplyTranspose() const { return( false ); }
+
+	const std::string getLabel() const { return( "MHDtConvectionDiffusion" ); };
+
+  void print( std::ostream& out=std::cout ) const {
+		out <<  getLabel() << ":\n";
+		op_->print( out );
+  }
 
 }; // end of class MultiDtConvectionDiffusionOp
 

@@ -105,7 +105,11 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
-  void print( std::ostream& out=std::cout ) const { }
+  void print( std::ostream& out=std::cout ) const { 
+    out << "--- " << getLabel() << " ---\n";
+	}
+
+	const std::string getLabel() const { return( "TransferOp" ); };
 
 }; // end of class TransferOp
 

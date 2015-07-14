@@ -82,9 +82,11 @@ public:
 	}
 
   void print( std::ostream& out=std::cout ) const {
+    out << "--- " << getLabel() << " ---\n";
     convVWrap_->print(out);
   }
 
+	const std::string getLabel() const { return( convVWrap_->getLabel() ); };
 
 }; // end of class ConvectionVSmoother
 

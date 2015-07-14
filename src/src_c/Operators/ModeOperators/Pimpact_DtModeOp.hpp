@@ -52,16 +52,18 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
+	const std::string getLabel() const { return( "DtModeOp " ); };
+
+  void print( std::ostream& out=std::cout ) const {
+		out << getLabel() << ":\n";
+		out << "alpha2: " << alpha2_ << "\n";
+  }
+
 }; // end of class DtModeOp
 
 
 
-///// \relates DtModeOp
-//template<class SpaceT>
-//Teuchos::RCP< DtModeOp<SpaceT> > createDtModeOp( typename SpaceT::Scalar alpha2 = 1. ) {
-  //return( Teuchos::rcp( new DtModeOp<SpaceT>( alpha2 ) ) );
-//}
-
 } // end of namespace Pimpact
+
 
 #endif // end of #ifndef PIMPACT_DTMODEOP_HPP

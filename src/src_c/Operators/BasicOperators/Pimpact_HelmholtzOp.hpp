@@ -162,6 +162,7 @@ public:
 
   void print( std::ostream& out=std::cout ) const {
 
+    out << "--- " << getLabel() << " ---\n";
     out << " --- scalar stencil: ---";
 
     for( int i=0; i<3; ++i ) {
@@ -208,6 +209,7 @@ public:
 		mulL_ = para->get<Scalar>( "mulL", 1./space_->getDomain()->getDomainSize()->getRe() );
 	}
 
+	const std::string getLabel() const { return( "Helmholtz" ); };
 
 }; // end of class HelmholtzOp
 

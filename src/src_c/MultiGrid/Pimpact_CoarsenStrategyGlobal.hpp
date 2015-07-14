@@ -26,7 +26,7 @@ namespace Pimpact {
 ///the exception in GridSilzeLocal has to be adapted on StencilWidths
 /// \ingroup MG
 /// \todo add template parameter for coarses gridSize, and some procGrid stuff
-template<class FSpaceT,class CSpaceT, int cgsize=5>
+template<class FSpaceT,class CSpaceT, int cgsize=6>
 class CoarsenStrategyGlobal {
 
   typedef typename FSpaceT::Scalar  Scalar;
@@ -94,7 +94,7 @@ public:
 
 			if( coarsen_yes ) {
 				std::ofstream file;
-				std::string fname = "bla.txt";
+				std::string fname = "mgs.txt";
 				fname.insert( 3, std::to_string( (long long)space->rankST() ) );
 				file.open( fname, std::ofstream::out | std::ofstream::app );
 				file << "\n\ngrid: " <<  i << "\n\n";
@@ -107,7 +107,7 @@ public:
 
     }
 		std::ofstream file;
-		std::string fname = "bla.txt";
+		std::string fname = "mgs.txt";
 		fname.insert( 3, std::to_string( (long long)space->rankST() ) );
 		file.open( fname, std::ofstream::out | std::ofstream::app );
 		file << "\n\ngrid: " <<  -1 << "\n\n";

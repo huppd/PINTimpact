@@ -4,8 +4,7 @@
 
 
 #include "Pimpact_Types.hpp"
-#include "Pimpact_FieldFactory.hpp"
-
+#include "Pimpact_FieldFactory.hpp" 
 #include "Pimpact_VectorField.hpp"
 #include "Pimpact_MultiHarmonicField.hpp"
 
@@ -137,7 +136,14 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
-}; // end of class MultiHarmonicNonlinearOp
+	const std::string getLabel() const { return( "MultiHarmonicConvectionOp " ); };
+
+  void print( std::ostream& out=std::cout ) const {
+		out << getLabel() << ":\n";
+		op_->print( out );
+  }
+
+}; // end of class MultiHarmonicConvectionOp
 
 
 

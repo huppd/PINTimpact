@@ -44,12 +44,6 @@ public:
 		auto mx = Teuchos::rcp( new typename MultiOperator::DomainFieldT( space(), (int)0 ) );
 		auto my = Teuchos::rcp( new typename MultiOperator::RangeFieldT ( space(), (int)0 ) );
 
-		mx->push_back(
-				Teuchos::rcp_const_cast<typename MultiOperator::DomainFieldT::FieldT>(
-					x.getConst0FieldPtr()
-					)
-				);
-		my->push_back( y.get0FieldPtr() );
 
     int m = x.getNumberModes();
 
@@ -68,6 +62,14 @@ public:
 
 			my->push_back( y.getSFieldPtr(i) );
     }
+
+		mx->push_back(
+				Teuchos::rcp_const_cast<typename MultiOperator::DomainFieldT::FieldT>(
+					x.getConst0FieldPtr()
+					)
+				);
+		my->push_back( y.get0FieldPtr() );
+
 //		std::cout << "x numberVecs: " << mx->getNumberVecs() << "\n";
 //		std::cout << "y numberVecs: " << my->getNumberVecs() << "\n";
 		op_->apply( *mx, *my );
@@ -87,6 +89,12 @@ public:
 
   Teuchos::RCP<MultiOperator> getOperatorPtr() { return( op_ ); }
 
+	const std::string getLabel() const { return( "MultiHarmonicMultiOpWrap" ); };
+
+  void print( std::ostream& out=std::cout ) const {
+		out << getLabel() << ":\n";
+		op_->print( out );
+  }
 
 }; // end of class MultiHarmonicMultiOpWrap
 

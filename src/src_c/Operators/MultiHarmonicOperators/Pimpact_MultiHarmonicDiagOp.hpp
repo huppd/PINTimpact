@@ -92,6 +92,14 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
+	const std::string getLabel() const { return( "MultiHarmonicDiagOp " ); };
+
+  void print( std::ostream& out=std::cout ) const {
+		out << getLabel() << ":\n";
+		zeroOp_->print( out );
+		modeOp_->print( out );
+  }
+
 }; // end of class MultiHarmonicDiagOp
 
 

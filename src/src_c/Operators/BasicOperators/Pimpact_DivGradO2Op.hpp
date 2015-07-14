@@ -113,22 +113,22 @@ public:
 		}
 
 
-  void apply(const DomainFieldT& x, RangeFieldT& y,
-      Belos::ETrans trans=Belos::NOTRANS ) const {
+	void apply(const DomainFieldT& x, RangeFieldT& y,
+			Belos::ETrans trans=Belos::NOTRANS ) const {
 
-    x.exchange();
-    OP_DivGradO2Op(
-        space_->dim(),
-        space_->nLoc(),
-        space_->bl(),
-        space_->bu(),
-        space_->getDomain()->getBCLocal()->getBCL(),
-        space_->getDomain()->getBCLocal()->getBCU(),
-        getC(X),
-        getC(Y),
-        getC(Z),
-        x.getConstRawPtr(),
-        y.getRawPtr() );
+		x.exchange();
+		OP_DivGradO2Op(
+				space_->dim(),
+				space_->nLoc(),
+				space_->bl(),
+				space_->bu(),
+				space_->getDomain()->getBCLocal()->getBCL(),
+				space_->getDomain()->getBCLocal()->getBCU(),
+				getC(X),
+				getC(Y),
+				getC(Z),
+				x.getConstRawPtr(),
+				y.getRawPtr() );
 
 		SF_handle_corner(
 				space_->nLoc(),
@@ -138,10 +138,9 @@ public:
 				space_->getDomain()->getBCLocal()->getBCU(),
 				y.getRawPtr() );
 
-//	 y.level();
-	 y.changed();
+		y.changed();
 
-  }
+	}
 
   void assignField ( const DomainFieldT& mv ) const {};
 
@@ -152,6 +151,7 @@ public:
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
   void print( std::ostream& out=std::cout ) const {
+    out << "--- " << getLabel() << " ---\n";
     out << " --- stencil: ---";
     for( int i=0; i<3; ++i ) {
       out << "\ndir: " << i << "\n";
@@ -172,6 +172,11 @@ public:
       return( c_[dir] );
   }
 
+  const Scalar* getC( const int& dir) const  {
+      return( c_[dir] );
+  }
+
+	const std::string getLabel() const { return( "DivGradO2" ); };
 
 }; // end of class DivGradO2Op
 
