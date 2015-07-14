@@ -491,8 +491,8 @@ contains
                            c11p(bU(3),k-l)*vel(i+1,j,k-l,3,t+ll) + c11p(bL(3),k-l)*vel(i-1,j,k-l,3,t+ll) 
                 end do
            end do
-                
-            b = b + (/ c11u(bU(1),i)*vel(i+1,j,k,1,t),c11u(bL(1),i-1)*vel(i-2,j,k,1,t),&
+            
+        b = b + (/ c11u(bU(1),i)*vel(i+1,j,k,1,t),c11u(bL(1),i-1)*vel(i-2,j,k,1,t),&
                        c22v(bU(2),j)*vel(i,j+1,k,2,t),c22v(bL(2),j-1)*vel(i,j-2,k,2,t),&
                        c33w(bU(3),k)*vel(i,j,k+1,3,t),c33w(bL(3),k-1)*vel(i,j,k-2,3,t),&
                        c11u(bU(1),i)*vel(i+1,j,k,1,t+1),c11u(bL(1),i-1)*vel(i-2,j,k,1,t+1),&
@@ -501,7 +501,7 @@ contains
                        0., 0. /) ! -> divergence
                 
             b = mulL*b
-
+            
             ! pressure gradient
             b = b + (/ cG1(gU(1),i)*p(i+1,j,k,t),cG1(gL(1),i-1)*p(i-1,j,k,t),&
                        cG2(gU(2),j)*p(i,j+1,k,t),cG2(gL(2),j-1)*p(i,j-1,k,t),&
@@ -517,18 +517,29 @@ contains
                                         vel(i,j,k,3,t-1), vel(i,j,k-1,3,t-1) /)
             
                 ! new
-                b = -b
-                
+                b = - b
+if (i==1 .and. k==1 .and. j==1 .and. t==1) then
+write(*,*) i,j,k,t
+print *,'-------- RHS ----------'
+print*, b
+end if                
+
             ! add the RHS to b (boundary)
-            b = b + (/ rhs_vel(i,j,k,1:3,t),&
-                       rhs_vel(i,j,k,1:3,t+1),&
-                       rhs_p(i,j,k,t:t+1) /)
+            b =  b + (/ rhs_vel(i:i-1,j,k,1,t),&
+                        rhs_vel(i,j:j-1,k,2,t),&
+                        rhs_vel(i,j,k:k-1,3,t),&
+                        rhs_vel(i:i-1,j,k,1,t+1),& 
+                        rhs_vel(i,j:j-1,k,2,t+1),&
+                        rhs_vel(i,j,k:k-1,3,t+1),&                       
+                        rhs_p(i,j,k,t:t+1) /)
 
 
 ! ---------- test the matrix A --------------!
 
-!write(*,*) i,j,k
-
+if (i==1 .and. k==1 .and. j==1 .and. t==1) then
+write(*,*) i,j,k
+print*, rhs_vel(i:i-1,j,k,1,t)
+print*, rhs_vel(i,j,k,1,t)
 !print *,'-------- the matrix A ----------'
 
 !do l = 1, block_size
@@ -536,9 +547,9 @@ contains
 !end do
 !write(*,*)
 
-!print *,'-------- RHS ----------'
-!print*, b
-
+print *,'-------- RHS ----------'
+print*, b
+end if
 
 !call dgesvd ( 'A', 'A', block_size, block_size, A, block_size, s, u, block_size, vt, block_size, work, lwork , info )
 
@@ -663,9 +674,9 @@ contains
 
     real(c_double), intent(inout)  :: p    ( bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)),   0:(N(4)+bU(4)-bL(4)) )
 
-    real(c_double), intent(in) :: rhs_vel( bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), 1:3, 0:(N(4)+bU(4)-bL(4)) )
+    real(c_double), intent(in) :: rhs_vel  ( bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)), 1:3, 0:(N(4)+bU(4)-bL(4)) )
 
-    real(c_double), intent(in) :: rhs_p  ( bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)),      0:(N(4)+bU(4)-bL(4)) )
+    real(c_double), intent(in) :: rhs_p    ( bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)),      0:(N(4)+bU(4)-bL(4)) )
 
     integer(c_int), intent(in)  :: t_size
 
@@ -685,13 +696,7 @@ contains
 
     integer(c_int) :: info
 
-write(*,*) "prova"
-print*, mulI
-print*, t_size
-
     block_size = 7*t_size
-
-write(*,*) block_size
 
     allocate(A(block_size,block_size),b(block_size),ipiv(block_size))
  
@@ -700,8 +705,6 @@ write(*,*) block_size
       do j = SV(2), NV(2)
         do i = SU(1), NU(1)
             
-write(*,*) i,j,k
-            
          A(1:block_size,1:block_size) = 0.0
          b(1:block_size) = 0.0
 
@@ -709,8 +712,6 @@ write(*,*) i,j,k
         !========== assembling the matrix A ===========================
         !==============================================================
                 
-write(*,*) i,j,k
-
             ! diagonal: time derivative + diffusion 
 
             A(1,1) = mulI - mulL*(c11u(0,i) + c11p(0,i))
@@ -759,7 +760,6 @@ write(*,*) i,j,k
                 end do
             end if
 
-write(*,*) i,j,k
             !===================================================
             !========== assembling the RHS =====================
             !===================================================
@@ -786,61 +786,59 @@ write(*,*) i,j,k
             end do
 
             b = mulL*b
-
-            do ll =0,t_size-1
+            
+            do ll = 0,t_size-1
 
             ! pressure gradient
             b(6*ll + 1 : 6*(ll+1)) = b(6*ll + 1 : 6*(ll+1)) + &
-                    (/ cG1(gU(1),i)*p(i+1,j,k,t),cG1(gL(1),i-1)*p(i-1,j,k,t),&
-                       cG2(gU(2),j)*p(i,j+1,k,t),cG2(gL(2),j-1)*p(i,j-1,k,t),&
-                       cG3(gU(3),k)*p(i,j,k+1,t),cG3(gL(3),k-1)*p(i,j,k-1,t)/)
+                    (/ cG1(gU(1),i)*p(i+1,j,k,t+ll),cG1(gL(1),i-1)*p(i-1,j,k,t+ll),&
+                       cG2(gU(2),j)*p(i,j+1,k,t+ll),cG2(gL(2),j-1)*p(i,j-1,k,t+ll),&
+                       cG3(gU(3),k)*p(i,j,k+1,t+ll),cG3(gL(3),k-1)*p(i,j,k-1,t+ll)/)
 
             end do
-
+            
             ! time stencil (just in the first time slice)
             b(1:6) = b(1:6) - mulI*(/ vel(i,j,k,1,t-1), vel(i-1,j,k,1,t-1),&
                                         vel(i,j,k,2,t-1), vel(i,j-1,k,2,t-1),&
                                         vel(i,j,k,3,t-1), vel(i,j,k-1,3,t-1) /)
             ! move it to the rhs
             b = - b
-            
+
+if (i==1 .and. k==1 .and. j==1 .and. t==1) then
+write(*,*) i,j,k,t
+print *,'-------- RHS ----------'
+print*, b
+end if      
+
             ! add the RHS to b (boundary)
             ! velocity
-            do ll =0,t_size-1
-                 b(6*ll + 1 : 6*(ll+1)) = b(6*ll + 1 : 6*(ll+1)) + rhs_vel(i,j,k,1:3,t+ll)
+            do ll = 0,t_size-1
+                 b(6*ll + 1 : 6*(ll+1)) = b(6*ll + 1 : 6*(ll+1)) + &
+                    (/ rhs_vel(i:i-1,j,k,1,t+ll),&
+                       rhs_vel(i,j:j-1,k,2,t+ll),&
+                       rhs_vel(i,j,k:k-1,3,t+ll) /)
             end do
             !pressure
-            b(block_size-t_size + 1:block_size) = b(block_size-t_size + 1:block_size) + rhs_p(i,j,k,t:t_size-1)
-
+            b(block_size - t_size + 1:block_size) = rhs_p(i,j,k,t:t+t_size-1)
 ! ---------- test the matrix A --------------!
 
+if (i==1 .and. k==1 .and. j==1 .and. t==1) then
+
 write(*,*) i,j,k
+print*, rhs_vel(i:i-1,j,k,1,t)
+!print *,'-------- the matrix A ----------'
 
-print *,'-------- the matrix A ----------'
+!do l = 1, block_size
+!write(*,'(14F7.2)') (A(l,c), c = 1, block_size) 
+!end do
+!write(*,*)
 
-do l = 1, block_size
-write(*,'(14F7.2)') (A(l,c), c = 1, block_size) 
-end do
-write(*,*)
+print *,'-------- RHS ----------'
+print*, b
 
-!print *,'-------- RHS ----------'
-!print*, b
+end if
 
-
-!call dgesvd ( 'A', 'A', block_size, block_size, A, block_size, s, u,
-!block_size, vt, block_size, work, lwork , info )
-
-!if ( info /= 0 ) then
-!write ( *, '(a)' ) ' '
-!write ( *, '(a,i8)' ) '  DGESVD returned nonzero INFO = ', info
-!return
-!end if
-
-!print*,'------- singular values ---------'
-!print*, s
- !-------------------------------------------!
-
-!print*, '! -------- Solve the matrix A --------------!'
+! -------- Solve the matrix A --------------!'
 ! subroutine     dgesv (N, NRHS, A, LDA, IPIV, B, LDB, INFO)
  call dgesv( block_size, 1, A, block_size, ipiv, b, block_size, info )
   
