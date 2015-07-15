@@ -35,8 +35,8 @@ typedef typename Pimpact::VectorField<SpaceT> VF;
 typedef typename Pimpact::ModeField<SF>       MSF;
 typedef typename Pimpact::ModeField<VF>       MVF;
 
-template<class T> using ConvDiffOpT = Pimpact::ConvectionVOp<Pimpact::ConvectionDiffusionSOp<T> >;
-template<class T> using ConvDiffSORT = Pimpact::ConvectionVSmoother<T,Pimpact::ConvectionDiffusionSORSmoother >;
+template<class T> using ConvDiffOpT = Pimpact::NonlinearOp<Pimpact::ConvectionDiffusionSOp<T> >;
+template<class T> using ConvDiffSORT = Pimpact::NonlinearSmoother<T,Pimpact::ConvectionDiffusionSORSmoother >;
 
 
 bool testMpi = true;
@@ -204,10 +204,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionSOp ) {
 
 
 
-template<class T> using ConvOpT = Pimpact::ConvectionVOp<Pimpact::ConvectionSOp<T> >;
+template<class T> using ConvOpT = Pimpact::NonlinearOp<Pimpact::ConvectionSOp<T> >;
 
 
-TEUCHOS_UNIT_TEST( BasicOperator, ConvectionVOp ) {
+TEUCHOS_UNIT_TEST( BasicOperator, NonlinearOp ) {
 
 	pl->set( "dim", dim );
   pl->set( "domain", domain );
@@ -624,7 +624,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
 
   auto smoother =
       Pimpact::create<
-        Pimpact::ConvectionVSmoother<
+        Pimpact::NonlinearSmoother<
           ConvDiffOpT<Pimpact::Space<S,O,d,2> > ,
           Pimpact::ConvectionDiffusionJSmoother > > (
               op,

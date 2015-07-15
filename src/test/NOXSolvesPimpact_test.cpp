@@ -45,7 +45,7 @@ bool testMpi = true;
 S eps = 1.e0;
 auto pl = Teuchos::parameterList();
 
-template<class T> using ConvDiffOpT = Pimpact::ConvectionVOp<Pimpact::ConvectionDiffusionSOp<T> >;
+template<class T> using ConvDiffOpT = Pimpact::NonlinearOp<Pimpact::ConvectionDiffusionSOp<T> >;
 
 
 TEUCHOS_STATIC_SETUP() {
@@ -523,7 +523,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
 	 Pimpact::createOperatorBase(
 			 Pimpact::createMultiOpWrap(
 				 Pimpact::create<
-				 Pimpact::ConvectionVSmoother<
+				 Pimpact::NonlinearSmoother<
 				 ConvDiffOpT<Pimpact::Space<S,O,d,dNC> > ,
 				 Pimpact::ConvectionDiffusionSORSmoother > > (
 					 sop

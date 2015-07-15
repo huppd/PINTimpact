@@ -16,7 +16,7 @@ namespace Pimpact {
 
 /// \brief Stores the wind on differnt grid types.
 /// should become template parameter for others such that interplating can be moved from assign to get(different storage needed)
-/// \relates ConvectionVOp
+/// \relates NonlinearOp
 template<class ST>
 class ConvectionField {
 

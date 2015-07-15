@@ -35,10 +35,9 @@
 #include "Pimpact_ConvectionDiffusionSOp.hpp"
 #include "Pimpact_ConvectionDiffusionJSmoother.hpp"
 #include "Pimpact_ConvectionDiffusionSORSmoother.hpp"
-#include "Pimpact_ConvectionVOp.hpp"
-#include "Pimpact_ConvectionVSmoother.hpp"
-#include "Pimpact_ConvectionVWrap.hpp"
-#include "Pimpact_ConvectionJacobianOp.hpp"
+#include "Pimpact_NonlinearOp.hpp"
+#include "Pimpact_NonlinearSmoother.hpp"
+#include "Pimpact_NonlinearVWrap.hpp"
 #include "Pimpact_VectorFieldOpWrap.hpp"
 
 

@@ -1,9 +1,9 @@
 #pragma once
-#ifndef PIMPACT_CONVECTIONVOP_HPP
-#define PIMPACT_CONVECTIONVOP_HPP
+#ifndef PIMPACT_NONLINEARVOP_HPP
+#define PIMPACT_NONLINEARVOP_HPP
 
 
-#include "Pimpact_ConvectionVWrap.hpp"
+#include "Pimpact_NonlinearVWrap.hpp"
 #include "Pimpact_ConvectionField.hpp"
 
 
@@ -16,7 +16,7 @@ namespace Pimpact {
 /// \ingroup BaseOperator
 /// \ingroup NonlinearOperator
 template<class CSOPT>
-class ConvectionVOp {
+class NonlinearOp {
 
 public:
 
@@ -36,19 +36,19 @@ public:
 
 protected:
 
-  Teuchos::RCP<ConvectionVWrap<ConvSOpT> > convVWrap_;
+  Teuchos::RCP<NonlinearWrap<ConvSOpT> > convVWrap_;
 
   Teuchos::RCP<ConvectionField<SpaceT> > convField_;
 
 public:
 
-    ConvectionVOp( const Teuchos::RCP<const SpaceT>& space ):
-      convVWrap_( create<ConvectionVWrap<ConvSOpT> >( create<ConvSOpT>(space) ) ),
+    NonlinearOp( const Teuchos::RCP<const SpaceT>& space ):
+      convVWrap_( create<NonlinearWrap<ConvSOpT> >( create<ConvSOpT>(space) ) ),
       convField_( create<ConvectionField>( space ) ) {};
 
     template< class ConvSOpTT >
-    ConvectionVOp( const Teuchos::RCP<ConvSOpTT>& op ):
-      convVWrap_( create<ConvectionVWrap<ConvSOpT> >( create<ConvSOpT>( op->space() ) ) ),
+    NonlinearOp( const Teuchos::RCP<ConvSOpTT>& op ):
+      convVWrap_( create<NonlinearWrap<ConvSOpT> >( create<ConvSOpT>( op->space() ) ) ),
       convField_( op->getConvField() ) {}
 
 
@@ -100,19 +100,19 @@ public:
 
 	const std::string getLabel() const { return( convVWrap_->getSOp()->getLabel() + "VOp" ); };
 
-}; // end of class ConvectionVOp
+}; // end of class NonlinearOp
 
 
 
-/// \relates ConvectionVOp
+/// \relates NonlinearOp
 template<class SpaceT>
-Teuchos::RCP<ConvectionVOp<ConvectionVWrap<ConvectionSOp<SpaceT> > > > createConvectionVOp(
+Teuchos::RCP<NonlinearOp<NonlinearWrap<ConvectionSOp<SpaceT> > > > createNonlinearOp(
     const Teuchos::RCP<const SpaceT>& space ) {
 
   auto sop = Pimpact::create<Pimpact::ConvectionSOp>( space ) ;
-//  auto wrap = Pimpact::create<Pimpact::ConvectionVWrap>( sop );
+//  auto wrap = Pimpact::create<Pimpact::NonlinearWrap>( sop );
 
-  return( Teuchos::rcp( new ConvectionVOp< ConvectionSOp<SpaceT> >( sop ) ) );
+  return( Teuchos::rcp( new NonlinearOp< ConvectionSOp<SpaceT> >( sop ) ) );
 
 
 }
@@ -126,15 +126,15 @@ Teuchos::RCP<ConvectionVOp<ConvectionVWrap<ConvectionSOp<SpaceT> > > > createCon
 
 #ifdef COMPILE_ETI
 #include "Pimpact_ConvectionDiffusionSOp.hpp"
-extern template class Pimpact::ConvectionVOp< Pimpact::ConvectionSOp< Pimpact::Space<double,int,3,2> > >;
-extern template class Pimpact::ConvectionVOp< Pimpact::ConvectionSOp< Pimpact::Space<double,int,3,4> > >;
-extern template class Pimpact::ConvectionVOp< Pimpact::ConvectionSOp< Pimpact::Space<double,int,4,2> > >;
-extern template class Pimpact::ConvectionVOp< Pimpact::ConvectionSOp< Pimpact::Space<double,int,4,4> > >;
-extern template class Pimpact::ConvectionVOp< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,3,2> > >;
-extern template class Pimpact::ConvectionVOp< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,3,4> > >;
-extern template class Pimpact::ConvectionVOp< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,4,2> > >;
-extern template class Pimpact::ConvectionVOp< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,4,4> > >;
+extern template class Pimpact::NonlinearOp< Pimpact::ConvectionSOp< Pimpact::Space<double,int,3,2> > >;
+extern template class Pimpact::NonlinearOp< Pimpact::ConvectionSOp< Pimpact::Space<double,int,3,4> > >;
+extern template class Pimpact::NonlinearOp< Pimpact::ConvectionSOp< Pimpact::Space<double,int,4,2> > >;
+extern template class Pimpact::NonlinearOp< Pimpact::ConvectionSOp< Pimpact::Space<double,int,4,4> > >;
+extern template class Pimpact::NonlinearOp< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,3,2> > >;
+extern template class Pimpact::NonlinearOp< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,3,4> > >;
+extern template class Pimpact::NonlinearOp< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,4,2> > >;
+extern template class Pimpact::NonlinearOp< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,4,4> > >;
 #endif
 
 
-#endif // end of #ifndef PIMPACT_CONVECTIONVOP_HPP
+#endif // end of #ifndef PIMPACT_NONLINEARVOP_HPP

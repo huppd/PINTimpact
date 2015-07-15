@@ -54,18 +54,18 @@ namespace Pimpact {
 	template class ConvectionDiffusionSORSmoother< ConvectionDiffusionSOp< Space<double,int,3,4> > >;
 	template class ConvectionDiffusionSORSmoother< ConvectionDiffusionSOp< Space<double,int,4,2> > >;
 	template class ConvectionDiffusionSORSmoother< ConvectionDiffusionSOp< Space<double,int,4,4> > >;
-	template class ConvectionVOp< ConvectionDiffusionSOp< Space<double,int,3,2> > >;
-	template class ConvectionVOp< ConvectionDiffusionSOp< Space<double,int,3,4> > >;
-	template class ConvectionVOp< ConvectionDiffusionSOp< Space<double,int,4,2> > >;
-	template class ConvectionVOp< ConvectionDiffusionSOp< Space<double,int,4,4> > >;
-	template class ConvectionVOp< ConvectionSOp< Space<double,int,3,2> > >;
-	template class ConvectionVOp< ConvectionSOp< Space<double,int,3,4> > >;
-	template class ConvectionVOp< ConvectionSOp< Space<double,int,4,2> > >;
-	template class ConvectionVOp< ConvectionSOp< Space<double,int,4,4> > >;
-	template class ConvectionVSmoother< ConvectionVOp< ConvectionDiffusionSOp< Space<double,int,3,2> > >, ConvectionDiffusionSORSmoother>;
-	template class ConvectionVSmoother< ConvectionVOp< ConvectionDiffusionSOp< Space<double,int,3,4> > >, ConvectionDiffusionSORSmoother>;
-	template class ConvectionVSmoother< ConvectionVOp< ConvectionDiffusionSOp< Space<double,int,4,2> > >, ConvectionDiffusionSORSmoother>;
-	template class ConvectionVSmoother< ConvectionVOp< ConvectionDiffusionSOp< Space<double,int,4,4> > >, ConvectionDiffusionSORSmoother>;
+	template class NonlinearOp< ConvectionDiffusionSOp< Space<double,int,3,2> > >;
+	template class NonlinearOp< ConvectionDiffusionSOp< Space<double,int,3,4> > >;
+	template class NonlinearOp< ConvectionDiffusionSOp< Space<double,int,4,2> > >;
+	template class NonlinearOp< ConvectionDiffusionSOp< Space<double,int,4,4> > >;
+	template class NonlinearOp< ConvectionSOp< Space<double,int,3,2> > >;
+	template class NonlinearOp< ConvectionSOp< Space<double,int,3,4> > >;
+	template class NonlinearOp< ConvectionSOp< Space<double,int,4,2> > >;
+	template class NonlinearOp< ConvectionSOp< Space<double,int,4,4> > >;
+	template class NonlinearSmoother< NonlinearOp< ConvectionDiffusionSOp< Space<double,int,3,2> > >, ConvectionDiffusionSORSmoother>;
+	template class NonlinearSmoother< NonlinearOp< ConvectionDiffusionSOp< Space<double,int,3,4> > >, ConvectionDiffusionSORSmoother>;
+	template class NonlinearSmoother< NonlinearOp< ConvectionDiffusionSOp< Space<double,int,4,2> > >, ConvectionDiffusionSORSmoother>;
+	template class NonlinearSmoother< NonlinearOp< ConvectionDiffusionSOp< Space<double,int,4,4> > >, ConvectionDiffusionSORSmoother>;
 
 } // end of namespace Pimpact
 

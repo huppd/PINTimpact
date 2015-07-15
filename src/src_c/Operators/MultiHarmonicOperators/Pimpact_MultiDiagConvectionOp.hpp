@@ -9,7 +9,7 @@
 #include "Pimpact_VectorField.hpp"
 #include "Pimpact_MultiHarmonicField.hpp"
 
-#include "Pimpact_ConvectionVOp.hpp"
+#include "Pimpact_NonlinearOp.hpp"
 
 
 
@@ -34,7 +34,7 @@ public:
 protected:
 
   Teuchos::RCP<DomainFieldT> u_;
-  Teuchos::RCP<ConvectionVOp<SpaceT> > op_;
+  Teuchos::RCP<NonlinearOp<SpaceT> > op_;
 
   const bool isNewton_;
 
@@ -44,7 +44,7 @@ public:
       const Teuchos::RCP<const SpaceT>& space,
       const bool& isNewton=true ):
         u_(Teuchos::null),
-        op_( createConvectionVOp<SpaceT>( space ) ),
+        op_( createNonlinearOp<SpaceT>( space ) ),
         isNewton_(isNewton) {};
 
   void assignField( const DomainFieldT& mv ) {

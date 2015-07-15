@@ -6,7 +6,7 @@ typedef double S;
 typedef int O;
 const int d = 3;
 
-template<class T> using ConvDiffOpT = Pimpact::ConvectionVOp<Pimpact::ConvectionDiffusionSOp<T> >;
+template<class T> using ConvDiffOpT = Pimpact::NonlinearOp<Pimpact::ConvectionDiffusionSOp<T> >;
 
 int main( int argi, char** argv ) {
 
@@ -72,7 +72,7 @@ int main( int argi, char** argv ) {
 
       auto smoother =
            Pimpact::create<
-             Pimpact::ConvectionVSmoother<
+             Pimpact::NonlinearSmoother<
                ConvDiffOpT<Pimpact::Space<S,O,d,2> > ,
                Pimpact::ConvectionDiffusionSORSmoother > > (
                    op,

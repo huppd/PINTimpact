@@ -9,9 +9,8 @@
 #include "Pimpact_VectorField.hpp"
 #include "Pimpact_MultiHarmonicField.hpp"
 
-//#include "Pimpact_ConvectionVOp.hpp"
 #include "Pimpact_ConvectionDiffusionSOp.hpp"
-#include "Pimpact_ConvectionVWrap.hpp"
+#include "Pimpact_NonlinearVWrap.hpp"
 
 
 
@@ -37,7 +36,7 @@ public:
 
 protected:
 
-  Teuchos::RCP<ConvectionVWrap< ConvectionDiffusionSOp<SpaceT> > > op_;
+  Teuchos::RCP<NonlinearWrap< ConvectionDiffusionSOp<SpaceT> > > op_;
 
   Teuchos::RCP< ConvectionField<SpaceT> > wind0_;
   Teuchos::Array< Teuchos::RCP<ConvectionField<SpaceT> > > windc_;
@@ -47,7 +46,7 @@ public:
 
   /// \todo get nf from grid
   MultiDtConvectionDiffusionOp( const Teuchos::RCP<const SpaceT>& space ):
-    op_( create<ConvectionVWrap>( create<ConvectionDiffusionSOp<SpaceT> >(space) ) ),
+    op_( create<NonlinearWrap>( create<ConvectionDiffusionSOp<SpaceT> >(space) ) ),
     wind0_( create<ConvectionField>(space) ),
     windc_( space->nGlo(3) ),
     winds_( space->nGlo(3) ) {

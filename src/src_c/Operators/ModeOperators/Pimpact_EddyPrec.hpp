@@ -41,12 +41,25 @@ public:
 
  	void apply(const DomainFieldT& x, RangeFieldT& y) {
 
-		// where is the minus best
- 		temp_->getCFieldPtr()->add( 0.5, x.getConstCField(), -0.5, x.getConstSField() );
- 		temp_->getSFieldPtr()->add( 0.5, x.getConstCField(),  0.5, x.getConstSField() );
+// left
+//		// where is the minus best
+// 		temp_->getCFieldPtr()->add( 0.5, x.getConstCField(), -0.5, x.getConstSField() );
+// 		temp_->getSFieldPtr()->add( 0.5, x.getConstCField(),  0.5, x.getConstSField() );
+//
+//		op_->apply( temp_->getConstCField(), y.getCField() );
+//		op_->apply( temp_->getConstSField(), y.getSField() );
 
-		op_->apply( temp_->getConstCField(), y.getCField() );
-		op_->apply( temp_->getConstSField(), y.getSField() );
+// right
+		op_->apply( x.getConstCField(), temp_->getCField() );
+		op_->apply( x.getConstSField(), temp_->getSField() );
+
+		// where is the minus best
+		y.getCFieldPtr()->add( 0.5, temp_->getConstCField(), -0.5, temp_->getConstSField() );
+		y.getSFieldPtr()->add( 0.5, temp_->getConstCField(),  0.5, temp_->getConstSField() );
+//
+//		op_->apply( x.getConstCField(), y.getCField() );
+//		op_->apply( x.getConstSField(), y.getSField() );
+
 
  	}
 

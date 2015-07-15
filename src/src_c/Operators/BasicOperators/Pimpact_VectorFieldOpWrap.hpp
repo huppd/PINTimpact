@@ -36,8 +36,8 @@ public:
 //  typedef typename FSpaceT::Scalar Scalar;
 //  typedef typename FSpaceT::Ordinal Ordinal;
 
-//  typedef ScalarField<typename SOpT::DomainFieldT>  DomainFieldT;
-//  typedef ScalarField<typename SOpT::RangeFieldT>  RangeFieldT;
+	typedef VectorField<FSpaceT>  DomainFieldT;
+	typedef VectorField<CSpaceT>  RangeFieldT;
 
 
 protected:
@@ -69,10 +69,6 @@ public:
 
   }
 
-//  void assignField( const RangeFieldT& mv ) {};
-
-//  bool hasApplyTranspose() const { return( false ); }
-//
 	Teuchos::RCP<const SpaceT> space() const { return(sop_->space()); };
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {

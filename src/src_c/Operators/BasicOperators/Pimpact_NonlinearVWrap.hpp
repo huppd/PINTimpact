@@ -17,7 +17,7 @@ namespace Pimpact {
 /// \ingroup BaseOperator
 /// \relates ConvectionSOp
 template<class SOpT>
-class ConvectionVWrap {
+class NonlinearWrap {
 
 public:
 
@@ -41,7 +41,7 @@ protected:
 
 public:
 
-  ConvectionVWrap( const Teuchos::RCP<SOpT>& sop ):
+  NonlinearWrap( const Teuchos::RCP<SOpT>& sop ):
     convectionSOp_( sop ) {};
 
 
@@ -75,13 +75,13 @@ public:
   }
 
   void print( std::ostream& out=std::cout ) const {
-    out << "--- ConvectionVWrap(" << getLabel() << ") ---\n";
+    out << "--- NonlinearWrap(" << getLabel() << ") ---\n";
     convectionSOp_->print(out);
   }
 
 	const std::string getLabel() const { return( convectionSOp_->getLabel() ); };
 
-}; // end of class ConvectionVWrap
+}; // end of class NonlinearWrap
 
 
 

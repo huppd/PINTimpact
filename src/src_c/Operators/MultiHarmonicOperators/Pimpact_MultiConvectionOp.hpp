@@ -8,7 +8,7 @@
 #include "Pimpact_VectorField.hpp"
 #include "Pimpact_MultiHarmonicField.hpp"
 
-#include "Pimpact_ConvectionVOp.hpp"
+#include "Pimpact_NonlinearOp.hpp"
 
 
 
@@ -149,20 +149,20 @@ public:
 
 /// \relates MultiHarmonicConvectionOp
 template<class SpaceT>
-Teuchos::RCP<MultiHarmonicConvectionOp<ConvectionVWrap<ConvectionSOp<SpaceT> > > >
+Teuchos::RCP<MultiHarmonicConvectionOp<NonlinearWrap<ConvectionSOp<SpaceT> > > >
 createMultiHarmonicConvectionOp( const Teuchos::RCP<const SpaceT>& space, int nf=-1 ) {
 
   auto sop = Pimpact::create<Pimpact::ConvectionSOp>( space ) ;
-  auto wrap = Pimpact::create<Pimpact::ConvectionVWrap>( sop );
+  auto wrap = Pimpact::create<Pimpact::NonlinearWrap>( sop );
 
 	if( nf<0 )
 		return(
 				Teuchos::rcp(
-					new MultiHarmonicConvectionOp<ConvectionVWrap<ConvectionSOp<SpaceT> > >( wrap, space->nGlo(3) ) ) );
+					new MultiHarmonicConvectionOp<NonlinearWrap<ConvectionSOp<SpaceT> > >( wrap, space->nGlo(3) ) ) );
 
   return(
 			Teuchos::rcp(
-				new MultiHarmonicConvectionOp<ConvectionVWrap<ConvectionSOp<SpaceT> > >( wrap, nf ) ) );
+				new MultiHarmonicConvectionOp<NonlinearWrap<ConvectionSOp<SpaceT> > >( wrap, nf ) ) );
 
 }
 

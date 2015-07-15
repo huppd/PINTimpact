@@ -10,7 +10,7 @@
 #include "Pimpact_VectorField.hpp"
 #include "Pimpact_TimeField.hpp"
 
-#include "Pimpact_ConvectionVOp.hpp"
+#include "Pimpact_NonlinearOp.hpp"
 
 
 
@@ -42,7 +42,7 @@ protected:
 
   Teuchos::RCP< VectorField<SpaceT> > temp_;
 
-  Teuchos::RCP<const ConvectionVOp<SpaceT> > op_;
+  Teuchos::RCP<const NonlinearOp<SpaceT> > op_;
 
 public:
 
@@ -52,7 +52,7 @@ public:
     u_( Teuchos::null ),
     isNewton_(isNewton),
     temp_( create<Pimpact::VectorField>(space) ),
-    op_( createConvectionVOp<SpaceT>(space) )
+    op_( createNonlinearOp<SpaceT>(space) )
   {};
 
   void assignField( const DomainFieldT& mv ) {

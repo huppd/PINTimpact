@@ -114,9 +114,9 @@ createMGOperators(
 #include "Pimpact_MGSpaces.hpp"
 #include "Pimpact_DivGradOp.hpp"
 #include "Pimpact_DivGradO2Op.hpp"
-#include "Pimpact_ConvectionVOp.hpp"
+#include "Pimpact_NonlinearOp.hpp"
 #include "Pimpact_ConvectionDiffusionSOp.hpp"
-template<class T> using ConvDiffOpT = Pimpact::ConvectionVOp<Pimpact::ConvectionDiffusionSOp<T> >;
+template<class T> using ConvDiffOpT = Pimpact::NonlinearOp<Pimpact::ConvectionDiffusionSOp<T> >;
 #ifdef COMPILE_ETI
 extern template class Pimpact::MGOperators< Pimpact::MGSpaces< Pimpact::Space<double,int,3,4>, Pimpact::Space<double,int,3,2> >, Pimpact::DivGradOp, Pimpact::DivGradOp >;
 extern template class Pimpact::MGOperators< Pimpact::MGSpaces< Pimpact::Space<double,int,4,4>, Pimpact::Space<double,int,4,2> >, Pimpact::DivGradOp, Pimpact::DivGradOp >;

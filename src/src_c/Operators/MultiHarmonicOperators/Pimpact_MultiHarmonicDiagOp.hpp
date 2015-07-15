@@ -78,9 +78,9 @@ public:
 //			}
 //			else{
 				// set parameters
-				para->set<Scalar>( "mulI", a2*(i+1) );
-				zeroOp_->setParameter( para );
-				modeOp_->apply( x.getConstField(i), y.getField(i) );
+			para->set<Scalar>( "mulI", a2*(i+1) );
+			zeroOp_->setParameter( para );
+			modeOp_->apply( x.getConstField(i), y.getField(i) );
 //			}
 		}
 
