@@ -93,7 +93,8 @@ getSpaceParametersFromCL( int argi, char** argv  )  {
 
   std::string linSolName = "";
 
-	int withprec=2;
+  int withprec=2;
+  int withoutput=1;
 
   int maxIter = 10;
 
@@ -150,6 +151,7 @@ getSpaceParametersFromCL( int argi, char** argv  )  {
   my_CLP.setOption("linSearch", &lineSearchName, "Backtrack");
   my_CLP.setOption("linSolver", &linSolName, "bla");
   my_CLP.setOption("withprec", &withprec, "0: no preconditioner, 1: block triangular, 2: block triangular with inner MG multigrid, 3: block triangular with mg solver");
+  my_CLP.setOption("withoutput", &withoutput, "0: no preconditioner, 1: block triangular, 2: block triangular with inner MG multigrid, 3: block triangular with mg solver");
   my_CLP.setOption("maxIter", &maxIter, "bla");
   my_CLP.setOption("initZero", &initZero, "bla");
   my_CLP.setOption("tolBelos", &tolBelos, "bla");
@@ -212,6 +214,7 @@ getSpaceParametersFromCL( int argi, char** argv  )  {
   pl->sublist("Solver").set("linSearch", lineSearchName );
   pl->sublist("Solver").set("linSolver", linSolName );
   pl->sublist("Solver").set("withprec", withprec );
+  pl->sublist("Solver").set("withoutput", withoutput );
   pl->sublist("Solver").set("maxIter", maxIter );
   pl->sublist("Solver").set("initZero", initZero );
   pl->sublist("Solver").set("tolBelos", tolBelos );
@@ -286,6 +289,7 @@ int main(int argi, char** argv ) {
 	S tolInnerBelos = pl->sublist("Solver").get<S>("tolInnerBelos");
 
 	int withprec=pl->sublist("Solver").get<int>("withprec");
+	int withoutput=pl->sublist("Solver").get<int>("withoutput");
 
 	std::string linSolName  = pl->sublist("Solver").get<std::string>( "linSolver" );
 	if( linSolName.size()< 2 )
@@ -613,10 +617,12 @@ int main(int argi, char** argv ) {
     // Get the answer
     *group = solver->getSolutionGroup();
 
-    x = Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr();
-	 Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr()->write( 800 );
-	 Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr()->getFieldPtr(0)->getVFieldPtr()->write( 400, true );
-//		Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(900);
+	if( withoutput ) {
+		x = Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr();
+		Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr()->write( 800 );
+		Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr()->getFieldPtr(0)->getVFieldPtr()->write( 400, true );
+		//		Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(900);
+	}
 
   } // test convergence
 		// spectral refinement of x, fu
