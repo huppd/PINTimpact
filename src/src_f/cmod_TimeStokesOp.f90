@@ -395,7 +395,7 @@ contains
     !===========================================================================================================
 
 
-    integer (c_int), parameter :: block_size = 14 ! decompose this in time points + pressure...
+    integer(c_int), parameter :: block_size = 14 ! decompose this in time points + pressure...
     integer(c_int)             :: l, ll, d, c
     integer(c_int)             :: ipiv(block_size)
      
@@ -422,26 +422,19 @@ contains
          A(1:block_size,1:block_size) = 0.0
          b(1:block_size) = 0.0
 
-
-            ! from dL to DU loop? no for b.s. just small stencil. time
-            ! periodcity?
-            ! if no strched grids you can compute it just one time
-
         !==============================================================
         !========== assembling the matrix A ===========================
         !==============================================================
 
             ! diagonal: time derivative + diffusion 
 
-            A(1,1) = mulI - mulL*(c11u(0,i) + c11p(0,i))
-            A(2,2) = mulI - mulL*(c11u(0,i-1) + c11p(0,i-1))
-
-            A(3,3) = mulI - mulL*(c22v(0,j) + c22p(0,j))
-            A(4,4) = mulI - mulL*(c22v(0,j-1) + c22p(0,j-1))
-
-            A(5,5) = mulI - mulL*(c33w(0,k) + c33p(0,k))
-            A(6,6) = mulI - mulL*(c33w(0,k-1) + c33p(0,k-1))
-
+            A(1,1) = mulI - mulL*(c11u(0,i) + c22p(0,i) + c33p(0,i))
+            A(2,2) = mulI - mulL*(c11u(0,i-1) + c22p(0,i-1) + c33p(0,i-1))
+            A(3,3) = mulI - mulL*(c22v(0,j) + c11p(0,j) + c33p(0,j))
+            A(4,4) = mulI - mulL*(c22v(0,j-1) + c11p(0,j-1) + c33p(0,j-1))
+            A(5,5) = mulI - mulL*(c33w(0,k) + c11p(0,k) + c22p(0,k))
+            A(6,6) = mulI - mulL*(c33w(0,k-1) + c11p(0,k-1) + c22p(0,k-1))
+                
             ! sub/super-diagonal: diffusion
                 
             A(1,2) = - mulL*c11u(bL(1),i)
@@ -515,31 +508,22 @@ contains
             b(1:6) = b(1:6) - mulI*(/ vel(i,j,k,1,t-1), vel(i-1,j,k,1,t-1),&
                                         vel(i,j,k,2,t-1), vel(i,j-1,k,2,t-1),&
                                         vel(i,j,k,3,t-1), vel(i,j,k-1,3,t-1) /)
+            ! new
+            b = - b
             
-                ! new
-                b = - b
-if (i==1 .and. k==1 .and. j==1 .and. t==1) then
-write(*,*) i,j,k,t
-print *,'-------- RHS ----------'
-print*, b
-end if                
-
-            ! add the RHS to b (boundary)
-            b =  b + (/ rhs_vel(i:i-1,j,k,1,t),&
-                        rhs_vel(i,j:j-1,k,2,t),&
-                        rhs_vel(i,j,k:k-1,3,t),&
-                        rhs_vel(i:i-1,j,k,1,t+1),& 
-                        rhs_vel(i,j:j-1,k,2,t+1),&
-                        rhs_vel(i,j,k:k-1,3,t+1),&                       
-                        rhs_p(i,j,k,t:t+1) /)
+            b = b + (/ rhs_vel(i,j,k,1,t),rhs_vel(i-1,j,k,1,t),&
+                       rhs_vel(i,j,k,2,t),rhs_vel(i,j-1,k,2,t),&
+                       rhs_vel(i,j,k,3,t),rhs_vel(i,j,k-1,3,t),&
+                    rhs_vel(i,j,k,1,t+1),rhs_vel(i-1,j,k,1,t+1),&
+                    rhs_vel(i,j,k,2,t+1),rhs_vel(i,j-1,k,2,t+1),&
+                    rhs_vel(i,j,k,3,t+1),rhs_vel(i,j,k-1,3,t+1),&
+                    rhs_p(i,j,k,t),rhs_p(i,j,k,t+1) /)
 
 
 ! ---------- test the matrix A --------------!
+!if (i==1 .and. k==1 .and. j==1 .and. t==1 ) then
 
-if (i==1 .and. k==1 .and. j==1 .and. t==1) then
-write(*,*) i,j,k
-print*, rhs_vel(i:i-1,j,k,1,t)
-print*, rhs_vel(i,j,k,1,t)
+!write(*,*) i,j,k
 !print *,'-------- the matrix A ----------'
 
 !do l = 1, block_size
@@ -547,9 +531,6 @@ print*, rhs_vel(i,j,k,1,t)
 !end do
 !write(*,*)
 
-print *,'-------- RHS ----------'
-print*, b
-end if
 
 !call dgesvd ( 'A', 'A', block_size, block_size, A, block_size, s, u, block_size, vt, block_size, work, lwork , info )
 
@@ -574,20 +555,25 @@ end if
     return
   end if
 
-!print *,'-------- solution ----------'
-!print*, b
-
        !assign new solution  
        
-        vel(i,j,k,1,t:t+1) = (/ b(1), b(7) /)
-        vel(i-1,j,k,1,t:t+1) = (/ b(2), b(8) /)
-        vel(i,j,k,2,t:t+1) = (/ b(3), b(9) /)
-        vel(i,j-1,k,2,t:t+1) = (/ b(4), b(10) /)
-        vel(i,j,k,3,t:t+1) = (/ b(5), b(11) /)
-        vel(i,j,k-1,3,t:t+1) = (/ b(6), b(12) /) 
+        vel(i,j,k,1,t) =  b(1)
+        vel(i-1,j,k,1,t) =  b(2)
+        vel(i,j,k,2,t) =  b(3)
+        vel(i,j-1,k,2,t) =  b(4)
+        vel(i,j,k,3,t) =  b(5)
+        vel(i,j,k-1,3,t) =  b(6)
 
-        p(i,j,k,t:t+1) = b(13:14)
+        vel(i,j,k,1,t+1) =  b(7)
+        vel(i-1,j,k,1,t+1) =  b(8)
+        vel(i,j,k,2,t+1) =  b(9)
+        vel(i,j-1,k,2,t+1) =  b(10)
+        vel(i,j,k,3,t+1) =  b(11)
+        vel(i,j,k-1,3,t+1) =  b(12)
 
+        p(i,j,k,t) =  b(13)
+        p(i,j,k,t+1) =  b(14)
+        
         end do
       end do
     end do
@@ -713,16 +699,14 @@ end if
         !==============================================================
                 
             ! diagonal: time derivative + diffusion 
-
-            A(1,1) = mulI - mulL*(c11u(0,i) + c11p(0,i))
-            A(2,2) = mulI - mulL*(c11u(0,i-1) + c11p(0,i-1))
-
-            A(3,3) = mulI - mulL*(c22v(0,j) + c22p(0,j))
-            A(4,4) = mulI - mulL*(c22v(0,j-1) + c22p(0,j-1))
-
-            A(5,5) = mulI - mulL*(c33w(0,k) + c33p(0,k))
-            A(6,6) = mulI - mulL*(c33w(0,k-1) + c33p(0,k-1))
-
+            
+            A(1,1) = mulI - mulL*(c11u(0,i) + c22p(0,i) + c33p(0,i))
+            A(2,2) = mulI - mulL*(c11u(0,i-1) + c22p(0,i-1) + c33p(0,i-1))
+            A(3,3) = mulI - mulL*(c22v(0,j) + c11p(0,j) + c33p(0,j))
+            A(4,4) = mulI - mulL*(c22v(0,j-1) + c11p(0,j-1) + c33p(0,j-1))
+            A(5,5) = mulI - mulL*(c33w(0,k) + c11p(0,k) + c22p(0,k))
+            A(6,6) = mulI - mulL*(c33w(0,k-1) + c11p(0,k-1) + c22p(0,k-1))
+            
             ! sub/super-diagonal: diffusion
                 
             A(1,2) = - mulL*c11u(bL(1),i)
@@ -735,10 +719,10 @@ end if
             A(6,5) = - mulL*c33w(bU(3),k-1)
 
             ! pressure gradient
-            A(1:6,13) = (/ cG1(gL(1),i), cG1(gU(1),i-1),cG2(gL(2),j),cG2(gU(2),j-1), cG3(gL(3),k), cG3(gU(3),k-1) /)
+            A(1:6,block_size-t_size+1) = (/ cG1(gL(1),i), cG1(gU(1),i-1),cG2(gL(2),j),cG2(gU(2),j-1), cG3(gL(3),k), cG3(gU(3),k-1) /)
 
             ! divergence on pressure points indeces are correct?
-            A(13,1:6) = (/ cD1(dU(1),i), cD1(dL(1),i), cD2(dU(2),j),cD2(dL(2),j),cD3(dU(3),k), cD3(dL(3),k)/)
+            A(block_size-t_size+1,1:6) = (/ cD1(dU(1),i), cD1(dL(1),i), cD2(dU(2),j),cD2(dL(2),j),cD3(dU(3),k), cD3(dL(3),k)/)
 
             ! copy for others time slices
             if ( t_size > 1) then
@@ -804,39 +788,28 @@ end if
             ! move it to the rhs
             b = - b
 
-if (i==1 .and. k==1 .and. j==1 .and. t==1) then
-write(*,*) i,j,k,t
-print *,'-------- RHS ----------'
-print*, b
-end if      
-
             ! add the RHS to b (boundary)
-            ! velocity
             do ll = 0,t_size-1
-                 b(6*ll + 1 : 6*(ll+1)) = b(6*ll + 1 : 6*(ll+1)) + &
-                    (/ rhs_vel(i:i-1,j,k,1,t+ll),&
-                       rhs_vel(i,j:j-1,k,2,t+ll),&
-                       rhs_vel(i,j,k:k-1,3,t+ll) /)
+
+                b(6*ll + 1 : 6*(ll+1)) = b(6*ll + 1 : 6*(ll+1)) + &
+                        (/ rhs_vel(i,j,k,1,t+ll),rhs_vel(i-1,j,k,1,t+ll),&
+                           rhs_vel(i,j,k,2,t+ll),rhs_vel(i,j-1,k,2,t+ll),&
+                           rhs_vel(i,j,k,3,t+ll),rhs_vel(i,j,k-1,3,t+ll) /)
+
+                b(block_size - t_size + ll + 1) = b(block_size - t_size + ll + 1) + rhs_p(i,j,k,t+ll)
+
             end do
-            !pressure
-            b(block_size - t_size + 1:block_size) = rhs_p(i,j,k,t:t+t_size-1)
+
 ! ---------- test the matrix A --------------!
 
-if (i==1 .and. k==1 .and. j==1 .and. t==1) then
 
-write(*,*) i,j,k
-print*, rhs_vel(i:i-1,j,k,1,t)
+!write(*,*) i,j,k,t
 !print *,'-------- the matrix A ----------'
 
 !do l = 1, block_size
 !write(*,'(14F7.2)') (A(l,c), c = 1, block_size) 
 !end do
 !write(*,*)
-
-print *,'-------- RHS ----------'
-print*, b
-
-end if
 
 ! -------- Solve the matrix A --------------!'
 ! subroutine     dgesv (N, NRHS, A, LDA, IPIV, B, LDB, INFO)
@@ -849,19 +822,17 @@ end if
     return
   end if
 
-!print *,'-------- solution ----------'
-!print*, b
-
        !assign new solution  
-
         do ll = 0,t_size-1
-            vel(i:i-1,j,k,1,t+ll) = b(6*ll+1:6*ll+2)
-            vel(i,j:j-1,k,2,t+ll) = b(6*ll+3:6*ll+4)
-            vel(i,j,k:k-1,3,t+ll) = b(6*ll+5:6*ll+6)
+            vel(i,j,k,1,t+ll) = b(6*ll+1)
+            vel(i-1,j,k,1,t+ll) = b(6*ll+2)
+            vel(i,j,k,2,t+ll) = b(6*ll+3)
+            vel(i,j-1,k,2,t+ll) = b(6*ll+4)
+            vel(i,j,k,3,t+ll) = b(6*ll+5)
+            vel(i,j,k-1,3,t+ll) = b(6*ll+6)
 
+            p(i,j,k,t+ll) = b(block_size-t_size+1+ll)
         end do
-
-        p(i,j,k,t:t+t_size-1) = b(block_size-t_size+1:block_size)
 
         end do
       end do
