@@ -113,19 +113,25 @@ void MG_interpolateV(
 
 
 
-template<class SpaceT>
+template<class ST>
 class InterpolationOp {
 
-public: 
 
-  typedef typename SpaceT::Scalar Scalar;
-  typedef typename SpaceT::Ordinal Ordinal;
+public:
+
+	typedef ST SpaceT;
+
+	typedef SpaceT FSpaceT;
+	typedef SpaceT CSpaceT;
 
   typedef ScalarField<SpaceT>  DomainFieldT;
   typedef ScalarField<SpaceT>  RangeFieldT;
 
+protected:
 
-//  typedef Space<Scalar,Ordinal,dimension> SpaceT;
+	typedef typename SpaceT::Scalar Scalar;
+  typedef typename SpaceT::Ordinal Ordinal;
+
 protected:
 
   Teuchos::RCP<const SpaceT> spaceC_;
@@ -160,7 +166,7 @@ protected:
 				nGatherTotal *= nGather_[i]; // check
 
 				iimax_[i] = (spaceC_->nLoc(i) - 1)/nGather_[i] + 1; // check
-				dd_[i] = (spaceF_->nLoc(i) - 1)/( iimax_[i] -1 ); // check
+				dd_[i] = std::max( (spaceF_->nLoc(i) - 1)/( iimax_[i] -1 ), (Ordinal)1 ); // check
 
 				iiShift_[i] = ( iimax_[i] - 1 )*( ( spaceF_->procCoordinate()[i] -1 )%nGather_[i] ); // check
 			}
@@ -289,12 +295,11 @@ protected:
 						cIV_[i] );
 			}
 
-	}
+	} // end of void init( const Teuchos::Tuple<int,SpaceT::dimension>& nb ) 
+ 
 
 public:
 
-	typedef SpaceT FSpaceT;
-  typedef SpaceT CSpaceT;
 
 	InterpolationOp( const Teuchos::RCP<const SpaceT>& spaceC, const Teuchos::RCP<const SpaceT>& spaceF ):
 		spaceC_(spaceC),
