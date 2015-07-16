@@ -1,6 +1,6 @@
 #pragma once
-#ifndef PIMPACT_INTERPOLATIONMULTIHARMONICOP_HPP
-#define PIMPACT_INTERPOLATIONMULTIHARMONICOP_HPP
+#ifndef PIMPACT_TRANSFERMULTIHARMONICOP_HPP
+#define PIMPACT_TRANSFERMULTIHARMONICOP_HPP
 
 
 #include "Teuchos_RCP.hpp"
@@ -9,7 +9,6 @@
 
 #include "Teuchos_TestForException.hpp"
 
-#include "Pimpact_Space.hpp"
 #include "Pimpact_MultiHarmonicField.hpp"
 
 
@@ -20,7 +19,7 @@ namespace Pimpact {
 
 
 template<class InterT>
-class InterpolationMultiHarmonicOp {
+class TransferMultiHarmonicOp {
 
 public:
 
@@ -34,22 +33,16 @@ public:
 	
 protected:
 
-//	typedef typename SpaceT::Scalar Scalar;
-//  typedef typename SpaceT::Ordinal Ordinal;
-
-//  typedef ScalarField<SpaceT>  DomainFieldT;
-//  typedef ScalarField<SpaceT>  RangeFieldT;
-
 	Teuchos::RCP<InterT> op_;
 
 public:
 
-	InterpolationMultiHarmonicOp(
+	TransferMultiHarmonicOp(
 			const Teuchos::RCP<const SpaceT>& spaceC,
 			const Teuchos::RCP<const SpaceT>& spaceF ):
 		op_( Teuchos::rcp( new InterT( spaceC, spaceF ) ) ) {}
 
-	InterpolationMultiHarmonicOp(
+	TransferMultiHarmonicOp(
 			const Teuchos::RCP<const SpaceT>& spaceC,
 			const Teuchos::RCP<const SpaceT>& spaceF,
 			const Teuchos::Tuple<int,SpaceT::dimension>& nb ):
@@ -78,12 +71,12 @@ public:
 
   void print(  std::ostream& out=std::cout ) const {
 
-		out << "=== InterpolationMultiHarmonicOP ===\n";
+		out << "=== TransferMultiHarmonicOP ===\n";
 		op_->print( out );
 
   }
 
-}; // end of class InterpolationMultiHarmonicOp
+}; // end of class TransferMultiHarmonicOp
 
 
 
@@ -92,14 +85,15 @@ public:
 
 
 #ifdef COMPILE_ETI
+#include "Pimpact_Space.hpp"
 #include "Pimpact_InterpolationOp.hpp"
 #include "Pimpact_VectorFieldOpWrap.hpp"
-extern template class Pimpact::InterpolationMultiHarmonicOp< Pimpact::InterpolationOp< Pimpact::Space<double,int,3,2> > >;
-extern template class Pimpact::InterpolationMultiHarmonicOp< Pimpact::InterpolationOp< Pimpact::Space<double,int,3,4> > >;
-extern template class Pimpact::InterpolationMultiHarmonicOp< Pimpact::VectorFieldOpWrap< Pimpact::InterpolationOp< Pimpact::Space<double,int,3,2> > > >;
-extern template class Pimpact::InterpolationMultiHarmonicOp< Pimpact::VectorFieldOpWrap< Pimpact::InterpolationOp< Pimpact::Space<double,int,3,4> > > >;
+extern template class Pimpact::TransferMultiHarmonicOp< Pimpact::InterpolationOp< Pimpact::Space<double,int,3,2> > >;
+extern template class Pimpact::TransferMultiHarmonicOp< Pimpact::InterpolationOp< Pimpact::Space<double,int,3,4> > >;
+extern template class Pimpact::TransferMultiHarmonicOp< Pimpact::VectorFieldOpWrap< Pimpact::InterpolationOp< Pimpact::Space<double,int,3,2> > > >;
+extern template class Pimpact::TransferMultiHarmonicOp< Pimpact::VectorFieldOpWrap< Pimpact::InterpolationOp< Pimpact::Space<double,int,3,4> > > >;
 #endif
 
 
 
-#endif // end of #ifndef PIMPACT_INTERPOLATIONOP_HPP
+#endif // end of #ifndef PIMPACT_TRANSFEROP_HPP
