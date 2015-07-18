@@ -326,78 +326,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGOperators, VF_constructor4D, CS4L )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGOperators, VF_constructor4D, CS4G )
 
 
-
-
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSmoothers, SF_constructor3D, CS ) {
-
-	//  grid size
-	pl->set("nx", nx );
-	pl->set("ny", ny );
-	pl->set("nz", nz );
-	pl->set("nf", nf );
-
-	// processor grid size
-	pl->set("npx", npx );
-	pl->set("npy", npy );
-	pl->set("npz", npz );
-	pl->set("npf", npf );
-
-  auto space = Pimpact::createSpace( pl );
-
-  auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
-
-
-  auto mgOps = Pimpact::createMGOperators<Pimpact::DivGradOp,Pimpact::DivGradO2Op>( mgSpaces );
-
-  auto mgSmoother = Pimpact::createMGSmoothers<Pimpact::DivGradO2JSmoother>( mgOps );
-
-  auto op = mgSmoother->get( -1 );
-
-	if( mgSpaces->participating(-1) )
-		op->print();
-
-}
-
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSmoothers, SF_constructor3D, CS3L )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSmoothers, SF_constructor3D, CS3G )
-
-
-
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSmoothers, VF_constructor3D, CS ) {
-
-	//  grid size
-	pl->set("nx", nx );
-	pl->set("ny", ny );
-	pl->set("nz", nz );
-	pl->set("nf", nf );
-
-	// processor grid size
-	pl->set("npx", npx );
-	pl->set("npy", npy );
-	pl->set("npz", npz );
-	pl->set("npf", npf );
-
-  auto space = Pimpact::createSpace( pl );
-
-  auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
-
-  auto mgOps = Pimpact::createMGOperators<ConvDiffOpT>( mgSpaces );
-
-  auto mgSmoother = Pimpact::createMGSmoothers<ConvDiffSORT>( mgOps );
-
-  auto op = mgSmoother->get( -1 );
-
-	if( mgSpaces->participating(-1) )
-		op->print();
-
-}
-
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSmoothers, VF_constructor3D, CS3L )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSmoothers, VF_constructor3D, CS3G )
-
-
-
-
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Restrictor3D, CS ) {
 
 	//  grid size
@@ -614,7 +542,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, Restrictor3D, CS3G )
 
 /// \todo remove corners for test(Scalar case)
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator4D, CS ) {
-
+	
 	//  grid size
 	pl->set("nx", nx );
 	pl->set("ny", ny );
@@ -631,16 +559,16 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator4D, CS ) {
 
   auto mgSpaces = Pimpact::createMGSpaces<FSpace4T,CSpace4T,CS>( space, maxGrids );
 
-  //auto mgTransfers = Pimpact::createMGTransfers<Pimpact::TransferOp,Pimpact::RestrictionOp,Pimpact::InterpolationOp>( mgSpaces );
+  	//auto mgTransfers = Pimpact::createMGTransfers<Pimpact::TransferOp,Pimpact::RestrictionOp,Pimpact::InterpolationOp>( mgSpaces );
 
-	auto op = Pimpact::createInterpolationTimeOp<Pimpact::InterpolationOp<CSpace4T> >(mgSpaces->get(-2),mgSpaces->get(-1));
-//	if( 0==space->rankST() ) op->print();
+	auto op = Pimpact::createInterpolationTimeOp<Pimpact::InterpolationOp<CSpace4T> >(mgSpaces->get(-1),mgSpaces->get(-2));
+	//if( 0==space->rankST() ) op->print();
 
-	Pimpact::EField type[] = { Pimpact::EField::S, Pimpact::EField::U, Pimpact::EField::V, Pimpact::EField::W };
+//	Pimpact::EField type[] = { Pimpact::EField::S, Pimpact::EField::U, Pimpact::EField::V, Pimpact::EField::W };
 
-  for( int i=fs; i<fe; ++i ) {
-		if( 0==space->rankST() )
-			std::cout << "type: " << i << "\n";
+//  for( int i=fs; i<fe; ++i ) {
+//	if( 0==space->rankST() )
+//		std::cout << "type: " << i << "\n";
 
     //auto fieldf = Pimpact::createScalarField( mgSpaces->get( -2 ), type[i] );
     auto fieldf = Pimpact::createTimeField<Pimpact::ScalarField<CSpace4T>,CSpace4T>( mgSpaces->get( -2 ));
@@ -649,54 +577,67 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator4D, CS ) {
     auto er = fieldf->clone();
 
 
-	// // the zero test
-	// fieldf->init( 1. );
-	// fieldc->initField( Pimpact::ConstField, 0. );// this will be a loop on the time field
+	//std::cout << " num of vecs fn: " << fieldf->getNumberVecs() << std::endl;
+        //std::cout << " num of vecs cr: " << fieldc->getNumberVecs() << std::endl;
 
-	//	if( mgSpaces->participating(-2) )
-	//			op->apply( *fieldc, *fieldf );
+	// the zero test
+	fieldf->init(1.);
+	fieldc->init(0.); //initField( Pimpact::ConstField, 0. );// this will be a loop on the time field
+		
+                //fieldc->write();
+                //fieldf->write(1000);
+		//fieldf->print();
 
-	//	if( mgSpaces->participating(-2) )
-	//		TEST_EQUALITY( eps>fieldf->norm(Belos::InfNorm), true );
-	//	if( mgSpaces->participating(-1) )
-	//		TEST_EQUALITY( eps>fieldc->norm(), true );
+		if( mgSpaces->participating(-2) )
+				op->apply( *fieldc, *fieldf );
 
+		if( mgSpaces->participating(-2) )
+			TEST_EQUALITY( eps>fieldf->norm(Belos::InfNorm), true );
+                        
+		if( fieldf->norm(Belos::InfNorm)>=eps )
+			std::cout << "error = " << fieldf->norm(Belos::InfNorm) << std::endl;
+		if( mgSpaces->participating(-1) )
+			TEST_EQUALITY( eps>fieldc->norm(), true );
+		
+		//fieldc->write();
+		fieldf->write(1000);
+		
+/*
+	// the random test
+	fieldc->random();
+	fi'eldf->init(0.);
 
-	// // the random test
-	// fieldc->random();
-	// fieldf->init(0.);
+		if( mgSpaces->participating(-1) )
+			TEST_INEQUALITY( 0., fieldc->norm() );
 
-	//	if( mgSpaces->participating(-1) )
-	//		TEST_INEQUALITY( 0., fieldc->norm() );
+		if( mgSpaces->participating(-2) )
+			op->apply( *fieldc, *fieldf );
 
-	//	if( mgSpaces->participating(-2) )
-	//		op->apply( *fieldc, *fieldf );
-
-	//	if( mgSpaces->participating(-1) )
-	//		TEST_INEQUALITY( 0., fieldc->norm() );
-
-
-    // t//he stronger init test
-	//	fieldc->initField( Pimpact::ConstField, 1. );
-    //fieldf->initField( Pimpact::ConstField, 0. );
-    //sol->initField( Pimpact::ConstField, 1. );
-	//	er->random();
-
-	//	if( mgSpaces->participating(-2) )
-	//		op->apply( *fieldc, *fieldf );
-
-
-	//	if( mgSpaces->participating(-2) ) {
-	//		er->add( 1., *sol, -1., *fieldf );
-	//		double bla = er->norm(Belos::InfNorm);
-	//		if( 0==space->rankST() )
-	//			std::cout << "error Const: " << bla << "\n";
-	//		TEST_EQUALITY( bla < eps, true  );
-	//		if( bla>=eps )
-	//			er->write(0);
-	//	}
+		if( mgSpaces->participating(-1) )
+			TEST_INEQUALITY( 0., fieldc->norm() );
 
 
+    // the stronger init test
+    fieldc->init(1.);
+    fieldf->init(0.);
+    sol->init(1.);
+    er->random();
+
+		if( mgSpaces->participating(-2) )
+			op->apply( *fieldc, *fieldf );
+
+
+		if( mgSpaces->participating(-2) ) {
+			er->add( 1., *sol, -1., *fieldf );
+			double bla = er->norm(Belos::InfNorm);
+			if( 0==space->rankST() )
+			std::cout << "error Const: " << bla << "\n";
+			TEST_EQUALITY( bla < eps, true  );
+			if( bla>=eps )
+				er->write(0);
+		}
+
+	*/
 	//	// hardcore test init test in X
 
 	//	fieldc->initField( Pimpact::Grad2D_inX );
@@ -797,7 +738,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator4D, CS ) {
 	//			fieldf->write(30);
 	//		}
 	//	}
-	}
+//	}
 
 }
 

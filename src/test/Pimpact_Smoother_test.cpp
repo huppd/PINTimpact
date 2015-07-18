@@ -162,7 +162,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesBSmooth ) {
 	auto error = x->clone();
 	auto true_sol = x->clone();	
 	
-	double p = 1;
+	double p = 10;
 	double alpha = std::sqrt(pl->get<double>("alpha2"));
 
 	// RHS

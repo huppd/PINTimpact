@@ -48,27 +48,32 @@ public:
   void apply( const DomainFieldT& x,
       RangeFieldT& y) const {
       
-      Ordinal d = spaceF.nLoc(3)/spaceC.nLoc(3);
-
-      x.exchange();
-      for( int i=0; i < spaceC()->nLoc(3); ++i ) {
+      Ordinal d = (spaceF()->nLoc(3)) / (spaceC()->nLoc(3));
+	
+	//std::cout << "cr = " << spaceC()->nLoc(3) << std::endl;
+	//std::cout << "fn = " << spaceF()->nLoc(3) << std::endl;		
+	//std::cout << "d = " << d << std::endl;
+      
+     x.exchange();
+      
+     for( int i=0; i < spaceC()->nLoc(3); ++i ) {
 
         op_->apply( x.getConstField(i), y.getField(d*i) );
       }
-      
-      if (d > 1) {
+     
+      if (d > 1) { // what if d > 2? solve this
           
-          for( int i=1; i < spaceF()->nLoc(3); ++i ) {
+          for( int i=1; i < spaceF()->nLoc(3) - 1; i=i+d ) {
               
               y.getFieldPtr(i)->add(0.5,y.getField(i-1),0.5,y.getField(i+1));
           }
       }
-    y.changed();
+    y.changed(); 
   }
 
 
-	Teuchos::RCP<const SpaceT> spaceC() const { return(op_->spaceC()); };
-    Teuchos::RCP<const SpaceT> spaceF() const { return(op_->spaceF()); };
+    Teuchos::RCP<const SpaceT> spaceC() const { return(op_->get_spaceC_()); };
+    Teuchos::RCP<const SpaceT> spaceF() const { return(op_->get_spaceF_()); };
 
 
   Teuchos::RCP<OperatorT> getOperatorPtr() { return( op_ ); }

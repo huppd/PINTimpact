@@ -178,13 +178,13 @@ public:
   /// \brief get number of stored Field's
 private:
 
-  int getNumberVecs() const {  return( mfs_.size() ); }
+  //int getNumberVecs() const {  return( mfs_.size() ); }
 
 public:
 
   /// \brief is true
   bool HasConstantStride() const { return( true ); }
-
+	int getNumberVecs() const {  return( mfs_.size() ); }
   /// \}
   /// \name Update methods
   /// \{
@@ -359,7 +359,7 @@ public:
 
 
   /// \param os
-  void print( std::ostream& os ) {
+  void print( std::ostream& os=std::cout ) {
     for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
       mfs_[i]->print( os );
   }
