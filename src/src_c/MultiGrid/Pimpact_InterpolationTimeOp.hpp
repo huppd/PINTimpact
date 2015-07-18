@@ -56,18 +56,21 @@ public:
       
      x.exchange();
       
-     for( int i=0; i < spaceC()->nLoc(3); ++i ) {
+     for( int i=0; i <= spaceC()->nLoc(3); ++i ) {
 
         op_->apply( x.getConstField(i), y.getField(d*i) );
       }
      
-      if (d > 1) { // what if d > 2? solve this
-          
-          for( int i=1; i < spaceF()->nLoc(3) - 1; i=i+d ) {
+      if (d > 1) { 
+	
+	for (int j = d; j > 1; j = j/2) {          
+		
+          for( int i=j/2; i <= spaceF()->nLoc(3) - j/2; i=i+j ) { 
               
               y.getFieldPtr(i)->add(0.5,y.getField(i-1),0.5,y.getField(i+1));
           }
       }
+    } 
     y.changed(); 
   }
 
