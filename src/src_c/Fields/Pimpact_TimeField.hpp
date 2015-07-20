@@ -536,8 +536,6 @@ initVectorTimeField(
 
 }
 
-
-
 } // end of namespace Pimpact
 
 

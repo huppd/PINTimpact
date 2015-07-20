@@ -112,10 +112,10 @@ public:
   typedef SpaceT FSpaceT;
   typedef SpaceT CSpaceT;
 
-protected:
-
   typedef ScalarField<SpaceT>  DomainFieldT;
   typedef ScalarField<SpaceT>  RangeFieldT;
+
+protected:
 
   Teuchos::RCP<const SpaceT> spaceF_;
   Teuchos::RCP<const SpaceT> spaceC_;

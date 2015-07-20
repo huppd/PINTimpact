@@ -13,6 +13,7 @@
 #include "Pimpact_LinSolverParameter.hpp"
 
 #include "Pimpact_InterpolationTimeOp.hpp"
+#include "Pimpact_RestrictionTimeOp.hpp"
 #include "Pimpact_CoarsenStrategy.hpp"
 #include "Pimpact_CoarsenStrategyGlobal.hpp"
 
@@ -326,7 +327,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGOperators, VF_constructor4D, CS4L )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGOperators, VF_constructor4D, CS4G )
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Restrictor3D, CS ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Restrictor4D, CS ) {
 
 	//  grid size
 	pl->set("nx", nx );
@@ -340,66 +341,39 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Restrictor3D, CS ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-	auto space = Pimpact::createSpace<S,O,3>( pl );
+	auto space = Pimpact::createSpace<S,O,4>( pl );
 
-	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
+	auto mgSpaces = Pimpact::createMGSpaces<FSpace4T,CSpace4T,CS>( space, maxGrids );
 
-	auto mgTransfers = Pimpact::createMGTransfers<Pimpact::TransferOp,Pimpact::RestrictionOp,Pimpact::InterpolationOp>( mgSpaces );
+ 	auto op2 = Pimpact::createRestrictionTimeOp<Pimpact::RestrictionOp<CSpace4T> >(mgSpaces->get(-2),mgSpaces->get(-1));
 
-	Teuchos::RCP<const Pimpact::RestrictionOp<CSpace3T> > op1;
-	Teuchos::RCP<const Pimpact::RestrictionOp<CSpace3T> > op2;
+	//if( mgSpaces->participating(-3) )
+        //	auto op1 = Pimpact::createRestrictionTimeOp<Pimpact::RestrictionOp<CSpace4T> >(mgSpaces->get(-3),mgSpaces->get(-2));
 
-	if( mgSpaces->participating(-3) ) {
-//		std::cout << "\nrank: " << space->rankST() << "\top-3\n";
-		op1 = mgTransfers->getRestrictionOp( -3 );
-		//			op1->print();
-	}
-	if( mgSpaces->participating(-2) ) {
-//		std::cout << "\nrank: " << space->rankST() << "\top: 2\n";
-		op2 = mgTransfers->getRestrictionOp( -2 );
-		if( 1==space->rankST() )
-			op2->print();
-	}
+	//	auto fieldff = Pimpact::createTimeField<Pimpact::ScalarField<CSpace4T>,CSpace4T>( mgSpaces->get( -3 ));
+		auto fieldf = Pimpact::createTimeField<Pimpact::ScalarField<CSpace4T>,CSpace4T>( mgSpaces->get( -2 ));
+		auto fieldc = Pimpact::createTimeField<Pimpact::ScalarField<CSpace4T>,CSpace4T>( mgSpaces->get( -1 ));
+		
+		auto sol = fieldc->clone();
+		auto er = fieldc->clone();
 
-	Pimpact::EField type[] = {Pimpact::EField::S, Pimpact::EField::U, Pimpact::EField::V, Pimpact::EField::W };
-
-	for( int i=fs; i<fe; ++i ) {
-		if( 0==space->rankST() )
-			std::cout << " --- ftype: " << i << " ---\n";
-
-		Teuchos::RCP< Pimpact::ScalarField<CSpace3T> > fieldff;
-		Teuchos::RCP< Pimpact::ScalarField<CSpace3T> > fieldf;
-		Teuchos::RCP< Pimpact::ScalarField<CSpace3T> > fieldc;
-		Teuchos::RCP< Pimpact::ScalarField<CSpace3T> > sol;
-		Teuchos::RCP< Pimpact::ScalarField<CSpace3T> > er;
-
-		fieldff = Pimpact::createScalarField( mgSpaces->get( -3 ), type[i] );
-		fieldf = Pimpact::createScalarField( mgSpaces->get( -2 ), type[i] );
-
-		fieldc = Pimpact::createScalarField( mgSpaces->get( -1 ), type[i] );
-		sol = fieldc->clone();
-		er = fieldc->clone();
-
-		// the zero test
-		fieldff->init( 0. );
-		fieldf->initField( Pimpact::ConstField, 0. );
+/*		// the zero test
+	//	fieldff->init( 0. );
 		fieldf->init( 1. );
-		fieldf->initField();
 		fieldc->init( 1. );
 
-		if( mgSpaces->participating(-3) )
-			op1->apply( *fieldff, *fieldf );
+	//	if( mgSpaces->participating(-3) )
+	//		op1->apply( *fieldff, *fieldf );
 		if( mgSpaces->participating(-2) )
 			op2->apply( *fieldf, *fieldc );
 
-//		if( mgSpaces->participating(-2)&& i>0 )
 		if( mgSpaces->participating(-2) )
 			TEST_FLOATING_EQUALITY( 0., fieldf->norm(), eps );
 
-//		if( mgSpaces->participating(-1)&&i>0 ) 
 		if( mgSpaces->participating(-1) )
 			TEST_FLOATING_EQUALITY( 0., fieldc->norm(), eps );
-
+*/
+/*
 
 		// the random test
 		fieldff->random();
@@ -528,14 +502,15 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Restrictor3D, CS ) {
 				sol->write(300);
 			}
 		}
+	
 
-	} // end of for( )
+*/
 
 } // end of TEUCHOS_UNIT_TEST_TEMPLATE
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, Restrictor3D, CS3L )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, Restrictor3D, CS3G )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, Restrictor4D, CS4L )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, Restrictor4D, CS4G )
 
 
 
@@ -600,12 +575,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator4D, CS ) {
 			TEST_EQUALITY( eps>fieldc->norm(), true );
 		
 		//fieldc->write();
-		fieldf->write(1000);
+		//fieldf->write(1000);
 		
-/*
+
 	// the random test
 	fieldc->random();
-	fi'eldf->init(0.);
+	fieldf->init(0.);
 
 		if( mgSpaces->participating(-1) )
 			TEST_INEQUALITY( 0., fieldc->norm() );
@@ -637,14 +612,47 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator4D, CS ) {
 				er->write(0);
 		}
 
-	*/
-	//	// hardcore test init test in X
+    // gradient tes
+    //fieldc->init(1.);
+    //fieldf->init(0.);
+    //sol->init(1.);
+    //er->random();
 
-	//	fieldc->initField( Pimpact::Grad2D_inX );
-	//	fieldf->initField( Pimpact::ConstField, 0. );
+      //          if( mgSpaces->participating(-2) )
+        //                op->apply( *fieldc, *fieldf );
+
+	
+	// compounf field test
+	//
+        //auto fn = Pimpact::createCompoundField( Pimpact::createTimeField< Pimpact::VectorField<CSpace4T> >( mgSpaces->get( -2 ) ),
+//                                               Pimpact::createTimeField< Pimpact::ScalarField<CSpace4T> >( mgSpaces->get( -2 ) ));
+        
+	//auto cr = Pimpact::createCompoundField( Pimpact::createTimeField< Pimpact::VectorField<CSpace4T> >( mgSpaces->get( -1 ) ),
+  //                                             Pimpact::createTimeField< Pimpact::ScalarField<CSpace4T> >( mgSpaces->get( -1 ) ));
+
+
+        // RHS
+        //Pimpact::initVectorTimeField( cr->getVFieldPtr(), Pimpact::ConstVel_inX, 10);
+	                
+	//if( mgSpaces->participating(-2) )
+          //              op->apply( *cr, *fn );
+	
+	// hardcore test init test in X
+
+
+        //auto fieldf2 = Pimpact::createTimeField<Pimpact::VectorField<CSpace4T>>( mgSpaces->get( -2 ));
+    	//auto fieldc2 = Pimpact::createTimeField<Pimpact::VectorField<CSpace4T>>( mgSpaces->get( -1 ));
+	
+	//Pimpact::initVectorTimeField( fieldc2, Pimpact::Grad2D_inX );
+	//Pimpact::initVectorTimeField( fieldf2, Pimpact::Zero2DFlow );
+		
+	//fieldc->initField( Pimpact::Grad2D_inX );
+	//fieldf->initField( Pimpact::ConstField, 0. );
+	//auto sol2 = fieldf2->clone();
+        //auto er2 = fieldf2->clone();
+	
 	//	sol->initField( Pimpact::Grad2D_inX );
 	//	er->random();
-
 	//	if( mgSpaces->participating(-1) )
 	//		fieldc->write(1001);
 //	//	else
