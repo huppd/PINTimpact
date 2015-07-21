@@ -17,7 +17,7 @@ namespace Pimpact {
 
 
 /// \ingroup MultiHarmonicOperator
-template<class ZeroOpT>
+template< class ZeroOpT, class ModeOpT >
 class MultiHarmonicDiagOp {
 
 	public:
@@ -34,19 +34,18 @@ protected:
 
   Teuchos::RCP<ZeroOpT> zeroOp_;
 
-	Teuchos::RCP< EddyPrec<ZeroOpT> > modeOp_;
+	Teuchos::RCP<ModeOpT> modeOp_;
 
 public:
 
   /// \todo get nf from grid
-  MultiHarmonicDiagOp( const Teuchos::RCP<ZeroOpT>& zeroOp ):
-		zeroOp_(zeroOp),
-		modeOp_( create<EddyPrec>(zeroOp_) ) {};
+  MultiHarmonicDiagOp( const Teuchos::RCP<ZeroOpT>& zeroOp, const Teuchos::RCP<ModeOpT>& modeOp ):
+		zeroOp_( zeroOp ),
+		modeOp_( modeOp ) {};
 
 
   void assignField( const DomainFieldT& mv ) {
 
-//		mv.write( 99 );
     zeroOp_->assignField( mv.getConst0Field() );
 
   };
@@ -79,7 +78,7 @@ public:
 //			else{
 				// set parameters
 			para->set<Scalar>( "mulI", a2*(i+1) );
-			zeroOp_->setParameter( para );
+			modeOp_->setParameter( para );
 			modeOp_->apply( x.getConstField(i), y.getField(i) );
 //			}
 		}
@@ -105,11 +104,13 @@ public:
 
 
 /// \relates MultiHarmonicDiagOp
-template<class ZeroOpT>
-Teuchos::RCP<MultiHarmonicDiagOp<ZeroOpT> >
-createMultiHarmonicDiagOp( const Teuchos::RCP<ZeroOpT>& zeroOpT ) {
+template<class ZeroOpT, class ModeOpT>
+Teuchos::RCP<MultiHarmonicDiagOp<ZeroOpT,ModeOpT> >
+createMultiHarmonicDiagOp(
+		const Teuchos::RCP<ZeroOpT>& zeroOp,
+		const Teuchos::RCP<ModeOpT>& modeOp ) {
 
-  return( Teuchos::rcp( new MultiHarmonicDiagOp<ZeroOpT>( zeroOpT ) ) );
+  return( Teuchos::rcp( new MultiHarmonicDiagOp<ZeroOpT,ModeOpT>( zeroOp, modeOp ) ) );
 
 }
 

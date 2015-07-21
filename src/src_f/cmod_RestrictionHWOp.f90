@@ -202,7 +202,7 @@ contains
   end subroutine MG_RestrictCorners
 
 
-    subroutine MG_restrict( &
+    subroutine MG_restrictHW( &
         dimens,             &
         Nf,                 &
         bLf,bUf,            &
@@ -212,7 +212,7 @@ contains
         dd,                 &
         cR1,cR2,cR3,        &
         phif,               &
-        phic ) bind(c,name='MG_restrict')
+        phic ) bind(c,name='MG_restrictHW')
 
         implicit none
 
@@ -296,13 +296,13 @@ contains
         end if
 
 
-    end subroutine MG_restrict
+    end subroutine MG_restrictHW
 
 
 
     !> \todo maybe use SS and NN with boundary instead should be more cleaner
-    !! \todo make restriction proper in 3d not just in 1d!!!
-    subroutine MG_restrictV(    &
+    !! \todo make restrictHWion proper in 3d not just in 1d!!!
+    subroutine MG_restrictHWV(    &
         dimens,                 &
         dir,                    &
         Nf,                     &
@@ -315,7 +315,7 @@ contains
         dd,                     &
         cRV,                    &
         phif,                   &
-        phic ) bind (c,name='MG_restrictV')
+        phic ) bind (c,name='MG_restrictHWV')
 
         implicit none
 
@@ -535,7 +535,7 @@ contains
     !===========================================================================================================
 
 
-    end subroutine MG_restrictV
+    end subroutine MG_restrictHWV
 
     
 

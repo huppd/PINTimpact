@@ -1,6 +1,6 @@
 #pragma once
-#ifndef PIMPACT_RESTRICTIONOP_HPP
-#define PIMPACT_RESTRICTIONOP_HPP
+#ifndef PIMPACT_RESTRICTIONHWOP_HPP
+#define PIMPACT_RESTRICTIONHWOP_HPP
 
 
 #include "Teuchos_RCP.hpp"
@@ -45,7 +45,7 @@ void MG_RestrictCorners(
     const int* const BCU,
     const double* const phic );
 
-void MG_restrict(
+void MG_restrictHW(
 		const int& dimens,
     const int* const Nf,
     const int* const bLf,
@@ -61,7 +61,7 @@ void MG_restrict(
     const double* const phif,
     double* const phic );
 
-void MG_restrictV(
+void MG_restrictHWV(
     const int& dimens,
     const int& dir,
     const int* const Nf,
@@ -102,7 +102,7 @@ void MG_RestrictGather(
 
 
 template<class SpaceT>
-class RestrictionOp {
+class RestrictionHWOp {
 
 public:
 
@@ -298,7 +298,7 @@ protected:
 
 public:
 
-	RestrictionOp(
+	RestrictionHWOp(
 			const Teuchos::RCP<const SpaceT>& spaceF,
 			const Teuchos::RCP<const SpaceT>& spaceC ):
 		spaceF_(spaceF),
@@ -310,7 +310,7 @@ public:
   }
 
 
-	RestrictionOp(
+	RestrictionHWOp(
 			const Teuchos::RCP<const SpaceT>& spaceF,
 			const Teuchos::RCP<const SpaceT>& spaceC,
 		  const Teuchos::Tuple<int,SpaceT::dimension>& nb ):
@@ -323,7 +323,7 @@ public:
   }
 
 
-  ~RestrictionOp() {
+  ~RestrictionHWOp() {
     for( int i=0; i<3; ++i ) {
       delete[] cRS_[i];
       delete[] cRV_[i];
@@ -354,7 +354,7 @@ public:
 					spaceF_->getDomain()->getBCLocal()->getBCU(),
 					x.getConstRawPtr() );
 
-			MG_restrict(
+			MG_restrictHW(
 					spaceF_->dim(),
 					spaceF_->nLoc(),
 					spaceF_->bl(),
@@ -375,7 +375,7 @@ public:
 			int dir = fType;
 			x.exchange( dir );
 
-			MG_restrictV(
+			MG_restrictHWV(
 					spaceF_->dim(),
 					dir+1,
 					spaceF_->nLoc(),
@@ -470,7 +470,7 @@ public:
 
 
 
-}; // end of class RestrictionOp
+}; // end of class RestrictionHWOp
 
 
 
@@ -490,11 +490,11 @@ Teuchos::RCP<const OpT<SpaceT> > create(
 
 
 #ifdef COMPILE_ETI
-extern template class Pimpact::RestrictionOp< Pimpact::Space<double,int,3,2> >;
-extern template class Pimpact::RestrictionOp< Pimpact::Space<double,int,3,4> >;
-extern template class Pimpact::RestrictionOp< Pimpact::Space<double,int,4,2> >;
-extern template class Pimpact::RestrictionOp< Pimpact::Space<double,int,4,4> >;
+extern template class Pimpact::RestrictionHWOp< Pimpact::Space<double,int,3,2> >;
+extern template class Pimpact::RestrictionHWOp< Pimpact::Space<double,int,3,4> >;
+extern template class Pimpact::RestrictionHWOp< Pimpact::Space<double,int,4,2> >;
+extern template class Pimpact::RestrictionHWOp< Pimpact::Space<double,int,4,4> >;
 #endif
 
 
-#endif // end of #ifndef PIMPACT_RESTRICTIONOP_HPP
+#endif // end of #ifndef PIMPACT_RESTRICTIONHWOP_HPP

@@ -44,6 +44,7 @@
 
 
 
+
 /// \brief gets \c ParameterList from command Line
 template<class S, class O>
 Teuchos::RCP<Teuchos::ParameterList>
@@ -252,7 +253,7 @@ typedef NOX::Pimpact::Vector<typename Inter::Field> NV;
 
 
 template<class T1,class T2> using TransVF = Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<T1,T2> >;
-template<class T> using RestrVF = Pimpact::VectorFieldOpWrap<Pimpact::RestrictionOp<T> >;
+template<class T> using RestrVF = Pimpact::VectorFieldOpWrap<Pimpact::RestrictionHWOp<T> >;
 template<class T> using InterVF = Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<T> >;
 
 
@@ -449,7 +450,8 @@ int main(int argi, char** argv ) {
 //			if( withprec==3 )
 				opV2Vprec = 
 					Pimpact::createMultiOperatorBase(
-							Pimpact::createMultiHarmonicDiagOp(zeroInv) );
+							Pimpact::createMultiHarmonicDiagOp(zeroInv,
+							Pimpact::create<Pimpact::EddyPrec>( zeroInv ) ) );
 //			else
 //				opV2Vprec = 
 //					Pimpact::createMultiOperatorBase(
@@ -523,7 +525,7 @@ int main(int argi, char** argv ) {
 							Pimpact::createMultiGrid<
 								Pimpact::ScalarField,
 								Pimpact::TransferOp,
-								Pimpact::RestrictionOp,
+								Pimpact::RestrictionHWOp,
 								Pimpact::InterpolationOp,
 								Pimpact::DivGradOp,
 								Pimpact::DivGradO2Op,

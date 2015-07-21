@@ -6,7 +6,7 @@
 #include "Pimpact_MGSpaces.hpp"
 #include "Pimpact_TransferOp.hpp"
 
-#include "Pimpact_RestrictionOp.hpp"
+#include "Pimpact_RestrictionHWOp.hpp"
 #include "Pimpact_InterpolationOp.hpp"
 
 #include "Pimpact_MGFields.hpp"
