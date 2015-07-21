@@ -468,7 +468,8 @@ public:
 //	int getRankC2() const { return( rankc2_ ); }
 //	MPI_Comm getComm2() const { return( comm2_ ); }
 
-
+    Teuchos::RCP<const SpaceT> get_spaceC_() const { return(spaceC_); };
+    Teuchos::RCP<const SpaceT> get_spaceF_() const { return(spaceF_); };
 
 }; // end of class RestrictionOp
 

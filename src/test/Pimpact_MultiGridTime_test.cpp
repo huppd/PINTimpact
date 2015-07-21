@@ -345,35 +345,39 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Restrictor4D, CS ) {
 
 	auto mgSpaces = Pimpact::createMGSpaces<FSpace4T,CSpace4T,CS>( space, maxGrids );
 
- 	auto op2 = Pimpact::createRestrictionTimeOp<Pimpact::RestrictionOp<CSpace4T> >(mgSpaces->get(-2),mgSpaces->get(-1));
+ 	auto op = Pimpact::createRestrictionTimeOp<Pimpact::RestrictionOp<CSpace4T> >(mgSpaces->get(-2),mgSpaces->get(-1));
 
-	//if( mgSpaces->participating(-3) )
-        //	auto op1 = Pimpact::createRestrictionTimeOp<Pimpact::RestrictionOp<CSpace4T> >(mgSpaces->get(-3),mgSpaces->get(-2));
+       	auto op1 = Pimpact::createRestrictionTimeOp<Pimpact::RestrictionOp<CSpace4T> >(mgSpaces->get(-3),mgSpaces->get(-2));
 
-	//	auto fieldff = Pimpact::createTimeField<Pimpact::ScalarField<CSpace4T>,CSpace4T>( mgSpaces->get( -3 ));
-		auto fieldf = Pimpact::createTimeField<Pimpact::ScalarField<CSpace4T>,CSpace4T>( mgSpaces->get( -2 ));
-		auto fieldc = Pimpact::createTimeField<Pimpact::ScalarField<CSpace4T>,CSpace4T>( mgSpaces->get( -1 ));
+	auto fieldff = Pimpact::createTimeField<Pimpact::ScalarField<CSpace4T>,CSpace4T>( mgSpaces->get( -3 ));
+	auto fieldf = Pimpact::createTimeField<Pimpact::ScalarField<CSpace4T>,CSpace4T>( mgSpaces->get( -2 ));
+	auto fieldc = Pimpact::createTimeField<Pimpact::ScalarField<CSpace4T>,CSpace4T>( mgSpaces->get( -1 ));
 		
-		auto sol = fieldc->clone();
-		auto er = fieldc->clone();
+	auto sol = fieldc->clone();
+	auto er = fieldc->clone();
 
-/*		// the zero test
-	//	fieldff->init( 0. );
+		// the zero test
+		fieldff->init( 0. );
 		fieldf->init( 1. );
 		fieldc->init( 1. );
 
-	//	if( mgSpaces->participating(-3) )
-	//		op1->apply( *fieldff, *fieldf );
+		if( mgSpaces->participating(-3) )
+			op1->apply( *fieldff, *fieldf );
 		if( mgSpaces->participating(-2) )
-			op2->apply( *fieldf, *fieldc );
+			op->apply( *fieldf, *fieldc );
 
 		if( mgSpaces->participating(-2) )
 			TEST_FLOATING_EQUALITY( 0., fieldf->norm(), eps );
 
 		if( mgSpaces->participating(-1) )
 			TEST_FLOATING_EQUALITY( 0., fieldc->norm(), eps );
-*/
-/*
+                
+		fieldff->write(100);
+                fieldf->write(200);
+                fieldc->write(300);
+
+
+/*		
 
 		// the random test
 		fieldff->random();
@@ -381,24 +385,22 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Restrictor4D, CS ) {
 		if( mgSpaces->participating(-3) )
 			op1->apply( *fieldff, *fieldf );
 		if( mgSpaces->participating(-2) )
-			op2->apply( *fieldf, *fieldc );
-
-//		if( mgSpaces->participating(-1)&&i>0 )
+			op->apply( *fieldf, *fieldc );
 		if( mgSpaces->participating(-1) )
 			TEST_INEQUALITY( 0., fieldc->norm() );
 
+
 		// the strong test
-		fieldff->initField( Pimpact::ConstField, 1. );
-		fieldf->initField( Pimpact::ConstField, 0. );
-		fieldc->initField( Pimpact::ConstField, 0. );
-		sol->initField( Pimpact::ConstField, 1. );
-		er->initField( Pimpact::ConstField, 0. );
+		fieldff->init(1.);
+		fieldf->init(0.);
+		fieldc->init(0.);
+		sol->init(1.);
 		er->random();
 
 		if( mgSpaces->participating(-3) )
 			op1->apply( *fieldff, *fieldf );
 		if( mgSpaces->participating(-2) )
-			op2->apply( *fieldf, *fieldc );
+			op->apply( *fieldf, *fieldc );
 
 		if( mgSpaces->participating(-1) ) {
 
@@ -406,12 +408,15 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Restrictor4D, CS ) {
 			double bla = er->norm(Belos::InfNorm);
 			if( 0==space->rankST() )
 				std::cout << "error Const: " << bla << "\n";
-//			if( i>0 )
 			TEST_EQUALITY( er->norm(Belos::InfNorm)<eps, true ); // boundaries?
 			if( bla>=eps )
 				er->write(0);
 		}
-
+		fieldff->write(100);
+		fieldf->write(200);
+		fieldc->write(300);
+*/
+/*
 		// the hard test in X
 		fieldff->initField( Pimpact::Grad2D_inX, 1. );
 		fieldf->initField( Pimpact::ConstField, 0. );

@@ -33,7 +33,6 @@ public:
 protected:
 
   Teuchos::RCP<OperatorT> op_; //  interpolation operator in space
-  //Teuchos::RCP<typename OperatorT::RangeFieldT> temp_; // for restriction
     
 public:
     
@@ -41,7 +40,6 @@ public:
                         const Teuchos::RCP<const SpaceT>& spaceC,
                         const Teuchos::RCP<const SpaceT>& spaceF):
     op_(Teuchos::rcp(new OperatorT(spaceC,spaceF)))
-    //temp_( create<typename OperatorT::RangeFieldT>(op->space()) )
     {};
 
   /// \brief default apply
@@ -56,7 +54,7 @@ public:
       
      x.exchange();
       
-     for( int i=0; i <= spaceC()->nLoc(3); ++i ) {
+     for( int i=0; i <= spaceC()->nLoc(3); ++i ) { 
 
         op_->apply( x.getConstField(i), y.getField(d*i) );
       }

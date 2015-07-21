@@ -41,39 +41,37 @@ void apply( const DomainFieldT& x, RangeFieldT& y) const {
       Ordinal d = spaceF()->nLoc(3)/spaceC()->nLoc(3);
 
       x.exchange();
-      for( int i=0; i <= spaceF()->nLoc(3); ++i ) {
+
+      temp_->init(0.);
+
+	std::cout << "CR space" << spaceC()->nLoc(3) << std::endl;
 	
-	if (i==0 || i==spaceF()->nLoc(3))
-        	
-		op_->apply( x.getConstField(i), y.getField(i/d) );
-		
-	else {
-		if ( i%d>0 )
-			op_->apply( x.getConstField(i), temp_ );
+	for( int i=0; i < spaceF()->nLoc(3); ++i ) {
+	
+		if ( i%d>0 ){
+		//	op_->apply( x.getConstField(i), *temp_ );
+                  //   	y.getFieldPtr((i-1)/d)->add(1.,y.getField((i-1)/d),0.25,*temp_);
 			
-			if (i>1)
-                        	y.getFieldPtr(i/d)->add(1.0,y.getField((i-1)/d),0.25,temp_);      
-		else	
-			op_->apply( x.getConstField(i), y.getField(i/d) );
-			y.getFieldPtr(i/d)->add(0.25,temp_,0.5,y.getField(i/d));
-					
-	}
+		//	if (i == spaceF()->nLoc(3)-1)
+		//		 y.getFieldPtr(0)->add(0.25,*temp_,1.,y.getField(0));
+		}
+		else {
+
+			std::cout << "i/d" << i/d << std::endl;
+			op_->apply( x.getConstField(i), y.getField(i/d) );	
+		//	y.getFieldPtr(i/d)->add(0.25,*temp_,0.5,y.getField(i/d));
+		}		
       }
 
       //if (d > 1) {
           
-        //  for( int i=1; i < spaceF()->nLoc(3); ++i ) {
-              
-          //    y.getFieldPtr(i)->add(0.5,y.getField(i-1),0.5,y.getField(i+1));
           //}
       //}
    y.changed();
  }
 
-
- Teuchos::RCP<const SpaceT> spaceC() const { return(op_->spaceC()); };
- Teuchos::RCP<const SpaceT> spaceF() const { return(op_->spaceF()); };
-
+    Teuchos::RCP<const SpaceT> spaceC() const { return(op_->get_spaceC_()); };
+    Teuchos::RCP<const SpaceT> spaceF() const { return(op_->get_spaceF_()); };
 
  Teuchos::RCP<OperatorT> getOperatorPtr() { return( op_ ); }
 	
