@@ -151,7 +151,8 @@ protected:
     TO np = space->getProcGridSize()->getTuple();
 		TO npNew = np;
 //		std::cout << "rank: " << space->rankST()<< "\t procGridSizOld: " << npNew << "\n";
-    for( int i=0; i<dimension; ++i ) {
+//    for( int i=0; i<dimension; ++i ) {
+    for( int i=0; i<3; ++i ) {
 			if( i<3 ) {
 				if( coarsen_dir[i] ) {
 					npNew[i] = 1;
