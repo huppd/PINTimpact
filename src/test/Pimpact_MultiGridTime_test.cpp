@@ -66,12 +66,12 @@ int fe = 4;
 int npx = 1;
 int npy = 1;
 int npz = 1;
-int npf = 1;
+int npf = 2;
 
-int nx = 97;
-int ny = 25;
-int nz = 49;
-int nf = 32;
+int nx = 32;
+int ny = 32;
+int nz = 32;
+int nf = 64;
 
 int rankbla = -1;
 
@@ -144,7 +144,7 @@ TEUCHOS_STATIC_SETUP() {
 
 }
 
-
+/*
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSpaces, constructor4D, CS ) {
 
 //  typedef Pimpact::CoarsenStrategy<FSpace4T,CSpace4T> CS;
@@ -325,7 +325,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGOperators, VF_constructor4D, CS ) {
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGOperators, VF_constructor4D, CS4L )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGOperators, VF_constructor4D, CS4G )
-
+*/
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Restrictor4D, CS ) {
 
@@ -372,12 +372,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Restrictor4D, CS ) {
 		if( mgSpaces->participating(-1) )
 			TEST_FLOATING_EQUALITY( 0., fieldc->norm(), eps );
                 
-		fieldff->write(100);
-                fieldf->write(200);
-                fieldc->write(300);
+		//fieldff->write(100);
+                //fieldf->write(200);
+                //fieldc->write(300);
 
 
-/*		
 
 		// the random test
 		fieldff->random();
@@ -412,10 +411,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Restrictor4D, CS ) {
 			if( bla>=eps )
 				er->write(0);
 		}
-		fieldff->write(100);
-		fieldf->write(200);
-		fieldc->write(300);
-*/
+//		fieldff->write(100);
+//		fieldf->write(200);
+//		fieldc->write(300);
+
 /*
 		// the hard test in X
 		fieldff->initField( Pimpact::Grad2D_inX, 1. );
@@ -765,7 +764,7 @@ template<class T> using RestrVF = Pimpact::VectorFieldOpWrap<Pimpact::Restrictio
 template<class T> using InterVF = Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<T> >;
 
 
-
+/*
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MGTransfersVF, CS ) {
 
 	//  grid size
@@ -1136,6 +1135,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, ConvDiffOp, CS3L )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, ConvDiffOp, CS3G )
 
 
-
+*/
 
 } // end of namespace
