@@ -88,7 +88,12 @@ public:
 
 	const std::string getLabel() const { return( "VectorFieldOpWrap( "+sop_->getLabel()+" ) " ); };
 
+
+    Teuchos::RCP<const SpaceT> get_spaceC_() const { return(sop_->get_spaceC_()); };
+    Teuchos::RCP<const SpaceT> get_spaceF_() const { return(sop_->get_spaceF_()); };
+
 }; // end of class VectorFieldOpWrap
+
 
 
 

@@ -17,6 +17,8 @@
 #include "Pimpact_CoarsenStrategy.hpp"
 #include "Pimpact_CoarsenStrategyGlobal.hpp"
 
+
+#include "Pimpact_IntResCompoundOp.hpp"
 #include "Pimpact_TransferCompoundOp.hpp"
 #include "Pimpact_TransferTimeOp.hpp"
 #include "Pimpact_TimeStokesBSmoother.hpp"
@@ -764,11 +766,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, Interpolator4D, CS4G )
 template<class SpaceT> using CVF = Pimpact::CompoundField<Pimpact::TimeField<Pimpact::VectorField<SpaceT> >,
 		              			          Pimpact::TimeField<Pimpact::ScalarField<SpaceT> > >;
 
-template<class SpaceT> using INT = Pimpact::TransferCompoundOp<
+template<class SpaceT> using INT = Pimpact::IntResCompoundOp<
 																				Pimpact::InterpolationTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<SpaceT> > >,
 																				Pimpact::InterpolationTimeOp<                           Pimpact::InterpolationOp<SpaceT> > >;
 
-template<class SpaceT> using RES = Pimpact::TransferCompoundOp<
+template<class SpaceT> using RES = Pimpact::IntResCompoundOp<
                                         Pimpact::RestrictionTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::RestrictionOp<SpaceT> > >,
                                         Pimpact::RestrictionTimeOp<                           Pimpact::RestrictionOp<SpaceT> > >;
 
@@ -790,8 +792,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 
 	auto space = Pimpact::createSpace<S,O,4>( pl );
 
-	auto mgSpaces = Pimpact::createMGSpaces<FSpace4T,CSpace4T,CS>( space, maxGrids );
+	auto mgSpaces = Pimpact::createMGSpaces<FSpace4T,CSpace4T,CS>( space, 2 );
 
+//	auto pl = Teuchos::parameterList();
 	auto mg = Pimpact::createMultiGrid<
 									CVF,
 									TCO,
@@ -802,6 +805,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 									Pimpact::TimeStokesBSmoother,
 									Pimpact::TimeStokesBSmoother > (mgSpaces);
 
+	mg->print();
 
 auto x = Pimpact::createCompoundField( Pimpact::createTimeField< Pimpact::VectorField<FSpace4T> >( space ),
                                        Pimpact::createTimeField< Pimpact::ScalarField<FSpace4T> >( space ));
@@ -824,7 +828,7 @@ Pimpact::initVectorTimeField( true_sol->getVFieldPtr(), Pimpact::Pulsatile_inX, 
 op->apply(*true_sol,*b);
 
 for( int i=0; i<20; ++i ) {
-     mg->apply( *b, *x );
+		mg->apply( *b, *x );
      x->write(i*100);
 
      err->add( -1, *x, 1., *true_sol );

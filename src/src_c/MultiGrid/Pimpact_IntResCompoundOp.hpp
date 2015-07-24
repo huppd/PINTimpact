@@ -1,6 +1,6 @@
 #pragma once
-#ifndef PIMPACT_TRANSFERCOMPOUNDOP_HPP
-#define PIMPACT_TRANSFERCOMPOUNDOP_HPP
+#ifndef PIMPACT_INTRESCOMPOUNDOP_HPP
+#define PIMPACT_INTRESCOMPOUNDOP_HPP
 
 
 #include "Teuchos_RCP.hpp"
@@ -19,7 +19,7 @@ namespace Pimpact {
 
 
 template<class TransVT, class TransST>
-class TransferCompoundOp {
+class IntResCompoundOp {
 
 public:
 
@@ -38,13 +38,13 @@ protected:
 
 public:
 
-	TransferCompoundOp(
+	IntResCompoundOp(
 			const Teuchos::RCP<const FSpaceT>& spaceC,
 			const Teuchos::RCP<const CSpaceT>& spaceF ):
 		opV_( Teuchos::rcp( new TransVT( spaceC, spaceF ) ) ),
 		opS_( Teuchos::rcp( new TransST( spaceC, spaceF ) ) ) {}
 
-	TransferCompoundOp(
+	IntResCompoundOp(
 			const Teuchos::RCP<const FSpaceT>& spaceC,
 			const Teuchos::RCP<const CSpaceT>& spaceF,
 			const Teuchos::Tuple<int,SpaceT::dimension>& nb ):
@@ -59,23 +59,17 @@ public:
 
 	}
 
-	void apply( const RangeFieldT& x, DomainFieldT& y ) const {
-
-	 opV_->apply( x.getConstVField(), y.getVField() );
-	 opS_->apply( x.getConstSField(), y.getSField() );
-
-	}
 
 
   void print(  std::ostream& out=std::cout ) const {
 
-		out << "=== TransferCompoundOP ===\n";
+		out << "=== IntResCompoundOP ===\n";
 		opV_->print( out );
 		opS_->print( out );
 
   }
 
-}; // end of class TransferCompoundOp
+}; // end of class IntResCompoundOp
 
 
 
@@ -87,12 +81,12 @@ public:
 #include "Pimpact_Space.hpp"
 #include "Pimpact_InterpolationOp.hpp"
 #include "Pimpact_VectorFieldOpWrap.hpp"
-//extern template class Pimpact::TransferCompoundOp< Pimpact::InterpolationOp< Pimpact::Space<double,int,3,2> > >;
-//extern template class Pimpact::TransferCompoundOp< Pimpact::InterpolationOp< Pimpact::Space<double,int,3,4> > >;
-//extern template class Pimpact::TransferCompoundOp< Pimpact::VectorFieldOpWrap< Pimpact::InterpolationOp< Pimpact::Space<double,int,3,2> > > >;
-//extern template class Pimpact::TransferCompoundOp< Pimpact::VectorFieldOpWrap< Pimpact::InterpolationOp< Pimpact::Space<double,int,3,4> > > >;
+//extern template class Pimpact::IntResCompoundOp< Pimpact::InterpolationOp< Pimpact::Space<double,int,3,2> > >;
+//extern template class Pimpact::IntResCompoundOp< Pimpact::InterpolationOp< Pimpact::Space<double,int,3,4> > >;
+//extern template class Pimpact::IntResCompoundOp< Pimpact::VectorFieldOpWrap< Pimpact::InterpolationOp< Pimpact::Space<double,int,3,2> > > >;
+//extern template class Pimpact::IntResCompoundOp< Pimpact::VectorFieldOpWrap< Pimpact::InterpolationOp< Pimpact::Space<double,int,3,4> > > >;
 #endif
 
 
 
-#endif // end of #ifndef PIMPACT_TRANSFERCOMPOUNDOP_HPP
+#endif // end of #ifndef PIMPACT_INTRESCOMPOUNDOP_HPP

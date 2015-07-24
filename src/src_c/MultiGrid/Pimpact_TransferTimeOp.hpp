@@ -42,9 +42,17 @@ public:
 	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
 		for (int i=x.space()->sInd(S,3); i<x.space()->eInd(S,3); ++i)
-	   		 opV_->apply( x.getConstVField(i), y.getVField(i) );
+	   		 opV_->apply( x.getConstField(i), y.getField(i) );
 
 	}
+
+	void apply( const RangeFieldT& x, DomainFieldT& y ) const {
+
+		for (int i=x.space()->sInd(S,3); i<x.space()->eInd(S,3); ++i)
+	   		 opV_->apply( x.getConstField(i), y.getField(i) );
+
+	}
+
 
   void print(  std::ostream& out=std::cout ) const {
 
