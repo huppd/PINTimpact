@@ -802,7 +802,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 									Pimpact::TimeStokesBSmoother,
 									Pimpact::TimeStokesBSmoother > (mgSpaces);
 
-/*
+
 auto x = Pimpact::createCompoundField( Pimpact::createTimeField< Pimpact::VectorField<FSpace4T> >( space ),
                                        Pimpact::createTimeField< Pimpact::ScalarField<FSpace4T> >( space ));
 
@@ -832,7 +832,7 @@ for( int i=0; i<20; ++i ) {
 }
 
 TEST_EQUALITY( err->norm()<1.e-5, true );
-*/
+
 }
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, MG, CS4L )

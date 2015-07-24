@@ -144,7 +144,7 @@ public:
 				}
 				catch( std::logic_error& e ) {
 					std::cout << "error in MG on coarse grid:\n";
-					cGridSolver_->print();
+					//cGridSolver_->print();
 					b_->get(i)->write(111);
 					x_->get(i)->write(222);
 					throw( e );
