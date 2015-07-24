@@ -63,6 +63,7 @@ public:
     op_->assignField( x );
     op_->apply( x, f );
     f.add( 1., f, -1., *fu_ );
+		f.level();
     return( NOX::Abstract::Group::Ok );
 
   }

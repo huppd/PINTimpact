@@ -74,7 +74,9 @@ Teuchos::RCP< Teuchos::ParameterList > Pimpact::createLinSolverParameter(
     //		parameter_->set( "Lambda",										1.e-12 );
   }
   else if( solver_name=="TFQMR" ) {
-    parameter_->set( "Output Style",					style	     );
+  }
+  else if( solver_name=="Pseudo Block TFQMR" ) {
+    parameter_->set( "Block Size", 2);
   }
   else {
     std::cout << "!!!Warning!!! solver_name:\t" << solver_name << "\tnot known in Pimpact!";

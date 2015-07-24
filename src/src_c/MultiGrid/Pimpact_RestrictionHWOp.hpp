@@ -23,6 +23,7 @@ void MG_getCRS(
     const int& N,
     const int& BC_L,
     const int& BC_U,
+    const int& dd,
     double* const cR );
 
 void MG_getCRV(
@@ -61,6 +62,22 @@ void MG_restrictHW(
     const double* const phif,
     double* const phic );
 
+void MG_restrictFW(
+		const int& dimens,
+    const int* const Nf,
+    const int* const bLf,
+    const int* const bUf,
+    const int* const Nc,
+    const int* const bLc,
+    const int* const bUc,
+		const int* const iimax,          
+		const int* const dd,             
+    const double* const cR1,
+    const double* const cR2,
+    const double* const cR3,
+    const double* const phif,
+    double* const phic );
+
 void MG_restrictHWV(
     const int& dimens,
     const int& dir,
@@ -82,6 +99,29 @@ void MG_restrictHWV(
     const double* const phif,
     double* const phic );
 
+void MG_restrictFWV(
+    const int& dimens,
+    const int& dir,
+    const int* const Nf,
+    const int* const bLf,
+    const int* const bUf,
+    const int* const SSf,
+    const int* const NNf,
+    const int* const Nc,
+    const int* const bLc,
+    const int* const bUc,
+    const int* const SSc,
+    const int* const NNc,
+		const int* const iimax,          
+		const int* const dd,             
+//    const int& BC_L,
+//    const int& BC_U,
+    const double* const cRV,
+    const double* const cR1,
+    const double* const cR2,
+    const double* const cR3,
+    const double* const phif,
+    double* const phic );
 
 void MG_RestrictGather(
     const int* const Nc,
@@ -278,6 +318,7 @@ protected:
 						(nGather_[i]>1)?
 						spaceF_->getDomain()->getBCLocal()->getBCU(i):
 						spaceC_->getDomain()->getBCLocal()->getBCU(i),
+						dd_[i],
 						cRS_[i] );
 
 				cRV_[i] = new Scalar[ 2*( iimax_[i]-0+1 ) ];
@@ -354,7 +395,7 @@ public:
 					spaceF_->getDomain()->getBCLocal()->getBCU(),
 					x.getConstRawPtr() );
 
-			MG_restrictHW(
+			MG_restrictFW(
 					spaceF_->dim(),
 					spaceF_->nLoc(),
 					spaceF_->bl(),
@@ -373,9 +414,29 @@ public:
 		}
 		else {
 			int dir = fType;
-			x.exchange( dir );
+//			x.exchange( dir );
+			x.exchange( );
 
-			MG_restrictHWV(
+//			MG_restrictHWV(
+//					spaceF_->dim(),
+//					dir+1,
+//					spaceF_->nLoc(),
+//					spaceF_->bl(),
+//					spaceF_->bu(),
+//					spaceF_->sIndB(fType),
+//					spaceF_->eIndB(fType),
+//					spaceC_->nLoc(),
+//					spaceC_->bl(),
+//					spaceC_->bu(),
+//					spaceC_->sIndB(fType),
+//					spaceC_->eIndB(fType),
+//					iimax_.getRawPtr(),
+//					dd_.getRawPtr(),
+//					cRV_[dir],
+//					x.getConstRawPtr(),
+//					y.getRawPtr() );
+
+			MG_restrictFWV(
 					spaceF_->dim(),
 					dir+1,
 					spaceF_->nLoc(),
@@ -391,6 +452,9 @@ public:
 					iimax_.getRawPtr(),
 					dd_.getRawPtr(),
 					cRV_[dir],
+					cRS_[0],
+					cRS_[1],
+					cRS_[2],
 					x.getConstRawPtr(),
 					y.getRawPtr() );
 
@@ -464,6 +528,8 @@ public:
 
 	}
 
+	
+	Teuchos::Tuple<Ordinal,3> getDD() const { return( dd_ ); };
 
 //	int getRankC2() const { return( rankc2_ ); }
 //	MPI_Comm getComm2() const { return( comm2_ ); }

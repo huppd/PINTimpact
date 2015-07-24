@@ -51,7 +51,7 @@ SET( CMAKE_C_COMPILER       ${Trilinos_C_COMPILER}       )
 SET( CMAKE_Fortran_COMPILER ${Trilinos_Fortran_COMPILER} )
 
 
-SET( CMAKE_CXX_FLAGS     "${CMAKE_CXX_FLAGS}     ${Trilinos_CXX_COMPILER_FLAGS}     -std=c++11 -Wall -pedantic" )
+SET( CMAKE_CXX_FLAGS     "${CMAKE_CXX_FLAGS}     ${Trilinos_CXX_COMPILER_FLAGS}     -Wall -pedantic -std=c++11" )
 SET( CMAKE_C_FLAGS       "${CMAKE_C_FLAGS}       ${Trilinos_C_COMPILER_FLAGS}       -Wall -pedantic" )
 SET( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${Trilinos_Fortran_COMPILER_FLAGS} -Wall" )
 
@@ -63,7 +63,6 @@ IF( CMAKE_COMPILER_IS_GNUCXX )
 	SET( CMAKE_Fortran_FLAGS_RELEASE  " ${CMAKE_Fortran_FLAGS_RELEASE} -ftree-vectorizer-verbose=1  -ffast-math -funroll-all-loops -fpeel-loops -ftracer -funswitch-loops -ftree-vectorize -march=native -funsafe-math-optimizations -fomit-frame-pointer -fno-math-errno  -Ofast -fargument-noalias-global -march=native -malign-double" )
 	set( CMAKE_Fortran_FLAGS_PROFILE "${CMAKE_Fortran_FLAGS_PROFILE} ${CMAKE_Fortran_FLAGS_RELEASE}  -g  ")  # -pg
 	SET( CMAKE_Fortran_COMPILE_FLAGS "${CMAKE_Fortran_COMPILE_FLAGS} ${Trilinos_Fortran_COMPILER_FLAGS} -xf95-cpp-input -fdefault-real-8 -fdefault-double-8  "  )
-	#SET( CMAKE_Fortran_FLAGS_RELEASE  "${CMAKE_Fortran_FLAGS} -ftree-vectorizer-verbose=2 -ffree-line-length-none  -msse2 -ffast-math -funroll-all-loops -fpeel-loops -ftracer -funswitch-loops -ftree-vectorize -march=native -funsafe-math-optimizations  -fno-math-errno -fdollar-ok -Wall -pg " )
 ELSE()
 	SET( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -vec-report2 -ip -fno-alias -march=native " )
 	SET( CMAKE_Fortran_FLAGS_RELEASE  "${CMAKE_Fortran_FLAGS_RELEASE} -funroll-all-loops -march=native -fomit-frame-pointer -fno-math-errno -vec-report2 -ip -fno-alias  " )

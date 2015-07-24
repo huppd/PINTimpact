@@ -1,5 +1,5 @@
-!> \brief module providing functions to initiliaze and apply RestrictionOp
-module cmod_RestrictionOp
+!> \brief module providing functions to initiliaze and apply RestrictionHWOp
+module cmod_RestrictionHWOp
 
 
   use iso_c_binding
@@ -14,6 +14,7 @@ contains
       iimax,            &
       BC_L,             &
       BC_U,             &
+      dd,               &
       cR ) bind(c,name='MG_getCRS')
 
     implicit none
@@ -22,6 +23,8 @@ contains
     integer(c_int), intent(in)  :: iimax
     integer(c_int), intent(in)  :: BC_L
     integer(c_int), intent(in)  :: BC_U
+
+    integer(c_int), intent(in)  :: dd
 
     real(c_double), intent(out) :: cR(-1:1,1:iimax)
 
@@ -33,45 +36,51 @@ contains
     !=== Restriktion, linienweise, 1d ==========================================================================
     !===========================================================================================================
 
-        !        iimax = N
+    !        iimax = N
 
-        do i = 1,iimax 
-          cR(-1,i) = 1./4.
-          cR( 0,i) = 2./4.
-          cR( 1,i) = 1./4.
-        end do
+    do i = 1,iimax 
+      if( 1==dd ) then
+        cR(-1,i) = 0.
+        cR( 0,i) = 1.
+        cR( 1,i) = 0.
+      else
+        cR(-1,i) = 1./4.
+        cR( 0,i) = 2./4.
+        cR( 1,i) = 1./4.
+      end if
+    end do
 
-        if( BC_L > 0 ) then
-          cR(-1,1) = 0.
-          cR( 0,1) = 1.
-          cR( 1,1) = 0.
+    if( BC_L > 0 ) then
+      cR(-1,1) = 0.
+      cR( 0,1) = 1.
+      cR( 1,1) = 0.
 
-          cR(-1,2) = 0. ! TEST!!! Sollte evtl. noch ergaenzt werden ...
-          cR( 0,2) = 1.
-          cR( 1,2) = 0.
-        end if
-        if (BC_L == -2) then
-            cR( 1,1) = cR( 1,1) + cR(-1,1)
-            cR(-1,1) = 0.
-        end if
+      cR(-1,2) = 0. ! TEST!!! Sollte evtl. noch ergaenzt werden ...
+      cR( 0,2) = 1.
+      cR( 1,2) = 0.
+    end if
+    if (BC_L == -2) then
+      cR( 1,1) = cR( 1,1) + cR(-1,1)
+      cR(-1,1) = 0.
+    end if
 
-        if (BC_U > 0) then
-            cR(-1,iimax) = 0.
-            cR( 0,iimax) = 1.
-            cR( 1,iimax) = 0.
+    if (BC_U > 0) then
+      cR(-1,iimax) = 0.
+      cR( 0,iimax) = 1.
+      cR( 1,iimax) = 0.
 
-            cR(-1,iimax-1) = 0.
-            cR( 0,iimax-1) = 1.
-            cR( 1,iimax-1) = 0.
+      cR(-1,iimax-1) = 0.
+      cR( 0,iimax-1) = 1.
+      cR( 1,iimax-1) = 0.
 
-        end if
+    end if
 
-        if (BC_U == -2) then
-            cR(-1,iimax) = cR( 1,iimax) + cR(-1,iimax)
-            cR( 1,iimax) = 0.
-        end if
+    if (BC_U == -2) then
+      cR(-1,iimax) = cR( 1,iimax) + cR(-1,iimax)
+      cR( 1,iimax) = 0.
+    end if
 
-    end subroutine MG_getCRS
+  end subroutine MG_getCRS
 
 
 
@@ -634,4 +643,4 @@ contains
   end subroutine MG_RestrictGather
 
 
-end module cmod_RestrictionOp
+end module cmod_RestrictionHWOp

@@ -57,6 +57,8 @@ public:
 //		y.getCFieldPtr()->add( 0.5, temp_->getConstCField(), -0.5, temp_->getConstSField() );
 //		y.getSFieldPtr()->add( 0.5, temp_->getConstCField(),  0.5, temp_->getConstSField() );
 //
+
+//		// just block
 //		op_->apply( x.getConstCField(), y.getCField() );
 //		op_->apply( x.getConstSField(), y.getSField() );
 

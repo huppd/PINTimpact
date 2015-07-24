@@ -310,6 +310,8 @@ public:
   Field& getField() { return( *field_ ); };
   const Field& getConstField() const { return( *field_ ); };
 
+  void level() const {  field_->level(); };
+
 protected:
   Teuchos::RCP<Field> field_;
 

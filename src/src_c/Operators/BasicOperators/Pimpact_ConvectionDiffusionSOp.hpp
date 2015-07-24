@@ -154,7 +154,7 @@ public:
 	Teuchos::RCP<const SpaceT> space() const { return(helmOp_->space()); };
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
-		mul_ = para->get<Scalar>( "mul", 0. );
+		mul_  = para->get<Scalar>( "mul",  0. );
 		mulI_ = para->get<Scalar>( "mulI", 0. );
 		mulC_ = para->get<Scalar>( "mulC", 1. );
 		mulL_ = para->get<Scalar>( "mulL", 1./space()->getDomain()->getDomainSize()->getRe() );

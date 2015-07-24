@@ -66,6 +66,11 @@ public:
 		op_->apply( x.getConstSField(), *temp_ );
 		y.getSField().add( 1., *temp_, -mulI_, x.getConstCField() );
 
+		pl->set<Scalar>( "mulI", mulI_ );
+		pl->set<Scalar>( "mulC", mulC_ );
+		pl->set<Scalar>( "mulL", mulL_ );
+		op_->setParameter( pl );
+
   }
 
 
