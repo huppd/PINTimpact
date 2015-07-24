@@ -47,7 +47,7 @@ protected:
 
 public:
 
-  CompoundField( const Teuchos::RCP<const SpaceT>& space ):
+  CompoundField( const Teuchos::RCP<const SpaceT>& space, EField dummy=S ):
         AF( space ),
         vfield_( create<VField>(space) ),
         sfield_( create<SField>(space) ) {};

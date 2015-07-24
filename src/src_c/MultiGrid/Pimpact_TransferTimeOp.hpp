@@ -34,8 +34,8 @@ protected:
 public:
 
 	TransferTimeOp(
-			const Teuchos::RCP<const SpaceT>& spaceC,
-			const Teuchos::RCP<const SpaceT>& spaceF ):
+			const Teuchos::RCP<const FSpaceT>& spaceC,
+			const Teuchos::RCP<const CSpaceT>& spaceF ):
 		opV_( Teuchos::rcp( new TransVT( spaceC, spaceF ) ) ) {}
 
 

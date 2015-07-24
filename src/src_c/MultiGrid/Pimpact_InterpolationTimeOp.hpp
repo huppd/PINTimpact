@@ -28,6 +28,9 @@ public:
 
   typedef typename DomainFieldT::SpaceT SpaceT;
 
+  typedef SpaceT FSpaceT;
+  typedef SpaceT CSpaceT;
+
   typedef typename SpaceT::Ordinal Ordinal;
 
 protected:

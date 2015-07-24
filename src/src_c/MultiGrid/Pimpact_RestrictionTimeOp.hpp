@@ -20,6 +20,9 @@ public:
 
   typedef typename DomainFieldT::SpaceT SpaceT;
 
+  typedef typename OperatorT::FSpaceT FSpaceT;
+  typedef typename OperatorT::CSpaceT CSpaceT;
+
   typedef typename SpaceT::Ordinal Ordinal;
 
 protected:
@@ -29,10 +32,11 @@ protected:
 
 public:
     
-    RestrictionTimeOp( const Teuchos::RCP<const SpaceT>& spaceF,
-                       const Teuchos::RCP<const SpaceT>& spaceC):
-    		        op_(Teuchos::rcp(new OperatorT(spaceF,spaceC))),
-			temp_( create<typename OperatorT::RangeFieldT>(spaceC) ){};
+	RestrictionTimeOp(
+			const Teuchos::RCP<const SpaceT>& spaceF,
+			const Teuchos::RCP<const SpaceT>& spaceC):
+				op_(Teuchos::rcp(new OperatorT(spaceF,spaceC))),
+		temp_( create<typename OperatorT::RangeFieldT>( spaceC ) ){};
 
 
 // x is fn in this case

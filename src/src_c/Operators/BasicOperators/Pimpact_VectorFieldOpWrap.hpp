@@ -36,8 +36,11 @@ public:
 //  typedef typename FSpaceT::Scalar Scalar;
 //  typedef typename FSpaceT::Ordinal Ordinal;
 
-  typedef ScalarField<typename SOpT::DomainFieldT>  DomainFieldT;
-  typedef ScalarField<typename SOpT::RangeFieldT>  RangeFieldT;
+//  typedef ScalarField<typename SOpT::DomainFieldT>  DomainFieldT;
+//  typedef ScalarField<typename SOpT::RangeFieldT>  RangeFieldT;
+
+  typedef VectorField<typename SOpT::FSpaceT>  DomainFieldT;
+  typedef VectorField<typename SOpT::CSpaceT>  RangeFieldT;
 
 
 protected:

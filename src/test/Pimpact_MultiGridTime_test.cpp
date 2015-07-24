@@ -765,42 +765,42 @@ template<class SpaceT> using CVF = Pimpact::CompoundField<Pimpact::TimeField<Pim
 		              			          Pimpact::TimeField<Pimpact::ScalarField<SpaceT> > >;
 
 template<class SpaceT> using INT = Pimpact::TransferCompoundOp<
-					Pimpact::InterpolationTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<SpaceT> > >,
-				   	Pimpact::InterpolationTimeOp<Pimpact::InterpolationOp<SpaceT> > >;
+																				Pimpact::InterpolationTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<SpaceT> > >,
+																				Pimpact::InterpolationTimeOp<                           Pimpact::InterpolationOp<SpaceT> > >;
 
 template<class SpaceT> using RES = Pimpact::TransferCompoundOp<
                                         Pimpact::RestrictionTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::RestrictionOp<SpaceT> > >,
-                                        Pimpact::RestrictionTimeOp<Pimpact::RestrictionOp<SpaceT> > >;
+                                        Pimpact::RestrictionTimeOp<                           Pimpact::RestrictionOp<SpaceT> > >;
 
 template<class SpaceT1, class SpaceT2> using TCO = Pimpact::TransferCompoundOp<
-                                       		Pimpact::TransferTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<SpaceT1, SpaceT2> > >,
-                                       		Pimpact::TransferTimeOp<Pimpact::TransferOp<SpaceT1, SpaceT2> > >; 
+																				Pimpact::TransferTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<SpaceT1, SpaceT2> > >,
+																				Pimpact::TransferTimeOp<                           Pimpact::TransferOp<SpaceT1, SpaceT2> > >; 
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 
-        pl->set("nx", nx );
-        pl->set("ny", ny );
-        pl->set("nz", nz );
-        pl->set("nf", nf );
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
 
-        pl->set("npx", npx );
-        pl->set("npy", npy );
-        pl->set("npz", npz );
-        pl->set("npf", npf );
+	pl->set("npx", npx );
+	pl->set("npy", npy );
+	pl->set("npz", npz );
+	pl->set("npf", npf );
 
-  auto space = Pimpact::createSpace<S,O,4>( pl );
+	auto space = Pimpact::createSpace<S,O,4>( pl );
 
-  auto mgSpaces = Pimpact::createMGSpaces<FSpace4T,CSpace4T,CS>( space, maxGrids );
+	auto mgSpaces = Pimpact::createMGSpaces<FSpace4T,CSpace4T,CS>( space, maxGrids );
 
-  auto mg = Pimpact::createMultiGrid<
-					CVF,
-					TCO,
-					INT,
-					RES,
-					Pimpact::TimeStokesOp,
-					Pimpact::TimeStokesOp,								
-					Pimpact::TimeStokesBSmoother,
-					Pimpact::TimeStokesBSmoother > (mgSpaces);
+	auto mg = Pimpact::createMultiGrid<
+									CVF,
+									TCO,
+									INT,
+									RES,
+									Pimpact::TimeStokesOp,
+									Pimpact::TimeStokesOp,								
+									Pimpact::TimeStokesBSmoother,
+									Pimpact::TimeStokesBSmoother > (mgSpaces);
 
 /*
 auto x = Pimpact::createCompoundField( Pimpact::createTimeField< Pimpact::VectorField<FSpace4T> >( space ),

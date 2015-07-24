@@ -63,17 +63,17 @@ protected:
 
 public:
 
-  MGTransfers(
-      const Teuchos::RCP<const MGSpacesT>& mgSpaces ):
-        mgSpaces_(mgSpaces),
-        transferOp_(),
-        restrictionOps_(),
-        interpolationOps_() {
+	MGTransfers(
+			const Teuchos::RCP<const MGSpacesT>& mgSpaces ):
+		mgSpaces_(mgSpaces),
+		transferOp_(),
+		restrictionOps_(),
+		interpolationOps_() {
 
-    transferOp_ = create<TransferOpT>( mgSpaces_->get(), mgSpaces_->get(0) );
+			transferOp_ = create<TransferOpT>( mgSpaces_->get(), mgSpaces_->get(0) );
 
-		for( unsigned i=0; i < mgSpaces_->getNGrids()-1; ++i ) {
-//				std::cout << " grid: " << i << "\n";
+			for( unsigned i=0; i < mgSpaces_->getNGrids()-1; ++i ) {
+				//				std::cout << " grid: " << i << "\n";
 				restrictionOps_.push_back(
 						Teuchos::rcp(
 							new RestrT<CSpaceT>(
@@ -92,12 +92,12 @@ public:
 								)
 							)
 						);
+			}
+
+			// not working on brutus
+			//interpolationOps_.shrink_to_fit();
+
 		}
-
-	// not working on brutus
-    //interpolationOps_.shrink_to_fit();
-
-  }
 
 public:
 
