@@ -340,7 +340,7 @@ int main(int argi, char** argv ) {
 
 		std::string rl = "";
 		if( refinement>1 )
-			rl = std::to_string( refine );
+			rl = std::to_string( (long long)refine );
 
 		auto fu   = x->clone( Pimpact::ShallowCopy );
 		if( 0==force )

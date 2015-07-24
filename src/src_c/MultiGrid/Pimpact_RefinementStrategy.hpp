@@ -51,7 +51,7 @@ public:
 		 if( refine_dir[i] )
 			 gridSizeGlobalTup[i] = (gridSizeGlobalTup[i]-1)*2 +1;
 		if( refine_dir[3] )
-			gridSizeGlobalTup[3] = gridSizeGlobalTup[3]+1;
+			gridSizeGlobalTup[3] = gridSizeGlobalTup[3]+2;
 
     auto gridSizeGlobal = createGridSizeGlobal<Ordinal,dimension>( gridSizeGlobalTup );
 
