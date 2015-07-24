@@ -792,18 +792,50 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 
   auto mgSpaces = Pimpact::createMGSpaces<FSpace4T,CSpace4T,CS>( space, maxGrids );
 
-  auto multiGrid = Pimpact::createMultiGrid<
-				CVF,
-				TCO,
-				INT,
-				RES,
-				Pimpact::TimeStokesOp,
-				Pimpact::TimeStokesOp,								
-				Pimpact::TimeStokesBSmoother,
-				Pimpact::TimeStokesBSmoother > (mgSpaces);
+  auto mg = Pimpact::createMultiGrid<
+					CVF,
+					TCO,
+					INT,
+					RES,
+					Pimpact::TimeStokesOp,
+					Pimpact::TimeStokesOp,								
+					Pimpact::TimeStokesBSmoother,
+					Pimpact::TimeStokesBSmoother > (mgSpaces);
 
+/*
+auto x = Pimpact::createCompoundField( Pimpact::createTimeField< Pimpact::VectorField<FSpace4T> >( space ),
+                                       Pimpact::createTimeField< Pimpact::ScalarField<FSpace4T> >( space ));
+
+typedef Pimpact::TimeStokesOp<FSpace4T> OpT;
+
+auto op = Pimpact::create<OpT>( space );
+
+double p = 10;
+double alpha = std::sqrt(pl->get<double>("alpha2"));
+
+auto b = x->clone();
+auto true_sol = x->clone();
+auto err = x->clone();
+err->init(1);
+
+Pimpact::initVectorTimeField( true_sol->getVFieldPtr(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha );
+
+
+op->apply(*true_sol,*b);
+
+for( int i=0; i<20; ++i ) {
+     mg->apply( *b, *x );
+     x->write(i*100);
+
+     err->add( -1, *x, 1., *true_sol );
+     std::cout << "err: " << err->norm() << "\n";
 }
 
+TEST_EQUALITY( err->norm()<1.e-5, true );
+*/
+}
 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, MG, CS4L )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, MG, CS4G )
 
-} // end of namespace
+} // end of namespae

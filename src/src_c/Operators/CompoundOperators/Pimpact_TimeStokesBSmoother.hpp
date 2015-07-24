@@ -74,7 +74,7 @@ protected:
 public:
 
   /// \todo constructor from space
-	TimeStokesBSmoother( const Teuchos::RCP<const OperatorT>& op ):
+	TimeStokesBSmoother( const Teuchos::RCP<const OperatorT>& op , Teuchos::RCP<Teuchos::ParameterList>& pl = Teuchos::parameterList()):
 		op_( op ) {};
 
 	void apply(const DomainFieldT& x, RangeFieldT& y,
