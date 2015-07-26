@@ -20,6 +20,7 @@ namespace Pimpact {
 
 /// \ingroup TimeHarmonicOperator
 /// \ingroup NonliearOperator
+/// \deprecated
 template<class ST, bool CNyes=false>
 class TimeDtConvectionDiffusionOp {
 
@@ -41,7 +42,7 @@ protected:
 
 public:
 
-  /// \todo get nf from grid
+
   TimeDtConvectionDiffusionOp( const Teuchos::RCP<const SpaceT>& space ):
     op_( create<ConvectionVWrap>( create<ConvectionDiffusionSOp<SpaceT> >(space) ) ),
     wind_( space()->nLoc(3) + space()->bu(3) - space()->bl(3) ) {

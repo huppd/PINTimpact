@@ -95,7 +95,7 @@ public:
 
     array_ = new Scalar[nx*nt];
 //#ifdef DEBUG
-    for( int i=0; i<nt; ++i )
+    for( int i=0; i<nx*nt; ++i )
       array_[i] = 0.;
 //#endif // end of #ifdef DEBUG
 

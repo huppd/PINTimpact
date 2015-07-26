@@ -8,79 +8,79 @@
 
 !> \brief module providing convection
 module cmod_ConvectionDiffusionOp
-  
-    use iso_c_binding
-  
-    implicit none
+
+  use iso_c_binding
+
+  implicit none
 
 contains
 
 
-    !> \brief convection diffusion 
-    !! \f[ nlu = mul nlu + mulI phi + mulC ( U\cdot\nabla) phi - mulL \Delta phi
-    subroutine OP_convectionDiffusion(  &
-        dimens,                         &
-        N,                              &
-        bL,bU,                          &
-        nL,nU,                          &
-        SS,NN,                          &
-        c1D,c2D,c3D,                    &
-        c1U,c2U,c3U,                    &
-        c11,c22,c33,                    &
-        phiU,phiV,phiW,                 &
-        phi,                            &
-        nlu,                            &
-        mul,                            &
-        mulI,                           &
-        mulC,                           &
-        mulL ) bind (c,name='OP_convectionDiffusion')
+  !> \brief convection diffusion 
+  !! \f[ nlu = mul nlu + mulI phi + mulC ( U\cdot\nabla) phi - mulL \Delta phi
+  subroutine OP_convectionDiffusion(  &
+      dimens,                         &
+      N,                              &
+      bL,bU,                          &
+      nL,nU,                          &
+      SS,NN,                          &
+      c1D,c2D,c3D,                    &
+      c1U,c2U,c3U,                    &
+      c11,c22,c33,                    &
+      phiU,phiV,phiW,                 &
+      phi,                            &
+      nlu,                            &
+      mul,                            &
+      mulI,                           &
+      mulC,                           &
+      mulL ) bind (c,name='OP_convectionDiffusion')
 
-        implicit none
+    implicit none
 
-        integer(c_int), intent(in)  :: dimens
+    integer(c_int), intent(in)  :: dimens
 
-        integer(c_int), intent(in)  :: N(3)
+    integer(c_int), intent(in)  :: N(3)
 
-        integer(c_int), intent(in)  :: bL(3)
-        integer(c_int), intent(in)  :: bU(3)
+    integer(c_int), intent(in)  :: bL(3)
+    integer(c_int), intent(in)  :: bU(3)
 
-        integer(c_int), intent(in)  :: nL(3)
-        integer(c_int), intent(in)  :: nU(3)
+    integer(c_int), intent(in)  :: nL(3)
+    integer(c_int), intent(in)  :: nU(3)
 
-        integer(c_int), intent(in)  :: SS(3)
-        integer(c_int), intent(in)  :: NN(3)
+    integer(c_int), intent(in)  :: SS(3)
+    integer(c_int), intent(in)  :: NN(3)
 
-        real(c_double), intent(in)  :: c1D(nL(1):nU(1),0:N(1))
-        real(c_double), intent(in)  :: c2D(nL(2):nU(2),0:N(2))
-        real(c_double), intent(in)  :: c3D(nL(3):nU(3),0:N(3))
+    real(c_double), intent(in)  :: c1D(nL(1):nU(1),0:N(1))
+    real(c_double), intent(in)  :: c2D(nL(2):nU(2),0:N(2))
+    real(c_double), intent(in)  :: c3D(nL(3):nU(3),0:N(3))
 
-        real(c_double), intent(in)  :: c1U(nL(1):nU(1),0:N(1))
-        real(c_double), intent(in)  :: c2U(nL(2):nU(2),0:N(2))
-        real(c_double), intent(in)  :: c3U(nL(3):nU(3),0:N(3))
+    real(c_double), intent(in)  :: c1U(nL(1):nU(1),0:N(1))
+    real(c_double), intent(in)  :: c2U(nL(2):nU(2),0:N(2))
+    real(c_double), intent(in)  :: c3U(nL(3):nU(3),0:N(3))
 
-        real(c_double), intent(in)  :: c11(bL(1):bU(1),0:N(1))
-        real(c_double), intent(in)  :: c22(bL(2):bU(2),0:N(2))
-        real(c_double), intent(in)  :: c33(bL(3):bU(3),0:N(3))
+    real(c_double), intent(in)  :: c11(bL(1):bU(1),0:N(1))
+    real(c_double), intent(in)  :: c22(bL(2):bU(2),0:N(2))
+    real(c_double), intent(in)  :: c33(bL(3):bU(3),0:N(3))
 
 
-        real(c_double), intent(in   ) ::  phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double), intent(in   ) ::  phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double), intent(in   ) ::  phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double), intent(in   ) ::  phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double), intent(in   ) ::  phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double), intent(in   ) ::  phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-        real(c_double), intent(in   ) ::  phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double), intent(in   ) ::  phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-        real(c_double), intent(inout) ::  nlu(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double), intent(inout) ::  nlu(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-        real(c_double), intent(in)  :: mul
-        real(c_double), intent(in)  :: mulI
-        real(c_double), intent(in)  :: mulC
-        real(c_double), intent(in)  :: mulL
+    real(c_double), intent(in)  :: mul
+    real(c_double), intent(in)  :: mulI
+    real(c_double), intent(in)  :: mulC
+    real(c_double), intent(in)  :: mulL
 
-        real(c_double)              ::  ddU, ddV, ddW, dd1
+    real(c_double)              ::  ddU, ddV, ddW, dd1
 
-        integer(c_int)              ::  i, ii
-        integer(c_int)              ::  j, jj
-        integer(c_int)              ::  k, kk
+    integer(c_int)              ::  i, ii
+    integer(c_int)              ::  j, jj
+    integer(c_int)              ::  k, kk
 
 
         do k = SS(3), NN(3)
