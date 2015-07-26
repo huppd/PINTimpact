@@ -98,44 +98,42 @@ public:
   /// defect correction\f$ \hat{L}u_{k+1} = f-L u_k +\hat{L}u_k \f$ and V-cylce for solving with \f$\hat{L}\f$
   /// \todo extract smooth/restrict/interpolate method
   /// \todo template cycle method
-  void apply( const DomainFieldT& x, RangeFieldT& y ) const {
+	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
-    for( int j=0; j<numCycles_; ++j ) {
+		for( int j=0; j<numCycles_; ++j ) {
 
-      // defect correction rhs \hat{f}= b = x - L y
-      mgOps_->get()->apply( y, *b_->get() );
-      b_->get()->add( 1., x, -1., *b_->get() );
+			// defect correction rhs \hat{f}= b = x - L y
+			mgOps_->get()->apply( y, *b_->get() );
+			b_->get()->add( 1., x, -1., *b_->get() );
 
-      // transfer init y and \hat{f} to coarsest coarse
-      mgTrans_->getTransferOp()->apply( y, *x_->get(0) );
-      mgTrans_->getTransferOp()->apply( *b_->get(), *b_->get(0) );
+		 // transfer init y and \hat{f} to coarsest coarse
+		 mgTrans_->getTransferOp()->apply( y, *x_->get(0) );
+		 mgTrans_->getTransferOp()->apply( *b_->get(), *b_->get(0) );
 
-      // residual temp = \hat(L) y
-      mgOps_->get(0)->apply( *x_->get(0), *temp_->get(0) );
-      // b = x - L y +\hat{L} y
-      b_->get(0)->add( 1., *b_->get(0), 1, *temp_->get(0) );
-			b_->get(0)->level();
-			/// use residual here
+		 // residual temp = \hat(L) y
+		 mgOps_->get(0)->apply( *x_->get(0), *temp_->get(0) );
+		 // b = x - L y +\hat{L} y
+		 b_->get(0)->add( 1., *b_->get(0), 1, *temp_->get(0) );
+		 b_->get(0)->level();
+		 // use residual here
 
-      // smooth and restrict defect( todo extract this as method )
-      int i;
-      for( i=0; i<mgSpaces_->getNGrids()-1; ++i ) {
-//				if(i>0 && 0==j ) x_->get(i)->init(0.); // necessary? for DivGradOp yes
-//				if( i>0 )
-					x_->get(i)->init(0.); // necessary? for DivGradOp yes
+		 // smooth and restrict defect( todo extract this as method )
+		 int i;
+		 for( i=0; i<mgSpaces_->getNGrids()-1; ++i ) {
+			 x_->get(i)->init(0.); // necessary? for DivGradOp yes
 
-				if( mgSpaces_->participating(i) ) {
-					mgSms_->get(i)->apply( *b_->get(i), *x_->get(i) );
-					mgOps_->get(i)->apply( *x_->get(i), *temp_->get(i) );
-					temp_->get(i)->add( -1., *temp_->get(i), 1., *b_->get(i) );
-					mgTrans_->getRestrictionOp(i)->apply( *temp_->get(i), *b_->get(i+1) );
-				}
-      }
+			 if( mgSpaces_->participating(i) ) {
+				 mgSms_->get(i)->apply( *b_->get(i), *x_->get(i) );
+				 mgOps_->get(i)->apply( *x_->get(i), *temp_->get(i) );
+				 temp_->get(i)->add( -1., *temp_->get(i), 1., *b_->get(i) );
+				 mgTrans_->getRestrictionOp(i)->apply( *temp_->get(i), *b_->get(i+1) );
+			 }
+		 }
 
-			// coarse grid solution
+		 // coarse grid solution
 			i = -1;
 			if( mgSpaces_->participating(i) ) {
-				/// \todo add level for singular stuff
+				// \todo add level for singular stuff
 				b_->get(i)->level();
 				x_->get(i)->init(0.);
 
@@ -164,9 +162,9 @@ public:
 			// use temp as stopping cirterion
 			mgTrans_->getTransferOp()->apply( *x_->get(0), y );
 
-    }
+		}
 
-  }
+	}
 
 
   void assignField( const DomainFieldT& mv ) {

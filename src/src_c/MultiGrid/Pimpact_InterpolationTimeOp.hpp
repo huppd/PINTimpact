@@ -46,41 +46,40 @@ public:
     {};
 
   /// \brief default apply
-  void apply( const DomainFieldT& x,
-      RangeFieldT& y) const {
+	void apply( const DomainFieldT& x, RangeFieldT& y) const {
       
-      Ordinal d = (spaceF()->nLoc(3)) / (spaceC()->nLoc(3));
+		Ordinal d = (spaceF()->nLoc(3)) / (spaceC()->nLoc(3));
 	
-	//std::cout << "cr = " << spaceC()->nLoc(3) << std::endl;
-	//std::cout << "fn = " << spaceF()->nLoc(3) << std::endl;		
-	//std::cout << "d = " << d << std::endl;
+//		std::cout << "cr = " << spaceC()->nLoc(3) << std::endl;
+//		std::cout << "fn = " << spaceF()->nLoc(3) << std::endl;		
+//		std::cout << "d = " << d << std::endl;
       
-     x.exchange();
+		x.exchange();
       
-     for( int i=0; i <= spaceC()->nLoc(3); ++i ) { 
+		for( int i=0; i <= spaceC()->nLoc(3); ++i ) { 
 
-        op_->apply( x.getConstField(i), y.getField(d*i) );
-      }
+			op_->apply( x.getConstField(i), y.getField(d*i) );
+
+		}
      
-      if (d > 1) { 
+		if (d > 1) { 
 	
-	for (int j = d; j > 1; j = j/2) {          
+			for (int j = d; j > 1; j = j/2) {          
 		
-          for( int i=j/2; i <= spaceF()->nLoc(3) - j/2; i=i+j ) { 
+				for( int i=j/2; i <= spaceF()->nLoc(3) - j/2; i=i+j ) { 
               
-              y.getFieldPtr(i)->add(0.5,y.getField(i-1),0.5,y.getField(i+1));
-          }
-      }
-    } 
-    y.changed(); 
+					y.getFieldPtr(i)->add(0.5,y.getField(i-1),0.5,y.getField(i+1));
+				}
+			}
+		} 
+		y.changed(); 
   }
 
+	Teuchos::RCP<const SpaceT> spaceC() const { return(op_->get_spaceC_()); };
+	Teuchos::RCP<const SpaceT> spaceF() const { return(op_->get_spaceF_()); };
 
-    Teuchos::RCP<const SpaceT> spaceC() const { return(op_->get_spaceC_()); };
-    Teuchos::RCP<const SpaceT> spaceF() const { return(op_->get_spaceF_()); };
 
-
-  Teuchos::RCP<OperatorT> getOperatorPtr() { return( op_ ); }
+	Teuchos::RCP<OperatorT> getOperatorPtr() { return( op_ ); }
 	
 
 
