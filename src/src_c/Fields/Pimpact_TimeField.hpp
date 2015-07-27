@@ -68,10 +68,6 @@ public:
 	typedef Teuchos::Array< Teuchos::RCP<Field> > FieldArray;
 	typedef typename FieldArray::iterator Iter;
 
-	/// \todo move to IndexSpace
-	Iter sInd_;
-	Iter eInd_;
-
 protected:
 
   ScalarArray array_;
@@ -94,16 +90,12 @@ public:
     Ordinal nx = mfs_[0]->getStorageSize();
 
     array_ = new Scalar[nx*nt];
-//#ifdef DEBUG
+
     for( int i=0; i<nx*nt; ++i )
       array_[i] = 0.;
-//#endif // end of #ifdef DEBUG
 
     for( int i=0; i<nt; ++i )
       mfs_[i]->setStoragePtr( array_+i*nx );
-
-    sInd_ = mfs_.begin() - space()->bl(3);
-    eInd_ = mfs_.end()   - space()->bu(3);
 
   }
 
@@ -115,55 +107,53 @@ protected:
   /// shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
   /// \param vF
   /// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
-  TimeField(const TimeField& field, ECopyType copyType=DeepCopy):
-    AF( field.space() ),
-    exchangedState_(field.exchangedState_) {
+	TimeField(const TimeField& field, ECopyType copyType=DeepCopy):
+		AF( field.space() ),
+		exchangedState_(field.exchangedState_) {
 
-    Ordinal nt = space()->nLoc(3) + space()->bu(3) - space()->bl(3);
+			Ordinal nt = space()->nLoc(3) + space()->bu(3) - space()->bl(3);
 
-    mfs_ = Teuchos::Array< Teuchos::RCP<Field> >(nt);
+			mfs_ = Teuchos::Array< Teuchos::RCP<Field> >(nt);
 
-    for( int i=0; i<nt; ++i )
-      //      mfs_[i] = Teuchos::rcp( new Field( space(), false ) );
-      mfs_[i] = field.mfs_[i]->clone(copyType);
+			for( int i=0; i<nt; ++i )
+				//      mfs_[i] = Teuchos::rcp( new Field( space(), false ) );
+				mfs_[i] = field.mfs_[i]->clone(copyType);
 
-    Ordinal nx = mfs_[0]->getStorageSize();
+			Ordinal nx = mfs_[0]->getStorageSize();
 
-    array_ = new Scalar[nx*nt];
+			array_ = new Scalar[nx*nt];
 
-    for( int i=0; i<nt; ++i )
-      mfs_[i]->setStoragePtr( array_+i*nx );
+			for( int i=0; i<nt; ++i )
+				mfs_[i]->setStoragePtr( array_+i*nx );
 
-    if( DeepCopy==copyType )
-      for( int i=0; i<nt; ++i ) {
-        mfs_[i]->assign( *(field.mfs_[i]) );
-      }
-    else {
-//#ifdef DEBUG
-      for( int i=0; i<nt*nx; ++i )
-        array_[i] = 0.;
-//#endif // end of #ifdef DEBUG
+			if( DeepCopy==copyType )
+				for( int i=0; i<nt; ++i ) {
+					mfs_[i]->assign( *(field.mfs_[i]) );
+				}
+			else {
+				for( int i=0; i<nt*nx; ++i )
+					array_[i] = 0.;
+			}
+
+			if( ShallowCopy ) exchangedState_ = true;
+
 		}
-
-    sInd_ = mfs_.begin() - space()->bl(3);
-    eInd_ = mfs_.end() - space()->bu(3);
-
-    if( ShallowCopy ) exchangedState_ = true;
-  }
 
 
 public:
 
-  ~TimeField() {
-    delete[] array_;
-  }
+	~TimeField() {
+		delete[] array_;
+	}
 
 
   /// \brief Create a new \c TimeField with
-  Teuchos::RCP< MV > clone( ECopyType ctype = DeepCopy ) const {
-    auto mv_ = Teuchos::rcp( new MV(*this,ctype) );
-    return( mv_ );
-  }
+	Teuchos::RCP< MV > clone( ECopyType ctype = DeepCopy ) const {
+
+		auto mv_ = Teuchos::rcp( new MV( *this, ctype ) );
+		return( mv_ );
+
+	}
 
 
   /// \brief returns the length of Field.
@@ -174,11 +164,6 @@ public:
     return( space()->nGlo()[3]*mfs_[0]->getLength(noxVec) );
   }
 
-
-  /// \brief get number of stored Field's
-private:
-
-  //int getNumberVecs() const {  return( mfs_.size() ); }
 
 public:
 
@@ -197,14 +182,11 @@ public:
   ///	the same thing as <tt>mv := 0*mv + alpha*A + beta*B</tt> in IEEE 754
   ///	floating-point arithmetic. (Remember that NaN*0 = NaN.)
   void add( Scalar alpha, const MV& A, Scalar beta, const MV& B ) {
-    //    Iter j = const_cast<MV&>(A).sInd_;
-    //    Iter k = const_cast<MV&>(B).sInd_;
-    //    for( Iter i=sInd_; i<eInd_; ++i ) {
-    //      (*i)->add( alpha, **(j++), beta, **(k++) );
-    //    }
+
     for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
       mfs_[i]->add( alpha, *A.mfs_[i], beta, *B.mfs_[i] );
     changed();
+
   }
 
 
@@ -215,13 +197,11 @@ public:
   /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
   void abs(const MV& y) {
-    //    Iter j=const_cast<MV&>(y).sInd_;
-    //    for( Iter i=sInd_; i<eInd_; ++i )
-    //      (*i)->abs( **(j++) );
-    //    Iter j=const_cast<MV&>(y).sInd_;
+
     for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
       mfs_[i]->abs( *y.mfs_[i] );
     changed();
+
   }
 
 
@@ -314,10 +294,8 @@ public:
 
     double nor=0.;
 
-    Iter j = const_cast<MV&>(weights).sInd_;
-
     for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
-      nor+= mfs_[i]->norm( **(j++) );
+      nor+= mfs_[i]->norm( *weights.mfs_[i] );
 
     if( global ) this->reduceNorm( comm(), nor, Belos::TwoNorm );
 
@@ -329,34 +307,41 @@ public:
   ///
   /// assign (deep copy) A into mv.
   void assign( const MV& A ) {
+
     for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
       mfs_[i]->assign( *A.mfs_[i] );
     changed();
+
   }
 
 
   /// \brief Replace the vectors with a random vectors.
   void random(bool useSeed = false, int seed = 1) {
+
     for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
       mfs_[i]->random();
     changed();
+
   }
 
 
   /// \brief \f[ *this = \alpha \f]
   void init( Scalar alpha = Teuchos::ScalarTraits<Scalar>::zero() ) {
+
     for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
       mfs_[i]->init(alpha);
     changed();
+
   }
 
   void level() const {
+
     for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
       mfs_[i]->level();
     changed();
+
   }
 	
-
 
   /// \param os
   void print( std::ostream& os=std::cout ) {
@@ -383,70 +368,74 @@ public:
   }
 
   /// \note shoud be constant but weirdly then Iter becomes const iter and can't be converted to int
-  void exchange() const {
+	void exchange() const {
 
-//		if( exchangedState_ )
-//			std::cout << "exchangeState: " << exchangedState_<< "\n";
-//		else
-//			std::cout << "bla\n";
+		if( !exchangedState_ ) {
+			if( space()->getNProc(3)>1 ) {
 
-    if( !exchangedState_ ) {
-      if( space()->getNProc(3)>=1 ) {
+				int transL = std::abs( space()->bl(3) );
+				int transU = std::abs( space()->bu(3) );
 
-			 int transL = std::abs( space()->bl(3) );
-//			 int transU = std::abs( space()->bu(3) );
+				// std::cout << "transL: " <<  transL << "\n";
+				// std::cout << "transU: " <<  transU << "\n";
 
-//				std::cout << "transL: " <<  transL << "\n";
-//				std::cout << "transu: " <<  transu<< "\n";
+				int rankU = space()->getProcGrid()->getRankU(3);
+				int rankL = space()->getProcGrid()->getRankL(3);
 
-        int rankU = space()->getProcGrid()->getRankU(3);
-        int rankL = space()->getProcGrid()->getRankL(3);
+				MPI_Request reqL;
+				MPI_Request reqU;
 
-        MPI_Request reqL;
-        //        MPI_Request reqU;
+				MPI_Status statusL;
+				MPI_Status statusU;
 
-        MPI_Status statusL;
-        //        MPI_Status statusU;
+				Ordinal lengthL = transL * mfs_[0]->getStorageSize();
+				Ordinal lengthU = transU * mfs_[0]->getStorageSize();
 
-        Ordinal lengthL = transL * mfs_[0]->getStorageSize();
-        //        Ordinal lengthU = transU * mfs_[0]->getStorageSize();
+				Scalar* ghostUR = mfs_[0]->getRawPtr();
+				Scalar* ghostLR = mfs_[space()->eInd(S,3)]->getRawPtr();
 
-        Scalar* ghostUR = mfs_[0]->getRawPtr();
-        //        Scalar* ghostLR = (*(eInd_))->getRawPtr();
-
-        Scalar* ghostUS = ( *(eInd_-transL) )->getRawPtr();
-        //      Scalar* ghostLS = ;
+				Scalar* ghostUS = mfs_[space()->eInd(S,3)-transL]->getRawPtr();
+				Scalar* ghostLS = mfs_[space()->sInd(S,3)       ]->getRawPtr();
 
         if( transL>0 ) MPI_Irecv( ghostUR, lengthL, MPI_REAL8, rankL, 1, comm(), &reqL);
-        //      if( transU>0 ) MPI_Irecv( ghostLR, lengthU, MPI_REAL8, rankU, 2, comm(), &reqU);
-        //
+				if( transU>0 ) MPI_Irecv( ghostLR, lengthU, MPI_REAL8, rankU, 2, comm(), &reqU);
+				
         if( transL>0 ) MPI_Send ( ghostUS, lengthL, MPI_REAL8, rankU, 1, comm() );
-        //      if( transL>0 ) MPI_Send ( ghostLS, lengthU, MPI_REAL8, rankL, 2, comm() );
+				if( transU>0 ) MPI_Send ( ghostLS, lengthU, MPI_REAL8, rankL, 2, comm() );
+
+        if( transL>0 ) MPI_Wait( &reqL, &statusL );
+				if( transU>0 ) MPI_Wait( &reqU, &statusU );
 
         // depends on if field from sender was exchanged, so to be sure
-        mfs_[0]->changed();
-        if( transL>0 ) MPI_Wait( &reqL, &statusL );
-        //        if( transU>0 ) MPI_Wait( &reqU, &statusU );
+        mfs_[ 0                  ]->changed();
+        mfs_[ space()->eInd(S,3) ]->changed();
 
       }
       else {
         mfs_[0]->assign( **(mfs_.end()-1) );
         mfs_[0]->changed();
+        mfs_[space()->eInd(S,3)]->assign( *mfs_[space()->sInd(S,3)] );
+        mfs_[space()->eInd(S,3)]->changed();
       }
     }
 
     exchangedState_ = true;
   }
 
+
   Teuchos::RCP<Field> getFieldPtr( int i ) { return(  mfs_[i] ); }
   Field& getField   ( int i ) { return( *mfs_[i] ); }
+
 
   Teuchos::RCP<const Field> getConstFieldPtr( int i ) const { return(  mfs_[i] ); }
   const Field&  getConstField   ( int i ) const { return( *mfs_[i] ); }
 
+
 	ScalarArray getRawPtr() { return( array_ ); }
 
+
 	const Scalar* getConstRawPtr() const { return( array_ ); }
+
 
 }; // end of class TimeField
 

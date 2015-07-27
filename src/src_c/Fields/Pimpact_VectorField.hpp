@@ -671,6 +671,8 @@ public:
           sFields_[V]->getRawPtr(),
           sFields_[W]->getRawPtr() );
       break;
+		default:
+			break;
 //		case SweptHiemenzFlow: 
 //			Scalar kappa = 0.;
 //			Scalar sweep_angle = 60.;

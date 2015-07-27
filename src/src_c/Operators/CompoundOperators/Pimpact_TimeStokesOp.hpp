@@ -172,6 +172,10 @@ public:
 
 	const std::string getLabel() const { return( "TimeStokesOp " ); };
 
+  void print( std::ostream& out=std::cout ) const {
+		out << getLabel() << ":\n";
+  }
+
 }; // end of class TimeStokesOp
 
 

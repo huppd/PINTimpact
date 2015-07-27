@@ -40,7 +40,7 @@ public:
 	InverseOp( const Teuchos::RCP<IOperatorT>& op ) {
 
 		auto para = 
-			createLinSolverParameter("GMRES",1.e-12,-1, Teuchos::rcp( &std::cout, false ), 200 );
+			createLinSolverParameter("GMRES",1.e-6,1, Teuchos::rcp( &std::cout, false ), 200 );
 		linprob_ = createLinearProblem<MF>(
 				createOperatorBase( create<OperatorT>(op) ),
 				create<MF>( op->space() ),

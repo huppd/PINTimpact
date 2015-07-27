@@ -70,78 +70,82 @@ public:
 protected:
 
   const Teuchos::RCP<const OperatorT> op_;
+	int numIters_;
 
 public:
 
   /// \todo constructor from space
 	TimeStokesBSmoother( const Teuchos::RCP<const OperatorT>& op , Teuchos::RCP<Teuchos::ParameterList> pl = Teuchos::parameterList()):
-		op_( op ) {};
+		op_( op ),
+		numIters_( pl->get<int>("numIters",4) )	{};
 
-	void apply(const DomainFieldT& x, RangeFieldT& y,
-			Belos::ETrans trans=Belos::NOTRANS  ) const {
+	void apply(const DomainFieldT& x, RangeFieldT& y ) const {
 
 		Scalar pi = 4.*std::atan(1.);
 		Scalar idt = ((Scalar)space()->nGlo()[3])/2./pi;
 		Scalar re = space()->getDomain()->getDomainSize()->getRe();
 		Scalar mulI = space()->getDomain()->getDomainSize()->getAlpha2()*idt/re;
 
-		auto xu = x.getConstVFieldPtr();
-		auto xp = x.getConstSFieldPtr();
-		auto yu = y.getVFieldPtr();
-		auto yp = y.getSFieldPtr();
+		for( int iters=0; iters<numIters_; ++iters ) {
 
-		xu->exchange();
-		//		xp->exchange();
+			auto xu = x.getConstVFieldPtr();
+			auto xp = x.getConstSFieldPtr();
+			auto yu = y.getVFieldPtr();
+			auto yp = y.getSFieldPtr();
 
-		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i ) {
-			xu->getConstFieldPtr(i-1)->exchange();
-			xu->getConstFieldPtr(i)->exchange();
-			xp->getConstFieldPtr(i)->exchange();
+			xu->exchange();
+			//		xp->exchange();
+
+			for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i ) {
+				xu->getConstFieldPtr(i-1)->exchange();
+				xu->getConstFieldPtr(i)->exchange();
+				xp->getConstFieldPtr(i)->exchange();
+			}
+
+			OP_TimeStokesBSmoother( 
+					space()->dim(),
+					space()->nLoc(),
+					space()->bl(),
+					space()->bu(),
+					space()->dl(),
+					space()->du(),
+					space()->gl(),
+					space()->gu(),
+					space()->sInd(S),
+					space()->eInd(S),
+					space()->sInd(U),
+					space()->eInd(U),
+					space()->sInd(V),
+					space()->eInd(V),
+					space()->sInd(W),
+					space()->eInd(W),
+					op_->getHelmholtzOp()->getC(X,S),
+					op_->getHelmholtzOp()->getC(Y,S),
+					op_->getHelmholtzOp()->getC(Z,S),
+					op_->getHelmholtzOp()->getC(X,U),
+					op_->getHelmholtzOp()->getC(Y,V),
+					op_->getHelmholtzOp()->getC(Z,W),
+					op_->getDivOp()->getC(X),
+					op_->getDivOp()->getC(Y),
+					op_->getDivOp()->getC(Z),
+					op_->getGradOp()->getC(X),
+					op_->getGradOp()->getC(Y),
+					op_->getGradOp()->getC(Z),
+					mulI,                 
+					1./re,                 
+					xu->getConstRawPtr(),
+					xp->getConstRawPtr(),
+					yu->getRawPtr(),
+					yp->getRawPtr() );
+
+			for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i ) {
+				yu->getFieldPtr(i)->changed();
+				yp->getFieldPtr(i)->changed();
+			} 
+
+			yu->changed();
+			yp->changed();
 		}
-
-		OP_TimeStokesBSmoother( 
-				space()->dim(),
-				space()->nLoc(),
-				space()->bl(),
-				space()->bu(),
-				space()->dl(),
-				space()->du(),
-				space()->gl(),
-				space()->gu(),
-				space()->sInd(S),
-				space()->eInd(S),
-				space()->sInd(U),
-				space()->eInd(U),
-				space()->sInd(V),
-				space()->eInd(V),
-				space()->sInd(W),
-				space()->eInd(W),
-				op_->getHelmholtzOp()->getC(X,S),
-				op_->getHelmholtzOp()->getC(Y,S),
-				op_->getHelmholtzOp()->getC(Z,S),
-				op_->getHelmholtzOp()->getC(X,U),
-				op_->getHelmholtzOp()->getC(Y,V),
-				op_->getHelmholtzOp()->getC(Z,W),
-				op_->getDivOp()->getC(X),
-				op_->getDivOp()->getC(Y),
-				op_->getDivOp()->getC(Z),
-				op_->getGradOp()->getC(X),
-				op_->getGradOp()->getC(Y),
-				op_->getGradOp()->getC(Z),
-				mulI,                 
-				1./re,                 
-				xu->getConstRawPtr(),
-				xp->getConstRawPtr(),
-				yu->getRawPtr(),
-				yp->getRawPtr() );
-
-		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i ) {
-			yu->getFieldPtr(i)->changed();
-			yp->getFieldPtr(i)->changed();
-		} 
-
-		yu->changed();
-		yp->changed();
 	}
 
 	void assignField( const DomainFieldT& mv ) { };

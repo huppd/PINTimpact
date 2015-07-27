@@ -74,9 +74,9 @@ int npy = 1;
 int npz = 1;
 int npf = 1;
 
-int nx = 32;
-int ny = 32;
-int nz = 32;
+int nx = 33;
+int ny = 33;
+int nz = 33;
 int nf = 32;
 
 int rankbla = -1;
@@ -782,6 +782,8 @@ template<class SpaceT1, class SpaceT2> using TCO = Pimpact::TransferCompoundOp<
 																				Pimpact::TransferTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<SpaceT1, SpaceT2> > >,
 																				Pimpact::TransferTimeOp<                           Pimpact::TransferOp<SpaceT1, SpaceT2> > >; 
 
+template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
+
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 
 	pl->set("nx", nx );
@@ -796,18 +798,27 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 
 	auto space = Pimpact::createSpace<S,O,4>( pl );
 
-	auto mgSpaces = Pimpact::createMGSpaces<FSpace4T,CSpace4T,CS>( space, 3 );
+	auto mgSpaces = Pimpact::createMGSpaces<FSpace4T,CSpace4T,CS>( space, 2 );
 
 
-//	auto pl = Teuchos::parameterList();
+	auto mgPL = Teuchos::parameterList();
+	mgPL->sublist("Smoother").set<int>( "numIters", 4 );
+//	mgPL->sublist("Coarse Grid Solver").set<int>( "numIters", 10 );
+	mgPL->sublist("Coarse Grid Solver").set<std::string>("Solver name", "GMRES" );
+	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<std::string>("Timer Label", "Coarse Grid Solver" );
+	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<S>("Convergence Tolerance" , 9.e-1 );
+
 	auto mg = Pimpact::createMultiGrid<
 									CVF,
 									TCO,
 									RES,
 									INT,
 									Pimpact::TimeStokesOp,
-									Pimpact::TimeStokesOp,															       Pimpact::TimeStokesBSmoother,
-									Pimpact::TimeStokesBSmoother > (mgSpaces);
+									Pimpact::TimeStokesOp,								
+									Pimpact::TimeStokesBSmoother,
+//									Pimpact::TimeStokesBSmoother
+									MOP
+										> ( mgSpaces, mgPL );
 
 	mg->print();
 
@@ -836,6 +847,9 @@ op->apply(*true_sol,*b);
 for( int i=0; i<2; ++i ) {
 	mg->apply( *b, *x );
 //	x->write(i*100);
+//
+
+	x->level();
 
 	err->add( -1, *x, 1., *true_sol );
 	std::cout << "err: " << err->norm() << "\n";
