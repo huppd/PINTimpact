@@ -72,12 +72,12 @@ int fe = 4;
 int npx = 1;
 int npy = 1;
 int npz = 1;
-int npf = 2;
+int npf = 1;
 
-int nx = 33;
-int ny = 33;
-int nz = 33;
-int nf = 64;
+int nx = 32;
+int ny = 32;
+int nz = 32;
+int nf = 32;
 
 int rankbla = -1;
 
@@ -146,7 +146,7 @@ TEUCHOS_STATIC_SETUP() {
   pl->set( "ly", 2. );
   pl->set( "lz", 4. );
 
-	pl->set<S>( "Re", 1000 );
+  pl->set<S>( "Re", 1 );
 
 }
 
@@ -545,26 +545,20 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator4D, CS ) {
 
   	//auto mgTransfers = Pimpact::createMGTransfers<Pimpact::TransferOp,Pimpact::RestrictionOp,Pimpact::InterpolationOp>( mgSpaces );
 
-	auto op = Pimpact::createInterpolationTimeOp<Pimpact::InterpolationOp<CSpace4T> >(mgSpaces->get(-1),mgSpaces->get(-2));
-	//if( 0==space->rankST() ) op->print();
+  auto op = Pimpact::createInterpolationTimeOp<Pimpact::InterpolationOp<CSpace4T> >(mgSpaces->get(-1),mgSpaces->get(-2));
 
-//	Pimpact::EField type[] = { Pimpact::EField::S, Pimpact::EField::U, Pimpact::EField::V, Pimpact::EField::W };
-
-//  for( int i=fs; i<fe; ++i ) {
-//	if( 0==space->rankST() )
-//		std::cout << "type: " << i << "\n";
+  auto op1 = Pimpact::createInterpolationTimeOp<Pimpact::InterpolationOp<CSpace4T> >(mgSpaces->get(-2),mgSpaces->get(-3));
 
     //auto fieldf = Pimpact::createScalarField( mgSpaces->get( -2 ), type[i] );
     auto fieldf = Pimpact::createTimeField<Pimpact::ScalarField<CSpace4T>,CSpace4T>( mgSpaces->get( -2 ));
+    auto fieldff = Pimpact::createTimeField<Pimpact::ScalarField<CSpace4T>,CSpace4T>( mgSpaces->get( -3 ));
     auto fieldc = Pimpact::createTimeField<Pimpact::ScalarField<CSpace4T>,CSpace4T>( mgSpaces->get( -1 ));
-    auto sol = fieldf->clone();
-    auto er = fieldf->clone();
+    auto sol = fieldff->clone();
+    auto er = fieldff->clone();
 
-
-	//std::cout << " num of vecs fn: " << fieldf->getNumberVecs() << std::endl;
-        //std::cout << " num of vecs cr: " << fieldc->getNumberVecs() << std::endl;
 
 	// the zero test
+	fieldff->init(1.);
 	fieldf->init(1.);
 	fieldc->init(0.); //initField( Pimpact::ConstField, 0. );// this will be a loop on the time field
 		
@@ -574,12 +568,15 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator4D, CS ) {
 
 		if( mgSpaces->participating(-2) )
 				op->apply( *fieldc, *fieldf );
-
-		if( mgSpaces->participating(-2) )
-			TEST_EQUALITY( eps>fieldf->norm(Belos::InfNorm), true );
+		
+		if( mgSpaces->participating(-3) )
+                                op1->apply( *fieldf, *fieldff );
+		
+		if( mgSpaces->participating(-3) )
+			TEST_EQUALITY( eps>fieldff->norm(Belos::InfNorm), true );
                         
-		if( fieldf->norm(Belos::InfNorm)>=eps )
-			std::cout << "error = " << fieldf->norm(Belos::InfNorm) << std::endl;
+		if( fieldff->norm(Belos::InfNorm)>=eps )
+			std::cout << "error = " << fieldff->norm(Belos::InfNorm) << std::endl;
 		if( mgSpaces->participating(-1) )
 			TEST_EQUALITY( eps>fieldc->norm(), true );
 		
@@ -590,12 +587,16 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator4D, CS ) {
 	// the random test
 	fieldc->random();
 	fieldf->init(0.);
+	fieldff->init(0.);
 
 		if( mgSpaces->participating(-1) )
 			TEST_INEQUALITY( 0., fieldc->norm() );
 
 		if( mgSpaces->participating(-2) )
 			op->apply( *fieldc, *fieldf );
+		        
+	        if( mgSpaces->participating(-3) )
+                        op1->apply( *fieldf, *fieldff );
 
 		if( mgSpaces->participating(-1) )
 			TEST_INEQUALITY( 0., fieldc->norm() );
@@ -604,15 +605,18 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator4D, CS ) {
     // the stronger init test
     fieldc->init(1.);
     fieldf->init(0.);
+    fieldff->init(0.);
     sol->init(1.);
     er->random();
 
 		if( mgSpaces->participating(-2) )
 			op->apply( *fieldc, *fieldf );
+	
+	       if( mgSpaces->participating(-3) )
+                        op1->apply( *fieldf, *fieldff );
 
-
-		if( mgSpaces->participating(-2) ) {
-			er->add( 1., *sol, -1., *fieldf );
+		if( mgSpaces->participating(-3) ) {
+			er->add( 1., *sol, -1., *fieldff );
 			double bla = er->norm(Belos::InfNorm);
 			if( 0==space->rankST() )
 			std::cout << "error Const: " << bla << "\n";
@@ -802,8 +806,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 									RES,
 									INT,
 									Pimpact::TimeStokesOp,
-									Pimpact::TimeStokesOp,								
-									Pimpact::TimeStokesBSmoother,
+									Pimpact::TimeStokesOp,															       Pimpact::TimeStokesBSmoother,
 									Pimpact::TimeStokesBSmoother > (mgSpaces);
 
 	mg->print();
@@ -826,6 +829,7 @@ err->init(1);
 
 Pimpact::initVectorTimeField( true_sol->getVFieldPtr(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha );
 
+x=true_sol->clone();
 
 op->apply(*true_sol,*b);
 

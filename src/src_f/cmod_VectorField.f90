@@ -246,7 +246,6 @@ subroutine VF_init_2DPulsatileX(   &
         real(c_double),  intent(inout) ::phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
         real(c_double),  intent(inout) ::phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-        !real(c_double) :: pi
         real(c_double) :: mu
         real(c_double) :: my
         real(c_double) :: muL
@@ -254,7 +253,6 @@ subroutine VF_init_2DPulsatileX(   &
         real(c_double) :: s1
         real(c_double) :: s2
         real(c_double) :: alpha_Pimpact
-
         integer                ::  i, j, k
         
         ! -----------------------------------------!
@@ -263,10 +261,11 @@ subroutine VF_init_2DPulsatileX(   &
         mu = sqrt( 2*re_ )*alpha_Pimpact/2. !kk
         lambda  = px/alpha_Pimpact**2       !k
         muL = mu*L
-
+       
         do k = SU(3), NU(3)
             do j = SU(2), NU(2)
                 do i = SU(1), NU(1)
+
                     my = mu*x2p(j)
                     s1 = exp(muL + my)
                     s2 = exp(my)

@@ -132,11 +132,14 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOperator ) {
 
         // true solution //pl->get<int> ("Block Size");
         Pimpact::initVectorTimeField( pulsatile->getVFieldPtr(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha );
-        
+		
         // consistecy check
         op->apply(*pulsatile,*y_cc);
         error->add( 1., *y_cc, -1., *y );
-        
+       	
+	y->write();
+	y_cc->write(100);
+	 
         std::cout << "|| error || = " << error()->norm()/std::sqrt( error->getLength() ) << std::endl;
         
         TEST_EQUALITY( error()->norm()<eps, true );

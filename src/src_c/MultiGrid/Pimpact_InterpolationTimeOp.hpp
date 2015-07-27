@@ -50,28 +50,23 @@ public:
       
 		Ordinal d = (spaceF()->nLoc(3)) / (spaceC()->nLoc(3));
 	
-//		std::cout << "cr = " << spaceC()->nLoc(3) << std::endl;
-//		std::cout << "fn = " << spaceF()->nLoc(3) << std::endl;		
-//		std::cout << "d = " << d << std::endl;
-      
 		x.exchange();
-      
-		for( int i=0; i <= spaceC()->nLoc(3); ++i ) { 
 
-			op_->apply( x.getConstField(i), y.getField(d*i) );
-
+		for( int i=spaceC()->sInd(S,3); i < spaceC()->eInd(S,3); ++i ) { 
+			op_->apply( x.getConstField(i), y.getField(d*i-1) );
+			
+			if (spaceC()->nLoc(3)==1 && d>1) 
+				op_->apply( x.getConstField(1), y.getField(2) );
 		}
-     
-		if (d > 1) { 
+
+		if (d > 1 && spaceC()->nLoc(3)>1) { 
+
+			for( int i=spaceF()->sInd(S,3) + 1; i < spaceF()->eInd(S,3) - 1; i=i+2 ) {
+				y.getFieldPtr(i)->add(0.5,y.getField(i-1),0.5,y.getField(i+1)); 
+			}		
+			y.getFieldPtr(spaceF()->eInd(S,3) - 1)->add(0.5,y.getField(spaceF()->eInd(S,3) - 2),0.5,y.getField(1)); // last point in fn grid
+		}
 	
-			for (int j = d; j > 1; j = j/2) {          
-		
-				for( int i=j/2; i <= spaceF()->nLoc(3) - j/2; i=i+j ) { 
-              
-					y.getFieldPtr(i)->add(0.5,y.getField(i-1),0.5,y.getField(i+1));
-				}
-			}
-		} 
 		y.changed(); 
   }
 
