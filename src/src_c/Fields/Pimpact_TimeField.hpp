@@ -412,8 +412,8 @@ public:
 
       }
       else {
-        mfs_[0]->assign( **(mfs_.end()-1) );
-        mfs_[0]->changed();
+        mfs_[space()->sInd(S,3)-1]->assign( *mfs_[space()->eInd(S,3)-1] );
+        mfs_[space()->sInd(S,3)-1]->changed();
         mfs_[space()->eInd(S,3)]->assign( *mfs_[space()->sInd(S,3)] );
         mfs_[space()->eInd(S,3)]->changed();
       }

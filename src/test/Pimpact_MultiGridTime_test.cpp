@@ -379,8 +379,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Restrictor4D, CS ) {
 			TEST_FLOATING_EQUALITY( 0., fieldc->norm(), eps );
                 
 		//fieldff->write(100);
-                //fieldf->write(200);
-                //fieldc->write(300);
+		//fieldf->write(200);
+		//fieldc->write(300);
 
 
 
@@ -398,6 +398,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Restrictor4D, CS ) {
 		// the strong test
 		fieldff->init(1.);
 		fieldf->init(0.);
+		auto solf = fieldf->clone();
 		fieldc->init(0.);
 		sol->init(1.);
 		er->random();
