@@ -417,9 +417,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Restrictor4D, CS ) {
 			if( bla>=eps )
 				er->write(0);
 		}
-//		fieldff->write(100);
-//		fieldf->write(200);
-//		fieldc->write(300);
+		fieldff->write(100);
+		fieldf->write(200);
+		fieldc->write(300);
 
 /*
 		// the hard test in X
@@ -766,6 +766,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator4D, CS ) {
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, Interpolator4D, CS4L )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, Interpolator4D, CS4G )
 
+/*
 
 template<class SpaceT> using CVF = Pimpact::CompoundField<Pimpact::TimeField<Pimpact::VectorField<SpaceT> >,
 		              			          Pimpact::TimeField<Pimpact::ScalarField<SpaceT> > >;
@@ -861,5 +862,5 @@ TEST_EQUALITY( err->norm()<1.e-5, true );
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, MG, CS4L )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, MG, CS4G )
-
+*/
 } // end of namespae

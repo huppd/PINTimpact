@@ -43,22 +43,25 @@ public:
 	void apply( const DomainFieldT& x, RangeFieldT& y) const {
 
 		Ordinal d = spaceF()->nLoc(3)/spaceC()->nLoc(3);
-
+		
 		x.exchange();
 
-		temp_->init(0.);
-
+		op_->apply( x.getConstField(0), *temp_ );
+		
 		for( Ordinal i=spaceF()->sInd(S,3); i<spaceF()->eInd(S,3); ++i )  {
 
-			if ( (i+1)%d==0 ) {
-				op_->apply( x.getConstField(i), y.getField((i+1)/d) );
-				y.getFieldPtr((i+1)/d)->add(0.25,*temp_,0.5,y.getField((i+1)/d));
+			if ( (i-spaceF()->sInd(S,3))%d==0 ) {
+				
+				Ordinal iC = (i-spaceF()->sInd(S,3))/d + spaceC()->sInd(S,3);
+				op_->apply( x.getConstField(i), y.getField(iC) );
+				y.getFieldPtr(iC)->add(0.25,*temp_,0.5,y.getField(iC));
+			std::cout<<"iC same"<<iC<<std::endl;
 			}
 			else {
 				op_->apply( x.getConstField(i), *temp_ );
-				y.getFieldPtr(i/d)->add(1.,y.getField(i/d),0.25,*temp_);
-				if( i == spaceF()->eInd(S,3) - 1 )
-					y.getFieldPtr(spaceF()->sInd(S,3))->add(0.25,*temp_,1.,y.getField(spaceF()->sInd(S,3)));
+				Ordinal iC = (i-spaceF()->sInd(S,3) - 1)/d + spaceC()->sInd(S,3);		
+				y.getFieldPtr(iC)->add(1.,y.getField(iC),0.25,*temp_);
+			std::cout<<"iC diff"<<iC<<std::endl;
 			}
 		}
 		y.changed();
