@@ -383,7 +383,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Restrictor4D, CS ) {
 		//fieldc->write(300);
 
 
-
 		// the random test
 		fieldff->random();
 
@@ -418,9 +417,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Restrictor4D, CS ) {
 			if( bla>=eps )
 				er->write(0);
 		}
-		fieldff->write(100);
-		fieldf->write(200);
-		fieldc->write(300);
+//		fieldff->write(100);
+//		fieldf->write(200);
+//		fieldc->write(300);
 
 /*
 		// the hard test in X
@@ -767,7 +766,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator4D, CS ) {
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, Interpolator4D, CS4L )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, Interpolator4D, CS4G )
 
-/*
 
 template<class SpaceT> using CVF = Pimpact::CompoundField<Pimpact::TimeField<Pimpact::VectorField<SpaceT> >,
 		              			          Pimpact::TimeField<Pimpact::ScalarField<SpaceT> > >;
@@ -808,7 +806,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 //	mgPL->sublist("Coarse Grid Solver").set<int>( "numIters", 10 );
 	mgPL->sublist("Coarse Grid Solver").set<std::string>("Solver name", "GMRES" );
 	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<std::string>("Timer Label", "Coarse Grid Solver" );
-	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<S>("Convergence Tolerance" , 9.e-1 );
+	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<S>("Convergence Tolerance" , 9.e-2 );
 
 	auto mg = Pimpact::createMultiGrid<
 									CVF,
@@ -840,11 +838,17 @@ auto true_sol = x->clone();
 auto err = x->clone();
 err->init(1);
 
-Pimpact::initVectorTimeField( true_sol->getVFieldPtr(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha );
+//Pimpact::initVectorTimeField( true_sol->getVFieldPtr(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha );
 
-x=true_sol->clone();
+//x=true_sol->clone();
 
-op->apply(*true_sol,*b);
+//op->apply(*true_sol,*b);
+
+x->random();
+x->scale(10);
+
+err->add( -1, *x, 1., *true_sol );
+std::cout << "err: " << err->norm() << "\n";
 
 for( int i=0; i<2; ++i ) {
 	mg->apply( *b, *x );
@@ -863,5 +867,4 @@ TEST_EQUALITY( err->norm()<1.e-5, true );
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, MG, CS4L )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, MG, CS4G )
-*/
 } // end of namespae

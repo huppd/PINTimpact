@@ -6,7 +6,7 @@
 #include "Teuchos_RCP.hpp"
 
 namespace Pimpact {
-
+/*
 extern "C" {
 
 	void OP_TimeStokesLSmoother( 
@@ -154,7 +154,7 @@ public:
 
 }; // end of class TimeStokesLSmoother
 
-
+*/
 
 } // end of namespace Pimpact
 
@@ -162,8 +162,8 @@ public:
 
 #ifdef COMPILE_ETI
 #include "Pimpact_TimeStokesOp.hpp"
-extern template class Pimpact::TimeStokesLSmoother< Pimpact::TimeStokesOp< Pimpact::Space<double,int,4,2> > >;
-extern template class Pimpact::TimeStokesLSmoother< Pimpact::TimeStokesOp< Pimpact::Space<double,int,4,4> > >;
+//extern template class Pimpact::TimeStokesLSmoother< Pimpact::TimeStokesOp< Pimpact::Space<double,int,4,2> > >;
+//extern template class Pimpact::TimeStokesLSmoother< Pimpact::TimeStokesOp< Pimpact::Space<double,int,4,4> > >;
 #endif
 
 #endif // end of #ifndef PIMPACT_TIMESTOKESBSMOOTHER_HPP

@@ -428,12 +428,12 @@ contains
 
             ! diagonal: time derivative + diffusion 
 
-            A(1,1) = mulI - mulL*(c11u(0,i) + c22p(0,i) + c33p(0,i))
-            A(2,2) = mulI - mulL*(c11u(0,i-1) + c22p(0,i-1) + c33p(0,i-1))
-            A(3,3) = mulI - mulL*(c22v(0,j) + c11p(0,j) + c33p(0,j))
-            A(4,4) = mulI - mulL*(c22v(0,j-1) + c11p(0,j-1) + c33p(0,j-1))
-            A(5,5) = mulI - mulL*(c33w(0,k) + c11p(0,k) + c22p(0,k))
-            A(6,6) = mulI - mulL*(c33w(0,k-1) + c11p(0,k-1) + c22p(0,k-1))
+            A(1,1) = mulI - mulL*(c11u(0,i) + c11p(0,i))
+            A(2,2) = mulI - mulL*(c11u(0,i-1) + c11p(0,i-1))
+            A(3,3) = mulI - mulL*(c22v(0,j) + c22p(0,j))
+            A(4,4) = mulI - mulL*(c22v(0,j-1) + c22p(0,j-1))
+            A(5,5) = mulI - mulL*(c33w(0,k) + c33p(0,k))
+            A(6,6) = mulI - mulL*(c33w(0,k-1) + c33p(0,k-1))
                 
             ! sub/super-diagonal: diffusion
                 

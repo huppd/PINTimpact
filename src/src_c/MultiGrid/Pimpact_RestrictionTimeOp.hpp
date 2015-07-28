@@ -47,7 +47,7 @@ public:
 		x.exchange();
 
 		op_->apply( x.getConstField(0), *temp_ );
-		
+	
 		for( Ordinal i=spaceF()->sInd(S,3); i<spaceF()->eInd(S,3); ++i )  {
 
 			if ( (i-spaceF()->sInd(S,3))%d==0 ) {
@@ -55,13 +55,11 @@ public:
 				Ordinal iC = (i-spaceF()->sInd(S,3))/d + spaceC()->sInd(S,3);
 				op_->apply( x.getConstField(i), y.getField(iC) );
 				y.getFieldPtr(iC)->add(0.25,*temp_,0.5,y.getField(iC));
-			std::cout<<"iC same"<<iC<<std::endl;
 			}
 			else {
 				op_->apply( x.getConstField(i), *temp_ );
 				Ordinal iC = (i-spaceF()->sInd(S,3) - 1)/d + spaceC()->sInd(S,3);		
 				y.getFieldPtr(iC)->add(1.,y.getField(iC),0.25,*temp_);
-			std::cout<<"iC diff"<<iC<<std::endl;
 			}
 		}
 		y.changed();
