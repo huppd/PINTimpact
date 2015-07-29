@@ -177,7 +177,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesBSmooth ) {
 	auto error = x->clone();
 	auto true_sol = x->clone();	
 	
-	double p = 10;
+	double p = 1;
 	double alpha = std::sqrt(pl->get<double>("alpha2"));
 
 	// RHS
@@ -281,10 +281,16 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesBSmooth_conv ) {
 	x->random();
 	x->scale(10);
 
+        error->add( 1., *x, -1., *true_sol );
+        std::cout << "err: " << error->norm() << "\n";
+	
 	for (int i = 1; i < 100; i++){
 		bSmoother->apply(*y,*x);
 		error->add( 1., *x, -1., *true_sol );
 		std::cout << "err: " << error->norm() << "\n";	
+	
+		if (i%5==0)
+			error->write(300+i*100);
 	}
 
 }

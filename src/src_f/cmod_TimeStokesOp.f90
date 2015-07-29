@@ -415,7 +415,7 @@ contains
      ! ------------------------!
         
     do t = SS(4), N(4) - 1 
-    do k = SW(3), NW(3)
+    do k = SW(3), NW(3) 
       do j = SV(2), NV(2)
         do i = SU(1), NU(1)
                         
@@ -428,12 +428,6 @@ contains
 
             ! diagonal: time derivative + diffusion 
 
-            !A(1,1) = mulI - mulL*(c11u(0,i) + c11p(0,i))
-            !A(2,2) = mulI - mulL*(c11u(0,i-1) + c11p(0,i-1))
-            !A(3,3) = mulI - mulL*(c22v(0,j) + c22p(0,j))
-            !A(4,4) = mulI - mulL*(c22v(0,j-1) + c22p(0,j-1))
-            !A(5,5) = mulI - mulL*(c33w(0,k) + c33p(0,k))
-            !A(6,6) = mulI - mulL*(c33w(0,k-1) + c33p(0,k-1))
             A(1,1) = mulI - mulL*( c11u(0,i  ) + c22p(0,j  ) + c33p(0,k  ) )
             A(2,2) = mulI - mulL*( c11u(0,i-1) + c22p(0,j-1) + c33p(0,k-1) )
             A(3,3) = mulI - mulL*( c11p(0,i  ) + c22v(0,j  ) + c33p(0,k  ) )
@@ -480,14 +474,14 @@ contains
             do l = 0,1
                do ll =0,1
                 
-                b(l+1+6*ll) = c22p(bU(1),i-l)*vel(i-l,j+1,k,1,t+ll) + c22p(bL(1),i-l)*vel(i-l,j-1,k,1,t+ll) + &
-                           c33p(bU(1),i-l)*vel(i-l,j,k+1,1,t+ll) + c33p(bL(1),i-l)*vel(i-l,j,k-1,1,t+ll) 
+                b(l+1+6*ll) = c22p(bU(1),j-l)*vel(i-l,j+1,k,1,t+ll) + c22p(bL(1),j-l)*vel(i-l,j-1,k,1,t+ll) + &
+                           c33p(bU(1),k-l)*vel(i-l,j,k+1,1,t+ll) + c33p(bL(1),k-l)*vel(i-l,j,k-1,1,t+ll) 
                         
-                b(l+3+6*ll) = c11p(bU(2),j-l)*vel(i+1,j-l,k,2,t+ll) + c11p(bL(2),j-l)*vel(i-1,j-l,k,2,t+ll) + &
-                           c33p(bU(2),j-l)*vel(i,j-l,k+1,2,t+ll) + c33p(bL(2),j-l)*vel(i,j-l,k-1,2,t+ll) 
+                b(l+3+6*ll) = c11p(bU(2),i-l)*vel(i+1,j-l,k,2,t+ll) + c11p(bL(2),i-l)*vel(i-1,j-l,k,2,t+ll) + &
+                           c33p(bU(2),k-l)*vel(i,j-l,k+1,2,t+ll) + c33p(bL(2),k-l)*vel(i,j-l,k-1,2,t+ll) 
 
-                b(l+5+6*ll) = c22p(bU(3),k-l)*vel(i,j+1,k-l,3,t+ll) + c22p(bL(3),k-l)*vel(i,j-1,k-l,3,t+ll) + &
-                           c11p(bU(3),k-l)*vel(i+1,j,k-l,3,t+ll) + c11p(bL(3),k-l)*vel(i-1,j,k-l,3,t+ll) 
+                b(l+5+6*ll) = c22p(bU(3),j-l)*vel(i,j+1,k-l,3,t+ll) + c22p(bL(3),j-l)*vel(i,j-1,k-l,3,t+ll) + &
+                           c11p(bU(3),i-l)*vel(i+1,j,k-l,3,t+ll) + c11p(bL(3),i-l)*vel(i-1,j,k-l,3,t+ll) 
                 end do
            end do
             
