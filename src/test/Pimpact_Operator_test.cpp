@@ -11,6 +11,7 @@
 
 #include "Pimpact_Fields.hpp"
 
+#include "Pimpact_TransferOp.hpp"
 #include "Pimpact_Operator.hpp"
 #include "Pimpact_OperatorBase.hpp"
 #include "Pimpact_OperatorFactory.hpp"

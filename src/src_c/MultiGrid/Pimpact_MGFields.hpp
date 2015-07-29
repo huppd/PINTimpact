@@ -43,20 +43,19 @@ protected:
 
 public:
 
-  MGFields( const Teuchos::RCP<const MGSpacesT>& mgSpaces,
-      EField type=EField::S  ):
-    mgSpaces_(mgSpaces),
-    fField_( Teuchos::rcp( new FFieldT( mgSpaces_->get(), type ) ) ),
-    cFields_( mgSpaces_->getNGrids() ) {
+	MGFields( const Teuchos::RCP<const MGSpacesT>& mgSpaces ):
+		mgSpaces_(mgSpaces),
+		fField_( Teuchos::rcp( new FFieldT( mgSpaces_->get() ) ) ),
+		cFields_( mgSpaces_->getNGrids() ) {
 
-    for( int i=0; i<mgSpaces_->getNGrids(); ++i )
-//			if( 0==i || mgSpaces_->participating(i-1) )
-				cFields_[i] = Teuchos::rcp( new CFieldT( mgSpaces_->get(i), type ) );
+			for( int i=0; i<mgSpaces_->getNGrids(); ++i )
+				//			if( 0==i || mgSpaces_->participating(i-1) )
+				cFields_[i] = Teuchos::rcp( new CFieldT( mgSpaces_->get(i) ) );
 
-	// not working on brutus
-    //cFields_.shrink_to_fit();
+			// not working on brutus
+			//cFields_.shrink_to_fit();
 
-  }
+	}
 
 public:
 
@@ -82,15 +81,9 @@ public:
 /// \relates MGFields
 template< template<class> class FieldT, class MGSpacesT >
 Teuchos::RCP< MGFields<MGSpacesT,FieldT> >
-createMGFields(
-    const Teuchos::RCP<const MGSpacesT>& mgSpaces,
-    EField type=EField::S ) {
+createMGFields( const Teuchos::RCP<const MGSpacesT>& mgSpaces ) {
 
-  return(
-      Teuchos::rcp(
-          new MGFields<MGSpacesT,FieldT>(
-              mgSpaces,
-              type ) ) );
+	return( Teuchos::rcp( new MGFields<MGSpacesT,FieldT>( mgSpaces ) ) );
 
 }
 

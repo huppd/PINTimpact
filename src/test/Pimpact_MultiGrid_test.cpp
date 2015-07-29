@@ -5,7 +5,6 @@
 
 #include "Pimpact_Fields.hpp"
 
-#include "Pimpact_VectorFieldOpWrap.hpp"
 #include "Pimpact_MultiGrid.hpp"
 #include "Pimpact_CoarsenStrategy.hpp"
 #include "Pimpact_CoarsenStrategyGlobal.hpp"

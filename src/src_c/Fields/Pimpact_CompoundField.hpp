@@ -251,6 +251,12 @@ public:
     sfield_->init(alpha);
   }
 
+	void initField() {
+    vfield_->initField();
+    sfield_->initField();
+
+	}
+
   void level() const {
     vfield_->level();
     sfield_->level();

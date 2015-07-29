@@ -19,23 +19,26 @@ namespace Pimpact {
 /// \brief Operator wrapper.
 /// \ingroup MultiHarmonicOperator
 /// wraps a \ref BaseOperator "base operator" and adds the functionality of handling \c MultiHarmonicField's.
-template<class Operator>
+template<class OpT>
 class MultiHarmonicOpWrap  {
 
 public:
 
-  typedef MultiHarmonicField<typename Operator::DomainFieldT> DomainFieldT;
-  typedef MultiHarmonicField<typename Operator::RangeFieldT> RangeFieldT;
+  typedef MultiHarmonicField<typename OpT::DomainFieldT> DomainFieldT;
+  typedef MultiHarmonicField<typename OpT::RangeFieldT> RangeFieldT;
 
   typedef typename DomainFieldT::SpaceT SpaceT;
 
 protected:
 
-  Teuchos::RCP<Operator> op_;
+  Teuchos::RCP<OpT> op_;
 
 public:
 
-  MultiHarmonicOpWrap( const Teuchos::RCP<Operator>& op ): op_(op) {};
+  MultiHarmonicOpWrap( const Teuchos::RCP<const SpaceT>& space ):
+		op_( create<OpT>(space) ) {};
+
+  MultiHarmonicOpWrap( const Teuchos::RCP<OpT>& op ): op_(op) {};
 
   void apply( const DomainFieldT& x,
       RangeFieldT& y,
@@ -63,7 +66,7 @@ public:
 		op_->setParameter( para );
 	}
 
-  Teuchos::RCP<Operator> getOperatorPtr() { return( op_ ); }
+  Teuchos::RCP<OpT> getOperatorPtr() { return( op_ ); }
 
 	const std::string getLabel() const { return( "MH_"+op_->getLabel() ); };
 
@@ -77,10 +80,10 @@ public:
 
 
 /// \relates MultiHarmonicOpWrap
-template<class Operator>
-Teuchos::RCP< MultiHarmonicOpWrap<Operator> >
-createMultiHarmonicOpWrap( const Teuchos::RCP<Operator>& op) {
-  return( Teuchos::rcp( new MultiHarmonicOpWrap<Operator>( op ) ) );
+template<class OpT>
+Teuchos::RCP< MultiHarmonicOpWrap<OpT> >
+createMultiHarmonicOpWrap( const Teuchos::RCP<OpT>& op) {
+  return( Teuchos::rcp( new MultiHarmonicOpWrap<OpT>( op ) ) );
 }
 
 

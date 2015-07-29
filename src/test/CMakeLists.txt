@@ -10,6 +10,7 @@ include_directories("../src_c/Operators/TimeOperators")
 include_directories("../src_c/BelosPimpact")
 include_directories("../src_c/NOXPimpact")
 include_directories("../src_c/MultiGrid")
+include_directories("../src_c/MultiGrid/Transfers")
 
 enable_testing()
 

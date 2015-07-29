@@ -77,8 +77,6 @@ public:
 
     TEUCHOS_TEST_FOR_EXCEPT( fType != y.getType() );
 
-//		std::cout << "ftype: " << ftype << "\n";
-
     for( int i=0; i<x.space()->dim(); ++i )
       TEUCHOS_TEST_FOR_EXCEPT( x.space()->nLoc(i) != y.space()->nLoc(i) );
 
@@ -118,10 +116,10 @@ public:
 } // end of namespace Pimpact
 
 
-#ifdef COMPILE_ETI
-extern template class Pimpact::TransferOp< Pimpact::Space<double,int,3,4>, Pimpact::Space<double,int,3,2> >;
-extern template class Pimpact::TransferOp< Pimpact::Space<double,int,4,4>, Pimpact::Space<double,int,4,2> >;
-#endif
+//#ifdef COMPILE_ETI
+//extern template class Pimpact::TransferOp< Pimpact::Space<double,int,3,4>, Pimpact::Space<double,int,3,2> >;
+//extern template class Pimpact::TransferOp< Pimpact::Space<double,int,4,4>, Pimpact::Space<double,int,4,2> >;
+//#endif
 
 
 #endif // end of #ifndef PIMPACT_TRANSFEROP_HPP

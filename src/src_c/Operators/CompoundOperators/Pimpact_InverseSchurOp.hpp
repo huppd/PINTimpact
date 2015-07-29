@@ -85,6 +85,7 @@ public:
   };
 
   void apply(const DomainFieldT& x, RangeFieldT& y ) const {
+
     //----full Schur complement
     // ~ H^{-1} f_u
     opV2V_->apply( *createMultiField( Teuchos::rcp_const_cast<VF>(x.getConstVFieldPtr()) ), *createMultiField(tempv_) ); // should be correct

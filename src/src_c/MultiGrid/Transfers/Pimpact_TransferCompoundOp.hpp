@@ -39,25 +39,33 @@ protected:
 public:
 
 	TransferCompoundOp(
-			const Teuchos::RCP<const SpaceT>& spaceC,
-			const Teuchos::RCP<const SpaceT>& spaceF ):
+			const Teuchos::RCP<const FSpaceT>& spaceC,
+			const Teuchos::RCP<const CSpaceT>& spaceF ):
 		opV_( Teuchos::rcp( new TransVT( spaceC, spaceF ) ) ),
 		opS_( Teuchos::rcp( new TransST( spaceC, spaceF ) ) ) {}
 
 	TransferCompoundOp(
-			const Teuchos::RCP<const SpaceT>& spaceC,
-			const Teuchos::RCP<const SpaceT>& spaceF,
+			const Teuchos::RCP<const FSpaceT>& spaceC,
+			const Teuchos::RCP<const CSpaceT>& spaceF,
 			const Teuchos::Tuple<int,SpaceT::dimension>& nb ):
 		opV_( Teuchos::rcp( new TransVT( spaceC, spaceF ) ) ),
 		opS_( Teuchos::rcp( new TransST( spaceC, spaceF ) ) ) {}
 
 
-	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
+	template<class DT, class RT>
+	void apply( const DT& x, RT& y ) const {
 
     opV_->apply( x.getConstVField(), y.getVField() );
     opS_->apply( x.getConstSField(), y.getSField() );
 
 	}
+
+//	void apply( const RangeFieldT& x, DomainFieldT& y ) const {
+//
+//    opV_->apply( x.getConstVField(), y.getVField() );
+//    opS_->apply( x.getConstSField(), y.getSField() );
+//
+//	}
 
 
   void print(  std::ostream& out=std::cout ) const {

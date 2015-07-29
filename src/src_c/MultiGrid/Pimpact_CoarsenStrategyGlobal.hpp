@@ -59,7 +59,7 @@ public:
 //      nGlo[i] = space->nGlo(i);
 
     bool coarsen_yes;
-		Teuchos::Tuple<bool,dimension> coarsen_dir;
+		Teuchos::Tuple<bool,4> coarsen_dir;
     TO NB;
     TO IB;
 
@@ -91,6 +91,13 @@ public:
             coarsen_dir[j] = true;
           }
       }
+			if( 3==dimension ) {
+				if( nGlo[3]>1 ) {
+					nGlo[3] = (nGlo[3]) - 1;
+					coarsen_yes = true;
+					coarsen_dir[3] = true;
+				}
+			}
 
 			if( coarsen_yes ) {
 				std::ofstream file;
@@ -127,7 +134,7 @@ protected:
   template<class SpaceT>
   static Teuchos::RCP< const SpaceT > createCoarseSpace(
       const Teuchos::RCP<const SpaceT>& space,
-      const Teuchos::Tuple<bool,dimension>& coarsen_dir,
+      const Teuchos::Tuple<bool,4>& coarsen_dir,
       const Teuchos::Tuple<Ordinal,4>& gridSizeGlobalTup,
 		 	TO& stride,
 			const TO& NB,

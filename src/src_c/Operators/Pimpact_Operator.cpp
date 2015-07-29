@@ -36,8 +36,8 @@ namespace Pimpact {
 	template class InterpolateV2S<double,int,3,4>;
 	template class InterpolateV2S<double,int,4,2>;
 	template class InterpolateV2S<double,int,4,4>;
-	template class TransferOp< Space<double,int,3,4>, Space<double,int,3,2> >;
-	template class TransferOp< Space<double,int,4,4>, Space<double,int,4,2> >;
+//	template class TransferOp< Space<double,int,3,4>, Space<double,int,3,2> >;
+//	template class TransferOp< Space<double,int,4,4>, Space<double,int,4,2> >;
 	template class ConvectionSOp< Space<double,int,3,2> >;
 	template class ConvectionSOp< Space<double,int,3,4> >;
 	template class ConvectionSOp< Space<double,int,4,2> >;

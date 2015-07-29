@@ -38,18 +38,20 @@ protected:
 public:
 
 	TransferMultiHarmonicOp(
-			const Teuchos::RCP<const SpaceT>& spaceC,
-			const Teuchos::RCP<const SpaceT>& spaceF ):
+			const Teuchos::RCP<const FSpaceT>& spaceC,
+			const Teuchos::RCP<const CSpaceT>& spaceF ):
 		op_( Teuchos::rcp( new InterT( spaceC, spaceF ) ) ) {}
 
 	TransferMultiHarmonicOp(
-			const Teuchos::RCP<const SpaceT>& spaceC,
-			const Teuchos::RCP<const SpaceT>& spaceF,
+			const Teuchos::RCP<const FSpaceT>& spaceC,
+			const Teuchos::RCP<const CSpaceT>& spaceF,
 			const Teuchos::Tuple<int,SpaceT::dimension>& nb ):
 		op_( Teuchos::rcp( new InterT( spaceC, spaceF, nb ) ) ) {}
 
 
-	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
+	
+	template<class DT, class RT>
+	void apply( const DT& x, RT& y ) const {
 
 
     op_->apply( x.getConst0Field(), y.get0Field() );

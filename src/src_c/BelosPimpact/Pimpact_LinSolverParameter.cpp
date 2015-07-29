@@ -75,6 +75,8 @@ Teuchos::RCP< Teuchos::ParameterList > Pimpact::createLinSolverParameter(
   }
   else if( solver_name=="TFQMR" ) {
   }
+  else if( solver_name=="Fixed Point" ) {
+  }
   else if( solver_name=="Pseudo Block TFQMR" ) {
     parameter_->set( "Block Size", 2);
   }

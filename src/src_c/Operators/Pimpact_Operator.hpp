@@ -30,7 +30,7 @@
 #include "Pimpact_HelmholtzOp.hpp"
 #include "Pimpact_InterpolateS2VOp.hpp"
 #include "Pimpact_InterpolateV2SOp.hpp"
-#include "Pimpact_TransferOp.hpp"
+//#include "Pimpact_TransferOp.hpp"
 #include "Pimpact_ConvectionSOp.hpp"
 #include "Pimpact_ConvectionDiffusionSOp.hpp"
 #include "Pimpact_ConvectionDiffusionJSmoother.hpp"
@@ -38,7 +38,7 @@
 #include "Pimpact_NonlinearOp.hpp"
 #include "Pimpact_NonlinearSmoother.hpp"
 #include "Pimpact_NonlinearVWrap.hpp"
-#include "Pimpact_VectorFieldOpWrap.hpp"
+//#include "Pimpact_VectorFieldOpWrap.hpp"
 
 
 

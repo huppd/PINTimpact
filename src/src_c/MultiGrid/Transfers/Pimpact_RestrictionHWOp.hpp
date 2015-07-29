@@ -141,10 +141,12 @@ void MG_RestrictGather(
 
 
 
-template<class SpaceT>
+template<class ST>
 class RestrictionHWOp {
 
 public:
+
+  typedef ST SpaceT;
 
   typedef typename SpaceT::Scalar Scalar;
   typedef typename SpaceT::Ordinal Ordinal;
@@ -152,10 +154,10 @@ public:
   typedef SpaceT FSpaceT;
   typedef SpaceT CSpaceT;
 
-protected:
-
   typedef ScalarField<SpaceT>  DomainFieldT;
   typedef ScalarField<SpaceT>  RangeFieldT;
+
+protected:
 
   Teuchos::RCP<const SpaceT> spaceF_;
   Teuchos::RCP<const SpaceT> spaceC_;

@@ -18,6 +18,10 @@ class CompoundOpWrap {
 
 public:
 
+	typedef OpV2V OpV2VT;
+	typedef OpS2V OpS2VT;
+	typedef OpV2S OpV2ST;
+
   typedef typename OpV2V::DomainFieldT  VF;
   typedef typename OpS2V::DomainFieldT  SF;
 
@@ -36,16 +40,20 @@ protected:
 
 public:
 
-  /// \todo constructor from space
-  CompoundOpWrap(
-      const Teuchos::RCP<OpV2V>& opV2V,
-      const Teuchos::RCP<OpS2V>& opS2V,
-      const Teuchos::RCP<OpV2S>& opV2S
-      ):
-        temp_( create<VF>(opV2V->space()) ),
-        opV2V_(opV2V),
-        opS2V_(opS2V),
-        opV2S_(opV2S) {};
+	CompoundOpWrap( const Teuchos::RCP<const SpaceT>& space ):
+		temp_(  create<VF   >(space) ),
+		opV2V_( create<OpV2V>(space) ),
+		opS2V_( create<OpS2V>(space) ),
+		opV2S_( create<OpV2S>(space) ) {};
+
+	CompoundOpWrap(
+			const Teuchos::RCP<OpV2V>& opV2V,
+			const Teuchos::RCP<OpS2V>& opS2V,
+			const Teuchos::RCP<OpV2S>& opV2S ):
+		temp_( create<VF>(opV2V->space()) ),
+		opV2V_(opV2V),
+		opS2V_(opS2V),
+		opV2S_(opV2S) {};
 
   void apply(const DomainFieldT& x, RangeFieldT& y,
       Belos::ETrans trans=Belos::NOTRANS  ) const {
@@ -65,7 +73,13 @@ public:
 
   };
 
+
 	Teuchos::RCP<const SpaceT> space() const { return(opV2V_->space()); };
+
+
+  Teuchos::RCP<OpV2V> getOpV2V() const { return( opV2V_ ); }
+  Teuchos::RCP<OpS2V> getOpS2V() const { return( opS2V_ ); }
+  Teuchos::RCP<OpV2S> getOpV2S() const { return( opV2S_ ); }
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
@@ -87,9 +101,9 @@ public:
 /// \relates CompoundOpWrap
 template< class OpV2V, class OpS2V, class OpV2S >
 Teuchos::RCP<CompoundOpWrap<OpV2V,OpS2V,OpV2S> > createCompoundOpWrap(
-    const Teuchos::RCP<OpV2V>& opV2V=Teuchos::null,
-    const Teuchos::RCP<OpS2V>& opS2V=Teuchos::null,
-    const Teuchos::RCP<OpV2S>& opV2S=Teuchos::null ) {
+    const Teuchos::RCP<OpV2V>& opV2V,
+    const Teuchos::RCP<OpS2V>& opS2V,
+    const Teuchos::RCP<OpV2S>& opV2S ) {
 
   return(
       Teuchos::rcp( new CompoundOpWrap<OpV2V,OpS2V,OpV2S>(opV2V,opS2V,opV2S) ) );

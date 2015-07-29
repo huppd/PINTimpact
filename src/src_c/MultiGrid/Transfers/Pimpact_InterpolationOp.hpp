@@ -152,6 +152,7 @@ protected:
   Teuchos::Tuple<Scalar*,3> cIS_;
   Teuchos::Tuple<Scalar*,3> cIV_;
 
+
 	void init( const Teuchos::Tuple<int,SpaceT::dimension>& nb ) {
 
 			// ------------- nGather_, iimax_

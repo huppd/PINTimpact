@@ -350,6 +350,12 @@ public:
     changed();
   }
 
+	void initField() {
+    for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
+      mfs_[i]->initField();
+    changed();
+	}
+
   void level() const {
     for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
       mfs_[i]->level();

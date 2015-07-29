@@ -78,19 +78,17 @@ public:
 
 	MultiGrid(
 			const Teuchos::RCP<const MGSpacesT>& mgSpaces,
-			const Teuchos::RCP<Teuchos::ParameterList>& pl,
-			EField type = EField::S ):
+			const Teuchos::RCP<Teuchos::ParameterList>& pl ):
 		numCycles_( pl->get<int>("numCycles",FSpaceT::dimNC-CSpaceT::dimNC+1) ),
 		mgSpaces_(mgSpaces),
 		mgTrans_( createMGTransfers<TransT,RestrT,InterT>(mgSpaces) ),
-		mgOps_( Pimpact::createMGOperators<FOperatorT,COperatorT>(mgSpaces) ),
-		mgSms_( Pimpact::createMGSmoothers<SmootherT>( mgOps_, Teuchos::rcpFromRef(pl->sublist("Smoother")) ) ),
-		x_( createMGFields<FieldT>(mgSpaces, type ) ),
-		temp_( createMGFields<FieldT>(mgSpaces, type ) ),
-		b_( createMGFields<FieldT>(mgSpaces, type ) ),
-		cGridSolver_( mgSpaces_->participating(-1)?create<CGridSolverT>( mgOps_->get(-1), Teuchos::rcpFromRef(pl->sublist("Coarse Grid Solver")) ):Teuchos::null ) {
-
-		}
+		mgOps_(   createMGOperators<FOperatorT,COperatorT>(mgSpaces) ),
+		mgSms_(   createMGSmoothers<SmootherT>( mgOps_, Teuchos::rcpFromRef(pl->sublist("Smoother")) ) ),
+		x_   ( createMGFields<FieldT>(mgSpaces) ),
+		temp_( createMGFields<FieldT>(mgSpaces) ),
+		b_   ( createMGFields<FieldT>(mgSpaces) ),
+		cGridSolver_(
+				mgSpaces_->participating(-1)?create<CGridSolverT>( mgOps_->get(-1), Teuchos::rcpFromRef(pl->sublist("Coarse Grid Solver")) ):Teuchos::null ) {}
 
 
 
@@ -233,13 +231,12 @@ template<
 Teuchos::RCP< MultiGrid<MGSpacesT,FieldT,TransT,RestrT,InterT,FOperatorT,COperatorT,SmootherT,CGridSolverT> >
 createMultiGrid(
     const Teuchos::RCP<const MGSpacesT>& mgSpaces,
-		const Teuchos::RCP<Teuchos::ParameterList>& pl=Teuchos::parameterList(),
-    EField type = EField::S  ) {
+		const Teuchos::RCP<Teuchos::ParameterList>& pl=Teuchos::parameterList() ) {
 
   return(
       Teuchos::rcp(
           new MultiGrid<MGSpacesT,FieldT,TransT,RestrT,InterT,FOperatorT,COperatorT,SmootherT,CGridSolverT>(
-              mgSpaces, pl, type)
+              mgSpaces, pl )
       )
   );
 
