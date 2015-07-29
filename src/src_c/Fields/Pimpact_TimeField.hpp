@@ -91,7 +91,7 @@ public:
 
     array_ = new Scalar[nx*nt];
 
-    for( int i=0; i<nx*nt; ++i )
+	 for( int i=0; i<nx*nt; ++i )
       array_[i] = 0.;
 
     for( int i=0; i<nt; ++i )
