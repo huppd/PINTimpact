@@ -77,8 +77,7 @@ protected:
 public:
 
   TimeField( Teuchos::RCP<const SpaceT> space, EField dummy=EField::S ):
-    AF( space ),
-    exchangedState_(true) {
+		AF( space ), exchangedState_(true) {
 
     Ordinal nt = space()->nLoc(3) + space()->bu(3) - space()->bl(3);
 
@@ -412,10 +411,14 @@ public:
 
       }
       else {
-        mfs_[space()->sInd(S,3)-1]->assign( *mfs_[space()->eInd(S,3)-1] );
-        mfs_[space()->sInd(S,3)-1]->changed();
-        mfs_[space()->eInd(S,3)]->assign( *mfs_[space()->sInd(S,3)] );
-        mfs_[space()->eInd(S,3)]->changed();
+				if( std::abs( space()->bl(3) )>0 ) {
+					mfs_[space()->sInd(S,3)-1]->assign( *mfs_[space()->eInd(S,3)-1] );
+					mfs_[space()->sInd(S,3)-1]->changed();
+				}
+				if( std::abs( space()->bu(3) )>0 ) {
+					mfs_[space()->eInd(S,3)]->assign( *mfs_[space()->sInd(S,3)] );
+					mfs_[space()->eInd(S,3)]->changed();
+				}
       }
     }
 

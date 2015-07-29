@@ -169,8 +169,8 @@ protected:
     if( 4==dimension ) {
       for( int i=0; i<3; ++i ) {
         sIndU_[i][3] = 0 - sW->getBL(3);
-//			 eIndU_[i][3] = nLoc->get(3) - sW->getBL(3);
-			 eIndU_[i][3] = nLoc->get(3) + sW->getBU(3) - sW->getBL(3) - sW->getBU(3);
+			 eIndU_[i][3] = nLoc->get(3) - sW->getBL(3);
+//			 eIndU_[i][3] = nLoc->get(3) + sW->getBU(3) - sW->getBL(3) - sW->getBU(3);
 
       }
     }
