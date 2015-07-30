@@ -45,10 +45,10 @@ extern "C" {
       const double* const cG3,                  
       const double& mulI,                 
       const double& mulL,                 
-      const double* const vel,                 
-      const double* const p,                   
-            double* const r_vel,                
-            double* const r_p );
+      const double* const rhs_vel,                 
+      const double* const rhs_p,                   
+            double* const vel,                
+            double* const p );
 
 }
 

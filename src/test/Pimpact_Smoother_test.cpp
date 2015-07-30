@@ -281,15 +281,12 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesBSmooth_conv ) {
 	x->random();
 	x->scale(10);
 
-        error->add( 1., *x, -1., *true_sol );
-        std::cout << "err: " << error->norm() << "\n";
-	
-	for (int i = 1; i < 100; i++){
+	for (int i = 1; i < 50; i++){
+                error->add( 1., *x, -1., *true_sol );
+                std::cout  << error->norm()/std::sqrt( error->getLength() ) << "\n";
 		bSmoother->apply(*y,*x);
-		error->add( 1., *x, -1., *true_sol );
-		std::cout << "err: " << error->norm() << "\n";	
 	
-		if (i%5==0)
+		if (i%5==0 &&  output)
 			error->write(300+i*100);
 	}
 
