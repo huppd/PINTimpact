@@ -103,11 +103,11 @@ TEUCHOS_STATIC_SETUP() {
 
   pl->set( "dim", dim );
 
-  pl->set("nx",  24 );
-  pl->set("ny",  24 );
-  pl->set("nz",  32 );
+  pl->set("nx",  33 );
+  pl->set("ny",  33 );
+  pl->set("nz",  33 );
 
-  pl->set("nf", 18 );
+  pl->set("nf", 32 );
 
 }
 
@@ -213,7 +213,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesBSmooth ) {
 		error->write(200);	
 	std::cout << "err: " << error->norm() << "\n";
 }
-/*
+
 TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesLSmooth ) {
 
         pl->set("npx", npx) ;
@@ -249,7 +249,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesLSmooth ) {
 
         TEST_EQUALITY( error()->norm()<eps, true );
 	}
-*/
+
 
 TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesBSmooth_conv ) {
 
@@ -290,6 +290,46 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesBSmooth_conv ) {
 			error->write(300+i*100);
 	}
 
+}
+
+TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesLSmooth_conv ) {
+
+        pl->set("npx", npx) ;
+        pl->set("npy", npy) ;
+        pl->set("npz", npz) ;
+        pl->set("npf", npf) ;
+
+        typedef Pimpact::TimeStokesOp<SpaceT> OpT;
+        auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+
+        auto op = Pimpact::create<OpT>( space );
+
+        auto lSmoother = Teuchos::rcp(new Pimpact::TimeStokesLSmoother<OpT>( op ));
+
+        auto x = Pimpact::createCompoundField( Pimpact::createTimeField< Pimpact::VectorField<SpaceT> >( space ),
+                        Pimpact::createTimeField< Pimpact::ScalarField<SpaceT> >( space ));
+        auto y = x->clone();
+        auto error = x->clone();
+        auto true_sol = x->clone();
+
+        double p = 1;
+        double alpha = std::sqrt(pl->get<double>("alpha2"));
+
+        Pimpact::initVectorTimeField( y->getVFieldPtr(), Pimpact::ConstVel_inX, p);
+
+        Pimpact::initVectorTimeField( true_sol->getVFieldPtr(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha );
+
+        x->random();
+        x->scale(10);
+
+        for (int i = 1; i < 50; i++){
+                error->add( 1., *x, -1., *true_sol );
+                std::cout  << error->norm()/std::sqrt( error->getLength() ) << "\n";
+                lSmoother->apply(*y,*x,2);
+
+                if (i%5==0 &&  output)
+                        error->write(300+i*100);
+        }
 }
 
 } // end of namespace

@@ -14,6 +14,8 @@ extern "C" {
       const int* const N,
       const int* const bl,
       const int* const bu,
+      const int* const BCL,
+      const int* const BCU,
       const int* const dl,
       const int* const du,
       const int* const gl,
@@ -68,12 +70,14 @@ public:
 protected:
 
   const Teuchos::RCP<const OperatorT> op_;
+  int numIters_;
 
 public:
 
   /// \todo constructor from space
-	TimeStokesLSmoother( const Teuchos::RCP<const OperatorT>& op ):
-		op_( op ) {};
+	TimeStokesLSmoother( const Teuchos::RCP<const OperatorT>& op, Teuchos::RCP<Teuchos::ParameterList> pl = Teuchos::parameterList() ):
+		op_( op ),
+		numIters_( pl->get<int>("numIters",4) ) {};
 
 	void apply(const DomainFieldT& x, RangeFieldT& y, const Ordinal L=1,
 			Belos::ETrans trans=Belos::NOTRANS  ) const {
@@ -82,7 +86,9 @@ public:
 		Scalar idt = ((Scalar)space()->nGlo()[3])/2./pi;
 		Scalar re = space()->getDomain()->getDomainSize()->getRe();
 		Scalar mulI = space()->getDomain()->getDomainSize()->getAlpha2()*idt/re;
-
+		
+		for( int iters=0; iters<numIters_; ++iters ) {
+		
 		auto xu = x.getConstVFieldPtr();
 		auto xp = x.getConstSFieldPtr();
 		auto yu = y.getVFieldPtr();
@@ -102,6 +108,8 @@ public:
 				space()->nLoc(),
 				space()->bl(),
 				space()->bu(),
+				space()->getDomain()->getBCLocal()->getBCL(),
+                                space()->getDomain()->getBCLocal()->getBCU(),
 				space()->dl(),
 				space()->du(),
 				space()->gl(),
@@ -141,6 +149,8 @@ public:
 
 		yu->changed();
 		yp->changed();
+
+		}
 	}
 
 	void assignField( const DomainFieldT& mv ) { };
