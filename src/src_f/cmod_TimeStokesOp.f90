@@ -311,6 +311,7 @@ contains
       dimens,               &
       N,                    &
       bL,bU,                &
+      BCL,BCU,              &
       dL,dU,                &
       gL,gU,                &
       SS,NN,                &
@@ -341,6 +342,9 @@ contains
 
     integer(c_int), intent(in)  :: bL(4)
     integer(c_int), intent(in)  :: bU(4)
+
+    integer(c_int), intent(in)  :: BCL(3)
+    integer(c_int), intent(in)  :: BCU(3)
 
     integer(c_int), intent(in)  :: dL(4)
     integer(c_int), intent(in)  :: dU(4)
@@ -413,6 +417,38 @@ contains
      !real(c_double) :: work(lwork)
 
      ! ------------------------!
+! this is bad
+do t = SS(4), N(4) - 1
+    do k = SS(3), NN(3)
+      do j = SS(2), NN(2)
+        do i = SS(1), NN(1)
+
+
+          
+    !    if (    (i==SU(1) .and. j==SV(2)) .or. &
+     !           (i==SU(1) .and. j==NV(2)) .or. & 
+      !          (i==SU(1) .and. k==SW(3)) .or. & 
+       !         (i==SU(1) .and. k==NW(3)) .or. & 
+        !        (i==NU(1) .and. j==SV(2)) .or. & 
+         !       (i==NU(1) .and. j==NV(2)) .or. & 
+          !      (i==NU(1) .and. k==SW(3)) .or. & 
+           !     (i==NU(1) .and. k==SW(3)) .or. & 
+            !    (j==SV(2) .and. k==SW(3)) .or. & 
+             !   (j==SV(2) .and. k==SW(3)) .or. &
+              !  (j==SV(2) .and. k==NW(3)) .or. &
+               ! (j==SV(2) .and. k==NW(3))  ) then
+        !if (i==SS(1) .or. i==NN(1) .or. j==SS(2) .or. j==NN(2) .or. k==SS(3) .or. k==NN(3)) then         
+                
+                p(i,j,k,t) = 0
+                ! this is not working. why?
+        !end if       
+
+   end do
+  end do
+ end do
+end do
+
+
         
     do t = SS(4), N(4) - 1 
     do k = SW(3), NW(3) 
@@ -571,12 +607,123 @@ contains
         vel(i,j,k,3,t+1) =  b(11)
         vel(i,j,k-1,3,t+1) =  b(12)
 
-        p(i,j,k,t) =  b(13)
-        p(i,j,k,t+1) =  b(14)
+        !p(i,j,k,t) =  b(13)
+        !p(i,j,k,t+1) =  b(14)
         
         end do
       end do
     end do
+
+go to 100
+    ! boundary pressure points
+       
+    ! in X direction
+        if (BCL(1) > 0) then
+                i = SS(1)
+                do k = SW(3), NW(3)
+                        do j = SV(2), NV(2)
+                            do ll = 0,1
+
+                                p(i,j,k,t+ll) =  ( rhs_vel(i,j,k,1,t+ll) - (   &
+                                                  cG1(gU(1),i)*p(i+1,j,k,t+ll) + mulI*(vel(i,j,k,1,t+ll) - vel(i,j,k,1,t-1+ll)) &
+                                                  - mulL*(vel(i,j,k,1,t+ll)*(c11u(0,i)+c22p(0,j)+c33p(0,k)) +            &
+                                                        c22p(bU(1),j)*vel(i,j+1,k,1,t+ll) + c22p(bL(1),j)*vel(i,j-1,k,1,t+ll) + &
+                                                        c33p(bU(1),k)*vel(i,j,k+1,1,t+ll) + c33p(bL(1),k)*vel(i,j,k-1,1,t+ll) + &
+                                                        c11u(bU(1),i)*vel(i+1,j,k,1,t+ll)))) /cG1(gL(1),i)
+                                end do
+                        end do
+                end do
+        end if
+
+        if (BCU(1) > 0) then
+                i = NN(1)
+                do k = SW(3), NW(3)
+                        do j = SV(2), NV(2)
+                            do ll = 0,1
+
+
+                                p(i,j,k,t+ll) =  ( rhs_vel(i-1,j,k,1,t+ll) - (  &
+                                                   cG1(gL(1),i-1)*p(i-1,j,k,t+ll) + mulI*(vel(i-1,j,k,1,t+ll) - vel(i-1,j,k,1,t-1+ll)) &
+                                                   - mulL*(vel(i-1,j,k,1,t+ll)*(c11u(0,i-1)+c22p(0,j) +c33p(0,k)) +            &
+                                                        c22p(bU(1),j)*vel(i-1,j+1,k,1,t+ll) + c22p(bL(1),j)*vel(i-1,j-1,k,1,t+ll) + &
+                                                        c33p(bU(1),k)*vel(i-1,j,k+1,1,t+ll) + c33p(bL(1),k)*vel(i-1,j,k-1,1,t+ll) + &
+                                                        c11u(bL(1),i-1)*vel(i-2,j,k,1,t+ll)))) /cG1(gU(1),i-1)
+                           end do
+                        end do
+                end do
+        end if
+    
+        ! in Y direction
+        if (BCL(2) > 0) then
+                j = SS(2)
+                do k = SW(3), NW(3)
+                        do i = SU(1), NU(1)
+                            do ll = 0,1
+
+                                p(i,j,k,t+ll) =  ( rhs_vel(i,j,k,2,t+ll) - ( &
+                                                   cG2(gU(2),j)*p(i,j+1,k,t+ll) + mulI*(vel(i,j,k,2,t+ll) - vel(i,j,k,2,t-1+ll)) &
+                                                   -mulL*(vel(i,j,k,2,t+ll)*(c11p(0,i)+c22v(0,j)+c33p(0,k)) +            &
+                                                        c11p(bU(2),i)*vel(i+1,j,k,2,t+ll) + c11p(bL(2),i)*vel(i-1,j,k,2,t+ll) + &
+                                                        c33p(bU(2),k)*vel(i,j,k+1,2,t+ll) + c33p(bL(2),k)*vel(i,j,k-1,2,t+ll) + &
+                                                        c22v(bU(2),j)*vel(i,j+1,k,2,t+ll)))) /cG2(gL(2),j)
+                            end do
+                        end do
+                end do
+        end if
+
+        if (BCU(2) > 0) then
+                j = NN(2)
+                do k = SW(3), NW(3)
+                        do i = SU(1), NU(1)
+                            do ll = 0,1
+
+                                p(i,j,k,t+ll) =  ( rhs_vel(i,j-1,k,2,t+ll) - ( &
+                                                   cG2(gL(2),j-1)*p(i,j-1,k,t+ll) + mulI*(vel(i,j-1,k,2,t+ll) - vel(i,j-1,k,2,t-1+ll)) &
+                                                   -mulL*(vel(i,j-1,k,2,t+ll)*(c11p(0,i)+c22v(0,j-1)+c33p(0,k))+            &
+                                                        c11p(bU(2),i)*vel(i+1,j-1,k,2,t+ll) + c11p(bL(2),i)*vel(i-1,j-1,k,2,t+ll) + &
+                                                        c33p(bU(2),k)*vel(i,j-1,k+1,2,t+ll) + c33p(bL(2),k)*vel(i,j-1,k-1,2,t+ll) + &
+                                                        c22v(bL(2),j-1)*vel(i,j-2,k,2,t+ll)))) /cG2(gU(2),j-1)
+                            end do
+                        end do
+                end do
+        end if
+   
+    ! in Z direction
+        if (BCL(3) > 0) then
+                k = SS(3)
+                do i = SU(1), NU(1)
+                        do j = SV(2), NV(2)
+                            do ll = 0,1
+
+                                p(i,j,k,t+ll) =  (rhs_vel(i,j,k,3,t+ll) - ( &
+                                                  cG3(gU(3),k)*p(i,j,k+1,t+ll) + mulI*(vel(i,j,k,3,t+ll) - vel(i,j,k,3,t-1+ll)) &
+                                                  -mulL*(vel(i,j,k,3,t+ll)*(c11p(0,i)+c22p(0,j)+c33w(0,k)) +            &
+                                                        c22p(bU(3),j)*vel(i,j+1,k,3,t+ll) + c22p(bL(3),j)*vel(i,j-1,k,3,t+ll) + &
+                                                        c11p(bU(3),i)*vel(i+1,j,k,3,t+ll) + c11p(bL(3),i)*vel(i-1,j,k,3,t+ll) + &
+                                                        c33w(bU(3),k)*vel(i,j,k+1,3,t+ll)))) /cG3(gL(3),k)
+                                end do
+                        end do
+                end do
+        end if
+        
+        if (BCU(3) > 0) then
+                k = NN(3)
+                do i = SU(1), NU(1)
+                        do j = SV(2), NV(2)
+                            do ll = 0,1
+
+                                
+                                p(i,j,k,t+ll) =  (rhs_vel(i,j,k-1,3,t+ll) - ( &
+                                                  cG3(gL(3),k-1)*p(i,j,k-1,t+ll) + mulI*(vel(i,j,k-1,3,t+ll) - vel(i,j,k-1,3,t-1+ll)) &
+                                                  -mulL*(vel(i,j,k-1,3,t+ll)*(c11p(0,i)+c22p(0,j)+c33w(0,k-1)) +            &
+                                                        c22p(bU(3),j)*vel(i,j+1,k-1,3,t+ll) + c22p(bL(3),j)*vel(i,j-1,k-1,3,t+ll) + &
+                                                        c11p(bU(3),i)*vel(i+1,j,k-1,3,t+ll)+ c11p(bL(3),i)*vel(i-1,j,k-1,3,t+ll) + &
+                                                        c33w(bL(3),k-1)*vel(i,j,k-2,3,t+ll)))) / cG3(gU(3),k-1)
+                            end do
+                        end do
+                end do
+        end if
+100 continue
     end do
 
   end subroutine OP_TimeStokesBSmoother
