@@ -33,7 +33,6 @@ public:
 protected:
 
   Teuchos::RCP<VF> tempv_;
-  Teuchos::RCP<SF> temps_;
 
   Teuchos::RCP<OpV2V> opV2V_;
   Teuchos::RCP<OpS2V> opS2V_;
@@ -46,22 +45,21 @@ public:
 			const Teuchos::RCP<OpS2V>& opS2V,
 			const Teuchos::RCP<OpS2S>& opS2S ):
 		tempv_( create<VF>(opV2V->space()) ),
-		temps_( create<SF>(opV2V->space()) ),
 		opV2V_(opV2V),
 		opS2V_(opS2V),
 		opS2S_(opS2S) {};
 
 	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
-		// ~ (D H^{-1} G)^{-1} p = D H^{-1} f_u - f_p
-		temps_->add( -1., x.getConstSField(), 0., *temps_ );
-		opS2S_->apply( *temps_ ,  y.getSField() );
+		opS2S_->apply( x.getConstSField() ,  y.getSField() );
+		y.getSField().scale( -1. );
 
 		opS2V_->apply( y.getConstSField(), *tempv_ );
 
 		tempv_->add( -1., *tempv_, 1., x.getConstVField() );
 
 		opV2V_->apply( *tempv_, y.getVField() );
+//		opV2V_->apply( x.getConstVField(), y.getVField() );
 
 	}
 

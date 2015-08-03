@@ -89,7 +89,7 @@ public:
 
   Teuchos::RCP<MultiOperator> getOperatorPtr() { return( op_ ); }
 
-	const std::string getLabel() const { return( "MultiHarmonicMultiOpWrap" ); };
+	const std::string getLabel() const { return( "MH(M)_"+op_->getLabel() ); };
 
   void print( std::ostream& out=std::cout ) const {
 		out << getLabel() << ":\n";

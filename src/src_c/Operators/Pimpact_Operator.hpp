@@ -12,6 +12,7 @@
 #include "Pimpact_TripleCompositionOp.hpp"
 #include "Pimpact_InverseOperator.hpp"
 #include "Pimpact_InverseOp.hpp"
+#include "Pimpact_PrecInverseOp.hpp"
 #include "Pimpact_ForcingOp.hpp"
 
 

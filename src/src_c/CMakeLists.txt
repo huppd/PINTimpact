@@ -67,6 +67,9 @@ TARGET_LINK_LIBRARIES( peri_navier3D ${Pimpact_TPL_LIBRARIES} )
 add_executable( peri_navierSMG peri_navierSMG.cxx )
 TARGET_LINK_LIBRARIES( peri_navierSMG ${Pimpact_TPL_LIBRARIES} ) 
 
+add_executable( peri_navierXML peri_navierSMGXML.cxx )
+TARGET_LINK_LIBRARIES( peri_navierXML ${Pimpact_TPL_LIBRARIES} ) 
+
 add_executable( peri_navier4 peri_navier4.cxx )
 TARGET_LINK_LIBRARIES( peri_navier4 ${Pimpact_TPL_LIBRARIES} ) 
 

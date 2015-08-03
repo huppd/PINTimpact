@@ -51,56 +51,37 @@ public:
 
   void apply(const DomainFieldT& x, RangeFieldT& y, Belos::ETrans trans=Belos::NOTRANS) const {
 
-//		temp1_->init(0.);
-//		x.level();
-
     op3_->apply( x, *temp1_);
 
     op2_->apply( *temp1_, *temp2_ );
-
-//		y.init(0.);
-//		temp2_->level();
 
     op1_->apply( *temp2_, y );
 
   }
 
   /// \note here nothing happens, because it is assumed to be done somewhere else
-  void assignField( const RangeFieldT& field ) {
-//    if( !op1_.is_null() )
-//      op1_->assignField( field );
-//    if( !op2_.is_null() )
-//      op2_->assignField( field );
-//    if( !op2_.is_null() )
-//      op2_->assignField( field );
-  };
-//  void assignField( const DomainFieldT& field ) {
-//    if( !op1_.is_null() )
-//      op1_->assignField( field );
-//    if( !op2_.is_null() )
-//      op2_->assignField( field );
-//    if( !op2_.is_null() )
-//      op2_->assignField( field );
-//  };
+	void assignField( const RangeFieldT& field ) { };
 
 	Teuchos::RCP<const SpaceT> space() const { return(op1_->space()); };
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
-	 if( !op1_.is_null() ) op1_->setParameter( para );
-	 if( !op2_.is_null() ) op2_->setParameter( para );
-	 if( !op3_.is_null() ) op3_->setParameter( para );
+		if( !op1_.is_null() ) op1_->setParameter( para );
+		if( !op2_.is_null() ) op2_->setParameter( para );
+		if( !op3_.is_null() ) op3_->setParameter( para );
 	}
 
   bool hasApplyTranspose() const { return( op1_->hasApplyTranspose() && op2_->hasApplyTranspose() && op3_->hasApplyTranspose() ); }
 
-	const std::string getLabel() const { return( op1_->getLabel() + std::string("* ") + op2_->getLabel() + std::string("* ") + op3_->getLabel()   ); };
+	const std::string getLabel() const { return( std::string("( ") + op1_->getLabel() + std::string(" * ") + op2_->getLabel() + std::string(" * ") + op3_->getLabel() + std::string(" )")   ); };
+
 
   void print( std::ostream& out=std::cout ) const {
-		out << "TripleComposition:\n";
+		out << "TripleComposition: " << getLabel() << "\n";
 		op1_->print( out );
 		op2_->print( out );
 		op3_->print( out );
   }
+
 }; // end of class TripleCompositionOp
 
 

@@ -48,197 +48,6 @@
 
 
 
-/// \brief gets \c ParameterList from command Line
-template<class S, class O>
-Teuchos::RCP<Teuchos::ParameterList>
-getSpaceParametersFromCL( int argi, char** argv  )  {
-
-	Teuchos::CommandLineProcessor my_CLP;
-
-  std::string xmlFilename = "bla.xml";
-
-	// Space parameters
-  // physical constants
-	S re = 100.;
-
-	S alpha2 = 24.;
-
-  // domain type
-  int domain = 0;
-
-  // domain size
-  int dim = 3;
-  S lx = 8.;
-  S ly = 2.;
-  S lz = 4.;
-
-  // grid size
-	O nx = 129;
-	O ny = 33;
-	O nz = 65;
-	O nf = 2;
-
-	O nfs = 1;
-	O nfe = 1;
-
-  // processor grid size
-  O npx = 1;
-  O npy = 1;
-  O npz = 1.;
-  O npf = 1.;
-
-	// flow and forcing type
-  int baseflow = 1;
-  int flow = 0;
-  int forcing = 1;
-
-	// solver parameters
-  std::string nonLinSolName = "Newton";
-
-  std::string lineSearchName = "Backtrack";
-
-  std::string linSolName = "";
-
-  int withprec=2;
-  int withoutput=1;
-
-  int refinement=1;
-
-  int maxIter = 10;
-
-  int initZero = 0;
-
-  S tolBelos = 1.e-1;
-  S tolInnerBelos = 1.e-2;
-  S tolNOX   = 1.e-6;
-
-  // multi grid parameters
-  int maxGrids = 10;
-  int numCycles = 2;
-
-  my_CLP.setOption("filename", &xmlFilename, "file name of the input xml paramerterlist");
-  // Space parameters
-  my_CLP.setOption( "re", &re, "Reynolds number" );
-
-  my_CLP.setOption( "alpha2", &alpha2, "introduced frequency" );
-
-  my_CLP.setOption( "domain", &domain,
-      "Domain type: 0:all dirichlet, 1:dirichlet 2d channel, 2: periodic 2d channel" );
-
-  // domain size
-  my_CLP.setOption( "lx", &lx, "length in x-direction" );
-  my_CLP.setOption( "ly", &ly, "length in y-direction" );
-  my_CLP.setOption( "lz", &lz, "length in z-direction" );
-
-  my_CLP.setOption( "dim", &dim, "dimension of problem" );
-
-  // grid size
-  my_CLP.setOption( "nx", &nx, "amount of grid points in x-direction: a*2**q+1" );
-  my_CLP.setOption( "ny", &ny, "amount of grid points in y-direction: a*2**q+1" );
-  my_CLP.setOption( "nz", &nz, "amount of grid points in z-direction: a*2**q+1" );
-  my_CLP.setOption( "nf", &nf, "amount of grid points in f-direction" );
-
-  my_CLP.setOption( "nfs", &nfs, "start amount of grid points in f-direction" );
-  my_CLP.setOption( "nfe", &nfe, "end amount of grid points in f-direction" );
-
-  // processor grid size
-  my_CLP.setOption( "npx", &npx, "amount of processors in x-direction" );
-  my_CLP.setOption( "npy", &npy, "amount of processors in y-direction" );
-  my_CLP.setOption( "npz", &npz, "amount of processors in z-direction" );
-  my_CLP.setOption( "npf", &npf, "amount of processors in f-direction" );
-
-	// flow and forcint
-  my_CLP.setOption( "baseflow", &baseflow,
-      "Flow type" );
-  my_CLP.setOption( "flow", &flow,
-      "Flow type" );
-  my_CLP.setOption( "force", &forcing,
-      "forcing, ja?" );
-
-	// solver parameters
-  my_CLP.setOption("nonLinSolver", &nonLinSolName, "Newton");
-  my_CLP.setOption("linSearch", &lineSearchName, "Backtrack");
-  my_CLP.setOption("linSolver", &linSolName, "bla");
-  my_CLP.setOption("withprec", &withprec, "0: no preconditioner, 1: block triangular, 2: block triangular with inner MG multigrid, 3: block triangular with mg solver");
-  my_CLP.setOption("withoutput", &withoutput, "0: no preconditioner, 1: block triangular, 2: block triangular with inner MG multigrid, 3: block triangular with mg solver");
-  my_CLP.setOption("refinement", &refinement, "");
-  my_CLP.setOption("maxIter", &maxIter, "");
-  my_CLP.setOption("initZero", &initZero, "");
-  my_CLP.setOption("tolBelos", &tolBelos, "");
-  my_CLP.setOption("tolInnerBelos", &tolInnerBelos, "");
-  my_CLP.setOption("tolNOX", &tolNOX, "");
-
-	// multi grid parameters
-  my_CLP.setOption("maxGrids", &maxGrids, "");
-  my_CLP.setOption("numCycles", &numCycles, "");
-
-
-  my_CLP.recogniseAllOptions(true);
-  my_CLP.throwExceptions(true);
-
-  my_CLP.parse(argi,argv);
-
-
-	// Set all the valid parameters and their default values.
-	Teuchos::RCP<Teuchos::ParameterList> pl = Teuchos::parameterList("Pimpact");
-
-  pl->set("XML", xmlFilename );
-
-	// Space parameters
-	pl->sublist("Space").set<S>("Re", re, "Reynolds number");
-	pl->sublist("Space").set<S>("alpha2", alpha2,
-			"Womersley square \alpha^2");
-	// domain type
-	pl->sublist("Space").set<int>( "domain", domain,
-			"Domain type: 0:all dirichlet, 1:dirichlet 2d channel, 2: periodic 2d channel" );
-
-	// domain size
-	pl->sublist("Space").set<int>("dim", dim, "dimension of problem" );
-
-	pl->sublist("Space").set<S>( "lx", lx, "length in x-direction" );
-	pl->sublist("Space").set<S>( "ly", ly, "length in y-direction" );
-	pl->sublist("Space").set<S>( "lz", lz, "length in z-direction" );
-
-
-	// grid size
-	pl->sublist("Space").set<O>("nx", nx, "amount of grid points in x-direction: a*2**q+1" );
-	pl->sublist("Space").set<O>("ny", ny, "amount of grid points in y-direction: a*2**q+1" );
-	pl->sublist("Space").set<O>("nz", nz, "amount of grid points in z-direction: a*2**q+1" );
-	pl->sublist("Space").set<O>("nf", nf, "amount of grid points in f-direction" );
-
-	pl->sublist("Space").set<O>("nfs", nfs, "start amount of grid points in f-direction" );
-	pl->sublist("Space").set<O>("nfe", nfe, "end amount of grid points in f-direction" );
-
-	// processor grid size
-	pl->sublist("Space").set<O>("npx", npx, "amount of processors in x-direction" );
-	pl->sublist("Space").set<O>("npy", npy, "amount of processors in y-direction" );
-	pl->sublist("Space").set<O>("npz", npz, "amount of processors in z-direction" );
-	pl->sublist("Space").set<O>("npf", npf, "amount of processors in f-direction" );
-
-	// flow and forcint
-	pl->set<int>( "baseflow", baseflow, "Flow type: depending on main" );
-	pl->set<int>( "flow", flow, "Flow type: depending on main" );
-	pl->set<int>( "forcing", forcing, "forcing, ja?" );
-
-	// solver parameters
-  pl->sublist("Solver").set("nonLinSolver", nonLinSolName );
-  pl->sublist("Solver").set("linSearch", lineSearchName );
-  pl->sublist("Solver").set("linSolver", linSolName );
-  pl->sublist("Solver").set("withprec", withprec );
-  pl->sublist("Solver").set("withoutput", withoutput );
-  pl->sublist("Solver").set("refinement", refinement );
-  pl->sublist("Solver").set("maxIter", maxIter );
-  pl->sublist("Solver").set("initZero", initZero );
-  pl->sublist("Solver").set("tolBelos", tolBelos );
-  pl->sublist("Solver").set("tolInnerBelos", tolInnerBelos );
-  pl->sublist("Solver").set("tolNOX", tolNOX );
-
-	// Multi Grid parameters
-  pl->sublist("Multi Grid").set("maxGrids", maxGrids );
-  pl->sublist("Multi Grid").set("numCycles", numCycles );
-
-	return( pl );
-}
 
 
 
@@ -317,13 +126,17 @@ int main(int argi, char** argv ) {
   MPI_Init( &argi, &argv );
 
 	Teuchos::CommandLineProcessor my_CLP;
+
   std::string xmlFilename = "parameterIn.xml";
+  my_CLP.setOption("filename", &xmlFilename, "file name of the input xml paramerterlist");
 
-//	Teuchos::RCP<Teuchos::ParameterList> plup = getSpaceParametersFromCL<S,O>( argi, argv  ) ;
+  my_CLP.recogniseAllOptions(true);
+  my_CLP.throwExceptions(true);
 
-	auto plXML = plup->get<std::string>("XML");
+  my_CLP.parse(argi,argv);
 
-	auto pl = Teuchos::getParametersFromXmlFile( xmlFielname );
+
+	auto pl = Teuchos::getParametersFromXmlFile( xmlFilename );
 	pl->print();
 
 
@@ -331,8 +144,6 @@ int main(int argi, char** argv ) {
 	std::string nonLinSolName = pl->sublist("Solver").get<std::string>("nonLinSolver");
 	std::string lineSearchName = pl->sublist("Solver").get<std::string>( "linSearch" );
 
-	S tolNOX   = pl->sublist("Solver").get<S>("tolNOX");
-	int maxIter = pl->sublist("Solver").get<int>("maxIter");
 	int initZero = pl->sublist("Solver").get<int>("initZero");
 	S tolBelos = pl->sublist("Solver").get<S>("tolBelos");
 	S tolInnerBelos = pl->sublist("Solver").get<S>("tolInnerBelos");
@@ -349,22 +160,18 @@ int main(int argi, char** argv ) {
 	auto space = Pimpact::createSpace<S,O,3,4>( Teuchos::rcpFromRef( pl->sublist("Space", true) ) );
 
 
-//	int flow = pl->get<int>("flow");
-	int force = pl->get<int>("forcing");
 
 
 	/////////////////////////////////////////// end of set up parameters ///////////////////////////
 	///////////////////////////////////////////  set up initial stuff //////////////////////////////
 	
+	Pimpact::EVectorField baseflow = (Pimpact::EVectorField)pl->get<int>( "baseflow", 1 );
+	
 	// init vectors
 	auto x = Pimpact::create<MF>( space );
-//		Pimpact::createMultiField(
-//			Pimpact::createCompoundField(
-//				Pimpact::createMultiHarmonic< Pimpact::VectorField<SpaceT> >( space ),
-//				Pimpact::createMultiHarmonic< Pimpact::ScalarField<SpaceT> >( space )) );
 
 	// init Fields
-	x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->initField( Pimpact::EVectorField( pl->get<int>("baseflow") ), 1. );
+	x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->initField( baseflow, 1. );
 
 	if( 0==initZero )
 		x->init(0.);
@@ -388,12 +195,13 @@ int main(int argi, char** argv ) {
 			rl = std::to_string( (long long)refine ); // long long needed on brutus(intel)
 
 		auto fu   = x->clone( Pimpact::ShallowCopy );
-		if( 0==force )
+		if( 0==pl->get<int>("forcing", 1) )
 			fu->init( 0. );
 		else {
 //			S re = space->getDomain()->getDomainSize()->getRe();
-			fu->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->getFieldPtr(Pimpact::U)->initField( Pimpact::FPoint,  -2. );
-			fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->getFieldPtr(Pimpact::V)->initField( Pimpact::FPoint, pl->get<S>( "lambda", 1. ) );
+			fu->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->getFieldPtr(Pimpact::U)->initField(  Pimpact::FPoint, pl->get<S>( "lambda0x", -2. ) );
+			fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->getFieldPtr(Pimpact::V)->initField( Pimpact::FPoint, pl->get<S>( "lambdaCy",  1. ) );
+			fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->getFieldPtr(Pimpact::V)->initField( Pimpact::FPoint, pl->get<S>( "lambdaCy",  0. ) );
 			//		fu->getFieldPtr(0)->getVFieldPtr()->getSFieldPtr(0)->getFieldPtr(Pimpact::W)->initField( Pimpact::FPoint, 1. );
 		}
 		//	fu->getFieldPtr(0)->getVFieldPtr()->write( 700,true );
@@ -468,9 +276,25 @@ int main(int argi, char** argv ) {
 		/*** end of init preconditioner ****************************************************************************/
 
 
+
 		auto para = Pimpact::createLinSolverParameter( linSolName, tolBelos, 1, Pimpact::createOstream( "stats_linSolve"+rl+".txt",  space->rankST() ), 100, op->getLabel() );
 
-		para->set( "Num Blocks",         5   );
+    para->set( "Num Blocks",         10	  );
+    para->set( "Maximum Restarts",   100	);
+
+    para->set( "Block Size", 1);
+		para->set( "Adaptive Block Size", true );		
+
+    para->set( "Flexible Gmres", true );
+
+    para->set( "Implicit Residual Scaling",	"Norm of RHS" );
+    para->set( "Explicit Residual Scaling",	"Norm of RHS" );
+    para->set( "Orthogonalization",					"DGKS"        );
+
+		para->set( "Maximum Iterations",	  1000    );
+		para->set( "Convergence Tolerance",	1.e-1   );
+		para->set( "Timer Label",	          op->getLabel()   );
+		para->set( "Output Frequency",      -1     );
 
 		para->set( "Verbosity",	
 				Belos::Errors +
@@ -482,6 +306,8 @@ int main(int argi, char** argv ) {
 				Belos::Debug
 				);
 
+		pl->sublist("Belos Solver").get<std::string>("Solver name","Flexible GMRES");
+		pl->sublist("Belos Solver").set("Solver", para );
     auto lp_ = Pimpact::createLinearProblem<MF>( jop, x->clone(), fu->clone(), para, linSolName );
 		if( withprec ) lp_->setRightPrec( lprec );
 //		if( withprec ) lp_->setLeftPrec( lprec );
@@ -498,16 +324,14 @@ int main(int argi, char** argv ) {
 
     auto group = NOX::Pimpact::createGroup<Inter>( bla, inter, nx );
 
-    // Set up the status tests
-    auto statusTest = NOX::Pimpact::createStatusTest( maxIter, tolNOX, 1.e-16 );
+		auto statusTest =
+			NOX::StatusTest::buildStatusTests( pl->sublist("NOX Solver").sublist("Status Test"), NOX::Utils() );
 
-    // Create the list of solver parameters
-    auto solverParametersPtr =
-        NOX::Pimpact::createNOXSolverParameter( nonLinSolName, lineSearchName );
+
 
     // Create the solver
     Teuchos::RCP<NOX::Solver::Generic> solver =
-        NOX::Solver::buildSolver( group, statusTest, solverParametersPtr);
+        NOX::Solver::buildSolver( group, statusTest, Teuchos::rcpFromRef( pl->sublist("NOX Solver") ) );
 
 		if( 0==space->rankST() ) std::cout << "\n\t--- Nf: "<< space->nGlo(3) <<"\tdof: "<<x->getLength(true)<<"\t---\n";
 
@@ -552,7 +376,7 @@ int main(int argi, char** argv ) {
 			auto xf = Pimpact::create<CF>( spaceF );
 			// init Fields
 			//		boundaries
-			xf->getVFieldPtr()->get0FieldPtr()->initField( Pimpact::EVectorField(baseflow), 1. );
+			xf->getVFieldPtr()->get0FieldPtr()->initField( baseflow, 1. );
 			auto temp = Pimpact::create<CF>( spaceF );
 
 			refineOp->apply( x->getField(0), *temp );

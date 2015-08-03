@@ -69,7 +69,7 @@ public:
 
     pl->validateParametersAndSetDefaults( *getValidParameters() );
 
-    Teuchos::writeParameterListToXmlFile( *pl, "parameterOut.xml" );
+    Teuchos::writeParameterListToXmlFile( *pl, "parameterSpace.xml" );
 
     stencilWidths_ = Pimpact::createStencilWidths<dimension,dimNC>();
 

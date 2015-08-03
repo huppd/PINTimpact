@@ -52,7 +52,7 @@ int main( int argi, char** argv ) {
 
   S pi = (S)4. * std::atan( (S)1. ) ;
 
-	pl->set<S>( "Re", 10000 );
+	pl->set<S>( "Re", 1000 );
 //	pl->set<S>( "Re", 1000 );
 //	pl->set<S>( "Re", 100 );
 //	pl->set<S>( "Re", 10 );

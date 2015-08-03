@@ -1,6 +1,6 @@
 #pragma once
-#ifndef PIMPACT_MULTIOPWRAP_HPP
-#define PIMPACT_MULTIOPWRAP_HPP
+#ifndef PIMPACT_MultiOpSmoother_HPP
+#define PIMPACT_MultiOpSmoother_HPP
 
 
 #include "Teuchos_RCP.hpp"
@@ -19,7 +19,7 @@ namespace Pimpact {
 /// \ingroup MultiOperator
 /// wraps and \c Operator and adds the functionality of handling \c MultiField.
 template<class OT>
-class MultiOpWrap  {
+class MultiOpSmoother  {
 
 public:
 
@@ -36,11 +36,11 @@ protected:
 
 public:
 
-	MultiOpWrap( const Teuchos::RCP<OperatorT>& op ):op_(op) {}
+//	MultiOpSmoother( const Teuchos::RCP<OperatorT>& op ):op_(op) {}
 
-//	template<class IOperatorT>
-//	MultiOpWrap( const Teuchos::RCP< MultiOpWrap<IOperatorT> >& op ):
-//		op_( Teuchos::rcp( new OperatorT( op->getOperatorPtr() ) ) ) {}
+	template<class IOperatorT>
+	MultiOpSmoother( const Teuchos::RCP< MultiOpSmoother<IOperatorT> >& op ):
+		op_( Teuchos::rcp( new OperatorT( op->getOperatorPtr() ) ) ) {}
 
 
 	void apply( const DomainFieldT& x, RangeFieldT& y,
@@ -77,21 +77,21 @@ public:
     op_->print( out );
   }
 
-}; // end of class MultiOpWrap
+}; // end of class MultiOpSmoother
 
 
 
-/// \relates MultiOpWrap
-/// \deprecated use create<MultiOpWrap>( op ) instead
-template<class OperatorT>
-Teuchos::RCP< MultiOpWrap<OperatorT> > createMultiOpWrap( const Teuchos::RCP<OperatorT>& op ) {
-
-	 return( Teuchos::rcp( new MultiOpWrap<OperatorT>( op ) ) );
-
-}
+///// \relates MultiOpSmoother
+///// \deprecated use create<MultiOpSmoother>( op ) instead
+//template<class OperatorT>
+//Teuchos::RCP< MultiOpSmoother<OperatorT> > createMultiOpSmoother( const Teuchos::RCP<OperatorT>& op ) {
+//
+//	 return( Teuchos::rcp( new MultiOpSmoother<OperatorT>( op ) ) );
+//
+//}
 
 
 } // end of namespace Pimpact
 
 
-#endif // end of #ifndef PIMPACT_MULTIOPWRAP_HPP
+#endif // end of #ifndef PIMPACT_MultiOpSmoother_HPP

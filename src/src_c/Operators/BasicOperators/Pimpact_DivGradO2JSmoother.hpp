@@ -57,6 +57,7 @@ protected:
 
   Scalar omega_;
   int nIter_;
+	bool levelYes_;
 
 
   Teuchos::RCP<DomainFieldT> temp_;
@@ -69,7 +70,8 @@ public:
       const Teuchos::RCP<const OperatorT>& op,
       Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ):
     omega_( pl->get<Scalar>("omega", (2==op->space()->dim())?0.8:6./7. ) ),
-    nIter_( pl->get<int>("numIters",3) ),
+    nIter_( pl->get<int>( "numIters", 2 ) ),
+    levelYes_( pl->get<bool>( "level", false ) ),
     temp_( createScalarField<SpaceT>( op->space() ) ),
     op_(op) {}
 
@@ -132,6 +134,8 @@ public:
 
 			y.changed();
 		}
+		if( levelYes_ )
+			y.level();
 
 	}
 
