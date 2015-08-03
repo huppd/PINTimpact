@@ -55,14 +55,13 @@ public:
 		for( Ordinal i=spaceC()->sInd(S,3); i <= spaceC()->eInd(S,3); ++i ) { 
 			Ordinal iF = d*( i-spaceC()->sInd(S,3) ) + spaceF()->sInd(S,3);
 			op_->apply( x.getConstField( i ), y.getField( iF ) );
-			
 			if (spaceC()->nLoc(3)==1 && d>1) 
 				op_->apply( x.getConstField(1), y.getField(2) );
 		}
 
 		if (d > 1 && spaceC()->nLoc(3)>1) { 
 
-			for( int i=spaceF()->sInd(S,3) + 1; i < spaceF()->eInd(S,3) ; i=i+2 ) {
+			for( int i=spaceF()->sInd(S,3) + 1; i < spaceF()->eInd(S,3) ; i=i+d ) {
 				y.getFieldPtr(i)->add( 0.5, y.getField(i-1), 0.5, y.getField(i+1) ); 
 			}		
 		}

@@ -421,19 +421,19 @@ contains
     omega = 0.7
 
  !pressure DR BC   
-  !do t = SS(4), N(4) 
-  !  do k = SS(3), NN(3)
-   !   do j = SS(2), NN(2)
-    !    do i = SS(1), NN(1)
+!  do t = SS(4), N(4) 
+ !   do k = SS(3), NN(3)
+  !    do j = SS(2), NN(2)
+   !     do i = SS(1), NN(1)
 
-     !   if (i==SS(1) .or. i==NN(1) .or. j==SS(2) .or. j==NN(2) .or. k==SS(3) .or. k==NN(3)) then         
-                p(i,j,k,t) = 0
-      !  end if
+!        if (i==SS(1) .or. i==NN(1) .or. j==SS(2) .or. j==NN(2) .or. k==SS(3) .or. k==NN(3)) then         
+    !            p(i,j,k,t) = 0
+ !       end if
 
 
-       ! end do
+     !   end do
      !end do 
-   !end do
+ !  end do
 !end do
 
  
