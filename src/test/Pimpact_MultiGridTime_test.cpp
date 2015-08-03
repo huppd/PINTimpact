@@ -29,7 +29,7 @@ typedef double S;
 typedef int O;
 
 typedef Pimpact::Space<S,O,3,4> FSpace3T;
-typedef Pimpact::Space<S,O,4,4> FSpace4T; 
+typedef Pimpact::Space<S,O,4,2> FSpace4T; 
 
 typedef Pimpact::Space<S,O,3,2> CSpace3T;
 typedef Pimpact::Space<S,O,4,2> CSpace4T; 
@@ -332,7 +332,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGOperators, VF_constructor4D, CS ) {
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGOperators, VF_constructor4D, CS4L )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGOperators, VF_constructor4D, CS4G )
 */
-
+/*
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Restrictor4D, CS ) {
 
 	//  grid size
@@ -573,7 +573,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator4D, CS ) {
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, Interpolator4D, CS4L )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, Interpolator4D, CS4G )
-
+*/
 
 template<class SpaceT> using CVF = Pimpact::CompoundField<Pimpact::TimeField<Pimpact::VectorField<SpaceT> >,
 		              			          Pimpact::TimeField<Pimpact::ScalarField<SpaceT> > >;
@@ -604,9 +604,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-	auto space = Pimpact::createSpace<S,O,4,4>( pl ); 
+	auto space = Pimpact::createSpace<S,O,4,2>( pl ); 
 
-	auto mgSpaces = Pimpact::createMGSpaces<FSpace4T,CSpace4T,CS>( space, maxGrids );
+	auto mgSpaces = Pimpact::createMGSpaces<CSpace4T,FSpace4T,CS>( space, maxGrids );
 
 
 	auto mgPL = Teuchos::parameterList();
