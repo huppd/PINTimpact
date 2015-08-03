@@ -610,7 +610,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 
 
 	auto mgPL = Teuchos::parameterList();
-	mgPL->sublist("Smoother").set<int>( "numIters", 4 );
+	mgPL->sublist("Smoother").set<std::string>("Solver name", "GMRES" );
+	mgPL->sublist("Smoother").set( "Solver",
+			*Pimpact::createLinSolverParameter( "GMRES", 1.e-16, -1,
+				Teuchos::rcp<std::ostream>( new Teuchos::oblackholestream() ), 4 ) );
+	
+//	mgPL->sublist("Smoother").set<int>( "numIters", 4 );
 	//mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<int>( "Maximum Iterations", 1000 );
 	//mgPL->sublist("Coarse Grid Solver").set<std::string>("Solver name", "GMRES" );
 	//mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<std::string>("Timer Label", "Coarse Grid Solver" );

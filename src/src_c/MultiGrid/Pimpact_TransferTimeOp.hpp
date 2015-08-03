@@ -39,14 +39,8 @@ public:
 		opV_( Teuchos::rcp( new TransVT( spaceC, spaceF ) ) ) {}
 
 
-	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
-
-		for (int i=x.space()->sInd(S,3); i<x.space()->eInd(S,3); ++i)
-	   		 opV_->apply( x.getConstField(i), y.getField(i) );
-
-	}
-
-	void apply( const RangeFieldT& x, DomainFieldT& y ) const {
+	template< class DT, class RT>
+	void apply( const DT& x, RT& y ) const {
 
 		for (int i=x.space()->sInd(S,3); i<x.space()->eInd(S,3); ++i)
 	   		 opV_->apply( x.getConstField(i), y.getField(i) );
