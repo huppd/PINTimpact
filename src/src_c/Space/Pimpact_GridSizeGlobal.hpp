@@ -42,7 +42,10 @@ protected:
   TO gridSize_;
 
   GridSizeGlobal( const TO& gridSize ):
-    gridSize_( gridSize ) {};
+    gridSize_( gridSize ) {
+			for( int i=0; i<3; ++i )
+				 TEUCHOS_TEST_FOR_EXCEPT( (gridSize[i]-1)%2 != 0 );
+		};
 
 public:
 

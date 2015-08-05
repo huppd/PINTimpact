@@ -340,7 +340,7 @@ public:
       Teuchos::RCP<Teuchos::ParameterList> pl = Teuchos::parameterList("Space");
       pl->set<S>("Re", 1., "Reynolds number");
       pl->set<S>("alpha2", 1.,
-          "Womersley square \alpha^2");
+          "Womersley square alpha^2");
       // domain type
       pl->set<int>( "domain", 2,
           "Domain type: 0:all dirichlet, 1:dirichlet 2d channel, 2: periodic 2d channel" );
