@@ -334,7 +334,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesLSmooth_conv ) {
         }
 }
     
-    TEUCHOS_UNIT_TEST( TimeOperator, TimeNBSmooth_conv ) {
+    TEUCHOS_UNIT_TEST( TimeOperator, TimeNSBSmooth_conv ) {
         
         pl->set("npx", npx) ;
         pl->set("npy", npy) ;
@@ -346,7 +346,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesLSmooth_conv ) {
         
         auto op = Pimpact::create<OpT>( space );
         
-        auto bSmoother = Teuchos::rcp(new Pimpact::TimeNSBSmoother<OpT>( op ));
+	auto bSmoother = Teuchos::rcp(new Pimpact::TimeNSBSmoother<OpT>( op ));
         
         auto x = Pimpact::createCompoundField( Pimpact::createTimeField< Pimpact::VectorField<SpaceT> >( space ),
                                               Pimpact::createTimeField< Pimpact::ScalarField<SpaceT> >( space ));
@@ -369,10 +369,9 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesLSmooth_conv ) {
             std::cout  << error->norm()/std::sqrt( error->getLength() ) << "\n";
             bSmoother->apply(*y,*x);
             
-            if (i%5==0 &&  output)
+            //if (i%5==0 &&  output)
             //error->write(300+i*100);
         }
-        
     }
 
 } // end of namespace

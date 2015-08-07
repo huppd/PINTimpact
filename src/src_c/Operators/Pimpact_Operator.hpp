@@ -76,7 +76,8 @@
 #include "Pimpact_TimeStokesOp.hpp"
 #include "Pimpact_TimeStokesBSmoother.hpp"
 #include "Pimpact_TimeStokesLSmoother.hpp"
-
+#include "Pimpact_TimeNSOp.hpp"
+#include "Pimpact_TimeNSBSmoother.hpp"
 
 /// \defgroup MultiHarmonicOperator Multi-harmonic Operator
 /// \ingroup Operator

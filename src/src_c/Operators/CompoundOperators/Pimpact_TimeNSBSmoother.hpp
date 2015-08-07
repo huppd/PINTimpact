@@ -15,6 +15,8 @@ extern "C" {
       const int* const N,
       const int* const bl,
       const int* const bu,
+      const int* const cl,
+      const int* const cu,
       //const int* const BCL,
       //const int* const BCU,
       const int* const dl,
@@ -66,7 +68,7 @@ extern "C" {
 ///
 // \f[ \begin{bmatrix} opV2V & opS2V \\ opV2S & 0 \end{bmatrix} \mathbf{x} = \mathbf{y} \f]
 template<class OperatorT>
-class TimeNBSmoother {
+class TimeNSBSmoother {
 
 public:
 
@@ -87,7 +89,7 @@ protected:
 public:
 
   /// \todo constructor from space
-	TimeNBSmoother( const Teuchos::RCP<const OperatorT>& op , Teuchos::RCP<Teuchos::ParameterList> pl = Teuchos::parameterList()):
+	TimeNSBSmoother( const Teuchos::RCP<const OperatorT>& op , Teuchos::RCP<Teuchos::ParameterList> pl = Teuchos::parameterList()):
 		op_( op ),
 		numIters_( pl->get<int>("numIters",4) )	{};
 
@@ -114,11 +116,13 @@ public:
 				xp->getConstFieldPtr(i)->exchange();
 			}
 
-			OP_TimeNBSmoother(
+			OP_TimeNSBSmoother(
 					space()->dim(),
 					space()->nLoc(),
 					space()->bl(),
 					space()->bu(),
+					space()->nl(),
+					space()->nu(),
                     //space()->getDomain()->getBCLocal()->getBCL(),
                     //space()->getDomain()->getBCLocal()->getBCU(),
 					space()->dl(),
@@ -133,18 +137,18 @@ public:
 					space()->eInd(V),
 					space()->sInd(W),
 					space()->eInd(W),
-                      op_->getConvOp()->getCD(X,U),
-                      op_->getConvOp()>getCD(Y,V),
-                      op_->getConvOp()->getCD(Z,W),
-                      op_->getConvOp()>getCU(X,U),
-                      op_->getConvOp()->getCU(Y,V),
-                      op_->getConvOp()->getCU(Z,W),
-                      op_->getConvOp()->getCD(X,S),
-                      op_->getConvOp()->getCD(Y,S),
-                      op_->getConvOp()->getCD(Z,S),
-                      op_->getConvOp()->getCU(X,S),
-                      op_->getConvOp()->getCU(Y,S),
-                      op_->getConvOp()->getCU(Z,S),
+                      			op_->getConvOp()->getCD(X,U),
+                      			op_->getConvOp()->getCD(Y,V),
+                      			op_->getConvOp()->getCD(Z,W),
+                      			op_->getConvOp()->getCU(X,U),
+                      			op_->getConvOp()->getCU(Y,V),
+                      			op_->getConvOp()->getCU(Z,W),
+                      			op_->getConvOp()->getCD(X,S),
+                      			op_->getConvOp()->getCD(Y,S),
+                      			op_->getConvOp()->getCD(Z,S),
+                      			op_->getConvOp()->getCU(X,S),
+                      			op_->getConvOp()->getCU(Y,S),
+                      			op_->getConvOp()->getCU(Z,S),
 					op_->getHelmholtzOp()->getC(X,S),
 					op_->getHelmholtzOp()->getC(Y,S),
 					op_->getHelmholtzOp()->getC(Z,S),
@@ -158,7 +162,10 @@ public:
 					op_->getGradOp()->getC(Y),
 					op_->getGradOp()->getC(Z),
 					mulI,                 
-					1./re,                 
+					1./re,  
+					windU_->getConstRawPtr(),
+					windV_->getConstRawPtr(),
+					windW_->getConstRawPtr(),               
 					xu->getConstRawPtr(),
 					xp->getConstRawPtr(),
 					yu->getRawPtr(),
@@ -182,7 +189,7 @@ public:
 
     bool hasApplyTranspose() const { return( false ); }
 
-	const std::string getLabel() const { return( "TimeNBSmoother " ); };
+	const std::string getLabel() const { return( "TimeNSBSmoother " ); };
 
 }; // end of class TimeNSBSmoother
 

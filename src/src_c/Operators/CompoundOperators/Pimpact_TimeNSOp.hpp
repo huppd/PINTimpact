@@ -229,7 +229,7 @@ public:
     Teuchos::RCP<const HelmholtzOp<ST> > getHelmholtzOp() const { return( helm_ ); }
     Teuchos::RCP<const GradOp<ST> > getGradOp() const { return( grad_ ); }
     Teuchos::RCP<const DivOp<ST> > getDivOp() const { return( div_ ); }
-    Teuchos::RCP<const DivOp<ST> > getConvOp() const { return( conv_ ); }
+    Teuchos::RCP<const ConvectionSOp<ST> > getConvOp() const { return( conv_ ); }
 
 	const std::string getLabel() const { return( "TimeNSOp" ); };
 

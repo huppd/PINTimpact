@@ -570,9 +570,9 @@ subroutine OP_TimeNSBSmoother(  &
 
     real(c_double), intent(out) :: rhs_p  ( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)),      0:(N(4)+bU(4)-bL(4)) )
 
-    integer(c_int)              ::  i, ii
-    integer(c_int)              ::  j, jj
-    integer(c_int)              ::  k, kk
+    integer(c_int)              ::  i
+    integer(c_int)              ::  j
+    integer(c_int)              ::  k
     integer(c_int)              ::  t
 
     !===========================================================================================================
@@ -580,7 +580,6 @@ subroutine OP_TimeNSBSmoother(  &
 
     integer (c_int), parameter :: block_size = 7
     integer(c_int)             :: l
-    integer(c_int)             :: ll
     integer(c_int)             :: ipiv(block_size)
 
     real (c_double) omega
@@ -632,17 +631,18 @@ do t = SS(4), N(4)
                 A(5,6) = - mulL*c33w(bL(3),k)
                 A(6,5) = - mulL*c33w(bU(3),k-1)
 
+
                 ! convection
                 ! ------------------ u -------------------
                 ! u*d/dx
                 if( windU(i,j,k,1,t) >= 0. ) then
-                    A(1,1) = A(1,1) + windU(i,j,k,1,t)*c1uU(0,i)
-                    A(1,2) = A(1,2) + windU(i,j,k,1,t)*c1uU(cL(1),i)
-                else
-                    A(1,1) = A(1,1) + windU(i,j,k,1,t)*c1uD(0,i)
-                    b(1) = b(1) + windU(i,j,k,1,t)*c1uD(cU(1),i)*vel(i+1,j,k,1,t)
+                !    A(1,1) = A(1,1) + windU(i,j,k,1,t)*c1uU(0,i)
+                 !   A(1,2) = A(1,2) + windU(i,j,k,1,t)*c1uU(cL(1),i)
+                !else
+                !    A(1,1) = A(1,1) + windU(i,j,k,1,t)*c1uD(0,i)
+                !    b(1) = b(1) + windU(i,j,k,1,t)*c1uD(cU(1),i)*vel(i+1,j,k,1,t)
                 end if
-                ! v*d/dy
+        go to 100        ! v*d/dy
                 if( windV(i,j,k,1,t) >= 0. ) then
                     A(1,1) = A(1,1) + windV(i,j,k,1,t)*c2pU(0,j)
                     b(1) = b(1) + windV(i,j,k,1,t)*c2pU(cL(2),j)*vel(i,j-1,k,1,t)
@@ -658,7 +658,6 @@ do t = SS(4), N(4)
                     A(1,1) = A(1,1) + windW(i,j,k,1,t)*c3pD(0,k)
                     b(1) = b(1) + windW(i,j,k,1,t)*c3pD(cU(3),k)*vel(i,j,k+1,1,t)
                 end if
-
                 ! u*d/dx
                 if( windU(i-1,j,k,1,t) >= 0. ) then
                     A(2,2) = A(2,2) + windU(i-1,j,k,1,t)*c1uU(0,i-1)
@@ -787,9 +786,8 @@ do t = SS(4), N(4)
                     A(6,6) = A(6,6) + windW(i,j,k-1,3,t)*c3wD(0,k-1)
                     A(6,5) = A(6,5) + windW(i,j,k-1,3,t)*c3wD(cU(3),k-1)
                 end if
-
+100 continue
                 !---------- end of convection ---------------
-
                 ! pressure gradient
                 A(1:6,7) = (/ cG1(gL(1),i), cG1(gU(1),i-1), cG2(gL(2),j),cG2(gU(2),j-1), cG3(gL(3),k), cG3(gU(3),k-1) /)
 
@@ -799,8 +797,6 @@ do t = SS(4), N(4)
                 !===================================================
                 !========== assembling the RHS =====================
                 !===================================================
-
-                ! boundary term ! b has ti be in the form b = b + ... TODO!
 
                 ! diffusion
                 do l = 0,1
@@ -883,7 +879,7 @@ do t = SS(4), N(4)
                 vel(i,j,k,3,t) =  b(5)*omega + (1-omega)*vel(i,j,k,3,t)
                 vel(i,j,k-1,3,t) =  b(6)*omega + (1-omega)*vel(i,j,k-1,3,t)
 
-                p(i,j,k,t) =  b(13)*omega + (1-omega)*p(i,j,k,t)
+                p(i,j,k,t) =  b(7)*omega + (1-omega)*p(i,j,k,t)
 
 
             end do

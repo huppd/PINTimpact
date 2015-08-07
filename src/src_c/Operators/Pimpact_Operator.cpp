@@ -71,8 +71,12 @@ namespace Pimpact {
 
 template class Pimpact::TimeStokesOp< Pimpact::Space<double,int,4,2> >;
 template class Pimpact::TimeStokesOp< Pimpact::Space<double,int,4,4> >;
+template class Pimpact::TimeNSOp< Pimpact::Space<double,int,4,2> >;
+template class Pimpact::TimeNSOp< Pimpact::Space<double,int,4,4> >;
 template class Pimpact::TimeStokesBSmoother< Pimpact::TimeStokesOp< Pimpact::Space<double,int,4,2> > >;
 template class Pimpact::TimeStokesBSmoother< Pimpact::TimeStokesOp< Pimpact::Space<double,int,4,4> > >;
+template class Pimpact::TimeNSBSmoother< Pimpact::TimeNSOp< Pimpact::Space<double,int,4,2> > >;
+template class Pimpact::TimeNSBSmoother< Pimpact::TimeNSOp< Pimpact::Space<double,int,4,4> > >;
 template class Pimpact::TimeStokesLSmoother< Pimpact::TimeStokesOp< Pimpact::Space<double,int,4,2> > >;
 template class Pimpact::TimeStokesLSmoother< Pimpact::TimeStokesOp< Pimpact::Space<double,int,4,4> > >;
 #endif
