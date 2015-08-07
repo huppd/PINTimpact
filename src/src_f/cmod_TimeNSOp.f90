@@ -636,13 +636,13 @@ do t = SS(4), N(4)
                 ! ------------------ u -------------------
                 ! u*d/dx
                 if( windU(i,j,k,1,t) >= 0. ) then
-                !    A(1,1) = A(1,1) + windU(i,j,k,1,t)*c1uU(0,i)
-                 !   A(1,2) = A(1,2) + windU(i,j,k,1,t)*c1uU(cL(1),i)
-                !else
-                !    A(1,1) = A(1,1) + windU(i,j,k,1,t)*c1uD(0,i)
-                !    b(1) = b(1) + windU(i,j,k,1,t)*c1uD(cU(1),i)*vel(i+1,j,k,1,t)
+                    A(1,1) = A(1,1) + windU(i,j,k,1,t)*c1uU(0,i)
+                    A(1,2) = A(1,2) + windU(i,j,k,1,t)*c1uU(cL(1),i)
+                else
+                    A(1,1) = A(1,1) + windU(i,j,k,1,t)*c1uD(0,i)
+                    b(1) = b(1) + windU(i,j,k,1,t)*c1uD(cU(1),i)*vel(i+1,j,k,1,t)
                 end if
-        go to 100        ! v*d/dy
+                ! v*d/dy
                 if( windV(i,j,k,1,t) >= 0. ) then
                     A(1,1) = A(1,1) + windV(i,j,k,1,t)*c2pU(0,j)
                     b(1) = b(1) + windV(i,j,k,1,t)*c2pU(cL(2),j)*vel(i,j-1,k,1,t)

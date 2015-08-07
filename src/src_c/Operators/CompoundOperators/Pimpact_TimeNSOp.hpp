@@ -231,6 +231,12 @@ public:
     Teuchos::RCP<const DivOp<ST> > getDivOp() const { return( div_ ); }
     Teuchos::RCP<const ConvectionSOp<ST> > getConvOp() const { return( conv_ ); }
 
+
+    Teuchos::RCP< TimeField<VectorField<ST> > > getWindU_() const { return( windU_ ); }
+    Teuchos::RCP< TimeField<VectorField<ST> > > getWindV_() const { return( windV_ ); }
+    Teuchos::RCP< TimeField<VectorField<ST> > > getWindW_() const { return( windW_ ); }
+
+
 	const std::string getLabel() const { return( "TimeNSOp" ); };
 
 }; // end of class TimeNSOp
