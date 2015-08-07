@@ -15,8 +15,8 @@ extern "C" {
       const int* const N,
       const int* const bl,
       const int* const bu,
-      const int* const BCL,
-      const int* const BCU,
+      //const int* const BCL,
+      //const int* const BCU,
       const int* const dl,
       const int* const du,
       const int* const gl,
@@ -29,6 +29,18 @@ extern "C" {
       const int* const nv,
       const int* const sw,
       const int* const nw,
+    const double* const c1uD,
+    const double* const c2vD,
+    const double* const c3wD,
+    const double* const c1uU,
+    const double* const c2vU,
+    const double* const c3wU,
+    const double* const c1pD,
+    const double* const c2pD,
+    const double* const c3pD,
+    const double* const c1pU,
+    const double* const c2pU,
+    const double* const c3pU,
       const double* const c11p,
       const double* const c22p,
       const double* const c33p,       
@@ -54,7 +66,7 @@ extern "C" {
 ///
 // \f[ \begin{bmatrix} opV2V & opS2V \\ opV2S & 0 \end{bmatrix} \mathbf{x} = \mathbf{y} \f]
 template<class OperatorT>
-class TimeStokesBSmoother {
+class TimeNBSmoother {
 
 public:
 
@@ -75,7 +87,7 @@ protected:
 public:
 
   /// \todo constructor from space
-	TimeStokesBSmoother( const Teuchos::RCP<const OperatorT>& op , Teuchos::RCP<Teuchos::ParameterList> pl = Teuchos::parameterList()):
+	TimeNBSmoother( const Teuchos::RCP<const OperatorT>& op , Teuchos::RCP<Teuchos::ParameterList> pl = Teuchos::parameterList()):
 		op_( op ),
 		numIters_( pl->get<int>("numIters",4) )	{};
 
@@ -102,13 +114,13 @@ public:
 				xp->getConstFieldPtr(i)->exchange();
 			}
 
-			OP_TimeStokesBSmoother( 
+			OP_TimeNBSmoother(
 					space()->dim(),
 					space()->nLoc(),
 					space()->bl(),
 					space()->bu(),
-                                        space()->getDomain()->getBCLocal()->getBCL(),
-                                        space()->getDomain()->getBCLocal()->getBCU(),
+                    //space()->getDomain()->getBCLocal()->getBCL(),
+                    //space()->getDomain()->getBCLocal()->getBCU(),
 					space()->dl(),
 					space()->du(),
 					space()->gl(),
@@ -121,6 +133,18 @@ public:
 					space()->eInd(V),
 					space()->sInd(W),
 					space()->eInd(W),
+                      op_->getConvOp()->getCD(X,U),
+                      op_->getConvOp()>getCD(Y,V),
+                      op_->getConvOp()->getCD(Z,W),
+                      op_->getConvOp()>getCU(X,U),
+                      op_->getConvOp()->getCU(Y,V),
+                      op_->getConvOp()->getCU(Z,W),
+                      op_->getConvOp()->getCD(X,S),
+                      op_->getConvOp()->getCD(Y,S),
+                      op_->getConvOp()->getCD(Z,S),
+                      op_->getConvOp()->getCU(X,S),
+                      op_->getConvOp()->getCU(Y,S),
+                      op_->getConvOp()->getCU(Z,S),
 					op_->getHelmholtzOp()->getC(X,S),
 					op_->getHelmholtzOp()->getC(Y,S),
 					op_->getHelmholtzOp()->getC(Z,S),
@@ -156,11 +180,11 @@ public:
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
-  bool hasApplyTranspose() const { return( false ); }
+    bool hasApplyTranspose() const { return( false ); }
 
-	const std::string getLabel() const { return( "TimeStokesBSmoother " ); };
+	const std::string getLabel() const { return( "TimeNBSmoother " ); };
 
-}; // end of class TimeStokesBSmoother
+}; // end of class TimeNSBSmoother
 
 
 
@@ -169,9 +193,9 @@ public:
 
 
 #ifdef COMPILE_ETI
-#include "Pimpact_TimeStokesOp.hpp"
-extern template class Pimpact::TimeStokesBSmoother< Pimpact::TimeStokesOp< Pimpact::Space<double,int,4,2> > >;
-extern template class Pimpact::TimeStokesBSmoother< Pimpact::TimeStokesOp< Pimpact::Space<double,int,4,4> > >;
+#include "Pimpact_TimeNSOp.hpp"
+extern template class Pimpact::TimeNSBSmoother< Pimpact::TimeNSOp< Pimpact::Space<double,int,4,2> > >;
+extern template class Pimpact::TimeNSBSmoother< Pimpact::TimeNSOp< Pimpact::Space<double,int,4,4> > >;
 #endif
 
-#endif // end of #ifndef PIMPACT_TIMESTOKESBSMOOTHER_HPP
+#endif // end of #ifndef PIMPACT_TIMENSBSMOOTHER_HPP
