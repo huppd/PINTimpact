@@ -29,7 +29,7 @@ typedef double S;
 typedef int O;
 
 typedef Pimpact::Space<S,O,3,4> FSpace3T;
-typedef Pimpact::Space<S,O,4,2> FSpace4T; 
+typedef Pimpact::Space<S,O,4,4> FSpace4T; 
 
 typedef Pimpact::Space<S,O,3,2> CSpace3T;
 typedef Pimpact::Space<S,O,4,2> CSpace4T; 
@@ -590,7 +590,7 @@ template<class SpaceT1, class SpaceT2> using TCO = Pimpact::TransferCompoundOp<
 																				Pimpact::TransferTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<SpaceT1, SpaceT2> > >,
 																				Pimpact::TransferTimeOp<                           Pimpact::TransferOp<SpaceT1, SpaceT2> > >; 
 
-//template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
+template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 
@@ -604,9 +604,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-	auto space = Pimpact::createSpace<S,O,4,2>( pl ); 
+	auto space = Pimpact::createSpace<S,O,4,4>( pl ); 
 
-	auto mgSpaces = Pimpact::createMGSpaces<CSpace4T,FSpace4T,CS>( space, maxGrids );
+	auto mgSpaces = Pimpact::createMGSpaces<FSpace4T,CSpace4T,CS>( space, maxGrids );
 
 
 	auto mgPL = Teuchos::parameterList();
@@ -615,11 +615,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 			*Pimpact::createLinSolverParameter( "GMRES", 1.e-16, -1,
 				Teuchos::rcp<std::ostream>( new Teuchos::oblackholestream() ), 4 ) );
 	
-//	mgPL->sublist("Smoother").set<int>( "numIters", 4 );
-	//mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<int>( "Maximum Iterations", 1000 );
-	//mgPL->sublist("Coarse Grid Solver").set<std::string>("Solver name", "GMRES" );
-	//mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<std::string>("Timer Label", "Coarse Grid Solver" );
-	//mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<S>("Convergence Tolerance" , 9.e-3 );
+        mgPL->sublist("Smoother").set<int>( "numIters", 4 );
+	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<int>( "Maximum Iterations", 1000 );
+	mgPL->sublist("Coarse Grid Solver").set<std::string>("Solver name", "GMRES" );
+	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<std::string>("Timer Label", "Coarse Grid Solver" );
+	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<S>("Convergence Tolerance" , 9.e-3 );
 
 	auto mg = Pimpact::createMultiGrid<
 									CVF,
@@ -629,8 +629,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 									Pimpact::TimeStokesOp,
 									Pimpact::TimeStokesOp,								
 									Pimpact::TimeStokesBSmoother,
-									Pimpact::TimeStokesBSmoother
-//									MOP
+						//			Pimpact::TimeStokesBSmoother
+									MOP
 										> ( mgSpaces, mgPL );
 
 	mg->print();
@@ -664,15 +664,13 @@ err->add( -1, *x, 1., *true_sol );
 std::cout << "err: " << err->norm() << "\n";
 err->write();
 
-for( int i=0; i<2; ++i ) {
+for( int i=0; i<4; ++i ) {
 	mg->apply( *b, *x );
-//	x->write(i*100);
-
-
+	
 	x->level();
 
 	err->add( -1, *x, 1., *true_sol );
-	//err->write((i+1)*100);
+	err->write((i+1)*100);
 	std::cout << "err: " << err->norm() << "\n";
 }
 

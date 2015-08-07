@@ -93,7 +93,7 @@ TEUCHOS_STATIC_SETUP() {
 	    "npf", &npf,
 	    "" );
 
-  pl->set( "Re", 1000. );
+  pl->set( "Re", 1. );
   pl->set( "alpha2", 1. );
   pl->set( "domain", domain );
 
