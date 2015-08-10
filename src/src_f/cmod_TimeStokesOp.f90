@@ -606,7 +606,7 @@ contains
 !end do
 
 !do t = SS(4), N(4) - 1
-!go to 100
+go to 100
     ! boundary pressure points
        
     ! in X direction
@@ -724,7 +724,7 @@ contains
                         end do
                 end do
         end if
-!100 continue
+100 continue
     end do
 
   end subroutine OP_TimeStokesBSmoother

@@ -463,6 +463,7 @@ subroutine OP_TimeNSBSmoother(  &
         dimens,               &
         N,                    &
         bL,bU,                &
+        BCL,BCU,              &
         cL,cU,                &
         dL,dU,                &
         gL,gU,                &
@@ -501,6 +502,9 @@ subroutine OP_TimeNSBSmoother(  &
 
     integer(c_int), intent(in)  :: bL(4)
     integer(c_int), intent(in)  :: bU(4)
+
+    integer(c_int), intent(in)  :: BCL(3)
+    integer(c_int), intent(in)  :: BCU(3)
 
     integer(c_int), intent(in)  :: cL(3)
     integer(c_int), intent(in)  :: cU(3)
@@ -786,7 +790,7 @@ do t = SS(4), N(4)
                     A(6,6) = A(6,6) + windW(i,j,k-1,3,t)*c3wD(0,k-1)
                     A(6,5) = A(6,5) + windW(i,j,k-1,3,t)*c3wD(cU(3),k-1)
                 end if
-100 continue
+                
                 !---------- end of convection ---------------
                 ! pressure gradient
                 A(1:6,7) = (/ cG1(gL(1),i), cG1(gU(1),i-1), cG2(gL(2),j),cG2(gU(2),j-1), cG3(gL(3),k), cG3(gU(3),k-1) /)
@@ -885,7 +889,67 @@ do t = SS(4), N(4)
             end do
         end do
     end do
-end do
+
+    ! boundary pressure points
+    go to 100 !!! 
+    ! in X direction
+        if (BCL(1) > 0) then
+                i = SS(1)
+                do k = SS(3), NN(3)
+                        do j = SS(2), NN(2)
+                                p(i,j,k,t) = p(i+1,j,k,t)
+                        end do
+                end do
+         end if
+
+        if (BCU(1) > 0) then
+                i = NN(1)
+                do k = SS(3), NN(3)
+                        do j = SS(2), NN(2)
+                                p(i,j,k,t) = p(i-1,j,k,t)
+                        end do
+                end do
+         end if
+
+     ! in Y direction
+        if (BCL(2) > 0) then
+                j = SS(2)
+                do k = SS(3), NN(3)
+                        do i = SS(1), NN(1)
+                                p(i,j,k,t) = p(i,j+1,k,t)
+                        end do
+                end do
+        end if
+
+        if (BCU(2) > 0) then
+                j = NN(2)
+                do k = SS(3), NN(3)
+                        do i = SS(1), NN(1)
+                                p(i,j,k,t) = p(i,j-1,k,t)
+                        end do
+                end do
+        end if
+
+    ! in Z direction
+        if (BCL(3) > 0) then
+                k = SS(3)
+                do i = SS(1), NN(1)
+                        do j = SS(2), NN(2)
+                                p(i,j,k,t) = p(i,j,k+1,t)
+                        end do
+                end do
+        end if
+
+        if (BCL(3) > 0) then
+                k = NN(3)
+                do i = SS(1), NN(1)
+                        do j = SS(2), NN(2)
+                                p(i,j,k,t) = p(i,j,k-1,t)
+                        end do
+                end do
+        end if
+100 continue !!!!!!!!!!
+end do ! loop over time ends
 
 
 
