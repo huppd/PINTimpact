@@ -358,6 +358,45 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesLSmooth_conv ) {
                         error->write(300+i*100);
         }
 }
+
+
+    TEUCHOS_UNIT_TEST( TimeOperator, TimeNSBSmooth ) {
+
+        pl->set("npx", npx) ;
+        pl->set("npy", npy) ;
+        pl->set("npz", npz) ;
+        pl->set("npf", npf) ;
+
+        typedef Pimpact::TimeNSOp<SpaceT> OpT;
+        auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+
+        auto op = Pimpact::create<OpT>( space );
+
+        auto bSmoother = Teuchos::rcp(new Pimpact::TimeNSBSmoother<OpT>( op ));
+
+        auto x = Pimpact::createCompoundField( Pimpact::createTimeField< Pimpact::VectorField<SpaceT> >( space ),
+                                              Pimpact::createTimeField< Pimpact::ScalarField<SpaceT> >( space ));
+        auto rhs = x->clone();
+        auto error = x->clone();
+	
+	x->random();
+	auto x2 = x->clone();
+
+        op->apply(*x,*rhs);
+        bSmoother->apply(*rhs,*x);
+
+        error->add( 1., *x, -1., *x2 );
+        std::cout << "Consistency error = " << error()->norm()/std::sqrt( error->getLength() )  << "\n";
+        TEST_EQUALITY( error()->norm()<eps, true );
+
+        //TEST_EQUALITY( rhs->getSField().norm()<eps, true );
+        //std::cout << "RHS pressure norm = " << y_cc->getSField().norm()  << "\n";
+
+        if (output && error()->norm()>eps)
+                error->write();	
+
+}
+
     
     TEUCHOS_UNIT_TEST( TimeOperator, TimeNSBSmooth_conv ) {
         
@@ -387,21 +426,8 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesLSmooth_conv ) {
         
         //Pimpact::initVectorTimeField( true_sol->getVFieldPtr(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha );
         
+	// print out convergence
 	x->random();
-	x->scale(10);
-	auto x2 = x->clone();
-
-	// consistency check
-	op->apply(*x,*rhs);
-	bSmoother->apply(*rhs,*x);
-	error->add( 1., *x, -1., *x2 );
-	std::cout << "Consistency error = " << error()->norm()  << "\n";
-        TEST_EQUALITY( error()->norm()<eps, true );
-
-	if (output && error()->norm()>eps)
-		error->write();	
-	// print out convergnce
-/*	x->random();
         x->scale(10);
         
         for (int i = 1; i < 20; i++){
@@ -413,7 +439,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesLSmooth_conv ) {
 
 	    bSmoother->apply(*y,*x);
         }
-  */  }
+    }
 
 } // end of namespace
                                         
