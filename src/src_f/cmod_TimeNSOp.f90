@@ -591,15 +591,7 @@ subroutine OP_TimeNSBSmoother(  &
     real (c_double) A(block_size,block_size)
     real (c_double) b(block_size)
 
-     ! ----- for the test -----!
-     integer(c_int) :: info
-     !real(c_double) :: vt(block_size,block_size)
-     !real(c_double) :: u(block_size,block_size)
-     !real(c_double) :: s(block_size)
-     !integer(c_int), parameter :: lwork = 5*block_size
-     !real(c_double) :: work(lwork)
-
-     ! ------------------------!
+    integer(c_int) :: info
 
     omega = 0.7
 
