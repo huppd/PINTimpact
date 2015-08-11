@@ -421,20 +421,21 @@ contains
     omega = 0.7
 
  !pressure DR BC   
-!  do t = SS(4), N(4) 
- !   do k = SS(3), NN(3)
-  !    do j = SS(2), NN(2)
-   !     do i = SS(1), NN(1)
+  !do t = SS(4), N(4)
+   ! do k = SS(3), NN(3)
+    !  do j = SS(2), NN(2)
+     !   do i = SS(1), NN(1)
 
-!        if (i==SS(1) .or. i==NN(1) .or. j==SS(2) .or. j==NN(2) .or. k==SS(3) .or. k==NN(3)) then         
-    !            p(i,j,k,t) = 0
- !       end if
+      !  if (i==SS(1) .or. i==NN(1) .or. j==SS(2) .or. j==NN(2) .or. k==SS(3) .or. k==NN(3)) then         
+       !              p(i,j,k,t) = 0
+       ! end if
 
 
-     !   end do
-     !end do 
- !  end do
+        !end do
+     !end do
+  ! end do
 !end do
+
 
  
     do t = SS(4), N(4) - 1
@@ -496,15 +497,15 @@ contains
             ! diffusion 
             do l = 0,1
                do ll =0,1
-                
-                b(l+1+6*ll) = c22p(bU(1),j-l)*vel(i-l,j+1,k,1,t+ll) + c22p(bL(1),j-l)*vel(i-l,j-1,k,1,t+ll) + &
-                           c33p(bU(1),k-l)*vel(i-l,j,k+1,1,t+ll) + c33p(bL(1),k-l)*vel(i-l,j,k-1,1,t+ll) 
-                        
-                b(l+3+6*ll) = c11p(bU(2),i-l)*vel(i+1,j-l,k,2,t+ll) + c11p(bL(2),i-l)*vel(i-1,j-l,k,2,t+ll) + &
-                           c33p(bU(2),k-l)*vel(i,j-l,k+1,2,t+ll) + c33p(bL(2),k-l)*vel(i,j-l,k-1,2,t+ll) 
-
-                b(l+5+6*ll) = c22p(bU(3),j-l)*vel(i,j+1,k-l,3,t+ll) + c22p(bL(3),j-l)*vel(i,j-1,k-l,3,t+ll) + &
-                           c11p(bU(3),i-l)*vel(i+1,j,k-l,3,t+ll) + c11p(bL(3),i-l)*vel(i-1,j,k-l,3,t+ll) 
+                !u
+                b(l+1+6*ll) = c22p(bU(2),j-l)*vel(i-l,j+bU(2),k,1,t+ll) + c22p(bL(2),j-l)*vel(i-l,j+bL(2),k,1,t+ll) + &
+                           c33p(bU(3),k-l)*vel(i-l,j,k+bU(3),1,t+ll) + c33p(bL(3),k-l)*vel(i-l,j,k+bL(3),1,t+ll) 
+                !v       
+                b(l+3+6*ll) = c11p(bU(1),i-l)*vel(i+bU(1),j-l,k,2,t+ll) + c11p(bL(1),i-l)*vel(i+bL(1),j-l,k,2,t+ll) + &
+                           c33p(bU(3),k-l)*vel(i,j-l,k+bU(3),2,t+ll) + c33p(bL(3),k-l)*vel(i,j-l,k+bL(3),2,t+ll) 
+                !w
+                b(l+5+6*ll) = c22p(bU(2),j-l)*vel(i,j+bU(2),k-l,3,t+ll) + c22p(bL(2),j-l)*vel(i,j+bL(2),k-l,3,t+ll) + &
+                           c11p(bU(1),i-l)*vel(i+bU(1),j,k-l,3,t+ll) + c11p(bL(1),i-l)*vel(i+bL(1),j,k-l,3,t+ll) 
                 end do
            end do
             
@@ -605,8 +606,7 @@ contains
     end do
 !end do
 
-!do t = SS(4), N(4) - 1
-go to 100
+!go to 100
     ! boundary pressure points
        
     ! in X direction
@@ -724,7 +724,7 @@ go to 100
                         end do
                 end do
         end if
-100 continue
+!100 continue
     end do
 
   end subroutine OP_TimeStokesBSmoother

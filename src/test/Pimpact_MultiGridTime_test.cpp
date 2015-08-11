@@ -25,11 +25,13 @@
 
 namespace {
 
+bool output = false;
+
 typedef double S;
 typedef int O;
 
 typedef Pimpact::Space<S,O,3,4> FSpace3T;
-typedef Pimpact::Space<S,O,4,4> FSpace4T; 
+typedef Pimpact::Space<S,O,4,2> FSpace4T; 
 
 typedef Pimpact::Space<S,O,3,2> CSpace3T;
 typedef Pimpact::Space<S,O,4,2> CSpace4T; 
@@ -63,7 +65,7 @@ template<class T> using ConvDiffJT = Pimpact::ConvectionVSmoother<T,Pimpact::Con
 bool testMpi = true;
 double eps = 1e-6;
 
-int domain = 1;
+int domain = 0;
 int ftype = 0;
 
 int fs = 0;
@@ -138,6 +140,12 @@ TEUCHOS_STATIC_SETUP() {
 	clp.setOption(
 	    "maxGrids", &maxGrids,
 	    "" );
+	clp.setOption(
+      	"output", "noutput", &output,
+      	"Test MPI (if available) or force test of serial.  In a serial build,"
+      	" this option is ignored and a serial comm is always used." );
+
+
 
   pl->set( "dim", 3 );
   pl->set( "domain", domain );
@@ -604,7 +612,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-	auto space = Pimpact::createSpace<S,O,4,4>( pl ); 
+	auto space = Pimpact::createSpace<S,O,4,2>( pl ); 
 
 	auto mgSpaces = Pimpact::createMGSpaces<FSpace4T,CSpace4T,CS>( space, maxGrids );
 
@@ -662,15 +670,20 @@ x->scale(10);
 
 err->add( -1, *x, 1., *true_sol );
 std::cout << "err: " << err->norm() << "\n";
-err->write();
 
-for( int i=0; i<4; ++i ) {
+if (output)
+	err->write();
+
+for( int i=0; i<10; ++i ) {
 	mg->apply( *b, *x );
 	
 	x->level();
 
 	err->add( -1, *x, 1., *true_sol );
-	err->write((i+1)*100);
+	
+	if (output)
+		err->write((i+1)*100);
+	
 	std::cout << "err: " << err->norm() << "\n";
 }
 
@@ -679,6 +692,6 @@ TEST_EQUALITY( err->norm()<1.e-5, true );
 }
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, MG, CS4L )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, MG, CS4G )
+//TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, MG, CS4G )
 
 } // end of namespae

@@ -37,7 +37,7 @@ const int dNC = 2;
 bool testMpi = true;
 bool output = false;
 double eps = 3e-1;
-int domain = 4;
+int domain = 0;
 int dim = 3;
 
 int npx = 1;
