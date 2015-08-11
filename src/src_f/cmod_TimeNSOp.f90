@@ -805,24 +805,24 @@ do t = SS(4), N(4)
                 ! diffusion
                 do l = 0,1
 
-                        b(l+1) = b(l+1) +  mulL*(c22p(bU(1),j-l)*vel(i-l,j+1,k,1,t) + c22p(bL(1),j-l)*vel(i-l,j-1,k,1,t) + &
-                        c33p(bU(1),k-l)*vel(i-l,j,k+1,1,t) + c33p(bL(1),k-l)*vel(i-l,j,k-1,1,t))
+                        b(l+1) = b(l+1) +  mulL*(c22p(bU(2),j-l)*vel(i-l,j+bU(2),k,1,t) + c22p(bL(2),j-l)*vel(i-l,j+bL(2),k,1,t) + &
+                        c33p(bU(3),k-l)*vel(i-l,j,k+bU(3),1,t) + c33p(bL(3),k-l)*vel(i-l,j,k+bL(3),1,t))
 
-                        b(l+3) = b(l+3) + mulL*(c11p(bU(2),i-l)*vel(i+1,j-l,k,2,t) + c11p(bL(2),i-l)*vel(i-1,j-l,k,2,t) + &
-                        c33p(bU(2),k-l)*vel(i,j-l,k+1,2,t) + c33p(bL(2),k-l)*vel(i,j-l,k-1,2,t))
+                        b(l+3) = b(l+3) + mulL*(c11p(bU(1),i-l)*vel(i+bU(1),j-l,k,2,t) + c11p(bL(1),i-l)*vel(i+bL(1),j-l,k,2,t) + &
+                        c33p(bU(3),k-l)*vel(i,j-l,k+bU(3),2,t) + c33p(bL(3),k-l)*vel(i,j-l,k+bL(3),2,t))
 
-                        b(l+5) = b(l+5) + mulL*(c22p(bU(3),j-l)*vel(i,j+1,k-l,3,t) + c22p(bL(3),j-l)*vel(i,j-1,k-l,3,t) + &
-                        c11p(bU(3),i-l)*vel(i+1,j,k-l,3,t) + c11p(bL(3),i-l)*vel(i-1,j,k-l,3,t))
+                        b(l+5) = b(l+5) + mulL*(c22p(bU(2),j-l)*vel(i,j+bU(2),k-l,3,t) + c22p(bL(2),j-l)*vel(i,j+bU(2),k-l,3,t) + &
+                        c11p(bU(1),i-l)*vel(i+bU(1),j,k-l,3,t) + c11p(bL(1),i-l)*vel(i+bL(1),j,k-l,3,t))
                 end do
 
-                b = b + mulL*(/ c11u(bU(1),i)*vel(i+1,j,k,1,t),c11u(bL(1),i-1)*vel(i-2,j,k,1,t),&
-                                c22v(bU(2),j)*vel(i,j+1,k,2,t),c22v(bL(2),j-1)*vel(i,j-2,k,2,t),&
-                                c33w(bU(3),k)*vel(i,j,k+1,3,t),c33w(bL(3),k-1)*vel(i,j,k-2,3,t), 0. /)
+                b = b + mulL*(/ c11u(bU(1),i)*vel(i+bU(1),j,k,1,t),c11u(bL(1),i-1)*vel(i-1+bL(1),j,k,1,t),&
+                                c22v(bU(2),j)*vel(i,j+bU(2),k,2,t),c22v(bL(2),j-1)*vel(i,j-1+bL(2),k,2,t),&
+                                c33w(bU(3),k)*vel(i,j,k+bU(3),3,t),c33w(bL(3),k-1)*vel(i,j,k-1+bL(3),3,t), 0. /)
 
                 ! pressure gradient
-                b = b + (/ cG1(gU(1),i)*p(i+1,j,k,t),cG1(gL(1),i-1)*p(i-1,j,k,t),&
-                            cG2(gU(2),j)*p(i,j+1,k,t),cG2(gL(2),j-1)*p(i,j-1,k,t),&
-                            cG3(gU(3),k)*p(i,j,k+1,t),cG3(gL(3),k-1)*p(i,j,k-1,t), 0. /)
+                b = b + (/ cG1(gU(1),i)*p(i+gU(1),j,k,t),cG1(gL(1),i-1)*p(i+gL(1),j,k,t),&
+                            cG2(gU(2),j)*p(i,j+gU(2),k,t),cG2(gL(2),j-1)*p(i,j+gL(2),k,t),&
+                            cG3(gU(3),k)*p(i,j,k+gU(3),t),cG3(gL(3),k-1)*p(i,j,k+gL(3),t), 0. /)
 
                 ! time stencil
                 b(1:6) = b(1:6) - mulI*(/ vel(i,j,k,1,t-1), vel(i-1,j,k,1,t-1),&
@@ -891,7 +891,7 @@ do t = SS(4), N(4)
     end do
 
     ! boundary pressure points
-    go to 100 !!! 
+    go to 100 !!!
     ! in X direction
         if (BCL(1) > 0) then
                 i = SS(1)

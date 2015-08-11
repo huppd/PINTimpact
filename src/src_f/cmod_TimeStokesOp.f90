@@ -485,7 +485,7 @@ contains
             ! time derivative 
 
             do d = 1,6
-            A(d+6,d) = - mulI
+                A(d+6,d) = - mulI
             end do
 
             !===================================================
