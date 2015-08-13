@@ -654,6 +654,7 @@ double p = 1;
 double alpha = std::sqrt(pl->get<double>("alpha2"));
 
 auto b = x->clone();
+auto b_bc = x->clone();
 auto Ax = x->clone();
 auto true_sol = x->clone();
 auto err = x->clone();
@@ -661,9 +662,24 @@ err->init(1);
 
 Pimpact::initVectorTimeField( true_sol->getVFieldPtr(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha );
 
-//x=true_sol->clone();
+auto true_sol2 = true_sol->clone();
 
 op->apply(*true_sol,*b);
+
+// consistency
+mg->apply( *b, *true_sol2 );
+error->add(-1.,*true_sol,1.,*true_sol2);
+std::cout << "\n" << "consistency err: " << err->norm()/std::sqrt( err->getLength() );
+
+// put BC in the RHS
+true_sol->init(0);
+op->apply(*true_sol,*b_bc);
+
+b->add(1.,*b,-1.,*b_bc);
+
+/////////
+
+Pimpact::initVectorTimeField( true_sol->getVFieldPtr(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha );
 
 x->random();
 x->scale(10);
