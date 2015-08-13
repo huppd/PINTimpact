@@ -583,7 +583,7 @@ subroutine OP_TimeNSBSmoother(  &
 
 
     integer (c_int), parameter :: block_size = 7
-    integer(c_int)             :: l
+    integer(c_int)             :: l, ll 
     integer(c_int)             :: ipiv(block_size)
 
     real (c_double) omega
@@ -797,46 +797,46 @@ do t = SS(4), N(4)
                 ! diffusion
                 do l = 0,1
 
-                        b(l+1) = b(l+1) +  mulL*(c22p(bU(2),j)*vel(i-l,j+bU(2),k,1,t) + c22p(bL(2),j)*vel(i-l,j+bL(2),k,1,t) + &
-                        c33p(bU(3),k)*vel(i-l,j,k+bU(3),1,t) + c33p(bL(3),k)*vel(i-l,j,k+bL(3),1,t))
+                        b(l+1) = b(l+1) - mulL*(c22p(bU(2),j)*vel(i-l,j+bU(2),k,1,t) + c22p(bL(2),j)*vel(i-l,j+bL(2),k,1,t) + &
+                                                c33p(bU(3),k)*vel(i-l,j,k+bU(3),1,t) + c33p(bL(3),k)*vel(i-l,j,k+bL(3),1,t))
 
-                        b(l+3) = b(l+3) + mulL*(c11p(bU(1),i)*vel(i+bU(1),j-l,k,2,t) + c11p(bL(1),i)*vel(i+bL(1),j-l,k,2,t) + &
-                        c33p(bU(3),k)*vel(i,j-l,k+bU(3),2,t) + c33p(bL(3),k)*vel(i,j-l,k+bL(3),2,t))
+                        b(l+3) = b(l+3) - mulL*(c11p(bU(1),i)*vel(i+bU(1),j-l,k,2,t) + c11p(bL(1),i)*vel(i+bL(1),j-l,k,2,t) + &
+                                                c33p(bU(3),k)*vel(i,j-l,k+bU(3),2,t) + c33p(bL(3),k)*vel(i,j-l,k+bL(3),2,t))
 
-                        b(l+5) = b(l+5) + mulL*(c22p(bU(2),j)*vel(i,j+bU(2),k-l,3,t) + c22p(bL(2),j)*vel(i,j+bU(2),k-l,3,t) + &
-                        c11p(bU(1),i)*vel(i+bU(1),j,k-l,3,t) + c11p(bL(1),i)*vel(i+bL(1),j,k-l,3,t))
+                        b(l+5) = b(l+5) - mulL*(c22p(bU(2),j)*vel(i,j+bU(2),k-l,3,t) + c22p(bL(2),j)*vel(i,j+bU(2),k-l,3,t) + &
+                                                c11p(bU(1),i)*vel(i+bU(1),j,k-l,3,t) + c11p(bL(1),i)*vel(i+bL(1),j,k-l,3,t))
                 end do
-                ! this can be incoroprated above
-                b = b + mulL*(/ c11u(bU(1),i)*vel(i+bU(1),j,k,1,t),c11u(bL(1),i-1)*vel(i-1+bL(1),j,k,1,t),&
+                
+                b = b - mulL*(/ c11u(bU(1),i)*vel(i+bU(1),j,k,1,t),c11u(bL(1),i-1)*vel(i-1+bL(1),j,k,1,t),&
                                 c22v(bU(2),j)*vel(i,j+bU(2),k,2,t),c22v(bL(2),j-1)*vel(i,j-1+bL(2),k,2,t),&
                                 c33w(bU(3),k)*vel(i,j,k+bU(3),3,t),c33w(bL(3),k-1)*vel(i,j,k-1+bL(3),3,t), 0. /)
 
                 ! pressure gradient
                 b = b + (/ cG1(gU(1),i)*p(i+gU(1),j,k,t),cG1(gL(1),i-1)*p(i-1+gL(1),j,k,t),&
-                            cG2(gU(2),j)*p(i,j+gU(2),k,t),cG2(gL(2),j-1)*p(i,j-1+gL(2),k,t),&
-                            cG3(gU(3),k)*p(i,j,k+gU(3),t),cG3(gL(3),k-1)*p(i,j,k-1+gL(3),t), 0. /)
-
+                           cG2(gU(2),j)*p(i,j+gU(2),k,t),cG2(gL(2),j-1)*p(i,j-1+gL(2),k,t),&
+                           cG3(gU(3),k)*p(i,j,k+gU(3),t),cG3(gL(3),k-1)*p(i,j,k-1+gL(3),t), 0. /)
+                
                 ! time stencil
                 b(1:6) = b(1:6) - mulI*(/ vel(i,j,k,1,t-1), vel(i-1,j,k,1,t-1),&
-                                            vel(i,j,k,2,t-1), vel(i,j-1,k,2,t-1),&
-                                            vel(i,j,k,3,t-1), vel(i,j,k-1,3,t-1) /)
+                                          vel(i,j,k,2,t-1), vel(i,j-1,k,2,t-1),&
+                                          vel(i,j,k,3,t-1), vel(i,j,k-1,3,t-1) /)
 
                 ! move on the rhs
                 b = - b
 
                 b = b + (/ rhs_vel(i,j,k,1,t),rhs_vel(i-1,j,k,1,t),&
-                            rhs_vel(i,j,k,2,t),rhs_vel(i,j-1,k,2,t),&
-                            rhs_vel(i,j,k,3,t),rhs_vel(i,j,k-1,3,t),&
-                            rhs_p(i,j,k,t) /)
+                           rhs_vel(i,j,k,2,t),rhs_vel(i,j-1,k,2,t),&
+                           rhs_vel(i,j,k,3,t),rhs_vel(i,j,k-1,3,t),&
+                           rhs_p(i,j,k,t) /)
 
 
                 ! ---------- test the matrix A --------------!
-                !if (i == 1 .and. j==1 .and. k==1 .and. t==1 ) then
+                !if (i == 4 .and. j==4 .and. k==4 .and. t==4 ) then
                 !write(*,*) i,j,k,t
                 !print *,'-------- the matrix A ----------'
 
                 !do l = 1, block_size
-                !write(*,'(14F7.2)') (A(l,c), c = 1, block_size)
+                !write(*,'(14F7.2)') (A(l,ll), ll = 1, block_size)
                 !end do
                 !write(*,*)
 
@@ -868,14 +868,14 @@ do t = SS(4), N(4)
 
                 !assign new solution
 
-                vel(i,j,k,1,t) =  b(1)*omega + (1-omega)*vel(i,j,k,1,t)
-                vel(i-1,j,k,1,t) =  b(2)*omega + (1-omega)*vel(i-1,j,k,1,t)
-                vel(i,j,k,2,t) =  b(3)*omega + (1-omega)*vel(i,j,k,2,t)
-                vel(i,j-1,k,2,t) =  b(4)*omega + (1-omega)*vel(i,j-1,k,2,t)
-                vel(i,j,k,3,t) =  b(5)*omega + (1-omega)*vel(i,j,k,3,t)
-                vel(i,j,k-1,3,t) =  b(6)*omega + (1-omega)*vel(i,j,k-1,3,t)
+                vel(i  ,j  ,k  ,1,t) = b(1)*omega + (1-omega)*vel(i  ,j  ,k  ,1,t)
+                vel(i-1,j  ,k  ,1,t) = b(2)*omega + (1-omega)*vel(i-1,j  ,k  ,1,t)
+                vel(i  ,j  ,k  ,2,t) = b(3)*omega + (1-omega)*vel(i  ,j  ,k  ,2,t)
+                vel(i  ,j-1,k  ,2,t) = b(4)*omega + (1-omega)*vel(i  ,j-1,k  ,2,t)
+                vel(i  ,j  ,k  ,3,t) = b(5)*omega + (1-omega)*vel(i  ,j  ,k  ,3,t)
+                vel(i  ,j  ,k-1,3,t) = b(6)*omega + (1-omega)*vel(i  ,j  ,k-1,3,t)
 
-                p(i,j,k,t) =  b(7)*omega + (1-omega)*p(i,j,k,t)
+                p(i,j,k,t) = b(7)*omega + (1-omega)*p(i,j,k,t)
 
 
             end do
@@ -883,7 +883,7 @@ do t = SS(4), N(4)
     end do
 
     ! boundary pressure points
-    go to 100 !!!
+    
     ! in X direction
         if (BCL(1) > 0) then
                 i = SS(1)
@@ -940,10 +940,7 @@ do t = SS(4), N(4)
                         end do
                 end do
         end if
-100 continue !!!!!!!!!!
 end do ! loop over time ends
-
-
 
   end subroutine OP_TimeNSBSmoother
 

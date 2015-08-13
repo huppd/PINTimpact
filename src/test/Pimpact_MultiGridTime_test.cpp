@@ -31,7 +31,7 @@ typedef double S;
 typedef int O;
 
 typedef Pimpact::Space<S,O,3,4> FSpace3T;
-typedef Pimpact::Space<S,O,4,2> FSpace4T; 
+typedef Pimpact::Space<S,O,4,4> FSpace4T; 
 
 typedef Pimpact::Space<S,O,3,2> CSpace3T;
 typedef Pimpact::Space<S,O,4,2> CSpace4T; 
@@ -612,7 +612,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-	auto space = Pimpact::createSpace<S,O,4,2>( pl ); 
+	auto space = Pimpact::createSpace<S,O,4,4>( pl ); 
 
 	auto mgSpaces = Pimpact::createMGSpaces<FSpace4T,CSpace4T,CS>( space, maxGrids );
 
@@ -627,7 +627,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<int>( "Maximum Iterations", 1000 );
 	mgPL->sublist("Coarse Grid Solver").set<std::string>("Solver name", "GMRES" );
 	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<std::string>("Timer Label", "Coarse Grid Solver" );
-	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<S>("Convergence Tolerance" , 9.e-3 );
+	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<S>("Convergence Tolerance" , 9.e-2 );
 
 	auto mg = Pimpact::createMultiGrid<
 									CVF,
@@ -637,42 +637,48 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 									Pimpact::TimeStokesOp,
 									Pimpact::TimeStokesOp,								
 									Pimpact::TimeStokesBSmoother,
-						//			Pimpact::TimeStokesBSmoother
+//									Pimpact::TimeStokesBSmoother
 									MOP
 										> ( mgSpaces, mgPL );
 
-	mg->print();
+//	mg->print();
 
 auto x = Pimpact::createCompoundField( Pimpact::createTimeField< Pimpact::VectorField<FSpace4T> >( space ),
                                        Pimpact::createTimeField< Pimpact::ScalarField<FSpace4T> >( space ));
 
 
-//typedef Pimpact::TimeStokesOp<FSpace4T> OpT;
+typedef Pimpact::TimeStokesOp<FSpace4T> OpT;
+auto op = Pimpact::create<OpT>( space );
 
-//auto op = Pimpact::create<OpT>( space );
-
-//double p = 10;
-//double alpha = std::sqrt(pl->get<double>("alpha2"));
+double p = 1;
+double alpha = std::sqrt(pl->get<double>("alpha2"));
 
 auto b = x->clone();
+auto Ax = x->clone();
 auto true_sol = x->clone();
 auto err = x->clone();
 err->init(1);
 
-//Pimpact::initVectorTimeField( true_sol->getVFieldPtr(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha );
+Pimpact::initVectorTimeField( true_sol->getVFieldPtr(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha );
 
 //x=true_sol->clone();
 
-//op->apply(*true_sol,*b);
+op->apply(*true_sol,*b);
 
 x->random();
 x->scale(10);
 
+
 err->add( -1, *x, 1., *true_sol );
-std::cout << "err: " << err->norm() << "\n";
+std::cout << "\n" << "err: " << err->norm()/std::sqrt( err->getLength() );
 
 if (output)
 	err->write();
+        
+op->apply(*x,*Ax);
+
+err->add( -1, *Ax, 1., *b );
+std::cout << "      res: " << err->norm()/std::sqrt( err->getLength() ) << "\n";
 
 for( int i=0; i<10; ++i ) {
 	mg->apply( *b, *x );
@@ -684,8 +690,14 @@ for( int i=0; i<10; ++i ) {
 	if (output)
 		err->write((i+1)*100);
 	
-	std::cout << "err: " << err->norm() << "\n";
+	std::cout << "err: " << err->norm()/std::sqrt( err->getLength() );
+	
+	op->apply(*x,*Ax);
+
+	err->add( -1, *Ax, 1., *b );
+	std::cout << "      res: " << err->norm()/std::sqrt( err->getLength() ) << "\n";
 }
+
 
 TEST_EQUALITY( err->norm()<1.e-5, true );
 

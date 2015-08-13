@@ -45,7 +45,6 @@ int npy = 1;
 int npz = 1;
 int npf = 1;
 
-
 typedef Pimpact::Space<S,O,d,dNC> SpaceT;
 
 typedef Pimpact::ScalarField<SpaceT> SF;
@@ -93,8 +92,8 @@ TEUCHOS_STATIC_SETUP() {
 	    "" );
 	clp.setOption(
 	    "npf", &npf,
-	    "" );
-
+		"");
+  
   pl->set( "Re", 1. );
   pl->set( "alpha2", 1. );
   pl->set( "domain", domain );
@@ -105,11 +104,11 @@ TEUCHOS_STATIC_SETUP() {
 
   pl->set( "dim", dim );
 
-  pl->set("nx",  17 );
-  pl->set("ny",  17 );
-  pl->set("nz",  17 );
+        pl->set("nx", 17) ;
+        pl->set("ny", 17) ;
+        pl->set("nz", 17) ;
+        pl->set("nf", 32) ;
 
-  pl->set("nf", 32 );
 
 }
 
@@ -126,7 +125,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOperator ) {
 	auto op = Pimpact::create<OpT>( space );
 
 	auto x = Pimpact::createCompoundField( Pimpact::createTimeField< Pimpact::VectorField<SpaceT> >( space ),
-			Pimpact::createTimeField< Pimpact::ScalarField<SpaceT> >( space ));
+	                        	       Pimpact::createTimeField< Pimpact::ScalarField<SpaceT> >( space ));
 	auto y = x->clone();
 	auto y_cc = x->clone();
 	auto error = x->clone();
@@ -139,7 +138,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOperator ) {
 	Pimpact::initVectorTimeField( y->getVFieldPtr(), Pimpact::ConstVel_inX, p);
 
 	// true solution //pl->get<int> ("Block Size");
-	//Pimpact::initVectorTimeField( pulsatile->getVFieldPtr(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha );
+	Pimpact::initVectorTimeField( pulsatile->getVFieldPtr(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha );
 	
 	pulsatile->getSFieldPtr()->init(0);
 
@@ -152,7 +151,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOperator ) {
 		y_cc->write(100);
 	}
 
-	std::cout << "|| error || = " << error()->norm()/std::sqrt( error->getLength() ) << std::endl;
+	std::cout << "|| RHS - RHS_true || = " << error()->norm()/std::sqrt( error->getLength() ) << std::endl;
 
 	TEST_EQUALITY( error()->norm()/std::sqrt( error->getLength() )<0.03, true );
 
@@ -178,7 +177,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOperator ) {
 		error->write();
 
 	error->add( 1., *pulsatile, -1., *pulsatile3 );
-        std::cout << "Consistency error = " << error()->norm()/std::sqrt( error->getLength() )  << "\n";
+        std::cout << "Consistency error wrt analytical RHS = " << error()->norm()/std::sqrt( error->getLength() )  << "\n";
 
 }
 
@@ -292,9 +291,9 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesBSmooth_conv ) {
 
 	auto bSmoother = Teuchos::rcp(new Pimpact::TimeStokesBSmoother<OpT>( op ));
 
-	auto x = Pimpact::createCompoundField( Pimpact::createTimeField< Pimpact::VectorField<SpaceT> >( space ),
-		        			Pimpact::createTimeField< Pimpact::ScalarField<SpaceT> >( space ));
+	auto x = Pimpact::createCompoundField( Pimpact::createTimeField< Pimpact::VectorField<SpaceT> >( space ),		        						      Pimpact::createTimeField< Pimpact::ScalarField<SpaceT> >( space ));
 	auto y = x->clone();
+	auto Ax = x->clone();
 	auto error = x->clone();
 	auto true_sol = x->clone();
 
@@ -303,20 +302,27 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesBSmooth_conv ) {
 
 	//Pimpact::initVectorTimeField( y->getVFieldPtr(), Pimpact::ConstVel_inX, p);
 
-	//Pimpact::initVectorTimeField( true_sol->getVFieldPtr(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha );
+	Pimpact::initVectorTimeField( true_sol->getVFieldPtr(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha );
+
+	op->apply(*true_sol,*y);
 
 	x->random();
 	x->scale(10);
 
-	for (int i = 1; i < 50; i++){
+	for (int i = 1; i < 20; i++){
                 error->add( 1., *x, -1., *true_sol );
-                std::cout  << error->norm()/std::sqrt( error->getLength() ) << "\n";
+                std::cout  << "error = " << error->norm()/std::sqrt( error->getLength() );	
+                
+		op->apply(*x,*Ax);
+
+		error->add( 1., *Ax, -1., *y );
+                std::cout  << "        residual = " << error->norm()/std::sqrt( error->getLength() ) << "\n";
+		
 		bSmoother->apply(*y,*x);
 	
 		if (i%5==0 &&  output)
-			error->write(300+i*100);
+			error->write(i*100);
 	}
-
 }
 
 TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesLSmooth_conv ) {
@@ -368,6 +374,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesLSmooth_conv ) {
         pl->set("npf", npf) ;
 
         typedef Pimpact::TimeNSOp<SpaceT> OpT;
+
         auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
         auto op = Pimpact::create<OpT>( space );
@@ -379,7 +386,10 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesLSmooth_conv ) {
         auto rhs = x->clone();
         auto error = x->clone();
 	
-	x->random();
+	//x->random();
+	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), 1, 1 );
+        op->assignField(*x);
+	
 	auto x2 = x->clone();
 
         op->apply(*x,*rhs);
@@ -415,7 +425,6 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesLSmooth_conv ) {
         auto x = Pimpact::createCompoundField( Pimpact::createTimeField< Pimpact::VectorField<SpaceT> >( space ),
                                               Pimpact::createTimeField< Pimpact::ScalarField<SpaceT> >( space ));
         auto y = x->clone();
-	auto rhs = x->clone();
         auto error = x->clone();
         auto true_sol = x->clone();
         
@@ -425,7 +434,9 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesLSmooth_conv ) {
         //Pimpact::initVectorTimeField( y->getVFieldPtr(), Pimpact::ConstVel_inX, p);
         
         //Pimpact::initVectorTimeField( true_sol->getVFieldPtr(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha );
-        
+       	
+	op->assignField(*x);
+ 
 	// print out convergence
 	x->random();
         x->scale(10);

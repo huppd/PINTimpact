@@ -48,7 +48,8 @@ extern "C" {
       const double* const rhs_vel,                 
       const double* const rhs_p,                   
             double* const vel,                
-            double* const p );
+            double* const p,
+      const int&    direction_flag );
 
 }
 
@@ -88,8 +89,12 @@ public:
 		Scalar re = space()->getDomain()->getDomainSize()->getRe();
 		Scalar mulI = space()->getDomain()->getDomainSize()->getAlpha2()*idt/re;
 
+		int direction_flag = 0;
+
 		for( int iters=0; iters<numIters_; ++iters ) {
 
+			direction_flag++;
+			
 			auto xu = x.getConstVFieldPtr();
 			auto xp = x.getConstSFieldPtr();
 			auto yu = y.getVFieldPtr();
@@ -140,7 +145,8 @@ public:
 					xu->getConstRawPtr(),
 					xp->getConstRawPtr(),
 					yu->getRawPtr(),
-					yp->getRawPtr() );
+					yp->getRawPtr(),
+					direction_flag );
 
 			for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i ) {
 				yu->getFieldPtr(i)->changed();
@@ -165,9 +171,7 @@ public:
 }; // end of class TimeStokesBSmoother
 
 
-
 } // end of namespace Pimpact
-
 
 
 #ifdef COMPILE_ETI

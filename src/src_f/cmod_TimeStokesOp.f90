@@ -160,7 +160,6 @@ contains
     integer(c_int)              ::  k, kk
     integer(c_int)              ::  t 
 
-
     !===========================================================================================================
 
     do t = SS(4), N(4)
@@ -331,7 +330,8 @@ contains
       rhs_vel,              &
       rhs_p,                &
       vel,                  &
-      p ) bind (c,name='OP_TimeStokesBSmoother')
+      p,                    &
+      direction_flag ) bind (c,name='OP_TimeStokesBSmoother')
 
 
     implicit none
@@ -391,6 +391,8 @@ contains
 
     real(c_double), intent(in) :: rhs_p  ( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)),      0:(N(4)+bU(4)-bL(4)) )
 
+    integer(c_int), intent(in)  :: direction_flag
+
     integer(c_int)              ::  i
     integer(c_int)              ::  j
     integer(c_int)              ::  k
@@ -398,6 +400,8 @@ contains
 
     !===========================================================================================================
 
+
+    integer(c_int)       ::  i_start, i_end, j_start, j_end, k_start, k_end, increment             
 
     integer(c_int), parameter :: block_size = 14 ! decompose this in time points + pressure...
     integer(c_int)             :: l, ll, d, c
@@ -417,8 +421,8 @@ contains
      !real(c_double) :: work(lwork)
 
      ! ------------------------!
-
     omega = 0.7
+
 
  !pressure DR BC   
   !do t = SS(4), N(4)
@@ -428,20 +432,47 @@ contains
 
       !  if (i==SS(1) .or. i==NN(1) .or. j==SS(2) .or. j==NN(2) .or. k==SS(3) .or. k==NN(3)) then         
        !              p(i,j,k,t) = 0
-       ! end if
+        !end if
 
 
-        !end do
-     !end do
+!        end do
+ !    end do
   ! end do
 !end do
 
-
- 
     do t = SS(4), N(4) - 1
-    do k = SW(3), NW(3) 
-      do j = SV(2), NV(2)
-        do i = SU(1), NU(1)
+
+
+        if ( MOD(direction_flag,2) == 1) then
+        
+            k_start=SS(3)
+            k_end=NN(3)
+            j_start=SS(2)
+            j_end=NN(2)
+            i_start=SS(1)
+            i_end=NN(1)
+            increment=1
+        else
+
+            k_start=NN(3)
+            k_end=SS(3)
+            j_start=NN(2)
+            j_end=SS(2)
+            i_start=NN(1)
+            i_end=SS(1)
+            increment=-1
+
+        end if
+
+    do k = k_start, k_end, increment
+      do j =  j_start, j_end, increment
+        do i =   i_start, i_end, increment
+
+
+        if (i==SS(1) .or. i==NN(1) .or. j==SS(2) .or. j==NN(2) .or. k==SS(3) .or. k==NN(3)) then
+                p(i,j,k,t) = 0
+                p(i,j,k,t+1) = 0
+        else
                         
          A(1:block_size,1:block_size) = 0.0
          b(1:block_size) = 0.0
@@ -452,12 +483,12 @@ contains
 
             ! diagonal: time derivative + diffusion 
 
-            A(1,1) = mulI - mulL*( c11u(0,i  ) + c22p(0,j  ) + c33p(0,k  ) )
-            A(2,2) = mulI - mulL*( c11u(0,i-1) + c22p(0,j-1) + c33p(0,k-1) )
-            A(3,3) = mulI - mulL*( c11p(0,i  ) + c22v(0,j  ) + c33p(0,k  ) )
-            A(4,4) = mulI - mulL*( c11p(0,i-1) + c22v(0,j-1) + c33p(0,k-1) )
-            A(5,5) = mulI - mulL*( c11p(0,i  ) + c22p(0,j  ) + c33w(0,k  ) )
-            A(6,6) = mulI - mulL*( c11p(0,i-1) + c22p(0,j-1) + c33w(0,k-1) )
+            A(1,1) = mulI - mulL*( c11u(bL(1)+1,i  ) + c22p(bL(2)+1,j  ) + c33p(bL(3)+1,k  ) )
+            A(2,2) = mulI - mulL*( c11u(bL(1)+1,i-1) + c22p(bL(2)+1,j  ) + c33p(bL(3)+1,k  ) )
+            A(3,3) = mulI - mulL*( c11p(bL(1)+1,i  ) + c22v(bL(2)+1,j  ) + c33p(bL(3)+1,k  ) )
+            A(4,4) = mulI - mulL*( c11p(bL(1)+1,i  ) + c22v(bL(2)+1,j-1) + c33p(bL(3)+1,k ) )
+            A(5,5) = mulI - mulL*( c11p(bL(1)+1,i  ) + c22p(bL(2)+1,j  ) + c33w(bL(3)+1,k  ) )
+            A(6,6) = mulI - mulL*( c11p(bL(1)+1,i  ) + c22p(bL(2)+1,j  ) + c33w(bL(3)+1,k-1) )
                 
             ! sub/super-diagonal: diffusion
                 
@@ -471,14 +502,13 @@ contains
             A(6,5) = - mulL*c33w(bU(3),k-1)
 
             ! copy in the lower block for the next time point
-
             A(7:12,7:12) = A(1:6,1:6)
 
             ! pressure gradient 
             A(1:6,13) = (/ cG1(gL(1),i), cG1(gU(1),i-1), cG2(gL(2),j),cG2(gU(2),j-1), cG3(gL(3),k), cG3(gU(3),k-1) /)
             A(7:12,14) = A(1:6,13)
 
-            ! divergence on pressure points indeces are correct?
+            ! divergence on pressure points 
             A(13,1:6) = (/ cD1(dU(1),i), cD1(dL(1),i), cD2(dU(2),j), cD2(dL(2),j),cD3(dU(3),k), cD3(dL(3),k)/)
             A(14,7:12) = A(13,1:6)
                 
@@ -496,56 +526,56 @@ contains
 
             ! diffusion 
             do l = 0,1
-               do ll =0,1
+               do ll = 0,1
                 !u
-                b(l+1+6*ll) = c22p(bU(2),j-l)*vel(i-l,j+bU(2),k,1,t+ll) + c22p(bL(2),j-l)*vel(i-l,j+bL(2),k,1,t+ll) + &
-                           c33p(bU(3),k-l)*vel(i-l,j,k+bU(3),1,t+ll) + c33p(bL(3),k-l)*vel(i-l,j,k+bL(3),1,t+ll) 
+                b(l+1+6*ll) = c22p(bU(2),j)*vel(i-l,j+bU(2),k,1,t+ll) + c22p(bL(2),j)*vel(i-l,j+bL(2),k,1,t+ll) + &
+                              c33p(bU(3),k)*vel(i-l,j,k+bU(3),1,t+ll) + c33p(bL(3),k)*vel(i-l,j,k+bL(3),1,t+ll) 
                 !v       
-                b(l+3+6*ll) = c11p(bU(1),i-l)*vel(i+bU(1),j-l,k,2,t+ll) + c11p(bL(1),i-l)*vel(i+bL(1),j-l,k,2,t+ll) + &
-                           c33p(bU(3),k-l)*vel(i,j-l,k+bU(3),2,t+ll) + c33p(bL(3),k-l)*vel(i,j-l,k+bL(3),2,t+ll) 
+                b(l+3+6*ll) = c11p(bU(1),i)*vel(i+bU(1),j-l,k,2,t+ll) + c11p(bL(1),i)*vel(i+bL(1),j-l,k,2,t+ll) + &
+                              c33p(bU(3),k)*vel(i,j-l,k+bU(3),2,t+ll) + c33p(bL(3),k)*vel(i,j-l,k+bL(3),2,t+ll) 
                 !w
-                b(l+5+6*ll) = c22p(bU(2),j-l)*vel(i,j+bU(2),k-l,3,t+ll) + c22p(bL(2),j-l)*vel(i,j+bL(2),k-l,3,t+ll) + &
-                           c11p(bU(1),i-l)*vel(i+bU(1),j,k-l,3,t+ll) + c11p(bL(1),i-l)*vel(i+bL(1),j,k-l,3,t+ll) 
+                b(l+5+6*ll) = c22p(bU(2),j)*vel(i,j+bU(2),k-l,3,t+ll) + c22p(bL(2),j)*vel(i,j+bL(2),k-l,3,t+ll) + &
+                              c11p(bU(1),i)*vel(i+bU(1),j,k-l,3,t+ll) + c11p(bL(1),i)*vel(i+bL(1),j,k-l,3,t+ll) 
                 end do
            end do
             
-        b = b + (/ c11u(bU(1),i)*vel(i+1,j,k,1,t),c11u(bL(1),i-1)*vel(i-2,j,k,1,t),&
-                       c22v(bU(2),j)*vel(i,j+1,k,2,t),c22v(bL(2),j-1)*vel(i,j-2,k,2,t),&
-                       c33w(bU(3),k)*vel(i,j,k+1,3,t),c33w(bL(3),k-1)*vel(i,j,k-2,3,t),&
-                       c11u(bU(1),i)*vel(i+1,j,k,1,t+1),c11u(bL(1),i-1)*vel(i-2,j,k,1,t+1),&
-                       c22v(bU(2),j)*vel(i,j+1,k,2,t+1),c22v(bL(2),j-1)*vel(i,j-2,k,2,t+1),&
-                       c33w(bU(3),k)*vel(i,j,k+1,3,t+1),c33w(bL(3),k-1)*vel(i,j,k-2,3,t+1),&
-                       0., 0. /) ! -> divergence
+           b = b + (/ c11u(bU(1),i)*vel(i+bU(1),j,k,1,t  ),c11u(bL(1),i-1)*vel(i-1+bL(1),j,k,1,t  ),&
+                      c22v(bU(2),j)*vel(i,j+bU(2),k,2,t  ),c22v(bL(2),j-1)*vel(i,j-1+bL(2),k,2,t  ),&
+                      c33w(bU(3),k)*vel(i,j,k+bU(3),3,t  ),c33w(bL(3),k-1)*vel(i,j,k-1+bL(3),3,t  ),&
+                      c11u(bU(1),i)*vel(i+bU(1),j,k,1,t+1),c11u(bL(1),i-1)*vel(i-1+bL(1),j,k,1,t+1),&
+                      c22v(bU(2),j)*vel(i,j+bU(2),k,2,t+1),c22v(bL(2),j-1)*vel(i,j-1+bL(2),k,2,t+1),&
+                      c33w(bU(3),k)*vel(i,j,k+bU(3),3,t+1),c33w(bL(3),k-1)*vel(i,j,k-1+bL(3),3,t+1),&
+                      0., 0. /) ! -> divergence
                 
-            b = mulL*b
+            b = - mulL*b 
             
             ! pressure gradient
-            b = b + (/ cG1(gU(1),i)*p(i+1,j,k,t),cG1(gL(1),i-1)*p(i-1,j,k,t),&
-                       cG2(gU(2),j)*p(i,j+1,k,t),cG2(gL(2),j-1)*p(i,j-1,k,t),&
-                       cG3(gU(3),k)*p(i,j,k+1,t),cG3(gL(3),k-1)*p(i,j,k-1,t),&
-                       cG1(gU(1),i)*p(i+1,j,k,t+1),cG1(gL(1),i-1)*p(i-1,j,k,t+1),&
-                       cG2(gU(2),j)*p(i,j+1,k,t+1),cG2(gL(2),j-1)*p(i,j-1,k,t+1),&
-                       cG3(gU(3),k)*p(i,j,k+1,t+1),cG3(gL(3),k-1)*p(i,j,k-1,t+1),&
+            b = b + (/ cG1(gU(1),i)*p(i+gU(1),j,k,t  ),cG1(gL(1),i-1)*p(i-1+gL(1),j,k,t  ),&
+                       cG2(gU(2),j)*p(i,j+gU(2),k,t  ),cG2(gL(2),j-1)*p(i,j-1+gL(2),k,t  ),&
+                       cG3(gU(3),k)*p(i,j,k+gU(3),t  ),cG3(gL(3),k-1)*p(i,j,k-1+gL(3),t  ),&
+                       cG1(gU(1),i)*p(i+gU(1),j,k,t+1),cG1(gL(1),i-1)*p(i-1+gL(1),j,k,t+1),&
+                       cG2(gU(2),j)*p(i,j+gU(2),k,t+1),cG2(gL(2),j-1)*p(i,j-1+gL(2),k,t+1),&
+                       cG3(gU(3),k)*p(i,j,k+gU(3),t+1),cG3(gL(3),k-1)*p(i,j,k-1+gL(3),t+1),&
                        0., 0. /) ! -> divergence
             
             ! time stencil (just in the first time slice)
             b(1:6) = b(1:6) - mulI*(/ vel(i,j,k,1,t-1), vel(i-1,j,k,1,t-1),&
-                                        vel(i,j,k,2,t-1), vel(i,j-1,k,2,t-1),&
-                                        vel(i,j,k,3,t-1), vel(i,j,k-1,3,t-1) /)
+                                      vel(i,j,k,2,t-1), vel(i,j-1,k,2,t-1),&
+                                      vel(i,j,k,3,t-1), vel(i,j,k-1,3,t-1) /)
             ! new
             b = - b
             
             b = b + (/ rhs_vel(i,j,k,1,t),rhs_vel(i-1,j,k,1,t),&
                        rhs_vel(i,j,k,2,t),rhs_vel(i,j-1,k,2,t),&
                        rhs_vel(i,j,k,3,t),rhs_vel(i,j,k-1,3,t),&
-                    rhs_vel(i,j,k,1,t+1),rhs_vel(i-1,j,k,1,t+1),&
-                    rhs_vel(i,j,k,2,t+1),rhs_vel(i,j-1,k,2,t+1),&
-                    rhs_vel(i,j,k,3,t+1),rhs_vel(i,j,k-1,3,t+1),&
-                    rhs_p(i,j,k,t),rhs_p(i,j,k,t+1) /)
+                       rhs_vel(i,j,k,1,t+1),rhs_vel(i-1,j,k,1,t+1),&
+                       rhs_vel(i,j,k,2,t+1),rhs_vel(i,j-1,k,2,t+1),&
+                       rhs_vel(i,j,k,3,t+1),rhs_vel(i,j,k-1,3,t+1),&
+                       rhs_p(i,j,k,t),rhs_p(i,j,k,t+1) /)
 
 
 ! ---------- test the matrix A --------------!
-!if (i == 1 .and. j==1 .and. k==1 .and. t==1 ) then
+!if (i == 4 .and. j==4 .and. k==4 .and. t==1 ) then
 !write(*,*) i,j,k,t
 !print *,'-------- the matrix A ----------'
 
@@ -599,14 +629,13 @@ contains
         p(i,j,k,t) =  b(13)*omega + (1-omega)*p(i,j,k,t)
         p(i,j,k,t+1) =  b(14)*omega + (1-omega)*p(i,j,k,t+1)
        
-
-        !end if ! for the interior  
+        end if 
         end do
       end do
     end do
 !end do
 
-!go to 100
+go to 100
     ! boundary pressure points
        
     ! in X direction
@@ -724,7 +753,7 @@ contains
                         end do
                 end do
         end if
-!100 continue
+100 continue
     end do
 
   end subroutine OP_TimeStokesBSmoother
