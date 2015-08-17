@@ -104,7 +104,14 @@ public:
 
 			// defect correction rhs \hat{f}= b = x - L y
 			mgOps_->get()->apply( y, *b_->get() );
+			//b_->get()->write(100);
 			b_->get()->add( 1., x, -1., *b_->get() );
+		
+		// this should be zero in the consistency test
+		std::cout << "residual in MG = " << b_->get()->norm() << std::endl;
+		b_->get()->write();
+		//x.write();
+		
 
 		 // transfer init y and \hat{f} to coarsest coarse
 		 mgTrans_->getTransferOp()->apply( y, *x_->get(0) );

@@ -46,7 +46,8 @@ public:
 		
 		x.exchange();
 
-		op_->apply( x.getConstField(0), *temp_ );
+		if (d > 1)
+			op_->apply( x.getConstField(0), *temp_ );
 	
 		for( Ordinal i=spaceF()->sInd(S,3); i<spaceF()->eInd(S,3); ++i )  {
 
@@ -54,9 +55,11 @@ public:
 				
 				Ordinal iC = (i-spaceF()->sInd(S,3))/d + spaceC()->sInd(S,3);
 				op_->apply( x.getConstField(i), y.getField(iC) );
-				y.getFieldPtr(iC)->add(0.25,*temp_,0.5,y.getField(iC));
+				
+				if (d > 1)
+					y.getFieldPtr(iC)->add(0.25,*temp_,0.5,y.getField(iC));
 			}
-			else {
+			else if (d > 1) {
 				op_->apply( x.getConstField(i), *temp_ );
 				Ordinal iC = (i-spaceF()->sInd(S,3) - 1)/d + spaceC()->sInd(S,3);		
 				y.getFieldPtr(iC)->add(1.,y.getField(iC),0.25,*temp_);

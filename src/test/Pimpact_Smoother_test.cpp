@@ -319,7 +319,9 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesBSmooth_conv ) {
                 std::cout  << "        residual = " << error->norm()/std::sqrt( error->getLength() ) << "\n";
 		
 		bSmoother->apply(*y,*x);
-	
+		
+		//x->getSFieldPtr()->level();
+			
 		if (i%5==0 &&  output)
 			error->write(i*100);
 	}

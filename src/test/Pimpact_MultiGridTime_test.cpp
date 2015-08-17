@@ -31,7 +31,7 @@ typedef double S;
 typedef int O;
 
 typedef Pimpact::Space<S,O,3,4> FSpace3T;
-typedef Pimpact::Space<S,O,4,4> FSpace4T; 
+typedef Pimpact::Space<S,O,4,2> FSpace4T; 
 
 typedef Pimpact::Space<S,O,3,2> CSpace3T;
 typedef Pimpact::Space<S,O,4,2> CSpace4T; 
@@ -449,16 +449,14 @@ fieldc_v->init(2);
         if( mgSpaces->participating(-5) )
                op_v->apply( *fieldf_v, *fieldc_v);
       
-      fieldc_v->write();
-      fieldf_v->write(100); 
+     // fieldc_v->write();
+     // fieldf_v->write(100); 
 
 } // end of TEUCHOS_UNIT_TEST_TEMPLATE
 
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, Restrictor4D, CS4L )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, Restrictor4D, CS4G )
-
-
 
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator4D, CS ) {
@@ -583,6 +581,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, Interpolator4D, CS4L )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, Interpolator4D, CS4G )
 */
 
+
 template<class SpaceT> using CVF = Pimpact::CompoundField<Pimpact::TimeField<Pimpact::VectorField<SpaceT> >,
 		              			          Pimpact::TimeField<Pimpact::ScalarField<SpaceT> > >;
 
@@ -612,7 +611,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-	auto space = Pimpact::createSpace<S,O,4,4>( pl ); 
+	auto space = Pimpact::createSpace<S,O,4,2>( pl ); 
 
 	auto mgSpaces = Pimpact::createMGSpaces<FSpace4T,CSpace4T,CS>( space, maxGrids );
 
@@ -627,7 +626,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<int>( "Maximum Iterations", 1000 );
 	mgPL->sublist("Coarse Grid Solver").set<std::string>("Solver name", "GMRES" );
 	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<std::string>("Timer Label", "Coarse Grid Solver" );
-	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<S>("Convergence Tolerance" , 9.e-2 );
+	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<S>("Convergence Tolerance" , 9.e-4 );
 
 	auto mg = Pimpact::createMultiGrid<
 									CVF,
@@ -637,15 +636,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 									Pimpact::TimeStokesOp,
 									Pimpact::TimeStokesOp,								
 									Pimpact::TimeStokesBSmoother,
-//									Pimpact::TimeStokesBSmoother
-									MOP
+									Pimpact::TimeStokesBSmoother
+//									MOP
 										> ( mgSpaces, mgPL );
 
 //	mg->print();
 
 auto x = Pimpact::createCompoundField( Pimpact::createTimeField< Pimpact::VectorField<FSpace4T> >( space ),
                                        Pimpact::createTimeField< Pimpact::ScalarField<FSpace4T> >( space ));
-
 
 typedef Pimpact::TimeStokesOp<FSpace4T> OpT;
 auto op = Pimpact::create<OpT>( space );
@@ -662,14 +660,17 @@ err->init(1);
 
 Pimpact::initVectorTimeField( true_sol->getVFieldPtr(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha );
 
+
 auto true_sol2 = true_sol->clone();
 
 op->apply(*true_sol,*b);
 
 // consistency
-mg->apply( *b, *true_sol2 );
-error->add(-1.,*true_sol,1.,*true_sol2);
+mg->apply( *b, *true_sol2);
+err->add(-1.,*true_sol,1.,*true_sol2);
 std::cout << "\n" << "consistency err: " << err->norm()/std::sqrt( err->getLength() );
+
+//err->write();
 
 // put BC in the RHS
 true_sol->init(0);
@@ -679,6 +680,14 @@ b->add(1.,*b,-1.,*b_bc);
 
 /////////
 
+//consistency
+true_sol2 = true_sol->clone();
+mg->apply( *b, *true_sol2 );
+err->add(-1.,*true_sol,1.,*true_sol2);
+std::cout << "\n" << "consistency err with bc in RHS: " << err->norm()/std::sqrt( err->getLength() );
+
+///////
+//
 Pimpact::initVectorTimeField( true_sol->getVFieldPtr(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha );
 
 x->random();
