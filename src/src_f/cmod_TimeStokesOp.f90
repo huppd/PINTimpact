@@ -421,7 +421,7 @@ contains
      !real(c_double) :: work(lwork)
 
      ! ------------------------!
-    omega = 0.7
+     omega = 0.7
 
 
  !pressure DR BC   
@@ -440,29 +440,30 @@ contains
   ! end do
 !end do
 
-    do t = SS(4), N(4) - 1
+  do t = SS(4), N(4) - 1
 
 
-        if ( MOD(direction_flag,2) == 1) then
-        
-            k_start=SS(3)
-            k_end=NN(3)
-            j_start=SS(2)
-            j_end=NN(2)
-            i_start=SS(1)
-            i_end=NN(1)
-            increment=1
-        else
+    if ( MOD(direction_flag,2) == 1) then
 
-            k_start=NN(3)
-            k_end=SS(3)
-            j_start=NN(2)
-            j_end=SS(2)
-            i_start=NN(1)
-            i_end=SS(1)
-            increment=-1
+      k_start  =SS(3)
+      k_end    =NN(3)
+      j_start  =SS(2)
+      j_end    =NN(2)
+      i_start  =SS(1)
+      i_end    =NN(1)
+      increment=1
 
-        end if
+    else
+
+      k_start  =NN(3)
+      k_end    =SS(3)
+      j_start  =NN(2)
+      j_end    =SS(2)
+      i_start  =NN(1)
+      i_end    =SS(1)
+      increment=-1
+
+    end if
 
     do k = k_start, k_end, increment
       do j =  j_start, j_end, increment
@@ -470,166 +471,194 @@ contains
 
 
         if (i==SS(1) .or. i==NN(1) .or. j==SS(2) .or. j==NN(2) .or. k==SS(3) .or. k==NN(3)) then
-                p(i,j,k,t) = 0
-                p(i,j,k,t+1) = 0
+          p(i,j,k,t) = 0
+          p(i,j,k,t+1) = 0
         else
                         
-         A(1:block_size,1:block_size) = 0.0
-         b(1:block_size) = 0.0
+          A(1:block_size,1:block_size) = 0.0
+          b(1:block_size) = 0.0
 
-        !==============================================================
-        !========== assembling the matrix A ===========================
-        !==============================================================
+          !==============================================================
+          !========== assembling the matrix A ===========================
+          !==============================================================
 
-            ! diagonal: time derivative + diffusion 
+          ! diagonal: time derivative + diffusion 
 
-            A(1,1) = mulI - mulL*( c11u(bL(1)+1,i  ) + c22p(bL(2)+1,j  ) + c33p(bL(3)+1,k  ) )
-            A(2,2) = mulI - mulL*( c11u(bL(1)+1,i-1) + c22p(bL(2)+1,j  ) + c33p(bL(3)+1,k  ) )
-            A(3,3) = mulI - mulL*( c11p(bL(1)+1,i  ) + c22v(bL(2)+1,j  ) + c33p(bL(3)+1,k  ) )
-            A(4,4) = mulI - mulL*( c11p(bL(1)+1,i  ) + c22v(bL(2)+1,j-1) + c33p(bL(3)+1,k ) )
-            A(5,5) = mulI - mulL*( c11p(bL(1)+1,i  ) + c22p(bL(2)+1,j  ) + c33w(bL(3)+1,k  ) )
-            A(6,6) = mulI - mulL*( c11p(bL(1)+1,i  ) + c22p(bL(2)+1,j  ) + c33w(bL(3)+1,k-1) )
+          A(1,1) = mulI - mulL*( c11u(bL(1)+1,i  ) + c22p(bL(2)+1,j  ) + c33p(bL(3)+1,k  ) )
+          A(2,2) = mulI - mulL*( c11u(bL(1)+1,i-1) + c22p(bL(2)+1,j  ) + c33p(bL(3)+1,k  ) )
+          A(3,3) = mulI - mulL*( c11p(bL(1)+1,i  ) + c22v(bL(2)+1,j  ) + c33p(bL(3)+1,k  ) )
+          A(4,4) = mulI - mulL*( c11p(bL(1)+1,i  ) + c22v(bL(2)+1,j-1) + c33p(bL(3)+1,k  ) )
+          A(5,5) = mulI - mulL*( c11p(bL(1)+1,i  ) + c22p(bL(2)+1,j  ) + c33w(bL(3)+1,k  ) )
+          A(6,6) = mulI - mulL*( c11p(bL(1)+1,i  ) + c22p(bL(2)+1,j  ) + c33w(bL(3)+1,k-1) )
                 
-            ! sub/super-diagonal: diffusion
+          ! sub/super-diagonal: diffusion
+
+          A(1,2) = - mulL*c11u(bL(1),i  )
+          A(2,1) = - mulL*c11u(bU(1),i-1)
+
+          A(3,4) = - mulL*c22v(bL(2),j  )
+          A(4,3) = - mulL*c22v(bU(2),j-1)
+
+          A(5,6) = - mulL*c33w(bL(3),k  )
+          A(6,5) = - mulL*c33w(bU(3),k-1)
+
+          ! copy in the lower block for the next time point
+          A(7:12,7:12) = A(1:6,1:6)
+
+          ! pressure gradient 
+          A(1:6,13) = (/ cG1(gL(1),i), cG1(gU(1),i-1), cG2(gL(2),j),cG2(gU(2),j-1), cG3(gL(3),k), cG3(gU(3),k-1) /)
+          A(7:12,14) = A(1:6,13)
+
+          ! divergence on pressure points 
+          A(13,1:6) = (/ cD1(dU(1),i), cD1(dL(1),i), cD2(dU(2),j), cD2(dL(2),j),cD3(dU(3),k), cD3(dL(3),k)/)
+          A(14,7:12) = A(13,1:6)
                 
-            A(1,2) = - mulL*c11u(bL(1),i)
-            A(2,1) = - mulL*c11u(bU(1),i-1)
+          ! time derivative 
 
-            A(3,4) = - mulL*c22v(bL(2),j)
-            A(4,3) = - mulL*c22v(bU(2),j-1)
+          do d = 1,6
+            A(d+6,d) = - mulI
+          end do
 
-            A(5,6) = - mulL*c33w(bL(3),k)
-            A(6,5) = - mulL*c33w(bU(3),k-1)
-
-            ! copy in the lower block for the next time point
-            A(7:12,7:12) = A(1:6,1:6)
-
-            ! pressure gradient 
-            A(1:6,13) = (/ cG1(gL(1),i), cG1(gU(1),i-1), cG2(gL(2),j),cG2(gU(2),j-1), cG3(gL(3),k), cG3(gU(3),k-1) /)
-            A(7:12,14) = A(1:6,13)
-
-            ! divergence on pressure points 
-            A(13,1:6) = (/ cD1(dU(1),i), cD1(dL(1),i), cD2(dU(2),j), cD2(dL(2),j),cD3(dU(3),k), cD3(dL(3),k)/)
-            A(14,7:12) = A(13,1:6)
+          !===================================================
+          !========== assembling the RHS =====================
+          !===================================================
                 
-            ! time derivative 
+          ! boundary term !
 
-            do d = 1,6
-                A(d+6,d) = - mulI
+          ! diffusion 
+          do l = 0,1
+            do ll = 0,1
+              !u
+              b(l+1+6*ll) = c22p(bU(2),j)*vel(i-l,j+bU(2),k      ,1,t+ll) + &
+                            c22p(bL(2),j)*vel(i-l,j+bL(2),k      ,1,t+ll) + &
+                            c33p(bU(3),k)*vel(i-l,j      ,k+bU(3),1,t+ll) + &
+                            c33p(bL(3),k)*vel(i-l,j      ,k+bL(3),1,t+ll) 
+              !v       
+              b(l+3+6*ll) = c11p(bU(1),i)*vel(i+bU(1),j-l,k      ,2,t+ll) + &
+                            c11p(bL(1),i)*vel(i+bL(1),j-l,k      ,2,t+ll) + &
+                            c33p(bU(3),k)*vel(i      ,j-l,k+bU(3),2,t+ll) + &
+                            c33p(bL(3),k)*vel(i      ,j-l,k+bL(3),2,t+ll) 
+              !w
+              b(l+5+6*ll) = c22p(bU(2),j)*vel(i      ,j+bU(2),k-l,3,t+ll) + &
+                            c22p(bL(2),j)*vel(i      ,j+bL(2),k-l,3,t+ll) + &
+                            c11p(bU(1),i)*vel(i+bU(1),j      ,k-l,3,t+ll) + &
+                            c11p(bL(1),i)*vel(i+bL(1),j      ,k-l,3,t+ll) 
             end do
-
-            !===================================================
-            !========== assembling the RHS =====================
-            !===================================================
-                
-                ! boundary term !
-
-            ! diffusion 
-            do l = 0,1
-               do ll = 0,1
-                !u
-                b(l+1+6*ll) = c22p(bU(2),j)*vel(i-l,j+bU(2),k,1,t+ll) + c22p(bL(2),j)*vel(i-l,j+bL(2),k,1,t+ll) + &
-                              c33p(bU(3),k)*vel(i-l,j,k+bU(3),1,t+ll) + c33p(bL(3),k)*vel(i-l,j,k+bL(3),1,t+ll) 
-                !v       
-                b(l+3+6*ll) = c11p(bU(1),i)*vel(i+bU(1),j-l,k,2,t+ll) + c11p(bL(1),i)*vel(i+bL(1),j-l,k,2,t+ll) + &
-                              c33p(bU(3),k)*vel(i,j-l,k+bU(3),2,t+ll) + c33p(bL(3),k)*vel(i,j-l,k+bL(3),2,t+ll) 
-                !w
-                b(l+5+6*ll) = c22p(bU(2),j)*vel(i,j+bU(2),k-l,3,t+ll) + c22p(bL(2),j)*vel(i,j+bL(2),k-l,3,t+ll) + &
-                              c11p(bU(1),i)*vel(i+bU(1),j,k-l,3,t+ll) + c11p(bL(1),i)*vel(i+bL(1),j,k-l,3,t+ll) 
-                end do
-           end do
+          end do
             
-           b = b + (/ c11u(bU(1),i)*vel(i+bU(1),j,k,1,t  ),c11u(bL(1),i-1)*vel(i-1+bL(1),j,k,1,t  ),&
-                      c22v(bU(2),j)*vel(i,j+bU(2),k,2,t  ),c22v(bL(2),j-1)*vel(i,j-1+bL(2),k,2,t  ),&
-                      c33w(bU(3),k)*vel(i,j,k+bU(3),3,t  ),c33w(bL(3),k-1)*vel(i,j,k-1+bL(3),3,t  ),&
-                      c11u(bU(1),i)*vel(i+bU(1),j,k,1,t+1),c11u(bL(1),i-1)*vel(i-1+bL(1),j,k,1,t+1),&
-                      c22v(bU(2),j)*vel(i,j+bU(2),k,2,t+1),c22v(bL(2),j-1)*vel(i,j-1+bL(2),k,2,t+1),&
-                      c33w(bU(3),k)*vel(i,j,k+bU(3),3,t+1),c33w(bL(3),k-1)*vel(i,j,k-1+bL(3),3,t+1),&
+          b = b + (/ c11u(bU(1),i  )*vel(i+bU(1)  ,j        ,k        ,1,t  ),&
+                     c11u(bL(1),i-1)*vel(i-1+bL(1),j        ,k        ,1,t  ),&
+                     c22v(bU(2),j  )*vel(i        ,j+bU(2)  ,k        ,2,t  ),&
+                     c22v(bL(2),j-1)*vel(i        ,j-1+bL(2),k        ,2,t  ),&
+                     c33w(bU(3),k  )*vel(i        ,j        ,k+bU(3)  ,3,t  ),&
+                     c33w(bL(3),k-1)*vel(i        ,j        ,k-1+bL(3),3,t  ),&
+                     c11u(bU(1),i  )*vel(i+bU(1)  ,j        ,k        ,1,t+1),&
+                     c11u(bL(1),i-1)*vel(i-1+bL(1),j        ,k        ,1,t+1),&
+                     c22v(bU(2),j  )*vel(i        ,j+bU(2)  ,k        ,2,t+1),&
+                     c22v(bL(2),j-1)*vel(i        ,j-1+bL(2),k        ,2,t+1),&
+                     c33w(bU(3),k  )*vel(i        ,j        ,k+bU(3)  ,3,t+1),&
+                     c33w(bL(3),k-1)*vel(i        ,j        ,k-1+bL(3),3,t+1),&
                       0., 0. /) ! -> divergence
                 
-            b = - mulL*b 
+          b = - mulL*b 
             
-            ! pressure gradient
-            b = b + (/ cG1(gU(1),i)*p(i+gU(1),j,k,t  ),cG1(gL(1),i-1)*p(i-1+gL(1),j,k,t  ),&
-                       cG2(gU(2),j)*p(i,j+gU(2),k,t  ),cG2(gL(2),j-1)*p(i,j-1+gL(2),k,t  ),&
-                       cG3(gU(3),k)*p(i,j,k+gU(3),t  ),cG3(gL(3),k-1)*p(i,j,k-1+gL(3),t  ),&
-                       cG1(gU(1),i)*p(i+gU(1),j,k,t+1),cG1(gL(1),i-1)*p(i-1+gL(1),j,k,t+1),&
-                       cG2(gU(2),j)*p(i,j+gU(2),k,t+1),cG2(gL(2),j-1)*p(i,j-1+gL(2),k,t+1),&
-                       cG3(gU(3),k)*p(i,j,k+gU(3),t+1),cG3(gL(3),k-1)*p(i,j,k-1+gL(3),t+1),&
-                       0., 0. /) ! -> divergence
+          ! pressure gradient
+          b = b + (/ cG1(gU(1),i  )*p(i+gU(1)  ,j        ,k        ,t  ),&
+                     cG1(gL(1),i-1)*p(i-1+gL(1),j        ,k        ,t  ),&
+                     cG2(gU(2),j  )*p(i        ,j+gU(2)  ,k        ,t  ),&
+                     cG2(gL(2),j-1)*p(i        ,j-1+gL(2),k        ,t  ),&
+                     cG3(gU(3),k  )*p(i        ,j        ,k+gU(3)  ,t  ),&
+                     cG3(gL(3),k-1)*p(i        ,j        ,k-1+gL(3),t  ),&
+                     cG1(gU(1),i  )*p(i+gU(1)  ,j        ,k        ,t+1),&
+                     cG1(gL(1),i-1)*p(i-1+gL(1),j        ,k        ,t+1),&
+                     cG2(gU(2),j  )*p(i        ,j+gU(2)  ,k        ,t+1),&
+                     cG2(gL(2),j-1)*p(i        ,j-1+gL(2),k        ,t+1),&
+                     cG3(gU(3),k  )*p(i        ,j        ,k+gU(3)  ,t+1),&
+                     cG3(gL(3),k-1)*p(i        ,j        ,k-1+gL(3),t+1),&
+                     0., 0. /) ! -> divergence
+          
+           ! time stencil (just in the first time slice)
+           b(1:6) = b(1:6) - mulI*(/ vel(i  ,j  ,k  ,1,t-1),&
+                                     vel(i-1,j  ,k  ,1,t-1),&
+                                     vel(i  ,j  ,k  ,2,t-1),&
+                                     vel(i  ,j-1,k  ,2,t-1),&
+                                     vel(i  ,j  ,k  ,3,t-1),&
+                                     vel(i  ,j  ,k-1,3,t-1) /)
+           ! new
+           b = - b
             
-            ! time stencil (just in the first time slice)
-            b(1:6) = b(1:6) - mulI*(/ vel(i,j,k,1,t-1), vel(i-1,j,k,1,t-1),&
-                                      vel(i,j,k,2,t-1), vel(i,j-1,k,2,t-1),&
-                                      vel(i,j,k,3,t-1), vel(i,j,k-1,3,t-1) /)
-            ! new
-            b = - b
-            
-            b = b + (/ rhs_vel(i,j,k,1,t),rhs_vel(i-1,j,k,1,t),&
-                       rhs_vel(i,j,k,2,t),rhs_vel(i,j-1,k,2,t),&
-                       rhs_vel(i,j,k,3,t),rhs_vel(i,j,k-1,3,t),&
-                       rhs_vel(i,j,k,1,t+1),rhs_vel(i-1,j,k,1,t+1),&
-                       rhs_vel(i,j,k,2,t+1),rhs_vel(i,j-1,k,2,t+1),&
-                       rhs_vel(i,j,k,3,t+1),rhs_vel(i,j,k-1,3,t+1),&
-                       rhs_p(i,j,k,t),rhs_p(i,j,k,t+1) /)
+           b = b + (/ rhs_vel(i  ,j  ,k  ,1,t  ),&
+                      rhs_vel(i-1,j  ,k  ,1,t  ),&
+                      rhs_vel(i  ,j  ,k  ,2,t  ),&
+                      rhs_vel(i  ,j-1,k  ,2,t  ),&
+                      rhs_vel(i  ,j  ,k  ,3,t  ),&
+                      rhs_vel(i  ,j  ,k-1,3,t  ),&
+                      rhs_vel(i  ,j  ,k  ,1,t+1),&
+                      rhs_vel(i-1,j  ,k  ,1,t+1),&
+                      rhs_vel(i  ,j  ,k  ,2,t+1),&
+                      rhs_vel(i  ,j-1,k  ,2,t+1),&
+                      rhs_vel(i  ,j  ,k  ,3,t+1),&
+                      rhs_vel(i  ,j  ,k-1,3,t+1),&
+                      rhs_p  (i  ,j  ,k    ,t  ),&
+                      rhs_p  (i  ,j  ,k    ,t+1) /)
 
 
-! ---------- test the matrix A --------------!
-!if (i == 4 .and. j==4 .and. k==4 .and. t==1 ) then
-!write(*,*) i,j,k,t
-!print *,'-------- the matrix A ----------'
+           ! ---------- test the matrix A --------------!
+           !if (i == 4 .and. j==4 .and. k==4 .and. t==1 ) then
+           !write(*,*) i,j,k,t
+           !print *,'-------- the matrix A ----------'
 
-!do l = 1, block_size
-!write(*,'(14F7.2)') (A(l,c), c = 1, block_size) 
-!end do
-!write(*,*)
+           !do l = 1, block_size
+           !write(*,'(14F7.2)') (A(l,c), c = 1, block_size) 
+           !end do
+           !write(*,*)
 
-!print*, b
-!end if
+           !print*, b
+           !end if
 
-!call dgesvd ( 'A', 'A', block_size, block_size, A, block_size, s, u, block_size, vt, block_size, work, lwork , info )
+           !call dgesvd ( 'A', 'A', block_size, block_size, A, block_size, s, u, block_size, vt, block_size, work, lwork , info )
 
-!if ( info /= 0 ) then
-!write ( *, '(a)' ) ' '
-!write ( *, '(a,i8)' ) '  DGESVD returned nonzero INFO = ', info
-!return
-!end if
+           !if ( info /= 0 ) then
+           !write ( *, '(a)' ) ' '
+           !write ( *, '(a,i8)' ) '  DGESVD returned nonzero INFO = ', info
+           !return
+           !end if
 
-!print*,'------- singular values ---------'
-!print*, s
- !-------------------------------------------!
+           !print*,'------- singular values ---------'
+           !print*, s
+           !-------------------------------------------!
 
-!print*, '! -------- Solve the matrix A --------------!'
-! subroutine     dgesv (N, NRHS, A, LDA, IPIV, B, LDB, INFO)
- call dgesv( block_size, 1, A, block_size, ipiv, b, block_size, info )
-  
-  if ( info /= 0 ) then
-    write ( *, '(a)' ) ' '
-    write ( *, '(a,i8)' ) '  DGETRF returned INFO = ', info
-    write ( *, '(a)' ) '  The matrix is numerically singular.'
-    return
-  end if
+           !print*, '! -------- Solve the matrix A --------------!'
+           ! subroutine     dgesv (N, NRHS, A, LDA, IPIV, B, LDB, INFO)
+           call dgesv( block_size, 1, A, block_size, ipiv, b, block_size, info )
 
-       !assign new solution  
-       
-        vel(i,j,k,1,t) =  b(1)*omega + (1-omega)*vel(i,j,k,1,t)
-        vel(i-1,j,k,1,t) =  b(2)*omega + (1-omega)*vel(i-1,j,k,1,t)
-        vel(i,j,k,2,t) =  b(3)*omega + (1-omega)*vel(i,j,k,2,t)
-        vel(i,j-1,k,2,t) =  b(4)*omega + (1-omega)*vel(i,j-1,k,2,t)
-        vel(i,j,k,3,t) =  b(5)*omega + (1-omega)*vel(i,j,k,3,t)
-        vel(i,j,k-1,3,t) =  b(6)*omega + (1-omega)*vel(i,j,k-1,3,t)
+           if ( info /= 0 ) then
+             write ( *, '(a)' ) ' '
+             write ( *, '(a,i8)' ) '  DGETRF returned INFO = ', info
+             write ( *, '(a)' ) '  The matrix is numerically singular.'
+             return
+           end if
 
-        vel(i,j,k,1,t+1) =  b(7)*omega + (1-omega)*vel(i,j,k,1,t+1)
-        vel(i-1,j,k,1,t+1) =  b(8)*omega + (1-omega)*vel(i-1,j,k,1,t+1)
-        vel(i,j,k,2,t+1) =  b(9)*omega + (1-omega)*vel(i,j,k,2,t+1)
-        vel(i,j-1,k,2,t+1) =  b(10)*omega + (1-omega)*vel(i,j-1,k,2,t+1)
-        vel(i,j,k,3,t+1) =  b(11)*omega + (1-omega)*vel(i,j,k,3,t+1)
-        vel(i,j,k-1,3,t+1) =  b(12)*omega + (1-omega)*vel(i,j,k-1,3,t+1)
+           !assign new solution  
 
-        p(i,j,k,t) =  b(13)*omega + (1-omega)*p(i,j,k,t)
-        p(i,j,k,t+1) =  b(14)*omega + (1-omega)*p(i,j,k,t+1)
-       
-        end if 
+           vel(i  ,j  ,k  ,1,t  ) =  b( 1)*omega + (1-omega)*vel(i  ,j  ,k  ,1,t  )
+           vel(i-1,j  ,k  ,1,t  ) =  b( 2)*omega + (1-omega)*vel(i-1,j  ,k  ,1,t  )
+           vel(i  ,j  ,k  ,2,t  ) =  b( 3)*omega + (1-omega)*vel(i  ,j  ,k  ,2,t  )
+           vel(i  ,j-1,k  ,2,t  ) =  b( 4)*omega + (1-omega)*vel(i  ,j-1,k  ,2,t  )
+           vel(i  ,j  ,k  ,3,t  ) =  b( 5)*omega + (1-omega)*vel(i  ,j  ,k  ,3,t  )
+           vel(i  ,j  ,k-1,3,t  ) =  b( 6)*omega + (1-omega)*vel(i  ,j  ,k-1,3,t  )
+
+           vel(i  ,j  ,k  ,1,t+1) =  b( 7)*omega + (1-omega)*vel(i  ,j  ,k  ,1,t+1)
+           vel(i-1,j  ,k  ,1,t+1) =  b( 8)*omega + (1-omega)*vel(i-1,j  ,k  ,1,t+1)
+           vel(i  ,j  ,k  ,2,t+1) =  b( 9)*omega + (1-omega)*vel(i  ,j  ,k  ,2,t+1)
+           vel(i  ,j-1,k  ,2,t+1) =  b(10)*omega + (1-omega)*vel(i  ,j-1,k  ,2,t+1)
+           vel(i  ,j  ,k  ,3,t+1) =  b(11)*omega + (1-omega)*vel(i  ,j  ,k  ,3,t+1)
+           vel(i  ,j  ,k-1,3,t+1) =  b(12)*omega + (1-omega)*vel(i  ,j  ,k-1,3,t+1)
+
+           p(i,j,k,t  ) =  b(13)*omega + (1-omega)*p(i,j,k,t  )
+           p(i,j,k,t+1) =  b(14)*omega + (1-omega)*p(i,j,k,t+1)
+
+         end if 
         end do
       end do
     end do

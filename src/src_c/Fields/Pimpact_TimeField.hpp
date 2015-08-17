@@ -115,7 +115,7 @@ protected:
 			mfs_ = Teuchos::Array< Teuchos::RCP<Field> >(nt);
 
 			for( int i=0; i<nt; ++i )
-				//      mfs_[i] = Teuchos::rcp( new Field( space(), false ) );
+				// mfs_[i] = Teuchos::rcp( new Field( space(), false ) );
 				mfs_[i] = field.mfs_[i]->clone(copyType);
 
 			Ordinal nx = mfs_[0]->getStorageSize();
@@ -132,9 +132,8 @@ protected:
 			else {
 				for( int i=0; i<nt*nx; ++i )
 					array_[i] = 0.;
+				exchangedState_ = true;
 			}
-
-			if( ShallowCopy ) exchangedState_ = true;
 
 		}
 
