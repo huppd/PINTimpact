@@ -471,8 +471,8 @@ contains
 
 
         if (i==SS(1) .or. i==NN(1) .or. j==SS(2) .or. j==NN(2) .or. k==SS(3) .or. k==NN(3)) then
-          p(i,j,k,t) = 0
-          p(i,j,k,t+1) = 0
+           !p(i,j,k,t) = 0
+           !p(i,j,k,t+1) = 0
         else
                         
           A(1:block_size,1:block_size) = 0.0
@@ -664,7 +664,7 @@ contains
     end do
 !end do
 
-go to 100
+!go to 100
     ! boundary pressure points
        
     ! in X direction
@@ -782,7 +782,7 @@ go to 100
                         end do
                 end do
         end if
-100 continue
+!100 continue
     end do
 
   end subroutine OP_TimeStokesBSmoother

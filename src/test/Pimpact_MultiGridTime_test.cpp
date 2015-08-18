@@ -672,10 +672,10 @@ op->apply(*true_sol,*b);
 //err->write();
 
 // put BC in the RHS
-true_sol->init(0);
-op->apply(*true_sol,*b_bc);
+//true_sol->init(0);
+//op->apply(*true_sol,*b_bc);
 
-b->add(1.,*b,-1.,*b_bc);
+//b->add(1.,*b,-1.,*b_bc);
 
 /////////
 

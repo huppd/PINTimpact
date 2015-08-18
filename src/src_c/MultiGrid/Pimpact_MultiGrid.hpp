@@ -135,12 +135,12 @@ public:
 				 temp_->get(i)->add( -1., *temp_->get(i), 1., *b_->get(i) );
 
 				// put the pressure 0 a the boundary of temp_
-				//temp_->get(i)->getSField().init(0.);				
-
+				//temp_->get(i)->write(i*100);				
+		
 				 mgTrans_->getRestrictionOp(i)->apply( *temp_->get(i), *b_->get(i+1) );
 				
 				// set pressure 0 here?
-				b_->get(i+1)->getSField().init(0.); 
+				//b_->get(i+1)->getSField().init(0.); 
 			}
 		 }
 
