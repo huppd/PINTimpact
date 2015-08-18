@@ -104,15 +104,8 @@ public:
 
 			// defect correction rhs \hat{f}= b = x - L y
 			mgOps_->get()->apply( y, *b_->get() );
-			//b_->get()->write(100);
 			b_->get()->add( 1., x, -1., *b_->get() );
-		
-		// this should be zero in the consistency test
-		std::cout << "residual in MG = " << b_->get()->norm() << std::endl;
-		b_->get()->write();
-		//x.write();
-		
-
+	
 		 // transfer init y and \hat{f} to coarsest coarse
 		 mgTrans_->getTransferOp()->apply( y, *x_->get(0) );
 		 mgTrans_->getTransferOp()->apply( *b_->get(), *b_->get(0) );
@@ -122,30 +115,43 @@ public:
 		 // b = x - L y +\hat{L} y
 		 b_->get(0)->add( 1., *b_->get(0), 1, *temp_->get(0) );
 		 b_->get(0)->level();
-		 // use residual here
+		
+
+		// use residual here
 
 		 // smooth and restrict defect( todo extract this as method )
 		 int i;
 		 for( i=0; i<mgSpaces_->getNGrids()-1; ++i ) {
-			 x_->get(i)->init(0.); // necessary? for DivGradOp yes
-
-			 if( mgSpaces_->participating(i) ) {
+			 
+			 if (i > 0)
+				x_->get(i)->init(0.); // necessary? for DivGradOp yes
+			 
+			if( mgSpaces_->participating(i) ) {
+				 
 				 mgSms_->get(i)->apply( *b_->get(i), *x_->get(i) );
-				 mgOps_->get(i)->apply( *x_->get(i), *temp_->get(i) );
+		
+				 mgOps_->get(i)->apply( *x_->get(i), *temp_->get(i) );				
+	
 				 temp_->get(i)->add( -1., *temp_->get(i), 1., *b_->get(i) );
+
+				// put the pressure 0 a the boundary of temp_
+				//temp_->get(i)->getSField().init(0.);				
+
 				 mgTrans_->getRestrictionOp(i)->apply( *temp_->get(i), *b_->get(i+1) );
-			 }
+				
+				// set pressure 0 here?
+				b_->get(i+1)->getSField().init(0.); 
+			}
 		 }
 
 		 // coarse grid solution
 			i = -1;
 			if( mgSpaces_->participating(i) ) {
 				// \todo add level for singular stuff
-				b_->get(i)->level();
+				b_->get(i)->level(); // this shouldn't be just for the pressure? is by default?
 				x_->get(i)->init(0.);
-
 				try{
-					cGridSolver_->apply( *b_->get(i), *x_->get(i) );
+					cGridSolver_->apply( *b_->get(i), *x_->get(i));
 				}
 				catch( std::logic_error& e ) {
 					std::cout << "error in MG on coarse grid:\n";
@@ -161,6 +167,7 @@ public:
 				if( mgSpaces_->participating(i) ) {
 					mgTrans_->getInterpolationOp(i)->apply( *x_->get(i+1), *temp_->get(i) );
 					x_->get(i)->add( 1., *temp_->get(i), 1., *x_->get(i) );
+				// pressure boundary?
 					mgSms_->get( i )->apply( *b_->get(i), *x_->get(i) );
 				}
 			}

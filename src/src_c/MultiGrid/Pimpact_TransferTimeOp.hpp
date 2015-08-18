@@ -44,10 +44,11 @@ public:
 
 		for (int i=x.space()->sInd(S,3); i<x.space()->eInd(S,3); ++i)
 	   		 opV_->apply( x.getConstField(i), y.getField(i) );
-
+	
+		y.changed();
 	}
 
-
+	
   void print(  std::ostream& out=std::cout ) const {
 
 		out << "=== TransferTimeOP ===\n";

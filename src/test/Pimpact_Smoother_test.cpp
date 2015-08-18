@@ -146,9 +146,10 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOperator ) {
 	op->apply(*pulsatile,*y_cc);
 	error->add( 1., *y_cc, -1., *y );
 
-	if( output && error()->norm()/std::sqrt( error->getLength() ) > 0.04) {
-		y->write();
-		y_cc->write(100);
+	if( output && error()->norm()/std::sqrt( error->getLength() ) > 0.001) {
+		error->write();
+		//y->write();
+		//y_cc->write(100);
 	}
 
 	std::cout << "|| RHS - RHS_true || = " << error()->norm()/std::sqrt( error->getLength() ) << std::endl;
@@ -220,7 +221,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesBSmooth ) {
 	error->add( 1., *x, -1., *true_sol );
 	if( output )
 		error->write();
-	std::cout << "err: " << error->norm() << "\n";	
+	std::cout << "err: " << error->norm()/std::sqrt( error->getLength() ) << "\n";	
 	
 	// aprrox. solution
 	bSmoother->apply(*y,*x);		
@@ -229,7 +230,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesBSmooth ) {
 	error->add( 1., *x, -1., *true_sol );
 	if( output )
 		error->write(100);
-	std::cout << "err: " << error->norm() << "\n";
+	std::cout << "err: " << error->norm()/std::sqrt( error->getLength() ) << "\n";
 	// aprrox. solution2
 	bSmoother->apply(*y,*x);
 
@@ -237,7 +238,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesBSmooth ) {
 	error->add( 1., *x, -1., *true_sol );
 	if( output )
 		error->write(200);	
-	std::cout << "err: " << error->norm() << "\n";
+	std::cout << "err: " << error->norm()/std::sqrt( error->getLength() ) << "\n";
 }
 
 TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesLSmooth ) {
@@ -309,21 +310,20 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesBSmooth_conv ) {
 	x->random();
 	x->scale(10);
 
-	for (int i = 1; i < 20; i++){
+	for (int i = 0; i < 20; i++){
                 error->add( 1., *x, -1., *true_sol );
                 std::cout  << "error = " << error->norm()/std::sqrt( error->getLength() );	
+
+
+                if (output)
+                        error->write(i*100);
                 
 		op->apply(*x,*Ax);
-
 		error->add( 1., *Ax, -1., *y );
                 std::cout  << "        residual = " << error->norm()/std::sqrt( error->getLength() ) << "\n";
-		
-		bSmoother->apply(*y,*x);
-		
-		//x->getSFieldPtr()->level();
 			
-		if (i%5==0 &&  output)
-			error->write(i*100);
+                bSmoother->apply(*y,*x);
+
 	}
 }
 

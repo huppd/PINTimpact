@@ -79,7 +79,7 @@ int npf = 1;
 int nx = 17;
 int ny = 17;
 int nz = 17;
-int nf = 32;
+int nf = 16;
 
 int rankbla = -1;
 
@@ -626,7 +626,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<int>( "Maximum Iterations", 1000 );
 	mgPL->sublist("Coarse Grid Solver").set<std::string>("Solver name", "GMRES" );
 	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<std::string>("Timer Label", "Coarse Grid Solver" );
-	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<S>("Convergence Tolerance" , 9.e-4 );
+	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<S>("Convergence Tolerance" , 1.e-3 );
 
 	auto mg = Pimpact::createMultiGrid<
 									CVF,
@@ -636,8 +636,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 									Pimpact::TimeStokesOp,
 									Pimpact::TimeStokesOp,								
 									Pimpact::TimeStokesBSmoother,
-									Pimpact::TimeStokesBSmoother
-//									MOP
+//									Pimpact::TimeStokesBSmoother
+									MOP
 										> ( mgSpaces, mgPL );
 
 //	mg->print();
@@ -660,15 +660,14 @@ err->init(1);
 
 Pimpact::initVectorTimeField( true_sol->getVFieldPtr(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha );
 
-
-auto true_sol2 = true_sol->clone();
+//auto true_sol2 = true_sol->clone();
 
 op->apply(*true_sol,*b);
 
-// consistency
-mg->apply( *b, *true_sol2);
-err->add(-1.,*true_sol,1.,*true_sol2);
-std::cout << "\n" << "consistency err: " << err->norm()/std::sqrt( err->getLength() );
+// consistency  (is ok but in the corsest level x=0 initial guess)
+//mg->apply( *b, *true_sol2);
+//err->add(-1.,*true_sol,1.,*true_sol2);
+//std::cout << "\n" << "consistency err: " << err->norm()/std::sqrt( err->getLength() );
 
 //err->write();
 
@@ -681,18 +680,22 @@ b->add(1.,*b,-1.,*b_bc);
 /////////
 
 //consistency
-true_sol2 = true_sol->clone();
-mg->apply( *b, *true_sol2 );
-err->add(-1.,*true_sol,1.,*true_sol2);
-std::cout << "\n" << "consistency err with bc in RHS: " << err->norm()/std::sqrt( err->getLength() );
+//true_sol2 = true_sol->clone();
+//mg->apply( *b, *true_sol2 );
+//err->add(-1.,*true_sol,1.,*true_sol2);
+//std::cout << "\n" << "consistency err with bc in RHS: " << err->norm()/std::sqrt( err->getLength() );
 
 ///////
-//
+
 Pimpact::initVectorTimeField( true_sol->getVFieldPtr(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha );
 
-x->random();
-x->scale(10);
+// for consistency, ok
+//x = true_sol->clone();
 
+x->random();
+//x->getSField().init(0.);
+x->scale(10);
+x->getSField().level();
 
 err->add( -1, *x, 1., *true_sol );
 std::cout << "\n" << "err: " << err->norm()/std::sqrt( err->getLength() );
@@ -705,7 +708,7 @@ op->apply(*x,*Ax);
 err->add( -1, *Ax, 1., *b );
 std::cout << "      res: " << err->norm()/std::sqrt( err->getLength() ) << "\n";
 
-for( int i=0; i<10; ++i ) {
+for( int i=0; i<20; ++i ) {
 	mg->apply( *b, *x );
 	
 	x->level();
