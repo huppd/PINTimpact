@@ -78,6 +78,8 @@
 #include "Pimpact_TimeStokesLSmoother.hpp"
 #include "Pimpact_TimeNSOp.hpp"
 #include "Pimpact_TimeNSBSmoother.hpp"
+#include "Pimpact_TimeNS4DBSmoother.hpp"
+
 
 /// \defgroup MultiHarmonicOperator Multi-harmonic Operator
 /// \ingroup Operator

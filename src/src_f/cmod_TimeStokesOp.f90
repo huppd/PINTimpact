@@ -513,8 +513,7 @@ contains
           A(13,1:6) = (/ cD1(dU(1),i), cD1(dL(1),i), cD2(dU(2),j), cD2(dL(2),j),cD3(dU(3),k), cD3(dL(3),k)/)
           A(14,7:12) = A(13,1:6)
                 
-          ! time derivative 
-
+          ! time derivative
           do d = 1,6
             A(d+6,d) = - mulI
           end do
