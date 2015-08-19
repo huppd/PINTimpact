@@ -37,6 +37,7 @@ public:
 
   MultiHarmonicOpWrap():op_( Teuchos::rcp( new Operator() ) ) {};
   MultiHarmonicOpWrap( const Teuchos::RCP<Operator>& op ):op_(op) {};
+
   ~MultiHarmonicOpWrap() {op_=Teuchos::null;};
 
 

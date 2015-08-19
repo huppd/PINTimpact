@@ -78,6 +78,8 @@ public:
 //			else{
 				// set parameters
 			para->set<Scalar>( "mulI", a2*(i+1) );
+			para->set<Scalar>( "mulC", 1. );
+			para->set<Scalar>( "mulL", iRe );
 			modeOp_->setParameter( para );
 			modeOp_->apply( x.getConstField(i), y.getField(i) );
 //			}
