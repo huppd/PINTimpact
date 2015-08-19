@@ -107,7 +107,7 @@ TEUCHOS_STATIC_SETUP() {
         pl->set("nx", 17) ;
         pl->set("ny", 17) ;
         pl->set("nz", 17) ;
-        pl->set("nf", 32) ;
+        pl->set("nf", 16) ;
 
 
 }
@@ -215,7 +215,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesBSmooth ) {
 		
 	// test smoothing
 	x->random();
-	x->scale(10);
+	//x->scale(10);
 	
 	// initial error
 	error->add( 1., *x, -1., *true_sol );
@@ -311,19 +311,20 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesBSmooth_conv ) {
 	x->scale(10);
 
 	for (int i = 0; i < 20; i++){
-                error->add( 1., *x, -1., *true_sol );
-                std::cout  << "error = " << error->norm()/std::sqrt( error->getLength() );	
+                //error->add( 1., *x, -1., *true_sol );
+                //std::cout  << "error = " << error->norm()/std::sqrt( error->getLength() );	
 
 
-                if (output)
-                        error->write(i*100);
+                //if (output)
+                  //      error->write(i*100);
                 
 		op->apply(*x,*Ax);
 		error->add( 1., *Ax, -1., *y );
-                std::cout  << "        residual = " << error->norm()/std::sqrt( error->getLength() ) << "\n";
+                std::cout  << error->norm()/std::sqrt( error->getLength() ) << "\n";
 			
                 bSmoother->apply(*y,*x);
-
+		
+		x->level();
 	}
 }
 
@@ -429,22 +430,28 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesLSmooth_conv ) {
         auto y = x->clone();
         auto error = x->clone();
         auto true_sol = x->clone();
-        
+        auto Ax = x->clone();
+	auto wind = x->clone();
+
         double p = 1;
         double alpha = std::sqrt(pl->get<double>("alpha2"));
         
         //Pimpact::initVectorTimeField( y->getVFieldPtr(), Pimpact::ConstVel_inX, p);
         
-        //Pimpact::initVectorTimeField( true_sol->getVFieldPtr(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha );
+        Pimpact::initVectorTimeField( true_sol->getVFieldPtr(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha );
        	
-	op->assignField(*x);
+	op->assignField(*true_sol);
+	//op->assignField(*wind);
+	op->apply(*true_sol,*y);
  
 	// print out convergence
 	x->random();
         x->scale(10);
         
         for (int i = 1; i < 20; i++){
-            error->add( 1., *x, -1., *true_sol );
+
+	    op->apply(*x,*Ax);
+            error->add( 1., *Ax, -1., *y );
             std::cout  << error->norm()/std::sqrt( error->getLength() ) << "\n";
                         
 	   if ((i==1 || i%5==0 ) && output)

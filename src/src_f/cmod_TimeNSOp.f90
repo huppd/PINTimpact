@@ -593,7 +593,7 @@ subroutine OP_TimeNSBSmoother(  &
 
     integer(c_int) :: info
 
-    omega = 0.7
+    omega = 1
 
 do t = SS(4), N(4)
     do k = SW(3), NW(3)

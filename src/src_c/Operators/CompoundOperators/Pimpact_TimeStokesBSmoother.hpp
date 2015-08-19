@@ -93,6 +93,7 @@ public:
 
 		for( int iters=0; iters<numIters_; ++iters ) {
 
+			// this is for alternating directions
 			direction_flag++;
 			
 			auto xu = x.getConstVFieldPtr();

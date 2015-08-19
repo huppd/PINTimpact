@@ -421,7 +421,7 @@ contains
      !real(c_double) :: work(lwork)
 
      ! ------------------------!
-     omega = 0.7
+     omega = 1
 
 
  !pressure DR BC   
@@ -470,7 +470,7 @@ contains
         do i =   i_start, i_end, increment
 
 
-        if (i==SS(1) .or. i==NN(1) .or. j==SS(2) .or. j==NN(2) .or. k==SS(3) .or. k==NN(3)) then
+       if (i==SS(1) .or. i==NN(1) .or. j==SS(2) .or. j==NN(2) .or. k==SS(3) .or. k==NN(3)) then
            !p(i,j,k,t) = 0
            !p(i,j,k,t+1) = 0
         else

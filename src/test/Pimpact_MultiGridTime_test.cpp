@@ -626,7 +626,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<int>( "Maximum Iterations", 1000 );
 	mgPL->sublist("Coarse Grid Solver").set<std::string>("Solver name", "GMRES" );
 	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<std::string>("Timer Label", "Coarse Grid Solver" );
-	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<S>("Convergence Tolerance" , 1.e-3 );
+	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<S>("Convergence Tolerance" , 1.e-1 );
 
 	auto mg = Pimpact::createMultiGrid<
 									CVF,
@@ -672,10 +672,10 @@ op->apply(*true_sol,*b);
 //err->write();
 
 // put BC in the RHS
-//true_sol->init(0);
-//op->apply(*true_sol,*b_bc);
+true_sol->init(0);
+op->apply(*true_sol,*b_bc);
 
-//b->add(1.,*b,-1.,*b_bc);
+b->add(1.,*b,-1.,*b_bc);
 
 /////////
 
