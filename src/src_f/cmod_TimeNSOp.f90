@@ -103,7 +103,7 @@ contains
       veln,                 &
       pn,                   &
       r_vel,                &
-      r_p ) bind (c,name='OP_TimeNS')
+      r_p) bind (c,name='OP_TimeNS')
 
 
     implicit none
@@ -191,7 +191,6 @@ contains
     integer(c_int)              ::  j, jj
     integer(c_int)              ::  k, kk
     integer(c_int)              ::  t 
-
 
     !===========================================================================================================
 
@@ -491,7 +490,8 @@ subroutine OP_TimeNSBSmoother(  &
         rhs_vel,              &
         rhs_p,                &
         vel,                  &
-        p ) bind (c,name='OP_TimeNSBSmoother')
+        p,                    &
+        direction_flag ) bind (c,name='OP_TimeNSBSmoother')
 
 
     implicit none
@@ -574,6 +574,8 @@ subroutine OP_TimeNSBSmoother(  &
 
     real(c_double), intent(out) :: rhs_p  ( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)),      0:(N(4)+bU(4)-bL(4)) )
 
+    integer(c_int), intent(in)  :: direction_flag
+
     integer(c_int)              ::  i
     integer(c_int)              ::  j
     integer(c_int)              ::  k
@@ -581,9 +583,10 @@ subroutine OP_TimeNSBSmoother(  &
 
     !===========================================================================================================
 
+    integer(c_int)       ::  i_start, i_end, j_start, j_end, k_start,k_end, increment             
 
     integer (c_int), parameter :: block_size = 7
-    integer(c_int)             :: l, ll 
+    integer(c_int)             :: l
     integer(c_int)             :: ipiv(block_size)
 
     real (c_double) omega
@@ -596,9 +599,33 @@ subroutine OP_TimeNSBSmoother(  &
     omega = 1
 
 do t = SS(4), N(4)
-    do k = SW(3), NW(3)
-        do j = SV(2), NV(2)
-            do i = SU(1), NU(1)
+
+    if ( MOD(direction_flag,2) == 1) then
+
+      k_start  =SW(3)
+      k_end    =NW(3)
+      j_start  =SV(2)
+      j_end    =NV(2)
+      i_start  =SU(1)
+      i_end    =NU(1)
+      increment=1
+
+    else
+
+      k_start  =NW(3)
+      k_end    =SW(3)
+      j_start  =NV(2)
+      j_end    =SV(2)
+      i_start  =NU(1)
+      i_end    =SU(1)
+      increment=-1
+
+    end if
+    do k = k_start, k_end, increment
+      do j =  j_start, j_end, increment
+        do i =   i_start, i_end, increment
+
+                if (.not.(i==SS(1) .or. i==NN(1) .or. j==SS(2) .or.j==NN(2) .or.k==SS(3) .or. k==NN(3))) then
 
                 A(1:block_size,1:block_size) = 0.0
                 b(1:block_size) = 0.0
@@ -609,13 +636,12 @@ do t = SS(4), N(4)
 
                 ! diagonal: time derivative + diffusion
 
-                A(1,1) = mulI - mulL*( c11u(0,i  ) + c22p(0,j  ) + c33p(0,k  ) )
-                A(2,2) = mulI - mulL*( c11u(0,i-1) + c22p(0,j  ) + c33p(0,k  ) )
-                A(3,3) = mulI - mulL*( c11p(0,i  ) + c22v(0,j  ) + c33p(0,k  ) )
-                A(4,4) = mulI - mulL*( c11p(0,i  ) + c22v(0,j-1) + c33p(0,k  ) )
-                A(5,5) = mulI - mulL*( c11p(0,i  ) + c22p(0,j  ) + c33w(0,k  ) )
-                A(6,6) = mulI - mulL*( c11p(0,i  ) + c22p(0,j  ) + c33w(0,k-1) )
-
+                A(1,1) = mulI - mulL*( c11u(bL(1)+1,i  ) + c22p(bL(2)+1,j  ) +c33p(bL(3)+1,k  ) )
+                A(2,2) = mulI - mulL*( c11u(bL(1)+1,i-1) + c22p(bL(2)+1,j  ) +c33p(bL(3)+1,k  ) )
+                A(3,3) = mulI - mulL*( c11p(bL(1)+1,i  ) + c22v(bL(2)+1,j  ) +c33p(bL(3)+1,k  ) )
+                A(4,4) = mulI - mulL*( c11p(bL(1)+1,i  ) + c22v(bL(2)+1,j-1) +c33p(bL(3)+1,k  ) )
+                A(5,5) = mulI - mulL*( c11p(bL(1)+1,i  ) + c22p(bL(2)+1,j  ) +c33w(bL(3)+1,k  ) )
+                A(6,6) = mulI - mulL*( c11p(bL(1)+1,i  ) + c22p(bL(2)+1,j  ) +c33w(bL(3)+1,k-1) )
                 ! sub/super-diagonal: diffusion
 
                 A(1,2) = - mulL*c11u(bL(1),i)
@@ -632,50 +658,50 @@ do t = SS(4), N(4)
                 ! ------------------ u -------------------
                 ! u*d/dx
                 if( windU(i,j,k,1,t) >= 0. ) then
-                    A(1,1) = A(1,1) + windU(i,j,k,1,t)*c1uU(cU(1),i)
+                    A(1,1) = A(1,1) + windU(i,j,k,1,t)*c1uU(0,i)
                     A(1,2) = A(1,2) + windU(i,j,k,1,t)*c1uU(cL(1),i)
                 else
-                    A(1,1) = A(1,1) + windU(i,j,k,1,t)*c1uD(cL(1),i)
+                    A(1,1) = A(1,1) + windU(i,j,k,1,t)*c1uD(0,i)
                     b(1) = b(1) + windU(i,j,k,1,t)*c1uD(cU(1),i)*vel(i+cU(1),j,k,1,t)
                 end if
                 ! v*d/dy
                 if( windV(i,j,k,1,t) >= 0. ) then
-                    A(1,1) = A(1,1) + windV(i,j,k,1,t)*c2pU(cU(2),j)
+                    A(1,1) = A(1,1) + windV(i,j,k,1,t)*c2pU(0,j)
                     b(1) = b(1) + windV(i,j,k,1,t)*c2pU(cL(2),j)*vel(i,j+cL(2),k,1,t)
                 else
-                    A(1,1) = A(1,1) + windV(i,j,k,1,t)*c2pD(cL(2),j)
+                    A(1,1) = A(1,1) + windV(i,j,k,1,t)*c2pD(0,j)
                     b(1) = b(1) + windV(i,j,k,1,t)*c2pD(cU(2),j)*vel(i,j+cU(2),k,1,t)
                 end if
                 ! w*d/dz
                 if( windW(i,j,k,1,t) >= 0. ) then
-                    A(1,1) = A(1,1) + windW(i,j,k,1,t)*c3pU(cU(3),k)
+                    A(1,1) = A(1,1) + windW(i,j,k,1,t)*c3pU(0,k)
                     b(1) = b(1) +     windW(i,j,k,1,t)*c3pU(cL(3),k)*vel(i,j,k+cL(3),1,t)
                 else
-                    A(1,1) = A(1,1) + windW(i,j,k,1,t)*c3pD(cL(3),k)
+                    A(1,1) = A(1,1) + windW(i,j,k,1,t)*c3pD(0,k)
                     b(1) = b(1) +     windW(i,j,k,1,t)*c3pD(cU(3),k)*vel(i,j,k+cU(3),1,t)
                 end if
                 ! u*d/dx
                 if( windU(i-1,j,k,1,t) >= 0. ) then
-                    A(2,2) = A(2,2) + windU(i-1,j,k,1,t)*c1uU(cU(1),i-1)
+                    A(2,2) = A(2,2) + windU(i-1,j,k,1,t)*c1uU(0,i-1)
                     b(2) =   b(2) +   windU(i-1,j,k,1,t)*c1uU(cL(1),i-1)*vel(i-1+cL(1),j,k,1,t)
                 else
-                    A(2,2) = A(2,2) + windU(i-1,j,k,1,t)*c1uD(cL(1),i-1)
+                    A(2,2) = A(2,2) + windU(i-1,j,k,1,t)*c1uD(0,i-1)
                     A(2,1) = A(2,1) + windU(i-1,j,k,1,t)*c1uD(cU(1),i-1)
                 end if
                 ! v*d/dy
                 if( windV(i-1,j,k,1,t) >= 0. ) then
-                    A(2,2) = A(2,2) + windV(i-1,j,k,1,t)*c2pU(cU(2),j)
+                    A(2,2) = A(2,2) + windV(i-1,j,k,1,t)*c2pU(0,j)
                     b(2) = b(2) +     windV(i-1,j,k,1,t)*c2pU(cL(2),j)*vel(i-1,j+cL(2),k,1,t)
                 else
-                    A(2,2) = A(2,2) + windV(i-1,j,k,1,t)*c2pD(cL(2),j)
+                    A(2,2) = A(2,2) + windV(i-1,j,k,1,t)*c2pD(0,j)
                     b(2) = b(2) +     windV(i-1,j,k,1,t)*c2pD(cU(2),j)*vel(i-1,j+cU(2),k,1,t)
                 end if
                 ! w*d/dz
                 if( windW(i-1,j,k,1,t) >= 0. ) then
-                    A(2,2) = A(2,2) + windW(i-1,j,k,1,t)*c3pU(cU(3),k)
+                    A(2,2) = A(2,2) + windW(i-1,j,k,1,t)*c3pU(0,k)
                     b(2) = b(2) +     windW(i-1,j,k,1,t)*c3pU(cL(3),k)*vel(i-1,j,k+cL(3),1,t)
                 else
-                    A(2,2) = A(2,2) + windW(i-1,j,k,1,t)*c3pD(cL(3),k)
+                    A(2,2) = A(2,2) + windW(i-1,j,k,1,t)*c3pD(0,k)
                     b(2) = b(2) +     windW(i-1,j,k,1,t)*c3pD(cU(3),k)*vel(i-1,j,k+cU(3),1,t)
                 end if
 
@@ -683,103 +709,103 @@ do t = SS(4), N(4)
                 ! ------------------ v -------------------
                 ! u*d/dx
                 if( windU(i,j,k,2,t) >= 0. ) then
-                    A(3,3) = A(3,3) + windU(i,j,k,2,t)*c1pU(cU(1),i)
+                    A(3,3) = A(3,3) + windU(i,j,k,2,t)*c1pU(0,i)
                     b(3) = b(3) +     windU(i,j,k,2,t)*c1pU(cL(1),i)*vel(i+cL(1),j,k,2,t)
                 else
-                    A(3,3) = A(3,3) + windU(i,j,k,2,t)*c1pD(cL(1),i)
+                    A(3,3) = A(3,3) + windU(i,j,k,2,t)*c1pD(0,i)
                     b(3) = b(3) +     windU(i,j,k,2,t)*c1pD(cU(1),i)*vel(i+cU(1),j,k,2,t)
                 end if
                 ! v*d/dy
                 if( windV(i,j,k,2,t) >= 0. ) then
-                    A(3,3) = A(3,3) + windV(i,j,k,2,t)*c2vU(cU(2),j)
+                    A(3,3) = A(3,3) + windV(i,j,k,2,t)*c2vU(0,j)
                     A(3,4) = A(3,4) + windV(i,j,k,2,t)*c2vU(cL(2),j)
                 else
-                    A(3,3) = A(3,3) + windV(i,j,k,2,t)*c2vD(cL(2),j)
+                    A(3,3) = A(3,3) + windV(i,j,k,2,t)*c2vD(0,j)
                     b(3) = b(3) +     windV(i,j,k,2,t)*c2vD(cU(2),j)*vel(i,j+cU(2),k,2,t)
                 end if
                 ! w*d/dz
                 if( windW(i,j,k,2,t) >= 0. ) then
-                    A(3,3) = A(3,3) + windW(i,j,k,2,t)*c3pU(cU(3),k)
+                    A(3,3) = A(3,3) + windW(i,j,k,2,t)*c3pU(0,k)
                     b(3) = b(3) +     windW(i,j,k,2,t)*c3pU(cL(3),k)*vel(i,j,k+cL(3),2,t)
                 else
-                    A(3,3) = A(3,3) + windW(i,j,k,2,t)*c3pD(cL(3),k)
+                    A(3,3) = A(3,3) + windW(i,j,k,2,t)*c3pD(0,k)
                     b(3) = b(3) +     windW(i,j,k,2,t)*c3pD(cU(3),k)*vel(i,j,k+cU(3),2,t)
                 end if
 
 
                 ! u*d/dx
                 if( windU(i,j-1,k,2,t) >= 0. ) then
-                    A(4,4) = A(4,4) + windU(i,j-1,k,2,t)*c1pU(cU(1),i)
+                    A(4,4) = A(4,4) + windU(i,j-1,k,2,t)*c1pU(0,i)
                     b(4) = b(4) +     windU(i,j-1,k,2,t)*c1pU(cL(1),i)*vel(i+cL(1),j-1,k,2,t)
                 else
-                    A(4,4) = A(4,4) + windU(i,j-1,k,2,t)*c1pD(cL(1),i)
+                    A(4,4) = A(4,4) + windU(i,j-1,k,2,t)*c1pD(0,i)
                     b(4) = b(4) +     windU(i,j-1,k,2,t)*c1pD(cU(1),i)*vel(i+cU(1),j-1,k,2,t)
                 end if
                 ! v*d/dy
                 if( windV(i,j-1,k,2,t) >= 0. ) then
-                    A(4,4) = A(4,4) + windV(i,j-1,k,2,t)*c2vU(cU(2),j-1)
+                    A(4,4) = A(4,4) + windV(i,j-1,k,2,t)*c2vU(0,j-1)
                     b(4) = b(4) +     windV(i,j-1,k,2,t)*c2vU(cL(2),j-1)*vel(i,j-1+cL(2),k,2,t)
                 else
-                    A(4,4) = A(4,4) + windV(i,j-1,k,2,t)*c2vD(cL(2),j-1)
+                    A(4,4) = A(4,4) + windV(i,j-1,k,2,t)*c2vD(0,j-1)
                     A(4,3) = A(4,3) + windV(i,j-1,k,2,t)*c2vD(cU(2),j-1)
                 end if
                 ! w*d/dz
                 if( windW(i,j-1,k,2,t) >= 0. ) then
-                    A(4,4) = A(4,4) + windW(i,j-1,k,2,t)*c3pU(cU(3),k)
+                    A(4,4) = A(4,4) + windW(i,j-1,k,2,t)*c3pU(0,k)
                     b(4) = b(4) +     windW(i,j-1,k,2,t)*c3pU(cL(3),k)*vel(i,j-1,k+cL(3),2,t)
                 else
-                    A(4,4) = A(4,4) + windW(i,j-1,k,2,t)*c3pD(cL(3),k)
+                    A(4,4) = A(4,4) + windW(i,j-1,k,2,t)*c3pD(0,k)
                     b(4) = b(4) +     windW(i,j-1,k,2,t)*c3pD(cU(3),k)*vel(i,j-1,k+cU(3),2,t)
                 end if
 
                 ! ------------------ w -------------------
                 ! u*d/dx
                 if( windU(i,j,k,3,t) >= 0. ) then
-                    A(5,5) = A(5,5) + windU(i,j,k,3,t)*c1pU(cU(1),i)
+                    A(5,5) = A(5,5) + windU(i,j,k,3,t)*c1pU(0,i)
                     b(5) = b(5) +     windU(i,j,k,3,t)*c1pU(cL(1),i)*vel(i+cL(1),j,k,3,t)
                 else
-                    A(5,5) = A(5,5) + windU(i,j,k,3,t)*c1pD(cL(1),i)
+                    A(5,5) = A(5,5) + windU(i,j,k,3,t)*c1pD(0,i)
                     b(5) = b(5) +     windU(i,j,k,3,t)*c1pD(cU(1),i)*vel(i+cU(1),j,k,3,t)
                 end if
                     ! v*d/dy
                 if( windV(i,j,k,3,t) >= 0. ) then
-                    A(5,5) = A(5,5) + windV(i,j,k,3,t)*c2pU(cU(2),j)
+                    A(5,5) = A(5,5) + windV(i,j,k,3,t)*c2pU(0,j)
                     b(5) = b(5) +     windV(i,j,k,3,t)*c2pU(cL(2),j)*vel(i,j+cL(2),k,3,t)
                 else
-                    A(5,5) = A(5,5) + windV(i,j,k,3,t)*c2pD(cL(2),j)
+                    A(5,5) = A(5,5) + windV(i,j,k,3,t)*c2pD(0,j)
                     b(5) = b(5) +     windV(i,j,k,3,t)*c2pD(cU(2),j)*vel(i,j+cU(2),k,3,t)
                 end if
                 ! w*d/dz
                 if( windV(i,j,k,3,t) >= 0. ) then
-                    A(5,5) = A(5,5) + windW(i,j,k,3,t)*c3wU(cU(3),k)
+                    A(5,5) = A(5,5) + windW(i,j,k,3,t)*c3wU(0,k)
                     A(5,6) = A(5,6) + windW(i,j,k,3,t)*c3wU(cL(3),k)
                 else
-                    A(5,5) = A(5,5) + windW(i,j,k,3,t)*c3wD(cL(3),k)
+                    A(5,5) = A(5,5) + windW(i,j,k,3,t)*c3wD(0,k)
                     b(5) = b(5) +     windW(i,j,k,3,t)*c3wD(cU(3),k)*vel(i,j,k+cU(3),3,t)
                 end if
 
                 ! u*d/dx
                 if( windU(i,j,k-1,3,t) >= 0. ) then
-                    A(6,6) = A(6,6) + windU(i,j,k-1,3,t)*c1pU(cU(1),i)
+                    A(6,6) = A(6,6) + windU(i,j,k-1,3,t)*c1pU(0,i)
                     b(6) = b(6) +     windU(i,j,k-1,3,t)*c1pU(cL(1),i)*vel(i+cL(1),j,k-1,3,t)
                 else
-                    A(6,6) = A(6,6) + windU(i,j,k-1,3,t)*c1pD(cL(1),i)
+                    A(6,6) = A(6,6) + windU(i,j,k-1,3,t)*c1pD(0,i)
                     b(6) = b(6) +     windU(i,j,k-1,3,t)*c1pD(cU(1),i)*vel(i+cU(1),j,k-1,3,t)
                 end if
                 ! v*d/dy
                 if( windV(i,j,k-1,3,t) >= 0. ) then
-                    A(6,6) = A(6,6) + windV(i,j,k-1,3,t)*c2pU(cU(2),j)
+                    A(6,6) = A(6,6) + windV(i,j,k-1,3,t)*c2pU(0,j)
                     b(6) = b(6) +     windV(i,j,k-1,3,t)*c2pU(cL(2),j)*vel(i,j+cL(2),k-1,3,t)
                 else
-                    A(6,6) = A(6,6) + windV(i,j,k-1,3,t)*c2pD(cL(2),j)
+                    A(6,6) = A(6,6) + windV(i,j,k-1,3,t)*c2pD(0,j)
                     b(6) = b(6) +     windV(i,j,k-1,3,t)*c2pD(cU(2),j)*vel(i,j+cU(2),k-1,3,t)
                 end if
                 ! w*d/dz
                 if( windV(i,j,k-1,3,t) >= 0. ) then
-                    A(6,6) = A(6,6) + windW(i,j,k-1,3,t)*c3wU(cU(3),k-1)
+                    A(6,6) = A(6,6) + windW(i,j,k-1,3,t)*c3wU(0,k-1)
                     b(6) = b(6) +     windW(i,j,k-1,3,t)*c3wU(cL(3),k-1)*vel(i,j,k-1+cL(3),3,t)
                 else
-                    A(6,6) = A(6,6) + windW(i,j,k-1,3,t)*c3wD(cL(3),k-1)
+                    A(6,6) = A(6,6) + windW(i,j,k-1,3,t)*c3wD(0,k-1)
                     A(6,5) = A(6,5) + windW(i,j,k-1,3,t)*c3wD(cU(3),k-1)
                 end if
                 
@@ -877,7 +903,7 @@ do t = SS(4), N(4)
 
                 p(i,j,k,t) = b(7)*omega + (1-omega)*p(i,j,k,t)
 
-
+                end if
             end do
         end do
     end do
@@ -885,6 +911,7 @@ do t = SS(4), N(4)
     ! boundary pressure points
     
     ! in X direction
+    !go to 100
         if (BCL(1) > 0) then
                 i = SS(1)
                 do k = SS(3), NN(3)
@@ -940,10 +967,10 @@ do t = SS(4), N(4)
                         end do
                 end do
         end if
+!100 continue
 end do ! loop over time ends
 
   end subroutine OP_TimeNSBSmoother
-
 
 subroutine OP_TimeNS4DBSmoother(  &
 dimens,               &
@@ -977,8 +1004,8 @@ windW,                &
 rhs_vel,              &
 rhs_p,                &
 vel,                  &
-p,
-direction_flag) bind (c,name='OP_TimeNSBSmoother')
+p,                    &
+direction_flag) bind (c,name='OP_TimeNS4DBSmoother')
 
 
 implicit none
@@ -1071,6 +1098,8 @@ integer(c_int)              ::  t
 
 !===========================================================================================================
 
+integer(c_int)       ::  i_start, i_end, j_start, j_end, k_start, k_end, increment
+
 
 integer (c_int), parameter :: block_size = 14
 integer(c_int)             :: l, ll
@@ -1089,29 +1118,31 @@ do t = SS(4), N(4)-1
 
     if ( MOD(direction_flag,2) == 1) then
 
-    k_start  =SS(3)
-    k_end    =NN(3)
-    j_start  =SS(2)
-    j_end    =NN(2)
-    i_start  =SS(1)
-    i_end    =NN(1)
+    k_start  =SW(3)
+    k_end    =NW(3)
+    j_start  =SV(2)
+    j_end    =NV(2)
+    i_start  =SU(1)
+    i_end    =NU(1)
     increment=1
 
     else
 
-    k_start  =NN(3)
-    k_end    =SS(3)
-    j_start  =NN(2)
-    j_end    =SS(2)
-    i_start  =NN(1)
-    i_end    =SS(1)
+    k_start  =NW(3)
+    k_end    =SW(3)
+    j_start  =NV(2)
+    j_end    =SV(2)
+    i_start  =NU(1)
+    i_end    =SU(1)
     increment=-1
 
     end if
 
-    do k = SW(3), NW(3)
-        do j = SV(2), NV(2)
-            do i = SU(1), NU(1)
+    do k = k_start, k_end, increment
+        do j =  j_start, j_end, increment
+            do i =   i_start, i_end, increment
+
+                if (.not.(i==SS(1) .or. i==NN(1) .or. j==SS(2) .or.j==NN(2) .or.k==SS(3) .or. k==NN(3))) then
 
                 A(1:block_size,1:block_size) = 0.0
                 b(1:block_size) = 0.0
@@ -1122,12 +1153,12 @@ do t = SS(4), N(4)-1
 
                 ! diagonal: time derivative + diffusion
 
-                A(1,1) = mulI - mulL*( c11u(0,i  ) + c22p(0,j  ) + c33p(0,k  ) )
-                A(2,2) = mulI - mulL*( c11u(0,i-1) + c22p(0,j  ) + c33p(0,k  ) )
-                A(3,3) = mulI - mulL*( c11p(0,i  ) + c22v(0,j  ) + c33p(0,k  ) )
-                A(4,4) = mulI - mulL*( c11p(0,i  ) + c22v(0,j-1) + c33p(0,k  ) )
-                A(5,5) = mulI - mulL*( c11p(0,i  ) + c22p(0,j  ) + c33w(0,k  ) )
-                A(6,6) = mulI - mulL*( c11p(0,i  ) + c22p(0,j  ) + c33w(0,k-1) )
+                A(1,1) = mulI - mulL*( c11u(bL(1)+1,i  ) + c22p(bL(2)+1,j  ) + c33p(bL(3)+1,k  ) )
+                A(2,2) = mulI - mulL*( c11u(bL(1)+1,i-1) + c22p(bL(2)+1,j  ) + c33p(bL(3)+1,k  ) )
+                A(3,3) = mulI - mulL*( c11p(bL(1)+1,i  ) + c22v(bL(2)+1,j  ) + c33p(bL(3)+1,k  ) )
+                A(4,4) = mulI - mulL*( c11p(bL(1)+1,i  ) + c22v(bL(2)+1,j-1) + c33p(bL(3)+1,k  ) )
+                A(5,5) = mulI - mulL*( c11p(bL(1)+1,i  ) + c22p(bL(2)+1,j  ) + c33w(bL(3)+1,k  ) )
+                A(6,6) = mulI - mulL*( c11p(bL(1)+1,i  ) + c22p(bL(2)+1,j  ) + c33w(bL(3)+1,k-1) )
 
                 ! sub/super-diagonal: diffusion
 
@@ -1143,7 +1174,6 @@ do t = SS(4), N(4)-1
                 !copy
                 A(7:12,7:12) = A(1:6,1:6)
 
-
                 ! convection
                 ! ------------------ u -------------------
                 ! u*d/dx
@@ -1151,50 +1181,50 @@ do t = SS(4), N(4)-1
                 do ll=0,1
 
                     if( windU(i,j,k,1,t+ll) >= 0. ) then
-                    A(1+6*ll,1+6*ll) = A(1+6*ll,1+6*ll) + windU(i,j,k,1,t+ll)*c1uU(cU(1),i)
+                    A(1+6*ll,1+6*ll) = A(1+6*ll,1+6*ll) + windU(i,j,k,1,t+ll)*c1uU(0,i)
                     A(1+6*ll,2+6*ll) = A(1+6*ll,2+6*ll) + windU(i,j,k,1,t+ll)*c1uU(cL(1),i)
                     else
-                    A(1+6*ll,1+6*ll) = A(1+6*ll,1+6*ll) + windU(i,j,k,1,t+ll)*c1uD(cL(1),i)
+                    A(1+6*ll,1+6*ll) = A(1+6*ll,1+6*ll) + windU(i,j,k,1,t+ll)*c1uD(0,i)
                     b(1+6*ll) = b(1+6*ll) + windU(i,j,k,1,t+ll)*c1uD(cU(1),i)*vel(i+cU(1),j,k,1,t+ll)
                     end if
                     ! v*d/dy
                     if( windV(i,j,k,1,t+ll) >= 0. ) then
-                    A(1+6*ll,1+6*ll) = A(1+6*ll,1+6*ll) + windV(i,j,k,1,t+ll)*c2pU(cU(2),j)
+                    A(1+6*ll,1+6*ll) = A(1+6*ll,1+6*ll) + windV(i,j,k,1,t+ll)*c2pU(0,j)
                     b(1+6*ll) = b(1+6*ll) + windV(i,j,k,1,t+ll)*c2pU(cL(2),j)*vel(i,j+cL(2),k,1,t+ll)
                     else
-                    A(1+6*ll,1+6*ll) = A(1+6*ll,1+6*ll) + windV(i,j,k,1,t+ll)*c2pD(cL(2),j)
+                    A(1+6*ll,1+6*ll) = A(1+6*ll,1+6*ll) + windV(i,j,k,1,t+ll)*c2pD(0,j)
                     b(1+6*ll) = b(1+6*ll) + windV(i,j,k,1,t+ll)*c2pD(cU(2),j)*vel(i,j+cU(2),k,1,t+ll)
                     end if
                     ! w*d/dz
                     if( windW(i,j,k,1,t+ll) >= 0. ) then
-                    A(1+6*ll,1+6*ll) = A(1+6*ll,1+6*ll) + windW(i,j,k,1,t+ll)*c3pU(cU(3),k)
+                    A(1+6*ll,1+6*ll) = A(1+6*ll,1+6*ll) + windW(i,j,k,1,t+ll)*c3pU(0,k)
                     b(1+6*ll) = b(1+6*ll) +     windW(i,j,k,1,t+ll)*c3pU(cL(3),k)*vel(i,j,k+cL(3),1,t+ll)
                     else
-                    A(1+6*ll,1+6*ll) = A(1+6*ll,1+6*ll) + windW(i,j,k,1,t+ll)*c3pD(cL(3),k)
+                    A(1+6*ll,1+6*ll) = A(1+6*ll,1+6*ll) + windW(i,j,k,1,t+ll)*c3pD(0,k)
                     b(1+6*ll) = b(1+6*ll) +     windW(i,j,k,1,t+ll)*c3pD(cU(3),k)*vel(i,j,k+cU(3),1,t+ll)
                     end if
                     ! u*d/dx
                     if( windU(i-1,j,k,1,t+ll) >= 0. ) then
-                    A(2+6*ll,2+6*ll) = A(2+6*ll,2+6*ll) + windU(i-1,j,k,1,t+ll)*c1uU(cU(1),i-1)
+                    A(2+6*ll,2+6*ll) = A(2+6*ll,2+6*ll) + windU(i-1,j,k,1,t+ll)*c1uU(0,i-1)
                     b(2+6*ll) =   b(2+6*ll) +   windU(i-1,j,k,1,t+ll)*c1uU(cL(1),i-1)*vel(i-1+cL(1),j,k,1,t+ll)
                     else
-                    A(2+6*ll,2+6*ll) = A(2+6*ll,2+6*ll) + windU(i-1,j,k,1,t+ll)*c1uD(cL(1),i-1)
+                    A(2+6*ll,2+6*ll) = A(2+6*ll,2+6*ll) + windU(i-1,j,k,1,t+ll)*c1uD(0,i-1)
                     A(2+6*ll,1+6*ll) = A(2+6*ll,1+6*ll) + windU(i-1,j,k,1,t+ll)*c1uD(cU(1),i-1)
                     end if
                     ! v*d/dy
                     if( windV(i-1,j,k,1,t+ll) >= 0. ) then
-                    A(2+6*ll,2+6*ll) = A(2+6*ll,2+6*ll) + windV(i-1,j,k,1,t+ll)*c2pU(cU(2),j)
+                    A(2+6*ll,2+6*ll) = A(2+6*ll,2+6*ll) + windV(i-1,j,k,1,t+ll)*c2pU(0,j)
                     b(2+6*ll) = b(2+6*ll) +     windV(i-1,j,k,1,t+ll)*c2pU(cL(2),j)*vel(i-1,j+cL(2),k,1,t+ll)
                     else
-                    A(2+6*ll,2+6*ll) = A(2+6*ll,2+6*ll) + windV(i-1,j,k,1,t+ll)*c2pD(cL(2),j)
+                    A(2+6*ll,2+6*ll) = A(2+6*ll,2+6*ll) + windV(i-1,j,k,1,t+ll)*c2pD(0,j)
                     b(2+6*ll) = b(2+6*ll) +     windV(i-1,j,k,1,t+ll)*c2pD(cU(2),j)*vel(i-1,j+cU(2),k,1,t+ll)
                     end if
                     ! w*d/dz
                     if( windW(i-1,j,k,1,t+ll) >= 0. ) then
-                    A(2+6*ll,2+6*ll) = A(2+6*ll,2+6*ll) + windW(i-1,j,k,1,t+ll)*c3pU(cU(3),k)
+                    A(2+6*ll,2+6*ll) = A(2+6*ll,2+6*ll) + windW(i-1,j,k,1,t+ll)*c3pU(0,k)
                     b(2+6*ll) = b(2+6*ll) +     windW(i-1,j,k,1,t+ll)*c3pU(cL(3),k)*vel(i-1,j,k+cL(3),1,t+ll)
                     else
-                    A(2+6*ll,2+6*ll) = A(2+6*ll,2+6*ll) + windW(i-1,j,k,1,t+ll)*c3pD(cL(3),k)
+                    A(2+6*ll,2+6*ll) = A(2+6*ll,2+6*ll) + windW(i-1,j,k,1,t+ll)*c3pD(0,k)
                     b(2+6*ll) = b(2+6*ll) +     windW(i-1,j,k,1,t+ll)*c3pD(cU(3),k)*vel(i-1,j,k+cU(3),1,t+ll)
                     end if
 
@@ -1202,103 +1232,103 @@ do t = SS(4), N(4)-1
                     ! ------------------ v -------------------
                     ! u*d/dx
                     if( windU(i,j,k,2,t+ll) >= 0. ) then
-                    A(3+6*ll,3+6*ll) = A(3+6*ll,3+6*ll) + windU(i,j,k,2,t+ll)*c1pU(cU(1),i)
+                    A(3+6*ll,3+6*ll) = A(3+6*ll,3+6*ll) + windU(i,j,k,2,t+ll)*c1pU(0,i)
                     b(3+6*ll) = b(3+6*ll) +     windU(i,j,k,2,t+ll)*c1pU(cL(1),i)*vel(i+cL(1),j,k,2,t+ll)
                     else
-                    A(3+6*ll,3+6*ll) = A(3+6*ll,3+6*ll) + windU(i,j,k,2,t+ll)*c1pD(cL(1),i)
+                    A(3+6*ll,3+6*ll) = A(3+6*ll,3+6*ll) + windU(i,j,k,2,t+ll)*c1pD(0,i)
                     b(3+6*ll) = b(3+6*ll) +     windU(i,j,k,2,t+ll)*c1pD(cU(1),i)*vel(i+cU(1),j,k,2,t+ll)
                     end if
                     ! v*d/dy
                     if( windV(i,j,k,2,t+ll) >= 0. ) then
-                    A(3+6*ll,3+6*ll) = A(3+6*ll,3+6*ll) + windV(i,j,k,2,t+ll)*c2vU(cU(2),j)
+                    A(3+6*ll,3+6*ll) = A(3+6*ll,3+6*ll) + windV(i,j,k,2,t+ll)*c2vU(0,j)
                     A(3+6*ll,4+6*ll) = A(3+6*ll,4+6*ll) + windV(i,j,k,2,t+ll)*c2vU(cL(2),j)
                     else
-                    A(3+6*ll,3+6*ll) = A(3+6*ll,3+6*ll) + windV(i,j,k,2,t+ll)*c2vD(cL(2),j)
+                    A(3+6*ll,3+6*ll) = A(3+6*ll,3+6*ll) + windV(i,j,k,2,t+ll)*c2vD(0,j)
                     b(3+6*ll) = b(3+6*ll) +     windV(i,j,k,2,t+ll)*c2vD(cU(2),j)*vel(i,j+cU(2),k,2,t+ll)
                     end if
                     ! w*d/dz
                     if( windW(i,j,k,2,t+ll) >= 0. ) then
-                    A(3+6*ll,3+6*ll) = A(3+6*ll,3+6*ll) + windW(i,j,k,2,t+ll)*c3pU(cU(3),k)
+                    A(3+6*ll,3+6*ll) = A(3+6*ll,3+6*ll) + windW(i,j,k,2,t+ll)*c3pU(0,k)
                     b(3+6*ll) = b(3+6*ll) +     windW(i,j,k,2,t+ll)*c3pU(cL(3),k)*vel(i,j,k+cL(3),2,t+ll)
                     else
-                    A(3+6*ll,3+6*ll) = A(3+6*ll,3+6*ll) + windW(i,j,k,2,t+ll)*c3pD(cL(3),k)
+                    A(3+6*ll,3+6*ll) = A(3+6*ll,3+6*ll) + windW(i,j,k,2,t+ll)*c3pD(0,k)
                     b(3+6*ll) = b(3+6*ll) +     windW(i,j,k,2,t+ll)*c3pD(cU(3),k)*vel(i,j,k+cU(3),2,t+ll)
                     end if
 
 
                     ! u*d/dx
                     if( windU(i,j-1,k,2,t+ll) >= 0. ) then
-                    A(4+6*ll,4+6*ll) = A(4+6*ll,4+6*ll) + windU(i,j-1,k,2,t+ll)*c1pU(cU(1),i)
+                    A(4+6*ll,4+6*ll) = A(4+6*ll,4+6*ll) + windU(i,j-1,k,2,t+ll)*c1pU(0,i)
                     b(4+6*ll) = b(4+6*ll) +     windU(i,j-1,k,2,t+ll)*c1pU(cL(1),i)*vel(i+cL(1),j-1,k,2,t+ll)
                     else
-                    A(4+6*ll,4+6*ll) = A(4+6*ll,4+6*ll) + windU(i,j-1,k,2,t+ll)*c1pD(cL(1),i)
+                    A(4+6*ll,4+6*ll) = A(4+6*ll,4+6*ll) + windU(i,j-1,k,2,t+ll)*c1pD(0,i)
                     b(4+6*ll) = b(4+6*ll) +     windU(i,j-1,k,2,t+ll)*c1pD(cU(1),i)*vel(i+cU(1),j-1,k,2,t+ll)
                     end if
                     ! v*d/dy
                     if( windV(i,j-1,k,2,t+ll) >= 0. ) then
-                    A(4+6*ll,4+6*ll) = A(4+6*ll,4+6*ll) + windV(i,j-1,k,2,t+ll)*c2vU(cU(2),j-1)
+                    A(4+6*ll,4+6*ll) = A(4+6*ll,4+6*ll) + windV(i,j-1,k,2,t+ll)*c2vU(0,j-1)
                     b(4+6*ll) = b(4+6*ll) +     windV(i,j-1,k,2,t+ll)*c2vU(cL(2),j-1)*vel(i,j-1+cL(2),k,2,t+ll)
                     else
-                    A(4+6*ll,4+6*ll) = A(4+6*ll,4+6*ll) + windV(i,j-1,k,2,t+ll)*c2vD(cL(2),j-1)
+                    A(4+6*ll,4+6*ll) = A(4+6*ll,4+6*ll) + windV(i,j-1,k,2,t+ll)*c2vD(0,j-1)
                     A(4+6*ll,3+6*ll) = A(4+6*ll,3+6*ll) + windV(i,j-1,k,2,t+ll)*c2vD(cU(2),j-1)
                     end if
                     ! w*d/dz
                     if( windW(i,j-1,k,2,t+ll) >= 0. ) then
-                    A(4+6*ll,4+6*ll) = A(4+6*ll,4+6*ll) + windW(i,j-1,k,2,t+ll)*c3pU(cU(3),k)
+                    A(4+6*ll,4+6*ll) = A(4+6*ll,4+6*ll) + windW(i,j-1,k,2,t+ll)*c3pU(0,k)
                     b(4+6*ll) = b(4+6*ll) +     windW(i,j-1,k,2,t+ll)*c3pU(cL(3),k)*vel(i,j-1,k+cL(3),2,t+ll)
                     else
-                    A(4+6*ll,4+6*ll) = A(4+6*ll,4+6*ll) + windW(i,j-1,k,2,t+ll)*c3pD(cL(3),k)
+                    A(4+6*ll,4+6*ll) = A(4+6*ll,4+6*ll) + windW(i,j-1,k,2,t+ll)*c3pD(0,k)
                     b(4+6*ll) = b(4+6*ll) +     windW(i,j-1,k,2,t+ll)*c3pD(cU(3),k)*vel(i,j-1,k+cU(3),2,t+ll)
                     end if
 
                     ! ------------------ w -------------------
                     ! u*d/dx
                     if( windU(i,j,k,3,t+ll) >= 0. ) then
-                    A(5+6*ll,5+6*ll) = A(5+6*ll,5+6*ll) + windU(i,j,k,3,t+ll)*c1pU(cU(1),i)
+                    A(5+6*ll,5+6*ll) = A(5+6*ll,5+6*ll) + windU(i,j,k,3,t+ll)*c1pU(0,i)
                     b(5+6*ll) = b(5+6*ll) +     windU(i,j,k,3,t+ll)*c1pU(cL(1),i)*vel(i+cL(1),j,k,3,t+ll)
                     else
-                    A(5+6*ll,5+6*ll) = A(5+6*ll,5+6*ll) + windU(i,j,k,3,t+ll)*c1pD(cL(1),i)
+                    A(5+6*ll,5+6*ll) = A(5+6*ll,5+6*ll) + windU(i,j,k,3,t+ll)*c1pD(0,i)
                     b(5+6*ll) = b(5+6*ll) +     windU(i,j,k,3,t+ll)*c1pD(cU(1),i)*vel(i+cU(1),j,k,3,t+ll)
                     end if
                     ! v*d/dy
                     if( windV(i,j,k,3,t+ll) >= 0. ) then
-                    A(5+6*ll,5+6*ll) = A(5+6*ll,5+6*ll) + windV(i,j,k,3,t+ll)*c2pU(cU(2),j)
+                    A(5+6*ll,5+6*ll) = A(5+6*ll,5+6*ll) + windV(i,j,k,3,t+ll)*c2pU(0,j)
                     b(5+6*ll) = b(5+6*ll) +     windV(i,j,k,3,t+ll)*c2pU(cL(2),j)*vel(i,j+cL(2),k,3,t+ll)
                     else
-                    A(5+6*ll,5+6*ll) = A(5+6*ll,5+6*ll) + windV(i,j,k,3,t+ll)*c2pD(cL(2),j)
+                    A(5+6*ll,5+6*ll) = A(5+6*ll,5+6*ll) + windV(i,j,k,3,t+ll)*c2pD(0,j)
                     b(5+6*ll) = b(5+6*ll) +     windV(i,j,k,3,t+ll)*c2pD(cU(2),j)*vel(i,j+cU(2),k,3,t+ll)
                     end if
                     ! w*d/dz
                     if( windV(i,j,k,3,t+ll) >= 0. ) then
-                    A(5+6*ll,5+6*ll) = A(5+6*ll,5+6*ll) + windW(i,j,k,3,t+ll)*c3wU(cU(3),k)
+                    A(5+6*ll,5+6*ll) = A(5+6*ll,5+6*ll) + windW(i,j,k,3,t+ll)*c3wU(0,k)
                     A(5+6*ll,6+6*ll) = A(5+6*ll,6+6*ll) + windW(i,j,k,3,t+ll)*c3wU(cL(3),k)
                     else
-                    A(5+6*ll,5+6*ll) = A(5+6*ll,5+6*ll) + windW(i,j,k,3,t+ll)*c3wD(cL(3),k)
+                    A(5+6*ll,5+6*ll) = A(5+6*ll,5+6*ll) + windW(i,j,k,3,t+ll)*c3wD(0,k)
                     b(5+6*ll) = b(5+6*ll) +     windW(i,j,k,3,t+ll)*c3wD(cU(3),k)*vel(i,j,k+cU(3),3,t+ll)
                     end if
 
                     ! u*d/dx
                     if( windU(i,j,k-1,3,t+ll) >= 0. ) then
-                    A(6+6*ll,6+6*ll) = A(6+6*ll,6+6*ll) + windU(i,j,k-1,3,t+ll)*c1pU(cU(1),i)
+                    A(6+6*ll,6+6*ll) = A(6+6*ll,6+6*ll) + windU(i,j,k-1,3,t+ll)*c1pU(0,i)
                     b(6+6*ll) = b(6+6*ll) +     windU(i,j,k-1,3,t+ll)*c1pU(cL(1),i)*vel(i+cL(1),j,k-1,3,t+ll)
                     else
-                    A(6+6*ll,6+6*ll) = A(6+6*ll,6+6*ll) + windU(i,j,k-1,3,t+ll)*c1pD(cL(1),i)
+                    A(6+6*ll,6+6*ll) = A(6+6*ll,6+6*ll) + windU(i,j,k-1,3,t+ll)*c1pD(0,i)
                     b(6+6*ll) = b(6+6*ll) +     windU(i,j,k-1,3,t+ll)*c1pD(cU(1),i)*vel(i+cU(1),j,k-1,3,t+ll)
                     end if
                     ! v*d/dy
                     if( windV(i,j,k-1,3,t+ll) >= 0. ) then
-                    A(6+6*ll,6+6*ll) = A(6+6*ll,6+6*ll) + windV(i,j,k-1,3,t+ll)*c2pU(cU(2),j)
+                    A(6+6*ll,6+6*ll) = A(6+6*ll,6+6*ll) + windV(i,j,k-1,3,t+ll)*c2pU(0,j)
                     b(6+6*ll) = b(6+6*ll) +     windV(i,j,k-1,3,t+ll)*c2pU(cL(2),j)*vel(i,j+cL(2),k-1,3,t+ll)
                     else
-                    A(6+6*ll,6+6*ll) = A(6+6*ll,6+6*ll) + windV(i,j,k-1,3,t+ll)*c2pD(cL(2),j)
+                    A(6+6*ll,6+6*ll) = A(6+6*ll,6+6*ll) + windV(i,j,k-1,3,t+ll)*c2pD(0,j)
                     b(6+6*ll) = b(6+6*ll) +     windV(i,j,k-1,3,t+ll)*c2pD(cU(2),j)*vel(i,j+cU(2),k-1,3,t+ll)
                     end if
                     ! w*d/dz
                     if( windV(i,j,k-1,3,t+ll) >= 0. ) then
-                    A(6+6*ll,6+6*ll) = A(6+6*ll,6+6*ll) + windW(i,j,k-1,3,t+ll)*c3wU(cU(3),k-1)
+                    A(6+6*ll,6+6*ll) = A(6+6*ll,6+6*ll) + windW(i,j,k-1,3,t+ll)*c3wU(0,k-1)
                     b(6+6*ll) = b(6+6*ll) +     windW(i,j,k-1,3,t+ll)*c3wU(cL(3),k-1)*vel(i,j,k-1+cL(3),3,t+ll)
                     else
-                    A(6+6*ll,6+6*ll) = A(6+6*ll,6+6*ll) + windW(i,j,k-1,3,t+ll)*c3wD(cL(3),k-1)
+                    A(6+6*ll,6+6*ll) = A(6+6*ll,6+6*ll) + windW(i,j,k-1,3,t+ll)*c3wD(0,k-1)
                     A(6+6*ll,5+6*ll) = A(6+6*ll,5+6*ll) + windW(i,j,k-1,3,t+ll)*c3wD(cU(3),k-1)
                     end if
 
@@ -1315,8 +1345,8 @@ do t = SS(4), N(4)-1
 
 
                 ! time derivative
-                do d = 1,6
-                    A(d+6,d) = - mulI
+                do l = 1,6
+                    A(l+6,l) = - mulI
                 end do
 
                 !===================================================
@@ -1438,81 +1468,83 @@ do t = SS(4), N(4)-1
                 p(i,j,k,t+1) =  b(14)*omega + (1-omega)*p(i,j,k,t+1)
 
 
+                end if
             end do
         end do
     end do
 
     ! boundary pressure points
-
+!go to 100
     ! in X direction
-    if (BCL(1) > 0) then
-    i = SS(1)
-    do k = SS(3), NN(3)
-    do j = SS(2), NN(2)
-    do ll = 0,1
-    p(i,j,k,t) = p(i+1,j,k,t+ll)
-    end do
-    end do
-    end do
-    end if
+       if (BCL(1) > 0) then
+                i = SS(1)
+                do k = SS(3), NN(3)
+                        do j = SS(2), NN(2)
+                            do ll = 0,1
+                                p(i,j,k,t+ll) = p(i+1,j,k,t+ll) ! ( rhs_vel(i,j,k,1,t+ll) - (   &
+                                end do
+                        end do
+                end do
+        end if
 
-    if (BCU(1) > 0) then
-    i = NN(1)
-    do k = SS(3), NN(3)
-    do j = SS(2), NN(2)
-    do ll = 0,1
-    p(i,j,k,t) = p(i-1,j,k,t+ll)
-    end do
-    end do
-    end do
-    end if
+        if (BCU(1) > 0) then
+                i = NN(1) - 1
+                do k = SS(3), NN(3)
+                        do j = SS(2), NN(2)
+                            do ll = 0,1
+                                p(i+1,j,k,t+ll) = p(i,j,k,t+ll) !  ( rhs_vel(i,j,k,1,t+ll) - (  &
+                           end do
+                        end do
+                end do
+        end if
+    
+        ! in Y direction
+        if (BCL(2) > 0) then
+                j = SS(2)
+                do k = SS(3), NN(3)
+                        do i = SS(1), NN(1)
+                            do ll = 0,1
+                                p(i,j,k,t+ll) = p(i,j+1,k,t+ll) ! ( rhs_vel(i,j,k,2,t+ll) - ( &
+                            end do
+                        end do
+                end do
+        end if
 
-    ! in Y direction
-    if (BCL(2) > 0) then
-    j = SS(2)
-    do k = SS(3), NN(3)
-    do i = SS(1), NN(1)
-    do ll = 0,1
-    p(i,j,k,t) = p(i,j+1,k,t+ll)
-    end do
-    end do
-    end do
-    end if
-
-    if (BCU(2) > 0) then
-    j = NN(2)
-    do k = SS(3), NN(3)
-    do i = SS(1), NN(1)
-    do ll = 0,1
-    p(i,j,k,t) = p(i,j-1,k,t+ll)
-    end do
-    end do
-    end do
-    end if
-
+        if (BCU(2) > 0) then
+                j = NN(2) - 1
+                do k = SS(3), NN(3)
+                        do i = SS(1), NN(1)
+                            do ll = 0,1
+                                p(i,j+1,k,t+ll) = p(i,j,k,t+ll) !( rhs_vel(i,j,k,2,t+ll) - ( &
+                            end do
+                        end do
+                end do
+        end if
+   
     ! in Z direction
-    if (BCL(3) > 0) then
-    k = SS(3)
-    do i = SS(1), NN(1)
-    do j = SS(2), NN(2)
-    do ll = 0,1
-    p(i,j,k,t) = p(i,j,k+1,t+ll)
-    end do
-    end do
-    end do
-    end if
+        if (BCL(3) > 0) then
+                k = SS(3)
+                do i = SS(1), NN(1)
+                        do j = SS(2), NN(2)
+                            do ll = 0,1
+                                p(i,j,k,t+ll) = p(i,j,k+1,t+ll)! (rhs_vel(i,j,k,3,t+ll) - ( &
+                                end do
+                        end do
+                end do
+        end if
+        
+        if (BCU(3) > 0) then
+                k = NN(3)
+                do i = SS(1), NN(1)
+                        do j = SS(2), NN(2)
+                            do ll = 0,1
+                                p(i,j,k,t+ll) = p(i,j,k-1,t+ll)! (rhs_vel(i,j,k-1,3,t+ll) - ( &
+                            end do
+                        end do
+                end do
+        end if
 
-    if (BCL(3) > 0) then
-    k = NN(3)
-    do i = SS(1), NN(1)
-    do j = SS(2), NN(2)
-    do ll = 0,1
-    p(i,j,k,t) = p(i,j,k-1,t+ll)
-    end do
-    end do
-    end do
-    end if
-
+!100 continue
 end do ! loop over time ends
 
 end subroutine OP_TimeNS4DBSmoother

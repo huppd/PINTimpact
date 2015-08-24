@@ -25,6 +25,7 @@
 #include "Pimpact_TimeStokesLSmoother.hpp"
 
 #include "Pimpact_TimeNSBSmoother.hpp"
+#include "Pimpact_TimeNS4DBSmoother.hpp"
 
 namespace {
 
@@ -388,11 +389,13 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesLSmooth_conv ) {
                                               Pimpact::createTimeField< Pimpact::ScalarField<SpaceT> >( space ));
         auto rhs = x->clone();
         auto error = x->clone();
+	auto zero_wind = x->clone();
 	
 	//x->random();
-	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), 1, 1 );
+	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), 1., 1. );
         op->assignField(*x);
-	
+	//op->assignField(*zero_wind);
+
 	auto x2 = x->clone();
 
         op->apply(*x,*rhs);
@@ -440,8 +443,8 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesLSmooth_conv ) {
         
         Pimpact::initVectorTimeField( true_sol->getVFieldPtr(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha );
        	
-	op->assignField(*true_sol);
-	//op->assignField(*wind);
+//	op->assignField(*true_sol);
+	op->assignField(*wind);
 	op->apply(*true_sol,*y);
  
 	// print out convergence
@@ -460,6 +463,99 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesLSmooth_conv ) {
 	    bSmoother->apply(*y,*x);
         }
     }
+
+    TEUCHOS_UNIT_TEST( TimeOperator, TimeNS4DBSmooth ) {
+        
+        pl->set("npx", npx) ;
+        pl->set("npy", npy) ;
+        pl->set("npz", npz) ;
+        pl->set("npf", npf) ;
+        
+        typedef Pimpact::TimeNSOp<SpaceT> OpT;
+        
+        auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+        
+        auto op = Pimpact::create<OpT>( space );
+        
+        auto bSmoother = Teuchos::rcp(new Pimpact::TimeNS4DBSmoother<OpT>( op ));
+        
+        auto x = Pimpact::createCompoundField( Pimpact::createTimeField< Pimpact::VectorField<SpaceT> >( space ),
+                                              Pimpact::createTimeField< Pimpact::ScalarField<SpaceT> >( space ));
+        auto rhs = x->clone();
+        auto error = x->clone();
+        
+        //x->random();
+        Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), 1, 1 );
+        op->assignField(*x);
+        
+        auto x2 = x->clone();
+        
+        op->apply(*x,*rhs);
+        bSmoother->apply(*rhs,*x);
+        
+        error->add( 1., *x, -1., *x2 );
+        std::cout << "Consistency error = " << error()->norm()/std::sqrt( error->getLength() )  << "\n";
+        TEST_EQUALITY( error()->norm()<eps, true );
+        
+        //TEST_EQUALITY( rhs->getSField().norm()<eps, true );
+        //std::cout << "RHS pressure norm = " << y_cc->getSField().norm()  << "\n";
+        
+        if (output && error()->norm()>eps)
+        error->write();	
+        
+    }
+
+TEUCHOS_UNIT_TEST( TimeOperator, TimeNS4DBSmooth_conv ) {
+        
+        pl->set("npx", npx) ;
+        pl->set("npy", npy) ;
+        pl->set("npz", npz) ;
+        pl->set("npf", npf) ;
+        
+        typedef Pimpact::TimeNSOp<SpaceT> OpT;
+        auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+        
+        auto op = Pimpact::create<OpT>( space );
+        
+	auto bSmoother = Teuchos::rcp(new Pimpact::TimeNS4DBSmoother<OpT>( op ));
+        
+        auto x = Pimpact::createCompoundField( Pimpact::createTimeField< Pimpact::VectorField<SpaceT> >( space ),
+                                              Pimpact::createTimeField< Pimpact::ScalarField<SpaceT> >( space ));
+        auto y = x->clone();
+        auto error = x->clone();
+        auto true_sol = x->clone();
+        auto Ax = x->clone();
+	auto zero_wind = x->clone();
+
+        double p = 1;
+        double alpha = std::sqrt(pl->get<double>("alpha2"));
+        
+        //Pimpact::initVectorTimeField( y->getVFieldPtr(), Pimpact::ConstVel_inX, p);
+        
+        Pimpact::initVectorTimeField( true_sol->getVFieldPtr(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha );
+       	
+	op->assignField(*true_sol);
+	//op->assignField(*zero_wind);
+	op->apply(*true_sol,*y);
+ 
+	// print out convergence
+	x->random();
+        x->scale(10);
+        
+        for (int i = 1; i < 20; i++){
+
+	    op->apply(*x,*Ax);
+            error->add( 1., *Ax, -1., *y );
+            std::cout  << error->norm()/std::sqrt( error->getLength() ) << "\n";
+                        
+	   if ((i==1 || i%5==0 ) && output)
+                error->write(300+i*100);
+
+	    bSmoother->apply(*y,*x);
+        }
+    }
+
+
 
 } // end of namespace
                                         

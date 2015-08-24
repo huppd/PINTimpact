@@ -236,6 +236,11 @@ public:
     Teuchos::RCP< TimeField<VectorField<ST> > > getWindW_() const { return( windW_ ); }
 
 
+
+  void print( std::ostream& out=std::cout ) const {
+                out << getLabel() << ":\n";
+  }
+
 	const std::string getLabel() const { return( "TimeNSOp" ); };
 
 }; // end of class TimeNSOp
@@ -243,6 +248,12 @@ public:
 
 
 } // end of namespace Pimpact
+
+
+#ifdef COMPILE_ETI
+extern template class Pimpact::TimeNSOp< Pimpact::Space<double,int,4,2> >;
+extern template class Pimpact::TimeNSOp< Pimpact::Space<double,int,4,4> >;
+#endif
 
 
 

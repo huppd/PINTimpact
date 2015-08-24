@@ -31,7 +31,7 @@ typedef double S;
 typedef int O;
 
 typedef Pimpact::Space<S,O,3,4> FSpace3T;
-typedef Pimpact::Space<S,O,4,2> FSpace4T; 
+typedef Pimpact::Space<S,O,4,4> FSpace4T; 
 
 typedef Pimpact::Space<S,O,3,2> CSpace3T;
 typedef Pimpact::Space<S,O,4,2> CSpace4T; 
@@ -611,7 +611,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-	auto space = Pimpact::createSpace<S,O,4,2>( pl ); 
+	auto space = Pimpact::createSpace<S,O,4,4>( pl ); 
 
 	auto mgSpaces = Pimpact::createMGSpaces<FSpace4T,CSpace4T,CS>( space, maxGrids );
 
@@ -633,9 +633,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 									TCO,
 									RES,
 									INT,
-									Pimpact::TimeStokesOp,
-									Pimpact::TimeStokesOp,								
-									Pimpact::TimeStokesBSmoother,
+									Pimpact::TimeNSOp,
+									Pimpact::TimeNSOp,								
+									Pimpact::TimeNS4DBSmoother,
 //									Pimpact::TimeStokesBSmoother
 									MOP
 										> ( mgSpaces, mgPL );
@@ -648,6 +648,8 @@ auto x = Pimpact::createCompoundField( Pimpact::createTimeField< Pimpact::Vector
 typedef Pimpact::TimeStokesOp<FSpace4T> OpT;
 auto op = Pimpact::create<OpT>( space );
 
+auto op_true = Pimpact::create<OpT>( space );
+
 double p = 1;
 double alpha = std::sqrt(pl->get<double>("alpha2"));
 
@@ -659,6 +661,10 @@ auto err = x->clone();
 err->init(1);
 
 Pimpact::initVectorTimeField( true_sol->getVFieldPtr(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha );
+
+op->assignField(*true_sol);
+
+op_true->assignField(*true_sol);
 
 //auto true_sol2 = true_sol->clone();
 
@@ -697,8 +703,10 @@ x->random();
 x->scale(10);
 x->getSField().level();
 
+op->assignField(*x);
+
 err->add( -1, *x, 1., *true_sol );
-std::cout << "\n" << "err: " << err->norm()/std::sqrt( err->getLength() );
+std::cout << "\n" << "err: " << err->norm()/std::sqrt( err->getLength() )<< std :: endl;
 
 if (output)
 	err->write();
@@ -706,7 +714,9 @@ if (output)
 op->apply(*x,*Ax);
 
 err->add( -1, *Ax, 1., *b );
-std::cout << "      res: " << err->norm()/std::sqrt( err->getLength() ) << "\n";
+std::cout << err->norm()/std::sqrt( err->getLength() ) << "\n";
+
+std::cout << "Start MG" << std::endl;
 
 for( int i=0; i<20; ++i ) {
 	mg->apply( *b, *x );
@@ -723,9 +733,9 @@ for( int i=0; i<20; ++i ) {
 	op->apply(*x,*Ax);
 
 	err->add( -1, *Ax, 1., *b );
-	std::cout << "      res: " << err->norm()/std::sqrt( err->getLength() ) << "\n";
+	std::cout <<  "       res " << err->norm()/std::sqrt( err->getLength() ) << "\n";
 }
-
+//x->write();
 
 TEST_EQUALITY( err->norm()<1.e-5, true );
 

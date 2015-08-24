@@ -423,44 +423,27 @@ contains
      ! ------------------------!
      omega = 1
 
-
- !pressure DR BC   
-  !do t = SS(4), N(4)
-   ! do k = SS(3), NN(3)
-    !  do j = SS(2), NN(2)
-     !   do i = SS(1), NN(1)
-
-      !  if (i==SS(1) .or. i==NN(1) .or. j==SS(2) .or. j==NN(2) .or. k==SS(3) .or. k==NN(3)) then         
-       !              p(i,j,k,t) = 0
-        !end if
-
-
-!        end do
- !    end do
-  ! end do
-!end do
-
   do t = SS(4), N(4) - 1
 
 
     if ( MOD(direction_flag,2) == 1) then
 
-      k_start  =SS(3)
-      k_end    =NN(3)
-      j_start  =SS(2)
-      j_end    =NN(2)
-      i_start  =SS(1)
-      i_end    =NN(1)
+      k_start  =SW(3)
+      k_end    =NW(3)
+      j_start  =SV(2)
+      j_end    =NV(2)
+      i_start  =SU(1)
+      i_end    =NU(1)
       increment=1
 
     else
 
-      k_start  =NN(3)
-      k_end    =SS(3)
-      j_start  =NN(2)
-      j_end    =SS(2)
-      i_start  =NN(1)
-      i_end    =SS(1)
+      k_start  =NW(3)
+      k_end    =SW(3)
+      j_start  =NV(2)
+      j_end    =SV(2)
+      i_start  =NU(1)
+      i_end    =SU(1)
       increment=-1
 
     end if
@@ -469,12 +452,8 @@ contains
       do j =  j_start, j_end, increment
         do i =   i_start, i_end, increment
 
-
-       if (i==SS(1) .or. i==NN(1) .or. j==SS(2) .or. j==NN(2) .or. k==SS(3) .or. k==NN(3)) then
-           !p(i,j,k,t) = 0
-           !p(i,j,k,t+1) = 0
-        else
-                        
+        if (.not.(i==SS(1) .or. i==NN(1) .or. j==SS(2) .or. j==NN(2) .or.k==SS(3) .or. k==NN(3))) then
+        
           A(1:block_size,1:block_size) = 0.0
           b(1:block_size) = 0.0
 
@@ -656,8 +635,7 @@ contains
 
            p(i,j,k,t  ) =  b(13)*omega + (1-omega)*p(i,j,k,t  )
            p(i,j,k,t+1) =  b(14)*omega + (1-omega)*p(i,j,k,t+1)
-
-         end if 
+        end if
         end do
       end do
     end do
@@ -677,12 +655,12 @@ contains
                            !                             cD2(dU(2),j)*vel(i,j+1,k,1,t+ll) + cD2(dL(2),j)*vel(i,j-1,k,1,t+ll) + &
                             !                            cD3(dU(3),k)*vel(i,j,k+1,1,t+ll) + cD2(dL(3),k)*vel(i,j,k-1,1,t+ll))) / cD1(dU(1),i)
 
-                                p(i,j,k,t+ll) = p(i+1,j,k,t+ll) ! ( rhs_vel(i,j,k,1,t+ll) - (   &
-                                                 ! cG1(gU(1),i)*p(i+1,j,k,t+ll) + mulI*(vel(i,j,k,1,t+ll) - vel(i,j,k,1,t-1+ll)) &
-                                                 ! - mulL*(vel(i,j,k,1,t+ll)*(c11u(0,i)+c22p(0,j)+c33p(0,k)) +                   &
-                                                  !      c22p(bU(1),j)*vel(i,j+1,k,1,t+ll) + c22p(bL(1),j)*vel(i,j-1,k,1,t+ll) + &
-                                                   !     c33p(bU(1),k)*vel(i,j,k+1,1,t+ll) + c33p(bL(1),k)*vel(i,j,k-1,1,t+ll) + &
-                                                    !    c11u(bU(1),i)*vel(i+1,j,k,1,t+ll) + c11u(bL(1),i)*vel(i-1,j,k,1,t+ll)))) /cG1(gL(1),i)
+                                p(i,j,k,t+ll) = p(i+1,j,k,t+ll)!( rhs_vel(i,j,k,1,t+ll) - (   &
+                                                 ! cG1(gU(1),i)*p(i+gU(1),j,k,t+ll) + mulI*(vel(i,j,k,1,t+ll) - vel(i,j,k,1,t-1+ll)) &
+                                                  !- mulL*(vel(i,j,k,1,t+ll)*(c11u(0,i)+c22p(0,j)+c33p(0,k)) +                   &
+                                                !c22p(bU(2),j)*vel(i,j+bU(1),k,1,t+ll) + c22p(bL(2),j)*vel(i,j+bL(2),k,1,t+ll) + &
+                                                !c33p(bU(3),k)*vel(i,j,k+bU(3),1,t+ll)  + c33p(bL(3),k)*vel(i,j,k+bL(3),1,t+ll) + &
+                                                !c11u(bU(1),i)*vel(i+bU(1),j,k,1,t+ll) + c11u(bL(1),i)*vel(i+bL(1),j,k,1,t+ll)))) /cG1(gL(1),i)
                                 end do
                         end do
                 end do

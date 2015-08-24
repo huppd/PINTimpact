@@ -100,11 +100,11 @@ public:
   /// \todo template cycle method
 	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
-		for( int j=0; j<numCycles_; ++j ) {
+		for( int j=0; j<1; ++j ) {
 
-			// defect correction rhs \hat{f}= b = x - L y
-			mgOps_->get()->apply( y, *b_->get() );
-			b_->get()->add( 1., x, -1., *b_->get() );
+		// defect correction rhs \hat{f}= b = x - L y
+		mgOps_->get()->apply( y, *b_->get() );
+		b_->get()->add( 1., x, -1., *b_->get() );
 	
 		 // transfer init y and \hat{f} to coarsest coarse
 		 mgTrans_->getTransferOp()->apply( y, *x_->get(0) );
@@ -167,7 +167,7 @@ public:
 				if( mgSpaces_->participating(i) ) {
 					mgTrans_->getInterpolationOp(i)->apply( *x_->get(i+1), *temp_->get(i) );
 					x_->get(i)->add( 1., *temp_->get(i), 1., *x_->get(i) );
-				// pressure boundary?
+					//
 					mgSms_->get( i )->apply( *b_->get(i), *x_->get(i) );
 				}
 			}
