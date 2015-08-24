@@ -275,6 +275,11 @@ public:
     fields_->init(alpha);
   }
 
+  void initField() {
+    field0_->initField();
+    fields_->initField();
+  }
+
   void level() const {
     field0_->level();
     fields_->level();

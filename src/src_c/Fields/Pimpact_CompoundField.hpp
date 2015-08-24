@@ -251,10 +251,18 @@ public:
     sfield_->init(alpha);
   }
 
+  /// \brief Replace each element of the vector  with \c alpha.
+  void initField() {
+    vfield_->initField();
+    sfield_->initField();
+  }
+
   void level() const {
     vfield_->level();
     sfield_->level();
   }
+
+
 
 
   /// \}
