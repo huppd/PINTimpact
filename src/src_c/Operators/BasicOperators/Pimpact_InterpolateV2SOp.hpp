@@ -138,7 +138,7 @@ public:
         space->du(m),
         space->sInd(S),
         space->eInd(S),
-        c_[m],
+        getC((ECoord)m),
         x.getConstRawPtr(),
         y.getRawPtr() );
 

@@ -26,7 +26,7 @@ namespace Pimpact {
 ///the exception in GridSilzeLocal has to be adapted on StencilWidths
 /// \ingroup MG
 /// \todo add template parameter for coarses gridSize, and some procGrid stuff
-template<class FSpaceT,class CSpaceT, int cgsize=6>
+template<class FSpaceT,class CSpaceT, int cgsize=9>
 class CoarsenStrategyGlobal {
 
   typedef typename FSpaceT::Scalar  Scalar;

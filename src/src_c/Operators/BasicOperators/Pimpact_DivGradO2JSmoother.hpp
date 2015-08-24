@@ -59,7 +59,6 @@ protected:
   int nIter_;
 	bool levelYes_;
 
-
   Teuchos::RCP<DomainFieldT> temp_;
 
   const Teuchos::RCP<const OperatorT> op_;
@@ -67,10 +66,18 @@ protected:
 public:
 
   DivGradO2JSmoother(
+      const Teuchos::RCP<const SpaceT>& space):
+    omega_( (2==space->dim())?0.8:6./7. ),
+    nIter_( 2 ),
+    levelYes_( false ),
+    temp_( createScalarField<SpaceT>(space) ),
+    op_( Teuchos::rcp( new OperatorT(space) ) ) {}
+
+  DivGradO2JSmoother(
       const Teuchos::RCP<const OperatorT>& op,
       Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ):
     omega_( pl->get<Scalar>("omega", (2==op->space()->dim())?0.8:6./7. ) ),
-    nIter_( pl->get<int>( "numIters", 2 ) ),
+    nIter_( pl->get<int>( "numIters", 4 ) ),
     levelYes_( pl->get<bool>( "level", false ) ),
     temp_( createScalarField<SpaceT>( op->space() ) ),
     op_(op) {}

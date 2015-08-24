@@ -326,7 +326,7 @@ public:
 
 //    coordGlobal_->print(out);
 //
-		coordLocal_->print(out);
+//		coordLocal_->print(out);
 
   }
 
@@ -346,7 +346,7 @@ public:
           "Domain type: 0:all dirichlet, 1:dirichlet 2d channel, 2: periodic 2d channel" );
 
       // domain size
-      pl->set<int>("dim", 2, "dimension of problem" );
+      pl->set<int>("dim", 3, "dimension of problem" );
 
       pl->set<S>( "lx", 1., "length in x-direction" );
       pl->set<S>( "ly", 1., "length in y-direction" );
@@ -356,7 +356,7 @@ public:
       // grid size
       pl->set<O>("nx", 33, "amount of grid points in x-direction: a*2**q+1" );
       pl->set<O>("ny", 33, "amount of grid points in y-direction: a*2**q+1" );
-      pl->set<O>("nz", 2, "amount of grid points in z-direction: a*2**q+1" );
+      pl->set<O>("nz", 33, "amount of grid points in z-direction: a*2**q+1" );
       pl->set<O>("nf", 4, "amount of grid points in f-direction" );
 
       pl->set<O>("nfs", 1, "start amount of grid points in f-direction" );

@@ -100,27 +100,31 @@ public:
 
     for( int j=0; j<numCycles_; ++j ) {
 
-      // defect correction rhs \hat{f}= b = x - L y
-      mgOps_->get()->apply( y, *b_->get() );
-      b_->get()->add( 1., x, -1., *b_->get() );
+			// defect correction rhs \hat{f}= b = x - L y
+			mgOps_->get()->apply( y, *b_->get() );
+			b_->get()->add( 1., x, -1., *b_->get() );
 
-      // transfer init y and \hat{f} to coarsest coarse
-      mgTrans_->getTransferOp()->apply( y, *x_->get(0) );
-      mgTrans_->getTransferOp()->apply( *b_->get(), *b_->get(0) );
+			// transfer init y and \hat{f} to coarsest coarse
+			mgTrans_->getTransferOp()->apply( y, *x_->get(0) );
+			mgTrans_->getTransferOp()->apply( *b_->get(), *b_->get(0) );
 
-      // residual temp = \hat(L) y
-      mgOps_->get(0)->apply( *x_->get(0), *temp_->get(0) );
-      // b = x - L y +\hat{L} y
-      b_->get(0)->add( 1., *b_->get(0), 1, *temp_->get(0) );
-			b_->get(0)->level();
-			/// use residual here
+			// residual temp = \hat(L) y
+			mgOps_->get(0)->apply( *x_->get(0), *temp_->get(0) );
+			// b = x - L y +\hat{L} y
+			b_->get(0)->add( 1., *b_->get(0), 1, *temp_->get(0) );
+//			b_->get(0)->level();
+			//			/// use residual here
 
-      // smooth and restrict defect( todo extract this as method )
+			// === no defect correction
+			//      mgTrans_->getTransferOp()->apply( y, *x_->get(0) );
+			//      mgTrans_->getTransferOp()->apply( x, *b_->get(0) );
+			//			b_->get(0)->level();
+			// === no defect correction
+
       int i;
       for( i=0; i<mgSpaces_->getNGrids()-1; ++i ) {
 //				if(i>0 && 0==j ) x_->get(i)->init(0.); // necessary? for DivGradOp yes
-//				if( i>0 )
-					x_->get(i)->init(0.); // necessary? for DivGradOp yes
+				if( i>0 ) x_->get(i)->init(0.); // necessary? for DivGradOp yes
 
 				if( mgSpaces_->participating(i) ) {
 					mgSms_->get(i)->apply( *b_->get(i), *x_->get(i) );

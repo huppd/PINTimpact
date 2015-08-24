@@ -45,7 +45,19 @@ void OP_SetBCZero(
     const int* const nn,
     const double* phi );
 
-void OP_bc_extrapolation( const int& m, double* phi );
+void OP_extrapolateBC(
+		const int& m,         
+    const int* const N,         
+    const int* const bL,
+		const int* const bU,     
+    const int& dL,
+		const int& dU,     
+		const int* const BC_L,
+		const int* const BC_U, 
+		const int* const SB,
+		const int* const NB,
+		const double* const c,    
+		const double*       phi );
 
 }
 
@@ -142,17 +154,32 @@ public:
         getC(Z),
 				x.getConstRawPtr(),
 				y.getRawPtr() );
+
 		// necessary?
-//		for( int i=0; i<space()->dim(); ++i )
-//			OP_SetBCZero(
-//					space_->nLoc(),
-//					space_->bl(),
-//					space_->bu(),
-//					space_->getDomain()->getBCLocal()->getBCL(),
-//					space_->getDomain()->getBCLocal()->getBCU(),
-//					space_->sIndB(i),
-//					space_->eIndB(i),
-//					y.getRawPtr(i) );
+		for( int i=0; i<space()->dim(); ++i ) {
+			OP_SetBCZero(
+					space_->nLoc(),
+					space_->bl(),
+					space_->bu(),
+					space_->getDomain()->getBCLocal()->getBCL(),
+					space_->getDomain()->getBCLocal()->getBCU(),
+					space_->sIndB(i),
+					space_->eIndB(i),
+					y.getRawPtr(i) );
+			OP_extrapolateBC(
+					i+1,
+					space_->nLoc(),
+					space_->bl(),
+					space_->bu(),
+					space_->dl(i),
+					space_->du(i),
+					space_->getDomain()->getBCLocal()->getBCL(),
+					space_->getDomain()->getBCLocal()->getBCU(),
+					space_->sIndB(i),
+					space_->eIndB(i),
+					space_->getInterpolateV2S()->getC((ECoord)i),
+					y.getRawPtr(i) );
+		}
 
     y.changed();
   }

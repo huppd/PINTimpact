@@ -36,11 +36,25 @@ protected:
 
 public:
 
+//	template<class IOperatorT>
+	InverseOp( const Teuchos::RCP<const SpaceT>& space ) {
+
+		auto para = 
+			createLinSolverParameter("GMRES",1.e-1,-1, Teuchos::rcp( new Teuchos::oblackholestream ), 200 );
+
+		linprob_ = createLinearProblem<MF>(
+				createOperatorBase( Teuchos::rcp( new OperatorT(space) ) ),
+				create<MF>(space),
+				create<MF>(space),
+				para,
+				"GMRES" );
+	}
+
 	template<class IOperatorT>
 	InverseOp( const Teuchos::RCP<IOperatorT>& op ) {
 
 		auto para = 
-			createLinSolverParameter("GMRES",1.e-12,-1, Teuchos::rcp( &std::cout, false ), 200 );
+			createLinSolverParameter("GMRES",1.e-1,-1, Teuchos::rcp( new Teuchos::oblackholestream ), 200 );
 		linprob_ = createLinearProblem<MF>(
 				createOperatorBase( create<OperatorT>(op) ),
 				create<MF>( op->space() ),
@@ -128,6 +142,8 @@ public:
 		out << "Inverse:\n";
     linprob_->print( out );
   }
+
+//	Teuchos::RCP<const SpaceT> space() const { return(linprob_->getProblem()->getOperator()->space()); };
 
 }; // end of class InverseOp
 

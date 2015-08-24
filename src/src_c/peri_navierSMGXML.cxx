@@ -27,6 +27,7 @@
 #include "Pimpact_LinearProblem.hpp"
 #include "Pimpact_Operator.hpp"
 #include "Pimpact_OperatorFactory.hpp"
+#include "Pimpact_CompoundSmoother.hpp"
 
 #include "Pimpact_LinSolverParameter.hpp"
 
@@ -107,6 +108,15 @@ template<class T> using DTConvDiffOpT =
 
 template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
 
+template<class OpT>
+using Smoother =
+	Pimpact::CompoundSmoother<
+		OpT,
+		MOP,
+//		Pimpact::MultiHarmonicOpWrap< Pimpact::DivGradO2JSmoother<Pimpact::DivGradO2Op<CSpaceT> > >//
+		Pimpact::MultiHarmonicOpWrap< MOP<Pimpact::DivGradO2Op<CSpaceT> > >//
+	>;
+
 
 //template<class T> using SmootherT =
 //	Pimpact::InverseTriangularOp<
@@ -121,13 +131,14 @@ template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact
 
 int main(int argi, char** argv ) {
 
+
 	/////////////////////////////////////////// set up parameters ///////////////////////////
   // intialize MPI
   MPI_Init( &argi, &argv );
 
 	Teuchos::CommandLineProcessor my_CLP;
 
-  std::string xmlFilename = "parameterIn.xml";
+  std::string xmlFilename = "parameterSMG.xml";
   my_CLP.setOption("filename", &xmlFilename, "file name of the input xml paramerterlist");
 
   my_CLP.recogniseAllOptions(true);
@@ -139,8 +150,8 @@ int main(int argi, char** argv ) {
 	auto pl = Teuchos::getParametersFromXmlFile( xmlFilename );
 	pl->print();
 
-
 	/////////////////////////////////////////// end of set up parameters ///////////////////////////
+
 	///////////////////////////////////////////  set up initial stuff //////////////////////////////
 	
 	int initZero = pl->sublist("Solver").get<int>("initZero");
@@ -180,10 +191,10 @@ int main(int argi, char** argv ) {
 		if( 0==pl->get<int>("forcing", 1) )
 			fu->init( 0. );
 		else {
-//			S re = space->getDomain()->getDomainSize()->getRe();
+			//			S re = space->getDomain()->getDomainSize()->getRe();
 			fu->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->getFieldPtr(Pimpact::U)->initField(  Pimpact::FPoint, pl->get<S>( "lambda0x", -2. ) );
 			fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->getFieldPtr(Pimpact::V)->initField( Pimpact::FPoint, pl->get<S>( "lambdaCy",  1. ) );
-			fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->getFieldPtr(Pimpact::V)->initField( Pimpact::FPoint, pl->get<S>( "lambdaCy",  0. ) );
+			fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->getFieldPtr(Pimpact::W)->initField( Pimpact::FPoint, pl->get<S>( "lambdaCz",  0. ) );
 			//		fu->getFieldPtr(0)->getVFieldPtr()->getSFieldPtr(0)->getFieldPtr(Pimpact::W)->initField( Pimpact::FPoint, 1. );
 		}
 		//	fu->getFieldPtr(0)->getVFieldPtr()->write( 700,true );
@@ -214,20 +225,6 @@ int main(int argi, char** argv ) {
 
       auto pls = Teuchos::rcpFromRef( pl->sublist("Multi Grid") );
 
-//			pls->sublist("Smoother").set<std::string>("Solver name", "GMRES" );
-//			pls->sublist("Smoother").set( "Solver",
-//					*Pimpact::createLinSolverParameter( "GMRES", 1.e-16, -1,
-//						Teuchos::rcp<std::ostream>( new Teuchos::oblackholestream() ), 4,
-//						"Smoother" ) );
-//			pls->sublist("Coarse Grid Solver").set<std::string>( "Solver name", "GMRES" );
-//			pls->sublist("Coarse Grid Solver").set( "Solver",
-//					*Pimpact::createLinSolverParameter( "GMRES", 1.e-3, -1,
-////						Teuchos::rcp<std::ostream>( &std::cout, false ), 100,
-//						Teuchos::rcp<std::ostream>( new Teuchos::oblackholestream() ), 100,
-//						"Coarse Grid Solver" )
-//					);
-
-
 			auto mg =
 				Pimpact::createMultiGrid<
 					FT,
@@ -236,7 +233,8 @@ int main(int argi, char** argv ) {
 					InterF,
 					DTConvDiffOpT,
 					DTConvDiffOpT,
-					MOP,
+//					MOP,
+					Smoother,
 					MOP > ( mgSpaces, pls ) ;
 
 			mg->print();
@@ -270,9 +268,9 @@ int main(int argi, char** argv ) {
 
     auto group = NOX::Pimpact::createGroup<Inter>( bla, inter, nx );
 
+    // Set up the status tests
 		auto statusTest =
 			NOX::StatusTest::buildStatusTests( pl->sublist("NOX Solver").sublist("Status Test"), NOX::Utils() );
-
 
 
     // Create the solver
@@ -334,7 +332,6 @@ int main(int argi, char** argv ) {
 		}
   } 
 	/******************************************************************************************/
-
 
 	Teuchos::writeParameterListToXmlFile( *pl, "parameterOut.xml" );
 

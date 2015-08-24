@@ -73,13 +73,6 @@ public:
 //				space()->sIndB(S),
 //				space()->eIndB(S),
 //				y.getRawPtr() );
-		SF_handle_corner(
-				space()->nLoc(),
-				space()->bl(),
-				space()->bu(),
-				space()->getDomain()->getBCLocal()->getBCL(),
-				space()->getDomain()->getBCLocal()->getBCU(),
-				y.getRawPtr() );
   }
 
   void assignField( const DomainFieldT& mv ) {};

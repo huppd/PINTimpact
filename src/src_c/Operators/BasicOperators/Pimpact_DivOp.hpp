@@ -119,6 +119,13 @@ public:
         getC(Z),
         x.getConstRawPtr(),
         y.getRawPtr() );
+		SF_handle_corner(
+				space()->nLoc(),
+				space()->bl(),
+				space()->bu(),
+				space()->getDomain()->getBCLocal()->getBCL(),
+				space()->getDomain()->getBCLocal()->getBCU(),
+				y.getRawPtr() );
 
     y.changed();
 

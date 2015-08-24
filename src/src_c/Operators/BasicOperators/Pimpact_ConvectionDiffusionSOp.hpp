@@ -161,7 +161,7 @@ public:
 //		std::cout << "mul: " << mul_ << "\n";
 //		std::cout << "mulI: " << mulI_ << "\n";
 //		std::cout << "mulC: " << mulC_ << "\n";
-//		std::cout << "mulL: " << mulL_ << "\n";
+//		std::cout << "mulL: " << mulL_ << "\n\n";
 	}
 
   Teuchos::RCP<const ConvectionSOp<SpaceT> > getConvSOp() const { return( convSOp_ ); }

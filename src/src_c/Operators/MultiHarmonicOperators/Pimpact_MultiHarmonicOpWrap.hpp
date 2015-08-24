@@ -1,6 +1,6 @@
 #pragma once
-#ifndef PIMPACT_MULTIHARMONICMODEOPWRAP_HPP
-#define PIMPACT_MULTIHARMONICMODEOPWRAP_HPP
+#ifndef PIMPACT_MULTIHARMONICOPWRAP_HPP
+#define PIMPACT_MULTIHARMONICOPWRAP_HPP
 
 
 #include "Teuchos_RCP.hpp"
@@ -36,7 +36,7 @@ protected:
 public:
 
   MultiHarmonicOpWrap( const Teuchos::RCP<const SpaceT>& space ):
-		op_( create<OpT>(space) ) {};
+		op_( Teuchos::rcp( new OpT(space) ) ) {};
 
   MultiHarmonicOpWrap( const Teuchos::RCP<OpT>& op ): op_(op) {};
 
@@ -90,4 +90,4 @@ createMultiHarmonicOpWrap( const Teuchos::RCP<OpT>& op) {
 } // end of namespace Pimpact
 
 
-#endif // end of #ifndef PIMPACT_MULTIHARMONICMODEOPWRAP_HPP
+#endif // end of #ifndef PIMPACT_MULTIHARMONICOPWRAP_HPP

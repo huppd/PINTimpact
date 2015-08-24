@@ -36,6 +36,9 @@ protected:
 
 public:
 
+	MultiOpWrap( const Teuchos::RCP<const SpaceT>& space ):
+		op_( Teuchos::rcp( new OperatorT(space) ) ) {}
+
 	MultiOpWrap( const Teuchos::RCP<OperatorT>& op ):op_(op) {}
 
 //	template<class IOperatorT>

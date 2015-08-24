@@ -33,6 +33,7 @@ public:
 protected:
 
   Teuchos::RCP<VF> tempv_;
+//  Teuchos::RCP<VF> tempv2_;
 
   Teuchos::RCP<OpV2V> opV2V_;
   Teuchos::RCP<OpS2V> opS2V_;
@@ -45,6 +46,7 @@ public:
 			const Teuchos::RCP<OpS2V>& opS2V,
 			const Teuchos::RCP<OpS2S>& opS2S ):
 		tempv_( create<VF>(opV2V->space()) ),
+//		tempv2_( create<VF>(opV2V->space()) ),
 		opV2V_(opV2V),
 		opS2V_(opS2V),
 		opS2S_(opS2S) {};
@@ -56,6 +58,7 @@ public:
 
 		opS2V_->apply( y.getConstSField(), *tempv_ );
 
+//		tempv2_->add( -1., *tempv_, 1., x.getConstVField() );
 		tempv_->add( -1., *tempv_, 1., x.getConstVField() );
 
 		opV2V_->apply( *tempv_, y.getVField() );
