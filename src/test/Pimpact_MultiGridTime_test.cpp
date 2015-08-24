@@ -703,7 +703,7 @@ x->random();
 x->scale(10);
 x->getSField().level();
 
-op->assignField(*x);
+//op->assignField(*x);
 
 err->add( -1, *x, 1., *true_sol );
 std::cout << "\n" << "err: " << err->norm()/std::sqrt( err->getLength() )<< std :: endl;
@@ -718,7 +718,7 @@ std::cout << err->norm()/std::sqrt( err->getLength() ) << "\n";
 
 std::cout << "Start MG" << std::endl;
 
-for( int i=0; i<20; ++i ) {
+for( int i=0; i<50; ++i ) {
 	mg->apply( *b, *x );
 	
 	x->level();

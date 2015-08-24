@@ -268,7 +268,7 @@ int main(int argi, char** argv ) {
   pl->set("npz", np3 );
   pl->set("npf", np4 );
 
-  auto space = Pimpact::createSpace<S,O,4>( pl );
+  auto space = Pimpact::createSpace<S,O,4,4>( pl );
 	//  space->print();
   int rank = space->getProcGrid()->getRank();
 
@@ -392,8 +392,6 @@ int main(int argi, char** argv ) {
       Pimpact::createMultiOperatorBase(
          Pimpact::create<Pimpact::TimeNSOp<SpaceT> >( space ));
 
- 
-
 
   Teuchos::RCP<BOp> jop;
   {
@@ -431,6 +429,7 @@ int main(int argi, char** argv ) {
 
 
   // init lprec
+  /*
   Teuchos::RCP<BOp> lprec = Teuchos::null;
   auto schurParams = Pimpact::createLinSolverParameter( linSolName , tolSchur );
   //    schurPara->set( "Verbosity", int( Belos::Errors) );
@@ -462,7 +461,8 @@ int main(int argi, char** argv ) {
   auto lp = Pimpact::createInverseOperatorBase<MF>( lp_ );
 
   jop=lp;
-  //    }
+  */  
+//    }
 
   auto inter = NOX::Pimpact::createInterface<MF>( fu, op, jop );
 
