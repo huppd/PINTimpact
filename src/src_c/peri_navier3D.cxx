@@ -624,7 +624,7 @@ int main(int argi, char** argv ) {
 
 			xf->add( 1., *temp, 0., *temp );
 
-			xf->write();
+//			if( withoutput )  xf->write();
 
 			x = Pimpact::createMultiField( xf );
 			space = spaceF;

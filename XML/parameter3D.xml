@@ -108,7 +108,7 @@
   <ParameterList id="196" name="Belos Solver">
     <Parameter docString="" id="68" isDefault="true" isUsed="true" name="Solver name" type="string" value="Block GMRES" />
     <ParameterList id="197" name="Solver">
-      <Parameter docString="" id="69" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="20" />
+      <Parameter docString="" id="69" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="10" />
       <Parameter docString="" id="70" isDefault="false" isUsed="true" name="Maximum Restarts" type="int" value="100" />
       <Parameter docString="" id="71" isDefault="false" isUsed="true" name="Block Size" type="int" value="1" />
       <Parameter docString="" id="72" isDefault="false" isUsed="true" name="Adaptive Block Size" type="bool" value="true" />
@@ -127,7 +127,7 @@
   <ParameterList id="198" name="DivGrad">
     <Parameter docString="" id="83" isDefault="true" isUsed="true" name="Solver name" type="string" value="Block GMRES" />
     <ParameterList id="199" name="Solver">
-      <Parameter docString="" id="84" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="20" />
+      <Parameter docString="" id="84" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="10" />
       <Parameter docString="" id="85" isDefault="false" isUsed="true" name="Maximum Restarts" type="int" value="100" />
       <Parameter docString="" id="86" isDefault="false" isUsed="true" name="Block Size" type="int" value="1" />
       <Parameter docString="" id="87" isDefault="false" isUsed="true" name="Adaptive Block Size" type="bool" value="true" />
@@ -247,7 +247,7 @@
   <ParameterList id="214" name="MH_ConvDiff">
     <Parameter docString="" id="161" isDefault="true" isUsed="true" name="Solver name" type="string" value="Block GMRES" />
     <ParameterList id="215" name="Solver">
-      <Parameter docString="" id="162" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="10" />
+      <Parameter docString="" id="162" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="5" />
       <Parameter docString="" id="163" isDefault="false" isUsed="true" name="Maximum Restarts" type="int" value="10" />
       <Parameter docString="" id="164" isDefault="false" isUsed="true" name="Block Size" type="int" value="2" />
       <Parameter docString="" id="165" isDefault="false" isUsed="true" name="Adaptive Block Size" type="bool" value="true" />
