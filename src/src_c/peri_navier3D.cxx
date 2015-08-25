@@ -475,26 +475,18 @@ int main(int argi, char** argv ) {
 			/////////////////////////////////////////end of opv2v///////////////////////////////////////////////////////////////////
 
 			////--- inverse DivGrad
-			auto divGradOp =
-				Pimpact::createMultiOperatorBase(
-						Pimpact::createDivGradOp(
-							opV2S->getOperatorPtr(),
-							opS2V->getOperatorPtr()
-							)
-						);
-
-
 			pl->sublist("DivGrad").sublist("Solver").set(
 					"Output Stream",
-					Pimpact::createOstream( divGradOp->getLabel()+rl+".txt", space->rankST() ) );
+					Pimpact::createOstream( "DivGrad"+rl+".txt", space->rankST() ) );
 
-			auto divGradProb =
-				Pimpact::createLinearProblem<Pimpact::MultiField<Pimpact::ScalarField<SpaceT> > >(
-						divGradOp ,
-						Teuchos::null,
-						Teuchos::null,
-						Teuchos::rcpFromRef( pl->sublist("DivGrad").sublist("Solver") ),
-						pl->sublist("DivGrad").get<std::string>("Solver name") );
+			auto divGradInv2 =
+						Pimpact::createInverseOp( 
+							Pimpact::createDivGradOp(
+								opV2S->getOperatorPtr(),
+								opS2V->getOperatorPtr()
+								)
+							, Teuchos::rcpFromRef( pl->sublist("DivGrad") )
+							);
 
 			{ // init multigrid divgrad
 
@@ -513,13 +505,12 @@ int main(int argi, char** argv ) {
 				if( 0==space->rankST() )
 					mgDivGrad->print();
 
-				divGradProb->setRightPrec( Pimpact::createMultiOperatorBase( mgDivGrad ) );
+				divGradInv2->setRightPrec( Pimpact::createMultiOperatorBase( mgDivGrad ) );
 			}
-
 
 			auto divGradInv =
 				Pimpact::createMultiHarmonicMultiOpWrap(
-						Pimpact::createInverseOperatorBase( divGradProb )
+						divGradInv2
 						);
 
 			// schurcomplement approximator ...
@@ -537,7 +528,8 @@ int main(int argi, char** argv ) {
 						divGradInv
 						);
 
-			std::cout << opS2Sinv->getLabel() << "\n";
+			if( space->rankST()==0 )
+				std::cout << opS2Sinv->getLabel() << "\n";
 
 			auto invTriangOp =
 				Pimpact::createInverseTriangularOp(

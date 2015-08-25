@@ -3046,16 +3046,16 @@ MODULE mod_solvers
   
   
   !----------------------------------------------------------------------------------------------------------!
-  ! Anmerkungen: - �bergebene Felder sind generell zu gross (b1L:(N1+b1U) vs. 0:(N1+1)), andererseits st�rt  !
+  ! Anmerkungen: - übergebene Felder sind generell zu gross (b1L:(N1+b1U) vs. 0:(N1+1)), andererseits stört  !
   !                der Umstand i.A. auch nicht!                                                              !
-  !              - vec1C bzw. vecC k�nnen eingespart werden, wenn Produkt und Restriktion zusammengelegt     !
-  !                werden. Darauf wird hier der �bersicht halber verzichtet, zumal vecC nicht auf dem        !
-  !                feinsten Gitter existiert und somit der Speicher nicht �berstrapaziert wird. Diese Felder !
-  !                werden zudem an die Interpolationsroutinen als Arbeitsfelder �bergeben, w�ren aber auch   !
+  !              - vec1C bzw. vecC können eingespart werden, wenn Produkt und Restriktion zusammengelegt     !
+  !                werden. Darauf wird hier der Übersicht halber verzichtet, zumal vecC nicht auf dem        !
+  !                feinsten Gitter existiert und somit der Speicher nicht überstrapaziert wird. Diese Felder !
+  !                werden zudem an die Interpolationsroutinen als Arbeitsfelder übergeben, wären aber auch   !
   !                dort mit entsprechendem Programmieraufwand eliminierbar.                                  !
-  !              - INTENT(inout) f�r bb ist wegen restrict_Helmholtz notwendig.                              !
-  !              - Es wird vorausgesetzt, dass das feinstes Gitterlevel keine Nullraum-Korrektur ben�tigt    !
-  !                (sollte normalerweise auch erf�llt sein).                                                 !
+  !              - INTENT(inout) für bb ist wegen restrict_Helmholtz notwendig.                              !
+  !              - Es wird vorausgesetzt, dass das feinstes Gitterlevel keine Nullraum-Korrektur benötigt    !
+  !                (sollte normalerweise auch erfüllt sein).                                                 !
   !----------------------------------------------------------------------------------------------------------!
   
   
@@ -3098,10 +3098,10 @@ MODULE mod_solvers
   END DO
   !===========================================================================================================
   
-  !--- Grob-Gitter L�sung -------------------------------------
+  !--- Grob-Gitter Lösung -------------------------------------
   IF (participate_yes(n_grids)) THEN
      IF (gstart == n_grids) THEN
-                           CALL relax_bottom(init_yes,.FALSE.             ,n_grids,psi_rel1 ,bb    ,phi   ,problem_type) ! Achtung: psi_rel1 ist i.A. zu gross! (nullspace_coarse == .FALSE. <-- unsch�n!)
+                           CALL relax_bottom(init_yes,.FALSE.             ,n_grids,psi_rel1 ,bb    ,phi   ,problem_type) ! Achtung: psi_rel1 ist i.A. zu gross! (nullspace_coarse == .FALSE. <-- unschön!)
      ELSE
         IF (n_grids == 2 ) CALL relax_bottom(.TRUE.  ,nullspace_coarse_yes,n_grids,psi_rel2 ,vec2A ,vec2B ,problem_type)
         IF (n_grids == 3 ) CALL relax_bottom(.TRUE.  ,nullspace_coarse_yes,n_grids,psi_rel3 ,vec3A ,vec3B ,problem_type)
@@ -4517,7 +4517,7 @@ MODULE mod_solvers
         END IF
      END IF
      !--------------------------------------------------------------------------------------------------------
-     CALL MPI_ALLREDUCE(norm_inf,norm_inf_global,1,MPI_REAL8,MPI_MAX,COMM_CART,merror) ! MPI_REDUCE bringt nichts, weil exit_yes dann mit MPI_BCAST verteilt werden m�sste ...
+     CALL MPI_ALLREDUCE(norm_inf,norm_inf_global,1,MPI_REAL8,MPI_MAX,COMM_CART,merror) ! MPI_REDUCE bringt nichts, weil exit_yes dann mit MPI_BCAST verteilt werden müsste ...
      norm_inf = norm_inf_global
      !========================================================================================================
      

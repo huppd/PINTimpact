@@ -1008,7 +1008,6 @@ contains
         real(c_double), intent(inout) :: phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
 
-
         if( bcl(1) > 0 .and. bcl(2) > 0 ) phi(1   ,1   ,1:n(3)) = 0. ! test!!! verifizieren ...
         if( bcl(1) > 0 .and. bcu(2) > 0 ) phi(1   ,n(2),1:n(3)) = 0.
         if( bcu(1) > 0 .and. bcl(2) > 0 ) phi(n(1),1   ,1:n(3)) = 0.

@@ -37,10 +37,6 @@ public:
       Teuchos::RCP< Belos::SolverManager<Scalar, MF, Op> >	solver,
       Teuchos::RCP< Belos::LinearProblem<Scalar, MF, Op> > problem ):
         solver_(solver),problem_(problem) {};
-//  LinearProblem(
-//      Teuchos::RCP< Belos::SolverManager<Scalar, MF, Op> >	solver,
-//      Teuchos::RCP< Belos::LinearProblem<Scalar, MF, Op> > problem ):
-//        solver_(solver),problem_(problem) {};
 
 
   /// \name base methods

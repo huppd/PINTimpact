@@ -58,10 +58,10 @@
   !         (will be improved in future releases)
   !       - for 2D simulations set M3 = 2 (all terms in the third direction are switched off)
   !
-  M1 = 193
-  M2 = 49
+  M1 = 257 
+  M2 = 65 
 !  M3 = 2*2**2+1
-  M3 = 2
+  M3 = 129 
   
   !--- numbers of processor blocks ---
   ! note: - multigrid requires that MOD(Mi-1,NBi) = 0
@@ -164,13 +164,13 @@
   !--- end time ---
   ! note: - time integration is terminated when "n_timesteps" or "time_end" is reached
   !
-  time_end = 4./freq
+  time_end = 10*1./freq
   periodic_tol = 1.e-11
   
   !--- extents of the physical domain ---
   L1 = 8
   L2 = 2
-  L3 = 1
+  L3 = 4
   
 
   
@@ -200,8 +200,8 @@
   BC_2L_global =  1
   BC_2U_global =  1
   
-  BC_3L_global = -1
-  BC_3U_global = -1
+  BC_3L_global =  1
+  BC_3U_global =  1
   
   !--- advective velocity boundaries ---
   ! note: - requires BC_global = 1
@@ -292,7 +292,7 @@
   !       - full RK3 and CN-RK3 stability domains are taken into account
   !       - symbols of the spatial discretization are taken into account 
   !
-  CFL = 0.999
+  CFL = 0.9
   
   !--- max. time step size ---
   dtime_max = 1./freq/320
@@ -508,7 +508,7 @@
   write_restart_yes = .TRUE.
   
   !--- time interval of field output ---
-  dtime_out_vect = 1./freq/320
+  dtime_out_vect = 1./freq
 
   !--- time interval of other ouput (statistics) ---
   dtime_out_scal = 1.
@@ -523,7 +523,7 @@
   !
   stride_large(1:3) = 1
   stride_med  (1:3) = 2
-  stride_small(1:3) = 0
+  stride_small(1:3) = 4
   
   !--- write debugging files ---
   ! (deprecated, will vanish in future releases)

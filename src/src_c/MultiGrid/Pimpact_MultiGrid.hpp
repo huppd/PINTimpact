@@ -58,6 +58,8 @@ public:
 
 protected:
 
+	bool defectCorrection_;
+	bool initZero_;
 	int numCycles_;
 
   Teuchos::RCP<const MGSpacesT> mgSpaces_;
@@ -79,6 +81,8 @@ public:
 	MultiGrid(
 			const Teuchos::RCP<const MGSpacesT>& mgSpaces,
 			const Teuchos::RCP<Teuchos::ParameterList>& pl ):
+		defectCorrection_( pl->get<bool>("defect correction", true ) ),
+		initZero_( pl->get<bool>("init zero", false ) ),
 		numCycles_( pl->get<int>("numCycles",FSpaceT::dimNC-CSpaceT::dimNC+1) ),
 		mgSpaces_(mgSpaces),
 		mgTrans_( createMGTransfers<TransT,RestrT,InterT>(mgSpaces) ),
@@ -100,31 +104,33 @@ public:
 
     for( int j=0; j<numCycles_; ++j ) {
 
-			// defect correction rhs \hat{f}= b = x - L y
-			mgOps_->get()->apply( y, *b_->get() );
-			b_->get()->add( 1., x, -1., *b_->get() );
+			if( defectCorrection_ && !initZero_ ) {
+				// defect correction rhs \hat{f}= b = x - L y
+				mgOps_->get()->apply( y, *b_->get() );
+				b_->get()->add( 1., x, -1., *b_->get() );
 
-			// transfer init y and \hat{f} to coarsest coarse
-			mgTrans_->getTransferOp()->apply( y, *x_->get(0) );
-			mgTrans_->getTransferOp()->apply( *b_->get(), *b_->get(0) );
+				// transfer init y and \hat{f} to coarsest coarse
+				mgTrans_->getTransferOp()->apply( y, *x_->get(0) );
+				mgTrans_->getTransferOp()->apply( *b_->get(), *b_->get(0) );
 
-			// residual temp = \hat(L) y
-			mgOps_->get(0)->apply( *x_->get(0), *temp_->get(0) );
-			// b = x - L y +\hat{L} y
-			b_->get(0)->add( 1., *b_->get(0), 1, *temp_->get(0) );
-//			b_->get(0)->level();
-			//			/// use residual here
+				// residual temp = \hat(L) y
+				mgOps_->get(0)->apply( *x_->get(0), *temp_->get(0) );
+				// b = x - L y +\hat{L} y
+				b_->get(0)->add( 1., *b_->get(0), 1, *temp_->get(0) );
 
-			// === no defect correction
-			//      mgTrans_->getTransferOp()->apply( y, *x_->get(0) );
-			//      mgTrans_->getTransferOp()->apply( x, *b_->get(0) );
-			//			b_->get(0)->level();
-			// === no defect correction
+			}
+			else {
+				// === no defect correction
+				if( !initZero_ )
+					mgTrans_->getTransferOp()->apply( y, *x_->get(0) );
+				mgTrans_->getTransferOp()->apply( x, *b_->get(0) );
+			}
+			b_->get(0)->level();
 
       int i;
       for( i=0; i<mgSpaces_->getNGrids()-1; ++i ) {
 //				if(i>0 && 0==j ) x_->get(i)->init(0.); // necessary? for DivGradOp yes
-				if( i>0 ) x_->get(i)->init(0.); // necessary? for DivGradOp yes
+				if( i>0 || initZero_ ) x_->get(i)->init(0.); // necessary? for DivGradOp yes
 
 				if( mgSpaces_->participating(i) ) {
 					mgSms_->get(i)->apply( *b_->get(i), *x_->get(i) );

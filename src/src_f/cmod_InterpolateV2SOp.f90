@@ -8,53 +8,53 @@
 
 !> \brief module providing Helmholtz
 module cmod_InterpolateV2SOp
-  
-    use iso_c_binding
-  
-    implicit none
+
+  use iso_c_binding
+
+  implicit none
 
 contains
 
-    !>  \brief interpolates vel 2 scalar
-    subroutine OP_interpolateV2S(   &
-        m,                          &
-        N,                          &
-        bL,bU,                      &
-        dL,dU,                      &
-        SS,NN,                      &
-        c,                          &
-        phi,                        &
-        inter ) bind (c,name='OP_interpolateV2S')
-  
-        implicit none
-  
-        integer(c_int), intent(in)  :: m
+  !>  \brief interpolates vel 2 scalar
+  subroutine OP_interpolateV2S(   &
+      m,                          &
+      N,                          &
+      bL,bU,                      &
+      dL,dU,                      &
+      SS,NN,                      &
+      c,                          &
+      phi,                        &
+      inter ) bind (c,name='OP_interpolateV2S')
 
-        integer(c_int), intent(in)  :: N(3)
+    implicit none
 
-        integer(c_int), intent(in)  :: bL(3)
-        integer(c_int), intent(in)  :: bU(3)
+    integer(c_int), intent(in)  :: m
 
-        integer(c_int), intent(in)  :: dL
-        integer(c_int), intent(in)  :: dU
+    integer(c_int), intent(in)  :: N(3)
 
-        integer(c_int), intent(in)  :: SS(3)
-        integer(c_int), intent(in)  :: NN(3)
+    integer(c_int), intent(in)  :: bL(3)
+    integer(c_int), intent(in)  :: bU(3)
 
-        real(c_double), intent(in)  :: c(dL:dU,0:N(m))
+    integer(c_int), intent(in)  :: dL
+    integer(c_int), intent(in)  :: dU
 
-        real(c_double), intent(in)  :: phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    integer(c_int), intent(in)  :: SS(3)
+    integer(c_int), intent(in)  :: NN(3)
 
-        real(c_double), intent(out) :: inter (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double), intent(in)  :: c(dL:dU,0:N(m))
 
-  
-        integer(c_int)              ::  i, ii
-        integer(c_int)              ::  j, jj
-        integer(c_int)              ::  k, kk
-  
+    real(c_double), intent(in)  :: phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-        !===========================================================================================================
-        if( m == 1 )then
+    real(c_double), intent(out) :: inter (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+
+
+    integer(c_int)              ::  i, ii
+    integer(c_int)              ::  j, jj
+    integer(c_int)              ::  k, kk
+
+
+    !===========================================================================================================
+    if( m == 1 )then
 
             do k = SS(3), NN(3)
                 do j = SS(2), NN(2)
