@@ -6,9 +6,18 @@ from platform_paths import *
 import xml.etree.ElementTree as ET
 import manipulator as ma
 
-tree = ET.parse('../XML/parameter3D.xml')
 
+# load parameter file
+tree = ET.parse('../XML/parameter3D.xml')
 root = tree.getroot()
+
+ma.setParameter( root, 'withoutput', 0 )
+npx = 8
+npy = 2
+npz = 4
+ma.setParameter( root, 'npx', npx )
+ma.setParameter( root, 'npy', npy )
+ma.setParameter( root, 'npz', npz )
 
 exe = 'peri_navier3D'
 
