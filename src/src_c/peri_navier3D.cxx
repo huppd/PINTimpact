@@ -394,17 +394,9 @@ int main(int argi, char** argv ) {
 			// create Mulit space
 			auto mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, pl->sublist("Multi Grid").get<int>("maxGrids") );
 
-			pl->sublist("MH_ConvDiff").sublist("Solver").set(
-					"Output Stream",
-					Pimpact::createOstream( opV2V->getLabel()+rl+".txt", space->rankST() ) );
 
-			auto opV2Vprob =
-				Pimpact::createLinearProblem<MVF>(
-						Pimpact::createMultiOperatorBase( opV2V ),
-						Teuchos::null,
-						Teuchos::null,
-						Teuchos::rcpFromRef( pl->sublist("MH_ConvDiff").sublist("Solver") ),
-						pl->sublist("MH_ConvDiff").get<std::string>("Solver name","GMRES") );
+
+			Teuchos::RCP< Pimpact::OperatorBase<MVF> > opV2Vinv = Teuchos::null;
 
 			if( withprec>1 ) {
 
@@ -454,10 +446,8 @@ int main(int argi, char** argv ) {
 				}
 
 				// create Hinv prec
-				Teuchos::RCP<Pimpact::OperatorBase<Pimpact::MultiField<Pimpact::MultiHarmonicField<Pimpact::VectorField<SpaceT> > > > >
-					opV2Vprec = Teuchos::null;
-
-				opV2Vprec = 
+				Teuchos::RCP<Pimpact::OperatorBase<MVF> >
+					opV2Vprec = 
 					Pimpact::createMultiOperatorBase(
 							Pimpact::createMultiHarmonicDiagOp(
 								zeroInv, 
@@ -465,11 +455,27 @@ int main(int argi, char** argv ) {
 								)
 							);
 
-				opV2Vprob->setRightPrec( opV2Vprec );
-			}
-			
-			auto opV2Vinv = Pimpact::createInverseOperatorBase( opV2Vprob );
 
+				if( withprec>3 )
+					opV2Vinv = opV2Vprec;
+				else {
+					pl->sublist("MH_ConvDiff").sublist("Solver").set(
+							"Output Stream",
+							Pimpact::createOstream( opV2V->getLabel()+rl+".txt", space->rankST() ) );
+
+					auto opV2Vprob =
+						Pimpact::createLinearProblem<MVF>(
+								Pimpact::createMultiOperatorBase( opV2V ),
+								Teuchos::null,
+								Teuchos::null,
+								Teuchos::rcpFromRef( pl->sublist("MH_ConvDiff").sublist("Solver") ),
+								pl->sublist("MH_ConvDiff").get<std::string>("Solver name","GMRES") );
+
+					opV2Vprob->setRightPrec( opV2Vprec );
+					opV2Vinv = Pimpact::createInverseOperatorBase( opV2Vprob );
+				}
+
+			}
 
 
 			/////////////////////////////////////////end of opv2v///////////////////////////////////////////////////////////////////
@@ -594,8 +600,8 @@ int main(int argi, char** argv ) {
 
 		if( withoutput ) {
 			x = Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr();
-			Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr()->write( 800 );
-//			Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr()->getFieldPtr(0)->getVFieldPtr()->write( 400, true );
+			Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr()->write(refine*1000 );
+			Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr()->getFieldPtr(0)->getVFieldPtr()->write( 500+refine*1000, true );
 			//		Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(900);
 		}
 

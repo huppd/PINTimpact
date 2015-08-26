@@ -577,6 +577,21 @@ public:
   }
 
 
+	void setCornersZero() const {
+
+		if( EField::S == fType_ ) {
+			SF_handle_corner(
+					space()->nLoc(),
+					space()->bl(),
+					space()->bu(),
+					space()->getDomain()->getBCLocal()->getBCL(),
+					space()->getDomain()->getBCLocal()->getBCU(),
+					s_ );
+
+			changed();
+		}
+	}
+
 	void level() const {
 
 		if( EField::S == fType_ ) {
@@ -603,13 +618,7 @@ public:
 
 
 			//		set corners to zero, such that level depends only on inner field
-			SF_handle_corner(
-					space()->nLoc(),
-					space()->bl(),
-					space()->bu(),
-					space()->getDomain()->getBCLocal()->getBCL(),
-					space()->getDomain()->getBCLocal()->getBCU(),
-					s_ );
+			setCornersZero();
 
 			SF_level(
 					MPI_Comm_c2f( space()->comm() ),
@@ -621,13 +630,7 @@ public:
 					space()->eIndB(fType_),
 					s_ );
 
-			SF_handle_corner(
-					space()->nLoc(),
-					space()->bl(),
-					space()->bu(),
-					space()->getDomain()->getBCLocal()->getBCL(),
-					space()->getDomain()->getBCLocal()->getBCU(),
-					s_ );
+			setCornersZero();
 
 			changed();
 		}

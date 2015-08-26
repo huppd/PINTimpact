@@ -105,13 +105,13 @@ public:
 					y.getConstRawPtr(),
 					temp_->getRawPtr() );
 
-			SF_handle_corner(
-					space()->nLoc(),
-					space()->bl(),
-					space()->bu(),
-					space()->getDomain()->getBCLocal()->getBCL(),
-					space()->getDomain()->getBCLocal()->getBCU(),
-					temp_->getRawPtr() );
+//			SF_handle_corner(
+//					space()->nLoc(),
+//					space()->bl(),
+//					space()->bu(),
+//					space()->getDomain()->getBCLocal()->getBCL(),
+//					space()->getDomain()->getBCLocal()->getBCU(),
+//					temp_->getRawPtr() );
 
 			temp_->changed();
 			temp_->exchange();
@@ -131,13 +131,13 @@ public:
 					temp_->getConstRawPtr(),
 					y.getRawPtr() );
 
-			SF_handle_corner(
-					space()->nLoc(),
-					space()->bl(),
-					space()->bu(),
-					space()->getDomain()->getBCLocal()->getBCL(),
-					space()->getDomain()->getBCLocal()->getBCU(),
-					y.getRawPtr() );
+//			SF_handle_corner(
+//					space()->nLoc(),
+//					space()->bl(),
+//					space()->bu(),
+//					space()->getDomain()->getBCLocal()->getBCL(),
+//					space()->getDomain()->getBCLocal()->getBCU(),
+//					y.getRawPtr() );
 
 			y.changed();
 		}

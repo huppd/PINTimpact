@@ -721,6 +721,8 @@ public:
   /// dirty hack(necessary for MG)
   void level() const {}
 
+	void setCornersZero() const {}
+
   //@}
 
 

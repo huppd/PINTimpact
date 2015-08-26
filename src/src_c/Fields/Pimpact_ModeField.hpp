@@ -243,6 +243,11 @@ public:
     fields_->initField();
 	}
 
+	void setCornersZero() const {
+    fieldc_->setCornersZero();
+    fields_->setCornersZero();
+  }
+
   void level() const {
     fieldc_->level();
     fields_->level();

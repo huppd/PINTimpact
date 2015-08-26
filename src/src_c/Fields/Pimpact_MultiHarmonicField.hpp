@@ -280,6 +280,11 @@ public:
     fields_->initField();
 	}
 
+	void setCornersZero() const {
+    field0_->setCornersZero();
+    fields_->setCornersZero();
+  }
+
   void level() const {
     field0_->level();
     fields_->level();

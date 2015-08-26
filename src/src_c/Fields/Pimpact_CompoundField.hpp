@@ -254,10 +254,14 @@ public:
 	void initField() {
     vfield_->initField();
     sfield_->initField();
-
 	}
 
-  void level() const {
+	void setCornersZero() const {
+    vfield_->setCornersZero();
+    sfield_->setCornersZero();
+  }
+
+	void level() const {
     vfield_->level();
     sfield_->level();
   }

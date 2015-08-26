@@ -125,7 +125,7 @@ public:
 					mgTrans_->getTransferOp()->apply( y, *x_->get(0) );
 				mgTrans_->getTransferOp()->apply( x, *b_->get(0) );
 			}
-			b_->get(0)->level();
+//			b_->get(0)->level();
 
       int i;
       for( i=0; i<mgSpaces_->getNGrids()-1; ++i ) {
@@ -145,6 +145,7 @@ public:
 			if( mgSpaces_->participating(i) ) {
 				/// \todo add level for singular stuff
 				b_->get(i)->level();
+//				b_->get(i)->setCornersZero();
 				x_->get(i)->init(0.);
 
 				try{
@@ -168,7 +169,7 @@ public:
 				}
 			}
 
-			x_->get(0)->level();// only laplace
+//			x_->get(0)->level();// only laplace
 			// use temp as stopping cirterion
 			mgTrans_->getTransferOp()->apply( *x_->get(0), y );
 
@@ -213,7 +214,7 @@ public:
 
   void print( std::ostream& out=std::cout ) const {
     out << "--- " << getLabel() << " ---\n";
-		out << "#grids: " << mgSpaces_->getNGrids() << "\n";
+		out << "#grids: " << mgSpaces_->getNGrids() << " numCycles: "<<numCycles_<< "init zero: "<<initZero_ << "\n";
 		out << "FOperator: " << mgOps_->get()->getLabel() << " d" << FSpaceT::dimNC << "\n";
 		if( mgSpaces_->participating(0) )
 			out << "COperator: " << mgOps_->get(0)->getLabel()  << " d" << CSpaceT::dimNC << "\n";

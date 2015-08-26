@@ -27,9 +27,9 @@ os.system( 'make '+exe+' -j4' )
 
 case_path = ['','','','']
 
-ns        = [ 1, 2, 4, ]
+ns        = [ 1, 2, 3, ]
 res       = [ 10, 100, 200 ]
-alpha2s   = [ 0.15, 0.2, 0.25 ]
+alpha2s   = [ 0.1, 0.2, 0.2 ]
 
 
 case_path[0] = '/ultimate'

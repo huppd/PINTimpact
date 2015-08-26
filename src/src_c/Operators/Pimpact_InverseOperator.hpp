@@ -40,8 +40,8 @@ public:
     linprob_(linprob) {};
 
   void apply( const MF& x, MF& y, Belos::ETrans trans=Belos::NOTRANS ) const {
+		x.setCornersZero();
     linprob_->solve( Teuchos::rcpFromRef(y), Teuchos::rcpFromRef(x) );
-		y.level();
   }
 
 

@@ -20,9 +20,10 @@ os.system( 'make '+exe+' -j4' )
 
 case_path = ['','','','']
 
-lambdas = [ 1, 2, 4 ]
+lambdas = [ 4 ]
 
 ma.setParameter( root, 'alpha2', 2*pi*0.2*200 )
+ma.setParameter( root, 'Tolerance', 1.e-9 )
 
 case_path[0] = '/case_study'
 if not os.path.exists( data_path+case_path[0] ):
