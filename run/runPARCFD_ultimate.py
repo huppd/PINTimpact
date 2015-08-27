@@ -13,8 +13,8 @@ root = tree.getroot()
 
 ma.setParameter( root, 'withoutput', 0 )
 npx = 8
-npy = 2
-npz = 4
+npy = 1
+npz = 2
 ma.setParameter( root, 'npx', npx )
 ma.setParameter( root, 'npy', npy )
 ma.setParameter( root, 'npz', npz )
@@ -27,7 +27,7 @@ os.system( 'make '+exe+' -j4' )
 
 case_path = ['','','','']
 
-ns        = [ 1, 2, 3 ]
+ns        = [ 3 ]
 res       = [ 10, 100, 200 ]
 alpha2s   = [ 0.1, 0.2, 0.2 ]
 
