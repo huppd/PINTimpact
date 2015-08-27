@@ -13,8 +13,8 @@ root = tree.getroot()
 
 ma.setParameter( root, 'withoutput', 0 )
 npx = 8
-npy = 2
-npz = 4
+npy = 1
+npz = 2
 ma.setParameter( root, 'npx', npx )
 ma.setParameter( root, 'npy', npy )
 ma.setParameter( root, 'npz', npz )
@@ -38,7 +38,7 @@ case_path[0] = '/case_study'
 if not os.path.exists( data_path+case_path[0] ):
 	os.mkdir( data_path+case_path[0] )
 for i in range(2):
-	case_path[1] = '/n_'+str(lam)
+	case_path[1] = '/n_'+str(i)
 	if not os.path.exists( data_path+case_path[0]+case_path[1] ):
 		os.mkdir( data_path+case_path[0]+case_path[1] )
 	os.chdir( data_path+case_path[0]+case_path[1] )
@@ -49,5 +49,4 @@ for i in range(2):
 	ma.setParameter( root, 'nz', 16*ns[i]+1 )
 	ma.setParameter( root, 'nf',  4 )
 	tree.write('parameter3D.xml')
-	os.system( exe_pre(4,' -W 21:00 ') + exe_path+exe + ' > output ' )
-
+	os.system( exe_pre(npx*npy*npz,' -W 21:00 ') + exe_path+exe + ' > output ' )
