@@ -605,6 +605,14 @@ int main(int argi, char** argv ) {
 			//		Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(900);
 		}
 
+		{
+			auto x = Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr();
+			auto out = Pimpact::createOstream( "energy_dis"+rl+".txt", space->rankST() );
+			*out << 0 << "\t" << x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->norm() << "\t" << x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->getLength() << "\n";
+			for( int i=0; i<space->nGlo(3); ++i )
+				*out << i+1 << "\t" << x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(i)->norm() << "\t" << x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(i)->getLength() << "\n";
+		}
+
 		// spectral refinement of x, fu
 		if( refinement>1 ) {
 			auto spaceF =
