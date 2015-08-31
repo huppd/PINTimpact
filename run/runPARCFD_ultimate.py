@@ -53,10 +53,9 @@ for n in ns:
 			#
 			ma.setParameter( root, 'Re', re )
 			ma.setParameter( root, 'alpha2', 2.*pi*alpha2*re )
-			#ma.setParameter( root, 'refinement', n )
-			ma.setParameter( root, 'nx', 128*n+1 )
-			ma.setParameter( root, 'ny',  32*n+1 )
-			ma.setParameter( root, 'nz',  64*n+1 )
+			ma.setParameter( root, 'nx', 128*2+1 )
+			ma.setParameter( root, 'ny',  32*2+1 )
+			ma.setParameter( root, 'nz',  64*2+1 )
 			tree.write('parameter3D.xml')
 			os.system( exe_pre(npx*npy*npz,' -W 21:00 ') + exe_path+exe + ' > output ' )
 
