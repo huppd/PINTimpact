@@ -25,6 +25,13 @@ lambdas = [ 4 ]
 ma.setParameter( root, 'alpha2', 2*pi*0.2*200 )
 ma.setParameter( root, 'Tolerance', 1.e-9 )
 
+npx = 8
+npy = 2
+npz = 4
+ma.setParameter( root, 'npx', npx )
+ma.setParameter( root, 'npy', npy )
+ma.setParameter( root, 'npz', npz )
+
 case_path[0] = '/case_study'
 if not os.path.exists( data_path+case_path[0] ):
 	os.mkdir( data_path+case_path[0] )
@@ -34,11 +41,11 @@ for lam in lambdas:
 		os.mkdir( data_path+case_path[0]+case_path[1] )
 	os.chdir( data_path+case_path[0]+case_path[1] )
 	os.system(' rm ./* -r -v  ')
-	ma.setParameter( root, 'refinement', lam )
-	ma.setParameter( root, 'nx', 32+1 )
-	ma.setParameter( root, 'ny',  8+1 )
-	ma.setParameter( root, 'nz', 16+1 )
-	ma.setParameter( root, 'nf',  4 )
+	#ma.setParameter( root, 'refinement', lam )
+	ma.setParameter( root, 'nx', 256+1 )
+	ma.setParameter( root, 'ny',  64+1 )
+	ma.setParameter( root, 'nz', 128+1 )
+	ma.setParameter( root, 'nf',  1 )
 	tree.write('parameter3D.xml')
-	os.system( exe_pre(4,' -W 21:00 ') + exe_path+exe + ' > output ' )
+	os.system( exe_pre(npx*npy*npz,' -W 21:00 ') + exe_path+exe + ' > output ' )
 
