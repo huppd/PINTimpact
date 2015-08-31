@@ -756,7 +756,7 @@ public:
 
 	void write( int count=0, bool restart=false ) const {
 
-		if( 0==space()->rankST() ) {
+		if( 0==space()->rankS() ) {
 			Teuchos::Tuple<Ordinal,3> N;
 			for( int i=0; i<3; ++i ) {
 				N[i] = space()->nGlo(i);
