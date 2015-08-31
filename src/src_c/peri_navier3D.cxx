@@ -49,193 +49,193 @@
 
 
 
-/// \brief gets \c ParameterList from command Line
-template<class S, class O>
-Teuchos::RCP<Teuchos::ParameterList>
-getSpaceParametersFromCL( int argi, char** argv  )  {
-
-	Teuchos::CommandLineProcessor my_CLP;
-
-	// Space parameters
-  // physical constants
-	S re = 100.;
-
-	S alpha2 = 132.;
-
-  // domain type
-  int domain = 0;
-
-  // domain size
-  int dim = 3;
-  S lx = 8.;
-  S ly = 2.;
-  S lz = 4.;
-
-  // grid size
-	O nx = 129;
-	O ny = 33;
-	O nz = 65;
-	O nf = 2;
-
-	O nfs = 1;
-	O nfe = 1;
-
-  // processor grid size
-  O npx = 1;
-  O npy = 1;
-  O npz = 1.;
-  O npf = 1.;
-
-	// flow and forcing type
-  int baseflow = 1;
-  int flow = 0;
-  int forcing = 1;
-
-	// solver parameters
-  std::string nonLinSolName = "Newton";
-
-  std::string lineSearchName = "Backtrack";
-
-  std::string linSolName = "";
-
-  int withprec=2;
-  int withoutput=1;
-
-  int refinement=1;
-
-  int maxIter = 10;
-
-  int initZero = 0;
-
-  S tolBelos = 1.e-1;
-  S tolInnerBelos = 1.e-2;
-  S tolNOX   = 1.e-6;
-
-  // multi grid parameters
-  int maxGrids = 10;
-  int numCycles = 2;
-
-  // Space parameters
-  my_CLP.setOption( "re", &re, "Reynolds number" );
-
-  my_CLP.setOption( "alpha2", &alpha2, "introduced frequency" );
-
-  my_CLP.setOption( "domain", &domain,
-      "Domain type: 0:all dirichlet, 1:dirichlet 2d channel, 2: periodic 2d channel" );
-
-  // domain size
-  my_CLP.setOption( "lx", &lx, "length in x-direction" );
-  my_CLP.setOption( "ly", &ly, "length in y-direction" );
-  my_CLP.setOption( "lz", &lz, "length in z-direction" );
-
-  my_CLP.setOption( "dim", &dim, "dimension of problem" );
-
-  // grid size
-  my_CLP.setOption( "nx", &nx, "amount of grid points in x-direction: a*2**q+1" );
-  my_CLP.setOption( "ny", &ny, "amount of grid points in y-direction: a*2**q+1" );
-  my_CLP.setOption( "nz", &nz, "amount of grid points in z-direction: a*2**q+1" );
-  my_CLP.setOption( "nf", &nf, "amount of grid points in f-direction" );
-
-  my_CLP.setOption( "nfs", &nfs, "start amount of grid points in f-direction" );
-  my_CLP.setOption( "nfe", &nfe, "end amount of grid points in f-direction" );
-
-  // processor grid size
-  my_CLP.setOption( "npx", &npx, "amount of processors in x-direction" );
-  my_CLP.setOption( "npy", &npy, "amount of processors in y-direction" );
-  my_CLP.setOption( "npz", &npz, "amount of processors in z-direction" );
-  my_CLP.setOption( "npf", &npf, "amount of processors in f-direction" );
-
-	// flow and forcint
-  my_CLP.setOption( "baseflow", &baseflow,
-      "Flow type" );
-  my_CLP.setOption( "flow", &flow,
-      "Flow type" );
-  my_CLP.setOption( "force", &forcing,
-      "forcing, ja?" );
-
-	// solver parameters
-  my_CLP.setOption("nonLinSolver", &nonLinSolName, "Newton");
-  my_CLP.setOption("linSearch", &lineSearchName, "Backtrack");
-  my_CLP.setOption("linSolver", &linSolName, "bla");
-  my_CLP.setOption("withprec", &withprec, "0: no preconditioner, 1: block triangular, 2: block triangular with inner MG multigrid, 3: block triangular with mg solver");
-  my_CLP.setOption("withoutput", &withoutput, "0: no preconditioner, 1: block triangular, 2: block triangular with inner MG multigrid, 3: block triangular with mg solver");
-  my_CLP.setOption("refinement", &refinement, "");
-  my_CLP.setOption("maxIter", &maxIter, "");
-  my_CLP.setOption("initZero", &initZero, "");
-  my_CLP.setOption("tolBelos", &tolBelos, "");
-  my_CLP.setOption("tolInnerBelos", &tolInnerBelos, "");
-  my_CLP.setOption("tolNOX", &tolNOX, "");
-
-	// multi grid parameters
-  my_CLP.setOption("maxGrids", &maxGrids, "");
-  my_CLP.setOption("numCycles", &numCycles, "");
-
-
-  my_CLP.recogniseAllOptions(true);
-  my_CLP.throwExceptions(true);
-
-  my_CLP.parse(argi,argv);
-
-
-	// Set all the valid parameters and their default values.
-	Teuchos::RCP<Teuchos::ParameterList> pl = Teuchos::parameterList("Pimpact");
-
-
-	// Space parameters
-	pl->sublist("Space").set<S>("Re", re, "Reynolds number");
-	pl->sublist("Space").set<S>("alpha2", alpha2,
-			"Womersley square \alpha^2");
-	// domain type
-	pl->sublist("Space").set<int>( "domain", domain,
-			"Domain type: 0:all dirichlet, 1:dirichlet 2d channel, 2: periodic 2d channel" );
-
-	// domain size
-	pl->sublist("Space").set<int>("dim", dim, "dimension of problem" );
-
-	pl->sublist("Space").set<S>( "lx", lx, "length in x-direction" );
-	pl->sublist("Space").set<S>( "ly", ly, "length in y-direction" );
-	pl->sublist("Space").set<S>( "lz", lz, "length in z-direction" );
-
-
-	// grid size
-	pl->sublist("Space").set<O>("nx", nx, "amount of grid points in x-direction: a*2**q+1" );
-	pl->sublist("Space").set<O>("ny", ny, "amount of grid points in y-direction: a*2**q+1" );
-	pl->sublist("Space").set<O>("nz", nz, "amount of grid points in z-direction: a*2**q+1" );
-	pl->sublist("Space").set<O>("nf", nf, "amount of grid points in f-direction" );
-
-	pl->sublist("Space").set<O>("nfs", nfs, "start amount of grid points in f-direction" );
-	pl->sublist("Space").set<O>("nfe", nfe, "end amount of grid points in f-direction" );
-
-	// processor grid size
-	pl->sublist("Space").set<O>("npx", npx, "amount of processors in x-direction" );
-	pl->sublist("Space").set<O>("npy", npy, "amount of processors in y-direction" );
-	pl->sublist("Space").set<O>("npz", npz, "amount of processors in z-direction" );
-	pl->sublist("Space").set<O>("npf", npf, "amount of processors in f-direction" );
-
-	// flow and forcint
-	pl->set<int>( "baseflow", baseflow, "Flow type: depending on main" );
-	pl->set<int>( "flow", flow, "Flow type: depending on main" );
-	pl->set<int>( "forcing", forcing, "forcing, ja?" );
-
-	// solver parameters
-  pl->sublist("Solver").set("nonLinSolver", nonLinSolName );
-  pl->sublist("Solver").set("linSearch", lineSearchName );
-  pl->sublist("Solver").set("linSolver", linSolName );
-  pl->sublist("Solver").set("withprec", withprec );
-  pl->sublist("Solver").set("withoutput", withoutput );
-  pl->sublist("Solver").set("refinement", refinement );
-  pl->sublist("Solver").set("maxIter", maxIter );
-  pl->sublist("Solver").set("initZero", initZero );
-  pl->sublist("Solver").set("tolBelos", tolBelos );
-  pl->sublist("Solver").set("tolInnerBelos", tolInnerBelos );
-  pl->sublist("Solver").set("tolNOX", tolNOX );
-
-	// Multi Grid parameters
-  pl->sublist("Multi Grid").set("maxGrids", maxGrids );
-  pl->sublist("Multi Grid").set("numCycles", numCycles );
-
-	return( pl );
-}
+///// \brief gets \c ParameterList from command Line
+//template<class S, class O>
+//Teuchos::RCP<Teuchos::ParameterList>
+//getSpaceParametersFromCL( int argi, char** argv  )  {
+//
+//	Teuchos::CommandLineProcessor my_CLP;
+//
+//	// Space parameters
+//  // physical constants
+//	S re = 100.;
+//
+//	S alpha2 = 132.;
+//
+//  // domain type
+//  int domain = 0;
+//
+//  // domain size
+//  int dim = 3;
+//  S lx = 8.;
+//  S ly = 2.;
+//  S lz = 4.;
+//
+//  // grid size
+//	O nx = 129;
+//	O ny = 33;
+//	O nz = 65;
+//	O nf = 2;
+//
+//	O nfs = 1;
+//	O nfe = 1;
+//
+//  // processor grid size
+//  O npx = 1;
+//  O npy = 1;
+//  O npz = 1.;
+//  O npf = 1.;
+//
+//	// flow and forcing type
+//  int baseflow = 1;
+//  int flow = 0;
+//  int forcing = 1;
+//
+//	// solver parameters
+//  std::string nonLinSolName = "Newton";
+//
+//  std::string lineSearchName = "Backtrack";
+//
+//  std::string linSolName = "";
+//
+//  int withprec=2;
+//  int withoutput=1;
+//
+//  int refinement=1;
+//
+//  int maxIter = 10;
+//
+//  int initZero = 0;
+//
+//  S tolBelos = 1.e-1;
+//  S tolInnerBelos = 1.e-2;
+//  S tolNOX   = 1.e-6;
+//
+//  // multi grid parameters
+//  int maxGrids = 10;
+//  int numCycles = 2;
+//
+//  // Space parameters
+//  my_CLP.setOption( "re", &re, "Reynolds number" );
+//
+//  my_CLP.setOption( "alpha2", &alpha2, "introduced frequency" );
+//
+//  my_CLP.setOption( "domain", &domain,
+//      "Domain type: 0:all dirichlet, 1:dirichlet 2d channel, 2: periodic 2d channel" );
+//
+//  // domain size
+//  my_CLP.setOption( "lx", &lx, "length in x-direction" );
+//  my_CLP.setOption( "ly", &ly, "length in y-direction" );
+//  my_CLP.setOption( "lz", &lz, "length in z-direction" );
+//
+//  my_CLP.setOption( "dim", &dim, "dimension of problem" );
+//
+//  // grid size
+//  my_CLP.setOption( "nx", &nx, "amount of grid points in x-direction: a*2**q+1" );
+//  my_CLP.setOption( "ny", &ny, "amount of grid points in y-direction: a*2**q+1" );
+//  my_CLP.setOption( "nz", &nz, "amount of grid points in z-direction: a*2**q+1" );
+//  my_CLP.setOption( "nf", &nf, "amount of grid points in f-direction" );
+//
+//  my_CLP.setOption( "nfs", &nfs, "start amount of grid points in f-direction" );
+//  my_CLP.setOption( "nfe", &nfe, "end amount of grid points in f-direction" );
+//
+//  // processor grid size
+//  my_CLP.setOption( "npx", &npx, "amount of processors in x-direction" );
+//  my_CLP.setOption( "npy", &npy, "amount of processors in y-direction" );
+//  my_CLP.setOption( "npz", &npz, "amount of processors in z-direction" );
+//  my_CLP.setOption( "npf", &npf, "amount of processors in f-direction" );
+//
+//	// flow and forcint
+//  my_CLP.setOption( "baseflow", &baseflow,
+//      "Flow type" );
+//  my_CLP.setOption( "flow", &flow,
+//      "Flow type" );
+//  my_CLP.setOption( "force", &forcing,
+//      "forcing, ja?" );
+//
+//	// solver parameters
+//  my_CLP.setOption("nonLinSolver", &nonLinSolName, "Newton");
+//  my_CLP.setOption("linSearch", &lineSearchName, "Backtrack");
+//  my_CLP.setOption("linSolver", &linSolName, "bla");
+//  my_CLP.setOption("withprec", &withprec, "0: no preconditioner, 1: block triangular, 2: block triangular with inner MG multigrid, 3: block triangular with mg solver");
+//  my_CLP.setOption("withoutput", &withoutput, "0: no preconditioner, 1: block triangular, 2: block triangular with inner MG multigrid, 3: block triangular with mg solver");
+//  my_CLP.setOption("refinement", &refinement, "");
+//  my_CLP.setOption("maxIter", &maxIter, "");
+//  my_CLP.setOption("initZero", &initZero, "");
+//  my_CLP.setOption("tolBelos", &tolBelos, "");
+//  my_CLP.setOption("tolInnerBelos", &tolInnerBelos, "");
+//  my_CLP.setOption("tolNOX", &tolNOX, "");
+//
+//	// multi grid parameters
+//  my_CLP.setOption("maxGrids", &maxGrids, "");
+//  my_CLP.setOption("numCycles", &numCycles, "");
+//
+//
+//  my_CLP.recogniseAllOptions(true);
+//  my_CLP.throwExceptions(true);
+//
+//  my_CLP.parse(argi,argv);
+//
+//
+//	// Set all the valid parameters and their default values.
+//	Teuchos::RCP<Teuchos::ParameterList> pl = Teuchos::parameterList("Pimpact");
+//
+//
+//	// Space parameters
+//	pl->sublist("Space").set<S>("Re", re, "Reynolds number");
+//	pl->sublist("Space").set<S>("alpha2", alpha2,
+//			"Womersley square \alpha^2");
+//	// domain type
+//	pl->sublist("Space").set<int>( "domain", domain,
+//			"Domain type: 0:all dirichlet, 1:dirichlet 2d channel, 2: periodic 2d channel" );
+//
+//	// domain size
+//	pl->sublist("Space").set<int>("dim", dim, "dimension of problem" );
+//
+//	pl->sublist("Space").set<S>( "lx", lx, "length in x-direction" );
+//	pl->sublist("Space").set<S>( "ly", ly, "length in y-direction" );
+//	pl->sublist("Space").set<S>( "lz", lz, "length in z-direction" );
+//
+//
+//	// grid size
+//	pl->sublist("Space").set<O>("nx", nx, "amount of grid points in x-direction: a*2**q+1" );
+//	pl->sublist("Space").set<O>("ny", ny, "amount of grid points in y-direction: a*2**q+1" );
+//	pl->sublist("Space").set<O>("nz", nz, "amount of grid points in z-direction: a*2**q+1" );
+//	pl->sublist("Space").set<O>("nf", nf, "amount of grid points in f-direction" );
+//
+//	pl->sublist("Space").set<O>("nfs", nfs, "start amount of grid points in f-direction" );
+//	pl->sublist("Space").set<O>("nfe", nfe, "end amount of grid points in f-direction" );
+//
+//	// processor grid size
+//	pl->sublist("Space").set<O>("npx", npx, "amount of processors in x-direction" );
+//	pl->sublist("Space").set<O>("npy", npy, "amount of processors in y-direction" );
+//	pl->sublist("Space").set<O>("npz", npz, "amount of processors in z-direction" );
+//	pl->sublist("Space").set<O>("npf", npf, "amount of processors in f-direction" );
+//
+//	// flow and forcint
+//	pl->set<int>( "baseflow", baseflow, "Flow type: depending on main" );
+//	pl->set<int>( "flow", flow, "Flow type: depending on main" );
+//	pl->set<int>( "forcing", forcing, "forcing, ja?" );
+//
+//	// solver parameters
+//  pl->sublist("Solver").set("nonLinSolver", nonLinSolName );
+//  pl->sublist("Solver").set("linSearch", lineSearchName );
+//  pl->sublist("Solver").set("linSolver", linSolName );
+//  pl->sublist("Solver").set("withprec", withprec );
+//  pl->sublist("Solver").set("withoutput", withoutput );
+//  pl->sublist("Solver").set("refinement", refinement );
+//  pl->sublist("Solver").set("maxIter", maxIter );
+//  pl->sublist("Solver").set("initZero", initZero );
+//  pl->sublist("Solver").set("tolBelos", tolBelos );
+//  pl->sublist("Solver").set("tolInnerBelos", tolInnerBelos );
+//  pl->sublist("Solver").set("tolNOX", tolNOX );
+//
+//	// Multi Grid parameters
+//  pl->sublist("Multi Grid").set("maxGrids", maxGrids );
+//  pl->sublist("Multi Grid").set("numCycles", numCycles );
+//
+//	return( pl );
+//}
 
 
 typedef double S;
@@ -310,12 +310,14 @@ int main(int argi, char** argv ) {
 
 ///////////////////////////////////////////  set up initial stuff //////////////////////////////
 
-	int initZero = pl->sublist("Solver").get<int>("initZero");
+	int initZero = pl->sublist("Solver").get<int>( "initZero", 0);
 
-	int withprec=pl->sublist("Solver").get<int>("withprec");
-	int withoutput=pl->sublist("Solver").get<int>("withoutput");
+	int withprec=pl->sublist("Solver").get<int>( "withprec", 2 );
+	int withoutput=pl->sublist("Solver").get<int>( "withoutput", 1 );
 
-	int refinement=pl->sublist("Solver").get<int>("refinement");
+	int refinement     = pl->sublist("Solver").get<int>( "refinement level", 1     );
+	S   refinementTol  = pl->sublist("Solver").get<S>(   "refinement tol",   1.e-6 );
+	int refinementStep = pl->sublist("Solver").get<int>( "refinement step",  2     );
 
 	auto space = Pimpact::createSpace<S,O,3,4>( Teuchos::rcpFromRef( pl->sublist("Space",true) ) );
 
@@ -593,7 +595,6 @@ int main(int argi, char** argv ) {
 			}
 		}
 
-		Teuchos::TimeMonitor::summarize();
 
     // Get the answer
     *group = solver->getSolutionGroup();
@@ -614,11 +615,12 @@ int main(int argi, char** argv ) {
 		}
 
 		// spectral refinement of x, fu
+		if( x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(space->nGlo(3)-1)->norm()/std::sqrt(x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(space->nGlo(3)-1)->getLength()) <	refinementTol ) break;
 		if( refinement>1 ) {
 			auto spaceF =
 				Pimpact::RefinementStrategy<SpaceT>::createRefinedSpace(
-//						space, Teuchos::tuple( false,false,false,true ) );
-				space, Teuchos::tuple( true,true,true,true ) );
+						space, Teuchos::tuple<int>( 0, 0, 0, refinementStep ) );
+//				space, Teuchos::tuple<int>( 1, 1, 1, refinementStep ) );
 
 			auto refineOp =
 				Teuchos::rcp(
@@ -645,6 +647,8 @@ int main(int argi, char** argv ) {
 		}
   } 
 	/******************************************************************************************/
+
+	Teuchos::TimeMonitor::summarize();
 
 	Teuchos::writeParameterListToXmlFile( *pl, "parameterOut.xml" );
 

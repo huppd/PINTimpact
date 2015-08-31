@@ -55,7 +55,7 @@
                !IF( m==3 ) rhs(i,j,k,3) = (1-distance2ib( x1p(i),x2p(j),x3w(k) ))*rhs(i,j,k,3) + ( mult*nl(i,j,k,3) - vel(i,j,k,3) + vel_ib(x1p(i),x2p(j),x3w(k),3) )*distance2ib( x1p(i),x2p(j),x3w(k))
                IF( m==1 ) nl(i,j,k,1) =  nl(i,j,k,1) + 2.*exp( -( (x1u(i)-1.)/0.2 )**2 -( ( x2p(j)-1 )/0.2 )**2 -( ( x3p(k)-2. )/0.2 )**2 )
  
-               IF( m==2 ) nl(i,j,k,2) =  nl(i,j,k,2) - 1.*exp( -( (x1p(i)-1.)/0.2 )**2 -( ( x2v(j)-1 )/0.2 )**2 -( ( x3p(k)-2. )/0.2 )**2 )*sin( 2*pi*freq*time )
+               IF( m==2 ) nl(i,j,k,2) =  nl(i,j,k,2) - 1.*exp( -( (x1p(i)-1.)/0.2 )**2 -( ( x2v(j)-1 )/0.2 )**2 -( ( x3p(k)-2. )/0.2 )**2 )*cos( 2*pi*freq*time )
 
                !IF( m==3 ) nl(i,j,k,3) =  nl(i,j,k,3) -  
               

@@ -36,7 +36,7 @@ public:
 
 	static Teuchos::RCP< const SpaceT > createRefinedSpace(
 			const Teuchos::RCP<const SpaceT>& space,
-			const Teuchos::Tuple<bool,4>& refine_dir ) {
+			const Teuchos::Tuple<int,4>& refine_dir ) {
 
 		auto stencilWidths = space->getStencilWidths();
 
@@ -51,7 +51,7 @@ public:
 		 if( refine_dir[i] )
 			 gridSizeGlobalTup[i] = (gridSizeGlobalTup[i]-1)*2 +1;
 		if( refine_dir[3] )
-			gridSizeGlobalTup[3] = gridSizeGlobalTup[3]+2;
+			gridSizeGlobalTup[3] = gridSizeGlobalTup[3]+refine_dir[3];
 
     auto gridSizeGlobal = createGridSizeGlobal<Ordinal,dimension>( gridSizeGlobalTup );
 
