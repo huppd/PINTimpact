@@ -611,7 +611,7 @@ int main(int argi, char** argv ) {
 			auto out = Pimpact::createOstream( "energy_dis"+rl+".txt", space->rankST() );
 			*out << 0 << "\t" << x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->norm() << "\t" << x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->getLength() << "\n";
 			for( int i=0; i<space->nGlo(3); ++i )
-				*out << i+1 << "\t" << x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(i)->norm() << "\t" << x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(i)->getLength() << "\n";
+				*out << i+1 << "\t" << x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(i)->norm() << "\t" << std::sqrt( (S)x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(i)->getLength()) << "\n";
 		}
 
 		// spectral refinement of x, fu
