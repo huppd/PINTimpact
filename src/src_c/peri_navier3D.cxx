@@ -615,7 +615,8 @@ int main(int argi, char** argv ) {
 		}
 
 		// spectral refinement of x, fu
-		if( x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(space->nGlo(3)-1)->norm()/std::sqrt(x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(space->nGlo(3)-1)->getLength()) <	refinementTol ) break;
+		if(              x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(space->nGlo(3)-1)->norm() /
+				std::sqrt((S)x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(space->nGlo(3)-1)->getLength()) <	refinementTol ) break;
 		if( refinement>1 ) {
 			auto spaceF =
 				Pimpact::RefinementStrategy<SpaceT>::createRefinedSpace(
