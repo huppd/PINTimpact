@@ -14,8 +14,8 @@ root = tree.getroot()
 ma.setParameter( root, 'withoutput', 0 )
 ma.setParameter( root, 'refinement tol', 1.e-6 )
 npx = 8
-npy = 1
-npz = 2
+npy = 2
+npz = 4
 ma.setParameter( root, 'npx', npx )
 ma.setParameter( root, 'npy', npy )
 ma.setParameter( root, 'npz', npz )
@@ -32,8 +32,10 @@ ns        = [ 2 ]
 res       = [ 10, 100, 200 ]
 alpha2s   = [ 0.05, 0.1, 0.2, 0.4 ]
 
+res = [ 200 ]
+alpha2s  = [ 0.05, 0.1 ]
 
-case_path[0] = '/ultimate'
+case_path[0] = '/ultimate3'
 if not os.path.exists( data_path+case_path[0] ):
 	os.mkdir( data_path+case_path[0] )
 
@@ -58,5 +60,5 @@ for n in ns:
 			ma.setParameter( root, 'ny',  32*2+1 )
 			ma.setParameter( root, 'nz',  64*2+1 )
 			tree.write('parameter3D.xml')
-			os.system( exe_pre(npx*npy*npz,' -W 21:00 ') + exe_path+exe + ' > output ' )
+			os.system( exe_pre(npx*npy*npz,' -W 48:00 ') + exe_path+exe + ' > output ' )
 
