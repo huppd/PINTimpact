@@ -599,54 +599,59 @@ int main(int argi, char** argv ) {
     // Get the answer
     *group = solver->getSolutionGroup();
 
-		if( withoutput ) {
-			x = Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr();
-			Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr()->write(refine*1000 );
-			Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr()->getFieldPtr(0)->getVFieldPtr()->write( 500+refine*1000, true );
-			//		Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(900);
-		}
+	x = Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr();
+	if( withoutput ) {
+		Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr()->write(refine*1000 );
+		Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr()->getFieldPtr(0)->getVFieldPtr()->write( 500+refine*1000, true );
+		//		Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(900);
+	}
 
-		{
-			auto x = Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr();
-			auto out = Pimpact::createOstream( "energy_dis"+rl+".txt", space->rankST() );
-			*out << 0 << "\t" << x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->norm() << "\t" << x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->getLength() << "\n";
-			for( int i=0; i<space->nGlo(3); ++i )
-				*out << i+1 << "\t" << x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(i)->norm() << "\t" << std::sqrt( (S)x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(i)->getLength()) << "\n";
-		}
+	{
+		auto out = Pimpact::createOstream( "energy_dis"+rl+".txt", space->rankST() );
+		*out << 0 << "\t" << x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->norm() << "\t" << std::sqrt(x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->getLength()) << "\n";
+		for( int i=0; i<space->nGlo(3); ++i )
+			*out << i+1 << "\t" << x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(i)->norm() << "\t" << std::sqrt( (S)x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(i)->getLength()) << "\n";
+	}
 
-		// spectral refinement of x, fu
-		if(              x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(space->nGlo(3)-1)->norm() /
-				std::sqrt((S)x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(space->nGlo(3)-1)->getLength()) <	refinementTol ) break;
-		if( refinement>1 ) {
-			auto spaceF =
-				Pimpact::RefinementStrategy<SpaceT>::createRefinedSpace(
-						space, Teuchos::tuple<int>( 0, 0, 0, refinementStep ) );
-//				space, Teuchos::tuple<int>( 1, 1, 1, refinementStep ) );
+	// spectral refinement of x, fu
+	//std::cout<< "bla bool: "<<       (             x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(space->nGlo(3)-1)->norm() /
+			//std::sqrt( (S)x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(space->nGlo(3)-1)->getLength() ) <	refinementTol) << "\n";
+	//std::cout<< "bla e: "<<                    x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(space->nGlo(3)-1)->norm()  << "\n";
+	//std::cout<< "bla sqrt: "<< std::sqrt( (S)x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(space->nGlo(3)-1)->getLength() ) << "\n";
 
-			auto refineOp =
-				Teuchos::rcp(
-						new Pimpact::TransferCompoundOp<
-						Pimpact::TransferMultiHarmonicOp< Pimpact::VectorFieldOpWrap< Pimpact::InterpolationOp<SpaceT> > >,
-						Pimpact::TransferMultiHarmonicOp< Pimpact::InterpolationOp<SpaceT> >
-						>( space, spaceF ) );
-			//		refineOp->print();
+	if(                   x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(space->nGlo(3)-1)->norm() /
+			std::sqrt( (S)x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(space->nGlo(3)-1)->getLength() ) <	refinementTol ) break;
 
-			auto xf = Pimpact::create<CF>( spaceF );
-			// init Fields
-			//		boundaries
-			xf->getVFieldPtr()->get0FieldPtr()->initField( Pimpact::EVectorField(baseflow), 1. );
-			auto temp = Pimpact::create<CF>( spaceF );
+	if( refinement>1 ) {
+		auto spaceF =
+			Pimpact::RefinementStrategy<SpaceT>::createRefinedSpace(
+					space, Teuchos::tuple<int>( 0, 0, 0, refinementStep ) );
+		//				space, Teuchos::tuple<int>( 1, 1, 1, refinementStep ) );
 
-			refineOp->apply( x->getField(0), *temp );
+		auto refineOp =
+			Teuchos::rcp(
+					new Pimpact::TransferCompoundOp<
+					Pimpact::TransferMultiHarmonicOp< Pimpact::VectorFieldOpWrap< Pimpact::InterpolationOp<SpaceT> > >,
+					Pimpact::TransferMultiHarmonicOp< Pimpact::InterpolationOp<SpaceT> >
+					>( space, spaceF ) );
+		//		refineOp->print();
 
-			xf->add( 1., *temp, 0., *temp );
+		auto xf = Pimpact::create<CF>( spaceF );
+		// init Fields
+		//		boundaries
+		xf->getVFieldPtr()->get0FieldPtr()->initField( Pimpact::EVectorField(baseflow), 1. );
+		auto temp = Pimpact::create<CF>( spaceF );
 
-//			if( withoutput )  xf->write();
+		refineOp->apply( x->getField(0), *temp );
 
-			x = Pimpact::createMultiField( xf );
-			space = spaceF;
-		}
-  } 
+		xf->add( 1., *temp, 0., *temp );
+
+		//			if( withoutput )  xf->write();
+
+		x = Pimpact::createMultiField( xf );
+		space = spaceF;
+	}
+	} 
 	/******************************************************************************************/
 
 	Teuchos::TimeMonitor::summarize();

@@ -18,11 +18,11 @@ ma.setParameter( root, 'refinement level', 1 )
 # make executable ready
 exe = 'peri_navier3D'
 os.chdir( exe_path )
-os.system( 'make '+exe+' -j4' )
+#os.system( 'make '+exe+' -j4' )
 exe = 'peri_navier3D'
 
 
-runs = range(0,4)
+runs = range(8,12)
 
 
 case_path = ['','','','','']
@@ -40,7 +40,7 @@ re       = 200
 alpha2   = 0.2 
 
 
-case_path[0] = '/strong'
+case_path[0] = '/strong3'
 if not os.path.exists( data_path+case_path[0] ):
 	os.mkdir( data_path+case_path[0] )
 for n in nxs:
@@ -65,4 +65,4 @@ for n in nxs:
 		#os.system( exe_pre(npx*npy*npt,' -R lustre ')+exe_path+exe+case_para+case_consts )
 		for run in runs:
 			print( exe_pre(np*max(np/2,1)*max(np/4,1),' -R "select[model==Opteron8380"] ')+exe_path+exe )
-			os.system( exe_pre(np*max(np/2,1)*max(np/4,1),' -R "select[model==Opteron6174"] -R "rusage[mem=8192]" -W 2:00',run)+exe_path+exe )
+			os.system( exe_pre(np*max(np/2,1)*max(np/4,1),' -R "select[model==Opteron6174"] -R "rusage[mem=8192]" -W 24:00',run)+exe_path+exe )
