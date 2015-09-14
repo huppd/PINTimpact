@@ -12,6 +12,7 @@ tree = ET.parse('../XML/parameter3D.xml')
 root = tree.getroot()
 
 ma.setParameter( root, 'withoutput', 0 )
+ma.setParameter( root, 'refinement level', 1 )
 
 
 # make executable ready
@@ -29,7 +30,7 @@ case_path = ['','','','','']
 
 
 nps       = [ 4, 8, 12 ]
-nxs       = [ 2, 3, 4 ]
+nxs       = [ 1, 2, 3, 4 ]
 #ns       = [  2, 3, 4, 6, 8,12 ]
 #ns       = [ 1, 2 ]
 #nps = [8]

@@ -14,7 +14,7 @@ root = tree.getroot()
 ma.setParameter( root, 'withoutput', 1 )
 npx = 8
 npy = 2
-npz = 4
+npz = 2
 ma.setParameter( root, 'npx', npx )
 ma.setParameter( root, 'npy', npy )
 ma.setParameter( root, 'npz', npz )
@@ -30,14 +30,14 @@ os.system( 'make '+exe+' -j4' )
 case_path = ['','','','']
 
 refinement = [ 4,1 ]
-ns         = [ 1,4 ]
+ns         = [ 1,7 ]
 
 ma.setParameter( root, 'alpha2', 2*pi*0.2*200 )
 
-case_path[0] = '/case_study'
+case_path[0] = '/case_study_small2'
 if not os.path.exists( data_path+case_path[0] ):
 	os.mkdir( data_path+case_path[0] )
-for i in range(2):
+for i in range(0,1):
 	case_path[1] = '/ref_'+str(i)
 	if not os.path.exists( data_path+case_path[0]+case_path[1] ):
 		os.mkdir( data_path+case_path[0]+case_path[1] )
@@ -49,4 +49,4 @@ for i in range(2):
 	ma.setParameter( root, 'nz', 128+1 )
 	ma.setParameter( root, 'nf',  ns[i] )
 	tree.write('parameter3D.xml')
-	os.system( exe_pre(npx*npy*npz,' -W 21:00 ') + exe_path+exe + ' > output ' )
+	os.system( exe_pre(npx*npy*npz,' -W 48:00 -N -R "rusage[mem=8192]"') + exe_path+exe + ' > output ' )

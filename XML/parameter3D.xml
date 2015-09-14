@@ -23,9 +23,9 @@
   <Parameter docString="forcing, ja?" id="19" isDefault="false" isUsed="true" name="forcing" type="int" value="1" />
   <ParameterList id="182" name="Solver">
     <Parameter docString="" id="20" isDefault="false" isUsed="true" name="withprec" type="int" value="3" />
-    <Parameter docString="" id="21" isDefault="false" isUsed="true" name="withoutput" type="int" value="1" />
+    <Parameter docString="" id="21" isDefault="false" isUsed="true" name="withoutput" type="int" value="0" />
     <Parameter docString="" id="22" isDefault="false" isUsed="true" name="refinement level" type="int" value="12" />
-    <Parameter docString="" id="23" isDefault="false" isUsed="true" name="refinement tol" type="double" value="1.0e-06" />
+    <Parameter docString="" id="23" isDefault="false" isUsed="true" name="refinement tol" type="double" value="1.0e-6" />
     <Parameter docString="" id="24" isDefault="false" isUsed="true" name="refinement step" type="int" value="2" />
     <Parameter docString="" id="25" isDefault="false" isUsed="true" name="initZero" type="int" value="4" />
   </ParameterList>
@@ -58,7 +58,7 @@
         </ParameterList>
         <ParameterList id="189" name="Test 2">
           <Parameter docString="" id="44" isDefault="false" isUsed="true" name="Test Type" type="string" value="MaxIters" />
-          <Parameter docString="" id="45" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="1" />
+          <Parameter docString="" id="45" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="20" />
         </ParameterList>
         <ParameterList id="190" name="Test 3">
           <Parameter docString="" id="46" isDefault="false" isUsed="true" name="Test Type" type="string" value="Stagnation" />
@@ -134,7 +134,7 @@
       <Parameter docString="" id="88" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="10" />
       <Parameter docString="" id="89" isDefault="false" isUsed="true" name="Maximum Restarts" type="int" value="1" />
       <Parameter docString="" id="90" isDefault="false" isUsed="true" name="Block Size" type="int" value="2" />
-      <Parameter docString="" id="91" isDefault="false" isUsed="true" name="Adaptive Block Size" type="bool" value="true" />
+      <Parameter docString="" id="91" isDefault="false" isUsed="true" name="Adaptive Block Size" type="bool" value="false" />
       <Parameter docString="" id="92" isDefault="false" isUsed="true" name="Flexible Gmres" type="bool" value="true" />
       <Parameter docString="" id="93" isDefault="false" isUsed="true" name="Implicit Residual Scaling" type="string" value="Norm of RHS" />
       <Parameter docString="" id="94" isDefault="false" isUsed="true" name="Explicit Residual Scaling" type="string" value="Norm of RHS" />

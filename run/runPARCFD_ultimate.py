@@ -12,6 +12,7 @@ tree = ET.parse('../XML/parameter3D.xml')
 root = tree.getroot()
 
 ma.setParameter( root, 'withoutput', 0 )
+ma.setParameter( root, 'refinement tol', 1.e-6 )
 npx = 8
 npy = 1
 npz = 2

@@ -37,18 +37,17 @@ if not os.path.exists( data_path+case_path[0] ):
 	#case_path[1] = '/a2_'+str(alpha2)
 	#if not os.path.exists( data_path+case_path[0]+case_path[1] ):
 		#os.mkdir( data_path+case_path[0]+case_path[1] )
-for nx in nxs:
-	case_path[2] = '/nx_'+str(nx)
-	if not os.path.exists( data_path+case_path[0]+case_path[1]+case_path[2] ):
-		os.mkdir( data_path+case_path[0]+case_path[1]+case_path[2] )
-	for np in nps:
-		case_path[3] = '/np_'+str(np)
-		if not os.path.exists( data_path+case_path[0]+case_path[1]+case_path[2]+case_path[3]   ):
-			os.mkdir( data_path+case_path[0]+case_path[1]+case_path[2]+case_path[3] )
-		os.chdir( data_path+case_path[0]+case_path[1]+case_path[2]+case_path[3] )
-		os.system(' rm ./* -r -v  ')
-		case_para = ' --nx='+str(128*np*nx/2+1)+' --ny='+str(32*np*nx/2+1)+' --nz='+str(64*np*nx/2+1)+' --npx='+str(4*np)+' --npy='+str(np)+' --npz='+str(np*2)+' --maxGrids='+str(int(3+log2(np*nx)))+' --re='+str(re)+' --alpha2='+str(alpha2)+' --lx='+str(8)+'. --lz='+str(4)+'. '
-		#os.system( exe_pre(npx*npy*npt,' -R lustre ')+exe_path+exe+case_para+case_consts )
-		print( exe_pre(8*np*np*np,' -R "select[model==Opteron6174"] ')+exe_path+exe+case_para+case_consts[0] +' > output ' )
-		for run in range(runs):
-			os.system( exe_pre(8*np*np*np,' -R "select[model==Opteron6174"] -W 4:00 ',run)+exe_path+exe+case_para+case_consts[0] +'  ' )
+	#for re in res:
+		#case_path[2] = '/re_'+str(re)
+		#if not os.path.exists( data_path+case_path[0]+case_path[1]+case_path[2] ):
+			#os.mkdir( data_path+case_path[0]+case_path[1]+case_path[2] )
+for n in ns:
+	case_path[3] = '/n2_'+str(n)
+	if not os.path.exists( data_path+case_path[0]+case_path[1]+case_path[2]+case_path[3]   ):
+		os.mkdir( data_path+case_path[0]+case_path[1]+case_path[2]+case_path[3] )
+	os.chdir( data_path+case_path[0]+case_path[1]+case_path[2]+case_path[3] )
+	case_para = ' --nx='+str(192*n+1)+' --ny='+str(48+1)+' --nz='+str(96*n+1)+' --npx='+str(n)+' --npy='+str( 2 )+' --npz='+str(n)+' --maxGrids='+str(int(3+log2(1)))+' --re='+str(re)+' --alpha2='+str(alpha2)+' --lx='+str(8*n)+'. --lz='+str(4*n)+'. '
+	#os.system( exe_pre(npx*npy*npt,' -R lustre ')+exe_path+exe+case_para+case_consts )
+	print( exe_pre(2*n**2,' -R "select[model==Opteron6174"] ')+exe_path+exe+case_para+case_consts[0] +' > output ' )
+	for run in range(runs):
+		os.system( exe_pre(2*n**2,'',run)+exe_path+exe+case_para+case_consts[0] +'  ' )

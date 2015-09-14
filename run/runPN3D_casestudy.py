@@ -24,7 +24,7 @@ case_consts = [' --baseflow=1 --force=1  --domain=0 --nf=4  --tolNOX=1.e-6  --to
 
 ns        = [ 4 ]
 res       = [ 100, 200, 400 ]
-alpha2s   = [ 66, 144, 576 ]
+alpha2s   = [ 0 ]
 
 #res = [100]
 #alpha2s = [576]
@@ -52,5 +52,5 @@ for alpha2 in alpha2s:
 		case_para = ' --nx='+str(32+1)+' --ny='+str(8+1)+' --nz='+str(16+1)+' --npx='+str(n)+' --npy='+str( max(n/4,1) )+' --npz='+str(max(n/2,1))+' --maxGrids='+str(4)+' --re='+str(re)+' --alpha2='+str(alpha2)+' ' 
 		#os.system( exe_pre(npx*npy*npt,' -R lustre ')+exe_path+exe+case_para+case_consts )
 		print( exe_pre(n*max(n/2,1)*max(n/4,1),' -W 21:00 ')+exe_path+exe+case_para+case_consts[0] +' > output ' )
-		os.system( exe_pre(n*max(n/2,1)*max(n/4,1),' -W 21:00 ' )+exe_path+exe+case_para+case_consts[0] +' > output ' )
+		os.system( exe_pre(int(n*max(n/2,1)*max(n/4,1)),' -W 21:00 ' )+exe_path+exe+case_para+case_consts[0] +' > output ' )
 

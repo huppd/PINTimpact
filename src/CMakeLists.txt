@@ -84,11 +84,15 @@ MESSAGE( "Fortran compiler: ${CMAKE_Fortran_COMPILER}" )
 MESSAGE( "CMAKE_Fortran_COMPILE_FLAGS: ${CMAKE_Fortran_COMPILE_FLAGS}" )
 
 
-INCLUDE_DIRECTORIES( ${inc_dir} ${Trilinos_INCLUDE_DIRS} ${Trilinos_TPL_INCLUDE_DIRS} )
+INCLUDE_DIRECTORIES( ${inc_dir} ${Trilinos_INCLUDE_DIRS}
+	${Trilinos_TPL_INCLUDE_DIRS}
+	"/cluster/apps/hdf5/1.8.12/x86_64/gcc_4.8.2/openmpi_1.6.5/include" )
 LINK_DIRECTORIES( ${Trilinos_LIBRARY_DIRS} ${Trilinos_TPL_LIBRARY_DIRS} )
 
 
-
+message( "Include: ${inc_dir} ${Trilinos_INCLUDE_DIRS}
+${Trilinos_TPL_INCLUDE_DIRS} ${HDF5_LIBRARY_DIRS} " )
+#message( "Link: ${Trilinos_LIBRARY_DIRS} ${Trilinos_TPL_LIBRARY_DIRS}" )
 
 # Appends the cmake/modules path inside the MAKE_MODULE_PATH variable which stores the
 # directories of additional CMake modules (ie. MacroOutOfSourceBuild.cmake):
