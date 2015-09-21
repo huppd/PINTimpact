@@ -42,19 +42,37 @@ public:
 
 protected:
 
-  typedef ModeField<FieldT> MV;
+	typedef Scalar* ScalarArray;
+	typedef ModeField<FieldT> MV;
 
-  typedef AbstractField< typename FieldT::SpaceT> AF;
+	typedef AbstractField< typename FieldT::SpaceT> AF;
 
-  Teuchos::RCP<FieldT> fieldc_;
+	bool owning_;
+
+	Teuchos::RCP<FieldT> fieldc_;
   Teuchos::RCP<FieldT> fields_;
+
+	ScalarArray s_;
 
 public:
 
-  ModeField( const Teuchos::RCP<const SpaceT>& space ):
+  ModeField( const Teuchos::RCP<const SpaceT>& space, bool owning=true ):
     AF( space ),
-    fieldc_( create<FieldT>(space) ),
-    fields_( create<FieldT>(space) ) {};
+		owning_(owning),
+    fieldc_( Teuchos::rcp( new FieldT(space,false) ) ),
+    fields_( Teuchos::rcp( new FieldT(space,false) ) ) {
+
+			if( owning_ ) {
+				Ordinal n = fieldc_->getStorageSize();
+
+				s_ = new Scalar[2*n];
+
+				fieldc_->setStoragePtr( s_   );
+				fields_->setStoragePtr( s_+n );
+			}
+	};
+
+	~ModeField() { if( owning_ ) delete[] s_; }
 
 protected:
 
@@ -65,9 +83,31 @@ protected:
   /// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
   ModeField(const ModeField& vF, ECopyType copyType=DeepCopy):
     AF( vF.space() ),
-    fieldc_( vF.fieldc_->clone(copyType) ),
-    fields_( vF.fields_->clone(copyType) )
-  {};
+		owning_( vF.owning_ ),
+    fieldc_( vF.fieldc_->clone() ),
+		fields_( vF.fields_->clone() ) {
+
+			if( owning_ ) {
+
+				Ordinal n = fieldc_->getStorageSize();
+
+				s_ = new Scalar[2*n];
+
+				fieldc_->setStoragePtr( s_   );
+				fields_->setStoragePtr( s_+n );
+
+				switch( copyType ) {
+					case ShallowCopy:
+						initField();
+						break;
+					case DeepCopy:
+						for( int i=0; i<2*n; ++i )
+							s_[i] = vF.s_[i];
+						break;
+				}
+
+			}
+	};
 
 public:
 
@@ -170,6 +210,7 @@ public:
     if( global ) this->reduceNorm( comm(), b );
 
     return( b );
+
   }
 
 

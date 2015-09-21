@@ -100,26 +100,26 @@ public:
 			}
 
 			if( coarsen_yes ) {
-				std::ofstream file;
-				std::string fname = "mgs.txt";
-				fname.insert( 3, std::to_string( (long long)space->rankST() ) );
-				file.open( fname, std::ofstream::out | std::ofstream::app );
-				file << "\n\ngrid: " <<  i << "\n\n";
-				multiSpace.back()->print(file);
-				file.close();
+//				std::ofstream file;
+//				std::string fname = "mgs.txt";
+//				fname.insert( 3, std::to_string( (long long)space->rankST() ) );
+//				file.open( fname, std::ofstream::out | std::ofstream::app );
+//				file << "\n\ngrid: " <<  i << "\n\n";
+//				multiSpace.back()->print(file);
+//				file.close();
 
 				multiSpace.push_back( createCoarseSpace( multiSpace.back(), coarsen_dir, nGlo, stride, NB, IB, i==maxGrids-1 ) );
 			}
 
 
     }
-		std::ofstream file;
-		std::string fname = "mgs.txt";
-		fname.insert( 3, std::to_string( (long long)space->rankST() ) );
-		file.open( fname, std::ofstream::out | std::ofstream::app );
-		file << "\n\ngrid: " <<  -1 << "\n\n";
-		multiSpace.back()->print(file);
-		file.close();
+//		std::ofstream file;
+//		std::string fname = "mgs.txt";
+//		fname.insert( 3, std::to_string( (long long)space->rankST() ) );
+//		file.open( fname, std::ofstream::out | std::ofstream::app );
+//		file << "\n\ngrid: " <<  -1 << "\n\n";
+//		multiSpace.back()->print(file);
+//		file.close();
 
 
 		// not working on brutus

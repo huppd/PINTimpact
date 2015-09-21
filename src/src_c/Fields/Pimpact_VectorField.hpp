@@ -126,9 +126,7 @@ public:
   };
 
 
-  ~VectorField() {
-    if( owning_ ) delete[] vec_;
-  }
+	~VectorField() { if( owning_ ) delete[] vec_; }
 
   Teuchos::RCP<VF> clone( ECopyType ctype=DeepCopy ) const {
     return( Teuchos::rcp( new VF( *this, ctype ) ) );

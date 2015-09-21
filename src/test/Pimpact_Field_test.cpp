@@ -28,6 +28,7 @@ typedef typename Pimpact::ModeField<VF>          MVF;
 typedef typename Pimpact::CompoundField<VF,SF>   CF;
 typedef typename Pimpact::CompoundField<MVF,MSF> CMF;
 
+
 bool testMpi = true;
 double eps = 1e-6;
 

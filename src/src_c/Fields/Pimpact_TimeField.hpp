@@ -154,9 +154,7 @@ protected:
 
 public:
 
-  ~TimeField() {
-    delete[] array_;
-  }
+	~TimeField() { delete[] array_; }
 
 
   /// \brief Create a new \c TimeField with

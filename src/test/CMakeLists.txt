@@ -33,7 +33,7 @@ TARGET_LINK_LIBRARIES( MultiHarmonicFieldTest ${Pimpact_TPL_LIBRARIES} )
 ADD_EXECUTABLE(OperatorTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_Operator_test.cpp )
 TARGET_LINK_LIBRARIES( OperatorTest ${Pimpact_TPL_LIBRARIES} ) 
 
-foreach(dim RANGE 2 3)
+foreach(dim RANGE 3 3)
 	foreach( domain RANGE 0 4 )
 		add_test( NAME "FieldTest_domain${domain}_dim${dim}" COMMAND mpirun -np 8 FieldTest --domain=${domain} --dim=${dim} )
 		add_test( NAME "VectorFieldTest_domain${domain}_dim${dim}" COMMAND mpirun -np 8 VectorFieldTest --domain=${domain} --dim=${dim} ) 

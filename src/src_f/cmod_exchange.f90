@@ -11,11 +11,6 @@ module cmod_exchange
   use mpi
 
   implicit none
-  !private
-
-  !!  public exchange, exchange2, exchange_all_all, exchange_relax, exchange_part
-  !public F_exchange
-
 
   integer :: status(MPI_STATUS_SIZE) ! TEST!!! Warum steht das eigentlich hier lokal? gleiches gilt auch fuer die anderen Module ...
 
@@ -44,8 +39,6 @@ contains
   !!        - Alle Kopier-Schleifen sind ausgeschrieben, da der PGI-Compiler ansonsten keine Vektorisierung bzw.   !
   !!          kein Prefetch einbaut.                                                                               !
   !!---------------------------------------------------------------------------------------------------------------------!
-  !pgi$r nodepchk
-  !pgi$r ivdep
   subroutine F_exchange(  &
       dimens,             &
       COMM,               &
@@ -84,20 +77,20 @@ contains
 
     real(c_double), intent(inout) ::  phi(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-    real(c_double)                   ::  ghost1LR( 1:bU(1),SS(2):NN(2),SS(3):NN(3))
-    real(c_double)                   ::  ghost1LS( 1:bU(1),SS(2):NN(2),SS(3):NN(3))
-    real(c_double)                   ::  ghost1UR(bL(1):-1,SS(2):NN(2),SS(3):NN(3))
-    real(c_double)                   ::  ghost1US(bL(1):-1,SS(2):NN(2),SS(3):NN(3))
+    real(c_double)                ::  ghost1LR( 1:bU(1),SS(2):NN(2),SS(3):NN(3))
+    real(c_double)                ::  ghost1LS( 1:bU(1),SS(2):NN(2),SS(3):NN(3))
+    real(c_double)                ::  ghost1UR(bL(1):-1,SS(2):NN(2),SS(3):NN(3))
+    real(c_double)                ::  ghost1US(bL(1):-1,SS(2):NN(2),SS(3):NN(3))
 
-    real(c_double)                   ::  ghost2LR(SS(1):NN(1), 1:bU(2),SS(3):NN(3))
-    real(c_double)                   ::  ghost2LS(SS(1):NN(1), 1:bU(2),SS(3):NN(3))
-    real(c_double)                   ::  ghost2UR(SS(1):NN(1),bL(2):-1,SS(3):NN(3))
-    real(c_double)                   ::  ghost2US(SS(1):NN(1),bL(2):-1,SS(3):NN(3))
+    real(c_double)                ::  ghost2LR(SS(1):NN(1), 1:bU(2),SS(3):NN(3))
+    real(c_double)                ::  ghost2LS(SS(1):NN(1), 1:bU(2),SS(3):NN(3))
+    real(c_double)                ::  ghost2UR(SS(1):NN(1),bL(2):-1,SS(3):NN(3))
+    real(c_double)                ::  ghost2US(SS(1):NN(1),bL(2):-1,SS(3):NN(3))
 
-    real(c_double)                   ::  ghost3LR(SS(1):NN(1),SS(2):NN(2), 1:bU(3))
-    real(c_double)                   ::  ghost3LS(SS(1):NN(1),SS(2):NN(2), 1:bU(3))
-    real(c_double)                   ::  ghost3UR(SS(1):NN(1),SS(2):NN(2),bL(3):-1)
-    real(c_double)                   ::  ghost3US(SS(1):NN(1),SS(2):NN(2),bL(3):-1)
+    real(c_double)                ::  ghost3LR(SS(1):NN(1),SS(2):NN(2), 1:bU(3))
+    real(c_double)                ::  ghost3LS(SS(1):NN(1),SS(2):NN(2), 1:bU(3))
+    real(c_double)                ::  ghost3UR(SS(1):NN(1),SS(2):NN(2),bL(3):-1)
+    real(c_double)                ::  ghost3US(SS(1):NN(1),SS(2):NN(2),bL(3):-1)
 
     integer(c_int)                ::  length1L, length1U
     integer(c_int)                ::  length2L, length2U
@@ -110,7 +103,6 @@ contains
     integer(c_int)                :: merror
 
     integer(c_int)                ::  i, j, k
-    !  integer                ::  dummy
 
     !======================================================================================================================
     if (dir == 1) then
@@ -149,12 +141,12 @@ contains
       ! copying recevied message
       if (BCL(1) == 0) then
         do i = bL(1), -1
-        phi((Sp(1)+i),SS(2):NN(2),SS(3):NN(3)) = ghost1UR(i,SS(2):NN(2),SS(3):NN(3))
+          phi((Sp(1)+i),SS(2):NN(2),SS(3):NN(3)) = ghost1UR(i,SS(2):NN(2),SS(3):NN(3))
         end do
       end if
       if (BCU(1) == 0) then
         do i = 1, bU(1)
-        phi((Np(1)+i),SS(2):NN(2),SS(3):NN(3)) = ghost1LR(i,SS(2):NN(2),SS(3):NN(3))
+          phi((Np(1)+i),SS(2):NN(2),SS(3):NN(3)) = ghost1LR(i,SS(2):NN(2),SS(3):NN(3))
         end do
       end if
 
@@ -162,10 +154,10 @@ contains
 
       if (BCL(1) == -1) then
         do i = bL(1), -1
-        phi((Sp(1)+i),SS(2):NN(2),SS(3):NN(3)) = phi((Np(1)+1+i),SS(2):NN(2),SS(3):NN(3))
+          phi((Sp(1)+i),SS(2):NN(2),SS(3):NN(3)) = phi((Np(1)+1+i),SS(2):NN(2),SS(3):NN(3))
         end do
         do i = 1, bU(1)
-        phi((Np(1)+i),SS(2):NN(2),SS(3):NN(3)) = phi((Sp(1)-1+i),SS(2):NN(2),SS(3):NN(3))
+          phi((Np(1)+i),SS(2):NN(2),SS(3):NN(3)) = phi((Sp(1)-1+i),SS(2):NN(2),SS(3):NN(3))
         end do
       end if
 
@@ -196,12 +188,12 @@ contains
 
       if (BCU(2) == 0) then
         do j = bL(2), -1
-        ghost2US(SS(1):NN(1),j,SS(3):NN(3)) = phi(SS(1):NN(1),(Np(2)+1+j),SS(3):NN(3))
+          ghost2US(SS(1):NN(1),j,SS(3):NN(3)) = phi(SS(1):NN(1),(Np(2)+1+j),SS(3):NN(3))
         end do
       end if
       if (BCL(2) == 0) then
         do j = 1, bU(2)
-        ghost2LS(SS(1):NN(1),j,SS(3):NN(3)) = phi(SS(1):NN(1),(Sp(2)-1+j),SS(3):NN(3))
+          ghost2LS(SS(1):NN(1),j,SS(3):NN(3)) = phi(SS(1):NN(1),(Sp(2)-1+j),SS(3):NN(3))
         end do
       end if
 
@@ -216,12 +208,12 @@ contains
 
       if (BCL(2) == 0) then
         do j = bL(2), -1
-        phi(SS(1):NN(1),(Sp(2)+j),SS(3):NN(3)) = ghost2UR(SS(1):NN(1),j,SS(3):NN(3))
+          phi(SS(1):NN(1),(Sp(2)+j),SS(3):NN(3)) = ghost2UR(SS(1):NN(1),j,SS(3):NN(3))
         end do
       end if
       if (BCU(2) == 0) then
         do j = 1, bU(2)
-        phi(SS(1):NN(1),(Np(2)+j),SS(3):NN(3)) = ghost2LR(SS(1):NN(1),j,SS(3):NN(3))
+          phi(SS(1):NN(1),(Np(2)+j),SS(3):NN(3)) = ghost2LR(SS(1):NN(1),j,SS(3):NN(3))
         end do
       end if
 
@@ -229,10 +221,10 @@ contains
 
       if (BCL(2) == -1) then
         do j = bL(2), -1
-        phi(SS(1):NN(1),(Sp(2)+j),SS(3):NN(3)) = phi(SS(1):NN(1),(Np(2)+1+j),SS(3):NN(3))
+          phi(SS(1):NN(1),(Sp(2)+j),SS(3):NN(3)) = phi(SS(1):NN(1),(Np(2)+1+j),SS(3):NN(3))
         end do
         do j = 1, bU(2)
-        phi(SS(1):NN(1),(Np(2)+j),SS(3):NN(3)) = phi(SS(1):NN(1),(Sp(2)-1+j),SS(3):NN(3))
+          phi(SS(1):NN(1),(Np(2)+j),SS(3):NN(3)) = phi(SS(1):NN(1),(Sp(2)-1+j),SS(3):NN(3))
         end do
       end if
 
@@ -263,12 +255,12 @@ contains
 
       if (BCU(3) == 0) then
         do k = bL(3), -1
-        ghost3US(SS(1):NN(1),SS(2):NN(2),k) = phi(SS(1):NN(1),SS(2):NN(2),(Np(3)+1+k))
+          ghost3US(SS(1):NN(1),SS(2):NN(2),k) = phi(SS(1):NN(1),SS(2):NN(2),(Np(3)+1+k))
         end do
       end if
       if (BCL(3) == 0) then
         do k = 1, bU(3)
-        ghost3LS(SS(1):NN(1),SS(2):NN(2),k) = phi(SS(1):NN(1),SS(2):NN(2),(Sp(3)-1+k))
+          ghost3LS(SS(1):NN(1),SS(2):NN(2),k) = phi(SS(1):NN(1),SS(2):NN(2),(Sp(3)-1+k))
         end do
       end if
 
@@ -283,12 +275,12 @@ contains
 
       if (BCL(3) == 0) then
         do k = bL(3), -1
-        phi(SS(1):NN(1),SS(2):NN(2),(Sp(3)+k)) = ghost3UR(SS(1):NN(1),SS(2):NN(2),k)
+          phi(SS(1):NN(1),SS(2):NN(2),(Sp(3)+k)) = ghost3UR(SS(1):NN(1),SS(2):NN(2),k)
         end do
       end if
       if (BCU(3) == 0) then
         do k = 1, bU(3)
-        phi(SS(1):NN(1),SS(2):NN(2),(Np(3)+k)) = ghost3LR(SS(1):NN(1),SS(2):NN(2),k)
+          phi(SS(1):NN(1),SS(2):NN(2),(Np(3)+k)) = ghost3LR(SS(1):NN(1),SS(2):NN(2),k)
         end do
       end if
 
@@ -296,10 +288,10 @@ contains
 
       if (BCL(3) == -1) then
         do k = bL(3), -1
-        phi(SS(1):NN(1),SS(2):NN(2),(Sp(3)+k)) = phi(SS(1):NN(1),SS(2):NN(2),(Np(3)+1+k))
+          phi(SS(1):NN(1),SS(2):NN(2),(Sp(3)+k)) = phi(SS(1):NN(1),SS(2):NN(2),(Np(3)+1+k))
         end do
         do k = 1, bU(3)
-        phi(SS(1):NN(1),SS(2):NN(2),(Np(3)+k)) = phi(SS(1):NN(1),SS(2):NN(2),(Sp(3)-1+k))
+          phi(SS(1):NN(1),SS(2):NN(2),(Np(3)+k)) = phi(SS(1):NN(1),SS(2):NN(2),(Sp(3)-1+k))
         end do
       end if
 
