@@ -47,7 +47,22 @@ protected:
   Teuchos::RCP<Field> field0_;
   Teuchos::RCP< MultiField< ModeField<Field> > > fields_;
 
+	Scalar* s_;
+
+private:
+
+	void allocate() {
+		Ordinal n = field0_->getStorageSize();
+		s_ = new Scalar[n*(1+2*space()->nGlo(3))];
+		field0_->setStoragePtr( s_ );
+		for( Ordinal i=0; i<space()->nGlo(3); ++i )
+			fields_->getFieldPtr(i)->setStoragePtr( s_ + n + 2*n*i );
+	}
+
+
 public:
+
+	Ordinal getStorageSize() const { return( (1+2*space()->nGlo(3))*field0_->getStorageSize() ); }
 
   MultiHarmonicField(
       const Teuchos::RCP<const SpaceT>& space ):

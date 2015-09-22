@@ -156,7 +156,7 @@ protected:
 	void init( const Teuchos::Tuple<int,SpaceT::dimension>& nb ) {
 
 			// ------------- nGather_, iimax_
-			Teuchos::Tuple<int,SpaceT::dimension> periodic = spaceF_->getDomain()->getBCGlobal()->periodic();
+			Teuchos::Tuple<int,SpaceT::dimension> periodic = spaceF_->getBCGlobal()->periodic();
 
 			int nGatherTotal = 1; 
 			for( int i=0; i<3; ++i ) {
@@ -281,8 +281,8 @@ protected:
 						spaceC_->bu(i),
 						spaceC_->sInd(i)[i],
 						spaceC_->eInd(i)[i],
-						spaceF_->getDomain()->getBCLocal()->getBCL(i),
-						spaceF_->getDomain()->getBCLocal()->getBCU(i),
+						spaceF_->getBCLocal()->getBCL(i),
+						spaceF_->getBCLocal()->getBCU(i),
 						spaceF_->nLoc(i),
 						spaceF_->bl(i),
 						spaceF_->bu(i),
@@ -346,8 +346,8 @@ public:
 					spaceC_->nLoc(),
 					spaceC_->bl(),
 					spaceC_->bu(),
-					spaceC_->getDomain()->getBCLocal()->getBCL(),
-					spaceC_->getDomain()->getBCLocal()->getBCU(),
+					spaceC_->getBCLocal()->getBCL(),
+					spaceC_->getBCLocal()->getBCU(),
 					x.getConstRawPtr() );
 
 			if( spaceC_->getProcGrid()->participating() )

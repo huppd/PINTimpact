@@ -545,7 +545,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
 
   // test in x direction
   x->initField( Pimpact::PoiseuilleFlow2D_inX );
-  bs->init( Teuchos::tuple( 8./std::pow(space->getDomain()->getDomainSize()->getSize(Pimpact::Y),2), 0., 0. ) );
+  bs->init( Teuchos::tuple( 8./std::pow(space->getDomainSize()->getSize(Pimpact::Y),2), 0., 0. ) );
   bs->add( mulI, *x, mulL, *bs );
 
 	auto para = Teuchos::parameterList();
@@ -561,7 +561,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
 
   // test in y direction
   x->initField( Pimpact::PoiseuilleFlow2D_inY );
-  bs->init( Teuchos::tuple( 0., 8./std::pow(space->getDomain()->getDomainSize()->getSize(Pimpact::X),2), 0. ) );
+  bs->init( Teuchos::tuple( 0., 8./std::pow(space->getDomainSize()->getSize(Pimpact::X),2), 0. ) );
   bs->add( mulI, *x, mulL, *bs );
 
   op->apply( *x, *b );
@@ -574,7 +574,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
 
   // test in z direction
   x->initField( Pimpact::PoiseuilleFlow2D_inZ );
-  bs->init( Teuchos::tuple( 0., 0., 8./std::pow(space->getDomain()->getDomainSize()->getSize(Pimpact::X),2) ) );
+  bs->init( Teuchos::tuple( 0., 0., 8./std::pow(space->getDomainSize()->getSize(Pimpact::X),2) ) );
   bs->add( mulI, *x, mulL, *bs );
 
   op->apply( *x, *b );

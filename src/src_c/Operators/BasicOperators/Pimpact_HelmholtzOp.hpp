@@ -68,7 +68,7 @@ public:
 			const Teuchos::RCP<const SpaceT>& space ):
 		space_(space),
 		mulI_( (Scalar)0. ),
-		mulL_( 1./space_->getDomain()->getDomainSize()->getRe() )	{
+		mulL_( 1./space_->getDomainSize()->getRe() )	{
 
     for( int i=0; i<3; ++i ) {
       Ordinal nTemp = ( space_->nLoc(i) + 1 )*( space_->bu(i) - space_->bl(i) + 1);
@@ -82,8 +82,8 @@ public:
             space_->bu(i),
             space_->bl(i),
             space_->bu(i),
-            space_->getDomain()->getBCLocal()->getBCL(i),
-            space_->getDomain()->getBCLocal()->getBCU(i),
+            space_->getBCLocal()->getBCL(i),
+            space_->getBCLocal()->getBCU(i),
             space_->getShift(i),
             int(EField::S)+1,
             i+1,
@@ -105,8 +105,8 @@ public:
             space_->bu(i),
             space_->bl(i),
             space_->bu(i),
-            space_->getDomain()->getBCLocal()->getBCL(i),
-            space_->getDomain()->getBCLocal()->getBCU(i),
+            space_->getBCLocal()->getBCL(i),
+            space_->getBCLocal()->getBCU(i),
             space_->getShift(i),
             1,
             i+1,
@@ -206,7 +206,7 @@ public:
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
 		mulI_ = para->get<Scalar>( "mulI", 0. );
-		mulL_ = para->get<Scalar>( "mulL", 1./space_->getDomain()->getDomainSize()->getRe() );
+		mulL_ = para->get<Scalar>( "mulL", 1./space_->getDomainSize()->getRe() );
 	}
 
 	const std::string getLabel() const { return( "Helmholtz" ); };

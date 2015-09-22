@@ -701,8 +701,8 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicDtConvectionDiffusionOp )
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
-	S re = space->getDomain()->getDomainSize()->getRe();
-	S alpha2 = space->getDomain()->getDomainSize()->getAlpha2();
+	S re = space->getDomainSize()->getRe();
+	S alpha2 = space->getDomainSize()->getAlpha2();
 
   auto vel = Pimpact::create<Pimpact::VectorField>( space );
 

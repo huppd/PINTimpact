@@ -9,6 +9,7 @@
 
 #include"Pimpact_Types.hpp"
 
+#include "Pimpact_DomainSize.hpp"
 
 
 

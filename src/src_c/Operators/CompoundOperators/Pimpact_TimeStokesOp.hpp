@@ -95,8 +95,8 @@ public:
 
 		Scalar pi = 4.*std::atan(1.);
 		Scalar idt = ((Scalar)space()->nGlo()[3])/2./pi;
-		Scalar re = space()->getDomain()->getDomainSize()->getRe();
-		Scalar mulI = space()->getDomain()->getDomainSize()->getAlpha2()*idt/re;
+		Scalar re = space()->getDomainSize()->getRe();
+		Scalar mulI = space()->getDomainSize()->getAlpha2()*idt/re;
 
 		auto xu = x.getConstVFieldPtr();
 		auto xp = x.getConstSFieldPtr();

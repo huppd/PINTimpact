@@ -615,7 +615,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, DtTimeOp ) {
 		dt->apply( *field, *field1 );
 		dt->apply( *field1, *field2 );
 
-		S a2 = space->getDomain()->getDomainSize()->getAlpha2()/space->getDomain()->getDomainSize()->getRe();
+		S a2 = space->getDomainSize()->getAlpha2()/space->getDomainSize()->getRe();
 
 		S bla = a2*a2;
 
@@ -665,7 +665,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeDtConvectionDiffusionOp ) {
 
 	op->apply( *field1, *field2 );
 
-  initVectorTimeField( field1, Pimpact::Const2DFlow, 8./std::pow(space->getDomain()->getDomainSize()->getSize(Pimpact::Y),2), 0., 0. );
+  initVectorTimeField( field1, Pimpact::Const2DFlow, 8./std::pow(space->getDomainSize()->getSize(Pimpact::Y),2), 0., 0. );
 	field->add( 1., *field1, -1., *field2 );
 	field->write(100);
 
@@ -680,7 +680,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeDtConvectionDiffusionOp ) {
 	op->apply( *field, *field1 );
 	op->apply( *field1, *field2 );
 
-	S a2 = space->getDomain()->getDomainSize()->getAlpha2()/space->getDomain()->getDomainSize()->getRe();
+	S a2 = space->getDomainSize()->getAlpha2()/space->getDomainSize()->getRe();
 
 	S bla = a2*a2;
 
@@ -748,7 +748,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOp ) {
 	op->apply( *x, *y );
 	y->write(0);
 
-	initVectorTimeField( x->getVFieldPtr(), Pimpact::Const2DFlow, 8./std::pow(space->getDomain()->getDomainSize()->getSize(Pimpact::Y),2), 0., 0. );
+	initVectorTimeField( x->getVFieldPtr(), Pimpact::Const2DFlow, 8./std::pow(space->getDomainSize()->getSize(Pimpact::Y),2), 0., 0. );
 	x->add( 1., *x, -1., *y );
 	x->write(100);
 

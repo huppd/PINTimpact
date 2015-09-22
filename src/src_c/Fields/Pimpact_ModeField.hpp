@@ -54,7 +54,25 @@ protected:
 
 	ScalarArray s_;
 
+private:
+
+	void allocate() {
+		Ordinal n = fieldc_->getStorageSize();
+		s_ = new Scalar[2*n];
+		fieldc_->setStoragePtr( s_   );
+		fields_->setStoragePtr( s_+n );
+	}
+
 public:
+
+	Ordinal getStorageSize() const { return( 2*fieldc_->getStorageSize() ); }
+
+  void setStoragePtr( Scalar*  array ) {
+    s_ = array;
+		fieldc_->setStoragePtr( s_                             );
+		fields_->setStoragePtr( s_ + fieldc_->getStorageSize() );
+  }
+
 
   ModeField( const Teuchos::RCP<const SpaceT>& space, bool owning=true ):
     AF( space ),
@@ -63,12 +81,8 @@ public:
     fields_( Teuchos::rcp( new FieldT(space,false) ) ) {
 
 			if( owning_ ) {
-				Ordinal n = fieldc_->getStorageSize();
-
-				s_ = new Scalar[2*n];
-
-				fieldc_->setStoragePtr( s_   );
-				fields_->setStoragePtr( s_+n );
+				allocate();
+				initField();
 			}
 	};
 
@@ -89,19 +103,14 @@ protected:
 
 			if( owning_ ) {
 
-				Ordinal n = fieldc_->getStorageSize();
-
-				s_ = new Scalar[2*n];
-
-				fieldc_->setStoragePtr( s_   );
-				fields_->setStoragePtr( s_+n );
+				allocate();
 
 				switch( copyType ) {
 					case ShallowCopy:
 						initField();
 						break;
 					case DeepCopy:
-						for( int i=0; i<2*n; ++i )
+						for( int i=0; i<2*fieldc_->getStorageSize(); ++i )
 							s_[i] = vF.s_[i];
 						break;
 				}

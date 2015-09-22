@@ -33,7 +33,7 @@ public:
 
   DtModeOp( const Teuchos::RCP<const SpaceT>& space ):
 		space_(space),
-		alpha2_( space->getDomain()->getDomainSize()->getAlpha2()/space->getDomain()->getDomainSize()->getRe() ) {};
+		alpha2_( space->getDomainSize()->getAlpha2()/space->getDomainSize()->getRe() ) {};
 
   typedef ModeField<VectorField<SpaceT> >  DomainFieldT;
   typedef ModeField<VectorField<SpaceT> >  RangeFieldT;

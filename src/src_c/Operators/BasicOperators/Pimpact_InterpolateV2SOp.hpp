@@ -9,7 +9,8 @@
 #include "Pimpact_ProcGrid.hpp"
 #include "Pimpact_GridSizeLocal.hpp"
 #include "Pimpact_StencilWidths.hpp"
-#include "Pimpact_Domain.hpp"
+#include "Pimpact_DomainSize.hpp"
+#include "Pimpact_BoundaryConditionsLocal.hpp"
 #include "Pimpact_GridCoordinatesLocal.hpp"
 
 
@@ -71,7 +72,8 @@ public:
       const Teuchos::RCP<const ProcGrid<Ordinal,dimension> >&  procGrid,
       const Teuchos::RCP<const GridSizeLocal<Ordinal,dimension> >& gridSizeLocal,
       const Teuchos::RCP<const StencilWidths<dimension,dimNC> >& fieldSpace,
-      const Teuchos::RCP<const Domain<Scalar,dimension> >& domain,
+			const Teuchos::RCP<const DomainSize<Scalar> >& domainSize,
+			const Teuchos::RCP<const BoundaryConditionsLocal>& boundaryConditionsLocal,
       const Teuchos::RCP<const GridCoordinatesLocal<Scalar,Ordinal,dimension> >& coordinatesLocal ) {
 
 
@@ -79,7 +81,7 @@ public:
       Ordinal nTemp = ( gridSizeLocal->get(i) + 1 )*( fieldSpace->getDU(i) - fieldSpace->getDL(i) + 1);
 
       c_[i] = new Scalar[ nTemp ];
-      if( i<domain->getDomainSize()->getDim() )
+      if( i<domainSize->getDim() )
         FD_getDiffCoeff(
             procGrid->getRank(),
             gridSizeLocal->get(i),
@@ -87,8 +89,8 @@ public:
             fieldSpace->getBU(i),
             fieldSpace->getDL(i),
             fieldSpace->getDU(i),
-            domain->getBCLocal()->getBCL(i),
-            domain->getBCLocal()->getBCU(i),
+            boundaryConditionsLocal->getBCL(i),
+            boundaryConditionsLocal->getBCU(i),
             procGrid->getShift(i),
             3,
             i+1,
@@ -179,7 +181,8 @@ Teuchos::RCP<const InterpolateV2S<S,O,d,dimNC> > createInterpolateV2S(
     const Teuchos::RCP<const ProcGrid<O,d> >&  procGrid,
     const Teuchos::RCP<const GridSizeLocal<O,d> >& gridSizeLocal,
     const Teuchos::RCP<const StencilWidths<d,dimNC> >& fieldSpace,
-    const Teuchos::RCP<const Domain<S,d> >& domain,
+		const Teuchos::RCP<const DomainSize<S> >& domainSize,
+		const Teuchos::RCP<const BoundaryConditionsLocal>& boundaryConditionsLocal,
     const Teuchos::RCP<const GridCoordinatesLocal<S,O,d> >& coordinatesLocal ) {
 
   return(
@@ -188,7 +191,8 @@ Teuchos::RCP<const InterpolateV2S<S,O,d,dimNC> > createInterpolateV2S(
               procGrid,
               gridSizeLocal,
               fieldSpace,
-              domain,
+              domainSize,
+							boundaryConditionsLocal,
               coordinatesLocal ) ) );
 }
 

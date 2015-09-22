@@ -39,13 +39,13 @@ public:
 	ModeNonlinearOp( const Teuchos::RCP<const SpaceT>& space ):
 		mulI_(0.),
 		mulC_(1.),
-		mulL_( 1./space->getDomain()->getDomainSize()->getRe() ),
+		mulL_( 1./space->getDomainSize()->getRe() ),
 		op_( create<OpT>( space ) ) { };
 
 	ModeNonlinearOp( const Teuchos::RCP<OpT>& op ):
 		mulI_(0.),
 		mulC_(1.),
-		mulL_( 1./op->space()->getDomain()->getDomainSize()->getRe() ),
+		mulL_( 1./op->space()->getDomainSize()->getRe() ),
 		op_( op ) { };
 
 
@@ -84,7 +84,7 @@ public:
 
 		mulI_ = para->get<Scalar>( "mulI", 0. );
 		mulC_ = para->get<Scalar>( "mulC", 1. );
-		mulL_ = para->get<Scalar>( "mulL", 1./space()->getDomain()->getDomainSize()->getRe() );
+		mulL_ = para->get<Scalar>( "mulL", 1./space()->getDomainSize()->getRe() );
 
 	}
 

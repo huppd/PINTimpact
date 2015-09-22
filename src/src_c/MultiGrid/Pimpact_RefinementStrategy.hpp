@@ -40,9 +40,9 @@ public:
 
 		auto stencilWidths = space->getStencilWidths();
 
-    auto domain = space->getDomain();
-    auto boundaryConditionsGlobal = domain->getBCGlobal();
-    auto boundaryConditionsLocal = domain->getBCLocal();
+    auto domainSize = space->getDomainSize();
+    auto boundaryConditionsGlobal = space->getBCGlobal();
+    auto boundaryConditionsLocal = space->getBCLocal();
 
 		// refine global gridsize
     auto gridSizeGlobalTup = space->getGridSizeGlobal()->getTuple();
@@ -62,7 +62,7 @@ public:
 					gridSizeGlobal, procGridSize, stencilWidths );
 
     auto procGrid = Pimpact::createProcGrid<Ordinal,dimension>(
-        gridSizeLocal, domain->getBCGlobal(), procGridSize );
+        gridSizeLocal, boundaryConditionsGlobal, procGridSize );
 
     auto indexSpace =
 			Pimpact::createIndexSpace<Ordinal,dimension>(
@@ -70,15 +70,15 @@ public:
 
     auto coordGlobal = Pimpact::createGridCoordinatesGlobal<Scalar,Ordinal,dimension>(
         gridSizeGlobal,
-        domain->getDomainSize() );
+        domainSize );
 
     auto coordLocal = Pimpact::createGridCoordinatesLocal<Scalar,Ordinal,dimension>(
         stencilWidths,
-        domain->getDomainSize(),
+        domainSize,
         gridSizeGlobal,
         gridSizeLocal,
-        domain->getBCGlobal(),
-        domain->getBCLocal(),
+        boundaryConditionsGlobal,
+        boundaryConditionsLocal,
         procGrid,
         coordGlobal );
 
@@ -87,7 +87,8 @@ public:
             procGrid,
             gridSizeLocal,
             stencilWidths,
-            domain,
+            domainSize,
+						boundaryConditionsLocal,
             coordLocal );
 
     return(
@@ -101,7 +102,9 @@ public:
                  procGrid,
                  coordGlobal,
                  coordLocal,
-                 domain,
+								 domainSize,
+								 boundaryConditionsGlobal,
+								 boundaryConditionsLocal,
                  interV2S )
          )
     );

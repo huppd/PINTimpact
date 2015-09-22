@@ -55,8 +55,8 @@ public:
 		
 		int Nf = zeroOp_->space()->nGlo(3);
 
-		Scalar iRe = 1./zeroOp_->space()->getDomain()->getDomainSize()->getRe();
-		Scalar a2 = zeroOp_->space()->getDomain()->getDomainSize()->getAlpha2()*iRe;
+		Scalar iRe = 1./zeroOp_->space()->getDomainSize()->getRe();
+		Scalar a2 = zeroOp_->space()->getDomainSize()->getAlpha2()*iRe;
 
 		Scalar mulI;
 

@@ -107,11 +107,11 @@ TEUCHOS_UNIT_TEST( Space, LocalGridCoordinates ) {
 
   auto coord = Pimpact::createGridCoordinatesLocal(
       space->getStencilWidths(),
-      space->getDomain()->getDomainSize(),
+      space->getDomainSize(),
       space->getGridSizeGlobal(),
       space->getGridSizeLocal(),
-      space->getDomain()->getBCGlobal(),
-      space->getDomain()->getBCLocal(),
+      space->getBCGlobal(),
+      space->getBCLocal(),
       space->getProcGrid(),
       space->getCoordinatesGlobal() );
 

@@ -44,7 +44,7 @@ public:
 			Scalar pi = 4.*std::atan(1.);
 			Scalar idt = ((Scalar)space_->nGlo()[3])/2./pi;
 			mulI_ =
-				space_->getDomain()->getDomainSize()->getAlpha2()*idt/space_->getDomain()->getDomainSize()->getRe();
+				space_->getDomainSize()->getAlpha2()*idt/space_->getDomainSize()->getRe();
 
 		};
 

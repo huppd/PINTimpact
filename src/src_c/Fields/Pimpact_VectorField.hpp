@@ -56,6 +56,15 @@ protected:
 
   Teuchos::Tuple< Teuchos::RCP<SF>, 3 > sFields_;
 
+private:
+
+	void allocate() {
+		Ordinal n = getStorageSize()/3;
+		vec_ = new Scalar[3*n];
+		for( int i=0; i<3; ++i )
+			sFields_[i]->setStoragePtr( vec_+i*n );
+	}
+
 public:
 
   VectorField( const Teuchos::RCP< const SpaceT >& space, bool owning=true ):
@@ -66,24 +75,13 @@ public:
       sFields_[i] = Teuchos::rcp( new SF( space, false, EField(i) ) );
 
     if( owning_ ) {
-
-      Ordinal N = getStorageSize()/3;
-
-      vec_ = new Scalar[3*N];
-
-      for( int i=0; i<3; ++i )
-        sFields_[i]->setStoragePtr( vec_+i*N );
-
-//#ifdef DEBUG
-//		 for( int i=0; i<3*N; ++i )
-//			 vec_[i] = 0.;
-//#endif // end of #ifdef DEBUG
+			allocate();
 			initField();
-
     }
 
   };
 
+protected:
 
   /// \brief copy constructor.
   ///
@@ -99,32 +97,21 @@ public:
 
     if( owning_ ) {
 
-      Ordinal n = getStorageSize()/3;
-
-      vec_ = new Scalar[3*n];
-
-      for( int i=0; i<3; ++i )
-        sFields_[i]->setStoragePtr( vec_+i*n );
+			allocate();
 
       switch( copyType ) {
       case ShallowCopy:
-//#ifdef DEBUG
-//			 for( int i=0; i<3*n; ++i )
-//				 vec_[i] = 0.;
-//#endif // end of #ifdef DEBUG
 				initField();
         break;
       case DeepCopy:
-        for( int i=0; i<3*n; ++i )
+        for( int i=0; i<getStorageSize(); ++i )
           vec_[i] = vF.vec_[i];
-//        for( int i=0; i<space()->dim(); ++i )
-//          sFields_[i]->assign( *vF.sFields_[i] );
-//        changed();
         break;
       }
     }
   };
 
+public:
 
 	~VectorField() { if( owning_ ) delete[] vec_; }
 
@@ -145,7 +132,7 @@ public:
   /// \return vect length \f[= N_u+N_v+N_w\f]
   Ordinal getLength( bool dummy=false ) const {
 
-    auto bc = space()->getDomain()->getBCGlobal();
+    auto bc = space()->getBCGlobal();
 
     Ordinal n = 0;
     for( int i=0; i<space()->dim(); ++i )
@@ -370,7 +357,7 @@ public:
           space()->eIndB(V),
           space()->sIndB(W),
           space()->eIndB(W),
-          space()->getDomain()->getDomainSize()->getSize(1),
+          space()->getDomainSize()->getSize(1),
           space()->getCoordinatesLocal()->getX(Y,EField::S),
           re, om, px,
           sFields_[U]->getRawPtr(),
@@ -388,7 +375,7 @@ public:
           space()->eIndB(V),
           space()->sIndB(W),
           space()->eIndB(W),
-          space()->getDomain()->getDomainSize()->getSize(0),
+          space()->getDomainSize()->getSize(0),
           space()->getCoordinatesLocal()->getX(X,EField::S),
           re, om, px,
           sFields_[U]->getRawPtr(),
@@ -406,7 +393,7 @@ public:
           space()->eIndB(V),
           space()->sIndB(W),
           space()->eIndB(W),
-          space()->getDomain()->getDomainSize()->getSize(1),
+          space()->getDomainSize()->getSize(1),
           space()->getCoordinatesLocal()->getX(Y,EField::S),
           re, om, px,
           sFields_[U]->getRawPtr(),
@@ -424,7 +411,7 @@ public:
           space()->eIndB(V),
           space()->sIndB(W),
           space()->eIndB(W),
-          space()->getDomain()->getDomainSize()->getSize(0),
+          space()->getDomainSize()->getSize(0),
           space()->getCoordinatesLocal()->getX(X,EField::S),
           re, om, px,
           sFields_[U]->getRawPtr(),
@@ -442,7 +429,7 @@ public:
           space()->eIndB(V),
           space()->sIndB(W),
           space()->eIndB(W),
-          space()->getDomain()->getDomainSize()->getSize(0),
+          space()->getDomainSize()->getSize(0),
           space()->getCoordinatesLocal()->getX(X,EField::S),
           re,
           sFields_[U]->getRawPtr(),
@@ -460,7 +447,7 @@ public:
           space()->eIndB(V),
           space()->sIndB(W),
           space()->eIndB(W),
-          space()->getDomain()->getDomainSize()->getSize(0),
+          space()->getDomainSize()->getSize(0),
           space()->getCoordinatesLocal()->getX(X,EField::S),
           re,
           sFields_[U]->getRawPtr(),
@@ -478,7 +465,7 @@ public:
           space()->eIndB(V),
           space()->sIndB(W),
           space()->eIndB(W),
-          space()->getDomain()->getDomainSize()->getSize(0),
+          space()->getDomainSize()->getSize(0),
           space()->getCoordinatesLocal()->getX(X,EField::S),
           re,
           sFields_[U]->getRawPtr(),
@@ -506,7 +493,7 @@ public:
           space()->eIndB(V),
           space()->sIndB(W),
           space()->eIndB(W),
-          space()->getDomain()->getDomainSize()->getSize(),
+          space()->getDomainSize()->getSize(),
           space()->getCoordinatesLocal()->getX(X,EField::S),
           space()->getCoordinatesLocal()->getX(Y,EField::S),
           space()->getCoordinatesLocal()->getX(X,EField::U),
@@ -526,7 +513,7 @@ public:
           space()->eIndB(V),
           space()->sIndB(W),
           space()->eIndB(W),
-          space()->getDomain()->getDomainSize()->getSize(0),
+          space()->getDomainSize()->getSize(0),
           space()->getCoordinatesLocal()->getX(X,EField::U),
           sFields_[U]->getRawPtr(),
           sFields_[V]->getRawPtr(),
@@ -543,7 +530,7 @@ public:
           space()->eIndB(V),
           space()->sIndB(W),
           space()->eIndB(W),
-          space()->getDomain()->getDomainSize()->getSize(0),
+          space()->getDomainSize()->getSize(0),
           space()->getCoordinatesLocal()->getX(X,EField::U),
           sFields_[U]->getRawPtr(),
           sFields_[V]->getRawPtr(),
@@ -560,7 +547,7 @@ public:
           space()->eIndB(V),
           space()->sIndB(W),
           space()->eIndB(W),
-          space()->getDomain()->getDomainSize()->getSize(),
+          space()->getDomainSize()->getSize(),
           space()->getCoordinatesLocal()->getX(X,EField::S),
           space()->getCoordinatesLocal()->getX(Y,EField::S),
           space()->getCoordinatesLocal()->getX(X,EField::U),
@@ -580,7 +567,7 @@ public:
           space()->eIndB(V),
           space()->sIndB(W),
           space()->eIndB(W),
-          space()->getDomain()->getDomainSize()->getSize(),
+          space()->getDomainSize()->getSize(),
           space()->getCoordinatesLocal()->getX(X,EField::S),
           space()->getCoordinatesLocal()->getX(Y,EField::S),
           space()->getCoordinatesLocal()->getX(X,EField::U),
@@ -600,7 +587,7 @@ public:
           space()->eIndB(V),
           space()->sIndB(W),
           space()->eIndB(W),
-          space()->getDomain()->getDomainSize()->getSize(),
+          space()->getDomainSize()->getSize(),
           space()->getCoordinatesLocal()->getX(X,EField::U),
           space()->getCoordinatesLocal()->getX(Y,EField::S),
           re,
@@ -671,7 +658,7 @@ public:
           space()->getCoordinatesGlobal()->getX(X,EField::U),
           space()->getCoordinatesLocal()->getX(Z,EField::W),
 					space()->getInterpolateV2S()->getC( X ),
-					space()->getDomain()->getDomainSize()->getRe(),
+					space()->getDomainSize()->getRe(),
 					0,  // nonDim  
 					kappa, // kappa
 					sweep_angle, // sweep_angle_degrees,  
@@ -694,7 +681,7 @@ public:
           space()->eIndB(V),
           space()->sIndB(W),
           space()->eIndB(W),
-					space()->getDomain()->getBCGlobal()->getBCL( Z ),
+					space()->getBCGlobal()->getBCL( Z ),
           space()->getCoordinatesLocal()->getX( X, EField::U ),
           space()->getCoordinatesLocal()->getX( X, EField::S ),
           space()->getCoordinatesLocal()->getX( Y, EField::S ),
@@ -738,7 +725,7 @@ public:
 			Teuchos::Tuple<Ordinal,3> N;
 			for( int i=0; i<3; ++i ) {
 				N[i] = space()->nGlo(i);
-				if( space()->getDomain()->getBCGlobal()->getBCL(i)==Pimpact::PeriodicBC )
+				if( space()->getBCGlobal()->getBCL(i)==Pimpact::PeriodicBC )
 					N[i] = N[i]-1;
 			}
 			std::ofstream xfile;
@@ -801,15 +788,11 @@ public:
 public:
 
 
-  Ordinal getStorageSize() const {
-    return( sFields_[0]->getStorageSize()*3 );
-  }
+	Ordinal getStorageSize() const { return( sFields_[0]->getStorageSize()*3 ); }
 
   void setStoragePtr( Scalar*  array ) {
-    Ordinal n = getStorageSize()/3;
-
     vec_ = array;
-
+    Ordinal n = sFields_[0]->getStorageSize();
     for( int i=0; i<3; ++i )
       sFields_[i]->setStoragePtr( vec_+i*n );
   }

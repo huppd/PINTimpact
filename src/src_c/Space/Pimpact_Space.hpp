@@ -22,7 +22,6 @@
 #include "Pimpact_ProcGridSize.hpp"
 #include "Pimpact_ProcGrid.hpp"
 
-#include "Pimpact_Domain.hpp"
 
 #include "Pimpact_GridCoordinatesGlobal.hpp"
 #include "Pimpact_GridCoordinatesLocal.hpp"
@@ -73,7 +72,7 @@ public:
 
     stencilWidths_ = Pimpact::createStencilWidths<dimension,dimNC>();
 
-    auto domainSize = Pimpact::createDomainSize<S>(
+    domainSize_ = Pimpact::createDomainSize<S>(
         pl->get<int>("dim"),
         pl->get<S>("Re"),
         pl->get<S>("alpha2"),
@@ -84,7 +83,8 @@ public:
     // are all template paramter needed here?
 		int domain = pl->get<int>("domain");
 		domain = ( 2==pl->get<int>("dim") && 0==domain )?1:domain;
-    auto boundaryConditionsGlobal =
+
+    boundaryConditionsGlobal_ =
         Pimpact::createBoudaryConditionsGlobal<d>( Pimpact::EDomainType( domain ) );
 
     procGridSize_ =
@@ -104,12 +104,12 @@ public:
     procGrid_ =
         Pimpact::createProcGrid<O,d>(
             gridSizeLocal_,
-            boundaryConditionsGlobal,
+            boundaryConditionsGlobal_,
             procGridSize_ );
 
-    auto boundaryConditionsLocal =
+    boundaryConditionsLocal_ =
         Pimpact::createBoudaryConditionsLocal(
-            boundaryConditionsGlobal,
+            boundaryConditionsGlobal_,
             procGridSize_,
             procGrid_ );
 
@@ -117,26 +117,20 @@ public:
         Pimpact::createIndexSpace<O,d>(
             stencilWidths_,
             gridSizeLocal_,
-            boundaryConditionsLocal );
+            boundaryConditionsLocal_ );
 
-
-    domain_ =
-        Pimpact::createDomain<S,d>(
-            domainSize,
-            boundaryConditionsGlobal,
-            boundaryConditionsLocal );
 
     coordGlobal_ =
-        Pimpact::createGridCoordinatesGlobal<S,O,d>( gridSizeGlobal_, domainSize );
+        Pimpact::createGridCoordinatesGlobal<S,O,d>( gridSizeGlobal_, domainSize_ );
 
     coordLocal_ =
         Pimpact::createGridCoordinatesLocal<S,O,d>(
             stencilWidths_,
-            domainSize,
+            domainSize_,
             gridSizeGlobal_,
             gridSizeLocal_,
-            boundaryConditionsGlobal,
-            boundaryConditionsLocal,
+            boundaryConditionsGlobal_,
+            boundaryConditionsLocal_,
             procGrid_,
             coordGlobal_ );
 
@@ -145,7 +139,8 @@ public:
             procGrid_,
             gridSizeLocal_,
             stencilWidths_,
-            domain_,
+            domainSize_,
+            boundaryConditionsLocal_,
             coordLocal_ );
 
     openH5F();
@@ -162,7 +157,9 @@ public:
       const Teuchos::RCP<const ProcGrid<Ordinal,dimension> >& procGrid,
       const Teuchos::RCP<const GridCoordinatesGlobal<Scalar,Ordinal,dimension> >& coordGlobal,
       const Teuchos::RCP<const GridCoordinatesLocal<Scalar,Ordinal,dimension> >& coordLocal,
-      const Teuchos::RCP<const Domain<Scalar,dimension> >& domain,
+			const Teuchos::RCP<const DomainSize<Scalar> > domainSize,
+			const Teuchos::RCP<const BoundaryConditionsGlobal<dimension> > boundaryConditionsGlobal,
+			const Teuchos::RCP<const BoundaryConditionsLocal> boundaryConditionsLocal,
       const Teuchos::RCP<const InterpolateV2S<Scalar,Ordinal,dimension,dimNC> >& interV2S ):
         stencilWidths_(stencilWidths),
         indexSpace_(indexSpace),
@@ -172,7 +169,9 @@ public:
         procGrid_(procGrid),
         coordGlobal_(coordGlobal),
         coordLocal_(coordLocal),
-        domain_(domain),
+        domainSize_(domainSize),
+				boundaryConditionsGlobal_(boundaryConditionsGlobal),
+				boundaryConditionsLocal_(boundaryConditionsLocal),
         interV2S_(interV2S) {
     //    openH5F();
   }
@@ -197,7 +196,11 @@ protected:
 
   Teuchos::RCP<const GridCoordinatesLocal<Scalar,Ordinal,dimension> > coordLocal_;
 
-  Teuchos::RCP<const Domain<Scalar,dimension> > domain_;
+  Teuchos::RCP<const DomainSize<Scalar> > domainSize_;
+
+  Teuchos::RCP<const BoundaryConditionsGlobal<dimension> > boundaryConditionsGlobal_;
+
+  Teuchos::RCP<const BoundaryConditionsLocal> boundaryConditionsLocal_;
 
   Teuchos::RCP<const InterpolateV2S<Scalar,Ordinal,dimension,dimNC> > interV2S_;
 
@@ -223,7 +226,11 @@ public:
     return( coordLocal_ );
   }
 
-  Teuchos::RCP<const Domain<Scalar,dimension> > getDomain() const { return( domain_ ); }
+  Teuchos::RCP<const DomainSize<Scalar> >      getDomainSize() const { return( domainSize_ ); }
+
+  Teuchos::RCP<const BoundaryConditionsGlobal<dimension> > getBCGlobal()   const { return( boundaryConditionsGlobal_ ); }
+
+  Teuchos::RCP<const BoundaryConditionsLocal>  getBCLocal()    const { return( boundaryConditionsLocal_ ); }
 
   Teuchos::RCP<const InterpolateV2S<Scalar,Ordinal,dimension,dimNC> > getInterpolateV2S() const { return( interV2S_ ); }
 
@@ -235,7 +242,7 @@ public:
   int rankST() const { return( procGrid_->getRank() ); }
   int rankS () const { return( procGrid_->getRankS() ); }
 
-  const int&      dim()   const { return( domain_->getDomainSize()->getDim() ); }
+  const int&      dim()   const { return( getDomainSize()->getDim() ); }
 
   const Ordinal* nGlo()        const { return( gridSizeGlobal_->get()  ); }
   const Ordinal& nGlo( int i ) const { return( gridSizeGlobal_->get(i) ); }
@@ -322,7 +329,7 @@ public:
 
     procGrid_->print( out );
 
-		getDomain()->getBCLocal()->print( out );
+		getBCLocal()->print( out );
 
 //    coordGlobal_->print(out);
 //

@@ -62,6 +62,13 @@ protected:
 
   EField fType_;
 
+private:
+
+	void allocate() {
+		Ordinal n = getStorageSize();
+		s_ = new Scalar[n];
+	}
+
 public:
 
 
@@ -72,19 +79,13 @@ public:
     fType_(fType) {
 
     if( owning_ ) {
-
-      Ordinal N = getStorageSize();
-
-      s_ = new Scalar[N];
-
-//#ifdef DEBUG
-//		 for(int i=0; i<N; ++i)
-//			 s_[i] = 0.;
-//#endif // end of #ifdef DEBUG
+			allocate();
 			initField();
     }
+
   };
 
+protected:
 
   /// \brief copy constructor.
   ///
@@ -99,20 +100,14 @@ public:
 
     if( owning_ ) {
 
-      Ordinal N = getStorageSize();
-
-      s_ = new Scalar[N];
+			allocate();
 
       switch( copyType ) {
       case ShallowCopy:
-//#ifdef DEBUG
-//			 for(int i=0; i<N; ++i)
-//				 s_[i] = 0;
-//#endif // end of #ifdef DEBUG
 				initField();
         break;
       case DeepCopy:
-        for( int i=0; i<N; ++i)
+        for( int i=0; i<getStorageSize(); ++i)
           s_[i] = sF.s_[i];
         break;
       }
@@ -120,9 +115,9 @@ public:
 
   };
 
-  ~ScalarField() {
-    if( owning_ ) delete[] s_;
-  }
+public:
+
+	~ScalarField() { if( owning_ ) delete[] s_; }
 
 
   Teuchos::RCP<MV> clone( ECopyType ctype=DeepCopy ) const {
@@ -135,10 +130,7 @@ public:
   /// \brief returns the length of Field.
   Ordinal getLength( bool dummy=false ) const {
 
-    //    auto bc = space_->getDomain()->getBCGlobal();
-    //    auto bc = AbstractField<S,O,d>::space_->getDomain()->getBCGlobal();
-    //        auto bc = this->space_->getDomain()->getBCGlobal();
-    auto bc = space()->getDomain()->getBCGlobal();
+    auto bc = space()->getBCGlobal();
 
     Ordinal vl = 1;
 
@@ -476,7 +468,7 @@ public:
           space()->bu(),
           space()->sIndB(fType_),
           space()->eIndB(fType_),
-          space()->getDomain()->getDomainSize()->getSize( X ),
+          space()->getDomainSize()->getSize( X ),
           space()->getCoordinatesLocal()->getX( X, fType_ ),
           s_,
 				 	(std::abs(alpha)<1.e-16)?1.:alpha	);
@@ -488,7 +480,7 @@ public:
           space()->bu(),
           space()->sIndB(fType_),
           space()->eIndB(fType_),
-          space()->getDomain()->getDomainSize()->getSize( Y ),
+          space()->getDomainSize()->getSize( Y ),
           space()->getCoordinatesLocal()->getX( Y, fType_ ),
           s_ ,
 				 	(std::abs(alpha)<1.e-16)?1.:alpha	);
@@ -500,7 +492,7 @@ public:
           space()->bu(),
           space()->sIndB(fType_),
           space()->eIndB(fType_),
-          space()->getDomain()->getDomainSize()->getSize( Z ),
+          space()->getDomainSize()->getSize( Z ),
           space()->getCoordinatesLocal()->getX( Z, fType_ ),
           s_ ,
 				 	(std::abs(alpha)<1.e-16)?1.:alpha	);
@@ -512,7 +504,7 @@ public:
           space()->bu(),
           space()->sIndB(fType_),
           space()->eIndB(fType_),
-          space()->getDomain()->getDomainSize()->getSize( X ),
+          space()->getDomainSize()->getSize( X ),
           space()->getCoordinatesLocal()->getX( X, fType_ ),
           s_ );
       break;
@@ -523,7 +515,7 @@ public:
           space()->bu(),
           space()->sIndB(fType_),
           space()->eIndB(fType_),
-          space()->getDomain()->getDomainSize()->getSize( Y ),
+          space()->getDomainSize()->getSize( Y ),
           space()->getCoordinatesLocal()->getX( Y, fType_ ),
           s_ );
       break;
@@ -534,7 +526,7 @@ public:
           space()->bu(),
           space()->sIndB(fType_),
           space()->eIndB(fType_),
-          space()->getDomain()->getDomainSize()->getSize( Z ),
+          space()->getDomainSize()->getSize( Z ),
           space()->getCoordinatesLocal()->getX( Z, fType_ ),
           s_ );
       break;
@@ -543,10 +535,10 @@ public:
 			{ 
 				1.,
 //				1.,
-//				space()->getDomain()->getDomainSize()->getSize( X )/4.,
-				space()->getDomain()->getDomainSize()->getSize( Y )/2.,
-				space()->getDomain()->getDomainSize()->getSize( Z )/2. };
-			Scalar amp = alpha; //2./space()->getDomain()->getDomainSize()->getRe();
+//				space()->getDomainSize()->getSize( X )/4.,
+				space()->getDomainSize()->getSize( Y )/2.,
+				space()->getDomainSize()->getSize( Z )/2. };
+			Scalar amp = alpha; //2./space()->getDomainSize()->getRe();
 			Scalar sig[3] = { 0.2, 0.2, 0.2 };
       SF_init_Vpoint(
 					space()->nLoc(),
@@ -584,8 +576,8 @@ public:
 					space()->nLoc(),
 					space()->bl(),
 					space()->bu(),
-					space()->getDomain()->getBCLocal()->getBCL(),
-					space()->getDomain()->getBCLocal()->getBCU(),
+					space()->getBCLocal()->getBCL(),
+					space()->getBCLocal()->getBCU(),
 					s_ );
 
 			changed();
@@ -598,8 +590,8 @@ public:
 			auto m = getLength();
 			auto n = space()->nGlo();
 
-			auto bcl =  space()->getDomain()->getBCGlobal()->getBCL();
-			auto bcu =  space()->getDomain()->getBCGlobal()->getBCL();
+			auto bcl =  space()->getBCGlobal()->getBCL();
+			auto bcu =  space()->getBCGlobal()->getBCL();
 
 			if( bcl[0]>0 && bcl[1]>0 ) m -= n[2]-1;
 			if( bcl[0]>0 && bcu[1]>0 ) m -= n[2]-1;
@@ -679,7 +671,7 @@ public:
 				Teuchos::Tuple<Ordinal,3> N;
 				for( int i=0; i<3; ++i ) {
 					N[i] = space()->nGlo(i);
-          if( space()->getDomain()->getBCGlobal()->getBCL(i)==Pimpact::PeriodicBC )
+          if( space()->getBCGlobal()->getBCL(i)==Pimpact::PeriodicBC )
 						N[i] = N[i]-1;
 				}
 				std::ofstream xfile;
@@ -741,8 +733,8 @@ public:
             space()->rankS(),
             MPI_Comm_c2f( space()->comm() ),
             space()->nGlo(),
-            space()->getDomain()->getBCGlobal()->getBCL(),
-            space()->getDomain()->getBCGlobal()->getBCU(),
+            space()->getBCGlobal()->getBCL(),
+            space()->getBCGlobal()->getBCU(),
             space()->nLoc(),
             space()->bl(),
             space()->bu(),
@@ -758,8 +750,8 @@ public:
 						(EField::S==fType_)?s_:temp->s_,
 						space()->getCoordinatesGlobal()->get(0,EField::S),
 						space()->getCoordinatesGlobal()->get(1,EField::S),
-						space()->getDomain()->getDomainSize()->getRe(),
-						space()->getDomain()->getDomainSize()->getAlpha2() );
+						space()->getDomainSize()->getRe(),
+						space()->getDomainSize()->getAlpha2() );
       }
       else if( 3==space()->dim() ) {
 
@@ -769,8 +761,8 @@ public:
             space()->rankS(),
             MPI_Comm_c2f( space()->comm() ),
             space()->nGlo(),
-            space()->getDomain()->getBCGlobal()->getBCL(),
-            space()->getDomain()->getBCGlobal()->getBCU(),
+            space()->getBCGlobal()->getBCL(),
+            space()->getBCGlobal()->getBCU(),
             space()->nLoc(),
             space()->bl(),
             space()->bu(),
@@ -792,8 +784,8 @@ public:
             space()->getCoordinatesGlobal()->get(0,EField::U),
             space()->getCoordinatesGlobal()->get(1,EField::V),
             space()->getCoordinatesGlobal()->get(2,EField::W),
-            space()->getDomain()->getDomainSize()->getRe(),
-            space()->getDomain()->getDomainSize()->getAlpha2() );
+            space()->getDomainSize()->getRe(),
+            space()->getDomainSize()->getAlpha2() );
 
       }
     }
@@ -805,8 +797,8 @@ public:
           space()->rankS(),
           MPI_Comm_c2f( space()->comm() ),
           space()->nGlo(),
-          space()->getDomain()->getBCGlobal()->getBCL(),
-          space()->getDomain()->getBCGlobal()->getBCU(),
+          space()->getBCGlobal()->getBCL(),
+          space()->getBCGlobal()->getBCU(),
           space()->nLoc(),
           space()->bl(),
           space()->bu(),
@@ -828,8 +820,8 @@ public:
           space()->getCoordinatesGlobal()->get(0,EField::U),
           space()->getCoordinatesGlobal()->get(1,EField::V),
           space()->getCoordinatesGlobal()->get(2,EField::W),
-          space()->getDomain()->getDomainSize()->getRe(),
-          space()->getDomain()->getDomainSize()->getAlpha2() );
+          space()->getDomainSize()->getRe(),
+          space()->getDomainSize()->getAlpha2() );
 
     }
 
@@ -909,8 +901,8 @@ public:
           space()->nLoc(),
           space()->bl(),
           space()->bu(),
-          space()->getDomain()->getBCLocal()->getBCL(),
-          space()->getDomain()->getBCLocal()->getBCU(),
+          space()->getBCLocal()->getBCL(),
+          space()->getBCLocal()->getBCU(),
           space()->sInd(EField::S),
           space()->eInd(EField::S),
 //				 space()->sIndB(fType_), // should it work

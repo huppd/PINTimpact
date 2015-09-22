@@ -182,7 +182,7 @@ protected:
 	void init( const Teuchos::Tuple<int,SpaceT::dimension>& nb ) {
 		
 			// ------------- nGather_, iimax_
-			Teuchos::Tuple<int,SpaceT::dimension> periodic = spaceF_->getDomain()->getBCGlobal()->periodic();
+			Teuchos::Tuple<int,SpaceT::dimension> periodic = spaceF_->getBCGlobal()->periodic();
 			Teuchos::Tuple<Ordinal,3> iiShift;
 
 			//		bool gather_yes = false;
@@ -194,13 +194,13 @@ protected:
 				iimax_[i] = (spaceC_->nLoc(i) - 1)/nGather_[i] + 1;
 				dd_[i] = (spaceF_->nLoc(i) - 1)/( iimax_[i] -1 );
 
-				if( spaceF_->getStencilWidths()->getLS(i)==0 && (spaceF_->getDomain()->getBCGlobal()->getBCL()[i]==0 || spaceF_->getDomain()->getBCGlobal()->getBCL()[i]==-1) )
+				if( spaceF_->getStencilWidths()->getLS(i)==0 && (spaceF_->getBCGlobal()->getBCL()[i]==0 || spaceF_->getBCGlobal()->getBCL()[i]==-1) )
 					iimax_[i] = iimax_[i]-1;
-				if( spaceF_->getStencilWidths()->getLS(i)==-1 && (spaceF_->getDomain()->getBCGlobal()->getBCU()[i]==0 || spaceF_->getDomain()->getBCGlobal()->getBCU()[i]==-1) )
+				if( spaceF_->getStencilWidths()->getLS(i)==-1 && (spaceF_->getBCGlobal()->getBCU()[i]==0 || spaceF_->getBCGlobal()->getBCU()[i]==-1) )
 					iimax_[i] = iimax_[i]-1;
 
 				iiShift[i] = ( iimax_[i] - 1 )*( ( spaceF_->procCoordinate()[i] -1 )%nGather_[i] );
-				if( spaceF_->getStencilWidths()->getLS(i)==0 && (spaceF_->getDomain()->getBCGlobal()->getBCL()[i]==0 || spaceF_->getDomain()->getBCGlobal()->getBCL()[i]==-1) )
+				if( spaceF_->getStencilWidths()->getLS(i)==0 && (spaceF_->getBCGlobal()->getBCL()[i]==0 || spaceF_->getBCGlobal()->getBCL()[i]==-1) )
 					iiShift[i] = iiShift[i] - 1;
 			}
 			offsR_ = new Ordinal[3*nGatherTotal];
@@ -315,11 +315,11 @@ protected:
 				MG_getCRS(
 						iimax_[i],
 						(nGather_[i]>1)?
-						spaceF_->getDomain()->getBCLocal()->getBCL(i):
-						spaceC_->getDomain()->getBCLocal()->getBCL(i),
+						spaceF_->getBCLocal()->getBCL(i):
+						spaceC_->getBCLocal()->getBCL(i),
 						(nGather_[i]>1)?
-						spaceF_->getDomain()->getBCLocal()->getBCU(i):
-						spaceC_->getDomain()->getBCLocal()->getBCU(i),
+						spaceF_->getBCLocal()->getBCU(i):
+						spaceC_->getBCLocal()->getBCU(i),
 						dd_[i],
 						cRS_[i] );
 
@@ -331,8 +331,8 @@ protected:
 						spaceC_->sIndB(i)[i],
 						iimax_[i],
 						//          spaceC_->eIndB(i)[i],
-						spaceC_->getDomain()->getBCLocal()->getBCL(i),
-						spaceC_->getDomain()->getBCLocal()->getBCU(i),
+						spaceC_->getBCLocal()->getBCL(i),
+						spaceC_->getBCLocal()->getBCU(i),
 						spaceC_->getCoordinatesLocal()->getX( i, EField::S ),
 						spaceC_->getCoordinatesLocal()->getX( i, i ),
 						cRV_[i] );
@@ -393,8 +393,8 @@ public:
 					spaceF_->nLoc(),
 					spaceF_->bl(),
 					spaceF_->bu(),
-					spaceF_->getDomain()->getBCLocal()->getBCL(),
-					spaceF_->getDomain()->getBCLocal()->getBCU(),
+					spaceF_->getBCLocal()->getBCL(),
+					spaceF_->getBCLocal()->getBCU(),
 					x.getConstRawPtr() );
 
 			MG_restrictFW(

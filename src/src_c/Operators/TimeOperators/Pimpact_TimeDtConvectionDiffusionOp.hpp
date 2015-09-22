@@ -73,8 +73,8 @@ public:
 
     Ordinal nt = space()->nLoc(3) + space()->bu(3) - space()->bl(3);
 
-		Scalar iRe = 1./space()->getDomain()->getDomainSize()->getRe();
-		Scalar a2 = space()->getDomain()->getDomainSize()->getAlpha2()*iRe;
+		Scalar iRe = 1./space()->getDomainSize()->getRe();
+		Scalar a2 = space()->getDomainSize()->getAlpha2()*iRe;
 
 		Scalar pi = 4.*std::atan(1.);
 

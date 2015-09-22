@@ -95,8 +95,8 @@ public:
 					space()->nLoc(),
 					space()->bl(),
 					space()->bu(),
-					space()->getDomain()->getBCLocal()->getBCL(),
-					space()->getDomain()->getBCLocal()->getBCU(),
+					space()->getBCLocal()->getBCL(),
+					space()->getBCLocal()->getBCU(),
 					op_->getC(X),
 					op_->getC(Y),
 					op_->getC(Z),
@@ -109,8 +109,8 @@ public:
 //					space()->nLoc(),
 //					space()->bl(),
 //					space()->bu(),
-//					space()->getDomain()->getBCLocal()->getBCL(),
-//					space()->getDomain()->getBCLocal()->getBCU(),
+//					space()->getBCLocal()->getBCL(),
+//					space()->getBCLocal()->getBCU(),
 //					temp_->getRawPtr() );
 
 			temp_->changed();
@@ -121,8 +121,8 @@ public:
 					space()->nLoc(),
 					space()->bl(),
 					space()->bu(),
-					space()->getDomain()->getBCLocal()->getBCL(),
-					space()->getDomain()->getBCLocal()->getBCU(),
+					space()->getBCLocal()->getBCL(),
+					space()->getBCLocal()->getBCU(),
 					op_->getC(X),
 					op_->getC(Y),
 					op_->getC(Z),
@@ -135,8 +135,8 @@ public:
 //					space()->nLoc(),
 //					space()->bl(),
 //					space()->bu(),
-//					space()->getDomain()->getBCLocal()->getBCL(),
-//					space()->getDomain()->getBCLocal()->getBCU(),
+//					space()->getBCLocal()->getBCL(),
+//					space()->getBCLocal()->getBCU(),
 //					y.getRawPtr() );
 
 			y.changed();

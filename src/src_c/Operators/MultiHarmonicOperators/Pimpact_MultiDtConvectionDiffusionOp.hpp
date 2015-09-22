@@ -76,8 +76,8 @@ public:
   void apply( const DomainFieldT& y, RangeFieldT& z, bool init_yes=true ) const {
 		
 		int Nf = z.getNumberModes();
-		Scalar iRe = 1./op_->space()->getDomain()->getDomainSize()->getRe();
-		Scalar a2 = op_->space()->getDomain()->getDomainSize()->getAlpha2()*iRe;
+		Scalar iRe = 1./op_->space()->getDomainSize()->getRe();
+		Scalar a2 = op_->space()->getDomainSize()->getAlpha2()*iRe;
 
 		Scalar mulI;
 

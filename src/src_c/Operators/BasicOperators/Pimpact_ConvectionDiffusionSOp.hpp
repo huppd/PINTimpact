@@ -86,7 +86,7 @@ public:
  		mul_(0.),
 		mulI_(0.),
 		mulC_(1.),
-		mulL_(1./space()->getDomain()->getDomainSize()->getRe())	{};
+		mulL_(1./space()->getDomainSize()->getRe())	{};
 
   void assignField( const RangeFieldT& mv ) {};
 
@@ -157,7 +157,7 @@ public:
 		mul_  = para->get<Scalar>( "mul",  0. );
 		mulI_ = para->get<Scalar>( "mulI", 0. );
 		mulC_ = para->get<Scalar>( "mulC", 1. );
-		mulL_ = para->get<Scalar>( "mulL", 1./space()->getDomain()->getDomainSize()->getRe() );
+		mulL_ = para->get<Scalar>( "mulL", 1./space()->getDomainSize()->getRe() );
 //		std::cout << "mul: " << mul_ << "\n";
 //		std::cout << "mulI: " << mulI_ << "\n";
 //		std::cout << "mulC: " << mulC_ << "\n";
