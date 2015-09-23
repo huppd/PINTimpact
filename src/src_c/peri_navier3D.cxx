@@ -155,7 +155,7 @@ int main(int argi, char** argv ) {
 	else if( 2==initZero )
 		x->random();
 	else if( 3==initZero ) {
-		x->getFieldPtr(0)->getSFieldPtr()->get0FieldPtr()->initField( Pimpact::Grad2D_inX, -2./space->getDomain()->getDomainSize()->getRe() );
+		x->getFieldPtr(0)->getSFieldPtr()->get0FieldPtr()->initField( Pimpact::Grad2D_inX, -2./space->getDomainSize()->getRe() );
 	}
 
 
@@ -171,7 +171,7 @@ int main(int argi, char** argv ) {
 		if( 0==force )
 			fu->init( 0. );
 		else {
-//			S re = space->getDomain()->getDomainSize()->getRe();
+//			S re = space->getDomainSize()->getRe();
 			fu->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->getFieldPtr(Pimpact::U)->initField(  Pimpact::FPoint, pl->get<S>( "lambda0x", -2. ) );
 			fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->getFieldPtr(Pimpact::V)->initField( Pimpact::FPoint, pl->get<S>( "lambdaCy",  1. ) );
 			fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->getFieldPtr(Pimpact::W)->initField( Pimpact::FPoint, pl->get<S>( "lambdaCz",  0. ) );

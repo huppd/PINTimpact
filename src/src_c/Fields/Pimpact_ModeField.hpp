@@ -110,7 +110,7 @@ protected:
 						initField();
 						break;
 					case DeepCopy:
-						for( int i=0; i<2*fieldc_->getStorageSize(); ++i )
+						for( int i=0; i<getStorageSize(); ++i )
 							s_[i] = vF.s_[i];
 						break;
 				}

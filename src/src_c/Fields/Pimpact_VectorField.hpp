@@ -50,7 +50,7 @@ protected:
   typedef VectorField<SpaceT> VF;
   typedef ScalarField<SpaceT> SF;
 
-  ScalarArray vec_;
+  ScalarArray s_;
 
   const bool owning_;
 
@@ -60,9 +60,9 @@ private:
 
 	void allocate() {
 		Ordinal n = getStorageSize()/3;
-		vec_ = new Scalar[3*n];
+		s_ = new Scalar[3*n];
 		for( int i=0; i<3; ++i )
-			sFields_[i]->setStoragePtr( vec_+i*n );
+			sFields_[i]->setStoragePtr( s_+i*n );
 	}
 
 public:
@@ -105,7 +105,7 @@ protected:
         break;
       case DeepCopy:
         for( int i=0; i<getStorageSize(); ++i )
-          vec_[i] = vF.vec_[i];
+          s_[i] = vF.s_[i];
         break;
       }
     }
@@ -113,7 +113,7 @@ protected:
 
 public:
 
-	~VectorField() { if( owning_ ) delete[] vec_; }
+	~VectorField() { if( owning_ ) delete[] s_; }
 
   Teuchos::RCP<VF> clone( ECopyType ctype=DeepCopy ) const {
     return( Teuchos::rcp( new VF( *this, ctype ) ) );
@@ -791,15 +791,15 @@ public:
 	Ordinal getStorageSize() const { return( sFields_[0]->getStorageSize()*3 ); }
 
   void setStoragePtr( Scalar*  array ) {
-    vec_ = array;
+    s_ = array;
     Ordinal n = sFields_[0]->getStorageSize();
     for( int i=0; i<3; ++i )
-      sFields_[i]->setStoragePtr( vec_+i*n );
+      sFields_[i]->setStoragePtr( s_+i*n );
   }
 
-	Scalar* getRawPtr() { return( vec_ ); }
+	Scalar* getRawPtr() { return( s_ ); }
 
-	const Scalar* getConstRawPtr() const { return( vec_ ); }
+	const Scalar* getConstRawPtr() const { return( s_ ); }
 
   Scalar* getRawPtr ( int i )       { return( sFields_[i]->getRawPtr() ); }
 

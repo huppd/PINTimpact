@@ -39,9 +39,16 @@ public:
   InverseOperator( const Teuchos::RCP< LinearProblem<MF> >& linprob=Teuchos::null ):
     linprob_(linprob) {};
 
+
+
   void apply( const MF& x, MF& y, Belos::ETrans trans=Belos::NOTRANS ) const {
-		x.setCornersZero();
+//		x.setCornersZero();
     linprob_->solve( Teuchos::rcpFromRef(y), Teuchos::rcpFromRef(x) );
+  }
+
+  void apply( const Teuchos::RCP<const MF>& x, const Teuchos::RCP<MF>& y, Belos::ETrans trans=Belos::NOTRANS ) const {
+//		x.setCornersZero();
+    linprob_->solve( y, x );
   }
 
 

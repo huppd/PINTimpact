@@ -191,7 +191,7 @@ int main(int argi, char** argv ) {
 		if( 0==pl->get<int>("forcing", 1) )
 			fu->init( 0. );
 		else {
-			//			S re = space->getDomain()->getDomainSize()->getRe();
+			//			S re = space->getDomainSize()->getRe();
 			fu->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->getFieldPtr(Pimpact::U)->initField(  Pimpact::FPoint, pl->get<S>( "lambda0x", -2. ) );
 			fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->getFieldPtr(Pimpact::V)->initField( Pimpact::FPoint, pl->get<S>( "lambdaCy",  1. ) );
 			fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->getFieldPtr(Pimpact::W)->initField( Pimpact::FPoint, pl->get<S>( "lambdaCz",  0. ) );

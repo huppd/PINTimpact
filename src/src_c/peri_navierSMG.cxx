@@ -391,7 +391,7 @@ int main(int argi, char** argv ) {
 		if( 0==force )
 			fu->init( 0. );
 		else {
-//			S re = space->getDomain()->getDomainSize()->getRe();
+//			S re = space->getDomainSize()->getRe();
 			fu->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->getFieldPtr(Pimpact::U)->initField( Pimpact::FPoint,  -2. );
 			fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->getFieldPtr(Pimpact::V)->initField( Pimpact::FPoint, pl->get<S>( "lambda", 1. ) );
 			//		fu->getFieldPtr(0)->getVFieldPtr()->getSFieldPtr(0)->getFieldPtr(Pimpact::W)->initField( Pimpact::FPoint, 1. );
