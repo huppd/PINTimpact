@@ -70,14 +70,6 @@ public:
         field0_( create<Field>(space) ),
         fields_( Teuchos::rcp( new MultiField< ModeField<Field> >(space, space->nGlo(3)) ) ) {};
 
-  /// \deprecated
-  MultiHarmonicField(
-      const Teuchos::RCP<Field>& field0,
-      const Teuchos::RCP< MultiField< ModeField<Field> > >& fields):
-        AF( field0->space() ),
-        field0_(field0),
-        fields_(fields) {};
-
 protected:
 
   /// \brief copy constructor.
@@ -94,7 +86,7 @@ protected:
 public:
 
   Teuchos::RCP<MV> clone( ECopyType ctype=DeepCopy ) const {
-    return( Teuchos::rcp( new MV( field0_->clone(ctype), fields_->clone(ctype) ) ) );
+    return( Teuchos::rcp( new MV(*this,ctype) ) );
   }
 
   void push_back( const Teuchos::RCP< ModeField<Field> >& modeField=Teuchos::null ) {
@@ -370,22 +362,12 @@ Teuchos::RCP< MultiHarmonicField<Field> > createMultiHarmonicField(
 ///
 /// \relates MultiHarmonicField
 /// \param space scalar Vector Space to which returned vector belongs
-/// \param nf amount of modes are created in multi-harmonic field
-/// \return a multi-harmonic \c ScalarField
+/// \deprecated nf 
 template<class FieldT>
 Teuchos::RCP< MultiHarmonicField< FieldT > > createMultiHarmonic(
     const Teuchos::RCP<const typename FieldT::SpaceT >& space,
     int nf=-1 ) {
 
-  
-	if( nf>0 ) {
-		auto field0 = create<FieldT>( space );
-		auto mfield = create< ModeField< FieldT > >( space );
-		auto fields = createMultiField< ModeField< FieldT > >( *mfield, nf );
-		return(
-				Teuchos::rcp(
-					new MultiHarmonicField< FieldT >( field0, fields ) ) );
-	}
 	return(
 			create< MultiHarmonicField<FieldT> >( space ) );
 

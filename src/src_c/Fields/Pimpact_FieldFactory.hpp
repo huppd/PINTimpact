@@ -129,16 +129,14 @@ Teuchos::RCP< MultiField<ModeField<ScalarField<SpaceT> > > > createInitMSF(
 /// \param space scalar Vector Space to which returned vector belongs
 /// \param nf amount of modes are created in multi-harmonic field
 /// \return a multi-harmonic \c ScalarField
+/// \deprecated nf
 template<class SpaceT>
 Teuchos::RCP< MultiHarmonicField< ScalarField<SpaceT> > > createMultiHarmonicScalarField(
     const Teuchos::RCP<const SpaceT >& space,
     int nf) {
-  auto field0 = createScalarField<SpaceT>( space );
-  auto mfield = create< ModeField< ScalarField<SpaceT> > >( space );
-  auto fields = createMultiField< ModeField< ScalarField<SpaceT> > >( *mfield, nf );
   return(
       Teuchos::rcp(
-          new MultiHarmonicField< ScalarField<SpaceT> >( field0, fields ) ) );
+          new MultiHarmonicField< ScalarField<SpaceT> >(space) ) );
 }
 
 
@@ -150,16 +148,14 @@ Teuchos::RCP< MultiHarmonicField< ScalarField<SpaceT> > > createMultiHarmonicSca
 /// \param nf amount of modes
 /// \param space
 /// \return field vector
+/// \deprecated nf
 template<class SpaceT>
 Teuchos::RCP< MultiHarmonicField< VectorField<SpaceT> > >
 createMultiHarmonicVectorField(
     const Teuchos::RCP< const SpaceT>& space,
     int nf ) {
-  auto field0 = create<Pimpact::VectorField>( space );
-  auto mfield = create< ModeField< VectorField<SpaceT> > >( space );
-  auto fields = createMultiField< ModeField< VectorField<SpaceT> > >( *mfield, nf );
   return( Teuchos::rcp(
-      new MultiHarmonicField< VectorField<SpaceT> >( field0, fields ) ) );
+      new MultiHarmonicField< VectorField<SpaceT> >(space) ) );
 }
 
 

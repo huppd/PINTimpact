@@ -539,7 +539,7 @@ int main(int argi, char** argv ) {
 			auto spaceF =
 				Pimpact::RefinementStrategy<SpaceT>::createRefinedSpace(
 //						space, Teuchos::tuple( false,false,false,true ) );
-				space, Teuchos::tuple( true,true,true,true ) );
+				space, Teuchos::tuple(1,1,1,1) );
 
 			auto refineOp =
 				Teuchos::rcp(
