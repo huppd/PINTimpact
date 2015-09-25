@@ -423,8 +423,19 @@ int main(int argi, char** argv ) {
 
 
 		// spectral refinement criterion
-		if( x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(space->nGlo(3)-1)->norm() /
-				x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(0               )->norm() < refinementTol ) break;
+		{
+			S  truncError =
+				x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(space->nGlo(3)-1)->norm()/ 
+				x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(0               )->norm() ;
+			if( truncError < refinementTol ) {
+				if( 0==space->rankST() )
+					std::cout << "\n||u[nf]||/||u[1]|| = " << truncError << " < " << refinementTol << "\n\n"; 
+				break;
+			}	
+			else
+				if( 0==space->rankST() )
+					std::cout << "\n||u[nf]||/||u[1]|| = " << truncError << " >= " << refinementTol << "\n\n"; 
+		}
 
 		if( refinement>1 ) {
 			auto spaceF =

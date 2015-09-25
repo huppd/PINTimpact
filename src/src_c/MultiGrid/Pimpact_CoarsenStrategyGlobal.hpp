@@ -330,12 +330,6 @@ protected:
 					procGridSize,
 					procGrid );
 
-//		domain =
-//			createDomain(
-//					space->getDomain()->getDomainSize(),
-//					boundaryConditionsGlobal,
-//					boundaryConditionsLocal );
-
     auto indexSpace = Pimpact::createIndexSpace<Ordinal,dimension>(
         stencilWidths, gridSizeLocal, boundaryConditionsLocal );
 
