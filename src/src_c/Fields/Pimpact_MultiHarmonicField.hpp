@@ -11,7 +11,6 @@
 #include "Teuchos_SerialDenseMatrix.hpp"
 
 #include "Pimpact_ModeField.hpp"
-#include "Pimpact_MultiField.hpp"
 
 #include "Pimpact_AbstractField.hpp"
 
@@ -45,7 +44,9 @@ protected:
   typedef AbstractField<SpaceT> AF;
 
   Teuchos::RCP<Field> field0_;
-  Teuchos::RCP< MultiField< ModeField<Field> > > fields_;
+//  Teuchos::RCP< MultiField< ModeField<Field> > > fields_;
+
+  Teuchos::Array< Teuchos::RCP< ModeField<Field> > > fields_;
 
 	Scalar* s_;
 
@@ -56,7 +57,7 @@ private:
 		s_ = new Scalar[n*(1+2*space()->nGlo(3))];
 		field0_->setStoragePtr( s_ );
 		for( Ordinal i=0; i<space()->nGlo(3); ++i )
-			fields_->getFieldPtr(i)->setStoragePtr( s_ + n + 2*n*i );
+			fields_[i]->setStoragePtr( s_ + n + 2*n*i );
 	}
 
 
@@ -65,33 +66,55 @@ public:
 	Ordinal getStorageSize() const { return( (1+2*space()->nGlo(3))*field0_->getStorageSize() ); }
 
   MultiHarmonicField(
-      const Teuchos::RCP<const SpaceT>& space ):
-        AF( space ),
-        field0_( create<Field>(space) ),
-        fields_( Teuchos::rcp( new MultiField< ModeField<Field> >(space, space->nGlo(3)) ) ) {};
+			const Teuchos::RCP<const SpaceT>& space ):
+		AF( space ),
+		field0_( Teuchos::rcp( new Field(space,false) ) ),
+		fields_(space->nGlo(3)) {
 
-protected:
+			for( Ordinal i=0; i< space->nGlo(3); ++i )
+				fields_[i] = Teuchos::rcp( new ModeField<Field>(space,false) );
+
+			allocate();
+			initField();
+
+		};
+
 
   /// \brief copy constructor.
   ///
   /// shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
   /// \param vF
   /// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
-  MultiHarmonicField( const MultiHarmonicField& vF, ECopyType copyType=DeepCopy ):
-    AF( vF.space() ),
-    field0_( vF.field0_->clone(copyType) ),
-    fields_( vF.fields_->clone(copyType) )
-{};
+	MultiHarmonicField( const MultiHarmonicField& vF, ECopyType copyType=DeepCopy ):
+		AF( vF.space() ),
+		field0_( Teuchos::rcp( new Field( *vF.field0_, copyType ) ) ),
+		fields_( vF.space()->nGlo(3) ) {
 
-public:
+			for( Ordinal i=0; i< space()->nGlo(3); ++i )
+				fields_[i] = Teuchos::rcp( new ModeField<Field>( vF.getConstField(i), copyType ) );
+
+			allocate();
+			switch( copyType ) {
+				case ShallowCopy:
+					initField();
+					break;
+				case DeepCopy:
+					for( int i=0; i<getStorageSize(); ++i )
+						s_[i] = vF.s_[i];
+					break;
+			}
+
+		};
+
+
+	~MultiHarmonicField() { delete[] s_; }
 
   Teuchos::RCP<MV> clone( ECopyType ctype=DeepCopy ) const {
+
     return( Teuchos::rcp( new MV(*this,ctype) ) );
+
   }
 
-  void push_back( const Teuchos::RCP< ModeField<Field> >& modeField=Teuchos::null ) {
-    fields_->push_back( modeField );
-  }
 
   /// \name Attribute methods
   /// \{
@@ -105,33 +128,36 @@ public:
   Teuchos::RCP<const Field> getConst0FieldPtr() const { return(  field0_ ); }
 
 
-  ModeField<Field>&                     getField        ( int i )       { return( fields_->getField        (i) ); }
-  const ModeField<Field>&               getConstField   ( int i ) const { return( fields_->getConstField   (i) ); }
-  Teuchos::RCP<      ModeField<Field> > getFieldPtr     ( int i )       { return( fields_->getFieldPtr     (i) ); }
-  Teuchos::RCP<const ModeField<Field> > getConstFieldPtr( int i ) const { return( fields_->getConstFieldPtr(i) ); }
+  ModeField<Field>&                     getField        ( int i )       { return( *fields_[i] ); }
+  const ModeField<Field>&               getConstField   ( int i ) const { return( *fields_[i] ); }
+  Teuchos::RCP<      ModeField<Field> > getFieldPtr     ( int i )       { return( fields_[i]  ); }
+  Teuchos::RCP<const ModeField<Field> > getConstFieldPtr( int i ) const { return( fields_[i]  ); }
 
 
-  Field&                    getCField        ( int i )       { return( fields_->getFieldPtr     (i)->getCField()      ); }
-  const Field&              getConstCField   ( int i ) const { return( fields_->getConstFieldPtr(i)->getConstCField() ); }
-  Teuchos::RCP<      Field> getCFieldPtr     ( int i )       { return( fields_->getFieldPtr     (i)->getCFieldPtr()   ); }
-  Teuchos::RCP<const Field> getConstCFieldPtr( int i ) const { return( fields_->getConstFieldPtr(i)->getConstCFieldPtr() ); }
+  Field&                    getCField        ( int i )       { return( fields_[i]->getCField()      ); }
+  const Field&              getConstCField   ( int i ) const { return( fields_[i]->getConstCField() ); }
+  Teuchos::RCP<      Field> getCFieldPtr     ( int i )       { return( fields_[i]->getCFieldPtr()   ); }
+  Teuchos::RCP<const Field> getConstCFieldPtr( int i ) const { return( fields_[i]->getConstCFieldPtr() ); }
 
 
-  Field&                    getSField        ( int i )       { return( fields_->getFieldPtr     (i)->getSField()         ); }
-  const Field&              getConstSField   ( int i ) const { return( fields_->getConstFieldPtr(i)->getConstSField()    ); }
-  Teuchos::RCP<      Field> getSFieldPtr     ( int i )       { return( fields_->getFieldPtr     (i)->getSFieldPtr()      ); }
-  Teuchos::RCP<const Field> getConstSFieldPtr( int i ) const { return( fields_->getConstFieldPtr(i)->getConstSFieldPtr() ); }
+  Field&                    getSField        ( int i )       { return( fields_[i]->getSField()         ); }
+  const Field&              getConstSField   ( int i ) const { return( fields_[i]->getConstSField()    ); }
+  Teuchos::RCP<      Field> getSFieldPtr     ( int i )       { return( fields_[i]->getSFieldPtr()      ); }
+  Teuchos::RCP<const Field> getConstSFieldPtr( int i ) const { return( fields_[i]->getConstSFieldPtr() ); }
 
 
   Teuchos::RCP<const SpaceT> space() const { return( AF::space_ ); }
 
-  const MPI_Comm& comm() const { return(fields_->comm()); }
+  const MPI_Comm& comm() const { return(field0_->comm()); }
 
   /// \brief returns the length of Field.
   ///
   /// the vector length is with regard to the inner points
   Ordinal getLength( bool nox_vec=false ) const {
-    return( field0_->getLength(nox_vec) + fields_->getLength(true) );
+		Ordinal len = field0_->getLength(true);
+		for( Ordinal i=0; i<space()->nGlo(3); ++i )
+			len += fields_[i]->getLength(true);
+    return( len );
   }
 
 
@@ -139,9 +165,6 @@ public:
   /// \todo what makes sense here?
   int getNumberVecs() const { return( 1 ); }
 
-  /// \brief get number of mode Field's
-  /// \todo what makes sense here?
-  int getNumberModes() const { return( fields_->getNumberVecs() ); }
 
 
   /// \}
@@ -152,7 +175,8 @@ public:
   void add( const Scalar& alpha, const MV& A, const Scalar& beta, const MV& B ) {
     // add test for consistent VectorSpaces in debug mode
     field0_->add(alpha, *A.field0_, beta, *B.field0_);
-    fields_->add(alpha, *A.fields_, beta, *B.fields_);
+		for( Ordinal i=0; i<space()->nGlo(3); ++i )
+			getFieldPtr(i)->add( alpha, A.getConstField(i), beta, B.getConstField(i) );
   }
 
 
@@ -164,7 +188,8 @@ public:
   /// \return Reference to this object
   void abs(const MV& y) {
     field0_->abs( *y.field0_ );
-    fields_->abs( *y.fields_ );
+		for( Ordinal i=0; i<space()->nGlo(3); ++i )
+			getFieldPtr(i)->abs( y.getConstField(i) );
   }
 
 
@@ -175,14 +200,16 @@ public:
   /// \return Reference to this object
   void reciprocal(const MV& y){
     field0_->reciprocal( *y.field0_ );
-    fields_->reciprocal( *y.fields_ );
+		for( Ordinal i=0; i<space()->nGlo(3); ++i )
+			getFieldPtr(i)->reciprocal( y.getConstField(i) );
   }
 
 
   /// \brief Scale each element of the vectors in \c this with \c alpha.
   void scale( const Scalar& alpha ) {
     field0_->scale(alpha);
-    fields_->scale(alpha);
+		for( Ordinal i=0; i<space()->nGlo(3); ++i )
+			getFieldPtr(i)->scale(alpha);
   }
 
 
@@ -193,7 +220,8 @@ public:
   /// \return Reference to this object
   void scale(const MV& a) {
     field0_->scale( *a.field0_ );
-    fields_->scale( *a.fields_ );
+		for( Ordinal i=0; i<space()->nGlo(3); ++i )
+			getFieldPtr(i)->scale( a.getConstField(i) );
   }
 
 
@@ -202,7 +230,9 @@ public:
 
     Scalar b = 0.;
 
-    b = field0_->dot( *a.field0_, false ) + fields_->dot( *a.fields_, false );
+    b = field0_->dot( *a.field0_, false );
+		for( Ordinal i=0; i<space()->nGlo(3); ++i )
+			b += getConstFieldPtr(i)->dot( a.getConstField(i), false );
 
     if( global ) this->reduceNorm( comm(), b );
 
@@ -219,17 +249,20 @@ public:
   /// Upon return, \c normvec[i] holds the value of \f$||this_i||_2\f$, the \c i-th column of \c this.
   Scalar norm(  Belos::NormType type = Belos::TwoNorm, bool global=true ) const {
 
-    Scalar normvec = 0.;
+    Scalar normvec = field0_->norm(type,false);
 
     switch(type) {
     case Belos::OneNorm:
-      normvec = field0_->norm(type,false) + fields_->norm(type,false);
+			for( Ordinal i=0; i<space()->nGlo(3); ++i )
+				normvec += getConstFieldPtr(i)->norm(type,false);
       break;
     case Belos::TwoNorm:
-      normvec = field0_->norm(type,false) + fields_->norm(type,false);
+			for( Ordinal i=0; i<space()->nGlo(3); ++i )
+				normvec += getConstFieldPtr(i)->norm(type,false);
       break;
     case Belos::InfNorm:
-      normvec = std::max( field0_->norm(type,false), fields_->norm(type,false) );
+			for( Ordinal i=0; i<space()->nGlo(3); ++i )
+				normvec = std::max( getConstFieldPtr(i)->norm(type,false), normvec );
       break;
     }
 
@@ -247,7 +280,10 @@ public:
   /// \return \f$ \|x\|_w \f$
   double norm( const MV& weights, bool global=true ) const {
 
-    double normvec=field0_->norm(*weights.field0_,false)+fields_->norm(*weights.fields_,false);
+    double normvec=field0_->norm(*weights.field0_,false);
+
+		for( Ordinal i=0; i<space()->nGlo(3); ++i )
+			normvec += getConstFieldPtr(i)->norm(weights.getConstField(i),false);
 
     if( global ) this->reduceNorm( comm(), normvec, Belos::TwoNorm );
 
@@ -265,36 +301,42 @@ public:
   /// Assign (deep copy) A into mv.
   void assign( const MV& a ) {
     field0_->assign(*a.field0_);
-    fields_->assign(*a.fields_);
+		for( Ordinal i=0; i<space()->nGlo(3); ++i )
+			getFieldPtr(i)->assign( a.getConstField(i) );
   }
 
 
   /// \brief Replace the vectors with a random vectors.
   void random(bool useSeed = false, int seed = 1) {
     field0_->random();
-    fields_->random();
+		for( Ordinal i=0; i<space()->nGlo(3); ++i )
+			getFieldPtr(i)->random();
   }
 
 
   /// \brief Replace each element of the vector  with \c alpha.
   void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero() ) {
     field0_->init(alpha);
-    fields_->init(alpha);
+		for( Ordinal i=0; i<space()->nGlo(3); ++i )
+			getFieldPtr(i)->init(alpha);
   }
 
 	void initField() {
     field0_->initField();
-    fields_->initField();
+		for( Ordinal i=0; i<space()->nGlo(3); ++i )
+			getFieldPtr(i)->initField();
 	}
 
 	void setCornersZero() const {
     field0_->setCornersZero();
-    fields_->setCornersZero();
+		for( Ordinal i=0; i<space()->nGlo(3); ++i )
+			getConstFieldPtr(i)->setCornersZero();
   }
 
   void level() const {
     field0_->level();
-    fields_->level();
+		for( Ordinal i=0; i<space()->nGlo(3); ++i )
+			getConstFieldPtr(i)->level();
   }
 
   /// \}
@@ -302,14 +344,15 @@ public:
   /// Print the vector.  To be used for debugging only.
   void print( std::ostream& os )  {
     field0_->print( os );
-    fields_->print( os );
+		for( Ordinal i=0; i<space()->nGlo(3); ++i )
+			getFieldPtr(i)->print( os );
   }
 
   void write( int count=0, bool time_evol_yes=false ) const {
 
 		if( time_evol_yes ) {
 			Scalar pi = 4.*std::atan(1.);
-			Ordinal nf = getNumberModes();
+			Ordinal nf = space()->nGlo(3);
 			Ordinal nt = 4*nf;
 			auto temp = getConst0FieldPtr()->clone( Pimpact::ShallowCopy );
 			for( Ordinal i=0; i<nt;  ++i ) {
@@ -331,7 +374,7 @@ public:
 		}
 		else{
 			field0_->write(count);
-			for( int i=0; i<getNumberModes(); ++i ) {
+			for( Ordinal i=0; i<space()->nGlo(3); ++i ) {
 				getConstCFieldPtr(i)->write( count+2*i+1 );
 				getConstSFieldPtr(i)->write( count+2*i+2 );
 			}
@@ -343,19 +386,6 @@ public:
 
 
 
-/// \brief creates a scalar/vector mode field(vector)
-///
-/// \param field0 scalar Vector Space to which returned vector belongs
-/// \param fields vector
-/// \relates MultiHarmonicField
-template<class Field>
-Teuchos::RCP< MultiHarmonicField<Field> > createMultiHarmonicField(
-    const Teuchos::RCP<Field>&  field0,
-    const Teuchos::RCP<MultiField<ModeField<Field> > >& fields ) {
-  return(
-      Teuchos::rcp(
-          new MultiHarmonicField<Field>( field0, fields ) ) );
-}
 
 
 /// \brief creates a multi-harmonic scalar field.

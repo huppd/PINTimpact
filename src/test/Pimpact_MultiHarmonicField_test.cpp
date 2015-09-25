@@ -91,34 +91,34 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicField, constructor, VF )
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, push_back, FType ) {
-
-  pl->set( "domain", domain );
-  pl->set( "dim", dim );
-
-  // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
-  pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
-
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
-
-	auto field = Pimpact::createMultiHarmonic<FType>( space, 10 );
-
-  int nf1 = field->getNumberModes();
-  TEST_EQUALITY( nf1, 10 );
-
-  field->push_back();
-
-  int nf2 = field->getNumberModes();
-  TEST_EQUALITY( nf2, nf1+1 );
-
-  field->getFieldPtr(nf2-1)->random();
-
-}
-
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicField, push_back, SF )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicField, push_back, VF )
+//TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, push_back, FType ) {
+//
+//  pl->set( "domain", domain );
+//  pl->set( "dim", dim );
+//
+//  // processor grid size
+//  pl->set("npx", (2==dim)?4:2 );
+//  pl->set("npy",            2 );
+//  pl->set("npz", (2==dim)?1:2 );
+//
+//  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+//
+//	auto field = Pimpact::createMultiHarmonic<FType>( space, 10 );
+//
+//  int nf1 = field->getNumberModes();
+//  TEST_EQUALITY( nf1, 10 );
+//
+//  field->push_back();
+//
+//  int nf2 = field->getNumberModes();
+//  TEST_EQUALITY( nf2, nf1+1 );
+//
+//  field->getFieldPtr(nf2-1)->random();
+//
+//}
+//
+//TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicField, push_back, SF )
+//TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicField, push_back, VF )
 
 
 

@@ -59,7 +59,6 @@ public:
         vfield_(vfield),
         sfield_(sfield) {};
 
-protected:
 
   /// \brief copy constructor.
   ///
@@ -68,14 +67,13 @@ protected:
   /// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
   CompoundField(const CompoundField& vF, ECopyType copyType=DeepCopy):
     AF( vF.space() ),
-    vfield_( vF.vfield_->clone(copyType) ),
-    sfield_( vF.sfield_->clone(copyType) )
+    vfield_( Teuchos::rcp( new VField( *vF.vfield_, copyType ) ) ),
+    sfield_( Teuchos::rcp( new SField( *vF.sfield_, copyType ) ) )
 {};
 
-public:
 
   Teuchos::RCP<MV> clone( ECopyType ctype=DeepCopy ) const {
-    return( Teuchos::rcp( new MV( vfield_->clone(ctype), sfield_->clone(ctype) ) ) );
+    return( Teuchos::rcp( new MV( *this, ctype ) ) );
   }
 
   /// \name Attribute methods

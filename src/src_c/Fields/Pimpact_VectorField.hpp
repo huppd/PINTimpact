@@ -81,7 +81,6 @@ public:
 
   };
 
-protected:
 
   /// \brief copy constructor.
   ///
@@ -93,7 +92,7 @@ protected:
     owning_(vF.owning_) {
 
     for( int i=0; i<3; ++i )
-      sFields_[i] = vF.getConstFieldPtr(i)->clone(); // copytype doesnot matter here, because it's not owning
+      sFields_[i] = Teuchos::rcp( new SF( vF.getConstField(i), copyType ) ); // copytype doesnot matter here, because it's not owning
 
     if( owning_ ) {
 
@@ -111,12 +110,23 @@ protected:
     }
   };
 
-public:
 
 	~VectorField() { if( owning_ ) delete[] s_; }
 
-  Teuchos::RCP<VF> clone( ECopyType ctype=DeepCopy ) const {
-    return( Teuchos::rcp( new VF( *this, ctype ) ) );
+  Teuchos::RCP<VF> clone( ECopyType copyType=DeepCopy ) const {
+
+		auto vf = Teuchos::rcp( new VF( space() ) );
+
+		switch( copyType ) {
+			case ShallowCopy:
+				break;
+			case DeepCopy:
+				for( int i=0; i<getStorageSize(); ++i )
+					vf->getRawPtr()[i] = s_[i];
+				break;
+		}
+
+    return( vf );
   }
 
   /// \name Attribute methods

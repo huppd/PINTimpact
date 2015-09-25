@@ -677,10 +677,10 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicConvectionOp ) {
 
   auto vel = Pimpact::create<Pimpact::VectorField>( space );
 
-  auto mv1 = Pimpact::createMultiHarmonicVectorField( space, 10 );
-  auto mv2 = Pimpact::createMultiHarmonicVectorField( space, 10 );
+  auto mv1 = Pimpact::createMultiHarmonicVectorField( space );
+  auto mv2 = Pimpact::createMultiHarmonicVectorField( space );
 
-  auto op = Pimpact::createMultiHarmonicConvectionOp( space, 10 );
+  auto op = Pimpact::createMultiHarmonicConvectionOp( space );
 
   op->assignField( *mv1 );
   op->apply( *mv1, *mv2 );
@@ -706,11 +706,11 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicDtConvectionDiffusionOp )
 
   auto vel = Pimpact::create<Pimpact::VectorField>( space );
 
-  auto wind = Pimpact::createMultiHarmonicVectorField( space, nf );
-  auto x    = Pimpact::createMultiHarmonicVectorField( space, nf );
-  auto y1   = Pimpact::createMultiHarmonicVectorField( space, nf );
-  auto y2   = Pimpact::createMultiHarmonicVectorField( space, nf );
-  auto diff = Pimpact::createMultiHarmonicVectorField( space, nf );
+  auto wind = Pimpact::createMultiHarmonicVectorField( space );
+  auto x    = Pimpact::createMultiHarmonicVectorField( space );
+  auto y1   = Pimpact::createMultiHarmonicVectorField( space );
+  auto y2   = Pimpact::createMultiHarmonicVectorField( space );
+  auto diff = Pimpact::createMultiHarmonicVectorField( space );
 
 
 	auto op1 =
@@ -756,6 +756,7 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicDtConvectionDiffusionOp )
 //		x->getCFieldPtr(i)->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inY );
 //		x->getCFieldPtr(i)->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inZ );
 		x->getCFieldPtr(i)->initField( Pimpact::ConstFlow, 0. );
+		x->getSFieldPtr(i)->initField( Pimpact::ConstFlow, 0. );
 		x->getSFieldPtr(i)->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inX, 1. );
 //		x->getSFieldPtr(i)->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inY, -1. );
 //		x->getSFieldPtr(i)->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inZ, -1. );

@@ -83,10 +83,19 @@ public:
 
   /// \brief copy constructor creating a view
   /// note clear if here only referencing or copy is happening
-  MultiField( const MV& mv ):
-    AF( mv.space() ),
-    mfs_(mv.mfs_) {}
+//  MultiField( const MV& mv ):
+//    AF( mv.space() ), //    mfs_(mv.mfs_) {
+//
+//    }
 
+	MultiField( const MV& mv, ECopyType ctype ):
+	 AF( mv.space() ), mfs_( mv.getNumberVecs() ) {
+
+    for( int i=0; i<getNumberVecs(); ++i ) {
+      mfs_[i] = mv.mfs_[i]->clone(ctype);
+    }
+
+	 }
 
   /// \brief  constructor, creates \c numvecs  empty fields
   /// \param numvecs
@@ -117,13 +126,7 @@ public:
   /// more parallel processes) Its entries are not initialized and have undefined
   /// values.
   Teuchos::RCP< MV > clone( ECopyType ctype = DeepCopy ) const {
-    auto mv_ =
-        Teuchos::rcp(
-            new MV( space(), getNumberVecs() ) );
-    for( int i=0; i<getNumberVecs(); ++i ) {
-      mv_->mfs_[i] = mfs_[i]->clone(ctype);
-    }
-    return( mv_ );
+    return( Teuchos::rcp( new MV(*this,ctype) ) );
   }
 
 
@@ -140,7 +143,6 @@ public:
   Teuchos::RCP<MV>  CloneCopy( const std::vector<int>& index ) const {
     auto mv_ = Teuchos::rcp( new MV( space(), index.size() ) );
     for( unsigned int i=0; i<index.size(); ++i ) {
-      //      mv_->mfs_[i] = Teuchos::rcp( new FieldT( *mfs_[ index[i] ], DeepCopy ) );
       mv_->mfs_[i] = mfs_[ index[i] ]->clone( DeepCopy );
     }
     return( mv_ );
@@ -154,7 +156,6 @@ public:
     auto mv_ = Teuchos::rcp( new MV(space(), index.size()) );
     int j = 0;
     for( int i=index.lbound(); i<=index.ubound(); ++i ) {
-      //      mv_->mfs_[j] = Teuchos::rcp( new FieldT( *mfs_[ i ], DeepCopy ) );
       mv_->mfs_[j] = mfs_[i]->clone( DeepCopy );
       ++j;
     }

@@ -85,13 +85,12 @@ public:
 
   };
 
-protected:
 
   /// \brief copy constructor.
   ///
-  /// shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
-  /// \param sF
-  /// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
+	/// \note copyType is 
+  /// \param sF ScalarField which is copied
+  /// \param copyType by default a DeepCopy is done but also allows to ShallowCopy
   ScalarField( const ScalarField& sF, ECopyType copyType=DeepCopy ):
     AbstractField<SpaceT>( sF.space() ),
     owning_( sF.owning_ ),
@@ -115,13 +114,24 @@ protected:
 
   };
 
-public:
 
 	~ScalarField() { if( owning_ ) delete[] s_; }
 
 
-  Teuchos::RCP<MV> clone( ECopyType ctype=DeepCopy ) const {
-    return( Teuchos::rcp( new MV(*this, ctype) ) );
+  Teuchos::RCP<MV> clone( ECopyType copyType=DeepCopy ) const {
+
+		auto mv = Teuchos::rcp( new MV(space() ) );
+
+		switch( copyType ) {
+			case ShallowCopy:
+				break;
+			case DeepCopy:
+				for( int i=0; i<getStorageSize(); ++i)
+					mv->getRawPtr()[i] = s_[i];
+				break;
+		}
+    return( mv );
+
   }
 
   /// \name Attribute methods

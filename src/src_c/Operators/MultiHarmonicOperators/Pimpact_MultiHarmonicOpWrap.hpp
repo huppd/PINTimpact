@@ -46,7 +46,7 @@ public:
 
     op_->apply( x.getConst0Field(), y.get0Field() );
 
-    int m = x.getNumberModes();
+    int m = space()->nGlo(3);
 
     for( int i=0; i<m; ++i ) {
       op_->apply( x.getConstCField(i), y.getCField(i) );

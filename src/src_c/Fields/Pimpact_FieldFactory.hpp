@@ -152,8 +152,7 @@ Teuchos::RCP< MultiHarmonicField< ScalarField<SpaceT> > > createMultiHarmonicSca
 template<class SpaceT>
 Teuchos::RCP< MultiHarmonicField< VectorField<SpaceT> > >
 createMultiHarmonicVectorField(
-    const Teuchos::RCP< const SpaceT>& space,
-    int nf ) {
+    const Teuchos::RCP< const SpaceT>& space ) {
   return( Teuchos::rcp(
       new MultiHarmonicField< VectorField<SpaceT> >(space) ) );
 }

@@ -45,7 +45,7 @@ public:
 		auto my = Teuchos::rcp( new typename MultiOperator::RangeFieldT ( space(), (int)0 ) );
 
 
-    int m = x.getNumberModes();
+    int m = space()->nGlo(3);
 
     for( int i=0; i<m; ++i ) {
 			mx->push_back(
@@ -70,8 +70,6 @@ public:
 				);
 		my->push_back( y.get0FieldPtr() );
 
-//		std::cout << "x numberVecs: " << mx->getNumberVecs() << "\n";
-//		std::cout << "y numberVecs: " << my->getNumberVecs() << "\n";
 		op_->apply( *mx, *my );
   };
 

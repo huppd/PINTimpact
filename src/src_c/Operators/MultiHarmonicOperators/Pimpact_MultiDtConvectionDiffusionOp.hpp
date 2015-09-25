@@ -63,7 +63,7 @@ public:
 //		mv.write(99);
 
     wind0_->assignField( mv.getConst0Field() );
-    int Nf = mv.getNumberModes();
+    int Nf = space()->nGlo(3);
 
     for( int i=0; i<Nf; ++i ) {
       windc_[i]->assignField( mv.getConstCField(i) );
@@ -75,7 +75,7 @@ public:
 
   void apply( const DomainFieldT& y, RangeFieldT& z, bool init_yes=true ) const {
 		
-		int Nf = z.getNumberModes();
+		int Nf = space()->nGlo(3);
 		Scalar iRe = 1./op_->space()->getDomainSize()->getRe();
 		Scalar a2 = op_->space()->getDomainSize()->getAlpha2()*iRe;
 

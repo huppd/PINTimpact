@@ -57,7 +57,7 @@ public:
 protected:
 
   void apply(const DomainFieldT& x, const DomainFieldT& y, RangeFieldT& z, bool init_yes=true ) const {
-    int Nf = x.getNumberModes();
+    int Nf = space()->nGlo(3);
     if( init_yes )
       z.init( 0. );
 

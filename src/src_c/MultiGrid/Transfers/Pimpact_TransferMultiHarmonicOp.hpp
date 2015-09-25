@@ -56,14 +56,14 @@ public:
 
     op_->apply( x.getConst0Field(), y.get0Field() );
 
-    int m = std::min( x.getNumberModes(), y.getNumberModes() );
+    int m = std::min( x.space()->nGlo(3), y.space()->nGlo(3) );
 
     for( int i=0; i<m; ++i ) {
       op_->apply( x.getConstCField(i), y.getCField(i) );
       op_->apply( x.getConstSField(i), y.getSField(i) );
     }
 
-    for( int i=m; i<y.getNumberModes(); ++i ) {
+    for( int i=m; i<y.space()->nGlo(3); ++i ) {
       y.getCField(i).initField();
       y.getSField(i).initField();
     }

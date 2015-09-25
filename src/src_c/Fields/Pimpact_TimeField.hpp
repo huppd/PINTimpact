@@ -94,10 +94,8 @@ public:
     Ordinal nx = mfs_[0]->getStorageSize();
 
     array_ = new Scalar[nx*nt];
-//#ifdef DEBUG
-    for( int i=0; i<nt; ++i )
+    for( int i=0; i<nt*nx; ++i )
       array_[i] = 0.;
-//#endif // end of #ifdef DEBUG
 
     for( int i=0; i<nt; ++i )
       mfs_[i]->setStoragePtr( array_+i*nx );
@@ -108,7 +106,6 @@ public:
   }
 
 
-protected:
 
   /// \brief copy constructor.
   ///
@@ -124,8 +121,7 @@ protected:
     mfs_ = Teuchos::Array< Teuchos::RCP<Field> >(nt);
 
     for( int i=0; i<nt; ++i )
-      //      mfs_[i] = Teuchos::rcp( new Field( space(), false ) );
-      mfs_[i] = field.mfs_[i]->clone(copyType);
+			mfs_[i] = Teuchos::rcp( new Field( field.getConstField(i), copyType ) );
 
     Ordinal nx = mfs_[0]->getStorageSize();
 
@@ -139,10 +135,8 @@ protected:
         mfs_[i]->assign( *(field.mfs_[i]) );
       }
     else {
-//#ifdef DEBUG
       for( int i=0; i<nt*nx; ++i )
         array_[i] = 0.;
-//#endif // end of #ifdef DEBUG
 		}
 
     sInd_ = mfs_.begin() - space()->bl(3);
@@ -152,7 +146,6 @@ protected:
   }
 
 
-public:
 
 	~TimeField() { delete[] array_; }
 

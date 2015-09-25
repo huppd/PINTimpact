@@ -63,7 +63,7 @@ TEUCHOS_STATIC_SETUP() {
 
   pl->set( "domain", domain );
   pl->set( "dim", 3 );
-  pl->set( "nx", 24 );
+  pl->set( "nx", 33 );
   pl->set( "ny", 17 );
   pl->set( "nz", 9 );
 

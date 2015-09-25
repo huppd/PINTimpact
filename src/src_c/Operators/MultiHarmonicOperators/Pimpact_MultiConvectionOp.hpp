@@ -56,7 +56,7 @@ public:
   void assignField( const DomainFieldT& mv ) {
 
     wind0_->assignField( mv.getConst0Field() );
-    int Nf = mv.getNumberModes();
+    int Nf = space()->nGlo(3);
 
     for( int i=0; i<Nf; ++i ) {
       windc_[i]->assignField( mv.getConstCField(i) );
@@ -68,7 +68,7 @@ public:
 
   void apply( const DomainFieldT& y, RangeFieldT& z, bool init_yes=true ) const {
 
-    int Nf = z.getNumberModes();
+    int Nf = space()->nGlo(3);
 
     // computing zero mode of y
     op_->apply( wind0_->get(), y.getConst0Field(), z.get0Field(), 0., 0., 1., 0.);

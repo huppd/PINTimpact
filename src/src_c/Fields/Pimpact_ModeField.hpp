@@ -67,6 +67,8 @@ public:
 
 	Ordinal getStorageSize() const { return( 2*fieldc_->getStorageSize() ); }
 
+	Scalar* getRawPtr() const { return( s_ ); }
+
   void setStoragePtr( Scalar*  array ) {
     s_ = array;
 		fieldc_->setStoragePtr( s_                             );
@@ -88,7 +90,6 @@ public:
 
 	~ModeField() { if( owning_ ) delete[] s_; }
 
-protected:
 
   /// \brief copy constructor.
   ///
@@ -98,8 +99,8 @@ protected:
   ModeField(const ModeField& vF, ECopyType copyType=DeepCopy):
     AF( vF.space() ),
 		owning_( vF.owning_ ),
-    fieldc_( vF.fieldc_->clone() ),
-		fields_( vF.fields_->clone() ) {
+    fieldc_( Teuchos::rcp( new FieldT(*vF.fieldc_,copyType) ) ),
+		fields_( Teuchos::rcp( new FieldT(*vF.fields_,copyType) ) ) {
 
 			if( owning_ ) {
 
@@ -118,10 +119,22 @@ protected:
 			}
 	};
 
-public:
 
-  Teuchos::RCP<MV> clone( ECopyType ctype=DeepCopy ) const {
-    return( Teuchos::rcp( new MV( *this, ctype ) ) );
+  Teuchos::RCP<MV> clone( ECopyType cType=DeepCopy ) const {
+
+		auto mv = Teuchos::rcp( new MV( space() ) );
+
+		switch( cType ) {
+			case ShallowCopy:
+				break;
+			case DeepCopy:
+				for( int i=0; i<getStorageSize(); ++i )
+					mv->getRawPtr()[i] = this->s_[i];
+				break;
+		}
+
+    return( mv );
+
   }
 
   /// \name Attribute methods
