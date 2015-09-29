@@ -650,7 +650,7 @@ public:
 			Scalar pi = 4.*std::atan(1.);
 			VF_init_SHBF( 
 					space()->rankST(),      
-					space()->getProcGrid()->getShift(0),
+					space()->getShift(0),
 					space()->getProcGrid()->getIB(0),
 					space()->nGlo(),
 					space()->nLoc(),

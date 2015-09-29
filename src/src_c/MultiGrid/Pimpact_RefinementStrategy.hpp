@@ -66,7 +66,10 @@ public:
 
     auto indexSpace =
 			Pimpact::createIndexSpace<Ordinal,dimension>(
-					stencilWidths, gridSizeLocal, boundaryConditionsLocal );
+					stencilWidths,
+					gridSizeLocal,
+					boundaryConditionsLocal,
+					procGrid );
 
     auto coordGlobal = Pimpact::createGridCoordinatesGlobal<Scalar,Ordinal,dimension>(
         gridSizeGlobal,
@@ -84,7 +87,7 @@ public:
 
     auto interV2S =
         Pimpact::createInterpolateV2S<Scalar,Ordinal,dimension>(
-            procGrid,
+            indexSpace,
             gridSizeLocal,
             stencilWidths,
             domainSize,

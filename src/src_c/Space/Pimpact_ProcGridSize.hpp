@@ -45,6 +45,7 @@ public:
 
   template< class OT, int dT>
   friend Teuchos::RCP<const ProcGridSize<OT,dT> > createProcGridSize( const Teuchos::Tuple<OT,dT>, const MPI_Comm&, bool test_yes  );
+
 protected:
 
   TO procGridSize_;

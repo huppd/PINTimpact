@@ -255,8 +255,9 @@ contains
     !! \param[in] xC coordinate in of varaiable
     !! \param[in] xE coordinate out of equations
     !! \param[out] cc coefficients
+    !! \todo move error handling else where
     subroutine FD_getDiffCoeff( &
-        rank,                   &
+        !rank,                   &
         Nmax,                   &
         bL, bU,                 &
         cL, cU,                 &
@@ -275,7 +276,7 @@ contains
   
         implicit none
   
-        integer(c_int),  intent(in)   :: rank
+        !integer(c_int),  intent(in)   :: rank
 
         integer(c_int),  intent(in)   :: Nmax
 
@@ -333,9 +334,10 @@ contains
   
   
         if (mapping_yes .and. abl > 2) then
-            if (rank == 0) write(*,*) 'ERROR! Can`t handle derivatives > 2 combined with mapping ...'
-            call MPI_FINALIZE(merror)
-            stop
+            !if (rank == 0)
+            write(*,*) 'ERROR! Can`t handle derivatives > 2 combined with mapping ...'
+            !call MPI_FINALIZE(merror)
+            !stop
         end if
   
   
@@ -390,12 +392,12 @@ contains
                     else
                         ! Ausserhalb des Randes werden zentrale Differenzen gefordert (= ungerade Anzahl Koeffizienten)!
                         if (MOD(n_coeff,2) == 0) then
-                            if (rank == 0) then
+                            !if (rank == 0) then
                                 write(*,'(a   )') 'ERROR! Choose odd number of coefficients!'
                                 write(*,'(a,i4)') '    direction =', dir
                                 write(*,'(a,i4)') '    grid_type =', grid_type
                                 write(*,'(a,i4)') '            i =', i+SShift
-                            end if
+                            !end if
                         end if
                         right = (n_coeff-1)/2
                     end if
@@ -410,12 +412,12 @@ contains
                     else
                         ! Ausserhalb des Randes werden zentrale Differenzen gefordert (= gerade Anzahl Koeffizienten)!
                         if (MOD(n_coeff,2) /= 0) then
-                            if (rank == 0) then
+                            !if (rank == 0) then
                                 write(*,'(a   )') 'ERROR! Choose even number of coefficients!'
                                 write(*,'(a,i4)') '    direction =', dir
                                 write(*,'(a,i4)') '    grid_type =', grid_type
                                 write(*,'(a,i4)') '            i =', i+SShift
-                            end if
+                            !end if
                             call MPI_FINALIZE(merror)
                             stop
                         end if
@@ -432,12 +434,12 @@ contains
                     else
                         ! Ausserhalb des Randes werden zentrale Differenzen gefordert (= gerade Anzahl Koeffizienten)!
                         if (MOD(n_coeff,2) /= 0) then
-                            if (rank == 0) then
+                            !if (rank == 0) then
                                 write(*,'(a   )') 'ERROR! Choose even number of coefficients!'
                                 write(*,'(a,i4)') '    direction =', dir
                                 write(*,'(a,i4)') '    grid_type =', grid_type
                                 write(*,'(a,i4)') '            i =', i+SShift
-                            end if
+                            !end if
                             call MPI_FINALIZE(merror)
                             stop
                         end if
@@ -476,13 +478,13 @@ contains
                 !=== Stencilanordnung testen =========================================================================
                 !=====================================================================================================
                 if (right > cU .or. left < cL) then
-                    if (rank == 0) then
-                        !WRITE(*,'(a   )') 'WARNING! The FD-Stencil does probably not fit into provided array!'
+                    !if (rank == 0) then
+                        WRITE(*,'(a   )') 'WARNING! The FD-Stencil does probably not fit into provided array!'
                         write(*,'(a   )') 'ERROR! Stencil doesn`t fit into provided array!'
                         write(*,'(a,i4)') '    direction =', dir
                         write(*,'(a,i4)') '    grid_type =', grid_type
                         write(*,'(a,i4)') '            i =', i+SShift
-                    end if
+                    !end if
                     call MPI_FINALIZE(merror)
                     stop
                 end if
@@ -556,7 +558,7 @@ contains
                             !INCLUDE 'FD_coeffs_expl_map.f90'
                             call diff_coeffs_exact(k,n_coeff,deltaX(1),cc_xi(left:right,k)) ! TEST!!!
                         else
-                            call FD_coeffs_solver(rank,k,filter_yes,n_coeff,deltaX,cc_xi(left:right,k))
+                            call FD_coeffs_solver(k,filter_yes,n_coeff,deltaX,cc_xi(left:right,k))
                         end if
               
                         do ii = left, right
@@ -593,17 +595,17 @@ contains
                     if (n_coeff <= 7) then ! TEST!!!
                         call diff_coeffs_exact(abl,n_coeff,deltaX(1),cc(left:right,i))
                     else
-                        call FD_coeffs_solver(rank,abl,filter_yes,n_coeff,deltaX,cc(left:right,i))
+                        call FD_coeffs_solver(abl,filter_yes,n_coeff,deltaX,cc(left:right,i))
                     end if
            
                 else
            
                     if (abl == -1) then
                         !--- integration coefficients ---
-                        call FD_coeffs_solver_integral(rank,n_coeff,deltaX,dxL,dxU,cc(left:right,i))
+                        call FD_coeffs_solver_integral(n_coeff,deltaX,dxL,dxU,cc(left:right,i))
                     else
                         !--- interpolation and derivatives ---
-                        call FD_coeffs_solver(rank,abl,filter_yes,n_coeff,deltaX,cc(left:right,i))
+                        call FD_coeffs_solver(abl,filter_yes,n_coeff,deltaX,cc(left:right,i))
                     end if
            
                 end if
@@ -996,11 +998,11 @@ contains
   
   
   
-    subroutine FD_coeffs_solver(rank,abl,filter_yes,n_coeff,deltaX,cc)
+    subroutine FD_coeffs_solver(abl,filter_yes,n_coeff,deltaX,cc)
 
         implicit none
 
-        integer(c_int) , intent(in)   ::  rank
+        !integer(c_int) , intent(in)   ::  rank
         integer(c_int) , intent(in)   ::  abl
         logical(c_bool), intent(in)   ::  filter_yes
         integer(c_int) , intent(in)   ::  n_coeff
@@ -1039,7 +1041,7 @@ contains
         !===========================================================================================================
         !=== Lösen des Gleichungssystems ===========================================================================
         !===========================================================================================================
-        call Matrix_invert(rank,n_coeff,polyn_vals,polyn_vals_inv)
+        call Matrix_invert(n_coeff,polyn_vals,polyn_vals_inv)
 
 
         !===========================================================================================================
@@ -1069,11 +1071,11 @@ contains
   
   
   
-    subroutine FD_coeffs_solver_integral(rank,n_coeff,deltaX,dxL,dxU,cc)
+    subroutine FD_coeffs_solver_integral(n_coeff,deltaX,dxL,dxU,cc)
 
         implicit none
 
-        integer(c_int), intent(in)   ::  rank
+        !integer(c_int), intent(in)   ::  rank
 
         integer(c_int), intent(in)   ::  n_coeff
         real(c_double), intent(in)   ::  deltaX(1:n_coeff)
@@ -1101,7 +1103,7 @@ contains
         !===========================================================================================================
         !=== Lösen des Gleichungssystems ===========================================================================
         !===========================================================================================================
-        call Matrix_invert(rank,n_coeff,polyn_vals,polyn_vals_inv)
+        call Matrix_invert(n_coeff,polyn_vals,polyn_vals_inv)
 
 
         !===========================================================================================================
@@ -1803,11 +1805,11 @@ contains
 !
 
 
-    subroutine Matrix_invert(rank,N,matrix,matrix_inv)
+    subroutine Matrix_invert(N,matrix,matrix_inv)
 
         implicit none
 
-        integer(c_int), intent(in)  ::  rank
+        !integer(c_int), intent(in)  ::  rank
         integer(c_int), intent(in)  ::  N
         real(c_double), intent(in)  ::  matrix     (1:N,1:N)
         real(c_double), intent(out) ::  matrix_inv (1:N,1:N)
@@ -1868,7 +1870,7 @@ contains
             end if
 
             mult1 = matrix_left(j,j)
-            if (ABS(mult1) < eps .and. rank == 0) then
+            if (ABS(mult1) < eps ) then
                 write(*,'(a)'      ) 'WARNING! Matrix is probably singular (1)!'
                 write(*,'(a,E13.5)') '       ... dividing by', mult1
                 write(*,'(a,i2)'   ) '                   i =', j
@@ -1908,7 +1910,7 @@ contains
 
             ! Multiplikator:
             mult1 = matrix_left(j,j)
-            if (ABS(mult1) < eps .and. rank == 0) then
+            if (ABS(mult1) < eps ) then
                 write(*,'(a)'      ) 'WARNING! Matrix is probably singular (2)!'
                 write(*,'(a,E13.5)') '       ... dividing by', mult1
                 write(*,'(a,i2)'   ) '                   i =', j
@@ -1935,7 +1937,7 @@ contains
         ! linke Matrix auf Einheitsmatrix bringen:
         do i = 1, N
             mult1 = matrix_left(i,i)
-            if (ABS(mult1) < eps .and. rank == 0) then
+            if (ABS(mult1) < eps ) then
                 write(*,'(a)'      ) 'WARNING! Matrix is probably singular (3)!'
                 write(*,'(a,E13.5)') '       ... dividing by', mult1
                 write(*,'(a,i2)'   ) '                   i =', i

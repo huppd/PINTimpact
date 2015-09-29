@@ -83,7 +83,7 @@ public:
       cSD_[i] = new Scalar[ nTemp ];
       if( i<space_->dim() )
         FD_getDiffCoeff(
-            space_->rankST(),
+//            space_->rankST(),
             space_->nLoc(i),
             space_->bl(i),
             space_->bu(i),
@@ -107,7 +107,7 @@ public:
       cSU_[i] = new Scalar[ nTemp ];
       if( i<space_->dim() )
         FD_getDiffCoeff(
-            space_->rankST(),
+//            space_->rankST(),
             space_->nLoc(i),
             space_->bl(i),
             space_->bu(i),
@@ -130,7 +130,7 @@ public:
       cVD_[i] = new Scalar[ nTemp ];
       if( i<space_->dim() )
         FD_getDiffCoeff(
-            space_->rankST(),
+//            space_->rankST(),
             space_->nLoc(i),
             space_->bl(i),
             space_->bu(i),
@@ -153,7 +153,7 @@ public:
       cVU_[i] = new Scalar[ nTemp ];
       if( i<space_->dim() )
         FD_getDiffCoeff(
-            space_->rankST(),
+//            space_->rankST(),
             space_->nLoc(i),
             space_->bl(i),
             space_->bu(i),

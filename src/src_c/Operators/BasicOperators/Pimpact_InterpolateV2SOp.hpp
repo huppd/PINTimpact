@@ -69,36 +69,36 @@ protected:
 public:
 
   InterpolateV2S(
-      const Teuchos::RCP<const ProcGrid<Ordinal,dimension> >&  procGrid,
+      const Teuchos::RCP<const IndexSpace<Ordinal,dimension> >&  indexSpace,
       const Teuchos::RCP<const GridSizeLocal<Ordinal,dimension> >& gridSizeLocal,
-      const Teuchos::RCP<const StencilWidths<dimension,dimNC> >& fieldSpace,
+      const Teuchos::RCP<const StencilWidths<dimension,dimNC> >& stencilWidths,
 			const Teuchos::RCP<const DomainSize<Scalar> >& domainSize,
 			const Teuchos::RCP<const BoundaryConditionsLocal>& boundaryConditionsLocal,
       const Teuchos::RCP<const GridCoordinatesLocal<Scalar,Ordinal,dimension> >& coordinatesLocal ) {
 
 
     for( int i=0; i<3; ++i ) {
-      Ordinal nTemp = ( gridSizeLocal->get(i) + 1 )*( fieldSpace->getDU(i) - fieldSpace->getDL(i) + 1);
+      Ordinal nTemp = ( gridSizeLocal->get(i) + 1 )*( stencilWidths->getDU(i) - stencilWidths->getDL(i) + 1);
 
       c_[i] = new Scalar[ nTemp ];
       if( i<domainSize->getDim() )
         FD_getDiffCoeff(
-            procGrid->getRank(),
+//            procGrid->getRank(),
             gridSizeLocal->get(i),
-            fieldSpace->getBL(i),
-            fieldSpace->getBU(i),
-            fieldSpace->getDL(i),
-            fieldSpace->getDU(i),
+            stencilWidths->getBL(i),
+            stencilWidths->getBU(i),
+            stencilWidths->getDL(i),
+            stencilWidths->getDU(i),
             boundaryConditionsLocal->getBCL(i),
             boundaryConditionsLocal->getBCU(i),
-            procGrid->getShift(i),
+            indexSpace->getShift(i),
             3,
             i+1,
             0,
             0,
             true,
-            fieldSpace->getDimNcbD(i),
-            fieldSpace->getNcbD(i),
+            stencilWidths->getDimNcbD(i),
+            stencilWidths->getNcbD(i),
             coordinatesLocal->getX( i, i ),
             coordinatesLocal->getX( i, EField::S ),
             c_[i] );
@@ -178,9 +178,9 @@ public:
 /// \relates InterpolateV2S
 template< class S, class O, int d, int dimNC >
 Teuchos::RCP<const InterpolateV2S<S,O,d,dimNC> > createInterpolateV2S(
-    const Teuchos::RCP<const ProcGrid<O,d> >&  procGrid,
+    const Teuchos::RCP<const IndexSpace<O,d> >&  iS,
     const Teuchos::RCP<const GridSizeLocal<O,d> >& gridSizeLocal,
-    const Teuchos::RCP<const StencilWidths<d,dimNC> >& fieldSpace,
+    const Teuchos::RCP<const StencilWidths<d,dimNC> >& stencilWidths,
 		const Teuchos::RCP<const DomainSize<S> >& domainSize,
 		const Teuchos::RCP<const BoundaryConditionsLocal>& boundaryConditionsLocal,
     const Teuchos::RCP<const GridCoordinatesLocal<S,O,d> >& coordinatesLocal ) {
@@ -188,9 +188,9 @@ Teuchos::RCP<const InterpolateV2S<S,O,d,dimNC> > createInterpolateV2S(
   return(
       Teuchos::rcp(
           new InterpolateV2S<S,O,d,dimNC>(
-              procGrid,
+              iS,
               gridSizeLocal,
-              fieldSpace,
+              stencilWidths,
               domainSize,
 							boundaryConditionsLocal,
               coordinatesLocal ) ) );

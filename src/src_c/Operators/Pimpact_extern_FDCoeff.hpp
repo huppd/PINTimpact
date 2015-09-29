@@ -11,7 +11,7 @@ extern "C" {
 
 
 void FD_getDiffCoeff(
-    const int& rank,
+//    const int& rank,
     const int& Nmax,
     const int& bL,
     const int& bU,

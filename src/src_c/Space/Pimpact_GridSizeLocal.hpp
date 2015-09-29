@@ -14,15 +14,6 @@
 
 
 
-//extern "C" {
-//
-//void fsetLS(
-//    const int& n1,
-//    const int& n2,
-//    const int& n3 );
-//
-//}
-
 
 
 namespace Pimpact{
@@ -43,9 +34,6 @@ class GridSizeLocal {
       const Teuchos::RCP<const ProcGridSize<OT,dT> >& pgs,
       const Teuchos::RCP<const StencilWidths<dT,dNC> >&      stencilWidths);
 
-//  template< class OT, int dT >
-//  friend Teuchos::RCP<const GridSizeLocal<OT,dT> > createGridSizeLocal();
-
 public:
 
   typedef const Teuchos::Tuple<Ordinal,dim> TO;
@@ -54,7 +42,7 @@ protected:
 
   TO gridSize_;
 
-
+	/// \todo change for pasp
 	template<int dNC>
 	GridSizeLocal(
 			const Teuchos::RCP<const GridSizeGlobal<Ordinal,dim> >& gridSizeGlobal,
@@ -92,20 +80,8 @@ public:
 
 	const Ordinal* get() const { return( gridSize_.getRawPtr() ); }
 
-
-//  void set_Impact() const {
-//    fsetLS(
-//        gridSize_[0],
-//        gridSize_[1],
-//        gridSize_[2] );
-//  };
-
   void print( std::ostream& out=std::cout ) const {
-    out << " \tnx=" << gridSize_[0] ;
-    out << " \tny=" << gridSize_[1] ;
-    out << " \tnz=" << gridSize_[2] ;
-    if( 4==dim ) out << "\tnt=" << gridSize_[3];
-    out << "\n";
+    out << " \tlocal grid size= " << gridSize_ << "\n";
   };
 
 

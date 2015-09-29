@@ -29,10 +29,8 @@ namespace Pimpact{
 template< class Ordinal, int dim>
 class ProcGrid {
 
-//  template< class OT, int dT >
-//  friend Teuchos::RCP<const ProcGrid<OT,dT> > createProcGrid();
 
-  template< class OT, int dT >
+	template< class OT, int dT >
   friend Teuchos::RCP<const ProcGrid<OT,dT> > createProcGrid(
       const Teuchos::RCP<const GridSizeLocal<OT,dT> >& gsl,
       const Teuchos::RCP<const BoundaryConditionsGlobal<dT> >& bcg,
@@ -57,6 +55,7 @@ protected:
   Teuchos::Tuple<int,dim> iB_;
 
   /// index offset going for dim 1:3 strange fortran style dim==4 c style
+	/// \deprecated
   Teuchos::Tuple<Ordinal,dim> shift_;
 
   /// rank of lower neighbour
@@ -224,7 +223,7 @@ public:
     out << "\trankL: " <<rankL_<<"\n";
     out << "\trankU: " <<rankU_<<"\n";
     out << "\tproc coordinate: " << iB_ << "\n";
-    out << "\toffset: " << shift_ << "\n";
+//    out << "\toffset: " << shift_ << "\n";
   }
 
   const bool& participating() const { return( participating_ ); }
@@ -242,8 +241,8 @@ public:
   const int& getIB( int i ) const { return( iB_[i] ); }
   const int* getIB() const { return( iB_.getRawPtr() ); }
 
-  const int& getShift( int i ) const { return( shift_[i] ); }
-  const int* getShift() const { return( shift_.getRawPtr() ); }
+//  const int& getShift( int i ) const { return( shift_[i] ); }
+//  const int* getShift() const { return( shift_.getRawPtr() ); }
 
   const int& getRankL( int i ) const { return( rankL_[i] ); }
   const int& getRankU( int i ) const { return( rankU_[i] ); }
