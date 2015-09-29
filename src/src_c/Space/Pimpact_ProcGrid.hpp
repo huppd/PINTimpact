@@ -11,9 +11,7 @@
 
 #include "Pimpact_Types.hpp"
 
-#include "Pimpact_GridSizeLocal.hpp"
 #include "Pimpact_BoundaryConditionsGlobal.hpp"
-#include "Pimpact_ProcGridSize.hpp"
 
 
 
@@ -22,22 +20,27 @@ namespace Pimpact{
 
 
 
-/// \brief ProcGrid, needs ProcGridSize, globalBoundaryConditions, GridSizeLocal
+/// \brief ProcGrid, needs ProcGridSize, globalBoundaryConditions
 /// provides information about neighboring mpi processes
 /// \ingroup SpaceObject
 /// \tparam dim  3 or 4
 template< class Ordinal, int dim>
 class ProcGrid {
 
+public:
+
+	typedef const Teuchos::Tuple<Ordinal,dim> TO;
+
+protected:
 
 	template< class OT, int dT >
   friend Teuchos::RCP<const ProcGrid<OT,dT> > createProcGrid(
-      const Teuchos::RCP<const GridSizeLocal<OT,dT> >& gsl,
+      const Teuchos::Tuple<OT,dT>& procGridSize,
       const Teuchos::RCP<const BoundaryConditionsGlobal<dT> >& bcg,
-      const Teuchos::RCP<const ProcGridSize<OT,dT> >& procGridSize,
 		 	bool participating	);
 
-protected:
+	/// processor grid size
+  TO procGridSize_;
 
 	/// used for multigrid if proc is involved in coarser grid
 	bool participating_;
@@ -53,10 +56,6 @@ protected:
 
   /// processor coordinates(index Block) fortranstyle going from 1..np
   Teuchos::Tuple<int,dim> iB_;
-
-  /// index offset going for dim 1:3 strange fortran style dim==4 c style
-	/// \deprecated
-  Teuchos::Tuple<Ordinal,dim> shift_;
 
   /// rank of lower neighbour
   Teuchos::Tuple<int,dim> rankL_;
@@ -74,25 +73,33 @@ protected:
 //
 
   ProcGrid(
-      const Teuchos::RCP<const GridSizeLocal<Ordinal,dim> >& gridSizeLocal,
+      TO& procGridSize,
       const Teuchos::RCP<const BoundaryConditionsGlobal<dim> >& bcg,
-      const Teuchos::RCP<const ProcGridSize<Ordinal,dim> >& procGridSize,
 		 	bool participating ):
+				procGridSize_(procGridSize),
         participating_(participating),
 				commWorld_(),
 				commSub_(),
 				rankWorld_(0),
 				rankSub_(0),
 				iB_(),
-				shift_(),
 				rankL_(),
 				rankU_()//,commSlice_(),commBar_(),rankSlice_(),rankBar_()
 	{
 
-    TEUCHOS_TEST_FOR_EXCEPTION(
-        3!=dim && 4!=dim ,
-        std::logic_error,
-        "Pimpact::ProcGrid::cotor: dim:"<<dim<<" not implemented!!!\n");
+		TEUCHOS_TEST_FOR_EXCEPT( 3!=dim && 4!=dim );
+
+    for( int i=0; i<dim; ++i )
+			TEUCHOS_TEST_FOR_EXCEPT( procGridSize_[i]<1 );
+
+    int commSize;
+    MPI_Comm_size( MPI_COMM_WORLD, &commSize );
+
+    int procSize = 1;
+    for( int i=0; i<dim; ++i )
+      procSize *= procGridSize_[i];
+
+		TEUCHOS_TEST_FOR_EXCEPT( procSize != commSize );
 
     Teuchos::Tuple<int,dim> ijkB;      // mpi grid coordinates
     Teuchos::Tuple<int,dim> periodic = bcg->periodic();  // array for mpir to signal where periodic grid is, from manual should be bool
@@ -106,7 +113,7 @@ protected:
     MPI_Cart_create(
         MPI_COMM_WORLD,
         dim,
-        procGridSize->get(),
+        procGridSize_.getRawPtr(),
         periodic.getRawPtr(),
         true,
         &commWorld_ );
@@ -158,12 +165,6 @@ protected:
     for( int i=0; i<dim; ++i )
       iB_[i] = ijkB[i] + 1;
 
-    // computes index offset
-    for( int i=0; i<3; ++i )
-      shift_[i] = (iB_[i]-1)*( gridSizeLocal->get(i)-1 );
-    if( 4==dim )
-      shift_[3] = (iB_[3]-1)*( gridSizeLocal->get(3) );
-
 
 		if( commWorld_!=MPI_COMM_NULL )
 			for( int i = 0; i<dim; ++i )
@@ -173,7 +174,7 @@ protected:
 		//   		                         d  d          r      r
 		//   		                         i  i          a      a
 		//   		                         r  s          n      n
-		//   		                         e  p          k      k
+	 //   		                         e  p          k      k
 		//   		                         c  l          s      d
 		//   		                         t  a          o      e
 		//   		                         i  c          u      s
@@ -196,37 +197,42 @@ public:
 	/// \note should only be used if knowing what to do(e.g. MG)
 	/// \warning no safety checks
 	ProcGrid(
+			TO procGridSize,
 			bool participating,
 			MPI_Comm commWorld,
 			MPI_Comm commSub,
 			int rankWorld,
 			int rankSub,
 			Teuchos::Tuple<int,dim> ib,
-			Teuchos::Tuple<Ordinal,dim> shift,
 			Teuchos::Tuple<int,dim> rankL,
 			Teuchos::Tuple<int,dim> rankU ):
+		procGridSize_(procGridSize),
 		participating_(participating),
 		commWorld_(commWorld),
 		commSub_(commSub),
 		rankWorld_(rankWorld),
 		rankSub_(rankSub),
 		iB_(ib),
-		shift_(shift),
 		rankL_(rankL),
 		rankU_(rankU)	{}
 
   void print( std::ostream& out=std::cout ) const {
     out << "\t---ProcessorGrid: ---\n";
     out << "\tparticipating: " <<participating_<<"\n";
+		out << "\tProcGridSize: " << procGridSize_ << " ---\n";
     out << "\trankSub: " <<rankSub_<<"\n";
     out << "\trankWorld: " <<rankWorld_<<"\n";
     out << "\trankL: " <<rankL_<<"\n";
     out << "\trankU: " <<rankU_<<"\n";
     out << "\tproc coordinate: " << iB_ << "\n";
-//    out << "\toffset: " << shift_ << "\n";
   }
 
   const bool& participating() const { return( participating_ ); }
+
+	const Ordinal& getNP( int i ) const { return( procGridSize_[i] ); }
+	Ordinal* getNP() const { return( procGridSize_.getRawPtr() ); }
+
+	TO getNPTuple() const { return( procGridSize_ ); }
 
   const MPI_Comm& getCommWorld() const { return( commWorld_ ); }
   const MPI_Comm& getCommS() const { return( commSub_ ); }
@@ -241,9 +247,6 @@ public:
   const int& getIB( int i ) const { return( iB_[i] ); }
   const int* getIB() const { return( iB_.getRawPtr() ); }
 
-//  const int& getShift( int i ) const { return( shift_[i] ); }
-//  const int* getShift() const { return( shift_.getRawPtr() ); }
-
   const int& getRankL( int i ) const { return( rankL_[i] ); }
   const int& getRankU( int i ) const { return( rankU_[i] ); }
 
@@ -254,13 +257,16 @@ public:
 /// \relates ProcGrid
 template<class O, int d>
 Teuchos::RCP<const ProcGrid<O,d> > createProcGrid(
-    const Teuchos::RCP<const GridSizeLocal<O,d> >& gsl,
+    const Teuchos::Tuple<O,d>& procGridSize,
     const Teuchos::RCP<const BoundaryConditionsGlobal<d> >& bcg,
-    const Teuchos::RCP<const ProcGridSize<O,d> >& procGridSize,
 	 	bool participating=true	) {
 
   return(
-      Teuchos::rcp( new ProcGrid<O,d>( gsl, bcg, procGridSize, participating ) ) );
+      Teuchos::rcp(
+				new ProcGrid<O,d>(
+					procGridSize,
+					bcg,
+					participating ) ) );
 
 }
 

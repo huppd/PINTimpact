@@ -19,9 +19,7 @@
 #include "Pimpact_GridSizeLocal.hpp"
 #include "Pimpact_IndexSpace.hpp"
 
-#include "Pimpact_ProcGridSize.hpp"
 #include "Pimpact_ProcGrid.hpp"
-
 
 #include "Pimpact_GridCoordinatesGlobal.hpp"
 #include "Pimpact_GridCoordinatesLocal.hpp"
@@ -87,13 +85,6 @@ public:
 		boundaryConditionsGlobal_ =
 			Pimpact::createBoudaryConditionsGlobal<d>( Pimpact::EDomainType( domain ) );
 
-		procGridSize_ =
-			Pimpact::createProcGridSize<O,d>(
-					pl->get<O>("npx"),
-					pl->get<O>("npy"),
-					pl->get<O>("npz"),
-					pl->get<O>("npf") );
-
 		gridSizeGlobal_ =
 			Pimpact::createGridSizeGlobal<O,d>(
 					pl->get<O>("nx"),
@@ -101,23 +92,28 @@ public:
 					( 2==pl->get<int>("dim") )?2:pl->get<O>("nz"),
 					pl->get<O>("nf") );
 
-		gridSizeLocal_ =
-			Pimpact::createGridSizeLocal<O,d,dNC>(
-					gridSizeGlobal_,
-					procGridSize_,
-					stencilWidths_ );
+		Teuchos::Tuple<O,d> procGridSize;
+		procGridSize[0] = pl->get<O>("npx");
+		procGridSize[1] = pl->get<O>("npy");
+		procGridSize[2] = pl->get<O>("npz");
+		if( d>3 )
+			procGridSize[3] = pl->get<O>("npf");
 
 		procGrid_ =
 			Pimpact::createProcGrid<O,d>(
-					gridSizeLocal_,
-					boundaryConditionsGlobal_,
-					procGridSize_ );
+					procGridSize,
+					boundaryConditionsGlobal_ );
 
 		boundaryConditionsLocal_ =
 			Pimpact::createBoudaryConditionsLocal(
 					boundaryConditionsGlobal_,
-					procGridSize_,
 					procGrid_ );
+
+		gridSizeLocal_ =
+			Pimpact::createGridSizeLocal<O,d,dNC>(
+					gridSizeGlobal_,
+					procGrid_,
+					stencilWidths_ );
 
 		indexSpace_ =
 			Pimpact::createIndexSpace<O,d>(
@@ -125,7 +121,6 @@ public:
 					gridSizeLocal_,
 					boundaryConditionsLocal_,
 				 	procGrid_ );
-
 
 		coordGlobal_ =
 			Pimpact::createGridCoordinatesGlobal<S,O,d>(
@@ -162,7 +157,6 @@ public:
 			const Teuchos::RCP<const IndexSpace<Ordinal,dimension> >& indexSpace,
 			const Teuchos::RCP<const GridSizeGlobal<Ordinal,dimension> >& gridSizeGlobal,
 			const Teuchos::RCP<const GridSizeLocal<Ordinal,dimension> >& gridSizeLocal,
-			const Teuchos::RCP<const ProcGridSize<Ordinal,dimension> >& procGridSize,
 			const Teuchos::RCP<const ProcGrid<Ordinal,dimension> >& procGrid,
 			const Teuchos::RCP<const GridCoordinatesGlobal<Scalar,Ordinal,dimension> >& coordGlobal,
 			const Teuchos::RCP<const GridCoordinatesLocal<Scalar,Ordinal,dimension> >& coordLocal,
@@ -174,7 +168,6 @@ public:
 		indexSpace_(indexSpace),
 		gridSizeGlobal_(gridSizeGlobal),
 		gridSizeLocal_(gridSizeLocal),
-		procGridSize_(procGridSize),
 		procGrid_(procGrid),
 		coordGlobal_(coordGlobal),
 		coordLocal_(coordLocal),
@@ -198,9 +191,6 @@ protected:
 
 	Teuchos::RCP<const GridSizeLocal<Ordinal,dimension> >
 		gridSizeLocal_;
-
-	Teuchos::RCP<const ProcGridSize<Ordinal,dimension> >
-		procGridSize_;
 
 	Teuchos::RCP<const ProcGrid<Ordinal,dimension> >
 		procGrid_;
@@ -239,9 +229,6 @@ public:
 
 	Teuchos::RCP<const GridSizeLocal<Ordinal,dimension> >
 		getGridSizeLocal() const { return( gridSizeLocal_ );  }
-
-	Teuchos::RCP<const ProcGridSize<Ordinal,dimension> >
-		getProcGridSize() const { return( procGridSize_ ); }
 
 	Teuchos::RCP<const ProcGrid<Ordinal,dimension> >
 		getProcGrid() const { return( procGrid_ ); }
@@ -341,8 +328,8 @@ public:
 	const Ordinal* getShift()      const { return( indexSpace_->getShift()  ); }
 	const Ordinal& getShift(int i) const { return( indexSpace_->getShift(i)  ); }
 
-	const Ordinal* getNProc()      const { return( procGridSize_->get() ); }
-	const Ordinal& getNProc(int i) const { return( procGridSize_->get(i) ); }
+	const Ordinal* getNProc()      const { return( procGrid_->getNP() ); }
+	const Ordinal& getNProc(int i) const { return( procGrid_->getNP(i) ); }
 
 	/// \}
 
@@ -359,8 +346,6 @@ public:
 		gridSizeLocal_->print( out );
 
 		indexSpace_->print(out);
-
-		procGridSize_->print( out );
 
 		procGrid_->print( out );
 
