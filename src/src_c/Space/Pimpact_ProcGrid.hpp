@@ -63,12 +63,12 @@ protected:
   /// rank of upper neighbour
   Teuchos::Tuple<int,dim> rankU_;
 
-//public:
-//
-//  MPI_Comm commSlice_[3] ;
+
+	// sub rank and sub comm
+	MPI_Comm commSlice_[dim];
+	Teuchos::Tuple<int,dim> rankSlice_;
 //  MPI_Comm commBar_[3];
 //
-//  Teuchos::Tuple<int,3> rankSlice_;
 //  Teuchos::Tuple<int,3> rankBar_;
 //
 
@@ -87,6 +87,9 @@ protected:
 				rankU_()//,commSlice_(),commBar_(),rankSlice_(),rankBar_()
 	{
 
+		//
+		// --- tests ---
+		// 
 		TEUCHOS_TEST_FOR_EXCEPT( 3!=dim && 4!=dim );
 
     for( int i=0; i<dim; ++i )
@@ -101,7 +104,7 @@ protected:
 
 		TEUCHOS_TEST_FOR_EXCEPT( procSize != commSize );
 
-    Teuchos::Tuple<int,dim> ijkB;      // mpi grid coordinates
+    Teuchos::Tuple<int,dim> ijkB;                        // mpi grid coordinates
     Teuchos::Tuple<int,dim> periodic = bcg->periodic();  // array for mpir to signal where periodic grid is, from manual should be bool
 
 
@@ -110,19 +113,26 @@ protected:
     //    int* bla = procGridSize->getRawPtr();
     //    int mpierror =
 
-    MPI_Cart_create(
-        MPI_COMM_WORLD,
-        dim,
-        procGridSize_.getRawPtr(),
+		//
+		// -- commWorld_ ---
+		// 
+		MPI_Cart_create(
+				MPI_COMM_WORLD,
+				dim,
+				procGridSize_.getRawPtr(),
         periodic.getRawPtr(),
         true,
         &commWorld_ );
 
 
+		//
+		// -- commSub_(just spatial comm without time) ---
+		// -- rankWorld_(just spatial comm without time) ---
+		// -- rankSub_(just spatial comm without time) ---
+		// 
     if( 3==dim ) {
 
       commSub_ = commWorld_;
-
       // gets rank from COMM_CART
 			if( commSub_==MPI_COMM_NULL )
 				rankSub_ = -1;
@@ -147,7 +157,10 @@ protected:
 				MPI_Comm_rank( commSub_, &rankSub_ );
     }
 
+		//
+		// -- iB_ ---
     // gets coordinates in xyz direction from rankWorld and commWorld
+		//
 		if( commWorld_!=MPI_COMM_NULL )
 			MPI_Cart_coords(
 					commWorld_,
@@ -158,14 +171,15 @@ protected:
 			for( int i=0; i<dim; ++i )
 				ijkB[i] = 0;
 
-		//    std::cout << "rankWorld: " << rankWorld_ << " coord: " << ijkB << "\n";
-
 
     // stores coordinates in a fortran fasion
     for( int i=0; i<dim; ++i )
       iB_[i] = ijkB[i] + 1;
 
 
+		//
+		// --- rankL_ rankU_ ---
+		//
 		if( commWorld_!=MPI_COMM_NULL )
 			for( int i = 0; i<dim; ++i )
 				MPI_Cart_shift( commWorld_, i, 1, &rankL_[i], &rankU_[i] );
@@ -174,7 +188,7 @@ protected:
 		//   		                         d  d          r      r
 		//   		                         i  i          a      a
 		//   		                         r  s          n      n
-	 //   		                         e  p          k      k
+	  //  		                         e  p          k      k
 		//   		                         c  l          s      d
 		//   		                         t  a          o      e
 		//   		                         i  c          u      s
@@ -183,6 +197,26 @@ protected:
 		//   		                            n          e
 		//   		                            t       
 
+		//
+		// --- commSlize, rankSlize ---
+		//
+		Teuchos::Tuple<int,dim> temp;
+		for( int i=0; i<dim; ++i ) {
+			for( int j=0; j<dim; ++j )
+				temp[j] = 0;
+			temp[i] = 1;
+
+		if( commWorld_==MPI_COMM_NULL )
+			commSlice_[i] = MPI_COMM_NULL;
+		else
+			MPI_Cart_sub( commWorld_, temp.getRawPtr(), &commSlice_[i] );
+
+		// gets rank from COMM_CART
+		if( commWorld_==MPI_COMM_NULL )
+			rankSlice_[i] = -1;
+		else
+			MPI_Comm_rank( commSlice_[i], &rankSlice_[i] );
+		}
 
     // maybe dispensable...
 		if( commWorld_!=MPI_COMM_NULL )
@@ -218,13 +252,14 @@ public:
 
   void print( std::ostream& out=std::cout ) const {
     out << "\t---ProcessorGrid: ---\n";
-    out << "\tparticipating: " <<participating_<<"\n";
 		out << "\tProcGridSize: " << procGridSize_ << " ---\n";
+    out << "\tparticipating: " <<participating_<<"\n";
     out << "\trankSub: " <<rankSub_<<"\n";
     out << "\trankWorld: " <<rankWorld_<<"\n";
     out << "\trankL: " <<rankL_<<"\n";
     out << "\trankU: " <<rankU_<<"\n";
     out << "\tproc coordinate: " << iB_ << "\n";
+		out << "\trankSlices: " << rankSlice_ << "\n";
   }
 
   const bool& participating() const { return( participating_ ); }
@@ -249,6 +284,9 @@ public:
 
   const int& getRankL( int i ) const { return( rankL_[i] ); }
   const int& getRankU( int i ) const { return( rankU_[i] ); }
+
+  const MPI_Comm& getCommSlice( int i ) const { return( commSlice_[i] ); }
+  const int&      getRanklice( int i ) const { return( rankSlice_[i] ); }
 
 }; // end of class ProcGrid
 

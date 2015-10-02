@@ -392,11 +392,9 @@ public:
 ///
 /// \relates MultiHarmonicField
 /// \param space scalar Vector Space to which returned vector belongs
-/// \deprecated nf 
 template<class FieldT>
 Teuchos::RCP< MultiHarmonicField< FieldT > > createMultiHarmonic(
-    const Teuchos::RCP<const typename FieldT::SpaceT >& space,
-    int nf=-1 ) {
+    const Teuchos::RCP<const typename FieldT::SpaceT >& space ) {
 
 	return(
 			create< MultiHarmonicField<FieldT> >( space ) );

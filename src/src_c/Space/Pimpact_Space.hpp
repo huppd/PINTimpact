@@ -68,10 +68,13 @@ public:
 
 		Teuchos::writeParameterListToXmlFile( *pl, "parameterSpace.xml" );
 
-		stencilWidths_ = Pimpact::createStencilWidths<dimension,dimNC>();
+		stencilWidths_ = Pimpact::createStencilWidths<dimension,dimNC>( pl->get<bool>("spectral in time") );
 
+
+		int dim = pl->get<int>("dim");
+		TEUCHOS_TEST_FOR_EXCEPT( 2!=dim && 3!=dim );
 		domainSize_ = Pimpact::createDomainSize<S>(
-				pl->get<int>("dim"),
+				dim,
 				pl->get<S>("Re"),
 				pl->get<S>("alpha2"),
 				pl->get<S>("lx"),
@@ -382,6 +385,8 @@ public:
 
 
 			// grid size
+			pl->set<bool>("spectral in time", false, "enables spectral time discretization" );
+
 			pl->set<O>("nx", 33, "amount of grid points in x-direction: a*2**q+1" );
 			pl->set<O>("ny", 33, "amount of grid points in y-direction: a*2**q+1" );
 			pl->set<O>("nz", 33, "amount of grid points in z-direction: a*2**q+1" );

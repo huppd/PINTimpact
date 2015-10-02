@@ -1338,8 +1338,8 @@ TEUCHOS_UNIT_TEST( CompoundOperator, CompoundOpWrap ) {
 	auto x =
 		Pimpact::createMultiField(
 				Pimpact::createCompoundField(
-					Pimpact::createMultiHarmonic<VF>( space, 10 ),
-					Pimpact::createMultiHarmonic<SF>( space, 10 )
+					Pimpact::createMultiHarmonic<VF>( space ),
+					Pimpact::createMultiHarmonic<SF>( space )
 					)
 				);
 

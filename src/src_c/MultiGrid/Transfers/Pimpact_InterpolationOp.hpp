@@ -304,7 +304,7 @@ public:
 		spaceF_(spaceF),
 		comm2_(MPI_COMM_NULL) {
 
-			init( spaceF_->getProcGridSize()->getTuple() );
+			init( spaceF_->getProcGrid()->getNPTuple() );
 
 	}
 

@@ -188,11 +188,6 @@ public:
   ///	the same thing as <tt>mv := 0*mv + alpha*A + beta*B</tt> in IEEE 754
   ///	floating-point arithmetic. (Remember that NaN*0 = NaN.)
   void add( Scalar alpha, const MV& A, Scalar beta, const MV& B ) {
-    //    Iter j = const_cast<MV&>(A).sInd_;
-    //    Iter k = const_cast<MV&>(B).sInd_;
-    //    for( Iter i=sInd_; i<eInd_; ++i ) {
-    //      (*i)->add( alpha, **(j++), beta, **(k++) );
-    //    }
     for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
       mfs_[i]->add( alpha, *A.mfs_[i], beta, *B.mfs_[i] );
     changed();
@@ -206,10 +201,6 @@ public:
   /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
   void abs(const MV& y) {
-    //    Iter j=const_cast<MV&>(y).sInd_;
-    //    for( Iter i=sInd_; i<eInd_; ++i )
-    //      (*i)->abs( **(j++) );
-    //    Iter j=const_cast<MV&>(y).sInd_;
     for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
       mfs_[i]->abs( *y.mfs_[i] );
     changed();
@@ -305,10 +296,12 @@ public:
 
     double nor=0.;
 
-    Iter j = const_cast<MV&>(weights).sInd_;
+//    Iter j = const_cast<MV&>(weights).sInd_;
 
     for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
-      nor+= mfs_[i]->norm( **(j++) );
+//      nor+= mfs_[i]->norm( **(j++) );
+      nor+= mfs_[i]->norm( *weights.mfs_[i] );
+
 
     if( global ) this->reduceNorm( comm(), nor, Belos::TwoNorm );
 

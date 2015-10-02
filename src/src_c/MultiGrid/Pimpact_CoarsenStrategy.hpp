@@ -113,16 +113,21 @@ protected:
 				gridSizeGlobalTup[3] = gridSizeGlobalTup[3]/2;
 		}
 
-    auto gridSizeGlobal = createGridSizeGlobal<Ordinal,dimension>( gridSizeGlobalTup );
+    auto gridSizeGlobal = createGridSizeGlobal<Ordinal,dimension>(
+				gridSizeGlobalTup );
 
-    auto procGridSize = space->getProcGridSize();
+//    auto procGridSize = space->getNPTuple();
+
+    auto procGrid = space->getProcGrid();
+//			Pimpact::createProcGrid<Ordinal,dimension>(
+//					procGridSize,
+//					boundaryConditionsGlobal);
 
     auto gridSizeLocal =
 			Pimpact::createGridSizeLocal<Ordinal,dimension,dimNCC>(
-					gridSizeGlobal, procGridSize, stencilWidths );
-
-    auto procGrid = Pimpact::createProcGrid<Ordinal,dimension>(
-        gridSizeLocal, boundaryConditionsGlobal, procGridSize );
+					gridSizeGlobal,
+					procGrid,
+					stencilWidths );
 
     auto indexSpace =
 			Pimpact::createIndexSpace<Ordinal,dimension>(
@@ -161,7 +166,6 @@ protected:
                  indexSpace,
                  gridSizeGlobal,
                  gridSizeLocal,
-                 procGridSize,
                  procGrid,
                  coordGlobal,
                  coordLocal,
@@ -177,15 +181,15 @@ protected:
   static Teuchos::RCP< const CSpaceT > createCoarseSpaceT(
       const Teuchos::RCP<const FSpaceT>& space ) {
 
-    auto stencilWidths = createStencilWidths<dimension,dimNCC>();
+    auto stencilWidths =
+			createStencilWidths<dimension,dimNCC>(
+					space->getStencilWidths()->spectralT() );
 
     auto domainSize = space->getDomainSize();
 
     auto boundaryConditionsGlobal = space->getBCGlobal();
 
     auto boundaryConditionsLocal = space->getBCLocal();
-
-    auto procGridSize = space->getProcGridSize();
 
     auto gridSizeGlobalTup = space->getGridSizeGlobal()->getTuple();
 
@@ -225,7 +229,6 @@ protected:
                  indexSpace,
                  gridSizeGlobal,
                  gridSizeLocal,
-                 procGridSize,
                  procGrid,
                  coordGlobal,
                  coordLocal,

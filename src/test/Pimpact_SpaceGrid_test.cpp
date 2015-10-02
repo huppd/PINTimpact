@@ -41,11 +41,11 @@ TEUCHOS_STATIC_SETUP() {
 // test shows that nLoc is not consistent with start and end indexes
 TEUCHOS_UNIT_TEST( StencilWidths, localConsistency ) {
 
-  auto sW32 = Pimpact::createStencilWidths<3,2>();
+  auto sW32 = Pimpact::createStencilWidths<3,2>(false);
 
   sW32->print();
 
-  auto sW34 = Pimpact::createStencilWidths<3,4>();
+  auto sW34 = Pimpact::createStencilWidths<3,4>(false);
 
   sW34->print();
 
@@ -66,28 +66,120 @@ TEUCHOS_UNIT_TEST( IndexSpace, localConsistency ) {
       pl->get("ly",2.),
       pl->get("lz",1.) );
 
-  auto stencilWidths = Pimpact::createStencilWidths<d,4>();
+  auto stencilWidths = Pimpact::createStencilWidths<d,4>( false );
 
-  auto boundaryConditionsGlobal = Pimpact::createBoudaryConditionsGlobal( Pimpact::EDomainType( pl->get("domain",2) ) );
+  auto boundaryConditionsGlobal =
+		Pimpact::createBoudaryConditionsGlobal( Pimpact::EDomainType( pl->get("domain",2) ) );
 
-  auto procGridSize = Pimpact::createProcGridSize<O,d>( pl->get("npx",2), pl->get("npy",2), pl->get("npz",1), pl->get("npf",1) );
+ auto procGridSize =
+	 Teuchos::tuple(
+			 pl->get("npx",2),
+			 pl->get("npy",2),
+			 pl->get("npz",1) );
 
-  auto gridSizeGlobal = Pimpact::createGridSizeGlobal<O,d>( pl->get("nx",33), pl->get("ny",33), pl->get("nz",33), pl->get("nf",32) );
+  auto gridSizeGlobal =
+		Pimpact::createGridSizeGlobal<O,d>(
+				pl->get("nx",33),
+				pl->get("ny",33),
+				pl->get("nz",33),
+				pl->get("nf",32) );
 
-  auto gridSizeLocal = Pimpact::createGridSizeLocal<O,d>( gridSizeGlobal, procGridSize, stencilWidths );
+  auto procGrid = Pimpact::createProcGrid<O,d>(
+			procGridSize,
+			boundaryConditionsGlobal );
 
-  auto procGrid = Pimpact::createProcGrid<O,d>( gridSizeLocal, boundaryConditionsGlobal, procGridSize );
+  auto gridSizeLocal =
+		Pimpact::createGridSizeLocal<O,d>(
+				gridSizeGlobal,
+				procGrid,
+				stencilWidths );
 
-  auto boundaryConditionsLocal = Pimpact::createBoudaryConditionsLocal( boundaryConditionsGlobal, procGridSize, procGrid );
+  auto boundaryConditionsLocal =
+		Pimpact::createBoudaryConditionsLocal(
+				boundaryConditionsGlobal,
+				procGrid );
 
-  auto fieldSpace = Pimpact::createStencilWidths<d,4>();
 
-  auto indexSpace = Pimpact::createIndexSpace<O,d>( fieldSpace, gridSizeLocal, boundaryConditionsLocal );
+  auto indexSpace = Pimpact::createIndexSpace<O,d>(
+			stencilWidths,
+			gridSizeLocal,
+			boundaryConditionsLocal,
+			procGrid );
 
   indexSpace->print();
 
 }
 
+
+TEUCHOS_UNIT_TEST( ProcGrid, test ) {
+
+	const int d = 4;
+
+	auto pl = Teuchos::parameterList();
+	auto domainSize = Pimpact::createDomainSize(
+			pl->get( "dim", dim ),
+			pl->get("Re",1.),
+			pl->get("alpha2",1.),
+			pl->get("lx",2.),
+			pl->get("ly",2.),
+			pl->get("lz",1.) );
+
+	auto stencilWidths = Pimpact::createStencilWidths<d,4>( true );
+
+	auto boundaryConditionsGlobal =
+		Pimpact::createBoudaryConditionsGlobal<d>( Pimpact::EDomainType( pl->get("domain",2) ) );
+
+	auto gridSizeGlobal =
+		Pimpact::createGridSizeGlobal<O,d>(
+				pl->get("nx",17),
+				pl->get("ny",17),
+				pl->get("nz",17),
+				pl->get("nf",32) );
+
+	auto procGridSize =
+		Teuchos::tuple(
+				pl->get("npx",1),
+				pl->get("npy",1),
+				pl->get("npz",1),
+				pl->get("npf",1) );
+
+	auto procGrid =
+		Pimpact::createProcGrid<O,d>(
+				procGridSize,
+				boundaryConditionsGlobal );
+
+
+	std::ofstream file;
+	std::string fname = "pgr.txt";
+	fname.insert( 3, std::to_string( (long long)procGrid->getRank() ) );
+	file.open( fname, std::ofstream::out );
+	procGrid->print(file);
+
+	auto gridSizeLocal =
+		Pimpact::createGridSizeLocal<O,d>(
+				gridSizeGlobal,
+				procGrid,
+				stencilWidths );
+
+//	gridSizeLocal->print();
+
+	auto boundaryConditionsLocal =
+		Pimpact::createBoudaryConditionsLocal(
+				boundaryConditionsGlobal,
+				procGrid );
+
+
+	auto indexSpace = Pimpact::createIndexSpace<O,d>(
+			stencilWidths,
+			gridSizeLocal,
+			boundaryConditionsLocal,
+			procGrid );
+
+	file << "\n\n";
+	indexSpace->print( file );
+	file.close();
+
+}
 
 
 TEUCHOS_UNIT_TEST( Space, GlobalGridCoordinates ) {

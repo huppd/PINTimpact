@@ -15,8 +15,6 @@
 
 #include "pimpact.hpp"
 #include "Pimpact_Types.hpp"
-#include "Pimpact_DomainSize.hpp"
-#include "Pimpact_ProcGridSize.hpp"
 
 #include "Pimpact_Space.hpp"
 

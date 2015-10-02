@@ -29,9 +29,11 @@ template< int dim, int dimNC >
 class StencilWidths {
 
   template< int d, int dnc >
-  friend const Teuchos::RCP<const StencilWidths<d,dnc> > createStencilWidths();
+  friend const Teuchos::RCP<const StencilWidths<d,dnc> > createStencilWidths(const bool&);
 
 protected:
+
+	const bool spectralT_;
 
   typedef const Teuchos::Tuple<int,dim> TO;
 
@@ -42,8 +44,8 @@ protected:
   TStenc ncbC_;
   TStenc ncbD_;
   TStenc ncbG_;
-  ///\}
-  ///\}
+  /// \}
+  /// \}
 
   /// \{ \name Intervallgrenzen der Differenzen-Koeffizienten-Arrays
 
@@ -78,7 +80,8 @@ protected:
 protected:
 
   /// \brief constructor
-  StencilWidths():
+  StencilWidths( const bool& spectralT ):
+		spectralT_(spectralT),
     ncbC_(),
     ncbD_(),
     ncbG_(),
@@ -245,6 +248,8 @@ public:
     out << "\tls: " << ls_ << "\n";
   }
 
+	const bool& spectralT() const { return( spectralT_ ); }
+
   int  getDimNcbC( int i ) const { return( ncbC_[i].size() ); }
   int  getDimNcbD( int i ) const { return( ncbD_[i].size() ); }
   int  getDimNcbG( int i ) const { return( ncbG_[i].size() ); }
@@ -293,11 +298,11 @@ public:
 /// should be changed by getting vallues from \c ProcGridSize and \c GridSize
 /// \relates StencilWidths
 template< int d, int dnc  >
-const Teuchos::RCP<const StencilWidths<d,dnc> > createStencilWidths(){
+const Teuchos::RCP<const StencilWidths<d,dnc> > createStencilWidths( const bool& spectralT ){
 
   return(
       Teuchos::RCP<const StencilWidths<d,dnc> > (
-          new StencilWidths<d,dnc>() ) );
+          new StencilWidths<d,dnc>( spectralT ) ) );
 }
 
 

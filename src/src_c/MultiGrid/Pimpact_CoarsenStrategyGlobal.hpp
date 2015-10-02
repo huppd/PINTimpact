@@ -152,10 +152,10 @@ protected:
 //		std::cout << "rank: " << space->rankST()<< "\t gridSizGLobal: " << gridSizeGlobalTup << "\n";
     auto gridSizeGlobal = createGridSizeGlobal<Ordinal,dimension>( gridSizeGlobalTup );
 
-		auto procGridSize = space->getProcGridSize();
+//		auto procGridSize = space->getProcGridSize();
 		auto procGrid = space->getProcGrid();
 
-    TO np = space->getProcGridSize()->getTuple();
+    TO np = procGrid->getNPTuple();
 		TO npNew = np;
 //		std::cout << "rank: " << space->rankST()<< "\t procGridSizOld: " << npNew << "\n";
     for( int i=0; i<dimension; ++i ) {
@@ -192,8 +192,6 @@ protected:
 				procGridChanged=true;
 
 		auto gridSizeLocal = space->getGridSizeLocal();
-//			Pimpact::createGridSizeLocal<Ordinal,dimension,dimNCC>(
-//					gridSizeGlobal, procGridSize, stencilWidths );
 
 		if( procGridChanged ) { 
 
@@ -227,7 +225,6 @@ protected:
 				for( int i=0; i<dimension; ++i ) 
 					n *= npNew[i];
 				int* newRanks = new int[n];
-//				std::cout << "rankWorld: " << rankWorld << "n: " << n << "\n";
 
 				TO rankCoord;
 
@@ -235,15 +232,15 @@ protected:
 					for( int j=0; j<npNew[1]; ++j )
 						for( int k=0; k<npNew[2]; ++k ) {
 							if( 4==dimension ) {
-//								for( int l=0; l<npNew[3]; ++l ) {
-//									rankCoord[0] = i; rankCoord[1]=j; rankCoord[2] = k; rankCoord[3] = l;
-//									MPI_Cart_rank(
-//											commWorld,
-//											rankCoord.getRawPtr(),
-//											&newRanks[i+j*npNew[0]+k*npNew[0]*npNew[2]+l*npNew[0]*npNew[2]*npNew[3] ] );
-//									if( rankWorld==newRanks[i+j*npNew[0]+k*npNew[0]*npNew[2]+l*npNew[0]*npNew[2]*npNew[3] ] )
-//										participating = true;
-//								}
+								//								for( int l=0; l<npNew[3]; ++l ) {
+								//									rankCoord[0] = i; rankCoord[1]=j; rankCoord[2] = k; rankCoord[3] = l;
+								//									MPI_Cart_rank(
+								//											commWorld,
+								//											rankCoord.getRawPtr(),
+								//											&newRanks[i+j*npNew[0]+k*npNew[0]*npNew[2]+l*npNew[0]*npNew[2]*npNew[3] ] );
+								//									if( rankWorld==newRanks[i+j*npNew[0]+k*npNew[0]*npNew[2]+l*npNew[0]*npNew[2]*npNew[3] ] )
+								//										participating = true;
+								//								}
 							}
 							else {
 								rankCoord[0] = (i*stride[0])%NB[0];
@@ -255,10 +252,8 @@ protected:
 										&newRanks[i+j*npNew[0]+k*npNew[0]*npNew[1] ] );
 								if( rankWorld==newRanks[i+j*npNew[0]+k*npNew[0]*npNew[1] ])
 									participating = true;
-//							std::cout << "rankWorld: " << rankWorld << "\t strid: "<< stride << "\n\tt" << "rankCOrd: " << rankCoord << "\n";
-
 							}
-					}
+						}
 				MPI_Comm commTemp;
 				MPI_Group baseGroup, newGroup;
 
@@ -278,56 +273,30 @@ protected:
 
 			}
 
-			procGridSize = createProcGridSize( npNew, commSub, participating );
-			
-			gridSizeLocal =
-				Pimpact::createGridSizeLocal<Ordinal,dimension,dimNCC>(
-						gridSizeGlobal, procGridSize, stencilWidths );
-
-			TO shift;
-			// computes index offset
-			for( int i=0; i<3; ++i )
-				shift[i] = (ib[i]-1)*( gridSizeLocal->get(i)-1 );
-			if( 4==dimension )
-				shift[3] = (ib[3]-1)*( gridSizeLocal->get(3) );
-
 			procGrid =
 				Teuchos::rcp(
 						new ProcGrid<Ordinal,dimension>(
+							npNew,
 							participating,
 							commWorld,
 							commSub,
 							rankWorld,
 							rankSub,
 							ib,
-							shift,
 							rankL,
 							rankU ) );
 
-
 		} 
-		else {
 
-			gridSizeLocal =
-				Pimpact::createGridSizeLocal<Ordinal,dimension,dimNCC>(
-						gridSizeGlobal, procGridSize, stencilWidths );
-
-			// necessary because offset has to be recomputed
-			procGrid =
-				Pimpact::createProcGrid<Ordinal,dimension>(
-						gridSizeLocal,
-						boundaryConditionsGlobal,
-						procGridSize,
-						space()->getProcGrid()->participating()
-						);
-
-		}
-
+		gridSizeLocal =
+			Pimpact::createGridSizeLocal<Ordinal,dimension,dimNCC>(
+					gridSizeGlobal,
+					procGrid,
+					stencilWidths );
 
 		boundaryConditionsLocal =
 			createBoudaryConditionsLocal( 
 					boundaryConditionsGlobal,
-					procGridSize,
 					procGrid );
 
     auto indexSpace = Pimpact::createIndexSpace<Ordinal,dimension>(
@@ -366,7 +335,6 @@ protected:
                  indexSpace,
                  gridSizeGlobal,
                  gridSizeLocal,
-                 procGridSize,
                  procGrid,
                  coordGlobal,
                  coordLocal,
@@ -382,15 +350,15 @@ protected:
   static Teuchos::RCP< const CSpaceT > createCoarseSpaceT(
       const Teuchos::RCP<const FSpaceT>& space ) {
 
-    auto stencilWidths = createStencilWidths<dimension,dimNCC>();
+    auto stencilWidths =
+			createStencilWidths<dimension,dimNCC>(
+					space->getStencilWidths()->spectralT() );
 
     auto domainSize = space->getDomainSize();
 
     auto boundaryConditionsGlobal = space->getBCGlobal();
 
     auto boundaryConditionsLocal = space->getBCLocal();
-
-    auto procGridSize = space->getProcGridSize();
 
     auto gridSizeGlobalTup = space->getGridSizeGlobal()->getTuple();
 
@@ -431,7 +399,6 @@ protected:
                  indexSpace,
                  gridSizeGlobal,
                  gridSizeLocal,
-                 procGridSize,
                  procGrid,
                  coordGlobal,
                  coordLocal,

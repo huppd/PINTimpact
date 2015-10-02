@@ -28,7 +28,7 @@ namespace Pimpact {
 ///
 /// Index         | BoundaryConditionslocal>0 | BoundaryConditionslocal<=0 | symmetryBoundaryConditions
 /// ------------- | --------------------------| ---------------------------| ---------------------------
-/// sInd          | 1                         | 1                          | 1
+/// Ind          | 1                         | 1                          | 1
 /// eInd          | nLoc                      | nLoc-1                     | nLoc
 ///
 /// Index           | BoundaryConditionslocal>0 | BoundaryConditionslocal<=0 | symmetryBoundaryConditions
@@ -102,13 +102,45 @@ protected:
         eIndS_[i] = gridSizeLocal->get(i);
     }
 
+    // time direction automatically periodic BC
     if( 4==dimension ) {
-      sIndS_[3] = 0 - sW->getBL(3);
-      eIndS_[3] = gridSizeLocal->get(3) + sW->getBU(3) - sW->getBL(3);
+			if( sW->spectralT() ) {
+				Ordinal nl  = (gridSizeLocal->get(3)+1)/procGrid->getNP(3);
+				Ordinal rem = (gridSizeLocal->get(3)+1)%procGrid->getNP(3);
+				int rank = procGrid->getIB(3)-1;
+				Ordinal sI = -1 +  rank   *nl + (( rank   <rem)? rank   :rem);
+				Ordinal eI = -1 + (rank+1)*nl + (((rank+1)<rem)?(rank+1):rem);
+				std::cout << "\tnl: " << nl << "\trem: " << rem << "\trank: " << rank << "\tsI: " << sI << "\teI: " << eI << "\n";
+				sIndS_[3] = sI;
+				eIndS_[3] = eI;
+				for( int i=0; i<3; ++i ) {
+					sIndU_[i][3] = sI;
+					eIndU_[i][3] = eI;
+				}
+				for( int i=0; i<3; ++i ) {
+					sIndUB_[i][3] = sI;
+					eIndUB_[i][3] = eI;
+				}
+			}
+			else{
+				Ordinal sI = 0 - sW->getBL(3);
+				Ordinal eI = gridSizeLocal->get(3) + sW->getBU(3) - sW->getBL(3);
+				sIndS_[3] = sI;
+				eIndS_[3] = eI;
+				for( int i=0; i<3; ++i ) {
+					sIndU_[i][3] = sI;
+					eIndU_[i][3] = eI;
+				}
+				for( int i=0; i<3; ++i ) {
+					sIndUB_[i][3] = sI;
+					eIndUB_[i][3] = eI;
+				}
+			}
     }
 
+		//
     // --- init IndU_ -------------------------------
-
+		//
     for( int field=0; field<3; ++field )
       for( int dir=0; dir<3; ++dir ) {
         sIndU_[field][dir] = 2              + sW->getLS(dir);
@@ -171,14 +203,9 @@ protected:
       eIndU_[W][2] = gridSizeLocal->get(2)-1;
     }
 
-    if( 4==dimension ) {
-      for( int i=0; i<3; ++i ) {
-        sIndU_[i][3] = 0 - sW->getBL(3);
-        eIndU_[i][3] = gridSizeLocal->get(3) + sW->getBU(3) - sW->getBL(3);
-      }
-    }
-
+		//
     // --- init IndUB_ -------------------------------
+		// 
     for( int i=0; i<3; ++i ) {
       sIndUB_[U][i] = 2            + sW->getLS(i);
       eIndUB_[U][i] = gridSizeLocal->get(i) + sW->getLS(i);
@@ -246,15 +273,10 @@ protected:
       eIndUB_[W][2] = gridSizeLocal->get(2)-1;
     }
 
-    // time direction automatically periodic BC
-    if( 4==dimension ) {
-      for( int i=0; i<3; ++i ) {
-        sIndUB_[i][3] = 0 - sW->getBL(3);
-        eIndUB_[i][3] = gridSizeLocal->get(3) + sW->getBU(3) - sW->getBL(3);
-      }
-    }
 
-    // computes index offset
+		//
+    // --- computes index offset -----------------------------------
+		//
     for( int i=0; i<3; ++i )
       shift_[i] = (procGrid->getIB(i)-1)*( gridSizeLocal->get(i)-1 );
     if( 4==dimension )

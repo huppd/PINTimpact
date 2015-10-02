@@ -56,8 +56,12 @@ protected:
 			for( int i=0; i<3; ++i )
 				gridSize_[i] = 1 + ( gridSizeGlobal->get(i)-1 )/procGrid->getNP(i);
 
-			if( 4==dim )
-				gridSize_[3] = gridSizeGlobal->get(3)/procGrid->getNP(3);
+			if( 4==dim ) {
+				if( stencilWidths->spectralT() ) 
+					gridSize_[3] = gridSizeGlobal->get(3);
+				else
+					gridSize_[3] = gridSizeGlobal->get(3)/procGrid->getNP(3);
+			}
 
 			// tests if local grid size is usable for multigrid and is big enough
 			for( int i=0; i<dim; ++i ) {
