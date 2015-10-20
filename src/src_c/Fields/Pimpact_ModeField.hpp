@@ -328,6 +328,28 @@ public:
     fields_->write(count+1);
   }
 
+  /// \name comunication methods.
+  /// \brief highly dependent on underlying storage should only be used by Operator or on top field implementer.
+  ///
+  /// \{
+	
+//  void changed() const {
+//    fieldc_->changed( dir );
+//    fields_->changed( dir );
+//  }
+
+  void exchange() const {
+    fieldc_->exchange();
+    fields_->exchange();
+  }
+
+  void setExchanged() const {
+    fieldc_->setExchanged();
+    fields_->setExchanged();
+  }
+
+
+  /// \}
 
 }; // end of class ModeField
 

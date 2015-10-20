@@ -21,12 +21,10 @@ namespace Pimpact{
 
 /// \brief global grid size(independent of FieldType)
 ///
-///
-/// \todo include setter method, such that it gets update with enlarging Fourier modes!!!
-/// one could think about inheriting from Tuple, or generalize for global and local use
+/// \todo remove tpara dimension and rm getters
 /// \ingroup SpaceObject
 template<class Ordinal, int dimension>
-class GridSizeGlobal {
+class GridSizeGlobal : public Teuchos::Tuple<Ordinal,4> {
 
   template<class OT, int d>
   friend Teuchos::RCP<const GridSizeGlobal<OT,d> > createGridSizeGlobal( OT n1, OT n2, OT n3, OT nt );
@@ -34,31 +32,24 @@ class GridSizeGlobal {
   template<class OT, int d>
   friend Teuchos::RCP<const GridSizeGlobal<OT,d> > createGridSizeGlobal( const Teuchos::Tuple<OT,4>& tuple );
 
-public:
-
-  typedef Teuchos::Tuple<Ordinal,4> TO;
 
 protected:
 
-	TO gridSize_;
-
 	/// \todo test also thrid dimension( not on coarser grids)
-	GridSizeGlobal( const TO& gridSize ):
-		gridSize_( gridSize ) {
+	GridSizeGlobal( const Teuchos::Tuple<Ordinal,4>& gridSize ):
+		Teuchos::Tuple<Ordinal,4>( gridSize ) {
+
 			for( int i=0; i<3; ++i )
-				TEUCHOS_TEST_FOR_EXCEPT( (gridSize[i]-1)%2 != 0 );
+				TEUCHOS_TEST_FOR_EXCEPT( ((*this)[i]-1)%2 != 0 );
+
 	};
 
 public:
 
-	const Ordinal& get( int i ) const  { return( gridSize_[i] ); }
-
-	const Ordinal* get() const { return( gridSize_.getRawPtr() ); }
-
-	const TO& getTuple() const { return( gridSize_ ); }
+	const Ordinal& get( int i ) const  { return( (*this)[i] ); }
 
   void print( std::ostream& out=std::cout ) const {
-    out << " --- GridSizeGlobal: " << gridSize_ << " ---\n";
+    out << " --- GridSizeGlobal: " << *this << " ---\n";
 
   };
 
@@ -74,8 +65,7 @@ Teuchos::RCP<const GridSizeGlobal<O,d> > createGridSizeGlobal( O n1, O n2, O n3,
     temp[0] = n1;
     temp[1] = n2;
     temp[2] = n3;
-//		if( 4==d )
-			temp[3] = nt;
+		temp[3] = nt;
   return(
       Teuchos::rcp(
           new GridSizeGlobal<O,d>( temp ) ) );
@@ -87,11 +77,9 @@ Teuchos::RCP<const GridSizeGlobal<O,d> > createGridSizeGlobal( O n1, O n2, O n3,
 template<class O, int d>
 Teuchos::RCP<const GridSizeGlobal<O,d> > createGridSizeGlobal( const Teuchos::Tuple<O,4>& to  ) {
 
-  return(
-      Teuchos::rcp(
-          new GridSizeGlobal<O,d>( to )
-				)
-			);
+	return(
+			Teuchos::rcp(
+				new GridSizeGlobal<O,d>( to ) ) );
 
 }
 

@@ -53,7 +53,7 @@ public:
 
   void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 		
-		int Nf = zeroOp_->space()->nGlo(3);
+//		int Nf = zeroOp_->space()->nGlo(3);
 
 		Scalar iRe = 1./zeroOp_->space()->getDomainSize()->getRe();
 		Scalar a2 = zeroOp_->space()->getDomainSize()->getAlpha2()*iRe;
@@ -68,9 +68,11 @@ public:
 		para->set<Scalar>( "mulL", iRe );
 		zeroOp_->setParameter( para );
 
-    zeroOp_->apply( x.getConst0Field(), y.get0Field() );
+		if( space()->sInd(U,3)<0 )
+			zeroOp_->apply( x.getConst0Field(), y.get0Field() );
 
-		for( int i=0; i<Nf; ++i ) {
+//		for( int i=0; i<Nf; ++i ) {
+		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i ){ 
 //			if( a2*(i+1)<iRe ) {
 //				zeroOp_->apply( x.getConstCField(i), y.getCField(i) );
 //				zeroOp_->apply( x.getConstSField(i), y.getSField(i) );
@@ -84,6 +86,7 @@ public:
 			modeOp_->apply( x.getConstField(i), y.getField(i) );
 //			}
 		}
+		y.changed();
 
   }
 

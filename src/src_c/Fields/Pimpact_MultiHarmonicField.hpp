@@ -50,6 +50,8 @@ protected:
 
 	Scalar* s_;
 
+  mutable bool exchangedState_;
+
 private:
 
 	void allocate() {
@@ -69,7 +71,8 @@ public:
 			const Teuchos::RCP<const SpaceT>& space ):
 		AF( space ),
 		field0_( Teuchos::rcp( new Field(space,false) ) ),
-		fields_(space->nGlo(3)) {
+		fields_(space->nGlo(3)),
+    exchangedState_(true) {
 
 			for( Ordinal i=0; i< space->nGlo(3); ++i )
 				fields_[i] = Teuchos::rcp( new ModeField<Field>(space,false) );
@@ -88,7 +91,8 @@ public:
 	MultiHarmonicField( const MultiHarmonicField& vF, ECopyType copyType=DeepCopy ):
 		AF( vF.space() ),
 		field0_( Teuchos::rcp( new Field( *vF.field0_, copyType ) ) ),
-		fields_( vF.space()->nGlo(3) ) {
+		fields_( vF.space()->nGlo(3) ),
+    exchangedState_(vF.exchangedState_) {
 
 			for( Ordinal i=0; i< space()->nGlo(3); ++i )
 				fields_[i] = Teuchos::rcp( new ModeField<Field>( vF.getConstField(i), copyType ) );
@@ -148,13 +152,16 @@ public:
 
   Teuchos::RCP<const SpaceT> space() const { return( AF::space_ ); }
 
-  const MPI_Comm& comm() const { return(field0_->comm()); }
+  const MPI_Comm& comm() const { return( space()->getProcGrid()->getCommWorld() ); }
 
   /// \brief returns the length of Field.
   ///
   /// the vector length is with regard to the inner points
   Ordinal getLength( bool nox_vec=false ) const {
-		Ordinal len = field0_->getLength(true);
+
+		Ordinal len = 0;
+		len += field0_->getLength(true);
+
 		for( Ordinal i=0; i<space()->nGlo(3); ++i )
 			len += fields_[i]->getLength(true);
     return( len );
@@ -172,11 +179,17 @@ public:
   /// \{
 
   /// \brief Replace \c this with \f$\alpha A + \beta B\f$.
+	/// \todo add test for consistent VectorSpaces in debug mode
   void add( const Scalar& alpha, const MV& A, const Scalar& beta, const MV& B ) {
-    // add test for consistent VectorSpaces in debug mode
-    field0_->add(alpha, *A.field0_, beta, *B.field0_);
-		for( Ordinal i=0; i<space()->nGlo(3); ++i )
+
+		if( space()->sInd(U,3)<0 )
+			field0_->add(alpha, *A.field0_, beta, *B.field0_);
+
+		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
 			getFieldPtr(i)->add( alpha, A.getConstField(i), beta, B.getConstField(i) );
+
+		changed();
+
   }
 
 
@@ -187,9 +200,15 @@ public:
   /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
   void abs(const MV& y) {
-    field0_->abs( *y.field0_ );
-		for( Ordinal i=0; i<space()->nGlo(3); ++i )
+
+		if( space()->sInd(U,3)<0 )
+			field0_->abs( *y.field0_ );
+
+		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
 			getFieldPtr(i)->abs( y.getConstField(i) );
+
+		changed();
+
   }
 
 
@@ -199,17 +218,29 @@ public:
   /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
   /// \return Reference to this object
   void reciprocal(const MV& y){
-    field0_->reciprocal( *y.field0_ );
-		for( Ordinal i=0; i<space()->nGlo(3); ++i )
+
+		if( space()->sInd(U,3)<0 )
+			field0_->reciprocal( *y.field0_ );
+
+		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
 			getFieldPtr(i)->reciprocal( y.getConstField(i) );
+
+		changed();
+
   }
 
 
   /// \brief Scale each element of the vectors in \c this with \c alpha.
   void scale( const Scalar& alpha ) {
-    field0_->scale(alpha);
-		for( Ordinal i=0; i<space()->nGlo(3); ++i )
+
+		if( space()->sInd(U,3)<0 )
+			field0_->scale(alpha);
+
+		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
 			getFieldPtr(i)->scale(alpha);
+
+		changed();
+
   }
 
 
@@ -219,19 +250,31 @@ public:
   /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
   void scale(const MV& a) {
-    field0_->scale( *a.field0_ );
-		for( Ordinal i=0; i<space()->nGlo(3); ++i )
+
+		if( space()->sInd(U,3)<0 )
+			field0_->scale( *a.field0_ );
+
+		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
 			getFieldPtr(i)->scale( a.getConstField(i) );
+
+		changed();
   }
 
+
+
+
+  /// \}
+  /// \name Norm method and SP
+  /// \{
 
   /// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
   Scalar dot ( const MV& a, bool global=true ) const {
 
     Scalar b = 0.;
 
-    b = field0_->dot( *a.field0_, false );
-		for( Ordinal i=0; i<space()->nGlo(3); ++i )
+		if( space()->sInd(U,3)<0 )
+			b += field0_->dot( *a.field0_, false );
+		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
 			b += getConstFieldPtr(i)->dot( a.getConstField(i), false );
 
     if( global ) this->reduceNorm( comm(), b );
@@ -240,28 +283,26 @@ public:
 
   }
 
-
-  /// \}
-  /// \name Norm method
-  /// \{
-
   /// \brief Compute the norm of Field.
   /// Upon return, \c normvec[i] holds the value of \f$||this_i||_2\f$, the \c i-th column of \c this.
   Scalar norm(  Belos::NormType type = Belos::TwoNorm, bool global=true ) const {
 
-    Scalar normvec = field0_->norm(type,false);
+    Scalar normvec = 0.;
+
+		if( space()->sInd(U,3)<0 )
+			normvec += field0_->norm(type,false);
 
     switch(type) {
     case Belos::OneNorm:
-			for( Ordinal i=0; i<space()->nGlo(3); ++i )
+		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
 				normvec += getConstFieldPtr(i)->norm(type,false);
       break;
     case Belos::TwoNorm:
-			for( Ordinal i=0; i<space()->nGlo(3); ++i )
+		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
 				normvec += getConstFieldPtr(i)->norm(type,false);
       break;
     case Belos::InfNorm:
-			for( Ordinal i=0; i<space()->nGlo(3); ++i )
+		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
 				normvec = std::max( getConstFieldPtr(i)->norm(type,false), normvec );
       break;
     }
@@ -280,9 +321,12 @@ public:
   /// \return \f$ \|x\|_w \f$
   double norm( const MV& weights, bool global=true ) const {
 
-    double normvec=field0_->norm(*weights.field0_,false);
+    double normvec= 0.;
 
-		for( Ordinal i=0; i<space()->nGlo(3); ++i )
+		if( space()->sInd(U,3)<0 )
+			normvec += field0_->norm(*weights.field0_,false);
+
+		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
 			normvec += getConstFieldPtr(i)->norm(weights.getConstField(i),false);
 
     if( global ) this->reduceNorm( comm(), normvec, Belos::TwoNorm );
@@ -300,87 +344,209 @@ public:
   /// \brief mv := A
   /// Assign (deep copy) A into mv.
   void assign( const MV& a ) {
-    field0_->assign(*a.field0_);
-		for( Ordinal i=0; i<space()->nGlo(3); ++i )
+
+		if( space()->sInd(U,3)<0 )
+			field0_->assign(*a.field0_);
+
+		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
 			getFieldPtr(i)->assign( a.getConstField(i) );
+
+		changed();
   }
 
 
   /// \brief Replace the vectors with a random vectors.
   void random(bool useSeed = false, int seed = 1) {
-    field0_->random();
-		for( Ordinal i=0; i<space()->nGlo(3); ++i )
+
+		if( space()->sInd(U,3)<0 )
+			field0_->random();
+
+		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
 			getFieldPtr(i)->random();
+
+		changed();
+
   }
 
 
   /// \brief Replace each element of the vector  with \c alpha.
   void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero() ) {
-    field0_->init(alpha);
-		for( Ordinal i=0; i<space()->nGlo(3); ++i )
+
+		if( space()->sInd(U,3)<0 )
+			field0_->init( alpha );
+
+		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
 			getFieldPtr(i)->init(alpha);
+
+		changed();
+
   }
 
 	void initField() {
-    field0_->initField();
-		for( Ordinal i=0; i<space()->nGlo(3); ++i )
+		if( space()->sInd(U,3)<0 )
+			field0_->initField();
+		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
 			getFieldPtr(i)->initField();
 	}
 
 	void setCornersZero() const {
-    field0_->setCornersZero();
-		for( Ordinal i=0; i<space()->nGlo(3); ++i )
+
+		if( space()->sInd(U,3)<0 )
+			field0_->setCornersZero();
+
+		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
 			getConstFieldPtr(i)->setCornersZero();
+
+		changed();
   }
 
   void level() const {
-    field0_->level();
-		for( Ordinal i=0; i<space()->nGlo(3); ++i )
+
+		if( space()->sInd(U,3)<0 )
+			field0_->level();
+		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
 			getConstFieldPtr(i)->level();
+
+		changed();
+
   }
 
   /// \}
 
   /// Print the vector.  To be used for debugging only.
-  void print( std::ostream& os )  {
-    field0_->print( os );
-		for( Ordinal i=0; i<space()->nGlo(3); ++i )
+	void print( std::ostream& os )  {
+		if( space()->sInd(U,3)<0 )
+			field0_->print( os );
+		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
 			getFieldPtr(i)->print( os );
   }
 
   void write( int count=0, bool time_evol_yes=false ) const {
 
 		if( time_evol_yes ) {
-			Scalar pi = 4.*std::atan(1.);
-			Ordinal nf = space()->nGlo(3);
-			Ordinal nt = 4*nf;
-			auto temp = getConst0FieldPtr()->clone( Pimpact::ShallowCopy );
-			for( Ordinal i=0; i<nt;  ++i ) {
-				temp->assign( getConst0Field() );
-//				temp->initField(  );
-				for( Ordinal j=0; j<nf; ++j ) {
-					temp->add(
-							1., *temp,
-							std::sin( 2.*pi*i*((Scalar)j+1.)/nt ), getConstSField(j) );
-					temp->add(
-							std::cos( 2.*pi*i*((Scalar)j+1.)/nt ), getConstCField(j),
-							1., *temp );
-					temp->write( count+i );
+			exchange();
+
+			if( space()->getProcGrid()->getIB(3)==1 ) {
+				Scalar pi = 4.*std::atan(1.);
+				Ordinal nf = space()->nGlo(3);
+				Ordinal nt = 4*nf;
+				auto temp = getConst0FieldPtr()->clone( Pimpact::ShallowCopy );
+				for( Ordinal i=0; i<nt;  ++i ) {
+					temp->assign( getConst0Field() );
+					//				temp->initField(  );
+					for( Ordinal j=0; j<nf; ++j ) {
+						temp->add(
+								1., *temp,
+								std::sin( 2.*pi*i*((Scalar)j+1.)/nt ), getConstSField(j) );
+						temp->add(
+								std::cos( 2.*pi*i*((Scalar)j+1.)/nt ), getConstCField(j),
+								1., *temp );
+						temp->write( count+i );
+					}
 				}
-
-
 			}
 
 		}
 		else{
-			field0_->write(count);
-			for( Ordinal i=0; i<space()->nGlo(3); ++i ) {
+			if( space()->sInd(U,3)<0 )
+				field0_->write(count);
+			for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i ) {
 				getConstCFieldPtr(i)->write( count+2*i+1 );
 				getConstSFieldPtr(i)->write( count+2*i+2 );
 			}
 		}
   }
 
+
+	/// \name comunication methods.
+	/// \brief highly dependent on underlying storage should only be used by Operator or on top field implementer.
+	///
+	/// \{
+
+  void changed() const {
+    exchangedState_ = false;
+  }
+
+	/// \todo biggest todo
+	void exchange() const {
+
+		// check if exchange is necessary
+		if( exchangedState_==false ) {
+
+			// exchange spatial
+			if( space()->sInd(U,3)<0 )
+				field0_->exchange();
+
+			for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
+				getConstFieldPtr(i)->exchange();
+
+			// mpi stuff
+			int nx = field0_->getStorageSize();
+
+			// --- sendcount ---
+			int sendcount = 0;
+			if( space()->sInd(U,3)<0 )
+				sendcount += nx;
+			for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
+				sendcount += 2*nx;
+
+			// --- recvcount, displacement ---
+			int np = space()->getProcGrid()->getNP(3);
+
+			int* recvcounts = new int[np];
+			int* displs     = new int[np];
+
+			Ordinal nfl  = (space()->getGridSizeLocal()->get(3)+1)/np;
+			Ordinal rem  = (space()->getGridSizeLocal()->get(3)+1)%np;
+
+//			std::cout << "\trankST: " << space()->rankST() << "\tsendcount: " << sendcount << "\n";
+
+//			MPI_Barrier( space()->getProcGrid()->getCommSlice(3) );
+
+			for( int rank=0; rank<np; ++rank ) {
+				if( 0==rank )
+					recvcounts[rank] = nx + (nfl-1)*2*nx + (rank<rem?2*nx:0);
+				else
+					recvcounts[rank] = nfl*2*nx + (rank<rem?2*nx:0);
+				if( 0==rank )
+					displs[rank] = 0;
+				else
+					displs[rank] = displs[rank-1] + recvcounts[rank-1];
+//				if( 0==space()->rankST() )
+//					std::cout << "\trank: " << rank
+//						<< "\trecevcount: " << recvcounts[rank]
+//						<< "\tdispl: " << displs[rank] << "\n";
+			}
+
+			// exchange modes
+			MPI_Allgatherv(
+					MPI_IN_PLACE,                           // sendbuf
+					sendcount,                              // sendcount
+					MPI_REAL8,                              // sendtype
+					s_,                                     // recvbuf
+					recvcounts,                             // recvcounts
+					displs,                                 // displs
+					MPI_REAL8,                              // recvtype
+					space()->getProcGrid()->getCommSlice(3) // comm
+					); 
+
+			delete[] recvcounts;
+			delete[] displs;
+
+			// set non owning spatial block as exchanged
+			if( space()->sInd(U,3)>0 )
+				field0_->setExchanged();
+
+			for( Ordinal i=0; i<space()->sInd(U,3); ++i )
+				getConstFieldPtr(i)->setExchanged();
+
+			for( Ordinal i=space()->eInd(U,3); i<space()->nGlo(3); ++i )
+				getConstFieldPtr(i)->setExchanged();
+		}
+
+	}
+
+	/// \}
 
 }; // end of class MultiHarmonicField
 

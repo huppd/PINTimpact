@@ -751,8 +751,8 @@ public:
             space()->sInd(EField::S),
             space()->eInd(EField::S),
             space()->getStencilWidths()->getLS(),
-            space()->getNProc(),
-            space()->getProcGrid()->getIB(),
+            space()->np(),
+            space()->ib(),
             space()->getShift(),
             (int)fType_,
             count,
@@ -779,8 +779,8 @@ public:
             space()->sInd(EField::S),
             space()->eInd(EField::S),
             space()->getStencilWidths()->getLS(),
-            space()->getNProc(),
-            space()->getProcGrid()->getIB(),
+            space()->np(),
+            space()->ib(),
             space()->getShift(),
 						(int)fType_+1,
 						(int)EField::S+1,
@@ -815,8 +815,8 @@ public:
           space()->sInd(fType_),
           space()->eInd(fType_),
           space()->getStencilWidths()->getLS(),
-          space()->getNProc(),
-          space()->getProcGrid()->getIB(),
+          space()->np(),
+          space()->ib(),
           space()->getShift(),
           (int)fType_+1,
           (int)fType_+1,
@@ -873,14 +873,11 @@ public:
   /// \name comunication methods.
   /// \brief highly dependent on underlying storage should only be used by Operator or on top field implementer.
   ///
-  ///\{
-//protected:
+  /// \{
 
   void changed( const int& dir ) const {
     exchangedState_[dir] = false;
   }
-
-
   void changed() const {
     for( int dir=0; dir<space()->dim(); ++dir )
       changed( dir );
@@ -890,7 +887,6 @@ public:
   bool is_exchanged( const int& dir ) const {
     return( exchangedState_[dir] );
   }
-
   bool is_exchanged() const {
     bool all_exchanged = true;
     for( int dir=0; dir<space()->dim(); ++dir )
@@ -900,7 +896,6 @@ public:
 
   /// \brief updates ghost layers
   void exchange( const int& dir ) const {
-
 		int ones[3] = {0,0,0};
     if( !exchangedState_[dir] ) {
       F_exchange(
@@ -915,9 +910,9 @@ public:
           space()->getBCLocal()->getBCU(),
           space()->sInd(EField::S),
           space()->eInd(EField::S),
-//				 space()->sIndB(fType_), // should it work
-//          space()->eIndB(fType_),
-				 ones,
+//				space()->sIndB(fType_), // should it work
+//        space()->eIndB(fType_),
+					ones,
           space()->nLoc(),
           1+dir,
           1+(int)fType_,
@@ -925,15 +920,20 @@ public:
       exchangedState_[dir] = true;
     }
   }
-
 	void exchange() const {
-
 		for( int dir=0; dir<space()->dim(); ++dir )
 			exchange( dir );
-
 	}
 
-  ///\}
+  void setExchanged( const int& dir ) const {
+    exchangedState_[dir] = true;
+  }
+  void setExchanged(  ) const {
+    for( int dir=0; dir<space()->dim(); ++dir )
+      changed( dir );
+  }
+
+  /// \}
 
 }; // end of class ScalarField
 

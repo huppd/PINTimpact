@@ -33,6 +33,8 @@ public:
 	
 protected:
 
+	typedef typename SpaceT::Ordinal Ordinal;
+
 	Teuchos::RCP<InterT> op_;
 
 public:
@@ -53,20 +55,32 @@ public:
 	template<class DT, class RT>
 	void apply( const DT& x, RT& y ) const {
 
+		x.exchange();
 
-    op_->apply( x.getConst0Field(), y.get0Field() );
+		if( y.space()->sInd(U,3)<0 )
+			op_->apply( x.getConst0Field(), y.get0Field() );
 
-    int m = std::min( x.space()->nGlo(3), y.space()->nGlo(3) );
+//    int m = std::min( x.space()->nGlo(3), y.space()->nGlo(3) );
 
-    for( int i=0; i<m; ++i ) {
+//    for( int i=0; i<m; ++i ) {
+//
+
+		Ordinal iS = std::max( y.space()->sInd(U,3), 0 );
+		Ordinal iE = std::min( x.space()->nGlo(3), y.space()->eInd(U,3) );
+		for( Ordinal i=iS; i<iE; ++i ) {
       op_->apply( x.getConstCField(i), y.getCField(i) );
       op_->apply( x.getConstSField(i), y.getSField(i) );
     }
 
-    for( int i=m; i<y.space()->nGlo(3); ++i ) {
-      y.getCField(i).initField();
-      y.getSField(i).initField();
-    }
+
+		iS = std::max(x.space()->nGlo(3),y.space()->sInd(U,3));
+		iE = y.space()->eInd(U,3);
+		for( Ordinal i=iS; i<iE; ++i ) {
+		 y.getCField(i).initField();
+		 y.getSField(i).initField();
+	 }
+
+		y.changed();
 
 	}
 

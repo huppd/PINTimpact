@@ -77,7 +77,7 @@ public:
 							new RestrT<CSpaceT>(
 								mgSpaces_->get(i),
 								mgSpaces_->get(i+1),
-								mgSpaces_->get()->getProcGrid()->getNPTuple()
+								mgSpaces_->get()->getProcGrid()->getNP()
 								)
 							)
 						);
@@ -86,7 +86,7 @@ public:
 							new InterT<CSpaceT>(
 								mgSpaces_->get(i+1),
 								mgSpaces_->get(i),
-								mgSpaces_->get()->getProcGrid()->getNPTuple()
+								mgSpaces_->get()->getProcGrid()->getNP()
 								)
 							)
 						);

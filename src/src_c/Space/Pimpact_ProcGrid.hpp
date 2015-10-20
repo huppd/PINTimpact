@@ -105,24 +105,20 @@ protected:
 		TEUCHOS_TEST_FOR_EXCEPT( procSize != commSize );
 
     Teuchos::Tuple<int,dim> ijkB;                        // mpi grid coordinates
-    Teuchos::Tuple<int,dim> periodic = bcg->periodic();  // array for mpir to signal where periodic grid is, from manual should be bool
-
-
-    // true means ranking may be reorderd
-    // comm_cart comm with cartesian grid informations
-    //    int* bla = procGridSize->getRawPtr();
-    //    int mpierror =
+//    Teuchos::Tuple<int,dim> periodic =
+			;  
+    
 
 		//
 		// -- commWorld_ ---
 		// 
 		MPI_Cart_create(
-				MPI_COMM_WORLD,
-				dim,
-				procGridSize_.getRawPtr(),
-        periodic.getRawPtr(),
-        true,
-        &commWorld_ );
+				MPI_COMM_WORLD,              // communicator without Cartesian information
+				dim,                         // number of dimensions
+				procGridSize_.getRawPtr(),   // number of processors in each dimension
+        bcg->periodic().getRawPtr(), // array for mpi to signal where periodic grid is, from manual should be bool
+        true,                        // true means ranking may be reorderd
+        &commWorld_ );               // new communicator with Cartesian information
 
 
 		//
@@ -137,7 +133,7 @@ protected:
 			if( commSub_==MPI_COMM_NULL )
 				rankSub_ = -1;
 			else 
-				MPI_Comm_rank( commSub_, &rankSub_ );
+				MPI_Comm_rank( commSub_, &rankSub_ ); // get rank
       rankWorld_ = rankSub_;
 
     }
@@ -182,23 +178,15 @@ protected:
 		//
 		if( commWorld_!=MPI_COMM_NULL )
 			for( int i = 0; i<dim; ++i )
-				MPI_Cart_shift( commWorld_, i, 1, &rankL_[i], &rankU_[i] );
-		//   		                         ^  ^          ^      ^
-		//   		                         |  |          |      |
-		//   		                         d  d          r      r
-		//   		                         i  i          a      a
-		//   		                         r  s          n      n
-	  //  		                         e  p          k      k
-		//   		                         c  l          s      d
-		//   		                         t  a          o      e
-		//   		                         i  c          u      s
-		//   		                         o  m          r      t
-		//   		                         n  e          c
-		//   		                            n          e
-		//   		                            t       
+				MPI_Cart_shift(
+						commWorld_,
+						i,             // direction
+						1,             // displacement
+						&rankL_[i],    // rank source
+						&rankU_[i] );  // rank destination
 
 		//
-		// --- commSlize, rankSlize ---
+		// --- commSlice, rankSlice ---
 		//
 		Teuchos::Tuple<int,dim> temp;
 		for( int i=0; i<dim; ++i ) {
@@ -206,19 +194,22 @@ protected:
 				temp[j] = 0;
 			temp[i] = 1;
 
-		if( commWorld_==MPI_COMM_NULL )
-			commSlice_[i] = MPI_COMM_NULL;
-		else
-			MPI_Cart_sub( commWorld_, temp.getRawPtr(), &commSlice_[i] );
+			if( commWorld_==MPI_COMM_NULL )
+				commSlice_[i] = MPI_COMM_NULL;
+			else
+				MPI_Cart_sub(
+						commWorld_,       // input communicator
+						temp.getRawPtr(), // included sub dimensions
+						&commSlice_[i] ); // output sub communicator
 
-		// gets rank from COMM_CART
-		if( commWorld_==MPI_COMM_NULL )
-			rankSlice_[i] = -1;
-		else
-			MPI_Comm_rank( commSlice_[i], &rankSlice_[i] );
+			// gets rank from COMM_CART
+			if( commSlice_[i]==MPI_COMM_NULL )
+				rankSlice_[i] = -1;
+			else
+				MPI_Comm_rank( commSlice_[i], &rankSlice_[i] );
 		}
 
-    // maybe dispensable...
+		// maybe dispensable...
 		if( commWorld_!=MPI_COMM_NULL )
 			MPI_Errhandler_set(commWorld_, MPI_ERRORS_ARE_FATAL );
 		if( commSub_!=MPI_COMM_NULL )
@@ -265,9 +256,7 @@ public:
   const bool& participating() const { return( participating_ ); }
 
 	const Ordinal& getNP( int i ) const { return( procGridSize_[i] ); }
-	Ordinal* getNP() const { return( procGridSize_.getRawPtr() ); }
-
-	TO getNPTuple() const { return( procGridSize_ ); }
+	const TO&             getNP()        const { return( procGridSize_ ); }
 
   const MPI_Comm& getCommWorld() const { return( commWorld_ ); }
   const MPI_Comm& getCommS() const { return( commSub_ ); }
@@ -280,13 +269,13 @@ public:
   const int* getRankU() const { return( rankU_.getRawPtr() ); }
 
   const int& getIB( int i ) const { return( iB_[i] ); }
-  const int* getIB() const { return( iB_.getRawPtr() ); }
+  const TO & getIB() const { return( iB_ ); }
 
   const int& getRankL( int i ) const { return( rankL_[i] ); }
   const int& getRankU( int i ) const { return( rankU_[i] ); }
 
   const MPI_Comm& getCommSlice( int i ) const { return( commSlice_[i] ); }
-  const int&      getRanklice( int i ) const { return( rankSlice_[i] ); }
+  const int&      getRankSlice( int i ) const { return( rankSlice_[i] ); }
 
 }; // end of class ProcGrid
 

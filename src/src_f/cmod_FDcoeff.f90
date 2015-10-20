@@ -358,6 +358,8 @@ contains
         dim_n_coeff_bound = SIZE(n_coeff_bound)
   
         cc = 0.
+
+        right = 0 ! to please compiler
   
         do i = iStart, Nmax
      

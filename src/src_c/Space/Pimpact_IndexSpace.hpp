@@ -92,13 +92,13 @@ protected:
     for( int i=0; i<3; ++i ) {
       sIndS_[i] = 2            + sW->getLS(i);
       eIndS_[i] = gridSizeLocal->get(i) + sW->getLS(i);
-      if( bc->BCL_int_[i] > 0 )
+      if( bc->getBCL(i) > 0 )
         sIndS_[i] = 1;
-      if( bc->BCU_int_[i] > 0 )
+      if( bc->getBCU(i) > 0 )
         eIndS_[i] = gridSizeLocal->get(i);
-      if( bc->BCL_local_[i]==SymmetryBC )
+      if( bc->getBCL(i)==SymmetryBC )
         sIndS_[i] = 1;
-      if( bc->BCU_local_[i]==SymmetryBC )
+      if( bc->getBCU(i)==SymmetryBC )
         eIndS_[i] = gridSizeLocal->get(i);
     }
 
@@ -110,7 +110,7 @@ protected:
 				int rank = procGrid->getIB(3)-1;
 				Ordinal sI = -1 +  rank   *nl + (( rank   <rem)? rank   :rem);
 				Ordinal eI = -1 + (rank+1)*nl + (((rank+1)<rem)?(rank+1):rem);
-				std::cout << "\tnl: " << nl << "\trem: " << rem << "\trank: " << rank << "\tsI: " << sI << "\teI: " << eI << "\n";
+//				std::cout << "\tnl: " << nl << "\trem: " << rem << "\trank: " << rank << "\tsI: " << sI << "\teI: " << eI << "\n";
 				sIndS_[3] = sI;
 				eIndS_[3] = eI;
 				for( int i=0; i<3; ++i ) {
@@ -148,19 +148,19 @@ protected:
     }
 
     // Lower index in x-direction
-    if( bc->BCL_int_[0] > 0 ) {
+    if( bc->getBCL(0) > 0 ) {
       sIndU_[U][0] = 1;
       sIndU_[V][0] = 2;
       sIndU_[W][0] = 2;
     }
     // lower index in y-direction
-    if( bc->BCL_int_[1] > 0 ) {
+    if( bc->getBCL(1) > 0 ) {
       sIndU_[U][1] = 2;
       sIndU_[V][1] = 1;
       sIndU_[W][1] = 2;
     }
     // lower index in z-direction
-    if( bc->BCL_int_[2] > 0 ) {
+    if( bc->getBCL(2) > 0 ) {
       sIndU_[U][2] = 2;
       sIndU_[V][2] = 2;
       sIndU_[W][2] = 1;
@@ -168,7 +168,7 @@ protected:
 
     // lower index for symmetriBC
     for( int i=0; i<3; ++i )
-      if( bc->BCL_local_[i]==SymmetryBC ) {
+      if( bc->getBCL(i)==SymmetryBC ) {
         sIndU_[U][i] = 1;
         sIndU_[V][i] = 1;
         sIndU_[W][i] = 1;
@@ -176,28 +176,28 @@ protected:
 
     // upper index
     for( int i=0; i<3; ++i )
-      if( bc->BCU_int_[i] > 0 ) {
+      if( bc->getBCU(i) > 0 ) {
         eIndU_[U][i] = gridSizeLocal->get(i)-1;
         eIndU_[V][i] = gridSizeLocal->get(i)-1;
         eIndU_[W][i] = gridSizeLocal->get(i)-1;
       }
 
     // upper index in x-direction for symmetricBC
-    if( bc->BCU_local_[0]==SymmetryBC ) {
+    if( bc->getBCU(0)==SymmetryBC ) {
       eIndU_[U][0] = gridSizeLocal->get(0)-1;
       eIndU_[V][0] = gridSizeLocal->get(0);
       eIndU_[W][0] = gridSizeLocal->get(0);
     }
 
     // upper index in y-direction for symmetricBC
-    if( bc->BCU_local_[1]==SymmetryBC ) {
+    if( bc->getBCU(1)==SymmetryBC ) {
       eIndU_[U][1] = gridSizeLocal->get(1);
       eIndU_[V][1] = gridSizeLocal->get(1)-1;
       eIndU_[W][1] = gridSizeLocal->get(1);
     }
 
     // upper index in z-direction for symmetricBC
-    if( bc->BCU_local_[2]==SymmetryBC ) {
+    if( bc->getBCU(2)==SymmetryBC ) {
       eIndU_[U][2] = gridSizeLocal->get(2);
       eIndU_[V][2] = gridSizeLocal->get(2);
       eIndU_[W][2] = gridSizeLocal->get(2)-1;
@@ -218,19 +218,19 @@ protected:
     }
 
     // Lower index in x-direction
-    if( bc->BCL_int_[0] > 0 ) {
+    if( bc->getBCL(0) > 0 ) {
       sIndUB_[U][0] = 0;
       sIndUB_[V][0] = 1;
       sIndUB_[W][0] = 1;
     }
     // lower index in y-direction
-    if( bc->BCL_int_[1] > 0 ) {
+    if( bc->getBCL(1) > 0 ) {
       sIndUB_[U][1] = 1;
       sIndUB_[V][1] = 0;
       sIndUB_[W][1] = 1;
     }
     // lower index in z-direction
-    if( bc->BCL_int_[2] > 0 ) {
+    if( bc->getBCL(2) > 0 ) {
       sIndUB_[U][2] = 1;
       sIndUB_[V][2] = 1;
       sIndUB_[W][2] = 0;
@@ -238,7 +238,7 @@ protected:
 
     // lower index for symmetriBC
     for( int i=0; i<3; ++i )
-      if( bc->BCL_local_[i]==SymmetryBC ) {
+      if( bc->getBCL(i)==SymmetryBC ) {
         sIndUB_[U][i] = 1;
         sIndUB_[V][i] = 1;
         sIndUB_[W][i] = 1;
@@ -246,28 +246,28 @@ protected:
 
     // upper index
     for( int i=0; i<3; ++i )
-      if( bc->BCU_int_[i] > 0 ) {
+      if( bc->getBCU(i) > 0 ) {
         eIndUB_[U][i] = gridSizeLocal->get(i);
         eIndUB_[V][i] = gridSizeLocal->get(i);
         eIndUB_[W][i] = gridSizeLocal->get(i);
       }
 
     // upper index in x-direction for symmetricBC
-    if( bc->BCU_local_[0]==SymmetryBC ) {
+    if( bc->getBCU(0)==SymmetryBC ) {
       eIndUB_[U][0] = gridSizeLocal->get(0)-1;
       eIndUB_[V][0] = gridSizeLocal->get(0);
       eIndUB_[W][0] = gridSizeLocal->get(0);
     }
 
     // upper index in y-direction for symmetricBC
-    if( bc->BCU_local_[1]==SymmetryBC ) {
+    if( bc->getBCU(1)==SymmetryBC ) {
       eIndUB_[U][1] = gridSizeLocal->get(1);
       eIndUB_[V][1] = gridSizeLocal->get(1)-1;
       eIndUB_[W][1] = gridSizeLocal->get(1);
     }
 
     // upper index in z-direction for symmetricBC
-    if( bc->BCU_local_[2]==SymmetryBC ) {
+    if( bc->getBCU(2)==SymmetryBC ) {
       eIndUB_[U][2] = gridSizeLocal->get(2);
       eIndUB_[V][2] = gridSizeLocal->get(2);
       eIndUB_[W][2] = gridSizeLocal->get(2)-1;

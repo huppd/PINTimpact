@@ -722,7 +722,7 @@ public:
 
 
   /// Print the vector.  To be used for debugging only.
-  void print( std::ostream& out=std::cout )  {
+  void print( std::ostream& out=std::cout ) const {
     for(int i=0; i<space()->dim(); ++i) {
       sFields_[i]->print( out );
     }
@@ -826,13 +826,17 @@ public:
 
   const MPI_Comm& comm() const { return(space()->comm()); }
 
-protected:
 
+public:
+
+  /// \name comunication methods.
+  /// \brief highly dependent on underlying storage should only be used by Operator or on top field implementer.
+  ///
+  /// \{
+	
   void changed( const int& vel_dir, const int& dir ) const {
     getConstFieldPtr( vel_dir )->changed( dir );
   }
-
-public:
 
   void changed() const {
     for( int vel_dir=0; vel_dir<space()->dim(); ++vel_dir )
@@ -842,28 +846,23 @@ public:
   }
 
 
-  bool is_exchanged( const int& vel_dir, const int& dir ) const {
-    return( getConstFieldPtr( vel_dir )->is_exchanged( dir ) );
-  }
+//  bool is_exchanged( const int& vel_dir, const int& dir ) const {
+//    return( getConstFieldPtr( vel_dir )->is_exchanged( dir ) );
+//  }
+//
+//  bool is_exchanged() const {
+//
+//    bool all_exchanged = true;
+//    for( int vel_dir=0; vel_dir<space()->dim(); ++vel_dir )
+//      for( int dir=0; dir<space()->dim(); ++dir )
+//        all_exchanged = all_exchanged && is_exchanged(vel_dir,dir);
+//
+//    return( all_exchanged );
+//
+//  }
 
-protected:
 
-  bool is_exchanged() const {
-
-    bool all_exchanged = true;
-    for( int vel_dir=0; vel_dir<space()->dim(); ++vel_dir )
-      for( int dir=0; dir<space()->dim(); ++dir )
-        all_exchanged = all_exchanged && is_exchanged(vel_dir,dir);
-
-    return( all_exchanged );
-
-  }
-
-public:
-
-  /// \brief updates ghost layers
   void exchange( const int& vel_dir, const int& dir ) const {
-
     getConstFieldPtr(vel_dir)->exchange(dir);
   }
 
@@ -873,6 +872,18 @@ public:
         exchange( vel_dir, dir );
   }
 
+  void setExchanged( const int& vel_dir, const int& dir ) const {
+    getConstFieldPtr( vel_dir )->setExchanged( dir );
+  }
+
+  void setExchanged() const {
+    for( int vel_dir=0; vel_dir<space()->dim(); ++vel_dir )
+      for( int dir=0; dir<space()->dim(); ++dir ) {
+        setExchanged( vel_dir, dir );
+      }
+  }
+
+  /// \}
 
 
 }; // end of class VectorField

@@ -31,6 +31,8 @@ public:
 
 protected:
 
+  typedef typename SpaceT::Ordinal Ordinal;
+
   Teuchos::RCP<MultiOperator> op_;
 
 public:
@@ -45,32 +47,33 @@ public:
 		auto my = Teuchos::rcp( new typename MultiOperator::RangeFieldT ( space(), (int)0 ) );
 
 
-    int m = space()->nGlo(3);
+		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i ) {
 
-    for( int i=0; i<m; ++i ) {
+			// making x 
 			mx->push_back(
 				Teuchos::rcp_const_cast<typename MultiOperator::DomainFieldT::FieldT>(
-						x.getConstCFieldPtr(i)
-						)
-					);
+						x.getConstCFieldPtr(i) ) );
 			mx->push_back(
 					Teuchos::rcp_const_cast<typename MultiOperator::DomainFieldT::FieldT>(
-						x.getConstSFieldPtr(i)
-						)
-					);
-			my->push_back( y.getCFieldPtr(i) );
+						x.getConstSFieldPtr(i) ) );
 
+			// making y
+			my->push_back( y.getCFieldPtr(i) );
 			my->push_back( y.getSFieldPtr(i) );
     }
 
-		mx->push_back(
-				Teuchos::rcp_const_cast<typename MultiOperator::DomainFieldT::FieldT>(
-					x.getConst0FieldPtr()
-					)
-				);
-		my->push_back( y.get0FieldPtr() );
+		if( space()->sInd(U,3)<0 ) {
+			mx->push_back(
+					Teuchos::rcp_const_cast<typename MultiOperator::DomainFieldT::FieldT>(
+						x.getConst0FieldPtr() ) );
+			my->push_back( y.get0FieldPtr() );
+		}
 
+		// applying MultiField operator
 		op_->apply( *mx, *my );
+
+		y.changed();
+
   };
 
   void assignField( const DomainFieldT& mv ) {

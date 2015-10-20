@@ -79,7 +79,6 @@ public:
 }; // end of class Add2Op
 
 
-
 /// \relates Add2Op
 template<class OP1, class OP2 >
 Teuchos::RCP< Add2Op<OP1, OP2> > createAdd2Op(

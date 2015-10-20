@@ -22,6 +22,7 @@ namespace Pimpact {
 template<class OpT>
 class MultiHarmonicOpWrap  {
 
+
 public:
 
   typedef MultiHarmonicField<typename OpT::DomainFieldT> DomainFieldT;
@@ -30,6 +31,8 @@ public:
   typedef typename DomainFieldT::SpaceT SpaceT;
 
 protected:
+
+  typedef typename SpaceT::Ordinal Ordinal;
 
   Teuchos::RCP<OpT> op_;
 
@@ -40,19 +43,22 @@ public:
 
   MultiHarmonicOpWrap( const Teuchos::RCP<OpT>& op ): op_(op) {};
 
-  void apply( const DomainFieldT& x,
-      RangeFieldT& y,
+
+	void apply( const DomainFieldT& x, RangeFieldT& y,
       Belos::ETrans trans=Belos::NOTRANS) const {
 
-    op_->apply( x.getConst0Field(), y.get0Field() );
+		if( space()->sInd(U,3)<0 )
+			op_->apply( x.getConst0Field(), y.get0Field() );
 
-    int m = space()->nGlo(3);
-
-    for( int i=0; i<m; ++i ) {
+		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i ){ 
       op_->apply( x.getConstCField(i), y.getCField(i) );
       op_->apply( x.getConstSField(i), y.getSField(i) );
     }
+
+		y.changed();
+
   };
+
 
   void assignField( const DomainFieldT& mv ) {
     op_->assignField( mv.getConst0Field() );

@@ -48,198 +48,43 @@ public:
       const Teuchos::RCP<const FSpaceT> space,
       int maxGrids=10 ) {
 
-		auto tempSpace = createCoarseSpaceT( space );
+		// creating low order space
+		Teuchos::RCP<const CSpaceT> tempSpace = createSpace<CSpaceT,FSpaceT>( space );
+
 		std::vector<Teuchos::RCP<const CSpaceT> > multiSpace( 1, tempSpace );
 
-		TO nLoc;
-
-    for( int i=0; i<dimension; ++i )
-      nLoc[i] = space->nLoc(i);
-
-    bool coarsen_yes;
-		Teuchos::Tuple<bool,dimension> coarsen_dir;
+		Teuchos::Tuple<Ordinal,dimension> nLoc = *space->getGridSizeLocal();
+		GridSizeGlobal<Ordinal,dimension> nGlo = *space->getGridSizeGlobal();
 
     for( Ordinal i=1; i<maxGrids; ++i ) {
-      coarsen_yes = false;
+      bool coarsen_yes = false;
       for( Ordinal j=0; j<dimension; ++j ) {
-        coarsen_dir[j] = false;
         if( j<3 ) {
           if( ( (nLoc[j]-1)%2 )==0 && ( (nLoc[j]-1)/2 + 1 )%2!=0 && (nLoc[j]-1)/2 + 1>3 ) {
             nLoc[j] = (nLoc[j]-1)/2 + 1;
+            nGlo[j] = (nGlo[j]-1)/2 + 1;
             coarsen_yes = true;
-            coarsen_dir[j] = true;
           }
         }
         else
-          if( ( (nLoc[j])%2 )==0 && nLoc[j]>1 ) {
+          if( !space->getStencilWidths()->spectralT() && ( (nLoc[j])%2 )==0 && nLoc[j]>1 ) {
             nLoc[j] = (nLoc[j])/2;
+            nGlo[j] = (nGlo[j])/2;
             coarsen_yes = true;
-            coarsen_dir[j] = true;
           }
       }
-      if( coarsen_yes )  multiSpace.push_back( createCoarseSpace( multiSpace.back(), coarsen_dir ) );
+      if( coarsen_yes )
+				multiSpace.push_back( createSpace( multiSpace.back(), nGlo ) );
     }
 
 
-	// not working on brutus
-    //multiSpace.shrink_to_fit();
+		// not working on brutus
+		//multiSpace.shrink_to_fit();
 
-    return( multiSpace );
-
-  }
-
-protected:
-
-  template<class SpaceT>
-  static Teuchos::RCP< const SpaceT > createCoarseSpace(
-      const Teuchos::RCP<const SpaceT>& space,
-      const Teuchos::Tuple<bool,dimension>& coarsen_dir ) {
-
-    auto stencilWidths = space->getStencilWidths();
-
-    auto domainSize = space->getDomainSize();
-    auto boundaryConditionsGlobal = space->getBCGlobal();
-    auto boundaryConditionsLocal = space->getBCLocal();
-
-
-		// coarsen global gridsize
-    auto gridSizeGlobalTup = space->getGridSizeGlobal()->getTuple();
-
-		for( int i=0; i<3; ++i )
-		 if( coarsen_dir[i] )
-			 gridSizeGlobalTup[i] = (gridSizeGlobalTup[i]-1)/2 +1;
-		if( 4==dimension ) {
-			if( coarsen_dir[3] )
-				gridSizeGlobalTup[3] = gridSizeGlobalTup[3]/2;
-		}
-
-    auto gridSizeGlobal = createGridSizeGlobal<Ordinal,dimension>(
-				gridSizeGlobalTup );
-
-//    auto procGridSize = space->getNPTuple();
-
-    auto procGrid = space->getProcGrid();
-//			Pimpact::createProcGrid<Ordinal,dimension>(
-//					procGridSize,
-//					boundaryConditionsGlobal);
-
-    auto gridSizeLocal =
-			Pimpact::createGridSizeLocal<Ordinal,dimension,dimNCC>(
-					gridSizeGlobal,
-					procGrid,
-					stencilWidths );
-
-    auto indexSpace =
-			Pimpact::createIndexSpace<Ordinal,dimension>(
-					stencilWidths,
-					gridSizeLocal,
-					boundaryConditionsLocal,
-					procGrid	);
-
-    auto coordGlobal = Pimpact::createGridCoordinatesGlobal<Scalar,Ordinal,dimension>(
-        gridSizeGlobal,
-        domainSize );
-
-    auto coordLocal = Pimpact::createGridCoordinatesLocal<Scalar,Ordinal,dimension>(
-        stencilWidths,
-        domainSize,
-        gridSizeGlobal,
-        gridSizeLocal,
-        boundaryConditionsGlobal,
-        boundaryConditionsLocal,
-        procGrid,
-        coordGlobal );
-
-    auto interV2S =
-        Pimpact::createInterpolateV2S<Scalar,Ordinal,dimension>(
-            indexSpace,
-            gridSizeLocal,
-            stencilWidths,
-            domainSize,
-						boundaryConditionsLocal,
-            coordLocal );
-
-    return(
-         Teuchos::rcp(
-             new SpaceT(
-                 stencilWidths,
-                 indexSpace,
-                 gridSizeGlobal,
-                 gridSizeLocal,
-                 procGrid,
-                 coordGlobal,
-                 coordLocal,
-                 domainSize,
-								 boundaryConditionsGlobal,
-								 boundaryConditionsLocal,
-                 interV2S )
-         )
-    );
+		return( multiSpace );
 
   }
 
-  static Teuchos::RCP< const CSpaceT > createCoarseSpaceT(
-      const Teuchos::RCP<const FSpaceT>& space ) {
-
-    auto stencilWidths =
-			createStencilWidths<dimension,dimNCC>(
-					space->getStencilWidths()->spectralT() );
-
-    auto domainSize = space->getDomainSize();
-
-    auto boundaryConditionsGlobal = space->getBCGlobal();
-
-    auto boundaryConditionsLocal = space->getBCLocal();
-
-    auto gridSizeGlobalTup = space->getGridSizeGlobal()->getTuple();
-
-    auto gridSizeGlobal = space->getGridSizeGlobal();
-
-    auto gridSizeLocal = space->getGridSizeLocal();
-
-    auto procGrid = space->getProcGrid();
-
-    auto indexSpace = space->getIndexSpace();
-
-    auto  coordGlobal = space->getCoordinatesGlobal();
-
-    auto  coordLocal = Pimpact::createGridCoordinatesLocal(
-        stencilWidths,
-        domainSize,
-        gridSizeGlobal,
-        gridSizeLocal,
-				boundaryConditionsGlobal,
-				boundaryConditionsLocal,
-        procGrid,
-        coordGlobal );
-
-    auto interV2S =
-        Pimpact::createInterpolateV2S(
-            indexSpace,
-            gridSizeLocal,
-            stencilWidths,
-            domainSize,
-						boundaryConditionsLocal,
-            coordLocal );
-
-    return(
-         Teuchos::rcp(
-             new CSpaceT(
-                 stencilWidths,
-                 indexSpace,
-                 gridSizeGlobal,
-                 gridSizeLocal,
-                 procGrid,
-                 coordGlobal,
-                 coordLocal,
-                 domainSize,
-								 boundaryConditionsGlobal,
-								 boundaryConditionsLocal,
-                 interV2S )
-         )
-    );
-
-  }
 
 }; // end of class CoarsenStrategy
 

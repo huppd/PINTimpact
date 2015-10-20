@@ -150,11 +150,11 @@ public:
 	~TimeField() { delete[] array_; }
 
 
-  /// \brief Create a new \c TimeField with
-  Teuchos::RCP< MV > clone( ECopyType ctype = DeepCopy ) const {
-    auto mv_ = Teuchos::rcp( new MV(*this,ctype) );
-    return( mv_ );
-  }
+	/// \brief Create a new \c TimeField with
+	Teuchos::RCP< MV > clone( ECopyType ctype = DeepCopy ) const {
+		auto mv_ = Teuchos::rcp( new MV(*this,ctype) );
+		return( mv_ );
+	}
 
 
   /// \brief returns the length of Field.
@@ -387,7 +387,7 @@ public:
 //			std::cout << "bla\n";
 
     if( !exchangedState_ ) {
-      if( space()->getNProc(3)>=1 ) {
+      if( space()->getProcGrid()->getNP(3)>=1 ) {
 
 			 int transL = std::abs( space()->bl(3) );
 //			 int transU = std::abs( space()->bu(3) );

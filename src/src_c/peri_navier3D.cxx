@@ -30,7 +30,10 @@
 #include "Pimpact_LinSolverParameter.hpp"
 
 #include "Pimpact_CoarsenStrategyGlobal.hpp"
+#include "Pimpact_CoarsenStrategy.hpp"
+
 #include "Pimpact_RefinementStrategy.hpp"
+
 #include "Pimpact_MultiGrid.hpp"
 #include "Pimpact_TransferMultiHarmonicOp.hpp"
 #include "Pimpact_TransferCompoundOp.hpp"
@@ -52,12 +55,13 @@
 typedef double S;
 typedef int O;
 
-typedef Pimpact::Space<S,O,3,4> SpaceT;
+typedef Pimpact::Space<S,O,4,4> SpaceT;
 
-typedef Pimpact::Space<S,O,3,4> FSpaceT;
-typedef Pimpact::Space<S,O,3,2> CSpaceT;
+typedef Pimpact::Space<S,O,4,4> FSpaceT;
+typedef Pimpact::Space<S,O,4,2> CSpaceT;
 
 typedef Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT> CS;
+//typedef Pimpact::CoarsenStrategy<FSpaceT,CSpaceT> CS;
 
 typedef Pimpact::MultiHarmonicField< Pimpact::VectorField<SpaceT> > VF;
 typedef Pimpact::MultiHarmonicField< Pimpact::ScalarField<SpaceT> > SF;
@@ -130,7 +134,7 @@ int main(int argi, char** argv ) {
 	S   refinementTol  = pl->sublist("Solver").get<S>(   "refinement tol",   1.e-6 );
 	int refinementStep = pl->sublist("Solver").get<int>( "refinement step",  2     );
 
-	auto space = Pimpact::createSpace<S,O,3,4>( Teuchos::rcpFromRef( pl->sublist("Space",true) ) );
+	auto space = Pimpact::createSpace<S,O,4,4>( Teuchos::rcpFromRef( pl->sublist("Space",true) ) );
 
 	int baseflow = pl->get<int>("baseflow");
 	//	int flow = pl->get<int>("flow");
@@ -155,6 +159,8 @@ int main(int argi, char** argv ) {
 	else if( 3==initZero ) {
 		x->getFieldPtr(0)->getSFieldPtr()->get0FieldPtr()->initField( Pimpact::Grad2D_inX, -2./space->getDomainSize()->getRe() );
 	}
+	x->getFieldPtr(0)->getVFieldPtr()->changed();
+	x->getFieldPtr(0)->getSFieldPtr()->changed();
 
 
 
@@ -176,6 +182,8 @@ int main(int argi, char** argv ) {
 			//		fu->getFieldPtr(0)->getVFieldPtr()->getSFieldPtr(0)->getFieldPtr(Pimpact::W)->initField( Pimpact::FPoint, 1. );
 		}
 		//	fu->getFieldPtr(0)->getVFieldPtr()->write( 700,true );
+		fu->getFieldPtr(0)->getVFieldPtr()->changed();
+		fu->getFieldPtr(0)->getSFieldPtr()->changed();
 
 
 		auto opV2V = Pimpact::createMultiDtConvectionDiffusionOp( space );
@@ -422,7 +430,8 @@ int main(int argi, char** argv ) {
 
 		// spectral refinement criterion
 		{
-			S  truncError =
+			x->getFieldPtr(0)->getVFieldPtr()->exchange();
+			S truncError =
 				x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(space->nGlo(3)-1)->norm()/ 
 				x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(0               )->norm() ;
 			if( truncError < refinementTol ) {

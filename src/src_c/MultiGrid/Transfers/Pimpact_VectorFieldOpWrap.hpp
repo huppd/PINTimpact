@@ -56,7 +56,7 @@ public:
 	VectorFieldOpWrap(
 			const Teuchos::RCP<const SP1T>& fSpace,
       const Teuchos::RCP<const SP2T>& cSpace,
-			Teuchos::Tuple<int,3> nb ):
+			Teuchos::Tuple<int,SP1T::dimension> nb ):
 		sop_( Teuchos::rcp( new SOpT( fSpace, cSpace, nb )  ) ) {}
 
 

@@ -474,7 +474,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TimeField, all, FType ) {
 	field2s->random();
 	MPI_Barrier( MPI_COMM_WORLD );
 	field2s->norm();
-	field2s->init( space->procCoordinate()[3] );
+	field2s->init( space->getProcGrid()->getIB(3) );
 	field2s->exchange();
 	field2s->write();
 

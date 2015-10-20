@@ -33,6 +33,16 @@ double eps = 1e-6;
 int dim = 3;
 int domain = 0;
 
+int npx = 1;
+int npy = 1;
+int npz = 1;
+int npf = 8;
+
+int nx = 9;
+int ny = 9;
+int nz = 9;
+int nf = 7;
+
 auto pl = Teuchos::parameterList();
 
 
@@ -46,22 +56,31 @@ TEUCHOS_STATIC_SETUP() {
   clp.setOption(
       "error-tol-slack", &eps,
       "Slack off of machine epsilon used to check test results" );
-  clp.setOption(
-      "dim", &dim,
-      "dim" );
-  clp.setOption(
-      "domain", &domain,
-      "domain" );
 
-  pl->set( "nx", 25 );
-  pl->set( "ny", 17 );
-  pl->set( "nz",  9 );
-  pl->set( "nf", 10 );
+	clp.setOption( "dim", &dim, "dim" );
+	clp.setOption( "domain", &domain, "domain" );
 
-  pl->set( "npx", 2 );
-  pl->set( "npy", 2 );
-  pl->set( "npz", 2 );
-  pl->set( "npf", 1 );
+	clp.setOption( "npx", &npx, "" );
+	clp.setOption( "npy", &npy, "" );
+	clp.setOption( "npz", &npz, "" );
+	clp.setOption( "npf", &npf, "" );
+
+	clp.setOption( "nx", &nx, "" );
+	clp.setOption( "ny", &ny, "" );
+	clp.setOption( "nz", &nz, "" );
+	clp.setOption( "nf", &nf, "" );
+
+	pl->set( "spectral in time", true );
+
+  pl->set( "nx", nx );
+  pl->set( "ny", ny );
+  pl->set( "nz", nz );
+  pl->set( "nf", nf );
+
+  pl->set( "npx", npx );
+  pl->set( "npy", npy );
+  pl->set( "npz", npz );
+  pl->set( "npf", npf );
 
 }
 
@@ -73,10 +92,17 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, constructor, FType ) {
   pl->set( "domain", domain );
   pl->set( "dim", dim );
 
-  // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
-  pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
+
+	// processor grid size
+	pl->set("npx", npx );
+	pl->set("npy", npy );
+	pl->set("npz", npz );
+	pl->set("npf", npf );
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
@@ -94,44 +120,23 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicField, constructor, VF )
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, TwoNorm_and_init, FType ) {
-
-  pl->set( "domain", domain );
-  pl->set( "dim", dim );
-
-  // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
-  pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
-
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
-
-	auto field = Pimpact::createMultiHarmonic<FType>( space );
-
-	const int n = field->getLength(true);
-
-	// test different float values, assures that initial and norm work smoothly
-	for( S i=0.; i< 200.1; ++i ) {
-	  field->init(i/2.);
-    TEST_FLOATING_EQUALITY( std::sqrt(std::pow(i/2.,2)*n), field->norm(Belos::TwoNorm), eps );
-	}
-
-}
-
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicField, TwoNorm_and_init, SF )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicField, TwoNorm_and_init, VF )
-
-
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, clone, FType ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
 
-  // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
-  pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
+
+	// processor grid size
+	pl->set("npx", npx );
+	pl->set("npy", npy );
+	pl->set("npz", npz );
+	pl->set("npf", npf );
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
@@ -157,10 +162,17 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, InfNorm_and_init, FType )
   pl->set( "domain", domain );
   pl->set( "dim", dim );
 
-  // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
-  pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
+
+	// processor grid size
+	pl->set("npx", npx );
+	pl->set("npy", npy );
+	pl->set("npz", npz );
+	pl->set("npf", npf );
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
@@ -169,23 +181,23 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, InfNorm_and_init, FType )
 	S norm;
 
 	// test different float values, assures that initial and norm work smoothly
-	for( S i=0.; i< 200.1; ++i ) {
+	for( S i=0.; i<200.1; i+=10.5 ) {
 		field->init(i/2.);
 		norm = field->norm(Belos::InfNorm);
-		TEST_EQUALITY( i/2., norm );
+		TEST_FLOATING_EQUALITY( i/2., norm, eps );
 	}
 
 	// one test with infty-norm
 	int rank = space->rankST();
 	S init;
 	int size;
-	MPI_Comm_size( space->comm(),&size );
-	for( S i = 0.; i<200.1; ++i) {
+	MPI_Comm_size( space->commST(),&size );
+	for( S i = 0.; i<200.1; i+=10.5) {
 		init = (size-1)*i-1.;
 		init = std::abs(init);
 		field->init(rank*i-1.);
 		norm = field->norm(Belos::InfNorm);
-		TEST_EQUALITY( init, norm );
+		TEST_FLOATING_EQUALITY( init, norm, eps );
 	}
 
 }
@@ -195,15 +207,22 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicField, InfNorm_and_init, VF )
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicScalarField, TwoNorm_and_init, FType  ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, InitTwoNorm, FType  ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
 
-  // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
-  pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
+
+	// processor grid size
+	pl->set("npx", npx );
+	pl->set("npy", npy );
+	pl->set("npz", npz );
+	pl->set("npf", npf );
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
@@ -218,20 +237,27 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicScalarField, TwoNorm_and_init, F
 
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicScalarField, TwoNorm_and_init, SF )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicScalarField, TwoNorm_and_init, VF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicField, InitTwoNorm, SF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicField, InitTwoNorm, VF )
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicScalarField, dot, FType  ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, dot, FType  ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
 
-  // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
-  pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
+
+	// processor grid size
+	pl->set("npx", npx );
+	pl->set("npy", npy );
+	pl->set("npz", npz );
+	pl->set("npf", npf );
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
@@ -267,20 +293,27 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicScalarField, dot, FType  ) {
 
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicScalarField, dot, SF )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicScalarField, dot, VF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicField, dot, SF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicField, dot, VF )
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicScalarField, scale, FType ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, scale, FType ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
 
-  // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
-  pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
+
+	// processor grid size
+	pl->set("npx", npx );
+	pl->set("npy", npy );
+	pl->set("npz", npz );
+	pl->set("npf", npf );
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
@@ -296,20 +329,27 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicScalarField, scale, FType ) {
 
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicScalarField, scale, SF )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicScalarField, scale, VF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicField, scale, SF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicField, scale, VF )
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicScalarField, random, FType ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, random, FType ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
 
-  // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
-  pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
+
+	// processor grid size
+	pl->set("npx", npx );
+	pl->set("npy", npy );
+	pl->set("npz", npz );
+	pl->set("npf", npf );
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
@@ -325,20 +365,27 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicScalarField, random, FType ) {
 
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicScalarField, random, SF )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicScalarField, random, VF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicField, random, SF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicField, random, VF )
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicScalarField, add, FType ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, add, FType ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
 
-  // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
-  pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
+
+	// processor grid size
+	pl->set("npx", npx );
+	pl->set("npy", npy );
+	pl->set("npz", npz );
+	pl->set("npf", npf );
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
@@ -379,35 +426,80 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicScalarField, add, FType ) {
 
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicScalarField, add, SF ) 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicScalarField, add, VF ) 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicField, add, SF ) 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicField, add, VF ) 
 
 
-
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicScalarField, write, FType ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonic, exchange, FType ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
 
-  // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
-  pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
+
+	// processor grid size
+	pl->set("npx", npx );
+	pl->set("npy", npy );
+	pl->set("npz", npz );
+	pl->set("npf", npf );
+
+
+  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+
+	auto field = Pimpact::createMultiHarmonic<FType>( space );
+
+	field->init( space->getProcGrid()->getRankSlice(3) );
+	field->exchange();
+
+  TEST_FLOATING_EQUALITY( field->getConst0FieldPtr()->norm(Belos::InfNorm,false), 0., eps );
+
+//	for( O i=0; i<space->nGlo(3); ++i ) {
+//		field->getConstCFieldPtr(i)->print(  );
+//		field->getConstSFieldPtr(i)->print(  );
+//	}
+  TEST_FLOATING_EQUALITY( field->getConstCFieldPtr(space->nGlo(3)-1)->norm(Belos::InfNorm,false), space->getProcGrid()->getNP(3)-1., eps );
+
+}
+
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonic, exchange, SF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonic, exchange, VF )
+
+
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, write, FType ) {
+
+  pl->set( "domain", domain );
+  pl->set( "dim", dim );
+
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
+
+	// processor grid size
+	pl->set("npx", npx );
+	pl->set("npy", npy );
+	pl->set("npz", npz );
+	pl->set("npf", npf );
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
 	auto field = Pimpact::createMultiHarmonic<FType>( space );
 
 	field->init( 1. );
-	field->write();
+//	field->write();
 
 	field->random();
-	field->write( 2 );
+//	field->write( 2 );
 
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicScalarField, write, SF )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicScalarField, write, VF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicField, write, SF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicField, write, VF )
 
 
 

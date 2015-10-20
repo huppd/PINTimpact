@@ -45,7 +45,7 @@ public:
     auto boundaryConditionsLocal = space->getBCLocal();
 
 		// refine global gridsize
-    auto gridSizeGlobalTup = space->getGridSizeGlobal()->getTuple();
+		Teuchos::Tuple<Ordinal,4> gridSizeGlobalTup = *space->getGridSizeGlobal();
 
 		for( int i=0; i<3; ++i )
 		 if( refine_dir[i] )
@@ -55,12 +55,7 @@ public:
 
     auto gridSizeGlobal = createGridSizeGlobal<Ordinal,dimension>( gridSizeGlobalTup );
 
-//    auto procGridSize = space->getProcGridSize();
-
     auto procGrid = space->getProcGrid();
-//			Pimpact::createProcGrid<Ordinal,dimension>(
-//					procGridSize->getTuple(),
-//					boundaryConditionsGlobal );
 
     auto gridSizeLocal =
 			Pimpact::createGridSizeLocal<Ordinal,dimension,dimNC>(

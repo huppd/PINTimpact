@@ -139,7 +139,7 @@ protected:
 
 	void applyNPoint( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z ) const {
 
-		auto ib = space()->procCoordinate();
+		Teuchos::Tuple<int,SpaceT::dimension> ib = space()->getProcGrid()->getNP();
 	
 		Teuchos::Tuple<int,3>	dirS;
 		Teuchos::Tuple<int,3>	inc;
