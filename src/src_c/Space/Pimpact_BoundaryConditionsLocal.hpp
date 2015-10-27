@@ -2,13 +2,13 @@
 #ifndef PIMPACT_BOUNDARYCONDITIONSLOCAL_HPP
 #define PIMPACT_BOUNDARYCONDITIONSLOCAL_HPP
 
+
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_Tuple.hpp"
 
-#include "Pimpact_Types.hpp"
-
 #include "Pimpact_BoundaryConditionsGlobal.hpp"
 #include "Pimpact_ProcGrid.hpp"
+#include "Pimpact_Types.hpp"
 
 
 

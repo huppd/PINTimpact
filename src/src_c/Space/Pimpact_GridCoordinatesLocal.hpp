@@ -3,13 +3,21 @@
 #define PIMPACT_GRIDCOORDINATESLOCAL_HPP
 
 
-#include<cmath>
-#include<ostream>
+#include <cmath>
+#include <ostream>
 
-#include"Teuchos_RCP.hpp"
-#include"Teuchos_Tuple.hpp"
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_Tuple.hpp"
 
-#include"Pimpact_Types.hpp"
+#include "Pimpact_BoundaryConditionsGlobal.hpp"
+#include "Pimpact_BoundaryConditionsLocal.hpp"
+#include "Pimpact_DomainSize.hpp"
+#include "Pimpact_GridCoordinatesGlobal.hpp"
+#include "Pimpact_GridSizeGlobal.hpp"
+#include "Pimpact_GridSizeLocal.hpp"
+#include "Pimpact_StencilWidths.hpp"
+#include "Pimpact_ProcGrid.hpp"
+#include "Pimpact_Types.hpp"
 
 
 

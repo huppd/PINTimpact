@@ -1,10 +1,10 @@
 #include <iostream>
 
-#include "Teuchos_UnitTestHarness.hpp"
-#include "Teuchos_RCP.hpp"
 #include "Teuchos_Array.hpp"
-#include "Teuchos_Tuple.hpp"
 #include "Teuchos_CommHelpers.hpp"
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_Tuple.hpp"
+#include "Teuchos_UnitTestHarness.hpp"
 
 #include "Pimpact_Space.hpp"
 
@@ -22,7 +22,7 @@ typedef double S;
 
 
 TEUCHOS_STATIC_SETUP() {
-  Teuchos::CommandLineProcessor &clp = Teuchos::UnitTestRepository::getCLP();
+	Teuchos::CommandLineProcessor &clp = Teuchos::UnitTestRepository::getCLP();
   clp.addOutputSetupOptions(true);
   clp.setOption(
       "test-mpi", "test-serial", &testMpi,
@@ -39,7 +39,7 @@ TEUCHOS_STATIC_SETUP() {
 
 
 // test shows that nLoc is not consistent with start and end indexes
-TEUCHOS_UNIT_TEST( StencilWidths, localConsistency ) {
+TEUCHOS_UNIT_TEST( StencilWidths, print ) {
 
   auto sW32 = Pimpact::createStencilWidths<3,2>(false);
 
@@ -69,7 +69,8 @@ TEUCHOS_UNIT_TEST( IndexSpace, localConsistency ) {
   auto stencilWidths = Pimpact::createStencilWidths<d,4>( false );
 
   auto boundaryConditionsGlobal =
-		Pimpact::createBoudaryConditionsGlobal( Pimpact::EDomainType( pl->get("domain",2) ) );
+		Pimpact::createBoudaryConditionsGlobal(
+				Pimpact::EDomainType( pl->get("domain",2) ) );
 
  auto procGridSize =
 	 Teuchos::tuple(
@@ -84,9 +85,10 @@ TEUCHOS_UNIT_TEST( IndexSpace, localConsistency ) {
 				pl->get("nz",33),
 				pl->get("nf",32) );
 
-  auto procGrid = Pimpact::createProcGrid<O,d>(
-			procGridSize,
-			boundaryConditionsGlobal );
+  auto procGrid =
+		Pimpact::createProcGrid<O,d>(
+				procGridSize,
+				boundaryConditionsGlobal );
 
   auto gridSizeLocal =
 		Pimpact::createGridSizeLocal<O,d>(

@@ -70,9 +70,11 @@ public:
 					boundaryConditionsLocal,
 					procGrid );
 
-    auto coordGlobal = Pimpact::createGridCoordinatesGlobal<Scalar,Ordinal,dimension>(
-        gridSizeGlobal,
-        domainSize );
+		auto coordGlobal =
+			Pimpact::createGridCoordinatesGlobal<Scalar,Ordinal,dimension>(
+					gridSizeGlobal,
+					domainSize,
+					Teuchos::tuple( None, None, None ) );
 
     auto coordLocal = Pimpact::createGridCoordinatesLocal<Scalar,Ordinal,dimension>(
         stencilWidths,

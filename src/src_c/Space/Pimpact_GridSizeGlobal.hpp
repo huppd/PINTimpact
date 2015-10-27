@@ -2,16 +2,13 @@
 #ifndef PIMPACT_GRIDSIZEGLOBAL_HPP
 #define PIMPACT_GRIDSIZEGLOBAL_HPP
 
-#include<ostream>
 
-#include"Teuchos_RCP.hpp"
-#include"Teuchos_Tuple.hpp"
+#include <ostream>
 
-#include"Pimpact_Types.hpp"
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_Tuple.hpp"
 
-#include "Pimpact_DomainSize.hpp"
-
-
+#include "Pimpact_Types.hpp"
 
 
 
@@ -42,7 +39,7 @@ protected:
 			for( int i=0; i<3; ++i )
 				TEUCHOS_TEST_FOR_EXCEPT( ((*this)[i]-1)%2 != 0 );
 
-	};
+		};
 
 public:
 

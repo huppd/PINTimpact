@@ -52,6 +52,7 @@ enum EGridStretching {
 	Cos=2
 };
 
+
 /// \relates ScalarField::initField
 enum EScalarField {
 	ConstField = 0,
@@ -115,7 +116,7 @@ enum EForceType {
 };
 
 
-
 }
+
 
 #endif // PIMPACT_TYPES_HPP

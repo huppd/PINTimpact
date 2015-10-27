@@ -4,21 +4,19 @@
 
 #include <vector>
 #include <iostream>
+
 #include "mpi.h"
 
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_ScalarTraitsDecl.hpp"
 #include "Teuchos_SerialDenseMatrix.hpp"
-
-#include "Pimpact_Types.hpp"
-
-#include "Pimpact_extern_ScalarField.hpp"
-#include "Pimpact_extern_VectorField.hpp"
+#include "Teuchos_Tuple.hpp"
 
 #include "Pimpact_AbstractField.hpp"
-
+#include "Pimpact_extern_ScalarField.hpp"
+#include "Pimpact_extern_VectorField.hpp"
 #include "Pimpact_ScalarField.hpp"
-
+#include "Pimpact_Types.hpp"
 
 
 
@@ -26,8 +24,7 @@ namespace Pimpact {
 
 
 
-/// \brief important basic Vector class
-/// it wraps three ScalarFields.
+/// \brief important basic Vector class  it wraps three ScalarFields.
 /// \ingroup Field
 /// \relates ScalarField
 template<class SpaceType>

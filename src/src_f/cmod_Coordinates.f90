@@ -4,6 +4,7 @@
 !* Mai 2005 - Dec 2011                                                                                       *
 !*************************************************************************************************************
 
+
 !> \brief module providing routine, that initializes the coordinates
 !!  by using get_coords
 module cmod_Coordinates
@@ -13,6 +14,37 @@ module cmod_Coordinates
   implicit none
 
 contains
+
+
+  !> \brief sets xx and dx equidistant 
+  !!
+  !! \param[in] Lmax Li
+  !! \param[in] iimax Mi
+  !! \param[in] ii0U index
+  !! \param[in] ii0L index
+  !! \param[out] xx
+  !! \param[out] dx
+  subroutine coord_equi(  &
+      Lmax,               &
+      iimax,              &
+      ii,                 &
+      xx,                 &
+      dx )
+
+    implicit none
+
+    real(c_double), intent(in)    ::  Lmax
+    real(c_double), intent(in)    ::  iimax
+
+    real(c_double), intent(in)    ::  ii
+    real(c_double), intent(out)   ::  xx
+    real(c_double), intent(out)   ::  dx
+
+    xx = (ii-1.)*Lmax/(iimax-1.)
+    dx =         Lmax/(iimax-1.)
+
+  end subroutine coord_equi
+
 
   !> \brief sets xx and dx so that one gets a nice grid streching
   !!
@@ -68,6 +100,7 @@ contains
 
 
   !> \brief here can the user sets the coordinates according to his favorite stretching
+  !! \realtes GridCoordinatesGlobal
   !! \note: - local processor-block coordinates and grid spacings are
   !!          automatically derived from global grid
   !!        - dy3p = dy3w = 1. for 2D (may simplify programming)
@@ -80,7 +113,9 @@ contains
   !!             y1p(1 ) = 0.
   !!             y1p(M1) = L1
   !!                etc.
+  !! \deprecated
   subroutine PI_getGlobalCoordinates( &
+      stretchType,                    &
       L,                              &
       M,                              &
       y_origin,                       &
@@ -93,6 +128,7 @@ contains
 
     implicit none
 
+    integer(c_int),intent(in)   :: stretchType
 
     real(c_double),intent(in)   :: L
     integer(c_int),intent(in)   :: M
@@ -111,14 +147,20 @@ contains
 
 
     !--- specify global coordinates and grid spacings ---
-    ! example:
-    !
     do i = 1, M
-      call coord_tanh(L,REAL(M),0.,0.,REAL(i)    ,ys(i),dys(i))
+
+      if( 0==stretchType ) then
+        call coord_equi( L, REAL(M), REAL(i), ys(i), dys(i) )
+      end if
+
     end do
 
     do i = 0, M
-      call coord_tanh(L,REAL(M),0.,0.,REAL(i)+0.5,yv(i),dyv(i))
+
+      if( 0==stretchType ) then
+        call coord_equi( L, REAL(M), REAL(i)+0.5, yv(i), dyv(i) )
+      end if
+
     end do
 
     ys = ys - y_origin
@@ -131,13 +173,16 @@ contains
   !pgi$g unroll = n:8
   !!pgi$r unroll = n:8
   !!pgi$l unroll = n:8
+  !> \realtes GridCoordinatesLocal
   subroutine PI_getLocalCoordinates(  &
       L,                              &
       M,                              &
       N,                              &
       bL,bU,                          &
-      BC_L_global,BC_U_global,        &
-      BC_L       ,BC_U,               &
+      BC_L_global,                    &
+      BC_U_global,                    &
+      BC_L,                           &
+      BC_U,                           &
       iB,                             &
       ys,                             &
       yv,                             &

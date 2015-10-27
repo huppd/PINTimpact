@@ -5,29 +5,27 @@
 
 #include <iostream>
 
-#include "Teuchos_Tuple.hpp"
 #include "Teuchos_ArrayRCP.hpp"
-#include "Teuchos_RCP.hpp"
-#include "Teuchos_ParameterList.hpp"
-#include "Teuchos_XMLParameterListCoreHelpers.hpp"
 #include "Teuchos_oblackholestream.hpp"
+#include "Teuchos_ParameterList.hpp"
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_Tuple.hpp"
+#include "Teuchos_XMLParameterListCoreHelpers.hpp"
 
-#include "pimpact.hpp"
 
-#include "Pimpact_StencilWidths.hpp"
+#include "Pimpact_BoundaryConditionsGlobal.hpp"
+#include "Pimpact_BoundaryConditionsLocal.hpp"
+#include "Pimpact_DomainSize.hpp"
+#include "Pimpact_GridCoordinatesGlobal.hpp"
+#include "Pimpact_GridCoordinatesLocal.hpp"
 #include "Pimpact_GridSizeGlobal.hpp"
 #include "Pimpact_GridSizeLocal.hpp"
 #include "Pimpact_IndexSpace.hpp"
-
-#include "Pimpact_ProcGrid.hpp"
-
-#include "Pimpact_GridCoordinatesGlobal.hpp"
-#include "Pimpact_GridCoordinatesLocal.hpp"
-
 #include "Pimpact_InterpolateV2SOp.hpp"
-
-
+#include "Pimpact_ProcGrid.hpp"
+#include "Pimpact_StencilWidths.hpp"
 #include "Pimpact_SpaceFactory.hpp"
+
 
 
 
@@ -88,7 +86,8 @@ public:
 		domain = ( 2==pl->get<int>("dim") && 0==domain )?1:domain;
 
 		boundaryConditionsGlobal_ =
-			Pimpact::createBoudaryConditionsGlobal<d>( Pimpact::EDomainType( domain ) );
+			Pimpact::createBoudaryConditionsGlobal<d>(
+					Pimpact::EDomainType( domain ) );
 
 		gridSizeGlobal_ =
 			Pimpact::createGridSizeGlobal<O,d>(
@@ -130,7 +129,8 @@ public:
 		coordGlobal_ =
 			Pimpact::createGridCoordinatesGlobal<S,O,d>(
 					gridSizeGlobal_,
-					domainSize_ );
+					domainSize_,
+					Teuchos::tuple( None, None, None) );
 
 		coordLocal_ =
 			Pimpact::createGridCoordinatesLocal<S,O,d>(
@@ -257,9 +257,10 @@ public:
 		getInterpolateV2S() const { return( interV2S_ ); }
 
 	/// \}
-	/// \name getter methods for IMPACT 
+
+	/// \name getter methods IMPACT style
 	/// \{
-	//
+
 	const MPI_Comm& comm()  const { return( procGrid_->getCommS()  ); }
 
 	const MPI_Comm& commST()  const { return( procGrid_->getCommWorld()  ); }
@@ -394,8 +395,10 @@ public:
 			pl->set<O>("nz", 33, "amount of grid points in z-direction: a*2**q+1" );
 			pl->set<O>("nf", 4, "amount of grid points in f-direction" );
 
-			pl->set<O>("nfs", 1, "start amount of grid points in f-direction" );
-			pl->set<O>("nfe", 1, "end amount of grid points in f-direction" );
+			// grid stretching
+			pl->set<int>("grid stretching in x", 0, "");
+			pl->set<int>("grid stretching in y", 0, "");
+			pl->set<int>("grid stretching in z", 0, "");
 
 			// processor grid size
 			pl->set<O>("npx", 2, "amount of processors in x-direction" );
@@ -530,19 +533,22 @@ static Teuchos::RCP< const SpaceT > createSpace(
 				boundaryConditionsLocal,
 				procGrid	);
 
-	auto coordGlobal = Pimpact::createGridCoordinatesGlobal<Scalar,Ordinal,dimension>(
-			gridSizeGlobal,
-			domainSize );
+	auto coordGlobal =
+		Pimpact::createGridCoordinatesGlobal<Scalar,Ordinal,dimension>(
+				gridSizeGlobal,
+				domainSize,
+				Teuchos::tuple( None, None, None) );
 
-	auto coordLocal = Pimpact::createGridCoordinatesLocal<Scalar,Ordinal,dimension>(
-			stencilWidths,
-			domainSize,
-			gridSizeGlobal,
-			gridSizeLocal,
-			boundaryConditionsGlobal,
-			boundaryConditionsLocal,
-			procGrid,
-			coordGlobal );
+	auto coordLocal =
+		Pimpact::createGridCoordinatesLocal<Scalar,Ordinal,dimension>(
+				stencilWidths,
+				domainSize,
+				gridSizeGlobal,
+				gridSizeLocal,
+				boundaryConditionsGlobal,
+				boundaryConditionsLocal,
+				procGrid,
+				coordGlobal );
 
 	auto interV2S =
 		Pimpact::createInterpolateV2S<Scalar,Ordinal,dimension>(

@@ -3,15 +3,15 @@
 #define PIMPACT_GRIDCOORDINATESGLOBAL_HPP
 
 
+#include <cmath>
+#include <ostream>
 
-#include<cmath>
-#include<ostream>
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_Tuple.hpp"
 
-
-#include"Teuchos_RCP.hpp"
-#include"Teuchos_Tuple.hpp"
-
-#include"Pimpact_Types.hpp"
+#include "Pimpact_DomainSize.hpp"
+#include "Pimpact_GridSizeGlobal.hpp"
+#include "Pimpact_Types.hpp"
 
 
 
@@ -19,9 +19,12 @@
 namespace Pimpact{
 
 
+
 extern "C" {
 
+/// \todo remove me
 void PI_getGlobalCoordinates(
+		const int& stretchType,
 		const double& L,
 		const int& M,
 		const double& y_origin,
@@ -44,6 +47,20 @@ void PI_getGlobalCoordinates(
 /// \tparam Ordinal index type
 /// \tparam dim computiational dimension
 ///
+/// \note: - local processor-block coordinates and grid spacings are
+///          automatically derived from global grid
+///        - dy3p = dy3w = 1. for 2D (may simplify programming)
+///        - ensure that for all i
+///             y1p(i) < y1p(i+1)
+///             y1u(i) < y1u(i+1)
+///             y1p(i) < y1u(i) < y1p(i+1)
+///                etc.
+///        - code is tested only for
+///             y1p(1 ) = 0.
+///             y1p(M1) = L1
+///                etc.
+///
+/// \realtes GridCoordinatesGlobal
 /// \ingroup SpaceObject
 template<class Scalar, class Ordinal, int dim>
 class GridCoordinatesGlobal {
@@ -52,7 +69,8 @@ class GridCoordinatesGlobal {
 	template<class ST,class OT,int dT>
 	friend Teuchos::RCP<const GridCoordinatesGlobal<ST,OT,dT> > createGridCoordinatesGlobal(
 			const Teuchos::RCP<const GridSizeGlobal<OT,dT> >& gridSize,
-			const Teuchos::RCP<const DomainSize<ST> >& domainSize );
+			const Teuchos::RCP<const DomainSize<ST> >& domainSize,
+			const Teuchos::Tuple<EGridStretching,3>& gridStretching );
 
 public:
 
@@ -70,32 +88,53 @@ protected:
 
 	GridCoordinatesGlobal(
 			const Teuchos::RCP<const GridSizeGlobal<Ordinal,dim> >& gridSize,
-			const Teuchos::RCP<const DomainSize<Scalar> >& domainSize ):
+			const Teuchos::RCP<const DomainSize<Scalar> >& domainSize,
+			const Teuchos::Tuple<EGridStretching,3>& gridStretching ):
 		gridSize_( gridSize ) {
 
-			for( int i=0; i<dim; ++i ) {
-				xS_[i]  = new Scalar[ gridSize_->get(i)   ];
-				xV_[i]  = new Scalar[ gridSize_->get(i)+1 ];
-				dxS_[i] = new Scalar[ gridSize_->get(i)   ];
-				dxV_[i] = new Scalar[ gridSize_->get(i)+1 ];
-				if( i<3 )
-					PI_getGlobalCoordinates(
-							domainSize->getSize(i),
-							gridSize_->get(i),
-							domainSize->getOrigin(i),
-							xS_[i],
-							xV_[i],
-							dxS_[i],
-							dxV_[i] );
-				else if( 3==i )
-					PI_getGlobalCoordinates(
-							4.*std::atan(1.),
-							gridSize_->get(i),
-							0.,
-							xS_[i],
-							xV_[i],
-							dxS_[i],
-							dxV_[i] );
+			for( int dir=0; dir<dim; ++dir ) {
+
+				Ordinal M = gridSize_->get(dir);
+				Scalar Ms = M;
+
+				xS_[dir]  = new Scalar[ M   ];
+				dxS_[dir] = new Scalar[ M   ];
+				xV_[dir]  = new Scalar[ M+1 ];
+				dxV_[dir] = new Scalar[ M+1 ];
+
+				if( dir<3 ) {
+
+					Scalar L  = domainSize->getSize(dir);
+					Scalar x0 = domainSize->getOrigin(dir);
+
+					for( Ordinal i=0; i<M; ++i ) {
+						Scalar is = i;
+						xS_ [dir][i] = is*L/( Ms-1. ) - x0;
+						dxS_[dir][i] =    L/( Ms-1. );
+					}
+					for( Ordinal i=0; i<=M; ++i ) {
+						Scalar is = i;
+						xV_ [dir][i] = ( is - 0.5 )*L/( Ms-1) - x0;
+						dxV_[dir][i] =              L/( Ms-1);
+					}
+
+				}
+				else if( 3==dir ) {
+
+					Scalar L = 4.*std::atan(1.);
+
+					for( Ordinal i=0; i<M; ++i ) {
+						Scalar is = i;
+						xS_ [dir][i] = is*L/( Ms-1. );
+						dxS_[dir][i] =    L/( Ms-1. );
+					}
+					for( Ordinal i=0; i<=M; ++i ) {
+						Scalar is = i;
+						xV_ [dir][i] = ( is - 0.5 )*L/( Ms-1. );
+						dxV_[dir][i] =              L/( Ms-1. );
+					}
+
+				}
 			}
 		};
 
@@ -143,8 +182,8 @@ public:
 				out << j+1 << "\t" << xS_[i][j] << "\n";
 		}
 		for( int i=0; i<dim; ++i ) {
-			out << "Global coordinates of scalars in dir: " << i << "\n";
-			out << "i\txS\n";
+			out << "Global coordinates of vectors in dir: " << i << "\n";
+			out << "i\txV\n";
 			for( int j=0; j<gridSize_->get(i)+1; ++j )
 				out << j<< "\t" << xV_[i][j] << "\n";
 		}
@@ -160,11 +199,15 @@ public:
 template<class S, class O, int d>
 Teuchos::RCP<const GridCoordinatesGlobal<S,O,d> > createGridCoordinatesGlobal(
 		const Teuchos::RCP<const GridSizeGlobal<O,d> >& gridSize,
-		const Teuchos::RCP<const DomainSize<S> >& domainSize ) {
+		const Teuchos::RCP<const DomainSize<S> >& domainSize,
+		const Teuchos::Tuple<EGridStretching,3>& gridStretching ) {
 
 	return(
 			Teuchos::rcp(
-				new GridCoordinatesGlobal<S,O,d>( gridSize, domainSize ) ) );
+				new GridCoordinatesGlobal<S,O,d>(
+					gridSize,
+					domainSize,
+					gridStretching ) ) );
 
 }
 

@@ -5,7 +5,6 @@
 
 #include "Pimpact_Types.hpp"
 
-//#include "Pimpact_extern_FDCoeff.hpp"
 
 #include "Pimpact_ScalarField.hpp"
 

@@ -300,28 +300,31 @@ protected:
 				boundaryConditionsLocal,
 				procGrid );
 
-	auto coordGlobal = Pimpact::createGridCoordinatesGlobal<Scalar,Ordinal,dimension>(
-			gridSizeGlobal,
-			domainSize );
+	auto coordGlobal =
+		Pimpact::createGridCoordinatesGlobal<Scalar,Ordinal,dimension>(
+				gridSizeGlobal,
+				domainSize,
+				Teuchos::tuple( None, None, None) );
 
-	auto  coordLocal = Pimpact::createGridCoordinatesLocal<Scalar,Ordinal,dimension>(
-			stencilWidths,
-			domainSize,
-			gridSizeGlobal,
-			gridSizeLocal,
-			boundaryConditionsGlobal,
-			boundaryConditionsLocal,
-			procGrid,
-			coordGlobal );
+	auto  coordLocal =
+		Pimpact::createGridCoordinatesLocal<Scalar,Ordinal,dimension>(
+				stencilWidths,
+				domainSize,
+				gridSizeGlobal,
+				gridSizeLocal,
+				boundaryConditionsGlobal,
+				boundaryConditionsLocal,
+				procGrid,
+				coordGlobal );
 
 	auto interV2S =
-			Pimpact::createInterpolateV2S<Scalar,Ordinal,dimension>(
-					indexSpace,
-					gridSizeLocal,
-					stencilWidths,
-					domainSize,
-					boundaryConditionsLocal,
-					coordLocal );
+		Pimpact::createInterpolateV2S<Scalar,Ordinal,dimension>(
+				indexSpace,
+				gridSizeLocal,
+				stencilWidths,
+				domainSize,
+				boundaryConditionsLocal,
+				coordLocal );
 
 	return(
 			 Teuchos::rcp(

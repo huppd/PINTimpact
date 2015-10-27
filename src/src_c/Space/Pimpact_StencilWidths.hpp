@@ -232,7 +232,7 @@ public:
 
   /// prints to \c std::cout, only for debuging purpose
   void print( std::ostream& out=std::cout ) const {
-    out << "\t---FieldSpace: ---\n";
+    out << "\t---StencilWidths: ---\n";
     out << "\tcomput dim: " << dim << "\n";
     out << "\tncbC: " << ncbC_ << "\n";
     out << "\tncbD: " << ncbD_ << "\n";

@@ -2,10 +2,10 @@
 #ifndef PIMPACT_GRIDSIZELOCAL_HPP
 #define PIMPACT_GRIDSIZELOCAL_HPP
 
-#include<ostream>
+#include <ostream>
 
-#include"Teuchos_RCP.hpp"
-#include"Teuchos_Tuple.hpp"
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_Tuple.hpp"
 
 #include "Pimpact_GridSizeGlobal.hpp"
 #include "Pimpact_ProcGrid.hpp"

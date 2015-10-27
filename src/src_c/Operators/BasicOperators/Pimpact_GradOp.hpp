@@ -2,10 +2,13 @@
 #ifndef PIMPACT_GRADOP_HPP
 #define PIMPACT_GRADOP_HPP
 
-#include "Pimpact_extern_FDCoeff.hpp"
 
-#include "Pimpact_Types.hpp"
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_Tuple.hpp"
+
+#include "Pimpact_extern_FDCoeff.hpp"
 #include "Pimpact_ScalarField.hpp"
+#include "Pimpact_Types.hpp"
 #include "Pimpact_VectorField.hpp"
 
 
