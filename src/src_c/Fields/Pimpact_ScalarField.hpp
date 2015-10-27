@@ -34,8 +34,6 @@ class ScalarField : private AbstractField< SpaceType > {
 
 	template<class SpaceTT>
 	friend class DivGradO2JSmoother;
-//  template<class OperatorTT>
-//  friend class ConvectionDiffusionJSmoother;
   template<class Field>
   friend class TimeField;
 
@@ -149,10 +147,7 @@ public:
       for(int i = 0; i<space()->dim(); ++i)
         if( PeriodicBC==bc->getBCL(i) )
           vl *= space()->nGlo(i)-1;
-        else
-          vl *= space()->nGlo(i);
-      break;
-    }
+        else vl *= space()->nGlo(i); break; }
     default: {
       for( int j=0; j<space()->dim(); ++j) {
         if( fType_==j ) {

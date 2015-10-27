@@ -488,9 +488,7 @@ Teuchos::RCP< const OSpaceT > createSpace(
 					domainSize,
 					boundaryConditionsGlobal,
 					boundaryConditionsLocal,
-					interV2S )
-				)
-			);
+					interV2S ) ) );
 
 }
 

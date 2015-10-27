@@ -12,11 +12,6 @@
 
 
 
-//extern "C" {
-//void fsetDS( const double& L1, const double& L2, const double& L3 );
-//}
-
-
 
 namespace Pimpact{
 
@@ -27,76 +22,76 @@ namespace Pimpact{
 template<class Scalar>
 class DomainSize {
 
-  template<class ST>
-  friend Teuchos::RCP<const DomainSize<ST> > createDomainSize();
+	template<class ST>
+	friend Teuchos::RCP<const DomainSize<ST> > createDomainSize();
 
-  template<class ST>
-  friend Teuchos::RCP<const DomainSize<ST> > createDomainSize( int dim, ST L1, ST L2, ST L3 );
+	template<class ST>
+	friend Teuchos::RCP<const DomainSize<ST> > createDomainSize( int dim, ST L1, ST L2, ST L3 );
 
-  template<class ST>
-  friend Teuchos::RCP<const DomainSize<ST> > createDomainSize( int dim, ST re, ST alpha2, ST L1, ST L2, ST L3 );
+	template<class ST>
+	friend Teuchos::RCP<const DomainSize<ST> > createDomainSize( int dim, ST re, ST alpha2, ST L1, ST L2, ST L3 );
 
 public:
 
-  typedef const Teuchos::Tuple<Scalar,3> TS3;
+	typedef const Teuchos::Tuple<Scalar,3> TS3;
 
 protected:
 
-  const int dim_;
+	const int dim_;
 
-  const Scalar re_;
+	const Scalar re_;
 
-  const Scalar alpha2_;
+	const Scalar alpha2_;
 
-  TS3 domainSize_;
+	TS3 domainSize_;
 
-  TS3 origin_;
+	TS3 origin_;
 
+	DomainSize( int dim, Scalar L1, Scalar L2, Scalar L3 ):
+		dim_(dim),re_(1.),alpha2_(1.),
+		domainSize_( Teuchos::tuple(L1, L2, L3) ),
+		origin_( Teuchos::tuple( 0.,0.,0.) ) {};
 
-  DomainSize( int dim, Scalar L1, Scalar L2, Scalar L3 ):
-    dim_(dim),re_(1.),alpha2_(1.),
-    domainSize_( Teuchos::tuple(L1, L2, L3) ),
-    origin_( Teuchos::tuple( 0.,0.,0.) ) {};
+	DomainSize( int dim, Scalar re, Scalar alpha2, Scalar L1, Scalar L2, Scalar L3 ):
+		dim_(dim),re_(re),alpha2_(alpha2),
+		domainSize_( Teuchos::tuple(L1, L2, L3) ),
+		origin_( Teuchos::tuple( 0.,0.,0.) ) {};
 
-  DomainSize( int dim, Scalar re, Scalar alpha2, Scalar L1, Scalar L2, Scalar L3 ):
-    dim_(dim),re_(re),alpha2_(alpha2),
-    domainSize_( Teuchos::tuple(L1, L2, L3) ),
-    origin_( Teuchos::tuple( 0.,0.,0.) ) {};
-
-  DomainSize( int dim, TS3 domainSize ):
-    dim_(dim),re_(1.),alpha2_(1.),
-    domainSize_( domainSize ),
-    origin_( Teuchos::tuple( 0.,0.,0.) ) {};
+	DomainSize( int dim, TS3 domainSize ):
+		dim_(dim),re_(1.),alpha2_(1.),
+		domainSize_( domainSize ),
+		origin_( Teuchos::tuple( 0.,0.,0.) ) {};
 
 public:
 
-  const int& getDim() const { return( dim_ ); }
+	/// \name getter
+	/// @{ 
 
-  const Scalar* getSize() const { return( domainSize_.getRawPtr() ); }
+	const int& getDim() const { return( dim_ ); }
 
-  const Scalar& getSize( int i) const { return( domainSize_[i] ); }
-  const Scalar& getSize( ECoord i) const { return( domainSize_[ (int)i ] ); }
+	const Scalar* getSize() const { return( domainSize_.getRawPtr() ); }
 
-  const Scalar* getOrigin() const { return( origin_.getRawPtr() ); }
+	const Scalar& getSize( int i) const { return( domainSize_[i] ); }
+	const Scalar& getSize( ECoord i) const { return( domainSize_[ (int)i ] ); }
 
-  const Scalar& getOrigin( int i) const { return( origin_[i] ); }
+	const Scalar* getOrigin() const { return( origin_.getRawPtr() ); }
 
-  const Scalar& getRe() const { return( re_ ); }
+	const Scalar& getOrigin( int i) const { return( origin_[i] ); }
 
-  const Scalar& getAlpha2() const { return( alpha2_ ); }
+	const Scalar& getRe() const { return( re_ ); }
 
-//  void set_Impact() const {
-//    fsetDS( domainSize_[0], domainSize_[1], domainSize_[2] );
-//  };
+	const Scalar& getAlpha2() const { return( alpha2_ ); }
 
-  void print( std::ostream& out=std::cout ) const {
-    out << "\tspatial dim: " << dim_ << "\n"
-        << "\tRe= "      << re_ << "\n"
-        << "\talpha^2= " << alpha2_ << "\n"
-        << "\tlx= "      << domainSize_[0]
-                                        << "\tly= "      << domainSize_[1]
-                                                                        << "\tlz= "      << domainSize_[2] << "\n";
-  };
+	///  @} 
+
+	void print( std::ostream& out=std::cout ) const {
+		out << "\tspatial dim: " << dim_ << "\n"
+			<< "\tRe= "      << re_ << "\n"
+			<< "\talpha^2= " << alpha2_ << "\n"
+			<< "\tlx= "      << domainSize_[0]
+			<< "\tly= "      << domainSize_[1]
+			<< "\tlz= "      << domainSize_[2] << "\n";
+	};
 
 }; // end of DomainSize
 

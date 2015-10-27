@@ -23,26 +23,26 @@ class BoundaryConditionsLocal {
 
 protected:
 
-  friend Teuchos::RCP<const BoundaryConditionsLocal> createBoudaryConditionsLocal();
+	friend Teuchos::RCP<const BoundaryConditionsLocal> createBoudaryConditionsLocal();
 
-  template< class OT, int dT >
-  friend Teuchos::RCP<const BoundaryConditionsLocal>  createBoudaryConditionsLocal(
-        const Teuchos::RCP<const BoundaryConditionsGlobal<dT> >& bcg,
-        const Teuchos::RCP<const ProcGrid<OT,dT> >&  pg );
+	template< class OT, int dT >
+	friend Teuchos::RCP<const BoundaryConditionsLocal>  createBoudaryConditionsLocal(
+			const Teuchos::RCP<const BoundaryConditionsGlobal<dT> >& bcg,
+			const Teuchos::RCP<const ProcGrid<OT,dT> >&  pg );
 
-  typedef const Teuchos::Tuple<EBCType,3> TBC3;
-  typedef const Teuchos::Tuple<int,3> Ti3;
+	typedef const Teuchos::Tuple<EBCType,3> TBC3;
+	typedef const Teuchos::Tuple<int,3> Ti3;
 
-  Ti3 BCL_int_;
-  Ti3 BCU_int_;
+	Ti3 BCL_int_;
+	Ti3 BCU_int_;
 
-  BoundaryConditionsLocal(
-      EBCType BC1L=DirichletBC,
-      EBCType BC1U=DirichletBC,
-      EBCType BC2L=DirichletBC,
-      EBCType BC2U=DirichletBC,
-      EBCType BC3L=DirichletBC,
-      EBCType BC3U=DirichletBC ) {
+	BoundaryConditionsLocal(
+			EBCType BC1L=DirichletBC,
+			EBCType BC1U=DirichletBC,
+			EBCType BC2L=DirichletBC,
+			EBCType BC2U=DirichletBC,
+			EBCType BC3L=DirichletBC,
+			EBCType BC3U=DirichletBC ) {
 
 		TBC3 BCL_local_ = Teuchos::tuple(BC1L, BC2L, BC3L);
 		TBC3 BCU_local_ = Teuchos::tuple(BC1U, BC2U, BC3U);
@@ -54,22 +54,27 @@ protected:
 
 	};
 
-  BoundaryConditionsLocal( TBC3 BCL_local, TBC3 BCU_local ) {
+	BoundaryConditionsLocal( TBC3 BCL_local, TBC3 BCU_local ) {
 
-    for( int i=0; i<3; ++i ) {
-      BCL_int_[i] = static_cast<int>( BCL_local[i] );
-      BCU_int_[i] = static_cast<int>( BCU_local[i] );
-    }
+		for( int i=0; i<3; ++i ) {
+			BCL_int_[i] = static_cast<int>( BCL_local[i] );
+			BCU_int_[i] = static_cast<int>( BCU_local[i] );
+		}
 
-  }
+	}
 
 public:
 
+	/// \name getter
+	/// @{ 
+	
   EBCType getBCL( const int& dir ) const { return( static_cast<EBCType>(BCL_int_[dir]) ); }
 	EBCType getBCU( const int& dir ) const { return( static_cast<EBCType>(BCU_int_[dir]) ); }
 
   const int* getBCL() const { return( BCL_int_.getRawPtr() ); }
   const int* getBCU() const { return( BCU_int_.getRawPtr() ); }
+
+	///  @} 
 
   void print( std::ostream& out=std::cout ) const {
     out << "\t--- local BoundaryConditions: ---\n";

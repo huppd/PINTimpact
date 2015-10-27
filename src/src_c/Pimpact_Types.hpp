@@ -23,6 +23,8 @@ enum ECoord { X=0, Y=1, Z=2, T=4 };
 enum EField { U=0, V=1, W=2, S=4 };
 
 
+/// \relates BoundaryConditionsGlobal
+/// \relates BoundaryConditionsLocal
 enum EBCType {
   SymmetryBC = -2,
   PeriodicBC = -1,
@@ -33,6 +35,7 @@ enum EBCType {
 };
 
 
+/// \relates BoundaryConditionsGlobal
 enum EDomainType {
   AllDirichlet = 0,
   Dirichelt2DChannel = 1,
@@ -42,6 +45,12 @@ enum EDomainType {
   Neumann1Periodic2 = 5
 };
 
+
+enum EGridStretching {
+	None=0,
+	Parabola=1,
+	Cos=2
+};
 
 /// \relates ScalarField::initField
 enum EScalarField {

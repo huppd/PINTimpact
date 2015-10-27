@@ -28,7 +28,7 @@ namespace Pimpact {
 ///
 /// Index         | BoundaryConditionslocal>0 | BoundaryConditionslocal<=0 | symmetryBoundaryConditions
 /// ------------- | --------------------------| ---------------------------| ---------------------------
-/// Ind          | 1                         | 1                          | 1
+/// Ind           | 1                         | 1                          | 1
 /// eInd          | nLoc                      | nLoc-1                     | nLoc
 ///
 /// Index           | BoundaryConditionslocal>0 | BoundaryConditionslocal<=0 | symmetryBoundaryConditions

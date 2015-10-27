@@ -2,6 +2,7 @@
 #ifndef PIMPACT_BOUNDARYCONDITIONSGLOBAL_HPP
 #define PIMPACT_BOUNDARYCONDITIONSGLOBAL_HPP
 
+
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_Tuple.hpp"
 
@@ -20,8 +21,8 @@ class BoundaryConditionsGlobal {
 
 public:
 
-  typedef const Teuchos::Tuple<EBCType,dim> TBC3;
-  typedef const Teuchos::Tuple<int,dim> Ti3;
+	typedef const Teuchos::Tuple<EBCType,dim> TBC3;
+	typedef const Teuchos::Tuple<int,dim> Ti3;
 
 
 	template<int d>
@@ -72,6 +73,9 @@ protected:
 
 public:
 
+	/// \name getter
+	/// @{ 
+
   EBCType getBCL( const int& dir ) const { return( static_cast<EBCType>(BCL_int_[dir]) ); }
 	EBCType getBCU( const int& dir ) const { return( static_cast<EBCType>(BCU_int_[dir]) ); }
 
@@ -91,11 +95,12 @@ public:
 
 	}
 
+	///  @} 
+	
   void print( std::ostream& out=std::cout ) const {
-    out << "---BoundaryConditionsGlobal: ---\n";
-    out << " BCL_global: " << BCL_int_ << "\n";
-    out << " BCU_global: " << BCU_int_ << "\n";
-
+		out << "---BoundaryConditionsGlobal: ---\n";
+		out << " BCL_global: " << BCL_int_ << "\n";
+		out << " BCU_global: " << BCU_int_ << "\n";
   }
 
 }; // end of class BoundaryConditionsGlobal
@@ -103,7 +108,14 @@ public:
 
 
 
+/// \brief creates global boundary conditions accordint to domaint Tyep
+///
+/// \tparam dim computational dimension
+/// \param dtype domain type
+///
+/// \return 
 /// \relates BoundaryConditionsGlobal
+/// \relates EDomainType
 template<int dim=3>
 Teuchos::RCP<const BoundaryConditionsGlobal<dim> >
 createBoudaryConditionsGlobal(
