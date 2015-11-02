@@ -24,6 +24,7 @@ contains
   !! \param[in] ii0L index
   !! \param[out] xx
   !! \param[out] dx
+  !! \deprecated
   subroutine coord_equi(  &
       Lmax,               &
       iimax,              &
@@ -55,6 +56,7 @@ contains
   !! \param[in] ii0L index
   !! \param[out] xx
   !! \param[out] dx
+  !! \deprecated
   subroutine coord_tanh(Lmax,iimax,ii0L,ii0U,ii,xx,dx)
     ! (sample subroutine)
 
@@ -174,6 +176,22 @@ contains
   !!pgi$r unroll = n:8
   !!pgi$l unroll = n:8
   !> \realtes GridCoordinatesLocal
+  !! \param L domain length
+  !! \param M global grid size
+  !! \param N local grid size
+  !! \param bl left max stencil width
+  !! \param bu right max stencil width
+  !! \param BC_L_global global lower boundary conditions
+  !! \param BC_U_global global upper boundary conditions
+  !! \param BC_L local lower boundary conditions
+  !! \param BC_U local upper boundary conditiosn
+  !! \param iB block coordinate
+  !! \param ys global scalar coordinates
+  !! \param yv global vector coordinates
+  !! \param xs local scalar coordinates
+  !! \param xv local vector coordinates
+  !! \param dxs local scalar deltas 
+  !! \param dxv local vector deltas
   subroutine PI_getLocalCoordinates(  &
       L,                              &
       M,                              &
@@ -214,11 +232,11 @@ contains
     real(c_double),intent(in)    ::  ys(1:M)
     real(c_double),intent(in)    ::  yv(0:M)
 
-    real(c_double),intent(inout) ::  xs(bL:(N+bU))
-    real(c_double),intent(inout) ::  xv(bL:(N+bU))
+    real(c_double),intent(  out) ::  xs(bL:(N+bU))
+    real(c_double),intent(  out) ::  xv(bL:(N+bU))
 
-    real(c_double),intent(inout) ::  dxs(1:N)
-    real(c_double),intent(inout) ::  dxv(0:N)
+    real(c_double),intent(  out) ::  dxs(1:N)
+    real(c_double),intent(  out) ::  dxv(0:N)
 
     integer(c_int)               ::  i, iiShift
 

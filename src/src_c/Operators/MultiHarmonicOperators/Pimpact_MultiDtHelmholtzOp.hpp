@@ -3,12 +3,12 @@
 #define PIMPACT_MULTIDTHELMHOLTZOP_HPP
 
 
-#include "Pimpact_Types.hpp"
-
-#include "Pimpact_VectorField.hpp"
-#include "Pimpact_MultiHarmonicField.hpp"
-
 #include "Pimpact_DtLapOp.hpp"
+#include "Pimpact_MultiHarmonicField.hpp"
+#include "Pimpact_Types.hpp"
+#include "Pimpact_VectorField.hpp"
+
+
 
 
 namespace Pimpact{

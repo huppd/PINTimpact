@@ -2,6 +2,7 @@
 #ifndef PIMPACT_VECTORFIELD_HPP
 #define PIMPACT_VECTORFIELD_HPP
 
+
 #include <vector>
 #include <iostream>
 
@@ -17,6 +18,7 @@
 #include "Pimpact_extern_VectorField.hpp"
 #include "Pimpact_ScalarField.hpp"
 #include "Pimpact_Types.hpp"
+
 
 
 

@@ -3,14 +3,13 @@
 #define PIMPACT_INTERPOLATIONOP_HPP
 
 
-#include "Teuchos_RCP.hpp"
 #include "Teuchos_Array.hpp"
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_TestForException.hpp"
 #include "Teuchos_Tuple.hpp"
 
-#include "Teuchos_TestForException.hpp"
-
-#include "Pimpact_Space.hpp"
 #include "Pimpact_ScalarField.hpp"
+#include "Pimpact_Space.hpp"
 
 
 
@@ -614,7 +613,6 @@ extern template class Pimpact::InterpolationOp< Pimpact::Space<double,int,3,4> >
 extern template class Pimpact::InterpolationOp< Pimpact::Space<double,int,4,2> >;
 extern template class Pimpact::InterpolationOp< Pimpact::Space<double,int,4,4> >;
 #endif
-
 
 
 #endif // end of #ifndef PIMPACT_INTERPOLATIONOP_HPP

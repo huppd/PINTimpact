@@ -3,10 +3,9 @@
 #define PIMPACT_DTLAPOP_HPP
 
 
-#include "Pimpact_VectorField.hpp"
-#include "Pimpact_ModeField.hpp"
-
 #include "Pimpact_HelmholtzOp.hpp"
+#include "Pimpact_ModeField.hpp"
+#include "Pimpact_VectorField.hpp"
 
 
 

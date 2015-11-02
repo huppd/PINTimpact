@@ -1,6 +1,8 @@
 #include "Pimpact_Fields.hpp"
 
 
+
+
 #ifdef COMPILE_ETI
 namespace Pimpact {
 
@@ -45,4 +47,6 @@ namespace Pimpact {
 	template class MultiField< CompoundField< MultiHarmonicField< VectorField< Space<double,int,3,2> > >, MultiHarmonicField< ScalarField< Space<double,int,3,2> > > > >;
 	template class MultiField< CompoundField< MultiHarmonicField< VectorField< Space<double,int,3,4> > >, MultiHarmonicField< ScalarField< Space<double,int,3,4> > > > >;
 } // end of namespace Pimpact
+
+
 #endif

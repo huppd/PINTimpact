@@ -3,9 +3,10 @@
 #define PIMPACT_VECTORFIELDOPWRAP_HPP
 
 
-#include "Pimpact_Types.hpp"
 #include "Pimpact_ScalarField.hpp"
+#include "Pimpact_Types.hpp"
 #include "Pimpact_VectorField.hpp"
+
 
 
 

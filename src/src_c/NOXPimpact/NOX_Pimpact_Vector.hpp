@@ -2,15 +2,15 @@
 #ifndef NOX_PIMPACT_VECTOR_HPP
 #define NOX_PIMPACT_VECTOR_HPP
 
-#include "NOX_Common.H"  // for NOX_Config.h
-#include "NOX_Abstract_Vector.H"
 
 #include "Teuchos_RCP.hpp"
 
-//#include "BelosTypes.hpp"
+#include "NOX_Abstract_Vector.H"
+#include "NOX_Common.H"  // for NOX_Config.h
 
-#include "Pimpact_Types.hpp"
 #include "Pimpact_MultiField.hpp"
+#include "Pimpact_Types.hpp"
+
 
 
 

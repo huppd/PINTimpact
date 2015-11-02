@@ -3,11 +3,10 @@
 #define PIMPACT_TRANSFERCOMPOUNDOP_HPP
 
 
-#include "Teuchos_RCP.hpp"
 #include "Teuchos_Array.hpp"
-#include "Teuchos_Tuple.hpp"
-
+#include "Teuchos_RCP.hpp"
 #include "Teuchos_TestForException.hpp"
+#include "Teuchos_Tuple.hpp"
 
 #include "Pimpact_CompoundField.hpp"
 
@@ -93,7 +92,6 @@ public:
 //extern template class Pimpact::TransferCompoundOp< Pimpact::VectorFieldOpWrap< Pimpact::InterpolationOp< Pimpact::Space<double,int,3,2> > > >;
 //extern template class Pimpact::TransferCompoundOp< Pimpact::VectorFieldOpWrap< Pimpact::InterpolationOp< Pimpact::Space<double,int,3,4> > > >;
 #endif
-
 
 
 #endif // end of #ifndef PIMPACT_TRANSFERCOMPOUNDOP_HPP

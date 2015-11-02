@@ -2,18 +2,18 @@
 #ifndef NOX_PIMPACT_GROUP_HPP
 #define NOX_PIMPACT_GROUP_HPP
 
+
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_TimeMonitor.hpp"
 
 #include "BelosTypes.hpp"
 
 #include "NOX_Abstract_Group.H"   // base class
-#include "NOX_Pimpact_Vector.hpp" // class data element
-#include "NOX_Utils.H"            // class data element
 #include "NOX_Common.H"           // class data element (std::string)
-
 #include "NOX_SharedObjectTemplate.H"  // class data element
+#include "NOX_Utils.H"            // class data element
 
+#include "NOX_Pimpact_Vector.hpp" // class data element
 
 
 namespace NOX {

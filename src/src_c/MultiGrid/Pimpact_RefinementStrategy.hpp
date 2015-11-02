@@ -3,8 +3,8 @@
 #define PIMPACT_REFINEMENTSTRATEGY_HPP
 
 
-#include "Teuchos_RCP.hpp"
 #include "Teuchos_Array.hpp"
+#include "Teuchos_RCP.hpp"
 
 #include "Pimpact_Space.hpp"
 
@@ -53,7 +53,7 @@ public:
 		if( refine_dir[3] )
 			gridSizeGlobalTup[3] = gridSizeGlobalTup[3]+refine_dir[3];
 
-    auto gridSizeGlobal = createGridSizeGlobal<Ordinal,dimension>( gridSizeGlobalTup );
+    auto gridSizeGlobal = createGridSizeGlobal<Ordinal>( gridSizeGlobalTup );
 
     auto procGrid = space->getProcGrid();
 
@@ -71,12 +71,12 @@ public:
 					procGrid );
 
 		auto coordGlobal =
-			Pimpact::createGridCoordinatesGlobal<Scalar,Ordinal,dimension>(
+			Pimpact::createCoordinatesGlobal<Scalar,Ordinal,dimension>(
 					gridSizeGlobal,
 					domainSize,
 					Teuchos::tuple( None, None, None ) );
 
-    auto coordLocal = Pimpact::createGridCoordinatesLocal<Scalar,Ordinal,dimension>(
+    auto coordLocal = Pimpact::createCoordinatesLocal<Scalar,Ordinal,dimension>(
         stencilWidths,
         domainSize,
         gridSizeGlobal,

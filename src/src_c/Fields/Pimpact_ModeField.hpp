@@ -2,13 +2,14 @@
 #ifndef PIMPACT_MODEFIELD_HPP
 #define PIMPACT_MODEFIELD_HPP
 
+
 #include <vector>
 #include <iostream>
 
 #include "mpi.h"
 
-#include "Teuchos_RCP.hpp"
 #include "Teuchos_ArrayRCP.hpp"
+#include "Teuchos_RCP.hpp"
 #include "Teuchos_ScalarTraitsDecl.hpp"
 #include "Teuchos_SerialDenseMatrix.hpp"
 
@@ -364,5 +365,6 @@ extern template class Pimpact::ModeField< Pimpact::ScalarField< Pimpact::Space<d
 extern template class Pimpact::ModeField< Pimpact::VectorField< Pimpact::Space<double,int,3,2> > >;
 extern template class Pimpact::ModeField< Pimpact::VectorField< Pimpact::Space<double,int,3,4> > >;
 #endif
+
 
 #endif // end of #ifndef PIMPACT_MODEFIELD_HPP

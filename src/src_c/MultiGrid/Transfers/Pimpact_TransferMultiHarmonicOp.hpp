@@ -3,11 +3,10 @@
 #define PIMPACT_TRANSFERMULTIHARMONICOP_HPP
 
 
-#include "Teuchos_RCP.hpp"
 #include "Teuchos_Array.hpp"
-#include "Teuchos_Tuple.hpp"
-
+#include "Teuchos_RCP.hpp"
 #include "Teuchos_TestForException.hpp"
+#include "Teuchos_Tuple.hpp"
 
 #include "Pimpact_MultiHarmonicField.hpp"
 
@@ -109,7 +108,6 @@ extern template class Pimpact::TransferMultiHarmonicOp< Pimpact::InterpolationOp
 extern template class Pimpact::TransferMultiHarmonicOp< Pimpact::VectorFieldOpWrap< Pimpact::InterpolationOp< Pimpact::Space<double,int,3,2> > > >;
 extern template class Pimpact::TransferMultiHarmonicOp< Pimpact::VectorFieldOpWrap< Pimpact::InterpolationOp< Pimpact::Space<double,int,3,4> > > >;
 #endif
-
 
 
 #endif // end of #ifndef PIMPACT_TRANSFEROP_HPP

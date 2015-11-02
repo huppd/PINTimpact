@@ -2,18 +2,19 @@
 #ifndef PIMPACT_HELMHOLTZOP_HPP
 #define PIMPACT_HELMHOLTDOP_HPP
 
+
 #include "Pimpact_extern_FDCoeff.hpp"
-
 #include "Pimpact_Types.hpp"
-
 #include "Pimpact_VectorField.hpp"
+
 
 
 
 namespace Pimpact{
 
 
-extern "C" {
+
+extern "C"
 void OP_helmholtz(
     const int& dimens,
     const int* const N,
@@ -28,7 +29,6 @@ void OP_helmholtz(
     const double& multL,
     const double* const phi,
     double* const lap );
-}
 
 
 
@@ -224,6 +224,6 @@ extern template class Pimpact::HelmholtzOp< Pimpact::Space<double,int,3,4> >;
 extern template class Pimpact::HelmholtzOp< Pimpact::Space<double,int,4,2> >;
 extern template class Pimpact::HelmholtzOp< Pimpact::Space<double,int,4,4> >;
 #endif
-	
+
 
 #endif // end of #ifndef PIMPACT_HELMHOLTZOP_HPP

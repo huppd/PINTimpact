@@ -11,8 +11,7 @@
 namespace Pimpact{
 
 
-extern "C" {
-
+extern "C"
 void OP_DivGradO2JSmoother(
     const int& dimens,
     const int* const N,
@@ -27,8 +26,6 @@ void OP_DivGradO2JSmoother(
     const double* const b,
     const double* const x,
           double* const temp );
-
-}
 
 
 

@@ -2,6 +2,7 @@
 #ifndef PIMPACT_STENCILWIDTHS_HPP
 #define PIMPACT_STENCILWIDTHS_HPP
 
+
 #include <iostream>
 
 #include "mpi.h"

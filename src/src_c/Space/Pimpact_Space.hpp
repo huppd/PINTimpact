@@ -15,9 +15,9 @@
 
 #include "Pimpact_BoundaryConditionsGlobal.hpp"
 #include "Pimpact_BoundaryConditionsLocal.hpp"
+#include "Pimpact_CoordinatesGlobal.hpp"
+#include "Pimpact_CoordinatesLocal.hpp"
 #include "Pimpact_DomainSize.hpp"
-#include "Pimpact_GridCoordinatesGlobal.hpp"
-#include "Pimpact_GridCoordinatesLocal.hpp"
 #include "Pimpact_GridSizeGlobal.hpp"
 #include "Pimpact_GridSizeLocal.hpp"
 #include "Pimpact_IndexSpace.hpp"
@@ -37,9 +37,13 @@
 
 namespace Pimpact {
 
+
+
 extern "C" {
-	void openH5F();
-	void closeH5F();
+
+void openH5F();
+void closeH5F();
+
 }
 
 
@@ -90,7 +94,7 @@ public:
 					Pimpact::EDomainType( domain ) );
 
 		gridSizeGlobal_ =
-			Pimpact::createGridSizeGlobal<O,d>(
+			Pimpact::createGridSizeGlobal<O>(
 					pl->get<O>("nx"),
 					pl->get<O>("ny"),
 					( 2==pl->get<int>("dim") )?2:pl->get<O>("nz"),
@@ -127,13 +131,13 @@ public:
 				 	procGrid_ );
 
 		coordGlobal_ =
-			Pimpact::createGridCoordinatesGlobal<S,O,d>(
+			Pimpact::createCoordinatesGlobal<S,O,d>(
 					gridSizeGlobal_,
 					domainSize_,
 					Teuchos::tuple( None, None, None) );
 
 		coordLocal_ =
-			Pimpact::createGridCoordinatesLocal<S,O,d>(
+			Pimpact::createCoordinatesLocal<S,O,d>(
 					stencilWidths_,
 					domainSize_,
 					gridSizeGlobal_,
@@ -160,11 +164,11 @@ public:
 	Space(
 			const Teuchos::RCP<const StencilWidths<dimension,dimNC> >& stencilWidths,
 			const Teuchos::RCP<const IndexSpace<Ordinal,dimension> >& indexSpace,
-			const Teuchos::RCP<const GridSizeGlobal<Ordinal,dimension> >& gridSizeGlobal,
+			const Teuchos::RCP<const GridSizeGlobal<Ordinal> >& gridSizeGlobal,
 			const Teuchos::RCP<const GridSizeLocal<Ordinal,dimension> >& gridSizeLocal,
 			const Teuchos::RCP<const ProcGrid<Ordinal,dimension> >& procGrid,
-			const Teuchos::RCP<const GridCoordinatesGlobal<Scalar,Ordinal,dimension> >& coordGlobal,
-			const Teuchos::RCP<const GridCoordinatesLocal<Scalar,Ordinal,dimension> >& coordLocal,
+			const Teuchos::RCP<const CoordinatesGlobal<Scalar,Ordinal,dimension> >& coordGlobal,
+			const Teuchos::RCP<const CoordinatesLocal<Scalar,Ordinal,dimension> >& coordLocal,
 			const Teuchos::RCP<const DomainSize<Scalar> > domainSize,
 			const Teuchos::RCP<const BoundaryConditionsGlobal<dimension> > boundaryConditionsGlobal,
 			const Teuchos::RCP<const BoundaryConditionsLocal> boundaryConditionsLocal,
@@ -191,7 +195,7 @@ protected:
 	Teuchos::RCP<const IndexSpace<Ordinal,dimension> >
 		indexSpace_;
 
-	Teuchos::RCP<const GridSizeGlobal<Ordinal,dimension> >
+	Teuchos::RCP<const GridSizeGlobal<Ordinal> >
 		gridSizeGlobal_;
 
 	Teuchos::RCP<const GridSizeLocal<Ordinal,dimension> >
@@ -200,10 +204,10 @@ protected:
 	Teuchos::RCP<const ProcGrid<Ordinal,dimension> >
 		procGrid_;
 
-	Teuchos::RCP<const GridCoordinatesGlobal<Scalar,Ordinal,dimension> >
+	Teuchos::RCP<const CoordinatesGlobal<Scalar,Ordinal,dimension> >
 		coordGlobal_;
 
-	Teuchos::RCP<const GridCoordinatesLocal<Scalar,Ordinal,dimension> >
+	Teuchos::RCP<const CoordinatesLocal<Scalar,Ordinal,dimension> >
 		coordLocal_;
 
 	Teuchos::RCP<const DomainSize<Scalar> >
@@ -229,7 +233,7 @@ public:
 	Teuchos::RCP<const IndexSpace<Ordinal,dimension> >
 		getIndexSpace() const { return( indexSpace_ ); }
 
-	Teuchos::RCP<const GridSizeGlobal<Ordinal,dimension> >
+	Teuchos::RCP<const GridSizeGlobal<Ordinal> >
 		getGridSizeGlobal() const { return( gridSizeGlobal_ );  }
 
 	Teuchos::RCP<const GridSizeLocal<Ordinal,dimension> >
@@ -238,10 +242,10 @@ public:
 	Teuchos::RCP<const ProcGrid<Ordinal,dimension> >
 		getProcGrid() const { return( procGrid_ ); }
 
-	Teuchos::RCP<const GridCoordinatesGlobal<Scalar,Ordinal,dimension> >
+	Teuchos::RCP<const CoordinatesGlobal<Scalar,Ordinal,dimension> >
 		getCoordinatesGlobal() const { return( coordGlobal_ ); }
 
-	Teuchos::RCP<const GridCoordinatesLocal<Scalar,Ordinal,dimension> >
+	Teuchos::RCP<const CoordinatesLocal<Scalar,Ordinal,dimension> >
 		getCoordinatesLocal() const { return( coordLocal_ ); }
 
 	Teuchos::RCP<const DomainSize<Scalar> >     
@@ -426,11 +430,15 @@ createSpace( Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ) 
 }
 
 
+
 /// \relates Space
 /// \relates TransferOp
+/// \relates CoarsenStrategy
+/// \relates CoarsenStrategyGlobal
 /// "same" space with changing dimNC
 template< class OSpaceT, class ISpaceT> 
-Teuchos::RCP< const OSpaceT > createSpace(
+Teuchos::RCP< const OSpaceT >
+createSpace(
 		const Teuchos::RCP<const ISpaceT>& space ) {
 
 	auto stencilWidths =
@@ -459,7 +467,7 @@ Teuchos::RCP< const OSpaceT > createSpace(
 	auto  coordGlobal = space->getCoordinatesGlobal();
 
 	auto  coordLocal =
-		Pimpact::createGridCoordinatesLocal(
+		Pimpact::createCoordinatesLocal(
 				stencilWidths,
 				domainSize,
 				gridSizeGlobal,
@@ -493,14 +501,21 @@ Teuchos::RCP< const OSpaceT > createSpace(
 					boundaryConditionsLocal,
 					interV2S ) ) );
 
-}
+} // end of createSpace
 
 
 
+/// \brief creates coarse space from fine and new GridSize
+///
+/// \tparam SpaceT type of space
+/// \param space space object
+/// \param newGridSizeGlobal new grid size
+///
+/// \return new coarse space
 template<class SpaceT>
 static Teuchos::RCP< const SpaceT > createSpace(
 		const Teuchos::RCP<const SpaceT>& space,
-		const GridSizeGlobal<typename SpaceT::Ordinal,SpaceT::dimension>& newGridSizeGlobal ) {
+		const GridSizeGlobal<typename SpaceT::Ordinal>& newGridSizeGlobal ) {
 
 	using Scalar = typename SpaceT::Scalar;
 	using Ordinal = typename SpaceT::Ordinal;
@@ -515,8 +530,9 @@ static Teuchos::RCP< const SpaceT > createSpace(
 	auto boundaryConditionsLocal = space->getBCLocal();
 
 
-	auto gridSizeGlobal = createGridSizeGlobal<Ordinal,dimension>(
-			newGridSizeGlobal );
+	auto gridSizeGlobal =
+		createGridSizeGlobal<Ordinal>(
+				newGridSizeGlobal );
 
 	auto procGrid = space->getProcGrid();
 
@@ -534,13 +550,12 @@ static Teuchos::RCP< const SpaceT > createSpace(
 				procGrid	);
 
 	auto coordGlobal =
-		Pimpact::createGridCoordinatesGlobal<Scalar,Ordinal,dimension>(
+		Pimpact::createCoordinatesGlobal<Scalar,Ordinal,dimension>(
 				gridSizeGlobal,
-				domainSize,
-				Teuchos::tuple( None, None, None) );
+				space->getCoordinatesGlobal() );
 
 	auto coordLocal =
-		Pimpact::createGridCoordinatesLocal<Scalar,Ordinal,dimension>(
+		Pimpact::createCoordinatesLocal<Scalar,Ordinal,dimension>(
 				stencilWidths,
 				domainSize,
 				gridSizeGlobal,
@@ -574,6 +589,227 @@ static Teuchos::RCP< const SpaceT > createSpace(
 					boundaryConditionsLocal,
 					interV2S ) ) );
 
+} // end of createSpace
+
+
+
+/// \todo redo input GridSizeGlobal, ProcGridSize
+/// \relates CoarsenStrategyGlobal
+template<class SpaceT>
+static Teuchos::RCP< const SpaceT > createSpace(
+		const Teuchos::RCP<const SpaceT>& space,
+		const GridSizeGlobal<typename SpaceT::Ordinal>& newGridSizeGlobal,
+		const Teuchos::Tuple<typename SpaceT::Ordinal,SpaceT::dimension>& npNew,
+		Teuchos::Tuple<typename SpaceT::Ordinal,SpaceT::dimension>& stride,
+		const Teuchos::Tuple<typename SpaceT::Ordinal,SpaceT::dimension>& npWorld,
+		const Teuchos::Tuple<typename SpaceT::Ordinal,SpaceT::dimension>& ibWorld ) {
+
+	typedef typename SpaceT::Scalar  Scalar;
+	typedef typename SpaceT::Ordinal Ordinal;
+
+	const int dimension = SpaceT::dimension;
+	const int dimNC = SpaceT::dimNC;
+
+	typedef typename Teuchos::Tuple<Ordinal,dimension> TO;
+
+	auto stencilWidths = space->getStencilWidths();
+
+	auto domainSize = space->getDomainSize();
+	auto boundaryConditionsGlobal = space->getBCGlobal();
+
+
+	// --- coarsen gridSizeGlobal ---
+	auto gridSizeGlobal =
+		createGridSizeGlobal<Ordinal>( newGridSizeGlobal );
+
+
+	/// redo procGrid create new communicator, make procgrid from communicator
+	TO np = space->getProcGrid()->getNP();
+	TO nGather;
+	TO ib;
+	for( Ordinal dir=0; dir<dimension; ++dir ) {
+		nGather[dir] = np[dir]/npNew[dir];
+		stride[dir] *= nGather[dir];
+		ib[dir]      = ( ibWorld[dir] - 1 )*npNew[dir]/npWorld[dir] + 1;
+	}
+
+	bool participating = false;
+	MPI_Comm commWorld = space->getProcGrid()->getCommWorld();
+	MPI_Comm commSub ;//= space->getProcGrid()->getCommS();
+
+	int rankWorld = space->getProcGrid()->getRank();
+	int rankSub = space->getProcGrid()->getRank(); // necessary?
+
+	Teuchos::Tuple<int,dimension> rankL;
+	Teuchos::Tuple<int,dimension> rankU;
+	for( int dir=0; dir<dimension; ++dir )
+		MPI_Cart_shift(
+				commWorld,      // communicator with Cartesian structure
+				dir,            // coordinate dimension of shift
+				stride[dir],    // displacement
+				&rankL[dir],    // rank of source process
+				&rankU[dir] );	// rank of destination process
+
+	Ordinal gather_yes = 1;
+	for( int i=0; i<dimension; ++i ) {
+		gather_yes *= nGather[i];
+	}
+	if( gather_yes>1 ) {
+		int n = 1;
+		for( int i=0; i<dimension; ++i ) 
+			n *= npNew[i];
+		int* newRanks = new int[n];
+
+		TO rankCoord;
+
+		for( int i=0; i<npNew[0]; ++i) {
+			rankCoord[0] = (i*stride[0])%npWorld[0];
+			for( int j=0; j<npNew[1]; ++j ) {
+				rankCoord[1] = (j*stride[1])%npWorld[1];
+				for( int k=0; k<npNew[2]; ++k ) {
+					rankCoord[2] = (k*stride[2])%npWorld[2];
+					if( 4==dimension ) {
+						for( int l=0; l<npNew[3]; ++l ) {
+							rankCoord[3] = (l*stride[3])%npWorld[3];
+							MPI_Cart_rank(
+									commWorld,									          // comm
+									rankCoord.getRawPtr(),                // processor coordinate
+									&newRanks[i
+									+j*npNew[0]
+									+k*npNew[0]*npNew[1]
+									+l*npNew[0]*npNew[1]*npNew[2] ] );   	// according rank to coordinate
+							if( rankWorld==newRanks[i + j*npNew[0] + k*npNew[0]*npNew[1] + l*npNew[0]*npNew[1]*npNew[2] ] )
+								participating = true;
+						}
+					}
+					else {
+						MPI_Cart_rank(
+								commWorld,									                    // comm
+								rankCoord.getRawPtr(),                          // processor coordinate
+								&newRanks[i+j*npNew[0]+k*npNew[0]*npNew[1] ] ); // according rank to coordinate
+						if( rankWorld==newRanks[i+j*npNew[0]+k*npNew[0]*npNew[1] ])
+							participating = true;
+					}
+				}
+			}
+		}
+
+		MPI_Comm commTemp;
+		MPI_Group baseGroup, newGroup;
+
+		MPI_Comm_group( commWorld, &baseGroup );
+		MPI_Group_incl( baseGroup, n, newRanks, &newGroup );
+		MPI_Comm_create( commWorld, newGroup, &commTemp );
+		MPI_Group_free( &baseGroup );
+		MPI_Group_free( &newGroup );
+
+		Teuchos::Tuple<int,dimension> periodic = boundaryConditionsGlobal->periodic();
+
+		if( participating ) {
+
+			MPI_Cart_create(
+					commTemp,		          // communicator without Cartesian information
+					dimension,            // number of dimensions
+					npNew.getRawPtr(),    // number of processors in each dimension
+					periodic.getRawPtr(),	// array for mpi to signal which dimension is periodic
+					false,                // false means ranking is not reordered
+					&commSub );           // new communicator with Cartesian information
+			if( 4==dimension ) {
+				MPI_Comm commTemp_;
+				int temp[] = {1,1,1,0};
+				MPI_Cart_sub( commSub, temp, &commTemp_ );
+				MPI_Comm_free( &commSub );
+				commSub = commTemp_;
+			}
+			MPI_Comm_free( &commTemp );
+		}
+		else
+			commSub=MPI_COMM_NULL;
+
+		delete[] newRanks;
+
+	}
+
+	if( commSub==MPI_COMM_NULL )
+		rankSub = -1;
+	else 
+		MPI_Comm_rank( commSub, &rankSub ); // get rank
+
+	auto procGrid =
+		Teuchos::rcp(
+				new ProcGrid<Ordinal,dimension>(
+					npNew,
+					participating,
+					commWorld,
+					commSub,
+					rankWorld,
+					rankSub,
+					ib,
+					rankL,
+					rankU ) );
+
+
+auto gridSizeLocal =
+	Pimpact::createGridSizeLocal<Ordinal,dimension,dimNC>(
+			gridSizeGlobal,
+			procGrid,
+			stencilWidths );
+
+auto boundaryConditionsLocal =
+	createBoudaryConditionsLocal<Ordinal,dimension>( 
+			boundaryConditionsGlobal,
+			procGrid );
+
+auto indexSpace =
+	Pimpact::createIndexSpace<Ordinal,dimension>(
+			stencilWidths,
+			gridSizeLocal,
+			boundaryConditionsLocal,
+			procGrid );
+
+auto coordGlobal =
+	Pimpact::createCoordinatesGlobal<Scalar,Ordinal,dimension>(
+			gridSizeGlobal,
+			domainSize,
+			Teuchos::tuple( None, None, None) );
+
+auto  coordLocal =
+	Pimpact::createCoordinatesLocal<Scalar,Ordinal,dimension>(
+			stencilWidths,
+			domainSize,
+			gridSizeGlobal,
+			gridSizeLocal,
+			boundaryConditionsGlobal,
+			boundaryConditionsLocal,
+			procGrid,
+			coordGlobal );
+
+auto interV2S =
+	Pimpact::createInterpolateV2S<Scalar,Ordinal,dimension>(
+			indexSpace,
+			gridSizeLocal,
+			stencilWidths,
+			domainSize,
+			boundaryConditionsLocal,
+			coordLocal );
+
+return(
+		 Teuchos::rcp(
+				 new SpaceT(
+						 stencilWidths,
+						 indexSpace,
+						 gridSizeGlobal,
+						 gridSizeLocal,
+						 procGrid,
+						 coordGlobal,
+						 coordLocal,
+						 domainSize,
+						 boundaryConditionsGlobal,
+						 boundaryConditionsLocal,
+						 interV2S )
+		 )
+);
+
 }
 
 
@@ -592,7 +828,6 @@ extern template class Space<double,int,4,4>;
 
 
 } // end of namespace Pimpact
-
 
 
 #endif // end of #ifndef PIMPACT_SPACE_HPP

@@ -3,14 +3,10 @@
 #define PIMPACT_CONVECTIONDIFFUSIONSOP_HPP
 
 
-#include "Pimpact_Types.hpp"
-
-//#include "Pimpact_extern_FDCoeff.hpp"
-
-#include "Pimpact_ScalarField.hpp"
-
-#include "Pimpact_HelmholtzOp.hpp"
 #include "Pimpact_ConvectionSOp.hpp"
+#include "Pimpact_HelmholtzOp.hpp"
+#include "Pimpact_ScalarField.hpp"
+#include "Pimpact_Types.hpp"
 
 
 
@@ -18,37 +14,36 @@
 namespace Pimpact {
 
 
-extern "C" {
 
+extern "C"
 void OP_convectionDiffusion(
-    const int& dimens,
-    const int* const N,
-    const int* const bL,
-    const int* const bU,
-    const int* const nL,
-    const int* const nU,
-    const int* const SS,
-    const int* const NN,
-    const double* const c1D,
-    const double* const c2D,
-    const double* const c3D,
-    const double* const c1U,
-    const double* const c2U,
-    const double* const c3U,
-    const double* const c11,
-    const double* const c22,
-    const double* const c33,
-    const double* const phiU,
-    const double* const phiV,
-    const double* const phiW,
-    const double* const phi,
-    const double* nlu,
-    const double& mul,
-    const double& mulI,
-    const double& mulC,
-    const double& mulL );
+		const int& dimens,
+		const int* const N,
+		const int* const bL,
+		const int* const bU,
+		const int* const nL,
+		const int* const nU,
+		const int* const SS,
+		const int* const NN,
+		const double* const c1D,
+		const double* const c2D,
+		const double* const c3D,
+		const double* const c1U,
+		const double* const c2U,
+		const double* const c3U,
+		const double* const c11,
+		const double* const c22,
+		const double* const c33,
+		const double* const phiU,
+		const double* const phiV,
+		const double* const phiW,
+		const double* const phi,
+		const double* nlu,
+		const double& mul,
+		const double& mulI,
+		const double& mulC,
+		const double& mulL );
 
-}
 
 
 /// \brief convection operator, that takes the free interpolated velocity components and advects accordingly
@@ -58,20 +53,20 @@ class ConvectionDiffusionSOp {
 
 public:
 
-  typedef ST SpaceT;
+	typedef ST SpaceT;
 
-  typedef typename SpaceT::Scalar Scalar;
-  typedef typename SpaceT::Ordinal Ordinal;
+	typedef typename SpaceT::Scalar Scalar;
+	typedef typename SpaceT::Ordinal Ordinal;
 
-  typedef Teuchos::Tuple< Teuchos::RCP< ScalarField<SpaceT> >, 3 > FluxFieldT;
-  typedef ScalarField<SpaceT>  DomainFieldT;
-  typedef ScalarField<SpaceT>  RangeFieldT;
+	typedef Teuchos::Tuple< Teuchos::RCP< ScalarField<SpaceT> >, 3 > FluxFieldT;
+	typedef ScalarField<SpaceT>  DomainFieldT;
+	typedef ScalarField<SpaceT>  RangeFieldT;
 
 protected:
 
 
-  Teuchos::RCP<const ConvectionSOp<SpaceT> > convSOp_;
-  Teuchos::RCP<const HelmholtzOp<SpaceT> > helmOp_;
+	Teuchos::RCP<const ConvectionSOp<SpaceT> > convSOp_;
+	Teuchos::RCP<const HelmholtzOp<SpaceT> > helmOp_;
 
 	Scalar mul_;
 	Scalar mulI_;
@@ -80,76 +75,77 @@ protected:
 
 public:
 
-  ConvectionDiffusionSOp( const Teuchos::RCP<const SpaceT>& space  ):
-    convSOp_( create<ConvectionSOp>(space) ),
-    helmOp_( create<HelmholtzOp>(space) ),
- 		mul_(0.),
+	ConvectionDiffusionSOp( const Teuchos::RCP<const SpaceT>& space  ):
+		convSOp_( create<ConvectionSOp>(space) ),
+		helmOp_( create<HelmholtzOp>(space) ),
+		mul_(0.),
 		mulI_(0.),
 		mulC_(1.),
 		mulL_(1./space()->getDomainSize()->getRe())	{};
+
 
   void assignField( const RangeFieldT& mv ) {};
 
 
 	/// \f[ z =   (x\cdot\nabla) y - \frac{1}{Re} \Delta z \f]
-  void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z ) const {
-		
+	void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z ) const {
+
 		apply( x, y, z, mul_, mulI_, mulC_, mulL_ );
 
-  }
+	}
 
 	/// \f[ z = mul z + (x\cdot\nabla) y - \frac{1}{Re} \Delta z \f]
-  void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mul ) const {
-		
+	void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mul ) const {
+
 		apply( x, y, z, mul, mulI_, mulC_, mulL_ );
 
-  }
+	}
 
 	/// \f[ z = mul z + mulI y + mulC(x\cdot\nabla)y - mulL \Delta y \f]
-  void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z,
+	void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z,
 			Scalar mul, Scalar mulI, Scalar mulC, Scalar mulL ) const {
 
-    TEUCHOS_TEST_FOR_EXCEPT( z.getType() != y.getType() );
+		TEUCHOS_TEST_FOR_EXCEPT( z.getType() != y.getType() );
 
-    for( int i =0; i<space()->dim(); ++i )
-      TEUCHOS_TEST_FOR_EXCEPT( x[i]->getType() != y.getType() );
+		for( int i =0; i<space()->dim(); ++i )
+			TEUCHOS_TEST_FOR_EXCEPT( x[i]->getType() != y.getType() );
 
-    for( int vel_dir=0; vel_dir<space()->dim(); ++vel_dir )
-      x[vel_dir]->exchange();
+		for( int vel_dir=0; vel_dir<space()->dim(); ++vel_dir )
+			x[vel_dir]->exchange();
 
-    y.exchange();
+		y.exchange();
 
-    OP_convectionDiffusion(
-        space()->dim(),
-        space()->nLoc(),
-        space()->bl(),
-        space()->bu(),
-        space()->nl(),
-        space()->nu(),
-        space()->sInd(z.getType()),
-        space()->eInd(z.getType()),
-        convSOp_->getCD(X,z.getType()),
-        convSOp_->getCD(Y,z.getType()),
-        convSOp_->getCD(Z,z.getType()),
-        convSOp_->getCU(X,z.getType()),
-        convSOp_->getCU(Y,z.getType()),
-        convSOp_->getCU(Z,z.getType()),
-        helmOp_->getC(X,z.getType()),
-        helmOp_->getC(Y,z.getType()),
-        helmOp_->getC(Z,z.getType()),
-        x[0]->getConstRawPtr(),
-        x[1]->getConstRawPtr(),
-        x[2]->getConstRawPtr(),
-        y.getConstRawPtr(),
-        z.getRawPtr(),
+		OP_convectionDiffusion(
+				space()->dim(),
+				space()->nLoc(),
+				space()->bl(),
+				space()->bu(),
+				space()->nl(),
+				space()->nu(),
+				space()->sInd(z.getType()),
+				space()->eInd(z.getType()),
+				convSOp_->getCD(X,z.getType()),
+				convSOp_->getCD(Y,z.getType()),
+				convSOp_->getCD(Z,z.getType()),
+				convSOp_->getCU(X,z.getType()),
+				convSOp_->getCU(Y,z.getType()),
+				convSOp_->getCU(Z,z.getType()),
+				helmOp_->getC(X,z.getType()),
+				helmOp_->getC(Y,z.getType()),
+				helmOp_->getC(Z,z.getType()),
+				x[0]->getConstRawPtr(),
+				x[1]->getConstRawPtr(),
+				x[2]->getConstRawPtr(),
+				y.getConstRawPtr(),
+				z.getRawPtr(),
 				mul,
-        mulI,
+				mulI,
 				mulC,
-        mulL );
+				mulL );
 
-    z.changed();
+		z.changed();
 
-  }
+	}
 
 	Teuchos::RCP<const SpaceT> space() const { return(helmOp_->space()); };
 
@@ -188,8 +184,6 @@ public:
 
 
 }; // end of class ConvectionDiffusionSOp
-
-
 
 
 } // end of namespace Pimpact

@@ -2,6 +2,7 @@
 #ifndef PIMPACT_ABSTRACTFIELD_HPP
 #define PIMPACT_ABSTRACTFIELD_HPP
 
+
 #include "mpi.h"
 
 #include "Teuchos_RCP.hpp"
@@ -9,6 +10,7 @@
 #include "BelosTypes.hpp"
 
 #include "Pimpact_Space.hpp"
+
 
 
 
@@ -56,5 +58,6 @@ protected:
 
 
 } // end of namespace Pimpact
+
 
 #endif // end of #ifndef PIMPACT_ABSTRACTFIELD_HPP

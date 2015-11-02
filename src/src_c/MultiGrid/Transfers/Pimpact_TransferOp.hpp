@@ -3,8 +3,8 @@
 #define PIMPACT_TRANSFEROP_HPP
 
 
-#include "Pimpact_Types.hpp"
 #include "Pimpact_ScalarField.hpp"
+#include "Pimpact_Types.hpp"
 
 
 
@@ -12,8 +12,8 @@
 namespace Pimpact{
 
 
-extern "C" {
 
+extern "C"
 void OP_Transfer(
     const int* const N,
     const int* const bLI,
@@ -26,8 +26,6 @@ void OP_Transfer(
     const int* const NO,
     const double* const phiIN,
     double* const phiOUT );
-
-}
 
 
 /// \brief Transfers fields from "coarse" to "fine" spaces, necessary when \c Space::dimNC is  different.

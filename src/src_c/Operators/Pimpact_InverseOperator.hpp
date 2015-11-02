@@ -2,8 +2,9 @@
 #ifndef PIMPACT_INVERSEOPERATOR_HPP
 #define PIMPACT_INVERSEOPERATOR_HPP
 
-#include "Pimpact_Types.hpp"
+
 #include "Pimpact_LinearProblem.hpp"
+#include "Pimpact_Types.hpp"
 
 
 

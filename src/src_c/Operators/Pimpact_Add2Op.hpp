@@ -2,8 +2,9 @@
 #ifndef PIMPACT_ADD2OP_HPP
 #define PIMPACT_ADD2OP_HPP
 
-#include "Teuchos_RCP.hpp"
+
 #include "Teuchos_ParameterList.hpp"
+#include "Teuchos_RCP.hpp"
 
 #include "BelosTypes.hpp"
 

@@ -3,13 +3,10 @@
 #define PIMPACT_CONVECTIONDIFFUSIONJSMOOTHER_HPP
 
 
-#include "Pimpact_Types.hpp"
-
-
-#include "Pimpact_ScalarField.hpp"
-
-#include "Pimpact_HelmholtzOp.hpp"
 #include "Pimpact_ConvectionSOp.hpp"
+#include "Pimpact_HelmholtzOp.hpp"
+#include "Pimpact_ScalarField.hpp"
+#include "Pimpact_Types.hpp"
 
 
 
@@ -17,8 +14,7 @@
 namespace Pimpact {
 
 
-extern "C" {
-
+extern "C" 
 void OP_convectionDiffusionJSmoother(
     const int& dimens,
     const int* const N,
@@ -48,7 +44,6 @@ void OP_convectionDiffusionJSmoother(
     const double& mulL,
     const double& om );
 
-}
 
 
 /// \brief convection operator, that takes the free interpolated velocity components and advects accordingly

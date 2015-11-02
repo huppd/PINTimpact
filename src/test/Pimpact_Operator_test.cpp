@@ -78,7 +78,7 @@ TEUCHOS_STATIC_SETUP() {
 
 	pl->set("nx", 33 );
 	pl->set("ny", 17 );
-	pl->set("nz", 9 );
+	pl->set("nz", 33 );
 	pl->set("nf", 10);
 
 }
@@ -211,7 +211,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateV2SOp ) {
 		op->apply( vel->getConstField( i ), *p );
 		sol->add( 1., *sol, -1., *p );
 
-		std::cout << "error: " << sol->norm() << "\n";
+		std::cout << "dir: " << i << " GradX error: " << sol->norm() << "\n";
 		TEST_EQUALITY( sol->norm()<eps, true );
 
 		vel->getFieldPtr( i )->initField( Pimpact::Poiseuille2D_inX );
@@ -221,7 +221,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateV2SOp ) {
 		op->apply( vel->getConstField( i ), *p );
 		sol->add( 1., *sol, -1., *p );
 
-		std::cout << "error: " << sol->norm() << "\n";
+		std::cout << "dir: " << i << " PoiseuilleX error: " << sol->norm() << "\n";
 		TEST_EQUALITY( sol->norm()<eps, true );
 
 		// Y test
@@ -232,7 +232,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateV2SOp ) {
 		op->apply( vel->getConstField( i ), *p );
 		sol->add( 1., *sol, -1., *p );
 
-		std::cout << "error: " << sol->norm() << "\n";
+		std::cout << "dir: " << i << " GradY error: " << sol->norm() << "\n";
 		TEST_EQUALITY( sol->norm()<eps, true );
 
 		vel->getFieldPtr( i )->initField( Pimpact::Poiseuille2D_inY );
@@ -242,7 +242,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateV2SOp ) {
 		op->apply( vel->getConstField( i ), *p );
 		sol->add( 1., *sol, -1., *p );
 
-		std::cout << "error: " << sol->norm() << "\n";
+		std::cout << "dir: " << i << " PoiseuilleY error: " << sol->norm() << "\n";
 		TEST_EQUALITY( sol->norm()<eps, true );
 
 		// Z test
@@ -253,7 +253,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateV2SOp ) {
 		op->apply( vel->getConstField( i ), *p );
 		sol->add( 1., *sol, -1., *p );
 
-		std::cout << "error: " << sol->norm() << "\n";
+		std::cout << "dir: " << i << " GradZ error: " << sol->norm() << "\n";
 		TEST_EQUALITY( sol->norm()<eps, true );
 
 		vel->getFieldPtr( i )->initField( Pimpact::Poiseuille2D_inZ );
@@ -263,7 +263,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateV2SOp ) {
 		op->apply( vel->getConstField( i ), *p );
 		sol->add( 1., *sol, -1., *p );
 
-		std::cout << "error: " << sol->norm() << "\n";
+		std::cout << "dir: " << i << " PoiseuilleZ error: " << sol->norm() << "\n";
 		TEST_EQUALITY( sol->norm()<eps, true );
 
 	}
@@ -304,7 +304,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateS2VOp ) {
 		op->apply( *p, vel->getField( i ) );
 		sol->add( 1., *sol, -1., vel->getConstField(i) );
 
-		std::cout << "error: " << sol->norm() << "\n";
+		std::cout << "dir: " << i << " GradX error: " << sol->norm() << "\n";
 		TEST_EQUALITY( sol->norm()<eps, true );
 
 		vel->getFieldPtr( i )->random();
@@ -314,7 +314,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateS2VOp ) {
 		op->apply( *p, vel->getField( i ) );
 		sol->add( 1., *sol, -1., vel->getConstField(i) );
 
-		std::cout << "error: " << sol->norm() << "\n";
+		std::cout << "dir: " << i << " PoiseuilleX error: " << sol->norm() << "\n";
 		TEST_EQUALITY( sol->norm()<eps, true );
 
 		// Y test
@@ -325,7 +325,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateS2VOp ) {
 		op->apply( *p, vel->getField( i ) );
 		sol->add( 1., *sol, -1., vel->getConstField(i) );
 
-		std::cout << "error: " << sol->norm() << "\n";
+		std::cout << "dir: " << i << " GradY error: " << sol->norm() << "\n";
 		TEST_EQUALITY( sol->norm()<eps, true );
 
 		vel->getFieldPtr( i )->random();
@@ -335,7 +335,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateS2VOp ) {
 		op->apply( *p, vel->getField( i ) );
 		sol->add( 1., *sol, -1., vel->getConstField(i) );
 
-		std::cout << "error: " << sol->norm() << "\n";
+		std::cout << "dir: " << i << " PoiseuilleY error: " << sol->norm() << "\n";
 		TEST_EQUALITY( sol->norm()<eps, true );
 
 		// Z test
@@ -346,7 +346,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateS2VOp ) {
 		op->apply( *p, vel->getField( i ) );
 		sol->add( 1., *sol, -1., vel->getConstField(i) );
 
-		std::cout << "error: " << sol->norm() << "\n";
+		std::cout << "dir: " << i << " GradZ error: " << sol->norm() << "\n";
 		TEST_EQUALITY( sol->norm()<eps, true );
 
 		vel->getFieldPtr( i )->random();
@@ -356,7 +356,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateS2VOp ) {
 		op->apply( *p, vel->getField( i ) );
 		sol->add( 1., *sol, -1., vel->getConstField(i) );
 
-		std::cout << "error: " << sol->norm() << "\n";
+		std::cout << "dir: " << i << " PoiseuilleZ error: " << sol->norm() << "\n";
 		TEST_EQUALITY( sol->norm()<eps, true );
 
 	}

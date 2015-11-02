@@ -3,14 +3,14 @@
 #define PIMPACT_CONVECTIONVWRAP_HPP
 
 
-#include "Pimpact_VectorField.hpp"
-
 #include "Pimpact_ConvectionSOp.hpp"
+#include "Pimpact_VectorField.hpp"
 
 
 
 
 namespace Pimpact {
+
 
 
 /// \brief Convection Wraper of  for Velocity fields

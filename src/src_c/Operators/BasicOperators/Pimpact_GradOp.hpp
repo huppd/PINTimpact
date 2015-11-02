@@ -17,6 +17,7 @@
 namespace Pimpact{
 
 
+
 extern "C" {
 
 void OP_grad(
@@ -63,6 +64,7 @@ void OP_extrapolateBC(
 		const double*       phi );
 
 }
+
 
 
 /// \ingroup BaseOperator

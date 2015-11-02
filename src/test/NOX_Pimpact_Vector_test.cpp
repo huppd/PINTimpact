@@ -1,18 +1,18 @@
+#include <cmath>
 #include <iostream>
 #include <vector>
-#include <cmath>
 
-#include "Teuchos_UnitTestHarness.hpp"
-#include "Teuchos_RCP.hpp"
 #include "Teuchos_Array.hpp"
-#include "Teuchos_Tuple.hpp"
 #include "Teuchos_CommHelpers.hpp"
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_Tuple.hpp"
+#include "Teuchos_UnitTestHarness.hpp"
 
 #include "BelosTypes.hpp"
 
+#include "NOX_Pimpact_Vector.hpp"
 #include "Pimpact_Fields.hpp"
 
-#include "NOX_Pimpact_Vector.hpp"
 
 
 

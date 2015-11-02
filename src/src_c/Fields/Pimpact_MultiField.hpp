@@ -6,17 +6,15 @@
 #include <vector>
 
 #include "Teuchos_Array.hpp"
-#include "Teuchos_RCP.hpp"
 #include "Teuchos_Range1D.hpp"
+#include "Teuchos_RCP.hpp"
 #include "Teuchos_SerialDenseMatrix.hpp"
 
 #include "BelosTypes.hpp"
 
-
-#include "Pimpact_Types.hpp"
-#include "Pimpact_Space.hpp"
-
 #include "Pimpact_AbstractField.hpp"
+#include "Pimpact_Space.hpp"
+#include "Pimpact_Types.hpp"
 
 
 

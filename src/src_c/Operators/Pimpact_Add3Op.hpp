@@ -4,11 +4,13 @@
 
 
 #include "Teuchos_RCP.hpp"
+
 #include "BelosTypes.hpp"
 
 
-namespace Pimpact {
 
+
+namespace Pimpact {
 
 
 

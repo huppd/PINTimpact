@@ -3,8 +3,8 @@
 #define PIMPACT_COARSENSTRATEGY_HPP
 
 
-#include "Teuchos_RCP.hpp"
 #include "Teuchos_Array.hpp"
+#include "Teuchos_RCP.hpp"
 
 #include "Pimpact_Space.hpp"
 
@@ -54,7 +54,7 @@ public:
 		std::vector<Teuchos::RCP<const CSpaceT> > multiSpace( 1, tempSpace );
 
 		Teuchos::Tuple<Ordinal,dimension> nLoc = *space->getGridSizeLocal();
-		GridSizeGlobal<Ordinal,dimension> nGlo = *space->getGridSizeGlobal();
+		GridSizeGlobal<Ordinal> nGlo = *space->getGridSizeGlobal();
 
     for( Ordinal i=1; i<maxGrids; ++i ) {
       bool coarsen_yes = false;
@@ -97,5 +97,6 @@ public:
 extern template class Pimpact::CoarsenStrategy< Pimpact::Space<double,int,3,4>, Pimpact::Space<double,int,3,2> >;
 extern template class Pimpact::CoarsenStrategy< Pimpact::Space<double,int,4,4>, Pimpact::Space<double,int,4,2> >;
 #endif
+
 
 #endif // end of #ifndef PIMPACT_COARSENSTRATEGY_HPP

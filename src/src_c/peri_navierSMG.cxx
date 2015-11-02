@@ -15,7 +15,6 @@
 #include "BelosSolverFactory.hpp"
 #include "BelosTypes.hpp"
 
-#include "pimpact.hpp"
 #include "Pimpact_Types.hpp"
 #include "Pimpact_Space.hpp"
 #include "Pimpact_Fields.hpp"

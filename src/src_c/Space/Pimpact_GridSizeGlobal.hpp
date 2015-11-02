@@ -20,14 +20,14 @@ namespace Pimpact{
 ///
 /// \todo remove tpara dimension and rm getters
 /// \ingroup SpaceObject
-template<class Ordinal, int dimension>
+template<class Ordinal>
 class GridSizeGlobal : public Teuchos::Tuple<Ordinal,4> {
 
-  template<class OT, int d>
-  friend Teuchos::RCP<const GridSizeGlobal<OT,d> > createGridSizeGlobal( OT n1, OT n2, OT n3, OT nt );
+  template<class OT>
+  friend Teuchos::RCP<const GridSizeGlobal<OT> > createGridSizeGlobal( OT n1, OT n2, OT n3, OT nt );
 
-  template<class OT, int d>
-  friend Teuchos::RCP<const GridSizeGlobal<OT,d> > createGridSizeGlobal( const Teuchos::Tuple<OT,4>& tuple );
+  template<class OT>
+  friend Teuchos::RCP<const GridSizeGlobal<OT> > createGridSizeGlobal( const Teuchos::Tuple<OT,4>& tuple );
 
 
 protected:
@@ -45,10 +45,10 @@ public:
 
 	const Ordinal& get( int i ) const  { return( (*this)[i] ); }
 
-  void print( std::ostream& out=std::cout ) const {
-    out << " --- GridSizeGlobal: " << *this << " ---\n";
-
+	void print( std::ostream& out=std::cout ) const {
+		out << " --- GridSizeGlobal: " << *this << " ---\n";
   };
+
 
 }; // end of class GridSizeGlobal
 
@@ -56,8 +56,8 @@ public:
 
 /// \brief create GridSize Global
 /// \relates GridSizeGlobal
-template< class O=int, int d>
-Teuchos::RCP<const GridSizeGlobal<O,d> > createGridSizeGlobal( O n1, O n2, O n3, O nt=1 ) {
+template< class O=int>
+Teuchos::RCP<const GridSizeGlobal<O> > createGridSizeGlobal( O n1, O n2, O n3, O nt=1 ) {
   Teuchos::Tuple<O,4> temp;
     temp[0] = n1;
     temp[1] = n2;
@@ -65,21 +65,21 @@ Teuchos::RCP<const GridSizeGlobal<O,d> > createGridSizeGlobal( O n1, O n2, O n3,
 		temp[3] = nt;
   return(
       Teuchos::rcp(
-          new GridSizeGlobal<O,d>( temp ) ) );
+          new GridSizeGlobal<O>( temp ) ) );
 }
+
 
 
 /// \brief create GridSize Global
 /// \relates GridSizeGlobal
-template<class O, int d>
-Teuchos::RCP<const GridSizeGlobal<O,d> > createGridSizeGlobal( const Teuchos::Tuple<O,4>& to  ) {
+template<class O>
+Teuchos::RCP<const GridSizeGlobal<O> > createGridSizeGlobal( const Teuchos::Tuple<O,4>& to  ) {
 
 	return(
 			Teuchos::rcp(
-				new GridSizeGlobal<O,d>( to ) ) );
+				new GridSizeGlobal<O>( to ) ) );
 
 }
-
 
 
 } // end of namespace Pimpact

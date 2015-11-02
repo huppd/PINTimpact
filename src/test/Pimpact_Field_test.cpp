@@ -1,11 +1,11 @@
-#include <iostream>
 #include <cmath>
+#include <iostream>
 
-#include "Teuchos_UnitTestHarness.hpp"
-#include "Teuchos_RCP.hpp"
 #include "Teuchos_Array.hpp"
-#include "Teuchos_Tuple.hpp"
 #include "Teuchos_CommHelpers.hpp"
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_Tuple.hpp"
+#include "Teuchos_UnitTestHarness.hpp"
 
 #include "Pimpact_Fields.hpp"
 

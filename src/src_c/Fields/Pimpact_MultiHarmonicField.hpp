@@ -2,17 +2,20 @@
 #ifndef PIMPACT_MULTIHARMONICFIELD_HPP
 #define PIMPACT_MULTIHARMONICFIELD_HPP
 
+
 #include <vector>
 #include <iostream>
 
 #include "Teuchos_RCP.hpp"
-#include "BelosTypes.hpp"
 #include "Teuchos_ScalarTraitsDecl.hpp"
 #include "Teuchos_SerialDenseMatrix.hpp"
 
-#include "Pimpact_ModeField.hpp"
+#include "BelosTypes.hpp"
+
 
 #include "Pimpact_AbstractField.hpp"
+#include "Pimpact_ModeField.hpp"
+
 
 
 
@@ -552,8 +555,6 @@ public:
 
 
 
-
-
 /// \brief creates a multi-harmonic scalar field.
 ///
 /// \relates MultiHarmonicField
@@ -579,5 +580,6 @@ extern template class Pimpact::MultiHarmonicField< Pimpact::ScalarField< Pimpact
 extern template class Pimpact::MultiHarmonicField< Pimpact::VectorField< Pimpact::Space<double,int,3,2> > >;
 extern template class Pimpact::MultiHarmonicField< Pimpact::VectorField< Pimpact::Space<double,int,3,4> > >;
 #endif
+
 
 #endif // end of #ifndef PIMPACT_MULTIHARMONICFIELD_HPP

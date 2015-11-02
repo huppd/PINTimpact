@@ -2,10 +2,11 @@
 #ifndef PIMPACT_MGSMOOTHERS_HPP
 #define PIMPACT_MGSMOOTHERS_HPP
 
+
 #include <vector>
 
-#include "Teuchos_RCP.hpp"
 #include "Teuchos_ParameterList.hpp"
+#include "Teuchos_RCP.hpp"
 
 #include "Pimpact_Types.hpp"
 

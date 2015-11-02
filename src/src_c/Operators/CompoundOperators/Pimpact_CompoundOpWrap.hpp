@@ -2,9 +2,12 @@
 #ifndef PIMPACT_COMPOUNDSOPWRAP_HPP
 #define PIMPACT_COMPOUNDSOPWRAP_HPP
 
+
 #include "Teuchos_RCP.hpp"
 
 #include "Pimpact_CompoundField.hpp"
+
+
 
 
 namespace Pimpact {

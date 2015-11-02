@@ -2,11 +2,13 @@
 #ifndef PIMPACT_PRECINVERSEOP_HPP
 #define PIMPACT_PRECINVERSEOP_HPP
 
-#include "Pimpact_Types.hpp"
-#include "Pimpact_LinearProblem.hpp"
 
-#include "Pimpact_MultiField.hpp"
+#include "Pimpact_LinearProblem.hpp"
 #include "Pimpact_LinSolverParameter.hpp"
+#include "Pimpact_MultiField.hpp"
+#include "Pimpact_Types.hpp"
+
+
 
 
 namespace Pimpact{

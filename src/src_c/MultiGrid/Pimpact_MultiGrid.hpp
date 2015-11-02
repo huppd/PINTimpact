@@ -3,14 +3,11 @@
 #define PIMPACT_MULTIGRID_HPP
 
 
-
-
-#include "Pimpact_MGSpaces.hpp"
 #include "Pimpact_MGFields.hpp"
 #include "Pimpact_MGOperators.hpp"
 #include "Pimpact_MGTransfers.hpp"
 #include "Pimpact_MGSmoothers.hpp"
-
+#include "Pimpact_MGSpaces.hpp"
 
 /// \defgroup MG MultiGrid
 ///

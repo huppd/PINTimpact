@@ -3,9 +3,9 @@
 #define PIMPACT_CONVECTIONFIELD_HPP
 
 
-#include "Pimpact_VectorField.hpp"
-
 #include "Pimpact_InterpolateS2VOp.hpp"
+#include "Pimpact_InterpolateV2SOp.hpp"
+#include "Pimpact_VectorField.hpp"
 
 
 
@@ -76,8 +76,8 @@ public:
   ConvectionField(
       const Teuchos::RCP<const SpaceT>& space,
       const Teuchos::RCP< InterpolateS2V<SpaceT> >& interpolateS2V,
-      const Teuchos::RCP< InterpolateV2S<Scalar,Ordinal,dimension,dimNC> >& interpolateV2S,
-      const Teuchos::RCP< ConvectionSOp<SpaceT> >& convectionSOp ):
+      const Teuchos::RCP< InterpolateV2S<Scalar,Ordinal,dimension,dimNC> >& interpolateV2S/*,*/
+      /*const Teuchos::RCP< ConvectionSOp<SpaceT> >& convectionSOp */):
     space_(space),
     interpolateS2V_(interpolateS2V),
     interpolateV2S_(interpolateV2S),

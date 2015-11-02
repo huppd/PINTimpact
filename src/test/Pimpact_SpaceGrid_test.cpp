@@ -10,7 +10,11 @@
 
 
 
+
 namespace {
+
+const int d = 3;
+const int dNC = 4;
 
 bool testMpi = true;
 double eps = 1e+1;
@@ -19,6 +23,7 @@ int dim = 3;
 
 typedef int O;
 typedef double S;
+
 
 
 TEUCHOS_STATIC_SETUP() {
@@ -41,11 +46,11 @@ TEUCHOS_STATIC_SETUP() {
 // test shows that nLoc is not consistent with start and end indexes
 TEUCHOS_UNIT_TEST( StencilWidths, print ) {
 
-  auto sW32 = Pimpact::createStencilWidths<3,2>(false);
+  auto sW32 = Pimpact::createStencilWidths<d,2>(false);
 
   sW32->print();
 
-  auto sW34 = Pimpact::createStencilWidths<3,4>(false);
+  auto sW34 = Pimpact::createStencilWidths<d,4>(false);
 
   sW34->print();
 
@@ -55,10 +60,9 @@ TEUCHOS_UNIT_TEST( StencilWidths, print ) {
 
 TEUCHOS_UNIT_TEST( IndexSpace, localConsistency ) {
 
-  const int d = 3;
+	Teuchos::RCP< Teuchos::ParameterList > pl = Teuchos::parameterList();
 
-  auto pl = Teuchos::parameterList();
-  auto domainSize = Pimpact::createDomainSize(
+	auto domainSize = Pimpact::createDomainSize(
       pl->get( "dim", dim ),
       pl->get("Re",1.),
       pl->get("alpha2",1.),
@@ -66,7 +70,7 @@ TEUCHOS_UNIT_TEST( IndexSpace, localConsistency ) {
       pl->get("ly",2.),
       pl->get("lz",1.) );
 
-  auto stencilWidths = Pimpact::createStencilWidths<d,4>( false );
+  auto stencilWidths = Pimpact::createStencilWidths<d,dNC>( false );
 
   auto boundaryConditionsGlobal =
 		Pimpact::createBoudaryConditionsGlobal(
@@ -79,7 +83,7 @@ TEUCHOS_UNIT_TEST( IndexSpace, localConsistency ) {
 			 pl->get("npz",1) );
 
   auto gridSizeGlobal =
-		Pimpact::createGridSizeGlobal<O,d>(
+		Pimpact::createGridSizeGlobal<O>(
 				pl->get("nx",33),
 				pl->get("ny",33),
 				pl->get("nz",33),
@@ -132,7 +136,7 @@ TEUCHOS_UNIT_TEST( ProcGrid, test ) {
 		Pimpact::createBoudaryConditionsGlobal<d>( Pimpact::EDomainType( pl->get("domain",2) ) );
 
 	auto gridSizeGlobal =
-		Pimpact::createGridSizeGlobal<O,d>(
+		Pimpact::createGridSizeGlobal<O>(
 				pl->get("nx",17),
 				pl->get("ny",17),
 				pl->get("nz",17),
@@ -140,10 +144,10 @@ TEUCHOS_UNIT_TEST( ProcGrid, test ) {
 
 	auto procGridSize =
 		Teuchos::tuple(
-				pl->get("npx",1),
+				pl->get("npx",2),
 				pl->get("npy",1),
 				pl->get("npz",1),
-				pl->get("npf",1) );
+				pl->get("npf",2) );
 
 	auto procGrid =
 		Pimpact::createProcGrid<O,d>(
@@ -184,22 +188,49 @@ TEUCHOS_UNIT_TEST( ProcGrid, test ) {
 }
 
 
-TEUCHOS_UNIT_TEST( Space, GlobalGridCoordinates ) {
+TEUCHOS_UNIT_TEST( Space, CoordinatesGlobal ) {
 
-  auto space = Pimpact::createSpace();
+	Teuchos::RCP< Teuchos::ParameterList > pl =
+		Teuchos::parameterList();
 
-  auto coord = space->getCoordinatesGlobal();
+	pl->set<O>( "nx", 9 );
+	pl->set<O>( "ny", 9 );
+	pl->set<O>( "nz", 9 );
+	pl->set<O>( "nf", 8 );
 
-  coord->print();
+	Teuchos::RCP< const Pimpact::Space<S,O,4,dNC> > space =
+		Pimpact::createSpace<S,O,4,dNC>( pl );
+
+	//auto coord = space->getCoordinatesGlobal();
+
+	//if( 0==space->rankST() )
+		//coord->print();
+
+	//auto gsg = space->getGridSizeGlobal();
+
+	//auto gridSizeGlobal =
+		//Pimpact::createGridSizeGlobal<O>(
+				//(gsg->get(0)-1)/2+1,
+				//(gsg->get(1)-1)/2+1,
+				//gsg->get(2),
+				//gsg->get(3)/2	);
+
+	//auto cordc = Pimpact::createCoordinatesGlobal(
+			//gridSizeGlobal,
+			//coord );
+
+	//if( 0==space->rankST() )
+		//cordc->print();
 
 }
 
 
-TEUCHOS_UNIT_TEST( Space, LocalGridCoordinates ) {
+TEUCHOS_UNIT_TEST( Space, CoordinatesLocal ) {
 
-  auto space = Pimpact::createSpace();
+	Teuchos::RCP<const Pimpact::Space<S,O,d,dNC> > space =
+		Pimpact::createSpace<S,O,d,dNC>();
 
-  auto coord = Pimpact::createGridCoordinatesLocal(
+  auto coord = Pimpact::createCoordinatesLocal(
       space->getStencilWidths(),
       space->getDomainSize(),
       space->getGridSizeGlobal(),

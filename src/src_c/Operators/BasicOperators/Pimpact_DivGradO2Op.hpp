@@ -2,9 +2,9 @@
 #ifndef PIMPACT_DIVGRADO2OP_HPP
 #define PIMPACT_DIVGRADO2OP_HPP
 
-#include "Pimpact_Types.hpp"
 
 #include "Pimpact_ScalarField.hpp"
+#include "Pimpact_Types.hpp"
 
 
 

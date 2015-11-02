@@ -1,44 +1,38 @@
 #include <mpi.h>
 
-#include <ostream>
 #include <fstream>
+#include <ostream>
 
-#include "Teuchos_CommandLineProcessor.hpp"
-#include "Teuchos_RCP.hpp"
 #include <Teuchos_Array.hpp>
+#include "Teuchos_CommandLineProcessor.hpp"
+#include <Teuchos_CommHelpers.hpp>
+#include "Teuchos_oblackholestream.hpp"
 #include <Teuchos_Tuple.hpp>
 #include "Teuchos_Range1D.hpp"
-#include <Teuchos_CommHelpers.hpp>
+#include "Teuchos_RCP.hpp"
 #include "Teuchos_XMLParameterListCoreHelpers.hpp"
 
 #include "BelosOutputManager.hpp"
 #include "BelosSolverFactory.hpp"
-#include "Teuchos_oblackholestream.hpp"
-
-#include "pimpact.hpp"
-#include "Pimpact_Types.hpp"
-#include "Pimpact_Space.hpp"
-#include "Pimpact_Fields.hpp"
-#include "Pimpact_FieldFactory.hpp"
-
-#include "Pimpact_LinearProblem.hpp"
-#include "Pimpact_Operator.hpp"
-#include "Pimpact_OperatorFactory.hpp"
-
-#include "Pimpact_LinSolverParameter.hpp"
-
-#include "Pimpact_MultiGrid.hpp"
-#include "Pimpact_CoarsenStrategyGlobal.hpp"
-
-#include "BelosPimpactAdapter.hpp"
-
-#include "NOX_Pimpact_Vector.hpp"
-#include "NOX_Pimpact_Interface.hpp"
-#include "NOX_Pimpact_Group.hpp"
-
-#include "NOX_Pimpact_StatusTest.hpp"
 
 #include "NOX.H"
+
+#include "BelosPimpactAdapter.hpp"
+#include "NOX_Pimpact_Group.hpp"
+#include "NOX_Pimpact_Interface.hpp"
+#include "NOX_Pimpact_StatusTest.hpp"
+#include "NOX_Pimpact_Vector.hpp"
+#include "Pimpact_CoarsenStrategyGlobal.hpp"
+#include "Pimpact_Fields.hpp"
+#include "Pimpact_FieldFactory.hpp"
+#include "Pimpact_LinearProblem.hpp"
+#include "Pimpact_LinSolverParameter.hpp"
+#include "Pimpact_MultiGrid.hpp"
+#include "Pimpact_Operator.hpp"
+#include "Pimpact_OperatorFactory.hpp"
+#include "Pimpact_Types.hpp"
+#include "Pimpact_Space.hpp"
+
 
 
 

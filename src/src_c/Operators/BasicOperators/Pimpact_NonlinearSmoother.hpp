@@ -3,8 +3,9 @@
 #define PIMPACT_NONLINEARSMOOTHER_HPP
 
 
-#include "Pimpact_NonlinearVWrap.hpp"
 #include "Pimpact_ConvectionField.hpp"
+#include "Pimpact_NonlinearVWrap.hpp"
+
 
 
 
@@ -102,7 +103,6 @@ extern template class Pimpact::NonlinearSmoother< Pimpact::NonlinearOp< Pimpact:
 extern template class Pimpact::NonlinearSmoother< Pimpact::NonlinearOp< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,4,2> > >, Pimpact::ConvectionDiffusionSORSmoother>;
 extern template class Pimpact::NonlinearSmoother< Pimpact::NonlinearOp< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,4,4> > >, Pimpact::ConvectionDiffusionSORSmoother>;
 #endif
-
 
 
 #endif // end of #ifndef PIMPACT_NONLINEARSMOOTHER_HPP

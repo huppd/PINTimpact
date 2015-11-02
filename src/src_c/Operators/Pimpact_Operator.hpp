@@ -2,6 +2,7 @@
 #ifndef PIMPACT_OPERATOR_HPP
 #define PIMPACT_OPERATOR_HPP
 
+
 #include "Pimpact_Fields.hpp" // ETI
 
 /// \defgroup Operator Operators

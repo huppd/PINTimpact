@@ -8,11 +8,12 @@
 #include "Teuchos_RCP.hpp"
 //#include "Teuchos_ParameterList.hpp"
 //#include "Teuchos_XMLParameterListCoreHelpers.hpp"
-//
+
 
 
 
 namespace Pimpact {
+
 
 
 /// \brief creates non const template from const
@@ -111,7 +112,6 @@ create(
 
 
 } // end of namespace Pimpact
-
 
 
 #endif // end of #ifndef PIMPACT_SPACEFACTORY_HPP

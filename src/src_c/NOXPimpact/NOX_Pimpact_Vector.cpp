@@ -1,6 +1,8 @@
 #include "NOX_Pimpact_Vector.hpp"
 
 
+
+
 #ifdef COMPILE_ETI
 
 template class NOX::Pimpact::Vector<

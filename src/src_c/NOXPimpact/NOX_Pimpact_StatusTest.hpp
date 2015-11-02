@@ -2,28 +2,30 @@
 #ifndef NOX_PIMPACT_STATUSTEST_HPP
 #define NOX_PIMPACT_STATUSTEST_HPP
 
+
 #include <string>
 
-#include "Teuchos_RCP.hpp"
 #include "Teuchos_ParameterList.hpp"
+#include "Teuchos_RCP.hpp"
 
-#include "NOX_Utils.H"            // class data element
-#include "NOX_StatusTest_Generic.H"
+#include "NOX_StatusTest_Generic.H" // this order is necessary
 #include "NOX_StatusTest_Factory.H"
+#include "NOX_Utils.H"            // class data element
+
 
 
 
 namespace NOX{
-	namespace Pimpact {
+namespace Pimpact {
 
-		Teuchos::RCP<NOX::StatusTest::Generic>
-			createStatusTest( int maxI=10, double tolF=1.e-6, double tolUpdate=1.e-6 );
+	Teuchos::RCP< NOX::StatusTest::Generic >
+		createStatusTest( int maxI=10, double tolF=1.e-6, double tolUpdate=1.e-6 );
 
-		Teuchos::RCP<Teuchos::ParameterList>
-			createNOXSolverParameter(
+	Teuchos::RCP<Teuchos::ParameterList>
+		createNOXSolverParameter(
 				const std::string& solverName = "NonlinearCG",
 				const std::string& lineSearchName = "NonlinearCG" ); 
-	}
+}
 }
 
 

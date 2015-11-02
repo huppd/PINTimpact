@@ -3,25 +3,26 @@
 #define PIMPACT_TIMEFIELD_HPP
 
 
+#include <cmath>
+#include <vector>
+
 #include "mpi.h"
 
-#include <vector>
 #include <Teuchos_Array.hpp>
 #include "Teuchos_RCP.hpp"
 #include <Teuchos_Range1D.hpp>
 
 #include <BelosTypes.hpp>
 
-
-#include "Pimpact_Types.hpp"
-
 #include "Pimpact_AbstractField.hpp"
-
+#include "Pimpact_Types.hpp"
 #include "Pimpact_VectorField.hpp"
-#include "cmath"
+
+
 
 
 namespace Pimpact {
+
 
 
 /// \brief templated class which is the interface to \c Belos and \c NOX

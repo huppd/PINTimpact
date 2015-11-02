@@ -3,7 +3,7 @@
 
 
 
-Teuchos::RCP<NOX::StatusTest::Generic>
+Teuchos::RCP< NOX::StatusTest::Generic >
 NOX::Pimpact::createStatusTest( int maxI, double tolF, double tolUpdate ) {
 
   Teuchos::ParameterList stl;
@@ -56,7 +56,7 @@ NOX::Pimpact::createStatusTest( int maxI, double tolF, double tolUpdate ) {
   nstep.set( "Test Type", "NStep" );
   nstep.set( "N", 2 );
   //  Teuchos::RCP<NOX::StatusTest::Generic>
-  auto status_tests =
+  Teuchos::RCP< NOX::StatusTest::Generic > status_tests =
       NOX::StatusTest::buildStatusTests( stl, NOX::Utils() );
 
   return( status_tests );

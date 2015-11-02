@@ -46,14 +46,14 @@ project( pimpact CXX Fortran )
 option( enable_ETI "enable_ETI" OFF)
 
 # Make sure to use same compilers and flags as Trilinos
-SET( CMAKE_CXX_COMPILER     ${Trilinos_CXX_COMPILER}     )
-SET( CMAKE_C_COMPILER       ${Trilinos_C_COMPILER}       )
-SET( CMAKE_Fortran_COMPILER ${Trilinos_Fortran_COMPILER} )
+set( CMAKE_CXX_COMPILER     ${Trilinos_CXX_COMPILER}     )
+set( CMAKE_C_COMPILER       ${Trilinos_C_COMPILER}       )
+set( CMAKE_Fortran_COMPILER ${Trilinos_Fortran_COMPILER} )
 
 
-SET( CMAKE_CXX_FLAGS     "${CMAKE_CXX_FLAGS}     ${Trilinos_CXX_COMPILER_FLAGS}     -Wall -pedantic -std=c++11" )
-SET( CMAKE_C_FLAGS       "${CMAKE_C_FLAGS}       ${Trilinos_C_COMPILER_FLAGS}       -Wall -pedantic" )
-SET( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${Trilinos_Fortran_COMPILER_FLAGS} -Wall" )
+set( CMAKE_CXX_FLAGS     "${CMAKE_CXX_FLAGS}     ${Trilinos_CXX_COMPILER_FLAGS}     -Wall -pedantic -std=c++11" )
+set( CMAKE_C_FLAGS       "${CMAKE_C_FLAGS}       ${Trilinos_C_COMPILER_FLAGS}       -Wall -pedantic" )
+set( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${Trilinos_Fortran_COMPILER_FLAGS} -Wall" )
 
 
 IF( CMAKE_COMPILER_IS_GNUCXX )
@@ -72,16 +72,16 @@ ELSE()
 ENDIF()
 
 
-MESSAGE("Fortran flags: " ${CMAKE_Fortran_FLAGS})
-MESSAGE("CXX flags: " ${CMAKE_CXX_FLAGS})
+message("Fortran flags: " ${CMAKE_Fortran_FLAGS})
+message("CXX flags: " ${CMAKE_CXX_FLAGS})
 
 
 set( Limpact_TPL_LIBRARIES hdf5hl_fortran hdf5_hl hdf5_fortran hdf5 z m ${Trilinos_TPL_LIBRARIES} )
 set( Pimpact_TPL_LIBRARIES lpimpact ${Limpact_TPL_LIBRARIES} gfortran mpi_f77 mpi_f90  ${Trilinos_TPL_LIBRARIES} ${Trilinos_LIBRARIES} )
 
 
-MESSAGE( "Fortran compiler: ${CMAKE_Fortran_COMPILER}" )
-MESSAGE( "CMAKE_Fortran_COMPILE_FLAGS: ${CMAKE_Fortran_COMPILE_FLAGS}" )
+message( "Fortran compiler: ${CMAKE_Fortran_COMPILER}" )
+message( "CMAKE_Fortran_COMPILE_FLAGS: ${CMAKE_Fortran_COMPILE_FLAGS}" )
 
 
 INCLUDE_DIRECTORIES( ${inc_dir} ${Trilinos_INCLUDE_DIRS}

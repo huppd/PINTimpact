@@ -2,10 +2,10 @@
 #ifndef PIMPACT_COMPOUNDSMOOTHER_HPP
 #define PIMPACT_COMPOUNDSMOOTHER_HPP
 
+
 #include "Teuchos_RCP.hpp"
 
 #include "Pimpact_CompoundField.hpp"
-//#include "Pimpact_MultiField.hpp"
 #include "Pimpact_TripleCompositionOp.hpp"
 
 

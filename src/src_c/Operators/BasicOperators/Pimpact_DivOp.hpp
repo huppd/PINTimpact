@@ -2,6 +2,7 @@
 #ifndef PIMPACT_DIVOP_HPP
 #define PIMPACT_DIVOP_HPP
 
+
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_Tuple.hpp"
 
@@ -16,24 +17,23 @@
 namespace Pimpact{
 
 
-extern "C" {
 
-  void OP_div(
-      const int& dimens,
-      const int* const N,
-      const int* const bl,
-      const int* const bu,
-      const int* const dl,
-      const int* const du,
-      const int* const ss,
-      const int* const nn,
-      const double* const c1,
-      const double* const c2,
-      const double* const c3,
-      const double* const phiU,
-      double* const phi );
+extern "C"
+void OP_div(
+		const int& dimens,
+		const int* const N,
+		const int* const bl,
+		const int* const bu,
+		const int* const dl,
+		const int* const du,
+		const int* const ss,
+		const int* const nn,
+		const double* const c1,
+		const double* const c2,
+		const double* const c3,
+		const double* const phiU,
+		double* const phi );
 
-}
 
 
 /// \brief Divergence operator.
@@ -172,5 +172,6 @@ extern template class Pimpact::DivOp< Pimpact::Space<double,int,3,4> >;
 extern template class Pimpact::DivOp< Pimpact::Space<double,int,4,2> >;
 extern template class Pimpact::DivOp< Pimpact::Space<double,int,4,4> >;
 #endif
+
 
 #endif // end of #ifndef PIMPACT_DIVOP_HPP

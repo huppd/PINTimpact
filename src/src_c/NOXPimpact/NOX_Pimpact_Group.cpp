@@ -1,6 +1,8 @@
 #include "NOX_Pimpact_Group.hpp"
 
 
+
+
 #ifdef COMPILE_ETI
 #include "NOX_Pimpact_Interface.hpp"
 template class NOX::Pimpact::Group<

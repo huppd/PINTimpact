@@ -5,10 +5,10 @@
 
 #include "Teuchos_RCP.hpp"
 
+#include "Pimpact_CompoundField.hpp"
 #include "Pimpact_DivOp.hpp"
 #include "Pimpact_GradOp.hpp"
 #include "Pimpact_HelmholtzOp.hpp"
-#include "Pimpact_CompoundField.hpp"
 
 
 

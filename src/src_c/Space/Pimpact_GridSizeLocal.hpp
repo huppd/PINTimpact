@@ -2,6 +2,7 @@
 #ifndef PIMPACT_GRIDSIZELOCAL_HPP
 #define PIMPACT_GRIDSIZELOCAL_HPP
 
+
 #include <ostream>
 
 #include "Teuchos_RCP.hpp"
@@ -15,8 +16,8 @@
 
 
 
-
 namespace Pimpact{
+
 
 
 /// \brief local grid size
@@ -30,7 +31,7 @@ class GridSizeLocal : public Teuchos::Tuple<Ordinal,dim> {
 
   template< class OT, int dT, int dNC >
   friend Teuchos::RCP<const GridSizeLocal<OT,dT> > createGridSizeLocal(
-      const Teuchos::RCP<const GridSizeGlobal<OT,dT> >& gsg,
+      const Teuchos::RCP<const GridSizeGlobal<OT> >& gsg,
       const Teuchos::RCP<const ProcGrid<OT,dT> >& pg,
       const Teuchos::RCP<const StencilWidths<dT,dNC> >& sW );
 
@@ -42,7 +43,7 @@ protected:
 	/// \param stencilWidths only necessary for size checking, and defining gs[3]
 	template<int dNC>
 	GridSizeLocal(
-			const Teuchos::RCP<const GridSizeGlobal<Ordinal,dim> >& gridSizeGlobal,
+			const Teuchos::RCP<const GridSizeGlobal<Ordinal> >& gridSizeGlobal,
 			const Teuchos::RCP<const ProcGrid      <Ordinal,dim> >& procGrid,
 			const Teuchos::RCP<const StencilWidths     <dim,dNC> >& stencilWidths ):
 		Teuchos::Tuple<Ordinal,dim>() {
@@ -97,14 +98,13 @@ public:
 /// \relates GridSizeLocal
 template< class O, int d, int dNC>
 Teuchos::RCP<const GridSizeLocal<O,d> > createGridSizeLocal(
-    const Teuchos::RCP<const GridSizeGlobal<O,d> >& gsg,
+    const Teuchos::RCP<const GridSizeGlobal<O> >& gsg,
     const Teuchos::RCP<const ProcGrid<O,d> >& pg,
     const Teuchos::RCP<const StencilWidths<d,dNC> >& sW ) {
   return(
       Teuchos::rcp(
           new GridSizeLocal<O,d>( gsg, pg, sW ) ) );
 }
-
 
 
 

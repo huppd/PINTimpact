@@ -2,12 +2,13 @@
 #ifndef PIMPACT_INVERSEOP_HPP
 #define PIMPACT_INVERSEOP_HPP
 
+
+#include "Pimpact_LinearProblem.hpp"
+#include "Pimpact_LinSolverParameter.hpp"
+#include "Pimpact_MultiOpWrap.hpp"
 #include "Pimpact_Types.hpp"
 
-#include "Pimpact_MultiOpWrap.hpp"
-#include "Pimpact_LinearProblem.hpp"
 
-#include "Pimpact_LinSolverParameter.hpp"
 
 
 namespace Pimpact{

@@ -3,13 +3,14 @@
 #define PIMPACT_FIELDFACTORY_HPP
 
 
-#include "Pimpact_Space.hpp"
+#include "Teuchos_RCP.hpp"
 
 #include "Pimpact_Fields.hpp"
+#include "Pimpact_MultiField.hpp"
+#include "Pimpact_Space.hpp"
+#include "Pimpact_Types.hpp"
 
 
-
-/// \file
 
 
 namespace Pimpact {
@@ -160,5 +161,6 @@ createMultiHarmonicVectorField(
 
 
 } // end of namespace Pimpact
+
 
 #endif // end of #ifndef PIMPACT_FIELDFACTORY_HPP

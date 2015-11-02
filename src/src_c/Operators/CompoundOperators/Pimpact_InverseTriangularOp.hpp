@@ -2,6 +2,7 @@
 #ifndef PIMPACT_INVERSETRIANGULAROP_HPP
 #define PIMPACT_INVERSETRIANGULAROP_HPP
 
+
 #include "Teuchos_RCP.hpp"
 
 #include "Pimpact_CompoundField.hpp"

@@ -1,22 +1,21 @@
 #include <iostream>
 
-#include "Teuchos_UnitTestHarness.hpp"
-#include "Teuchos_RCP.hpp"
 #include "Teuchos_Array.hpp"
-#include "Teuchos_Tuple.hpp"
-#include "Teuchos_Range1D.hpp"
 #include "Teuchos_CommHelpers.hpp"
+#include "Teuchos_Range1D.hpp"
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_Tuple.hpp"
+#include "Teuchos_UnitTestHarness.hpp"
 
 #include "BelosOutputManager.hpp"
 #include "BelosMVOPTester.hpp"
 
+#include "BelosPimpactAdapter.hpp"
 #include "Pimpact_Fields.hpp"
-
 #include "Pimpact_Operator.hpp"
 #include "Pimpact_OperatorBase.hpp"
 #include "Pimpact_OperatorFactory.hpp"
 
-#include "BelosPimpactAdapter.hpp"
 
 
 

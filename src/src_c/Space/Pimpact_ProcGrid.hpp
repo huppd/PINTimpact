@@ -2,6 +2,7 @@
 #ifndef PIMPACT_PROCGRID_HPP
 #define PIMPACT_PROCGRID_HPP
 
+
 #include <ostream>
 
 #include "mpi.h"
@@ -299,5 +300,6 @@ Teuchos::RCP<const ProcGrid<O,d> > createProcGrid(
 
 
 } // end of namespace Pimpact
+
 
 #endif // end of #ifndef PIMPACT_PROCGRID_HPP

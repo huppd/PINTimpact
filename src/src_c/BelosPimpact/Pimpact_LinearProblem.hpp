@@ -2,6 +2,7 @@
 #ifndef PIMPACT_LINEARPROBLEM_HPP
 #define PIMPACT_LINEARPROBLEM_HPP
 
+
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_ParameterList.hpp"
 
@@ -9,6 +10,7 @@
 
 #include "BelosPimpactAdapter.hpp"
 #include "Pimpact_OperatorBase.hpp"
+
 
 
 
@@ -190,5 +192,6 @@ extern template class LinearProblem< MultiField< CompoundField< TimeField< Vecto
 } // end of namespace Pimpact
 
 #endif
+
 
 #endif // end of #ifndef PIMPACT_LINEARPROBLEM_HPP

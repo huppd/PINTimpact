@@ -1,6 +1,8 @@
 #include "Pimpact_Operator.hpp"
 
 
+
+
 #ifdef COMPILE_ETI
 namespace Pimpact {
 	// BaseOperators

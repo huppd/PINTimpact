@@ -3,14 +3,10 @@
 #define PIMPACT_CONVECTIONDIFFUSIONSORSMOOTHER_HPP
 
 
-#include "Pimpact_Types.hpp"
-
-//#include "Pimpact_extern_FDCoeff.hpp"
-
-#include "Pimpact_ScalarField.hpp"
-
-#include "Pimpact_HelmholtzOp.hpp"
 #include "Pimpact_ConvectionSOp.hpp"
+#include "Pimpact_HelmholtzOp.hpp"
+#include "Pimpact_ScalarField.hpp"
+#include "Pimpact_Types.hpp"
 
 
 
@@ -18,8 +14,7 @@
 namespace Pimpact {
 
 
-extern "C" {
-
+extern "C"
 void OP_convectionDiffusionSOR(
     const int& dimens,
     const int* const N,
@@ -50,7 +45,6 @@ void OP_convectionDiffusionSOR(
     const double& mulL,
     const double& om );
 
-}
 
 
 /// \brief convection operator, that takes the free interpolated velocity components and advects accordingly
@@ -245,7 +239,6 @@ extern template class Pimpact::ConvectionDiffusionSORSmoother< Pimpact::Convecti
 extern template class Pimpact::ConvectionDiffusionSORSmoother< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,4,2> > >;
 extern template class Pimpact::ConvectionDiffusionSORSmoother< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,4,4> > >;
 #endif
-
 
 
 #endif // end of #ifndef PIMPACT_CONVECTIONDIFFUSIONSORSMOOTHER_HPP

@@ -1,7 +1,7 @@
-#include <mpi.h>
-
 #include <ostream>
 #include <fstream>
+
+#include <mpi.h>
 
 #include "Teuchos_CommandLineProcessor.hpp"
 #include "Teuchos_RCP.hpp"
@@ -15,7 +15,6 @@
 #include "BelosSolverFactory.hpp"
 #include "Teuchos_oblackholestream.hpp"
 
-#include "pimpact.hpp"
 #include "Pimpact_Types.hpp"
 #include "Pimpact_Space.hpp"
 #include "Pimpact_Fields.hpp"

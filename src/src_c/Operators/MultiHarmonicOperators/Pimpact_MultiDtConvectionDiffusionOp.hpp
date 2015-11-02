@@ -3,14 +3,13 @@
 #define PIMPACT_MULTIDTCONVECTIONDIFFUSIONOP_HPP
 
 
-#include "Pimpact_Types.hpp"
+#include "Pimpact_ConvectionDiffusionSOp.hpp"
 #include "Pimpact_FieldFactory.hpp"
-
 #include "Pimpact_VectorField.hpp"
 #include "Pimpact_MultiHarmonicField.hpp"
-
-#include "Pimpact_ConvectionDiffusionSOp.hpp"
 #include "Pimpact_NonlinearVWrap.hpp"
+#include "Pimpact_Types.hpp"
+
 
 
 

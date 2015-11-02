@@ -2,6 +2,7 @@
 #ifndef PIMPACT_COMPOUNDFIELD_HPP
 #define PIMPACT_COMPOUNDFIELD_HPP
 
+
 #include <vector>
 #include <iostream>
 
@@ -14,6 +15,7 @@
 #include "BelosTypes.hpp"
 
 #include "Pimpact_AbstractField.hpp"
+
 
 
 
