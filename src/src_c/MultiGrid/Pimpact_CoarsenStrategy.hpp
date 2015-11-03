@@ -28,25 +28,24 @@ namespace Pimpact {
 template<class FSpaceT,class CSpaceT>
 class CoarsenStrategy {
 
-  typedef typename FSpaceT::Scalar  Scalar;
-  typedef typename FSpaceT::Ordinal Ordinal;
+	typedef typename FSpaceT::Scalar  Scalar;
+	typedef typename FSpaceT::Ordinal Ordinal;
 
-
-  /// should be same for finest space and coarse spaces
-  static const int dimension = FSpaceT::dimension;
+	/// should be same for finest space and coarse spaces
+	static const int dimension = FSpaceT::dimension;
 
 	typedef typename Teuchos::Tuple<Ordinal,dimension> TO;
 
-  /// can be different for finest and coarse spaces
-  static const int dimNCF = FSpaceT::dimNC;
+	/// can be different for finest and coarse spaces
+	static const int dimNCF = FSpaceT::dimNC;
 
-  static const int dimNCC = CSpaceT::dimNC;
+	static const int dimNCC = CSpaceT::dimNC;
 
 public:
 
-  static std::vector<Teuchos::RCP<const CSpaceT> > getMultiSpace(
-      const Teuchos::RCP<const FSpaceT> space,
-      int maxGrids=10 ) {
+	static std::vector<Teuchos::RCP<const CSpaceT> > getMultiSpace(
+			const Teuchos::RCP<const FSpaceT> space,
+			int maxGrids=10 ) {
 
 		// creating low order space
 		Teuchos::RCP<const CSpaceT> tempSpace = createSpace<CSpaceT,FSpaceT>( space );
@@ -56,26 +55,26 @@ public:
 		Teuchos::Tuple<Ordinal,dimension> nLoc = *space->getGridSizeLocal();
 		GridSizeGlobal<Ordinal> nGlo = *space->getGridSizeGlobal();
 
-    for( Ordinal i=1; i<maxGrids; ++i ) {
-      bool coarsen_yes = false;
-      for( Ordinal j=0; j<dimension; ++j ) {
-        if( j<3 ) {
-          if( ( (nLoc[j]-1)%2 )==0 && ( (nLoc[j]-1)/2 + 1 )%2!=0 && (nLoc[j]-1)/2 + 1>3 ) {
-            nLoc[j] = (nLoc[j]-1)/2 + 1;
-            nGlo[j] = (nGlo[j]-1)/2 + 1;
-            coarsen_yes = true;
-          }
-        }
-        else
-          if( !space->getStencilWidths()->spectralT() && ( (nLoc[j])%2 )==0 && nLoc[j]>1 ) {
-            nLoc[j] = (nLoc[j])/2;
-            nGlo[j] = (nGlo[j])/2;
-            coarsen_yes = true;
-          }
-      }
-      if( coarsen_yes )
+		for( Ordinal i=1; i<maxGrids; ++i ) {
+			bool coarsen_yes = false;
+			for( Ordinal j=0; j<dimension; ++j ) {
+				if( j<3 ) {
+					if( ( (nLoc[j]-1)%2 )==0 && ( (nLoc[j]-1)/2 + 1 )%2!=0 && (nLoc[j]-1)/2 + 1>3 ) {
+						nLoc[j] = (nLoc[j]-1)/2 + 1;
+						nGlo[j] = (nGlo[j]-1)/2 + 1;
+						coarsen_yes = true;
+					}
+				}
+				else
+					if( !space->getStencilWidths()->spectralT() && ( (nLoc[j])%2 )==0 && nLoc[j]>1 ) {
+						nLoc[j] = (nLoc[j])/2;
+						nGlo[j] = (nGlo[j])/2;
+						coarsen_yes = true;
+					}
+			}
+			if( coarsen_yes )
 				multiSpace.push_back( createSpace( multiSpace.back(), nGlo ) );
-    }
+		}
 
 
 		// not working on brutus
@@ -83,11 +82,10 @@ public:
 
 		return( multiSpace );
 
-  }
+	}
 
 
 }; // end of class CoarsenStrategy
-
 
 
 } // end of namespace Pimpact

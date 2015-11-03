@@ -64,9 +64,9 @@ class CoordinatesLocal {
 			const Teuchos::RCP<const StencilWidths<dT,dNC> >& fieldSpace,
 			const Teuchos::RCP<const DomainSize<ST> >& domainSize,
 			const Teuchos::RCP<const GridSizeGlobal<OT> >& gridSizeGlobal,
-			const Teuchos::RCP<const GridSizeLocal<OT,dT> >& gridSize,
+			const Teuchos::RCP<const GridSizeLocal<OT,dT> >& gridSizeLocal,
 			const Teuchos::RCP<const BoundaryConditionsGlobal<dT> >& bcGlobal,
-			const Teuchos::RCP<const BoundaryConditionsLocal >& bcLocal,
+			const Teuchos::RCP<const BoundaryConditionsLocal<dT> >& bcLocal,
 			const Teuchos::RCP<const ProcGrid<OT,dT> >& procGrid,
 			const Teuchos::RCP<const CoordinatesGlobal<ST,OT,dT> >& coordGlobal );
 
@@ -85,26 +85,26 @@ protected:
 			const Teuchos::RCP<const StencilWidths<dim,dimNC> >& stencilWidths,
 			const Teuchos::RCP<const DomainSize<Scalar> >& domainSize,
 			const Teuchos::RCP<const GridSizeGlobal<Ordinal> >& gridSizeGlobal,
-			const Teuchos::RCP<const GridSizeLocal<Ordinal,dim> >& gridSize,
+			const Teuchos::RCP<const GridSizeLocal<Ordinal,dim> >& gridSizeLocal,
 			const Teuchos::RCP<const BoundaryConditionsGlobal<dim> >& bcGlobal,
-			const Teuchos::RCP<const BoundaryConditionsLocal >& bcLocal,
+			const Teuchos::RCP<const BoundaryConditionsLocal<dim> >& bcLocal,
 			const Teuchos::RCP<const ProcGrid<Ordinal,dim> >& procGrid,
 			const Teuchos::RCP<const CoordinatesGlobal<Scalar,Ordinal,dim> >& coordGlobal ) {
 
 		for( int i=0; i<dim; ++i ) {
 
-			Ordinal nTemp = gridSize->get(i)+stencilWidths->getBU(i)-stencilWidths->getBL(i)+1;
+			Ordinal nTemp = gridSizeLocal->get(i) + stencilWidths->getBU(i) - stencilWidths->getBL(i) + 1;
 
-			xS_[i]  = Teuchos::arcp<Scalar>( nTemp              );
-			xV_[i]  = Teuchos::arcp<Scalar>( nTemp              );
-			dxS_[i] = Teuchos::arcp<Scalar>( gridSize->get(i)   );
-			dxV_[i] = Teuchos::arcp<Scalar>( gridSize->get(i)+1 );
+			xS_[i]  = Teuchos::arcp<Scalar>( nTemp                   );
+			xV_[i]  = Teuchos::arcp<Scalar>( nTemp                   );
+			dxS_[i] = Teuchos::arcp<Scalar>( gridSizeLocal->get(i)   );
+			dxV_[i] = Teuchos::arcp<Scalar>( gridSizeLocal->get(i)+1 );
 
 			if( i<3 )
 				PI_getLocalCoordinates(
 						domainSize->getSize(i),
 						gridSizeGlobal->get(i),
-						gridSize->get(i),
+						gridSizeLocal->get(i),
 						stencilWidths->getBL(i),
 						stencilWidths->getBU(i),
 						bcGlobal->getBCL(i),
@@ -118,11 +118,11 @@ protected:
 						xV_[i].getRawPtr(),
 						dxS_[i].getRawPtr(),
 						dxV_[i].getRawPtr() );
-			else if( 3==i )
+			else if( 3==i );
 				PI_getLocalCoordinates(
 						4.*std::atan(1.),
 						gridSizeGlobal->get(i),
-						gridSize->get(i),
+						gridSizeLocal->get(i),
 						stencilWidths->getBL(i),
 						stencilWidths->getBU(i),
 						bcGlobal->getBCL(i),
@@ -130,8 +130,8 @@ protected:
 						bcLocal->getBCL(i),
 						bcLocal->getBCU(i),
 						procGrid->getIB(i),
-						coordGlobal->get( i, EField::S),
-						coordGlobal->get( i, i),
+						coordGlobal->get( i, EField::S ),
+						coordGlobal->get( i, i ),
 						xS_[i].getRawPtr(),
 						xV_[i].getRawPtr(),
 						dxS_[i].getRawPtr(),
@@ -165,6 +165,7 @@ public:
 	///  @} 
 
   void print( std::ostream& out=std::cout ) const {
+
     for( int i=0; i<dim; ++i ) {
       out << "Local coordinates of scalars in dir: " << i << "\n";
       out << "i\txS\n";
@@ -178,6 +179,7 @@ public:
 			for( typename Teuchos::ArrayRCP<Scalar>::iterator jp=xV_[i].begin(); jp<xV_[i].end(); ++jp )
 				out << j++ << "\t" << *jp << "\n";
 		}
+
 	};
 
 }; // end of class CoordinatesLocal
@@ -192,9 +194,9 @@ createCoordinatesLocal(
 		const Teuchos::RCP<const StencilWidths<d,dNC> >& stencilWidths,
 		const Teuchos::RCP<const DomainSize<S> >& domainSize,
 		const Teuchos::RCP<const GridSizeGlobal<O> >& gridSizeGlobal,
-		const Teuchos::RCP<const GridSizeLocal<O,d> >& gridSize,
+		const Teuchos::RCP<const GridSizeLocal<O,d> >& gridSizeLocal,
 		const Teuchos::RCP<const BoundaryConditionsGlobal<d> >& bcGlobal,
-		const Teuchos::RCP<const BoundaryConditionsLocal >& bcLocal,
+		const Teuchos::RCP<const BoundaryConditionsLocal<d> >& bcLocal,
 		const Teuchos::RCP<const ProcGrid<O,d> >& procGrid,
 		const Teuchos::RCP<const CoordinatesGlobal<S,O,d> >& coordGlobal ) {
 
@@ -204,7 +206,7 @@ createCoordinatesLocal(
 					stencilWidths,
 					domainSize,
 					gridSizeGlobal,
-					gridSize,
+					gridSizeLocal,
 					bcGlobal,
 					bcLocal,
 					procGrid,

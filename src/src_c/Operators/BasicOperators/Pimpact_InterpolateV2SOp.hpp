@@ -3,14 +3,14 @@
 #define PIMPACT_INTERPOLATEVTOSOP_HPP
 
 
+#include "Pimpact_CoordinatesLocal.hpp"
 #include "Pimpact_BoundaryConditionsLocal.hpp"
 #include "Pimpact_DomainSize.hpp"
 #include "Pimpact_extern_FDCoeff.hpp"
-#include "Pimpact_CoordinatesLocal.hpp"
 #include "Pimpact_GridSizeLocal.hpp"
 #include "Pimpact_ProcGrid.hpp"
-#include "Pimpact_Types.hpp"
 #include "Pimpact_StencilWidths.hpp"
+#include "Pimpact_Types.hpp"
 
 
 
@@ -74,7 +74,7 @@ public:
 			const Teuchos::RCP<const GridSizeLocal<Ordinal,dimension> >& gridSizeLocal,
 			const Teuchos::RCP<const StencilWidths<dimension,dimNC> >& stencilWidths,
 			const Teuchos::RCP<const DomainSize<Scalar> >& domainSize,
-			const Teuchos::RCP<const BoundaryConditionsLocal>& boundaryConditionsLocal,
+			const Teuchos::RCP<const BoundaryConditionsLocal<dimension> >& boundaryConditionsLocal,
 			const Teuchos::RCP<const CoordinatesLocal<Scalar,Ordinal,dimension> >& coordinatesLocal ) {
 
 
@@ -183,7 +183,7 @@ Teuchos::RCP<const InterpolateV2S<S,O,d,dimNC> > createInterpolateV2S(
     const Teuchos::RCP<const GridSizeLocal<O,d> >& gridSizeLocal,
     const Teuchos::RCP<const StencilWidths<d,dimNC> >& stencilWidths,
 		const Teuchos::RCP<const DomainSize<S> >& domainSize,
-		const Teuchos::RCP<const BoundaryConditionsLocal>& boundaryConditionsLocal,
+		const Teuchos::RCP<const BoundaryConditionsLocal<d> >& boundaryConditionsLocal,
     const Teuchos::RCP<const CoordinatesLocal<S,O,d> >& coordinatesLocal ) {
 
   return(

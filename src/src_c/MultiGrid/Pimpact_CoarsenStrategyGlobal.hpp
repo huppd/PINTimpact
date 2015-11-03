@@ -131,11 +131,9 @@ public:
 
   }
 
-protected:
-
-
 
 }; // end of class CoarsenStrategyGlobal
+
 
 } // end of namespace Pimpact
 

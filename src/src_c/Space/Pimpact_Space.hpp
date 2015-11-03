@@ -51,7 +51,7 @@ void closeH5F();
 /// \brief Space in the sense of a vector space, it is the connection between Field and Operators
 ///
 /// \ingroup SpaceObject
-template<class S=double, class O=int, int d=3, int dNC=4>
+template< class S, class O, int d, int dNC >
 class Space {
 
 public:
@@ -128,7 +128,7 @@ public:
 					stencilWidths_,
 					gridSizeLocal_,
 					boundaryConditionsLocal_,
-				 	procGrid_ );
+					 procGrid_ );
 
 		coordGlobal_ =
 			Pimpact::createCoordinatesGlobal<S,O,d>(
@@ -171,7 +171,7 @@ public:
 			const Teuchos::RCP<const CoordinatesLocal<Scalar,Ordinal,dimension> >& coordLocal,
 			const Teuchos::RCP<const DomainSize<Scalar> > domainSize,
 			const Teuchos::RCP<const BoundaryConditionsGlobal<dimension> > boundaryConditionsGlobal,
-			const Teuchos::RCP<const BoundaryConditionsLocal> boundaryConditionsLocal,
+			const Teuchos::RCP<const BoundaryConditionsLocal<dimension> > boundaryConditionsLocal,
 			const Teuchos::RCP<const InterpolateV2S<Scalar,Ordinal,dimension,dimNC> >& interV2S ):
 		stencilWidths_(stencilWidths),
 		indexSpace_(indexSpace),
@@ -216,7 +216,7 @@ protected:
 	Teuchos::RCP<const BoundaryConditionsGlobal<dimension> >
 		boundaryConditionsGlobal_;
 
-	Teuchos::RCP<const BoundaryConditionsLocal>
+	Teuchos::RCP<const BoundaryConditionsLocal<dimension> >
 		boundaryConditionsLocal_;
 
 	Teuchos::RCP<const InterpolateV2S<Scalar,Ordinal,dimension,dimNC> >
@@ -254,7 +254,7 @@ public:
 	Teuchos::RCP<const BoundaryConditionsGlobal<dimension> >
 		getBCGlobal()   const { return( boundaryConditionsGlobal_ ); }
 
-	Teuchos::RCP<const BoundaryConditionsLocal>
+	Teuchos::RCP<const BoundaryConditionsLocal<dimension> >
 		getBCLocal()    const { return( boundaryConditionsLocal_ ); }
 
 	Teuchos::RCP<const InterpolateV2S<Scalar,Ordinal,dimension,dimNC> >
@@ -441,19 +441,24 @@ Teuchos::RCP< const OSpaceT >
 createSpace(
 		const Teuchos::RCP<const ISpaceT>& space ) {
 
-	auto stencilWidths =
-		createStencilWidths< OSpaceT::dimension, OSpaceT::dimNC >(
+	using Scalar = typename OSpaceT::Scalar;
+	using Ordinal = typename OSpaceT::Ordinal;
+	const int dim = OSpaceT::dimension;
+	const int dimNC = OSpaceT::dimNC;
+
+	Teuchos::RCP<const StencilWidths< dim, dimNC > > stencilWidths =
+		createStencilWidths< dim, dimNC >(
 				space->getStencilWidths()->spectralT() );
 
-	auto domainSize = space->getDomainSize();
+	Teuchos::RCP<const DomainSize<Scalar> > domainSize = space->getDomainSize();
 
-	auto boundaryConditionsGlobal = space->getBCGlobal();
+	Teuchos::RCP<const BoundaryConditionsGlobal<dim> > boundaryConditionsGlobal = space->getBCGlobal();
 
-	auto boundaryConditionsLocal = space->getBCLocal();
+	Teuchos::RCP<const BoundaryConditionsLocal<dim> > boundaryConditionsLocal = space->getBCLocal();
 
-	auto gridSizeGlobal = space->getGridSizeGlobal();
+	Teuchos::RCP<const GridSizeGlobal<Ordinal> > gridSizeGlobal = space->getGridSizeGlobal();
 
-	auto gridSizeLocal = space->getGridSizeLocal();
+	Teuchos::RCP<const GridSizeLocal<Ordinal,dim> > gridSizeLocal = space->getGridSizeLocal();
 
 	auto procGrid = space->getProcGrid();
 
@@ -519,43 +524,43 @@ static Teuchos::RCP< const SpaceT > createSpace(
 
 	using Scalar = typename SpaceT::Scalar;
 	using Ordinal = typename SpaceT::Ordinal;
-	const int dimension = SpaceT::dimension;
+	const int dim = SpaceT::dimension;
 	const int dimNC = SpaceT::dimNC;
 
-	auto stencilWidths = space->getStencilWidths();
+	Teuchos::RCP<const StencilWidths<dim,dimNC> > stencilWidths = space->getStencilWidths();
 
-	auto domainSize = space->getDomainSize();
+	Teuchos::RCP<const DomainSize<Scalar> > domainSize = space->getDomainSize();
 
-	auto boundaryConditionsGlobal = space->getBCGlobal();
-	auto boundaryConditionsLocal = space->getBCLocal();
+	Teuchos::RCP<const BoundaryConditionsGlobal<dim> > boundaryConditionsGlobal = space->getBCGlobal();
+	Teuchos::RCP<const BoundaryConditionsLocal <dim> > boundaryConditionsLocal = space->getBCLocal();
 
 
-	auto gridSizeGlobal =
+	Teuchos::RCP<const GridSizeGlobal<Ordinal> > gridSizeGlobal =
 		createGridSizeGlobal<Ordinal>(
 				newGridSizeGlobal );
 
-	auto procGrid = space->getProcGrid();
+	Teuchos::RCP<const ProcGrid<Ordinal,dim> > procGrid = space->getProcGrid();
 
-	auto gridSizeLocal =
-		Pimpact::createGridSizeLocal<Ordinal,dimension,dimNC>(
+	Teuchos::RCP<const GridSizeLocal<Ordinal,dim> > gridSizeLocal =
+		Pimpact::createGridSizeLocal<Ordinal,dim,dimNC>(
 				gridSizeGlobal,
 				procGrid,
 				stencilWidths );
 
 	auto indexSpace =
-		Pimpact::createIndexSpace<Ordinal,dimension>(
+		Pimpact::createIndexSpace<Ordinal,dim>(
 				stencilWidths,
 				gridSizeLocal,
 				boundaryConditionsLocal,
 				procGrid	);
 
 	auto coordGlobal =
-		Pimpact::createCoordinatesGlobal<Scalar,Ordinal,dimension>(
+		Pimpact::createCoordinatesGlobal<Scalar,Ordinal,dim>(
 				gridSizeGlobal,
 				space->getCoordinatesGlobal() );
 
 	auto coordLocal =
-		Pimpact::createCoordinatesLocal<Scalar,Ordinal,dimension>(
+		Pimpact::createCoordinatesLocal<Scalar,Ordinal,dim>(
 				stencilWidths,
 				domainSize,
 				gridSizeGlobal,
@@ -566,7 +571,7 @@ static Teuchos::RCP< const SpaceT > createSpace(
 				coordGlobal );
 
 	auto interV2S =
-		Pimpact::createInterpolateV2S<Scalar,Ordinal,dimension>(
+		Pimpact::createInterpolateV2S<Scalar,Ordinal,dim>(
 				indexSpace,
 				gridSizeLocal,
 				stencilWidths,
@@ -593,6 +598,7 @@ static Teuchos::RCP< const SpaceT > createSpace(
 
 
 
+/// \todo move ProcGrid createion to createProcGrid(...)
 /// \todo redo input GridSizeGlobal, ProcGridSize
 /// \relates CoarsenStrategyGlobal
 template<class SpaceT>
@@ -749,66 +755,70 @@ static Teuchos::RCP< const SpaceT > createSpace(
 					rankU ) );
 
 
-auto gridSizeLocal =
-	Pimpact::createGridSizeLocal<Ordinal,dimension,dimNC>(
-			gridSizeGlobal,
-			procGrid,
-			stencilWidths );
+	Teuchos::RCP<const GridSizeLocal<Ordinal,dimension> > gridSizeLocal =
+		Pimpact::createGridSizeLocal<Ordinal,dimension,dimNC>(
+				gridSizeGlobal,
+				procGrid,
+				stencilWidths );
 
-auto boundaryConditionsLocal =
-	createBoudaryConditionsLocal<Ordinal,dimension>( 
-			boundaryConditionsGlobal,
-			procGrid );
+	auto boundaryConditionsLocal =
+		createBoudaryConditionsLocal<Ordinal,dimension>( 
+				boundaryConditionsGlobal,
+				procGrid );
 
-auto indexSpace =
-	Pimpact::createIndexSpace<Ordinal,dimension>(
-			stencilWidths,
-			gridSizeLocal,
-			boundaryConditionsLocal,
-			procGrid );
+	auto indexSpace =
+		Pimpact::createIndexSpace<Ordinal,dimension>(
+				stencilWidths,
+				gridSizeLocal,
+				boundaryConditionsLocal,
+				procGrid );
 
-auto coordGlobal =
-	Pimpact::createCoordinatesGlobal<Scalar,Ordinal,dimension>(
-			gridSizeGlobal,
-			domainSize,
-			Teuchos::tuple( None, None, None) );
+	auto coordGlobal =
+		Pimpact::createCoordinatesGlobal<Scalar,Ordinal,dimension>(
+				gridSizeGlobal,
+				space->getCoordinatesGlobal() );
+	//auto coordGlobal =
+		//Pimpact::createCoordinatesGlobal<Scalar,Ordinal,dimension>(
+				//gridSizeGlobal,
+				//domainSize,
+				//Teuchos::tuple( None, None, None) );
 
-auto  coordLocal =
-	Pimpact::createCoordinatesLocal<Scalar,Ordinal,dimension>(
-			stencilWidths,
-			domainSize,
-			gridSizeGlobal,
-			gridSizeLocal,
-			boundaryConditionsGlobal,
-			boundaryConditionsLocal,
-			procGrid,
-			coordGlobal );
+	auto coordLocal =
+		Pimpact::createCoordinatesLocal<Scalar,Ordinal,dimension>(
+				stencilWidths,
+				domainSize,
+				gridSizeGlobal,
+				gridSizeLocal,
+				boundaryConditionsGlobal,
+				boundaryConditionsLocal,
+				procGrid,
+				coordGlobal );
 
-auto interV2S =
-	Pimpact::createInterpolateV2S<Scalar,Ordinal,dimension>(
-			indexSpace,
-			gridSizeLocal,
-			stencilWidths,
-			domainSize,
-			boundaryConditionsLocal,
-			coordLocal );
+	auto interV2S =
+		Pimpact::createInterpolateV2S<Scalar,Ordinal,dimension>(
+				indexSpace,
+				gridSizeLocal,
+				stencilWidths,
+				domainSize,
+				boundaryConditionsLocal,
+				coordLocal );
 
-return(
-		 Teuchos::rcp(
-				 new SpaceT(
-						 stencilWidths,
-						 indexSpace,
-						 gridSizeGlobal,
-						 gridSizeLocal,
-						 procGrid,
-						 coordGlobal,
-						 coordLocal,
-						 domainSize,
-						 boundaryConditionsGlobal,
-						 boundaryConditionsLocal,
-						 interV2S )
-		 )
-);
+	return(
+			Teuchos::rcp(
+				new SpaceT(
+					stencilWidths,
+					indexSpace,
+					gridSizeGlobal,
+					gridSizeLocal,
+					procGrid,
+					coordGlobal,
+					coordLocal,
+					domainSize,
+					boundaryConditionsGlobal,
+					boundaryConditionsLocal,
+					interV2S )
+				)
+			);
 
 }
 

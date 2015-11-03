@@ -35,9 +35,7 @@ class GridSizeLocal : public Teuchos::Tuple<Ordinal,dim> {
       const Teuchos::RCP<const ProcGrid<OT,dT> >& pg,
       const Teuchos::RCP<const StencilWidths<dT,dNC> >& sW );
 
-
 protected:
-
 
 	/// \todo change for pasp
 	/// \param stencilWidths only necessary for size checking, and defining gs[3]
@@ -48,9 +46,8 @@ protected:
 			const Teuchos::RCP<const StencilWidths     <dim,dNC> >& stencilWidths ):
 		Teuchos::Tuple<Ordinal,dim>() {
 
-			for( int i=0; i<3; ++i ) {
+			for( int i=0; i<3; ++i )
 				TEUCHOS_TEST_FOR_EXCEPT( gridSizeGlobal->get(i) < procGrid->getNP(i) );
-			}
 			if( 4==dim )
 				TEUCHOS_TEST_FOR_EXCEPT( (gridSizeGlobal->get(3)+1) < procGrid->getNP(3) );
 
@@ -105,7 +102,6 @@ Teuchos::RCP<const GridSizeLocal<O,d> > createGridSizeLocal(
       Teuchos::rcp(
           new GridSizeLocal<O,d>( gsg, pg, sW ) ) );
 }
-
 
 
 } // end of namespace Pimpact

@@ -9,14 +9,17 @@
 #include "Pimpact_MGSmoothers.hpp"
 #include "Pimpact_MGSpaces.hpp"
 
+
+
+
 /// \defgroup MG MultiGrid
 ///
 /// Multi Grid
 
 
 
-
 namespace Pimpact {
+
 
 
 /// \ingroup MG

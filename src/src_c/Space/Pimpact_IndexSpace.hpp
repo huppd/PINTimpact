@@ -56,7 +56,7 @@ class IndexSpace {
   createIndexSpace(
       const Teuchos::RCP<const StencilWidths<d,dimNC> >& sW,
       const Teuchos::RCP<const GridSizeLocal<O,d> >& gL,
-      const Teuchos::RCP<const BoundaryConditionsLocal>& bc,
+      const Teuchos::RCP<const BoundaryConditionsLocal<d> >& bc,
 		 	const Teuchos::RCP<const ProcGrid<O,d> >& pG );
 
 public:
@@ -86,7 +86,7 @@ protected:
   IndexSpace(
       const Teuchos::RCP<const StencilWidths<dimension,dimNC> >& sW,
       const Teuchos::RCP<const GridSizeLocal<Ordinal,dimension> >& gridSizeLocal,
-      const Teuchos::RCP<const BoundaryConditionsLocal>& bc,
+      const Teuchos::RCP<const BoundaryConditionsLocal<dimension> >& bc,
 		 	const Teuchos::RCP<const ProcGrid<Ordinal,dimension> >& procGrid ) {
 
     // ------------------init IndS_--------------------
@@ -369,7 +369,7 @@ Teuchos::RCP<const IndexSpace<O,d> >
 createIndexSpace(
     const Teuchos::RCP<const StencilWidths<d,dimNC> >& sW,
     const Teuchos::RCP<const GridSizeLocal<O,d> >& gSL,
-    const Teuchos::RCP<const BoundaryConditionsLocal>& bc,
+    const Teuchos::RCP<const BoundaryConditionsLocal<d> >& bc,
 		const Teuchos::RCP<const ProcGrid<O,d> >& pG ) {
   return(
       Teuchos::rcp(
@@ -378,7 +378,6 @@ createIndexSpace(
   );
 
 }
-
 
 
 } // end of namespace Pimpact

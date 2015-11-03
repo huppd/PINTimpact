@@ -144,13 +144,13 @@ protected:
 
 					for( Ordinal i=0; i<M; ++i ) {
 						Scalar is = i;
-						coord_equi( is, L, Ms, x0, xS_[dir][i]/*[>, dxS_[dir][i] <]*/);
-						//coord_parab( is, L, Ms, x0, 0.5, xS_[dir][i][>, dxS_[dir][i]<] );
+						coord_equi( is, L, Ms, x0, xS_[dir][i] );
+						//coord_parab( is, L, Ms, x0, 0.5, xS_[dir][i] );
 					}
 					for( Ordinal i=0; i<=M; ++i ) {
 						Scalar is = i;
-						coord_equi( is-0.5, L, Ms, x0, xV_[dir][i]/*[>, dxV_[dir][i]<]*/ );
-						//coord_parab( is-0.5, L, Ms, x0, 0.5, xV_[dir][i][>, dxV_[dir][i]<] );
+						coord_equi( is-0.5, L, Ms, x0, xV_[dir][i] );
+						//coord_parab( is-0.5, L, Ms, x0, 0.5, xV_[dir][i] );
 					}
 
 				}
@@ -191,31 +191,25 @@ protected:
 				xS_ [dir] = Teuchos::arcp<Scalar>( Mc   );
 				xV_ [dir] = Teuchos::arcp<Scalar>( Mc+1 );
 
+				Ordinal d = 1;
 
-				if( dir< 3) {
-					Ordinal d = ( Mf - 1 )/( Mc - 1);
-
-					for( Ordinal j=0; j<Mc; ++j )
-						xS_[dir][j] = coordinatesF->xS_[dir][j*d];
-
-					for( Ordinal j=1; j<Mc; ++j )
-						xV_[dir][j] = coordinatesF->xS_[dir][j*d-1];
-
-					xV_[dir][0 ] =   xS_[dir][0   ]-xV_[dir][1   ];
-					xV_[dir][Mc] = 2*xS_[dir][Mc-1]-xV_[dir][Mc-1];
+				if( dir<3 ) {
+					if( Mc>1 ) // shouldn't be neccessary when strategy makes its job correct. maybe throw exception
+						d = ( Mf - 1 )/( Mc - 1);
 				}
-				else{
-					Ordinal d = ( Mf - 1 )/( Mc - 1);
-
-					for( Ordinal j=0; j<Mc; ++j )
-						xS_[dir][j] = coordinatesF->xS_[dir][j*d];
-
-					for( Ordinal j=1; j<Mc; ++j )
-						xV_[dir][j] = coordinatesF->xS_[dir][j*d-1];
-
-					xV_[dir][0 ] =   xS_[dir][0   ]-xV_[dir][1   ];
-					xV_[dir][Mc] = 2*xS_[dir][Mc-1]-xV_[dir][Mc-1];
+				else {
+					if( Mc>0 ) // shouldn't be neccessary when strategy makes its job correct. maybe throw exception
+						d = Mf / Mc;
 				}
+
+				for( Ordinal j=0; j<Mc; ++j )
+					xS_[dir][j] = coordinatesF->xS_[dir][j*d];
+
+				for( Ordinal j=1; j<Mc; ++j )
+					xV_[dir][j] = coordinatesF->xS_[dir][j*d-1];
+
+				xV_[dir][0 ] =   xS_[dir][0   ]-xV_[dir][1   ];
+				xV_[dir][Mc] = 2*xS_[dir][Mc-1]-xV_[dir][Mc-1];
 
 			}
 		}
@@ -228,7 +222,7 @@ public:
 	/// \name getter
 	/// @{ 
 
-	const Scalar* getX( ECoord dir, EField ftype ) const  {
+	const Scalar* getX( ECoord dir, EField ftype ) const {
 		if( EField::S==ftype )
 			return( xS_[static_cast<int>(dir)].getRawPtr() );
 		else if( static_cast<int>(dir)==static_cast<int>(ftype) )
@@ -237,13 +231,13 @@ public:
 			return( xS_[ static_cast<int>(dir) ].getRawPtr() );
 	}
 
-	const Scalar* get( int dir, int ftype ) const  {
+	const Scalar* get( int dir, int ftype ) const {
 		return( getX( static_cast<ECoord>(dir), static_cast<EField>(ftype) ) );
 	}
-	const Scalar* get( ECoord dir, int ftype ) const  {
+	const Scalar* get( ECoord dir, int ftype ) const {
 		return( getX( dir, static_cast<EField>(ftype) ) );
 	}
-	const Scalar* get( int dir, EField ftype ) const  {
+	const Scalar* get( int dir, EField ftype ) const {
 		return( getX( static_cast<ECoord>(dir), ftype ) );
 	}
 
