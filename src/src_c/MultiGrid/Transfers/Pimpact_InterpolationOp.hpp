@@ -21,7 +21,8 @@ namespace Pimpact {
 extern "C" {
 
 void MG_getCIS(
-		const int& N,
+		const int& Nc,
+		const int& Nf,
 		const int& bL,
 		const int& bU,
 		const double* const xs,
@@ -142,13 +143,13 @@ protected:
 	Teuchos::Tuple<Ordinal,dimension> iimax_;
 	Teuchos::Tuple<Ordinal,dimension> dd_;
 
-	Ordinal* offsI_;
-	Ordinal* sizsI_;
-	Ordinal* recvI_;
-	Ordinal* dispI_;
+	Teuchos::ArrayRCP<Ordinal> offsI_;
+	Teuchos::ArrayRCP<Ordinal> sizsI_;
+	Teuchos::ArrayRCP<Ordinal> recvI_;
+	Teuchos::ArrayRCP<Ordinal> dispI_;
 
-	Teuchos::Tuple<Scalar*,3> cIS_;
-	Teuchos::Tuple<Scalar*,3> cIV_;
+	Teuchos::Tuple<Teuchos::ArrayRCP<Scalar>,3> cIS_;
+	Teuchos::Tuple<Teuchos::ArrayRCP<Scalar>,3> cIV_;
 
 
 	void init( const Teuchos::Tuple<int,dimension>& np ) {
@@ -178,10 +179,11 @@ protected:
 			}
 		}
 
-		offsI_ = new Ordinal[3*nGatherTotal];
-		sizsI_ = new Ordinal[3*nGatherTotal];
-		recvI_ = new Ordinal[  nGatherTotal];
-		dispI_ = new Ordinal[  nGatherTotal];
+		offsI_ = Teuchos::arcp<Ordinal>(3*nGatherTotal);
+		sizsI_ = Teuchos::arcp<Ordinal>(3*nGatherTotal);
+		recvI_ = Teuchos::arcp<Ordinal>(nGatherTotal);
+		//dispI_ = new Ordinal[  nGatherTotal];
+		dispI_ = Teuchos::arcp<Ordinal>(nGatherTotal);
 
 		// ------------- rank2_, comm2_
 		if( nGatherTotal>1 ) {
@@ -335,14 +337,14 @@ protected:
 
 				MPI_Allreduce(
 						offs_global.data(),
-						offsI_,
+						offsI_.getRawPtr(),
 						3*nGatherTotal,
 						MPI_INTEGER,
 						MPI_SUM,
 						comm2_ );
 				MPI_Allreduce(
 						sizs_global.data(),
-						sizsI_,
+						sizsI_.getRawPtr(),
 						3*nGatherTotal,
 						MPI_INTEGER,
 						MPI_SUM,
@@ -363,41 +365,45 @@ protected:
 			}
 		}
 		// ------------------ cIS, cIV
-		for( int i=0; i<3; ++i ) {
+		for( int dir=0; dir<3; ++dir ) {
 
-			cIS_[i] = new Scalar[ 2*( spaceC_->nLoc(i)-1+1 ) ];
+			//if dd>1
+			//cIS_[dir] = new Scalar[ 2*( spaceC_->nLoc(dir)-1+1 ) ];
+			cIS_[dir] = Teuchos::arcp<Scalar>( 2*( spaceC_->nLoc(dir)-1+1 ) );
 			MG_getCIS(
-					spaceC_->nLoc(i),
-					spaceC_->bl(i),
-					spaceC_->bu(i),
-					spaceC_->getCoordinatesLocal()->getX( i, EField::S ),
-					cIS_[i] );
+					spaceC_->nLoc(dir),
+					spaceF_->nLoc(dir),
+					spaceC_->bl(dir),
+					spaceC_->bu(dir),
+					spaceF_->getCoordinatesLocal()->getX( dir, EField::S ),
+					cIS_[dir].getRawPtr() );
 
-			cIV_[i] = new Scalar[ 2*( spaceF_->nLoc(i)-0+1 ) ];
+			//cIV_[dir] = new Scalar[ 2*( spaceF_->nLoc(dir)-0+1 ) ];
+			cIV_[dir] = Teuchos::arcp<Scalar>( 2*( spaceF_->nLoc(dir)-0+1 ) );
 			//      if( i<spaceC_->dim() )
 
 			Ordinal offset = 0;
-			if( 1!=nGather_[i] )
-				//					offset = ( iimax_[i]-1 )*( spaceF_->procCoordinate()[i]-1 );
-				offset = ( iimax_[i]-1 )*( spaceF_->getProcGrid()->getIB(i)-1 - nGather_[i]*(spaceC_->getProcGrid()->getIB(i)-1) );
+			if( 1!=nGather_[dir] )
+				//					offset = ( iimax_[dir]-1 )*( spaceF_->procCoordinate()[dir]-1 );
+				offset = ( iimax_[dir]-1 )*( spaceF_->getProcGrid()->getIB(dir)-1 - nGather_[dir]*(spaceC_->getProcGrid()->getIB(dir)-1) );
 			//				std::cout << "rank: " << spaceF_->rankST() << " offset: " << offset << "\n";
 
 			MG_getCIV(
-					spaceC_->nLoc(i),
-					spaceC_->bl(i),
-					spaceC_->bu(i),
-					spaceC_->sInd(i)[i],
-					spaceC_->eInd(i)[i],
-					spaceF_->getBCLocal()->getBCL(i),
-					spaceF_->getBCLocal()->getBCU(i),
-					spaceF_->nLoc(i),
-					spaceF_->bl(i),
-					spaceF_->bu(i),
+					spaceC_->nLoc(dir),
+					spaceC_->bl(dir),
+					spaceC_->bu(dir),
+					spaceC_->sInd(dir)[dir],
+					spaceC_->eInd(dir)[dir],
+					spaceF_->getBCLocal()->getBCL(dir),
+					spaceF_->getBCLocal()->getBCU(dir),
+					spaceF_->nLoc(dir),
+					spaceF_->bl(dir),
+					spaceF_->bu(dir),
 					offset,
-					spaceC_->getCoordinatesLocal()->getX( i, i ),
-					spaceF_->getCoordinatesLocal()->getX( i, i ),
-					dd_[i],
-					cIV_[i] );
+					spaceC_->getCoordinatesLocal()->getX( dir, dir ),
+					spaceF_->getCoordinatesLocal()->getX( dir, dir ),
+					dd_[dir],
+					cIV_[dir].getRawPtr() );
 		}
 
 	} // end of void init( const Teuchos::Tuple<int,dimension>& np ) 
@@ -412,7 +418,7 @@ public:
 
 			init( spaceF_->getProcGrid()->getNP() );
 
-		}
+	}
 
 	InterpolationOp(
 			const Teuchos::RCP<const SpaceT>& spaceC,
@@ -424,19 +430,8 @@ public:
 
 			init( np );
 
-		}
-
-
-	~InterpolationOp() {
-		for( int i=0; i<3; ++i ) {
-			delete[] cIS_[i];
-			delete[] cIV_[i];
-		}
-		delete[] offsI_;
-		delete[] sizsI_;
-		delete[] recvI_;
-		delete[] dispI_;
 	}
+
 
 	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
@@ -448,13 +443,13 @@ public:
 
 		if( EField::S==fType ) {
 
-			MG_InterpolateCorners(
-					spaceC_->nLoc(),
-					spaceC_->bl(),
-					spaceC_->bu(),
-					spaceC_->getBCLocal()->getBCL(),
-					spaceC_->getBCLocal()->getBCU(),
-					x.getConstRawPtr() );
+			//MG_InterpolateCorners(
+					//spaceC_->nLoc(),
+					//spaceC_->bl(),
+					//spaceC_->bu(),
+					//spaceC_->getBCLocal()->getBCL(),
+					//spaceC_->getBCLocal()->getBCU(),
+					//x.getConstRawPtr() );
 
 			if( spaceC_->getProcGrid()->participating() )
 				x.exchange();
@@ -469,8 +464,8 @@ public:
 						spaceC_->getProcGrid()->participating(),
 						rankc2_,
 						MPI_Comm_c2f(comm2_),
-						dispI_,          
-						offsI_,          
+						dispI_.getRawPtr(),          
+						offsI_.getRawPtr(),          
 						x.getConstRawPtr() );
 			}
 
@@ -484,9 +479,9 @@ public:
 					spaceF_->bu(),
 					iimax_.getRawPtr(),
 					dd_.getRawPtr(),
-					cIS_[0],
-					cIS_[1],
-					cIS_[2],
+					cIS_[0].getRawPtr(),
+					cIS_[1].getRawPtr(),
+					cIS_[2].getRawPtr(),
 					x.getConstRawPtr(),
 					y.getRawPtr() );
 		}
@@ -526,8 +521,8 @@ public:
 						spaceC_->getProcGrid()->participating(),
 						rankc2_,
 						MPI_Comm_c2f(comm2_),
-						dispI_,          
-						offsI_,          
+						dispI_.getRawPtr(),          
+						offsI_.getRawPtr(),          
 						x.getConstRawPtr() );
 			}
 
@@ -546,10 +541,10 @@ public:
 					spaceF_->eIndB(fType),
 					iimax_.getRawPtr(),
 					dd_.getRawPtr(),
-					cIV_[dir],
-					cIS_[0],
-					cIS_[1],
-					cIS_[2],
+					cIV_[dir].getRawPtr(),
+					cIS_[0].getRawPtr(),
+					cIS_[1].getRawPtr(),
+					cIS_[2].getRawPtr(),
 					x.getConstRawPtr(),
 					y.getRawPtr() );
 

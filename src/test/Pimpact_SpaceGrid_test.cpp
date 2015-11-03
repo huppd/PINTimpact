@@ -201,26 +201,27 @@ TEUCHOS_UNIT_TEST( Space, CoordinatesGlobal ) {
 	Teuchos::RCP< const Pimpact::Space<S,O,4,dNC> > space =
 		Pimpact::createSpace<S,O,4,dNC>( pl );
 
-	//auto coord = space->getCoordinatesGlobal();
+	auto coord = space->getCoordinatesGlobal();
 
-	//if( 0==space->rankST() )
-		//coord->print();
+	if( 0==space->rankST() )
+		coord->print();
 
-	//auto gsg = space->getGridSizeGlobal();
+	auto gsg = space->getGridSizeGlobal();
 
-	//auto gridSizeGlobal =
-		//Pimpact::createGridSizeGlobal<O>(
-				//(gsg->get(0)-1)/2+1,
-				//(gsg->get(1)-1)/2+1,
-				//gsg->get(2),
-				//gsg->get(3)/2	);
+	auto gridSizeGlobal =
+		Pimpact::createGridSizeGlobal<O>(
+				(gsg->get(0)-1)/2+1,
+				(gsg->get(1)-1)/2+1,
+				gsg->get(2),
+				gsg->get(3)/2	);
 
-	//auto cordc = Pimpact::createCoordinatesGlobal(
-			//gridSizeGlobal,
-			//coord );
+	auto cordc =
+		Pimpact::createCoordinatesGlobal(
+				gridSizeGlobal,
+				coord );
 
-	//if( 0==space->rankST() )
-		//cordc->print();
+	if( 0==space->rankST() )
+		cordc->print();
 
 }
 

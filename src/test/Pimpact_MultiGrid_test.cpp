@@ -1,23 +1,21 @@
 #include <iostream>
 
-#include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_RCP.hpp"
+#include "Teuchos_UnitTestHarness.hpp"
 
-#include "Pimpact_Fields.hpp"
-
-#include "Pimpact_MultiGrid.hpp"
 #include "Pimpact_CoarsenStrategy.hpp"
 #include "Pimpact_CoarsenStrategyGlobal.hpp"
-
-#include "Pimpact_Operator.hpp"
-
+#include "Pimpact_Fields.hpp"
 #include "Pimpact_LinearProblem.hpp"
 #include "Pimpact_LinSolverParameter.hpp"
+#include "Pimpact_MultiGrid.hpp"
+#include "Pimpact_Operator.hpp"
 
 
 
 
 namespace {
+
 
 
 typedef double S;
@@ -75,6 +73,7 @@ int rankbla = -1;
 int maxGrids = 10;
 
 auto pl = Teuchos::parameterList();
+
 
 
 TEUCHOS_STATIC_SETUP() {
@@ -617,7 +616,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator, CS ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-	auto space = Pimpact::createSpace<S,O,dimension,4>( pl );
+	Teuchos::RCP<const Pimpact::Space<S,O,dimension,4> > space =
+		Pimpact::createSpace<S,O,dimension,4>( pl );
 
 	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
 
@@ -627,7 +627,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator, CS ) {
 
 	Teuchos::RCP< const Pimpact::InterpolationOp<CSpace3T> > op = 
 		Teuchos::rcp( new Pimpact::InterpolationOp<CSpace3T>(
-					mgSpaces->get(level),
+					mgSpaces->get(level+1),
 					mgSpaces->get(level),
 					mgSpaces->get()->getProcGrid()->getNP() ) );
 	if( space->rankST()==rankbla ) {

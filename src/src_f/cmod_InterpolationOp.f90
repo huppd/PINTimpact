@@ -1,32 +1,36 @@
 !> \brief module providing functions to initiliaze and apply RestrictionOp
 module cmod_InterpolationOp
 
+
   use iso_c_binding
   use mpi
 
   implicit none
 
+
 contains
 
 
-  !> \todo fix that, for first entry we get the weights 0.4/0.6
-  subroutine MG_getCIS(   &
-      N,                  &
-      bL, bU,             &
-      xs,                 &
+
+  subroutine MG_getCIS( &
+      Nc,               &
+      Nf,               &
+      bL, bU,           &
+      xf,               &
       cI ) bind(c,name='MG_getCIS')
 
     implicit none
 
-    integer(c_int), intent(in)  :: N
+    integer(c_int), intent(in)  :: Nc
+    integer(c_int), intent(in)  :: Nf
     integer(c_int), intent(in)  :: bL, bU
 
-    real(c_double), intent(in)  :: xs(bL:(N+bU))
+    real(c_double), intent(in)  :: xf(bL:(Nf+bU)) ! Nf
 
-    real(c_double), intent(out) :: cI(1:2,1:N)
+    real(c_double), intent(out) :: cI(1:2,1:Nc)
 
-    integer(c_int)              :: i
-    real(c_double)              :: Dx10, Dx12
+    integer(c_int)              :: i,ic
+    real(c_double)              :: Dx12
 
     cI = 0.
 
@@ -34,24 +38,24 @@ contains
     !=== Interpolation, linienweise, 1d ========================================================================
     !===========================================================================================================
     ! coarse
-    !    xs(i-1)                        xs(i)
+    !      ic                             ic+1
     !  ----o------------------------------o------------------------------o-----------------
     !      |------Dx10----|
     !      |------------Dx12--------------|
     !  ----o--------------o---------------o-----------o-----
-    !     xs(i-1)        xs(i)           xs(i+1)
+    !     xf(i-1)        xf(i)           xf(i+1)
     ! fine
 
 
     !--------------------------------------------------------------------------------------------------------
-    do i = 1, N
-      Dx10 = xs(i  )-xs(i-1)
-      Dx12 = xs(i+1)-xs(i-1)
+    do ic = 1, Nc
 
-      !cI(1,i) = 1.- Dx10/Dx12
-      !cI(2,i) =     Dx10/Dx12
-      cI(1,i) = 0.5
-      cI(2,i) = 0.5
+      i = 2 * ic 
+      Dx12 = xf(i+1)-xf(i-1)
+
+      cI(1,ic) = ( xf(i+1)-xf(i  ) )/Dx12
+      cI(2,ic) = ( xf(i  )-xf(i-1) )/Dx12
+
     end do
 
     !--------------------------------------------------------------------------------------------------------
@@ -257,7 +261,7 @@ contains
 
     !***********************************************************************************************************
     !pgi$ unroll = n:8
-    phif( 1:Nf(1):dd(1), 1:Nf(2):dd(2), 1:Nf(3):dd(3) )  =  phic( 1:iimax(1), 1:iimax(2), 1:iimax(3) )
+    phif( 1:Nf(1):dd(1), 1:Nf(2):dd(2), 1:Nf(3):dd(3) ) = phic( 1:iimax(1), 1:iimax(2), 1:iimax(3) )
     !***********************************************************************************************************
 
     !===========================================================================================================
