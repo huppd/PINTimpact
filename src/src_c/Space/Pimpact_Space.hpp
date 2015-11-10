@@ -128,7 +128,7 @@ public:
 					stencilWidths_,
 					gridSizeLocal_,
 					boundaryConditionsLocal_,
-					 procGrid_ );
+					procGrid_ );
 
 		coordGlobal_ =
 			Pimpact::createCoordinatesGlobal<S,O,d>(

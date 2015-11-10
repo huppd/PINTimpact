@@ -89,7 +89,7 @@ template<class T> using POP3  = Pimpact::PrecInverseOp< T, ConvDiffSORT >;
 
 
 
-int main(int argi, char** argv ) {
+int main( int argi, char** argv ) {
 
 
 	/////////////////////////////////////////// set up parameters ///////////////////////////

@@ -26,6 +26,7 @@ void MG_getCIS(
 		const int& bL,
 		const int& bU,
 		const double* const xs,
+		const int& dd,
 		double* const cI );
 
 void MG_getCIV(
@@ -179,15 +180,14 @@ protected:
 			}
 		}
 
-		offsI_ = Teuchos::arcp<Ordinal>(3*nGatherTotal);
-		sizsI_ = Teuchos::arcp<Ordinal>(3*nGatherTotal);
-		recvI_ = Teuchos::arcp<Ordinal>(nGatherTotal);
-		//dispI_ = new Ordinal[  nGatherTotal];
-		dispI_ = Teuchos::arcp<Ordinal>(nGatherTotal);
+		offsI_ = Teuchos::arcp<Ordinal>( 3*nGatherTotal );
+		sizsI_ = Teuchos::arcp<Ordinal>( 3*nGatherTotal );
+		recvI_ = Teuchos::arcp<Ordinal>(   nGatherTotal );
+		dispI_ = Teuchos::arcp<Ordinal>(   nGatherTotal );
 
 		// ------------- rank2_, comm2_
 		if( nGatherTotal>1 ) {
-			int * newRanks = new int[nGatherTotal];
+			Teuchos::ArrayRCP<int> newRanks = Teuchos::arcp<int>(nGatherTotal);
 
 			MPI_Comm commWorld = spaceF_->getProcGrid()->getCommWorld();
 			MPI_Comm commTemp;
@@ -221,7 +221,7 @@ protected:
 								}
 							}
 
-							MPI_Group_incl( baseGroup, nGatherTotal, newRanks, &newGroup );
+							MPI_Group_incl( baseGroup, nGatherTotal, newRanks.getRawPtr(), &newGroup );
 							MPI_Comm_create( commWorld, newGroup, &commTemp );
 							MPI_Group_free( &newGroup );
 
@@ -279,7 +279,7 @@ protected:
 									}
 								}
 
-								MPI_Group_incl( baseGroup, nGatherTotal, newRanks, &newGroup );
+								MPI_Group_incl( baseGroup, nGatherTotal, newRanks.getRawPtr(), &newGroup );
 								MPI_Comm_create( commWorld, newGroup, &commTemp );
 								MPI_Group_free( &newGroup );
 
@@ -314,15 +314,14 @@ protected:
 			}
 
 			MPI_Group_free( &baseGroup );
-			delete[] newRanks;
 			// ------------------------- offsI_, sizsI_
 
 			if( spaceF_->getProcGrid()->participating() )  {
 				int rank_comm2;
 				MPI_Comm_rank( comm2_, &rank_comm2 );
 
-				std::vector<Ordinal> offs_global(3*nGatherTotal);
-				std::vector<Ordinal> sizs_global(3*nGatherTotal);
+				Teuchos::ArrayRCP<Ordinal> offs_global = Teuchos::arcp<Ordinal>(3*nGatherTotal);
+				Teuchos::ArrayRCP<Ordinal> sizs_global = Teuchos::arcp<Ordinal>(3*nGatherTotal);
 
 				for( Ordinal i=0; i<3*nGatherTotal; ++i ) {
 					offs_global[i] = 0;
@@ -336,14 +335,14 @@ protected:
 
 
 				MPI_Allreduce(
-						offs_global.data(),
+						offs_global.getRawPtr(),
 						offsI_.getRawPtr(),
 						3*nGatherTotal,
 						MPI_INTEGER,
 						MPI_SUM,
 						comm2_ );
 				MPI_Allreduce(
-						sizs_global.data(),
+						sizs_global.getRawPtr(),
 						sizsI_.getRawPtr(),
 						3*nGatherTotal,
 						MPI_INTEGER,
@@ -368,7 +367,6 @@ protected:
 		for( int dir=0; dir<3; ++dir ) {
 
 			//if dd>1
-			//cIS_[dir] = new Scalar[ 2*( spaceC_->nLoc(dir)-1+1 ) ];
 			cIS_[dir] = Teuchos::arcp<Scalar>( 2*( spaceC_->nLoc(dir)-1+1 ) );
 			MG_getCIS(
 					spaceC_->nLoc(dir),
@@ -376,17 +374,16 @@ protected:
 					spaceC_->bl(dir),
 					spaceC_->bu(dir),
 					spaceF_->getCoordinatesLocal()->getX( dir, EField::S ),
+					dd_[dir],
 					cIS_[dir].getRawPtr() );
 
-			//cIV_[dir] = new Scalar[ 2*( spaceF_->nLoc(dir)-0+1 ) ];
 			cIV_[dir] = Teuchos::arcp<Scalar>( 2*( spaceF_->nLoc(dir)-0+1 ) );
 			//      if( i<spaceC_->dim() )
 
 			Ordinal offset = 0;
 			if( 1!=nGather_[dir] )
-				//					offset = ( iimax_[dir]-1 )*( spaceF_->procCoordinate()[dir]-1 );
-				offset = ( iimax_[dir]-1 )*( spaceF_->getProcGrid()->getIB(dir)-1 - nGather_[dir]*(spaceC_->getProcGrid()->getIB(dir)-1) );
-			//				std::cout << "rank: " << spaceF_->rankST() << " offset: " << offset << "\n";
+				offset =
+					( iimax_[dir]-1 )*( spaceF_->getProcGrid()->getIB(dir)-1 - nGather_[dir]*(spaceC_->getProcGrid()->getIB(dir)-1) );
 
 			MG_getCIV(
 					spaceC_->nLoc(dir),
