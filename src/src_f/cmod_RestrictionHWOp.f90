@@ -1,7 +1,6 @@
 !> \brief module providing functions to initiliaze and apply RestrictionHWOp
 module cmod_RestrictionHWOp
 
-
   use iso_c_binding
 
   use mpi
@@ -10,12 +9,18 @@ module cmod_RestrictionHWOp
 
 contains
 
+
+
   subroutine MG_getCRS( &
       iimax,            &
       BC_L,             &
       BC_U,             &
       dd,               &
-      cR ) bind(c,name='MG_getCRS')
+      Nf,               &
+      bL,               &
+      bU,               &
+      xf,               &
+      cR ) bind( c, name='MG_getCRS' )
 
     implicit none
 
@@ -26,9 +31,16 @@ contains
 
     integer(c_int), intent(in)  :: dd
 
+    integer(c_int), intent(in)  :: Nf
+
+    integer(c_int), intent(in)  :: bL, bU
+
+    real(c_double), intent(in)  :: xf( bL:(Nf+bU) )
+
     real(c_double), intent(out) :: cR(-1:1,1:iimax)
 
-    integer(c_int)              ::  i
+    real(c_double)              :: h(1:2)
+    integer(c_int)              :: i, ii
 
     cR = 0.
 
@@ -36,17 +48,18 @@ contains
     !=== Restriktion, linienweise, 1d ==========================================================================
     !===========================================================================================================
 
-    !        iimax = N
-
     do i = 1,iimax 
       if( 1==dd ) then
         cR(-1,i) = 0.
         cR( 0,i) = 1.
         cR( 1,i) = 0.
       else
-        cR(-1,i) = 1./4.
-        cR( 0,i) = 2./4.
-        cR( 1,i) = 1./4.
+        ii = dd*(i-1)+1
+        h( 1 ) = xf(ii  ) - xf(ii-1)
+        h( 2 ) = xf(ii+1) - xf(ii  )
+        cR(-1,i) = h(2)/( h(1) + h(2) )/2. ! 1./4. for equi
+        cR( 0,i) = 1./2.
+        cR( 1,i) = h(1)/( h(1) + h(2) )/2. ! 1./4/ for equi
       end if
     end do
 
@@ -84,194 +97,192 @@ contains
 
 
 
-    !> \todo understand from where comes the weith 0.75 / 0.25
-    !! \todo change to simple HW or use with a better coarsestrategy
-    subroutine MG_getCRV(   &
-        N,                  &
-        bL, bU,             &
-        SS,                 &
-        iimax,              &
-        BC_L, BC_U,         &
-        xs,xv,              &
-        cRV ) bind(c,name='MG_getCRV')
+  !> \todo understand from where comes the weith 0.75 / 0.25
+  !! \todo change to simple HW or use with a better coarsestrategy
+  subroutine MG_getCRV(   &
+      N,                  &
+      bL, bU,             &
+      SS,                 &
+      iimax,              &
+      BC_L, BC_U,         &
+      xs,xv,              &
+      cRV ) bind(c,name='MG_getCRV')
 
 
-        implicit none
+    implicit none
 
-        integer(c_int),intent(in)    :: N
+    integer(c_int), intent(in)    :: N
 
+    integer(c_int), intent(in)    :: bL,bU
 
-        integer(c_int),intent(in)    :: bL,bU
+    integer(c_int), intent(in)    :: SS
+    integer(c_int), intent(in)    :: iimax
 
-        integer(c_int),intent(in)    :: SS
-        integer(c_int),intent(in)    :: iimax
+    integer(c_int), intent(in)    :: BC_L,BC_U
 
-        integer(c_int),intent(in)    :: BC_L,BC_U
+    real(c_double), intent(in)    :: xs(bL:(N+bU))
+    real(c_double), intent(in)    :: xv(bL:(N+bU))
 
-        real(c_double),intent(in)    :: xs(bL:(N+bU))
-        real(c_double),intent(in)    :: xv(bL:(N+bU))
+    real(c_double), intent(inout) :: cRV(1:2,0:iimax)
 
-        real(c_double),intent(inout) :: cRV(1:2,0:iimax)
-
-        integer(c_int)        ::  i
-        real(c_double)        ::  Dx12, Dx1a
-
-
-        !===========================================================================================================
-        !=== Restriktion, linienweise, 1d ==========================================================================
-        !===========================================================================================================
-        ! fine
-        !    xs(i-1)        vv(i-1)         xs(i)       xv(i)
-        !  ----o-------------->---------------o----------->-----
-        !                     |------Dx1x-----|
-        !                     |-----------Dx12------------|
-        !                                     >
-        !                                   xv(i-1)
-        ! coarse
-        cRV = 0.
+    integer(c_int)                ::  i
+    real(c_double)                ::  Dx12, Dx1a
 
 
-        do i = 0, iimax
-            Dx1a = xs(i)-xv(i-1)
-            Dx12 = xv(i)-xv(i-1)
-
-            cRV(1,i) = 1.- Dx1a/Dx12
-            cRV(2,i) =     Dx1a/Dx12
-        end do
-
-        ! a little bit shaky, please verify this when IO is ready
-        if (BC_L > 0) then
-            cRV(1,0) = 0.
-            cRV(2,0) = 1.
-        end if
-        if (BC_L == -2) then
-            cRV(:,0) = 0.
-        end if
-
-        if (BC_U > 0) then
-            cRV(1,iimax) = 1.
-            cRV(2,iimax) = 0.
-        end if
-        if (BC_U == -2) then
-            cRV(:,iimax) = 0.
-        end if
-
-    end subroutine MG_getCRV
+    !===========================================================================================================
+    !=== Restriktion, linienweise, 1d ==========================================================================
+    !===========================================================================================================
+    ! fine
+    !    xs(i-1)        vv(i-1)         xs(i)       xv(i)
+    !  ----o-------------->---------------o----------->-----
+    !                     |------Dx1x-----|
+    !                     |-----------Dx12------------|
+    !                                     >
+    !                                   xv(i-1)
+    ! coarse
+    cRV = 0.
 
 
-    subroutine MG_RestrictCorners(  &
-        Nc,                           &
-        bLc,bUc,                      &
-        BCL, BCU,                     &
-        phif ) bind(c,name='MG_RestrictCorners')
+    do i = 0, iimax
+      Dx1a = xs(i)-xv(i-1)
+      Dx12 = xv(i)-xv(i-1)
 
-      implicit none
+      cRV(1,i) = 1.- Dx1a/Dx12
+      cRV(2,i) =     Dx1a/Dx12
+    end do
 
-      integer(c_int), intent(in)     :: Nc(3)
+    ! a little bit shaky, please verify this when IO is ready
+    if (BC_L > 0) then
+      cRV(1,0) = 0.
+      cRV(2,0) = 1.
+    end if
+    if (BC_L == -2) then
+      cRV(:,0) = 0.
+    end if
 
-      integer(c_int), intent(in)     :: bLc(3)
-      integer(c_int), intent(in)     :: bUc(3)
+    if (BC_U > 0) then
+      cRV(1,iimax) = 1.
+      cRV(2,iimax) = 0.
+    end if
+    if (BC_U == -2) then
+      cRV(:,iimax) = 0.
+    end if
 
-      integer(c_int), intent(in)     :: BCL(3)
-      integer(c_int), intent(in)     :: BCU(3)
+  end subroutine MG_getCRV
 
-      real(c_double), intent(inout)  :: phif (bLc(1):(Nc(1)+bUc(1)),bLc(2):(Nc(2)+bUc(2)),bLc(3):(Nc(3)+bUc(3)))
 
-      !if (BC(1,1,g) > 0 .and. BC(1,2,g) > 0) fine1(  1      ,  1      ,1:NN(3,g)) = (fine1(2        ,1      ,1:NN(3,g)) + fine1(1      ,2        ,1:NN(3,g)))/2.
-      !if (BC(1,1,g) > 0 .and. BC(2,2,g) > 0) fine1(  1      ,  NN(2,g),1:NN(3,g)) = (fine1(2        ,NN(2,g),1:NN(3,g)) + fine1(1      ,NN(2,g)-1,1:NN(3,g)))/2.
-      !if (BC(2,1,g) > 0 .and. BC(1,2,g) > 0) fine1(  NN(1,g),  1      ,1:NN(3,g)) = (fine1(NN(1,g)-1,1      ,1:NN(3,g)) + fine1(NN(1,g),2        ,1:NN(3,g)))/2.
-      !if (BC(2,1,g) > 0 .and. BC(2,2,g) > 0) fine1(  NN(1,g),  NN(2,g),1:NN(3,g)) = (fine1(NN(1,g)-1,NN(2,g),1:NN(3,g)) + fine1(NN(1,g),NN(2,g)-1,1:NN(3,g)))/2.
 
-      if (BCL(1) > 0 .and. BCL(2) > 0) phif( 1,     1,     1:Nc(3) ) = ( phif(1+1,     1,     1:Nc(3)) + phif(1    , 1+1,     1:Nc(3)) )/2.
-      if (BCL(1) > 0 .and. BCU(2) > 0) phif( 1,     Nc(2), 1:Nc(3) ) = ( phif(1+1,     Nc(2), 1:Nc(3)) + phif(1    , Nc(2)-1, 1:Nc(3)) )/2.
-      if (BCU(1) > 0 .and. BCL(2) > 0) phif( Nc(1), 1,     1:Nc(3) ) = ( phif(Nc(1)-1, 1,     1:Nc(3)) + phif(Nc(1), 1+1,     1:Nc(3)) )/2.
-      if (BCU(1) > 0 .and. BCU(2) > 0) phif( Nc(1), Nc(2), 1:Nc(3) ) = ( phif(Nc(1)-1, Nc(2), 1:Nc(3)) + phif(Nc(1), Nc(2)-1, 1:Nc(3)) )/2.
-        
-      !if (BC(1,1,g) > 0 .and. BC(1,3,g) > 0) fine1(  1      ,1:NN(2,g),  1      ) = (fine1(2        ,1:NN(2,g),1      ) + fine1(1      ,1:NN(2,g),2        ))/2.
-      !if (BC(1,1,g) > 0 .and. BC(2,3,g) > 0) fine1(  1      ,1:NN(2,g),  NN(3,g)) = (fine1(2        ,1:NN(2,g),NN(3,g)) + fine1(1      ,1:NN(2,g),NN(3,g)-1))/2.
-      !if (BC(2,1,g) > 0 .and. BC(1,3,g) > 0) fine1(  NN(1,g),1:NN(2,g),  1      ) = (fine1(NN(1,g)-1,1:NN(2,g),1      ) + fine1(NN(1,g),1:NN(2,g),2        ))/2.
-      !if (BC(2,1,g) > 0 .and. BC(2,3,g) > 0) fine1(  NN(1,g),1:NN(2,g),  NN(3,g)) = (fine1(NN(1,g)-1,1:NN(2,g),NN(3,g)) + fine1(NN(1,g),1:NN(2,g),NN(3,g)-1))/2.
+  subroutine MG_RestrictCorners(  &
+      Nc,                         &
+      bLc,bUc,                    &
+      BCL, BCU,                   &
+      phif ) bind( c, name='MG_RestrictCorners' )
 
-      if (BCL(1) > 0 .and. BCL(3) > 0) phif( 1,     1:Nc(2), 1 )     = ( phif(1+1,     1:Nc(2), 1    ) + phif(1,     1:Nc(2), 1+1)      )/2.
-      if (BCL(1) > 0 .and. BCU(3) > 0) phif( 1,     1:Nc(2), Nc(3) ) = ( phif(1+1,     1:Nc(2), Nc(3)) + phif(1,     1:Nc(2), Nc(3)-1)  )/2.
-      if (BCU(1) > 0 .and. BCL(3) > 0) phif( Nc(1), 1:Nc(2), 1 )     = ( phif(Nc(1)-1, 1:Nc(2), 1    ) + phif(Nc(1), 1:Nc(2), 1+1)      )/2.
-      if (BCU(1) > 0 .and. BCU(3) > 0) phif( Nc(1), 1:Nc(2), Nc(3) ) = ( phif(Nc(1)-1, 1:Nc(2), Nc(3)) + phif(Nc(1), 1:Nc(2), Nc(3)-1)  )/2.
-        
-      !if (BC(1,2,g) > 0 .and. BC(1,3,g) > 0) fine1(1:NN(1,g),  1      ,  1      ) = (fine1(1:NN(1,g),2        ,1      ) + fine1(1:NN(1,g),1      ,2        ))/2.
-      !if (BC(1,2,g) > 0 .and. BC(2,3,g) > 0) fine1(1:NN(1,g),  1      ,  NN(3,g)) = (fine1(1:NN(1,g),2        ,NN(3,g)) + fine1(1:NN(1,g),1      ,NN(3,g)-1))/2.
-      !if (BC(2,2,g) > 0 .and. BC(1,3,g) > 0) fine1(1:NN(1,g),  NN(2,g),  1      ) = (fine1(1:NN(1,g),NN(2,g)-1,1      ) + fine1(1:NN(1,g),NN(2,g),2        ))/2.
-      !if (BC(2,2,g) > 0 .and. BC(2,3,g) > 0) fine1(1:NN(1,g),  NN(2,g),  NN(3,g)) = (fine1(1:NN(1,g),NN(2,g)-1,NN(3,g)) + fine1(1:NN(1,g),NN(2,g),NN(3,g)-1))/2.
-        
-      if (BCL(2) > 0 .and. BCL(3) > 0) phif( 1:Nc(1), 1,     1     ) = ( phif(1:Nc(1), 1+1,     1    ) + phif(1:Nc(1), 1,     1+1    ) )/2.
-      if (BCL(2) > 0 .and. BCU(3) > 0) phif( 1:Nc(1), 1,     Nc(3) ) = ( phif(1:Nc(1), 1+1,     Nc(3)) + phif(1:Nc(1), 1,     Nc(3)-1) )/2.
-      if (BCU(2) > 0 .and. BCL(3) > 0) phif( 1:Nc(1), Nc(2), 1     ) = ( phif(1:Nc(1), Nc(2)-1, 1    ) + phif(1:Nc(1), Nc(2), 1+1    ) )/2.
-      if (BCU(2) > 0 .and. BCU(3) > 0) phif( 1:Nc(1), Nc(2), Nc(3) ) = ( phif(1:Nc(1), Nc(2)-1, Nc(3)) + phif(1:Nc(1), Nc(2), Nc(3)-1) )/2.
-        
+    implicit none
+
+    integer(c_int), intent(in)     :: Nc(3)
+
+    integer(c_int), intent(in)     :: bLc(3)
+    integer(c_int), intent(in)     :: bUc(3)
+
+    integer(c_int), intent(in)     :: BCL(3)
+    integer(c_int), intent(in)     :: BCU(3)
+
+    real(c_double), intent(inout)  :: phif (bLc(1):(Nc(1)+bUc(1)),bLc(2):(Nc(2)+bUc(2)),bLc(3):(Nc(3)+bUc(3)))
+
+    !if (BC(1,1,g) > 0 .and. BC(1,2,g) > 0) fine1(  1      ,  1      ,1:NN(3,g)) = (fine1(2        ,1      ,1:NN(3,g)) + fine1(1      ,2        ,1:NN(3,g)))/2.
+    !if (BC(1,1,g) > 0 .and. BC(2,2,g) > 0) fine1(  1      ,  NN(2,g),1:NN(3,g)) = (fine1(2        ,NN(2,g),1:NN(3,g)) + fine1(1      ,NN(2,g)-1,1:NN(3,g)))/2.
+    !if (BC(2,1,g) > 0 .and. BC(1,2,g) > 0) fine1(  NN(1,g),  1      ,1:NN(3,g)) = (fine1(NN(1,g)-1,1      ,1:NN(3,g)) + fine1(NN(1,g),2        ,1:NN(3,g)))/2.
+    !if (BC(2,1,g) > 0 .and. BC(2,2,g) > 0) fine1(  NN(1,g),  NN(2,g),1:NN(3,g)) = (fine1(NN(1,g)-1,NN(2,g),1:NN(3,g)) + fine1(NN(1,g),NN(2,g)-1,1:NN(3,g)))/2.
+
+    if (BCL(1) > 0 .and. BCL(2) > 0) phif( 1,     1,     1:Nc(3) ) = ( phif(1+1,     1,     1:Nc(3)) + phif(1    , 1+1,     1:Nc(3)) )/2.
+    if (BCL(1) > 0 .and. BCU(2) > 0) phif( 1,     Nc(2), 1:Nc(3) ) = ( phif(1+1,     Nc(2), 1:Nc(3)) + phif(1    , Nc(2)-1, 1:Nc(3)) )/2.
+    if (BCU(1) > 0 .and. BCL(2) > 0) phif( Nc(1), 1,     1:Nc(3) ) = ( phif(Nc(1)-1, 1,     1:Nc(3)) + phif(Nc(1), 1+1,     1:Nc(3)) )/2.
+    if (BCU(1) > 0 .and. BCU(2) > 0) phif( Nc(1), Nc(2), 1:Nc(3) ) = ( phif(Nc(1)-1, Nc(2), 1:Nc(3)) + phif(Nc(1), Nc(2)-1, 1:Nc(3)) )/2.
+
+    !if (BC(1,1,g) > 0 .and. BC(1,3,g) > 0) fine1(  1      ,1:NN(2,g),  1      ) = (fine1(2        ,1:NN(2,g),1      ) + fine1(1      ,1:NN(2,g),2        ))/2.
+    !if (BC(1,1,g) > 0 .and. BC(2,3,g) > 0) fine1(  1      ,1:NN(2,g),  NN(3,g)) = (fine1(2        ,1:NN(2,g),NN(3,g)) + fine1(1      ,1:NN(2,g),NN(3,g)-1))/2.
+    !if (BC(2,1,g) > 0 .and. BC(1,3,g) > 0) fine1(  NN(1,g),1:NN(2,g),  1      ) = (fine1(NN(1,g)-1,1:NN(2,g),1      ) + fine1(NN(1,g),1:NN(2,g),2        ))/2.
+    !if (BC(2,1,g) > 0 .and. BC(2,3,g) > 0) fine1(  NN(1,g),1:NN(2,g),  NN(3,g)) = (fine1(NN(1,g)-1,1:NN(2,g),NN(3,g)) + fine1(NN(1,g),1:NN(2,g),NN(3,g)-1))/2.
+
+    if (BCL(1) > 0 .and. BCL(3) > 0) phif( 1,     1:Nc(2), 1 )     = ( phif(1+1,     1:Nc(2), 1    ) + phif(1,     1:Nc(2), 1+1)      )/2.
+    if (BCL(1) > 0 .and. BCU(3) > 0) phif( 1,     1:Nc(2), Nc(3) ) = ( phif(1+1,     1:Nc(2), Nc(3)) + phif(1,     1:Nc(2), Nc(3)-1)  )/2.
+    if (BCU(1) > 0 .and. BCL(3) > 0) phif( Nc(1), 1:Nc(2), 1 )     = ( phif(Nc(1)-1, 1:Nc(2), 1    ) + phif(Nc(1), 1:Nc(2), 1+1)      )/2.
+    if (BCU(1) > 0 .and. BCU(3) > 0) phif( Nc(1), 1:Nc(2), Nc(3) ) = ( phif(Nc(1)-1, 1:Nc(2), Nc(3)) + phif(Nc(1), 1:Nc(2), Nc(3)-1)  )/2.
+
+    !if (BC(1,2,g) > 0 .and. BC(1,3,g) > 0) fine1(1:NN(1,g),  1      ,  1      ) = (fine1(1:NN(1,g),2        ,1      ) + fine1(1:NN(1,g),1      ,2        ))/2.
+    !if (BC(1,2,g) > 0 .and. BC(2,3,g) > 0) fine1(1:NN(1,g),  1      ,  NN(3,g)) = (fine1(1:NN(1,g),2        ,NN(3,g)) + fine1(1:NN(1,g),1      ,NN(3,g)-1))/2.
+    !if (BC(2,2,g) > 0 .and. BC(1,3,g) > 0) fine1(1:NN(1,g),  NN(2,g),  1      ) = (fine1(1:NN(1,g),NN(2,g)-1,1      ) + fine1(1:NN(1,g),NN(2,g),2        ))/2.
+    !if (BC(2,2,g) > 0 .and. BC(2,3,g) > 0) fine1(1:NN(1,g),  NN(2,g),  NN(3,g)) = (fine1(1:NN(1,g),NN(2,g)-1,NN(3,g)) + fine1(1:NN(1,g),NN(2,g),NN(3,g)-1))/2.
+
+    if (BCL(2) > 0 .and. BCL(3) > 0) phif( 1:Nc(1), 1,     1     ) = ( phif(1:Nc(1), 1+1,     1    ) + phif(1:Nc(1), 1,     1+1    ) )/2.
+    if (BCL(2) > 0 .and. BCU(3) > 0) phif( 1:Nc(1), 1,     Nc(3) ) = ( phif(1:Nc(1), 1+1,     Nc(3)) + phif(1:Nc(1), 1,     Nc(3)-1) )/2.
+    if (BCU(2) > 0 .and. BCL(3) > 0) phif( 1:Nc(1), Nc(2), 1     ) = ( phif(1:Nc(1), Nc(2)-1, 1    ) + phif(1:Nc(1), Nc(2), 1+1    ) )/2.
+    if (BCU(2) > 0 .and. BCU(3) > 0) phif( 1:Nc(1), Nc(2), Nc(3) ) = ( phif(1:Nc(1), Nc(2)-1, Nc(3)) + phif(1:Nc(1), Nc(2), Nc(3)-1) )/2.
 
   end subroutine MG_RestrictCorners
 
 
-    subroutine MG_restrictHW( &
-        dimens,             &
-        Nf,                 &
-        bLf,bUf,            &
-        Nc,                 &
-        bLc,bUc,            &
-        iimax,              &
-        dd,                 &
-        cR1,cR2,cR3,        &
-        phif,               &
-        phic ) bind(c,name='MG_restrictHW')
 
-        implicit none
+  subroutine MG_restrictHW( &
+      dimens,             &
+      Nf,                 &
+      bLf,bUf,            &
+      Nc,                 &
+      bLc,bUc,            &
+      iimax,              &
+      dd,                 &
+      cR1,cR2,cR3,        &
+      phif,               &
+      phic ) bind(c,name='MG_restrictHW')
 
-        integer(c_int), intent(in)     :: dimens
+    implicit none
 
-        integer(c_int), intent(in)     :: Nf(3)
+    integer(c_int), intent(in)     :: dimens
 
-        integer(c_int), intent(in)     :: bLf(3)
-        integer(c_int), intent(in)     :: bUf(3)
+    integer(c_int), intent(in)     :: Nf(3)
 
-
-        integer(c_int), intent(in)     :: Nc(3)
-
-        integer(c_int), intent(in)     :: bLc(3)
-        integer(c_int), intent(in)     :: bUc(3)
-
-        integer(c_int), intent(in)     :: iimax(3)
-
-        integer(c_int), intent(in)     :: dd(3)
-
-        real(c_double),  intent(in)    :: cR1 ( -1:1, 1:iimax(1) )
-        real(c_double),  intent(in)    :: cR2 ( -1:1, 1:iimax(2) )
-        real(c_double),  intent(in)    :: cR3 ( -1:1, 1:iimax(3) )
-
-        real(c_double),  intent(in)    :: phif (bLf(1):(Nf(1)+bUf(1)),bLf(2):(Nf(2)+bUf(2)),bLf(3):(Nf(3)+bUf(3)))
-
-        real(c_double),  intent(out)   :: phic (bLc(1):(Nc(1)+bUc(1)),bLc(2):(Nc(2)+bUc(2)),bLc(3):(Nc(3)+bUc(3)))
+    integer(c_int), intent(in)     :: bLf(3)
+    integer(c_int), intent(in)     :: bUf(3)
 
 
-        integer(c_int)                ::  i, ii
-        integer(c_int)                ::  j, jj
-        integer(c_int)                ::  k, kk
+    integer(c_int), intent(in)     :: Nc(3)
+
+    integer(c_int), intent(in)     :: bLc(3)
+    integer(c_int), intent(in)     :: bUc(3)
+
+    integer(c_int), intent(in)     :: iimax(3)
+
+    integer(c_int), intent(in)     :: dd(3)
+
+    real(c_double),  intent(in)    :: cR1 ( -1:1, 1:iimax(1) )
+    real(c_double),  intent(in)    :: cR2 ( -1:1, 1:iimax(2) )
+    real(c_double),  intent(in)    :: cR3 ( -1:1, 1:iimax(3) )
+
+    real(c_double),  intent(in)    :: phif (bLf(1):(Nf(1)+bUf(1)),bLf(2):(Nf(2)+bUf(2)),bLf(3):(Nf(3)+bUf(3)))
+
+    real(c_double),  intent(out)   :: phic (bLc(1):(Nc(1)+bUc(1)),bLc(2):(Nc(2)+bUc(2)),bLc(3):(Nc(3)+bUc(3)))
 
 
-                !----------------------------------------------------------------------------------------------------------!
-                ! Anmerkungen: - für allgemeine di, dj, dk geeignet!                                                       !
-                !              - überlappende Schicht in Blöcken wird (der Einfachheit halber) ebenfalls ausgetauscht, ist !
-                !                aber im Prinzip redundant (genauer: phiC(S1R:N1R,S2R:N2R,S3R:N3R) = ...).               !
-                !              - Motivation für diese kurze Routine ist die Möglichkeit, auch Varianten wie Full-Weighting !
-                !                etc. ggf. einzubauen, ansonsten könnte sie auch eingespaart werden.                       !
-                !              - Die Block-überlappenden Stirnflächen werden ebenfalls mitverarbeitet, aber eigentlich     !
-                !                nicht gebraucht (erleichtert die Programmierung), so dass eine Initialisierung notwendig  !
-                !                ist. Dies wiederum bedingt die INTENT(inout)-Deklaration.                                 !
-                !----------------------------------------------------------------------------------------------------------!
+    integer(c_int)                ::  i, ii
+    integer(c_int)                ::  j, jj
+    integer(c_int)                ::  k, kk
+
+
+    !----------------------------------------------------------------------------------------------------------!
+    ! Anmerkungen: - für allgemeine di, dj, dk geeignet!                                                       !
+    !              - überlappende Schicht in Blöcken wird (der Einfachheit halber) ebenfalls ausgetauscht, ist !
+    !                aber im Prinzip redundant (genauer: phiC(S1R:N1R,S2R:N2R,S3R:N3R) = ...).               !
+    !              - Motivation für diese kurze Routine ist die Möglichkeit, auch Varianten wie Full-Weighting !
+    !                etc. ggf. einzubauen, ansonsten könnte sie auch eingespaart werden.                       !
+    !              - Die Block-überlappenden Stirnflächen werden ebenfalls mitverarbeitet, aber eigentlich     !
+    !                nicht gebraucht (erleichtert die Programmierung), so dass eine Initialisierung notwendig  !
+    !                ist. Dies wiederum bedingt die INTENT(inout)-Deklaration.                                 !
+    !----------------------------------------------------------------------------------------------------------!
 
 
 
-
-
-        if (dimens == 3) then
+    if (dimens == 3) then
             do kk = 1, iimax(3)
                 k = dd(3)*(kk-1)+1
                 do jj = 1, iimax(2) 

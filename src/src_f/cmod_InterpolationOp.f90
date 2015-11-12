@@ -1,12 +1,10 @@
 !> \brief module providing functions to initiliaze and apply RestrictionOp
 module cmod_InterpolationOp
 
-
   use iso_c_binding
   use mpi
 
   implicit none
-
 
 contains
 
@@ -17,6 +15,7 @@ contains
       Nf,               &
       bL, bU,           &
       xf,               &
+      dd,               &
       cI ) bind(c,name='MG_getCIS')
 
     implicit none
@@ -25,7 +24,9 @@ contains
     integer(c_int), intent(in)  :: Nf
     integer(c_int), intent(in)  :: bL, bU
 
-    real(c_double), intent(in)  :: xf(bL:(Nf+bU)) ! Nf
+    real(c_double), intent(in)  :: xf(bL:(Nf+bU))
+
+    integer(c_int), intent(in)  :: dd 
 
     real(c_double), intent(out) :: cI(1:2,1:Nc)
 
@@ -50,7 +51,7 @@ contains
     !--------------------------------------------------------------------------------------------------------
     do ic = 1, Nc
 
-      i = 2 * ic 
+      i = dd * ic 
       Dx12 = xf(i+1)-xf(i-1)
 
       cI(1,ic) = ( xf(i+1)-xf(i  ) )/Dx12
@@ -63,7 +64,8 @@ contains
 
 
 
-  !> \todo understand from where comes the weith 0.75 / 0.25
+  !> \param[in] xc coarse coordinates of velocity
+  !! \param[in] xf fine coordinates of velocity
   subroutine MG_getCIV(   &
       Nc,                 &
       bLc, bUc,           &
@@ -77,9 +79,7 @@ contains
       dd,                 &
       cIV ) bind(c,name='MG_getCIV')
 
-
     implicit none
-
 
     integer(c_int), intent(in)    :: Nc
 
@@ -104,7 +104,6 @@ contains
 
     real(c_double), intent(inout) :: cIV( 1:2, 0:Nf )
 
-
     integer(c_int)                ::  i, ic
     real(c_double)                ::  Dx1a, Dx12
 
@@ -115,7 +114,6 @@ contains
     ! fine
     !    xf(i-1)        xf(i)         xf(i+1)       xf(i+1)      xf(i+2)
     !  ---->-------------->--------------->----------->----------->------------
-    !             |--Dx1a-|
     !             |-----------Dx12--------------|
     !  ----------->----------------------------->----------------------------->----------
     !          xc(ic)                      xc(ic+1)                        xc(ic+1)
@@ -126,11 +124,17 @@ contains
     do i = 0, Nf
       ic = ( i )/dd + offset
 
-      Dx1a = xc(ic)-xf(i   )
-      Dx12 = xc(ic)-xc(ic+1)
+      !Dx1a = xc(ic)-xf(i   )
+      !Dx12 = xc(ic)-xc(ic+1)
 
-      cIV(1,i) = 1-Dx1a/Dx12
-      cIV(2,i) =   Dx1a/Dx12
+      !cIV(1,i) = 1-Dx1a/Dx12
+      !cIV(2,i) =   Dx1a/Dx12
+
+      Dx12 = xc(ic+1) - xc(ic)
+
+      cIV(1,i) = ( xc(ic+1) - xf(i ) )/Dx12
+      cIV(2,i) = ( xf(i   ) - xc(ic) )/Dx12
+
     end do
 
     ! a little bit shaky, please verify this when IO is ready
@@ -140,7 +144,7 @@ contains
     !end if
 
     !maybe false
-    if (BC_L == -2) then
+    if( BC_L == -2 )then
       cIV(1:2,0) = 0.
     end if
 
@@ -148,7 +152,7 @@ contains
       !cIV(1,Nf) = 1.
       !cIV(2,Nf) = 0.
     !end if
-    if (BC_U == -2) then
+    if( BC_U == -2 )then
       cIV(1:2,Nf) = 0.
     end if
 
@@ -312,7 +316,7 @@ contains
 
 
 
-  !> \brief interpolating 
+  !> \brief interpolating velocities
   subroutine MG_interpolateV( &
       dimens,                 &
       dir,                    &
@@ -379,12 +383,12 @@ contains
     integer(c_int)                :: N(1:3)
     integer(c_int)                :: ds(1:3)
 
+
     ds = dd
 
     do i = 1,3
       if( iimax(i)<Nc(i) ) ds = 1
     end do
-
 
 
     if( 1==dir ) then
@@ -404,8 +408,8 @@ contains
               jc = ( j+1 )/dd(2) ! holy shit
             end if
             do i = 0, Nf(1) ! zero for dirichlet
-              ic = ( i )/dd(1)+1
-              phif(i,j,k) = cIV(1,i)*phic(ic-1,jc,kc)+cIV(2,i)*phic(ic,jc,kc)
+              ic = ( i )/dd(1)
+              phif(i,j,k) = cIV(1,i)*phic(ic,jc,kc) + cIV(2,i)*phic(ic+1,jc,kc)
             end do
           end do
         end do
@@ -436,10 +440,10 @@ contains
 
         do k = 1, Nf(3), dd(3)
           do j = 2, Nf(2)-1, dd(2)
-            jc = (  j+1  )/dd(2)
+            jc = ( j )/dd(2)
             !pgi$ unroll = n:8
             do i = 0, Nf(1)
-              phif(i,j,k) = 0.5*phif(i,j-1,k) + 0.5*phif(i,j+1,k)
+              phif(i,j,k) = cI2(1,jc)*phif(i,j-1,k) + cI2(2,jc)*phif(i,j+1,k)
             end do
           end do
         end do
@@ -449,10 +453,11 @@ contains
       if( dd(3) /= 1 ) then
 
         do k = 2, Nf(3)-1, dd(3)
+          kc = k/dd(3)
           do j = 1, Nf(2)
             !pgi$ unroll = n:8
             do i = 0, Nf(1)
-              phif(i,j,k) = 0.5*phif(i,j,k-1) + 0.5*phif(i,j,k+1)
+              phif(i,j,k) = cI3(1,kc)*phif(i,j,k-1) + cI3(2,kc)*phif(i,j,k+1)
             end do
           end do
         end do
@@ -512,7 +517,8 @@ contains
           do j = 0, Nf(2)
             !pgi$ unroll = n:8
             do i = 2, Nf(1)-1, dd(1)
-              phif(i,j,k) = 0.5*phif(i-1,j,k) + 0.5*phif(i+1,j,k)
+              ic = i/dd(1)
+              phif(i,j,k) = cI1(1,ic)*phif(i-1,j,k) + cI1(2,ic)*phif(i+1,j,k)
             end do
           end do
         end do
@@ -522,10 +528,11 @@ contains
       if( dd(3) /= 1 ) then
 
         do k = 2, Nf(3)-1, dd(3)
+          kc = k/dd(3)
           do j = 0, Nf(2)
             !pgi$ unroll = n:8
             do i = 1, Nf(1)
-              phif(i,j,k) = 0.5*phif(i,j,k-1) + 0.5*phif(i,j,k+1)
+              phif(i,j,k) = cI3(1,kc)*phif(i,j,k-1) + cI3(2,kc)*phif(i,j,k+1)
             end do
           end do
         end do
@@ -585,7 +592,8 @@ contains
           do j = 1, Nf(2), dd(2)
             !pgi$ unroll = n:8
             do i = 2, Nf(1)-1, dd(1)
-              phif(i,j,k) = 0.5*phif(i-1,j,k) + 0.5*phif(i+1,j,k)
+              ic = i/dd(1)
+              phif(i,j,k) = cI1(1,ic)*phif(i-1,j,k) + cI1(2,ic)*phif(i+1,j,k)
             end do
           end do
         end do
@@ -596,9 +604,10 @@ contains
 
         do k = 0, Nf(3)
           do j = 2, Nf(2)-1, dd(2)
+            jc = j/dd(2)
             !pgi$ unroll = n:8
             do i = 1, Nf(1)
-              phif(i,j,k) = 0.5*phif(i,j-1,k) + 0.5*phif(i,j+1,k)
+              phif(i,j,k) = cI2(1,jc)*phif(i,j-1,k) + cI2(2,jc)*phif(i,j+1,k)
             end do
           end do
         end do

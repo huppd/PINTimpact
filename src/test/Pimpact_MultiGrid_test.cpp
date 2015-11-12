@@ -161,16 +161,16 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGFields, SF_constructor3D, CS ) {
   pl->set( "dim", dim );
 
 	//  grid size
-	pl->set("nx", nx );
-	pl->set("ny", ny );
-	pl->set("nz", nz );
-	pl->set("nf", nf );
+	pl->set( "nx", nx );
+	pl->set( "ny", ny );
+	pl->set( "nz", nz );
+	pl->set( "nf", nf );
 
 	// processor grid size
-	pl->set("npx", npx );
-	pl->set("npy", npy );
-	pl->set("npz", npz );
-	pl->set("npf", npf );
+	pl->set( "npx", npx );
+	pl->set( "npy", npy );
+	pl->set( "npz", npz );
+	pl->set( "npf", npf );
 
 	auto space = Pimpact::createSpace<S,O,dimension,4>( pl );
 

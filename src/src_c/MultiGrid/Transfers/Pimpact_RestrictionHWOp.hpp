@@ -23,6 +23,10 @@ void MG_getCRS(
 		const int& BC_L,
 		const int& BC_U,
 		const int& dd,
+		const int& Nf,
+    const int& bL,
+    const int& bU,
+    const double* const xf,
 		double* const cR );
 
 void MG_getCRV(
@@ -411,6 +415,7 @@ protected:
 			for( int i=0; i<3; ++i ) {
 
 				cRS_[i] = new Scalar[ 3*iimax_[i]  ];
+
 				MG_getCRS(
 						iimax_[i],
 						(nGather_[i]>1)?
@@ -420,9 +425,14 @@ protected:
 						spaceF_->getBCLocal()->getBCU(i):
 						spaceC_->getBCLocal()->getBCU(i),
 						dd_[i],
+						spaceF_->getGridSizeLocal()->get(i),
+						spaceF_->bl(i),
+						spaceF_->bu(i),
+						spaceF_->getCoordinatesLocal()->getX( i, EField::S ),
 						cRS_[i] );
 
 				cRV_[i] = new Scalar[ 2*( iimax_[i]-0+1 ) ];
+
 				MG_getCRV(
 						spaceC_->getGridSizeLocal()->get(i),
 						spaceC_->bl(i),
@@ -487,13 +497,13 @@ public:
 		if( EField::S==fType ) {
 			x.exchange();
 
-			MG_RestrictCorners(
-					spaceF_->nLoc(),
-					spaceF_->bl(),
-					spaceF_->bu(),
-					spaceF_->getBCLocal()->getBCL(),
-					spaceF_->getBCLocal()->getBCU(),
-					x.getConstRawPtr() );
+			//MG_RestrictCorners(
+					//spaceF_->nLoc(),
+					//spaceF_->bl(),
+					//spaceF_->bu(),
+					//spaceF_->getBCLocal()->getBCL(),
+					//spaceF_->getBCLocal()->getBCU(),
+					//x.getConstRawPtr() );
 
 			MG_restrictFW(
 					spaceF_->dim(),

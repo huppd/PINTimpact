@@ -322,394 +322,398 @@ public:
   }
 
 
-  ///  \brief initializes VectorField with the initial field defined in Fortran
-  void initField( EVectorField flowType = ConstFlow, Scalar re=0., Scalar om=0., Scalar px = 0., Scalar sca=1. ) {
-    switch( flowType ) {
-    case ZeroFlow :
-      for( int i=0; i<space()->dim(); ++i )
-        sFields_[i]->initField( ConstField );
-      break;
-    case ConstFlow :
-        sFields_[U]->initField( ConstField, re );
-        sFields_[V]->initField( ConstField, om );
-        sFields_[W]->initField( ConstField, px );
-      break;
-    case PoiseuilleFlow2D_inX :
-      for( int i=0; i<space()->dim(); ++i )
-        if( U==i )
-          sFields_[i]->initField( Poiseuille2D_inY );
-        else
-          sFields_[i]->initField( ConstField );
-      break;
-    case PoiseuilleFlow2D_inY :
-      for( int i=0; i<space()->dim(); ++i )
-        if( V==i )
-          sFields_[i]->initField( Poiseuille2D_inX );
-        else
-          sFields_[i]->initField( ConstField );
-      break;
-    case PoiseuilleFlow2D_inZ :
-      for( int i=0; i<space()->dim(); ++i )
-        if( W==i )
-          sFields_[i]->initField( Poiseuille2D_inX );
-        else
-          sFields_[i]->initField( ConstField );
-      break;
-    case Pulsatile2D_inXC :
-      VF_init_2DPulsatileXC(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sIndB(U),
-          space()->eIndB(U),
-          space()->sIndB(V),
-          space()->eIndB(V),
-          space()->sIndB(W),
-          space()->eIndB(W),
-          space()->getDomainSize()->getSize(1),
-          space()->getCoordinatesLocal()->getX(Y,EField::S),
-          re, om, px,
-          sFields_[U]->getRawPtr(),
-          sFields_[V]->getRawPtr(),
-          sFields_[W]->getRawPtr() );
-      break;
-    case Pulsatile2D_inYC :
-      VF_init_2DPulsatileYC(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sIndB(U),
-          space()->eIndB(U),
-          space()->sIndB(V),
-          space()->eIndB(V),
-          space()->sIndB(W),
-          space()->eIndB(W),
-          space()->getDomainSize()->getSize(0),
-          space()->getCoordinatesLocal()->getX(X,EField::S),
-          re, om, px,
-          sFields_[U]->getRawPtr(),
-          sFields_[V]->getRawPtr(),
-          sFields_[W]->getRawPtr() );
-      break;
-    case Pulsatile2D_inXS :
-      VF_init_2DPulsatileXS(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sIndB(U),
-          space()->eIndB(U),
-          space()->sIndB(V),
-          space()->eIndB(V),
-          space()->sIndB(W),
-          space()->eIndB(W),
-          space()->getDomainSize()->getSize(1),
-          space()->getCoordinatesLocal()->getX(Y,EField::S),
-          re, om, px,
-          sFields_[U]->getRawPtr(),
-          sFields_[V]->getRawPtr(),
-          sFields_[W]->getRawPtr() );
-      break;
-    case Pulsatile2D_inYS:
-      VF_init_2DPulsatileYS(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sIndB(U),
-          space()->eIndB(U),
-          space()->sIndB(V),
-          space()->eIndB(V),
-          space()->sIndB(W),
-          space()->eIndB(W),
-          space()->getDomainSize()->getSize(0),
-          space()->getCoordinatesLocal()->getX(X,EField::S),
-          re, om, px,
-          sFields_[U]->getRawPtr(),
-          sFields_[V]->getRawPtr(),
-          sFields_[W]->getRawPtr() );
-      break;
-    case Streaming2D:
-      VF_init_StreamingS(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sIndB(U),
-          space()->eIndB(U),
-          space()->sIndB(V),
-          space()->eIndB(V),
-          space()->sIndB(W),
-          space()->eIndB(W),
-          space()->getDomainSize()->getSize(0),
-          space()->getCoordinatesLocal()->getX(X,EField::S),
-          re,
-          sFields_[U]->getRawPtr(),
-          sFields_[V]->getRawPtr(),
-          sFields_[W]->getRawPtr() );
-      break;
-    case Streaming2DC:
-      VF_init_StreamingC(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sIndB(U),
-          space()->eIndB(U),
-          space()->sIndB(V),
-          space()->eIndB(V),
-          space()->sIndB(W),
-          space()->eIndB(W),
-          space()->getDomainSize()->getSize(0),
-          space()->getCoordinatesLocal()->getX(X,EField::S),
-          re,
-          sFields_[U]->getRawPtr(),
-          sFields_[V]->getRawPtr(),
-          sFields_[W]->getRawPtr() );
-      break;
-    case Streaming2DS:
-      VF_init_StreamingS(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sIndB(U),
-          space()->eIndB(U),
-          space()->sIndB(V),
-          space()->eIndB(V),
-          space()->sIndB(W),
-          space()->eIndB(W),
-          space()->getDomainSize()->getSize(0),
-          space()->getCoordinatesLocal()->getX(X,EField::S),
-          re,
-          sFields_[U]->getRawPtr(),
-          sFields_[V]->getRawPtr(),
-          sFields_[W]->getRawPtr() );
-      break;
-    case Circle2D:
-			sFields_[U]->initField( Grad2D_inY, -1. );
-			sFields_[V]->initField( Grad2D_inX,  1. );
-			sFields_[W]->initField();
-      break;
-    case Circle2D_inXZ:
-			sFields_[U]->initField( Grad2D_inY, -1. );
-			sFields_[V]->initField();
-			sFields_[W]->initField( Grad2D_inX,  1. );
-      break;
-    case RankineVortex2D:
-      VF_init_RankineVortex(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sIndB(U),
-          space()->eIndB(U),
-          space()->sIndB(V),
-          space()->eIndB(V),
-          space()->sIndB(W),
-          space()->eIndB(W),
-          space()->getDomainSize()->getSize(),
-          space()->getCoordinatesLocal()->getX(X,EField::S),
-          space()->getCoordinatesLocal()->getX(Y,EField::S),
-          space()->getCoordinatesLocal()->getX(X,EField::U),
-          space()->getCoordinatesLocal()->getX(Y,EField::V),
-          sFields_[U]->getRawPtr(),
-          sFields_[V]->getRawPtr(),
-          sFields_[W]->getRawPtr() );
-      break;
-    case GaussianForcing1D:
-      VF_init_GaussianForcing1D(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sIndB(U),
-          space()->eIndB(U),
-          space()->sIndB(V),
-          space()->eIndB(V),
-          space()->sIndB(W),
-          space()->eIndB(W),
-          space()->getDomainSize()->getSize(0),
-          space()->getCoordinatesLocal()->getX(X,EField::U),
-          sFields_[U]->getRawPtr(),
-          sFields_[V]->getRawPtr(),
-          sFields_[W]->getRawPtr() );
-      break;
-    case BoundaryFilter1D:
-      VF_init_BoundaryFilter1D(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sIndB(U),
-          space()->eIndB(U),
-          space()->sIndB(V),
-          space()->eIndB(V),
-          space()->sIndB(W),
-          space()->eIndB(W),
-          space()->getDomainSize()->getSize(0),
-          space()->getCoordinatesLocal()->getX(X,EField::U),
-          sFields_[U]->getRawPtr(),
-          sFields_[V]->getRawPtr(),
-          sFields_[W]->getRawPtr() );
-      break;
-    case GaussianForcing2D:
-      VF_init_GaussianForcing2D(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sIndB(U),
-          space()->eIndB(U),
-          space()->sIndB(V),
-          space()->eIndB(V),
-          space()->sIndB(W),
-          space()->eIndB(W),
-          space()->getDomainSize()->getSize(),
-          space()->getCoordinatesLocal()->getX(X,EField::S),
-          space()->getCoordinatesLocal()->getX(Y,EField::S),
-          space()->getCoordinatesLocal()->getX(X,EField::U),
-          space()->getCoordinatesLocal()->getX(Y,EField::V),
-          sFields_[U]->getRawPtr(),
-          sFields_[V]->getRawPtr(),
-          sFields_[W]->getRawPtr() );
-      break;
-    case BoundaryFilter2D:
-      VF_init_BoundaryFilter2D(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sIndB(U),
-          space()->eIndB(U),
-          space()->sIndB(V),
-          space()->eIndB(V),
-          space()->sIndB(W),
-          space()->eIndB(W),
-          space()->getDomainSize()->getSize(),
-          space()->getCoordinatesLocal()->getX(X,EField::S),
-          space()->getCoordinatesLocal()->getX(Y,EField::S),
-          space()->getCoordinatesLocal()->getX(X,EField::U),
-          space()->getCoordinatesLocal()->getX(Y,EField::V),
-          sFields_[U]->getRawPtr(),
-          sFields_[V]->getRawPtr(),
-          sFields_[W]->getRawPtr() );
-      break;
-    case VPoint2D:
-      VF_init_Vpoint(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sIndB(U),
-          space()->eIndB(U),
-          space()->sIndB(V),
-          space()->eIndB(V),
-          space()->sIndB(W),
-          space()->eIndB(W),
-          space()->getDomainSize()->getSize(),
-          space()->getCoordinatesLocal()->getX(X,EField::U),
-          space()->getCoordinatesLocal()->getX(Y,EField::S),
-          re,
-          sFields_[U]->getRawPtr(),
-          sFields_[V]->getRawPtr(),
-          sFields_[W]->getRawPtr() );
-      break;
-    case Disc2D:
-      VF_init_Disc(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sIndB(U),
-          space()->eIndB(U),
-          space()->sIndB(V),
-          space()->eIndB(V),
-          space()->sIndB(W),
-          space()->eIndB(W),
-          space()->getCoordinatesLocal()->getX(X,EField::S),
-          space()->getCoordinatesLocal()->getX(Y,EField::S),
-          space()->getCoordinatesLocal()->getX(Z,EField::S),
-          space()->getCoordinatesLocal()->getX(X,EField::U),
-          space()->getCoordinatesLocal()->getX(Y,EField::V),
-          re, om, px,sca,
-          sFields_[U]->getRawPtr(),
-          sFields_[V]->getRawPtr(),
-          sFields_[W]->getRawPtr() );
-      break;
-    case RotationDisc2D:
-      VF_init_RotatingDisc(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sIndB(U),
-          space()->eIndB(U),
-          space()->sIndB(V),
-          space()->eIndB(V),
-          space()->sIndB(W),
-          space()->eIndB(W),
-          space()->getCoordinatesLocal()->getX(X,EField::S),
-          space()->getCoordinatesLocal()->getX(Y,EField::S),
-          re, om, px,
-          sFields_[U]->getRawPtr(),
-          sFields_[V]->getRawPtr(),
-          sFields_[W]->getRawPtr() );
-      break;
-		case SweptHiemenzFlow: {
-			Scalar kappa = 0.;
-			Scalar sweep_angle = 60.;
-			Scalar pi = 4.*std::atan(1.);
-			VF_init_SHBF( 
-					space()->rankST(),      
-					space()->getShift(0),
-					space()->getProcGrid()->getIB(0),
-					space()->nGlo(),
-					space()->nLoc(),
-					space()->bl(),
-					space()->bu(),
-					space()->dl(),
-					space()->du(),
-          space()->sIndB(U),
-          space()->eIndB(U),
-          space()->sIndB(V),
-          space()->eIndB(V),
-          space()->sIndB(W),
-          space()->eIndB(W),
-          space()->getCoordinatesGlobal()->getX(X,EField::S),
-          space()->getCoordinatesGlobal()->getX(X,EField::U),
-          space()->getCoordinatesLocal()->getX(Z,EField::W),
-					space()->getInterpolateV2S()->getC( X ),
-					space()->getDomainSize()->getRe(),
-					0,  // nonDim  
-					kappa, // kappa
-					sweep_angle, // sweep_angle_degrees,  
-					sweep_angle*pi/180., // sweep_angle,          
-					0., // angle_attack,         
-          sFields_[U]->getRawPtr(),
-          sFields_[V]->getRawPtr(),
-          sFields_[W]->getRawPtr() );
-			break;
+	///  \brief initializes VectorField with the initial field defined in Fortran
+	void initField( EVectorField flowType = ConstFlow,
+			Scalar re=0.,
+			Scalar om=0.,
+			Scalar px = 0.,
+			Scalar sca=1. ) {
+		switch( flowType ) {
+			case ZeroFlow :
+				for( int i=0; i<space()->dim(); ++i )
+					sFields_[i]->initField( ConstField );
+				break;
+			case ConstFlow :
+				sFields_[U]->initField( ConstField, re );
+				sFields_[V]->initField( ConstField, om );
+				sFields_[W]->initField( ConstField, px );
+				break;
+			case PoiseuilleFlow2D_inX :
+				for( int i=0; i<space()->dim(); ++i )
+					if( U==i )
+						sFields_[i]->initField( Poiseuille2D_inY );
+					else
+						sFields_[i]->initField( ConstField );
+				break;
+			case PoiseuilleFlow2D_inY :
+				for( int i=0; i<space()->dim(); ++i )
+					if( V==i )
+						sFields_[i]->initField( Poiseuille2D_inX );
+					else
+						sFields_[i]->initField( ConstField );
+				break;
+			case PoiseuilleFlow2D_inZ :
+				for( int i=0; i<space()->dim(); ++i )
+					if( W==i )
+						sFields_[i]->initField( Poiseuille2D_inX );
+					else
+						sFields_[i]->initField( ConstField );
+				break;
+			case Pulsatile2D_inXC :
+				VF_init_2DPulsatileXC(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(U),
+						space()->eIndB(U),
+						space()->sIndB(V),
+						space()->eIndB(V),
+						space()->sIndB(W),
+						space()->eIndB(W),
+						space()->getDomainSize()->getSize(1),
+						space()->getCoordinatesLocal()->getX(Y,EField::S),
+						re, om, px,
+						sFields_[U]->getRawPtr(),
+						sFields_[V]->getRawPtr(),
+						sFields_[W]->getRawPtr() );
+				break;
+			case Pulsatile2D_inYC :
+				VF_init_2DPulsatileYC(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(U),
+						space()->eIndB(U),
+						space()->sIndB(V),
+						space()->eIndB(V),
+						space()->sIndB(W),
+						space()->eIndB(W),
+						space()->getDomainSize()->getSize(0),
+						space()->getCoordinatesLocal()->getX(X,EField::S),
+						re, om, px,
+						sFields_[U]->getRawPtr(),
+						sFields_[V]->getRawPtr(),
+						sFields_[W]->getRawPtr() );
+				break;
+			case Pulsatile2D_inXS :
+				VF_init_2DPulsatileXS(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(U),
+						space()->eIndB(U),
+						space()->sIndB(V),
+						space()->eIndB(V),
+						space()->sIndB(W),
+						space()->eIndB(W),
+						space()->getDomainSize()->getSize(1),
+						space()->getCoordinatesLocal()->getX(Y,EField::S),
+						re, om, px,
+						sFields_[U]->getRawPtr(),
+						sFields_[V]->getRawPtr(),
+						sFields_[W]->getRawPtr() );
+				break;
+			case Pulsatile2D_inYS:
+				VF_init_2DPulsatileYS(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(U),
+						space()->eIndB(U),
+						space()->sIndB(V),
+						space()->eIndB(V),
+						space()->sIndB(W),
+						space()->eIndB(W),
+						space()->getDomainSize()->getSize(0),
+						space()->getCoordinatesLocal()->getX(X,EField::S),
+						re, om, px,
+						sFields_[U]->getRawPtr(),
+						sFields_[V]->getRawPtr(),
+						sFields_[W]->getRawPtr() );
+				break;
+			case Streaming2D:
+				VF_init_StreamingS(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(U),
+						space()->eIndB(U),
+						space()->sIndB(V),
+						space()->eIndB(V),
+						space()->sIndB(W),
+						space()->eIndB(W),
+						space()->getDomainSize()->getSize(0),
+						space()->getCoordinatesLocal()->getX(X,EField::S),
+						re,
+						sFields_[U]->getRawPtr(),
+						sFields_[V]->getRawPtr(),
+						sFields_[W]->getRawPtr() );
+				break;
+			case Streaming2DC:
+				VF_init_StreamingC(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(U),
+						space()->eIndB(U),
+						space()->sIndB(V),
+						space()->eIndB(V),
+						space()->sIndB(W),
+						space()->eIndB(W),
+						space()->getDomainSize()->getSize(0),
+						space()->getCoordinatesLocal()->getX(X,EField::S),
+						re,
+						sFields_[U]->getRawPtr(),
+						sFields_[V]->getRawPtr(),
+						sFields_[W]->getRawPtr() );
+				break;
+			case Streaming2DS:
+				VF_init_StreamingS(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(U),
+						space()->eIndB(U),
+						space()->sIndB(V),
+						space()->eIndB(V),
+						space()->sIndB(W),
+						space()->eIndB(W),
+						space()->getDomainSize()->getSize(0),
+						space()->getCoordinatesLocal()->getX(X,EField::S),
+						re,
+						sFields_[U]->getRawPtr(),
+						sFields_[V]->getRawPtr(),
+						sFields_[W]->getRawPtr() );
+				break;
+			case Circle2D:
+				sFields_[U]->initField( Grad2D_inY, -1. );
+				sFields_[V]->initField( Grad2D_inX,  1. );
+				sFields_[W]->initField();
+				break;
+			case Circle2D_inXZ:
+				sFields_[U]->initField( Grad2D_inY, -1. );
+				sFields_[V]->initField();
+				sFields_[W]->initField( Grad2D_inX,  1. );
+				break;
+			case RankineVortex2D:
+				VF_init_RankineVortex(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(U),
+						space()->eIndB(U),
+						space()->sIndB(V),
+						space()->eIndB(V),
+						space()->sIndB(W),
+						space()->eIndB(W),
+						space()->getDomainSize()->getSize(),
+						space()->getCoordinatesLocal()->getX(X,EField::S),
+						space()->getCoordinatesLocal()->getX(Y,EField::S),
+						space()->getCoordinatesLocal()->getX(X,EField::U),
+						space()->getCoordinatesLocal()->getX(Y,EField::V),
+						sFields_[U]->getRawPtr(),
+						sFields_[V]->getRawPtr(),
+						sFields_[W]->getRawPtr() );
+				break;
+			case GaussianForcing1D:
+				VF_init_GaussianForcing1D(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(U),
+						space()->eIndB(U),
+						space()->sIndB(V),
+						space()->eIndB(V),
+						space()->sIndB(W),
+						space()->eIndB(W),
+						space()->getDomainSize()->getSize(0),
+						space()->getCoordinatesLocal()->getX(X,EField::U),
+						sFields_[U]->getRawPtr(),
+						sFields_[V]->getRawPtr(),
+						sFields_[W]->getRawPtr() );
+				break;
+			case BoundaryFilter1D:
+				VF_init_BoundaryFilter1D(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(U),
+						space()->eIndB(U),
+						space()->sIndB(V),
+						space()->eIndB(V),
+						space()->sIndB(W),
+						space()->eIndB(W),
+						space()->getDomainSize()->getSize(0),
+						space()->getCoordinatesLocal()->getX(X,EField::U),
+						sFields_[U]->getRawPtr(),
+						sFields_[V]->getRawPtr(),
+						sFields_[W]->getRawPtr() );
+				break;
+			case GaussianForcing2D:
+				VF_init_GaussianForcing2D(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(U),
+						space()->eIndB(U),
+						space()->sIndB(V),
+						space()->eIndB(V),
+						space()->sIndB(W),
+						space()->eIndB(W),
+						space()->getDomainSize()->getSize(),
+						space()->getCoordinatesLocal()->getX(X,EField::S),
+						space()->getCoordinatesLocal()->getX(Y,EField::S),
+						space()->getCoordinatesLocal()->getX(X,EField::U),
+						space()->getCoordinatesLocal()->getX(Y,EField::V),
+						sFields_[U]->getRawPtr(),
+						sFields_[V]->getRawPtr(),
+						sFields_[W]->getRawPtr() );
+				break;
+			case BoundaryFilter2D:
+				VF_init_BoundaryFilter2D(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(U),
+						space()->eIndB(U),
+						space()->sIndB(V),
+						space()->eIndB(V),
+						space()->sIndB(W),
+						space()->eIndB(W),
+						space()->getDomainSize()->getSize(),
+						space()->getCoordinatesLocal()->getX(X,EField::S),
+						space()->getCoordinatesLocal()->getX(Y,EField::S),
+						space()->getCoordinatesLocal()->getX(X,EField::U),
+						space()->getCoordinatesLocal()->getX(Y,EField::V),
+						sFields_[U]->getRawPtr(),
+						sFields_[V]->getRawPtr(),
+						sFields_[W]->getRawPtr() );
+				break;
+			case VPoint2D:
+				VF_init_Vpoint(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(U),
+						space()->eIndB(U),
+						space()->sIndB(V),
+						space()->eIndB(V),
+						space()->sIndB(W),
+						space()->eIndB(W),
+						space()->getDomainSize()->getSize(),
+						space()->getCoordinatesLocal()->getX(X,EField::U),
+						space()->getCoordinatesLocal()->getX(Y,EField::S),
+						re,
+						sFields_[U]->getRawPtr(),
+						sFields_[V]->getRawPtr(),
+						sFields_[W]->getRawPtr() );
+				break;
+			case Disc2D:
+				VF_init_Disc(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(U),
+						space()->eIndB(U),
+						space()->sIndB(V),
+						space()->eIndB(V),
+						space()->sIndB(W),
+						space()->eIndB(W),
+						space()->getCoordinatesLocal()->getX(X,EField::S),
+						space()->getCoordinatesLocal()->getX(Y,EField::S),
+						space()->getCoordinatesLocal()->getX(Z,EField::S),
+						space()->getCoordinatesLocal()->getX(X,EField::U),
+						space()->getCoordinatesLocal()->getX(Y,EField::V),
+						re, om, px,sca,
+						sFields_[U]->getRawPtr(),
+						sFields_[V]->getRawPtr(),
+						sFields_[W]->getRawPtr() );
+				break;
+			case RotationDisc2D:
+				VF_init_RotatingDisc(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(U),
+						space()->eIndB(U),
+						space()->sIndB(V),
+						space()->eIndB(V),
+						space()->sIndB(W),
+						space()->eIndB(W),
+						space()->getCoordinatesLocal()->getX(X,EField::S),
+						space()->getCoordinatesLocal()->getX(Y,EField::S),
+						re, om, px,
+						sFields_[U]->getRawPtr(),
+						sFields_[V]->getRawPtr(),
+						sFields_[W]->getRawPtr() );
+				break;
+			case SweptHiemenzFlow: {
+															 Scalar kappa = 0.;
+															 Scalar sweep_angle = 60.;
+															 Scalar pi = 4.*std::atan(1.);
+															 VF_init_SHBF( 
+																	 space()->rankST(),      
+																	 space()->getShift(0),
+																	 space()->getProcGrid()->getIB(0),
+																	 space()->nGlo(),
+																	 space()->nLoc(),
+																	 space()->bl(),
+																	 space()->bu(),
+																	 space()->dl(),
+																	 space()->du(),
+																	 space()->sIndB(U),
+																	 space()->eIndB(U),
+																	 space()->sIndB(V),
+																	 space()->eIndB(V),
+																	 space()->sIndB(W),
+																	 space()->eIndB(W),
+																	 space()->getCoordinatesGlobal()->getX(X,EField::S),
+																	 space()->getCoordinatesGlobal()->getX(X,EField::U),
+																	 space()->getCoordinatesLocal()->getX(Z,EField::W),
+																	 space()->getInterpolateV2S()->getC( X ),
+																	 space()->getDomainSize()->getRe(),
+																	 0,  // nonDim  
+																	 kappa, // kappa
+																	 sweep_angle, // sweep_angle_degrees,  
+																	 sweep_angle*pi/180., // sweep_angle,          
+																	 0., // angle_attack,         
+																	 sFields_[U]->getRawPtr(),
+																	 sFields_[V]->getRawPtr(),
+																	 sFields_[W]->getRawPtr() );
+															 break;
+														 }
+			case Disturbance:
+														 VF_init_Dist(
+																 space()->rankST(),      
+																 space()->nLoc(),
+																 space()->bl(),
+																 space()->bu(),
+																 space()->sIndB(U),
+																 space()->eIndB(U),
+																 space()->sIndB(V),
+																 space()->eIndB(V),
+																 space()->sIndB(W),
+																 space()->eIndB(W),
+																 space()->getBCGlobal()->getBCL( Z ),
+																 space()->getCoordinatesLocal()->getX( X, EField::U ),
+																 space()->getCoordinatesLocal()->getX( X, EField::S ),
+																 space()->getCoordinatesLocal()->getX( Y, EField::S ),
+																 space()->getCoordinatesLocal()->getX( Z, EField::W ),
+																 space()->getCoordinatesLocal()->getX( Z, EField::S ),
+																 3, // dist_type,          
+																 0.15, // vortex_ampli_prim,  
+																 3., // vortex_x1pos,       
+																 3., // vortex_x3pos,       
+																 3., // vortex_radius,      
+																 10, // vortex_band,        
+																 sFields_[U]->getRawPtr(),
+																 sFields_[V]->getRawPtr(),
+																 sFields_[W]->getRawPtr() );
+														 break;
 		}
-		case Disturbance:
-			VF_init_Dist(
-					space()->rankST(),      
-					space()->nLoc(),
-					space()->bl(),
-					space()->bu(),
-          space()->sIndB(U),
-          space()->eIndB(U),
-          space()->sIndB(V),
-          space()->eIndB(V),
-          space()->sIndB(W),
-          space()->eIndB(W),
-					space()->getBCGlobal()->getBCL( Z ),
-          space()->getCoordinatesLocal()->getX( X, EField::U ),
-          space()->getCoordinatesLocal()->getX( X, EField::S ),
-          space()->getCoordinatesLocal()->getX( Y, EField::S ),
-          space()->getCoordinatesLocal()->getX( Z, EField::W ),
-          space()->getCoordinatesLocal()->getX( Z, EField::S ),
-					3, // dist_type,          
-					0.15, // vortex_ampli_prim,  
-					3., // vortex_x1pos,       
-					3., // vortex_x3pos,       
-					3., // vortex_radius,      
-					10, // vortex_band,        
-          sFields_[U]->getRawPtr(),
-          sFields_[V]->getRawPtr(),
-          sFields_[W]->getRawPtr() );
-			break;
-		}
-    //    }
-    changed();
-  }
+		//    }
+	changed();
+}
 
 
   /// dirty hack(necessary for MG)
