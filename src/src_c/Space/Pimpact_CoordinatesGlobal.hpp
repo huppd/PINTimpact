@@ -144,13 +144,13 @@ protected:
 
 					for( Ordinal i=0; i<M; ++i ) {
 						Scalar is = i;
-						//coord_equi( is, L, Ms, x0, xS_[dir][i] );
-						coord_parab( is, L, Ms, x0, 0.05, xS_[dir][i] );
+						coord_equi( is, L, Ms, x0, xS_[dir][i] );
+						//coord_parab( is, L, Ms, x0, 0.05, xS_[dir][i] );
 					}
 					for( Ordinal i=0; i<=M; ++i ) {
 						Scalar is = i;
-						//coord_equi( is-0.5, L, Ms, x0, xV_[dir][i] );
-						coord_parab( is-0.5, L, Ms, x0, 0.05, xV_[dir][i] );
+						coord_equi( is-0.5, L, Ms, x0, xV_[dir][i] );
+						//coord_parab( is-0.5, L, Ms, x0, 0.05, xV_[dir][i] );
 					}
 
 				}
