@@ -19,6 +19,8 @@ ma.setParameter( root, 'npx', npx )
 ma.setParameter( root, 'npy', npy )
 ma.setParameter( root, 'npz', npz )
 
+ma.setParameter( root, 'Convergence Tolerance', 1.e-1 )
+
 exe = 'peri_navier3D'
 
 
@@ -29,12 +31,12 @@ os.system( 'make '+exe+' -j4' )
 
 case_path = ['','','','']
 
-refinement = [ 4,1 ]
+refinement = [ 12,1 ]
 ns         = [ 1,7 ]
 
 ma.setParameter( root, 'alpha2', 2*pi*0.2*200 )
 
-case_path[0] = '/case_study_small2'
+case_path[0] = '/case_study_small'
 if not os.path.exists( data_path+case_path[0] ):
 	os.mkdir( data_path+case_path[0] )
 for i in range(0,1):
