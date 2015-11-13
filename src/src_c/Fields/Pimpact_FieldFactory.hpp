@@ -6,9 +6,12 @@
 #include "Teuchos_RCP.hpp"
 
 #include "Pimpact_Fields.hpp"
+#include "Pimpact_ModeField.hpp"
 #include "Pimpact_MultiField.hpp"
+#include "Pimpact_MultiHarmonicField.hpp"
 #include "Pimpact_Space.hpp"
 #include "Pimpact_Types.hpp"
+#include "Pimpact_VectorField.hpp"
 
 
 
@@ -23,9 +26,9 @@ template<class SpaceT>
 Teuchos::RCP< MultiField<ModeField<VectorField<SpaceT> > > >
 createMultiModeVectorField( const Teuchos::RCP<const SpaceT>& space, int n=1 ) {
 
-  auto vel = create< ModeField< VectorField<SpaceT> > >( space );
+	auto vel = create< ModeField< VectorField<SpaceT> > >( space );
 
-  return( createMultiField<ModeField<VectorField<SpaceT> > >( *vel, n ) );
+	return( createMultiField<ModeField<VectorField<SpaceT> > >( *vel, n ) );
 
 }
 
