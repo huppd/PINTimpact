@@ -56,50 +56,50 @@ contains
     !===========================================================================================================
     if( m == 1 )then
 
-            do k = SS(3), NN(3)
-                do j = SS(2), NN(2)
-                    do i = SS(1), NN(1)
-                        inter(i,j,k) = c(dL,i)*phi(i+dL,j,k)
-                        do ii = dL+1, dU
-                            inter(i,j,k) = inter(i,j,k) + c(ii,i)*phi(i+ii,j,k)
-                        end do
-                    end do
-                end do
+      do k = SS(3), NN(3)
+        do j = SS(2), NN(2)
+          do i = SS(1), NN(1)
+            inter(i,j,k) = c(dL,i)*phi(i+dL,j,k)
+            do ii = dL+1, dU
+              inter(i,j,k) = inter(i,j,k) + c(ii,i)*phi(i+ii,j,k)
             end do
+          end do
+        end do
+      end do
 
-        end if
-        !-----------------------------------------------------------------------------------------------------------
-        if (m == 2) then
+    end if
+    !-----------------------------------------------------------------------------------------------------------
+    if (m == 2) then
 
-            do k = SS(3), NN(3)
-                do j = SS(2), NN(2)
-                    do i = SS(1), NN(1)
-                        inter(i,j,k) = c(dL,j)*phi(i,j+dL,k)
-                        do jj = dL+1, dU
-                            inter(i,j,k) = inter(i,j,k) + c(jj,j)*phi(i,j+jj,k)
-                        end do
-                    end do
-                end do
+      do k = SS(3), NN(3)
+        do j = SS(2), NN(2)
+          do i = SS(1), NN(1)
+            inter(i,j,k) = c(dL,j)*phi(i,j+dL,k)
+            do jj = dL+1, dU
+              inter(i,j,k) = inter(i,j,k) + c(jj,j)*phi(i,j+jj,k)
             end do
+          end do
+        end do
+      end do
 
-        end if
-        !-----------------------------------------------------------------------------------------------------------
-        if (m == 3) then
-            do k = SS(3), NN(3)
-                do j = SS(2), NN(2)
-                    do i = SS(1), NN(1)
-                        inter(i,j,k) = c(dL,k)*phi(i,j,k+dL)
-                        do kk = dL+1, dU
-                            inter(i,j,k) = inter(i,j,k) + c(kk,k)*phi(i,j,k+kk)
-                        end do
-                    end do
-                end do
+    end if
+    !-----------------------------------------------------------------------------------------------------------
+    if (m == 3) then
+      do k = SS(3), NN(3)
+        do j = SS(2), NN(2)
+          do i = SS(1), NN(1)
+            inter(i,j,k) = c(dL,k)*phi(i,j,k+dL)
+            do kk = dL+1, dU
+              inter(i,j,k) = inter(i,j,k) + c(kk,k)*phi(i,j,k+kk)
             end do
-        end if
-        !===========================================================================================================
+          end do
+        end do
+      end do
+    end if
+    !===========================================================================================================
 
-  
-    end subroutine OP_interpolateV2S
 
-  
+  end subroutine OP_interpolateV2S
+
+
 end module cmod_InterpolateV2SOp

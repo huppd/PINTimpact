@@ -118,12 +118,12 @@ contains
       ! copying into sending array
       if (BCU(1) == 0) then
         do i = bL(1), -1
-        ghost1US(i,SS(2):NN(2),SS(3):NN(3)) = phi((Np(1)+1+i),SS(2):NN(2),SS(3):NN(3))
+          ghost1US(i,SS(2):NN(2),SS(3):NN(3)) = phi((Np(1)+1+i),SS(2):NN(2),SS(3):NN(3))
         end do
       end if
       if (BCL(1) == 0) then
         do i = 1, bU(1)
-        ghost1LS(i,SS(2):NN(2),SS(3):NN(3)) = phi((Sp(1)-1+i),SS(2):NN(2),SS(3):NN(3))
+          ghost1LS(i,SS(2):NN(2),SS(3):NN(3)) = phi((Sp(1)-1+i),SS(2):NN(2),SS(3):NN(3))
         end do
       end if
 

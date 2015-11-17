@@ -211,16 +211,16 @@ contains
             dd1 = c11p(bL(1),i)*veln(i+bL(1),j,k,2)
             !pgi$ unroll = n:8
             do ii = bL(1)+1, bU(1)
-            dd1 = dd1 + c11p(ii,i)*veln(i+ii,j,k,2)
+              dd1 = dd1 + c11p(ii,i)*veln(i+ii,j,k,2)
             end do
             !pgi$ unroll = n:8
             do jj = bL(2), bU(2)
-            dd1 = dd1 + c22v(jj,j)*veln(i,j+jj,k,2)
+              dd1 = dd1 + c22v(jj,j)*veln(i,j+jj,k,2)
             end do
             if( 3==dimens) then
               !pgi$ unroll = n:8
               do kk = bL(3), bU(3)
-              dd1 = dd1 + c33p(kk,k)*veln(i,j,k+kk,2)
+                dd1 = dd1 + c33p(kk,k)*veln(i,j,k+kk,2)
               end do
             endif
             r_vel(i,j,k,2) = r_vel(i,j,k,2) - mulL*dd1
@@ -242,16 +242,16 @@ contains
             dd1 = c11p(bL(1),i)*veln(i+bL(1),j,k,3)
             !pgi$ unroll = n:8
             do ii = bL(1)+1, bU(1)
-            dd1 = dd1 + c11p(ii,i)*veln(i+ii,j,k,3)
+              dd1 = dd1 + c11p(ii,i)*veln(i+ii,j,k,3)
             end do
             !pgi$ unroll = n:8
             do jj = bL(2), bU(2)
-            dd1 = dd1 + c22p(jj,j)*veln(i,j+jj,k,3)
+              dd1 = dd1 + c22p(jj,j)*veln(i,j+jj,k,3)
             end do
             if( 3==dimens) then
               !pgi$ unroll = n:8
               do kk = bL(3), bU(3)
-              dd1 = dd1 + c33w(kk,k)*veln(i,j,k+kk,3)
+                dd1 = dd1 + c33w(kk,k)*veln(i,j,k+kk,3)
               end do
             endif
             r_vel(i,j,k,3) = r_vel(i,j,k,3) - mulL*dd1
@@ -414,11 +414,11 @@ contains
             dd1 = c11u(bL(1),i)*veln(i+bL(1),j,k,1)
             !pgi$ unroll = n:8
             do ii = bL(1)+1, bU(1)
-            dd1 = dd1 + c11u(ii,i)*veln(i+ii,j,k,1)
+              dd1 = dd1 + c11u(ii,i)*veln(i+ii,j,k,1)
             end do
             !pgi$ unroll = n:8
             do jj = bL(2), bU(2)
-            dd1 = dd1 + c22p(jj,j)*veln(i,j+jj,k,1)
+              dd1 = dd1 + c22p(jj,j)*veln(i,j+jj,k,1)
             end do
             if( 3==dimens) then
               !pgi$ unroll = n:8
@@ -446,16 +446,16 @@ contains
             dd1 = c11p(bL(1),i)*veln(i+bL(1),j,k,2)
             !pgi$ unroll = n:8
             do ii = bL(1)+1, bU(1)
-            dd1 = dd1 + c11p(ii,i)*veln(i+ii,j,k,2)
+              dd1 = dd1 + c11p(ii,i)*veln(i+ii,j,k,2)
             end do
             !pgi$ unroll = n:8
             do jj = bL(2), bU(2)
-            dd1 = dd1 + c22v(jj,j)*veln(i,j+jj,k,2)
+              dd1 = dd1 + c22v(jj,j)*veln(i,j+jj,k,2)
             end do
             if( 3==dimens) then
               !pgi$ unroll = n:8
               do kk = bL(3), bU(3)
-              dd1 = dd1 + c33p(kk,k)*veln(i,j,k+kk,2)
+                dd1 = dd1 + c33p(kk,k)*veln(i,j,k+kk,2)
               end do
             endif
             r_vel(i,j,k,2) = r_vel(i,j,k,2) - mulL*dd1
@@ -477,16 +477,16 @@ contains
             dd1 = c11p(bL(1),i)*veln(i+bL(1),j,k,3)
             !pgi$ unroll = n:8
             do ii = bL(1)+1, bU(1)
-            dd1 = dd1 + c11p(ii,i)*veln(i+ii,j,k,3)
+              dd1 = dd1 + c11p(ii,i)*veln(i+ii,j,k,3)
             end do
             !pgi$ unroll = n:8
             do jj = bL(2), bU(2)
-            dd1 = dd1 + c22p(jj,j)*veln(i,j+jj,k,3)
+              dd1 = dd1 + c22p(jj,j)*veln(i,j+jj,k,3)
             end do
             if( 3==dimens) then
               !pgi$ unroll = n:8
               do kk = bL(3), bU(3)
-              dd1 = dd1 + c33w(kk,k)*veln(i,j,k+kk,3)
+                dd1 = dd1 + c33w(kk,k)*veln(i,j,k+kk,3)
               end do
             endif
             r_vel(i,j,k,3) = r_vel(i,j,k,3) - mulL*dd1

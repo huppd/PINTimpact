@@ -197,7 +197,7 @@ contains
         exit
       end if
       ! -- mjohn 111111
-     
+
       !! save error and integration value
       r = t(2) + cosPhi;
       IF (x .EQ. grid(i)) THEN
@@ -498,22 +498,22 @@ contains
     !! controlled shooting loop
     do
 
-    !!calculate new initial value
-    s1old = s1
-    s1 = (r0*s1 - r1*s0)/(r0-r1)
-    s0 = s1old
-    r0 = r1
-    !!shoot
-    call shoot_w(w,v,grid,n,sweep_angle,sweep_angle_degrees,kappa,sv,s1,r1,blThick)
+      !!calculate new initial value
+      s1old = s1
+      s1 = (r0*s1 - r1*s0)/(r0-r1)
+      s0 = s1old
+      r0 = r1
+      !!shoot
+      call shoot_w(w,v,grid,n,sweep_angle,sweep_angle_degrees,kappa,sv,s1,r1,blThick)
 
-    !!check result
-    IF(abs(r1) .LE. 1E-10) THEN
-      !!goal reached
-      EXIT
-    ELSEIF ((s1 .EQ. s0) .OR. (r1 .EQ. r0)) THEN
-      !!no more progress
-      EXIT
-    END IF
+      !!check result
+      IF(abs(r1) .LE. 1E-10) THEN
+        !!goal reached
+        EXIT
+      ELSEIF ((s1 .EQ. s0) .OR. (r1 .EQ. r0)) THEN
+        !!no more progress
+        EXIT
+      END IF
     END DO
 
     !! print output
@@ -692,1452 +692,1452 @@ contains
 
 
 
-    !> \brief init vector field with 2d pulsatile flow in x-direction
-    !! \f[ u(y,t) = \hat{u}^+ \exp(i \omega t) + \hat{u}^- \exp(- i \omega t) \f]
-    !! \f[ \hat{u}^+(y) = c^+ \left( \exp(+ \lambda_1 y ) + \exp(-\lambda\right) + \frac{p_x i}{\omega \f]
-    !! \f[ \hat{u}^-(y) = c^- \left( \exp(+ \lambda_{-1} y ) \right) + \frac{p_x i}{\omega \f]
-    subroutine VF_init_2DPulsatileXC(   &
-        N,                              &
-        bL,bU,                          &
-        SU,NU,                          &
-        SV,NV,                          &
-        SW,NW,                          &
-        L2,                             &
-        x2p,                            &
-        re_, om, px,                    &
-        phiU, phiV, phiW ) bind ( c, name='VF_init_2DPulsatileXC' )
+  !> \brief init vector field with 2d pulsatile flow in x-direction
+  !! \f[ u(y,t) = \hat{u}^+ \exp(i \omega t) + \hat{u}^- \exp(- i \omega t) \f]
+  !! \f[ \hat{u}^+(y) = c^+ \left( \exp(+ \lambda_1 y ) + \exp(-\lambda\right) + \frac{p_x i}{\omega \f]
+  !! \f[ \hat{u}^-(y) = c^- \left( \exp(+ \lambda_{-1} y ) \right) + \frac{p_x i}{\omega \f]
+  subroutine VF_init_2DPulsatileXC(   &
+      N,                              &
+      bL,bU,                          &
+      SU,NU,                          &
+      SV,NV,                          &
+      SW,NW,                          &
+      L2,                             &
+      x2p,                            &
+      re_, om, px,                    &
+      phiU, phiV, phiW ) bind ( c, name='VF_init_2DPulsatileXC' )
 
-        implicit none
-
-
-        integer(c_int), intent(in)    ::  N(3)
-
-        integer(c_int), intent(in)     :: bL(3)
-        integer(c_int), intent(in)     :: bU(3)
-
-        integer(c_int), intent(in)     :: SU(3)
-        integer(c_int), intent(in)     :: NU(3)
-
-        integer(c_int), intent(in)     :: SV(3)
-        integer(c_int), intent(in)     :: NV(3)
-
-        integer(c_int), intent(in)     :: SW(3)
-        integer(c_int), intent(in)     :: NW(3)
-
-        real(c_double), intent(in)     :: L2
-
-        real(c_double), intent(in)     :: x2p( bL(2):(N(2)+bU(2)) )
-
-        real(c_double), intent(in)    ::  re_
-        real(c_double), intent(in)    ::  om
-        real(c_double), intent(in)    ::  px
-
-        real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-
-        real(c_double) :: pi
-        real(c_double) :: Lh
-        real(c_double) :: mu
-        real(c_double) :: ny
-        real(c_double) :: c
+    implicit none
 
 
+    integer(c_int), intent(in)    ::  N(3)
 
-        integer                ::  i, j, k
+    integer(c_int), intent(in)     :: bL(3)
+    integer(c_int), intent(in)     :: bU(3)
 
-        !--- initial conditions for velocity ---
-        ! note: - cf. sketch in file "usr_geometry.f90"
-        !
-        !         grid points in the domain and on the boundary
-        !         |         |         |     velocity component
-        !         |         |         |     |
-        ! vel(S1U:N1U,S2U:N2U,S3U:N3U,1)
-        ! vel(S1V:N1V,S2V:N2V,S3V:N3V,2)
-        ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
-        !
-        !  phiU = 0.
-        !  phiV = 0.
-        !  phiW = 0.
-        pi = 4.*atan(1.)
-        Lh  = L2/2.
-        mu = sqrt( om*re_/2. )*Lh
-        c  = px/( om*(cos(mu)**2*cosh(mu)**2 + sin(mu)**2*sinh(mu)**2) )
+    integer(c_int), intent(in)     :: SU(3)
+    integer(c_int), intent(in)     :: NU(3)
 
-        do k = SU(3), NU(3)
-            do j = SU(2), NU(2)
-                do i = SU(1), NU(1)
-                    ny = sqrt( om*re_/2. )*( x2p(j)-Lh )
-                    phiU(i,j,k) = -c*( -cos(ny)*cosh(ny)*sin(mu)*sinh(mu) +sin(ny)*sinh(ny)*cos(mu)*cosh(mu) )
-                end do
-            end do
+    integer(c_int), intent(in)     :: SV(3)
+    integer(c_int), intent(in)     :: NV(3)
+
+    integer(c_int), intent(in)     :: SW(3)
+    integer(c_int), intent(in)     :: NW(3)
+
+    real(c_double), intent(in)     :: L2
+
+    real(c_double), intent(in)     :: x2p( bL(2):(N(2)+bU(2)) )
+
+    real(c_double), intent(in)    ::  re_
+    real(c_double), intent(in)    ::  om
+    real(c_double), intent(in)    ::  px
+
+    real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+
+    real(c_double) :: pi
+    real(c_double) :: Lh
+    real(c_double) :: mu
+    real(c_double) :: ny
+    real(c_double) :: c
+
+
+
+    integer                ::  i, j, k
+
+    !--- initial conditions for velocity ---
+    ! note: - cf. sketch in file "usr_geometry.f90"
+    !
+    !         grid points in the domain and on the boundary
+    !         |         |         |     velocity component
+    !         |         |         |     |
+    ! vel(S1U:N1U,S2U:N2U,S3U:N3U,1)
+    ! vel(S1V:N1V,S2V:N2V,S3V:N3V,2)
+    ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
+    !
+    !  phiU = 0.
+    !  phiV = 0.
+    !  phiW = 0.
+    pi = 4.*atan(1.)
+    Lh  = L2/2.
+    mu = sqrt( om*re_/2. )*Lh
+    c  = px/( om*(cos(mu)**2*cosh(mu)**2 + sin(mu)**2*sinh(mu)**2) )
+
+    do k = SU(3), NU(3)
+      do j = SU(2), NU(2)
+        do i = SU(1), NU(1)
+          ny = sqrt( om*re_/2. )*( x2p(j)-Lh )
+          phiU(i,j,k) = -c*( -cos(ny)*cosh(ny)*sin(mu)*sinh(mu) +sin(ny)*sinh(ny)*cos(mu)*cosh(mu) )
         end do
+      end do
+    end do
 
-        do k = SV(3), NV(3)
-            do j = SV(2), NV(2)
-                do i = SV(1), NV(1)
-                    phiV(i,j,k) = 0
-                end do
-            end do
+    do k = SV(3), NV(3)
+      do j = SV(2), NV(2)
+        do i = SV(1), NV(1)
+          phiV(i,j,k) = 0
         end do
+      end do
+    end do
 
-        do k = SW(3), NW(3)
-            do j = SW(2), NW(2)
-                do i = SW(1), NW(1)
-                    phiW(i,j,k) = 0.0
-                end do
-            end do
+    do k = SW(3), NW(3)
+      do j = SW(2), NW(2)
+        do i = SW(1), NW(1)
+          phiW(i,j,k) = 0.0
         end do
+      end do
+    end do
 
-    end subroutine VF_init_2DPulsatileXC
+  end subroutine VF_init_2DPulsatileXC
 
 
-    !> \brief init vector field with 2d pulsatile flow in x-direction
-    !! \f[ u(y,t) = \hat{u}^+ \exp(i \omega t) + \hat{u}^- \exp(- i \omega t) \f]
-    !! \f[ \hat{u}^+(y) = c^+ \left( \exp(+ \lambda_1 y ) + \exp(-\lambda\right) + \frac{p_x i}{\omega \f]
-    !! \f[ \hat{u}^-(y) = c^- \left( \exp(+ \lambda_{-1} y ) \right) + \frac{p_x i}{\omega \f]
-    subroutine VF_init_2DPulsatileYC(   &
-        N,                              &
-        bL,bU,                          &
-        SU,NU,                          &
-        SV,NV,                          &
-        SW,NW,                          &
-        L1,                             &
-        x1,                             &
-        re_, om_, px,                   &
-        phiU, phiV, phiW ) bind ( c, name='VF_init_2DPulsatileYC' )
-        ! (basic subroutine)
+  !> \brief init vector field with 2d pulsatile flow in x-direction
+  !! \f[ u(y,t) = \hat{u}^+ \exp(i \omega t) + \hat{u}^- \exp(- i \omega t) \f]
+  !! \f[ \hat{u}^+(y) = c^+ \left( \exp(+ \lambda_1 y ) + \exp(-\lambda\right) + \frac{p_x i}{\omega \f]
+  !! \f[ \hat{u}^-(y) = c^- \left( \exp(+ \lambda_{-1} y ) \right) + \frac{p_x i}{\omega \f]
+  subroutine VF_init_2DPulsatileYC(   &
+      N,                              &
+      bL,bU,                          &
+      SU,NU,                          &
+      SV,NV,                          &
+      SW,NW,                          &
+      L1,                             &
+      x1,                             &
+      re_, om_, px,                   &
+      phiU, phiV, phiW ) bind ( c, name='VF_init_2DPulsatileYC' )
+    ! (basic subroutine)
 
-        implicit none
+    implicit none
 
-        integer(c_int), intent(in)    ::  N(3)
+    integer(c_int), intent(in)    ::  N(3)
 
-        integer(c_int), intent(in)    :: bL(3)
-        integer(c_int), intent(in)    :: bU(3)
+    integer(c_int), intent(in)    :: bL(3)
+    integer(c_int), intent(in)    :: bU(3)
 
-        integer(c_int), intent(in)    :: SU(3)
-        integer(c_int), intent(in)    :: NU(3)
+    integer(c_int), intent(in)    :: SU(3)
+    integer(c_int), intent(in)    :: NU(3)
 
-        integer(c_int), intent(in)    :: SV(3)
-        integer(c_int), intent(in)    :: NV(3)
+    integer(c_int), intent(in)    :: SV(3)
+    integer(c_int), intent(in)    :: NV(3)
 
-        integer(c_int), intent(in)    :: SW(3)
-        integer(c_int), intent(in)    :: NW(3)
+    integer(c_int), intent(in)    :: SW(3)
+    integer(c_int), intent(in)    :: NW(3)
 
-        real(c_double), intent(in)     :: L1
-        real(c_double), intent(in)     :: x1( bL(1):(N(1)+bU(1)) )
+    real(c_double), intent(in)     :: L1
+    real(c_double), intent(in)     :: x1( bL(1):(N(1)+bU(1)) )
 
-        real(c_double), intent(in)    :: re_
-        real(c_double), intent(in)    :: om_
-        real(c_double), intent(in)    :: px
+    real(c_double), intent(in)    :: re_
+    real(c_double), intent(in)    :: om_
+    real(c_double), intent(in)    :: px
 
-        real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-        real(c_double):: pi
-        real(c_double):: Lh
-        real(c_double):: mu
-        real(c_double):: ny
-        real(c_double):: c
+    real(c_double):: pi
+    real(c_double):: Lh
+    real(c_double):: mu
+    real(c_double):: ny
+    real(c_double):: c
 
-        integer(c_int)                ::  i, j, k
+    integer(c_int)                ::  i, j, k
 
-        !--- initial conditions for velocity ---
-        ! note: - cf. sketch in file "usr_geometry.f90"
-        !
-        !         grid points in the domain and on the boundary
-        !         |         |         |     velocity component
-        !         |         |         |     |
-        ! vel(S1U:N1U,S2U:N2U,S3U:N3U,1)
-        ! vel(S1V:N1V,S2V:N2V,S3V:N3V,2)
-        ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
-        !
-        !  phiU = 0.
-        !  phiV = 0.
-        !  phiW = 0.
-        pi = 4.*atan(1.)
-        Lh  = L1/2.
-        mu = sqrt( om_*re_/2. )*Lh
-        c  = px/( om_*(cos(mu)**2*cosh(mu)**2 + sin(mu)**2*sinh(mu)**2) )
+    !--- initial conditions for velocity ---
+    ! note: - cf. sketch in file "usr_geometry.f90"
+    !
+    !         grid points in the domain and on the boundary
+    !         |         |         |     velocity component
+    !         |         |         |     |
+    ! vel(S1U:N1U,S2U:N2U,S3U:N3U,1)
+    ! vel(S1V:N1V,S2V:N2V,S3V:N3V,2)
+    ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
+    !
+    !  phiU = 0.
+    !  phiV = 0.
+    !  phiW = 0.
+    pi = 4.*atan(1.)
+    Lh  = L1/2.
+    mu = sqrt( om_*re_/2. )*Lh
+    c  = px/( om_*(cos(mu)**2*cosh(mu)**2 + sin(mu)**2*sinh(mu)**2) )
 
-        do k = SU(3), NU(3)
-            do j = SU(2), NU(2)
-                do i = SU(1), NU(1)
-                    phiU(i,j,k) = 0
-                end do
-            end do
+    do k = SU(3), NU(3)
+      do j = SU(2), NU(2)
+        do i = SU(1), NU(1)
+          phiU(i,j,k) = 0
         end do
+      end do
+    end do
 
-        do k = SV(3), NV(3)
-            do j = SV(2), NV(2)
-                do i = SV(1), NV(1)
-                    ny = sqrt( om_*re_/2. )*( x1(i)-Lh )
-                    phiV(i,j,k) = -c*( -cos(ny)*cosh(ny)*sin(mu)*sinh(mu) +sin(ny)*sinh(ny)*cos(mu)*cosh(mu) )
-                end do
-            end do
+    do k = SV(3), NV(3)
+      do j = SV(2), NV(2)
+        do i = SV(1), NV(1)
+          ny = sqrt( om_*re_/2. )*( x1(i)-Lh )
+          phiV(i,j,k) = -c*( -cos(ny)*cosh(ny)*sin(mu)*sinh(mu) +sin(ny)*sinh(ny)*cos(mu)*cosh(mu) )
         end do
+      end do
+    end do
 
-        do k = SW(3), NW(3)
-            do j = SW(2), NW(2)
-                do i = SW(1), NW(1)
-                    phiW(i,j,k) = 0.0
-                end do
-            end do
+    do k = SW(3), NW(3)
+      do j = SW(2), NW(2)
+        do i = SW(1), NW(1)
+          phiW(i,j,k) = 0.0
         end do
+      end do
+    end do
 
-    end subroutine VF_init_2DPulsatileYC
+  end subroutine VF_init_2DPulsatileYC
 
 
-    !> \brief init vector field with 2d pulsatile flow in x-direction
-    !! \f[ u(y,t) = \hat{u}^+ \exp(i \omega t) + \hat{u}^- \exp(- i \omega t) \f]
-    !! \f[ \hat{u}^+(y) = c^+ \left( \exp(+ \lambda_1 y ) + \exp(-\lambda\right) + \frac{p_x i}{\omega \f]
-    !! \f[ \hat{u}^-(y) = c^- \left( \exp(+ \lambda_{-1} y ) \right) + \frac{p_x i}{\omega \f]
-    subroutine VF_init_2DPulsatileXS(   &
-        N,                      &
-        bL,bU,                  &
-        SU,NU,                  &
-        SV,NV,                  &
-        SW,NW,                  &
-        L2,                     &
-        x2,                     &
-        re_, om_, px,           &
-        phiU, phiV, phiW ) bind ( c, name='VF_init_2DPulsatileXS' )
-        ! (basic subroutine)
+  !> \brief init vector field with 2d pulsatile flow in x-direction
+  !! \f[ u(y,t) = \hat{u}^+ \exp(i \omega t) + \hat{u}^- \exp(- i \omega t) \f]
+  !! \f[ \hat{u}^+(y) = c^+ \left( \exp(+ \lambda_1 y ) + \exp(-\lambda\right) + \frac{p_x i}{\omega \f]
+  !! \f[ \hat{u}^-(y) = c^- \left( \exp(+ \lambda_{-1} y ) \right) + \frac{p_x i}{\omega \f]
+  subroutine VF_init_2DPulsatileXS(   &
+      N,                      &
+      bL,bU,                  &
+      SU,NU,                  &
+      SV,NV,                  &
+      SW,NW,                  &
+      L2,                     &
+      x2,                     &
+      re_, om_, px,           &
+      phiU, phiV, phiW ) bind ( c, name='VF_init_2DPulsatileXS' )
+    ! (basic subroutine)
 
-        implicit none
+    implicit none
 
-        integer(c_int), intent(in)    ::  N(3)
+    integer(c_int), intent(in)    ::  N(3)
 
-        integer(c_int), intent(in)     :: bL(3)
-        integer(c_int), intent(in)     :: bU(3)
+    integer(c_int), intent(in)     :: bL(3)
+    integer(c_int), intent(in)     :: bU(3)
 
-        integer(c_int), intent(in)     :: SU(3)
-        integer(c_int), intent(in)     :: NU(3)
+    integer(c_int), intent(in)     :: SU(3)
+    integer(c_int), intent(in)     :: NU(3)
 
-        integer(c_int), intent(in)     :: SV(3)
-        integer(c_int), intent(in)     :: NV(3)
+    integer(c_int), intent(in)     :: SV(3)
+    integer(c_int), intent(in)     :: NV(3)
 
-        integer(c_int), intent(in)     :: SW(3)
-        integer(c_int), intent(in)     :: NW(3)
+    integer(c_int), intent(in)     :: SW(3)
+    integer(c_int), intent(in)     :: NW(3)
 
-        real(c_double), intent(in)     :: L2
-        real(c_double), intent(in)     :: x2( bL(2):(N(2)+bU(2)) )
+    real(c_double), intent(in)     :: L2
+    real(c_double), intent(in)     :: x2( bL(2):(N(2)+bU(2)) )
 
-        real(c_double), intent(in)    ::  re_
-        real(c_double), intent(in)    ::  om_
-        real(c_double), intent(in)    ::  px
+    real(c_double), intent(in)    ::  re_
+    real(c_double), intent(in)    ::  om_
+    real(c_double), intent(in)    ::  px
 
-        real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-        real(c_double):: pi
-        real(c_double):: Lh
-        real(c_double):: mu
-        real(c_double):: ny
-        real(c_double):: c
+    real(c_double):: pi
+    real(c_double):: Lh
+    real(c_double):: mu
+    real(c_double):: ny
+    real(c_double):: c
 
-        integer(c_int)               ::  i, j, k
+    integer(c_int)               ::  i, j, k
 
-        !--- initial conditions for velocity ---
-        ! note: - cf. sketch in file "usr_geometry.f90"
-        !
-        !         grid points in the domain and on the boundary
-        !         |         |         |     velocity component
-        !         |         |         |     |
-        ! vel(S1U:N1U,S2U:N2U,S3U:N3U,1)
-        ! vel(S1V:N1V,S2V:N2V,S3V:N3V,2)
-        ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
-        !
-        !  phiU = 0.
-        !  phiV = 0.
-        !  phiW = 0.
-        pi = 4.*atan(1.)
-        Lh  = L2/2.
-        mu = sqrt( om_*re_/2. )*Lh
-        c  = px/( om_*(cos(mu)**2*cosh(mu)**2 + sin(mu)**2*sinh(mu)**2) )
+    !--- initial conditions for velocity ---
+    ! note: - cf. sketch in file "usr_geometry.f90"
+    !
+    !         grid points in the domain and on the boundary
+    !         |         |         |     velocity component
+    !         |         |         |     |
+    ! vel(S1U:N1U,S2U:N2U,S3U:N3U,1)
+    ! vel(S1V:N1V,S2V:N2V,S3V:N3V,2)
+    ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
+    !
+    !  phiU = 0.
+    !  phiV = 0.
+    !  phiW = 0.
+    pi = 4.*atan(1.)
+    Lh  = L2/2.
+    mu = sqrt( om_*re_/2. )*Lh
+    c  = px/( om_*(cos(mu)**2*cosh(mu)**2 + sin(mu)**2*sinh(mu)**2) )
 
-        do k = SU(3), NU(3)
-            do j = SU(2), NU(2)
-                do i = SU(1), NU(1)
-                    ny = sqrt( om_*Re_/2. )*( x2(j)-Lh )
-                    phiU(i,j,k) = -c*( cos(ny)*cosh(ny)*cos(mu)*cosh(mu) +sin(ny)*sinh(ny)*sin(mu)*sinh(mu) ) + px/om_
-                end do
-            end do
+    do k = SU(3), NU(3)
+      do j = SU(2), NU(2)
+        do i = SU(1), NU(1)
+          ny = sqrt( om_*Re_/2. )*( x2(j)-Lh )
+          phiU(i,j,k) = -c*( cos(ny)*cosh(ny)*cos(mu)*cosh(mu) +sin(ny)*sinh(ny)*sin(mu)*sinh(mu) ) + px/om_
         end do
+      end do
+    end do
 
-        do k = SV(3), NV(3)
-            do j = SV(2), NV(2)
-                do i = SV(1), NV(1)
-                    phiV(i,j,k) = 0
-                end do
-            end do
+    do k = SV(3), NV(3)
+      do j = SV(2), NV(2)
+        do i = SV(1), NV(1)
+          phiV(i,j,k) = 0
         end do
+      end do
+    end do
 
-        do k = SW(3), NW(3)
-            do j = SW(2), NW(2)
-                do i = SW(1), NW(1)
-                    phiW(i,j,k) = 0.0
-                end do
-            end do
+    do k = SW(3), NW(3)
+      do j = SW(2), NW(2)
+        do i = SW(1), NW(1)
+          phiW(i,j,k) = 0.0
         end do
+      end do
+    end do
 
-    end subroutine VF_init_2DPulsatileXS
+  end subroutine VF_init_2DPulsatileXS
 
 
-    !> \brief init vector field with 2d pulsatile flow in x-direction
-    !! \f[ u(y,t) = \hat{u}^+ \exp(i \omega t) + \hat{u}^- \exp(- i \omega t) \f]
-    !! \f[ \hat{u}^+(y) = c^+ \left( \exp(+ \lambda_1 y ) + \exp(-\lambda\right) + \frac{p_x i}{\omega \f]
-    !! \f[ \hat{u}^-(y) = c^- \left( \exp(+ \lambda_{-1} y ) \right) + \frac{p_x i}{\omega \f]
-    subroutine VF_init_2DPulsatileYS(   &
-        N,                      &
-        bL,bU,                  &
-        SU,NU,                  &
-        SV,NV,                  &
-        SW,NW,                  &
-        L1,                     &
-        x1,                     &
-        re_, om_, px,           &
-        phiU,phiV,phiW ) bind ( c, name='VF_init_2DPulsatileYS' )
+  !> \brief init vector field with 2d pulsatile flow in x-direction
+  !! \f[ u(y,t) = \hat{u}^+ \exp(i \omega t) + \hat{u}^- \exp(- i \omega t) \f]
+  !! \f[ \hat{u}^+(y) = c^+ \left( \exp(+ \lambda_1 y ) + \exp(-\lambda\right) + \frac{p_x i}{\omega \f]
+  !! \f[ \hat{u}^-(y) = c^- \left( \exp(+ \lambda_{-1} y ) \right) + \frac{p_x i}{\omega \f]
+  subroutine VF_init_2DPulsatileYS(   &
+      N,                      &
+      bL,bU,                  &
+      SU,NU,                  &
+      SV,NV,                  &
+      SW,NW,                  &
+      L1,                     &
+      x1,                     &
+      re_, om_, px,           &
+      phiU,phiV,phiW ) bind ( c, name='VF_init_2DPulsatileYS' )
 
-        implicit none
+    implicit none
 
-        integer(c_int), intent(in)    ::  N(3)
+    integer(c_int), intent(in)    ::  N(3)
 
-        integer(c_int), intent(in)     :: bL(3)
-        integer(c_int), intent(in)     :: bU(3)
+    integer(c_int), intent(in)     :: bL(3)
+    integer(c_int), intent(in)     :: bU(3)
 
-        integer(c_int), intent(in)     :: SU(3)
-        integer(c_int), intent(in)     :: NU(3)
+    integer(c_int), intent(in)     :: SU(3)
+    integer(c_int), intent(in)     :: NU(3)
 
-        integer(c_int), intent(in)     :: SV(3)
-        integer(c_int), intent(in)     :: NV(3)
+    integer(c_int), intent(in)     :: SV(3)
+    integer(c_int), intent(in)     :: NV(3)
 
-        integer(c_int), intent(in)     :: SW(3)
-        integer(c_int), intent(in)     :: NW(3)
+    integer(c_int), intent(in)     :: SW(3)
+    integer(c_int), intent(in)     :: NW(3)
 
-        real(c_double), intent(in)     :: L1
-        real(c_double), intent(in)     :: x1( bL(1):(N(1)+bU(1)) )
+    real(c_double), intent(in)     :: L1
+    real(c_double), intent(in)     :: x1( bL(1):(N(1)+bU(1)) )
 
-        real(c_double), intent(in)    ::  re_
-        real(c_double), intent(in)    ::  om_
-        real(c_double), intent(in)    ::  px
+    real(c_double), intent(in)    ::  re_
+    real(c_double), intent(in)    ::  om_
+    real(c_double), intent(in)    ::  px
 
-        real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-        real(c_double) :: pi
-        real(c_double) :: Lh
-        real(c_double) :: mu
-        real(c_double) :: ny
-        real(c_double) :: c
+    real(c_double) :: pi
+    real(c_double) :: Lh
+    real(c_double) :: mu
+    real(c_double) :: ny
+    real(c_double) :: c
 
-        integer(c_int)                ::  i, j, k
+    integer(c_int)                ::  i, j, k
 
-        !--- initial conditions for velocity ---
-        ! note: - cf. sketch in file "usr_geometry.f90"
-        !
-        !         grid points in the domain and on the boundary
-        !         |         |         |     velocity component
-        !         |         |         |     |
-        ! vel(S1U:N1U,S2U:N2U,S3U:N3U,1)
-        ! vel(S1V:N1V,S2V:N2V,S3V:N3V,2)
-        ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
-        !
-        !  phiU = 0.
-        !  phiV = 0.
-        !  phiW = 0.
-        pi = 4.*atan(1.)
-        Lh  = L1/2.
-        mu = sqrt( om_*re_/2. )*Lh
-        c  = px/( om_*(cos(mu)**2*cosh(mu)**2 + sin(mu)**2*sinh(mu)**2) )
+    !--- initial conditions for velocity ---
+    ! note: - cf. sketch in file "usr_geometry.f90"
+    !
+    !         grid points in the domain and on the boundary
+    !         |         |         |     velocity component
+    !         |         |         |     |
+    ! vel(S1U:N1U,S2U:N2U,S3U:N3U,1)
+    ! vel(S1V:N1V,S2V:N2V,S3V:N3V,2)
+    ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
+    !
+    !  phiU = 0.
+    !  phiV = 0.
+    !  phiW = 0.
+    pi = 4.*atan(1.)
+    Lh  = L1/2.
+    mu = sqrt( om_*re_/2. )*Lh
+    c  = px/( om_*(cos(mu)**2*cosh(mu)**2 + sin(mu)**2*sinh(mu)**2) )
 
-        do k = SU(3), NU(3)
-            do j = SU(2), NU(2)
-                do i = SU(1), NU(1)
-                    phiU(i,j,k) = 0
-                end do
-            end do
+    do k = SU(3), NU(3)
+      do j = SU(2), NU(2)
+        do i = SU(1), NU(1)
+          phiU(i,j,k) = 0
         end do
+      end do
+    end do
 
-        do k = SV(3), NV(3)
-            do j = SV(2), NV(2)
-                do i = SV(1), NV(1)
-                    ny = sqrt( om_*re_/2. )*( x1(i)-Lh )
-                    phiV(i,j,k) = -c*( cos(ny)*cosh(ny)*cos(mu)*cosh(mu) +sin(ny)*sinh(ny)*sin(mu)*sinh(mu) ) + px/om_
-                end do
-            end do
+    do k = SV(3), NV(3)
+      do j = SV(2), NV(2)
+        do i = SV(1), NV(1)
+          ny = sqrt( om_*re_/2. )*( x1(i)-Lh )
+          phiV(i,j,k) = -c*( cos(ny)*cosh(ny)*cos(mu)*cosh(mu) +sin(ny)*sinh(ny)*sin(mu)*sinh(mu) ) + px/om_
         end do
+      end do
+    end do
 
-        do k = SW(3), NW(3)
-            do j = SW(2), NW(2)
-                do i = SW(1), NW(1)
-                    phiW(i,j,k) = 0.0
-                end do
-            end do
+    do k = SW(3), NW(3)
+      do j = SW(2), NW(2)
+        do i = SW(1), NW(1)
+          phiW(i,j,k) = 0.0
         end do
+      end do
+    end do
 
-    end subroutine VF_init_2DPulsatileYS
+  end subroutine VF_init_2DPulsatileYS
 
 
 
-    !> \brief \f$ amp*\cos( \frac{2.*pi*x}{L_x} ) \f$
-    subroutine VF_init_StreamingC(  &
-        N,                          &
-        bL,bU,                      &
-        SU,NU,                      &
-        SV,NV,                      &
-        SW,NW,                      &
-        L1,                         &
-        x1,                         &
-        amp,                        &
-        phiU,phiV,phiW ) bind ( c, name='VF_init_StreamingC' )
-        ! (basic subroutine)
+  !> \brief \f$ amp*\cos( \frac{2.*pi*x}{L_x} ) \f$
+  subroutine VF_init_StreamingC(  &
+      N,                          &
+      bL,bU,                      &
+      SU,NU,                      &
+      SV,NV,                      &
+      SW,NW,                      &
+      L1,                         &
+      x1,                         &
+      amp,                        &
+      phiU,phiV,phiW ) bind ( c, name='VF_init_StreamingC' )
+    ! (basic subroutine)
 
-        implicit none
+    implicit none
 
-        integer(c_int), intent(in)    ::  N(3)
+    integer(c_int), intent(in)    ::  N(3)
 
-        integer(c_int), intent(in)     :: bL(3)
-        integer(c_int), intent(in)     :: bU(3)
+    integer(c_int), intent(in)     :: bL(3)
+    integer(c_int), intent(in)     :: bU(3)
 
-        integer(c_int), intent(in)     :: SU(3)
-        integer(c_int), intent(in)     :: NU(3)
+    integer(c_int), intent(in)     :: SU(3)
+    integer(c_int), intent(in)     :: NU(3)
 
-        integer(c_int), intent(in)     :: SV(3)
-        integer(c_int), intent(in)     :: NV(3)
+    integer(c_int), intent(in)     :: SV(3)
+    integer(c_int), intent(in)     :: NV(3)
 
-        integer(c_int), intent(in)     :: SW(3)
-        integer(c_int), intent(in)     :: NW(3)
+    integer(c_int), intent(in)     :: SW(3)
+    integer(c_int), intent(in)     :: NW(3)
 
-        real(c_double), intent(in)     :: L1
-        real(c_double), intent(in)     :: x1( bL(1):(N(1)+bU(1)) )
+    real(c_double), intent(in)     :: L1
+    real(c_double), intent(in)     :: x1( bL(1):(N(1)+bU(1)) )
 
-        real(c_double), intent(in)    ::  amp
+    real(c_double), intent(in)    ::  amp
 
-        real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-        real(c_double) :: pi
+    real(c_double) :: pi
 
-        integer(c_int)                ::  i, j, k
+    integer(c_int)                ::  i, j, k
 
-        !--- initial conditions for velocity ---
-        ! note: - cf. sketch in file "usr_geometry.f90"
-        !
-        !         grid points in the domain and on the boundary
-        !         |         |         |     velocity component
-        !         |         |         |     |
-        ! vel(S1U:N1U,S2U:N2U,S3U:N3U,1)
-        ! vel(S1V:N1V,S2V:N2V,S3V:N3V,2)
-        ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
-        !
+    !--- initial conditions for velocity ---
+    ! note: - cf. sketch in file "usr_geometry.f90"
+    !
+    !         grid points in the domain and on the boundary
+    !         |         |         |     velocity component
+    !         |         |         |     |
+    ! vel(S1U:N1U,S2U:N2U,S3U:N3U,1)
+    ! vel(S1V:N1V,S2V:N2V,S3V:N3V,2)
+    ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
+    !
 
-        pi = 4.*atan(1.)
+    pi = 4.*atan(1.)
 
-        do k = SU(3), NU(3)
-            do j = SU(2), NU(2)
-                do i = SU(1), NU(1)
-                    phiU(i,j,k) = 0
-                end do
-            end do
+    do k = SU(3), NU(3)
+      do j = SU(2), NU(2)
+        do i = SU(1), NU(1)
+          phiU(i,j,k) = 0
         end do
+      end do
+    end do
 
-        do k = SV(3), NV(3)
-            do j = SV(2), NV(2)
-                do i = SV(1), NV(1)
-                    phiV(i,j,k) = amp*cos( 2.*pi*x1(i)/L1 )
-                end do
-            end do
+    do k = SV(3), NV(3)
+      do j = SV(2), NV(2)
+        do i = SV(1), NV(1)
+          phiV(i,j,k) = amp*cos( 2.*pi*x1(i)/L1 )
         end do
+      end do
+    end do
 
-        do k = SW(3), NW(3)
-            do j = SW(2), NW(2)
-                do i = SW(1), NW(1)
-                    phiW(i,j,k) = 0.0
-                end do
-            end do
+    do k = SW(3), NW(3)
+      do j = SW(2), NW(2)
+        do i = SW(1), NW(1)
+          phiW(i,j,k) = 0.0
         end do
+      end do
+    end do
 
-    end subroutine VF_init_StreamingC
-
-
-
-    !> \brief \f$ amp*\sin( \frac{2.*pi*x}{L_x} ) \f$
-    subroutine VF_init_StreamingS(  &
-        N,                          &
-        bL,bU,                      &
-        SU,NU,                      &
-        SV,NV,                      &
-        SW,NW,                      &
-        L1,                         &
-        x1,                         &
-        amp,                        &
-        phiU,phiV,phiW ) bind ( c, name='VF_init_StreamingS' )
-        ! (basic subroutine)
-
-        implicit none
-
-        integer(c_int), intent(in)    ::  N(3)
-
-        integer(c_int), intent(in)     :: bL(3)
-        integer(c_int), intent(in)     :: bU(3)
-
-        integer(c_int), intent(in)     :: SU(3)
-        integer(c_int), intent(in)     :: NU(3)
-
-        integer(c_int), intent(in)     :: SV(3)
-        integer(c_int), intent(in)     :: NV(3)
-
-        integer(c_int), intent(in)     :: SW(3)
-        integer(c_int), intent(in)     :: NW(3)
-
-        real(c_double), intent(in)     :: L1
-        real(c_double), intent(in)     :: x1( bL(1):(N(1)+bU(1)) )
-
-        real(c_double), intent(in)    ::  amp
-
-        real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+  end subroutine VF_init_StreamingC
 
 
-        integer(c_int)                      ::  i, j, k
 
-        real(c_double) :: pi
+  !> \brief \f$ amp*\sin( \frac{2.*pi*x}{L_x} ) \f$
+  subroutine VF_init_StreamingS(  &
+      N,                          &
+      bL,bU,                      &
+      SU,NU,                      &
+      SV,NV,                      &
+      SW,NW,                      &
+      L1,                         &
+      x1,                         &
+      amp,                        &
+      phiU,phiV,phiW ) bind ( c, name='VF_init_StreamingS' )
+    ! (basic subroutine)
+
+    implicit none
+
+    integer(c_int), intent(in)    ::  N(3)
+
+    integer(c_int), intent(in)     :: bL(3)
+    integer(c_int), intent(in)     :: bU(3)
+
+    integer(c_int), intent(in)     :: SU(3)
+    integer(c_int), intent(in)     :: NU(3)
+
+    integer(c_int), intent(in)     :: SV(3)
+    integer(c_int), intent(in)     :: NV(3)
+
+    integer(c_int), intent(in)     :: SW(3)
+    integer(c_int), intent(in)     :: NW(3)
+
+    real(c_double), intent(in)     :: L1
+    real(c_double), intent(in)     :: x1( bL(1):(N(1)+bU(1)) )
+
+    real(c_double), intent(in)    ::  amp
+
+    real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
 
-        !--- initial conditions for velocity ---
-        ! note: - cf. sketch in file "usr_geometry.f90"
-        !
-        !         grid points in the domain and on the boundary
-        !         |         |         |     velocity component
-        !         |         |         |     |
-        ! vel(S1U:N1U,S2U:N2U,S3U:N3U,1)
-        ! vel(S1V:N1V,S2V:N2V,S3V:N3V,2)
-        ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
-        !
-        pi = 4.*atan(1.)
-        !  Lh  = L1/2.
-        !  mu = sqrt( om_*re_/2. )*Lh
-        !  c  = px/( om_*(cos(mu)**2*cosh(mu)**2 + sin(mu)**2*sinh(mu)**2) )
+    integer(c_int)                      ::  i, j, k
 
-        do k = SU(3), NU(3)
-            do j = SU(2), NU(2)
-                do i = SU(1), NU(1)
-                    phiU(i,j,k) = 0
-                end do
-            end do
+    real(c_double) :: pi
+
+
+    !--- initial conditions for velocity ---
+    ! note: - cf. sketch in file "usr_geometry.f90"
+    !
+    !         grid points in the domain and on the boundary
+    !         |         |         |     velocity component
+    !         |         |         |     |
+    ! vel(S1U:N1U,S2U:N2U,S3U:N3U,1)
+    ! vel(S1V:N1V,S2V:N2V,S3V:N3V,2)
+    ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
+    !
+    pi = 4.*atan(1.)
+    !  Lh  = L1/2.
+    !  mu = sqrt( om_*re_/2. )*Lh
+    !  c  = px/( om_*(cos(mu)**2*cosh(mu)**2 + sin(mu)**2*sinh(mu)**2) )
+
+    do k = SU(3), NU(3)
+      do j = SU(2), NU(2)
+        do i = SU(1), NU(1)
+          phiU(i,j,k) = 0
         end do
+      end do
+    end do
 
-        do k = SV(3), NV(3)
-            do j = SV(2), NV(2)
-                do i = SV(1), NV(1)
-                    phiV(i,j,k) = amp*sin( 2.*pi*x1(i)/L1 )
-                end do
-            end do
+    do k = SV(3), NV(3)
+      do j = SV(2), NV(2)
+        do i = SV(1), NV(1)
+          phiV(i,j,k) = amp*sin( 2.*pi*x1(i)/L1 )
         end do
+      end do
+    end do
 
-        do k = SW(3), NW(3)
-            do j = SW(2), NW(2)
-                do i = SW(1), NW(1)
-                    phiW(i,j,k) = 0.0
-                end do
-            end do
+    do k = SW(3), NW(3)
+      do j = SW(2), NW(2)
+        do i = SW(1), NW(1)
+          phiW(i,j,k) = 0.0
         end do
+      end do
+    end do
 
-    end subroutine VF_init_StreamingS
-
-
-
-    subroutine VF_init_Vpoint(  &
-        N,                      &
-        bL,bU,                  &
-        SU,NU,                  &
-        SV,NV,                  &
-        SW,NW,                  &
-        L,                      &
-        x1u,                    &
-        x2p,                    &
-        sig,                    &
-        phiU,phiV,phiW ) bind ( c, name='VF_init_Vpoint' )
-        ! (basic subroutine)
-
-        implicit none
-
-        integer(c_int), intent(in)    ::  N(3)
-
-        integer(c_int), intent(in)     :: bL(3)
-        integer(c_int), intent(in)     :: bU(3)
-
-        integer(c_int), intent(in)     :: SU(3)
-        integer(c_int), intent(in)     :: NU(3)
-
-        integer(c_int), intent(in)     :: SV(3)
-        integer(c_int), intent(in)     :: NV(3)
-
-        integer(c_int), intent(in)     :: SW(3)
-        integer(c_int), intent(in)     :: NW(3)
-
-        real(c_double), intent(in)     :: L(3)
-        real(c_double), intent(in)     :: x1u( bL(1):(N(1)+bU(1)) )
-        real(c_double), intent(in)     :: x2p( bL(2):(N(2)+bU(2)) )
-
-        real(c_double), intent(in)    :: sig
-
-        real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+  end subroutine VF_init_StreamingS
 
 
-        integer(c_int)               ::  i, j, k
 
-        !--- initial conditions for velocity ---
-        ! note: - cf. sketch in file "usr_geometry.f90"
-        !
-        !         grid points in the domain and on the boundary
-        !         |         |         |     velocity component
-        !         |         |         |     |
-        ! vel(S1U:N1U,S2U:N2U,S3U:N3U,1)
-        ! vel(S1V:N1V,S2V:N2V,S3V:N3V,2)
-        ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
-        !
+  subroutine VF_init_Vpoint(  &
+      N,                      &
+      bL,bU,                  &
+      SU,NU,                  &
+      SV,NV,                  &
+      SW,NW,                  &
+      L,                      &
+      x1u,                    &
+      x2p,                    &
+      sig,                    &
+      phiU,phiV,phiW ) bind ( c, name='VF_init_Vpoint' )
+    ! (basic subroutine)
+
+    implicit none
+
+    integer(c_int), intent(in)    ::  N(3)
+
+    integer(c_int), intent(in)     :: bL(3)
+    integer(c_int), intent(in)     :: bU(3)
+
+    integer(c_int), intent(in)     :: SU(3)
+    integer(c_int), intent(in)     :: NU(3)
+
+    integer(c_int), intent(in)     :: SV(3)
+    integer(c_int), intent(in)     :: NV(3)
+
+    integer(c_int), intent(in)     :: SW(3)
+    integer(c_int), intent(in)     :: NW(3)
+
+    real(c_double), intent(in)     :: L(3)
+    real(c_double), intent(in)     :: x1u( bL(1):(N(1)+bU(1)) )
+    real(c_double), intent(in)     :: x2p( bL(2):(N(2)+bU(2)) )
+
+    real(c_double), intent(in)    :: sig
+
+    real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
 
-        do k = SU(3), NU(3)
-            do j = SU(2), NU(2)
-                do i = SU(1), NU(1)
-                    phiU(i,j,k) = exp( -((x1u(i)-L(1)/2.)/sig)**2 -((x2p(j)-L(2)/2.)/sig/sig)**2 )
-                end do
-            end do
+    integer(c_int)               ::  i, j, k
+
+    !--- initial conditions for velocity ---
+    ! note: - cf. sketch in file "usr_geometry.f90"
+    !
+    !         grid points in the domain and on the boundary
+    !         |         |         |     velocity component
+    !         |         |         |     |
+    ! vel(S1U:N1U,S2U:N2U,S3U:N3U,1)
+    ! vel(S1V:N1V,S2V:N2V,S3V:N3V,2)
+    ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
+    !
+
+
+    do k = SU(3), NU(3)
+      do j = SU(2), NU(2)
+        do i = SU(1), NU(1)
+          phiU(i,j,k) = exp( -((x1u(i)-L(1)/2.)/sig)**2 -((x2p(j)-L(2)/2.)/sig/sig)**2 )
         end do
+      end do
+    end do
 
-        do k = SV(3), NV(3)
-            do j = SV(2), NV(2)
-                do i = SV(1), NV(1)
-                    phiV(i,j,k) = 0.
-                end do
-            end do
+    do k = SV(3), NV(3)
+      do j = SV(2), NV(2)
+        do i = SV(1), NV(1)
+          phiV(i,j,k) = 0.
         end do
+      end do
+    end do
 
-        do k = SW(3), NW(3)
-            do j = SW(2), NW(2)
-                do i = SW(1), NW(1)
-                    phiW(i,j,k) = 0.0
-                end do
-            end do
+    do k = SW(3), NW(3)
+      do j = SW(2), NW(2)
+        do i = SW(1), NW(1)
+          phiW(i,j,k) = 0.0
         end do
+      end do
+    end do
 
-    end subroutine VF_init_Vpoint
-
-
-
-    subroutine VF_init_RankineVortex(   &
-        N,                              &
-        bL,bU,                          &
-        SU,NU,                          &
-        SV,NV,                          &
-        SW,NW,                          &
-        L,                              &
-        x1p,x2p,                        &
-        x1u,x2v,                        &
-        phiU,phiV,phiW ) bind ( c, name='VF_init_RankineVortex' )
-        ! (basic subroutine)
-
-        implicit none
-
-        integer(c_int), intent(in)    ::  N(3)
-
-        integer(c_int), intent(in)     :: bL(3)
-        integer(c_int), intent(in)     :: bU(3)
-
-        integer(c_int), intent(in)     :: SU(3)
-        integer(c_int), intent(in)     :: NU(3)
-
-        integer(c_int), intent(in)     :: SV(3)
-        integer(c_int), intent(in)     :: NV(3)
-
-        integer(c_int), intent(in)     :: SW(3)
-        integer(c_int), intent(in)     :: NW(3)
-
-        real(c_double), intent(in)     :: L(3)
-
-        real(c_double), intent(in)     :: x1p( bL(1):(N(1)+bU(1)) )
-        real(c_double), intent(in)     :: x2p( bL(2):(N(2)+bU(2)) )
-
-        real(c_double), intent(in)     :: x1u( bL(1):(N(1)+bU(1)) )
-        real(c_double), intent(in)     :: x2v( bL(2):(N(2)+bU(2)) )
-
-        real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-
-        real(c_double):: circ
-        real(c_double):: rad
-        real(c_double):: r
-        real(c_double):: pi
+  end subroutine VF_init_Vpoint
 
 
-        integer(c_int)               ::  i, j, k
 
-        !--- initial conditions for velocity ---
-        ! note: - cf. sketch in file "usr_geometry.f90"
-        !
-        !         grid points in the domain and on the boundary
-        !         |         |         |     velocity component
-        !         |         |         |     |
-        ! vel(S1U:N1U,S2U:N2U,S3U:N3U,1)
-        ! vel(S1V:N1V,S2V:N2V,S3V:N3V,2)
-        ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
-        !
-        pi = 4.*atan(1.)
-        rad = L(1)/2./2.
-        circ = 2.*pi*rad
+  subroutine VF_init_RankineVortex(   &
+      N,                              &
+      bL,bU,                          &
+      SU,NU,                          &
+      SV,NV,                          &
+      SW,NW,                          &
+      L,                              &
+      x1p,x2p,                        &
+      x1u,x2v,                        &
+      phiU,phiV,phiW ) bind ( c, name='VF_init_RankineVortex' )
+    ! (basic subroutine)
 
-        do k = SU(3), NU(3)
-            do j = SU(2), NU(2)
-                do i = SU(1), NU(1)
-                    r = sqrt( (x1u(i)-L(1)/2)**2 + (x2p(j)-L(2)/2)**2 )
-                    if( r<= rad ) then
-                        phiU(i,j,k) = -(x2p(j)-L(2)/2)/rad
-                    else
-                        phiU(i,j,k) = -(x2p(j)-L(2)/2)*rad/r/r
-                    endif
-                end do
-            end do
+    implicit none
+
+    integer(c_int), intent(in)    ::  N(3)
+
+    integer(c_int), intent(in)     :: bL(3)
+    integer(c_int), intent(in)     :: bU(3)
+
+    integer(c_int), intent(in)     :: SU(3)
+    integer(c_int), intent(in)     :: NU(3)
+
+    integer(c_int), intent(in)     :: SV(3)
+    integer(c_int), intent(in)     :: NV(3)
+
+    integer(c_int), intent(in)     :: SW(3)
+    integer(c_int), intent(in)     :: NW(3)
+
+    real(c_double), intent(in)     :: L(3)
+
+    real(c_double), intent(in)     :: x1p( bL(1):(N(1)+bU(1)) )
+    real(c_double), intent(in)     :: x2p( bL(2):(N(2)+bU(2)) )
+
+    real(c_double), intent(in)     :: x1u( bL(1):(N(1)+bU(1)) )
+    real(c_double), intent(in)     :: x2v( bL(2):(N(2)+bU(2)) )
+
+    real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+
+    real(c_double):: circ
+    real(c_double):: rad
+    real(c_double):: r
+    real(c_double):: pi
+
+
+    integer(c_int)               ::  i, j, k
+
+    !--- initial conditions for velocity ---
+    ! note: - cf. sketch in file "usr_geometry.f90"
+    !
+    !         grid points in the domain and on the boundary
+    !         |         |         |     velocity component
+    !         |         |         |     |
+    ! vel(S1U:N1U,S2U:N2U,S3U:N3U,1)
+    ! vel(S1V:N1V,S2V:N2V,S3V:N3V,2)
+    ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
+    !
+    pi = 4.*atan(1.)
+    rad = L(1)/2./2.
+    circ = 2.*pi*rad
+
+    do k = SU(3), NU(3)
+      do j = SU(2), NU(2)
+        do i = SU(1), NU(1)
+          r = sqrt( (x1u(i)-L(1)/2)**2 + (x2p(j)-L(2)/2)**2 )
+          if( r<= rad ) then
+            phiU(i,j,k) = -(x2p(j)-L(2)/2)/rad
+          else
+            phiU(i,j,k) = -(x2p(j)-L(2)/2)*rad/r/r
+          endif
         end do
+      end do
+    end do
 
-        do k = SV(3), NV(3)
-            do j = SV(2), NV(2)
-                do i = SV(1), NV(1)
-                    r = sqrt( (x1p(i)-L(1)/2)**2 + (x2v(j)-L(2)/2)**2 )
-                    if( r<=rad ) then
-                        phiV(i,j,k) = (x1p(i)-L(1)/2)/rad
-                    else
-                        phiV(i,j,k) = (x1p(i)-L(1)/2)*rad/r/r
-                    endif
-                end do
-            end do
+    do k = SV(3), NV(3)
+      do j = SV(2), NV(2)
+        do i = SV(1), NV(1)
+          r = sqrt( (x1p(i)-L(1)/2)**2 + (x2v(j)-L(2)/2)**2 )
+          if( r<=rad ) then
+            phiV(i,j,k) = (x1p(i)-L(1)/2)/rad
+          else
+            phiV(i,j,k) = (x1p(i)-L(1)/2)*rad/r/r
+          endif
         end do
+      end do
+    end do
 
-        do k = SW(3), NW(3)
-            do j = SW(2), NW(2)
-                do i = SW(1), NW(1)
-                    phiW(i,j,k) = 0.0
-                end do
-            end do
+    do k = SW(3), NW(3)
+      do j = SW(2), NW(2)
+        do i = SW(1), NW(1)
+          phiW(i,j,k) = 0.0
         end do
+      end do
+    end do
 
-    end subroutine VF_init_RankineVortex
+  end subroutine VF_init_RankineVortex
 
 
 
-    subroutine VF_init_GaussianForcing1D(   &
-        N,                                  &
-        bL,bU,                              &
-        SU,NU,                              &
-        SV,NV,                              &
-        SW,NW,                              &
-        L1,                                 &
-        x1u,                                &
-        phiU,phiV,phiW ) bind ( c, name='VF_init_GaussianForcing1D' )
-        ! (basic subroutine)
+  subroutine VF_init_GaussianForcing1D(   &
+      N,                                  &
+      bL,bU,                              &
+      SU,NU,                              &
+      SV,NV,                              &
+      SW,NW,                              &
+      L1,                                 &
+      x1u,                                &
+      phiU,phiV,phiW ) bind ( c, name='VF_init_GaussianForcing1D' )
+    ! (basic subroutine)
 
-        implicit none
+    implicit none
 
-        integer(c_int), intent(in)    ::  N(3)
+    integer(c_int), intent(in)    ::  N(3)
 
-        integer(c_int), intent(in)     :: bL(3)
-        integer(c_int), intent(in)     :: bU(3)
+    integer(c_int), intent(in)     :: bL(3)
+    integer(c_int), intent(in)     :: bU(3)
 
-        integer(c_int), intent(in)     :: SU(3)
-        integer(c_int), intent(in)     :: NU(3)
+    integer(c_int), intent(in)     :: SU(3)
+    integer(c_int), intent(in)     :: NU(3)
 
-        integer(c_int), intent(in)     :: SV(3)
-        integer(c_int), intent(in)     :: NV(3)
+    integer(c_int), intent(in)     :: SV(3)
+    integer(c_int), intent(in)     :: NV(3)
 
-        integer(c_int), intent(in)     :: SW(3)
-        integer(c_int), intent(in)     :: NW(3)
+    integer(c_int), intent(in)     :: SW(3)
+    integer(c_int), intent(in)     :: NW(3)
 
-        real(c_double), intent(in)     :: L1
-        real(c_double), intent(in)     :: x1u( bL(1):(N(1)+bU(1)) )
+    real(c_double), intent(in)     :: L1
+    real(c_double), intent(in)     :: x1u( bL(1):(N(1)+bU(1)) )
 
-        real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-        real(c_double):: sig
+    real(c_double):: sig
 
-        integer(c_int)               ::  i, j, k
+    integer(c_int)               ::  i, j, k
 
-        !--- initial conditions for velocity ---
-        ! note: - cf. sketch in file "usr_geometry.f90"
-        !
-        !         grid points in the domain and on the boundary
-        !         |         |         |     velocity component
-        !         |         |         |     |
-        ! vel(S1U:N1U,S2U:N2U,S3U:N3U,1)
-        ! vel(S1V:N1V,S2V:N2V,S3V:N3V,2)
-        ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
-        !
+    !--- initial conditions for velocity ---
+    ! note: - cf. sketch in file "usr_geometry.f90"
+    !
+    !         grid points in the domain and on the boundary
+    !         |         |         |     velocity component
+    !         |         |         |     |
+    ! vel(S1U:N1U,S2U:N2U,S3U:N3U,1)
+    ! vel(S1V:N1V,S2V:N2V,S3V:N3V,2)
+    ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
+    !
 
-        sig = 0.2
+    sig = 0.2
 
-        do k = SU(3), NU(3)
-            do j = SU(2), NU(2)
-                do i = SU(1), NU(1)
-                    phiU(i,j,k) = exp( -((x1u(i)-L1/2)/sig)**2  )
-                end do
-            end do
+    do k = SU(3), NU(3)
+      do j = SU(2), NU(2)
+        do i = SU(1), NU(1)
+          phiU(i,j,k) = exp( -((x1u(i)-L1/2)/sig)**2  )
         end do
+      end do
+    end do
 
-        do k = SV(3), NV(3)
-            do j = SV(2), NV(2)
-                do i = SV(1), NV(1)
-                    phiV(i,j,k) = 0
-                end do
-            end do
+    do k = SV(3), NV(3)
+      do j = SV(2), NV(2)
+        do i = SV(1), NV(1)
+          phiV(i,j,k) = 0
         end do
+      end do
+    end do
 
-        do k = SW(3), NW(3)
-            do j = SW(2), NW(2)
-                do i = SW(1), NW(1)
-                    phiW(i,j,k) = 0.0
-                end do
-            end do
+    do k = SW(3), NW(3)
+      do j = SW(2), NW(2)
+        do i = SW(1), NW(1)
+          phiW(i,j,k) = 0.0
         end do
+      end do
+    end do
 
-    end subroutine VF_init_GaussianForcing1D
+  end subroutine VF_init_GaussianForcing1D
 
 
 
 
-    subroutine VF_init_GaussianForcing2D(   &
-        N,                                  &
-        bL,bU,                              &
-        SU,NU,                              &
-        SV,NV,                              &
-        SW,NW,                              &
-        L,                                  &
-        x1p,x2p,                            &
-        x1u,x2v,                            &
-        phiU,phiV,phiW ) bind ( c, name='VF_init_GaussianForcing2D' )
-        ! (basic subroutine)
+  subroutine VF_init_GaussianForcing2D(   &
+      N,                                  &
+      bL,bU,                              &
+      SU,NU,                              &
+      SV,NV,                              &
+      SW,NW,                              &
+      L,                                  &
+      x1p,x2p,                            &
+      x1u,x2v,                            &
+      phiU,phiV,phiW ) bind ( c, name='VF_init_GaussianForcing2D' )
+    ! (basic subroutine)
 
-        implicit none
+    implicit none
 
-        integer(c_int), intent(in)    ::  N(3)
+    integer(c_int), intent(in)    ::  N(3)
 
-        integer(c_int), intent(in)     :: bL(3)
-        integer(c_int), intent(in)     :: bU(3)
+    integer(c_int), intent(in)     :: bL(3)
+    integer(c_int), intent(in)     :: bU(3)
 
-        integer(c_int), intent(in)     :: SU(3)
-        integer(c_int), intent(in)     :: NU(3)
+    integer(c_int), intent(in)     :: SU(3)
+    integer(c_int), intent(in)     :: NU(3)
 
-        integer(c_int), intent(in)     :: SV(3)
-        integer(c_int), intent(in)     :: NV(3)
+    integer(c_int), intent(in)     :: SV(3)
+    integer(c_int), intent(in)     :: NV(3)
 
-        integer(c_int), intent(in)     :: SW(3)
-        integer(c_int), intent(in)     :: NW(3)
+    integer(c_int), intent(in)     :: SW(3)
+    integer(c_int), intent(in)     :: NW(3)
 
-        real(c_double), intent(in)     :: L(3)
+    real(c_double), intent(in)     :: L(3)
 
-        real(c_double), intent(in)     :: x1p( bL(1):(N(1)+bU(1)) )
-        real(c_double), intent(in)     :: x2p( bL(2):(N(2)+bU(2)) )
+    real(c_double), intent(in)     :: x1p( bL(1):(N(1)+bU(1)) )
+    real(c_double), intent(in)     :: x2p( bL(2):(N(2)+bU(2)) )
 
-        real(c_double), intent(in)     :: x1u( bL(1):(N(1)+bU(1)) )
-        real(c_double), intent(in)     :: x2v( bL(2):(N(2)+bU(2)) )
+    real(c_double), intent(in)     :: x1u( bL(1):(N(1)+bU(1)) )
+    real(c_double), intent(in)     :: x2v( bL(2):(N(2)+bU(2)) )
 
-        real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double):: sig
+    real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double):: sig
 
-        integer(c_int)               ::  i, j, k
+    integer(c_int)               ::  i, j, k
 
-        !--- initial conditions for velocity ---
-        ! note: - cf. sketch in file "usr_geometry.f90"
-        !
-        !         grid points in the domain and on the boundary
-        !         |         |         |     velocity component
-        !         |         |         |     |
-        ! vel(S1U:N1U,S2U:N2U,S3U:N3U,1)
-        ! vel(S1V:N1V,S2V:N2V,S3V:N3V,2)
-        ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
-        !
+    !--- initial conditions for velocity ---
+    ! note: - cf. sketch in file "usr_geometry.f90"
+    !
+    !         grid points in the domain and on the boundary
+    !         |         |         |     velocity component
+    !         |         |         |     |
+    ! vel(S1U:N1U,S2U:N2U,S3U:N3U,1)
+    ! vel(S1V:N1V,S2V:N2V,S3V:N3V,2)
+    ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
+    !
 
-        sig = 0.2
+    sig = 0.2
 
-        do k = SU(3), NU(3)
-            do j = SU(2), NU(2)
-                do i = SU(1), NU(1)
-                    phiU(i,j,k) = exp( -((x1u(i)   )/sig)**2 - ((x2p(j)   )/sig)**2 ) / sqrt(2.)    &
-                        + exp( -((x1u(i)-L(1))/sig)**2 - ((x2p(j)-L(2))/sig)**2 ) / sqrt(2.)    &
-                        + exp( -((x1u(i)-L(1))/sig)**2 - ((x2p(j)   )/sig)**2 ) / sqrt(2.)    &
-                        + exp( -((x1u(i)   )/sig)**2 - ((x2p(j)-L(2))/sig)**2 ) / sqrt(2.)
-                end do
-            end do
+    do k = SU(3), NU(3)
+      do j = SU(2), NU(2)
+        do i = SU(1), NU(1)
+          phiU(i,j,k) = exp( -((x1u(i)   )/sig)**2 - ((x2p(j)   )/sig)**2 ) / sqrt(2.)    &
+            + exp( -((x1u(i)-L(1))/sig)**2 - ((x2p(j)-L(2))/sig)**2 ) / sqrt(2.)    &
+            + exp( -((x1u(i)-L(1))/sig)**2 - ((x2p(j)   )/sig)**2 ) / sqrt(2.)    &
+            + exp( -((x1u(i)   )/sig)**2 - ((x2p(j)-L(2))/sig)**2 ) / sqrt(2.)
         end do
+      end do
+    end do
 
-        do k = SV(3), NV(3)
-            do j = SV(2), NV(2)
-                do i = SV(1), NV(1)
-                    phiV(i,j,k) = exp( -((x1p(i)   )/sig)**2 -((x2v(j)   )/sig)**2 ) / sqrt(2.) &
-                        + exp( -((x1p(i)-L(1))/sig)**2 -((x2v(j)-L(2))/sig)**2 ) / sqrt(2.) &
-                        + exp( -((x1p(i)-L(1))/sig)**2 -((x2v(j)   )/sig)**2 ) / sqrt(2.) &
-                        + exp( -((x1p(i)   )/sig)**2 -((x2v(j)-L(2))/sig)**2 ) / sqrt(2.)
-                end do
-            end do
+    do k = SV(3), NV(3)
+      do j = SV(2), NV(2)
+        do i = SV(1), NV(1)
+          phiV(i,j,k) = exp( -((x1p(i)   )/sig)**2 -((x2v(j)   )/sig)**2 ) / sqrt(2.) &
+            + exp( -((x1p(i)-L(1))/sig)**2 -((x2v(j)-L(2))/sig)**2 ) / sqrt(2.) &
+            + exp( -((x1p(i)-L(1))/sig)**2 -((x2v(j)   )/sig)**2 ) / sqrt(2.) &
+            + exp( -((x1p(i)   )/sig)**2 -((x2v(j)-L(2))/sig)**2 ) / sqrt(2.)
         end do
+      end do
+    end do
 
-        do k = SW(3), NW(3)
-            do j = SW(2), NW(2)
-                do i = SW(1), NW(1)
-                    phiW(i,j,k) = 0.0
-                end do
-            end do
+    do k = SW(3), NW(3)
+      do j = SW(2), NW(2)
+        do i = SW(1), NW(1)
+          phiW(i,j,k) = 0.0
         end do
+      end do
+    end do
 
-    end subroutine VF_init_GaussianForcing2D
+  end subroutine VF_init_GaussianForcing2D
 
 
 
 
-    subroutine VF_init_BoundaryFilter1D(    &
-        N,                                  &
-        bL,bU,                              &
-        SU,NU,                              &
-        SV,NV,                              &
-        SW,NW,                              &
-        L1,                                 &
-        x1u,                                &
-        phiU,phiV,phiW ) bind ( c, name='VF_init_BoundaryFilter1D' )
-        ! (basic subroutine)
+  subroutine VF_init_BoundaryFilter1D(    &
+      N,                                  &
+      bL,bU,                              &
+      SU,NU,                              &
+      SV,NV,                              &
+      SW,NW,                              &
+      L1,                                 &
+      x1u,                                &
+      phiU,phiV,phiW ) bind ( c, name='VF_init_BoundaryFilter1D' )
+    ! (basic subroutine)
 
-        implicit none
+    implicit none
 
-        integer(c_int), intent(in)    ::  N(3)
+    integer(c_int), intent(in)    ::  N(3)
 
-        integer(c_int), intent(in)     :: bL(3)
-        integer(c_int), intent(in)     :: bU(3)
+    integer(c_int), intent(in)     :: bL(3)
+    integer(c_int), intent(in)     :: bU(3)
 
-        integer(c_int), intent(in)     :: SU(3)
-        integer(c_int), intent(in)     :: NU(3)
+    integer(c_int), intent(in)     :: SU(3)
+    integer(c_int), intent(in)     :: NU(3)
 
-        integer(c_int), intent(in)     :: SV(3)
-        integer(c_int), intent(in)     :: NV(3)
+    integer(c_int), intent(in)     :: SV(3)
+    integer(c_int), intent(in)     :: NV(3)
 
-        integer(c_int), intent(in)     :: SW(3)
-        integer(c_int), intent(in)     :: NW(3)
+    integer(c_int), intent(in)     :: SW(3)
+    integer(c_int), intent(in)     :: NW(3)
 
-        real(c_double), intent(in)     :: L1
+    real(c_double), intent(in)     :: L1
 
-        real(c_double), intent(in)     :: x1u( bL(1):(N(1)+bU(1)) )
+    real(c_double), intent(in)     :: x1u( bL(1):(N(1)+bU(1)) )
 
-        real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-        real(c_double):: h
-        real(c_double):: h2
+    real(c_double):: h
+    real(c_double):: h2
 
-        integer(c_int)                ::  i, j, k
-                 
-        !--- initial conditions for velocity ---
-        ! note: - cf. sketch in file "usr_geometry.f90"
-        !
-        !         grid points in the domain and on the boundary
-        !         |         |         |     velocity component
-        !         |         |         |     |
-        ! vel(S1U:N1U,S2U:N2U,S3U:N3U,1)
-        ! vel(S1V:N1V,S2V:N2V,S3V:N3V,2)
-        ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
-        !
+    integer(c_int)                ::  i, j, k
 
-        h = 0.1
-        h2 = h*h
+    !--- initial conditions for velocity ---
+    ! note: - cf. sketch in file "usr_geometry.f90"
+    !
+    !         grid points in the domain and on the boundary
+    !         |         |         |     velocity component
+    !         |         |         |     |
+    ! vel(S1U:N1U,S2U:N2U,S3U:N3U,1)
+    ! vel(S1V:N1V,S2V:N2V,S3V:N3V,2)
+    ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
+    !
 
-        do k = SU(3), NU(3)
-            do j = SU(2), NU(2)
-                do i = SU(1), NU(1)
-                    phiU(i,j,k) = 10*( exp( -(x1u(i)**2)/h2  ) + exp( -((x1u(i)-L1)**2)/h2  ) )
-                end do
-            end do
+    h = 0.1
+    h2 = h*h
+
+    do k = SU(3), NU(3)
+      do j = SU(2), NU(2)
+        do i = SU(1), NU(1)
+          phiU(i,j,k) = 10*( exp( -(x1u(i)**2)/h2  ) + exp( -((x1u(i)-L1)**2)/h2  ) )
         end do
+      end do
+    end do
 
-        do k = SV(3), NV(3)
-            do j = SV(2), NV(2)
-                do i = SV(1), NV(1)
-                    phiV(i,j,k) = 0
-                end do
-            end do
+    do k = SV(3), NV(3)
+      do j = SV(2), NV(2)
+        do i = SV(1), NV(1)
+          phiV(i,j,k) = 0
         end do
+      end do
+    end do
 
-        do k = SW(3), NW(3)
-            do j = SW(2), NW(2)
-                do i = SW(1), NW(1)
-                    phiW(i,j,k) = 0.0
-                end do
-            end do
+    do k = SW(3), NW(3)
+      do j = SW(2), NW(2)
+        do i = SW(1), NW(1)
+          phiW(i,j,k) = 0.0
         end do
+      end do
+    end do
 
-    end subroutine VF_init_BoundaryFilter1D
+  end subroutine VF_init_BoundaryFilter1D
 
 
 
-    subroutine VF_init_BoundaryFilter2D(    &
-        N,                                  &
-        bL,bU,                              &
-        SU,NU,                              &
-        SV,NV,                              &
-        SW,NW,                              &
-        L,                                  &
-        x1p,x2p,                            &
-        x1u,x2v,                            &
-        phiU,phiV,phiW ) bind ( c, name='VF_init_BoundaryFilter2D' )
-        ! (basic subroutine)
+  subroutine VF_init_BoundaryFilter2D(    &
+      N,                                  &
+      bL,bU,                              &
+      SU,NU,                              &
+      SV,NV,                              &
+      SW,NW,                              &
+      L,                                  &
+      x1p,x2p,                            &
+      x1u,x2v,                            &
+      phiU,phiV,phiW ) bind ( c, name='VF_init_BoundaryFilter2D' )
+    ! (basic subroutine)
 
-        implicit none
+    implicit none
 
-        integer(c_int), intent(in)    ::  N(3)
+    integer(c_int), intent(in)    ::  N(3)
 
-        integer(c_int), intent(in)     :: bL(3)
-        integer(c_int), intent(in)     :: bU(3)
+    integer(c_int), intent(in)     :: bL(3)
+    integer(c_int), intent(in)     :: bU(3)
 
-        integer(c_int), intent(in)     :: SU(3)
-        integer(c_int), intent(in)     :: NU(3)
+    integer(c_int), intent(in)     :: SU(3)
+    integer(c_int), intent(in)     :: NU(3)
 
-        integer(c_int), intent(in)     :: SV(3)
-        integer(c_int), intent(in)     :: NV(3)
+    integer(c_int), intent(in)     :: SV(3)
+    integer(c_int), intent(in)     :: NV(3)
 
-        integer(c_int), intent(in)     :: SW(3)
-        integer(c_int), intent(in)     :: NW(3)
+    integer(c_int), intent(in)     :: SW(3)
+    integer(c_int), intent(in)     :: NW(3)
 
-        real(c_double), intent(in)     :: L(3)
+    real(c_double), intent(in)     :: L(3)
 
-        real(c_double), intent(in)     :: x1p( bL(1):(N(1)+bU(1)) )
-        real(c_double), intent(in)     :: x2p( bL(2):(N(2)+bU(2)) )
+    real(c_double), intent(in)     :: x1p( bL(1):(N(1)+bU(1)) )
+    real(c_double), intent(in)     :: x2p( bL(2):(N(2)+bU(2)) )
 
-        real(c_double), intent(in)     :: x1u( bL(1):(N(1)+bU(1)) )
-        real(c_double), intent(in)     :: x2v( bL(2):(N(2)+bU(2)) )
+    real(c_double), intent(in)     :: x1u( bL(1):(N(1)+bU(1)) )
+    real(c_double), intent(in)     :: x2v( bL(2):(N(2)+bU(2)) )
 
-        real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-        real(c_double):: h
-        real(c_double):: h2
+    real(c_double):: h
+    real(c_double):: h2
 
-        integer(c_int)               ::  i, j, k
+    integer(c_int)               ::  i, j, k
 
-        !--- initial conditions for velocity ---
-        ! note: - cf. sketch in file "usr_geometry.f90"
-        !
-        !         grid points in the domain and on the boundary
-        !         |         |         |     velocity component
-        !         |         |         |     |
-        ! vel(S1U:N1U,S2U:N2U,S3U:N3U,1)
-        ! vel(S1V:N1V,S2V:N2V,S3V:N3V,2)
-        ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
-        !
+    !--- initial conditions for velocity ---
+    ! note: - cf. sketch in file "usr_geometry.f90"
+    !
+    !         grid points in the domain and on the boundary
+    !         |         |         |     velocity component
+    !         |         |         |     |
+    ! vel(S1U:N1U,S2U:N2U,S3U:N3U,1)
+    ! vel(S1V:N1V,S2V:N2V,S3V:N3V,2)
+    ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
+    !
 
-        h = 0.1
-        h2 = h*h
+    h = 0.1
+    h2 = h*h
 
-        do k = SU(3), NU(3)
-            do j = SU(2), NU(2)
-                do i = SU(1), NU(1)
-                    phiU(i,j,k) = max( 10*( exp( -(x1u(i)**2)/h2  ) + exp( -((x1u(i)-L(1))**2)/h2  ) ) , &
-                        10*( exp( -(x2p(j)**2)/h2  ) + exp( -((x2p(j)-L(2))**2)/h2  ) ) )
-                end do
-            end do
+    do k = SU(3), NU(3)
+      do j = SU(2), NU(2)
+        do i = SU(1), NU(1)
+          phiU(i,j,k) = max( 10*( exp( -(x1u(i)**2)/h2  ) + exp( -((x1u(i)-L(1))**2)/h2  ) ) , &
+            10*( exp( -(x2p(j)**2)/h2  ) + exp( -((x2p(j)-L(2))**2)/h2  ) ) )
         end do
+      end do
+    end do
 
-        do k = SV(3), NV(3)
-            do j = SV(2), NV(2)
-                do i = SV(1), NV(1)
-                    phiV(i,j,k) = max( 10*( exp( -(x1p(i)**2)/h2  ) + exp( -((x1p(i)-L(1))**2)/h2  ) ) , &
-                        10*( exp( -(x2v(j)**2)/h2  ) + exp( -((x2v(j)-L(2))**2)/h2  ) ) )
-                end do
-            end do
+    do k = SV(3), NV(3)
+      do j = SV(2), NV(2)
+        do i = SV(1), NV(1)
+          phiV(i,j,k) = max( 10*( exp( -(x1p(i)**2)/h2  ) + exp( -((x1p(i)-L(1))**2)/h2  ) ) , &
+            10*( exp( -(x2v(j)**2)/h2  ) + exp( -((x2v(j)-L(2))**2)/h2  ) ) )
         end do
+      end do
+    end do
 
-        do k = SW(3), NW(3)
-            do j = SW(2), NW(2)
-                do i = SW(1), NW(1)
-                    phiW(i,j,k) = 0.0
-                end do
-            end do
+    do k = SW(3), NW(3)
+      do j = SW(2), NW(2)
+        do i = SW(1), NW(1)
+          phiW(i,j,k) = 0.0
         end do
+      end do
+    end do
 
-    end subroutine VF_init_BoundaryFilter2D
-
-
-
-    !> \f$ u = \min( 4*\exp( -((x-xm)/rad)**2 -((y-ym)/rad)**2 ),1.) \f$
-    subroutine VF_init_Disc(    &
-        N,                      &
-        bL,bU,                  &
-        SU,NU,                  &
-        SV,NV,                  &
-        SW,NW,                  &
-        x1p,x2p,x3p,            &
-        x1u,x2v,                &
-        xm,ym, rad,sca,         &
-        phiU,phiV,phiW ) bind ( c, name='VF_init_Disc' )
-
-        implicit none
-
-        integer(c_int), intent(in)    ::  N(3)
-
-        integer(c_int), intent(in)     :: bL(3)
-        integer(c_int), intent(in)     :: bU(3)
-
-        integer(c_int), intent(in)     :: SU(3)
-        integer(c_int), intent(in)     :: NU(3)
-
-        integer(c_int), intent(in)     :: SV(3)
-        integer(c_int), intent(in)     :: NV(3)
-
-        integer(c_int), intent(in)     :: SW(3)
-        integer(c_int), intent(in)     :: NW(3)
-
-        real(c_double), intent(in)     :: x1p( bL(1):(N(1)+bU(1)) )
-        real(c_double), intent(in)     :: x2p( bL(2):(N(2)+bU(2)) )
-        real(c_double), intent(in)     :: x3p( bL(3):(N(3)+bU(3)) )
-
-        real(c_double), intent(in)     :: x1u( bL(1):(N(1)+bU(1)) )
-        real(c_double), intent(in)     :: x2v( bL(2):(N(2)+bU(2)) )
-
-        real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-
-        real(c_double), intent(in)    :: xm
-        real(c_double), intent(in)    :: ym
-        real(c_double), intent(in)    :: rad
-        real(c_double), intent(in)    :: sca
+  end subroutine VF_init_BoundaryFilter2D
 
 
-        real(c_double)   :: dr
 
-        integer(c_int) ::  i, j, k
+  !> \f$ u = \min( 4*\exp( -((x-xm)/rad)**2 -((y-ym)/rad)**2 ),1.) \f$
+  subroutine VF_init_Disc(    &
+      N,                      &
+      bL,bU,                  &
+      SU,NU,                  &
+      SV,NV,                  &
+      SW,NW,                  &
+      x1p,x2p,x3p,            &
+      x1u,x2v,                &
+      xm,ym, rad,sca,         &
+      phiU,phiV,phiW ) bind ( c, name='VF_init_Disc' )
 
-        !--- initial conditions for velocity ---
-        ! note: - cf. sketch in file "usr_geometry.f90"
-        !
-        !         grid points in the domain and on the boundary
-        !         |         |         |     velocity component
-        !         |         |         |     |
-        ! vel(S1U:N1U,S2U:N2U,S3U:N3U,1)
-        ! vel(S1V:N1V,S2V:N2V,S3V:N3V,2)
-        ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
-        !
+    implicit none
+
+    integer(c_int), intent(in)    ::  N(3)
+
+    integer(c_int), intent(in)     :: bL(3)
+    integer(c_int), intent(in)     :: bU(3)
+
+    integer(c_int), intent(in)     :: SU(3)
+    integer(c_int), intent(in)     :: NU(3)
+
+    integer(c_int), intent(in)     :: SV(3)
+    integer(c_int), intent(in)     :: NV(3)
+
+    integer(c_int), intent(in)     :: SW(3)
+    integer(c_int), intent(in)     :: NW(3)
+
+    real(c_double), intent(in)     :: x1p( bL(1):(N(1)+bU(1)) )
+    real(c_double), intent(in)     :: x2p( bL(2):(N(2)+bU(2)) )
+    real(c_double), intent(in)     :: x3p( bL(3):(N(3)+bU(3)) )
+
+    real(c_double), intent(in)     :: x1u( bL(1):(N(1)+bU(1)) )
+    real(c_double), intent(in)     :: x2v( bL(2):(N(2)+bU(2)) )
+
+    real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+
+    real(c_double), intent(in)    :: xm
+    real(c_double), intent(in)    :: ym
+    real(c_double), intent(in)    :: rad
+    real(c_double), intent(in)    :: sca
 
 
-!        dr = SQRT( ( 2*L1/REAL(M1-1) )**2 + ( 2*L2/REAL(M2-1) )**2 )
-        dr = SQRT( ( 2*(x1p(2)-x1p(1)) )**2 + ( 2*(x2p(2)-x2p(1)) )**2 )
+    real(c_double)   :: dr
 
-        do k = SU(3), NU(3)
-            do j = SU(2), NU(2)
-                do i = SU(1), NU(1)
-                    phiU(i,j,k) = sca*distance2ib( x1u(i),x2p(j),x3p(k),xm,ym,rad,dr )
-                end do
-            end do
+    integer(c_int) ::  i, j, k
+
+    !--- initial conditions for velocity ---
+    ! note: - cf. sketch in file "usr_geometry.f90"
+    !
+    !         grid points in the domain and on the boundary
+    !         |         |         |     velocity component
+    !         |         |         |     |
+    ! vel(S1U:N1U,S2U:N2U,S3U:N3U,1)
+    ! vel(S1V:N1V,S2V:N2V,S3V:N3V,2)
+    ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
+    !
+
+
+    !        dr = SQRT( ( 2*L1/REAL(M1-1) )**2 + ( 2*L2/REAL(M2-1) )**2 )
+    dr = SQRT( ( 2*(x1p(2)-x1p(1)) )**2 + ( 2*(x2p(2)-x2p(1)) )**2 )
+
+    do k = SU(3), NU(3)
+      do j = SU(2), NU(2)
+        do i = SU(1), NU(1)
+          phiU(i,j,k) = sca*distance2ib( x1u(i),x2p(j),x3p(k),xm,ym,rad,dr )
         end do
+      end do
+    end do
 
-        do k = SV(3), NV(3)
-            do j = SV(2), NV(2)
-                do i = SV(1), NV(1)
-                    phiV(i,j,k) = sca*distance2ib( x1p(i),x2v(j),x3p(k),xm,ym,rad,dr )
-                end do
-            end do
+    do k = SV(3), NV(3)
+      do j = SV(2), NV(2)
+        do i = SV(1), NV(1)
+          phiV(i,j,k) = sca*distance2ib( x1p(i),x2v(j),x3p(k),xm,ym,rad,dr )
         end do
+      end do
+    end do
 
-        do k = SW(3), NW(3)
-            do j = SW(2), NW(2)
-                do i = SW(1), NW(1)
-                    phiW(i,j,k) = 0.0
-                end do
-            end do
+    do k = SW(3), NW(3)
+      do j = SW(2), NW(2)
+        do i = SW(1), NW(1)
+          phiW(i,j,k) = 0.0
         end do
+      end do
+    end do
 
-    end subroutine VF_init_Disc
-
-
-    subroutine VF_init_RotatingDisc(    &
-        N,                              &
-        bL,bU,                          &
-        SU,NU,                          &
-        SV,NV,                          &
-        SW,NW,                          &
-        x1p,x2p,                        &
-        xm,ym, omega,                   &
-        phiU,phiV,phiW ) bind ( c, name='VF_init_RotatingDisc' )
-        ! (basic subroutine)
-
-        implicit none
-
-        integer(c_int), intent(in)    ::  N(3)
-
-        integer(c_int), intent(in)     :: bL(3)
-        integer(c_int), intent(in)     :: bU(3)
-
-        integer(c_int), intent(in)     :: SU(3)
-        integer(c_int), intent(in)     :: NU(3)
-
-        integer(c_int), intent(in)     :: SV(3)
-        integer(c_int), intent(in)     :: NV(3)
-
-        integer(c_int), intent(in)     :: SW(3)
-        integer(c_int), intent(in)     :: NW(3)
-
-        real(c_double), intent(in)     :: x1p( bL(1):(N(1)+bU(1)) )
-        real(c_double), intent(in)     :: x2p( bL(2):(N(2)+bU(2)) )
-
-        real(c_double), intent(in)    :: xm
-        real(c_double), intent(in)    :: ym
-        real(c_double), intent(in)    :: omega
-
-        real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+  end subroutine VF_init_Disc
 
 
-        integer(c_int)               ::  i, j, k
+  subroutine VF_init_RotatingDisc(    &
+      N,                              &
+      bL,bU,                          &
+      SU,NU,                          &
+      SV,NV,                          &
+      SW,NW,                          &
+      x1p,x2p,                        &
+      xm,ym, omega,                   &
+      phiU,phiV,phiW ) bind ( c, name='VF_init_RotatingDisc' )
+    ! (basic subroutine)
 
-        !--- initial conditions for velocity ---
-        ! note: - cf. sketch in file "usr_geometry.f90"
-        !
-        !         grid points in the domain and on the boundary
-        !         |         |         |     velocity component
-        !         |         |         |     |
-        ! vel(S1U:N1U,S2U:N2U,S3U:N3U,1)
-        ! vel(S1V:N1V,S2V:N2V,S3V:N3V,2)
-        ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
-        !
+    implicit none
+
+    integer(c_int), intent(in)    ::  N(3)
+
+    integer(c_int), intent(in)     :: bL(3)
+    integer(c_int), intent(in)     :: bU(3)
+
+    integer(c_int), intent(in)     :: SU(3)
+    integer(c_int), intent(in)     :: NU(3)
+
+    integer(c_int), intent(in)     :: SV(3)
+    integer(c_int), intent(in)     :: NV(3)
+
+    integer(c_int), intent(in)     :: SW(3)
+    integer(c_int), intent(in)     :: NW(3)
+
+    real(c_double), intent(in)     :: x1p( bL(1):(N(1)+bU(1)) )
+    real(c_double), intent(in)     :: x2p( bL(2):(N(2)+bU(2)) )
+
+    real(c_double), intent(in)    :: xm
+    real(c_double), intent(in)    :: ym
+    real(c_double), intent(in)    :: omega
+
+    real(c_double),  intent(inout) :: phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
 
-        do k = SU(3), NU(3)
-            do j = SU(2), NU(2)
-                do i = SU(1), NU(1)
-                    phiU(i,j,k) = -omega*(x2p(j)-ym)
-                end do
-            end do
+    integer(c_int)               ::  i, j, k
+
+    !--- initial conditions for velocity ---
+    ! note: - cf. sketch in file "usr_geometry.f90"
+    !
+    !         grid points in the domain and on the boundary
+    !         |         |         |     velocity component
+    !         |         |         |     |
+    ! vel(S1U:N1U,S2U:N2U,S3U:N3U,1)
+    ! vel(S1V:N1V,S2V:N2V,S3V:N3V,2)
+    ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
+    !
+
+
+    do k = SU(3), NU(3)
+      do j = SU(2), NU(2)
+        do i = SU(1), NU(1)
+          phiU(i,j,k) = -omega*(x2p(j)-ym)
         end do
+      end do
+    end do
 
-        do k = SV(3), NV(3)
-            do j = SV(2), NV(2)
-                do i = SV(1), NV(1)
-                    phiV(i,j,k) = omega*(x1p(i)-xm)
-                end do
-            end do
+    do k = SV(3), NV(3)
+      do j = SV(2), NV(2)
+        do i = SV(1), NV(1)
+          phiV(i,j,k) = omega*(x1p(i)-xm)
         end do
+      end do
+    end do
 
-        do k = SW(3), NW(3)
-            do j = SW(2), NW(2)
-                do i = SW(1), NW(1)
-                    phiW(i,j,k) = 0.0
-                end do
-            end do
+    do k = SW(3), NW(3)
+      do j = SW(2), NW(2)
+        do i = SW(1), NW(1)
+          phiW(i,j,k) = 0.0
         end do
+      end do
+    end do
 
-    end subroutine VF_init_RotatingDisc
+  end subroutine VF_init_RotatingDisc
 
 
 
-    subroutine VF_init_SHBF(  &
-        rank,                 &
-        iShift,               &
-        IB1,                  &
-        M,                    &
-        N,                    &
-        bL,bU,                &
-        dL,dU,                &
-        SU,NU,                &
-        SV,NV,                &
-        SW,NW,                &
-        y1p,                  &
-        y1u,                  &
-        x3w,                  &
-        cIup,                 &
-        Re,                   &
-        nonDim,               &
-        kappa,                &
-        sweep_angle_degrees,  &
-        sweep_angle,          &
-        angle_attack,         &
-        velU,velV,velW ) bind ( c, name='VF_init_SHBF' )
-        ! (basic subroutine)
+  subroutine VF_init_SHBF(  &
+      rank,                 &
+      iShift,               &
+      IB1,                  &
+      M,                    &
+      N,                    &
+      bL,bU,                &
+      dL,dU,                &
+      SU,NU,                &
+      SV,NV,                &
+      SW,NW,                &
+      y1p,                  &
+      y1u,                  &
+      x3w,                  &
+      cIup,                 &
+      Re,                   &
+      nonDim,               &
+      kappa,                &
+      sweep_angle_degrees,  &
+      sweep_angle,          &
+      angle_attack,         &
+      velU,velV,velW ) bind ( c, name='VF_init_SHBF' )
+    ! (basic subroutine)
 
-        implicit none
+    implicit none
 
-        integer(c_int), intent(in)     :: rank
-        integer(c_int), intent(in)     :: iShift
-        integer(c_int), intent(in)     :: IB1
+    integer(c_int), intent(in)     :: rank
+    integer(c_int), intent(in)     :: iShift
+    integer(c_int), intent(in)     :: IB1
 
-        integer(c_int), intent(in)     :: M(3)
-        integer(c_int), intent(in)     :: N(3)
+    integer(c_int), intent(in)     :: M(3)
+    integer(c_int), intent(in)     :: N(3)
 
-        integer(c_int), intent(in)     :: bL(3)
-        integer(c_int), intent(in)     :: bU(3)
+    integer(c_int), intent(in)     :: bL(3)
+    integer(c_int), intent(in)     :: bU(3)
 
-        integer(c_int), intent(in)     :: dL(3)
-        integer(c_int), intent(in)     :: dU(3)
+    integer(c_int), intent(in)     :: dL(3)
+    integer(c_int), intent(in)     :: dU(3)
 
-        integer(c_int), intent(in)     :: SU(3)
-        integer(c_int), intent(in)     :: NU(3)
+    integer(c_int), intent(in)     :: SU(3)
+    integer(c_int), intent(in)     :: NU(3)
 
-        integer(c_int), intent(in)     :: SV(3)
-        integer(c_int), intent(in)     :: NV(3)
+    integer(c_int), intent(in)     :: SV(3)
+    integer(c_int), intent(in)     :: NV(3)
 
-        integer(c_int), intent(in)     :: SW(3)
-        integer(c_int), intent(in)     :: NW(3)
+    integer(c_int), intent(in)     :: SW(3)
+    integer(c_int), intent(in)     :: NW(3)
 
-        real(c_double), intent(in)     :: y1p( 1:M(1) )
+    real(c_double), intent(in)     :: y1p( 1:M(1) )
 
-        real(c_double), intent(in)     :: y1u( 0:M(1) )
+    real(c_double), intent(in)     :: y1u( 0:M(1) )
 
-        !real(c_double), intent(in)     :: x1p( bL(1):(N(1)+bU(1)) )
-        !real(c_double), intent(in)     :: x2p( bL(2):(N(2)+bU(2)) )
+    !real(c_double), intent(in)     :: x1p( bL(1):(N(1)+bU(1)) )
+    !real(c_double), intent(in)     :: x2p( bL(2):(N(2)+bU(2)) )
 
-        real(c_double), intent(in)     :: x3w( bL(3):(N(3)+bU(3)) )
+    real(c_double), intent(in)     :: x3w( bL(3):(N(3)+bU(3)) )
 
-        real(c_double), intent(in)     :: cIup( dU(1):dL(1), 0:N(1) )
+    real(c_double), intent(in)     :: cIup( dU(1):dL(1), 0:N(1) )
 
-        real(c_double), intent(in)     :: Re              
-        integer(c_int), intent(in)     :: nonDim
-        real(c_double), intent(in)     :: kappa               !< Properties of swept Hiemenz flow
-        real(c_double), intent(in)     :: sweep_angle_degrees !< Properties of swept Hiemenz flow
-        real(c_double), intent(in)     :: sweep_angle         !< Properties of swept Hiemenz flow
-        real(c_double), intent(in)     :: angle_attack        !< Properties of swept Hiemenz flow
+    real(c_double), intent(in)     :: Re              
+    integer(c_int), intent(in)     :: nonDim
+    real(c_double), intent(in)     :: kappa               !< Properties of swept Hiemenz flow
+    real(c_double), intent(in)     :: sweep_angle_degrees !< Properties of swept Hiemenz flow
+    real(c_double), intent(in)     :: sweep_angle         !< Properties of swept Hiemenz flow
+    real(c_double), intent(in)     :: angle_attack        !< Properties of swept Hiemenz flow
 
-        real(c_double),  intent(inout) :: velU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(inout) :: velV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(inout) :: velW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: velU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: velV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(inout) :: velW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-        integer(c_int)                ::  i, ii, j, k
+    integer(c_int)                ::  i, ii, j, k
 
-        !! mjohn 051012 - variables required for changing the nondimensionalization
-        real(c_double)                ::  blThick
-        !! mjohn 051012
-        
-        real(c_double)                ::  y1u_temp(0:M(1))
-        
+    !! mjohn 051012 - variables required for changing the nondimensionalization
+    real(c_double)                ::  blThick
+    !! mjohn 051012
 
-        real(c_double)                ::  baseflow_global(bL(1):(M(1)+bU(1)),1:3)
-        real(c_double)                ::  baseflow       (bL(1):(N(1)+bU(1)),1:3)
-        !real(c_double)                ::  baseflow1p     (bL(1):(N(1)+bU(1)))
- 
+    real(c_double)                ::  y1u_temp(0:M(1))
 
-        !---- mjohn 120207  ------------------------------------------------ SWEPT HIEMENZ BASE FLOW -----------------------------------------------------------------------
-        
-        ! initialize variables
-        velU = 0.
-        velV = 0.
-        velW = 0.
-        
-        baseflow_global = 0.
-        baseflow        = 0.
 
-        ! notice: - baseflow_global(*,1) need to run from 0 to M1, i.e. full axis, on u grid, since interpolated to p grid by init_BC
-        !         - baseflow_global(*,2) and (*,3) are computed on p grid, since they start exactly on p(1) wall
+    real(c_double)                ::  baseflow_global(bL(1):(M(1)+bU(1)),1:3)
+    real(c_double)                ::  baseflow       (bL(1):(N(1)+bU(1)),1:3)
+    !real(c_double)                ::  baseflow1p     (bL(1):(N(1)+bU(1)))
 
-        ! difficulty: - full u grid serves also negative values below the wall, where shooting integration is invalid
-        ! solution:   - compute velocity for y = 0 and y > 0 on u grid, then extrapolate from 0 to first (negative) u value
-        !             - perform extrapolation not on all ranks, but only those which touch the ground
-        !             - since only one value below the wall is relevant for interpolation, extrapolation formula reads:
-        !                      base(0,1)|_u = ( base(0,1)|_p - sum_0^d1U{cIup(j,1)*base(1+j,1)|_u} ) / cIup(-1,1)
 
-        ! ------------------------- get two tangential base flow components (staggered grid! need information on p grid)
-        ! get global basic flow (exactly FULL y axis, over all ranks) on yp grid, store in baseflow_global, for two tangent coordinates
-        call calcbasicflow( rank, kappa, sweep_angle_degrees, sweep_angle, angle_attack, M(1),y1p(1),baseflow_global(1,3),baseflow_global(1,1),baseflow_global(1,2), blThick)
-        ! --- mjohn 051012
-        ! set different velocity fields if integration with Hiemenz is performed
-        ! integration routines however are unaltered (see below), because variables are overwritten (see usr_config.f90)
-        select case (nonDim)
-        case(0)
-          if(rank .eq. 0) then
-            write(*,'(a)') 'classical non-dimensionalization applied'
-          end if
-          ! traditinoal SHBL case
-          baseflow(bL(1):(N(1)+bU(1)),2) = baseflow_global((bL(1)+iShift):(N(1)+bU(1)+iShift),2)
-        case default
-          if(rank .eq. 0) then
-            write(*,'(a)') 'novel non-dimensionalization applied'
-          end if
-          ! 2 degrees of freedom and novel formalism (cases 1 and 2)
-          baseflow(bL(1):(N(1)+bU(1)),2) = baseflow_global((bL(1)+iShift):(N(1)+bU(1)+iShift),2) * sin(sweep_angle)
-        end select
-        baseflow(bL(1):(N(1)+bU(1)),3) = baseflow_global((bL(1)+iShift):(N(1)+bU(1)+iShift),3) / Re
+    !---- mjohn 120207  ------------------------------------------------ SWEPT HIEMENZ BASE FLOW -----------------------------------------------------------------------
 
-        ! ------------------------- get wall-normal base flow component (staggered grid! need information on u grid)
-        ! get global basic flow (ENTIRE y axis, excluding points beyond boundaries, over all ranks) on u grid, store in baseflow_global, for wall-normal coordinate
-        y1u_temp(1:M(1))  = y1u(1:M(1))
-        y1u_temp(0     )  = 0.
+    ! initialize variables
+    velU = 0.
+    velV = 0.
+    velW = 0.
 
-        call calcbasicflow(rank, kappa, sweep_angle_degrees, sweep_angle, angle_attack,M(1)+1,y1u_temp(0),baseflow_global(0,3),baseflow_global(0,1),baseflow_global(0,2), blThick)
+    baseflow_global = 0.
+    baseflow        = 0.
 
-        if( 1==IB1 ) then
-          write(*,*) "blabla"
-          do ii = 0, dU(1)
-            write(*,*) ii, cIup(ii,1),baseflow_global(0,1)
-            baseflow_global(0,1) = baseflow_global(0,1) - cIup(ii,1)*baseflow_global(1+ii,1)
-          end do
-          baseflow_global(0,1) = baseflow_global(0,1) / cIup(-1,1)
-        end if
-        baseflow(bL(1):(N(1)+bU(1)),1) = baseflow_global((bL(1)+iShift):(N(1)+bU(1)+iShift),1) / Re
+    ! notice: - baseflow_global(*,1) need to run from 0 to M1, i.e. full axis, on u grid, since interpolated to p grid by init_BC
+    !         - baseflow_global(*,2) and (*,3) are computed on p grid, since they start exactly on p(1) wall
 
-        write(*,*) ii, cIup(-1,1),baseflow_global(0,1)
-        ! TEST!!! - debugging purposes only
-        write(*,*) "distance, velocity (both in x1-direction)"
-        DO i = SU(1), NU(1)
-          write(*,*)  baseflow(i,1)
-        end do
-        write(*,*)
-        write(*,*) "distance, velocity (both in x2-direction)"
-        DO i = SV(1), NV(1)
-          write(*,*)  baseflow(i,2)
-        end do
-        write(*,*)
-        write(*,*) "distance, velocity (both in x3-direction)"
-        DO k = SW(1), NW(1)
-         write(*,*) , baseflow(i,3)*x3w(k)
-        end do
+    ! difficulty: - full u grid serves also negative values below the wall, where shooting integration is invalid
+    ! solution:   - compute velocity for y = 0 and y > 0 on u grid, then extrapolate from 0 to first (negative) u value
+    !             - perform extrapolation not on all ranks, but only those which touch the ground
+    !             - since only one value below the wall is relevant for interpolation, extrapolation formula reads:
+    !                      base(0,1)|_u = ( base(0,1)|_p - sum_0^d1U{cIup(j,1)*base(1+j,1)|_u} ) / cIup(-1,1)
 
-        do k = SU(3), NU(3)
-            do j = SU(2), NU(2)
-                do i = SU(1), NU(1)
-                velU(i,j,k) = velU(i,j,k) + baseflow(i,1)
-              END DO
-          END DO
+    ! ------------------------- get two tangential base flow components (staggered grid! need information on p grid)
+    ! get global basic flow (exactly FULL y axis, over all ranks) on yp grid, store in baseflow_global, for two tangent coordinates
+    call calcbasicflow( rank, kappa, sweep_angle_degrees, sweep_angle, angle_attack, M(1),y1p(1),baseflow_global(1,3),baseflow_global(1,1),baseflow_global(1,2), blThick)
+    ! --- mjohn 051012
+    ! set different velocity fields if integration with Hiemenz is performed
+    ! integration routines however are unaltered (see below), because variables are overwritten (see usr_config.f90)
+    select case (nonDim)
+    case(0)
+      if(rank .eq. 0) then
+        write(*,'(a)') 'classical non-dimensionalization applied'
+      end if
+      ! traditinoal SHBL case
+      baseflow(bL(1):(N(1)+bU(1)),2) = baseflow_global((bL(1)+iShift):(N(1)+bU(1)+iShift),2)
+    case default
+      if(rank .eq. 0) then
+        write(*,'(a)') 'novel non-dimensionalization applied'
+      end if
+      ! 2 degrees of freedom and novel formalism (cases 1 and 2)
+      baseflow(bL(1):(N(1)+bU(1)),2) = baseflow_global((bL(1)+iShift):(N(1)+bU(1)+iShift),2) * sin(sweep_angle)
+    end select
+    baseflow(bL(1):(N(1)+bU(1)),3) = baseflow_global((bL(1)+iShift):(N(1)+bU(1)+iShift),3) / Re
+
+    ! ------------------------- get wall-normal base flow component (staggered grid! need information on u grid)
+    ! get global basic flow (ENTIRE y axis, excluding points beyond boundaries, over all ranks) on u grid, store in baseflow_global, for wall-normal coordinate
+    y1u_temp(1:M(1))  = y1u(1:M(1))
+    y1u_temp(0     )  = 0.
+
+    call calcbasicflow(rank, kappa, sweep_angle_degrees, sweep_angle, angle_attack,M(1)+1,y1u_temp(0),baseflow_global(0,3),baseflow_global(0,1),baseflow_global(0,2), blThick)
+
+    if( 1==IB1 ) then
+      write(*,*) "blabla"
+      do ii = 0, dU(1)
+        write(*,*) ii, cIup(ii,1),baseflow_global(0,1)
+        baseflow_global(0,1) = baseflow_global(0,1) - cIup(ii,1)*baseflow_global(1+ii,1)
+      end do
+      baseflow_global(0,1) = baseflow_global(0,1) / cIup(-1,1)
+    end if
+    baseflow(bL(1):(N(1)+bU(1)),1) = baseflow_global((bL(1)+iShift):(N(1)+bU(1)+iShift),1) / Re
+
+    write(*,*) ii, cIup(-1,1),baseflow_global(0,1)
+    ! TEST!!! - debugging purposes only
+    write(*,*) "distance, velocity (both in x1-direction)"
+    DO i = SU(1), NU(1)
+      write(*,*)  baseflow(i,1)
+    end do
+    write(*,*)
+    write(*,*) "distance, velocity (both in x2-direction)"
+    DO i = SV(1), NV(1)
+      write(*,*)  baseflow(i,2)
+    end do
+    write(*,*)
+    write(*,*) "distance, velocity (both in x3-direction)"
+    DO k = SW(1), NW(1)
+      write(*,*) , baseflow(i,3)*x3w(k)
+    end do
+
+    do k = SU(3), NU(3)
+      do j = SU(2), NU(2)
+        do i = SU(1), NU(1)
+          velU(i,j,k) = velU(i,j,k) + baseflow(i,1)
         END DO
-        do k = SV(3), NV(3)
-            do j = SV(2), NV(2)
-                do i = SV(1), NV(1)
-                 velV(i,j,k) = velV(i,j,k) + baseflow(i,2)
-              END DO
-           END DO
+      END DO
+    END DO
+    do k = SV(3), NV(3)
+      do j = SV(2), NV(2)
+        do i = SV(1), NV(1)
+          velV(i,j,k) = velV(i,j,k) + baseflow(i,2)
         END DO
-        do k = SW(3), NW(3)
-            do j = SW(2), NW(2)
-                do i = SW(1), NW(1)
-                 velW(i,j,k) = velW(i,j,k) + baseflow(i,3)*x3w(k)
-              END DO
-           END DO
+      END DO
+    END DO
+    do k = SW(3), NW(3)
+      do j = SW(2), NW(2)
+        do i = SW(1), NW(1)
+          velW(i,j,k) = velW(i,j,k) + baseflow(i,3)*x3w(k)
         END DO
+      END DO
+    END DO
 
 
-    end subroutine VF_init_SHBF
+  end subroutine VF_init_SHBF
 
 
 
 
   function eddy(x1,x2,dir) result(fn_val)
-  
+
     implicit none
 
     real(c_double), intent(in   ) ::  x1
@@ -2240,7 +2240,7 @@ contains
     integer(c_int), intent(in)     :: NW(3)
 
     integer(c_int), intent(in)     :: BC_3L_global
-    
+
 
     real(c_double), intent(in)     :: x1u( bL(1):(N(1)+bU(1)) )
     real(c_double), intent(in)     :: x1p( bL(1):(N(1)+bU(1)) )
@@ -2274,7 +2274,7 @@ contains
 
 
     aborted = 0
-  
+
     pi = 4.*atan(1.)    !!set constants
 
 
@@ -2340,92 +2340,92 @@ contains
             do ii = -ceiling((No-1)/2.0), floor((No-1)/2.0)
               velU(i,j,k) = velU(i,j,k) + vortex_ampli_prim*eddy((x1u(i)-vortex_x1pos)/vortex_radius,(x3p(k) - vortex_x3pos - 4*ii*vortex_x3pos)/vortex_radius,1)*(0.75+0.25*sin(2*pi*x2p(j)/(4*vortex_radius)))
               velU(i,j,k) = velU(i,j,k) - vortex_ampli_prim*eddy((x1u(i)-vortex_x1pos)/vortex_radius,(x3p(k) + vortex_x3pos + 4*ii*vortex_x3pos)/vortex_radius,1)*(0.75+0.25*sin(2*pi*x2p(j)/(4*vortex_radius)))
-              end do
+            end do
 
-            case default
-              aborted = 1
-              ! do nothing
-            end select
-          end do
+          case default
+            aborted = 1
+            ! do nothing
+          end select
         end do
       end do
+    end do
 
 
-      ! chordwise u component
-      do k = SW(3), NW(3)
-        do j = SW(2), NW(2)
-          do i = SW(1), NW(1)
-            select case (dist_type)
-            case (0)                 !----- mjohn 301111 - generic inflow conditions of gh-type
-              aborted = 1
-              ! do nothing
-            case (1)                 !----- mjohn 301111 - even secondary forcing
-              if (BC_3L_global == -2) then
-                velW(i,j,k) = velW(i,j,k) + vortex_ampli_prim*eddy((x1p(i)-vortex_x1pos)/vortex_radius,(x3w(k)-vortex_x3pos)/vortex_radius,3)
-              else
-                velW(i,j,k) = velW(i,j,k) + vortex_ampli_prim*eddy((x1p(i)-vortex_x1pos)/vortex_radius,(x3w(k)-vortex_x3pos)/vortex_radius,3)
-                velW(i,j,k) = velW(i,j,k) - vortex_ampli_prim*eddy((x1p(i)-vortex_x1pos)/vortex_radius,(x3w(k)+vortex_x3pos)/vortex_radius,3)
-              end if
-            case (2)                 !----- mjohn 301111 - odd secondary forcing
-              IF (BC_3L_global == -2) THEN
-                WRITE(*,*) "ERROR! Wrong disturbance selected. Symmetric setup does not allow for odd secondary forcing. Simulation aborted."
-                CALL MPI_FINALIZE(merror)
-              else
-                velW(i,j,k) = velW(i,j,k) + vortex_ampli_prim*eddy((x1p(i)-vortex_x1pos)/vortex_radius,(x3w(k)-vortex_x3pos)/vortex_radius,3)
-                velW(i,j,k) = velW(i,j,k) - vortex_ampli_prim*eddy((x1p(i)-vortex_x1pos)/vortex_radius,(x3w(k)+vortex_x3pos)/vortex_radius,3)
-              end if
-            case (3)                 !----- mjohn 301111 - mixed secondary forcing
-              IF (BC_3L_global == -2) THEN
-                WRITE(*,*) "ERROR! Wrong disturbance selected. Symmetric setup does not allow for mixed secondary forcing. Simulation aborted."
-                CALL MPI_FINALIZE(merror)
-              else
-                velW(i,j,k) = velW(i,j,k) + vortex_ampli_prim*eddy((x1p(i)-vortex_x1pos)/vortex_radius,(x3w(k)-vortex_x3pos)/vortex_radius,3)
-                velW(i,j,k) = velW(i,j,k) + vortex_ampli_prim*eddy((x1p(i)-vortex_x1pos)/vortex_radius,(x3w(k)+vortex_x3pos)/vortex_radius,3)
-                velW(i,j,k) = velW(i,j,k) - vortex_ampli_prim*eddy((x1p(i)-vortex_x1pos)/vortex_radius,(x3w(k)             )/vortex_radius,3)
-              END IF
-            case (4)                 !----- mjohn 260912 - array of primary vortices, no secondary forcing (without distinction between symmetric and non-symmetric case / without IF(BC_3L_..) statement)
-              ! get number of even and odd vortices to be initialized within domain
-              Ne =   floor((vortex_band/vortex_x3pos +1)/4)
-              No = ceiling((vortex_band/vortex_x3pos -1)/4)
-              Ne = min(Ne,No)
-              No = min(Ne,No)
-              ! initialize No odd vortices at positions (1*x3pos, 5*x3pos, ...) and Ne even (with opposite sign) vortices at positions (3*x3pos, 7*x3pos, ...)
-              do ii = -ceiling((No-1)/2.0), floor((No-1)/2.0)
-                velW(i,j,k) = velW(i,j,k) + vortex_ampli_prim*eddy((x1p(i)-vortex_x1pos)/vortex_radius,(x3w(k) - vortex_x3pos - 4*ii*vortex_x3pos)/vortex_radius,3)
-                velW(i,j,k) = velW(i,j,k) - vortex_ampli_prim*eddy((x1p(i)-vortex_x1pos)/vortex_radius,(x3w(k) + vortex_x3pos + 4*ii*vortex_x3pos)/vortex_radius,3)
-              end do
-            case (5)
-              aborted = 1
-            case (6)
-              aborted = 1
-            case (7)
-              aborted = 1
-            case (8)                 !----- mjohn 300513 - pair of primary vortices with modulation in 2 (z) direction
-              velU(i,j,k) = velU(i,j,k) + vortex_ampli_prim*eddy((x1u(i)-vortex_x1pos)/vortex_radius,(x3p(k)-vortex_x3pos)/vortex_radius,1)*(0.75+0.25*sin(2*pi*x2p(j)/(4*vortex_radius)))
-              velU(i,j,k) = velU(i,j,k) - vortex_ampli_prim*eddy((x1u(i)-vortex_x1pos)/vortex_radius,(x3p(k)+vortex_x3pos)/vortex_radius,1)*(0.75+0.25*sin(2*pi*x2p(j)/(4*vortex_radius)))
-            case (9)                 !----- mjohn 310513 - array of primary vortices with modulation in 2 (z) direction
-              ! get number of even and odd vortices to be initialized within domain
-              Ne =   floor((vortex_band/vortex_x3pos +1)/4)
-              No = ceiling((vortex_band/vortex_x3pos -1)/4)
-              Ne = min(Ne,No)
-              No = min(Ne,No)
-              ! initialize No odd vortices at positions (1*x3pos, 5*x3pos, ...) and Ne even (with opposite sign) vortices at positions (3*x3pos, 7*x3pos, ...)
-              do ii = -ceiling((No-1)/2.0), floor((No-1)/2.0)
-                velW(i,j,k) = velW(i,j,k) + vortex_ampli_prim*eddy((x1p(i)-vortex_x1pos)/vortex_radius,(x3w(k) - vortex_x3pos - 4*ii*vortex_x3pos)/vortex_radius,3)*(0.75+0.25*sin(2*pi*x2p(j)/(4*vortex_radius)))
-                velW(i,j,k) = velW(i,j,k) - vortex_ampli_prim*eddy((x1p(i)-vortex_x1pos)/vortex_radius,(x3w(k) + vortex_x3pos + 4*ii*vortex_x3pos)/vortex_radius,3)*(0.75+0.25*sin(2*pi*x2p(j)/(4*vortex_radius)))
-              end do
-            case default
-              aborted = 1
-              ! do nothing
-            end select
-          end do
+    ! chordwise u component
+    do k = SW(3), NW(3)
+      do j = SW(2), NW(2)
+        do i = SW(1), NW(1)
+          select case (dist_type)
+          case (0)                 !----- mjohn 301111 - generic inflow conditions of gh-type
+            aborted = 1
+            ! do nothing
+          case (1)                 !----- mjohn 301111 - even secondary forcing
+            if (BC_3L_global == -2) then
+              velW(i,j,k) = velW(i,j,k) + vortex_ampli_prim*eddy((x1p(i)-vortex_x1pos)/vortex_radius,(x3w(k)-vortex_x3pos)/vortex_radius,3)
+            else
+              velW(i,j,k) = velW(i,j,k) + vortex_ampli_prim*eddy((x1p(i)-vortex_x1pos)/vortex_radius,(x3w(k)-vortex_x3pos)/vortex_radius,3)
+              velW(i,j,k) = velW(i,j,k) - vortex_ampli_prim*eddy((x1p(i)-vortex_x1pos)/vortex_radius,(x3w(k)+vortex_x3pos)/vortex_radius,3)
+            end if
+          case (2)                 !----- mjohn 301111 - odd secondary forcing
+            IF (BC_3L_global == -2) THEN
+              WRITE(*,*) "ERROR! Wrong disturbance selected. Symmetric setup does not allow for odd secondary forcing. Simulation aborted."
+              CALL MPI_FINALIZE(merror)
+            else
+              velW(i,j,k) = velW(i,j,k) + vortex_ampli_prim*eddy((x1p(i)-vortex_x1pos)/vortex_radius,(x3w(k)-vortex_x3pos)/vortex_radius,3)
+              velW(i,j,k) = velW(i,j,k) - vortex_ampli_prim*eddy((x1p(i)-vortex_x1pos)/vortex_radius,(x3w(k)+vortex_x3pos)/vortex_radius,3)
+            end if
+          case (3)                 !----- mjohn 301111 - mixed secondary forcing
+            IF (BC_3L_global == -2) THEN
+              WRITE(*,*) "ERROR! Wrong disturbance selected. Symmetric setup does not allow for mixed secondary forcing. Simulation aborted."
+              CALL MPI_FINALIZE(merror)
+            else
+              velW(i,j,k) = velW(i,j,k) + vortex_ampli_prim*eddy((x1p(i)-vortex_x1pos)/vortex_radius,(x3w(k)-vortex_x3pos)/vortex_radius,3)
+              velW(i,j,k) = velW(i,j,k) + vortex_ampli_prim*eddy((x1p(i)-vortex_x1pos)/vortex_radius,(x3w(k)+vortex_x3pos)/vortex_radius,3)
+              velW(i,j,k) = velW(i,j,k) - vortex_ampli_prim*eddy((x1p(i)-vortex_x1pos)/vortex_radius,(x3w(k)             )/vortex_radius,3)
+            END IF
+          case (4)                 !----- mjohn 260912 - array of primary vortices, no secondary forcing (without distinction between symmetric and non-symmetric case / without IF(BC_3L_..) statement)
+            ! get number of even and odd vortices to be initialized within domain
+            Ne =   floor((vortex_band/vortex_x3pos +1)/4)
+            No = ceiling((vortex_band/vortex_x3pos -1)/4)
+            Ne = min(Ne,No)
+            No = min(Ne,No)
+            ! initialize No odd vortices at positions (1*x3pos, 5*x3pos, ...) and Ne even (with opposite sign) vortices at positions (3*x3pos, 7*x3pos, ...)
+            do ii = -ceiling((No-1)/2.0), floor((No-1)/2.0)
+              velW(i,j,k) = velW(i,j,k) + vortex_ampli_prim*eddy((x1p(i)-vortex_x1pos)/vortex_radius,(x3w(k) - vortex_x3pos - 4*ii*vortex_x3pos)/vortex_radius,3)
+              velW(i,j,k) = velW(i,j,k) - vortex_ampli_prim*eddy((x1p(i)-vortex_x1pos)/vortex_radius,(x3w(k) + vortex_x3pos + 4*ii*vortex_x3pos)/vortex_radius,3)
+            end do
+          case (5)
+            aborted = 1
+          case (6)
+            aborted = 1
+          case (7)
+            aborted = 1
+          case (8)                 !----- mjohn 300513 - pair of primary vortices with modulation in 2 (z) direction
+            velU(i,j,k) = velU(i,j,k) + vortex_ampli_prim*eddy((x1u(i)-vortex_x1pos)/vortex_radius,(x3p(k)-vortex_x3pos)/vortex_radius,1)*(0.75+0.25*sin(2*pi*x2p(j)/(4*vortex_radius)))
+            velU(i,j,k) = velU(i,j,k) - vortex_ampli_prim*eddy((x1u(i)-vortex_x1pos)/vortex_radius,(x3p(k)+vortex_x3pos)/vortex_radius,1)*(0.75+0.25*sin(2*pi*x2p(j)/(4*vortex_radius)))
+          case (9)                 !----- mjohn 310513 - array of primary vortices with modulation in 2 (z) direction
+            ! get number of even and odd vortices to be initialized within domain
+            Ne =   floor((vortex_band/vortex_x3pos +1)/4)
+            No = ceiling((vortex_band/vortex_x3pos -1)/4)
+            Ne = min(Ne,No)
+            No = min(Ne,No)
+            ! initialize No odd vortices at positions (1*x3pos, 5*x3pos, ...) and Ne even (with opposite sign) vortices at positions (3*x3pos, 7*x3pos, ...)
+            do ii = -ceiling((No-1)/2.0), floor((No-1)/2.0)
+              velW(i,j,k) = velW(i,j,k) + vortex_ampli_prim*eddy((x1p(i)-vortex_x1pos)/vortex_radius,(x3w(k) - vortex_x3pos - 4*ii*vortex_x3pos)/vortex_radius,3)*(0.75+0.25*sin(2*pi*x2p(j)/(4*vortex_radius)))
+              velW(i,j,k) = velW(i,j,k) - vortex_ampli_prim*eddy((x1p(i)-vortex_x1pos)/vortex_radius,(x3w(k) + vortex_x3pos + 4*ii*vortex_x3pos)/vortex_radius,3)*(0.75+0.25*sin(2*pi*x2p(j)/(4*vortex_radius)))
+            end do
+          case default
+            aborted = 1
+            ! do nothing
+          end select
         end do
       end do
+    end do
 
-      !----- mjohn 260912
-      IF(rank == 0 .AND. aborted .eq. 1) THEN
-        WRITE(*,*) "WARNING! No valid initial disturbance defined. Initial conditions equal to baseflow only."
-      END IF
+    !----- mjohn 260912
+    IF(rank == 0 .AND. aborted .eq. 1) THEN
+      WRITE(*,*) "WARNING! No valid initial disturbance defined. Initial conditions equal to baseflow only."
+    END IF
 
   end subroutine VF_init_Dist
 

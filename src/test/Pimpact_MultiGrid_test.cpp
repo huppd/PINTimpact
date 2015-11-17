@@ -522,6 +522,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Restrictor, CS ) {
 			if( test_yes )
 				TEST_EQUALITY( bla<eps, true ); // boundaries?
 			if( bla>=eps ) {
+				er->print();
 				er->write(1);
 				fieldc->write(10);
 				sol->write(100);

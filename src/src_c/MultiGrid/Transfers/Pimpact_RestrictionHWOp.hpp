@@ -30,15 +30,15 @@ void MG_getCRS(
 		double* const cR );
 
 void MG_getCRV(
-		const int& N,
+		const int& Nf,
     const int& bL,
     const int& bU,
-    const int& SS,
-    const int& NN,
+    const int& iimax,
     const int& BC_L,
     const int& BC_U,
-    const double* const xs,
     const double* const xv,
+    const double* const xs,
+		const int& dd,
 		double* const cRV );
 
 void MG_RestrictCorners(
@@ -164,17 +164,17 @@ public:
 
 protected:
 
-  Teuchos::RCP<const SpaceT> spaceF_; 		///< fine space
-  Teuchos::RCP<const SpaceT> spaceC_; 		///< coarse space
+  Teuchos::RCP<const SpaceT> spaceF_; 		  ///< fine space
+  Teuchos::RCP<const SpaceT> spaceC_; 		  ///< coarse space
 
-  int rankc2_; 														///< rank on coarse grid that gathers
+  int rankc2_; 														  ///< rank on coarse grid that gathers
 
-	MPI_Comm comm2_; 												///< gather communicator
+	MPI_Comm comm2_; 												  ///< gather communicator
 
-  Teuchos::Tuple<int,dimension> nGather_; ///< number of proceesr that are gathered  
+  Teuchos::Tuple<int,dimension> nGather_;   ///< number of proceesr that are gathered  
 
-	Teuchos::Tuple<Ordinal,dimension> iimax_;
-	Teuchos::Tuple<Ordinal,dimension> dd_;
+	Teuchos::Tuple<Ordinal,dimension> iimax_; ///< coarsen N + neighbor stuff
+	Teuchos::Tuple<Ordinal,dimension> dd_;    ///< coarsening factor
 
   Ordinal* offsR_;
   Ordinal* sizsR_;
@@ -434,15 +434,15 @@ protected:
 				cRV_[i] = new Scalar[ 2*( iimax_[i]-0+1 ) ];
 
 				MG_getCRV(
-						spaceC_->getGridSizeLocal()->get(i),
+						spaceF_->getGridSizeLocal()->get(i),
 						spaceC_->bl(i),
 						spaceC_->bu(i),
-						spaceC_->sIndB(i)[i],
 						iimax_[i],
 						spaceC_->getBCLocal()->getBCL(i),
 						spaceC_->getBCLocal()->getBCU(i),
-						spaceC_->getCoordinatesLocal()->getX( i, EField::S ),
-						spaceC_->getCoordinatesLocal()->getX( i, i ),
+						spaceF_->getCoordinatesLocal()->getX( i, i ),
+						spaceF_->getCoordinatesLocal()->getX( i, EField::S ),
+						dd_[i],
 						cRV_[i] );
 			}
 	}

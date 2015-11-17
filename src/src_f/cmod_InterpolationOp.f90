@@ -139,8 +139,8 @@ contains
 
     ! a little bit shaky, please verify this when IO is ready
     !if (BC_L > 0) then
-      !cIV( 1,0) = 0.
-      !cIV( 2,0) = 1.
+    !cIV( 1,0) = 0.
+    !cIV( 2,0) = 1.
     !end if
 
     !maybe false
@@ -149,8 +149,8 @@ contains
     end if
 
     !if (BC_U > 0) then
-      !cIV(1,Nf) = 1.
-      !cIV(2,Nf) = 0.
+    !cIV(1,Nf) = 1.
+    !cIV(2,Nf) = 0.
     !end if
     if( BC_U == -2 )then
       cIV(1:2,Nf) = 0.
@@ -712,110 +712,110 @@ contains
 
   !!> \brief interpolating 
   !subroutine MG_interpolateUX( &
-      !dimens,                 &
-      !dir,                    &
-      !Nc,                     &
-      !bLc,bUc,                &
-      !SSc,NNc,                &
-      !Nf,                     &
-      !bLf,bUf,                &
-      !SSf,NNf,                &
-      !iimax,                  &
-      !dd,                     &
-      !cIV,                    &
-      !phic,                   &
-      !phif ) bind (c,name='MG_interpolateUX')
+  !dimens,                 &
+  !dir,                    &
+  !Nc,                     &
+  !bLc,bUc,                &
+  !SSc,NNc,                &
+  !Nf,                     &
+  !bLf,bUf,                &
+  !SSf,NNf,                &
+  !iimax,                  &
+  !dd,                     &
+  !cIV,                    &
+  !phic,                   &
+  !phif ) bind (c,name='MG_interpolateUX')
 
-    !implicit none
+  !implicit none
 
-    !integer(c_int), intent(in)     :: dimens
+  !integer(c_int), intent(in)     :: dimens
 
-    !integer(c_int), intent(in)     :: dir
+  !integer(c_int), intent(in)     :: dir
 
-    !integer(c_int), intent(in)     :: Nc(1:3)
+  !integer(c_int), intent(in)     :: Nc(1:3)
 
-    !integer(c_int), intent(in)     :: bLc(1:3)
-    !integer(c_int), intent(in)     :: bUc(1:3)
+  !integer(c_int), intent(in)     :: bLc(1:3)
+  !integer(c_int), intent(in)     :: bUc(1:3)
 
-    !integer(c_int), intent(in)     :: SSc(1:3)
-    !integer(c_int), intent(in)     :: NNc(1:3)
+  !integer(c_int), intent(in)     :: SSc(1:3)
+  !integer(c_int), intent(in)     :: NNc(1:3)
 
-    !integer(c_int), intent(in)     :: Nf(1:3)
+  !integer(c_int), intent(in)     :: Nf(1:3)
 
-    !integer(c_int), intent(in)     :: bLf(1:3)
-    !integer(c_int), intent(in)     :: bUf(1:3)
+  !integer(c_int), intent(in)     :: bLf(1:3)
+  !integer(c_int), intent(in)     :: bUf(1:3)
 
-    !integer(c_int), intent(in)     :: SSf(1:3)
-    !integer(c_int), intent(in)     :: NNf(1:3)
+  !integer(c_int), intent(in)     :: SSf(1:3)
+  !integer(c_int), intent(in)     :: NNf(1:3)
 
-    !!integer(c_int), intent(in)     :: BCL(1:3)
-    !!integer(c_int), intent(in)     :: BCU(1:3)
+  !!integer(c_int), intent(in)     :: BCL(1:3)
+  !!integer(c_int), intent(in)     :: BCU(1:3)
 
-    !integer(c_int), intent(in)     :: iimax(1:3)
-    !integer(c_int), intent(in)     :: dd(1:3)
+  !integer(c_int), intent(in)     :: iimax(1:3)
+  !integer(c_int), intent(in)     :: dd(1:3)
 
-    !real(c_double),  intent(in)    :: cIV ( 1:2, 0:Nf(dir) )
+  !real(c_double),  intent(in)    :: cIV ( 1:2, 0:Nf(dir) )
 
-    !real(c_double),  intent(in)    :: cI1 ( 1:2, 1:Nc(1) )
-    !real(c_double),  intent(in)    :: cI2 ( 1:2, 1:Nc(2) )
-    !real(c_double),  intent(in)    :: cI3 ( 1:2, 1:Nc(3) )
+  !real(c_double),  intent(in)    :: cI1 ( 1:2, 1:Nc(1) )
+  !real(c_double),  intent(in)    :: cI2 ( 1:2, 1:Nc(2) )
+  !real(c_double),  intent(in)    :: cI3 ( 1:2, 1:Nc(3) )
 
-    !real(c_double),  intent(in)   :: phic (bLc(1):(Nc(1)+bUc(1)),bLc(2):(Nc(2)+bUc(2)),bLc(3):(Nc(3)+bUc(3)))
+  !real(c_double),  intent(in)   :: phic (bLc(1):(Nc(1)+bUc(1)),bLc(2):(Nc(2)+bUc(2)),bLc(3):(Nc(3)+bUc(3)))
 
-    !real(c_double),  intent(out)  :: phif (bLf(1):(Nf(1)+bUf(1)),bLf(2):(Nf(2)+bUf(2)),bLf(3):(Nf(3)+bUf(3)))
+  !real(c_double),  intent(out)  :: phif (bLf(1):(Nf(1)+bUf(1)),bLf(2):(Nf(2)+bUf(2)),bLf(3):(Nf(3)+bUf(3)))
 
-    !integer(c_int)                ::  i, ic
-    !integer(c_int)                ::  j, jc
-    !integer(c_int)                ::  k, kc
+  !integer(c_int)                ::  i, ic
+  !integer(c_int)                ::  j, jc
+  !integer(c_int)                ::  k, kc
 
-    !integer(c_int)                :: l
+  !integer(c_int)                :: l
 
-    !integer(c_int)                :: S(1:3)
-    !integer(c_int)                :: N(1:3)
+  !integer(c_int)                :: S(1:3)
+  !integer(c_int)                :: N(1:3)
 
 
-    !if( dd(1) /= 1 ) then
+  !if( dd(1) /= 1 ) then
 
-      !do k = SSf(3), Nf(3), dd(3)
-        !if( 1==dd(3) ) then
-          !kc = k
-        !else
-          !kc = ( k+1 )/dd(3)
-        !end if
-        !do j = SSf(2), Nf(2), dd(2)
-          !if( 1==dd(2) ) then
-            !jc = j
-          !else
-            !jc = ( j+1 )/dd(2) ! holy shit
-          !end if
-          !do i = SSf(1), Nf(1) ! zero for dirichlet
-            !ic = ( i )/dd(1)+1
-            !phif(i,j,k) = cIV(1,i)*phic(ic-1,jc,kc)+cIV(2,i)*phic(ic,jc,kc)
-          !end do
-        !end do
-      !end do
+  !do k = SSf(3), Nf(3), dd(3)
+  !if( 1==dd(3) ) then
+  !kc = k
+  !else
+  !kc = ( k+1 )/dd(3)
+  !end if
+  !do j = SSf(2), Nf(2), dd(2)
+  !if( 1==dd(2) ) then
+  !jc = j
+  !else
+  !jc = ( j+1 )/dd(2) ! holy shit
+  !end if
+  !do i = SSf(1), Nf(1) ! zero for dirichlet
+  !ic = ( i )/dd(1)+1
+  !phif(i,j,k) = cIV(1,i)*phic(ic-1,jc,kc)+cIV(2,i)*phic(ic,jc,kc)
+  !end do
+  !end do
+  !end do
 
-    !else
+  !else
 
-      !do k = SSf(3), Nf(3), dd(3)
-        !if( 1==dd(3) ) then
-          !kc = k
-        !else
-          !kc = ( k+1 )/dd(3)
-        !end if
-        !do j = SSf(2), Nf(2), dd(2)
-          !if( 1==dd(2) ) then
-            !jc = j
-          !else
-            !jc = ( j+1 )/dd(2) ! holy shit
-          !end if
-          !do i = SSf(1), Nf(1)
-            !phif(i,j,k) = phic(i,jc,kc)
-          !end do
-        !end do
-      !end do
+  !do k = SSf(3), Nf(3), dd(3)
+  !if( 1==dd(3) ) then
+  !kc = k
+  !else
+  !kc = ( k+1 )/dd(3)
+  !end if
+  !do j = SSf(2), Nf(2), dd(2)
+  !if( 1==dd(2) ) then
+  !jc = j
+  !else
+  !jc = ( j+1 )/dd(2) ! holy shit
+  !end if
+  !do i = SSf(1), Nf(1)
+  !phif(i,j,k) = phic(i,jc,kc)
+  !end do
+  !end do
+  !end do
 
-    !end if
+  !end if
 
 
   !end subroutine MG_interpolateUX
@@ -824,81 +824,81 @@ contains
 
   !!> \brief interpolating 
   !subroutine MG_interpolateUY( &
-      !dimens,                 &
-      !dir,                    &
-      !Nc,                     &
-      !bLc,bUc,                &
-      !SSc,NNc,                &
-      !Nf,                     &
-      !bLf,bUf,                &
-      !SSf,NNf,                &
-      !iimax,                  &
-      !dd,                     &
-      !cIV,                    &
-      !phic,                   &
-      !phif ) bind (c,name='MG_interpolateUY')
+  !dimens,                 &
+  !dir,                    &
+  !Nc,                     &
+  !bLc,bUc,                &
+  !SSc,NNc,                &
+  !Nf,                     &
+  !bLf,bUf,                &
+  !SSf,NNf,                &
+  !iimax,                  &
+  !dd,                     &
+  !cIV,                    &
+  !phic,                   &
+  !phif ) bind (c,name='MG_interpolateUY')
 
-    !implicit none
+  !implicit none
 
-    !integer(c_int), intent(in)     :: dimens
+  !integer(c_int), intent(in)     :: dimens
 
-    !integer(c_int), intent(in)     :: dir
+  !integer(c_int), intent(in)     :: dir
 
-    !integer(c_int), intent(in)     :: Nc(1:3)
+  !integer(c_int), intent(in)     :: Nc(1:3)
 
-    !integer(c_int), intent(in)     :: bLc(1:3)
-    !integer(c_int), intent(in)     :: bUc(1:3)
+  !integer(c_int), intent(in)     :: bLc(1:3)
+  !integer(c_int), intent(in)     :: bUc(1:3)
 
-    !integer(c_int), intent(in)     :: SSc(1:3)
-    !integer(c_int), intent(in)     :: NNc(1:3)
+  !integer(c_int), intent(in)     :: SSc(1:3)
+  !integer(c_int), intent(in)     :: NNc(1:3)
 
-    !integer(c_int), intent(in)     :: Nf(1:3)
+  !integer(c_int), intent(in)     :: Nf(1:3)
 
-    !integer(c_int), intent(in)     :: bLf(1:3)
-    !integer(c_int), intent(in)     :: bUf(1:3)
+  !integer(c_int), intent(in)     :: bLf(1:3)
+  !integer(c_int), intent(in)     :: bUf(1:3)
 
-    !integer(c_int), intent(in)     :: SSf(1:3)
-    !integer(c_int), intent(in)     :: NNf(1:3)
+  !integer(c_int), intent(in)     :: SSf(1:3)
+  !integer(c_int), intent(in)     :: NNf(1:3)
 
-    !!integer(c_int), intent(in)     :: BCL(1:3)
-    !!integer(c_int), intent(in)     :: BCU(1:3)
+  !!integer(c_int), intent(in)     :: BCL(1:3)
+  !!integer(c_int), intent(in)     :: BCU(1:3)
 
-    !integer(c_int), intent(in)     :: iimax(1:3)
-    !integer(c_int), intent(in)     :: dd(1:3)
+  !integer(c_int), intent(in)     :: iimax(1:3)
+  !integer(c_int), intent(in)     :: dd(1:3)
 
-    !real(c_double),  intent(in)    :: cIV ( 1:2, 0:Nf(dir) )
+  !real(c_double),  intent(in)    :: cIV ( 1:2, 0:Nf(dir) )
 
-    !real(c_double),  intent(in)    :: cI1 ( 1:2, 1:Nc(1) )
-    !real(c_double),  intent(in)    :: cI2 ( 1:2, 1:Nc(2) )
-    !real(c_double),  intent(in)    :: cI3 ( 1:2, 1:Nc(3) )
+  !real(c_double),  intent(in)    :: cI1 ( 1:2, 1:Nc(1) )
+  !real(c_double),  intent(in)    :: cI2 ( 1:2, 1:Nc(2) )
+  !real(c_double),  intent(in)    :: cI3 ( 1:2, 1:Nc(3) )
 
-    !real(c_double),  intent(in)   :: phic (bLc(1):(Nc(1)+bUc(1)),bLc(2):(Nc(2)+bUc(2)),bLc(3):(Nc(3)+bUc(3)))
+  !real(c_double),  intent(in)   :: phic (bLc(1):(Nc(1)+bUc(1)),bLc(2):(Nc(2)+bUc(2)),bLc(3):(Nc(3)+bUc(3)))
 
-    !real(c_double),  intent(out)  :: phif (bLf(1):(Nf(1)+bUf(1)),bLf(2):(Nf(2)+bUf(2)),bLf(3):(Nf(3)+bUf(3)))
+  !real(c_double),  intent(out)  :: phif (bLf(1):(Nf(1)+bUf(1)),bLf(2):(Nf(2)+bUf(2)),bLf(3):(Nf(3)+bUf(3)))
 
-    !integer(c_int)                ::  i, ic
-    !integer(c_int)                ::  j, jc
-    !integer(c_int)                ::  k, kc
+  !integer(c_int)                ::  i, ic
+  !integer(c_int)                ::  j, jc
+  !integer(c_int)                ::  k, kc
 
-    !integer(c_int)                :: l
+  !integer(c_int)                :: l
 
-    !integer(c_int)                :: S(1:3)
-    !integer(c_int)                :: N(1:3)
+  !integer(c_int)                :: S(1:3)
+  !integer(c_int)                :: N(1:3)
 
 
-    !if( dd(2) /= 1 ) then
+  !if( dd(2) /= 1 ) then
 
-      !do k = SSf(3), Nf(3), dd(3)
-        !do j = SSf(2)+1, Nf(2)-1, dd(2)
-          !jc = (  j+1  )/dd(2)
-          !!pgi$ unroll = n:8
-          !do i = SSf(1), Nf(1)
-            !phif(i,j,k) = 0.5*phif(i,j-1,k) + 0.5*phif(i,j+1,k)
-          !end do
-        !end do
-      !end do
+  !do k = SSf(3), Nf(3), dd(3)
+  !do j = SSf(2)+1, Nf(2)-1, dd(2)
+  !jc = (  j+1  )/dd(2)
+  !!pgi$ unroll = n:8
+  !do i = SSf(1), Nf(1)
+  !phif(i,j,k) = 0.5*phif(i,j-1,k) + 0.5*phif(i,j+1,k)
+  !end do
+  !end do
+  !end do
 
-    !end if
+  !end if
 
   !end subroutine MG_interpolateUY
 
@@ -906,80 +906,80 @@ contains
 
   !!> \brief interpolating 
   !subroutine MG_interpolateUZ( &
-      !dimens,                 &
-      !dir,                    &
-      !Nc,                     &
-      !bLc,bUc,                &
-      !SSc,NNc,                &
-      !Nf,                     &
-      !bLf,bUf,                &
-      !SSf,NNf,                &
-      !iimax,                  &
-      !dd,                     &
-      !cIV,                    &
-      !phic,                   &
-      !phif ) bind (c,name='MG_interpolateUZ')
+  !dimens,                 &
+  !dir,                    &
+  !Nc,                     &
+  !bLc,bUc,                &
+  !SSc,NNc,                &
+  !Nf,                     &
+  !bLf,bUf,                &
+  !SSf,NNf,                &
+  !iimax,                  &
+  !dd,                     &
+  !cIV,                    &
+  !phic,                   &
+  !phif ) bind (c,name='MG_interpolateUZ')
 
-    !implicit none
+  !implicit none
 
-    !integer(c_int), intent(in)     :: dimens
+  !integer(c_int), intent(in)     :: dimens
 
-    !integer(c_int), intent(in)     :: dir
+  !integer(c_int), intent(in)     :: dir
 
-    !integer(c_int), intent(in)     :: Nc(1:3)
+  !integer(c_int), intent(in)     :: Nc(1:3)
 
-    !integer(c_int), intent(in)     :: bLc(1:3)
-    !integer(c_int), intent(in)     :: bUc(1:3)
+  !integer(c_int), intent(in)     :: bLc(1:3)
+  !integer(c_int), intent(in)     :: bUc(1:3)
 
-    !integer(c_int), intent(in)     :: SSc(1:3)
-    !integer(c_int), intent(in)     :: NNc(1:3)
+  !integer(c_int), intent(in)     :: SSc(1:3)
+  !integer(c_int), intent(in)     :: NNc(1:3)
 
-    !integer(c_int), intent(in)     :: Nf(1:3)
+  !integer(c_int), intent(in)     :: Nf(1:3)
 
-    !integer(c_int), intent(in)     :: bLf(1:3)
-    !integer(c_int), intent(in)     :: bUf(1:3)
+  !integer(c_int), intent(in)     :: bLf(1:3)
+  !integer(c_int), intent(in)     :: bUf(1:3)
 
-    !integer(c_int), intent(in)     :: SSf(1:3)
-    !integer(c_int), intent(in)     :: NNf(1:3)
+  !integer(c_int), intent(in)     :: SSf(1:3)
+  !integer(c_int), intent(in)     :: NNf(1:3)
 
-    !!integer(c_int), intent(in)     :: BCL(1:3)
-    !!integer(c_int), intent(in)     :: BCU(1:3)
+  !!integer(c_int), intent(in)     :: BCL(1:3)
+  !!integer(c_int), intent(in)     :: BCU(1:3)
 
-    !integer(c_int), intent(in)     :: iimax(1:3)
-    !integer(c_int), intent(in)     :: dd(1:3)
+  !integer(c_int), intent(in)     :: iimax(1:3)
+  !integer(c_int), intent(in)     :: dd(1:3)
 
-    !real(c_double),  intent(in)    :: cIV ( 1:2, 0:Nf(dir) )
+  !real(c_double),  intent(in)    :: cIV ( 1:2, 0:Nf(dir) )
 
-    !real(c_double),  intent(in)    :: cI1 ( 1:2, 1:Nc(1) )
-    !real(c_double),  intent(in)    :: cI2 ( 1:2, 1:Nc(2) )
-    !real(c_double),  intent(in)    :: cI3 ( 1:2, 1:Nc(3) )
+  !real(c_double),  intent(in)    :: cI1 ( 1:2, 1:Nc(1) )
+  !real(c_double),  intent(in)    :: cI2 ( 1:2, 1:Nc(2) )
+  !real(c_double),  intent(in)    :: cI3 ( 1:2, 1:Nc(3) )
 
-    !real(c_double),  intent(in)   :: phic (bLc(1):(Nc(1)+bUc(1)),bLc(2):(Nc(2)+bUc(2)),bLc(3):(Nc(3)+bUc(3)))
+  !real(c_double),  intent(in)   :: phic (bLc(1):(Nc(1)+bUc(1)),bLc(2):(Nc(2)+bUc(2)),bLc(3):(Nc(3)+bUc(3)))
 
-    !real(c_double),  intent(out)  :: phif (bLf(1):(Nf(1)+bUf(1)),bLf(2):(Nf(2)+bUf(2)),bLf(3):(Nf(3)+bUf(3)))
+  !real(c_double),  intent(out)  :: phif (bLf(1):(Nf(1)+bUf(1)),bLf(2):(Nf(2)+bUf(2)),bLf(3):(Nf(3)+bUf(3)))
 
-    !integer(c_int)                ::  i, ic
-    !integer(c_int)                ::  j, jc
-    !integer(c_int)                ::  k, kc
+  !integer(c_int)                ::  i, ic
+  !integer(c_int)                ::  j, jc
+  !integer(c_int)                ::  k, kc
 
-    !integer(c_int)                :: l
+  !integer(c_int)                :: l
 
-    !integer(c_int)                :: S(1:3)
-    !integer(c_int)                :: N(1:3)
+  !integer(c_int)                :: S(1:3)
+  !integer(c_int)                :: N(1:3)
 
 
-    !if( dd(3) /= 1 ) then
+  !if( dd(3) /= 1 ) then
 
-      !do k = SSf(3)+1, Nf(3)-1, dd(3)
-        !do j = SSf(2), Nf(2)
-          !!pgi$ unroll = n:8
-          !do i = SSf(1), Nf(1)
-            !phif(i,j,k) = 0.5*phif(i,j,k-1) + 0.5*phif(i,j,k+1)
-          !end do
-        !end do
-      !end do
+  !do k = SSf(3)+1, Nf(3)-1, dd(3)
+  !do j = SSf(2), Nf(2)
+  !!pgi$ unroll = n:8
+  !do i = SSf(1), Nf(1)
+  !phif(i,j,k) = 0.5*phif(i,j,k-1) + 0.5*phif(i,j,k+1)
+  !end do
+  !end do
+  !end do
 
-    !end if
+  !end if
 
 
   !end subroutine MG_interpolateUZ
