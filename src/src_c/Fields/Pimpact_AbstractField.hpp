@@ -16,12 +16,11 @@
 
 namespace Pimpact {
 
+
 template<class SpaceT>
 class AbstractField {
 
 public:
-
-//  typedef const SpaceT SpaceT;
 
   typedef typename SpaceT::Scalar Scalar;
   typedef typename SpaceT::Ordinal Ordinal;
@@ -34,25 +33,26 @@ protected:
 
   Teuchos::RCP<const SpaceT> space_;
 
-  void reduceNorm( const MPI_Comm& comm, double& norm, Belos::NormType type = Belos::OneNorm ) const {
+	void reduceNorm( const MPI_Comm& comm, double& norm, Belos::NormType type = Belos::OneNorm ) const {
 
-    Scalar normGlob;
+		Scalar normGlob;
 
-    switch(type) {
-    case Belos::OneNorm:
-      MPI_Allreduce( &norm, &normGlob, 1, MPI_REAL8, MPI_SUM, comm );
-      norm = normGlob;
-      break;
-    case Belos::TwoNorm:
-      MPI_Allreduce( &norm, &normGlob, 1, MPI_REAL8, MPI_SUM, comm );
-      norm = std::sqrt( normGlob );
-      break;
-    case Belos::InfNorm:
-      MPI_Allreduce( &norm, &normGlob, 1, MPI_REAL8, MPI_MAX, comm );
-      norm = normGlob;
-      break;
-    }
-  }
+		switch(type) {
+			case Belos::OneNorm:
+				MPI_Allreduce( &norm, &normGlob, 1, MPI_REAL8, MPI_SUM, comm );
+				norm = normGlob;
+				break;
+			case Belos::TwoNorm:
+				MPI_Allreduce( &norm, &normGlob, 1, MPI_REAL8, MPI_SUM, comm );
+				norm = std::sqrt( normGlob );
+				break;
+			case Belos::InfNorm:
+				MPI_Allreduce( &norm, &normGlob, 1, MPI_REAL8, MPI_MAX, comm );
+				norm = normGlob;
+				break;
+		}
+	}
+
 
 }; // end of class AbstractField
 

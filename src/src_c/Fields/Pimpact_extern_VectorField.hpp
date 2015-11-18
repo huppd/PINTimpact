@@ -297,9 +297,7 @@ void VF_init_Dist(
 		double* const velW ); 
 
 
-
 } // end of extern 'C'
-
 
 
 } // end of namespace Pimpact

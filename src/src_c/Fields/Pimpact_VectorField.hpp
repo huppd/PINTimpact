@@ -32,7 +32,6 @@ namespace Pimpact {
 template<class SpaceType>
 class VectorField : private AbstractField<SpaceType> {
 
-
 public:
 
   typedef SpaceType SpaceT;

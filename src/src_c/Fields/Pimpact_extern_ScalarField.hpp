@@ -348,7 +348,6 @@ void SF_handle_corner(
 } // end of extern 'C'
 
 
-
 } // end of namespace Pimpact
 
 

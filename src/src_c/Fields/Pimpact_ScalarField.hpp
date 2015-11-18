@@ -32,11 +32,6 @@ namespace Pimpact {
 template<class SpaceType>
 class ScalarField : private AbstractField< SpaceType > {
 
-	template<class SpaceTT>
-	friend class DivGradO2JSmoother;
-  template<class Field>
-  friend class TimeField;
-
 public:
 
   typedef SpaceType SpaceT;

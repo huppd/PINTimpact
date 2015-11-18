@@ -25,8 +25,6 @@ namespace Pimpact {
 /// \brief important basic Vector class.
 ///
 /// vector for wrapping many fields into one multiharmonic field
-/// \todo SpaceT constructor
-/// \todo continous memory
 /// \ingroup Field
 template<class Field>
 class MultiHarmonicField : private AbstractField<typename Field::SpaceT> {
@@ -47,7 +45,6 @@ protected:
   typedef AbstractField<SpaceT> AF;
 
   Teuchos::RCP<Field> field0_;
-//  Teuchos::RCP< MultiField< ModeField<Field> > > fields_;
 
   Teuchos::Array< Teuchos::RCP< ModeField<Field> > > fields_;
 
@@ -566,7 +563,6 @@ Teuchos::RCP< MultiHarmonicField< FieldT > > createMultiHarmonic(
 	return(
 			create< MultiHarmonicField<FieldT> >( space ) );
 
-
 }
 
 
@@ -579,6 +575,10 @@ extern template class Pimpact::MultiHarmonicField< Pimpact::ScalarField< Pimpact
 extern template class Pimpact::MultiHarmonicField< Pimpact::ScalarField< Pimpact::Space<double,int,3,4> > >;
 extern template class Pimpact::MultiHarmonicField< Pimpact::VectorField< Pimpact::Space<double,int,3,2> > >;
 extern template class Pimpact::MultiHarmonicField< Pimpact::VectorField< Pimpact::Space<double,int,3,4> > >;
+extern template class Pimpact::MultiHarmonicField< Pimpact::ScalarField< Pimpact::Space<double,int,4,2> > >;
+extern template class Pimpact::MultiHarmonicField< Pimpact::ScalarField< Pimpact::Space<double,int,4,4> > >;
+extern template class Pimpact::MultiHarmonicField< Pimpact::VectorField< Pimpact::Space<double,int,4,2> > >;
+extern template class Pimpact::MultiHarmonicField< Pimpact::VectorField< Pimpact::Space<double,int,4,4> > >;
 #endif
 
 
