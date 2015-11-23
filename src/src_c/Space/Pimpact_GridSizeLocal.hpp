@@ -25,7 +25,6 @@ namespace Pimpact{
 /// generated from \c GridSizeGlobal and \c ProcGridSize
 /// \f$ nLoc = (nGlo-1)/nProc + 1 \f$
 /// \ingroup SpaceObject
-/// \todo think about inheriting from Tuple or generalize for use Global/Local
 template<class Ordinal, int dim>
 class GridSizeLocal : public Teuchos::Tuple<Ordinal,dim> {
 
@@ -37,7 +36,11 @@ class GridSizeLocal : public Teuchos::Tuple<Ordinal,dim> {
 
 protected:
 
-	/// \todo change for pasp
+	/// \brief constructor
+	///
+	/// \tparam dNC stencil width
+	/// \param gridSizeGlobal global grid size
+	/// \param procGrid processor grid
 	/// \param stencilWidths only necessary for size checking, and defining gs[3]
 	template<int dNC>
 	GridSizeLocal(

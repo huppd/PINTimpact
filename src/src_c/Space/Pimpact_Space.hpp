@@ -134,7 +134,10 @@ public:
 			Pimpact::createCoordinatesGlobal<S,O,d>(
 					gridSizeGlobal_,
 					domainSize_,
-					Teuchos::tuple( None, None, None) );
+					Teuchos::tuple<Teuchos::ParameterList>(
+						pl->sublist("Stretching in X"),
+						pl->sublist("Stretching in Y"),
+						pl->sublist("Stretching in Z") ) );
 
 		coordLocal_ =
 			Pimpact::createCoordinatesLocal<S,O,d>(
@@ -400,9 +403,9 @@ public:
 			pl->set<O>("nf", 4, "amount of grid points in f-direction" );
 
 			// grid stretching
-			pl->set<int>("grid stretching in x", 0, "");
-			pl->set<int>("grid stretching in y", 0, "");
-			pl->set<int>("grid stretching in z", 0, "");
+			pl->sublist("Stretching in X");
+			pl->sublist("Stretching in Y");
+			pl->sublist("Stretching in Z");
 
 			// processor grid size
 			pl->set<O>("npx", 2, "amount of processors in x-direction" );

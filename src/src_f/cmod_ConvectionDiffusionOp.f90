@@ -17,7 +17,7 @@ contains
 
 
   !> \brief convection diffusion 
-  !! \f[ nlu = mul nlu + mulI phi + mulC ( U\cdot\nabla) phi - mulL \Delta phi
+  !! \f[ nlu = mul nlu + mulI phi + mulC ( U\cdot\nabla) phi - mulL \Delta phi \f]
   subroutine OP_convectionDiffusion(  &
       dimens,                         &
       N,                              &

@@ -69,7 +69,7 @@ public:
   }
 
 
-  /// \depcecated
+  /// \deprecated
   void apply(const DomainFieldT& z, const DomainFieldT& x, RangeFieldT& y, Scalar mul=0. ) const { std::cout << "!!!depcreated!!!\n"; };
 
 

@@ -3,7 +3,7 @@
 #define PIMPACT_MULTIHARMONICMULTIOPWRAP_HPP
 
 
-#include "Teuchos_RCP.hpp"
+#include <Teuchos_RCP.hpp>
 
 #include <BelosTypes.hpp>
 
@@ -18,7 +18,7 @@ namespace Pimpact {
 
 /// \brief Operator wrapper.
 /// \ingroup MultiHarmonicOperator
-/// wraps a \ref MultiOp and adds the functionality of handling \c MultiHarmonicField's which allows block methods
+/// wraps a \c MultiOperator and adds the functionality of handling \c MultiHarmonicField's which allows block methods
 template<class MultiOperator>
 class MultiHarmonicMultiOpWrap  {
 

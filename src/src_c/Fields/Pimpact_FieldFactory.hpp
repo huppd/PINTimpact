@@ -149,10 +149,8 @@ Teuchos::RCP< MultiHarmonicField< ScalarField<SpaceT> > > createMultiHarmonicSca
 ///
 /// \relates MultiHarmonicField
 /// \relates VectorField
-/// \param nf amount of modes
 /// \param space
 /// \return field vector
-/// \deprecated nf
 template<class SpaceT>
 Teuchos::RCP< MultiHarmonicField< VectorField<SpaceT> > >
 createMultiHarmonicVectorField(

@@ -111,11 +111,11 @@ public:
   /// \brief copy constructor.
   ///
   /// shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
-  /// \param vF
+  /// \param field 
   /// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
-  TimeField(const TimeField& field, ECopyType copyType=DeepCopy):
+  TimeField( const TimeField& field, ECopyType copyType=DeepCopy ):
     AF( field.space() ),
-    exchangedState_(field.exchangedState_) {
+    exchangedState_( field.exchangedState_ ) {
 
     Ordinal nt = space()->nLoc(3) + space()->bu(3) - space()->bl(3);
 

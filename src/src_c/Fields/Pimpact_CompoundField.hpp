@@ -65,12 +65,12 @@ public:
   /// \brief copy constructor.
   ///
   /// shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
-  /// \param sF
+  /// \param field 
   /// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
-  CompoundField(const CompoundField& vF, ECopyType copyType=DeepCopy):
-    AF( vF.space() ),
-    vfield_( Teuchos::rcp( new VField( *vF.vfield_, copyType ) ) ),
-    sfield_( Teuchos::rcp( new SField( *vF.sfield_, copyType ) ) )
+  CompoundField( const CompoundField& field, ECopyType copyType=DeepCopy ):
+    AF( field.space() ),
+    vfield_( Teuchos::rcp( new VField( *field.vfield_, copyType ) ) ),
+    sfield_( Teuchos::rcp( new SField( *field.sfield_, copyType ) ) )
 {};
 
 

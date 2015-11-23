@@ -87,12 +87,15 @@ public:
 
 		}
 
+
 	/// \brief  constructor, creates \c numvecs  empty fields
+	///
+	/// \param space
 	/// \param numvecs
 	/// \return
 	MultiField( const Teuchos::RCP<const SpaceT>& space, int numvecs=1 ):
 		AF( space ),
-		mfs_(numvecs) {
+		mfs_( numvecs ) {
 
 			for( int i=0; i<numvecs; ++i )
 				mfs_[i] = create<FieldT>( space );

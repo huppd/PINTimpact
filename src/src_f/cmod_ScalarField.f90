@@ -98,7 +98,7 @@ contains
   end subroutine SF_add2
 
 
-  !> \brief copys absolute value from \c phi1 in \phi
+  !> \brief copys absolute value from \c phi1 in \c phi
   !! \param[in] N ammount of local grid points
   !! \param[in] bL start index of storage in 1-direction
   !! \param[in] bU end offset of storage in 1-direction
@@ -131,7 +131,7 @@ contains
   end subroutine SF_abs
 
 
-  !> \brief copys reciprocal value from \c phi1 in \phi
+  !> \brief copys reciprocal value from \c phi1 in \c phi
   !! \param[in] N ammount of local elements
   !! \param[in] bL start index of storage in 1-direction
   !! \param[in] bU end offset of storage in 1-direction
@@ -213,7 +213,7 @@ contains
   end subroutine SF_scale
 
 
-  !> \brief scales \c phi with \phi1.
+  !> \brief scales \c phi with \c phi1.
   !! \param[in] N ammount of local grid points
   !! \param[in] bL start index of storage
   !! \param[in] bU end offset of storage

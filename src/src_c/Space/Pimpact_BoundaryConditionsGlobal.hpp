@@ -24,7 +24,6 @@ public:
 	typedef const Teuchos::Tuple<EBCType,dim> TBC3;
 	typedef const Teuchos::Tuple<int,dim> Ti3;
 
-
 	template<int d>
   friend Teuchos::RCP<const BoundaryConditionsGlobal<d> > createBoudaryConditionsGlobal();
 

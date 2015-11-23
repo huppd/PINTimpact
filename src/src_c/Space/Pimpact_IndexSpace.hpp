@@ -79,9 +79,12 @@ protected:
   Teuchos::Tuple<Ordinal,dimension> shift_;
 
   /// \brief constructor
+	///
+	/// \tparam dimNC stencil widths
   /// \param sW with of differenct stencils
   /// \param gridSizeLocal amount of grid points stored localy on this node
   /// \param bc local boundary conditions
+	/// \param procGrid processor grid
   template<int dimNC>
   IndexSpace(
       const Teuchos::RCP<const StencilWidths<dimension,dimNC> >& sW,

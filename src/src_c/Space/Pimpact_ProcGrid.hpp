@@ -64,9 +64,10 @@ protected:
   Teuchos::Tuple<int,dim> rankU_;
 
 
-	// sub rank and sub comm
-	MPI_Comm commSlice_[dim];
-	Teuchos::Tuple<int,dim> rankSlice_;
+	MPI_Comm commSlice_[dim];           ///< sub comm along dimension
+	Teuchos::Tuple<int,dim> rankSlice_; ///< sub rank should be equivalent to iB_
+
+
 //  MPI_Comm commBar_[3];
 //
 //  Teuchos::Tuple<int,3> rankBar_;
@@ -221,6 +222,7 @@ public:
 
 	/// \note should only be used if knowing what to do(e.g. MG)
 	/// \warning no safety checks
+	/// \todo make privet, make coarsening here.
 	ProcGrid(
 			TO procGridSize,
 			bool participating,

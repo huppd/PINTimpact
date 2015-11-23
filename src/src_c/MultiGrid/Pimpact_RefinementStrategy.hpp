@@ -74,7 +74,7 @@ public:
 			Pimpact::createCoordinatesGlobal<Scalar,Ordinal,dimension>(
 					gridSizeGlobal,
 					domainSize,
-					Teuchos::tuple( None, None, None ) );
+					space->getCoordinatesGlobal()->getStretchParameter() );
 
     auto coordLocal = Pimpact::createCoordinatesLocal<Scalar,Ordinal,dimension>(
         stencilWidths,
