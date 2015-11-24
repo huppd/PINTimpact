@@ -2,6 +2,7 @@
 #ifndef PIMPACT_TYPES_HPP
 #define PIMPACT_TYPES_HPP
 
+
 #include "BelosTypes.hpp"
 
 
@@ -10,7 +11,8 @@
 namespace Pimpact {
 
 
-/// Copy Type
+
+/// \brief Copy Type
 enum ECopyType {
   /// Deep Copy, means that everything is copied including boundaries
   DeepCopy,
@@ -19,10 +21,13 @@ enum ECopyType {
 };
 
 
+
 enum ECoord { X=0, Y=1, Z=2, T=4 };
 enum EField { U=0, V=1, W=2, S=4 };
 
 
+
+/// \brief kind of boundary conditions
 /// \relates BoundaryConditionsGlobal
 /// \relates BoundaryConditionsLocal
 enum EBCType {
@@ -33,6 +38,7 @@ enum EBCType {
   NeumannBC = 2,
   RobinBC = 3
 };
+
 
 
 /// \brief type of Domain, e.g. periodic channel, box, ...
@@ -47,13 +53,8 @@ enum EDomainType {
 };
 
 
-enum EGridStretching {
-	None=0,
-	Parabola=1,
-	Cos=2
-};
 
-
+/// \brief Scalar Field profile
 /// \relates ScalarField::initField
 enum EScalarField {
 	ConstField = 0,
@@ -67,6 +68,7 @@ enum EScalarField {
 };
 
 
+/// \brief kind of VectorField profile
 /// \relates VectorField::initField
 enum EVectorField {
   ZeroFlow=0,
@@ -109,6 +111,7 @@ enum EFlowType {
 };
 
 
+/// \brief kind of force
 enum EForceType {
   Dipol        = 1,
   Disc         = 2,

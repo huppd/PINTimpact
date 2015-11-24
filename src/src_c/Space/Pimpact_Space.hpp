@@ -66,7 +66,7 @@ public:
 
 	Space( Teuchos::RCP<Teuchos::ParameterList> pl ) {
 
-		pl->validateParametersAndSetDefaults( *getValidParameters() );
+		pl->validateParametersAndSetDefaults( *getValidParameters(), 0 );
 
 		Teuchos::writeParameterListToXmlFile( *pl, "parameterSpace.xml" );
 
@@ -406,6 +406,9 @@ public:
 			pl->sublist("Stretching in X");
 			pl->sublist("Stretching in Y");
 			pl->sublist("Stretching in Z");
+			pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "none" );
+			pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "none" );
+			pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "none" );
 
 			// processor grid size
 			pl->set<O>("npx", 2, "amount of processors in x-direction" );

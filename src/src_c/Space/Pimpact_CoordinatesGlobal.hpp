@@ -90,10 +90,10 @@ protected:
   
 	/// \brief coordinate stretching for parabulas
 	///
-	/// \param i index
-	/// \param L domains size
-	/// \param M number of grid points
-	/// \param x0 origin 
+	/// \param[in] i index
+	/// \param[in] L length of domain
+	/// \param[in] M number of global grid points
+	/// \param[in] x0 origin
 	/// \param bla parameter for parabola bla=0 very parabolic bla>>0 equidistant
 	/// \param x coordinate
 	void coord_parab( const Scalar& i, const Scalar& L, const Scalar& M, const Scalar& x0, const Scalar& bla, Scalar& x/*, Scalar& dx*/ ) {
@@ -101,20 +101,121 @@ protected:
 		//dx = L*(      2.*(i)  /std::pow(M-1.,2) + 2.*bla  /(M-1.) )/(1.+2.*bla);
 	}
 
-	/// \brief
+
+
+	/// \brief awesome stretching
 	///
-	/// \param i
-	/// \param L
-	/// \param M
-	/// \param x0
-	/// \param bla
-	/// \param x
-	void coord_cos( const Scalar& i, const Scalar& L, const Scalar& M, const Scalar& x0, const Scalar& bla, Scalar& x/*, Scalar& dx*/ ) {
-		x  = L*( std::pow(i,2)/std::pow(M-1.,2) + 2.*bla*i/(M-1.) )/(1.+2.*bla) - x0;
-		//dx = L*(      2.*(i)  /std::pow(M-1.,2) + 2.*bla  /(M-1.) )/(1.+2.*bla);
+	/// \param[in] i index
+	/// \param[in] L length of domain
+	/// \param[in] M number of global grid points
+	/// \param[in] x0 origin
+	/// \param[in] iML ???
+	/// \param[in] iMU ???
+	/// \param[in] i0L ???
+	/// \param[in] i0U ???
+	/// \param[out] x coordinate
+	/// 
+	/// \note - i0L >= 0., i0U >= 0., iML >= 1 and iMU <= M is already tested.
+	///       - so following is satisfied wL, wU >= 0..
+	///       - identical to coord_tan except of std::cos functions.
+	void coord_cos(
+			const Scalar& i,
+			const Scalar& L,
+			const Scalar& M,
+			const Scalar& x0,
+			const Scalar& iML,
+			const Scalar& iMU,
+			const Scalar& i0L,
+			const Scalar& i0U,
+			Scalar& x/*, Scalar& dx*/ ) {
+
+		Scalar wL;
+		Scalar wU;
+		Scalar xL;
+		Scalar xU;
+
+		Scalar pi = 4.*std::atan( 1. );
+
+		//--- parameters for grid stretching 
+		if( iML == 1. ) {
+			wL = 0.;
+			xL = 0.;
+		}
+		else {
+			wL = pi/( 2.*( iML + i0L - 1. ) );
+			xL = std::cos( wL*i0L )/wL;
+		}
+
+		if( iMU == M ) {
+			wU = 0.;
+			xU = 0.;
+		}
+		else {
+			wU = pi/( 2.*( M - iMU + i0U ) );
+			xU = std::cos( wU*i0U )/wU;
+		}
+
+		//--- coordinates in the physical space
+		if( i<iML && wL!= 0. ) {
+			if( (i + i0L - 1.) < 0. ) {
+				// mirroring of the function
+				x = - xL + std::cos( wL*( i + i0L - 1. ) )/wL;
+				//dx =     - std::sin( wL*( i + i0L - 1.   ) );
+			}
+			else {
+				x =   xL - std::cos( wL*( i + i0L - 1. ) )/wL;
+				//dx =     + std::sin( wL*( i + i0L - 1. ) );
+			}
+		}
+		else if( i>iMU && wU!=0. ) {
+			if( (M - i + i0U) < 0. ) {
+				// mirroring of the function
+				x = ( 2. - std::cos( wU*( i - i0U - M ) ) )/wU;
+				//dx =     + std::sin( wU*( i - i0U - M ) );
+			}
+			else {
+				x =  std::cos( wU*( i - i0U - M ) )/wU;
+				//dx = - std::sin(wU*(i - i0U - M));
+			}
+			x = x + xL - iML + iMU;
+		}
+		else {
+			x = i + xL - iML;
+			//dx = 1.;
+		}
+
+
+		//--- Normalization
+		x *= L/( xL + xU - iML + iMU );
+		x -= x0;
+		//dx = dx * L / (xL + xU - iML + iMU);
+
 	}
 
+
 	///  @} 
+
+
+
+	/// \brief helper function getting number for switch statement
+	/// from name 
+	/// \param name input name
+	/// \return accroding int number
+	int string2int( const std::string& name ) {
+		std::string lcName = name;
+		std::transform(lcName.begin(), lcName.end(), lcName.begin(), ::tolower);
+		if( "none" == lcName ) return( 0 );
+		else if( "parabola" == lcName ) return( 1 );
+		else if( "parab" == lcName ) return( 1 );
+		else if( "cos" == lcName ) return( 2 );
+		else {
+			const bool& Stertch_Type_not_known = true; 
+			TEUCHOS_TEST_FOR_EXCEPT( Stertch_Type_not_known );
+		}
+		return( 0 );
+	}
+
+
 
 	/// \brief 
 	///
@@ -142,15 +243,28 @@ protected:
 					Scalar L  = domainSize->getSize(dir);
 					Scalar x0 = domainSize->getOrigin(dir);
 
+					int stretchType = string2int( stretchPara_[dir].get<std::string>( "Stretch Type", "none" ) );
 					for( Ordinal i=0; i<M; ++i ) {
 						Scalar is = i;
 
-						switch( stretchPara_[dir].get( "Stretch Type", 0 ) ) {
+						switch( stretchType ) {
 							case 0:
 								coord_equi( is, L, Ms, x0, xS_[dir][i] );
 								break;
 							case 1:
 								coord_parab( is, L, Ms, x0, stretchPara_[dir].get<Scalar>( "alpha", 0.5 ), xS_[dir][i] );
+								break;
+							case 2:
+								coord_cos(
+										is,
+										L,
+										Ms,
+										x0,
+										stretchPara_[dir].get<Scalar>( "N metr L", 1. ),
+										stretchPara_[dir].get<Scalar>( "N metr U", M  ),
+										stretchPara_[dir].get<Scalar>( "x0 L", 0. ),
+										stretchPara_[dir].get<Scalar>( "x0 U", 0. ),
+										xS_[dir][i] );
 								break;
 							default:
 								coord_equi( is, L, Ms, x0, xS_[dir][i] );
@@ -159,12 +273,24 @@ protected:
 					}
 					for( Ordinal i=0; i<=M; ++i ) {
 						Scalar is = static_cast<Scalar>(i) - 0.5;
-						switch( stretchPara_[dir].get( "Stretch Type", 0 ) ) {
+						switch( stretchType ) {
 							case 0:
 								coord_equi( is, L, Ms, x0, xV_[dir][i] );
 								break;
 							case 1:
 								coord_parab( is, L, Ms, x0, stretchPara_[dir].get<Scalar>( "alpha", 0.5 ), xV_[dir][i] );
+								break;
+							case 2:
+								coord_cos(
+										is,
+										L,
+										Ms,
+										x0,
+										stretchPara_[dir].get<Scalar>( "N metr L", 1. ),
+										stretchPara_[dir].get<Scalar>( "N metr U", M  ),
+										stretchPara_[dir].get<Scalar>( "x0 L", 0. ),
+										stretchPara_[dir].get<Scalar>( "x0 U", 0.  ),
+										xV_[dir][i] );
 								break;
 							default:
 								coord_equi( is, L, Ms, x0, xV_[dir][i] );
@@ -176,6 +302,8 @@ protected:
 
 				}
 				else if( 3==dir ) {
+					// in time direction no stretching is considered as long as
+					// time-periodic problems are considered equidistant should be best
 
 					Scalar L = 4.*std::atan(1.);
 
@@ -185,9 +313,9 @@ protected:
 						//dxS_[dir][i] =    L/( Ms-1. );
 					}
 					for( Ordinal i=0; i<=M; ++i ) {
-						Scalar is = i;
-						xV_ [dir][i] = ( is - 0.5 )*L/( Ms-1. );
-						//dxV_[dir][i] =              L/( Ms-1. );
+						Scalar is = static_cast<Scalar>(i) - 0.5;
+						xV_ [dir][i] = is*L/( Ms-1. );
+						//dxV_[dir][i] =  L/( Ms-1. );
 					}
 				}
 			}
