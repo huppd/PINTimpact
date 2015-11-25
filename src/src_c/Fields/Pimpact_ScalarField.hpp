@@ -834,9 +834,9 @@ public:
   const EField& getType() const { return( fType_ ); }
 
    /// \name storage methods.
-   /// \brief highly dependent on underlying storage should only be used by Operator or on top field implementer.
-   ///
-   ///\{
+	 /// \brief highly dependent on underlying storage should only be used by
+	 /// Operator or on top field implementer.  
+   /// @{
 
   Ordinal getStorageSize() const {
 
@@ -854,15 +854,15 @@ public:
 	const Scalar* getConstRawPtr() const { return( s_ ); }
 
 
-  ///\}
+  /// @}
 
   Teuchos::RCP<const SpaceT> space() const { return( AbstractField<SpaceT>::space_ ); }
 
   const MPI_Comm& comm() const { return( space()->comm() ); }
 
   /// \name comunication methods.
-  /// \brief highly dependent on underlying storage should only be used by Operator or on top field implementer.
-  ///
+	/// \brief highly dependent on underlying storage should only be used by
+	/// Operator or on top field implementer.
   /// \{
 
   void changed( const int& dir ) const {

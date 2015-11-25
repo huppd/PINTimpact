@@ -6,7 +6,6 @@
 
 
 !> \brief module providing routine, that initializes the coordinates
-!!  by using get_coords
 module cmod_Coordinates
 
   use iso_c_binding
@@ -15,11 +14,8 @@ module cmod_Coordinates
 
 contains
 
-
-  !pgi$g unroll = n:8
-  !!pgi$r unroll = n:8
-  !!pgi$l unroll = n:8
-  !> \relates GridCoordinatesLocal
+  !> \brief extracts local coordinates from global
+  !!
   !! \param L domain length
   !! \param M global grid size
   !! \param N local grid size
@@ -36,6 +32,7 @@ contains
   !! \param xv local vector coordinates
   !! \param dxs local scalar deltas 
   !! \param dxv local vector deltas
+  !! \relates GridCoordinatesLocal
   subroutine PI_getLocalCoordinates(  &
       L,                              &
       M,                              &
@@ -109,7 +106,7 @@ contains
     end if
 
 
-    !--- symmetic BC or fixed walls -------------------------------------------------------------
+    !--- symmetric BC or fixed walls -------------------------------------------------------------
     if( BC_L_global == -2 .or. BC_L_global > 0 ) then
       if( BC_L_global > 0 ) then
         ysR(bL: 0) = 2.*ysR(1) - yvR((2-bL):2:-1)
@@ -138,7 +135,7 @@ contains
     xv(bL:(N+bU)) = yvR((iiShift+bL):(iiShift+N+bU))
 
 
-    ! is better for evalution of quadrature weights
+    ! Is better for evaluation of quadrature weights
     do i = 1, N
       dxs(i) = xv(i)-xv(i-1)
     end do
@@ -150,7 +147,7 @@ contains
       dxv(i) = xs(i+1)-xs(i)
     end do
 
-    dxv(0 ) = dxv(1   ) ! necessary for particle feedback loop
+    dxv(0) = dxv(1   ) ! Necessary for particle feedback loop
     dxv(N) = dxv(N-1)
 
     if( BC_L == 0 .or. BC_L == -1 ) dxv(0) = xs(1  )-xs(0)

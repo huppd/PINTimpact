@@ -18,9 +18,6 @@ contains
   !!pgi$r unroll = n:8
   !!pgi$l unroll = n:8
 
-
-
-
   !    subroutine myDGBTRF(N,ndL,AB,LDAB,pivot)
   !
   !        implicit none
@@ -153,12 +150,6 @@ contains
   !    end subroutine myDGBTRF
 
 
-
-
-
-
-
-
   !    subroutine test_coeffs()
   !
   !        implicit none
@@ -230,10 +221,8 @@ contains
 
 
 
-
   !> \brief calculates finite differences coefficients.
   !!
-  !! \param[in] rank only needed for error handling
   !! \param[in] Nmax dimension of cc and xc,xs corresponds to \c GridSizeLocal
   !! \param[in] bl  coordinate lower bound \c FieldSpace
   !! \param[in] bu  coordinate upper bound \c FieldSpace
@@ -257,8 +246,7 @@ contains
   !! \param[out] cc coefficients
   !! \todo move error handling else where
   subroutine FD_getDiffCoeff( &
-      !rank,                   &
-    Nmax,                   &
+      Nmax,                   &
       bL, bU,                 &
       cL, cU,                 &
       BCL, BCU,               &
@@ -276,7 +264,6 @@ contains
 
     implicit none
 
-    !integer(c_int),  intent(in)   :: rank
 
     integer(c_int),  intent(in)   :: Nmax
 

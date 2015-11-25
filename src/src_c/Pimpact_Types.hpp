@@ -72,9 +72,13 @@ enum EScalarField {
 /// \relates VectorField::initField
 enum EVectorField {
   ZeroFlow=0,
-  PoiseuilleFlow2D_inX=1, PoiseuilleFlow2D_inY=2, PoiseuilleFlow2D_inZ=20,
-  Pulsatile2D_inXC=3, Pulsatile2D_inXS=5,
-  Pulsatile2D_inYC=4, Pulsatile2D_inYS=6,
+  PoiseuilleFlow2D_inX=1,
+	PoiseuilleFlow2D_inY=2,
+	PoiseuilleFlow2D_inZ=20,
+  Pulsatile2D_inXC=3,
+	Pulsatile2D_inXS=5,
+  Pulsatile2D_inYC=4,
+	Pulsatile2D_inYS=6,
   Streaming2D=7,
   Circle2D=8,
   Circle2D_inXZ=21,

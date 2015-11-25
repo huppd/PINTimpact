@@ -20,7 +20,7 @@ bool testMpi = true;
 double eps = 1e-6;
 
 int dim = 3;
-int domain = 1;
+int domain = 0;
 
 auto pl = Teuchos::parameterList();
 
@@ -108,10 +108,15 @@ TEUCHOS_UNIT_TEST( VectorField, initField ) {
 	pl->set( "dim", dim );
 	pl->set( "domain", domain );
 
+	pl->set<double>( "Re", 400. );
+
 	// processor grid size
 	pl->set("npx", (2==dim)?4:2 );
 	pl->set("npy",            2 );
 	pl->set("npz", (2==dim)?1:2 );
+	pl->set("npx", 1 );
+	pl->set("npy", 1 );
+	pl->set("npz", 1 );
 
 	pl->set( "Re", 400. );
 
@@ -123,9 +128,9 @@ TEUCHOS_UNIT_TEST( VectorField, initField ) {
 	pl->set("ny", 49 );
 	pl->set("nz", 97 );
 
-	pl->set("nx", 257 );
-	/*pl->set("ny", 257 );*/
-	/*pl->set("nz", 257 );*/
+	pl->set("nx", 1025 );
+	pl->set("ny", 7 );
+	pl->set("nz", 7 );
 
 	pl->sublist( "Stretching in X" ).set<std::string>("Stretch Type", "Parabola");
 	pl->sublist( "Stretching in X" ).set<double>( "N metr L", pl->get<int>("nx") );
@@ -135,6 +140,7 @@ TEUCHOS_UNIT_TEST( VectorField, initField ) {
 
 	pl->sublist( "Stretching in Y" ).set<std::string>("Stretch Type", "Parabola");
 	pl->sublist( "Stretching in Y" ).set<double>( "N metr L", 1. );
+	//pl->sublist( "Stretching in Y" ).set<double>( "N metr L", pl->get<int>("ny") );
 	pl->sublist( "Stretching in Y" ).set<double>( "N metr U", pl->get<int>("ny") );
 	pl->sublist( "Stretching in Y" ).set<double>( "x0 L", 0. );
 	pl->sublist( "Stretching in Y" ).set<double>( "x0 U", 0. );
@@ -164,6 +170,9 @@ TEUCHOS_UNIT_TEST( VectorField, initField ) {
 		auto bla = divVec->norm( Belos::InfNorm );
 		if( 0==space->rankST() )
 			std::cout << "EField: " << i << "\tmax div: " << bla << "\n";
+		bla = divVec->norm( Belos::TwoNorm );
+		if( 0==space->rankST() )
+			std::cout << "EField: " << i << "\t||div||: " << bla << "\n";
 		divVec->write( i*2 );
 	}
 

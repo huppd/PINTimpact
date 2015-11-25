@@ -110,10 +110,10 @@ int main( int argi, char** argv ) {
 	auto pl = Teuchos::getParametersFromXmlFile( xmlFilename );
 	pl->print();
 
-	/////////////////////////////////////////// end of set up parameters ///////////////////////////
+	/////////////////////////////////////////// end of set up parameters /////////////////////////
 
 
-	///////////////////////////////////////////  set up initial stuff //////////////////////////////
+	///////////////////////////////////////////  set up initial stuff ////////////////////////////
 
 	int initZero = pl->sublist("Solver").get<int>( "initZero", 0);
 
@@ -127,7 +127,6 @@ int main( int argi, char** argv ) {
 	auto space = Pimpact::createSpace<S,O,4,4>( Teuchos::rcpFromRef( pl->sublist("Space",true) ) );
 
 	int baseflow = pl->get<int>("baseflow");
-	//	int flow = pl->get<int>("flow");
 	int force = pl->get<int>("forcing");
 
 
@@ -135,7 +134,8 @@ int main( int argi, char** argv ) {
 	auto x = Pimpact::create<MF>( space );
 
 	// init Fields
-	x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->initField( Pimpact::EVectorField(baseflow), 1. );
+	//x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->initField( Pimpact::EVectorField(baseflow), 1. );
+	x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->initField( pl->sublist("Base flow") );
 
 	if( 0==initZero )
 		x->init(0.);

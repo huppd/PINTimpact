@@ -1,6 +1,6 @@
 !>  Modul: cmod_VectorField
 !!
-!! impact functions \c Pimpact::VectorField e.g. scales, norms ...
+!! Impact functions \c Pimpact::VectorField e.g. scales, norms ...
 !! \author huppd
 module cmod_VectorField
 
@@ -1876,8 +1876,9 @@ contains
       SW,NW,                          &
       x1p,x2p,                        &
       xm,ym, omega,                   &
-      phiU,phiV,phiW ) bind ( c, name='VF_init_RotatingDisc' )
-    ! (basic subroutine)
+      phiU,                           &
+      phiV,                           &
+      phiW ) bind ( c, name='VF_init_RotatingDisc' )
 
     implicit none
 
@@ -1949,6 +1950,16 @@ contains
 
 
 
+  !> \brief init swept Hiemenz boundary layer
+  !! 
+  !! \note - baseflow_global(*,1) need to run from 0 to M1, i.e. full axis, on u grid, since interpolated to p grid by init_BC
+  !!       - baseflow_global(*,2) and (*,3) are computed on p grid, since they start exactly on p(1) wall
+  !!
+  !! difficulty: - full u grid serves also negative values below the wall, where shooting integration is invalid
+  !! solution:   - compute velocity for y = 0 and y > 0 on u grid, then extrapolate from 0 to first (negative) u value
+  !!             - perform extrapolation not on all ranks, but only those which touch the ground
+  !!             - since only one value below the wall is relevant for interpolation, extrapolation formula reads:
+  !!                      base(0,1)|_u = ( base(0,1)|_p - sum_0^d1U{cIup(j,1)*base(1+j,1)|_u} ) / cIup(-1,1)
   subroutine VF_init_SHBF(  &
       rank,                 &
       iShift,               &
@@ -1970,8 +1981,9 @@ contains
       sweep_angle_degrees,  &
       sweep_angle,          &
       angle_attack,         &
-      velU,velV,velW ) bind ( c, name='VF_init_SHBF' )
-    ! (basic subroutine)
+      velU,                 &
+      velV,                 &
+      velW ) bind ( c, name='VF_init_SHBF' )
 
     implicit none
 
@@ -2042,15 +2054,6 @@ contains
 
     baseflow_global = 0.
     baseflow        = 0.
-
-    ! notice: - baseflow_global(*,1) need to run from 0 to M1, i.e. full axis, on u grid, since interpolated to p grid by init_BC
-    !         - baseflow_global(*,2) and (*,3) are computed on p grid, since they start exactly on p(1) wall
-
-    ! difficulty: - full u grid serves also negative values below the wall, where shooting integration is invalid
-    ! solution:   - compute velocity for y = 0 and y > 0 on u grid, then extrapolate from 0 to first (negative) u value
-    !             - perform extrapolation not on all ranks, but only those which touch the ground
-    !             - since only one value below the wall is relevant for interpolation, extrapolation formula reads:
-    !                      base(0,1)|_u = ( base(0,1)|_p - sum_0^d1U{cIup(j,1)*base(1+j,1)|_u} ) / cIup(-1,1)
 
     ! ------------------------- get two tangential base flow components (staggered grid! need information on p grid)
     ! get global basic flow (exactly FULL y axis, over all ranks) on yp grid, store in baseflow_global, for two tangent coordinates
