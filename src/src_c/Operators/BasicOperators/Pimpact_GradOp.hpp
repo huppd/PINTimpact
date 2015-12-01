@@ -182,7 +182,8 @@ public:
 					space_->getBCLocal()->getBCU(),
 					space_->sIndB(i),
 					space_->eIndB(i),
-					space_->getInterpolateV2S()->getC((ECoord)i),
+					space_->getInterpolateV2S()->getC(
+						static_cast<ECoord>(i) ),
 					y.getRawPtr(i) );
 		}
 

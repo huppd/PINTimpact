@@ -126,16 +126,12 @@ int main( int argi, char** argv ) {
 
 	auto space = Pimpact::createSpace<S,O,4,4>( Teuchos::rcpFromRef( pl->sublist("Space",true) ) );
 
-	int baseflow = pl->get<int>("baseflow");
-	int force = pl->get<int>("forcing");
-
 
 	// init vectors
 	auto x = Pimpact::create<MF>( space );
 
 	// init Fields
-	//x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->initField( Pimpact::EVectorField(baseflow), 1. );
-	x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->initField( pl->sublist("Base flow") );
+	x->getFieldPtr(0)->getVFieldPtr()->initField( pl->sublist("Base flow") );
 
 	if( 0==initZero )
 		x->init(0.);
@@ -159,21 +155,10 @@ int main( int argi, char** argv ) {
 
 		std::string rl = "";
 		if( refinement>1 )
-			rl = std::to_string( (long long)refine ); // long long needed on brutus(intel)
+			rl = std::to_string( static_cast<long long>(refine) ); // long long needed on brutus(intel)
 
 		auto fu   = x->clone( Pimpact::ShallowCopy );
-		if( 0==force )
-			fu->init( 0. );
-		else {
-			//			S re = space->getDomainSize()->getRe();
-			fu->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->getFieldPtr(Pimpact::U)->initField(  Pimpact::FPoint, pl->get<S>( "lambda0x", -2. ) );
-			fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->getFieldPtr(Pimpact::V)->initField( Pimpact::FPoint, pl->get<S>( "lambdaCy",  1. ) );
-			fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->getFieldPtr(Pimpact::W)->initField( Pimpact::FPoint, pl->get<S>( "lambdaCz",  0. ) );
-			//		fu->getFieldPtr(0)->getVFieldPtr()->getSFieldPtr(0)->getFieldPtr(Pimpact::W)->initField( Pimpact::FPoint, 1. );
-		}
-		//	fu->getFieldPtr(0)->getVFieldPtr()->write( 700,true );
-		fu->getFieldPtr(0)->getVFieldPtr()->changed();
-		fu->getFieldPtr(0)->getSFieldPtr()->changed();
+		fu->getFieldPtr(0)->getVFieldPtr()->initField( pl->sublist("Force") );
 
 
 		auto opV2V = Pimpact::createMultiDtConvectionDiffusionOp( space );
@@ -449,7 +434,10 @@ int main( int argi, char** argv ) {
 
 			// init Fields for fine Boundary conditions
 			auto xf = Pimpact::create<CF>( spaceF );
-			xf->getVFieldPtr()->get0FieldPtr()->initField( Pimpact::EVectorField(baseflow), 1. );
+			xf->getVFieldPtr()->initField( pl->sublist("Base flow") );
+			//xf->getVFieldPtr()->get0FieldPtr()->initField(
+					//static_cast<Pimpact::EVectorField>(baseflow), 1. );
+
 			auto temp = Pimpact::create<CF>( spaceF );
 
 			refineOp->apply( x->getField(0), *temp );

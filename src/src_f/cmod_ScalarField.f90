@@ -1,7 +1,7 @@
 !>  Modul: cmod_ScalarVector
 !!
-!! mature
-!! impact functions \c Pimpact::ScalarVector e.g. scales, norms ...
+!! Mature
+!! Impact functions \c Pimpact::ScalarVector e.g. scales, norms ...
 !! \author huppd
 module cmod_ScalarField
 
@@ -878,6 +878,8 @@ contains
 
 
 
+  !> \brief init forcing point
+  !! \[ phi(x) = amp* \exp( - \frac{||x-xc||_2^2}{sig^2} ) \]
   subroutine SF_init_Vpoint(  &
       N,                      &
       bL,bU,                  &
@@ -889,7 +891,6 @@ contains
       amp,                    &
       sig,                    &
       phi ) bind ( c, name='SF_init_Vpoint' )
-    ! (basic subroutine)
 
     implicit none
 
@@ -980,19 +981,17 @@ contains
   end subroutine SF_level
 
 
-  !> \brief sets corner to zero
-  !! \note
-  !!    - Diese Routine dient dazu, den unbestimmten Druck in den Ecken und Kanten explizit zu
-  !!      behandeln und gleichzeitig das Konvergenzverhalten der Löser (BiCGstab oder Richardson)
-  !!      möglichst nicht zu beeinträchtigen.
-  !!    - Der Druck wird hier direkt zu Null gesetzt, um innerhalb des iterativen Lösers kein
-  !!      Residuum zu erzeugen (anstelle über die RHS).
-  !!    - Der Druck wird erst bei Bedarf (z.B. vor einem Ausschrieb) auf einen sinnvollen Wert gesetzt.
-  !!    - Siehe dazu auch die korrespondierende Subroutine "handle_corner_rhs"!
-  subroutine SF_handle_corner(    &
-      n,                          &
-      bL,bU,                      &
-      bcl,bcu,                    &
+  !> \brief sets corner and edges to zero
+  !! 
+  !! sets undefined pressure on coreners and edges to zero, to not influence
+  !! convergence of iterative solvers
+  !! \note Siehe dazu auch die korrespondierende Subroutine "handle_corner_rhs"!
+  subroutine SF_handle_corner(  &
+      n,                        &
+      bL,                       &   
+      bU,                       &
+      bcl,                      &
+      bcu,                      &
       phi) bind( c, name='SF_handle_corner' )
 
     implicit none
@@ -1005,7 +1004,7 @@ contains
     integer(c_int), intent(in)    :: bcl(3)
     integer(c_int), intent(in)    :: bcu(3)
 
-    real(c_double), intent(inout) :: phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double), intent(inout) :: phi (bl(1):(n(1)+bu(1)),bl(2):(n(2)+bu(2)),bl(3):(n(3)+bu(3)))
 
 
     if( bcl(1) > 0 .and. bcl(2) > 0 ) phi(1   ,1   ,1:n(3)) = 0. ! test!!! verifizieren ...

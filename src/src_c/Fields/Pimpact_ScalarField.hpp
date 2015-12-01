@@ -24,6 +24,7 @@
 namespace Pimpact {
 
 
+
 /// \brief important basic Vector class
 /// vector for a scalar field, e.g.: pressure,
 /// \note all indexing is done in Fortran
@@ -113,7 +114,7 @@ public:
 
   Teuchos::RCP<MV> clone( ECopyType copyType=DeepCopy ) const {
 
-		auto mv = Teuchos::rcp( new MV( space(), true, this->fType_ ) );
+		Teuchos::RCP<MV> mv = Teuchos::rcp( new MV( space(), true, this->fType_ ) );
 
 		switch( copyType ) {
 			case ShallowCopy:
@@ -133,42 +134,46 @@ public:
   /// \brief returns the length of Field.
   Ordinal getLength( bool dummy=false ) const {
 
-    auto bc = space()->getBCGlobal();
+		Teuchos::RCP<const BoundaryConditionsGlobal<dimension> > bc =
+			space()->getBCGlobal();
 
     Ordinal vl = 1;
 
-    switch( fType_ ) {
-    case EField::S: {
-      for(int i = 0; i<space()->dim(); ++i)
-        if( PeriodicBC==bc->getBCL(i) )
-          vl *= space()->nGlo(i)-1;
-        else vl *= space()->nGlo(i); break; }
-    default: {
-      for( int j=0; j<space()->dim(); ++j) {
-        if( fType_==j ) {
-          vl *= space()->nGlo(j)-1;
-        }
-        else {
-          if( PeriodicBC==bc->getBCL(j) )
-            vl *= space()->nGlo(j)-2+1;
-          else
-            vl *= space()->nGlo(j)-2;
-        }
-      }
-      break;
-    }
-    }
-    return( vl );
-  }
+		switch( fType_ ) {
+			case EField::S : {
+				for(int i = 0; i<space()->dim(); ++i)
+					if( PeriodicBC==bc->getBCL(i) )
+						vl *= space()->nGlo(i)-1;
+					else
+						vl *= space()->nGlo(i);
+				break;
+			}
+			default: {
+				for( int j=0; j<space()->dim(); ++j) {
+					if( fType_==j ) {
+						vl *= space()->nGlo(j)-1;
+					}
+					else {
+						if( PeriodicBC==bc->getBCL(j) )
+							vl *= space()->nGlo(j)-2+1;
+						else
+							vl *= space()->nGlo(j)-2;
+					}
+				}
+				break;
+			}
+		}
+		return( vl );
+	}
 
 
   /// \brief get number of stored Field's
   int getNumberVecs() const { return( 1 ); }
 
 
-  /// \}
+  /// @}
   /// \name Update methods
-  /// \{
+  /// @{
 
   /// \brief Replace \c this with \f$\alpha A + \beta B\f$.
   void add( const Scalar& alpha, const MV& A, const Scalar& beta, const MV& B ) {
@@ -363,7 +368,8 @@ public:
         space()->bu(),
         space()->sInd(fType_ ),
         space()->eInd(fType_),
-        s_, weights.s_,
+        s_,
+				weights.s_,
         normvec );
 
     if( global ) this->reduceNorm( comm(), normvec, Belos::TwoNorm );
@@ -404,7 +410,7 @@ public:
 
 
   /// \brief Replace the vectors with a random vectors.
-  /// depending on Fortrans \c Random_number implementation, with always same seed => not save, if good randomness is requiered
+  /// depending on Fortrans \c Random_number implementation, with always same seed => not save, if good randomness is required
   void random( bool useSeed = false, int seed = 1 ) {
     SF_random(
         space()->nLoc(),
@@ -427,6 +433,7 @@ public:
 
 
   /// \brief Replace each element of the vector  with \c alpha.
+	/// \deprecated
   void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero() ) {
     SF_init(
         space()->nLoc(),
@@ -447,8 +454,163 @@ public:
     changed();
   }
 
+protected:
 
-	///  \brief initializes VectorField with the initial field defined in Fortran
+	/// \brief helper function getting \c EScalarField for switch statement from name 
+	///
+	/// \param name input name
+	/// \return according int number
+	EScalarField string2enum( const std::string& name ) {
+
+		std::string lcName = name;
+		std::transform(lcName.begin(), lcName.end(), lcName.begin(), ::tolower);
+
+		if( "constant" == lcName) return( ConstField );
+		else if( "poiseuille" == lcName ) return( Poiseuille2D_inX );
+		else if( "poiseuille in x" == lcName ) return( Poiseuille2D_inX );
+		else if( "poiseuille in y" == lcName ) return( Poiseuille2D_inY );
+		else if( "poiseuille in z" == lcName ) return( Poiseuille2D_inZ );
+		else if( "grad in x" == lcName ) return( Grad2D_inX );
+		else if( "grad in y" == lcName ) return( Grad2D_inY );
+		else if( "grad in z" == lcName ) return( Grad2D_inZ );
+		else if( "point" == lcName ) return( FPoint );
+		else {
+			const bool& Flow_Type_not_known = true; 
+			TEUCHOS_TEST_FOR_EXCEPT( Flow_Type_not_known );
+		}
+		return( ConstField ); // just to please the compiler
+	}
+
+public:
+
+	///  \brief initializes including boundaries to zero 
+	void initField( Teuchos::ParameterList& para ) {
+
+		EScalarField type =
+			string2enum( para.get<std::string>( "Type", "constant" ) );
+
+		switch( type ) {
+			case ConstField :
+				SF_init(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(fType_),
+						space()->eIndB(fType_),
+						s_,
+						para.get<Scalar>( "C", 0. ) );
+				break;
+			case Grad2D_inX :
+				SF_init_2DGradX(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(fType_),
+						space()->eIndB(fType_),
+						space()->getDomainSize()->getSize( X ),
+						space()->getCoordinatesLocal()->getX( X, fType_ ),
+						s_,
+						para.get<Scalar>( "dx", 1. )	);
+				break;
+			case Grad2D_inY :
+				SF_init_2DGradY(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(fType_),
+						space()->eIndB(fType_),
+						space()->getDomainSize()->getSize( Y ),
+						space()->getCoordinatesLocal()->getX( Y, fType_ ),
+						s_ ,
+						para.get<Scalar>( "dy", 1. )	);
+				break;
+			case Grad2D_inZ :
+				SF_init_2DGradZ(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(fType_),
+						space()->eIndB(fType_),
+						space()->getDomainSize()->getSize( Z ),
+						space()->getCoordinatesLocal()->getX( Z, fType_ ),
+						s_ ,
+						para.get<Scalar>( "dz", 1. )	);
+				break;
+			case Poiseuille2D_inX :
+				SF_init_2DPoiseuilleX(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(fType_),
+						space()->eIndB(fType_),
+						space()->getDomainSize()->getSize( X ),
+						space()->getCoordinatesLocal()->getX( X, fType_ ),
+						s_ );
+				break;
+			case Poiseuille2D_inY :
+				SF_init_2DPoiseuilleY(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(fType_),
+						space()->eIndB(fType_),
+						space()->getDomainSize()->getSize( Y ),
+						space()->getCoordinatesLocal()->getX( Y, fType_ ),
+						s_ );
+				break;
+			case Poiseuille2D_inZ :
+				SF_init_2DPoiseuilleZ(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(fType_),
+						space()->eIndB(fType_),
+						space()->getDomainSize()->getSize( Z ),
+						space()->getCoordinatesLocal()->getX( Z, fType_ ),
+						s_ );
+				break;
+			case FPoint :
+				Scalar xc[3] = { 
+					para.get<Scalar>( "c_x", 1. ),
+					para.get<Scalar>( "c_y", space()->getDomainSize()->getSize( Y )/2. ),
+					para.get<Scalar>( "c_z", space()->getDomainSize()->getSize( Z )/2. ) };
+				Scalar amp = para.get<Scalar>( "amp", 1. );
+				Scalar sig[3] = {
+					para.get<Scalar>( "sig_x", 0.2 ),
+					para.get<Scalar>( "sig_y", 0.2 ),
+					para.get<Scalar>( "sig_z", 0.2 ) };
+				SF_init_Vpoint(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(fType_),
+						space()->eIndB(fType_),
+						space()->getCoordinatesLocal()->getX( X, fType_ ),
+						space()->getCoordinatesLocal()->getX( Y, fType_ ),
+						space()->getCoordinatesLocal()->getX( Z, fType_ ),
+						xc,
+						amp,
+						sig,
+						s_ );
+				break;
+		}
+
+		if( !space()->getProcGrid()->participating() ) // not sure why?
+			SF_init(
+					space()->nLoc(),
+					space()->bl(),
+					space()->bu(),
+					space()->sIndB(fType_),
+					space()->eIndB(fType_),
+					s_,
+					0. );
+
+		changed();
+	}
+
+
+	/// \brief initializes VectorField with the initial field defined in Fortran
+	/// \deprecated
 	void initField( EScalarField fieldType = ConstField, Scalar alpha=0. ) {
 		switch( fieldType ) {
 			case ConstField :
@@ -569,6 +731,7 @@ public:
 	}
 
 
+	/// \brief set corners of Dirichlet boundary conditions to zero
 	void setCornersZero() const {
 
 		if( EField::S == fType_ ) {
@@ -584,29 +747,50 @@ public:
 		}
 	}
 
+
+	/// \todo little hack working for all dirichlet
+	/// \todo make tests for all domains
 	void level() const {
 
 		if( EField::S == fType_ ) {
-			auto m = getLength();
-			auto n = space()->nGlo();
+			Ordinal m = getLength();
+			const Ordinal* n = space()->nGlo();
 
-			auto bcl =  space()->getBCGlobal()->getBCL();
-			auto bcu =  space()->getBCGlobal()->getBCL();
+			const int* bcl =  space()->getBCGlobal()->getBCL();
+			const int* bcu =  space()->getBCGlobal()->getBCU();
 
-			if( bcl[0]>0 && bcl[1]>0 ) m -= n[2]-1;
-			if( bcl[0]>0 && bcu[1]>0 ) m -= n[2]-1;
-			if( bcu[0]>0 && bcl[1]>0 ) m -= n[2]-1;
-			if( bcu[0]>0 && bcu[1]>0 ) m -= n[2]-1;
-					
-			if( bcl[0]>0 && bcl[2]>0 ) m -= n[1]-1;
-			if( bcl[0]>0 && bcu[2]>0 ) m -= n[1]-1;
-			if( bcu[0]>0 && bcl[2]>0 ) m -= n[1]-1;
-			if( bcu[0]>0 && bcu[2]>0 ) m -= n[1]-1;
-					
-			if( bcl[1]>0 && bcl[2]>0 ) m -= n[0]-1;
-			if( bcl[1]>0 && bcu[2]>0 ) m -= n[0]-1;
-			if( bcu[1]>0 && bcl[2]>0 ) m -= n[0]-1;
-			if( bcu[1]>0 && bcu[2]>0 ) m -= n[0]-1;
+			if( 2==space()->dim() ) {
+				if( bcl[0]>0 && bcl[1]>0 ) m -= 1;
+				if( bcl[0]>0 && bcu[1]>0 ) m -= 1;
+				if( bcu[0]>0 && bcl[1]>0 ) m -= 1;
+				if( bcu[0]>0 && bcu[1]>0 ) m -= 1;
+			}
+			else{
+				if( bcl[0]>0 && bcl[1]>0 ) m -= n[2]-2;
+				if( bcl[0]>0 && bcu[1]>0 ) m -= n[2]-2;
+				if( bcu[0]>0 && bcl[1]>0 ) m -= n[2]-2;
+				if( bcu[0]>0 && bcu[1]>0 ) m -= n[2]-2;
+
+				if( bcl[0]>0 && bcl[2]>0 ) m -= n[1]-2;
+				if( bcl[0]>0 && bcu[2]>0 ) m -= n[1]-2;
+				if( bcu[0]>0 && bcl[2]>0 ) m -= n[1]-2;
+				if( bcu[0]>0 && bcu[2]>0 ) m -= n[1]-2;
+
+				if( bcl[1]>0 && bcl[2]>0 ) m -= n[0]-2;
+				if( bcl[1]>0 && bcu[2]>0 ) m -= n[0]-2;
+				if( bcu[1]>0 && bcl[2]>0 ) m -= n[0]-2;
+				if( bcu[1]>0 && bcu[2]>0 ) m -= n[0]-2;
+
+				if( bcl[0]>0 && bcl[1]>0 && bcl[2]>0 ) m -= 1;
+				if( bcu[0]>0 && bcl[1]>0 && bcl[2]>0 ) m -= 1;
+				if( bcl[0]>0 && bcu[1]>0 && bcl[2]>0 ) m -= 1;
+				if( bcl[0]>0 && bcl[1]>0 && bcu[2]>0 ) m -= 1;
+
+				if( bcu[0]>0 && bcu[1]>0 && bcu[2]>0 ) m -= 1;
+				if( bcl[0]>0 && bcu[1]>0 && bcu[2]>0 ) m -= 1;
+				if( bcu[0]>0 && bcl[1]>0 && bcu[2]>0 ) m -= 1;
+				if( bcu[0]>0 && bcu[1]>0 && bcl[2]>0 ) m -= 1;
+			}
 
 
 			//		set corners to zero, such that level depends only on inner field
@@ -624,7 +808,7 @@ public:
 
 			setCornersZero();
 
-			changed();
+			//changed(); already done twice in setCornersZero
 		}
 	}
 

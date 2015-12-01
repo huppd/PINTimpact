@@ -26,6 +26,38 @@ namespace Pimpact {
 
 
 
+/// \brief kind of VectorField profile
+/// \relates VectorField::initField
+enum EVectorField {
+  ZeroFlow=0,
+  PoiseuilleFlow2D_inX=1,
+	PoiseuilleFlow2D_inY=2,
+	PoiseuilleFlow2D_inZ=20,
+  Pulsatile2D_inXC=3,
+	Pulsatile2D_inXS=5,
+  Pulsatile2D_inYC=4,
+	Pulsatile2D_inYS=6,
+  Streaming2D=7,
+  Circle2D=8,
+  Circle2D_inXZ=21,
+  RankineVortex2D=9,
+  GaussianForcing1D=10,
+  BoundaryFilter1D=11,
+  GaussianForcing2D=12,
+  BoundaryFilter2D=13,
+  Streaming2DC=14,
+  Streaming2DS=15,
+  VPoint2D=16,
+  Disc2D=17,
+  RotationDisc2D=18,
+  ConstFlow=19,
+	SweptHiemenzFlow=22,
+	Disturbance=23,
+	ScalarFields=24
+};
+
+
+
 /// \brief important basic Vector class  it wraps three ScalarFields.
 /// \ingroup Field
 /// \relates ScalarField
@@ -70,7 +102,7 @@ public:
 		owning_(owning) {
 
 			for( int i=0; i<3; ++i )
-				sFields_[i] = Teuchos::rcp( new SF( space, false, EField(i) ) );
+				sFields_[i] = Teuchos::rcp( new SF( space, false, static_cast<EField>(i) ) );
 
 			if( owning_ ) {
 				allocate();
@@ -113,7 +145,7 @@ public:
 
 	Teuchos::RCP<VF> clone( ECopyType copyType=DeepCopy ) const {
 
-		auto vf = Teuchos::rcp( new VF( space() ) );
+		Teuchos::RCP<VF> vf = Teuchos::rcp( new VF( space() ) );
 
 		switch( copyType ) {
 			case ShallowCopy:
@@ -140,7 +172,8 @@ public:
 	/// \return vect length \f[= N_u+N_v+N_w\f]
 	Ordinal getLength( bool dummy=false ) const {
 
-		auto bc = space()->getBCGlobal();
+		Teuchos::RCP<const BoundaryConditionsGlobal<dimension> > bc =
+			space()->getBCGlobal();
 
 		Ordinal n = 0;
 		for( int i=0; i<space()->dim(); ++i )
@@ -368,6 +401,7 @@ private:
 		else if( "shbl" == lcName ) return( SweptHiemenzFlow );
 		else if( "swept hiemenz flow" == lcName ) return( SweptHiemenzFlow );
 		else if( "disturbance" == lcName ) return( Disturbance );
+		else if( "scalar" == lcName ) return( ScalarFields );
 		else {
 			const bool& Flow_Type_not_known = true; 
 			TEUCHOS_TEST_FOR_EXCEPT( Flow_Type_not_known );
@@ -377,13 +411,13 @@ private:
 
 public:
 
-	///  \brief initializes \c VectorField including boundaries to zero 
+	///  \brief initializes including boundaries to zero 
 	void initField( Teuchos::ParameterList& para ) {
 
-		EVectorField flowType =
-			string2enum( para.get<std::string>( "Flow Type", "Poiseuille" ) );
+		EVectorField type =
+			string2enum( para.get<std::string>( "Type", "zero" ) );
 
-		switch( flowType ) {
+		switch( type ) {
 			case ZeroFlow : {
 				for( int i=0; i<space()->dim(); ++i )
 					sFields_[i]->initField( ConstField );
@@ -785,6 +819,12 @@ public:
 						sFields_[U]->getRawPtr(),
 						sFields_[V]->getRawPtr(),
 						sFields_[W]->getRawPtr() );
+				break;
+			}
+			case ScalarFields : {
+				sFields_[U]->initField( para.sublist( "U" ) );
+				sFields_[V]->initField( para.sublist( "V" ) );
+				sFields_[W]->initField( para.sublist( "W" ) );
 				break;
 			}
 		}
@@ -1190,6 +1230,8 @@ public:
 						sFields_[W]->getRawPtr() );
 				break;
 			}
+			case ScalarFields : 
+			 break;
 		}
 		changed();
 	}

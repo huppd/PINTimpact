@@ -35,7 +35,6 @@ void OP_DivGradO2JSmoother(
 /// \relates DivGradO2Op
 /// \ingroup BaseOperator
 /// \todo instead of hardcode 2nd Order it would be pretty to use new space with StencilWidth<3,2>
-/// \todo add ParameterList
 /// \todo handle corner
 template<class OperatorT>
 class DivGradO2JSmoother {
@@ -70,11 +69,19 @@ public:
     temp_( createScalarField<SpaceT>(space) ),
     op_( Teuchos::rcp( new OperatorT(space) ) ) {}
 
+	/// \brief constructor
+	///
+	/// \param op[in] pointer to operator that is smoothed
+	/// \param params [in/out] Parameter list of options for the multi grid solver.
+	///   These are the options accepted by the solver manager:
+	///   - "omega" - a \c Scalar damping factor. Default: for 2D 0.8 for 3D 6./7.  /
+	///   - "numIters" - a \c int number of smoothing steps . Default: 4  /
+	///   - "level" - a \c bool number of smoothing steps . Default: false  /
   DivGradO2JSmoother(
       const Teuchos::RCP<const OperatorT>& op,
-      Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ):
+      const Teuchos::RCP<Teuchos::ParameterList>& pl=Teuchos::parameterList() ):
     omega_( pl->get<Scalar>("omega", (2==op->space()->dim())?0.8:6./7. ) ),
-    nIter_( pl->get<int>( "numIters", 4 ) ),
+    nIter_( pl->get<int>( "numIters", 2 ) ),
     levelYes_( pl->get<bool>( "level", false ) ),
     temp_( createScalarField<SpaceT>( op->space() ) ),
     op_(op) {}
@@ -85,6 +92,7 @@ public:
 			Belos::ETrans trans=Belos::NOTRANS ) const {
 
 		for( int i=0; i<nIter_; ++i) {
+
       y.exchange();
 
 			OP_DivGradO2JSmoother(
@@ -101,14 +109,6 @@ public:
 					x.getConstRawPtr(),
 					y.getConstRawPtr(),
 					temp_->getRawPtr() );
-
-//			SF_handle_corner(
-//					space()->nLoc(),
-//					space()->bl(),
-//					space()->bu(),
-//					space()->getBCLocal()->getBCL(),
-//					space()->getBCLocal()->getBCU(),
-//					temp_->getRawPtr() );
 
 			temp_->changed();
 			temp_->exchange();
@@ -128,14 +128,7 @@ public:
 					temp_->getConstRawPtr(),
 					y.getRawPtr() );
 
-//			SF_handle_corner(
-//					space()->nLoc(),
-//					space()->bl(),
-//					space()->bu(),
-//					space()->getBCLocal()->getBCL(),
-//					space()->getBCLocal()->getBCU(),
-//					y.getRawPtr() );
-
+			//y.setCornersZero();
 			y.changed();
 		}
 		if( levelYes_ )

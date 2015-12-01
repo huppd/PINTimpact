@@ -54,7 +54,7 @@ class CoordinatesGlobal {
 	friend Teuchos::RCP<const CoordinatesGlobal<ST,OT,dT> > createCoordinatesGlobal(
 			const Teuchos::RCP<const GridSizeGlobal<OT> >& gridSize,
 			const Teuchos::RCP<const DomainSize<ST> >& domainSize,
-			const Teuchos::Tuple<Teuchos::ParameterList,3>& gridStretching );
+			const Teuchos::Tuple< Teuchos::RCP<Teuchos::ParameterList>, 3 >& gridStretching );
 
 	template<class ST,class OT,int dT>
 	friend Teuchos::RCP<const CoordinatesGlobal<ST,OT,dT> > createCoordinatesGlobal(
@@ -68,21 +68,21 @@ protected:
   TO xS_;
   TO xV_;
 
-	Teuchos::Tuple<Teuchos::ParameterList,3> stretchPara_;
+	Teuchos::Tuple< Teuchos::RCP<Teuchos::ParameterList>, 3 > stretchPara_;
 
-  //TO dxS_; // dh: doesnot where needed
-  //TO dxV_;
+  //TO dxS_; // dh: doesn't know where needed?
+  //TO dxV_; // dh: locally computed in grid size local
 
 	/// \name coordinate stretchings
 	/// @{ 
 
 	/// \brief 
 	///
-	/// \param i
-	/// \param L
-	/// \param M
-	/// \param x0
-	/// \param x
+	/// \param[in] i
+	/// \param[in] L
+	/// \param[in] M
+	/// \param[in] x0
+	/// \param[out] x
 	void coord_equi( const Scalar& i, const Scalar& L, const Scalar& M, const Scalar& x0, Scalar& x/*, Scalar& dx*/ ) {
 		x  = i*L/( M-1. ) - x0;
 		//dx =   L/( M-1. );
@@ -94,8 +94,8 @@ protected:
 	/// \param[in] L length of domain
 	/// \param[in] M number of global grid points
 	/// \param[in] x0 origin
-	/// \param bla parameter for parabola bla=0 very parabolic bla>>0 equidistant
-	/// \param x coordinate
+	/// \param[in] bla parameter for parabola bla=0 very parabolic bla>>0 equidistant
+	/// \param[out] x coordinate
 	void coord_parab( const Scalar& i, const Scalar& L, const Scalar& M, const Scalar& x0, const Scalar& bla, Scalar& x/*, Scalar& dx*/ ) {
 		x  = L*( std::pow(i,2)/std::pow(M-1.,2) + 2.*bla*i/(M-1.) )/(1.+2.*bla) - x0;
 		//dx = L*(      2.*(i)  /std::pow(M-1.,2) + 2.*bla  /(M-1.) )/(1.+2.*bla);
@@ -192,15 +192,14 @@ protected:
 
 	}
 
-
 	///  @} 
 
 
 
 	/// \brief helper function getting number for switch statement
 	/// from name 
-	/// \param name input name
-	/// \return accroding int number
+	/// \param[in] name input name
+	/// \return according int number
 	int string2int( const std::string& name ) {
 		std::string lcName = name;
 		std::transform(lcName.begin(), lcName.end(), lcName.begin(), ::tolower);
@@ -219,13 +218,13 @@ protected:
 
 	/// \brief 
 	///
-	/// \param gridSize
-	/// \param domainSize
-	/// \param stretchPara
+	/// \param[in] gridSize
+	/// \param[in] domainSize
+	/// \param[in] stretchPara
 	CoordinatesGlobal(
 			const Teuchos::RCP<const GridSizeGlobal<Ordinal> >& gridSize,
 			const Teuchos::RCP<const DomainSize<Scalar> >& domainSize,
-			const Teuchos::Tuple< Teuchos::ParameterList, 3 >& stretchPara ):
+			const Teuchos::Tuple< Teuchos::RCP<Teuchos::ParameterList>, 3 >& stretchPara ):
 		stretchPara_(stretchPara) {
 
 			for( int dir=0; dir<dim; ++dir ) {
@@ -243,7 +242,7 @@ protected:
 					Scalar L  = domainSize->getSize(dir);
 					Scalar x0 = domainSize->getOrigin(dir);
 
-					int stretchType = string2int( stretchPara_[dir].get<std::string>( "Stretch Type", "none" ) );
+					int stretchType = string2int( stretchPara_[dir]->get<std::string>( "Stretch Type", "none" ) );
 					for( Ordinal i=0; i<M; ++i ) {
 						Scalar is = i;
 
@@ -252,7 +251,7 @@ protected:
 								coord_equi( is, L, Ms, x0, xS_[dir][i] );
 								break;
 							case 1:
-								coord_parab( is, L, Ms, x0, stretchPara_[dir].get<Scalar>( "alpha", 0.5 ), xS_[dir][i] );
+								coord_parab( is, L, Ms, x0, stretchPara_[dir]->get<Scalar>( "alpha", 0.5 ), xS_[dir][i] );
 								break;
 							case 2:
 								coord_cos(
@@ -260,10 +259,10 @@ protected:
 										L,
 										Ms,
 										x0,
-										stretchPara_[dir].get<Scalar>( "N metr L", 1. ),
-										stretchPara_[dir].get<Scalar>( "N metr U", M  ),
-										stretchPara_[dir].get<Scalar>( "x0 L", 0. ),
-										stretchPara_[dir].get<Scalar>( "x0 U", 0. ),
+										stretchPara_[dir]->get<Scalar>( "N metr L", 1. ),
+										stretchPara_[dir]->get<Scalar>( "N metr U", M  ),
+										stretchPara_[dir]->get<Scalar>( "x0 L", 0. ),
+										stretchPara_[dir]->get<Scalar>( "x0 U", 0. ),
 										xS_[dir][i] );
 								break;
 							default:
@@ -278,7 +277,7 @@ protected:
 								coord_equi( is, L, Ms, x0, xV_[dir][i] );
 								break;
 							case 1:
-								coord_parab( is, L, Ms, x0, stretchPara_[dir].get<Scalar>( "alpha", 0.5 ), xV_[dir][i] );
+								coord_parab( is, L, Ms, x0, stretchPara_[dir]->get<Scalar>( "alpha", 0.5 ), xV_[dir][i] );
 								break;
 							case 2:
 								coord_cos(
@@ -286,10 +285,10 @@ protected:
 										L,
 										Ms,
 										x0,
-										stretchPara_[dir].get<Scalar>( "N metr L", 1. ),
-										stretchPara_[dir].get<Scalar>( "N metr U", M  ),
-										stretchPara_[dir].get<Scalar>( "x0 L", 0. ),
-										stretchPara_[dir].get<Scalar>( "x0 U", 0.  ),
+										stretchPara_[dir]->get<Scalar>( "N metr L", 1. ),
+										stretchPara_[dir]->get<Scalar>( "N metr U", M  ),
+										stretchPara_[dir]->get<Scalar>( "x0 L", 0. ),
+										stretchPara_[dir]->get<Scalar>( "x0 U", 0.  ),
 										xV_[dir][i] );
 								break;
 							default:
@@ -322,6 +321,10 @@ protected:
 		};
 
 
+	/// \brief constructor from fine grid
+	///
+	/// \param[in] gridSizeC
+	/// \param[in] coordinatesF
 	CoordinatesGlobal(
 			const Teuchos::RCP<const GridSizeGlobal<Ordinal> >& gridSizeC,
 			const Teuchos::RCP<const CoordinatesGlobal<Scalar,Ordinal,dim> >& coordinatesF ) {
@@ -383,17 +386,20 @@ public:
 	const Scalar* get( int dir, int ftype ) const {
 		return( getX( static_cast<ECoord>(dir), static_cast<EField>(ftype) ) );
 	}
+
 	const Scalar* get( ECoord dir, int ftype ) const {
 		return( getX( dir, static_cast<EField>(ftype) ) );
 	}
+
 	const Scalar* get( int dir, EField ftype ) const {
 		return( getX( static_cast<ECoord>(dir), ftype ) );
 	}
 
 
-	const Teuchos::Tuple<Teuchos::ParameterList,3>& getStretchParameter() const {
+	const Teuchos::Tuple< Teuchos::RCP<Teuchos::ParameterList> ,3>& getStretchParameter() const {
 		return( stretchPara_ );
 	}
+
 	///  @} 
 	
 	void print( std::ostream& out=std::cout ) const {
@@ -437,7 +443,7 @@ Teuchos::RCP<const CoordinatesGlobal<S,O,d> >
 createCoordinatesGlobal(
 		const Teuchos::RCP<const GridSizeGlobal<O> >& gridSize,
 		const Teuchos::RCP<const DomainSize<S> >& domainSize,
-		const Teuchos::Tuple<Teuchos::ParameterList,3>& gridStretching ) {
+		const Teuchos::Tuple< Teuchos::RCP<Teuchos::ParameterList> ,3>& gridStretching ) {
 
 	return(
 			Teuchos::rcp(

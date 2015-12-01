@@ -50,6 +50,10 @@ S omega = 0.8;
 S winds = 1;
 int nIter = 1000;
 
+int nx = 97;
+int ny = 25;
+int nz = 49;
+int nf = 32;
 
 
 Teuchos::RCP<Teuchos::ParameterList> pl = Teuchos::parameterList();
@@ -76,10 +80,10 @@ TEUCHOS_STATIC_SETUP() {
       "Slack off of machine epsilon used to check test results" );
 
 
-	pl->set("nx", 33 );
-	pl->set("ny", 17 );
-	pl->set("nz", 33 );
-	pl->set("nf", 10);
+	clp.setOption( "nx", &nx, "" );
+	clp.setOption( "ny", &ny, "" );
+	clp.setOption( "nz", &nz, "" );
+	clp.setOption( "nf", &nf, "" );
 
 }
 
@@ -89,6 +93,12 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivOp ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
+
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
 
   // processor grid size
   pl->set("npx", (2==dim)?4:2 );
@@ -187,6 +197,12 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateV2SOp ) {
   pl->set( "domain", domain );
   pl->set( "dim", dim );
 
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
+
   // processor grid size
   pl->set("npx", (2==dim)?4:2 );
   pl->set("npy",            2 );
@@ -276,6 +292,12 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateS2VOp ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
+
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
 
   // processor grid size
   pl->set("npx", (2==dim)?4:2 );
@@ -370,6 +392,12 @@ TEUCHOS_UNIT_TEST( BasicOperator, TransferOp ) {
   pl->set( "domain", domain );
   pl->set( "dim", dim );
 
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
+
   // processor grid size
   pl->set("npx", (2==dim)?4:2 );
   pl->set("npy",            2 );
@@ -417,6 +445,12 @@ TEUCHOS_UNIT_TEST( BasicOperator, VectorFieldOpWrap ) {
   pl->set( "domain", domain );
   pl->set( "dim", dim );
 
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
+
   // processor grid size
   pl->set("npx", (2==dim)?4:2 );
   pl->set("npy",            2 );
@@ -462,6 +496,12 @@ TEUCHOS_UNIT_TEST( BasicOperator, GradOp ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
+
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
 
   // processor grid size
   pl->set("npx", (2==dim)?4:2 );
@@ -522,6 +562,12 @@ TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
+
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
 
   // processor grid size
   pl->set("npx", (2==dim)?4:2 );
@@ -624,6 +670,12 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
   pl->set( "domain", domain );
   pl->set( "dim", dim );
 
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
+
   // processor grid size
   pl->set("npx", (2==dim)?4:2 );
   pl->set("npy",            2 );
@@ -682,6 +734,12 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2JSmoother ) {
   pl->set( "domain", domain );
   pl->set( "dim", dim );
 
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
+
   // processor grid size
   pl->set("npx", (2==dim)?4:2 );
   pl->set("npy",            2 );
@@ -689,63 +747,83 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2JSmoother ) {
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
-  auto x = Pimpact::create<Pimpact::ScalarField>( space );
+	Teuchos::RCP< Pimpact::ScalarField< Pimpact::Space<S,O,d,dNC> > > x =
+		Pimpact::create<Pimpact::ScalarField>( space );
+
   auto b = Pimpact::create<Pimpact::ScalarField>( space );
 
   auto op = Pimpact::createDivGradO2Op( space );
 
   auto ppl = Teuchos::parameterList();
 
-  ppl->set("omega", 1. );
-  ppl->set("numIters", 300);
+	ppl->set<S>( "omega", 6./7. );
+  ppl->set<int>( "numIters", 1 );
+  ppl->set<bool>( "level", true );
 
   auto smoother = Pimpact::create< Pimpact::DivGradO2JSmoother >( op, ppl );
 
   smoother->print();
+	// basic test
+	x->random();
+	//x->init(1.);
+	x->setCornersZero();
+	b->init( 0. );
 
-  // Grad in x
-  x->initField( Pimpact::Grad2D_inX );
-
-  op->apply(*x,*b);
-
-  x->initField();
-
-  smoother->apply( *b, *x );
-
-  b->initField( Pimpact::Grad2D_inX );
-  x->add( -1, *x, 1., *b );
-  std::cout << "error: " << x->norm()/b->norm() << "\n";
-  TEST_EQUALITY( x->norm()/b->norm()<0.5, true );
-
-  // Grad in y
-  x->initField( Pimpact::Grad2D_inY );
-
-  op->apply(*x,*b);
-
-  x->initField();
-
-  smoother->apply( *b, *x );
-
-  b->initField( Pimpact::Grad2D_inY );
-  x->add( -1, *x, 1., *b );
-  std::cout << "error: " << x->norm()/b->norm() << "\n";
-  TEST_EQUALITY( x->norm()/b->norm()<0.5, true );
-
-  // Grad in Z
-	if( 3==dim ) {
-		x->initField( Pimpact::Grad2D_inZ );
-
-		op->apply(*x,*b);
-
-		x->initField();
-
-		smoother->apply( *b, *x );
-
-		b->initField( Pimpact::Grad2D_inZ );
-		x->add( -1, *x, 1., *b );
-		std::cout << "error: " << x->norm()/b->norm() << "\n";
-		TEST_EQUALITY( x->norm()/b->norm()<0.5, true );
+	if( 0==space->rankST() )
+		std::cout << "\n\tstep\terror\n";
+	for( int i=0; i<1000; ++i ) {
+		smoother->apply(*b,*x);
+		S error = x->norm();
+		if( 0==space->rankST() )
+			std::cout << "\t" << i << "\t" << error << "\n";
+		//x->write(i);
 	}
+	//x->print();
+	x->write(1234);
+
+  //// Grad in x
+  //x->initField( Pimpact::Grad2D_inX );
+
+  //op->apply(*x,*b);
+
+  //x->initField();
+
+  //smoother->apply( *b, *x );
+
+  //b->initField( Pimpact::Grad2D_inX );
+  //x->add( -1, *x, 1., *b );
+  //std::cout << "error: " << x->norm()/b->norm() << "\n";
+  //TEST_EQUALITY( x->norm()/b->norm()<0.5, true );
+
+  //// Grad in y
+  //x->initField( Pimpact::Grad2D_inY );
+
+  //op->apply(*x,*b);
+
+  //x->initField();
+
+  //smoother->apply( *b, *x );
+
+  //b->initField( Pimpact::Grad2D_inY );
+  //x->add( -1, *x, 1., *b );
+  //std::cout << "error: " << x->norm()/b->norm() << "\n";
+  //TEST_EQUALITY( x->norm()/b->norm()<0.5, true );
+
+  //// Grad in Z
+	//if( 3==dim ) {
+		//x->initField( Pimpact::Grad2D_inZ );
+
+		//op->apply(*x,*b);
+
+		//x->initField();
+
+		//smoother->apply( *b, *x );
+
+		//b->initField( Pimpact::Grad2D_inZ );
+		//x->add( -1, *x, 1., *b );
+		//std::cout << "error: " << x->norm()/b->norm() << "\n";
+		//TEST_EQUALITY( x->norm()/b->norm()<0.5, true );
+	//}
 
 }
 
@@ -755,6 +833,12 @@ TEUCHOS_UNIT_TEST( BasicOperator, ForcingOp ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
+
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
 
   // processor grid size
   pl->set("npx", (2==dim)?4:2 );
@@ -790,6 +874,12 @@ TEUCHOS_UNIT_TEST( MultiOperator, InverseOp ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
+
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
 
   // processor grid size
   pl->set("npx", (2==dim)?4:2 );
@@ -850,6 +940,12 @@ TEUCHOS_UNIT_TEST( MultiOperator, Add2Op ) {
   pl->set( "domain", domain );
   pl->set( "dim", dim );
 
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
+
   // processor grid size
   pl->set("npx", (2==dim)?4:2 );
   pl->set("npy",            2 );
@@ -901,6 +997,12 @@ TEUCHOS_UNIT_TEST( MultiOperator, MulitOpUnWrap ) {
   pl->set( "domain", domain );
   pl->set( "dim", dim );
 
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
+
   // processor grid size
   pl->set("npx", (2==dim)?4:2 );
   pl->set("npy",            2 );
@@ -940,6 +1042,12 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, HelmholtzOp ) {
   pl->set( "domain", domain );
   pl->set( "dim", dim );
 
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
+
   // processor grid size
   pl->set("npx", (2==dim)?4:2 );
   pl->set("npy",            2 );
@@ -972,6 +1080,12 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, DtModeOp ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
+
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
 
   // processor grid size
   pl->set("npx", (2==dim)?4:2 );
@@ -1018,6 +1132,12 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, DtLapOp ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
+
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
 
   // processor grid size
   pl->set("npx", (2==dim)?4:2 );
@@ -1080,6 +1200,12 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, TripleCompostion ) {
   pl->set( "domain", domain );
   pl->set( "dim", dim );
 
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
+
   // processor grid size
   pl->set("npx", (2==dim)?4:2 );
   pl->set("npy",            2 );
@@ -1134,6 +1260,12 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, InverseOperator ) {
  pl->set( "domain", domain );
  pl->set( "dim", dim );
 
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
+
  // processor grid size
  pl->set("npx", (2==dim)?4:2 );
  pl->set("npy",            2 );
@@ -1183,6 +1315,12 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, EddyPrec ) {
 
 	pl->set( "domain", domain );
 	pl->set( "dim", dim );
+
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
 
 	// processor grid size
 	pl->set("npx", (2==dim)?4:2 );
@@ -1253,6 +1391,12 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicConvectionOp ) {
   pl->set( "domain", domain );
   pl->set( "dim", dim );
 
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
+
   // processor grid size
   pl->set("npx", (2==dim)?4:2 );
   pl->set("npy",            2 );
@@ -1278,6 +1422,12 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicOpWrap ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
+
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
 
   // processor grid size
   pl->set("npx", (2==dim)?4:2 );
@@ -1305,6 +1455,12 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiDtHelmholtz) {
   pl->set( "domain", domain );
   pl->set( "dim", dim );
 
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
+
   // processor grid size
   pl->set("npx", (2==dim)?4:2 );
   pl->set("npy",            2 );
@@ -1327,6 +1483,12 @@ TEUCHOS_UNIT_TEST( CompoundOperator, CompoundOpWrap ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
+
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
 
   // processor grid size
   pl->set("npx", (2==dim)?4:2 );

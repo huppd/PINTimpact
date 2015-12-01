@@ -134,10 +134,10 @@ public:
 			Pimpact::createCoordinatesGlobal<S,O,d>(
 					gridSizeGlobal_,
 					domainSize_,
-					Teuchos::tuple<Teuchos::ParameterList>(
-						pl->sublist("Stretching in X"),
-						pl->sublist("Stretching in Y"),
-						pl->sublist("Stretching in Z") ) );
+					Teuchos::tuple< Teuchos::RCP<Teuchos::ParameterList> >(
+						Teuchos::rcpFromRef( pl->sublist("Stretching in X") ),
+						Teuchos::rcpFromRef( pl->sublist("Stretching in Y") ),
+						Teuchos::rcpFromRef( pl->sublist("Stretching in Z") ) ) );
 
 		coordLocal_ =
 			Pimpact::createCoordinatesLocal<S,O,d>(

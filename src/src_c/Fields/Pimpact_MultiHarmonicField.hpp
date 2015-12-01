@@ -382,12 +382,29 @@ public:
 
   }
 
+
 	void initField() {
 		if( space()->sInd(U,3)<0 )
 			field0_->initField();
 		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
 			getFieldPtr(i)->initField();
+		changed();
 	}
+
+
+	///  \brief initializes including boundaries to zero 
+	void initField( Teuchos::ParameterList& para ) {
+
+		if( space()->sInd(U,3)<0 )
+			field0_->initField( para.sublist("0 mode") );
+
+		if( space()->sInd(U,3)<=0 && 0<space()->eInd(U,3) ) {
+			getCFieldPtr(0)->initField( para.sublist("cos mode") );
+			getSFieldPtr(0)->initField( para.sublist("sin mode") );
+		}
+		changed();
+	}
+
 
 	void setCornersZero() const {
 
@@ -398,7 +415,8 @@ public:
 			getConstFieldPtr(i)->setCornersZero();
 
 		changed();
-  }
+	}
+
 
   void level() const {
 
