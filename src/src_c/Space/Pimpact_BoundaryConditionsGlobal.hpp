@@ -15,6 +15,9 @@ namespace Pimpact{
 
 
 
+/// \brief global boundary conditions
+///
+/// \tparam dim
 /// \ingroup SpaceObject
 template<int dim>
 class BoundaryConditionsGlobal {
@@ -96,6 +99,9 @@ public:
 
 	///  @} 
 	
+	/// \brief prints BC tuples
+	///
+	/// \param out output stream
   void print( std::ostream& out=std::cout ) const {
 		out << "---BoundaryConditionsGlobal: ---\n";
 		out << " BCL_global: " << BCL_int_ << "\n";

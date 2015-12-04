@@ -85,6 +85,10 @@ TEUCHOS_STATIC_SETUP() {
 	clp.setOption( "nz", &nz, "" );
 	clp.setOption( "nf", &nf, "" );
 
+	pl->set("lx", 2. );
+	pl->set("ly", 2. );
+	pl->set("lz", 2. );
+
 }
 
 
@@ -757,7 +761,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2JSmoother ) {
   auto ppl = Teuchos::parameterList();
 
 	ppl->set<S>( "omega", 6./7. );
-  ppl->set<int>( "numIters", 1 );
+  ppl->set<int>( "numIters", 4 );
   ppl->set<bool>( "level", true );
 
   auto smoother = Pimpact::create< Pimpact::DivGradO2JSmoother >( op, ppl );
@@ -771,7 +775,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2JSmoother ) {
 
 	if( 0==space->rankST() )
 		std::cout << "\n\tstep\terror\n";
-	for( int i=0; i<1000; ++i ) {
+	for( int i=0; i<100; ++i ) {
 		smoother->apply(*b,*x);
 		S error = x->norm();
 		if( 0==space->rankST() )

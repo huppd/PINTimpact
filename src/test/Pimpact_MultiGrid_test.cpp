@@ -1364,7 +1364,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 
 	mgPL->sublist("Coarse Grid Solver").set<std::string>("Solver name", "GMRES" );
 	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<std::string>("Timer Label", "Coarse Grid Solver" );
-	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<S>("Convergence Tolerance" , 1.e-1 );
+	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<S>("Convergence Tolerance" , 1.e-6 );
 
 //	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<Teuchos::RCP<std::ostream> >( "Output Stream", Teuchos::rcp( &std::cout, false ) );
 //	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set("Verbosity",
@@ -1395,13 +1395,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 
 	auto op = Pimpact::create<Pimpact::DivGradO2Op>( space );
 
-	// level test
-	x->init( 1. );
-	x->level();
-	S level = x->norm();
-	if( 0==space()->rankST() )
-		std::cout << "\nlevel: " << level << "\n";
-	TEST_EQUALITY( level<1.e-12, true );
 
 	// --- zero test ---
 	b->init(0.);
@@ -1413,7 +1406,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 		std::cout << "\n\t--- error: " << 1. << " ---\n";
 	}
 
-	//S errorp = error0;
+	S errorp = error0;
 	
 	for( int i=0; i<100; ++i ) {
 		mg->apply( *b, *x );
@@ -1424,10 +1417,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 		if( space()->rankST()==0 ) {
 			std::cout << "\t--- error: " << error/error0 << " ---\n";
 		}
-		//if( error>= errorp )
-			//break;
-		//else
-			//errorp = error;
+		if( error>= errorp )
+			break;
+		else
+			errorp = error;
 	}
 	
 	//x->print();

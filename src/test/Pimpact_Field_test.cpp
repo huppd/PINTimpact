@@ -466,5 +466,33 @@ TEUCHOS_UNIT_TEST( ScalarField, initField ) {
 }
 
 
+
+TEUCHOS_UNIT_TEST( ScalarField, level ) {
+
+  pl->set( "dim", dim );
+  pl->set( "domain", domain );
+	// check: 0, 2, 4, 5
+	// error: 1, 3
+
+  // processor grid size
+  pl->set("npx", npx );
+  pl->set("npy", npy );
+  pl->set("npz", (2==dim)?1:npz );
+
+  auto space = Pimpact::createSpace( pl );
+
+  auto x = Pimpact::createScalarField( space );
+
+	x->init( 1. );
+	x->level();
+
+	S level = x->norm();
+	if( 0==space()->rankST() )
+		std::cout << "\nlevel: " << level << "\n";
+  TEST_EQUALITY( level<eps , true );
+
+}
+
+
 } // namespace
 

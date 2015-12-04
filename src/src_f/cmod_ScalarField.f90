@@ -15,9 +15,10 @@ contains
 
   !> \brief computes scalar product of two scalar fields
   !!
-  !! \param[in] N ammount of local elements in 1-direction
-  !! \param[in] bL start index of storage in 1-direction
-  !! \param[in] bU end offset of storage in 1-direction
+  !! \f[ phi = scalar1 *phi1 + scalar2*phi2 \f]
+  !! \param[in] N number of local elements
+  !! \param[in] bL start index of storage
+  !! \param[in] bU end offset of storage
   !! \param[in] SS start index
   !! \param[in] NN end index
   !! \param[out] phi first vector from which is taken the product
@@ -58,20 +59,25 @@ contains
 
 
   !> \brief computes scalar product of two scalar fields
-  !!
-  !! \param[in] N ammount of local elements in 1-direction
-  !! \param[in] bL start index of storage in 1-direction
-  !! \param[in] bU end offset of storage in 1-direction
+  !! 
+  !! \f[ phi = scalar1*phi + scalar2*phi1 \f]
+  !! \param[in] N number of local elements
+  !! \param[in] bL start index of storage
+  !! \param[in] bU end offset of storage
   !! \param[in] SS start index
   !! \param[in] NN end index
-  !! \param[in] phi first vector from which is taken the product
+  !! \param[inout] phi first vector from which is taken the product
   !! \param[in] phi1 first vector from which is taken the product
+  !! \param[in] scalar multiplicator of phi
+  !! \param[in] scalar1 multiplicator of phi1
   subroutine SF_add2( &
-      N,                  &
-      bL,bU,              &
-      SS,NN,              &
-      phi,phi1,           &
-      scalar1,scalar2 )   &
+      N,              &
+      bL,bU,          &
+      SS,NN,          &
+      phi,            &
+      phi1,           &
+      scalar,         &
+      scalar1 )       &
       bind ( c, name='SF_add2' )
 
     implicit none
@@ -85,23 +91,26 @@ contains
     integer(c_int), intent(in)     :: NN(3)
 
 
-    real(c_double),  intent(out)   :: phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-    real(c_double),  intent(in )   :: phi1(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(out)   :: phi ( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)) )
+    real(c_double),  intent(in )   :: phi1( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)) )
 
 
+    real(c_double),  intent(in)   ::  scalar
     real(c_double),  intent(in)   ::  scalar1
-    real(c_double),  intent(in)   ::  scalar2
 
 
-    phi(SS(1):NN(1),SS(2):NN(2),SS(3):NN(3)) = scalar1*phi(SS(1):NN(1),SS(2):NN(2),SS(3):NN(3))+scalar2*phi1(SS(1):NN(1),SS(2):NN(2),SS(3):NN(3))
+    phi(SS(1):NN(1),SS(2):NN(2),SS(3):NN(3)) = scalar*phi(SS(1):NN(1),SS(2):NN(2),SS(3):NN(3))+scalar1*phi1(SS(1):NN(1),SS(2):NN(2),SS(3):NN(3))
 
   end subroutine SF_add2
 
 
+
   !> \brief copys absolute value from \c phi1 in \c phi
-  !! \param[in] N ammount of local grid points
-  !! \param[in] bL start index of storage in 1-direction
-  !! \param[in] bU end offset of storage in 1-direction
+  !!
+  !! \f[ phi = | phi | \f]
+  !! \param[in] N number of local grid points
+  !! \param[in] bL start index of storage
+  !! \param[in] bU end offset of storage
   !! \param[in] SS start index
   !! \param[in] NN end index
   !! \param[in] phi field that gets assigned
@@ -131,10 +140,13 @@ contains
   end subroutine SF_abs
 
 
+
   !> \brief copys reciprocal value from \c phi1 in \c phi
-  !! \param[in] N ammount of local elements
-  !! \param[in] bL start index of storage in 1-direction
-  !! \param[in] bU end offset of storage in 1-direction
+  !!
+  !! \f[ phi = \frac{1}{phi1} \f]
+  !! \param[in] N number of local elements
+  !! \param[in] bL start index of storage
+  !! \param[in] bU end offset of storage
   !! \param[in] SS start index
   !! \param[in] NN end index
   !! \param[in] phi field that gets assigned
@@ -179,19 +191,25 @@ contains
   end subroutine SF_reciprocal
 
 
+
   !> \brief scales Field
   !!
-  !! \param[in] N ammount of local elements in 1-direction
+  !! \f[ phi = scalar \cdot phi \f]
+  !! \param[in] N number of local elements
+  !! \param[in] bL start index of storage
+  !! \param[in] bU end offset of storage
   !! \param[in] SS start index
   !! \param[in] NN end index
-  !! \param[in] bL start index of storage in 1-direction
-  !! \param[in] bU end offset of storage in 1-direction
-  subroutine SF_scale(    &
-      N,                  &
-      bL, bU,             &
-      SS, NN,             &
-      phi,                &
-      scalar) bind ( c, name='SF_scale' )
+  !! \param[inout] phi scalar field
+  !! \param[in] scalar scaling factor
+  subroutine SF_scale(  &
+      N,                &
+      bL,               &
+      bU,               &
+      SS,               &
+      NN,               &
+      phi,              &
+      scalar ) bind ( c, name='SF_scale' )
 
     implicit none
 
@@ -213,22 +231,27 @@ contains
   end subroutine SF_scale
 
 
+
   !> \brief scales \c phi with \c phi1.
-  !! \param[in] N ammount of local grid points
+  !!
+  !! \f[ phi = phi * phi1 \f]
+  !! \param[in] N number of local grid points
   !! \param[in] bL start index of storage
   !! \param[in] bU end offset of storage
   !! \param[in] SS start index
   !! \param[in] NN end index
   !! \param[in] phi first vector from which is taken the product
-  !! \param[in] phi second vector from which is taken the product
-  subroutine SF_scale2(   &
-      N,                  &
-      bL, bU,             &
-      SS, NN,             &
-      phi, phi1 ) bind ( c, name='SF_scale2' )
+  !! \param[in] phi1 second vector from which is taken the product
+  subroutine SF_scale2( &
+      N,                &
+      bL,               &
+      bU,               &
+      SS,               &
+      NN,               &
+      phi,              &
+      phi1 ) bind ( c, name='SF_scale2' )
 
     implicit none
-
 
     integer(c_int), intent(in)    ::  N(3)
 
@@ -238,32 +261,38 @@ contains
     integer(c_int), intent(in)    ::  SS(3)
     integer(c_int), intent(in)    ::  NN(3)
 
-    real(c_double), intent(inout) ::  phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3) ))
-    real(c_double), intent(in)    ::  phi1(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3) ))
+    real(c_double), intent(inout) ::  phi ( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)) )
+    real(c_double), intent(in)    ::  phi1( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)) )
 
 
-    phi(SS(1):NN(1),SS(2):NN(2),SS(3):NN(3))        &
-      = phi(SS(1):NN(1),SS(2):NN(2),SS(3):NN(3))  &
-      * phi1(SS(1):NN(1),SS(2):NN(2),SS(3):NN(3))
+    phi( SS(1):NN(1), SS(2):NN(2), SS(3):NN(3) )       &
+      = phi ( SS(1):NN(1), SS(2):NN(2), SS(3):NN(3) )  &
+      * phi1( SS(1):NN(1), SS(2):NN(2), SS(3):NN(3) )
 
   end subroutine SF_scale2
 
 
-  !> \brief computes scalar product of two scalar fields(neccessary condition belong to same sVS)
-  !! \param[in] N ammount of local elements in 1-direction
+
+  !> \brief computes dot product of two scalar fields(neccessary condition belong to same sVS)
+  !! 
+  !! \f[ dot = (phi1 \cdot phi1 ) \f]
+  !! \param[in] N number of local elements
+  !! \param[in] bL lower bound
+  !! \param[in] bU upper bound
   !! \param[in] SS start index
   !! \param[in] NN end index
-  !! \param[in] bL start index of storage in 1-direction
-  !! \param[in] bU end offset of storage in 1-direction
   !! \param[in] phi1 first vector from which is taken the product
   !! \param[in] phi2 second vector from which is taken the product
-  !! \param[in] weighting_yes if weighting schould be used, using the \c weights from \c mod_vars
+  !! \param[in] dot scalar product
   subroutine SF_dot(  &
       N,              &
-      bL, bU,         &
-      SS, NN,         &
-      phi1,phi2,      &
-      scalar ) bind ( c, name='SF_dot' )
+      bL,             &
+      bU,             &
+      SS,             &
+      NN,             &
+      phi1,           &
+      phi2,           &
+      dot ) bind ( c, name='SF_dot' )
 
     implicit none
 
@@ -279,7 +308,7 @@ contains
     real(c_double), intent(in)    ::  phi1(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3) ))
     real(c_double), intent(in)    ::  phi2(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3) ))
 
-    real(c_double), intent(inout) ::  scalar
+    real(c_double), intent(inout) ::  dot
     integer(c_int)                ::  i, j, k
 
 
@@ -287,7 +316,7 @@ contains
       do j = SS(2), NN(2)
         !pgi$ unroll = n:8
         do i = SS(1), NN(1)
-          scalar = scalar + phi1(i,j,k)*phi2(i,j,k)
+          dot = dot + phi1(i,j,k)*phi2(i,j,k)
         end do
       end do
     end do
@@ -295,15 +324,17 @@ contains
   end subroutine SF_dot
 
 
+
   !> \brief computes two or infinity norm( get is misleading)
-  !! \param[in] N ammount of local elements in 1-direction
+  !! 
+  !! \f[ norm = || phi ||_1 \f]
+  !! \param[in] N number of local elements
   !! \param[in] SS start index
   !! \param[in] NN end index
-  !! \param[in] bL start index of storage in 1-direction
-  !! \param[in] bU end offset of storage in 1-direction
+  !! \param[in] bL start index of storage
+  !! \param[in] bU end offset of storage
   !! \param[in] phi vector, from which the norm is taken
   !! \param[out] norm get the two norm of phi
-  ! TEST!!! N1, N2, N3 werden ebenfalls uebergeben ...
   subroutine SF_comp1Norm(    &
       N,                      &
       bL, bU,                 &
@@ -340,12 +371,15 @@ contains
   end subroutine SF_comp1Norm
 
 
+
   !> \brief computes two or infinity norm( get is misleading)
-  !! \param[in] N ammount of local elements in 1-direction
+  !! 
+  !! \f[ norm = || phi ||_2*^2 \f]
+  !! \param[in] N number of local elements
   !! \param[in] SS start index
   !! \param[in] NN end index
-  !! \param[in] bL start index of storage in 1-direction
-  !! \param[in] bU end offset of storage in 1-direction
+  !! \param[in] bL start index of storage
+  !! \param[in] bU end offset of storage
   !! \param[in] phi vector, from which the norm is taken
   !! \param[out] norm get the two norm of phi
   ! TEST!!! N1, N2, N3 werden ebenfalls uebergeben ...
@@ -386,11 +420,13 @@ contains
 
 
   !> \brief computes two or infinity norm( get is misleading)
-  !! \param[in] N ammount of local elements in 1-direction
+  !!
+  !! \f[ norm = || phi ||_\infty \f]
+  !! \param[in] N number of local elements
   !! \param[in] SS start index
   !! \param[in] NN end index
-  !! \param[in] bL start index of storage in 1-direction
-  !! \param[in] bU end offset of storage in 1-direction
+  !! \param[in] bL start index of storage
+  !! \param[in] bU end offset of storage
   !! \param[in] phi vector, from which the norm is taken
   !! \param[out] norm gets the infinity norm of phi
   subroutine SF_compInfNorm(  &
@@ -429,12 +465,15 @@ contains
   end subroutine SF_compInfNorm
 
 
+
   !> \brief computes two or infinity norm( get is misleading)
-  !! \param[in] N ammount of local elements in 1-direction
+  !!
+  !! \f[ norm = ||weights * phi ||_2^2 \f]
+  !! \param[in] N number of local elements
   !! \param[in] SS start index
   !! \param[in] NN end index
-  !! \param[in] bL start index of storage in 1-direction
-  !! \param[in] bU end offset of storage in 1-direction
+  !! \param[in] bL start index of storage
+  !! \param[in] bU end offset of storage
   !! \param[in] phi vector, from which the norm is taken
   !! \param[in] weights weights
   !! \param[out] norm result
@@ -476,34 +515,39 @@ contains
   end subroutine SF_weightedNorm
 
 
+
   !> \brief assigns field
   !!
-  !! \param[in] N ammount of local elements
-  !! \param[in] SS start index
-  !! \param[in] NN end index
+  !! \f[ phi = phi1 \f]
+  !! \param[in] N number of local elements
   !! \param[in] bL start index of storage in
   !! \param[in] bU end offset of storage
-  !! \param[in] phi field that gets assigned
+  !! \param[in] SS start index
+  !! \param[in] NN end index
+  !! \param[out] phi field that gets assigned
   !! \param[in] phi1 field from which phi is assigned
-  subroutine SF_assign(   &
-      N,                  &
-      bL,bU,              &
-      SS,NN,              &
-      phi,phi1 )     &
+  subroutine SF_assign( &
+      N,                &
+      bL,               &
+      bU,               &
+      SS,               &
+      NN,               &
+      phi,              &
+      phi1 )            &
       bind ( c, name='SF_assign' )
 
     implicit none
 
-    integer(c_int), intent(in)     :: N(3)
+    integer(c_int), intent(in)  :: N(3)
 
-    integer(c_int), intent(in)     :: bL(3)
-    integer(c_int), intent(in)     :: bU(3)
+    integer(c_int), intent(in)  :: bL(3)
+    integer(c_int), intent(in)  :: bU(3)
 
-    integer(c_int), intent(in)     :: SS(3)
-    integer(c_int), intent(in)     :: NN(3)
+    integer(c_int), intent(in)  :: SS(3)
+    integer(c_int), intent(in)  :: NN(3)
 
-    real(c_double),  intent(out)   :: phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-    real(c_double),  intent(in )   :: phi1(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double), intent(out) :: phi ( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)) )
+    real(c_double), intent(in ) :: phi1( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)) )
 
 
     phi(SS(1):NN(1),SS(2):NN(2),SS(3):NN(3)) = phi1(SS(1):NN(1),SS(2):NN(2),SS(3):NN(3))
@@ -511,17 +555,21 @@ contains
   end subroutine SF_assign
 
 
+
   !> \brief random values in [-0.5,0.5]
   !!
-  !! \param[in] N ammount of local elements in 1-direction
+  !! \param[in] N number of local elements
+  !! \param[in] bL start index of storage 
+  !! \param[in] bU end offset of storage  
   !! \param[in] SS start index
   !! \param[in] NN end index
-  !! \param[in] bL start index of storage in 1-direction
-  !! \param[in] bU end offset of storage in 1-direction
-  subroutine SF_random(   &
-      N,                  &
-      bL, bU,             &
-      SS, NN,             &
+  !! \param[inout] phi scalar field 
+  subroutine SF_random( &
+      N,                &
+      bL,               &
+      bU,               &
+      SS,               &
+      NN,               &
       phi) bind ( c, name='SF_random' )
 
     implicit none
@@ -544,12 +592,17 @@ contains
   end subroutine SF_random
 
 
+
   !> \brief inits all with scalar
-  !! \param[in] N ammount of local elements in 1-direction
+  !!
+  !! \f[ phi = scalar \f]
+  !! \param[in] N number of local elements
+  !! \param[in] bL start index of storage
+  !! \param[in] bU end offset of storage
   !! \param[in] SS start index
   !! \param[in] NN end index
-  !! \param[in] bL start index of storage in 1-direction
-  !! \param[in] bU end offset of storage in 1-direction
+  !! \param[out] phi scalar field
+  !! \param[in] scalar init value
   subroutine SF_init( &
       N,              &
       bL, bU,         &
@@ -559,15 +612,15 @@ contains
 
     implicit none
 
-    integer(c_int), intent(in)      ::  N(3)
+    integer(c_int), intent(in) ::  N(3)
 
-    integer(c_int), intent(in)      ::  bL(3)
-    integer(c_int), intent(in)      ::  bU(3)
+    integer(c_int), intent(in) ::  bL(3)
+    integer(c_int), intent(in) ::  bU(3)
 
-    integer(c_int), intent(in)      ::  SS(3)
-    integer(c_int), intent(in)      ::  NN(3)
+    integer(c_int), intent(in) ::  SS(3)
+    integer(c_int), intent(in) ::  NN(3)
 
-    real(c_double), intent(out)   ::  phi(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3) ))
+    real(c_double), intent(out)::  phi( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)) )
 
     real(c_double), intent(in) ::  scalar
 
@@ -580,30 +633,33 @@ contains
 
   !> \brief writes Field to std out
   !!
-  !! \param[in] N ammount of local elements in 1-direction
+  !! \param[in] N number of local elements
+  !! \param[in] bL start index of storage
+  !! \param[in] bU end offset of storage
   !! \param[in] SS start index
   !! \param[in] NN end index
-  !! \param[in] bL start index of storage in 1-direction
-  !! \param[in] bU end offset of storage in 1-direction
-  subroutine SF_print(    &
-      N,                  &
-      bL, bU,             &
-      SS, NN,             &
+  !! \param[in] phi scalar field
+  subroutine SF_print(  &
+      N,                &
+      bL,               &
+      bU,               &
+      SS,               &
+      NN,               &
       phi) bind ( c, name='SF_print' )
 
     implicit none
 
-    integer(c_int), intent(in)   ::  N(3)
+    integer(c_int), intent(in) ::  N(3)
 
-    integer(c_int), intent(in)   ::  bL(3)
-    integer(c_int), intent(in)   ::  bU(3)
+    integer(c_int), intent(in) ::  bL(3)
+    integer(c_int), intent(in) ::  bU(3)
 
-    integer(c_int), intent(in)   ::  SS(3)
-    integer(c_int), intent(in)   ::  NN(3)
+    integer(c_int), intent(in) ::  SS(3)
+    integer(c_int), intent(in) ::  NN(3)
 
-    real(c_double), intent(in)   ::  phi(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3) ))
+    real(c_double), intent(in) ::  phi( bL(1):(N(1)+bU(1)), bL(2):(N(2)+bU(2)), bL(3):(N(3)+bU(3)) )
 
-    integer(c_int)               ::  i,j,k
+    integer(c_int)             ::  i,j,k
 
     write(*,*) "i,           j,           k,           phi(i,j,k)"
 
@@ -621,6 +677,7 @@ contains
 
 
   !> \brief init vector field with 2d Poiseuille flow in x-direction
+  !!
   !! \f[ u(x) = x*( L - x )*4/L/L \f]
   subroutine SF_init_2DPoiseuilleX(   &
       N,                              &
@@ -663,6 +720,7 @@ contains
 
 
   !> \brief init vector field with 2d Poiseuille flow in y-direction
+  !!
   !! \f[ u(y) = y*( L - y )*4/L/L \f]
   subroutine SF_init_2DPoiseuilleY(   &
       N,                              &
@@ -705,6 +763,7 @@ contains
 
 
   !> \brief init vector field with 2d Poiseuille flow in y-direction
+  !!
   !! \f[ u(z) = y*( L - z )*4/L/L \f]
   subroutine SF_init_2DPoiseuilleZ(   &
       N,                              &
@@ -747,6 +806,7 @@ contains
 
 
   !> \brief init vector field with constant gradient in x-direction
+  !!
   !! \f[ u(x) = \frac{x}{L}-\frac{1}{2}  \f]
   subroutine SF_init_2DGradX( &
       N,                      &
@@ -791,6 +851,7 @@ contains
 
 
   !> \brief init vector field with constant gradient in y-direction
+  !!
   !! \f[ u(y) = \frac{y}{L}-\frac{1}{2}  \f]
   subroutine SF_init_2DGradY( &
       N,                      &
@@ -835,6 +896,7 @@ contains
 
 
   !> \brief init vector field with constant gradient in z-direction
+  !!
   !! \f[ u(z) = \frac{z}{L}-\frac{1}{2}  \f]
   subroutine SF_init_2DGradZ( &
       N,                      &
@@ -879,7 +941,8 @@ contains
 
 
   !> \brief init forcing point
-  !! \[ phi(x) = amp* \exp( - \frac{||x-xc||_2^2}{sig^2} ) \]
+  !!
+  !! \f[ phi(x) = amp* \exp( - \frac{||x-xc||_2^2}{sig^2} ) \f]
   subroutine SF_init_Vpoint(  &
       N,                      &
       bL,bU,                  &
@@ -930,6 +993,16 @@ contains
 
 
 
+  !> \brief leves scalar field
+  !!
+  !! \param[in] COMM_CART spatial communicator
+  !! \param[in] M number global dofs
+  !! \param[in] N number of stored 
+  !! \param[in] bl
+  !! \param[in] bu
+  !! \param[in] SS start indexes
+  !! \param[in] NN end indexes
+  !! \param[inout] phi scalar field
   subroutine SF_level(    &
       COMM_CART,          &
       M,                  &
@@ -958,7 +1031,6 @@ contains
     real(c_double)                :: pre0, pre0_global
 
 
-
     pre0 = 0.
 
     do k = SS(3), NN(3)
@@ -977,8 +1049,8 @@ contains
 
     phi( SS(1):NN(1), SS(2):NN(2), SS(3):NN(3) ) = phi( SS(1):NN(1), SS(2):NN(2), SS(3):NN(3) ) - pre0
 
-
   end subroutine SF_level
+
 
 
   !> \brief sets corner and edges to zero
@@ -1024,6 +1096,7 @@ contains
 
 
   end subroutine SF_handle_corner
+
 
 
 end module cmod_ScalarField

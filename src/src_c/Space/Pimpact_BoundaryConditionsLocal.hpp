@@ -16,13 +16,14 @@
 namespace Pimpact{
 
 
+/// \brief local boundary conditions depending on processor grid
+///
+/// \tparam dimension 
 /// \ingroup SpaceObject
 template< int dimension >
 class BoundaryConditionsLocal {
 
 protected:
-
-	//friend Teuchos::RCP<const BoundaryConditionsLocal> createBoudaryConditionsLocal();
 
 	template< class OT, int dT >
 	friend Teuchos::RCP< const BoundaryConditionsLocal<dT> >  createBoudaryConditionsLocal(
@@ -43,8 +44,8 @@ protected:
 			EBCType BC3L=DirichletBC,
 			EBCType BC3U=DirichletBC ) {
 
-		TBC3 BCL_local_ = Teuchos::tuple(BC1L, BC2L, BC3L);
-		TBC3 BCU_local_ = Teuchos::tuple(BC1U, BC2U, BC3U);
+		TBC3 BCL_local_ = Teuchos::tuple( BC1L, BC2L, BC3L );
+		TBC3 BCU_local_ = Teuchos::tuple( BC1U, BC2U, BC3U );
 
 		for( int i=0; i<3; ++i ) {
 			BCL_int_[i] = static_cast<int>( BCL_local_[i] );
@@ -83,6 +84,9 @@ public:
 
 	///  @} 
 
+	/// \brief prints local BC
+	///
+	/// \param out output stream
 	void print( std::ostream& out=std::cout ) const {
 		out << "\t--- local BoundaryConditions: ---\n";
 		out << "\tlower: " << BCL_int_ << "\n";

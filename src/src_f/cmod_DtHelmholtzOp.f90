@@ -20,7 +20,13 @@ contains
   !!
   !! \param[in] dimens dimension 2 or 3
   !! \param[in] N local amount of grid points
-  !! \param[in] m dimension from one to three
+  !! \param[in] bL lower bound
+  !! \param[in] bU upper bound
+  !! \param[in] SS start index
+  !! \param[in] NN end index
+  !! \param[in] c11 
+  !! \param[in] c22 
+  !! \param[in] c33 
   !! \param[in] mulI factor which coresponds to the factor of the identity part
   !! \param[in] mulL factor which coresponds to the factor of the laplace part
   !! \param[in] phiI
