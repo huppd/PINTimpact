@@ -12,17 +12,16 @@
 #only a serial configure(no mpi) and assumes that the install of Trilinos it is
 #pointed to has Epetra enabled. 
 
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.10)
 
+project( pimpact CXX Fortran )
 
 # Get Trilinos as one entity
 # Use Trilinos_PREFIX, if the user set it, to help find Trilinos.
 # The final location will actually be held in Trilinos_DIR which must
 # point at "<prefix>/lib/cmake/Trilinos", but this helps the search.
-FIND_PACKAGE(Trilinos REQUIRED)
 
-#FIND_PACKAGE(HDF5 NAMES hdf5 REQUIRED)
-#FIND_PACKAGE(HDF5 REQUIRED)
+find_package(Trilinos REQUIRED)
 
 
 # Echo trilinos build info just for fun
@@ -41,9 +40,27 @@ message( "   Trilinos_BUILD_SHARED_LIBS = ${Trilinos_BUILD_SHARED_LIBS}" )
 message( "End of Trilinos details\n" )
 
 
-project( pimpact CXX Fortran )
+
+
+find_package( MPI REQUIRED )
+message( "/nMPI CXX? ${MPI_CXX_FOUND}" )
+message( "MPI CXX INCLUDE_DIRS = ${MPI_CXX_INCLUDE_PATH}" )
+message( "MPI CXX LIBRARIES =    ${MPI_CXX_LIBRARIES}" )
+message( "\nMPI Fortran? ${MPI_Fortran_FOUND}" )
+message( "MPI Fortran INCLUDE_DIRS = ${MPI_Fortran_INCLUDE_PATH}" )
+message( "MPI Fortran LIBRARIES =    ${MPI_Fortran_LIBRARIES}\n" )
+
+#FIND_PACKAGE(HDF5 NAMES hdf5 REQUIRED)
+#FIND_PACKAGE(HDF5 REQUIRED)
 
 option( enable_ETI "enable_ETI" OFF)
+
+if( enable_ETI )
+	add_definitions( -DCOMPILE_ETI )
+	message( "Pimpact:	enabled ETI" )
+else()
+	message( "Pimpact:	disabled ETI" )
+endif()
 
 # Make sure to use same compilers and flags as Trilinos
 set( CMAKE_CXX_COMPILER     ${Trilinos_CXX_COMPILER}     )
@@ -77,7 +94,8 @@ message("CXX flags: " ${CMAKE_CXX_FLAGS})
 
 
 set( Limpact_TPL_LIBRARIES hdf5hl_fortran hdf5_hl hdf5_fortran hdf5 z m ${Trilinos_TPL_LIBRARIES} )
-set( Pimpact_TPL_LIBRARIES lpimpact ${Limpact_TPL_LIBRARIES} gfortran mpi_f77 mpi_f90  ${Trilinos_TPL_LIBRARIES} ${Trilinos_LIBRARIES} )
+#set( Pimpact_TPL_LIBRARIES lpimpact ${Limpact_TPL_LIBRARIES} gfortran mpi_f77 mpi_f90  ${Trilinos_TPL_LIBRARIES} ${Trilinos_LIBRARIES} )
+set( Pimpact_TPL_LIBRARIES lpimpact ${Limpact_TPL_LIBRARIES} gfortran ${MPI_Fortran_LIBRARIES}  ${Trilinos_TPL_LIBRARIES} ${Trilinos_LIBRARIES} )
 
 
 message( "Fortran compiler: ${CMAKE_Fortran_COMPILER}" )
@@ -106,12 +124,6 @@ message( "Link dirs = ${link_dirs}" )
 enable_testing()
 
 
-if( enable_ETI )
-	add_definitions( -DCOMPILE_ETI )
-	message( "Pimpact:	enabled ETI" )
-else()
-	message( "Pimpact:	disabled ETI" )
-endif()
 
 add_subdirectory( src_impact )
 add_subdirectory( src_f )
