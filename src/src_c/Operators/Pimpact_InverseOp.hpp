@@ -43,7 +43,8 @@ public:
 
 //	template<class IOperatorT>
 	InverseOp( const Teuchos::RCP<const SpaceT>& space ):
-		level_(false), initZero_(false) {
+		level_(false),
+		initZero_(false) {
 
 			auto para = 
 				createLinSolverParameter("GMRES",1.e-1,-1, Teuchos::rcp( new Teuchos::oblackholestream ), 200 );

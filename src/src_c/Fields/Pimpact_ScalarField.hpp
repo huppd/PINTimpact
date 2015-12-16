@@ -146,6 +146,44 @@ public:
 						vl *= space()->nGlo(i)-1;
 					else
 						vl *= space()->nGlo(i);
+
+				const Ordinal* n = space()->nGlo();
+
+				const int* bcl =  space()->getBCGlobal()->getBCL();
+				const int* bcu =  space()->getBCGlobal()->getBCU();
+
+				if( 2==space()->dim() ) {
+					if( bcl[0]>0 && bcl[1]>0 ) vl -= 1;
+					if( bcl[0]>0 && bcu[1]>0 ) vl -= 1;
+					if( bcu[0]>0 && bcl[1]>0 ) vl -= 1;
+					if( bcu[0]>0 && bcu[1]>0 ) vl -= 1;
+				}
+				else{
+					if( bcl[0]>0 && bcl[1]>0 ) vl -= n[2]-2;
+					if( bcl[0]>0 && bcu[1]>0 ) vl -= n[2]-2;
+					if( bcu[0]>0 && bcl[1]>0 ) vl -= n[2]-2;
+					if( bcu[0]>0 && bcu[1]>0 ) vl -= n[2]-2;
+
+					if( bcl[0]>0 && bcl[2]>0 ) vl -= n[1]-2;
+					if( bcl[0]>0 && bcu[2]>0 ) vl -= n[1]-2;
+					if( bcu[0]>0 && bcl[2]>0 ) vl -= n[1]-2;
+					if( bcu[0]>0 && bcu[2]>0 ) vl -= n[1]-2;
+
+					if( bcl[1]>0 && bcl[2]>0 ) vl -= n[0]-2;
+					if( bcl[1]>0 && bcu[2]>0 ) vl -= n[0]-2;
+					if( bcu[1]>0 && bcl[2]>0 ) vl -= n[0]-2;
+					if( bcu[1]>0 && bcu[2]>0 ) vl -= n[0]-2;
+
+					if( bcl[0]>0 && bcl[1]>0 && bcl[2]>0 ) vl -= 1;
+					if( bcu[0]>0 && bcl[1]>0 && bcl[2]>0 ) vl -= 1;
+					if( bcl[0]>0 && bcu[1]>0 && bcl[2]>0 ) vl -= 1;
+					if( bcl[0]>0 && bcl[1]>0 && bcu[2]>0 ) vl -= 1;
+
+					if( bcu[0]>0 && bcu[1]>0 && bcu[2]>0 ) vl -= 1;
+					if( bcl[0]>0 && bcu[1]>0 && bcu[2]>0 ) vl -= 1;
+					if( bcu[0]>0 && bcl[1]>0 && bcu[2]>0 ) vl -= 1;
+					if( bcu[0]>0 && bcu[1]>0 && bcl[2]>0 ) vl -= 1;
+				}
 				break;
 			}
 			default: {
@@ -281,10 +319,16 @@ public:
     changed();
   }
 
+  /// @}
+  /// \name Norm method(reductions)
+  /// @{
 
-  /// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
+	/// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
   Scalar dot ( const MV& a, bool global=true ) const {
+
     Scalar b = 0.;
+
+		setCornersZero();
 
     SF_dot(
         space()->nLoc(),
@@ -302,9 +346,6 @@ public:
   }
 
 
-  ///\}
-  /// \name Norm method
-  ///\{
 
 
   /// \brief compute the norm
@@ -312,6 +353,8 @@ public:
   Scalar norm(  Belos::NormType type = Belos::TwoNorm, bool global=true ) const {
 
     Scalar normvec = 0.;
+
+		setCornersZero();
 
     switch(type) {
     case Belos::OneNorm:
@@ -361,6 +404,8 @@ public:
   double norm(const MV& weights, bool global=true ) const {
 
     Scalar normvec = 0.;
+
+		setCornersZero();
 
     SF_weightedNorm(
         space()->nLoc(),
@@ -748,57 +793,17 @@ public:
 	}
 
 
-	/// \todo little hack working for all dirichlet
-	/// \todo make tests for all domains
 	void level() const {
 
 		if( EField::S == fType_ ) {
-			Ordinal m = getLength();
-			const Ordinal* n = space()->nGlo();
-
-			const int* bcl =  space()->getBCGlobal()->getBCL();
-			const int* bcu =  space()->getBCGlobal()->getBCU();
-
-			if( 2==space()->dim() ) {
-				if( bcl[0]>0 && bcl[1]>0 ) m -= 1;
-				if( bcl[0]>0 && bcu[1]>0 ) m -= 1;
-				if( bcu[0]>0 && bcl[1]>0 ) m -= 1;
-				if( bcu[0]>0 && bcu[1]>0 ) m -= 1;
-			}
-			else{
-				if( bcl[0]>0 && bcl[1]>0 ) m -= n[2]-2;
-				if( bcl[0]>0 && bcu[1]>0 ) m -= n[2]-2;
-				if( bcu[0]>0 && bcl[1]>0 ) m -= n[2]-2;
-				if( bcu[0]>0 && bcu[1]>0 ) m -= n[2]-2;
-
-				if( bcl[0]>0 && bcl[2]>0 ) m -= n[1]-2;
-				if( bcl[0]>0 && bcu[2]>0 ) m -= n[1]-2;
-				if( bcu[0]>0 && bcl[2]>0 ) m -= n[1]-2;
-				if( bcu[0]>0 && bcu[2]>0 ) m -= n[1]-2;
-
-				if( bcl[1]>0 && bcl[2]>0 ) m -= n[0]-2;
-				if( bcl[1]>0 && bcu[2]>0 ) m -= n[0]-2;
-				if( bcu[1]>0 && bcl[2]>0 ) m -= n[0]-2;
-				if( bcu[1]>0 && bcu[2]>0 ) m -= n[0]-2;
-
-				if( bcl[0]>0 && bcl[1]>0 && bcl[2]>0 ) m -= 1;
-				if( bcu[0]>0 && bcl[1]>0 && bcl[2]>0 ) m -= 1;
-				if( bcl[0]>0 && bcu[1]>0 && bcl[2]>0 ) m -= 1;
-				if( bcl[0]>0 && bcl[1]>0 && bcu[2]>0 ) m -= 1;
-
-				if( bcu[0]>0 && bcu[1]>0 && bcu[2]>0 ) m -= 1;
-				if( bcl[0]>0 && bcu[1]>0 && bcu[2]>0 ) m -= 1;
-				if( bcu[0]>0 && bcl[1]>0 && bcu[2]>0 ) m -= 1;
-				if( bcu[0]>0 && bcu[1]>0 && bcl[2]>0 ) m -= 1;
-			}
-
 
 			//		set corners to zero, such that level depends only on inner field
 			setCornersZero();
 
 			SF_level(
 					MPI_Comm_c2f( space()->comm() ),
-					m,
+					//m,
+					getLength(),
 					space()->nLoc(),
 					space()->bl(),
 					space()->bu(),
@@ -806,12 +811,9 @@ public:
 					space()->eIndB(fType_),
 					s_ );
 
-			setCornersZero();
-
-			//changed(); already done twice in setCornersZero
+			//changed(); already done in setCornersZero
 		}
 	}
-
 
   /// \}
 

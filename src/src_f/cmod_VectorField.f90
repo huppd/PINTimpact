@@ -11,10 +11,15 @@ module cmod_VectorField
 contains
 
   !> \brief calculate distance to immersed boundary
-  !! \author huppd
+  !!
   !! \param[in] x
   !! \param[in] y
   !! \param[in] z
+  !! \param[in] x0
+  !! \param[in] y0
+  !! \param[in] z0
+  !! \param[in] R
+  !! \param[in] dr
   FUNCTION distance2ib( x, y, z, x0, y0, R, dr ) RESULT(dis)
 
     IMPLICIT NONE
@@ -60,24 +65,31 @@ contains
 
 
 
+  !> \brief get initial slope/curvature for boundary layer equations as a
+  !! function of sweep angle and suction velocity
+  !!
+  !! \param[in] kappa non-dimensional boundary layer suction velocity
+  !! \param[in] sweep_angle_degrees sweep angle (in degrees for ease of interpolation)
+  !! \param[out] fxxGuess final guess values (return values)
+  !! \param[out] gxGuess
   SUBROUTINE init_value_bl_equation( kappa, sweep_angle_degrees, fxxGuess, gxGuess )
 
     implicit none
 
-    !----------- mjohn 101111 ---------------------------------------------------------------------------------------
-    ! -- get initial slope/curvature for boundary layer equations as a function of sweep angle and suction velocity
+    !----------- mjohn 101111 ------------------------------------------------------------------
     ! - INPUT VARIABLES
-    real(c_double), intent(in)    :: kappa                            !< non-dimensional boundary layer suction velocity
-    real(c_double), intent(in)    :: sweep_angle_degrees              !< sweep angle (in degrees for ease of interpolation)
-    ! - AUXILIARY VARIABLES
-    real(c_double)   :: fxx(1:10,7), gx(1:10,7)            ! initial value matrices for f and g (structure see where declared)
-    real(c_double)   ::   fxx1, fxx2, fxx3, fxx4           ! interpolation stencil (2D, since kappa and sweep_angle vary) for f
-    real(c_double)   ::   gx1, gx2, gx3, gx4               ! interpolation stencil (2D, since kappa and sweep_angle vary) for g
-    real(c_double)   ::   dK, dPhi                         ! interpolation increment remainders (interpolation weights)
-    real(c_double)   ::   fxxLo, fxxHi, gxLo, gxHi         ! more dummy variables...
+    real(c_double), intent(in)    :: kappa
+    real(c_double), intent(in)    :: sweep_angle_degrees
+
     ! - OUTPUT VARIABLES
-    real(c_double), intent(out)   ::   fxxGuess, gxGuess                !< final guess values (return values)
-    !----------------------------------------------------------------------------------------------------------------
+    real(c_double), intent(out)   ::   fxxGuess, gxGuess
+
+    real(c_double)   :: fxx(1:10,7), gx(1:10,7)    ! initial value matrices for f and g (structure see where declared)
+    real(c_double)   ::   fxx1, fxx2, fxx3, fxx4   ! interpolation stencil (2D, since kappa and sweep_angle vary) for f
+    real(c_double)   ::   gx1, gx2, gx3, gx4       ! interpolation stencil (2D, since kappa and sweep_angle vary) for g
+    real(c_double)   ::   dK, dPhi                 ! interpolation increment remainders (interpolation weights)
+    real(c_double)   ::   fxxLo, fxxHi, gxLo, gxHi ! more dummy variables...
+    !------------------------------------------------------------------------------------------
 
 
     ! v''(0) for kappa = (0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0) and 
@@ -142,7 +154,6 @@ contains
 
 
   SUBROUTINE shoot_v(v,grid,n,sweep_angle,angle_attack,kappa,s,r,rank)
-    !!!***********************************************************************
 
     implicit none
 
@@ -358,28 +369,42 @@ contains
 
   !> \brief calculate a laminar swept attachment-line flow
   !!
-  !!   based on calcbasicflow by obristd, 1999/10/11
+  !! based on calcbasicflow by obristd, 1999/10/11
+  !! extended by mjohn, 2011/11/08
+  !! Purpose: calculate a generalized 3D boundary layer flow
+  !! with SWEEP ANGLE and boundary suction (wall-normal) KAPPA
   !!
-  !!  extended by mjohn, 2011/11/08
-  !!  Purpose: calculate a generalized 3D boundary layer flow
-  !!  with SWEEP ANGLE and boundary suction (wall-normal) KAPPA
+  !! 11/11/28: modified: baseflow now contains "real" profile, not only
+  !! integration routine, i.e. multiplication with 1/Re, sin(phi), x3
+  !! is performed before ub, vb, wb are returned
   !!
-  !!  11/11/28: modified: baseflow now contains "real" profile, not only
-  !!  integration routine, i.e. multiplication with 1/Re, sin(phi), x3
-  !!  is performed before ub, vb, wb are returned
+  !! 12/10/05: modified: baseflow may now be non-dimensionalized
+  !! according to SHBL formalism (1 d.o.f.), wing formalism (2 d.o.f.)
+  !! or novel scaling (1 d.o.f.)
   !!
-  !!  12/10/05: modified: baseflow may now be non-dimensionalized
-  !!  according to SHBL formalism (1 d.o.f.), wing formalism (2 d.o.f.)
-  !!  or novel scaling (1 d.o.f.)
-  !!
-  !!  at a later stage: to be extended to allow for ANGLE OF ATTACK 
+  !! \param[in] rank
+  !! \param[in] kappa
+  !! \param[in] sweep_angle_degrees
+  !! \param[in] sweep_angle
+  !! \param[in] angle_attack
+  !! \param[in] n
+  !! \param[in] grid
+  !! \param[in] ub
+  !! \param[in] vb
+  !! \param[in] wb
+  !! \param[in] blthick
   subroutine calcbasicflow( &
       rank,                 &
       kappa,                &
       sweep_angle_degrees,  &
       sweep_angle,          &
       angle_attack,         &
-      n, grid, ub, vb, wb, blthick )
+      n,                    &
+      grid,                 &
+      ub,                   &
+      vb,                   &
+      wb,                   &
+      blthick )
 
     implicit none
 

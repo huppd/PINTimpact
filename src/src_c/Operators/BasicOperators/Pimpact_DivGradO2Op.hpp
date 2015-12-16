@@ -130,7 +130,7 @@ public:
 				x.getConstRawPtr(),
 				y.getRawPtr() );
 
-		y.setCornersZero();
+		//y.setCornersZero();
 
 		y.changed();
 

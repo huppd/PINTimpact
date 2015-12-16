@@ -1,8 +1,8 @@
-!*************************************************************************************************************
-!* IMPACT                                                                                                    *
-!* by Rolf Henniger, Institute of Fluid Dynamics, ETH Zurich (henniger@ifd.mavt.ethz.ch)                     *
-!* Mai 2005 - Dec 2011                                                                                       *
-!*************************************************************************************************************
+!************************************************************************************************
+!* IMPACT                                                                                       *
+!* by Rolf Henniger, Institute of Fluid Dynamics, ETH Zurich (henniger@ifd.mavt.ethz.ch)        *
+!* Mai 2005 - Dec 2011                                                                          *
+!************************************************************************************************
 
 
 
@@ -16,22 +16,37 @@ module cmod_HelmholtzOp
 contains
 
 
-  !>  \brief computes \f$ \mathrm{lap_m = mulI phi_m - mulL \Delta phi_m} \f$
+  !>  \brief applies Helmholtz stencil
   !!
+  !! \f[ \mathrm{lap_m = mulI phi_m - mulL \Delta phi_m} \f]
   !! used for mod_rhs and for product_Helmholtz(so boundary conditions are included?)
   !! \param[in] dimens differentiation beween 2-d and 3-d
-  !! \param[in] mulI factor which coresponds to the factor of the identity part
-  !! \param[in] mulL factor which coresponds to the factor of the laplace part
-  !! \param[inout] phi
+  !! \param[in] N local grid size
+  !! \param[in] bL lower ghost width
+  !! \param[in] bU upper ghost width
+  !! \param[in] SS start index
+  !! \param[in] NN end index
+  !! \param[in] c11 coefficients in x direction
+  !! \param[in] c22 coefficients in y direction
+  !! \param[in] c33 coefficients in z direction
+  !! \param[in] mulI factor which corresponds to the factor of the identity part
+  !! \param[in] mulL factor which corresponds to the factor of the Laplace part
+  !! \param[in] phi
   !! \param[out] Lap
-  subroutine OP_helmholtz(    &
-      dimens,                 &
-      N,                      &
-      bL,bU,                  &
-      SS,NN,                  &
-      c11,c22,c33,            &
-      mulI, mulL,             &
-      phi, Lap ) bind (c,name='OP_helmholtz')
+  subroutine OP_helmholtz(  &
+      dimens,               &
+      N,                    &
+      bL,                   &
+      bU,                   &
+      SS,                   &
+      NN,                   &
+      c11,                  &
+      c22,                  &
+      c33,                  &
+      mulI,                 &
+      mulL,                 &
+      phi,                  &
+      Lap ) bind ( c, name='OP_helmholtz' )
 
     implicit none
 
@@ -55,7 +70,6 @@ contains
     real(c_double), intent(in)   :: phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
     real(c_double), intent(inout):: lap (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-
     integer(c_int)               ::  i, ii
     integer(c_int)               ::  j, jj
     integer(c_int)               ::  k, kk
@@ -63,8 +77,8 @@ contains
     real(c_double)                  ::  dd1
 
 
-    !===========================================================================================================
-    if( 3==dimens) then
+    !============================================================================================
+    if( 3==dimens ) then
 
       do k = SS(3), NN(3)
         do j = SS(2), NN(2)
@@ -107,7 +121,7 @@ contains
       end do
 
     end if
-    !===========================================================================================================
+    !============================================================================================
 
 
   end subroutine OP_helmholtz

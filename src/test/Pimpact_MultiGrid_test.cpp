@@ -66,7 +66,7 @@ int npf = 1;
 int nx = 97;
 int ny = 25;
 int nz = 49;
-int nf = 32;
+int nf = 1;
 
 int rankbla = -1;
 
@@ -109,12 +109,12 @@ TEUCHOS_STATIC_SETUP() {
 	clp.setOption( "maxGrids", &maxGrids, "" );
 
 
-	pl->set( "lx", 8. );
-	pl->set( "ly", 2. );
-	pl->set( "lz", 4. );
-	//pl->set( "lx", 1. );
-	//pl->set( "ly", 1. );
-	//pl->set( "lz", 1. );
+	//pl->set( "lx", 8. );
+	//pl->set( "ly", 2. );
+	//pl->set( "lz", 4. );
+	pl->set( "lx", 1. );
+	pl->set( "ly", 1. );
+	pl->set( "lz", 1. );
 
 	pl->set<S>( "Re", 1000 );
 
@@ -492,8 +492,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Restrictor, CS ) {
 			double bla = er->norm(Belos::InfNorm);
 			if( 0==space->rankST() )
 				std::cout << "error Const: " << bla << " ("<< op1->getDD() << ","<< op2->getDD() << ")\n";
-			if( i>0 )
-				TEST_EQUALITY( bla<eps, true ); // boundaries?
+			//if( i>0 )
+			TEST_EQUALITY( bla<eps, true ); // boundaries?
 			if( bla>=eps )
 				er->write(0);
 		}
@@ -519,8 +519,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Restrictor, CS ) {
 			double bla = er->norm(Belos::InfNorm);
 			if( 0==space->rankST() )
 				std::cout << "error GradX: " << bla << " ("<< op1->getDD() << ","<< op2->getDD() << ")\n";
-			if( test_yes )
-				TEST_EQUALITY( bla<eps, true ); // boundaries?
+			//if( test_yes )
+			TEST_EQUALITY( bla<eps, true ); // boundaries?
 			if( bla>=eps ) {
 				er->print();
 				er->write(1);
@@ -546,8 +546,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Restrictor, CS ) {
 			double bla = er->norm(Belos::InfNorm);
 			if( 0==space->rankST() )
 				std::cout << "error GradY: " << bla << " ("<< op1->getDD() << ","<< op2->getDD() << ")\n";
-			if( test_yes )
-				TEST_EQUALITY( bla<eps, true ); // boundaries?
+			//if( test_yes )
+			TEST_EQUALITY( bla<eps, true ); // boundaries?
 			if( bla>=eps ) {
 				er->write(2);
 				fieldc->write(20);
@@ -578,8 +578,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Restrictor, CS ) {
 				double bla = er->norm(Belos::InfNorm);
 				if( 0==space->rankST() )
 					std::cout << "error GradZ: " << bla << " ("<< op1->getDD() << ","<< op2->getDD() << ")\n";
-				if( test_yes )
-					TEST_EQUALITY( bla<eps, true ); // boundaries?
+				//if( test_yes )
+				TEST_EQUALITY( bla<eps, true ); // boundaries?
 				if( bla>=eps ) {
 					er->write(3);
 					fieldc->write(30);
@@ -932,9 +932,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 
 		mgTransfers->restriction( x );
 
-		if( mgSpaces->participating(0) && test_yes )
+		if( mgSpaces->participating(0) )
 			TEST_EQUALITY( fieldf->norm()<eps, true );
-		if( mgSpaces->participating(-1) && test_yes )
+		if( mgSpaces->participating(-1) )
 			TEST_EQUALITY( fieldc->norm()<eps, true );
 
 
@@ -942,12 +942,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 		fieldf->random();
 		fieldc->init(0.);
 
-		if( mgSpaces->participating(0) && test_yes )
+		if( mgSpaces->participating(0) )
 			TEST_INEQUALITY( 0., fieldf->norm() );
 
 		mgTransfers->restriction( x );
 
-		if( mgSpaces->participating(-1) && test_yes )
+		if( mgSpaces->participating(-1) )
 			TEST_INEQUALITY( 0., fieldc->norm() );
 
 
@@ -959,12 +959,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 		mgTransfers->restriction( x );
 
 		er->add( 1., *sol, -1., *fieldc );
-		if( mgSpaces->participating(-1) && test_yes )
+		if( mgSpaces->participating(-1) )
 			er->write(0);
 
 		if( mgSpaces->participating(-1) )
 			std::cout << "res. error Const: " << er->norm() << "\n";
-		if( mgSpaces->participating(-1) && test_yes )
+		if( mgSpaces->participating(-1) )
 			TEST_EQUALITY( er->norm()/std::sqrt( (S)er->getLength() )< eps, true  );
 
 
@@ -981,8 +981,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 
 			S error = er->norm( Belos::InfNorm );
 			std::cout << "res. error GradX: " << error << "\n";
-			if( test_yes )
-				TEST_EQUALITY( error < eps, true  );
+			//if( test_yes )
+			TEST_EQUALITY( error < eps, true  );
 			if( error>=eps )
 				er->write(1);
 		}
@@ -1001,8 +1001,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 
 			S error = er->norm( Belos::InfNorm );
 			std::cout << "res. error GradY: " << error << "\n";
-			if( test_yes )
-				TEST_EQUALITY( error < eps, true  );
+			//if( test_yes )
+			TEST_EQUALITY( error < eps, true  );
 			if( error>=eps )
 				er->write(2);
 		}
@@ -1020,8 +1020,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 		if( mgSpaces->participating(-1) ) {
 			S error = er->norm( Belos::InfNorm );
 			std::cout << "res. error GradZ: " << error << "\n";
-			if( test_yes )
-				TEST_EQUALITY( error < eps, true  );
+			//if( test_yes )
+			TEST_EQUALITY( error < eps, true  );
 			if( error>=eps )
 				er->write(2);
 		}
@@ -1325,7 +1325,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, MGTransfersVF, CS3G )
 
 
 template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
-template<class T> using POP   = Pimpact::PrecInverseOp< T, Pimpact::DivGradO2JSmoother >;
+template<class T> using POP = Pimpact::PrecInverseOp< T, Pimpact::DivGradO2JSmoother >;
 
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
@@ -1333,50 +1333,59 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
   pl->set( "domain", domain );
   pl->set( "dim", dim );
 
-	pl->set<S>("lx", 1. );
-	pl->set<S>("ly", 1. );
-	pl->set<S>("lz", 1. );
+	pl->set<S>( "lx", 1. );
+	pl->set<S>( "ly", 1. );
+	pl->set<S>( "lz", 1. );
 
 	//  grid size
-	pl->set("nx", nx );
-	pl->set("ny", ny );
-	pl->set("nz", nz );
-	pl->set("nf", nf );
+	pl->set( "nx", nx );
+	pl->set( "ny", ny );
+	pl->set( "nz", nz );
+	pl->set( "nf", nf );
 
 	// processor grid size
-	pl->set("npx", npx );
-	pl->set("npy", npy );
-	pl->set("npz", npz );
-	pl->set("npf", npf );
+	pl->set( "npx", npx );
+	pl->set( "npy", npy );
+	pl->set( "npz", npz );
+	pl->set( "npf", npf );
 
 	auto space = Pimpact::createSpace<S,O,dimension,4>( pl );
 
 	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
-//	if( space->rankST()==0 ) mgSpaces->print();
+	if( space->rankST()==0 ) mgSpaces->print();
 
 	auto mgPL = Teuchos::parameterList();
 	mgPL->set<int>("numCycles", 1 );
 	mgPL->set<bool>("defect correction", false );
 	mgPL->set<bool>("init zero", false );
 	//mgPL->sublist("Smoother").set( "omega", 0.8 );
-	mgPL->sublist("Smoother").set( "numIters", 2 );
-  mgPL->sublist("Smoother").set<bool>( "level", true );
+	mgPL->sublist("Smoother").set<int>( "numIters", 2 );
+  mgPL->sublist("Smoother").set<bool>( "level", false );
 
-	mgPL->sublist("Coarse Grid Solver").set<std::string>("Solver name", "GMRES" );
+	mgPL->sublist("Coarse Grid Solver").set<std::string>("Solver name", "Fixed Point" );
+	//mgPL->sublist("Coarse Grid Solver").set<std::string>("Solver name", "CG" );
+	//mgPL->sublist("Coarse Grid Solver").set<std::string>( "Solver name", "Flexible GMRES" );
+	//mgPL->sublist("Coarse Grid Solver").set<std::string>( "Solver name", "GMRES" );
+	//mgPL->sublist("Coarse Grid Solver").set<std::string>("Solver name", "TFQMR" );
 	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<std::string>("Timer Label", "Coarse Grid Solver" );
-	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<S>("Convergence Tolerance" , 1.e-6 );
+	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<S>( "Convergence Tolerance" , 1e-1 );
 
-//	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<Teuchos::RCP<std::ostream> >( "Output Stream", Teuchos::rcp( &std::cout, false ) );
-//	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set("Verbosity",
-//			Belos::Errors +
-//			Belos::Warnings +
-////			Belos::IterationDetails +
-////			Belos::OrthoDetails +
-//			Belos::FinalSummary +
-//			Belos::TimingDetails +
-////			Belos::StatusTestDetails +
-//			Belos::Debug
-//		 );
+	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
+			"Output Stream", Teuchos::rcp( &std::cout, false ) );
+	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set("Verbosity",
+			Belos::Errors +
+			Belos::Warnings +
+			//Belos::IterationDetails +
+			//Belos::OrthoDetails +
+			Belos::FinalSummary +
+			//Belos::TimingDetails +
+			//Belos::StatusTestDetails +
+			Belos::Debug
+			);
+
+	mgPL->sublist("Coarse Grid Solver").sublist("Preconditioner").set<S>( "omega", 1. );
+	mgPL->sublist("Coarse Grid Solver").sublist("Preconditioner").set<int>( "numIters", 1 );
+	mgPL->sublist("Coarse Grid Solver").sublist("Preconditioner").set<bool>( "level", false );
 
 	auto mg =
 		Pimpact::createMultiGrid<
@@ -1385,9 +1394,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 			Pimpact::RestrictionHWOp,
 			Pimpact::InterpolationOp,
 			Pimpact::DivGradO2Op,
+			//Pimpact::DivGradOp,
 			Pimpact::DivGradO2Op,
 			Pimpact::DivGradO2JSmoother,
-			POP>( mgSpaces, mgPL );
+			POP >( mgSpaces, mgPL );
+			//MOP >( mgSpaces, mgPL );
 
 	auto x = Pimpact::create<Pimpact::ScalarField>( space );
 	auto b = Pimpact::create<Pimpact::ScalarField>( space );
@@ -1403,19 +1414,20 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 	
 	S error0 = x->norm();
 	if( space()->rankST()==0 ) {
-		std::cout << "\n\t--- error: " << 1. << " ---\n";
+		std::cout << "\n\n\terror:\t\trate: \n";
+		std::cout << "\t"  << 1.  << "\n";
 	}
 
 	S errorp = error0;
 	
-	for( int i=0; i<100; ++i ) {
+	for( int i=0; i<100/2; ++i ) {
 		mg->apply( *b, *x );
 		x->level();
 
 		S error = x->norm();
 
 		if( space()->rankST()==0 ) {
-			std::cout << "\t--- error: " << error/error0 << " ---\n";
+			std::cout << "\t" << error/error0 << "\t" <<  error/errorp << "\n";
 		}
 		if( error>= errorp )
 			break;
@@ -1605,23 +1617,32 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffSOR, CS ) {
 	//x->random();
 
 	temp->add( -1, *x, 1., *sol );
-	S res = temp->norm()/std::sqrt( temp->getLength() );
+	S res = temp->norm();
+	S res_0 = res;
+	S res_p = res;
 
 	if( space()->rankST()==0 ) {
-		std::cout << "res: " << res << "\n";
+		std::cout << "\n\n\tresidual:\trate: \n";
+		std::cout << "\t"  << 1.  << "\n";
 		ofs << res << "\n";
 	}
+
 	for( int i=0; i<20; ++i ) {
 		mg->apply( *b, *x );
 		//x->write(i+10);
 
 		temp->add( -1, *x, 1., *sol );
-		S res = temp->norm()/std::sqrt( temp->getLength() );
+		S res = temp->norm();
 
 		if( space()->rankST()==0 ) {
-			std::cout << "res: " << res << "\n";
+			std::cout << "\t" << res/res_0 << "\t" <<  res/res_p << "\n";
 			ofs << res << "\n";
 		}
+		res_p = res;
+	}
+
+	if( space()->rankST()==0 ) {
+		std::cout << "\n";
 	}
 
 	TEST_EQUALITY( temp->norm()<0.5, true );
@@ -1737,23 +1758,32 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffJ, CS ) {
 	x->random();
 
 	temp->add( -1, *x, 1., *sol );
-	S res = temp->norm()/std::sqrt( temp->getLength() );
+	S res = temp->norm();
+	S res_0 = res;
+	S res_p = res;
 
 	if( space()->rankST()==0 ) {
-		std::cout << "res: " << res << "\n";
+		std::cout << "\n\n\tresidual:\trate: \n";
+		std::cout << "\t"  << 1.  << "\n";
 		ofs << res << "\n";
 	}
+
 	for( int i=0; i<20; ++i ) {
 		mg->apply( *b, *x );
 		//x->write(i+10);
 
 		temp->add( -1, *x, 1., *sol );
-		S res = temp->norm()/std::sqrt( temp->getLength() );
+		S res = temp->norm();
 
 		if( space()->rankST()==0 ) {
-			std::cout << "res: " << res << "\n";
+			std::cout << "\t" << res/res_0 << "\t" <<  res/res_p << "\n";
 			ofs << res << "\n";
 		}
+		res_p = res;
+	}
+
+	if( space()->rankST()==0 ) {
+		std::cout << "\n";
 	}
 
 	TEST_EQUALITY( temp->norm()<0.5, true );

@@ -493,17 +493,16 @@ public:
 
 		EField fType = x.getType();
 
-
 		if( EField::S==fType ) {
 			x.exchange();
 
-			MG_RestrictCorners(
-					spaceF_->nLoc(),
-					spaceF_->bl(),
-					spaceF_->bu(),
-					spaceF_->getBCLocal()->getBCL(),
-					spaceF_->getBCLocal()->getBCU(),
-					x.getConstRawPtr() );
+			//MG_RestrictCorners(
+					//spaceF_->nLoc(),
+					//spaceF_->bl(),
+					//spaceF_->bu(),
+					//spaceF_->getBCLocal()->getBCL(),
+					//spaceF_->getBCLocal()->getBCU(),
+					//x.getConstRawPtr() );
 
 			MG_restrictFW(
 					spaceF_->dim(),

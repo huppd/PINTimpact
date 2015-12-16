@@ -41,9 +41,8 @@ message( "End of Trilinos details\n" )
 
 
 
-
 find_package( MPI REQUIRED )
-message( "/nMPI CXX? ${MPI_CXX_FOUND}" )
+message( "\nMPI CXX? ${MPI_CXX_FOUND}" )
 message( "MPI CXX INCLUDE_DIRS = ${MPI_CXX_INCLUDE_PATH}" )
 message( "MPI CXX LIBRARIES =    ${MPI_CXX_LIBRARIES}" )
 message( "\nMPI Fortran? ${MPI_Fortran_FOUND}" )
@@ -57,9 +56,9 @@ option( enable_ETI "enable_ETI" OFF)
 
 if( enable_ETI )
 	add_definitions( -DCOMPILE_ETI )
-	message( "Pimpact:	enabled ETI" )
+	message( "Pimpact:	enabled ETI\n" )
 else()
-	message( "Pimpact:	disabled ETI" )
+	message( "Pimpact:	disabled ETI\n" )
 endif()
 
 # Make sure to use same compilers and flags as Trilinos
@@ -89,28 +88,23 @@ ELSE()
 ENDIF()
 
 
-message("Fortran flags: " ${CMAKE_Fortran_FLAGS})
-message("CXX flags: " ${CMAKE_CXX_FLAGS})
+message( "Fortran compiler: ${CMAKE_Fortran_COMPILER}" )
+message( "Fortran flags: " ${CMAKE_Fortran_FLAGS})
+message( "\nCXX compiler: ${CMAKE_CXX_COMPILER}" )
+message( "CXX flags: " ${CMAKE_CXX_FLAGS})
+message( "CMAKE_Fortran_COMPILE_FLAGS: ${CMAKE_Fortran_COMPILE_FLAGS}\n" )
 
 
 set( Limpact_TPL_LIBRARIES hdf5hl_fortran hdf5_hl hdf5_fortran hdf5 z m ${Trilinos_TPL_LIBRARIES} )
-#set( Pimpact_TPL_LIBRARIES lpimpact ${Limpact_TPL_LIBRARIES} gfortran mpi_f77 mpi_f90  ${Trilinos_TPL_LIBRARIES} ${Trilinos_LIBRARIES} )
 set( Pimpact_TPL_LIBRARIES lpimpact ${Limpact_TPL_LIBRARIES} gfortran ${MPI_Fortran_LIBRARIES}  ${Trilinos_TPL_LIBRARIES} ${Trilinos_LIBRARIES} )
 
 
-message( "Fortran compiler: ${CMAKE_Fortran_COMPILER}" )
-message( "CMAKE_Fortran_COMPILE_FLAGS: ${CMAKE_Fortran_COMPILE_FLAGS}" )
 
-
-INCLUDE_DIRECTORIES( ${inc_dir} ${Trilinos_INCLUDE_DIRS}
-	${Trilinos_TPL_INCLUDE_DIRS}
-	"/cluster/apps/hdf5/1.8.12/x86_64/gcc_4.8.2/openmpi_1.6.5/include" )
+INCLUDE_DIRECTORIES( ${inc_dir} ${Trilinos_INCLUDE_DIRS} ${Trilinos_TPL_INCLUDE_DIRS}
+	#"/cluster/apps/hdf5/1.8.12/x86_64/gcc_4.8.2/openmpi_1.6.5/include" # was necessary on euler 
+	)
 LINK_DIRECTORIES( ${Trilinos_LIBRARY_DIRS} ${Trilinos_TPL_LIBRARY_DIRS} )
 
-
-message( "Include: ${inc_dir} ${Trilinos_INCLUDE_DIRS}
-${Trilinos_TPL_INCLUDE_DIRS} ${HDF5_LIBRARY_DIRS} " )
-#message( "Link: ${Trilinos_LIBRARY_DIRS} ${Trilinos_TPL_LIBRARY_DIRS}" )
 
 # Appends the cmake/modules path inside the MAKE_MODULE_PATH variable which stores the
 # directories of additional CMake modules (ie. MacroOutOfSourceBuild.cmake):
@@ -119,7 +113,7 @@ set( CMAKE_MODULE_PATH ${pimpact_SOURCE_DIR}/cmake/modules ${CMAKE_MODULE_PATH} 
 get_property( inc_dirs DIRECTORY PROPERTY INCLUDE_DIRECTORIES )
 message( "Include dirs = ${inc_dirs}" )
 get_property( link_dirs DIRECTORY PROPERTY LINK_DIRECTORIES )
-message( "Link dirs = ${link_dirs}" )
+message( "Link dirs = ${link_dirs}\n" )
 
 enable_testing()
 

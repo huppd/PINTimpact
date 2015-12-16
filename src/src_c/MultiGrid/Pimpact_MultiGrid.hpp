@@ -22,6 +22,19 @@ namespace Pimpact {
 
 
 
+
+/// \brief basic multi grid calls
+/// 
+/// \tparam MGSpacesT grid hierarchy
+/// \tparam FieldT field type
+/// \tparam TransT transfer operator type
+/// \tparam RestrT restriction operator type
+/// \tparam InterT interpolation operator type
+/// \tparam FOperatorT high order operator type
+/// \tparam COperatorT low order operator type
+/// \tparam SmootherT smoother type
+/// \tparam CGST coarse grid solver type
+/// 
 /// \ingroup MG
 template<
 	class MGSpacesT,
@@ -156,9 +169,7 @@ public:
 			// coarse grid solution
 			i = -1;
 			if( mgSpaces_->participating(i) ) {
-				/// \todo add level for singular stuff
-				//b_->get(i)->level();
-				//				b_->get(i)->setCornersZero();
+				b_->get(i)->setCornersZero();
 				x_->get(i)->init(0.);
 
 				try{
@@ -167,10 +178,12 @@ public:
 				catch( std::logic_error& e ) {
 					std::cout << "error in MG on coarse grid:\n";
 					cGridSolver_->print();
+					b_->get(i)->print();
 					b_->get(i)->write(111);
 					x_->get(i)->write(222);
 					throw( e );
 				}
+				//x_->get(i)->level();
 			}
 
 			for( i=-2; i>=-mgSpaces_->getNGrids(); --i ) {
@@ -182,7 +195,6 @@ public:
 				}
 			}
 
-			//			x_->get(0)->level();// only laplace
 			// use temp as stopping cirterion
 			mgTrans_->getTransferOp()->apply( *x_->get(0), y );
 

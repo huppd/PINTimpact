@@ -15,9 +15,10 @@ namespace Pimpact{
 
 
 
-/// \ingroup Operator
-/// hides all the linear solver typeerasiure stuff
+/// \brief hides all the linear solver typeerasiure stuff
+/// 
 /// \tparam OperatorT has to be of type \c Pimpact::MultiWrapOp
+/// \ingroup Operator
 template< class OT, template<class> class PT >
 class PrecInverseOp {
 
@@ -165,20 +166,7 @@ public:
 
 
 
-///// \relates PrecInverseOp
-//template< class OpT, template<class> class PT >
-//Teuchos::RCP< PrecInverseOp<OpT,PT> >
-//createPrecInverseOp(
-//		const Teuchos::RCP<OpT>& op, Teuchos::RCP< Teuchos::ParameterList > pl=Teuchos::null ) {
-//
-//	if( pl.is_null() )
-//		return( Teuchos::rcp( new PrecInverseOp<OpT,PT>( op ) ) );
-//	else
-//		return( Teuchos::rcp( new PrecInverseOp<OpT,PT>( op, pl ) ) );
-//
-//}
-
-
 } // end of namespace Pimpact
+
 
 #endif // end of #ifndef PIMPACT_PRECINVERSEOP_HPP

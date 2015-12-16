@@ -1,13 +1,12 @@
-!*************************************************************************************************************
-!* IMPACT                                                                                                    *
-!* by Rolf Henniger, Institute of Fluid Dynamics, ETH Zurich (henniger@ifd.mavt.ethz.ch)                     *
-!* Mai 2005 - Dec 2011                                                                                       *
-!* by Michael John, Institute of Fluid Dynamics, ETH Zurich (john@ifd.mavt.ethz.ch)                          *
-!* Apr 2012                                                                                                  *
-!*************************************************************************************************************
+!************************************************************************************************
+!* IMPACT                                                                                       *
+!* by Rolf Henniger, Institute of Fluid Dynamics, ETH Zurich (henniger@ifd.mavt.ethz.ch)        *
+!* Mai 2005 - Dec 2011                                                                          *
+!* by Michael John, Institute of Fluid Dynamics, ETH Zurich (john@ifd.mavt.ethz.ch)             *
+!* Apr 2012                                                                                     *
+!************************************************************************************************
 
 module cmod_SFinout
-
 
   use iso_c_binding
   use mpi
@@ -20,6 +19,7 @@ module cmod_SFinout
 
 contains
 
+
   subroutine openH5F(  ) bind (c,name='openH5F')
 
     implicit none
@@ -27,6 +27,7 @@ contains
     call h5open_f(herror)
 
   end subroutine openH5F
+
 
   subroutine closeH5F(  ) bind (c,name='closeH5F')
 
@@ -277,7 +278,37 @@ end subroutine write_hdf_2D
 
 
 
-!> \param vel_dir should be ftype+1
+!> \brief write h5 file
+!! 
+!! \param[in] rank rank
+!! \param[in] COMM_CART comm
+!! \param[in] M global grid size
+!! \param[in] BC_L_global global BC
+!! \param[in] BC_U_global global BC
+!! \param[in] N local grid size
+!! \param[in] bl
+!! \param[in] bu
+!! \param[in] SS
+!! \param[in] NN
+!! \param[in] ls
+!! \param[in] NB
+!! \param[in] iB
+!! \param[in] iShift
+!! \param[in] dir_name
+!! \param[in] vel_dir vel_dir should be ftype+1
+!! \param[in] filecount
+!! \param[in] namelen
+!! \param[in] stride
+!! \param[in] phi
+!! \param[in] y1p
+!! \param[in] y2p
+!! \param[in] y3p
+!! \param[in] y1u
+!! \param[in] y2v
+!! \param[in] y3w
+!! \param[in] Re
+!! \param[in] alpha2
+!! \note the interval bounds, offset and block size are not global because of vel_dir
 subroutine write_hdf_3D(    &
     rank,                   &
     COMM_CART,              &
@@ -395,10 +426,6 @@ subroutine write_hdf_3D(    &
   integer(c_int)         ::  S3w, M3w, dim3
 
 
-  !----------------------------------------------------------------------------------------------------------!
-  ! Anmerkungen: - Die Intervallgrenzen, Offsets und Block-Groessen werden wegen vel_dir nicht global        !
-  !                eingefuehrt.                                                                              !
-  !----------------------------------------------------------------------------------------------------------!
 
   !===========================================================================================================
   !=== Ausschrieb-Nr. als String fuer File-Namen =============================================================

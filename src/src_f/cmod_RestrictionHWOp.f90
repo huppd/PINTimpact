@@ -97,21 +97,24 @@ contains
 
 
   !> \brief computes the restriction weights for the staggered velocity nodes
-  !! \param[in] Nf fine GridSizeLocal
-  !! \param[in] bl
-  !! \param[in] bu
-  !! \param[in] SS sInd for velocity not used
-  !! \param[in] iimax 
+  !!
+  !! \param[in] Nf fine local grid size 
+  !! \param[in] bl lower ghost offset
+  !! \param[in] bu upper ghost offset
+  !! \param[in] iimax  end index
   !! \param[in] BC_L boundary conditions local coarse
   !! \param[in] BC_U boundary conditions local coarse
-  !! \param[in] xv coarse scalar coordinates
+  !! \param[in] xv coarse velocity coordinates
   !! \param[in] xs coarse scalar coordinates
+  !! \param[in] dd coarsening factor
   !! \param[inout] cRV coefficients
+  !!
   !! \note here only the fine grid coordinates are used as the coarse grid
-  !! coordinates are not all define if iimax>Nc
+  !! Coordinates are not all define if iimax>Nc
   subroutine MG_getCRV(   &
       Nf,                 &
-      bL, bU,             &
+      bL,                 &
+      bU,                 &
       iimax,              &
       BC_L,               &
       BC_U,               &
@@ -119,7 +122,6 @@ contains
       xs,                 &
       dd,                 &
       cRV ) bind( c, name='MG_getCRV' )
-
 
     implicit none
 
@@ -143,9 +145,9 @@ contains
     real(c_double)                ::  Dx12
 
 
-    !===========================================================================================================
-    !=== Restriktion, linienweise, 1d ==========================================================================
-    !===========================================================================================================
+    !============================================================================================
+    !=== Restriktion, linienweise, 1d ===========================================================
+    !============================================================================================
     ! fine
     !     xv(i)        xs(i+1)        xv(i+1)
     !  ----->-------------o------------->-----
@@ -283,16 +285,20 @@ contains
     integer(c_int)                ::  k, kk
 
 
-    !----------------------------------------------------------------------------------------------------------!
-    ! Anmerkungen: - für allgemeine di, dj, dk geeignet!                                                       !
-    !              - überlappende Schicht in Blöcken wird (der Einfachheit halber) ebenfalls ausgetauscht, ist !
-    !                aber im Prinzip redundant (genauer: phiC(S1R:N1R,S2R:N2R,S3R:N3R) = ...).               !
-    !              - Motivation für diese kurze Routine ist die Möglichkeit, auch Varianten wie Full-Weighting !
-    !                etc. ggf. einzubauen, ansonsten könnte sie auch eingespaart werden.                       !
-    !              - Die Block-überlappenden Stirnflächen werden ebenfalls mitverarbeitet, aber eigentlich     !
-    !                nicht gebraucht (erleichtert die Programmierung), so dass eine Initialisierung notwendig  !
-    !                ist. Dies wiederum bedingt die INTENT(inout)-Deklaration.                                 !
-    !----------------------------------------------------------------------------------------------------------!
+    !-------------------------------------------------------------------------------------------!
+    ! Anmerkungen: - für allgemeine di, dj, dk geeignet
+    !              - überlappende Schicht in Blöcken wird (der Einfachheit
+    !                halber) ebenfalls ausgetauscht, ist aber im Prinzip
+    !                redundant (genauer: phiC(S1R:N1R,S2R:N2R,S3R:N3R) = ...).              
+    !              - Motivation für diese kurze Routine ist die Möglichkeit,
+    !                auch Varianten wie Full-Weighting etc. ggf. einzubauen,
+    !                ansonsten könnte sie auch eingespaart werden.
+    !              - Die Block-überlappenden Stirnflächen werden ebenfalls
+    !                mitverarbeitet, aber eigentlich nicht gebraucht
+    !                (erleichtert die Programmierung), so dass eine
+    !                Initialisierung notwendig ist. Dies wiederum bedingt die
+    !                INTENT(inout)-Deklaration.
+    !-------------------------------------------------------------------------------------------!
 
 
 
@@ -390,24 +396,30 @@ contains
 
 
 
-    !----------------------------------------------------------------------------------------------------------!
-    ! Anmerkungen: - Null-Setzen am Rand nicht notwendig!                                                      !
-    !              - Da nur in Richtung der jeweiligen Geschwindigkeitskomponente gemittelt wird, muss nicht   !
-    !                die spezialisierte Helmholtz-Variante aufgerufen werden.                                  !
-    !              - Austauschrichtung ist invers zu ex1, ex2, ex3. Bei mehreren Blöcken wird auch der jeweils !
-    !                redundante "überlappende" Punkt aufgrund der zu grossen Intervallgrenzen (1:iimax) zwar   !
-    !                berechnet, aber aufgrund des Einweg-Austauschs falsch berechnet! Dieses Vorgehen wurde    !
-    !                bislang aus übersichtsgründen vorgezogen, macht aber eine Initialisierung notwendig.      !
-    !                Dabei werden Intervalle der Form 0:imax anstelle von 1:imax bearbeitet, da hier nur die   !
-    !                das feinste Geschwindigkeitsgitter behandelt wird!                                        !
-    !              - INTENT(inout) ist bei den feinen Gittern notwendig, da Ghost-Werte ausgetauscht werden    !
-    !                müssen.                                                                                   !
-    !              - Zuviele Daten werden ausgetauscht; eigentlich müsste in der Grenzfläche nur jeder 4.      !
-    !                Punkt behandelt werden (4x zuviel!). Leider etwas unschön, könnte aber durch eine         !
-    !                spezialisierte Austauschroutine behandelt werden, da das übergeben von Feldern mit        !
-    !                Intervallen von b1L:(iimax+b1U) nur sehr schlecht funktionieren würde (d.h. mit Um-       !
-    !                kopieren).                                                                                !
-    !----------------------------------------------------------------------------------------------------------!
+    !-------------------------------------------------------------------------------------------!
+    ! Anmerkungen: - Null-Setzen am Rand nicht notwendig!
+    !              - Da nur in Richtung der jeweiligen
+    !                Geschwindigkeitskomponente gemittelt wird, muss nicht die
+    !                spezialisierte Helmholtz-Variante aufgerufen werden.
+    !              - Austauschrichtung ist invers zu ex1, ex2, ex3. Bei mehreren
+    !                Blöcken wird auch der jeweils redundante "überlappende" Punkt
+    !                aufgrund der zu grossen Intervallgrenzen (1:iimax) zwar
+    !                berechnet, aber aufgrund des Einweg-Austauschs falsch
+    !                berechnet! Dieses Vorgehen wurde bislang aus
+    !                übersichtsgründen vorgezogen, macht aber eine
+    !                Initialisierung notwendig.  Dabei werden Intervalle der
+    !                Form 0:imax anstelle von 1:imax bearbeitet, da hier nur die
+    !                das feinste Geschwindigkeitsgitter behandelt wird!
+    !              - INTENT(inout) ist bei den feinen Gittern notwendig, da
+    !                Ghost-Werte ausgetauscht werden müssen.
+    !              - Zuviele Daten werden ausgetauscht; eigentlich müsste in der
+    !                Grenzfläche nur jeder 4.      !  Punkt behandelt werden (4x
+    !                zuviel!). Leider etwas unschön, könnte aber durch eine
+    !                spezialisierte Austauschroutine behandelt werden, da das
+    !                übergeben von Feldern mit Intervallen von b1L:(iimax+b1U)
+    !                nur sehr schlecht funktionieren würde (d.h. mit
+    !                Umkopieren).
+    !-------------------------------------------------------------------------------------------!
 
     ! TEST!!! Test schreiben, um n_gather(:,2) .GT. 1 hier zu vermeiden! Gleiches gilt natürlich für die Interpolation.
 
@@ -421,7 +433,7 @@ contains
     !!write(*,*) dd
 
 
-    !===========================================================================================================
+    !============================================================================================
     if( 1==dir ) then
 
       if( 2==dimens ) then
@@ -474,7 +486,7 @@ contains
       end if
 
     end if
-    !===========================================================================================================
+    !============================================================================================
     if( 2==dir ) then
 
       if( 2==dimens ) then
@@ -535,7 +547,7 @@ contains
       end if
 
     end if
-    !===========================================================================================================
+    !=========================================================================================== 
     if( 3==dimens .and. dir==3 ) then
 
       do kk = SSc(3), iimax(3)
@@ -566,8 +578,7 @@ contains
       end do
 
     end if
-    !===========================================================================================================
-
+    !===========================================================================================
 
   end subroutine MG_restrictHWV
 

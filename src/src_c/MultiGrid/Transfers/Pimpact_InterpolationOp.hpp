@@ -47,12 +47,23 @@ void MG_getCIV(
 		double* const cIV );
 
 void MG_InterpolateCorners(
-		const int* const Nc,
-		const int* const bLc,
-		const int* const bUc,
+		const int* const N,
+		const int* const bL,
+		const int* const bU,
 		const int* const BCL,
 		const int* const BCU,
-		const double* const phic );
+		const double* const phi );
+
+void MG_InterpolateCornersPost(
+		const int* const N,
+		const int* const bL,
+		const int* const bU,
+		const int* const BCL,
+		const int* const BCU,
+		const double* const x1,
+		const double* const x2,
+		const double* const x3,
+		double* const phi );
 
 void MG_InterpolateScatter(
 		const int* const Nc,
@@ -481,6 +492,18 @@ public:
 					cIS_[2].getRawPtr(),
 					x.getConstRawPtr(),
 					y.getRawPtr() );
+
+			MG_InterpolateCornersPost(
+					spaceF_->nLoc(),
+					spaceF_->bl(),
+					spaceF_->bu(),
+					spaceF_->getBCLocal()->getBCL(),
+					spaceF_->getBCLocal()->getBCU(),
+					spaceF_->getCoordinatesLocal()->getX( ECoord::X, EField::S ),
+					spaceF_->getCoordinatesLocal()->getX( ECoord::Y, EField::S ),
+					spaceF_->getCoordinatesLocal()->getX( ECoord::Z, EField::S ),
+					y.getRawPtr() );
+
 		}
 		else {
 

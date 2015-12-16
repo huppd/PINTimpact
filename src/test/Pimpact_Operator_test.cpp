@@ -774,13 +774,20 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2JSmoother ) {
 	b->init( 0. );
 
 	if( 0==space->rankST() )
-		std::cout << "\n\tstep\terror\n";
+		std::cout << "\n\tstep\terror\trate\n";
+	S error_p=1.;
+
 	for( int i=0; i<100; ++i ) {
 		smoother->apply(*b,*x);
 		S error = x->norm();
-		if( 0==space->rankST() )
-			std::cout << "\t" << i << "\t" << error << "\n";
+		if( 0==space->rankST() ) {
+			if( 0==i )
+				std::cout << "\t" << i << "\t" << error << "\n";
+			else
+				std::cout << "\t" << i << "\t" << error << "\t" << error/error_p << "\n";
+		}
 		//x->write(i);
+		error_p = error;
 	}
 	//x->print();
 	x->write(1234);
