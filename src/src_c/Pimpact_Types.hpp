@@ -42,6 +42,7 @@ enum EBCType {
 
 
 /// \brief type of Domain, e.g. periodic channel, box, ...
+/// 
 /// \relates BoundaryConditionsGlobal
 enum EDomainType {
   AllDirichlet = 0,

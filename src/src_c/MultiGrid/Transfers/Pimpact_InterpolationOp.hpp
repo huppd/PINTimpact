@@ -451,13 +451,13 @@ public:
 
 		if( EField::S==fType ) {
 
-			MG_InterpolateCorners(
-					spaceC_->nLoc(),
-					spaceC_->bl(),
-					spaceC_->bu(),
-					spaceC_->getBCLocal()->getBCL(),
-					spaceC_->getBCLocal()->getBCU(),
-					x.getConstRawPtr() );
+			//MG_InterpolateCorners(
+					//spaceC_->nLoc(),
+					//spaceC_->bl(),
+					//spaceC_->bu(),
+					//spaceC_->getBCLocal()->getBCL(),
+					//spaceC_->getBCLocal()->getBCU(),
+					//x.getConstRawPtr() );
 
 			if( spaceC_->getProcGrid()->participating() )
 				x.exchange();

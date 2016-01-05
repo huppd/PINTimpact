@@ -26,6 +26,10 @@ namespace Pimpact {
 	template class DivGradO2JSmoother< DivGradO2Op<Space<double,int,3,4> > >;
 	template class DivGradO2JSmoother< DivGradO2Op<Space<double,int,4,2> > >;
 	template class DivGradO2JSmoother< DivGradO2Op<Space<double,int,4,4> > >;
+	template class DivGradO2SORSmoother< DivGradO2Op<Space<double,int,3,2> > >;
+	template class DivGradO2SORSmoother< DivGradO2Op<Space<double,int,3,4> > >;
+	template class DivGradO2SORSmoother< DivGradO2Op<Space<double,int,4,2> > >;
+	template class DivGradO2SORSmoother< DivGradO2Op<Space<double,int,4,4> > >;
 	template class HelmholtzOp< Space<double,int,3,2> >;
 	template class HelmholtzOp< Space<double,int,3,4> >;
 	template class HelmholtzOp< Space<double,int,4,2> >;

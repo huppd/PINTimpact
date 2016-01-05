@@ -120,7 +120,6 @@ public:
 ///
 /// \return 
 /// \relates BoundaryConditionsGlobal
-/// \relates EDomainType
 template<int dim=3>
 Teuchos::RCP<const BoundaryConditionsGlobal<dim> >
 createBoudaryConditionsGlobal(

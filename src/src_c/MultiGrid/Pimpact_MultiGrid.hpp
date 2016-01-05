@@ -94,14 +94,14 @@ public:
 	/// \brief constructor
 	///
 	/// \param mgSpaces
-	/// \param params [in/out] Parameter list of options for the multi grid solver.
+	/// \param pl  Parameter list of options for the multi grid solver.
 	///   These are the options accepted by the solver manager:
 	///   - "defect correction" - a \c bool specifying if defect correction is
 	///     applied before cycling. Default: true  /
 	///   - "init zero" - a \c bool specifying if defect correction is
 	///     applied before cylcing. Default: false  /
 	///   - "numCycles" - a \c int number of cycles. Default:
-	///     FSpaceT::dimNC-CSpaceT::dimNC+1)  /
+	///     FSpaceT::dimNC - CSpaceT::dimNC+1)  /
 	///   - "Smoother" - a \c sublist for smoothers
 	///   - "Coarse Grid Solver" - a \c sublist for coarse grid solver
 	MultiGrid(

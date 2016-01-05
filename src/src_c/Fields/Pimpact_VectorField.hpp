@@ -1240,6 +1240,7 @@ public:
 	/// dirty hack(necessary for MG)
   void level() const {}
 
+	/// \brief does nothing as cornerer are well defined
 	void setCornersZero() const {}
 
   /// @}

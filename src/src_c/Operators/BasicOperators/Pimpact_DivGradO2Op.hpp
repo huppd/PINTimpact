@@ -163,7 +163,7 @@ public:
   }
 
   const Scalar* getC( const ECoord& dir) const  {
-      return( c_[dir] );
+      return( c_[static_cast<int>(dir)] );
   }
 
   const Scalar* getC( const int& dir) const  {
