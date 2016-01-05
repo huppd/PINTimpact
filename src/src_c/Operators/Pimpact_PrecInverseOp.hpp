@@ -71,7 +71,7 @@ public:
 					Teuchos::rcpFromRef( pl->sublist("Solver") ), 
 					pl->get<std::string>("Solver name","GMRES") ) ) { 
 
-			if( pl->get<bool>( "LeftPrec", true ) )
+			if( pl->get<bool>( "LeftPrec", false ) )
 				linprob_->setLeftPrec(
 						createMultiOperatorBase(
 							create<PreconditionerT>(op, Teuchos::rcpFromRef( pl->sublist("Preconditioner") )) ) );

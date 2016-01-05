@@ -162,12 +162,14 @@ public:
     }
   }
 
-  const Scalar* getC( const ECoord& dir) const  {
-      return( c_[static_cast<int>(dir)] );
+	const Scalar* getC( const ECoord& dir) const  {
+		//std::cout << "\nscast: " << static_cast<const int&>(dir) << "\n";
+		return( getC( static_cast<const int&>(dir) ) );
   }
 
   const Scalar* getC( const int& dir) const  {
-      return( c_[dir] );
+		return( c_[dir] );
+		//return( c_[0] );
   }
 
 	const std::string getLabel() const { return( "DivGradO2" ); };

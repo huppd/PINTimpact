@@ -797,7 +797,7 @@ public:
 
 		if( EField::S == fType_ ) {
 
-			//		set corners to zero, such that level depends only on inner field
+			// set corners to zero, such that level depends only on inner field
 			setCornersZero();
 
 			SF_level(

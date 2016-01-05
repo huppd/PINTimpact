@@ -76,7 +76,9 @@ protected:
 	/// \name coordinate stretchings
 	/// @{ 
 
-	/// \brief 
+	/// \brief equidistant grid
+	///
+	/// \f[\mathrm{ x[i] = \frac{iL}{M-1} - x0}\f]
 	///
 	/// \param[in] i
 	/// \param[in] L
@@ -90,20 +92,22 @@ protected:
   
 	/// \brief coordinate stretching for parabulas
 	///
+	/// \f[ \mathrm{ x[i] = L\left( \frac{ i^2 }{ (M-1)^2 } + 2\alpha \frac{i}{M-1}  \right)\frac{1}{1+2\alpha)} - x0 } \f]
+	/// 
 	/// \param[in] i index
 	/// \param[in] L length of domain
 	/// \param[in] M number of global grid points
 	/// \param[in] x0 origin
-	/// \param[in] bla parameter for parabola bla=0 very parabolic bla>>0 equidistant
+	/// \param[in] alpha parameter for parabola alpha=0 very parabolic alpha>>0 equidistant
 	/// \param[out] x coordinate
-	void coord_parab( const Scalar& i, const Scalar& L, const Scalar& M, const Scalar& x0, const Scalar& bla, Scalar& x/*, Scalar& dx*/ ) {
-		x  = L*( std::pow(i,2)/std::pow(M-1.,2) + 2.*bla*i/(M-1.) )/(1.+2.*bla) - x0;
-		//dx = L*(      2.*(i)  /std::pow(M-1.,2) + 2.*bla  /(M-1.) )/(1.+2.*bla);
+	void coord_parab( const Scalar& i, const Scalar& L, const Scalar& M, const Scalar& x0, const Scalar& alpha, Scalar& x/*, Scalar& dx*/ ) {
+		x  = L*( std::pow(i,2)/std::pow(M-1.,2) + 2.*alpha*i/(M-1.) )/(1.+2.*alpha) - x0;
+		//dx = L*(      2.*(i)  /std::pow(M-1.,2) + 2.*alpha  /(M-1.) )/(1.+2.*alpha);
 	}
 
 
 
-	/// \brief awesome stretching
+	/// \brief cos stretching
 	///
 	/// \param[in] i index
 	/// \param[in] L length of domain
@@ -115,9 +119,16 @@ protected:
 	/// \param[in] i0U ???
 	/// \param[out] x coordinate
 	/// 
-	/// \note - i0L >= 0., i0U >= 0., iML >= 1 and iMU <= M is already tested.
-	///       - so following is satisfied wL, wU >= 0..
-	///       - identical to coord_tan except of std::cos functions.
+	/// \f[\mathrm{ wL = \frac\pi{2(i0L + iML-1)} }\f]
+	/// \f[\mathrm{ xL = \frac{\cos(wL *i0L)}{wL} }\f]
+	/// \f[\mathrm{ wU = \frac\pi{2(M + i0U - iML)} }\f]
+	/// \f[\mathrm{ xU = \frac{\cos(wU * i0U)}{wU} }\f]
+	/// \f[\mathrm{ x[i] = i*L/(M-1) - x0 }\f]
+	/// 
+	/// \note
+	///	- i0L >= 0., i0U >= 0., iML >= 1 and iMU <= M is already tested.
+	/// - so following is satisfied wL, wU >= 0..
+	/// - identical to coord_tan except of std::cos functions.
 	void coord_cos(
 			const Scalar& i,
 			const Scalar& L,
@@ -137,7 +148,7 @@ protected:
 		Scalar pi = 4.*std::atan( 1. );
 
 		//--- parameters for grid stretching 
-		if( iML == 1. ) {
+		if( iML<=1. ) {
 			wL = 0.;
 			xL = 0.;
 		}
@@ -146,7 +157,7 @@ protected:
 			xL = std::cos( wL*i0L )/wL;
 		}
 
-		if( iMU == M ) {
+		if( iMU>=M ) {
 			wU = 0.;
 			xU = 0.;
 		}
@@ -157,38 +168,27 @@ protected:
 
 		//--- coordinates in the physical space
 		if( i<iML && wL!= 0. ) {
-			if( (i + i0L - 1.) < 0. ) {
+			if( (i + i0L - 1.) < 0. )
 				// mirroring of the function
 				x = - xL + std::cos( wL*( i + i0L - 1. ) )/wL;
-				//dx =     - std::sin( wL*( i + i0L - 1.   ) );
-			}
-			else {
+			else
 				x =   xL - std::cos( wL*( i + i0L - 1. ) )/wL;
-				//dx =     + std::sin( wL*( i + i0L - 1. ) );
-			}
 		}
 		else if( i>iMU && wU!=0. ) {
-			if( (M - i + i0U) < 0. ) {
+			if( (M - i + i0U) < 0. )
 				// mirroring of the function
 				x = ( 2. - std::cos( wU*( i - i0U - M ) ) )/wU;
-				//dx =     + std::sin( wU*( i - i0U - M ) );
-			}
-			else {
+			else 
 				x =  std::cos( wU*( i - i0U - M ) )/wU;
-				//dx = - std::sin(wU*(i - i0U - M));
-			}
 			x = x + xL - iML + iMU;
 		}
-		else {
+		else
 			x = i + xL - iML;
-			//dx = 1.;
-		}
 
 
 		//--- Normalization
 		x *= L/( xL + xU - iML + iMU );
 		x -= x0;
-		//dx = dx * L / (xL + xU - iML + iMU);
 
 	}
 
