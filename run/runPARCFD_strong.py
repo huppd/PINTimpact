@@ -19,7 +19,7 @@ ma.setParameter( root, 'Verbosity', 0 )
 # make executable ready
 exe = 'peri_navier3D'
 os.chdir( exe_path )
-#os.system( 'make '+exe+' -j4' )
+os.system( 'make '+exe+' -j4' )
 exe = 'peri_navier3D'
 
 
