@@ -1042,7 +1042,6 @@ contains
       end do
     end do
 
-
     call MPI_ALLREDUCE(pre0,pre0_global,1,MPI_REAL8,MPI_SUM,COMM_CART,merror)
 
     pre0 = pre0_global/real(M,c_double) ! TEST!!! wegen i4 gefaehrlich!

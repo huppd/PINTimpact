@@ -517,7 +517,7 @@ module mod_vars
   !> \brief Druckgradient (eine Komponente)
   real   , allocatable   ::  gpre(:,:,:)
   
-  !> \brief Gewichte f�r Divergenzfreiheit
+  !> \brief Gewichte für Divergenzfreiheit
   real   , allocatable   ::  weight(:,:,:)
   
   !> \brief fluid density on velocity grid

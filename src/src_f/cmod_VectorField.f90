@@ -17,7 +17,6 @@ contains
   !! \param[in] z
   !! \param[in] x0
   !! \param[in] y0
-  !! \param[in] z0
   !! \param[in] R
   !! \param[in] dr
   FUNCTION distance2ib( x, y, z, x0, y0, R, dr ) RESULT(dis)
@@ -71,24 +70,24 @@ contains
   !! \param[in] kappa non-dimensional boundary layer suction velocity
   !! \param[in] sweep_angle_degrees sweep angle (in degrees for ease of interpolation)
   !! \param[out] fxxGuess final guess values (return values)
-  !! \param[out] gxGuess
+  !! \param[out] gxGuess final guess values (return values)
   SUBROUTINE init_value_bl_equation( kappa, sweep_angle_degrees, fxxGuess, gxGuess )
 
     implicit none
 
     !----------- mjohn 101111 ------------------------------------------------------------------
     ! - INPUT VARIABLES
-    real(c_double), intent(in)    :: kappa
-    real(c_double), intent(in)    :: sweep_angle_degrees
+    real(c_double), intent(in)  :: kappa
+    real(c_double), intent(in)  :: sweep_angle_degrees
 
     ! - OUTPUT VARIABLES
-    real(c_double), intent(out)   ::   fxxGuess, gxGuess
+    real(c_double), intent(out) :: fxxGuess, gxGuess
 
     real(c_double)   :: fxx(1:10,7), gx(1:10,7)    ! initial value matrices for f and g (structure see where declared)
-    real(c_double)   ::   fxx1, fxx2, fxx3, fxx4   ! interpolation stencil (2D, since kappa and sweep_angle vary) for f
-    real(c_double)   ::   gx1, gx2, gx3, gx4       ! interpolation stencil (2D, since kappa and sweep_angle vary) for g
-    real(c_double)   ::   dK, dPhi                 ! interpolation increment remainders (interpolation weights)
-    real(c_double)   ::   fxxLo, fxxHi, gxLo, gxHi ! more dummy variables...
+    real(c_double)   :: fxx1, fxx2, fxx3, fxx4     ! interpolation stencil (2D, since kappa and sweep_angle vary) for f
+    real(c_double)   :: gx1, gx2, gx3, gx4         ! interpolation stencil (2D, since kappa and sweep_angle vary) for g
+    real(c_double)   :: dK, dPhi                   ! interpolation increment remainders (interpolation weights)
+    real(c_double)   :: fxxLo, fxxHi, gxLo, gxHi   ! more dummy variables...
     !------------------------------------------------------------------------------------------
 
 
@@ -97,17 +96,17 @@ contains
     fxx(1:10,1) = (/ 1.232578, 1.204596, 1.122776, 0.993369, 0.826410, 0.635208, 0.435783, 0.246543, 0.089191, 0.0 /)
     fxx(1:10,2) = (/ 1.541729, 1.509206, 1.413891, 1.262421, 1.065455, 0.854631, 0.594496, 0.357035, 0.147418, 0.0 /)
     fxx(1:10,3) = (/ 1.889298, 1.851881, 1.742007, 1.566680, 1.337148, 1.068325, 0.778115, 0.486851, 0.217475, 0.0 /)
-    fxx(1:10,4) = (/ 2.279667, 2.236852, 2.110903, 1.909177, 1.643485, 1.329463, 0.985815, 0.633578, 0.295836, 0.0 /) !! DUMMY VALUES (mere interpolation of line above and below)
+    fxx(1:10,4) = (/ 2.279667, 2.236852, 2.110903, 1.909177, 1.643485, 1.329463, 0.985815, 0.633578, 0.295836, 0.0 /) ! DUMMY VALUES (mere interpolation of line above and below)
     fxx(1:10,5) = (/ 2.670036, 2.621822, 2.479798, 2.251675, 1.949821, 1.590600, 1.193515, 0.780304, 0.374196, 0.0 /)
-    fxx(1:10,6) = (/ 3.098327, 3.044144, 2.884339, 2.626989, 2.285053, 1.884300, 1.419229, 0.938387, 0.457070, 0.0 /) !! DUMMY VALUES (mere interpolation of line above and below)
+    fxx(1:10,6) = (/ 3.098327, 3.044144, 2.884339, 2.626989, 2.285053, 1.884300, 1.419229, 0.938387, 0.457070, 0.0 /) ! DUMMY VALUES (mere interpolation of line above and below)
     fxx(1:10,7) = (/ 3.526617, 3.466466, 3.288879, 3.002302, 2.620284, 2.178000, 1.644944, 1.096470, 0.539944, 0.0 /)
     ! w'(0):
     gx(1:10,1) = (/ 0.570454, 0.566105, 0.552986, 0.530868, 0.499286, 0.457358, 0.403374, 0.333619, 0.237717, 0.0 /)
     gx(1:10,2) = (/ 0.921733, 0.917607, 0.905180, 0.884295, 0.854631, 0.815588, 0.766028, 0.703608, 0.622597, 0.5 /)
     gx(1:10,3) = (/ 1.323674, 1.319995, 1.308946, 1.290479, 1.264492, 1.230778, 1.188932, 1.138139, 1.076642, 1.0 /)
-    gx(1:10,4) = (/ 1.767516, 1.764282, 1.754585, 1.738445, 1.715877, 1.686874, 1.651353, 1.609055, 1.559273, 1.5 /) !! DUMMY VALUES (mere interpolation of line above and below)
+    gx(1:10,4) = (/ 1.767516, 1.764282, 1.754585, 1.738445, 1.715877, 1.686874, 1.651353, 1.609055, 1.559273, 1.5 /) ! DUMMY VALUES (mere interpolation of line above and below)
     gx(1:10,5) = (/ 2.211359, 2.208569, 2.200225, 2.186411, 2.167263, 2.142970, 2.113775, 2.079971, 2.041903, 2.0 /)
-    gx(1:10,6) = (/ 2.682235, 2.679764, 2.672382, 2.660189, 2.643351, 2.622097, 2.596728, 2.567613, 2.535191, 2.5 /) !! DUMMY VALUES (mere interpolation of line above and below)
+    gx(1:10,6) = (/ 2.682235, 2.679764, 2.672382, 2.660189, 2.643351, 2.622097, 2.596728, 2.567613, 2.535191, 2.5 /) ! DUMMY VALUES (mere interpolation of line above and below)
     gx(1:10,7) = (/ 3.153111, 3.150959, 3.144539, 3.133967, 3.119438, 3.101224, 3.079682, 3.055254, 3.028479, 3.0 /)
 
 
@@ -1977,6 +1976,35 @@ contains
 
   !> \brief init swept Hiemenz boundary layer
   !! 
+  !! \param rank
+  !! \param iShift
+  !! \param IB1
+  !! \param M
+  !! \param N
+  !! \param bL
+  !! \param bU
+  !! \param dL
+  !! \param dU
+  !! \param SU
+  !! \param NU
+  !! \param SV
+  !! \param NV
+  !! \param SW
+  !! \param NW
+  !! \param y1p
+  !! \param y1u
+  !! \param x3w
+  !! \param cIup
+  !! \param Re
+  !! \param nonDim
+  !! \param kappa Properties of swept Hiemenz flow
+  !! \param sweep_angle_degrees Properties of swept Hiemenz flow
+  !! \param sweep_angle Properties of swept Hiemenz flow
+  !! \param angle_attack Properties of swept Hiemenz flow
+  !! \param velu
+  !! \param velv
+  !! \param velw
+  !!
   !! \note - baseflow_global(*,1) need to run from 0 to M1, i.e. full axis, on u grid, since interpolated to p grid by init_BC
   !!       - baseflow_global(*,2) and (*,3) are computed on p grid, since they start exactly on p(1) wall
   !!
@@ -2047,10 +2075,10 @@ contains
 
     real(c_double), intent(in)     :: Re              
     integer(c_int), intent(in)     :: nonDim
-    real(c_double), intent(in)     :: kappa               !< Properties of swept Hiemenz flow
-    real(c_double), intent(in)     :: sweep_angle_degrees !< Properties of swept Hiemenz flow
-    real(c_double), intent(in)     :: sweep_angle         !< Properties of swept Hiemenz flow
-    real(c_double), intent(in)     :: angle_attack        !< Properties of swept Hiemenz flow
+    real(c_double), intent(in)     :: kappa               
+    real(c_double), intent(in)     :: sweep_angle_degrees 
+    real(c_double), intent(in)     :: sweep_angle         
+    real(c_double), intent(in)     :: angle_attack        
 
     real(c_double),  intent(inout) :: velU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
     real(c_double),  intent(inout) :: velV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))

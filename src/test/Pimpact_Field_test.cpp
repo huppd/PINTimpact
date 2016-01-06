@@ -35,6 +35,10 @@ double eps = 1e-6;
 int dim = 3;
 int domain = 1;
 
+O nx = 33;
+O ny = 17;
+O nz = 9;
+
 int npx = 2;
 int npy = 2;
 int npz = 2;
@@ -59,6 +63,9 @@ TEUCHOS_STATIC_SETUP() {
   clp.setOption(
       "dim", &dim,
       "dim" );
+  clp.setOption( "nx", &nx, "" );
+  clp.setOption( "ny", &ny, "" );
+  clp.setOption( "nz", &nz, "" );
   clp.setOption( "npx", &npx, "" );
   clp.setOption( "npy", &npy, "" );
   clp.setOption( "npz", &npz, "" );
@@ -67,9 +74,9 @@ TEUCHOS_STATIC_SETUP() {
   pl->set( "ly", 6. );
   pl->set( "lz", 3. );
 
-  pl->set("nx", 33 );
-  pl->set("ny", 17 );
-  pl->set("nz", 9 );
+  pl->set("nx", nx );
+  pl->set("ny", nx );
+  pl->set("nz", nx );
 
 
 }
@@ -80,6 +87,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, create_init_print, FType ) {
 
   pl->set( "dim", dim );
   pl->set( "domain", domain );
+
+  pl->set("nx", nx );
+  pl->set("ny", ny );
+  pl->set("nz", nz );
 
   // processor grid size
   pl->set("npx", npx );
@@ -110,6 +121,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, InfNorm_and_init, FType ) {
   pl->set( "dim", dim );
   pl->set( "domain", domain );
 
+  pl->set("nx", nx );
+  pl->set("ny", ny );
+  pl->set("nz", nz );
   // processor grid size
   pl->set("npx", npx );
   pl->set("npy", npy );
@@ -159,6 +173,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, OneNorm_and_init, FType ) {
   pl->set( "dim", dim );
   pl->set( "domain", domain );
 
+  pl->set("nx", nx );
+  pl->set("ny", ny );
+  pl->set("nz", nz );
   // processor grid size
   pl->set("npx", npx );
   pl->set("npy", npy );
@@ -190,6 +207,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, TwoNorm_and_init, FType ) {
 
   pl->set( "dim", dim );
   pl->set( "domain", domain );
+
+  pl->set("nx", nx );
+  pl->set("ny", ny );
+  pl->set("nz", nz );
   // processor grid size
   pl->set("npx", npx );
   pl->set("npy", npy );
@@ -219,6 +240,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, dot, FType ) {
 
   pl->set( "dim", dim );
   pl->set( "domain", domain );
+
+  pl->set("nx", nx );
+  pl->set("ny", ny );
+  pl->set("nz", nz );
   // processor grid size
   pl->set("npx", npx );
   pl->set("npy", npy );
@@ -271,6 +296,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, scale, FType ) {
 
   pl->set( "dim", dim );
   pl->set( "domain", domain );
+
+  pl->set("nx", nx );
+  pl->set("ny", ny );
+  pl->set("nz", nz );
   // processor grid size
   pl->set("npx", npx );
   pl->set("npy", npy );
@@ -303,6 +332,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, random, FType ) {
 
   pl->set( "dim", dim );
   pl->set( "domain", domain );
+
+  pl->set("nx", nx );
+  pl->set("ny", ny );
+  pl->set("nz", nz );
   // processor grid size
   pl->set("npx", npx );
   pl->set("npy", npy );
@@ -335,6 +368,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TemplateField, add, FType ) {
 
   pl->set( "dim", dim );
   pl->set( "domain", domain );
+
+  pl->set("nx", nx );
+  pl->set("ny", ny );
+  pl->set("nz", nz );
   // processor grid size
   pl->set("npx", npx );
   pl->set("npy", npy );
@@ -392,6 +429,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, write, FType ) {
 
   pl->set( "dim", dim );
   pl->set( "domain", domain );
+
+  pl->set("nx", nx );
+  pl->set("ny", ny );
+  pl->set("nz", nz );
   // processor grid size
   pl->set("npx", npx );
   pl->set("npy", npy );
@@ -407,7 +448,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, write, FType ) {
   p->random();
   p->write(1);
 
-  TEST_EQUALITY( 0, 0)
+  TEST_EQUALITY( 0, 0 )
+
 }
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, write, SF )
@@ -423,6 +465,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, write_restart, FType ) {
 
   pl->set( "dim", dim );
   pl->set( "domain", domain );
+
+  pl->set("nx", nx );
+  pl->set("ny", ny );
+  pl->set("nz", nz );
   // processor grid size
   pl->set("npx", npx );
   pl->set("npy", npy );
@@ -449,6 +495,10 @@ TEUCHOS_UNIT_TEST( ScalarField, initField ) {
 
   pl->set( "dim", dim );
   pl->set( "domain", domain );
+
+  pl->set("nx", nx );
+  pl->set("ny", ny );
+  pl->set("nz", nz );
   // processor grid size
   pl->set("npx", npx );
   pl->set("npy", npy );
@@ -474,6 +524,9 @@ TEUCHOS_UNIT_TEST( ScalarField, level ) {
 	// check: 0, 2, 4, 5
 	// error: 1, 3
 
+  pl->set("nx", nx );
+  pl->set("ny", ny );
+  pl->set("nz", nz );
   // processor grid size
   pl->set("npx", npx );
   pl->set("npy", npy );

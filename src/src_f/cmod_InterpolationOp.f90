@@ -179,6 +179,7 @@ contains
 
 
 
+  !> \deprecated
   subroutine MG_InterpolateCorners( &
       n,                            &
       bL,                           &
@@ -234,7 +235,20 @@ contains
 
 
 
-  !!> \brief corrects values at corners through extrapolation
+  !> \brief corrects values at corners through extrapolation
+  !!
+  !! \param[in] n
+  !! \param[in] bL
+  !! \param[in] bU
+  !! \param[in] BCL
+  !! \param[in] BCU
+  !! \param[in] x1
+  !! \param[in] x2
+  !! \param[in] x3
+  !! \param[inout] phi \f$\phi\f$
+  !!
+  !! \f[ \phi[2] = \frac{ \phi[4]-\phi[3] }{x[4]-x[4]} ( x[2]-x[3] )\f]
+  !! \f[ \phi[n-1] = \frac{ \phi[n-2]-\phi[n-3] }{x[n-2]-x[n-3]} ( x[n-1]-x[n-2] )\f]
   subroutine MG_InterpolateCornersPost( &
       n,                                &
       bL,                               &
@@ -263,14 +277,14 @@ contains
     real(c_double), intent(inout) :: phi( bL(1):(n(1)+bU(1)), bL(2):(n(2)+bU(2)), bL(3):(n(3)+bU(3)) )
 
     if( BCL(1)>0 .and. BCL(2)>0 ) then
-      phi( 1, 1, 1:n(3)) = 0.
-      phi( 2, 1, 2:n(3)-1) = ( phi( 4, 1, 2:n(3)-1) - phi( 3, 1, 2:n(3)-1) )/( x1(4) - x1(3) )*( x1(2) - x1(3) ) + phi( 3, 1, 2:n(3)-1)
-      phi( 1, 2, 2:n(3)-1) = ( phi( 1, 3, 2:n(3)-1) - phi( 1, 3, 2:n(3)-1) )/( x2(4) - x2(3) )*( x2(2) - x2(3) ) + phi( 1, 3, 2:n(3)-1)
-      phi( 2, 2, 2:n(3)-1) = ( phi( 2, 3, 2:n(3)-1) + phi( 3, 2, 2:n(3)-1) + phi( 2, 1, 2:n(3)-1) + phi( 1, 2, 2:n(3)-1) )/4.
+      phi(1, 1, 1:n(3)  ) = 0.
+      phi(2, 1, 2:n(3)-1) = ( phi( 4, 1, 2:n(3)-1) - phi( 3, 1, 2:n(3)-1) )/( x1(4) - x1(3) )*( x1(2) - x1(3) ) + phi( 3, 1, 2:n(3)-1)
+      phi(1, 2, 2:n(3)-1) = ( phi( 1, 4, 2:n(3)-1) - phi( 1, 3, 2:n(3)-1) )/( x2(4) - x2(3) )*( x2(2) - x2(3) ) + phi( 1, 3, 2:n(3)-1)
+      phi(2, 2, 2:n(3)-1) = ( phi( 2, 3, 2:n(3)-1) + phi( 3, 2, 2:n(3)-1) + phi( 2, 1, 2:n(3)-1) + phi( 1, 2, 2:n(3)-1) )/4.
     endif
     if( BCL(1)>0 .and. BCU(2)>0 ) then
       phi(1, n(2)  , 1:n(3)) =  0.
-      phi(2, n(2)  , 2:n(3)-1) = ( phi(4, n(2)  , 2:n(3)-1) - phi(3, n(2)  , 2:n(3)-1) )/( x1(4)      - x1(3)         )*( x1(2)      - x1(3)   ) + phi(3, n(2)  , 2:n(3)-1)
+      phi(2, n(2)  , 2:n(3)-1) = ( phi(4, n(2)  , 2:n(3)-1) - phi(3, n(2)  , 2:n(3)-1) )/( x1(4)      - x1(3)      )*( x1(2)      - x1(3)   ) + phi(3, n(2)  , 2:n(3)-1)
       phi(1, n(2)-1, 2:n(3)-1) = ( phi(1, n(2)-2, 2:n(3)-1) - phi(1, n(2)-3, 2:n(3)-1) )/( x2(n(2)-2) - x2(n(2)-3) )*( x2(n(2)-1) - x2(n(2)-2) ) + phi(1, n(2)-2, 2:n(3)-1)
       phi(2, n(2)-1, 2:n(3)-1) = ( phi(2, n(2), 2:n(3)-1) + phi(3, n(2)-1, 2:n(3)-1) + phi(2, n(2)-2, 2:n(3)-1) + phi(1, n(2)-1, 2:n(3)-1) )/4.
     endif
@@ -306,10 +320,10 @@ contains
       phi(n(1)-1, 2:n(2)-1, 2) = ( phi(n(1)-1, 2:n(2)-1, 3) + phi(n(1)  , 2:n(2)-1, 2) + phi(n(1)-2, 2:n(2)-1, 2) + phi(n(1)-1, 2:n(2)-1, 1))/4.               
     endif
     if( BCU(1)>0 .and. BCU(3)>0 ) then
-      phi(n(1)  , 1:n(2), n(3)  ) = 0.
+      phi(n(1)  , 1:n(2)  , n(3)  ) = 0.
       phi(n(1)-1, 2:n(2)-1, n(3)  ) = ( phi(n(1)-2, 2:n(2)-1, n(3)  )-phi(n(1)-3, 2:n(2)-1, n(3)  ) )/( x1(n(1)-2)-x1(n(1)-3) )*( x1(n(1)-1)-x1(n(1)-2) ) + phi(n(1)-2, 2:n(2)-1, n(3)  )
       phi(n(1)  , 2:n(2)-1, n(3)-1) = ( phi(n(1)  , 2:n(2)-1, n(3)-2)-phi(n(1)  , 2:n(2)-1, n(3)-3) )/( x3(n(3)-2)-x3(n(3)-3) )*( x3(n(3)-1)-x3(n(3)-2) ) + phi(n(1)  , 2:n(2)-1, n(3)-2)
-      phi(n(1)-1, 2:n(2)-1, n(3)-1) = ( phi(n(1)-1, 2:n(2)-1, n(3)) + phi(n(1), 1:n(2), n(3)-1) + phi(n(1)-1, 1:n(2), n(3)-2) + phi(n(1)-2, 1:n(2), n(3)-1) )/4. 
+      phi(n(1)-1, 2:n(2)-1, n(3)-1) = ( phi(n(1)-1, 2:n(2)-1, n(3)  )+phi(n(1)  , 2:n(2)-1, n(3)-1)+phi(n(1)-1, 2:n(2)-1, n(3)-2)+phi(n(1)-2, 2:n(2)-1, n(3)-1) )/4. 
     endif
                                 
     if( BCL(2)>0 .and. BCL(3)>0 ) then

@@ -18,16 +18,16 @@ namespace {
 
 
 
-typedef double S;
-typedef int O;
+using S = double;
+using O = int;
 
 const int dimension= 4;
 
-typedef Pimpact::Space<S,O,dimension,4> FSpace3T;
-typedef Pimpact::Space<S,O,dimension,2> CSpace3T;
+using FSpace3T = Pimpact::Space<S,O,dimension,4>;
+using CSpace3T = Pimpact::Space<S,O,dimension,2>;
 
-typedef Pimpact::CoarsenStrategy<FSpace3T,CSpace3T> CS3L;
-typedef Pimpact::CoarsenStrategyGlobal<FSpace3T,CSpace3T> CS3G;
+using CS3L = Pimpact::CoarsenStrategy<FSpace3T,CSpace3T>;
+using CS3G = Pimpact::CoarsenStrategyGlobal<FSpace3T,CSpace3T>;
 
 template<class ST> using BSF = Pimpact::MultiField< Pimpact::ScalarField<ST> >;
 
@@ -115,6 +115,28 @@ TEUCHOS_STATIC_SETUP() {
 	pl->set( "lx", 1. );
 	pl->set( "ly", 1. );
 	pl->set( "lz", 1. );
+
+	//pl->sublist("Stretching in X");
+	//pl->sublist("Stretching in Y");
+	//pl->sublist("Stretching in Z");
+	//pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+	//pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+	//pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+
+	//pl->sublist("Stretching in X").set<S>( "N metr L", 1. );
+	//pl->sublist("Stretching in X").set<S>( "N metr U", nx  );
+	//pl->sublist("Stretching in X").set<S>( "x0 L", 0. );
+	//pl->sublist("Stretching in X").set<S>( "x0 U", 0. );
+
+	//pl->sublist("Stretching in Y").set<S>( "N metr L", 1. );
+	//pl->sublist("Stretching in Y").set<S>( "N metr U", ny  );
+	//pl->sublist("Stretching in Y").set<S>( "x0 L", 0. );
+	//pl->sublist("Stretching in Y").set<S>( "x0 U", 0. );
+
+	//pl->sublist("Stretching in Z").set<S>( "N metr L", 1. );
+	//pl->sublist("Stretching in Z").set<S>( "N metr U", nz  );
+	//pl->sublist("Stretching in Z").set<S>( "x0 L", 0. );
+	//pl->sublist("Stretching in Z").set<S>( "x0 U", 0. );
 
 	pl->set<S>( "Re", 1000 );
 
@@ -264,10 +286,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGOperators, SF_constructor3D, CS ) {
 
 	auto mgOps2 = Pimpact::createMGOperators<Pimpact::DivGradOp,Pimpact::DivGradO2Op>( mgSpaces );
 
-	auto op = mgOps->get( -1 );
+	for( int i=0; i<3; ++i ) {
+		auto op = mgOps->get( i );
+		if( 0==space->rankST() )
+			std::cout << "\n\n --- level: " << i << " ---\n\n";
 
-	if( mgSpaces->participating(-1) )
-		op->print();
+		if( mgSpaces->participating(i) )
+			op->print();
+	}
 
 }
 
@@ -599,7 +625,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, Restrictor, CS3G )
 
 
 
-/// \todo remove corners for test(Scalar case)
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator, CS ) {
 
   pl->set( "domain", domain );
@@ -720,12 +745,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator, CS ) {
 			double bla = er->norm(Belos::InfNorm);
 			if( 0==space->rankST() )
 				std::cout << "error GradX: " << bla << "\n";
-			if( i>0 ) // corners for scalar are "wrong"
-				TEST_EQUALITY( bla<eps, true  );
+			TEST_EQUALITY( bla<eps, true  );
 			if( bla>=eps ) {
 				er->write(1);
 				fieldf->write(10);
 				sol->write(100);
+				er->print();
 			}
 		}
 		std::cout << "rank: " << space->rankST() << " error GradX: " << er->norm(Belos::InfNorm, false ) << "\n";
@@ -748,13 +773,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator, CS ) {
 
 		if( mgSpaces->participating(level) ) {
 			double bla = er->norm(Belos::InfNorm);
-			if( 0==space->rankST() )
-				std::cout << "error GradY: " <<  bla << "\n";
-			if( i>0 ) // corners for scalar are "wrong"
-				TEST_EQUALITY( bla < eps, true  );
+			TEST_EQUALITY( bla < eps, true  );
 			if( bla>=eps ) {
 				er->write(2);
 				fieldf->write(20);
+				er->print();
+			if( 0==space->rankST() )
+				std::cout << "error GradY: " <<  bla << "\n";
 			}
 		}
 
@@ -771,14 +796,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator, CS ) {
 
 		if( mgSpaces->participating(level) ) {
 			double bla = er->norm(Belos::InfNorm);
-			if( 0==space->rankST() )
-				std::cout << "error GradZ: " << bla << "\n";
-			if( i>0 ) // corners for scalar are "wrong"
-				TEST_EQUALITY( bla < eps, true  );
+			TEST_EQUALITY( bla < eps, true  );
 			if( bla>=eps ) {
+				er->print();
 				er->write(3);
 				fieldf->write(30);
 			}
+			if( 0==space->rankST() )
+				std::cout << "error GradZ: " << bla << "\n";
 		}
 	}
 
@@ -1326,6 +1351,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, MGTransfersVF, CS3G )
 
 template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
 template<class T> using POP = Pimpact::PrecInverseOp< T, Pimpact::DivGradO2JSmoother >;
+template<class T> using POP2 = Pimpact::PrecInverseOp< T, Pimpact::DivGradO2SORSmoother >;
+
+
 
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
@@ -1349,43 +1377,54 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 	pl->set( "npz", npz );
 	pl->set( "npf", npf );
 
-	auto space = Pimpact::createSpace<S,O,dimension,4>( pl );
+	Teuchos::RCP<const Pimpact::Space<S,O,dimension,4> > space = Pimpact::createSpace<S,O,dimension,4>( pl );
+
+	int nMax = 10;
 
 	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
 	if( space->rankST()==0 ) mgSpaces->print();
 
 	auto mgPL = Teuchos::parameterList();
-	mgPL->set<int>("numCycles", 1 );
-	mgPL->set<bool>("defect correction", false );
-	mgPL->set<bool>("init zero", false );
-	//mgPL->sublist("Smoother").set( "omega", 0.8 );
-	mgPL->sublist("Smoother").set<int>( "numIters", 2 );
-  mgPL->sublist("Smoother").set<bool>( "level", false );
+	mgPL->set<int>( "numCycles", 1 );
+	mgPL->set<bool>( "defect correction", false );
+	mgPL->set<bool>( "init zero", false );
 
-	mgPL->sublist("Coarse Grid Solver").set<std::string>("Solver name", "Fixed Point" );
+	//mgPL->sublist("Smoother").set( "omega", 0.8 );
+	mgPL->sublist("Smoother").set<int>( "numIters", 3 );
+	//mgPL->sublist("Smoother").set<int>( "RBGS mode", 2 );
+	//mgPL->sublist("Smoother").set<bool>( "level", false );
+
+	//mgPL->sublist("Coarse Grid Solver").set<std::string>("Solver name", "Fixed Point" );
 	//mgPL->sublist("Coarse Grid Solver").set<std::string>("Solver name", "CG" );
 	//mgPL->sublist("Coarse Grid Solver").set<std::string>( "Solver name", "Flexible GMRES" );
-	//mgPL->sublist("Coarse Grid Solver").set<std::string>( "Solver name", "GMRES" );
+	mgPL->sublist("Coarse Grid Solver").set<std::string>( "Solver name", "GMRES" );
 	//mgPL->sublist("Coarse Grid Solver").set<std::string>("Solver name", "TFQMR" );
-	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<std::string>("Timer Label", "Coarse Grid Solver" );
-	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<S>( "Convergence Tolerance" , 1e-1 );
+	//mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<std::string>("Timer Label", "Coarse Grid Solver" );
+	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<S>( "Convergence Tolerance" , 2.e-1 );
 
-	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
-			"Output Stream", Teuchos::rcp( &std::cout, false ) );
-	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set("Verbosity",
-			Belos::Errors +
-			Belos::Warnings +
-			//Belos::IterationDetails +
-			//Belos::OrthoDetails +
-			Belos::FinalSummary +
-			//Belos::TimingDetails +
-			//Belos::StatusTestDetails +
-			Belos::Debug
-			);
+	//mgPL->sublist("Coarse Grid Solver").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
+			//"Output Stream", Teuchos::rcp( &std::cout, false ) );
+	//mgPL->sublist("Coarse Grid Solver").sublist("Solver").set("Verbosity",
+			//Belos::Errors +
+			//Belos::Warnings +
+			////Belos::IterationDetails +
+			////Belos::OrthoDetails +
+			//Belos::FinalSummary +
+			////Belos::TimingDetails +
+			////Belos::StatusTestDetails +
+			//Belos::Debug
+			//);
 
+	//mgPL->sublist("Coarse Grid Solver").set<S>( "omega", 1. );
+	//mgPL->sublist("Coarse Grid Solver").set<int>( "RBGS mode", 0 );
+	//mgPL->sublist("Coarse Grid Solver").set<int>( "numIters", 12 );
+	//mgPL->sublist("Coarse Grid Solver").set<bool>( "level", false );
+	
 	mgPL->sublist("Coarse Grid Solver").sublist("Preconditioner").set<S>( "omega", 1. );
+	//mgPL->sublist("Coarse Grid Solver").sublist("Preconditioner").set<int>( "RBGS mode", 0 );
 	mgPL->sublist("Coarse Grid Solver").sublist("Preconditioner").set<int>( "numIters", 1 );
 	mgPL->sublist("Coarse Grid Solver").sublist("Preconditioner").set<bool>( "level", false );
+	//mgPL->sublist("Coarse Grid Solver").sublist("Preconditioner").set<bool>( "level", true );
 
 	auto mg =
 		Pimpact::createMultiGrid<
@@ -1393,132 +1432,143 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 			Pimpact::TransferOp,
 			Pimpact::RestrictionHWOp,
 			Pimpact::InterpolationOp,
-			Pimpact::DivGradO2Op,
-			//Pimpact::DivGradOp,
+			//Pimpact::DivGradO2Op,
+			Pimpact::DivGradOp,
 			Pimpact::DivGradO2Op,
 			Pimpact::DivGradO2JSmoother,
+			//Pimpact::DivGradO2SORSmoother,
+			//POP2 >( mgSpaces, mgPL );
 			POP >( mgSpaces, mgPL );
 			//MOP >( mgSpaces, mgPL );
+			//Pimpact::DivGradO2SORSmoother >( mgSpaces, mgPL );
 
 	auto x = Pimpact::create<Pimpact::ScalarField>( space );
 	auto b = Pimpact::create<Pimpact::ScalarField>( space );
+	auto res = x->clone( Pimpact::ShallowCopy );
 	auto sol = x->clone( Pimpact::ShallowCopy );
 
 	auto op = Pimpact::create<Pimpact::DivGradO2Op>( space );
 
 
-	// --- zero test ---
+	// --- zero rhs test ---
 	b->init(0.);
 	x->random();
 	x->setCornersZero();
 	
 	S error0 = x->norm();
+	S errorp = error0;
+
+	op->apply( *x, *res );
+	S res0 = res->norm();
+	S resP = res0;
+
 	if( space()->rankST()==0 ) {
-		std::cout << "\n\n\terror:\t\trate: \n";
-		std::cout << "\t"  << 1.  << "\n";
+		std::cout << "\n\n\t\t\t--- zero rhs test ---\n";
+		std::cout << "\tresidual:\trate:\t\t\terror:\t\trate: \n";
+		std::cout << "\t" << 1. << "\t\t\t\t\t"  << 1.  << "\n";
 	}
 
-	S errorp = error0;
-	
-	for( int i=0; i<100/2; ++i ) {
+	for( int i=0; i<nMax; ++i ) {
 		mg->apply( *b, *x );
 		x->level();
 
 		S error = x->norm();
 
-		if( space()->rankST()==0 ) {
-			std::cout << "\t" << error/error0 << "\t" <<  error/errorp << "\n";
-		}
-		if( error>= errorp )
-			break;
-		else
-			errorp = error;
+		op->apply( *x, *res );
+		S residual = res->norm();
+
+		if( space()->rankST()==0 )
+			std::cout << "\t" << residual/res0 << "\t" << residual/resP << "\t\t" << error/error0 << "\t" <<  error/errorp << "\n";
+
+		//if( error>= errorp )
+			//break;
+		//else
+		errorp = error;
+		resP = residual;
 	}
 	
 	//x->print();
 	x->write();
 	TEST_EQUALITY( x->norm()/std::sqrt( static_cast<S>(x->getLength()) )<1.e-3, true );
 	
+
 	// --- grad test ---
-	//for( int dir=3; dir<6; ++dir ) {
-		////x->initField( static_cast<Pimpact::EScalarField>(dir) );
+	auto e = x->clone();
+	for( int dir=1; dir<6; ++dir ) {
+		x->initField( static_cast<Pimpact::EScalarField>(dir) );
+		sol->initField( static_cast<Pimpact::EScalarField>(dir) );
+		sol->level();
 
-		////op->apply(*x,*b);
-		////b->write(1);
+		op->apply( *x, *b );
+		//b->write(1);
 
-		//////x->init( 0. );
-		////x->random();
-
-		////auto e = x->clone();
-
-		////e->init( 1. );
-
-		////S bla = b->dot(*e)/x->getLength();
-		////if( 0==space->rankST() )
-			////std::cout<< " rhs nullspace: " << bla << "\n";
-
-		////op->apply(*x,*sol);
-		////sol->add( -1, *b, 1., *sol );
-		////S res0 = sol->norm()/std::sqrt( (S)sol->getLength() );
-		////res0 = 1.;
-		//b->init(0.);
 		//x->random();
+		x->init( 0 );
 
-		//if( space()->rankST()==0 ) {
-			//std::cout << "\t--- res0: " << res0 << " ---\n";
-			//ofs << res0 << "\n";
-		//}
-		//for( int i=0; i<10; ++i ) {
-			//mg->apply( *b, *x );
-			////x->level();
-			////		x->write(i+10);
+		// residual
+		op->apply( *x, *res );
+		res->add( -1, *b, 1., *res );
+		S res0 = res->norm();
+		S resP = res0;
+		//error
+		res->add( 1., *sol, -1., *x );
+		S err0 = res->norm();
+		S errP = err0;
+		//S err0 = 1.;
+		//S errP =1.;
 
-			//op->apply(*x,*sol);
-			//sol->add( -1, *b, 1., *sol );
-			//S res = sol->norm()/std::sqrt( (S)sol->getLength() );
+		if( space()->rankST()==0 ) {
+			std::cout << "\n\n\t\t\t--- " << dir << " test ---\n";
+			std::cout << "\tresidual:\trate:\t\t\terror:\t\trate:\n";
+			std::cout << "\t"  << 1.<< "\t\t\t\t\t" << 1.  << "\n";
+		}
+		for( int i=0; i<nMax; ++i ) {
+			mg->apply( *b, *x );
+			x->level();
 
-			//if( space()->rankST()==0 ) {
-				//std::cout << "\t--- res: " << res/res0 << " ---\n";
-				//ofs << res/res0 << "\n";
-			//}
-		//}
-		//TEST_EQUALITY( sol->norm()/std::sqrt( (S)sol->getLength() )<1.e-3, true );
+			op->apply( *x, *res );
+			res->add( -1, *b, 1., *res );
+			S residual = res->norm();
+			res->add( 1., *sol, -1., *x );
+			S err = res->norm();
 
-		////	x->write(2);
-		////	sol->write(3);
-
-		//if( space()->rankST()==0 )
-			//ofs.close();
-
-		////auto xm = Pimpact::createMultiField( x );
-		////auto bm = Pimpact::createMultiField( b );
-
-		////bm->init(0);
-		////xm->init(0.);
-		////xm->random();
-		//////	bm->level();
+			if( space()->rankST()==0 )
+				std::cout << "\t" << residual/res0 << "\t" <<  residual/resP << "\t\t" << err/err0 << "\t" <<  err/errP  << "\n";
+			resP = residual;
+			errP = err;
+		}
+		TEST_EQUALITY( res->norm()/std::sqrt( static_cast<S>( res->getLength() ) )<1.e-3, true );
+	}
 
 
-		////auto prec = Pimpact::createMultiOperatorBase( mg );
+	// --- as preconditioner ---
+	auto xm = Pimpact::createMultiField( x );
+	auto bm = Pimpact::createMultiField( b );
 
-		////auto solvName = "Block GMRES";
-		////// auto solvName = "TFQMR";
-		////// auto solvName = "Fixed Point";
+	//bm->init(0);
+	//xm->random();
+	xm->init( 0. );
 
-		////auto param = Pimpact::createLinSolverParameter(solvName,1.e-6);
-		////param->set( "Output Frequency", 1);
-		////param->set( "Maximum Iterations", 50 );
-		////param->set( "Flexible Gmres", true );
+	auto prec = Pimpact::createMultiOperatorBase( mg );
 
-		////auto bop = Pimpact::createMultiOperatorBase( op );
+	//auto solvName = "Block GMRES";
+	 //auto solvName = "TFQMR";
+	auto solvName = "GMRES";
+	//auto solvName = "Fixed Point";
 
-		////auto linprob = Pimpact::createLinearProblem<Pimpact::MultiField<Pimpact::ScalarField<FSpace3T> > >( bop, xm, bm, param, solvName );
-		//////	linprob->setRightPrec(prec);
-		////linprob->setLeftPrec(prec);
+	auto param = Pimpact::createLinSolverParameter(solvName,1.e-6);
+	param->set( "Output Frequency", 1);
+	param->set( "Maximum Iterations", 50 );
+	//param->set( "Flexible Gmres", false );
 
-		////linprob->solve(xm,bm);
-		////	xm->write();
-	//}
+	auto bop = Pimpact::createMultiOperatorBase( op );
+
+	auto linprob = Pimpact::createLinearProblem<Pimpact::MultiField<Pimpact::ScalarField<FSpace3T> > >( bop, xm, bm, param, solvName );
+	linprob->setRightPrec(prec);
+	//linprob->setLeftPrec(prec);
+
+	linprob->solve( xm, bm );
+	xm->write();
 
 }
 

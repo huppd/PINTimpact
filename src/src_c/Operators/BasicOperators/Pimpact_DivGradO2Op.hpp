@@ -178,13 +178,13 @@ public:
 
 
 
-/// \relates DivGradO2Op
-template<class SpaceT>
-Teuchos::RCP<const DivGradO2Op<SpaceT> > createDivGradO2Op(
-    const Teuchos::RCP<const SpaceT>& space ) {
-  return(
-      Teuchos::rcp( new DivGradO2Op<SpaceT>(space) ) );
-}
+///// \relates DivGradO2Op
+//template<class SpaceT>
+//Teuchos::RCP<const DivGradO2Op<SpaceT> > createDivGradO2Op(
+    //const Teuchos::RCP<const SpaceT>& space ) {
+  //return(
+      //Teuchos::rcp( new DivGradO2Op<SpaceT>(space) ) );
+//}
 
 
 } // end of namespace Pimpact

@@ -77,6 +77,7 @@ template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact
 
 
 //template<class T> using PrecS = Pimpact::MultiOpSmoother< Pimpact::DivGradO2JSmoother<T> >;
+//template<class T> using POP   = Pimpact::PrecInverseOp< T, Pimpact::DivGradO2SORSmoother >;
 template<class T> using POP   = Pimpact::PrecInverseOp< T, Pimpact::DivGradO2JSmoother >;
 template<class T> using POP2  = Pimpact::PrecInverseOp< T, ConvDiffJT >;
 template<class T> using POP3  = Pimpact::PrecInverseOp< T, ConvDiffSORT >;

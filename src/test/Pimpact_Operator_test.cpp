@@ -26,17 +26,18 @@
 namespace {
 
 
-typedef double S;
-typedef int O;
+using S = double;
+using O = int;
 const int d = 3;
 const int dNC = 4;
+//const int dNC = 2;
 
-typedef Pimpact::Space<S,O,d,dNC>             SpaceT;
+using SpaceT = Pimpact::Space<S,O,d,dNC>;
 
-typedef typename Pimpact::ScalarField<SpaceT> SF;
-typedef typename Pimpact::VectorField<SpaceT> VF;
-typedef typename Pimpact::ModeField<SF>       MSF;
-typedef typename Pimpact::ModeField<VF>       MVF;
+using SF = typename Pimpact::ScalarField<SpaceT>;
+using VF = typename Pimpact::VectorField<SpaceT>;
+using MSF = typename Pimpact::ModeField<SF>;
+using MVF = typename Pimpact::ModeField<VF>;
 
 
 
@@ -85,9 +86,9 @@ TEUCHOS_STATIC_SETUP() {
 	clp.setOption( "nz", &nz, "" );
 	clp.setOption( "nf", &nf, "" );
 
-	pl->set("lx", 2. );
-	pl->set("ly", 2. );
-	pl->set("lz", 2. );
+	pl->set( "lx", 1. );
+	pl->set( "ly", 1. );
+	pl->set( "lz", 1. );
 
 }
 
@@ -99,15 +100,15 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivOp ) {
   pl->set( "dim", dim );
 
 	//  grid size
-	pl->set("nx", nx );
-	pl->set("ny", ny );
-	pl->set("nz", nz );
-	pl->set("nf", nf );
+	pl->set( "nx", nx );
+	pl->set( "ny", ny );
+	pl->set( "nz", nz );
+	pl->set( "nf", nf );
 
   // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
-  pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
+  pl->set( "npx", (2==dim)?4:2 );
+  pl->set( "npy",            2 );
+  pl->set( "npz", (2==dim)?1:2 );
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
@@ -694,7 +695,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
   b->initField( Pimpact::ConstField, 0. );
   x->init(2.);
 
-  auto op = Pimpact::createDivGradO2Op( space );
+  auto op = Pimpact::create<Pimpact::DivGradO2Op>( space );
 
   op->print();
 
@@ -733,7 +734,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
 
 
 
-TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2JSmoother ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
@@ -756,87 +757,63 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2JSmoother ) {
 
   auto b = Pimpact::create<Pimpact::ScalarField>( space );
 
-  auto op = Pimpact::createDivGradO2Op( space );
+  auto op = Pimpact::create<Pimpact::DivGradO2Op>( space );
 
   auto ppl = Teuchos::parameterList();
 
-	ppl->set<S>( "omega", 6./7. );
-  ppl->set<int>( "numIters", 4 );
-  ppl->set<bool>( "level", true );
+  auto smoother = Pimpact::create<SType>( op, ppl );
 
-  auto smoother = Pimpact::create< Pimpact::DivGradO2JSmoother >( op, ppl );
 
-  smoother->print();
-	// basic test
+	// --- zero rhs test --- 
 	x->random();
-	//x->init(1.);
-	x->setCornersZero();
 	b->init( 0. );
 
-	if( 0==space->rankST() )
-		std::cout << "\n\tstep\terror\trate\n";
-	S error_p=1.;
-
-	for( int i=0; i<100; ++i ) {
-		smoother->apply(*b,*x);
-		S error = x->norm();
-		if( 0==space->rankST() ) {
-			if( 0==i )
-				std::cout << "\t" << i << "\t" << error << "\n";
-			else
-				std::cout << "\t" << i << "\t" << error << "\t" << error/error_p << "\n";
-		}
-		//x->write(i);
-		error_p = error;
+	if( 0==space->rankST() ) {
+		std::cout << "\nstep\terror\t\trate\n";
+		std::cout << 0 << "\t" << 1. << "\n";
 	}
-	//x->print();
-	x->write(1234);
+	S err0 = x->norm();
+	S errP = err0;
 
-  //// Grad in x
-  //x->initField( Pimpact::Grad2D_inX );
+	for( int i=1; i<=20; ++i ) {
+		smoother->apply( *b, *x );
+		S err = x->norm();
+		if( 0==space->rankST() ) {
+				std::cout << i << "\t" << err/err0 << "\t" << err/errP << "\n";
+		}
+		errP = err;
+	}
 
-  //op->apply(*x,*b);
 
-  //x->initField();
+  // --- consistency test ---
+	for( int dir=1; dir<=6; ++dir ) {
+		x->initField( static_cast<Pimpact::EScalarField>(dir) );
+		x->level();
+		auto xp = x->clone( Pimpact::DeepCopy );
 
-  //smoother->apply( *b, *x );
+		op->apply( *x, *b );
 
-  //b->initField( Pimpact::Grad2D_inX );
-  //x->add( -1, *x, 1., *b );
-  //std::cout << "error: " << x->norm()/b->norm() << "\n";
-  //TEST_EQUALITY( x->norm()/b->norm()<0.5, true );
+		smoother->apply( *b, *x );
+		x->level();
 
-  //// Grad in y
-  //x->initField( Pimpact::Grad2D_inY );
+		xp->add( 1., *xp, -1., *x );
+		S err2 = xp->norm()/std::sqrt( static_cast<S>(xp->getLength()) );
+		S errInf = xp->norm( Belos::InfNorm );
 
-  //op->apply(*x,*b);
+		if( 0==space->rankST() )
+			std::cout << "consistency for " << dir << ": ||" << err2 << "||_2, ||" << errInf << "||_inf\n";
 
-  //x->initField();
-
-  //smoother->apply( *b, *x );
-
-  //b->initField( Pimpact::Grad2D_inY );
-  //x->add( -1, *x, 1., *b );
-  //std::cout << "error: " << x->norm()/b->norm() << "\n";
-  //TEST_EQUALITY( x->norm()/b->norm()<0.5, true );
-
-  //// Grad in Z
-	//if( 3==dim ) {
-		//x->initField( Pimpact::Grad2D_inZ );
-
-		//op->apply(*x,*b);
-
-		//x->initField();
-
-		//smoother->apply( *b, *x );
-
-		//b->initField( Pimpact::Grad2D_inZ );
-		//x->add( -1, *x, 1., *b );
-		//std::cout << "error: " << x->norm()/b->norm() << "\n";
-		//TEST_EQUALITY( x->norm()/b->norm()<0.5, true );
-	//}
+		TEST_EQUALITY( err2<eps, true );
+		TEST_EQUALITY( errInf<eps, true );
+	}
 
 }
+
+using JType = Pimpact::DivGradO2JSmoother<Pimpact::DivGradO2Op<SpaceT> >;
+using SORType = Pimpact::DivGradO2SORSmoother<Pimpact::DivGradO2Op<SpaceT> >;
+
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( BasicOperator, DivGradO2Smoother, JType )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( BasicOperator, DivGradO2Smoother, SORType )
 
 
 

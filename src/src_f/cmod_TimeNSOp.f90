@@ -1,8 +1,8 @@
-!*************************************************************************************************************
-!* IMPACT                                                                                                    *
-!* by Rolf Henniger, Institute of Fluid Dynamics, ETH Zurich (henniger@ifd.mavt.ethz.ch)                     *
-!* Mai 2005 - Dec 2011                                                                                       *
-!*************************************************************************************************************
+!************************************************************************************************
+!* IMPACT                                                                                        
+!* by Rolf Henniger, Institute of Fluid Dynamics, ETH Zurich (henniger@ifd.mavt.ethz.ch)         
+!* Mai 2005 - Dec 2011                                                                           
+!************************************************************************************************
 
 
 
@@ -27,6 +27,7 @@ contains
   !! \param bu is the upper stencil width used for ghost layer and boundary
   !!        condtions can be get from \c Space::bu()
   !! \param dl is the lower stencil width for the divergence stencil used for ghost layer and boundary
+  !! \param du is the upper stencil width for the divergence stencil used for ghost layer and boundary
   !!        condtions can be get from \c Space::dl()
   !! \param bu is the upper stencil width for the divergence stencil used for ghost layer and boundary
   !!        condtions can be get from \c Space::du()
