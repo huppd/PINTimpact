@@ -206,6 +206,7 @@ protected:
 		if( "none" == lcName ) return( 0 );
 		else if( "parabola" == lcName ) return( 1 );
 		else if( "parab" == lcName ) return( 1 );
+		else if( "para" == lcName ) return( 1 );
 		else if( "cos" == lcName ) return( 2 );
 		else {
 			const bool& Stertch_Type_not_known = true; 

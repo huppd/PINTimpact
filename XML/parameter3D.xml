@@ -33,10 +33,10 @@
     <Parameter docString="" id="79" isDefault="false" isUsed="true" name="refinement level" type="int" value="1" />
     <Parameter docString="" id="80" isDefault="false" isUsed="true" name="refinement tol" type="double" value="9.99999999999999955e-07" />
     <Parameter docString="" id="81" isDefault="false" isUsed="true" name="refinement step" type="int" value="1" />
-    <Parameter docString="" id="82" isDefault="false" isUsed="true" name="initZero" type="int" value="0" />
+    <Parameter docString="" id="82" isDefault="false" isUsed="true" name="init zero" type="string" value="no" />
   </ParameterList>
   <ParameterList id="6" name="Multi Grid">
-    <Parameter docString="" id="83" isDefault="false" isUsed="true" name="maxGrids" type="int" value="5" />
+    <Parameter docString="" id="83" isDefault="false" isUsed="true" name="maxGrids" type="int" value="2" />
   </ParameterList>
   <Parameter docString="" id="84" isDefault="true" isUsed="true" name="lambda0x" type="double" value="-2.00000000000000000e+00" />
   <Parameter docString="" id="85" isDefault="true" isUsed="true" name="lambdaCy" type="double" value="1.00000000000000000e+00" />
@@ -191,7 +191,7 @@
     <Parameter docString="" id="183" isDefault="true" isUsed="true" name="Solver name" type="string" value="Flexible GMRES" />
     <ParameterList id="33" name="Multi Grid">
       <ParameterList id="34" name="Coarse Grid Solver">
-        <Parameter docString="" id="184" isDefault="false" isUsed="true" name="Solver name" type="string" value="TFQMR" />
+        <Parameter docString="" id="184" isDefault="false" isUsed="true" name="Solver name" type="string" value="GMRES" />
         <Parameter docString="" id="185" isDefault="false" isUsed="true" name="LeftPrec" type="bool" value="false" />
         <ParameterList id="35" name="Solver">
           <Parameter docString="" id="186" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="10" />
@@ -211,8 +211,8 @@
         <Parameter docString="" id="195" isDefault="true" isUsed="true" name="omega" type="double" value="5.000000000000000000-01" />
         <Parameter docString="" id="196" isDefault="true" isUsed="true" name="numIters" type="int" value="4" />
       </ParameterList>
-      <Parameter docString="" id="197" isDefault="true" isUsed="true" name="defect correction" type="bool" value="false" />
-      <Parameter docString="" id="198" isDefault="true" isUsed="true" name="init zero" type="bool" value="false" />
+      <Parameter docString="" id="197" isDefault="true" isUsed="true" name="defect correction" type="bool" value="true" />
+      <Parameter docString="" id="198" isDefault="true" isUsed="true" name="init zero" type="bool" value="true" />
     </ParameterList>
     <ParameterList id="38" name="Solver">
       <Parameter docString="" id="199" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="5" />
@@ -230,7 +230,7 @@
       <Parameter docString="" id="211" isDefault="false" isUsed="true" name="Flexible Gmres" type="bool" value="true" />
       </ParameterList>
     <Parameter docString="" id="212" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
-    <Parameter docString="" id="213" isDefault="true" isUsed="true" name="initZero" type="bool" value="false" />
+    <Parameter docString="" id="213" isDefault="true" isUsed="true" name="initZero" type="bool" value="true" />
   </ParameterList>
   <ParameterList id="39" name="M_ConvDiff">
     <Parameter docString="" id="214" isDefault="false" isUsed="true" name="Solver name" type="string" value="Block GMRES" />

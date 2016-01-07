@@ -672,6 +672,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
 
 TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
 
+	const int dNC = 2;
+
   pl->set( "domain", domain );
   pl->set( "dim", dim );
 
@@ -689,6 +691,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
   auto x = Pimpact::create<Pimpact::ScalarField>( space );
+  auto x2= Pimpact::create<Pimpact::ScalarField>( space );
   auto b = Pimpact::create<Pimpact::ScalarField>( space );
 
   // zero test
@@ -699,14 +702,11 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
 
   op->print();
 
-  op->apply(*b,*x);
-
-//  x->write(0);
+  op->apply( *b, *x );
 
 	S n = std::sqrt( x->getLength() );
 	std::cout << "error: " << x->norm()/n << "\n";
   TEST_EQUALITY( x->norm()/n<eps, true );
-
 
   // random test
   b->random();
@@ -714,21 +714,34 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
 
   op->apply(*b,*x);
 
-//  x->write(1);
-
   TEST_EQUALITY( x->norm()/n>eps, true );
 
   //b->initField( Pimpact::Grad2D_inX );
 //  b->initField( Pimpact::Grad2D_inX );
   b->initField( Pimpact::ConstField, 1. );
-  x->init(2.);
+  x->random();
 
-  op->apply(*b,*x);
+  op->apply( *b, *x );
 
 	std::cout << "error: " << x->norm()/n << "\n";
 	TEST_EQUALITY( x->norm()/n<eps, true );
 
-//  x->write(2);
+	// consistency test
+  auto op2 = Pimpact::create<Pimpact::DivGradOp>( space );
+	for( int dir=0; dir<=6; ++dir ) {
+		b->initField( static_cast<Pimpact::EScalarField>(dir) );
+		op->apply( *b, *x );
+		op2->apply( *b, *x2 );
+
+		x2->add( 1., *x2, -1., *x );
+		S errInf = x2->norm( Belos::InfNorm );
+		S err2 = x2->norm( Belos::TwoNorm )/std::sqrt( x2->getLength() );
+		if( 0==space->rankST() )
+			std::cout << "consistency error: inf: " << errInf << ", two: " << err2 << "\n";
+		TEST_EQUALITY( errInf<eps, true );
+		TEST_EQUALITY( err2<eps, true );
+
+	}
 
 }
 

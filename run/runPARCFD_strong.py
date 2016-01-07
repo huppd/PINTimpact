@@ -13,7 +13,7 @@ root = tree.getroot()
 
 ma.setParameter( root, 'withoutput', 0 )
 ma.setParameter( root, 'refinement level', 1 )
-ma.setParameter( root, 'Verbosity', 0 )
+# ma.setParameter( root, 'Verbosity', 0 )
 
 
 # make executable ready
@@ -33,6 +33,10 @@ case_path = ['','','','','']
 nps  = [ 4, 8, 12 ]
 nxs  = [ 1, 2, 3, 4 ]
 nfs  = [ 1, 2, 3, 4 ]
+
+nps  = [ 4 ]
+nxs  = [ 1 ]
+nfs  = [ 1 ]
 
 re       = 200
 alpha2   = 0.2 

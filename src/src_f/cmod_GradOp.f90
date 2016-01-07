@@ -110,17 +110,28 @@ contains
 
 
 
-  !>  \brief sets non block boundary conditions to zero
-  subroutine OP_SetBCZero(    &
-      N,                      &
-      bL,bU,                  &
-      BC_L,BC_U,              &
-      SB,NB,                  &
-      grad ) bind (c,name='OP_SetBCZero')
-
+  !>  \brief sets non block boundary conditions to zero(not joust corners)
+  !!
+  !!
+  !! \param[in] N local grid size
+  !! \param[in] bl lower storage offset
+  !! \param[in] bu upper storage offset
+  !! \param[in] BC_L lower boundary conditions
+  !! \param[in] BC_U upper boundary condtions
+  !! \param[in] SB start index including boundaries
+  !! \param[in] NB end index including boundaries
+  !! \param[out] grad field
+  subroutine OP_SetBCZero(  &
+      N,                    &
+      bL,                   &
+      bU,                   &
+      BC_L,                 &
+      BC_U,                 &
+      SB,                   &
+      NB,                   &
+      grad ) bind ( c, name='OP_SetBCZero' )
 
     implicit none
-
 
     integer(c_int), intent(in)  :: N(3)
 
@@ -152,10 +163,14 @@ contains
   subroutine OP_extrapolateBC(  &
       m,                        &
       N,                        &
-      bL,bU,                    &
-      dL,dU,                    &
-      BC_L,BC_U,                &
-      SB,NB,                    &
+      bL,                       &
+      bU,                       &
+      dL,                       &
+      dU,                       &
+      BC_L,                     &
+      BC_U,                     &
+      SB,                       &
+      NB,                       &
       c,                        &
       phi ) bind (c,name='OP_extrapolateBC')
 
@@ -180,7 +195,7 @@ contains
 
     real(c_double), intent(in)  :: c(dL:dU,0:N(m))
 
-    real(c_double), intent(inout) :: phi(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)) )
+    real(c_double), intent(inout):: phi(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)) )
 
     integer(c_int) :: i, j, k
     integer(c_int) :: ii,jj,kk

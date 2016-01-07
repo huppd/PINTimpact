@@ -730,8 +730,8 @@ contains
   !! \param[in] cdg2 stencil in y-direction
   !! \param[in] cdg3 stencil in z-direction
   !! \param[in] omega damping factor
-  !! \param[in] RGBS_mode 0:lexi, 1:???, default:2
-  !! \param[in] b right hand side
+  !! \param[in] RBGS_mode 0:lexi, 1:???, default:2
+  !! \param[in] bb right hand side
   !! \param[inout] phi working field
   !! 
   !! Anmerkungen: - Null-Setzen am Rand nicht notwendig, da Startindizes

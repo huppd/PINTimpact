@@ -116,7 +116,7 @@ int main( int argi, char** argv ) {
 
 	///////////////////////////////////////////  set up initial stuff ////////////////////////////
 
-	int initZero = pl->sublist("Solver").get<int>( "initZero", 0);
+	std::string initZero = pl->sublist("Solver").get<std::string>( "init zero", "zero" );
 
 	int withprec=pl->sublist("Solver").get<int>( "withprec", 2 );
 	int withoutput=pl->sublist("Solver").get<int>( "withoutput", 1 );
@@ -125,7 +125,7 @@ int main( int argi, char** argv ) {
 	S   refinementTol  = pl->sublist("Solver").get<S>(   "refinement tol",   1.e-6 );
 	int refinementStep = pl->sublist("Solver").get<int>( "refinement step",  2     );
 
-	auto space = Pimpact::createSpace<S,O,4,4>( Teuchos::rcpFromRef( pl->sublist("Space",true) ) );
+	auto space = Pimpact::createSpace<S,O,4,4>( Teuchos::rcpFromRef( pl->sublist( "Space", true ) ) );
 
 
 	// init vectors
@@ -134,16 +134,16 @@ int main( int argi, char** argv ) {
 	// init Fields
 	x->getFieldPtr(0)->getVFieldPtr()->initField( pl->sublist("Base flow") );
 
-	if( 0==initZero )
+	if( "zero"==initZero )
 		x->init(0.);
-	else if( 1==initZero ) {
+	else if( "almost zero"==initZero ) {
 		x->getFieldPtr(0)->getVFieldPtr()->random();
 		x->getFieldPtr(0)->getSFieldPtr()->init(0.);
 		x->scale(1.e-32);
 	}
-	else if( 2==initZero )
+	else if( "random"==initZero )
 		x->random();
-	else if( 3==initZero ) {
+	else if( "exact"==initZero ) {
 		x->getFieldPtr(0)->getSFieldPtr()->get0FieldPtr()->initField( Pimpact::Grad2D_inX, -2./space->getDomainSize()->getRe() );
 	}
 	x->getFieldPtr(0)->getVFieldPtr()->changed();
