@@ -856,32 +856,25 @@ do t = SS(4), N(4)
                            rhs_p(i,j,k,t) /)
 
 
-                ! ---------- test the matrix A --------------!
-                !if (i == 4 .and. j==4 .and. k==4 .and. t==4 ) then
-                !write(*,*) i,j,k,t
-                !print *,'-------- the matrix A ----------'
+                    if (BCL(1) > 0) then
+                        i = SS(1)
+                            do k = SS(3), NN(3)
+                                do j = SS(2), NN(2)
 
-                !do l = 1, block_size
-                !write(*,'(14F7.2)') (A(l,ll), ll = 1, block_size)
-                !end do
-                !write(*,*)
+                                A(2,1:block_size) = 0
+                                A(2,2) = 1
 
-                !print*, b
-                !end if
+                                b(2) = vel(i-1,j,k,1,t)
 
-                !call dgesvd ( 'A', 'A', block_size, block_size, A, block_size, s, u, block_size, vt, block_size, work, lwork , info )
+                            end do
+                        end do
+                    end if
 
-                !if ( info /= 0 ) then
-                !write ( *, '(a)' ) ' '
-                !write ( *, '(a,i8)' ) '  DGESVD returned nonzero INFO = ', info
-                !return
-                !end if
 
-                !print*,'------- singular values ---------'
-                !print*, s
-                !-------------------------------------------!
 
-                !print*, '! -------- Solve the matrix A --------------!'
+
+
+
                 ! subroutine     dgesv (N, NRHS, A, LDA, IPIV, B, LDB, INFO)
                 call dgesv( block_size, 1, A, block_size, ipiv, b, block_size, info )
 

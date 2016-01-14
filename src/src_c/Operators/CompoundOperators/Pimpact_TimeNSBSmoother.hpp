@@ -132,7 +132,7 @@ public:
                                         space()->getDomain()->getBCLocal()->getBCL(),
                                         space()->getDomain()->getBCLocal()->getBCU(),
 					space()->nl(),
-                                        space()->nu(),
+                    space()->nu(),
 					space()->dl(),
 					space()->du(),
 					space()->gl(),
