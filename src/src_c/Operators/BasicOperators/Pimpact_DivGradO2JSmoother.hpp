@@ -11,8 +11,7 @@
 namespace Pimpact{
 
 
-extern "C" {
-
+extern "C"
 void OP_DivGradO2JSmoother(
     const int& dimens,
     const int* const N,
@@ -28,8 +27,6 @@ void OP_DivGradO2JSmoother(
     const double* const x,
           double* const temp );
 
-}
-
 
 
 /// \brief \f$\omega\f$-Jacobian smoother for second Order DivGradOp.
@@ -38,7 +35,6 @@ void OP_DivGradO2JSmoother(
 /// \relates DivGradO2Op
 /// \ingroup BaseOperator
 /// \todo instead of hardcode 2nd Order it would be pretty to use new space with StencilWidth<3,2>
-/// \todo add ParameterList
 /// \todo handle corner
 template<class OperatorT>
 class DivGradO2JSmoother {
@@ -57,7 +53,7 @@ protected:
 
   Scalar omega_;
   int nIter_;
-
+	bool levelYes_;
 
   Teuchos::RCP<DomainFieldT> temp_;
 
@@ -66,10 +62,27 @@ protected:
 public:
 
   DivGradO2JSmoother(
+      const Teuchos::RCP<const SpaceT>& space):
+    omega_( (2==space->dim())?0.8:6./7. ),
+    nIter_( 2 ),
+    levelYes_( false ),
+    temp_( createScalarField<SpaceT>(space) ),
+    op_( Teuchos::rcp( new OperatorT(space) ) ) {}
+
+	/// \brief constructor
+	///
+	/// \param[in] op pointer to operator that is smoothed
+	/// \param[in] pl  Parameter list of options for the multi grid solver.
+	///   These are the options accepted by the solver manager:
+	///   - "omega" - a \c Scalar damping factor. Default: for 2D 0.8 for 3D 6./7.  /
+	///   - "numIters" - a \c int number of smoothing steps . Default: 4  /
+	///   - "level" - a \c bool number of smoothing steps . Default: false  /
+  DivGradO2JSmoother(
       const Teuchos::RCP<const OperatorT>& op,
-      Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ):
+      const Teuchos::RCP<Teuchos::ParameterList>& pl=Teuchos::parameterList() ):
     omega_( pl->get<Scalar>("omega", (2==op->space()->dim())?0.8:6./7. ) ),
-    nIter_( pl->get<int>("numIters",3) ),
+    nIter_( pl->get<int>( "numIters", 2 ) ),
+    levelYes_( pl->get<bool>( "level", false ) ),
     temp_( createScalarField<SpaceT>( op->space() ) ),
     op_(op) {}
 
@@ -79,6 +92,7 @@ public:
 			Belos::ETrans trans=Belos::NOTRANS ) const {
 
 		for( int i=0; i<nIter_; ++i) {
+
       y.exchange();
 
 			OP_DivGradO2JSmoother(
@@ -86,22 +100,14 @@ public:
 					space()->nLoc(),
 					space()->bl(),
 					space()->bu(),
-					space()->getDomain()->getBCLocal()->getBCL(),
-					space()->getDomain()->getBCLocal()->getBCU(),
+					space()->getBCLocal()->getBCL(),
+					space()->getBCLocal()->getBCU(),
 					op_->getC(X),
 					op_->getC(Y),
 					op_->getC(Z),
 					omega_,
 					x.getConstRawPtr(),
 					y.getConstRawPtr(),
-					temp_->getRawPtr() );
-
-			SF_handle_corner(
-					space()->nLoc(),
-					space()->bl(),
-					space()->bu(),
-					space()->getDomain()->getBCLocal()->getBCL(),
-					space()->getDomain()->getBCLocal()->getBCU(),
 					temp_->getRawPtr() );
 
 			temp_->changed();
@@ -112,8 +118,8 @@ public:
 					space()->nLoc(),
 					space()->bl(),
 					space()->bu(),
-					space()->getDomain()->getBCLocal()->getBCL(),
-					space()->getDomain()->getBCLocal()->getBCU(),
+					space()->getBCLocal()->getBCL(),
+					space()->getBCLocal()->getBCU(),
 					op_->getC(X),
 					op_->getC(Y),
 					op_->getC(Z),
@@ -122,16 +128,11 @@ public:
 					temp_->getConstRawPtr(),
 					y.getRawPtr() );
 
-			SF_handle_corner(
-					space()->nLoc(),
-					space()->bl(),
-					space()->bu(),
-					space()->getDomain()->getBCLocal()->getBCL(),
-					space()->getDomain()->getBCLocal()->getBCU(),
-					y.getRawPtr() );
-
+			//y.setCornersZero();
 			y.changed();
 		}
+		if( levelYes_ )
+			y.level();
 
 	}
 

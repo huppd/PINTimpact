@@ -2,8 +2,9 @@
 #ifndef PIMPACT_INVERSEOPERATOR_HPP
 #define PIMPACT_INVERSEOPERATOR_HPP
 
-#include "Pimpact_Types.hpp"
+
 #include "Pimpact_LinearProblem.hpp"
+#include "Pimpact_Types.hpp"
 
 
 
@@ -39,9 +40,16 @@ public:
   InverseOperator( const Teuchos::RCP< LinearProblem<MF> >& linprob=Teuchos::null ):
     linprob_(linprob) {};
 
+
+
   void apply( const MF& x, MF& y, Belos::ETrans trans=Belos::NOTRANS ) const {
+//		x.setCornersZero();
     linprob_->solve( Teuchos::rcpFromRef(y), Teuchos::rcpFromRef(x) );
-		y.level();
+  }
+
+  void apply( const Teuchos::RCP<const MF>& x, const Teuchos::RCP<MF>& y, Belos::ETrans trans=Belos::NOTRANS ) const {
+//		x.setCornersZero();
+    linprob_->solve( y, x );
   }
 
 

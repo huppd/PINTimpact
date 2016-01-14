@@ -885,7 +885,7 @@ MODULE mod_vars
   
   !> \brief explizite Behandlung von Ecken bei Dirichlet-Randbedingungen
   !!
-  !! (Hintergrund: Der Druck ist an diesen Orten unbestimmt, so dass er dort k�nstlich zu Null gesetzt wird.)
+  !! (Hintergrund: Der Druck ist an diesen Orten unbestimmt, so dass er dort künstlich zu Null gesetzt wird.)
   LOGICAL, PARAMETER     ::  corner_yes = .TRUE.
   
   !> \{ \brief Systemzeit
@@ -914,7 +914,7 @@ MODULE mod_vars
   INTEGER                ::  n_it_Helmh_conc
   !> \}
   
-  !> \{ \brief erwartete Konvergenzrate (�ussere Iteration)
+  !> \{ \brief erwartete Konvergenzrate (äussere Iteration)
   REAL                   ::  precRatio0 (1:RK_steps)
   REAL                   ::  precOffset0(1:RK_steps)
   REAL   , ALLOCATABLE   ::  precRatio  (:,:)

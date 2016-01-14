@@ -2,13 +2,14 @@
 #ifndef PIMPACT_MODEFIELD_HPP
 #define PIMPACT_MODEFIELD_HPP
 
+
 #include <vector>
 #include <iostream>
 
 #include "mpi.h"
 
-#include "Teuchos_RCP.hpp"
 #include "Teuchos_ArrayRCP.hpp"
+#include "Teuchos_RCP.hpp"
 #include "Teuchos_ScalarTraitsDecl.hpp"
 #include "Teuchos_SerialDenseMatrix.hpp"
 
@@ -42,21 +43,54 @@ public:
 
 protected:
 
-  typedef ModeField<FieldT> MV;
+	typedef Scalar* ScalarArray;
+	typedef ModeField<FieldT> MV;
 
-  typedef AbstractField< typename FieldT::SpaceT> AF;
+	typedef AbstractField< typename FieldT::SpaceT> AF;
 
-  Teuchos::RCP<FieldT> fieldc_;
+	bool owning_;
+
+	Teuchos::RCP<FieldT> fieldc_;
   Teuchos::RCP<FieldT> fields_;
+
+	ScalarArray s_;
+
+private:
+
+	void allocate() {
+		Ordinal n = fieldc_->getStorageSize();
+		s_ = new Scalar[2*n];
+		fieldc_->setStoragePtr( s_   );
+		fields_->setStoragePtr( s_+n );
+	}
 
 public:
 
-  ModeField( const Teuchos::RCP<const SpaceT>& space ):
-    AF( space ),
-    fieldc_( create<FieldT>(space) ),
-    fields_( create<FieldT>(space) ) {};
+	Ordinal getStorageSize() const { return( 2*fieldc_->getStorageSize() ); }
 
-protected:
+	Scalar* getRawPtr() const { return( s_ ); }
+
+  void setStoragePtr( Scalar*  array ) {
+    s_ = array;
+		fieldc_->setStoragePtr( s_                             );
+		fields_->setStoragePtr( s_ + fieldc_->getStorageSize() );
+  }
+
+
+  ModeField( const Teuchos::RCP<const SpaceT>& space, bool owning=true ):
+    AF( space ),
+		owning_(owning),
+    fieldc_( Teuchos::rcp( new FieldT(space,false) ) ),
+    fields_( Teuchos::rcp( new FieldT(space,false) ) ) {
+
+			if( owning_ ) {
+				allocate();
+				initField();
+			}
+	};
+
+	~ModeField() { if( owning_ ) delete[] s_; }
+
 
   /// \brief copy constructor.
   ///
@@ -65,14 +99,43 @@ protected:
   /// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
   ModeField(const ModeField& vF, ECopyType copyType=DeepCopy):
     AF( vF.space() ),
-    fieldc_( vF.fieldc_->clone(copyType) ),
-    fields_( vF.fields_->clone(copyType) )
-  {};
+		owning_( vF.owning_ ),
+    fieldc_( Teuchos::rcp( new FieldT(*vF.fieldc_,copyType) ) ),
+		fields_( Teuchos::rcp( new FieldT(*vF.fields_,copyType) ) ) {
 
-public:
+			if( owning_ ) {
 
-  Teuchos::RCP<MV> clone( ECopyType ctype=DeepCopy ) const {
-    return( Teuchos::rcp( new MV( *this, ctype ) ) );
+				allocate();
+
+				switch( copyType ) {
+					case ShallowCopy:
+						initField();
+						break;
+					case DeepCopy:
+						for( int i=0; i<getStorageSize(); ++i )
+							s_[i] = vF.s_[i];
+						break;
+				}
+
+			}
+	};
+
+
+  Teuchos::RCP<MV> clone( ECopyType cType=DeepCopy ) const {
+
+		auto mv = Teuchos::rcp( new MV( space() ) );
+
+		switch( cType ) {
+			case ShallowCopy:
+				break;
+			case DeepCopy:
+				for( int i=0; i<getStorageSize(); ++i )
+					mv->getRawPtr()[i] = this->s_[i];
+				break;
+		}
+
+    return( mv );
+
   }
 
   /// \name Attribute methods
@@ -170,6 +233,7 @@ public:
     if( global ) this->reduceNorm( comm(), b );
 
     return( b );
+
   }
 
 
@@ -238,9 +302,14 @@ public:
     fields_->init(alpha);
   }
 
-  void initField() {
+	void initField() {
     fieldc_->initField();
     fields_->initField();
+	}
+
+	void setCornersZero() const {
+    fieldc_->setCornersZero();
+    fields_->setCornersZero();
   }
 
   void level() const {
@@ -260,6 +329,28 @@ public:
     fields_->write(count+1);
   }
 
+  /// \name comunication methods.
+  /// \brief highly dependent on underlying storage should only be used by Operator or on top field implementer.
+  ///
+  /// \{
+	
+//  void changed() const {
+//    fieldc_->changed( dir );
+//    fields_->changed( dir );
+//  }
+
+  void exchange() const {
+    fieldc_->exchange();
+    fields_->exchange();
+  }
+
+  void setExchanged() const {
+    fieldc_->setExchanged();
+    fields_->setExchanged();
+  }
+
+
+  /// \}
 
 }; // end of class ModeField
 
@@ -274,5 +365,6 @@ extern template class Pimpact::ModeField< Pimpact::ScalarField< Pimpact::Space<d
 extern template class Pimpact::ModeField< Pimpact::VectorField< Pimpact::Space<double,int,3,2> > >;
 extern template class Pimpact::ModeField< Pimpact::VectorField< Pimpact::Space<double,int,3,4> > >;
 #endif
+
 
 #endif // end of #ifndef PIMPACT_MODEFIELD_HPP

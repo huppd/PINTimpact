@@ -1,15 +1,14 @@
 #pragma once
-#ifndef PIMPACT_MULTIHARMONICMODEOPWRAP_HPP
-#define PIMPACT_MULTIHARMONICMODEOPWRAP_HPP
+#ifndef PIMPACT_MULTIHARMONICOPWRAP_HPP
+#define PIMPACT_MULTIHARMONICOPWRAP_HPP
 
 
 #include "Teuchos_RCP.hpp"
 
 #include <BelosTypes.hpp>
 
-#include "Pimpact_Types.hpp"
-
 #include "Pimpact_MultiField.hpp"
+#include "Pimpact_Types.hpp"
 
 
 
@@ -19,37 +18,46 @@ namespace Pimpact {
 /// \brief Operator wrapper.
 /// \ingroup MultiHarmonicOperator
 /// wraps a \ref BaseOperator "base operator" and adds the functionality of handling \c MultiHarmonicField's.
-template<class Operator>
+template<class OpT>
 class MultiHarmonicOpWrap  {
+
 
 public:
 
-  typedef MultiHarmonicField<typename Operator::DomainFieldT> DomainFieldT;
-  typedef MultiHarmonicField<typename Operator::RangeFieldT> RangeFieldT;
+  typedef MultiHarmonicField<typename OpT::DomainFieldT> DomainFieldT;
+  typedef MultiHarmonicField<typename OpT::RangeFieldT> RangeFieldT;
 
   typedef typename DomainFieldT::SpaceT SpaceT;
 
 protected:
 
-  Teuchos::RCP<Operator> op_;
+  typedef typename SpaceT::Ordinal Ordinal;
+
+  Teuchos::RCP<OpT> op_;
 
 public:
 
-  MultiHarmonicOpWrap( const Teuchos::RCP<Operator>& op ): op_(op) {};
+  MultiHarmonicOpWrap( const Teuchos::RCP<const SpaceT>& space ):
+		op_( Teuchos::rcp( new OpT(space) ) ) {};
 
-  void apply( const DomainFieldT& x,
-      RangeFieldT& y,
+  MultiHarmonicOpWrap( const Teuchos::RCP<OpT>& op ): op_(op) {};
+
+
+	void apply( const DomainFieldT& x, RangeFieldT& y,
       Belos::ETrans trans=Belos::NOTRANS) const {
 
-    op_->apply( x.getConst0Field(), y.get0Field() );
+		if( space()->sInd(U,3)<0 )
+			op_->apply( x.getConst0Field(), y.get0Field() );
 
-    int m = x.getNumberModes();
-
-    for( int i=0; i<m; ++i ) {
+		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i ){ 
       op_->apply( x.getConstCField(i), y.getCField(i) );
       op_->apply( x.getConstSField(i), y.getSField(i) );
     }
+
+		y.changed();
+
   };
+
 
   void assignField( const DomainFieldT& mv ) {
     op_->assignField( mv.getConst0Field() );
@@ -63,7 +71,7 @@ public:
 		op_->setParameter( para );
 	}
 
-  Teuchos::RCP<Operator> getOperatorPtr() { return( op_ ); }
+  Teuchos::RCP<OpT> getOperatorPtr() { return( op_ ); }
 
 	const std::string getLabel() const { return( "MH_"+op_->getLabel() ); };
 
@@ -77,14 +85,14 @@ public:
 
 
 /// \relates MultiHarmonicOpWrap
-template<class Operator>
-Teuchos::RCP< MultiHarmonicOpWrap<Operator> >
-createMultiHarmonicOpWrap( const Teuchos::RCP<Operator>& op) {
-  return( Teuchos::rcp( new MultiHarmonicOpWrap<Operator>( op ) ) );
+template<class OpT>
+Teuchos::RCP< MultiHarmonicOpWrap<OpT> >
+createMultiHarmonicOpWrap( const Teuchos::RCP<OpT>& op) {
+  return( Teuchos::rcp( new MultiHarmonicOpWrap<OpT>( op ) ) );
 }
 
 
 } // end of namespace Pimpact
 
 
-#endif // end of #ifndef PIMPACT_MULTIHARMONICMODEOPWRAP_HPP
+#endif // end of #ifndef PIMPACT_MULTIHARMONICOPWRAP_HPP

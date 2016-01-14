@@ -2,15 +2,16 @@
 #ifndef NOX_PIMPACT_INTERFACE_HPP
 #define NOX_PIMPACT_INTERFACE_HPP
 
-#include "NOX_Common.H"
-#include "NOX_Abstract_Group.H"
+
 #include "Teuchos_RCP.hpp"
 
+#include "NOX_Abstract_Group.H"
+#include "NOX_Common.H"
 
-#include "Pimpact_MultiField.hpp"
-
-#include "Pimpact_OperatorBase.hpp"
 #include "Pimpact_LinearProblem.hpp"
+#include "Pimpact_MultiField.hpp"
+#include "Pimpact_OperatorBase.hpp"
+
 
 
 
@@ -63,6 +64,7 @@ public:
     op_->assignField( x );
     op_->apply( x, f );
     f.add( 1., f, -1., *fu_ );
+//		f.level();
     return( NOX::Abstract::Group::Ok );
 
   }

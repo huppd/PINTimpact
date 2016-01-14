@@ -1,32 +1,28 @@
 #include <ostream>
 #include <fstream>
+
 #include <mpi.h>
 
-#include "Teuchos_CommandLineProcessor.hpp"
-#include "Teuchos_RCP.hpp"
 #include <Teuchos_Array.hpp>
-#include <Teuchos_Tuple.hpp>
-#include "Teuchos_Range1D.hpp"
+#include "Teuchos_CommandLineProcessor.hpp"
 #include <Teuchos_CommHelpers.hpp>
+#include "Teuchos_oblackholestream.hpp"
+#include "Teuchos_Range1D.hpp"
+#include "Teuchos_RCP.hpp"
+#include <Teuchos_Tuple.hpp>
 #include "Teuchos_XMLParameterListCoreHelpers.hpp"
 
 #include "BelosOutputManager.hpp"
 #include "BelosSolverFactory.hpp"
-#include "Teuchos_oblackholestream.hpp"
 
-#include "pimpact.hpp"
+#include "BelosPimpactAdapter.hpp"
 #include "Pimpact_Types.hpp"
-#include "Pimpact_DomainSize.hpp"
-#include "Pimpact_ProcGridSize.hpp"
 #include "Pimpact_Space.hpp"
 #include "Pimpact_FieldFactory.hpp"
-
 #include "Pimpact_LinearProblem.hpp"
+#include "Pimpact_LinSolverParameter.hpp"
 #include "Pimpact_Operator.hpp"
 #include "Pimpact_OperatorFactory.hpp"
-
-#include "Pimpact_LinSolverParameter.hpp"
-#include "BelosPimpactAdapter.hpp"
 
 
 

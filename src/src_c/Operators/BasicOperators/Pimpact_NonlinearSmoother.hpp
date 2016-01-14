@@ -1,10 +1,11 @@
 #pragma once
-#ifndef PIMPACT_CONVECTIONVSMOOTHER_HPP
-#define PIMPACT_CONVECTIONVSMOOTHER_HPP
+#ifndef PIMPACT_NONLINEARSMOOTHER_HPP
+#define PIMPACT_NONLINEARSMOOTHER_HPP
 
 
-#include "Pimpact_ConvectionVWrap.hpp"
 #include "Pimpact_ConvectionField.hpp"
+#include "Pimpact_NonlinearVWrap.hpp"
+
 
 
 
@@ -19,7 +20,7 @@ namespace Pimpact {
 /// \ingroup BaseOperator
 /// \ingroup NonlinearOperator
 template<class ConvVOpT, template<class> class ST>
-class ConvectionVSmoother {
+class NonlinearSmoother {
 
 public:
 
@@ -40,16 +41,16 @@ public:
 
 protected:
 
-  Teuchos::RCP<ConvectionVWrap<SSmootherT> > convVWrap_;
+  Teuchos::RCP<NonlinearWrap<SSmootherT> > convVWrap_;
 
   Teuchos::RCP< ConvectionField<SpaceT> > convField_;
 
 public:
 
-    ConvectionVSmoother(
+    NonlinearSmoother(
         const Teuchos::RCP<const ConvVOpT>& op,
         Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ):
-      convVWrap_( create<ConvectionVWrap<SSmootherT> >( create<SSmootherT>( op->getSOp(), pl ) ) ),
+      convVWrap_( create<NonlinearWrap<SSmootherT> >( create<SSmootherT>( op->getSOp(), pl ) ) ),
       convField_( op->getConvField() ) {};
 
 
@@ -88,7 +89,7 @@ public:
 
 	const std::string getLabel() const { return( convVWrap_->getLabel() ); };
 
-}; // end of class ConvectionVSmoother
+}; // end of class NonlinearSmoother
 
 
 } // end of namespace Pimpact
@@ -97,12 +98,11 @@ public:
 
 #ifdef COMPILE_ETI
 #include "Pimpact_ConvectionDiffusionSORSmoother.hpp"
-extern template class Pimpact::ConvectionVSmoother< Pimpact::ConvectionVOp< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,3,2> > >, Pimpact::ConvectionDiffusionSORSmoother>;
-extern template class Pimpact::ConvectionVSmoother< Pimpact::ConvectionVOp< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,3,4> > >, Pimpact::ConvectionDiffusionSORSmoother>;
-extern template class Pimpact::ConvectionVSmoother< Pimpact::ConvectionVOp< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,4,2> > >, Pimpact::ConvectionDiffusionSORSmoother>;
-extern template class Pimpact::ConvectionVSmoother< Pimpact::ConvectionVOp< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,4,4> > >, Pimpact::ConvectionDiffusionSORSmoother>;
+extern template class Pimpact::NonlinearSmoother< Pimpact::NonlinearOp< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,3,2> > >, Pimpact::ConvectionDiffusionSORSmoother>;
+extern template class Pimpact::NonlinearSmoother< Pimpact::NonlinearOp< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,3,4> > >, Pimpact::ConvectionDiffusionSORSmoother>;
+extern template class Pimpact::NonlinearSmoother< Pimpact::NonlinearOp< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,4,2> > >, Pimpact::ConvectionDiffusionSORSmoother>;
+extern template class Pimpact::NonlinearSmoother< Pimpact::NonlinearOp< Pimpact::ConvectionDiffusionSOp< Pimpact::Space<double,int,4,4> > >, Pimpact::ConvectionDiffusionSORSmoother>;
 #endif
 
 
-
-#endif // end of #ifndef PIMPACT_CONVECTIONVSMOOTHER_HPP
+#endif // end of #ifndef PIMPACT_NONLINEARSMOOTHER_HPP

@@ -1602,7 +1602,7 @@ module mod_solvers
         else
            if (rank == 0) write(*,*) ' direction 3:'
            
-           !--- L�sen ---
+           !--- Lösen ---
            line3(:,1) = 0.
            line3(:,2) = 1.
            call BiCGstab2_1D(eps,10*M3,3,b3L,b3U,N3,line3(b3L,1),line3(b3L,2),.true.,.false.,0)
@@ -1654,7 +1654,7 @@ module mod_solvers
         !--- Lesen ---
         call read2_hdf('nullspace_coarse','nullspace_coarse',S1p,S2p,S3p,N1p,N2p,N3p,0,psi)
      else
-        !--- L�sen ---
+        !--- Lösen ---
         res = 0.
         psi = 1.
         call BiCGstab2(eps,200,.false.,NN(1,g),NN(2,g),NN(3,g),g,SNB(1,1,g),SNB(1,2,g),SNB(1,3,g),SNB(2,1,g),SNB(2,2,g),SNB(2,3,g),res,psi,problem_type,.false.,.true.,1)

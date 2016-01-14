@@ -3,6 +3,11 @@
 #define PIMPACT_OPERATORBASE_HPP
 
 
+#include "Teuchos_ParameterList.hpp"
+#include "Teuchos_RCP.hpp"
+
+
+
 
 namespace Pimpact {
 

@@ -3,8 +3,8 @@
 #define PIMPACT_TRANSFEROP_HPP
 
 
-#include "Pimpact_Types.hpp"
 #include "Pimpact_ScalarField.hpp"
+#include "Pimpact_Types.hpp"
 
 
 
@@ -12,8 +12,8 @@
 namespace Pimpact{
 
 
-extern "C" {
 
+extern "C"
 void OP_Transfer(
     const int* const N,
     const int* const bLI,
@@ -26,8 +26,6 @@ void OP_Transfer(
     const int* const NO,
     const double* const phiIN,
     double* const phiOUT );
-
-}
 
 
 /// \brief Transfers fields from "coarse" to "fine" spaces, necessary when \c Space::dimNC is  different.
@@ -77,8 +75,6 @@ public:
 
     TEUCHOS_TEST_FOR_EXCEPT( fType != y.getType() );
 
-//		std::cout << "ftype: " << ftype << "\n";
-
     for( int i=0; i<x.space()->dim(); ++i )
       TEUCHOS_TEST_FOR_EXCEPT( x.space()->nLoc(i) != y.space()->nLoc(i) );
 
@@ -118,10 +114,10 @@ public:
 } // end of namespace Pimpact
 
 
-#ifdef COMPILE_ETI
-extern template class Pimpact::TransferOp< Pimpact::Space<double,int,3,4>, Pimpact::Space<double,int,3,2> >;
-extern template class Pimpact::TransferOp< Pimpact::Space<double,int,4,4>, Pimpact::Space<double,int,4,2> >;
-#endif
+//#ifdef COMPILE_ETI
+//extern template class Pimpact::TransferOp< Pimpact::Space<double,int,3,4>, Pimpact::Space<double,int,3,2> >;
+//extern template class Pimpact::TransferOp< Pimpact::Space<double,int,4,4>, Pimpact::Space<double,int,4,2> >;
+//#endif
 
 
 #endif // end of #ifndef PIMPACT_TRANSFEROP_HPP

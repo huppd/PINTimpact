@@ -2,6 +2,7 @@
 #ifndef PIMPACT_LINEARPROBLEM_HPP
 #define PIMPACT_LINEARPROBLEM_HPP
 
+
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_ParameterList.hpp"
 
@@ -9,6 +10,7 @@
 
 #include "BelosPimpactAdapter.hpp"
 #include "Pimpact_OperatorBase.hpp"
+
 
 
 
@@ -37,10 +39,6 @@ public:
       Teuchos::RCP< Belos::SolverManager<Scalar, MF, Op> >	solver,
       Teuchos::RCP< Belos::LinearProblem<Scalar, MF, Op> > problem ):
         solver_(solver),problem_(problem) {};
-//  LinearProblem(
-//      Teuchos::RCP< Belos::SolverManager<Scalar, MF, Op> >	solver,
-//      Teuchos::RCP< Belos::LinearProblem<Scalar, MF, Op> > problem ):
-//        solver_(solver),problem_(problem) {};
 
 
   /// \name base methods
@@ -194,5 +192,6 @@ extern template class LinearProblem< MultiField< CompoundField< TimeField< Vecto
 } // end of namespace Pimpact
 
 #endif
+
 
 #endif // end of #ifndef PIMPACT_LINEARPROBLEM_HPP

@@ -2,16 +2,20 @@
 #ifndef PIMPACT_GRADOP_HPP
 #define PIMPACT_GRADOP_HPP
 
-#include "Pimpact_extern_FDCoeff.hpp"
 
-#include "Pimpact_Types.hpp"
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_Tuple.hpp"
+
+#include "Pimpact_extern_FDCoeff.hpp"
 #include "Pimpact_ScalarField.hpp"
+#include "Pimpact_Types.hpp"
 #include "Pimpact_VectorField.hpp"
 
 
 
 
 namespace Pimpact{
+
 
 
 extern "C" {
@@ -45,9 +49,22 @@ void OP_SetBCZero(
     const int* const nn,
     const double* phi );
 
-void OP_bc_extrapolation( const int& m, double* phi );
+void OP_extrapolateBC(
+		const int& m,         
+    const int* const N,         
+    const int* const bL,
+		const int* const bU,     
+    const int& dL,
+		const int& dU,     
+		const int* const BC_L,
+		const int* const BC_U, 
+		const int* const SB,
+		const int* const NB,
+		const double* const c,    
+		const double*       phi );
 
 }
+
 
 
 /// \ingroup BaseOperator
@@ -84,14 +101,14 @@ public:
 
       if( i<space_->dim() )
         FD_getDiffCoeff(
-            space_->rankST(),
+//            space_->rankST(),
             space_->nLoc(i),
             space_->bl(i),
             space_->bu(i),
             space_->gl(i),
             space_->gu(i),
-            space_->getDomain()->getBCLocal()->getBCL(i),
-            space_->getDomain()->getBCLocal()->getBCU(i),
+            space_->getBCLocal()->getBCL(i),
+            space_->getBCLocal()->getBCU(i),
             space_->getShift(i),
             2,
             i+1,
@@ -142,17 +159,33 @@ public:
         getC(Z),
 				x.getConstRawPtr(),
 				y.getRawPtr() );
+
 		// necessary?
-//		for( int i=0; i<space()->dim(); ++i )
-//			OP_SetBCZero(
-//					space_->nLoc(),
-//					space_->bl(),
-//					space_->bu(),
-//					space_->getDomain()->getBCLocal()->getBCL(),
-//					space_->getDomain()->getBCLocal()->getBCU(),
-//					space_->sIndB(i),
-//					space_->eIndB(i),
-//					y.getRawPtr(i) );
+		for( int i=0; i<space()->dim(); ++i ) {
+			OP_SetBCZero(
+					space_->nLoc(),
+					space_->bl(),
+					space_->bu(),
+					space_->getBCLocal()->getBCL(),
+					space_->getBCLocal()->getBCU(),
+					space_->sIndB(i),
+					space_->eIndB(i),
+					y.getRawPtr(i) );
+			OP_extrapolateBC(
+					i+1,
+					space_->nLoc(),
+					space_->bl(),
+					space_->bu(),
+					space_->dl(i),
+					space_->du(i),
+					space_->getBCLocal()->getBCL(),
+					space_->getBCLocal()->getBCU(),
+					space_->sIndB(i),
+					space_->eIndB(i),
+					space_->getInterpolateV2S()->getC(
+						static_cast<ECoord>(i) ),
+					y.getRawPtr(i) );
+		}
 
     y.changed();
   }

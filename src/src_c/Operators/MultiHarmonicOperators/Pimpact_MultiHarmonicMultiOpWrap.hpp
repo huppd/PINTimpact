@@ -3,13 +3,13 @@
 #define PIMPACT_MULTIHARMONICMULTIOPWRAP_HPP
 
 
-#include "Teuchos_RCP.hpp"
+#include <Teuchos_RCP.hpp>
 
 #include <BelosTypes.hpp>
 
+#include "Pimpact_MultiField.hpp"
 #include "Pimpact_Types.hpp"
 
-#include "Pimpact_MultiField.hpp"
 
 
 
@@ -18,7 +18,7 @@ namespace Pimpact {
 
 /// \brief Operator wrapper.
 /// \ingroup MultiHarmonicOperator
-/// wraps a \ref MultiOp and adds the functionality of handling \c MultiHarmonicField's which allows block methods
+/// wraps a \c MultiOperator and adds the functionality of handling \c MultiHarmonicField's which allows block methods
 template<class MultiOperator>
 class MultiHarmonicMultiOpWrap  {
 
@@ -30,6 +30,8 @@ public:
   typedef typename DomainFieldT::SpaceT SpaceT;
 
 protected:
+
+  typedef typename SpaceT::Ordinal Ordinal;
 
   Teuchos::RCP<MultiOperator> op_;
 
@@ -45,34 +47,33 @@ public:
 		auto my = Teuchos::rcp( new typename MultiOperator::RangeFieldT ( space(), (int)0 ) );
 
 
-    int m = x.getNumberModes();
+		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i ) {
 
-    for( int i=0; i<m; ++i ) {
+			// making x 
 			mx->push_back(
 				Teuchos::rcp_const_cast<typename MultiOperator::DomainFieldT::FieldT>(
-						x.getConstCFieldPtr(i)
-						)
-					);
+						x.getConstCFieldPtr(i) ) );
 			mx->push_back(
 					Teuchos::rcp_const_cast<typename MultiOperator::DomainFieldT::FieldT>(
-						x.getConstSFieldPtr(i)
-						)
-					);
-			my->push_back( y.getCFieldPtr(i) );
+						x.getConstSFieldPtr(i) ) );
 
+			// making y
+			my->push_back( y.getCFieldPtr(i) );
 			my->push_back( y.getSFieldPtr(i) );
     }
 
-		mx->push_back(
-				Teuchos::rcp_const_cast<typename MultiOperator::DomainFieldT::FieldT>(
-					x.getConst0FieldPtr()
-					)
-				);
-		my->push_back( y.get0FieldPtr() );
+		if( space()->sInd(U,3)<0 ) {
+			mx->push_back(
+					Teuchos::rcp_const_cast<typename MultiOperator::DomainFieldT::FieldT>(
+						x.getConst0FieldPtr() ) );
+			my->push_back( y.get0FieldPtr() );
+		}
 
-//		std::cout << "x numberVecs: " << mx->getNumberVecs() << "\n";
-//		std::cout << "y numberVecs: " << my->getNumberVecs() << "\n";
+		// applying MultiField operator
 		op_->apply( *mx, *my );
+
+		y.changed();
+
   };
 
   void assignField( const DomainFieldT& mv ) {
@@ -89,7 +90,7 @@ public:
 
   Teuchos::RCP<MultiOperator> getOperatorPtr() { return( op_ ); }
 
-	const std::string getLabel() const { return( "MultiHarmonicMultiOpWrap" ); };
+	const std::string getLabel() const { return( "MH(M)_"+op_->getLabel() ); };
 
   void print( std::ostream& out=std::cout ) const {
 		out << getLabel() << ":\n";

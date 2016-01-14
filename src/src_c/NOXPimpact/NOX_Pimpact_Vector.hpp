@@ -2,15 +2,15 @@
 #ifndef NOX_PIMPACT_VECTOR_HPP
 #define NOX_PIMPACT_VECTOR_HPP
 
-#include "NOX_Common.H"  // for NOX_Config.h
-#include "NOX_Abstract_Vector.H"
 
 #include "Teuchos_RCP.hpp"
 
-//#include "BelosTypes.hpp"
+#include "NOX_Abstract_Vector.H"
+#include "NOX_Common.H"  // for NOX_Config.h
 
-#include "Pimpact_Types.hpp"
 #include "Pimpact_MultiField.hpp"
+#include "Pimpact_Types.hpp"
+
 
 
 
@@ -309,6 +309,8 @@ public:
   Teuchos::RCP<const Field> getConstFieldPtr() const { return( field_ ); };
   Field& getField() { return( *field_ ); };
   const Field& getConstField() const { return( *field_ ); };
+
+  void level() const {  field_->level(); };
 
 protected:
   Teuchos::RCP<Field> field_;

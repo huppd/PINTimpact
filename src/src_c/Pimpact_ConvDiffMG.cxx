@@ -15,13 +15,10 @@ typedef Pimpact::Space<S,O,d,2> CSpaceT;
 typedef Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT> CS;
 
 template<class T1,class T2> using TransVF = Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<T1,T2> >;
-template<class T> using RestrVF = Pimpact::VectorFieldOpWrap<Pimpact::RestrictionOp<T> >;
+template<class T> using RestrVF = Pimpact::VectorFieldOpWrap<Pimpact::RestrictionHWOp<T> >;
 template<class T> using InterVF = Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<T> >;
 
 
-//template<class T> using ConvDiffOpT = Pimpact::ConvectionVOp<Pimpact::ConvectionDiffusionSOp<T> >;
-//template<class T> using ConvDiffSORT = Pimpact::ConvectionVSmoother<T,Pimpact::ConvectionDiffusionSORSmoother >;
-template<class T> using ConvDiffJT = Pimpact::ConvectionVSmoother<T,Pimpact::ConvectionDiffusionJSmoother >;
 
 template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
 
@@ -55,7 +52,7 @@ int main( int argi, char** argv ) {
 
   S pi = (S)4. * std::atan( (S)1. ) ;
 
-	pl->set<S>( "Re", 10000 );
+	pl->set<S>( "Re", 1000 );
 //	pl->set<S>( "Re", 1000 );
 //	pl->set<S>( "Re", 100 );
 //	pl->set<S>( "Re", 10 );

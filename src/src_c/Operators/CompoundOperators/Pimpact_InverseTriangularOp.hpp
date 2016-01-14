@@ -2,6 +2,7 @@
 #ifndef PIMPACT_INVERSETRIANGULAROP_HPP
 #define PIMPACT_INVERSETRIANGULAROP_HPP
 
+
 #include "Teuchos_RCP.hpp"
 
 #include "Pimpact_CompoundField.hpp"
@@ -33,7 +34,7 @@ public:
 protected:
 
   Teuchos::RCP<VF> tempv_;
-  Teuchos::RCP<SF> temps_;
+//  Teuchos::RCP<VF> tempv2_;
 
   Teuchos::RCP<OpV2V> opV2V_;
   Teuchos::RCP<OpS2V> opS2V_;
@@ -41,40 +42,34 @@ protected:
 
 public:
 
-  InverseTriangularOp(
-      const Teuchos::RCP<OpV2V>& opV2V,
-      const Teuchos::RCP<OpS2V>& opS2V,
-      const Teuchos::RCP<OpS2S>& opS2S ):
-        tempv_( create<VF>(opV2V->space()) ),
-        temps_( create<SF>(opV2V->space()) ),
-        opV2V_(opV2V),
-        opS2V_(opS2V),
-        opS2S_(opS2S) {};
+	InverseTriangularOp(
+			const Teuchos::RCP<OpV2V>& opV2V,
+			const Teuchos::RCP<OpS2V>& opS2V,
+			const Teuchos::RCP<OpS2S>& opS2S ):
+		tempv_( create<VF>(opV2V->space()) ),
+//		tempv2_( create<VF>(opV2V->space()) ),
+		opV2V_(opV2V),
+		opS2V_(opS2V),
+		opS2S_(opS2S) {};
 
-  void apply( const DomainFieldT& x, RangeFieldT& y ) const {
+	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
-    //    ----Triangular Schur
-    temps_->add( -1., x.getConstSField(), 0., *temps_ );
-    opS2S_->apply( *createMultiField(temps_) , *createMultiField( y.getSFieldPtr()));
+		opS2S_->apply( x.getConstSField() ,  y.getSField() );
+		y.getSField().scale( -1. );
 
-    opS2V_->apply( y.getConstSField(), *tempv_ );
+		opS2V_->apply( y.getConstSField(), *tempv_ );
 
-    tempv_->add( -1., *tempv_, 1., x.getConstVField() );
+//		tempv2_->add( -1., *tempv_, 1., x.getConstVField() );
+		tempv_->add( -1., *tempv_, 1., x.getConstVField() );
 
-    opV2V_->apply( *createMultiField(tempv_), *createMultiField( y.getVFieldPtr() ) );
-    //        y.getSFieldPtr()->add( 0., y.getConstSField(), 1., x.getConstSField() );
-    // ~ (D H^{-1} G)^{-1} p = D H^{-1} f_u - f_p
+		opV2V_->apply( *tempv_, y.getVField() );
+//		opV2V_->apply( x.getConstVField(), y.getVField() );
 
-  }
+	}
 
 
-  /// \todo fixme
-  void assignField( const DomainFieldT& mv ) {
-		opV2V_->assignField(
-				*createMultiField(
-					Teuchos::rcp_const_cast<VF>( mv.getConstVFieldPtr() )
-					)
-				);
+	void assignField( const DomainFieldT& mv ) {
+		opV2V_->assignField( mv.getConstVField());
     //    opS2V_->assignField( mv.getConstVField() );
     //    opV2S_->assignField( mv.getConstVField() );
 	};

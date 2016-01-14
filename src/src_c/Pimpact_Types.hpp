@@ -2,6 +2,7 @@
 #ifndef PIMPACT_TYPES_HPP
 #define PIMPACT_TYPES_HPP
 
+
 #include "BelosTypes.hpp"
 
 
@@ -10,7 +11,8 @@
 namespace Pimpact {
 
 
-/// Copy Type
+
+/// \brief Copy Type
 enum ECopyType {
   /// Deep Copy, means that everything is copied including boundaries
   DeepCopy,
@@ -19,10 +21,15 @@ enum ECopyType {
 };
 
 
-enum ECoord { X=0, Y=1, Z=2, T=3 };
+
+enum ECoord { X=0, Y=1, Z=2, T=4 };
 enum EField { U=0, V=1, W=2, S=4 };
 
 
+
+/// \brief kind of boundary conditions
+/// \relates BoundaryConditionsGlobal
+/// \relates BoundaryConditionsLocal
 enum EBCType {
   SymmetryBC = -2,
   PeriodicBC = -1,
@@ -33,6 +40,10 @@ enum EBCType {
 };
 
 
+
+/// \brief type of Domain, e.g. periodic channel, box, ...
+/// 
+/// \relates BoundaryConditionsGlobal
 enum EDomainType {
   AllDirichlet = 0,
   Dirichelt2DChannel = 1,
@@ -43,6 +54,8 @@ enum EDomainType {
 };
 
 
+
+/// \brief Scalar Field profile
 /// \relates ScalarField::initField
 enum EScalarField {
 	ConstField = 0,
@@ -55,31 +68,6 @@ enum EScalarField {
   FPoint = 7
 };
 
-
-/// \relates VectorField::initField
-enum EVectorField {
-  ZeroFlow=0,
-  PoiseuilleFlow2D_inX=1, PoiseuilleFlow2D_inY=2, PoiseuilleFlow2D_inZ=20,
-  Pulsatile2D_inXC=3, Pulsatile2D_inXS=5,
-  Pulsatile2D_inYC=4, Pulsatile2D_inYS=6,
-  Streaming2D=7,
-  Circle2D=8,
-  Circle2D_inXZ=21,
-  RankineVortex2D=9,
-  GaussianForcing1D=10,
-  BoundaryFilter1D=11,
-  GaussianForcing2D=12,
-  BoundaryFilter2D=13,
-  Streaming2DC=14,
-  Streaming2DS=15,
-  VPoint2D=16,
-  Disc2D=17,
-  RotationDisc2D=18,
-  ConstFlow=19,
-  SweptHiemenzFlow=22,
-  Disturbance=23,
-  Pulsatile2D_inX=24,
-};
 
 
 /// \brief used in mains
@@ -100,6 +88,7 @@ enum EFlowType {
 };
 
 
+/// \brief kind of force
 enum EForceType {
   Dipol        = 1,
   Disc         = 2,
@@ -107,8 +96,9 @@ enum EForceType {
   PseudoOscilatingDisc = 4
 };
 
-
+Teuchos::RCP<std::ostream> createOstream( const std::string& fname, int rank);
 
 }
+
 
 #endif // PIMPACT_TYPES_HPP

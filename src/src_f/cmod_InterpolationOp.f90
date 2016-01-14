@@ -9,73 +9,96 @@ module cmod_InterpolationOp
 contains
 
 
-  !> \todo fix that, for first entry we get the weights 0.4/0.6
-  subroutine MG_getCIS(   &
-      N,                  &
-      bL, bU,             &
-      xs,                 &
+  subroutine MG_getCIS( &
+      Nc,               &
+      Nf,               &
+      bL,               &
+      bU,               &
+      xf,               &
+      dd,               &
       cI ) bind(c,name='MG_getCIS')
 
     implicit none
 
-    integer(c_int), intent(in)  :: N
+    integer(c_int), intent(in)  :: Nc
+    integer(c_int), intent(in)  :: Nf
     integer(c_int), intent(in)  :: bL, bU
 
-    real(c_double), intent(in)  :: xs(bL:(N+bU))
+    real(c_double), intent(in)  :: xf(bL:(Nf+bU))
 
-    real(c_double), intent(out) :: cI(1:2,1:N)
+    integer(c_int), intent(in)  :: dd 
 
-    integer(c_int)              :: i
-    real(c_double)              :: Dx10, Dx12
+    real(c_double), intent(out) :: cI(1:2,1:Nc)
+
+    integer(c_int)              :: i,ic
+    real(c_double)              :: Dx12
 
     cI = 0.
 
-    !===========================================================================================================
-    !=== Interpolation, linienweise, 1d ========================================================================
-    !===========================================================================================================
+    !============================================================================================
+    !=== Interpolation, linienweise, 1d =========================================================
+    !============================================================================================
     ! coarse
-    !    xs(i-1)                        xs(i)
+    !      ic                             ic+1
     !  ----o------------------------------o------------------------------o-----------------
     !      |------Dx10----|
     !      |------------Dx12--------------|
     !  ----o--------------o---------------o-----------o-----
-    !     xs(i-1)        xs(i)           xs(i+1)
+    !     xf(i-1)        xf(i)           xf(i+1)
     ! fine
 
 
-    !--------------------------------------------------------------------------------------------------------
-    do i = 1, N
-      Dx10 = xs(i  )-xs(i-1)
-      Dx12 = xs(i+1)-xs(i-1)
+    !--------------------------------------------------------------------------------------------
+    do ic = 1, Nc
 
-      !cI(1,i) = 1.- Dx10/Dx12
-      !cI(2,i) =     Dx10/Dx12
-      cI(1,i) = 0.5
-      cI(2,i) = 0.5
+      i = dd * ic 
+      Dx12 = xf(i+1)-xf(i-1)
+
+      cI(1,ic) = ( xf(i+1)-xf(i  ) )/Dx12
+      cI(2,ic) = ( xf(i  )-xf(i-1) )/Dx12
+
     end do
+    !--------------------------------------------------------------------------------------------
 
-    !--------------------------------------------------------------------------------------------------------
   end subroutine MG_getCIS
 
 
 
-  !> \todo understand from where comes the weith 0.75 / 0.25
-  subroutine MG_getCIV(   &
-      Nc,                 &
-      bLc, bUc,           &
-      SSc,                &
-      NNc,                &
-      BC_L, BC_U,         &
-      Nf,                 &
-      bLf, bUf,           &
-      offset,             &
-      xc,xf,              &
-      dd,                 &
+  !> \brief gets coefficents for interpolation of velocity points
+  !!
+  !! \param[in] Nc grid size on coarse grid
+  !! \param[in] bLc lower ghost width on coarse grid
+  !! \param[in] bUc upper ghost width on coarse grid
+  !! \param[in] SSc start index on coarse grid
+  !! \param[in] NNc end index on coarse grid
+  !! \param[in] BC_L lower boundary conditions
+  !! \param[in] BC_U upper boundary conditions
+  !! \param[in] Nf grid size on fine grid
+  !! \param[in] bLf lower ghost width on fine grid
+  !! \param[in] bUf upper ghost width on fine grid
+  !! \param[in] offset offset
+  !! \param[in] xc coarse coordinates of velocity
+  !! \param[in] xf fine coordinates of velocity
+  !! \param[in] dd coarsening factor
+  !! \param[out] cIV interpolation coefficients
+  subroutine MG_getCIV( &
+      Nc,               &
+      bLc,              &
+      bUc,              &
+      SSc,              &
+      NNc,              &
+      BC_L,             &
+      BC_U,             &
+      Nf,               &
+      bLf,              &
+      bUf,              &
+      offset,           &
+      xc,               &
+      xf,               &
+      dd,               &
       cIV ) bind(c,name='MG_getCIV')
 
-
     implicit none
-
 
     integer(c_int), intent(in)    :: Nc
 
@@ -100,7 +123,6 @@ contains
 
     real(c_double), intent(inout) :: cIV( 1:2, 0:Nf )
 
-
     integer(c_int)                ::  i, ic
     real(c_double)                ::  Dx1a, Dx12
 
@@ -111,7 +133,6 @@ contains
     ! fine
     !    xf(i-1)        xf(i)         xf(i+1)       xf(i+1)      xf(i+2)
     !  ---->-------------->--------------->----------->----------->------------
-    !             |--Dx1a-|
     !             |-----------Dx12--------------|
     !  ----------->----------------------------->----------------------------->----------
     !          xc(ic)                      xc(ic+1)                        xc(ic+1)
@@ -122,29 +143,35 @@ contains
     do i = 0, Nf
       ic = ( i )/dd + offset
 
-      Dx1a = xc(ic)-xf(i   )
-      Dx12 = xc(ic)-xc(ic+1)
+      !Dx1a = xc(ic)-xf(i   )
+      !Dx12 = xc(ic)-xc(ic+1)
 
-      cIV(1,i) = 1-Dx1a/Dx12
-      cIV(2,i) =   Dx1a/Dx12
+      !cIV(1,i) = 1-Dx1a/Dx12
+      !cIV(2,i) =   Dx1a/Dx12
+
+      Dx12 = xc(ic+1) - xc(ic)
+
+      cIV(1,i) = ( xc(ic+1) - xf(i ) )/Dx12
+      cIV(2,i) = ( xf(i   ) - xc(ic) )/Dx12
+
     end do
 
     ! a little bit shaky, please verify this when IO is ready
     !if (BC_L > 0) then
-      !cIV( 1,0) = 0.
-      !cIV( 2,0) = 1.
+    !cIV( 1,0) = 0.
+    !cIV( 2,0) = 1.
     !end if
 
     !maybe false
-    if (BC_L == -2) then
+    if( BC_L == -2 )then
       cIV(1:2,0) = 0.
     end if
 
     !if (BC_U > 0) then
-      !cIV(1,Nf) = 1.
-      !cIV(2,Nf) = 0.
+    !cIV(1,Nf) = 1.
+    !cIV(2,Nf) = 0.
     !end if
-    if (BC_U == -2) then
+    if( BC_U == -2 )then
       cIV(1:2,Nf) = 0.
     end if
 
@@ -152,76 +179,368 @@ contains
 
 
 
+  !> \deprecated
   subroutine MG_InterpolateCorners( &
-      Nc,                           &
-      bLc,bUc,                      &
-      BCL, BCU,                     &
-      phic ) bind(c,name='MG_InterpolateCorners')
+      n,                            &
+      bL,                           &
+      bU,                           &
+      BCL,                          &
+      BCU,                          &
+      phi ) bind(c,name='MG_InterpolateCorners')
 
     implicit none
 
-    integer(c_int), intent(in)     :: Nc(3)
+    integer(c_int), intent(in)    :: n(3)
 
-    integer(c_int), intent(in)     :: bLc(3)
-    integer(c_int), intent(in)     :: bUc(3)
+    integer(c_int), intent(in)    :: bL(3)
+    integer(c_int), intent(in)    :: bU(3)
 
-    integer(c_int), intent(in)     :: BCL(3)
-    integer(c_int), intent(in)     :: BCU(3)
+    integer(c_int), intent(in)    :: BCL(3)
+    integer(c_int), intent(in)    :: BCU(3)
 
-    real(c_double),  intent(inout) :: phic (bLc(1):(Nc(1)+bUc(1)),bLc(2):(Nc(2)+bUc(2)),bLc(3):(Nc(3)+bUc(3)))
+    real(c_double), intent(inout) :: phi( bL(1):(n(1)+bU(1)), bL(2):(n(2)+bU(2)), bL(3):(n(3)+bU(3)) )
 
 
-    if (BCL(1) > 0 .and. BCL(2) > 0) phic( 1,     1,     1:Nc(3) ) = ( phic(1+1,     1,     1:Nc(3)) + phic(1    , 1+1,     1:Nc(3)) + phic(1+1,     1+1,     1:Nc(3)) )/3.
-    if (BCL(1) > 0 .and. BCU(2) > 0) phic( 1,     Nc(2), 1:Nc(3) ) = ( phic(1+1,     Nc(2), 1:Nc(3)) + phic(1    , Nc(2)-1, 1:Nc(3)) + phic(1+1,     Nc(2)-1, 1:Nc(3)) )/3.
-    if (BCU(1) > 0 .and. BCL(2) > 0) phic( Nc(1), 1,     1:Nc(3) ) = ( phic(Nc(1)-1, 1,     1:Nc(3)) + phic(Nc(1), 1+1,     1:Nc(3)) + phic(Nc(1)-1, 1+1,     1:Nc(3)) )/3.
-    if (BCU(1) > 0 .and. BCU(2) > 0) phic( Nc(1), Nc(2), 1:Nc(3) ) = ( phic(Nc(1)-1, Nc(2), 1:Nc(3)) + phic(Nc(1), Nc(2)-1, 1:Nc(3)) + phic(Nc(1)-1, Nc(2)-1, 1:Nc(3)) )/3.
+    if( BCL(1)>0 .and. BCL(2)>0 ) phi(1,    1,    1:n(3)) = ( phi(2     , 1   , 1:n(3)) + phi(1   , 2     , 1:n(3)) + phi(2     , 2     , 1:n(3)) )/3.
+    if( BCL(1)>0 .and. BCU(2)>0 ) phi(1,    n(2), 1:n(3)) = ( phi(2     , n(2), 1:n(3)) + phi(1   , n(2)-1, 1:n(3)) + phi(2     , n(2)-1, 1:n(3)) )/3.
+    if( BCU(1)>0 .and. BCL(2)>0 ) phi(n(1), 1,    1:n(3)) = ( phi(n(1)-1, 1   , 1:n(3)) + phi(n(1), 2     , 1:n(3)) + phi(n(1)-1, 2     , 1:n(3)) )/3.
+    if( BCU(1)>0 .and. BCU(2)>0 ) phi(n(1), n(2), 1:n(3)) = ( phi(n(1)-1, n(2), 1:n(3)) + phi(n(1), n(2)-1, 1:n(3)) + phi(n(1)-1, n(2)-1, 1:n(3)) )/3.
+                                
+    if( BCL(1)>0 .and. BCL(3)>0 ) phi(1,    1:n(2), 1   ) = ( phi(2     , 1:n(2), 1   ) + phi(1   , 1:n(2), 2     ) + phi(2     , 1:n(2), 2     ) )/3.
+    if( BCL(1)>0 .and. BCU(3)>0 ) phi(1,    1:n(2), n(3)) = ( phi(2     , 1:n(2), n(3)) + phi(1   , 1:n(2), n(3)-1) + phi(2     , 1:n(2), n(3)-1) )/3.
+    if( BCU(1)>0 .and. BCL(3)>0 ) phi(n(1), 1:n(2), 1   ) = ( phi(n(1)-1, 1:n(2), 1   ) + phi(n(1), 1:n(2), 2     ) + phi(n(1)-1, 1:n(2), 2     ) )/3.
+    if( BCU(1)>0 .and. BCU(3)>0 ) phi(n(1), 1:n(2), n(3)) = ( phi(n(1)-1, 1:n(2), n(3)) + phi(n(1), 1:n(2), n(3)-1) + phi(n(1)-1, 1:n(2), n(3)-1) )/3.
+                                
+    if( BCL(2)>0 .and. BCL(3)>0 ) phi(1:n(1), 1   , 1   ) = ( phi(1:n(1), 2     , 1   ) + phi(1:n(1), 1   , 2     ) + phi(1:n(1), 2     , 2     ) )/3.
+    if( BCL(2)>0 .and. BCU(3)>0 ) phi(1:n(1), 1   , n(3)) = ( phi(1:n(1), 2     , n(3)) + phi(1:n(1), 1   , n(3)-1) + phi(1:n(1), 2     , n(3)-1) )/3.
+    if( BCU(2)>0 .and. BCL(3)>0 ) phi(1:n(1), n(2), 1   ) = ( phi(1:n(1), n(2)-1, 1   ) + phi(1:n(1), n(2), 2     ) + phi(1:n(1), n(2)-1, 2     ) )/3.
+    if( BCU(2)>0 .and. BCU(3)>0 ) phi(1:n(1), n(2), n(3)) = ( phi(1:n(1), n(2)-1, n(3)) + phi(1:n(1), n(2), n(3)-1) + phi(1:n(1), n(2)-1, n(3)-1) )/3.
 
-    if (BCL(1) > 0 .and. BCL(3) > 0) phic( 1,     1:Nc(2), 1 )     = ( phic(1+1,     1:Nc(2), 1    ) + phic(1,     1:Nc(2), 1+1)     + phic(1+1,     1:Nc(2), 1+1)     )/3.
-    if (BCL(1) > 0 .and. BCU(3) > 0) phic( 1,     1:Nc(2), Nc(3) ) = ( phic(1+1,     1:Nc(2), Nc(3)) + phic(1,     1:Nc(2), Nc(3)-1) + phic(1+1,     1:Nc(2), Nc(3)-1) )/3.
-    if (BCU(1) > 0 .and. BCL(3) > 0) phic( Nc(1), 1:Nc(2), 1 )     = ( phic(Nc(1)-1, 1:Nc(2), 1    ) + phic(Nc(1), 1:Nc(2), 1+1)     + phic(Nc(1)-1, 1:Nc(2), 1+1)     )/3.
-    if (BCU(1) > 0 .and. BCU(3) > 0) phic( Nc(1), 1:Nc(2), Nc(3) ) = ( phic(Nc(1)-1, 1:Nc(2), Nc(3)) + phic(Nc(1), 1:Nc(2), Nc(3)-1) + phic(Nc(1)-1, 1:Nc(2), Nc(3)-1) )/3.
-
-    if (BCL(2) > 0 .and. BCL(3) > 0) phic( 1:Nc(1), 1,     1     ) = ( phic(1:Nc(1), 1+1,     1    ) + phic(1:Nc(1), 1,     1+1    ) + phic(1:Nc(1), 1+1,     1+1)     )/3.
-    if (BCL(2) > 0 .and. BCU(3) > 0) phic( 1:Nc(1), 1,     Nc(3) ) = ( phic(1:Nc(1), 1+1,     Nc(3)) + phic(1:Nc(1), 1,     Nc(3)-1) + phic(1:Nc(1), 1+1,     Nc(3)-1) )/3.
-    if (BCU(2) > 0 .and. BCL(3) > 0) phic( 1:Nc(1), Nc(2), 1     ) = ( phic(1:Nc(1), Nc(2)-1, 1    ) + phic(1:Nc(1), Nc(2), 1+1    ) + phic(1:Nc(1), Nc(2)-1, 1+1)     )/3.
-    if (BCU(2) > 0 .and. BCU(3) > 0) phic( 1:Nc(1), Nc(2), Nc(3) ) = ( phic(1:Nc(1), Nc(2)-1, Nc(3)) + phic(1:Nc(1), Nc(2), Nc(3)-1) + phic(1:Nc(1), Nc(2)-1, Nc(3)-1) )/3.
+    !if( BCL(1)>0 .and. BCL(2)>0 ) phi( 1,    1,    1:n(3) ) = ( phi(2     , 1,    1:n(3) ) + phi(1   , 2     , 1:n(3)) )/2.
+    !if( BCL(1)>0 .and. BCU(2)>0 ) phi( 1,    n(2), 1:n(3) ) = ( phi(2     , n(2), 1:n(3) ) + phi(1   , n(2)-1, 1:n(3)) )/2.
+    !if( BCU(1)>0 .and. BCL(2)>0 ) phi( n(1), 1,    1:n(3) ) = ( phi(n(1)-1, 1,    1:n(3) ) + phi(n(1), 2     , 1:n(3)) )/2.
+    !if( BCU(1)>0 .and. BCU(2)>0 ) phi( n(1), n(2), 1:n(3) ) = ( phi(n(1)-1, n(2), 1:n(3) ) + phi(n(1), n(2)-1, 1:n(3)) )/2.
+                                
+    !if( BCL(1)>0 .and. BCL(3)>0 ) phi( 1,    1:n(2), 1    ) = ( phi(2     , 1:n(2), 1    ) + phi(1   , 1:n(2), 2     ) )/2.
+    !if( BCL(1)>0 .and. BCU(3)>0 ) phi( 1,    1:n(2), n(3) ) = ( phi(2     , 1:n(2), n(3) ) + phi(1   , 1:n(2), n(3)-1) )/2.
+    !if( BCU(1)>0 .and. BCL(3)>0 ) phi( n(1), 1:n(2), 1    ) = ( phi(n(1)-1, 1:n(2), 1    ) + phi(n(1), 1:n(2), 2     ) )/2.
+    !if( BCU(1)>0 .and. BCU(3)>0 ) phi( n(1), 1:n(2), n(3) ) = ( phi(n(1)-1, 1:n(2), n(3) ) + phi(n(1), 1:n(2), n(3)-1) )/2.
+                                
+    !if( BCL(2)>0 .and. BCL(3)>0 ) phi( 1:n(1), 1   , 1    ) = ( phi(1:n(1), 2     , 1    ) + phi(1:n(1), 1   , 2     ) )/2.
+    !if( BCL(2)>0 .and. BCU(3)>0 ) phi( 1:n(1), 1   , n(3) ) = ( phi(1:n(1), 2     , n(3) ) + phi(1:n(1), 1   , n(3)-1) )/2.
+    !if( BCU(2)>0 .and. BCL(3)>0 ) phi( 1:n(1), n(2), 1    ) = ( phi(1:n(1), n(2)-1, 1    ) + phi(1:n(1), n(2), 2     ) )/2.
+    !if( BCU(2)>0 .and. BCU(3)>0 ) phi( 1:n(1), n(2), n(3) ) = ( phi(1:n(1), n(2)-1, n(3) ) + phi(1:n(1), n(2), n(3)-1) )/2.
 
   end subroutine MG_InterpolateCorners
 
 
 
-  !----------------------------------------------------------------------------------------------------------!
-  !> \note:       - für allgemeine dd geeignet                                                        !
-  !!              - dd(i) /= 1 <===> N(i) /= 1                                                                     !
-  !!              - es wird nur in eine Richung ausgetauscht                                                  !
-  !!              - Null-Setzen am Rand nicht notwendig                                                       !
-  !!              - Es wird sequentiell über alle Raumrichtungen interpoliert, um keinen individuellen        !
-  !!                Interpolationsstencil für jeden Punkt im Raum speichern zu müssen.                        !
-  !!              - Durch das sequentielle Interpolieren kann der Interpolationsstencil klein und damit der   !
-  !!                Gesamtaufwand minimiert werden (Alternative: 8- bzw. 26-Punkt Stencil (!)).              !
-  !!              - Interpolationskoeffizienten werden auf dem jeweils feineren Gitter gespeichert, um nicht  !
-  !!                auf die entsprechenden Indizes des gröberen Gitters umrechnen zu müssen.                  !
-  !!              - Die Block-überlappenden Stirnflächen werden ebenfalls mitverarbeitet, aber eigentlich     !
-  !!                nicht gebraucht (erleichtert die Programmierung), so dass eigentlich eine Initialisierung !
-  !!                notwendig wäre. Dies wird jedoch zuvor schon in der korrespondierenden Restriktions-      !
-  !!                Routine erledigt, so dass dies hier nicht mehr notwendig ist.                             !
-  !!----------------------------------------------------------------------------------------------------------!
+  !> \brief corrects values at corners through extrapolation
+  !!
+  !! \param[in] n
+  !! \param[in] bL
+  !! \param[in] bU
+  !! \param[in] BCL
+  !! \param[in] BCU
+  !! \param[in] x1
+  !! \param[in] x2
+  !! \param[in] x3
+  !! \param[inout] phi \f$\phi\f$
+  !!
+  !! \f[ \phi[2] = \frac{ \phi[4]-\phi[3] }{x[4]-x[3]} ( x[2]-x[3] )\f]
+  !! \f[ \phi[n-1] = \frac{ \phi[n-2]-\phi[n-3] }{x[n-2]-x[n-3]} ( x[n-1]-x[n-2] )\f]
+  subroutine MG_InterpolateCornersPost( &
+      n,                                &
+      bL,                               &
+      bU,                               &
+      BCL,                              &
+      BCU,                              &
+      x1,                               &
+      x2,                               &
+      x3,                               &
+      phi ) bind(c,name='MG_InterpolateCornersPost')
+
+    implicit none
+
+    integer(c_int), intent(in)    :: n(3)
+
+    integer(c_int), intent(in)    :: bL(3)
+    integer(c_int), intent(in)    :: bU(3)
+
+    integer(c_int), intent(in)    :: BCL(3)
+    integer(c_int), intent(in)    :: BCU(3)
+
+    real(c_double), intent(in)    :: x1( bL(1):(n(1)+bU(1)) )
+    real(c_double), intent(in)    :: x2( bL(2):(n(2)+bU(2)) )
+    real(c_double), intent(in)    :: x3( bL(3):(n(3)+bU(3)) )
+
+    real(c_double), intent(inout) :: phi( bL(1):(n(1)+bU(1)), bL(2):(n(2)+bU(2)), bL(3):(n(3)+bU(3)) )
+
+    if( BCL(1)>0 .and. BCL(2)>0 ) then
+      phi(1, 1, 1:n(3)  ) = 0.
+      phi(2, 1, 2:n(3)-1) = ( phi( 4, 1, 2:n(3)-1) - phi( 3, 1, 2:n(3)-1) )/( x1(4) - x1(3) )*( x1(2) - x1(3) ) + phi( 3, 1, 2:n(3)-1)
+      phi(1, 2, 2:n(3)-1) = ( phi( 1, 4, 2:n(3)-1) - phi( 1, 3, 2:n(3)-1) )/( x2(4) - x2(3) )*( x2(2) - x2(3) ) + phi( 1, 3, 2:n(3)-1)
+      !phi(2, 2, 2:n(3)-1) = ( phi( 2, 3, 2:n(3)-1) + phi( 3, 2, 2:n(3)-1) + phi( 2, 1, 2:n(3)-1) + phi( 1, 2, 2:n(3)-1) )/4.
+      phi(2, 2, 2:n(3)-1) = ( &
+        phi( 1, 2, 2:n(3)-1)*( x1(3)-x1(2) )/( x1(3)-x1(1) ) + &
+        phi( 3, 2, 2:n(3)-1)*( x1(2)-x1(1) )/( x1(3)-x1(1) ) + &
+        phi( 2, 1, 2:n(3)-1)*( x2(3)-x2(2) )/( x2(3)-x2(1) ) + &
+        phi( 2, 3, 2:n(3)-1)*( x2(2)-x2(1) )/( x2(3)-x2(1) )   &
+        )/2.
+    endif
+    if( BCL(1)>0 .and. BCU(2)>0 ) then
+      phi(1, n(2)  , 1:n(3)) =  0.
+      phi(2, n(2)  , 2:n(3)-1) = ( phi(4, n(2)  , 2:n(3)-1) - phi(3, n(2)  , 2:n(3)-1) )/( x1(4)      - x1(3)      )*( x1(2)      - x1(3)   ) + phi(3, n(2)  , 2:n(3)-1)
+      phi(1, n(2)-1, 2:n(3)-1) = ( phi(1, n(2)-2, 2:n(3)-1) - phi(1, n(2)-3, 2:n(3)-1) )/( x2(n(2)-2) - x2(n(2)-3) )*( x2(n(2)-1) - x2(n(2)-2) ) + phi(1, n(2)-2, 2:n(3)-1)
+      !phi(2, n(2)-1, 2:n(3)-1) = ( phi(2, n(2), 2:n(3)-1) + phi(3, n(2)-1, 2:n(3)-1) + phi(2, n(2)-2, 2:n(3)-1) + phi(1, n(2)-1, 2:n(3)-1) )/4.
+      phi(2, n(2)-1, 2:n(3)-1) = ( &
+        phi(1, n(2)-1, 2:n(3)-1)*( x1(3)-x1(2) )/( x1(3)-x1(1) ) + &
+        phi(3, n(2)-1, 2:n(3)-1)*( x1(2)-x1(1) )/( x1(3)-x1(1) ) + &
+        phi(2, n(2)  , 2:n(3)-1)*( x2(n(2)-1)-x2(n(2)-2) )/( x2(n(2))-x2(n(2)-2) ) + &
+        phi(2, n(2)-2, 2:n(3)-1)*( x2(n(2)  )-x2(n(2)-1) )/( x2(n(2))-x2(n(2)-2) )   &
+        )/2.
+    endif
+    if( BCU(1)>0 .and. BCL(2)>0 ) then
+      phi(n(1)  , 1, 1:n(3)) = 0.
+      phi(n(1)-1, 1, 2:n(3)-1) = ( phi(n(1)-2, 1, 2:n(3)-1) - phi(n(1)-3, 1, 2:n(3)-1) )/( x1(n(1)-2) - x1(n(1)-3) )*( x1(n(1)-1) - x1(n(1)-2) ) + phi(n(1)-2, 1, 2:n(3)-1 ) 
+      phi(n(1)  , 2, 2:n(3)-1) = ( phi(n(1)  , 4, 2:n(3)-1) - phi(n(1)  , 3, 2:n(3)-1) )/( x2(4) - x2(3) )*( x2(2) - x2(3) )                     + phi(n(1)  , 3, 2:n(3)-1 )  
+      !phi(n(1)-1, 2, 2:n(3)-1) = ( phi(n(1)-1, 3, 2:n(3)-1) + phi(n(1)  , 2, 2:n(3)-1) + phi(n(1)-1, 1, 2:n(3)-1) + phi(n(1)-2, 2, 2:n(3)-1) )/4.                     
+      phi(n(1)-1, 2, 2:n(3)-1) = ( &
+        phi(n(1)  , 2, 2:n(3)-1)*( x1(n(1)-1)-x1(n(1)-2) )/( x1(n(1))-x1(n(1)-2) ) + &
+        phi(n(1)-2, 2, 2:n(3)-1)*( x1(n(1)  )-x1(n(1)-1) )/( x1(n(1))-x1(n(1)-2) ) + &
+        phi(n(1)-1, 1, 2:n(3)-1)*( x2(3)-x2(2) )/( x2(3)-x2(1) ) + &
+        phi(n(1)-1, 3, 2:n(3)-1)*( x2(2)-x2(1) )/( x2(3)-x2(1) )   &
+        )/2.                     
+    endif
+    if( BCU(1)>0 .and. BCU(2)>0 ) then
+      phi(n(1)  , n(2)  , 1:n(3)) = 0.
+      phi(n(1)-1, n(2)  , 2:n(3)-1) = ( phi(n(1)-2, n(2)  , 2:n(3)-1) - phi(n(1)-3, n(2)  , 2:n(3)-1) )/( x1(n(1)-2) - x1(n(1)-3) )*( x1(n(1)-1) - x1(n(1)-2) ) + phi(n(1)-2, n(2)  , 2:n(3)-1)
+      phi(n(1)  , n(2)-1, 2:n(3)-1) = ( phi(n(1)  , n(2)-2, 2:n(3)-1) - phi(n(1)  , n(2)-3, 2:n(3)-1) )/( x2(n(2)-2) - x2(n(2)-3) )*( x2(n(2)-1) - x2(n(2)-2) ) + phi(n(1)  , n(2)-2, 2:n(3)-1)
+      !phi(n(1)-1, n(2)-1, 2:n(3)-1) = ( phi(n(1)-1, n(2)  , 2:n(3)-1) + phi(n(1)  , n(2)-1, 2:n(3)-1) + phi(n(1)-1, n(2)-2, 2:n(3)-1) + phi(n(1)-2, n(2)-1, 2:n(3)-1) )/4.                
+      phi(n(1)-1, n(2)-1, 2:n(3)-1) = ( &
+        phi(n(1)-1, n(2)  , 2:n(3)-1)*( x2(n(2)-1)-x2(n(2)-2) )/( x2(n(2))-x2(n(2)-2) ) + &
+        phi(n(1)-1, n(2)-2, 2:n(3)-1)*( x2(n(2)  )-x2(n(2)-1) )/( x2(n(2))-x2(n(2)-2) ) + &
+        phi(n(1)  , n(2)-1, 2:n(3)-1)*( x1(n(1)-1)-x1(n(1)-2) )/( x1(n(1))-x1(n(1)-2) ) + &
+        phi(n(1)-2, n(2)-1, 2:n(3)-1)*( x1(n(1)  )-x1(n(1)-1) )/( x1(n(1))-x1(n(1)-2) )   &
+        )/2.                
+    endif
+                                
+    if( BCL(1)>0 .and. BCL(3)>0 ) then
+      phi(1, 1:n(2), 1) = 0. 
+      phi(2, 2:n(2)-1, 1) = ( phi(4, 2:n(2)-1, 1)-phi(3, 2:n(2)-1, 1) )/( x1(4)-x1(3) )*( x1(2)-x1(3) ) + phi(3, 2:n(2)-1, 1)
+      phi(1, 2:n(2)-1, 2) = ( phi(1, 2:n(2)-1, 4)-phi(1, 2:n(2)-1, 3) )/( x3(4)-x3(3) )*( x3(2)-x3(3) ) + phi(1, 2:n(2)-1, 3)
+      !phi(2, 2:n(2)-1, 2) = ( phi(2, 2:n(2)-1, 3)+phi(3, 2:n(2)-1, 2) + phi(2, 2:n(2)-1, 1) + phi(1, 2:n(2)-1, 2) )/4. 
+      phi(2, 2:n(2)-1, 2) = ( &
+        phi(2, 2:n(2)-1, 1)*( x3(3)-x3(2) )/( x3(3)-x3(1) ) + &
+        phi(2, 2:n(2)-1, 3)*( x3(2)-x3(1) )/( x3(3)-x3(1) ) + &
+        phi(1, 2:n(2)-1, 2)*( x1(3)-x1(2) )/( x1(3)-x1(1) ) + &
+        phi(3, 2:n(2)-1, 2)*( x1(2)-x1(1) )/( x1(3)-x1(1) )   &
+        )/2. 
+    endif                    
+    if( BCL(1)>0 .and. BCU(3)>0 ) then
+      phi(1, 1:n(2), n(3)  ) = 0
+      phi(2, 2:n(2)-1, n(3)  ) = ( phi(4, 2:n(2)-1, n(3)  )-phi(3, 2:n(2)-1, n(3)  ) )/( x1(4)-x1(3) )*( x1(2)-x1(3) )                     + phi(3, 2:n(2)-1, n(3)  )
+      phi(1, 2:n(2)-1, n(3)-1) = ( phi(1, 2:n(2)-1, n(3)-2)-phi(1, 2:n(2)-1, n(3)-3) )/( x3(n(3)-2)-x3(n(3)-3) )*( x3(n(3)-1)-x3(n(3)-2) ) + phi(1, 2:n(2)-1, n(3)-2)
+      !phi(2, 2:n(2)-1, n(3)-1) = ( phi(2, 2:n(2)-1, n(3)  )+phi(3, 2:n(2)-1, n(3)-1) + phi(2, 2:n(2)-1, n(3)-2) + phi(1, 2:n(2)-1, n(3)-1) )/4.         
+      phi(2, 2:n(2)-1, n(3)-1) = ( &
+        phi(2, 2:n(2)-1, n(3)  )*( x3(n(3)-1)-x3(n(3)-2) )/( x3(n(3))-x3(n(3)-2) ) + &
+        phi(2, 2:n(2)-1, n(3)-2)*( x3(n(3)  )-x3(n(3)-1) )/( x3(n(3))-x3(n(3)-2) ) + &
+        phi(1, 2:n(2)-1, n(3)-1)*( x1(3)-x1(2) )/( x1(3)-x1(1) ) + &
+        phi(3, 2:n(2)-1, n(3)-1)*( x1(2)-x1(1) )/( x1(3)-x1(1) ) &
+        )/2.         
+    endif
+    if( BCU(1)>0 .and. BCL(3)>0 ) then
+      phi(n(1)  , 1:n(2), 1) = 0.
+      phi(n(1)-1, 2:n(2)-1, 1) = ( phi(n(1)-2, 2:n(2)-1, 1) - phi(n(1)-3, 2:n(2)-1, 1) )/( x1(n(1)-2)-x1(n(1)-3) )*( x1(n(1)-1)-x1(n(1)-2) ) + phi(n(1)-2, 2:n(2)-1, 1)
+      phi(n(1)  , 2:n(2)-1, 2) = ( phi(n(1)  , 2:n(2)-1, 4) - phi(n(1)  , 2:n(2)-1, 3) )/( x3(4)-x3(3) )*( x3(2)-x3(3) )                     + phi(n(1)  , 2:n(2)-1, 3)
+      phi(n(1)-1, 2:n(2)-1, 2) = ( &
+        phi(n(1)  , 2:n(2)-1, 2)*( x1(n(1)-1)-x1(n(1)-2) )/( x1(n(1))-x1(n(1)-2) ) + &
+        phi(n(1)-2, 2:n(2)-1, 2)*( x1(n(1)  )-x1(n(1)-1) )/( x1(n(1))-x1(n(1)-2) ) + &
+        phi(n(1)-1, 2:n(2)-1, 1)*( x3(3)-x3(2) )/( x3(3)-x3(1) ) + &
+        phi(n(1)-1, 2:n(2)-1, 3)*( x3(2)-x3(1) )/( x3(3)-x3(1) )   &
+        )/2.               
+    endif
+    if( BCU(1)>0 .and. BCU(3)>0 ) then
+      phi(n(1)  , 1:n(2)  , n(3)  ) = 0.
+      phi(n(1)-1, 2:n(2)-1, n(3)  ) = ( phi(n(1)-2, 2:n(2)-1, n(3)  )-phi(n(1)-3, 2:n(2)-1, n(3)  ) )/( x1(n(1)-2)-x1(n(1)-3) )*( x1(n(1)-1)-x1(n(1)-2) ) + phi(n(1)-2, 2:n(2)-1, n(3)  )
+      phi(n(1)  , 2:n(2)-1, n(3)-1) = ( phi(n(1)  , 2:n(2)-1, n(3)-2)-phi(n(1)  , 2:n(2)-1, n(3)-3) )/( x3(n(3)-2)-x3(n(3)-3) )*( x3(n(3)-1)-x3(n(3)-2) ) + phi(n(1)  , 2:n(2)-1, n(3)-2)
+      phi(n(1)-1, 2:n(2)-1, n(3)-1) = ( &
+        phi(n(1)-1, 2:n(2)-1, n(3)  )*( x3(n(3)-1)-x3(n(3)-2) )/( x3(n(3))-x3(n(3)-2) ) + &
+        phi(n(1)-1, 2:n(2)-1, n(3)-2)*( x3(n(3)  )-x3(n(3)-1) )/( x3(n(3))-x3(n(3)-2) ) + &
+        phi(n(1)  , 2:n(2)-1, n(3)-1)*( x1(n(1)-1)-x1(n(1)-2) )/( x1(n(1))-x1(n(1)-2) ) + &
+        phi(n(1)-2, 2:n(2)-1, n(3)-1)*( x1(n(1)  )-x1(n(1)-1) )/( x1(n(1))-x1(n(1)-2) )   &
+        )/2. 
+    endif
+                                
+    if( BCL(2)>0 .and. BCL(3)>0 ) then
+      phi(1:n(1), 1, 1 ) = 0.
+      phi(2:n(1)-1, 2, 1 ) = ( phi(2:n(1)-1, 4, 1 )-phi(2:n(1)-1, 3, 1 ) )/( x2(4)-x2(3) )*( x2(2)-x2(3) ) + phi(2:n(1)-1, 3, 1 )
+      phi(2:n(1)-1, 1, 2 ) = ( phi(2:n(1)-1, 1, 4 )-phi(2:n(1)-1, 1, 3 ) )/( x3(4)-x3(3) )*( x3(2)-x3(3) ) + phi(2:n(1)-1, 1, 3 )
+      !phi(2:n(1)-1, 2, 2 ) = ( phi(2:n(1)-1, 2, 3 )+phi(2:n(1)-1, 3, 2 ) + phi(2:n(1)-1, 2, 1 ) + phi(2:n(1)-1, 1, 2 ) )/4.
+      phi(2:n(1)-1, 2, 2 ) = ( &
+        phi(2:n(1)-1, 2, 1 )*( x3(3)-x3(2) )/( x3(3)-x3(1) ) + &
+        phi(2:n(1)-1, 2, 3 )*( x3(2)-x3(1) )/( x3(3)-x3(1) ) + &
+        phi(2:n(1)-1, 1, 2 )*( x2(3)-x2(2) )/( x2(3)-x2(1) ) + &
+        phi(2:n(1)-1, 3, 2 )*( x2(2)-x2(1) )/( x2(3)-x2(1) )   &
+        )/2.
+    endif
+    if( BCL(2)>0 .and. BCU(3)>0 ) then
+      phi(1:n(1), 1, n(3)  ) = 0.
+      phi(2:n(1)-1, 2, n(3)  ) = ( phi(2:n(1)-1, 4, n(3)  )-phi(2:n(1)-1, 3, n(3)  ) )/( x2(4)-x2(3) )*( x2(2)-x2(3) )                     + phi(2:n(1)-1, 3, n(3)  )
+      phi(2:n(1)-1, 1, n(3)-1) = ( phi(2:n(1)-1, 1, n(3)-2)-phi(2:n(1)-1, 1, n(3)-3) )/( x3(n(3)-2)-x3(n(3)-3) )*( x3(n(3)-1)-x3(n(3)-2) ) + phi(2:n(1)-1, 1, n(3)-2)
+      !phi(2:n(1)-1, 2, n(3)-1) = ( phi(2:n(1)-1, 2, n(3)) + phi(2:n(1)-1, 3, n(3)-1) + phi(2:n(1)-1, 2, n(3)-2) + phi(2:n(1)-1, 1, n(3)-1) )/4.      
+      phi(2:n(1)-1, 2, n(3)-1) = ( &
+        phi(2:n(1)-1, 2, n(3)  )*( x3(n(3)-1)-x3(n(3)-2) )/( x3(n(3))-x3(n(3)-2) ) + &
+        phi(2:n(1)-1, 2, n(3)-2)*( x3(n(3)  )-x3(n(3)-1) )/( x3(n(3))-x3(n(3)-2) ) + &
+        phi(2:n(1)-1, 1, n(3)-1)*( x2(3)-x2(2) )/( x2(3)-x2(1) ) + &
+        phi(2:n(1)-1, 3, n(3)-1)*( x2(2)-x2(1) )/( x2(3)-x2(1) ) &
+        )/2.      
+    endif
+    if( BCU(2)>0 .and. BCL(3)>0 ) then
+      phi(1:n(1), n(2)  , 1 ) = 0.
+      phi(2:n(1)-1, n(2)-1, 1 ) = ( phi(2:n(1)-1, n(2)-2, 1)-phi(2:n(1)-1, n(2)-3, 1) )/( x2(n(2)-2)-x2(n(2)-3) )*( x2(n(2)-1)-x2(n(2)-2) ) + phi(2:n(1)-1, n(2)-2, 1)
+      phi(2:n(1)-1, n(2)  , 2 ) = ( phi(2:n(1)-1, n(2)  , 4)-phi(2:n(1)-1, n(2)  , 3) )/( x3(4)-x3(3) )*( x3(2)-x3(3) )                     + phi(2:n(1)-1, n(2), 3)
+      !phi(2:n(1)-1, n(2)-1, 2 ) = ( phi(2:n(1)-1, n(2)-1, 3)+phi(2:n(1)-1, n(2), 2 ) + phi(2:n(1)-1, n(2)-1, 1 ) + phi(2:n(1)-1, n(2)-2, 2 ) )/4.     
+      phi(2:n(1)-1, n(2)-1, 2 ) = ( &
+        phi(2:n(1)-1, n(2)-1, 1)*( x3(3)-x3(2) )/( x3(3)-x3(1) ) + &
+        phi(2:n(1)-1, n(2)-1, 3)*( x3(2)-x3(1) )/( x3(3)-x3(1) ) + &
+        phi(2:n(1)-1, n(2)  , 2)*( x2(n(2)-1)-x2(n(2)-2) )/( x2(n(2))-x2(n(2)-2) ) + &
+        phi(2:n(1)-1, n(2)-2, 2)*( x2(n(2)  )-x2(n(2)-1) )/( x2(n(2))-x2(n(2)-2) ) &
+        )/2.     
+    endif
+    if( BCU(2)>0 .and. BCU(3)>0 ) then
+      phi(1:n(1), n(2)  , n(3)  ) = 0.
+      phi(2:n(1)-1, n(2)-1, n(3)  ) = ( phi(2:n(1)-1, n(2)-2, n(3)  )-phi(2:n(1)-1, n(2)-3, n(3)  ) )/( x2(n(2)-2)-x2(n(2)-3) )*( x2(n(2)-1)-x2(n(2)-2) ) + phi(2:n(1)-1, n(2)-2, n(3)  )
+      phi(2:n(1)-1, n(2)  , n(3)-1) = ( phi(2:n(1)-1, n(2)  , n(3)-2)-phi(2:n(1)-1, n(2)  , n(3)-3) )/( x3(n(3)-2)-x3(n(3)-3) )*( x3(n(3)-1)-x3(n(3)-2) ) + phi(2:n(1)-1, n(2)  , n(3)-2)
+      !phi(2:n(1)-1, n(2)-1, n(3)-1) = ( phi(2:n(1)-1, n(2)-1, n(3)) + phi(2:n(1)-1, n(2), n(3)-1) + phi(2:n(1)-1, n(2)-1, n(3)-2) + phi(2:n(1)-1, n(2)-2, n(3)-1) )/4.
+      phi(2:n(1)-1, n(2)-1, n(3)-1) = (                                                   &
+        phi(2:n(1)-1, n(2)-1, n(3)  )*( x3(n(3)-1)-x3(n(3)-2) )/( x3(n(3))-x3(n(3)-2) ) + &
+        phi(2:n(1)-1, n(2)-1, n(3)-2)*( x3(n(3)  )-x3(n(3)-1) )/( x3(n(3))-x3(n(3)-2) ) + &
+        phi(2:n(1)-1, n(2),   n(3)-1)*( x2(n(2)-1)-x2(n(2)-2) )/( x2(n(2))-x2(n(2)-2) ) + &
+        phi(2:n(1)-1, n(2)-2, n(3)-1)*( x2(n(2)  )-x2(n(2)-1) )/( x2(n(2))-x2(n(2)-2) )   &
+        )/2.
+    endif
+
+
+    !if( BCL(1)>0 .and. BCL(2)>0 ) then
+      !phi( 1, 1, 1:n(3)) = 0.
+      !phi( 2, 1, 1:n(3)) = phi( 3, 1, 1:n(3))
+      !phi( 1, 2, 1:n(3)) = phi( 1, 3, 1:n(3))
+      !phi( 2, 2, 1:n(3)) = phi( 3, 3, 1:n(3))
+    !endif
+    !if( BCL(1)>0 .and. BCU(2)>0 ) then
+      !phi(1, n(2)  , 1:n(3)) =  0.
+      !phi(2, n(2)  , 1:n(3)) = phi(3, n(2)  , 1:n(3))
+      !phi(1, n(2)-1, 1:n(3)) = phi(1, n(2)-2, 1:n(3))
+      !phi(2, n(2)-1, 1:n(3)) = phi(3, n(2)-2, 1:n(3))
+    !endif
+    !if( BCU(1)>0 .and. BCL(2)>0 ) then
+      !phi(n(1)  , 1, 1:n(3)) = 0.
+      !phi(n(1)-1, 1, 1:n(3)) = phi(n(1)-2, 1, 1:n(3))
+      !phi(n(1)  , 2, 1:n(3)) = phi(n(1)  , 3, 1:n(3)) 
+      !phi(n(1)-1, 2, 1:n(3)) = phi(n(1)-2, 3, 1:n(3))
+    !endif
+    !if( BCU(1)>0 .and. BCU(2)>0 ) then
+      !phi(n(1)  , n(2)  , 1:n(3)) = 0.
+      !phi(n(1)-1, n(2)  , 1:n(3)) = phi(n(1)-2, n(2)  , 1:n(3))
+      !phi(n(1)  , n(2)-1, 1:n(3)) = phi(n(1)  , n(2)-2, 1:n(3))
+      !phi(n(1)-1, n(2)-1, 1:n(3)) = phi(n(1)-2, n(2)-2, 1:n(3))
+    !endif
+                                
+    !if( BCL(1)>0 .and. BCL(3)>0 ) then
+      !phi(1, 1:n(2), 1) = 0. 
+      !phi(2, 1:n(2), 1) = phi(3, 1:n(2), 1)
+      !phi(1, 1:n(2), 2) = phi(1, 1:n(2), 3)
+      !phi(2, 1:n(2), 2) = phi(3, 1:n(2), 3) 
+    !endif
+    !if( BCL(1)>0 .and. BCU(3)>0 ) then
+      !phi(1, 1:n(2), n(3)  ) = 0
+      !phi(2, 1:n(2), n(3)  ) = phi(3, 1:n(2), n(3)  )
+      !phi(1, 1:n(2), n(3)-1) = phi(1, 1:n(2), n(3)-2)
+      !phi(2, 1:n(2), n(3)-1) = phi(3, 1:n(2), n(3)-2)
+    !endif
+    !if( BCU(1)>0 .and. BCL(3)>0 ) then
+      !phi(n(1)  , 1:n(2), 1 ) = 0.
+      !phi(n(1)-1, 1:n(2), 1 ) = phi(n(1)-2, 1:n(2), 1 )
+      !phi(n(1)  , 1:n(2), 2 ) = phi(n(1)  , 1:n(2), 3 )
+      !phi(n(1)-1, 1:n(2), 2 ) = phi(n(1)-2, 1:n(2), 3 )
+    !endif
+    !if( BCU(1)>0 .and. BCU(3)>0 ) then
+      !phi(n(1)  , 1:n(2), n(3)  ) = 0.
+      !phi(n(1)-1, 1:n(2), n(3)  ) = phi(n(1)-2, 1:n(2), n(3)  )
+      !phi(n(1)  , 1:n(2), n(3)-1) = phi(n(1)  , 1:n(2), n(3)-2)
+      !phi(n(1)-1, 1:n(2), n(3)-1) = phi(n(1)-2, 1:n(2), n(3)-2)
+    !endif
+                                
+    !if( BCL(2)>0 .and. BCL(3)>0 ) then
+      !phi(1:n(1), 1, 1 ) = 0.
+      !phi(1:n(1), 2, 1 ) = phi(1:n(1), 3, 1 )
+      !phi(1:n(1), 1, 2 ) = phi(1:n(1), 1, 3 )
+      !phi(1:n(1), 2, 2 ) = phi(1:n(1), 3, 3 )
+    !endif
+    !if( BCL(2)>0 .and. BCU(3)>0 ) then
+      !phi(1:n(1), 1, n(3)  ) = 0.
+      !phi(1:n(1), 2, n(3)  ) = phi(1:n(1), 3, n(3)  )
+      !phi(1:n(1), 1, n(3)-1) = phi(1:n(1), 1, n(3)-2)
+      !phi(1:n(1), 2, n(3)-1) = phi(1:n(1), 3, n(3)-2)
+    !endif
+    !if( BCU(2)>0 .and. BCL(3)>0 ) then
+      !phi(1:n(1), n(2)  , 1 ) = 0.
+      !phi(1:n(1), n(2)-1, 1 ) = phi(1:n(1), n(2)-2, 1)
+      !phi(1:n(1), n(2)  , 2 ) = phi(1:n(1), n(2)  , 3)
+      !phi(1:n(1), n(2)-1, 2 ) = phi(1:n(1), n(2)-2, 3)
+    !endif
+    !if( BCU(2)>0 .and. BCU(3)>0 ) then
+      !phi(1:n(1), n(2)  , n(3)  ) = 0.
+      !phi(1:n(1), n(2)-1, n(3)  ) = phi(1:n(1), n(2)-2, n(3)  )
+      !phi(1:n(1), n(2)  , n(3)-1) = phi(1:n(1), n(2)  , n(3)-2)
+      !phi(1:n(1), n(2)-1, n(3)-1) = phi(1:n(1), n(2)-2, n(3)-2)
+    !endif
+
+
+  end subroutine MG_InterpolateCornersPost
+
+
+
+  !> \note:       - für allgemeine dd geeignet
+  !!              - dd(i) /= 1 <===> N(i) /= 1
+  !!              - es wird nur in eine Richung ausgetauscht
+  !!              - Null-Setzen am Rand nicht notwendig
+  !!              - Es wird sequentiell über alle Raumrichtungen interpoliert,
+  !!                um keinen individuellen Interpolationsstencil für jeden
+  !!                Punkt im Raum speichern zu müssen.
+  !!              - Durch das sequentielle Interpolieren kann der
+  !!                Interpolationsstencil klein und damit der Gesamtaufwand
+  !!                minimiert werden (Alternative: 8- bzw. 26-Punkt Stencil(!)).
+  !!              - Interpolationskoeffizienten werden auf dem jeweils feineren
+  !!                Gitter gespeichert, um nicht auf die entsprechenden Indizes
+  !!                des gröberen Gitters umrechnen zu müssen.
+  !!              - Die Block-überlappenden Stirnflächen werden ebenfalls
+  !!                mitverarbeitet, aber eigentlich nicht gebraucht (erleichtert
+  !!                die Programmierung), so dass eigentlich eine Initialisierung
+  !!                notwendig wäre. Dies wird jedoch zuvor schon in der
+  !!                korrespondierenden Restriktions-Routine erledigt, so dass
+  !!                dies hier nicht mehr notwendig ist.
+  !!
   !! \attention: Verwendung von parametrischen Strides dd in Schleifen verhindert die Vektorisierung bzw.
   !!            das Prefetching! Andererseits ist der Geschwindigkeitsgewinn nur sehr gering (schon getestet).
   !!
   !! - Geschwindigkeit ist trotz Prefetching / Vektorisierung stark durch die Speicherzugriffszeit limitiert
   !! - Das wird z.B. deutlich bei Single- vs. Dualcorebetrieb
-  !! \note right now we have fixed the weights, so that gridscretching is not yet usable
-  subroutine MG_interpolate( &
-      dimens,                &
-      Nc,                    &
-      bLc,bUc,               &
-      Nf,                    &
-      bLf,bUf,               &
-      iimax,                 &
-      dd,                    &
-      cI1,cI2,cI3,           &
-      phic,                  &
+  subroutine MG_interpolate(  &
+      dimens,                 &
+      Nc,                     &
+      bLc,                    &
+      bUc,                    &
+      Nf,                     &
+      bLf,                    &
+      bUf,                    &
+      iimax,                  &
+      dd,                     &
+      cI1,                    &
+      cI2,                    &
+      cI3,                    &
+      phic,                   &
       phif ) bind(c,name='MG_interpolate')
 
     implicit none
@@ -257,7 +576,7 @@ contains
 
     !***********************************************************************************************************
     !pgi$ unroll = n:8
-    phif( 1:Nf(1):dd(1), 1:Nf(2):dd(2), 1:Nf(3):dd(3) )  =  phic( 1:iimax(1), 1:iimax(2), 1:iimax(3) )
+    phif( 1:Nf(1):dd(1), 1:Nf(2):dd(2), 1:Nf(3):dd(3) ) = phic( 1:iimax(1), 1:iimax(2), 1:iimax(3) )
     !***********************************************************************************************************
 
     !===========================================================================================================
@@ -308,7 +627,7 @@ contains
 
 
 
-  !> \brief interpolating 
+  !> \brief interpolating velocities
   subroutine MG_interpolateV( &
       dimens,                 &
       dir,                    &
@@ -375,12 +694,12 @@ contains
     integer(c_int)                :: N(1:3)
     integer(c_int)                :: ds(1:3)
 
+
     ds = dd
 
     do i = 1,3
       if( iimax(i)<Nc(i) ) ds = 1
     end do
-
 
 
     if( 1==dir ) then
@@ -400,8 +719,8 @@ contains
               jc = ( j+1 )/dd(2) ! holy shit
             end if
             do i = 0, Nf(1) ! zero for dirichlet
-              ic = ( i )/dd(1)+1
-              phif(i,j,k) = cIV(1,i)*phic(ic-1,jc,kc)+cIV(2,i)*phic(ic,jc,kc)
+              ic = ( i )/dd(1)
+              phif(i,j,k) = cIV(1,i)*phic(ic,jc,kc) + cIV(2,i)*phic(ic+1,jc,kc)
             end do
           end do
         end do
@@ -432,10 +751,10 @@ contains
 
         do k = 1, Nf(3), dd(3)
           do j = 2, Nf(2)-1, dd(2)
-            jc = (  j+1  )/dd(2)
+            jc = ( j )/dd(2)
             !pgi$ unroll = n:8
             do i = 0, Nf(1)
-              phif(i,j,k) = 0.5*phif(i,j-1,k) + 0.5*phif(i,j+1,k)
+              phif(i,j,k) = cI2(1,jc)*phif(i,j-1,k) + cI2(2,jc)*phif(i,j+1,k)
             end do
           end do
         end do
@@ -445,10 +764,11 @@ contains
       if( dd(3) /= 1 ) then
 
         do k = 2, Nf(3)-1, dd(3)
+          kc = k/dd(3)
           do j = 1, Nf(2)
             !pgi$ unroll = n:8
             do i = 0, Nf(1)
-              phif(i,j,k) = 0.5*phif(i,j,k-1) + 0.5*phif(i,j,k+1)
+              phif(i,j,k) = cI3(1,kc)*phif(i,j,k-1) + cI3(2,kc)*phif(i,j,k+1)
             end do
           end do
         end do
@@ -508,7 +828,8 @@ contains
           do j = 0, Nf(2)
             !pgi$ unroll = n:8
             do i = 2, Nf(1)-1, dd(1)
-              phif(i,j,k) = 0.5*phif(i-1,j,k) + 0.5*phif(i+1,j,k)
+              ic = i/dd(1)
+              phif(i,j,k) = cI1(1,ic)*phif(i-1,j,k) + cI1(2,ic)*phif(i+1,j,k)
             end do
           end do
         end do
@@ -518,10 +839,11 @@ contains
       if( dd(3) /= 1 ) then
 
         do k = 2, Nf(3)-1, dd(3)
+          kc = k/dd(3)
           do j = 0, Nf(2)
             !pgi$ unroll = n:8
             do i = 1, Nf(1)
-              phif(i,j,k) = 0.5*phif(i,j,k-1) + 0.5*phif(i,j,k+1)
+              phif(i,j,k) = cI3(1,kc)*phif(i,j,k-1) + cI3(2,kc)*phif(i,j,k+1)
             end do
           end do
         end do
@@ -581,7 +903,8 @@ contains
           do j = 1, Nf(2), dd(2)
             !pgi$ unroll = n:8
             do i = 2, Nf(1)-1, dd(1)
-              phif(i,j,k) = 0.5*phif(i-1,j,k) + 0.5*phif(i+1,j,k)
+              ic = i/dd(1)
+              phif(i,j,k) = cI1(1,ic)*phif(i-1,j,k) + cI1(2,ic)*phif(i+1,j,k)
             end do
           end do
         end do
@@ -592,9 +915,10 @@ contains
 
         do k = 0, Nf(3)
           do j = 2, Nf(2)-1, dd(2)
+            jc = j/dd(2)
             !pgi$ unroll = n:8
             do i = 1, Nf(1)
-              phif(i,j,k) = 0.5*phif(i,j-1,k) + 0.5*phif(i,j+1,k)
+              phif(i,j,k) = cI2(1,jc)*phif(i,j-1,k) + cI2(2,jc)*phif(i,j+1,k)
             end do
           end do
         end do
@@ -607,18 +931,18 @@ contains
 
 
 
-  !> \todo ununderstand recevbuf size not coorect
+  !> \todo understand recevbuf size not correct
   !! \todo fix sendbuf size
   subroutine MG_InterpolateScatter( &
-      Nc,                       &
-      bLc,bUc,                  &
-      iimax,                    &
-      n_gather,                 &
-      participate_yes,          &
-      rankc2,                   &
-      comm2,                    &
-      dispI,                    &
-      offsI,                    &
+      Nc,                           &
+      bLc,bUc,                      &
+      iimax,                        &
+      n_gather,                     &
+      participate_yes,              &
+      rankc2,                       &
+      comm2,                        &
+      dispI,                        &
+      offsI,                        &
       phic ) bind(c,name='MG_InterpolateScatter')
 
     implicit none
@@ -693,283 +1017,6 @@ contains
 
 
   end subroutine MG_InterpolateScatter
-
-
-
-
-  !!> \brief interpolating 
-  !subroutine MG_interpolateUX( &
-      !dimens,                 &
-      !dir,                    &
-      !Nc,                     &
-      !bLc,bUc,                &
-      !SSc,NNc,                &
-      !Nf,                     &
-      !bLf,bUf,                &
-      !SSf,NNf,                &
-      !iimax,                  &
-      !dd,                     &
-      !cIV,                    &
-      !phic,                   &
-      !phif ) bind (c,name='MG_interpolateUX')
-
-    !implicit none
-
-    !integer(c_int), intent(in)     :: dimens
-
-    !integer(c_int), intent(in)     :: dir
-
-    !integer(c_int), intent(in)     :: Nc(1:3)
-
-    !integer(c_int), intent(in)     :: bLc(1:3)
-    !integer(c_int), intent(in)     :: bUc(1:3)
-
-    !integer(c_int), intent(in)     :: SSc(1:3)
-    !integer(c_int), intent(in)     :: NNc(1:3)
-
-    !integer(c_int), intent(in)     :: Nf(1:3)
-
-    !integer(c_int), intent(in)     :: bLf(1:3)
-    !integer(c_int), intent(in)     :: bUf(1:3)
-
-    !integer(c_int), intent(in)     :: SSf(1:3)
-    !integer(c_int), intent(in)     :: NNf(1:3)
-
-    !!integer(c_int), intent(in)     :: BCL(1:3)
-    !!integer(c_int), intent(in)     :: BCU(1:3)
-
-    !integer(c_int), intent(in)     :: iimax(1:3)
-    !integer(c_int), intent(in)     :: dd(1:3)
-
-    !real(c_double),  intent(in)    :: cIV ( 1:2, 0:Nf(dir) )
-
-    !real(c_double),  intent(in)    :: cI1 ( 1:2, 1:Nc(1) )
-    !real(c_double),  intent(in)    :: cI2 ( 1:2, 1:Nc(2) )
-    !real(c_double),  intent(in)    :: cI3 ( 1:2, 1:Nc(3) )
-
-    !real(c_double),  intent(in)   :: phic (bLc(1):(Nc(1)+bUc(1)),bLc(2):(Nc(2)+bUc(2)),bLc(3):(Nc(3)+bUc(3)))
-
-    !real(c_double),  intent(out)  :: phif (bLf(1):(Nf(1)+bUf(1)),bLf(2):(Nf(2)+bUf(2)),bLf(3):(Nf(3)+bUf(3)))
-
-    !integer(c_int)                ::  i, ic
-    !integer(c_int)                ::  j, jc
-    !integer(c_int)                ::  k, kc
-
-    !integer(c_int)                :: l
-
-    !integer(c_int)                :: S(1:3)
-    !integer(c_int)                :: N(1:3)
-
-
-    !if( dd(1) /= 1 ) then
-
-      !do k = SSf(3), Nf(3), dd(3)
-        !if( 1==dd(3) ) then
-          !kc = k
-        !else
-          !kc = ( k+1 )/dd(3)
-        !end if
-        !do j = SSf(2), Nf(2), dd(2)
-          !if( 1==dd(2) ) then
-            !jc = j
-          !else
-            !jc = ( j+1 )/dd(2) ! holy shit
-          !end if
-          !do i = SSf(1), Nf(1) ! zero for dirichlet
-            !ic = ( i )/dd(1)+1
-            !phif(i,j,k) = cIV(1,i)*phic(ic-1,jc,kc)+cIV(2,i)*phic(ic,jc,kc)
-          !end do
-        !end do
-      !end do
-
-    !else
-
-      !do k = SSf(3), Nf(3), dd(3)
-        !if( 1==dd(3) ) then
-          !kc = k
-        !else
-          !kc = ( k+1 )/dd(3)
-        !end if
-        !do j = SSf(2), Nf(2), dd(2)
-          !if( 1==dd(2) ) then
-            !jc = j
-          !else
-            !jc = ( j+1 )/dd(2) ! holy shit
-          !end if
-          !do i = SSf(1), Nf(1)
-            !phif(i,j,k) = phic(i,jc,kc)
-          !end do
-        !end do
-      !end do
-
-    !end if
-
-
-  !end subroutine MG_interpolateUX
-
-
-
-  !!> \brief interpolating 
-  !subroutine MG_interpolateUY( &
-      !dimens,                 &
-      !dir,                    &
-      !Nc,                     &
-      !bLc,bUc,                &
-      !SSc,NNc,                &
-      !Nf,                     &
-      !bLf,bUf,                &
-      !SSf,NNf,                &
-      !iimax,                  &
-      !dd,                     &
-      !cIV,                    &
-      !phic,                   &
-      !phif ) bind (c,name='MG_interpolateUY')
-
-    !implicit none
-
-    !integer(c_int), intent(in)     :: dimens
-
-    !integer(c_int), intent(in)     :: dir
-
-    !integer(c_int), intent(in)     :: Nc(1:3)
-
-    !integer(c_int), intent(in)     :: bLc(1:3)
-    !integer(c_int), intent(in)     :: bUc(1:3)
-
-    !integer(c_int), intent(in)     :: SSc(1:3)
-    !integer(c_int), intent(in)     :: NNc(1:3)
-
-    !integer(c_int), intent(in)     :: Nf(1:3)
-
-    !integer(c_int), intent(in)     :: bLf(1:3)
-    !integer(c_int), intent(in)     :: bUf(1:3)
-
-    !integer(c_int), intent(in)     :: SSf(1:3)
-    !integer(c_int), intent(in)     :: NNf(1:3)
-
-    !!integer(c_int), intent(in)     :: BCL(1:3)
-    !!integer(c_int), intent(in)     :: BCU(1:3)
-
-    !integer(c_int), intent(in)     :: iimax(1:3)
-    !integer(c_int), intent(in)     :: dd(1:3)
-
-    !real(c_double),  intent(in)    :: cIV ( 1:2, 0:Nf(dir) )
-
-    !real(c_double),  intent(in)    :: cI1 ( 1:2, 1:Nc(1) )
-    !real(c_double),  intent(in)    :: cI2 ( 1:2, 1:Nc(2) )
-    !real(c_double),  intent(in)    :: cI3 ( 1:2, 1:Nc(3) )
-
-    !real(c_double),  intent(in)   :: phic (bLc(1):(Nc(1)+bUc(1)),bLc(2):(Nc(2)+bUc(2)),bLc(3):(Nc(3)+bUc(3)))
-
-    !real(c_double),  intent(out)  :: phif (bLf(1):(Nf(1)+bUf(1)),bLf(2):(Nf(2)+bUf(2)),bLf(3):(Nf(3)+bUf(3)))
-
-    !integer(c_int)                ::  i, ic
-    !integer(c_int)                ::  j, jc
-    !integer(c_int)                ::  k, kc
-
-    !integer(c_int)                :: l
-
-    !integer(c_int)                :: S(1:3)
-    !integer(c_int)                :: N(1:3)
-
-
-    !if( dd(2) /= 1 ) then
-
-      !do k = SSf(3), Nf(3), dd(3)
-        !do j = SSf(2)+1, Nf(2)-1, dd(2)
-          !jc = (  j+1  )/dd(2)
-          !!pgi$ unroll = n:8
-          !do i = SSf(1), Nf(1)
-            !phif(i,j,k) = 0.5*phif(i,j-1,k) + 0.5*phif(i,j+1,k)
-          !end do
-        !end do
-      !end do
-
-    !end if
-
-  !end subroutine MG_interpolateUY
-
-
-
-  !!> \brief interpolating 
-  !subroutine MG_interpolateUZ( &
-      !dimens,                 &
-      !dir,                    &
-      !Nc,                     &
-      !bLc,bUc,                &
-      !SSc,NNc,                &
-      !Nf,                     &
-      !bLf,bUf,                &
-      !SSf,NNf,                &
-      !iimax,                  &
-      !dd,                     &
-      !cIV,                    &
-      !phic,                   &
-      !phif ) bind (c,name='MG_interpolateUZ')
-
-    !implicit none
-
-    !integer(c_int), intent(in)     :: dimens
-
-    !integer(c_int), intent(in)     :: dir
-
-    !integer(c_int), intent(in)     :: Nc(1:3)
-
-    !integer(c_int), intent(in)     :: bLc(1:3)
-    !integer(c_int), intent(in)     :: bUc(1:3)
-
-    !integer(c_int), intent(in)     :: SSc(1:3)
-    !integer(c_int), intent(in)     :: NNc(1:3)
-
-    !integer(c_int), intent(in)     :: Nf(1:3)
-
-    !integer(c_int), intent(in)     :: bLf(1:3)
-    !integer(c_int), intent(in)     :: bUf(1:3)
-
-    !integer(c_int), intent(in)     :: SSf(1:3)
-    !integer(c_int), intent(in)     :: NNf(1:3)
-
-    !!integer(c_int), intent(in)     :: BCL(1:3)
-    !!integer(c_int), intent(in)     :: BCU(1:3)
-
-    !integer(c_int), intent(in)     :: iimax(1:3)
-    !integer(c_int), intent(in)     :: dd(1:3)
-
-    !real(c_double),  intent(in)    :: cIV ( 1:2, 0:Nf(dir) )
-
-    !real(c_double),  intent(in)    :: cI1 ( 1:2, 1:Nc(1) )
-    !real(c_double),  intent(in)    :: cI2 ( 1:2, 1:Nc(2) )
-    !real(c_double),  intent(in)    :: cI3 ( 1:2, 1:Nc(3) )
-
-    !real(c_double),  intent(in)   :: phic (bLc(1):(Nc(1)+bUc(1)),bLc(2):(Nc(2)+bUc(2)),bLc(3):(Nc(3)+bUc(3)))
-
-    !real(c_double),  intent(out)  :: phif (bLf(1):(Nf(1)+bUf(1)),bLf(2):(Nf(2)+bUf(2)),bLf(3):(Nf(3)+bUf(3)))
-
-    !integer(c_int)                ::  i, ic
-    !integer(c_int)                ::  j, jc
-    !integer(c_int)                ::  k, kc
-
-    !integer(c_int)                :: l
-
-    !integer(c_int)                :: S(1:3)
-    !integer(c_int)                :: N(1:3)
-
-
-    !if( dd(3) /= 1 ) then
-
-      !do k = SSf(3)+1, Nf(3)-1, dd(3)
-        !do j = SSf(2), Nf(2)
-          !!pgi$ unroll = n:8
-          !do i = SSf(1), Nf(1)
-            !phif(i,j,k) = 0.5*phif(i,j,k-1) + 0.5*phif(i,j,k+1)
-          !end do
-        !end do
-      !end do
-
-    !end if
-
-
-  !end subroutine MG_interpolateUZ
 
 
 end module cmod_InterpolationOp

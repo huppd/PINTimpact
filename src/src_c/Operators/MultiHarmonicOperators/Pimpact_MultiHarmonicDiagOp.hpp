@@ -3,12 +3,10 @@
 #define PIMPACT_MULDTIHARMONICDIAGOP_HPP
 
 
-#include "Pimpact_Types.hpp"
-#include "Pimpact_FieldFactory.hpp"
-
-#include "Pimpact_MultiHarmonicField.hpp"
-
 #include "Pimpact_EddyPrec.hpp"
+#include "Pimpact_FieldFactory.hpp"
+#include "Pimpact_MultiHarmonicField.hpp"
+#include "Pimpact_Types.hpp"
 
 
 
@@ -17,7 +15,7 @@ namespace Pimpact {
 
 
 /// \ingroup MultiHarmonicOperator
-template<class ZeroOpT>
+template< class ZeroOpT, class ModeOpT >
 class MultiHarmonicDiagOp {
 
 	public:
@@ -34,19 +32,18 @@ protected:
 
   Teuchos::RCP<ZeroOpT> zeroOp_;
 
-	Teuchos::RCP< EddyPrec<ZeroOpT> > modeOp_;
+	Teuchos::RCP<ModeOpT> modeOp_;
 
 public:
 
   /// \todo get nf from grid
-  MultiHarmonicDiagOp( const Teuchos::RCP<ZeroOpT>& zeroOp ):
-		zeroOp_(zeroOp),
-		modeOp_( create<EddyPrec>(zeroOp_) ) {};
+  MultiHarmonicDiagOp( const Teuchos::RCP<ZeroOpT>& zeroOp, const Teuchos::RCP<ModeOpT>& modeOp ):
+		zeroOp_( zeroOp ),
+		modeOp_( modeOp ) {};
 
 
   void assignField( const DomainFieldT& mv ) {
 
-//		mv.write( 99 );
     zeroOp_->assignField( mv.getConst0Field() );
 
   };
@@ -54,10 +51,10 @@ public:
 
   void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 		
-		int Nf = zeroOp_->space()->nGlo(3);
+//		int Nf = zeroOp_->space()->nGlo(3);
 
-		Scalar iRe = 1./zeroOp_->space()->getDomain()->getDomainSize()->getRe();
-		Scalar a2 = zeroOp_->space()->getDomain()->getDomainSize()->getAlpha2()*iRe;
+		Scalar iRe = 1./zeroOp_->space()->getDomainSize()->getRe();
+		Scalar a2 = zeroOp_->space()->getDomainSize()->getAlpha2()*iRe;
 
 		Scalar mulI;
 
@@ -69,20 +66,25 @@ public:
 		para->set<Scalar>( "mulL", iRe );
 		zeroOp_->setParameter( para );
 
-    zeroOp_->apply( x.getConst0Field(), y.get0Field() );
+		if( space()->sInd(U,3)<0 )
+			zeroOp_->apply( x.getConst0Field(), y.get0Field() );
 
-		for( int i=0; i<Nf; ++i ) {
+//		for( int i=0; i<Nf; ++i ) {
+		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i ){ 
 //			if( a2*(i+1)<iRe ) {
 //				zeroOp_->apply( x.getConstCField(i), y.getCField(i) );
 //				zeroOp_->apply( x.getConstSField(i), y.getSField(i) );
 //			}
 //			else{
 				// set parameters
-				para->set<Scalar>( "mulI", a2*(i+1) );
-				zeroOp_->setParameter( para );
-				modeOp_->apply( x.getConstField(i), y.getField(i) );
+			para->set<Scalar>( "mulI", a2*(i+1) );
+			para->set<Scalar>( "mulC", 1. );
+			para->set<Scalar>( "mulL", iRe );
+			modeOp_->setParameter( para );
+			modeOp_->apply( x.getConstField(i), y.getField(i) );
 //			}
 		}
+		y.changed();
 
   }
 
@@ -105,11 +107,13 @@ public:
 
 
 /// \relates MultiHarmonicDiagOp
-template<class ZeroOpT>
-Teuchos::RCP<MultiHarmonicDiagOp<ZeroOpT> >
-createMultiHarmonicDiagOp( const Teuchos::RCP<ZeroOpT>& zeroOpT ) {
+template<class ZeroOpT, class ModeOpT>
+Teuchos::RCP<MultiHarmonicDiagOp<ZeroOpT,ModeOpT> >
+createMultiHarmonicDiagOp(
+		const Teuchos::RCP<ZeroOpT>& zeroOp,
+		const Teuchos::RCP<ModeOpT>& modeOp ) {
 
-  return( Teuchos::rcp( new MultiHarmonicDiagOp<ZeroOpT>( zeroOpT ) ) );
+  return( Teuchos::rcp( new MultiHarmonicDiagOp<ZeroOpT,ModeOpT>( zeroOp, modeOp ) ) );
 
 }
 

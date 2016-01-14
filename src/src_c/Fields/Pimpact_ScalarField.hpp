@@ -5,23 +5,24 @@
 
 #include <vector>
 #include <iostream>
+
 #include "mpi.h"
 
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_ScalarTraits.hpp"
+#include "Teuchos_Tuple.hpp"
 
 #include "BelosTypes.hpp"
 
-#include "Pimpact_Types.hpp"
-
-#include "Pimpact_extern_ScalarField.hpp"
-
 #include "Pimpact_AbstractField.hpp"
+#include "Pimpact_extern_ScalarField.hpp"
+#include "Pimpact_Types.hpp"
 
 
 
 
 namespace Pimpact {
+
 
 
 /// \brief important basic Vector class
@@ -31,13 +32,6 @@ namespace Pimpact {
 /// \todo think about using Teuchos::ArrayRCP instead of Scalar* should make delete
 template<class SpaceType>
 class ScalarField : private AbstractField< SpaceType > {
-
-	template<class SpaceTT>
-	friend class DivGradO2JSmoother;
-//  template<class OperatorTT>
-//  friend class ConvectionDiffusionJSmoother;
-  template<class Field>
-  friend class TimeField;
 
 public:
 
@@ -62,6 +56,13 @@ protected:
 
   EField fType_;
 
+private:
+
+	void allocate() {
+		Ordinal n = getStorageSize();
+		s_ = new Scalar[n];
+	}
+
 public:
 
 
@@ -72,25 +73,18 @@ public:
     fType_(fType) {
 
     if( owning_ ) {
-
-      Ordinal N = getStorageSize();
-
-      s_ = new Scalar[N];
-
-//#ifdef DEBUG
-//		 for(int i=0; i<N; ++i)
-//			 s_[i] = 0.;
-//#endif // end of #ifdef DEBUG
+			allocate();
 			initField();
     }
+
   };
 
 
   /// \brief copy constructor.
   ///
-  /// shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
-  /// \param sF
-  /// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
+	/// \note copyType is 
+  /// \param sF ScalarField which is copied
+  /// \param copyType by default a DeepCopy is done but also allows to ShallowCopy
   ScalarField( const ScalarField& sF, ECopyType copyType=DeepCopy ):
     AbstractField<SpaceT>( sF.space() ),
     owning_( sF.owning_ ),
@@ -99,20 +93,14 @@ public:
 
     if( owning_ ) {
 
-      Ordinal N = getStorageSize();
-
-      s_ = new Scalar[N];
+			allocate();
 
       switch( copyType ) {
       case ShallowCopy:
-//#ifdef DEBUG
-//			 for(int i=0; i<N; ++i)
-//				 s_[i] = 0;
-//#endif // end of #ifdef DEBUG
 				initField();
         break;
       case DeepCopy:
-        for( int i=0; i<N; ++i)
+        for( int i=0; i<getStorageSize(); ++i)
           s_[i] = sF.s_[i];
         break;
       }
@@ -120,13 +108,24 @@ public:
 
   };
 
-  ~ScalarField() {
-    if( owning_ ) delete[] s_;
-  }
+
+	~ScalarField() { if( owning_ ) delete[] s_; }
 
 
-  Teuchos::RCP<MV> clone( ECopyType ctype=DeepCopy ) const {
-    return( Teuchos::rcp( new MV(*this, ctype) ) );
+  Teuchos::RCP<MV> clone( ECopyType copyType=DeepCopy ) const {
+
+		Teuchos::RCP<MV> mv = Teuchos::rcp( new MV( space(), true, this->fType_ ) );
+
+		switch( copyType ) {
+			case ShallowCopy:
+				break;
+			case DeepCopy:
+				for( int i=0; i<getStorageSize(); ++i)
+					mv->getRawPtr()[i] = s_[i];
+				break;
+		}
+    return( mv );
+
   }
 
   /// \name Attribute methods
@@ -135,48 +134,84 @@ public:
   /// \brief returns the length of Field.
   Ordinal getLength( bool dummy=false ) const {
 
-    //    auto bc = space_->getDomain()->getBCGlobal();
-    //    auto bc = AbstractField<S,O,d>::space_->getDomain()->getBCGlobal();
-    //        auto bc = this->space_->getDomain()->getBCGlobal();
-    auto bc = space()->getDomain()->getBCGlobal();
+		Teuchos::RCP<const BoundaryConditionsGlobal<dimension> > bc =
+			space()->getBCGlobal();
 
     Ordinal vl = 1;
 
-    switch( fType_ ) {
-    case EField::S: {
-      for(int i = 0; i<space()->dim(); ++i)
-        if( PeriodicBC==bc->getBCL(i) )
-          vl *= space()->nGlo(i)-1;
-        else
-          vl *= space()->nGlo(i);
-      break;
-    }
-    default: {
-      for( int j=0; j<space()->dim(); ++j) {
-        if( fType_==j ) {
-          vl *= space()->nGlo(j)-1;
-        }
-        else {
-          if( PeriodicBC==bc->getBCL(j) )
-            vl *= space()->nGlo(j)-2+1;
-          else
-            vl *= space()->nGlo(j)-2;
-        }
-      }
-      break;
-    }
-    }
-    return( vl );
-  }
+		switch( fType_ ) {
+			case EField::S : {
+				for(int i = 0; i<space()->dim(); ++i)
+					if( PeriodicBC==bc->getBCL(i) )
+						vl *= space()->nGlo(i)-1;
+					else
+						vl *= space()->nGlo(i);
+
+				const Ordinal* n = space()->nGlo();
+
+				const int* bcl =  space()->getBCGlobal()->getBCL();
+				const int* bcu =  space()->getBCGlobal()->getBCU();
+
+				if( 2==space()->dim() ) {
+					if( bcl[0]>0 && bcl[1]>0 ) vl -= 1;
+					if( bcl[0]>0 && bcu[1]>0 ) vl -= 1;
+					if( bcu[0]>0 && bcl[1]>0 ) vl -= 1;
+					if( bcu[0]>0 && bcu[1]>0 ) vl -= 1;
+				}
+				else{
+					if( bcl[0]>0 && bcl[1]>0 ) vl -= n[2]-2;
+					if( bcl[0]>0 && bcu[1]>0 ) vl -= n[2]-2;
+					if( bcu[0]>0 && bcl[1]>0 ) vl -= n[2]-2;
+					if( bcu[0]>0 && bcu[1]>0 ) vl -= n[2]-2;
+
+					if( bcl[0]>0 && bcl[2]>0 ) vl -= n[1]-2;
+					if( bcl[0]>0 && bcu[2]>0 ) vl -= n[1]-2;
+					if( bcu[0]>0 && bcl[2]>0 ) vl -= n[1]-2;
+					if( bcu[0]>0 && bcu[2]>0 ) vl -= n[1]-2;
+
+					if( bcl[1]>0 && bcl[2]>0 ) vl -= n[0]-2;
+					if( bcl[1]>0 && bcu[2]>0 ) vl -= n[0]-2;
+					if( bcu[1]>0 && bcl[2]>0 ) vl -= n[0]-2;
+					if( bcu[1]>0 && bcu[2]>0 ) vl -= n[0]-2;
+
+					if( bcl[0]>0 && bcl[1]>0 && bcl[2]>0 ) vl -= 1;
+					if( bcu[0]>0 && bcl[1]>0 && bcl[2]>0 ) vl -= 1;
+					if( bcl[0]>0 && bcu[1]>0 && bcl[2]>0 ) vl -= 1;
+					if( bcl[0]>0 && bcl[1]>0 && bcu[2]>0 ) vl -= 1;
+
+					if( bcu[0]>0 && bcu[1]>0 && bcu[2]>0 ) vl -= 1;
+					if( bcl[0]>0 && bcu[1]>0 && bcu[2]>0 ) vl -= 1;
+					if( bcu[0]>0 && bcl[1]>0 && bcu[2]>0 ) vl -= 1;
+					if( bcu[0]>0 && bcu[1]>0 && bcl[2]>0 ) vl -= 1;
+				}
+				break;
+			}
+			default: {
+				for( int j=0; j<space()->dim(); ++j) {
+					if( fType_==j ) {
+						vl *= space()->nGlo(j)-1;
+					}
+					else {
+						if( PeriodicBC==bc->getBCL(j) )
+							vl *= space()->nGlo(j)-2+1;
+						else
+							vl *= space()->nGlo(j)-2;
+					}
+				}
+				break;
+			}
+		}
+		return( vl );
+	}
 
 
   /// \brief get number of stored Field's
   int getNumberVecs() const { return( 1 ); }
 
 
-  /// \}
+  /// @}
   /// \name Update methods
-  /// \{
+  /// @{
 
   /// \brief Replace \c this with \f$\alpha A + \beta B\f$.
   void add( const Scalar& alpha, const MV& A, const Scalar& beta, const MV& B ) {
@@ -284,10 +319,16 @@ public:
     changed();
   }
 
+  /// @}
+  /// \name Norm method(reductions)
+  /// @{
 
-  /// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
+	/// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
   Scalar dot ( const MV& a, bool global=true ) const {
+
     Scalar b = 0.;
+
+		setCornersZero();
 
     SF_dot(
         space()->nLoc(),
@@ -305,16 +346,16 @@ public:
   }
 
 
-  ///\}
-  /// \name Norm method
-  ///\{
 
 
   /// \brief compute the norm
   /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
+	/// \todo include scaled norm
   Scalar norm(  Belos::NormType type = Belos::TwoNorm, bool global=true ) const {
 
     Scalar normvec = 0.;
+
+		setCornersZero();
 
     switch(type) {
     case Belos::OneNorm:
@@ -365,13 +406,16 @@ public:
 
     Scalar normvec = 0.;
 
+		setCornersZero();
+
     SF_weightedNorm(
         space()->nLoc(),
         space()->bl(),
         space()->bu(),
         space()->sInd(fType_ ),
         space()->eInd(fType_),
-        s_, weights.s_,
+        s_,
+				weights.s_,
         normvec );
 
     if( global ) this->reduceNorm( comm(), normvec, Belos::TwoNorm );
@@ -412,7 +456,7 @@ public:
 
 
   /// \brief Replace the vectors with a random vectors.
-  /// depending on Fortrans \c Random_number implementation, with always same seed => not save, if good randomness is requiered
+  /// depending on Fortrans \c Random_number implementation, with always same seed => not save, if good randomness is required
   void random( bool useSeed = false, int seed = 1 ) {
     SF_random(
         space()->nLoc(),
@@ -435,6 +479,7 @@ public:
 
 
   /// \brief Replace each element of the vector  with \c alpha.
+	/// \deprecated
   void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero() ) {
     SF_init(
         space()->nLoc(),
@@ -455,184 +500,321 @@ public:
     changed();
   }
 
+protected:
 
-  ///  \brief initializes VectorField with the initial field defined in Fortran
-  void initField( EScalarField fieldType = ConstField, Scalar alpha=0. ) {
-    switch( fieldType ) {
-    case ConstField :
-      SF_init(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sIndB(fType_),
-          space()->eIndB(fType_),
-          s_,
-          alpha );
-      break;
-    case Grad2D_inX :
-      SF_init_2DGradX(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sIndB(fType_),
-          space()->eIndB(fType_),
-          space()->getDomain()->getDomainSize()->getSize( X ),
-          space()->getCoordinatesLocal()->getX( X, fType_ ),
-          s_,
-				 	(std::abs(alpha)<1.e-16)?1.:alpha	);
-      break;
-    case Grad2D_inY :
-      SF_init_2DGradY(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sIndB(fType_),
-          space()->eIndB(fType_),
-          space()->getDomain()->getDomainSize()->getSize( Y ),
-          space()->getCoordinatesLocal()->getX( Y, fType_ ),
-          s_ ,
-				 	(std::abs(alpha)<1.e-16)?1.:alpha	);
-      break;
-    case Grad2D_inZ :
-      SF_init_2DGradZ(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sIndB(fType_),
-          space()->eIndB(fType_),
-          space()->getDomain()->getDomainSize()->getSize( Z ),
-          space()->getCoordinatesLocal()->getX( Z, fType_ ),
-          s_ ,
-				 	(std::abs(alpha)<1.e-16)?1.:alpha	);
-      break;
-    case Poiseuille2D_inX :
-      SF_init_2DPoiseuilleX(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sIndB(fType_),
-          space()->eIndB(fType_),
-          space()->getDomain()->getDomainSize()->getSize( X ),
-          space()->getCoordinatesLocal()->getX( X, fType_ ),
-          s_ );
-      break;
-    case Poiseuille2D_inY :
-      SF_init_2DPoiseuilleY(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sIndB(fType_),
-          space()->eIndB(fType_),
-          space()->getDomain()->getDomainSize()->getSize( Y ),
-          space()->getCoordinatesLocal()->getX( Y, fType_ ),
-          s_ );
-      break;
-    case Poiseuille2D_inZ :
-      SF_init_2DPoiseuilleZ(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sIndB(fType_),
-          space()->eIndB(fType_),
-          space()->getDomain()->getDomainSize()->getSize( Z ),
-          space()->getCoordinatesLocal()->getX( Z, fType_ ),
-          s_ );
-      break;
-		case FPoint :
-			Scalar xc[3] =
-			{ 
-				1.,
-//				1.,
-//				space()->getDomain()->getDomainSize()->getSize( X )/4.,
-				space()->getDomain()->getDomainSize()->getSize( Y )/2.,
-				space()->getDomain()->getDomainSize()->getSize( Z )/2. };
-			Scalar amp = alpha; //2./space()->getDomain()->getDomainSize()->getRe();
-			Scalar sig[3] = { 0.2, 0.2, 0.2 };
-      SF_init_Vpoint(
+	/// \brief helper function getting \c EScalarField for switch statement from name 
+	///
+	/// \param name input name
+	/// \return according int number
+	EScalarField string2enum( const std::string& name ) {
+
+		std::string lcName = name;
+		std::transform(lcName.begin(), lcName.end(), lcName.begin(), ::tolower);
+
+		if( "constant" == lcName) return( ConstField );
+		else if( "poiseuille" == lcName ) return( Poiseuille2D_inX );
+		else if( "poiseuille in x" == lcName ) return( Poiseuille2D_inX );
+		else if( "poiseuille in y" == lcName ) return( Poiseuille2D_inY );
+		else if( "poiseuille in z" == lcName ) return( Poiseuille2D_inZ );
+		else if( "grad in x" == lcName ) return( Grad2D_inX );
+		else if( "grad in y" == lcName ) return( Grad2D_inY );
+		else if( "grad in z" == lcName ) return( Grad2D_inZ );
+		else if( "point" == lcName ) return( FPoint );
+		else {
+			const bool& Flow_Type_not_known = true; 
+			TEUCHOS_TEST_FOR_EXCEPT( Flow_Type_not_known );
+		}
+		return( ConstField ); // just to please the compiler
+	}
+
+public:
+
+	///  \brief initializes including boundaries to zero 
+	void initField( Teuchos::ParameterList& para ) {
+
+		EScalarField type =
+			string2enum( para.get<std::string>( "Type", "constant" ) );
+
+		switch( type ) {
+			case ConstField :
+				SF_init(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(fType_),
+						space()->eIndB(fType_),
+						s_,
+						para.get<Scalar>( "C", 0. ) );
+				break;
+			case Grad2D_inX :
+				SF_init_2DGradX(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(fType_),
+						space()->eIndB(fType_),
+						space()->getDomainSize()->getSize( X ),
+						space()->getCoordinatesLocal()->getX( X, fType_ ),
+						s_,
+						para.get<Scalar>( "dx", 1. )	);
+				break;
+			case Grad2D_inY :
+				SF_init_2DGradY(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(fType_),
+						space()->eIndB(fType_),
+						space()->getDomainSize()->getSize( Y ),
+						space()->getCoordinatesLocal()->getX( Y, fType_ ),
+						s_ ,
+						para.get<Scalar>( "dy", 1. )	);
+				break;
+			case Grad2D_inZ :
+				SF_init_2DGradZ(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(fType_),
+						space()->eIndB(fType_),
+						space()->getDomainSize()->getSize( Z ),
+						space()->getCoordinatesLocal()->getX( Z, fType_ ),
+						s_ ,
+						para.get<Scalar>( "dz", 1. )	);
+				break;
+			case Poiseuille2D_inX :
+				SF_init_2DPoiseuilleX(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(fType_),
+						space()->eIndB(fType_),
+						space()->getDomainSize()->getSize( X ),
+						space()->getCoordinatesLocal()->getX( X, fType_ ),
+						s_ );
+				break;
+			case Poiseuille2D_inY :
+				SF_init_2DPoiseuilleY(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(fType_),
+						space()->eIndB(fType_),
+						space()->getDomainSize()->getSize( Y ),
+						space()->getCoordinatesLocal()->getX( Y, fType_ ),
+						s_ );
+				break;
+			case Poiseuille2D_inZ :
+				SF_init_2DPoiseuilleZ(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(fType_),
+						space()->eIndB(fType_),
+						space()->getDomainSize()->getSize( Z ),
+						space()->getCoordinatesLocal()->getX( Z, fType_ ),
+						s_ );
+				break;
+			case FPoint :
+				Scalar xc[3] = { 
+					para.get<Scalar>( "c_x", 1. ),
+					para.get<Scalar>( "c_y", space()->getDomainSize()->getSize( Y )/2. ),
+					para.get<Scalar>( "c_z", space()->getDomainSize()->getSize( Z )/2. ) };
+				Scalar amp = para.get<Scalar>( "amp", 1. );
+				Scalar sig[3] = {
+					para.get<Scalar>( "sig_x", 0.2 ),
+					para.get<Scalar>( "sig_y", 0.2 ),
+					para.get<Scalar>( "sig_z", 0.2 ) };
+				SF_init_Vpoint(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(fType_),
+						space()->eIndB(fType_),
+						space()->getCoordinatesLocal()->getX( X, fType_ ),
+						space()->getCoordinatesLocal()->getX( Y, fType_ ),
+						space()->getCoordinatesLocal()->getX( Z, fType_ ),
+						xc,
+						amp,
+						sig,
+						s_ );
+				break;
+		}
+
+		if( !space()->getProcGrid()->participating() ) // not sure why?
+			SF_init(
 					space()->nLoc(),
 					space()->bl(),
 					space()->bu(),
 					space()->sIndB(fType_),
 					space()->eIndB(fType_),
-					space()->getCoordinatesLocal()->getX( X, fType_ ),
-					space()->getCoordinatesLocal()->getX( Y, fType_ ),
-					space()->getCoordinatesLocal()->getX( Z, fType_ ),
-					xc,
-					amp,
-					sig,
-					s_ );
-      break;
-    }
+					s_,
+					0. );
+
+		changed();
+	}
+
+
+	/// \brief initializes VectorField with the initial field defined in Fortran
+	/// \deprecated
+	void initField( EScalarField fieldType = ConstField, Scalar alpha=0. ) {
+		switch( fieldType ) {
+			case ConstField :
+				SF_init(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(fType_),
+						space()->eIndB(fType_),
+						s_,
+						alpha );
+				break;
+			case Grad2D_inX :
+				SF_init_2DGradX(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(fType_),
+						space()->eIndB(fType_),
+						space()->getDomainSize()->getSize( X ),
+						space()->getCoordinatesLocal()->getX( X, fType_ ),
+						s_,
+						(std::abs(alpha)<1.e-16)?1.:alpha	);
+				break;
+			case Grad2D_inY :
+				SF_init_2DGradY(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(fType_),
+						space()->eIndB(fType_),
+						space()->getDomainSize()->getSize( Y ),
+						space()->getCoordinatesLocal()->getX( Y, fType_ ),
+						s_ ,
+						(std::abs(alpha)<1.e-16)?1.:alpha	);
+				break;
+			case Grad2D_inZ :
+				SF_init_2DGradZ(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(fType_),
+						space()->eIndB(fType_),
+						space()->getDomainSize()->getSize( Z ),
+						space()->getCoordinatesLocal()->getX( Z, fType_ ),
+						s_ ,
+						(std::abs(alpha)<1.e-16)?1.:alpha	);
+				break;
+			case Poiseuille2D_inX :
+				SF_init_2DPoiseuilleX(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(fType_),
+						space()->eIndB(fType_),
+						space()->getDomainSize()->getSize( X ),
+						space()->getCoordinatesLocal()->getX( X, fType_ ),
+						s_ );
+				break;
+			case Poiseuille2D_inY :
+				SF_init_2DPoiseuilleY(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(fType_),
+						space()->eIndB(fType_),
+						space()->getDomainSize()->getSize( Y ),
+						space()->getCoordinatesLocal()->getX( Y, fType_ ),
+						s_ );
+				break;
+			case Poiseuille2D_inZ :
+				SF_init_2DPoiseuilleZ(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(fType_),
+						space()->eIndB(fType_),
+						space()->getDomainSize()->getSize( Z ),
+						space()->getCoordinatesLocal()->getX( Z, fType_ ),
+						s_ );
+				break;
+			case FPoint :
+				Scalar xc[3] =
+				{ 
+					1.,
+					//				1.,
+					//				space()->getDomainSize()->getSize( X )/4.,
+					space()->getDomainSize()->getSize( Y )/2.,
+					space()->getDomainSize()->getSize( Z )/2. };
+				Scalar amp = alpha; //2./space()->getDomainSize()->getRe();
+				Scalar sig[3] = { 0.2, 0.2, 0.2 };
+				SF_init_Vpoint(
+						space()->nLoc(),
+						space()->bl(),
+						space()->bu(),
+						space()->sIndB(fType_),
+						space()->eIndB(fType_),
+						space()->getCoordinatesLocal()->getX( X, fType_ ),
+						space()->getCoordinatesLocal()->getX( Y, fType_ ),
+						space()->getCoordinatesLocal()->getX( Z, fType_ ),
+						xc,
+						amp,
+						sig,
+						s_ );
+				break;
+		}
 
 		if( !space()->getProcGrid()->participating() )
 			SF_init(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sIndB(fType_),
-          space()->eIndB(fType_),
-          s_,
-          0. );
-    changed();
-  }
-
-
-	void level() const {
-
-		if( EField::S == fType_ ) {
-			auto m = getLength();
-			auto n = space()->nGlo();
-
-			auto bcl =  space()->getDomain()->getBCGlobal()->getBCL();
-			auto bcu =  space()->getDomain()->getBCGlobal()->getBCL();
-
-			if( bcl[0]>0 && bcl[1]>0 ) m -= n[2]-1;
-			if( bcl[0]>0 && bcu[1]>0 ) m -= n[2]-1;
-			if( bcu[0]>0 && bcl[1]>0 ) m -= n[2]-1;
-			if( bcu[0]>0 && bcu[1]>0 ) m -= n[2]-1;
-					
-			if( bcl[0]>0 && bcl[2]>0 ) m -= n[1]-1;
-			if( bcl[0]>0 && bcu[2]>0 ) m -= n[1]-1;
-			if( bcu[0]>0 && bcl[2]>0 ) m -= n[1]-1;
-			if( bcu[0]>0 && bcu[2]>0 ) m -= n[1]-1;
-					
-			if( bcl[1]>0 && bcl[2]>0 ) m -= n[0]-1;
-			if( bcl[1]>0 && bcu[2]>0 ) m -= n[0]-1;
-			if( bcu[1]>0 && bcl[2]>0 ) m -= n[0]-1;
-			if( bcu[1]>0 && bcu[2]>0 ) m -= n[0]-1;
-
-
-			//		set corners to zero, such that level depends only on inner field
-			SF_handle_corner(
-					space()->nLoc(),
-					space()->bl(),
-					space()->bu(),
-					space()->getDomain()->getBCLocal()->getBCL(),
-					space()->getDomain()->getBCLocal()->getBCU(),
-					s_ );
-
-			SF_level(
-					MPI_Comm_c2f( space()->comm() ),
-					m,
 					space()->nLoc(),
 					space()->bl(),
 					space()->bu(),
 					space()->sIndB(fType_),
 					space()->eIndB(fType_),
-					s_ );
+					s_,
+					0. );
+		changed();
+	}
 
+
+	/// \brief set corners of Dirichlet boundary conditions to zero
+	void setCornersZero() const {
+
+		if( EField::S == fType_ ) {
 			SF_handle_corner(
 					space()->nLoc(),
 					space()->bl(),
 					space()->bu(),
-					space()->getDomain()->getBCLocal()->getBCL(),
-					space()->getDomain()->getBCLocal()->getBCU(),
+					space()->getBCLocal()->getBCL(),
+					space()->getBCLocal()->getBCU(),
 					s_ );
 
 			changed();
 		}
 	}
 
+
+	void level() const {
+
+		if( EField::S == fType_ ) {
+
+			// set corners to zero, such that level depends only on inner field
+			setCornersZero();
+
+			SF_level(
+					MPI_Comm_c2f( space()->comm() ),
+					//m,
+					getLength(),
+					space()->nLoc(),
+					space()->bl(),
+					space()->bu(),
+					space()->sIndB(fType_),
+					space()->eIndB(fType_),
+					s_ );
+
+			//changed(); already done in setCornersZero
+		}
+	}
 
   /// \}
 
@@ -676,7 +858,7 @@ public:
 				Teuchos::Tuple<Ordinal,3> N;
 				for( int i=0; i<3; ++i ) {
 					N[i] = space()->nGlo(i);
-          if( space()->getDomain()->getBCGlobal()->getBCL(i)==Pimpact::PeriodicBC )
+          if( space()->getBCGlobal()->getBCL(i)==Pimpact::PeriodicBC )
 						N[i] = N[i]-1;
 				}
 				std::ofstream xfile;
@@ -738,25 +920,25 @@ public:
             space()->rankS(),
             MPI_Comm_c2f( space()->comm() ),
             space()->nGlo(),
-            space()->getDomain()->getBCGlobal()->getBCL(),
-            space()->getDomain()->getBCGlobal()->getBCU(),
+            space()->getBCGlobal()->getBCL(),
+            space()->getBCGlobal()->getBCU(),
             space()->nLoc(),
             space()->bl(),
             space()->bu(),
             space()->sInd(EField::S),
             space()->eInd(EField::S),
             space()->getStencilWidths()->getLS(),
-            space()->getProcGridSize()->get(),
-            space()->getProcGrid()->getIB(),
-            space()->getProcGrid()->getShift(),
+            space()->np(),
+            space()->ib(),
+            space()->getShift(),
             (int)fType_,
             count,
             (EField::S==fType_)?9:10,
 						(EField::S==fType_)?s_:temp->s_,
 						space()->getCoordinatesGlobal()->get(0,EField::S),
 						space()->getCoordinatesGlobal()->get(1,EField::S),
-						space()->getDomain()->getDomainSize()->getRe(),
-						space()->getDomain()->getDomainSize()->getAlpha2() );
+						space()->getDomainSize()->getRe(),
+						space()->getDomainSize()->getAlpha2() );
       }
       else if( 3==space()->dim() ) {
 
@@ -766,17 +948,17 @@ public:
             space()->rankS(),
             MPI_Comm_c2f( space()->comm() ),
             space()->nGlo(),
-            space()->getDomain()->getBCGlobal()->getBCL(),
-            space()->getDomain()->getBCGlobal()->getBCU(),
+            space()->getBCGlobal()->getBCL(),
+            space()->getBCGlobal()->getBCU(),
             space()->nLoc(),
             space()->bl(),
             space()->bu(),
             space()->sInd(EField::S),
             space()->eInd(EField::S),
             space()->getStencilWidths()->getLS(),
-            space()->getProcGridSize()->get(),
-            space()->getProcGrid()->getIB(),
-            space()->getProcGrid()->getShift(),
+            space()->np(),
+            space()->ib(),
+            space()->getShift(),
 						(int)fType_+1,
 						(int)EField::S+1,
             count,
@@ -789,8 +971,8 @@ public:
             space()->getCoordinatesGlobal()->get(0,EField::U),
             space()->getCoordinatesGlobal()->get(1,EField::V),
             space()->getCoordinatesGlobal()->get(2,EField::W),
-            space()->getDomain()->getDomainSize()->getRe(),
-            space()->getDomain()->getDomainSize()->getAlpha2() );
+            space()->getDomainSize()->getRe(),
+            space()->getDomainSize()->getAlpha2() );
 
       }
     }
@@ -802,17 +984,17 @@ public:
           space()->rankS(),
           MPI_Comm_c2f( space()->comm() ),
           space()->nGlo(),
-          space()->getDomain()->getBCGlobal()->getBCL(),
-          space()->getDomain()->getBCGlobal()->getBCU(),
+          space()->getBCGlobal()->getBCL(),
+          space()->getBCGlobal()->getBCU(),
           space()->nLoc(),
           space()->bl(),
           space()->bu(),
           space()->sInd(fType_),
           space()->eInd(fType_),
           space()->getStencilWidths()->getLS(),
-          space()->getProcGridSize()->get(),
-          space()->getProcGrid()->getIB(),
-          space()->getProcGrid()->getShift(),
+          space()->np(),
+          space()->ib(),
+          space()->getShift(),
           (int)fType_+1,
           (int)fType_+1,
           count,
@@ -825,8 +1007,8 @@ public:
           space()->getCoordinatesGlobal()->get(0,EField::U),
           space()->getCoordinatesGlobal()->get(1,EField::V),
           space()->getCoordinatesGlobal()->get(2,EField::W),
-          space()->getDomain()->getDomainSize()->getRe(),
-          space()->getDomain()->getDomainSize()->getAlpha2() );
+          space()->getDomainSize()->getRe(),
+          space()->getDomainSize()->getAlpha2() );
 
     }
 
@@ -839,9 +1021,9 @@ public:
   const EField& getType() const { return( fType_ ); }
 
    /// \name storage methods.
-   /// \brief highly dependent on underlying storage should only be used by Operator or on top field implementer.
-   ///
-   ///\{
+	 /// \brief highly dependent on underlying storage should only be used by
+	 /// Operator or on top field implementer.  
+   /// @{
 
   Ordinal getStorageSize() const {
 
@@ -859,23 +1041,20 @@ public:
 	const Scalar* getConstRawPtr() const { return( s_ ); }
 
 
-  ///\}
+  /// @}
 
   Teuchos::RCP<const SpaceT> space() const { return( AbstractField<SpaceT>::space_ ); }
 
   const MPI_Comm& comm() const { return( space()->comm() ); }
 
   /// \name comunication methods.
-  /// \brief highly dependent on underlying storage should only be used by Operator or on top field implementer.
-  ///
-  ///\{
-//protected:
+	/// \brief highly dependent on underlying storage should only be used by
+	/// Operator or on top field implementer.
+  /// \{
 
   void changed( const int& dir ) const {
     exchangedState_[dir] = false;
   }
-
-
   void changed() const {
     for( int dir=0; dir<space()->dim(); ++dir )
       changed( dir );
@@ -885,7 +1064,6 @@ public:
   bool is_exchanged( const int& dir ) const {
     return( exchangedState_[dir] );
   }
-
   bool is_exchanged() const {
     bool all_exchanged = true;
     for( int dir=0; dir<space()->dim(); ++dir )
@@ -895,7 +1073,6 @@ public:
 
   /// \brief updates ghost layers
   void exchange( const int& dir ) const {
-
 		int ones[3] = {0,0,0};
     if( !exchangedState_[dir] ) {
       F_exchange(
@@ -906,13 +1083,13 @@ public:
           space()->nLoc(),
           space()->bl(),
           space()->bu(),
-          space()->getDomain()->getBCLocal()->getBCL(),
-          space()->getDomain()->getBCLocal()->getBCU(),
+          space()->getBCLocal()->getBCL(),
+          space()->getBCLocal()->getBCU(),
           space()->sInd(EField::S),
           space()->eInd(EField::S),
-//				 space()->sIndB(fType_), // should it work
-//          space()->eIndB(fType_),
-				 ones,
+//				space()->sIndB(fType_), // should it work
+//        space()->eIndB(fType_),
+					ones,
           space()->nLoc(),
           1+dir,
           1+(int)fType_,
@@ -920,15 +1097,20 @@ public:
       exchangedState_[dir] = true;
     }
   }
-
 	void exchange() const {
-
 		for( int dir=0; dir<space()->dim(); ++dir )
 			exchange( dir );
-
 	}
 
-  ///\}
+  void setExchanged( const int& dir ) const {
+    exchangedState_[dir] = true;
+  }
+  void setExchanged(  ) const {
+    for( int dir=0; dir<space()->dim(); ++dir )
+      changed( dir );
+  }
+
+  /// \}
 
 }; // end of class ScalarField
 

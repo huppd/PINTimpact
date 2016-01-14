@@ -3,11 +3,9 @@
 #define PIMPACT_CONVECTIONSOP_HPP
 
 
-#include "Pimpact_Types.hpp"
-
 #include "Pimpact_extern_FDCoeff.hpp"
-
 #include "Pimpact_ScalarField.hpp"
+#include "Pimpact_Types.hpp"
 
 
 
@@ -15,8 +13,8 @@
 namespace Pimpact {
 
 
-extern "C" {
 
+extern "C"
 void OP_convection(
     const int& dimens,
     const int* const N,
@@ -41,7 +39,6 @@ void OP_convection(
     const double& mulI,
     const double& mulC );
 
-}
 
 
 /// \brief convection operator, that takes the free interpolated velocity components and advects accordingly
@@ -74,174 +71,174 @@ protected:
 
 public:
 
-  ConvectionSOp( const Teuchos::RCP<const SpaceT>& space  ):
-    space_(space) {
+	ConvectionSOp( const Teuchos::RCP<const SpaceT>& space  ):
+		space_(space) {
 
-    for( int i=0; i<3; ++i ) {
-      Ordinal nTemp = ( space_->nLoc(i) + 1 )*( space_->nu(i) - space_->nl(i) + 1);
+			for( int i=0; i<3; ++i ) {
 
-      cSD_[i] = new Scalar[ nTemp ];
-      if( i<space_->dim() )
-        FD_getDiffCoeff(
-            space_->rankST(),
-            space_->nLoc(i),
-            space_->bl(i),
-            space_->bu(i),
-            space_->nl(i),
-            space_->nu(i),
-            space_->getDomain()->getBCLocal()->getBCL(i),
-            space_->getDomain()->getBCLocal()->getBCU(i),
-            space_->getShift(i),
-            int(EField::S)+1,
-            i+1,
-            1,
-            -1,
-            true,
-            space_->getStencilWidths()->getDimNcbC(i),
-            space_->getStencilWidths()->getNcbC(i),
-            space_->getCoordinatesLocal()->getX( i, EField::S ),
-            space_->getCoordinatesLocal()->getX( i, EField::S ),
-            cSD_[i] );
+				Ordinal nTemp = ( space_->nLoc(i) + 1 )*( space_->nu(i) - space_->nl(i) + 1);
+				cSD_[i] = new Scalar[ nTemp ];
 
+				if( i<space_->dim() )
+					FD_getDiffCoeff(
+							space_->nLoc(i),
+							space_->bl(i),
+							space_->bu(i),
+							space_->nl(i),
+							space_->nu(i),
+							space_->getBCLocal()->getBCL(i),
+							space_->getBCLocal()->getBCU(i),
+							space_->getShift(i),
+							int(EField::S)+1,
+							i+1,
+							1,
+							-1,
+							true,
+							space_->getStencilWidths()->getDimNcbC(i),
+							space_->getStencilWidths()->getNcbC(i),
+							space_->getCoordinatesLocal()->getX( i, EField::S ),
+							space_->getCoordinatesLocal()->getX( i, EField::S ),
+							cSD_[i] );
 
-      cSU_[i] = new Scalar[ nTemp ];
-      if( i<space_->dim() )
-        FD_getDiffCoeff(
-            space_->rankST(),
-            space_->nLoc(i),
-            space_->bl(i),
-            space_->bu(i),
-            space_->nl(i),
-            space_->nu(i),
-            space_->getDomain()->getBCLocal()->getBCL(i),
-            space_->getDomain()->getBCLocal()->getBCU(i),
-            space_->getShift(i),
-            int(EField::S)+1,
-            i+1,
-            1,
-            +1,
-            true,
-            space_->getStencilWidths()->getDimNcbC(i),
-            space_->getStencilWidths()->getNcbC(i),
-            space_->getCoordinatesLocal()->getX( i, EField::S ),
-            space_->getCoordinatesLocal()->getX( i, EField::S ),
-            cSU_[i] );
+				cSU_[i] = new Scalar[ nTemp ];
 
-      cVD_[i] = new Scalar[ nTemp ];
-      if( i<space_->dim() )
-        FD_getDiffCoeff(
-            space_->rankST(),
-            space_->nLoc(i),
-            space_->bl(i),
-            space_->bu(i),
-            space_->nl(i),
-            space_->nu(i),
-            space_->getDomain()->getBCLocal()->getBCL(i),
-            space_->getDomain()->getBCLocal()->getBCU(i),
-            space_->getShift(i),
-            1,
-            i+1,
-            1,
-            -1,
-            true,
-            space_->getStencilWidths()->getDimNcbC(i),
-            space_->getStencilWidths()->getNcbC(i),
-            space_->getCoordinatesLocal()->getX( i, i ),
-            space_->getCoordinatesLocal()->getX( i, i ),
-            cVD_[i] );
+				if( i<space_->dim() )
+					FD_getDiffCoeff(
+							space_->nLoc(i),
+							space_->bl(i),
+							space_->bu(i),
+							space_->nl(i),
+							space_->nu(i),
+							space_->getBCLocal()->getBCL(i),
+							space_->getBCLocal()->getBCU(i),
+							space_->getShift(i),
+							int(EField::S)+1,
+							i+1,
+							1,
+							+1,
+							true,
+							space_->getStencilWidths()->getDimNcbC(i),
+							space_->getStencilWidths()->getNcbC(i),
+							space_->getCoordinatesLocal()->getX( i, EField::S ),
+							space_->getCoordinatesLocal()->getX( i, EField::S ),
+							cSU_[i] );
 
-      cVU_[i] = new Scalar[ nTemp ];
-      if( i<space_->dim() )
-        FD_getDiffCoeff(
-            space_->rankST(),
-            space_->nLoc(i),
-            space_->bl(i),
-            space_->bu(i),
-            space_->nl(i),
-            space_->nu(i),
-            space_->getDomain()->getBCLocal()->getBCL(i),
-            space_->getDomain()->getBCLocal()->getBCU(i),
-            space_->getShift(i),
-            1,
-            i+1,
-            1,
-            +1,
-            true,
-            space_->getStencilWidths()->getDimNcbC(i),
-            space_->getStencilWidths()->getNcbC(i),
-            space_->getCoordinatesLocal()->getX( i, i ),
-            space_->getCoordinatesLocal()->getX( i, i ),
-            cVU_[i] );
+				cVD_[i] = new Scalar[ nTemp ];
 
-			for( Ordinal j=0; j<nTemp; ++j ) {
-				if( std::isnan( cSD_[i][j] ) || std::isinf( cSD_[i][j] ) ) cSD_[i][j] = 0.;
-				if( std::isnan( cSU_[i][j] ) || std::isinf( cSU_[i][j] ) ) cSU_[i][j] = 0.;
-				if( std::isnan( cVD_[i][j] ) || std::isinf( cVD_[i][j] ) ) cVD_[i][j] = 0.;
-				if( std::isnan( cVU_[i][j] ) || std::isinf( cVU_[i][j] ) ) cVU_[i][j] = 0.;
+				if( i<space_->dim() )
+					FD_getDiffCoeff(
+							space_->nLoc(i),
+							space_->bl(i),
+							space_->bu(i),
+							space_->nl(i),
+							space_->nu(i),
+							space_->getBCLocal()->getBCL(i),
+							space_->getBCLocal()->getBCU(i),
+							space_->getShift(i),
+							1,
+							i+1,
+							1,
+							-1,
+							true,
+							space_->getStencilWidths()->getDimNcbC(i),
+							space_->getStencilWidths()->getNcbC(i),
+							space_->getCoordinatesLocal()->getX( i, i ),
+							space_->getCoordinatesLocal()->getX( i, i ),
+							cVD_[i] );
+
+				cVU_[i] = new Scalar[ nTemp ];
+				if( i<space_->dim() )
+					FD_getDiffCoeff(
+							space_->nLoc(i),
+							space_->bl(i),
+							space_->bu(i),
+							space_->nl(i),
+							space_->nu(i),
+							space_->getBCLocal()->getBCL(i),
+							space_->getBCLocal()->getBCU(i),
+							space_->getShift(i),
+							1,
+							i+1,
+							1,
+							+1,
+							true,
+							space_->getStencilWidths()->getDimNcbC(i),
+							space_->getStencilWidths()->getNcbC(i),
+							space_->getCoordinatesLocal()->getX( i, i ),
+							space_->getCoordinatesLocal()->getX( i, i ),
+							cVU_[i] );
+
+				for( Ordinal j=0; j<nTemp; ++j ) {
+					if( std::isnan( cSD_[i][j] ) || std::isinf( cSD_[i][j] ) ) cSD_[i][j] = 0.;
+					if( std::isnan( cSU_[i][j] ) || std::isinf( cSU_[i][j] ) ) cSU_[i][j] = 0.;
+					if( std::isnan( cVD_[i][j] ) || std::isinf( cVD_[i][j] ) ) cVD_[i][j] = 0.;
+					if( std::isnan( cVU_[i][j] ) || std::isinf( cVU_[i][j] ) ) cVU_[i][j] = 0.;
+				}
+
 			}
 
-    }
+	};
 
-  };
 
   void assignField( const RangeFieldT& mv ) {};
 
 
-  void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z,
+	void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z,
 			Scalar mul, Scalar mulI, Scalar mulC, Scalar mulL ) const {
 		apply( x, y, z, mul, mulC );
 	}
 
 
-  void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mul=0., Scalar mulC=1. ) const {
+	void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mul=0., Scalar mulC=1. ) const {
 
-    int m = (int)z.getType();
+		int m = (int)z.getType();
 
-    TEUCHOS_TEST_FOR_EXCEPTION(
-         z.getType() != y.getType(),
-         std::logic_error,
-         "Pimpact::ConvectionSOP can only be applied to same fieldType !!!\n");
+		TEUCHOS_TEST_FOR_EXCEPTION(
+				z.getType() != y.getType(),
+				std::logic_error,
+				"Pimpact::ConvectionSOP can only be applied to same fieldType !!!\n");
 
 
-    for( int i =0; i<space_->dim(); ++i ) {
-      TEUCHOS_TEST_FOR_EXCEPTION(
-          x[i]->getType() != y.getType(),
-          std::logic_error,
-          "Pimpact::ConvectionSOP can only be applied to same fieldType !!!\n");
-    }
+		for( int i =0; i<space_->dim(); ++i ) {
+			TEUCHOS_TEST_FOR_EXCEPTION(
+					x[i]->getType() != y.getType(),
+					std::logic_error,
+					"Pimpact::ConvectionSOP can only be applied to same fieldType !!!\n");
+		}
 
-    for( int vel_dir=0; vel_dir<space_->dim(); ++vel_dir )
-      x[vel_dir]->exchange();
+		for( int vel_dir=0; vel_dir<space_->dim(); ++vel_dir )
+			x[vel_dir]->exchange();
 
-    y.exchange();
+		y.exchange();
 
-    OP_convection(
-        space_->dim(),
-        space_->nLoc(),
-        space_->bl(),
-        space_->bu(),
-        space_->nl(),
-        space_->nu(),
-        space_->sInd(m),
-        space_->eInd(m),
-        getCD(X,z.getType()),
-        getCD(Y,z.getType()),
-        getCD(Z,z.getType()),
-        getCU(X,z.getType()),
-        getCU(Y,z.getType()),
-        getCU(Z,z.getType()),
-        x[0]->getConstRawPtr(),
-        x[1]->getConstRawPtr(),
-        x[2]->getConstRawPtr(),
-        y.getConstRawPtr(),
-        z.getRawPtr(),
+		OP_convection(
+				space_->dim(),
+				space_->nLoc(),
+				space_->bl(),
+				space_->bu(),
+				space_->nl(),
+				space_->nu(),
+				space_->sInd(m),
+				space_->eInd(m),
+				getCD(X,z.getType()),
+				getCD(Y,z.getType()),
+				getCD(Z,z.getType()),
+				getCU(X,z.getType()),
+				getCU(Y,z.getType()),
+				getCU(Z,z.getType()),
+				x[0]->getConstRawPtr(),
+				x[1]->getConstRawPtr(),
+				x[2]->getConstRawPtr(),
+				y.getConstRawPtr(),
+				z.getRawPtr(),
 				mul,
 				0.,
 				mulC );
 
-    z.changed();
+		z.changed();
 
-  }
+	}
+
 
   void print( std::ostream& out=std::cout ) const {
      out << " --- ConvectioSOp ---\n";
@@ -305,8 +302,8 @@ public:
 
 	const std::string getLabel() const { return( "Convection" ); };
 
-}; // end of class ConvectionSOp
 
+}; // end of class ConvectionSOp
 
 
 } // end of namespace Pimpact

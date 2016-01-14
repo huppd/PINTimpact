@@ -3,14 +3,13 @@
 #define PIMPACT_TIMEDTCONVECTIONDIFFUSIONOP_HPP
 
 
-#include "Pimpact_Types.hpp"
-#include "Pimpact_FieldFactory.hpp"
-
-#include "Pimpact_VectorField.hpp"
-#include "Pimpact_TimeField.hpp"
-
 #include "Pimpact_ConvectionDiffusionSOp.hpp"
-#include "Pimpact_ConvectionVWrap.hpp"
+#include "Pimpact_FieldFactory.hpp"
+#include "Pimpact_NonlinearVWrap.hpp"
+#include "Pimpact_TimeField.hpp"
+#include "Pimpact_Types.hpp"
+#include "Pimpact_VectorField.hpp"
+
 
 
 
@@ -36,7 +35,7 @@ public:
 
 protected:
 
-  Teuchos::RCP<ConvectionVWrap< ConvectionDiffusionSOp<SpaceT> > > op_;
+  Teuchos::RCP<NonlinearWrap< ConvectionDiffusionSOp<SpaceT> > > op_;
 
   Teuchos::Array< Teuchos::RCP<ConvectionField<SpaceT> > > wind_;
 
@@ -44,7 +43,7 @@ public:
 
 
   TimeDtConvectionDiffusionOp( const Teuchos::RCP<const SpaceT>& space ):
-    op_( create<ConvectionVWrap>( create<ConvectionDiffusionSOp<SpaceT> >(space) ) ),
+    op_( create<NonlinearWrap>( create<ConvectionDiffusionSOp<SpaceT> >(space) ) ),
     wind_( space()->nLoc(3) + space()->bu(3) - space()->bl(3) ) {
 
     Ordinal nt = space()->nLoc(3) + space()->bu(3) - space()->bl(3);
@@ -74,8 +73,8 @@ public:
 
     Ordinal nt = space()->nLoc(3) + space()->bu(3) - space()->bl(3);
 
-		Scalar iRe = 1./space()->getDomain()->getDomainSize()->getRe();
-		Scalar a2 = space()->getDomain()->getDomainSize()->getAlpha2()*iRe;
+		Scalar iRe = 1./space()->getDomainSize()->getRe();
+		Scalar a2 = space()->getDomainSize()->getAlpha2()*iRe;
 
 		Scalar pi = 4.*std::atan(1.);
 

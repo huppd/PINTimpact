@@ -2,6 +2,7 @@
 #ifndef PIMPACT_COMPOUNDFIELD_HPP
 #define PIMPACT_COMPOUNDFIELD_HPP
 
+
 #include <vector>
 #include <iostream>
 
@@ -14,6 +15,7 @@
 #include "BelosTypes.hpp"
 
 #include "Pimpact_AbstractField.hpp"
+
 
 
 
@@ -59,23 +61,21 @@ public:
         vfield_(vfield),
         sfield_(sfield) {};
 
-protected:
 
   /// \brief copy constructor.
   ///
   /// shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
-  /// \param sF
+  /// \param field 
   /// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
-  CompoundField(const CompoundField& vF, ECopyType copyType=DeepCopy):
-    AF( vF.space() ),
-    vfield_( vF.vfield_->clone(copyType) ),
-    sfield_( vF.sfield_->clone(copyType) )
+  CompoundField( const CompoundField& field, ECopyType copyType=DeepCopy ):
+    AF( field.space() ),
+    vfield_( Teuchos::rcp( new VField( *field.vfield_, copyType ) ) ),
+    sfield_( Teuchos::rcp( new SField( *field.sfield_, copyType ) ) )
 {};
 
-public:
 
   Teuchos::RCP<MV> clone( ECopyType ctype=DeepCopy ) const {
-    return( Teuchos::rcp( new MV( vfield_->clone(ctype), sfield_->clone(ctype) ) ) );
+    return( Teuchos::rcp( new MV( *this, ctype ) ) );
   }
 
   /// \name Attribute methods
@@ -251,13 +251,17 @@ public:
     sfield_->init(alpha);
   }
 
-  /// \brief Replace each element of the vector  with \c alpha.
-  void initField() {
+	void initField() {
     vfield_->initField();
     sfield_->initField();
+	}
+
+	void setCornersZero() const {
+    vfield_->setCornersZero();
+    sfield_->setCornersZero();
   }
 
-  void level() const {
+	void level() const {
     vfield_->level();
     sfield_->level();
   }

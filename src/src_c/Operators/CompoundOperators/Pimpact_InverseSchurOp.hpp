@@ -2,15 +2,15 @@
 #ifndef PIMPACT_INVERSESCHUROP_HPP
 #define PIMPACT_INVERSESCHUROP_HPP
 
+
 #include "Teuchos_RCP.hpp"
 
 #include "Pimpact_CompoundField.hpp"
-#include "Pimpact_MultiField.hpp"
-
-#include "Pimpact_TripleCompositionOp.hpp"
 #include "Pimpact_LinearProblem.hpp"
-
+#include "Pimpact_MultiField.hpp"
 #include "Pimpact_OperatorFactory.hpp"
+#include "Pimpact_TripleCompositionOp.hpp"
+
 
 
 
@@ -85,6 +85,7 @@ public:
   };
 
   void apply(const DomainFieldT& x, RangeFieldT& y ) const {
+
     //----full Schur complement
     // ~ H^{-1} f_u
     opV2V_->apply( *createMultiField( Teuchos::rcp_const_cast<VF>(x.getConstVFieldPtr()) ), *createMultiField(tempv_) ); // should be correct

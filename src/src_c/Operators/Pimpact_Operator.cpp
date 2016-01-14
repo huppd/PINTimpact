@@ -1,6 +1,8 @@
 #include "Pimpact_Operator.hpp"
 
 
+
+
 #ifdef COMPILE_ETI
 namespace Pimpact {
 	// BaseOperators
@@ -24,6 +26,10 @@ namespace Pimpact {
 	template class DivGradO2JSmoother< DivGradO2Op<Space<double,int,3,4> > >;
 	template class DivGradO2JSmoother< DivGradO2Op<Space<double,int,4,2> > >;
 	template class DivGradO2JSmoother< DivGradO2Op<Space<double,int,4,4> > >;
+	template class DivGradO2SORSmoother< DivGradO2Op<Space<double,int,3,2> > >;
+	template class DivGradO2SORSmoother< DivGradO2Op<Space<double,int,3,4> > >;
+	template class DivGradO2SORSmoother< DivGradO2Op<Space<double,int,4,2> > >;
+	template class DivGradO2SORSmoother< DivGradO2Op<Space<double,int,4,4> > >;
 	template class HelmholtzOp< Space<double,int,3,2> >;
 	template class HelmholtzOp< Space<double,int,3,4> >;
 	template class HelmholtzOp< Space<double,int,4,2> >;
@@ -36,8 +42,8 @@ namespace Pimpact {
 	template class InterpolateV2S<double,int,3,4>;
 	template class InterpolateV2S<double,int,4,2>;
 	template class InterpolateV2S<double,int,4,4>;
-	template class TransferOp< Space<double,int,3,4>, Space<double,int,3,2> >;
-	template class TransferOp< Space<double,int,4,4>, Space<double,int,4,2> >;
+//	template class TransferOp< Space<double,int,3,4>, Space<double,int,3,2> >;
+//	template class TransferOp< Space<double,int,4,4>, Space<double,int,4,2> >;
 	template class ConvectionSOp< Space<double,int,3,2> >;
 	template class ConvectionSOp< Space<double,int,3,4> >;
 	template class ConvectionSOp< Space<double,int,4,2> >;
@@ -54,18 +60,18 @@ namespace Pimpact {
 	template class ConvectionDiffusionSORSmoother< ConvectionDiffusionSOp< Space<double,int,3,4> > >;
 	template class ConvectionDiffusionSORSmoother< ConvectionDiffusionSOp< Space<double,int,4,2> > >;
 	template class ConvectionDiffusionSORSmoother< ConvectionDiffusionSOp< Space<double,int,4,4> > >;
-	template class ConvectionVOp< ConvectionDiffusionSOp< Space<double,int,3,2> > >;
-	template class ConvectionVOp< ConvectionDiffusionSOp< Space<double,int,3,4> > >;
-	template class ConvectionVOp< ConvectionDiffusionSOp< Space<double,int,4,2> > >;
-	template class ConvectionVOp< ConvectionDiffusionSOp< Space<double,int,4,4> > >;
-	template class ConvectionVOp< ConvectionSOp< Space<double,int,3,2> > >;
-	template class ConvectionVOp< ConvectionSOp< Space<double,int,3,4> > >;
-	template class ConvectionVOp< ConvectionSOp< Space<double,int,4,2> > >;
-	template class ConvectionVOp< ConvectionSOp< Space<double,int,4,4> > >;
-	template class ConvectionVSmoother< ConvectionVOp< ConvectionDiffusionSOp< Space<double,int,3,2> > >, ConvectionDiffusionSORSmoother>;
-	template class ConvectionVSmoother< ConvectionVOp< ConvectionDiffusionSOp< Space<double,int,3,4> > >, ConvectionDiffusionSORSmoother>;
-	template class ConvectionVSmoother< ConvectionVOp< ConvectionDiffusionSOp< Space<double,int,4,2> > >, ConvectionDiffusionSORSmoother>;
-	template class ConvectionVSmoother< ConvectionVOp< ConvectionDiffusionSOp< Space<double,int,4,4> > >, ConvectionDiffusionSORSmoother>;
+	template class NonlinearOp< ConvectionDiffusionSOp< Space<double,int,3,2> > >;
+	template class NonlinearOp< ConvectionDiffusionSOp< Space<double,int,3,4> > >;
+	template class NonlinearOp< ConvectionDiffusionSOp< Space<double,int,4,2> > >;
+	template class NonlinearOp< ConvectionDiffusionSOp< Space<double,int,4,4> > >;
+	template class NonlinearOp< ConvectionSOp< Space<double,int,3,2> > >;
+	template class NonlinearOp< ConvectionSOp< Space<double,int,3,4> > >;
+	template class NonlinearOp< ConvectionSOp< Space<double,int,4,2> > >;
+	template class NonlinearOp< ConvectionSOp< Space<double,int,4,4> > >;
+	template class NonlinearSmoother< NonlinearOp< ConvectionDiffusionSOp< Space<double,int,3,2> > >, ConvectionDiffusionSORSmoother>;
+	template class NonlinearSmoother< NonlinearOp< ConvectionDiffusionSOp< Space<double,int,3,4> > >, ConvectionDiffusionSORSmoother>;
+	template class NonlinearSmoother< NonlinearOp< ConvectionDiffusionSOp< Space<double,int,4,2> > >, ConvectionDiffusionSORSmoother>;
+	template class NonlinearSmoother< NonlinearOp< ConvectionDiffusionSOp< Space<double,int,4,4> > >, ConvectionDiffusionSORSmoother>;
 
 } // end of namespace Pimpact
 

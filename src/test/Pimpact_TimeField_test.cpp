@@ -27,8 +27,8 @@
 namespace {
 
 
-typedef double S;
-typedef int O;
+using S = double;
+using O = int;
 const int d = 4;
 const int dNC = 2;
 
@@ -472,7 +472,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TimeField, all, FType ) {
 	field2s->random();
 	MPI_Barrier( MPI_COMM_WORLD );
 	field2s->norm();
-	field2s->init( space->procCoordinate()[3] );
+	field2s->init( space->getProcGrid()->getIB(3) );
 	field2s->exchange();
 	field2s->write();
 
@@ -612,7 +612,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, DtTimeOp ) {
 		dt->apply( *field, *field1 );
 		dt->apply( *field1, *field2 );
 
-		S a2 = space->getDomain()->getDomainSize()->getAlpha2()/space->getDomain()->getDomainSize()->getRe();
+		S a2 = space->getDomainSize()->getAlpha2()/space->getDomainSize()->getRe();
 
 		S bla = a2*a2;
 
@@ -946,7 +946,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeNSOp ) {
 	op->apply( *x, *y );
 	//	y->write(0);
 
-	initVectorTimeField( x->getVFieldPtr(), Pimpact::Const2DFlow, 8./std::pow(space->getDomain()->getDomainSize()->getSize(Pimpact::Y),2)/re, 0., 0. );
+	initVectorTimeField( x->getVFieldPtr(), Pimpact::Const2DFlow, 8./std::pow(space->getDomainSize()->getSize(Pimpact::Y),2), 0., 0. );
 	x->add( 1., *x, -1., *y );
 	//	x->write(100);
 

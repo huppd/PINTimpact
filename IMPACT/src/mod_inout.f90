@@ -171,17 +171,17 @@ MODULE mod_inout
   END IF
   !===========================================================================================================
   IF (dimens == 3) THEN
-     IF (write_large) CALL write_hdf('pre_large_'//count_char,'pre',S1p,S2p,S3p,N1p,N2p,N3p,0,stride_large,pre)
-     IF (write_med  ) CALL write_hdf('pre_med_'  //count_char,'pre',S1p,S2p,S3p,N1p,N2p,N3p,0,stride_med  ,pre)
-     IF (write_small) CALL write_hdf('pre_small_'//count_char,'pre',S1p,S2p,S3p,N1p,N2p,N3p,0,stride_small,pre)
+    IF (write_large) CALL write_hdf('pre_large_'//count_char,'pre',S1p,S2p,S3p,N1p,N2p,N3p,0,stride_large,pre)
+    IF (write_med  ) CALL write_hdf('pre_med_'  //count_char,'pre',S1p,S2p,S3p,N1p,N2p,N3p,0,stride_med  ,pre)
+    IF (write_small) CALL write_hdf('pre_small_'//count_char,'pre',S1p,S2p,S3p,N1p,N2p,N3p,0,stride_small,pre)
   ELSE
-     k = 1
-     DO j = S2p, N2p
-        DO i = S1p, N1p
-           bc33(i,j,1) = pre(i,j,k)
-        END DO
-     END DO
-     CALL write_2D_hdf('pre_'//count_char,'pre',N1,N2,S1p,S2p,N1p,N2p,iShift,jShift,-3,bc33(1,1,1))
+    k = 1
+    DO j = S2p, N2p
+      DO i = S1p, N1p
+        bc33(i,j,1) = pre(i,j,k)
+      END DO
+    END DO
+    CALL write_2D_hdf('pre_'//count_char,'pre',N1,N2,S1p,S2p,N1p,N2p,iShift,jShift,-3,bc33(1,1,1))
   END IF
   !===========================================================================================================
   IF (concentration_yes) THEN
@@ -501,7 +501,46 @@ MODULE mod_inout
   
   LOGICAL                ::  attr_yes
   
-  
+
+  ! huppd: write xmf
+  open( unit = 794, file = filename//".xmf" )
+  write(794,*) "<Xdmf xmlns:xi='http://www.w3.org/2003/XInclude' Version='2.1'>"
+  write(794,*) "<Domain>"
+  write(794,*) "<Grid Name='3DRectMesh' GridType='Uniform'>"
+  write(794,*) "<Topology TopologyType='3DRectMesh' Dimensions='",M3, M2, M1,"'/>"
+  write(794,*) "<Geometry GeometryType='VXVYVZ'>"
+  write(794,*) "<DataItem ItemType='Uniform'"
+  write(794,*) "Dimensions='", M1, "'"
+  write(794,*) "NumberType='Float'"
+  write(794,*) "Precision='8'"
+  write(794,*) "Format='HDF'>"
+  write(794,*) filename, ".h5:/VectorX"
+  write(794,*) "</DataItem>"
+  write(794,*) "<DataItem ItemType='Uniform'"
+  write(794,*) "Dimensions='", M2, "'"
+  write(794,*) "NumberType='Float'"
+  write(794,*) "Precision='8'"
+  write(794,*) "Format='HDF'>"
+  write(794,*) filename, ".h5:/VectorY"
+  write(794,*) "</DataItem>"
+  write(794,*) "<DataItem ItemType='Uniform'"
+  write(794,*) "Dimensions='", M3, "'"
+  write(794,*) "NumberType='Float'"
+  write(794,*) "Precision='8'"
+  write(794,*) "Format='HDF'>"
+  write(794,*) filename, ".h5:/VectorZ"
+  write(794,*) "</DataItem>"
+  write(794,*) "</Geometry>"
+  write(794,*) "<Attribute Name='",dsetname,"' AttributeType='Scalar' Center='Node'>"
+  write(794,*) "<DataItem Dimensions='", M3, " ", M2, " ",  M1,  "' NumberType='Float' Precision='8' Format='HDF'>"
+  write(794,*) filename, ".h5:/",dsetname
+  write(794,*) "</DataItem>"
+  write(794,*) "</Attribute>"
+  write(794,*) "</Grid>"
+  write(794,*) "</Domain>"
+  write(794,*) "</Xdmf>"
+  close(794)
+
   
   !----------------------------------------------------------------------------------------------------------!
   ! Anmerkungen: - Die Intervallgrenzen, Offsets und Block-Groessen werden wegen vel_dir nicht global        !

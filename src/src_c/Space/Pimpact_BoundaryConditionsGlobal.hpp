@@ -2,6 +2,7 @@
 #ifndef PIMPACT_BOUNDARYCONDITIONSGLOBAL_HPP
 #define PIMPACT_BOUNDARYCONDITIONSGLOBAL_HPP
 
+
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_Tuple.hpp"
 
@@ -14,15 +15,17 @@ namespace Pimpact{
 
 
 
+/// \brief global boundary conditions
+///
+/// \tparam dim
 /// \ingroup SpaceObject
 template<int dim>
 class BoundaryConditionsGlobal {
 
 public:
 
-  typedef const Teuchos::Tuple<EBCType,dim> TBC3;
-  typedef const Teuchos::Tuple<int,dim> Ti3;
-
+	typedef const Teuchos::Tuple<EBCType,dim> TBC3;
+	typedef const Teuchos::Tuple<int,dim> Ti3;
 
 	template<int d>
   friend Teuchos::RCP<const BoundaryConditionsGlobal<d> > createBoudaryConditionsGlobal();
@@ -32,66 +35,54 @@ public:
 
 protected:
 
-  TBC3 BCL_global_;
-  TBC3 BCU_global_;
-
   Ti3 BCL_int_;
   Ti3 BCU_int_;
 
-  BoundaryConditionsGlobal(
-      EBCType BC1L=DirichletBC,
-      EBCType BC1U=DirichletBC,
-      EBCType BC2L=DirichletBC,
-      EBCType BC2U=DirichletBC,
-      EBCType BC3L=DirichletBC,
-      EBCType BC3U=DirichletBC ) {
+	BoundaryConditionsGlobal(
+			EBCType BC1L=DirichletBC,
+			EBCType BC1U=DirichletBC,
+			EBCType BC2L=DirichletBC,
+			EBCType BC2U=DirichletBC,
+			EBCType BC3L=DirichletBC,
+			EBCType BC3U=DirichletBC ) {
 
-		BCL_global_[0] = BC1L;
-		BCU_global_[0] = BC1U;
-		BCL_global_[1] = BC2L;
-		BCU_global_[1] = BC2U;
-		BCL_global_[2] = BC3L;
-		BCU_global_[2] = BC3U;
+		BCL_int_[0] = static_cast<int>( BC1L );
+		BCU_int_[0] = static_cast<int>( BC1U );
+		BCL_int_[1] = static_cast<int>( BC2L );
+		BCU_int_[1] = static_cast<int>( BC2U );
+		BCL_int_[2] = static_cast<int>( BC3L );
+		BCU_int_[2] = static_cast<int>( BC3U );
 
-    for( int i=0; i<3; ++i ) {
-      BCL_int_[i] = (int)( BCL_global_[i] );
-      BCU_int_[i] = (int)( BCU_global_[i] );
-    };
 		if( 4==dim ) {
-      BCL_global_[3] = PeriodicBC;
-      BCU_global_[3] = PeriodicBC;
-      BCL_int_[3] = (int)( PeriodicBC );
-      BCU_int_[3] = (int)( PeriodicBC );
+			BCL_int_[3] = static_cast<int>( PeriodicBC );
+			BCU_int_[3] = static_cast<int>( PeriodicBC );
 		}
-  }
 
-  BoundaryConditionsGlobal( TBC3 BCL_global, TBC3 BCU_global ):
-    BCL_global_( BCL_global ), BCU_global_( BCU_global ) {
-    for( int i=0; i<3; ++i ) {
-      BCL_int_[i] = (int)( BCL_global_[i] );
-      BCU_int_[i] = (int)( BCU_global_[i] );
-    };
+	}
+
+	BoundaryConditionsGlobal( TBC3 BCL_global, TBC3 BCU_global ) {
+
+		for( int i=0; i<3; ++i ) {
+			BCL_int_[i] = static_cast<int>( BCL_global[i] );
+			BCU_int_[i] = static_cast<int>( BCU_global[i] );
+		};
 		if( 4==dim ) {
-      BCL_global_[3] = PeriodicBC;
-      BCU_global_[3] = PeriodicBC;
-      BCL_int_[3] = (int)( PeriodicBC );
-      BCU_int_[3] = (int)( PeriodicBC );
+			BCL_int_[3] = static_cast<int>( PeriodicBC );
+			BCU_int_[3] = static_cast<int>( PeriodicBC );
 		}
-  }
+
+	}
 
 public:
 
-  EBCType getBCL( int dir ) const { return( BCL_global_[dir] ); }
+	/// \name getter
+	/// @{ 
 
-	EBCType getBCU( int dir ) const { return( BCU_global_[dir] ); }
-
+  EBCType getBCL( const int& dir ) const { return( static_cast<EBCType>(BCL_int_[dir]) ); }
+	EBCType getBCU( const int& dir ) const { return( static_cast<EBCType>(BCU_int_[dir]) ); }
 
   const int* getBCL() const { return( BCL_int_.getRawPtr() ); }
-  //  const int& getBCL( int i ) const { return( BCL_int_[i] ); }
-
   const int* getBCU() const { return( BCU_int_.getRawPtr() ); }
-  //  const int& getBCU( int i ) const { return( BCU_int_[i] ); }
-
 
 	const Teuchos::Tuple<int,dim> periodic() const {
 		Teuchos::Tuple<int,dim> periodic;
@@ -106,12 +97,15 @@ public:
 
 	}
 
-
+	///  @} 
+	
+	/// \brief prints BC tuples
+	///
+	/// \param out output stream
   void print( std::ostream& out=std::cout ) const {
-    out << "---BoundaryConditionsGlobal: ---\n";
-    out << " BCL_global: " << BCL_global_ << "\n";
-    out << " BCU_global: " << BCU_global_ << "\n";
-
+		out << "---BoundaryConditionsGlobal: ---\n";
+		out << " BCL_global: " << BCL_int_ << "\n";
+		out << " BCU_global: " << BCU_int_ << "\n";
   }
 
 }; // end of class BoundaryConditionsGlobal
@@ -119,6 +113,12 @@ public:
 
 
 
+/// \brief creates global boundary conditions accordint to domaint Tyep
+///
+/// \tparam dim computational dimension
+/// \param dtype domain type
+///
+/// \return 
 /// \relates BoundaryConditionsGlobal
 template<int dim=3>
 Teuchos::RCP<const BoundaryConditionsGlobal<dim> >

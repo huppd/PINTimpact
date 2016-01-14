@@ -198,8 +198,8 @@ MODULE mod_timeint
   timeint: DO
 
      CALL get_dtime
-      ! ------- stopping criterion: checking if period state is reached --------------------------------------
 
+      ! ------- stopping criterion: checking if period state is reached --------------------------------------
       IF( abs(time-tp - 1.0/freq) < dtime ) THEN
         dtime = time-tp - 1.0/freq
         IF(dtime < 0 ) THEN
@@ -285,7 +285,7 @@ MODULE mod_timeint
         END IF
         
         
-        !--- Zeit --------------------------------------------------------------------------------------------
+        !--- time --------------------------------------------------------------------------------------------
         IF (substep == 1) subtime = time + dtime* aRK(1)
         IF (substep == 2) subtime = time + dtime*(aRK(1)+aRK(2)+bRK(2))
         IF (substep == 3) subtime = time + dtime

@@ -1,7 +1,7 @@
-#include <mpi.h>
-
 #include <ostream>
 #include <fstream>
+
+#include <mpi.h>
 
 #include "Teuchos_CommandLineProcessor.hpp"
 #include "Teuchos_RCP.hpp"
@@ -15,11 +15,8 @@
 #include "BelosSolverFactory.hpp"
 #include "Teuchos_oblackholestream.hpp"
 
-#include "pimpact.hpp"
 #include "Pimpact_Types.hpp"
-#include "Pimpact_DomainSize.hpp"
 #include "Pimpact_Space.hpp"
-#include "Pimpact_ProcGridSize.hpp"
 #include "Pimpact_Fields.hpp"
 #include "Pimpact_FieldFactory.hpp"
 
@@ -134,7 +131,7 @@ int main(int argi, char** argv ) {
   pl->set("ny", n2 );
   pl->set("nz", n3 );
 
-  pl->set("nf", nf );
+  pl->set("nf",  nf );
   pl->set("nfs", nfs );
   pl->set("nfe", nfe );
 
@@ -172,8 +169,8 @@ int main(int argi, char** argv ) {
   // init vectors
   auto x    = Pimpact::createMultiField(
 			Pimpact::createCompoundField(
-      	Pimpact::createMultiHarmonicVectorField( space, nfs ),
-      	Pimpact::createMultiHarmonicScalarField( space, nfs )) );
+      	Pimpact::createMultiHarmonicVectorField( space ),
+      	Pimpact::createMultiHarmonicScalarField( space )) );
   auto fu   = x->clone();
 
   // init Fields, init and rhs
@@ -194,10 +191,10 @@ int main(int argi, char** argv ) {
         break;
       }
       do {
-        x->getFieldPtr(0)->getVFieldPtr()->push_back();
-        x->getFieldPtr(0)->getSFieldPtr()->push_back();
-        fu->getFieldPtr(0)->getVFieldPtr()->push_back();
-        fu->getFieldPtr(0)->getSFieldPtr()->push_back();
+//        x->getFieldPtr(0)->getVFieldPtr()->push_back();
+//        x->getFieldPtr(0)->getSFieldPtr()->push_back();
+//        fu->getFieldPtr(0)->getVFieldPtr()->push_back();
+//        fu->getFieldPtr(0)->getSFieldPtr()->push_back();
       } while( x->getConstFieldPtr(0)->getConstVFieldPtr()->getNumberModes() < nf );
       tolNOX /= 10;
     }

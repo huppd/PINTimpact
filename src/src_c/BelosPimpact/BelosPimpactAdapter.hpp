@@ -3,19 +3,19 @@
 #define BELOSPIMPACTADAPTER_HPP
 
 
-#include <Pimpact_MultiField.hpp>
-#include "Pimpact_OperatorBase.hpp"
-
 #include <Teuchos_ScalarTraits.hpp>
 #include <Teuchos_TypeNameTraits.hpp>
 
-#include <BelosTypes.hpp>
 #include <BelosMultiVecTraits.hpp>
 #include <BelosOperatorTraits.hpp>
-
+#include <BelosTypes.hpp>
 #ifdef HAVE_BELOS_TSQR
-#	include "BelosStubTsqrAdapter.hpp"
+#include "BelosStubTsqrAdapter.hpp"
 #endif // HAVE_BELOS_TSQR
+
+#include "Pimpact_MultiField.hpp"
+#include "Pimpact_OperatorBase.hpp"
+
 
 
 

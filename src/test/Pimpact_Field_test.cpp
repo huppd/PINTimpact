@@ -1,11 +1,11 @@
-#include <iostream>
 #include <cmath>
+#include <iostream>
 
-#include "Teuchos_UnitTestHarness.hpp"
-#include "Teuchos_RCP.hpp"
 #include "Teuchos_Array.hpp"
-#include "Teuchos_Tuple.hpp"
 #include "Teuchos_CommHelpers.hpp"
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_Tuple.hpp"
+#include "Teuchos_UnitTestHarness.hpp"
 
 #include "Pimpact_Fields.hpp"
 
@@ -15,8 +15,8 @@
 namespace {
 
 
-typedef double S;
-typedef int O;
+using S = double;
+using O = int;
 const int d = 3;
 const int dNC = 4;
 
@@ -28,13 +28,23 @@ typedef typename Pimpact::ModeField<VF>          MVF;
 typedef typename Pimpact::CompoundField<VF,SF>   CF;
 typedef typename Pimpact::CompoundField<MVF,MSF> CMF;
 
+
 bool testMpi = true;
 double eps = 1e-6;
 
 int dim = 3;
 int domain = 1;
 
+O nx = 33;
+O ny = 17;
+O nz = 9;
+
+int npx = 2;
+int npy = 2;
+int npz = 2;
+
 auto pl = Teuchos::parameterList();
+
 
 TEUCHOS_STATIC_SETUP() {
 
@@ -53,14 +63,20 @@ TEUCHOS_STATIC_SETUP() {
   clp.setOption(
       "dim", &dim,
       "dim" );
+  clp.setOption( "nx", &nx, "" );
+  clp.setOption( "ny", &ny, "" );
+  clp.setOption( "nz", &nz, "" );
+  clp.setOption( "npx", &npx, "" );
+  clp.setOption( "npy", &npy, "" );
+  clp.setOption( "npz", &npz, "" );
 
   pl->set( "lx", 12. );
   pl->set( "ly", 6. );
   pl->set( "lz", 3. );
 
-  pl->set("nx", 33 );
-  pl->set("ny", 17 );
-  pl->set("nz", 9 );
+  pl->set("nx", nx );
+  pl->set("ny", nx );
+  pl->set("nz", nx );
 
 
 }
@@ -72,10 +88,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, create_init_print, FType ) {
   pl->set( "dim", dim );
   pl->set( "domain", domain );
 
+  pl->set("nx", nx );
+  pl->set("ny", ny );
+  pl->set("nz", nz );
+
   // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
-  pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
+  pl->set("npx", npx );
+  pl->set("npy", npy );
+  pl->set("npz", (2==dim)?1:npz );
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
@@ -100,10 +120,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, InfNorm_and_init, FType ) {
 
   pl->set( "dim", dim );
   pl->set( "domain", domain );
+
+  pl->set("nx", nx );
+  pl->set("ny", ny );
+  pl->set("nz", nz );
   // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
-  pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
+  pl->set("npx", npx );
+  pl->set("npy", npy );
+  pl->set("npz", (2==dim)?1:npz );
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
@@ -148,10 +172,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, OneNorm_and_init, FType ) {
 
   pl->set( "dim", dim );
   pl->set( "domain", domain );
+
+  pl->set("nx", nx );
+  pl->set("ny", ny );
+  pl->set("nz", nz );
   // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
-  pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
+  pl->set("npx", npx );
+  pl->set("npy", npy );
+  pl->set("npz", (2==dim)?1:npz );
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
@@ -179,10 +207,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, TwoNorm_and_init, FType ) {
 
   pl->set( "dim", dim );
   pl->set( "domain", domain );
+
+  pl->set("nx", nx );
+  pl->set("ny", ny );
+  pl->set("nz", nz );
   // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
-  pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
+  pl->set("npx", npx );
+  pl->set("npy", npy );
+  pl->set("npz", (2==dim)?1:npz );
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
@@ -208,10 +240,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, dot, FType ) {
 
   pl->set( "dim", dim );
   pl->set( "domain", domain );
+
+  pl->set("nx", nx );
+  pl->set("ny", ny );
+  pl->set("nz", nz );
   // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
-  pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
+  pl->set("npx", npx );
+  pl->set("npy", npy );
+  pl->set("npz", (2==dim)?1:npz );
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
@@ -260,10 +296,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, scale, FType ) {
 
   pl->set( "dim", dim );
   pl->set( "domain", domain );
+
+  pl->set("nx", nx );
+  pl->set("ny", ny );
+  pl->set("nz", nz );
   // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
-  pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
+  pl->set("npx", npx );
+  pl->set("npy", npy );
+  pl->set("npz", (2==dim)?1:npz );
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
@@ -292,10 +332,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, random, FType ) {
 
   pl->set( "dim", dim );
   pl->set( "domain", domain );
+
+  pl->set("nx", nx );
+  pl->set("ny", ny );
+  pl->set("nz", nz );
   // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
-  pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
+  pl->set("npx", npx );
+  pl->set("npy", npy );
+  pl->set("npz", (2==dim)?1:npz );
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
@@ -324,10 +368,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TemplateField, add, FType ) {
 
   pl->set( "dim", dim );
   pl->set( "domain", domain );
+
+  pl->set("nx", nx );
+  pl->set("ny", ny );
+  pl->set("nz", nz );
   // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
-  pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
+  pl->set("npx", npx );
+  pl->set("npy", npy );
+  pl->set("npz", (2==dim)?1:npz );
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
@@ -381,10 +429,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, write, FType ) {
 
   pl->set( "dim", dim );
   pl->set( "domain", domain );
+
+  pl->set("nx", nx );
+  pl->set("ny", ny );
+  pl->set("nz", nz );
   // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
-  pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
+  pl->set("npx", npx );
+  pl->set("npy", npy );
+  pl->set("npz", (2==dim)?1:npz );
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
@@ -396,7 +448,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, write, FType ) {
   p->random();
   p->write(1);
 
-  TEST_EQUALITY( 0, 0)
+  TEST_EQUALITY( 0, 0 )
+
 }
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, write, SF )
@@ -412,10 +465,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, write_restart, FType ) {
 
   pl->set( "dim", dim );
   pl->set( "domain", domain );
+
+  pl->set("nx", nx );
+  pl->set("ny", ny );
+  pl->set("nz", nz );
   // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
-  pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
+  pl->set("npx", npx );
+  pl->set("npy", npy );
+  pl->set("npz", (2==dim)?1:npz );
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
@@ -438,10 +495,14 @@ TEUCHOS_UNIT_TEST( ScalarField, initField ) {
 
   pl->set( "dim", dim );
   pl->set( "domain", domain );
+
+  pl->set("nx", nx );
+  pl->set("ny", ny );
+  pl->set("nz", nz );
   // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
-  pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
+  pl->set("npx", npx );
+  pl->set("npy", npy );
+  pl->set("npz", (2==dim)?1:npz );
 
   auto space = Pimpact::createSpace( pl );
 
@@ -451,6 +512,37 @@ TEUCHOS_UNIT_TEST( ScalarField, initField ) {
     x->initField( Pimpact::EScalarField(i) );
     x->write( i );
   }
+
+}
+
+
+
+TEUCHOS_UNIT_TEST( ScalarField, level ) {
+
+  pl->set( "dim", dim );
+  pl->set( "domain", domain );
+	// check: 0, 2, 4, 5
+	// error: 1, 3
+
+  pl->set("nx", nx );
+  pl->set("ny", ny );
+  pl->set("nz", nz );
+  // processor grid size
+  pl->set("npx", npx );
+  pl->set("npy", npy );
+  pl->set("npz", (2==dim)?1:npz );
+
+  auto space = Pimpact::createSpace( pl );
+
+  auto x = Pimpact::createScalarField( space );
+
+	x->init( 1. );
+	x->level();
+
+	S level = x->norm();
+	if( 0==space()->rankST() )
+		std::cout << "\nlevel: " << level << "\n";
+  TEST_EQUALITY( level<eps , true );
 
 }
 

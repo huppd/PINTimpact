@@ -1,6 +1,8 @@
 #include "NOX_Pimpact_Interface.hpp"
 
 
+
+
 #ifdef COMPILE_ETI
 template class NOX::Pimpact::Interface<
 Pimpact::MultiField<Pimpact::VectorField<Pimpact::Space<double,int,3,2>

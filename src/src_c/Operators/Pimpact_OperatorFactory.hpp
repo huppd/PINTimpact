@@ -5,9 +5,9 @@
 
 #include "Teuchos_RCP.hpp"
 
-#include "Pimpact_Space.hpp"
 #include "Pimpact_OperatorBase.hpp"
 #include "Pimpact_Operator.hpp"
+#include "Pimpact_Space.hpp"
 
 
 

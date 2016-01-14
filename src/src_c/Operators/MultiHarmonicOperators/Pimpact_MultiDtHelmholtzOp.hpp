@@ -3,12 +3,12 @@
 #define PIMPACT_MULTIDTHELMHOLTZOP_HPP
 
 
-#include "Pimpact_Types.hpp"
-
-#include "Pimpact_VectorField.hpp"
-#include "Pimpact_MultiHarmonicField.hpp"
-
 #include "Pimpact_DtLapOp.hpp"
+#include "Pimpact_MultiHarmonicField.hpp"
+#include "Pimpact_Types.hpp"
+#include "Pimpact_VectorField.hpp"
+
+
 
 
 namespace Pimpact{
@@ -45,7 +45,7 @@ public:
   void apply(const DomainFieldT& x, RangeFieldT& y ) const {
     op_->getInnerOpPtr()->apply( x.getConst0Field(), y.get0Field() );
 
-    for( int i=0; i<x.getNumberModes(); ++i ) {
+    for( int i=0; i<space()->nGlo(3); ++i ) {
       op_->apply( x.getConstField(i), y.getField(i), i+1 );
       op_->apply( x.getConstField(i), y.getField(i), i+1 );
     }

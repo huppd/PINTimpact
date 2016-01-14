@@ -5,9 +5,8 @@
 
 #include "Teuchos_RCP.hpp"
 
-#include "Pimpact_Types.hpp"
-
 #include "Pimpact_MultiField.hpp"
+#include "Pimpact_Types.hpp"
 
 
 
@@ -36,24 +35,24 @@ protected:
 
 public:
 
-  MultiOpWrap( const Teuchos::RCP<OperatorT>& op ):op_(op) {}
+	MultiOpWrap( const Teuchos::RCP<const SpaceT>& space ):
+		op_( Teuchos::rcp( new OperatorT(space) ) ) {}
 
-  template<class IOperatorT>
-  MultiOpWrap( const Teuchos::RCP<IOperatorT>& op ):
-    op_( create<IOperatorT>(op) ) {}
+	MultiOpWrap( const Teuchos::RCP<OperatorT>& op ):op_(op) {}
+
+//	template<class IOperatorT>
+//	MultiOpWrap( const Teuchos::RCP< MultiOpWrap<IOperatorT> >& op ):
+//		op_( Teuchos::rcp( new OperatorT( op->getOperatorPtr() ) ) ) {}
 
 
-  /// \brief default apply
-  void apply( const DomainFieldT& x,
-      RangeFieldT& y,
-      Belos::ETrans trans=Belos::NOTRANS) const {
+	void apply( const DomainFieldT& x, RangeFieldT& y,
+			Belos::ETrans trans=Belos::NOTRANS) const {
 
     TEUCHOS_TEST_FOR_EXCEPT( x.getNumberVecs()!=y.getNumberVecs() );
 
-    int m = x.getNumberVecs();
-
-    for( int i=0; i<m; ++i )
+    for( int i=0; i<x.getNumberVecs(); ++i )
       op_->apply( x.getConstField(i), y.getField(i) );
+
   }
 
 

@@ -3,13 +3,12 @@
 #define PIMPACT_MULTIDIAGCONVECTIONJACOBIANOP_HPP
 
 
-#include "Pimpact_Types.hpp"
 #include "Pimpact_FieldFactory.hpp"
-
-#include "Pimpact_VectorField.hpp"
 #include "Pimpact_MultiHarmonicField.hpp"
+#include "Pimpact_NonlinearOp.hpp"
+#include "Pimpact_Types.hpp"
+#include "Pimpact_VectorField.hpp"
 
-#include "Pimpact_ConvectionVOp.hpp"
 
 
 
@@ -34,7 +33,7 @@ public:
 protected:
 
   Teuchos::RCP<DomainFieldT> u_;
-  Teuchos::RCP<ConvectionVOp<SpaceT> > op_;
+  Teuchos::RCP<NonlinearOp<SpaceT> > op_;
 
   const bool isNewton_;
 
@@ -44,7 +43,7 @@ public:
       const Teuchos::RCP<const SpaceT>& space,
       const bool& isNewton=true ):
         u_(Teuchos::null),
-        op_( createConvectionVOp<SpaceT>( space ) ),
+        op_( createNonlinearOp<SpaceT>( space ) ),
         isNewton_(isNewton) {};
 
   void assignField( const DomainFieldT& mv ) {
@@ -57,7 +56,7 @@ public:
 protected:
 
   void apply(const DomainFieldT& x, const DomainFieldT& y, RangeFieldT& z, bool init_yes=true ) const {
-    int Nf = x.getNumberModes();
+    int Nf = space()->nGlo(3);
     if( init_yes )
       z.init( 0. );
 

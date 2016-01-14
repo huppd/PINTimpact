@@ -1,6 +1,9 @@
 #ifdef COMPILE_ETI
 
+
 #include "Pimpact_VectorField.hpp"
+
+
 
 
 template class Pimpact::VectorField< Pimpact::Space<double,int,3,2> >;

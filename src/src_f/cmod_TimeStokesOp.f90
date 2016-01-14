@@ -23,9 +23,10 @@ contains
   !!        condtions can be get from Space::bl()
   !! \param bu is the upper stencil width used for ghost layer and boundary
   !!        condtions can be get from \c Space::bu()
-  !! \param dl is the lower stencil width for the divergence stencil used for ghost layer and boundary
   !!        condtions can be get from \c Space::dl()
   !! \param bu is the upper stencil width for the divergence stencil used for ghost layer and boundary
+  !! \param dl is the lower stencil width for the divergence stencil used for ghost layer and boundary
+  !! \param du is the upper stencil width for the divergence stencil used for ghost layer and boundary
   !!        condtions can be get from \c Space::du()
   !! \param gl is the lower stencil width for the gradiant stencil used for ghost layer and boundary
   !!        condtions can be get from \c Space::gl()

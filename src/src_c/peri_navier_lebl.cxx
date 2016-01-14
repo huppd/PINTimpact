@@ -1,46 +1,38 @@
-#include <mpi.h>
-
 #include <ostream>
 #include <fstream>
 
-#include "Teuchos_CommandLineProcessor.hpp"
-#include "Teuchos_RCP.hpp"
+#include <mpi.h>
+
 #include <Teuchos_Array.hpp>
-#include <Teuchos_Tuple.hpp>
-#include "Teuchos_Range1D.hpp"
+#include "Teuchos_CommandLineProcessor.hpp"
 #include <Teuchos_CommHelpers.hpp>
+#include "Teuchos_Range1D.hpp"
+#include "Teuchos_RCP.hpp"
+#include <Teuchos_Tuple.hpp>
 #include "Teuchos_XMLParameterListCoreHelpers.hpp"
 
 #include "BelosOutputManager.hpp"
 #include "BelosSolverFactory.hpp"
 #include "Teuchos_oblackholestream.hpp"
 
-#include "pimpact.hpp"
+#include "NOX.H"
+
+#include "BelosPimpactAdapter.hpp"
+#include "NOX_Pimpact_Group.hpp"
+#include "NOX_Pimpact_Interface.hpp"
+#include "NOX_Pimpact_StatusTest.hpp"
+#include "NOX_Pimpact_Vector.hpp"
 #include "Pimpact_Types.hpp"
-#include "Pimpact_DomainSize.hpp"
 #include "Pimpact_Space.hpp"
-#include "Pimpact_ProcGridSize.hpp"
 #include "Pimpact_Fields.hpp"
 #include "Pimpact_FieldFactory.hpp"
-
 #include "Pimpact_LinearProblem.hpp"
 #include "Pimpact_Operator.hpp"
 #include "Pimpact_OperatorFactory.hpp"
-
 #include "Pimpact_LinSolverParameter.hpp"
-
 #include "Pimpact_CoarsenStrategy.hpp"
 #include "Pimpact_MultiGrid.hpp"
 
-#include "BelosPimpactAdapter.hpp"
-
-#include "NOX_Pimpact_Vector.hpp"
-#include "NOX_Pimpact_Interface.hpp"
-#include "NOX_Pimpact_Group.hpp"
-
-#include "NOX_Pimpact_StatusTest.hpp"
-
-#include "NOX.H"
 
 
 
@@ -252,11 +244,8 @@ typedef NOX::Pimpact::Vector<typename Inter::Field> NV;
 
 
 template<class T1,class T2> using TransVF = Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<T1,T2> >;
-template<class T> using RestrVF = Pimpact::VectorFieldOpWrap<Pimpact::RestrictionOp<T> >;
+template<class T> using RestrVF = Pimpact::VectorFieldOpWrap<Pimpact::RestrictionHWOp<T> >;
 template<class T> using InterVF = Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<T> >;
-
-//template<class T> using ConvDiffOpT = Pimpact::ConvectionVOp<Pimpact::ConvectionDiffusionSOp<T> >;
-//template<class T> using ConvDiffSORT = Pimpact::ConvectionVSmoother<T,Pimpact::ConvectionDiffusionSORSmoother >;
 
 
 template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
@@ -455,9 +444,11 @@ int main(int argi, char** argv ) {
 			Teuchos::RCP<Pimpact::OperatorBase<Pimpact::MultiField<Pimpact::MultiHarmonicField<Pimpact::VectorField<SpaceT> > > > >
 				opV2Vprec = Teuchos::null;
 //			if( withprec==3 )
-				opV2Vprec = 
-					Pimpact::createMultiOperatorBase(
-							Pimpact::createMultiHarmonicDiagOp(zeroInv) );
+			opV2Vprec = 
+				Pimpact::createMultiOperatorBase(
+						Pimpact::createMultiHarmonicDiagOp(
+							zeroInv, 
+							Pimpact::create<Pimpact::EddyPrec>( zeroInv ) ) );
 //			else
 //				opV2Vprec = 
 //					Pimpact::createMultiOperatorBase(
@@ -532,7 +523,7 @@ int main(int argi, char** argv ) {
 							Pimpact::createMultiGrid<
 								Pimpact::ScalarField,
 								Pimpact::TransferOp,
-								Pimpact::RestrictionOp,
+								Pimpact::RestrictionHWOp,
 								Pimpact::InterpolationOp,
 								Pimpact::DivGradOp,
 								Pimpact::DivGradO2Op,

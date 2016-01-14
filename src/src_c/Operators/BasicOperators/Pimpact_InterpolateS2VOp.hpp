@@ -2,21 +2,22 @@
 #ifndef PIMPACT_INTERPOLATES2VDOP_HPP
 #define PIMPACT_INTERPOLATES2VDOP_HPP
 
-#include "Pimpact_extern_FDCoeff.hpp"
 
-#include "Pimpact_Types.hpp"
+#include "Pimpact_extern_FDCoeff.hpp"
 #include "Pimpact_ScalarField.hpp"
+#include "Pimpact_Types.hpp"
+
 
 
 
 namespace Pimpact{
 
 
-extern "C" {
 
+extern "C"
 void OP_S2VOp(
-    const int& dir,
-    const int* const N,
+		const int& dir,
+		const int* const N,
     const int* const bl,
     const int* const bu,
     const int* const gl,
@@ -27,7 +28,6 @@ void OP_S2VOp(
     const double* const phi,
     double* const grad );
 
-}
 
 
 /// \ingroup BaseOperator
@@ -36,7 +36,7 @@ class InterpolateS2V {
 
 public:
 
-  typedef ST SpaceT;
+	typedef ST SpaceT;
 
   typedef typename SpaceT::Scalar Scalar;
   typedef typename SpaceT::Ordinal Ordinal;
@@ -55,36 +55,36 @@ protected:
 
 public:
 
-  InterpolateS2V( const Teuchos::RCP<const SpaceT>& space):
-    space_(space) {
-    for( int i=0; i<3; ++i ) {
-      Ordinal nTemp = ( space_->nLoc(i) + 1 )*( space_->gu(i) - space_->gl(i) + 1);
+	InterpolateS2V( const Teuchos::RCP<const SpaceT>& space):
+		space_(space) {
 
-      c_[i] = new Scalar[ nTemp ];
-      if( i<space_->dim() )
-        FD_getDiffCoeff(
-            space_->rankST(),
-            space_->nLoc(i),
-            space_->bl(i),
-            space_->bu(i),
-            space_->gl(i),
-            space_->gu(i),
-            space_->getDomain()->getBCLocal()->getBCL(i),
-            space_->getDomain()->getBCLocal()->getBCU(i),
-            space_->getShift(i),
-            2,
-            i+1,
-            0,
-            0,
-            true,
-            space_->getStencilWidths()->getDimNcbG(i),
-            space_->getStencilWidths()->getNcbG(i),
-            space_->getCoordinatesLocal()->getX( i, EField::S ),
-            space_->getCoordinatesLocal()->getX( i, i ),
-            c_[i] );
-    }
+			for( int i=0; i<3; ++i ) {
 
-  };
+				Ordinal nTemp = ( space_->nLoc(i) + 1 )*( space_->gu(i) - space_->gl(i) + 1);
+				c_[i] = new Scalar[ nTemp ];
+
+				if( i<space_->dim() )
+					FD_getDiffCoeff(
+							space_->nLoc(i),
+							space_->bl(i),
+							space_->bu(i),
+							space_->gl(i),
+							space_->gu(i),
+							space_->getBCLocal()->getBCL(i),
+							space_->getBCLocal()->getBCU(i),
+							space_->getShift(i),
+							2,
+							i+1,
+							0,
+							0,
+							true,
+							space_->getStencilWidths()->getDimNcbG(i),
+							space_->getStencilWidths()->getNcbG(i),
+							space_->getCoordinatesLocal()->getX( i, EField::S ),
+							space_->getCoordinatesLocal()->getX( i, i ),
+							c_[i] );
+			}
+	};
 
 
   ~InterpolateS2V() {
@@ -149,7 +149,6 @@ public:
 	const std::string getLabel() const { return( "InterpolateS2V" ); };
 
 }; // end of class InterpolateS2V
-
 
 
 } // end of namespace Pimpact

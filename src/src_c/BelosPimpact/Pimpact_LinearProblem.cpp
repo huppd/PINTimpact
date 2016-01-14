@@ -1,6 +1,8 @@
 #include "Pimpact_Fields.hpp"
-#include "Pimpact_Operator.hpp"
 #include "Pimpact_LinearProblem.hpp"
+#include "Pimpact_Operator.hpp"
+
+
 
 
 #ifdef COMPILE_ETI
@@ -39,4 +41,6 @@ namespace Pimpact {
 
 
 } // end of namespace Pimpact
+
+
 #endif

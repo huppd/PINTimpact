@@ -3,12 +3,12 @@
 #define PIMPACT_MULTICONVECTIONOP_HPP
 
 
-#include "Pimpact_Types.hpp"
 #include "Pimpact_FieldFactory.hpp" 
-#include "Pimpact_VectorField.hpp"
 #include "Pimpact_MultiHarmonicField.hpp"
+#include "Pimpact_NonlinearOp.hpp"
+#include "Pimpact_Types.hpp"
+#include "Pimpact_VectorField.hpp"
 
-#include "Pimpact_ConvectionVOp.hpp"
 
 
 
@@ -56,7 +56,7 @@ public:
   void assignField( const DomainFieldT& mv ) {
 
     wind0_->assignField( mv.getConst0Field() );
-    int Nf = mv.getNumberModes();
+    int Nf = space()->nGlo(3);
 
     for( int i=0; i<Nf; ++i ) {
       windc_[i]->assignField( mv.getConstCField(i) );
@@ -68,7 +68,7 @@ public:
 
   void apply( const DomainFieldT& y, RangeFieldT& z, bool init_yes=true ) const {
 
-    int Nf = z.getNumberModes();
+    int Nf = space()->nGlo(3);
 
     // computing zero mode of y
     op_->apply( wind0_->get(), y.getConst0Field(), z.get0Field(), 0., 0., 1., 0.);
@@ -149,20 +149,20 @@ public:
 
 /// \relates MultiHarmonicConvectionOp
 template<class SpaceT>
-Teuchos::RCP<MultiHarmonicConvectionOp<ConvectionVWrap<ConvectionSOp<SpaceT> > > >
+Teuchos::RCP<MultiHarmonicConvectionOp<NonlinearWrap<ConvectionSOp<SpaceT> > > >
 createMultiHarmonicConvectionOp( const Teuchos::RCP<const SpaceT>& space, int nf=-1 ) {
 
   auto sop = Pimpact::create<Pimpact::ConvectionSOp>( space ) ;
-  auto wrap = Pimpact::create<Pimpact::ConvectionVWrap>( sop );
+  auto wrap = Pimpact::create<Pimpact::NonlinearWrap>( sop );
 
 	if( nf<0 )
 		return(
 				Teuchos::rcp(
-					new MultiHarmonicConvectionOp<ConvectionVWrap<ConvectionSOp<SpaceT> > >( wrap, space->nGlo(3) ) ) );
+					new MultiHarmonicConvectionOp<NonlinearWrap<ConvectionSOp<SpaceT> > >( wrap, space->nGlo(3) ) ) );
 
   return(
 			Teuchos::rcp(
-				new MultiHarmonicConvectionOp<ConvectionVWrap<ConvectionSOp<SpaceT> > >( wrap, nf ) ) );
+				new MultiHarmonicConvectionOp<NonlinearWrap<ConvectionSOp<SpaceT> > >( wrap, nf ) ) );
 
 }
 

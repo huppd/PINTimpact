@@ -3,13 +3,12 @@
 #define PIMPACT_MGTRANSFERS_HPP
 
 
-#include "Pimpact_MGSpaces.hpp"
-#include "Pimpact_TransferOp.hpp"
-
-#include "Pimpact_RestrictionOp.hpp"
 #include "Pimpact_InterpolationOp.hpp"
-
 #include "Pimpact_MGFields.hpp"
+#include "Pimpact_MGSpaces.hpp"
+#include "Pimpact_RestrictionHWOp.hpp"
+#include "Pimpact_TransferOp.hpp"
+#include "Pimpact_VectorFieldOpWrap.hpp"
 
 
 
@@ -63,23 +62,19 @@ protected:
 
 public:
 
-	MGTransfers(
-			const Teuchos::RCP<const MGSpacesT>& mgSpaces ):
+	MGTransfers( const Teuchos::RCP<const MGSpacesT>& mgSpaces ):
 		mgSpaces_(mgSpaces),
-		transferOp_(),
+		transferOp_( create<TransferOpT>(mgSpaces_->get(),mgSpaces_->get(0)) ),
 		restrictionOps_(),
 		interpolationOps_() {
 
-			transferOp_ = create<TransferOpT>( mgSpaces_->get(), mgSpaces_->get(0) );
-
 			for( unsigned i=0; i < mgSpaces_->getNGrids()-1; ++i ) {
-				//				std::cout << " grid: " << i << "\n";
 				restrictionOps_.push_back(
 						Teuchos::rcp(
 							new RestrT<CSpaceT>(
 								mgSpaces_->get(i),
 								mgSpaces_->get(i+1),
-								mgSpaces_->get()->getProcGridSize()->getTuple()
+								mgSpaces_->get()->getProcGrid()->getNP()
 								)
 							)
 						);
@@ -88,15 +83,13 @@ public:
 							new InterT<CSpaceT>(
 								mgSpaces_->get(i+1),
 								mgSpaces_->get(i),
-								mgSpaces_->get()->getProcGridSize()->getTuple()
+								mgSpaces_->get()->getProcGrid()->getNP()
 								)
 							)
 						);
 			}
-
-			// not working on brutus
+			// not working on brutus(intel)
 			//interpolationOps_.shrink_to_fit();
-
 		}
 
 public:

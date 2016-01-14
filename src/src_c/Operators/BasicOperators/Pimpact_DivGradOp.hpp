@@ -2,11 +2,12 @@
 #ifndef PIMPACT_DIVGRADOP_HPP
 #define PIMPACT_DIVGRADOP_HPP
 
-#include "Pimpact_Types.hpp"
-#include "Pimpact_ScalarField.hpp"
-#include "Pimpact_VectorField.hpp"
+
 #include "Pimpact_DivOp.hpp"
 #include "Pimpact_GradOp.hpp"
+#include "Pimpact_ScalarField.hpp"
+#include "Pimpact_Types.hpp"
+#include "Pimpact_VectorField.hpp"
 
 
 
@@ -53,33 +54,8 @@ public:
       Belos::ETrans trans=Belos::NOTRANS ) const {
 
     grad_->apply( x, *temp_ );
-//		for( int i=0; i<space()->dim(); ++ i)
-//			SF_handle_corner(
-//					space()->nLoc(),
-//					space()->bl(),
-//					space()->bu(),
-//					space()->getDomain()->getBCLocal()->getBCL(),
-//					space()->getDomain()->getBCLocal()->getBCU(),
-//					temp_->getRawPtr(i) );
-//		should be BC_extrapolation
     div_->apply( *temp_, y );
 
-//		OP_SetBCZero(
-//				space()->nLoc(),
-//				space()->bl(),
-//				space()->bu(),
-//				space()->getDomain()->getBCLocal()->getBCL(),
-//				space()->getDomain()->getBCLocal()->getBCU(),
-//				space()->sIndB(S),
-//				space()->eIndB(S),
-//				y.getRawPtr() );
-		SF_handle_corner(
-				space()->nLoc(),
-				space()->bl(),
-				space()->bu(),
-				space()->getDomain()->getBCLocal()->getBCL(),
-				space()->getDomain()->getBCLocal()->getBCU(),
-				y.getRawPtr() );
   }
 
   void assignField( const DomainFieldT& mv ) {};
@@ -125,5 +101,6 @@ extern template class Pimpact::DivGradOp< Pimpact::Space<double,int,3,4> >;
 extern template class Pimpact::DivGradOp< Pimpact::Space<double,int,4,2> >;
 extern template class Pimpact::DivGradOp< Pimpact::Space<double,int,4,4> >;
 #endif
+
 
 #endif // end of #ifndef PIMPACT_DIVGRADOP_HPP

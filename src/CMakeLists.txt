@@ -12,17 +12,16 @@
 #only a serial configure(no mpi) and assumes that the install of Trilinos it is
 #pointed to has Epetra enabled. 
 
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.10)
 
+project( pimpact CXX Fortran )
 
 # Get Trilinos as one entity
 # Use Trilinos_PREFIX, if the user set it, to help find Trilinos.
 # The final location will actually be held in Trilinos_DIR which must
 # point at "<prefix>/lib/cmake/Trilinos", but this helps the search.
-FIND_PACKAGE(Trilinos REQUIRED)
 
-#FIND_PACKAGE(HDF5 NAMES hdf5 REQUIRED)
-#FIND_PACKAGE(HDF5 REQUIRED)
+find_package(Trilinos REQUIRED)
 
 
 # Echo trilinos build info just for fun
@@ -41,55 +40,70 @@ message( "   Trilinos_BUILD_SHARED_LIBS = ${Trilinos_BUILD_SHARED_LIBS}" )
 message( "End of Trilinos details\n" )
 
 
-project( pimpact CXX Fortran )
+
+find_package( MPI REQUIRED )
+message( "\nMPI CXX? ${MPI_CXX_FOUND}" )
+message( "MPI CXX INCLUDE_DIRS = ${MPI_CXX_INCLUDE_PATH}" )
+message( "MPI CXX LIBRARIES =    ${MPI_CXX_LIBRARIES}" )
+message( "\nMPI Fortran? ${MPI_Fortran_FOUND}" )
+message( "MPI Fortran INCLUDE_DIRS = ${MPI_Fortran_INCLUDE_PATH}" )
+message( "MPI Fortran LIBRARIES =    ${MPI_Fortran_LIBRARIES}\n" )
+
+#FIND_PACKAGE(HDF5 NAMES hdf5 REQUIRED)
+#FIND_PACKAGE(HDF5 REQUIRED)
 
 option( enable_ETI "enable_ETI" OFF)
 
+if( enable_ETI )
+	add_definitions( -DCOMPILE_ETI )
+	message( "Pimpact:	enabled ETI\n" )
+else()
+	message( "Pimpact:	disabled ETI\n" )
+endif()
+
 # Make sure to use same compilers and flags as Trilinos
-SET( CMAKE_CXX_COMPILER     ${Trilinos_CXX_COMPILER}     )
-SET( CMAKE_C_COMPILER       ${Trilinos_C_COMPILER}       )
-SET( CMAKE_Fortran_COMPILER ${Trilinos_Fortran_COMPILER} )
+set( CMAKE_CXX_COMPILER     ${Trilinos_CXX_COMPILER}     )
+set( CMAKE_C_COMPILER       ${Trilinos_C_COMPILER}       )
+set( CMAKE_Fortran_COMPILER ${Trilinos_Fortran_COMPILER} )
 
 
-SET( CMAKE_CXX_FLAGS     "${CMAKE_CXX_FLAGS}     ${Trilinos_CXX_COMPILER_FLAGS}     -std=c++11 -Wall -pedantic" )
-SET( CMAKE_C_FLAGS       "${CMAKE_C_FLAGS}       ${Trilinos_C_COMPILER_FLAGS}       -Wall -pedantic" )
-SET( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${Trilinos_Fortran_COMPILER_FLAGS} -Wall" )
+set( CMAKE_CXX_FLAGS     "${CMAKE_CXX_FLAGS}     ${Trilinos_CXX_COMPILER_FLAGS}     -Wall -pedantic -std=c++11" )
+set( CMAKE_C_FLAGS       "${CMAKE_C_FLAGS}       ${Trilinos_C_COMPILER_FLAGS}       -Wall -pedantic" )
+set( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${Trilinos_Fortran_COMPILER_FLAGS} -Wall" )
 
 
 IF( CMAKE_COMPILER_IS_GNUCXX )
-	SET( CMAKE_CXX_FLAGS_RELEASE  "${CMAKE_CXX_FLAGS_RELEASE} -Ofast -ftree-vectorizer-verbose=2 -funroll-all-loops -ftree-vectorize  -ffast-math -funsafe-math-optimizations -fargument-noalias-global -march=native -malign-double")
+	SET( CMAKE_CXX_FLAGS_RELEASE  "${CMAKE_CXX_FLAGS_RELEASE} -Ofast -ftree-vectorizer-verbose=1 -funroll-all-loops -ftree-vectorize  -ffast-math -funsafe-math-optimizations -fargument-noalias-global -march=native -malign-double ")
 	set( CMAKE_CXX_FLAGS_PROFILE "${CMAKE_CXX_FLAGS_PROFILE} ${CMAKE_CXX_FLAGS_RELEASE}  -g ")# -pg
-	SET( CMAKE_Fortran_FLAGS  "${CMAKE_Fortran_FLAGS} -ffree-line-length-none -fdollar-ok -Wall " )
-	SET( CMAKE_Fortran_FLAGS_RELEASE  " ${CMAKE_Fortran_FLAGS_RELEASE} -ftree-vectorizer-verbose=2  -ffast-math -funroll-all-loops -fpeel-loops -ftracer -funswitch-loops -ftree-vectorize -march=native -funsafe-math-optimizations -fomit-frame-pointer -fno-math-errno  -Ofast -fargument-noalias-global -march=native -malign-double" )
+	SET( CMAKE_Fortran_FLAGS  "${CMAKE_Fortran_FLAGS} -ffree-line-length-none -fdollar-ok -Wall -cpp " )
+	SET( CMAKE_Fortran_FLAGS_RELEASE  " ${CMAKE_Fortran_FLAGS_RELEASE} -ftree-vectorizer-verbose=1  -ffast-math -funroll-all-loops -fpeel-loops -ftracer -funswitch-loops -ftree-vectorize -march=native -funsafe-math-optimizations -fomit-frame-pointer -fno-math-errno  -Ofast -fargument-noalias-global -march=native -malign-double" )
 	set( CMAKE_Fortran_FLAGS_PROFILE "${CMAKE_Fortran_FLAGS_PROFILE} ${CMAKE_Fortran_FLAGS_RELEASE}  -g  ")  # -pg
 	SET( CMAKE_Fortran_COMPILE_FLAGS "${CMAKE_Fortran_COMPILE_FLAGS} ${Trilinos_Fortran_COMPILER_FLAGS} -xf95-cpp-input -fdefault-real-8 -fdefault-double-8  "  )
-	#SET( CMAKE_Fortran_COMPILE_FLAGS_RELEASE "${CMAKE_Fortran_COMPILE_FLAGS} ${Trilinos_Fortran_COMPILER_FLAGS} -xf95-cpp-input -fdefault-real-8 -fdefault-double-8 "  )
-	#SET( CMAKE_Fortran_FLAGS_RELEASE  "${CMAKE_Fortran_FLAGS} -ftree-vectorizer-verbose=2 -ffree-line-length-none  -msse2 -ffast-math -funroll-all-loops -fpeel-loops -ftracer -funswitch-loops -ftree-vectorize -march=native -funsafe-math-optimizations  -fno-math-errno -fdollar-ok -Wall -pg " )
 ELSE()
-	SET( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -vec-report2 -ip -fno-alias -msse2 " )
-	SET( CMAKE_Fortran_FLAGS_RELEASE  "${CMAKE_Fortran_FLAGS_RELEASE} -funroll-all-loops -march=native -fomit-frame-pointer -fno-math-errno -vec-report2 -ip -fno-alias -msse2 " )
+	SET( CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -vec-report2 -ip -fno-alias -march=native " )
+	SET( CMAKE_Fortran_FLAGS_RELEASE  "${CMAKE_Fortran_FLAGS_RELEASE} -funroll-all-loops -march=native -fomit-frame-pointer -fno-math-errno -vec-report2 -ip -fno-alias  " )
 	SET( CMAKE_Fortran_COMPILE_FLAGS "${CMAKE_Fortran_COMPILE_FLAGS} ${Trilinos_Fortran_COMPILER_FLAGS} -free -fpp -r8   "  )
-	SET( CMAKE_Fortran_COMPILE_FLAGS_RELEASE "${CMAKE_Fortran_COMPILE_FLAGS_RELEASE} ${Trilinos_Fortran_COMPILER_FLAGS} -ip -fno-alias -msse2 "  )
-	set( CMAKE_CXX_FLAGS_PROFILE "${CMAKE_CXX_FLAGS_PROFILE} ${CMAKE_CXX_FLAGS_RELEASE}  -g ")# -pg set( CMAKE_Fortran_FLAGS_PROFILE "${CMAKE_Fortran_FLAGS_PROFILE} ${CMAKE_Fortran_FLAGS_RELEASE}  -g  ")  # -pg
+	SET( CMAKE_Fortran_COMPILE_FLAGS_RELEASE "${CMAKE_Fortran_COMPILE_FLAGS_RELEASE} ${Trilinos_Fortran_COMPILER_FLAGS} -ip -fno-alias -march=native "  )
+	set( CMAKE_CXX_FLAGS_PROFILE "${CMAKE_CXX_FLAGS_PROFILE} ${CMAKE_CXX_FLAGS_RELEASE}  -g ")# -pg 
 ENDIF()
 
 
-MESSAGE("Fortran flags: " ${CMAKE_Fortran_FLAGS})
-MESSAGE("CXX flags: " ${CMAKE_CXX_FLAGS})
+message( "Fortran compiler: ${CMAKE_Fortran_COMPILER}" )
+message( "Fortran flags: " ${CMAKE_Fortran_FLAGS})
+message( "\nCXX compiler: ${CMAKE_CXX_COMPILER}" )
+message( "CXX flags: " ${CMAKE_CXX_FLAGS})
+message( "CMAKE_Fortran_COMPILE_FLAGS: ${CMAKE_Fortran_COMPILE_FLAGS}\n" )
 
 
-set( Limpact_TPL_LIBRARIES hdf5hl_fortran hdf5_hl hdf5_fortran hdf5  z m ${Trilinos_TPL_LIBRARIES} )
-set( Pimpact_TPL_LIBRARIES limpact lpimpact ${Limpact_TPL_LIBRARIES} gfortran mpi_f77 mpi_f90  ${Trilinos_TPL_LIBRARIES} ${Trilinos_LIBRARIES} )
+set( Limpact_TPL_LIBRARIES hdf5hl_fortran hdf5_hl hdf5_fortran hdf5 z m ${Trilinos_TPL_LIBRARIES} )
+set( Pimpact_TPL_LIBRARIES lpimpact ${Limpact_TPL_LIBRARIES} gfortran ${MPI_Fortran_LIBRARIES}  ${Trilinos_TPL_LIBRARIES} ${Trilinos_LIBRARIES} )
 
 
-MESSAGE( "Fortran compiler: ${CMAKE_Fortran_COMPILER}" )
-MESSAGE( "CMAKE_Fortran_COMPILE_FLAGS: ${CMAKE_Fortran_COMPILE_FLAGS}" )
 
-
-INCLUDE_DIRECTORIES( ${inc_dir} ${Trilinos_INCLUDE_DIRS} ${Trilinos_TPL_INCLUDE_DIRS} )
+INCLUDE_DIRECTORIES( ${inc_dir} ${Trilinos_INCLUDE_DIRS} ${Trilinos_TPL_INCLUDE_DIRS}
+	#"/cluster/apps/hdf5/1.8.12/x86_64/gcc_4.8.2/openmpi_1.6.5/include" # was necessary on euler 
+	)
 LINK_DIRECTORIES( ${Trilinos_LIBRARY_DIRS} ${Trilinos_TPL_LIBRARY_DIRS} )
-
-
 
 
 # Appends the cmake/modules path inside the MAKE_MODULE_PATH variable which stores the
@@ -99,17 +113,11 @@ set( CMAKE_MODULE_PATH ${pimpact_SOURCE_DIR}/cmake/modules ${CMAKE_MODULE_PATH} 
 get_property( inc_dirs DIRECTORY PROPERTY INCLUDE_DIRECTORIES )
 message( "Include dirs = ${inc_dirs}" )
 get_property( link_dirs DIRECTORY PROPERTY LINK_DIRECTORIES )
-message( "Link dirs = ${link_dirs}" )
+message( "Link dirs = ${link_dirs}\n" )
 
 enable_testing()
 
 
-if( enable_ETI )
-	add_definitions( -DCOMPILE_ETI )
-	message( "Pimpact:	enabled ETI" )
-else()
-	message( "Pimpact:	disabled ETI" )
-endif()
 
 add_subdirectory( src_impact )
 add_subdirectory( src_f )

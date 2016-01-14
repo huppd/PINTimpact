@@ -3,8 +3,8 @@
 #define PIMPACT_COARSENSTRATEGYGLOBAL_HPP
 
 
-#include "Teuchos_RCP.hpp"
 #include "Teuchos_Array.hpp"
+#include "Teuchos_RCP.hpp"
 
 #include "Pimpact_Space.hpp"
 
@@ -26,7 +26,7 @@ namespace Pimpact {
 ///the exception in GridSilzeLocal has to be adapted on StencilWidths
 /// \ingroup MG
 /// \todo add template parameter for coarses gridSize, and some procGrid stuff
-template<class FSpaceT,class CSpaceT, int cgsize=6>
+template<class FSpaceT,class CSpaceT, int cgsize=9>
 class CoarsenStrategyGlobal {
 
   typedef typename FSpaceT::Scalar  Scalar;
@@ -44,62 +44,54 @@ class CoarsenStrategyGlobal {
 
 public:
 
+	// \todo make interface if spectral refinment is desired or not
   static std::vector<Teuchos::RCP<const CSpaceT> > getMultiSpace(
       const Teuchos::RCP<const FSpaceT> space,
-      int maxGrids=10 ) {
+      int maxGrids=10 ) { 
 
 
-		auto tempSpace = createCoarseSpaceT( space );
+		Teuchos::RCP<const CSpaceT> tempSpace = createSpace<CSpaceT,FSpaceT>( space );
 
     std::vector<Teuchos::RCP<const CSpaceT> > multiSpace( 1, tempSpace );
 
-		Teuchos::Tuple<Ordinal,4> nGlo = space->getGridSizeGlobal()->getTuple();
+		GridSizeGlobal<Ordinal> nGlo = *space->getGridSizeGlobal();
 
-//    for( int i=0; i<dimension; ++i )
-//      nGlo[i] = space->nGlo(i);
+		bool spectralT = space->getStencilWidths()->spectralT();
 
-    bool coarsen_yes;
-		Teuchos::Tuple<bool,dimension> coarsen_dir;
-    TO NB;
-    TO IB;
+		Teuchos::Tuple<bool,4> coarsen_dir;
 
+    TO npWorld = space->getProcGrid()->getNP();
+		TO np = npWorld;
+		TO npNew = np;
+    TO ibWorld = space->getProcGrid()->getIB();
 		TO stride;
-		for( Ordinal i=0; i<dimension; ++i ) {
+
+		for( Ordinal i=0; i<dimension; ++i ) 
 			stride[i] = 1;
-			NB[i] = space->getNProc( i );
-			IB[i] = space->getProcGrid()->getIB( i );
-		}
 
 		// just to figure out amount of grids
-    for( int i=1; i<maxGrids; ++i ) {
-      coarsen_yes = false;
+		for( int i=1; i<maxGrids; ++i ) {
+			bool coarsen_yes = false;
+			bool procGridChanged=false;
 
-//			std::cout << "rank: " << space->rankST() << "nGlo: " << nGlo << "\n";
-      for( int j=0; j<dimension; ++j ) {
-        coarsen_dir[j] = false;
-        if( j<3 ) {
-				 if( ( (nGlo[j]-1)%2 )==0 && nGlo[j]>=cgsize ) {
-            nGlo[j] = (nGlo[j]-1)/2 + 1;
-            coarsen_yes = true;
-            coarsen_dir[j] = true;
-          }
-        }
-        else
-          if( ( (nGlo[j])%2 )==0 && nGlo[j]>1 && (nGlo[j]/2)>=space->getNProc(j) ) {
-            nGlo[j] = (nGlo[j])/2;
-            coarsen_yes = true;
-            coarsen_dir[j] = true;
-          }
-      }
+			for( int dir=0; dir<dimension; ++dir ) {
+				if( dir<3 ) {
+					// figure out if global problem can be coarsened
+					if( ( (nGlo[dir]-1)%2 )==0 && nGlo[dir]>=cgsize ) {
+						nGlo[dir] = (nGlo[dir]-1)/2 + 1;
+						coarsen_yes = true;
 
-			if( coarsen_yes ) {
-				std::ofstream file;
-				std::string fname = "mgs.txt";
-				fname.insert( 3, std::to_string( (long long)space->rankST() ) );
-				file.open( fname, std::ofstream::out | std::ofstream::app );
-				file << "\n\ngrid: " <<  i << "\n\n";
-				multiSpace.back()->print(file);
-				file.close();
+					}
+					// figure out if processor grid has to be coarsened
+					npNew[dir] = 1;
+					for( int p=2; p<=np[dir]; ++p ) {
+						if( ((nGlo[dir]-1)%p)==0 && (np[dir]%p)==0 )
+							if( ((nGlo[dir]-1)/p)%2==0 && (nGlo[dir]-1)/p>=2 )
+								npNew[dir] = p;
+					}
+					//--- enforce gathering of coarsest grid to one processor ---
+					if( ( (nGlo[dir]-1)%2!=0 || nGlo[dir]<cgsize || i==maxGrids-1 ) )
+						npNew[dir] = 1;
 
 				multiSpace.push_back( createCoarseSpace( multiSpace.back(), coarsen_dir, nGlo, stride, NB, IB, i==maxGrids-1 ) );
 			}
@@ -165,275 +157,46 @@ protected:
 					if( ( (gridSizeGlobalTup[i]-1)%2!=0 || gridSizeGlobalTup[i]<cgsize || maxGrid_yes ) && npNew[i]>1 )
 						npNew[i] = 1;
 				}
-			}
-			else {
-				if( coarsen_dir[3] ) {
-					for( int j=1; j<np[3]; ++j ) {
-						if( (gridSizeGlobalTup[3]%j)==0 && (gridSizeGlobalTup[3]/j)>=2 )
-							npNew[3] = j;
+				else
+					// figure out if global problem can be coarsened
+					if( (!spectralT) && ( nGlo[dir]%2 )==0 && nGlo[dir]>1 && nGlo[dir]/2>=space->getProcGrid()->getNP(dir) ) {
+						nGlo[dir] = nGlo[dir]/2;
+						coarsen_yes = true;
 					}
-					if( (gridSizeGlobalTup[3]%2)!=0  && npNew[3]>1 )
-						npNew[3] = 1;
-				}
-			}
-
-		}
-//		std::cout << "rank: " << space->rankST()<< "\t procGridSiz: " << npNew << "\n";
-
-		bool procGridChanged=false;
-		for( int i=0; i<dimension; ++i )
-			if( np[i]!=npNew[i] )
-				procGridChanged=true;
-
-		auto gridSizeLocal = space->getGridSizeLocal();
-//			Pimpact::createGridSizeLocal<Ordinal,dimension,dimNCC>(
-//					gridSizeGlobal, procGridSize, stencilWidths );
-
-		if( procGridChanged ) { 
-
-			/// redo procGrid create new communicator, make procgrid from communicator
-			TO nGather;
-			TO ib;
-			for( Ordinal i=0; i<dimension; ++i ) {
-				nGather[i] = np[i]/npNew[i];
-				stride[i] *= nGather[i];
-				ib[i] = ( IB[i] - 1 )*npNew[i]/NB[i] + 1;
-			}
-
-			bool participating = false;
-			MPI_Comm commWorld = space->getProcGrid()->getCommWorld();
-			MPI_Comm commSub ;//= space->getProcGrid()->getCommS();
-
-			int rankWorld = space->getProcGrid()->getRank();
-			int rankSub = space->getProcGrid()->getRank();
-
-			Teuchos::Tuple<int,dimension> rankL;
-			Teuchos::Tuple<int,dimension> rankU;
-			for( int i=0; i<dimension; ++i )
-				MPI_Cart_shift( commWorld, i, stride[i], &rankL[i], &rankU[i] );
-
-			Ordinal gather_yes = 1;
-			for( int i=0; i<dimension; ++i ) {
-				gather_yes *= nGather[i];
-			}
-			if( gather_yes>1 ) {
-				int n = 1;
-				for( int i=0; i<dimension; ++i ) 
-					n *= npNew[i];
-				int* newRanks = new int[n];
-//				std::cout << "rankWorld: " << rankWorld << "n: " << n << "\n";
-
-				TO rankCoord;
-
-				for( int i=0; i<npNew[0]; ++i) 
-					for( int j=0; j<npNew[1]; ++j )
-						for( int k=0; k<npNew[2]; ++k ) {
-							if( 4==dimension ) {
-//								for( int l=0; l<npNew[3]; ++l ) {
-//									rankCoord[0] = i; rankCoord[1]=j; rankCoord[2] = k; rankCoord[3] = l;
-//									MPI_Cart_rank(
-//											commWorld,
-//											rankCoord.getRawPtr(),
-//											&newRanks[i+j*npNew[0]+k*npNew[0]*npNew[2]+l*npNew[0]*npNew[2]*npNew[3] ] );
-//									if( rankWorld==newRanks[i+j*npNew[0]+k*npNew[0]*npNew[2]+l*npNew[0]*npNew[2]*npNew[3] ] )
-//										participating = true;
-//								}
-							}
-							else {
-								rankCoord[0] = (i*stride[0])%NB[0];
-								rankCoord[1] = (j*stride[1])%NB[1];
-								rankCoord[2] = (k*stride[2])%NB[2];
-								MPI_Cart_rank(
-										commWorld,
-										rankCoord.getRawPtr(),
-										&newRanks[i+j*npNew[0]+k*npNew[0]*npNew[1] ] );
-								if( rankWorld==newRanks[i+j*npNew[0]+k*npNew[0]*npNew[1] ])
-									participating = true;
-//							std::cout << "rankWorld: " << rankWorld << "\t strid: "<< stride << "\n\tt" << "rankCOrd: " << rankCoord << "\n";
-
-							}
-					}
-				MPI_Comm commTemp;
-				MPI_Group baseGroup, newGroup;
-
-				MPI_Comm_group( commWorld, &baseGroup );
-				MPI_Group_incl( baseGroup, n, newRanks, &newGroup );
-				MPI_Comm_create( commWorld, newGroup, &commTemp );
-				MPI_Group_free( &baseGroup );
-				MPI_Group_free( &newGroup );
-
-				Teuchos::Tuple<int,dimension> periodic = boundaryConditionsGlobal->periodic();
-				if( participating ) {
-					MPI_Cart_create( commTemp, dimension, npNew.getRawPtr(), periodic.getRawPtr(), false, &commSub );
-					MPI_Comm_free( &commTemp );
-
-				}
-				delete[] newRanks;
+				if( np[dir]!=npNew[dir] )
+					procGridChanged=true;
 
 			}
 
-			procGridSize = createProcGridSize( npNew, commSub, participating );
-			
-			gridSizeLocal =
-				Pimpact::createGridSizeLocal<Ordinal,dimension,dimNCC>(
-						gridSizeGlobal, procGridSize, stencilWidths );
+//			std::cout << "grid: " << i << "\n";
+//			std::cout << "corasen_yes: " << coarsen_yes << "\n";
+//			std::cout << "procGridChanged: " << procGridChanged << "\n";
+//			std::cout << "nGlo: " << nGlo << "\n";
+//			std::cout << "npWorld: " << npWorld << "\n";
+//			std::cout << "np: " << np << "\n";
+//			std::cout << "npNew: " << npNew << "\n";
 
-			TO shift;
-			// computes index offset
-			for( int i=0; i<3; ++i )
-				shift[i] = (ib[i]-1)*( gridSizeLocal->get(i)-1 );
-			if( 4==dimension )
-				shift[3] = (ib[3]-1)*( gridSizeLocal->get(3) );
+			if( coarsen_yes ) {
+				if( procGridChanged )
+					multiSpace.push_back( createSpace( multiSpace.back(), nGlo, npNew, stride, npWorld, ibWorld ) );
+				else
+					multiSpace.push_back( createSpace( multiSpace.back(), nGlo ) );
+			}
+			np = npNew;
 
-			procGrid =
-				Teuchos::rcp(
-						new ProcGrid<Ordinal,dimension>(
-							participating,
-							commWorld,
-							commSub,
-							rankWorld,
-							rankSub,
-							ib,
-							shift,
-							rankL,
-							rankU ) );
-
-
-		} 
-		else {
-
-			gridSizeLocal =
-				Pimpact::createGridSizeLocal<Ordinal,dimension,dimNCC>(
-						gridSizeGlobal, procGridSize, stencilWidths );
-
-			// necessary because offset has to be recomputed
-			procGrid =
-				Pimpact::createProcGrid<Ordinal,dimension>(
-						gridSizeLocal,
-						domain->getBCGlobal(),
-						procGridSize,
-						space()->getProcGrid()->participating()
-						);
 
 		}
 
+		// not working on brutus
+		//multiSpace.shrink_to_fit();
 
-		boundaryConditionsLocal =
-			createBoudaryConditionsLocal( 
-					boundaryConditionsGlobal,
-					procGridSize,
-					procGrid );
-
-		domain =
-			createDomain(
-					space->getDomain()->getDomainSize(),
-					boundaryConditionsGlobal,
-					boundaryConditionsLocal );
-
-    auto indexSpace = Pimpact::createIndexSpace<Ordinal,dimension>(
-        stencilWidths, gridSizeLocal, boundaryConditionsLocal );
-
-    auto  coordGlobal = Pimpact::createGridCoordinatesGlobal<Scalar,Ordinal,dimension>(
-        gridSizeGlobal,
-        domain->getDomainSize() );
-
-    auto  coordLocal = Pimpact::createGridCoordinatesLocal<Scalar,Ordinal,dimension>(
-        stencilWidths,
-        domain->getDomainSize(),
-        gridSizeGlobal,
-        gridSizeLocal,
-        domain->getBCGlobal(),
-        domain->getBCLocal(),
-        procGrid,
-        coordGlobal );
-
-    auto interV2S =
-        Pimpact::createInterpolateV2S<Scalar,Ordinal,dimension>(
-            procGrid,
-            gridSizeLocal,
-            stencilWidths,
-            domain,
-            coordLocal );
-
-    return(
-         Teuchos::rcp(
-             new SpaceT(
-                 stencilWidths,
-                 indexSpace,
-                 gridSizeGlobal,
-                 gridSizeLocal,
-                 procGridSize,
-                 procGrid,
-                 coordGlobal,
-                 coordLocal,
-                 domain,
-                 interV2S )
-         )
-    );
+    return( multiSpace );
 
   }
 
-  static Teuchos::RCP< const CSpaceT > createCoarseSpaceT(
-      const Teuchos::RCP<const FSpaceT>& space ) {
-
-    auto stencilWidths = createStencilWidths<dimension,dimNCC>();
-
-    auto domain = space->getDomain();
-
-    auto boundaryConditionsLocal = domain->getBCLocal();
-
-    auto procGridSize = space->getProcGridSize();
-
-    auto gridSizeGlobalTup = space->getGridSizeGlobal()->getTuple();
-
-    auto gridSizeGlobal = space->getGridSizeGlobal();
-
-    auto gridSizeLocal = space->getGridSizeLocal();
-
-    auto procGrid = space->getProcGrid();
-
-    auto indexSpace = space->getIndexSpace();
-
-    auto  coordGlobal = space->getCoordinatesGlobal();
-
-    auto  coordLocal =
-			Pimpact::createGridCoordinatesLocal(
-					stencilWidths,
-					domain->getDomainSize(),
-					gridSizeGlobal,
-					gridSizeLocal,
-					domain->getBCGlobal(),
-					domain->getBCLocal(),
-					procGrid,
-					coordGlobal );
-
-		auto interV2S =
-			Pimpact::createInterpolateV2S(
-					procGrid,
-					gridSizeLocal,
-					stencilWidths,
-					domain,
-					coordLocal );
-
-    return(
-         Teuchos::rcp(
-             new CSpaceT(
-                 stencilWidths,
-                 indexSpace,
-                 gridSizeGlobal,
-                 gridSizeLocal,
-                 procGridSize,
-                 procGrid,
-                 coordGlobal,
-                 coordLocal,
-                 domain,
-                 interV2S )
-         )
-    );
-
-  }
 
 }; // end of class CoarsenStrategyGlobal
+
 
 } // end of namespace Pimpact
 
@@ -442,5 +205,6 @@ protected:
 extern template class Pimpact::CoarsenStrategyGlobal< Pimpact::Space<double,int,3,4>, Pimpact::Space<double,int,3,2> >;
 extern template class Pimpact::CoarsenStrategyGlobal< Pimpact::Space<double,int,4,4>, Pimpact::Space<double,int,4,2> >;
 #endif
+
 
 #endif // end of #ifndef PIMPACT_COARSENSTRATEGYGLOBAL_HPP

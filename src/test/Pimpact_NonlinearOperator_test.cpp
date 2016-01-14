@@ -23,8 +23,8 @@
 namespace {
 
 
-typedef double S;
-typedef int O;
+using S = double;
+using O = int;
 const int d = 3;
 const int dNC = 4;
 
@@ -35,8 +35,8 @@ typedef typename Pimpact::VectorField<SpaceT> VF;
 typedef typename Pimpact::ModeField<SF>       MSF;
 typedef typename Pimpact::ModeField<VF>       MVF;
 
-template<class T> using ConvDiffOpT = Pimpact::ConvectionVOp<Pimpact::ConvectionDiffusionSOp<T> >;
-template<class T> using ConvDiffSORT = Pimpact::ConvectionVSmoother<T,Pimpact::ConvectionDiffusionSORSmoother >;
+template<class T> using ConvDiffOpT = Pimpact::NonlinearOp<Pimpact::ConvectionDiffusionSOp<T> >;
+template<class T> using ConvDiffSORT = Pimpact::NonlinearSmoother<T,Pimpact::ConvectionDiffusionSORSmoother >;
 
 
 bool testMpi = true;
@@ -204,10 +204,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionSOp ) {
 
 
 
-template<class T> using ConvOpT = Pimpact::ConvectionVOp<Pimpact::ConvectionSOp<T> >;
+template<class T> using ConvOpT = Pimpact::NonlinearOp<Pimpact::ConvectionSOp<T> >;
 
 
-TEUCHOS_UNIT_TEST( BasicOperator, ConvectionVOp ) {
+TEUCHOS_UNIT_TEST( BasicOperator, NonlinearOp ) {
 
 	pl->set( "dim", dim );
   pl->set( "domain", domain );
@@ -624,7 +624,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
 
   auto smoother =
       Pimpact::create<
-        Pimpact::ConvectionVSmoother<
+        Pimpact::NonlinearSmoother<
           ConvDiffOpT<Pimpact::Space<S,O,d,2> > ,
           Pimpact::ConvectionDiffusionJSmoother > > (
               op,
@@ -677,10 +677,10 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicConvectionOp ) {
 
   auto vel = Pimpact::create<Pimpact::VectorField>( space );
 
-  auto mv1 = Pimpact::createMultiHarmonicVectorField( space, 10 );
-  auto mv2 = Pimpact::createMultiHarmonicVectorField( space, 10 );
+  auto mv1 = Pimpact::createMultiHarmonicVectorField( space );
+  auto mv2 = Pimpact::createMultiHarmonicVectorField( space );
 
-  auto op = Pimpact::createMultiHarmonicConvectionOp( space, 10 );
+  auto op = Pimpact::createMultiHarmonicConvectionOp( space );
 
   op->assignField( *mv1 );
   op->apply( *mv1, *mv2 );
@@ -701,16 +701,16 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicDtConvectionDiffusionOp )
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
-	S re = space->getDomain()->getDomainSize()->getRe();
-	S alpha2 = space->getDomain()->getDomainSize()->getAlpha2();
+	S re = space->getDomainSize()->getRe();
+	S alpha2 = space->getDomainSize()->getAlpha2();
 
   auto vel = Pimpact::create<Pimpact::VectorField>( space );
 
-  auto wind = Pimpact::createMultiHarmonicVectorField( space, nf );
-  auto x    = Pimpact::createMultiHarmonicVectorField( space, nf );
-  auto y1   = Pimpact::createMultiHarmonicVectorField( space, nf );
-  auto y2   = Pimpact::createMultiHarmonicVectorField( space, nf );
-  auto diff = Pimpact::createMultiHarmonicVectorField( space, nf );
+  auto wind = Pimpact::createMultiHarmonicVectorField( space );
+  auto x    = Pimpact::createMultiHarmonicVectorField( space );
+  auto y1   = Pimpact::createMultiHarmonicVectorField( space );
+  auto y2   = Pimpact::createMultiHarmonicVectorField( space );
+  auto diff = Pimpact::createMultiHarmonicVectorField( space );
 
 
 	auto op1 =
@@ -756,6 +756,7 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicDtConvectionDiffusionOp )
 //		x->getCFieldPtr(i)->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inY );
 //		x->getCFieldPtr(i)->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inZ );
 		x->getCFieldPtr(i)->initField( Pimpact::ConstFlow, 0. );
+		x->getSFieldPtr(i)->initField( Pimpact::ConstFlow, 0. );
 		x->getSFieldPtr(i)->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inX, 1. );
 //		x->getSFieldPtr(i)->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inY, -1. );
 //		x->getSFieldPtr(i)->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inZ, -1. );

@@ -1,11 +1,11 @@
 #include <iostream>
 
-#include "Teuchos_UnitTestHarness.hpp"
-#include "Teuchos_RCP.hpp"
 #include "Teuchos_Array.hpp"
-#include "Teuchos_Tuple.hpp"
-#include "Teuchos_Range1D.hpp"
 #include "Teuchos_CommHelpers.hpp"
+#include "Teuchos_Range1D.hpp"
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_Tuple.hpp"
+#include "Teuchos_UnitTestHarness.hpp"
 
 #include "Pimpact_Fields.hpp"
 
@@ -16,8 +16,8 @@ namespace {
 
 
 
-typedef double S;
-typedef int O;
+using S = double;
+using O = int;
 
 const int d = 3;
 const int dNC=4;

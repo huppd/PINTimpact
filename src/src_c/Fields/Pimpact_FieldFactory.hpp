@@ -3,13 +3,17 @@
 #define PIMPACT_FIELDFACTORY_HPP
 
 
-#include "Pimpact_Space.hpp"
+#include "Teuchos_RCP.hpp"
 
 #include "Pimpact_Fields.hpp"
+#include "Pimpact_ModeField.hpp"
+#include "Pimpact_MultiField.hpp"
+#include "Pimpact_MultiHarmonicField.hpp"
+#include "Pimpact_Space.hpp"
+#include "Pimpact_Types.hpp"
+#include "Pimpact_VectorField.hpp"
 
 
-
-/// \file
 
 
 namespace Pimpact {
@@ -22,9 +26,9 @@ template<class SpaceT>
 Teuchos::RCP< MultiField<ModeField<VectorField<SpaceT> > > >
 createMultiModeVectorField( const Teuchos::RCP<const SpaceT>& space, int n=1 ) {
 
-  auto vel = create< ModeField< VectorField<SpaceT> > >( space );
+	auto vel = create< ModeField< VectorField<SpaceT> > >( space );
 
-  return( createMultiField<ModeField<VectorField<SpaceT> > >( *vel, n ) );
+	return( createMultiField<ModeField<VectorField<SpaceT> > >( *vel, n ) );
 
 }
 
@@ -129,16 +133,14 @@ Teuchos::RCP< MultiField<ModeField<ScalarField<SpaceT> > > > createInitMSF(
 /// \param space scalar Vector Space to which returned vector belongs
 /// \param nf amount of modes are created in multi-harmonic field
 /// \return a multi-harmonic \c ScalarField
+/// \deprecated nf
 template<class SpaceT>
 Teuchos::RCP< MultiHarmonicField< ScalarField<SpaceT> > > createMultiHarmonicScalarField(
     const Teuchos::RCP<const SpaceT >& space,
     int nf) {
-  auto field0 = createScalarField<SpaceT>( space );
-  auto mfield = create< ModeField< ScalarField<SpaceT> > >( space );
-  auto fields = createMultiField< ModeField< ScalarField<SpaceT> > >( *mfield, nf );
   return(
       Teuchos::rcp(
-          new MultiHarmonicField< ScalarField<SpaceT> >( field0, fields ) ) );
+          new MultiHarmonicField< ScalarField<SpaceT> >(space) ) );
 }
 
 
@@ -147,23 +149,19 @@ Teuchos::RCP< MultiHarmonicField< ScalarField<SpaceT> > > createMultiHarmonicSca
 ///
 /// \relates MultiHarmonicField
 /// \relates VectorField
-/// \param nf amount of modes
 /// \param space
 /// \return field vector
 template<class SpaceT>
 Teuchos::RCP< MultiHarmonicField< VectorField<SpaceT> > >
 createMultiHarmonicVectorField(
-    const Teuchos::RCP< const SpaceT>& space,
-    int nf ) {
-  auto field0 = create<Pimpact::VectorField>( space );
-  auto mfield = create< ModeField< VectorField<SpaceT> > >( space );
-  auto fields = createMultiField< ModeField< VectorField<SpaceT> > >( *mfield, nf );
+    const Teuchos::RCP< const SpaceT>& space ) {
   return( Teuchos::rcp(
-      new MultiHarmonicField< VectorField<SpaceT> >( field0, fields ) ) );
+      new MultiHarmonicField< VectorField<SpaceT> >(space) ) );
 }
 
 
 
 } // end of namespace Pimpact
+
 
 #endif // end of #ifndef PIMPACT_FIELDFACTORY_HPP

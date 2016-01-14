@@ -1,6 +1,10 @@
 #ifdef COMPILE_ETI
 
+
 #include "BelosPimpactAdapter.hpp"
+
+
+
 
 // ScalarFields
 template class Belos::MultiVecTraits< double, Pimpact::MultiField< Pimpact::ScalarField< Pimpact::Space<double,int,3,2> > > >;
@@ -62,4 +66,6 @@ template class Belos::OperatorTraits< double, Pimpact::MultiField< Pimpact::Comp
 template class Belos::OperatorTraits< double, Pimpact::MultiField< Pimpact::CompoundField< Pimpact::MultiHarmonicField< Pimpact::VectorField< Pimpact::Space<double,int,3,4> > >, Pimpact::MultiHarmonicField< Pimpact::ScalarField< Pimpact::Space<double,int,3,4> > > > >, Pimpact::OperatorBase< Pimpact::MultiField< Pimpact::CompoundField< Pimpact::MultiHarmonicField< Pimpact::VectorField< Pimpact::Space<double,int,3,4> > >, Pimpact::MultiHarmonicField< Pimpact::ScalarField< Pimpact::Space<double,int,3,4> > > > > > >;
 template class Belos::OperatorTraits< double, Pimpact::MultiField< Pimpact::CompoundField< Pimpact::TimeField< Pimpact::VectorField< Pimpact::Space<double,int,4,2> > >, Pimpact::TimeField< Pimpact::ScalarField< Pimpact::Space<double,int,4,2> > > > >, Pimpact::OperatorBase< Pimpact::MultiField< Pimpact::CompoundField< Pimpact::TimeField< Pimpact::VectorField< Pimpact::Space<double,int,4,2> > >, Pimpact::TimeField< Pimpact::ScalarField< Pimpact::Space<double,int,4,2> > > > > > >;
 template class Belos::OperatorTraits< double, Pimpact::MultiField< Pimpact::CompoundField< Pimpact::TimeField< Pimpact::VectorField< Pimpact::Space<double,int,4,4> > >, Pimpact::TimeField< Pimpact::ScalarField< Pimpact::Space<double,int,4,4> > > > >, Pimpact::OperatorBase< Pimpact::MultiField< Pimpact::CompoundField< Pimpact::TimeField< Pimpact::VectorField< Pimpact::Space<double,int,4,4> > >, Pimpact::TimeField< Pimpact::ScalarField< Pimpact::Space<double,int,4,4> > > > > > >;
+
+
 #endif

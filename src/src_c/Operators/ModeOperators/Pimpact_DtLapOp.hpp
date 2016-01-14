@@ -3,10 +3,9 @@
 #define PIMPACT_DTLAPOP_HPP
 
 
-#include "Pimpact_VectorField.hpp"
-#include "Pimpact_ModeField.hpp"
-
 #include "Pimpact_HelmholtzOp.hpp"
+#include "Pimpact_ModeField.hpp"
+#include "Pimpact_VectorField.hpp"
 
 
 
@@ -81,8 +80,8 @@ public:
     for( int i=0; i<dim; ++i ) {
 
       for( int dir=0; dir<dim; ++dir ) {
-        if( !x.getConstCField().is_exchanged(i,dir) ) x.getConstCField().exchange( i, dir );
-        if( !x.getConstSField().is_exchanged(i,dir) ) x.getConstSField().exchange( i, dir );
+        x.getConstCField().exchange( i, dir );
+        x.getConstSField().exchange( i, dir );
       }
 
       EField fType = (EField)i;

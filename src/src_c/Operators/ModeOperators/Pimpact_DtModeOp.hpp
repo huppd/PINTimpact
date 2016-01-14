@@ -2,10 +2,11 @@
 #ifndef PIMPACT_DTMODEOP_HPP
 #define PIMPACT_DTMODEOP_HPP
 
-#include "Pimpact_Types.hpp"
 
-#include "Pimpact_VectorField.hpp"
 #include "Pimpact_ModeField.hpp"
+#include "Pimpact_Types.hpp"
+#include "Pimpact_VectorField.hpp"
+
 
 
 
@@ -33,7 +34,7 @@ public:
 
   DtModeOp( const Teuchos::RCP<const SpaceT>& space ):
 		space_(space),
-		alpha2_( space->getDomain()->getDomainSize()->getAlpha2()/space->getDomain()->getDomainSize()->getRe() ) {};
+		alpha2_( space->getDomainSize()->getAlpha2()/space->getDomainSize()->getRe() ) {};
 
   typedef ModeField<VectorField<SpaceT> >  DomainFieldT;
   typedef ModeField<VectorField<SpaceT> >  RangeFieldT;

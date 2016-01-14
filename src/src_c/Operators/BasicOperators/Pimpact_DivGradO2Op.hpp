@@ -2,9 +2,9 @@
 #ifndef PIMPACT_DIVGRADO2OP_HPP
 #define PIMPACT_DIVGRADO2OP_HPP
 
-#include "Pimpact_Types.hpp"
 
 #include "Pimpact_ScalarField.hpp"
+#include "Pimpact_Types.hpp"
 
 
 
@@ -96,8 +96,8 @@ public:
 					space_->nLoc(),
 					space_->bl(),
 					space_->bu(),
-					space_->getDomain()->getBCLocal()->getBCL(),
-					space_->getDomain()->getBCLocal()->getBCU(),
+					space_->getBCLocal()->getBCL(),
+					space_->getBCLocal()->getBCU(),
 					space_->getCoordinatesGlobal()->getX( ECoord::X, EField::U ),
 					space_->getCoordinatesGlobal()->getX( ECoord::Y, EField::V ),
 					space_->getCoordinatesGlobal()->getX( ECoord::Z, EField::W ),
@@ -122,21 +122,15 @@ public:
 				space_->nLoc(),
 				space_->bl(),
 				space_->bu(),
-				space_->getDomain()->getBCLocal()->getBCL(),
-				space_->getDomain()->getBCLocal()->getBCU(),
+				space_->getBCLocal()->getBCL(),
+				space_->getBCLocal()->getBCU(),
 				getC(X),
 				getC(Y),
 				getC(Z),
 				x.getConstRawPtr(),
 				y.getRawPtr() );
 
-		SF_handle_corner(
-				space_->nLoc(),
-				space_->bl(),
-				space_->bu(),
-				space_->getDomain()->getBCLocal()->getBCL(),
-				space_->getDomain()->getBCLocal()->getBCU(),
-				y.getRawPtr() );
+		//y.setCornersZero();
 
 		y.changed();
 
@@ -168,12 +162,14 @@ public:
     }
   }
 
-  const Scalar* getC( const ECoord& dir) const  {
-      return( c_[dir] );
+	const Scalar* getC( const ECoord& dir) const  {
+		//std::cout << "\nscast: " << static_cast<const int&>(dir) << "\n";
+		return( getC( static_cast<const int&>(dir) ) );
   }
 
   const Scalar* getC( const int& dir) const  {
-      return( c_[dir] );
+		return( c_[dir] );
+		//return( c_[0] );
   }
 
 	const std::string getLabel() const { return( "DivGradO2" ); };
@@ -182,13 +178,13 @@ public:
 
 
 
-/// \relates DivGradO2Op
-template<class SpaceT>
-Teuchos::RCP<const DivGradO2Op<SpaceT> > createDivGradO2Op(
-    const Teuchos::RCP<const SpaceT>& space ) {
-  return(
-      Teuchos::rcp( new DivGradO2Op<SpaceT>(space) ) );
-}
+///// \relates DivGradO2Op
+//template<class SpaceT>
+//Teuchos::RCP<const DivGradO2Op<SpaceT> > createDivGradO2Op(
+    //const Teuchos::RCP<const SpaceT>& space ) {
+  //return(
+      //Teuchos::rcp( new DivGradO2Op<SpaceT>(space) ) );
+//}
 
 
 } // end of namespace Pimpact

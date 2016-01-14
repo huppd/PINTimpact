@@ -2,10 +2,13 @@
 #ifndef PIMPACT_INVERSEOP_HPP
 #define PIMPACT_INVERSEOP_HPP
 
-#include "Pimpact_Types.hpp"
-#include "Pimpact_LinearProblem.hpp"
 
+#include "Pimpact_LinearProblem.hpp"
 #include "Pimpact_LinSolverParameter.hpp"
+#include "Pimpact_MultiOpWrap.hpp"
+#include "Pimpact_Types.hpp"
+
+
 
 
 namespace Pimpact{
@@ -23,46 +26,68 @@ public:
   typedef OT OperatorT;
   typedef typename OperatorT::SpaceT SpaceT;
 
-  typedef typename OperatorT::DomainFieldT  MF;
+  typedef typename OperatorT::DomainFieldT MF;
 
-  typedef OperatorBase<MF>     Op;
+  typedef OperatorBase<MF>   Op;
 
   typedef typename OperatorT::DomainFieldT DomainFieldT;
   typedef typename OperatorT::RangeFieldT  RangeFieldT;
 
 protected:
 
+	bool level_;
+	bool initZero_;
   Teuchos::RCP< LinearProblem<MF> > linprob_;
 
 public:
 
-	template<class IOperatorT>
-	InverseOp( const Teuchos::RCP<IOperatorT>& op ) {
+//	template<class IOperatorT>
+	InverseOp( const Teuchos::RCP<const SpaceT>& space ):
+		level_(false),
+		initZero_(false) {
 
-		auto para = 
-			createLinSolverParameter("GMRES",1.e-6,1, Teuchos::rcp( &std::cout, false ), 200 );
-		linprob_ = createLinearProblem<MF>(
-				createOperatorBase( create<OperatorT>(op) ),
-				create<MF>( op->space() ),
-				create<MF>( op->space() ),
-				para,
-				"GMRES" );
+			auto para = 
+				createLinSolverParameter("GMRES",1.e-1,-1, Teuchos::rcp( new Teuchos::oblackholestream ), 200 );
+
+			linprob_ = createLinearProblem<MF>(
+					createOperatorBase( Teuchos::rcp( new OperatorT(space) ) ),
+					create<MF>(space),
+					create<MF>(space),
+					para,
+					"GMRES" );
 	}
+
+	template<class IOperatorT>
+	InverseOp( const Teuchos::RCP<IOperatorT>& op ):
+		level_(false), initZero_(false) {
+
+			auto para = 
+				createLinSolverParameter("GMRES",1.e-1,-1, Teuchos::rcp( new Teuchos::oblackholestream ), 200 );
+			linprob_ = createLinearProblem<MF>(
+					createOperatorBase( create<OperatorT>(op) ),
+					create<MF>( op->space() ),
+					create<MF>( op->space() ),
+					para,
+					"GMRES" );
+		}
 
  template<class IOperatorT>
  InverseOp( const Teuchos::RCP<IOperatorT>& op,
 		 Teuchos::RCP<Teuchos::ParameterList> pl ):
+	 level_( pl->get<bool>( "level", false ) ),
+	 initZero_( pl->get<bool>( "initZero", false ) ),
 	 linprob_( createLinearProblem<MF>(
 				 createOperatorBase( create<OperatorT>(op) ),
 				 create<MF>( op->space() ),
 				 create<MF>( op->space() ),
 				 Teuchos::rcpFromRef( pl->sublist("Solver") ), 
-				 pl->get<std::string>("Solver name","GMRES") ) ) { 
-//		 pl->print();
-	 }
+				 pl->get<std::string>("Solver name","GMRES") ) ) { }
 
 
-  void apply( const MF& x, MF& y, Belos::ETrans trans=Belos::NOTRANS ) const {
+  void apply( const MF& x, MF& y ) const {
+		if( level_    ) { x.level(); }
+		if( initZero_ ) { y.init( ); }
+		x.setCornersZero();
     linprob_->solve( Teuchos::rcpFromRef(y), Teuchos::rcpFromRef(x) );
   }
 
@@ -108,6 +133,20 @@ public:
 	}
 
 
+  /// \brief Set left preconditioner (\c LP) of linear problem \f$AX = B\f$.
+  ///
+  /// The operator is set by pointer; no copy of the operator is made.
+  void setLeftPrec(const Teuchos::RCP<const OperatorBase<MF> > &LP) {
+    linprob_->setLeftPrec( LP );
+  }
+
+  /// \brief Set right preconditioner (\c RP) of linear problem \f$AX = B\f$.
+  ///
+  /// The operator is set by pointer; no copy of the operator is made.
+  void setRightPrec(const Teuchos::RCP<const OperatorBase<MF> > &RP) {
+    linprob_->setRightPrec( RP );
+  }
+
   bool hasApplyTranspose() const { return( false ); }
 
 	const std::string getLabel() const { return( linprob_->getProblem()->getOperator()->getLabel() + std::string("^-1 ")  ); };
@@ -117,17 +156,22 @@ public:
     linprob_->print( out );
   }
 
+//	Teuchos::RCP<const SpaceT> space() const { return(linprob_->getProblem()->getOperator()->space()); };
+
 }; // end of class InverseOp
 
 
 
 /// \relates InverseOp
 template< class OpT>
-Teuchos::RCP< InverseOp<OpT> >
+Teuchos::RCP< InverseOp< MultiOpWrap<OpT> > >
 createInverseOp(
-    const Teuchos::RCP<OpT>& op ) {
+    const Teuchos::RCP<OpT>& op, Teuchos::RCP< Teuchos::ParameterList > pl=Teuchos::null ) {
 
-    return( Teuchos::rcp( new InverseOp<OpT>( op ) ) );
+	if( pl.is_null() )
+    return( Teuchos::rcp( new InverseOp<MultiOpWrap<OpT> >( op ) ) );
+	else
+    return( Teuchos::rcp( new InverseOp<MultiOpWrap<OpT> >( op, pl ) ) );
 
 }
 

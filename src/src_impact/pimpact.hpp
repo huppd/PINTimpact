@@ -2,12 +2,17 @@
 #define PIMPACT_HPP
 #ifndef PIMPACT_HPP
 
+
 /// \file \deprecated move to src_impact
 #include <iostream>
+
 #include <mpi.h>
 
-#include "Pimpact_DomainSize.hpp"
 #include "Pimpact_BoundaryConditionsGlobal.hpp"
+#include "Pimpact_DomainSize.hpp"
+
+
+
 
 extern "C" {
 void finit_alarm();

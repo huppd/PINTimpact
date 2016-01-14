@@ -1,30 +1,27 @@
+#include <cmath>
 #include <iostream>
 #include <vector>
-#include <cmath>
 
-#include "Teuchos_UnitTestHarness.hpp"
-#include "Teuchos_RCP.hpp"
 #include "Teuchos_Array.hpp"
-#include "Teuchos_Tuple.hpp"
 #include "Teuchos_CommHelpers.hpp"
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_Tuple.hpp"
+#include "Teuchos_UnitTestHarness.hpp"
 
 #include "BelosTypes.hpp"
 
-#include "Pimpact_Fields.hpp"
-
-#include "Pimpact_Operator.hpp"
-#include "Pimpact_OperatorBase.hpp"
-#include "Pimpact_OperatorFactory.hpp"
-
-#include "Pimpact_LinearProblem.hpp"
-#include "Pimpact_LinSolverParameter.hpp"
+#include "NOX.H"
 
 #include "NOX_Pimpact_Vector.hpp"
 #include "NOX_Pimpact_Interface.hpp"
 #include "NOX_Pimpact_Group.hpp"
 #include "NOX_Pimpact_StatusTest.hpp"
-
-#include "NOX.H"
+#include "Pimpact_Fields.hpp"
+#include "Pimpact_LinearProblem.hpp"
+#include "Pimpact_LinSolverParameter.hpp"
+#include "Pimpact_Operator.hpp"
+#include "Pimpact_OperatorBase.hpp"
+#include "Pimpact_OperatorFactory.hpp"
 
 
 
@@ -32,8 +29,8 @@
 namespace {
 
 
-typedef double S;
-typedef int O;
+using S = double;
+using O = int;
 
 const int d = 3;
 const int dNC = 2;
@@ -45,7 +42,7 @@ bool testMpi = true;
 S eps = 1.e0;
 auto pl = Teuchos::parameterList();
 
-template<class T> using ConvDiffOpT = Pimpact::ConvectionVOp<Pimpact::ConvectionDiffusionSOp<T> >;
+template<class T> using ConvDiffOpT = Pimpact::NonlinearOp<Pimpact::ConvectionDiffusionSOp<T> >;
 
 
 TEUCHOS_STATIC_SETUP() {
@@ -523,7 +520,7 @@ TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
 	 Pimpact::createOperatorBase(
 			 Pimpact::createMultiOpWrap(
 				 Pimpact::create<
-				 Pimpact::ConvectionVSmoother<
+				 Pimpact::NonlinearSmoother<
 				 ConvDiffOpT<Pimpact::Space<S,O,d,dNC> > ,
 				 Pimpact::ConvectionDiffusionSORSmoother > > (
 					 sop

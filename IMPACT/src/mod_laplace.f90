@@ -377,21 +377,21 @@ MODULE mod_laplace
   
   
   !----------------------------------------------------------------------------------------------------------!
-  ! Anmerkungen: - Null-Setzen am Rand nicht notwendig, da Startindizes entsprechend gew�hlt sind!           !
-  !              - Bei der Initialisierung m�ssen die Intervallgrenzen SiR:NiR anstelle von SiiR:NiiR        !
-  !                gew�hlt werden, da beim  Aufbau der RHS ("vec") innerhalb der Linienrelaxation IMMER auch !
-  !                die Randbereiche SiR und NiR aufgebaut aber ggf. mit einer Korrektur wieder �berschrieben !
-  !                werden. Ansonsten w�re eine Initialisierung allein im Feldbereich SiiR:NiiR ausreichend,  !
-  !                kann aber z.B. zu Floating Point Exceptions f�hren (die f�r die eigentliche Rechnung      !
-  !                allerdings irrelevant w�ren)!                                                             !
-  !              - obere Stirnfl�chen werden bei der Initialisierung ebenfalls ber�cksichtigt, da ggf.       !
+  ! Anmerkungen: - Null-Setzen am Rand nicht notwendig, da Startindizes entsprechend gewählt sind!           !
+  !              - Bei der Initialisierung müssen die Intervallgrenzen SiR:NiR anstelle von SiiR:NiiR        !
+  !                gewählt werden, da beim  Aufbau der RHS ("vec") innerhalb der Linienrelaxation IMMER auch !
+  !                die Randbereiche SiR und NiR aufgebaut aber ggf. mit einer Korrektur wieder überschrieben !
+  !                werden. Ansonsten wäre eine Initialisierung allein im Feldbereich SiiR:NiiR ausreichend,  !
+  !                kann aber z.B. zu Floating Point Exceptions führen (die für die eigentliche Rechnung      !
+  !                allerdings irrelevant wären)!                                                             !
+  !              - obere Stirnflächen werden bei der Initialisierung ebenfalls berücksichtigt, da ggf.       !
   !                verschiedene Richtungen nacheinander bearbeitet werden und dies beim Aufbauen der rechten !
-  !                Seite sonst ber�cksichtigt werden m�sste. ==> geringerer Mehraufwand beim Rechnen,        !
+  !                Seite sonst berücksichtigt werden müsste. ==> geringerer Mehraufwand beim Rechnen,        !
   !                weniger Programmierdetails.                                                               !
   !              - LU-Zerlegung (d.h. band, mult) kann gespeichert werden, wenn mindestens eine Richtung     !
-  !                �quidistant ist. Der L�sungsaufwand w�rde sich etwa halbieren!!                           !
+  !                äquidistant ist. Der Lösungsaufwand würde sich etwa halbieren!!                           !
   !              - "r == 1 .AND. init_yes" sollte idealerweise aus den Schleifen herausgezogen werden, was   !
-  !                hier aber aus Gr�nden der �bersicht bisher nicht ausgef�hrt wurde.                        !
+  !                hier aber aus Gründen der Übersicht bisher nicht ausgeführt wurde.                        !
   !----------------------------------------------------------------------------------------------------------!
   
   
@@ -590,14 +590,14 @@ MODULE mod_laplace
         IF (RBGS_mode > 0) THEN
            !-------------------------------------------------------------------------------------------------!
            ! Hinweis:                                                                                        !
-           ! Die Red-Black-Sortierung sollte f�r eine gute Performance global sein, d.h. ueber die Bl�cke    !
+           ! Die Red-Black-Sortierung sollte für eine gute Performance global sein, d.h. ueber die Blöcke    !
            ! hinweg implementiert sein. Die aktuelle Umsetzung macht sich zunutze, dass im Parallelbetrieb   !
            ! die Anzahl der Gitterpunkte in jeder Raumrichtung automatisch eine gerade Zahl ist (die Tat-    !
-           ! sache, dass in Randbl�cken ggf. eine ungerade Anzahl Gitterpunkte abgearbeitet wird hat damit   !
+           ! sache, dass in Randblöcken ggf. eine ungerade Anzahl Gitterpunkte abgearbeitet wird hat damit   !
            ! nichts zu tun!). Daher kann sich der Shift "ss" in jedem Block einfach auf den lokalen Gitter-  !
            ! punkt rel(1,1,1) beziehen.                                                                      !
            !                                                                                                 !
-           ! Die aktuelle Schreibweise in den Schleifen ist �quivalent zu:                                   !
+           ! Die aktuelle Schreibweise in den Schleifen ist äquivalent zu:                                   !
            ! DO k = S33R, N33R                                                                               !
            !    DO j = S22R, N22R                                                                            !
            !       DO i = S11R, N11R                                                                         !
@@ -767,7 +767,7 @@ MODULE mod_laplace
            IF (r == 1 .AND. init_yes) THEN
               DO k = S33R, N33R
                  DO j = S22R, N22R
-                    ss = MOD(j+k+S11R+1,2) ! "+k" ist offenbar elementar f�r grosse Konvergenzrate. Symmetrie zu relaxation_div_grad_inv ist hier interessanterweise kontraproduktiv!
+                    ss = MOD(j+k+S11R+1,2) ! "+k" ist offenbar elementar für grosse Konvergenzrate. Symmetrie zu relaxation_div_grad_inv ist hier interessanterweise kontraproduktiv!
 !pgi$ unroll = n:8
                     DO i = ss+S11R, N11R, 2
                        IF (SOR_yes) THEN
@@ -778,7 +778,7 @@ MODULE mod_laplace
                     END DO
                  END DO
               END DO
-              !CALL exchange_relax(g,0,0,0,0,.TRUE.,rel) ! TEST!!! Austausch bringt praktisch nichts, macht aber die Gl�ttung unabh�ngig von der Parallelisierung (sonst teilweise Jacobi-Iteration)!
+              !CALL exchange_relax(g,0,0,0,0,.TRUE.,rel) ! TEST!!! Austausch bringt praktisch nichts, macht aber die Glättung unabhängig von der Parallelisierung (sonst teilweise Jacobi-Iteration)!
               DO k = S33R, N33R
                  DO j = S22R, N22R
                     ss = MOD(j+k+S11R,2)
@@ -822,7 +822,7 @@ MODULE mod_laplace
                     END DO
                  END DO
               END DO
-              !CALL exchange_relax(g,0,0,0,0,.TRUE.,rel) ! TEST!!! Austausch bringt praktisch nichts, macht aber die Gl�ttung unabh�ngig von der Parallelisierung (sonst teilweise Jacobi-Iteration)!
+              !CALL exchange_relax(g,0,0,0,0,.TRUE.,rel) ! TEST!!! Austausch bringt praktisch nichts, macht aber die Glättung unabhängig von der Parallelisierung (sonst teilweise Jacobi-Iteration)!
               DO k = S33R, N33R
                  DO j = S22R, N22R
                     ss = MOD(j+k+S11R,2)
@@ -851,7 +851,7 @@ MODULE mod_laplace
            IF (r == 1 .AND. init_yes) THEN
               DO k = S33R, N33R
                  DO j = S22R, N22R
-                    ss = MOD(j+k+S11R+1,2) ! "+k" ist offenbar elementar f�r grosse Konvergenzrate. Symmetrie zu relaxation_div_grad_inv ist hier interessanterweise kontraproduktiv!
+                    ss = MOD(j+k+S11R+1,2) ! "+k" ist offenbar elementar für grosse Konvergenzrate. Symmetrie zu relaxation_div_grad_inv ist hier interessanterweise kontraproduktiv!
 !pgi$ unroll = n:8
                     DO i = ss+S11R, N11R, 2
                        IF (SOR_yes) THEN

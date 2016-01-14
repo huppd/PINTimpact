@@ -3,25 +3,26 @@
 #define PIMPACT_TIMEFIELD_HPP
 
 
+#include <cmath>
+#include <vector>
+
 #include "mpi.h"
 
-#include <vector>
 #include <Teuchos_Array.hpp>
 #include "Teuchos_RCP.hpp"
 #include <Teuchos_Range1D.hpp>
 
 #include <BelosTypes.hpp>
 
-
-#include "Pimpact_Types.hpp"
-
 #include "Pimpact_AbstractField.hpp"
-
+#include "Pimpact_Types.hpp"
 #include "Pimpact_VectorField.hpp"
-#include "cmath"
+
+
 
 
 namespace Pimpact {
+
 
 
 /// \brief templated class which is the interface to \c Belos and \c NOX
@@ -99,16 +100,15 @@ public:
   }
 
 
-protected:
 
   /// \brief copy constructor.
   ///
   /// shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
-  /// \param vF
+  /// \param field 
   /// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
-	TimeField(const TimeField& field, ECopyType copyType=DeepCopy):
-		AF( field.space() ),
-		exchangedState_(field.exchangedState_) {
+  TimeField( const TimeField& field, ECopyType copyType=DeepCopy ):
+    AF( field.space() ),
+    exchangedState_( field.exchangedState_ ) {
 
 			Ordinal nt = space()->nLoc(3) + space()->bu(3) - space()->bl(3);
 
@@ -138,19 +138,14 @@ protected:
 		}
 
 
-public:
 
-	~TimeField() {
-		delete[] array_;
-	}
+	~TimeField() { delete[] array_; }
 
 
-  /// \brief Create a new \c TimeField with
+	/// \brief Create a new \c TimeField with
 	Teuchos::RCP< MV > clone( ECopyType ctype = DeepCopy ) const {
-
-		auto mv_ = Teuchos::rcp( new MV( *this, ctype ) );
+		auto mv_ = Teuchos::rcp( new MV(*this,ctype) );
 		return( mv_ );
-
 	}
 
 
@@ -332,12 +327,16 @@ public:
 
   }
 
-  void initField() {
-
+	void initField() {
     for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
       mfs_[i]->initField();
     changed();
+	}
 
+	void setCornersZero() const {
+    for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
+      mfs_[i]->setCornersZero();
+    changed();
   }
 
   void level() const {

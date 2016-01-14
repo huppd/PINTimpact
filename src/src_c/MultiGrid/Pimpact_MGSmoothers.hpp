@@ -2,10 +2,11 @@
 #ifndef PIMPACT_MGSMOOTHERS_HPP
 #define PIMPACT_MGSMOOTHERS_HPP
 
+
 #include <vector>
 
-#include "Teuchos_RCP.hpp"
 #include "Teuchos_ParameterList.hpp"
+#include "Teuchos_RCP.hpp"
 
 #include "Pimpact_Types.hpp"
 
@@ -100,12 +101,11 @@ createMGSmoothers(
 #include "Pimpact_MGSpaces.hpp"
 #include "Pimpact_MGOperators.hpp"
 #include "Pimpact_DivGradO2JSmoother.hpp"
-#include "Pimpact_ConvectionVSmoother.hpp"
+#include "Pimpact_NonlinearSmoother.hpp"
 #include "Pimpact_ConvectionDiffusionSORSmoother.hpp"
 #include "Pimpact_ConvectionDiffusionJSmoother.hpp"
-template<class T> using ConvDiffSORT = Pimpact::ConvectionVSmoother<T,Pimpact::ConvectionDiffusionSORSmoother >;
-
-template<class T> using ConvDiffJT = Pimpact::ConvectionVSmoother<T,Pimpact::ConvectionDiffusionJSmoother >;
+template<class T> using ConvDiffSORT = Pimpact::NonlinearSmoother<T,Pimpact::ConvectionDiffusionSORSmoother >;
+template<class T> using ConvDiffJT = Pimpact::NonlinearSmoother<T,Pimpact::ConvectionDiffusionJSmoother >;
 
 #ifdef COMPILE_ETI
 extern template class Pimpact::MGSmoothers< Pimpact::MGOperators< Pimpact::MGSpaces< Pimpact::Space<double,int,3,4>, Pimpact::Space<double,int,3,2> >, Pimpact::DivGradOp, Pimpact::DivGradO2Op >, Pimpact::DivGradO2JSmoother >;

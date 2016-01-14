@@ -2,11 +2,13 @@
 #ifndef PIMPACT_DIVOP_HPP
 #define PIMPACT_DIVOP_HPP
 
-#include "Pimpact_Types.hpp"
+
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_Tuple.hpp"
 
 #include "Pimpact_extern_FDCoeff.hpp"
-
 #include "Pimpact_ScalarField.hpp"
+#include "Pimpact_Types.hpp"
 #include "Pimpact_VectorField.hpp"
 
 
@@ -15,24 +17,23 @@
 namespace Pimpact{
 
 
-extern "C" {
 
-  void OP_div(
-      const int& dimens,
-      const int* const N,
-      const int* const bl,
-      const int* const bu,
-      const int* const dl,
-      const int* const du,
-      const int* const ss,
-      const int* const nn,
-      const double* const c1,
-      const double* const c2,
-      const double* const c3,
-      const double* const phiU,
-      double* const phi );
+extern "C"
+void OP_div(
+		const int& dimens,
+		const int* const N,
+		const int* const bl,
+		const int* const bu,
+		const int* const dl,
+		const int* const du,
+		const int* const ss,
+		const int* const nn,
+		const double* const c1,
+		const double* const c2,
+		const double* const c3,
+		const double* const phiU,
+		double* const phi );
 
-}
 
 
 /// \brief Divergence operator.
@@ -69,14 +70,14 @@ public:
       c_[i] = new Scalar[ nTemp ];
       if( i<space_->dim() )
         FD_getDiffCoeff(
-            space_->rankST(),
+//            space_->rankST(),
             space_->nLoc(i),
             space_->bl(i),
             space_->bu(i),
             space_->dl(i),
             space_->du(i),
-            space_->getDomain()->getBCLocal()->getBCL(i),
-            space_->getDomain()->getBCLocal()->getBCU(i),
+            space_->getBCLocal()->getBCL(i),
+            space_->getBCLocal()->getBCU(i),
             space_->getShift(i),
             3,
             i+1,
@@ -120,6 +121,7 @@ public:
         x.getConstRawPtr(),
         y.getRawPtr() );
 
+		y.setCornersZero();
     y.changed();
 
   }
@@ -170,5 +172,6 @@ extern template class Pimpact::DivOp< Pimpact::Space<double,int,3,4> >;
 extern template class Pimpact::DivOp< Pimpact::Space<double,int,4,2> >;
 extern template class Pimpact::DivOp< Pimpact::Space<double,int,4,4> >;
 #endif
+
 
 #endif // end of #ifndef PIMPACT_DIVOP_HPP

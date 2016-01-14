@@ -105,6 +105,23 @@
         END DO
      END DO
   END IF
+
+  IF ( BC_3L == 1 ) THEN ! Note: this case differentiation may save computational time but is not stringently necessary
+     DO k = S21B, N21B
+        DO i = S11B, N11B
+           bc13(i,k,1) = x2p(k)*( L2 - x2p(k) )*4/L2/L2
+        END DO
+     END DO
+  END IF
+  
+  IF ( BC_3U == 1 ) THEN ! Note: this case differentiation may save computational time but is not stringently necessary
+     DO k = S21B, N21B
+        DO i = S11B, N11B
+!           bc22(i,k,1) = x2v(i)*( L2 - x2v(i)/L2 )*4/L2
+           bc13(i,k,2) = x2p(k)*( L2 - x2p(k) )*4/L2/L2
+        END DO
+     END DO
+  END IF
   
   END SUBROUTINE boundary_vel_stat
   
