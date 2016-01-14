@@ -95,6 +95,7 @@ enum EForceType {
   PseudoOscilatingDisc = 4
 };
 
+Teuchos::RCP<std::ostream> createOstream( const std::string& fname, int rank);
 
 }
 

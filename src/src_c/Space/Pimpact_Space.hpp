@@ -830,7 +830,6 @@ static Teuchos::RCP< const SpaceT > createSpace(
 
 
 
-Teuchos::RCP<std::ostream> createOstream( const std::string& fname, int rank);
 
 
 

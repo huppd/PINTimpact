@@ -13,6 +13,8 @@
 
 namespace {
 
+using S = double;
+using O = int;
 const int d = 3;
 const int dNC = 4;
 
@@ -20,9 +22,6 @@ bool testMpi = true;
 double eps = 1e+1;
 
 int dim = 3;
-
-typedef int O;
-typedef double S;
 
 
 

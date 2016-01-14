@@ -18,8 +18,8 @@
 
 namespace {
 
-typedef double S;
-typedef int O;
+using S = double;
+using O = int;
 
 typedef typename Pimpact::Space<S,O,3,4> SpaceT;
 

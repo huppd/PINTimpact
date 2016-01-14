@@ -27,8 +27,8 @@
 namespace {
 
 
-typedef double S;
-typedef int O;
+using S = double;
+using O = int;
 const int d = 4;
 const int dNC = 4;
 

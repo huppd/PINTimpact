@@ -86,10 +86,29 @@ TEUCHOS_STATIC_SETUP() {
 	clp.setOption( "nz", &nz, "" );
 	clp.setOption( "nf", &nf, "" );
 
-	pl->set( "lx", 1. );
-	pl->set( "ly", 1. );
-	pl->set( "lz", 1. );
+	pl->set( "lx", 30. );
+	pl->set( "ly", 20. );
+	pl->set( "lz", 20. );
 
+	//pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+	//pl->sublist("Stretching in X").set<S>( "N metr L", nx );
+	////pl->sublist("Stretching in X").set<S>( "N metr L", nx/2 );
+	//pl->sublist("Stretching in X").set<S>( "N metr U", nx  );
+	//pl->sublist("Stretching in X").set<S>( "x0 L", 0.05 );
+	////pl->sublist("Stretching in X").set<S>( "x0 L", 0. );
+	////pl->sublist("Stretching in X").set<S>( "x0 U", 0. );
+
+	//pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+	//pl->sublist("Stretching in Y").set<S>( "N metr L", 1 );
+	//pl->sublist("Stretching in Y").set<S>( "N metr U", ny  );
+	//pl->sublist("Stretching in Y").set<S>( "x0 L", 0. );
+	//pl->sublist("Stretching in Y").set<S>( "x0 U", 0. );
+
+	//pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+	//pl->sublist("Stretching in Z").set<S>( "N metr L", 1 );
+	//pl->sublist("Stretching in Z").set<S>( "N metr U", nz  );
+	//pl->sublist("Stretching in Z").set<S>( "x0 L", 0. );
+	//pl->sublist("Stretching in Z").set<S>( "x0 U", 0. );
 }
 
 

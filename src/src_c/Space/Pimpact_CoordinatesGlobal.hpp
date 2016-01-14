@@ -366,6 +366,10 @@ protected:
 
 			}
 		}
+
+		//Teuchos::RCP<std::ostream> out = createOstream( "coord.txt", 0 );
+		//print( *out );
+
 	};
 
 

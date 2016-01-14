@@ -22,8 +22,8 @@
 
 namespace {
 
-typedef double  S;
-typedef int     O;
+using S = double;
+using O = int;
 
 typedef Pimpact::Space<S,O,3,4> SpaceT;
 
