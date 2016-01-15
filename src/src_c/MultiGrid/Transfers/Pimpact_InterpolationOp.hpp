@@ -611,9 +611,10 @@ public:
 			}
 		}
 		out << "\n";
-
 	}
 
+	Teuchos::RCP<const SpaceT> spaceC() const { return( spaceC_ ); };
+	Teuchos::RCP<const SpaceT> spaceF() const { return( spaceF_ ); };
 
 }; // end of class InterpolationOp
 

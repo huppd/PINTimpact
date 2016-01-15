@@ -12,44 +12,44 @@ namespace Pimpact {
 
 extern "C" {
 
-	void OP_TimeStokesBSmoother( 
-      const int& dimens,
-      const int* const N,
-      const int* const bl,
-      const int* const bu,
-      const int* const BCL,
-      const int* const BCU,
-      const int* const dl,
-      const int* const du,
-      const int* const gl,
-      const int* const gu,
-      const int* const ss,
-      const int* const nn,
-      const int* const su,
-      const int* const nu,
-      const int* const sv,
-      const int* const nv,
-      const int* const sw,
-      const int* const nw,
-      const double* const c11p,
-      const double* const c22p,
-      const double* const c33p,       
-      const double* const c11u,
-      const double* const c22v,
-      const double* const c33w,       
-      const double* const cD1,                  
-      const double* const cD2,                  
-      const double* const cD3,                  
-      const double* const cG1,                  
-      const double* const cG2,                  
-      const double* const cG3,                  
-      const double& mulI,                 
-      const double& mulL,                 
-      const double* const rhs_vel,                 
-      const double* const rhs_p,                   
-            double* const vel,                
-            double* const p,
-      const int&    direction_flag );
+void OP_TimeStokesBSmoother( 
+		const int& dimens,
+		const int* const N,
+		const int* const bl,
+		const int* const bu,
+		const int* const BCL,
+		const int* const BCU,
+		const int* const dl,
+		const int* const du,
+		const int* const gl,
+		const int* const gu,
+		const int* const ss,
+		const int* const nn,
+		const int* const su,
+		const int* const nu,
+		const int* const sv,
+		const int* const nv,
+		const int* const sw,
+		const int* const nw,
+		const double* const c11p,
+		const double* const c22p,
+		const double* const c33p,       
+		const double* const c11u,
+		const double* const c22v,
+		const double* const c33w,       
+		const double* const cD1,                  
+		const double* const cD2,                  
+		const double* const cD3,                  
+		const double* const cG1,                  
+		const double* const cG2,                  
+		const double* const cG3,                  
+		const double& mulI,                 
+		const double& mulL,                 
+		const double* const rhs_vel,                 
+		const double* const rhs_p,                   
+		double* const vel,                
+		double* const p,
+		const int&    direction_flag );
 
 }
 
@@ -61,23 +61,23 @@ class TimeStokesBSmoother {
 
 public:
 
-  typedef typename OperatorT::SpaceT SpaceT;
+	typedef typename OperatorT::SpaceT SpaceT;
 
-  typedef typename SpaceT::Scalar Scalar;
-  typedef typename SpaceT::Ordinal Ordinal;
+	typedef typename SpaceT::Scalar Scalar;
+	typedef typename SpaceT::Ordinal Ordinal;
 
-  typedef CompoundField< TimeField<VectorField<SpaceT> >, TimeField<ScalarField<SpaceT> > >  DomainFieldT;
-  typedef CompoundField< TimeField<VectorField<SpaceT> >, TimeField<ScalarField<SpaceT> > >  RangeFieldT;
+	typedef CompoundField< TimeField<VectorField<SpaceT> >, TimeField<ScalarField<SpaceT> > >  DomainFieldT;
+	typedef CompoundField< TimeField<VectorField<SpaceT> >, TimeField<ScalarField<SpaceT> > >  RangeFieldT;
 
 
 protected:
 
-  const Teuchos::RCP<const OperatorT> op_;
+	const Teuchos::RCP<const OperatorT> op_;
 	int numIters_;
 
 public:
 
-  /// \todo constructor from space
+	/// \todo constructor from space
 	TimeStokesBSmoother( const Teuchos::RCP<const OperatorT>& op , Teuchos::RCP<Teuchos::ParameterList> pl = Teuchos::parameterList()):
 		op_( op ),
 		numIters_( pl->get<int>("numIters",4) )	{};
@@ -95,7 +95,7 @@ public:
 
 			// this is for alternating directions
 			direction_flag++;
-			
+
 			auto xu = x.getConstVFieldPtr();
 			auto xp = x.getConstSFieldPtr();
 			auto yu = y.getVFieldPtr();
@@ -115,8 +115,8 @@ public:
 					space()->nLoc(),
 					space()->bl(),
 					space()->bu(),
-                                        space()->getDomain()->getBCLocal()->getBCL(),
-                                        space()->getDomain()->getBCLocal()->getBCU(),
+					space()->getBCLocal()->getBCL(),
+					space()->getBCLocal()->getBCU(),
 					space()->dl(),
 					space()->du(),
 					space()->gl(),
@@ -165,7 +165,7 @@ public:
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
-  bool hasApplyTranspose() const { return( false ); }
+	bool hasApplyTranspose() const { return( false ); }
 
 	const std::string getLabel() const { return( "TimeStokesBSmoother " ); };
 

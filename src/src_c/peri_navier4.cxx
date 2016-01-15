@@ -73,8 +73,8 @@ template<class SpaceT> using INT = Pimpact::IntResCompoundOp<
                  Pimpact::InterpolationTimeOp<                           Pimpact::InterpolationOp<SpaceT> > >;
 
 template<class SpaceT> using RES = Pimpact::IntResCompoundOp<
-                                        Pimpact::RestrictionTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::RestrictionOp<SpaceT> > >,
-                                        Pimpact::RestrictionTimeOp<                           Pimpact::RestrictionOp<SpaceT> > >;
+                                        Pimpact::RestrictionTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::RestrictionHWOp<SpaceT> > >,
+                                        Pimpact::RestrictionTimeOp<                           Pimpact::RestrictionHWOp<SpaceT> > >;
 
 template<class SpaceT1, class SpaceT2> using TCO = Pimpact::TransferCompoundOp<
 

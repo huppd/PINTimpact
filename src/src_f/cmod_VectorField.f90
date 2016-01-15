@@ -4,9 +4,9 @@
 !! \author huppd
 module cmod_VectorField
 
-    use iso_c_binding
+  use iso_c_binding
 
-    implicit none
+  implicit none
 
 contains
 
@@ -21,44 +21,46 @@ contains
   !! \param[in] dr
   FUNCTION distance2ib( x, y, z, x0, y0, R, dr ) RESULT(dis)
 
-        IMPLICIT NONE
+    IMPLICIT NONE
 
-        REAL(c_double), INTENT(IN)  ::  x,y,z
+    REAL(c_double), INTENT(IN)  ::  x,y,z
 
-        REAL(c_double), intent(in)  ::  x0
-        REAL(c_double), intent(in)  ::  y0
+    REAL(c_double), intent(in)  ::  x0
+    REAL(c_double), intent(in)  ::  y0
 
-        REAL(c_double), intent(in)  ::  R
+    REAL(c_double), intent(in)  ::  R
 
-        REAL(c_double), intent(in)  ::  dr
+    REAL(c_double), intent(in)  ::  dr
 
-        REAL(c_double)              ::  z0
+    REAL(c_double)              ::  z0
 
-        REAL(c_double)              ::  dis
+    REAL(c_double)              ::  dis
 
 
-        ! geometric properties of disc
-        !        x0 = L1/2. + L1*amp*SIN(2.*pi*freq*subtime)
-        !        y0 = L2/4.
-        !        z0 = L3/2.
+    ! geometric properties of disc
+    !        x0 = L1/2. + L1*amp*SIN(2.*pi*freq*subtime)
+    !        y0 = L2/4.
+    !        z0 = L3/2.
 
-        !        R = L1/10.
-        !  write(*,*) 'dr=',dr
+    !        R = L1/10.
+    !  write(*,*) 'dr=',dr
 
-        dis = SQRT( (x0-x)**2 + (y0-y)**2 )
+    dis = SQRT( (x0-x)**2 + (y0-y)**2 )
 
-        !        IF( dis <= R) THEN
-        !            dis = 1.
-        !        ELSE
-        IF( Abs(dis-R) < dr) THEN
-            dis = ABS(1./( 1. + EXP(1./(-ABS(dis-R)/dr) + 1./(1.-Abs(dis-R)/dr) ) ));
-        !    dis = (1-(dis-R)/dr)
-        ELSE
-            dis = 0.
-        END IF
+    if( dis <= R) then
+      dis = 1.
+    else if( dis <= R+dr) then
+      dis = ABS(1./( 1. + EXP(1./(-ABS(dis-R)/dr) + 1./(1.-Abs(dis-R)/dr) ) ));
+    else
+      !IF( Abs(dis-R) < dr) THEN
+      !dis = ABS(1./( 1. + EXP(1./(-ABS(dis-R)/dr) + 1./(1.-Abs(dis-R)/dr) ) ));
+      !!    dis = (1-(dis-R)/dr)
+      !ELSE
+      dis = 0.
+    end if
     !    dis = 0.
 
-    END FUNCTION distance2ib
+  END FUNCTION distance2ib
 
 
 
@@ -71,6 +73,7 @@ contains
   !! \param[out] gxGuess final guess values (return values)
   SUBROUTINE init_value_bl_equation( kappa, sweep_angle_degrees, fxxGuess, gxGuess )
 
+    implicit none
 
     !----------- mjohn 101111 ------------------------------------------------------------------
     ! - INPUT VARIABLES
@@ -87,7 +90,6 @@ contains
     real(c_double)   :: fxxLo, fxxHi, gxLo, gxHi   ! more dummy variables...
     !------------------------------------------------------------------------------------------
 
-        implicit none
 
     ! v''(0) for kappa = (0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0) and 
     ! phi =       (     0        10        20        30        40        50        60        70        80      90   )
@@ -107,50 +109,48 @@ contains
     gx(1:10,6) = (/ 2.682235, 2.679764, 2.672382, 2.660189, 2.643351, 2.622097, 2.596728, 2.567613, 2.535191, 2.5 /) ! DUMMY VALUES (mere interpolation of line above and below)
     gx(1:10,7) = (/ 3.153111, 3.150959, 3.144539, 3.133967, 3.119438, 3.101224, 3.079682, 3.055254, 3.028479, 3.0 /)
 
-        integer(c_int), intent(in)    ::  dimens
 
-        integer(c_int), intent(in)    ::  N(3)
-
-        integer(c_int), intent(in)    ::  bL(3)
-        integer(c_int), intent(in)    ::  bU(3)
-
-        integer(c_int), intent(in)    ::  SU(3)
-        integer(c_int), intent(in)    ::  NU(3)
-
-        integer(c_int), intent(in)    ::  SV(3)
-        integer(c_int), intent(in)    ::  NV(3)
-
-        integer(c_int), intent(in)    ::  SW(3)
-        integer(c_int), intent(in)    ::  NW(3)
-
-        real(c_double),  intent(in)   ::  phiiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(in)   ::  phiiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(in)   ::  phiiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-
-        real(c_double),  intent(out)   ::  phioU(SU(1):NU(1),SU(2):NU(2),SU(3):NU(3))
-        real(c_double),  intent(out)   ::  phioV(SV(1):NV(1),SV(2):NV(2),SV(3):NV(3))
-        real(c_double),  intent(out)   ::  phioW(SW(1):NW(1),SW(2):NW(2),SW(3):NW(3))
-
-        integer(c_int)                       ::  i, j, k
+    ! get interpolation stencil for v'' between starting values in sweep_angle and kappa direction
+    fxx1 = fxx(floor(sweep_angle_degrees/10.)+1,  floor(kappa/0.5)+1)
+    fxx2 = fxx(floor(sweep_angle_degrees/10.)+1,  ceiling(kappa/0.5)+1)
+    fxx3 = fxx(ceiling(sweep_angle_degrees/10.)+1,floor(kappa/0.5)+1)
+    fxx4 = fxx(ceiling(sweep_angle_degrees/10.)+1,ceiling(kappa/0.5)+1)
+    ! get interpolation stencil for w' between starting values in sweep_angle and kappa direction
+    gx1 = gx(floor(sweep_angle_degrees/10.)+1,  floor(kappa/0.5)+1)
+    gx2 = gx(floor(sweep_angle_degrees/10.)+1,  ceiling(kappa/0.5)+1)
+    gx3 = gx(ceiling(sweep_angle_degrees/10.)+1,floor(kappa/0.5)+1)
+    gx4 = gx(ceiling(sweep_angle_degrees/10.)+1,ceiling(kappa/0.5)+1)
 
 
-        do k = SU(3), NU(3)
-            do j = SU(2), NU(2)
-                !pgi$ unroll = n:8
-                do i = SU(1), NU(1)
-                    phioU(i,j,k) =  phiiU(i,j,k)
-                end do
-            end do
-        end do
+    ! get remainders in kappa and sweep_angle dimension
+    dK = mod(kappa,0.5)
+    dPhi = mod(sweep_angle_degrees,10.0)
 
-        do k = SV(3), NV(3)
-            do j = SV(2), NV(2)
-                !pgi$ unroll = n:8
-                do i = SV(1), NV(1)
-                    phioV(i,j,k) =  phiiV(i,j,k)
-                end do
-            end do
-        end do
+
+    ! interpolate inside 4 point stencil for v'' 
+    fxxLo = ((0.5-dK)*fxx1 + dK*fxx2)/0.5
+    fxxHi = ((0.5-dK)*fxx3 + dK*fxx4)/0.5
+    fxxGuess = ((10-dPhi)*fxxLo + dPhi*fxxHi)/10.0
+    ! interpolate inside 4 point stencil for w' 
+    gxLo = ((0.5-dK)*gx1 + dK*gx2)/0.5
+    gxHi = ((0.5-dK)*gx3 + dK*gx4)/0.5
+    gxGuess = ((10-dPhi)*gxLo + dPhi*gxHi)/10.0
+
+
+    !   ! --- FOR DEBUGGING PURPOSES ONLY
+    !    write(*,*) 'Kappa and Phi are', kappa, ', ', sweep_angle_degrees, '.'
+    !    write(*,*) 'Interpolation for f between the four values'
+    !    write(*,*) fxx1, ', ', fxx2, ', ', fxx3, ', ', fxx4
+    !    write(*,*) 'resulted in initial guess', fxxGuess, '.'
+    !    write(*,*)
+    !    write(*,*) 'Interpolation for g between the four values'
+    !    write(*,*) gx1, ', ', gx2, ', ', gx3, ', ', gx4
+    !    write(*,*) 'resulted in initial guess', gxGuess, '.'
+
+
+  END SUBROUTINE init_value_bl_equation
+
+
 
   SUBROUTINE shoot_v(v,grid,n,sweep_angle,angle_attack,kappa,s,r,rank)
 
@@ -243,48 +243,76 @@ contains
           rhs(3) = 0.
         end if
 
-    end subroutine extract_dof
+        g = rk1(k)*g + rhs
+        t = t + rk2(k)*dx*g
+
+      end do
+
+    end do
+
+  END SUBROUTINE shoot_v
 
 
-    subroutine extract_dof_reverse(    &
-        dimens,                &
-        N,                     &
-        bL,bU,                 &
-        SU,NU,                 &
-        SV,NV,                 &
-        SW,NW,                 &
-        phiiU,phiiV,phiiW,     &
-        phioU,phioV,phioW ) bind ( c, name='VF_extract_dof_reverse' )
 
-        implicit none
+  SUBROUTINE shoot_w(w,v,grid,n,sweep_angle,sweep_angle_degrees,kappa,sv,sw,r,blThick)
 
-        integer(c_int), intent(in)    ::  dimens
+    implicit none
 
-        integer(c_int), intent(in)    ::  N(3)
+    !!!-----------------------------------------------------------------------
+    integer(c_int), intent(in) :: n          !number of grid points
+    real(c_double), intent(out):: w(n,2)        !OUTPUT: solution vector
+    real(c_double), intent(out):: v(n,3)        !OUTPUT: solution vector
+    real(c_double), intent(in) :: grid(n)       !array of grid points
+    real(c_double), intent(inout):: sv,sw,r       !starting and end value for shooting
+    real(c_double), intent(in)   :: sweep_angle   ! sweep angle PHI
+    real(c_double), intent(in)   :: sweep_angle_degrees ! sweep angle PHI
+    real(c_double), intent(in)   :: kappa         ! boundary suction KAPPA
+    real(c_double), intent(out)  :: blThick       ! blThickness (mathematical, non-dimensionalized)
+    !!!-----------------------------------------------------------------------
+    real(c_double) :: rhs(5)        !value of right-hand side
+    real(c_double) :: g(5)          !intermediate value in Runge-Kutta integration
+    real(c_double) :: t(5)          !intermediate value of v at x
+    real(c_double) :: rk1(3), rk2(3)!Runge-Kutta coefficients
+    real(c_double) :: dx            !integration step
+    real(c_double) :: x             !independent variable
+    !integer(c_int) :: i, j, k          !counters
+    integer(c_int) :: i,  k          !counters
+    real(c_double) :: cosPhi        !cos(sweep_angle)
+    real(c_double) :: upperBound    !upper interval boundary for integration
+    !!!=====================================================================
 
-        integer(c_int), intent(in)    ::  bL(3)
-        integer(c_int), intent(in)    ::  bU(3)
+    !!set Runge-Kutta coefficients
+    rk1(1) = 0.
+    rk1(2) = -5./9. 
+    rk1(3) = -153./128.
+    rk2(1) = 1./3.
+    rk2(2) = 15./16.
+    rk2(3) = 8./15.
 
-        integer(c_int), intent(in)    ::  SU(3)
-        integer(c_int), intent(in)    ::  NU(3)
+    !!set initial condition: v(0) = kappa, v'(0) = 0, initial guess depends on kappa, phi, alpha
+    cosPhi = cos(sweep_angle)
 
-        integer(c_int), intent(in)    ::  SV(3)
-        integer(c_int), intent(in)    ::  NV(3)
+    i = 1
+    t(1) = -kappa
+    t(2) = 0.
+    t(3) = sv
+    t(4) = 0.
+    t(5) = sw
+    x = 0.
 
-        integer(c_int), intent(in)    ::  SW(3)
-        integer(c_int), intent(in)    ::  NW(3)
+    !! w needs special treatment for phi = 90° and kappa = 0, since solution becomes trivial
+    !! activate VERY large integration domain for large phi and small kappa
+    if (kappa .LT. 0.01 .AND. sweep_angle_degrees .GT. 85.0) then
+      upperBound = min(2/(kappa+epsilon(upperbound)),200.0);
+    else
+      upperBound = 50.0;
+    end if
 
+    ! initialize boundary layer thickness to 0
+    blThick = 0;
 
-        real(c_double),  intent(in)  ::  phiiU(SU(1):NU(1),SU(2):NU(2),SU(3):NU(3))
-        real(c_double),  intent(in)  ::  phiiV(SV(1):NV(1),SV(2):NV(2),SV(3):NV(3))
-        real(c_double),  intent(in)  ::  phiiW(SW(1):NW(1),SW(2):NW(2),SW(3):NW(3))
-
-        real(c_double),  intent(out)   ::  phioU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(out)   ::  phioV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(out)   ::  phioW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-
-        integer(c_int)                       ::  i, j, k
-
+    !! numerical integration loop (let coordinate x run from 0 to infinity)
+    do
 
       !!save values
       r = t(4) - 1.;
@@ -584,118 +612,103 @@ contains
         do i = SU(1), NU(1)
           phioU(i,j,k) =  phiiU(i,j,k)
         end do
+      end do
+    end do
 
-        do k = SV(3), NV(3)
-            do j = SV(2), NV(2)
-                !pgi$ unroll = n:8
-                do i = SV(1), NV(1)
-                    phioV(i,j,k) =  phiiV(i,j,k)
-                end do
-            end do
+    do k = SV(3), NV(3)
+      do j = SV(2), NV(2)
+        !pgi$ unroll = n:8
+        do i = SV(1), NV(1)
+          phioV(i,j,k) =  phiiV(i,j,k)
         end do
+      end do
+    end do
 
-        if (dimens == 3) then
-            do k = SW(3), NW(3)
-                do j = SW(2), NW(2)
-                    !pgi$ unroll = n:8
-                    do i = SW(1), NW(1)
-                        phioW(i,j,k) =  phiiW(i,j,k)
-                    end do
-                end do
-            end do
-        end if
-
-    end subroutine extract_dof_reverse
-
-
-subroutine VF_init_2DPulsatileX(   &
-        N,                              &
-        bL,bU,                          &
-        SU,NU,                          &
-        SV,NV,                          &
-        SW,NW,                          &
-        L,                              &
-        t,                              &
-        x2p,                            &
-        re_, alpha, px,                 &
-        phiU, phiV, phiW ) bind ( c, name='VF_init_2DPulsatileX' )
-
-        implicit none
-
-        integer(c_int), intent(in)    ::  N(3)
-
-        integer(c_int), intent(in)     :: bL(3)
-        integer(c_int), intent(in)     :: bU(3)
-
-        integer(c_int), intent(in)     :: SU(3)
-        integer(c_int), intent(in)     :: NU(3)
-
-        integer(c_int), intent(in)     :: SV(3)
-        integer(c_int), intent(in)     :: NV(3)
-
-        integer(c_int), intent(in)     :: SW(3)
-        integer(c_int), intent(in)     :: NW(3)
-
-        real(c_double), intent(in)     :: L
-
-        real(c_double), intent(in)     :: t
-        real(c_double), intent(in)     :: x2p( bL(2):(N(2)+bU(2)) )
-
-        real(c_double), intent(in)    ::  re_
-        real(c_double), intent(in)    ::  alpha
-        real(c_double), intent(in)    ::  px
-
-        real(c_double),  intent(inout) ::phiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(inout) ::phiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-        real(c_double),  intent(inout) ::phiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-
-        real(c_double) :: mu
-        real(c_double) :: my
-        real(c_double) :: muL
-        real(c_double) :: lambda
-        real(c_double) :: s1
-        real(c_double) :: s2
-        real(c_double) :: alpha_Pimpact
-        integer                ::  i, j, k
-        
-        ! -----------------------------------------!
-        
-        alpha_Pimpact = alpha/sqrt(re_)
-        mu = sqrt( 2*re_ )*alpha_Pimpact/2. !kk
-        lambda  = px/alpha_Pimpact**2       !k
-        muL = mu*L
-       
-        do k = SU(3), NU(3)
-            do j = SU(2), NU(2)
-                do i = SU(1), NU(1)
-
-                    my = mu*x2p(j)
-                    s1 = exp(muL + my)
-                    s2 = exp(my)
-                    phiU(i,j,k) = -(lambda*(2*sin(t + muL)*s1 + 2*sin(t - muL)*s1 - 2*exp(2*muL)*sin(t - my)                   &
-                                  - 2*exp(muL)*sin(t + muL - my) - 2*(s2**2)*sin(t + my) - 2*exp(muL + 2*my)*sin(t - muL + my) &
-                                  + 2*s2*sin(t) + 2*exp(2*muL + my)*sin(t)))/(s2 + exp(2*muL + my) + 2*s1*cos(muL)) 
-                end do
-            end do
+    if (dimens == 3) then
+      do k = SW(3), NW(3)
+        do j = SW(2), NW(2)
+          !pgi$ unroll = n:8
+          do i = SW(1), NW(1)
+            phioW(i,j,k) =  phiiW(i,j,k)
+          end do
         end do
+      end do
+    end if
 
-        do k = SV(3), NV(3)
-            do j = SV(2), NV(2)
-                do i = SV(1), NV(1)
-                    phiV(i,j,k) = 0
-                end do
-            end do
+  end subroutine extract_dof
+
+
+  subroutine extract_dof_reverse(    &
+      dimens,                &
+      N,                     &
+      bL,bU,                 &
+      SU,NU,                 &
+      SV,NV,                 &
+      SW,NW,                 &
+      phiiU,phiiV,phiiW,     &
+      phioU,phioV,phioW ) bind ( c, name='VF_extract_dof_reverse' )
+
+    implicit none
+
+    integer(c_int), intent(in)    ::  dimens
+
+    integer(c_int), intent(in)    ::  N(3)
+
+    integer(c_int), intent(in)    ::  bL(3)
+    integer(c_int), intent(in)    ::  bU(3)
+
+    integer(c_int), intent(in)    ::  SU(3)
+    integer(c_int), intent(in)    ::  NU(3)
+
+    integer(c_int), intent(in)    ::  SV(3)
+    integer(c_int), intent(in)    ::  NV(3)
+
+    integer(c_int), intent(in)    ::  SW(3)
+    integer(c_int), intent(in)    ::  NW(3)
+
+
+    real(c_double),  intent(in)  ::  phiiU(SU(1):NU(1),SU(2):NU(2),SU(3):NU(3))
+    real(c_double),  intent(in)  ::  phiiV(SV(1):NV(1),SV(2):NV(2),SV(3):NV(3))
+    real(c_double),  intent(in)  ::  phiiW(SW(1):NW(1),SW(2):NW(2),SW(3):NW(3))
+
+    real(c_double),  intent(out)   ::  phioU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(out)   ::  phioV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double),  intent(out)   ::  phioW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+
+    integer(c_int)                       ::  i, j, k
+
+
+    do k = SU(3), NU(3)
+      do j = SU(2), NU(2)
+        !pgi$ unroll = n:8
+        do i = SU(1), NU(1)
+          phioU(i,j,k) =  phiiU(i,j,k)
         end do
+      end do
+    end do
 
-        do k = SW(3), NW(3)
-            do j = SW(2), NW(2)
-                do i = SW(1), NW(1)
-                    phiW(i,j,k) = 0.0
-                end do
-            end do
+    do k = SV(3), NV(3)
+      do j = SV(2), NV(2)
+        !pgi$ unroll = n:8
+        do i = SV(1), NV(1)
+          phioV(i,j,k) =  phiiV(i,j,k)
         end do
+      end do
+    end do
 
-    end subroutine VF_init_2DPulsatileX
+    if (dimens == 3) then
+      do k = SW(3), NW(3)
+        do j = SW(2), NW(2)
+          !pgi$ unroll = n:8
+          do i = SW(1), NW(1)
+            phioW(i,j,k) =  phiiW(i,j,k)
+          end do
+        end do
+      end do
+    end if
+
+  end subroutine extract_dof_reverse
+
 
 
 

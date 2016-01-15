@@ -90,7 +90,8 @@ public:
 			}
 			// not working on brutus(intel)
 			//interpolationOps_.shrink_to_fit();
-		}
+
+	}
 
 public:
 

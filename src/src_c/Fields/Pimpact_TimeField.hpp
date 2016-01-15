@@ -18,6 +18,7 @@
 #include "Pimpact_Types.hpp"
 #include "Pimpact_VectorField.hpp"
 
+#include "Pimpact_Types.hpp"
 
 
 
@@ -376,7 +377,7 @@ public:
 	void exchange() const {
 
 		if( !exchangedState_ ) {
-			if( space()->getNProc(3)>1 ) {
+			if( space()->np(3)>1 ) {
 
 				int transL = std::abs( space()->bl(3) );
 				int transU = std::abs( space()->bu(3) );
@@ -505,8 +506,8 @@ initVectorTimeField(
       break;
     }
 		case OscilatingDisc2D: {
-//			std::cout << "\ti: " << i << "\tt: " << 2.*pi*((S)i+offset)/nt << "\tt: " << space->getCoordinatesLocal()->getX(T)[i] << "\n";
-			S ymt = ym+amp*std::sin( space->getCoordinatesLocal()->getX(T)[i] );
+//			std::cout << "\ti: " << i << "\tt: " << 2.*pi*((S)i+offset)/nt << "\tt: " << space->getCoordinatesLocal()->getX( ECoord::T, EField::S )[i] << "\n";
+			S ymt = ym+amp*std::sin( space->getCoordinatesLocal()->getX( ECoord::T, EField::S )[i] );
       S xmt = xm;
       field->getFieldPtr(i)->initField( Disc2D, xmt, ymt, rad );
       break;
@@ -518,11 +519,11 @@ initVectorTimeField(
       break;
     }
     case ConstVel_inX:{
-    	field->getFieldPtr(i)->init( Teuchos::tuple( -2*xm*std::cos(space->getCoordinatesLocal()->getX(T)[i]), 0., 0.) ); // here xm = p
+    	field->getFieldPtr(i)->init( Teuchos::tuple( -2*xm*std::cos(space->getCoordinatesLocal()->getX( ECoord::T, EField::S )[i]), 0., 0.) ); // here xm = p
     	break;
     }
     case Pulsatile_inX: {
-      field->getFieldPtr(i)->initField( Pulsatile2D_inX, xm, space->getCoordinatesLocal()->getX(T)[i], ym, rad); // the arguments are (xmt,i,ymt,rad) --> (re,t,px,alpha)
+      //field->getFieldPtr(i)->initField( Pulsatile2D_inX, xm, space->getCoordinatesLocal()->getX( ECoord::T, EField::S )[i], ym, rad); // the arguments are (xmt,i,ymt,rad) --> (re,t,px,alpha)
       break;
     }
     default:

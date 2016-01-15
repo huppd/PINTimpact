@@ -17,42 +17,42 @@ namespace Pimpact {
 
 extern "C" {
 
-	void OP_TimeStokes( 
-      const int& dimens,
-      const int* const N,
-      const int* const bl,
-      const int* const bu,
-      const int* const dl,
-      const int* const du,
-      const int* const gl,
-      const int* const gu,
-      const int* const ss,
-      const int* const nn,
-      const int* const su,
-      const int* const nu,
-      const int* const sv,
-      const int* const nv,
-      const int* const sw,
-      const int* const nw,
-      const double* const c11p,
-			const double* const c22p,
-			const double* const c33p,       
-      const double* const c11u,
-			const double* const c22v,
-			const double* const c33w,       
-      const double* const cD1,                  
-      const double* const cD2,                  
-      const double* const cD3,                  
-      const double* const cG1,                  
-      const double* const cG2,                  
-      const double* const cG3,                  
-      const double& mulI,                 
-      const double& mulL,                 
-//      const double* const velp,                 
-      const double* const veln,                 
-      const double* const pn,                   
-            double* const r_vel,                
-            double* const r_p );
+void OP_TimeStokes( 
+		const int& dimens,
+		const int* const N,
+		const int* const bl,
+		const int* const bu,
+		const int* const dl,
+		const int* const du,
+		const int* const gl,
+		const int* const gu,
+		const int* const ss,
+		const int* const nn,
+		const int* const su,
+		const int* const nu,
+		const int* const sv,
+		const int* const nv,
+		const int* const sw,
+		const int* const nw,
+		const double* const c11p,
+		const double* const c22p,
+		const double* const c33p,       
+		const double* const c11u,
+		const double* const c22v,
+		const double* const c33w,       
+		const double* const cD1,                  
+		const double* const cD2,                  
+		const double* const cD3,                  
+		const double* const cG1,                  
+		const double* const cG2,                  
+		const double* const cG3,                  
+		const double& mulI,                 
+		const double& mulL,                 
+		//      const double* const velp,                 
+		const double* const veln,                 
+		const double* const pn,                   
+		double* const r_vel,                
+		double* const r_p );
 
 }
 
@@ -64,26 +64,26 @@ class TimeStokesOp {
 
 public:
 
-  typedef ST SpaceT;
+	typedef ST SpaceT;
 
-  typedef typename SpaceT::Scalar Scalar;
-  typedef typename SpaceT::Ordinal Ordinal;
+	typedef typename SpaceT::Scalar Scalar;
+	typedef typename SpaceT::Ordinal Ordinal;
 
-  typedef CompoundField< TimeField<VectorField<ST> >, TimeField<ScalarField<ST> > >  DomainFieldT;
-  typedef CompoundField< TimeField<VectorField<ST> >, TimeField<ScalarField<ST> > >  RangeFieldT;
+	typedef CompoundField< TimeField<VectorField<ST> >, TimeField<ScalarField<ST> > >  DomainFieldT;
+	typedef CompoundField< TimeField<VectorField<ST> >, TimeField<ScalarField<ST> > >  RangeFieldT;
 
 
 protected:
 
-//  Teuchos::RCP<VF> temp_;
+	//  Teuchos::RCP<VF> temp_;
 
-  Teuchos::RCP<const HelmholtzOp<ST> > helm_;
-  Teuchos::RCP<const GradOp<ST> > grad_;
-  Teuchos::RCP<const DivOp<ST> > div_;
+	Teuchos::RCP<const HelmholtzOp<ST> > helm_;
+	Teuchos::RCP<const GradOp<ST> > grad_;
+	Teuchos::RCP<const DivOp<ST> > div_;
 
 public:
 
-  /// \todo constructor from space
+	/// \todo constructor from space
 	TimeStokesOp(
 			const Teuchos::RCP<const SpaceT>& space ):
 		helm_( create< HelmholtzOp<ST> >(space) ),
@@ -105,7 +105,7 @@ public:
 		xu->exchange();
 
 		for( Ordinal i=space()->sInd(S,3)-1; i<space()->eInd(S,3); ++i ) {
-//			xu->getConstFieldPtr(i-1)->exchange();
+			//			xu->getConstFieldPtr(i-1)->exchange();
 			xu->getConstFieldPtr(i)->exchange();
 			xp->getConstFieldPtr(i)->exchange();
 		}
@@ -153,7 +153,7 @@ public:
 
 		yu->changed();
 		yp->changed();
-		
+
 	}
 
 	void assignField( const DomainFieldT& mv ) { };
@@ -162,19 +162,19 @@ public:
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
-  bool hasApplyTranspose() const { return( false ); }
+	bool hasApplyTranspose() const { return( false ); }
 
 
 
-  Teuchos::RCP<const HelmholtzOp<ST> > getHelmholtzOp() const { return( helm_ ); }
-  Teuchos::RCP<const GradOp<ST> > getGradOp() const { return( grad_ ); }
-  Teuchos::RCP<const DivOp<ST> > getDivOp() const { return( div_ ); }
+	Teuchos::RCP<const HelmholtzOp<ST> > getHelmholtzOp() const { return( helm_ ); }
+	Teuchos::RCP<const GradOp<ST> > getGradOp() const { return( grad_ ); }
+	Teuchos::RCP<const DivOp<ST> > getDivOp() const { return( div_ ); }
 
 	const std::string getLabel() const { return( "TimeStokesOp " ); };
 
-  void print( std::ostream& out=std::cout ) const {
+	void print( std::ostream& out=std::cout ) const {
 		out << getLabel() << ":\n";
-  }
+	}
 
 }; // end of class TimeStokesOp
 

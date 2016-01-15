@@ -69,17 +69,16 @@ public:
 		y.changed(); 
   }
 
-	Teuchos::RCP<const SpaceT> spaceC() const { return(op_->get_spaceC_()); };
-	Teuchos::RCP<const SpaceT> spaceF() const { return(op_->get_spaceF_()); };
-
+	Teuchos::RCP<const SpaceT> spaceC() const { return( op_->spaceC() ); };
+	Teuchos::RCP<const SpaceT> spaceF() const { return( op_->spaceF() ); };
 
 	Teuchos::RCP<OperatorT> getOperatorPtr() { return( op_ ); }
-	
 
 
 }; // end of class InterpolationTimeOp
 
     
+
 /// \relates
 template< class OpT >
 Teuchos::RCP< InterpolationTimeOp<OpT> > createInterpolationTimeOp(
@@ -88,6 +87,7 @@ Teuchos::RCP< InterpolationTimeOp<OpT> > createInterpolationTimeOp(
 	return( Teuchos::rcp( new InterpolationTimeOp<OpT>( spaceC,spaceF ) ) );
 
 }
+
 
 } // end of namespace Pimpact
 

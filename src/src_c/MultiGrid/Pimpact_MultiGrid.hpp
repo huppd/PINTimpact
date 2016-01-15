@@ -172,11 +172,11 @@ public:
 				//b_->get(i)->setCornersZero();
 				x_->get(i)->init(0.);
 				try{
-					cGridSolver_->apply( *b_->get(i), *x_->get(i));
+					cGridSolver_->apply( *b_->get(i), *x_->get(i) );
 				}
 				catch( std::logic_error& e ) {
 					std::cout << "error in MG on coarse grid:\n";
-					//cGridSolver_->print();
+					cGridSolver_->print();
 					b_->get(i)->print();
 					b_->get(i)->write(111);
 					x_->get(i)->write(222);
