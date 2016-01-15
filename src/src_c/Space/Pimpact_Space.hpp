@@ -56,11 +56,10 @@ class Space {
 
 public:
 
-	typedef S Scalar;
-	typedef O Ordinal;
+	using Scalar  = S;
+	using Ordinal = O;
 
 	static const int dimension = d;
-
 	static const int dimNC = dNC;
 
 

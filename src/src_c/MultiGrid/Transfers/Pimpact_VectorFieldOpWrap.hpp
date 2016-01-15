@@ -34,12 +34,8 @@ public:
 
 	typedef FSpaceT SpaceT;
 
-//  typedef typename FSpaceT::Scalar Scalar;
-//  typedef typename FSpaceT::Ordinal Ordinal;
-
 	typedef VectorField<FSpaceT>  DomainFieldT;
 	typedef VectorField<CSpaceT>  RangeFieldT;
-
 
 protected:
 

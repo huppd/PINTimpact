@@ -712,10 +712,6 @@ contains
 
 
 
-
-
-
-
   !> \brief init vector field with 2d pulsatile flow in x-direction
   !! \f[ u(y,t) = \hat{u}^+ \exp(i \omega t) + \hat{u}^- \exp(- i \omega t) \f]
   !! \f[ \hat{u}^+(y) = c^+ \left( \exp(+ \lambda_1 y ) + \exp(-\lambda\right) + \frac{p_x i}{\omega \f]

@@ -45,14 +45,13 @@ class CoarsenStrategyGlobal {
 public:
 
 	// \todo make interface if spectral refinment is desired or not
-  static std::vector<Teuchos::RCP<const CSpaceT> > getMultiSpace(
-      const Teuchos::RCP<const FSpaceT> space,
-      int maxGrids=10 ) {
-
+	static std::vector<Teuchos::RCP<const CSpaceT> > getMultiSpace(
+			const Teuchos::RCP<const FSpaceT> space,
+			int maxGrids=10 ) {
 
 		Teuchos::RCP<const CSpaceT> tempSpace = createSpace<CSpaceT,FSpaceT>( space );
 
-    std::vector<Teuchos::RCP<const CSpaceT> > multiSpace( 1, tempSpace );
+		std::vector<Teuchos::RCP<const CSpaceT> > multiSpace( 1, tempSpace );
 
 		GridSizeGlobal<Ordinal> nGlo = *space->getGridSizeGlobal();
 
@@ -60,10 +59,10 @@ public:
 
 		Teuchos::Tuple<bool,4> coarsen_dir;
 
-    TO npWorld = space->getProcGrid()->getNP();
+		TO npWorld = space->getProcGrid()->getNP();
 		TO np = npWorld;
 		TO npNew = np;
-    TO ibWorld = space->getProcGrid()->getIB();
+		TO ibWorld = space->getProcGrid()->getIB();
 		TO stride;
 
 		for( Ordinal i=0; i<dimension; ++i ) 

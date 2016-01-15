@@ -270,9 +270,9 @@ public:
   /// \}
 
   /// Print the vector.  To be used for debugging only.
-  void print( std::ostream& os )  {
-    vfield_->print( os );
-    sfield_->print( os );
+  void print( std::ostream& out=std::cout ) const {
+    vfield_->print( out );
+    sfield_->print( out );
   }
 
 
