@@ -1274,7 +1274,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 	mgPL->set<bool>( "init zero", false );
 
 	//mgPL->sublist("Smoother").set( "omega", 1. );
-	//mgPL->sublist("Smoother").set<int>( "numIters", 8 );
+	mgPL->sublist("Smoother").set<int>( "numIters", 5 );
 	//mgPL->sublist("Smoother").set<int>( "RBGS mode", 0 );
 	//mgPL->sublist("Smoother").set<bool>( "level", false );
 
@@ -1305,7 +1305,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 	//mgPL->sublist("Coarse Grid Solver").set<bool>( "level", false );
 	
 	mgPL->sublist("Coarse Grid Solver").sublist("Preconditioner").set<S>( "omega", 1. );
-	//mgPL->sublist("Coarse Grid Solver").sublist("Preconditioner").set<int>( "RBGS mode", 0 );
+	mgPL->sublist("Coarse Grid Solver").sublist("Preconditioner").set<int>( "RBGS mode", 0 );
 	mgPL->sublist("Coarse Grid Solver").sublist("Preconditioner").set<int>( "numIters", 1 );
 	mgPL->sublist("Coarse Grid Solver").sublist("Preconditioner").set<bool>( "level", false );
 	//mgPL->sublist("Coarse Grid Solver").sublist("Preconditioner").set<bool>( "level", true );
@@ -1345,7 +1345,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 
 	auto param = Pimpact::createLinSolverParameter( solvName, 1.e-6 );
 	param->set( "Output Frequency", 10 );
-	param->set( "Maximum Iterations", 50 );
+	param->set( "Maximum Iterations", 10 );
 	//param->set( "Flexible Gmres", false );
 
 	auto bop = Pimpact::createMultiOperatorBase( op );
@@ -1396,9 +1396,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 	x->write();
 	TEST_EQUALITY( x->norm()/std::sqrt( static_cast<S>(x->getLength()) )<1.e-3, true );
 	
-	bm->init( 0. );
-	xm->random();
-	linprob->solve( xm, bm );
+	//bm->init( 0. );
+	//xm->random();
+	//linprob->solve( xm, bm );
 
 	// --- grad test ---
 	auto e = x->clone();
@@ -1447,9 +1447,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 		}
 		TEST_EQUALITY( res->norm()/std::sqrt( static_cast<S>( res->getLength() ) )<1.e-3, true );
 
-		//bm->get( 0 )-init( 0. );
-		xm->init( 0. );
-		linprob->solve( xm, bm );
+		////bm->get( 0 )-init( 0. );
+		//xm->init( 0. );
+		//linprob->solve( xm, bm );
 	}
 
 
