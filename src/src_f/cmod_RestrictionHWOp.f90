@@ -67,9 +67,9 @@ contains
       cR( 0,1) = 1.
       cR( 1,1) = 0.
 
-      !cR(-1,2) = 0. ! TEST!!! Sollte evtl. noch ergaenzt werden ...
-      !cR( 0,2) = 1.
-      !cR( 1,2) = 0.
+      cR(-1,2) = 0. ! TEST!!! Sollte evtl. noch ergaenzt werden ...
+      cR( 0,2) = 1.
+      cR( 1,2) = 0.
     end if
     if (BC_L == -2) then
       cR( 1,1) = cR( 1,1) + cR(-1,1)
@@ -81,10 +81,9 @@ contains
       cR( 0,iimax) = 1.
       cR( 1,iimax) = 0.
 
-      !cR(-1,iimax-1) = 0.
-      !cR( 0,iimax-1) = 1.
-      !cR( 1,iimax-1) = 0.
-
+      cR(-1,iimax-1) = 0.
+      cR( 0,iimax-1) = 1.
+      cR( 1,iimax-1) = 0.
     end if
 
     if (BC_U == -2) then

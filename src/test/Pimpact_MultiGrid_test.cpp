@@ -58,15 +58,19 @@ int fe = 4;
 
 int level = -1;
 
+S lx = 30.;
+S ly = 20.;
+S lz = 20.;
+
 int npx = 1;
 int npy = 1;
 int npz = 1;
 int npf = 1;
 
-int nx = 65;
-int ny = 49;
-int nz = 97;
-int nf = 1;
+O nx = 65;
+O ny = 49;
+O nz = 97;
+O nf = 1;
 
 int rankbla = -1;
 
@@ -96,6 +100,11 @@ TEUCHOS_STATIC_SETUP() {
 	clp.setOption( "fe", &fe,
 			"Slack off of machine epsilon used to check test results" );
 	clp.setOption( "level", &level, "" );
+
+	clp.setOption( "lx", &lx, "" );
+	clp.setOption( "ly", &ly, "" );
+	clp.setOption( "lz", &lz, "" );
+
 	clp.setOption( "npx", &npx, "" );
 	clp.setOption( "npy", &npy, "" );
 	clp.setOption( "npz", &npz, "" );
@@ -107,15 +116,6 @@ TEUCHOS_STATIC_SETUP() {
 	clp.setOption( "nf", &nf, "" );
 	clp.setOption( "rank", &rankbla, "" );
 	clp.setOption( "maxGrids", &maxGrids, "" );
-
-
-	pl->set( "lx", 1. );
-	pl->set( "ly", 1. );
-	pl->set( "lz", 1. );
-	//pl->set( "lx", 30. );
-	//pl->set( "ly", 20. );
-	//pl->set( "lz", 20. );
-
 
 	//pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "para" );
 	//pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
@@ -147,6 +147,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSpaces, constructor3D, CS ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
+
+	pl->set( "lx", lx );
+	pl->set( "ly", ly );
+	pl->set( "lz", lz );
 
 	//  grid size
 	pl->set("nx", nx );
@@ -194,6 +198,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGFields, SF_constructor3D, CS ) {
   pl->set( "domain", domain );
   pl->set( "dim", dim );
 
+	pl->set( "lx", lx );
+	pl->set( "ly", ly );
+	pl->set( "lz", lz );
+
 	//  grid size
 	pl->set( "nx", nx );
 	pl->set( "ny", ny );
@@ -235,6 +243,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGFields, VF_constructor3D, CS ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
+
+	pl->set( "lx", lx );
+	pl->set( "ly", ly );
+	pl->set( "lz", lz );
 
 	//  grid size
 	pl->set("nx", nx );
@@ -278,6 +290,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGOperators, SF_constructor3D, CS ) {
   pl->set( "domain", domain );
   pl->set( "dim", dim );
 
+	pl->set( "lx", lx );
+	pl->set( "ly", ly );
+	pl->set( "lz", lz );
+
 	//  grid size
 	pl->set("nx", nx );
 	pl->set("ny", ny );
@@ -319,6 +335,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGOperators, VF_constructor3D, CS ) {
   pl->set( "domain", domain );
   pl->set( "dim", dim );
 
+	pl->set( "lx", lx );
+	pl->set( "ly", ly );
+	pl->set( "lz", lz );
+
 	//  grid size
 	pl->set("nx", nx );
 	pl->set("ny", ny );
@@ -355,6 +375,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSmoothers, SF_constructor3D, CS ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
+
+	pl->set( "lx", lx );
+	pl->set( "ly", ly );
+	pl->set( "lz", lz );
 
 	//  grid size
 	pl->set("nx", nx );
@@ -394,6 +418,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSmoothers, VF_constructor3D, CS ) {
   pl->set( "domain", domain );
   pl->set( "dim", dim );
 
+	pl->set( "lx", lx );
+	pl->set( "ly", ly );
+	pl->set( "lz", lz );
+
 	//  grid size
 	pl->set("nx", nx );
 	pl->set("ny", ny );
@@ -431,6 +459,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Restrictor, CS ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
+
+	pl->set( "lx", lx );
+	pl->set( "ly", ly );
+	pl->set( "lz", lz );
 
 	//  grid size
 	pl->set("nx", nx );
@@ -561,6 +593,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator, CS ) {
 
 	pl->set( "domain", domain );
 	pl->set( "dim", dim );
+
+	pl->set( "lx", lx );
+	pl->set( "ly", ly );
+	pl->set( "lz", lz );
 
 	//  grid size
 	pl->set("nx", nx );
@@ -705,6 +741,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
+
+	pl->set( "lx", lx );
+	pl->set( "ly", ly );
+	pl->set( "lz", lz );
 
 	//  grid size
 	pl->set("nx", nx );
@@ -951,6 +991,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersVF, CS ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
+
+	pl->set( "lx", lx );
+	pl->set( "ly", ly );
+	pl->set( "lz", lz );
 
 	//  grid size
 	pl->set("nx", nx );
@@ -1200,6 +1244,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
   pl->set( "domain", domain );
   pl->set( "dim", dim );
 
+	pl->set( "lx", lx );
+	pl->set( "ly", ly );
+	pl->set( "lz", lz );
+
 	//  grid size
 	pl->set( "nx", nx );
 	pl->set( "ny", ny );
@@ -1222,10 +1270,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 	auto mgPL = Teuchos::parameterList();
 	mgPL->set<int>( "numCycles", 1 );
 	mgPL->set<bool>( "defect correction", false );
+	//mgPL->set<bool>( "defect correction", true );
 	mgPL->set<bool>( "init zero", false );
 
 	//mgPL->sublist("Smoother").set( "omega", 1. );
-	//mgPL->sublist("Smoother").set<int>( "numIters", 8 );
+	mgPL->sublist("Smoother").set<int>( "numIters", 5 );
 	//mgPL->sublist("Smoother").set<int>( "RBGS mode", 0 );
 	//mgPL->sublist("Smoother").set<bool>( "level", false );
 
@@ -1256,7 +1305,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 	//mgPL->sublist("Coarse Grid Solver").set<bool>( "level", false );
 	
 	mgPL->sublist("Coarse Grid Solver").sublist("Preconditioner").set<S>( "omega", 1. );
-	//mgPL->sublist("Coarse Grid Solver").sublist("Preconditioner").set<int>( "RBGS mode", 0 );
+	mgPL->sublist("Coarse Grid Solver").sublist("Preconditioner").set<int>( "RBGS mode", 0 );
 	mgPL->sublist("Coarse Grid Solver").sublist("Preconditioner").set<int>( "numIters", 1 );
 	mgPL->sublist("Coarse Grid Solver").sublist("Preconditioner").set<bool>( "level", false );
 	//mgPL->sublist("Coarse Grid Solver").sublist("Preconditioner").set<bool>( "level", true );
@@ -1267,7 +1316,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 			Pimpact::TransferOp,
 			Pimpact::RestrictionHWOp,
 			Pimpact::InterpolationOp,
-			//Pimpact::DivGradO2Op,
 			Pimpact::DivGradOp,
 			Pimpact::DivGradO2Op,
 			Pimpact::DivGradO2JSmoother,
@@ -1282,9 +1330,30 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 	auto res = x->clone( Pimpact::ShallowCopy );
 	auto sol = x->clone( Pimpact::ShallowCopy );
 
-	auto op = Pimpact::create<Pimpact::DivGradO2Op>( space );
+	auto xm = Pimpact::createMultiField( x );
+	auto bm = Pimpact::createMultiField( b );
 
+	auto op   = Pimpact::create<Pimpact::DivGradOp>( space );
+	auto opO2 = Pimpact::create<Pimpact::DivGradO2Op>( space );
 
+	auto prec = Pimpact::createMultiOperatorBase( mg );
+
+	//auto solvName = "Block GMRES";
+	 //auto solvName = "TFQMR";
+	auto solvName = "GMRES";
+	//auto solvName = "Fixed Point";
+
+	auto param = Pimpact::createLinSolverParameter( solvName, 1.e-6 );
+	param->set( "Output Frequency", 10 );
+	param->set( "Maximum Iterations", 10 );
+	//param->set( "Flexible Gmres", false );
+
+	auto bop = Pimpact::createMultiOperatorBase( op );
+
+	auto linprob = Pimpact::createLinearProblem<Pimpact::MultiField<Pimpact::ScalarField<FSpace3T> > >( bop, xm, bm, param, solvName );
+	linprob->setRightPrec(prec);
+	//linprob->setLeftPrec(prec);
+	
 	// --- zero rhs test ---
 	b->init(0.);
 	x->random();
@@ -1293,14 +1362,15 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 	S error0 = x->norm();
 	S errorp = error0;
 
-	op->apply( *x, *res );
+	opO2->apply( *x, *res );
 	S res0 = res->norm();
 	S resP = res0;
 
 	if( space()->rankST()==0 ) {
 		std::cout << "\n\n\t\t\t--- zero rhs test ---\n";
 		std::cout << "\tresidual:\trate:\t\t\terror:\t\trate: \n";
-		std::cout << "\t" << 1. << "\t\t\t\t\t"  << 1.  << "\n";
+		std::cout <<  std::scientific;
+		std::cout << "\t" << 1. << "\t\t\t\t"  << 1.  << "\n";
 	}
 
 	for( int i=0; i<nMax; ++i ) {
@@ -1309,7 +1379,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 
 		S error = x->norm();
 
-		op->apply( *x, *res );
+		opO2->apply( *x, *res );
 		S residual = res->norm();
 
 		if( space()->rankST()==0 )
@@ -1326,6 +1396,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 	x->write();
 	TEST_EQUALITY( x->norm()/std::sqrt( static_cast<S>(x->getLength()) )<1.e-3, true );
 	
+	//bm->init( 0. );
+	//xm->random();
+	//linprob->solve( xm, bm );
 
 	// --- grad test ---
 	auto e = x->clone();
@@ -1334,14 +1407,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 		sol->initField( static_cast<Pimpact::EScalarField>(dir) );
 		sol->level();
 
-		op->apply( *x, *b );
+		opO2->apply( *x, *b );
 		//b->write(1);
 
 		//x->random();
 		x->init( 0 );
 
 		// residual
-		op->apply( *x, *res );
+		opO2->apply( *x, *res );
 		res->add( -1, *b, 1., *res );
 		S res0 = res->norm();
 		S resP = res0;
@@ -1355,13 +1428,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 		if( space()->rankST()==0 ) {
 			std::cout << "\n\n\t\t\t--- " << dir << " test ---\n";
 			std::cout << "\tresidual:\trate:\t\t\terror:\t\trate:\n";
-			std::cout << "\t"  << 1.<< "\t\t\t\t\t" << 1.  << "\n";
+			std::cout << "\t"  << 1.<< "\t\t\t\t" << 1.  << "\n";
 		}
 		for( int i=0; i<nMax; ++i ) {
 			mg->apply( *b, *x );
 			x->level();
 
-			op->apply( *x, *res );
+			opO2->apply( *x, *res );
 			res->add( -1, *b, 1., *res );
 			S residual = res->norm();
 			res->add( 1., *sol, -1., *x );
@@ -1373,37 +1446,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 			errP = err;
 		}
 		TEST_EQUALITY( res->norm()/std::sqrt( static_cast<S>( res->getLength() ) )<1.e-3, true );
+
+		////bm->get( 0 )-init( 0. );
+		//xm->init( 0. );
+		//linprob->solve( xm, bm );
 	}
 
-
-	// --- as preconditioner ---
-	auto xm = Pimpact::createMultiField( x );
-	auto bm = Pimpact::createMultiField( b );
-
-	//bm->init(0);
-	//xm->random();
-	xm->init( 0. );
-
-	auto prec = Pimpact::createMultiOperatorBase( mg );
-
-	//auto solvName = "Block GMRES";
-	 //auto solvName = "TFQMR";
-	auto solvName = "GMRES";
-	//auto solvName = "Fixed Point";
-
-	auto param = Pimpact::createLinSolverParameter(solvName,1.e-6);
-	param->set( "Output Frequency", 1);
-	param->set( "Maximum Iterations", 50 );
-	//param->set( "Flexible Gmres", false );
-
-	auto bop = Pimpact::createMultiOperatorBase( op );
-
-	auto linprob = Pimpact::createLinearProblem<Pimpact::MultiField<Pimpact::ScalarField<FSpace3T> > >( bop, xm, bm, param, solvName );
-	linprob->setRightPrec(prec);
-	//linprob->setLeftPrec(prec);
-
-	linprob->solve( xm, bm );
-	xm->write();
 
 }
 
@@ -1416,6 +1464,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffSOR, CS ) {
 
 	pl->set( "domain", domain );
 	pl->set( "dim", dim );
+
+	pl->set( "lx", lx );
+	pl->set( "ly", ly );
+	pl->set( "lz", lz );
 
 	//  grid size
 	pl->set( "nx", nx );
@@ -1549,6 +1601,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffJ, CS ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
+
+	pl->set( "lx", lx );
+	pl->set( "ly", ly );
+	pl->set( "lz", lz );
 
 	pl->set<S>("Re", 100. );
 
