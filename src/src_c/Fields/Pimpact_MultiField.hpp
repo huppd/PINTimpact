@@ -516,10 +516,10 @@ public:
 	}
 
   /// \param os
-	void print( std::ostream& os ) const {
+  void print( std::ostream& out=std::cout ) const {
 		const int n = getNumberVecs();
 		for( int i=0; i<n; ++i )
-			mfs_[i]->print( os );
+			mfs_[i]->print( out );
 	}
 
 

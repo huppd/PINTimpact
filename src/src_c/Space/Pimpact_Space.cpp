@@ -4,7 +4,7 @@
 
 
 Teuchos::RCP<std::ostream>
-Pimpact::createOstream( const std::string& fname, int rank=0 ) {
+Pimpact::createOstream( const std::string& fname, int rank ) {
 
 	if( 0==rank )
 		return( Teuchos::rcp( new std::ofstream( fname ) ) );

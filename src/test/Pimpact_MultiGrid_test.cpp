@@ -117,25 +117,25 @@ TEUCHOS_STATIC_SETUP() {
 	clp.setOption( "rank", &rankbla, "" );
 	clp.setOption( "maxGrids", &maxGrids, "" );
 
-	//pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "para" );
+	////pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "para" );
 	//pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
 	//pl->sublist("Stretching in X").set<S>( "N metr L", nx );
 	//pl->sublist("Stretching in X").set<S>( "N metr U", nx  );
 	//pl->sublist("Stretching in X").set<S>( "x0 L", 0.05 );
-	//pl->sublist("Stretching in X").set<S>( "x0 L", 0. );
+	////pl->sublist("Stretching in X").set<S>( "x0 L", 0. );
 	//pl->sublist("Stretching in X").set<S>( "x0 U", 0. );
 
-	//pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
-	//pl->sublist("Stretching in Y").set<S>( "N metr L", 1 );
-	//pl->sublist("Stretching in Y").set<S>( "N metr U", ny  );
-	//pl->sublist("Stretching in Y").set<S>( "x0 L", 0. );
-	//pl->sublist("Stretching in Y").set<S>( "x0 U", 0. );
+	////pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+	////pl->sublist("Stretching in Y").set<S>( "N metr L", 1 );
+	////pl->sublist("Stretching in Y").set<S>( "N metr U", ny  );
+	////pl->sublist("Stretching in Y").set<S>( "x0 L", 0. );
+	////pl->sublist("Stretching in Y").set<S>( "x0 U", 0. );
 
-	//pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
-	//pl->sublist("Stretching in Z").set<S>( "N metr L", 1 );
-	//pl->sublist("Stretching in Z").set<S>( "N metr U", nz  );
-	//pl->sublist("Stretching in Z").set<S>( "x0 L", 0. );
-	//pl->sublist("Stretching in Z").set<S>( "x0 U", 0. );
+	////pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+	////pl->sublist("Stretching in Z").set<S>( "N metr L", 1 );
+	////pl->sublist("Stretching in Z").set<S>( "N metr U", nz  );
+	////pl->sublist("Stretching in Z").set<S>( "x0 L", 0. );
+	////pl->sublist("Stretching in Z").set<S>( "x0 U", 0. );
 
 	pl->set<S>( "Re", 400 );
 
@@ -567,7 +567,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Restrictor, CS ) {
 					double bla = er->norm(Belos::InfNorm);
 					if( 0==space->rankST() )
 						std::cout << "error Grad in "<< dir-3<< "-dir: " << bla << " ("<< op->getDD() << ")\n";
-					//if( test_yes )
 					TEST_EQUALITY( bla<eps, true ); // boundaries?
 					if( bla>=eps ) {
 						er->print();
@@ -713,7 +712,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator, CS ) {
 
 					er->add( 1., *sol, -1., *fieldf );
 
-					S errInf = er->norm(Belos::InfNorm);
+					S errInf = er->norm( Belos::InfNorm );
 					if( 0==space->rankST() )
 						std::cout << "error Grad in " << dir-3 << "-dir: " << errInf << "\n";
 					TEST_EQUALITY( errInf<eps, true  );
@@ -771,13 +770,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 	auto fieldf = x->get();
 	auto fieldc = x->get(-1);
 
-	bool test_yes = false;
+	S errInf;
 
 	// interpolation 
 	{
 		auto sol = fieldf->clone( Pimpact::ShallowCopy );
 		auto er = fieldf->clone( Pimpact::ShallowCopy );
-
 
 		// the zero test
 		fieldf->init( 1. );
@@ -785,26 +783,30 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 
 		mgTransfers->interpolation( x );
 
-		if( mgSpaces->participating(0) )
-			TEST_EQUALITY( fieldf->norm()<eps, true );
-		if( mgSpaces->participating(-1) )
-			TEST_EQUALITY( fieldc->norm()<eps, true );
-
+		if( mgSpaces->participating(-1) ) {
+			errInf = fieldc->norm( Belos::InfNorm );
+			TEST_EQUALITY( errInf<eps, true );
+		}
+		if( mgSpaces->participating(0) ) {
+			errInf = fieldf->norm( Belos::InfNorm );
+			TEST_EQUALITY( errInf<eps, true );
+			if( 0==space->rankST() )
+				std::cout << "\ninterpolation error zero: " << errInf << "\n";
+		}
 
 		// the random test
 		fieldc->random();
 		fieldf->init(0.);
 
-		if( mgSpaces->participating(-1) && test_yes )
-			TEST_INEQUALITY( 0., fieldc->norm() );
+		if( mgSpaces->participating(-1) )
+			TEST_INEQUALITY( 0., fieldc->norm( Belos::InfNorm ) );
 
 		mgTransfers->interpolation( x );
 
-		if( mgSpaces->participating(-1) && test_yes )
-			TEST_INEQUALITY( 0., fieldc->norm() );
+		if( mgSpaces->participating(0) )
+			TEST_INEQUALITY( 0., fieldf->norm( Belos::InfNorm ) );
 
-
-		// the stronger init test
+		// the Const test
 		fieldc->initField( Pimpact::ConstField, 1. );
 		fieldf->initField();
 		sol->initField( Pimpact::ConstField, 1. );
@@ -812,62 +814,38 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 		mgTransfers->interpolation( x );
 
 		er->add( 1., *sol, -1., *fieldf );
-		if( mgSpaces->participating(0) )
-			er->write(0);
 
-		if( mgSpaces->participating(0) )
-			std::cout << "int. error Const: " << er->norm() << "\n";
-		if( mgSpaces->participating(0) && test_yes )
-			TEST_EQUALITY( er->norm()/std::sqrt( (S)er->getLength() )< eps, true  );
+		if( mgSpaces->participating(0) ) {
+			errInf = er->norm( Belos::InfNorm );
+			if( 0==space->rankST() )
+					std::cout << "interpolation error Const: " << errInf << "\n";
+			TEST_EQUALITY( errInf<eps, true  );
+			if( errInf>=eps ) {
+				int i = 0;
+				er->write( i );
+				std::string r = std::to_string( static_cast<long long>( space->rankST() ) ); // long long needed on brutus(intel)
+				//er->print( *Pimpact::createOstream( "error_"+r+".txt" ) );
+				er->print(  );
+			}
+		}
 
 
-		// hardcore test init test in X
-		fieldc->initField( Pimpact::Grad2D_inX );
-		fieldf->initField();
+		// hardcore test
+		for( int dir=3; dir<6; ++dir ) {
+			fieldc->initField( static_cast<Pimpact::EScalarField>(dir) );
+			fieldf->initField();
+			sol->initField( static_cast<Pimpact::EScalarField>(dir) );
 
-		sol->initField( Pimpact::Grad2D_inX );
+			mgTransfers->interpolation( x );
 
-		mgTransfers->interpolation( x );
+			er->add( 1., *sol, -1., *fieldf );
 
-		er->add( 1., *sol, -1., *fieldf );
-		er->write(1);
+			errInf = er->norm( Belos::InfNorm );
+			if( 0==space->rankST() )
+				std::cout << "interpolation error Grad in " << dir-3 << ": " << errInf << "\n";
 
-		std::cout << "int. error GradX: " << er->norm() << "\n";
-
-		if( test_yes )
-			TEST_EQUALITY( er->norm()/std::sqrt( (S)er->getLength() )< eps, true  );
-
-		// hardcore test init test in Y
-		fieldc->initField( Pimpact::Grad2D_inY );
-		fieldf->initField();
-
-		sol->initField( Pimpact::Grad2D_inY );
-
-		mgTransfers->interpolation( x );
-
-		er->add( 1., *sol, -1., *fieldf );
-		er->write(2);
-
-		std::cout << "int. error GradY: " << er->norm()/std::sqrt( (S)er->getLength() ) << "\n";
-
-		if( test_yes )
-			TEST_EQUALITY( er->norm()/std::sqrt( (S)er->getLength() ) < eps, true  );
-
-		// hardcore test init test in Z
-		fieldc->initField( Pimpact::Grad2D_inZ );
-		fieldf->initField();
-
-		sol->initField( Pimpact::Grad2D_inZ );
-
-		mgTransfers->interpolation( x );
-
-		er->add( 1., *sol, -1., *fieldf );
-		er->write(2);
-
-		std::cout << "int. error GradZ: " << er->norm()/std::sqrt( (S)er->getLength() ) << "\n";
-
-		if( test_yes )
-			TEST_EQUALITY( er->norm()/std::sqrt( (S)er->getLength() ) < eps, true  );
+			TEST_EQUALITY( errInf<eps, true  );
+		}
 
 	}
 
@@ -910,8 +888,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 		mgTransfers->restriction( x );
 
 		er->add( 1., *sol, -1., *fieldc );
-		if( mgSpaces->participating(-1) )
-			er->write(0);
+		//if( mgSpaces->participating(-1) )
+			//er->write(0);
 
 		if( mgSpaces->participating(-1) )
 			std::cout << "res. error Const: " << er->norm() << "\n";
@@ -932,7 +910,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 
 			S error = er->norm( Belos::InfNorm );
 			std::cout << "res. error GradX: " << error << "\n";
-			//if( test_yes )
 			TEST_EQUALITY( error < eps, true  );
 			if( error>=eps )
 				er->write(1);
@@ -952,7 +929,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 
 			S error = er->norm( Belos::InfNorm );
 			std::cout << "res. error GradY: " << error << "\n";
-			//if( test_yes )
 			TEST_EQUALITY( error < eps, true  );
 			if( error>=eps )
 				er->write(2);
@@ -971,7 +947,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 		if( mgSpaces->participating(-1) ) {
 			S error = er->norm( Belos::InfNorm );
 			std::cout << "res. error GradZ: " << error << "\n";
-			//if( test_yes )
 			TEST_EQUALITY( error < eps, true  );
 			if( error>=eps )
 				er->write(2);

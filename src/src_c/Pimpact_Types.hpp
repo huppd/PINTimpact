@@ -95,7 +95,13 @@ enum EForceType {
   PseudoOscilatingDisc = 4
 };
 
-Teuchos::RCP<std::ostream> createOstream( const std::string& fname, int rank);
+/// \brief creates file and stream to it
+///
+/// \param fname name of file
+/// \param rank if rank==0 then file is created otherwise ostream is a blackhole, 'default'=0
+///
+/// \return  pointer to a std::ofstream
+Teuchos::RCP<std::ostream> createOstream( const std::string& fname, int rank=0 );
 
 }
 

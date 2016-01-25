@@ -356,7 +356,7 @@ public:
 
 
   /// \param os
-  void print( std::ostream& os ) {
+  void print( std::ostream& os=std::cout ) const {
     for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
       mfs_[i]->print( os );
   }

@@ -319,9 +319,9 @@ public:
 
   /// \}
   /// Print the vector.  To be used for debugging only.
-  void print( std::ostream& os )  {
-    fieldc_->print( os );
-    fields_->print( os );
+  void print( std::ostream& out=std::cout ) const {
+    fieldc_->print( out );
+    fields_->print( out );
   }
 
   void write( int count=0 ) const {

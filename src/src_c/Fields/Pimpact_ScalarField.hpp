@@ -824,9 +824,22 @@ public:
     out << "--- FieldType: " << fType_ << "--- \n";
     out << "--- StorageSize: " << getStorageSize() << "---\n";
     out << "--- owning: " << owning_ << "---\n";
-    out << "--- exchangedState: " << exchangedState_ << "--\n";
+    out << "--- exchangedState: " << exchangedState_ << "--\n\n";
+		out << "i,\tj,\tk,\tphi(i,j,k)\n";
 
-    SF_print(
+		Teuchos::Tuple<Ordinal,3> cw;
+		for(int i=0; i<3; ++i)
+			cw[i] = space()->nLoc(i)+space()->bu(i)-space()->bl(i)+1;
+
+		for( Ordinal k=0; k<cw[2]; ++k ) {
+			for( Ordinal j=0; j<cw[1]; ++j ) {
+				for( Ordinal i=0; i<cw[0]; ++i ) {
+					out << i << "\t" << j << "\t" << k << "\t" << s_[ i + j*cw[0] + k*cw[0]*cw[1] ] << "\n";
+				}
+			}
+		}
+
+		SF_print(
         space()->nLoc(),
         space()->bl(),
         space()->bu(),
