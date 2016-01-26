@@ -67,15 +67,19 @@ public:
 
 	Ordinal getStorageSize() const { return( (1+2*space()->nGlo(3))*field0_->getStorageSize() ); }
 
+	/// \todo add etst
   MultiHarmonicField(
 			const Teuchos::RCP<const SpaceT>& space ):
 		AF( space ),
 		field0_( Teuchos::rcp( new Field(space,false) ) ),
-		fields_(space->nGlo(3)),
-    exchangedState_(true) {
+		fields_( space->nGlo(3) ),
+    exchangedState_( true ) {
 
-			for( Ordinal i=0; i< space->nGlo(3); ++i )
-				fields_[i] = Teuchos::rcp( new ModeField<Field>(space,false) );
+			TEUCHOS_TEST_FOR_EXCEPT( 4 != dimension  );
+			TEUCHOS_TEST_FOR_EXCEPT( true != space()->getStencilWidths()->spectralT() );
+
+			for( Ordinal i=0; i<space->nGlo(3); ++i )
+				fields_[i] = Teuchos::rcp( new ModeField<Field>( space, false ) );
 
 			allocate();
 			initField();

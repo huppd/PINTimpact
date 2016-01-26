@@ -24,14 +24,12 @@ class MultiHarmonicOpWrap  {
 
 public:
 
-  typedef MultiHarmonicField<typename OpT::DomainFieldT> DomainFieldT;
-  typedef MultiHarmonicField<typename OpT::RangeFieldT> RangeFieldT;
+  using DomainFieldT = MultiHarmonicField<typename OpT::DomainFieldT>;
+  using RangeFieldT  = MultiHarmonicField<typename OpT::RangeFieldT>;
 
-  typedef typename DomainFieldT::SpaceT SpaceT;
+  using SpaceT = typename DomainFieldT::SpaceT;
 
 protected:
-
-  typedef typename SpaceT::Ordinal Ordinal;
 
   Teuchos::RCP<OpT> op_;
 
@@ -49,7 +47,7 @@ public:
 		if( space()->sInd(U,3)<0 )
 			op_->apply( x.getConst0Field(), y.get0Field() );
 
-		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i ){ 
+		for( typename SpaceT::Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i ){ 
       op_->apply( x.getConstCField(i), y.getCField(i) );
       op_->apply( x.getConstSField(i), y.getSField(i) );
     }

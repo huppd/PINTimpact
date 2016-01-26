@@ -117,13 +117,13 @@ TEUCHOS_STATIC_SETUP() {
 	clp.setOption( "rank", &rankbla, "" );
 	clp.setOption( "maxGrids", &maxGrids, "" );
 
-	////pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "para" );
-	//pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
-	//pl->sublist("Stretching in X").set<S>( "N metr L", nx );
-	//pl->sublist("Stretching in X").set<S>( "N metr U", nx  );
-	//pl->sublist("Stretching in X").set<S>( "x0 L", 0.05 );
-	////pl->sublist("Stretching in X").set<S>( "x0 L", 0. );
-	//pl->sublist("Stretching in X").set<S>( "x0 U", 0. );
+	//pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "para" );
+	pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+	pl->sublist("Stretching in X").set<S>( "N metr L", nx );
+	pl->sublist("Stretching in X").set<S>( "N metr U", nx  );
+	pl->sublist("Stretching in X").set<S>( "x0 L", 0.05 );
+	//pl->sublist("Stretching in X").set<S>( "x0 L", 0. );
+	pl->sublist("Stretching in X").set<S>( "x0 U", 0. );
 
 	////pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
 	////pl->sublist("Stretching in Y").set<S>( "N metr L", 1 );
@@ -830,7 +830,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 		}
 
 
-		// hardcore test
+		// the Grad test
 		for( int dir=3; dir<6; ++dir ) {
 			fieldc->initField( static_cast<Pimpact::EScalarField>(dir) );
 			fieldf->initField();
@@ -840,17 +840,19 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 
 			er->add( 1., *sol, -1., *fieldf );
 
-			errInf = er->norm( Belos::InfNorm );
-			if( 0==space->rankST() )
-				std::cout << "interpolation error Grad in " << dir-3 << ": " << errInf << "\n";
-			TEST_EQUALITY( errInf<eps, true  );
-			if( errInf>=eps ) {
-				int i = dir-2;
-				er->write( i );
-				std::string d = std::to_string( static_cast<long long>( dir-3 ) ); // long long needed on brutus(intel)
-				std::string r = std::to_string( static_cast<long long>( space->rankST() ) ); // long long needed on brutus(intel)
-				er->print( *Pimpact::createOstream( "int_error_g"+d+"_r"+r+".txt" ) );
-				//er->print(  );
+			if( mgSpaces->participating(0) ) {
+				errInf = er->norm( Belos::InfNorm );
+				if( 0==space->rankST() )
+					std::cout << "interpolation error Grad in " << dir-3 << ": " << errInf << "\n";
+				TEST_EQUALITY( errInf<eps, true  );
+				if( errInf>=eps ) {
+					int i = dir-2;
+					er->write( i );
+					std::string d = std::to_string( static_cast<long long>( dir-3 ) ); // long long needed on brutus(intel)
+					std::string r = std::to_string( static_cast<long long>( space->rankST() ) ); // long long needed on brutus(intel)
+					er->print( *Pimpact::createOstream( "int_error_g"+d+"_r"+r+".txt" ) );
+					//er->print(  );
+				}
 			}
 		}
 
@@ -1137,7 +1139,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersVF, CS ) {
 		er->add( 1., *sol, -1., *fieldc );
 		if( mgSpaces->participating(-1) ) {
 			S rel_error = er->norm()/std::sqrt( (S)er->getLength() );
-			std::cout << "res. error Const: " << rel_error << "\n";
+			if( 0==space->rankST() )
+				std::cout << "res. error Const: " << rel_error << "\n";
 			TEST_EQUALITY( rel_error<eps, true  );
 			if( rel_error>eps ) {
 				er->write(0);
@@ -1160,7 +1163,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersVF, CS ) {
 			er->add( 1., *sol, -1., *fieldc );
 			if( mgSpaces->participating(-1) ) {
 				S rel_error = er->norm()/std::sqrt( (S)er->getLength() );
-				std::cout << "restriction grad  error in " << dir-3 << "-dir: " << rel_error << "\n";
+				if( 0==space->rankST() )
+					std::cout << "restriction grad  error in " << dir-3 << "-dir: " << rel_error << "\n";
 				TEST_EQUALITY( rel_error < eps, true  );
 				if( rel_error>eps ) {
 					er->write(dir-2);
