@@ -83,7 +83,7 @@ TEUCHOS_STATIC_SETUP() {
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, create_init_print, FType ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, print, FType ) {
 
   pl->set( "dim", dim );
   pl->set( "domain", domain );
@@ -99,20 +99,19 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, create_init_print, FType ) {
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
-  space->print();
-
   auto p = Pimpact::create<FType>(space);
 
   p->init( space->rankST() );
+	p->print();
 
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, create_init_print, SF )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, create_init_print, VF )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, create_init_print, MSF )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, create_init_print, MVF )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, create_init_print, CF )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, create_init_print, CMF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, print, SF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, print, VF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, print, MSF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, print, MVF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, print, CF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, print, CMF )
 
 
 

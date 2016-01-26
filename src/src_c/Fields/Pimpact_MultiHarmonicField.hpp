@@ -432,11 +432,12 @@ public:
   /// \}
 
   /// Print the vector.  To be used for debugging only.
-	void print( std::ostream& os )  {
+  void print( std::ostream& os=std::cout ) const {
+
 		if( space()->sInd(U,3)<0 )
 			field0_->print( os );
 		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
-			getFieldPtr(i)->print( os );
+			getConstFieldPtr(i)->print( os );
   }
 
   void write( int count=0, bool time_evol_yes=false ) const {

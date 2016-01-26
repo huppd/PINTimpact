@@ -259,15 +259,15 @@ contains
     implicit none
 
     !!!-----------------------------------------------------------------------
-    integer(c_int), intent(in) :: n          !number of grid points
-    real(c_double), intent(out):: w(n,2)        !OUTPUT: solution vector
-    real(c_double), intent(out):: v(n,3)        !OUTPUT: solution vector
-    real(c_double), intent(in) :: grid(n)       !array of grid points
-    real(c_double), intent(inout):: sv,sw,r       !starting and end value for shooting
-    real(c_double), intent(in)   :: sweep_angle   ! sweep angle PHI
-    real(c_double), intent(in)   :: sweep_angle_degrees ! sweep angle PHI
-    real(c_double), intent(in)   :: kappa         ! boundary suction KAPPA
-    real(c_double), intent(out)  :: blThick       ! blThickness (mathematical, non-dimensionalized)
+    integer(c_int), intent(in) :: n                     !> number of grid points
+    real(c_double), intent(out):: w(n,2)                !> OUTPUT: solution vector
+    real(c_double), intent(out):: v(n,3)                !> OUTPUT: solution vector
+    real(c_double), intent(in) :: grid(n)               !> array of grid points
+    real(c_double), intent(inout):: sv,sw,r             !> starting and end value for shooting
+    real(c_double), intent(in)   :: sweep_angle         !> sweep angle PHI
+    real(c_double), intent(in)   :: sweep_angle_degrees !> sweep angle PHI
+    real(c_double), intent(in)   :: kappa               !> boundary suction KAPPA
+    real(c_double), intent(out)  :: blThick             !> blThickness (mathematical, non-dimensionalized)
     !!!-----------------------------------------------------------------------
     real(c_double) :: rhs(5)        !value of right-hand side
     real(c_double) :: g(5)          !intermediate value in Runge-Kutta integration
@@ -382,16 +382,16 @@ contains
   !! or novel scaling (1 d.o.f.)
   !!
   !! \param[in] rank
-  !! \param[in] kappa
-  !! \param[in] sweep_angle_degrees
-  !! \param[in] sweep_angle
+  !! \param[in] kappa boundary suction KAPPA
+  !! \param[in] sweep_angle_degrees sweep angle PHI
+  !! \param[in] sweep_angle sweep angle PHI
   !! \param[in] angle_attack
-  !! \param[in] n
-  !! \param[in] grid
-  !! \param[in] ub
-  !! \param[in] vb
-  !! \param[in] wb
-  !! \param[in] blthick
+  !! \param[in] n number of grid points
+  !! \param[in] grid array of grid points
+  !! \param[inout] ub chordwise baseflow profile u
+  !! \param[inout] vb wall-normal baseflow profile v
+  !! \param[inout] wb spanwise baseflow profile w
+  !! \param[out] blthick
   subroutine calcbasicflow( &
       rank,                 &
       kappa,                &
@@ -407,16 +407,16 @@ contains
 
     implicit none
 
-    integer(c_int), intent(in)    :: rank          
-    real(c_double), intent(in)    :: kappa         !< boundary suction KAPPA
-    real(c_double), intent(in)    :: sweep_angle_degrees !< sweep angle PHI
-    real(c_double), intent(in)    :: sweep_angle   !< sweep angle PHI
-    real(c_double), intent(in)    :: angle_attack  
-    integer(c_int), intent(in)    :: n             !< number of grid points
-    real(c_double), intent(in)    :: grid(n)       !< array of grid points
-    real(c_double), intent(inout) :: ub(n)         !< chordwise baseflow profile u
-    real(c_double), intent(inout) :: vb(n)         !< wall-normal baseflow profile v
-    real(c_double), intent(inout) :: wb(n)         !< spanwise baseflow profile w
+    integer(c_int), intent(in)    :: rank
+    real(c_double), intent(in)    :: kappa
+    real(c_double), intent(in)    :: sweep_angle_degrees
+    real(c_double), intent(in)    :: sweep_angle
+    real(c_double), intent(in)    :: angle_attack 
+    integer(c_int), intent(in)    :: n
+    real(c_double), intent(in)    :: grid(n)
+    real(c_double), intent(inout) :: ub(n)
+    real(c_double), intent(inout) :: vb(n)
+    real(c_double), intent(inout) :: wb(n)
 
     real(c_double),allocatable :: v(:,:)       ! dependent variable v and its derivatives
     real(c_double),allocatable :: w(:,:)       ! dependent variable w and its derivatives
@@ -2242,7 +2242,9 @@ contains
 
   end function eddy
 
-  !>  0 generic GH
+  !> \brief init disturbance
+  !! 
+  !!  0 generic GH
   !!  1 counter-rotating primary vortices, even secondary vortices
   !!  2 counter-rotating primary vortices, odd secondary vortices
   !!  3 pair of antisymmetric streaks 
