@@ -831,21 +831,26 @@ public:
 		for(int i=0; i<3; ++i)
 			cw[i] = space()->nLoc(i)+space()->bu(i)-space()->bl(i)+1;
 
-		for( Ordinal k=0; k<cw[2]; ++k ) {
-			for( Ordinal j=0; j<cw[1]; ++j ) {
-				for( Ordinal i=0; i<cw[0]; ++i ) {
-					out << i << "\t" << j << "\t" << k << "\t" << s_[ i + j*cw[0] + k*cw[0]*cw[1] ] << "\n";
+		for( Ordinal k=space()->sIndB(fType_,2); k<=space()->eIndB(fType_,2); ++k ) {
+			for( Ordinal j=space()->sIndB(fType_,1); j<=space()->eIndB(fType_,1); ++j ) {
+				for( Ordinal i=space()->sIndB(fType_,0); i<=space()->eIndB(fType_,0); ++i ) {
+					out << i << "\t"
+						<< j << "\t"
+						<< k << "\t"
+						<< s_[ (i-space()->bl(0)) +
+					       	 (j-space()->bl(1))*cw[0] +
+									 (k-space()->bl(2))*cw[0]*cw[1] ] << "\n";
 				}
 			}
 		}
 
-		SF_print(
-        space()->nLoc(),
-        space()->bl(),
-        space()->bu(),
-        space()->sIndB(fType_),
-        space()->eIndB(fType_),
-        s_ );
+		//SF_print(
+				//space()->nLoc(),
+				//space()->bl(),
+				//space()->bu(),
+				//space()->sIndB(fType_),
+				//space()->eIndB(fType_),
+				//s_ );
 
   }
 

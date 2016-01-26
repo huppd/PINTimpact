@@ -101,7 +101,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, print, FType ) {
 
   auto p = Pimpact::create<FType>(space);
 
-  p->init( space->rankST() );
+	//p->initField( Pimpact::Grad2D_inZ );
+	p->init( space->rankST() );
 	p->print();
 
 }

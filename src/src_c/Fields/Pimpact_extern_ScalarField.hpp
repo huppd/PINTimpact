@@ -156,13 +156,13 @@ void SF_init(
     const double& scalar );
 
 
-void SF_print(
-    const int* const N,
-    const int* const bL,
-    const int* const bU,
-    const int* const SS,
-    const int* const NN,
-    const double* const phi );
+//void SF_print(
+    //const int* const N,
+    //const int* const bL,
+    //const int* const bU,
+    //const int* const SS,
+    //const int* const NN,
+    //const double* const phi );
 
 
 void write_hdf5_2D(
