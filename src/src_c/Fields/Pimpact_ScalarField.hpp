@@ -132,22 +132,25 @@ public:
   /// \{
 
   /// \brief returns the length of Field.
-  Ordinal getLength( bool dummy=false ) const {
+	Ordinal getLength( bool dummy=false ) const {
 
 		Teuchos::RCP<const BoundaryConditionsGlobal<dimension> > bc =
 			space()->getBCGlobal();
 
-    Ordinal vl = 1;
+		Ordinal vl = 1;
 
 		switch( fType_ ) {
 			case EField::S : {
-				for(int i = 0; i<space()->dim(); ++i)
-					if( PeriodicBC==bc->getBCL(i) )
-						vl *= space()->nGlo(i)-1;
-					else
-						vl *= space()->nGlo(i);
 
-				const Ordinal* n = space()->nGlo();
+				Teuchos::Tuple<Ordinal,3> n;
+
+				for(int i = 0; i<space()->dim(); ++i) {
+					if( PeriodicBC==bc->getBCL(i) )
+						n[i] = space()->nGlo(i)-1;
+					else
+						n[i] = space()->nGlo(i);
+					vl *= n[i];
+				}
 
 				const int* bcl =  space()->getBCGlobal()->getBCL();
 				const int* bcu =  space()->getBCGlobal()->getBCU();
@@ -159,20 +162,20 @@ public:
 					if( bcu[0]>0 && bcu[1]>0 ) vl -= 1;
 				}
 				else{
-					if( bcl[0]>0 && bcl[1]>0 ) vl -= n[2]-2;
-					if( bcl[0]>0 && bcu[1]>0 ) vl -= n[2]-2;
-					if( bcu[0]>0 && bcl[1]>0 ) vl -= n[2]-2;
-					if( bcu[0]>0 && bcu[1]>0 ) vl -= n[2]-2;
+					if( bcl[0]>0 && bcl[1]>0 ) vl -= n[2] - ((bcl[2]==-1)?0:2);
+					if( bcl[0]>0 && bcu[1]>0 ) vl -= n[2] - ((bcl[2]==-1)?0:2);
+					if( bcu[0]>0 && bcl[1]>0 ) vl -= n[2] - ((bcl[2]==-1)?0:2);
+					if( bcu[0]>0 && bcu[1]>0 ) vl -= n[2] - ((bcl[2]==-1)?0:2);
 
-					if( bcl[0]>0 && bcl[2]>0 ) vl -= n[1]-2;
-					if( bcl[0]>0 && bcu[2]>0 ) vl -= n[1]-2;
-					if( bcu[0]>0 && bcl[2]>0 ) vl -= n[1]-2;
-					if( bcu[0]>0 && bcu[2]>0 ) vl -= n[1]-2;
+					if( bcl[0]>0 && bcl[2]>0 ) vl -= n[1] - ((bcl[1]==-1)?0:2);
+					if( bcl[0]>0 && bcu[2]>0 ) vl -= n[1] - ((bcl[1]==-1)?0:2);
+					if( bcu[0]>0 && bcl[2]>0 ) vl -= n[1] - ((bcl[1]==-1)?0:2);
+					if( bcu[0]>0 && bcu[2]>0 ) vl -= n[1] - ((bcl[1]==-1)?0:2);
 
-					if( bcl[1]>0 && bcl[2]>0 ) vl -= n[0]-2;
-					if( bcl[1]>0 && bcu[2]>0 ) vl -= n[0]-2;
-					if( bcu[1]>0 && bcl[2]>0 ) vl -= n[0]-2;
-					if( bcu[1]>0 && bcu[2]>0 ) vl -= n[0]-2;
+					if( bcl[1]>0 && bcl[2]>0 ) vl -= n[0] - ((bcl[0]==-1)?0:2);
+					if( bcl[1]>0 && bcu[2]>0 ) vl -= n[0] - ((bcl[0]==-1)?0:2);
+					if( bcu[1]>0 && bcl[2]>0 ) vl -= n[0] - ((bcl[0]==-1)?0:2);
+					if( bcu[1]>0 && bcu[2]>0 ) vl -= n[0] - ((bcl[0]==-1)?0:2);
 
 					if( bcl[0]>0 && bcl[1]>0 && bcl[2]>0 ) vl -= 1;
 					if( bcu[0]>0 && bcl[1]>0 && bcl[2]>0 ) vl -= 1;

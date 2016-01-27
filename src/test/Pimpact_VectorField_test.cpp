@@ -114,9 +114,9 @@ TEUCHOS_UNIT_TEST( VectorField, initField ) {
 	pl->set("npx", (2==dim)?4:2 );
 	pl->set("npy",            2 );
 	pl->set("npz", (2==dim)?1:2 );
-	pl->set("npx", 1 );
-	pl->set("npy", 1 );
-	pl->set("npz", 1 );
+	//pl->set("npx", 1 );
+	//pl->set("npy", 1 );
+	//pl->set("npz", 1 );
 
 	pl->set( "Re", 400. );
 
@@ -128,24 +128,24 @@ TEUCHOS_UNIT_TEST( VectorField, initField ) {
 	pl->set("ny", 49 );
 	pl->set("nz", 97 );
 
-	pl->set("nx", 1025 );
-	pl->set("ny", 7 );
-	pl->set("nz", 7 );
+	//pl->set("nx", 1025 );
+	//pl->set("ny", 7 );
+	//pl->set("nz", 7 );
 
-	pl->sublist( "Stretching in X" ).set<std::string>("Stretch Type", "Parabola");
+	pl->sublist( "Stretching in X" ).set<std::string>("Stretch Type", "cos");
 	pl->sublist( "Stretching in X" ).set<double>( "N metr L", pl->get<int>("nx") );
 	pl->sublist( "Stretching in X" ).set<double>( "N metr U", pl->get<int>("nx") );
 	pl->sublist( "Stretching in X" ).set<double>( "x0 L", 0.05 );
 	pl->sublist( "Stretching in X" ).set<double>( "x0 U", 0. );
 
-	pl->sublist( "Stretching in Y" ).set<std::string>("Stretch Type", "Parabola");
+	pl->sublist( "Stretching in Y" ).set<std::string>("Stretch Type", "cos");
 	pl->sublist( "Stretching in Y" ).set<double>( "N metr L", 1. );
 	//pl->sublist( "Stretching in Y" ).set<double>( "N metr L", pl->get<int>("ny") );
 	pl->sublist( "Stretching in Y" ).set<double>( "N metr U", pl->get<int>("ny") );
 	pl->sublist( "Stretching in Y" ).set<double>( "x0 L", 0. );
 	pl->sublist( "Stretching in Y" ).set<double>( "x0 U", 0. );
 
-	pl->sublist( "Stretching in Z" ).set<std::string>("Stretch Type", "Parabola");
+	pl->sublist( "Stretching in Z" ).set<std::string>("Stretch Type", "cos");
 	pl->sublist( "Stretching in Z" ).set<double>( "N metr L", 1. );
 	pl->sublist( "Stretching in Z" ).set<double>( "N metr U", pl->get<int>("nz") );
 	pl->sublist( "Stretching in Z" ).set<double>( "x0 L", 0. );
