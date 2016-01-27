@@ -22,12 +22,12 @@ class MultiDtHelmholtz {
 
 public:
 
-  typedef ST SpaceT;
+  using SpaceT = ST;
 
-  typedef typename SpaceT::Scalar Scalar;
+  using Scalar = typename SpaceT::Scalar;
 
-  typedef MultiHarmonicField< VectorField<SpaceT> >  DomainFieldT;
-  typedef MultiHarmonicField< VectorField<SpaceT> >  RangeFieldT;
+  using DomainFieldT = MultiHarmonicField< VectorField<SpaceT> >;
+  using RangeFieldT  = MultiHarmonicField< VectorField<SpaceT> >;
 
 protected:
 
@@ -41,19 +41,18 @@ public:
   MultiDtHelmholtz( const Teuchos::RCP<DtLapOp<SpaceT> >& op ):
     op_(op) {};
 
-
   void apply(const DomainFieldT& x, RangeFieldT& y ) const {
-    op_->getInnerOpPtr()->apply( x.getConst0Field(), y.get0Field() );
 
-    for( int i=0; i<space()->nGlo(3); ++i ) {
-      op_->apply( x.getConstField(i), y.getField(i), i+1 );
-      op_->apply( x.getConstField(i), y.getField(i), i+1 );
-    }
-  }
+		if( space()->sInd(U,3)<0 )
+			op_->getInnerOpPtr()->apply( x.getConst0Field(), y.get0Field() );
 
+		for( typename SpaceT::Ordinal i=std::max( space()->sInd(U,3), 0 ); i<space()->eInd(U,3); ++i ){ 
+			op_->apply( x.getConstField(i), y.getField(i), i+1 );
+			op_->apply( x.getConstField(i), y.getField(i), i+1 );
+		}
+	}
 
   void assignField( const DomainFieldT& mv ) {};
-
 
   Teuchos::RCP< HelmholtzOp<SpaceT> > getInnerOpPtr() {
     return( op_ );

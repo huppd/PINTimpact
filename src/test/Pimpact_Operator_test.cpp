@@ -144,7 +144,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivOp ) {
 
   op->apply(*vel,*p);
 
-  TEST_EQUALITY( p->norm()<eps, true );
+  TEST_EQUALITY( p->norm( Belos::InfNorm )<eps, true );
 
 
   // random test
@@ -153,21 +153,21 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivOp ) {
   op->apply(*vel,*p);
 
 
-  TEST_EQUALITY( p->norm()>eps, true );
+  TEST_EQUALITY( p->norm( Belos::InfNorm )>eps, true );
 
   // circle XY test
   vel->initField( Pimpact::Circle2D );
 
   op->apply(*vel,*p);
 
-  TEST_EQUALITY( p->norm()<eps, true );
+  TEST_EQUALITY( p->norm( Belos::InfNorm )<eps, true );
 
   // circle XZ test
   vel->initField( Pimpact::Circle2D_inXZ );
 
   op->apply(*vel,*p);
 
-  TEST_EQUALITY( p->norm()<eps, true );
+  TEST_EQUALITY( p->norm( Belos::InfNorm )<eps, true );
 
 	// Grad test
 	vel->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inX );
@@ -181,7 +181,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivOp ) {
 	sol->initField( Pimpact::ConstField, space->dim() );
 	sol->add( 1., *sol, -1., *p );
 
-	S error = sol->norm();
+	S error = sol->norm( Belos::InfNorm );
 	if( space->rankST()==0 )	
 		std::cout << "GradXYZ error: " << error << "\n";
 	TEST_EQUALITY( error>eps, true );
@@ -195,7 +195,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivOp ) {
 
   op->apply(*vel,*p);
 
-	error = p->norm();
+	error = p->norm( Belos::InfNorm );
 	if( space->rankST()==0 )	
 		std::cout << "GradZXY error: " << error << "\n";
 	TEST_EQUALITY( error<eps, true );
@@ -209,8 +209,9 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivOp ) {
 
   op->apply(*vel,*p);
 
-	std::cout << "erro: " << p->norm() << "\n";
-	TEST_EQUALITY( p->norm()<eps, true );
+	error = p->norm( Belos::InfNorm );
+	std::cout << "erro: " << error << "\n";
+	TEST_EQUALITY( error<eps, true );
 
 }
 
@@ -251,8 +252,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateV2SOp ) {
 		op->apply( vel->getConstField( i ), *p );
 		sol->add( 1., *sol, -1., *p );
 
-		std::cout << "dir: " << i << " GradX error: " << sol->norm() << "\n";
-		TEST_EQUALITY( sol->norm()<eps, true );
+		S error = sol->norm( Belos::InfNorm );
+		if( 0==space->rankST() )
+			std::cout << "dir: " << i << " GradX error: " << error << "\n";
+		TEST_EQUALITY( error<eps, true );
 
 		vel->getFieldPtr( i )->initField( Pimpact::Poiseuille2D_inX );
 		sol->initField( Pimpact::Poiseuille2D_inX );
@@ -261,8 +264,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateV2SOp ) {
 		op->apply( vel->getConstField( i ), *p );
 		sol->add( 1., *sol, -1., *p );
 
-		std::cout << "dir: " << i << " PoiseuilleX error: " << sol->norm() << "\n";
-		TEST_EQUALITY( sol->norm()<eps, true );
+		error = sol->norm( Belos::InfNorm );
+		if( 0==space->rankST() )
+			std::cout << "dir: " << i << " PoiseuilleX error: " << error << "\n";
+		TEST_EQUALITY( error<eps, true );
 
 		// Y test
 		vel->getFieldPtr( i )->initField( Pimpact::Grad2D_inY );
@@ -272,8 +277,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateV2SOp ) {
 		op->apply( vel->getConstField( i ), *p );
 		sol->add( 1., *sol, -1., *p );
 
-		std::cout << "dir: " << i << " GradY error: " << sol->norm() << "\n";
-		TEST_EQUALITY( sol->norm()<eps, true );
+		error = sol->norm( Belos::InfNorm );
+		if( 0==space->rankST() )
+			std::cout << "dir: " << i << " GradY error: " << error << "\n";
+		TEST_EQUALITY( error<eps, true );
 
 		vel->getFieldPtr( i )->initField( Pimpact::Poiseuille2D_inY );
 		sol->initField( Pimpact::Poiseuille2D_inY );
@@ -282,8 +289,11 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateV2SOp ) {
 		op->apply( vel->getConstField( i ), *p );
 		sol->add( 1., *sol, -1., *p );
 
-		std::cout << "dir: " << i << " PoiseuilleY error: " << sol->norm() << "\n";
-		TEST_EQUALITY( sol->norm()<eps, true );
+
+		error = sol->norm( Belos::InfNorm );
+		if( 0==space->rankST() )
+			std::cout << "dir: " << i << " PoiseuilleY error: " << error << "\n";
+		TEST_EQUALITY( error<eps, true );
 
 		// Z test
 		vel->getFieldPtr( i )->initField( Pimpact::Grad2D_inZ );
@@ -293,8 +303,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateV2SOp ) {
 		op->apply( vel->getConstField( i ), *p );
 		sol->add( 1., *sol, -1., *p );
 
-		std::cout << "dir: " << i << " GradZ error: " << sol->norm() << "\n";
-		TEST_EQUALITY( sol->norm()<eps, true );
+		error = sol->norm( Belos::InfNorm );
+		if( 0==space->rankST() )
+			std::cout << "dir: " << i << " GradZ error: " << error << "\n";
+		TEST_EQUALITY( error<eps, true );
 
 		vel->getFieldPtr( i )->initField( Pimpact::Poiseuille2D_inZ );
 		sol->initField( Pimpact::Poiseuille2D_inZ );
@@ -303,9 +315,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateV2SOp ) {
 		op->apply( vel->getConstField( i ), *p );
 		sol->add( 1., *sol, -1., *p );
 
-		std::cout << "dir: " << i << " PoiseuilleZ error: " << sol->norm() << "\n";
-		TEST_EQUALITY( sol->norm()<eps, true );
-
+		error = sol->norm( Belos::InfNorm );
+		if( 0==space->rankST() )
+			std::cout << "dir: " << i << " PoiseuilleZ error: " << error << "\n";
+		TEST_EQUALITY( error<eps, true );
 	}
 
 }
@@ -350,8 +363,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateS2VOp ) {
 		op->apply( *p, vel->getField( i ) );
 		sol->add( 1., *sol, -1., vel->getConstField(i) );
 
-		std::cout << "dir: " << i << " GradX error: " << sol->norm() << "\n";
-		TEST_EQUALITY( sol->norm()<eps, true );
+		S error = sol->norm( Belos::InfNorm );
+		if( 0==space->rankST() )
+			std::cout << "dir: " << i << " GradX error: " << error << "\n";
+		TEST_EQUALITY( error<eps, true );
 
 		vel->getFieldPtr( i )->random();
 		sol->initField( Pimpact::Poiseuille2D_inX );
@@ -360,8 +375,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateS2VOp ) {
 		op->apply( *p, vel->getField( i ) );
 		sol->add( 1., *sol, -1., vel->getConstField(i) );
 
-		std::cout << "dir: " << i << " PoiseuilleX error: " << sol->norm() << "\n";
-		TEST_EQUALITY( sol->norm()<eps, true );
+		error = sol->norm( Belos::InfNorm );
+		if( 0==space->rankST() )
+			std::cout << "dir: " << i << " PoiseuilleX error: " << error << "\n";
+		TEST_EQUALITY( error<eps, true );
 
 		// Y test
 		vel->getFieldPtr( i )->random();
@@ -371,8 +388,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateS2VOp ) {
 		op->apply( *p, vel->getField( i ) );
 		sol->add( 1., *sol, -1., vel->getConstField(i) );
 
-		std::cout << "dir: " << i << " GradY error: " << sol->norm() << "\n";
-		TEST_EQUALITY( sol->norm()<eps, true );
+		error = sol->norm( Belos::InfNorm );
+		if( 0==space->rankST() )
+			std::cout << "dir: " << i << " GradY error: " << error << "\n";
+		TEST_EQUALITY( error<eps, true );
 
 		vel->getFieldPtr( i )->random();
 		sol->initField( Pimpact::Poiseuille2D_inY );
@@ -381,8 +400,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateS2VOp ) {
 		op->apply( *p, vel->getField( i ) );
 		sol->add( 1., *sol, -1., vel->getConstField(i) );
 
-		std::cout << "dir: " << i << " PoiseuilleY error: " << sol->norm() << "\n";
-		TEST_EQUALITY( sol->norm()<eps, true );
+		error = sol->norm( Belos::InfNorm );
+		if( 0==space->rankST() )
+			std::cout << "dir: " << i << " PoiseuilleY error: " << error << "\n";
+		TEST_EQUALITY( error<eps, true );
 
 		// Z test
 		vel->getFieldPtr( i )->random();
@@ -392,8 +413,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateS2VOp ) {
 		op->apply( *p, vel->getField( i ) );
 		sol->add( 1., *sol, -1., vel->getConstField(i) );
 
-		std::cout << "dir: " << i << " GradZ error: " << sol->norm() << "\n";
-		TEST_EQUALITY( sol->norm()<eps, true );
+		error = sol->norm( Belos::InfNorm );
+		if( 0==space->rankST() )
+			std::cout << "dir: " << i << " GradZ error: " << error << "\n";
+		TEST_EQUALITY( error<eps, true );
 
 		vel->getFieldPtr( i )->random();
 		sol->initField( Pimpact::Poiseuille2D_inZ );
@@ -402,8 +425,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateS2VOp ) {
 		op->apply( *p, vel->getField( i ) );
 		sol->add( 1., *sol, -1., vel->getConstField(i) );
 
-		std::cout << "dir: " << i << " PoiseuilleZ error: " << sol->norm() << "\n";
-		TEST_EQUALITY( sol->norm()<eps, true );
+		error = sol->norm( Belos::InfNorm );
+		if( 0==space->rankST() )
+			std::cout << "dir: " << i << " PoiseuilleZ error: " << error << "\n";
+		TEST_EQUALITY( error<eps, true );
 
 	}
 
@@ -448,8 +473,6 @@ TEUCHOS_UNIT_TEST( BasicOperator, TransferOp ) {
   TEST_FLOATING_EQUALITY( fx->norm(Belos::TwoNorm), cx->norm(Belos::TwoNorm), eps );
   TEST_FLOATING_EQUALITY( fx->norm(Belos::InfNorm), cx->norm(Belos::InfNorm), eps );
 
-//  cx->write(0);
-
   fx->random();
 
   op->apply( *cx, *fx );
@@ -457,8 +480,6 @@ TEUCHOS_UNIT_TEST( BasicOperator, TransferOp ) {
   TEST_FLOATING_EQUALITY( fx->norm(Belos::OneNorm), cx->norm(Belos::OneNorm), eps );
   TEST_FLOATING_EQUALITY( fx->norm(Belos::TwoNorm), cx->norm(Belos::TwoNorm), eps );
   TEST_FLOATING_EQUALITY( fx->norm(Belos::InfNorm), cx->norm(Belos::InfNorm), eps );
-
-//  fx->write(1);
 
 }
 
@@ -500,8 +521,6 @@ TEUCHOS_UNIT_TEST( BasicOperator, VectorFieldOpWrap ) {
   TEST_FLOATING_EQUALITY( fx->norm(Belos::TwoNorm), cx->norm(Belos::TwoNorm), eps );
   TEST_FLOATING_EQUALITY( fx->norm(Belos::InfNorm), cx->norm(Belos::InfNorm), eps );
 
-//  cx->write(0);
-
   fx->random();
 
   op->apply( *cx, *fx );
@@ -509,8 +528,6 @@ TEUCHOS_UNIT_TEST( BasicOperator, VectorFieldOpWrap ) {
   TEST_FLOATING_EQUALITY( fx->norm(Belos::OneNorm), cx->norm(Belos::OneNorm), eps );
   TEST_FLOATING_EQUALITY( fx->norm(Belos::TwoNorm), cx->norm(Belos::TwoNorm), eps );
   TEST_FLOATING_EQUALITY( fx->norm(Belos::InfNorm), cx->norm(Belos::InfNorm), eps );
-
-//  fx->write(1);
 
 }
 
@@ -551,8 +568,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, GradOp ) {
 
 	sol->add( 1., *sol, -1., *v );
 
-	std::cout << "error: " << sol->norm() << "\n";
-  TEST_EQUALITY( sol->norm()<eps, true );
+	S error = sol->norm( Belos::InfNorm );
+	if( 0==space->rankST() )
+		std::cout << "error: " << error << "\n";
+  TEST_EQUALITY( error<eps, true );
 
   // op in y test
   p->initField( Pimpact::Grad2D_inY );
@@ -563,8 +582,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, GradOp ) {
 
 	sol->add( 1., *sol, -1., *v );
 
-	std::cout << "error: " << sol->norm() << "\n";
-  TEST_EQUALITY( sol->norm()<eps, true );
+	error = sol->norm( Belos::InfNorm );
+	if( 0==space->rankST() )
+		std::cout << "error: " << error << "\n";
+  TEST_EQUALITY( error<eps, true );
 
   // op in z test
   p->initField( Pimpact::Grad2D_inZ );
@@ -575,8 +596,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, GradOp ) {
 
 	sol->add( 1., *sol, -1., *v );
 
-	std::cout << "error: " << sol->norm() << "\n";
-  TEST_EQUALITY( sol->norm()<eps, true );
+	error = sol->norm( Belos::InfNorm );
+	if( 0==space->rankST() )
+		std::cout << "error: " << error << "\n";
+  TEST_EQUALITY( error<eps, true );
 
 }
 
@@ -611,8 +634,6 @@ TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
   auto bs= Pimpact::create<Pimpact::VectorField>(space);
   auto b = Pimpact::create<Pimpact::VectorField>(space);
 
-	S n = std::sqrt( (S)x->getLength() );
-
   auto op= Pimpact::create<Pimpact::HelmholtzOp>( space );
 
   op->print();
@@ -628,10 +649,11 @@ TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
   op->apply( *x, *b );
 
   bs->add( 1., *bs, -1, *b);
-//	b->write(); bs->write(1);
 
-  std::cout << "error: " << bs->norm()/n << "\n";
-  TEST_EQUALITY( bs->norm()/n<eps, true );
+	S error = bs->norm( Belos::InfNorm );
+	if( 0==space->rankST() )
+		std::cout << "error: " << error << "\n";
+  TEST_EQUALITY( error<eps, true );
 
   // test in y direction
   x->initField( Pimpact::PoiseuilleFlow2D_inY );
@@ -641,10 +663,11 @@ TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
   op->apply( *x, *b );
 
   bs->add( 1., *bs, -1, *b);
-//	b->write(2); bs->write(3);
 
-  std::cout << "error: " << bs->norm()/n << "\n";
-  TEST_EQUALITY( bs->norm()/n<eps, true );
+	error = bs->norm( Belos::InfNorm );
+	if( 0==space->rankST() )
+		std::cout << "error: " << error << "\n";
+  TEST_EQUALITY( error<eps, true );
 
   // test in z direction
   x->initField( Pimpact::PoiseuilleFlow2D_inZ );
@@ -654,10 +677,11 @@ TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
   op->apply( *x, *b );
 
   bs->add( 1., *bs, -1, *b);
-//  b->write(4); bs->write(5);
 
-  std::cout << "error: " << bs->norm()/n << "\n";
-  TEST_EQUALITY( bs->norm()/n<eps, true );
+	error = bs->norm( Belos::InfNorm );
+	if( 0==space->rankST() )
+		std::cout << "error: " << error << "\n";
+  TEST_EQUALITY( error<eps, true );
 
   // the circle XY test
   x->initField( Pimpact::Circle2D );
@@ -667,10 +691,11 @@ TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
   op->apply( *x, *b );
 
   bs->add( 1., *bs, -1, *b );
-//	x->write(4); b->write(5); bs->write(6);
 
-  std::cout << "error: " << bs->norm()/n << "\n";
-  TEST_EQUALITY( bs->norm()/n<eps, true );
+	error = bs->norm( Belos::InfNorm );
+	if( 0==space->rankST() )
+		std::cout << "error: " << error << "\n";
+  TEST_EQUALITY( error<eps, true );
 
   // the circle XZ test
   x->initField( Pimpact::Circle2D_inXZ );
@@ -680,10 +705,11 @@ TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
   op->apply( *x, *b );
 
   bs->add( 1., *bs, -1, *b );
-//	x->write(4); b->write(5); bs->write(6);
 
-  std::cout << "error: " << bs->norm()/n << "\n";
-  TEST_EQUALITY( bs->norm()/n<eps, true );
+	error = bs->norm( Belos::InfNorm );
+	if( 0==space->rankST() )
+		std::cout << "error: " << error << "\n";
+  TEST_EQUALITY( error<eps, true );
 
 }
 
@@ -723,9 +749,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
 
   op->apply( *b, *x );
 
-	S n = std::sqrt( x->getLength() );
-	std::cout << "error: " << x->norm()/n << "\n";
-  TEST_EQUALITY( x->norm()/n<eps, true );
+	S error = x->norm( Belos::InfNorm );
+	if( 0==space->rankST() )
+		std::cout << "error: " << error << "\n";
+  TEST_EQUALITY( error<eps, true );
 
   // random test
   b->random();
@@ -733,7 +760,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
 
   op->apply(*b,*x);
 
-  TEST_EQUALITY( x->norm()/n>eps, true );
+  TEST_EQUALITY( x->norm( Belos::InfNorm )>eps, true );
 
   //b->initField( Pimpact::Grad2D_inX );
 //  b->initField( Pimpact::Grad2D_inX );
@@ -742,8 +769,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
 
   op->apply( *b, *x );
 
-	std::cout << "error: " << x->norm()/n << "\n";
-	TEST_EQUALITY( x->norm()/n<eps, true );
+	error = x->norm( Belos::InfNorm );
+	if( 0==space->rankST() )
+		std::cout << "error: " << error << "\n";
+	TEST_EQUALITY( error<eps, true );
 
 	// consistency test
   auto op2 = Pimpact::create<Pimpact::DivGradOp>( space );
@@ -804,12 +833,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
 		std::cout << "\nstep\terror\t\trate\n";
 		std::cout << 0 << "\t" << 1. << "\n";
 	}
-	S err0 = x->norm();
+	S err0 = x->norm( Belos::InfNorm );
 	S errP = err0;
 
 	for( int i=1; i<=20; ++i ) {
 		smoother->apply( *b, *x );
-		S err = x->norm();
+		S err = x->norm( Belos::InfNorm );
 		if( 0==space->rankST() ) {
 				std::cout << i << "\t" << err/err0 << "\t" << err/errP << "\n";
 		}
@@ -829,7 +858,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
 		x->level();
 
 		xp->add( 1., *xp, -1., *x );
-		S err2 = xp->norm()/std::sqrt( static_cast<S>(xp->getLength()) );
+		S err2 = xp->norm( Belos::InfNorm )/std::sqrt( static_cast<S>(xp->getLength()) );
 		S errInf = xp->norm( Belos::InfNorm );
 
 		if( 0==space->rankST() )
@@ -880,7 +909,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ForcingOp ) {
 	op->apply( *vel, *res );
 	vel->add( 1., *res, -1., *force );
 
-	TEST_EQUALITY( vel->norm()<eps, true );
+	TEST_EQUALITY( vel->norm( Belos::InfNorm )<eps, true );
 }
 
 
@@ -917,39 +946,37 @@ TEUCHOS_UNIT_TEST( MultiOperator, InverseOp ) {
 
   // Grad in x
   x->initField( Pimpact::Grad2D_inX );
-//  x->write(0);
 
   op->apply(*x,*b);
-//  b->write(1);
 
   x->init();
 
   opinv->apply( *b, *x );
-
-//  x->write(2);
 
   b->initField( Pimpact::Grad2D_inX );
   x->add( -1, *x, 1., *b );
-  std::cout << "error: " << x->norm()/b->norm() << "\n";
-//  TEST_EQUALITY( x->norm()/b->norm()<0.5, true );
+
+	S error = x->norm( Belos::InfNorm )/b->norm( Belos::InfNorm );
+	if( 0==space->rankST() )
+		std::cout << "error: " << error << "\n";
+	TEST_EQUALITY( error<0.5, true );
 
   // Grad in y
   x->initField( Pimpact::Grad2D_inY );
-//  x->write(3);
 
   op->apply(*x,*b);
-//  b->write(4);
 
   x->init();
 
   opinv->apply( *b, *x );
 
-//  x->write(5);
-
   b->initField( Pimpact::Grad2D_inY );
   x->add( -1, *x, 1., *b );
-  std::cout << "error: " << x->norm()/b->norm() << "\n";
-//  TEST_EQUALITY( x->norm()/b->norm()<0.5, true );
+
+	error = x->norm( Belos::InfNorm )/b->norm( Belos::InfNorm );
+	if( 0==space->rankST() )
+		std::cout << "error: " << error << "\n";
+	TEST_EQUALITY( error<0.5, true );
 
 }
 
@@ -973,12 +1000,10 @@ TEUCHOS_UNIT_TEST( MultiOperator, Add2Op ) {
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
-
   using Teuchos::ParameterList;
   using Teuchos::parameterList;
   using Teuchos::RCP;
   using Teuchos::rcp; // Save some typing
-
 
   auto velx = Pimpact::create<Pimpact::VectorField>(space);
 
@@ -1000,11 +1025,7 @@ TEUCHOS_UNIT_TEST( MultiOperator, Add2Op ) {
 	 x->getFieldPtr(i)->initField(Pimpact::RankineVortex2D );
  }
 
-// x->getFieldPtr(0)->write();
-
  op->apply( *x, *y);
-
-// y->getFieldPtr(0)->write(99);
 
 }
 
@@ -1047,11 +1068,8 @@ TEUCHOS_UNIT_TEST( MultiOperator, MulitOpUnWrap ) {
 
   x->initField(Pimpact::RankineVortex2D );
 
-//  x->write();
 
   opUW2->apply( *x, *y);
-
-//  y->write(99);
 
 }
 
@@ -1139,8 +1157,8 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, DtModeOp ) {
 
   op->apply(*mv,*mv2);
 
-  TEST_EQUALITY( mv->getConstFieldPtr(0)->getConstCFieldPtr()->norm(), mv2->getConstFieldPtr(0)->getConstSFieldPtr()->norm() );
-  TEST_EQUALITY( mv->getConstFieldPtr(0)->getConstSFieldPtr()->norm(), mv2->getConstFieldPtr(0)->getConstCFieldPtr()->norm() );
+  TEST_EQUALITY( mv->getConstFieldPtr(0)->getConstCFieldPtr()->norm( Belos::InfNorm ), mv2->getConstFieldPtr(0)->getConstSFieldPtr()->norm( Belos::InfNorm ) );
+  TEST_EQUALITY( mv->getConstFieldPtr(0)->getConstSFieldPtr()->norm( Belos::InfNorm ), mv2->getConstFieldPtr(0)->getConstCFieldPtr()->norm( Belos::InfNorm ) );
   Belos::OperatorTraits<S,MF,BOp>::Apply(*op,*mv,*mv2);
 
 }
@@ -1408,6 +1426,10 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, EddyPrec ) {
 
 TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicConvectionOp ) {
 
+	pl->set( "domain", domain );
+	pl->set( "dim", dim );
+
+	pl->set<bool>( "spectral in time", true );
   pl->set( "domain", domain );
   pl->set( "dim", dim );
 
@@ -1422,7 +1444,7 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicConvectionOp ) {
   pl->set("npy",            2 );
   pl->set("npz", (2==dim)?1:2 );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<S,O,4,dNC>( pl );
 
   auto vel = Pimpact::create<Pimpact::VectorField>( space );
 
@@ -1440,8 +1462,15 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicConvectionOp ) {
 
 TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicOpWrap ) {
 
-  pl->set( "domain", domain );
-  pl->set( "dim", dim );
+	using SpaceT = Pimpact::Space<S,O,4,dNC>;
+
+	using VF = Pimpact::VectorField<SpaceT>;
+	using SF = Pimpact::ScalarField<SpaceT>;
+
+	pl->set( "domain", domain );
+	pl->set( "dim", dim );
+
+	pl->set<bool>( "spectral in time", true );
 
 	//  grid size
 	pl->set("nx", nx );
@@ -1454,7 +1483,7 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicOpWrap ) {
   pl->set("npy",            2 );
   pl->set("npz", (2==dim)?1:2 );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<S,O,4,dNC>( pl );
 
   auto vel = Pimpact::create<Pimpact::VectorField>( space );
 
@@ -1472,8 +1501,15 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicOpWrap ) {
 
 TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiDtHelmholtz) {
 
-  pl->set( "domain", domain );
-  pl->set( "dim", dim );
+	using SpaceT = Pimpact::Space<S,O,4,dNC>;
+
+	using VF = Pimpact::VectorField<SpaceT>;
+	using SF = Pimpact::ScalarField<SpaceT>;
+
+	pl->set( "domain", domain );
+	pl->set( "dim", dim );
+
+	pl->set<bool>( "spectral in time", true );
 
 	//  grid size
 	pl->set("nx", nx );
@@ -1486,7 +1522,7 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiDtHelmholtz) {
   pl->set("npy",            2 );
   pl->set("npz", (2==dim)?1:2 );
 
-	auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+	auto space = Pimpact::createSpace<S,O,4,dNC>( pl );
 
 	auto mv1 = Pimpact::createMultiHarmonicVectorField( space );
 	auto mv2 = Pimpact::createMultiHarmonicVectorField( space );
@@ -1501,21 +1537,29 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiDtHelmholtz) {
 
 TEUCHOS_UNIT_TEST( CompoundOperator, CompoundOpWrap ) {
 
-  pl->set( "domain", domain );
-  pl->set( "dim", dim );
+	using SpaceT = Pimpact::Space<S,O,4,dNC>;
+
+	using VF = Pimpact::VectorField<SpaceT>;
+	using SF = Pimpact::ScalarField<SpaceT>;
+
+	pl->set( "domain", domain );
+	pl->set( "dim", dim );
+
+	pl->set<bool>( "spectral in time", true );
 
 	//  grid size
-	pl->set("nx", nx );
-	pl->set("ny", ny );
-	pl->set("nz", nz );
-	pl->set("nf", nf );
+	pl->set<O>("nx", nx );
+	pl->set<O>("ny", ny );
+	pl->set<O>("nz", nz );
+	pl->set<O>("nf", nf );
 
-  // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
-  pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
+	// processor grid size
+	pl->set<int>("npx", (2==dim)?4:2 );
+	pl->set<int>("npy",            2 );
+	pl->set<int>("npz", (2==dim)?1:2 );
+	pl->set<int>("npf", 1 );
 
-	auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+	auto space = Pimpact::createSpace<S,O,4,dNC>( pl );
 
 	auto x =
 		Pimpact::createMultiField(
@@ -1547,34 +1591,34 @@ TEUCHOS_UNIT_TEST( CompoundOperator, CompoundOpWrap ) {
 
 	// vector to vector operator
 	fu->init(0.);
-	TEST_EQUALITY( 0., fu->norm() );
+	TEST_EQUALITY( 0., fu->norm( Belos::InfNorm ) );
 
 	opV2V->apply( x->getConstFieldPtr(0)->getConstVField(), fu->getFieldPtr(0)->getVField() );
 
-	TEST_INEQUALITY( 0., fu->norm() );
+	TEST_INEQUALITY( 0., fu->norm( Belos::InfNorm ) );
 
 
 	// scalar to vector operator
 	fu->init(0.);
-	TEST_EQUALITY( 0., fu->norm() );
+	TEST_EQUALITY( 0., fu->norm( Belos::InfNorm ) );
 
 	opS2V->apply( x->getConstFieldPtr(0)->getConstSField(), fu->getFieldPtr(0)->getVField() );
 
-	TEST_INEQUALITY( 0., fu->norm() );
+	TEST_INEQUALITY( 0., fu->norm( Belos::InfNorm ) );
 
 	// vector to scalar operator
 	fu->init(0.);
-	TEST_EQUALITY( 0., fu->norm() );
+	TEST_EQUALITY( 0., fu->norm( Belos::InfNorm ) );
 
 	opV2S->apply( x->getConstFieldPtr(0)->getConstVField(), fu->getFieldPtr(0)->getSField() );
 
-	TEST_INEQUALITY( 0., fu->norm() );
+	TEST_INEQUALITY( 0., fu->norm( Belos::InfNorm ) );
 
 	// compound operator
 	fu->init(0.);
-	TEST_EQUALITY( 0., fu->norm() );
+	TEST_EQUALITY( 0., fu->norm( Belos::InfNorm ) );
 	op->apply(*x,*fu);
-	TEST_INEQUALITY( 0., fu->norm() );
+	TEST_INEQUALITY( 0., fu->norm( Belos::InfNorm ) );
 
 }
 
