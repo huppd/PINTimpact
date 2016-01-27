@@ -69,7 +69,7 @@ public:
 					create<MF>( op->space() ),
 					para,
 					"GMRES" );
-	}
+		}
 
  template<class IOperatorT>
  InverseOp( const Teuchos::RCP<IOperatorT>& op,

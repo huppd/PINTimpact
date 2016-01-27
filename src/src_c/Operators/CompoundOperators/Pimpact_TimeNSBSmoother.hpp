@@ -1,22 +1,22 @@
 #pragma once
-#ifndef PIMPACT_TIMESTOKESBSMOOTHER_HPP
-#define PIMPACT_TIMESTOKESBSMOOTHER_HPP
+#ifndef PIMPACT_TIMENSBSMOOTHER_HPP
+#define PIMPACT_TIMENSBSMOOTHER_HPP
 
 
 #include "Teuchos_RCP.hpp"
-
-
 
 
 namespace Pimpact {
 
 extern "C" {
 
-void OP_TimeStokesBSmoother( 
+void OP_TimeNSBSmoother( 
 		const int& dimens,
 		const int* const N,
 		const int* const bl,
 		const int* const bu,
+		const int* const cl,
+		const int* const cu,
 		const int* const BCL,
 		const int* const BCU,
 		const int* const dl,
@@ -31,6 +31,18 @@ void OP_TimeStokesBSmoother(
 		const int* const nv,
 		const int* const sw,
 		const int* const nw,
+		const double* const c1uD,
+		const double* const c2vD,
+		const double* const c3wD,
+		const double* const c1uU,
+		const double* const c2vU,
+		const double* const c3wU,
+		const double* const c1pD,
+		const double* const c2pD,
+		const double* const c3pD,
+		const double* const c1pU,
+		const double* const c2pU,
+		const double* const c3pU,
 		const double* const c11p,
 		const double* const c22p,
 		const double* const c33p,       
@@ -44,7 +56,10 @@ void OP_TimeStokesBSmoother(
 		const double* const cG2,                  
 		const double* const cG3,                  
 		const double& mulI,                 
-		const double& mulL,                 
+		const double& mulL,
+		const double* const windU,                 
+		const double* const windV,                 
+		const double* const windW,                 
 		const double* const rhs_vel,                 
 		const double* const rhs_p,                   
 		double* const vel,                
@@ -57,7 +72,7 @@ void OP_TimeStokesBSmoother(
 ///
 // \f[ \begin{bmatrix} opV2V & opS2V \\ opV2S & 0 \end{bmatrix} \mathbf{x} = \mathbf{y} \f]
 template<class OperatorT>
-class TimeStokesBSmoother {
+class TimeNSBSmoother {
 
 public:
 
@@ -78,7 +93,7 @@ protected:
 public:
 
 	/// \todo constructor from space
-	TimeStokesBSmoother( const Teuchos::RCP<const OperatorT>& op , Teuchos::RCP<Teuchos::ParameterList> pl = Teuchos::parameterList()):
+	TimeNSBSmoother( const Teuchos::RCP<const OperatorT>& op , Teuchos::RCP<Teuchos::ParameterList> pl = Teuchos::parameterList()):
 		op_( op ),
 		numIters_( pl->get<int>("numIters",4) )	{};
 
@@ -89,11 +104,10 @@ public:
 		Scalar re = space()->getDomainSize()->getRe();
 		Scalar mulI = space()->getDomainSize()->getAlpha2()*idt/re;
 
-		int direction_flag = 0;
+		int direction_flag;
 
 		for( int iters=0; iters<numIters_; ++iters ) {
 
-			// this is for alternating directions
 			direction_flag++;
 
 			auto xu = x.getConstVFieldPtr();
@@ -110,13 +124,15 @@ public:
 				xp->getConstFieldPtr(i)->exchange();
 			}
 
-			OP_TimeStokesBSmoother( 
+			OP_TimeNSBSmoother(
 					space()->dim(),
 					space()->nLoc(),
 					space()->bl(),
 					space()->bu(),
 					space()->getBCLocal()->getBCL(),
 					space()->getBCLocal()->getBCU(),
+					space()->nl(),
+					space()->nu(),
 					space()->dl(),
 					space()->du(),
 					space()->gl(),
@@ -129,6 +145,18 @@ public:
 					space()->eInd(V),
 					space()->sInd(W),
 					space()->eInd(W),
+					op_->getConvOp()->getCD(X,U),
+					op_->getConvOp()->getCD(Y,V),
+					op_->getConvOp()->getCD(Z,W),
+					op_->getConvOp()->getCU(X,U),
+					op_->getConvOp()->getCU(Y,V),
+					op_->getConvOp()->getCU(Z,W),
+					op_->getConvOp()->getCD(X,S),
+					op_->getConvOp()->getCD(Y,S),
+					op_->getConvOp()->getCD(Z,S),
+					op_->getConvOp()->getCU(X,S),
+					op_->getConvOp()->getCU(Y,S),
+					op_->getConvOp()->getCU(Z,S),
 					op_->getHelmholtzOp()->getC(X,S),
 					op_->getHelmholtzOp()->getC(Y,S),
 					op_->getHelmholtzOp()->getC(Z,S),
@@ -142,7 +170,10 @@ public:
 					op_->getGradOp()->getC(Y),
 					op_->getGradOp()->getC(Z),
 					mulI,                 
-					1./re,                 
+					1./re,  
+					op_->getWindU_()->getConstRawPtr(),
+					op_->getWindV_()->getConstRawPtr(),
+					op_->getWindW_()->getConstRawPtr(),               
 					xu->getConstRawPtr(),
 					xp->getConstRawPtr(),
 					yu->getRawPtr(),
@@ -167,18 +198,20 @@ public:
 
 	bool hasApplyTranspose() const { return( false ); }
 
-	const std::string getLabel() const { return( "TimeStokesBSmoother " ); };
+	const std::string getLabel() const { return( "TimeNSBSmoother " ); };
 
-}; // end of class TimeStokesBSmoother
+}; // end of class TimeNSBSmoother
+
 
 
 } // end of namespace Pimpact
 
 
+
 #ifdef COMPILE_ETI
-#include "Pimpact_TimeStokesOp.hpp"
-extern template class Pimpact::TimeStokesBSmoother< Pimpact::TimeStokesOp< Pimpact::Space<double,int,4,2> > >;
-extern template class Pimpact::TimeStokesBSmoother< Pimpact::TimeStokesOp< Pimpact::Space<double,int,4,4> > >;
+#include "Pimpact_TimeNSOp.hpp"
+extern template class Pimpact::TimeNSBSmoother< Pimpact::TimeNSOp< Pimpact::Space<double,int,4,2> > >;
+extern template class Pimpact::TimeNSBSmoother< Pimpact::TimeNSOp< Pimpact::Space<double,int,4,4> > >;
 #endif
 
-#endif // end of #ifndef PIMPACT_TIMESTOKESBSMOOTHER_HPP
+#endif // end of #ifndef PIMPACT_TIMENSBSMOOTHER_HPP

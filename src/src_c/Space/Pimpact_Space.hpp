@@ -230,34 +230,34 @@ public:
 	/// \{
 
 	Teuchos::RCP<const StencilWidths<dimension,dimNC> >
-		getStencilWidths() const { return( stencilWidths_ ); }
+	getStencilWidths() const { return( stencilWidths_ ); }
 
 	Teuchos::RCP<const IndexSpace<Ordinal,dimension> >
-		getIndexSpace() const { return( indexSpace_ ); }
+	getIndexSpace() const { return( indexSpace_ ); }
 
 	Teuchos::RCP<const GridSizeGlobal<Ordinal> >
-		getGridSizeGlobal() const { return( gridSizeGlobal_ );  }
+	getGridSizeGlobal() const { return( gridSizeGlobal_ );  }
 
 	Teuchos::RCP<const GridSizeLocal<Ordinal,dimension> >
-		getGridSizeLocal() const { return( gridSizeLocal_ );  }
+	getGridSizeLocal() const { return( gridSizeLocal_ );  }
 
 	Teuchos::RCP<const ProcGrid<Ordinal,dimension> >
-		getProcGrid() const { return( procGrid_ ); }
+	getProcGrid() const { return( procGrid_ ); }
 
 	Teuchos::RCP<const CoordinatesGlobal<Scalar,Ordinal,dimension> >
-		getCoordinatesGlobal() const { return( coordGlobal_ ); }
+	getCoordinatesGlobal() const { return( coordGlobal_ ); }
 
 	Teuchos::RCP<const CoordinatesLocal<Scalar,Ordinal,dimension> >
 		getCoordinatesLocal() const { return( coordLocal_ ); }
 
 	Teuchos::RCP<const DomainSize<Scalar> >     
-		getDomainSize() const { return( domainSize_ ); }
+	getDomainSize() const { return( domainSize_ ); }
 
 	Teuchos::RCP<const BoundaryConditionsGlobal<dimension> >
-		getBCGlobal()   const { return( boundaryConditionsGlobal_ ); }
+	getBCGlobal()   const { return( boundaryConditionsGlobal_ ); }
 
 	Teuchos::RCP<const BoundaryConditionsLocal<dimension> >
-		getBCLocal()    const { return( boundaryConditionsLocal_ ); }
+	getBCLocal()    const { return( boundaryConditionsLocal_ ); }
 
 	Teuchos::RCP<const InterpolateV2S<Scalar,Ordinal,dimension,dimNC> >
 		getInterpolateV2S() const { return( interV2S_ ); }

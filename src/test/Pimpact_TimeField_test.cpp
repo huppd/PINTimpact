@@ -20,9 +20,9 @@
 #include "Pimpact_TimeOpWrap.hpp"
 #include "Pimpact_DtTimeOp.hpp"
 #include "Pimpact_TimeNonlinearJacobianOp.hpp"
+#include "Pimpact_TimeNSOp.hpp"
 
-
-
+#include "Pimpact_TimeStokesBSmoother.hpp"
 
 namespace {
 
@@ -30,7 +30,7 @@ namespace {
 using S = double;
 using O = int;
 const int d = 4;
-const int dNC = 4;
+const int dNC = 2;
 
 bool testMpi = true;
 double eps = 3e-1;
@@ -58,8 +58,6 @@ typedef Pimpact::OperatorBase<MTSF> SOpBase;
 typedef Pimpact::OperatorBase<MTVF> VOpBase;
 
 auto pl = Teuchos::parameterList();
-
-
 
 double slope(const std::vector<double>& x, const std::vector<double>& y){
 	double n = x.size();
@@ -113,8 +111,8 @@ TEUCHOS_STATIC_SETUP() {
 	    "npf", &npf,
 	    "" );
 
-  pl->set( "Re", 1. );
-  pl->set( "alpha2", 1. );
+  pl->set( "Re", 10. );
+  pl->set( "alpha2", 24. );
   pl->set( "domain", domain );
 
   pl->set( "lx", 1. );
@@ -123,11 +121,11 @@ TEUCHOS_STATIC_SETUP() {
 
   pl->set( "dim", dim );
 
-  pl->set("nx", 9 );
-  pl->set("ny", 9 );
-  pl->set("nz", 9 );
+  pl->set<O>("nx", 9 );
+  pl->set<O>("ny", 9 );
+  pl->set<O>("nz", 9 );
 
-  pl->set("nf", 8 );
+  pl->set<O>("nf", 8 );
 
 }
 
@@ -597,7 +595,6 @@ TEUCHOS_UNIT_TEST( TimeOperator, DtTimeOp ) {
 		// op test
 		auto dt = Pimpact::create<Pimpact::DtTimeOp>( space );
 
-
 		// zero test
 		Pimpact::initVectorTimeField( field1, Pimpact::Poiseuille_inX );
 		field2->init(0);
@@ -621,8 +618,8 @@ TEUCHOS_UNIT_TEST( TimeOperator, DtTimeOp ) {
 
 		field->add( bla, *field, 1, *field2 );
 
-		//std::cout << "bla: " << bla << "\n";
-		//std::cout << "error: " << field()->norm() << "\n";
+		std::cout << "bla: " << bla << "\n";
+		std::cout << "error: " << field()->norm() << "\n";
 
 		error[q-3] = std::log(field()->norm()); 
 		idt[q-3]   = std::log(((double)space->nGlo()[3])/2./pi);
@@ -640,94 +637,112 @@ TEUCHOS_UNIT_TEST( TimeOperator, DtTimeOp ) {
 
 
 
-TEUCHOS_UNIT_TEST( TimeOperator, TimeDtConvectionDiffusionOp ) {
-
-	// processor grid size
-	pl->set("npx", npx );
-	pl->set("npy", npy );
-	pl->set("npz", npz );
-	pl->set("npf", npf );
-
-	auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
-
-	auto field = Pimpact::create<TVF>( space );
-	auto field1 = field->clone();
-	auto field2 = field->clone();
-	auto wind = field->clone();
-
-
-	auto op = Pimpact::create<Pimpact::TimeDtConvectionDiffusionOp<SpaceT,true> >( space );
-
-
-	// Const diffusion test
-	Pimpact::initVectorTimeField( field1, Pimpact::Poiseuille_inX );
-	field2->init(0);
-
-	op->apply( *field1, *field2 );
-
-  initVectorTimeField( field1, Pimpact::Const2DFlow, 8./std::pow(space->getDomainSize()->getSize(Pimpact::Y),2), 0., 0. );
-	field->add( 1., *field1, -1., *field2 );
-	field->write(100);
-
-	std::cout << "error: " << field()->norm() << "\n";
-	TEST_EQUALITY( field()->norm()<eps, true );
-
-	// cos test
-	Pimpact::initVectorTimeField( field, Pimpact::OscilatingDisc2DVel,0.,0.,0.,1. );
-	field1->init(0);
-	field2->init(0);
-
-	op->apply( *field, *field1 );
-	op->apply( *field1, *field2 );
-
-	S a2 = space->getDomainSize()->getAlpha2()/space->getDomainSize()->getRe();
-
-	S bla = a2*a2;
-
-	field->add( bla, *field, 1, *field2 );
-
-//	field->write();
-	 std::cout << "bla: " << bla << "\n";
-	std::cout << "error: " << field()->norm() << "\n";
-
-  // test against flow dir
-	for( O i=space->sInd(Pimpact::U,3); i<space->eInd(Pimpact::U,3); ++i ) {
-		wind->getFieldPtr(i)->initField( Pimpact::ConstFlow, 2., 2., 2. );
-		field1->getFieldPtr(i)->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inX );
-		field1->getFieldPtr(i)->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inY );
-		field1->getFieldPtr(i)->getFieldPtr(Pimpact::W)->initField( Pimpact::Grad2D_inZ );
-		field2->getFieldPtr(i)->init( Teuchos::tuple(2.,2.,2.) );
-		wind->changed();
-		field1->changed();
-		field2->changed();
-	}
-
-//	wind->write();
-//	field1->write(10);
-//	field2->write(20);
-
-  op->assignField( *wind );
-  op->apply( *field1, *field );
-
-//	field->write(30);
-
-	field->add( 1., *field, -1., *field2 );
-
-//	field->write(40);
-
-	std::cout << "error: " << field()->norm() << "\n";
-
-}
+//TEUCHOS_UNIT_TEST( TimeOperator, TimeDtConvectionDiffusionOp ) {
+//
+//	// processor grid size
+//	pl->set("npx", npx );
+//	pl->set("npy", npy );
+//	pl->set("npz", npz );
+//	pl->set("npf", npf );
+//
+//	auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+//
+//	auto field = Pimpact::create<TVF>( space );
+//	auto field1 = field->clone();
+//	auto field2 = field->clone();
+//	auto wind = field->clone();
+//
+//
+//	auto op = Pimpact::create<Pimpact::TimeDtConvectionDiffusionOp<SpaceT,true> >( space );
+//
+//
+//	// Const diffusion test
+//	Pimpact::initVectorTimeField( field1, Pimpact::Poiseuille_inX );
+//	field2->init(0);
+//
+//	op->apply( *field1, *field2 );
+//
+//  initVectorTimeField( field1, Pimpact::Const2DFlow, 8./std::pow(space->getDomainSize()->getSize(Pimpact::Y),2), 0., 0. );
+//	field->add( 1., *field1, -1., *field2 );
+//	field->write(100);
+//
+//	std::cout << "error: " << field()->norm() << "\n";
+//	TEST_EQUALITY( field()->norm()<eps, true );
+//
+//	// cos test
+//	Pimpact::initVectorTimeField( field, Pimpact::OscilatingDisc2DVel,0.,0.,0.,1. );
+//	field1->init(0);
+//	field2->init(0);
+//
+//	op->apply( *field, *field1 );
+//	op->apply( *field1, *field2 );
+//
+//	S a2 = space->getDomainSize()->getAlpha2()/space->getDomainSize()->getRe();
+//
+//	S bla = a2*a2;
+//
+//	field->add( bla, *field, 1, *field2 );
+//
+////	field->write();
+////	 std::cout << "a^4: " << bla << "\n";
+//	std::cout << "error: " << field()->norm() << "\n";
+//
+//  // test against flow dir
+//	for( O i=space->sInd(Pimpact::U,3); i<space->eInd(Pimpact::U,3); ++i ) {
+//		wind->getFieldPtr(i)->initField( Pimpact::ConstFlow, 2., 2., 2. );
+//		field1->getFieldPtr(i)->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inX );
+//		field1->getFieldPtr(i)->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inY );
+//		field1->getFieldPtr(i)->getFieldPtr(Pimpact::W)->initField( Pimpact::Grad2D_inZ );
+//		field2->getFieldPtr(i)->init( Teuchos::tuple(2.,2.,2.) );
+//		wind->changed();
+//		field1->changed();
+//		field2->changed();
+//	}
+//
+////	wind->write();
+////	field1->write(10);
+////	field2->write(20);
+//
+//  op->assignField( *wind );
+//  op->apply( *field1, *field );
+//
+////	field->write(30);
+//
+//	field->add( 1., *field, -1., *field2 );
+//
+////	field->write(40);
+//
+//	std::cout << "error: " << field()->norm() << "\n";
+//
+//}
 
 
 
 TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOp ) {
 
+  pl->set( "alpha2", 24. );
+  pl->set( "domain", domain );
+
+  pl->set( "lx", 1. );
+  pl->set( "ly", 1. );
+  pl->set( "lz", 1. );
+
+  pl->set( "dim", dim );
+
+  pl->set("nx", 9 );
+  pl->set("ny", 9 );
+  pl->set("nz", 9 );
+
+  pl->set("nf", 8 );
+
 	// processor grid size
 	pl->set("npx", npx );
 	pl->set("npy", npy );
 	pl->set("npz", npz );
 	pl->set("npf", npf );
+
+	S re = 100.;
+	pl->set<S>("Re", re );
 
 	typedef Pimpact::TimeStokesOp<SpaceT> OpT;
 
@@ -739,21 +754,383 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOp ) {
 	auto x = Pimpact::create<typename OpT::DomainFieldT>( space );
 	auto y = Pimpact::create<typename OpT::RangeFieldT>( space );
 
-	// Const diffusion test
+	// Const diffusion test in X
 	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Poiseuille_inX );
 
-	x->write(1000);
-	y->init(0);
+	//	x->write(1000);
+	y->random();
 
 	op->apply( *x, *y );
-	y->write(0);
+	//	y->write(0);
+
+	initVectorTimeField( x->getVFieldPtr(), Pimpact::Const2DFlow, 8./std::pow(space->getDomainSize()->getSize(Pimpact::Y),2)/re, 0., 0. );
+	x->add( 1., *x, -1., *y );
+	//	x->write(100);
+
+	std::cout << "error in x: " << x->norm() << "\n";
+	TEST_EQUALITY( x->norm()<eps, true );
+
+	// Const diffusion test in Y
+	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Poiseuille_inY );
+
+	//	x->write(1000);
+	y->random();
+
+	op->apply( *x, *y );
+	//	y->write(0);
+
+	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Const2DFlow, 0., 8./std::pow(space->getDomainSize()->getSize(Pimpact::X),2)/re, 0. );
+	x->add( 1., *x, -1., *y );
+	//	x->write(100);
+
+	std::cout << "error in Y: " << x->norm() << "\n";
+	TEST_EQUALITY( x->norm()<eps, true );
+
+	// Gradient test in X
+	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Zero2DFlow );
+	for( O i=space->sInd(Pimpact::U,3); i<space->eInd(Pimpact::U,3); ++i ) {
+		x->getSFieldPtr()->getFieldPtr(i)->initField( Pimpact::Grad2D_inX );
+	}
+//	x->write();
+	y->random();
+	
+	op->apply( *x, *y );
+//	y->write(100);
+	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Const2DFlow, 1., 0., 0. );
+	x->getSFieldPtr()->init( 0. );
+	x->add( 1., *x, -1., *y );
+//	x->write(200);
+
+	std::cout << "error grad in X: " << x->norm() << "\n";
+	TEST_EQUALITY( x->norm()<eps, true );
+
+	// Gradient test in Y
+	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Zero2DFlow );
+	for( O i=space->sInd(Pimpact::U,3); i<space->eInd(Pimpact::U,3); ++i ) {
+		x->getSFieldPtr()->getFieldPtr(i)->initField( Pimpact::Grad2D_inY );
+	}
+//	x->write();
+	y->random();
+	
+	op->apply( *x, *y );
+//	y->write(100);
+	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Const2DFlow, 0., 1., 0. );
+	x->getSFieldPtr()->init( 0. );
+	x->add( 1., *x, -1., *y );
+//	x->write(200);
+
+	std::cout << "error grad in Y: " << x->norm() << "\n";
+	TEST_EQUALITY( x->norm()<eps, true );
+
+	// Gradient test in Z
+	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Zero2DFlow );
+	for( O i=space->sInd(Pimpact::U,3); i<space->eInd(Pimpact::U,3); ++i ) {
+		x->getSFieldPtr()->getFieldPtr(i)->initField( Pimpact::Grad2D_inZ );
+	}
+//	x->write();
+	y->random();
+	
+	op->apply( *x, *y );
+//	y->write(100);
+	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Const2DFlow, 0., 0., 1. );
+	x->getSFieldPtr()->init( 0. );
+	x->add( 1., *x, -1., *y );
+//	x->write(200);
+
+	std::cout << "error grad in Z: " << x->norm() << "\n";
+	TEST_EQUALITY( x->norm()<eps, true );
+
+}
+
+TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOpDT ) {
+
+	typedef Pimpact::TimeStokesOp<SpaceT> OpT;
+
+	// processor grid size
+	pl->set<int>("npx", npx );
+	pl->set<int>("npy", npy );
+	pl->set<int>("npz", npz );
+	pl->set<int>("npf", npf );
+
+
+	double pi = 4.*std::atan(1.);
+
+	int l = 7;
+	std::vector<double> error(l);
+	std::vector<double> idt(l);
+
+	for (int q = 3; q < 3+l; q++ ) {
+
+		pl->set<O>("nf", int(std::pow(2,q)) );
+
+		auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+
+
+		auto field = Pimpact::create<typename OpT::DomainFieldT>( space );
+		auto field1 = Pimpact::create<typename OpT::RangeFieldT>( space );
+		auto field2 = Pimpact::create<typename OpT::RangeFieldT>( space );
+
+
+		// op test
+		auto dt = Pimpact::create<OpT>( space );
+
+		// zero test
+		Pimpact::initVectorTimeField( field1->getVFieldPtr(), Pimpact::Const2DFlow, 1., 1., 1. );
+		field2->random();
+
+		dt->apply( *field1, *field2 );
+
+		TEST_EQUALITY( field2()->norm()<eps, true );
+
+		// cos test
+		Pimpact::initVectorTimeField( field->getVFieldPtr(), Pimpact::OscilatingDisc2DVel,0.,0.,0.,1. );
+		//field->write();
+		field1->init(0);
+		field2->init(0);
+
+		dt->apply( *field, *field1 );
+		dt->apply( *field1, *field2 );
+
+		S a2 = space->getDomainSize()->getAlpha2()/space->getDomainSize()->getRe();
+
+		S bla = a2*a2;
+
+		field->add( bla, *field, 1, *field2 );
+
+		std::cout << "a^4: " << bla << "\n";
+		std::cout << "error: " << field()->norm() << "\n";
+
+		error[q-3] = std::log(field()->norm()); 
+		idt[q-3]   = std::log(((double)space->nGlo()[3])/2./pi);
+
+	}
+
+	double sl = std::abs(slope(idt,error));
+	std::cout << "slope: " << sl << "\n";
+
+	TEST_EQUALITY( std::abs(sl - 0.5) <  0.05, true );
+
+	pl->set<O>("nf", 8 );
+
+
+}
+
+
+TEUCHOS_UNIT_TEST( TimeOperator, TimeNSOp ) {
+
+	// processor grid size
+	pl->set("npx", npx );
+	pl->set("npy", npy );
+	pl->set("npz", npz );
+	pl->set("npf", npf );
+
+	S re = 100.;
+	pl->set<S>("Re", re );
+
+	typedef Pimpact::TimeNSOp<SpaceT> OpT;
+
+	auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+
+
+	auto op = Pimpact::create<OpT>( space );
+
+	auto x = Pimpact::create<typename OpT::DomainFieldT>( space );
+	auto y = Pimpact::create<typename OpT::RangeFieldT>( space );
+
+	// Const diffusion test in X
+	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Poiseuille_inX );
+
+	//	x->write(1000);
+	y->random();
+
+	op->apply( *x, *y );
+	//	y->write(0);
 
 	initVectorTimeField( x->getVFieldPtr(), Pimpact::Const2DFlow, 8./std::pow(space->getDomainSize()->getSize(Pimpact::Y),2), 0., 0. );
 	x->add( 1., *x, -1., *y );
-	x->write(100);
+	//	x->write(100);
 
-	std::cout << "error: " << x->norm() << "\n";
+	std::cout << "error in x: " << x->norm() << "\n";
 	TEST_EQUALITY( x->norm()<eps, true );
+
+	// Const diffusion test in Y
+	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Poiseuille_inY );
+
+	//	x->write(1000);
+	y->random();
+
+	op->apply( *x, *y );
+	//	y->write(0);
+
+	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Const2DFlow, 0., 8./std::pow(space->getDomainSize()->getSize(Pimpact::X),2)/re, 0. );
+	x->add( 1., *x, -1., *y );
+	//	x->write(100);
+
+	std::cout << "error in Y: " << x->norm() << "\n";
+	TEST_EQUALITY( x->norm()<eps, true );
+
+	// Gradient test in X
+	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Zero2DFlow );
+	for( O i=space->sInd(Pimpact::U,3); i<space->eInd(Pimpact::U,3); ++i ) {
+		x->getSFieldPtr()->getFieldPtr(i)->initField( Pimpact::Grad2D_inX );
+	}
+//	x->write();
+	y->random();
+	
+	op->apply( *x, *y );
+//	y->write(100);
+	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Const2DFlow, 1., 0., 0. );
+	x->getSFieldPtr()->init( 0. );
+	x->add( 1., *x, -1., *y );
+//	x->write(200);
+
+	std::cout << "error grad in X: " << x->norm() << "\n";
+	TEST_EQUALITY( x->norm()<eps, true );
+
+	// Gradient test in Y
+	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Zero2DFlow );
+	for( O i=space->sInd(Pimpact::U,3); i<space->eInd(Pimpact::U,3); ++i ) {
+		x->getSFieldPtr()->getFieldPtr(i)->initField( Pimpact::Grad2D_inY );
+	}
+//	x->write();
+	y->random();
+	
+	op->apply( *x, *y );
+//	y->write(100);
+	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Const2DFlow, 0., 1., 0. );
+	x->getSFieldPtr()->init( 0. );
+	x->add( 1., *x, -1., *y );
+//	x->write(200);
+
+	std::cout << "error grad in Y: " << x->norm() << "\n";
+	TEST_EQUALITY( x->norm()<eps, true );
+
+	// Gradient test in Z
+	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Zero2DFlow );
+	for( O i=space->sInd(Pimpact::U,3); i<space->eInd(Pimpact::U,3); ++i ) {
+		x->getSFieldPtr()->getFieldPtr(i)->initField( Pimpact::Grad2D_inZ );
+	}
+//	x->write();
+	y->random();
+	
+	op->apply( *x, *y );
+//	y->write(100);
+	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Const2DFlow, 0., 0., 1. );
+	x->getSFieldPtr()->init( 0. );
+	x->add( 1., *x, -1., *y );
+//	x->write(200);
+
+	std::cout << "error grad in Z: " << x->norm() << "\n";
+	TEST_EQUALITY( x->norm()<eps, true );
+
+
+	// test against flow dir
+	auto wind   = Pimpact::create<typename OpT::DomainFieldT>( space );
+	auto field  = Pimpact::create<typename OpT::DomainFieldT>( space );
+	auto field1 = Pimpact::create<typename OpT::DomainFieldT>( space );
+	auto field2 = Pimpact::create<typename OpT::DomainFieldT>( space );
+
+	for( O i=space->sInd(Pimpact::U,3); i<space->eInd(Pimpact::U,3); ++i ) {
+		wind->getVFieldPtr()->getFieldPtr(i)->initField( Pimpact::ConstFlow, 2., 2., 2. );
+		field1->getVFieldPtr()->getFieldPtr(i)->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inY );
+		field1->getVFieldPtr()->getFieldPtr(i)->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inZ );
+		field1->getVFieldPtr()->getFieldPtr(i)->getFieldPtr(Pimpact::W)->initField( Pimpact::Grad2D_inX );
+		field2->getVFieldPtr()->getFieldPtr(i)->init( Teuchos::tuple(2.,2.,2.) );
+		wind->getVFieldPtr()->changed();
+		field1->getVFieldPtr()->changed();
+		field2->getVFieldPtr()->changed();
+	}
+
+//	wind->write();
+//	field1->write(10);
+//	field2->write(20);
+
+ op->assignField( *wind );
+ op->apply( *field1, *field );
+
+//	field->write(30);
+
+	field->add( 1., *field, -1., *field2 );
+
+//	field->write(40);
+
+	std::cout << "conv errorV: " << field()->getVFieldPtr()->norm() << "\n";
+	std::cout << "conv errorS: " << field()->getSFieldPtr()->norm() << "\n";
+
+}
+
+
+TEUCHOS_UNIT_TEST( TimeOperator, TimeNSOpDT ) {
+
+	typedef Pimpact::TimeNSOp<SpaceT> OpT;
+
+	// processor grid size
+	pl->set("npx", npx );
+	pl->set("npy", npy );
+	pl->set("npz", npz );
+	pl->set("npf", npf );
+
+
+	double pi = 4.*std::atan(1.);
+
+	int l = 7;
+	std::vector<double> error(l);
+	std::vector<double> idt(l);
+
+	for (int q = 3; q < 3+l; q++ ) {
+
+		pl->set("nf", int(std::pow(2,q)) );
+
+		auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+
+
+		auto field = Pimpact::create<typename OpT::DomainFieldT>( space );
+		auto field1 = Pimpact::create<typename OpT::RangeFieldT>( space );
+		auto field2 = Pimpact::create<typename OpT::RangeFieldT>( space );
+
+
+		// op test
+		auto dt = Pimpact::create<OpT>( space );
+
+		// zero test
+		Pimpact::initVectorTimeField( field1->getVFieldPtr(), Pimpact::Const2DFlow, 1., 1., 1. );
+		field2->random();
+
+		dt->apply( *field1, *field2 );
+
+		TEST_EQUALITY( field2()->norm()<eps, true );
+
+		// cos test
+		Pimpact::initVectorTimeField( field->getVFieldPtr(), Pimpact::OscilatingDisc2DVel,0.,0.,0.,1. );
+		//field->write();
+		field1->init(0);
+		field2->init(0);
+
+		dt->apply( *field, *field1 );
+		dt->apply( *field1, *field2 );
+
+		S a2 = space->getDomainSize()->getAlpha2()/space->getDomainSize()->getRe();
+
+		S bla = a2*a2;
+
+
+		field->add( bla, *field, 1, *field2 );
+
+
+		std::cout << "a^4: " << bla << "\n";
+		std::cout << "error: " << field()->norm() << "\n";
+
+		error[q-3] = std::log(field()->norm()); 
+		idt[q-3]   = std::log(((double)space->nGlo()[3])/2./pi);
+
+	}
+
+	double sl = std::abs(slope(idt,error));
+	std::cout << "slope: " << sl << "\n";
+
+	TEST_EQUALITY( std::abs(sl - 0.5) <  0.05, true );
+
+	pl->set<O>("nf", 8 );
 
 }
 

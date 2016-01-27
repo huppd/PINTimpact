@@ -92,6 +92,67 @@ public:
 					if( ( (nGlo[dir]-1)%2!=0 || nGlo[dir]<cgsize || i==maxGrids-1 ) )
 						npNew[dir] = 1;
 
+					//multiSpace.push_back( createCoarseSpace( multiSpace.back(), coarsen_dir, nGlo, stride, NB, IB, i==maxGrids-1 ) );
+				//}
+
+
+			//}
+			//std::ofstream file;
+			//std::string fname = "mgs.txt";
+			//fname.insert( 3, std::to_string( (long long)space->rankST() ) );
+			//file.open( fname, std::ofstream::out | std::ofstream::app );
+			//file << "\n\ngrid: " <<  -1 << "\n\n";
+			//multiSpace.back()->print(file);
+			//file.close();
+
+		//}
+		//// not working on brutus
+		////multiSpace.shrink_to_fit();
+		//return( multiSpace );
+	//}
+
+//protected:
+
+  //template<class SpaceT>
+  //static Teuchos::RCP< const SpaceT > createCoarseSpace(
+      //const Teuchos::RCP<const SpaceT>& space,
+      //const Teuchos::Tuple<bool,dimension>& coarsen_dir,
+      //const Teuchos::Tuple<Ordinal,4>& gridSizeGlobalTup,
+			 //TO& stride,
+			//const TO& NB,
+			//const TO& IB,
+			//bool maxGrid_yes=false	) {
+
+    //auto stencilWidths = space->getStencilWidths();
+
+    //auto domain = space->getDomain();
+    //auto boundaryConditionsGlobal = domain->getBCGlobal();
+    //auto boundaryConditionsLocal = domain->getBCLocal();
+
+
+		//// coarsen gridSizeGlobal
+////		std::cout << "rank: " << space->rankST()<< "\t gridSizGLobal: " << gridSizeGlobalTup << "\n";
+    //auto gridSizeGlobal = createGridSizeGlobal<Ordinal,dimension>( gridSizeGlobalTup );
+
+		//auto procGridSize = space->getProcGridSize();
+		//auto procGrid = space->getProcGrid();
+
+    //TO np = space->getProcGridSize()->getTuple();
+		//TO npNew = np;
+////		std::cout << "rank: " << space->rankST()<< "\t procGridSizOld: " << npNew << "\n";
+////    for( int i=0; i<dimension; ++i ) {
+    //for( int i=0; i<3; ++i ) {
+			//if( i<3 ) {
+				//if( coarsen_dir[i] ) {
+					//npNew[i] = 1;
+					//for( int j=2; j<np[i]; ++j ) {
+						//if( ((gridSizeGlobalTup[i]-1)%j)==0 && (np[i]%j)==0 )
+							//if( ((gridSizeGlobalTup[i]-1)/j)%2==0 && (gridSizeGlobalTup[i]-1)/j>=2 )
+								//npNew[i] = j;
+					//}
+					//// --- enforce gathering of coarsest grid to one processor ---
+					//if( ( (gridSizeGlobalTup[i]-1)%2!=0 || gridSizeGlobalTup[i]<cgsize || maxGrid_yes ) && npNew[i]>1 )
+						//npNew[i] = 1;
 				}
 				else
 					// figure out if global problem can be coarsened

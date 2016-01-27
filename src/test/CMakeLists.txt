@@ -48,6 +48,10 @@ ADD_EXECUTABLE( TimeFieldTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_T
 TARGET_LINK_LIBRARIES( TimeFieldTest ${Pimpact_TPL_LIBRARIES} ) 
 add_test( NAME TimeFieldTest COMMAND mpirun -np 8 ./TimeFieldTest )
 
+ADD_EXECUTABLE( SmootherTest Teuchos_StandardParallelUnitTestMain.cpp
+Pimpact_Smoother_test.cpp )
+TARGET_LINK_LIBRARIES( SmootherTest ${Pimpact_TPL_LIBRARIES} )
+add_test( NAME SmootherTest COMMAND mpirun -np 8 SmootherTest )
 
 ADD_EXECUTABLE( BelosMVOPTest Teuchos_StandardParallelUnitTestMain.cpp BelosPimpact_MVOP_test.cpp )
 TARGET_LINK_LIBRARIES( BelosMVOPTest ${Pimpact_TPL_LIBRARIES} ) 
@@ -72,4 +76,9 @@ add_test( NAME NOXSolvesPimpactTest COMMAND mpirun -np 4 ./NOXSolvesPimpactTest 
 
 ADD_EXECUTABLE( MultiGridTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_MultiGrid_test.cpp )
 TARGET_LINK_LIBRARIES( MultiGridTest ${Pimpact_TPL_LIBRARIES} ) 
-add_test( NAME MultiGridTest COMMAND mpirun -np 8 ./MultiGridTest )
+add_test( NAME MultiGridTest COMMAND mpirun -np 8 MultiGridTest )
+
+ADD_EXECUTABLE( MultiGridTimeTest Teuchos_StandardParallelUnitTestMain.cpp
+Pimpact_MultiGridTime_test.cpp )
+TARGET_LINK_LIBRARIES( MultiGridTimeTest ${Pimpact_TPL_LIBRARIES} )
+add_test( NAME MultiGridTimeTest COMMAND mpirun -np 8 MultiGridTimeTest )

@@ -1,18 +1,15 @@
 #pragma once
-#ifndef PIMPACT_TIMESTOKESBSMOOTHER_HPP
-#define PIMPACT_TIMESTOKESBSMOOTHER_HPP
+#ifndef PIMPACT_TIMESTOKESLSMOOTHER_HPP
+#define PIMPACT_TIMESTOKESLSMOOTHER_HPP
 
 
 #include "Teuchos_RCP.hpp"
-
-
-
 
 namespace Pimpact {
 
 extern "C" {
 
-void OP_TimeStokesBSmoother( 
+void OP_TimeStokesLSmoother( 
 		const int& dimens,
 		const int* const N,
 		const int* const bl,
@@ -45,11 +42,11 @@ void OP_TimeStokesBSmoother(
 		const double* const cG3,                  
 		const double& mulI,                 
 		const double& mulL,                 
-		const double* const rhs_vel,                 
-		const double* const rhs_p,                   
-		double* const vel,                
-		double* const p,
-		const int&    direction_flag );
+		const double* const vel,                 
+		const double* const p,                   
+		double* const r_vel,                
+		double* const r_p,
+		const int& L );
 
 }
 
@@ -57,7 +54,7 @@ void OP_TimeStokesBSmoother(
 ///
 // \f[ \begin{bmatrix} opV2V & opS2V \\ opV2S & 0 \end{bmatrix} \mathbf{x} = \mathbf{y} \f]
 template<class OperatorT>
-class TimeStokesBSmoother {
+class TimeStokesLSmoother {
 
 public:
 
@@ -78,23 +75,19 @@ protected:
 public:
 
 	/// \todo constructor from space
-	TimeStokesBSmoother( const Teuchos::RCP<const OperatorT>& op , Teuchos::RCP<Teuchos::ParameterList> pl = Teuchos::parameterList()):
+	TimeStokesLSmoother( const Teuchos::RCP<const OperatorT>& op, Teuchos::RCP<Teuchos::ParameterList> pl = Teuchos::parameterList() ):
 		op_( op ),
-		numIters_( pl->get<int>("numIters",4) )	{};
+		numIters_( pl->get<int>("numIters",4) ) {};
 
-	void apply(const DomainFieldT& x, RangeFieldT& y ) const {
+	void apply(const DomainFieldT& x, RangeFieldT& y, const Ordinal L=1,
+			Belos::ETrans trans=Belos::NOTRANS  ) const {
 
 		Scalar pi = 4.*std::atan(1.);
 		Scalar idt = ((Scalar)space()->nGlo()[3])/2./pi;
 		Scalar re = space()->getDomainSize()->getRe();
 		Scalar mulI = space()->getDomainSize()->getAlpha2()*idt/re;
 
-		int direction_flag = 0;
-
 		for( int iters=0; iters<numIters_; ++iters ) {
-
-			// this is for alternating directions
-			direction_flag++;
 
 			auto xu = x.getConstVFieldPtr();
 			auto xp = x.getConstSFieldPtr();
@@ -110,7 +103,7 @@ public:
 				xp->getConstFieldPtr(i)->exchange();
 			}
 
-			OP_TimeStokesBSmoother( 
+			OP_TimeStokesLSmoother( 
 					space()->dim(),
 					space()->nLoc(),
 					space()->bl(),
@@ -147,7 +140,7 @@ public:
 					xp->getConstRawPtr(),
 					yu->getRawPtr(),
 					yp->getRawPtr(),
-					direction_flag );
+					L );
 
 			for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i ) {
 				yu->getFieldPtr(i)->changed();
@@ -156,6 +149,7 @@ public:
 
 			yu->changed();
 			yp->changed();
+
 		}
 	}
 
@@ -167,18 +161,19 @@ public:
 
 	bool hasApplyTranspose() const { return( false ); }
 
-	const std::string getLabel() const { return( "TimeStokesBSmoother " ); };
 
-}; // end of class TimeStokesBSmoother
+}; // end of class TimeStokesLSmoother
+
 
 
 } // end of namespace Pimpact
 
 
+
 #ifdef COMPILE_ETI
 #include "Pimpact_TimeStokesOp.hpp"
-extern template class Pimpact::TimeStokesBSmoother< Pimpact::TimeStokesOp< Pimpact::Space<double,int,4,2> > >;
-extern template class Pimpact::TimeStokesBSmoother< Pimpact::TimeStokesOp< Pimpact::Space<double,int,4,4> > >;
+extern template class Pimpact::TimeStokesLSmoother< Pimpact::TimeStokesOp< Pimpact::Space<double,int,4,2> > >;
+extern template class Pimpact::TimeStokesLSmoother< Pimpact::TimeStokesOp< Pimpact::Space<double,int,4,4> > >;
 #endif
 
 #endif // end of #ifndef PIMPACT_TIMESTOKESBSMOOTHER_HPP

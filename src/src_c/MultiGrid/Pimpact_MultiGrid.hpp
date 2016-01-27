@@ -171,7 +171,6 @@ public:
 			if( mgSpaces_->participating(i) ) {
 				//b_->get(i)->setCornersZero();
 				x_->get(i)->init(0.);
-
 				try{
 					cGridSolver_->apply( *b_->get(i), *x_->get(i) );
 				}
@@ -191,6 +190,7 @@ public:
 				if( mgSpaces_->participating(i) ) {
 					mgTrans_->getInterpolationOp(i)->apply( *x_->get(i+1), *temp_->get(i) );
 					x_->get(i)->add( 1., *temp_->get(i), 1., *x_->get(i) );
+					//
 					mgSms_->get( i )->apply( *b_->get(i), *x_->get(i) );
 				}
 			}

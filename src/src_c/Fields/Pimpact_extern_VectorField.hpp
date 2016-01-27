@@ -13,6 +13,21 @@ extern "C" {
 
 void VF_write( double* phiU, double* phiV, double* phiW, const int& count );
 
+void VF_init_2DPulsatileX(
+    const int* const N,
+    const int* const bL,
+    const int* const bU,
+    const int* const SU,
+    const int* const NU,
+    const int* const SV,
+    const int* const NV,
+    const int* const SW,
+    const int* const NW,
+    const double& L,
+    const double& t,
+    const double* const x2,
+    const double& re, const double& alpha, const double& px,
+    double* const phiU, double* const phiV, double* const phiW );
 
 void VF_init_2DPulsatileXC(
     const int* const N,

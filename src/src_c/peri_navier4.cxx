@@ -36,15 +36,69 @@
 
 
 
+#include "Pimpact_IntResCompoundOp.hpp"
+#include "Pimpact_TransferCompoundOp.hpp"
+#include "Pimpact_TransferTimeOp.hpp"
+#include "Pimpact_TimeStokesBSmoother.hpp"
+
+#include "Pimpact_MultiGrid.hpp"
+
+#include "Pimpact_ScalarField.hpp"
+#include "Pimpact_Operator.hpp"
+
+#include "Pimpact_LinearProblem.hpp"
+#include "Pimpact_LinSolverParameter.hpp"
+
+#include "Pimpact_InterpolationTimeOp.hpp"
+#include "Pimpact_RestrictionTimeOp.hpp"
+#include "Pimpact_CoarsenStrategy.hpp"
+#include "Pimpact_CoarsenStrategyGlobal.hpp"
+
+
 //auto CompTime = Teuchos::TimeMonitor::getNewCounter("Pimpact:: Solving Time");
-
-
-int main(int argi, char** argv ) {
 
   typedef double S;
   typedef int O;
 
   typedef Pimpact::Space<S,O,4,4> SpaceT;
+  typedef Pimpact::Space<S,O,4,2> CSpaceT;
+
+template<class SpaceT> using CVF = Pimpact::CompoundField<Pimpact::TimeField<Pimpact::VectorField<SpaceT> >,
+                                                          Pimpact::TimeField<Pimpact::ScalarField<SpaceT> > >;
+
+template<class SpaceT> using INT = Pimpact::IntResCompoundOp<
+
+                 Pimpact::InterpolationTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<SpaceT> > >,
+
+                 Pimpact::InterpolationTimeOp<                           Pimpact::InterpolationOp<SpaceT> > >;
+
+template<class SpaceT> using RES = Pimpact::IntResCompoundOp<
+                                        Pimpact::RestrictionTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::RestrictionHWOp<SpaceT> > >,
+                                        Pimpact::RestrictionTimeOp<                           Pimpact::RestrictionHWOp<SpaceT> > >;
+
+template<class SpaceT1, class SpaceT2> using TCO = Pimpact::TransferCompoundOp<
+
+                 Pimpact::TransferTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<SpaceT1, SpaceT2> > >,
+
+                 Pimpact::TransferTimeOp<                           Pimpact::TransferOp<SpaceT1, SpaceT2> > >;
+
+template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
+
+
+
+typedef Pimpact::CoarsenStrategy<SpaceT,CSpaceT> CS4L;
+typedef Pimpact::CoarsenStrategyGlobal<SpaceT,CSpaceT,5> CS4G;
+
+
+
+int main(int argi, char** argv ) {
+
+//  typedef double S;
+//  typedef int O;
+
+  //typedef Pimpact::Space<S,O,4,4> SpaceT;
+  //typedef Pimpact::Space<S,O,4,2> CSpaceT;
+
 
   typedef Pimpact::TimeField< Pimpact::VectorField<SpaceT> > VF;
   typedef Pimpact::TimeField< Pimpact::ScalarField<SpaceT> > SF;
@@ -57,6 +111,7 @@ int main(int argi, char** argv ) {
 
   typedef NOX::Pimpact::Interface<MF> Inter;
   typedef NOX::Pimpact::Vector<typename Inter::Field> NV;
+
 
   // intialize MPI
   MPI_Init( &argi, &argv );
@@ -84,7 +139,7 @@ int main(int argi, char** argv ) {
   my_CLP.setOption( "ym", &ym, "rotation of disc" );
 
   // flow type
-  int flow = 5;
+  int flow = 3;
   my_CLP.setOption( "flow", &flow,
       "Flow type: 0=zero flow, 1=2D Poiseuille flow in x, 2=2D Poiseuille flow in y, 3=2D pulsatile flow in x, 4=2D pulsatile flow in, 5=2D streaming" );
 
@@ -94,41 +149,41 @@ int main(int argi, char** argv ) {
 
 
   // domain type
-  int domain = 2;
+  int domain = 0;
   my_CLP.setOption( "domain", &domain,
       "Domain type: 0:all dirichlet, 1:dirichlet 2d channel, 2: periodic 2d channel" );
 
   // domain size
-  S l1 = 6.;
+  S l1 = 2.;
   my_CLP.setOption( "lx", &l1, "length in x-direction" );
 
   S l2 = 2.;
   my_CLP.setOption( "ly", &l2, "length in y-direction" );
 
-  S l3 = 1.;
+  S l3 = 2.;
   my_CLP.setOption( "lz", &l3, "length in z-direction" );
 
-  int dim = 2;
+  int dim = 3;
   my_CLP.setOption( "dim", &dim, "dimension of problem" );
 
   // grid size
-  O n1 = 33;
+  O n1 = 17;
   my_CLP.setOption( "nx", &n1, "amount of grid points in x-direction: a*2**q+1" );
 
-  O n2 = 33;
+  O n2 = 17;
   my_CLP.setOption( "ny", &n2, "amount of grid points in y-direction: a*2**q+1" );
 
-  O n3 = 2.;
+  O n3 = 17;
   my_CLP.setOption( "nz", &n3, "amount of grid points in z-direction: a*2**q+1" );
 
-  O nt = 32.;
+  O nt = 16;
   my_CLP.setOption( "nt", &nt, "amount of grid points in time-direction" );
 
   const bool cny = true;
 
 
   // processor grid size
-  O np1 = 2;
+  O np1 = 1;
   my_CLP.setOption( "npx", &np1, "amount of processors in x-direction" );
 
   O np2 = 1;
@@ -137,7 +192,7 @@ int main(int argi, char** argv ) {
   O np3 = 1.;
   my_CLP.setOption( "npz", &np3, "amount of processors in z-direction" );
 
-  O np4 = 2.;
+  O np4 = 1.;
   my_CLP.setOption( "npt", &np4, "amount of processors in z-direction" );
 
   // solver stuff
@@ -209,7 +264,7 @@ int main(int argi, char** argv ) {
   pl->set("npz", np3 );
   pl->set("npf", np4 );
 
-  auto space = Pimpact::createSpace<S,O,4>( pl );
+  auto space = Pimpact::createSpace<S,O,4,4>( pl );
 	//  space->print();
   int rank = space->getProcGrid()->getRank();
 
@@ -254,15 +309,16 @@ int main(int argi, char** argv ) {
 
   // init Fields, init and rhs
   Pimpact::initVectorTimeField( x->getFieldPtr(0)->getVFieldPtr(), Pimpact::EFlowType(flow) );
-  x->init( 0. );
-  //  x->random();
+  //x->init( 0. );
+  x->random();
+  
   auto fu   = x->clone(Pimpact::ShallowCopy);
-  //  fu->init( 0. );
+  fu->init( 0. );
 
   Teuchos::RCP<VF> force=Teuchos::null;
   Teuchos::RCP<VF> forcem1=Teuchos::null;
 
-//	if( 0!=forcing )
+	if( 0!=forcing )
 	{
 
 		force = x->getConstFieldPtr(0)->getConstVFieldPtr()->clone( Pimpact::ShallowCopy );
@@ -298,7 +354,7 @@ int main(int argi, char** argv ) {
 
   Teuchos::RCP<Fo> forcingOp = Teuchos::null;
   Teuchos::RCP<Fo> forcingm1Op = Teuchos::null;
-//  if( 0!=forcing )
+  if( 0!=forcing )
 	{
     forcingOp   = Pimpact::createForcingOp( force   );
     forcingm1Op = Pimpact::createForcingOp( forcem1 );
@@ -307,7 +363,7 @@ int main(int argi, char** argv ) {
 //  S pi = 4.*std::atan(1.);
 //  S idt = ((S)space->nGlo()[3])/2./pi;
 
-	
+/*	
 
 	auto opV2V =
 		Pimpact::createAdd2Op(
@@ -327,49 +383,49 @@ int main(int argi, char** argv ) {
 
   auto opV2S = Pimpact::createTimeOpWrap(
       Pimpact::create<Pimpact::DivOp>( space ) );
-
+*/
   auto op =
       Pimpact::createMultiOperatorBase(
-          Pimpact::createCompoundOpWrap(
-              opV2V,
-              opS2V,
-              opV2S )
-      );
+         Pimpact::create<Pimpact::TimeNSOp<SpaceT> >( space ));
 
 
   Teuchos::RCP<BOp> jop;
   {
 
-//    auto opV2V =
-//        Pimpact::createAdd3Op(
-//            Pimpact::createCompositionOp(
-//                forcingm1Op,
-//                Pimpact::createAdd3Op(
-//                    dt,
-////                    lap,
-//                    lap,
-//                    lap
-////                    Pimpact::createTimeNonlinearJacobian<SpaceT,cny>(
-////                        space,
-////                        isNewton
-////                    )
-//                )
-//            ),
-//            forcingOp
-//        );
+	auto mgSpaces = Pimpact::createMGSpaces<SpaceT,CSpaceT,CS4L>( space, 10);
+	
+	auto mgPL = Teuchos::parameterList();
+	mgPL->sublist("Smoother").set<std::string>("Solver name", "GMRES" );
+	mgPL->sublist("Smoother").set( "Solver",
+			*Pimpact::createLinSolverParameter( "GMRES", 1.e-16, -1,
+				Teuchos::rcp<std::ostream>( new Teuchos::oblackholestream() ), 4 ) );
+	
+        mgPL->sublist("Smoother").set<int>( "numIters", 4 );
+	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<int>( "Maximum Iterations", 1000 );
+	mgPL->sublist("Coarse Grid Solver").set<std::string>("Solver name", "GMRES" );
+	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<std::string>("Timer Label", "Coarse Grid Solver" );
+	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<S>("Convergence Tolerance" , 1.e-1 );
 
-//    jop =
-//        Pimpact::createMultiOperatorBase(
-//            Pimpact::createCompoundOpWrap(
-//                opV2V,
-//                opS2V,
-//                opV2S ) );
-//
-		jop=op;
+	auto mg = Pimpact::createMultiGrid<
+									CVF,
+									TCO,
+									RES,
+									INT,
+									Pimpact::TimeNSOp,
+									Pimpact::TimeNSOp,								
+									Pimpact::TimeNS4DBSmoother,
+//									Pimpact::TimeStokesBSmoother
+									MOP
+										> ( mgSpaces, mgPL );
+
+
+    jop = Pimpact::createMultiOperatorBase(mg) ;
+
   }
 
 
   // init lprec
+  /*
   Teuchos::RCP<BOp> lprec = Teuchos::null;
   auto schurParams = Pimpact::createLinSolverParameter( linSolName , tolSchur );
   //    schurPara->set( "Verbosity", int( Belos::Errors) );
@@ -401,7 +457,8 @@ int main(int argi, char** argv ) {
   auto lp = Pimpact::createInverseOperatorBase<MF>( lp_ );
 
   jop=lp;
-  //    }
+  */  
+//    }
 
   auto inter = NOX::Pimpact::createInterface<MF>( fu, op, jop );
 

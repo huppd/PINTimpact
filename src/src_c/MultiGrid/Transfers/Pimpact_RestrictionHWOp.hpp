@@ -638,6 +638,8 @@ public:
 	
 	Teuchos::Tuple<Ordinal,dimension> getDD() const { return( dd_ ); };
 
+	Teuchos::RCP<const SpaceT> spaceC() const { return( spaceC_ ); };
+	Teuchos::RCP<const SpaceT> spaceF() const { return( spaceF_ ); };
 
 
 }; // end of class RestrictionHWOp

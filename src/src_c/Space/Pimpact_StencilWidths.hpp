@@ -188,7 +188,8 @@ protected:
       bl_[i] = -bu_[i];
     }
     if( 4==dim ) bl_[3] = -1;
-    if( 4==dim ) bu_[3] =  0;
+		if( 4==dim ) bu_[3] =  1;
+//    if( 4==dim ) bu_[3] =  0;
 
     // divergence
     for( int i=0; i<3; ++i ) {
