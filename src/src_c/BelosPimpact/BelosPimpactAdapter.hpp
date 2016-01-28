@@ -39,7 +39,7 @@ namespace Belos {
 template<class Scalar, class Field>
 class MultiVecTraits<Scalar, Pimpact::MultiField<Field> > {
 
-  typedef Pimpact::MultiField<Field> MV;
+  using MV = Pimpact::MultiField<Field>;
 
 public:
 
@@ -237,7 +237,7 @@ public:
   }
 
 #ifdef HAVE_BELOS_TSQR
-  typedef Belos::details::StubTsqrAdapter< Pimpact::MultiField<Field> > tsqr_adaptor_type;
+  using tsqr_adaptor_type = Belos::details::StubTsqrAdapter< Pimpact::MultiField<Field> >;
 #endif
 
 }; // end of class MultiVecTraits

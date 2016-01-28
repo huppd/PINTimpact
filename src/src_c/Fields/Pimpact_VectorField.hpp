@@ -66,19 +66,19 @@ class VectorField : private AbstractField<SpaceType> {
 
 public:
 
-	typedef SpaceType SpaceT;
+	using SpaceT = SpaceType;
 
-	typedef typename SpaceT::Scalar Scalar;
-	typedef typename SpaceT::Ordinal Ordinal;
+	using Scalar = typename SpaceT::Scalar;
+	using Ordinal = typename SpaceT::Ordinal;
 
 	static const int dimension = SpaceT::dimension;
 
 protected:
 
-	typedef Scalar* ScalarArray;
+	using ScalarArray = Scalar*;
 
-	typedef VectorField<SpaceT> VF;
-	typedef ScalarField<SpaceT> SF;
+	using VF = VectorField<SpaceT>;
+	using SF = ScalarField<SpaceT>;
 
 	ScalarArray s_;
 

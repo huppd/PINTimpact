@@ -21,11 +21,11 @@ namespace Pimpact {
 template< class MultiFieldT >
 class LinearProblem {
 
-  typedef MultiFieldT MF;
-  typedef typename MF::Scalar Scalar;
-  typedef OperatorBase<MF> Op;
+  using MF = MultiFieldT;
+  using Scalar = typename MF::Scalar;
+  using Op = OperatorBase<MF>;
 
-  typedef typename Op::SpaceT SpaceT;
+  using SpaceT = typename Op::SpaceT;
 
   Teuchos::RCP< Belos::SolverManager<Scalar, MF, Op> >	solver_;
   Teuchos::RCP< Belos::LinearProblem<Scalar, MF, Op> > problem_;
@@ -123,8 +123,8 @@ Teuchos::RCP< LinearProblem<MF> > createLinearProblem(
     Teuchos::RCP<Teuchos::ParameterList> param,
     const std::string& solvername="GMRES" ) {
 
-	typedef typename MF::Scalar S;
-	typedef OperatorBase<MF> Op;
+	using S = typename MF::Scalar;
+	using Op = OperatorBase<MF>;
 
 	Belos::SolverFactory<S,MF,Op> factory;
 

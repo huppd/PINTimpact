@@ -37,21 +37,21 @@ class MultiField : private AbstractField<typename FT::SpaceT> {
 
 public:
 
-  typedef FT FieldT;
+  using FieldT = FT;
 
-  typedef typename FieldT::SpaceT SpaceT;
+  using SpaceT = typename FieldT::SpaceT;
 
-  typedef typename FieldT::Scalar Scalar;
-  typedef typename FieldT::Ordinal Ordinal;
+  using Scalar = typename FieldT::Scalar;
+  using Ordinal = typename FieldT::Ordinal;
 
   static const int dimension = FieldT::dimension;
 
 
 private:
 
-  typedef Pimpact::MultiField<FieldT> MV;
+  using MV = Pimpact::MultiField<FieldT>;
 
-  typedef AbstractField<SpaceT> AF;
+  using AF = AbstractField<SpaceT>;
 
   Teuchos::Array<Teuchos::RCP<FieldT> > mfs_;
 

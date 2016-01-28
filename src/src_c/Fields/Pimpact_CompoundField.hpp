@@ -30,19 +30,19 @@ class CompoundField : private AbstractField<typename VField::SpaceT> {
 
 public:
 
-  typedef typename VField::SpaceT SpaceT;
+  using SpaceT = typename VField::SpaceT;
 
-  typedef typename SpaceT::Scalar Scalar;
-  typedef typename SpaceT::Ordinal Ordinal;
+  using Scalar = typename SpaceT::Scalar;
+  using Ordinal =typename SpaceT::Ordinal;
 
   static const int dimension = SpaceT::dimension;
 
 
 protected:
 
-  typedef CompoundField<VField,SField> MV;
+  using MV = CompoundField<VField,SField>;
 
-  typedef AbstractField<SpaceT> AF;
+  using AF = AbstractField<SpaceT>;
 
   Teuchos::RCP<VField> vfield_;
   Teuchos::RCP<SField> sfield_;

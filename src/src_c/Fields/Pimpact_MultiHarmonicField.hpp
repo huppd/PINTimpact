@@ -31,18 +31,18 @@ class MultiHarmonicField : private AbstractField<typename Field::SpaceT> {
 
 public:
 
-  typedef typename Field::SpaceT SpaceT;
+  using SpaceT = typename Field::SpaceT;
 
-  typedef typename SpaceT::Scalar Scalar;
-  typedef typename SpaceT::Ordinal Ordinal;
+  using Scalar = typename SpaceT::Scalar;
+  using Ordinal = typename SpaceT::Ordinal;
 
   static const int dimension = SpaceT::dimension;
 
 protected:
 
-  typedef MultiHarmonicField<Field> MV;
+  using MV = MultiHarmonicField<Field>;
 
-  typedef AbstractField<SpaceT> AF;
+  using AF = AbstractField<SpaceT>;
 
   Teuchos::RCP<Field> field0_;
 

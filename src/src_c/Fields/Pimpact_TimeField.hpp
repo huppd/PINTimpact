@@ -49,26 +49,26 @@ class TimeField : private AbstractField<typename Field::SpaceT> {
 
 public:
 
-	typedef typename Field::Scalar Scalar;
-	typedef typename Field::Ordinal Ordinal;
+	using Scalar = typename Field::Scalar;
+	using Ordinal = typename Field::Ordinal;
 
 	static const int dimension = Field::dimension;
 
-	typedef typename Field::SpaceT SpaceT;
+	using SpaceT = typename Field::SpaceT;
 
-	typedef Pimpact::TimeField<Field> MV;
+	using MV = Pimpact::TimeField<Field>;
 
-	typedef Scalar* ScalarArray;
+	using ScalarArray = Scalar*;
 
-	typedef AbstractField<SpaceT> AF;
+	using AF = AbstractField<SpaceT>;
 
 
 	Teuchos::Array< Teuchos::RCP<Field> > mfs_;
 
 public:
 
-	typedef Teuchos::Array< Teuchos::RCP<Field> > FieldArray;
-	typedef typename FieldArray::iterator Iter;
+	using FieldArray = Teuchos::Array< Teuchos::RCP<Field> >;
+	using Iter = typename FieldArray::iterator;
 
 protected:
 
@@ -476,8 +476,8 @@ initVectorTimeField(
 		typename SpaceT::Scalar rad=0.1,
 		typename SpaceT::Scalar amp=0.25 ) {
 
-	typedef typename SpaceT::Scalar S;
-	typedef typename SpaceT::Ordinal O;
+	using S = typename SpaceT::Scalar;
+	using O = typename SpaceT::Ordinal;
 
 	auto space = field->space();
 

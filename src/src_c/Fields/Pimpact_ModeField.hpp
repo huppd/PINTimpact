@@ -33,20 +33,20 @@ class ModeField : private AbstractField<typename FieldT::SpaceT> {
 
 public:
 
-  typedef typename FieldT::SpaceT SpaceT;
+  using SpaceT = typename FieldT::SpaceT;
 
-  typedef typename SpaceT::Scalar Scalar;
-  typedef typename SpaceT::Ordinal Ordinal;
+  using Scalar = typename SpaceT::Scalar;
+  using Ordinal =typename SpaceT::Ordinal;
 
   static const int dimension = SpaceT::dimension;
 
 
 protected:
 
-	typedef Scalar* ScalarArray;
-	typedef ModeField<FieldT> MV;
+	using ScalarArray =  Scalar*;
+	using MV = ModeField<FieldT>;
 
-	typedef AbstractField< typename FieldT::SpaceT> AF;
+	using AF =  AbstractField< typename FieldT::SpaceT>;
 
 	bool owning_;
 

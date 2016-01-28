@@ -22,8 +22,8 @@ class AbstractField {
 
 public:
 
-  typedef typename SpaceT::Scalar Scalar;
-  typedef typename SpaceT::Ordinal Ordinal;
+  using Scalar = typename SpaceT::Scalar;
+  using Ordinal = typename SpaceT::Ordinal;
 
   static const int dimension = SpaceT::dimension;
 

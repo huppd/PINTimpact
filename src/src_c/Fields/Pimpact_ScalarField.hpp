@@ -35,18 +35,18 @@ class ScalarField : private AbstractField< SpaceType > {
 
 public:
 
-  typedef SpaceType SpaceT;
+  using SpaceT = SpaceType;
 
-  typedef typename SpaceT::Scalar Scalar;
-  typedef typename SpaceT::Ordinal Ordinal;
+  using Scalar = typename SpaceT::Scalar;
+  using Ordinal = typename SpaceT::Ordinal;
 
   static const int dimension = SpaceT::dimension;
 
 protected:
 
-  typedef Scalar* ScalarArray;
-  typedef ScalarField< SpaceT > MV;
-  typedef Teuchos::Tuple<bool,3> State;
+  using ScalarArray = Scalar*;
+  using MV = ScalarField< SpaceT >;
+  using State = Teuchos::Tuple<bool,3>;
 
   ScalarArray s_;
 
