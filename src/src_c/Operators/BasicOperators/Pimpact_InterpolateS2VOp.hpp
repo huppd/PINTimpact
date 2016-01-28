@@ -18,15 +18,15 @@ extern "C"
 void OP_S2VOp(
 		const int& dir,
 		const int* const N,
-    const int* const bl,
-    const int* const bu,
-    const int* const gl,
-    const int* const gu,
-    const int* const ss,
-    const int* const nn,
-    const double* const c,
-    const double* const phi,
-    double* const grad );
+		const int* const bl,
+		const int* const bu,
+		const int* const gl,
+		const int* const gu,
+		const int* const ss,
+		const int* const nn,
+		const double* const c,
+		const double* const phi,
+		double* const grad );
 
 
 
@@ -36,26 +36,26 @@ class InterpolateS2V {
 
 public:
 
-	typedef ST SpaceT;
+	using SpaceT = ST;
 
-  typedef typename SpaceT::Scalar Scalar;
-  typedef typename SpaceT::Ordinal Ordinal;
+	using Scalar = typename SpaceT::Scalar;
+	using Ordinal = typename SpaceT::Ordinal;
 
 
-  typedef ScalarField<SpaceT>  DomainFieldT;
-  typedef ScalarField<SpaceT>  RangeFieldT;
+	using DomainFieldT = ScalarField<SpaceT>;
+	using RangeFieldT  = ScalarField<SpaceT>;
 
 protected:
 
-  typedef const Teuchos::Tuple<Scalar*,3> TO;
+	using TO = const Teuchos::Tuple<Scalar*,3>;
 
-  Teuchos::RCP< const SpaceT> space_;
+	Teuchos::RCP< const SpaceT> space_;
 
-  TO c_;
+	TO c_;
 
 public:
 
-	InterpolateS2V( const Teuchos::RCP<const SpaceT>& space):
+	InterpolateS2V( const Teuchos::RCP<const SpaceT>& space ):
 		space_(space) {
 
 			for( int i=0; i<3; ++i ) {
@@ -73,78 +73,85 @@ public:
 							space_->getBCLocal()->getBCL(i),
 							space_->getBCLocal()->getBCU(i),
 							space_->getShift(i),
-							2,
-							i+1,
-							0,
-							0,
-							true,
+							2,    // grid_type ???
+							i+1,  // direction
+							0,    // derivative
+							0,    // central
+							//true, // not working with grid stretching. mapping
+							false, // mapping
 							space_->getStencilWidths()->getDimNcbG(i),
 							space_->getStencilWidths()->getNcbG(i),
 							space_->getCoordinatesLocal()->getX( i, EField::S ),
 							space_->getCoordinatesLocal()->getX( i, i ),
 							c_[i] );
 			}
-	};
+		};
 
 
-  ~InterpolateS2V() {
-    for( int i=0; i<3; ++i ) {
-      delete[] c_[i];
-    }
-  }
+	~InterpolateS2V() {
+		for( int i=0; i<3; ++i )
+			delete[] c_[i];
+	}
 
 
 
-  void apply(const DomainFieldT& x, RangeFieldT& y) const {
+	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
-    TEUCHOS_TEST_FOR_EXCEPTION(
-        x.getType() != S,
-        std::logic_error,
-        "Pimpact::InterpolateV2S:: can only interpolate from VectorField!!!\n");
+		TEUCHOS_TEST_FOR_EXCEPT( x.getType() != S );
+		TEUCHOS_TEST_FOR_EXCEPT( y.getType() == S );
 
-    TEUCHOS_TEST_FOR_EXCEPTION(
-        y.getType() == S,
-        std::logic_error,
-        "Pimpact::InterpolateV2S:: can only interpolate to Scalar!!!\n");
+		int m = static_cast<int>( y.getType() );
 
-    int m = (int)y.getType();
+		x.exchange( m );
 
-    x.exchange(m);
+		OP_S2VOp(
+				m+1,
+				space_->nLoc(),
+				space_->bl(),
+				space_->bu(),
+				space_->gl(),
+				space_->gu(),
+				space_->sInd(m),
+				space_->eInd(m),
+				c_[m],
+				x.getConstRawPtr(),
+				y.getRawPtr() );
 
-    OP_S2VOp(
-        m+1,
-        space_->nLoc(),
-        space_->bl(),
-        space_->bu(),
-        space_->gl(),
-        space_->gu(),
-        space_->sInd(m),
-        space_->eInd(m),
-        c_[m],
-        x.getConstRawPtr(),
-        y.getRawPtr() );
-    y.changed();
-  }
+		y.changed();
 
-  void assignField( const RangeFieldT& mv ) {};
+	}
 
-  bool hasApplyTranspose() const { return( false ); }
+	void assignField( const RangeFieldT& mv ) {};
+
+	bool hasApplyTranspose() const { return( false ); }
 
 	Teuchos::RCP<const SpaceT> space() const { return(space_); };
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
-  void print( std::ostream& out=std::cout ) const {
-    out << "--- " << getLabel() << " ---\n";
-    out << " --- stencil: ---";
-    for( int i=0; i<3; ++i ) {
-      out << "\ni: " << i << "\n( ";
-      Ordinal nTemp = ( space_->nLoc(i) + 1 )*( space_->gu(i) - space_->gl(i) + 1);
-      for( int j=0; j<nTemp; ++j )
-        out << c_[i][j] <<"\t";
-      out << ")\n";
-    }
-  }
+	void print( std::ostream& out=std::cout ) const {
+
+		out << "\n--- " << getLabel() << " ---\n";
+		out << "--- stencil: ---";
+
+		for( int i=0; i<3; ++i ) {
+
+			out << "\ncoord: " << toString( static_cast<ECoord>(i) ) << "\n";
+
+			Ordinal nTemp1 = space_->nLoc(i) + 1;
+			Ordinal nTemp2 = space_->gu(i) - space_->gl(i) + 1;
+
+			for( Ordinal j=0; j<nTemp1; ++j ) {
+				out << "\ni: " << j << "\t(";
+				for( Ordinal k=0; k<nTemp2; ++k ) {
+					out << c_[i][k+nTemp2*j] <<", ";
+				}
+
+				out << ")\n";
+			}
+			out << "\n";
+		}
+	}
 
 	const std::string getLabel() const { return( "InterpolateS2V" ); };
 

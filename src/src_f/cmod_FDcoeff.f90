@@ -232,7 +232,7 @@ contains
   !! \param[in] BCU local upper Boundary conditions \c BoundaryConditionsLocal
   !! \param[in] SShift shift in \c ProcGrid
   !! \param[in] grid_type (5: p, 1: u, 2: v, 3:w ) used weridly
-  !! \param[in] dir direction
+  !! \param[in] dir direction ( 1:x, 2:y, 3:z )
   !! \param[in] abl degree of derivative
   !! \param[in] upwind (0: central, 1: up, -1: low)
   !! \param[in] mapping_yes computation of finite difference coefficients (relevant only for explicit finite differences), note affects the accuracy and temporal stability of the discretization
@@ -244,12 +244,20 @@ contains
   !! \param[in] xC coordinate in of varaiable
   !! \param[in] xE coordinate out of equations
   !! \param[out] cc coefficients
+  !!
   !! \todo move error handling else where
+  !!
+  !! \note: - Upwinding wird auf dem Rand unterdrücken, da Differenzenstencils dort ohnehin schief sind.
+  !!        - Generell koennte/sollte die Initialisierung der Index-Grenzen auch schon vor dieser       
+  !!          Routine ausgefuehrt werden, um hier die Uebersichtlichkeit zu verbessern.                 
   subroutine FD_getDiffCoeff( &
       Nmax,                   &
-      bL, bU,                 &
-      cL, cU,                 &
-      BCL, BCU,               &
+      bL,                     &
+      bU,                     &
+      cL,                     &
+      cU,                     &
+      BCL,                    &
+      BCU,                    &
       SShift,                 &
       grid_type,              &
       dir,                    &
@@ -313,20 +321,12 @@ contains
     integer(c_int)               :: merror
 
 
-    !----------------------------------------------------------------------------------------------------------!
-    ! Anmerkungen: - Upwinding wird auf dem Rand unterdrücken, da Differenzenstencils dort ohnehin schief sind.!
-    !              - Generell koennte/sollte die Initialisierung der Index-Grenzen auch schon vor dieser       !
-    !                Routine ausgefuehrt werden, um hier die Uebersichtlichkeit zu verbessern.                 !
-    !----------------------------------------------------------------------------------------------------------!
-
-
     if (mapping_yes .and. abl > 2) then
       !if (rank == 0)
       write(*,*) 'ERROR! Can`t handle derivatives > 2 combined with mapping ...'
       !call MPI_FINALIZE(merror)
       !stop
     end if
-
 
     !===========================================================================================================
     !=== Startindex für Entwicklungspunkte =====================================================================
@@ -339,8 +339,7 @@ contains
     !===========================================================================================================
 
     filter_yes = .false.
-    if (abl == 0 .and. (grid_type == 5 .or. grid_type == 1)) filter_yes = .true.
-
+    if( abl==0 .and. (grid_type==5 .or. grid_type==1) ) filter_yes = .true.
 
     dim_n_coeff_bound = SIZE(n_coeff_bound)
 
@@ -353,10 +352,10 @@ contains
       !========================================================================================================
       !=== Stencil-Breite auslesen ============================================================================
       !========================================================================================================
-      if      (BCL > 0 .and. i <= (iStart - 1 + dim_n_coeff_bound)) then
+      if( BCL>0 .and. i<=( iStart - 1 + dim_n_coeff_bound ) ) then
         n_coeff = n_coeff_bound(i + 1 - iStart)
         !IF (upwind /= 0 .AND. i == iStart) n_coeff = 0
-      else if (BCU > 0 .and. i >= (Nmax   + 1 - dim_n_coeff_bound)) then
+      else if( BCU>0 .and. i >=( Nmax + 1 - dim_n_coeff_bound ) ) then
         n_coeff = n_coeff_bound(Nmax + 1 - i)
         !IF (upwind /= 0 .AND. i == Nmax  ) n_coeff = 0
       else
@@ -390,13 +389,13 @@ contains
             end if
             right = (n_coeff-1)/2
           end if
-        else if (grid_type == 2) then
+        else if( grid_type==2 ) then
           !==================================================================================================
           !=== Druck ==> Impuls =============================================================================
           !==================================================================================================
-          if      (BCL > 0 .and. i <= n_coeff/2) then
+          if( BCL>0 .and. i<=n_coeff/2 ) then
             right = n_coeff - i - iStart
-          else if (BCU > 0 .and. i >= (Nmax + 0 - n_coeff/2)) then
+          else if( BCU>0 .and. i>=( Nmax + 0 - n_coeff/2 ) ) then
             right = Nmax - i
           else
             ! Ausserhalb des Randes werden zentrale Differenzen gefordert (= gerade Anzahl Koeffizienten)!
@@ -412,13 +411,13 @@ contains
             end if
             right = n_coeff/2
           end if
-        else if (grid_type == 3) then
+        else if( grid_type==3 ) then
           !==================================================================================================
           !=== Geschwindigkeit ==> Konti ====================================================================
           !==================================================================================================
-          if      (BCL > 0 .and. i <= n_coeff/2) then
+          if( BCL>0 .and. i <= n_coeff/2 ) then
             right = n_coeff - i - iStart
-          else if (BCU > 0 .and. i >= (Nmax + 1 - n_coeff/2)) then
+          else if( BCU>0 .and. i>=( Nmax + 1 - n_coeff/2) ) then
             right = Nmax - i
           else
             ! Ausserhalb des Randes werden zentrale Differenzen gefordert (= gerade Anzahl Koeffizienten)!
@@ -448,14 +447,14 @@ contains
 
 
         !=====================================================================================================
-        if (upwind == -1) then
-          if (.not. (BCL > 0 .and. i < (iStart + n_coeff/2))) then
+        if( upwind == -1 ) then
+          if( .not. (BCL > 0 .and. i < (iStart + n_coeff/2)) ) then
             n_coeff = n_coeff - 1
             left    = left    + 1
           end if
         end if
-        if (upwind ==  1) then
-          if (.not. (BCU > 0 .and. i > (Nmax   - n_coeff/2))) then
+        if( upwind ==  1 ) then
+          if( .not. (BCU > 0 .and. i > (Nmax   - n_coeff/2)) ) then
             n_coeff = n_coeff - 1
             right   = right   - 1
           end if
@@ -466,7 +465,7 @@ contains
         !=====================================================================================================
         !=== Stencilanordnung testen =========================================================================
         !=====================================================================================================
-        if (right > cU .or. left < cL) then
+        if( right > cU .or. left < cL ) then
           !if (rank == 0) then
           WRITE(*,'(a   )') 'WARNING! The FD-Stencil does probably not fit into provided array!'
           write(*,'(a   )') 'ERROR! Stencil doesn`t fit into provided array!'
@@ -491,7 +490,7 @@ contains
           iC = i + left + (ii-1)
 
           if (mapping_yes) then
-            if      (grid_type == 2) then
+            if( grid_type == 2 ) then
               deltaX(ii) = REAL(iC-i)-0.5
             else if (grid_type == 3) then
               deltaX(ii) = REAL(iC-i)+0.5
@@ -570,7 +569,7 @@ contains
 
           deallocate(cc_xi)
 
-        else if (mapping_yes .and. abl == 0 .and. .not. filter_yes) then ! TEST!!!
+        else if( mapping_yes .and. abl==0 .and. .not. filter_yes ) then ! TEST!!!
 
           !--- interpolation (mapped) ---
 
@@ -581,7 +580,7 @@ contains
           !cc(left:right,i) = cc_xi(left:right,k)
           !DEALLOCATE(cc_xi)
 
-          if (n_coeff <= 7) then ! TEST!!!
+          if( n_coeff <= 7 ) then ! TEST!!!
             call diff_coeffs_exact(abl,n_coeff,deltaX(1),cc(left:right,i))
           else
             call FD_coeffs_solver(abl,filter_yes,n_coeff,deltaX,cc(left:right,i))

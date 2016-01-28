@@ -27,10 +27,10 @@ public:
 	typedef typename TransVT::CSpaceT CSpaceT;
 
 	typedef typename TransVT::SpaceT SpaceT;
-  
+
 	typedef CompoundField<typename TransVT::DomainFieldT, typename TransST::DomainFieldT > DomainFieldT;
 	typedef CompoundField<typename TransVT::RangeFieldT,  typename TransST::RangeFieldT  > RangeFieldT;
-	
+
 protected:
 
 	Teuchos::RCP<TransVT> opV_;
@@ -54,11 +54,10 @@ public:
 
 	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
-    opV_->apply( x.getConstVField(), y.getVField() );
-    opS_->apply( x.getConstSField(), y.getSField() );
+		opV_->apply( x.getConstVField(), y.getVField() );
+		opS_->apply( x.getConstSField(), y.getSField() );
 
 	}
-
 
 
   void print(  std::ostream& out=std::cout ) const {

@@ -35,27 +35,27 @@ public:
 	RestrictionTimeOp(
 			const Teuchos::RCP<const SpaceT>& spaceF,
 			const Teuchos::RCP<const SpaceT>& spaceC):
-				op_(Teuchos::rcp(new OperatorT(spaceF,spaceC))),
+		op_(Teuchos::rcp(new OperatorT(spaceF,spaceC))),
 		temp_( create<typename OperatorT::RangeFieldT>( spaceC ) ){};
 
 
-// x is fn in this case
+	// x is fn in this case
 	void apply( const DomainFieldT& x, RangeFieldT& y) const {
 
 		Ordinal d = spaceF()->nLoc(3)/spaceC()->nLoc(3);
-		
+
 		x.exchange();
 
 		if (d > 1)
 			op_->apply( x.getConstField(0), *temp_ );
-	
+
 		for( Ordinal i=spaceF()->sInd(S,3); i<spaceF()->eInd(S,3); ++i )  {
 
 			if ( (i-spaceF()->sInd(S,3))%d==0 ) {
-				
+
 				Ordinal iC = (i-spaceF()->sInd(S,3))/d + spaceC()->sInd(S,3);
 				op_->apply( x.getConstField(i), y.getField(iC) );
-				
+
 				if (d > 1)
 					y.getFieldPtr(iC)->add(0.25,*temp_,0.5,y.getField(iC));
 			}
@@ -85,5 +85,3 @@ Teuchos::RCP< RestrictionTimeOp<OpT> > createRestrictionTimeOp(
 
 
 #endif
-
-

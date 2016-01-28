@@ -515,13 +515,13 @@ protected:
 		std::transform(lcName.begin(), lcName.end(), lcName.begin(), ::tolower);
 
 		if( "constant" == lcName) return( ConstField );
+		else if( "grad in x" == lcName ) return( Grad2D_inX );
+		else if( "grad in y" == lcName ) return( Grad2D_inY );
+		else if( "grad in z" == lcName ) return( Grad2D_inZ );
 		else if( "poiseuille" == lcName ) return( Poiseuille2D_inX );
 		else if( "poiseuille in x" == lcName ) return( Poiseuille2D_inX );
 		else if( "poiseuille in y" == lcName ) return( Poiseuille2D_inY );
 		else if( "poiseuille in z" == lcName ) return( Poiseuille2D_inZ );
-		else if( "grad in x" == lcName ) return( Grad2D_inX );
-		else if( "grad in y" == lcName ) return( Grad2D_inY );
-		else if( "grad in z" == lcName ) return( Grad2D_inZ );
 		else if( "point" == lcName ) return( FPoint );
 		else {
 			const bool& Flow_Type_not_known = true; 

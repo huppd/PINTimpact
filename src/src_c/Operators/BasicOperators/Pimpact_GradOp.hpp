@@ -114,7 +114,8 @@ public:
             i+1,
             1,
             0,
-            true,
+            //true,
+            false,
             space_->getStencilWidths()->getDimNcbG(i),
             space_->getStencilWidths()->getNcbG(i),
             space_->getCoordinatesLocal()->getX( i, EField::S ),
@@ -126,9 +127,8 @@ public:
 
 
   ~GradOp() {
-    for( int i=0; i<3; ++i ) {
+    for( int i=0; i<3; ++i )
       delete[] c_[i];
-    }
   }
 
 

@@ -42,12 +42,15 @@ class HelmholtzOp {
 
 public:
 
-  typedef ST SpaceT;
+  using SpaceT = ST;
 
-  typedef typename SpaceT::Scalar Scalar;
-  typedef typename SpaceT::Ordinal Ordinal;
+  using Scalar = typename SpaceT::Scalar;
+  using Ordinal = typename SpaceT::Ordinal;
 
-  typedef const Teuchos::Tuple<Scalar*,3> TO;
+  using TO = const Teuchos::Tuple<Scalar*,3>;
+
+  using DomainFieldT = VectorField<SpaceT>;
+  using RangeFieldT = VectorField<SpaceT>;
 
 protected:
 
@@ -60,9 +63,6 @@ protected:
   TO cV_;
 
 public:
-
-  typedef VectorField<SpaceT>  DomainFieldT;
-  typedef VectorField<SpaceT>  RangeFieldT;
 
 	HelmholtzOp(
 			const Teuchos::RCP<const SpaceT>& space ):
@@ -89,7 +89,8 @@ public:
             i+1,
             2,
             0,
-            true,
+            //true,
+            false,
             space_->getStencilWidths()->getDimNcbC(i),
             space_->getStencilWidths()->getNcbC(i),
             space_->getCoordinatesLocal()->getX( i, EField::S ),
@@ -112,7 +113,8 @@ public:
             i+1,
             2,
             0,
-            true,
+            //true,
+            false,
             space_->getStencilWidths()->getDimNcbC(i),
             space_->getStencilWidths()->getNcbC(i),
             space_->getCoordinatesLocal()->getX( i, i ),
@@ -167,14 +169,14 @@ public:
 
     for( int i=0; i<3; ++i ) {
 
-      out << "\ndir: " << i << "\n";
+			out << "\ncoord: " << toString( static_cast<ECoord>(i) ) << "\n";
 
-      Ordinal nTemp1 = ( space_->nLoc(i) + 1 );
-      Ordinal nTemp2 = ( space_->bu(i) - space_->bl(i) + 1 );
+      Ordinal nTemp1 = space_->nLoc(i) + 1;
+      Ordinal nTemp2 = space_->bu(i) - space_->bl(i) + 1;
 
-      for( int j=0; j<nTemp1; ++j ) {
+      for( Ordinal j=0; j<nTemp1; ++j ) {
         out << "\ni: " << j << "\t(";
-        for( int k=0; k<nTemp2; ++k ) {
+        for( Ordinal k=0; k<nTemp2; ++k ) {
           out << cS_[i][k+nTemp2*j] <<", ";
         }
         out << ")\n";

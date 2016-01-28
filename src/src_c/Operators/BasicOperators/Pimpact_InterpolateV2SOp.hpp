@@ -21,17 +21,17 @@ namespace Pimpact{
 
 extern "C"
 void OP_interpolateV2S(
-    const int& m,
-    const int* const N,
-    const int* const bl,
-    const int* const bu,
-    const int&       dl,
-    const int&       du,
-    const int* const ss,
-    const int* const nn,
-    const double* const c,
-    const double* const phi,
-    double* const inter );
+		const int& m,
+		const int* const N,
+		const int* const bl,
+		const int* const bu,
+		const int&       dl,
+		const int&       du,
+		const int* const ss,
+		const int* const nn,
+		const double* const c,
+		const double* const phi,
+		double* const inter );
 
 
 
@@ -56,14 +56,14 @@ class InterpolateV2S {
 
 public:
 
-	typedef Space<Scalar,Ordinal,dimension,dimNC> SpaceT;
+	using SpaceT = Space<Scalar,Ordinal,dimension,dimNC>;
 
-	typedef ScalarField< SpaceT > DomainFieldT;
-	typedef ScalarField< SpaceT > RangeFieldT;
+	using DomainFieldT = ScalarField< SpaceT >;
+	using RangeFieldT = ScalarField< SpaceT >;
 
 protected:
 
-	typedef const Teuchos::Tuple<Scalar*,3> TO;
+	using TO = const Teuchos::Tuple<Scalar*,3>;
 
 	TO c_;
 
@@ -94,10 +94,11 @@ public:
 						boundaryConditionsLocal->getBCU(i),
 						indexSpace->getShift(i),
 						3,
-						i+1,
-						0,
-						0,
-						true,
+						i+1,  // direction
+						0,    // 0-derivative
+						0,    // central
+						//true, // not working with stretching mapping
+						false, // mapping
 						stencilWidths->getDimNcbD(i),
 						stencilWidths->getNcbD(i),
 						coordinatesLocal->getX( i, i ),
@@ -114,98 +115,98 @@ public:
 	}
 
 
-  void apply( const DomainFieldT& x, RangeFieldT& y, Belos::ETrans trans=Belos::NOTRANS ) const {
+	void apply( const DomainFieldT& x, RangeFieldT& y, Belos::ETrans trans=Belos::NOTRANS ) const {
 
-    TEUCHOS_TEST_FOR_EXCEPTION(
-        x.getType() == S,
-        std::logic_error,
-        "Pimpact::InterpolateV2S:: can only interpolate from VectorField!!!\n");
+		TEUCHOS_TEST_FOR_EXCEPTION(
+				x.getType() == S,
+				std::logic_error,
+				"Pimpact::InterpolateV2S:: can only interpolate from VectorField!!!\n");
 
-    TEUCHOS_TEST_FOR_EXCEPTION(
-        y.getType() != S,
-        std::logic_error,
-        "Pimpact::InterpolateV2S:: can only interpolate to Scalar!!!\n");
+		TEUCHOS_TEST_FOR_EXCEPTION(
+				y.getType() != S,
+				std::logic_error,
+				"Pimpact::InterpolateV2S:: can only interpolate to Scalar!!!\n");
 
-    auto space = x.space();
+		auto space = x.space();
 
-    int m = (int)x.getType();
+		int m = static_cast<int>( x.getType() );
 
-    x.exchange( m );
+		x.exchange( m );
 
-    OP_interpolateV2S(
-        m+1,
-        space->nLoc(),
-        space->bl(),
-        space->bu(),
-        space->dl(m),
-        space->du(m),
-        space->sInd(S),
-        space->eInd(S),
-        getC((ECoord)m),
-        x.getConstRawPtr(),
-        y.getRawPtr() );
+		OP_interpolateV2S(
+				m+1,
+				space->nLoc(),
+				space->bl(),
+				space->bu(),
+				space->dl(m),
+				space->du(m),
+				space->sInd(S),
+				space->eInd(S),
+				getC( static_cast<ECoord>(m) ),
+				x.getConstRawPtr(),
+				y.getRawPtr() );
 
-    y.changed();
+		y.changed();
 
-  }
+	}
 
-  void assignField( const RangeFieldT& mv ) {};
+	void assignField( const RangeFieldT& mv ) {};
 
-  bool hasApplyTranspose() const { return( false ); }
+	bool hasApplyTranspose() const { return( false ); }
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
-  void print( std::ostream& out=std::cout ) const {
-    out << "--- " << getLabel() << " ---\n";
-//    out << " --- InterpolateV2S stencil: ---";
-//    for( int i=0; i<3; ++i ) {
-//      out << "\ndir: " << i << "\n( ";
-//      Ordinal nTemp = ( space_->nLoc(i) + 1 )*( space_->du(i) - space_->dl(i) + 1);
-//      for( int j=0; j<nTemp; ++j )
-//        out << c_[i][j] <<"\t";
-//      out << ")\n";
-    }
+	void print( std::ostream& out=std::cout ) const {
+		out << "--- " << getLabel() << " ---\n";
+		//    out << " --- InterpolateV2S stencil: ---";
+		//    for( int i=0; i<3; ++i ) {
+		//      out << "\ndir: " << i << "\n( ";
+		//      Ordinal nTemp = ( space_->nLoc(i) + 1 )*( space_->du(i) - space_->dl(i) + 1);
+		//      for( int j=0; j<nTemp; ++j )
+		//        out << c_[i][j] <<"\t";
+		//      out << ")\n";
+	}
 
-  const Scalar* getC( const ECoord& dir ) const  {
-      return( c_[(int)dir] );
-  }
+	const Scalar* getC( const ECoord& dir ) const  {
+		return( c_[static_cast<int>(dir)] );
+	}
 
 	const std::string getLabel() const { return( "InterpolateV2S" ); };
 
-};
+	};
 
 
 
-/// \relates InterpolateV2S
-template< class S, class O, int d, int dimNC >
-Teuchos::RCP<const InterpolateV2S<S,O,d,dimNC> > createInterpolateV2S(
-    const Teuchos::RCP<const IndexSpace<O,d> >&  iS,
-    const Teuchos::RCP<const GridSizeLocal<O,d> >& gridSizeLocal,
-    const Teuchos::RCP<const StencilWidths<d,dimNC> >& stencilWidths,
-		const Teuchos::RCP<const DomainSize<S> >& domainSize,
-		const Teuchos::RCP<const BoundaryConditionsLocal<d> >& boundaryConditionsLocal,
-    const Teuchos::RCP<const CoordinatesLocal<S,O,d> >& coordinatesLocal ) {
+	/// \relates InterpolateV2S
+	template< class S, class O, int d, int dimNC >
+		Teuchos::RCP<const InterpolateV2S<S,O,d,dimNC> > createInterpolateV2S(
+				const Teuchos::RCP<const IndexSpace<O,d> >&  iS,
+				const Teuchos::RCP<const GridSizeLocal<O,d> >& gridSizeLocal,
+				const Teuchos::RCP<const StencilWidths<d,dimNC> >& stencilWidths,
+				const Teuchos::RCP<const DomainSize<S> >& domainSize,
+				const Teuchos::RCP<const BoundaryConditionsLocal<d> >& boundaryConditionsLocal,
+				const Teuchos::RCP<const CoordinatesLocal<S,O,d> >& coordinatesLocal ) {
 
-  return(
-      Teuchos::rcp(
-          new InterpolateV2S<S,O,d,dimNC>(
-              iS,
-              gridSizeLocal,
-              stencilWidths,
-              domainSize,
+			return(
+					Teuchos::rcp(
+						new InterpolateV2S<S,O,d,dimNC>(
+							iS,
+							gridSizeLocal,
+							stencilWidths,
+							domainSize,
 							boundaryConditionsLocal,
-              coordinatesLocal ) ) );
-}
+							coordinatesLocal ) ) );
+		}
 
 
 
-/// \relates InterpolateV2S
-/// \todo make specalization of create<Inter>( space)
-template< class S, class O, int d, int dimNC >
-Teuchos::RCP<const InterpolateV2S<S,O,d,dimNC> > createInterpolateV2S(
-    const Teuchos::RCP<const Space<S,O,d,dimNC> >& space ) {
-  return( space->getInterpolateV2S() );
-}
+	/// \relates InterpolateV2S
+	/// \todo make specalization of create<Inter>( space)
+	template< class S, class O, int d, int dimNC >
+		Teuchos::RCP<const InterpolateV2S<S,O,d,dimNC> > createInterpolateV2S(
+				const Teuchos::RCP<const Space<S,O,d,dimNC> >& space ) {
+			return( space->getInterpolateV2S() );
+		}
 
 
 } // end of namespace Pimpact

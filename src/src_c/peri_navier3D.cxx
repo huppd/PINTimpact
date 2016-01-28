@@ -187,7 +187,7 @@ int main( int argi, char** argv ) {
 		/*** init preconditioner ****************************************************************************/
 		if( withprec>0 ) {
 
-			// create Mulit space
+			// create Multi space
 			auto mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, pl->sublist("Multi Grid").get<int>("maxGrids") );
 
 

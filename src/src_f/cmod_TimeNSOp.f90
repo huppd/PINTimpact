@@ -859,17 +859,17 @@ contains
 
 
               !if (BCL(1) > 0) then
-                !i = SS(1)
-                !do kk = SS(3), NN(3)
-                  !do jj = SS(2), NN(2)
+              !i = SS(1)
+              !do kk = SS(3), NN(3)
+              !do jj = SS(2), NN(2)
 
-                    !A(2,1:block_size) = 0
-                    !A(2,2) = 1
+              !A(2,1:block_size) = 0
+              !A(2,2) = 1
 
-                    !b(2) = vel(i-1,jj,kk,1,t)
+              !b(2) = vel(i-1,jj,kk,1,t)
 
-                  !end do
-                !end do
+              !end do
+              !end do
               !end if
 
 

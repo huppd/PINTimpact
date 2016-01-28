@@ -117,12 +117,10 @@ TEUCHOS_STATIC_SETUP() {
 	clp.setOption( "rank", &rankbla, "" );
 	clp.setOption( "maxGrids", &maxGrids, "" );
 
-	//pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "para" );
 	pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
 	pl->sublist("Stretching in X").set<S>( "N metr L", nx );
 	pl->sublist("Stretching in X").set<S>( "N metr U", nx  );
 	pl->sublist("Stretching in X").set<S>( "x0 L", 0.05 );
-	//pl->sublist("Stretching in X").set<S>( "x0 L", 0. );
 	pl->sublist("Stretching in X").set<S>( "x0 U", 0. );
 
 	////pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
@@ -555,10 +553,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Restrictor, CS ) {
 			}
 
 			// the hard test
-			for( int dir=3; dir<6; ++ dir ) {
-				fieldf->initField( static_cast<Pimpact::EScalarField>(dir) );
+			for( int dir=1; dir<=3; ++ dir ) {
+
+				Pimpact::EScalarField type = static_cast<Pimpact::EScalarField>(dir);
+				fieldf->initField( type );
 				fieldc->initField( Pimpact::ConstField, 0. );
-				sol->initField( static_cast<Pimpact::EScalarField>(dir) );
+				sol->initField( type );
 
 				if( mgSpaces->participating(level-1) ) op->apply( *fieldf, *fieldc );
 
@@ -566,13 +566,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Restrictor, CS ) {
 					er->add( 1., *sol, -1., *fieldc );
 					double errInf = er->norm(Belos::InfNorm);
 					if( 0==space->rankST() )
-						std::cout << "error Grad in "<< dir-3<< "-dir: " << errInf << " ("<< op->getDD() << ")\n";
+						std::cout << "error ("<< toString(type) << "): " << errInf << " ("<< op->getDD() << ")\n";
 					TEST_EQUALITY( errInf<eps, true );
 					if( errInf>=eps ) {
 						er->print();
-						er->write(1*(dir-2));
-						fieldc->write(10*(dir-2));
-						sol->write(100*(dir-2));
+						er->write(dir);
+						fieldc->write(10*(dir));
+						sol->write(100*(dir));
 					}
 				}
 			}
@@ -701,10 +701,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator, CS ) {
 
 
 			// --- hardcore test ---
-			for( int dir=3; dir<6; ++dir ) {
-				fieldc->initField( static_cast<Pimpact::EScalarField>(dir) );
+			for( int dir=1; dir<=3; ++dir ) {
+
+				Pimpact::EScalarField type = static_cast<Pimpact::EScalarField>(dir);
+
+				fieldc->initField( type );
 				fieldf->initField( Pimpact::ConstField, 0. );
-				sol->initField( static_cast<Pimpact::EScalarField>(dir) );
+				sol->initField( type );
 				er->random();
 
 				if( mgSpaces->participating(level) ){
@@ -714,7 +717,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator, CS ) {
 
 					S errInf = er->norm( Belos::InfNorm );
 					if( 0==space->rankST() )
-						std::cout << "error Grad in " << dir-3 << "-dir: " << errInf << "\n";
+						std::cout << "error (" << Pimpact::toString(type) << "): " << errInf << "\n";
 					TEST_EQUALITY( errInf<eps, true  );
 					if( errInf>=eps ) {
 						int i = dir;
@@ -831,10 +834,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 
 
 		// the Grad test
-		for( int dir=3; dir<6; ++dir ) {
-			fieldc->initField( static_cast<Pimpact::EScalarField>(dir) );
+		for( int dir=1; dir<=3; ++dir ) {
+
+			Pimpact::EScalarField type = static_cast<Pimpact::EScalarField>(dir);
+
+			fieldc->initField( type );
 			fieldf->initField();
-			sol->initField( static_cast<Pimpact::EScalarField>(dir) );
+			sol->initField( type );
 
 			mgTransfers->interpolation( x );
 
@@ -843,12 +849,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 			if( mgSpaces->participating(0) ) {
 				errInf = er->norm( Belos::InfNorm );
 				if( 0==space->rankST() )
-					std::cout << "interpolation error Grad in " << dir-3 << ": " << errInf << "\n";
+					std::cout << "interpolation error (" << Pimpact::toString(type) << "): " << errInf << "\n";
 				TEST_EQUALITY( errInf<eps, true  );
 				if( errInf>=eps ) {
 					int i = dir-2;
 					er->write( i );
-					std::string d = std::to_string( static_cast<long long>( dir-3 ) ); // long long needed on brutus(intel)
+					std::string d = std::to_string( static_cast<long long>( dir-1 ) ); // long long needed on brutus(intel)
 					std::string r = std::to_string( static_cast<long long>( space->rankST() ) ); // long long needed on brutus(intel)
 					er->print( *Pimpact::createOstream( "int_error_g"+d+"_r"+r+".txt" ) );
 					//er->print(  );
@@ -906,11 +912,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 
 
 		// hardcore Grad test
-		for( int dir=3; dir<6; ++ dir ) {
-			fieldf->initField( static_cast<Pimpact::EScalarField>(dir) );
+		for( int dir=1; dir<=3; ++ dir ) {
+
+			Pimpact::EScalarField type = static_cast<Pimpact::EScalarField>(dir);
+
+			fieldf->initField( type );
 			fieldc->initField();
 
-			sol->initField( static_cast<Pimpact::EScalarField>(dir) );
+			sol->initField( type );
 
 			mgTransfers->restriction( x );
 
@@ -918,12 +927,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 			if( mgSpaces->participating(-1) ) {
 
 				errInf = er->norm( Belos::InfNorm );
-				TEST_EQUALITY( errInf < eps, true  );
+				TEST_EQUALITY( errInf<eps, true  );
 				if( errInf>=eps )
 					er->write( 1*(dir-2) );
 			}
 			if( 0==space->rankST() )
-				std::cout << "restriction error Grad in " << dir-3 << ": " << errInf << "\n";
+				std::cout << "restriction error (" << Pimpact::toString(type) << "): " << errInf << "\n";
 		}
 
 	}
@@ -1071,15 +1080,18 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersVF, CS ) {
 		//}
 
 		// hardcore Grad test
-		for( int dir=3; dir<6; ++ dir ) {
-			fieldc->getFieldPtr( Pimpact::U )->initField(static_cast<Pimpact::EScalarField>(dir) );
-			fieldc->getFieldPtr( Pimpact::V )->initField(static_cast<Pimpact::EScalarField>(dir) );
-			fieldc->getFieldPtr( Pimpact::W )->initField(static_cast<Pimpact::EScalarField>(dir) );
+		for( int dir=1; dir<=3; ++ dir ) {
+
+			Pimpact::EScalarField type = static_cast<Pimpact::EScalarField>(dir);
+
+			fieldc->getFieldPtr( Pimpact::U )->initField( type );
+			fieldc->getFieldPtr( Pimpact::V )->initField( type );
+			fieldc->getFieldPtr( Pimpact::W )->initField( type );
 			fieldf->initField( Pimpact::ConstFlow, 0., 0., 0. );
 
-			sol->getFieldPtr( Pimpact::U )->initField( static_cast<Pimpact::EScalarField>(dir) );
-			sol->getFieldPtr( Pimpact::V )->initField( static_cast<Pimpact::EScalarField>(dir) );
-			sol->getFieldPtr( Pimpact::W )->initField( static_cast<Pimpact::EScalarField>(dir) );
+			sol->getFieldPtr( Pimpact::U )->initField( type );
+			sol->getFieldPtr( Pimpact::V )->initField( type );
+			sol->getFieldPtr( Pimpact::W )->initField( type );
 
 			mgTransfers->interpolation( x );
 
@@ -1088,8 +1100,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersVF, CS ) {
 			if( mgSpaces->participating(0) ) {
 				S rel_error = er->norm( Belos::InfNorm );
 				if( 0==space->rankST() )
-					std::cout << "interpolatio. error in "<<dir-3<<"-dir: " << rel_error << "\n";
-				TEST_EQUALITY( rel_error < eps, true  );
+					std::cout << "interpolation error (" << Pimpact::toString(type) << "): " << rel_error << "\n";
+				TEST_EQUALITY( rel_error<eps, true  );
 				if( rel_error>=eps || isnan(rel_error) ) {
 					er->write(1*(dir-2));
 					fieldf->write(10*(dir-2));
@@ -1148,15 +1160,18 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersVF, CS ) {
 		}
 
 		// hardcore grad test
-		for( int dir=3; dir<6; ++ dir ) {
-			fieldf->getFieldPtr( Pimpact::U )->initField( static_cast<Pimpact::EScalarField>(dir) );
-			fieldf->getFieldPtr( Pimpact::V )->initField( static_cast<Pimpact::EScalarField>(dir) );
-			fieldf->getFieldPtr( Pimpact::W )->initField( static_cast<Pimpact::EScalarField>(dir) );
+		for( int dir=1; dir<=3; ++ dir ) {
+
+			Pimpact::EScalarField type = static_cast<Pimpact::EScalarField>(dir);
+
+			fieldf->getFieldPtr( Pimpact::U )->initField( type );
+			fieldf->getFieldPtr( Pimpact::V )->initField( type );
+			fieldf->getFieldPtr( Pimpact::W )->initField( type );
 			fieldc->initField( Pimpact::ConstFlow, 0., 0., 0. );
 
-			sol->getFieldPtr( Pimpact::U )->initField( static_cast<Pimpact::EScalarField>(dir) );
-			sol->getFieldPtr( Pimpact::V )->initField( static_cast<Pimpact::EScalarField>(dir) );
-			sol->getFieldPtr( Pimpact::W )->initField( static_cast<Pimpact::EScalarField>(dir) );
+			sol->getFieldPtr( Pimpact::U )->initField( type );
+			sol->getFieldPtr( Pimpact::V )->initField( type );
+			sol->getFieldPtr( Pimpact::W )->initField( type );
 
 			mgTransfers->restriction( x );
 
@@ -1164,12 +1179,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersVF, CS ) {
 			if( mgSpaces->participating(-1) ) {
 				S rel_error = er->norm()/std::sqrt( (S)er->getLength() );
 				if( 0==space->rankST() )
-					std::cout << "restriction grad  error in " << dir-3 << "-dir: " << rel_error << "\n";
-				TEST_EQUALITY( rel_error < eps, true  );
+					std::cout << "restriction grad  error (" << Pimpact::toString(type) << "): " << rel_error << "\n";
+				TEST_EQUALITY( rel_error<eps, true  );
 				if( rel_error>eps ) {
-					er->write(dir-2);
-					fieldf->write(10*(dir-2));
-					sol->write(100*(dir-2));
+					er->write( dir );
+					fieldf->write( 10*(dir) );
+					sol->write( 100*(dir) );
 				}
 			}
 		}
@@ -1211,7 +1226,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 	pl->set( "npz", npz );
 	pl->set( "npf", npf );
 
-	Teuchos::RCP<const Pimpact::Space<S,O,dimension,4> > space = Pimpact::createSpace<S,O,dimension,4>( pl );
+	Teuchos::RCP<const Pimpact::Space<S,O,dimension,4> > space =
+		Pimpact::createSpace<S,O,dimension,4>( pl );
 
 	int nMax = 10;
 
@@ -1353,9 +1369,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 
 	// --- grad test ---
 	auto e = x->clone();
-	for( int dir=3; dir<6; ++dir ) {
-		x->initField( static_cast<Pimpact::EScalarField>(dir) );
-		sol->initField( static_cast<Pimpact::EScalarField>(dir) );
+	for( int dir=1; dir<=3; ++dir ) {
+
+		Pimpact::EScalarField type = static_cast<Pimpact::EScalarField>(dir);
+
+		x->initField( type );
+		sol->initField( type );
 		sol->level();
 
 		opO2->apply( *x, *b );
@@ -1377,7 +1396,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 		//S errP =1.;
 
 		if( space()->rankST()==0 ) {
-			std::cout << "\n\n\t\t\t--- " << dir << " test ---\n";
+			std::cout << "\n\n\t\t\t--- " << Pimpact::toString(type) << " test ---\n";
 			std::cout << "\tresidual:\trate:\t\t\terror:\t\trate:\n";
 			std::cout << "\t"  << 1.<< "\t\t\t\t" << 1.  << "\n";
 		}

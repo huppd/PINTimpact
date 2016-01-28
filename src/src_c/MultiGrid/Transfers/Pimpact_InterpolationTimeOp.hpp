@@ -23,15 +23,15 @@ class InterpolationTimeOp  {
 
 public:
 
-  typedef TimeField<typename OperatorT::DomainFieldT> DomainFieldT;
-  typedef TimeField<typename OperatorT::RangeFieldT> RangeFieldT;
+	typedef TimeField<typename OperatorT::DomainFieldT> DomainFieldT;
+	typedef TimeField<typename OperatorT::RangeFieldT> RangeFieldT;
 
-  typedef typename DomainFieldT::SpaceT SpaceT;
+	typedef typename DomainFieldT::SpaceT SpaceT;
 
-  typedef SpaceT FSpaceT;
-  typedef SpaceT CSpaceT;
+	typedef SpaceT FSpaceT;
+	typedef SpaceT CSpaceT;
 
-  typedef typename SpaceT::Ordinal Ordinal;
+	typedef typename SpaceT::Ordinal Ordinal;
 
 protected:
 

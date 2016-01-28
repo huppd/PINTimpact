@@ -23,8 +23,12 @@ enum ECopyType {
 
 
 enum ECoord { X=0, Y=1, Z=2, T=4 };
+
+std::string toString( ECoord type );
+
 enum EField { U=0, V=1, W=2, S=4 };
 
+std::string toString( EField type );
 
 
 /// \brief kind of boundary conditions
@@ -59,16 +63,17 @@ enum EDomainType {
 /// \relates ScalarField::initField
 enum EScalarField {
 	ConstField = 0,
-	Poiseuille2D_inX = 1,
-  Poiseuille2D_inY = 2,
+  Grad2D_inX = 1,
+  Grad2D_inY = 2,
+  Grad2D_inZ = 3,
+	Poiseuille2D_inX = 4,
+  Poiseuille2D_inY = 5,
   Poiseuille2D_inZ = 6,
-  Grad2D_inX = 3,
-  Grad2D_inY = 4,
-  Grad2D_inZ = 5,
   FPoint = 7
 };
 
 
+std::string toString( EScalarField type );
 
 /// \brief used in mains
 /// \relates initTimeVectorField
