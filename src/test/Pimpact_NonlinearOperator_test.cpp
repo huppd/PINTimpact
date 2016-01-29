@@ -28,15 +28,17 @@ using O = int;
 const int d = 3;
 const int dNC = 4;
 
+using SpaceT = Pimpact::Space<S,O,d,dNC>;
 
-typedef Pimpact::Space<S,O,d,dNC> SpaceT;
-typedef typename Pimpact::ScalarField<SpaceT> SF;
-typedef typename Pimpact::VectorField<SpaceT> VF;
-typedef typename Pimpact::ModeField<SF>       MSF;
-typedef typename Pimpact::ModeField<VF>       MVF;
+using SF = typename Pimpact::ScalarField<SpaceT>;
+using VF = typename Pimpact::VectorField<SpaceT>;
+using MSF = typename Pimpact::ModeField<SF>;
+using MVF = typename Pimpact::ModeField<VF>;
 
-template<class T> using ConvDiffOpT = Pimpact::NonlinearOp<Pimpact::ConvectionDiffusionSOp<T> >;
-template<class T> using ConvDiffSORT = Pimpact::NonlinearSmoother<T,Pimpact::ConvectionDiffusionSORSmoother >;
+template<class T>
+using ConvDiffOpT = Pimpact::NonlinearOp<Pimpact::ConvectionDiffusionSOp<T> >;
+template<class T>
+using ConvDiffSORT = Pimpact::NonlinearSmoother<T,Pimpact::ConvectionDiffusionSORSmoother >;
 
 
 bool testMpi = true;
@@ -49,6 +51,10 @@ S omega = 0.8;
 S winds = 1;
 int nIter = 1000;
 
+int nx = 129;
+int ny = 129;
+int nz = 129;
+int nf = 1;
 
 auto pl = Teuchos::parameterList();
 
@@ -56,32 +62,54 @@ auto pl = Teuchos::parameterList();
 
 TEUCHOS_STATIC_SETUP() {
 
-  Teuchos::CommandLineProcessor& clp = Teuchos::UnitTestRepository::getCLP();
-  clp.addOutputSetupOptions(true);
-  clp.setOption(
-      "test-mpi", "test-serial", &testMpi,
-      "Test MPI (if available) or force test of serial.  In a serial build,"
-      " this option is ignored and a serial comm is always used." );
-  clp.setOption(
-      "eps", &eps,
-      "Slack off of machine epsilon used to check test results" );
+	Teuchos::CommandLineProcessor& clp = Teuchos::UnitTestRepository::getCLP();
+	clp.addOutputSetupOptions(true);
+	clp.setOption(
+			"test-mpi", "test-serial", &testMpi,
+			"Test MPI (if available) or force test of serial.  In a serial build,"
+			" this option is ignored and a serial comm is always used." );
+	clp.setOption(
+			"eps", &eps,
+			"Slack off of machine epsilon used to check test results" );
 	clp.setOption( "domain", &domain, "domain" );
 	clp.setOption( "dim", &dim, "dim" );
 	clp.setOption( "omega", &omega,
-      "Slack off of machine epsilon used to check test results" );
+			"Slack off of machine epsilon used to check test results" );
 	clp.setOption( "wind", &winds,
-      "Slack off of machine epsilon used to check test results" );
+			"Slack off of machine epsilon used to check test results" );
 	clp.setOption( "nIter", &nIter,
-      "Slack off of machine epsilon used to check test results" );
+			"Slack off of machine epsilon used to check test results" );
 
-	pl->set("nx", 25 );
-	pl->set("ny", 17 );
-	pl->set("nz", 9 );
-	
-	pl->set("npx", 1 );
-	pl->set("npy", 1 );
-	pl->set("npz", 1 );
-	
+	//pl->set("nx", 25 );
+	//pl->set("ny", 17 );
+	//pl->set("nz", 9 );
+	pl->set( "nx", nx );
+	pl->set( "ny", ny );
+	pl->set( "nz", nz );
+	pl->set( "nf", nf );
+
+	pl->set( "npx", 1 );
+	pl->set( "npy", 1 );
+	pl->set( "npz", 1 );
+
+	pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+	pl->sublist("Stretching in X").set<S>( "N metr L", nx );
+	pl->sublist("Stretching in X").set<S>( "N metr U", nx  );
+	pl->sublist("Stretching in X").set<S>( "x0 L", 0.05 );
+	pl->sublist("Stretching in X").set<S>( "x0 U", 0. );
+
+	pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+	pl->sublist("Stretching in Y").set<S>( "N metr L", ny );
+	pl->sublist("Stretching in Y").set<S>( "N metr U", ny  );
+	pl->sublist("Stretching in Y").set<S>( "x0 L", 0.05 );
+	pl->sublist("Stretching in Y").set<S>( "x0 U", 0. );
+
+	pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+	pl->sublist("Stretching in Z").set<S>( "N metr L", nz );
+	pl->sublist("Stretching in Z").set<S>( "N metr U", nz  );
+	pl->sublist("Stretching in Z").set<S>( "x0 L", 0. );
+	pl->sublist("Stretching in Z").set<S>( "x0 U", 0. );
+
 }
 
 
@@ -90,37 +118,38 @@ TEUCHOS_STATIC_SETUP() {
 TEUCHOS_UNIT_TEST( BasicOperator, ConvectionSOp ) {
 
 	pl->set( "dim", dim );
-  pl->set( "domain", domain );
+	pl->set( "domain", domain );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
-		
-  auto u =
-      Teuchos::tuple(
-          Teuchos::tuple(
-              Pimpact::createScalarField( space, Pimpact::U ),
-              Pimpact::createScalarField( space, Pimpact::U ),
-              Pimpact::createScalarField( space, Pimpact::U )
-          ),
-          Teuchos::tuple(
-              Pimpact::createScalarField( space, Pimpact::V ),
-              Pimpact::createScalarField( space, Pimpact::V ),
-              Pimpact::createScalarField( space, Pimpact::V )
-          ),
-          Teuchos::tuple(
-              Pimpact::createScalarField( space, Pimpact::W ),
-              Pimpact::createScalarField( space, Pimpact::W ),
-              Pimpact::createScalarField( space, Pimpact::W )
-          )
-      );
+	auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
-  auto x   = Pimpact::create<Pimpact::VectorField>( space );
-  auto y   = Pimpact::create<Pimpact::VectorField>( space );
-  auto solv = Pimpact::create<Pimpact::VectorField>( space );
+	auto u =
+		Teuchos::tuple(
+				Teuchos::tuple(
+					Pimpact::createScalarField( space, Pimpact::U ),
+					Pimpact::createScalarField( space, Pimpact::U ),
+					Pimpact::createScalarField( space, Pimpact::U )
+					),
+				Teuchos::tuple(
+					Pimpact::createScalarField( space, Pimpact::V ),
+					Pimpact::createScalarField( space, Pimpact::V ),
+					Pimpact::createScalarField( space, Pimpact::V )
+					),
+				Teuchos::tuple(
+					Pimpact::createScalarField( space, Pimpact::W ),
+					Pimpact::createScalarField( space, Pimpact::W ),
+					Pimpact::createScalarField( space, Pimpact::W )
+					)
+				);
 
-  auto op = Pimpact::create<Pimpact::ConvectionSOp>( space ) ;
+	auto x    = Pimpact::create<Pimpact::VectorField>( space );
+	auto y    = Pimpact::create<Pimpact::VectorField>( space );
+	auto solv = Pimpact::create<Pimpact::VectorField>( space );
 
-//  op->print();
+	auto op = Pimpact::create<Pimpact::ConvectionSOp>( space ) ;
 
+	//  op->print();
+
+	std::cout << "\n";
 	for( int dir=-1; dir<2; dir+= 2 ) {
 
 		for( int i=0; i<space->dim(); ++i )
@@ -129,27 +158,22 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionSOp ) {
 
 		solv->initField( Pimpact::ConstFlow, 2.*dir, 2.*dir, 2.*dir );
 
-
 		// dx test
 		x->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inX );
 		x->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inX );
 		x->getFieldPtr(Pimpact::W)->initField( Pimpact::Grad2D_inX );
 
-	//	x->write(0);
 		y->random();
 
-		//  op->apply( u[0], x->getConstField(0), y->getField(0), 1. );
 		for( int i=0; i<space->dim(); ++i ) {
 			op->apply( u[i], x->getConstField(i), y->getField(i) );
 		}
 
-	//	y->write(1);
-
 		for( int i=0; i<space->dim(); ++i ){
 			auto sol = solv->getFieldPtr( i );
 			sol->add( 1., *sol, -1., y->getField(i) );
-			std::cout << "error in "<< i << ": " << sol->norm() << "\n";
-			TEST_EQUALITY( sol->norm()<eps, true );
+			std::cout << "error in "<< i << " (gradX): " << sol->norm( Belos::InfNorm ) << "\n";
+			TEST_EQUALITY( sol->norm( Belos::InfNorm )<eps, true );
 		}
 		solv->initField( Pimpact::ConstFlow, 2.*dir, 2.*dir, 2.*dir );
 
@@ -158,7 +182,6 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionSOp ) {
 		x->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inY );
 		x->getFieldPtr(Pimpact::W)->initField( Pimpact::Grad2D_inY );
 
-	//	x->write(0);
 		y->random();
 
 		//  op->apply( u[0], x->getConstField(0), y->getField(0), 1. );
@@ -166,13 +189,11 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionSOp ) {
 			op->apply( u[i], x->getConstField(i), y->getField(i) );
 		}
 
-	//	y->write(1);
-
 		for( int i=0; i<space->dim(); ++i ){
 			auto sol = solv->getFieldPtr( i );
 			sol->add( 1., *sol, -1., y->getField(i) );
-			std::cout << "error in "<< i << ": " << sol->norm() << "\n";
-			TEST_EQUALITY( sol->norm()<eps, true );
+			std::cout << "error in "<< i << " (gradY): " << sol->norm( Belos::InfNorm ) << "\n";
+			TEST_EQUALITY( sol->norm( Belos::InfNorm )<eps, true );
 		}
 		solv->initField( Pimpact::ConstFlow, 2.*dir, 2.*dir, 2.*dir );
 
@@ -181,7 +202,6 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionSOp ) {
 		x->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inZ );
 		x->getFieldPtr(Pimpact::W)->initField( Pimpact::Grad2D_inZ );
 
-	//	x->write(0);
 		y->random();
 
 		//  op->apply( u[0], x->getConstField(0), y->getField(0), 1. );
@@ -189,13 +209,11 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionSOp ) {
 			op->apply( u[i], x->getConstField(i), y->getField(i) );
 		}
 
-	//	y->write(1);
-
 		for( int i=0; i<space->dim(); ++i ){
 			auto sol = solv->getFieldPtr( i );
 			sol->add( 1., *sol, -1., y->getField(i) );
-			std::cout << "error in "<< i << ": " << sol->norm() << "\n";
-			TEST_EQUALITY( sol->norm()<eps, true );
+			std::cout << "error in "<< i << " (gradZ): " << sol->norm( Belos::InfNorm ) << "\n";
+			TEST_EQUALITY( sol->norm( Belos::InfNorm )<eps, true );
 		}
 	}
 
@@ -236,7 +254,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, NonlinearOp ) {
 
 		z2->add( -1, *z2, 1, *z );
 
-		TEST_EQUALITY( z2->norm()<eps, true );
+		std::cout << "error in "<< dir << " (gradX): " << z2->norm( Belos::InfNorm ) << "\n";
+		TEST_EQUALITY( z2->norm( Belos::InfNorm )<eps, true );
 
 		// y test
 		x->initField( Pimpact::ConstFlow, 2.*dir, 2.*dir, 2.*dir );
@@ -251,7 +270,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, NonlinearOp ) {
 
 		z2->add( -1, *z2, 1, *z );
 
-		TEST_EQUALITY( z2->norm()<eps, true );
+		std::cout << "error in "<< dir << " (gradY): " << z2->norm( Belos::InfNorm ) << "\n";
+		TEST_EQUALITY( z2->norm( Belos::InfNorm )<eps, true );
 
 		// z test
 		x->initField( Pimpact::ConstFlow, 2.*dir, 2.*dir, 2.*dir );
@@ -266,7 +286,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, NonlinearOp ) {
 
 		z2->add( -1, *z2, 1, *z );
 
-		TEST_EQUALITY( z2->norm()<eps, true );
+		std::cout << "error in "<< dir << " (gradZ): " << z2->norm( Belos::InfNorm ) << "\n";
+		TEST_EQUALITY( z2->norm( Belos::InfNorm )<eps, true );
 	}
 
 	// x test
@@ -282,7 +303,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, NonlinearOp ) {
 
 	z2->add( -1, *z2, 1, *z );
 
-	TEST_EQUALITY( z2->norm()<eps, true );
+	std::cout << "error in (poisX): " << z2->norm( Belos::InfNorm ) << "\n";
+	TEST_EQUALITY( z2->norm( Belos::InfNorm )<eps, true );
 
 	// y test
 	x->initField( Pimpact::PoiseuilleFlow2D_inY );
@@ -297,7 +319,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, NonlinearOp ) {
 
 	z2->add( -1, *z2, 1, *z );
 
-	TEST_EQUALITY( z2->norm()<eps, true );
+	std::cout << "error in (poisY): " << z2->norm( Belos::InfNorm ) << "\n";
+	TEST_EQUALITY( z2->norm( Belos::InfNorm )<eps, true );
 
 	// z test
 	x->initField( Pimpact::PoiseuilleFlow2D_inZ );
@@ -312,7 +335,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, NonlinearOp ) {
 
 	z2->add( -1, *z2, 1, *z );
 
-	TEST_EQUALITY( z2->norm()<eps, true );
+	std::cout << "error in (poisZ): " << z2->norm( Belos::InfNorm ) << "\n";
+	TEST_EQUALITY( z2->norm( Belos::InfNorm )<eps, true );
 
 }
 
@@ -339,122 +363,111 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionOp  ) {
   auto op2 =
       Pimpact::create< ConvDiffOpT<SpaceT> >( space );
 
-  op2->print();
-
+  //op2->print();
 
   x->initField( Pimpact::ConstFlow, 2., 2., 2. );
   sol->init( Teuchos::tuple(2.,2.,2.) );
 
-  // x test 
+  // consistency test in x
   y->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inX );
   y->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inX );
   y->getFieldPtr(Pimpact::W)->initField( Pimpact::Grad2D_inX );
 
   op->assignField( *x );
-  op->apply( *y, *z );
-
-  // connsistent test
   op2->assignField( *x );
+
+  // 
+  op->apply(   *y, *z  );
   op2->apply(  *y, *z2 );
 
   z2->add( -1, *z2, 1, *z );
   sol->add(-1, *sol,1, *z );
 
-  TEST_EQUALITY( z2->norm() < eps, true );
-  TEST_EQUALITY( sol->norm() < eps, true );
+	std::cout << "diff (gradX): " << z2->norm( Belos::InfNorm ) << "\n";
+	std::cout << "erro (gradX): " << sol->norm( Belos::InfNorm ) << "\n";
+  TEST_EQUALITY( z2->norm( Belos::InfNorm ) < eps, true );
+  TEST_EQUALITY( sol->norm( Belos::InfNorm ) < eps, true );
 
-  // y test 
+  // consistency test in y
   y->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inY );
   y->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inY );
   y->getFieldPtr(Pimpact::W)->initField( Pimpact::Grad2D_inY );
   sol->init( Teuchos::tuple(2.,2.,2.) );
 
   op->assignField( *x );
-  op->apply( *y, *z );
-
-  // connsistent test
   op2->assignField( *x );
+
+  op->apply(   *y, *z );
   op2->apply(  *y, *z2 );
 
   z2->add( -1, *z2, 1, *z );
   sol->add(-1, *sol,1, *z );
 
-  TEST_EQUALITY( z2->norm() < eps, true );
-  TEST_EQUALITY( sol->norm() < eps, true );
+	std::cout << "diff (gradY): " << z2->norm( Belos::InfNorm ) << "\n";
+	std::cout << "erro (gradY): " << sol->norm( Belos::InfNorm ) << "\n";
+  TEST_EQUALITY( z2->norm( Belos::InfNorm ) < eps, true );
+  TEST_EQUALITY( sol->norm( Belos::InfNorm ) < eps, true );
 
-  // z test 
+  // consistency test in z
   y->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inZ );
   y->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inZ );
   y->getFieldPtr(Pimpact::W)->initField( Pimpact::Grad2D_inZ );
   sol->init( Teuchos::tuple(2.,2.,2.) );
 
   op->assignField( *x );
-  op->apply( *y, *z );
-
-  // connsistent test
   op2->assignField( *x );
+
+  op->apply( *y, *z );
   op2->apply(  *y, *z2 );
 
   z2->add( -1, *z2, 1, *z );
   sol->add(-1, *sol,1, *z );
 
-  TEST_EQUALITY( z2->norm() < eps, true );
-  TEST_EQUALITY( sol->norm() < eps, true );
+	std::cout << "diff (gradZ): " << z2->norm( Belos::InfNorm ) << "\n";
+	std::cout << "erro (gradZ): " << sol->norm( Belos::InfNorm ) << "\n";
+  TEST_EQUALITY( z2->norm( Belos::InfNorm ) < eps, true );
+  TEST_EQUALITY( sol->norm( Belos::InfNorm ) < eps, true );
 
 
-  // test against flow dir
+  // consistency test in pois x
   y->initField( Pimpact::PoiseuilleFlow2D_inX );
   sol->init( Teuchos::tuple(0.,0.,0.) );
   z->random();
 
   op->apply( *y, *z );
-
-  // connsistent test
-  op2->assignField( *x );
   op2->apply(  *y, *z2 );
 
-  //z->write(2);
-  //z2->write(3);
-  //sol->write(5);
   z2->add( -1, *z2, 1, *z );
   sol->add(-1, *sol,1, *z );
 
-  TEST_EQUALITY( z2->norm()<eps, true );
+	std::cout << "diff (poisX): " << z2->norm( Belos::InfNorm ) << "\n";
+  TEST_EQUALITY( z2->norm( Belos::InfNorm )<eps, true );
 
-  TEST_EQUALITY( sol->getConstFieldPtr(1)->norm()<eps, true );
 
-
-  // test against flow dir
+  // consistency test in pois y
   y->initField( Pimpact::PoiseuilleFlow2D_inY );
   sol->init( Teuchos::tuple(0.,0.,0.) );
   z->random();
 
-  op->assignField( *x );
   op->apply( *y, *z );
-
-  // connsistent test
-  op2->assignField( *x );
   op2->apply(  *y, *z2 );
 
   z2->add( -1, *z2, 1, *z );
-  sol->add(-1, *sol,1, *z );
 
-  TEST_EQUALITY( z2->norm()<eps, true );
+	std::cout << "diff (poisY): " << z2->norm( Belos::InfNorm ) << "\n";
+  TEST_EQUALITY( z2->norm( Belos::InfNorm )<eps, true );
 
-  // test against flow dir
+  // consistency test in pois Z
   y->initField( Pimpact::PoiseuilleFlow2D_inZ );
   z->random();
 
-  op->assignField( *x );
   op->apply( *y, *z );
-
-  // connsistent test
-  op2->assignField( *x );
   op2->apply(  *y, *z2 );
 
   z2->add( -1, *z2, 1, *z );
 
-  TEST_EQUALITY( z2->norm()<eps, true );
+	std::cout << "diff (poisZ): " << z2->norm( Belos::InfNorm ) << "\n";
+  TEST_EQUALITY( z2->norm( Belos::InfNorm )<eps, true );
 
 }
 
@@ -520,14 +533,14 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionSORSmoother ) {
   for(int i=0; i<20; ++i) {
     smoother->apply( *z, *y );
     z2->add( -1, *sol, 1, *y );
-    n = z2->norm();
+    n = z2->norm( Belos::InfNorm );
     if( space()->rankST()==0 )
       std::cout << "error: " << n << "\n";
 
 
   }
 
-  TEST_EQUALITY_CONST( z2->norm()/z2->getLength()<eps, true );
+  TEST_EQUALITY_CONST( z2->norm( Belos::InfNorm )/z2->getLength()<eps, true );
 
 	// Y test
   z->initField( Pimpact::ConstFlow, 0., 0., 0. );
@@ -556,13 +569,13 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionSORSmoother ) {
 
     z2->add( -1, *sol, 1, *y );
 
-    n = z2->norm();
+    n = z2->norm( Belos::InfNorm );
     if( space()->rankST()==0 )
       std::cout << "error: " << n << "\n";
 
   }
 
-  TEST_EQUALITY_CONST( z2->norm()/z2->getLength()<eps, true );
+  TEST_EQUALITY_CONST( z2->norm( Belos::InfNorm )/z2->getLength()<eps, true );
 
 	// Z test
   z->initField( Pimpact::ConstFlow, 0., 0., 0. );
@@ -591,13 +604,13 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionSORSmoother ) {
 
     z2->add( -1, *sol, 1, *y );
 
-    n = z2->norm();
+    n = z2->norm( Belos::InfNorm );
     if( space()->rankST()==0 )
       std::cout << "error: " << n << "\n";
 
   }
 
-  TEST_EQUALITY_CONST( z2->norm()/z2->getLength()<eps, true );
+  TEST_EQUALITY_CONST( z2->norm( Belos::InfNorm )/z2->getLength()<eps, true );
 
 }
 
@@ -646,20 +659,20 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
   auto y = Pimpact::create<Pimpact::VectorField>( space );
 
 
-	S error0 = x->norm();
+	S error0 = x->norm( Belos::InfNorm );
 	S error;
 	if( space()->rankST()==0 )
 		std::cout << "\nerror: " << error0 << "\n";
 
-	x->write( 0 );
+	//x->write( 0 );
   for(int i=0; i<10; ++i) {
     smoother->apply( *y, *x );
 
-    error = x->norm()/error0;
+    error = x->norm( Belos::InfNorm )/error0;
     if( space()->rankST()==0 )
       std::cout << "error: " << error << "\n";
 
-		x->write( i+1 );
+		//x->write( i+1 );
   }
 
   TEST_EQUALITY_CONST( error<0.1, true );
@@ -670,8 +683,11 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
 
 TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicConvectionOp ) {
 
+	const int d = 4;
+
 	pl->set( "dim", dim );
   pl->set( "domain", domain );
+	pl->set<bool>( "spectral in time", true );
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
@@ -691,8 +707,11 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicConvectionOp ) {
 
 TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicDtConvectionDiffusionOp ) {
 
+	const int d = 4;
+
 	pl->set( "dim", dim );
   pl->set( "domain", domain );
+	pl->set<bool>( "spectral in time", true );
 
 	O nf = 4;
   pl->set<S>( "Re", 1.e0 );
@@ -743,8 +762,8 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicDtConvectionDiffusionOp )
 
 	diff->add( 1., *y1, -1.,  *y2 );
 
-	std::cout << "const error(dt): " << diff->norm()/std::sqrt( diff->getLength() ) << "\n";
-  TEST_EQUALITY_CONST( diff->norm()/std::sqrt( diff->getLength() ) <eps, true );
+	std::cout << "\nconst error(dt): " << diff->norm( Belos::InfNorm ) << "\n";
+  TEST_EQUALITY_CONST( diff->norm( Belos::InfNorm ) <eps, true );
 
 	// init const udx 
 	x->get0FieldPtr()->initField( Pimpact::ConstFlow,0 );
@@ -767,13 +786,13 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicDtConvectionDiffusionOp )
 
 	diff->add( 1., *y1, -1.,  *y2 );
 
-	S diffs = diff->norm()/std::sqrt( diff->getLength() );
+	S diffs = diff->norm( Belos::InfNorm );
 	std::cout << "const error(du): " << diffs << "\n";
   TEST_EQUALITY_CONST( diffs<eps, true );
 	if( diffs>=eps ) {
-		y1->write(0);
-		y2->write(100);
-		diff->write(1000);
+		//y1->write(0);
+		//y2->write(100);
+		//diff->write(1000);
 	}
 
 
@@ -789,8 +808,8 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicDtConvectionDiffusionOp )
 
 	diff->add( 1., *y1, -1.,  *y2 );
 
-	std::cout << "error(ddx): " << diff->norm()/std::sqrt( diff->getLength() ) << "\n";
-  TEST_EQUALITY_CONST( diff->norm()/std::sqrt( diff->getLength() ) <eps, true );
+	std::cout << "error(ddx): " << diff->norm( Belos::InfNorm ) << "\n";
+  TEST_EQUALITY_CONST( diff->norm( Belos::InfNorm ) <eps, true );
 
 }
 

@@ -301,6 +301,7 @@ int main( int argi, char** argv ) {
 					Pimpact::DivGradOp,
 					Pimpact::DivGradO2Op,
 					Pimpact::DivGradO2JSmoother,
+					//Pimpact::DivGradO2SORSmoother,
 					POP
 						>( mgSpaces, Teuchos::rcpFromRef( pl->sublist("DivGrad").sublist("Multi Grid") ) );
 

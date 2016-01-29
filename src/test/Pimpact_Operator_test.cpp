@@ -55,9 +55,9 @@ int nIter = 1000;
 //int ny = 25;
 //int nz = 49;
 //int nf = 32;
-int nx = 17;
-int ny = 17;
-int nz = 17;
+int nx = 517;
+int ny = 517;
+int nz = 517;
 int nf = 1;
 
 int npx = 1;
@@ -687,29 +687,34 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
   auto x2= Pimpact::create<Pimpact::ScalarField>( space );
   auto b = Pimpact::create<Pimpact::ScalarField>( space );
 
+
+  auto op = Pimpact::create<Pimpact::DivGradO2Op>( space );
+  auto op2 = Pimpact::create<Pimpact::DivGradOp>( space );
+
+  op->print();
+
   // zero test
   b->initField( Pimpact::ConstField, 0. );
   x->init(2.);
-
-  auto op = Pimpact::create<Pimpact::DivGradO2Op>( space );
-
-  op->print();
 
   op->apply( *b, *x );
 
 	S error = x->norm( Belos::InfNorm );
 	if( 0==space->rankST() )
-		std::cout << "error: " << error << "\n";
+		std::cout << "error(0): " << error << "\n";
   TEST_EQUALITY( error<eps, true );
 
-  // random test
-  b->random();
+  b->initField( Pimpact::ConstField, 0. );
   x->init(2.);
 
-  op->apply(*b,*x);
+  op2->apply( *b, *x );
 
-  TEST_EQUALITY( x->norm( Belos::InfNorm )>eps, true );
+	error = x->norm( Belos::InfNorm );
+	if( 0==space->rankST() )
+		std::cout << "error(0): " << error << "\n";
+  TEST_EQUALITY( error<eps, true );
 
+	// one test
   b->initField( Pimpact::ConstField, 1. );
   x->random();
 
@@ -717,12 +722,20 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
 
 	error = x->norm( Belos::InfNorm );
 	if( 0==space->rankST() )
-		std::cout << "error: " << error << "\n";
+		std::cout << "error(1): " << error << "\n";
+	TEST_EQUALITY( error<eps, true );
+
+  b->initField( Pimpact::ConstField, 1. );
+  x->random();
+
+  op2->apply( *b, *x );
+
+	error = x->norm( Belos::InfNorm );
+	if( 0==space->rankST() )
+		std::cout << "error(1): " << error << "\n";
 	TEST_EQUALITY( error<eps, true );
 
 	// consistency test
-  auto op2 = Pimpact::create<Pimpact::DivGradOp>( space );
-
 	for( int dir=0; dir<=6; ++dir ) {
 
 		Pimpact::EScalarField type = static_cast<Pimpact::EScalarField>( dir );
@@ -1128,70 +1141,70 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, DtModeOp ) {
 
 
 
-TEUCHOS_UNIT_TEST( MultiModeOperator, DtLapOp ) {
+//TEUCHOS_UNIT_TEST( MultiModeOperator, DtLapOp ) {
 
-  pl->set( "domain", domain );
-  pl->set( "dim", dim );
+	//pl->set( "domain", domain );
+	//pl->set( "dim", dim );
 
-	//  grid size
-	pl->set("nx", nx );
-	pl->set("ny", ny );
-	pl->set("nz", nz );
-	pl->set("nf", nf );
+	////  grid size
+	//pl->set("nx", nx );
+	//pl->set("ny", ny );
+	//pl->set("nz", nz );
+	//pl->set("nf", nf );
 
-  // processor grid size
-  pl->set( "npx", npx );
-  pl->set( "npy", npy );
-  pl->set( "npz", npz );
-  pl->set( "npf", npf );
+	//// processor grid size
+	//pl->set( "npx", npx );
+	//pl->set( "npy", npy );
+	//pl->set( "npz", npz );
+	//pl->set( "npf", npf );
 
-//	pl->set( "Re", 1. );
-//  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
-//
-//  auto velc = Pimpact::create<Pimpact::VectorField>(space);
-//  auto vels = Pimpact::create<Pimpact::VectorField>(space);
-//
-//  auto vel = Pimpact::create<MVF>( space );
-//
-//  auto mv = Pimpact::createMultiField(*vel,1);
-//
-//  mv->random();
-//
-//  auto mv2 = mv->clone(1);
-//  auto mv3 = mv->clone(1);
-//  mv2->init(0.);
-//  mv3->init(0.);
-//
-//  auto A = Pimpact::createMultiOpWrap( Pimpact::createDtLapOp( space, 1., 0. ) );
-//
-//	mv->random();
-//
-//  A->apply( *mv, *mv2 );
-//
-//	auto diff = mv->getConstFieldPtr(0)->getConstCFieldPtr()->clone(Pimpact::ShallowCopy);
-//
-//	diff->add( 1., mv->getConstFieldPtr(0)->getConstCField(), -1.,  mv2->getConstFieldPtr(0)->getConstSField() );
-//
-//  TEST_EQUALITY( diff->norm(Belos::InfNorm)<eps, true );
-//
-//	diff->add( 1., mv->getConstFieldPtr(0)->getConstSField(), -1.,  mv2->getConstFieldPtr(0)->getConstCField() );
-//  TEST_EQUALITY( diff->norm(Belos::InfNorm)<eps, true );
-//
-//  mv2->init(0.);
-//
-//  auto A2 = Pimpact::createMultiOpWrap( Pimpact::createDtLapOp( space, 0., 1. ) );
-//  auto A3 = Pimpact::createMultiOpWrap( Pimpact::createModeOpWrap( Pimpact::create<Pimpact::HelmholtzOp>( space ) ) );
-//
-//  A2->apply(*mv,*mv2);
-//  A3->apply(*mv,*mv3);
-//
-//
-//	auto diff2 = mv2->clone();
-//	diff2->add( 1., *mv2, -1., *mv3 );
-//
-//  TEST_EQUALITY( diff2->norm(Belos::InfNorm)<eps, true );
+	//pl->set( "Re", 1. );
+	//auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
-}
+	//auto velc = Pimpact::create<Pimpact::VectorField>(space);
+	//auto vels = Pimpact::create<Pimpact::VectorField>(space);
+
+	//auto vel = Pimpact::create<MVF>( space );
+
+	//auto mv = Pimpact::createMultiField(*vel,1);
+
+	//mv->random();
+
+	//auto mv2 = mv->clone(1);
+	//auto mv3 = mv->clone(1);
+	//mv2->init(0.);
+	//mv3->init(0.);
+
+	//auto A = Pimpact::createMultiOpWrap( Pimpact::createDtLapOp( space, 1., 0. ) );
+
+	//mv->random();
+
+	//A->apply( *mv, *mv2 );
+
+	//auto diff = mv->getConstFieldPtr(0)->getConstCFieldPtr()->clone(Pimpact::ShallowCopy);
+
+	//diff->add( 1., mv->getConstFieldPtr(0)->getConstCField(), -1.,  mv2->getConstFieldPtr(0)->getConstSField() );
+
+	//TEST_EQUALITY( diff->norm(Belos::InfNorm)<eps, true );
+
+	//diff->add( 1., mv->getConstFieldPtr(0)->getConstSField(), -1.,  mv2->getConstFieldPtr(0)->getConstCField() );
+	//TEST_EQUALITY( diff->norm(Belos::InfNorm)<eps, true );
+
+	//mv2->init(0.);
+
+	//auto A2 = Pimpact::createMultiOpWrap( Pimpact::createDtLapOp( space, 0., 1. ) );
+	//auto A3 = Pimpact::createMultiOpWrap( Pimpact::createModeOpWrap( Pimpact::create<Pimpact::HelmholtzOp>( space ) ) );
+
+	//A2->apply(*mv,*mv2);
+	//A3->apply(*mv,*mv3);
+
+
+	//auto diff2 = mv2->clone();
+	//diff2->add( 1., *mv2, -1., *mv3 );
+
+	//TEST_EQUALITY( diff2->norm(Belos::InfNorm)<eps, true );
+
+//}
 
 
 
