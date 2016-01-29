@@ -93,7 +93,8 @@ public:
 							i+1,
 							1,
 							-1,
-							true,
+							//true, // mapping
+							false, // mapping
 							space_->getStencilWidths()->getDimNcbC(i),
 							space_->getStencilWidths()->getNcbC(i),
 							space_->getCoordinatesLocal()->getX( i, EField::S ),
@@ -116,7 +117,8 @@ public:
 							i+1,
 							1,
 							+1,
-							true,
+							//true, // mapping
+							false, // mapping
 							space_->getStencilWidths()->getDimNcbC(i),
 							space_->getStencilWidths()->getNcbC(i),
 							space_->getCoordinatesLocal()->getX( i, EField::S ),
@@ -139,7 +141,8 @@ public:
 							i+1,
 							1,
 							-1,
-							true,
+							//true, // mapping
+							false, // mapping
 							space_->getStencilWidths()->getDimNcbC(i),
 							space_->getStencilWidths()->getNcbC(i),
 							space_->getCoordinatesLocal()->getX( i, i ),
@@ -161,7 +164,8 @@ public:
 							i+1,
 							1,
 							+1,
-							true,
+							//true, // mapping
+							false, // mapping
 							space_->getStencilWidths()->getDimNcbC(i),
 							space_->getStencilWidths()->getNcbC(i),
 							space_->getCoordinatesLocal()->getX( i, i ),

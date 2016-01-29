@@ -29,8 +29,8 @@ namespace {
 using S = double;
 using O = int;
 const int d = 3;
-//const int dNC = 4;
-const int dNC = 2;
+const int dNC = 4;
+//const int dNC = 2;
 
 using SpaceT = Pimpact::Space<S,O,d,dNC>;
 
@@ -55,9 +55,9 @@ int nIter = 1000;
 //int ny = 25;
 //int nz = 49;
 //int nf = 32;
-int nx = 9;
-int ny = 9;
-int nz = 9;
+int nx = 17;
+int ny = 17;
+int nz = 17;
 int nf = 1;
 
 int npx = 1;
@@ -722,8 +722,11 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
 
 	// consistency test
   auto op2 = Pimpact::create<Pimpact::DivGradOp>( space );
+
 	for( int dir=0; dir<=6; ++dir ) {
+
 		Pimpact::EScalarField type = static_cast<Pimpact::EScalarField>( dir );
+
 		b->initField( type );
 		op->apply( *b, *x );
 		op2->apply( *b, *x2 );
@@ -735,6 +738,11 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
 			std::cout << "consistency error("+Pimpact::toString(type)+"): inf: " << errInf << ", two: " << err2 << "\n";
 		TEST_EQUALITY( errInf<eps, true );
 		TEST_EQUALITY( err2<eps, true );
+		if( errInf>=eps && err2>=eps ) {
+			std::string r = std::to_string( static_cast<long long>( space->rankST() ) ); // long long needed on brutus(intel)
+			x2->print(
+					*Pimpact::createOstream( "error_dgo2_"+Pimpact::toString(type)+"_r"+r+".txt" ));
+		}
 
 	}
 

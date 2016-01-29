@@ -90,7 +90,7 @@ public:
             2,
             0,
             //true,
-            false,
+            false, // mapping
             space_->getStencilWidths()->getDimNcbC(i),
             space_->getStencilWidths()->getNcbC(i),
             space_->getCoordinatesLocal()->getX( i, EField::S ),

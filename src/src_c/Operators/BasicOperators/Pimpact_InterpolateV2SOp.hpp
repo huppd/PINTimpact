@@ -97,8 +97,8 @@ public:
 						i+1,  // direction
 						0,    // 0-derivative
 						0,    // central
-						//true, // not working with stretching mapping
-						false, // mapping
+						true, // not working with stretching mapping
+						//false, // mapping
 						stencilWidths->getDimNcbD(i),
 						stencilWidths->getNcbD(i),
 						coordinatesLocal->getX( i, i ),

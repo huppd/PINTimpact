@@ -83,8 +83,8 @@ public:
             i+1,
             1,
             0,
-            //true,
-            false,
+						//true, // mapping
+						false,
             space_->getStencilWidths()->getDimNcbD(i),
             space_->getStencilWidths()->getNcbD(i),
             space_->getCoordinatesLocal()->getX( i, i ),
@@ -94,11 +94,10 @@ public:
   };
 
 
-  ~DivOp() {
-    for( int i=0; i<3; ++i ) {
-      delete[] c_[i];
-    }
-  }
+	~DivOp() {
+		for( int i=0; i<3; ++i )
+			delete[] c_[i];
+	}
 
 
   void apply(const DomainFieldT& x, RangeFieldT& y,

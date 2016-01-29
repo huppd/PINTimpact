@@ -114,8 +114,8 @@ public:
             i+1,
             1,
             0,
-            //true,
-            false,
+						//true, // mapping
+						false,
             space_->getStencilWidths()->getDimNcbG(i),
             space_->getStencilWidths()->getNcbG(i),
             space_->getCoordinatesLocal()->getX( i, EField::S ),
