@@ -40,7 +40,7 @@ foreach(dim RANGE 3 3)
 		add_test( NAME "MultiFieldTest_domain${domain}_dim${dim}" COMMAND mpirun -np 8 ./MultiFieldTest --domain=${domain} --dim=${dim} )
 		add_test( NAME "MultiHarmonicFieldTest_domain${domain}_dim${dim}" COMMAND mpirun -np 8 ./MultiHarmonicFieldTest --domain=${domain} --dim=${dim} )
 	endforeach( domain )
-	add_test( NAME "OperatorTest_dim${dim}" COMMAND mpirun -np 8 ./OperatorTest --dim=${dim} )
+	add_test( NAME "OperatorTest_dim${dim}" COMMAND mpirun -np 8 ./OperatorTest --dim=${dim} --npx=2 --npy=2 --npz=2 )
 endforeach( dim )
 
 

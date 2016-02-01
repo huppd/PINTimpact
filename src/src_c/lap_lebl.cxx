@@ -138,31 +138,27 @@ int main( int argi, char** argv ) {
 		Pimpact::createInverseOp( 
 				Pimpact::createDivGradOp(
 					opV2S->getOperatorPtr(),
-					opS2V->getOperatorPtr()
-					)
-				, Teuchos::rcpFromRef( pl->sublist("DivGrad") )
-				);
+					opS2V->getOperatorPtr() ),
+					Teuchos::rcpFromRef( pl->sublist("DivGrad") ));
 
-	{ // init multigrid divgrad
 
-		auto mgDivGrad = 
-			Pimpact::createMultiGrid<
-			Pimpact::ScalarField,
-			Pimpact::TransferOp,
-			Pimpact::RestrictionHWOp,
-			Pimpact::InterpolationOp,
-			Pimpact::DivGradOp,
-			Pimpact::DivGradO2Op,
-			Pimpact::DivGradO2JSmoother,
-			//Pimpact::DivGradO2SORSmoother,
-			POP
-				>( mgSpaces, Teuchos::rcpFromRef( pl->sublist("DivGrad").sublist("Multi Grid") ) );
+	auto mgDivGrad = 
+		Pimpact::createMultiGrid<
+		Pimpact::ScalarField,
+		Pimpact::TransferOp,
+		Pimpact::RestrictionHWOp,
+		Pimpact::InterpolationOp,
+		Pimpact::DivGradOp,
+		Pimpact::DivGradO2Op,
+		Pimpact::DivGradO2JSmoother,
+		//Pimpact::DivGradO2SORSmoother,
+		POP
+			>( mgSpaces, Teuchos::rcpFromRef( pl->sublist("DivGrad").sublist("Multi Grid") ) );
 
-		if( 0==space->rankST() )
-			mgDivGrad->print();
+	if( 0==space->rankST() )
+		mgDivGrad->print();
 
-		divGradInv2->setRightPrec( Pimpact::createMultiOperatorBase( mgDivGrad ) );
-	}
+	divGradInv2->setRightPrec( Pimpact::createMultiOperatorBase( mgDivGrad ) );
 
 	auto divGradInv =
 		Pimpact::createMultiHarmonicMultiOpWrap(
@@ -173,6 +169,7 @@ int main( int argi, char** argv ) {
 	opV2S->apply( f->getVField(), f->getSField() );
 	divGradInv->apply( f->getSField(), x->getSField() );
 
+	x->getSFieldPtr()->write();
 
 	Teuchos::TimeMonitor::summarize();
 

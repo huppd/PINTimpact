@@ -3,6 +3,9 @@
 #define PIMPACT_INTERPOLATEVTOSOP_HPP
 
 
+#include "Teuchos_ArrayRCP.hpp"
+#include "Teuchos_Tuple.hpp"
+
 #include "Pimpact_CoordinatesLocal.hpp"
 #include "Pimpact_BoundaryConditionsLocal.hpp"
 #include "Pimpact_DomainSize.hpp"
@@ -63,9 +66,10 @@ public:
 
 protected:
 
-	using TO = const Teuchos::Tuple<Scalar*,3>;
+	using TO = const Teuchos::Tuple< Teuchos::ArrayRCP<Scalar>, 3 >;
 
 	TO c_;
+	TO cm_;
 
 public:
 
@@ -81,9 +85,11 @@ public:
 		for( int i=0; i<3; ++i ) {
 
 			Ordinal nTemp = ( gridSizeLocal->get(i) + 1 )*( stencilWidths->getDU(i) - stencilWidths->getDL(i) + 1);
-			c_[i] = new Scalar[ nTemp ];
+			//c_[i] = new Scalar[ nTemp ];
+			c_[i] = Teuchos::arcp<Scalar>( nTemp );
+			cm_[i] = Teuchos::arcp<Scalar>( nTemp );
 
-			if( i<domainSize->getDim() )
+			if( i<domainSize->getDim() ) {
 				FD_getDiffCoeff(
 						gridSizeLocal->get(i),
 						stencilWidths->getBL(i),
@@ -98,21 +104,40 @@ public:
 						0,    // 0-derivative
 						0,    // central
 						true, // not working with stretching mapping
-						//false, // mapping
 						stencilWidths->getDimNcbD(i),
 						stencilWidths->getNcbD(i),
 						coordinatesLocal->getX( i, i ),
 						coordinatesLocal->getX( i, EField::S ),
-						c_[i] );
+						cm_[i].get() );
+				FD_getDiffCoeff(
+						gridSizeLocal->get(i),
+						stencilWidths->getBL(i),
+						stencilWidths->getBU(i),
+						stencilWidths->getDL(i),
+						stencilWidths->getDU(i),
+						boundaryConditionsLocal->getBCL(i),
+						boundaryConditionsLocal->getBCU(i),
+						indexSpace->getShift(i),
+						3,
+						i+1,  // direction
+						0,    // 0-derivative
+						0,    // central
+						false, // mapping, works with interpolateV2S
+						stencilWidths->getDimNcbD(i),
+						stencilWidths->getNcbD(i),
+						coordinatesLocal->getX( i, i ),
+						coordinatesLocal->getX( i, EField::S ),
+						c_[i].get() );
+			}
 		}
 	};
 
 
-	~InterpolateV2S() {
-		for( int i=0; i<3; ++i ) {
-			delete[] c_[i];
-		}
-	}
+	//~InterpolateV2S() {
+		//for( int i=0; i<3; ++i ) {
+			//delete[] c_[i];
+		//}
+	//}
 
 
 	void apply( const DomainFieldT& x, RangeFieldT& y, Belos::ETrans trans=Belos::NOTRANS ) const {
@@ -168,7 +193,10 @@ public:
 	}
 
 	const Scalar* getC( const ECoord& dir ) const  {
-		return( c_[static_cast<int>(dir)] );
+		return( c_[static_cast<int>(dir)].get() );
+	}
+	const Scalar* getCM( const ECoord& dir ) const  {
+		return( cm_[static_cast<int>(dir)].get() );
 	}
 
 	const std::string getLabel() const { return( "InterpolateV2S" ); };

@@ -51,13 +51,13 @@ S omega = 0.8;
 S winds = 1;
 int nIter = 1000;
 
-//int nx = 97;
-//int ny = 25;
-//int nz = 49;
+int nx = 19;
+int ny = 17;
+int nz = 13;
 //int nf = 32;
-int nx = 517;
-int ny = 517;
-int nz = 517;
+//int nx = 517;
+//int ny = 517;
+//int nz = 517;
 int nf = 1;
 
 int npx = 1;
@@ -99,9 +99,9 @@ TEUCHOS_STATIC_SETUP() {
 	clp.setOption( "npz", &npz, "" );
 	clp.setOption( "npf", &npf, "" );
 
-	pl->set( "lx", 30. );
-	pl->set( "ly", 20. );
-	pl->set( "lz", 20. );
+	pl->set( "lx", 1. );
+	pl->set( "ly", 1. );
+	pl->set( "lz", 1. );
 
 	pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
 	pl->sublist("Stretching in X").set<S>( "N metr L", nx );

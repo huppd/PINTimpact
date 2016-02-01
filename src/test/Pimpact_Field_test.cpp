@@ -70,9 +70,9 @@ TEUCHOS_STATIC_SETUP() {
   clp.setOption( "npy", &npy, "" );
   clp.setOption( "npz", &npz, "" );
 
-  pl->set( "lx", 12. );
-  pl->set( "ly", 6. );
-  pl->set( "lz", 3. );
+  pl->set( "lx", 1. );
+  pl->set( "ly", 1. );
+  pl->set( "lz", 1. );
 
   pl->set("nx", nx );
   pl->set("ny", nx );
