@@ -292,17 +292,17 @@ public:
 
 
   /// \brief Scale each element of the vector with \c alpha.
-  void scale( const Scalar& alpha ) {
-    SF_scale(
-        space()->nLoc(),
-        space()->bl(),
-        space()->bu(),
-        space()->sInd(fType_),
-        space()->eInd(fType_),
-        s_,
-        alpha);
-    changed();
-  }
+	void scale( const Scalar& alpha ) {
+		SF_scale(
+				space()->nLoc(),
+				space()->bl(),
+				space()->bu(),
+				space()->sInd(fType_),
+				space()->eInd(fType_),
+				s_,
+				alpha);
+		changed();
+	}
 
 
   /// \brief Scale this vector <em>element-by-element</em> by the vector a.
@@ -310,17 +310,17 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  void scale(const MV& a) {
-    // add test for consistent VectorSpaces in debug mode
-    SF_scale2(
-        space()->nLoc(),
-        space()->bl(),
-        space()->bu(),
-        space()->sInd(fType_),
-        space()->eInd(fType_),
-        s_, a.s_ );
-    changed();
-  }
+	void scale(const MV& a) {
+		// add test for consistent VectorSpaces in debug mode
+		SF_scale2(
+				space()->nLoc(),
+				space()->bl(),
+				space()->bu(),
+				space()->sInd(fType_),
+				space()->eInd(fType_),
+				s_, a.s_ );
+		changed();
+	}
 
   /// @}
   /// \name Norm method(reductions)
@@ -332,6 +332,7 @@ public:
     Scalar b = 0.;
 
 		setCornersZero();
+		a.setCornersZero();
 
     SF_dot(
         space()->nLoc(),
@@ -806,7 +807,6 @@ public:
 
 			SF_level(
 					MPI_Comm_c2f( space()->comm() ),
-					//m,
 					getLength(),
 					space()->nLoc(),
 					space()->bl(),
@@ -840,21 +840,13 @@ public:
 					out << i << "\t"
 						<< j << "\t"
 						<< k << "\t"
-						<< s_[ (i-space()->bl(0)) +
-					       	 (j-space()->bl(1))*cw[0] +
-									 (k-space()->bl(2))*cw[0]*cw[1] ] << "\n";
+						<< at(i,j,k) << "\n";
+						//<< s_[ (i-space()->bl(0)) +
+										//(j-space()->bl(1))*cw[0] +
+									 //(k-space()->bl(2))*cw[0]*cw[1] ] << "\n";
 				}
 			}
 		}
-
-		//SF_print(
-				//space()->nLoc(),
-				//space()->bl(),
-				//space()->bu(),
-				//space()->sIndB(fType_),
-				//space()->eIndB(fType_),
-				//s_ );
-
   }
 
 
@@ -1132,6 +1124,27 @@ public:
   }
 
   /// \}
+
+
+	/// \brief indexing
+	///
+	/// \param i
+	/// \param j
+	/// \param k
+	///
+	/// \return 
+	const Scalar& at( Ordinal i, Ordinal j, Ordinal k ) const {
+		//Teuchos::Tuple<Ordinal,3> cw;
+		//for(int i=0; i<3; ++i)
+			//cw[i] = space()->nLoc(i)+space()->bu(i)-space()->bl(i)+1;
+		//return( s_[ (i-space()->bl(0)) +
+								//(j-space()->bl(1))*cw[0] +
+								//(k-space()->bl(2))*cw[0]*cw[1] ] );
+		return( s_[ (i-space()->bl(0)) +
+				        (j-space()->bl(1))*(space()->nLoc(0)+space()->bu(0)-space()->bl(0)+1) +
+				        (k-space()->bl(2))*(space()->nLoc(0)+space()->bu(0)-space()->bl(0)+1)*(space()->nLoc(1)+space()->bu(1)-space()->bl(1)+1) ] );
+	}
+
 
 }; // end of class ScalarField
 

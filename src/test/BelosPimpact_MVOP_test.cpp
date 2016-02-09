@@ -32,15 +32,15 @@ double eps = 1.e-6;
 int domain = 0;
 
 
-typedef typename Pimpact::Space<S,O,d,dNC> SpaceT;
+using SpaceT = typename Pimpact::Space<S,O,d,dNC>;
 
-typedef typename Pimpact::ScalarField<SpaceT> SF;
-typedef typename Pimpact::VectorField<SpaceT> VF;
-typedef typename Pimpact::ModeField<SF>       MSF;
-typedef typename Pimpact::ModeField<VF>       MVF;
+using SF = typename Pimpact::ScalarField<SpaceT>;
+using VF = typename Pimpact::VectorField<SpaceT>;
+using MSF = typename Pimpact::ModeField<SF>;
+using MVF = typename Pimpact::ModeField<VF>;
 
-typedef Pimpact::CompoundField<VF,SF> CF;
-typedef Pimpact::CompoundField<MVF,MSF> CMF;
+using CF = Pimpact::CompoundField<VF,SF>;
+using CMF = Pimpact::CompoundField<MVF,MSF>;
 
 
 auto pl = Teuchos::parameterList();
@@ -73,16 +73,16 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, BelosMVTest, FType ) {
 
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
-  auto vel = Pimpact::create<FType>( space );
+  auto x = Pimpact::create<FType>( space );
 
-  auto mvec = Pimpact::createMultiField( *vel, 5 );
+  auto mx = Pimpact::createMultiField( *x, 5 );
 
   // Create an output manager to handle the I/O from the solver
   Teuchos::RCP<Belos::OutputManager<S> > MyOM =
-		Teuchos::rcp( new Belos::OutputManager<S>(Belos::Warnings,rcp(&out,false)) );
+		Teuchos::rcp( new Belos::OutputManager<S>(Belos::Warnings,rcp( &out, false ) ) );
 
-  bool res = Belos::TestMultiVecTraits<S,Pimpact::MultiField<FType> >(MyOM,mvec);
-  TEST_EQUALITY_CONST(res,true);
+  bool res = Belos::TestMultiVecTraits<S,Pimpact::MultiField<FType> >( MyOM, mx );
+  TEST_EQUALITY_CONST( res, true );
 
 }
 

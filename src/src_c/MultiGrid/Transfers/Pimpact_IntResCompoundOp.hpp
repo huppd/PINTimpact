@@ -23,13 +23,13 @@ class IntResCompoundOp {
 
 public:
 
-	typedef typename TransVT::FSpaceT FSpaceT;
-	typedef typename TransVT::CSpaceT CSpaceT;
+	using FSpaceT = typename TransVT::FSpaceT;
+	using CSpaceT = typename TransVT::CSpaceT;
 
-	typedef typename TransVT::SpaceT SpaceT;
+	using SpaceT = typename TransVT::SpaceT;
 
-	typedef CompoundField<typename TransVT::DomainFieldT, typename TransST::DomainFieldT > DomainFieldT;
-	typedef CompoundField<typename TransVT::RangeFieldT,  typename TransST::RangeFieldT  > RangeFieldT;
+	using DomainFieldT = CompoundField<typename TransVT::DomainFieldT, typename TransST::DomainFieldT >;
+	using RangeFieldT = CompoundField<typename TransVT::RangeFieldT,  typename TransST::RangeFieldT  >;
 
 protected:
 

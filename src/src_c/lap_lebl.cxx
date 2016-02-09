@@ -72,7 +72,7 @@ using InterVF = Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<T> >;
 template<class T>
 using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
 template<class T>
-using POP   = Pimpact::PrecInverseOp< T, Pimpact::DivGradO2JSmoother >;
+using POP = Pimpact::PrecInverseOp< T, Pimpact::DivGradO2JSmoother >;
 
 
 
@@ -167,6 +167,11 @@ int main( int argi, char** argv ) {
 
 	opV2V->apply( x->getVField(), f->getVField() );
 	opV2S->apply( f->getVField(), f->getSField() );
+
+	f->getSFieldPtr()->write( 99 );
+	//x->getSFieldPtr()->random();
+	//for( int i=0; i<10; ++i )
+		//mgDivGrad->apply( f->getSFieldPtr()->get0Field(), x->getSFieldPtr()->get0Field() );
 	divGradInv->apply( f->getSField(), x->getSField() );
 
 	x->getSFieldPtr()->write();
