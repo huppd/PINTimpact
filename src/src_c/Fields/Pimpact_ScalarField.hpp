@@ -832,18 +832,16 @@ public:
 
 		Teuchos::Tuple<Ordinal,3> cw;
 		for(int i=0; i<3; ++i)
-			cw[i] = space()->nLoc(i)+space()->bu(i)-space()->bl(i)+1;
+			cw[i] = space()->nLoc(i) + space()->bu(i) - space()->bl(i) + 1;
 
 		for( Ordinal k=space()->sIndB(fType_,2); k<=space()->eIndB(fType_,2); ++k ) {
 			for( Ordinal j=space()->sIndB(fType_,1); j<=space()->eIndB(fType_,1); ++j ) {
 				for( Ordinal i=space()->sIndB(fType_,0); i<=space()->eIndB(fType_,0); ++i ) {
-					out << i << "\t"
-						<< j << "\t"
-						<< k << "\t"
+					out << i << "\t" << j << "\t" << k << "\t"
 						<< at(i,j,k) << "\n";
-						//<< s_[ (i-space()->bl(0)) +
+						//<< s_[  (i-space()->bl(0)) +
 										//(j-space()->bl(1))*cw[0] +
-									 //(k-space()->bl(2))*cw[0]*cw[1] ] << "\n";
+									 // (k-space()->bl(2))*cw[0]*cw[1] ] << "\n";
 				}
 			}
 		}
@@ -1056,7 +1054,7 @@ public:
 
   /// @}
 
-  Teuchos::RCP<const SpaceT> space() const { return( AbstractField<SpaceT>::space_ ); }
+  const Teuchos::RCP<const SpaceT>& space() const { return( AbstractField<SpaceT>::space_ ); }
 
   const MPI_Comm& comm() const { return( space()->comm() ); }
 
@@ -1128,23 +1126,29 @@ public:
 
 	/// \brief indexing
 	///
-	/// \param i
-	/// \param j
-	/// \param k
+	/// \param i index in x-direction
+	/// \param j index in y-direction
+	/// \param k index in z-direction
 	///
-	/// \return 
-	const Scalar& at( Ordinal i, Ordinal j, Ordinal k ) const {
-		//Teuchos::Tuple<Ordinal,3> cw;
-		//for(int i=0; i<3; ++i)
-			//cw[i] = space()->nLoc(i)+space()->bu(i)-space()->bl(i)+1;
-		//return( s_[ (i-space()->bl(0)) +
-								//(j-space()->bl(1))*cw[0] +
-								//(k-space()->bl(2))*cw[0]*cw[1] ] );
+	/// \return const reference
+	inline const Scalar& at( const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
 		return( s_[ (i-space()->bl(0)) +
 				        (j-space()->bl(1))*(space()->nLoc(0)+space()->bu(0)-space()->bl(0)+1) +
 				        (k-space()->bl(2))*(space()->nLoc(0)+space()->bu(0)-space()->bl(0)+1)*(space()->nLoc(1)+space()->bu(1)-space()->bl(1)+1) ] );
 	}
 
+	/// \brief indexing
+	///
+	/// \param i index in x-direction
+	/// \param j index in y-direction
+	/// \param k index in z-direction
+	///
+	/// \return reference
+	inline Scalar& at( const Ordinal& i, const Ordinal& j, const Ordinal& k )  {
+		return( s_[ (i-space()->bl(0)) +
+				        (j-space()->bl(1))*(space()->nLoc(0)+space()->bu(0)-space()->bl(0)+1) +
+				        (k-space()->bl(2))*(space()->nLoc(0)+space()->bu(0)-space()->bl(0)+1)*(space()->nLoc(1)+space()->bu(1)-space()->bl(1)+1) ] );
+	}
 
 }; // end of class ScalarField
 

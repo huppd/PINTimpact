@@ -150,11 +150,10 @@ public:
     for( int i=0; i<3; ++i ) {
       out << "\ndir: " << i << "\n";
       Ordinal nTemp1 = space_->nLoc(i) - 1 + 1;
-      Ordinal nTemp2 = 3;
       for( int j=0; j<nTemp1; ++j ) {
         out << "\ni: " << j+1 << "\t(";
-        for( int k=0; k<nTemp2; ++k ) {
-          out << c_[i][k+nTemp2*j] <<", ";
+        for( int k=-1; k<=1; ++k ) {
+					out << getC(i,j,k) << ", " ;
         }
         out << ")\n";
       }
@@ -162,17 +161,27 @@ public:
     }
   }
 
+	/// \name getters
+	/// @{ 
+
 	const Scalar* getC( const ECoord& dir) const  {
-		//std::cout << "\nscast: " << static_cast<const int&>(dir) << "\n";
 		return( getC( static_cast<const int&>(dir) ) );
   }
 
   const Scalar* getC( const int& dir) const  {
 		return( c_[dir] );
-		//return( c_[0] );
+  }
+
+	const Scalar& getC( const ECoord& dir, Ordinal i, Ordinal off ) const  {
+		return( getC( static_cast<const int&>(dir), i, off ) );
+  }
+
+	const Scalar& getC( const int& dir, Ordinal i, Ordinal off ) const  {
+		return( c_[dir][ off + 1 + i*3 ] );
   }
 
 	const std::string getLabel() const { return( "DivGradO2" ); };
+	///  @} 
 
 }; // end of class DivGradO2Op
 

@@ -41,13 +41,13 @@ class DivGradO2JSmoother {
 
 public:
 
-  typedef typename OperatorT::SpaceT SpaceT;
+  using SpaceT = typename OperatorT::SpaceT;
 
-  typedef typename SpaceT::Scalar Scalar;
-  typedef typename SpaceT::Ordinal Ordinal;
+  using Scalar = typename SpaceT::Scalar;
+  using Ordinal = typename SpaceT::Ordinal;
 
-  typedef ScalarField<SpaceT>  DomainFieldT;
-  typedef ScalarField<SpaceT>  RangeFieldT;
+  using DomainFieldT = ScalarField<SpaceT>;
+  using RangeFieldT = ScalarField<SpaceT>;
 
 protected:
 
