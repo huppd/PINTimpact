@@ -39,8 +39,8 @@ public:
 protected:
 
 	using MatrixT = Teuchos::SerialDenseMatrix<Ordinal,Scalar>;
-	using SolverT = Teuchos::SerialQRDenseSolver<Ordinal,Scalar>;
-	//using SolverT = Teuchos::SerialDenseSolver<Ordinal,Scalar>;
+	//using SolverT = Teuchos::SerialQRDenseSolver<Ordinal,Scalar>;
+	using SolverT = Teuchos::SerialDenseSolver<Ordinal,Scalar>;
 
 	//Ordinal N_;
 	bool levelYes_;
@@ -549,7 +549,7 @@ public:
 
 		Teuchos::Tuple<Ordinal,3> cw;
 		for( int i=0; i<3; ++i ) {
-			cw[i] = ( space()->eIndB( EField::S, i ) - space()->sIndB( EField::S, i ) + 1 );
+			cw[i] = space()->eIndB( EField::S, i ) - space()->sIndB( EField::S, i ) + 1;
 		}
 
 		x.setCornersZero();
@@ -578,7 +578,7 @@ public:
 					Ordinal I = (i-space()->sIndB(EField::S,X)) +             
 						(j-space()->sIndB(EField::S,Y))*cw[0] +
 						(k-space()->sIndB(EField::S,Z))*cw[0]*cw[1];
-					y.at(i,j,k) = (*B_)(I,0);
+					y.at(i,j,k) = (*X_)(I,0);
 				}
 			}
 		}

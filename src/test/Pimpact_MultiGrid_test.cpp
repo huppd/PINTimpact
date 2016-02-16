@@ -119,11 +119,11 @@ TEUCHOS_STATIC_SETUP() {
 	clp.setOption( "rank", &rankbla, "" );
 	clp.setOption( "maxGrids", &maxGrids, "" );
 
-	pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
-	pl->sublist("Stretching in X").set<S>( "N metr L", nx );
-	pl->sublist("Stretching in X").set<S>( "N metr U", nx  );
-	pl->sublist("Stretching in X").set<S>( "x0 L", 0.05 );
-	pl->sublist("Stretching in X").set<S>( "x0 U", 0. );
+	//pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+	//pl->sublist("Stretching in X").set<S>( "N metr L", nx );
+	//pl->sublist("Stretching in X").set<S>( "N metr U", nx  );
+	//pl->sublist("Stretching in X").set<S>( "x0 L", 0.05 );
+	//pl->sublist("Stretching in X").set<S>( "x0 U", 0. );
 
 	////pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
 	////pl->sublist("Stretching in Y").set<S>( "N metr L", 1 );
@@ -1287,8 +1287,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 			Pimpact::InterpolationOp,
 			Pimpact::DivGradOp,
 			Pimpact::DivGradO2Op,
-			//Pimpact::DivGradO2JSmoother,
-			Pimpact::DivGradO2SORSmoother,
+			Pimpact::DivGradO2JSmoother,
+			//Pimpact::DivGradO2SORSmoother,
 			Pimpact::DivGradO2Inv >( mgSpaces, mgPL );
 			//POP2 >( mgSpaces, mgPL );
 			//POP >( mgSpaces, mgPL );

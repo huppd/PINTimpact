@@ -897,19 +897,24 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Inv ) {
 		//std::cout << "consistency for " << err << "\n";
 
   // --- consistency test ---
+	//for( int dir=1; dir<=6; ++dir ) {
 	for( int dir=1; dir<=6; ++dir ) {
 		x->initField( static_cast<Pimpact::EScalarField>(dir) );
-		x->level();
+		//x->level();
 		auto xp = x->clone( Pimpact::DeepCopy );
 
+		x->print();
 		op->apply( *x, *b );
+		//b->setCornersZero();
+		b->print();
 
 		solver->apply( *b, *xp );
-		xp->level();
+		//xp->level();
+		xp->print();
+		//xp->level();
+		//xp->print();
 
 		xp->add( 1., *xp, -1., *x );
-		xp->level();
-		xp->write(dir);
 		S err2 = xp->norm( Belos::InfNorm )/std::sqrt( static_cast<S>(xp->getLength()) );
 		S errInf = xp->norm( Belos::InfNorm );
 
