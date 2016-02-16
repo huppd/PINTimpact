@@ -63,17 +63,17 @@ class DivGradO2Op {
 
 public:
 
-  typedef ST SpaceT;
+  using SpaceT = ST;
 
-  typedef typename SpaceT::Scalar Scalar;
-  typedef typename SpaceT::Ordinal Ordinal;
+  using Scalar = typename SpaceT::Scalar;
+  using Ordinal = typename SpaceT::Ordinal;
 
-  typedef ScalarField<SpaceT>  DomainFieldT;
-  typedef ScalarField<SpaceT>  RangeFieldT;
+  using DomainFieldT = ScalarField<SpaceT>;
+  using RangeFieldT = ScalarField<SpaceT>;
 
 protected:
 
-  typedef const Teuchos::Tuple<Scalar*,3> TO;
+  using TO = const Teuchos::Tuple<Scalar*,3>;
 
   const Teuchos::RCP<const SpaceT> space_;
 
@@ -147,13 +147,12 @@ public:
   void print( std::ostream& out=std::cout ) const {
     out << "--- " << getLabel() << " ---\n";
     out << " --- stencil: ---";
-    for( int i=0; i<3; ++i ) {
-      out << "\ndir: " << i << "\n";
-      Ordinal nTemp1 = space_->nLoc(i) - 1 + 1;
-      for( int j=0; j<nTemp1; ++j ) {
-        out << "\ni: " << j+1 << "\t(";
+    for( int dir=0; dir<3; ++dir ) {
+      out << "\ndir: " << dir << "\n";
+      for( int i=1; i<space_->nLoc(dir); ++i ) {
+        out << "\ni: " << i << "\t(";
         for( int k=-1; k<=1; ++k ) {
-					out << getC(i,j,k) << ", " ;
+					out << getC(dir,i,k) << "\t" ;
         }
         out << ")\n";
       }
@@ -177,23 +176,18 @@ public:
   }
 
 	const Scalar& getC( const int& dir, Ordinal i, Ordinal off ) const  {
-		return( c_[dir][ off + 1 + i*3 ] );
+		return( c_[dir][ off + 1 + (i-1)*3 ] );
   }
 
 	const std::string getLabel() const { return( "DivGradO2" ); };
+
 	///  @} 
+
 
 }; // end of class DivGradO2Op
 
 
 
-///// \relates DivGradO2Op
-//template<class SpaceT>
-//Teuchos::RCP<const DivGradO2Op<SpaceT> > createDivGradO2Op(
-    //const Teuchos::RCP<const SpaceT>& space ) {
-  //return(
-      //Teuchos::rcp( new DivGradO2Op<SpaceT>(space) ) );
-//}
 
 
 } // end of namespace Pimpact

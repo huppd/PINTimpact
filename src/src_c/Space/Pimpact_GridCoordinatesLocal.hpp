@@ -63,7 +63,7 @@ class GridCoordinatesLocal {
 
 public:
 
-  typedef const Teuchos::Tuple<Scalar*,dim> TO;
+  using TO = const Teuchos::Tuple<Scalar*,dim>;
 
 protected:
 

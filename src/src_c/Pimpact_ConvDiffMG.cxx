@@ -4,15 +4,15 @@
 #include "Pimpact_MultiGrid.hpp"
 #include "Pimpact_CoarsenStrategyGlobal.hpp"
 
-typedef double S;
-typedef int O;
+using S = double;
+using O = int;
 const int d = 3;
 const int dNC=4;
 
-typedef Pimpact::Space<S,O,d,dNC> FSpaceT;
-typedef Pimpact::Space<S,O,d,2> CSpaceT;
+using FSpaceT = Pimpact::Space<S,O,d,dNC>;
+using CSpaceT = Pimpact::Space<S,O,d,2>;
 
-typedef Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT> CS;
+using CS = Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT>;
 
 template<class T1,class T2> using TransVF = Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<T1,T2> >;
 template<class T> using RestrVF = Pimpact::VectorFieldOpWrap<Pimpact::RestrictionHWOp<T> >;

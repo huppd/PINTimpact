@@ -29,7 +29,7 @@ class ProcGrid {
 
 public:
 
-	typedef const Teuchos::Tuple<Ordinal,dim> TO;
+	using TO = const Teuchos::Tuple<Ordinal,dim>;
 
 protected:
 

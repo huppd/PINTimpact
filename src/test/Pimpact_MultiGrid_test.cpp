@@ -11,6 +11,8 @@
 #include "Pimpact_MultiGrid.hpp"
 #include "Pimpact_Operator.hpp"
 
+#include "Pimpact_DivGradO2Inv.hpp"
+
 
 
 
@@ -1287,7 +1289,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 			Pimpact::DivGradO2Op,
 			//Pimpact::DivGradO2JSmoother,
 			Pimpact::DivGradO2SORSmoother,
-			POP2 >( mgSpaces, mgPL );
+			Pimpact::DivGradO2Inv >( mgSpaces, mgPL );
+			//POP2 >( mgSpaces, mgPL );
 			//POP >( mgSpaces, mgPL );
 			//MOP >( mgSpaces, mgPL );
 			//Pimpact::DivGradO2SORSmoother >( mgSpaces, mgPL );

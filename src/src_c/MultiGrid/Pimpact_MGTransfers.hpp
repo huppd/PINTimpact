@@ -25,11 +25,11 @@ class MGTransfers {
 
 public:
 
-  typedef typename MGSpacesT::FSpaceT FSpaceT;
-  typedef typename MGSpacesT::CSpaceT CSpaceT;
+  using FSpaceT = typename MGSpacesT::FSpaceT;
+  using CSpaceT = typename MGSpacesT::CSpaceT;
 
-  typedef typename FSpaceT::Scalar  Scalar;
-  typedef typename FSpaceT::Ordinal Ordinal;
+  using Scalar = typename FSpaceT::Scalar;
+  using Ordinal = typename FSpaceT::Ordinal;
 
   static const int dimension = FSpaceT::dimension;
 
@@ -37,9 +37,9 @@ public:
   static const int dimNCC = CSpaceT::dimNC;
 
 
-  typedef TransT<FSpaceT,CSpaceT> TransferOpT;
-  typedef RestrT<CSpaceT> RestrictionOpT;
-  typedef InterT<CSpaceT> InterpolationOpT;
+  using TransferOpT = TransT<FSpaceT,CSpaceT>;
+  using RestrictionOpT = RestrT<CSpaceT>;
+  using InterpolationOpT = InterT<CSpaceT>;
 
 //  template<
 //    class MGSpacesTT,

@@ -21,19 +21,19 @@ class NonlinearOp {
 
 public:
 
-  typedef CSOPT ConvSOpT;
+  using ConvSOpT = CSOPT;
 
-  typedef typename ConvSOpT::SpaceT SpaceT;
+  using SpaceT = typename ConvSOpT::SpaceT;
 
-  typedef typename SpaceT::Scalar Scalar;
-  typedef typename SpaceT::Ordinal Ordinal;
+  using Scalar = typename SpaceT::Scalar;
+  using Ordinal = typename SpaceT::Ordinal;
 
   static const int dimension = SpaceT::dimension;
 
   static const int dimNC = SpaceT::dimNC;
 
-  typedef VectorField<SpaceT>  DomainFieldT;
-  typedef VectorField<SpaceT>  RangeFieldT;
+  using DomainFieldT = VectorField<SpaceT>;
+  using RangeFieldT = VectorField<SpaceT>;
 
 protected:
 

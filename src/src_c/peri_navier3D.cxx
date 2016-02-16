@@ -51,7 +51,7 @@ using FSpaceT = Pimpact::Space<S,O,4,4>;
 using CSpaceT = Pimpact::Space<S,O,4,2>;
 
 using CS = Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT>;
-//typedef Pimpact::CoarsenStrategy<FSpaceT,CSpaceT> CS;
+//using CS = Pimpact::CoarsenStrategy<FSpaceT,CSpaceT>;
 
 using VF = Pimpact::MultiHarmonicField< Pimpact::VectorField<SpaceT> >;
 using SF = Pimpact::MultiHarmonicField< Pimpact::ScalarField<SpaceT> >;

@@ -48,26 +48,26 @@ template<
 	template<class> class CGST >
 class MultiGrid {
 
-	typedef typename MGSpacesT::FSpaceT FSpaceT;
-	typedef typename MGSpacesT::CSpaceT CSpaceT;
+	using FSpaceT = typename MGSpacesT::FSpaceT;
+	using CSpaceT = typename MGSpacesT::CSpaceT;
 
 
-	typedef MGTransfers<MGSpacesT,TransT,RestrT,InterT> MGTransfersT;
+	using MGTransfersT = MGTransfers<MGSpacesT,TransT,RestrT,InterT>;
 
-	typedef MGFields<MGSpacesT,FieldT> MGFieldsT;
+	using MGFieldsT = MGFields<MGSpacesT,FieldT>;
 
-	typedef MGOperators<MGSpacesT,FOperatorT,COperatorT>   MGOperatorsT;
+	using MGOperatorsT = MGOperators<MGSpacesT,FOperatorT,COperatorT>;
 
-	typedef MGSmoothers<MGOperatorsT, SmootherT> MGSmoothersT;
+	using MGSmoothersT = MGSmoothers<MGOperatorsT, SmootherT>;
 
 public:
 
-	typedef FSpaceT SpaceT;
+	using SpaceT =  FSpaceT;
 
-	typedef FieldT<FSpaceT>  DomainFieldT;
-	typedef FieldT<FSpaceT>  RangeFieldT;
+	using DomainFieldT = FieldT<FSpaceT>;
+	using RangeFieldT = FieldT<FSpaceT>;
 
-	typedef CGST< COperatorT<CSpaceT> > CGridSolverT;
+	using CGridSolverT = CGST< COperatorT<CSpaceT> >;
 
 protected:
 

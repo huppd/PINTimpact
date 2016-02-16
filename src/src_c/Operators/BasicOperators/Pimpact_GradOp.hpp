@@ -73,14 +73,14 @@ class GradOp {
 
 public:
 
-  typedef ST SpaceT;
+  using SpaceT = ST;
 
-  typedef typename SpaceT::Scalar Scalar;
-  typedef typename SpaceT::Ordinal Ordinal;
+  using Scalar = typename SpaceT::Scalar;
+  using Ordinal = typename SpaceT::Ordinal;
 
 protected:
 
-  typedef const Teuchos::Tuple<Scalar*,3> TO;
+  using TO = const Teuchos::Tuple<Scalar*,3>;
 
   Teuchos::RCP<const SpaceT> space_;
 
@@ -88,8 +88,8 @@ protected:
 
 public:
 
-  typedef ScalarField<SpaceT>  DomainFieldT;
-  typedef VectorField<SpaceT>  RangeFieldT;
+  using DomainFieldT =  ScalarField<SpaceT>;
+  using RangeFieldT =  VectorField<SpaceT>;
 
   GradOp( const Teuchos::RCP< const SpaceT>& space):
     space_(space) {

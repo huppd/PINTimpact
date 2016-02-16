@@ -24,8 +24,8 @@ class BoundaryConditionsGlobal {
 
 public:
 
-	typedef const Teuchos::Tuple<EBCType,dim> TBC3;
-	typedef const Teuchos::Tuple<int,dim> Ti3;
+	using TBC3 = const Teuchos::Tuple<EBCType,dim>;
+	using Ti3 = const Teuchos::Tuple<int,dim>;
 
 	template<int d>
   friend Teuchos::RCP<const BoundaryConditionsGlobal<d> > createBoudaryConditionsGlobal();

@@ -23,15 +23,15 @@ class InverseOp {
 
 public:
 
-  typedef OT OperatorT;
-  typedef typename OperatorT::SpaceT SpaceT;
+  using OperatorT = OT;
+  using SpaceT = typename OperatorT::SpaceT;
 
-  typedef typename OperatorT::DomainFieldT MF;
+  using MF = typename OperatorT::DomainFieldT;
 
-  typedef OperatorBase<MF>   Op;
+  using Op = OperatorBase<MF>;
 
-  typedef typename OperatorT::DomainFieldT DomainFieldT;
-  typedef typename OperatorT::RangeFieldT  RangeFieldT;
+  using DomainFieldT = typename OperatorT::DomainFieldT;
+  using RangeFieldT = typename OperatorT::RangeFieldT;
 
 protected:
 

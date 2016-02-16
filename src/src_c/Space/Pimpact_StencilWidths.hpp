@@ -36,9 +36,9 @@ protected:
 
 	const bool spectralT_;
 
-  typedef const Teuchos::Tuple<int,dim> TO;
+  using TO = const Teuchos::Tuple<int,dim>;
 
-  typedef  Teuchos::Tuple<  Teuchos::Tuple<int,dimNC>,3> TStenc;
+  using TStenc =  Teuchos::Tuple<  Teuchos::Tuple<int,dimNC>,3>;
 
   /// \{ \name Konvergenzordnung der Differenzenkoeffizienten (Anzahl Koeffizienten)
   /// \{ \brief Anzahl Stencil-Koeffizienten (Rand)

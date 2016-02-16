@@ -27,20 +27,20 @@ namespace {
 
 bool output = false;
 
-typedef double S;
-typedef int O;
+using S = double;
+using O = int;
 
-typedef Pimpact::Space<S,O,3,4> FSpace3T;
-typedef Pimpact::Space<S,O,4,4> FSpace4T; 
+using FSpace3T = Pimpact::Space<S,O,3,4>;
+using FSpace4T = Pimpact::Space<S,O,4,4>; 
 
-typedef Pimpact::Space<S,O,3,2> CSpace3T;
-typedef Pimpact::Space<S,O,4,2> CSpace4T; 
+using CSpace3T = Pimpact::Space<S,O,3,2>;
+using CSpace4T = Pimpact::Space<S,O,4,2>; 
 
-typedef Pimpact::CoarsenStrategy<FSpace3T,CSpace3T> CS3L;
-typedef Pimpact::CoarsenStrategyGlobal<FSpace3T,CSpace3T,5> CS3G;
+using CS3L = Pimpact::CoarsenStrategy<FSpace3T,CSpace3T>;
+using CS3G = Pimpact::CoarsenStrategyGlobal<FSpace3T,CSpace3T,5>;
 
-typedef Pimpact::CoarsenStrategy<FSpace4T,CSpace4T> CS4L;
-typedef Pimpact::CoarsenStrategyGlobal<FSpace4T,CSpace4T,5> CS4G;
+using CS4L = Pimpact::CoarsenStrategy<FSpace4T,CSpace4T>;
+using CS4G = Pimpact::CoarsenStrategyGlobal<FSpace4T,CSpace4T,5>;
 
 template<class ST> using BSF = Pimpact::MultiField< Pimpact::ScalarField<ST> >;
 //template<class T> using BVF = Pimpact::MultiField< Pimpact::VectorField<T> >;
@@ -161,7 +161,7 @@ TEUCHOS_STATIC_SETUP() {
 /*
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSpaces, constructor4D, CS ) {
 
-//  typedef Pimpact::CoarsenStrategy<FSpace4T,CSpace4T> CS;
+//  using CS = Pimpact::CoarsenStrategy<FSpace4T,CSpace4T>;
 
 	//  grid size
 	pl->set("nx", nx );
@@ -645,7 +645,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 auto x = Pimpact::createCompoundField( Pimpact::createTimeField< Pimpact::VectorField<FSpace4T> >( space ),
                                        Pimpact::createTimeField< Pimpact::ScalarField<FSpace4T> >( space ));
 
-typedef Pimpact::TimeStokesOp<FSpace4T> OpT;
+using OpT = Pimpact::TimeStokesOp<FSpace4T>;
 auto op = Pimpact::create<OpT>( space );
 
 auto op_true = Pimpact::create<OpT>( space );

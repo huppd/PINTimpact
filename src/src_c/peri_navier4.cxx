@@ -57,11 +57,11 @@
 
 //auto CompTime = Teuchos::TimeMonitor::getNewCounter("Pimpact:: Solving Time");
 
-  typedef double S;
-  typedef int O;
+using S = double;
+using O = int;
 
-  typedef Pimpact::Space<S,O,4,4> SpaceT;
-  typedef Pimpact::Space<S,O,4,2> CSpaceT;
+using SpaceT = Pimpact::Space<S,O,4,4>;
+using CSpaceT = Pimpact::Space<S,O,4,2>;
 
 template<class SpaceT> using CVF = Pimpact::CompoundField<Pimpact::TimeField<Pimpact::VectorField<SpaceT> >,
                                                           Pimpact::TimeField<Pimpact::ScalarField<SpaceT> > >;
@@ -86,32 +86,25 @@ template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact
 
 
 
-typedef Pimpact::CoarsenStrategy<SpaceT,CSpaceT> CS4L;
-typedef Pimpact::CoarsenStrategyGlobal<SpaceT,CSpaceT,5> CS4G;
+using CS4L = Pimpact::CoarsenStrategy<SpaceT,CSpaceT>;
+using CS4G = Pimpact::CoarsenStrategyGlobal<SpaceT,CSpaceT,5>;
+
+using VF = Pimpact::TimeField< Pimpact::VectorField<SpaceT> >;
+using SF = Pimpact::TimeField< Pimpact::ScalarField<SpaceT> >;
+using CF = Pimpact::CompoundField< VF, SF>;
+
+using MF = Pimpact::MultiField<CF>;
+
+using Fo = Pimpact::ForcingOp<VF>;
+using BOp = Pimpact::OperatorBase<MF>;
+
+using Inter = NOX::Pimpact::Interface<MF>;
+using NV = NOX::Pimpact::Vector<typename Inter::Field>;
+
 
 
 
 int main(int argi, char** argv ) {
-
-//  typedef double S;
-//  typedef int O;
-
-  //typedef Pimpact::Space<S,O,4,4> SpaceT;
-  //typedef Pimpact::Space<S,O,4,2> CSpaceT;
-
-
-  typedef Pimpact::TimeField< Pimpact::VectorField<SpaceT> > VF;
-  typedef Pimpact::TimeField< Pimpact::ScalarField<SpaceT> > SF;
-  typedef Pimpact::CompoundField< VF, SF> CF;
-
-  typedef Pimpact::MultiField<CF> MF;
-
-  typedef Pimpact::ForcingOp<VF> Fo;
-  typedef Pimpact::OperatorBase<MF> BOp;
-
-  typedef NOX::Pimpact::Interface<MF> Inter;
-  typedef NOX::Pimpact::Vector<typename Inter::Field> NV;
-
 
   // intialize MPI
   MPI_Init( &argi, &argv );

@@ -35,7 +35,7 @@ using O = int;
 const int d = 3;
 const int dNC = 2;
 
-typedef Pimpact::Space<S,O,d,dNC> SpaceT;
+using SpaceT = Pimpact::Space<S,O,d,dNC>;
 
 
 bool testMpi = true;
@@ -74,8 +74,6 @@ TEUCHOS_STATIC_SETUP() {
 //TEUCHOS_UNIT_TEST( NOXPimpact_LinearStokes, createLinearStokes ) {
 //
 //
-//  typedef double S;
-//  typedef int O;
 //  typedef Pimpact::ScalarField<S,O> SF;
 //  typedef Pimpact::VectorField<S,O> VF;
 //  typedef Pimpact::ModeField<SF> MSF;

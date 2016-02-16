@@ -23,9 +23,9 @@ using O = int;
 const int d = 4;
 const int dNC = 4;
 
-typedef Pimpact::Space<S,O,d,dNC>                SpaceT;
-typedef typename Pimpact::ScalarField<SpaceT>    SF;
-typedef typename Pimpact::VectorField<SpaceT>    VF;
+using SpaceT = Pimpact::Space<S,O,d,dNC>;
+using SF = typename Pimpact::ScalarField<SpaceT>;
+using VF = typename Pimpact::VectorField<SpaceT>;
 
 bool testMpi = true;
 double eps = 1e-6;

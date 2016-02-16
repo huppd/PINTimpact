@@ -25,7 +25,7 @@ namespace {
 using S = double;
 using O = int;
 
-typedef Pimpact::Space<S,O,3,4> SpaceT;
+using SpaceT = Pimpact::Space<S,O,3,4>;
 
 bool testMpi = true;
 double eps = 1e-6;

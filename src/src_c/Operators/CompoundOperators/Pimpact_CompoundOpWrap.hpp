@@ -21,17 +21,17 @@ class CompoundOpWrap {
 
 public:
 
-	typedef OpV2V OpV2VT;
-	typedef OpS2V OpS2VT;
-	typedef OpV2S OpV2ST;
+	using OpV2VT = OpV2V;
+	using OpS2VT = OpS2V;
+	using OpV2ST = OpV2S;
 
-  typedef typename OpV2V::DomainFieldT  VF;
-  typedef typename OpS2V::DomainFieldT  SF;
+  using VF = typename OpV2V::DomainFieldT;
+  using SF = typename OpS2V::DomainFieldT;
 
-  typedef CompoundField<VF,SF>  DomainFieldT;
-  typedef CompoundField<VF,SF>  RangeFieldT;
+  using DomainFieldT = CompoundField<VF,SF>;
+  using RangeFieldT = CompoundField<VF,SF>;
 
-  typedef typename VF::SpaceT SpaceT;
+  using SpaceT = typename VF::SpaceT;
 
 protected:
 

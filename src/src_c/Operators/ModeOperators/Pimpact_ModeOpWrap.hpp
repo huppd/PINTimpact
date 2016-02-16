@@ -24,10 +24,10 @@ class ModeOpWrap  {
 
 public:
 
-	typedef ModeField<typename Operator::DomainFieldT> DomainFieldT;
-	typedef ModeField<typename Operator::RangeFieldT>  RangeFieldT;
+	using DomainFieldT = ModeField<typename Operator::DomainFieldT>;
+	using RangeFieldT = ModeField<typename Operator::RangeFieldT>;
 
-  typedef typename DomainFieldT::SpaceT SpaceT;
+  using SpaceT = typename DomainFieldT::SpaceT;
 
 protected:
 

@@ -23,15 +23,13 @@ class MultiDtConvectionDiffusionOp {
 
 public:
 
-  typedef ST SpaceT;
+  using SpaceT = ST;
 
-  typedef typename SpaceT::Scalar Scalar;
-  typedef typename SpaceT::Ordinal Ordinal;
+  using Scalar = typename SpaceT::Scalar;
+  using Ordinal = typename SpaceT::Ordinal;
 
-  typedef MultiHarmonicField< VectorField<SpaceT> >  DomainFieldT;
-  typedef MultiHarmonicField< VectorField<SpaceT> >  RangeFieldT;
-
-  //typedef typename ConvVWrapT::FieldTensor FieldTensor;
+  using DomainFieldT = MultiHarmonicField< VectorField<SpaceT> >;
+  using RangeFieldT = MultiHarmonicField< VectorField<SpaceT> >;
 
 protected:
 

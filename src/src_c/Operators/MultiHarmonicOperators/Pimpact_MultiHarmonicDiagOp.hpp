@@ -20,13 +20,13 @@ class MultiHarmonicDiagOp {
 
 	public:
 
-  typedef typename ZeroOpT::SpaceT SpaceT;
+  using SpaceT = typename ZeroOpT::SpaceT;
 
-  typedef typename SpaceT::Scalar Scalar;
-  typedef typename SpaceT::Ordinal Ordinal;
+  using Scalar = typename SpaceT::Scalar;
+  using Ordinal = typename SpaceT::Ordinal;
 
-  typedef MultiHarmonicField<typename ZeroOpT::DomainFieldT>  DomainFieldT;
-  typedef MultiHarmonicField<typename ZeroOpT::RangeFieldT>  RangeFieldT;
+  using DomainFieldT = MultiHarmonicField<typename ZeroOpT::DomainFieldT>;
+  using RangeFieldT = MultiHarmonicField<typename ZeroOpT::RangeFieldT>;
 
 protected:
 

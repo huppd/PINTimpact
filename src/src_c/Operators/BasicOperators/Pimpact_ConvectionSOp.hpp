@@ -48,18 +48,18 @@ class ConvectionSOp {
 
 public:
 
-  typedef ST SpaceT;
+  using SpaceT = ST;
 
-  typedef typename SpaceT::Scalar Scalar;
-  typedef typename SpaceT::Ordinal Ordinal;
+  using Scalar = typename SpaceT::Scalar;
+  using Ordinal = typename SpaceT::Ordinal;
 
-  typedef Teuchos::Tuple< Teuchos::RCP< ScalarField<SpaceT> >, 3 > FluxFieldT;
-  typedef ScalarField<SpaceT>  DomainFieldT;
-  typedef ScalarField<SpaceT>  RangeFieldT;
+  using FluxFieldT = Teuchos::Tuple< Teuchos::RCP< ScalarField<SpaceT> >, 3 >;
+  using DomainFieldT = ScalarField<SpaceT>;
+  using RangeFieldT = ScalarField<SpaceT>;
 
 protected:
 
-  typedef const Teuchos::Tuple<Scalar*,3> TO;
+  using TO = const Teuchos::Tuple<Scalar*,3>;
 
   Teuchos::RCP<const SpaceT> space_;
 

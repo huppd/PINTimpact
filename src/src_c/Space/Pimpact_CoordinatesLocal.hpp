@@ -72,7 +72,7 @@ class CoordinatesLocal {
 
 protected:
 
-	typedef const Teuchos::Tuple< Teuchos::ArrayRCP<Scalar>, dim > TO;
+	using TO = const Teuchos::Tuple< Teuchos::ArrayRCP<Scalar>, dim >;
 
 	TO xS_;
 	TO xV_;

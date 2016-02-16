@@ -20,13 +20,13 @@ using O = int;
 const int d = 3;
 const int dNC = 4;
 
-typedef Pimpact::Space<S,O,d,dNC>                SpaceT;
-typedef typename Pimpact::ScalarField<SpaceT>    SF;
-typedef typename Pimpact::VectorField<SpaceT>    VF;
-typedef typename Pimpact::ModeField<SF>          MSF;
-typedef typename Pimpact::ModeField<VF>          MVF;
-typedef typename Pimpact::CompoundField<VF,SF>   CF;
-typedef typename Pimpact::CompoundField<MVF,MSF> CMF;
+using SpaceT = Pimpact::Space<S,O,d,dNC>;
+using SF = typename Pimpact::ScalarField<SpaceT>;
+using VF = typename Pimpact::VectorField<SpaceT>;
+using MSF = typename Pimpact::ModeField<SF>;
+using MVF = typename Pimpact::ModeField<VF>;
+using CF = typename Pimpact::CompoundField<VF,SF>;
+using CMF = typename Pimpact::CompoundField<MVF,MSF>;
 
 
 bool testMpi = true;

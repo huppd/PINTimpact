@@ -2,8 +2,8 @@
 
 #include "Pimpact_Operator.hpp"
 
-typedef double S;
-typedef int O;
+using S = double;
+using O = int;
 const int d = 3;
 
 template<class T> using ConvDiffOpT = Pimpact::NonlinearOp<Pimpact::ConvectionDiffusionSOp<T> >;

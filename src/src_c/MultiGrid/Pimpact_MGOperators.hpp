@@ -24,13 +24,13 @@ class MGOperators {
 
 public:
 
-  typedef MGST MGSpacesT;
+  using MGSpacesT = MGST;
 
-  typedef typename MGSpacesT::FSpaceT FSpaceT;
-  typedef typename MGSpacesT::CSpaceT CSpaceT;
+  using FSpaceT = typename MGSpacesT::FSpaceT;
+  using CSpaceT = typename MGSpacesT::CSpaceT;
 
-  typedef FOT<FSpaceT> FOperatorT;
-  typedef COT<CSpaceT> COperatorT;
+  using FOperatorT = FOT<FSpaceT>;
+  using COperatorT = COT<CSpaceT>;
 
 protected:
 

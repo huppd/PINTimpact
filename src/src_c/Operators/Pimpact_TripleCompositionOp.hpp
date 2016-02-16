@@ -23,10 +23,10 @@ class TripleCompositionOp {
 
 public:
 
-  typedef typename OP3::DomainFieldT DomainFieldT;
-  typedef typename OP1::RangeFieldT  RangeFieldT;
+  using DomainFieldT = typename OP3::DomainFieldT;
+  using RangeFieldT = typename OP1::RangeFieldT;
 
-  typedef typename DomainFieldT::SpaceT SpaceT;
+  using SpaceT = typename DomainFieldT::SpaceT;
 
 protected:
 

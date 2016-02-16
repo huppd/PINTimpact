@@ -19,10 +19,10 @@ class DtModeOp {
 
 public:
 
-  typedef ST SpaceT;
+  using SpaceT = ST;
 
-  typedef typename SpaceT::Scalar Scalar;
-  typedef typename SpaceT::Ordinal Ordinal;
+  using Scalar = typename SpaceT::Scalar;
+  using Ordinal = typename SpaceT::Ordinal;
 
 protected:
 
@@ -36,8 +36,8 @@ public:
 		space_(space),
 		alpha2_( space->getDomainSize()->getAlpha2()/space->getDomainSize()->getRe() ) {};
 
-  typedef ModeField<VectorField<SpaceT> >  DomainFieldT;
-  typedef ModeField<VectorField<SpaceT> >  RangeFieldT;
+  using DomainFieldT = ModeField<VectorField<SpaceT> >;
+  using RangeFieldT = ModeField<VectorField<SpaceT> >;
 
 
   void apply(const DomainFieldT& x, RangeFieldT& y ) const {

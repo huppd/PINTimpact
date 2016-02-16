@@ -29,13 +29,13 @@ namespace Pimpact {
 template<class FSpaceT,class CSpaceT, int cgsize=9>
 class CoarsenStrategyGlobal {
 
-  typedef typename FSpaceT::Scalar  Scalar;
-  typedef typename FSpaceT::Ordinal Ordinal;
+  using Scalar = typename FSpaceT::Scalar;
+  using Ordinal = typename FSpaceT::Ordinal;
 
   /// should be same for finest space and coarse spaces
   static const int dimension = FSpaceT::dimension;
 
-	typedef typename Teuchos::Tuple<Ordinal,dimension> TO;
+	using TO = typename Teuchos::Tuple<Ordinal,dimension>;
 
   /// can be different for finest and coarse spaces
   static const int dimNCF = FSpaceT::dimNC;

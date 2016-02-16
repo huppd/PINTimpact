@@ -22,8 +22,8 @@ class MGSpaces {
 
 public:
 
-  typedef FST FSpaceT;
-  typedef CST CSpaceT;
+  using FSpaceT = FST;
+  using CSpaceT = CST;
 
 protected:
 

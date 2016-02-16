@@ -25,24 +25,24 @@
 #include "Pimpact_OperatorFactory.hpp"
 
 
+using Teuchos::ParameterList;
+using Teuchos::parameterList;
+using Teuchos::RCP;
+using Teuchos::rcp; // Save some typing
+
+using S = double;
+using O = int;
+
+using SpaceT = Pimpact::Space<S,O,3,4>;
+
+using VF = Pimpact::ModeField<Pimpact::VectorField<SpaceT> >;
+using SF = Pimpact::ModeField<Pimpact::ScalarField<SpaceT> >;
+using MVF = Pimpact::MultiField<VF>;
+using MSF = Pimpact::MultiField<SF>;
+
 
 
 int main(int argi, char** argv ) {
-
-  using Teuchos::ParameterList;
-  using Teuchos::parameterList;
-  using Teuchos::RCP;
-  using Teuchos::rcp; // Save some typing
-
-  typedef double S;
-  typedef int O;
-
-  typedef Pimpact::Space<S,O,3,4> SpaceT;
-
-  typedef Pimpact::ModeField<Pimpact::VectorField<SpaceT> > VF;
-  typedef Pimpact::ModeField<Pimpact::ScalarField<SpaceT> >  SF;
-  typedef Pimpact::MultiField<VF> MVF;
-  typedef Pimpact::MultiField<SF> MSF;
 
 
   // intialize MPI

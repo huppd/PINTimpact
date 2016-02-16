@@ -24,10 +24,10 @@ class Add3Op {
 
 public:
 
-  typedef typename OP1::DomainFieldT DomainFieldT;
-  typedef typename OP1::RangeFieldT  RangeFieldT;
+  using DomainFieldT = typename OP1::DomainFieldT;
+  using RangeFieldT = typename OP1::RangeFieldT;
 
-  typedef typename DomainFieldT::SpaceT SpaceT;
+  using SpaceT = typename DomainFieldT::SpaceT;
 
 protected:
 

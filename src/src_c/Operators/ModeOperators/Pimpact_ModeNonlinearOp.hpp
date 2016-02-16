@@ -18,13 +18,12 @@ class ModeNonlinearOp {
 
 public:
 
-  typedef typename OpT::SpaceT SpaceT;
+  using SpaceT = typename OpT::SpaceT;
 
-  typedef typename SpaceT::Scalar Scalar;
-//  typedef typename SpaceT::Ordinal Ordinal;
+  using Scalar = typename SpaceT::Scalar;
 
-  typedef ModeField<typename OpT::DomainFieldT >  DomainFieldT;
-  typedef ModeField<typename OpT::RangeFieldT  >  RangeFieldT;
+  using DomainFieldT = ModeField<typename OpT::DomainFieldT >;
+  using RangeFieldT = ModeField<typename OpT::RangeFieldT  >;
 
 protected:
 

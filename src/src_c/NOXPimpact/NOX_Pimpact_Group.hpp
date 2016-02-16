@@ -28,8 +28,8 @@ class Group : public virtual NOX::Abstract::Group {
 
 public:
 
-	typedef typename Interface::Field   Field;
-	typedef NOX::Pimpact::Vector<Field>  Vector;
+	using Field = typename Interface::Field;
+	using Vector = NOX::Pimpact::Vector<Field>;
 
 protected:
 

@@ -19,18 +19,16 @@ namespace Pimpact {
 template<class SpaceT>
 class RefinementStrategy {
 
-
   
-	typedef typename SpaceT::Scalar  Scalar;
-	typedef typename SpaceT::Ordinal Ordinal;
+	using Scalar = typename SpaceT::Scalar;
+	using Ordinal = typename SpaceT::Ordinal;
 
 	/// should be same for finest space and coarse spaces
 	static const int dimension = SpaceT::dimension;
 
 	static const int dimNC = SpaceT::dimNC;
 
-	typedef typename Teuchos::Tuple<Ordinal,dimension> TO;
-
+	using TO = typename Teuchos::Tuple<Ordinal,dimension>;
 
 public:
 

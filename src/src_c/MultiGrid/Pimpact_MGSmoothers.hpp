@@ -24,10 +24,10 @@ class MGSmoothers {
 
 public:
 
-  typedef typename MGOperatorsT::MGSpacesT MGSpacesT;
-  typedef typename MGOperatorsT::COperatorT COperatorT;
+  using MGSpacesT = typename MGOperatorsT::MGSpacesT;
+  using COperatorT = typename MGOperatorsT::COperatorT;
 
-  typedef ST<COperatorT> SmootherT;
+  using SmootherT = ST<COperatorT>;
 
 protected:
 

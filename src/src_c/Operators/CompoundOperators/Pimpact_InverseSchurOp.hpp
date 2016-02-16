@@ -28,15 +28,15 @@ template<class OpV2V,class OpS2V, class OpV2S>
 class InverseSchurOp {
 
 
-  typedef typename OpS2V::RangeFieldT  VF;
-  typedef typename OpS2V::DomainFieldT  SF;
+  using VF = typename OpS2V::RangeFieldT;
+  using SF = typename OpS2V::DomainFieldT;
 
 public:
 
-  typedef CompoundField<VF,SF>  DomainFieldT;
-  typedef CompoundField<VF,SF>  RangeFieldT;
+  using DomainFieldT = CompoundField<VF,SF>;
+  using RangeFieldT = CompoundField<VF,SF>;
 
-  typedef typename DomainFieldT::SpaceT SpaceT;
+  using SpaceT = typename DomainFieldT::SpaceT;
 
 protected:
 

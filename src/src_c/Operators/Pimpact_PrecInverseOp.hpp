@@ -24,18 +24,17 @@ class PrecInverseOp {
 
 public:
 
-	typedef OT OperatorT;
-	typedef PT<OT> PreconditionerT;
+	using OperatorT = OT;
+	using PreconditionerT = PT<OT>;
 
-	typedef typename OperatorT::SpaceT SpaceT;
+	using SpaceT = typename OperatorT::SpaceT;
 
+	using DomainFieldT = typename OperatorT::DomainFieldT;
+	using RangeFieldT = typename OperatorT::RangeFieldT;
 
-	typedef typename OperatorT::DomainFieldT DomainFieldT;
-	typedef typename OperatorT::RangeFieldT  RangeFieldT;
+	using MF = typename Pimpact::MultiField<DomainFieldT>;
 
-	typedef typename Pimpact::MultiField<DomainFieldT> MF;
-
-	typedef OperatorBase<MF> Op;
+	using Op = OperatorBase<MF>;
 
 protected:
 

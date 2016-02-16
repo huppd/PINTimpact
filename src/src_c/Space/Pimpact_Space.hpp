@@ -615,13 +615,13 @@ static Teuchos::RCP< const SpaceT > createSpace(
 		const Teuchos::Tuple<typename SpaceT::Ordinal,SpaceT::dimension>& npWorld,
 		const Teuchos::Tuple<typename SpaceT::Ordinal,SpaceT::dimension>& ibWorld ) {
 
-	typedef typename SpaceT::Scalar  Scalar;
-	typedef typename SpaceT::Ordinal Ordinal;
+	using Scalar = typename SpaceT::Scalar;
+	using Ordinal = typename SpaceT::Ordinal;
 
 	const int dimension = SpaceT::dimension;
 	const int dimNC = SpaceT::dimNC;
 
-	typedef typename Teuchos::Tuple<Ordinal,dimension> TO;
+	using TO = typename Teuchos::Tuple<Ordinal,dimension>;
 
 	Teuchos::RCP<const StencilWidths<dimension,dimNC> >
 		stencilWidths = space->getStencilWidths();

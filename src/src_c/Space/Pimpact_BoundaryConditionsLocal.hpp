@@ -30,8 +30,8 @@ protected:
 			const Teuchos::RCP<const BoundaryConditionsGlobal<dT> >& bcg,
 			const Teuchos::RCP<const ProcGrid<OT,dT> >&  pg );
 
-	typedef const Teuchos::Tuple<EBCType,3> TBC3;
-	typedef const Teuchos::Tuple<int,dimension> TO;
+	using TBC3 = const Teuchos::Tuple<EBCType,3>;
+	using TO = const Teuchos::Tuple<int,dimension>;
 
 	TO BCL_int_;
 	TO BCU_int_;

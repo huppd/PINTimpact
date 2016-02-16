@@ -21,14 +21,14 @@ class DtTimeOp {
 
 public:
 
-  typedef ST SpaceT;
+  using SpaceT = ST;
 
-  typedef typename SpaceT::Scalar Scalar;
+  using Scalar = typename SpaceT::Scalar;
 
-  typedef typename SpaceT::Ordinal Ordinal;
+  using Ordinal = typename SpaceT::Ordinal;
 
-  typedef TimeField< VectorField<SpaceT> >  DomainFieldT;
-  typedef TimeField< VectorField<SpaceT> >  RangeFieldT;
+  using DomainFieldT = TimeField< VectorField<SpaceT> >;
+  using RangeFieldT = TimeField< VectorField<SpaceT> >;
 
 protected:
 

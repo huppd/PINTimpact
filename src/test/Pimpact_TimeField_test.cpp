@@ -43,19 +43,19 @@ int npz = 1;
 int npf = 2;
 
 
-typedef Pimpact::Space<S,O,d,dNC> SpaceT;
+using SpaceT = Pimpact::Space<S,O,d,dNC>;
 
-typedef Pimpact::ScalarField<SpaceT> SF;
-typedef Pimpact::VectorField<SpaceT> VF;
+using SF = Pimpact::ScalarField<SpaceT>;
+using VF = Pimpact::VectorField<SpaceT>;
 
-typedef Pimpact::TimeField<SF> TSF;
-typedef Pimpact::TimeField<VF> TVF;
+using TSF = Pimpact::TimeField<SF>;
+using TVF = Pimpact::TimeField<VF>;
 
-typedef Pimpact::MultiField<TSF> MTSF;
-typedef Pimpact::MultiField<TVF> MTVF;
+using MTSF = Pimpact::MultiField<TSF>;
+using MTVF = Pimpact::MultiField<TVF>;
 
-typedef Pimpact::OperatorBase<MTSF> SOpBase;
-typedef Pimpact::OperatorBase<MTVF> VOpBase;
+using SOpBase = Pimpact::OperatorBase<MTSF>;
+using VOpBase = Pimpact::OperatorBase<MTVF>;
 
 auto pl = Teuchos::parameterList();
 
@@ -744,7 +744,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOp ) {
 	S re = 100.;
 	pl->set<S>("Re", re );
 
-	typedef Pimpact::TimeStokesOp<SpaceT> OpT;
+	using OpT = Pimpact::TimeStokesOp<SpaceT>;
 
 	auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
@@ -844,7 +844,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOp ) {
 
 TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOpDT ) {
 
-	typedef Pimpact::TimeStokesOp<SpaceT> OpT;
+	using OpT = Pimpact::TimeStokesOp<SpaceT>;
 
 	// processor grid size
 	pl->set<int>("npx", npx );
@@ -927,7 +927,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeNSOp ) {
 	S re = 100.;
 	pl->set<S>("Re", re );
 
-	typedef Pimpact::TimeNSOp<SpaceT> OpT;
+	using OpT = Pimpact::TimeNSOp<SpaceT>;
 
 	auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
@@ -1062,7 +1062,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeNSOp ) {
 
 TEUCHOS_UNIT_TEST( TimeOperator, TimeNSOpDT ) {
 
-	typedef Pimpact::TimeNSOp<SpaceT> OpT;
+	using OpT = Pimpact::TimeNSOp<SpaceT>;
 
 	// processor grid size
 	pl->set("npx", npx );

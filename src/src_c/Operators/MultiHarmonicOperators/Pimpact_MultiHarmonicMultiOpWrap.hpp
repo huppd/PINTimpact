@@ -24,14 +24,14 @@ class MultiHarmonicMultiOpWrap  {
 
 public:
 
-  typedef MultiHarmonicField<typename MultiOperator::DomainFieldT::FieldT> DomainFieldT;
-  typedef MultiHarmonicField<typename MultiOperator::RangeFieldT::FieldT> RangeFieldT;
+  using DomainFieldT = MultiHarmonicField<typename MultiOperator::DomainFieldT::FieldT>;
+  using RangeFieldT = MultiHarmonicField<typename MultiOperator::RangeFieldT::FieldT>;
 
-  typedef typename DomainFieldT::SpaceT SpaceT;
+  using SpaceT = typename DomainFieldT::SpaceT;
 
 protected:
 
-  typedef typename SpaceT::Ordinal Ordinal;
+  using Ordinal = typename SpaceT::Ordinal;
 
   Teuchos::RCP<MultiOperator> op_;
 

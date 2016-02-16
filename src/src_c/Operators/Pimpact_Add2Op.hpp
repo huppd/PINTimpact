@@ -26,10 +26,10 @@ class Add2Op {
 
 public:
 
-  typedef typename OP1::DomainFieldT DomainFieldT;
-  typedef typename OP2::RangeFieldT  RangeFieldT;
+  using DomainFieldT = typename OP1::DomainFieldT;
+  using RangeFieldT = typename OP2::RangeFieldT;
 
-  typedef typename DomainFieldT::SpaceT SpaceT;
+  using SpaceT = typename DomainFieldT::SpaceT;
 
 protected:
 

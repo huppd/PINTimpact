@@ -369,8 +369,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, TransferOp ) {
   pl->set( "npz", npz );
   pl->set( "npf", npf );
 
-  typedef Pimpact::Space<S,O,d,4> FSpaceT;
-  typedef Pimpact::Space<S,O,d,2> CSpaceT;
+  using FSpaceT = Pimpact::Space<S,O,d,4>;
+  using CSpaceT = Pimpact::Space<S,O,d,2>;
 
   auto fSpace = Pimpact::createSpace<S,O,d,4>( pl );
   auto cSpace = Pimpact::createSpace<S,O,d,2>( pl );
@@ -875,45 +875,50 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Inv ) {
 
   auto solver = Pimpact::create<Pimpact::DivGradO2Inv>( op, ppl );
 
+	//solver->print();
 	// --- zero rhs test --- 
 	x->random();
 	auto xp = x->clone( Pimpact::DeepCopy );
 	b->init( 1. );
 
 	//solver->print();
-	b->print();
-	solver->apply( *b, *x );
-	x->print();
-	x->write();
+	////b->print();
+	//solver->apply( *b, *x );
+	////x->print();
+	////x->write();
 	//op->apply( *b, *xp );
 
-	//xp->add( -1., *b, 1., *x );
+	//xp->print();
+	//xp->write();
+
+	//xp->add( -1., *xp, 1., *x );
 	//S err = xp->norm( Belos::InfNorm );
 	//if( 0==space->rankST() )
 		//std::cout << "consistency for " << err << "\n";
 
   // --- consistency test ---
-	//for( int dir=1; dir<=6; ++dir ) {
-		//x->initField( static_cast<Pimpact::EScalarField>(dir) );
-		//x->level();
-		//auto xp = x->clone( Pimpact::DeepCopy );
+	for( int dir=1; dir<=6; ++dir ) {
+		x->initField( static_cast<Pimpact::EScalarField>(dir) );
+		x->level();
+		auto xp = x->clone( Pimpact::DeepCopy );
 
-		//op->apply( *x, *b );
+		op->apply( *x, *b );
 
-		//solver->apply( *b, *xp );
-		////xp->level();
+		solver->apply( *b, *xp );
+		xp->level();
 
-		//xp->write(dir);
-		//xp->add( 1., *xp, -1., *x );
-		//S err2 = xp->norm( Belos::InfNorm )/std::sqrt( static_cast<S>(xp->getLength()) );
-		//S errInf = xp->norm( Belos::InfNorm );
+		xp->add( 1., *xp, -1., *x );
+		xp->level();
+		xp->write(dir);
+		S err2 = xp->norm( Belos::InfNorm )/std::sqrt( static_cast<S>(xp->getLength()) );
+		S errInf = xp->norm( Belos::InfNorm );
 
-		//if( 0==space->rankST() )
-			//std::cout << "consistency for " << dir << ": ||" << err2 << "||_2, ||" << errInf << "||_inf\n";
+		if( 0==space->rankST() )
+			std::cout << "consistency for " << dir << ": ||" << err2 << "||_2, ||" << errInf << "||_inf\n";
 
-		//TEST_EQUALITY( err2<eps, true );
-		//TEST_EQUALITY( errInf<eps, true );
-	//}
+		TEST_EQUALITY( err2<eps, true );
+		TEST_EQUALITY( errInf<eps, true );
+	}
 
 }
 
@@ -1182,8 +1187,8 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, DtModeOp ) {
 			"Womersley square \alpha^2");
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
-  typedef Pimpact::MultiField< Pimpact::ModeField< Pimpact::VectorField<SpaceT> > > MF;
-  typedef Pimpact::OperatorBase<MF> BOp;
+  using MF = Pimpact::MultiField< Pimpact::ModeField< Pimpact::VectorField<SpaceT> > >;
+  using BOp = Pimpact::OperatorBase<MF>;
 
 
   auto velc = Pimpact::create<Pimpact::VectorField>(space);
@@ -1302,8 +1307,8 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, TripleCompostion ) {
 	pl->set( "alpha2", 1. );
   auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
-  typedef Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<SpaceT> > > MVF;
-  typedef Pimpact::MultiField<Pimpact::ModeField<Pimpact::ScalarField<SpaceT> > > MSF;
+  using MVF = Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<SpaceT> > >;
+  using MSF = Pimpact::MultiField<Pimpact::ModeField<Pimpact::ScalarField<SpaceT> > >;
 
   auto X = Pimpact::create<MSF>( space );
   auto B = Pimpact::create<MSF>( space );
@@ -1367,7 +1372,7 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, InverseOperator ) {
  using Teuchos::rcp; // Save some typing
 
 
- typedef Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<SpaceT> > > MVF;
+ using MVF = Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<SpaceT> > >;
 
  auto X = Pimpact::create<MVF>( space );
  auto B = Pimpact::create<MVF>( space );

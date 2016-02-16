@@ -98,10 +98,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, BelosMVTest, CMF )
 
 TEUCHOS_UNIT_TEST( BelosOperatorMV, HelmholtzMV ) {
 
-  typedef Pimpact::VectorField<SpaceT> VF;
-  typedef Pimpact::MultiField<VF> MVF;
+  using VF = Pimpact::VectorField<SpaceT>;
+  using MVF = Pimpact::MultiField<VF>;
 
-  typedef Pimpact::OperatorBase<MVF> OpBase;
+  using OpBase = Pimpact::OperatorBase<MVF>;
 
 
   auto space = Pimpact::createSpace( pl );
@@ -126,9 +126,9 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, HelmholtzMV ) {
 
 TEUCHOS_UNIT_TEST( BelosOperatorMV, DtLapOp ) {
 
-  typedef Pimpact::MultiField<MVF> BVF;
+  using BVF = Pimpact::MultiField<MVF>;
 
-  typedef Pimpact::OperatorBase<BVF> OpBase;
+  using OpBase = Pimpact::OperatorBase<BVF>;
 
   auto space = Pimpact::createSpace( pl );
 
@@ -150,11 +150,10 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, DtLapOp ) {
 
 TEUCHOS_UNIT_TEST( BelosOperatorMV, DivGrad ) {
 
-  typedef Pimpact::ScalarField<SpaceT> SF;
-  typedef Pimpact::MultiField<SF> BSF;
+  using SF = Pimpact::ScalarField<SpaceT>;
+  using BSF = Pimpact::MultiField<SF>;
 
-  typedef Pimpact::OperatorBase<BSF> OpBase;
-
+  using OpBase = Pimpact::OperatorBase<BSF>;
 
   auto space = Pimpact::createSpace( pl );
 

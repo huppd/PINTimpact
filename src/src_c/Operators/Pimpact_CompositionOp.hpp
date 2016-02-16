@@ -24,12 +24,12 @@ class CompositionOp {
 
 public:
 
-  typedef typename OP2::DomainFieldT DomainFieldT;
-  typedef typename OP1::RangeFieldT  RangeFieldT;
+  using DomainFieldT = typename OP2::DomainFieldT;
+  using RangeFieldT = typename OP1::RangeFieldT;
 
-  typedef typename OP2::RangeFieldT TempFieldT;
+  using TempFieldT = typename OP2::RangeFieldT;
 
-  typedef typename DomainFieldT::SpaceT SpaceT;
+  using SpaceT = typename DomainFieldT::SpaceT;
 
 protected:
 

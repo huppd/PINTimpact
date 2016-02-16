@@ -33,7 +33,7 @@ class DomainSize {
 
 public:
 
-	typedef const Teuchos::Tuple<Scalar,3> TS3;
+	using TS3 = const Teuchos::Tuple<Scalar,3>;
 
 protected:
 

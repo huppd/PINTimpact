@@ -20,15 +20,15 @@ namespace Pimpact {
 template<class ST>
 class MultiDiagConvectionJacobianOp {
 
-  typedef typename ST::Scalar Scalar;
-  typedef typename ST::Ordinal Ordinal;
+  using Scalar = typename ST::Scalar;
+  using Ordinal = typename ST::Ordinal;
 
 public:
 
-  typedef ST SpaceT;
+  using SpaceT = ST;
 
-  typedef MultiHarmonicField< VectorField<SpaceT> >  DomainFieldT;
-  typedef MultiHarmonicField< VectorField<SpaceT> >  RangeFieldT;
+  using DomainFieldT = MultiHarmonicField< VectorField<SpaceT> >;
+  using RangeFieldT = MultiHarmonicField< VectorField<SpaceT> >;
 
 protected:
 

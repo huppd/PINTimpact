@@ -22,11 +22,11 @@ using O = int;
 const int d = 3;
 const int dNC=4;
 
-typedef typename Pimpact::Space<S,O,d,dNC>    SpaceT;
-typedef typename Pimpact::ScalarField<SpaceT> SF;
-typedef typename Pimpact::VectorField<SpaceT> VF;
-typedef typename Pimpact::ModeField<SF>       MSF;
-typedef typename Pimpact::ModeField<VF>       MVF;
+using SpaceT = typename Pimpact::Space<S,O,d,dNC>;
+using SF = typename Pimpact::ScalarField<SpaceT>;
+using VF = typename Pimpact::VectorField<SpaceT>;
+using MSF = typename Pimpact::ModeField<SF>;
+using MVF = typename Pimpact::ModeField<VF>;
 
 
 bool testMpi = true;

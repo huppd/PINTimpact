@@ -64,13 +64,13 @@ class TimeStokesOp {
 
 public:
 
-	typedef ST SpaceT;
+	using SpaceT = ST;
 
-	typedef typename SpaceT::Scalar Scalar;
-	typedef typename SpaceT::Ordinal Ordinal;
+	using Scalar = typename SpaceT::Scalar;
+	using Ordinal = typename SpaceT::Ordinal;
 
-	typedef CompoundField< TimeField<VectorField<ST> >, TimeField<ScalarField<ST> > >  DomainFieldT;
-	typedef CompoundField< TimeField<VectorField<ST> >, TimeField<ScalarField<ST> > >  RangeFieldT;
+	using DomainFieldT = CompoundField< TimeField<VectorField<ST> >, TimeField<ScalarField<ST> > >;
+	using RangeFieldT = CompoundField< TimeField<VectorField<ST> >, TimeField<ScalarField<ST> > > ;
 
 
 protected:

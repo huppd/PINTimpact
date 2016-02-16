@@ -31,8 +31,8 @@
 namespace {
 
 
-typedef double S;
-typedef int O;
+using S = double;
+using O = int;
 const int d = 4;
 const int dNC = 2;
 
@@ -47,19 +47,19 @@ int npy = 1;
 int npz = 1;
 int npf = 1;
 
-typedef Pimpact::Space<S,O,d,dNC> SpaceT;
+using SpaceT = Pimpact::Space<S,O,d,dNC>;
 
-typedef Pimpact::ScalarField<SpaceT> SF;
-typedef Pimpact::VectorField<SpaceT> VF;
+using SF = Pimpact::ScalarField<SpaceT>;
+using VF = Pimpact::VectorField<SpaceT>;
 
-typedef Pimpact::TimeField<SF> TSF;
-typedef Pimpact::TimeField<VF> TVF;
+using TSF = Pimpact::TimeField<SF>;
+using TVF = Pimpact::TimeField<VF>;
 
-typedef Pimpact::MultiField<TSF> MTSF;
-typedef Pimpact::MultiField<TVF> MTVF;
+using MTSF = Pimpact::MultiField<TSF>;
+using MTVF = Pimpact::MultiField<TVF>;
 
-typedef Pimpact::OperatorBase<MTSF> SOpBase;
-typedef Pimpact::OperatorBase<MTVF> VOpBase;
+using SOpBase = Pimpact::OperatorBase<MTSF>;
+using VOpBase = Pimpact::OperatorBase<MTVF>;
 
 auto pl = Teuchos::parameterList();
 
@@ -123,7 +123,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOperator ) {
 	pl->set("npz", npz) ;
 	pl->set("npf", npf) ;
 
-	typedef Pimpact::TimeStokesOp<SpaceT> OpT;
+	using OpT = Pimpact::TimeStokesOp<SpaceT>;
 	auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
 	auto op = Pimpact::create<OpT>( space );
@@ -195,7 +195,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesBSmooth ) {
 	pl->set("npz", npz) ;
 	pl->set("npf", npf) ;
 
-	typedef Pimpact::TimeStokesOp<SpaceT> OpT;
+	using OpT = Pimpact::TimeStokesOp<SpaceT>;
 	auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
 	auto op = Pimpact::create<OpT>( space );
@@ -253,7 +253,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesLSmooth ) {
 	pl->set("npz", npz) ;
 	pl->set("npf", npf) ;
 
-	typedef Pimpact::TimeStokesOp<SpaceT> OpT;
+	using OpT = Pimpact::TimeStokesOp<SpaceT>;
 	auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
 	auto op = Pimpact::create<OpT>( space );
@@ -291,7 +291,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesBSmooth_conv ) {
 	pl->set("npz", npz) ;
 	pl->set("npf", npf) ;
 
-	typedef Pimpact::TimeStokesOp<SpaceT> OpT;
+	using OpT = Pimpact::TimeStokesOp<SpaceT>;
 	auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
 	auto op = Pimpact::create<OpT>( space );
@@ -343,7 +343,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesLSmooth_conv ) {
 	pl->set("npz", npz) ;
 	pl->set("npf", npf) ;
 
-	typedef Pimpact::TimeStokesOp<SpaceT> OpT;
+	using OpT = Pimpact::TimeStokesOp<SpaceT>;
 	auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
 	auto op = Pimpact::create<OpT>( space );
@@ -385,7 +385,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeNSBSmooth ) {
 	pl->set("npz", npz) ;
 	pl->set("npf", npf) ;
 
-	typedef Pimpact::TimeNSOp<SpaceT> OpT;
+	using OpT = Pimpact::TimeNSOp<SpaceT>;
 
 	auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
@@ -431,7 +431,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeNSBSmooth_conv ) {
 	pl->set("npz", npz) ;
 	pl->set("npf", npf) ;
 
-	typedef Pimpact::TimeNSOp<SpaceT> OpT;
+	using OpT = Pimpact::TimeNSOp<SpaceT>;
 	auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
 	auto op = Pimpact::create<OpT>( space );
@@ -483,7 +483,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeNS4DBSmoothasfd ) {
 	pl->set("npz", npz) ;
 	pl->set("npf", npf) ;
 
-	typedef Pimpact::TimeNSOp<SpaceT> OpT;
+	using OpT = Pimpact::TimeNSOp<SpaceT>;
 
 	auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
@@ -526,7 +526,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeNS4DBSmooth_conv ) {
 	pl->set("npz", npz) ;
 	pl->set("npf", npf) ;
 
-	typedef Pimpact::TimeNSOp<SpaceT> OpT;
+	using OpT = Pimpact::TimeNSOp<SpaceT>;
 	auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 
 	auto op = Pimpact::create<OpT>( space );
@@ -578,7 +578,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeNS4DBSmooth ) {
 	pl->set("npz", npz) ;
 	pl->set("npf", npf) ;
 
-	typedef Pimpact::TimeNSOp<SpaceT> OpT;
+	using OpT = Pimpact::TimeNSOp<SpaceT>;
 
 	auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
 

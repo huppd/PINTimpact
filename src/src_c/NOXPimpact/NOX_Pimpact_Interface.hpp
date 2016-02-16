@@ -36,10 +36,10 @@ class Interface {
 
 public:
 
-  typedef F Field;
-  typedef typename Field::Scalar S;
-  typedef typename Field::Ordinal O;
-  typedef ::Pimpact::OperatorBase<Field> Op;
+  using Field = F;
+  using S = typename Field::Scalar;
+  using O = typename Field::Ordinal;
+  using Op = ::Pimpact::OperatorBase<Field>;
 
 protected:
 

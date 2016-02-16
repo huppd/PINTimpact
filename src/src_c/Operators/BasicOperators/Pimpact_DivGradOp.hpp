@@ -25,10 +25,10 @@ class DivGradOp {
 
 public:
 
-  typedef ST SpaceT;
+  using SpaceT = ST;
 
-  typedef ScalarField<SpaceT>  DomainFieldT;
-  typedef ScalarField<SpaceT>  RangeFieldT;
+  using DomainFieldT = ScalarField<SpaceT>;
+  using RangeFieldT = ScalarField<SpaceT>;
 
 protected:
 

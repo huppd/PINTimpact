@@ -22,16 +22,16 @@ class ConvectionField {
 
 public:
 
-  typedef ST SpaceT;
+  using SpaceT = ST;
 
-  typedef typename SpaceT::Scalar Scalar;
-  typedef typename SpaceT::Ordinal Ordinal;
+  using Scalar = typename SpaceT::Scalar;
+  using Ordinal = typename SpaceT::Ordinal;
 
   static const int dimension = SpaceT::dimension;
 
   static const int dimNC = SpaceT::dimNC;
 
-  typedef VectorField<SpaceT>  DomainFieldT;
+  using DomainFieldT = VectorField<SpaceT>;
 
 protected:
 
@@ -44,7 +44,7 @@ protected:
   Teuchos::RCP< ScalarField<SpaceT> > temp_;
   Teuchos::Tuple< Teuchos::Tuple<Teuchos::RCP<ScalarField<SpaceT> >, 3>, 3> u_;
 
-  typedef Teuchos::Tuple< Teuchos::Tuple<Teuchos::RCP<ScalarField<SpaceT> >, 3>, 3> FieldTensor;
+  using FieldTensor = Teuchos::Tuple< Teuchos::Tuple<Teuchos::RCP<ScalarField<SpaceT> >, 3>, 3>;
 
 public:
 

@@ -21,16 +21,16 @@ namespace {
 using S = double;
 using O = int;
 
-typedef typename Pimpact::Space<S,O,3,4> SpaceT;
+using SpaceT = typename Pimpact::Space<S,O,3,4>;
 
-typedef Pimpact::ScalarField<SpaceT> SF;
-typedef Pimpact::VectorField<SpaceT> VF;
-typedef Pimpact::ModeField<SF> MSF;
-typedef Pimpact::ModeField<VF> MVF;
-typedef Pimpact::MultiField< MSF> BMSF;
-typedef Pimpact::MultiField< MVF> BMVF;
-typedef Pimpact::CompoundField< BMVF, BMSF > CF;
-typedef NOX::Pimpact ::Vector<CF> NV;
+using SF = Pimpact::ScalarField<SpaceT>;
+using VF = Pimpact::VectorField<SpaceT>;
+using MSF = Pimpact::ModeField<SF>;
+using MVF = Pimpact::ModeField<VF>;
+using BMSF = Pimpact::MultiField< MSF>;
+using BMVF = Pimpact::MultiField< MVF>;
+using CF = Pimpact::CompoundField< BMVF, BMSF >;
+using NV = NOX::Pimpact ::Vector<CF>;
 
 bool testMpi = true;
 double eps = 1e+1;

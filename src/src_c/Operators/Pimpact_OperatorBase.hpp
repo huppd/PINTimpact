@@ -20,11 +20,11 @@ class OperatorBase {
 public:
   virtual ~OperatorBase() {};
 
-  typedef DomainField MF;
-  typedef DomainField DomainFieldT;
-  typedef RangeField RangeFieldT;
+  using MF = DomainField;
+  using DomainFieldT = DomainField;
+  using RangeFieldT = RangeField;
 
-  typedef typename DomainFieldT::SpaceT SpaceT;
+  using SpaceT = typename DomainFieldT::SpaceT;
 
   virtual void apply( const DomainField& x, RangeField& y, Belos::ETrans trans=Belos::NOTRANS ) const {} ;
 

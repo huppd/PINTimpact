@@ -61,9 +61,9 @@ class IndexSpace {
 
 public:
 
-  typedef Teuchos::Tuple<Ordinal,dimension> TO;
+  using TO = Teuchos::Tuple<Ordinal,dimension>;
 
-  typedef Teuchos::Tuple< Teuchos::Tuple<Ordinal, dimension>, 3 > TTO;
+  using TTO = Teuchos::Tuple< Teuchos::Tuple<Ordinal, dimension>, 3 >;
 
 protected:
 

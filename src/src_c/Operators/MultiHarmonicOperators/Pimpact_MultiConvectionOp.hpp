@@ -22,12 +22,12 @@ class MultiHarmonicConvectionOp {
 
 public:
 
-  typedef typename ConvVWrapT::SpaceT SpaceT;
+  using SpaceT = typename ConvVWrapT::SpaceT;
 
-  typedef MultiHarmonicField< VectorField<SpaceT> >  DomainFieldT;
-  typedef MultiHarmonicField< VectorField<SpaceT> >  RangeFieldT;
+  using DomainFieldT = MultiHarmonicField< VectorField<SpaceT> >;
+  using RangeFieldT = MultiHarmonicField< VectorField<SpaceT> >;
 
-  typedef typename ConvVWrapT::FieldTensor FieldTensor;
+  using FieldTensor = typename ConvVWrapT::FieldTensor;
 
 protected:
 

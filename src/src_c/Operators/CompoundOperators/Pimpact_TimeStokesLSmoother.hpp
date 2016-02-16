@@ -58,13 +58,13 @@ class TimeStokesLSmoother {
 
 public:
 
-	typedef typename OperatorT::SpaceT SpaceT;
+	using SpaceT = typename OperatorT::SpaceT;
 
-	typedef typename SpaceT::Scalar Scalar;
-	typedef typename SpaceT::Ordinal Ordinal;
+	using Scalar = typename SpaceT::Scalar;
+	using Ordinal = typename SpaceT::Ordinal;
 
-	typedef CompoundField< TimeField<VectorField<SpaceT> >, TimeField<ScalarField<SpaceT> > >  DomainFieldT;
-	typedef CompoundField< TimeField<VectorField<SpaceT> >, TimeField<ScalarField<SpaceT> > >  RangeFieldT;
+	using DomainFieldT = CompoundField< TimeField<VectorField<SpaceT> >, TimeField<ScalarField<SpaceT> > >;
+	using RangeFieldT = CompoundField< TimeField<VectorField<SpaceT> >, TimeField<ScalarField<SpaceT> > >;
 
 
 protected:

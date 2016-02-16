@@ -39,10 +39,10 @@ class DtLapOp {
 
 public:
 
-  typedef ST SpaceT;
+  using SpaceT = ST;
 
-  typedef typename SpaceT::Scalar Scalar;
-  typedef typename SpaceT::Ordinal Ordinal;
+  using Scalar = typename SpaceT::Scalar;
+  using Ordinal = typename SpaceT::Ordinal;
 
 protected:
 
@@ -52,8 +52,8 @@ protected:
 
 public:
 
-  typedef ModeField<VectorField<SpaceT> >  DomainFieldT;
-  typedef ModeField<VectorField<SpaceT> >  RangeFieldT;
+  using DomainFieldT = ModeField<VectorField<SpaceT> >;
+  using RangeFieldT = ModeField<VectorField<SpaceT> >;
 
   DtLapOp(
       const Teuchos::RCP<const SpaceT>& space,

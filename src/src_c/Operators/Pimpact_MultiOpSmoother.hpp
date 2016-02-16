@@ -22,12 +22,12 @@ class MultiOpSmoother  {
 
 public:
 
-  typedef OT OperatorT;
+  using OperatorT = OT;
 
-  typedef typename OperatorT::SpaceT SpaceT;
+  using SpaceT = typename OperatorT::SpaceT;
 
-  typedef MultiField<typename OperatorT::DomainFieldT> DomainFieldT;
-  typedef MultiField<typename OperatorT::RangeFieldT> RangeFieldT;
+  using DomainFieldT = MultiField<typename OperatorT::DomainFieldT>;
+  using RangeFieldT = MultiField<typename OperatorT::RangeFieldT>;
 
 protected:
 

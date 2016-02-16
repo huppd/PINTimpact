@@ -36,22 +36,26 @@
 #include "NOX.H"
 
 
+using S = double;
+using O = int;
+
+using SpaceT = Pimpact::Space<S,O,3,4>;
+using VF = Pimpact::MultiHarmonicField< Pimpact::VectorField<SpaceT> >;
+using SF = Pimpact::MultiHarmonicField< Pimpact::ScalarField<SpaceT> >;
+using CF = Pimpact::CompoundField< VF, SF>;
+using MF = Pimpact::MultiField<CF>;
+
+using BOp = Pimpact::OperatorBase<MF>;
+
+using Inter = NOX::Pimpact::Interface<MF>;
+using NV = NOX::Pimpact::Vector<typename Inter::Field>;
+
+
+
+
 
 int main(int argi, char** argv ) {
 
-  typedef double S;
-  typedef int O;
-
-  typedef Pimpact::Space<S,O,3,4> SpaceT;
-  typedef Pimpact::MultiHarmonicField< Pimpact::VectorField<SpaceT> > VF;
-  typedef Pimpact::MultiHarmonicField< Pimpact::ScalarField<SpaceT> > SF;
-  typedef Pimpact::CompoundField< VF, SF> CF;
-  typedef Pimpact::MultiField<CF> MF;
-
-  typedef Pimpact::OperatorBase<MF> BOp;
-
-  typedef NOX::Pimpact::Interface<MF> Inter;
-  typedef NOX::Pimpact::Vector<typename Inter::Field> NV;
 
   // intialize MPI
   MPI_Init( &argi, &argv );

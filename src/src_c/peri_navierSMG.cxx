@@ -239,29 +239,29 @@ getSpaceParametersFromCL( int argi, char** argv  )  {
 
 
 
-typedef double S;
-typedef int O;
+using S = double S;
+using O = int O;
 
-typedef Pimpact::Space<S,O,3,4> SpaceT;
+using SpaceT = Pimpact::Space<S,O,3,4> SpaceT;
 
-typedef Pimpact::Space<S,O,3,4> FSpaceT;
-typedef Pimpact::Space<S,O,3,2> CSpaceT;
+using FSpaceT = Pimpact::Space<S,O,3,4> FSpaceT;
+using CSpaceT = Pimpact::Space<S,O,3,2> CSpaceT;
 
-typedef Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT> CS;
+using CS = Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT> CS;
 
-typedef Pimpact::MultiHarmonicField< Pimpact::VectorField<SpaceT> > VF;
-typedef Pimpact::MultiHarmonicField< Pimpact::ScalarField<SpaceT> > SF;
+using VF = Pimpact::MultiHarmonicField< Pimpact::VectorField<SpaceT> > VF;
+using SF = Pimpact::MultiHarmonicField< Pimpact::ScalarField<SpaceT> > SF;
 
-typedef Pimpact::MultiField<VF> MVF;
-typedef Pimpact::MultiField<SF> MSF;
+using MVF = Pimpact::MultiField<VF> MVF;
+using MSF = Pimpact::MultiField<SF> MSF;
 
-typedef Pimpact::CompoundField< VF, SF> CF;
-typedef Pimpact::MultiField<CF> MF;
+using CF = Pimpact::CompoundField< VF, SF> CF;
+using MF = Pimpact::MultiField<CF> MF;
 
-typedef Pimpact::OperatorBase<MF> BOp;
+using BOp = Pimpact::OperatorBase<MF> BOp;
 
-typedef NOX::Pimpact::Interface<MF> Inter;
-typedef NOX::Pimpact::Vector<typename Inter::Field> NV;
+using Inter = NOX::Pimpact::Interface<MF> Inter;
+using NV = NOX::Pimpact::Vector<typename Inter::Field> NV;
 
 
 template<class T> using FT =

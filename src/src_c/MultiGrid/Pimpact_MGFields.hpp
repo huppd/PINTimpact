@@ -22,11 +22,11 @@ class MGFields {
 
 public:
 
-  typedef typename MGSpacesT::FSpaceT FSpaceT;
-  typedef typename MGSpacesT::CSpaceT CSpaceT;
+  using FSpaceT = typename MGSpacesT::FSpaceT;
+  using CSpaceT = typename MGSpacesT::CSpaceT;
 
-  typedef FieldT<FSpaceT> FFieldT;
-  typedef FieldT<CSpaceT> CFieldT;
+  using FFieldT = FieldT<FSpaceT>;
+  using CFieldT = FieldT<CSpaceT>;
 
 protected:
 

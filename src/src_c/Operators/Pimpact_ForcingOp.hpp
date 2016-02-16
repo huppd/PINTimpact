@@ -18,15 +18,15 @@ namespace Pimpact{
 template<class Field>
 class ForcingOp {
 
-  typedef typename Field::Scalar Scalar;
-  typedef typename Field::Ordinal Ordinal;
+  using Scalar = typename Field::Scalar;
+  using Ordinal = typename Field::Ordinal;
 
 public:
 
-  typedef Field  DomainFieldT;
-  typedef Field  RangeFieldT;
+  using DomainFieldT = Field;
+  using RangeFieldT = Field;
 
-  typedef typename DomainFieldT::SpaceT SpaceT;
+  using SpaceT = typename DomainFieldT::SpaceT;
 
 protected:
 

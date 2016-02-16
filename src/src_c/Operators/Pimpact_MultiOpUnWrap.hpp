@@ -22,12 +22,12 @@ class MultiOpUnWrap  {
 
 public:
 
-  typedef MOperatorT OperatorT;
+  using OperatorT = MOperatorT;
 
-  typedef typename MOperatorT::DomainFieldT::FieldT DomainFieldT;
-  typedef typename MOperatorT::RangeFieldT::FieldT RangeFieldT;
+  using DomainFieldT = typename MOperatorT::DomainFieldT::FieldT;
+  using RangeFieldT = typename MOperatorT::RangeFieldT::FieldT;
 
-  typedef typename DomainFieldT::SpaceT SpaceT;
+  using SpaceT = typename DomainFieldT::SpaceT;
 
 protected:
 

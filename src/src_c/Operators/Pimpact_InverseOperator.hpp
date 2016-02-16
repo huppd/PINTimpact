@@ -20,16 +20,16 @@ namespace Pimpact{
 template< class FieldT >
 class InverseOperator {
 
-  typedef FieldT               MF;
-  typedef typename MF::Scalar  S;
-  typedef OperatorBase<MF>     Op;
+  using MF = FieldT;
+  using S = typename MF::Scalar;
+  using Op = OperatorBase<MF>;
 
 public:
 
-  typedef FieldT  DomainFieldT;
-  typedef FieldT  RangeFieldT;
+  using DomainFieldT = FieldT;
+  using RangeFieldT = FieldT;
 
-  typedef typename DomainFieldT::SpaceT SpaceT;
+  using SpaceT = typename DomainFieldT::SpaceT;
 
 protected:
 

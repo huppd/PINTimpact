@@ -41,29 +41,29 @@
 
 
 
-typedef double S;
-typedef int O;
+using S = double;
+using O = int;
 
-typedef Pimpact::Space<S,O,3,4> SpaceT;
+using SpaceT = Pimpact::Space<S,O,3,4>;
 
-typedef Pimpact::Space<S,O,3,4> FSpaceT;
-typedef Pimpact::Space<S,O,3,2> CSpaceT;
+using FSpaceT = Pimpact::Space<S,O,3,4>;
+using CSpaceT = Pimpact::Space<S,O,3,2>;
 
-typedef Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT> CS;
+using CS = Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT>;
 
-typedef Pimpact::MultiHarmonicField< Pimpact::VectorField<SpaceT> > VF;
-typedef Pimpact::MultiHarmonicField< Pimpact::ScalarField<SpaceT> > SF;
+using VF = Pimpact::MultiHarmonicField< Pimpact::VectorField<SpaceT> >;
+using SF = Pimpact::MultiHarmonicField< Pimpact::ScalarField<SpaceT> >;
 
-typedef Pimpact::MultiField<VF> MVF;
-typedef Pimpact::MultiField<SF> MSF;
+using MVF = Pimpact::MultiField<VF>;
+using MSF = Pimpact::MultiField<SF>;
 
-typedef Pimpact::CompoundField< VF, SF> CF;
-typedef Pimpact::MultiField<CF> MF;
+using CF = Pimpact::CompoundField< VF, SF>;
+using MF = Pimpact::MultiField<CF>;
 
-typedef Pimpact::OperatorBase<MF> BOp;
+using BOp = Pimpact::OperatorBase<MF>;
 
-typedef NOX::Pimpact::Interface<MF> Inter;
-typedef NOX::Pimpact::Vector<typename Inter::Field> NV;
+using Inter = NOX::Pimpact::Interface<MF>;
+using NV = NOX::Pimpact::Vector<typename Inter::Field>;
 
 
 template<class T> using FT =

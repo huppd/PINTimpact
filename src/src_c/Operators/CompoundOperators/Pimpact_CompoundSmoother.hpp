@@ -24,22 +24,22 @@ class CompoundSmoother {
 
 public:
 
-	typedef typename CompoundOpT::OpV2VT OpV2VT;
-	typedef typename CompoundOpT::OpS2VT OpS2VT;
-	typedef typename CompoundOpT::OpV2ST OpV2ST;
+	using OpV2VT = typename CompoundOpT::OpV2VT;
+	using OpS2VT = typename CompoundOpT::OpS2VT;
+	using OpV2ST = typename CompoundOpT::OpV2ST;
 
-  typedef typename CompoundOpT::DomainFieldT DomainFieldT;
-  typedef typename CompoundOpT::RangeFieldT  RangeFieldT;
+  using DomainFieldT = typename CompoundOpT::DomainFieldT;
+  using RangeFieldT = typename CompoundOpT::RangeFieldT;
 
-  typedef typename CompoundOpT::SpaceT SpaceT;
+  using SpaceT = typename CompoundOpT::SpaceT;
 
 protected:
 
-  typedef typename OpS2VT::RangeFieldT  VF;
-  typedef typename OpS2VT::DomainFieldT  SF;
+  using VF = typename OpS2VT::RangeFieldT;
+  using SF = typename OpS2VT::DomainFieldT;
 
-	typedef vSmoother< OpV2VT> OpVSmoother;
-	typedef TripleCompositionOp< sSmoother,TripleCompositionOp<OpV2ST,OpV2VT,OpS2VT>,sSmoother> OpSSmootherT;
+	using OpVSmoother = vSmoother< OpV2VT>;
+	using OpSSmootherT = TripleCompositionOp< sSmoother,TripleCompositionOp<OpV2ST,OpV2VT,OpS2VT>,sSmoother>;
 
   Teuchos::RCP<OpS2VT> opS2V_;
 
