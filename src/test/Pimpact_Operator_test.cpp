@@ -9,7 +9,6 @@
 
 #include "BelosTypes.hpp"
 
-#include "Pimpact_DivGradO2Inv.hpp"
 #include "Pimpact_Fields.hpp"
 #include "Pimpact_LinSolverParameter.hpp"
 #include "Pimpact_Operator.hpp"
@@ -52,10 +51,6 @@ int nIter = 1000;
 int nx = 19;
 int ny = 17;
 int nz = 13;
-//int nf = 32;
-//int nx = 517;
-//int ny = 517;
-//int nz = 517;
 int nf = 1;
 
 int npx = 1;
@@ -101,23 +96,23 @@ TEUCHOS_STATIC_SETUP() {
 	pl->set( "ly", 1. );
 	pl->set( "lz", 1. );
 
-	//pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
-	//pl->sublist("Stretching in X").set<S>( "N metr L", nx );
-	//pl->sublist("Stretching in X").set<S>( "N metr U", nx  );
-	//pl->sublist("Stretching in X").set<S>( "x0 L", 0.05 );
-	//pl->sublist("Stretching in X").set<S>( "x0 U", 0. );
+	pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+	pl->sublist("Stretching in X").set<S>( "N metr L", nx );
+	pl->sublist("Stretching in X").set<S>( "N metr U", nx  );
+	pl->sublist("Stretching in X").set<S>( "x0 L", 0.05 );
+	pl->sublist("Stretching in X").set<S>( "x0 U", 0. );
 
-	//pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
-	//pl->sublist("Stretching in Y").set<S>( "N metr L", ny );
-	//pl->sublist("Stretching in Y").set<S>( "N metr U", ny  );
-	//pl->sublist("Stretching in Y").set<S>( "x0 L", 0.05 );
-	//pl->sublist("Stretching in Y").set<S>( "x0 U", 0. );
+	pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+	pl->sublist("Stretching in Y").set<S>( "N metr L", ny );
+	pl->sublist("Stretching in Y").set<S>( "N metr U", ny  );
+	pl->sublist("Stretching in Y").set<S>( "x0 L", 0.05 );
+	pl->sublist("Stretching in Y").set<S>( "x0 U", 0. );
 
-	//pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
-	//pl->sublist("Stretching in Z").set<S>( "N metr L", nz );
-	//pl->sublist("Stretching in Z").set<S>( "N metr U", nz  );
-	//pl->sublist("Stretching in Z").set<S>( "x0 L", 0. );
-	//pl->sublist("Stretching in Z").set<S>( "x0 U", 0. );
+	pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+	pl->sublist("Stretching in Z").set<S>( "N metr L", nz );
+	pl->sublist("Stretching in Z").set<S>( "N metr U", nz  );
+	pl->sublist("Stretching in Z").set<S>( "x0 L", 0. );
+	pl->sublist("Stretching in Z").set<S>( "x0 U", 0. );
 
 }
 
@@ -867,7 +862,9 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Inv ) {
 	Teuchos::RCP< Pimpact::ScalarField< Pimpact::Space<S,O,d,dNC> > > x =
 		Pimpact::create<Pimpact::ScalarField>( space );
 
-  auto b = Pimpact::create<Pimpact::ScalarField>( space );
+	Teuchos::RCP< Pimpact::ScalarField< Pimpact::Space<S,O,d,dNC> > > xp = x->clone();
+	Teuchos::RCP< Pimpact::ScalarField< Pimpact::Space<S,O,d,dNC> > > b = x->clone();
+
 
   auto op = Pimpact::create<Pimpact::DivGradO2Op>( space );
 
@@ -875,46 +872,17 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Inv ) {
 
   auto solver = Pimpact::create<Pimpact::DivGradO2Inv>( op, ppl );
 
-	//solver->print();
-	// --- zero rhs test --- 
-	x->random();
-	auto xp = x->clone( Pimpact::DeepCopy );
-	b->init( 1. );
-
-	//solver->print();
-	////b->print();
-	//solver->apply( *b, *x );
-	////x->print();
-	////x->write();
-	//op->apply( *b, *xp );
-
-	//xp->print();
-	//xp->write();
-
-	//xp->add( -1., *xp, 1., *x );
-	//S err = xp->norm( Belos::InfNorm );
-	//if( 0==space->rankST() )
-		//std::cout << "consistency for " << err << "\n";
-
   // --- consistency test ---
 	//for( int dir=1; dir<=6; ++dir ) {
 	for( int dir=1; dir<=6; ++dir ) {
 		x->initField( static_cast<Pimpact::EScalarField>(dir) );
-		//x->level();
-		auto xp = x->clone( Pimpact::DeepCopy );
+		x->level();
 
-		x->print();
 		op->apply( *x, *b );
-		//b->setCornersZero();
-		b->print();
-
 		solver->apply( *b, *xp );
-		//xp->level();
-		xp->print();
-		//xp->level();
-		//xp->print();
 
 		xp->add( 1., *xp, -1., *x );
+
 		S err2 = xp->norm( Belos::InfNorm )/std::sqrt( static_cast<S>(xp->getLength()) );
 		S errInf = xp->norm( Belos::InfNorm );
 

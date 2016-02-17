@@ -11,8 +11,6 @@
 #include "Pimpact_MultiGrid.hpp"
 #include "Pimpact_Operator.hpp"
 
-#include "Pimpact_DivGradO2Inv.hpp"
-
 
 
 
@@ -112,18 +110,21 @@ TEUCHOS_STATIC_SETUP() {
 	clp.setOption( "npz", &npz, "" );
 	clp.setOption( "npf", &npf, "" );
 
-	clp.setOption( "nx", &nx, "" );
-	clp.setOption( "ny", &ny, "" );
-	clp.setOption( "nz", &nz, "" );
-	clp.setOption( "nf", &nf, "" );
+	//clp.setOption( "nx", &nx, "" );
+	//clp.setOption( "ny", &ny, "" );
+	//clp.setOption( "nz", &nz, "" );
+	//clp.setOption( "nf", &nf, "" );
 	clp.setOption( "rank", &rankbla, "" );
 	clp.setOption( "maxGrids", &maxGrids, "" );
 
-	//pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
-	//pl->sublist("Stretching in X").set<S>( "N metr L", nx );
-	//pl->sublist("Stretching in X").set<S>( "N metr U", nx  );
-	//pl->sublist("Stretching in X").set<S>( "x0 L", 0.05 );
-	//pl->sublist("Stretching in X").set<S>( "x0 U", 0. );
+	nx =33;
+	ny=33;
+	nz=33;
+	pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+	pl->sublist("Stretching in X").set<S>( "N metr L", nx );
+	pl->sublist("Stretching in X").set<S>( "N metr U", nx  );
+	pl->sublist("Stretching in X").set<S>( "x0 L", 0.05 );
+	pl->sublist("Stretching in X").set<S>( "x0 U", 0. );
 
 	////pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
 	////pl->sublist("Stretching in Y").set<S>( "N metr L", 1 );
@@ -1243,41 +1244,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 	mgPL->set<bool>( "init zero", false );
 
 	//mgPL->sublist("Smoother").set( "omega", 1. );
-	mgPL->sublist("Smoother").set<int>( "numIters", 5 );
+	mgPL->sublist("Smoother").set<int>( "numIters", 10 );
 	//mgPL->sublist("Smoother").set<int>( "RBGS mode", 0 );
 	//mgPL->sublist("Smoother").set<bool>( "level", false );
-
-	//mgPL->sublist("Coarse Grid Solver").set<std::string>("Solver name", "Fixed Point" );
-	//mgPL->sublist("Coarse Grid Solver").set<std::string>("Solver name", "CG" );
-	//mgPL->sublist("Coarse Grid Solver").set<std::string>( "Solver name", "Flexible GMRES" );
-	mgPL->sublist("Coarse Grid Solver").set<std::string>( "Solver name", "GMRES" );
-	//mgPL->sublist("Coarse Grid Solver").set<std::string>("Solver name", "TFQMR" );
-	//mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<std::string>("Timer Label", "Coarse Grid Solver" );
-	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<S>( "Convergence Tolerance" , 2.e-1 );
-
-	//mgPL->sublist("Coarse Grid Solver").sublist("Solver").set< Teuchos::RCP<std::ostream> >(
-			//"Output Stream", Teuchos::rcp( &std::cout, false ) );
-	//mgPL->sublist("Coarse Grid Solver").sublist("Solver").set("Verbosity",
-			//Belos::Errors +
-			//Belos::Warnings +
-			////Belos::IterationDetails +
-			////Belos::OrthoDetails +
-			//Belos::FinalSummary +
-			////Belos::TimingDetails +
-			////Belos::StatusTestDetails +
-			//Belos::Debug
-			//);
-
-	//mgPL->sublist("Coarse Grid Solver").set<S>( "omega", 1. );
-	//mgPL->sublist("Coarse Grid Solver").set<int>( "RBGS mode", 2 );
-	//mgPL->sublist("Coarse Grid Solver").set<int>( "numIters", 12 );
-	//mgPL->sublist("Coarse Grid Solver").set<bool>( "level", false );
-	
-	mgPL->sublist("Coarse Grid Solver").sublist("Preconditioner").set<S>( "omega", 1. );
-	mgPL->sublist("Coarse Grid Solver").sublist("Preconditioner").set<int>( "RBGS mode", 0 );
-	mgPL->sublist("Coarse Grid Solver").sublist("Preconditioner").set<int>( "numIters", 1 );
-	mgPL->sublist("Coarse Grid Solver").sublist("Preconditioner").set<bool>( "level", false );
-	//mgPL->sublist("Coarse Grid Solver").sublist("Preconditioner").set<bool>( "level", true );
 
 	auto mg =
 		Pimpact::createMultiGrid<
@@ -1287,13 +1256,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 			Pimpact::InterpolationOp,
 			Pimpact::DivGradOp,
 			Pimpact::DivGradO2Op,
-			Pimpact::DivGradO2JSmoother,
-			//Pimpact::DivGradO2SORSmoother,
+			//Pimpact::DivGradO2JSmoother,
+			Pimpact::DivGradO2SORSmoother,
 			Pimpact::DivGradO2Inv >( mgSpaces, mgPL );
-			//POP2 >( mgSpaces, mgPL );
-			//POP >( mgSpaces, mgPL );
-			//MOP >( mgSpaces, mgPL );
-			//Pimpact::DivGradO2SORSmoother >( mgSpaces, mgPL );
 
 	auto x = Pimpact::create<Pimpact::ScalarField>( space );
 	auto b = Pimpact::create<Pimpact::ScalarField>( space );

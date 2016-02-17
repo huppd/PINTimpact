@@ -28,6 +28,7 @@
 #include "Pimpact_GradOp.hpp"
 #include "Pimpact_DivGradOp.hpp"
 #include "Pimpact_DivGradO2Op.hpp"
+#include "Pimpact_DivGradO2Inv.hpp"
 #include "Pimpact_DivGradO2JSmoother.hpp"
 #include "Pimpact_DivGradO2SORSmoother.hpp"
 #include "Pimpact_HelmholtzOp.hpp"
