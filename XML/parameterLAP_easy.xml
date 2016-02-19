@@ -27,7 +27,7 @@
     </ParameterList>
   </ParameterList>
   <ParameterList id="5" name="Multi Grid">
-    <Parameter docString="" id="36" isDefault="false" isUsed="true" name="maxGrids" type="int" value="3" />
+    <Parameter docString="" id="36" isDefault="false" isUsed="true" name="maxGrids" type="int" value="10" />
   </ParameterList>
   <ParameterList id="6" name="DivGrad">
 		<!--<Parameter docString="" id="37" isDefault="true" isUsed="true" name="Solver name" type="string" value="GMRES" />-->

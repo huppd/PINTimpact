@@ -152,7 +152,8 @@ int main( int argi, char** argv ) {
 		Pimpact::DivGradO2Op,
 		Pimpact::DivGradO2JSmoother,
 		//Pimpact::DivGradO2SORSmoother,
-		POP
+		//POP
+		Pimpact::DivGradO2Inv
 			>( mgSpaces, Teuchos::rcpFromRef( pl->sublist("DivGrad").sublist("Multi Grid") ) );
 
 	if( 0==space->rankST() )

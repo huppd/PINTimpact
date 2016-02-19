@@ -68,11 +68,11 @@ public:
 
   void print(  std::ostream& out=std::cout ) const {
 
-    for( int i = 0; i<spaces_.size(); ++i ) {
+    for( int i=0; i<getNGrids(); ++i ) {
       out << "-------------------------\n";
       out << "-------- grid : "<< i << "--------\n";
       out << "-------------------------\n";
-      spaces_[i]->print(out);
+      get(i)->print(out);
     }
   }
 

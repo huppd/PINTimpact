@@ -544,6 +544,9 @@ contains
     real(c_double), intent(in)    :: phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
     real(c_double), intent(inout) :: temp(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
+
+    real(c_double)                :: omBC
+
     integer(c_int)                ::  i,  S1R, N1R, S11R, N11R
     integer(c_int)                ::  j,  S2R, N2R, S22R, N22R
     integer(c_int)                ::  k,  S3R, N3R, S33R, N33R
@@ -647,13 +650,15 @@ contains
     !=== boundary conditions ====================================================================
     !============================================================================================
 
+    omBC = omega
+
     if (BCL(1) > 0) then
       i = 1
       do k = S33R, N33R
         !there are wrong and here it is right
         !pgi$ unroll = n:8
         do j = S22R, N22R
-          temp(i,j,k) = (1-omega)*phi(i,j,k) + omega/cdg1(0,1)*( b(i,j,k) - cdg1(1,i)*phi(i+1,j,k) )
+          temp(i,j,k) = (1-omBC)*phi(i,j,k) + omBC/cdg1(0,1)*( b(i,j,k) - cdg1(1,i)*phi(i+1,j,k) )
         end do
       end do
     end if
@@ -663,7 +668,7 @@ contains
       do k = S33R, N33R
         !pgi$ unroll = n:8
         do j = S22R, N22R
-          temp(i,j,k) = (1-omega)*phi(i,j,k) + omega/cdg1(0,i)*( b(i,j,k) - cdg1(-1,i)*phi(i-1,j,k)  )
+          temp(i,j,k) = (1-omBC)*phi(i,j,k) + omBC/cdg1(0,i)*( b(i,j,k) - cdg1(-1,i)*phi(i-1,j,k)  )
         end do
       end do
     end if
@@ -675,7 +680,7 @@ contains
       do k = S33R, N33R
         !pgi$ unroll = n:8
         do i = S11R, N11R
-          temp(i,j,k) = (1-omega)*phi(i,j,k) + omega/cdg2(0,j)*( b(i,j,k) - cdg2(1,j)*phi(i,j+1,k) )
+          temp(i,j,k) = (1-omBC)*phi(i,j,k) + omBC/cdg2(0,j)*( b(i,j,k) - cdg2(1,j)*phi(i,j+1,k) )
         end do
       end do
     end if
@@ -685,7 +690,7 @@ contains
       do k = S33R, N33R
         !pgi$ unroll = n:8
         do i = S11R, N11R
-          temp(i,j,k) = (1-omega)*phi(i,j,k) + omega/cdg2(0,j)*( b(i,j,k) - cdg2(-1,j)*phi(i,j-1,k) )
+          temp(i,j,k) = (1-omBC)*phi(i,j,k) + omBC/cdg2(0,j)*( b(i,j,k) - cdg2(-1,j)*phi(i,j-1,k) )
         end do
       end do
     end if
@@ -697,7 +702,7 @@ contains
       do j = S22R, N22R
         !pgi$ unroll = n:8
         do i = S11R, N11R
-          temp(i,j,k) = (1-omega)*phi(i,j,k) + omega/cdg3(0,k)*( b(i,j,k) - cdg3(1,k)*phi(i,j,k+1) )
+          temp(i,j,k) = (1-omBC)*phi(i,j,k) + omBC/cdg3(0,k)*( b(i,j,k) - cdg3(1,k)*phi(i,j,k+1) )
         end do
       end do
     end if
@@ -707,7 +712,7 @@ contains
       do j = S22R, N22R
         !pgi$ unroll = n:8
         do i = S11R, N11R
-          temp(i,j,k) = (1-omega)*phi(i,j,k) + omega/cdg3(0,k)*( b(i,j,k) - cdg3(-1,k)*phi(i,j,k-1) )
+          temp(i,j,k) = (1-omBC)*phi(i,j,k) + omBC/cdg3(0,k)*( b(i,j,k) - cdg3(-1,k)*phi(i,j,k-1) )
         end do
       end do
     end if

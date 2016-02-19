@@ -117,15 +117,26 @@ TEUCHOS_STATIC_SETUP() {
 	clp.setOption( "rank", &rankbla, "" );
 	clp.setOption( "maxGrids", &maxGrids, "" );
 
-	nx =33;
-	ny=33;
-	nz=33;
-	pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
-	pl->sublist("Stretching in X").set<S>( "N metr L", nx );
-	pl->sublist("Stretching in X").set<S>( "N metr U", nx  );
-	pl->sublist("Stretching in X").set<S>( "x0 L", 0.05 );
-	pl->sublist("Stretching in X").set<S>( "x0 U", 0. );
+	nx=65;
+	ny=65;
+	nz=65;
+	//pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "para" );
+	//pl->sublist("Stretching in X").set<S>( "alpha", 0.25 );
 
+	pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+	pl->sublist("Stretching in X").set<S>( "N metr L", nx/2 );
+	pl->sublist("Stretching in X").set<S>( "N metr U", nx/2 );
+	//pl->sublist("Stretching in X").set<S>( "x0 L", 0.05 );
+	//pl->sublist("Stretching in X").set<S>( "x0 L", 1. );
+	//pl->sublist("Stretching in X").set<S>( "x0 U", 0. );
+
+	pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+	pl->sublist("Stretching in Y").set<S>( "N metr L", nx/2 );
+	pl->sublist("Stretching in Y").set<S>( "N metr U", nx/2 );
+
+	pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+	pl->sublist("Stretching in Y").set<S>( "N metr L", nx/2 );
+	pl->sublist("Stretching in Y").set<S>( "N metr U", nx/2 );
 	////pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
 	////pl->sublist("Stretching in Y").set<S>( "N metr L", 1 );
 	////pl->sublist("Stretching in Y").set<S>( "N metr U", ny  );
@@ -1235,7 +1246,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 	int nMax = 10;
 
 	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
-	if( space->rankST()==0 ) mgSpaces->print();
+	if( space->rankST()==0 ) {
+		mgSpaces->print();
+		for( int i=0; i<mgSpaces->getNGrids(); ++i ) {
+			std::string fname = "coord_" + std::to_string( i ) + ".txt";
+			Teuchos::RCP<std::ostream> fstream = Pimpact::createOstream( fname, 0 );
+			mgSpaces->get(i)->getCoordinatesGlobal()->print( *fstream );
+		}
+	}
 
 	auto mgPL = Teuchos::parameterList();
 	mgPL->set<int>( "numCycles", 1 );
@@ -1244,8 +1262,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 	mgPL->set<bool>( "init zero", false );
 
 	//mgPL->sublist("Smoother").set( "omega", 1. );
-	mgPL->sublist("Smoother").set<int>( "numIters", 10 );
-	//mgPL->sublist("Smoother").set<int>( "RBGS mode", 0 );
+	mgPL->sublist("Smoother").set<int>( "numIters", 4 );
+	mgPL->sublist("Smoother").set<int>( "RBGS mode", 2 );
 	//mgPL->sublist("Smoother").set<bool>( "level", false );
 
 	auto mg =
@@ -1273,21 +1291,35 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 
 	auto prec = Pimpact::createMultiOperatorBase( mg );
 
-	//auto solvName = "Block GMRES";
-	 //auto solvName = "TFQMR";
-	auto solvName = "GMRES";
-	//auto solvName = "Fixed Point";
+	std::string solvName = "Pseudoblock GMRES";
+	//std::string solvName = "Block GMRES";
+	//std::string solvName = "Block CG";
+	//std::string solvName = "Pseudoblock CG";
+	//std::string solvName = "Pseudoblock Stochastic CG";
+	//std::string solvName = "GCRODR";
+	//std::string solvName = "RCG";
+	//std::string solvName = "MINRES";
+	//std::string solvName = "LSQR";
+	//std::string solvName = "TFQMR";
+	//std::string solvName = "Pseudoblock TFQMR";
+	//std::string solvName = "Hybrid Block GMRES";
+	//std::string solvName = "PCPG";
+	//std::string solvName = "Fixed Point";
+	//std::string solvName = "BiCGStab";
 
-	auto param = Pimpact::createLinSolverParameter( solvName, 1.e-6 );
-	param->set( "Output Frequency", 10 );
+	Teuchos::RCP< Teuchos::ParameterList > param = Pimpact::createLinSolverParameter( solvName, 1.e-6 );
+	param->set( "Output Frequency", 1 );
 	param->set( "Maximum Iterations", 10 );
 	//param->set( "Flexible Gmres", false );
 
 	auto bop = Pimpact::createMultiOperatorBase( op );
 
 	auto linprob = Pimpact::createLinearProblem<Pimpact::MultiField<Pimpact::ScalarField<FSpace3T> > >( bop, xm, bm, param, solvName );
-	linprob->setRightPrec(prec);
-	//linprob->setLeftPrec(prec);
+	if( solvName!="Fixed Point" ) 
+		linprob->setRightPrec(prec);
+	//if( solvName!="BiCGStab" ) 
+	if( solvName=="Fixed Point" ) 
+		linprob->setLeftPrec(prec);
 	
 	// --- zero rhs test ---
 	b->init(0.);
@@ -1331,9 +1363,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 	x->write();
 	TEST_EQUALITY( x->norm()/std::sqrt( static_cast<S>(x->getLength()) )<1.e-3, true );
 	
-	//bm->init( 0. );
-	//xm->random();
-	//linprob->solve( xm, bm );
+	bm->init( 0. );
+	xm->random();
+	linprob->solve( xm, bm );
 
 	// --- grad test ---
 	auto e = x->clone();
@@ -1346,9 +1378,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 		sol->level();
 
 		opO2->apply( *x, *b );
-		//b->write(1);
 
-		//x->random();
 		x->init( 0 );
 
 		// residual
@@ -1385,9 +1415,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 		}
 		TEST_EQUALITY( res->norm()/std::sqrt( static_cast<S>( res->getLength() ) )<1.e-3, true );
 
-		////bm->get( 0 )-init( 0. );
-		//xm->init( 0. );
-		//linprob->solve( xm, bm );
+		//bm->get( 0 )-init( 0. );
+		xm->init( 0. );
+		linprob->solve( xm, bm );
 	}
 
 

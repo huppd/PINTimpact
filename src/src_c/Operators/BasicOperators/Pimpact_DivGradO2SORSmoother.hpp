@@ -72,6 +72,7 @@ public:
 	/// \param[in] pl  Parameter list of options for the multi grid solver.
 	///   These are the options accepted by the solver manager:
 	///   - "omega" - a \c Scalar damping factor. Default: for 2D 0.8 for 3D 6./7.  /
+	///   - "RBGS mode" - a \c int red black GS mode. Default: 2 /
 	///   - "numIters" - a \c int number of smoothing steps . Default: 4  /
 	///   - "level" - a \c bool number of smoothing steps . Default: false  /
   DivGradO2SORSmoother(

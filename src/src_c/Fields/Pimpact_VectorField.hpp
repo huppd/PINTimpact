@@ -265,7 +265,6 @@ public:
 
 
 	/// @}
-
 	/// \name Norm method
 	/// @{
 
@@ -1439,23 +1438,6 @@ public:
         changed( vel_dir, dir );
       }
   }
-
-
-//  bool is_exchanged( const int& vel_dir, const int& dir ) const {
-//    return( getConstFieldPtr( vel_dir )->is_exchanged( dir ) );
-//  }
-//
-//  bool is_exchanged() const {
-//
-//    bool all_exchanged = true;
-//    for( int vel_dir=0; vel_dir<space()->dim(); ++vel_dir )
-//      for( int dir=0; dir<space()->dim(); ++dir )
-//        all_exchanged = all_exchanged && is_exchanged(vel_dir,dir);
-//
-//    return( all_exchanged );
-//
-//  }
-
 
   void exchange( const int& vel_dir, const int& dir ) const {
     getConstFieldPtr(vel_dir)->exchange(dir);
