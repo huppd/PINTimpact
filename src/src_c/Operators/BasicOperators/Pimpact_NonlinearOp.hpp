@@ -107,11 +107,12 @@ public:
 
 /// \relates NonlinearOp
 template<class SpaceT>
-Teuchos::RCP<NonlinearOp<NonlinearWrap<ConvectionSOp<SpaceT> > > > createNonlinearOp(
+Teuchos::RCP<NonlinearOp<NonlinearWrap<ConvectionSOp<SpaceT> > > >
+createNonlinearOp(
     const Teuchos::RCP<const SpaceT>& space ) {
 
-  auto sop = Pimpact::create<Pimpact::ConvectionSOp>( space ) ;
-//  auto wrap = Pimpact::create<Pimpact::NonlinearWrap>( sop );
+	Teuchos::RCP<NonlinearOp<NonlinearWrap<ConvectionSOp<SpaceT> > > > sop =
+		Pimpact::create<Pimpact::ConvectionSOp>( space ) ;
 
   return( Teuchos::rcp( new NonlinearOp< ConvectionSOp<SpaceT> >( sop ) ) );
 

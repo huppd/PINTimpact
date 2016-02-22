@@ -285,8 +285,12 @@ contains
   subroutine OP_DivGradO2Op(  &
       dimens,                 &
       N,                      &
-      bL,bU,                  &
-      BCL,BCU,                &
+      SR,                     &
+      ER,                     &
+      bL,                     &
+      bU,                     &
+      BCL,                    &
+      BCU,                    &
       cdg1,                   &
       cdg2,                   &
       cdg3,                   &
@@ -298,6 +302,9 @@ contains
     integer(c_int), intent(in)    :: dimens
 
     integer(c_int), intent(in)    :: N(3)
+
+    integer(c_int), intent(in)    :: SR(3)
+    integer(c_int), intent(in)    :: ER(3)
 
     integer(c_int), intent(in)    :: bL(3)
     integer(c_int), intent(in)    :: bU(3)
@@ -313,71 +320,17 @@ contains
 
     real(c_double), intent(inout) :: Lap (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-    integer(c_int)                ::  i,  S1R, N1R, S11R, N11R
-    integer(c_int)                ::  j,  S2R, N2R, S22R, N22R
-    integer(c_int)                ::  k,  S3R, N3R, S33R, N33R
+    integer(c_int)                ::  i
+    integer(c_int)                ::  j
+    integer(c_int)                ::  k
 
+    !===========================================================================================
 
-    !--------------------------------------------------------------
-
-    S1R = 1
-    N1R = N(1)-1
-
-    if( BCL(1) >   0 ) S1R = 1
-    if( BCL(1) == -2 ) S1R = 1
-    if( BCU(1) >   0 ) N1R = N(1)
-    if( BCU(1) == -2 ) N1R = N(1)
-
-    S2R = 1
-    N2R = N(2)-1
-
-    if( BCL(2) >   0 ) S2R = 1
-    if( BCL(2) == -2 ) S2R = 1
-    if( BCU(2) >   0 ) N2R = N(2)
-    if( BCU(2) == -2 ) N2R = N(2)
-
-    S3R = 1
-    N3R = N(3)-1
-
-    if( BCL(3) >   0 ) S3R = 1
-    if( BCL(3) == -2 ) S3R = 1
-    if( BCU(3) >   0 ) N3R = N(3)
-    if( BCU(3) == -2 ) N3R = N(3)
-
-    !--------------------------------------------------------------
-
-    S11R = 1
-    N11R = N(1)-1
-
-    if( BCL(1) >   0 ) S11R = 2
-    if( BCL(1) == -2 ) S11R = 1
-    if( BCU(1) >   0 ) N11R = N(1)-1
-    if( BCU(1) == -2 ) N11R = N(1)
-
-    S22R = 1
-    N22R = N(2)-1
-
-    if( BCL(2) >   0 ) S22R = 2
-    if( BCL(2) == -2 ) S22R = 1
-    if( BCU(2) >   0 ) N22R = N(2)-1
-    if( BCU(2) == -2 ) N22R = N(2)
-
-    S33R = 1
-    N33R = N(3)-1
-
-    if( BCL(3) >   0 ) S33R = 2
-    if( BCL(3) == -2 ) S33R = 1
-    if( BCU(3) >   0 ) N33R = N(3)-1
-    if( BCU(3) == -2 ) N33R = N(3)
-
-    !============================================================================================
-
-    if (dimens == 3) then
-
-      do k = S33R, N33R
-        do j = S22R, N22R
+    if (dimens == 3) then 
+      do k = SR(3), ER(3)
+        do j = SR(2), ER(2)
           !pgi$ unroll = n:8
-          do i = S11R, N11R
+          do i = SR(1), ER(1)
             Lap(i,j,k) =  cdg1(-1,i)*phi(i-1,j  ,k  ) + cdg1(1,i)*phi(i+1,j  ,k  )   &
               &        +  cdg2(-1,j)*phi(i  ,j-1,k  ) + cdg2(1,j)*phi(i  ,j+1,k  )   &
               &        +  cdg3(-1,k)*phi(i  ,j  ,k-1) + cdg3(1,k)*phi(i  ,j  ,k+1)   &
@@ -386,14 +339,14 @@ contains
         end do
       end do
 
-      !============================================================================================
+      !=========================================================================================
 
     else
 
-      do k = S33R, N33R
-        do j = S22R, N22R
+      do k = SR(3), ER(3)
+        do j = SR(2), ER(2)
           !pgi$ unroll = n:8
-          do i = S11R, N11R
+          do i = SR(1), ER(1)
             Lap(i,j,k) =  cdg1(-1,i)*phi(i-1,j  ,k) + cdg1(1,i)*phi(i+1,j  ,k)   &
               &        +  cdg2(-1,j)*phi(i  ,j-1,k) + cdg2(1,j)*phi(i  ,j+1,k)   &
               &        + (cdg1(0,i) + cdg2(0,j))*phi(i,j,k)
@@ -403,19 +356,18 @@ contains
 
     end if
 
-    !============================================================================================
+    !===========================================================================================
 
 
-    !============================================================================================
-    !=== boundary conditions ====================================================================
-    !============================================================================================
+    !===========================================================================================
+    !=== boundary conditions ===================================================================
+    !===========================================================================================
 
     if( BCL(1) > 0 ) then
       i = 1
-      !do k = S3R, N3R
-      do k = S33R, N33R
+      do k = SR(3), ER(3)
         !pgi$ unroll = n:8
-        do j = S22R, N22R
+        do j = SR(2), ER(2)
           Lap(i,j,k) = cdg1(0,i)*phi(i,j,k) + cdg1(1,i)*phi(i+1,j,k)
         end do
       end do
@@ -423,21 +375,21 @@ contains
 
     if( BCU(1) > 0 )then
       i = N(1)
-      do k = S33R, N33R
+      do k = SR(3), ER(3)
         !pgi$ unroll = n:8
-        do j = S22R, N22R
+        do j = SR(2), ER(2)
           Lap(i,j,k) = cdg1(-1,i)*phi(i-1,j,k) + cdg1(0,i)*phi(i,j,k)
         end do
       end do
     end if
 
-    !============================================================================================
+    !===========================================================================================
 
     if( BCL(2) > 0 ) then
       j = 1
-      do k = S33R, N33R
+      do k = SR(3), ER(3)
         !pgi$ unroll = n:8
-        do i = S11R, N11R
+        do i = SR(1), ER(1)
           Lap(i,j,k) = cdg2(0,j)*phi(i,j,k) + cdg2(1,j)*phi(i,j+1,k)
         end do
       end do
@@ -445,21 +397,21 @@ contains
 
     if( BCU(2) > 0 ) then
       j = N(2)
-      do k = S33R, N33R
+      do k = SR(3), ER(3)
         !pgi$ unroll = n:8
-        do i = S11R, N11R
+        do i = SR(1), ER(1)
           Lap(i,j,k) = cdg2(-1,j)*phi(i,j-1,k) + cdg2(0,j)*phi(i,j,k)
         end do
       end do
     end if
 
-    !============================================================================================
+    !===========================================================================================
 
     if( BCL(3) > 0 ) then
       k = 1
-      do j = S22R, N22R
+      do j = SR(2), ER(2)
         !pgi$ unroll = n:8
-        do i = S11R, N11R
+        do i = SR(1), ER(1)
           Lap(i,j,k) = cdg3(0,k)*phi(i,j,k) + cdg3(1,k)*phi(i,j,k+1)
         end do
       end do
@@ -467,22 +419,22 @@ contains
 
     if( BCU(3) > 0 ) then
       k = N(3)
-      do j = S22R, N22R
+      do j = SR(2), ER(2)
         !pgi$ unroll = n:8
-        do i = S11R, N11R
+        do i = SR(1), ER(1)
           Lap(i,j,k) = cdg3(-1,k)*phi(i,j,k-1) + cdg3(0,k)*phi(i,j,k)
         end do
       end do
     end if
 
-    !============================================================================================
+    !===========================================================================================
 
 
   end subroutine OP_DivGradO2Op
 
 
 
-  !> \brief applies damped Jaccobi smoother
+  !> \brief applies damped Jaccobi smoother on inner field
   !!
   !! \f$ \mathrm{temp = (1-\omega) phi + \omega D^{-1}(b - N phi) } \f$
   !!
@@ -511,8 +463,10 @@ contains
   subroutine OP_DivGradO2JSmoother(   &
       dimens,                         &
       N,                              &
-      bL,bU,                          &
-      BCL,BCU,                        &
+      bL,                             &
+      bU,                             &
+      SR,                             &
+      ER,                             &
       cdg1,                           &
       cdg2,                           &
       cdg3,                           &
@@ -530,8 +484,8 @@ contains
     integer(c_int), intent(in)    :: bL(3)
     integer(c_int), intent(in)    :: bU(3)
 
-    integer(c_int), intent(in)    :: BCL(3)
-    integer(c_int), intent(in)    :: BCU(3)
+    integer(c_int), intent(in)    :: SR(3)
+    integer(c_int), intent(in)    :: ER(3)
 
     real(c_double), intent(in)    :: cdg1(-1:1,1:N(1))
     real(c_double), intent(in)    :: cdg2(-1:1,1:N(2))
@@ -544,73 +498,18 @@ contains
     real(c_double), intent(in)    :: phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
     real(c_double), intent(inout) :: temp(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-
-    real(c_double)                :: omBC
-
-    integer(c_int)                ::  i,  S1R, N1R, S11R, N11R
-    integer(c_int)                ::  j,  S2R, N2R, S22R, N22R
-    integer(c_int)                ::  k,  S3R, N3R, S33R, N33R
+    integer(c_int)                ::  i
+    integer(c_int)                ::  j
+    integer(c_int)                ::  k
 
     !--------------------------------------------------------------
-
-    S1R = 1
-    N1R = N(1)-1
-
-    if (BCL(1) >   0) S1R = 1
-    if (BCL(1) == -2) S1R = 1
-    if (BCU(1) >   0) N1R = N(1)
-    if (BCU(1) == -2) N1R = N(1)
-
-    S2R = 1
-    N2R = N(2)-1
-
-    if (BCL(2) >   0) S2R = 1
-    if (BCL(2) == -2) S2R = 1
-    if (BCU(2) >   0) N2R = N(2)
-    if (BCU(2) == -2) N2R = N(2)
-
-    S3R = 1
-    N3R = N(3)-1
-
-    if (BCL(3) >   0) S3R = 1
-    if (BCL(3) == -2) S3R = 1
-    if (BCU(3) >   0) N3R = N(3)
-    if (BCU(3) == -2) N3R = N(3)
-
-    !--------------------------------------------------------------
-
-    S11R = 1
-    N11R = N(1)-1
-
-    if (BCL(1) >   0) S11R = 2
-    if (BCL(1) == -2) S11R = 1
-    if (BCU(1) >   0) N11R = N(1)-1
-    if (BCU(1) == -2) N11R = N(1)
-
-    S22R = 1
-    N22R = N(2)-1
-
-    if (BCL(2) >   0) S22R = 2
-    if (BCL(2) == -2) S2R = 1
-    if (BCU(2) >   0) N22R = N(2)-1
-    if (BCU(2) == -2) N22R = N(2)
-
-    S33R = 1
-    N33R = N(3)-1
-
-    if (BCL(3) >   0) S33R = 2
-    if (BCL(3) == -2) S33R = 1
-    if (BCU(3) >   0) N33R = N(3)-1
-    if (BCU(3) == -2) N33R = N(3)
-
-    !============================================================================================
 
     if (dimens == 3) then
 
-      do k = S33R, N33R
-        do j = S22R, N22R
+      do k = SR(3), ER(3)
+        do j = SR(2), ER(2)
           !pgi$ unroll = n:8
-          do i = S11R, N11R
+          do i = SR(1), ER(1)
             temp(i,j,k) = (1-omega)*phi(i,j,k) +                                  &
               &    omega/( cdg1(0,i) + cdg2(0,j) + cdg3(0,k) )*(                  &
               &     b(i,j,k)                                                      &
@@ -623,14 +522,13 @@ contains
         end do
       end do
 
-      !==========================================================================================
 
     else
 
-      do k = S33R, N33R
-        do j = S22R, N22R
+      do k = SR(3), ER(3)
+        do j = SR(2), ER(2)
           !pgi$ unroll = n:8
-          do i = S11R, N11R
+          do i = SR(1), ER(1)
             temp(i,j,k) = (1-omega)*phi(i,j,k) +                          &
               &   omega/( cdg1(0,i) + cdg2(0,j) )*(                       &
               &   b(i,j,k)                                                &
@@ -643,21 +541,90 @@ contains
 
     end if
 
-    !============================================================================================
+
+  end subroutine OP_DivGradO2JSmoother
 
 
-    !============================================================================================
-    !=== boundary conditions ====================================================================
-    !============================================================================================
 
-    omBC = omega
+  !> \brief applies damped Jaccobi smoother on boundaries 
+  !!
+  !! \f$ \mathrm{temp = (1-\omega) phi + \omega D^{-1}(b - N phi) } \f$
+  !!
+  !! \param[in] N local grid size
+  !! \param[in] bL lower storage offset
+  !! \param[in] bU upper storage offset
+  !! \param[in] BCL local lower boundary conditions
+  !! \param[in] BCU local upper boundary conditions
+  !! \param[in] SR start index for inner field 
+  !! \param[in] ER end index for inner field 
+  !! \param[in] cdg1 stencil in x-direction
+  !! \param[in] cdg2 stencil in y-direction
+  !! \param[in] cdg3 stencil in z-direction
+  !! \param[in] omBC damping factor
+  !! \param[in] b right hand side
+  !! \param[in] phi previous 'x'
+  !! \param[inout] temp output
+  !! 
+  !! \note
+  !! - Null-Setzen am Rand nicht notwendig, da Startindizes entsprechend gewählt sind!
+  !! - Direktes Verbinden mit Restriktion erscheint nicht sehr attraktiv, da Lap auf dem
+  !!   jeweils feineren Gitter ohnehin benötigt wird und coarse nur per MOD( , ) oder IF-
+  !!   Abfrage belegt werden könnte. Zum anderen Wird das redundante feinere Feld auch bei
+  !!   der Interpolation verwendet (ebenfalls zur Vereinfachung der
+  !!   Programmierung) und ist somit ohnehin vorhanden.
+  !!   Geschwindigkeitsmässig ist vermutlich auch nicht mehr viel zu holen.
+  subroutine OP_DivGradO2JBCSmoother( &
+      N,                              &
+      bL,                             &
+      bU,                             &
+      BCL,                            &
+      BCU,                            &
+      SR,                             &
+      ER,                             &
+      cdg1,                           &
+      cdg2,                           &
+      cdg3,                           &
+      omBC,                           &
+      b,                              &
+      phi,                            &
+      temp ) bind (c,name='OP_DivGradO2JBCSmoother')
+
+    implicit none
+
+    integer(c_int), intent(in)    :: N(3)
+
+    integer(c_int), intent(in)    :: bL(3)
+    integer(c_int), intent(in)    :: bU(3)
+
+    integer(c_int), intent(in)    :: BCL(3)
+    integer(c_int), intent(in)    :: BCU(3)
+
+    integer(c_int), intent(in)    :: SR(3)
+    integer(c_int), intent(in)    :: ER(3)
+
+    real(c_double), intent(in)    :: cdg1(-1:1,1:N(1))
+    real(c_double), intent(in)    :: cdg2(-1:1,1:N(2))
+    real(c_double), intent(in)    :: cdg3(-1:1,1:N(3))
+
+    real(c_double), intent(in)    :: omBC
+
+    real(c_double), intent(in)    :: b (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+
+    real(c_double), intent(in)    :: phi (bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double), intent(inout) :: temp(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+
+    integer(c_int)                ::  i
+    integer(c_int)                ::  j
+    integer(c_int)                ::  k
+
+    !--------------------------------------------------------------
+
 
     if (BCL(1) > 0) then
       i = 1
-      do k = S33R, N33R
-        !there are wrong and here it is right
+      do k = SR(3), ER(3)
         !pgi$ unroll = n:8
-        do j = S22R, N22R
+        do j = SR(2), ER(2)
           temp(i,j,k) = (1-omBC)*phi(i,j,k) + omBC/cdg1(0,1)*( b(i,j,k) - cdg1(1,i)*phi(i+1,j,k) )
         end do
       end do
@@ -665,21 +632,21 @@ contains
 
     if (BCU(1) > 0) then
       i = N(1)
-      do k = S33R, N33R
+      do k = SR(3), ER(3)
         !pgi$ unroll = n:8
-        do j = S22R, N22R
+        do j = SR(2), ER(2)
           temp(i,j,k) = (1-omBC)*phi(i,j,k) + omBC/cdg1(0,i)*( b(i,j,k) - cdg1(-1,i)*phi(i-1,j,k)  )
         end do
       end do
     end if
 
-    !============================================================================================
+    !===========================================================================================
 
     if (BCL(2) > 0) then
       j = 1
-      do k = S33R, N33R
+      do k = SR(3), ER(3)
         !pgi$ unroll = n:8
-        do i = S11R, N11R
+        do i = SR(1), ER(1)
           temp(i,j,k) = (1-omBC)*phi(i,j,k) + omBC/cdg2(0,j)*( b(i,j,k) - cdg2(1,j)*phi(i,j+1,k) )
         end do
       end do
@@ -687,21 +654,21 @@ contains
 
     if (BCU(2) > 0) then
       j = N(2)
-      do k = S33R, N33R
+      do k = SR(3), ER(3)
         !pgi$ unroll = n:8
-        do i = S11R, N11R
+        do i = SR(1), ER(1)
           temp(i,j,k) = (1-omBC)*phi(i,j,k) + omBC/cdg2(0,j)*( b(i,j,k) - cdg2(-1,j)*phi(i,j-1,k) )
         end do
       end do
     end if
 
-    !============================================================================================
+    !===========================================================================================
 
     if (BCL(3) > 0) then
       k = 1
-      do j = S22R, N22R
+      do j = SR(2), ER(2)
         !pgi$ unroll = n:8
-        do i = S11R, N11R
+        do i = SR(1), ER(1)
           temp(i,j,k) = (1-omBC)*phi(i,j,k) + omBC/cdg3(0,k)*( b(i,j,k) - cdg3(1,k)*phi(i,j,k+1) )
         end do
       end do
@@ -709,16 +676,16 @@ contains
 
     if (BCU(3) > 0) then
       k = N(3)
-      do j = S22R, N22R
+      do j = SR(2), ER(2)
         !pgi$ unroll = n:8
-        do i = S11R, N11R
+        do i = SR(1), ER(1)
           temp(i,j,k) = (1-omBC)*phi(i,j,k) + omBC/cdg3(0,k)*( b(i,j,k) - cdg3(-1,k)*phi(i,j,k-1) )
         end do
       end do
     end if
-    !============================================================================================
+    !===========================================================================================
 
-  end subroutine OP_DivGradO2JSmoother
+  end subroutine OP_DivGradO2JBCSmoother
 
 
 
@@ -842,39 +809,13 @@ contains
 
     real(c_double), intent(inout) :: phi(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
-    integer(c_int)                ::  i,  S1R, N1R, S11R, N11R
-    integer(c_int)                ::  j,  S2R, N2R, S22R, N22R
-    integer(c_int)                ::  k,  S3R, N3R, S33R, N33R
+    integer(c_int)                ::  i, S11R, N11R
+    integer(c_int)                ::  j, S22R, N22R
+    integer(c_int)                ::  k, S33R, N33R
 
     integer(c_int)                ::  ss
 
     logical(c_bool), parameter    ::  SOR_yes   = .false. ! should be equivalent to omega=1
-
-    !*****************************************************************************************
-
-    S1R = 1
-    N1R = N(1)-1
-
-    if (BCL(1) >   0) S1R = 1
-    if (BCL(1) == -2) S1R = 1
-    if (BCU(1) >   0) N1R = N(1)
-    if (BCU(1) == -2) N1R = N(1)
-
-    S2R = 1
-    N2R = N(2)-1
-
-    if (BCL(2) >   0) S2R = 1
-    if (BCL(2) == -2) S2R = 1
-    if (BCU(2) >   0) N2R = N(2)
-    if (BCU(2) == -2) N2R = N(2)
-
-    S3R = 1
-    N3R = N(3)-1
-
-    if (BCL(3) >   0) S3R = 1
-    if (BCL(3) == -2) S3R = 1
-    if (BCU(3) >   0) N3R = N(3)
-    if (BCU(3) == -2) N3R = N(3)
 
     !--------------------------------------------------------------
 
@@ -890,7 +831,7 @@ contains
     N22R = N(2)-1
 
     if (BCL(2) >   0) S22R = 2
-    if (BCL(2) == -2) S2R = 1
+    if (BCL(2) == -2) S22R = 1
     if (BCU(2) >   0) N22R = N(2)-1
     if (BCU(2) == -2) N22R = N(2)
 
@@ -902,7 +843,7 @@ contains
     if (BCU(3) >   0) N33R = N(3)-1
     if (BCU(3) == -2) N33R = N(3)
 
-    !*****************************************************************************************
+    !--------------------------------------------------------------
 
     if( RBGS_mode>0 ) then
       !==================================================================================

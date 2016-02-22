@@ -152,7 +152,7 @@ public:
 				std::logic_error,
 				"Pimpact::InterpolateV2S:: can only interpolate to Scalar!!!\n");
 
-		auto space = x.space();
+		Teuchos::RCP<const SpaceT> space = x.space();
 
 		int m = static_cast<int>( x.getType() );
 

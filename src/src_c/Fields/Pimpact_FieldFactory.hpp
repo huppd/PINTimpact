@@ -26,7 +26,7 @@ template<class SpaceT>
 Teuchos::RCP< MultiField<ModeField<VectorField<SpaceT> > > >
 createMultiModeVectorField( const Teuchos::RCP<const SpaceT>& space, int n=1 ) {
 
-	auto vel = create< ModeField< VectorField<SpaceT> > >( space );
+	Teuchos::RCP< ModeField<VectorField<SpaceT> > > vel = create< ModeField< VectorField<SpaceT> > >( space );
 
 	return( createMultiField<ModeField<VectorField<SpaceT> > >( *vel, n ) );
 
@@ -41,7 +41,9 @@ template<class SpaceT>
 Teuchos::RCP< MultiField<ModeField<ScalarField<SpaceT> > > >
 createMultiModeScalarField( const Teuchos::RCP<const SpaceT>& space, int n=1 ) {
 
-  auto scal = create< ModeField<ScalarField<SpaceT> > >( space );
+  
+	Teuchos::RCP< MultiField<ModeField<ScalarField<SpaceT> > > >
+		scal = create< ModeField<ScalarField<SpaceT> > >( space );
 
   return( createMultiField<ModeField<ScalarField<SpaceT> > >( *scal, n ) );
 
@@ -53,16 +55,20 @@ createMultiModeScalarField( const Teuchos::RCP<const SpaceT>& space, int n=1 ) {
 /// \relates ModeField
 /// \relates VectorField
 template<class SpaceT>
-Teuchos::RCP< MultiField<ModeField<VectorField<SpaceT> > > > createInitMVF(
+Teuchos::RCP< MultiField<ModeField<VectorField<SpaceT> > > >
+createInitMVF(
     EFlowType flowType,
     const Teuchos::RCP<const SpaceT>& space,
     typename SpaceT::Scalar re=1.,
     typename SpaceT::Scalar omega=1.,
     typename SpaceT::Scalar px=1.) {
 
-  auto vel  = create< ModeField<VectorField<SpaceT> > >( space );
+  
+	Teuchos::RCP< ModeField<VectorField<SpaceT> > >
+		vel = create< ModeField<VectorField<SpaceT> > >( space );
 
-  auto u   = Pimpact::createMultiField< ModeField<VectorField<SpaceT> > >(*vel,1);
+	Teuchos::RCP< MultiField<ModeField<VectorField<SpaceT> > > >
+		u   = Pimpact::createMultiField< ModeField<VectorField<SpaceT> > >(*vel,1);
 
   switch( EFlowType( flowType ) ) {
   case Pimpact::Zero2DFlow :
@@ -115,10 +121,13 @@ Teuchos::RCP< MultiField<ModeField<VectorField<SpaceT> > > > createInitMVF(
 /// \relates ModeField
 /// \relates ScalarField
 template<class SpaceT>
-Teuchos::RCP< MultiField<ModeField<ScalarField<SpaceT> > > > createInitMSF(
+Teuchos::RCP< MultiField<ModeField<ScalarField<SpaceT> > > >
+createInitMSF(
     const Teuchos::RCP< const SpaceT >& space ) {
 
-  auto sca = Pimpact::create< ModeField<ScalarField<SpaceT> > >( space );
+  
+	Teuchos::RCP< ModeField<ScalarField<SpaceT> > >
+		sca = Pimpact::create< ModeField<ScalarField<SpaceT> > >( space );
 
   return( Pimpact::createMultiField<ModeField<ScalarField<SpaceT> > >(*sca,1) );
 

@@ -69,7 +69,7 @@ public:
   ScalarField( const Teuchos::RCP<const SpaceT>& space, bool owning=true, EField fType=EField::S ):
     AbstractField<SpaceT>( space ),
     owning_(owning),
-    exchangedState_( Teuchos::tuple(true,true,true) ),
+    exchangedState_( Teuchos::tuple( true, true, true ) ),
     fType_(fType) {
 
     if( owning_ ) {
@@ -1164,11 +1164,11 @@ public:
 template<class SpaceT>
 Teuchos::RCP< ScalarField<SpaceT> >
 createScalarField(
-    const Teuchos::RCP<const SpaceT >& space,
-    EField fType=EField::S ) {
+		const Teuchos::RCP<const SpaceT >& space,
+		EField fType=EField::S ) {
 
-  return( Teuchos::rcp(
-      new ScalarField<SpaceT>( space, true, fType ) ) );
+	return( Teuchos::rcp(
+			new ScalarField<SpaceT>( space, true, fType ) ) );
 }
 
 

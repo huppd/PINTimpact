@@ -11,14 +11,15 @@
 namespace Pimpact{
 
 
-extern "C"
+extern "C" {
+
 void OP_DivGradO2JSmoother(
     const int& dimens,
     const int* const N,
     const int* const BL,
     const int* const BU,
-    const int* const BCL,
-    const int* const BCU,
+    const int* const SR,
+    const int* const ER,
     const double* const cdg1,
     const double* const cdg2,
     const double* const cdg3,
@@ -27,6 +28,23 @@ void OP_DivGradO2JSmoother(
     const double* const x,
           double* const temp );
 
+void OP_DivGradO2JBCSmoother(
+    const int* const N,
+    const int* const BL,
+    const int* const BU,
+    const int* const BCL,
+    const int* const BCU,
+    const int* const SR,
+    const int* const ER,
+    const double* const cdg1,
+    const double* const cdg2,
+    const double* const cdg3,
+    const double& omBC,
+    const double* const b,
+    const double* const x,
+          double* const temp );
+
+}
 
 
 /// \brief \f$\omega\f$-Jacobian smoother for second Order DivGradOp.
@@ -66,7 +84,7 @@ public:
     omega_( (2==space->dim())?0.8:6./7. ),
     nIter_( 2 ),
     levelYes_( false ),
-    temp_( createScalarField<SpaceT>(space) ),
+    temp_( create<DomainFieldT>(space) ),
     op_( Teuchos::rcp( new OperatorT(space) ) ) {}
 
 	/// \brief constructor
@@ -83,7 +101,7 @@ public:
     omega_( pl->get<Scalar>("omega", (2==op->space()->dim())?0.8:6./7. ) ),
     nIter_( pl->get<int>( "numIters", 2 ) ),
     levelYes_( pl->get<bool>( "level", false ) ),
-    temp_( createScalarField<SpaceT>( op->space() ) ),
+    temp_( create<DomainFieldT>( op->space() ) ),
     op_(op) {}
 
 
@@ -100,8 +118,8 @@ public:
 					space()->nLoc(),
 					space()->bl(),
 					space()->bu(),
-					space()->getBCLocal()->getBCL(),
-					space()->getBCLocal()->getBCU(),
+					op_->getSR(),
+					op_->getER(),
 					op_->getC(X),
 					op_->getC(Y),
 					op_->getC(Z),
@@ -109,6 +127,23 @@ public:
 					x.getConstRawPtr(),
 					y.getConstRawPtr(),
 					temp_->getRawPtr() );
+
+			OP_DivGradO2JBCSmoother(
+					space()->nLoc(),
+					space()->bl(),
+					space()->bu(),
+					space()->getBCLocal()->getBCL(),
+					space()->getBCLocal()->getBCU(),
+					op_->getSR(),
+					op_->getER(),
+					op_->getC(X),
+					op_->getC(Y),
+					op_->getC(Z),
+					omega_,
+					x.getConstRawPtr(),
+					y.getConstRawPtr(),
+					temp_->getRawPtr() );
+
 
 			temp_->changed();
 			temp_->exchange();
@@ -118,8 +153,8 @@ public:
 					space()->nLoc(),
 					space()->bl(),
 					space()->bu(),
-					space()->getBCLocal()->getBCL(),
-					space()->getBCLocal()->getBCU(),
+					op_->getSR(),
+					op_->getER(),
 					op_->getC(X),
 					op_->getC(Y),
 					op_->getC(Z),
@@ -128,7 +163,22 @@ public:
 					temp_->getConstRawPtr(),
 					y.getRawPtr() );
 
-			//y.setCornersZero();
+			OP_DivGradO2JBCSmoother(
+					space()->nLoc(),
+					space()->bl(),
+					space()->bu(),
+					space()->getBCLocal()->getBCL(),
+					space()->getBCLocal()->getBCU(),
+					op_->getSR(),
+					op_->getER(),
+					op_->getC(X),
+					op_->getC(Y),
+					op_->getC(Z),
+					omega_,
+					x.getConstRawPtr(),
+					temp_->getConstRawPtr(),
+					y.getRawPtr() );
+
 			y.changed();
 		}
 		if( levelYes_ )

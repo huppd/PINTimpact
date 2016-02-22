@@ -11,7 +11,7 @@ Teuchos::RCP< Teuchos::ParameterList > Pimpact::createLinSolverParameter(
 		int maxIters,
 	 	const std::string& label ) {
 
-  auto parameter_ = Teuchos::parameterList(solver_name);
+	Teuchos::RCP< Teuchos::ParameterList > parameter_ = Teuchos::parameterList(solver_name);
   int verbo;
   //  if(verbosity)
   verbo =

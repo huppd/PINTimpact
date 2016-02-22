@@ -133,8 +133,8 @@ public:
   ///
   /// \param index
   /// \return
-	Teuchos::RCP<MV>  CloneCopy( const std::vector<int>& index ) const {
-		auto mv_ = Teuchos::rcp( new MV( space(), index.size() ) );
+	Teuchos::RCP<MV> CloneCopy( const std::vector<int>& index ) const {
+		Teuchos::RCP<MV> mv_ = Teuchos::rcp( new MV( space(), index.size() ) );
 		for( unsigned int i=0; i<index.size(); ++i ) {
 			mv_->mfs_[i] = mfs_[ index[i] ]->clone( DeepCopy );
 		}
@@ -146,7 +146,7 @@ public:
   /// \param index here index means an interval
   /// \return
   Teuchos::RCP<MV> CloneCopy( const Teuchos::Range1D& index) const {
-    auto mv_ = Teuchos::rcp( new MV(space(), index.size()) );
+    Teuchos::RCP<MV> mv_ = Teuchos::rcp( new MV(space(), index.size()) );
     int j = 0;
     for( int i=index.lbound(); i<=index.ubound(); ++i ) {
       mv_->mfs_[j] = mfs_[i]->clone( DeepCopy );
@@ -159,7 +159,7 @@ public:
   /// \param index
   /// \return nonConst View
   Teuchos::RCP<MV> CloneViewNonConst( const std::vector<int>& index) {
-    auto mv_ = Teuchos::rcp( new MV( space(), index.size() ) );
+    Teuchos::RCP<MV> mv_ = Teuchos::rcp( new MV( space(), index.size() ) );
     for( unsigned int i=0; i<index.size(); ++i ) {
       mv_->mfs_[i] =  mfs_[ index[i] ];
     }
@@ -168,7 +168,7 @@ public:
 
 
   Teuchos::RCP<MV> CloneViewNonConst( const Teuchos::Range1D& index ) {
-    auto mv_ = Teuchos::rcp( new MV( space(), index.size()) );
+    Teuchos::RCP<MV> mv_ = Teuchos::rcp( new MV( space(), index.size()) );
     int j=0;
     for( int i=index.lbound(); i<=index.ubound(); ++i ) {
       mv_->mfs_[j++] =  mfs_[i];
@@ -178,7 +178,7 @@ public:
 
 
   Teuchos::RCP<const MV > CloneView( const std::vector<int>& index ) const {
-    auto mv_ = Teuchos::rcp( new MV( space(), index.size()) );
+    Teuchos::RCP<MV> mv_ = Teuchos::rcp( new MV( space(), index.size()) );
     for( unsigned int i=0; i<index.size(); ++i ) {
       mv_->mfs_[i] =  mfs_[ index[i] ];
     }
@@ -187,7 +187,7 @@ public:
 
 
   Teuchos::RCP<const MV > CloneView( const Teuchos::Range1D& index ) const {
-    auto mv_ = Teuchos::rcp( new MV( space(), index.size()) );
+    Teuchos::RCP<MV> mv_ = Teuchos::rcp( new MV( space(), index.size()) );
     int j=0;
     for( int i=index.lbound(); i<=index.ubound(); ++i ) {
       mv_->mfs_[j++] =  mfs_[i];

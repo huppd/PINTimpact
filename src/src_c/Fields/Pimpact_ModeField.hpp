@@ -123,7 +123,7 @@ public:
 
   Teuchos::RCP<MV> clone( ECopyType cType=DeepCopy ) const {
 
-		auto mv = Teuchos::rcp( new MV( space() ) );
+		Teuchos::RCP<MV> mv = Teuchos::rcp( new MV( space() ) );
 
 		switch( cType ) {
 			case ShallowCopy:

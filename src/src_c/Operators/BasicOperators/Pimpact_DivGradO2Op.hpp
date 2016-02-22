@@ -38,6 +38,8 @@ void Op_getCDG(
 void OP_DivGradO2Op(
     const int& dimens,
     const int* const N,
+    const int* const SR,
+    const int* const ER,
     const int* const BL,
     const int* const BU,
     const int* const BCL,
@@ -71,13 +73,18 @@ public:
   using DomainFieldT = ScalarField<SpaceT>;
   using RangeFieldT = ScalarField<SpaceT>;
 
+  using TO = const Teuchos::Tuple<Ordinal,3>;
+
 protected:
 
-  using TO = const Teuchos::Tuple<Scalar*,3>;
+  using TS = const Teuchos::Tuple<Scalar*,3>;
 
   const Teuchos::RCP<const SpaceT> space_;
 
-  TO c_;
+  TS c_;
+
+	TO SR_;
+	TO ER_;
 
 public:
 
@@ -86,8 +93,18 @@ public:
 		space_(space) {
 
 			for( int i=0; i<3; ++i ) {
+				// alocate stencilt
 				Ordinal nTemp = 3*( space_->nLoc(i) - 1 + 1 );
 				c_[i] = new Scalar[ nTemp ];
+
+				// inner field bounds
+				SR_[i] = 1;
+				ER_[i] = space_->nLoc(i) - 1;
+
+				if( space_->getBCLocal()->getBCL(i) >  0 ) SR_[i] = 2;
+				if( space_->getBCLocal()->getBCL(i) == 0 ) SR_[i] = 1;
+				if( space_->getBCLocal()->getBCU(i) >  0 ) ER_[i] = space_->nLoc(i) - 1;
+				if( space_->getBCLocal()->getBCU(i) == 0 ) ER_[i] = space_->nLoc(i);
 			}
 
 			Op_getCDG(
@@ -120,6 +137,8 @@ public:
 		OP_DivGradO2Op(
 				space_->dim(),
 				space_->nLoc(),
+				getSR(),
+				getER(),
 				space_->bl(),
 				space_->bu(),
 				space_->getBCLocal()->getBCL(),
@@ -147,6 +166,8 @@ public:
   void print( std::ostream& out=std::cout ) const {
     out << "--- " << getLabel() << " ---\n";
     out << " --- stencil: ---";
+		out << " sr: " << SR_ << "\n";
+		out << " er: " << ER_ << "\n";
     for( int dir=0; dir<3; ++dir ) {
       out << "\ndir: " << dir << "\n";
       for( int i=1; i<space_->nLoc(dir); ++i ) {
@@ -178,6 +199,9 @@ public:
 	const Scalar& getC( const int& dir, Ordinal i, Ordinal off ) const  {
 		return( c_[dir][ off + 1 + (i-1)*3 ] );
   }
+
+	const Ordinal* getSR() const { return( SR_.getRawPtr() ); }
+	const Ordinal* getER() const { return( ER_.getRawPtr() ); }
 
 	const std::string getLabel() const { return( "DivGradO2" ); };
 

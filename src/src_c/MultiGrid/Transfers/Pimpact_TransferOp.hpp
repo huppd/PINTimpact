@@ -71,7 +71,7 @@ public:
   template< class SP1T, class SP2T>
   void apply( const ScalarField<SP1T>& x, ScalarField<SP2T>& y ) const {
 
-    auto fType = x.getType();
+    const EField& fType = x.getType();
 
     TEUCHOS_TEST_FOR_EXCEPT( fType != y.getType() );
 

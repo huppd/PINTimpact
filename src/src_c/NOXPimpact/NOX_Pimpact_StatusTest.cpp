@@ -70,7 +70,7 @@ NOX::Pimpact::createNOXSolverParameter(
     const std::string& solverName,
     const std::string& lineSearchName ) {
 
-  auto solverParametersPtr = Teuchos::parameterList( solverName );
+	Teuchos::RCP<Teuchos::ParameterList> solverParametersPtr = Teuchos::parameterList( solverName );
   solverParametersPtr->set("Nonlinear Solver", "Line Search Based");
 
   // Create the directions parameters sublist

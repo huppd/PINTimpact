@@ -145,7 +145,7 @@ public:
 
 	/// \brief Create a new \c TimeField with
 	Teuchos::RCP< MV > clone( ECopyType ctype = DeepCopy ) const {
-		auto mv_ = Teuchos::rcp( new MV(*this,ctype) );
+		Teuchos::RCP< MV > mv_ = Teuchos::rcp( new MV(*this,ctype) );
 		return( mv_ );
 	}
 
@@ -479,7 +479,7 @@ initVectorTimeField(
 	using S = typename SpaceT::Scalar;
 	using O = typename SpaceT::Ordinal;
 
-	auto space = field->space();
+	Teuchos::RCP<const SpaceT> space = field->space();
 
 	S pi = 4.*std::atan(1.);
 
