@@ -203,6 +203,12 @@ public:
 	const Ordinal* getSR() const { return( SR_.getRawPtr() ); }
 	const Ordinal* getER() const { return( ER_.getRawPtr() ); }
 
+	const Ordinal& getSR( const Ordinal& coord ) const { return( SR_[coord] ); }
+	const Ordinal& getER( const Ordinal& coord ) const { return( ER_[coord] ); }
+
+	const Ordinal& getSR( const ECoord& coord ) const { return( getSR( static_cast<Ordinal>(coord) ) ); }
+	const Ordinal& getER( const ECoord& coord ) const { return( getER( static_cast<Ordinal>(coord) ) ); }
+
 	const std::string getLabel() const { return( "DivGradO2" ); };
 
 	///  @} 

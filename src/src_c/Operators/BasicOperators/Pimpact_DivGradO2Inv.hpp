@@ -107,16 +107,6 @@ protected:
 
 		// boundary conditions
 		if( space()->getBCLocal()->getBCL(X)>0 ) {
-			//if( BCL(1) > 0 ) then
-			//i = 1
-			//!do k = S3R, N3R
-			//do k = S33R, N33R
-			//!pgi$ unroll = n:8
-			//do j = S22R, N22R
-			//Lap(i,j,k) = cdg1(0,i)*phi(i,j,k) + cdg1(1,i)*phi(i+1,j,k)
-			//end do
-			//end do
-			//end if
 			Ordinal i = space()->sIndB(EField::S,X);
 			for( Ordinal k=space()->sIndB(EField::S,Z); k<=space()->eIndB(EField::S,Z); ++k ) {
 				for( Ordinal j=space()->sIndB(EField::S,Y); j<=space()->eIndB(EField::S,Y); ++j ) {
@@ -140,16 +130,6 @@ protected:
 				}
 			}
 		}
-
-    //if( BCU(1) > 0 )then
-      //i = N(1)
-      //do k = S33R, N33R
-        //!pgi$ unroll = n:8
-        //do j = S22R, N22R
-          //Lap(i,j,k) = cdg1(-1,i)*phi(i-1,j,k) + cdg1(0,i)*phi(i,j,k)
-        //end do
-      //end do
-    //end if
 
 		if( space()->getBCLocal()->getBCU(X)>0 ) {
 			Ordinal i = space()->eIndB(EField::S,X);
@@ -177,15 +157,6 @@ protected:
 			}
 		}
 
-    //if( BCL(2) > 0 ) then
-      //j = 1
-      //do k = S33R, N33R
-        //!pgi$ unroll = n:8
-        //do i = S11R, N11R
-          //Lap(i,j,k) = cdg2(0,j)*phi(i,j,k) + cdg2(1,j)*phi(i,j+1,k)
-        //end do
-      //end do
-    //end if
 		if( space()->getBCLocal()->getBCL(Y)>0 ) {
 			Ordinal j = space()->sIndB(EField::S,Y);
 			for( Ordinal k=space()->sIndB(EField::S,Z); k<=space()->eIndB(EField::S,Z); ++k ) {
@@ -212,15 +183,6 @@ protected:
 				}
 			}
 		}
-    //if( BCU(2) > 0 ) then
-      //j = N(2)
-      //do k = S33R, N33R
-        //!pgi$ unroll = n:8
-        //do i = S11R, N11R
-          //Lap(i,j,k) = cdg2(-1,j)*phi(i,j-1,k) + cdg2(0,j)*phi(i,j,k)
-        //end do
-      //end do
-    //end if
 		if( space()->getBCLocal()->getBCU(Y)>0 ) {
 			Ordinal j = space()->eIndB(EField::S,Y);
 			for( Ordinal k=space()->sIndB(EField::S,Z); k<=space()->eIndB(EField::S,Z); ++k ) {
@@ -248,15 +210,6 @@ protected:
 			}
 		}
 
-    //if( BCL(3) > 0 ) then
-      //k = 1
-      //do j = S22R, N22R
-        //!pgi$ unroll = n:8
-        //do i = S11R, N11R
-          //Lap(i,j,k) = cdg3(0,k)*phi(i,j,k) + cdg3(1,k)*phi(i,j,k+1)
-        //end do
-      //end do
-    //end if
 		if( space()->getBCLocal()->getBCL(Z)>0 ) {
 			Ordinal k = space()->sIndB(EField::S,Z);
 			for( Ordinal j=space()->sIndB(EField::S,Y); j<=space()->eIndB(EField::S,Y); ++j ) {
@@ -284,15 +237,6 @@ protected:
 			}
 		}
 
-    //if( BCU(3) > 0 ) then
-      //k = N(3)
-      //do j = S22R, N22R
-        //!pgi$ unroll = n:8
-        //do i = S11R, N11R
-          //Lap(i,j,k) = cdg3(-1,k)*phi(i,j,k-1) + cdg3(0,k)*phi(i,j,k)
-        //end do
-      //end do
-    //end if
 		if( space()->getBCLocal()->getBCU(Z)>0 ) {
 			Ordinal k = space()->eIndB(EField::S,Z);
 			for( Ordinal j=space()->sIndB(EField::S,Y); j<=space()->eIndB(EField::S,Y); ++j ) {
@@ -320,6 +264,7 @@ protected:
 			}
 		}
 
+		// --- corners ---
     //if( bcl(1) > 0 .and. bcl(2) > 0 ) phi(1   ,1   ,1:n(3)) = 0. ! test!!! verifizieren ...
 		if( space()->getBCLocal()->getBCL(X)>0 && space()->getBCLocal()->getBCL(Y)>0 ) {
 			Ordinal i = space()->sIndB(EField::S,X);

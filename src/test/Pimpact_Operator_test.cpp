@@ -843,7 +843,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
 	S errP = err0;
 
 	for( int i=1; i<=40; ++i ) {
-			x->write(i-1);
+		x->write(i-1);
 		smoother->apply( *b, *x );
 		S err = x->norm( Belos::InfNorm );
 		if( 0==space->rankST() ) {
@@ -877,15 +877,18 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
 
 		TEST_EQUALITY( err2<eps, true );
 		TEST_EQUALITY( errInf<eps, true );
+		if( err2>eps && errInf>eps ) 
+			xp->write( dir );
+
 	}
 
 }
 
-using JType = Pimpact::DivGradO2JSmoother<Pimpact::DivGradO2Op<SpaceT> >;
-using SORType = Pimpact::DivGradO2SORSmoother<Pimpact::DivGradO2Op<SpaceT> >;
+using JT = Pimpact::DivGradO2JSmoother<Pimpact::DivGradO2Op<SpaceT> >;
+using SORT = Pimpact::DivGradO2SORSmoother<Pimpact::DivGradO2Op<SpaceT> >;
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( BasicOperator, DivGradO2Smoother, JType )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( BasicOperator, DivGradO2Smoother, SORType )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( BasicOperator, DivGradO2Smoother, JT )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( BasicOperator, DivGradO2Smoother, SORT )
 
 
 

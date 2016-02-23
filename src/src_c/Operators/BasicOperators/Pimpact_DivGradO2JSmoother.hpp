@@ -128,22 +128,7 @@ public:
 					y.getConstRawPtr(),
 					temp_->getRawPtr() );
 
-			OP_DivGradO2JBCSmoother(
-					space()->nLoc(),
-					space()->bl(),
-					space()->bu(),
-					space()->getBCLocal()->getBCL(),
-					space()->getBCLocal()->getBCU(),
-					op_->getSR(),
-					op_->getER(),
-					op_->getC(X),
-					op_->getC(Y),
-					op_->getC(Z),
-					omega_,
-					x.getConstRawPtr(),
-					y.getConstRawPtr(),
-					temp_->getRawPtr() );
-
+			applyJBCSmoothing( x, y, *temp_ );
 
 			temp_->changed();
 			temp_->exchange();
@@ -163,21 +148,7 @@ public:
 					temp_->getConstRawPtr(),
 					y.getRawPtr() );
 
-			OP_DivGradO2JBCSmoother(
-					space()->nLoc(),
-					space()->bl(),
-					space()->bu(),
-					space()->getBCLocal()->getBCL(),
-					space()->getBCLocal()->getBCU(),
-					op_->getSR(),
-					op_->getER(),
-					op_->getC(X),
-					op_->getC(Y),
-					op_->getC(Z),
-					omega_,
-					x.getConstRawPtr(),
-					temp_->getConstRawPtr(),
-					y.getRawPtr() );
+			applyJBCSmoothing( x, *temp_, y );
 
 			y.changed();
 		}
@@ -202,6 +173,61 @@ public:
   }
 
 	const std::string getLabel() const { return( "DivGradO2JSmoother" ); };
+
+protected:
+
+	void applyJBCSmoothing( const DomainFieldT& b, const DomainFieldT& x, RangeFieldT& y ) const {
+		// boundary conditions in X
+		if( space()->getBCLocal()->getBCL(X)>0 ) {
+			Ordinal i = 1;
+			for( Ordinal k=op_->getSR(Z); k<=op_->getER(Z); ++k )
+				for( Ordinal j=op_->getSR(Y); j<=op_->getER(Y); ++j )
+					y.at(i,j,k) =
+						(1-omega_)*x.at(i,j,k) + omega_/op_->getC(X,i,0)*( b.at(i,j,k) - op_->getC(X,i,+1)*x.at(i+1,j,k) );
+
+		}
+		if( space()->getBCLocal()->getBCU(X)>0 ) {
+			Ordinal i = space()->nLoc(X);
+			for( Ordinal k=op_->getSR(Z); k<=op_->getER(Z); ++k )
+				for( Ordinal j=op_->getSR(Y); j<=op_->getER(Y); ++j )
+					y.at(i,j,k) =
+						(1-omega_)*x.at(i,j,k) + omega_/op_->getC(X,i,0) *( b.at(i,j,k) - op_->getC(X,i,-1)*x.at(i-1,j,k) );
+
+		}
+
+		// boundary conditions in Y
+		if( space()->getBCLocal()->getBCL(Y)>0 ) {
+			Ordinal j = 1;
+			for( Ordinal k=op_->getSR(Z); k<=op_->getER(Z); ++k )
+				for( Ordinal i=op_->getSR(X); i<=op_->getER(X); ++i )
+					y.at(i,j,k) =
+						(1-omega_)*x.at(i,j,k) + omega_/op_->getC(Y,j,0) *( b.at(i,j,k) - op_->getC(Y,j,+1)*x.at(i,j+1,k) );
+
+		}
+		if( space()->getBCLocal()->getBCU(Y)>0 ) {
+			Ordinal j = space()->nLoc(Y);
+			for( Ordinal k=op_->getSR(Z); k<=op_->getER(Z); ++k )
+				for( Ordinal i=op_->getSR(X); i<=op_->getER(X); ++i )
+					y.at(i,j,k) =
+						(1-omega_)*x.at(i,j,k) + omega_/op_->getC(Y,j,0) *( b.at(i,j,k) - op_->getC(Y,j,-1)*x.at(i,j-1,k) );
+		}
+
+		// boundary conditions in Z
+		if( space()->getBCLocal()->getBCL(Z)>0 ) {
+			Ordinal k = 1;
+			for( Ordinal j=op_->getSR(Y); j<=op_->getER(Y); ++j )
+				for( Ordinal i=op_->getSR(X); i<=op_->getER(X); ++i )
+					y.at(i,j,k) =
+						(1-omega_)*x.at(i,j,k) + omega_/op_->getC(Z,k,0) *( b.at(i,j,k) - op_->getC(Z,k,+1)*x.at(i,j,k+1) );
+		}
+		if( space()->getBCLocal()->getBCU(Z)>0 ) {
+			Ordinal k = space()->nLoc(Z);
+			for( Ordinal j=op_->getSR(Y); j<=op_->getER(Y); ++j )
+				for( Ordinal i=op_->getSR(X); i<=op_->getER(X); ++i )
+					y.at(i,j,k) =
+						(1-omega_)*x.at(i,j,k) + omega_/op_->getC(Z,k,0) *( b.at(i,j,k) - op_->getC(Z,k,-1)*x.at(i,j,k-1) );
+		}
+	}
 
 }; // end of class DivGradO2JSmoother
 
