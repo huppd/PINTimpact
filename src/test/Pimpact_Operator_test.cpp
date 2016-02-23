@@ -102,9 +102,9 @@ TEUCHOS_STATIC_SETUP() {
 	clp.setOption( "npz", &npz, "" );
 	clp.setOption( "npf", &npf, "" );
 
-	//pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
-	//pl->sublist("Stretching in X").set<S>( "N metr L", nx/2 );
-	//pl->sublist("Stretching in X").set<S>( "N metr U", nx/2 );
+	pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+	pl->sublist("Stretching in X").set<S>( "N metr L", nx/2 );
+	pl->sublist("Stretching in X").set<S>( "N metr U", nx/2 );
 	//pl->sublist("Stretching in X").set<S>( "x0 L", 0.05 );
 	//pl->sublist("Stretching in X").set<S>( "x0 U", 0. );
 

@@ -3,6 +3,12 @@
 #define PIMPACT_DIVGRADO2JSMOOTHER_HPP
 
 
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_SerialDenseMatrix.hpp"
+#include "Teuchos_SerialDenseSolver.hpp"
+#include "Teuchos_SerialDenseVector.hpp"
+#include "Teuchos_SerialQRDenseSolver.hpp"
+
 #include "Pimpact_DivGradO2Op.hpp"
 
 
@@ -128,7 +134,7 @@ public:
 					y.getConstRawPtr(),
 					temp_->getRawPtr() );
 
-			applyJBCSmoothing( x, y, *temp_ );
+			applyJBCSmoothing( x, y, *temp_, 1. );
 
 			temp_->changed();
 			temp_->exchange();
@@ -148,7 +154,7 @@ public:
 					temp_->getConstRawPtr(),
 					y.getRawPtr() );
 
-			applyJBCSmoothing( x, *temp_, y );
+			applyJBCSmoothing( x, *temp_, y, 1. );
 
 			y.changed();
 		}
@@ -176,14 +182,102 @@ public:
 
 protected:
 
+	void applyDBCSmoothing( const DomainFieldT& b, const DomainFieldT& x ) const {
+
+		using MatrixT = Teuchos::SerialDenseMatrix<Ordinal,Scalar>;
+		//using SolverT = Teuchos::SerialQRDenseSolver<Ordinal,Scalar>;
+		using SolverT = Teuchos::SerialDenseSolver<Ordinal,Scalar>;
+
+		Ordinal depth = 3; // number of wall normal dofs
+
+		// boundary conditions in X
+		if( space()->getBCLocal()->getBCL(X)>0 || space()->getBCLocal()->getBCU(X)>0 ) {
+
+			// init matrix vec stufff
+			Ordinal N = depth;
+			for( int i=1; i<3; ++i )
+				N *= ( space()->eIndB( EField::S, i ) - space()->sIndB( EField::S, i ) + 1 );
+
+			Teuchos::RCP< MatrixT > A = Teuchos::rcp( new MatrixT(N,N,true) );
+			Teuchos::RCP< SolverT > Asov = Teuchos::rcp( new SolverT() );
+
+			Teuchos::RCP< MatrixT > X = Teuchos::rcp( new MatrixT(N,1,false) );
+			Teuchos::RCP< MatrixT> 	B = Teuchos::rcp( new MatrixT(N,1,false) );
+
+			Teuchos::Tuple<Ordinal,3> cw;
+			cw[0] = depth;
+			for( int i=1; i<3; ++i ) 
+				cw[i] = ( space()->eIndB( EField::S, i ) - space()->sIndB( EField::S, i ) + 1 );
+
+			if( space()->getBCLocal()->getBCL(X)>0 ) {
+				Ordinal i = 1;
+				for( Ordinal k=op_->getSR(Z); k<=op_->getER(Z); ++k )
+					for( Ordinal j=op_->getSR(Y); j<=op_->getER(Y); ++j )
+						x.at(i,j,k) = 1.;
+							//(1-omega)*x.at(i,j,k) + omega/op_->getC(X,i,0)*( b.at(i,j,k) - op_->getC(X,i,+1)*x.at(i+1,j,k) );
+
+			}
+			if( space()->getBCLocal()->getBCU(X)>0 ) {
+				Ordinal i = space()->nLoc(X);
+				for( Ordinal k=op_->getSR(Z); k<=op_->getER(Z); ++k )
+					for( Ordinal j=op_->getSR(Y); j<=op_->getER(Y); ++j )
+						x.at(i,j,k) = 1.;
+							//(1-omega)*x.at(i,j,k) + omega/op_->getC(X,i,0) *( b.at(i,j,k) - op_->getC(X,i,-1)*x.at(i-1,j,k) );
+
+			}
+		}
+
+		// boundary conditions in Y
+		//{
+			//if( space()->getBCLocal()->getBCL(Y)>0 ) {
+				//Ordinal j = 1;
+				//for( Ordinal k=op_->getSR(Z); k<=op_->getER(Z); ++k )
+					//for( Ordinal i=op_->getSR(X); i<=op_->getER(X); ++i )
+						//y.at(i,j,k) =
+							//(1-omega)*x.at(i,j,k) + omega/op_->getC(Y,j,0) *( b.at(i,j,k) - op_->getC(Y,j,+1)*x.at(i,j+1,k) );
+
+			//}
+			//if( space()->getBCLocal()->getBCU(Y)>0 ) {
+				//Ordinal j = space()->nLoc(Y);
+				//for( Ordinal k=op_->getSR(Z); k<=op_->getER(Z); ++k )
+					//for( Ordinal i=op_->getSR(X); i<=op_->getER(X); ++i )
+						//y.at(i,j,k) =
+							//(1-omega)*x.at(i,j,k) + omega/op_->getC(Y,j,0) *( b.at(i,j,k) - op_->getC(Y,j,-1)*x.at(i,j-1,k) );
+			//}
+		//}
+
+		//// boundary conditions in Z
+		//{
+			//if( space()->getBCLocal()->getBCL(Z)>0 ) {
+				//Ordinal k = 1;
+				//for( Ordinal j=op_->getSR(Y); j<=op_->getER(Y); ++j )
+					//for( Ordinal i=op_->getSR(X); i<=op_->getER(X); ++i )
+						//y.at(i,j,k) =
+							//(1-omega)*x.at(i,j,k) + omega/op_->getC(Z,k,0) *( b.at(i,j,k) - op_->getC(Z,k,+1)*x.at(i,j,k+1) );
+			//}
+			//if( space()->getBCLocal()->getBCU(Z)>0 ) {
+				//Ordinal k = space()->nLoc(Z);
+				//for( Ordinal j=op_->getSR(Y); j<=op_->getER(Y); ++j )
+					//for( Ordinal i=op_->getSR(X); i<=op_->getER(X); ++i )
+						//y.at(i,j,k) =
+							//(1-omega)*x.at(i,j,k) + omega/op_->getC(Z,k,0) *( b.at(i,j,k) - op_->getC(Z,k,-1)*x.at(i,j,k-1) );
+			//}
+		//}
+
+	}
+
 	void applyJBCSmoothing( const DomainFieldT& b, const DomainFieldT& x, RangeFieldT& y ) const {
+		applyJBCSmoothing( b, x, y, omega_ );
+	}
+
+	void applyJBCSmoothing( const DomainFieldT& b, const DomainFieldT& x, RangeFieldT& y, const Scalar& omega ) const {
 		// boundary conditions in X
 		if( space()->getBCLocal()->getBCL(X)>0 ) {
 			Ordinal i = 1;
 			for( Ordinal k=op_->getSR(Z); k<=op_->getER(Z); ++k )
 				for( Ordinal j=op_->getSR(Y); j<=op_->getER(Y); ++j )
 					y.at(i,j,k) =
-						(1-omega_)*x.at(i,j,k) + omega_/op_->getC(X,i,0)*( b.at(i,j,k) - op_->getC(X,i,+1)*x.at(i+1,j,k) );
+						(1-omega)*x.at(i,j,k) + omega/op_->getC(X,i,0)*( b.at(i,j,k) - op_->getC(X,i,+1)*x.at(i+1,j,k) );
 
 		}
 		if( space()->getBCLocal()->getBCU(X)>0 ) {
@@ -191,7 +285,7 @@ protected:
 			for( Ordinal k=op_->getSR(Z); k<=op_->getER(Z); ++k )
 				for( Ordinal j=op_->getSR(Y); j<=op_->getER(Y); ++j )
 					y.at(i,j,k) =
-						(1-omega_)*x.at(i,j,k) + omega_/op_->getC(X,i,0) *( b.at(i,j,k) - op_->getC(X,i,-1)*x.at(i-1,j,k) );
+						(1-omega)*x.at(i,j,k) + omega/op_->getC(X,i,0) *( b.at(i,j,k) - op_->getC(X,i,-1)*x.at(i-1,j,k) );
 
 		}
 
@@ -201,7 +295,7 @@ protected:
 			for( Ordinal k=op_->getSR(Z); k<=op_->getER(Z); ++k )
 				for( Ordinal i=op_->getSR(X); i<=op_->getER(X); ++i )
 					y.at(i,j,k) =
-						(1-omega_)*x.at(i,j,k) + omega_/op_->getC(Y,j,0) *( b.at(i,j,k) - op_->getC(Y,j,+1)*x.at(i,j+1,k) );
+						(1-omega)*x.at(i,j,k) + omega/op_->getC(Y,j,0) *( b.at(i,j,k) - op_->getC(Y,j,+1)*x.at(i,j+1,k) );
 
 		}
 		if( space()->getBCLocal()->getBCU(Y)>0 ) {
@@ -209,7 +303,7 @@ protected:
 			for( Ordinal k=op_->getSR(Z); k<=op_->getER(Z); ++k )
 				for( Ordinal i=op_->getSR(X); i<=op_->getER(X); ++i )
 					y.at(i,j,k) =
-						(1-omega_)*x.at(i,j,k) + omega_/op_->getC(Y,j,0) *( b.at(i,j,k) - op_->getC(Y,j,-1)*x.at(i,j-1,k) );
+						(1-omega)*x.at(i,j,k) + omega/op_->getC(Y,j,0) *( b.at(i,j,k) - op_->getC(Y,j,-1)*x.at(i,j-1,k) );
 		}
 
 		// boundary conditions in Z
@@ -218,14 +312,14 @@ protected:
 			for( Ordinal j=op_->getSR(Y); j<=op_->getER(Y); ++j )
 				for( Ordinal i=op_->getSR(X); i<=op_->getER(X); ++i )
 					y.at(i,j,k) =
-						(1-omega_)*x.at(i,j,k) + omega_/op_->getC(Z,k,0) *( b.at(i,j,k) - op_->getC(Z,k,+1)*x.at(i,j,k+1) );
+						(1-omega)*x.at(i,j,k) + omega/op_->getC(Z,k,0) *( b.at(i,j,k) - op_->getC(Z,k,+1)*x.at(i,j,k+1) );
 		}
 		if( space()->getBCLocal()->getBCU(Z)>0 ) {
 			Ordinal k = space()->nLoc(Z);
 			for( Ordinal j=op_->getSR(Y); j<=op_->getER(Y); ++j )
 				for( Ordinal i=op_->getSR(X); i<=op_->getER(X); ++i )
 					y.at(i,j,k) =
-						(1-omega_)*x.at(i,j,k) + omega_/op_->getC(Z,k,0) *( b.at(i,j,k) - op_->getC(Z,k,-1)*x.at(i,j,k-1) );
+						(1-omega)*x.at(i,j,k) + omega/op_->getC(Z,k,0) *( b.at(i,j,k) - op_->getC(Z,k,-1)*x.at(i,j,k-1) );
 		}
 	}
 

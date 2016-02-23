@@ -5,8 +5,8 @@
 
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_SerialDenseMatrix.hpp"
-#include "Teuchos_SerialDenseVector.hpp"
 #include "Teuchos_SerialDenseSolver.hpp"
+#include "Teuchos_SerialDenseVector.hpp"
 #include "Teuchos_SerialQRDenseSolver.hpp"
 
 #include "Pimpact_DivGradO2Op.hpp"
@@ -65,9 +65,8 @@ protected:
 		B_ = Teuchos::rcp( new MatrixT(N_,1,false) );
 
 		Teuchos::Tuple<Ordinal,3> cw;
-		for( int i=0; i<3; ++i ) {
+		for( int i=0; i<3; ++i )
 			cw[i] = ( space()->eIndB( EField::S, i ) - space()->sIndB( EField::S, i ) + 1 );
-		}
 
 		// inner stencil
 		for( Ordinal k=space()->sIndB(EField::S,Z); k<=space()->eIndB(EField::S,Z); ++k ) {
