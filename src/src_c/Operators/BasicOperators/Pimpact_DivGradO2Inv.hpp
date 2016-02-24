@@ -10,6 +10,7 @@
 #include "Teuchos_SerialQRDenseSolver.hpp"
 
 #include "Pimpact_DivGradO2Op.hpp"
+#include "Pimpact_TeuchosTransfer.hpp"
 
 
 
@@ -38,6 +39,7 @@ public:
 
 protected:
 
+	using VectorT = Teuchos::SerialDenseVector<Ordinal,Scalar>;
 	using MatrixT = Teuchos::SerialDenseMatrix<Ordinal,Scalar>;
 	//using SolverT = Teuchos::SerialQRDenseSolver<Ordinal,Scalar>;
 	using SolverT = Teuchos::SerialDenseSolver<Ordinal,Scalar>;
@@ -46,421 +48,24 @@ protected:
 	bool levelYes_;
   const Teuchos::RCP<const OperatorT> op_;
 
+	const Teuchos::RCP<const TeuchosTransfer<SpaceT> > trans_;
+
 	Teuchos::RCP< MatrixT > A_;
 	Teuchos::RCP< SolverT > Asov_;
 
-	Teuchos::RCP< MatrixT > X_;
-	Teuchos::RCP< MatrixT > B_;
+	Teuchos::RCP< VectorT > X_;
+	Teuchos::RCP< VectorT > B_;
 
 	void init() {
-		Ordinal N_ = 1;
-		for( int i=0; i<3; ++i ) {
-			N_ *= ( space()->eIndB( EField::S, i ) - space()->sIndB( EField::S, i ) + 1 );
-		}
+		Ordinal N_ = trans_->getN();
 
-		A_ = Teuchos::rcp( new MatrixT(N_,N_,true) );
+		A_ = Teuchos::rcp( new MatrixT( N_, N_, true ) );
 		Asov_ = Teuchos::rcp( new SolverT() );
 
-		X_ = Teuchos::rcp( new MatrixT(N_,1,false) );
-		B_ = Teuchos::rcp( new MatrixT(N_,1,false) );
+		X_ = Teuchos::rcp( new VectorT(N_,false) );
+		B_ = Teuchos::rcp( new VectorT(N_,false) );
 
-		Teuchos::Tuple<Ordinal,3> cw;
-		for( int i=0; i<3; ++i )
-			cw[i] = ( space()->eIndB( EField::S, i ) - space()->sIndB( EField::S, i ) + 1 );
-
-		// inner stencil
-		for( Ordinal k=space()->sIndB(EField::S,Z); k<=space()->eIndB(EField::S,Z); ++k ) {
-			for( Ordinal j=space()->sIndB(EField::S,Y); j<=space()->eIndB(EField::S,Y); ++j ) {
-				for( Ordinal i=space()->sIndB(EField::S,X); i<=space()->eIndB(EField::S,X); ++i ) {
-
-					Ordinal I = (i-space()->sIndB(EField::S,X)) +             
-                      (j-space()->sIndB(EField::S,Y))*cw[0] +
-                      (k-space()->sIndB(EField::S,Z))*cw[0]*cw[1];
-					for( int o=-1; o<=1; ++o ) {
-						if( (i+o)>=space()->sIndB(EField::S,X) && (i+o)<=space()->eIndB(EField::S,X) ) {
-
-							Ordinal Io = (i+o-space()->sIndB(EField::S,0)) +             
-											 		 (j-space()->sIndB(EField::S,1))*cw[0] +
-											 		 (k-space()->sIndB(EField::S,2))*cw[0]*cw[1];
-							(*A_)(I,Io) += op_->getC( X, i, o) ;
-						}
-						if( (j+o)>=space()->sIndB(EField::S,1) && (j+o)<=space()->eIndB(EField::S,1) ) {
-
-							Ordinal Io = (i-space()->sIndB(EField::S,0)) +             
-											 		 (j+o-space()->sIndB(EField::S,1))*cw[0] +
-											 		 (k-space()->sIndB(EField::S,2))*cw[0]*cw[1];
-							(*A_)(I,Io) += op_->getC( Y, j, o) ;
-						}
-						if( (k+o)>=space()->sIndB(EField::S,2) && (k+o)<=space()->eIndB(EField::S,2) ) {
-
-							Ordinal Io = (i-space()->sIndB(EField::S,0)) +             
-											 		 (j-space()->sIndB(EField::S,1))*cw[0] +
-											 		 (k+o-space()->sIndB(EField::S,2))*cw[0]*cw[1];
-							(*A_)(I,Io) += op_->getC( Z, k, o) ;
-						}
-
-					}
-				}
-			}
-		}
-
-		// boundary conditions
-		if( space()->getBCLocal()->getBCL(X)>0 ) {
-			Ordinal i = space()->sIndB(EField::S,X);
-			for( Ordinal k=space()->sIndB(EField::S,Z); k<=space()->eIndB(EField::S,Z); ++k ) {
-				for( Ordinal j=space()->sIndB(EField::S,Y); j<=space()->eIndB(EField::S,Y); ++j ) {
-
-					Ordinal I = (i-space()->sIndB(EField::S,0)) +             
-						(j-space()->sIndB(EField::S,1))*cw[0] +
-						(k-space()->sIndB(EField::S,2))*cw[0]*cw[1];
-
-					// set row zero
-					for( Ordinal l=0; l<A_->numCols(); ++ l ) 
-						(*A_)(I,l) = 0.;
-
-					for( int o=-1; o<=1; ++o ) {
-						if( (i+o)>=space()->sIndB(EField::S,0) && (i+o)<=space()->eIndB(EField::S,0) ) {
-							Ordinal Io = (i+o-space()->sIndB(EField::S,0)) +             
-								(j-space()->sIndB(EField::S,1))*cw[0] +
-								(k-space()->sIndB(EField::S,2))*cw[0]*cw[1];
-							(*A_)(I,Io) = op_->getC( X, i, o) ;
-						}
-					}
-				}
-			}
-		}
-
-		if( space()->getBCLocal()->getBCU(X)>0 ) {
-			Ordinal i = space()->eIndB(EField::S,X);
-			for( Ordinal k=space()->sIndB(EField::S,Z); k<=space()->eIndB(EField::S,Z); ++k ) {
-				for( Ordinal j=space()->sIndB(EField::S,Y); j<=space()->eIndB(EField::S,Y); ++j ) {
-
-					Ordinal I = (i-space()->sIndB(EField::S,0)) +             
-						(j-space()->sIndB(EField::S,1))*cw[0] +
-						(k-space()->sIndB(EField::S,2))*cw[0]*cw[1];
-
-					// set row zero
-					for( Ordinal l=0; l<A_->numCols(); ++ l ) 
-						(*A_)(I,l) = 0.;
-
-					// set stencil
-					for( int o=-1; o<=1; ++o ) {
-						if( (i+o)>=space()->sIndB(EField::S,0) && (i+o)<=space()->eIndB(EField::S,0) ) {
-							Ordinal Io = (i+o-space()->sIndB(EField::S,0)) +             
-								(j-space()->sIndB(EField::S,1))*cw[0] +
-								(k-space()->sIndB(EField::S,2))*cw[0]*cw[1];
-							(*A_)(I,Io) = op_->getC( X, i, o) ;
-						}
-					}
-				}
-			}
-		}
-
-		if( space()->getBCLocal()->getBCL(Y)>0 ) {
-			Ordinal j = space()->sIndB(EField::S,Y);
-			for( Ordinal k=space()->sIndB(EField::S,Z); k<=space()->eIndB(EField::S,Z); ++k ) {
-				for( Ordinal i=space()->sIndB(EField::S,X); i<=space()->eIndB(EField::S,X); ++i ) {
-
-					Ordinal I = (i-space()->sIndB(EField::S,X)) +             
-						(j-space()->sIndB(EField::S,Y))*cw[0] +
-						(k-space()->sIndB(EField::S,Z))*cw[0]*cw[1];
-					
-					// set row zero
-					for( Ordinal l=0; l<A_->numCols(); ++ l ) 
-						(*A_)(I,l) = 0.;
-
-					for( int o=-1; o<=1; ++o ) {
-						if( (j+o)>=space()->sIndB(EField::S,1) && (j+o)<=space()->eIndB(EField::S,1) ) {
-
-							Ordinal Io = (i-space()->sIndB(EField::S,0)) +             
-								(j+o-space()->sIndB(EField::S,1))*cw[0] +
-								(k-space()->sIndB(EField::S,2))*cw[0]*cw[1];
-							(*A_)(I,Io) = op_->getC( Y, j, o) ;
-						}
-
-					}
-				}
-			}
-		}
-		if( space()->getBCLocal()->getBCU(Y)>0 ) {
-			Ordinal j = space()->eIndB(EField::S,Y);
-			for( Ordinal k=space()->sIndB(EField::S,Z); k<=space()->eIndB(EField::S,Z); ++k ) {
-				for( Ordinal i=space()->sIndB(EField::S,X); i<=space()->eIndB(EField::S,X); ++i ) {
-
-					Ordinal I = (i-space()->sIndB(EField::S,X)) +             
-						(j-space()->sIndB(EField::S,Y))*cw[0] +
-						(k-space()->sIndB(EField::S,Z))*cw[0]*cw[1];
-					
-					// set row zero
-					for( Ordinal l=0; l<A_->numCols(); ++ l ) 
-						(*A_)(I,l) = 0.;
-
-					for( int o=-1; o<=1; ++o ) {
-						if( (j+o)>=space()->sIndB(EField::S,1) && (j+o)<=space()->eIndB(EField::S,1) ) {
-
-							Ordinal Io = (i-space()->sIndB(EField::S,0)) +             
-								(j+o-space()->sIndB(EField::S,1))*cw[0] +
-								(k-space()->sIndB(EField::S,2))*cw[0]*cw[1];
-							(*A_)(I,Io) = op_->getC( Y, j, o) ;
-						}
-
-					}
-				}
-			}
-		}
-
-		if( space()->getBCLocal()->getBCL(Z)>0 ) {
-			Ordinal k = space()->sIndB(EField::S,Z);
-			for( Ordinal j=space()->sIndB(EField::S,Y); j<=space()->eIndB(EField::S,Y); ++j ) {
-				for( Ordinal i=space()->sIndB(EField::S,X); i<=space()->eIndB(EField::S,X); ++i ) {
-
-					Ordinal I = (i-space()->sIndB(EField::S,X)) +             
-						(j-space()->sIndB(EField::S,Y))*cw[0] +
-						(k-space()->sIndB(EField::S,Z))*cw[0]*cw[1];
-
-					// set row zero
-					for( Ordinal l=0; l<A_->numCols(); ++ l ) 
-						(*A_)(I,l) = 0.;
-					
-					for( int o=-1; o<=1; ++o ) {
-						if( (k+o)>=space()->sIndB(EField::S,2) && (k+o)<=space()->eIndB(EField::S,2) ) {
-
-							Ordinal Io = (i-space()->sIndB(EField::S,0)) +             
-								(j-space()->sIndB(EField::S,1))*cw[0] +
-								(k+o-space()->sIndB(EField::S,2))*cw[0]*cw[1];
-							(*A_)(I,Io) += op_->getC( Z, k, o) ;
-						}
-					}
-
-				}
-			}
-		}
-
-		if( space()->getBCLocal()->getBCU(Z)>0 ) {
-			Ordinal k = space()->eIndB(EField::S,Z);
-			for( Ordinal j=space()->sIndB(EField::S,Y); j<=space()->eIndB(EField::S,Y); ++j ) {
-				for( Ordinal i=space()->sIndB(EField::S,X); i<=space()->eIndB(EField::S,X); ++i ) {
-
-					Ordinal I = (i-space()->sIndB(EField::S,X)) +             
-						(j-space()->sIndB(EField::S,Y))*cw[0] +
-						(k-space()->sIndB(EField::S,Z))*cw[0]*cw[1];
-
-					// set row zero
-					for( Ordinal l=0; l<A_->numCols(); ++ l ) 
-						(*A_)(I,l) = 0.;
-					
-					for( int o=-1; o<=1; ++o ) {
-						if( (k+o)>=space()->sIndB(EField::S,2) && (k+o)<=space()->eIndB(EField::S,2) ) {
-
-							Ordinal Io = (i-space()->sIndB(EField::S,0)) +             
-								(j-space()->sIndB(EField::S,1))*cw[0] +
-								(k+o-space()->sIndB(EField::S,2))*cw[0]*cw[1];
-							(*A_)(I,Io) += op_->getC( Z, k, o) ;
-						}
-					}
-
-				}
-			}
-		}
-
-		// --- corners ---
-    //if( bcl(1) > 0 .and. bcl(2) > 0 ) phi(1   ,1   ,1:n(3)) = 0. ! test!!! verifizieren ...
-		if( space()->getBCLocal()->getBCL(X)>0 && space()->getBCLocal()->getBCL(Y)>0 ) {
-			Ordinal i = space()->sIndB(EField::S,X);
-			Ordinal j = space()->sIndB(EField::S,Y);
-			for( Ordinal k=space()->sIndB(EField::S,Z); k<=space()->eIndB(EField::S,Z); ++k ) {
-
-				Ordinal I = (i-space()->sIndB(EField::S,0)) +             
-					(j-space()->sIndB(EField::S,1))*cw[0] +
-					(k-space()->sIndB(EField::S,2))*cw[0]*cw[1];
-
-				// set row zero
-				for( Ordinal l=0; l<A_->numCols(); ++ l ) (*A_)(I,l) = 0.;
-
-				(*A_)(I,I) = 1.;
-			}
-		}
-    //if( bcl(1) > 0 .and. bcu(2) > 0 ) phi(1   ,n(2),1:n(3)) = 0.
-		if( space()->getBCLocal()->getBCL(X)>0 && space()->getBCLocal()->getBCU(Y)>0 ) {
-			Ordinal i = space()->sIndB(EField::S,X);
-			Ordinal j = space()->eIndB(EField::S,Y);
-			for( Ordinal k=space()->sIndB(EField::S,Z); k<=space()->eIndB(EField::S,Z); ++k ) {
-
-				Ordinal I = (i-space()->sIndB(EField::S,0)) +             
-					(j-space()->sIndB(EField::S,1))*cw[0] +
-					(k-space()->sIndB(EField::S,2))*cw[0]*cw[1];
-
-				// set row zero
-				for( Ordinal l=0; l<A_->numCols(); ++ l ) (*A_)(I,l) = 0.;
-
-				(*A_)(I,I) = 1.;
-			}
-		}
-    //if( bcu(1) > 0 .and. bcl(2) > 0 ) phi(n(1),1   ,1:n(3)) = 0.
-		if( space()->getBCLocal()->getBCU(X)>0 && space()->getBCLocal()->getBCL(Y)>0 ) {
-			Ordinal i = space()->eIndB(EField::S,X);
-			Ordinal j = space()->sIndB(EField::S,Y);
-			for( Ordinal k=space()->sIndB(EField::S,Z); k<=space()->eIndB(EField::S,Z); ++k ) {
-
-				Ordinal I = (i-space()->sIndB(EField::S,0)) +             
-					(j-space()->sIndB(EField::S,1))*cw[0] +
-					(k-space()->sIndB(EField::S,2))*cw[0]*cw[1];
-
-				// set row zero
-				for( Ordinal l=0; l<A_->numCols(); ++ l ) (*A_)(I,l) = 0.;
-
-				(*A_)(I,I) = 1.;
-			}
-		}
-    //if( bcu(1) > 0 .and. bcu(2) > 0 ) phi(n(1),n(2),1:n(3)) = 0.
-		if( space()->getBCLocal()->getBCU(X)>0 && space()->getBCLocal()->getBCU(Y)>0 ) {
-			Ordinal i = space()->eIndB(EField::S,X);
-			Ordinal j = space()->eIndB(EField::S,Y);
-			for( Ordinal k=space()->sIndB(EField::S,Z); k<=space()->eIndB(EField::S,Z); ++k ) {
-
-				Ordinal I = (i-space()->sIndB(EField::S,0)) +             
-					(j-space()->sIndB(EField::S,1))*cw[0] +
-					(k-space()->sIndB(EField::S,2))*cw[0]*cw[1];
-
-				// set row zero
-				for( Ordinal l=0; l<A_->numCols(); ++ l ) (*A_)(I,l) = 0.;
-
-				(*A_)(I,I) = 1.;
-			}
-		}
-
-    //if( bcl(1) > 0 .and. bcl(3) > 0 ) phi(1   ,1:n(2),1   ) = 0.
-		if( space()->getBCLocal()->getBCL(X)>0 && space()->getBCLocal()->getBCL(Z)>0 ) {
-			Ordinal i = space()->sIndB(EField::S,X);
-			Ordinal k = space()->sIndB(EField::S,Z);
-			for( Ordinal j=space()->sIndB(EField::S,Y); j<=space()->eIndB(EField::S,Y); ++j ) {
-
-				Ordinal I = (i-space()->sIndB(EField::S,0)) +             
-					(j-space()->sIndB(EField::S,1))*cw[0] +
-					(k-space()->sIndB(EField::S,2))*cw[0]*cw[1];
-
-				// set row zero
-				for( Ordinal l=0; l<A_->numCols(); ++ l ) (*A_)(I,l) = 0.;
-
-				(*A_)(I,I) = 1.;
-			}
-		}
-    //if( bcl(1) > 0 .and. bcu(3) > 0 ) phi(1   ,1:n(2),n(3)) = 0.
-		if( space()->getBCLocal()->getBCL(X)>0 && space()->getBCLocal()->getBCU(Z)>0 ) {
-			Ordinal i = space()->sIndB(EField::S,X);
-			Ordinal k = space()->eIndB(EField::S,Z);
-			for( Ordinal j=space()->sIndB(EField::S,Y); j<=space()->eIndB(EField::S,Y); ++j ) {
-
-				Ordinal I = (i-space()->sIndB(EField::S,0)) +             
-					(j-space()->sIndB(EField::S,1))*cw[0] +
-					(k-space()->sIndB(EField::S,2))*cw[0]*cw[1];
-
-				// set row zero
-				for( Ordinal l=0; l<A_->numCols(); ++ l ) (*A_)(I,l) = 0.;
-
-				(*A_)(I,I) = 1.;
-			}
-		}
-    //if( bcu(1) > 0 .and. bcl(3) > 0 ) phi(n(1),1:n(2),1   ) = 0.
-		if( space()->getBCLocal()->getBCU(X)>0 && space()->getBCLocal()->getBCL(Z)>0 ) {
-			Ordinal i = space()->eIndB(EField::S,X);
-			Ordinal k = space()->sIndB(EField::S,Z);
-			for( Ordinal j=space()->sIndB(EField::S,Y); j<=space()->eIndB(EField::S,Y); ++j ) {
-
-				Ordinal I = (i-space()->sIndB(EField::S,0)) +             
-					(j-space()->sIndB(EField::S,1))*cw[0] +
-					(k-space()->sIndB(EField::S,2))*cw[0]*cw[1];
-
-				// set row zero
-				for( Ordinal l=0; l<A_->numCols(); ++ l ) (*A_)(I,l) = 0.;
-
-				(*A_)(I,I) = 1.;
-			}
-		}
-    //if( bcu(1) > 0 .and. bcu(3) > 0 ) phi(n(1),1:n(2),n(3)) = 0.
-		if( space()->getBCLocal()->getBCU(X)>0 && space()->getBCLocal()->getBCU(Z)>0 ) {
-			Ordinal i = space()->eIndB(EField::S,X);
-			Ordinal k = space()->eIndB(EField::S,Z);
-			for( Ordinal j=space()->sIndB(EField::S,Y); j<=space()->eIndB(EField::S,Y); ++j ) {
-
-				Ordinal I = (i-space()->sIndB(EField::S,0)) +             
-					(j-space()->sIndB(EField::S,1))*cw[0] +
-					(k-space()->sIndB(EField::S,2))*cw[0]*cw[1];
-
-				// set row zero
-				for( Ordinal l=0; l<A_->numCols(); ++ l ) (*A_)(I,l) = 0.;
-
-				(*A_)(I,I) = 1.;
-			}
-		}
-
-    //if( bcl(2) > 0 .and. bcl(3) > 0 ) phi(1:n(1),1   ,1   ) = 0.
-		if( space()->getBCLocal()->getBCL(Y)>0 && space()->getBCLocal()->getBCL(Z)>0 ) {
-			Ordinal j = space()->sIndB(EField::S,Y);
-			Ordinal k = space()->sIndB(EField::S,Z);
-			for( Ordinal i=space()->sIndB(EField::S,X); i<=space()->eIndB(EField::S,X); ++i ) {
-
-				Ordinal I = (i-space()->sIndB(EField::S,0)) +             
-					(j-space()->sIndB(EField::S,1))*cw[0] +
-					(k-space()->sIndB(EField::S,2))*cw[0]*cw[1];
-
-				// set row zero
-				for( Ordinal l=0; l<A_->numCols(); ++ l ) (*A_)(I,l) = 0.;
-
-				(*A_)(I,I) = 1.;
-			}
-		}
-    //if( bcl(2) > 0 .and. bcu(3) > 0 ) phi(1:n(1),1   ,n(3)) = 0.
-		if( space()->getBCLocal()->getBCL(Y)>0 && space()->getBCLocal()->getBCU(Z)>0 ) {
-			Ordinal j = space()->sIndB(EField::S,Y);
-			Ordinal k = space()->eIndB(EField::S,Z);
-			for( Ordinal i=space()->sIndB(EField::S,X); i<=space()->eIndB(EField::S,X); ++i ) {
-
-				Ordinal I = (i-space()->sIndB(EField::S,0)) +             
-					(j-space()->sIndB(EField::S,1))*cw[0] +
-					(k-space()->sIndB(EField::S,2))*cw[0]*cw[1];
-
-				// set row zero
-				for( Ordinal l=0; l<A_->numCols(); ++ l ) (*A_)(I,l) = 0.;
-
-				(*A_)(I,I) = 1.;
-			}
-		}
-    //if( bcu(2) > 0 .and. bcl(3) > 0 ) phi(1:n(1),n(2),1   ) = 0.
-		if( space()->getBCLocal()->getBCU(Y)>0 && space()->getBCLocal()->getBCL(Z)>0 ) {
-			Ordinal j = space()->eIndB(EField::S,Y);
-			Ordinal k = space()->sIndB(EField::S,Z);
-			for( Ordinal i=space()->sIndB(EField::S,X); i<=space()->eIndB(EField::S,X); ++i ) {
-
-				Ordinal I = (i-space()->sIndB(EField::S,0)) +             
-					(j-space()->sIndB(EField::S,1))*cw[0] +
-					(k-space()->sIndB(EField::S,2))*cw[0]*cw[1];
-
-				// set row zero
-				for( Ordinal l=0; l<A_->numCols(); ++ l ) (*A_)(I,l) = 0.;
-
-				(*A_)(I,I) = 1.;
-			}
-		}
-    //if( bcu(2) > 0 .and. bcu(3) > 0 ) phi(1:n(1),n(2),n(3)) = 0.
-		if( space()->getBCLocal()->getBCU(Y)>0 && space()->getBCLocal()->getBCU(Z)>0 ) {
-			Ordinal j = space()->eIndB(EField::S,Y);
-			Ordinal k = space()->eIndB(EField::S,Z);
-			for( Ordinal i=space()->sIndB(EField::S,X); i<=space()->eIndB(EField::S,X); ++i ) {
-
-				Ordinal I = (i-space()->sIndB(EField::S,0)) +             
-					(j-space()->sIndB(EField::S,1))*cw[0] +
-					(k-space()->sIndB(EField::S,2))*cw[0]*cw[1];
-
-				// set row zero
-				for( Ordinal l=0; l<A_->numCols(); ++ l ) (*A_)(I,l) = 0.;
-
-				(*A_)(I,I) = 1.;
-			}
-		}
-
-
-		//std::cout << *A_;
+		trans_->apply( op_, A_ );
 
 		// set solver
 		Asov_->factorWithEquilibration( true );
@@ -471,7 +76,8 @@ protected:
 public:
 
 	DivGradO2Inv( const Teuchos::RCP<const SpaceT>& space ):
-		op_( Teuchos::rcp( new OperatorT(space) ) ) {
+		op_( Teuchos::rcp( new OperatorT(space) ) ),
+		trans_( Teuchos::rcp( new TeuchosTransfer<SpaceT>(op_->space(), op_->space()->sIndB(EField::S), op_->space()->eIndB(EField::S) ) ) ) {
 			init();
 		}
 
@@ -482,7 +88,8 @@ public:
 	///   These are the options accepted by the solver manager:
 	DivGradO2Inv( const Teuchos::RCP<const OperatorT>& op,
       const Teuchos::RCP<Teuchos::ParameterList>& pl=Teuchos::parameterList() ):
-    op_(op) {
+    op_(op),
+		trans_( Teuchos::rcp( new TeuchosTransfer<SpaceT>(op_->space(), op_->space()->sIndB(EField::S), op_->space()->eIndB(EField::S) ) ) ) {
 			init();
 		}
 
@@ -499,35 +106,17 @@ public:
 		x.setCornersZero();
 		x.exchange();
 
-		for( Ordinal k=space()->sIndB(EField::S,Z); k<=space()->eIndB(EField::S,Z); ++k ) {
-			for( Ordinal j=space()->sIndB(EField::S,Y); j<=space()->eIndB(EField::S,Y); ++j ) {
-				for( Ordinal i=space()->sIndB(EField::S,X); i<=space()->eIndB(EField::S,X); ++i ) {
-					Ordinal I = (i-space()->sIndB(EField::S,X)) +             
-						(j-space()->sIndB(EField::S,Y))*cw[0] +
-						(k-space()->sIndB(EField::S,Z))*cw[0]*cw[1];
-					(*B_)(I,0) = x.at(i,j,k);
-				}
-			}
-		}
+		trans_->apply( x, B_ );
 
-		//std::cout << *B_;
 		Asov_->setVectors( X_, B_ );
 		Asov_->solve();
 		//X_->multiply(  Teuchos::NO_TRANS,  Teuchos::NO_TRANS, 1., *A_, *B_, 0. );
 		//*X_ = *B_;
 
-		for( Ordinal k=space()->sIndB(EField::S,Z); k<=space()->eIndB(EField::S,Z); ++k ) {
-			for( Ordinal j=space()->sIndB(EField::S,Y); j<=space()->eIndB(EField::S,Y); ++j ) {
-				for( Ordinal i=space()->sIndB(EField::S,X); i<=space()->eIndB(EField::S,X); ++i ) {
-					Ordinal I = (i-space()->sIndB(EField::S,X)) +             
-						(j-space()->sIndB(EField::S,Y))*cw[0] +
-						(k-space()->sIndB(EField::S,Z))*cw[0]*cw[1];
-					y.at(i,j,k) = (*X_)(I,0);
-				}
-			}
-		}
-		//std::cout << *X_ << "\n";
+		trans_->apply( X_, y);
+
 		//std::cout << "Teuchos::SerialSpdDenseSolver::solve() returned : " << info << std::endl;
+		
 		y.setCornersZero();
 		y.changed();
 
