@@ -41,6 +41,7 @@ protected:
 
 	using VectorT = Teuchos::SerialDenseVector<Ordinal,Scalar>;
 	using MatrixT = Teuchos::SerialDenseMatrix<Ordinal,Scalar>;
+
 	//using SolverT = Teuchos::SerialQRDenseSolver<Ordinal,Scalar>;
 	using SolverT = Teuchos::SerialDenseSolver<Ordinal,Scalar>;
 
@@ -98,15 +99,13 @@ public:
 	void apply( const DomainFieldT& x, RangeFieldT& y, Belos::ETrans
 			trans=Belos::NOTRANS ) const {
 
-		Teuchos::Tuple<Ordinal,3> cw;
-		for( int i=0; i<3; ++i ) {
-			cw[i] = space()->eIndB( EField::S, i ) - space()->sIndB( EField::S, i ) + 1;
-		}
-
 		x.setCornersZero();
-		x.exchange();
 
+		//x.exchange();
 		trans_->apply( x, B_ );
+
+		y.exchange();
+		trans_->updateRHS( op_, y, B_ );
 
 		Asov_->setVectors( X_, B_ );
 		Asov_->solve();
@@ -117,7 +116,7 @@ public:
 
 		//std::cout << "Teuchos::SerialSpdDenseSolver::solve() returned : " << info << std::endl;
 		
-		y.setCornersZero();
+		y.setCornersZero(); // ???
 		y.changed();
 
 		if( levelYes_ )

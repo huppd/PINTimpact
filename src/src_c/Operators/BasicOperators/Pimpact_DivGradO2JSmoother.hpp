@@ -10,6 +10,7 @@
 #include "Teuchos_SerialQRDenseSolver.hpp"
 
 #include "Pimpact_DivGradO2Op.hpp"
+#include "Pimpact_TeuchosTransfer.hpp"
 
 
 
@@ -134,7 +135,8 @@ public:
 					y.getConstRawPtr(),
 					temp_->getRawPtr() );
 
-			applyJBCSmoothing( x, y, *temp_, 1. );
+			//applyJBCSmoothing( x, y, *temp_, 1. );
+			applyDBCSmoothing( x, *temp_, 1. );
 
 			temp_->changed();
 			temp_->exchange();
@@ -154,7 +156,8 @@ public:
 					temp_->getConstRawPtr(),
 					y.getRawPtr() );
 
-			applyJBCSmoothing( x, *temp_, y, 1. );
+			//applyJBCSmoothing( x, *temp_, y, 1. );
+			applyDBCSmoothing( x, y, 1. );
 
 			y.changed();
 		}
@@ -182,87 +185,225 @@ public:
 
 protected:
 
-	void applyDBCSmoothing( const DomainFieldT& b, const DomainFieldT& x ) const {
+	void applyDBCSmoothing( const DomainFieldT& b, DomainFieldT& x, const Scalar& omega ) const {
 
+		using VectorT = Teuchos::SerialDenseVector<Ordinal,Scalar>;
 		using MatrixT = Teuchos::SerialDenseMatrix<Ordinal,Scalar>;
+
 		//using SolverT = Teuchos::SerialQRDenseSolver<Ordinal,Scalar>;
 		using SolverT = Teuchos::SerialDenseSolver<Ordinal,Scalar>;
 
-		Ordinal depth = 3; // number of wall normal dofs
+		Ordinal depth = 2; // number of wall normal dofs
+
+		Ordinal SS[3];
+		Ordinal NN[3];
+
+		Teuchos::RCP<TeuchosTransfer<SpaceT> > trans;
 
 		// boundary conditions in X
-		if( space()->getBCLocal()->getBCL(X)>0 || space()->getBCLocal()->getBCU(X)>0 ) {
+		if( space()->getBCLocal()->getBCL(X)>0 ) {
+			SS[X] = space()->sInd(EField::S,X);
+			SS[Y] = space()->sInd(EField::S,Y);
+			SS[Z] = space()->sInd(EField::S,Z);
 
-			// init matrix vec stufff
-			Ordinal N = depth;
-			for( int i=1; i<3; ++i )
-				N *= ( space()->eIndB( EField::S, i ) - space()->sIndB( EField::S, i ) + 1 );
+			NN[X] = space()->sInd(EField::S,X)+depth;
+			NN[Y] = space()->eInd(EField::S,Y);
+			NN[Z] = space()->eInd(EField::S,Z);
 
-			Teuchos::RCP< MatrixT > A = Teuchos::rcp( new MatrixT(N,N,true) );
-			Teuchos::RCP< SolverT > Asov = Teuchos::rcp( new SolverT() );
+			trans = Teuchos::rcp( new TeuchosTransfer<SpaceT>( space(), SS, NN ) );
 
-			Teuchos::RCP< MatrixT > X = Teuchos::rcp( new MatrixT(N,1,false) );
-			Teuchos::RCP< MatrixT> 	B = Teuchos::rcp( new MatrixT(N,1,false) );
+			Teuchos::RCP<MatrixT> A = Teuchos::rcp( new MatrixT( trans->getN(), trans->getN(), true ) );
+			Teuchos::RCP<SolverT> Asov = Teuchos::rcp( new SolverT() );
 
-			Teuchos::Tuple<Ordinal,3> cw;
-			cw[0] = depth;
-			for( int i=1; i<3; ++i ) 
-				cw[i] = ( space()->eIndB( EField::S, i ) - space()->sIndB( EField::S, i ) + 1 );
+			Teuchos::RCP<VectorT> X = Teuchos::rcp( new VectorT(trans->getN(), false) );
+			Teuchos::RCP<VectorT>	B = Teuchos::rcp( new VectorT(trans->getN(), false) );
 
-			if( space()->getBCLocal()->getBCL(X)>0 ) {
-				Ordinal i = 1;
-				for( Ordinal k=op_->getSR(Z); k<=op_->getER(Z); ++k )
-					for( Ordinal j=op_->getSR(Y); j<=op_->getER(Y); ++j )
-						x.at(i,j,k) = 1.;
-							//(1-omega)*x.at(i,j,k) + omega/op_->getC(X,i,0)*( b.at(i,j,k) - op_->getC(X,i,+1)*x.at(i+1,j,k) );
+			x.exchange(); // ???
+			trans->apply( op_, A );
+			trans->apply( b, B );
+			trans->updateRHS( op_, x, B );
 
-			}
-			if( space()->getBCLocal()->getBCU(X)>0 ) {
-				Ordinal i = space()->nLoc(X);
-				for( Ordinal k=op_->getSR(Z); k<=op_->getER(Z); ++k )
-					for( Ordinal j=op_->getSR(Y); j<=op_->getER(Y); ++j )
-						x.at(i,j,k) = 1.;
-							//(1-omega)*x.at(i,j,k) + omega/op_->getC(X,i,0) *( b.at(i,j,k) - op_->getC(X,i,-1)*x.at(i-1,j,k) );
+			// set solver and solve
+			Asov->factorWithEquilibration( true );
+			Asov->setMatrix( A );
+			Asov->factor();
+			Asov->setVectors( X, B );
+			Asov->solve();
 
-			}
+			trans->apply( X, x, omega);
+			//y.setCornersZero(); // ???
+			x.changed();
+
+		}
+		if( space()->getBCLocal()->getBCU(X)>0 ) {
+			SS[X] = space()->eInd(EField::S,X)-depth;
+			SS[Y] = space()->sInd(EField::S,Y);
+			SS[Z] = space()->sInd(EField::S,Z);
+
+			NN[X] = space()->eInd(EField::S,X);
+			NN[Y] = space()->eInd(EField::S,Y);
+			NN[Z] = space()->eInd(EField::S,Z);
+
+			trans = Teuchos::rcp( new TeuchosTransfer<SpaceT>( space(), SS, NN ) );
+
+			Teuchos::RCP<MatrixT> A = Teuchos::rcp( new MatrixT( trans->getN(), trans->getN(), true ) );
+			Teuchos::RCP<SolverT> Asov = Teuchos::rcp( new SolverT() );
+
+			Teuchos::RCP<VectorT> X = Teuchos::rcp( new VectorT(trans->getN(), false) );
+			Teuchos::RCP<VectorT>	B = Teuchos::rcp( new VectorT(trans->getN(), false) );
+
+			x.exchange(); // ???
+			trans->apply( op_, A );
+			trans->apply( b, B );
+			trans->updateRHS( op_, x, B );
+
+			// set solver and solve
+			Asov->factorWithEquilibration( true );
+			Asov->setMatrix( A );
+			Asov->factor();
+			Asov->setVectors( X, B );
+			Asov->solve();
+
+			trans->apply( X, x, omega);
+			//y.setCornersZero(); // ???
+			x.changed();
 		}
 
 		// boundary conditions in Y
-		//{
-			//if( space()->getBCLocal()->getBCL(Y)>0 ) {
-				//Ordinal j = 1;
-				//for( Ordinal k=op_->getSR(Z); k<=op_->getER(Z); ++k )
-					//for( Ordinal i=op_->getSR(X); i<=op_->getER(X); ++i )
-						//y.at(i,j,k) =
-							//(1-omega)*x.at(i,j,k) + omega/op_->getC(Y,j,0) *( b.at(i,j,k) - op_->getC(Y,j,+1)*x.at(i,j+1,k) );
+		if( space()->getBCLocal()->getBCL(Y)>0 ) {
+			SS[X] = space()->sInd(EField::S,X);
+			SS[Y] = space()->sInd(EField::S,Y);
+			SS[Z] = space()->sInd(EField::S,Z);
 
-			//}
-			//if( space()->getBCLocal()->getBCU(Y)>0 ) {
-				//Ordinal j = space()->nLoc(Y);
-				//for( Ordinal k=op_->getSR(Z); k<=op_->getER(Z); ++k )
-					//for( Ordinal i=op_->getSR(X); i<=op_->getER(X); ++i )
-						//y.at(i,j,k) =
-							//(1-omega)*x.at(i,j,k) + omega/op_->getC(Y,j,0) *( b.at(i,j,k) - op_->getC(Y,j,-1)*x.at(i,j-1,k) );
-			//}
-		//}
+			NN[X] = space()->eInd(EField::S,X);
+			NN[Y] = space()->sInd(EField::S,Y)+depth;
+			NN[Z] = space()->eInd(EField::S,Z);
 
-		//// boundary conditions in Z
-		//{
-			//if( space()->getBCLocal()->getBCL(Z)>0 ) {
-				//Ordinal k = 1;
-				//for( Ordinal j=op_->getSR(Y); j<=op_->getER(Y); ++j )
-					//for( Ordinal i=op_->getSR(X); i<=op_->getER(X); ++i )
-						//y.at(i,j,k) =
-							//(1-omega)*x.at(i,j,k) + omega/op_->getC(Z,k,0) *( b.at(i,j,k) - op_->getC(Z,k,+1)*x.at(i,j,k+1) );
-			//}
-			//if( space()->getBCLocal()->getBCU(Z)>0 ) {
-				//Ordinal k = space()->nLoc(Z);
-				//for( Ordinal j=op_->getSR(Y); j<=op_->getER(Y); ++j )
-					//for( Ordinal i=op_->getSR(X); i<=op_->getER(X); ++i )
-						//y.at(i,j,k) =
-							//(1-omega)*x.at(i,j,k) + omega/op_->getC(Z,k,0) *( b.at(i,j,k) - op_->getC(Z,k,-1)*x.at(i,j,k-1) );
-			//}
-		//}
+			trans = Teuchos::rcp( new TeuchosTransfer<SpaceT>( space(), SS, NN ) );
+
+			Teuchos::RCP<MatrixT> A = Teuchos::rcp( new MatrixT( trans->getN(), trans->getN(), true ) );
+			Teuchos::RCP<SolverT> Asov = Teuchos::rcp( new SolverT() );
+
+			Teuchos::RCP<VectorT> X = Teuchos::rcp( new VectorT(trans->getN(), false) );
+			Teuchos::RCP<VectorT>	B = Teuchos::rcp( new VectorT(trans->getN(), false) );
+
+			x.exchange(); // ???
+			trans->apply( op_, A );
+			trans->apply( b, B );
+			trans->updateRHS( op_, x, B );
+
+			// set solver and solve
+			Asov->factorWithEquilibration( true );
+			Asov->setMatrix( A );
+			Asov->factor();
+			Asov->setVectors( X, B );
+			Asov->solve();
+
+			trans->apply( X, x, omega);
+			//y.setCornersZero(); // ???
+			x.changed();
+		}
+		if( space()->getBCLocal()->getBCU(Y)>0 ) {
+			SS[X] = space()->sInd(EField::S,X);
+			SS[Y] = space()->eInd(EField::S,Y)-depth;
+			SS[Z] = space()->sInd(EField::S,Z);
+
+			NN[X] = space()->eInd(EField::S,X);
+			NN[Y] = space()->eInd(EField::S,Y);
+			NN[Z] = space()->eInd(EField::S,Z);
+
+			trans = Teuchos::rcp( new TeuchosTransfer<SpaceT>( space(), SS, NN ) );
+
+			Teuchos::RCP<MatrixT> A = Teuchos::rcp( new MatrixT( trans->getN(), trans->getN(), true ) );
+			Teuchos::RCP<SolverT> Asov = Teuchos::rcp( new SolverT() );
+
+			Teuchos::RCP<VectorT> X = Teuchos::rcp( new VectorT(trans->getN(), false) );
+			Teuchos::RCP<VectorT>	B = Teuchos::rcp( new VectorT(trans->getN(), false) );
+
+			x.exchange(); // ???
+			trans->apply( op_, A );
+			trans->apply( b, B );
+			trans->updateRHS( op_, x, B );
+
+			// set solver and solve
+			Asov->factorWithEquilibration( true );
+			Asov->setMatrix( A );
+			Asov->factor();
+			Asov->setVectors( X, B );
+			Asov->solve();
+
+			trans->apply( X, x, omega);
+			//y.setCornersZero(); // ???
+			x.changed();
+		}
+
+		// boundary conditions in Z
+		if( space()->getBCLocal()->getBCL(Z)>0 ) {
+			SS[X] = space()->sInd(EField::S,X);
+			SS[Y] = space()->sInd(EField::S,Y);
+			SS[Z] = space()->sInd(EField::S,Z);
+
+			NN[X] = space()->eInd(EField::S,X);
+			NN[Y] = space()->eInd(EField::S,Y);
+			NN[Z] = space()->sInd(EField::S,Z)+depth;
+
+			trans = Teuchos::rcp( new TeuchosTransfer<SpaceT>( space(), SS, NN ) );
+
+			Teuchos::RCP<MatrixT> A = Teuchos::rcp( new MatrixT( trans->getN(), trans->getN(), true ) );
+			Teuchos::RCP<SolverT> Asov = Teuchos::rcp( new SolverT() );
+
+			Teuchos::RCP<VectorT> X = Teuchos::rcp( new VectorT(trans->getN(), false) );
+			Teuchos::RCP<VectorT>	B = Teuchos::rcp( new VectorT(trans->getN(), false) );
+
+			x.exchange(); // ???
+			trans->apply( op_, A );
+			trans->apply( b, B );
+			trans->updateRHS( op_, x, B );
+
+			// set solver and solve
+			Asov->factorWithEquilibration( true );
+			Asov->setMatrix( A );
+			Asov->factor();
+			Asov->setVectors( X, B );
+			Asov->solve();
+
+			trans->apply( X, x, omega);
+			//y.setCornersZero(); // ???
+			x.changed();
+		}
+		if( space()->getBCLocal()->getBCU(Z)>0 ) {
+			SS[X] = space()->sInd(EField::S,X);
+			SS[Y] = space()->sInd(EField::S,Y);
+			SS[Z] = space()->eInd(EField::S,Z)-depth;
+
+			NN[X] = space()->eInd(EField::S,X);
+			NN[Y] = space()->eInd(EField::S,Y);
+			NN[Z] = space()->eInd(EField::S,Z);
+
+			trans = Teuchos::rcp( new TeuchosTransfer<SpaceT>( space(), SS, NN ) );
+
+			Teuchos::RCP<MatrixT> A = Teuchos::rcp( new MatrixT( trans->getN(), trans->getN(), true ) );
+			Teuchos::RCP<SolverT> Asov = Teuchos::rcp( new SolverT() );
+
+			Teuchos::RCP<VectorT> X = Teuchos::rcp( new VectorT(trans->getN(), false) );
+			Teuchos::RCP<VectorT>	B = Teuchos::rcp( new VectorT(trans->getN(), false) );
+
+			x.exchange(); // ???
+			trans->apply( op_, A );
+			trans->apply( b, B );
+			trans->updateRHS( op_, x, B );
+
+			// set solver and solve
+			Asov->factorWithEquilibration( true );
+			Asov->setMatrix( A );
+			Asov->factor();
+			Asov->setVectors( X, B );
+			Asov->solve();
+
+			trans->apply( X, x, omega);
+			//y.setCornersZero(); // ???
+			x.changed();
+		}
 
 	}
 

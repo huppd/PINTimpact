@@ -934,14 +934,23 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Inv ) {
 	for( int dir=1; dir<=6; ++dir ) {
 		x->initField( static_cast<Pimpact::EScalarField>(dir) );
 		x->level();
+		xp->initField( static_cast<Pimpact::EScalarField>(dir) );
+		xp->level();
 
 		op->apply( *x, *b );
 		solver->apply( *b, *xp );
 
 		xp->add( 1., *xp, -1., *x );
+		//xp->level();
 
 		S err2 = xp->norm( Belos::InfNorm )/std::sqrt( static_cast<S>(xp->getLength()) );
 		S errInf = xp->norm( Belos::InfNorm );
+		//if( xp->norm( Belos::InfNorm, false )>=eps ) {
+			//std::cout << "rank: " << space->rankST() << "\te: " << xp->norm( Belos::InfNorm, false ) << "\n";
+			//if( 0==space->rankST() )
+				//xp->print();
+		//}
+
 
 		if( 0==space->rankST() )
 			std::cout << "consistency for " << dir << ": ||" << err2 << "||_2, ||" << errInf << "||_inf\n";
