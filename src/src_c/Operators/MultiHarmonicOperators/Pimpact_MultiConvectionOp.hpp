@@ -130,6 +130,11 @@ public:
 //  }
 
 
+	void computeResidual( const RangeFieldT& b, const DomainFieldT& x, RangeFieldT& res ) const {
+		apply( x, res );
+		res.add( 1., b, -1., res );
+	}
+
 	Teuchos::RCP<const SpaceT> space() const { return(op_->space()); };
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}

@@ -134,25 +134,169 @@ public:
 			Belos::ETrans trans=Belos::NOTRANS ) const {
 
 		x.exchange();
-		OP_DivGradO2Op(
-				space_->dim(),
-				space_->nLoc(),
-				getSR(),
-				getER(),
-				space_->bl(),
-				space_->bu(),
-				space_->getBCLocal()->getBCL(),
-				space_->getBCLocal()->getBCU(),
-				getC(X),
-				getC(Y),
-				getC(Z),
-				x.getConstRawPtr(),
-				y.getRawPtr() );
 
-		//y.setCornersZero();
+		// inner stencil
+		if( 3==space()->dim() )
+			for( Ordinal k=getSR(Z); k<=getER(Z); ++k )
+				for( Ordinal j=getSR(Y); j<=getER(Y); ++j )
+					for( Ordinal i=getSR(X); i<=getER(X); ++i ) {
+						y.at(i,j,k) = innerStenc3D(x, i,j,k);
+					}
+		else
+			for( Ordinal k=getSR(Z); k<=getER(Z); ++k )
+				for( Ordinal j=getSR(Y); j<=getER(Y); ++j )
+					for( Ordinal i=getSR(X); i<=getER(X); ++i ) {
+						y.at(i,j,k) = innerStenc2D(x, i,j,k);
+					}
+
+		// boundary conditions in X
+		if( space_->getBCLocal()->getBCL(X)>0 ) {
+
+			Ordinal i = 1;
+
+			for( Ordinal k=getSR(Z); k<=getER(Z); ++k )
+				for( Ordinal j=getSR(Y); j<=getER(Y); ++j )
+					y.at(i,j,k) = getC(X,i,0)*x.at(i,j,k) + getC(X,i,+1)*x.at(i+1,j,k);
+
+		}
+		if( space_->getBCLocal()->getBCU(X)>0 ) {
+
+			Ordinal i = space_->nLoc(X);
+
+			for( Ordinal k=getSR(Z); k<=getER(Z); ++k )
+				for( Ordinal j=getSR(Y); j<=getER(Y); ++j )
+					y.at(i,j,k) = getC(X,i,-1)*x.at(i-1,j,k) + getC(X,i,0)*x.at(i,j,k);
+
+		}
+
+		// boundary conditions in Y
+		if( space_->getBCLocal()->getBCL(Y)>0 ) {
+
+			Ordinal j = 1;
+
+			for( Ordinal k=getSR(Z); k<=getER(Z); ++k )
+				for( Ordinal i=getSR(X); i<=getER(X); ++i )
+					y.at(i,j,k) = getC(Y,j,0)*x.at(i,j,k) + getC(Y,j,+1)*x.at(i,j+1,k);
+
+		}
+		if( space_->getBCLocal()->getBCU(Y)>0 ) {
+
+			Ordinal j = space_->nLoc(Y);
+
+			for( Ordinal k=getSR(Z); k<=getER(Z); ++k )
+				for( Ordinal i=getSR(X); i<=getER(X); ++i )
+					y.at(i,j,k) = getC(Y,j,-1)*x.at(i,j-1,k) + getC(Y,j,0)*x.at(i,j,k);
+
+		}
+
+		// boundary conditions in Z
+		if( space_->getBCLocal()->getBCL(Z)>0 ) {
+
+			Ordinal k = 1;
+
+			for( Ordinal j=getSR(Y); j<=getER(Y); ++j )
+				for( Ordinal i=getSR(X); i<=getER(X); ++i )
+					y.at(i,j,k) = getC(Z,k,0)*x.at(i,j,k) + getC(Z,k,+1)*x.at(i,j,k+1);
+
+		}
+		if( space_->getBCLocal()->getBCU(Z)>0 ) {
+
+			Ordinal k = space_->nLoc(Z);
+
+			for( Ordinal j=getSR(Y); j<=getER(Y); ++j )
+				for( Ordinal i=getSR(X); i<=getER(X); ++i )
+					y.at(i,j,k) = getC(Z,k,-1)*x.at(i,j,k-1) + getC(Z,k,0)*x.at(i,j,k);
+
+		}
+
+		//y.setCornersZero(); // ???
 
 		y.changed();
 
+	}
+
+	void computeResidual( const RangeFieldT& b, const DomainFieldT& x, RangeFieldT& res ) const {
+
+		x.exchange();
+		// inner stencil
+		if( 3==space()->dim() )
+			for( Ordinal k=getSR(Z); k<=getER(Z); ++k )
+				for( Ordinal j=getSR(Y); j<=getER(Y); ++j )
+					for( Ordinal i=getSR(X); i<=getER(X); ++i ) {
+						res.at(i,j,k) = b.at(i,j,k) - innerStenc3D(x, i,j,k);
+					}
+		else
+			for( Ordinal k=getSR(Z); k<=getER(Z); ++k )
+				for( Ordinal j=getSR(Y); j<=getER(Y); ++j )
+					for( Ordinal i=getSR(X); i<=getER(X); ++i ) {
+						res.at(i,j,k) = b.at(i,j,k) - innerStenc2D(x, i,j,k);
+					}
+
+		// boundary conditions in X
+		if( space_->getBCLocal()->getBCL(X)>0 ) {
+
+			Ordinal i = 1;
+
+			for( Ordinal k=getSR(Z); k<=getER(Z); ++k )
+				for( Ordinal j=getSR(Y); j<=getER(Y); ++j )
+					res.at(i,j,k) = b.at(i,j,k) - getC(X,i,0)*x.at(i,j,k) - getC(X,i,+1)*x.at(i+1,j,k);
+
+		}
+		if( space_->getBCLocal()->getBCU(X)>0 ) {
+
+			Ordinal i = space_->nLoc(X);
+
+			for( Ordinal k=getSR(Z); k<=getER(Z); ++k )
+				for( Ordinal j=getSR(Y); j<=getER(Y); ++j )
+					res.at(i,j,k) = b.at(i,j,k) - getC(X,i,-1)*x.at(i-1,j,k) - getC(X,i,0)*x.at(i,j,k);
+
+		}
+
+		// boundarres.conditions in Y
+		if( space_->getBCLocal()->getBCL(Y)>0 ) {
+
+			Ordinal j = 1;
+
+			for( Ordinal k=getSR(Z); k<=getER(Z); ++k )
+				for( Ordinal i=getSR(X); i<=getER(X); ++i )
+					res.at(i,j,k) = b.at(i,j,k) - getC(Y,j,0)*x.at(i,j,k) - getC(Y,j,+1)*x.at(i,j+1,k);
+
+		}
+		if( space_->getBCLocal()->getBCU(Y)>0 ) {
+
+			Ordinal j = space_->nLoc(Y);
+
+			for( Ordinal k=getSR(Z); k<=getER(Z); ++k )
+				for( Ordinal i=getSR(X); i<=getER(X); ++i )
+					res.at(i,j,k) = b.at(i,j,k) - getC(Y,j,-1)*x.at(i,j-1,k) - getC(Y,j,0)*x.at(i,j,k);
+
+		}
+
+		// boundary conditions in Z
+		if( space_->getBCLocal()->getBCL(Z)>0 ) {
+
+			Ordinal k = 1;
+
+			for( Ordinal j=getSR(Y); j<=getER(Y); ++j )
+				for( Ordinal i=getSR(X); i<=getER(X); ++i )
+					res.at(i,j,k) = b.at(i,j,k) - getC(Z,k,0)*x.at(i,j,k) - getC(Z,k,+1)*x.at(i,j,k+1);
+
+		}
+		if( space_->getBCLocal()->getBCU(Z)>0 ) {
+
+			Ordinal k = space_->nLoc(Z);
+
+			for( Ordinal j=getSR(Y); j<=getER(Y); ++j )
+				for( Ordinal i=getSR(X); i<=getER(X); ++i )
+					res.at(i,j,k) = b.at(i,j,k) - getC(Z,k,-1)*x.at(i,j,k-1) - getC(Z,k,0)*x.at(i,j,k);
+
+		}
+
+		//res.setCornersZero(); // ???
+
+		res.changed();
+		//apply( x, res );
+		//res.add( 1., b, -1., res );
 	}
 
   void assignField ( const DomainFieldT& mv ) const {};
@@ -170,7 +314,7 @@ public:
 		out << " er: " << ER_ << "\n";
     for( int dir=0; dir<3; ++dir ) {
       out << "\ndir: " << dir << "\n";
-      for( int i=1; i<space_->nLoc(dir); ++i ) {
+      for( int i=1; i<=space_->nLoc(dir); ++i ) {
         out << "\ni: " << i << "\t(";
         for( int k=-1; k<=1; ++k ) {
 					out << getC(dir,i,k) << "\t" ;
@@ -180,6 +324,48 @@ public:
       out << "\n";
     }
   }
+
+  void print2Mat(  ) const {
+
+    for( int dir=0; dir<3; ++dir ) {
+			std::string fn = "A_" + toString( static_cast<ECoord>(dir) ) + "_" + std::to_string(space_->nLoc(dir)) + ".txt";
+
+			Teuchos::RCP<std::ostream> out = Pimpact::createOstream( fn );
+      for( int i=1; i<=space_->nLoc(dir); ++i ) {
+        for( int k=-1; k<=1; ++k ) {
+					*out << getC(dir,i,k) << "\t" ;
+        }
+        *out << "\n";
+      }
+    }
+  }
+
+protected:
+
+	Scalar innerStenc3D( const DomainFieldT& x, const Ordinal& i, const Ordinal& j,
+			const Ordinal& k ) const {
+
+		return( 
+				getC(X,i,-1)*x.at(i-1,j  ,k  ) + getC(X,i,1)*x.at(i+1,j  ,k  ) +
+				getC(Y,j,-1)*x.at(i  ,j-1,k  ) + getC(Y,j,1)*x.at(i  ,j+1,k  ) +
+				getC(Z,k,-1)*x.at(i  ,j  ,k-1) + getC(Z,k,1)*x.at(i  ,j  ,k+1) +
+				( getC(X,i,0) + getC(Y,j,0) + getC(Z,k,0) )*x.at(i,j,k)
+				);
+	}
+
+	Scalar innerStenc2D( const DomainFieldT& x, const Ordinal& i, const Ordinal& j,
+			const Ordinal& k ) const {
+
+		return( 
+				getC(X,i,-1)*x.at(i-1,j  ,k  ) + getC(X,i,1)*x.at(i+1,j  ,k  ) +
+				getC(Y,j,-1)*x.at(i  ,j-1,k  ) + getC(Y,j,1)*x.at(i  ,j+1,k  ) +
+				( getC(X,i,0) + getC(Y,j,0) )*x.at(i,j,k)
+				);
+	}
+
+
+
+public:
 
 	/// \name getters
 	/// @{ 

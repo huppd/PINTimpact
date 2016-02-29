@@ -55,9 +55,24 @@ int nIter = 1000;
 //int nx = 19;
 //int ny = 17;
 //int nz = 13;
-int nx = 65;
-int ny = 65;
-int nz = 65;
+//int nx = 257;
+int ny = 257;
+//int nz = 257;
+//int nx = 129;
+//int ny = 129;
+//int nz = 129;
+//int nx = 65;
+//int ny = 65;
+//int nz = 65;
+//int nx = 33;
+//int ny = 33;
+//int nz = 33;
+//int nx = 17;
+//int ny = 17;
+//int nz = 17;
+int nx = 9;
+//int ny = 9;
+int nz = 9;
 int nf = 1;
 
 int npx = 1;
@@ -105,6 +120,8 @@ TEUCHOS_STATIC_SETUP() {
 	pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
 	pl->sublist("Stretching in X").set<S>( "N metr L", nx/2 );
 	pl->sublist("Stretching in X").set<S>( "N metr U", nx/2 );
+	//pl->sublist("Stretching in X").set<S>( "N metr L", nx );
+	//pl->sublist("Stretching in X").set<S>( "N metr U", nx );
 	//pl->sublist("Stretching in X").set<S>( "x0 L", 0.05 );
 	//pl->sublist("Stretching in X").set<S>( "x0 U", 0. );
 
@@ -924,6 +941,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Inv ) {
 
 
   auto op = Pimpact::create<Pimpact::DivGradO2Op>( space );
+
+	op->print2Mat();
 
   auto ppl = Teuchos::parameterList();
 

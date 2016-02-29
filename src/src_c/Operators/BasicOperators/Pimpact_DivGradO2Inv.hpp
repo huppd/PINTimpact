@@ -3,6 +3,7 @@
 #define PIMPACT_DIVGRADO2INV_HPP
 
 
+#include "Teuchos_LAPACK.hpp"
 #include "Teuchos_RCP.hpp"
 #include "Teuchos_SerialDenseMatrix.hpp"
 #include "Teuchos_SerialDenseSolver.hpp"
@@ -67,6 +68,67 @@ protected:
 		B_ = Teuchos::rcp( new VectorT(N_,false) );
 
 		trans_->apply( op_, A_ );
+		//{
+			//Teuchos::RCP<std::ostream> out =
+				//Pimpact::createOstream(
+						//"A_"+std::to_string(space()->nGlo(X))+
+						//"_" +std::to_string(space()->nGlo(Y))+
+						//"_" +std::to_string(space()->nGlo(Z))+".txt" );
+			//*out << *A_ ;
+		//}
+
+		/// compute EV, \todo move to TeuchosBla
+		//Ordinal sdim = 0;
+		//Teuchos::RCP< VectorT > evr = Teuchos::rcp( new VectorT(N_,false) );
+		//Teuchos::RCP< VectorT > evi = Teuchos::rcp( new VectorT(N_,false) );
+		//Teuchos::RCP< VectorT > work = Teuchos::rcp( new VectorT(4*N_,false) );
+		//Teuchos::RCP< VectorT > rwork = Teuchos::rcp( new VectorT(3*N_,false) );
+
+		//Teuchos::ArrayRCP<Ordinal> bwork = Teuchos::arcp<Ordinal>( N_ );
+		//Ordinal info = 0;
+
+		//Teuchos::LAPACK<Ordinal,Scalar> lapack;
+		//lapack.GEES(
+				//'N', 						// Schur vectors are not computed
+				//trans_->getN(), // The order of the matrix A. N >= 0
+				//A_->values(),   // A is DOUBLE PRECISION array, dimension (LDA,N); On entry, the N-by-N matrix A.; On exit, A has been overwritten by its real Schur form T.;
+				//A_->stride(),   // The leading dimension of the array A.
+				//&sdim,           // If SORT = 'N', SDIM = 0.; If SORT = 'S', SDIM = number of eigenvalues (after sorting); for which SELECT is true. (Complex conjugate pairs for which SELECT is true for either eigenvalue count as 2.)
+				//evr->values(),  // 
+				//evi->values(),
+				//0,              // If JOBVS = 'N', VS is not referenced.
+				//1,              // The leading dimension of the array VS.
+				//work->values(), // 
+				//4*N_,           //
+				////-1,           //
+				//rwork->values(), //
+				//bwork.getRawPtr(),
+				//&info );
+
+		//std::cout << "info: " << info << "\n";
+		////std::cout << "opti work: " << (*work)[0]/N_ << "\n";
+
+		//Teuchos::RCP<std::ostream> out = Pimpact::createOstream( "ev.txt" );
+		//for( Ordinal i=0; i<N_; ++i )
+			//*out << (*evr)[i] << "\t" << (*evi)[i] << "\n";
+
+			/*
+			 * = 0: successful exit
+       *    < 0: if INFO = -i, the i-th argument had an illegal value.
+       *    > 0: if INFO = i, and i is
+       *       <= N: the QR algorithm failed to compute all the
+       *             eigenvalues; elements 1:ILO-1 and i+1:N of WR and WI
+       *             contain those eigenvalues which have converged; if
+       *             JOBVS = 'V', VS contains the matrix which reduces A
+       *             to its partially converged Schur form.
+       *       = N+1: the eigenvalues could not be reordered because some
+       *             eigenvalues were too close to separate (the problem
+       *             is very ill-conditioned);
+       *       = N+2: after reordering, roundoff changed values of some
+       *             complex eigenvalues so that leading eigenvalues in
+       *             the Schur form no longer satisfy SELECT=.TRUE.  This
+       *             could also be caused by underflow due to scaling.
+			 */
 
 		// set solver
 		Asov_->factorWithEquilibration( true );

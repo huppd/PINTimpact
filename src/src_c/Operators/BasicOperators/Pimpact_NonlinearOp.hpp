@@ -72,6 +72,10 @@ public:
   /// \deprecated
   void apply(const DomainFieldT& z, const DomainFieldT& x, RangeFieldT& y, Scalar mul=0. ) const { std::cout << "!!!depcreated!!!\n"; };
 
+	void computeResidual( const RangeFieldT& b, const DomainFieldT& x, RangeFieldT& res ) const {
+		apply( x, res );
+		res.add( 1., b, -1., res );
+	}
 
   Teuchos::RCP<const SpaceT> space() const {
     return( convVWrap_->space() );

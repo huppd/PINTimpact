@@ -132,8 +132,7 @@ public:
 
 			if( defectCorrection_ && !initZero_ ) {
 				// defect correction rhs \hat{f}= b = x - L y
-				mgOps_->get()->apply( y, *b_->get() );
-				b_->get()->add( 1., x, -1., *b_->get() );
+				mgOps_->get()->computeResidual( x, y, *b_->get() );
 
 				// transfer init y and \hat{f} to coarsest coarse
 				mgTrans_->getTransferOp()->apply( y, *x_->get(0) );
@@ -160,8 +159,7 @@ public:
 
 				if( mgSpaces_->participating(i) ) {
 					mgSms_->get(i)->apply( *b_->get(i), *x_->get(i) );
-					mgOps_->get(i)->apply( *x_->get(i), *temp_->get(i) );
-					temp_->get(i)->add( -1., *temp_->get(i), 1., *b_->get(i) );
+					mgOps_->get(i)->computeResidual( *b_->get(i), *x_->get(i), *temp_->get(i) );
 					mgTrans_->getRestrictionOp(i)->apply( *temp_->get(i), *b_->get(i+1) );
 				}
 			}

@@ -182,6 +182,11 @@ public:
 	}
 
 
+	void computeResidual( const RangeFieldT& b, const DomainFieldT& x, RangeFieldT& res ) const {
+		apply( x, res );
+		res.add( 1., b, -1., res );
+	}
+
 	void assignField( const DomainFieldT& cmv ) {
 
 		Ordinal nt = space()->nLoc(3) + space()->bu(3) - space()->bl(3);
