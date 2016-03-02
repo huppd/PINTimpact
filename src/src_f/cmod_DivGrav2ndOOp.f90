@@ -574,6 +574,7 @@ contains
   !!   der Interpolation verwendet (ebenfalls zur Vereinfachung der
   !!   Programmierung) und ist somit ohnehin vorhanden.
   !!   Geschwindigkeitsmässig ist vermutlich auch nicht mehr viel zu holen.
+  !! \deprecated
   subroutine OP_DivGradO2JBCSmoother( &
       N,                              &
       bL,                             &

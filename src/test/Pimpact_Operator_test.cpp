@@ -56,7 +56,7 @@ int nIter = 1000;
 //int ny = 17;
 //int nz = 13;
 //int nx = 257;
-int ny = 257;
+//int ny = 257;
 //int nz = 257;
 //int nx = 129;
 //int ny = 129;
@@ -64,15 +64,15 @@ int ny = 257;
 //int nx = 65;
 //int ny = 65;
 //int nz = 65;
-//int nx = 33;
-//int ny = 33;
-//int nz = 33;
+int nx = 33;
+int ny = 33;
+int nz = 33;
 //int nx = 17;
 //int ny = 17;
 //int nz = 17;
-int nx = 9;
+//int nx = 9;
 //int ny = 9;
-int nz = 9;
+//int nz = 9;
 int nf = 1;
 
 int npx = 1;
@@ -117,9 +117,9 @@ TEUCHOS_STATIC_SETUP() {
 	clp.setOption( "npz", &npz, "" );
 	clp.setOption( "npf", &npf, "" );
 
-	pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
-	pl->sublist("Stretching in X").set<S>( "N metr L", nx/2 );
-	pl->sublist("Stretching in X").set<S>( "N metr U", nx/2 );
+	//pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+	//pl->sublist("Stretching in X").set<S>( "N metr L", nx/2 );
+	//pl->sublist("Stretching in X").set<S>( "N metr U", nx/2 );
 	//pl->sublist("Stretching in X").set<S>( "N metr L", nx );
 	//pl->sublist("Stretching in X").set<S>( "N metr U", nx );
 	//pl->sublist("Stretching in X").set<S>( "x0 L", 0.05 );
@@ -901,11 +901,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
 
 }
 
-using JT = Pimpact::DivGradO2JSmoother<Pimpact::DivGradO2Op<SpaceT> >;
-using SORT = Pimpact::DivGradO2SORSmoother<Pimpact::DivGradO2Op<SpaceT> >;
+using JT = Pimpact::DivGradO2JSmoother< Pimpact::DivGradO2Op<SpaceT> >;
+using SORT = Pimpact::DivGradO2SORSmoother< Pimpact::DivGradO2Op<SpaceT> >;
+using CheT = Pimpact::Chebyshev< Pimpact::DivGradO2Op<SpaceT> >;
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( BasicOperator, DivGradO2Smoother, JT )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( BasicOperator, DivGradO2Smoother, SORT )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( BasicOperator, DivGradO2Smoother, CheT )
 
 
 
