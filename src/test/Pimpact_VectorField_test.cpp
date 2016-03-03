@@ -16,11 +16,15 @@
 namespace {
 
 
-bool testMpi = true;
-double eps = 1e-6;
-
 int dim = 3;
 int domain = 0;
+
+using ST = double;
+using OT = int;
+
+bool testMpi = true;
+ST eps = 1e-6;
+
 
 auto pl = Teuchos::parameterList();
 
@@ -81,7 +85,7 @@ TEUCHOS_UNIT_TEST( VectorField, InfNorm_and_initvec2d ) {
 
 	auto vel = Pimpact::create<Pimpact::VectorField>( space );
 
-	double norm;
+	ST norm;
 
 
 	auto alpha0 = Teuchos::tuple( 1., 0., 0. );
@@ -108,7 +112,7 @@ TEUCHOS_UNIT_TEST( VectorField, initField ) {
 	pl->set( "dim", dim );
 	pl->set( "domain", domain );
 
-	pl->set<double>( "Re", 400. );
+	pl->set<ST>( "Re", 400. );
 
 	// processor grid size
 	pl->set("npx", (2==dim)?4:2 );
@@ -133,23 +137,23 @@ TEUCHOS_UNIT_TEST( VectorField, initField ) {
 	//pl->set("nz", 7 );
 
 	pl->sublist( "Stretching in X" ).set<std::string>("Stretch Type", "cos");
-	pl->sublist( "Stretching in X" ).set<double>( "N metr L", pl->get<int>("nx") );
-	pl->sublist( "Stretching in X" ).set<double>( "N metr U", pl->get<int>("nx") );
-	pl->sublist( "Stretching in X" ).set<double>( "x0 L", 0.05 );
-	pl->sublist( "Stretching in X" ).set<double>( "x0 U", 0. );
+	pl->sublist( "Stretching in X" ).set<ST>( "N metr L", pl->get<OT>("nx") );
+	pl->sublist( "Stretching in X" ).set<ST>( "N metr U", pl->get<OT>("nx") );
+	pl->sublist( "Stretching in X" ).set<ST>( "x0 L", 0.05 );
+	pl->sublist( "Stretching in X" ).set<ST>( "x0 U", 0. );
 
 	pl->sublist( "Stretching in Y" ).set<std::string>("Stretch Type", "cos");
-	pl->sublist( "Stretching in Y" ).set<double>( "N metr L", 1. );
-	//pl->sublist( "Stretching in Y" ).set<double>( "N metr L", pl->get<int>("ny") );
-	pl->sublist( "Stretching in Y" ).set<double>( "N metr U", pl->get<int>("ny") );
-	pl->sublist( "Stretching in Y" ).set<double>( "x0 L", 0. );
-	pl->sublist( "Stretching in Y" ).set<double>( "x0 U", 0. );
+	pl->sublist( "Stretching in Y" ).set<ST>( "N metr L", 1. );
+	//pl->sublist( "Stretching in Y" ).set<ST>( "N metr L", pl->get<OT>("ny") );
+	pl->sublist( "Stretching in Y" ).set<ST>( "N metr U", pl->get<OT>("ny") );
+	pl->sublist( "Stretching in Y" ).set<ST>( "x0 L", 0. );
+	pl->sublist( "Stretching in Y" ).set<ST>( "x0 U", 0. );
 
 	pl->sublist( "Stretching in Z" ).set<std::string>("Stretch Type", "cos");
-	pl->sublist( "Stretching in Z" ).set<double>( "N metr L", 1. );
-	pl->sublist( "Stretching in Z" ).set<double>( "N metr U", pl->get<int>("nz") );
-	pl->sublist( "Stretching in Z" ).set<double>( "x0 L", 0. );
-	pl->sublist( "Stretching in Z" ).set<double>( "x0 U", 0. );
+	pl->sublist( "Stretching in Z" ).set<ST>( "N metr L", 1. );
+	pl->sublist( "Stretching in Z" ).set<ST>( "N metr U", pl->get<OT>("nz") );
+	pl->sublist( "Stretching in Z" ).set<ST>( "x0 L", 0. );
+	pl->sublist( "Stretching in Z" ).set<ST>( "x0 U", 0. );
 
 
 	auto space = Pimpact::createSpace( pl );

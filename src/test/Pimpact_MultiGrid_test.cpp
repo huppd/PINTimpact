@@ -18,22 +18,22 @@ namespace {
 
 
 
-using S = double;
-using O = int;
+using ST = double;
+using OT = int;
 
 const int dimension = 4;
 
-using FSpace3T = Pimpact::Space<S,O,dimension,4>;
-using CSpace3T = Pimpact::Space<S,O,dimension,2>;
+using FSpace3T = Pimpact::Space<ST,OT,dimension,4>;
+using CSpace3T = Pimpact::Space<ST,OT,dimension,2>;
 
 using CS3L = Pimpact::CoarsenStrategy<FSpace3T,CSpace3T>;
 using CS3G = Pimpact::CoarsenStrategyGlobal<FSpace3T,CSpace3T>;
 
-template<class ST> using BSF = Pimpact::MultiField< Pimpact::ScalarField<ST> >;
+template<class T> using BSF = Pimpact::MultiField< Pimpact::ScalarField<T> >;
 
-template<class ST> using BOPF = Pimpact::MultiOpWrap< Pimpact::DivGradOp<ST> >;
-template<class ST> using BOPC = Pimpact::MultiOpWrap< Pimpact::DivGradO2Op<ST> >;
-template<class ST> using BSM = Pimpact::MultiOpWrap< Pimpact::DivGradO2JSmoother<ST> >;
+template<class T> using BOPF = Pimpact::MultiOpWrap< Pimpact::DivGradOp<T> >;
+template<class T> using BOPC = Pimpact::MultiOpWrap< Pimpact::DivGradO2Op<T> >;
+template<class T> using BSM = Pimpact::MultiOpWrap< Pimpact::DivGradO2JSmoother<T> >;
 
 template<class T> using ConvDiffOpT = Pimpact::NonlinearOp<Pimpact::ConvectionDiffusionSOp<T> >;
 
@@ -58,19 +58,19 @@ int fe = 4;
 
 int level = -1;
 
-S lx = 30.;
-S ly = 20.;
-S lz = 20.;
+ST lx = 30.;
+ST ly = 20.;
+ST lz = 20.;
 
 int npx = 1;
 int npy = 1;
 int npz = 1;
 int npf = 1;
 
-O nx = 65;
-O ny = 49;
-O nz = 97;
-O nf = 1;
+OT nx = 65;
+OT ny = 49;
+OT nz = 97;
+OT nf = 1;
 
 int rankbla = -1;
 
@@ -124,35 +124,35 @@ TEUCHOS_STATIC_SETUP() {
 	ny=33;
 	nz=33;
 	////pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "para" );
-	////pl->sublist("Stretching in X").set<S>( "alpha", 0.25 );
+	////pl->sublist("Stretching in X").set<ST>( "alpha", 0.25 );
 
 	//pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
-	//pl->sublist("Stretching in X").set<S>( "N metr L", nx/2 );
-	//pl->sublist("Stretching in X").set<S>( "N metr U", nx/2 );
-	////pl->sublist("Stretching in X").set<S>( "x0 L", 0.05 );
-	////pl->sublist("Stretching in X").set<S>( "x0 L", 1. );
-	////pl->sublist("Stretching in X").set<S>( "x0 U", 0. );
+	//pl->sublist("Stretching in X").set<ST>( "N metr L", nx/2 );
+	//pl->sublist("Stretching in X").set<ST>( "N metr U", nx/2 );
+	////pl->sublist("Stretching in X").set<ST>( "x0 L", 0.05 );
+	////pl->sublist("Stretching in X").set<ST>( "x0 L", 1. );
+	////pl->sublist("Stretching in X").set<ST>( "x0 U", 0. );
 
 	//pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
-	//pl->sublist("Stretching in Y").set<S>( "N metr L", nx/2 );
-	//pl->sublist("Stretching in Y").set<S>( "N metr U", nx/2 );
+	//pl->sublist("Stretching in Y").set<ST>( "N metr L", nx/2 );
+	//pl->sublist("Stretching in Y").set<ST>( "N metr U", nx/2 );
 
 	//pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
-	//pl->sublist("Stretching in Y").set<S>( "N metr L", nx/2 );
-	//pl->sublist("Stretching in Y").set<S>( "N metr U", nx/2 );
+	//pl->sublist("Stretching in Y").set<ST>( "N metr L", nx/2 );
+	//pl->sublist("Stretching in Y").set<ST>( "N metr U", nx/2 );
 	//////pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
-	//////pl->sublist("Stretching in Y").set<S>( "N metr L", 1 );
-	//////pl->sublist("Stretching in Y").set<S>( "N metr U", ny  );
-	//////pl->sublist("Stretching in Y").set<S>( "x0 L", 0. );
-	//////pl->sublist("Stretching in Y").set<S>( "x0 U", 0. );
+	//////pl->sublist("Stretching in Y").set<ST>( "N metr L", 1 );
+	//////pl->sublist("Stretching in Y").set<ST>( "N metr U", ny  );
+	//////pl->sublist("Stretching in Y").set<ST>( "x0 L", 0. );
+	//////pl->sublist("Stretching in Y").set<ST>( "x0 U", 0. );
 
 	//////pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
-	//////pl->sublist("Stretching in Z").set<S>( "N metr L", 1 );
-	//////pl->sublist("Stretching in Z").set<S>( "N metr U", nz  );
-	//////pl->sublist("Stretching in Z").set<S>( "x0 L", 0. );
-	//////pl->sublist("Stretching in Z").set<S>( "x0 U", 0. );
+	//////pl->sublist("Stretching in Z").set<ST>( "N metr L", 1 );
+	//////pl->sublist("Stretching in Z").set<ST>( "N metr U", nz  );
+	//////pl->sublist("Stretching in Z").set<ST>( "x0 L", 0. );
+	//////pl->sublist("Stretching in Z").set<ST>( "x0 U", 0. );
 
-	pl->set<S>( "Re", 400 );
+	pl->set<ST>( "Re", 400 );
 
 }
 
@@ -179,7 +179,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSpaces, constructor3D, CS ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-	auto space = Pimpact::createSpace<S,O,dimension,4>( pl );
+	auto space = Pimpact::createSpace<ST,OT,dimension,4>( pl );
 
 	int rank = space->rankST();
 	space->print();
@@ -229,7 +229,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGFields, SF_constructor3D, CS ) {
 	pl->set( "npz", npz );
 	pl->set( "npf", npf );
 
-	auto space = Pimpact::createSpace<S,O,dimension,4>( pl );
+	auto space = Pimpact::createSpace<ST,OT,dimension,4>( pl );
 
 	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
 	std::cout << "nGridLevels: " << mgSpaces->getNGrids() << "\n";
@@ -275,7 +275,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGFields, VF_constructor3D, CS ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-	auto space = Pimpact::createSpace<S,O,dimension,4>( pl );
+	auto space = Pimpact::createSpace<ST,OT,dimension,4>( pl );
 
 	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
 	std::cout << "nGridLevels: " << mgSpaces->getNGrids() << "\n";
@@ -321,7 +321,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGOperators, SF_constructor3D, CS ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-	auto space = Pimpact::createSpace<S,O,dimension,4>( pl );
+	auto space = Pimpact::createSpace<ST,OT,dimension,4>( pl );
 
 	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
 
@@ -366,7 +366,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGOperators, VF_constructor3D, CS ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-	auto space = Pimpact::createSpace<S,O,dimension,4>( pl );
+	auto space = Pimpact::createSpace<ST,OT,dimension,4>( pl );
 
 	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
 
@@ -407,7 +407,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSmoothers, SF_constructor3D, CS ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-	auto space = Pimpact::createSpace<S,O,dimension,4>( pl );
+	auto space = Pimpact::createSpace<ST,OT,dimension,4>( pl );
 
 	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
 
@@ -449,7 +449,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSmoothers, VF_constructor3D, CS ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-	auto space = Pimpact::createSpace<S,O,dimension,4>( pl );
+	auto space = Pimpact::createSpace<ST,OT,dimension,4>( pl );
 
 	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
 
@@ -491,7 +491,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Restrictor, CS ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-	auto space = Pimpact::createSpace<S,O,dimension,4>( pl );
+	auto space = Pimpact::createSpace<ST,OT,dimension,4>( pl );
 
 	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
 
@@ -560,7 +560,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Restrictor, CS ) {
 			if( mgSpaces->participating(level) ) {
 
 				er->add( 1., *sol, -1., *fieldc );
-				S errInf = er->norm(Belos::InfNorm);
+				ST errInf = er->norm(Belos::InfNorm);
 				if( 0==space->rankST() )
 					std::cout << "error Const: " << errInf << " ("<< op->getDD() << ")\n";
 				//if( i>0 )
@@ -626,8 +626,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator, CS ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-	Teuchos::RCP<const Pimpact::Space<S,O,dimension,4> > space =
-		Pimpact::createSpace<S,O,dimension,4>( pl );
+	Teuchos::RCP<const Pimpact::Space<ST,OT,dimension,4> > space =
+		Pimpact::createSpace<ST,OT,dimension,4>( pl );
 
 	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
 
@@ -704,7 +704,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator, CS ) {
 
 			er->add( 1., *sol, -1., *fieldf );
 			if( mgSpaces->participating(level) ) {
-				S errInf = er->norm( Belos::InfNorm );
+				ST errInf = er->norm( Belos::InfNorm );
 				if( 0==space->rankST() )
 					std::cout << "error Const: " << errInf << "\n";
 				TEST_EQUALITY( errInf < eps, true  );
@@ -732,7 +732,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator, CS ) {
 
 					er->add( 1., *sol, -1., *fieldf );
 
-					S errInf = er->norm( Belos::InfNorm );
+					ST errInf = er->norm( Belos::InfNorm );
 					if( 0==space->rankST() )
 						std::cout << "error (" << Pimpact::toString(type) << "): " << errInf << "\n";
 					TEST_EQUALITY( errInf<eps, true  );
@@ -777,7 +777,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-	auto space = Pimpact::createSpace<S,O,dimension,4>( pl );
+	auto space = Pimpact::createSpace<ST,OT,dimension,4>( pl );
 
 	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
 
@@ -790,7 +790,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 	auto fieldf = x->get();
 	auto fieldc = x->get(-1);
 
-	S errInf = 0.;
+	ST errInf = 0.;
 
 	// interpolation 
 	{
@@ -983,7 +983,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersVF, CS ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-	auto space = Pimpact::createSpace<S,O,dimension,4>( pl );
+	auto space = Pimpact::createSpace<ST,OT,dimension,4>( pl );
 
 	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
 
@@ -1035,7 +1035,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersVF, CS ) {
 		er->add( 1., *sol, -1., *fieldf );
 
 		if( mgSpaces->participating(0) ) {
-			S rel_error = er->norm( Belos::InfNorm );
+			ST rel_error = er->norm( Belos::InfNorm );
 			if( 0==space->rankST() )
 				std::cout << "\nint. error Const: " << rel_error << "\n";
 			TEST_EQUALITY( rel_error < eps, true  );
@@ -1115,7 +1115,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersVF, CS ) {
 			er->add( 1., *sol, -1., *fieldf );
 
 			if( mgSpaces->participating(0) ) {
-				S rel_error = er->norm( Belos::InfNorm );
+				ST rel_error = er->norm( Belos::InfNorm );
 				if( 0==space->rankST() )
 					std::cout << "interpolation error (" << Pimpact::toString(type) << "): " << rel_error << "\n";
 				TEST_EQUALITY( rel_error<eps, true  );
@@ -1167,7 +1167,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersVF, CS ) {
 
 		er->add( 1., *sol, -1., *fieldc );
 		if( mgSpaces->participating(-1) ) {
-			S rel_error = er->norm()/std::sqrt( (S)er->getLength() );
+			ST rel_error = er->norm()/std::sqrt( (ST)er->getLength() );
 			if( 0==space->rankST() )
 				std::cout << "res. error Const: " << rel_error << "\n";
 			TEST_EQUALITY( rel_error<eps, true  );
@@ -1194,7 +1194,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersVF, CS ) {
 
 			er->add( 1., *sol, -1., *fieldc );
 			if( mgSpaces->participating(-1) ) {
-				S rel_error = er->norm()/std::sqrt( (S)er->getLength() );
+				ST rel_error = er->norm()/std::sqrt( (ST)er->getLength() );
 				if( 0==space->rankST() )
 					std::cout << "restriction grad  error (" << Pimpact::toString(type) << "): " << rel_error << "\n";
 				TEST_EQUALITY( rel_error<eps, true  );
@@ -1243,8 +1243,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 	pl->set( "npz", npz );
 	pl->set( "npf", npf );
 
-	Teuchos::RCP<const Pimpact::Space<S,O,dimension,4> > space =
-		Pimpact::createSpace<S,O,dimension,4>( pl );
+	Teuchos::RCP<const Pimpact::Space<ST,OT,dimension,4> > space =
+		Pimpact::createSpace<ST,OT,dimension,4>( pl );
 
 	int nMax = 10;
 
@@ -1259,16 +1259,25 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 	}
 
 	auto mgPL = Teuchos::parameterList();
+	// MG
 	mgPL->set<int>( "numCycles", 1 );
 	mgPL->set<bool>( "defect correction", false );
 	//mgPL->set<bool>( "defect correction", true );
 	mgPL->set<bool>( "init zero", false );
 
+	// Smoother: Jacobian
 	//mgPL->sublist("Smoother").set( "omega", 1. );
 	mgPL->sublist("Smoother").set<int>( "numIters", 4 );
-	mgPL->sublist("Smoother").set<int>( "RBGS mode", 2 );
-	//mgPL->sublist("Smoother").set<bool>( "level", false );
+	mgPL->sublist("Smoother").set<int>( "BC smoothing", 1 );
+	mgPL->sublist("Smoother").set<OT>( "depth", 2 );
 
+
+	// Smoother: GS
+	//mgPL->sublist("Smoother").set<int>( "RBGS mode", 2 );
+
+	// Smoother: Chebyshev
+	mgPL->sublist("Smoother").set<int>( "numIters", 12 );
+	
 	auto mg =
 		Pimpact::createMultiGrid<
 			Pimpact::ScalarField,
@@ -1278,7 +1287,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 			Pimpact::DivGradOp,
 			Pimpact::DivGradO2Op,
 			//Pimpact::DivGradO2JSmoother,
-			Pimpact::DivGradO2SORSmoother,
+			//Pimpact::DivGradO2SORSmoother,
+			Pimpact::Chebyshev,
 			Pimpact::DivGradO2Inv >( mgSpaces, mgPL );
 
 	auto x = Pimpact::create<Pimpact::ScalarField>( space );
@@ -1329,12 +1339,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 	x->random();
 	x->setCornersZero();
 	
-	S error0 = x->norm();
-	S errorp = error0;
+	ST error0 = x->norm();
+	ST errorp = error0;
 
 	opO2->apply( *x, *res );
-	S res0 = res->norm();
-	S resP = res0;
+	ST res0 = res->norm();
+	ST resP = res0;
 
 	if( space()->rankST()==0 ) {
 		std::cout << "\n\n\t\t\t--- zero rhs test ---\n";
@@ -1347,10 +1357,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 		mg->apply( *b, *x );
 		x->level();
 
-		S error = x->norm();
+		ST error = x->norm();
 
 		opO2->apply( *x, *res );
-		S residual = res->norm();
+		ST residual = res->norm();
 
 		if( space()->rankST()==0 )
 			std::cout << "\t" << residual/res0 << "\t" << residual/resP << "\t\t" << error/error0 << "\t" <<  error/errorp << "\n";
@@ -1364,7 +1374,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 	
 	//x->print();
 	x->write();
-	TEST_EQUALITY( x->norm()/std::sqrt( static_cast<S>(x->getLength()) )<1.e-3, true );
+	TEST_EQUALITY( x->norm()/std::sqrt( static_cast<ST>(x->getLength()) )<1.e-3, true );
 	
 	bm->init( 0. );
 	xm->random();
@@ -1387,14 +1397,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 		// residual
 		opO2->apply( *x, *res );
 		res->add( -1, *b, 1., *res );
-		S res0 = res->norm();
-		S resP = res0;
+		ST res0 = res->norm();
+		ST resP = res0;
 		//error
 		res->add( 1., *sol, -1., *x );
-		S err0 = res->norm();
-		S errP = err0;
-		//S err0 = 1.;
-		//S errP =1.;
+		ST err0 = res->norm();
+		ST errP = err0;
+		//ST err0 = 1.;
+		//ST errP =1.;
 
 		if( space()->rankST()==0 ) {
 			std::cout << "\n\n\t\t\t--- " << Pimpact::toString(type) << " test ---\n";
@@ -1407,16 +1417,16 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 
 			opO2->apply( *x, *res );
 			res->add( -1, *b, 1., *res );
-			S residual = res->norm();
+			ST residual = res->norm();
 			res->add( 1., *sol, -1., *x );
-			S err = res->norm();
+			ST err = res->norm();
 
 			if( space()->rankST()==0 )
 				std::cout << "\t" << residual/res0 << "\t" <<  residual/resP << "\t\t" << err/err0 << "\t" <<  err/errP  << "\n";
 			resP = residual;
 			errP = err;
 		}
-		TEST_EQUALITY( res->norm()/std::sqrt( static_cast<S>( res->getLength() ) )<1.e-3, true );
+		TEST_EQUALITY( res->norm()/std::sqrt( static_cast<ST>( res->getLength() ) )<1.e-3, true );
 
 		//bm->get( 0 )-init( 0. );
 		xm->init( 0. );
@@ -1452,13 +1462,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffSOR, CS ) {
 	pl->set( "npz", npz );
 	pl->set( "npf", npf );
 
-	auto space = Pimpact::createSpace<S,O,dimension,4>( pl );
+	auto space = Pimpact::createSpace<ST,OT,dimension,4>( pl );
 
 	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
 
 	auto mgPL = Teuchos::parameterList();
 	mgPL->set<int>("numCycles", 1);
-	mgPL->sublist("Smoother").set( "omega", 1. );
+	mgPL->sublist("Smoother").set<ST>( "omega", 1. );
 	mgPL->sublist("Smoother").set( "numIters", 2 );
 	mgPL->sublist("Smoother").set( "Ordering", 1 );
 	mgPL->sublist("Smoother").set<short int>( "dir X", -1 );
@@ -1473,7 +1483,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffSOR, CS ) {
 //			Belos::OrthoDetails + Belos::FinalSummary + Belos::TimingDetails +
 //			Belos::StatusTestDetails + Belos::Debug );
 	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<std::string>("Timer Label", "Coarse Grid Solver" );
-	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<S>("Convergence Tolerance"
+	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<ST>("Convergence Tolerance"
 			, 0.1 );
 
 	auto mg =
@@ -1525,9 +1535,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffSOR, CS ) {
 	//x->random();
 
 	temp->add( -1, *x, 1., *sol );
-	S res = temp->norm();
-	S res_0 = res;
-	S res_p = res;
+	ST res = temp->norm();
+	ST res_0 = res;
+	ST res_p = res;
 
 	if( space()->rankST()==0 ) {
 		std::cout << "\n\n\tresidual:\trate: \n";
@@ -1540,7 +1550,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffSOR, CS ) {
 		//x->write(i+10);
 
 		temp->add( -1, *x, 1., *sol );
-		S res = temp->norm();
+		ST res = temp->norm();
 
 		if( space()->rankST()==0 ) {
 			std::cout << "\t" << res/res_0 << "\t" <<  res/res_p << "\n";
@@ -1577,7 +1587,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffJ, CS ) {
 	pl->set( "ly", ly );
 	pl->set( "lz", lz );
 
-	pl->set<S>("Re", 100. );
+	pl->set<ST>("Re", 100. );
 
 	//  grid size
 	pl->set("nx", nx );
@@ -1591,8 +1601,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffJ, CS ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-	//auto space = Pimpact::createSpace<S,O,3,2>( pl );
-	auto space = Pimpact::createSpace<S,O,dimension,4>( pl );
+	//auto space = Pimpact::createSpace<ST,OT,3,2>( pl );
+	auto space = Pimpact::createSpace<ST,OT,dimension,4>( pl );
 
 	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
 
@@ -1609,7 +1619,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffJ, CS ) {
 //			Belos::FinalSummary + Belos::TimingDetails +
 //			Belos::StatusTestDetails + Belos::Debug );
 	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<std::string>("Timer Label", "Coarse Grid Solver" );
-	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<S>("Convergence Tolerance" , 1.e-12 );
+	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<ST>("Convergence Tolerance" , 1.e-12 );
 
 	auto mg =
 		Pimpact::createMultiGrid<
@@ -1671,9 +1681,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffJ, CS ) {
 	x->random();
 
 	temp->add( -1, *x, 1., *sol );
-	S res = temp->norm();
-	S res_0 = res;
-	S res_p = res;
+	ST res = temp->norm();
+	ST res_0 = res;
+	ST res_p = res;
 
 	if( space()->rankST()==0 ) {
 		std::cout << "\n\n\tresidual:\trate: \n";
@@ -1686,7 +1696,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffJ, CS ) {
 		//x->write(i+10);
 
 		temp->add( -1, *x, 1., *sol );
-		S res = temp->norm();
+		ST res = temp->norm();
 
 		if( space()->rankST()==0 ) {
 			std::cout << "\t" << res/res_0 << "\t" <<  res/res_p << "\n";

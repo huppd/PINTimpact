@@ -9,7 +9,6 @@
 
 #include "Teuchos_TestForException.hpp"
 
-//#include "Pimpact_CompoundField.hpp"
 
 
 namespace Pimpact {
@@ -20,17 +19,18 @@ class TransferTimeOp {
 
 public:
 
-	typedef typename TransVT::FSpaceT FSpaceT;
-	typedef typename TransVT::CSpaceT CSpaceT;
+	using FSpaceT = typename TransVT::FSpaceT;
+	using CSpaceT = typename TransVT::CSpaceT;
 
-	typedef typename TransVT::SpaceT SpaceT;
+	using SpaceT = typename TransVT::SpaceT;
   
-	typedef TimeField<typename TransVT::DomainFieldT> DomainFieldT;
-	typedef TimeField<typename TransVT::RangeFieldT> RangeFieldT;
+	using DomainFieldT = TimeField<typename TransVT::DomainFieldT>;
+	using RangeFieldT = TimeField<typename TransVT::RangeFieldT>;
 	
 protected:
 
 	Teuchos::RCP<TransVT> opV_;
+
 public:
 
 	TransferTimeOp(
@@ -53,6 +53,7 @@ public:
 
 		out << "=== TransferTimeOP ===\n";
 		opV_->print( out );
+
   }
 
 }; // end of class TransferTime

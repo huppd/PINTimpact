@@ -149,18 +149,18 @@ class RestrictionHWOp {
 
   static const int dimension = ST::dimension;
 
-	typedef typename ST::Scalar Scalar;
-  typedef typename ST::Ordinal Ordinal;
+	using Scalar = typename ST::Scalar;
+  using Ordinal = typename ST::Ordinal;
 
 public:
 
-	typedef ST SpaceT;
+	using SpaceT = ST;
 
-	typedef SpaceT FSpaceT;
-	typedef SpaceT CSpaceT;
+	using FSpaceT = SpaceT;
+	using CSpaceT = SpaceT;
 
-  typedef ScalarField<SpaceT>  DomainFieldT;
-  typedef ScalarField<SpaceT>  RangeFieldT;
+  using DomainFieldT = ScalarField<SpaceT>;
+  using RangeFieldT = ScalarField<SpaceT>;
 
 protected:
 

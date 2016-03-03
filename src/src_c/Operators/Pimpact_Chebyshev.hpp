@@ -49,20 +49,28 @@ public:
 	Chebyshev(
 			const Teuchos::RCP<const OperatorT>& op,
 			const Teuchos::RCP<Teuchos::ParameterList>& pl=Teuchos::parameterList() ):
-    numIters_( pl->get<int>( "numIters", 20 ) ),
+    numIters_( pl->get<int>( "numIters", 10 ) ),
 		lamMax_( pl->get<Scalar>( "max EV", 0. ) ),
 		lamMin_( pl->get<Scalar>( "min EV", 0. ) ),
-    r_( create<RangeFieldT>( op->space() ) ),
-    xp_( create<DomainFieldT>( op->space() ) ),
-    x_( create<DomainFieldT>( op->space() ) ),
+    r_(  Teuchos::rcp( new RangeFieldT( op->space()  ) ) ),
+    xp_( Teuchos::rcp( new DomainFieldT( op->space() ) ) ),
+    x_(  Teuchos::rcp( new DomainFieldT( op->space() ) ) ),
     op_(op) {
 
 			if( std::abs( lamMax_-lamMin_ )<1.e-32 ) {
 				x_->random();
-				for( int i=0; i<100; ++i ) {
+
+				Scalar lamp = 0.;
+				for( int i=0; i<500; ++i ) {
 					op_->apply( *x_, *xp_ );
+					Scalar lam = xp_->dot( *x_ )/x_->dot( *x_ );
+					//std::cout << "lambda: " << lam << "\t" << std::abs( lamp-lam )/std::abs(lam) << "\n";
 					xp_->scale( 1./xp_->norm() );
 					x_.swap( xp_ );
+					if( std::abs( lamp-lam )/std::abs(lam) < 1.e-3 )
+						break;
+					else
+						lamp=lam;
 				}
 				//x_->write( 999 );
 
@@ -70,10 +78,8 @@ public:
 				lamMax_ = xp_->dot( *x_ )/x_->dot( *x_ );
 				std::cout << "lamMax: " << lamMax_ << "\n";
 
-				lamMax_ *= 0.6;
-				lamMin_ = 0.0*lamMax_;
-				//lamMin_ = -0.3*lamMax_;
-				//lamMin_ = 0;
+				lamMax_ *= 1.1;
+				lamMin_ = 0.3*lamMax_;
 
 			}
 
@@ -102,7 +108,6 @@ public:
 		for( int n=0; n<numIters_; ++n ) {
 
 			if( n==1 )
-				//beta = -c*c/eta/2.;
 				beta = -c*c/alpha/2.;
 
 			if( n>= 2 )

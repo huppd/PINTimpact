@@ -22,17 +22,17 @@ class TransferMultiHarmonicOp {
 
 public:
 
-	typedef typename InterT::FSpaceT FSpaceT;
-	typedef typename InterT::CSpaceT CSpaceT;
+	using FSpaceT = typename InterT::FSpaceT;
+	using CSpaceT = typename InterT::CSpaceT;
 
-	typedef typename InterT::SpaceT SpaceT;
-  
-	typedef MultiHarmonicField<typename InterT::DomainFieldT> DomainFieldT;
-	typedef MultiHarmonicField<typename InterT::RangeFieldT> RangeFieldT;
+	using SpaceT = typename InterT::SpaceT;
+
+	using DomainFieldT = MultiHarmonicField<typename InterT::DomainFieldT>;
+	using RangeFieldT = MultiHarmonicField<typename InterT::RangeFieldT>;
 	
 protected:
 
-	typedef typename SpaceT::Ordinal Ordinal;
+	using Ordinal = typename SpaceT::Ordinal;
 
 	Teuchos::RCP<InterT> op_;
 

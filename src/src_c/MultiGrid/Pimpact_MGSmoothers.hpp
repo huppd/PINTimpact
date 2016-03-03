@@ -31,11 +31,6 @@ public:
 
 protected:
 
-//  template< template<class> class STT, class MGOpsT >
-//  friend
-//  Teuchos::RCP<const MGSmoothers<MGOpsT,STT> >
-//  createMGSmoothers( const Teuchos::RCP<const MGOpsT>& mgOps, Teuchos::RCP<Teuchos::ParameterList> pl );
-
   Teuchos::RCP<const MGSpacesT> mgSpaces_;
 
   std::vector< Teuchos::RCP<SmootherT> >  smoothers_;
@@ -46,12 +41,11 @@ public:
       const Teuchos::RCP<const MGOperatorsT>& mgOperators,
       Teuchos::RCP<Teuchos::ParameterList> pl ):
     mgSpaces_( mgOperators->getMGSpaces() ),
-    smoothers_( mgSpaces_->getNGrids() ) {
+    smoothers_( mgSpaces_->getNGrids()-1 ) {
 
-    for( int i=0; i<mgSpaces_->getNGrids(); ++i )
+    for( int i=0; i<mgSpaces_->getNGrids()-1; ++i )
 			if( mgSpaces_->participating(i) )
 				smoothers_[i] = Teuchos::rcp( new SmootherT( mgOperators->get(i), pl ) );
-//      smoothers_[i] = create<SmootherT>( mgOperators->get(i), pl );
 
 	// not working on brutus
     //smoothers_.shrink_to_fit();

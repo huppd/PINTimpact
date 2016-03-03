@@ -42,20 +42,20 @@ class TransferOp {
 
 public:
 
-  typedef FST SpaceT;
+  using SpaceT = FST;
 
-  typedef FST FSpaceT;
-  typedef CST CSpaceT;
+  using FSpaceT = FST;
+  using CSpaceT = CST;
 
-  typedef typename FSpaceT::Scalar Scalar;
-  typedef typename FSpaceT::Ordinal Ordinal;
+  using Scalar = typename FSpaceT::Scalar;
+  using Ordinal = typename FSpaceT::Ordinal;
 
-  typedef ScalarField<FSpaceT>  DomainFieldT;
-  typedef ScalarField<CSpaceT>  RangeFieldT;
+  using DomainFieldT = ScalarField<FSpaceT>;
+  using RangeFieldT = ScalarField<CSpaceT>;
 
 protected:
 
-  typedef const Teuchos::Tuple<Scalar*,3> TO;
+  using TO = const Teuchos::Tuple<Scalar*,3>;
 
   Teuchos::RCP<const FSpaceT> fSpace_;
   Teuchos::RCP<const CSpaceT> cSpace_;
