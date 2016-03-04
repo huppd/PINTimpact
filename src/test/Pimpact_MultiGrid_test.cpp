@@ -110,19 +110,19 @@ TEUCHOS_STATIC_SETUP() {
 	clp.setOption( "npz", &npz, "" );
 	clp.setOption( "npf", &npf, "" );
 
-	//clp.setOption( "nx", &nx, "" );
-	//clp.setOption( "ny", &ny, "" );
-	//clp.setOption( "nz", &nz, "" );
-	//clp.setOption( "nf", &nf, "" );
+	clp.setOption( "nx", &nx, "" );
+	clp.setOption( "ny", &ny, "" );
+	clp.setOption( "nz", &nz, "" );
+	clp.setOption( "nf", &nf, "" );
 	clp.setOption( "rank", &rankbla, "" );
 	clp.setOption( "maxGrids", &maxGrids, "" );
 
 	//nx=65;
 	//ny=65;
 	//nz=65;
-	nx=33;
-	ny=33;
-	nz=33;
+	//nx=33;
+	//ny=33;
+	//nz=33;
 	////pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "para" );
 	////pl->sublist("Stretching in X").set<ST>( "alpha", 0.25 );
 
@@ -1269,7 +1269,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 	//mgPL->sublist("Smoother").set( "omega", 1. );
 	mgPL->sublist("Smoother").set<int>( "numIters", 4 );
 	mgPL->sublist("Smoother").set<int>( "BC smoothing", 1 );
-	mgPL->sublist("Smoother").set<OT>( "depth", 2 );
+	mgPL->sublist("Smoother").set<OT>( "depth", 1 );
 
 
 	// Smoother: GS
@@ -1286,9 +1286,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 			Pimpact::InterpolationOp,
 			Pimpact::DivGradOp,
 			Pimpact::DivGradO2Op,
-			//Pimpact::DivGradO2JSmoother,
+			Pimpact::DivGradO2JSmoother,
 			//Pimpact::DivGradO2SORSmoother,
-			Pimpact::Chebyshev,
+			//Pimpact::Chebyshev,
 			Pimpact::DivGradO2Inv >( mgSpaces, mgPL );
 
 	auto x = Pimpact::create<Pimpact::ScalarField>( space );

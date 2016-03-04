@@ -15,12 +15,12 @@
 namespace {
 
 
-using S = double;
-using O = int;
+using ST = double;
+using OT = int;
 const int d = 3;
 const int dNC = 4;
 
-using SpaceT = Pimpact::Space<S,O,d,dNC>;
+using SpaceT = Pimpact::Space<ST,OT,d,dNC>;
 using SF = typename Pimpact::ScalarField<SpaceT>;
 using VF = typename Pimpact::VectorField<SpaceT>;
 using MSF = typename Pimpact::ModeField<SF>;
@@ -35,9 +35,9 @@ double eps = 1e-6;
 int dim = 3;
 int domain = 1;
 
-O nx = 33;
-O ny = 17;
-O nz = 9;
+OT nx = 33;
+OT ny = 17;
+OT nz = 9;
 
 int npx = 2;
 int npy = 2;
@@ -97,7 +97,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, print, FType ) {
   pl->set("npy", npy );
   pl->set("npz", (2==dim)?1:npz );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>(space);
 
@@ -129,7 +129,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, InfNorm_and_init, FType ) {
   pl->set("npy", npy );
   pl->set("npz", (2==dim)?1:npz );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>(space);
 
@@ -181,7 +181,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, OneNorm_and_init, FType ) {
   pl->set("npy", npy );
   pl->set("npz", (2==dim)?1:npz );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>(space);
 
@@ -216,7 +216,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, TwoNorm_and_init, FType ) {
   pl->set("npy", npy );
   pl->set("npz", (2==dim)?1:npz );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>(space);
 
@@ -249,7 +249,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, dot, FType ) {
   pl->set("npy", npy );
   pl->set("npz", (2==dim)?1:npz );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
   auto vel1 = Pimpact::create<FType>(space);
   auto vel2 = Pimpact::create<FType>(space);
@@ -269,7 +269,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, dot, FType ) {
   vel1->init(1.);
   vel2->init(1.);
   dot = vel2->dot(*vel1);
-  TEST_FLOATING_EQUALITY( (S)N, dot, eps );
+  TEST_FLOATING_EQUALITY( static_cast<ST>(N), dot, eps );
 
   vel1->init(2.);
   vel2->init(1.);
@@ -305,7 +305,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, scale, FType ) {
   pl->set("npy", npy );
   pl->set("npz", (2==dim)?1:npz );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>(space);
 
@@ -341,7 +341,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, random, FType ) {
   pl->set("npy", npy );
   pl->set("npz", (2==dim)?1:npz );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>(space);
 
@@ -377,7 +377,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TemplateField, add, FType ) {
   pl->set("npy", npy );
   pl->set("npz", (2==dim)?1:npz );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
   auto vel1 = Pimpact::create<FType>(space);
   auto vel2 = Pimpact::create<FType>(space);
@@ -438,7 +438,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, write, FType ) {
   pl->set("npy", npy );
   pl->set("npz", (2==dim)?1:npz );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>( space );
 
@@ -474,7 +474,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, write_restart, FType ) {
   pl->set("npy", npy );
   pl->set("npz", (2==dim)?1:npz );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>(space);
 
@@ -539,7 +539,7 @@ TEUCHOS_UNIT_TEST( ScalarField, level ) {
 	x->init( 1. );
 	x->level();
 
-	S level = x->norm();
+	ST level = x->norm();
 	if( 0==space()->rankST() )
 		std::cout << "\nlevel: " << level << "\n";
   TEST_EQUALITY( level<eps , true );

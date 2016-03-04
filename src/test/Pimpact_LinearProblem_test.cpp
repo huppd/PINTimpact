@@ -22,10 +22,10 @@
 
 namespace {
 
-using S = double;
-using O = int;
+using ST = double;
+using OT = int;
 
-using SpaceT = Pimpact::Space<S,O,3,4>;
+using SpaceT = Pimpact::Space<ST,OT,3,4>;
 
 bool testMpi = true;
 double eps = 1e-6;
@@ -43,8 +43,8 @@ TEUCHOS_STATIC_SETUP() {
 			"error-tol-slack", &eps,
 			"Slack off of machine epsilon used to check test results" );
 
-  pl->set( "dim", 3);
-  pl->set( "domain", 0);
+  pl->set( "dim", 3 );
+  pl->set( "domain", 0 );
 
   pl->set( "nx", 25 );
   pl->set( "ny", 17 );
@@ -72,16 +72,16 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 
   auto para = Pimpact::createLinSolverParameter("GMRES",eps);
 
-  Belos::SolverFactory<S, MVF, BOp> factory;
+  Belos::SolverFactory<ST, MVF, BOp> factory;
 
   // Create the GMRES solver.
-  Teuchos::RCP<Belos::SolverManager<S, MVF, BOp > > solver =
+  Teuchos::RCP<Belos::SolverManager<ST, MVF, BOp > > solver =
       factory.create( "GMRES", para );
 
   // Create a LinearProblem struct with the problem to solve.
   // A, X, B, and M are passed by (smart) pointer, not copied.
-  Teuchos::RCP<Belos::LinearProblem<S, MVF, BOp > > problem =
-      Teuchos::rcp (new Belos::LinearProblem<S, MVF, BOp > (op, x, b));
+  Teuchos::RCP<Belos::LinearProblem<ST, MVF, BOp > > problem =
+      Teuchos::rcp (new Belos::LinearProblem<ST, MVF, BOp > (op, x, b));
 
   problem->setProblem(x,b);
 
@@ -119,17 +119,17 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 //
 //  auto para = Pimpact::createLinSolverParameter("GMRES",eps);
 //
-//  Belos::SolverFactory<S, BVF, BOp > factory;
+//  Belos::SolverFactory<ST, BVF, BOp > factory;
 //  // Make an empty new parameter list.
 //
 //  // Create the GMRES solver.
-//  Teuchos::RCP<Belos::SolverManager<S, BVF, BOp > > solver =
+//  Teuchos::RCP<Belos::SolverManager<ST, BVF, BOp > > solver =
 //      factory.create( "GMRES", para );
 //
 //  // Create a LinearProblem struct with the problem to solve.
 //  // A, X, B, and M are passed by (smart) pointer, not copied.
-//  Teuchos::RCP<Belos::LinearProblem<S, BVF, BOp > > problem =
-//      Teuchos::rcp (new Belos::LinearProblem<S, BVF, BOp > (op, x, b));
+//  Teuchos::RCP<Belos::LinearProblem<ST, BVF, BOp > > problem =
+//      Teuchos::rcp (new Belos::LinearProblem<ST, BVF, BOp > (op, x, b));
 //
 //  problem->setProblem(x,b);
 //
@@ -186,17 +186,17 @@ TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
   //  auto para = Teuchos::parameterList();
 
 
-  Belos::SolverFactory<S, BSF, BOp > factory;
+  Belos::SolverFactory<ST, BSF, BOp > factory;
   // Make an empty new parameter list.
 
   // Create the GMRES solver.
-  Teuchos::RCP<Belos::SolverManager<S, BSF, BOp > > solver =
+  Teuchos::RCP<Belos::SolverManager<ST, BSF, BOp > > solver =
       factory.create( "GMRES", para );
 
   // Create a LinearProblem struct with the problem to solve.
   // A, X, B, and M are passed by (smart) pointer, not copied.
-  Teuchos::RCP<Belos::LinearProblem<S, BSF, BOp > > problem =
-      Teuchos::rcp (new Belos::LinearProblem<S, BSF, BOp > (op, x, b));
+  Teuchos::RCP<Belos::LinearProblem<ST, BSF, BOp > > problem =
+      Teuchos::rcp (new Belos::LinearProblem<ST, BSF, BOp > (op, x, b));
 
   //   std::cout << "param\n" << *solver->getValidParameters();
   problem->setProblem(x,b);

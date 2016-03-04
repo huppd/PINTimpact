@@ -23,12 +23,12 @@
 namespace {
 
 
-using S = double;
-using O = int;
+using ST = double;
+using OT = int;
 const int d = 3;
 const int dNC = 4;
 
-using SpaceT = Pimpact::Space<S,O,d,dNC>;
+using SpaceT = Pimpact::Space<ST,OT,d,dNC>;
 
 using SF = typename Pimpact::ScalarField<SpaceT>;
 using VF = typename Pimpact::VectorField<SpaceT>;
@@ -42,13 +42,13 @@ using ConvDiffSORT = Pimpact::NonlinearSmoother<T,Pimpact::ConvectionDiffusionSO
 
 
 bool testMpi = true;
-S eps = 1e-10;
+ST eps = 1e-10;
 
 int dim = 3;
 int domain = 0;
 
-S omega = 0.8;
-S winds = 1;
+ST omega = 0.8;
+ST winds = 1;
 int nIter = 1000;
 
 int nx = 129;
@@ -93,22 +93,22 @@ TEUCHOS_STATIC_SETUP() {
 	pl->set( "npz", 1 );
 
 	pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
-	pl->sublist("Stretching in X").set<S>( "N metr L", nx );
-	pl->sublist("Stretching in X").set<S>( "N metr U", nx  );
-	pl->sublist("Stretching in X").set<S>( "x0 L", 0.05 );
-	pl->sublist("Stretching in X").set<S>( "x0 U", 0. );
+	pl->sublist("Stretching in X").set<ST>( "N metr L", nx );
+	pl->sublist("Stretching in X").set<ST>( "N metr U", nx  );
+	pl->sublist("Stretching in X").set<ST>( "x0 L", 0.05 );
+	pl->sublist("Stretching in X").set<ST>( "x0 U", 0. );
 
 	pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
-	pl->sublist("Stretching in Y").set<S>( "N metr L", ny );
-	pl->sublist("Stretching in Y").set<S>( "N metr U", ny  );
-	pl->sublist("Stretching in Y").set<S>( "x0 L", 0.05 );
-	pl->sublist("Stretching in Y").set<S>( "x0 U", 0. );
+	pl->sublist("Stretching in Y").set<ST>( "N metr L", ny );
+	pl->sublist("Stretching in Y").set<ST>( "N metr U", ny  );
+	pl->sublist("Stretching in Y").set<ST>( "x0 L", 0.05 );
+	pl->sublist("Stretching in Y").set<ST>( "x0 U", 0. );
 
 	pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
-	pl->sublist("Stretching in Z").set<S>( "N metr L", nz );
-	pl->sublist("Stretching in Z").set<S>( "N metr U", nz  );
-	pl->sublist("Stretching in Z").set<S>( "x0 L", 0. );
-	pl->sublist("Stretching in Z").set<S>( "x0 U", 0. );
+	pl->sublist("Stretching in Z").set<ST>( "N metr L", nz );
+	pl->sublist("Stretching in Z").set<ST>( "N metr U", nz  );
+	pl->sublist("Stretching in Z").set<ST>( "x0 L", 0. );
+	pl->sublist("Stretching in Z").set<ST>( "x0 U", 0. );
 
 }
 
@@ -120,7 +120,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionSOp ) {
 	pl->set( "dim", dim );
 	pl->set( "domain", domain );
 
-	auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+	auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
 	auto u =
 		Teuchos::tuple(
@@ -230,7 +230,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, NonlinearOp ) {
 	pl->set( "dim", dim );
   pl->set( "domain", domain );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
   auto x = Pimpact::create<Pimpact::VectorField>( space );
   auto y = Pimpact::create<Pimpact::VectorField>( space );
@@ -347,7 +347,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionOp  ) {
 	pl->set( "dim", dim );
   pl->set( "domain", domain );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
   auto x = Pimpact::create<Pimpact::VectorField>( space );
   auto y = Pimpact::create<Pimpact::VectorField>( space );
@@ -479,9 +479,9 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionSORSmoother ) {
 	pl->set( "dim", dim );
   pl->set( "domain", domain );
 
-  pl->set<S>("Re",1000);
+  pl->set<ST>("Re",1000);
 
-  auto space = Pimpact::createSpace<S,O,d,2>( pl );
+  auto space = Pimpact::createSpace<ST,OT,d,2>( pl );
 
   auto wind = Pimpact::create<Pimpact::VectorField>( space );
   auto y = Pimpact::create<Pimpact::VectorField>( space );
@@ -622,8 +622,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
 	pl->set( "dim", dim );
   pl->set( "domain", domain );
 
-  pl->set<S>("Re",100);
-  auto space = Pimpact::createSpace<S,O,d,2>( pl );
+  pl->set<ST>("Re",100);
+  auto space = Pimpact::createSpace<ST,OT,d,2>( pl );
 
 
 
@@ -638,7 +638,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
   auto smoother =
       Pimpact::create<
         Pimpact::NonlinearSmoother<
-          ConvDiffOpT<Pimpact::Space<S,O,d,2> > ,
+          ConvDiffOpT<Pimpact::Space<ST,OT,d,2> > ,
           Pimpact::ConvectionDiffusionJSmoother > > (
               op,
               pls );
@@ -659,8 +659,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
   auto y = Pimpact::create<Pimpact::VectorField>( space );
 
 
-	S error0 = x->norm( Belos::InfNorm );
-	S error;
+	ST error0 = x->norm( Belos::InfNorm );
+	ST error;
 	if( space()->rankST()==0 )
 		std::cout << "\nerror: " << error0 << "\n";
 
@@ -689,7 +689,7 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicConvectionOp ) {
   pl->set( "domain", domain );
 	pl->set<bool>( "spectral in time", true );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
   auto vel = Pimpact::create<Pimpact::VectorField>( space );
 
@@ -713,15 +713,15 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicDtConvectionDiffusionOp )
   pl->set( "domain", domain );
 	pl->set<bool>( "spectral in time", true );
 
-	O nf = 4;
-  pl->set<S>( "Re", 1.e0 );
-  pl->set<S>( "alpha2", 12.0 );
-  pl->set<O>( "nf", nf );
+	OT nf = 4;
+  pl->set<ST>( "Re", 1.e0 );
+  pl->set<ST>( "alpha2", 12.0 );
+  pl->set<OT>( "nf", nf );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
-	S re = space->getDomainSize()->getRe();
-	S alpha2 = space->getDomainSize()->getAlpha2();
+	ST re = space->getDomainSize()->getRe();
+	ST alpha2 = space->getDomainSize()->getAlpha2();
 
   auto vel = Pimpact::create<Pimpact::VectorField>( space );
 
@@ -786,7 +786,7 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicDtConvectionDiffusionOp )
 
 	diff->add( 1., *y1, -1.,  *y2 );
 
-	S diffs = diff->norm( Belos::InfNorm );
+	ST diffs = diff->norm( Belos::InfNorm );
 	std::cout << "const error(du): " << diffs << "\n";
   TEST_EQUALITY_CONST( diffs<eps, true );
 	if( diffs>=eps ) {

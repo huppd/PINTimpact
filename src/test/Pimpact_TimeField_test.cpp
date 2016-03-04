@@ -27,8 +27,8 @@
 namespace {
 
 
-using S = double;
-using O = int;
+using ST = double;
+using OT = int;
 const int d = 4;
 const int dNC = 2;
 
@@ -43,7 +43,7 @@ int npz = 1;
 int npf = 2;
 
 
-using SpaceT = Pimpact::Space<S,O,d,dNC>;
+using SpaceT = Pimpact::Space<ST,OT,d,dNC>;
 
 using SF = Pimpact::ScalarField<SpaceT>;
 using VF = Pimpact::VectorField<SpaceT>;
@@ -121,11 +121,11 @@ TEUCHOS_STATIC_SETUP() {
 
   pl->set( "dim", dim );
 
-  pl->set<O>("nx", 9 );
-  pl->set<O>("ny", 9 );
-  pl->set<O>("nz", 9 );
+  pl->set<OT>("nx", 9 );
+  pl->set<OT>("ny", 9 );
+  pl->set<OT>("nz", 9 );
 
-  pl->set<O>("nf", 8 );
+  pl->set<OT>("nf", 8 );
 
 }
 
@@ -139,7 +139,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, create_init_print, FType ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
   space->print();
 
@@ -162,7 +162,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, InfNorm_and_init, FType ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>(space);
 
@@ -206,7 +206,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, OneNorm_and_init, FType ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>(space);
 
@@ -232,7 +232,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, TwoNorm_and_init, FType ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>(space);
 
@@ -256,7 +256,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, dot, FType ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
   auto vel1 = Pimpact::create<FType>(space);
   auto vel2 = Pimpact::create<FType>(space);
@@ -276,7 +276,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, dot, FType ) {
   vel1->init(1.);
   vel2->init(1.);
   dot = vel2->dot(*vel1);
-  TEST_FLOATING_EQUALITY( (S)N, dot, eps );
+  TEST_FLOATING_EQUALITY( static_cast<ST>(N), dot, eps );
 
   vel1->init(2.);
   vel2->init(1.);
@@ -303,7 +303,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, scale, FType ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>(space);
 
@@ -330,7 +330,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, random, FType ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>(space);
 
@@ -357,7 +357,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TemplateField, add, FType ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
   auto vel1 = Pimpact::create<FType>(space);
   auto vel2 = Pimpact::create<FType>(space);
@@ -409,7 +409,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, write, FType ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>( space );
 
@@ -437,7 +437,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TimeField, all, FType ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
 	space->print();
   //---------------------------------------------------
@@ -448,9 +448,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TimeField, all, FType ) {
   std::cout << "field1: length: " << field1->getLength() << "\n";
   std::cout << "field2: length: " << field2->getLength() << "\n";
 
-  for( S i=0.; i< 10.1; ++i ) {
+  for( ST i=0.; i< 10.1; ++i ) {
     field1->init(i/2.);
-    S norm_ = field1->norm(Belos::InfNorm);
+    ST norm_ = field1->norm(Belos::InfNorm);
     TEST_EQUALITY( i/2., norm_ );
     field2->init(i/2.);
     norm_ = field2->norm(Belos::InfNorm);
@@ -495,17 +495,17 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TimeField, BelosMVTest, FType ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
   auto vel = Pimpact::create<FType>( space );
 
   auto mvec = Pimpact::createMultiField( *vel, 5 );
 
   // Create an output manager to handle the I/O from the solver
-  Teuchos::RCP<Belos::OutputManager<S> > MyOM =
-		Teuchos::rcp( new Belos::OutputManager<S>(Belos::Warnings,rcp(&out,false)) );
+  Teuchos::RCP<Belos::OutputManager<ST> > MyOM =
+		Teuchos::rcp( new Belos::OutputManager<ST>(Belos::Warnings,rcp(&out,false)) );
 
-  bool res = Belos::TestMultiVecTraits<S,Pimpact::MultiField<FType> >(MyOM,mvec);
+  bool res = Belos::TestMultiVecTraits<ST,Pimpact::MultiField<FType> >(MyOM,mvec);
   TEST_EQUALITY_CONST(res,true);
 
 }
@@ -523,7 +523,7 @@ TEUCHOS_UNIT_TEST( TimeOpearotr, TimeOpWrap ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-	auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+	auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
 
 	auto field = Pimpact::create<TVF>( space );
@@ -554,10 +554,10 @@ TEUCHOS_UNIT_TEST( TimeOpearotr, TimeOpWrap ) {
 		Pimpact::createMultiOperatorBase( op );
 
 
-	Teuchos::RCP<Belos::OutputManager<S> > myOM = Teuchos::rcp(
-			new Belos::OutputManager<S>(Belos::Warnings+Belos::TimingDetails,rcp(&out,false)) );
+	Teuchos::RCP<Belos::OutputManager<ST> > myOM = Teuchos::rcp(
+			new Belos::OutputManager<ST>(Belos::Warnings+Belos::TimingDetails,rcp(&out,false)) );
 
-	bool res = Belos::TestOperatorTraits< S, MTVF, VOpBase >( myOM, mv, bop );
+	bool res = Belos::TestOperatorTraits< ST, MTVF, VOpBase >( myOM, mv, bop );
 
   TEST_EQUALITY( res, true );
 }
@@ -586,7 +586,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, DtTimeOp ) {
 
 		pl->set("nf", int(std::pow(2,q)) );
 
-		auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+		auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
 		auto field = Pimpact::create<TVF>( space );
 		auto field1 = field->clone();
@@ -612,9 +612,9 @@ TEUCHOS_UNIT_TEST( TimeOperator, DtTimeOp ) {
 		dt->apply( *field, *field1 );
 		dt->apply( *field1, *field2 );
 
-		S a2 = space->getDomainSize()->getAlpha2()/space->getDomainSize()->getRe();
+		ST a2 = space->getDomainSize()->getAlpha2()/space->getDomainSize()->getRe();
 
-		S bla = a2*a2;
+		ST bla = a2*a2;
 
 		field->add( bla, *field, 1, *field2 );
 
@@ -645,7 +645,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, DtTimeOp ) {
 //	pl->set("npz", npz );
 //	pl->set("npf", npf );
 //
-//	auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+//	auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 //
 //	auto field = Pimpact::create<TVF>( space );
 //	auto field1 = field->clone();
@@ -677,9 +677,9 @@ TEUCHOS_UNIT_TEST( TimeOperator, DtTimeOp ) {
 //	op->apply( *field, *field1 );
 //	op->apply( *field1, *field2 );
 //
-//	S a2 = space->getDomainSize()->getAlpha2()/space->getDomainSize()->getRe();
+//	ST a2 = space->getDomainSize()->getAlpha2()/space->getDomainSize()->getRe();
 //
-//	S bla = a2*a2;
+//	ST bla = a2*a2;
 //
 //	field->add( bla, *field, 1, *field2 );
 //
@@ -688,7 +688,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, DtTimeOp ) {
 //	std::cout << "error: " << field()->norm() << "\n";
 //
 //  // test against flow dir
-//	for( O i=space->sInd(Pimpact::U,3); i<space->eInd(Pimpact::U,3); ++i ) {
+//	for( OT i=space->sInd(Pimpact::U,3); i<space->eInd(Pimpact::U,3); ++i ) {
 //		wind->getFieldPtr(i)->initField( Pimpact::ConstFlow, 2., 2., 2. );
 //		field1->getFieldPtr(i)->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inX );
 //		field1->getFieldPtr(i)->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inY );
@@ -741,12 +741,12 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOp ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-	S re = 100.;
-	pl->set<S>("Re", re );
+	ST re = 100.;
+	pl->set<ST>("Re", re );
 
 	using OpT = Pimpact::TimeStokesOp<SpaceT>;
 
-	auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+	auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
 
 	auto op = Pimpact::create<OpT>( space );
@@ -788,7 +788,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOp ) {
 
 	// Gradient test in X
 	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Zero2DFlow );
-	for( O i=space->sInd(Pimpact::U,3); i<space->eInd(Pimpact::U,3); ++i ) {
+	for( OT i=space->sInd(Pimpact::U,3); i<space->eInd(Pimpact::U,3); ++i ) {
 		x->getSFieldPtr()->getFieldPtr(i)->initField( Pimpact::Grad2D_inX );
 	}
 //	x->write();
@@ -806,7 +806,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOp ) {
 
 	// Gradient test in Y
 	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Zero2DFlow );
-	for( O i=space->sInd(Pimpact::U,3); i<space->eInd(Pimpact::U,3); ++i ) {
+	for( OT i=space->sInd(Pimpact::U,3); i<space->eInd(Pimpact::U,3); ++i ) {
 		x->getSFieldPtr()->getFieldPtr(i)->initField( Pimpact::Grad2D_inY );
 	}
 //	x->write();
@@ -824,7 +824,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOp ) {
 
 	// Gradient test in Z
 	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Zero2DFlow );
-	for( O i=space->sInd(Pimpact::U,3); i<space->eInd(Pimpact::U,3); ++i ) {
+	for( OT i=space->sInd(Pimpact::U,3); i<space->eInd(Pimpact::U,3); ++i ) {
 		x->getSFieldPtr()->getFieldPtr(i)->initField( Pimpact::Grad2D_inZ );
 	}
 //	x->write();
@@ -861,9 +861,9 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOpDT ) {
 
 	for (int q = 3; q < 3+l; q++ ) {
 
-		pl->set<O>("nf", int(std::pow(2,q)) );
+		pl->set<OT>("nf", int(std::pow(2,q)) );
 
-		auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+		auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
 
 		auto field = Pimpact::create<typename OpT::DomainFieldT>( space );
@@ -891,9 +891,9 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOpDT ) {
 		dt->apply( *field, *field1 );
 		dt->apply( *field1, *field2 );
 
-		S a2 = space->getDomainSize()->getAlpha2()/space->getDomainSize()->getRe();
+		ST a2 = space->getDomainSize()->getAlpha2()/space->getDomainSize()->getRe();
 
-		S bla = a2*a2;
+		ST bla = a2*a2;
 
 		field->add( bla, *field, 1, *field2 );
 
@@ -910,7 +910,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOpDT ) {
 
 	TEST_EQUALITY( std::abs(sl - 0.5) <  0.05, true );
 
-	pl->set<O>("nf", 8 );
+	pl->set<OT>("nf", 8 );
 
 
 }
@@ -924,12 +924,12 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeNSOp ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-	S re = 100.;
-	pl->set<S>("Re", re );
+	ST re = 100.;
+	pl->set<ST>("Re", re );
 
 	using OpT = Pimpact::TimeNSOp<SpaceT>;
 
-	auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+	auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
 
 	auto op = Pimpact::create<OpT>( space );
@@ -971,7 +971,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeNSOp ) {
 
 	// Gradient test in X
 	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Zero2DFlow );
-	for( O i=space->sInd(Pimpact::U,3); i<space->eInd(Pimpact::U,3); ++i ) {
+	for( OT i=space->sInd(Pimpact::U,3); i<space->eInd(Pimpact::U,3); ++i ) {
 		x->getSFieldPtr()->getFieldPtr(i)->initField( Pimpact::Grad2D_inX );
 	}
 //	x->write();
@@ -989,7 +989,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeNSOp ) {
 
 	// Gradient test in Y
 	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Zero2DFlow );
-	for( O i=space->sInd(Pimpact::U,3); i<space->eInd(Pimpact::U,3); ++i ) {
+	for( OT i=space->sInd(Pimpact::U,3); i<space->eInd(Pimpact::U,3); ++i ) {
 		x->getSFieldPtr()->getFieldPtr(i)->initField( Pimpact::Grad2D_inY );
 	}
 //	x->write();
@@ -1007,7 +1007,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeNSOp ) {
 
 	// Gradient test in Z
 	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Zero2DFlow );
-	for( O i=space->sInd(Pimpact::U,3); i<space->eInd(Pimpact::U,3); ++i ) {
+	for( OT i=space->sInd(Pimpact::U,3); i<space->eInd(Pimpact::U,3); ++i ) {
 		x->getSFieldPtr()->getFieldPtr(i)->initField( Pimpact::Grad2D_inZ );
 	}
 //	x->write();
@@ -1030,7 +1030,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeNSOp ) {
 	auto field1 = Pimpact::create<typename OpT::DomainFieldT>( space );
 	auto field2 = Pimpact::create<typename OpT::DomainFieldT>( space );
 
-	for( O i=space->sInd(Pimpact::U,3); i<space->eInd(Pimpact::U,3); ++i ) {
+	for( OT i=space->sInd(Pimpact::U,3); i<space->eInd(Pimpact::U,3); ++i ) {
 		wind->getVFieldPtr()->getFieldPtr(i)->initField( Pimpact::ConstFlow, 2., 2., 2. );
 		field1->getVFieldPtr()->getFieldPtr(i)->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inY );
 		field1->getVFieldPtr()->getFieldPtr(i)->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inZ );
@@ -1081,7 +1081,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeNSOpDT ) {
 
 		pl->set("nf", int(std::pow(2,q)) );
 
-		auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+		auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
 
 		auto field = Pimpact::create<typename OpT::DomainFieldT>( space );
@@ -1109,9 +1109,9 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeNSOpDT ) {
 		dt->apply( *field, *field1 );
 		dt->apply( *field1, *field2 );
 
-		S a2 = space->getDomainSize()->getAlpha2()/space->getDomainSize()->getRe();
+		ST a2 = space->getDomainSize()->getAlpha2()/space->getDomainSize()->getRe();
 
-		S bla = a2*a2;
+		ST bla = a2*a2;
 
 
 		field->add( bla, *field, 1, *field2 );
@@ -1130,7 +1130,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeNSOpDT ) {
 
 	TEST_EQUALITY( std::abs(sl - 0.5) <  0.05, true );
 
-	pl->set<O>("nf", 8 );
+	pl->set<OT>("nf", 8 );
 
 }
 

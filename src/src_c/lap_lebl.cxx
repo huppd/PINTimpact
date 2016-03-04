@@ -171,6 +171,7 @@ int main( int argi, char** argv ) {
 
 	f->getSFieldPtr()->write( 99 );
 	//x->getSFieldPtr()->random();
+	x->getSFieldPtr()->get0FieldPtr()->initField( Pimpact::Grad2D_inX, -2./space->getDomainSize()->getRe() );
 	//for( int i=0; i<10; ++i )
 		//mgDivGrad->apply( f->getSFieldPtr()->get0Field(), x->getSFieldPtr()->get0Field() );
 	divGradInv->apply( f->getSField(), x->getSField() );

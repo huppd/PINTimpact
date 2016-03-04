@@ -22,8 +22,8 @@
 namespace {
 
 
-using S = double;
-using O = int;
+using ST = double;
+using OT = int;
 const int d = 3;
 const int dNC = 4;
 
@@ -32,7 +32,7 @@ double eps = 1.e-6;
 int domain = 0;
 
 
-using SpaceT = typename Pimpact::Space<S,O,d,dNC>;
+using SpaceT = typename Pimpact::Space<ST,OT,d,dNC>;
 
 using SF = typename Pimpact::ScalarField<SpaceT>;
 using VF = typename Pimpact::VectorField<SpaceT>;
@@ -71,17 +71,17 @@ TEUCHOS_STATIC_SETUP() {
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, BelosMVTest, FType ) {
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
   auto x = Pimpact::create<FType>( space );
 
   auto mx = Pimpact::createMultiField( *x, 5 );
 
   // Create an output manager to handle the I/O from the solver
-  Teuchos::RCP<Belos::OutputManager<S> > MyOM =
-		Teuchos::rcp( new Belos::OutputManager<S>(Belos::Warnings,rcp( &out, false ) ) );
+  Teuchos::RCP<Belos::OutputManager<ST> > MyOM =
+		Teuchos::rcp( new Belos::OutputManager<ST>(Belos::Warnings,rcp( &out, false ) ) );
 
-  bool res = Belos::TestMultiVecTraits<S,Pimpact::MultiField<FType> >( MyOM, mx );
+  bool res = Belos::TestMultiVecTraits<ST,Pimpact::MultiField<FType> >( MyOM, mx );
   TEST_EQUALITY_CONST( res, true );
 
 }
@@ -114,10 +114,10 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, HelmholtzMV ) {
 
   auto op = Pimpact::createOperatorBase( opm );
 
-  Teuchos::RCP<Belos::OutputManager<S> > MyOM = Teuchos::rcp(
-      new Belos::OutputManager<S>(Belos::Warnings,rcp(&out,false)) );
+  Teuchos::RCP<Belos::OutputManager<ST> > MyOM = Teuchos::rcp(
+      new Belos::OutputManager<ST>(Belos::Warnings,rcp(&out,false)) );
 
-  bool res = Belos::TestOperatorTraits< S, MVF, OpBase >( MyOM, mv, op );
+  bool res = Belos::TestOperatorTraits< ST, MVF, OpBase >( MyOM, mv, op );
 
   TEST_EQUALITY( res, true );
 }
@@ -138,10 +138,10 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, DtLapOp ) {
 
   auto op = Pimpact::createMultiOperatorBase( Pimpact::createDtLapOp(space) );
 
-  Teuchos::RCP<Belos::OutputManager<S> > myOM = Teuchos::rcp(
-      new Belos::OutputManager<S>(Belos::Warnings+Belos::TimingDetails,rcp(&out,false)) );
+  Teuchos::RCP<Belos::OutputManager<ST> > myOM = Teuchos::rcp(
+      new Belos::OutputManager<ST>(Belos::Warnings+Belos::TimingDetails,rcp(&out,false)) );
 
-  bool res = Belos::TestOperatorTraits< S, BVF, OpBase >( myOM, mv, op );
+  bool res = Belos::TestOperatorTraits< ST, BVF, OpBase >( myOM, mv, op );
 
   TEST_EQUALITY( res, true );
 }
@@ -173,14 +173,14 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, DivGrad ) {
       )
   );
 
-  Teuchos::RCP<Belos::OutputManager<S> > MyOM =
-      Teuchos::rcp( new Belos::OutputManager<S>(Belos::Errors + Belos::Warnings + Belos::IterationDetails +
+  Teuchos::RCP<Belos::OutputManager<ST> > MyOM =
+      Teuchos::rcp( new Belos::OutputManager<ST>(Belos::Errors + Belos::Warnings + Belos::IterationDetails +
           Belos::OrthoDetails + Belos::FinalSummary + Belos::TimingDetails +
           Belos::StatusTestDetails + Belos::Debug, rcp(&out,false)) );
 
 
   bool res =// true;
-      Belos::TestOperatorTraits< S, BSF, OpBase > (MyOM,mv,lap);
+      Belos::TestOperatorTraits< ST, BSF, OpBase > (MyOM,mv,lap);
 
   TEST_EQUALITY( res, true );
 

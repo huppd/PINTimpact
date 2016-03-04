@@ -61,12 +61,12 @@ int nIter = 1000;
 //int nx = 129;
 //int ny = 129;
 //int nz = 129;
-//int nx = 65;
-//int ny = 65;
-//int nz = 65;
-int nx = 33;
-int ny = 33;
-int nz = 33;
+int nx = 65;
+int ny = 65;
+int nz = 65;
+//int nx = 33;
+//int ny = 33;
+//int nz = 33;
 //int nx = 17;
 //int ny = 17;
 //int nz = 17;
@@ -117,9 +117,9 @@ TEUCHOS_STATIC_SETUP() {
 	clp.setOption( "npz", &npz, "" );
 	clp.setOption( "npf", &npf, "" );
 
-	//pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
-	//pl->sublist("Stretching in X").set<ST>( "N metr L", nx/2 );
-	//pl->sublist("Stretching in X").set<ST>( "N metr U", nx/2 );
+	pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+	pl->sublist("Stretching in X").set<ST>( "N metr L", nx/2 );
+	pl->sublist("Stretching in X").set<ST>( "N metr U", nx/2 );
 	//pl->sublist("Stretching in X").set<ST>( "N metr L", nx );
 	//pl->sublist("Stretching in X").set<ST>( "N metr U", nx );
 	//pl->sublist("Stretching in X").set<ST>( "x0 L", 0.05 );
@@ -843,9 +843,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
   auto op = Pimpact::create<Pimpact::DivGradO2Op>( space );
 
 	Teuchos::RCP<Teuchos::ParameterList> ppl = Teuchos::parameterList();
-	ppl->set<int>( "numIters", 1 );
-	ppl->set<int>( "BC smoothing", 1 );
-	ppl->set<OT>( "depth", 1 );
+	ppl->set<int>( "numIters", 10 );
+	//ppl->set<int>( "BC smoothing", 1 );
+	//ppl->set<OT>( "depth", 2 );
 
   auto smoother = Pimpact::create<SType>( op, ppl );
 
@@ -896,8 +896,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
 
 		TEST_EQUALITY( err2<eps, true );
 		TEST_EQUALITY( errInf<eps, true );
-		if( err2>eps && errInf>eps ) 
-			xp->write( dir );
+		//if( err2>eps && errInf>eps ) 
+			//xp->write( dir );
 
 	}
 

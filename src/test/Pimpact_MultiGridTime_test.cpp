@@ -27,14 +27,14 @@ namespace {
 
 bool output = false;
 
-using S = double;
-using O = int;
+using ST = double;
+using OT = int;
 
-using FSpace3T = Pimpact::Space<S,O,3,4>;
-using FSpace4T = Pimpact::Space<S,O,4,4>; 
+using FSpace3T = Pimpact::Space<ST,OT,3,4>;
+using FSpace4T = Pimpact::Space<ST,OT,4,4>; 
 
-using CSpace3T = Pimpact::Space<S,O,3,2>;
-using CSpace4T = Pimpact::Space<S,O,4,2>; 
+using CSpace3T = Pimpact::Space<ST,OT,3,2>;
+using CSpace4T = Pimpact::Space<ST,OT,4,2>; 
 
 using CS3L = Pimpact::CoarsenStrategy<FSpace3T,CSpace3T>;
 using CS3G = Pimpact::CoarsenStrategyGlobal<FSpace3T,CSpace3T,5>;
@@ -176,7 +176,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSpaces, constructor4D, CS ) {
 	pl->set("npf", npf );
 
 
-  auto space = Pimpact::createSpace<S,O,4>( pl );
+  auto space = Pimpact::createSpace<ST,OT,4>( pl );
 
   space->print();
 
@@ -207,7 +207,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGFields, SF_constructor4D, CS ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-  auto space = Pimpact::createSpace<S,O,4>( pl );
+  auto space = Pimpact::createSpace<ST,OT,4>( pl );
 
   auto mgSpaces = Pimpact::createMGSpaces<FSpace4T,CSpace4T,CS>( space, maxGrids );
   std::cout << "nGridLevels: " << mgSpaces->getNGrids() << "\n";
@@ -246,7 +246,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGFields, VF_constructor4D, CS ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-  auto space = Pimpact::createSpace<S,O,4>( pl );
+  auto space = Pimpact::createSpace<ST,OT,4>( pl );
 
   auto mgSpaces = Pimpact::createMGSpaces<FSpace4T,CSpace4T,CS>( space, maxGrids );
   std::cout << "nGridLevels: " << mgSpaces->getNGrids() << "\n";
@@ -285,7 +285,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGOperators, SF_constructor4D, CS ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-  auto space = Pimpact::createSpace<S,O,4>( pl );
+  auto space = Pimpact::createSpace<ST,OT,4>( pl );
 
   auto mgSpaces = Pimpact::createMGSpaces<FSpace4T,CSpace4T,CS>( space, maxGrids );
 
@@ -323,7 +323,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGOperators, VF_constructor4D, CS ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-  auto space = Pimpact::createSpace<S,O,4>( pl );
+  auto space = Pimpact::createSpace<ST,OT,4>( pl );
 
   auto mgSpaces = Pimpact::createMGSpaces<FSpace4T,CSpace4T,CS>( space, maxGrids );
 
@@ -355,7 +355,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Restrictor4D, CS ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-	auto space = Pimpact::createSpace<S,O,4>( pl );
+	auto space = Pimpact::createSpace<ST,OT,4>( pl );
 
 	auto mgSpaces = Pimpact::createMGSpaces<FSpace4T,CSpace4T,CS>( space, maxGrids );
 
@@ -473,7 +473,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, Interpolator4D, CS ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-  auto space = Pimpact::createSpace<S,O,4>( pl );
+  auto space = Pimpact::createSpace<ST,OT,4>( pl );
 
   auto mgSpaces = Pimpact::createMGSpaces<FSpace4T,CSpace4T,CS>( space, maxGrids );
 
@@ -611,7 +611,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-	auto space = Pimpact::createSpace<S,O,4,4>( pl ); 
+	auto space = Pimpact::createSpace<ST,OT,4,4>( pl ); 
 
 	auto mgSpaces = Pimpact::createMGSpaces<FSpace4T,CSpace4T,CS>( space, maxGrids );
 
@@ -626,7 +626,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<int>( "Maximum Iterations", 1000 );
 	mgPL->sublist("Coarse Grid Solver").set<std::string>("Solver name", "GMRES" );
 	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<std::string>("Timer Label", "Coarse Grid Solver" );
-	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<S>("Convergence Tolerance" , 1.e-1 );
+	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<ST>("Convergence Tolerance" , 1.e-1 );
 
 	auto mg = Pimpact::createMultiGrid<
 									CVF,

@@ -16,13 +16,13 @@ namespace {
 
 
 
-using S = double;
+using ST = double;
 using O = int;
 
 const int d = 3;
 const int dNC=4;
 
-using SpaceT = typename Pimpact::Space<S,O,d,dNC>;
+using SpaceT = typename Pimpact::Space<ST,O,d,dNC>;
 using SF = typename Pimpact::ScalarField<SpaceT>;
 using VF = typename Pimpact::VectorField<SpaceT>;
 using MSF = typename Pimpact::ModeField<SF>;
@@ -73,7 +73,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, constructor, FType ) {
   pl->set("npy",            2 );
   pl->set("npz", (2==dim)?1:2 );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>(space);
 
@@ -102,7 +102,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, TwoNorm_and_init, FType ) {
   pl->set("npy",            2 );
   pl->set("npz", (2==dim)?1:2 );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>( space );
 
@@ -110,10 +110,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, TwoNorm_and_init, FType ) {
 
   const O m = mv->getNumberVecs();
   const O n = mv->getLength();
-  std::vector<S> normval(m);
+  std::vector<ST> normval(m);
 
   // test different float values, assures that initial and norm work smoothly
-  for( S i=0.; i< 200.1; ++i ) {
+  for( ST i=0.; i< 200.1; ++i ) {
     mv->init( i/2. );
     mv->norm( normval, Belos::TwoNorm );
     for( int j=0; j<m; ++j )
@@ -139,7 +139,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, clone, FType ) {
   pl->set("npy",            2 );
   pl->set("npz", (2==dim)?1:2 );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>( space );
 
@@ -172,7 +172,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneCopy, FType ) {
   pl->set("npy",            2 );
   pl->set("npz", (2==dim)?1:2 );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>( space );
 
@@ -213,7 +213,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneCopy2, FType ) {
   pl->set("npy",            2 );
   pl->set("npz", (2==dim)?1:2 );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>( space );
 
@@ -262,7 +262,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneCopy3, FType ) {
   pl->set("npy",            2 );
   pl->set("npz", (2==dim)?1:2 );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>( space );
 
@@ -307,7 +307,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneViewNonConst1, FType ) {
   pl->set("npy",            2 );
   pl->set("npz", (2==dim)?1:2 );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>( space );
 
@@ -358,7 +358,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneViewNonConst2, FType ) {
   pl->set("npy",            2 );
   pl->set("npz", (2==dim)?1:2 );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>( space );
 
@@ -406,7 +406,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneView1, FType ) {
   pl->set("npy",            2 );
   pl->set("npz", (2==dim)?1:2 );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>( space );
 
@@ -458,7 +458,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneView2, FType ) {
   pl->set("npy",            2 );
   pl->set("npz", (2==dim)?1:2 );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>( space );
 
@@ -507,7 +507,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, TimesMatAdd, FType ) {
   pl->set("npy",            2 );
   pl->set("npz", (2==dim)?1:2 );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>( space );
 
@@ -593,7 +593,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, add, FType ) {
   pl->set("npy",            2 );
   pl->set("npz", (2==dim)?1:2 );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>( space );
 
@@ -666,7 +666,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, dot, FType ) {
   pl->set("npy",            2 );
   pl->set("npz", (2==dim)?1:2 );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>( space );
 
@@ -729,7 +729,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, Trans, FType ) {
   pl->set("npy",            2 );
   pl->set("npz", (2==dim)?1:2 );
 
-  auto space = Pimpact::createSpace<S,O,d,dNC>( pl );
+  auto space = Pimpact::createSpace<ST,O,d,dNC>( pl );
 
   auto p = Pimpact::create<FType>( space );
 

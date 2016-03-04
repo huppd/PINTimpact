@@ -295,8 +295,6 @@ public:
 		//res.setCornersZero(); // ???
 
 		res.changed();
-		//apply( x, res );
-		//res.add( 1., b, -1., res );
 	}
 
   void assignField ( const DomainFieldT& mv ) const {};

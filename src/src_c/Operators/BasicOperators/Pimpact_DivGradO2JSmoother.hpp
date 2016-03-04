@@ -360,7 +360,7 @@ protected:
 			x.exchange(); // ???
 			trans->apply( op_, A );
 			trans->apply( b, B );
-			trans->updateRHS( op_, x, B );
+			//trans->updateRHS( op_, x, B );
 
 			// set solver and solve
 			AsovL_[0]->setVectors( X, B );
@@ -389,7 +389,7 @@ protected:
 
 			x.exchange(); // ???
 			trans->apply( b, B );
-			trans->updateRHS( op_, x, B );
+			//trans->updateRHS( op_, x, B );
 
 			// set solver and solve
 			AsovU_[0]->setVectors( X, B );
@@ -419,7 +419,7 @@ protected:
 
 			x.exchange(); // ???
 			trans->apply( b, B );
-			trans->updateRHS( op_, x, B );
+			//trans->updateRHS( op_, x, B );
 
 			// set solver and solve
 			AsovL_[1]->setVectors( X, B );
@@ -445,7 +445,7 @@ protected:
 
 			x.exchange(); // ???
 			trans->apply( b, B );
-			trans->updateRHS( op_, x, B );
+			//trans->updateRHS( op_, x, B );
 
 			// set solver and solve
 			AsovU_[1]->setVectors( X, B );
@@ -473,7 +473,7 @@ protected:
 
 			x.exchange(); // ???
 			trans->apply( b, B );
-			trans->updateRHS( op_, x, B );
+			//trans->updateRHS( op_, x, B );
 
 			// set solver and solve
 			AsovL_[2]->setVectors( X, B );
@@ -499,7 +499,7 @@ protected:
 
 			x.exchange(); // ???
 			trans->apply( b, B );
-			trans->updateRHS( op_, x, B );
+			//trans->updateRHS( op_, x, B );
 
 			// set solver and solve
 			AsovU_[2]->setVectors( X, B );

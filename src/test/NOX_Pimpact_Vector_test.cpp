@@ -18,10 +18,10 @@
 
 namespace {
 
-using S = double;
-using O = int;
+using ST = double;
+using OT = int;
 
-using SpaceT = typename Pimpact::Space<S,O,3,4>;
+using SpaceT = typename Pimpact::Space<ST,OT,3,4>;
 
 using SF = Pimpact::ScalarField<SpaceT>;
 using VF = Pimpact::VectorField<SpaceT>;
