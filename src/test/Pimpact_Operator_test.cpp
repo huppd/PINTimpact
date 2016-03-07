@@ -842,6 +842,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
 
   auto op = Pimpact::create<Pimpact::DivGradO2Op>( space );
 
+	// compute EV
+	ST evMax;
+	ST evMin;
+
+	op->computeEV( Pimpact::X, evMax, evMin );
 	Teuchos::RCP<Teuchos::ParameterList> ppl = Teuchos::parameterList();
 	ppl->set<int>( "numIters", 10 );
 	//ppl->set<int>( "BC smoothing", 1 );
@@ -923,9 +928,9 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Inv ) {
 	pl->set( "lz", lz );
 
 	//  grid size
-	pl->set("nx", nx );
-	pl->set("ny", ny );
-	pl->set("nz", nz );
+	pl->set("nx", 17 );
+	pl->set("ny", 17 );
+	pl->set("nz", 17 );
 	pl->set("nf", nf );
 
   // processor grid size

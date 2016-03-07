@@ -46,7 +46,6 @@ protected:
 	//using SolverT = Teuchos::SerialQRDenseSolver<Ordinal,Scalar>;
 	using SolverT = Teuchos::SerialDenseSolver<Ordinal,Scalar>;
 
-	//Ordinal N_;
 	bool levelYes_;
   const Teuchos::RCP<const OperatorT> op_;
 

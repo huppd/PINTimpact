@@ -3,6 +3,12 @@
 #define PIMPACT_DIVGRADO2OP_HPP
 
 
+// for EV
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_SerialDenseMatrix.hpp"
+#include "Teuchos_SerialDenseVector.hpp"
+#include "Teuchos_LAPACK.hpp"
+
 #include "Pimpact_ScalarField.hpp"
 #include "Pimpact_Types.hpp"
 
@@ -54,12 +60,10 @@ void OP_DivGradO2Op(
 
 
 
-/// \brief "laplace" for pressure 2nd Order.
+/// \brief "Laplace" for pressure 2nd Order.
 ///
 /// independent of \c StencilWidths
 /// \ingroup BaseOperator
-/// \todo instead of hardcode 2nd Order it would be pretty to use new space with \c StencilWidths<3,2>
-/// \todo handle corner
 template<class ST>
 class DivGradO2Op {
 
@@ -89,49 +93,48 @@ protected:
 public:
 
 
-	DivGradO2Op( const Teuchos::RCP<const SpaceT>& space ):
-		space_(space) {
+	DivGradO2Op( const Teuchos::RCP<const SpaceT>& space ): space_(space) {
 
-			for( int i=0; i<3; ++i ) {
-				// alocate stencilt
-				Ordinal nTemp = 3*( space_->nLoc(i) - 1 + 1 );
-				c_[i] = new Scalar[ nTemp ];
+		for( int i=0; i<3; ++i ) {
+			// allocate stencil
+			Ordinal nTemp = 3*( space_->nLoc(i) - 1 + 1 );
+			c_[i] = new Scalar[ nTemp ];
 
-				// inner field bounds
-				SR_[i] = 1;
-				ER_[i] = space_->nLoc(i) - 1;
+			// inner field bounds
+			SR_[i] = 1;
+			ER_[i] = space_->nLoc(i) - 1;
 
-				if( space_->getBCLocal()->getBCL(i) >  0 ) SR_[i] = 2;
-				if( space_->getBCLocal()->getBCL(i) == 0 ) SR_[i] = 1;
-				if( space_->getBCLocal()->getBCU(i) >  0 ) ER_[i] = space_->nLoc(i) - 1;
-				if( space_->getBCLocal()->getBCU(i) == 0 ) ER_[i] = space_->nLoc(i);
-			}
-
-			Op_getCDG(
-					space_->dim(),
-					space_->nGlo(),
-					space_->nLoc(),
-					space_->bl(),
-					space_->bu(),
-					space_->getBCLocal()->getBCL(),
-					space_->getBCLocal()->getBCU(),
-					space_->getCoordinatesGlobal()->getX( ECoord::X, EField::U ),
-					space_->getCoordinatesGlobal()->getX( ECoord::Y, EField::V ),
-					space_->getCoordinatesGlobal()->getX( ECoord::Z, EField::W ),
-					space_->getCoordinatesLocal()->getX( ECoord::X, EField::S ),
-					space_->getCoordinatesLocal()->getX( ECoord::Y, EField::S ),
-					space_->getCoordinatesLocal()->getX( ECoord::Z, EField::S ),
-					space_->getCoordinatesLocal()->getX( ECoord::X, EField::U ),
-					space_->getCoordinatesLocal()->getX( ECoord::Y, EField::V ),
-					space_->getCoordinatesLocal()->getX( ECoord::Z, EField::W ),
-					c_[0],
-					c_[1],
-					c_[2] );
+			if( space_->getBCLocal()->getBCL(i) >  0 ) SR_[i] = 2;
+			if( space_->getBCLocal()->getBCL(i) == 0 ) SR_[i] = 1;
+			if( space_->getBCLocal()->getBCU(i) >  0 ) ER_[i] = space_->nLoc(i) - 1;
+			if( space_->getBCLocal()->getBCU(i) == 0 ) ER_[i] = space_->nLoc(i);
 		}
 
+		Op_getCDG(
+				space_->dim(),
+				space_->nGlo(),
+				space_->nLoc(),
+				space_->bl(),
+				space_->bu(),
+				space_->getBCLocal()->getBCL(),
+				space_->getBCLocal()->getBCU(),
+				space_->getCoordinatesGlobal()->getX( ECoord::X, EField::U ),
+				space_->getCoordinatesGlobal()->getX( ECoord::Y, EField::V ),
+				space_->getCoordinatesGlobal()->getX( ECoord::Z, EField::W ),
+				space_->getCoordinatesLocal()->getX( ECoord::X, EField::S ),
+				space_->getCoordinatesLocal()->getX( ECoord::Y, EField::S ),
+				space_->getCoordinatesLocal()->getX( ECoord::Z, EField::S ),
+				space_->getCoordinatesLocal()->getX( ECoord::X, EField::U ),
+				space_->getCoordinatesLocal()->getX( ECoord::Y, EField::V ),
+				space_->getCoordinatesLocal()->getX( ECoord::Z, EField::W ),
+				c_[0],
+				c_[1],
+				c_[2] );
+	}
 
-	void apply(const DomainFieldT& x, RangeFieldT& y,
-			Belos::ETrans trans=Belos::NOTRANS ) const {
+
+	void apply( const DomainFieldT& x, RangeFieldT& y, Belos::ETrans
+			trans=Belos::NOTRANS ) const {
 
 		x.exchange();
 
@@ -149,73 +152,46 @@ public:
 						y.at(i,j,k) = innerStenc2D(x, i,j,k);
 					}
 
-		// boundary conditions in X
-		if( space_->getBCLocal()->getBCL(X)>0 ) {
+		// boundaries
+		for( int d=0; d<1; ++d ) {
 
-			Ordinal i = 1;
+			int d1 = ( d + 1 )%3;
+			int d2 = ( d + 2 )%3;
+			if( d2>d1 ) std::swap( d2, d1 );
+			TO i;
 
-			for( Ordinal k=getSR(Z); k<=getER(Z); ++k )
-				for( Ordinal j=getSR(Y); j<=getER(Y); ++j )
-					y.at(i,j,k) = getC(X,i,0)*x.at(i,j,k) + getC(X,i,+1)*x.at(i+1,j,k);
+			// lower boundaries
+			if( space_->getBCLocal()->getBCL(d)>0 ) {
+				i[d] = 1;
+				for( i[d1]=getSR(d1); i[d1]<=getER(d1); ++i[d1] )
+					for( i[d2]=getSR(d2); i[d2]<=getER(d2); ++i[d2] ) {
+						TO ip = i;
+						++ip[d];
+						y.at(i[0],i[1],i[2]) =
+							getC(d,i[d],0)*x.at(i[0],i[1],i[2]) + getC(d,i[d],+1)*x.at(ip[0],ip[1],ip[2]);
+					}
+			}
 
-		}
-		if( space_->getBCLocal()->getBCU(X)>0 ) {
-
-			Ordinal i = space_->nLoc(X);
-
-			for( Ordinal k=getSR(Z); k<=getER(Z); ++k )
-				for( Ordinal j=getSR(Y); j<=getER(Y); ++j )
-					y.at(i,j,k) = getC(X,i,-1)*x.at(i-1,j,k) + getC(X,i,0)*x.at(i,j,k);
-
-		}
-
-		// boundary conditions in Y
-		if( space_->getBCLocal()->getBCL(Y)>0 ) {
-
-			Ordinal j = 1;
-
-			for( Ordinal k=getSR(Z); k<=getER(Z); ++k )
-				for( Ordinal i=getSR(X); i<=getER(X); ++i )
-					y.at(i,j,k) = getC(Y,j,0)*x.at(i,j,k) + getC(Y,j,+1)*x.at(i,j+1,k);
-
-		}
-		if( space_->getBCLocal()->getBCU(Y)>0 ) {
-
-			Ordinal j = space_->nLoc(Y);
-
-			for( Ordinal k=getSR(Z); k<=getER(Z); ++k )
-				for( Ordinal i=getSR(X); i<=getER(X); ++i )
-					y.at(i,j,k) = getC(Y,j,-1)*x.at(i,j-1,k) + getC(Y,j,0)*x.at(i,j,k);
+			// upper boundaries
+			if( space_->getBCLocal()->getBCU(d)>0 ) {
+				i[d] = space_->nLoc(d);
+				for( i[d1]=getSR(d1); i[d1]<=getER(d1); ++i[d1] )
+					for( i[d2]=getSR(d2); i[d2]<=getER(d2); ++i[d2] ) {
+						TO ip = i;
+						--ip[d];
+						y.at(i[0],i[1],i[2]) =
+							getC(d,i[d],0)*x.at(i[0],i[1],i[2]) + getC(d,i[d],-1)*x.at(ip[0],ip[1],ip[2]);
+					}
+			}
 
 		}
-
-		// boundary conditions in Z
-		if( space_->getBCLocal()->getBCL(Z)>0 ) {
-
-			Ordinal k = 1;
-
-			for( Ordinal j=getSR(Y); j<=getER(Y); ++j )
-				for( Ordinal i=getSR(X); i<=getER(X); ++i )
-					y.at(i,j,k) = getC(Z,k,0)*x.at(i,j,k) + getC(Z,k,+1)*x.at(i,j,k+1);
-
-		}
-		if( space_->getBCLocal()->getBCU(Z)>0 ) {
-
-			Ordinal k = space_->nLoc(Z);
-
-			for( Ordinal j=getSR(Y); j<=getER(Y); ++j )
-				for( Ordinal i=getSR(X); i<=getER(X); ++i )
-					y.at(i,j,k) = getC(Z,k,-1)*x.at(i,j,k-1) + getC(Z,k,0)*x.at(i,j,k);
-
-		}
-
-		//y.setCornersZero(); // ???
 
 		y.changed();
 
 	}
 
-	void computeResidual( const RangeFieldT& b, const DomainFieldT& x, RangeFieldT& res ) const {
+	void computeResidual( const RangeFieldT& b, const DomainFieldT& x,
+			RangeFieldT& res ) const {
 
 		x.exchange();
 		// inner stencil
@@ -232,78 +208,125 @@ public:
 						res.at(i,j,k) = b.at(i,j,k) - innerStenc2D(x, i,j,k);
 					}
 
-		// boundary conditions in X
-		if( space_->getBCLocal()->getBCL(X)>0 ) {
+		// boundaries
+		for( int d=0; d<1; ++d ) {
 
-			Ordinal i = 1;
+			int d1 = ( d + 1 )%3;
+			int d2 = ( d + 2 )%3;
+			if( d2>d1 ) std::swap( d2, d1 );
+			TO i;
 
-			for( Ordinal k=getSR(Z); k<=getER(Z); ++k )
-				for( Ordinal j=getSR(Y); j<=getER(Y); ++j )
-					res.at(i,j,k) = b.at(i,j,k) - getC(X,i,0)*x.at(i,j,k) - getC(X,i,+1)*x.at(i+1,j,k);
+			// lower boundaries
+			if( space_->getBCLocal()->getBCL(d)>0 ) {
+				i[d] = 1;
+				for( i[d1]=getSR(d1); i[d1]<=getER(d1); ++i[d1] )
+					for( i[d2]=getSR(d2); i[d2]<=getER(d2); ++i[d2] ) {
+						TO ip = i;
+						++ip[d];
+						res.at(i[0],i[1],i[2]) = b.at(i[0],i[1],i[2]) -
+							getC(d,i[d],0 )*x.at(i[0], i[1], i[2] ) -
+							getC(d,i[d],+1)*x.at(ip[0],ip[1],ip[2]);
+					}
+			}
 
-		}
-		if( space_->getBCLocal()->getBCU(X)>0 ) {
-
-			Ordinal i = space_->nLoc(X);
-
-			for( Ordinal k=getSR(Z); k<=getER(Z); ++k )
-				for( Ordinal j=getSR(Y); j<=getER(Y); ++j )
-					res.at(i,j,k) = b.at(i,j,k) - getC(X,i,-1)*x.at(i-1,j,k) - getC(X,i,0)*x.at(i,j,k);
-
-		}
-
-		// boundarres.conditions in Y
-		if( space_->getBCLocal()->getBCL(Y)>0 ) {
-
-			Ordinal j = 1;
-
-			for( Ordinal k=getSR(Z); k<=getER(Z); ++k )
-				for( Ordinal i=getSR(X); i<=getER(X); ++i )
-					res.at(i,j,k) = b.at(i,j,k) - getC(Y,j,0)*x.at(i,j,k) - getC(Y,j,+1)*x.at(i,j+1,k);
-
-		}
-		if( space_->getBCLocal()->getBCU(Y)>0 ) {
-
-			Ordinal j = space_->nLoc(Y);
-
-			for( Ordinal k=getSR(Z); k<=getER(Z); ++k )
-				for( Ordinal i=getSR(X); i<=getER(X); ++i )
-					res.at(i,j,k) = b.at(i,j,k) - getC(Y,j,-1)*x.at(i,j-1,k) - getC(Y,j,0)*x.at(i,j,k);
+			// upper boundaries
+			if( space_->getBCLocal()->getBCU(d)>0 ) {
+				i[d] = space_->nLoc(d);
+				for( i[d1]=getSR(d1); i[d1]<=getER(d1); ++i[d1] )
+					for( i[d2]=getSR(d2); i[d2]<=getER(d2); ++i[d2] ) {
+						TO ip = i;
+						--ip[d];
+						res.at(i[0],i[1],i[2]) = b.at(i[0],i[1],i[2]) -
+							getC(d,i[d],0 )*x.at(i[0], i[1], i[2] ) -
+							getC(d,i[d],-1)*x.at(ip[0],ip[1],ip[2]);
+					}
+			}
 
 		}
-
-		// boundary conditions in Z
-		if( space_->getBCLocal()->getBCL(Z)>0 ) {
-
-			Ordinal k = 1;
-
-			for( Ordinal j=getSR(Y); j<=getER(Y); ++j )
-				for( Ordinal i=getSR(X); i<=getER(X); ++i )
-					res.at(i,j,k) = b.at(i,j,k) - getC(Z,k,0)*x.at(i,j,k) - getC(Z,k,+1)*x.at(i,j,k+1);
-
-		}
-		if( space_->getBCLocal()->getBCU(Z)>0 ) {
-
-			Ordinal k = space_->nLoc(Z);
-
-			for( Ordinal j=getSR(Y); j<=getER(Y); ++j )
-				for( Ordinal i=getSR(X); i<=getER(X); ++i )
-					res.at(i,j,k) = b.at(i,j,k) - getC(Z,k,-1)*x.at(i,j,k-1) - getC(Z,k,0)*x.at(i,j,k);
-
-		}
-
-		//res.setCornersZero(); // ???
 
 		res.changed();
+
 	}
+
+	void computeEV( const ECoord& coord, Scalar& evMax, Scalar& evMin ) const {
+
+		using VectorT = Teuchos::SerialDenseVector<Ordinal,Scalar>;
+		using MatrixT = Teuchos::SerialDenseMatrix<Ordinal,Scalar>;
+
+		Ordinal n = getER(coord)-getSR(coord)+1;
+
+		Teuchos::RCP< MatrixT > A;
+		Teuchos::RCP< VectorT > X;
+		Teuchos::RCP< VectorT > B;
+
+		A = Teuchos::rcp( new MatrixT( n, n, true ) );
+
+		X = Teuchos::rcp( new VectorT(n,false) );
+		B = Teuchos::rcp( new VectorT(n,false) );
+
+		// compute EV, \todo move to TeuchosBla
+		Ordinal sdim = 0;
+		Teuchos::RCP< VectorT > evr = Teuchos::rcp( new VectorT(n,false) );
+		Teuchos::RCP< VectorT > evi = Teuchos::rcp( new VectorT(n,false) );
+		Teuchos::RCP< VectorT > work = Teuchos::rcp( new VectorT(4*n,false) );
+		Teuchos::RCP< VectorT > rwork = Teuchos::rcp( new VectorT(3*n,false) );
+
+		Teuchos::ArrayRCP<Ordinal> bwork = Teuchos::arcp<Ordinal>( n );
+		Ordinal info = 0;
+
+		Teuchos::LAPACK<Ordinal,Scalar> lapack;
+		lapack.GEES(
+				'N', 						// Schur vectors are not computed
+				n,              // The order of the matrix A. N >= 0
+				A->values(),    // A is DOUBLE PRECISION array, dimension (LDA,N); On entry, the N-by-N matrix A.; On exit, A has been overwritten by its real Schur form T.;
+				A->stride(),   // The leading dimension of the array A.
+				&sdim,           // If SORT = 'N', SDIM = 0.; If SORT = 'S', SDIM = number of eigenvalues (after sorting); for which SELECT is true. (Complex conjugate pairs for which SELECT is true for either eigenvalue count as 2.)
+				evr->values(),  // 
+				evi->values(),
+				0,              // If JOBVS = 'N', VS is not referenced.
+				1,              // The leading dimension of the array VS.
+				work->values(), // 
+				4*n,           //
+				//-1,           //
+				rwork->values(), //
+				bwork.getRawPtr(),
+				&info );
+
+		std::cout << "info: " << info << "\n";
+		//std::cout << "opti work: " << (*work)[0]/N_ << "\n";
+
+		Teuchos::RCP<std::ostream> out = Pimpact::createOstream( "ev.txt" );
+		for( Ordinal i=0; i<n; ++i )
+			*out << (*evr)[i] << "\t" << (*evi)[i] << "\n";
+
+			/*
+			 * = 0: successful exit
+       *    < 0: if INFO = -i, the i-th argument had an illegal value.
+       *    > 0: if INFO = i, and i is
+       *       <= N: the QR algorithm failed to compute all the
+       *             eigenvalues; elements 1:ILO-1 and i+1:N of WR and WI
+       *             contain those eigenvalues which have converged; if
+       *             JOBVS = 'V', VS contains the matrix which reduces A
+       *             to its partially converged Schur form.
+       *       = N+1: the eigenvalues could not be reordered because some
+       *             eigenvalues were too close to separate (the problem
+       *             is very ill-conditioned);
+       *       = N+2: after reordering, roundoff changed values of some
+       *             complex eigenvalues so that leading eigenvalues in
+       *             the Schur form no longer satisfy SELECT=.TRUE.  This
+       *             could also be caused by underflow due to scaling.
+			 */
+
+	}
+
+	/// \name setter
+	/// @{ 
 
   void assignField ( const DomainFieldT& mv ) const {};
 
-  bool hasApplyTranspose() const { return( false ); }
-
-	Teuchos::RCP<const SpaceT> space() const { return(space_); };
-
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+
+	///  @} 
 
   void print( std::ostream& out=std::cout ) const {
     out << "--- " << getLabel() << " ---\n";
@@ -340,7 +363,7 @@ public:
 
 protected:
 
-	Scalar innerStenc3D( const DomainFieldT& x, const Ordinal& i, const Ordinal& j,
+	inline Scalar innerStenc3D( const DomainFieldT& x, const Ordinal& i, const Ordinal& j,
 			const Ordinal& k ) const {
 
 		return( 
@@ -351,7 +374,7 @@ protected:
 				);
 	}
 
-	Scalar innerStenc2D( const DomainFieldT& x, const Ordinal& i, const Ordinal& j,
+	inline Scalar innerStenc2D( const DomainFieldT& x, const Ordinal& i, const Ordinal& j,
 			const Ordinal& k ) const {
 
 		return( 
@@ -361,37 +384,39 @@ protected:
 				);
 	}
 
-
-
 public:
 
 	/// \name getters
 	/// @{ 
 
-	const Scalar* getC( const ECoord& dir) const  {
+  bool hasApplyTranspose() const { return( false ); }
+
+	Teuchos::RCP<const SpaceT> space() const { return(space_); };
+
+	inline const Scalar* getC( const ECoord& dir) const  {
 		return( getC( static_cast<const int&>(dir) ) );
   }
 
-  const Scalar* getC( const int& dir) const  {
+  inline const Scalar* getC( const int& dir) const  {
 		return( c_[dir] );
   }
 
-	const Scalar& getC( const ECoord& dir, Ordinal i, Ordinal off ) const  {
+	inline const Scalar& getC( const ECoord& dir, Ordinal i, Ordinal off ) const  {
 		return( getC( static_cast<const int&>(dir), i, off ) );
   }
 
-	const Scalar& getC( const int& dir, Ordinal i, Ordinal off ) const  {
+	inline const Scalar& getC( const int& dir, Ordinal i, Ordinal off ) const  {
 		return( c_[dir][ off + 1 + (i-1)*3 ] );
   }
 
-	const Ordinal* getSR() const { return( SR_.getRawPtr() ); }
-	const Ordinal* getER() const { return( ER_.getRawPtr() ); }
+	inline const Ordinal* getSR() const { return( SR_.getRawPtr() ); }
+	inline const Ordinal* getER() const { return( ER_.getRawPtr() ); }
 
-	const Ordinal& getSR( const Ordinal& coord ) const { return( SR_[coord] ); }
-	const Ordinal& getER( const Ordinal& coord ) const { return( ER_[coord] ); }
+	inline const Ordinal& getSR( const Ordinal& coord ) const { return( SR_[coord] ); }
+	inline const Ordinal& getER( const Ordinal& coord ) const { return( ER_[coord] ); }
 
-	const Ordinal& getSR( const ECoord& coord ) const { return( getSR( static_cast<Ordinal>(coord) ) ); }
-	const Ordinal& getER( const ECoord& coord ) const { return( getER( static_cast<Ordinal>(coord) ) ); }
+	inline const Ordinal& getSR( const ECoord& coord ) const { return( getSR( static_cast<Ordinal>(coord) ) ); }
+	inline const Ordinal& getER( const ECoord& coord ) const { return( getER( static_cast<Ordinal>(coord) ) ); }
 
 	const std::string getLabel() const { return( "DivGradO2" ); };
 
