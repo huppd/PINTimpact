@@ -58,19 +58,23 @@ int fe = 4;
 
 int level = -1;
 
-ST lx = 30.;
-ST ly = 20.;
-ST lz = 20.;
+ST lx = 1.;
+ST ly = 1.;
+ST lz = 1.;
+
+OT nx = 33;
+OT ny = 17;
+OT nz = 9;
+OT nf = 1;
+
+int sx = 0;
+int sy = 0;
+int sz = 0;
 
 int npx = 1;
 int npy = 1;
 int npz = 1;
 int npf = 1;
-
-OT nx = 65;
-OT ny = 49;
-OT nz = 97;
-OT nf = 1;
 
 int rankbla = -1;
 
@@ -105,52 +109,23 @@ TEUCHOS_STATIC_SETUP() {
 	clp.setOption( "ly", &ly, "" );
 	clp.setOption( "lz", &lz, "" );
 
+	clp.setOption( "nx", &nx, "" );
+	clp.setOption( "ny", &ny, "" );
+	clp.setOption( "nz", &nz, "" );
+	clp.setOption( "nf", &nf, "" );
+
+	clp.setOption( "sx", &sx, "" );
+	clp.setOption( "sy", &sy, "" );
+	clp.setOption( "sz", &sz, "" );
+
 	clp.setOption( "npx", &npx, "" );
 	clp.setOption( "npy", &npy, "" );
 	clp.setOption( "npz", &npz, "" );
 	clp.setOption( "npf", &npf, "" );
 
-	clp.setOption( "nx", &nx, "" );
-	clp.setOption( "ny", &ny, "" );
-	clp.setOption( "nz", &nz, "" );
-	clp.setOption( "nf", &nf, "" );
+	
 	clp.setOption( "rank", &rankbla, "" );
 	clp.setOption( "maxGrids", &maxGrids, "" );
-
-	//nx=65;
-	//ny=65;
-	//nz=65;
-	//nx=33;
-	//ny=33;
-	//nz=33;
-	////pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "para" );
-	////pl->sublist("Stretching in X").set<ST>( "alpha", 0.25 );
-
-	//pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
-	//pl->sublist("Stretching in X").set<ST>( "N metr L", nx/2 );
-	//pl->sublist("Stretching in X").set<ST>( "N metr U", nx/2 );
-	////pl->sublist("Stretching in X").set<ST>( "x0 L", 0.05 );
-	////pl->sublist("Stretching in X").set<ST>( "x0 L", 1. );
-	////pl->sublist("Stretching in X").set<ST>( "x0 U", 0. );
-
-	//pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
-	//pl->sublist("Stretching in Y").set<ST>( "N metr L", nx/2 );
-	//pl->sublist("Stretching in Y").set<ST>( "N metr U", nx/2 );
-
-	//pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
-	//pl->sublist("Stretching in Y").set<ST>( "N metr L", nx/2 );
-	//pl->sublist("Stretching in Y").set<ST>( "N metr U", nx/2 );
-	//////pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
-	//////pl->sublist("Stretching in Y").set<ST>( "N metr L", 1 );
-	//////pl->sublist("Stretching in Y").set<ST>( "N metr U", ny  );
-	//////pl->sublist("Stretching in Y").set<ST>( "x0 L", 0. );
-	//////pl->sublist("Stretching in Y").set<ST>( "x0 U", 0. );
-
-	//////pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
-	//////pl->sublist("Stretching in Z").set<ST>( "N metr L", 1 );
-	//////pl->sublist("Stretching in Z").set<ST>( "N metr U", nz  );
-	//////pl->sublist("Stretching in Z").set<ST>( "x0 L", 0. );
-	//////pl->sublist("Stretching in Z").set<ST>( "x0 U", 0. );
 
 	pl->set<ST>( "Re", 400 );
 
@@ -172,6 +147,23 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSpaces, constructor3D, CS ) {
 	pl->set("ny", ny );
 	pl->set("nz", nz );
 	pl->set("nf", nf );
+
+	// grid stretching
+	if( sx!=0 ) {
+		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
+		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
+	}
+	if( sy!=0 ) {
+		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
+		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
+	}
+	if( sz!=0 ) {
+		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
+		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
+	}
 
 	// processor grid size
 	pl->set("npx", npx );
@@ -223,6 +215,23 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGFields, SF_constructor3D, CS ) {
 	pl->set( "nz", nz );
 	pl->set( "nf", nf );
 
+	// grid stretching
+	if( sx!=0 ) {
+		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
+		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
+	}
+	if( sy!=0 ) {
+		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
+		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
+	}
+	if( sz!=0 ) {
+		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
+		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
+	}
+
 	// processor grid size
 	pl->set( "npx", npx );
 	pl->set( "npy", npy );
@@ -268,6 +277,23 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGFields, VF_constructor3D, CS ) {
 	pl->set("ny", ny );
 	pl->set("nz", nz );
 	pl->set("nf", nf );
+
+	// grid stretching
+	if( sx!=0 ) {
+		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
+		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
+	}
+	if( sy!=0 ) {
+		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
+		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
+	}
+	if( sz!=0 ) {
+		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
+		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
+	}
 
 	// processor grid size
 	pl->set("npx", npx );
@@ -315,6 +341,23 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGOperators, SF_constructor3D, CS ) {
 	pl->set("nz", nz );
 	pl->set("nf", nf );
 
+	// grid stretching
+	if( sx!=0 ) {
+		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
+		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
+	}
+	if( sy!=0 ) {
+		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
+		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
+	}
+	if( sz!=0 ) {
+		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
+		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
+	}
+
 	// processor grid size
 	pl->set("npx", npx );
 	pl->set("npy", npy );
@@ -360,6 +403,23 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGOperators, VF_constructor3D, CS ) {
 	pl->set("nz", nz );
 	pl->set("nf", nf );
 
+	// grid stretching
+	if( sx!=0 ) {
+		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
+		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
+	}
+	if( sy!=0 ) {
+		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
+		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
+	}
+	if( sz!=0 ) {
+		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
+		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
+	}
+
 	// processor grid size
 	pl->set("npx", npx );
 	pl->set("npy", npy );
@@ -400,6 +460,23 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSmoothers, SF_constructor3D, CS ) {
 	pl->set("ny", ny );
 	pl->set("nz", nz );
 	pl->set("nf", nf );
+
+	// grid stretching
+	if( sx!=0 ) {
+		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
+		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
+	}
+	if( sy!=0 ) {
+		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
+		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
+	}
+	if( sz!=0 ) {
+		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
+		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
+	}
 
 	// processor grid size
 	pl->set("npx", npx );
@@ -443,6 +520,23 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSmoothers, VF_constructor3D, CS ) {
 	pl->set("nz", nz );
 	pl->set("nf", nf );
 
+	// grid stretching
+	if( sx!=0 ) {
+		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
+		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
+	}
+	if( sy!=0 ) {
+		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
+		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
+	}
+	if( sz!=0 ) {
+		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
+		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
+	}
+
 	// processor grid size
 	pl->set("npx", npx );
 	pl->set("npy", npy );
@@ -484,6 +578,23 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Restrictor, CS ) {
 	pl->set("ny", ny );
 	pl->set("nz", nz );
 	pl->set("nf", nf );
+
+	// grid stretching
+	if( sx!=0 ) {
+		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
+		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
+	}
+	if( sy!=0 ) {
+		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
+		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
+	}
+	if( sz!=0 ) {
+		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
+		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
+	}
 
 	// processor grid size
 	pl->set("npx", npx );
@@ -619,6 +730,23 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator, CS ) {
 	pl->set("ny", ny );
 	pl->set("nz", nz );
 	pl->set("nf", nf );
+
+	// grid stretching
+	if( sx!=0 ) {
+		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
+		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
+	}
+	if( sy!=0 ) {
+		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
+		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
+	}
+	if( sz!=0 ) {
+		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
+		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
+	}
 
 	// processor grid size
 	pl->set("npx", npx );
@@ -770,6 +898,23 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 	pl->set("ny", ny );
 	pl->set("nz", nz );
 	pl->set("nf", nf );
+
+	// grid stretching
+	if( sx!=0 ) {
+		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
+		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
+	}
+	if( sy!=0 ) {
+		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
+		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
+	}
+	if( sz!=0 ) {
+		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
+		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
+	}
 
 	// processor grid size
 	pl->set("npx", npx );
@@ -976,6 +1121,23 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersVF, CS ) {
 	pl->set("ny", ny );
 	pl->set("nz", nz );
 	pl->set("nf", nf );
+
+	// grid stretching
+	if( sx!=0 ) {
+		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
+		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
+	}
+	if( sy!=0 ) {
+		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
+		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
+	}
+	if( sz!=0 ) {
+		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
+		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
+	}
 
 	// processor grid size
 	pl->set("npx", npx );
@@ -1237,6 +1399,23 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 	pl->set( "nz", nz );
 	pl->set( "nf", nf );
 
+	// grid stretching
+	if( sx!=0 ) {
+		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
+		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
+	}
+	if( sy!=0 ) {
+		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
+		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
+	}
+	if( sz!=0 ) {
+		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
+		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
+	}
+
 	// processor grid size
 	pl->set( "npx", npx );
 	pl->set( "npy", npy );
@@ -1245,6 +1424,17 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 
 	Teuchos::RCP<const Pimpact::Space<ST,OT,dimension,4> > space =
 		Pimpact::createSpace<ST,OT,dimension,4>( pl );
+
+	auto x = Pimpact::create<Pimpact::ScalarField>( space );
+	auto b = Pimpact::create<Pimpact::ScalarField>( space );
+	auto res = x->clone( Pimpact::ShallowCopy );
+	auto sol = x->clone( Pimpact::ShallowCopy );
+
+	auto xm = Pimpact::createMultiField( x );
+	auto bm = Pimpact::createMultiField( b );
+
+	auto op   = Pimpact::create<Pimpact::DivGradOp>( space );
+	auto opO2 = Pimpact::create<Pimpact::DivGradO2Op>( space );
 
 	int nMax = 10;
 
@@ -1265,18 +1455,28 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 	//mgPL->set<bool>( "defect correction", true );
 	mgPL->set<bool>( "init zero", false );
 
-	// Smoother: Jacobian
-	//mgPL->sublist("Smoother").set( "omega", 1. );
-	mgPL->sublist("Smoother").set<int>( "numIters", 4 );
-	mgPL->sublist("Smoother").set<int>( "BC smoothing", 1 );
-	mgPL->sublist("Smoother").set<OT>( "depth", 1 );
+	//// Smoother: Jacobian
+	////mgPL->sublist("Smoother").set( "omega", 1. );
+	//mgPL->sublist("Smoother").set<int>( "numIters", 4 );
+	//mgPL->sublist("Smoother").set<int>( "BC smoothing", 1 );
+	//mgPL->sublist("Smoother").set<OT>( "depth", 1 );
 
 
 	// Smoother: GS
 	//mgPL->sublist("Smoother").set<int>( "RBGS mode", 2 );
 
 	// Smoother: Chebyshev
+	// compute EV
+	ST evMax;
+	ST evMin;
+	opO2->computeEV( evMax, evMin );
+	std::cout << "glob: " << evMax << "\t" <<evMin << "\n";
+
 	mgPL->sublist("Smoother").set<int>( "numIters", 12 );
+	mgPL->sublist("Smoother").set<ST>( "max EV", evMax*0.9 );
+	mgPL->sublist("Smoother").set<ST>( "min EV", evMin*1.1 );
+	//mgPL->sublist("Smoother").set<ST>( "max EV", evMax );
+	//mgPL->sublist("Smoother").set<ST>( "min EV", evMin );
 	
 	auto mg =
 		Pimpact::createMultiGrid<
@@ -1286,21 +1486,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 			Pimpact::InterpolationOp,
 			Pimpact::DivGradOp,
 			Pimpact::DivGradO2Op,
-			Pimpact::DivGradO2JSmoother,
+			//Pimpact::DivGradO2JSmoother,
 			//Pimpact::DivGradO2SORSmoother,
-			//Pimpact::Chebyshev,
+			Pimpact::Chebyshev,
 			Pimpact::DivGradO2Inv >( mgSpaces, mgPL );
 
-	auto x = Pimpact::create<Pimpact::ScalarField>( space );
-	auto b = Pimpact::create<Pimpact::ScalarField>( space );
-	auto res = x->clone( Pimpact::ShallowCopy );
-	auto sol = x->clone( Pimpact::ShallowCopy );
-
-	auto xm = Pimpact::createMultiField( x );
-	auto bm = Pimpact::createMultiField( b );
-
-	auto op   = Pimpact::create<Pimpact::DivGradOp>( space );
-	auto opO2 = Pimpact::create<Pimpact::DivGradO2Op>( space );
 
 	auto prec = Pimpact::createMultiOperatorBase( mg );
 
@@ -1456,6 +1646,23 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffSOR, CS ) {
 	pl->set( "nz", nz );
 	pl->set( "nf", nf );
 
+	// grid stretching
+	if( sx!=0 ) {
+		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
+		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
+	}
+	if( sy!=0 ) {
+		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
+		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
+	}
+	if( sz!=0 ) {
+		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
+		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
+	}
+
 	// processor grid size
 	pl->set( "npx", npx );
 	pl->set( "npy", npy );
@@ -1594,6 +1801,23 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffJ, CS ) {
 	pl->set("ny", ny );
 	pl->set("nz", nz );
 	pl->set("nf", nf );
+
+	// grid stretching
+	if( sx!=0 ) {
+		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
+		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
+	}
+	if( sy!=0 ) {
+		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
+		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
+	}
+	if( sz!=0 ) {
+		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
+		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
+	}
 
 	// processor grid size
 	pl->set("npx", npx );

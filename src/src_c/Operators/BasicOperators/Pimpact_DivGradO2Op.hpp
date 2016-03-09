@@ -153,7 +153,7 @@ public:
 					}
 
 		// boundaries
-		for( int d=0; d<1; ++d ) {
+		for( int d=0; d<3; ++d ) {
 
 			int d1 = ( d + 1 )%3;
 			int d2 = ( d + 2 )%3;
@@ -209,7 +209,7 @@ public:
 					}
 
 		// boundaries
-		for( int d=0; d<1; ++d ) {
+		for( int d=0; d<3; ++d ) {
 
 			int d1 = ( d + 1 )%3;
 			int d2 = ( d + 2 )%3;
@@ -248,21 +248,49 @@ public:
 
 	}
 
-	void computeEV( const ECoord& coord, Scalar& evMax, Scalar& evMin ) const {
+	void computeEV( const ECoord& dir, Scalar& evMax, Scalar& evMin ) const {
 
 		using VectorT = Teuchos::SerialDenseVector<Ordinal,Scalar>;
 		using MatrixT = Teuchos::SerialDenseMatrix<Ordinal,Scalar>;
 
-		Ordinal n = getER(coord)-getSR(coord)+1;
+		Ordinal n = space_->nLoc(dir)-1+1;
 
 		Teuchos::RCP< MatrixT > A;
-		Teuchos::RCP< VectorT > X;
-		Teuchos::RCP< VectorT > B;
+		//Teuchos::RCP< VectorT > X;
+		//Teuchos::RCP< VectorT > B;
 
 		A = Teuchos::rcp( new MatrixT( n, n, true ) );
+		// construct A
+		for( Ordinal i=1; i<=space_->nLoc(dir); ++i )
+			for( int o=-1; o<=1; ++o ) {
+				Ordinal I = i-1;
+				if( (i+o)>=getSR(dir) && (i+o)<=getER(dir) ) 
+					(*A)( I, I+o ) += getC( dir, i, o) ;
+			}
 
-		X = Teuchos::rcp( new VectorT(n,false) );
-		B = Teuchos::rcp( new VectorT(n,false) );
+
+		// lower boundaries
+		if( space_->getBCLocal()->getBCL(dir)>0 ) {
+			Ordinal i = 1;
+			Ordinal I = i-1;
+			// set row zero
+			for( Ordinal l=0; l<A->numCols(); ++l ) 
+				(*A)(I,l) = 0.;
+			(*A)( I, I )   += getC( dir, i, 0) ;
+			(*A)( I, I+1 ) += getC( dir, i,+1) ;
+
+		}
+
+		// upper boundaries
+		if( space_->getBCLocal()->getBCU(dir)>0 ) {
+			Ordinal i = space_->nLoc(dir);
+			Ordinal I = i-1;
+			// set row zero
+			for( Ordinal l=0; l<A->numCols(); ++l ) 
+				(*A)(I,l) = 0.;
+			(*A)( I, I )   += getC( dir, i, 0) ;
+			(*A)( I, I-1 ) += getC( dir, i,-1) ;
+		}
 
 		// compute EV, \todo move to TeuchosBla
 		Ordinal sdim = 0;
@@ -292,12 +320,21 @@ public:
 				bwork.getRawPtr(),
 				&info );
 
-		std::cout << "info: " << info << "\n";
+		//std::cout << "info: " << info << "\n";
 		//std::cout << "opti work: " << (*work)[0]/N_ << "\n";
 
-		Teuchos::RCP<std::ostream> out = Pimpact::createOstream( "ev.txt" );
-		for( Ordinal i=0; i<n; ++i )
-			*out << (*evr)[i] << "\t" << (*evi)[i] << "\n";
+		Teuchos::RCP<std::ostream> out = Pimpact::createOstream( "ev_"+toString(dir)+".txt" );
+		for( Ordinal i=0; i<n; ++i ) {
+			*out << (*evr)[i] << "\n";
+			if( 0==i ) {
+				evMax = (*evr)[i] ;
+				evMin = (*evr)[i] ;
+			}
+			else {
+				evMax = std::max( evMax, (*evr)[i] );
+				evMin = std::min( evMin, (*evr)[i] );
+			}
+		}
 
 			/*
 			 * = 0: successful exit
@@ -316,6 +353,20 @@ public:
        *             the Schur form no longer satisfy SELECT=.TRUE.  This
        *             could also be caused by underflow due to scaling.
 			 */
+
+	}
+
+	void computeEV( Scalar& evMax, Scalar& evMin ) const {
+
+		evMax = 0.;
+		evMin = 0.;
+		
+		for( int i=0; i<3; ++i ) {
+			Scalar evMaxTemp, evMinTemp;
+			computeEV( static_cast<Pimpact::ECoord>(i), evMaxTemp, evMinTemp );
+			evMax += evMaxTemp;
+			evMin += evMinTemp;
+		}
 
 	}
 

@@ -90,8 +90,10 @@ public:
 		// after Gutknecht: three-term Chebyshev iteration
 
 		Scalar alpha = ( lamMax_ + lamMin_ )/2;
-		Scalar c = ( lamMax_ - lamMin_ )/2;
+		Scalar c = std::abs( lamMax_ - lamMin_ )/2;
 		Scalar eta = -alpha/c;
+
+		Teuchos::RCP<std::ostream> out = Pimpact::createOstream( "conv_"+getLabel()+".txt", 0 );
 
 		// r_-1 = o
 		//rp->init( 0. );
@@ -101,6 +103,9 @@ public:
 		x_->assign( x );
 		op_->computeResidual( b, *x_, *r_ );
 
+		Scalar res0 = r_->norm();
+
+		 *out << 1. << "\n";
 		
 		Scalar beta = 0.;
 		Scalar gamma = -alpha;
@@ -120,13 +125,14 @@ public:
 			xp_->add( -beta/gamma, *xp_, -alpha/gamma, *x_ );
 			xp_->add( 1., *xp_, -1./gamma, *r_ );
 
-			xp_.swap( x_ );
-
-			x_->level();
+			//x_->level();
 			//r[n+1] = ( A*r[n] - alpha*r[n] - beta*r[n-1] )/gamma;
 			// three-ter recursion, explicitly computed residuals
-			op_->computeResidual( b, *x_, *r_ );
+			op_->computeResidual( b, *xp_, *r_ );
 
+			xp_.swap( x_ );
+
+		 *out << r_->norm()/res0 << "\n";
 		}
 
 		x.assign( *x_ );

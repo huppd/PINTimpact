@@ -146,7 +146,7 @@ public:
 
 				}
 
-		// boundary condition/*s*/
+		// boundary conditions
 		if( space_->getBCLocal()->getBCL(X)>0 && SS_[X]==space_->sIndB(EField::S,X) ) {
 
 			Ordinal i = space_->sIndB(EField::S,X);
