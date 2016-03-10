@@ -1,6 +1,6 @@
 #pragma once
-#ifndef PIMPACT_TEUCHOSTRANSFER_HPP
-#define PIMPACT_TEUCHOSTRANSFER_HPP
+#ifndef PIMPACT_TEUCHOSUTILS_HPP
+#define PIMPACT_TEUCHOSUTILS_HPP
 
 
 #include "Teuchos_RCP.hpp"
@@ -37,17 +37,19 @@ public:
 	using DomainFieldT= ScalarField<SpaceT>;
 	using RangeFieldT = ScalarField<SpaceT>;
 
-protected:
-
 	using VectorT = Teuchos::SerialDenseVector<Ordinal,Scalar>;
 	using MatrixT = Teuchos::SerialDenseMatrix<Ordinal,Scalar>;
+
+protected:
+
+	using TO = Teuchos::Tuple<Ordinal,3>;
 
 	Teuchos::RCP<const SpaceT> space_;
 
 	Ordinal N_;
 
-	const Ordinal* SS_;
-	const Ordinal* NN_;
+	TO SS_;
+	TO NN_;
 
 	Teuchos::Tuple<Ordinal,3> cw_;
 
@@ -59,10 +61,33 @@ public:
 
 	const Ordinal& getN() const { return( N_ ); }
 
+	TeuchosTransfer( const Teuchos::RCP<const SpaceT>& space ):
+		space_(space) {
+
+			for( int i=0; i<3; ++i ) {
+				SS_[i] = space->sInd( EField::S, i );
+				NN_[i] = space->eInd( EField::S, i );
+			}
+
+			N_ = 1;
+
+			for( int i=0; i<3; ++i ) {
+				N_ *= ( NN_[i] - SS_[i] + 1 );
+				cw_[i] = ( NN_[i] - SS_[i] + 1 );
+			}
+
+		}
+
 	TeuchosTransfer(
 			const Teuchos::RCP<const SpaceT>& space,
-			const Ordinal* SS, const Ordinal* NN ):
-		space_(space),SS_(SS),NN_(NN) {
+			const Ordinal* SS,
+			const Ordinal* NN ):
+		space_(space){
+
+			for( int i=0; i<3; ++i ) {
+				SS_[i] = SS[i];
+				NN_[i] = NN[i]; 
+			}
 
 			N_ = 1;
 
@@ -278,7 +303,7 @@ public:
 				// set row zero
 				for( Ordinal l=0; l<A->numCols(); ++ l ) (*A)(I,l) = 0.;
 
-				(*A)(I,I) = 1.;
+				(*A)(I,I) = -1.;
 			}
 		}
 		if( space_->getBCLocal()->getBCL(X)>0 && space_->getBCLocal()->getBCU(Y)>0 &&
@@ -294,7 +319,7 @@ public:
 				// set row zero
 				for( Ordinal l=0; l<A->numCols(); ++ l ) (*A)(I,l) = 0.;
 
-				(*A)(I,I) = 1.;
+				(*A)(I,I) = -1.;
 			}
 		}
 		if( space_->getBCLocal()->getBCU(X)>0 && space_->getBCLocal()->getBCL(Y)>0 &&
@@ -310,7 +335,7 @@ public:
 				// set row zero
 				for( Ordinal l=0; l<A->numCols(); ++ l ) (*A)(I,l) = 0.;
 
-				(*A)(I,I) = 1.;
+				(*A)(I,I) = -1.;
 			}
 		}
 		if( space_->getBCLocal()->getBCU(X)>0 && space_->getBCLocal()->getBCU(Y)>0 &&
@@ -326,7 +351,7 @@ public:
 				// set row zero
 				for( Ordinal l=0; l<A->numCols(); ++ l ) (*A)(I,l) = 0.;
 
-				(*A)(I,I) = 1.;
+				(*A)(I,I) = -1.;
 			}
 		}
 
@@ -343,7 +368,7 @@ public:
 				// set row zero
 				for( Ordinal l=0; l<A->numCols(); ++ l ) (*A)(I,l) = 0.;
 
-				(*A)(I,I) = 1.;
+				(*A)(I,I) = -1.;
 			}
 		}
 		if( space_->getBCLocal()->getBCL(X)>0 && space_->getBCLocal()->getBCU(Z)>0 &&
@@ -359,7 +384,7 @@ public:
 				// set row zero
 				for( Ordinal l=0; l<A->numCols(); ++ l ) (*A)(I,l) = 0.;
 
-				(*A)(I,I) = 1.;
+				(*A)(I,I) = -1.;
 			}
 		}
 		if( space_->getBCLocal()->getBCU(X)>0 && space_->getBCLocal()->getBCL(Z)>0 &&
@@ -375,7 +400,7 @@ public:
 				// set row zero
 				for( Ordinal l=0; l<A->numCols(); ++ l ) (*A)(I,l) = 0.;
 
-				(*A)(I,I) = 1.;
+				(*A)(I,I) = -1.;
 			}
 		}
 		if( space_->getBCLocal()->getBCU(X)>0 && space_->getBCLocal()->getBCU(Z)>0 &&
@@ -391,7 +416,7 @@ public:
 				// set row zero
 				for( Ordinal l=0; l<A->numCols(); ++ l ) (*A)(I,l) = 0.;
 
-				(*A)(I,I) = 1.;
+				(*A)(I,I) = -1.;
 			}
 		}
 		if( space_->getBCLocal()->getBCL(Y)>0 && space_->getBCLocal()->getBCL(Z)>0 &&
@@ -407,7 +432,7 @@ public:
 				// set row zero
 				for( Ordinal l=0; l<A->numCols(); ++ l ) (*A)(I,l) = 0.;
 
-				(*A)(I,I) = 1.;
+				(*A)(I,I) = -1.;
 			}
 		}
 		if( space_->getBCLocal()->getBCL(Y)>0 && space_->getBCLocal()->getBCU(Z)>0 &&
@@ -423,7 +448,7 @@ public:
 				// set row zero
 				for( Ordinal l=0; l<A->numCols(); ++ l ) (*A)(I,l) = 0.;
 
-				(*A)(I,I) = 1.;
+				(*A)(I,I) = -1.;
 			}
 		}
 		if( space_->getBCLocal()->getBCU(Y)>0 && space_->getBCLocal()->getBCL(Z)>0 &&
@@ -439,7 +464,7 @@ public:
 				// set row zero
 				for( Ordinal l=0; l<A->numCols(); ++ l ) (*A)(I,l) = 0.;
 
-				(*A)(I,I) = 1.;
+				(*A)(I,I) = -1.;
 			}
 		}
 		if( space_->getBCLocal()->getBCU(Y)>0 && space_->getBCLocal()->getBCU(Z)>0 &&
@@ -455,7 +480,7 @@ public:
 				// set row zero
 				for( Ordinal l=0; l<A->numCols(); ++ l ) (*A)(I,l) = 0.;
 
-				(*A)(I,I) = 1.;
+				(*A)(I,I) = -1.;
 			}
 		}
 
@@ -627,6 +652,358 @@ public:
 
 }; // end of class TeuchosTransfer
 
+template<class OperatorT>
+class TeuchosSolver {
+
+public:
+
+	using SpaceT = typename OperatorT::SpaceT;
+
+	using Scalar  = typename SpaceT::Scalar;
+	using Ordinal = typename SpaceT::Ordinal;
+
+	using DomainFieldT= typename OperatorT::DomainFieldT;
+	using RangeFieldT = typename OperatorT::RangeFieldT;
+
+	using VectorT = Teuchos::SerialDenseVector<Ordinal,Scalar>;
+	using MatrixT = Teuchos::SerialDenseMatrix<Ordinal,Scalar>;
+
+	using SolverT = Teuchos::SerialDenseSolver<Ordinal,Scalar>;
+	//using SolverT = Teuchos::SerialQRDenseSolver<Ordinal,Scalar>;
+
+protected:
+Teuchos::RCP< const OperatorT > op_;
+	Teuchos::RCP< TeuchosTransfer<SpaceT> > trans_;
+	Teuchos::RCP< SolverT > Asov_;
+
+	Teuchos::RCP<VectorT> X_;
+	Teuchos::RCP<VectorT>	B_;
+
+	void init() {
+
+		X_ = Teuchos::rcp( new VectorT( getN(), false ) );
+		B_ = Teuchos::rcp( new VectorT( getN(), false ) );
+
+		Teuchos::RCP<MatrixT> A = Teuchos::rcp( new MatrixT( getN(), getN(), true ) );
+		Asov_ = Teuchos::rcp( new SolverT() );
+
+		trans_->apply( op_, A );
+
+		// set solver
+		Asov_->factorWithEquilibration( true );
+		Asov_->setMatrix( A );
+		Asov_->factor();
+
+	}
+
+public:
+
+	TeuchosSolver( const Teuchos::RCP<const OperatorT>& op ):
+		op_( op ),
+		trans_( Teuchos::rcp( new TeuchosTransfer<SpaceT>( op->space() ) ) ) {
+
+			init();
+
+		}
+
+	TeuchosSolver(
+			const Teuchos::RCP<const OperatorT>& op,
+			const Ordinal* SS,
+			const Ordinal* NN ):
+		op_(op),
+		trans_( Teuchos::rcp( new TeuchosTransfer<SpaceT>( op->space(), SS, NN ) ) ) {
+
+			init();
+
+		}
+
+	void apply( const DomainFieldT& x, RangeFieldT& y )  const {
+
+		trans_->apply( x, B_ );
+
+		y.exchange();
+		trans_->updateRHS( op_, y, B_ );
+
+		Asov_->setVectors( X_, B_ );
+		Asov_->solve();
+
+		trans_->apply( X_, y );
+
+		y.changed();
+
+	}
+
+	void apply( const DomainFieldT& x, RangeFieldT& y, const Scalar& omega )  const {
+
+		trans_->apply( x, B_ );
+
+		Asov_->setVectors( X_, B_ );
+		Asov_->solve();
+
+		trans_->apply( X_, y, omega );
+
+		y.changed();
+
+	}
+
+	/// \name getter
+	/// @{ 
+	
+protected:
+
+	const Ordinal& getN() const { return( trans_->getN() ); }
+
+public:
+
+	Teuchos::RCP< const OperatorT > getOperator() const { return( op_ ); }
+	Teuchos::RCP< TeuchosTransfer<SpaceT> > getTeuchosTransfer() const { return( trans_ ); }
+
+	///  @} 
+
+
+
+};
+
+template<class OperatorT>
+class TeuchosEigenvalues {
+
+	using SpaceT = typename OperatorT::SpaceT;
+
+	using Scalar  = typename SpaceT::Scalar;
+	using Ordinal = typename SpaceT::Ordinal;
+
+	using DomainFieldT= typename OperatorT::DomainFieldT;
+	using RangeFieldT = typename OperatorT::RangeFieldT;
+
+	using VectorT = Teuchos::SerialDenseVector<Ordinal,Scalar>;
+	using MatrixT = Teuchos::SerialDenseMatrix<Ordinal,Scalar>;
+
+protected:
+
+	Teuchos::RCP< const OperatorT > op_;
+	Teuchos::RCP< TeuchosTransfer<SpaceT> > trans_;
+
+public:
+
+	TeuchosEigenvalues( const Teuchos::RCP<const OperatorT>& op ):
+		op_( op ),
+		trans_( Teuchos::rcp( new TeuchosTransfer<SpaceT>( op->space() ) ) ) { }
+
+	/// \name getter
+	/// @{ 
+	
+protected:
+
+	const Ordinal& getN() const { return( trans_->getN() ); }
+
+public:
+
+	Teuchos::RCP< const OperatorT > getOperator() const { return( op_ ); }
+	Teuchos::RCP< TeuchosTransfer<SpaceT> > getTeuchosTransfer() const { return( trans_ ); }
+
+	///  @} 
+	//
+	void computeEV( const ECoord& dir, Scalar& evMax, Scalar& evMin ) const {
+
+
+		Ordinal n = op_->space()->nLoc(dir)-1+1;
+
+		Teuchos::RCP< MatrixT > A;
+
+		A = Teuchos::rcp( new MatrixT( n, n, true ) );
+		// construct A
+		for( Ordinal i=1; i<=op_->space()->nLoc(dir); ++i )
+			for( int o=-1; o<=1; ++o ) {
+				Ordinal I = i-1;
+				if( (i+o)>=op_->getSR(dir) && (i+o)<=op_->getER(dir) ) 
+					(*A)( I, I+o ) += op_->getC( dir, i, o) ;
+			}
+
+
+		// lower boundaries
+		if( op_->space()->getBCLocal()->getBCL(dir)>0 ) {
+			Ordinal i = 1;
+			Ordinal I = i-1;
+			// set row zero
+			for( Ordinal l=0; l<A->numCols(); ++l ) 
+				(*A)(I,l) = 0.;
+			(*A)( I, I )   += op_->getC( dir, i, 0) ;
+			(*A)( I, I+1 ) += op_->getC( dir, i,+1) ;
+
+		}
+
+		// upper boundaries
+		if( op_->space()->getBCLocal()->getBCU(dir)>0 ) {
+			Ordinal i = op_->space()->nLoc(dir);
+			Ordinal I = i-1;
+			// set row zero
+			for( Ordinal l=0; l<A->numCols(); ++l ) 
+				(*A)(I,l) = 0.;
+			(*A)( I, I )   += op_->getC( dir, i, 0) ;
+			(*A)( I, I-1 ) += op_->getC( dir, i,-1) ;
+		}
+
+		// compute EV, \todo move to TeuchosBla
+		Ordinal sdim = 0;
+		Teuchos::RCP< VectorT > evr = Teuchos::rcp( new VectorT(n,false) );
+		Teuchos::RCP< VectorT > evi = Teuchos::rcp( new VectorT(n,false) );
+		Teuchos::RCP< VectorT > work = Teuchos::rcp( new VectorT(4*n,false) );
+		Teuchos::RCP< VectorT > rwork = Teuchos::rcp( new VectorT(3*n,false) );
+
+		Teuchos::ArrayRCP<Ordinal> bwork = Teuchos::arcp<Ordinal>( n );
+		Ordinal info = 0;
+
+		Teuchos::LAPACK<Ordinal,Scalar> lapack;
+		lapack.GEES(
+				'N', 						// Schur vectors are not computed
+				n,              // The order of the matrix A. N >= 0
+				A->values(),    // A is DOUBLE PRECISION array, dimension (LDA,N); On entry, the N-by-N matrix A.; On exit, A has been overwritten by its real Schur form T.;
+				A->stride(),   // The leading dimension of the array A.
+				&sdim,           // If SORT = 'N', SDIM = 0.; If SORT = 'S', SDIM = number of eigenvalues (after sorting); for which SELECT is true. (Complex conjugate pairs for which SELECT is true for either eigenvalue count as 2.)
+				evr->values(),  // 
+				evi->values(),
+				0,              // If JOBVS = 'N', VS is not referenced.
+				1,              // The leading dimension of the array VS.
+				work->values(), // 
+				4*n,           //
+				//-1,           //
+				rwork->values(), //
+				bwork.getRawPtr(),
+				&info );
+
+		//std::cout << "info: " << info << "\n";
+		//std::cout << "opti work: " << (*work)[0]/N_ << "\n";
+
+		Teuchos::RCP<std::ostream> out = Pimpact::createOstream( "ev_"+toString(dir)+".txt" );
+		for( Ordinal i=0; i<n; ++i ) {
+			*out << (*evr)[i] << "\n";
+			if( 0==i ) {
+				evMax = (*evr)[i] ;
+				evMin = (*evr)[i] ;
+			}
+			else {
+				evMax = std::max( evMax, (*evr)[i] );
+				evMin = std::min( evMin, (*evr)[i] );
+			}
+		}
+
+			/*
+			 * = 0: successful exit
+       *    < 0: if INFO = -i, the i-th argument had an illegal value.
+       *    > 0: if INFO = i, and i is
+       *       <= N: the QR algorithm failed to compute all the
+       *             eigenvalues; elements 1:ILO-1 and i+1:N of WR and WI
+       *             contain those eigenvalues which have converged; if
+       *             JOBVS = 'V', VS contains the matrix which reduces A
+       *             to its partially converged Schur form.
+       *       = N+1: the eigenvalues could not be reordered because some
+       *             eigenvalues were too close to separate (the problem
+       *             is very ill-conditioned);
+       *       = N+2: after reordering, roundoff changed values of some
+       *             complex eigenvalues so that leading eigenvalues in
+       *             the Schur form no longer satisfy SELECT=.TRUE.  This
+       *             could also be caused by underflow due to scaling.
+			 */
+
+	}
+
+	void computeEV( Scalar& evMax, Scalar& evMin ) const {
+
+		evMax = 0.;
+		evMin = 0.;
+		
+		for( int i=0; i<3; ++i ) {
+			Scalar evMaxTemp, evMinTemp;
+			computeEV( static_cast<Pimpact::ECoord>(i), evMaxTemp, evMinTemp );
+			evMax += evMaxTemp;
+			evMin += evMinTemp;
+		}
+
+	}
+	// move to EV computer
+	void computeFullEV( Scalar& evMax, Scalar& evMin ) const {
+
+		Teuchos::RCP<const TeuchosTransfer<SpaceT> > trans =
+			Teuchos::rcp( new TeuchosTransfer<SpaceT>(
+						op_->space(),
+						op_->space()->sIndB(EField::S),
+						op_->space()->eIndB(EField::S) ) );
+
+		Ordinal N = trans->getN();
+
+		Teuchos::RCP<MatrixT>	A = Teuchos::rcp( new MatrixT( N, N, true ) );
+
+		trans->apply( op_, A );
+		{
+			Teuchos::RCP<std::ostream> out = Pimpact::createOstream( "divGrad.txt" );
+			*out << *A;
+		}
+
+		
+		// compute EV, \todo move to TeuchosBla
+		Ordinal sdim = 0;
+		Teuchos::RCP< VectorT > evr = Teuchos::rcp( new VectorT(N,false) );
+		Teuchos::RCP< VectorT > evi = Teuchos::rcp( new VectorT(N,false) );
+		Teuchos::RCP< VectorT > work = Teuchos::rcp( new VectorT(4*N,false) );
+		Teuchos::RCP< VectorT > rwork = Teuchos::rcp( new VectorT(3*N,false) );
+
+		Teuchos::ArrayRCP<Ordinal> bwork = Teuchos::arcp<Ordinal>( N );
+		Ordinal info = 0;
+
+		Teuchos::LAPACK<Ordinal,Scalar> lapack;
+		lapack.GEES(
+				'N', 						// Schur vectors are not computed
+				trans->getN(), // The order of the matrix A. N >= 0
+				A->values(),   // A is DOUBLE PRECISION array, dimension (LDA,N); On entry, the N-by-N matrix A.; On exit, A has been overwritten by its real Schur form T.;
+				A->stride(),   // The leading dimension of the array A.
+				&sdim,           // If SORT = 'N', SDIM = 0.; If SORT = 'S', SDIM = number of eigenvalues (after sorting); for which SELECT is true. (Complex conjugate pairs for which SELECT is true for either eigenvalue count as 2.)
+				evr->values(),  // 
+				evi->values(),
+				0,              // If JOBVS = 'N', VS is not referenced.
+				1,              // The leading dimension of the array VS.
+				work->values(), // 
+				4*N,           //
+				//-1,           //
+				rwork->values(), //
+				bwork.getRawPtr(),
+				&info );
+
+		std::cout << "info: " << info << "\n";
+		//std::cout << "opti work: " << (*work)[0]/N << "\n";
+
+		Teuchos::RCP<std::ostream> out = Pimpact::createOstream( "evfull.txt" );
+		for( Ordinal i=0; i<N; ++i ) {
+			*out << (*evr)[i] << "\t" << (*evi)[i] << "\n";
+			if( 0==i ) {
+				evMax = (*evr)[i] ;
+				evMin = (*evr)[i] ;
+			}
+			else {
+				evMax = std::max( evMax, (*evr)[i] );
+				evMin = std::min( evMin, (*evr)[i] );
+			}
+		}
+
+			/*
+			 * = 0: successful exit
+       *    < 0: if INFO = -i, the i-th argument had an illegal value.
+       *    > 0: if INFO = i, and i is
+       *       <= N: the QR algorithm failed to compute all the
+       *             eigenvalues; elements 1:ILO-1 and i+1:N of WR and WI
+       *             contain those eigenvalues which have converged; if
+       *             JOBVS = 'V', VS contains the matrix which reduces A
+       *             to its partially converged Schur form.
+       *       = N+1: the eigenvalues could not be reordered because some
+       *             eigenvalues were too close to separate (the problem
+       *             is very ill-conditioned);
+       *       = N+2: after reordering, roundoff changed values of some
+       *             complex eigenvalues so that leading eigenvalues in
+       *             the Schur form no longer satisfy SELECT=.TRUE.  This
+       *             could also be caused by underflow due to scaling.
+			 */
+
+	}
+};
 
 
 } // end of namespace Pimpact
@@ -641,4 +1018,4 @@ extern template class Pimpact::TeuchosTransfer< Pimpact::Space<double,int,4,4> >
 #endif
 
 
-#endif // end of #ifndef PIMPACT_TEUCHOSTRANSFER_HPP
+#endif // end of #ifndef PIMPACT_TEUCHOSUTILS_HPP

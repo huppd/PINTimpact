@@ -23,6 +23,8 @@ using OT = int;
 
 const int dimension = 4;
 
+using SpaceT = Pimpact::Space<ST,OT,dimension,4>;
+
 using FSpace3T = Pimpact::Space<ST,OT,dimension,4>;
 using CSpace3T = Pimpact::Space<ST,OT,dimension,2>;
 
@@ -63,8 +65,8 @@ ST ly = 1.;
 ST lz = 1.;
 
 OT nx = 33;
-OT ny = 17;
-OT nz = 9;
+OT ny = 33;
+OT nz = 33;
 OT nf = 1;
 
 int sx = 0;
@@ -1469,12 +1471,18 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 	// compute EV
 	ST evMax;
 	ST evMin;
-	opO2->computeEV( evMax, evMin );
+
+	Teuchos::RCP<Pimpact::TeuchosEigenvalues<Pimpact::DivGradO2Op<SpaceT> > > ev = 
+		Teuchos::rcp( new Pimpact::TeuchosEigenvalues<Pimpact::DivGradO2Op<SpaceT> >( opO2 ) );
+	ev->computeEV( evMax, evMin );
+	std::cout << "glob: " << evMax << "\t" <<evMin << "\n";
+	ev->computeFullEV( evMax, evMin );
 	std::cout << "glob: " << evMax << "\t" <<evMin << "\n";
 
 	mgPL->sublist("Smoother").set<int>( "numIters", 12 );
-	mgPL->sublist("Smoother").set<ST>( "max EV", evMax*0.9 );
-	mgPL->sublist("Smoother").set<ST>( "min EV", evMin*1.1 );
+	//mgPL->sublist("Smoother").set<ST>( "max EV", evMax );
+	mgPL->sublist("Smoother").set<ST>( "min EV", evMin );
+	mgPL->sublist("Smoother").set<ST>( "max EV", evMin*0.3 );
 	//mgPL->sublist("Smoother").set<ST>( "max EV", evMax );
 	//mgPL->sublist("Smoother").set<ST>( "min EV", evMin );
 	

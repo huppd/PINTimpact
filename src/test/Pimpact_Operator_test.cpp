@@ -50,29 +50,12 @@ ST lz = 1.;
 
 ST omega = 0.8;
 ST winds = 1;
-int nIter = 1000;
+int sweeps = 1;
+int nIter = 1;
 
-//OT nx = 19;
-//OT ny = 17;
-//OT nz = 13;
-//OT nx = 257;
-//OT ny = 257;
-//OT nz = 257;
-//OT nx = 129;
-//OT ny = 129;
-//OT nz = 129;
-OT nx = 65;
-OT ny = 65;
-OT nz = 65;
-//OT nx = 33;
-//OT ny = 33;
-//OT nz = 33;
-//OT nx = 17;
-//OT ny = 17;
-//OT nz = 17;
-//OT nx = 9;
-//OT ny = 9;
-//OT nz = 9;
+OT nx = 33;
+OT ny = 33;
+OT nz = 33;
 OT nf = 1;
 
 int sx = 0;
@@ -104,8 +87,8 @@ TEUCHOS_STATIC_SETUP() {
       "Slack off of machine epsilon used to check test results" );
 	clp.setOption( "wind", &winds,
       "Slack off of machine epsilon used to check test results" );
-	clp.setOption( "nIter", &nIter,
-      "Slack off of machine epsilon used to check test results" );
+	clp.setOption( "sweeps", &sweeps, "" );
+	clp.setOption( "nIter", &nIter, "" );
 
 	clp.setOption( "lx", &lx, "" );
 	clp.setOption( "ly", &ly, "" );
@@ -124,30 +107,6 @@ TEUCHOS_STATIC_SETUP() {
 	clp.setOption( "npy", &npy, "" );
 	clp.setOption( "npz", &npz, "" );
 	clp.setOption( "npf", &npf, "" );
-
-	pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
-	pl->sublist("Stretching in X").set<ST>( "N metr L", nx/2. );
-	pl->sublist("Stretching in X").set<ST>( "N metr U", nx/2. );
-	//pl->sublist("Stretching in X").set<ST>( "N metr L", nx );
-	//pl->sublist("Stretching in X").set<ST>( "N metr U", nx );
-	//pl->sublist("Stretching in X").set<ST>( "x0 L", 0.05 );
-	//pl->sublist("Stretching in X").set<ST>( "x0 U", 0. );
-
-	//pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
-	//pl->sublist("Stretching in Y").set<ST>( "N metr L", ny/2. );
-	//pl->sublist("Stretching in Y").set<ST>( "N metr U", ny/2.  );
-	//pl->sublist("Stretching in Y").set<ST>( "N metr L", ny );
-	//pl->sublist("Stretching in Y").set<ST>( "N metr U", ny  );
-	//pl->sublist("Stretching in Y").set<ST>( "x0 L", 0.05 );
-	//pl->sublist("Stretching in Y").set<ST>( "x0 U", 0. );
-
-	//pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
-	//pl->sublist("Stretching in Z").set<ST>( "N metr L", nz/2. );
-	//pl->sublist("Stretching in Z").set<ST>( "N metr U", nz/2.  );
-	//pl->sublist("Stretching in Z").set<ST>( "N metr L", nz );
-	//pl->sublist("Stretching in Z").set<ST>( "N metr U", nz  );
-	//pl->sublist("Stretching in Z").set<ST>( "x0 L", 0. );
-	//pl->sublist("Stretching in Z").set<ST>( "x0 U", 0. );
 
 }
 
@@ -1011,24 +970,34 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
 	ST evMax;
 	ST evMin;
 
+	Teuchos::RCP<Pimpact::TeuchosEigenvalues<Pimpact::DivGradO2Op<SpaceT> > > ev = 
+		Teuchos::rcp( new Pimpact::TeuchosEigenvalues<Pimpact::DivGradO2Op<SpaceT> >( op ) );
 	std::cout << "\n";
 	for( int i=0; i<3; ++i ) {
-		op->computeEV( static_cast<Pimpact::ECoord>(i), evMax, evMin );
+		ev->computeEV( static_cast<Pimpact::ECoord>(i), evMax, evMin );
 		std::cout << Pimpact::toString( static_cast<Pimpact::ECoord>(i) ) << ": " << evMax << "\t" <<evMin << "\n";
 	}
 
-	op->computeEV( evMax, evMin );
-	std::cout << "glob: " << evMax << "\t" <<evMin << "\n";
+	ev->computeEV( evMax, evMin );
+	std::cout << "glob : " << evMax << "\t" <<evMin << "\n";
+
+	ev->computeFullEV( evMax, evMin );
+	std::cout << "glob2: " << evMax << "\t" <<evMin << "\n";
 
 	Teuchos::RCP<Teuchos::ParameterList> ppl = Teuchos::parameterList();
-	ppl->set<int>( "numIters", 4 );
+	ppl->set<int>( "numIters", sweeps );
 	//std::swap( evMax, evMin );
-	ppl->set<ST>( "max EV", evMax*0.9 );
-	ppl->set<ST>( "min EV", evMin*1.1 );
+	//ppl->set<ST>( "max EV", evMax*0.9 );
+	//ppl->set<ST>( "min EV", evMin*1.1 );
+	ppl->set<ST>( "min EV", evMin );
 	//ppl->set<ST>( "max EV", evMax );
+	ppl->set<ST>( "max EV", evMin*0.3 );
+	ppl->set<bool>( "with output", true );
 	//ppl->set<ST>( "min EV", evMin );
-	//ppl->set<int>( "BC smoothing", 1 );
-	//ppl->set<OT>( "depth", 2 );
+	
+	// JSmoother
+	ppl->set<int>( "BC smoothing", 1 );
+	ppl->set<OT>( "depth", 2 );
 
   auto smoother = Pimpact::create<SType>( op, ppl );
 
@@ -1045,7 +1014,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
 	ST errP = err0;
 
 	x->write( 0 );
-	for( int i=1; i<=10; ++i ) {
+	for( int i=1; i<=nIter; ++i ) {
 		smoother->apply( *b, *x );
 		x->write(i);
 		ST err = x->norm( Belos::InfNorm );
@@ -1057,9 +1026,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
 	}
 
 
-  //// --- consistency test ---
+	// --- consistency test ---
 	//for( int dir=1; dir<=6; ++dir ) {
-
 
 		//x->initField( static_cast<Pimpact::EScalarField>(dir) );
 		//x->level();
@@ -1158,8 +1126,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Inv ) {
 	for( int dir=1; dir<=6; ++dir ) {
 		x->initField( static_cast<Pimpact::EScalarField>(dir) );
 		x->level();
-		xp->initField( static_cast<Pimpact::EScalarField>(dir) );
-		xp->level();
+		xp->random();
 
 		op->apply( *x, *b );
 		solver->apply( *b, *xp );
@@ -1511,7 +1478,6 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, HelmholtzOp ) {
   pl->set( "npf", npf );
 
   auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
-
 
   auto velc = Pimpact::create<Pimpact::VectorField>(space);
   auto vels = Pimpact::create<Pimpact::VectorField>(space);

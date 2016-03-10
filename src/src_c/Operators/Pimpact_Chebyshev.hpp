@@ -44,18 +44,23 @@ protected:
 
 	Teuchos::RCP<const OperatorT> op_;
 
+	Teuchos::RCP<std::ostream> out_;
+
 public:
 
 	Chebyshev(
 			const Teuchos::RCP<const OperatorT>& op,
 			const Teuchos::RCP<Teuchos::ParameterList>& pl=Teuchos::parameterList() ):
-    numIters_( pl->get<int>( "numIters", 10 ) ),
+    numIters_( pl->get<int>( "numIters", 8 ) ),
 		lamMax_( pl->get<Scalar>( "max EV", 0. ) ),
 		lamMin_( pl->get<Scalar>( "min EV", 0. ) ),
     r_(  Teuchos::rcp( new RangeFieldT( op->space()  ) ) ),
     xp_( Teuchos::rcp( new DomainFieldT( op->space() ) ) ),
     x_(  Teuchos::rcp( new DomainFieldT( op->space() ) ) ),
     op_(op) {
+
+			if( pl->get<bool>( "with output", false ) )
+				out_ = Pimpact::createOstream( "conv_Cheb.txt" );
 
 			if( std::abs( lamMax_-lamMin_ )<1.e-32 ) {
 				x_->random();
@@ -93,8 +98,6 @@ public:
 		Scalar c = std::abs( lamMax_ - lamMin_ )/2;
 		Scalar eta = -alpha/c;
 
-		Teuchos::RCP<std::ostream> out = Pimpact::createOstream( "conv_"+getLabel()+".txt", 0 );
-
 		// r_-1 = o
 		//rp->init( 0. );
 		xp_->init( 0. );
@@ -103,9 +106,9 @@ public:
 		x_->assign( x );
 		op_->computeResidual( b, *x_, *r_ );
 
-		Scalar res0 = r_->norm();
 
-		 *out << 1. << "\n";
+		if( !out_.is_null() )
+			*out_ << r_->norm() << "\n";
 		
 		Scalar beta = 0.;
 		Scalar gamma = -alpha;
@@ -132,11 +135,10 @@ public:
 
 			xp_.swap( x_ );
 
-		 *out << r_->norm()/res0 << "\n";
+			if( !out_.is_null() )
+				*out_ << r_->norm() << "\n";
 		}
-
 		x.assign( *x_ );
-		
 	}
 
 	void assignField( const DomainFieldT& mv ) {

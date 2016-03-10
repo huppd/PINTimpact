@@ -83,6 +83,9 @@ protected:
 
   using TS = const Teuchos::Tuple<Scalar*,3>;
 
+	using VectorT = Teuchos::SerialDenseVector<Ordinal,Scalar>;
+	using MatrixT = Teuchos::SerialDenseMatrix<Ordinal,Scalar>;
+
   const Teuchos::RCP<const SpaceT> space_;
 
   TS c_;
@@ -248,127 +251,7 @@ public:
 
 	}
 
-	void computeEV( const ECoord& dir, Scalar& evMax, Scalar& evMin ) const {
 
-		using VectorT = Teuchos::SerialDenseVector<Ordinal,Scalar>;
-		using MatrixT = Teuchos::SerialDenseMatrix<Ordinal,Scalar>;
-
-		Ordinal n = space_->nLoc(dir)-1+1;
-
-		Teuchos::RCP< MatrixT > A;
-		//Teuchos::RCP< VectorT > X;
-		//Teuchos::RCP< VectorT > B;
-
-		A = Teuchos::rcp( new MatrixT( n, n, true ) );
-		// construct A
-		for( Ordinal i=1; i<=space_->nLoc(dir); ++i )
-			for( int o=-1; o<=1; ++o ) {
-				Ordinal I = i-1;
-				if( (i+o)>=getSR(dir) && (i+o)<=getER(dir) ) 
-					(*A)( I, I+o ) += getC( dir, i, o) ;
-			}
-
-
-		// lower boundaries
-		if( space_->getBCLocal()->getBCL(dir)>0 ) {
-			Ordinal i = 1;
-			Ordinal I = i-1;
-			// set row zero
-			for( Ordinal l=0; l<A->numCols(); ++l ) 
-				(*A)(I,l) = 0.;
-			(*A)( I, I )   += getC( dir, i, 0) ;
-			(*A)( I, I+1 ) += getC( dir, i,+1) ;
-
-		}
-
-		// upper boundaries
-		if( space_->getBCLocal()->getBCU(dir)>0 ) {
-			Ordinal i = space_->nLoc(dir);
-			Ordinal I = i-1;
-			// set row zero
-			for( Ordinal l=0; l<A->numCols(); ++l ) 
-				(*A)(I,l) = 0.;
-			(*A)( I, I )   += getC( dir, i, 0) ;
-			(*A)( I, I-1 ) += getC( dir, i,-1) ;
-		}
-
-		// compute EV, \todo move to TeuchosBla
-		Ordinal sdim = 0;
-		Teuchos::RCP< VectorT > evr = Teuchos::rcp( new VectorT(n,false) );
-		Teuchos::RCP< VectorT > evi = Teuchos::rcp( new VectorT(n,false) );
-		Teuchos::RCP< VectorT > work = Teuchos::rcp( new VectorT(4*n,false) );
-		Teuchos::RCP< VectorT > rwork = Teuchos::rcp( new VectorT(3*n,false) );
-
-		Teuchos::ArrayRCP<Ordinal> bwork = Teuchos::arcp<Ordinal>( n );
-		Ordinal info = 0;
-
-		Teuchos::LAPACK<Ordinal,Scalar> lapack;
-		lapack.GEES(
-				'N', 						// Schur vectors are not computed
-				n,              // The order of the matrix A. N >= 0
-				A->values(),    // A is DOUBLE PRECISION array, dimension (LDA,N); On entry, the N-by-N matrix A.; On exit, A has been overwritten by its real Schur form T.;
-				A->stride(),   // The leading dimension of the array A.
-				&sdim,           // If SORT = 'N', SDIM = 0.; If SORT = 'S', SDIM = number of eigenvalues (after sorting); for which SELECT is true. (Complex conjugate pairs for which SELECT is true for either eigenvalue count as 2.)
-				evr->values(),  // 
-				evi->values(),
-				0,              // If JOBVS = 'N', VS is not referenced.
-				1,              // The leading dimension of the array VS.
-				work->values(), // 
-				4*n,           //
-				//-1,           //
-				rwork->values(), //
-				bwork.getRawPtr(),
-				&info );
-
-		//std::cout << "info: " << info << "\n";
-		//std::cout << "opti work: " << (*work)[0]/N_ << "\n";
-
-		Teuchos::RCP<std::ostream> out = Pimpact::createOstream( "ev_"+toString(dir)+".txt" );
-		for( Ordinal i=0; i<n; ++i ) {
-			*out << (*evr)[i] << "\n";
-			if( 0==i ) {
-				evMax = (*evr)[i] ;
-				evMin = (*evr)[i] ;
-			}
-			else {
-				evMax = std::max( evMax, (*evr)[i] );
-				evMin = std::min( evMin, (*evr)[i] );
-			}
-		}
-
-			/*
-			 * = 0: successful exit
-       *    < 0: if INFO = -i, the i-th argument had an illegal value.
-       *    > 0: if INFO = i, and i is
-       *       <= N: the QR algorithm failed to compute all the
-       *             eigenvalues; elements 1:ILO-1 and i+1:N of WR and WI
-       *             contain those eigenvalues which have converged; if
-       *             JOBVS = 'V', VS contains the matrix which reduces A
-       *             to its partially converged Schur form.
-       *       = N+1: the eigenvalues could not be reordered because some
-       *             eigenvalues were too close to separate (the problem
-       *             is very ill-conditioned);
-       *       = N+2: after reordering, roundoff changed values of some
-       *             complex eigenvalues so that leading eigenvalues in
-       *             the Schur form no longer satisfy SELECT=.TRUE.  This
-       *             could also be caused by underflow due to scaling.
-			 */
-
-	}
-
-	void computeEV( Scalar& evMax, Scalar& evMin ) const {
-
-		evMax = 0.;
-		evMin = 0.;
-		
-		for( int i=0; i<3; ++i ) {
-			Scalar evMaxTemp, evMinTemp;
-			computeEV( static_cast<Pimpact::ECoord>(i), evMaxTemp, evMinTemp );
-			evMax += evMaxTemp;
-			evMin += evMinTemp;
-		}
-
-	}
 
 	/// \name setter
 	/// @{ 

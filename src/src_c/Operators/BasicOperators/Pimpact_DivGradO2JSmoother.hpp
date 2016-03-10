@@ -4,10 +4,6 @@
 
 
 #include "Teuchos_RCP.hpp"
-#include "Teuchos_SerialDenseMatrix.hpp"
-#include "Teuchos_SerialDenseSolver.hpp"
-#include "Teuchos_SerialDenseVector.hpp"
-#include "Teuchos_SerialQRDenseSolver.hpp"
 
 #include "Pimpact_DivGradO2Op.hpp"
 #include "Pimpact_TeuchosTransfer.hpp"
@@ -59,11 +55,7 @@ public:
 
 protected:
 
-	using VectorT = Teuchos::SerialDenseVector<Ordinal,Scalar>;
-	using MatrixT = Teuchos::SerialDenseMatrix<Ordinal,Scalar>;
-
-	//using SolverT = Teuchos::SerialQRDenseSolver<Ordinal,Scalar>;
-	using SolverT = Teuchos::SerialDenseSolver<Ordinal,Scalar>;
+	using SolverT = TeuchosSolver<OperatorT>;
 
   Scalar omega_;
   int nIter_;
@@ -115,8 +107,6 @@ public:
 				Ordinal SS[3];
 				Ordinal NN[3];
 
-				Teuchos::RCP<TeuchosTransfer<SpaceT> > trans;
-
 				// boundary conditions in X
 				if( space()->getBCLocal()->getBCL(X)>0 ) {
 					SS[X] = space()->sInd(EField::S,X);
@@ -127,17 +117,8 @@ public:
 					NN[Y] = space()->eInd(EField::S,Y);
 					NN[Z] = space()->eInd(EField::S,Z);
 
-					trans = Teuchos::rcp( new TeuchosTransfer<SpaceT>( space(), SS, NN ) );
-
-					Teuchos::RCP<MatrixT> A = Teuchos::rcp( new MatrixT( trans->getN(), trans->getN(), true ) );
-					trans->apply( op_, A );
-
 					// set solver and solve
-					AsovL_[0] = Teuchos::rcp( new SolverT() );
-					AsovL_[0]->factorWithEquilibration( true );
-					AsovL_[0]->setMatrix( A );
-					AsovL_[0]->factor();
-
+					AsovL_[0] = Teuchos::rcp( new SolverT( op_, SS, NN) );
 				}
 				if( space()->getBCLocal()->getBCU(X)>0 ) {
 					SS[X] = space()->eInd(EField::S,X)-depth_;
@@ -148,16 +129,8 @@ public:
 					NN[Y] = space()->eInd(EField::S,Y);
 					NN[Z] = space()->eInd(EField::S,Z);
 
-					trans = Teuchos::rcp( new TeuchosTransfer<SpaceT>( space(), SS, NN ) );
-
-					Teuchos::RCP<MatrixT> A = Teuchos::rcp( new MatrixT( trans->getN(), trans->getN(), true ) );
-					trans->apply( op_, A );
-
 					// set solver and solve
-					AsovU_[0] = Teuchos::rcp( new SolverT() );
-					AsovU_[0]->factorWithEquilibration( true );
-					AsovU_[0]->setMatrix( A );
-					AsovU_[0]->factor();
+					AsovU_[0] = Teuchos::rcp( new SolverT( op_, SS, NN ) );
 
 				}
 
@@ -171,16 +144,8 @@ public:
 					NN[Y] = space()->sInd(EField::S,Y)+depth_;
 					NN[Z] = space()->eInd(EField::S,Z);
 
-					trans = Teuchos::rcp( new TeuchosTransfer<SpaceT>( space(), SS, NN ) );
-
-					Teuchos::RCP<MatrixT> A = Teuchos::rcp( new MatrixT( trans->getN(), trans->getN(), true ) );
-					trans->apply( op_, A );
-
 					// set solver and solve
-					AsovL_[1] = Teuchos::rcp( new SolverT() );
-					AsovL_[1]->factorWithEquilibration( true );
-					AsovL_[1]->setMatrix( A );
-					AsovL_[1]->factor();
+					AsovL_[1] = Teuchos::rcp( new SolverT( op_, SS, NN ) );
 
 				}
 				if( space()->getBCLocal()->getBCU(Y)>0 ) {
@@ -192,16 +157,8 @@ public:
 					NN[Y] = space()->eInd(EField::S,Y);
 					NN[Z] = space()->eInd(EField::S,Z);
 
-					trans = Teuchos::rcp( new TeuchosTransfer<SpaceT>( space(), SS, NN ) );
-
-					Teuchos::RCP<MatrixT> A = Teuchos::rcp( new MatrixT( trans->getN(), trans->getN(), true ) );
-					trans->apply( op_, A );
-
 					// set solver and solve
-					AsovU_[1] = Teuchos::rcp( new SolverT() );
-					AsovU_[1]->factorWithEquilibration( true );
-					AsovU_[1]->setMatrix( A );
-					AsovU_[1]->factor();
+					AsovU_[1] = Teuchos::rcp( new SolverT( op_, SS, NN ) );
 
 				}
 
@@ -215,16 +172,8 @@ public:
 					NN[Y] = space()->eInd(EField::S,Y);
 					NN[Z] = space()->sInd(EField::S,Z)+depth_;
 
-					trans = Teuchos::rcp( new TeuchosTransfer<SpaceT>( space(), SS, NN ) );
-
-					Teuchos::RCP<MatrixT> A = Teuchos::rcp( new MatrixT( trans->getN(), trans->getN(), true ) );
-					trans->apply( op_, A );
-
 					// set solver and solve
-					AsovL_[2] = Teuchos::rcp( new SolverT() );
-					AsovL_[2]->factorWithEquilibration( true );
-					AsovL_[2]->setMatrix( A );
-					AsovL_[2]->factor();
+					AsovL_[2] = Teuchos::rcp( new SolverT( op_, SS, NN ) );
 
 				}
 				if( space()->getBCLocal()->getBCU(Z)>0 ) {
@@ -236,16 +185,8 @@ public:
 					NN[Y] = space()->eInd(EField::S,Y);
 					NN[Z] = space()->eInd(EField::S,Z);
 
-					trans = Teuchos::rcp( new TeuchosTransfer<SpaceT>( space(), SS, NN ) );
-
-					Teuchos::RCP<MatrixT> A = Teuchos::rcp( new MatrixT( trans->getN(), trans->getN(), true ) );
-					trans->apply( op_, A );
-
 					// set solver and solve
-					AsovU_[2] = Teuchos::rcp( new SolverT() );
-					AsovU_[2]->factorWithEquilibration( true );
-					AsovU_[2]->setMatrix( A );
-					AsovU_[2]->factor();
+					AsovU_[2] = Teuchos::rcp( new SolverT( op_, SS,NN ) );
 
 				}
 
@@ -334,180 +275,13 @@ protected:
 
 	void applyDBCSmoothing( const DomainFieldT& b, DomainFieldT& x, const Scalar& omega ) const {
 
+		// boundary conditions in 
+		for( int i=0; i<3; ++i ) {
+			if( space()->getBCLocal()->getBCL(i)>0 )
+				AsovL_[i]->apply( b, x, omega );
 
-		Ordinal SS[3];
-		Ordinal NN[3];
-
-		Teuchos::RCP<TeuchosTransfer<SpaceT> > trans;
-
-		// boundary conditions in X
-		if( space()->getBCLocal()->getBCL(X)>0 ) {
-			SS[X] = space()->sInd(EField::S,X);
-			SS[Y] = space()->sInd(EField::S,Y);
-			SS[Z] = space()->sInd(EField::S,Z);
-
-			NN[X] = space()->sInd(EField::S,X)+depth_;
-			NN[Y] = space()->eInd(EField::S,Y);
-			NN[Z] = space()->eInd(EField::S,Z);
-
-			trans = Teuchos::rcp( new TeuchosTransfer<SpaceT>( space(), SS, NN ) );
-
-			Teuchos::RCP<MatrixT> A = Teuchos::rcp( new MatrixT( trans->getN(), trans->getN(), true ) );
-
-			Teuchos::RCP<VectorT> X = Teuchos::rcp( new VectorT(trans->getN(), false) );
-			Teuchos::RCP<VectorT>	B = Teuchos::rcp( new VectorT(trans->getN(), false) );
-
-			x.exchange(); // ???
-			trans->apply( op_, A );
-			trans->apply( b, B );
-			//trans->updateRHS( op_, x, B );
-
-			// set solver and solve
-			AsovL_[0]->setVectors( X, B );
-			AsovL_[0]->solve();
-
-			trans->apply( X, x, omega);
-			//y.setCornersZero(); // ???
-			x.changed();
-
-		}
-		if( space()->getBCLocal()->getBCU(X)>0 ) {
-			SS[X] = space()->eInd(EField::S,X)-depth_;
-			SS[Y] = space()->sInd(EField::S,Y);
-			SS[Z] = space()->sInd(EField::S,Z);
-
-			NN[X] = space()->eInd(EField::S,X);
-			NN[Y] = space()->eInd(EField::S,Y);
-			NN[Z] = space()->eInd(EField::S,Z);
-
-			trans = Teuchos::rcp( new TeuchosTransfer<SpaceT>( space(), SS, NN ) );
-
-			Teuchos::RCP<MatrixT> A = Teuchos::rcp( new MatrixT( trans->getN(), trans->getN(), true ) );
-
-			Teuchos::RCP<VectorT> X = Teuchos::rcp( new VectorT(trans->getN(), false) );
-			Teuchos::RCP<VectorT>	B = Teuchos::rcp( new VectorT(trans->getN(), false) );
-
-			x.exchange(); // ???
-			trans->apply( b, B );
-			//trans->updateRHS( op_, x, B );
-
-			// set solver and solve
-			AsovU_[0]->setVectors( X, B );
-			AsovU_[0]->solve();
-
-			trans->apply( X, x, omega);
-			//y.setCornersZero(); // ???
-			x.changed();
-		}
-
-		// boundary conditions in Y
-		if( space()->getBCLocal()->getBCL(Y)>0 ) {
-			SS[X] = space()->sInd(EField::S,X);
-			SS[Y] = space()->sInd(EField::S,Y);
-			SS[Z] = space()->sInd(EField::S,Z);
-
-			NN[X] = space()->eInd(EField::S,X);
-			NN[Y] = space()->sInd(EField::S,Y)+depth_;
-			NN[Z] = space()->eInd(EField::S,Z);
-
-			trans = Teuchos::rcp( new TeuchosTransfer<SpaceT>( space(), SS, NN ) );
-
-			Teuchos::RCP<MatrixT> A = Teuchos::rcp( new MatrixT( trans->getN(), trans->getN(), true ) );
-
-			Teuchos::RCP<VectorT> X = Teuchos::rcp( new VectorT(trans->getN(), false) );
-			Teuchos::RCP<VectorT>	B = Teuchos::rcp( new VectorT(trans->getN(), false) );
-
-			x.exchange(); // ???
-			trans->apply( b, B );
-			//trans->updateRHS( op_, x, B );
-
-			// set solver and solve
-			AsovL_[1]->setVectors( X, B );
-			AsovL_[1]->solve();
-
-			trans->apply( X, x, omega);
-			//y.setCornersZero(); // ???
-			x.changed();
-		}
-		if( space()->getBCLocal()->getBCU(Y)>0 ) {
-			SS[X] = space()->sInd(EField::S,X);
-			SS[Y] = space()->eInd(EField::S,Y)-depth_;
-			SS[Z] = space()->sInd(EField::S,Z);
-
-			NN[X] = space()->eInd(EField::S,X);
-			NN[Y] = space()->eInd(EField::S,Y);
-			NN[Z] = space()->eInd(EField::S,Z);
-
-			trans = Teuchos::rcp( new TeuchosTransfer<SpaceT>( space(), SS, NN ) );
-
-			Teuchos::RCP<VectorT> X = Teuchos::rcp( new VectorT(trans->getN(), false) );
-			Teuchos::RCP<VectorT>	B = Teuchos::rcp( new VectorT(trans->getN(), false) );
-
-			x.exchange(); // ???
-			trans->apply( b, B );
-			//trans->updateRHS( op_, x, B );
-
-			// set solver and solve
-			AsovU_[1]->setVectors( X, B );
-			AsovU_[1]->solve();
-
-			trans->apply( X, x, omega);
-			//y.setCornersZero(); // ???
-			x.changed();
-		}
-
-		// boundary conditions in Z
-		if( space()->getBCLocal()->getBCL(Z)>0 ) {
-			SS[X] = space()->sInd(EField::S,X);
-			SS[Y] = space()->sInd(EField::S,Y);
-			SS[Z] = space()->sInd(EField::S,Z);
-
-			NN[X] = space()->eInd(EField::S,X);
-			NN[Y] = space()->eInd(EField::S,Y);
-			NN[Z] = space()->sInd(EField::S,Z)+depth_;
-
-			trans = Teuchos::rcp( new TeuchosTransfer<SpaceT>( space(), SS, NN ) );
-
-			Teuchos::RCP<VectorT> X = Teuchos::rcp( new VectorT(trans->getN(), false) );
-			Teuchos::RCP<VectorT>	B = Teuchos::rcp( new VectorT(trans->getN(), false) );
-
-			x.exchange(); // ???
-			trans->apply( b, B );
-			//trans->updateRHS( op_, x, B );
-
-			// set solver and solve
-			AsovL_[2]->setVectors( X, B );
-			AsovL_[2]->solve();
-
-			trans->apply( X, x, omega);
-			//y.setCornersZero(); // ???
-			x.changed();
-		}
-		if( space()->getBCLocal()->getBCU(Z)>0 ) {
-			SS[X] = space()->sInd(EField::S,X);
-			SS[Y] = space()->sInd(EField::S,Y);
-			SS[Z] = space()->eInd(EField::S,Z)-depth_;
-
-			NN[X] = space()->eInd(EField::S,X);
-			NN[Y] = space()->eInd(EField::S,Y);
-			NN[Z] = space()->eInd(EField::S,Z);
-
-			trans = Teuchos::rcp( new TeuchosTransfer<SpaceT>( space(), SS, NN ) );
-
-			Teuchos::RCP<VectorT> X = Teuchos::rcp( new VectorT(trans->getN(), false) );
-			Teuchos::RCP<VectorT>	B = Teuchos::rcp( new VectorT(trans->getN(), false) );
-
-			x.exchange(); // ???
-			trans->apply( b, B );
-			//trans->updateRHS( op_, x, B );
-
-			// set solver and solve
-			AsovU_[2]->setVectors( X, B );
-			AsovU_[2]->solve();
-
-			trans->apply( X, x, omega );
-			//y.setCornersZero(); // ???
-			x.changed();
+			if( space()->getBCLocal()->getBCU(i)>0 )
+				AsovU_[i]->apply( b, x, omega );
 		}
 
 	}
