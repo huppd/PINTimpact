@@ -1386,6 +1386,7 @@ template<class T> using POP2 = Pimpact::PrecInverseOp< T, Pimpact::DivGradO2SORS
 
 
 
+//TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, DivGradOp, CS, Smoo ) {
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 
   pl->set( "domain", domain );
@@ -1457,34 +1458,31 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 	//mgPL->set<bool>( "defect correction", true );
 	mgPL->set<bool>( "init zero", false );
 
-	//// Smoother: Jacobian
-	////mgPL->sublist("Smoother").set( "omega", 1. );
-	//mgPL->sublist("Smoother").set<int>( "numIters", 4 );
-	//mgPL->sublist("Smoother").set<int>( "BC smoothing", 1 );
-	//mgPL->sublist("Smoother").set<OT>( "depth", 1 );
+	// Smoother: Jacobian
+	//mgPL->sublist("Smoother").set( "omega", 1. );
+	mgPL->sublist("Smoother").set<int>( "numIters", 4 );
+	mgPL->sublist("Smoother").set<int>( "BC smoothing", 1 );
+	mgPL->sublist("Smoother").set<OT>( "depth", 2 );
 
 
 	// Smoother: GS
 	//mgPL->sublist("Smoother").set<int>( "RBGS mode", 2 );
 
-	// Smoother: Chebyshev
-	// compute EV
-	ST evMax;
-	ST evMin;
+	//// Smoother: Chebyshev
+	//// compute EV
+	//ST evMax;
+	//ST evMin;
 
-	Teuchos::RCP<Pimpact::TeuchosEigenvalues<Pimpact::DivGradO2Op<SpaceT> > > ev = 
-		Teuchos::rcp( new Pimpact::TeuchosEigenvalues<Pimpact::DivGradO2Op<SpaceT> >( opO2 ) );
-	ev->computeEV( evMax, evMin );
-	std::cout << "glob: " << evMax << "\t" <<evMin << "\n";
-	ev->computeFullEV( evMax, evMin );
-	std::cout << "glob: " << evMax << "\t" <<evMin << "\n";
+	//Teuchos::RCP<Pimpact::TeuchosEigenvalues<Pimpact::DivGradO2Op<SpaceT> > > ev = 
+		//Teuchos::rcp( new Pimpact::TeuchosEigenvalues<Pimpact::DivGradO2Op<SpaceT> >( opO2 ) );
+	//ev->computeEV( evMax, evMin );
+	//std::cout << "glob: " << evMax << "\t" <<evMin << "\n";
+	////ev->computeFullEV( evMax, evMin );
+	////std::cout << "glob: " << evMax << "\t" <<evMin << "\n";
 
-	mgPL->sublist("Smoother").set<int>( "numIters", 12 );
-	//mgPL->sublist("Smoother").set<ST>( "max EV", evMax );
-	mgPL->sublist("Smoother").set<ST>( "min EV", evMin );
-	mgPL->sublist("Smoother").set<ST>( "max EV", evMin*0.3 );
-	//mgPL->sublist("Smoother").set<ST>( "max EV", evMax );
-	//mgPL->sublist("Smoother").set<ST>( "min EV", evMin );
+	//mgPL->sublist("Smoother").set<int>( "numIters", 12 );
+	//mgPL->sublist("Smoother").set<ST>( "min EV", evMin*1.1 );
+	//mgPL->sublist("Smoother").set<ST>( "max EV", evMin*1.1/30. );
 	
 	auto mg =
 		Pimpact::createMultiGrid<
@@ -1495,8 +1493,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 			Pimpact::DivGradOp,
 			Pimpact::DivGradO2Op,
 			//Pimpact::DivGradO2JSmoother,
-			//Pimpact::DivGradO2SORSmoother,
-			Pimpact::Chebyshev,
+			Pimpact::DivGradO2SORSmoother,
+			//Pimpact::Chebyshev,
 			Pimpact::DivGradO2Inv >( mgSpaces, mgPL );
 
 
@@ -1634,8 +1632,29 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 
 }
 
+//struct ChT{
+	//template<class T>
+	//using SmootherT = Pimpact::Chebyshev<T>;
+//};
+
+//struct JT{
+	//template<class T>
+	//using SmootherT = Pimpact::DivGradO2JSmoother<T>;
+//};
+
+//struct SORT{
+	//template<class T>
+	//using SmootherT = Pimpact::DivGradO2SORSmoother<T>;
+//};
+
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, DivGradOp, CS3L )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, DivGradOp, CS3G )
+//TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CS3L, ChT  )
+//TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CS3G, ChT  )
+//TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CS3L, JT   )
+//TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CS3G, JT   )
+//TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CS3L, SORT )
+//TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CS3G, SORT )
 
 
 

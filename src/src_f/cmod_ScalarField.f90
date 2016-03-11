@@ -1079,20 +1079,20 @@ contains
     real(c_double), intent(inout) :: phi (bl(1):(n(1)+bu(1)),bl(2):(n(2)+bu(2)),bl(3):(n(3)+bu(3)))
 
 
-    if( bcl(1) > 0 .and. bcl(2) > 0 ) phi(1   ,1   ,1:n(3)) = 0. ! test!!! verifizieren ...
-    if( bcl(1) > 0 .and. bcu(2) > 0 ) phi(1   ,n(2),1:n(3)) = 0.
-    if( bcu(1) > 0 .and. bcl(2) > 0 ) phi(n(1),1   ,1:n(3)) = 0.
-    if( bcu(1) > 0 .and. bcu(2) > 0 ) phi(n(1),n(2),1:n(3)) = 0.
+    !if( bcl(1) > 0 .and. bcl(2) > 0 ) phi(1   ,1   ,1:n(3)) = 0. ! test!!! verifizieren ...
+    !if( bcl(1) > 0 .and. bcu(2) > 0 ) phi(1   ,n(2),1:n(3)) = 0.
+    !if( bcu(1) > 0 .and. bcl(2) > 0 ) phi(n(1),1   ,1:n(3)) = 0.
+    !if( bcu(1) > 0 .and. bcu(2) > 0 ) phi(n(1),n(2),1:n(3)) = 0.
 
-    if( bcl(1) > 0 .and. bcl(3) > 0 ) phi(1   ,1:n(2),1   ) = 0.
-    if( bcl(1) > 0 .and. bcu(3) > 0 ) phi(1   ,1:n(2),n(3)) = 0.
-    if( bcu(1) > 0 .and. bcl(3) > 0 ) phi(n(1),1:n(2),1   ) = 0.
-    if( bcu(1) > 0 .and. bcu(3) > 0 ) phi(n(1),1:n(2),n(3)) = 0.
+    !if( bcl(1) > 0 .and. bcl(3) > 0 ) phi(1   ,1:n(2),1   ) = 0.
+    !if( bcl(1) > 0 .and. bcu(3) > 0 ) phi(1   ,1:n(2),n(3)) = 0.
+    !if( bcu(1) > 0 .and. bcl(3) > 0 ) phi(n(1),1:n(2),1   ) = 0.
+    !if( bcu(1) > 0 .and. bcu(3) > 0 ) phi(n(1),1:n(2),n(3)) = 0.
 
-    if( bcl(2) > 0 .and. bcl(3) > 0 ) phi(1:n(1),1   ,1   ) = 0.
-    if( bcl(2) > 0 .and. bcu(3) > 0 ) phi(1:n(1),1   ,n(3)) = 0.
-    if( bcu(2) > 0 .and. bcl(3) > 0 ) phi(1:n(1),n(2),1   ) = 0.
-    if( bcu(2) > 0 .and. bcu(3) > 0 ) phi(1:n(1),n(2),n(3)) = 0.
+    !if( bcl(2) > 0 .and. bcl(3) > 0 ) phi(1:n(1),1   ,1   ) = 0.
+    !if( bcl(2) > 0 .and. bcu(3) > 0 ) phi(1:n(1),1   ,n(3)) = 0.
+    !if( bcu(2) > 0 .and. bcl(3) > 0 ) phi(1:n(1),n(2),1   ) = 0.
+    !if( bcu(2) > 0 .and. bcu(3) > 0 ) phi(1:n(1),n(2),n(3)) = 0.
 
 
   end subroutine SF_handle_corner

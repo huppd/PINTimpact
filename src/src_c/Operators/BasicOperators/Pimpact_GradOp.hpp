@@ -137,7 +137,6 @@ public:
 
 		int dim = space_->dim();
     for( int i=0; i<dim; ++i) {
-//			x.level();
       x.exchange(i);
     }
 
@@ -148,12 +147,12 @@ public:
 				space_->bu(),
 				space_->gl(),
 				space_->gu(),
-				space_->sInd(U),
-				space_->eInd(U),
-				space_->sInd(V),
-				space_->eInd(V),
-				space_->sInd(W),
-				space_->eInd(W),
+				space_->sIndB(U),
+				space_->eIndB(U),
+				space_->sIndB(V),
+				space_->eIndB(V),
+				space_->sIndB(W),
+				space_->eIndB(W),
         getC(X),
         getC(Y),
         getC(Z),
@@ -162,15 +161,15 @@ public:
 
 		// necessary?
 		for( int i=0; i<space()->dim(); ++i ) {
-			OP_SetBCZero(
-					space_->nLoc(),
-					space_->bl(),
-					space_->bu(),
-					space_->getBCLocal()->getBCL(),
-					space_->getBCLocal()->getBCU(),
-					space_->sIndB(i),
-					space_->eIndB(i),
-					y.getRawPtr(i) );
+			//OP_SetBCZero(
+					//space_->nLoc(),
+					//space_->bl(),
+					//space_->bu(),
+					//space_->getBCLocal()->getBCL(),
+					//space_->getBCLocal()->getBCU(),
+					//space_->sIndB(i),
+					//space_->eIndB(i),
+					//y.getRawPtr(i) );
 			OP_extrapolateBC(
 					i+1,
 					space_->nLoc(),
@@ -182,8 +181,7 @@ public:
 					space_->getBCLocal()->getBCU(),
 					space_->sIndB(i),
 					space_->eIndB(i),
-					space_->getInterpolateV2S()->getCM(
-						static_cast<ECoord>(i) ),
+					space_->getInterpolateV2S()->getCM( static_cast<ECoord>(i) ),
 					y.getRawPtr(i) );
 		}
 

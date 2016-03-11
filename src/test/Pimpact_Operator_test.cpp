@@ -132,6 +132,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivOp ) {
 		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
 		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
 		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
+		pl->sublist("Stretching in X").set<ST>( "x0 L", 0.05 );
+		pl->sublist("Stretching in X").set<ST>( "x0 U", 0. );
 	}
 	if( sy!=0 ) {
 		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
@@ -843,14 +845,14 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
   auto b = Pimpact::create<Pimpact::ScalarField>( space );
 
 
-  auto op = Pimpact::create<Pimpact::DivGradO2Op>( space );
-  auto op2 = Pimpact::create<Pimpact::DivGradOp>( space );
+  auto op = Pimpact::create<Pimpact::DivGradOp>( space );
+  auto op2 = Pimpact::create<Pimpact::DivGradO2Op>( space );
 
   op->print();
 
   // zero test
   b->initField( Pimpact::ConstField, 0. );
-  x->init(2.);
+  x->random();
 
   op->apply( *b, *x );
 
@@ -860,13 +862,13 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
   TEST_EQUALITY( error<eps, true );
 
   b->initField( Pimpact::ConstField, 0. );
-  x->init(2.);
+  x->random();
 
   op2->apply( *b, *x );
 
 	error = x->norm( Belos::InfNorm );
 	if( 0==space->rankST() )
-		std::cout << "error(0): " << error << "\n";
+		std::cout << "error(0) O2: " << error << "\n";
   TEST_EQUALITY( error<eps, true );
 
 	// one test
@@ -887,10 +889,25 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
 
 	error = x->norm( Belos::InfNorm );
 	if( 0==space->rankST() )
-		std::cout << "error(1): " << error << "\n";
+		std::cout << "error(1) O2: " << error << "\n";
+	if( error>= eps ) {
+		x->print();
+	}
 	TEST_EQUALITY( error<eps, true );
 
 	// consistency test
+	b->random();
+	op->apply( *b, *x );
+	op2->apply( *b, *x2 );
+
+	x2->add( 1., *x2, -1., *x );
+	ST errInf = x2->norm( Belos::InfNorm );
+	ST err2 = x2->norm( Belos::TwoNorm )/std::sqrt( x2->getLength() );
+	if( 0==space->rankST() )
+		std::cout << "consistency error random: inf: " << errInf << ", two: " << err2 << "\n";
+	TEST_EQUALITY( errInf<eps, true );
+	TEST_EQUALITY( err2<eps, true );
+
 	for( int dir=0; dir<=6; ++dir ) {
 
 		Pimpact::EScalarField type = static_cast<Pimpact::EScalarField>( dir );
@@ -900,8 +917,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
 		op2->apply( *b, *x2 );
 
 		x2->add( 1., *x2, -1., *x );
-		ST errInf = x2->norm( Belos::InfNorm );
-		ST err2 = x2->norm( Belos::TwoNorm )/std::sqrt( x2->getLength() );
+		errInf = x2->norm( Belos::InfNorm );
+		err2 = x2->norm( Belos::TwoNorm )/std::sqrt( x2->getLength() );
 		if( 0==space->rankST() )
 			std::cout << "consistency error("+Pimpact::toString(type)+"): inf: " << errInf << ", two: " << err2 << "\n";
 		TEST_EQUALITY( errInf<eps, true );
@@ -936,8 +953,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
 	// grid stretching
 	if( sx!=0 ) {
 		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
-		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
+		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx) );
+		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx) );
+		pl->sublist("Stretching in X").set<ST>( "x0 L", 0.05);
 	}
 	if( sy!=0 ) {
 		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
@@ -959,19 +977,28 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
 	Teuchos::RCP< const Pimpact::Space<ST,OT,d,dNC> > space =
 		Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
+	auto coord = space->getCoordinatesGlobal();
+	if( 0==space->rankST() ) {
+		Teuchos::RCP<std::ostream> fstream = Pimpact::createOstream( "coord.txt" );
+		coord->print( *fstream );
+	}
+
 	Teuchos::RCP< Pimpact::ScalarField< Pimpact::Space<ST,OT,d,dNC> > > x =
 		Pimpact::create<Pimpact::ScalarField>( space );
 
   auto b = Pimpact::create<Pimpact::ScalarField>( space );
 
   auto op = Pimpact::create<Pimpact::DivGradO2Op>( space );
+	op->print2Mat();
 
 	// compute EV
 	ST evMax;
 	ST evMin;
 
+
 	Teuchos::RCP<Pimpact::TeuchosEigenvalues<Pimpact::DivGradO2Op<SpaceT> > > ev = 
 		Teuchos::rcp( new Pimpact::TeuchosEigenvalues<Pimpact::DivGradO2Op<SpaceT> >( op ) );
+
 	std::cout << "\n";
 	for( int i=0; i<3; ++i ) {
 		ev->computeEV( static_cast<Pimpact::ECoord>(i), evMax, evMin );
@@ -981,17 +1008,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
 	ev->computeEV( evMax, evMin );
 	std::cout << "glob : " << evMax << "\t" <<evMin << "\n";
 
-	ev->computeFullEV( evMax, evMin );
-	std::cout << "glob2: " << evMax << "\t" <<evMin << "\n";
+	//ev->computeFullEV( evMax, evMin );
+	//std::cout << "glob2: " << evMax << "\t" <<evMin << "\n";
 
 	Teuchos::RCP<Teuchos::ParameterList> ppl = Teuchos::parameterList();
 	ppl->set<int>( "numIters", sweeps );
 	//std::swap( evMax, evMin );
-	//ppl->set<ST>( "max EV", evMax*0.9 );
-	//ppl->set<ST>( "min EV", evMin*1.1 );
-	ppl->set<ST>( "min EV", evMin );
-	//ppl->set<ST>( "max EV", evMax );
-	ppl->set<ST>( "max EV", evMin*0.3 );
+	ppl->set<ST>( "max EV", evMin*1.1 );
+	ppl->set<ST>( "min EV", evMax );
 	ppl->set<bool>( "with output", true );
 	//ppl->set<ST>( "min EV", evMin );
 	
