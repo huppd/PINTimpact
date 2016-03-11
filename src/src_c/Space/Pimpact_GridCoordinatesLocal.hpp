@@ -47,7 +47,7 @@ void PI_getLocalCoordinates(
 /// xV         | bl..nLoc+bu+(ib-1)*(NB-1)
 ///
 /// \ingroup SpaceObject
-template<class Scalar, class Ordinal, int dim>
+template<class ScalarT, class Ordinal, int dim>
 class GridCoordinatesLocal {
 
   template<class ST,class OT,int dT, int dNC>
@@ -63,7 +63,7 @@ class GridCoordinatesLocal {
 
 public:
 
-  using TO = const Teuchos::Tuple<Scalar*,dim>;
+  using TO = const Teuchos::Tuple<ScalarT*,dim>;
 
 protected:
 
@@ -78,23 +78,23 @@ protected:
 	template<int dimNC>
 		GridCoordinatesLocal(
 				const Teuchos::RCP<const StencilWidths<dim,dimNC> >& stencilWidths,
-				const Teuchos::RCP<const DomainSize<Scalar> >& domainSize,
+				const Teuchos::RCP<const DomainSize<ScalarT> >& domainSize,
 				const Teuchos::RCP<const GridSizeGlobal<Ordinal,dim> >& gridSizeGlobal,
 				const Teuchos::RCP<const GridSizeLocal<Ordinal,dim> >& gridSize,
 				const Teuchos::RCP<const BoundaryConditionsGlobal<dim> >& bcGlobal,
 				const Teuchos::RCP<const BoundaryConditionsLocal >& bcLocal,
 				const Teuchos::RCP<const ProcGrid<Ordinal,dim> >& procGrid,
-				const Teuchos::RCP<const GridCoordinatesGlobal<Scalar,Ordinal,dim> >& coordGlobal ):
+				const Teuchos::RCP<const GridCoordinatesGlobal<ScalarT,Ordinal,dim> >& coordGlobal ):
 			gridSize_( gridSize ) {
 
 				for( int i=0; i<dim; ++i ) {
 
 					if( i<3 ) {
 						Ordinal nTemp = gridSize_->get(i)+stencilWidths->getBU(i)-stencilWidths->getBL(i)+1;
-						xS_[i]  = new Scalar[ nTemp ];
-						xV_[i]  = new Scalar[ nTemp ];
-						dxS_[i] = new Scalar[ gridSize_->get(i) ];
-						dxV_[i] = new Scalar[ gridSize_->get(i)+1 ];
+						xS_[i]  = new ScalarT[ nTemp ];
+						xV_[i]  = new ScalarT[ nTemp ];
+						dxS_[i] = new ScalarT[ gridSize_->get(i) ];
+						dxV_[i] = new ScalarT[ gridSize_->get(i)+1 ];
 
 						PI_getLocalCoordinates(
 								domainSize->getSize(i),
@@ -118,18 +118,18 @@ protected:
 
 						Ordinal nTemp = gridSize_->get(i)+stencilWidths->getBU(i)-stencilWidths->getBL(i);
 
-						xS_[i]  = new Scalar[ nTemp ];
-						xV_[i]  = new Scalar[ nTemp ];
-						dxS_[i] = new Scalar[ gridSize_->get(i) ];
-						dxV_[i] = new Scalar[ gridSize_->get(i)+1 ];
+						xS_[i]  = new ScalarT[ nTemp ];
+						xV_[i]  = new ScalarT[ nTemp ];
+						dxS_[i] = new ScalarT[ gridSize_->get(i) ];
+						dxV_[i] = new ScalarT[ gridSize_->get(i)+1 ];
 
 						Ordinal nt = gridSizeGlobal->get(i);
-						Scalar pi = 4.*std::atan(1.);
-						Scalar offset = procGrid->getShift(i) + stencilWidths->getBL(i);
+						ScalarT pi = 4.*std::atan(1.);
+						ScalarT offset = procGrid->getShift(i) + stencilWidths->getBL(i);
 
 						for( Ordinal it=0; it<nTemp; ++it ) {
-							xS_[i][it] = 2.*pi*( (Scalar)it + offset )/nt;
-							xV_[i][it] = 2.*pi*( (Scalar)it + offset )/nt;
+							xS_[i][it] = 2.*pi*( static_cast<ScalarT>(it) + offset )/nt;
+							xV_[i][it] = 2.*pi*( static_cast<ScalarT>(it) + offset )/nt;
 						}
 
 					}
@@ -148,7 +148,7 @@ public:
   };
 
 
-  const Scalar* getX( ECoord dir, EField ftype=EField::S ) const  {
+  const ScalarT* getX( ECoord dir, EField ftype=EField::S ) const  {
     if( EField::S==ftype )
       return( xS_[dir] );
     else if( (int)dir==(int)ftype )
@@ -156,13 +156,13 @@ public:
     else
       return( xS_[dir] );
   }
-  const Scalar* getX( ECoord dir, int ftype ) const  {
+  const ScalarT* getX( ECoord dir, int ftype ) const  {
     return( getX( dir, (EField) ftype ) );
   }
-  const Scalar* getX( int dir, EField ftype ) const  {
+  const ScalarT* getX( int dir, EField ftype ) const  {
     return( getX( (ECoord) dir, ftype ) );
   }
-  const Scalar* getX( int dir, int ftype ) const  {
+  const ScalarT* getX( int dir, int ftype ) const  {
     return( getX( (ECoord) dir, (EField) ftype ) );
   }
 

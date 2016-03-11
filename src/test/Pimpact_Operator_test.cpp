@@ -953,9 +953,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
 	// grid stretching
 	if( sx!=0 ) {
 		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx) );
-		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx) );
-		pl->sublist("Stretching in X").set<ST>( "x0 L", 0.05);
+		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
+		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
+		//pl->sublist("Stretching in X").set<ST>( "x0 L", 0.05);
 	}
 	if( sy!=0 ) {
 		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );

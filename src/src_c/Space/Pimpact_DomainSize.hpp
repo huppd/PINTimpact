@@ -19,7 +19,7 @@ namespace Pimpact{
 
 /// \brief Domain or physical set up would be better names
 /// \ingroup SpaceObject
-template<class Scalar>
+template<class ScalarT>
 class DomainSize {
 
 	template<class ST>
@@ -33,26 +33,26 @@ class DomainSize {
 
 public:
 
-	using TS3 = const Teuchos::Tuple<Scalar,3>;
+	using TS3 = const Teuchos::Tuple<ScalarT,3>;
 
 protected:
 
 	const int dim_;
 
-	const Scalar re_;
+	const ScalarT re_;
 
-	const Scalar alpha2_;
+	const ScalarT alpha2_;
 
 	TS3 domainSize_;
 
 	TS3 origin_;
 
-	DomainSize( int dim, Scalar L1, Scalar L2, Scalar L3 ):
+	DomainSize( int dim, ScalarT L1, ScalarT L2, ScalarT L3 ):
 		dim_(dim),re_(1.),alpha2_(1.),
 		domainSize_( Teuchos::tuple(L1, L2, L3) ),
 		origin_( Teuchos::tuple( 0.,0.,0.) ) {};
 
-	DomainSize( int dim, Scalar re, Scalar alpha2, Scalar L1, Scalar L2, Scalar L3 ):
+	DomainSize( int dim, ScalarT re, ScalarT alpha2, ScalarT L1, ScalarT L2, ScalarT L3 ):
 		dim_(dim),re_(re),alpha2_(alpha2),
 		domainSize_( Teuchos::tuple(L1, L2, L3) ),
 		origin_( Teuchos::tuple( 0.,0.,0.) ) {};
@@ -69,18 +69,18 @@ public:
 
 	const int& getDim() const { return( dim_ ); }
 
-	const Scalar* getSize() const { return( domainSize_.getRawPtr() ); }
+	const ScalarT* getSize() const { return( domainSize_.getRawPtr() ); }
 
-	const Scalar& getSize( int i) const { return( domainSize_[i] ); }
-	const Scalar& getSize( ECoord i) const { return( domainSize_[ (int)i ] ); }
+	const ScalarT& getSize( int i) const { return( domainSize_[i] ); }
+	const ScalarT& getSize( ECoord i) const { return( domainSize_[ (int)i ] ); }
 
-	const Scalar* getOrigin() const { return( origin_.getRawPtr() ); }
+	const ScalarT* getOrigin() const { return( origin_.getRawPtr() ); }
 
-	const Scalar& getOrigin( int i) const { return( origin_[i] ); }
+	const ScalarT& getOrigin( int i) const { return( origin_[i] ); }
 
-	const Scalar& getRe() const { return( re_ ); }
+	const ScalarT& getRe() const { return( re_ ); }
 
-	const Scalar& getAlpha2() const { return( alpha2_ ); }
+	const ScalarT& getAlpha2() const { return( alpha2_ ); }
 
 	///  @} 
 
@@ -98,21 +98,21 @@ public:
 
 
 /// \relates DomainSize
-template<class Scalar=double>
-Teuchos::RCP<const DomainSize<Scalar> > createDomainSize( int dim, Scalar L1, Scalar L2, Scalar L3 ) {
+template<class ScalarT>
+Teuchos::RCP<const DomainSize<ScalarT> > createDomainSize( int dim, ScalarT L1, ScalarT L2, ScalarT L3 ) {
   return(
       Teuchos::rcp(
-          new DomainSize<Scalar>( dim, 1., 1., L1, L2, L3 ) ) );
+          new DomainSize<ScalarT>( dim, 1., 1., L1, L2, L3 ) ) );
 }
 
 
 
 /// \relates DomainSize
-template<class Scalar>
-Teuchos::RCP<const DomainSize<Scalar> > createDomainSize( int dim, Scalar re, Scalar alpha2, Scalar L1, Scalar L2, Scalar L3 ) {
+template<class ScalarT>
+Teuchos::RCP<const DomainSize<ScalarT> > createDomainSize( int dim, ScalarT re, ScalarT alpha2, ScalarT L1, ScalarT L2, ScalarT L3 ) {
   return(
       Teuchos::rcp(
-          new DomainSize<Scalar>( dim, re, alpha2, L1, L2, L3 ) ) );
+          new DomainSize<ScalarT>( dim, re, alpha2, L1, L2, L3 ) ) );
 }
 
 

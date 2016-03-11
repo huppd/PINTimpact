@@ -28,7 +28,7 @@ namespace Pimpact{
 /// xS         | 1..nGlo | 0..L
 /// xV         | 0..nGlo | 0.5..L+0.5
 ///
-/// \tparam Scalar scalar type
+/// \tparam ScalarT scalar type
 /// \tparam Ordinal index type
 /// \tparam dim computiational dimension
 ///
@@ -47,7 +47,7 @@ namespace Pimpact{
 ///
 /// \relates CoordinatesGlobal
 /// \ingroup SpaceObject
-template<class Scalar, class Ordinal, int dim>
+template<class ScalarT, class Ordinal, int dim>
 class CoordinatesGlobal {
 
 	template<class ST,class OT,int dT>
@@ -63,7 +63,7 @@ class CoordinatesGlobal {
 
 protected:
 
-	using TO = const Teuchos::Tuple< Teuchos::ArrayRCP<Scalar>, dim >;
+	using TO = const Teuchos::Tuple< Teuchos::ArrayRCP<ScalarT>, dim >;
 
   TO xS_;
   TO xV_;
@@ -85,7 +85,7 @@ protected:
 	/// \param[in] M
 	/// \param[in] x0
 	/// \param[out] x
-	void coord_equi( const Scalar& i, const Scalar& L, const Scalar& M, const Scalar& x0, Scalar& x/*, Scalar& dx*/ ) {
+	void coord_equi( const ScalarT& i, const ScalarT& L, const ScalarT& M, const ScalarT& x0, ScalarT& x/*, ScalarT& dx*/ ) {
 		x  = i*L/( M-1. ) - x0;
 		//dx =   L/( M-1. );
 	}
@@ -100,7 +100,7 @@ protected:
 	/// \param[in] x0 origin
 	/// \param[in] alpha parameter for parabola alpha=0 very parabolic alpha>>0 equidistant
 	/// \param[out] x coordinate
-	void coord_parab( const Scalar& i, const Scalar& L, const Scalar& M, const Scalar& x0, const Scalar& alpha, Scalar& x/*, Scalar& dx*/ ) {
+	void coord_parab( const ScalarT& i, const ScalarT& L, const ScalarT& M, const ScalarT& x0, const ScalarT& alpha, ScalarT& x/*, ScalarT& dx*/ ) {
 		x  = L*( std::pow(i,2)/std::pow(M-1.,2) + 2.*alpha*i/(M-1.) )/(1.+2.*alpha) - x0;
 		//dx = L*(      2.*(i)  /std::pow(M-1.,2) + 2.*alpha  /(M-1.) )/(1.+2.*alpha);
 	}
@@ -130,22 +130,22 @@ protected:
 	/// - so following is satisfied wL, wU >= 0..
 	/// - identical to coord_tan except of std::cos functions.
 	void coord_cos(
-			const Scalar& i,
-			const Scalar& L,
-			const Scalar& M,
-			const Scalar& x0,
-			const Scalar& iML,
-			const Scalar& iMU,
-			const Scalar& i0L,
-			const Scalar& i0U,
-			Scalar& x/*, Scalar& dx*/ ) {
+			const ScalarT& i,
+			const ScalarT& L,
+			const ScalarT& M,
+			const ScalarT& x0,
+			const ScalarT& iML,
+			const ScalarT& iMU,
+			const ScalarT& i0L,
+			const ScalarT& i0U,
+			ScalarT& x/*, ScalarT& dx*/ ) {
 
-		Scalar wL;
-		Scalar wU;
-		Scalar xL;
-		Scalar xU;
+		ScalarT wL;
+		ScalarT wU;
+		ScalarT xL;
+		ScalarT xU;
 
-		Scalar pi = 4.*std::atan( 1. );
+		ScalarT pi = 4.*std::atan( 1. );
 
 		//--- parameters for grid stretching 
 		if( iML<=1. ) {
@@ -224,35 +224,35 @@ protected:
 	/// \param[in] stretchPara
 	CoordinatesGlobal(
 			const Teuchos::RCP<const GridSizeGlobal<Ordinal> >& gridSize,
-			const Teuchos::RCP<const DomainSize<Scalar> >& domainSize,
+			const Teuchos::RCP<const DomainSize<ScalarT> >& domainSize,
 			const Teuchos::Tuple< Teuchos::RCP<Teuchos::ParameterList>, 3 >& stretchPara ):
 		stretchPara_(stretchPara) {
 
 			for( int dir=0; dir<dim; ++dir ) {
 
 				Ordinal M = gridSize->get(dir);
-				Scalar Ms = M;
+				ScalarT Ms = M;
 
-				xS_ [dir] = Teuchos::arcp<Scalar>( M   );
-				//dxS_[dir] = Teuchos::arcp<Scalar>( M   );
-				xV_ [dir] = Teuchos::arcp<Scalar>( M+1 );
-				//dxV_[dir] = Teuchos::arcp<Scalar>( M+1 );
+				xS_ [dir] = Teuchos::arcp<ScalarT>( M   );
+				//dxS_[dir] = Teuchos::arcp<ScalarT>( M   );
+				xV_ [dir] = Teuchos::arcp<ScalarT>( M+1 );
+				//dxV_[dir] = Teuchos::arcp<ScalarT>( M+1 );
 
 				if( dir<3 ) {
 
-					Scalar L  = domainSize->getSize(dir);
-					Scalar x0 = domainSize->getOrigin(dir);
+					ScalarT L  = domainSize->getSize(dir);
+					ScalarT x0 = domainSize->getOrigin(dir);
 
 					int stretchType = string2int( stretchPara_[dir]->get<std::string>( "Stretch Type", "none" ) );
 					for( Ordinal i=0; i<M; ++i ) {
-						Scalar is = i;
+						ScalarT is = i;
 
 						switch( stretchType ) {
 							case 0:
 								coord_equi( is, L, Ms, x0, xS_[dir][i] );
 								break;
 							case 1:
-								coord_parab( is, L, Ms, x0, stretchPara_[dir]->get<Scalar>( "alpha", 0.5 ), xS_[dir][i] );
+								coord_parab( is, L, Ms, x0, stretchPara_[dir]->get<ScalarT>( "alpha", 0.5 ), xS_[dir][i] );
 								break;
 							case 2:
 								coord_cos(
@@ -260,10 +260,10 @@ protected:
 										L,
 										Ms,
 										x0,
-										stretchPara_[dir]->get<Scalar>( "N metr L", 1. ),
-										stretchPara_[dir]->get<Scalar>( "N metr U", M  ),
-										stretchPara_[dir]->get<Scalar>( "x0 L", 0. ),
-										stretchPara_[dir]->get<Scalar>( "x0 U", 0. ),
+										stretchPara_[dir]->get<ScalarT>( "N metr L", 1. ),
+										stretchPara_[dir]->get<ScalarT>( "N metr U", M  ),
+										stretchPara_[dir]->get<ScalarT>( "x0 L", 0. ),
+										stretchPara_[dir]->get<ScalarT>( "x0 U", 0. ),
 										xS_[dir][i] );
 								break;
 							default:
@@ -272,13 +272,13 @@ protected:
 						}
 					}
 					for( Ordinal i=0; i<=M; ++i ) {
-						Scalar is = static_cast<Scalar>(i) - 0.5;
+						ScalarT is = static_cast<ScalarT>(i) - 0.5;
 						switch( stretchType ) {
 							case 0:
 								coord_equi( is, L, Ms, x0, xV_[dir][i] );
 								break;
 							case 1:
-								coord_parab( is, L, Ms, x0, stretchPara_[dir]->get<Scalar>( "alpha", 0.5 ), xV_[dir][i] );
+								coord_parab( is, L, Ms, x0, stretchPara_[dir]->get<ScalarT>( "alpha", 0.5 ), xV_[dir][i] );
 								break;
 							case 2:
 								coord_cos(
@@ -286,10 +286,10 @@ protected:
 										L,
 										Ms,
 										x0,
-										stretchPara_[dir]->get<Scalar>( "N metr L", 1. ),
-										stretchPara_[dir]->get<Scalar>( "N metr U", M  ),
-										stretchPara_[dir]->get<Scalar>( "x0 L", 0. ),
-										stretchPara_[dir]->get<Scalar>( "x0 U", 0.  ),
+										stretchPara_[dir]->get<ScalarT>( "N metr L", 1. ),
+										stretchPara_[dir]->get<ScalarT>( "N metr U", M  ),
+										stretchPara_[dir]->get<ScalarT>( "x0 L", 0. ),
+										stretchPara_[dir]->get<ScalarT>( "x0 U", 0.  ),
 										xV_[dir][i] );
 								break;
 							default:
@@ -305,15 +305,15 @@ protected:
 					// in time direction no stretching is considered as long as
 					// time-periodic problems are considered equidistant should be best
 
-					Scalar L = 4.*std::atan(1.);
+					ScalarT L = 4.*std::atan(1.);
 
 					for( Ordinal i=0; i<M; ++i ) {
-						Scalar is = i;
+						ScalarT is = i;
 						xS_ [dir][i] = is*L/( Ms-1. );
 						//dxS_[dir][i] =    L/( Ms-1. );
 					}
 					for( Ordinal i=0; i<=M; ++i ) {
-						Scalar is = static_cast<Scalar>(i) - 0.5;
+						ScalarT is = static_cast<ScalarT>(i) - 0.5;
 						xV_ [dir][i] = is*L/( Ms-1. );
 						//dxV_[dir][i] =  L/( Ms-1. );
 					}
@@ -328,7 +328,7 @@ protected:
 	/// \param[in] coordinatesF
 	CoordinatesGlobal(
 			const Teuchos::RCP<const GridSizeGlobal<Ordinal> >& gridSizeC,
-			const Teuchos::RCP<const CoordinatesGlobal<Scalar,Ordinal,dim> >& coordinatesF ) {
+			const Teuchos::RCP<const CoordinatesGlobal<ScalarT,Ordinal,dim> >& coordinatesF ) {
 
 		for( int dir=0; dir<dim; ++dir ) {
 
@@ -341,8 +341,8 @@ protected:
 			}
 			else {
 
-				xS_ [dir] = Teuchos::arcp<Scalar>( Mc   );
-				xV_ [dir] = Teuchos::arcp<Scalar>( Mc+1 );
+				xS_ [dir] = Teuchos::arcp<ScalarT>( Mc   );
+				xV_ [dir] = Teuchos::arcp<ScalarT>( Mc+1 );
 
 				Ordinal d = 1;
 
@@ -379,7 +379,7 @@ public:
 	/// \name getter
 	/// @{ 
 
-	const Scalar* getX( ECoord dir, EField ftype ) const {
+	const ScalarT* getX( ECoord dir, EField ftype ) const {
 		if( EField::S==ftype )
 			return( xS_[static_cast<int>(dir)].getRawPtr() );
 		else if( static_cast<int>(dir)==static_cast<int>(ftype) )
@@ -388,15 +388,15 @@ public:
 			return( xS_[ static_cast<int>(dir) ].getRawPtr() );
 	}
 
-	const Scalar* get( int dir, int ftype ) const {
+	const ScalarT* get( int dir, int ftype ) const {
 		return( getX( static_cast<ECoord>(dir), static_cast<EField>(ftype) ) );
 	}
 
-	const Scalar* get( ECoord dir, int ftype ) const {
+	const ScalarT* get( ECoord dir, int ftype ) const {
 		return( getX( dir, static_cast<EField>(ftype) ) );
 	}
 
-	const Scalar* get( int dir, EField ftype ) const {
+	const ScalarT* get( int dir, EField ftype ) const {
 		return( getX( static_cast<ECoord>(dir), ftype ) );
 	}
 
@@ -413,7 +413,7 @@ public:
 			out << "Global coordinates of scalars in dir: " << i << "\n";
 			out << "i\txS\n";
 			Ordinal j = 0;
-			for( typename Teuchos::ArrayRCP<Scalar>::iterator jp=xS_[i].begin(); jp<xS_[i].end(); ++jp )
+			for( typename Teuchos::ArrayRCP<ScalarT>::iterator jp=xS_[i].begin(); jp<xS_[i].end(); ++jp )
 				out << ++j << "\t" << *jp << "\n";
 		}
 
@@ -421,7 +421,7 @@ public:
 			out << "Global coordinates of vectors in dir: " << i << "\n";
 			out << "i\txV\n";
 			Ordinal j = 0;
-			for( typename Teuchos::ArrayRCP<Scalar>::iterator jp=xV_[i].begin(); jp<xV_[i].end(); ++jp )
+			for( typename Teuchos::ArrayRCP<ScalarT>::iterator jp=xV_[i].begin(); jp<xV_[i].end(); ++jp )
 				out << j++ << "\t" << *jp << "\n";
 		}
 

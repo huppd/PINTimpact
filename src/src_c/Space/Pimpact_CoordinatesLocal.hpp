@@ -56,7 +56,7 @@ void PI_getLocalCoordinates(
 /// xV         | bl..nLoc+bu+(ib-1)*(NB-1)
 ///
 /// \ingroup SpaceObject
-template<class Scalar, class Ordinal, int dim>
+template<class ScalarT, class Ordinal, int dim>
 class CoordinatesLocal {
 
 	template<class ST,class OT,int dT, int dNC>
@@ -72,7 +72,7 @@ class CoordinatesLocal {
 
 protected:
 
-	using TO = const Teuchos::Tuple< Teuchos::ArrayRCP<Scalar>, dim >;
+	using TO = const Teuchos::Tuple< Teuchos::ArrayRCP<ScalarT>, dim >;
 
 	TO xS_;
 	TO xV_;
@@ -83,22 +83,22 @@ protected:
 	template<int dimNC>
 	CoordinatesLocal(
 			const Teuchos::RCP<const StencilWidths<dim,dimNC> >& stencilWidths,
-			const Teuchos::RCP<const DomainSize<Scalar> >& domainSize,
+			const Teuchos::RCP<const DomainSize<ScalarT> >& domainSize,
 			const Teuchos::RCP<const GridSizeGlobal<Ordinal> >& gridSizeGlobal,
 			const Teuchos::RCP<const GridSizeLocal<Ordinal,dim> >& gridSizeLocal,
 			const Teuchos::RCP<const BoundaryConditionsGlobal<dim> >& bcGlobal,
 			const Teuchos::RCP<const BoundaryConditionsLocal<dim> >& bcLocal,
 			const Teuchos::RCP<const ProcGrid<Ordinal,dim> >& procGrid,
-			const Teuchos::RCP<const CoordinatesGlobal<Scalar,Ordinal,dim> >& coordGlobal ) {
+			const Teuchos::RCP<const CoordinatesGlobal<ScalarT,Ordinal,dim> >& coordGlobal ) {
 
 		for( int i=0; i<dim; ++i ) {
 
 			Ordinal nTemp = gridSizeLocal->get(i) + stencilWidths->getBU(i) - stencilWidths->getBL(i) + 1;
 
-			xS_[i]  = Teuchos::arcp<Scalar>( nTemp                   );
-			xV_[i]  = Teuchos::arcp<Scalar>( nTemp                   );
-			dxS_[i] = Teuchos::arcp<Scalar>( gridSizeLocal->get(i)   );
-			dxV_[i] = Teuchos::arcp<Scalar>( gridSizeLocal->get(i)+1 );
+			xS_[i]  = Teuchos::arcp<ScalarT>( nTemp                   );
+			xV_[i]  = Teuchos::arcp<ScalarT>( nTemp                   );
+			dxS_[i] = Teuchos::arcp<ScalarT>( gridSizeLocal->get(i)   );
+			dxV_[i] = Teuchos::arcp<ScalarT>( gridSizeLocal->get(i)+1 );
 
 			if( i<3 )
 				PI_getLocalCoordinates(
@@ -144,7 +144,7 @@ public:
 	/// \name getter
 	/// @{ 
 
-  const Scalar* getX( ECoord dir, EField ftype ) const  {
+  const ScalarT* getX( ECoord dir, EField ftype ) const  {
     if( EField::S==ftype )
       return( xS_[dir].getRawPtr() );
     else if( (int)dir==(int)ftype )
@@ -152,13 +152,13 @@ public:
     else
       return( xS_[dir].getRawPtr() );
   }
-  const Scalar* getX( ECoord dir, int ftype ) const  {
+  const ScalarT* getX( ECoord dir, int ftype ) const  {
     return( getX( dir, (EField) ftype ) );
   }
-  const Scalar* getX( int dir, EField ftype ) const  {
+  const ScalarT* getX( int dir, EField ftype ) const  {
     return( getX( (ECoord) dir, ftype ) );
   }
-  const Scalar* getX( int dir, int ftype ) const  {
+  const ScalarT* getX( int dir, int ftype ) const  {
     return( getX( (ECoord) dir, (EField) ftype ) );
   }
 
@@ -170,13 +170,13 @@ public:
       out << "Local coordinates of scalars in dir: " << i << "\n";
       out << "i\txS\n";
 			Ordinal j = 0;
-			for( typename Teuchos::ArrayRCP<Scalar>::iterator jp=xS_[i].begin(); jp<xS_[i].end(); ++jp )
+			for( typename Teuchos::ArrayRCP<ScalarT>::iterator jp=xS_[i].begin(); jp<xS_[i].end(); ++jp )
 				out << ++j << "\t" << *jp << "\n";
 		}
     for( int i=0; i<dim; ++i ) {
       out << "Local coordinates of velocities in dir: " << i << "\n";
 			Ordinal j = 0;
-			for( typename Teuchos::ArrayRCP<Scalar>::iterator jp=xV_[i].begin(); jp<xV_[i].end(); ++jp )
+			for( typename Teuchos::ArrayRCP<ScalarT>::iterator jp=xV_[i].begin(); jp<xV_[i].end(); ++jp )
 				out << j++ << "\t" << *jp << "\n";
 		}
 
