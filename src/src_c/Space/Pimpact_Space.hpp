@@ -51,18 +51,22 @@ void closeH5F();
 /// \brief Space in the sense of a vector space, it is the connection between Field and Operators
 ///
 /// \ingroup SpaceObject
-template< class ST, class O, int d, int dNC >
+template< class ST, class OT, int d, int dNC >
 class Space {
 
 public:
 
 	using Scalar  = ST;
-	using Ordinal = O;
+	using Ordinal = OT;
 
 	static const int dimension = d;
 	static const int dimNC = dNC;
 
 
+	/// \brief most important object
+	///
+	/// \param pl parameters
+	/// \todo document parameter choices
 	Space( Teuchos::RCP<Teuchos::ParameterList> pl ) {
 
 		pl->validateParametersAndSetDefaults( *getValidParameters(), 0 );
@@ -93,21 +97,21 @@ public:
 					Pimpact::EDomainType( domain ) );
 
 		gridSizeGlobal_ =
-			Pimpact::createGridSizeGlobal<O>(
-					pl->get<O>("nx"),
-					pl->get<O>("ny"),
-					( 2==pl->get<int>("dim") )?2:pl->get<O>("nz"),
-					pl->get<O>("nf") );
+			Pimpact::createGridSizeGlobal<OT>(
+					pl->get<OT>("nx"),
+					pl->get<OT>("ny"),
+					( 2==pl->get<int>("dim") )?2:pl->get<OT>("nz"),
+					pl->get<OT>("nf") );
 
-		Teuchos::Tuple<O,d> procGridSize;
-		procGridSize[0] = pl->get<O>("npx");
-		procGridSize[1] = pl->get<O>("npy");
-		procGridSize[2] = pl->get<O>("npz");
+		Teuchos::Tuple<OT,d> procGridSize;
+		procGridSize[0] = pl->get<OT>("npx");
+		procGridSize[1] = pl->get<OT>("npy");
+		procGridSize[2] = pl->get<OT>("npz");
 		if( d>3 )
-			procGridSize[3] = pl->get<O>("npf");
+			procGridSize[3] = pl->get<OT>("npf");
 
 		procGrid_ =
-			Pimpact::createProcGrid<O,d>(
+			Pimpact::createProcGrid<OT,d>(
 					procGridSize,
 					boundaryConditionsGlobal_ );
 
@@ -117,20 +121,20 @@ public:
 					procGrid_ );
 
 		gridSizeLocal_ =
-			Pimpact::createGridSizeLocal<O,d,dNC>(
+			Pimpact::createGridSizeLocal<OT,d,dNC>(
 					gridSizeGlobal_,
 					procGrid_,
 					stencilWidths_ );
 
 		indexSpace_ =
-			Pimpact::createIndexSpace<O,d,dNC>(
+			Pimpact::createIndexSpace<OT,d,dNC>(
 					stencilWidths_,
 					gridSizeLocal_,
 					boundaryConditionsLocal_,
 					procGrid_ );
 
 		coordGlobal_ =
-			Pimpact::createCoordinatesGlobal<ST,O,d>(
+			Pimpact::createCoordinatesGlobal<ST,OT,d>(
 					gridSizeGlobal_,
 					domainSize_,
 					Teuchos::tuple< Teuchos::RCP<Teuchos::ParameterList> >(
@@ -139,7 +143,7 @@ public:
 						Teuchos::rcpFromRef( pl->sublist("Stretching in Z") ) ) );
 
 		coordLocal_ =
-			Pimpact::createCoordinatesLocal<ST,O,d>(
+			Pimpact::createCoordinatesLocal<ST,OT,d>(
 					stencilWidths_,
 					domainSize_,
 					gridSizeGlobal_,
@@ -150,7 +154,7 @@ public:
 					coordGlobal_ );
 
 		interV2S_ =
-			Pimpact::createInterpolateV2S<ST,Ordinal,dimension,dimNC>(
+			Pimpact::createInterpolateV2S<ST,OT,dimension,dimNC>(
 					indexSpace_,
 					gridSizeLocal_,
 					stencilWidths_,
@@ -165,16 +169,16 @@ public:
 
 	Space(
 			const Teuchos::RCP<const StencilWidths<dimension,dimNC> >& stencilWidths,
-			const Teuchos::RCP<const IndexSpace<Ordinal,dimension> >& indexSpace,
-			const Teuchos::RCP<const GridSizeGlobal<Ordinal> >& gridSizeGlobal,
-			const Teuchos::RCP<const GridSizeLocal<Ordinal,dimension> >& gridSizeLocal,
-			const Teuchos::RCP<const ProcGrid<Ordinal,dimension> >& procGrid,
-			const Teuchos::RCP<const CoordinatesGlobal<ST,Ordinal,dimension> >& coordGlobal,
-			const Teuchos::RCP<const CoordinatesLocal<ST,Ordinal,dimension> >& coordLocal,
+			const Teuchos::RCP<const IndexSpace<OT,dimension> >& indexSpace,
+			const Teuchos::RCP<const GridSizeGlobal<OT> >& gridSizeGlobal,
+			const Teuchos::RCP<const GridSizeLocal<OT,dimension> >& gridSizeLocal,
+			const Teuchos::RCP<const ProcGrid<OT,dimension> >& procGrid,
+			const Teuchos::RCP<const CoordinatesGlobal<ST,OT,dimension> >& coordGlobal,
+			const Teuchos::RCP<const CoordinatesLocal<ST,OT,dimension> >& coordLocal,
 			const Teuchos::RCP<const DomainSize<ST> > domainSize,
 			const Teuchos::RCP<const BoundaryConditionsGlobal<dimension> > boundaryConditionsGlobal,
 			const Teuchos::RCP<const BoundaryConditionsLocal<dimension> > boundaryConditionsLocal,
-			const Teuchos::RCP<const InterpolateV2S<ST,Ordinal,dimension,dimNC> >& interV2S ):
+			const Teuchos::RCP<const InterpolateV2S<ST,OT,dimension,dimNC> >& interV2S ):
 		stencilWidths_(stencilWidths),
 		indexSpace_(indexSpace),
 		gridSizeGlobal_(gridSizeGlobal),
@@ -194,22 +198,22 @@ protected:
 	Teuchos::RCP<const StencilWidths<dimension,dimNC> >
 	stencilWidths_;
 
-	Teuchos::RCP<const IndexSpace<Ordinal,dimension> >
+	Teuchos::RCP<const IndexSpace<OT,dimension> >
 	indexSpace_;
 
-	Teuchos::RCP<const GridSizeGlobal<Ordinal> >
+	Teuchos::RCP<const GridSizeGlobal<OT> >
 	gridSizeGlobal_;
 
-	Teuchos::RCP<const GridSizeLocal<Ordinal,dimension> >
+	Teuchos::RCP<const GridSizeLocal<OT,dimension> >
 	gridSizeLocal_;
 
-	Teuchos::RCP<const ProcGrid<Ordinal,dimension> >
+	Teuchos::RCP<const ProcGrid<OT,dimension> >
 	procGrid_;
 
-	Teuchos::RCP<const CoordinatesGlobal<ST,Ordinal,dimension> >
+	Teuchos::RCP<const CoordinatesGlobal<ST,OT,dimension> >
 	coordGlobal_;
 
-	Teuchos::RCP<const CoordinatesLocal<ST,Ordinal,dimension> >
+	Teuchos::RCP<const CoordinatesLocal<ST,OT,dimension> >
 	coordLocal_;
 
 	Teuchos::RCP<const DomainSize<ST> >
@@ -221,7 +225,7 @@ protected:
 	Teuchos::RCP<const BoundaryConditionsLocal<dimension> >
 	boundaryConditionsLocal_;
 
-	Teuchos::RCP<const InterpolateV2S<ST,Ordinal,dimension,dimNC> >
+	Teuchos::RCP<const InterpolateV2S<ST,OT,dimension,dimNC> >
 	interV2S_;
 
 public:
@@ -232,22 +236,22 @@ public:
 	const Teuchos::RCP<const StencilWidths<dimension,dimNC> >&
 	getStencilWidths() const { return( stencilWidths_ ); }
 
-	const Teuchos::RCP<const IndexSpace<Ordinal,dimension> >&
+	const Teuchos::RCP<const IndexSpace<OT,dimension> >&
 	getIndexSpace() const { return( indexSpace_ ); }
 
-	const Teuchos::RCP<const GridSizeGlobal<Ordinal> >&
+	const Teuchos::RCP<const GridSizeGlobal<OT> >&
 	getGridSizeGlobal() const { return( gridSizeGlobal_ );  }
 
-	const Teuchos::RCP<const GridSizeLocal<Ordinal,dimension> >&
+	const Teuchos::RCP<const GridSizeLocal<OT,dimension> >&
 	getGridSizeLocal() const { return( gridSizeLocal_ );  }
 
-	const Teuchos::RCP<const ProcGrid<Ordinal,dimension> >&
+	const Teuchos::RCP<const ProcGrid<OT,dimension> >&
 	getProcGrid() const { return( procGrid_ ); }
 
-	const Teuchos::RCP<const CoordinatesGlobal<ST,Ordinal,dimension> >&
+	const Teuchos::RCP<const CoordinatesGlobal<ST,OT,dimension> >&
 	getCoordinatesGlobal() const { return( coordGlobal_ ); }
 
-	const Teuchos::RCP<const CoordinatesLocal<ST,Ordinal,dimension> >&
+	const Teuchos::RCP<const CoordinatesLocal<ST,OT,dimension> >&
 	getCoordinatesLocal() const { return( coordLocal_ ); }
 
 	const Teuchos::RCP<const DomainSize<ST> >&
@@ -259,7 +263,7 @@ public:
 	const Teuchos::RCP<const BoundaryConditionsLocal<dimension> >&
 	getBCLocal()    const { return( boundaryConditionsLocal_ ); }
 
-	const Teuchos::RCP<const InterpolateV2S<ST,Ordinal,dimension,dimNC> >&
+	const Teuchos::RCP<const InterpolateV2S<ST,OT,dimension,dimNC> >&
 	getInterpolateV2S() const { return( interV2S_ ); }
 
 	/// \}
@@ -396,10 +400,10 @@ public:
 			// grid size
 			pl->set<bool>("spectral in time", false, "enables spectral time discretization" );
 
-			pl->set<O>("nx", 33, "amount of grid points in x-direction: a*2**q+1" );
-			pl->set<O>("ny", 33, "amount of grid points in y-direction: a*2**q+1" );
-			pl->set<O>("nz", 33, "amount of grid points in z-direction: a*2**q+1" );
-			pl->set<O>("nf", 4, "amount of grid points in f-direction" );
+			pl->set<OT>("nx", 33, "amount of grid points in x-direction: a*2**q+1" );
+			pl->set<OT>("ny", 33, "amount of grid points in y-direction: a*2**q+1" );
+			pl->set<OT>("nz", 33, "amount of grid points in z-direction: a*2**q+1" );
+			pl->set<OT>("nf", 4, "amount of grid points in f-direction" );
 
 			// grid stretching
 			pl->sublist("Stretching in X");
@@ -410,10 +414,10 @@ public:
 			pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "none" );
 
 			// processor grid size
-			pl->set<O>("npx", 2, "amount of processors in x-direction" );
-			pl->set<O>("npy", 2, "amount of processors in y-direction" );
-			pl->set<O>("npz", 1, "amount of processors in z-direction" );
-			pl->set<O>("npf", 1, "amount of processors in f-direction" );
+			pl->set<OT>("npx", 2, "amount of processors in x-direction" );
+			pl->set<OT>("npy", 2, "amount of processors in y-direction" );
+			pl->set<OT>("npz", 1, "amount of processors in z-direction" );
+			pl->set<OT>("npf", 1, "amount of processors in f-direction" );
 
 			validPL = pl;
 		}
@@ -426,11 +430,11 @@ public:
 
 
 /// \relates Space
-template<class ST=double, class O=int, int d=3, int dimNC=4>
-Teuchos::RCP<const Space<ST,O,d,dimNC> >
+template<class ST=double, class OT=int, int d=3, int dimNC=4>
+Teuchos::RCP<const Space<ST,OT,d,dimNC> >
 createSpace( Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ) {
 
-	return( Teuchos::rcp( new Space<ST,O,d,dimNC>( pl ) ) );
+	return( Teuchos::rcp( new Space<ST,OT,d,dimNC>( pl ) ) );
 
 }
 

@@ -820,6 +820,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
 		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
 		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
 		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
+		//pl->sublist("Stretching in X").set<ST>( "x0 L", 0.2 );
 	}
 	if( sy!=0 ) {
 		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
@@ -963,9 +964,16 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
 		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
 	}
 	if( sz!=0 ) {
-		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
-		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
+		if( 1==sz ) {
+			pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+			pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
+			pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
+		}
+		else {
+			pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+			pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz) );
+			pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz) );
+		}
 	}
 
   // processor grid size

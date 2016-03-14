@@ -47,7 +47,7 @@ void PI_getLocalCoordinates(
 /// xV         | bl..nLoc+bu+(ib-1)*(NB-1)
 ///
 /// \ingroup SpaceObject
-template<class ScalarT, class Ordinal, int dim>
+template<class ScalarT, class OrdinalT, int dim>
 class GridCoordinatesLocal {
 
   template<class ST,class OT,int dT, int dNC>
@@ -67,7 +67,7 @@ public:
 
 protected:
 
-  Teuchos::RCP<const GridSizeLocal<Ordinal,dim> > gridSize_;
+  Teuchos::RCP<const GridSizeLocal<OrdinalT,dim> > gridSize_;
 
   TO xS_;
   TO xV_;
@@ -79,18 +79,18 @@ protected:
 		GridCoordinatesLocal(
 				const Teuchos::RCP<const StencilWidths<dim,dimNC> >& stencilWidths,
 				const Teuchos::RCP<const DomainSize<ScalarT> >& domainSize,
-				const Teuchos::RCP<const GridSizeGlobal<Ordinal,dim> >& gridSizeGlobal,
-				const Teuchos::RCP<const GridSizeLocal<Ordinal,dim> >& gridSize,
+				const Teuchos::RCP<const GridSizeGlobal<OrdinalT,dim> >& gridSizeGlobal,
+				const Teuchos::RCP<const GridSizeLocal<OrdinalT,dim> >& gridSize,
 				const Teuchos::RCP<const BoundaryConditionsGlobal<dim> >& bcGlobal,
 				const Teuchos::RCP<const BoundaryConditionsLocal >& bcLocal,
-				const Teuchos::RCP<const ProcGrid<Ordinal,dim> >& procGrid,
-				const Teuchos::RCP<const GridCoordinatesGlobal<ScalarT,Ordinal,dim> >& coordGlobal ):
+				const Teuchos::RCP<const ProcGrid<OrdinalT,dim> >& procGrid,
+				const Teuchos::RCP<const GridCoordinatesGlobal<ScalarT,OrdinalT,dim> >& coordGlobal ):
 			gridSize_( gridSize ) {
 
 				for( int i=0; i<dim; ++i ) {
 
 					if( i<3 ) {
-						Ordinal nTemp = gridSize_->get(i)+stencilWidths->getBU(i)-stencilWidths->getBL(i)+1;
+						OrdinalT nTemp = gridSize_->get(i)+stencilWidths->getBU(i)-stencilWidths->getBL(i)+1;
 						xS_[i]  = new ScalarT[ nTemp ];
 						xV_[i]  = new ScalarT[ nTemp ];
 						dxS_[i] = new ScalarT[ gridSize_->get(i) ];
@@ -116,18 +116,18 @@ protected:
 					}
 					else {
 
-						Ordinal nTemp = gridSize_->get(i)+stencilWidths->getBU(i)-stencilWidths->getBL(i);
+						OrdinalT nTemp = gridSize_->get(i)+stencilWidths->getBU(i)-stencilWidths->getBL(i);
 
 						xS_[i]  = new ScalarT[ nTemp ];
 						xV_[i]  = new ScalarT[ nTemp ];
 						dxS_[i] = new ScalarT[ gridSize_->get(i) ];
 						dxV_[i] = new ScalarT[ gridSize_->get(i)+1 ];
 
-						Ordinal nt = gridSizeGlobal->get(i);
+						OrdinalT nt = gridSizeGlobal->get(i);
 						ScalarT pi = 4.*std::atan(1.);
 						ScalarT offset = procGrid->getShift(i) + stencilWidths->getBL(i);
 
-						for( Ordinal it=0; it<nTemp; ++it ) {
+						for( OrdinalT it=0; it<nTemp; ++it ) {
 							xS_[i][it] = 2.*pi*( static_cast<ScalarT>(it) + offset )/nt;
 							xV_[i][it] = 2.*pi*( static_cast<ScalarT>(it) + offset )/nt;
 						}

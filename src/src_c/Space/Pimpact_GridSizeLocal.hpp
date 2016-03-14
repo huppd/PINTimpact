@@ -25,8 +25,8 @@ namespace Pimpact{
 /// generated from \c GridSizeGlobal and \c ProcGridSize
 /// \f$ nLoc = (nGlo-1)/nProc + 1 \f$
 /// \ingroup SpaceObject
-template<class Ordinal, int dim>
-class GridSizeLocal : public Teuchos::Tuple<Ordinal,dim> {
+template<class OrdinalT, int dim>
+class GridSizeLocal : public Teuchos::Tuple<OrdinalT,dim> {
 
   template< class OT, int dT, int dNC >
   friend Teuchos::RCP<const GridSizeLocal<OT,dT> > createGridSizeLocal(
@@ -44,10 +44,10 @@ protected:
 	/// \param stencilWidths only necessary for size checking, and defining gs[3]
 	template<int dNC>
 	GridSizeLocal(
-			const Teuchos::RCP<const GridSizeGlobal<Ordinal> >& gridSizeGlobal,
-			const Teuchos::RCP<const ProcGrid      <Ordinal,dim> >& procGrid,
+			const Teuchos::RCP<const GridSizeGlobal<OrdinalT> >& gridSizeGlobal,
+			const Teuchos::RCP<const ProcGrid      <OrdinalT,dim> >& procGrid,
 			const Teuchos::RCP<const StencilWidths     <dim,dNC> >& stencilWidths ):
-		Teuchos::Tuple<Ordinal,dim>() {
+		Teuchos::Tuple<OrdinalT,dim>() {
 
 			for( int i=0; i<3; ++i )
 				TEUCHOS_TEST_FOR_EXCEPT( gridSizeGlobal->get(i) < procGrid->getNP(i) );
@@ -83,7 +83,7 @@ protected:
 
 public:
 
-	const Ordinal& get( int i ) const { return( (*this)[i] ); }
+	const OrdinalT& get( int i ) const { return( (*this)[i] ); }
 
   void print( std::ostream& out=std::cout ) const {
     out << " \tlocal grid size= " << (*this) << "\n";

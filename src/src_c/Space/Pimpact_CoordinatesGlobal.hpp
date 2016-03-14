@@ -29,7 +29,7 @@ namespace Pimpact{
 /// xV         | 0..nGlo | 0.5..L+0.5
 ///
 /// \tparam ScalarT scalar type
-/// \tparam Ordinal index type
+/// \tparam OrdinalT index type
 /// \tparam dim computiational dimension
 ///
 /// \note: - local processor-block coordinates and grid spacings are
@@ -47,7 +47,7 @@ namespace Pimpact{
 ///
 /// \relates CoordinatesGlobal
 /// \ingroup SpaceObject
-template<class ScalarT, class Ordinal, int dim>
+template<class ScalarT, class OrdinalT, int dim>
 class CoordinatesGlobal {
 
 	template<class ST,class OT,int dT>
@@ -129,7 +129,7 @@ protected:
 	///	- i0L >= 0., i0U >= 0., iML >= 1 and iMU <= M is already tested.
 	/// - so following is satisfied wL, wU >= 0..
 	/// - identical to coord_tan except of std::cos functions.
-	void coord_cos(
+	inline void coord_cos(
 			const ScalarT& i,
 			const ScalarT& L,
 			const ScalarT& M,
@@ -189,6 +189,9 @@ protected:
 		//--- Normalization
 		x *= L/( xL + xU - iML + iMU );
 		x -= x0;
+		std::cout << "i: " << i << "\n"
+			<< " wl: " << wL << "xl: " << xL << ", x_i: " << x << "\n";
+		//std::cout << "\n"<<  x << "\n";
 
 	}
 
@@ -223,14 +226,14 @@ protected:
 	/// \param[in] domainSize
 	/// \param[in] stretchPara
 	CoordinatesGlobal(
-			const Teuchos::RCP<const GridSizeGlobal<Ordinal> >& gridSize,
+			const Teuchos::RCP<const GridSizeGlobal<OrdinalT> >& gridSize,
 			const Teuchos::RCP<const DomainSize<ScalarT> >& domainSize,
 			const Teuchos::Tuple< Teuchos::RCP<Teuchos::ParameterList>, 3 >& stretchPara ):
 		stretchPara_(stretchPara) {
 
 			for( int dir=0; dir<dim; ++dir ) {
 
-				Ordinal M = gridSize->get(dir);
+				OrdinalT M = gridSize->get(dir);
 				ScalarT Ms = M;
 
 				xS_ [dir] = Teuchos::arcp<ScalarT>( M   );
@@ -244,7 +247,7 @@ protected:
 					ScalarT x0 = domainSize->getOrigin(dir);
 
 					int stretchType = string2int( stretchPara_[dir]->get<std::string>( "Stretch Type", "none" ) );
-					for( Ordinal i=0; i<M; ++i ) {
+					for( OrdinalT i=0; i<M; ++i ) {
 						ScalarT is = i;
 
 						switch( stretchType ) {
@@ -256,7 +259,7 @@ protected:
 								break;
 							case 2:
 								coord_cos(
-										is,
+										is+1.,
 										L,
 										Ms,
 										x0,
@@ -270,8 +273,9 @@ protected:
 								coord_equi( is, L, Ms, x0, xS_[dir][i] );
 								break;
 						}
+						//std::cout << "after i: "<< i << " x: " << xS_[dir][i] << "\n\n";
 					}
-					for( Ordinal i=0; i<=M; ++i ) {
+					for( OrdinalT i=0; i<=M; ++i ) {
 						ScalarT is = static_cast<ScalarT>(i) - 0.5;
 						switch( stretchType ) {
 							case 0:
@@ -282,7 +286,7 @@ protected:
 								break;
 							case 2:
 								coord_cos(
-										is,
+										is+1.,
 										L,
 										Ms,
 										x0,
@@ -307,12 +311,12 @@ protected:
 
 					ScalarT L = 4.*std::atan(1.);
 
-					for( Ordinal i=0; i<M; ++i ) {
+					for( OrdinalT i=0; i<M; ++i ) {
 						ScalarT is = i;
 						xS_ [dir][i] = is*L/( Ms-1. );
 						//dxS_[dir][i] =    L/( Ms-1. );
 					}
-					for( Ordinal i=0; i<=M; ++i ) {
+					for( OrdinalT i=0; i<=M; ++i ) {
 						ScalarT is = static_cast<ScalarT>(i) - 0.5;
 						xV_ [dir][i] = is*L/( Ms-1. );
 						//dxV_[dir][i] =  L/( Ms-1. );
@@ -327,13 +331,13 @@ protected:
 	/// \param[in] gridSizeC
 	/// \param[in] coordinatesF
 	CoordinatesGlobal(
-			const Teuchos::RCP<const GridSizeGlobal<Ordinal> >& gridSizeC,
-			const Teuchos::RCP<const CoordinatesGlobal<ScalarT,Ordinal,dim> >& coordinatesF ) {
+			const Teuchos::RCP<const GridSizeGlobal<OrdinalT> >& gridSizeC,
+			const Teuchos::RCP<const CoordinatesGlobal<ScalarT,OrdinalT,dim> >& coordinatesF ) {
 
 		for( int dir=0; dir<dim; ++dir ) {
 
-			Ordinal Mc = gridSizeC->get(dir);
-			Ordinal Mf = coordinatesF->xS_[dir].size();
+			OrdinalT Mc = gridSizeC->get(dir);
+			OrdinalT Mf = coordinatesF->xS_[dir].size();
 
 			if( Mc==Mf ) {
 				xS_ [dir] = coordinatesF->xS_ [dir];
@@ -344,7 +348,7 @@ protected:
 				xS_ [dir] = Teuchos::arcp<ScalarT>( Mc   );
 				xV_ [dir] = Teuchos::arcp<ScalarT>( Mc+1 );
 
-				Ordinal d = 1;
+				OrdinalT d = 1;
 
 				if( dir<3 ) {
 					if( Mc>1 ) // shouldn't be neccessary when strategy makes its job correct. maybe throw exception
@@ -355,10 +359,10 @@ protected:
 						d = Mf / Mc;
 				}
 
-				for( Ordinal j=0; j<Mc; ++j )
+				for( OrdinalT j=0; j<Mc; ++j )
 					xS_[dir][j] = coordinatesF->xS_[dir][j*d];
 
-				for( Ordinal j=1; j<Mc; ++j )
+				for( OrdinalT j=1; j<Mc; ++j )
 					xV_[dir][j] = coordinatesF->xS_[dir][j*d-1];
 
 				xV_[dir][0 ] =   xS_[dir][0   ]-xV_[dir][1   ];
@@ -412,7 +416,7 @@ public:
 		for( int i=0; i<dim; ++i ) {
 			out << "Global coordinates of scalars in dir: " << i << "\n";
 			out << "i\txS\n";
-			Ordinal j = 0;
+			OrdinalT j = 0;
 			for( typename Teuchos::ArrayRCP<ScalarT>::iterator jp=xS_[i].begin(); jp<xS_[i].end(); ++jp )
 				out << ++j << "\t" << *jp << "\n";
 		}
@@ -420,7 +424,7 @@ public:
 		for( int i=0; i<dim; ++i ) {
 			out << "Global coordinates of vectors in dir: " << i << "\n";
 			out << "i\txV\n";
-			Ordinal j = 0;
+			OrdinalT j = 0;
 			for( typename Teuchos::ArrayRCP<ScalarT>::iterator jp=xV_[i].begin(); jp<xV_[i].end(); ++jp )
 				out << j++ << "\t" << *jp << "\n";
 		}
@@ -435,24 +439,24 @@ public:
 /// \brief create Grid coordinates Global
 /// \relates CoordinatesGlobal
 ///
-/// \tparam S
-/// \tparam O
+/// \tparam ST
+/// \tparam OT
 /// \tparam d
 /// \param gridSize
 /// \param domainSize
 /// \param gridStretching
 ///
 /// \return 
-template<class S, class O, int d>
-Teuchos::RCP<const CoordinatesGlobal<S,O,d> >
+template<class ST, class OT, int d>
+Teuchos::RCP<const CoordinatesGlobal<ST,OT,d> >
 createCoordinatesGlobal(
-		const Teuchos::RCP<const GridSizeGlobal<O> >& gridSize,
-		const Teuchos::RCP<const DomainSize<S> >& domainSize,
+		const Teuchos::RCP<const GridSizeGlobal<OT> >& gridSize,
+		const Teuchos::RCP<const DomainSize<ST> >& domainSize,
 		const Teuchos::Tuple< Teuchos::RCP<Teuchos::ParameterList> ,3>& gridStretching ) {
 
 	return(
 			Teuchos::rcp(
-				new CoordinatesGlobal<S,O,d>(
+				new CoordinatesGlobal<ST,OT,d>(
 					gridSize,
 					domainSize,
 					gridStretching ) ) );
@@ -463,22 +467,22 @@ createCoordinatesGlobal(
 
 /// \brief creates coarse coordinates
 ///
-/// \tparam S
-/// \tparam O
+/// \tparam ST
+/// \tparam OT
 /// \tparam d
 /// \param gridSize
 /// \param coordinates
 ///
 /// \return 
-template<class S, class O, int d>
-Teuchos::RCP<const CoordinatesGlobal<S,O,d> >
+template<class ST, class OT, int d>
+Teuchos::RCP<const CoordinatesGlobal<ST,OT,d> >
 createCoordinatesGlobal(
-		const Teuchos::RCP<const GridSizeGlobal<O> >& gridSize,
-		const Teuchos::RCP<const CoordinatesGlobal<S,O,d> >& coordinates ) {
+		const Teuchos::RCP<const GridSizeGlobal<OT> >& gridSize,
+		const Teuchos::RCP<const CoordinatesGlobal<ST,OT,d> >& coordinates ) {
 
 	return(
 			Teuchos::rcp(
-				new CoordinatesGlobal<S,O,d>(
+				new CoordinatesGlobal<ST,OT,d>(
 					gridSize,
 					coordinates )
 				)

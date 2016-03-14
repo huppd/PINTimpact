@@ -101,8 +101,8 @@ public:
 		}
 
 	void apply( const DomainFieldT& b, RangeFieldT& x ) const { 
-		//applyPIMP( b, x );
-		applyIFFPACK( b, x );
+		applyPIMP( b, x );
+		//applyIFFPACK( b, x );
 	}
 
 protected:

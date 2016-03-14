@@ -48,7 +48,7 @@ namespace Pimpact {
 ///
 /// \note if one would remove ls_ one could decouple with \c StencilWidths
 /// \ingroup SpaceObject
-template<class Ordinal, int dimension>
+template<class OrdinalT, int dimension>
 class IndexSpace {
 
   template<class O, int d, int dimNC>
@@ -61,9 +61,9 @@ class IndexSpace {
 
 public:
 
-  using TO = Teuchos::Tuple<Ordinal,dimension>;
+  using TO = Teuchos::Tuple<OrdinalT,dimension>;
 
-  using TTO = Teuchos::Tuple< Teuchos::Tuple<Ordinal, dimension>, 3 >;
+  using TTO = Teuchos::Tuple< Teuchos::Tuple<OrdinalT, dimension>, 3 >;
 
 protected:
 
@@ -76,7 +76,7 @@ protected:
   TTO sIndUB_;
   TTO eIndUB_;
 
-  Teuchos::Tuple<Ordinal,dimension> shift_;
+  Teuchos::Tuple<OrdinalT,dimension> shift_;
 
   /// \brief constructor
 	///
@@ -88,9 +88,9 @@ protected:
   template<int dimNC>
   IndexSpace(
       const Teuchos::RCP<const StencilWidths<dimension,dimNC> >& sW,
-      const Teuchos::RCP<const GridSizeLocal<Ordinal,dimension> >& gridSizeLocal,
+      const Teuchos::RCP<const GridSizeLocal<OrdinalT,dimension> >& gridSizeLocal,
       const Teuchos::RCP<const BoundaryConditionsLocal<dimension> >& bc,
-		 	const Teuchos::RCP<const ProcGrid<Ordinal,dimension> >& procGrid ) {
+		 	const Teuchos::RCP<const ProcGrid<OrdinalT,dimension> >& procGrid ) {
 
     // ------------------init IndS_--------------------
     for( int i=0; i<3; ++i ) {
@@ -109,11 +109,11 @@ protected:
     // time direction automatically periodic BC
     if( 4==dimension ) {
 			if( sW->spectralT() ) {
-				Ordinal nl  = (gridSizeLocal->get(3)+1)/procGrid->getNP(3);
-				Ordinal rem = (gridSizeLocal->get(3)+1)%procGrid->getNP(3);
+				OrdinalT nl  = (gridSizeLocal->get(3)+1)/procGrid->getNP(3);
+				OrdinalT rem = (gridSizeLocal->get(3)+1)%procGrid->getNP(3);
 				int rank = procGrid->getIB(3)-1;
-				Ordinal sI = -1 +  rank   *nl + (( rank   <rem)? rank   :rem);
-				Ordinal eI = -1 + (rank+1)*nl + (((rank+1)<rem)?(rank+1):rem);
+				OrdinalT sI = -1 +  rank   *nl + (( rank   <rem)? rank   :rem);
+				OrdinalT eI = -1 + (rank+1)*nl + (((rank+1)<rem)?(rank+1):rem);
 //				std::cout << "\tnl: " << nl << "\trem: " << rem << "\trank: " << rank << "\tsI: " << sI << "\teI: " << eI << "\n";
 				sIndS_[3] = sI;
 				eIndS_[3] = eI;
@@ -127,8 +127,8 @@ protected:
 				}
 			}
 			else{
-				Ordinal sI = 0 - sW->getBL(3);
-				Ordinal eI = gridSizeLocal->get(3) + sW->getBU(3) - sW->getBL(3);
+				OrdinalT sI = 0 - sW->getBL(3);
+				OrdinalT eI = gridSizeLocal->get(3) + sW->getBU(3) - sW->getBL(3);
 				sIndS_[3] = sI;
 				eIndS_[3] = eI;
 				for( int i=0; i<3; ++i ) {
@@ -290,52 +290,52 @@ protected:
 
 public:
 
-  const Ordinal* sInd( int fieldType ) const {
+  const OrdinalT* sInd( int fieldType ) const {
     if( EField::S == (EField)fieldType )
       return( sIndS_.getRawPtr() );
     else
       return( sIndU_[fieldType].getRawPtr() );
   }
-  const Ordinal* eInd( int fieldType ) const {
+  const OrdinalT* eInd( int fieldType ) const {
     if( EField::S == (EField)fieldType )
       return( eIndS_.getRawPtr() );
     else
       return( eIndU_[fieldType].getRawPtr() );
   }
 
-  const Ordinal* sIndB( int fieldType ) const {
+  const OrdinalT* sIndB( int fieldType ) const {
     if( EField::S == (EField)fieldType )
       return( sIndS_.getRawPtr() );
     else
       return( sIndUB_[fieldType].getRawPtr()  );
   }
-  const Ordinal* eIndB( int fieldType ) const {
+  const OrdinalT* eIndB( int fieldType ) const {
     if( EField::S == (EField)fieldType )
       return( eIndS_.getRawPtr() );
     else
       return( eIndUB_[fieldType].getRawPtr()  );
   }
 
-  const Ordinal& sInd( int fieldType, int dir ) const {
+  const OrdinalT& sInd( int fieldType, int dir ) const {
     if( EField::S == (EField)fieldType )
       return( sIndS_[dir]  );
     else
       return( sIndU_[fieldType][dir] );
   }
-  const Ordinal& eInd(  int fieldType, int dir ) const {
+  const OrdinalT& eInd(  int fieldType, int dir ) const {
     if( EField::S == (EField)fieldType )
       return( eIndS_[dir]  );
     else
       return( eIndU_[fieldType][dir] );
   }
 
-  const Ordinal& sIndB( int fieldType, int dir ) const {
+  const OrdinalT& sIndB( int fieldType, int dir ) const {
     if( EField::S == (EField)fieldType )
       return( sIndS_[dir]  );
     else
       return( sIndUB_[fieldType].getRawPtr()[dir]  );
   }
-  const Ordinal& eIndB( int fieldType, int dir ) const {
+  const OrdinalT& eIndB( int fieldType, int dir ) const {
     if( EField::S == (EField)fieldType )
       return( eIndS_[dir]  );
     else

@@ -24,12 +24,12 @@ namespace Pimpact{
 /// provides information about neighboring mpi processes
 /// \ingroup SpaceObject
 /// \tparam dim  3 or 4
-template< class Ordinal, int dim>
+template< class OrdinalT, int dim>
 class ProcGrid {
 
 public:
 
-	using TO = const Teuchos::Tuple<Ordinal,dim>;
+	using TO = const Teuchos::Tuple<OrdinalT,dim>;
 
 protected:
 
@@ -257,7 +257,7 @@ public:
 
   const bool& participating() const { return( participating_ ); }
 
-	const Ordinal& getNP( int i ) const { return( procGridSize_[i] ); }
+	const OrdinalT& getNP( int i ) const { return( procGridSize_[i] ); }
 	const TO&             getNP()        const { return( procGridSize_ ); }
 
   const MPI_Comm& getCommWorld() const { return( commWorld_ ); }

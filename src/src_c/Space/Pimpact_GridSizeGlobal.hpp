@@ -20,8 +20,8 @@ namespace Pimpact{
 ///
 /// \todo remove tpara dimension and rm getters
 /// \ingroup SpaceObject
-template<class Ordinal>
-class GridSizeGlobal : public Teuchos::Tuple<Ordinal,4> {
+template<class OrdinalT>
+class GridSizeGlobal : public Teuchos::Tuple<OrdinalT,4> {
 
   template<class OT>
   friend Teuchos::RCP<const GridSizeGlobal<OT> > createGridSizeGlobal( OT n1, OT n2, OT n3, OT nt );
@@ -33,8 +33,8 @@ class GridSizeGlobal : public Teuchos::Tuple<Ordinal,4> {
 protected:
 
 	/// \todo test also thrid dimension( not on coarser grids)
-	GridSizeGlobal( const Teuchos::Tuple<Ordinal,4>& gridSize ):
-		Teuchos::Tuple<Ordinal,4>( gridSize ) {
+	GridSizeGlobal( const Teuchos::Tuple<OrdinalT,4>& gridSize ):
+		Teuchos::Tuple<OrdinalT,4>( gridSize ) {
 
 			for( int i=0; i<3; ++i )
 				TEUCHOS_TEST_FOR_EXCEPT( ((*this)[i]-1)%2 != 0 );
@@ -43,7 +43,7 @@ protected:
 
 public:
 
-	const Ordinal& get( int i ) const  { return( (*this)[i] ); }
+	const OrdinalT& get( int i ) const  { return( (*this)[i] ); }
 
 	void print( std::ostream& out=std::cout ) const {
 		out << " --- GridSizeGlobal: " << *this << " ---\n";

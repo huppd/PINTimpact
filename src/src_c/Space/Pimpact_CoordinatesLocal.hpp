@@ -56,7 +56,7 @@ void PI_getLocalCoordinates(
 /// xV         | bl..nLoc+bu+(ib-1)*(NB-1)
 ///
 /// \ingroup SpaceObject
-template<class ScalarT, class Ordinal, int dim>
+template<class ScalarT, class OrdinalT, int dim>
 class CoordinatesLocal {
 
 	template<class ST,class OT,int dT, int dNC>
@@ -84,16 +84,16 @@ protected:
 	CoordinatesLocal(
 			const Teuchos::RCP<const StencilWidths<dim,dimNC> >& stencilWidths,
 			const Teuchos::RCP<const DomainSize<ScalarT> >& domainSize,
-			const Teuchos::RCP<const GridSizeGlobal<Ordinal> >& gridSizeGlobal,
-			const Teuchos::RCP<const GridSizeLocal<Ordinal,dim> >& gridSizeLocal,
+			const Teuchos::RCP<const GridSizeGlobal<OrdinalT> >& gridSizeGlobal,
+			const Teuchos::RCP<const GridSizeLocal<OrdinalT,dim> >& gridSizeLocal,
 			const Teuchos::RCP<const BoundaryConditionsGlobal<dim> >& bcGlobal,
 			const Teuchos::RCP<const BoundaryConditionsLocal<dim> >& bcLocal,
-			const Teuchos::RCP<const ProcGrid<Ordinal,dim> >& procGrid,
-			const Teuchos::RCP<const CoordinatesGlobal<ScalarT,Ordinal,dim> >& coordGlobal ) {
+			const Teuchos::RCP<const ProcGrid<OrdinalT,dim> >& procGrid,
+			const Teuchos::RCP<const CoordinatesGlobal<ScalarT,OrdinalT,dim> >& coordGlobal ) {
 
 		for( int i=0; i<dim; ++i ) {
 
-			Ordinal nTemp = gridSizeLocal->get(i) + stencilWidths->getBU(i) - stencilWidths->getBL(i) + 1;
+			OrdinalT nTemp = gridSizeLocal->get(i) + stencilWidths->getBU(i) - stencilWidths->getBL(i) + 1;
 
 			xS_[i]  = Teuchos::arcp<ScalarT>( nTemp                   );
 			xV_[i]  = Teuchos::arcp<ScalarT>( nTemp                   );
@@ -169,13 +169,13 @@ public:
     for( int i=0; i<dim; ++i ) {
       out << "Local coordinates of scalars in dir: " << i << "\n";
       out << "i\txS\n";
-			Ordinal j = 0;
+			OrdinalT j = 0;
 			for( typename Teuchos::ArrayRCP<ScalarT>::iterator jp=xS_[i].begin(); jp<xS_[i].end(); ++jp )
 				out << ++j << "\t" << *jp << "\n";
 		}
     for( int i=0; i<dim; ++i ) {
       out << "Local coordinates of velocities in dir: " << i << "\n";
-			Ordinal j = 0;
+			OrdinalT j = 0;
 			for( typename Teuchos::ArrayRCP<ScalarT>::iterator jp=xV_[i].begin(); jp<xV_[i].end(); ++jp )
 				out << j++ << "\t" << *jp << "\n";
 		}
@@ -188,21 +188,21 @@ public:
 
 /// \brief create Grid coordinates Global
 /// \relates CoordinatesLocal
-template<class S, class O, int d, int dNC>
-Teuchos::RCP<const CoordinatesLocal<S,O,d> >
+template<class ST, class OT, int d, int dNC>
+Teuchos::RCP<const CoordinatesLocal<ST,OT,d> >
 createCoordinatesLocal(
 		const Teuchos::RCP<const StencilWidths<d,dNC> >& stencilWidths,
-		const Teuchos::RCP<const DomainSize<S> >& domainSize,
-		const Teuchos::RCP<const GridSizeGlobal<O> >& gridSizeGlobal,
-		const Teuchos::RCP<const GridSizeLocal<O,d> >& gridSizeLocal,
+		const Teuchos::RCP<const DomainSize<ST> >& domainSize,
+		const Teuchos::RCP<const GridSizeGlobal<OT> >& gridSizeGlobal,
+		const Teuchos::RCP<const GridSizeLocal<OT,d> >& gridSizeLocal,
 		const Teuchos::RCP<const BoundaryConditionsGlobal<d> >& bcGlobal,
 		const Teuchos::RCP<const BoundaryConditionsLocal<d> >& bcLocal,
-		const Teuchos::RCP<const ProcGrid<O,d> >& procGrid,
-		const Teuchos::RCP<const CoordinatesGlobal<S,O,d> >& coordGlobal ) {
+		const Teuchos::RCP<const ProcGrid<OT,d> >& procGrid,
+		const Teuchos::RCP<const CoordinatesGlobal<ST,OT,d> >& coordGlobal ) {
 
 	return(
 			Teuchos::rcp(
-				new CoordinatesLocal<S,O,d>(
+				new CoordinatesLocal<ST,OT,d>(
 					stencilWidths,
 					domainSize,
 					gridSizeGlobal,
