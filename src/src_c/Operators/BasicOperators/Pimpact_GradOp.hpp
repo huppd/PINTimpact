@@ -161,15 +161,15 @@ public:
 
 		// necessary?
 		for( int i=0; i<space()->dim(); ++i ) {
-			//OP_SetBCZero(
-					//space_->nLoc(),
-					//space_->bl(),
-					//space_->bu(),
-					//space_->getBCLocal()->getBCL(),
-					//space_->getBCLocal()->getBCU(),
-					//space_->sIndB(i),
-					//space_->eIndB(i),
-					//y.getRawPtr(i) );
+			OP_SetBCZero(
+					space_->nLoc(),
+					space_->bl(),
+					space_->bu(),
+					space_->getBCLocal()->getBCL(),
+					space_->getBCLocal()->getBCU(),
+					space_->sIndB(i),
+					space_->eIndB(i),
+					y.getRawPtr(i) );
 			OP_extrapolateBC(
 					i+1,
 					space_->nLoc(),

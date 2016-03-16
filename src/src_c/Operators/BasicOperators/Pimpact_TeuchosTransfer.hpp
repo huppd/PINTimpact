@@ -879,11 +879,17 @@ public:
 			*out << (*evr)[i] << "\n";
 			if( 0==i ) {
 				evMax = (*evr)[i] ;
-				evMin = (*evr)[i] ;
+				for( Ordinal j=0; j<n; ++ j ) {
+					if( std::abs( (*evr)[j] )>1.e-6 ) {
+						evMin = (*evr)[j] ;
+						j=n;
+					}
+				}
 			}
 			else {
 				evMax = std::max( evMax, (*evr)[i] );
-				evMin = std::min( evMin, (*evr)[i] );
+				if( std::abs( (*evr)[i] )>1.e-6 ) 
+					evMin = std::min( evMin, (*evr)[i] );
 			}
 		}
 

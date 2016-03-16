@@ -157,39 +157,39 @@ public:
 						y.at(i,j,k) = innerStenc2D(x, i,j,k);
 					}
 
-		//// boundaries
-		//for( int d=0; d<3; ++d ) {
+		// boundaries
+		for( int d=0; d<3; ++d ) {
 
-			//int d1 = ( d + 1 )%3;
-			//int d2 = ( d + 2 )%3;
-			//if( d2>d1 ) std::swap( d2, d1 );
-			//TO i;
+			int d1 = ( d + 1 )%3;
+			int d2 = ( d + 2 )%3;
+			if( d2>d1 ) std::swap( d2, d1 );
+			TO i;
 
-			//// lower boundaries
-			//if( space_->getBCLocal()->getBCL(d)>0 ) {
-				//i[d] = 1;
-				//for( i[d1]=getSR(d1); i[d1]<=getER(d1); ++i[d1] )
-					//for( i[d2]=getSR(d2); i[d2]<=getER(d2); ++i[d2] ) {
-						//TO ip = i;
-						//++ip[d];
-						//y.at(i[0],i[1],i[2]) =
-							//getC(d,i[d],0)*x.at(i[0],i[1],i[2]) + getC(d,i[d],+1)*x.at(ip[0],ip[1],ip[2]);
-					//}
-			//}
+			// lower boundaries
+			if( space_->getBCLocal()->getBCL(d)>0 ) {
+				i[d] = 1;
+				for( i[d1]=getSR(d1); i[d1]<=getER(d1); ++i[d1] )
+					for( i[d2]=getSR(d2); i[d2]<=getER(d2); ++i[d2] ) {
+						TO ip = i;
+						++ip[d];
+						y.at(i[0],i[1],i[2]) =
+							getC(d,i[d],0)*x.at(i[0],i[1],i[2]) + getC(d,i[d],+1)*x.at(ip[0],ip[1],ip[2]);
+					}
+			}
 
-			//// upper boundaries
-			//if( space_->getBCLocal()->getBCU(d)>0 ) {
-				//i[d] = space_->nLoc(d);
-				//for( i[d1]=getSR(d1); i[d1]<=getER(d1); ++i[d1] )
-					//for( i[d2]=getSR(d2); i[d2]<=getER(d2); ++i[d2] ) {
-						//TO ip = i;
-						//--ip[d];
-						//y.at(i[0],i[1],i[2]) =
-							//getC(d,i[d],0)*x.at(i[0],i[1],i[2]) + getC(d,i[d],-1)*x.at(ip[0],ip[1],ip[2]);
-					//}
-			//}
+			// upper boundaries
+			if( space_->getBCLocal()->getBCU(d)>0 ) {
+				i[d] = space_->nLoc(d);
+				for( i[d1]=getSR(d1); i[d1]<=getER(d1); ++i[d1] )
+					for( i[d2]=getSR(d2); i[d2]<=getER(d2); ++i[d2] ) {
+						TO ip = i;
+						--ip[d];
+						y.at(i[0],i[1],i[2]) =
+							getC(d,i[d],0)*x.at(i[0],i[1],i[2]) + getC(d,i[d],-1)*x.at(ip[0],ip[1],ip[2]);
+					}
+			}
 
-		//}
+		}
 
 		y.changed();
 

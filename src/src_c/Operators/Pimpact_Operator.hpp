@@ -31,6 +31,7 @@
 #include "Pimpact_DivGradO2Op.hpp"
 #include "Pimpact_DivGradO2Inv.hpp"
 #include "Pimpact_DivGradO2JSmoother.hpp"
+#include "Pimpact_DivGradO2LSmoother.hpp"
 #include "Pimpact_DivGradO2SORSmoother.hpp"
 #include "Pimpact_HelmholtzOp.hpp"
 #include "Pimpact_InterpolateS2VOp.hpp"

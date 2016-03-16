@@ -189,8 +189,8 @@ protected:
 		//--- Normalization
 		x *= L/( xL + xU - iML + iMU );
 		x -= x0;
-		std::cout << "i: " << i << "\n"
-			<< " wl: " << wL << "xl: " << xL << ", x_i: " << x << "\n";
+		//std::cout << "i: " << i << "\n"
+			//<< " wl: " << wL << "xl: " << xL << ", x_i: " << x << "\n";
 		//std::cout << "\n"<<  x << "\n";
 
 	}

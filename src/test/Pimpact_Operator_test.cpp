@@ -1016,16 +1016,19 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
 	ev->computeEV( evMax, evMin );
 	std::cout << "glob : " << evMax << "\t" <<evMin << "\n";
 
-	//ev->computeFullEV( evMax, evMin );
-	//std::cout << "glob2: " << evMax << "\t" <<evMin << "\n";
+	ev->computeFullEV( evMax, evMin );
+	std::cout << "glob2: " << evMax << "\t" <<evMin << "\n";
 
 	Teuchos::RCP<Teuchos::ParameterList> ppl = Teuchos::parameterList();
 	ppl->set<int>( "numIters", sweeps );
-	//std::swap( evMax, evMin );
+
+	// good result with no stretch + own
 	ppl->set<ST>( "max EV", evMin*1.1 );
-	ppl->set<ST>( "min EV", evMax );
+	ppl->set<ST>( "min EV", evMin*1.1/30. );
+	//ppl->set<ST>( "max EV", evMin*1.1 );
+	//ppl->set<ST>( "min EV", evMin*1.1 );
+
 	ppl->set<bool>( "with output", true );
-	//ppl->set<ST>( "min EV", evMin );
 	
 	// JSmoother
 	ppl->set<int>( "BC smoothing", 1 );
