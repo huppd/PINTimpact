@@ -90,11 +90,7 @@ protected:
 
   TS c_;
 
-	TO SR_;
-	TO ER_;
-
 public:
-
 
 	DivGradO2Op( const Teuchos::RCP<const SpaceT>& space ): space_(space) {
 
@@ -103,16 +99,6 @@ public:
 			Ordinal nTemp = 3*( space_->nLoc(i) - 1 + 1 );
 			c_[i] = new Scalar[ nTemp ];
 
-			// inner field bounds
-			//SR_[i] = 1;
-			//ER_[i] = space_->nLoc(i) - 1;
-			SR_[i] = 1;
-			ER_[i] = space_->nLoc(i);
-
-			//if( space_->getBCLocal()->getBCL(i) >  0 ) SR_[i] = 2;
-			//if( space_->getBCLocal()->getBCL(i) == 0 ) SR_[i] = 1;
-			//if( space_->getBCLocal()->getBCU(i) >  0 ) ER_[i] = space_->nLoc(i) - 1;
-			//if( space_->getBCLocal()->getBCU(i) == 0 ) ER_[i] = space_->nLoc(i);
 		}
 
 		Op_getCDG(
@@ -157,40 +143,6 @@ public:
 						y.at(i,j,k) = innerStenc2D(x, i,j,k);
 					}
 
-		//// boundaries
-		//for( int d=0; d<3; ++d ) {
-
-			//int d1 = ( d + 1 )%3;
-			//int d2 = ( d + 2 )%3;
-			//if( d2>d1 ) std::swap( d2, d1 );
-			//TO i;
-
-			//// lower boundaries
-			//if( space_->getBCLocal()->getBCL(d)>0 ) {
-				//i[d] = 1;
-				//for( i[d1]=getSR(d1); i[d1]<=getER(d1); ++i[d1] )
-					//for( i[d2]=getSR(d2); i[d2]<=getER(d2); ++i[d2] ) {
-						//TO ip = i;
-						//++ip[d];
-						//y.at(i[0],i[1],i[2]) =
-							//getC(d,i[d],0)*x.at(i[0],i[1],i[2]) + getC(d,i[d],+1)*x.at(ip[0],ip[1],ip[2]);
-					//}
-			//}
-
-			//// upper boundaries
-			//if( space_->getBCLocal()->getBCU(d)>0 ) {
-				//i[d] = space_->nLoc(d);
-				//for( i[d1]=getSR(d1); i[d1]<=getER(d1); ++i[d1] )
-					//for( i[d2]=getSR(d2); i[d2]<=getER(d2); ++i[d2] ) {
-						//TO ip = i;
-						//--ip[d];
-						//y.at(i[0],i[1],i[2]) =
-							//getC(d,i[d],0)*x.at(i[0],i[1],i[2]) + getC(d,i[d],-1)*x.at(ip[0],ip[1],ip[2]);
-					//}
-			//}
-
-		//}
-
 		y.changed();
 
 	}
@@ -213,42 +165,6 @@ public:
 						res.at(i,j,k) = b.at(i,j,k) - innerStenc2D(x, i,j,k);
 					}
 
-		//// boundaries
-		//for( int d=0; d<3; ++d ) {
-
-			//int d1 = ( d + 1 )%3;
-			//int d2 = ( d + 2 )%3;
-			//if( d2>d1 ) std::swap( d2, d1 );
-			//TO i;
-
-			//// lower boundaries
-			//if( space_->getBCLocal()->getBCL(d)>0 ) {
-				//i[d] = 1;
-				//for( i[d1]=getSR(d1); i[d1]<=getER(d1); ++i[d1] )
-					//for( i[d2]=getSR(d2); i[d2]<=getER(d2); ++i[d2] ) {
-						//TO ip = i;
-						//++ip[d];
-						//res.at(i[0],i[1],i[2]) = b.at(i[0],i[1],i[2]) -
-							//getC(d,i[d],0 )*x.at(i[0], i[1], i[2] ) -
-							//getC(d,i[d],+1)*x.at(ip[0],ip[1],ip[2]);
-					//}
-			//}
-
-			//// upper boundaries
-			//if( space_->getBCLocal()->getBCU(d)>0 ) {
-				//i[d] = space_->nLoc(d);
-				//for( i[d1]=getSR(d1); i[d1]<=getER(d1); ++i[d1] )
-					//for( i[d2]=getSR(d2); i[d2]<=getER(d2); ++i[d2] ) {
-						//TO ip = i;
-						//--ip[d];
-						//res.at(i[0],i[1],i[2]) = b.at(i[0],i[1],i[2]) -
-							//getC(d,i[d],0 )*x.at(i[0], i[1], i[2] ) -
-							//getC(d,i[d],-1)*x.at(ip[0],ip[1],ip[2]);
-					//}
-			//}
-
-		//}
-
 		res.changed();
 
 	}
@@ -267,8 +183,8 @@ public:
   void print( std::ostream& out=std::cout ) const {
     out << "--- " << getLabel() << " ---\n";
     out << " --- stencil: ---";
-		out << " sr: " << SR_ << "\n";
-		out << " er: " << ER_ << "\n";
+		//out << " sr: " << SR_ << "\n";
+		//out << " er: " << ER_ << "\n";
     for( int dir=0; dir<3; ++dir ) {
       out << "\ndir: " << dir << "\n";
       for( int i=1; i<=space_->nLoc(dir); ++i ) {

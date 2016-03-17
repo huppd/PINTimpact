@@ -451,14 +451,6 @@ public:
 
 		if( EField::S==fType ) {
 
-			//MG_InterpolateCorners(
-					//spaceC_->nLoc(),
-					//spaceC_->bl(),
-					//spaceC_->bu(),
-					//spaceC_->getBCLocal()->getBCL(),
-					//spaceC_->getBCLocal()->getBCU(),
-					//x.getConstRawPtr() );
-
 			if( spaceC_->getProcGrid()->participating() )
 				x.exchange();
 
@@ -492,17 +484,6 @@ public:
 					cIS_[2].getRawPtr(),
 					x.getConstRawPtr(),
 					y.getRawPtr() );
-
-			//MG_InterpolateCornersPost(
-					//spaceF_->nLoc(),
-					//spaceF_->bl(),
-					//spaceF_->bu(),
-					//spaceF_->getBCLocal()->getBCL(),
-					//spaceF_->getBCLocal()->getBCU(),
-					//spaceF_->getCoordinatesLocal()->getX( ECoord::X, EField::S ),
-					//spaceF_->getCoordinatesLocal()->getX( ECoord::Y, EField::S ),
-					//spaceF_->getCoordinatesLocal()->getX( ECoord::Z, EField::S ),
-					//y.getRawPtr() );
 
 		}
 		else {

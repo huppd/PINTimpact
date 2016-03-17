@@ -121,7 +121,6 @@ public:
         x.getConstRawPtr(),
         y.getRawPtr() );
 
-		y.setCornersZero();
     y.changed();
 
   }

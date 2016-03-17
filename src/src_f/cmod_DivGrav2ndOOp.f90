@@ -826,7 +826,7 @@ contains
 
     !if (BCL(1) >   0) S11R = 2
     if (BCL(1) == -2) S11R = 1
-    !if (BCU(1) >   0) N11R = N(1)-1
+    if (BCU(1) >   0) N11R = N(1)
     if (BCU(1) == -2) N11R = N(1)
 
     S22R = 1
@@ -834,7 +834,7 @@ contains
 
     !if (BCL(2) >   0) S22R = 2
     if (BCL(2) == -2) S22R = 1
-    !if (BCU(2) >   0) N22R = N(2)-1
+    if (BCU(2) >   0) N22R = N(2)
     if (BCU(2) == -2) N22R = N(2)
 
     S33R = 1
@@ -842,7 +842,7 @@ contains
 
     !if (BCL(3) >   0) S33R = 2
     if (BCL(3) == -2) S33R = 1
-    !if (BCU(3) >   0) N33R = N(3)-1
+    if (BCU(3) >   0) N33R = N(3)
     if (BCU(3) == -2) N33R = N(3)
 
     !--------------------------------------------------------------
@@ -850,92 +850,92 @@ contains
     if( RBGS_mode>0 ) then
       !==================================================================================
       !==================================================================================
-      if( BCL(1)>0 ) then
-        i = 1
-        do k = S33R, N33R
-          ss = MOD(i+k+S22R+1,2)
-          !pgi$ unroll = n:8
-          do j = ss+S22R, N22R, 2
-            phi(i,j,k) = omega*(bb(i,j,k) - cdg1( 1,i)*phi(i+1,j,k)) / cdg1(0,i) + (1.-omega)*phi(i,j,k)
-          end do
-        end do
-      end if
-      !-----------------------------------------------------------------------------------
-      if( BCU(1)>0 ) then
-        i = N(1)
-        do k = S33R, N33R
-          ss = MOD(i+k+S22R+1,2)
-          !pgi$ unroll = n:8
-          do j = ss+S22R, N22R, 2
-            phi(i,j,k) = omega*(bb(i,j,k) - cdg1(-1,i)*phi(i-1,j,k)) / cdg1(0,i) + (1.-omega)*phi(i,j,k)
-          end do
-        end do
-      end if
+      !if( BCL(1)>0 ) then
+        !i = 1
+        !do k = S33R, N33R
+          !ss = MOD(i+k+S22R+1,2)
+          !!pgi$ unroll = n:8
+          !do j = ss+S22R, N22R, 2
+            !phi(i,j,k) = omega*(bb(i,j,k) - cdg1( 1,i)*phi(i+1,j,k)) / cdg1(0,i) + (1.-omega)*phi(i,j,k)
+          !end do
+        !end do
+      !end if
+      !!-----------------------------------------------------------------------------------
+      !if( BCU(1)>0 ) then
+        !i = N(1)
+        !do k = S33R, N33R
+          !ss = MOD(i+k+S22R+1,2)
+          !!pgi$ unroll = n:8
+          !do j = ss+S22R, N22R, 2
+            !phi(i,j,k) = omega*(bb(i,j,k) - cdg1(-1,i)*phi(i-1,j,k)) / cdg1(0,i) + (1.-omega)*phi(i,j,k)
+          !end do
+        !end do
+      !end if
       !===================================================================================
-      if( BCL(2)>0 ) then
-        j = 1
-        do k = S33R, N33R
-          ss = MOD(j+k+S11R+1,2)
-          !pgi$ unroll = n:8
-          do i = ss+S11R, N11R, 2
-            phi(i,j,k) = omega*(bb(i,j,k) - cdg2( 1,j)*phi(i,j+1,k)) / cdg2(0,j) + (1.-omega)*phi(i,j,k)
-          end do
-        end do
-      end if
+      !if( BCL(2)>0 ) then
+        !j = 1
+        !do k = S33R, N33R
+          !ss = MOD(j+k+S11R+1,2)
+          !!pgi$ unroll = n:8
+          !do i = ss+S11R, N11R, 2
+            !phi(i,j,k) = omega*(bb(i,j,k) - cdg2( 1,j)*phi(i,j+1,k)) / cdg2(0,j) + (1.-omega)*phi(i,j,k)
+          !end do
+        !end do
+      !end if
       !-----------------------------------------------------------------------------------
-      if( BCU(2)>0 ) then
-        j = N(2)
-        do k = S33R, N33R
-          ss = MOD(j+k+S11R+1,2)
-          !pgi$ unroll = n:8
-          do i = ss+S11R, N11R, 2
-            phi(i,j,k) = omega*bb(i,j,k) / cdg2(0,j)
-          end do
-        end do
-        do k = S33R, N33R
-          ss = MOD(j+k+S11R+1,2)
-          !pgi$ unroll = n:8
-          do i = ss+S11R, N11R, 2
-            phi(i,j,k) = omega*(bb(i,j,k) - cdg2(-1,j)*phi(i,j-1,k)) / cdg2(0,j) + (1.-omega)*phi(i,j,k)
-          end do
-        end do
-      end if
+      !if( BCU(2)>0 ) then
+        !j = N(2)
+        !do k = S33R, N33R
+          !ss = MOD(j+k+S11R+1,2)
+          !!pgi$ unroll = n:8
+          !do i = ss+S11R, N11R, 2
+            !phi(i,j,k) = omega*bb(i,j,k) / cdg2(0,j)
+          !end do
+        !end do
+        !do k = S33R, N33R
+          !ss = MOD(j+k+S11R+1,2)
+          !!pgi$ unroll = n:8
+          !do i = ss+S11R, N11R, 2
+            !phi(i,j,k) = omega*(bb(i,j,k) - cdg2(-1,j)*phi(i,j-1,k)) / cdg2(0,j) + (1.-omega)*phi(i,j,k)
+          !end do
+        !end do
+      !end if
       !===================================================================================
       if( RBGS_mode==1 ) then
         !---------------------------------------------------------------------------------
-        if( BCL(3)>0 ) then
-          k = 1
-          do j = S22R, N22R
-            ss = MOD(j+k+S11R+1,2)
-            !pgi$ unroll = n:8
-            do i = ss+S11R, N11R, 2
-              phi(i,j,k) = omega*(bb(i,j,k) - cdg3( 1,k)*phi(i,j,k+1)) / cdg3(0,k) + (1.-omega)*phi(i,j,k)
-            end do
-          end do
-        end if
+        !if( BCL(3)>0 ) then
+          !k = 1
+          !do j = S22R, N22R
+            !ss = MOD(j+k+S11R+1,2)
+            !!pgi$ unroll = n:8
+            !do i = ss+S11R, N11R, 2
+              !phi(i,j,k) = omega*(bb(i,j,k) - cdg3( 1,k)*phi(i,j,k+1)) / cdg3(0,k) + (1.-omega)*phi(i,j,k)
+            !end do
+          !end do
+        !end if
         !---------------------------------------------------------------------------------
-        if( BCU(3)>0 ) then
-          k = N(3)
-          do j = S22R, N22R
-            ss = MOD(j+k+S11R+1,2)
-            !pgi$ unroll = n:8
-            do i = ss+S11R, N11R, 2
-              phi(i,j,k) = omega*(bb(i,j,k) - cdg3(-1,k)*phi(i,j,k-1)) / cdg3(0,k) + (1.-omega)*phi(i,j,k)
-            end do
-          end do
-        end if
+        !if( BCU(3)>0 ) then
+          !k = N(3)
+          !do j = S22R, N22R
+            !ss = MOD(j+k+S11R+1,2)
+            !!pgi$ unroll = n:8
+            !do i = ss+S11R, N11R, 2
+              !phi(i,j,k) = omega*(bb(i,j,k) - cdg3(-1,k)*phi(i,j,k-1)) / cdg3(0,k) + (1.-omega)*phi(i,j,k)
+            !end do
+          !end do
+        !end if
         !---------------------------------------------------------------------------------
       else
         !---------------------------------------------------------------------------------
-        if( BCL(3)>0 ) then
-          k = 1
-          do j = S22R, N22R
-            !pgi$ unroll = n:8
-            do i = S11R, N11R
-              phi(i,j,k) = omega*(bb(i,j,k) - cdg3( 1,k)*phi(i,j,k+1)) / cdg3(0,k) + (1.-omega)*phi(i,j,k)
-            end do
-          end do
-        end if
+        !if( BCL(3)>0 ) then
+          !k = 1
+          !do j = S22R, N22R
+            !!pgi$ unroll = n:8
+            !do i = S11R, N11R
+              !phi(i,j,k) = omega*(bb(i,j,k) - cdg3( 1,k)*phi(i,j,k+1)) / cdg3(0,k) + (1.-omega)*phi(i,j,k)
+            !end do
+          !end do
+        !end if
         !---------------------------------------------------------------------------------
       end if
       !===================================================================================
@@ -1030,85 +1030,85 @@ contains
         !---------------------------------------------------------------------------------
       end if
       !===================================================================================
-      if( BCL(1)>0 ) then
-        i = 1
-        do k = S33R, N33R
-          ss = MOD(i+k+S22R,2)
-          !pgi$ unroll = n:8
-          do j = ss+S22R, N22R, 2
-            phi(i,j,k) = omega*(bb(i,j,k) - cdg1( 1,i)*phi(i+1,j,k)) / cdg1(0,i) + (1.-omega)*phi(i,j,k)
-          end do
-        end do
-      end if
+      !if( BCL(1)>0 ) then
+        !i = 1
+        !do k = S33R, N33R
+          !ss = MOD(i+k+S22R,2)
+          !!pgi$ unroll = n:8
+          !do j = ss+S22R, N22R, 2
+            !phi(i,j,k) = omega*(bb(i,j,k) - cdg1( 1,i)*phi(i+1,j,k)) / cdg1(0,i) + (1.-omega)*phi(i,j,k)
+          !end do
+        !end do
+      !end if
       !-----------------------------------------------------------------------------------
-      if( BCU(1)>0 ) then
-        i = N(1)
-        do k = S33R, N33R
-          ss = MOD(i+k+S22R,2)
-          !pgi$ unroll = n:8
-          do j = ss+S22R, N22R, 2
-            phi(i,j,k) = omega*(bb(i,j,k) - cdg1(-1,i)*phi(i-1,j,k)) / cdg1(0,i) + (1.-omega)*phi(i,j,k)
-          end do
-        end do
-      end if
+      !if( BCU(1)>0 ) then
+        !i = N(1)
+        !do k = S33R, N33R
+          !ss = MOD(i+k+S22R,2)
+          !!pgi$ unroll = n:8
+          !do j = ss+S22R, N22R, 2
+            !phi(i,j,k) = omega*(bb(i,j,k) - cdg1(-1,i)*phi(i-1,j,k)) / cdg1(0,i) + (1.-omega)*phi(i,j,k)
+          !end do
+        !end do
+      !end if
       !===================================================================================
-      if( BCL(2)>0 ) then
-        j = 1
-        do k = S33R, N33R
-          ss = MOD(j+k+S11R,2)
-          !pgi$ unroll = n:8
-          do i = ss+S11R, N11R, 2
-            phi(i,j,k) = omega*(bb(i,j,k) - cdg2( 1,j)*phi(i,j+1,k)) / cdg2(0,j) + (1.-omega)*phi(i,j,k)
-          end do
-        end do
-      end if
+      !if( BCL(2)>0 ) then
+        !j = 1
+        !do k = S33R, N33R
+          !ss = MOD(j+k+S11R,2)
+          !!pgi$ unroll = n:8
+          !do i = ss+S11R, N11R, 2
+            !phi(i,j,k) = omega*(bb(i,j,k) - cdg2( 1,j)*phi(i,j+1,k)) / cdg2(0,j) + (1.-omega)*phi(i,j,k)
+          !end do
+        !end do
+      !end if
       !-----------------------------------------------------------------------------------
-      if( BCU(2)>0 ) then
-        j = N(2)
-        do k = S33R, N33R
-          ss = MOD(j+k+S11R,2)
-          !pgi$ unroll = n:8
-          do i = ss+S11R, N11R, 2
-            phi(i,j,k) = omega*(bb(i,j,k) - cdg2(-1,j)*phi(i,j-1,k)) / cdg2(0,j) + (1.-omega)*phi(i,j,k)
-          end do
-        end do
-      end if
+      !if( BCU(2)>0 ) then
+        !j = N(2)
+        !do k = S33R, N33R
+          !ss = MOD(j+k+S11R,2)
+          !!pgi$ unroll = n:8
+          !do i = ss+S11R, N11R, 2
+            !phi(i,j,k) = omega*(bb(i,j,k) - cdg2(-1,j)*phi(i,j-1,k)) / cdg2(0,j) + (1.-omega)*phi(i,j,k)
+          !end do
+        !end do
+      !end if
       !===================================================================================
       if( RBGS_mode==1 ) then
         !---------------------------------------------------------------------------------
-        if( BCL(3)>0 ) then
-          k = 1
-          do j = S22R, N22R
-            ss = MOD(j+k+S11R,2)
-            !pgi$ unroll = n:8
-            do i = ss+S11R, N11R, 2
-              phi(i,j,k) = omega*(bb(i,j,k) - cdg3( 1,k)*phi(i,j,k+1)) / cdg3(0,k) + (1.-omega)*phi(i,j,k)
-            end do
-          end do
-        end if
+        !if( BCL(3)>0 ) then
+          !k = 1
+          !do j = S22R, N22R
+            !ss = MOD(j+k+S11R,2)
+            !!pgi$ unroll = n:8
+            !do i = ss+S11R, N11R, 2
+              !phi(i,j,k) = omega*(bb(i,j,k) - cdg3( 1,k)*phi(i,j,k+1)) / cdg3(0,k) + (1.-omega)*phi(i,j,k)
+            !end do
+          !end do
+        !end if
         !---------------------------------------------------------------------------------
-        if( BCU(3)>0 ) then
-          k = N(3)
-          do j = S22R, N22R
-            ss = MOD(j+k+S11R,2)
-            !pgi$ unroll = n:8
-            do i = ss+S11R, N11R, 2
-              phi(i,j,k) = omega*(bb(i,j,k) - cdg3(-1,k)*phi(i,j,k-1)) / cdg3(0,k) + (1.-omega)*phi(i,j,k)
-            end do
-          end do
-        end if
+        !if( BCU(3)>0 ) then
+          !k = N(3)
+          !do j = S22R, N22R
+            !ss = MOD(j+k+S11R,2)
+            !!pgi$ unroll = n:8
+            !do i = ss+S11R, N11R, 2
+              !phi(i,j,k) = omega*(bb(i,j,k) - cdg3(-1,k)*phi(i,j,k-1)) / cdg3(0,k) + (1.-omega)*phi(i,j,k)
+            !end do
+          !end do
+        !end if
         !---------------------------------------------------------------------------------
       else
         !---------------------------------------------------------------------------------
-        if( BCU(3)>0 ) then
-          k = N(3)
-          do j = S22R, N22R
-            !pgi$ unroll = n:8
-            do i = S11R, N11R
-              phi(i,j,k) = omega*(bb(i,j,k) - cdg3(-1,k)*phi(i,j,k-1)) / cdg3(0,k) + (1.-omega)*phi(i,j,k)
-            end do
-          end do
-        end if
+        !if( BCU(3)>0 ) then
+          !k = N(3)
+          !do j = S22R, N22R
+            !!pgi$ unroll = n:8
+            !do i = S11R, N11R
+              !phi(i,j,k) = omega*(bb(i,j,k) - cdg3(-1,k)*phi(i,j,k-1)) / cdg3(0,k) + (1.-omega)*phi(i,j,k)
+            !end do
+          !end do
+        !end if
         !---------------------------------------------------------------------------------
       end if
       !===================================================================================
@@ -1116,35 +1116,35 @@ contains
     else
 
       !===================================================================================
-      if( BCL(1)>0 ) then
-        i = 1
-        do k = S33R, N33R
-          !pgi$ unroll = n:8
-          do j = S22R, N22R
-            phi(i,j,k) = omega*(bb(i,j,k) - cdg1( 1,i)*phi(i+1,j,k)) / cdg1(0,i) + (1.-omega)*phi(i,j,k)
-          end do
-        end do
-      end if
+      !if( BCL(1)>0 ) then
+        !i = 1
+        !do k = S33R, N33R
+          !!pgi$ unroll = n:8
+          !do j = S22R, N22R
+            !phi(i,j,k) = omega*(bb(i,j,k) - cdg1( 1,i)*phi(i+1,j,k)) / cdg1(0,i) + (1.-omega)*phi(i,j,k)
+          !end do
+        !end do
+      !end if
       !-----------------------------------------------------------------------------------
-      if( BCL(2)>0 ) then
-        j = 1
-        do k = S33R, N33R
-          !pgi$ unroll = n:8
-          do i = S11R, N11R
-            phi(i,j,k) = omega*(bb(i,j,k) - cdg2( 1,j)*phi(i,j+1,k)) / cdg2(0,j) + (1.-omega)*phi(i,j,k)
-          end do
-        end do
-      end if
-      !-----------------------------------------------------------------------------------
-      if( BCL(3)>0 ) then
-        k = 1
-        do j = S22R, N22R
-          !pgi$ unroll = n:8
-          do i = S11R, N11R
-            phi(i,j,k) = omega*(bb(i,j,k) - cdg3( 1,k)*phi(i,j,k+1)) / cdg3(0,k) + (1.-omega)*phi(i,j,k)
-          end do
-        end do
-      end if
+!      if( BCL(2)>0 ) then
+        !j = 1
+        !do k = S33R, N33R
+          !!pgi$ unroll = n:8
+          !do i = S11R, N11R
+            !phi(i,j,k) = omega*(bb(i,j,k) - cdg2( 1,j)*phi(i,j+1,k)) / cdg2(0,j) + (1.-omega)*phi(i,j,k)
+          !end do
+        !end do
+      !end if
+!      !-----------------------------------------------------------------------------------
+      !if( BCL(3)>0 ) then
+        !k = 1
+        !do j = S22R, N22R
+          !!pgi$ unroll = n:8
+          !do i = S11R, N11R
+            !phi(i,j,k) = omega*(bb(i,j,k) - cdg3( 1,k)*phi(i,j,k+1)) / cdg3(0,k) + (1.-omega)*phi(i,j,k)
+          !end do
+        !end do
+      !end if
       !===================================================================================
       do k = S33R, N33R
         do j = S22R, N22R
@@ -1167,36 +1167,36 @@ contains
         end do
       end do
       !===================================================================================
-      if( BCU(1)>0 ) then
-        i = N(1)
-        do k = S33R, N33R
-          !pgi$ unroll = n:8
-          do j = S22R, N22R
-            phi(i,j,k) = omega*(bb(i,j,k) - cdg1(-1,i)*phi(i-1,j,k)) / cdg1(0,i) + (1.-omega)*phi(i,j,k)
-          end do
-        end do
-      end if
+      !if( BCU(1)>0 ) then
+        !i = N(1)
+        !do k = S33R, N33R
+          !!pgi$ unroll = n:8
+          !do j = S22R, N22R
+            !phi(i,j,k) = omega*(bb(i,j,k) - cdg1(-1,i)*phi(i-1,j,k)) / cdg1(0,i) + (1.-omega)*phi(i,j,k)
+          !end do
+        !end do
+      !end if
       !-----------------------------------------------------------------------------------
-      if( BCU(2)>0 ) then
-        j = N(2)
-        do k = S33R, N33R
-          !pgi$ unroll = n:8
-          do i = S11R, N11R
-            phi(i,j,k) = omega*(bb(i,j,k) - cdg2(-1,j)*phi(i,j-1,k)) / cdg2(0,j) + (1.-omega)*phi(i,j,k)
-          end do
-        end do
-      end if
+      !if( BCU(2)>0 ) then
+        !j = N(2)
+        !do k = S33R, N33R
+          !!pgi$ unroll = n:8
+          !do i = S11R, N11R
+            !phi(i,j,k) = omega*(bb(i,j,k) - cdg2(-1,j)*phi(i,j-1,k)) / cdg2(0,j) + (1.-omega)*phi(i,j,k)
+          !end do
+        !end do
+      !end if
       !-----------------------------------------------------------------------------------
-      if( BCU(3)>0 ) then
-        k = N(3)
-        do j = S22R, N22R
-          !pgi$ unroll = n:8
-          do i = S11R, N11R
-            phi(i,j,k) = omega*(bb(i,j,k) - cdg3(-1,k)*phi(i,j,k-1)) / cdg3(0,k) + (1.-omega)*phi(i,j,k)
-          end do
-        end do
-      end if
-      !===================================================================================
+!      if( BCU(3)>0 ) then
+        !k = N(3)
+        !do j = S22R, N22R
+          !!pgi$ unroll = n:8
+          !do i = S11R, N11R
+            !phi(i,j,k) = omega*(bb(i,j,k) - cdg3(-1,k)*phi(i,j,k-1)) / cdg3(0,k) + (1.-omega)*phi(i,j,k)
+          !end do
+        !end do
+      !end if
+!      !===================================================================================
     end if
 
 
