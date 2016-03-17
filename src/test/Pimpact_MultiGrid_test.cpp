@@ -202,7 +202,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSpaces, constructor3D, CS3G )
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGFields, SF_constructor3D, CS ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGFields, SFconstructor3D, CS ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
@@ -260,12 +260,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGFields, SF_constructor3D, CS ) {
 
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGFields, SF_constructor3D, CS3L )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGFields, SF_constructor3D, CS3G )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGFields, SFconstructor3D, CS3L )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGFields, SFconstructor3D, CS3G )
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGFields, VF_constructor3D, CS ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGFields, VFconstructor3D, CS ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
@@ -323,12 +323,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGFields, VF_constructor3D, CS ) {
 
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGFields, VF_constructor3D, CS3L )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGFields, VF_constructor3D, CS3G )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGFields, VFconstructor3D, CS3L )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGFields, VFconstructor3D, CS3G )
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGOperators, SF_constructor3D, CS ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGOperators, SFconstructor3D, CS ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
@@ -385,12 +385,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGOperators, SF_constructor3D, CS ) {
 
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGOperators, SF_constructor3D, CS3L )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGOperators, SF_constructor3D, CS3G )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGOperators, SFconstructor3D, CS3L )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGOperators, SFconstructor3D, CS3G )
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGOperators, VF_constructor3D, CS ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGOperators, VFconstructor3D, CS ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
@@ -442,13 +442,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGOperators, VF_constructor3D, CS ) {
 
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGOperators, VF_constructor3D, CS3L )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGOperators, VF_constructor3D, CS3G )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGOperators, VFconstructor3D, CS3L )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGOperators, VFconstructor3D, CS3G )
 
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSmoothers, SF_constructor3D, CS ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSmoothers, SFconstructor3D, CS ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
@@ -502,12 +502,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSmoothers, SF_constructor3D, CS ) {
 
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSmoothers, SF_constructor3D, CS3L )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSmoothers, SF_constructor3D, CS3G )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSmoothers, SFconstructor3D, CS3L )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSmoothers, SFconstructor3D, CS3G )
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSmoothers, VF_constructor3D, CS ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSmoothers, VFconstructor3D, CS ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
@@ -560,8 +560,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSmoothers, VF_constructor3D, CS ) {
 
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSmoothers, VF_constructor3D, CS3L )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSmoothers, VF_constructor3D, CS3G )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSmoothers, VFconstructor3D, CS3L )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSmoothers, VFconstructor3D, CS3G )
 
 
 
