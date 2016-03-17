@@ -159,7 +159,6 @@ public:
 				x.getConstRawPtr(),
 				y.getRawPtr() );
 
-		// necessary?
 		for( int i=0; i<space()->dim(); ++i ) {
 			OP_extrapolateBC(
 					i+1,

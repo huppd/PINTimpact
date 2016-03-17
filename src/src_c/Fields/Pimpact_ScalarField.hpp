@@ -151,42 +151,6 @@ public:
 						n[i] = space()->nGlo(i);
 					vl *= n[i];
 				}
-
-				//const int* bcl =  space()->getBCGlobal()->getBCL();
-				//const int* bcu =  space()->getBCGlobal()->getBCU();
-
-				//if( 2==space()->dim() ) {
-					//if( bcl[0]>0 && bcl[1]>0 ) vl -= 1;
-					//if( bcl[0]>0 && bcu[1]>0 ) vl -= 1;
-					//if( bcu[0]>0 && bcl[1]>0 ) vl -= 1;
-					//if( bcu[0]>0 && bcu[1]>0 ) vl -= 1;
-				//}
-				//else{
-					//if( bcl[0]>0 && bcl[1]>0 ) vl -= n[2] - ((bcl[2]==-1)?0:2);
-					//if( bcl[0]>0 && bcu[1]>0 ) vl -= n[2] - ((bcl[2]==-1)?0:2);
-					//if( bcu[0]>0 && bcl[1]>0 ) vl -= n[2] - ((bcl[2]==-1)?0:2);
-					//if( bcu[0]>0 && bcu[1]>0 ) vl -= n[2] - ((bcl[2]==-1)?0:2);
-
-					//if( bcl[0]>0 && bcl[2]>0 ) vl -= n[1] - ((bcl[1]==-1)?0:2);
-					//if( bcl[0]>0 && bcu[2]>0 ) vl -= n[1] - ((bcl[1]==-1)?0:2);
-					//if( bcu[0]>0 && bcl[2]>0 ) vl -= n[1] - ((bcl[1]==-1)?0:2);
-					//if( bcu[0]>0 && bcu[2]>0 ) vl -= n[1] - ((bcl[1]==-1)?0:2);
-
-					//if( bcl[1]>0 && bcl[2]>0 ) vl -= n[0] - ((bcl[0]==-1)?0:2);
-					//if( bcl[1]>0 && bcu[2]>0 ) vl -= n[0] - ((bcl[0]==-1)?0:2);
-					//if( bcu[1]>0 && bcl[2]>0 ) vl -= n[0] - ((bcl[0]==-1)?0:2);
-					//if( bcu[1]>0 && bcu[2]>0 ) vl -= n[0] - ((bcl[0]==-1)?0:2);
-
-					//if( bcl[0]>0 && bcl[1]>0 && bcl[2]>0 ) vl -= 1;
-					//if( bcu[0]>0 && bcl[1]>0 && bcl[2]>0 ) vl -= 1;
-					//if( bcl[0]>0 && bcu[1]>0 && bcl[2]>0 ) vl -= 1;
-					//if( bcl[0]>0 && bcl[1]>0 && bcu[2]>0 ) vl -= 1;
-
-					//if( bcu[0]>0 && bcu[1]>0 && bcu[2]>0 ) vl -= 1;
-					//if( bcl[0]>0 && bcu[1]>0 && bcu[2]>0 ) vl -= 1;
-					//if( bcu[0]>0 && bcl[1]>0 && bcu[2]>0 ) vl -= 1;
-					//if( bcu[0]>0 && bcu[1]>0 && bcl[2]>0 ) vl -= 1;
-				//}
 				break;
 			}
 			default: {
@@ -331,9 +295,6 @@ public:
 
     Scalar b = 0.;
 
-		setCornersZero();
-		a.setCornersZero();
-
     SF_dot(
         space()->nLoc(),
         space()->bl(),
@@ -358,8 +319,6 @@ public:
   Scalar norm(  Belos::NormType type = Belos::TwoNorm, bool global=true ) const {
 
     Scalar normvec = 0.;
-
-		setCornersZero();
 
     switch(type) {
     case Belos::OneNorm:
@@ -409,8 +368,6 @@ public:
   double norm(const MV& weights, bool global=true ) const {
 
     Scalar normvec = 0.;
-
-		setCornersZero();
 
     SF_weightedNorm(
         space()->nLoc(),
@@ -782,28 +739,13 @@ public:
 
 
 	/// \brief set corners of Dirichlet boundary conditions to zero
-	void setCornersZero() const {
-
-		//if( EField::S == fType_ ) {
-			//SF_handle_corner(
-					//space()->nLoc(),
-					//space()->bl(),
-					//space()->bu(),
-					//space()->getBCLocal()->getBCL(),
-					//space()->getBCLocal()->getBCU(),
-					//s_ );
-
-			//changed();
-		//}
-	}
+	/// \deprecated
+	void setCornersZero() const { }
 
 
 	void level() const {
 
 		if( EField::S == fType_ ) {
-
-			// set corners to zero, such that level depends only on inner field
-			setCornersZero();
 
 			SF_level(
 					MPI_Comm_c2f( space()->comm() ),
@@ -814,8 +756,6 @@ public:
 					space()->sIndB(fType_),
 					space()->eIndB(fType_),
 					s_ );
-
-			//changed(); already done in setCornersZero
 		}
 	}
 
