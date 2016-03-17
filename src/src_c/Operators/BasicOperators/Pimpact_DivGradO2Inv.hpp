@@ -43,12 +43,6 @@ protected:
 
 public:
 
-	// WTF
-	//DivGradO2Inv( const Teuchos::RCP<const SpaceT>& space ):
-		//op_( Teuchos::rcp( new OperatorT(space) ) ),
-		//trans_( Teuchos::rcp( new TeuchosTransfer<SpaceT>(op_->space(), op_->space()->sIndB(EField::S), op_->space()->eIndB(EField::S) ) ) ) {
-			//init();
-		//}
 
 	/// \brief constructor
 	///
