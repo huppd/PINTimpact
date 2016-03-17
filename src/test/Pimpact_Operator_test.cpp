@@ -1016,8 +1016,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
 	ev->computeEV( evMax, evMin );
 	std::cout << "glob : " << evMax << "\t" <<evMin << "\n";
 
-	ev->computeFullEV( evMax, evMin );
-	std::cout << "glob2: " << evMax << "\t" <<evMin << "\n";
+	//ev->computeFullEV( evMax, evMin );
+	//std::cout << "glob2: " << evMax << "\t" <<evMin << "\n";
 
 	Teuchos::RCP<Teuchos::ParameterList> ppl = Teuchos::parameterList();
 	ppl->set<int>( "numIters", sweeps );
@@ -1062,41 +1062,43 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
 
 
 	// --- consistency test ---
-	//for( int dir=1; dir<=6; ++dir ) {
+	for( int dir=1; dir<=1; ++dir ) {
 
-		//x->initField( static_cast<Pimpact::EScalarField>(dir) );
-		//x->level();
-		//auto xp = x->clone( Pimpact::DeepCopy );
+		x->initField( static_cast<Pimpact::EScalarField>(dir) );
+		x->level();
+		auto xp = x->clone( Pimpact::DeepCopy );
 
-		//op->apply( *x, *b );
+		op->apply( *x, *b );
 
-		//smoother->apply( *b, *x );
-		//x->level();
+		smoother->apply( *b, *x );
+		x->level();
 
-		//xp->add( 1., *xp, -1., *x );
-		//ST err2 = xp->norm( Belos::InfNorm )/std::sqrt( static_cast<ST>(xp->getLength()) );
-		//ST errInf = xp->norm( Belos::InfNorm );
+		xp->add( 1., *xp, -1., *x );
+		ST err2 = xp->norm( Belos::InfNorm )/std::sqrt( static_cast<ST>(xp->getLength()) );
+		ST errInf = xp->norm( Belos::InfNorm );
 
-		//if( 0==space->rankST() ) {
-			//std::cout << "consistency for " << dir << ": ||" << err2 << "||_2, ||" << errInf << "||_inf\n";
-		//}
+		if( 0==space->rankST() ) {
+			std::cout << "consistency for " << dir << ": ||" << err2 << "||_2, ||" << errInf << "||_inf\n";
+		}
 
-		//TEST_EQUALITY( err2<eps, true );
-		//TEST_EQUALITY( errInf<eps, true );
-		////if( err2>eps && errInf>eps ) 
-			////xp->write( dir );
+		TEST_EQUALITY( err2<eps, true );
+		TEST_EQUALITY( errInf<eps, true );
+		//if( err2>eps && errInf>eps ) 
+			//xp->write( dir );
 
-	//}
+	}
 
 }
 
 using JT = Pimpact::DivGradO2JSmoother< Pimpact::DivGradO2Op<SpaceT> >;
 using SORT = Pimpact::DivGradO2SORSmoother< Pimpact::DivGradO2Op<SpaceT> >;
 using CheT = Pimpact::Chebyshev< Pimpact::DivGradO2Op<SpaceT> >;
+using LT = Pimpact::DivGradO2LSmoother< Pimpact::DivGradO2Op<SpaceT> >;
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( BasicOperator, DivGradO2Smoother, JT )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( BasicOperator, DivGradO2Smoother, SORT )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( BasicOperator, DivGradO2Smoother, CheT )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( BasicOperator, DivGradO2Smoother, LT )
 
 
 
