@@ -875,21 +875,29 @@ public:
 		//std::cout << "info: " << info << "\n";
 		//std::cout << "opti work: " << (*work)[0]/N_ << "\n";
 
+		Scalar eps = 1.e-10;
+
 		Teuchos::RCP<std::ostream> out = Pimpact::createOstream( "ev_"+toString(dir)+".txt" );
 		for( Ordinal i=0; i<n; ++i ) {
 			*out << (*evr)[i] << "\n";
 			if( 0==i ) {
-				evMax = (*evr)[i] ;
 				for( Ordinal j=0; j<n; ++ j ) {
-					if( std::abs( (*evr)[j] )>1.e-6 ) {
+					if( std::abs( (*evr)[j] )>eps ) {
+						evMax = (*evr)[j] ;
+						j=n;
+					}
+				}
+				for( Ordinal j=0; j<n; ++ j ) {
+					if( std::abs( (*evr)[j] )>eps ) {
 						evMin = (*evr)[j] ;
 						j=n;
 					}
 				}
 			}
 			else {
-				evMax = std::max( evMax, (*evr)[i] );
-				if( std::abs( (*evr)[i] )>1.e-6 ) 
+				if( std::abs( (*evr)[i] )>eps ) 
+					evMax = std::max( evMax, (*evr)[i] );
+				if( std::abs( (*evr)[i] )>eps ) 
 					evMin = std::min( evMin, (*evr)[i] );
 			}
 		}

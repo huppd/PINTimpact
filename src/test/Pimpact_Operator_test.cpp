@@ -1026,7 +1026,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
 
 	// good result with no stretch + own
 	ppl->set<ST>( "max EV", evMin*1.1 );
-	ppl->set<ST>( "min EV", evMin*1.1/30. );
+	ppl->set<ST>( "min EV", evMax );
+	//ppl->set<ST>( "min EV", evMin*1.1/30. );
 	//ppl->set<ST>( "max EV", evMin*1.1 );
 	//ppl->set<ST>( "min EV", evMin*1.1 );
 
