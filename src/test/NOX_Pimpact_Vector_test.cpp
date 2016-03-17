@@ -59,7 +59,7 @@ TEUCHOS_STATIC_SETUP() {
 
 
 
-TEUCHOS_UNIT_TEST( NOXPimpactVector, create_init_print ) {
+TEUCHOS_UNIT_TEST( NOXPimpactVector, createInitPrint ) {
 
 	auto space = Pimpact::createSpace( pl );
 
@@ -75,7 +75,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, create_init_print ) {
 }
 
 
-TEUCHOS_UNIT_TEST( NOXPimpactVector, InfNorm_and_init ) {
+TEUCHOS_UNIT_TEST( NOXPimpactVector, InfNormAndInit ) {
 
 	auto space = Pimpact::createSpace( pl );
 
@@ -110,7 +110,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, InfNorm_and_init ) {
 
 
 
-TEUCHOS_UNIT_TEST( NOXPimpactVector, TwoNorm_and_init ) {
+TEUCHOS_UNIT_TEST( NOXPimpactVector, TwoNormAndInit ) {
 
 	auto space = Pimpact::createSpace( pl );
 
@@ -215,7 +215,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, reciprocal ) {
 }
 
 
-TEUCHOS_UNIT_TEST( NOXPimpactVector, norm_weighted ) {
+TEUCHOS_UNIT_TEST( NOXPimpactVector, normWeighted ) {
 
 	auto space = Pimpact::createSpace( pl );
 

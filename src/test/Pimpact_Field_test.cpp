@@ -116,7 +116,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, print, CMF )
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, InfNorm_and_init, FType ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, InfNormAndInit, FType ) {
 
   pl->set( "dim", dim );
   pl->set( "domain", domain );
@@ -159,16 +159,16 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, InfNorm_and_init, FType ) {
   }
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, InfNorm_and_init, SF ) 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, InfNorm_and_init, VF ) 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, InfNorm_and_init, MSF ) 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, InfNorm_and_init, MVF ) 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, InfNorm_and_init, CF ) 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, InfNorm_and_init, CMF ) 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, InfNormAndInit, SF ) 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, InfNormAndInit, VF ) 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, InfNormAndInit, MSF ) 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, InfNormAndInit, MVF ) 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, InfNormAndInit, CF ) 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, InfNormAndInit, CMF ) 
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, OneNorm_and_init, FType ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, OneNormAndInit, FType ) {
 
   pl->set( "dim", dim );
   pl->set( "domain", domain );
@@ -194,16 +194,16 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, OneNorm_and_init, FType ) {
   }
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, OneNorm_and_init, SF ) 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, OneNorm_and_init, VF )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, OneNorm_and_init, MSF ) 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, OneNorm_and_init, MVF )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, OneNorm_and_init, CF ) 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, OneNorm_and_init, CMF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, OneNormAndInit, SF ) 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, OneNormAndInit, VF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, OneNormAndInit, MSF ) 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, OneNormAndInit, MVF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, OneNormAndInit, CF ) 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, OneNormAndInit, CMF )
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, TwoNorm_and_init, FType ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, TwoNormAndInit, FType ) {
 
   pl->set( "dim", dim );
   pl->set( "domain", domain );
@@ -227,12 +227,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, TwoNorm_and_init, FType ) {
   }
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, TwoNorm_and_init, SF )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, TwoNorm_and_init, VF )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, TwoNorm_and_init, MSF )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, TwoNorm_and_init, MVF )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, TwoNorm_and_init, CF )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, TwoNorm_and_init, CMF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, TwoNormAndInit, SF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, TwoNormAndInit, VF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, TwoNormAndInit, MSF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, TwoNormAndInit, MVF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, TwoNormAndInit, CF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, TwoNormAndInit, CMF )
 
 
 
@@ -461,7 +461,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, write, CMF )
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, write_restart, FType ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, writeRestart, FType ) {
 
   pl->set( "dim", dim );
   pl->set( "domain", domain );
@@ -486,8 +486,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, write_restart, FType ) {
 
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, write_restart, SF )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, write_restart, VF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, writeRestart, SF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, writeRestart, VF )
 
 	
 

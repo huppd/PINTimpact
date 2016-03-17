@@ -92,7 +92,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, constructor, MVF )
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, TwoNorm_and_init, FType ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, TwoNorm, FType ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
@@ -122,10 +122,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, TwoNorm_and_init, FType ) {
 
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, TwoNorm_and_init, SF )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, TwoNorm_and_init, VF )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, TwoNorm_and_init, MSF )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, TwoNorm_and_init, MVF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, TwoNorm, SF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, TwoNorm, VF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, TwoNorm, MSF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, TwoNorm, MVF )
 
 
 
