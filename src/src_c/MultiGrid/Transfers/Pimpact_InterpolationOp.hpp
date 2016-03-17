@@ -493,16 +493,16 @@ public:
 					x.getConstRawPtr(),
 					y.getRawPtr() );
 
-			MG_InterpolateCornersPost(
-					spaceF_->nLoc(),
-					spaceF_->bl(),
-					spaceF_->bu(),
-					spaceF_->getBCLocal()->getBCL(),
-					spaceF_->getBCLocal()->getBCU(),
-					spaceF_->getCoordinatesLocal()->getX( ECoord::X, EField::S ),
-					spaceF_->getCoordinatesLocal()->getX( ECoord::Y, EField::S ),
-					spaceF_->getCoordinatesLocal()->getX( ECoord::Z, EField::S ),
-					y.getRawPtr() );
+			//MG_InterpolateCornersPost(
+					//spaceF_->nLoc(),
+					//spaceF_->bl(),
+					//spaceF_->bu(),
+					//spaceF_->getBCLocal()->getBCL(),
+					//spaceF_->getBCLocal()->getBCU(),
+					//spaceF_->getCoordinatesLocal()->getX( ECoord::X, EField::S ),
+					//spaceF_->getCoordinatesLocal()->getX( ECoord::Y, EField::S ),
+					//spaceF_->getCoordinatesLocal()->getX( ECoord::Z, EField::S ),
+					//y.getRawPtr() );
 
 		}
 		else {

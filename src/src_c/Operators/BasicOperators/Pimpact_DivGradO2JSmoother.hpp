@@ -218,10 +218,11 @@ public:
 					y.getConstRawPtr(),
 					temp_->getRawPtr() );
 
-			if( 0==bcSmoothing_ )
-				applyJBCSmoothing( b, y, *temp_, omega_ );
-			else
-				applyDBCSmoothing( b, *temp_, omega_ );
+			//if( 0==bcSmoothing_ )
+				//;
+				////applyJBCSmoothing( b, y, *temp_, omega_ );
+			//else
+				//applyDBCSmoothing( b, *temp_, omega_ );
 
 			temp_->changed();
 			temp_->exchange();
@@ -241,13 +242,14 @@ public:
 					temp_->getConstRawPtr(),
 					y.getRawPtr() );
 
-			if( 0==bcSmoothing_ )
-				applyJBCSmoothing( b, *temp_, y, omega_ );
-			else
-				applyDBCSmoothing( b, y, omega_ );
-
+			//if( 0==bcSmoothing_ )
+				////applyJBCSmoothing( b, *temp_, y, omega_ );
+				//;
+			//else
+				//applyDBCSmoothing( b, y, omega_ );
 
 			y.changed();
+
 		}
 		if( levelYes_ )
 			y.level();

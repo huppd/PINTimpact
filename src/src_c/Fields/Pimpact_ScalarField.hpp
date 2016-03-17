@@ -152,41 +152,41 @@ public:
 					vl *= n[i];
 				}
 
-				const int* bcl =  space()->getBCGlobal()->getBCL();
-				const int* bcu =  space()->getBCGlobal()->getBCU();
+				//const int* bcl =  space()->getBCGlobal()->getBCL();
+				//const int* bcu =  space()->getBCGlobal()->getBCU();
 
-				if( 2==space()->dim() ) {
-					if( bcl[0]>0 && bcl[1]>0 ) vl -= 1;
-					if( bcl[0]>0 && bcu[1]>0 ) vl -= 1;
-					if( bcu[0]>0 && bcl[1]>0 ) vl -= 1;
-					if( bcu[0]>0 && bcu[1]>0 ) vl -= 1;
-				}
-				else{
-					if( bcl[0]>0 && bcl[1]>0 ) vl -= n[2] - ((bcl[2]==-1)?0:2);
-					if( bcl[0]>0 && bcu[1]>0 ) vl -= n[2] - ((bcl[2]==-1)?0:2);
-					if( bcu[0]>0 && bcl[1]>0 ) vl -= n[2] - ((bcl[2]==-1)?0:2);
-					if( bcu[0]>0 && bcu[1]>0 ) vl -= n[2] - ((bcl[2]==-1)?0:2);
+				//if( 2==space()->dim() ) {
+					//if( bcl[0]>0 && bcl[1]>0 ) vl -= 1;
+					//if( bcl[0]>0 && bcu[1]>0 ) vl -= 1;
+					//if( bcu[0]>0 && bcl[1]>0 ) vl -= 1;
+					//if( bcu[0]>0 && bcu[1]>0 ) vl -= 1;
+				//}
+				//else{
+					//if( bcl[0]>0 && bcl[1]>0 ) vl -= n[2] - ((bcl[2]==-1)?0:2);
+					//if( bcl[0]>0 && bcu[1]>0 ) vl -= n[2] - ((bcl[2]==-1)?0:2);
+					//if( bcu[0]>0 && bcl[1]>0 ) vl -= n[2] - ((bcl[2]==-1)?0:2);
+					//if( bcu[0]>0 && bcu[1]>0 ) vl -= n[2] - ((bcl[2]==-1)?0:2);
 
-					if( bcl[0]>0 && bcl[2]>0 ) vl -= n[1] - ((bcl[1]==-1)?0:2);
-					if( bcl[0]>0 && bcu[2]>0 ) vl -= n[1] - ((bcl[1]==-1)?0:2);
-					if( bcu[0]>0 && bcl[2]>0 ) vl -= n[1] - ((bcl[1]==-1)?0:2);
-					if( bcu[0]>0 && bcu[2]>0 ) vl -= n[1] - ((bcl[1]==-1)?0:2);
+					//if( bcl[0]>0 && bcl[2]>0 ) vl -= n[1] - ((bcl[1]==-1)?0:2);
+					//if( bcl[0]>0 && bcu[2]>0 ) vl -= n[1] - ((bcl[1]==-1)?0:2);
+					//if( bcu[0]>0 && bcl[2]>0 ) vl -= n[1] - ((bcl[1]==-1)?0:2);
+					//if( bcu[0]>0 && bcu[2]>0 ) vl -= n[1] - ((bcl[1]==-1)?0:2);
 
-					if( bcl[1]>0 && bcl[2]>0 ) vl -= n[0] - ((bcl[0]==-1)?0:2);
-					if( bcl[1]>0 && bcu[2]>0 ) vl -= n[0] - ((bcl[0]==-1)?0:2);
-					if( bcu[1]>0 && bcl[2]>0 ) vl -= n[0] - ((bcl[0]==-1)?0:2);
-					if( bcu[1]>0 && bcu[2]>0 ) vl -= n[0] - ((bcl[0]==-1)?0:2);
+					//if( bcl[1]>0 && bcl[2]>0 ) vl -= n[0] - ((bcl[0]==-1)?0:2);
+					//if( bcl[1]>0 && bcu[2]>0 ) vl -= n[0] - ((bcl[0]==-1)?0:2);
+					//if( bcu[1]>0 && bcl[2]>0 ) vl -= n[0] - ((bcl[0]==-1)?0:2);
+					//if( bcu[1]>0 && bcu[2]>0 ) vl -= n[0] - ((bcl[0]==-1)?0:2);
 
-					if( bcl[0]>0 && bcl[1]>0 && bcl[2]>0 ) vl -= 1;
-					if( bcu[0]>0 && bcl[1]>0 && bcl[2]>0 ) vl -= 1;
-					if( bcl[0]>0 && bcu[1]>0 && bcl[2]>0 ) vl -= 1;
-					if( bcl[0]>0 && bcl[1]>0 && bcu[2]>0 ) vl -= 1;
+					//if( bcl[0]>0 && bcl[1]>0 && bcl[2]>0 ) vl -= 1;
+					//if( bcu[0]>0 && bcl[1]>0 && bcl[2]>0 ) vl -= 1;
+					//if( bcl[0]>0 && bcu[1]>0 && bcl[2]>0 ) vl -= 1;
+					//if( bcl[0]>0 && bcl[1]>0 && bcu[2]>0 ) vl -= 1;
 
-					if( bcu[0]>0 && bcu[1]>0 && bcu[2]>0 ) vl -= 1;
-					if( bcl[0]>0 && bcu[1]>0 && bcu[2]>0 ) vl -= 1;
-					if( bcu[0]>0 && bcl[1]>0 && bcu[2]>0 ) vl -= 1;
-					if( bcu[0]>0 && bcu[1]>0 && bcl[2]>0 ) vl -= 1;
-				}
+					//if( bcu[0]>0 && bcu[1]>0 && bcu[2]>0 ) vl -= 1;
+					//if( bcl[0]>0 && bcu[1]>0 && bcu[2]>0 ) vl -= 1;
+					//if( bcu[0]>0 && bcl[1]>0 && bcu[2]>0 ) vl -= 1;
+					//if( bcu[0]>0 && bcu[1]>0 && bcl[2]>0 ) vl -= 1;
+				//}
 				break;
 			}
 			default: {
@@ -784,17 +784,17 @@ public:
 	/// \brief set corners of Dirichlet boundary conditions to zero
 	void setCornersZero() const {
 
-		if( EField::S == fType_ ) {
-			SF_handle_corner(
-					space()->nLoc(),
-					space()->bl(),
-					space()->bu(),
-					space()->getBCLocal()->getBCL(),
-					space()->getBCLocal()->getBCU(),
-					s_ );
+		//if( EField::S == fType_ ) {
+			//SF_handle_corner(
+					//space()->nLoc(),
+					//space()->bl(),
+					//space()->bu(),
+					//space()->getBCLocal()->getBCL(),
+					//space()->getBCLocal()->getBCU(),
+					//s_ );
 
-			changed();
-		}
+			//changed();
+		//}
 	}
 
 

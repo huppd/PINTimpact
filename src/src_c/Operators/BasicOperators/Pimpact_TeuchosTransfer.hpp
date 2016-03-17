@@ -171,323 +171,324 @@ public:
 
 				}
 
-		// boundary conditions
-		if( space_->getBCLocal()->getBCL(X)>0 && SS_[X]==space_->sIndB(EField::S,X) ) {
+	 /* // boundary conditions*/
+		//if( space_->getBCLocal()->getBCL(X)>0 && SS_[X]==space_->sIndB(EField::S,X) ) {
 
-			Ordinal i = space_->sIndB(EField::S,X);
+			//Ordinal i = space_->sIndB(EField::S,X);
 
-			for( Ordinal k=SS_[Z]; k<=NN_[Z]; ++k )
-				for( Ordinal j=SS_[Y]; j<=NN_[Y]; ++j ) {
+			//for( Ordinal k=SS_[Z]; k<=NN_[Z]; ++k )
+				//for( Ordinal j=SS_[Y]; j<=NN_[Y]; ++j ) {
 
-					Ordinal I = getI( i, j, k );
+					//Ordinal I = getI( i, j, k );
 
-					// set row zero
-					for( Ordinal l=0; l<A->numCols(); ++ l ) 
-						(*A)(I,l) = 0.;
+					//// set row zero
+					//for( Ordinal l=0; l<A->numCols(); ++ l ) 
+						//(*A)(I,l) = 0.;
 
-					for( int o=-1; o<=1; ++o )
-						if( (i+o)>=SS_[X] && (i+o)<=NN_[X] )
-							(*A)( I, getI( i+o, j, k ) ) = op->getC( X, i, o) ;
-				}
-		}
+					//for( int o=-1; o<=1; ++o )
+						//if( (i+o)>=SS_[X] && (i+o)<=NN_[X] )
+							//(*A)( I, getI( i+o, j, k ) ) = op->getC( X, i, o) ;
+				//}
+		//}
 
-		if( space_->getBCLocal()->getBCU(X)>0 && NN_[X]==space_->eIndB(EField::S,X) ) {
+		//if( space_->getBCLocal()->getBCU(X)>0 && NN_[X]==space_->eIndB(EField::S,X) ) {
 
-			Ordinal i = space_->eIndB(EField::S,X);
+			//Ordinal i = space_->eIndB(EField::S,X);
 
-			for( Ordinal k=SS_[Z]; k<=NN_[Z]; ++k )
-				for( Ordinal j=SS_[Y]; j<=NN_[Y]; ++j ) {
+			//for( Ordinal k=SS_[Z]; k<=NN_[Z]; ++k )
+				//for( Ordinal j=SS_[Y]; j<=NN_[Y]; ++j ) {
 
-					Ordinal I = getI( i, j, k );
+					//Ordinal I = getI( i, j, k );
 
-					// set row zero
-					for( Ordinal l=0; l<A->numCols(); ++ l ) 
-						(*A)(I,l) = 0.;
+					//// set row zero
+					//for( Ordinal l=0; l<A->numCols(); ++ l ) 
+						//(*A)(I,l) = 0.;
 
-					// set stencil
-					for( int o=-1; o<=1; ++o )
-						if( (i+o)>=SS_[X] && (i+o)<=NN_[X] )
-							(*A)( I, getI( i+o, j, k ) ) = op->getC( X, i, o) ;
-				}
-		}
+					//// set stencil
+					//for( int o=-1; o<=1; ++o )
+						//if( (i+o)>=SS_[X] && (i+o)<=NN_[X] )
+							//(*A)( I, getI( i+o, j, k ) ) = op->getC( X, i, o) ;
+				//}
+		//}
 
-		if( space_->getBCLocal()->getBCL(Y)>0 && SS_[Y]==space_->sIndB(EField::S,Y) ) {
+		//if( space_->getBCLocal()->getBCL(Y)>0 && SS_[Y]==space_->sIndB(EField::S,Y) ) {
 
-			Ordinal j = space_->sIndB(EField::S,Y);
+			//Ordinal j = space_->sIndB(EField::S,Y);
 
-			for( Ordinal k=SS_[Z]; k<=NN_[Z]; ++k )
-				for( Ordinal i=SS_[X]; i<=NN_[X]; ++i ) {
+			//for( Ordinal k=SS_[Z]; k<=NN_[Z]; ++k )
+				//for( Ordinal i=SS_[X]; i<=NN_[X]; ++i ) {
 
-					Ordinal I = getI( i, j, k );
+					//Ordinal I = getI( i, j, k );
 
-					// set row zero
-					for( Ordinal l=0; l<A->numCols(); ++ l ) 
-						(*A)(I,l) = 0.;
+					//// set row zero
+					//for( Ordinal l=0; l<A->numCols(); ++ l ) 
+						//(*A)(I,l) = 0.;
 
-					for( int o=-1; o<=1; ++o )
-						if( (j+o)>=SS_[Y] && (j+o)<=NN_[Y] )
-							(*A)( I, getI( i, j+o, k ) ) = op->getC( Y, j, o) ;
-				}
-		}
+					//for( int o=-1; o<=1; ++o )
+						//if( (j+o)>=SS_[Y] && (j+o)<=NN_[Y] )
+							//(*A)( I, getI( i, j+o, k ) ) = op->getC( Y, j, o) ;
+				//}
+		//}
 
-		if( space_->getBCLocal()->getBCU(Y)>0 && NN_[Y]==space_->eIndB(EField::S,Y) ) {
+		//if( space_->getBCLocal()->getBCU(Y)>0 && NN_[Y]==space_->eIndB(EField::S,Y) ) {
 
-			Ordinal j = space_->eIndB(EField::S,Y);
+			//Ordinal j = space_->eIndB(EField::S,Y);
 
-			for( Ordinal k=SS_[Z]; k<=NN_[Z]; ++k )
-				for( Ordinal i=SS_[X]; i<=NN_[X]; ++i ) {
+			//for( Ordinal k=SS_[Z]; k<=NN_[Z]; ++k )
+				//for( Ordinal i=SS_[X]; i<=NN_[X]; ++i ) {
 
-					Ordinal I = getI( i, j, k );
+					//Ordinal I = getI( i, j, k );
 
-					// set row zero
-					for( Ordinal l=0; l<A->numCols(); ++ l ) 
-						(*A)(I,l) = 0.;
+					//// set row zero
+					//for( Ordinal l=0; l<A->numCols(); ++ l ) 
+						//(*A)(I,l) = 0.;
 
-					for( int o=-1; o<=1; ++o )
-						if( (j+o)>=SS_[Y] && (j+o)<=NN_[Y] )
-							(*A)( I, getI( i, j+o, k ) ) = op->getC( Y, j, o);
-				}
-		}
+					//for( int o=-1; o<=1; ++o )
+						//if( (j+o)>=SS_[Y] && (j+o)<=NN_[Y] )
+							//(*A)( I, getI( i, j+o, k ) ) = op->getC( Y, j, o);
+				//}
+		//}
 
-		if( space_->getBCLocal()->getBCL(Z)>0 && SS_[Z]==space_->sIndB(EField::S,Z) ) {
+		//if( space_->getBCLocal()->getBCL(Z)>0 && SS_[Z]==space_->sIndB(EField::S,Z) ) {
 
-			Ordinal k = space_->sIndB(EField::S,Z);
+			//Ordinal k = space_->sIndB(EField::S,Z);
 
-			for( Ordinal j=SS_[Y]; j<=NN_[Y]; ++j )
-				for( Ordinal i=SS_[X]; i<=NN_[X]; ++i ) {
+			//for( Ordinal j=SS_[Y]; j<=NN_[Y]; ++j )
+				//for( Ordinal i=SS_[X]; i<=NN_[X]; ++i ) {
 
-					Ordinal I = getI( i, j, k );
+					//Ordinal I = getI( i, j, k );
 
-					// set row zero
-					for( Ordinal l=0; l<A->numCols(); ++ l ) 
-						(*A)(I,l) = 0.;
+					//// set row zero
+					//for( Ordinal l=0; l<A->numCols(); ++ l ) 
+						//(*A)(I,l) = 0.;
 
-					for( int o=-1; o<=1; ++o ) {
-						if( (k+o)>=SS_[Z] && (k+o)<=NN_[Z] )
-							(*A)( I, getI( i, j, k+o ) ) += op->getC( Z, k, o) ;
-					}
+					//for( int o=-1; o<=1; ++o ) {
+						//if( (k+o)>=SS_[Z] && (k+o)<=NN_[Z] )
+							//(*A)( I, getI( i, j, k+o ) ) += op->getC( Z, k, o) ;
+					//}
 
-				}
-		}
+				//}
+		//}
 
-		if( space_->getBCLocal()->getBCU(Z)>0 && NN_[Z]==space_->eIndB(EField::S,Z) ) {
+		//if( space_->getBCLocal()->getBCU(Z)>0 && NN_[Z]==space_->eIndB(EField::S,Z) ) {
 
-			Ordinal k = space_->eIndB(EField::S,Z);
+			//Ordinal k = space_->eIndB(EField::S,Z);
 
-			for( Ordinal j=SS_[Y]; j<=NN_[Y]; ++j )
-				for( Ordinal i=SS_[X]; i<=NN_[X]; ++i ) {
+			//for( Ordinal j=SS_[Y]; j<=NN_[Y]; ++j )
+				//for( Ordinal i=SS_[X]; i<=NN_[X]; ++i ) {
 
-					Ordinal I = getI( i, j, k );
+					//Ordinal I = getI( i, j, k );
 
-					// set row zero
-					for( Ordinal l=0; l<A->numCols(); ++ l ) 
-						(*A)(I,l) = 0.;
+					//// set row zero
+					//for( Ordinal l=0; l<A->numCols(); ++ l ) 
+						//(*A)(I,l) = 0.;
 
-					for( int o=-1; o<=1; ++o ) 
-						if( (k+o)>=SS_[Z] && (k+o)<=NN_[Z] )
-							(*A)( I, getI( i, j, k+o ) ) += op->getC( Z, k, o) ;
-				}
-		}
+					//for( int o=-1; o<=1; ++o ) 
+						//if( (k+o)>=SS_[Z] && (k+o)<=NN_[Z] )
+							//(*A)( I, getI( i, j, k+o ) ) += op->getC( Z, k, o) ;
+				//}
+		//}
 
-		// --- corners ---
-		if( space_->getBCLocal()->getBCL(X)>0 && space_->getBCLocal()->getBCL(Y)>0 &&
-				SS_[X]==space_->sIndB(EField::S,X) && SS_[Y]==space_->sIndB(EField::S,Y) ) {
+		//// --- corners ---
+		//if( space_->getBCLocal()->getBCL(X)>0 && space_->getBCLocal()->getBCL(Y)>0 &&
+				//SS_[X]==space_->sIndB(EField::S,X) && SS_[Y]==space_->sIndB(EField::S,Y) ) {
 
-			Ordinal i = space_->sIndB(EField::S,X);
-			Ordinal j = space_->sIndB(EField::S,Y);
+			//Ordinal i = space_->sIndB(EField::S,X);
+			//Ordinal j = space_->sIndB(EField::S,Y);
 
-			for( Ordinal k=SS_[Z]; k<=NN_[Z]; ++k ) {
+			//for( Ordinal k=SS_[Z]; k<=NN_[Z]; ++k ) {
 
-				Ordinal I = getI( i, j, k );
+				//Ordinal I = getI( i, j, k );
 
-				// set row zero
-				for( Ordinal l=0; l<A->numCols(); ++ l ) (*A)(I,l) = 0.;
+				//// set row zero
+				//for( Ordinal l=0; l<A->numCols(); ++ l ) (*A)(I,l) = 0.;
 
-				(*A)(I,I) = -1.;
-			}
-		}
-		if( space_->getBCLocal()->getBCL(X)>0 && space_->getBCLocal()->getBCU(Y)>0 &&
-				SS_[X]==space_->sIndB(EField::S,X) && NN_[Y]==space_->eIndB(EField::S,Y) ) {
+				//(*A)(I,I) = -1.;
+			//}
+		//}
+		//if( space_->getBCLocal()->getBCL(X)>0 && space_->getBCLocal()->getBCU(Y)>0 &&
+				//SS_[X]==space_->sIndB(EField::S,X) && NN_[Y]==space_->eIndB(EField::S,Y) ) {
 
-			Ordinal i = space_->sIndB(EField::S,X);
-			Ordinal j = space_->eIndB(EField::S,Y);
+			//Ordinal i = space_->sIndB(EField::S,X);
+			//Ordinal j = space_->eIndB(EField::S,Y);
 
-			for( Ordinal k=SS_[Z]; k<=NN_[Z]; ++k ) {
+			//for( Ordinal k=SS_[Z]; k<=NN_[Z]; ++k ) {
 
-				Ordinal I = getI( i, j, k );
+				//Ordinal I = getI( i, j, k );
 
-				// set row zero
-				for( Ordinal l=0; l<A->numCols(); ++ l ) (*A)(I,l) = 0.;
+				//// set row zero
+				//for( Ordinal l=0; l<A->numCols(); ++ l ) (*A)(I,l) = 0.;
 
-				(*A)(I,I) = -1.;
-			}
-		}
-		if( space_->getBCLocal()->getBCU(X)>0 && space_->getBCLocal()->getBCL(Y)>0 &&
-				NN_[X]==space_->eIndB(EField::S,X) && SS_[Y]==space_->sIndB(EField::S,Y) ) {
+				//(*A)(I,I) = -1.;
+			//}
+		//}
+		//if( space_->getBCLocal()->getBCU(X)>0 && space_->getBCLocal()->getBCL(Y)>0 &&
+				//NN_[X]==space_->eIndB(EField::S,X) && SS_[Y]==space_->sIndB(EField::S,Y) ) {
 
-			Ordinal i = space_->eIndB(EField::S,X);
-			Ordinal j = space_->sIndB(EField::S,Y);
+			//Ordinal i = space_->eIndB(EField::S,X);
+			//Ordinal j = space_->sIndB(EField::S,Y);
 
-			for( Ordinal k=SS_[Z]; k<=NN_[Z]; ++k ) {
+			//for( Ordinal k=SS_[Z]; k<=NN_[Z]; ++k ) {
 
-				Ordinal I = getI( i, j, k );
+				//Ordinal I = getI( i, j, k );
 
-				// set row zero
-				for( Ordinal l=0; l<A->numCols(); ++ l ) (*A)(I,l) = 0.;
+				//// set row zero
+				//for( Ordinal l=0; l<A->numCols(); ++ l ) (*A)(I,l) = 0.;
 
-				(*A)(I,I) = -1.;
-			}
-		}
-		if( space_->getBCLocal()->getBCU(X)>0 && space_->getBCLocal()->getBCU(Y)>0 &&
-				NN_[X]==space_->eIndB(EField::S,X) && NN_[Y]==space_->eIndB(EField::S,Y) ) {
+				//(*A)(I,I) = -1.;
+			//}
+		//}
+		//if( space_->getBCLocal()->getBCU(X)>0 && space_->getBCLocal()->getBCU(Y)>0 &&
+				//NN_[X]==space_->eIndB(EField::S,X) && NN_[Y]==space_->eIndB(EField::S,Y) ) {
 
-			Ordinal i = space_->eIndB(EField::S,X);
-			Ordinal j = space_->eIndB(EField::S,Y);
+			//Ordinal i = space_->eIndB(EField::S,X);
+			//Ordinal j = space_->eIndB(EField::S,Y);
 
-			for( Ordinal k=SS_[Z]; k<=NN_[Z]; ++k ) {
+			//for( Ordinal k=SS_[Z]; k<=NN_[Z]; ++k ) {
 
-				Ordinal I = getI( i, j, k );
+				//Ordinal I = getI( i, j, k );
 
-				// set row zero
-				for( Ordinal l=0; l<A->numCols(); ++ l ) (*A)(I,l) = 0.;
+				//// set row zero
+				//for( Ordinal l=0; l<A->numCols(); ++ l ) (*A)(I,l) = 0.;
 
-				(*A)(I,I) = -1.;
-			}
-		}
+				//(*A)(I,I) = -1.;
+			//}
+		//}
 
-		if( space_->getBCLocal()->getBCL(X)>0 && space_->getBCLocal()->getBCL(Z)>0 &&
-				SS_[X]==space_->sIndB(EField::S,X) && SS_[Z]==space_->sIndB(EField::S,Z) ) {
+		//if( space_->getBCLocal()->getBCL(X)>0 && space_->getBCLocal()->getBCL(Z)>0 &&
+				//SS_[X]==space_->sIndB(EField::S,X) && SS_[Z]==space_->sIndB(EField::S,Z) ) {
 
-			Ordinal i = space_->sIndB(EField::S,X);
-			Ordinal k = space_->sIndB(EField::S,Z);
+			//Ordinal i = space_->sIndB(EField::S,X);
+			//Ordinal k = space_->sIndB(EField::S,Z);
 
-			for( Ordinal j=SS_[Y]; j<=NN_[Y]; ++j ) {
+			//for( Ordinal j=SS_[Y]; j<=NN_[Y]; ++j ) {
 
-				Ordinal I = getI( i, j, k );
+				//Ordinal I = getI( i, j, k );
 
-				// set row zero
-				for( Ordinal l=0; l<A->numCols(); ++ l ) (*A)(I,l) = 0.;
+				//// set row zero
+				//for( Ordinal l=0; l<A->numCols(); ++ l ) (*A)(I,l) = 0.;
 
-				(*A)(I,I) = -1.;
-			}
-		}
-		if( space_->getBCLocal()->getBCL(X)>0 && space_->getBCLocal()->getBCU(Z)>0 &&
-				SS_[X]==space_->sIndB(EField::S,X) && NN_[Z]==space_->eIndB(EField::S,Z) ) {
+				//(*A)(I,I) = -1.;
+			//}
+		//}
+		//if( space_->getBCLocal()->getBCL(X)>0 && space_->getBCLocal()->getBCU(Z)>0 &&
+				//SS_[X]==space_->sIndB(EField::S,X) && NN_[Z]==space_->eIndB(EField::S,Z) ) {
 
-			Ordinal i = space_->sIndB(EField::S,X);
-			Ordinal k = space_->eIndB(EField::S,Z);
+			//Ordinal i = space_->sIndB(EField::S,X);
+			//Ordinal k = space_->eIndB(EField::S,Z);
 
-			for( Ordinal j=SS_[Y]; j<=NN_[Y]; ++j ) {
+			//for( Ordinal j=SS_[Y]; j<=NN_[Y]; ++j ) {
 
-				Ordinal I = getI( i, j, k );
+				//Ordinal I = getI( i, j, k );
 
-				// set row zero
-				for( Ordinal l=0; l<A->numCols(); ++ l ) (*A)(I,l) = 0.;
+				//// set row zero
+				//for( Ordinal l=0; l<A->numCols(); ++ l ) (*A)(I,l) = 0.;
 
-				(*A)(I,I) = -1.;
-			}
-		}
-		if( space_->getBCLocal()->getBCU(X)>0 && space_->getBCLocal()->getBCL(Z)>0 &&
-				NN_[X]==space_->eIndB(EField::S,X) && SS_[Z]==space_->sIndB(EField::S,Z) ) {
+				//(*A)(I,I) = -1.;
+			//}
+		//}
+		//if( space_->getBCLocal()->getBCU(X)>0 && space_->getBCLocal()->getBCL(Z)>0 &&
+				//NN_[X]==space_->eIndB(EField::S,X) && SS_[Z]==space_->sIndB(EField::S,Z) ) {
 
-			Ordinal i = space_->eIndB(EField::S,X);
-			Ordinal k = space_->sIndB(EField::S,Z);
+			//Ordinal i = space_->eIndB(EField::S,X);
+			//Ordinal k = space_->sIndB(EField::S,Z);
 
-			for( Ordinal j=SS_[Y]; j<=NN_[Y]; ++j ) {
+			//for( Ordinal j=SS_[Y]; j<=NN_[Y]; ++j ) {
 
-				Ordinal I = getI( i, j, k );
+				//Ordinal I = getI( i, j, k );
 
-				// set row zero
-				for( Ordinal l=0; l<A->numCols(); ++ l ) (*A)(I,l) = 0.;
+				//// set row zero
+				//for( Ordinal l=0; l<A->numCols(); ++ l ) (*A)(I,l) = 0.;
 
-				(*A)(I,I) = -1.;
-			}
-		}
-		if( space_->getBCLocal()->getBCU(X)>0 && space_->getBCLocal()->getBCU(Z)>0 &&
-				NN_[X]==space_->eIndB(EField::S,X) && NN_[Z]==space_->eIndB(EField::S,Z) ) {
+				//(*A)(I,I) = -1.;
+			//}
+		//}
+		//if( space_->getBCLocal()->getBCU(X)>0 && space_->getBCLocal()->getBCU(Z)>0 &&
+				//NN_[X]==space_->eIndB(EField::S,X) && NN_[Z]==space_->eIndB(EField::S,Z) ) {
 
-			Ordinal i = space_->eIndB(EField::S,X);
-			Ordinal k = space_->eIndB(EField::S,Z);
+			//Ordinal i = space_->eIndB(EField::S,X);
+			//Ordinal k = space_->eIndB(EField::S,Z);
 
-			for( Ordinal j=SS_[Y]; j<=NN_[Y]; ++j ) {
+			//for( Ordinal j=SS_[Y]; j<=NN_[Y]; ++j ) {
 
-				Ordinal I = getI( i, j, k );
+				//Ordinal I = getI( i, j, k );
 
-				// set row zero
-				for( Ordinal l=0; l<A->numCols(); ++ l ) (*A)(I,l) = 0.;
+				//// set row zero
+				//for( Ordinal l=0; l<A->numCols(); ++ l ) (*A)(I,l) = 0.;
 
-				(*A)(I,I) = -1.;
-			}
-		}
-		if( space_->getBCLocal()->getBCL(Y)>0 && space_->getBCLocal()->getBCL(Z)>0 &&
-				SS_[Y]==space_->sIndB(EField::S,Y) && SS_[Z]==space_->sIndB(EField::S,Z) ) {
+				//(*A)(I,I) = -1.;
+			//}
+		//}
+		//if( space_->getBCLocal()->getBCL(Y)>0 && space_->getBCLocal()->getBCL(Z)>0 &&
+				//SS_[Y]==space_->sIndB(EField::S,Y) && SS_[Z]==space_->sIndB(EField::S,Z) ) {
 
-			Ordinal j = space_->sIndB(EField::S,Y);
-			Ordinal k = space_->sIndB(EField::S,Z);
+			//Ordinal j = space_->sIndB(EField::S,Y);
+			//Ordinal k = space_->sIndB(EField::S,Z);
 
-			for( Ordinal i=SS_[X]; i<=NN_[X]; ++i ) {
+			//for( Ordinal i=SS_[X]; i<=NN_[X]; ++i ) {
 
-				Ordinal I = getI( i, j, k );
+				//Ordinal I = getI( i, j, k );
 
-				// set row zero
-				for( Ordinal l=0; l<A->numCols(); ++ l ) (*A)(I,l) = 0.;
+				//// set row zero
+				//for( Ordinal l=0; l<A->numCols(); ++ l ) (*A)(I,l) = 0.;
 
-				(*A)(I,I) = -1.;
-			}
-		}
-		if( space_->getBCLocal()->getBCL(Y)>0 && space_->getBCLocal()->getBCU(Z)>0 &&
-				SS_[Y]==space_->sIndB(EField::S,Y) && NN_[Z]==space_->eIndB(EField::S,Z) ) {
+				//(*A)(I,I) = -1.;
+			//}
+		//}
+		//if( space_->getBCLocal()->getBCL(Y)>0 && space_->getBCLocal()->getBCU(Z)>0 &&
+				//SS_[Y]==space_->sIndB(EField::S,Y) && NN_[Z]==space_->eIndB(EField::S,Z) ) {
 
-			Ordinal j = space_->sIndB(EField::S,Y);
-			Ordinal k = space_->eIndB(EField::S,Z);
+			//Ordinal j = space_->sIndB(EField::S,Y);
+			//Ordinal k = space_->eIndB(EField::S,Z);
 
-			for( Ordinal i=SS_[X]; i<=NN_[X]; ++i ) {
+			//for( Ordinal i=SS_[X]; i<=NN_[X]; ++i ) {
 
-				Ordinal I = getI( i, j, k );
+				//Ordinal I = getI( i, j, k );
 
-				// set row zero
-				for( Ordinal l=0; l<A->numCols(); ++ l ) (*A)(I,l) = 0.;
+				//// set row zero
+				//for( Ordinal l=0; l<A->numCols(); ++ l ) (*A)(I,l) = 0.;
 
-				(*A)(I,I) = -1.;
-			}
-		}
-		if( space_->getBCLocal()->getBCU(Y)>0 && space_->getBCLocal()->getBCL(Z)>0 &&
-				SS_[Y]==space_->eIndB(EField::S,Y) && NN_[Z]==space_->sIndB(EField::S,Z) ) {
+				//(*A)(I,I) = -1.;
+			//}
+		//}
+		//if( space_->getBCLocal()->getBCU(Y)>0 && space_->getBCLocal()->getBCL(Z)>0 &&
+				//SS_[Y]==space_->eIndB(EField::S,Y) && NN_[Z]==space_->sIndB(EField::S,Z) ) {
 
-			Ordinal j = space_->eIndB(EField::S,Y);
-			Ordinal k = space_->sIndB(EField::S,Z);
+			//Ordinal j = space_->eIndB(EField::S,Y);
+			//Ordinal k = space_->sIndB(EField::S,Z);
 
-			for( Ordinal i=SS_[X]; i<=NN_[X]; ++i ) {
+			//for( Ordinal i=SS_[X]; i<=NN_[X]; ++i ) {
 
-				Ordinal I = getI( i, j, k );
+				//Ordinal I = getI( i, j, k );
 
-				// set row zero
-				for( Ordinal l=0; l<A->numCols(); ++ l ) (*A)(I,l) = 0.;
+				//// set row zero
+				//for( Ordinal l=0; l<A->numCols(); ++ l ) (*A)(I,l) = 0.;
 
-				(*A)(I,I) = -1.;
-			}
-		}
-		if( space_->getBCLocal()->getBCU(Y)>0 && space_->getBCLocal()->getBCU(Z)>0 &&
-				NN_[Y]==space_->eIndB(EField::S,Y) && NN_[Z]==space_->eIndB(EField::S,Z) ) {
+				//(*A)(I,I) = -1.;
+			//}
+		//}
+		//if( space_->getBCLocal()->getBCU(Y)>0 && space_->getBCLocal()->getBCU(Z)>0 &&
+				//NN_[Y]==space_->eIndB(EField::S,Y) && NN_[Z]==space_->eIndB(EField::S,Z) ) {
 
-			Ordinal j = space_->eIndB(EField::S,Y);
-			Ordinal k = space_->eIndB(EField::S,Z);
+			//Ordinal j = space_->eIndB(EField::S,Y);
+			//Ordinal k = space_->eIndB(EField::S,Z);
 
-			for( Ordinal i=SS_[X]; i<=NN_[X]; ++i ) {
+			//for( Ordinal i=SS_[X]; i<=NN_[X]; ++i ) {
 
-				Ordinal I = getI( i, j, k );
+				//Ordinal I = getI( i, j, k );
 
-				// set row zero
-				for( Ordinal l=0; l<A->numCols(); ++ l ) (*A)(I,l) = 0.;
+				//// set row zero
+				//for( Ordinal l=0; l<A->numCols(); ++ l ) (*A)(I,l) = 0.;
 
-				(*A)(I,I) = -1.;
-			}
-		}
+				//(*A)(I,I) = -1.;
+			//}
+	 /* }*/
 
 	}
 
 
 
+	// \todo not BC ready
 	void updateRHS( const Teuchos::RCP<const DivGradO2Op<SpaceT> > op,
 			const DomainFieldT& x, Teuchos::RCP<VectorT> b ) const {
 

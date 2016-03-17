@@ -1492,8 +1492,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 			Pimpact::InterpolationOp,
 			Pimpact::DivGradOp,
 			Pimpact::DivGradO2Op,
-			//Pimpact::DivGradO2JSmoother,
-			Pimpact::DivGradO2SORSmoother,
+			Pimpact::DivGradO2JSmoother,
+			//Pimpact::DivGradO2SORSmoother,
 			//Pimpact::Chebyshev,
 			Pimpact::DivGradO2Inv >( mgSpaces, mgPL );
 
