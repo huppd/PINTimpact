@@ -64,7 +64,6 @@ protected:
 
 	bool levelYes_;
 
-  Teuchos::RCP<DomainFieldT> temp_;
 
   const Teuchos::RCP<const OperatorT> op_;
 
@@ -79,7 +78,7 @@ public:
     levelYes_( false ),
 		bcSmoothing_( 0 ),
 		depth_( 2 ),
-    temp_( Teuchos::rcp( new DomainFieldT(space) ) ),
+    //temp_( Teuchos::rcp( new DomainFieldT(space) ) ),
     op_( Teuchos::rcp( new OperatorT(space) ) ) {}
 
 	/// \brief constructor
@@ -100,7 +99,7 @@ public:
 		bcSmoothing_( pl->get<int>( "BC smoothing", 0 ) ),
 		depth_( pl->get<Ordinal>( "depth", 2 ) ),
     levelYes_( pl->get<bool>( "level", false ) ),
-    temp_( create<DomainFieldT>( op->space() ) ),
+    //temp_( create<DomainFieldT>( op->space() ) ),
     op_(op) {
 		
 			if( 0<bcSmoothing_ ) {
@@ -198,6 +197,9 @@ public:
   /// \f[ y_k = (1-\omega) y_k + \omega D^{-1}( x - A y_k ) \f]
 	void apply(const DomainFieldT& b, RangeFieldT& y,
 			Belos::ETrans trans=Belos::NOTRANS ) const {
+
+		Teuchos::RCP<DomainFieldT> temp_ =
+			Teuchos::rcp( new DomainFieldT(space()) );
 
 		for( int i=0; i<nIter_; ++i) {
 

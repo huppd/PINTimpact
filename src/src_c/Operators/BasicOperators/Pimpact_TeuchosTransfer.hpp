@@ -761,8 +761,9 @@ public:
 	///  @} 
 
 
-
 };
+
+
 
 template<class OperatorT>
 class TeuchosEigenvalues {

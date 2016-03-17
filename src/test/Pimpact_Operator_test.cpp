@@ -1051,10 +1051,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
 	ST err0 = x->norm( Belos::InfNorm );
 	ST errP = err0;
 
-	x->write( 0 );
+	//x->write( 0 );
 	for( int i=1; i<=nIter; ++i ) {
 		smoother->apply( *b, *x );
-		x->write(i);
+		//x->write(i);
 		ST err = x->norm( Belos::InfNorm );
 		if( 0==space->rankST() ) {
 				std::cout << i << "\t" << err/err0 << "\t" << err/errP << "\n";

@@ -50,7 +50,6 @@ protected:
 
 	bool levelYes_;
 
-  Teuchos::RCP<DomainFieldT> temp_;
 
   const Teuchos::RCP<const OperatorT> op_;
 
@@ -78,7 +77,7 @@ public:
     nIter_( pl->get<int>( "numIters", 1 ) ),
     omega_( pl->get<Scalar>( "omega", 0.75 ) ),
     levelYes_( pl->get<bool>( "level", false ) ),
-    temp_( create<DomainFieldT>( op->space() ) ),
+    //temp_( create<DomainFieldT>( op->space() ) ),
     op_(op) {
 		
 			lineDirection_[X] = pl->get<bool>( "X", true );
@@ -114,11 +113,7 @@ public:
 						(*d_[dir])[n_[dir]-1] = op_->getC( dir, n_[dir]-1,  0 );
 					}
 
-					//std::cout << "dl: " << *dl_[dir];
-					//std::cout << "d: " << *d_[dir] ;
-					//std::cout << "du: " << *du_[dir];
-
-					Ordinal info;
+					Ordinal lu_factorization_sucess;
 					Teuchos::LAPACK<Ordinal,Scalar> lapack;
 					lapack.GTTRF(
 							n_[dir],
@@ -127,8 +122,8 @@ public:
 							du_[dir]->values(),
 							du2_[dir]->values(),
 							ipiv_[dir]->values(),
-							&info );
-					//std::cout << "\ninfo: " << info << "\n";
+							&lu_factorization_sucess );
+					TEUCHOS_TEST_FOR_EXCEPT( lu_factorization_sucess );
 				}
 			}
 		}
@@ -138,6 +133,9 @@ public:
 	/// \todo solve multiple problems at once
 	void apply(const DomainFieldT& b, RangeFieldT& y,
 			Belos::ETrans trans=Belos::NOTRANS ) const {
+
+		Teuchos::RCP<DomainFieldT> temp_ =
+			Teuchos::rcp( new DomainFieldT( space() ) );
 
 		for( int i=0; i<nIter_; ++i) {
 
@@ -172,7 +170,7 @@ public:
 								//(*B)[i[dir]-1] = b.at( i[0], i[1], i[2] );
 							//std::cout << *B << "\n";
 
-							Ordinal info;
+							Ordinal lu_solve_sucess;
 							Teuchos::LAPACK<Ordinal,Scalar> lapack;
 							lapack.GTTRS(
 									'N',
@@ -185,7 +183,10 @@ public:
 									ipiv_[dir]->values(),
 									B->values(),
 									B->stride(),
-									&info );
+									&lu_solve_sucess );
+
+							TEUCHOS_TEST_FOR_EXCEPT( lu_solve_sucess );
+
 							// transfer back
 							for( i[dir]=1; i[dir]<=n_[dir]; ++i[dir] )
 								y.at( i[0], i[1], i[2] ) = y.at( i[0], i[1], i[2] ) + omega_*(*B)[i[dir]-1];
