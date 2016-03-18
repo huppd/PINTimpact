@@ -1051,21 +1051,72 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
 	ST err0 = x->norm( Belos::InfNorm );
 	ST errP = err0;
 
-	//x->write( 0 );
+	x->write( 0 );
 	for( int i=1; i<=nIter; ++i ) {
 		smoother->apply( *b, *x );
-		//x->write(i);
+		x->write(i);
 		ST err = x->norm( Belos::InfNorm );
 		if( 0==space->rankST() ) {
 				std::cout << i << "\t" << err/err0 << "\t" << err/errP << "\n";
-				//*fstream << i << "\t" << err/err0 << "\t" << err/errP << "\n";
+				//fstream << i << "\t" << err/err0 << "\t" << err/errP << "\n";
 		}
 		errP = err;
 	}
 
+	// --- grad test ---
+	auto sol = x->clone();
+	auto e = x->clone();
+	auto res = x->clone();
+	for( int dir=1; dir<=3; ++dir ) {
+
+		Pimpact::EScalarField type = static_cast<Pimpact::EScalarField>(dir);
+
+		x->initField( type );
+		sol->initField( type );
+		sol->level();
+
+		op->apply( *x, *b );
+
+		//x->init( 0 );
+		x->random();
+
+		// residual
+		op->apply( *x, *res );
+		res->add( -1, *b, 1., *res );
+		ST res0 = res->norm();
+		ST resP = res0;
+		//error
+		res->add( 1., *sol, -1., *x );
+		ST err0 = res->norm();
+		ST errP = err0;
+		//ST err0 = 1.;
+		//ST errP =1.;
+
+		if( space()->rankST()==0 ) {
+			std::cout << "\n\n\t\t\t--- " << Pimpact::toString(type) << " test ---\n";
+			std::cout << "\tresidual:\trate:\t\t\terror:\t\trate:\n";
+			std::cout << "\t"  << 1.<< "\t\t\t\t" << 1.  << "\n";
+		}
+		for( int i=0; i<nIter; ++i ) {
+			smoother->apply( *b, *x );
+			x->level();
+
+			op->apply( *x, *res );
+			res->add( -1, *b, 1., *res );
+			ST residual = res->norm();
+			res->add( 1., *sol, -1., *x );
+			ST err = res->norm();
+
+			if( space()->rankST()==0 )
+				std::cout << "\t" << residual/res0 << "\t" <<  residual/resP << "\t\t" << err/err0 << "\t" <<  err/errP  << "\n";
+			resP = residual;
+			errP = err;
+		}
+		TEST_EQUALITY( res->norm()/std::sqrt( static_cast<ST>( res->getLength() ) )<1.e-3, true );
+	}
 
 	// --- consistency test ---
-	for( int dir=1; dir<=1; ++dir ) {
+	for( int dir=1; dir<=6; ++dir ) {
 
 		x->initField( static_cast<Pimpact::EScalarField>(dir) );
 		x->level();
@@ -1086,8 +1137,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
 
 		TEST_EQUALITY( err2<eps, true );
 		TEST_EQUALITY( errInf<eps, true );
-		//if( err2>eps && errInf>eps ) 
-			//xp->write( dir );
+		if( err2>eps && errInf>eps ) 
+			x->write( nIter + dir + 1 );
 
 	}
 

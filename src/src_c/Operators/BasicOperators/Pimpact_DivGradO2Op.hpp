@@ -104,15 +104,13 @@ public:
 			c_[i] = new Scalar[ nTemp ];
 
 			// inner field bounds
-			//SR_[i] = 1;
-			//ER_[i] = space_->nLoc(i) - 1;
 			SR_[i] = 1;
-			ER_[i] = space_->nLoc(i);
+			ER_[i] = space_->nLoc(i) - 1;
 
-			//if( space_->getBCLocal()->getBCL(i) >  0 ) SR_[i] = 2;
-			//if( space_->getBCLocal()->getBCL(i) == 0 ) SR_[i] = 1;
-			//if( space_->getBCLocal()->getBCU(i) >  0 ) ER_[i] = space_->nLoc(i) - 1;
-			//if( space_->getBCLocal()->getBCU(i) == 0 ) ER_[i] = space_->nLoc(i);
+			if( space_->getBCLocal()->getBCL(i) >  0 ) SR_[i] = 2;
+			if( space_->getBCLocal()->getBCL(i) == 0 ) SR_[i] = 1;
+			if( space_->getBCLocal()->getBCU(i) >  0 ) ER_[i] = space_->nLoc(i) - 1;
+			if( space_->getBCLocal()->getBCU(i) == 0 ) ER_[i] = space_->nLoc(i);
 		}
 
 		Op_getCDG(

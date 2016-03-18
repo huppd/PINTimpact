@@ -1458,18 +1458,23 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 	//mgPL->set<bool>( "defect correction", true );
 	mgPL->set<bool>( "init zero", false );
 
-	// Smoother: Jacobian
-	//mgPL->sublist("Smoother").set( "omega", 1. );
-	mgPL->sublist("Smoother").set<int>( "numIters", 4 );
-	mgPL->sublist("Smoother").set<int>( "BC smoothing", 1 );
-	mgPL->sublist("Smoother").set<OT>( "depth", 2 );
+	// Smoother: Line
+	//mgPL->sublist("Smoother").set( "omega", 2./3 );
+	//mgPL->sublist("Smoother").set<int>( "numIters", 1 );
+	//mgPL->sublist("Smoother").set<bool>( "X", true );
+	//mgPL->sublist("Smoother").set<bool>( "Y", true );
+	//mgPL->sublist("Smoother").set<bool>( "Z", true );
+
+	// Smoother: JT
+	//mgPL->sublist("Smoother").set<int>( "BC smoothing", 1 );
+	//mgPL->sublist("Smoother").set<OT>( "depth", 2 );
 
 
 	// Smoother: GS
 	//mgPL->sublist("Smoother").set<int>( "RBGS mode", 2 );
 
-	//// Smoother: Chebyshev
-	//// compute EV
+	// Smoother: Chebyshev
+	// compute EV
 	//ST evMax;
 	//ST evMin;
 
@@ -1477,8 +1482,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 		//Teuchos::rcp( new Pimpact::TeuchosEigenvalues<Pimpact::DivGradO2Op<SpaceT> >( opO2 ) );
 	//ev->computeEV( evMax, evMin );
 	//std::cout << "glob: " << evMax << "\t" <<evMin << "\n";
-	////ev->computeFullEV( evMax, evMin );
-	////std::cout << "glob: " << evMax << "\t" <<evMin << "\n";
+	//////ev->computeFullEV( evMax, evMin );
+	//////std::cout << "glob: " << evMax << "\t" <<evMin << "\n";
 
 	//mgPL->sublist("Smoother").set<int>( "numIters", 12 );
 	//mgPL->sublist("Smoother").set<ST>( "min EV", evMin*1.1 );
@@ -1493,6 +1498,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 			Pimpact::DivGradOp,
 			Pimpact::DivGradO2Op,
 			//Pimpact::DivGradO2JSmoother,
+			//Pimpact::DivGradO2LSmoother,
 			Pimpact::DivGradO2SORSmoother,
 			//Pimpact::Chebyshev,
 			Pimpact::DivGradO2Inv >( mgSpaces, mgPL );

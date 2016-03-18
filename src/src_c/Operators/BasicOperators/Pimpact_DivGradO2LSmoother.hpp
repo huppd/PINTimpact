@@ -139,7 +139,6 @@ public:
 
 		for( int i=0; i<nIter_; ++i) {
 
-			//for( int dir=0; dir<3; ++dir ) {
 			for( int dir=2; dir>=0; --dir ) { // why?
 
 				if( true==lineDirection_[dir] ) {
@@ -187,7 +186,7 @@ public:
 
 							TEUCHOS_TEST_FOR_EXCEPT( lu_solve_sucess );
 
-							// transfer back
+							//// transfer back
 							for( i[dir]=1; i[dir]<=n_[dir]; ++i[dir] )
 								y.at( i[0], i[1], i[2] ) = y.at( i[0], i[1], i[2] ) + omega_*(*B)[i[dir]-1];
 						}
@@ -208,7 +207,7 @@ public:
 					}
 					if( space()->getBCLocal()->getBCL(d2)>0 ) {
 						i[d2] = 1;
-						for( i[d1]=op_->getSR(d2); i[d1]<=op_->getER(d2); ++i[d1] )
+						for( i[d1]=op_->getSR(d1); i[d1]<=op_->getER(d1); ++i[d1] )
 							for( i[dir]=op_->getSR(dir); i[dir]<=op_->getER(dir); ++i[dir] )
 								y.at( i[0], i[1], i[2] ) = y.at( i[0], i[1], i[2] ) + omega_*temp_->at( i[0], i[1], i[2] )/op_->getC( d2, i[d2], 0 );
 
