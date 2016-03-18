@@ -214,16 +214,16 @@ public:
 		// boundaries
 		for( int d=0; d<3; ++d ) {
 
-			int d1 = ( d + 1 )%3;
-			int d2 = ( d + 2 )%3;
-			if( d2>d1 ) std::swap( d2, d1 );
+			int d1 = getDir1( d ); 
+			int d2 = getDir2( d ); 
+
 			TO i;
 
 			// lower boundaries
 			if( space_->getBCLocal()->getBCL(d)>0 ) {
 				i[d] = 1;
-				for( i[d1]=getSR(d1); i[d1]<=getER(d1); ++i[d1] )
-					for( i[d2]=getSR(d2); i[d2]<=getER(d2); ++i[d2] ) {
+				for( i[d2]=getSR(d2); i[d2]<=getER(d2); ++i[d2] )
+					for( i[d1]=getSR(d1); i[d1]<=getER(d1); ++i[d1] ) {
 						TO ip = i;
 						++ip[d];
 						res.at(i[0],i[1],i[2]) = b.at(i[0],i[1],i[2]) -
@@ -235,8 +235,8 @@ public:
 			// upper boundaries
 			if( space_->getBCLocal()->getBCU(d)>0 ) {
 				i[d] = space_->nLoc(d);
-				for( i[d1]=getSR(d1); i[d1]<=getER(d1); ++i[d1] )
-					for( i[d2]=getSR(d2); i[d2]<=getER(d2); ++i[d2] ) {
+				for( i[d2]=getSR(d2); i[d2]<=getER(d2); ++i[d2] ) 
+					for( i[d1]=getSR(d1); i[d1]<=getER(d1); ++i[d1] ) {
 						TO ip = i;
 						--ip[d];
 						res.at(i[0],i[1],i[2]) = b.at(i[0],i[1],i[2]) -

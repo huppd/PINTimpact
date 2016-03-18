@@ -200,7 +200,7 @@ public:
   }
 
 
-	Teuchos::RCP<const SpaceT> space() const { return(space_); };
+	Teuchos::RCP<const SpaceT> space() const { return( space_ ); };
 
   const Scalar* getC( const ECoord& dir, const EField& ftype ) const {
       return( ((int)dir==(int)ftype)?cV_[dir]:cS_[dir] );

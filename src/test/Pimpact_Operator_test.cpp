@@ -1034,7 +1034,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
 	ppl->set<bool>( "with output", true );
 	
 	// JSmoother
-	ppl->set<int>( "BC smoothing", 1 );
+	ppl->set<int>( "BC smoothing", 0 );
 	ppl->set<OT>( "depth", 2 );
 
   auto smoother = Pimpact::create<SType>( op, ppl );
