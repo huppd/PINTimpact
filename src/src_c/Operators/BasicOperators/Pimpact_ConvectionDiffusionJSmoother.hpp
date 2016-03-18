@@ -71,8 +71,6 @@ protected:
 
   const Teuchos::RCP<const OperatorT> op_;
 
-  Teuchos::RCP<DomainFieldT> temp_;
-
 public:
 
 	/// \brief constructor
@@ -85,8 +83,7 @@ public:
 			Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ):
 		omega_( pl->get<Scalar>("omega", (2==op->space()->dim())?0.8:6./7. ) ),
 		nIter_( pl->get("numIters", 4 ) ),
-		op_(op),
-		temp_( create<DomainFieldT>(op_->space()) ) {}
+		op_(op) {}
 
 
 
@@ -96,7 +93,8 @@ public:
 
   void apply( const FluxFieldT& wind, const DomainFieldT& x, RangeFieldT& y, Scalar mul=0. ) const {
 
-    //int m = (int)y.getType();
+		Teuchos::RCP<DomainFieldT> temp = create<DomainFieldT>( space() );
+		//int m = (int)y.getType();
 
     TEUCHOS_TEST_FOR_EXCEPT( y.getType() != x.getType() );
 
@@ -134,18 +132,18 @@ public:
           wind[Z]->getConstRawPtr(),
           x.getConstRawPtr(),
           y.getConstRawPtr(),
-          temp_->getRawPtr(),
+          temp->getRawPtr(),
 					op_->getMulI(),
 					op_->getMulC(),
 					op_->getMulL(),
           omega_ );
 
-//			temp_->changed();
-//			y.assign( *temp_ );
-////			y.add( 1.,*temp_, 0., x );
+//			temp->changed();
+//			y.assign( *temp );
+////			y.add( 1.,*temp, 0., x );
 
-			temp_->changed();
-			temp_->exchange();
+			temp->changed();
+			temp->exchange();
 
 			OP_convectionDiffusionJSmoother(
 					space()->dim(),
@@ -169,7 +167,7 @@ public:
 					wind[Y]->getConstRawPtr(),
 					wind[Z]->getConstRawPtr(),
 					x.getConstRawPtr(),
-					temp_->getConstRawPtr(),
+					temp->getConstRawPtr(),
 					y.getRawPtr(),
 					op_->getMulI(),
 					op_->getMulC(),

@@ -33,7 +33,6 @@ protected:
 	Scalar mulC_;
 	Scalar mulL_;
 
- 	Teuchos::RCP<DomainFieldT> temp_;
  	Teuchos::RCP<OpT> op_;
 
 public:
@@ -42,16 +41,17 @@ public:
 		mulI_(0.),
 		mulC_(1.),
 		mulL_( 1./op->space()->getDomainSize()->getRe() ),
- 		temp_( create<DomainFieldT>(op->space()) ),
  		op_(op) {};
 
 
  	void apply(const DomainFieldT& x, RangeFieldT& y) {
 
+		Teuchos::RCP<DomainFieldT> temp = create<DomainFieldT>( space() );
+	
 		// left
 		// where is the minus best
-		temp_->getCFieldPtr()->add( 0.5, x.getConstCField(), -0.5, x.getConstSField() );
-		temp_->getSFieldPtr()->add( 0.5, x.getConstCField(),  0.5, x.getConstSField() );
+		temp->getCFieldPtr()->add( 0.5, x.getConstCField(), -0.5, x.getConstSField() );
+		temp->getSFieldPtr()->add( 0.5, x.getConstCField(),  0.5, x.getConstSField() );
 
 		// set paramters
 		auto pl = Teuchos::parameterList();
@@ -61,16 +61,16 @@ public:
 
 		op_->setParameter( pl );
 
-		op_->apply( temp_->getConstCField(), y.getCField() );
-		op_->apply( temp_->getConstSField(), y.getSField() );
+		op_->apply( temp->getConstCField(), y.getCField() );
+		op_->apply( temp->getConstSField(), y.getSField() );
 
 // right
-//		op_->apply( x.getConstCField(), temp_->getCField() );
-//		op_->apply( x.getConstSField(), temp_->getSField() );
+//		op_->apply( x.getConstCField(), temp->getCField() );
+//		op_->apply( x.getConstSField(), temp->getSField() );
 //
 //		// where is the minus best
-//		y.getCFieldPtr()->add( 0.5, temp_->getConstCField(), -0.5, temp_->getConstSField() );
-//		y.getSFieldPtr()->add( 0.5, temp_->getConstCField(),  0.5, temp_->getConstSField() );
+//		y.getCFieldPtr()->add( 0.5, temp->getConstCField(), -0.5, temp->getConstSField() );
+//		y.getSFieldPtr()->add( 0.5, temp->getConstCField(),  0.5, temp->getConstSField() );
 //
 
 //		// just block

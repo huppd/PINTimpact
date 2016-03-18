@@ -31,12 +31,9 @@ public:
 
 protected:
 
-  Teuchos::RCP<RangeFieldT> temp_;
-
   Teuchos::RCP<OP1> op1_;
   Teuchos::RCP<OP2> op2_;
   Teuchos::RCP<OP3> op3_;
-
 
 public:
 
@@ -44,27 +41,29 @@ public:
       const Teuchos::RCP<OP1>& op1,
       const Teuchos::RCP<OP2>& op2=Teuchos::null,
       const Teuchos::RCP<OP3>& op3=Teuchos::null ):
-        temp_(op1->space()),
         op1_(op1), op2_(op2), op3_(op3) {};
 
   void apply(const DomainFieldT& x, RangeFieldT& y,
       Belos::ETrans trans=Belos::NOTRANS ) const {
+
+		Teuchos::RCP<RangeFieldT> temp = Teuchos::rcp( new RangeFieldT( space() ) );
+
     if( !op1_.is_null() ) {
       op1_->apply( x, y  );
       if( !op2_.is_null() ) {
-        op2_->apply( x, *temp_ );
-        y.add( 1., y, 1., *temp_ );
+        op2_->apply( x, *temp );
+        y.add( 1., y, 1., *temp );
       }
       if( !op3_.is_null() ) {
-        op3_->apply( x, *temp_ );
-        y.add( 1., y, 1., *temp_ );
+        op3_->apply( x, *temp );
+        y.add( 1., y, 1., *temp );
       }
     }
     else if( !op2_.is_null() ) {
       op2_->apply( x, y );
       if( !op3_.is_null() ) {
-        op3_->apply( x, *temp_ );
-        y.add( 1., y, 1., *temp_ );
+        op3_->apply( x, *temp );
+        y.add( 1., y, 1., *temp );
       }
     }
   }

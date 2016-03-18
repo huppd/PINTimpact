@@ -35,7 +35,6 @@ protected:
 
   Teuchos::RCP<OP1> op1_;
   Teuchos::RCP<OP2> op2_;
-  Teuchos::RCP<typename OP1::RangeFieldT> temp_;
 
 public:
 
@@ -43,16 +42,17 @@ public:
       const Teuchos::RCP<OP1>& op1,
       const Teuchos::RCP<OP2>& op2 ):
         op1_(op1),
-        op2_(op2),
-        temp_( create<typename OP1::RangeFieldT>(op1_->space()) )
-        {};
+				op2_(op2) {};
 
 
   void apply(const DomainFieldT& x, RangeFieldT& y,
       Belos::ETrans trans=Belos::NOTRANS ) const {
-    op1_->apply( x, *temp_);
+
+		Teuchos::RCP<typename OP1::RangeFieldT> temp = create<typename OP1::RangeFieldT>( space() );
+
+    op1_->apply( x, *temp);
     op2_->apply( x, y);
-    y.add( 1., *temp_, 1., y );
+    y.add( 1., *temp, 1., y );
   }
 
   void assignField( const DomainFieldT& mv ) {

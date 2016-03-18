@@ -33,8 +33,6 @@ public:
 
 protected:
 
-  Teuchos::RCP<VF> tempv_;
-//  Teuchos::RCP<VF> tempv2_;
 
   Teuchos::RCP<OpV2V> opV2V_;
   Teuchos::RCP<OpS2V> opS2V_;
@@ -46,23 +44,24 @@ public:
 			const Teuchos::RCP<OpV2V>& opV2V,
 			const Teuchos::RCP<OpS2V>& opS2V,
 			const Teuchos::RCP<OpS2S>& opS2S ):
-		tempv_( create<VF>(opV2V->space()) ),
-//		tempv2_( create<VF>(opV2V->space()) ),
 		opV2V_(opV2V),
 		opS2V_(opS2V),
 		opS2S_(opS2S) {};
 
+
 	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
-		opS2S_->apply( x.getConstSField() ,  y.getSField() );
+		Teuchos::RCP<VF> tempv = create<VF>( space() );
+
+		opS2S_->apply( x.getConstSField(),  y.getSField() );
 		y.getSField().scale( -1. );
 
-		opS2V_->apply( y.getConstSField(), *tempv_ );
+		opS2V_->apply( y.getConstSField(), *tempv );
 
-//		tempv2_->add( -1., *tempv_, 1., x.getConstVField() );
-		tempv_->add( -1., *tempv_, 1., x.getConstVField() );
+//		tempv2_->add( -1., *tempv, 1., x.getConstVField() );
+		tempv->add( -1., *tempv, 1., x.getConstVField() );
 
-		opV2V_->apply( *tempv_, y.getVField() );
+		opV2V_->apply( *tempv, y.getVField() );
 //		opV2V_->apply( x.getConstVField(), y.getVField() );
 
 	}

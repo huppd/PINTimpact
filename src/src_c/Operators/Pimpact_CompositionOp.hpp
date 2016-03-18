@@ -33,8 +33,6 @@ public:
 
 protected:
 
-  Teuchos::RCP<TempFieldT> temp_;
-
   Teuchos::RCP<OP1> op1_;
   Teuchos::RCP<OP2> op2_;
 
@@ -43,7 +41,6 @@ public:
   CompositionOp(
       const Teuchos::RCP<OP1>& op1,
       const Teuchos::RCP<OP2>& op2 ):
-        temp_( create<TempFieldT>(op1->space()) ),
         op1_(op1),
 				op2_(op2)
 {};
@@ -53,12 +50,14 @@ public:
       RangeFieldT& y,
       Belos::ETrans trans=Belos::NOTRANS ) const {
 
+		Teuchos::RCP<TempFieldT> temp = create<TempFieldT>( space() );
+
     if( op1_.is_null() ) {
 //      op2_->apply( x, y );
     }
     else {
-      op2_->apply( x, *temp_ );
-      op1_->apply( *temp_, y );
+      op2_->apply( x, *temp );
+      op1_->apply( *temp, y );
     }
   }
 

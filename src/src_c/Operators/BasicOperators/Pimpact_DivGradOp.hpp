@@ -32,29 +32,27 @@ public:
 
 protected:
 
-  Teuchos::RCP<VectorField<SpaceT> > temp_;
   Teuchos::RCP<DivOp<SpaceT> > div_;
   Teuchos::RCP<GradOp<SpaceT> > grad_;
 
 public:
 
   DivGradOp( const Teuchos::RCP<const SpaceT>& space ):
-    temp_( create<VectorField>( space ) ),
     div_ ( create<DivOp>( space ) ),
     grad_( create<GradOp>( space ) ) {};
 
   DivGradOp(
       const Teuchos::RCP< DivOp<SpaceT> >& div,
       const Teuchos::RCP< GradOp<SpaceT> >& grad ):
-    temp_( create<VectorField>( div->space() ) ),
     div_ (div),
     grad_(grad) {};
 
   void apply(const DomainFieldT& x, RangeFieldT& y,
       Belos::ETrans trans=Belos::NOTRANS ) const {
 
-    grad_->apply( x, *temp_ );
-    div_->apply( *temp_, y );
+		Teuchos::RCP< VectorField<SpaceT> > temp = create<VectorField>( space() );
+    grad_->apply( x, *temp );
+    div_->apply( *temp, y );
 
   }
 
