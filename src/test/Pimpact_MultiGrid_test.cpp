@@ -1460,10 +1460,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 
 	// Smoother: Line
 	//mgPL->sublist("Smoother").set( "omega", 2./3 );
-	//mgPL->sublist("Smoother").set<int>( "numIters", 1 );
-	//mgPL->sublist("Smoother").set<bool>( "X", true );
-	//mgPL->sublist("Smoother").set<bool>( "Y", true );
-	//mgPL->sublist("Smoother").set<bool>( "Z", true );
+	mgPL->sublist("Smoother").set<int>( "numIters", 4 );
+	mgPL->sublist("Smoother").set<bool>( "X", true );
+	mgPL->sublist("Smoother").set<bool>( "Y", false );
+	mgPL->sublist("Smoother").set<bool>( "Z", false );
 
 	// Smoother: JT
 	//mgPL->sublist("Smoother").set<int>( "BC smoothing", 1 );
@@ -1498,8 +1498,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 			Pimpact::DivGradOp,
 			Pimpact::DivGradO2Op,
 			//Pimpact::DivGradO2JSmoother,
-			//Pimpact::DivGradO2LSmoother,
-			Pimpact::DivGradO2SORSmoother,
+			//Pimpact::DivGradO2SORSmoother,
+			Pimpact::DivGradO2LSmoother,
 			//Pimpact::Chebyshev,
 			Pimpact::DivGradO2Inv >( mgSpaces, mgPL );
 

@@ -80,9 +80,9 @@ public:
     //temp_( create<DomainFieldT>( op->space() ) ),
     op_(op) {
 		
-			lineDirection_[X] = pl->get<bool>( "X", true );
-			lineDirection_[Y] = pl->get<bool>( "Y", true );
-			lineDirection_[Z] = pl->get<bool>( "Z", true );
+			lineDirection_[X] = pl->get<bool>( "X", true  );
+			lineDirection_[Y] = pl->get<bool>( "Y", false );
+			lineDirection_[Z] = pl->get<bool>( "Z", false );
 			
 			TEUCHOS_TEST_FOR_EXCEPT( !lineDirection_[X] && !lineDirection_[Y] && !lineDirection_[Z] );
 
@@ -110,8 +110,11 @@ public:
 						(*d_[dir])[0] = op_->getC( dir, 1,  0 );
 					}
 					if( space()->getBCLocal()->getBCU(dir)>0 ) {
-						(*d_[dir])[n_[dir]-1] = op_->getC( dir, n_[dir]-1,  0 );
+						(*d_[dir])[n_[dir]-1] = op_->getC( dir, n_[dir],  0 );
 					}
+					//std::cout << "\ndl: " << *dl_[dir] << "\n";
+					//std::cout << "d: " << *d_[dir] << "\n";
+					//std::cout << "du: " << *du_[dir] << "\n\n";
 
 					Ordinal lu_factorization_sucess;
 					Teuchos::LAPACK<Ordinal,Scalar> lapack;
