@@ -80,9 +80,9 @@ public:
     //temp_( create<DomainFieldT>( op->space() ) ),
     op_(op) {
 		
-			lineDirection_[X] = pl->get<bool>( "X", true  );
-			lineDirection_[Y] = pl->get<bool>( "Y", false );
-			lineDirection_[Z] = pl->get<bool>( "Z", false );
+			lineDirection_[X] = pl->get<bool>( "X", true );
+			lineDirection_[Y] = pl->get<bool>( "Y", true  );
+			lineDirection_[Z] = pl->get<bool>( "Z", true );
 			
 			TEUCHOS_TEST_FOR_EXCEPT( !lineDirection_[X] && !lineDirection_[Y] && !lineDirection_[Z] );
 
@@ -167,7 +167,7 @@ public:
 						for( i[d2]=SS[d2]; i[d2]<=NN[d2]; ++i[d2] ) {
 
 							// transfer
-							for( i[dir]=1; i[dir]<=n_[dir]; ++i[dir] )
+							for( i[dir]=space()->sInd(S,dir); i[dir]<=space()->eInd(S,dir); ++i[dir] )
 								(*B)[i[dir]-1] = temp_->at( i[0], i[1], i[2] );
 								//(*B)[i[dir]-1] = b.at( i[0], i[1], i[2] );
 							//std::cout << *B << "\n";
@@ -190,33 +190,33 @@ public:
 							TEUCHOS_TEST_FOR_EXCEPT( lu_solve_sucess );
 
 							//// transfer back
-							for( i[dir]=1; i[dir]<=n_[dir]; ++i[dir] )
+							for( i[dir]=space()->sInd(S,dir); i[dir]<=space()->eInd(S,dir); ++i[dir] )
 								y.at( i[0], i[1], i[2] ) = y.at( i[0], i[1], i[2] ) + omega_*(*B)[i[dir]-1];
 						}
 
 					// boundaries
 					if( space()->getBCLocal()->getBCL(d1)>0 ) {
-						i[d1] = 1;
+						i[d1] = space()->sInd(S,d1);
 						for( i[d2]=op_->getSR(d2); i[d2]<=op_->getER(d2); ++i[d2] )
 							for( i[dir]=op_->getSR(dir); i[dir]<=op_->getER(dir); ++i[dir] )
 								y.at( i[0], i[1], i[2] ) = y.at( i[0], i[1], i[2] ) + omega_*temp_->at( i[0], i[1], i[2] )/op_->getC( d1, i[d1], 0 );
 
 					}
 					if( space()->getBCLocal()->getBCU(d1)>0 ) {
-						i[d1] = space()->nLoc(d1);
+						i[d1] = space()->eInd(S,d1);
 						for( i[d2]=op_->getSR(d2); i[d2]<=op_->getER(d2); ++i[d2] )
 							for( i[dir]=op_->getSR(dir); i[dir]<=op_->getER(dir); ++i[dir] )
 								y.at( i[0], i[1], i[2] ) = y.at( i[0], i[1], i[2] ) + omega_*temp_->at( i[0], i[1], i[2] )/op_->getC( d1, i[d1], 0 );
 					}
 					if( space()->getBCLocal()->getBCL(d2)>0 ) {
-						i[d2] = 1;
+						i[d2] = space()->sInd(S,d2);
 						for( i[d1]=op_->getSR(d1); i[d1]<=op_->getER(d1); ++i[d1] )
 							for( i[dir]=op_->getSR(dir); i[dir]<=op_->getER(dir); ++i[dir] )
 								y.at( i[0], i[1], i[2] ) = y.at( i[0], i[1], i[2] ) + omega_*temp_->at( i[0], i[1], i[2] )/op_->getC( d2, i[d2], 0 );
 
 					}
 					if( space()->getBCLocal()->getBCU(d2)>0 ) {
-						i[d2] = space()->nLoc(d2);
+						i[d2] = space()->eInd(S,d2);
 						for( i[d1]=op_->getSR(d1); i[d1]<=op_->getER(d1); ++i[d1] )
 							for( i[dir]=op_->getSR(dir); i[dir]<=op_->getER(dir); ++i[dir] )
 								y.at( i[0], i[1], i[2] ) = y.at( i[0], i[1], i[2] ) + omega_*temp_->at( i[0], i[1], i[2] )/op_->getC( d2, i[d2], 0 );
