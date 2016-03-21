@@ -1123,8 +1123,59 @@ public:
 
   /// \}
 
+	/// \name indexing
+	/// @{ 
 
-	/// \brief indexing
+protected:
+
+	/// \brief stride in X direction
+	inline const Ordinal stride0() const {
+		return( 1 );
+	}
+
+	/// \brief stride in Y direction
+	inline const Ordinal stride1() const {
+		return( space()->nLoc(0)+space()->bu(0)-space()->bl(0)+1 );
+	}
+
+	/// \brief stride in Z direction
+	inline const Ordinal stride2() const {
+		return(
+				( space()->nLoc(0)+space()->bu(0)-space()->bl(0)+1 )*(
+					space()->nLoc(1)+space()->bu(1)-space()->bl(1)+1 ) );
+	}
+
+
+	/// \brief stride
+	///
+	/// \param dir direction of stride
+	inline const Ordinal stride( const int& dir ) const {
+		switch( dir ) {
+			case 0 : 
+				return( stride0() );
+      case 1 :
+				return( stride1() );
+      case 2 :
+				return( stride2() );
+			default:
+				return( 0 );
+		}
+	}
+
+public:
+
+	/// \brief computed index
+	///
+	/// \param i index in x-direction
+	/// \param j index in y-direction
+	/// \param k index in z-direction
+	inline const Ordinal index( const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
+		return( (i-space()->bl(0)) +
+				    (j-space()->bl(1))*stride1() +
+				    (k-space()->bl(2))*stride2() );
+	}
+
+	/// \brief field access
 	///
 	/// \param i index in x-direction
 	/// \param j index in y-direction
@@ -1132,12 +1183,10 @@ public:
 	///
 	/// \return const reference
 	inline const Scalar& at( const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
-		return( s_[ (i-space()->bl(0)) +
-				        (j-space()->bl(1))*(space()->nLoc(0)+space()->bu(0)-space()->bl(0)+1) +
-				        (k-space()->bl(2))*(space()->nLoc(0)+space()->bu(0)-space()->bl(0)+1)*(space()->nLoc(1)+space()->bu(1)-space()->bl(1)+1) ] );
+		return( s_[ index(i,j,k) ] );
 	}
 
-	/// \brief indexing
+	/// \brief field access
 	///
 	/// \param i index in x-direction
 	/// \param j index in y-direction
@@ -1145,9 +1194,33 @@ public:
 	///
 	/// \return reference
 	inline Scalar& at( const Ordinal& i, const Ordinal& j, const Ordinal& k )  {
-		return( s_[ (i-space()->bl(0)) +
-				        (j-space()->bl(1))*(space()->nLoc(0)+space()->bu(0)-space()->bl(0)+1) +
-				        (k-space()->bl(2))*(space()->nLoc(0)+space()->bu(0)-space()->bl(0)+1)*(space()->nLoc(1)+space()->bu(1)-space()->bl(1)+1) ] );
+		return( s_[ index(i,j,k) ] );
+	}
+
+	/// \brief field access
+	///
+	/// \param i index coordinate 
+	inline const Scalar& at( const Ordinal* i ) const {
+		return( s_[ index(i[0],i[1],i[2]) ] );
+	}
+	/// \brief field access
+	///
+	/// \param i index coordinate 
+	inline Scalar& at( const Ordinal* i ) {
+		return( s_[ index(i[0],i[1],i[2]) ] );
+	}
+
+	/// \brief field access
+	///
+	/// \param i index coordinate 
+	inline Scalar& at( const Teuchos::Tuple<Ordinal,3>& i ) {
+		return( s_[ index(i[0],i[1],i[2]) ] );
+	}
+	/// \brief field access
+	///
+	/// \param i index coordinate 
+	inline const Scalar& at( const Teuchos::Tuple<Ordinal,3>& i ) const {
+		return( s_[ index(i[0],i[1],i[2]) ] );
 	}
 
 }; // end of class ScalarField
@@ -1171,6 +1244,7 @@ createScalarField(
 			new ScalarField<SpaceT>( space, true, fType ) ) );
 }
 
+///  @} 
 
 } // end of namespace Pimpact
 
