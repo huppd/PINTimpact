@@ -170,8 +170,8 @@ public:
 					for( i[d2]=getSR(d2); i[d2]<=getER(d2); ++i[d2] ) {
 						TO ip = i;
 						++ip[d];
-						y.at(i[0],i[1],i[2]) =
-							getC(d,i[d],0)*x.at(i[0],i[1],i[2]) + getC(d,i[d],+1)*x.at(ip[0],ip[1],ip[2]);
+						y.at(i) =
+							getC(d,i[d],0)*x.at(i) + getC(d,i[d],+1)*x.at(ip);
 					}
 			}
 
@@ -182,8 +182,8 @@ public:
 					for( i[d2]=getSR(d2); i[d2]<=getER(d2); ++i[d2] ) {
 						TO ip = i;
 						--ip[d];
-						y.at(i[0],i[1],i[2]) =
-							getC(d,i[d],0)*x.at(i[0],i[1],i[2]) + getC(d,i[d],-1)*x.at(ip[0],ip[1],ip[2]);
+						y.at(i) =
+							getC(d,i[d],0)*x.at(i) + getC(d,i[d],-1)*x.at(ip);
 					}
 			}
 
@@ -226,9 +226,9 @@ public:
 					for( i[d1]=getSR(d1); i[d1]<=getER(d1); ++i[d1] ) {
 						TO ip = i;
 						++ip[d];
-						res.at(i[0],i[1],i[2]) = b.at(i[0],i[1],i[2]) -
-							getC(d,i[d],0 )*x.at(i[0], i[1], i[2] ) -
-							getC(d,i[d],+1)*x.at(ip[0],ip[1],ip[2]);
+						res.at(i) = b.at(i) -
+							getC(d,i[d],0 )*x.at(i) -
+							getC(d,i[d],+1)*x.at(ip);
 					}
 			}
 
@@ -239,9 +239,9 @@ public:
 					for( i[d1]=getSR(d1); i[d1]<=getER(d1); ++i[d1] ) {
 						TO ip = i;
 						--ip[d];
-						res.at(i[0],i[1],i[2]) = b.at(i[0],i[1],i[2]) -
-							getC(d,i[d],0 )*x.at(i[0], i[1], i[2] ) -
-							getC(d,i[d],-1)*x.at(ip[0],ip[1],ip[2]);
+						res.at(i) = b.at(i) -
+							getC(d,i[d],0 )*x.at(i) -
+							getC(d,i[d],-1)*x.at(ip);
 					}
 			}
 

@@ -306,8 +306,8 @@ protected:
 
 						++ip[d];
 
-						y.at(i[0],i[1],i[2]) =
-							(1-omega)*x.at(i[0],i[1],i[2]) + omega/getC(d,i[d],0) *( b.at(i[0],i[1],i[2]) - getC(d,i[d],+1)*x.at(ip[0],ip[1],ip[2]) );
+						y.at(i) =
+							(1-omega)*x.at(i) + omega/getC(d,i[d],0) *( b.at(i) - getC(d,i[d],+1)*x.at(ip) );
 					}
 
 			}
@@ -320,8 +320,8 @@ protected:
 
 						--ip[d];
 
-						y.at(i[0],i[1],i[2]) =
-							(1-omega)*x.at(i[0],i[1],i[2]) + omega/getC(d,i[d],0) *( b.at(i[0],i[1],i[2]) - getC(d,i[d],-1)*x.at(ip[0],ip[1],ip[2]) );
+						y.at(i) =
+							(1-omega)*x.at(i) + omega/getC(d,i[d],0) *( b.at(i) - getC(d,i[d],-1)*x.at(ip) );
 					}
 
 			}

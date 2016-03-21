@@ -168,8 +168,8 @@ public:
 
 							// transfer
 							for( i[dir]=space()->sInd(S,dir); i[dir]<=space()->eInd(S,dir); ++i[dir] )
-								(*B)[i[dir]-1] = temp_->at( i );
-								//(*B)[i[dir]-1] = b.at( i[0], i[1], i[2] );
+								(*B)[i[dir]-1] = temp_->at(i);
+								//(*B)[i[dir]-1] = b.at(i);
 							//std::cout << *B << "\n";
 
 							Ordinal lu_solve_sucess;
@@ -191,7 +191,7 @@ public:
 
 							//// transfer back
 							for( i[dir]=space()->sInd(S,dir); i[dir]<=space()->eInd(S,dir); ++i[dir] )
-								y.at( i ) = y.at( i ) + omega_*(*B)[i[dir]-1];
+								y.at(i) = y.at(i) + omega_*(*B)[i[dir]-1];
 						}
 
 					// boundaries
@@ -199,27 +199,27 @@ public:
 						i[d1] = space()->sInd(S,d1);
 						for( i[d2]=op_->getSR(d2); i[d2]<=op_->getER(d2); ++i[d2] )
 							for( i[dir]=op_->getSR(dir); i[dir]<=op_->getER(dir); ++i[dir] )
-								y.at( i ) = y.at( i ) + omega_*temp_->at( i )/op_->getC( d1, i[d1], 0 );
+								y.at(i) = y.at(i) + omega_*temp_->at(i)/op_->getC( d1, i[d1], 0 );
 
 					}
 					if( space()->getBCLocal()->getBCU(d1)>0 ) {
 						i[d1] = space()->eInd(S,d1);
 						for( i[d2]=op_->getSR(d2); i[d2]<=op_->getER(d2); ++i[d2] )
 							for( i[dir]=op_->getSR(dir); i[dir]<=op_->getER(dir); ++i[dir] )
-								y.at( i ) = y.at( i ) + omega_*temp_->at( i )/op_->getC( d1, i[d1], 0 );
+								y.at(i) = y.at(i) + omega_*temp_->at(i)/op_->getC( d1, i[d1], 0 );
 					}
 					if( space()->getBCLocal()->getBCL(d2)>0 ) {
 						i[d2] = space()->sInd(S,d2);
 						for( i[d1]=op_->getSR(d1); i[d1]<=op_->getER(d1); ++i[d1] )
 							for( i[dir]=op_->getSR(dir); i[dir]<=op_->getER(dir); ++i[dir] )
-								y.at( i ) = y.at( i ) + omega_*temp_->at( i )/op_->getC( d2, i[d2], 0 );
+								y.at(i) = y.at(i) + omega_*temp_->at(i)/op_->getC( d2, i[d2], 0 );
 
 					}
 					if( space()->getBCLocal()->getBCU(d2)>0 ) {
 						i[d2] = space()->eInd(S,d2);
 						for( i[d1]=op_->getSR(d1); i[d1]<=op_->getER(d1); ++i[d1] )
 							for( i[dir]=op_->getSR(dir); i[dir]<=op_->getER(dir); ++i[dir] )
-								y.at( i ) = y.at( i ) + omega_*temp_->at( i )/op_->getC( d2, i[d2], 0 );
+								y.at(i) = y.at(i) + omega_*temp_->at(i)/op_->getC( d2, i[d2], 0 );
 					}
 					
 					

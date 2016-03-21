@@ -997,12 +997,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
   auto b = Pimpact::create<Pimpact::ScalarField>( space );
 
   auto op = Pimpact::create<Pimpact::DivGradO2Op>( space );
-	op->print2Mat();
+	//op->print2Mat();
+
+	Teuchos::RCP<Teuchos::ParameterList> ppl = Teuchos::parameterList();
 
 	// compute EV
 	ST evMax;
 	ST evMin;
-
 
 	Teuchos::RCP<Pimpact::TeuchosEigenvalues<Pimpact::DivGradO2Op<SpaceT> > > ev = 
 		Teuchos::rcp( new Pimpact::TeuchosEigenvalues<Pimpact::DivGradO2Op<SpaceT> >( op ) );
@@ -1021,15 +1022,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
 		std::cout << "glob2: " << evMax << "\t" <<evMin << "\n";
 	}
 
-	Teuchos::RCP<Teuchos::ParameterList> ppl = Teuchos::parameterList();
 	ppl->set<int>( "numIters", sweeps );
 
 	// good result with no stretch + own
-	ppl->set<ST>( "max EV", evMin*1.1 );
-	ppl->set<ST>( "min EV", evMax );
-	//ppl->set<ST>( "min EV", evMin*1.1/30. );
-	//ppl->set<ST>( "max EV", evMin*1.1 );
-	//ppl->set<ST>( "min EV", evMin*1.1 );
+	//ppl->set<ST>( "max EV", evMax );
+	//ppl->set<ST>( "min EV", evMin );
+	//ppl->set<ST>( "max EV", evMax*1.  );
+	//ppl->set<ST>( "min EV", evMin*2.1 );
 
 	ppl->set<bool>( "with output", true );
 	

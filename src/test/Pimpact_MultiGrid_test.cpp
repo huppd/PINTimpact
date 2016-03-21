@@ -25,27 +25,82 @@ const int dimension = 4;
 
 using SpaceT = Pimpact::Space<ST,OT,dimension,4>;
 
-using FSpace3T = Pimpact::Space<ST,OT,dimension,4>;
-using CSpace3T = Pimpact::Space<ST,OT,dimension,2>;
+using FSpaceT = Pimpact::Space<ST,OT,dimension,4>;
+using CSpaceT = Pimpact::Space<ST,OT,dimension,2>;
 
-using CS3L = Pimpact::CoarsenStrategy<FSpace3T,CSpace3T>;
-using CS3G = Pimpact::CoarsenStrategyGlobal<FSpace3T,CSpace3T>;
+using CS3L = Pimpact::CoarsenStrategy<FSpaceT,CSpaceT>;
+using CS3G = Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT>;
 
-template<class T> using BSF = Pimpact::MultiField< Pimpact::ScalarField<T> >;
+using MGSpacesT = Pimpact::MGSpaces<FSpaceT,CSpaceT>;
+
+template<class T>
+using BSF = Pimpact::MultiField< Pimpact::ScalarField<T> >;
 
 template<class T> using BOPF = Pimpact::MultiOpWrap< Pimpact::DivGradOp<T> >;
 template<class T> using BOPC = Pimpact::MultiOpWrap< Pimpact::DivGradO2Op<T> >;
 template<class T> using BSM = Pimpact::MultiOpWrap< Pimpact::DivGradO2JSmoother<T> >;
 
-template<class T> using ConvDiffOpT = Pimpact::NonlinearOp<Pimpact::ConvectionDiffusionSOp<T> >;
+template<class T> using ConvDiffOpT =
+	Pimpact::NonlinearOp<Pimpact::ConvectionDiffusionSOp<T> >;
 
-template<class T> using ConvDiffSORT = Pimpact::NonlinearSmoother<T,Pimpact::ConvectionDiffusionSORSmoother >;
+template<class T> using ConvDiffSORT =
+	Pimpact::NonlinearSmoother<T,Pimpact::ConvectionDiffusionSORSmoother >;
 
-template<class T> using ConvDiffJT = Pimpact::NonlinearSmoother<T,Pimpact::ConvectionDiffusionJSmoother >;
+template<class T> using ConvDiffJT =
+	Pimpact::NonlinearSmoother<T,Pimpact::ConvectionDiffusionJSmoother >;
 
 template<class T1,class T2> using TransVF = Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<T1,T2> >;
 template<class T> using RestrVF = Pimpact::VectorFieldOpWrap<Pimpact::RestrictionHWOp<T> >;
 template<class T> using InterVF = Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<T> >;
+
+template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
+template<class T> using POP = Pimpact::PrecInverseOp< T, Pimpact::DivGradO2JSmoother >;
+template<class T> using POP2 = Pimpact::PrecInverseOp< T, Pimpact::DivGradO2SORSmoother >;
+
+
+using DGJMGT = Pimpact::MultiGrid<
+	MGSpacesT,
+	Pimpact::ScalarField,
+	Pimpact::TransferOp,
+	Pimpact::RestrictionHWOp,
+	Pimpact::InterpolationOp,
+	Pimpact::DivGradOp,
+	Pimpact::DivGradO2Op,
+	Pimpact::DivGradO2JSmoother,
+	Pimpact::DivGradO2Inv >;
+
+using DGSORMGT = Pimpact::MultiGrid<
+	MGSpacesT,
+	Pimpact::ScalarField,
+	Pimpact::TransferOp,
+	Pimpact::RestrictionHWOp,
+	Pimpact::InterpolationOp,
+	Pimpact::DivGradOp,
+	Pimpact::DivGradO2Op,
+	Pimpact::DivGradO2SORSmoother,
+	Pimpact::DivGradO2Inv >;
+
+using DGLMGT = Pimpact::MultiGrid<
+	MGSpacesT,
+	Pimpact::ScalarField,
+	Pimpact::TransferOp,
+	Pimpact::RestrictionHWOp,
+	Pimpact::InterpolationOp,
+	Pimpact::DivGradOp,
+	Pimpact::DivGradO2Op,
+	Pimpact::DivGradO2LSmoother,
+	Pimpact::DivGradO2Inv >;
+
+using DGCMGT = Pimpact::MultiGrid<
+	MGSpacesT,
+	Pimpact::ScalarField,
+	Pimpact::TransferOp,
+	Pimpact::RestrictionHWOp,
+	Pimpact::InterpolationOp,
+	Pimpact::DivGradOp,
+	Pimpact::DivGradO2Op,
+	Pimpact::Chebyshev,
+	Pimpact::DivGradO2Inv >;
 
 bool testMpi = true;
 double eps = 1e-6;
@@ -184,7 +239,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSpaces, constructor3D, CS ) {
 		space->getCoordinatesGlobal()->print( *fstream );
 	}
 
-	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids);
+	Teuchos::RCP<const MGSpacesT > mgSpaces =
+		Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, maxGrids);
 
 	std::cout << "rank: " << space->rankST() << "\tnGridLevels: " << mgSpaces->getNGrids() << "\n";
 
@@ -242,7 +298,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGFields, SFconstructor3D, CS ) {
 
 	auto space = Pimpact::createSpace<ST,OT,dimension,4>( pl );
 
-	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
+	Teuchos::RCP<const MGSpacesT> mgSpaces =
+		Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, maxGrids );
+
 	std::cout << "nGridLevels: " << mgSpaces->getNGrids() << "\n";
 	if( space->rankST()==0 )
 		mgSpaces->print();
@@ -305,7 +363,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGFields, VFconstructor3D, CS ) {
 
 	auto space = Pimpact::createSpace<ST,OT,dimension,4>( pl );
 
-	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
+	Teuchos::RCP<const MGSpacesT> mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, maxGrids );
+
 	std::cout << "nGridLevels: " << mgSpaces->getNGrids() << "\n";
 	if( space->rankST()==0 )
 		mgSpaces->print();
@@ -368,7 +427,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGOperators, SFconstructor3D, CS ) {
 
 	auto space = Pimpact::createSpace<ST,OT,dimension,4>( pl );
 
-	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
+	Teuchos::RCP<const MGSpacesT> mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, maxGrids );
 
 	auto mgOps = Pimpact::createMGOperators<Pimpact::DivGradO2Op>( mgSpaces );
 
@@ -430,7 +489,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGOperators, VFconstructor3D, CS ) {
 
 	auto space = Pimpact::createSpace<ST,OT,dimension,4>( pl );
 
-	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
+	Teuchos::RCP<const MGSpacesT> mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, maxGrids );
 
 	auto mgOps = Pimpact::createMGOperators<ConvDiffOpT>( mgSpaces );
 
@@ -488,7 +547,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSmoothers, SFconstructor3D, CS ) {
 
 	auto space = Pimpact::createSpace<ST,OT,dimension,4>( pl );
 
-	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
+	Teuchos::RCP<const MGSpacesT> mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, maxGrids );
 
 
 	auto mgOps = Pimpact::createMGOperators<Pimpact::DivGradOp,Pimpact::DivGradO2Op>( mgSpaces );
@@ -547,7 +606,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSmoothers, VFconstructor3D, CS ) {
 
 	auto space = Pimpact::createSpace<ST,OT,dimension,4>( pl );
 
-	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
+	Teuchos::RCP<const MGSpacesT> mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, maxGrids );
 
 	auto mgOps = Pimpact::createMGOperators<ConvDiffOpT>( mgSpaces );
 
@@ -606,14 +665,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Restrictor, CS ) {
 
 	auto space = Pimpact::createSpace<ST,OT,dimension,4>( pl );
 
-	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
+	Teuchos::RCP<const MGSpacesT> mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, maxGrids );
 
 	for( int level=1; level<mgSpaces->getNGrids(); ++level ) {
 		if( 0==space->rankST() ) {
 			std::cout << "\n\n\t--- level: " << level-1 << "---\n";
 		}
-		Teuchos::RCP<const Pimpact::RestrictionHWOp<CSpace3T> > op = 
-			Teuchos::rcp( new Pimpact::RestrictionHWOp<CSpace3T>(
+		Teuchos::RCP<const Pimpact::RestrictionHWOp<CSpaceT> > op = 
+			Teuchos::rcp( new Pimpact::RestrictionHWOp<CSpaceT>(
 						mgSpaces->get(level-1),
 						mgSpaces->get(level),
 						mgSpaces->get()->getProcGrid()->getNP() ) );
@@ -632,10 +691,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Restrictor, CS ) {
 			if( 0==space->rankST() )
 				std::cout << " --- ftype: " << i << " ---\n";
 
-			Teuchos::RCP< Pimpact::ScalarField<CSpace3T> > fieldf;
-			Teuchos::RCP< Pimpact::ScalarField<CSpace3T> > fieldc;
-			Teuchos::RCP< Pimpact::ScalarField<CSpace3T> > sol;
-			Teuchos::RCP< Pimpact::ScalarField<CSpace3T> > er;
+			Teuchos::RCP< Pimpact::ScalarField<CSpaceT> > fieldf;
+			Teuchos::RCP< Pimpact::ScalarField<CSpaceT> > fieldc;
+			Teuchos::RCP< Pimpact::ScalarField<CSpaceT> > sol;
+			Teuchos::RCP< Pimpact::ScalarField<CSpaceT> > er;
 
 			fieldf = Pimpact::createScalarField( mgSpaces->get( level-1 ), type[i] );
 
@@ -759,7 +818,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator, CS ) {
 	Teuchos::RCP<const Pimpact::Space<ST,OT,dimension,4> > space =
 		Pimpact::createSpace<ST,OT,dimension,4>( pl );
 
-	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
+	Teuchos::RCP<const MGSpacesT> mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, maxGrids );
 
 	std::cout << "\nrank: " << space->rankST() << "\tnGridLevels: " << mgSpaces->getNGrids() << "\n";
 
@@ -767,8 +826,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator, CS ) {
 
 	for( int level=0; level<mgSpaces->getNGrids()-1; ++level ) {
 
-		Teuchos::RCP< const Pimpact::InterpolationOp<CSpace3T> > op = 
-			Teuchos::rcp( new Pimpact::InterpolationOp<CSpace3T>(
+		Teuchos::RCP< const Pimpact::InterpolationOp<CSpaceT> > op = 
+			Teuchos::rcp( new Pimpact::InterpolationOp<CSpaceT>(
 						mgSpaces->get(level+1),
 						mgSpaces->get(level),
 						mgSpaces->get()->getProcGrid()->getNP() ) );
@@ -926,7 +985,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 
 	auto space = Pimpact::createSpace<ST,OT,dimension,4>( pl );
 
-	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
+	Teuchos::RCP<const MGSpacesT> mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, maxGrids );
 
 	auto mgTransfers = Pimpact::createMGTransfers<
 		Pimpact::TransferOp,Pimpact::RestrictionHWOp,Pimpact::InterpolationOp>(
@@ -1149,7 +1208,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersVF, CS ) {
 
 	auto space = Pimpact::createSpace<ST,OT,dimension,4>( pl );
 
-	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
+	Teuchos::RCP<const MGSpacesT> mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, maxGrids );
 
 	auto mgTransfers = Pimpact::createMGTransfers<
 		TransVF,RestrVF,InterVF>( mgSpaces );
@@ -1379,15 +1438,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, MGTransfersVF, CS3L )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, MGTransfersVF, CS3G )
 
 
-template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
-template<class T> using POP = Pimpact::PrecInverseOp< T, Pimpact::DivGradO2JSmoother >;
-template<class T> using POP2 = Pimpact::PrecInverseOp< T, Pimpact::DivGradO2SORSmoother >;
 
-
-
-
-//TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, DivGradOp, CS, Smoo ) {
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, DivGradOp, CS, MGT ) {
+//TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
@@ -1441,7 +1494,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 
 	int nMax = 10;
 
-	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
+	Teuchos::RCP<const Pimpact::MGSpaces<FSpaceT,CSpaceT> > mgSpaces =
+		Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, maxGrids );
+
 	if( space->rankST()==0 ) {
 		mgSpaces->print();
 		for( int i=0; i<mgSpaces->getNGrids(); ++i ) {
@@ -1489,19 +1544,20 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 	//mgPL->sublist("Smoother").set<ST>( "min EV", evMin*1.1 );
 	//mgPL->sublist("Smoother").set<ST>( "max EV", evMin*1.1/30. );
 	
-	auto mg =
-		Pimpact::createMultiGrid<
-			Pimpact::ScalarField,
-			Pimpact::TransferOp,
-			Pimpact::RestrictionHWOp,
-			Pimpact::InterpolationOp,
-			Pimpact::DivGradOp,
-			Pimpact::DivGradO2Op,
-			//Pimpact::DivGradO2JSmoother,
-			//Pimpact::DivGradO2SORSmoother,
-			Pimpact::DivGradO2LSmoother,
-			//Pimpact::Chebyshev,
-			Pimpact::DivGradO2Inv >( mgSpaces, mgPL );
+	Teuchos::RCP<MGT> mg =
+		Teuchos::rcp( new MGT( mgSpaces, mgPL ) );
+		//Pimpact::createMultiGrid<
+			//Pimpact::ScalarField,
+			//Pimpact::TransferOp,
+			//Pimpact::RestrictionHWOp,
+			//Pimpact::InterpolationOp,
+			//Pimpact::DivGradOp,
+			//Pimpact::DivGradO2Op,
+			////Pimpact::DivGradO2JSmoother,
+			////Pimpact::DivGradO2SORSmoother,
+			//Pimpact::DivGradO2LSmoother,
+			////Pimpact::Chebyshev,
+			//Pimpact::DivGradO2Inv >( mgSpaces, mgPL );
 
 
 	auto prec = Pimpact::createMultiOperatorBase( mg );
@@ -1529,7 +1585,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 
 	auto bop = Pimpact::createMultiOperatorBase( op );
 
-	auto linprob = Pimpact::createLinearProblem<Pimpact::MultiField<Pimpact::ScalarField<FSpace3T> > >( bop, xm, bm, param, solvName );
+	auto linprob = Pimpact::createLinearProblem<Pimpact::MultiField<Pimpact::ScalarField<FSpaceT> > >( bop, xm, bm, param, solvName );
 	if( solvName!="Fixed Point" ) 
 		linprob->setRightPrec(prec);
 	//if( solvName!="BiCGStab" ) 
@@ -1638,29 +1694,15 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, DivGradOp, CS ) {
 
 }
 
-//struct ChT{
-	//template<class T>
-	//using SmootherT = Pimpact::Chebyshev<T>;
-//};
 
-//struct JT{
-	//template<class T>
-	//using SmootherT = Pimpact::DivGradO2JSmoother<T>;
-//};
-
-//struct SORT{
-	//template<class T>
-	//using SmootherT = Pimpact::DivGradO2SORSmoother<T>;
-//};
-
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, DivGradOp, CS3L )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, DivGradOp, CS3G )
-//TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CS3L, ChT  )
-//TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CS3G, ChT  )
-//TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CS3L, JT   )
-//TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CS3G, JT   )
-//TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CS3L, SORT )
-//TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CS3G, SORT )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CS3L, DGJMGT )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CS3G, DGJMGT )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CS3L, DGSORMGT )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CS3G, DGSORMGT )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CS3L, DGLMGT )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CS3G, DGLMGT )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CS3L, DGCMGT )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CS3G, DGCMGT )
 
 
 
@@ -1704,7 +1746,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffSOR, CS ) {
 
 	auto space = Pimpact::createSpace<ST,OT,dimension,4>( pl );
 
-	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
+	Teuchos::RCP<const MGSpacesT> mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, maxGrids );
 
 	auto mgPL = Teuchos::parameterList();
 	mgPL->set<int>("numCycles", 1);
@@ -1861,7 +1903,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffJ, CS ) {
 	//auto space = Pimpact::createSpace<ST,OT,3,2>( pl );
 	auto space = Pimpact::createSpace<ST,OT,dimension,4>( pl );
 
-	auto mgSpaces = Pimpact::createMGSpaces<FSpace3T,CSpace3T,CS>( space, maxGrids );
+	Teuchos::RCP<const MGSpacesT> mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, maxGrids );
 
 	auto mgPL = Teuchos::parameterList();
 	mgPL->set<int>("numCycles", 1 );
