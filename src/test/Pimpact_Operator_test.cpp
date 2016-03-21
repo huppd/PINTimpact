@@ -240,6 +240,79 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivOp ) {
 
 
 
+TEUCHOS_UNIT_TEST( BasicOperator, DivOpConvergence ) {
+
+  pl->set( "domain", domain );
+  pl->set( "dim", dim );
+
+	pl->set( "lx", lx );
+	pl->set( "ly", ly );
+	pl->set( "lz", lz );
+
+	// grid stretching
+	if( sx!=0 ) {
+		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
+		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
+		pl->sublist("Stretching in X").set<ST>( "x0 L", 0.05 );
+		pl->sublist("Stretching in X").set<ST>( "x0 U", 0. );
+	}
+	if( sy!=0 ) {
+		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
+		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
+	}
+	if( sz!=0 ) {
+		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
+		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
+	}
+
+  // processor grid size
+  pl->set( "npx", npx );
+  pl->set( "npy", npy );
+  pl->set( "npz", npz );
+  pl->set( "npf", npf );
+
+	//  grid size
+	pl->set( "ny", ny );
+	pl->set( "nz", 9 );
+	pl->set( "nf", 9 );
+
+	OT ns = 5;
+	std::vector<ST> error2( ns );
+	std::vector<ST> errorInf( ns );
+
+	for( OT n=0; n<ns; ++n ) {
+
+		pl->set( "nx", 8*std::pow(2,n)+1 );
+
+		auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+
+		auto vel = Pimpact::create<Pimpact::VectorField>( space );
+		auto p   = Pimpact::create<Pimpact::ScalarField>( space );
+		auto sol = p->clone( Pimpact::ShallowCopy );
+
+		// init 
+		vel->getFieldPtr(Pimpact::U)->initField();
+
+		auto op = Pimpact::create<Pimpact::DivOp>( space );
+
+		op->apply( *vel, *p );
+
+		// compute error
+		p->add( 1., *sol, -1., *p );
+		error2[n] = p->norm( Belos::TwoNorm ) / sol->norm( Belos::TwoNorm );
+		errorInf[n] = p->norm( Belos::InfNorm ) / sol->norm( Belos::InfNorm );
+
+	}
+	// compute order
+
+	// test
+}
+
+
+
 TEUCHOS_UNIT_TEST( BasicOperator, InterpolateV2SOp ) {
 
   pl->set( "domain", domain );

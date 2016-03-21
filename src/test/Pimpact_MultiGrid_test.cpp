@@ -1494,7 +1494,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, DivGradOp, CS, MGT ) {
 
 	int nMax = 10;
 
-	Teuchos::RCP<const Pimpact::MGSpaces<FSpaceT,CSpaceT> > mgSpaces =
+	Teuchos::RCP<const MGSpacesT> mgSpaces =
 		Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, maxGrids );
 
 	if( space->rankST()==0 ) {
@@ -1514,7 +1514,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, DivGradOp, CS, MGT ) {
 	mgPL->set<bool>( "init zero", false );
 
 	// Smoother: Line
-	//mgPL->sublist("Smoother").set( "omega", 2./3 );
 	mgPL->sublist("Smoother").set<int>( "numIters", 4 );
 	mgPL->sublist("Smoother").set<bool>( "X", true );
 	mgPL->sublist("Smoother").set<bool>( "Y", false );
@@ -1546,19 +1545,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, DivGradOp, CS, MGT ) {
 	
 	Teuchos::RCP<MGT> mg =
 		Teuchos::rcp( new MGT( mgSpaces, mgPL ) );
-		//Pimpact::createMultiGrid<
-			//Pimpact::ScalarField,
-			//Pimpact::TransferOp,
-			//Pimpact::RestrictionHWOp,
-			//Pimpact::InterpolationOp,
-			//Pimpact::DivGradOp,
-			//Pimpact::DivGradO2Op,
-			////Pimpact::DivGradO2JSmoother,
-			////Pimpact::DivGradO2SORSmoother,
-			//Pimpact::DivGradO2LSmoother,
-			////Pimpact::Chebyshev,
-			//Pimpact::DivGradO2Inv >( mgSpaces, mgPL );
-
 
 	auto prec = Pimpact::createMultiOperatorBase( mg );
 
