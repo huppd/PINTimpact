@@ -56,11 +56,11 @@ void PI_getLocalCoordinates(
 /// xV         | bl..nLoc+bu+(ib-1)*(NB-1)
 ///
 /// \ingroup SpaceObject
-template<class ScalarT, class OrdinalT, int dim>
+template<class ScalarT, class OrdinalT, int dim, int dimNC>
 class CoordinatesLocal {
 
 	template<class ST,class OT,int dT, int dNC>
-	friend Teuchos::RCP<const CoordinatesLocal<ST,OT,dT> > createCoordinatesLocal(
+	friend Teuchos::RCP<const CoordinatesLocal<ST,OT,dT,dNC> > createCoordinatesLocal(
 			const Teuchos::RCP<const StencilWidths<dT,dNC> >& fieldSpace,
 			const Teuchos::RCP<const DomainSize<ST> >& domainSize,
 			const Teuchos::RCP<const GridSizeGlobal<OT> >& gridSizeGlobal,
@@ -80,7 +80,9 @@ protected:
 	TO dxS_;
 	TO dxV_;
 
-	template<int dimNC>
+	Teuchos::RCP<const StencilWidths<dim,dimNC> > stencilWidths_;
+
+	//template<int dimNC>
 	CoordinatesLocal(
 			const Teuchos::RCP<const StencilWidths<dim,dimNC> >& stencilWidths,
 			const Teuchos::RCP<const DomainSize<ScalarT> >& domainSize,
@@ -89,7 +91,8 @@ protected:
 			const Teuchos::RCP<const BoundaryConditionsGlobal<dim> >& bcGlobal,
 			const Teuchos::RCP<const BoundaryConditionsLocal<dim> >& bcLocal,
 			const Teuchos::RCP<const ProcGrid<OrdinalT,dim> >& procGrid,
-			const Teuchos::RCP<const CoordinatesGlobal<ScalarT,OrdinalT,dim> >& coordGlobal ) {
+			const Teuchos::RCP<const CoordinatesGlobal<ScalarT,OrdinalT,dim> >& coordGlobal ):
+	stencilWidths_(stencilWidths) {
 
 		for( int i=0; i<dim; ++i ) {
 
@@ -147,19 +150,30 @@ public:
   const ScalarT* getX( ECoord dir, EField ftype ) const  {
     if( EField::S==ftype )
       return( xS_[dir].getRawPtr() );
-    else if( (int)dir==(int)ftype )
+    else if( static_cast<int>(dir)==static_cast<int>(ftype) )
       return( xV_[dir].getRawPtr() );
     else
       return( xS_[dir].getRawPtr() );
   }
   const ScalarT* getX( ECoord dir, int ftype ) const  {
-    return( getX( dir, (EField) ftype ) );
+    return( getX( dir, static_cast<EField>(ftype) ) );
   }
   const ScalarT* getX( int dir, EField ftype ) const  {
-    return( getX( (ECoord) dir, ftype ) );
+    return( getX( static_cast<ECoord>(dir), ftype ) );
   }
   const ScalarT* getX( int dir, int ftype ) const  {
-    return( getX( (ECoord) dir, (EField) ftype ) );
+    return( getX( static_cast<ECoord>(dir), static_cast<EField>(ftype) ) );
+  }
+
+  const ScalarT& getX( EField ftype, ECoord dir, OrdinalT i) const  {
+
+    if( EField::S==ftype )
+      return( xS_[dir][i-stencilWidths_->getBL(static_cast<int>(dir))] );
+    else if( static_cast<int>(dir)==static_cast<int>(ftype) )
+      return( xV_[dir][i-stencilWidths_->getBL(static_cast<int>(dir))] );
+		else
+      return( xS_[dir][i-stencilWidths_->getBL(static_cast<int>(dir))] );
+
   }
 
 	///  @} 
@@ -189,7 +203,7 @@ public:
 /// \brief create Grid coordinates Global
 /// \relates CoordinatesLocal
 template<class ST, class OT, int d, int dNC>
-Teuchos::RCP<const CoordinatesLocal<ST,OT,d> >
+Teuchos::RCP<const CoordinatesLocal<ST,OT,d,dNC> >
 createCoordinatesLocal(
 		const Teuchos::RCP<const StencilWidths<d,dNC> >& stencilWidths,
 		const Teuchos::RCP<const DomainSize<ST> >& domainSize,
@@ -202,7 +216,7 @@ createCoordinatesLocal(
 
 	return(
 			Teuchos::rcp(
-				new CoordinatesLocal<ST,OT,d>(
+				new CoordinatesLocal<ST,OT,d,dNC>(
 					stencilWidths,
 					domainSize,
 					gridSizeGlobal,

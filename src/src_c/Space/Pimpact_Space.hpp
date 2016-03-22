@@ -143,7 +143,7 @@ public:
 						Teuchos::rcpFromRef( pl->sublist("Stretching in Z") ) ) );
 
 		coordLocal_ =
-			Pimpact::createCoordinatesLocal<ST,OT,d>(
+			Pimpact::createCoordinatesLocal<ST,OT,d,dNC>(
 					stencilWidths_,
 					domainSize_,
 					gridSizeGlobal_,
@@ -174,7 +174,7 @@ public:
 			const Teuchos::RCP<const GridSizeLocal<OT,dimension> >& gridSizeLocal,
 			const Teuchos::RCP<const ProcGrid<OT,dimension> >& procGrid,
 			const Teuchos::RCP<const CoordinatesGlobal<ST,OT,dimension> >& coordGlobal,
-			const Teuchos::RCP<const CoordinatesLocal<ST,OT,dimension> >& coordLocal,
+			const Teuchos::RCP<const CoordinatesLocal<ST,OT,dimension,dimNC> >& coordLocal,
 			const Teuchos::RCP<const DomainSize<ST> > domainSize,
 			const Teuchos::RCP<const BoundaryConditionsGlobal<dimension> > boundaryConditionsGlobal,
 			const Teuchos::RCP<const BoundaryConditionsLocal<dimension> > boundaryConditionsLocal,
@@ -213,7 +213,7 @@ protected:
 	Teuchos::RCP<const CoordinatesGlobal<ST,OT,dimension> >
 	coordGlobal_;
 
-	Teuchos::RCP<const CoordinatesLocal<ST,OT,dimension> >
+	Teuchos::RCP<const CoordinatesLocal<ST,OT,dimension,dimNC> >
 	coordLocal_;
 
 	Teuchos::RCP<const DomainSize<ST> >
@@ -251,7 +251,7 @@ public:
 	const Teuchos::RCP<const CoordinatesGlobal<ST,OT,dimension> >&
 	getCoordinatesGlobal() const { return( coordGlobal_ ); }
 
-	const Teuchos::RCP<const CoordinatesLocal<ST,OT,dimension> >&
+	const Teuchos::RCP<const CoordinatesLocal<ST,OT,dimension,dimNC> >&
 	getCoordinatesLocal() const { return( coordLocal_ ); }
 
 	const Teuchos::RCP<const DomainSize<ST> >&
@@ -480,7 +480,7 @@ createSpace(
 
 	Teuchos::RCP<const CoordinatesGlobal<Scalar,Ordinal,dim> > coordGlobal = space->getCoordinatesGlobal();
 
-	Teuchos::RCP<const CoordinatesLocal<Scalar,Ordinal,dim> >  coordLocal =
+	Teuchos::RCP<const CoordinatesLocal<Scalar,Ordinal,dim,dimNC> >  coordLocal =
 		Pimpact::createCoordinatesLocal(
 				stencilWidths,
 				domainSize,
@@ -568,8 +568,8 @@ static Teuchos::RCP< const SpaceT > createSpace(
 				gridSizeGlobal,
 				space->getCoordinatesGlobal() );
 
-	Teuchos::RCP<const CoordinatesLocal<Scalar,Ordinal,dim> > coordLocal =
-		Pimpact::createCoordinatesLocal<Scalar,Ordinal,dim>(
+	Teuchos::RCP<const CoordinatesLocal<Scalar,Ordinal,dim,dimNC> > coordLocal =
+		Pimpact::createCoordinatesLocal<Scalar,Ordinal,dim,dimNC>(
 				stencilWidths,
 				domainSize,
 				gridSizeGlobal,
@@ -793,8 +793,8 @@ static Teuchos::RCP< const SpaceT > createSpace(
 				//domainSize,
 				//Teuchos::tuple( None, None, None) );
 
-	Teuchos::RCP<const CoordinatesLocal<Scalar,Ordinal,dimension> > coordLocal =
-		Pimpact::createCoordinatesLocal<Scalar,Ordinal,dimension>(
+	Teuchos::RCP<const CoordinatesLocal<Scalar,Ordinal,dimension,dimNC> > coordLocal =
+		Pimpact::createCoordinatesLocal<Scalar,Ordinal,dimension,dimNC>(
 				stencilWidths,
 				domainSize,
 				gridSizeGlobal,

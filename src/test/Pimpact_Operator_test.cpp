@@ -1,3 +1,4 @@
+#include <functional>
 #include <iostream>
 #include <cmath>
 
@@ -18,6 +19,17 @@
 #include "Pimpact_VectorFieldOpWrap.hpp"
 
 
+
+template<typename ScalarT>
+ScalarT order(const std::vector<ScalarT>& x, const std::vector<ScalarT>& y) {
+    const auto n    = x.size();
+    const auto s_x  = std::accumulate(x.begin(), x.end(), 0.0);
+    const auto s_y  = std::accumulate(y.begin(), y.end(), 0.0);
+    const auto s_xx = std::inner_product(x.begin(), x.end(), x.begin(), 0.0);
+    const auto s_xy = std::inner_product(x.begin(), x.end(), y.begin(), 0.0);
+    const auto a    = (n * s_xy - s_x * s_y) / (n * s_xx - s_x * s_x);
+    return a;
+}
 
 
 namespace {
@@ -275,40 +287,82 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivOpConvergence ) {
   pl->set( "npf", npf );
 
 	//  grid size
-	pl->set( "ny", ny );
-	pl->set( "nz", 9 );
-	pl->set( "nf", 9 );
+	for( int dir=0; dir<3; ++dir ) {
 
-	OT ns = 5;
-	std::vector<ST> error2( ns );
-	std::vector<ST> errorInf( ns );
+		pl->set<OT>( "nx", 9 );
+		pl->set<OT>( "ny", 9 );
+		pl->set<OT>( "nz", 9 );
+		pl->set<OT>( "nf", 1 );
 
-	for( OT n=0; n<ns; ++n ) {
+		OT ns = 8;
 
-		pl->set( "nx", 8*std::pow(2,n)+1 );
+		std::vector<ST> error2( ns );
+		std::vector<ST> errorInf( ns );
+		std::vector<ST> dofs( ns );
 
-		auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+		ST pi2 = std::atan(1)*8;
 
-		auto vel = Pimpact::create<Pimpact::VectorField>( space );
-		auto p   = Pimpact::create<Pimpact::ScalarField>( space );
-		auto sol = p->clone( Pimpact::ShallowCopy );
+		std::cout << "\n\nN\t||e||_2\t\t||e||_inf\n";
 
-		// init 
-		vel->getFieldPtr(Pimpact::U)->initField();
+		for( OT n=0; n<ns; ++n ) {
 
-		auto op = Pimpact::create<Pimpact::DivOp>( space );
+			if( 0==dir ) 
+				pl->set<OT>( "nx", 8*std::pow(2,n)+1 );
+			else if( 1==dir )
+				pl->set<OT>( "ny", 8*std::pow(2,n)+1 );
+			else if( 2==dir )
+				pl->set<OT>( "nz", 8*std::pow(2,n)+1 );
 
-		op->apply( *vel, *p );
+			auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
-		// compute error
-		p->add( 1., *sol, -1., *p );
-		error2[n] = p->norm( Belos::TwoNorm ) / sol->norm( Belos::TwoNorm );
-		errorInf[n] = p->norm( Belos::InfNorm ) / sol->norm( Belos::InfNorm );
+			auto vel = Pimpact::create<Pimpact::VectorField>( space );
+			auto p   = Pimpact::create<Pimpact::ScalarField>( space );
+			auto sol = p->clone( Pimpact::ShallowCopy );
 
+			// init 
+			if( 0==dir ) {
+				vel->getFieldPtr(Pimpact::U)->initFromFunction(
+						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(x*pi2) ); } );
+				sol->initFromFunction(
+						[&pi2]( ST x, ST y, ST z ) ->ST { return( -std::sin(x*pi2)*pi2 ); } );
+			}
+			else if( 1==dir ) {
+				vel->getFieldPtr(Pimpact::V)->initFromFunction(
+						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(y*pi2) ); } );
+				sol->initFromFunction(
+						[&pi2]( ST x, ST y, ST z ) ->ST { return( -std::sin(y*pi2)*pi2 ); } );
+			}
+			else if( 2==dir ) {
+				vel->getFieldPtr(Pimpact::Z)->initFromFunction(
+						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(z*pi2) ); } );
+				sol->initFromFunction(
+						[&pi2]( ST x, ST y, ST z ) ->ST { return( -std::sin(z*pi2)*pi2 ); } );
+			}
+
+
+			auto op = Pimpact::create<Pimpact::DivOp>( space );
+
+			op->apply( *vel, *p );
+
+			// compute error
+			p->add( 1., *sol, -1., *p );
+			error2[n] = std::log10( p->norm( Belos::TwoNorm ) / sol->norm( Belos::TwoNorm ) );
+			errorInf[n] = std::log10( p->norm( Belos::InfNorm ) / sol->norm( Belos::InfNorm ) );
+			dofs[n] = std::log10( 8.*std::pow(2.,n)+1. );
+			std::cout << std::pow(10.,dofs[n]) << "\t" << std::pow(10.,error2[n]) << "\t" << std::pow(10.,errorInf[n]) << "\n";
+
+		}
+		// compute order
+		ST order2 = order<ST>( dofs, error2 );
+		std::cout << "DivOp: order two norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << order2 << "\n";
+
+		ST orderInf = order<ST>( dofs, errorInf );
+		std::cout << "DivOp: order inf norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << orderInf << "\n";
+		// test
+		TEST_EQUALITY( -order2>3., true );
+		TEST_EQUALITY( -orderInf>3., true );
 	}
-	// compute order
-
-	// test
+	
 }
 
 
@@ -388,6 +442,121 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateV2SOp ) {
 		
 	}
 
+}
+
+
+
+TEUCHOS_UNIT_TEST( BasicOperator, InterpolateV2SOpConvergence ) { 
+
+  pl->set( "domain", domain );
+  pl->set( "dim", dim );
+
+	pl->set( "lx", lx );
+	pl->set( "ly", ly );
+	pl->set( "lz", lz );
+
+	// grid stretching
+	if( sx!=0 ) {
+		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
+		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
+		pl->sublist("Stretching in X").set<ST>( "x0 L", 0.05 );
+		pl->sublist("Stretching in X").set<ST>( "x0 U", 0. );
+	}
+	if( sy!=0 ) {
+		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
+		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
+	}
+	if( sz!=0 ) {
+		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
+		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
+	}
+
+  // processor grid size
+  pl->set( "npx", npx );
+  pl->set( "npy", npy );
+  pl->set( "npz", npz );
+  pl->set( "npf", npf );
+
+	//  grid size
+	for( int dir=0; dir<3; ++dir ) {
+
+		pl->set<OT>( "nx", 9 );
+		pl->set<OT>( "ny", 9 );
+		pl->set<OT>( "nz", 9 );
+		pl->set<OT>( "nf", 1 );
+
+		OT ns = 8;
+
+		std::vector<ST> error2( ns );
+		std::vector<ST> errorInf( ns );
+		std::vector<ST> dofs( ns );
+
+		ST pi2 = std::atan(1)*8;
+
+		std::cout << "\n\nN\t||e||_2\t\t||e||_inf\n";
+
+		for( OT n=0; n<ns; ++n ) {
+
+			if( 0==dir ) 
+				pl->set<OT>( "nx", 8*std::pow(2,n)+1 );
+			else if( 1==dir )
+				pl->set<OT>( "ny", 8*std::pow(2,n)+1 );
+			else if( 2==dir )
+				pl->set<OT>( "nz", 8*std::pow(2,n)+1 );
+
+			auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+
+			auto vel = Pimpact::create<Pimpact::VectorField>( space );
+			auto p   = Pimpact::create<Pimpact::ScalarField>( space );
+			auto sol = p->clone( Pimpact::ShallowCopy );
+
+			// init 
+			if( 0==dir ) {
+				vel->getFieldPtr(Pimpact::U)->initFromFunction(
+						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(x*pi2) ); } );
+				sol->initFromFunction(
+						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(x*pi2) ); } );
+			}
+			else if( 1==dir ) {
+				vel->getFieldPtr(Pimpact::V)->initFromFunction(
+						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(y*pi2) ); } );
+				sol->initFromFunction(
+						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(y*pi2) ); } );
+			}
+			else if( 2==dir ) {
+				vel->getFieldPtr(Pimpact::W)->initFromFunction(
+						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(z*pi2) ); } );
+				sol->initFromFunction(
+						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(z*pi2) ); } );
+			}
+
+			auto op = Pimpact::createInterpolateV2S( space );
+
+			op->apply( vel->getConstField(dir), *p );
+			//p->write(dir);
+
+			// compute error
+			p->add( 1., *sol, -1., *p );
+			error2[n] = std::log10( p->norm( Belos::TwoNorm ) / sol->norm( Belos::TwoNorm ) );
+			errorInf[n] = std::log10( p->norm( Belos::InfNorm ) / sol->norm( Belos::InfNorm ) );
+			dofs[n] = std::log10( 8.*std::pow(2.,n)+1. );
+			std::cout << std::pow(10.,dofs[n]) << "\t" << std::pow(10.,error2[n]) << "\t" << std::pow(10.,errorInf[n]) << "\n";
+
+		}
+		// compute order
+		ST order2 = order<ST>( dofs, error2 );
+		std::cout << "DivOp: order two norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << order2 << "\n";
+
+		ST orderInf = order<ST>( dofs, errorInf );
+		std::cout << "DivOp: order inf norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << orderInf << "\n";
+		// test
+		TEST_EQUALITY( -order2  >4., true );
+		TEST_EQUALITY( -orderInf>4., true );
+	}
+	
 }
 
 
@@ -477,6 +646,121 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateS2VOp ) {
 
 }
 
+
+
+TEUCHOS_UNIT_TEST( BasicOperator, InterpolateS2VOpConvergence ) { 
+
+  pl->set( "domain", domain );
+  pl->set( "dim", dim );
+
+	pl->set( "lx", lx );
+	pl->set( "ly", ly );
+	pl->set( "lz", lz );
+
+	// grid stretching
+	if( sx!=0 ) {
+		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
+		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
+		pl->sublist("Stretching in X").set<ST>( "x0 L", 0.05 );
+		pl->sublist("Stretching in X").set<ST>( "x0 U", 0. );
+	}
+	if( sy!=0 ) {
+		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
+		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
+	}
+	if( sz!=0 ) {
+		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
+		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
+	}
+
+  // processor grid size
+  pl->set( "npx", npx );
+  pl->set( "npy", npy );
+  pl->set( "npz", npz );
+  pl->set( "npf", npf );
+
+	//  grid size
+	for( int dir=0; dir<3; ++dir ) {
+
+		pl->set<OT>( "nx", 9 );
+		pl->set<OT>( "ny", 9 );
+		pl->set<OT>( "nz", 9 );
+		pl->set<OT>( "nf", 1 );
+
+		OT ns = 8;
+
+		std::vector<ST> error2( ns );
+		std::vector<ST> errorInf( ns );
+		std::vector<ST> dofs( ns );
+
+		ST pi2 = std::atan(1)*8;
+
+		std::cout << "\n\nN\t||e||_2\t\t||e||_inf\n";
+
+		for( OT n=0; n<ns; ++n ) {
+
+			if( 0==dir ) 
+				pl->set<OT>( "nx", 8*std::pow(2,n)+1 );
+			else if( 1==dir )
+				pl->set<OT>( "ny", 8*std::pow(2,n)+1 );
+			else if( 2==dir )
+				pl->set<OT>( "nz", 8*std::pow(2,n)+1 );
+
+			auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+
+			auto vel = Pimpact::create<Pimpact::VectorField>( space );
+			auto p   = Pimpact::create<Pimpact::ScalarField>( space );
+			auto sol = vel->clone( Pimpact::ShallowCopy );
+
+			// init 
+			if( 0==dir ) {
+				p->initFromFunction(
+						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(x*pi2) ); } );
+				sol->getFieldPtr(Pimpact::U)->initFromFunction(
+						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(x*pi2) ); } );
+			}
+			else if( 1==dir ) {
+				p->initFromFunction(
+						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(y*pi2) ); } );
+				sol->getFieldPtr(Pimpact::V)->initFromFunction(
+						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(y*pi2) ); } );
+			}
+			else if( 2==dir ) {
+				p->initFromFunction(
+						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(z*pi2) ); } );
+				sol->getFieldPtr(Pimpact::W)->initFromFunction(
+						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(z*pi2) ); } );
+			}
+
+			auto op = Pimpact::create<Pimpact::InterpolateS2V>( space );
+
+			op->apply(  *p, vel->getField(dir) );
+			//p->write(dir);
+
+			// compute error
+			vel->getFieldPtr(dir)->add( 1., sol->getConstField(dir), -1., vel->getConstField(dir) );
+			error2[n] = std::log10( vel->getConstFieldPtr(dir)->norm( Belos::TwoNorm ) / sol->getConstFieldPtr(dir)->norm( Belos::TwoNorm ) );
+			errorInf[n] = std::log10( vel->getConstFieldPtr(dir)->norm( Belos::InfNorm ) / sol->getConstFieldPtr(dir)->norm( Belos::InfNorm ) );
+			//errorInf[n] = std::log10( p->norm( Belos::InfNorm ) / sol->norm( Belos::InfNorm ) );
+			dofs[n] = std::log10( 8.*std::pow(2.,n)+1. );
+			std::cout << std::pow(10.,dofs[n]) << "\t" << std::pow(10.,error2[n]) << "\t" << std::pow(10.,errorInf[n]) << "\n";
+
+		}
+		// compute order
+		ST order2 = order<ST>( dofs, error2 );
+		std::cout << "DivOp: order two norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << order2 << "\n";
+
+		ST orderInf = order<ST>( dofs, errorInf );
+		std::cout << "DivOp: order inf norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << orderInf << "\n";
+		// test
+		TEST_EQUALITY( -order2  >4., true );
+		TEST_EQUALITY( -orderInf>4., true );
+	}
+	
+}
 
 
 TEUCHOS_UNIT_TEST( BasicOperator, TransferOp ) {
@@ -713,6 +997,121 @@ TEUCHOS_UNIT_TEST( BasicOperator, GradOp ) {
 
 }
 
+
+
+TEUCHOS_UNIT_TEST( BasicOperator, GradOpConvergence ) { 
+
+  pl->set( "domain", domain );
+  pl->set( "dim", dim );
+
+	pl->set( "lx", lx );
+	pl->set( "ly", ly );
+	pl->set( "lz", lz );
+
+	// grid stretching
+	if( sx!=0 ) {
+		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
+		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
+		pl->sublist("Stretching in X").set<ST>( "x0 L", 0.05 );
+		pl->sublist("Stretching in X").set<ST>( "x0 U", 0. );
+	}
+	if( sy!=0 ) {
+		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
+		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
+	}
+	if( sz!=0 ) {
+		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
+		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
+	}
+
+  // processor grid size
+  pl->set( "npx", npx );
+  pl->set( "npy", npy );
+  pl->set( "npz", npz );
+  pl->set( "npf", npf );
+
+	//  grid size
+	for( int dir=0; dir<3; ++dir ) {
+
+		pl->set<OT>( "nx", 9 );
+		pl->set<OT>( "ny", 9 );
+		pl->set<OT>( "nz", 9 );
+		pl->set<OT>( "nf", 1 );
+
+		OT ns = 8;
+
+		std::vector<ST> error2( ns );
+		std::vector<ST> errorInf( ns );
+		std::vector<ST> dofs( ns );
+
+		ST pi2 = std::atan(1)*8;
+
+		std::cout << "\n\nN\t||e||_2\t\t||e||_inf\n";
+
+		for( OT n=0; n<ns; ++n ) {
+
+			if( 0==dir ) 
+				pl->set<OT>( "nx", 8*std::pow(2,n)+1 );
+			else if( 1==dir )
+				pl->set<OT>( "ny", 8*std::pow(2,n)+1 );
+			else if( 2==dir )
+				pl->set<OT>( "nz", 8*std::pow(2,n)+1 );
+
+			auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+
+			auto vel = Pimpact::create<Pimpact::VectorField>( space );
+			auto p   = Pimpact::create<Pimpact::ScalarField>( space );
+			auto sol = vel->clone( Pimpact::ShallowCopy );
+
+			// init 
+			if( 0==dir ) {
+				p->initFromFunction(
+						[&pi2]( ST x, ST y, ST z ) ->ST {  return(  std::cos(x*pi2) ); } );
+				sol->getFieldPtr(Pimpact::U)->initFromFunction(
+						[&pi2]( ST x, ST y, ST z ) ->ST {  return( -std::sin(x*pi2)*pi2 ); } );
+			}
+			else if( 1==dir ) {
+				p->initFromFunction(
+						[&pi2]( ST x, ST y, ST z ) ->ST {  return(  std::cos(y*pi2) ); } );
+				sol->getFieldPtr(Pimpact::V)->initFromFunction(
+						[&pi2]( ST x, ST y, ST z ) ->ST {  return( -std::sin(y*pi2)*pi2 ); } );
+			}
+			else if( 2==dir ) {
+				p->initFromFunction(
+						[&pi2]( ST x, ST y, ST z ) ->ST {  return(  std::cos(z*pi2) ); } );
+				sol->getFieldPtr(Pimpact::W)->initFromFunction(
+						[&pi2]( ST x, ST y, ST z ) ->ST {  return( -std::sin(z*pi2)*pi2 ); } );
+			}
+
+			auto op = Pimpact::create<Pimpact::GradOp>( space );
+
+			op->apply(  *p, *vel );
+			//p->write(dir);
+
+			// compute error
+			vel->getFieldPtr(dir)->add( 1., sol->getConstField(dir), -1., vel->getConstField(dir) );
+			error2[n] = std::log10( vel->getConstFieldPtr(dir)->norm( Belos::TwoNorm ) / sol->getConstFieldPtr(dir)->norm( Belos::TwoNorm ) );
+			errorInf[n] = std::log10( vel->getConstFieldPtr(dir)->norm( Belos::InfNorm ) / sol->getConstFieldPtr(dir)->norm( Belos::InfNorm ) );
+			//errorInf[n] = std::log10( p->norm( Belos::InfNorm ) / sol->norm( Belos::InfNorm ) );
+			dofs[n] = std::log10( 8.*std::pow(2.,n)+1. );
+			std::cout << std::pow(10.,dofs[n]) << "\t" << std::pow(10.,error2[n]) << "\t" << std::pow(10.,errorInf[n]) << "\n";
+
+		}
+		// compute order
+		ST order2 = order<ST>( dofs, error2 );
+		std::cout << "DivOp: order two norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << order2 << "\n";
+
+		ST orderInf = order<ST>( dofs, errorInf );
+		std::cout << "DivOp: order inf norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << orderInf << "\n";
+		// test
+		TEST_EQUALITY( -order2  >3., true );
+		TEST_EQUALITY( -orderInf>3., true );
+	}
+	
+}
 
 
 TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
@@ -1007,6 +1406,120 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
 
 }
 
+
+TEUCHOS_UNIT_TEST( BasicOperator, DivGradOpConvergence ) { 
+
+  pl->set( "domain", domain );
+  pl->set( "dim", dim );
+
+	pl->set( "lx", lx );
+	pl->set( "ly", ly );
+	pl->set( "lz", lz );
+
+	// grid stretching
+	if( sx!=0 ) {
+		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
+		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
+		pl->sublist("Stretching in X").set<ST>( "x0 L", 0.05 );
+		pl->sublist("Stretching in X").set<ST>( "x0 U", 0. );
+	}
+	if( sy!=0 ) {
+		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
+		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
+	}
+	if( sz!=0 ) {
+		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
+		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
+	}
+
+  // processor grid size
+  pl->set( "npx", npx );
+  pl->set( "npy", npy );
+  pl->set( "npz", npz );
+  pl->set( "npf", npf );
+
+	//  grid size
+	for( int dir=0; dir<3; ++dir ) {
+
+		pl->set<OT>( "nx", 9 );
+		pl->set<OT>( "ny", 9 );
+		pl->set<OT>( "nz", 9 );
+		pl->set<OT>( "nf", 1 );
+
+		OT ns = 8;
+
+		std::vector<ST> error2( ns );
+		std::vector<ST> errorInf( ns );
+		std::vector<ST> dofs( ns );
+
+		ST pi2 = std::atan(1)*8;
+
+		std::cout << "\n\nN\t||e||_2\t\t||e||_inf\n";
+
+		for( OT n=0; n<ns; ++n ) {
+
+			if( 0==dir ) 
+				pl->set<OT>( "nx", 8*std::pow(2,n)+1 );
+			else if( 1==dir )
+				pl->set<OT>( "ny", 8*std::pow(2,n)+1 );
+			else if( 2==dir )
+				pl->set<OT>( "nz", 8*std::pow(2,n)+1 );
+
+			auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+
+			auto vel = Pimpact::create<Pimpact::ScalarField>( space );
+			auto p   = Pimpact::create<Pimpact::ScalarField>( space );
+			auto sol = vel->clone( Pimpact::ShallowCopy );
+
+			// init 
+			if( 0==dir ) {
+				p->initFromFunction(
+						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(x*pi2) ); } );
+				sol->initFromFunction(
+						[&pi2]( ST x, ST y, ST z ) ->ST {  return( -std::cos(x*pi2)*pi2*pi2 ); } );
+			}
+			else if( 1==dir ) {
+				p->initFromFunction(
+						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(y*pi2) ); } );
+				sol->initFromFunction(
+						[&pi2]( ST x, ST y, ST z ) ->ST {  return( -std::cos(y*pi2)*pi2*pi2 ); } );
+			}
+			else if( 2==dir ) {
+				p->initFromFunction(
+						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(z*pi2) ); } );
+				sol->initFromFunction(
+						[&pi2]( ST x, ST y, ST z ) ->ST {  return( -std::cos(z*pi2)*pi2*pi2 ); } );
+			}
+
+			auto op = Pimpact::create< Pimpact::DivGradO2Op<SpaceT> >( space );
+
+			op->apply(  *p, *vel );
+			//p->write(dir);
+
+			// compute error
+			vel->add( 1., *sol, -1., *vel );
+			error2[n] = std::log10( vel->norm( Belos::TwoNorm ) / sol->norm( Belos::TwoNorm ) );
+			errorInf[n] = std::log10( vel->norm( Belos::InfNorm ) / sol->norm( Belos::InfNorm ) );
+			//errorInf[n] = std::log10( p->norm( Belos::InfNorm ) / sol->norm( Belos::InfNorm ) );
+			dofs[n] = std::log10( 8.*std::pow(2.,n)+1. );
+			std::cout << std::pow(10.,dofs[n]) << "\t" << std::pow(10.,error2[n]) << "\t" << std::pow(10.,errorInf[n]) << "\n";
+
+		}
+		// compute order
+		ST order2 = order<ST>( dofs, error2 );
+		std::cout << "DivOp: order two norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << order2 << "\n";
+
+		ST orderInf = order<ST>( dofs, errorInf );
+		std::cout << "DivOp: order inf norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << orderInf << "\n";
+		// test
+		TEST_EQUALITY( -order2  >4., true );
+		TEST_EQUALITY( -orderInf>4., true );
+	}
+	
+}
 
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {

@@ -79,7 +79,7 @@ public:
 			const Teuchos::RCP<const StencilWidths<dimension,dimNC> >& stencilWidths,
 			const Teuchos::RCP<const DomainSize<Scalar> >& domainSize,
 			const Teuchos::RCP<const BoundaryConditionsLocal<dimension> >& boundaryConditionsLocal,
-			const Teuchos::RCP<const CoordinatesLocal<Scalar,Ordinal,dimension> >& coordinatesLocal ) {
+			const Teuchos::RCP<const CoordinatesLocal<Scalar,Ordinal,dimension,dimNC> >& coordinatesLocal ) {
 
 
 		for( int i=0; i<3; ++i ) {
@@ -213,7 +213,7 @@ public:
 				const Teuchos::RCP<const StencilWidths<d,dimNC> >& stencilWidths,
 				const Teuchos::RCP<const DomainSize<S> >& domainSize,
 				const Teuchos::RCP<const BoundaryConditionsLocal<d> >& boundaryConditionsLocal,
-				const Teuchos::RCP<const CoordinatesLocal<S,O,d> >& coordinatesLocal ) {
+				const Teuchos::RCP<const CoordinatesLocal<S,O,d,dimNC> >& coordinatesLocal ) {
 
 			return(
 					Teuchos::rcp(

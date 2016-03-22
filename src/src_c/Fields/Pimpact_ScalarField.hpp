@@ -534,6 +534,27 @@ protected:
 public:
 
 	///  \brief initializes including boundaries to zero 
+	template<typename Functor>
+	void initFromFunction( Functor&& func ) {
+
+		Teuchos::RCP<const CoordinatesLocal<Scalar,Ordinal,dimension,SpaceT::dimNC> > coord =
+			space()->getCoordinatesLocal();
+		Teuchos::RCP<const DomainSize<Scalar> > domain = space()->getDomainSize();
+
+		for( Ordinal k=space()->sIndB(fType_,Z); k<=space()->eIndB(fType_,Z); ++k )
+			for( Ordinal j=space()->sIndB(fType_,Y); j<=space()->eIndB(fType_,Y); ++j )
+				for( Ordinal i=space()->sIndB(fType_,X); i<=space()->eIndB(fType_,X); ++i ) {
+					//std::cout << "i: " << i << "\t" << coord->getX(fType_,X,i) << "\n";
+					at(i,j,k) = func(
+							( coord->getX(fType_,X,i)-domain->getOrigin(X) )/domain->getSize(X),
+							( coord->getX(fType_,Y,j)-domain->getOrigin(Y) )/domain->getSize(Y),
+							( coord->getX(fType_,Z,k)-domain->getOrigin(Z) )/domain->getSize(Z) );
+				}
+
+	}
+
+
+	///  \brief initializes including boundaries to zero 
 	void initField( Teuchos::ParameterList& para ) {
 
 		EScalarField type =
@@ -834,17 +855,10 @@ public:
 		for(int i=0; i<3; ++i)
 			cw[i] = space()->nLoc(i) + space()->bu(i) - space()->bl(i) + 1;
 
-		for( Ordinal k=space()->sIndB(fType_,2); k<=space()->eIndB(fType_,2); ++k ) {
-			for( Ordinal j=space()->sIndB(fType_,1); j<=space()->eIndB(fType_,1); ++j ) {
-				for( Ordinal i=space()->sIndB(fType_,0); i<=space()->eIndB(fType_,0); ++i ) {
-					out << i << "\t" << j << "\t" << k << "\t"
-						<< at(i,j,k) << "\n";
-						//<< s_[  (i-space()->bl(0)) +
-										//(j-space()->bl(1))*cw[0] +
-									 // (k-space()->bl(2))*cw[0]*cw[1] ] << "\n";
-				}
-			}
-		}
+		for( Ordinal k=space()->sIndB(fType_,2); k<=space()->eIndB(fType_,2); ++k )
+			for( Ordinal j=space()->sIndB(fType_,1); j<=space()->eIndB(fType_,1); ++j )
+				for( Ordinal i=space()->sIndB(fType_,0); i<=space()->eIndB(fType_,0); ++i )
+					out << i << "\t" << j << "\t" << k << "\t" << at(i,j,k) << "\n";
   }
 
 
