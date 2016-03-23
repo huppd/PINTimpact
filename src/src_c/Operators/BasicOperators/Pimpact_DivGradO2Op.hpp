@@ -41,20 +41,20 @@ void Op_getCDG(
     double* const cdg2,
     double* const cdg3 );
 
-void OP_DivGradO2Op(
-    const int& dimens,
-    const int* const N,
-    const int* const SR,
-    const int* const ER,
-    const int* const BL,
-    const int* const BU,
-    const int* const BCL,
-    const int* const BCU,
-    const double* const cdg1,
-    const double* const cdg2,
-    const double* const cdg3,
-    const double* const phi,
-          double* const Lap );
+//void OP_DivGradO2Op(
+    //const int& dimens,
+    //const int* const N,
+    //const int* const SR,
+    //const int* const ER,
+    //const int* const BL,
+    //const int* const BU,
+    //const int* const BCL,
+    //const int* const BCU,
+    //const double* const cdg1,
+    //const double* const cdg2,
+    //const double* const cdg3,
+    //const double* const phi,
+          //double* const Lap );
 
 }
 

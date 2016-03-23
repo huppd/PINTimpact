@@ -544,7 +544,6 @@ public:
 		for( Ordinal k=space()->sIndB(fType_,Z); k<=space()->eIndB(fType_,Z); ++k )
 			for( Ordinal j=space()->sIndB(fType_,Y); j<=space()->eIndB(fType_,Y); ++j )
 				for( Ordinal i=space()->sIndB(fType_,X); i<=space()->eIndB(fType_,X); ++i ) {
-					//std::cout << "i: " << i << "\t" << coord->getX(fType_,X,i) << "\n";
 					at(i,j,k) = func(
 							( coord->getX(fType_,X,i)-domain->getOrigin(X) )/domain->getSize(X),
 							( coord->getX(fType_,Y,j)-domain->getOrigin(Y) )/domain->getSize(Y),
