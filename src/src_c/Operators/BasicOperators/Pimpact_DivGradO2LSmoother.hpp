@@ -50,13 +50,12 @@ protected:
 
 	bool levelYes_;
 
-  Teuchos::RCP<DomainFieldT> temp_;
 
   const Teuchos::RCP<const OperatorT> op_;
 
 	Teuchos::Tuple< Teuchos::RCP<VectorT>, 3 > dl_;
-	Teuchos::Tuple< Teuchos::RCP<VectorT>, 3 > du_;
 	Teuchos::Tuple< Teuchos::RCP<VectorT>, 3 > d_;
+	Teuchos::Tuple< Teuchos::RCP<VectorT>, 3 > du_;
 	Teuchos::Tuple< Teuchos::RCP<VectorT>, 3 > du2_;
 
 	Teuchos::Tuple< Teuchos::RCP<OVectorT> , 3 > ipiv_;
@@ -78,19 +77,20 @@ public:
     nIter_( pl->get<int>( "numIters", 1 ) ),
     omega_( pl->get<Scalar>( "omega", 0.75 ) ),
     levelYes_( pl->get<bool>( "level", false ) ),
-    temp_( create<DomainFieldT>( op->space() ) ),
+    //temp_( create<DomainFieldT>( op->space() ) ),
     op_(op) {
 		
 			lineDirection_[X] = pl->get<bool>( "X", true );
-			lineDirection_[Y] = pl->get<bool>( "Y", true );
+			lineDirection_[Y] = pl->get<bool>( "Y", true  );
 			lineDirection_[Z] = pl->get<bool>( "Z", true );
 			
 			TEUCHOS_TEST_FOR_EXCEPT( !lineDirection_[X] && !lineDirection_[Y] && !lineDirection_[Z] );
 
 			for( int dir=0; dir<3; ++dir ) {
+
 				n_[dir] = space()->eInd( S, dir ) - space()->sInd( S, dir ) + 1 ;
+
 				if( true==lineDirection_[dir] ) {
-					//std::cout << n_[dir] << "\n";
 
 					dl_ [dir] = Teuchos::rcp( new VectorT( n_[dir]-1, true ) );
 					d_  [dir] = Teuchos::rcp( new VectorT( n_[dir]  , true ) );
@@ -108,11 +108,7 @@ public:
 						(*dl_[dir])[i-1] = op_->getC( dir, i+1, -1 );
 					}
 
-					//std::cout << "dl: " << *dl_[dir];
-					//std::cout << "d: " << *d_[dir] ;
-					//std::cout << "du: " << *du_[dir];
-
-					Ordinal info;
+					Ordinal lu_factorization_sucess;
 					Teuchos::LAPACK<Ordinal,Scalar> lapack;
 					lapack.GTTRF(
 							n_[dir],
@@ -121,8 +117,8 @@ public:
 							du_[dir]->values(),
 							du2_[dir]->values(),
 							ipiv_[dir]->values(),
-							&info );
-					//std::cout << "\ninfo: " << info << "\n";
+							&lu_factorization_sucess );
+					TEUCHOS_TEST_FOR_EXCEPT( lu_factorization_sucess );
 				}
 			}
 		}
@@ -133,40 +129,36 @@ public:
 	void apply(const DomainFieldT& b, RangeFieldT& y,
 			Belos::ETrans trans=Belos::NOTRANS ) const {
 
+		Teuchos::RCP<DomainFieldT> temp_ =
+			Teuchos::rcp( new DomainFieldT( space() ) );
+
 		for( int i=0; i<nIter_; ++i) {
 
-			//for( int dir=0; dir<3; ++dir ) {
 			for( int dir=2; dir>=0; --dir ) { // why?
 
 				if( true==lineDirection_[dir] ) {
 
 					op_->computeResidual( b, y, *temp_ );
 
-					Ordinal SS[3];
-					Ordinal NN[3];
 					Ordinal i[3];
 
 					int d1 = ( dir + 1 )%3;
 					int d2 = ( dir + 2 )%3;
 					if( d2>d1 ) std::swap( d2, d1 );
 
-					for( int j=0; j<3; ++j ) {
-						SS[j] = op_->getSR(j);
-						NN[j] = op_->getER(j);
-					}
 
 					Teuchos::RCP<VectorT> B = Teuchos::rcp( new VectorT( n_[dir], false ) );
 
-					for( i[d1]=SS[d1]; i[d1]<=NN[d1]; ++i[d1] )
-						for( i[d2]=SS[d2]; i[d2]<=NN[d2]; ++i[d2] ) {
+					for( i[d1]=space()->sInd(S,d1); i[d1]<=space()->eInd(S,d1); ++i[d1] )
+						for( i[d2]=space()->sInd(S,d2); i[d2]<=space()->eInd(S,d2); ++i[d2] ) {
 
 							// transfer
-							for( i[dir]=1; i[dir]<=n_[dir]; ++i[dir] )
-								(*B)[i[dir]-1] = temp_->at( i[0], i[1], i[2] );
-								//(*B)[i[dir]-1] = b.at( i[0], i[1], i[2] );
+							for( i[dir]=space()->sInd(S,dir); i[dir]<=space()->eInd(S,dir); ++i[dir] )
+								(*B)[i[dir]-1] = temp_->at(i);
+								//(*B)[i[dir]-1] = b.at(i);
 							//std::cout << *B << "\n";
 
-							Ordinal info;
+							Ordinal lu_solve_sucess;
 							Teuchos::LAPACK<Ordinal,Scalar> lapack;
 							lapack.GTTRS(
 									'N',
@@ -179,10 +171,13 @@ public:
 									ipiv_[dir]->values(),
 									B->values(),
 									B->stride(),
-									&info );
-							// transfer back
-							for( i[dir]=1; i[dir]<=n_[dir]; ++i[dir] )
-								y.at( i[0], i[1], i[2] ) = y.at( i[0], i[1], i[2] ) + omega_*(*B)[i[dir]-1];
+									&lu_solve_sucess );
+
+							TEUCHOS_TEST_FOR_EXCEPT( lu_solve_sucess );
+
+							//// transfer back
+							for( i[dir]=space()->sInd(S,dir); i[dir]<=space()->eInd(S,dir); ++i[dir] )
+								y.at(i) = y.at(i) + omega_*(*B)[i[dir]-1];
 						}
 					y.changed();
 				}

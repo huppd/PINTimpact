@@ -35,46 +35,45 @@ public:
 
 protected:
 
-  using VF = typename OpS2VT::RangeFieldT;
-  using SF = typename OpS2VT::DomainFieldT;
+	using VF = typename OpS2VT::RangeFieldT;
+	using SF = typename OpS2VT::DomainFieldT;
 
 	using OpVSmoother = vSmoother< OpV2VT>;
 	using OpSSmootherT = TripleCompositionOp< sSmoother,TripleCompositionOp<OpV2ST,OpV2VT,OpS2VT>,sSmoother>;
 
-  Teuchos::RCP<OpS2VT> opS2V_;
+	Teuchos::RCP<OpS2VT> opS2V_;
 
-  Teuchos::RCP<OpVSmoother> opVSmoother_;
-  Teuchos::RCP<OpSSmootherT> opSSmoother_;
-
-  Teuchos::RCP<VF> tempv_;
-//  Teuchos::RCP<SF> temps_;
+	Teuchos::RCP<OpVSmoother> opVSmoother_;
+	Teuchos::RCP<OpSSmootherT> opSSmoother_;
 
 public:
 
 	CompoundSmoother(
 			const Teuchos::RCP< CompoundOpT >& op,
-		  Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::null	):
+			Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::null	):
 		opS2V_( op->getOpS2V() ),
-		opVSmoother_( Teuchos::rcp( new OpVSmoother( op->getOpV2V(), Teuchos::rcpFromRef(pl->sublist("VSmoother") ) ) ) ),
-		tempv_( create<VF>( op->space() ) ) {
+		opVSmoother_( Teuchos::rcp( new OpVSmoother( op->getOpV2V(), Teuchos::rcpFromRef(pl->sublist("VSmoother") ) ) ) ) {
 
-		auto bla = createTripleCompositionOp( op->getOpV2S(), op->getOpV2V(), op->getOpS2V() );
-		auto blup = Teuchos::rcp( new sSmoother( space() ) );
+			auto bla = createTripleCompositionOp( op->getOpV2S(), op->getOpV2V(), op->getOpS2V() );
+			auto blup = Teuchos::rcp( new sSmoother( space() ) );
 
-		opSSmoother_ = createTripleCompositionOp( blup, bla, blup );
+			opSSmoother_ = createTripleCompositionOp( blup, bla, blup );
 
-	};
+		};
 
 	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
+
+		Teuchos::RCP<VF> tempv =  create<VF>( space() ); 
+		//Teuchos::RCP<SF> temps;
 
 		opSSmoother_->apply( x.getConstSField() ,  y.getSField() );
 		y.getSField().scale( -1. );
 
-		opS2V_->apply( y.getConstSField(), *tempv_ );
+		opS2V_->apply( y.getConstSField(), *tempv );
 
-		tempv_->add( -1., *tempv_, 1., x.getConstVField() );
+		tempv->add( -1., *tempv, 1., x.getConstVField() );
 
-		opVSmoother_->apply( *tempv_, y.getVField() );
+		opVSmoother_->apply( *tempv, y.getVField() );
 
 	}
 
@@ -86,7 +85,7 @@ public:
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
-  bool hasApplyTranspose() const { return( false ); }
+	bool hasApplyTranspose() const { return( false ); }
 
 	const std::string getLabel() const { return( "CompoundSmoother" ); };
 

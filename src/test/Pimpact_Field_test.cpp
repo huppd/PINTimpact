@@ -30,7 +30,7 @@ using CMF = typename Pimpact::CompoundField<MVF,MSF>;
 
 
 bool testMpi = true;
-double eps = 1e-6;
+ST eps = 1e-6;
 
 int dim = 3;
 int domain = 1;
@@ -133,10 +133,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, InfNormAndInit, FType ) {
 
   auto p = Pimpact::create<FType>(space);
 
-  double norm;
+  ST norm;
 
   // test different float values, assures that initial and norm work smoothly
-  for( double i=0.; i< 10.1; ++i ) {
+  for( ST i=0.; i< 10.1; ++i ) {
     p->init(i/2.);
     norm = p->norm(Belos::InfNorm);
     TEST_FLOATING_EQUALITY( i/2., norm, eps );
@@ -146,15 +146,15 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, InfNormAndInit, FType ) {
   // one test with infty-norm
   int rank;
   int size;
-  double init;
-  MPI_Comm_rank(space->comm(),&rank);
-  MPI_Comm_size(space->comm(),&size);
-  for( double i = 0.; i<10.1; ++i) {
-    init = (size-1)*i-1.;
-    init = (init<0)?-init:init;
-    p->init(rank*i-1.);
-    norm = p->norm(Belos::InfNorm);
-    TEST_FLOATING_EQUALITY( init, norm, eps );
+  ST init;
+  MPI_Comm_rank(space->commST(),&rank);
+  MPI_Comm_size(space->commST(),&size);
+  for( ST i = 0.; i<10.1; ++i) {
+    init = ( size-1 )*i-1.;
+    init = std::abs( init );
+    p->init( rank*i-1. );
+    norm = p->norm( Belos::InfNorm );
+    TEST_FLOATING_EQUALITY( std::max(init,1.), norm, eps );
 
   }
 }
@@ -186,7 +186,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, OneNormAndInit, FType ) {
   auto p = Pimpact::create<FType>(space);
 
   // test different float values, assures that initial and norm work smoothly
-  for( double i=0.; i< 10.1; ++i ) {
+  for( ST i=0.; i< 10.1; ++i ) {
     p->init(i/2.);
 //    TEST_EQUALITY( (i/2.)*p->getLength(), p->norm(Belos::OneNorm) );
     TEST_FLOATING_EQUALITY( (i/2.)*p->getLength(), p->norm(Belos::OneNorm), eps );
@@ -221,7 +221,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, TwoNormAndInit, FType ) {
   auto p = Pimpact::create<FType>(space);
 
   // test different float values, assures that initial and norm work smoothly
-  for( double i=0.; i< 10.1; ++i ) {
+  for( ST i=0.; i< 10.1; ++i ) {
     p->init(i/2.);
     TEST_FLOATING_EQUALITY( std::sqrt( std::pow(i/2.,2)*p->getLength() ), p->norm(Belos::TwoNorm), eps );
   }
@@ -256,7 +256,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, dot, FType ) {
 
   int Np = vel1->getLength();
   int Nq = vel2->getLength();
-  double dot;
+  ST dot;
 
   TEST_EQUALITY( Np , Nq );
   int N = Np;
@@ -309,7 +309,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, scale, FType ) {
 
   auto p = Pimpact::create<FType>(space);
 
-  double norm;
+  ST norm;
   int N = p->getLength();
 
   p->init(1.);
@@ -345,7 +345,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, random, FType ) {
 
   auto p = Pimpact::create<FType>(space);
 
-  double norm;
+  ST norm;
   int N = p->getLength();
 
   p->init(1.);
@@ -387,7 +387,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TemplateField, add, FType ) {
   TEST_EQUALITY( vel2->getLength(), vel3->getLength() )
   TEST_EQUALITY( vel1->getLength(), vel3->getLength() )
 
-  double norm;
+  ST norm;
   int N = vel1->getLength();
 
   vel1->init(0.);

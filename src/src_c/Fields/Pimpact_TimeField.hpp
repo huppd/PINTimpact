@@ -334,12 +334,6 @@ public:
 		changed();
 	}
 
-	void setCornersZero() const {
-		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
-			mfs_[i]->setCornersZero();
-		changed();
-	}
-
 	void level() const {
 
 		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )

@@ -256,11 +256,6 @@ public:
     sfield_->initField();
 	}
 
-	void setCornersZero() const {
-    vfield_->setCornersZero();
-    sfield_->setCornersZero();
-  }
-
 	void level() const {
     vfield_->level();
     sfield_->level();

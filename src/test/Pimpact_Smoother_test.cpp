@@ -77,24 +77,12 @@ TEUCHOS_STATIC_SETUP() {
 	clp.setOption(
 			"error-tol-slack", &eps,
 			"Slack off of machine epsilon used to check test results" );
-	clp.setOption(
-			"domain", &domain,
-			"domain" );
-	clp.setOption(
-			"dim", &dim,
-			"dim" );
-	clp.setOption(
-			"npx", &npx,
-			"" );
-	clp.setOption(
-			"npy", &npy,
-			"" );
-	clp.setOption(
-			"npz", &npz,
-			"" );
-	clp.setOption(
-			"npf", &npf,
-			"");
+	clp.setOption( "domain", &domain, "domain" );
+	clp.setOption( "dim", &dim, "dim" );
+	clp.setOption( "npx", &npx, "" );
+	clp.setOption( "npy", &npy, "" );
+	clp.setOption( "npz", &npz, "" );
+	clp.setOption( "npf", &npf, "");
 
 	pl->set( "Re", 1. );
 	pl->set( "alpha2", 1. );
@@ -298,7 +286,10 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesBSmooth_conv ) {
 
 	auto bSmoother = Teuchos::rcp(new Pimpact::TimeStokesBSmoother<OpT>( op ));
 
-	auto x = Pimpact::createCompoundField( Pimpact::createTimeField< Pimpact::VectorField<SpaceT> >( space ),		        						      Pimpact::createTimeField< Pimpact::ScalarField<SpaceT> >( space ));
+	auto x = Pimpact::createCompoundField( Pimpact::createTimeField<
+			Pimpact::VectorField<SpaceT> >( space ),
+			Pimpact::createTimeField< Pimpact::ScalarField<SpaceT> >( space ));
+
 	auto y = x->clone();
 	auto Ax = x->clone();
 	auto error = x->clone();

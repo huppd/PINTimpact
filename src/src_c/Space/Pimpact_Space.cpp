@@ -71,6 +71,27 @@ std::string Pimpact::toString( Pimpact::EScalarField type ) {
 }
 
 
+int Pimpact::getDir1( const int& dir ) {
+
+	int dir1 = ( dir + 1 )%3;
+	int dir2 = ( dir + 2 )%3;
+	if( dir2<dir1 )
+		return( dir2 );
+	return( dir1 );
+
+}
+
+int Pimpact::getDir2( const int& dir ) {
+
+	int dir1 = ( dir + 1 )%3;
+	int dir2 = ( dir + 2 )%3;
+	if( dir2>dir1 )
+		return( dir2 );
+	return( dir1 );
+
+}
+
+
 Teuchos::RCP<std::ostream>
 Pimpact::createOstream( const std::string& fname, int rank ) {
 

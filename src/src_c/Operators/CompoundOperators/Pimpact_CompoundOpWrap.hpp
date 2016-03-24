@@ -25,26 +25,23 @@ public:
 	using OpS2VT = OpS2V;
 	using OpV2ST = OpV2S;
 
-  using VF = typename OpV2V::DomainFieldT;
-  using SF = typename OpS2V::DomainFieldT;
+	using VF = typename OpV2V::DomainFieldT;
+	using SF = typename OpS2V::DomainFieldT;
 
-  using DomainFieldT = CompoundField<VF,SF>;
-  using RangeFieldT = CompoundField<VF,SF>;
+	using DomainFieldT = CompoundField<VF,SF>;
+	using RangeFieldT = CompoundField<VF,SF>;
 
-  using SpaceT = typename VF::SpaceT;
+	using SpaceT = typename VF::SpaceT;
 
 protected:
 
-  Teuchos::RCP<VF> temp_;
-
-  Teuchos::RCP<OpV2V> opV2V_;
-  Teuchos::RCP<OpS2V> opS2V_;
-  Teuchos::RCP<OpV2S> opV2S_;
+	Teuchos::RCP<OpV2V> opV2V_;
+	Teuchos::RCP<OpS2V> opS2V_;
+	Teuchos::RCP<OpV2S> opV2S_;
 
 public:
 
 	CompoundOpWrap( const Teuchos::RCP<const SpaceT>& space ):
-		temp_(  create<VF   >(space) ),
 		opV2V_( create<OpV2V>(space) ),
 		opS2V_( create<OpS2V>(space) ),
 		opV2S_( create<OpV2S>(space) ) {};
@@ -53,33 +50,33 @@ public:
 			const Teuchos::RCP<OpV2V>& opV2V,
 			const Teuchos::RCP<OpS2V>& opS2V,
 			const Teuchos::RCP<OpV2S>& opV2S ):
-		temp_( create<VF>(opV2V->space()) ),
 		opV2V_(opV2V),
 		opS2V_(opS2V),
 		opV2S_(opV2S) {};
 
-  void apply(const DomainFieldT& x, RangeFieldT& y,
-      Belos::ETrans trans=Belos::NOTRANS  ) const {
-    // H-blockz
-    opV2V_->apply( x.getConstVField(), y.getVField() );
-    // ~grad
-    opS2V_->apply( x.getConstSField(), *temp_ );
-    y.getVField().add( 1., y.getConstVField(), 1., *temp_ );
-    // ~div
-    opV2S_->apply( x.getConstVField(), y.getSField() );
-//		y.getSField().level();
-  }
+	void apply(const DomainFieldT& x, RangeFieldT& y,
+			Belos::ETrans trans=Belos::NOTRANS  ) const {
+
+		Teuchos::RCP<VF> temp = Teuchos::rcp( new VF( space() ) );
+
+		// H-blockz
+		opV2V_->apply( x.getConstVField(), y.getVField() );
+		// ~grad
+		opS2V_->apply( x.getConstSField(), *temp );
+		y.getVField().add( 1., y.getConstVField(), 1., *temp );
+		// ~div
+		opV2S_->apply( x.getConstVField(), y.getSField() );
+
+	}
 
 	void computeResidual( const RangeFieldT& b, const DomainFieldT& x, RangeFieldT& res ) const {
 		apply( x, res );
 		res.add( 1., b, -1., res );
 	}
 
-  void assignField( const DomainFieldT& mv ) {
-
-    opV2V_->assignField( mv.getConstVField() );
-
-  };
+	void assignField( const DomainFieldT& mv ) {
+		opV2V_->assignField( mv.getConstVField() );
+	};
 
 
 	Teuchos::RCP<const SpaceT> space() const { return(opV2V_->space()); };

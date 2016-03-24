@@ -14,24 +14,6 @@
 namespace Pimpact{
 
 
-extern "C"
-void OP_DivGradO2JSmoother(
-    const int& dimens,
-    const int* const N,
-    const int* const BL,
-    const int* const BU,
-    const int* const SR,
-    const int* const ER,
-    const double* const cdg1,
-    const double* const cdg2,
-    const double* const cdg3,
-    const double& omega,
-    const double* const b,
-    const double* const x,
-          double* const temp );
-
-
-
 
 /// \brief \f$\omega\f$-Jacobian smoother for second Order DivGradOp.
 ///
@@ -64,7 +46,6 @@ protected:
 
 	bool levelYes_;
 
-  Teuchos::RCP<DomainFieldT> temp_;
 
   const Teuchos::RCP<const OperatorT> op_;
 
@@ -79,7 +60,6 @@ public:
     levelYes_( false ),
 		bcSmoothing_( 0 ),
 		depth_( 2 ),
-    temp_( Teuchos::rcp( new DomainFieldT(space) ) ),
     op_( Teuchos::rcp( new OperatorT(space) ) ) {}
 
 	/// \brief constructor
@@ -100,7 +80,6 @@ public:
 		bcSmoothing_( pl->get<int>( "BC smoothing", 0 ) ),
 		depth_( pl->get<Ordinal>( "depth", 2 ) ),
     levelYes_( pl->get<bool>( "level", false ) ),
-    temp_( create<DomainFieldT>( op->space() ) ),
     op_(op) {
 		
 			if( 0<bcSmoothing_ ) {
@@ -199,54 +178,41 @@ public:
 	void apply(const DomainFieldT& b, RangeFieldT& y,
 			Belos::ETrans trans=Belos::NOTRANS ) const {
 
+		Teuchos::RCP<DomainFieldT> temp =
+			Teuchos::rcp( new DomainFieldT(space()) );
+
 		for( int i=0; i<nIter_; ++i) {
 
       y.exchange();
 
-			OP_DivGradO2JSmoother(
-					space()->dim(),
-					space()->nLoc(),
-					space()->bl(),
-					space()->bu(),
-					op_->getSR(),
-					op_->getER(),
-					op_->getC(X),
-					op_->getC(Y),
-					op_->getC(Z),
-					omega_,
-					b.getConstRawPtr(),
-					y.getConstRawPtr(),
-					temp_->getRawPtr() );
+			if( 3==space()->dim() )
+				for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
+					for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
+						for( Ordinal i=space()->sInd(S,Y); i<=space()->eInd(S,X); ++i ) {
+							temp->at(i,j,k) = innerStenc3D( b, y, i,j,k);
+						}
+			else
+				for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
+					for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
+						for( Ordinal i=space()->sInd(S,Y); i<=space()->eInd(S,X); ++i ) {
+							temp->at(i,j,k) = innerStenc2D( b, y, i,j,k);
+						}
+			
+			temp->changed();
+			temp->exchange();
 
-			//if( 0==bcSmoothing_ )
-				//;
-				////applyJBCSmoothing( b, y, *temp_, omega_ );
-			//else
-				//applyDBCSmoothing( b, *temp_, omega_ );
-
-			temp_->changed();
-			temp_->exchange();
-
-			OP_DivGradO2JSmoother(
-					space()->dim(),
-					space()->nLoc(),
-					space()->bl(),
-					space()->bu(),
-					op_->getSR(),
-					op_->getER(),
-					op_->getC(X),
-					op_->getC(Y),
-					op_->getC(Z),
-					omega_,
-					b.getConstRawPtr(),
-					temp_->getConstRawPtr(),
-					y.getRawPtr() );
-
-			//if( 0==bcSmoothing_ )
-				////applyJBCSmoothing( b, *temp_, y, omega_ );
-				//;
-			//else
-				//applyDBCSmoothing( b, y, omega_ );
+			if( 3==space()->dim() )
+				for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
+					for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
+						for( Ordinal i=space()->sInd(S,Y); i<=space()->eInd(S,X); ++i ) {
+							y.at(i,j,k) = innerStenc3D( b, *temp, i,j,k);
+						}
+			else
+				for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
+					for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
+						for( Ordinal i=space()->sInd(S,Y); i<=space()->eInd(S,X); ++i ) {
+							y.at(i,j,k) = innerStenc2D( b, *temp, i,j,k);
+						}
 
 			y.changed();
 
@@ -288,63 +254,64 @@ protected:
 
 	}
 
+
 	void applyJBCSmoothing( const DomainFieldT& b, const DomainFieldT& x, RangeFieldT& y ) const {
 		applyJBCSmoothing( b, x, y, omega_ );
 	}
 
-	void applyJBCSmoothing( const DomainFieldT& b, const DomainFieldT& x, RangeFieldT& y, const Scalar& omega ) const {
-		// boundary conditions in X
-		if( space()->getBCLocal()->getBCL(X)>0 ) {
-			Ordinal i = 1;
-			for( Ordinal k=op_->getSR(Z); k<=op_->getER(Z); ++k )
-				for( Ordinal j=op_->getSR(Y); j<=op_->getER(Y); ++j )
-					y.at(i,j,k) =
-						(1-omega)*x.at(i,j,k) + omega/op_->getC(X,i,0)*( b.at(i,j,k) - op_->getC(X,i,+1)*x.at(i+1,j,k) );
 
-		}
-		if( space()->getBCLocal()->getBCU(X)>0 ) {
-			Ordinal i = space()->nLoc(X);
-			for( Ordinal k=op_->getSR(Z); k<=op_->getER(Z); ++k )
-				for( Ordinal j=op_->getSR(Y); j<=op_->getER(Y); ++j )
-					y.at(i,j,k) =
-						(1-omega)*x.at(i,j,k) + omega/op_->getC(X,i,0) *( b.at(i,j,k) - op_->getC(X,i,-1)*x.at(i-1,j,k) );
 
-		}
+	inline Scalar innerStenc3D( const DomainFieldT& b, const DomainFieldT& x,
+			const Ordinal& i, const Ordinal& j, const Ordinal& k ) const { 
 
-		// boundary conditions in Y
-		if( space()->getBCLocal()->getBCL(Y)>0 ) {
-			Ordinal j = 1;
-			for( Ordinal k=op_->getSR(Z); k<=op_->getER(Z); ++k )
-				for( Ordinal i=op_->getSR(X); i<=op_->getER(X); ++i )
-					y.at(i,j,k) =
-						(1-omega)*x.at(i,j,k) + omega/op_->getC(Y,j,0) *( b.at(i,j,k) - op_->getC(Y,j,+1)*x.at(i,j+1,k) );
+		return(
+				(1.-omega_)*x.at(i,j,k) +
+				omega_/( getC(X,i,0) + getC(Y,j,0) + getC(Z,k,0) )*(
+					b.at(i,j,k) - 
+				getC(X,i,-1)*x.at(i-1,j  ,k  ) - getC(X,i,1)*x.at(i+1,j  ,k  ) - 
+				getC(Y,j,-1)*x.at(i  ,j-1,k  ) - getC(Y,j,1)*x.at(i  ,j+1,k  ) - 
+				getC(Z,k,-1)*x.at(i  ,j  ,k-1) - getC(Z,k,1)*x.at(i  ,j  ,k+1) ) );
 
-		}
-		if( space()->getBCLocal()->getBCU(Y)>0 ) {
-			Ordinal j = space()->nLoc(Y);
-			for( Ordinal k=op_->getSR(Z); k<=op_->getER(Z); ++k )
-				for( Ordinal i=op_->getSR(X); i<=op_->getER(X); ++i )
-					y.at(i,j,k) =
-						(1-omega)*x.at(i,j,k) + omega/op_->getC(Y,j,0) *( b.at(i,j,k) - op_->getC(Y,j,-1)*x.at(i,j-1,k) );
-		}
+	} 
 
-		// boundary conditions in Z
-		if( space()->getBCLocal()->getBCL(Z)>0 ) {
-			Ordinal k = 1;
-			for( Ordinal j=op_->getSR(Y); j<=op_->getER(Y); ++j )
-				for( Ordinal i=op_->getSR(X); i<=op_->getER(X); ++i )
-					y.at(i,j,k) =
-						(1-omega)*x.at(i,j,k) + omega/op_->getC(Z,k,0) *( b.at(i,j,k) - op_->getC(Z,k,+1)*x.at(i,j,k+1) );
-		}
-		if( space()->getBCLocal()->getBCU(Z)>0 ) {
-			Ordinal k = space()->nLoc(Z);
-			for( Ordinal j=op_->getSR(Y); j<=op_->getER(Y); ++j )
-				for( Ordinal i=op_->getSR(X); i<=op_->getER(X); ++i )
-					y.at(i,j,k) =
-						(1-omega)*x.at(i,j,k) + omega/op_->getC(Z,k,0) *( b.at(i,j,k) - op_->getC(Z,k,-1)*x.at(i,j,k-1) );
-		}
-	}
+	inline Scalar innerStenc2D( const DomainFieldT& b, const DomainFieldT& x,
+			const Ordinal& i, const Ordinal& j, const Ordinal& k ) const { 
 
+		return(
+				(1.-omega_)*x.at(i,j,k) +
+				omega_/( getC(X,i,0) + getC(Y,j,0) )*(
+					b.at(i,j,k) - 
+				getC(X,i,-1)*x.at(i-1,j  ,k  ) - getC(X,i,1)*x.at(i+1,j  ,k  ) - 
+				getC(Y,j,-1)*x.at(i  ,j-1,k  ) - getC(Y,j,1)*x.at(i  ,j+1,k  ) ) );
+
+	} 
+
+	inline const Scalar* getC( const ECoord& dir) const  { 
+		return( op_->getC( dir ) ); 
+	} 
+
+	inline const Scalar* getC( const int& dir) const  { 
+		return( op_->getC( dir ) ); 
+	} 
+
+	inline const Scalar& getC( const ECoord& dir, Ordinal i, Ordinal off ) const  { 
+		return( op_->getC( dir, i, off ) ); 
+	} 
+
+	inline const Scalar& getC( const int& dir, Ordinal i, Ordinal off ) const  { 
+		return( op_->getC( dir, i, off ) ); 
+	} 
+
+	inline const Ordinal* getSR() const { return( op_->getSR() ); } 
+	inline const Ordinal* getER() const { return( op_->getER() ); } 
+
+	inline const Ordinal& getSR( const Ordinal& coord ) const { return( op_->getSR( coord ) ); } 
+	inline const Ordinal& getER( const Ordinal& coord ) const { return( op_->getER( coord ) ); } 
+
+	inline const Ordinal& getSR( const ECoord& coord ) const { return( op_->getSR( coord ) ); } 
+	inline const Ordinal& getER( const ECoord& coord ) const { return( op_->getER( coord ) ); } 
+
+	
 }; // end of class DivGradO2JSmoother
 
 

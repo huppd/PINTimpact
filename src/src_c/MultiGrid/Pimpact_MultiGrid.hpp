@@ -167,7 +167,6 @@ public:
 			// coarse grid solution
 			i = -1;
 			if( mgSpaces_->participating(i) ) {
-				//b_->get(i)->setCornersZero();
 				x_->get(i)->init(0.);
 				try{
 					cGridSolver_->apply( *b_->get(i), *x_->get(i) );

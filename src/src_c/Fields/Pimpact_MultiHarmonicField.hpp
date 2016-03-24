@@ -409,19 +409,6 @@ public:
 		changed();
 	}
 
-
-	void setCornersZero() const {
-
-		if( space()->sInd(U,3)<0 )
-			field0_->setCornersZero();
-
-		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
-			getConstFieldPtr(i)->setCornersZero();
-
-		changed();
-	}
-
-
   void level() const {
 
 		if( space()->sInd(U,3)<0 )

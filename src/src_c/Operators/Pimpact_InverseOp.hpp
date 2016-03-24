@@ -87,7 +87,6 @@ public:
   void apply( const MF& x, MF& y ) const {
 		if( level_    ) { x.level(); }
 		if( initZero_ ) { y.init( ); }
-		x.setCornersZero();
     linprob_->solve( Teuchos::rcpFromRef(y), Teuchos::rcpFromRef(x) );
   }
 

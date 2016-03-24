@@ -73,6 +73,9 @@ enum EScalarField {
 };
 
 
+int getDir1( const int& dir );
+int getDir2( const int& dir );
+
 std::string toString( EScalarField type );
 
 /// \brief used in mains

@@ -41,21 +41,6 @@ void Op_getCDG(
     double* const cdg2,
     double* const cdg3 );
 
-void OP_DivGradO2Op(
-    const int& dimens,
-    const int* const N,
-    const int* const SR,
-    const int* const ER,
-    const int* const BL,
-    const int* const BU,
-    const int* const BCL,
-    const int* const BCU,
-    const double* const cdg1,
-    const double* const cdg2,
-    const double* const cdg3,
-    const double* const phi,
-          double* const Lap );
-
 }
 
 
@@ -129,17 +114,16 @@ public:
 
 		x.exchange();
 
-		// inner stencil
 		if( 3==space()->dim() )
-			for( Ordinal k=getSR(Z); k<=getER(Z); ++k )
-				for( Ordinal j=getSR(Y); j<=getER(Y); ++j )
-					for( Ordinal i=getSR(X); i<=getER(X); ++i ) {
+			for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
+				for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
+					for( Ordinal i=space()->sInd(S,Y); i<=space()->eInd(S,X); ++i ) {
 						y.at(i,j,k) = innerStenc3D(x, i,j,k);
 					}
 		else
-			for( Ordinal k=getSR(Z); k<=getER(Z); ++k )
-				for( Ordinal j=getSR(Y); j<=getER(Y); ++j )
-					for( Ordinal i=getSR(X); i<=getER(X); ++i ) {
+			for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
+				for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
+					for( Ordinal i=space()->sInd(S,Y); i<=space()->eInd(S,X); ++i ) {
 						y.at(i,j,k) = innerStenc2D(x, i,j,k);
 					}
 
@@ -153,22 +137,21 @@ public:
 		x.exchange();
 		// inner stencil
 		if( 3==space()->dim() )
-			for( Ordinal k=getSR(Z); k<=getER(Z); ++k )
-				for( Ordinal j=getSR(Y); j<=getER(Y); ++j )
-					for( Ordinal i=getSR(X); i<=getER(X); ++i ) {
+			for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
+				for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
+					for( Ordinal i=space()->sInd(S,Y); i<=space()->eInd(S,X); ++i ) {
 						res.at(i,j,k) = b.at(i,j,k) - innerStenc3D(x, i,j,k);
 					}
 		else
-			for( Ordinal k=getSR(Z); k<=getER(Z); ++k )
-				for( Ordinal j=getSR(Y); j<=getER(Y); ++j )
-					for( Ordinal i=getSR(X); i<=getER(X); ++i ) {
+			for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
+				for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
+					for( Ordinal i=space()->sInd(S,Y); i<=space()->eInd(S,X); ++i ) {
 						res.at(i,j,k) = b.at(i,j,k) - innerStenc2D(x, i,j,k);
 					}
 
 		res.changed();
 
 	}
-
 
 
 	/// \name setter
@@ -260,15 +243,6 @@ public:
 	inline const Scalar& getC( const int& dir, Ordinal i, Ordinal off ) const  {
 		return( c_[dir][ off + 1 + (i-1)*3 ] );
   }
-
-	inline const Ordinal* getSR() const { return( space()->sInd(EField::S) ); }
-	inline const Ordinal* getER() const { return( space()->eInd(EField::S) ); }
-
-	inline const Ordinal& getSR( const Ordinal& coord ) const { return( space()->sInd(EField::S, coord) ); }
-	inline const Ordinal& getER( const Ordinal& coord ) const { return( space()->eInd(EField::S, coord) ); }
-
-	inline const Ordinal& getSR( const ECoord& coord ) const { return( space()->sInd(EField::S, coord) ); }
-	inline const Ordinal& getER( const ECoord& coord ) const { return( space()->eInd(EField::S, coord) ); }
 
 	const std::string getLabel() const { return( "DivGradO2" ); };
 

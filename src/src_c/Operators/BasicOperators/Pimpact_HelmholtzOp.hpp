@@ -66,8 +66,8 @@ public:
 
 	HelmholtzOp(
 			const Teuchos::RCP<const SpaceT>& space ):
-		space_(space),
-		mulI_( (Scalar)0. ),
+		space_( space ),
+		mulI_( static_cast<Scalar>(0.) ),
 		mulL_( 1./space_->getDomainSize()->getRe() )	{
 
     for( int i=0; i<3; ++i ) {
@@ -89,8 +89,8 @@ public:
             i+1,
             2,
             0,
-            //true,
-            false, // mapping
+						//true,
+						false, // mapping
             space_->getStencilWidths()->getDimNcbC(i),
             space_->getStencilWidths()->getNcbC(i),
             space_->getCoordinatesLocal()->getX( i, EField::S ),
@@ -113,8 +113,8 @@ public:
             i+1,
             2,
             0,
-            //true,
-            false,
+						//true,
+						false,
             space_->getStencilWidths()->getDimNcbC(i),
             space_->getStencilWidths()->getNcbC(i),
             space_->getCoordinatesLocal()->getX( i, i ),
@@ -200,7 +200,7 @@ public:
   }
 
 
-	Teuchos::RCP<const SpaceT> space() const { return(space_); };
+	Teuchos::RCP<const SpaceT> space() const { return( space_ ); };
 
   const Scalar* getC( const ECoord& dir, const EField& ftype ) const {
       return( ((int)dir==(int)ftype)?cV_[dir]:cS_[dir] );

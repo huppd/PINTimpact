@@ -58,8 +58,6 @@ public:
 	void apply( const DomainFieldT& x, RangeFieldT& y, Belos::ETrans
 			trans=Belos::NOTRANS ) const {
 
-		x.setCornersZero();
-
 		solver_->apply( x, y );
 
 		if( levelYes_ )

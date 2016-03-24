@@ -491,6 +491,26 @@ protected:
 public:
 
 	///  \brief initializes including boundaries to zero 
+	template<typename Functor>
+	void initFromFunction( Functor&& func ) {
+
+		Teuchos::RCP<const CoordinatesLocal<Scalar,Ordinal,dimension,SpaceT::dimNC> > coord =
+			space()->getCoordinatesLocal();
+		Teuchos::RCP<const DomainSize<Scalar> > domain = space()->getDomainSize();
+
+		for( Ordinal k=space()->sIndB(fType_,Z); k<=space()->eIndB(fType_,Z); ++k )
+			for( Ordinal j=space()->sIndB(fType_,Y); j<=space()->eIndB(fType_,Y); ++j )
+				for( Ordinal i=space()->sIndB(fType_,X); i<=space()->eIndB(fType_,X); ++i ) {
+					at(i,j,k) = func(
+							( coord->getX(fType_,X,i)-domain->getOrigin(X) )/domain->getSize(X),
+							( coord->getX(fType_,Y,j)-domain->getOrigin(Y) )/domain->getSize(Y),
+							( coord->getX(fType_,Z,k)-domain->getOrigin(Z) )/domain->getSize(Z) );
+				}
+
+	}
+
+
+	///  \brief initializes including boundaries to zero 
 	void initField( Teuchos::ParameterList& para ) {
 
 		EScalarField type =
@@ -737,12 +757,6 @@ public:
 		changed();
 	}
 
-
-	/// \brief set corners of Dirichlet boundary conditions to zero
-	/// \deprecated
-	void setCornersZero() const { }
-
-
 	void level() const {
 
 		if( EField::S == fType_ ) {
@@ -774,17 +788,10 @@ public:
 		for(int i=0; i<3; ++i)
 			cw[i] = space()->nLoc(i) + space()->bu(i) - space()->bl(i) + 1;
 
-		for( Ordinal k=space()->sIndB(fType_,2); k<=space()->eIndB(fType_,2); ++k ) {
-			for( Ordinal j=space()->sIndB(fType_,1); j<=space()->eIndB(fType_,1); ++j ) {
-				for( Ordinal i=space()->sIndB(fType_,0); i<=space()->eIndB(fType_,0); ++i ) {
-					out << i << "\t" << j << "\t" << k << "\t"
-						<< at(i,j,k) << "\n";
-						//<< s_[  (i-space()->bl(0)) +
-										//(j-space()->bl(1))*cw[0] +
-									 // (k-space()->bl(2))*cw[0]*cw[1] ] << "\n";
-				}
-			}
-		}
+		for( Ordinal k=space()->sIndB(fType_,2); k<=space()->eIndB(fType_,2); ++k )
+			for( Ordinal j=space()->sIndB(fType_,1); j<=space()->eIndB(fType_,1); ++j )
+				for( Ordinal i=space()->sIndB(fType_,0); i<=space()->eIndB(fType_,0); ++i )
+					out << i << "\t" << j << "\t" << k << "\t" << at(i,j,k) << "\n";
   }
 
 
@@ -1063,8 +1070,59 @@ public:
 
   /// \}
 
+	/// \name indexing
+	/// @{ 
 
-	/// \brief indexing
+protected:
+
+	/// \brief stride in X direction
+	inline const Ordinal stride0() const {
+		return( 1 );
+	}
+
+	/// \brief stride in Y direction
+	inline const Ordinal stride1() const {
+		return( space()->nLoc(0)+space()->bu(0)-space()->bl(0)+1 );
+	}
+
+	/// \brief stride in Z direction
+	inline const Ordinal stride2() const {
+		return(
+				( space()->nLoc(0)+space()->bu(0)-space()->bl(0)+1 )*(
+					space()->nLoc(1)+space()->bu(1)-space()->bl(1)+1 ) );
+	}
+
+
+	/// \brief stride
+	///
+	/// \param dir direction of stride
+	inline const Ordinal stride( const int& dir ) const {
+		switch( dir ) {
+			case 0 : 
+				return( stride0() );
+      case 1 :
+				return( stride1() );
+      case 2 :
+				return( stride2() );
+			default:
+				return( 0 );
+		}
+	}
+
+public:
+
+	/// \brief computed index
+	///
+	/// \param i index in x-direction
+	/// \param j index in y-direction
+	/// \param k index in z-direction
+	inline const Ordinal index( const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
+		return( (i-space()->bl(0)) +
+				    (j-space()->bl(1))*stride1() +
+				    (k-space()->bl(2))*stride2() );
+	}
+
+	/// \brief field access
 	///
 	/// \param i index in x-direction
 	/// \param j index in y-direction
@@ -1072,12 +1130,10 @@ public:
 	///
 	/// \return const reference
 	inline const Scalar& at( const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
-		return( s_[ (i-space()->bl(0)) +
-				        (j-space()->bl(1))*(space()->nLoc(0)+space()->bu(0)-space()->bl(0)+1) +
-				        (k-space()->bl(2))*(space()->nLoc(0)+space()->bu(0)-space()->bl(0)+1)*(space()->nLoc(1)+space()->bu(1)-space()->bl(1)+1) ] );
+		return( s_[ index(i,j,k) ] );
 	}
 
-	/// \brief indexing
+	/// \brief field access
 	///
 	/// \param i index in x-direction
 	/// \param j index in y-direction
@@ -1085,9 +1141,33 @@ public:
 	///
 	/// \return reference
 	inline Scalar& at( const Ordinal& i, const Ordinal& j, const Ordinal& k )  {
-		return( s_[ (i-space()->bl(0)) +
-				        (j-space()->bl(1))*(space()->nLoc(0)+space()->bu(0)-space()->bl(0)+1) +
-				        (k-space()->bl(2))*(space()->nLoc(0)+space()->bu(0)-space()->bl(0)+1)*(space()->nLoc(1)+space()->bu(1)-space()->bl(1)+1) ] );
+		return( s_[ index(i,j,k) ] );
+	}
+
+	/// \brief field access
+	///
+	/// \param i index coordinate 
+	inline const Scalar& at( const Ordinal* i ) const {
+		return( s_[ index(i[0],i[1],i[2]) ] );
+	}
+	/// \brief field access
+	///
+	/// \param i index coordinate 
+	inline Scalar& at( const Ordinal* i ) {
+		return( s_[ index(i[0],i[1],i[2]) ] );
+	}
+
+	/// \brief field access
+	///
+	/// \param i index coordinate 
+	inline Scalar& at( const Teuchos::Tuple<Ordinal,3>& i ) {
+		return( s_[ index(i[0],i[1],i[2]) ] );
+	}
+	/// \brief field access
+	///
+	/// \param i index coordinate 
+	inline const Scalar& at( const Teuchos::Tuple<Ordinal,3>& i ) const {
+		return( s_[ index(i[0],i[1],i[2]) ] );
 	}
 
 }; // end of class ScalarField
@@ -1111,6 +1191,7 @@ createScalarField(
 			new ScalarField<SpaceT>( space, true, fType ) ) );
 }
 
+///  @} 
 
 } // end of namespace Pimpact
 
