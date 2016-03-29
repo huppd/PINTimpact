@@ -1,4 +1,4 @@
-# CMAKE File for "PIMPACT" application building against an installed Trilinos
+
 
 #This file was created by modifiying the files in
 #Trilinos/demos/buildAgaintsTrilinos. The primary change was to make it a single
@@ -21,7 +21,7 @@ project( pimpact CXX Fortran )
 # The final location will actually be held in Trilinos_DIR which must
 # point at "<prefix>/lib/cmake/Trilinos", but this helps the search.
 
-find_package(Trilinos REQUIRED)
+find_package( Trilinos REQUIRED )
 
 
 # Echo trilinos build info just for fun
@@ -49,8 +49,18 @@ message( "\nMPI Fortran? ${MPI_Fortran_FOUND}" )
 message( "MPI Fortran INCLUDE_DIRS = ${MPI_Fortran_INCLUDE_PATH}" )
 message( "MPI Fortran LIBRARIES =    ${MPI_Fortran_LIBRARIES}\n" )
 
-#FIND_PACKAGE(HDF5 NAMES hdf5 REQUIRED)
-#FIND_PACKAGE(HDF5 REQUIRED)
+FIND_PACKAGE( HDF5 COMPONENTS CXX Fortran HL Fortran_HL )
+message( "\nHDF5? ${HDF5_FOUND}" )
+message( "HDF5_IS_PARALLEL? ${HDF5_IS_PARALLEL}" )
+message( "HDF5_INCLUDE_DIRS: ${HDF5_INCLUDE_DIRS}" )
+message( "HDF5_DEFINITIONS: ${HDF5_DEFINITIONS}" )
+message( "HDF5_C_LIBRARIES: ${HDF5_C_LIBRARIES}" )
+message( "HDF5_CXX_LIBRARIES: ${HDF5_CXX_LIBRARIES}" )
+message( "HDF5_Fortran_LIBRARIES: ${HDF5_Fortran_LIBRARIES}" )
+message( "HDF5_HL_LIBRARIES: ${HDF5_HL_LIBRARIES}" )
+message( "HDF5_Fortran_HL_LIBRARIES: ${HDF5_Fortran_HL_LIBRARIES}" )
+message( "HDF5_LIBRARIES: ${HDF5_LIBRARIES}" )
+message( "HDF5_LIBRARY_DIRS: ${HDF5_LIBRARY_DIRS}" )
 
 option( enable_ETI "enable_ETI" OFF)
 
@@ -100,7 +110,7 @@ set( Pimpact_TPL_LIBRARIES lpimpact ${Limpact_TPL_LIBRARIES} gfortran ${MPI_Fort
 
 
 
-INCLUDE_DIRECTORIES( ${inc_dir} ${Trilinos_INCLUDE_DIRS} ${Trilinos_TPL_INCLUDE_DIRS}
+INCLUDE_DIRECTORIES( ${inc_dir} ${Trilinos_INCLUDE_DIRS} ${Trilinos_TPL_INCLUDE_DIRS} ${HDF5_INCLUDE_DIRS}
 	#"/cluster/apps/hdf5/1.8.12/x86_64/gcc_4.8.2/openmpi_1.6.5/include" # was necessary on euler 
 	)
 LINK_DIRECTORIES( ${Trilinos_LIBRARY_DIRS} ${Trilinos_TPL_LIBRARY_DIRS} )
