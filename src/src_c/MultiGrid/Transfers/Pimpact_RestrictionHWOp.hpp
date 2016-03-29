@@ -41,14 +41,6 @@ void MG_getCRV(
 		const int& dd,
 		double* const cRV );
 
-void MG_RestrictCorners(
-    const int* const Nf,
-    const int* const bLf,
-    const int* const bUf,
-    const int* const BCL,
-    const int* const BCU,
-    const double* const phic );
-
 void MG_restrictHW(
 		const int& dimens,
     const int* const Nf,

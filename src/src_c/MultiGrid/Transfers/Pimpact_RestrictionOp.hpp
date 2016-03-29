@@ -37,14 +37,6 @@ void MG_getCRV(
     const double* const xv,
     double* const cRV );
 
-void MG_RestrictCorners(
-    const int* const Nf,
-    const int* const bLf,
-    const int* const bUf,
-    const int* const BCL,
-    const int* const BCU,
-    const double* const phic );
-
 void MG_restrict(
 		const int& dimens,
     const int* const Nf,
@@ -345,14 +337,6 @@ public:
 
 		if( EField::S==fType ) {
 			x.exchange();
-
-			//MG_RestrictCorners(
-					//spaceF_->nLoc(),
-					//spaceF_->bl(),
-					//spaceF_->bu(),
-					//spaceF_->getDomain()->getBCLocal()->getBCL(),
-					//spaceF_->getDomain()->getBCLocal()->getBCU(),
-					//x.getConstRawPtr() );
 
 			MG_restrict(
 					spaceF_->dim(),

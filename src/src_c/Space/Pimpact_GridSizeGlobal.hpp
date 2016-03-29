@@ -32,11 +32,11 @@ class GridSizeGlobal : public Teuchos::Tuple<OrdinalT,4> {
 
 protected:
 
-	/// \todo test also thrid dimension( not on coarser grids)
+	/// \todo test also third dimension( not on coarser grids)
 	GridSizeGlobal( const Teuchos::Tuple<OrdinalT,4>& gridSize ):
 		Teuchos::Tuple<OrdinalT,4>( gridSize ) {
 
-			for( int i=0; i<3; ++i )
+			for( int i=0; i<2; ++i )
 				TEUCHOS_TEST_FOR_EXCEPT( ((*this)[i]-1)%2 != 0 );
 
 		};

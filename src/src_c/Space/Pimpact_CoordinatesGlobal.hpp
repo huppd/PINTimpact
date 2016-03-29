@@ -30,7 +30,7 @@ namespace Pimpact{
 ///
 /// \tparam ScalarT scalar type
 /// \tparam OrdinalT index type
-/// \tparam dim computiational dimension
+/// \tparam dim computational dimension
 ///
 /// \note: - local processor-block coordinates and grid spacings are
 ///          automatically derived from global grid

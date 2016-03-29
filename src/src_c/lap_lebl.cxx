@@ -174,6 +174,7 @@ int main( int argi, char** argv ) {
 		//mgDivGrad->apply( f->getSFieldPtr()->get0Field(), x->getSFieldPtr()->get0Field() );
 	divGradInv->apply( f->getSField(), x->getSField() );
 
+	x->level();
 	x->getSFieldPtr()->write();
 
 	Teuchos::TimeMonitor::summarize();

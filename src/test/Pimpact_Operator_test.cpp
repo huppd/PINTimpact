@@ -1045,8 +1045,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
 	ppl->set<int>( "numIters", sweeps );
 
 	// good result with no stretch + own
-	//ppl->set<ST>( "max EV", evMax );
-	//ppl->set<ST>( "min EV", evMin );
+	ppl->set<ST>( "max EV", evMax );
+	ppl->set<ST>( "min EV", evMin*1.1 );
 	//ppl->set<ST>( "max EV", evMax*1.  );
 	//ppl->set<ST>( "min EV", evMin*2.1 );
 
@@ -2513,7 +2513,6 @@ TEUCHOS_UNIT_TEST( Convergence, InterpolateV2SOp ) {
 			auto op = Pimpact::createInterpolateV2S( space );
 
 			op->apply( vel->getConstField(dir), *p );
-			//p->write(dir);
 
 			// compute error
 			p->add( 1., *sol, -1., *p );
@@ -2628,7 +2627,6 @@ TEUCHOS_UNIT_TEST( Convergence, InterpolateS2VOp ) {
 			auto op = Pimpact::create<Pimpact::InterpolateS2V>( space );
 
 			op->apply(  *p, vel->getField(dir) );
-			//p->write(dir);
 
 			// compute error
 			vel->getFieldPtr(dir)->add( 1., sol->getConstField(dir), -1., vel->getConstField(dir) );
@@ -2641,10 +2639,10 @@ TEUCHOS_UNIT_TEST( Convergence, InterpolateS2VOp ) {
 		}
 		// compute order
 		ST order2 = order<ST>( dofs, error2 );
-		std::cout << "DivOp: order two norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << order2 << "\n";
+		std::cout << "InterpolateS2V: order two norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << order2 << "\n";
 
 		ST orderInf = order<ST>( dofs, errorInf );
-		std::cout << "DivOp: order inf norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << orderInf << "\n";
+		std::cout << "InterpolateS2V: order inf norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << orderInf << "\n";
 		// test
 		TEST_EQUALITY( -order2  >4., true );
 		TEST_EQUALITY( -orderInf>4., true );
@@ -2744,7 +2742,6 @@ TEUCHOS_UNIT_TEST( Convergence, GradOp ) {
 			auto op = Pimpact::create<Pimpact::GradOp>( space );
 
 			op->apply(  *p, *vel );
-			//p->write(dir);
 
 			// compute error
 			vel->getFieldPtr(dir)->add( 1., sol->getConstField(dir), -1., vel->getConstField(dir) );
@@ -2770,7 +2767,7 @@ TEUCHOS_UNIT_TEST( Convergence, GradOp ) {
 
 
 
-TEUCHOS_UNIT_TEST( Convergence, DivGradOp ) { 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, DivGradOp, OperatorT ) { 
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
@@ -2805,7 +2802,7 @@ TEUCHOS_UNIT_TEST( Convergence, DivGradOp ) {
   pl->set( "npf", npf );
 
 	//  grid size
-	for( int dir=0; dir<1; ++dir ) {
+	for( int dir=0; dir<3; ++dir ) {
 
 		pl->set<OT>( "nx", 9 );
 		pl->set<OT>( "ny", 9 );
@@ -2842,8 +2839,6 @@ TEUCHOS_UNIT_TEST( Convergence, DivGradOp ) {
 			if( 0==dir ) {
 				p->initFromFunction(
 						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(x*pi2) ); } );
-						//[&pi2]( ST x, ST y, ST z ) ->ST {  return( x ); } );
-						//[&pi2]( ST x, ST y, ST z ) ->ST {  return( 1. ); } );
 				sol->initFromFunction(
 						[&pi2]( ST x, ST y, ST z ) ->ST {  return( -std::cos(x*pi2)*pi2*pi2 ); } );
 			}
@@ -2860,23 +2855,15 @@ TEUCHOS_UNIT_TEST( Convergence, DivGradOp ) {
 						[&pi2]( ST x, ST y, ST z ) ->ST {  return( -std::cos(z*pi2)*pi2*pi2 ); } );
 			}
 
-			//auto op = Pimpact::create< Pimpact::DivGradO2Op<SpaceT> >( space );
-			auto op = Pimpact::create< Pimpact::DivGradOp<SpaceT> >( space );
+			auto op = Pimpact::create<OperatorT>( space );
 
 			vel->random();
-			//p->write(dir+1);
-			//sol->write((dir+1)*10);
 			op->apply( *p, *vel );
-			//vel->print();
-			//vel->write((dir+1)*100);
-			//vel->print();
 
 			// compute error
 			vel->add( 1., *sol, -1., *vel );
-			vel->write((dir+1)*1000);
 			error2[n] = std::log10( vel->norm( Belos::TwoNorm ) / sol->norm( Belos::TwoNorm ) );
 			errorInf[n] = std::log10( vel->norm( Belos::InfNorm ) / sol->norm( Belos::InfNorm ) );
-			//errorInf[n] = std::log10( p->norm( Belos::InfNorm ) / sol->norm( Belos::InfNorm ) );
 			dofs[n] = std::log10( 8.*std::pow(2.,n)+1. );
 			std::cout << std::pow(10.,dofs[n]) << "\t" << std::pow(10.,error2[n]) << "\t" << std::pow(10.,errorInf[n]) << "\n";
 
@@ -2894,6 +2881,10 @@ TEUCHOS_UNIT_TEST( Convergence, DivGradOp ) {
 	
 }
 
+using DivGradOpT = Pimpact::DivGradOp<SpaceT>;
+using DivGradO2OpT = Pimpact::DivGradO2Op<SpaceT>;
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( Convergence, DivGradOp, DivGradOpT )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( Convergence, DivGradOp, DivGradO2OpT )
 
 
 TEUCHOS_UNIT_TEST( Convergence, HelmholtzOp ) { 

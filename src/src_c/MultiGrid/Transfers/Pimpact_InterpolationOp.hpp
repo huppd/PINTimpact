@@ -46,25 +46,6 @@ void MG_getCIV(
 		const int& dd,
 		double* const cIV );
 
-void MG_InterpolateCorners(
-		const int* const N,
-		const int* const bL,
-		const int* const bU,
-		const int* const BCL,
-		const int* const BCU,
-		const double* const phi );
-
-void MG_InterpolateCornersPost(
-		const int* const N,
-		const int* const bL,
-		const int* const bU,
-		const int* const BCL,
-		const int* const BCU,
-		const double* const x1,
-		const double* const x2,
-		const double* const x3,
-		double* const phi );
-
 void MG_InterpolateScatter(
 		const int* const Nc,
 		const int* const bLc,

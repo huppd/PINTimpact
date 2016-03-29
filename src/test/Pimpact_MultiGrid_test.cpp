@@ -28,8 +28,8 @@ using SpaceT = Pimpact::Space<ST,OT,dimension,4>;
 using FSpaceT = Pimpact::Space<ST,OT,dimension,4>;
 using CSpaceT = Pimpact::Space<ST,OT,dimension,2>;
 
-using CS3L = Pimpact::CoarsenStrategy<FSpaceT,CSpaceT>;
-using CS3G = Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT>;
+using CSL = Pimpact::CoarsenStrategy<FSpaceT,CSpaceT>;
+using CSG = Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT>;
 
 using MGSpacesT = Pimpact::MGSpaces<FSpaceT,CSpaceT>;
 
@@ -190,7 +190,7 @@ TEUCHOS_STATIC_SETUP() {
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSpaces, constructor3D, CS ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSpaces, constructor, CS ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
@@ -253,12 +253,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSpaces, constructor3D, CS ) {
 	}
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSpaces, constructor3D, CS3L )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSpaces, constructor3D, CS3G )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSpaces, constructor, CSL )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSpaces, constructor, CSG )
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGFields, SFconstructor3D, CS ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGFields, SFconstructor, CS ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
@@ -318,12 +318,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGFields, SFconstructor3D, CS ) {
 
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGFields, SFconstructor3D, CS3L )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGFields, SFconstructor3D, CS3G )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGFields, SFconstructor, CSL )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGFields, SFconstructor, CSG )
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGFields, VFconstructor3D, CS ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGFields, VFconstructor, CS ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
@@ -382,12 +382,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGFields, VFconstructor3D, CS ) {
 
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGFields, VFconstructor3D, CS3L )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGFields, VFconstructor3D, CS3G )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGFields, VFconstructor, CSL )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGFields, VFconstructor, CSG )
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGOperators, SFconstructor3D, CS ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGOperators, SFconstructor, CS ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
@@ -444,12 +444,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGOperators, SFconstructor3D, CS ) {
 
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGOperators, SFconstructor3D, CS3L )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGOperators, SFconstructor3D, CS3G )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGOperators, SFconstructor, CSL )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGOperators, SFconstructor, CSG )
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGOperators, VFconstructor3D, CS ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGOperators, VFconstructor, CS ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
@@ -501,13 +501,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGOperators, VFconstructor3D, CS ) {
 
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGOperators, VFconstructor3D, CS3L )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGOperators, VFconstructor3D, CS3G )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGOperators, VFconstructor, CSL )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGOperators, VFconstructor, CSG )
 
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSmoothers, SFconstructor3D, CS ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSmoothers, SFconstructor, CS ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
@@ -545,7 +545,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSmoothers, SFconstructor3D, CS ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-	auto space = Pimpact::createSpace<ST,OT,dimension,4>( pl );
+	Teuchos::RCP<const SpaceT> space = Pimpact::createSpace<ST,OT,dimension,4>( pl );
 
 	Teuchos::RCP<const MGSpacesT> mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, maxGrids );
 
@@ -554,19 +554,19 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSmoothers, SFconstructor3D, CS ) {
 
 	auto mgSmoother = Pimpact::createMGSmoothers<Pimpact::DivGradO2JSmoother>( mgOps );
 
-	auto op = mgSmoother->get( -1 );
+	auto op = mgSmoother->get( -2 );
 
-	if( mgSpaces->participating(-1) )
+	if( mgSpaces->participating(-2) )
 		op->print();
 
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSmoothers, SFconstructor3D, CS3L )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSmoothers, SFconstructor3D, CS3G )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSmoothers, SFconstructor, CSL )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSmoothers, SFconstructor, CSG )
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSmoothers, VFconstructor3D, CS ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSmoothers, VFconstructor, CS ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
@@ -612,15 +612,15 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSmoothers, VFconstructor3D, CS ) {
 
 	auto mgSmoother = Pimpact::createMGSmoothers<ConvDiffSORT>( mgOps );
 
-	auto op = mgSmoother->get( -1 );
+	auto op = mgSmoother->get( -2 );
 
-	if( mgSpaces->participating(-1) )
+	if( mgSpaces->participating(-2) )
 		op->print();
 
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSmoothers, VFconstructor3D, CS3L )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSmoothers, VFconstructor3D, CS3G )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSmoothers, VFconstructor, CSL )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSmoothers, VFconstructor, CSG )
 
 
 
@@ -771,8 +771,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Restrictor, CS ) {
 } // end of TEUCHOS_UNIT_TEST_TEMPLATE
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, Restrictor, CS3L )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, Restrictor, CS3G )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, Restrictor, CSL )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, Restrictor, CSG )
 
 
 
@@ -939,8 +939,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator, CS ) {
 
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, Interpolator, CS3L )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, Interpolator, CS3G )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, Interpolator, CSL )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, Interpolator, CSG )
 
 
 
@@ -1163,8 +1163,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 }
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, MGTransfersSF, CS3L )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, MGTransfersSF, CS3G )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, MGTransfersSF, CSL )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, MGTransfersSF, CSG )
 
 
 
@@ -1434,8 +1434,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersVF, CS ) {
 }
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, MGTransfersVF, CS3L )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, MGTransfersVF, CS3G )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, MGTransfersVF, CSL )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, MGTransfersVF, CSG )
 
 
 
@@ -1514,10 +1514,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, DivGradOp, CS, MGT ) {
 	mgPL->set<bool>( "init zero", false );
 
 	// Smoother: Line
-	mgPL->sublist("Smoother").set<int>( "numIters", 4 );
-	mgPL->sublist("Smoother").set<bool>( "X", true );
-	mgPL->sublist("Smoother").set<bool>( "Y", false );
-	mgPL->sublist("Smoother").set<bool>( "Z", false );
+	//mgPL->sublist("Smoother").set<int>( "numIters", 4 );
+	//mgPL->sublist("Smoother").set<bool>( "X", true );
+	//mgPL->sublist("Smoother").set<bool>( "Y", false );
+	//mgPL->sublist("Smoother").set<bool>( "Z", false );
 
 	// Smoother: JT
 	//mgPL->sublist("Smoother").set<int>( "BC smoothing", 1 );
@@ -1539,7 +1539,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, DivGradOp, CS, MGT ) {
 	//////ev->computeFullEV( evMax, evMin );
 	//////std::cout << "glob: " << evMax << "\t" <<evMin << "\n";
 
-	//mgPL->sublist("Smoother").set<int>( "numIters", 12 );
+	//mgPL->sublist("Smoother").set<int>( "numIters", 8 );
 	//mgPL->sublist("Smoother").set<ST>( "min EV", evMin*1.1 );
 	//mgPL->sublist("Smoother").set<ST>( "max EV", evMin*1.1/30. );
 	
@@ -1548,7 +1548,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, DivGradOp, CS, MGT ) {
 
 	auto prec = Pimpact::createMultiOperatorBase( mg );
 
-	std::string solvName = "Pseudoblock GMRES";
+	//std::string solvName = "Pseudoblock GMRES";
 	//std::string solvName = "Block GMRES";
 	//std::string solvName = "Block CG";
 	//std::string solvName = "Pseudoblock CG";
@@ -1562,11 +1562,22 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, DivGradOp, CS, MGT ) {
 	//std::string solvName = "Hybrid Block GMRES";
 	//std::string solvName = "PCPG";
 	//std::string solvName = "Fixed Point";
-	//std::string solvName = "BiCGStab";
+	std::string solvName = "BiCGStab";
 
-	Teuchos::RCP< Teuchos::ParameterList > param = Pimpact::createLinSolverParameter( solvName, 1.e-6 );
+	Teuchos::RCP< Teuchos::ParameterList > param = Teuchos::parameterList();// = Pimpact::createLinSolverParameter( solvName, 1.e-6 );
+	param->set( "Output Style", Belos::Brief );
+  param->set( "Output Stream", Teuchos::rcp(&std::cout,false) );
 	param->set( "Output Frequency", 1 );
-	param->set( "Maximum Iterations", 10 );
+	param->set( "Verbosity",			        
+			Belos::Errors +
+			Belos::Warnings +
+			Belos::IterationDetails +
+			Belos::OrthoDetails +
+			Belos::FinalSummary +
+			Belos::TimingDetails +
+			Belos::StatusTestDetails +
+			Belos::Debug );
+	//param->set( "Maximum Iterations", 10 );
 	//param->set( "Flexible Gmres", false );
 
 	auto bop = Pimpact::createMultiOperatorBase( op );
@@ -1680,14 +1691,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, DivGradOp, CS, MGT ) {
 }
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CS3L, DGJMGT )
-TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CS3G, DGJMGT )
-TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CS3L, DGSORMGT )
-TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CS3G, DGSORMGT )
-TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CS3L, DGLMGT )
-TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CS3G, DGLMGT )
-TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CS3L, DGCMGT )
-TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CS3G, DGCMGT )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSL, DGJMGT )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG, DGJMGT )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSL, DGSORMGT )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG, DGSORMGT )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSL, DGLMGT )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG, DGLMGT )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSL, DGCMGT )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG, DGCMGT )
 
 
 
@@ -1839,8 +1850,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffSOR, CS ) {
 
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, ConvDiffSOR, CS3L )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, ConvDiffSOR, CS3G )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, ConvDiffSOR, CSL )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, ConvDiffSOR, CSG )
 
 
 
@@ -2002,12 +2013,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffJ, CS ) {
 
 }
 
-//TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, ConvDiffJ, CS3L, ConvDiffJT )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, ConvDiffJ, CS3L )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, ConvDiffJ, CS3G )
-//TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, ConvDiffJ, CS3G, ConvDiffJT )
-//TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, ConvDiffJ, CS3L, ConvDiffSORT )
-//TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, ConvDiffJ, CS3G, ConvDiffSORT )
+//TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, ConvDiffJ, CSL, ConvDiffJT )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, ConvDiffJ, CSL )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, ConvDiffJ, CSG )
+//TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, ConvDiffJ, CSG, ConvDiffJT )
+//TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, ConvDiffJ, CSL, ConvDiffSORT )
+//TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, ConvDiffJ, CSG, ConvDiffSORT )
 
 
 
