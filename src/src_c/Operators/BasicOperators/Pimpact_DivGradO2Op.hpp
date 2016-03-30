@@ -198,7 +198,7 @@ public:
 
 protected:
 
-	inline Scalar innerStenc3D( const DomainFieldT& x, const Ordinal& i, const Ordinal& j,
+	inline constexpr Scalar innerStenc3D( const DomainFieldT& x, const Ordinal& i, const Ordinal& j,
 			const Ordinal& k ) const {
 
 		return( 
@@ -209,7 +209,7 @@ protected:
 				);
 	}
 
-	inline Scalar innerStenc2D( const DomainFieldT& x, const Ordinal& i, const Ordinal& j,
+	inline constexpr Scalar innerStenc2D( const DomainFieldT& x, const Ordinal& i, const Ordinal& j,
 			const Ordinal& k ) const {
 
 		return( 
@@ -226,21 +226,21 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
-	Teuchos::RCP<const SpaceT> space() const { return(space_); };
+	constexpr Teuchos::RCP<const SpaceT> space() const { return(space_); };
 
-	inline const Scalar* getC( const ECoord& dir) const  {
+	inline constexpr const Scalar* getC( const ECoord& dir) const  {
 		return( getC( static_cast<const int&>(dir) ) );
   }
 
-  inline const Scalar* getC( const int& dir) const  {
+  inline constexpr const Scalar* getC( const int& dir) const  {
 		return( c_[dir] );
   }
 
-	inline const Scalar& getC( const ECoord& dir, Ordinal i, Ordinal off ) const  {
+	inline constexpr const Scalar& getC( const ECoord& dir, Ordinal i, Ordinal off ) const  {
 		return( getC( static_cast<const int&>(dir), i, off ) );
   }
 
-	inline const Scalar& getC( const int& dir, Ordinal i, Ordinal off ) const  {
+	inline constexpr const Scalar& getC( const int& dir, Ordinal i, Ordinal off ) const  {
 		return( c_[dir][ off + 1 + (i-1)*3 ] );
   }
 

@@ -261,7 +261,7 @@ protected:
 
 
 
-	inline Scalar innerStenc3D( const DomainFieldT& b, const DomainFieldT& x,
+	inline constexpr Scalar innerStenc3D( const DomainFieldT& b, const DomainFieldT& x,
 			const Ordinal& i, const Ordinal& j, const Ordinal& k ) const { 
 
 		return(
@@ -274,7 +274,7 @@ protected:
 
 	} 
 
-	inline Scalar innerStenc2D( const DomainFieldT& b, const DomainFieldT& x,
+	inline constexpr Scalar innerStenc2D( const DomainFieldT& b, const DomainFieldT& x,
 			const Ordinal& i, const Ordinal& j, const Ordinal& k ) const { 
 
 		return(
@@ -286,31 +286,21 @@ protected:
 
 	} 
 
-	inline const Scalar* getC( const ECoord& dir) const  { 
+	inline constexpr const Scalar* getC( const ECoord& dir) const  { 
 		return( op_->getC( dir ) ); 
 	} 
 
-	inline const Scalar* getC( const int& dir) const  { 
+	inline constexpr const Scalar* getC( const int& dir) const  { 
 		return( op_->getC( dir ) ); 
 	} 
 
-	inline const Scalar& getC( const ECoord& dir, Ordinal i, Ordinal off ) const  { 
+	inline constexpr const Scalar& getC( const ECoord& dir, Ordinal i, Ordinal off ) const  { 
 		return( op_->getC( dir, i, off ) ); 
 	} 
 
-	inline const Scalar& getC( const int& dir, Ordinal i, Ordinal off ) const  { 
+	inline constexpr const Scalar& getC( const int& dir, Ordinal i, Ordinal off ) const  { 
 		return( op_->getC( dir, i, off ) ); 
 	} 
-
-	inline const Ordinal* getSR() const { return( op_->getSR() ); } 
-	inline const Ordinal* getER() const { return( op_->getER() ); } 
-
-	inline const Ordinal& getSR( const Ordinal& coord ) const { return( op_->getSR( coord ) ); } 
-	inline const Ordinal& getER( const Ordinal& coord ) const { return( op_->getER( coord ) ); } 
-
-	inline const Ordinal& getSR( const ECoord& coord ) const { return( op_->getSR( coord ) ); } 
-	inline const Ordinal& getER( const ECoord& coord ) const { return( op_->getER( coord ) ); } 
-
 	
 }; // end of class DivGradO2JSmoother
 

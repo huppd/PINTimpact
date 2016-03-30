@@ -193,7 +193,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneCopy, FType ) {
   mv->norm(norm1);
   mv2->norm(norm2);
   for( int i=0; i<n1; ++i)
-    TEST_EQUALITY( norm1[i], norm2[i] );
+    TEST_FLOATING_EQUALITY( norm1[i], norm2[i], eps  );
 
 }
 
@@ -241,7 +241,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneCopy2, FType ) {
   mv2->norm(norm2);
 
   for( unsigned int i=0; i<index.size(); ++i)
-    TEST_EQUALITY( norm1[index[i]], norm2[i] );
+    TEST_FLOATING_EQUALITY( norm1[index[i]], norm2[i], eps  );
 
 }
 
@@ -286,7 +286,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneCopy3, FType ) {
   mv1->norm(norm1);
   mv2->norm(norm2);
   for( int i=0; i<index.size(); ++i)
-    TEST_EQUALITY( norm1[i+index.lbound()], norm2[i] );
+    TEST_FLOATING_EQUALITY( norm1[i+index.lbound()], norm2[i], eps  );
 
 }
 
@@ -337,7 +337,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneViewNonConst1, FType ) {
   mv2->norm(norm2);
 
   for( unsigned int i=0; i<index.size(); ++i)
-    TEST_EQUALITY( norm1[index[i]], norm2[i] );
+    TEST_FLOATING_EQUALITY( norm1[index[i]], norm2[i], eps  );
 
 }
 

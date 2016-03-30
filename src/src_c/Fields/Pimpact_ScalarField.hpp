@@ -1001,7 +1001,7 @@ public:
 
   /// @}
 
-  const Teuchos::RCP<const SpaceT>& space() const { return( AbstractField<SpaceT>::space_ ); }
+  constexpr const Teuchos::RCP<const SpaceT>& space() const { return( AbstractField<SpaceT>::space_ ); }
 
   const MPI_Comm& comm() const { return( space()->comm() ); }
 
@@ -1116,7 +1116,7 @@ public:
 	/// \param i index in x-direction
 	/// \param j index in y-direction
 	/// \param k index in z-direction
-	inline const Ordinal index( const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
+	inline constexpr const Ordinal index( const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
 		return( (i-space()->bl(0)) +
 				    (j-space()->bl(1))*stride1() +
 				    (k-space()->bl(2))*stride2() );
@@ -1129,7 +1129,7 @@ public:
 	/// \param k index in z-direction
 	///
 	/// \return const reference
-	inline const Scalar& at( const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
+	inline constexpr const Scalar& at( const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
 		return( s_[ index(i,j,k) ] );
 	}
 
@@ -1147,7 +1147,7 @@ public:
 	/// \brief field access
 	///
 	/// \param i index coordinate 
-	inline const Scalar& at( const Ordinal* i ) const {
+	inline constexpr const Scalar& at( const Ordinal* i ) const {
 		return( s_[ index(i[0],i[1],i[2]) ] );
 	}
 	/// \brief field access
@@ -1166,7 +1166,7 @@ public:
 	/// \brief field access
 	///
 	/// \param i index coordinate 
-	inline const Scalar& at( const Teuchos::Tuple<Ordinal,3>& i ) const {
+	inline constexpr const Scalar& at( const Teuchos::Tuple<Ordinal,3>& i ) const {
 		return( s_[ index(i[0],i[1],i[2]) ] );
 	}
 
