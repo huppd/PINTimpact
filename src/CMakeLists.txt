@@ -112,12 +112,12 @@ message( "CXX flags: " ${CMAKE_CXX_FLAGS})
 message( "CMAKE_Fortran_COMPILE_FLAGS: ${CMAKE_Fortran_COMPILE_FLAGS}\n" )
 
 
-if( findHDF5 )
-	set( Limpact_TPL_LIBRARIES ${HDF5_LIBRARIES} ${Trilinos_TPL_LIBRARIES} )
-else()
+#if( findHDF5 )
+	#set( Limpact_TPL_LIBRARIES ${HDF5_LIBRARIES} ${Trilinos_TPL_LIBRARIES} )
+#else()
 	set( Limpact_TPL_LIBRARIES hdf5hl_fortran hdf5_hl hdf5_fortran hdf5 z m
 		${Trilinos_TPL_LIBRARIES} )
-endif()
+#endif()
 
 set( Pimpact_TPL_LIBRARIES lpimpact ${Limpact_TPL_LIBRARIES} gfortran
 	${MPI_Fortran_LIBRARIES}  ${Trilinos_TPL_LIBRARIES} ${Trilinos_LIBRARIES} )
