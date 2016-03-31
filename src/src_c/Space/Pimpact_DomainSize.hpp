@@ -67,20 +67,21 @@ public:
 	/// \name getter
 	/// @{ 
 
-	const int& getDim() const { return( dim_ ); }
+	/// \todo make dim_ template parameter(e.g. spaceDim) here or somewhere else?
+	inline constexpr const int& getDim() const { return( dim_ ); }
 
-	const ScalarT* getSize() const { return( domainSize_.getRawPtr() ); }
+	inline constexpr const ScalarT* getSize() const { return( domainSize_.getRawPtr() ); }
 
-	const ScalarT& getSize( int i) const { return( domainSize_[i] ); }
-	const ScalarT& getSize( ECoord i) const { return( domainSize_[ (int)i ] ); }
+	inline constexpr const ScalarT& getSize( int i) const { return( domainSize_[i] ); }
+	inline constexpr const ScalarT& getSize( ECoord i) const { return( domainSize_[ (int)i ] ); }
 
-	const ScalarT* getOrigin() const { return( origin_.getRawPtr() ); }
+	inline constexpr const ScalarT* getOrigin() const { return( origin_.getRawPtr() ); }
 
-	const ScalarT& getOrigin( int i) const { return( origin_[i] ); }
+	inline constexpr const ScalarT& getOrigin( int i) const { return( origin_[i] ); }
 
-	const ScalarT& getRe() const { return( re_ ); }
+	inline constexpr const ScalarT& getRe() const { return( re_ ); }
 
-	const ScalarT& getAlpha2() const { return( alpha2_ ); }
+	inline constexpr const ScalarT& getAlpha2() const { return( alpha2_ ); }
 
 	///  @} 
 
@@ -98,6 +99,7 @@ public:
 
 
 /// \relates DomainSize
+/// \deprecated
 template<class ScalarT>
 Teuchos::RCP<const DomainSize<ScalarT> > createDomainSize( int dim, ScalarT L1, ScalarT L2, ScalarT L3 ) {
   return(

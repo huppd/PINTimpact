@@ -40,7 +40,6 @@ public:
 
   static const int dimension = SpaceT::dimension;
 
-
 protected:
 
 	using ScalarArray =  Scalar*;
@@ -66,7 +65,7 @@ private:
 
 public:
 
-	Ordinal getStorageSize() const { return( 2*fieldc_->getStorageSize() ); }
+	constexpr Ordinal getStorageSize() const { return( 2*fieldc_->getStorageSize() ); }
 
 	Scalar* getRawPtr() const { return( s_ ); }
 
@@ -167,7 +166,7 @@ public:
 
 
   /// \brief get number of stored Field's
-  int getNumberVecs() const { return( 1 ); }
+  constexpr int getNumberVecs() const { return( 1 ); }
 
 
   /// \}
@@ -224,7 +223,7 @@ public:
 
 
   /// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
-  Scalar dot ( const MV& a, bool global=true ) const {
+  constexpr Scalar dot ( const MV& a, bool global=true ) const {
 
     Scalar b=0.;
 
@@ -268,7 +267,7 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  double norm(const MV& weights, bool global=true) const {
+  constexpr double norm(const MV& weights, bool global=true) const {
 
     double normvec=fieldc_->norm(*weights.fieldc_,false)+fields_->norm(*weights.fields_,false);
 

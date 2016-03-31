@@ -147,7 +147,7 @@ public:
 	/// \name getter
 	/// @{ 
 
-  const ScalarT* getX( ECoord dir, EField ftype ) const  {
+  inline constexpr const ScalarT* getX( ECoord dir, EField ftype ) const  {
     if( EField::S==ftype )
       return( xS_[dir].getRawPtr() );
     else if( static_cast<int>(dir)==static_cast<int>(ftype) )
@@ -155,17 +155,17 @@ public:
     else
       return( xS_[dir].getRawPtr() );
   }
-  const ScalarT* getX( ECoord dir, int ftype ) const  {
+  inline constexpr const ScalarT* getX( ECoord dir, int ftype ) const  {
     return( getX( dir, static_cast<EField>(ftype) ) );
   }
-  const ScalarT* getX( int dir, EField ftype ) const  {
+  inline constexpr const ScalarT* getX( int dir, EField ftype ) const  {
     return( getX( static_cast<ECoord>(dir), ftype ) );
   }
-  const ScalarT* getX( int dir, int ftype ) const  {
+  inline constexpr const ScalarT* getX( int dir, int ftype ) const  {
     return( getX( static_cast<ECoord>(dir), static_cast<EField>(ftype) ) );
   }
 
-  const ScalarT& getX( EField ftype, ECoord dir, OrdinalT i) const  {
+  inline constexpr const ScalarT& getX( EField ftype, ECoord dir, OrdinalT i) const  {
 
     if( EField::S==ftype )
       return( xS_[dir][i-stencilWidths_->getBL(static_cast<int>(dir))] );

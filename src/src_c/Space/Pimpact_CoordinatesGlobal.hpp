@@ -383,7 +383,7 @@ public:
 	/// \name getter
 	/// @{ 
 
-	const ScalarT* getX( ECoord dir, EField ftype ) const {
+	inline constexpr const ScalarT* getX( ECoord dir, EField ftype ) const {
 		if( EField::S==ftype )
 			return( xS_[static_cast<int>(dir)].getRawPtr() );
 		else if( static_cast<int>(dir)==static_cast<int>(ftype) )
@@ -392,20 +392,19 @@ public:
 			return( xS_[ static_cast<int>(dir) ].getRawPtr() );
 	}
 
-	const ScalarT* get( int dir, int ftype ) const {
+	inline constexpr const ScalarT* get( int dir, int ftype ) const {
 		return( getX( static_cast<ECoord>(dir), static_cast<EField>(ftype) ) );
 	}
 
-	const ScalarT* get( ECoord dir, int ftype ) const {
+	inline constexpr const ScalarT* get( ECoord dir, int ftype ) const {
 		return( getX( dir, static_cast<EField>(ftype) ) );
 	}
 
-	const ScalarT* get( int dir, EField ftype ) const {
+	inline constexpr const ScalarT* get( int dir, EField ftype ) const {
 		return( getX( static_cast<ECoord>(dir), ftype ) );
 	}
 
-
-	const Teuchos::Tuple< Teuchos::RCP<Teuchos::ParameterList> ,3>& getStretchParameter() const {
+	inline constexpr const Teuchos::Tuple< Teuchos::RCP<Teuchos::ParameterList> ,3>& getStretchParameter() const {
 		return( stretchPara_ );
 	}
 

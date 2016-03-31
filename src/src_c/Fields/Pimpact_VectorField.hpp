@@ -170,7 +170,7 @@ public:
 	/// \f[ N_v = (N_x-2)(N_y-1)(N_z-2) \f]
 	/// \f[ N_w = (N_x-2)(N_y-2)(N_z-1) \f]
 	/// \return vect length \f[= N_u+N_v+N_w\f]
-	Ordinal getLength( bool dummy=false ) const {
+	constexpr Ordinal getLength( bool dummy=false ) const {
 
 		Teuchos::RCP<const BoundaryConditionsGlobal<dimension> > bc =
 			space()->getBCGlobal();
@@ -184,7 +184,7 @@ public:
 
 
 	/// \brief get number of stored Field's
-	int getNumberVecs() const { return( 1 ); }
+	constexpr int getNumberVecs() const { return( 1 ); }
 
 
   /// @}
@@ -251,7 +251,7 @@ public:
 
 
 	/// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
-	Scalar dot ( const VF& a, bool global=true ) const {
+	constexpr Scalar dot ( const VF& a, bool global=true ) const {
 		Scalar b = 0.;
 
 		for( int i=0; i<space()->dim(); ++i )
@@ -298,7 +298,7 @@ public:
 	/// Here x represents this vector, and we compute its weighted norm as follows:
 	/// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
 	/// \return \f$ \|x\|_w \f$
-	double norm( const VF& weights, bool global=true ) const {
+	constexpr double norm( const VF& weights, bool global=true ) const {
 		Scalar normvec = 0.;
 
 		for( int i=0; i<space()->dim(); ++i )

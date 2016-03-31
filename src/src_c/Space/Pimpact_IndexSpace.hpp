@@ -61,9 +61,9 @@ class IndexSpace {
 
 public:
 
-  using TO = Teuchos::Tuple<OrdinalT,dimension>;
+  using TO = const Teuchos::Tuple<OrdinalT,dimension>;
 
-  using TTO = Teuchos::Tuple< Teuchos::Tuple<OrdinalT, dimension>, 3 >;
+  using TTO = const Teuchos::Tuple< Teuchos::Tuple<OrdinalT, dimension>, 3 >;
 
 protected:
 
@@ -290,60 +290,60 @@ protected:
 
 public:
 
-  const OrdinalT* sInd( int fieldType ) const {
+  inline constexpr const OrdinalT* sInd( int fieldType ) const {
     if( EField::S == (EField)fieldType )
       return( sIndS_.getRawPtr() );
     else
       return( sIndU_[fieldType].getRawPtr() );
   }
-  const OrdinalT* eInd( int fieldType ) const {
+  inline constexpr const OrdinalT* eInd( int fieldType ) const {
     if( EField::S == (EField)fieldType )
       return( eIndS_.getRawPtr() );
     else
       return( eIndU_[fieldType].getRawPtr() );
   }
 
-  const OrdinalT* sIndB( int fieldType ) const {
+  inline constexpr const OrdinalT* sIndB( int fieldType ) const {
     if( EField::S == (EField)fieldType )
       return( sIndS_.getRawPtr() );
     else
       return( sIndUB_[fieldType].getRawPtr()  );
   }
-  const OrdinalT* eIndB( int fieldType ) const {
+  inline constexpr const OrdinalT* eIndB( int fieldType ) const {
     if( EField::S == (EField)fieldType )
       return( eIndS_.getRawPtr() );
     else
       return( eIndUB_[fieldType].getRawPtr()  );
   }
 
-  const OrdinalT& sInd( int fieldType, int dir ) const {
+  inline constexpr const OrdinalT& sInd( int fieldType, int dir ) const {
     if( EField::S == (EField)fieldType )
       return( sIndS_[dir]  );
     else
       return( sIndU_[fieldType][dir] );
   }
-  const OrdinalT& eInd(  int fieldType, int dir ) const {
+  inline constexpr const OrdinalT& eInd(  int fieldType, int dir ) const {
     if( EField::S == (EField)fieldType )
       return( eIndS_[dir]  );
     else
       return( eIndU_[fieldType][dir] );
   }
 
-  const OrdinalT& sIndB( int fieldType, int dir ) const {
+  inline constexpr const OrdinalT& sIndB( int fieldType, int dir ) const {
     if( EField::S == (EField)fieldType )
       return( sIndS_[dir]  );
     else
       return( sIndUB_[fieldType].getRawPtr()[dir]  );
   }
-  const OrdinalT& eIndB( int fieldType, int dir ) const {
+  inline constexpr const OrdinalT& eIndB( int fieldType, int dir ) const {
     if( EField::S == (EField)fieldType )
       return( eIndS_[dir]  );
     else
       return( eIndUB_[fieldType][dir]  );
   }
 
-	const int& getShift( int i ) const { return( shift_[i] ); }
-	const int* getShift() const { return( shift_.getRawPtr() ); }
+	inline constexpr const int& getShift( int i ) const { return( shift_[i] ); }
+	inline constexpr const int* getShift() const { return( shift_.getRawPtr() ); }
 
   void print( std::ostream& out=std::cout ) const {
     out << "\t---IndexSpace: ---\n";

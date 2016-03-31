@@ -38,7 +38,7 @@ protected:
 
   using TO = const Teuchos::Tuple<int,dim>;
 
-  using TStenc =  Teuchos::Tuple<  Teuchos::Tuple<int,dimNC>,3>;
+  using TStenc =  const Teuchos::Tuple<  Teuchos::Tuple<int,dimNC>,3>;
 
   /// \{ \name Konvergenzordnung der Differenzenkoeffizienten (Anzahl Koeffizienten)
   /// \{ \brief Anzahl Stencil-Koeffizienten (Rand)
@@ -250,46 +250,46 @@ public:
     out << "\tls: " << ls_ << "\n";
   }
 
-	const bool& spectralT() const { return( spectralT_ ); }
+	inline constexpr const bool& spectralT() const { return( spectralT_ ); }
 
-  int  getDimNcbC( int i ) const { return( ncbC_[i].size() ); }
-  int  getDimNcbD( int i ) const { return( ncbD_[i].size() ); }
-  int  getDimNcbG( int i ) const { return( ncbG_[i].size() ); }
+  inline constexpr int getDimNcbC( const int& i ) const { return( ncbC_[i].size() ); }
+  inline constexpr int getDimNcbD( const int& i ) const { return( ncbD_[i].size() ); }
+  inline constexpr int getDimNcbG( const int& i ) const { return( ncbG_[i].size() ); }
 
 //  const int&  getDimNcbC( int i ) const { return( dimNC ); }
 //  const int&  getDimNcbD( int i ) const { return( dimNC ); }
 //  const int&  getDimNcbG( int i ) const { return( dimNC ); }
 
-  const int* getNcbC( int i ) const { return( ncbC_[i].getRawPtr() ); }
-  const int* getNcbD( int i ) const { return( ncbD_[i].getRawPtr() ); }
-  const int* getNcbG( int i ) const { return( ncbG_[i].getRawPtr() ); }
+  inline constexpr const int* getNcbC( const int& i ) const { return( ncbC_[i].getRawPtr() ); }
+  inline constexpr const int* getNcbD( const int& i ) const { return( ncbD_[i].getRawPtr() ); }
+  inline constexpr const int* getNcbG( const int& i ) const { return( ncbG_[i].getRawPtr() ); }
 
-  const int* getBL()        const { return( bl_.getRawPtr() ); }
-  const int& getBL( int i ) const { return( bl_[i] ); }
+  inline constexpr const int* getBL()               const { return( bl_.getRawPtr() ); }
+  inline constexpr const int& getBL( const int& i ) const { return( bl_[i] ); }
 
-  const int* getBU()        const { return( bu_.getRawPtr() ); }
-  const int& getBU( int i ) const { return( bu_[i] ); }
+  inline constexpr const int* getBU()               const { return( bu_.getRawPtr() ); }
+  inline constexpr const int& getBU( const int& i ) const { return( bu_[i] ); }
 
-  const int* getDL()        const { return( dl_.getRawPtr() ); }
-  const int& getDL( int i ) const { return( dl_[i] ); }
+  inline constexpr const int* getDL()               const { return( dl_.getRawPtr() ); }
+  inline constexpr const int& getDL( const int& i ) const { return( dl_[i] ); }
 
-  const int* getDU()        const { return( du_.getRawPtr() ); }
-  const int& getDU( int i ) const { return( du_[i] ); }
+  inline constexpr const int* getDU()               const { return( du_.getRawPtr() ); }
+  inline constexpr const int& getDU( const int& i ) const { return( du_[i] ); }
 
-  const int* getGL()        const { return( gl_.getRawPtr() ); }
-  const int& getGL( int i ) const { return( gl_[i] ); }
+  inline constexpr const int* getGL()               const { return( gl_.getRawPtr() ); }
+  inline constexpr const int& getGL( const int& i ) const { return( gl_[i] ); }
 
-  const int* getGU()        const { return( gu_.getRawPtr() ); }
-  const int& getGU( int i ) const { return( gu_[i] ); }
+  inline constexpr const int* getGU()               const { return( gu_.getRawPtr() ); }
+  inline constexpr const int& getGU( const int& i ) const { return( gu_[i] ); }
 
-  const int* getNL()        const { return( nl_.getRawPtr() ); }
-  const int& getNL( int i ) const { return( nl_[i] ); }
+  inline constexpr const int* getNL()               const { return( nl_.getRawPtr() ); }
+  inline constexpr const int& getNL( const int& i ) const { return( nl_[i] ); }
 
-  const int* getNU()        const { return( nu_.getRawPtr() ); }
-  const int& getNU( int i ) const { return( nu_[i] ); }
+  inline constexpr const int* getNU()               const { return( nu_.getRawPtr() ); }
+  inline constexpr const int& getNU( const int& i ) const { return( nu_[i] ); }
 
-  const int* getLS()        const { return( ls_.getRawPtr() ); }
-  const int& getLS( int i ) const { return( ls_[i] ); }
+  inline constexpr const int* getLS()               const { return( ls_.getRawPtr() ); }
+  inline constexpr const int& getLS( const int& i ) const { return( ls_[i] ); }
 
 }; // end of class StencilWidths
 

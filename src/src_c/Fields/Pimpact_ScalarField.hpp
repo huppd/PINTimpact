@@ -173,7 +173,7 @@ public:
 
 
   /// \brief get number of stored Field's
-  int getNumberVecs() const { return( 1 ); }
+  constexpr int getNumberVecs() const { return( 1 ); }
 
 
   /// @}
@@ -291,7 +291,7 @@ public:
   /// @{
 
 	/// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
-  Scalar dot ( const MV& a, bool global=true ) const {
+  constexpr Scalar dot ( const MV& a, bool global=true ) const {
 
     Scalar b = 0.;
 
@@ -365,7 +365,7 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  double norm(const MV& weights, bool global=true ) const {
+  constexpr double norm(const MV& weights, bool global=true ) const {
 
     Scalar normvec = 0.;
 
@@ -759,8 +759,7 @@ public:
 
 	void level() const {
 
-		if( EField::S == fType_ ) {
-
+		if( EField::S == fType_ )
 			SF_level(
 					MPI_Comm_c2f( space()->comm() ),
 					getLength(),
@@ -770,7 +769,7 @@ public:
 					space()->sIndB(fType_),
 					space()->eIndB(fType_),
 					s_ );
-		}
+
 	}
 
   /// \}
@@ -1076,17 +1075,17 @@ public:
 protected:
 
 	/// \brief stride in X direction
-	inline const Ordinal stride0() const {
+	inline constexpr const Ordinal stride0() const {
 		return( 1 );
 	}
 
 	/// \brief stride in Y direction
-	inline const Ordinal stride1() const {
+	inline constexpr const Ordinal stride1() const {
 		return( space()->nLoc(0)+space()->bu(0)-space()->bl(0)+1 );
 	}
 
 	/// \brief stride in Z direction
-	inline const Ordinal stride2() const {
+	inline constexpr const Ordinal stride2() const {
 		return(
 				( space()->nLoc(0)+space()->bu(0)-space()->bl(0)+1 )*(
 					space()->nLoc(1)+space()->bu(1)-space()->bl(1)+1 ) );

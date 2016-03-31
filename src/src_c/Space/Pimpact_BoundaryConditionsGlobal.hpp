@@ -78,13 +78,13 @@ public:
 	/// \name getter
 	/// @{ 
 
-  EBCType getBCL( const int& dir ) const { return( static_cast<EBCType>(BCL_int_[dir]) ); }
-	EBCType getBCU( const int& dir ) const { return( static_cast<EBCType>(BCU_int_[dir]) ); }
+  inline constexpr EBCType getBCL( const int& dir ) const { return( static_cast<EBCType>(BCL_int_[dir]) ); }
+	inline constexpr EBCType getBCU( const int& dir ) const { return( static_cast<EBCType>(BCU_int_[dir]) ); }
 
-  const int* getBCL() const { return( BCL_int_.getRawPtr() ); }
-  const int* getBCU() const { return( BCU_int_.getRawPtr() ); }
+  inline constexpr const int* getBCL() const { return( BCL_int_.getRawPtr() ); }
+  inline constexpr const int* getBCU() const { return( BCU_int_.getRawPtr() ); }
 
-	const Teuchos::Tuple<int,dim> periodic() const {
+	inline constexpr const Teuchos::Tuple<int,dim> periodic() const {
 		Teuchos::Tuple<int,dim> periodic;
     for( int i=0; i<3; ++i ) {
       if( getBCL(i)==PeriodicBC )

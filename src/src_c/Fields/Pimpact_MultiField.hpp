@@ -46,7 +46,6 @@ public:
 
   static const int dimension = FieldT::dimension;
 
-
 private:
 
   using MV = Pimpact::MultiField<FieldT>;
@@ -213,11 +212,11 @@ public:
 
 
   /// \brief get number of stored Field's
-  int getNumberVecs() const { return( mfs_.size() ); }
+  constexpr int getNumberVecs() const { return( mfs_.size() ); }
 
 
   /// \brief is true
-  bool HasConstantStride() const { return( true ); }
+  constexpr bool HasConstantStride() const { return( true ); }
 
 
   /// \}
@@ -353,7 +352,7 @@ public:
   /// \}
 
   /// For all columns j of A, set <tt>dots[j] := A[j]^T * B[j]</tt>.
-	void dot( const MV& A, std::vector<Scalar>& dots) const {
+	constexpr void dot( const MV& A, std::vector<Scalar>& dots) const {
 
 		const int n = getNumberVecs();
 		Scalar* temp = new Scalar[n];
@@ -368,7 +367,7 @@ public:
 
 
   /// \brief Compute the inner product for the \c MultiField considering it as one Vector.
-	Scalar dot( const MV& A, bool global=true ) const {
+	constexpr Scalar dot( const MV& A, bool global=true ) const {
 		int n = getNumberVecs();
 
 		Scalar b = 0.;
@@ -445,7 +444,7 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-	double norm( const MV& weights, bool global=true ) const {
+	constexpr double norm( const MV& weights, bool global=true ) const {
 
 		double nor=0.;
 

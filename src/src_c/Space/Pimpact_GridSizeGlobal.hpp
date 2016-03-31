@@ -29,7 +29,6 @@ class GridSizeGlobal : public Teuchos::Tuple<OrdinalT,4> {
   template<class OT>
   friend Teuchos::RCP<const GridSizeGlobal<OT> > createGridSizeGlobal( const Teuchos::Tuple<OT,4>& tuple );
 
-
 protected:
 
 	/// \todo test also third dimension( not on coarser grids)
@@ -43,7 +42,7 @@ protected:
 
 public:
 
-	const OrdinalT& get( int i ) const  { return( (*this)[i] ); }
+	inline constexpr const OrdinalT& get( int i ) const  { return( (*this)[i] ); }
 
 	void print( std::ostream& out=std::cout ) const {
 		out << " --- GridSizeGlobal: " << *this << " ---\n";

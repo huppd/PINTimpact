@@ -83,7 +83,7 @@ protected:
 
 public:
 
-	const OrdinalT& get( int i ) const { return( (*this)[i] ); }
+	inline constexpr const OrdinalT& get( int i ) const { return( (*this)[i] ); }
 
   void print( std::ostream& out=std::cout ) const {
     out << " \tlocal grid size= " << (*this) << "\n";
