@@ -66,7 +66,7 @@ public:
 
   Teuchos::RCP<MOperatorT> getOperatorPtr() { return( op_ ); }
 
-	Teuchos::RCP<const SpaceT> space() const { return(op_->space()); }
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(op_->space()); }
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
 		op_->setParameter( para );

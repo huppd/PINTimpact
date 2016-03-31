@@ -60,10 +60,10 @@ public:
 
 public:
 
-  Teuchos::RCP<FFieldT> get(       ) const { return( fField_ ); }
+  constexpr const Teuchos::RCP<FFieldT>& get(       ) const { return( fField_ ); }
 
   /// \brief gets ith operator, similar to python i=-1 is gets you the coarses space
-  Teuchos::RCP<CFieldT> get( int i ) const {
+  constexpr const Teuchos::RCP<CFieldT>& get( int i ) const {
     if( i<0 )
       return( cFields_[mgSpaces_->getNGrids()+i] );
     else

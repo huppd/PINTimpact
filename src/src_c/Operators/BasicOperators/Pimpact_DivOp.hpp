@@ -130,7 +130,7 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
-	Teuchos::RCP<const SpaceT> space() const { return(space_); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(space_); };
 
   inline constexpr const Scalar* getC( const ECoord& dir ) const {
       return( c_[dir] );

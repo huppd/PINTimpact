@@ -68,7 +68,6 @@ private:
 
 public:
 
-
   ScalarField( const Teuchos::RCP<const SpaceT>& space, bool owning=true, EField fType=EField::S ):
     AbstractField<SpaceT>( space ),
     owning_(owning),
@@ -81,7 +80,6 @@ public:
     }
 
   };
-
 
   /// \brief copy constructor.
   ///
@@ -915,7 +913,7 @@ public:
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const { return( AbstractField<SpaceT>::space_ ); }
 
-  const MPI_Comm& comm() const { return( space()->comm() ); }
+  constexpr const MPI_Comm& comm() const { return( space()->comm() ); }
 
   /// \name comunication methods.
 	/// \brief highly dependent on underlying storage should only be used by

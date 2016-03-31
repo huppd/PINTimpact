@@ -64,13 +64,13 @@ public:
 
   }
 
-  Teuchos::RCP<const SpaceT> space() const { return( convectionSOp_->space() ); }
+  constexpr const Teuchos::RCP<const SpaceT>& space() const { return( convectionSOp_->space() ); }
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
 		convectionSOp_->setParameter( para );
 	}
 
-  Teuchos::RCP<const SOpT> getSOp() const {
+  constexpr const Teuchos::RCP<const SOpT> getSOp() const {
     return( convectionSOp_ );
   }
 

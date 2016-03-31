@@ -49,8 +49,8 @@ protected:
 
   const Teuchos::RCP<const OperatorT> op_;
 
-	Teuchos::Tuple< Teuchos::RCP<SolverT>, 3 > AsovL_;
-	Teuchos::Tuple< Teuchos::RCP<SolverT>, 3 > AsovU_;
+	const Teuchos::Tuple< Teuchos::RCP<SolverT>, 3 > AsovL_;
+	const Teuchos::Tuple< Teuchos::RCP<SolverT>, 3 > AsovU_;
 
 public:
 
@@ -226,7 +226,7 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
-	Teuchos::RCP<const SpaceT> space() const { return(op_->space()); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(op_->space()); };
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 

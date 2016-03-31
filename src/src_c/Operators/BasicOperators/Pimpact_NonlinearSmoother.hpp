@@ -76,7 +76,7 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
-	Teuchos::RCP<const SpaceT> space() const { return(convVWrap_->space()); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(convVWrap_->space()); };
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
 		convVWrap_->setParameter( para );

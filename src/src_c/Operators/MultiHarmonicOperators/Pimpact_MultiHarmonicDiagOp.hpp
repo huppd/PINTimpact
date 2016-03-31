@@ -88,7 +88,7 @@ public:
 
   }
 
-	Teuchos::RCP<const SpaceT> space() const { return(zeroOp_->space()); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(zeroOp_->space()); };
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 

@@ -83,7 +83,7 @@ public:
 
   bool hasApplyTranspose() const { return( op_->hasApplyTranspose() ); }
 
-	Teuchos::RCP<const SpaceT> space() const { return(op_->space()); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(op_->space()); };
 
   Teuchos::RCP<OperatorT> getOperatorPtr() { return( op_ ); }
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {

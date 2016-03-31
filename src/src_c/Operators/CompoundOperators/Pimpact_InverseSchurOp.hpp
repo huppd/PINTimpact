@@ -19,6 +19,7 @@ namespace Pimpact {
 
 /// \ingroup CompoundOperator
 /// \relates TripleComposition
+/// \todo deprecated, mv temporary variables to apply
 ///
 /// \f[
 ///		\begin{bmatrix} I & 0 \\ opV2S opV2V & -I \end{bmatrix}^{-1}
@@ -130,7 +131,7 @@ public:
 //    opV2S_->assignField( mv.getConstVField() );
   };
 
-	Teuchos::RCP<const SpaceT> space() const { return(opV2V_->space()); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(opV2V_->space()); };
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 

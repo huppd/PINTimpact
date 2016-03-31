@@ -47,7 +47,7 @@ public:
 
   void assignField( const DomainFieldT& mv ) {};
 
-	Teuchos::RCP<const SpaceT> space() const { return(space_); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(space_); };
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 

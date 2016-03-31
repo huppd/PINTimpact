@@ -77,7 +77,6 @@ public:
     nIter_( pl->get<int>( "numIters", 1 ) ),
     omega_( pl->get<Scalar>( "omega", 0.75 ) ),
     levelYes_( pl->get<bool>( "level", false ) ),
-    //temp_( create<DomainFieldT>( op->space() ) ),
     op_(op) {
 		
 			lineDirection_[X] = pl->get<bool>( "X", false );
@@ -194,7 +193,7 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
-	Teuchos::RCP<const SpaceT> space() const { return(op_->space()); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(op_->space()); };
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 

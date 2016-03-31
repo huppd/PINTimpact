@@ -83,7 +83,6 @@ public:
 			// allocate stencil
 			Ordinal nTemp = 3*( space_->nLoc(i) - 1 + 1 );
 			c_[i] = new Scalar[ nTemp ];
-
 		}
 
 		Op_getCDG(
@@ -224,7 +223,7 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
-	constexpr Teuchos::RCP<const SpaceT> space() const { return(space_); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(space_); };
 
 	inline constexpr const Scalar* getC( const ECoord& dir) const  {
 		return( getC( static_cast<const int&>(dir) ) );

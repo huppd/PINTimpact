@@ -84,18 +84,18 @@ public:
   VField& getVField() { return( *vfield_ ); }
   SField& getSField() { return( *sfield_ ); }
 
-  const VField& getConstVField() const { return( *vfield_ ); }
-  const SField& getConstSField() const { return( *sfield_ ); }
+  constexpr const VField& getConstVField() const { return( *vfield_ ); }
+  constexpr const SField& getConstSField() const { return( *sfield_ ); }
 
   Teuchos::RCP<VField> getVFieldPtr() { return( vfield_ ); }
   Teuchos::RCP<SField> getSFieldPtr() { return( sfield_ ); }
 
-  Teuchos::RCP<const VField> getConstVFieldPtr() const { return( vfield_ ); }
-  Teuchos::RCP<const SField> getConstSFieldPtr() const { return( sfield_ ); }
+  constexpr Teuchos::RCP<const VField> getConstVFieldPtr() const { return( vfield_ ); }
+  constexpr Teuchos::RCP<const SField> getConstSFieldPtr() const { return( sfield_ ); }
 
-  Teuchos::RCP<const SpaceT> space() const { return( AF::space_ ); }
+  constexpr const Teuchos::RCP<const SpaceT>& space() const { return( AF::space_ ); }
 
-  const MPI_Comm& comm() const { return(vfield_->comm()); }
+  constexpr const MPI_Comm& comm() const { return(vfield_->comm()); }
 
 
   /// \brief get Vect length
@@ -103,13 +103,13 @@ public:
   /// the vector length is withregard to the inner points
   /// \return vector length
   /// \brief returns the length of Field.
-  Ordinal getLength( bool nox_vec=false ) const {
+  constexpr Ordinal getLength( bool nox_vec=false ) const {
     return( vfield_->getLength(nox_vec) + sfield_->getLength(nox_vec) );
   }
 
 
   /// \brief get number of stored Field's
-  int getNumberVecs() const { return( 1 ); }
+  constexpr int getNumberVecs() const { return( 1 ); }
 
 
   /// \}
@@ -130,7 +130,7 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  void abs(const MV& y) {
+  void abs( const MV& y ) {
     vfield_->abs( *y.vfield_ );
     sfield_->abs( *y.sfield_ );
   }
@@ -166,7 +166,7 @@ public:
 
 
   /// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
-  Scalar dot ( const MV& a, bool global=true ) const {
+  constexpr Scalar dot ( const MV& a, bool global=true ) const {
 
     Scalar b = 0.;
 
@@ -213,7 +213,7 @@ public:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
   /// \todo add \c std::sqrt
-  double norm(const MV& weights, bool global=true) const {
+  constexpr double norm(const MV& weights, bool global=true) const {
 
     double normvec=
         vfield_->norm( *weights.vfield_, false ) +

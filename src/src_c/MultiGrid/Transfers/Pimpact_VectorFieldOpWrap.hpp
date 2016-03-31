@@ -66,7 +66,7 @@ public:
 
   }
 
-	Teuchos::RCP<const SpaceT> space() const { return(sop_->space()); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(sop_->space()); };
 	/// \todo dirty
 	Teuchos::RCP<const SpaceT> spaceC() const { return(sop_->spaceC()); };
 	/// \todo dirty

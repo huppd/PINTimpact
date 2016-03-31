@@ -40,9 +40,7 @@ protected:
 
 	const Teuchos::RCP<const TeuchosSolver<OperatorT> > solver_;
 
-
 public:
-
 
 	/// \brief constructor
 	///
@@ -69,7 +67,7 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
-	Teuchos::RCP<const SpaceT> space() const { return(solver_->getOperator()->space()); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(solver_->getOperator()->space()); };
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 

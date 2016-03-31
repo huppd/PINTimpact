@@ -54,7 +54,7 @@ public:
 
 protected:
 
-  Teuchos::RCP<const SpaceT> space_;
+  const Teuchos::RCP<const SpaceT> space_;
 
 	Scalar mulI_;
 	Scalar mulL_;
@@ -200,9 +200,9 @@ public:
   }
 
 
-	Teuchos::RCP<const SpaceT> space() const { return( space_ ); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return( space_ ); };
 
-  const Scalar* getC( const ECoord& dir, const EField& ftype ) const {
+  constexpr const Scalar* getC( const ECoord& dir, const EField& ftype ) const {
       return( ((int)dir==(int)ftype)?cV_[dir]:cS_[dir] );
   }
 

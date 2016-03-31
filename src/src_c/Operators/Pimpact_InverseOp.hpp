@@ -110,7 +110,7 @@ public:
   };
 
 
-	Teuchos::RCP<const SpaceT> space() const { return(linprob_->space()); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(linprob_->space()); };
 
 	Teuchos::RCP< LinearProblem<MF> > getLinearProblem() { return(linprob_); }
 
@@ -155,7 +155,6 @@ public:
     linprob_->print( out );
   }
 
-//	Teuchos::RCP<const SpaceT> space() const { return(linprob_->getProblem()->getOperator()->space()); };
 
 }; // end of class InverseOp
 

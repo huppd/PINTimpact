@@ -223,7 +223,7 @@ public:
 
 	};
 
-	Teuchos::RCP<const SpaceT> space() const { return(mgSpaces_->get()); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(mgSpaces_->get()); };
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
 		mgOps_->setParameter( para );

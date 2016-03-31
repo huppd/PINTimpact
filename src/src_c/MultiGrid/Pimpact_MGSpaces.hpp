@@ -45,16 +45,16 @@ public:
 	/// \brief get number of grids
 	///
 	/// \return  number of grids
-  int getNGrids() const { return( spaces_.size() ); }
+  constexpr int getNGrids() const { return( spaces_.size() ); }
 
-  Teuchos::RCP<const FSpaceT>  get()        const { return( space_ ); }
+  constexpr const Teuchos::RCP<const FSpaceT>&  get()        const { return( space_ ); }
 
   /// \brief gets ith space, similar to python i=-1 is gets you the coarses space
 	///
 	/// \param i index of space level if negative it is counted from coarsest space
 	///
 	/// \return ith space
-  Teuchos::RCP<const CSpaceT>  get( int i ) const {
+  constexpr const Teuchos::RCP<const CSpaceT>&  get( int i ) const {
     if( i<0 )
       return( spaces_[ getNGrids()+i ] );
     else
@@ -62,7 +62,7 @@ public:
   }
 
 
-	bool participating( int i ) const {
+	constexpr bool participating( int i ) const {
 		return( get(i)->getProcGrid()->participating() );
 	}
 

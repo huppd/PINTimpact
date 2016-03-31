@@ -96,7 +96,7 @@ public:
  	};
 
 
-	Teuchos::RCP<const SpaceT> space() const { return(op_->space()); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(op_->space()); };
 
 	Teuchos::RCP<OpT> getOperator() const { return(op_); };
 

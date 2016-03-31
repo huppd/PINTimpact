@@ -58,14 +58,14 @@ public:
   /// \name getter methods
   //@{
 
-  const Teuchos::RCP<const Belos::SolverManager<Scalar, MF, Op> > getSolver() const {
+  constexpr const Teuchos::RCP<const Belos::SolverManager<Scalar, MF, Op> > getSolver() const {
     return( solver_ );
   }
-  const Teuchos::RCP<const Belos::LinearProblem<Scalar, MF, Op> > getProblem() const {
+  constexpr Teuchos::RCP<const Belos::LinearProblem<Scalar, MF, Op> > getProblem() const {
     return( problem_ );
   }
 
-	Teuchos::RCP<const SpaceT> space() const {
+	constexpr const Teuchos::RCP<const SpaceT>& space() const {
 		return(problem_->getOperator()->space());
 	};
 

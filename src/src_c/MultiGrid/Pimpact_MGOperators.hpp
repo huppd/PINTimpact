@@ -67,12 +67,12 @@ public:
 
 public:
 
-  Teuchos::RCP<const MGSpacesT> getMGSpaces() const { return( mgSpaces_ ); }
+  constexpr const Teuchos::RCP<const MGSpacesT>& getMGSpaces() const { return( mgSpaces_ ); }
 
-  Teuchos::RCP<FOperatorT> get() const { return( fOperator_ ); }
+  constexpr const Teuchos::RCP<FOperatorT>& get() const { return( fOperator_ ); }
 
   /// \brief gets ith operator, similar to python i=-1 is gets you the coarses space
-  Teuchos::RCP<COperatorT> get( int i ) const {
+  constexpr const Teuchos::RCP<COperatorT>& get( int i ) const {
     if( i<0 )
       return( cOperator_[mgSpaces_->getNGrids()+i] );
     else

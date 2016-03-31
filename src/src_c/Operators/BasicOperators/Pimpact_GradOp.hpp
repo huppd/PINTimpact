@@ -39,16 +39,6 @@ void OP_grad(
     const double* const phi,
     double* const grad );
 
-void OP_SetBCZero(
-    const int* const N,
-    const int* const bl,
-    const int* const bu,
-    const int* const BCL,
-    const int* const BCU,
-    const int* const ss,
-    const int* const nn,
-    const double* phi );
-
 void OP_extrapolateBC(
 		const int& m,         
     const int* const N,         
@@ -183,9 +173,9 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
-	Teuchos::RCP<const SpaceT> space() const { return(space_); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(space_); };
 
-  const Scalar* getC( const ECoord& dir ) const {
+  constexpr const Scalar* getC( const ECoord& dir ) const {
       return( c_[dir] );
   }
 

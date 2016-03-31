@@ -5,10 +5,11 @@
 
 #include "Teuchos_ParameterList.hpp"
 #include "Teuchos_RCP.hpp"
+#include "Teuchos_ScalarTraits.hpp"
 
 #include "BelosTypes.hpp"
 
-#include "Pimpact_Space.hpp" // just for create<>
+#include "Pimpact_Space.hpp" // just for createOstream<>
 
 
 
@@ -17,6 +18,8 @@ namespace Pimpact {
 
 
 
+/// \todo make EV computation templated
+/// tparam evcomputer<OperatorT>, COTOR( op, pl ), compEV(min,max) 
 template<class OperatorT>
 class Chebyshev {
 
@@ -49,8 +52,8 @@ public:
 			const Teuchos::RCP<const OperatorT>& op,
 			const Teuchos::RCP<Teuchos::ParameterList>& pl=Teuchos::parameterList() ):
     numIters_( pl->get<int>( "numIters", 8 ) ),
-		lamMax_( pl->get<Scalar>( "max EV", 0. ) ),
-		lamMin_( pl->get<Scalar>( "min EV", 0. ) ),
+		lamMax_( pl->get<Scalar>( "max EV", Teuchos::ScalarTraits<Scalar>::zero() ) ),
+		lamMin_( pl->get<Scalar>( "min EV", Teuchos::ScalarTraits<Scalar>::zero() ) ),
     op_(op) {
 
 			Teuchos::RCP<DomainFieldT> x = create<DomainFieldT>( space() );
@@ -59,7 +62,7 @@ public:
 			if( pl->get<bool>( "with output", false ) )
 				out_ = Pimpact::createOstream( "conv_Cheb.txt" );
 
-			if( std::abs( lamMax_-lamMin_ )<1.e-32 ) {
+			if( std::abs( lamMax_-lamMin_ )<Teuchos::ScalarTraits<Scalar>::eps() ) {
 				x->random();
 
 				Scalar lamp = 0.;
@@ -78,10 +81,14 @@ public:
 
 				op_->apply( *x, *r );
 				lamMax_ = r->dot( *x )/x->dot( *x );
-				std::cout << "lamMax: " << lamMax_ << "\n";
+
 
 				lamMax_ *= 1.1;
 				lamMin_ = lamMax_*eigRatio_;
+				if( 0==space()->rankST() ) {
+					std::cout << "lamMax: " << lamMax_ << "\n";
+					std::cout << "lamMin: " << lamMin_ << "\n";
+				}
 
 			}
 
@@ -339,7 +346,7 @@ public:
 		op_->assignField( mv );
 	};
 
-	Teuchos::RCP<const SpaceT> space() const { return(op_->space()); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(op_->space()); };
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
 		op_->setParameter( para );

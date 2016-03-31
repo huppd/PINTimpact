@@ -95,10 +95,10 @@ public:
 
 public:
 
-  Teuchos::RCP<const TransferOpT>       getTransferOp     (       ) const { return( transferOp_ ); }
+  constexpr const Teuchos::RCP<const TransferOpT>&       getTransferOp     (       ) const { return( transferOp_ ); }
 
   /// \brief gets ith RestrictionOp, similar to python i=-1 is gets you the coarses space
-  Teuchos::RCP<const RestrictionOpT>    getRestrictionOp  ( int i ) const {
+  constexpr const Teuchos::RCP<const RestrictionOpT>&    getRestrictionOp  ( int i ) const {
     if( i<0 )
       return( restrictionOps_[mgSpaces_->getNGrids()+i] );
     else
@@ -106,7 +106,7 @@ public:
   }
 
   /// \brief gets ith InterpolationOp, similar to python i=-1 is gets you the coarses space
-  Teuchos::RCP<const InterpolationOpT>  getInterpolationOp( int i ) const {
+  constexpr const Teuchos::RCP<const InterpolationOpT>&  getInterpolationOp( int i ) const {
     if( i<0 )
       return( interpolationOps_[mgSpaces_->getNGrids()+i] );
     else

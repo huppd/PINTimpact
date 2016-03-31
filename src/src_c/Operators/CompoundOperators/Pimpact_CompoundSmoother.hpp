@@ -41,10 +41,10 @@ protected:
 	using OpVSmoother = vSmoother< OpV2VT>;
 	using OpSSmootherT = TripleCompositionOp< sSmoother,TripleCompositionOp<OpV2ST,OpV2VT,OpS2VT>,sSmoother>;
 
-	Teuchos::RCP<OpS2VT> opS2V_;
+	const Teuchos::RCP<OpS2VT> opS2V_;
 
-	Teuchos::RCP<OpVSmoother> opVSmoother_;
-	Teuchos::RCP<OpSSmootherT> opSSmoother_;
+	const Teuchos::RCP<OpVSmoother> opVSmoother_;
+	const Teuchos::RCP<OpSSmootherT> opSSmoother_;
 
 public:
 
@@ -81,13 +81,13 @@ public:
 	void assignField( const DomainFieldT& mv ) {
 	};
 
-	Teuchos::RCP<const SpaceT> space() const { return(opS2V_->space()); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(opS2V_->space()); };
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
 	bool hasApplyTranspose() const { return( false ); }
 
-	const std::string getLabel() const { return( "CompoundSmoother" ); };
+	constexpr const std::string getLabel() const { return( "CompoundSmoother" ); };
 
   void print( std::ostream& out=std::cout ) const {
 		out << getLabel() << ":\n";

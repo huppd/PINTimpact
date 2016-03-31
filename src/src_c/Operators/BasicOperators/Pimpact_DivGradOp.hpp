@@ -51,6 +51,7 @@ public:
       Belos::ETrans trans=Belos::NOTRANS ) const {
 
 		Teuchos::RCP< VectorField<SpaceT> > temp = create<VectorField>( space() );
+
     grad_->apply( x, *temp );
     div_->apply( *temp, y );
 
@@ -65,11 +66,11 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
-	Teuchos::RCP<const SpaceT> space() const { return( div_->space() ); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return( div_->space() ); };
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
-	const std::string getLabel() const { return( "DivGrad" ); };
+	constexpr const std::string getLabel() const { return( "DivGrad" ); };
 
   void print( std::ostream& out=std::cout ) const {
 		out << "---" << getLabel() << "---\n";

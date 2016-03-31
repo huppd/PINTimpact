@@ -42,9 +42,9 @@ public:
 
 protected:
 
-	using TO = Teuchos::Tuple<Ordinal,3>;
+	using TO = const Teuchos::Tuple<Ordinal,3>;
 
-	Teuchos::RCP<const SpaceT> space_;
+	const Teuchos::RCP<const SpaceT> space_;
 
 	Ordinal N_;
 
@@ -59,7 +59,7 @@ protected:
 
 public:
 
-	const Ordinal& getN() const { return( N_ ); }
+	constexpr const Ordinal& getN() const { return( N_ ); }
 
 	TeuchosTransfer( const Teuchos::RCP<const SpaceT>& space ):
 		space_(space) {
@@ -320,7 +320,7 @@ public:
 
 	}
 
-	const std::string getLabel() const { return( "TeuchosTransfer" ); };
+	constexpr const std::string getLabel() const { return( "TeuchosTransfer" ); };
 
 	void print( std::ostream& out=std::cout ) const {
 		out << "--- " << getLabel() << " ---\n";
@@ -358,7 +358,8 @@ public:
 	//using SolverT = Teuchos::SerialQRDenseSolver<Ordinal,Scalar>;
 
 protected:
-Teuchos::RCP< const OperatorT > op_;
+
+	Teuchos::RCP< const OperatorT > op_;
 	Teuchos::RCP< TeuchosTransfer<SpaceT> > trans_;
 	Teuchos::RCP< SolverT > Asov_;
 
@@ -437,12 +438,12 @@ public:
 	
 protected:
 
-	const Ordinal& getN() const { return( trans_->getN() ); }
+	constexpr const Ordinal& getN() const { return( trans_->getN() ); }
 
 public:
 
-	Teuchos::RCP< const OperatorT > getOperator() const { return( op_ ); }
-	Teuchos::RCP< TeuchosTransfer<SpaceT> > getTeuchosTransfer() const { return( trans_ ); }
+	constexpr const Teuchos::RCP< const OperatorT >& getOperator() const { return( op_ ); }
+	constexpr const Teuchos::RCP< TeuchosTransfer<SpaceT> >& getTeuchosTransfer() const { return( trans_ ); }
 
 	///  @} 
 

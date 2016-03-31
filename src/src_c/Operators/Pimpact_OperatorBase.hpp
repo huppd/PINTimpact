@@ -30,7 +30,7 @@ public:
 
   virtual void assignField( const DomainField& mv ) {};
 
-	virtual Teuchos::RCP<const SpaceT> space() const{ return(Teuchos::null); };
+	virtual const Teuchos::RCP<const SpaceT>& space() const =0;
 
 	virtual void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {}
 
@@ -76,7 +76,7 @@ public:
     return( opm_->hasApplyTranspose() );
   };
 
-	virtual Teuchos::RCP<const SpaceT> space() const { return(opm_->space()); };
+	virtual const Teuchos::RCP<const SpaceT>& space() const { return(opm_->space()); };
 
 	virtual void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) { opm_->setParameter(para); }
 
