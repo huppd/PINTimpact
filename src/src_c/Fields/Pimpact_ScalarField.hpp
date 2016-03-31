@@ -3,8 +3,11 @@
 #define PIMPACT_SCALARFIELD_HPP
 
 
-#include <vector>
+#include <cmath>
+#include <functional>
 #include <iostream>
+#include <random>
+#include <vector>
 
 #include "mpi.h"
 
@@ -183,37 +186,22 @@ public:
   /// \brief Replace \c this with \f$\alpha A + \beta B\f$.
   void add( const Scalar& alpha, const MV& A, const Scalar& beta, const MV& B ) {
     // add test for consistent VectorSpaces in debug mode
-    if( s_==A.s_ && s_==B.s_ )
-      scale( alpha+beta );
-    else if( s_==A.s_ && s_!=B.s_ )
-      SF_add2(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sInd(fType_),
-          space()->eInd(fType_),
-          s_, B.s_,
-          alpha, beta );
-    else if( s_!=A.s_ && s_==B.s_ )
-      SF_add2(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sInd(fType_),
-          space()->eInd(fType_),
-          s_, A.s_,
-          beta, alpha );
-    else if( s_!=A.s_ && s_!=B.s_ )
-      SF_add(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sInd(fType_),
-          space()->eInd(fType_),
-          s_, A.s_, B.s_,
-          alpha, beta );
-    changed();
-  }
+		if( s_==A.s_ && s_==B.s_ )
+			scale( alpha+beta );
+		else{
+			for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
+				for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
+					for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i ) {
+						if( s_==A.s_ && s_!=B.s_ )
+							at(i,j,k) = alpha*at(i,j,k) + beta*B.at(i,j,k);
+						else if( s_!=A.s_ && s_==B.s_ )
+							at(i,j,k) = alpha*A.at(i,j,k) + beta*at(i,j,k);
+						else if( s_!=A.s_ && s_!=B.s_ )
+							at(i,j,k) = alpha*A.at(i,j,k) + beta*B.at(i,j,k);
+					}
+			changed();
+		}
+	}
 
 
   /// \brief Put element-wise absolute values of source vector \c y into this
@@ -222,18 +210,15 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  void abs(const MV& y) {
-    // add test for consistent VectorSpaces in debug mode
-    SF_abs(
-        space()->nLoc(),
-        space()->bl(),
-        space()->bu(),
-        space()->sInd(fType_),
-        space()->eInd(fType_),
-        s_,
-        y.s_ );
+	void abs(const MV& y) {
+		// add test for consistent VectorSpaces in debug mode
+		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
+			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
+				for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
+					at(i,j,k) = std::abs( y.at(i,j,k) );
 		changed();
-  }
+
+	}
 
 
   /// \brief Put element-wise reciprocal of source vector \c y into this vector.
@@ -243,28 +228,20 @@ public:
   /// \return Reference to this object
   void reciprocal(const MV& y){
     // add test for consistent VectorSpaces in debug mode
-    SF_reciprocal(
-        space()->nLoc(),
-        space()->bl(),
-        space()->bu(),
-        space()->sInd(fType_),
-        space()->eInd(fType_),
-        s_,
-        y.s_ );
+		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
+			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
+				for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
+					at(i,j,k) = Teuchos::ScalarTraits<Scalar>::one()/ y.at(i,j,k);
     changed();
   }
 
 
   /// \brief Scale each element of the vector with \c alpha.
 	void scale( const Scalar& alpha ) {
-		SF_scale(
-				space()->nLoc(),
-				space()->bl(),
-				space()->bu(),
-				space()->sInd(fType_),
-				space()->eInd(fType_),
-				s_,
-				alpha);
+		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
+			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
+				for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
+					at(i,j,k) *= alpha;
 		changed();
 	}
 
@@ -272,17 +249,14 @@ public:
   /// \brief Scale this vector <em>element-by-element</em> by the vector a.
   ///
   /// Here x represents this vector, and we update it as
-  /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
+  /// \f[ x_i = x_i \cdot y_i \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-	void scale(const MV& a) {
+	void scale( const MV& y ) {
 		// add test for consistent VectorSpaces in debug mode
-		SF_scale2(
-				space()->nLoc(),
-				space()->bl(),
-				space()->bu(),
-				space()->sInd(fType_),
-				space()->eInd(fType_),
-				s_, a.s_ );
+		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
+			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
+				for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
+					at(i,j,k) *= y.at(i,j,k);
 		changed();
 	}
 
@@ -290,20 +264,15 @@ public:
   /// \name Norm method(reductions)
   /// @{
 
-	/// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
-  constexpr Scalar dot ( const MV& a, bool global=true ) const {
+	/// \brief Compute a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
+  constexpr Scalar dot ( const MV& y, bool global=true ) const {
 
-    Scalar b = 0.;
+    Scalar b = Teuchos::ScalarTraits<Scalar>::zero();
 
-    SF_dot(
-        space()->nLoc(),
-        space()->bl(),
-        space()->bu(),
-        space()->sInd(fType_),
-        space()->eInd(fType_),
-        s_,
-        a.s_,
-        b );
+		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
+			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
+				for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
+					b += at(i,j,k)*y.at(i,j,k);
 
     if( global ) this->reduceNorm( comm(), b );
 
@@ -318,40 +287,23 @@ public:
 	/// \todo include scaled norm
   Scalar norm(  Belos::NormType type = Belos::TwoNorm, bool global=true ) const {
 
-    Scalar normvec = 0.;
+    Scalar normvec = Teuchos::ScalarTraits<Scalar>::zero();
 
-    switch(type) {
-    case Belos::OneNorm:
-      SF_comp1Norm(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sInd(fType_),
-          space()->eInd(fType_),
-          s_,
-          normvec );
-      break;
-    case Belos::TwoNorm:
-      SF_comp2Norm(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sInd(fType_),
-          space()->eInd(fType_),
-          s_,
-          normvec );
-      break;
-    case Belos::InfNorm:
-      SF_compInfNorm(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sInd(fType_),
-          space()->eInd(fType_),
-          s_,
-          normvec );
-      break;
-    }
+		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
+			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
+				for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i ) {
+					switch(type) {
+						case Belos::OneNorm:
+							normvec += std::abs( at(i,j,k) );
+							break;
+						case Belos::TwoNorm:
+							normvec += at(i,j,k)*at(i,j,k);
+							break;
+						case Belos::InfNorm:
+							normvec = std::fmax( std::abs(at(i,j,k)), normvec );
+							break;
+					}
+				}
 
     if( global ) this->reduceNorm( comm(), normvec, type );
 
@@ -367,17 +319,12 @@ public:
   /// \return \f$ \|x\|_w \f$
   constexpr double norm(const MV& weights, bool global=true ) const {
 
-    Scalar normvec = 0.;
+    Scalar normvec = Teuchos::ScalarTraits<Scalar>::zero();
 
-    SF_weightedNorm(
-        space()->nLoc(),
-        space()->bl(),
-        space()->bu(),
-        space()->sInd(fType_ ),
-        space()->eInd(fType_),
-        s_,
-				weights.s_,
-        normvec );
+		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
+			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
+				for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
+					normvec += at(i,j,k)*at(i,j,k)*weights.at(i,j,k)*weights.at(i,j,k);
 
     if( global ) this->reduceNorm( comm(), normvec, Belos::TwoNorm );
 
@@ -395,70 +342,53 @@ public:
   /// Assign (deep copy) \c a into \c this.
   /// total deep, boundaries and everythin.
   /// \note the \c StencilWidths is not take care of assuming every field is generated with one
-  /// \note "indexing" is done c++
-  void assign( const MV& a ) {
+	void assign( const MV& a ) {
 
-//		SF_assign(
-//				space()->nLoc(),
-//				space()->bl(),
-//				space()->bu(),
-//				space()->sInd(fType_ ),
-//				space()->eInd(fType_),
-//				s_, a.s_ );
-//
-//		changed();
+		for(int i=0; i<getStorageSize(); ++i)
+			s_[i] = a.s_[i];
 
-	 for(int i=0; i<getStorageSize(); ++i)
-		 s_[i] = a.s_[i];
+		for( int dir=0; dir<space()->dim(); ++dir )
+			exchangedState_[dir] = a.exchangedState_[dir];
 
-	 for( int dir=0; dir<space()->dim(); ++dir )
-		 exchangedState_[dir] = a.exchangedState_[dir];
-  }
+	}
 
 
   /// \brief Replace the vectors with a random vectors.
   /// depending on Fortrans \c Random_number implementation, with always same seed => not save, if good randomness is required
   void random( bool useSeed = false, int seed = 1 ) {
-    SF_random(
-        space()->nLoc(),
-        space()->bl(),
-        space()->bu(),
-        space()->sInd(fType_),
-        space()->eInd(fType_),
-        s_);
+
+		std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<> dis( -0.5, 0.5 );
+
+		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
+			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
+				for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
+					at(i,j,k) = dis(gen);
+
 		if( !space()->getProcGrid()->participating() )
-			SF_init(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sIndB(fType_),
-          space()->eIndB(fType_),
-          s_,
-          0. );
+			for( Ordinal k=space()->sIndB(fType_,Z); k<=space()->eIndB(fType_,Z); ++k )
+				for( Ordinal j=space()->sIndB(fType_,Y); j<=space()->eIndB(fType_,Y); ++j )
+					for( Ordinal i=space()->sIndB(fType_,X); i<=space()->eIndB(fType_,X); ++i )
+						at(i,j,k) = Teuchos::ScalarTraits<Scalar>::zero();
     changed();
   }
 
 
   /// \brief Replace each element of the vector  with \c alpha.
-	/// \deprecated
   void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero() ) {
-    SF_init(
-        space()->nLoc(),
-        space()->bl(),
-        space()->bu(),
-        space()->sInd(fType_),
-        space()->eInd(fType_),
-        s_, alpha);
+
+		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
+			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
+				for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
+					at(i,j,k) = alpha;
+		
 		if( !space()->getProcGrid()->participating() )
-			SF_init(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sIndB(fType_),
-          space()->eIndB(fType_),
-          s_,
-          0. );
-    changed();
+			for( Ordinal k=space()->sIndB(fType_,Z); k<=space()->eIndB(fType_,Z); ++k )
+				for( Ordinal j=space()->sIndB(fType_,Y); j<=space()->eIndB(fType_,Y); ++j )
+					for( Ordinal i=space()->sIndB(fType_,X); i<=space()->eIndB(fType_,X); ++i )
+						at(i,j,k) = Teuchos::ScalarTraits<Scalar>::zero();
+		changed();
   }
 
 protected:
@@ -518,14 +448,8 @@ public:
 
 		switch( type ) {
 			case ConstField :
-				SF_init(
-						space()->nLoc(),
-						space()->bl(),
-						space()->bu(),
-						space()->sIndB(fType_),
-						space()->eIndB(fType_),
-						s_,
-						para.get<Scalar>( "C", 0. ) );
+				initFromFunction( [&para](Scalar,Scalar,Scalar)->const Scalar&{
+						return( para.get<Scalar>( "C", Teuchos::ScalarTraits<Scalar>::zero() ) ); } );
 				break;
 			case Grad2D_inX :
 				SF_init_2DGradX(
@@ -537,7 +461,7 @@ public:
 						space()->getDomainSize()->getSize( X ),
 						space()->getCoordinatesLocal()->getX( X, fType_ ),
 						s_,
-						para.get<Scalar>( "dx", 1. )	);
+						para.get<Scalar>( "dx", Teuchos::ScalarTraits<Scalar>::one() )	);
 				break;
 			case Grad2D_inY :
 				SF_init_2DGradY(
@@ -549,7 +473,7 @@ public:
 						space()->getDomainSize()->getSize( Y ),
 						space()->getCoordinatesLocal()->getX( Y, fType_ ),
 						s_ ,
-						para.get<Scalar>( "dy", 1. )	);
+						para.get<Scalar>( "dy", Teuchos::ScalarTraits<Scalar>::one() )	);
 				break;
 			case Grad2D_inZ :
 				SF_init_2DGradZ(
@@ -561,7 +485,7 @@ public:
 						space()->getDomainSize()->getSize( Z ),
 						space()->getCoordinatesLocal()->getX( Z, fType_ ),
 						s_ ,
-						para.get<Scalar>( "dz", 1. )	);
+						para.get<Scalar>( "dz", Teuchos::ScalarTraits<Scalar>::one() )	);
 				break;
 			case Poiseuille2D_inX :
 				SF_init_2DPoiseuilleX(
@@ -598,10 +522,10 @@ public:
 				break;
 			case FPoint :
 				Scalar xc[3] = { 
-					para.get<Scalar>( "c_x", 1. ),
+					para.get<Scalar>( "c_x", Teuchos::ScalarTraits<Scalar>::one() ),
 					para.get<Scalar>( "c_y", space()->getDomainSize()->getSize( Y )/2. ),
 					para.get<Scalar>( "c_z", space()->getDomainSize()->getSize( Z )/2. ) };
-				Scalar amp = para.get<Scalar>( "amp", 1. );
+				Scalar amp = para.get<Scalar>( "amp", Teuchos::ScalarTraits<Scalar>::one() );
 				Scalar sig[3] = {
 					para.get<Scalar>( "sig_x", 0.2 ),
 					para.get<Scalar>( "sig_y", 0.2 ),
@@ -623,14 +547,8 @@ public:
 		}
 
 		if( !space()->getProcGrid()->participating() ) // not sure why?
-			SF_init(
-					space()->nLoc(),
-					space()->bl(),
-					space()->bu(),
-					space()->sIndB(fType_),
-					space()->eIndB(fType_),
-					s_,
-					0. );
+			initFromFunction( [](Scalar,Scalar,Scalar)->Scalar{
+					return( Teuchos::ScalarTraits<Scalar>::zero() ); } );
 
 		changed();
 	}
@@ -638,17 +556,11 @@ public:
 
 	/// \brief initializes VectorField with the initial field defined in Fortran
 	/// \deprecated
-	void initField( EScalarField fieldType = ConstField, Scalar alpha=0. ) {
+	void initField( EScalarField fieldType = ConstField, Scalar alpha=Teuchos::ScalarTraits<Scalar>::zero() ) {
 		switch( fieldType ) {
 			case ConstField :
-				SF_init(
-						space()->nLoc(),
-						space()->bl(),
-						space()->bu(),
-						space()->sIndB(fType_),
-						space()->eIndB(fType_),
-						s_,
-						alpha );
+				initFromFunction( [&alpha](Scalar,Scalar,Scalar)->Scalar&{
+						return( alpha ); } );
 				break;
 			case Grad2D_inX :
 				SF_init_2DGradX(
@@ -660,7 +572,7 @@ public:
 						space()->getDomainSize()->getSize( X ),
 						space()->getCoordinatesLocal()->getX( X, fType_ ),
 						s_,
-						(std::abs(alpha)<1.e-16)?1.:alpha	);
+						(std::abs(alpha)<Teuchos::ScalarTraits<Scalar>::eps())?Teuchos::ScalarTraits<Scalar>::one():alpha	);
 				break;
 			case Grad2D_inY :
 				SF_init_2DGradY(
@@ -672,7 +584,7 @@ public:
 						space()->getDomainSize()->getSize( Y ),
 						space()->getCoordinatesLocal()->getX( Y, fType_ ),
 						s_ ,
-						(std::abs(alpha)<1.e-16)?1.:alpha	);
+						(std::abs(alpha)<Teuchos::ScalarTraits<Scalar>::eps())?Teuchos::ScalarTraits<Scalar>::one():alpha	);
 				break;
 			case Grad2D_inZ :
 				SF_init_2DGradZ(
@@ -684,7 +596,7 @@ public:
 						space()->getDomainSize()->getSize( Z ),
 						space()->getCoordinatesLocal()->getX( Z, fType_ ),
 						s_ ,
-						(std::abs(alpha)<1.e-16)?1.:alpha	);
+						(std::abs(alpha)<Teuchos::ScalarTraits<Scalar>::eps())?Teuchos::ScalarTraits<Scalar>::one():alpha	);
 				break;
 			case Poiseuille2D_inX :
 				SF_init_2DPoiseuilleX(
@@ -722,8 +634,7 @@ public:
 			case FPoint :
 				Scalar xc[3] =
 				{ 
-					1.,
-					//				1.,
+					Teuchos::ScalarTraits<Scalar>::one(),
 					//				space()->getDomainSize()->getSize( X )/4.,
 					space()->getDomainSize()->getSize( Y )/2.,
 					space()->getDomainSize()->getSize( Z )/2. };
@@ -746,29 +657,31 @@ public:
 		}
 
 		if( !space()->getProcGrid()->participating() )
-			SF_init(
-					space()->nLoc(),
-					space()->bl(),
-					space()->bu(),
-					space()->sIndB(fType_),
-					space()->eIndB(fType_),
-					s_,
-					0. );
+			initFromFunction( [&alpha](Scalar,Scalar,Scalar)->Scalar{
+					return( Teuchos::ScalarTraits<Scalar>::zero() ); } );
 		changed();
 	}
 
-	void level() const {
+	void level() {
 
-		if( EField::S == fType_ )
-			SF_level(
-					MPI_Comm_c2f( space()->comm() ),
-					getLength(),
-					space()->nLoc(),
-					space()->bl(),
-					space()->bu(),
-					space()->sIndB(fType_),
-					space()->eIndB(fType_),
-					s_ );
+		if( EField::S == fType_ ) {
+
+			Scalar pre0 = Teuchos::ScalarTraits<Scalar>::zero();
+
+			for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
+				for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
+					for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
+						pre0 += at(i,j,k);
+
+			this->reduceNorm( space()->comm(), pre0, Belos::OneNorm );
+			pre0 /= static_cast<Scalar>( getLength() );
+
+			for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
+				for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
+					for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
+						at(i,j,k) -= pre0;
+
+		}
 
 	}
 
@@ -787,9 +700,9 @@ public:
 		for(int i=0; i<3; ++i)
 			cw[i] = space()->nLoc(i) + space()->bu(i) - space()->bl(i) + 1;
 
-		for( Ordinal k=space()->sIndB(fType_,2); k<=space()->eIndB(fType_,2); ++k )
-			for( Ordinal j=space()->sIndB(fType_,1); j<=space()->eIndB(fType_,1); ++j )
-				for( Ordinal i=space()->sIndB(fType_,0); i<=space()->eIndB(fType_,0); ++i )
+		for( Ordinal k=space()->sIndB(fType_,Z); k<=space()->eIndB(fType_,Z); ++k )
+			for( Ordinal j=space()->sIndB(fType_,Y); j<=space()->eIndB(fType_,Y); ++j )
+				for( Ordinal i=space()->sIndB(fType_,X); i<=space()->eIndB(fType_,X); ++i )
 					out << i << "\t" << j << "\t" << k << "\t" << at(i,j,k) << "\n";
   }
 

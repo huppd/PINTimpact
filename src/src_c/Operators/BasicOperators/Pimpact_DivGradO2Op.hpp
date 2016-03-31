@@ -166,8 +166,6 @@ public:
   void print( std::ostream& out=std::cout ) const {
     out << "--- " << getLabel() << " ---\n";
     out << " --- stencil: ---";
-		//out << " sr: " << SR_ << "\n";
-		//out << " er: " << ER_ << "\n";
     for( int dir=0; dir<3; ++dir ) {
       out << "\ndir: " << dir << "\n";
       for( int i=1; i<=space_->nLoc(dir); ++i ) {
