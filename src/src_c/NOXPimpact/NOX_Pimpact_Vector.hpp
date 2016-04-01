@@ -295,7 +295,7 @@ public:
   /// \note Even if the vector is distributed across processors, this
   /// should return the <em> global length </em> of the vector.
   virtual NOX::size_type length() const {
-    return( field_->getLength(true) );
+    return( field_->getLength()*field_->getNumberVecs() );
   }
 
 

@@ -56,7 +56,8 @@ public:
     y.scale( *forcing_ );
   }
 
-	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(forcing_->space()); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const {
+		return( forcing_->space() ); };
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 

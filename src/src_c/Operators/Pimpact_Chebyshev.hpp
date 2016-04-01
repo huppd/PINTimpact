@@ -86,8 +86,7 @@ public:
 				lamMax_ *= 1.1;
 				lamMin_ = lamMax_*eigRatio_;
 				if( 0==space()->rankST() ) {
-					std::cout << "lamMax: " << lamMax_ << "\n";
-					std::cout << "lamMin: " << lamMin_ << "\n";
+					std::cout << "lamMax: (" << lamMax_ << ",\t" << lamMin_ << " )\n";
 				}
 
 			}

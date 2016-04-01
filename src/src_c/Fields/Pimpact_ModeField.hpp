@@ -67,7 +67,7 @@ public:
 
 	constexpr Ordinal getStorageSize() const { return( 2*fieldc_->getStorageSize() ); }
 
-	Scalar* getRawPtr() const { return( s_ ); }
+	constexpr Scalar* getRawPtr() const { return( s_ ); }
 
   void setStoragePtr( Scalar*  array ) {
     s_ = array;
@@ -140,28 +140,28 @@ public:
   /// \name Attribute methods
   /// \{
 
-  Teuchos::RCP<FieldT> getCFieldPtr() { return( fieldc_ ); }
-  Teuchos::RCP<FieldT> getSFieldPtr() { return( fields_ ); }
+  constexpr Teuchos::RCP<FieldT> getCFieldPtr() { return( fieldc_ ); }
+  constexpr Teuchos::RCP<FieldT> getSFieldPtr() { return( fields_ ); }
 
-  Teuchos::RCP<const FieldT> getConstCFieldPtr() const { return( fieldc_ ); }
-  Teuchos::RCP<const FieldT> getConstSFieldPtr() const { return( fields_ ); }
+  constexpr Teuchos::RCP<const FieldT> getConstCFieldPtr() const { return( fieldc_ ); }
+  constexpr Teuchos::RCP<const FieldT> getConstSFieldPtr() const { return( fields_ ); }
 
-  FieldT& getCField() { return( *fieldc_ ); }
-  FieldT& getSField() { return( *fields_ ); }
+  constexpr FieldT& getCField() { return( *fieldc_ ); }
+  constexpr FieldT& getSField() { return( *fields_ ); }
 
-  const FieldT& getConstCField() const { return( *fieldc_ ); }
-  const FieldT& getConstSField() const { return( *fields_ ); }
+  constexpr const FieldT& getConstCField() const { return( *fieldc_ ); }
+  constexpr const FieldT& getConstSField() const { return( *fields_ ); }
 
-  Teuchos::RCP<const SpaceT> space() const { return( AF::space_ ); }
+  constexpr const Teuchos::RCP<const SpaceT>& space() const { return( AF::space_ ); }
 
-  const MPI_Comm& comm() const { return(fieldc_->comm()); }
+  constexpr const MPI_Comm& comm() const { return(fieldc_->comm()); }
 
   /// \brief returns the length of Field.
   ///
   /// should be the same as 2*fieldc_->getVecLength()
   /// the vector length is with regard to the inner points
-  Ordinal getLength( bool nox_vec=false ) const {
-    return( fieldc_->getLength(nox_vec) + fields_->getLength(nox_vec) );
+  constexpr Ordinal getLength() const {
+    return( fieldc_->getLength() + fields_->getLength() );
   }
 
 

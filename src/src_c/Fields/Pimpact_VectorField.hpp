@@ -170,14 +170,14 @@ public:
 	/// \f[ N_v = (N_x-2)(N_y-1)(N_z-2) \f]
 	/// \f[ N_w = (N_x-2)(N_y-2)(N_z-1) \f]
 	/// \return vect length \f[= N_u+N_v+N_w\f]
-	constexpr Ordinal getLength( bool dummy=false ) const {
+	constexpr Ordinal getLength() const {
 
-		Teuchos::RCP<const BoundaryConditionsGlobal<dimension> > bc =
-			space()->getBCGlobal();
+		//Teuchos::RCP<const BoundaryConditionsGlobal<dimension> > bc =
+			//space()->getBCGlobal();
 
 		Ordinal n = 0;
 		for( int i=0; i<space()->dim(); ++i )
-			n += sFields_[i]->getLength( dummy );
+			n += sFields_[i]->getLength();
 
 		return( n );
 	}
@@ -1390,7 +1390,7 @@ public:
 	/// Operator or on top field implementer.
 	/// @{ 
 
-	Ordinal getStorageSize() const { return( sFields_[0]->getStorageSize()*3 ); }
+	constexpr Ordinal getStorageSize() const { return( sFields_[0]->getStorageSize()*3 ); }
 
   void setStoragePtr( Scalar*  array ) {
     s_ = array;
@@ -1399,25 +1399,25 @@ public:
       sFields_[i]->setStoragePtr( s_+i*n );
   }
 
-	Scalar* getRawPtr() { return( s_ ); }
+	constexpr Scalar* getRawPtr() { return( s_ ); }
 
-	const Scalar* getConstRawPtr() const { return( s_ ); }
+	constexpr const Scalar* getConstRawPtr() const { return( s_ ); }
 
-  Scalar* getRawPtr ( int i )       { return( sFields_[i]->getRawPtr() ); }
+  constexpr Scalar* getRawPtr ( int i )       { return( sFields_[i]->getRawPtr() ); }
 
-	const Scalar* getConstRawPtr ( int i )  const  { return( sFields_[i]->getConstRawPtr() ); }
+	constexpr const Scalar* getConstRawPtr ( int i )  const  { return( sFields_[i]->getConstRawPtr() ); }
 
 	///  @} 
 
-  Teuchos::RCP<SF> getFieldPtr( int i ) { return(  sFields_[i] ); }
-  SF& getField   ( int i ) { return( *sFields_[i] ); }
+  constexpr Teuchos::RCP<SF> getFieldPtr( int i ) { return(  sFields_[i] ); }
+  constexpr SF& getField   ( int i ) { return( *sFields_[i] ); }
 
-  Teuchos::RCP<const SF> getConstFieldPtr( int i ) const { return(  sFields_[i] ); }
-  const SF&  getConstField   ( int i ) const { return( *sFields_[i] ); }
+  constexpr Teuchos::RCP<const SF> getConstFieldPtr( int i ) const { return(  sFields_[i] ); }
+  constexpr const SF&  getConstField   ( int i ) const { return( *sFields_[i] ); }
 
-  Teuchos::RCP<const SpaceT> space() const { return( AbstractField<SpaceT>::space_ ); }
+  constexpr const Teuchos::RCP<const SpaceT>& space() const { return( AbstractField<SpaceT>::space_ ); }
 
-  const MPI_Comm& comm() const { return(space()->comm()); }
+  constexpr const MPI_Comm& comm() const { return(space()->comm()); }
 
 
   /// \name comunication methods.

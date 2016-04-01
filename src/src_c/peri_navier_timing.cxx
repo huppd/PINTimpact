@@ -191,7 +191,7 @@ int main(int argi, char** argv ) {
       S toltemp = x->getConstFieldPtr(0)->getConstVFieldPtr()->getConstFieldPtr(x->getConstFieldPtr(0)->getConstVFieldPtr()->getNumberModes()-1)->norm()/std::sqrt(l1*l2/n1/n2);
       if( 0==space->rankST() ) std::cout << "\n\t--- ||u_Nf||: "<<toltemp<<"\t---\n";
       if( toltemp < tolNF ) {
-        if( 0==space->rankST() ) std::cout << "\n\t--- Nf: "<<x->getConstFieldPtr(0)->getConstVFieldPtr()->getNumberModes()<<"\tdof: "<<x->getLength(true)<<"\t---\n";
+        if( 0==space->rankST() ) std::cout << "\n\t--- Nf: "<<x->getConstFieldPtr(0)->getConstVFieldPtr()->getNumberModes()<<"\tdof: "<<x->getLength()<<"\t---\n";
         break;
       }
       do {

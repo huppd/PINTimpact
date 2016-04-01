@@ -129,52 +129,50 @@ public:
 
   /// \warning it is assumed that both fields have the same \c StencilWidths
 
+  constexpr FieldT&                    get0Field()               { return( *field0_ ); }
+  constexpr const FieldT&              getConst0Field()    const { return( *field0_ ); }
+  constexpr Teuchos::RCP<      FieldT> get0FieldPtr()            { return(  field0_ ); }
+  constexpr Teuchos::RCP<const FieldT> getConst0FieldPtr() const { return(  field0_ ); }
 
-  FieldT&                    get0Field()               { return( *field0_ ); }
-  const FieldT&              getConst0Field()    const { return( *field0_ ); }
-  Teuchos::RCP<      FieldT> get0FieldPtr()            { return(  field0_ ); }
-  Teuchos::RCP<const FieldT> getConst0FieldPtr() const { return(  field0_ ); }
+  constexpr ModeField<FieldT>&                     getField        ( int i )       { return( *fields_[i] ); }
+  constexpr const ModeField<FieldT>&               getConstField   ( int i ) const { return( *fields_[i] ); }
+  constexpr Teuchos::RCP<      ModeField<FieldT> > getFieldPtr     ( int i )       { return( fields_[i]  ); }
+  constexpr Teuchos::RCP<const ModeField<FieldT> > getConstFieldPtr( int i ) const { return( fields_[i]  ); }
 
+  constexpr FieldT&                    getCField        ( int i )       { return( fields_[i]->getCField()      ); }
+  constexpr const FieldT&              getConstCField   ( int i ) const { return( fields_[i]->getConstCField() ); }
+  constexpr Teuchos::RCP<      FieldT> getCFieldPtr     ( int i )       { return( fields_[i]->getCFieldPtr()   ); }
+  constexpr Teuchos::RCP<const FieldT> getConstCFieldPtr( int i ) const { return( fields_[i]->getConstCFieldPtr() ); }
 
-  ModeField<FieldT>&                     getField        ( int i )       { return( *fields_[i] ); }
-  const ModeField<FieldT>&               getConstField   ( int i ) const { return( *fields_[i] ); }
-  Teuchos::RCP<      ModeField<FieldT> > getFieldPtr     ( int i )       { return( fields_[i]  ); }
-  Teuchos::RCP<const ModeField<FieldT> > getConstFieldPtr( int i ) const { return( fields_[i]  ); }
-
-
-  FieldT&                    getCField        ( int i )       { return( fields_[i]->getCField()      ); }
-  const FieldT&              getConstCField   ( int i ) const { return( fields_[i]->getConstCField() ); }
-  Teuchos::RCP<      FieldT> getCFieldPtr     ( int i )       { return( fields_[i]->getCFieldPtr()   ); }
-  Teuchos::RCP<const FieldT> getConstCFieldPtr( int i ) const { return( fields_[i]->getConstCFieldPtr() ); }
-
-
-  FieldT&                    getSField        ( int i )       { return( fields_[i]->getSField()         ); }
-  const FieldT&              getConstSField   ( int i ) const { return( fields_[i]->getConstSField()    ); }
-  Teuchos::RCP<      FieldT> getSFieldPtr     ( int i )       { return( fields_[i]->getSFieldPtr()      ); }
-  Teuchos::RCP<const FieldT> getConstSFieldPtr( int i ) const { return( fields_[i]->getConstSFieldPtr() ); }
+  constexpr FieldT&                    getSField        ( int i )       { return( fields_[i]->getSField()         ); }
+  constexpr const FieldT&              getConstSField   ( int i ) const { return( fields_[i]->getConstSField()    ); }
+  constexpr Teuchos::RCP<      FieldT> getSFieldPtr     ( int i )       { return( fields_[i]->getSFieldPtr()      ); }
+  constexpr Teuchos::RCP<const FieldT> getConstSFieldPtr( int i ) const { return( fields_[i]->getConstSFieldPtr() ); }
 
 
-  Teuchos::RCP<const SpaceT> space() const { return( AF::space_ ); }
+  constexpr const Teuchos::RCP<const SpaceT>& space() const { return( AF::space_ ); }
 
-  const MPI_Comm& comm() const { return( space()->getProcGrid()->getCommWorld() ); }
+  constexpr const MPI_Comm& comm() const { return( space()->getProcGrid()->getCommWorld() ); }
 
   /// \brief returns the length of Field.
   ///
   /// the vector length is with regard to the inner points
-  Ordinal getLength( bool nox_vec=false ) const {
+  constexpr Ordinal getLength() const {
 
 		Ordinal len = 0;
-		len += field0_->getLength(true);
+		len += field0_->getLength();
 
 		for( Ordinal i=0; i<space()->nGlo(3); ++i )
-			len += fields_[i]->getLength(true);
+			len += fields_[i]->getLength();
+
     return( len );
+
   }
 
 
   /// \brief get number of stored Field's
   /// \todo what makes sense here?
-  int getNumberVecs() const { return( 1 ); }
+  constexpr int getNumberVecs() const { return( 1 ); }
 
 
 

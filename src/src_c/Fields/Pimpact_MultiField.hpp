@@ -199,16 +199,9 @@ public:
   ///
   /// \param nox_vec if \c MultiField is used for NOX the Vector length is
   /// considered for all Fields
-  Ordinal getLength( bool nox_vec=false ) const {
-    if( nox_vec ) {
-      Ordinal n = 0;
-      for( int i=0; i<getNumberVecs(); ++i )
-        n += mfs_[i]->getLength(nox_vec);
-      return( n );
-    }
-    else
-      return( mfs_[0]->getLength(nox_vec) );
-  }
+  constexpr Ordinal getLength() const {
+		return( mfs_[0]->getLength() );
+	}
 
 
   /// \brief get number of stored Field's
@@ -522,16 +515,20 @@ public:
 			mfs_[i]->write(count);
 	}
 
+	/// \name Attribute methods
+	/// @{ 
 
-	FieldT&       getField     (int i)       { return( *mfs_[i] ); }
-	const FieldT& getConstField(int i) const { return( *mfs_[i] ); }
+	constexpr FieldT&       getField     (int i)       { return( *mfs_[i] ); }
+	constexpr const FieldT& getConstField(int i) const { return( *mfs_[i] ); }
 
-	Teuchos::RCP<FieldT>       getFieldPtr     (int i)       { return( mfs_[i] ); }
-	Teuchos::RCP<const FieldT> getConstFieldPtr(int i) const { return( mfs_[i] ); }
+	constexpr Teuchos::RCP<FieldT>       getFieldPtr     (int i)       { return( mfs_[i] ); }
+	constexpr Teuchos::RCP<const FieldT> getConstFieldPtr(int i) const { return( mfs_[i] ); }
 
-	Teuchos::RCP<const SpaceT> space() const { return( AF::space_ ); }
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return( AF::space_ ); }
 
-	const MPI_Comm& comm() const { return(mfs_[0]->comm()); }
+	constexpr const MPI_Comm& comm() const { return(mfs_[0]->comm()); }
+
+	///  @} 
 
 
 }; // end of class MultiField

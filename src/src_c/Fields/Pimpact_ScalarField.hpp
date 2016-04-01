@@ -57,7 +57,7 @@ protected:
 
   State exchangedState_;
 
-  EField fType_;
+  const EField fType_;
 
 private:
 
@@ -133,42 +133,21 @@ public:
   /// \{
 
   /// \brief returns the length of Field.
-	Ordinal getLength( bool dummy=false ) const {
+	/// \todo test heavliy
+	constexpr Ordinal getLength() const {
 
 		Teuchos::RCP<const BoundaryConditionsGlobal<dimension> > bc =
 			space()->getBCGlobal();
 
 		Ordinal vl = 1;
 
-		switch( fType_ ) {
-			case EField::S : {
-
-				Teuchos::Tuple<Ordinal,3> n;
-
-				for(int i = 0; i<space()->dim(); ++i) {
-					if( PeriodicBC==bc->getBCL(i) )
-						n[i] = space()->nGlo(i)-1;
-					else
-						n[i] = space()->nGlo(i);
-					vl *= n[i];
-				}
-				break;
-			}
-			default: {
-				for( int j=0; j<space()->dim(); ++j) {
-					if( fType_==j ) {
-						vl *= space()->nGlo(j)-1;
-					}
-					else {
-						if( PeriodicBC==bc->getBCL(j) )
-							vl *= space()->nGlo(j)-2+1;
-						else
-							vl *= space()->nGlo(j)-2;
-					}
-				}
-				break;
-			}
+		for( int dir = 0; dir<space()->dim(); ++dir ) {
+				vl *= space()->nGlo(dir) +
+					( (EField::S==fType_)?
+						( (PeriodicBC==bc->getBCL(dir))?-1:0 ) :
+						( (fType_==dir)?-1:(-2 + ( (PeriodicBC==bc->getBCL(dir))?1:0 )) ) );
 		}
+
 		return( vl );
 	}
 

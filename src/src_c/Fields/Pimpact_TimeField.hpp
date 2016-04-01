@@ -154,16 +154,17 @@ public:
 	///
 	/// \param noxVec if \c TimeField is used for NOX the Vector length is
 	/// considered for all Fields
-	Ordinal getLength( bool noxVec=true ) const {
-		return( space()->nGlo()[3]*mfs_[0]->getLength(noxVec) );
+	constexpr Ordinal getLength() const {
+		return( space()->nGlo()[3]*mfs_[0]->getLength() );
 	}
 
 
 public:
 
-	/// \brief is true
-	bool HasConstantStride() const { return( true ); }
-	int getNumberVecs() const {  return( mfs_.size() ); }
+	constexpr bool HasConstantStride() const { return( true ); }
+
+	constexpr int getNumberVecs() const {  return( mfs_.size() ); }
+
 	/// \}
 	/// \name Update methods
 	/// \{
@@ -357,9 +358,9 @@ public:
 	}
 
 
-	const MPI_Comm& comm() const { return( space()->getProcGrid()->getCommWorld() ); }
+	constexpr const MPI_Comm& comm() const { return( space()->getProcGrid()->getCommWorld() ); }
 
-	Teuchos::RCP<const SpaceT> space() const { return( AF::space_ ); }
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return( AF::space_ ); }
 
 	public:
 
@@ -427,18 +428,18 @@ public:
 	}
 
 
-	Teuchos::RCP<Field> getFieldPtr( int i ) { return(  mfs_[i] ); }
-	Field& getField   ( int i ) { return( *mfs_[i] ); }
+	constexpr Teuchos::RCP<Field> getFieldPtr( int i ) { return(  mfs_[i] ); }
+	constexpr Field& getField   ( int i ) { return( *mfs_[i] ); }
 
 
-	Teuchos::RCP<const Field> getConstFieldPtr( int i ) const { return(  mfs_[i] ); }
-	const Field&  getConstField   ( int i ) const { return( *mfs_[i] ); }
+	constexpr Teuchos::RCP<const Field> getConstFieldPtr( int i ) const { return(  mfs_[i] ); }
+	constexpr const Field&  getConstField   ( int i ) const { return( *mfs_[i] ); }
 
 
-	ScalarArray getRawPtr() { return( array_ ); }
+	constexpr ScalarArray getRawPtr() { return( array_ ); }
 
 
-	const Scalar* getConstRawPtr() const { return( array_ ); }
+	constexpr const Scalar* getConstRawPtr() const { return( array_ ); }
 
 
 }; // end of class TimeField

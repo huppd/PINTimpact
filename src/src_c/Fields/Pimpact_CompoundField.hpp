@@ -81,14 +81,14 @@ public:
   /// \name Attribute methods
   /// \{
 
-  VField& getVField() { return( *vfield_ ); }
-  SField& getSField() { return( *sfield_ ); }
+  constexpr VField& getVField() { return( *vfield_ ); }
+  constexpr SField& getSField() { return( *sfield_ ); }
 
   constexpr const VField& getConstVField() const { return( *vfield_ ); }
   constexpr const SField& getConstSField() const { return( *sfield_ ); }
 
-  Teuchos::RCP<VField> getVFieldPtr() { return( vfield_ ); }
-  Teuchos::RCP<SField> getSFieldPtr() { return( sfield_ ); }
+  constexpr Teuchos::RCP<VField> getVFieldPtr() { return( vfield_ ); }
+  constexpr Teuchos::RCP<SField> getSFieldPtr() { return( sfield_ ); }
 
   constexpr Teuchos::RCP<const VField> getConstVFieldPtr() const { return( vfield_ ); }
   constexpr Teuchos::RCP<const SField> getConstSFieldPtr() const { return( sfield_ ); }
@@ -103,8 +103,8 @@ public:
   /// the vector length is withregard to the inner points
   /// \return vector length
   /// \brief returns the length of Field.
-  constexpr Ordinal getLength( bool nox_vec=false ) const {
-    return( vfield_->getLength(nox_vec) + sfield_->getLength(nox_vec) );
+  constexpr Ordinal getLength() const {
+    return( vfield_->getLength() + sfield_->getLength() );
   }
 
 
