@@ -25,17 +25,12 @@ public:
 
   using SpaceT = typename ConvSOpT::SpaceT;
 
-  using Scalar = typename SpaceT::Scalar;
-  using Ordinal = typename SpaceT::Ordinal;
-
-  static const int dimension = SpaceT::dimension;
-
-  static const int dimNC = SpaceT::dimNC;
-
   using DomainFieldT = VectorField<SpaceT>;
   using RangeFieldT = VectorField<SpaceT>;
 
 protected:
+
+  using Scalar = typename SpaceT::Scalar;
 
   Teuchos::RCP<NonlinearWrap<ConvSOpT> > convVWrap_;
 
@@ -57,9 +52,9 @@ public:
 
 
   /// \note Operator's wind has to be assigned correctly
-  void apply( const DomainFieldT& x, RangeFieldT& y, Scalar mul=0. ) const {
+  void apply( const DomainFieldT& x, RangeFieldT& y, Scalar mul=Teuchos::ScalarTraits<Scalar>::zero() ) const {
 
-    if( mul<1.e-12 ) {
+    if( mul<Teuchos::ScalarTraits<Scalar>::eps() ) {
       y.init(0);
       mul=1.;
     }

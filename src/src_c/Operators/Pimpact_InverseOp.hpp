@@ -24,6 +24,7 @@ class InverseOp {
 public:
 
   using OperatorT = OT;
+
   using SpaceT = typename OperatorT::SpaceT;
 
   using MF = typename OperatorT::DomainFieldT;

@@ -23,14 +23,13 @@ public:
 
   using SpaceT = ST;
 
-  using Scalar = typename SpaceT::Scalar;
-
-  using Ordinal = typename SpaceT::Ordinal;
-
   using DomainFieldT = TimeField< VectorField<SpaceT> >;
   using RangeFieldT = TimeField< VectorField<SpaceT> >;
 
 protected:
+
+  using Scalar = typename SpaceT::Scalar;
+  using Ordinal = typename SpaceT::Ordinal;
 
   Teuchos::RCP<const SpaceT> space_;
 

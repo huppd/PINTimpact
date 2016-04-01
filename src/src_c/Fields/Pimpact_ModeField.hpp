@@ -35,12 +35,10 @@ public:
 
   using SpaceT = typename IFT::SpaceT;
 
+protected:
+
   using Scalar = typename SpaceT::Scalar;
   using Ordinal =typename SpaceT::Ordinal;
-
-  static const int dimension = SpaceT::dimension;
-
-protected:
 
 	using ScalarArray =  Scalar*;
 	using FieldT = ModeField<IFT>;

@@ -68,20 +68,19 @@ public:
 	/// @{ 
 
 	/// \todo make dim_ template parameter(e.g. spaceDim) here or somewhere else?
-	inline constexpr const int& getDim() const { return( dim_ ); }
+	constexpr const int& getDim() const { return( dim_ ); }
 
-	inline constexpr const ScalarT* getSize() const { return( domainSize_.getRawPtr() ); }
+	constexpr const ScalarT* getSize() const { return( domainSize_.getRawPtr() ); }
 
-	inline constexpr const ScalarT& getSize( int i) const { return( domainSize_[i] ); }
-	inline constexpr const ScalarT& getSize( ECoord i) const { return( domainSize_[ (int)i ] ); }
+	constexpr const ScalarT& getSize( const int& i) const { return( domainSize_[i] ); }
 
-	inline constexpr const ScalarT* getOrigin() const { return( origin_.getRawPtr() ); }
+	constexpr const ScalarT* getOrigin() const { return( origin_.getRawPtr() ); }
 
-	inline constexpr const ScalarT& getOrigin( int i) const { return( origin_[i] ); }
+	constexpr const ScalarT& getOrigin( const int& i) const { return( origin_[i] ); }
 
-	inline constexpr const ScalarT& getRe() const { return( re_ ); }
+	constexpr const ScalarT& getRe() const { return( re_ ); }
 
-	inline constexpr const ScalarT& getAlpha2() const { return( alpha2_ ); }
+	constexpr const ScalarT& getAlpha2() const { return( alpha2_ ); }
 
 	///  @} 
 

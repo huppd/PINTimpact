@@ -65,10 +65,10 @@ public:
 
   using SpaceT = ST;
 
+protected:
+
   using Scalar = typename SpaceT::Scalar;
   using Ordinal = typename SpaceT::Ordinal;
-
-protected:
 
   using TO = const Teuchos::Tuple<Scalar*,3>;
 

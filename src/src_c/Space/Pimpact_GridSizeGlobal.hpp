@@ -42,7 +42,7 @@ protected:
 
 public:
 
-	inline constexpr const OrdinalT& get( int i ) const  { return( (*this)[i] ); }
+	constexpr const OrdinalT& get( const int& i ) const  { return( (*this)[i] ); }
 
 	void print( std::ostream& out=std::cout ) const {
 		out << " --- GridSizeGlobal: " << *this << " ---\n";

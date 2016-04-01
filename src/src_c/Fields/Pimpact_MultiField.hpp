@@ -41,12 +41,11 @@ public:
 
   using SpaceT = typename InnerFieldT::SpaceT;
 
+protected:
+
   using Scalar = typename SpaceT::Scalar;
   using Ordinal = typename SpaceT::Ordinal;
 
-  static const int dimension = SpaceT::dimension;
-
-private:
 
   using FieldT = Pimpact::MultiField<InnerFieldT>;
 
@@ -55,7 +54,6 @@ private:
   Teuchos::Array<Teuchos::RCP<InnerFieldT> > mfs_;
 
 public:
-
 
   /// \brief constructor taking a \c FieldT constructing multiple shallow copys.
   /// \note maybe hide and make it private

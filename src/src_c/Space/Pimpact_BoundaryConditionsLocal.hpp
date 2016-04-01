@@ -76,11 +76,11 @@ public:
 	/// \name getter
 	/// @{ 
 	
-	inline constexpr EBCType getBCL( const int& dir ) const { return( static_cast<EBCType>(BCL_int_[dir]) ); }
-	inline constexpr EBCType getBCU( const int& dir ) const { return( static_cast<EBCType>(BCU_int_[dir]) ); }
+	constexpr const int& getBCL( const int& dir ) const { return( BCL_int_[dir] ); }
+	constexpr const int& getBCU( const int& dir ) const { return( BCU_int_[dir] ); }
 
-	inline constexpr const int* getBCL() const { return( BCL_int_.getRawPtr() ); }
-	inline constexpr const int* getBCU() const { return( BCU_int_.getRawPtr() ); }
+	constexpr const int* getBCL() const { return( BCL_int_.getRawPtr() ); }
+	constexpr const int* getBCU() const { return( BCU_int_.getRawPtr() ); }
 
 	///  @} 
 
@@ -128,9 +128,9 @@ Teuchos::RCP< const BoundaryConditionsLocal<d> >  createBoudaryConditionsLocal(
 	// boundary condition on procgrid boundar
 	for( int i=0; i<3; ++i ) {
 		if( pg->getRankL(i)<0 )
-			BCL[i] = bcg->getBCL(i);
+			BCL[i] = static_cast<EBCType>( bcg->getBCL(i) );
 		if( pg->getRankU(i)<0 )
-			BCU[i] = bcg->getBCU(i);
+			BCU[i] = static_cast<EBCType>( bcg->getBCU(i) );
 	}
 
 	return(

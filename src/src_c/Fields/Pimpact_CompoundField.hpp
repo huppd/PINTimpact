@@ -32,13 +32,10 @@ public:
 
   using SpaceT = typename VField::SpaceT;
 
+protected:
+
   using Scalar = typename SpaceT::Scalar;
   using Ordinal =typename SpaceT::Ordinal;
-
-  static const int dimension = SpaceT::dimension;
-
-
-protected:
 
   using FieldT = CompoundField<VField,SField>;
 

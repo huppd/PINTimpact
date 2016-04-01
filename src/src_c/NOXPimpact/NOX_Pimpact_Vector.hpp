@@ -58,7 +58,7 @@ public:
   /// \f[ x_i = \gamma \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
   virtual NOX::Abstract::Vector& init( double gamma=0 ) {
-    field_->init( static_cast<typename Field::Scalar>(gamma) );
+    field_->init( gamma );
     return( *this );
   }
 
@@ -129,7 +129,7 @@ public:
   /// \f[ x_i = \gamma x_i \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
   virtual NOX::Abstract::Vector& scale(double gamma) {
-    field_->scale( static_cast<typename Field::Scalar>(gamma) );
+    field_->scale( gamma );
     return( *this );
   }
 

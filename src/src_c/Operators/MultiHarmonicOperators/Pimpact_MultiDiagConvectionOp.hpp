@@ -20,9 +20,6 @@ namespace Pimpact {
 template<class ST>
 class MultiDiagConvectionJacobianOp {
 
-  using Scalar = typename ST::Scalar;
-  using Ordinal = typename ST::Ordinal;
-
 public:
 
   using SpaceT = ST;
@@ -31,6 +28,9 @@ public:
   using RangeFieldT = MultiHarmonicField< VectorField<SpaceT> >;
 
 protected:
+
+  using Scalar = typename ST::Scalar;
+  using Ordinal = typename ST::Ordinal;
 
   Teuchos::RCP<DomainFieldT> u_;
   Teuchos::RCP<NonlinearOp<SpaceT> > op_;
@@ -56,7 +56,7 @@ public:
 protected:
 
   void apply(const DomainFieldT& x, const DomainFieldT& y, RangeFieldT& z, bool init_yes=true ) const {
-    int Nf = space()->nGlo(3);
+    Ordinal Nf = space()->nGlo(3);
     if( init_yes )
       z.init( 0. );
 
@@ -65,7 +65,7 @@ protected:
     //    z.get0Field().add( 1., z.getConst0Field(), 1., *temp_ );
 
 
-    for( int i=1; i<=Nf; ++i ) {
+    for( Ordinal i=1; i<=Nf; ++i ) {
       // computing cos mode of y
       op_->apply( x.getConst0Field(), y.getConstCField(i-1), z.getCField(i-1), 1. );
       //      z.getCField(i-1).add( 1., z.getConstCField(i-1), 1., *temp_ );

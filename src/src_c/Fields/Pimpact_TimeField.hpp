@@ -49,12 +49,10 @@ class TimeField : private AbstractField<typename Field::SpaceT> {
 
 public:
 
-	using Scalar = typename Field::Scalar;
-	using Ordinal = typename Field::Ordinal;
-
-	static const int dimension = Field::dimension;
-
 	using SpaceT = typename Field::SpaceT;
+
+	using Scalar = typename SpaceT::Scalar;
+	using Ordinal = typename SpaceT::Ordinal;
 
 	using FieldT = Pimpact::TimeField<Field>;
 
@@ -62,13 +60,11 @@ public:
 
 	using AF = AbstractField<SpaceT>;
 
-
-	Teuchos::Array< Teuchos::RCP<Field> > mfs_;
-
-public:
-
 	using FieldArray = Teuchos::Array< Teuchos::RCP<Field> >;
+
 	using Iter = typename FieldArray::iterator;
+
+	Teuchos::Array< Teuchos::RCP<Field> > mfs_; // why?
 
 protected:
 
@@ -281,10 +277,10 @@ public:
 				normLoc( type ),
 				(Belos::InfNorm==type)?MPI_MAX:MPI_SUM );
 
-		normvec =
+		normvec = (
 			(Belos::TwoNorm==type) ?
 				std::sqrt(normvec) :
-				normvec;
+				normvec );
 
     return( normvec );
 

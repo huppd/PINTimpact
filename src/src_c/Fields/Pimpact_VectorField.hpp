@@ -68,12 +68,10 @@ public:
 
 	using SpaceT = SpaceType;
 
+protected:
+
 	using Scalar = typename SpaceT::Scalar;
 	using Ordinal = typename SpaceT::Ordinal;
-
-	static const int dimension = SpaceT::dimension;
-
-protected:
 
 	using ScalarArray = Scalar*;
 
@@ -85,8 +83,6 @@ protected:
 	const bool owning_;
 
 	Teuchos::Tuple< Teuchos::RCP<SF>, 3 > sFields_;
-
-private:
 
 	void allocate() {
 		Ordinal n = getStorageSize()/3;
@@ -171,10 +167,6 @@ public:
 	/// \f[ N_w = (N_x-2)(N_y-2)(N_z-1) \f]
 	/// \return vect length \f[= N_u+N_v+N_w\f]
 	constexpr Ordinal getLength() const {
-
-		//Teuchos::RCP<const BoundaryConditionsGlobal<dimension> > bc =
-			//space()->getBCGlobal();
-
 		Ordinal n = 0;
 		for( int i=0; i<space()->dim(); ++i )
 			n += sFields_[i]->getLength();
@@ -1267,10 +1259,10 @@ public:
 						space()->eIndB(V),
 						space()->sIndB(W),
 						space()->eIndB(W),
-						space()->getCoordinatesGlobal()->getX( X, EField::S ),
-						space()->getCoordinatesGlobal()->getX( X, EField::U ),
-						space()->getCoordinatesLocal()->getX( Z, EField::W ),
-						space()->getInterpolateV2S()->getC( X ),
+						space()->getCoordinatesGlobal()->getX( ECoord::X, EField::S ),
+						space()->getCoordinatesGlobal()->getX( ECoord::X, EField::U ),
+						space()->getCoordinatesLocal()->getX( ECoord::Z, EField::W ),
+						space()->getInterpolateV2S()->getC( ECoord::X ),
 						space()->getDomainSize()->getRe(),
 						0,                   // nonDim  
 						kappa,               // kappa
@@ -1295,11 +1287,11 @@ public:
 						space()->sIndB(W),
 						space()->eIndB(W),
 						space()->getBCGlobal()->getBCL( Z ),
-						space()->getCoordinatesLocal()->getX( X, EField::U ),
-						space()->getCoordinatesLocal()->getX( X, EField::S ),
-						space()->getCoordinatesLocal()->getX( Y, EField::S ),
-						space()->getCoordinatesLocal()->getX( Z, EField::W ),
-						space()->getCoordinatesLocal()->getX( Z, EField::S ),
+						space()->getCoordinatesLocal()->getX( ECoord::X, EField::U ),
+						space()->getCoordinatesLocal()->getX( ECoord::X, EField::S ),
+						space()->getCoordinatesLocal()->getX( ECoord::Y, EField::S ),
+						space()->getCoordinatesLocal()->getX( ECoord::Z, EField::W ),
+						space()->getCoordinatesLocal()->getX( ECoord::Z, EField::S ),
 						3, // dist_type,          
 						0.15, // vortex_ampli_prim,  
 						3., // vortex_x1pos,       

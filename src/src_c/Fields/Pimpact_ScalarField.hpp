@@ -40,16 +40,15 @@ public:
 
   using SpaceT = SpaceType;
 
+protected:
+
   using Scalar = typename SpaceT::Scalar;
   using Ordinal = typename SpaceT::Ordinal;
-
-  static const int dimension = SpaceT::dimension;
-
-protected:
 
   using ScalarArray = Scalar*;
   using FieldT = ScalarField< SpaceT >;
   using State = Teuchos::Tuple<bool,3>;
+
 
   ScalarArray s_;
 
@@ -58,8 +57,6 @@ protected:
   State exchangedState_;
 
   const EField fType_;
-
-private:
 
 	void allocate() {
 		Ordinal n = getStorageSize();
@@ -136,7 +133,7 @@ public:
 	/// \todo test heavliy
 	constexpr Ordinal getLength() const {
 
-		Teuchos::RCP<const BoundaryConditionsGlobal<dimension> > bc =
+		Teuchos::RCP<const BoundaryConditionsGlobal<SpaceT::dimension> > bc =
 			space()->getBCGlobal();
 
 		Ordinal vl = 1;
@@ -447,7 +444,7 @@ public:
 	template<typename Functor>
 	void initFromFunction( Functor&& func ) {
 
-		Teuchos::RCP<const CoordinatesLocal<Scalar,Ordinal,dimension,SpaceT::dimNC> > coord =
+		Teuchos::RCP<const CoordinatesLocal<Scalar,Ordinal,SpaceT::dimension,SpaceT::dimNC> > coord =
 			space()->getCoordinatesLocal();
 		Teuchos::RCP<const DomainSize<Scalar> > domain = space()->getDomainSize();
 
@@ -828,8 +825,8 @@ public:
             count,
             (EField::S==fType_)?9:10,
 						(EField::S==fType_)?s_:temp->s_,
-						space()->getCoordinatesGlobal()->get(0,EField::S),
-						space()->getCoordinatesGlobal()->get(1,EField::S),
+						space()->getCoordinatesGlobal()->getX(0,EField::S),
+						space()->getCoordinatesGlobal()->getX(1,EField::S),
 						space()->getDomainSize()->getRe(),
 						space()->getDomainSize()->getAlpha2() );
       }
@@ -858,12 +855,12 @@ public:
             (EField::S==fType_)?9:10,
             stride,
             (EField::S==fType_)?s_:temp->s_,
-            space()->getCoordinatesGlobal()->get(0,EField::S),
-            space()->getCoordinatesGlobal()->get(1,EField::S),
-            space()->getCoordinatesGlobal()->get(2,EField::S),
-            space()->getCoordinatesGlobal()->get(0,EField::U),
-            space()->getCoordinatesGlobal()->get(1,EField::V),
-            space()->getCoordinatesGlobal()->get(2,EField::W),
+            space()->getCoordinatesGlobal()->getX(0,EField::S),
+            space()->getCoordinatesGlobal()->getX(1,EField::S),
+            space()->getCoordinatesGlobal()->getX(2,EField::S),
+            space()->getCoordinatesGlobal()->getX(0,EField::U),
+            space()->getCoordinatesGlobal()->getX(1,EField::V),
+            space()->getCoordinatesGlobal()->getX(2,EField::W),
             space()->getDomainSize()->getRe(),
             space()->getDomainSize()->getAlpha2() );
 
@@ -894,12 +891,12 @@ public:
           (EField::S==fType_)?9:10,
           stride,
           s_,
-          space()->getCoordinatesGlobal()->get(0,EField::S),
-          space()->getCoordinatesGlobal()->get(1,EField::S),
-          space()->getCoordinatesGlobal()->get(2,EField::S),
-          space()->getCoordinatesGlobal()->get(0,EField::U),
-          space()->getCoordinatesGlobal()->get(1,EField::V),
-          space()->getCoordinatesGlobal()->get(2,EField::W),
+          space()->getCoordinatesGlobal()->getX(0,EField::S),
+          space()->getCoordinatesGlobal()->getX(1,EField::S),
+          space()->getCoordinatesGlobal()->getX(2,EField::S),
+          space()->getCoordinatesGlobal()->getX(0,EField::U),
+          space()->getCoordinatesGlobal()->getX(1,EField::V),
+          space()->getCoordinatesGlobal()->getX(2,EField::W),
           space()->getDomainSize()->getRe(),
           space()->getDomainSize()->getAlpha2() );
 
@@ -1011,17 +1008,17 @@ public:
 protected:
 
 	/// \brief stride in X direction
-	inline constexpr const Ordinal stride0() const {
+	constexpr Ordinal stride0() const {
 		return( 1 );
 	}
 
 	/// \brief stride in Y direction
-	inline constexpr const Ordinal stride1() const {
+	constexpr Ordinal stride1() const {
 		return( space()->nLoc(0)+space()->bu(0)-space()->bl(0)+1 );
 	}
 
 	/// \brief stride in Z direction
-	inline constexpr const Ordinal stride2() const {
+	constexpr Ordinal stride2() const {
 		return(
 				( space()->nLoc(0)+space()->bu(0)-space()->bl(0)+1 )*(
 					space()->nLoc(1)+space()->bu(1)-space()->bl(1)+1 ) );
@@ -1031,17 +1028,15 @@ protected:
 	/// \brief stride
 	///
 	/// \param dir direction of stride
-	inline const Ordinal stride( const int& dir ) const {
-		switch( dir ) {
-			case 0 : 
-				return( stride0() );
-      case 1 :
-				return( stride1() );
-      case 2 :
-				return( stride2() );
-			default:
-				return( 0 );
-		}
+	constexpr Ordinal stride( const int& dir ) const {
+		return(
+				(0==dir)?
+					stride0():
+					( (1==dir)?
+						stride1():
+						stride2()
+					)
+				);
 	}
 
 public:
@@ -1051,7 +1046,7 @@ public:
 	/// \param i index in x-direction
 	/// \param j index in y-direction
 	/// \param k index in z-direction
-	inline constexpr const Ordinal index( const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
+	constexpr Ordinal index( const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
 		return( (i-space()->bl(0)) +
 				    (j-space()->bl(1))*stride1() +
 				    (k-space()->bl(2))*stride2() );
@@ -1064,7 +1059,7 @@ public:
 	/// \param k index in z-direction
 	///
 	/// \return const reference
-	inline constexpr const Scalar& at( const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
+	constexpr const Scalar& at( const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
 		return( s_[ index(i,j,k) ] );
 	}
 
@@ -1082,26 +1077,26 @@ public:
 	/// \brief field access
 	///
 	/// \param i index coordinate 
-	inline constexpr const Scalar& at( const Ordinal* i ) const {
+	constexpr const Scalar& at( const Ordinal* const i ) const {
 		return( s_[ index(i[0],i[1],i[2]) ] );
 	}
 	/// \brief field access
 	///
 	/// \param i index coordinate 
-	inline Scalar& at( const Ordinal* i ) {
+	inline Scalar& at( const Ordinal* const i ) {
 		return( s_[ index(i[0],i[1],i[2]) ] );
 	}
 
 	/// \brief field access
 	///
 	/// \param i index coordinate 
-	inline Scalar& at( const Teuchos::Tuple<Ordinal,3>& i ) {
+	inline Scalar& at( const Teuchos::Tuple<const Ordinal,3>& i ) {
 		return( s_[ index(i[0],i[1],i[2]) ] );
 	}
 	/// \brief field access
 	///
 	/// \param i index coordinate 
-	inline constexpr const Scalar& at( const Teuchos::Tuple<Ordinal,3>& i ) const {
+	constexpr const Scalar& at( const Teuchos::Tuple<const Ordinal,3>& i ) const {
 		return( s_[ index(i[0],i[1],i[2]) ] );
 	}
 

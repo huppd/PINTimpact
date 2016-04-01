@@ -290,60 +290,60 @@ protected:
 
 public:
 
-  inline constexpr const OrdinalT* sInd( int fieldType ) const {
-    if( EField::S == (EField)fieldType )
-      return( sIndS_.getRawPtr() );
-    else
-      return( sIndU_[fieldType].getRawPtr() );
-  }
-  inline constexpr const OrdinalT* eInd( int fieldType ) const {
-    if( EField::S == (EField)fieldType )
-      return( eIndS_.getRawPtr() );
-    else
-      return( eIndU_[fieldType].getRawPtr() );
-  }
-
-  inline constexpr const OrdinalT* sIndB( int fieldType ) const {
-    if( EField::S == (EField)fieldType )
-      return( sIndS_.getRawPtr() );
-    else
-      return( sIndUB_[fieldType].getRawPtr()  );
-  }
-  inline constexpr const OrdinalT* eIndB( int fieldType ) const {
-    if( EField::S == (EField)fieldType )
-      return( eIndS_.getRawPtr() );
-    else
-      return( eIndUB_[fieldType].getRawPtr()  );
+  constexpr const OrdinalT* sInd( const int& fieldType ) const {
+		return(
+				(EField::S==static_cast<EField>(fieldType))?
+				sIndS_.getRawPtr():
+				sIndU_[fieldType].getRawPtr() );
+	}
+  constexpr const OrdinalT* eInd( const int& fieldType ) const {
+		return(
+				(EField::S==static_cast<EField>(fieldType))?
+				eIndS_.getRawPtr():
+				eIndU_[fieldType].getRawPtr() );
   }
 
-  inline constexpr const OrdinalT& sInd( int fieldType, int dir ) const {
-    if( EField::S == (EField)fieldType )
-      return( sIndS_[dir]  );
-    else
-      return( sIndU_[fieldType][dir] );
+  constexpr const OrdinalT* sIndB( const int& fieldType ) const {
+    return(
+				(EField::S==static_cast<EField>(fieldType))?
+				sIndS_.getRawPtr():
+				sIndUB_[fieldType].getRawPtr() );
   }
-  inline constexpr const OrdinalT& eInd(  int fieldType, int dir ) const {
-    if( EField::S == (EField)fieldType )
-      return( eIndS_[dir]  );
-    else
-      return( eIndU_[fieldType][dir] );
-  }
-
-  inline constexpr const OrdinalT& sIndB( int fieldType, int dir ) const {
-    if( EField::S == (EField)fieldType )
-      return( sIndS_[dir]  );
-    else
-      return( sIndUB_[fieldType].getRawPtr()[dir]  );
-  }
-  inline constexpr const OrdinalT& eIndB( int fieldType, int dir ) const {
-    if( EField::S == (EField)fieldType )
-      return( eIndS_[dir]  );
-    else
-      return( eIndUB_[fieldType][dir]  );
+  constexpr const OrdinalT* eIndB( const int& fieldType ) const {
+    return(
+				(EField::S==static_cast<EField>(fieldType))?
+				eIndS_.getRawPtr():
+				eIndUB_[fieldType].getRawPtr() );
   }
 
-	inline constexpr const int& getShift( int i ) const { return( shift_[i] ); }
-	inline constexpr const int* getShift() const { return( shift_.getRawPtr() ); }
+  constexpr const OrdinalT& sInd( const int& fieldType, const int& dir ) const {
+    return(
+				(EField::S==static_cast<EField>(fieldType))?
+				sIndS_[dir]:
+				sIndU_[fieldType][dir] );
+  }
+  constexpr const OrdinalT& eInd(  const int& fieldType, const int& dir ) const {
+		return(
+				(EField::S==static_cast<EField>(fieldType))?
+				eIndS_[dir]:
+				eIndU_[fieldType][dir] );
+  }
+
+  constexpr const OrdinalT& sIndB( const int& fieldType, const int& dir ) const {
+		return(
+				(EField::S==static_cast<EField>(fieldType))?
+				sIndS_[dir]:
+				sIndUB_[fieldType][dir] );
+  }
+  constexpr const OrdinalT& eIndB( const int& fieldType, const int& dir ) const {
+    return(
+				(EField::S==static_cast<EField>(fieldType))?
+				eIndS_[dir]:
+				eIndUB_[fieldType][dir] );
+  }
+
+	constexpr const int& getShift( const int& i ) const { return( shift_[i] ); }
+	constexpr const int* getShift() const { return( shift_.getRawPtr() ); }
 
   void print( std::ostream& out=std::cout ) const {
     out << "\t---IndexSpace: ---\n";

@@ -21,7 +21,6 @@ template< class FieldT >
 class InverseOperator {
 
   using MF = FieldT;
-  using S = typename MF::Scalar;
   using Op = OperatorBase<MF>;
 
 public:

@@ -115,8 +115,8 @@ protected:
 						bcLocal->getBCL(i),
 						bcLocal->getBCU(i),
 						procGrid->getIB(i),
-						coordGlobal->get( i, EField::S),
-						coordGlobal->get( i, i),
+						coordGlobal->getX( i, EField::S),
+						coordGlobal->getX( i, i),
 						xS_[i].getRawPtr(),
 						xV_[i].getRawPtr(),
 						dxS_[i].getRawPtr(),
@@ -133,8 +133,8 @@ protected:
 						bcLocal->getBCL(i),
 						bcLocal->getBCU(i),
 						procGrid->getIB(i),
-						coordGlobal->get( i, EField::S ),
-						coordGlobal->get( i, i ),
+						coordGlobal->getX( i, EField::S ),
+						coordGlobal->getX( i, i ),
 						xS_[i].getRawPtr(),
 						xV_[i].getRawPtr(),
 						dxS_[i].getRawPtr(),
@@ -147,33 +147,20 @@ public:
 	/// \name getter
 	/// @{ 
 
-  inline constexpr const ScalarT* getX( ECoord dir, EField ftype ) const  {
-    if( EField::S==ftype )
-      return( xS_[dir].getRawPtr() );
-    else if( static_cast<int>(dir)==static_cast<int>(ftype) )
-      return( xV_[dir].getRawPtr() );
-    else
-      return( xS_[dir].getRawPtr() );
-  }
-  inline constexpr const ScalarT* getX( ECoord dir, int ftype ) const  {
-    return( getX( dir, static_cast<EField>(ftype) ) );
-  }
-  inline constexpr const ScalarT* getX( int dir, EField ftype ) const  {
-    return( getX( static_cast<ECoord>(dir), ftype ) );
-  }
-  inline constexpr const ScalarT* getX( int dir, int ftype ) const  {
-    return( getX( static_cast<ECoord>(dir), static_cast<EField>(ftype) ) );
+  inline constexpr const ScalarT* getX( const int& dir, const int& ftype ) const  {
+		return(
+				( EField::S==ftype || dir!=ftype ) ?
+					xS_[dir].getRawPtr() :
+					xV_[dir].getRawPtr()
+				);
   }
 
-  inline constexpr const ScalarT& getX( EField ftype, ECoord dir, OrdinalT i) const  {
-
-    if( EField::S==ftype )
-      return( xS_[dir][i-stencilWidths_->getBL(static_cast<int>(dir))] );
-    else if( static_cast<int>(dir)==static_cast<int>(ftype) )
-      return( xV_[dir][i-stencilWidths_->getBL(static_cast<int>(dir))] );
-		else
-      return( xS_[dir][i-stencilWidths_->getBL(static_cast<int>(dir))] );
-
+  constexpr const ScalarT& getX( const int& ftype, const int& dir, const OrdinalT& i) const  {
+		return(
+				( EField::S==ftype || dir!=ftype )?
+					xS_[dir][i-stencilWidths_->getBL(dir)]:
+					xV_[dir][i-stencilWidths_->getBL(dir)]
+				);
   }
 
 	///  @} 

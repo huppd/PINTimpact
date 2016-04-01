@@ -1277,8 +1277,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Inv ) {
 		if( 0==rank )
 			std::cout << "consistency for " << dir << ": ||" << err2 << "||_2, ||" << errInf << "||_inf\n";
 
-		TEST_EQUALITY( err2<eps, true );
-		TEST_EQUALITY( errInf<eps, true );
+		if( npx*npy*npz==1 ) {
+			TEST_EQUALITY( err2<eps, true );
+			TEST_EQUALITY( errInf<eps, true );
+		}
 	}
 
 }

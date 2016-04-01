@@ -31,6 +31,7 @@ public:
 
 protected:
 
+	using OrdinalT = typename SpaceT::Ordinal;
   Teuchos::RCP<const ConvVWrapT> op_;
 
   Teuchos::RCP< ConvectionField<SpaceT> > wind0_;
@@ -46,7 +47,7 @@ public:
     windc_( nf ),
     winds_( nf ) {
 
-    for( int i=0; i<nf; ++i ) {
+    for( OrdinalT i=0; i<nf; ++i ) {
       windc_[i] = create<ConvectionField>( op->space() );
       winds_[i] = create<ConvectionField>( op->space() );
     }
@@ -58,7 +59,7 @@ public:
     wind0_->assignField( mv.getConst0Field() );
     int Nf = space()->nGlo(3);
 
-    for( int i=0; i<Nf; ++i ) {
+    for( OrdinalT i=0; i<Nf; ++i ) {
       windc_[i]->assignField( mv.getConstCField(i) );
       winds_[i]->assignField( mv.getConstSField(i) );
     }
@@ -68,23 +69,23 @@ public:
 
   void apply( const DomainFieldT& y, RangeFieldT& z, bool init_yes=true ) const {
 
-    int Nf = space()->nGlo(3);
+    OrdinalT Nf = space()->nGlo(3);
 
     // computing zero mode of y
     op_->apply( wind0_->get(), y.getConst0Field(), z.get0Field(), 0., 0., 1., 0.);
 
-    for( int i=1; i<=Nf; ++i ) {
+    for( OrdinalT i=1; i<=Nf; ++i ) {
       op_->apply( windc_[i-1]->get(), y.getConstCField(i-1), z.get0Field(), 1., 0., 0.5, 0. );
       op_->apply( winds_[i-1]->get(), y.getConstSField(i-1), z.get0Field(), 1., 0., 0.5, 0. );
     }
 
 
     // computing cos mode of y
-    for( int i=1; i<=Nf; ++i ) {
+    for( OrdinalT i=1; i<=Nf; ++i ) {
       op_->apply( wind0_->get(), y.getConstCField(i-1), z.getCField(i-1), 0., 0., 1., 0. );
       op_->apply( windc_[i-1]->get(), y.getConst0Field(), z.getCField(i-1), 1., 0., 1., 0. );
 
-      for( int k=1; k+i<=Nf; ++k ) {
+      for( OrdinalT k=1; k+i<=Nf; ++k ) {
         op_->apply( windc_[k+i-1]->get(), y.getConstCField(k-1), z.getCField(i-1), 1., 0., 0.5, 0. );
 
         op_->apply( windc_[k-1]->get(), y.getConstCField(k+i-1), z.getCField(i-1), 1., 0., 0.5, 0. );
@@ -96,11 +97,11 @@ public:
     }
 
     // computing sin mode of y
-    for( int i=1; i<=Nf; ++i ) {
+    for( OrdinalT i=1; i<=Nf; ++i ) {
       op_->apply( wind0_->get(),   y.getConstSField(i-1), z.getSField(i-1), 0., 0., 1., 0. );
       op_->apply( winds_[i-1]->get(), y.getConst0Field(), z.getSField(i-1), 1., 0., 1., 0. );
 
-      for( int k=1; k+i<=Nf; ++k ) {
+      for( OrdinalT k=1; k+i<=Nf; ++k ) {
         op_->apply( windc_[k+i-1]->get(), y.getConstSField(k-1), z.getSField(i-1), 1., 0., -0.5, 0. );
         op_->apply( windc_[k-1]->get(), y.getConstSField(k+i-1), z.getSField(i-1), 1., 0.,  0.5, 0. );
         op_->apply( winds_[k+i-1]->get(), y.getConstCField(k-1), z.getSField(i-1), 1., 0., 0.5, 0. );
@@ -109,9 +110,9 @@ public:
     }
 
     // strange terms
-    int i;
-    for( int k=1; k<=Nf; ++k ) {
-      for( int l=1; l<=Nf; ++l ) {
+    OrdinalT i;
+    for( OrdinalT k=1; k<=Nf; ++k ) {
+      for( OrdinalT l=1; l<=Nf; ++l ) {
         i = k+l;
         if( i<=Nf ) {
           op_->apply( windc_[k-1]->get(), y.getConstCField(l-1), z.getCField(i-1), 1., 0., 0.5, 0. );

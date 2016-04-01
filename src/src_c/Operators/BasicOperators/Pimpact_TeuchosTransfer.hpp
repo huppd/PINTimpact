@@ -31,9 +31,6 @@ class TeuchosTransfer {
 
 public:
 
-	using Scalar  = typename SpaceT::Scalar;
-	using Ordinal = typename SpaceT::Ordinal;
-
 	using DomainFieldT= ScalarField<SpaceT>;
 	using RangeFieldT = ScalarField<SpaceT>;
 
@@ -41,6 +38,9 @@ public:
 	using MatrixT = Teuchos::SerialDenseMatrix<Ordinal,Scalar>;
 
 protected:
+
+	using Scalar  = typename SpaceT::Scalar;
+	using Ordinal = typename SpaceT::Ordinal;
 
 	using TO = const Teuchos::Tuple<Ordinal,3>;
 

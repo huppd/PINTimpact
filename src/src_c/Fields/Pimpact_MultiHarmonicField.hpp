@@ -33,12 +33,10 @@ public:
 
   using SpaceT = typename IFT::SpaceT;
 
+protected:
+
   using Scalar = typename SpaceT::Scalar;
   using Ordinal = typename SpaceT::Ordinal;
-
-  static const int dimension = SpaceT::dimension;
-
-protected:
 
   using FieldT = MultiHarmonicField<IFT>;
 
@@ -52,8 +50,6 @@ protected:
 
   mutable bool exchangedState_;
 
-private:
-
 	void allocate() {
 		Ordinal n = field0_->getStorageSize();
 		s_ = new Scalar[n*(1+2*space()->nGlo(3))];
@@ -62,10 +58,9 @@ private:
 			fields_[i]->setStoragePtr( s_ + n + 2*n*i );
 	}
 
-
 public:
 
-	Ordinal getStorageSize() const { return( (1+2*space()->nGlo(3))*field0_->getStorageSize() ); }
+	constexpr Ordinal getStorageSize() const { return( (1+2*space()->nGlo(3))*field0_->getStorageSize() ); }
 
 	/// \todo add etst
   MultiHarmonicField(
@@ -75,7 +70,7 @@ public:
 		fields_( space->nGlo(3) ),
     exchangedState_( true ) {
 
-			TEUCHOS_TEST_FOR_EXCEPT( 4 != dimension  );
+			TEUCHOS_TEST_FOR_EXCEPT( 4 != SpaceT::dimension  );
 			TEUCHOS_TEST_FOR_EXCEPT( true != space()->getStencilWidths()->spectralT() );
 
 			for( Ordinal i=0; i<space->nGlo(3); ++i )
@@ -171,7 +166,6 @@ public:
   /// \brief get number of stored Field's
   /// \todo what makes sense here?
   constexpr int getNumberVecs() const { return( 1 ); }
-
 
 
   /// \}

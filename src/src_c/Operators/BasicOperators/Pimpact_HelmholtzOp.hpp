@@ -44,15 +44,15 @@ public:
 
   using SpaceT = ST;
 
-  using Scalar = typename SpaceT::Scalar;
-  using Ordinal = typename SpaceT::Ordinal;
-
-  using TO = const Teuchos::Tuple<Scalar*,3>;
-
   using DomainFieldT = VectorField<SpaceT>;
   using RangeFieldT = VectorField<SpaceT>;
 
 protected:
+
+  using Scalar = typename SpaceT::Scalar;
+  using Ordinal = typename SpaceT::Ordinal;
+
+  using TO = const Teuchos::Tuple<Scalar*,3>;
 
   const Teuchos::RCP<const SpaceT> space_;
 

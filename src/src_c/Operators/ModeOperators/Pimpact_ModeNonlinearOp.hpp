@@ -20,12 +20,12 @@ public:
 
   using SpaceT = typename OpT::SpaceT;
 
-  using Scalar = typename SpaceT::Scalar;
-
   using DomainFieldT = ModeField<typename OpT::DomainFieldT >;
   using RangeFieldT = ModeField<typename OpT::RangeFieldT  >;
 
 protected:
+
+  using Scalar = typename SpaceT::Scalar;
 
 	Scalar mulI_;
 	Scalar mulC_;

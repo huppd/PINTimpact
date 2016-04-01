@@ -26,18 +26,10 @@ public:
 
   using SpaceT = typename ConvVOpT::SpaceT;
 
-
-  using SSmootherT = ST<typename ConvVOpT::ConvSOpT>;
-
-  using Scalar = typename SpaceT::Scalar;
-  using Ordinal = typename SpaceT::Ordinal;
-
-  static const int dimension = SpaceT::dimension;
-
-  static const int dimNC = SpaceT::dimNC;
-
   using DomainFieldT = VectorField<SpaceT>;
   using RangeFieldT = VectorField<SpaceT>;
+
+  using SSmootherT = ST<typename ConvVOpT::ConvSOpT>;
 
 protected:
 
@@ -65,8 +57,6 @@ public:
     convVWrap_->apply( convField_->get(), x, y );
 
   }
-
-  //void apply(const DomainFieldT& z, const DomainFieldT& x, RangeFieldT& y, Scalar mul=0. ) const {};
 
   Teuchos::RCP< ConvectionField<SpaceT> >
   getConvField() const {

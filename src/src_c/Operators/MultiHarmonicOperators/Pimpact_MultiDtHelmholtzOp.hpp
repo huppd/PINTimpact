@@ -24,12 +24,12 @@ public:
 
   using SpaceT = ST;
 
-  using Scalar = typename SpaceT::Scalar;
-
   using DomainFieldT = MultiHarmonicField< VectorField<SpaceT> >;
   using RangeFieldT  = MultiHarmonicField< VectorField<SpaceT> >;
 
 protected:
+
+  using Scalar = typename SpaceT::Scalar;
 
   Teuchos::RCP<DtLapOp<SpaceT> > op_;
 

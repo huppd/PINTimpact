@@ -28,9 +28,6 @@ public:
 
   using SpaceT = typename OperatorT::SpaceT;
 
-  using Scalar = typename SpaceT::Scalar;
-  using Ordinal = typename SpaceT::Ordinal;
-
   using DomainFieldT = ScalarField<SpaceT>;
   using RangeFieldT = ScalarField<SpaceT>;
 

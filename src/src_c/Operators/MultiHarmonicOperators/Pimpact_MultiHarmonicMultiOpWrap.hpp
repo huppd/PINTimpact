@@ -43,8 +43,8 @@ public:
       RangeFieldT& y,
       Belos::ETrans trans=Belos::NOTRANS) const {
 
-		auto mx = Teuchos::rcp( new typename MultiOperator::DomainFieldT( space(), (int)0 ) );
-		auto my = Teuchos::rcp( new typename MultiOperator::RangeFieldT ( space(), (int)0 ) );
+		auto mx = Teuchos::rcp( new typename MultiOperator::DomainFieldT( space(), 0 ) );
+		auto my = Teuchos::rcp( new typename MultiOperator::RangeFieldT ( space(), 0 ) );
 
 
 		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i ) {

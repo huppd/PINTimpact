@@ -30,9 +30,9 @@ public:
 
 	using SpaceT = typename DomainFieldT::SpaceT;
 
-	using Scalar = typename SpaceT::Scalar;
-
 protected:
+
+	using Scalar = typename SpaceT::Scalar;
 
 	int numIters_;
 
