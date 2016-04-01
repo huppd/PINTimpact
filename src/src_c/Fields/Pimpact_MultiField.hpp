@@ -373,9 +373,7 @@ public:
 
 	/// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
 	constexpr Scalar dot( const FieldT& y ) const {
-
 		return( this->reduce( comm(), dotLoc( y ) ) );
-
 	}
 
   /// \brief Compute the norm of each individual vector.
@@ -387,22 +385,22 @@ public:
 		const int n = getNumberVecs();
 		Scalar* temp = new Scalar[n];
 
-		switch(type) {
+		switch( type ) {
 			case Belos::OneNorm:
 				for( int i=0; i<n; ++i )
-					temp[i] = mfs_[i]->norm(type,false);
+					temp[i] = mfs_[i]->normLoc(type);
 				MPI_Allreduce( temp, normvec.data(), n, MPI_REAL8, MPI_SUM, comm() );
 				break;
 			case Belos::TwoNorm:
 				for( int i=0; i<n; ++i )
-					temp[i] = mfs_[i]->norm(type,false);
+					temp[i] = mfs_[i]->normLoc(type);
 				MPI_Allreduce( temp, normvec.data(), n, MPI_REAL8, MPI_SUM, comm() );
 				for( int i=0; i<n; ++i )
 					normvec[i] = std::sqrt( normvec[i] );
 				break;
 			case Belos::InfNorm:
 				for( int i=0; i<n; ++i )
-					temp[i] = mfs_[i]->norm(type,false);
+					temp[i] = mfs_[i]->normLoc(type);
 				MPI_Allreduce( temp, normvec.data(), n, MPI_REAL8, MPI_MAX, comm() );
 				break;
 		}
@@ -411,29 +409,37 @@ public:
 
 
   /// \brief Compute the norm for the \c MultiField as it is considered as one Vector .
-	Scalar norm(  Belos::NormType type = Belos::TwoNorm, bool global=true ) const {
+	constexpr Scalar normLoc(  Belos::NormType type = Belos::TwoNorm ) const {
 
-		int n = getNumberVecs();
 		Scalar normvec = 0.;
 
-		for( int i=0; i<n; ++i ) {
-			switch(type) {
-				case Belos::OneNorm:
-					normvec += mfs_[i]->norm(type,false);
-					break;
-				case Belos::TwoNorm:
-					normvec += mfs_[i]->norm(type,false);
-					break;
-				case Belos::InfNorm:
-					normvec = std::max( mfs_[i]->norm(type,false), normvec ) ;
-					break;
-			}
-		}
-
-		if( global ) this->reduceNorm( comm(), normvec, type );
+		for( int i=0; i<getNumberVecs(); ++i )
+			normvec = 
+				(Belos::InfNorm==type)?
+				(std::max( mfs_[i]->normLoc(type), normvec )):
+				(normvec+mfs_[i]->normLoc(type));
 
 		return( normvec );
 	}
+
+ /// \brief compute the norm
+  /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
+	/// \todo include scaled norm
+  constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm ) const {
+
+		Scalar normvec = this->reduce(
+				comm(),
+				normLoc( type ),
+				(Belos::InfNorm==type)?MPI_MAX:MPI_SUM );
+
+		normvec =
+			(Belos::TwoNorm==type) ?
+				std::sqrt(normvec) :
+				normvec;
+
+    return( normvec );
+
+  }
 
 
   /// \brief Weighted 2-Norm.
@@ -441,16 +447,23 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-	constexpr double norm( const FieldT& weights, bool global=true ) const {
+	constexpr Scalar normLoc( const FieldT& weights ) const {
 
-		double nor=0.;
+		Scalar nor = Teuchos::ScalarTraits<Scalar>::zero();
 
 		for( int i=0; i<getNumberVecs(); ++i )
-			nor += mfs_[i]->norm( *weights.mfs_[i], false );
-
-		if( global ) this->reduceNorm( comm(), nor, Belos::TwoNorm );
+			nor += mfs_[i]->normLoc( *weights.mfs_[i] );
 
 		return( nor );
+	}
+  /// \brief Weighted 2-Norm.
+  ///
+  /// \warning untested
+  /// Here x represents this vector, and we compute its weighted norm as follows:
+  /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
+  /// \return \f$ \|x\|_w \f$
+  constexpr Scalar norm( const FieldT& weights ) const {
+		return( std::sqrt( this->reduce( comm(), normLoc( weights ) ) ) );
 	}
 
 

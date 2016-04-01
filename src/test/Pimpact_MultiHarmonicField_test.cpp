@@ -455,13 +455,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonic, exchange, FType ) {
 	field->init( space->getProcGrid()->getRankSlice(3) );
 	field->exchange();
 
-  TEST_FLOATING_EQUALITY( field->getConst0FieldPtr()->norm(Belos::InfNorm,false), 0., eps );
+  TEST_FLOATING_EQUALITY( field->getConst0FieldPtr()->normLoc(Belos::InfNorm), 0., eps );
 
 //	for( OT i=0; i<space->nGlo(3); ++i ) {
 //		field->getConstCFieldPtr(i)->print(  );
 //		field->getConstSFieldPtr(i)->print(  );
 //	}
-  TEST_FLOATING_EQUALITY( field->getConstCFieldPtr(space->nGlo(3)-1)->norm(Belos::InfNorm,false), space->getProcGrid()->getNP(3)-1., eps );
+  TEST_FLOATING_EQUALITY( field->getConstCFieldPtr(space->nGlo(3)-1)->normLoc(Belos::InfNorm), space->getProcGrid()->getNP(3)-1., eps );
 
 }
 

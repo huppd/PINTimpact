@@ -900,7 +900,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator, CS ) {
 				if( errInf>=eps )
 					er->write(0);
 			}
-			if( er->norm(Belos::InfNorm, false )>=eps && space->rankST()==rankbla ){
+			if( er->normLoc(Belos::InfNorm)>=eps && space->rankST()==rankbla ){
 				//			std::cout << "rank: " << space->rankST() << "\n";
 				er->print();
 			}

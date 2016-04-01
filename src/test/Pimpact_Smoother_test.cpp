@@ -347,8 +347,8 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesLSmooth_conv ) {
 	auto error = x->clone();
 	auto true_sol = x->clone();
 
-	double p = 1;
-	double alpha = std::sqrt(pl->get<double>("alpha2"));
+	//double p = 1;
+	//double alpha = std::sqrt(pl->get<double>("alpha2"));
 
 	//Pimpact::initVectorTimeField( y->getVFieldPtr(), Pimpact::ConstVel_inX, p);
 

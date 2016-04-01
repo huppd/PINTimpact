@@ -187,7 +187,7 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-	void abs(const FieldT& y) {
+	void abs( const FieldT& y) {
 		// add test for consistent VectorSpaces in debug mode
 		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
 			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
@@ -203,7 +203,7 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
   /// \return Reference to this object
-  void reciprocal(const FieldT& y){
+  void reciprocal( const FieldT& y){
     // add test for consistent VectorSpaces in debug mode
 		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
 			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
@@ -255,40 +255,74 @@ public:
 
 	}
 
-	/// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
-	constexpr Scalar dot ( const FieldT& y ) const {
-
+	/// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y
+	/// and \c this, i.e.\f$b = y^H this\f$.
+	constexpr Scalar dot( const FieldT& y ) const {
 		return( this->reduce( comm(), dotLoc( y ) ) );
-
 	}
 
-
-  /// \brief compute the norm
-  /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
-	/// \todo include scaled norm
-  Scalar norm(  Belos::NormType type = Belos::TwoNorm, bool global=true ) const {
+  constexpr Scalar normLoc1() const {
 
     Scalar normvec = Teuchos::ScalarTraits<Scalar>::zero();
 
 		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
 			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
-				for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i ) {
-					switch(type) {
-						case Belos::OneNorm:
+				for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
 							normvec += std::abs( at(i,j,k) );
-							break;
-						case Belos::TwoNorm:
-							normvec += at(i,j,k)*at(i,j,k);
-							break;
-						case Belos::InfNorm:
-							normvec = std::fmax( std::abs(at(i,j,k)), normvec );
-							break;
-					}
-				}
-
-    if( global ) this->reduceNorm( comm(), normvec, type );
 
     return( normvec );
+  }
+  constexpr Scalar normLoc2() const {
+
+    Scalar normvec = Teuchos::ScalarTraits<Scalar>::zero();
+
+		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
+			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
+				for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
+							normvec += at(i,j,k)*at(i,j,k);
+
+    return( normvec );
+  }
+  constexpr Scalar normLocInf() const {
+
+    Scalar normvec = Teuchos::ScalarTraits<Scalar>::zero();
+
+		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
+			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
+				for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
+							normvec = std::fmax( std::abs(at(i,j,k)), normvec );
+
+    return( normvec );
+  }
+
+	constexpr Scalar normLoc( Belos::NormType type = Belos::TwoNorm ) const {
+
+		return(
+				( Belos::OneNorm==type)?
+					normLoc1():
+					(Belos::TwoNorm==type)?
+						normLoc2():
+						normLocInf() );
+
+	}
+
+  /// \brief compute the norm
+  /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
+	/// \todo include scaled norm
+  constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm ) const {
+
+		Scalar normvec = this->reduce(
+				comm(),
+				normLoc( type ),
+				(Belos::InfNorm==type)?MPI_MAX:MPI_SUM );
+
+		normvec =
+			(Belos::TwoNorm==type) ?
+				std::sqrt(normvec) :
+				normvec;
+
+    return( normvec );
+
   }
 
 
@@ -298,7 +332,7 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr double norm(const FieldT& weights, bool global=true ) const {
+  constexpr Scalar normLoc( const FieldT& weights ) const {
 
     Scalar normvec = Teuchos::ScalarTraits<Scalar>::zero();
 
@@ -307,11 +341,19 @@ public:
 				for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
 					normvec += at(i,j,k)*at(i,j,k)*weights.at(i,j,k)*weights.at(i,j,k);
 
-    if( global ) this->reduceNorm( comm(), normvec, Belos::TwoNorm );
-
     return( normvec );
 
   }
+
+  /// \brief Weighted 2-Norm.
+  ///
+  /// \warning untested
+  /// Here x represents this vector, and we compute its weighted norm as follows:
+  /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
+  /// \return \f$ \|x\|_w \f$
+  constexpr Scalar norm( const FieldT& weights ) const {
+		return( std::sqrt( this->reduce( comm(), normLoc( weights ) ) ) );
+	}
 
 
   //\}
@@ -654,7 +696,7 @@ public:
 					for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
 						pre0 += at(i,j,k);
 
-			this->reduceNorm( space()->comm(), pre0, Belos::OneNorm );
+			pre0 = this->reduce( space()->comm(), pre0 );
 			pre0 /= static_cast<Scalar>( getLength() );
 
 			for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )

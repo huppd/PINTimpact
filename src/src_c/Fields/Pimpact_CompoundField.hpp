@@ -189,27 +189,32 @@ public:
   /// \{
 
   /// \brief Compute the norm of the field.
-  Scalar norm(  Belos::NormType type = Belos::TwoNorm, bool global=true) const {
+  constexpr Scalar normLoc(  Belos::NormType type = Belos::TwoNorm ) const {
 
-    Scalar normvec=0;
+		return(
+			(Belos::InfNorm==type)?
+			std::max(vfield_->normLoc(type), sfield_->normLoc(type) ):
+			(vfield_->normLoc(type) + sfield_->normLoc(type)) );
 
-    switch(type) {
-    //    case Belos::OneNorm:
-    default:
-      normvec = vfield_->norm(type,false) + sfield_->norm(type,false);
-      break;
-      //    case Belos::TwoNorm:
-      //      normvec = vfield_->norm(type,false) + sfield_->norm(type,false);
-      ////      normvec = std::pow(vfield_->norm(type,false),2) + std::pow(sfield_->norm(type,false),2);
-      //      break;
-    case Belos::InfNorm:
-      normvec = std::max(vfield_->norm(type,false), sfield_->norm(type,false) ) ;
-      break;
-    }
+  }
 
-    if( global ) this->reduceNorm( comm(), normvec, type );
+ /// \brief compute the norm
+  /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
+	/// \todo include scaled norm
+  constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm ) const {
+
+		Scalar normvec = this->reduce(
+				comm(),
+				normLoc( type ),
+				(Belos::InfNorm==type)?MPI_MAX:MPI_SUM );
+
+		normvec =
+			(Belos::TwoNorm==type) ?
+				std::sqrt(normvec) :
+				normvec;
 
     return( normvec );
+
   }
 
 
@@ -218,18 +223,21 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  /// \todo add \c std::sqrt
-  constexpr double norm(const FieldT& weights, bool global=true) const {
-
-    double normvec=
-        vfield_->norm( *weights.vfield_, false ) +
-        sfield_->norm( *weights.sfield_, false );
-
-    if( global ) this->reduceNorm( comm(), normvec, Belos::TwoNorm );
-
-    return( normvec );
-
+  constexpr Scalar normLoc(const FieldT& weights ) const {
+		return(
+				vfield_->normLoc( *weights.vfield_ ) +
+				sfield_->normLoc( *weights.sfield_ ) );
   }
+
+  /// \brief Weighted 2-Norm.
+  ///
+  /// \warning untested
+  /// Here x represents this vector, and we compute its weighted norm as follows:
+  /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
+  /// \return \f$ \|x\|_w \f$
+  constexpr Scalar norm( const FieldT& weights ) const {
+		return( std::sqrt( this->reduce( comm(), normLoc( weights ) ) ) );
+	}
 
 
   /// \}

@@ -245,25 +245,33 @@ public:
   /// \name Norm method
   /// \{
 
-  /// \brief Compute the norm of Field.
-  ///
-  /// Upon return, \c normvec[i] holds the value of \f$||this_i||_2\f$, the \c i-th column of \c this.
-  Scalar norm(  Belos::NormType type=Belos::TwoNorm, bool global=true ) const {
+  constexpr Scalar normLoc( Belos::NormType type=Belos::TwoNorm ) const {
 
-    Scalar normvec = 0;
-
-    switch(type) {
-    default:
-      normvec = fieldc_->norm(type,false) + fields_->norm(type,false);
-      break;
-    case Belos::InfNorm:
-      normvec = std::max( fieldc_->norm(type,false), fields_->norm(type,false) ) ;
-      break;
-    }
-
-    if( global ) this->reduceNorm( comm(), normvec, type );
+    Scalar normvec = 
+			(Belos::InfNorm==type)?
+			std::max( fieldc_->normLoc(type), fields_->normLoc(type) ):
+      ( fieldc_->normLoc(type) + fields_->normLoc(type) );
 
     return( normvec );
+  }
+
+ /// \brief compute the norm
+  /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
+	/// \todo include scaled norm
+  constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm ) const {
+
+		Scalar normvec = this->reduce(
+				comm(),
+				normLoc( type ),
+				(Belos::InfNorm==type)?MPI_MAX:MPI_SUM );
+
+		normvec =
+			(Belos::TwoNorm==type) ?
+				std::sqrt(normvec) :
+				normvec;
+
+    return( normvec );
+
   }
 
 
@@ -272,15 +280,22 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr double norm(const FieldT& weights, bool global=true) const {
+  constexpr Scalar normLoc(const FieldT& weights ) const {
+		 return(
+				 fieldc_->normLoc(*weights.fieldc_) +
+				 fields_->normLoc(*weights.fields_)
+				 );
+	}
 
-    double normvec=fieldc_->norm(*weights.fieldc_,false)+fields_->norm(*weights.fields_,false);
-
-    if( global ) this->reduceNorm( comm(), normvec, Belos::TwoNorm );
-
-    return( normvec );
-
-  }
+  /// \brief Weighted 2-Norm.
+  ///
+  /// \warning untested
+  /// Here x represents this vector, and we compute its weighted norm as follows:
+  /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
+  /// \return \f$ \|x\|_w \f$
+  constexpr Scalar norm( const FieldT& weights ) const {
+		return( std::sqrt( this->reduce( comm(), normLoc( weights ) ) ) );
+	}
 
 
   /// \}
