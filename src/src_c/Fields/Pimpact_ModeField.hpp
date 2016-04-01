@@ -28,12 +28,12 @@ namespace Pimpact {
 /// vector for wrapping 2 fields into one mode
 /// \ingroup Field
 /// \todo continous memory
-template<class FieldT>
-class ModeField : private AbstractField<typename FieldT::SpaceT> {
+template<class IFT>
+class ModeField : private AbstractField<typename IFT::SpaceT> {
 
 public:
 
-  using SpaceT = typename FieldT::SpaceT;
+  using SpaceT = typename IFT::SpaceT;
 
   using Scalar = typename SpaceT::Scalar;
   using Ordinal =typename SpaceT::Ordinal;
@@ -43,14 +43,14 @@ public:
 protected:
 
 	using ScalarArray =  Scalar*;
-	using MV = ModeField<FieldT>;
+	using FieldT = ModeField<IFT>;
 
-	using AF =  AbstractField< typename FieldT::SpaceT>;
+	using AF =  AbstractField<SpaceT>;
 
 	bool owning_;
 
-	Teuchos::RCP<FieldT> fieldc_;
-  Teuchos::RCP<FieldT> fields_;
+	Teuchos::RCP<IFT> fieldc_;
+  Teuchos::RCP<IFT> fields_;
 
 	ScalarArray s_;
 
@@ -79,8 +79,8 @@ public:
   ModeField( const Teuchos::RCP<const SpaceT>& space, bool owning=true ):
     AF( space ),
 		owning_(owning),
-    fieldc_( Teuchos::rcp( new FieldT(space,false) ) ),
-    fields_( Teuchos::rcp( new FieldT(space,false) ) ) {
+    fieldc_( Teuchos::rcp( new IFT(space,false) ) ),
+    fields_( Teuchos::rcp( new IFT(space,false) ) ) {
 
 			if( owning_ ) {
 				allocate();
@@ -99,8 +99,8 @@ public:
   ModeField(const ModeField& vF, ECopyType copyType=DeepCopy):
     AF( vF.space() ),
 		owning_( vF.owning_ ),
-    fieldc_( Teuchos::rcp( new FieldT(*vF.fieldc_,copyType) ) ),
-		fields_( Teuchos::rcp( new FieldT(*vF.fields_,copyType) ) ) {
+    fieldc_( Teuchos::rcp( new IFT(*vF.fieldc_,copyType) ) ),
+		fields_( Teuchos::rcp( new IFT(*vF.fields_,copyType) ) ) {
 
 			if( owning_ ) {
 
@@ -120,9 +120,9 @@ public:
 	};
 
 
-  Teuchos::RCP<MV> clone( ECopyType cType=DeepCopy ) const {
+  Teuchos::RCP<FieldT> clone( ECopyType cType=DeepCopy ) const {
 
-		Teuchos::RCP<MV> mv = Teuchos::rcp( new MV( space() ) );
+		Teuchos::RCP<FieldT> mv = Teuchos::rcp( new FieldT( space() ) );
 
 		switch( cType ) {
 			case ShallowCopy:
@@ -140,17 +140,17 @@ public:
   /// \name Attribute methods
   /// \{
 
-  constexpr Teuchos::RCP<FieldT> getCFieldPtr() { return( fieldc_ ); }
-  constexpr Teuchos::RCP<FieldT> getSFieldPtr() { return( fields_ ); }
+  constexpr Teuchos::RCP<IFT> getCFieldPtr() { return( fieldc_ ); }
+  constexpr Teuchos::RCP<IFT> getSFieldPtr() { return( fields_ ); }
 
-  constexpr Teuchos::RCP<const FieldT> getConstCFieldPtr() const { return( fieldc_ ); }
-  constexpr Teuchos::RCP<const FieldT> getConstSFieldPtr() const { return( fields_ ); }
+  constexpr Teuchos::RCP<const IFT> getConstCFieldPtr() const { return( fieldc_ ); }
+  constexpr Teuchos::RCP<const IFT> getConstSFieldPtr() const { return( fields_ ); }
 
-  constexpr FieldT& getCField() { return( *fieldc_ ); }
-  constexpr FieldT& getSField() { return( *fields_ ); }
+  constexpr IFT& getCField() { return( *fieldc_ ); }
+  constexpr IFT& getSField() { return( *fields_ ); }
 
-  constexpr const FieldT& getConstCField() const { return( *fieldc_ ); }
-  constexpr const FieldT& getConstSField() const { return( *fields_ ); }
+  constexpr const IFT& getConstCField() const { return( *fieldc_ ); }
+  constexpr const IFT& getConstSField() const { return( *fields_ ); }
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const { return( AF::space_ ); }
 
@@ -174,7 +174,7 @@ public:
   /// \{
 
   /// \brief Replace \c this with \f$\alpha A + \beta B\f$.
-  void add( const Scalar& alpha, const MV& A, const Scalar& beta, const MV& B ) {
+  void add( const Scalar& alpha, const FieldT& A, const Scalar& beta, const FieldT& B ) {
     // add test for consistent VectorSpaces in debug mode
     fieldc_->add(alpha, *A.fieldc_, beta, *B.fieldc_);
     fields_->add(alpha, *A.fields_, beta, *B.fields_);
@@ -187,7 +187,7 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  void abs( const MV& y ) {
+  void abs( const FieldT& y ) {
     fieldc_->abs( *y.fieldc_ );
     fields_->abs( *y.fields_ );
   }
@@ -198,7 +198,7 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
   /// \return Reference to this object
-  void reciprocal( const MV& y ) {
+  void reciprocal( const FieldT& y ) {
     fieldc_->reciprocal( *y.fieldc_ );
     fields_->reciprocal( *y.fields_ );
   }
@@ -216,25 +216,30 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  void scale(const MV& a) {
+  void scale(const FieldT& a) {
     fieldc_->scale( *a.fieldc_ );
     fields_->scale( *a.fields_ );
   }
 
 
   /// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
-  constexpr Scalar dot ( const MV& a, bool global=true ) const {
+  constexpr Scalar dotLoc( const FieldT& a ) const {
 
     Scalar b=0.;
 
-    b = fieldc_->dot( *a.fieldc_, false ) + fields_->dot( *a.fields_, false );
-
-    if( global ) this->reduceNorm( comm(), b );
+    b = fieldc_->dotLoc( *a.fieldc_) + fields_->dotLoc( *a.fields_ );
 
     return( b );
 
   }
 
+
+	/// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
+	constexpr Scalar dot( const FieldT& y ) const {
+
+		return( this->reduce( comm(), dotLoc( y ) ) );
+
+	}
 
   /// \}
   /// \name Norm method
@@ -267,7 +272,7 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr double norm(const MV& weights, bool global=true) const {
+  constexpr double norm(const FieldT& weights, bool global=true) const {
 
     double normvec=fieldc_->norm(*weights.fieldc_,false)+fields_->norm(*weights.fields_,false);
 
@@ -284,7 +289,7 @@ public:
 
   /// \brief mv := A
   /// Assign (deep copy) A into mv.
-  void assign( const MV& a ) {
+  void assign( const FieldT& a ) {
     fieldc_->assign(*a.fieldc_);
     fields_->assign(*a.fields_);
   }

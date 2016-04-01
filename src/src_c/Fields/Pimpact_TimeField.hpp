@@ -32,7 +32,7 @@ namespace Pimpact {
 /// Pimpact:VectorField or some combination with \c Pimpact::ModeField or \c
 /// Pimpact::CompoundField \note if this is heavily used for many Field's, then
 /// the implementation should be improved such that communication is done such
-/// that only done once per MV not per Field
+/// that only done once per FieldT not per Field
 ///
 /// \todo decide if it is better to modifie ghostlayer or exchange eventuell more
 /// \todo maybe move functionality in Scalar/VectorField<S,O,4>
@@ -56,7 +56,7 @@ public:
 
 	using SpaceT = typename Field::SpaceT;
 
-	using MV = Pimpact::TimeField<Field>;
+	using FieldT = Pimpact::TimeField<Field>;
 
 	using ScalarArray = Scalar*;
 
@@ -144,8 +144,8 @@ public:
 
 
 	/// \brief Create a new \c TimeField with
-	Teuchos::RCP< MV > clone( ECopyType ctype = DeepCopy ) const {
-		Teuchos::RCP< MV > mv_ = Teuchos::rcp( new MV(*this,ctype) );
+	Teuchos::RCP< FieldT > clone( ECopyType ctype = DeepCopy ) const {
+		Teuchos::RCP< FieldT > mv_ = Teuchos::rcp( new FieldT(*this,ctype) );
 		return( mv_ );
 	}
 
@@ -176,7 +176,7 @@ public:
 	///	overwrites any NaN or Inf entries in A.  Thus, it does <i>not</i> mean
 	///	the same thing as <tt>mv := 0*mv + alpha*A + beta*B</tt> in IEEE 754
 	///	floating-point arithmetic. (Remember that NaN*0 = NaN.)
-	void add( Scalar alpha, const MV& A, Scalar beta, const MV& B ) {
+	void add( Scalar alpha, const FieldT& A, Scalar beta, const FieldT& B ) {
 
 		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
 			mfs_[i]->add( alpha, *A.mfs_[i], beta, *B.mfs_[i] );
@@ -191,7 +191,7 @@ public:
 	/// Here x represents this vector, and we update it as
 	/// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
 	/// \return Reference to this object
-	void abs(const MV& y) {
+	void abs(const FieldT& y) {
 
 		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
 			mfs_[i]->abs( *y.mfs_[i] );
@@ -205,7 +205,7 @@ public:
 	/// Here x represents this vector, and we update it as
 	/// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
 	/// \return Reference to this object
-	void reciprocal(const MV& y){
+	void reciprocal(const FieldT& y){
 		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
 			mfs_[i]->reciprocal( *y.mfs_[i] );
 		changed();
@@ -228,7 +228,7 @@ public:
 	/// Here x represents this vector, and we update it as
 	/// \f[ x_i = x_i \cdot y_i \quad \mbox{for } i=1,\dots,n \f]
 	/// \return Reference to this object
-	void scale(const MV& y) {
+	void scale(const FieldT& y) {
 		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
 			mfs_[i]->scale( *y.mfs_[i] );
 		changed();
@@ -239,19 +239,23 @@ public:
 
 
 	/// \brief Compute the inner product for the \c TimeField considering it as one Vector.
-	Scalar dot( const MV& A, bool global=true ) const {
+	Scalar dotLoc( const FieldT& A ) const {
 
 		Scalar b = 0.;
 
 		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
-			b+= mfs_[i]->dot( *A.mfs_[i], false );
-
-		if( global ) this->reduceNorm( comm(), b );
+			b+= mfs_[i]->dotLoc( *A.mfs_[i] );
 
 		return( b );
 
 	}
 
+	/// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
+	constexpr Scalar dot( const FieldT& y ) const {
+
+		return( this->reduce( comm(), dotLoc( y ) ) );
+
+	}
 
 
 	/// \brief Compute the norm for the \c TimeField as it is considered as one Vector .
@@ -285,7 +289,7 @@ public:
 	/// Here x represents this vector, and we compute its weighted norm as follows:
 	/// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
 	/// \return \f$ \|x\|_w \f$
-	double norm( const MV& weights, bool global=true ) const {
+	double norm( const FieldT& weights, bool global=true ) const {
 
 		double nor=0.;
 
@@ -301,7 +305,7 @@ public:
 	/// \brief mv := A.
 	///
 	/// assign (deep copy) A into mv.
-	void assign( const MV& A ) {
+	void assign( const FieldT& A ) {
 
 		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
 			mfs_[i]->assign( *A.mfs_[i] );

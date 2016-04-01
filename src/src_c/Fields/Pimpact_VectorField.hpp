@@ -77,7 +77,7 @@ protected:
 
 	using ScalarArray = Scalar*;
 
-	using VF = VectorField<SpaceT>;
+	using FieldT = VectorField<SpaceT>;
 	using SF = ScalarField<SpaceT>;
 
 	ScalarArray s_;
@@ -143,9 +143,9 @@ public:
 
 	~VectorField() { if( owning_ ) delete[] s_; }
 
-	Teuchos::RCP<VF> clone( ECopyType copyType=DeepCopy ) const {
+	Teuchos::RCP<FieldT> clone( ECopyType copyType=DeepCopy ) const {
 
-		Teuchos::RCP<VF> vf = Teuchos::rcp( new VF( space() ) );
+		Teuchos::RCP<FieldT> vf = Teuchos::rcp( new FieldT( space() ) );
 
 		switch( copyType ) {
 			case ShallowCopy:
@@ -194,7 +194,7 @@ public:
   /// \brief Replace \c this with \f$\alpha A + \beta B\f$.
   ///
   /// only inner points
-	void add( const Scalar& alpha, const VF& A, const Scalar& beta, const VF& B ) {
+	void add( const Scalar& alpha, const FieldT& A, const Scalar& beta, const FieldT& B ) {
 		// add test for consistent VectorSpaces in debug mode
 		for( int i=0; i<space()->dim(); ++i ) {
 			sFields_[i]->add( alpha, *A.sFields_[i], beta, *B.sFields_[i] );
@@ -209,7 +209,7 @@ public:
 	/// Here x represents this vector, and we update it as
 	/// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
 	/// \return Reference to this object
-	void abs(const VF& y) {
+	void abs(const FieldT& y) {
 		for( int i=0; i<space()->dim(); ++i )
 			sFields_[i]->abs( *y.sFields_[i] );
 		changed();
@@ -221,7 +221,7 @@ public:
 	/// Here x represents this vector, and we update it as
 	/// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
 	/// \return Reference to this object
-	void reciprocal(const VF& y){
+	void reciprocal(const FieldT& y){
 		// add test for consistent VectorSpaces in debug mode
 		for( int i=0; i<space()->dim(); ++i)
 			sFields_[i]->reciprocal( *y.sFields_[i] );
@@ -242,7 +242,7 @@ public:
 	/// Here x represents this vector, and we update it as
 	/// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
 	/// \return Reference to this object
-	void scale(const VF& a) {
+	void scale(const FieldT& a) {
 		// add test for consistent VectorSpaces in debug mode
 		for(int i=0; i<space()->dim(); ++i)
 			sFields_[i]->scale( *a.sFields_[i] );
@@ -251,15 +251,20 @@ public:
 
 
 	/// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
-	constexpr Scalar dot ( const VF& a, bool global=true ) const {
+	constexpr Scalar dotLoc ( const FieldT& a ) const {
 		Scalar b = 0.;
 
 		for( int i=0; i<space()->dim(); ++i )
-			b += sFields_[i]->dot( *a.sFields_[i], false );
-
-		if( global ) this->reduceNorm( comm(), b );
+			b += sFields_[i]->dotLoc( *a.sFields_[i] );
 
 		return( b );
+
+	}
+
+	/// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
+	constexpr Scalar dot( const FieldT& y ) const {
+
+		return( this->reduce( comm(), dotLoc( y ) ) );
 
 	}
 
@@ -298,7 +303,7 @@ public:
 	/// Here x represents this vector, and we compute its weighted norm as follows:
 	/// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
 	/// \return \f$ \|x\|_w \f$
-	constexpr double norm( const VF& weights, bool global=true ) const {
+	constexpr double norm( const FieldT& weights, bool global=true ) const {
 		Scalar normvec = 0.;
 
 		for( int i=0; i<space()->dim(); ++i )
@@ -319,7 +324,7 @@ public:
 	/// \brief mv := A
 	///
 	/// Assign (deep copy) A into mv.
-	void assign( const VF& a ) {
+	void assign( const FieldT& a ) {
 
 		for( int i=0; i<space()->dim(); ++i)
 			sFields_[i]->assign( *a.sFields_[i] );

@@ -24,8 +24,8 @@ public:
 
   using OperatorT = MOperatorT;
 
-  using DomainFieldT = typename MOperatorT::DomainFieldT::FieldT;
-  using RangeFieldT = typename MOperatorT::RangeFieldT::FieldT;
+  using DomainFieldT = typename MOperatorT::DomainFieldT::InnerFieldT;
+  using RangeFieldT = typename MOperatorT::RangeFieldT::InnerFieldT;
 
   using SpaceT = typename DomainFieldT::SpaceT;
 

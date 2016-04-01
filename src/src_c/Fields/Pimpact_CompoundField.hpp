@@ -40,7 +40,7 @@ public:
 
 protected:
 
-  using MV = CompoundField<VField,SField>;
+  using FieldT = CompoundField<VField,SField>;
 
   using AF = AbstractField<SpaceT>;
 
@@ -74,8 +74,8 @@ public:
 {};
 
 
-  Teuchos::RCP<MV> clone( ECopyType ctype=DeepCopy ) const {
-    return( Teuchos::rcp( new MV( *this, ctype ) ) );
+  Teuchos::RCP<FieldT> clone( ECopyType ctype=DeepCopy ) const {
+    return( Teuchos::rcp( new FieldT( *this, ctype ) ) );
   }
 
   /// \name Attribute methods
@@ -117,7 +117,7 @@ public:
   /// \{
 
   /// \brief Replace \c this with \f$\alpha A + \beta B\f$.
-  void add( const Scalar& alpha, const MV& A, const Scalar& beta, const MV& B ) {
+  void add( const Scalar& alpha, const FieldT& A, const Scalar& beta, const FieldT& B ) {
     // add test for consistent VectorSpaces in debug mode
     vfield_->add(alpha, *A.vfield_, beta, *B.vfield_);
     sfield_->add(alpha, *A.sfield_, beta, *B.sfield_);
@@ -130,7 +130,7 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  void abs( const MV& y ) {
+  void abs( const FieldT& y ) {
     vfield_->abs( *y.vfield_ );
     sfield_->abs( *y.sfield_ );
   }
@@ -141,7 +141,7 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
   /// \return Reference to this object
-  void reciprocal(const MV& y){
+  void reciprocal(const FieldT& y){
     vfield_->reciprocal( *y.vfield_ );
     sfield_->reciprocal( *y.sfield_ );
   }
@@ -159,23 +159,29 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  void scale(const MV& a) {
+  void scale(const FieldT& a) {
     vfield_->scale( *a.vfield_ );
     sfield_->scale( *a.sfield_ );
   }
 
 
   /// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
-  constexpr Scalar dot ( const MV& a, bool global=true ) const {
+  constexpr Scalar dotLoc( const FieldT& a ) const {
 
     Scalar b = 0.;
 
-    b = vfield_->dot( *a.vfield_, false ) + sfield_->dot( *a.sfield_, false );
-
-    if( global ) this->reduceNorm( comm(), b );
+    b = vfield_->dotLoc( *a.vfield_ ) + sfield_->dotLoc( *a.sfield_ );
 
     return( b );
   }
+
+
+	/// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
+	constexpr Scalar dot( const FieldT& y ) const {
+
+		return( this->reduce( comm(), dotLoc( y ) ) );
+
+	}
 
 
   /// \}
@@ -213,7 +219,7 @@ public:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
   /// \todo add \c std::sqrt
-  constexpr double norm(const MV& weights, bool global=true) const {
+  constexpr double norm(const FieldT& weights, bool global=true) const {
 
     double normvec=
         vfield_->norm( *weights.vfield_, false ) +
@@ -232,7 +238,7 @@ public:
 
   /// \brief mv := A
   /// Assign (deep copy) A into mv.
-  void assign( const MV& a ) {
+  void assign( const FieldT& a ) {
     vfield_->assign(*a.vfield_);
     sfield_->assign(*a.sfield_);
   }

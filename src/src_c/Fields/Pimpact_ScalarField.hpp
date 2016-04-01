@@ -48,7 +48,7 @@ public:
 protected:
 
   using ScalarArray = Scalar*;
-  using MV = ScalarField< SpaceT >;
+  using FieldT = ScalarField< SpaceT >;
   using State = Teuchos::Tuple<bool,3>;
 
   ScalarArray s_;
@@ -113,9 +113,9 @@ public:
 	~ScalarField() { if( owning_ ) delete[] s_; }
 
 
-  Teuchos::RCP<MV> clone( ECopyType copyType=DeepCopy ) const {
+  Teuchos::RCP<FieldT> clone( ECopyType copyType=DeepCopy ) const {
 
-		Teuchos::RCP<MV> mv = Teuchos::rcp( new MV( space(), true, this->fType_ ) );
+		Teuchos::RCP<FieldT> mv = Teuchos::rcp( new FieldT( space(), true, this->fType_ ) );
 
 		switch( copyType ) {
 			case ShallowCopy:
@@ -161,7 +161,7 @@ public:
   /// @{
 
   /// \brief Replace \c this with \f$\alpha A + \beta B\f$.
-  void add( const Scalar& alpha, const MV& A, const Scalar& beta, const MV& B ) {
+  void add( const Scalar& alpha, const FieldT& A, const Scalar& beta, const FieldT& B ) {
     // add test for consistent VectorSpaces in debug mode
 		if( s_==A.s_ && s_==B.s_ )
 			scale( alpha+beta );
@@ -187,7 +187,7 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-	void abs(const MV& y) {
+	void abs(const FieldT& y) {
 		// add test for consistent VectorSpaces in debug mode
 		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
 			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
@@ -203,7 +203,7 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
   /// \return Reference to this object
-  void reciprocal(const MV& y){
+  void reciprocal(const FieldT& y){
     // add test for consistent VectorSpaces in debug mode
 		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
 			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
@@ -228,7 +228,7 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = x_i \cdot y_i \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-	void scale( const MV& y ) {
+	void scale( const FieldT& y ) {
 		// add test for consistent VectorSpaces in debug mode
 		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
 			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
@@ -241,22 +241,26 @@ public:
   /// \name Norm method(reductions)
   /// @{
 
-	/// \brief Compute a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
-  constexpr Scalar dot ( const MV& y, bool global=true ) const {
+	/// \brief Compute a locla scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
+	constexpr Scalar dotLoc( const FieldT& y ) const {
 
-    Scalar b = Teuchos::ScalarTraits<Scalar>::zero();
+		Scalar b = Teuchos::ScalarTraits<Scalar>::zero();
 
 		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
 			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
 				for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
 					b += at(i,j,k)*y.at(i,j,k);
 
-    if( global ) this->reduceNorm( comm(), b );
+		return( b );
 
-    return( b );
-  }
+	}
 
+	/// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
+	constexpr Scalar dot ( const FieldT& y ) const {
 
+		return( this->reduce( comm(), dotLoc( y ) ) );
+
+	}
 
 
   /// \brief compute the norm
@@ -294,7 +298,7 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr double norm(const MV& weights, bool global=true ) const {
+  constexpr double norm(const FieldT& weights, bool global=true ) const {
 
     Scalar normvec = Teuchos::ScalarTraits<Scalar>::zero();
 
@@ -319,7 +323,7 @@ public:
   /// Assign (deep copy) \c a into \c this.
   /// total deep, boundaries and everythin.
   /// \note the \c StencilWidths is not take care of assuming every field is generated with one
-	void assign( const MV& a ) {
+	void assign( const FieldT& a ) {
 
 		for(int i=0; i<getStorageSize(); ++i)
 			s_[i] = a.s_[i];

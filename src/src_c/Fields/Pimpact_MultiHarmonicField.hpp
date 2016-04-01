@@ -26,12 +26,12 @@ namespace Pimpact {
 ///
 /// vector for wrapping many fields into one multiharmonic field
 /// \ingroup Field
-template<class FieldT>
-class MultiHarmonicField : private AbstractField<typename FieldT::SpaceT> {
+template<class IFT>
+class MultiHarmonicField : private AbstractField<typename IFT::SpaceT> {
 
 public:
 
-  using SpaceT = typename FieldT::SpaceT;
+  using SpaceT = typename IFT::SpaceT;
 
   using Scalar = typename SpaceT::Scalar;
   using Ordinal = typename SpaceT::Ordinal;
@@ -40,13 +40,13 @@ public:
 
 protected:
 
-  using MV = MultiHarmonicField<FieldT>;
+  using FieldT = MultiHarmonicField<IFT>;
 
   using AF = AbstractField<SpaceT>;
 
-  Teuchos::RCP<FieldT> field0_;
+  Teuchos::RCP<IFT> field0_;
 
-  Teuchos::Array< Teuchos::RCP< ModeField<FieldT> > > fields_;
+  Teuchos::Array< Teuchos::RCP< ModeField<IFT> > > fields_;
 
 	Scalar* s_;
 
@@ -71,7 +71,7 @@ public:
   MultiHarmonicField(
 			const Teuchos::RCP<const SpaceT>& space ):
 		AF( space ),
-		field0_( Teuchos::rcp( new FieldT(space,false) ) ),
+		field0_( Teuchos::rcp( new IFT(space,false) ) ),
 		fields_( space->nGlo(3) ),
     exchangedState_( true ) {
 
@@ -79,7 +79,7 @@ public:
 			TEUCHOS_TEST_FOR_EXCEPT( true != space()->getStencilWidths()->spectralT() );
 
 			for( Ordinal i=0; i<space->nGlo(3); ++i )
-				fields_[i] = Teuchos::rcp( new ModeField<FieldT>( space, false ) );
+				fields_[i] = Teuchos::rcp( new ModeField<IFT>( space, false ) );
 
 			allocate();
 			initField();
@@ -94,12 +94,12 @@ public:
   /// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
 	MultiHarmonicField( const MultiHarmonicField& vF, ECopyType copyType=DeepCopy ):
 		AF( vF.space() ),
-		field0_( Teuchos::rcp( new FieldT( *vF.field0_, copyType ) ) ),
+		field0_( Teuchos::rcp( new IFT( *vF.field0_, copyType ) ) ),
 		fields_( vF.space()->nGlo(3) ),
     exchangedState_(vF.exchangedState_) {
 
 			for( Ordinal i=0; i< space()->nGlo(3); ++i )
-				fields_[i] = Teuchos::rcp( new ModeField<FieldT>( vF.getConstField(i), copyType ) );
+				fields_[i] = Teuchos::rcp( new ModeField<IFT>( vF.getConstField(i), copyType ) );
 
 			allocate();
 			switch( copyType ) {
@@ -117,9 +117,9 @@ public:
 
 	~MultiHarmonicField() { delete[] s_; }
 
-  Teuchos::RCP<MV> clone( ECopyType ctype=DeepCopy ) const {
+  Teuchos::RCP<FieldT> clone( ECopyType ctype=DeepCopy ) const {
 
-    return( Teuchos::rcp( new MV(*this,ctype) ) );
+    return( Teuchos::rcp( new FieldT(*this,ctype) ) );
 
   }
 
@@ -127,27 +127,25 @@ public:
   /// \name Attribute methods
   /// \{
 
-  /// \warning it is assumed that both fields have the same \c StencilWidths
+  constexpr IFT&                    get0Field()               { return( *field0_ ); }
+  constexpr const IFT&              getConst0Field()    const { return( *field0_ ); }
+  constexpr Teuchos::RCP<      IFT> get0FieldPtr()            { return(  field0_ ); }
+  constexpr Teuchos::RCP<const IFT> getConst0FieldPtr() const { return(  field0_ ); }
 
-  constexpr FieldT&                    get0Field()               { return( *field0_ ); }
-  constexpr const FieldT&              getConst0Field()    const { return( *field0_ ); }
-  constexpr Teuchos::RCP<      FieldT> get0FieldPtr()            { return(  field0_ ); }
-  constexpr Teuchos::RCP<const FieldT> getConst0FieldPtr() const { return(  field0_ ); }
+  constexpr ModeField<IFT>&                     getField        ( int i )       { return( *fields_[i] ); }
+  constexpr const ModeField<IFT>&               getConstField   ( int i ) const { return( *fields_[i] ); }
+  constexpr Teuchos::RCP<      ModeField<IFT> > getFieldPtr     ( int i )       { return( fields_[i]  ); }
+  constexpr Teuchos::RCP<const ModeField<IFT> > getConstFieldPtr( int i ) const { return( fields_[i]  ); }
 
-  constexpr ModeField<FieldT>&                     getField        ( int i )       { return( *fields_[i] ); }
-  constexpr const ModeField<FieldT>&               getConstField   ( int i ) const { return( *fields_[i] ); }
-  constexpr Teuchos::RCP<      ModeField<FieldT> > getFieldPtr     ( int i )       { return( fields_[i]  ); }
-  constexpr Teuchos::RCP<const ModeField<FieldT> > getConstFieldPtr( int i ) const { return( fields_[i]  ); }
+  constexpr IFT&                    getCField        ( int i )       { return( fields_[i]->getCField()      ); }
+  constexpr const IFT&              getConstCField   ( int i ) const { return( fields_[i]->getConstCField() ); }
+  constexpr Teuchos::RCP<      IFT> getCFieldPtr     ( int i )       { return( fields_[i]->getCFieldPtr()   ); }
+  constexpr Teuchos::RCP<const IFT> getConstCFieldPtr( int i ) const { return( fields_[i]->getConstCFieldPtr() ); }
 
-  constexpr FieldT&                    getCField        ( int i )       { return( fields_[i]->getCField()      ); }
-  constexpr const FieldT&              getConstCField   ( int i ) const { return( fields_[i]->getConstCField() ); }
-  constexpr Teuchos::RCP<      FieldT> getCFieldPtr     ( int i )       { return( fields_[i]->getCFieldPtr()   ); }
-  constexpr Teuchos::RCP<const FieldT> getConstCFieldPtr( int i ) const { return( fields_[i]->getConstCFieldPtr() ); }
-
-  constexpr FieldT&                    getSField        ( int i )       { return( fields_[i]->getSField()         ); }
-  constexpr const FieldT&              getConstSField   ( int i ) const { return( fields_[i]->getConstSField()    ); }
-  constexpr Teuchos::RCP<      FieldT> getSFieldPtr     ( int i )       { return( fields_[i]->getSFieldPtr()      ); }
-  constexpr Teuchos::RCP<const FieldT> getConstSFieldPtr( int i ) const { return( fields_[i]->getConstSFieldPtr() ); }
+  constexpr IFT&                    getSField        ( int i )       { return( fields_[i]->getSField()         ); }
+  constexpr const IFT&              getConstSField   ( int i ) const { return( fields_[i]->getConstSField()    ); }
+  constexpr Teuchos::RCP<      IFT> getSFieldPtr     ( int i )       { return( fields_[i]->getSFieldPtr()      ); }
+  constexpr Teuchos::RCP<const IFT> getConstSFieldPtr( int i ) const { return( fields_[i]->getConstSFieldPtr() ); }
 
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const { return( AF::space_ ); }
@@ -182,7 +180,7 @@ public:
 
   /// \brief Replace \c this with \f$\alpha A + \beta B\f$.
 	/// \todo add test for consistent VectorSpaces in debug mode
-  void add( const Scalar& alpha, const MV& A, const Scalar& beta, const MV& B ) {
+  void add( const Scalar& alpha, const FieldT& A, const Scalar& beta, const FieldT& B ) {
 
 		if( space()->sInd(U,3)<0 )
 			field0_->add(alpha, *A.field0_, beta, *B.field0_);
@@ -201,7 +199,7 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  void abs(const MV& y) {
+  void abs( const FieldT& y) {
 
 		if( space()->sInd(U,3)<0 )
 			field0_->abs( *y.field0_ );
@@ -219,7 +217,7 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
   /// \return Reference to this object
-  void reciprocal(const MV& y){
+  void reciprocal( const FieldT& y){
 
 		if( space()->sInd(U,3)<0 )
 			field0_->reciprocal( *y.field0_ );
@@ -251,7 +249,7 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  void scale(const MV& a) {
+  void scale( const FieldT& a) {
 
 		if( space()->sInd(U,3)<0 )
 			field0_->scale( *a.field0_ );
@@ -270,20 +268,25 @@ public:
   /// \{
 
   /// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
-  Scalar dot ( const MV& a, bool global=true ) const {
+  constexpr Scalar dotLoc( const FieldT& a ) const {
 
     Scalar b = 0.;
 
 		if( space()->sInd(U,3)<0 )
-			b += field0_->dot( *a.field0_, false );
+			b += field0_->dotLoc( *a.field0_ );
 		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
-			b += getConstFieldPtr(i)->dot( a.getConstField(i), false );
-
-    if( global ) this->reduceNorm( comm(), b );
+			b += getConstFieldPtr(i)->dotLoc( a.getConstField(i) );
 
     return( b );
 
   }
+
+	/// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
+	constexpr Scalar dot( const FieldT& y ) const {
+
+		return( this->reduce( comm(), dotLoc( y ) ) );
+
+	}
 
   /// \brief Compute the norm of Field.
   /// Upon return, \c normvec[i] holds the value of \f$||this_i||_2\f$, the \c i-th column of \c this.
@@ -321,7 +324,7 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  double norm( const MV& weights, bool global=true ) const {
+  double norm( const FieldT& weights, bool global=true ) const {
 
     double normvec= 0.;
 
@@ -345,7 +348,7 @@ public:
 
   /// \brief mv := A
   /// Assign (deep copy) A into mv.
-  void assign( const MV& a ) {
+  void assign( const FieldT& a ) {
 
 		if( space()->sInd(U,3)<0 )
 			field0_->assign(*a.field0_);

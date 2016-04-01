@@ -33,6 +33,15 @@ protected:
 
   Teuchos::RCP<const SpaceT> space_;
 
+	constexpr Scalar reduce( const MPI_Comm& comm, const double& norm, const MPI_Op& op=MPI_SUM ) const {
+
+		Scalar normGlob;
+		MPI_Allreduce( &norm, &normGlob, 1, MPI_REAL8, op, comm );
+		return( normGlob );
+
+	}
+
+	/// \deprecated
 	void reduceNorm( const MPI_Comm& comm, double& norm, Belos::NormType type = Belos::OneNorm ) const {
 
 		Scalar normGlob;
