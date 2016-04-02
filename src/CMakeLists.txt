@@ -52,7 +52,7 @@ message( "MPI Fortran LIBRARIES =    ${MPI_Fortran_LIBRARIES}\n" )
 option( findHDF5 "findHDF5" OFF)
 
 if( findHDF5 )
-	FIND_PACKAGE( HDF5 COMPONENTS CXX Fortran HL Fortran_HL )
+	FIND_PACKAGE( HDF5 COMPONENTS C Fortran HL Fortran_HL )
 	message( "\nHDF5? ${HDF5_FOUND}" )
 	message( "HDF5_IS_PARALLEL? ${HDF5_IS_PARALLEL}" )
 	message( "HDF5_INCLUDE_DIRS: ${HDF5_INCLUDE_DIRS}" )
@@ -66,6 +66,8 @@ if( findHDF5 )
 	message( "HDF5_LIBRARY_DIRS: ${HDF5_LIBRARY_DIRS}" )
 
 	add_definitions( ${HDF5_DEFINITIONS} )
+else()
+	message( "findHDF5? off ")
 endif()
 
 
