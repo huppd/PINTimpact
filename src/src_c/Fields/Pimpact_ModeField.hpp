@@ -303,8 +303,8 @@ public:
   /// \brief mv := A
   /// Assign (deep copy) A into mv.
   void assign( const FieldT& a ) {
-    fieldc_->assign(*a.fieldc_);
-    fields_->assign(*a.fields_);
+    fieldc_->assign( *a.fieldc_ );
+    fields_->assign( *a.fields_ );
   }
 
   /// \brief Replace the vectors with a random vectors.

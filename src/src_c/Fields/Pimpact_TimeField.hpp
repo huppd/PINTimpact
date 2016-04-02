@@ -64,7 +64,7 @@ public:
 
 	using Iter = typename FieldArray::iterator;
 
-	Teuchos::Array< Teuchos::RCP<Field> > mfs_; // why?
+	Teuchos::Array< Teuchos::RCP<Field> > mfs_; // why public?
 
 protected:
 
@@ -151,7 +151,7 @@ public:
 	/// \param noxVec if \c TimeField is used for NOX the Vector length is
 	/// considered for all Fields
 	constexpr Ordinal getLength() const {
-		return( space()->nGlo()[3]*mfs_[0]->getLength() );
+		return( space()->nGlo(3)*mfs_[0]->getLength() );
 	}
 
 
@@ -187,7 +187,7 @@ public:
 	/// Here x represents this vector, and we update it as
 	/// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
 	/// \return Reference to this object
-	void abs(const FieldT& y) {
+	void abs( const FieldT& y) {
 
 		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
 			mfs_[i]->abs( *y.mfs_[i] );
@@ -201,7 +201,7 @@ public:
 	/// Here x represents this vector, and we update it as
 	/// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
 	/// \return Reference to this object
-	void reciprocal(const FieldT& y){
+	void reciprocal( const FieldT& y){
 		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
 			mfs_[i]->reciprocal( *y.mfs_[i] );
 		changed();
@@ -224,7 +224,7 @@ public:
 	/// Here x represents this vector, and we update it as
 	/// \f[ x_i = x_i \cdot y_i \quad \mbox{for } i=1,\dots,n \f]
 	/// \return Reference to this object
-	void scale(const FieldT& y) {
+	void scale( const FieldT& y) {
 		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
 			mfs_[i]->scale( *y.mfs_[i] );
 		changed();
@@ -235,7 +235,7 @@ public:
 
 
 	/// \brief Compute the inner product for the \c TimeField considering it as one Vector.
-	Scalar dotLoc( const FieldT& A ) const {
+	constexpr Scalar dotLoc( const FieldT& A ) const {
 
 		Scalar b = 0.;
 
@@ -261,14 +261,14 @@ public:
 
 		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
 			normvec = 
-				(Belos::InfNorm==type)?
+				( (Belos::InfNorm==type)?
 				std::max( mfs_[i]->normLoc(type), normvec ) :
-				(normvec + mfs_[i]->normLoc(type) );
+				(normvec + mfs_[i]->normLoc(type) ) );
 
 		return( normvec );
 	}
  /// \brief compute the norm
-  /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
+  /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm/
 	/// \todo include scaled norm
   constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm ) const {
 
@@ -336,7 +336,7 @@ public:
 
 
 	/// \brief \f[ *this = \alpha \f]
-	void init( Scalar alpha = Teuchos::ScalarTraits<Scalar>::zero() ) {
+	void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero() ) {
 
 		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
 			mfs_[i]->init(alpha);

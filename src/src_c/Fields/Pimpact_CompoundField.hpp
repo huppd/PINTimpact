@@ -138,7 +138,7 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
   /// \return Reference to this object
-  void reciprocal(const FieldT& y){
+  void reciprocal( const FieldT& y){
     vfield_->reciprocal( *y.vfield_ );
     sfield_->reciprocal( *y.sfield_ );
   }
@@ -156,7 +156,7 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  void scale(const FieldT& a) {
+  void scale( const FieldT& a) {
     vfield_->scale( *a.vfield_ );
     sfield_->scale( *a.sfield_ );
   }
@@ -220,7 +220,7 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr Scalar normLoc(const FieldT& weights ) const {
+  constexpr Scalar normLoc( const FieldT& weights ) const {
 		return(
 				vfield_->normLoc( *weights.vfield_ ) +
 				sfield_->normLoc( *weights.sfield_ ) );

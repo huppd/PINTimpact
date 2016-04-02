@@ -449,7 +449,7 @@ public:
 				Scalar pi = 4.*std::atan(1.);
 				Ordinal nf = space()->nGlo(3);
 				Ordinal nt = 4*nf;
-				Teuchos::RCP<FieldT> temp = getConst0FieldPtr()->clone( Pimpact::ShallowCopy );
+				Teuchos::RCP<IFT> temp = getConst0FieldPtr()->clone( Pimpact::ShallowCopy );
 				for( Ordinal i=0; i<nt;  ++i ) {
 					temp->assign( getConst0Field() );
 					//				temp->initField(  );

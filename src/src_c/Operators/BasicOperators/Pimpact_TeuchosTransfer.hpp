@@ -34,13 +34,13 @@ public:
 	using DomainFieldT= ScalarField<SpaceT>;
 	using RangeFieldT = ScalarField<SpaceT>;
 
+	using Scalar  = typename SpaceT::Scalar;
+	using Ordinal = typename SpaceT::Ordinal;
+
 	using VectorT = Teuchos::SerialDenseVector<Ordinal,Scalar>;
 	using MatrixT = Teuchos::SerialDenseMatrix<Ordinal,Scalar>;
 
 protected:
-
-	using Scalar  = typename SpaceT::Scalar;
-	using Ordinal = typename SpaceT::Ordinal;
 
 	using TO = const Teuchos::Tuple<Ordinal,3>;
 

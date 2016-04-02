@@ -215,7 +215,7 @@ public:
   /// \{
 
   /// \brief addes new field at end
-  void push_back( const Teuchos::RCP<FieldT>& field=Teuchos::null ) {
+  void push_back( const Teuchos::RCP<InnerFieldT>& field=Teuchos::null ) {
     if( Teuchos::is_null(field) )
       mfs_.push_back( mfs_.back()->clone(ShallowCopy) );
     else
@@ -266,7 +266,7 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-	void abs(const FieldT& y) {
+	void abs( const FieldT& y) {
 		for( int i=0; i<getNumberVecs(); ++i )
 			mfs_[i]->abs( *y.mfs_[i] );
 	}
@@ -277,7 +277,7 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
   /// \return Reference to this object
-	void reciprocal(const FieldT& y){
+	void reciprocal( const FieldT& y){
 		for( int i=0; i<getNumberVecs(); ++i )
 			mfs_[i]->reciprocal( *y.mfs_[i] );
 	}
@@ -298,7 +298,7 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-	void scale(const FieldT& a) {
+	void scale( const FieldT& a) {
 		for( int i=0; i<getNumberVecs(); ++i )
 			mfs_[i]->scale( *a.mfs_[i] );
 	}
@@ -498,7 +498,7 @@ public:
 	}
 
   /// \brief \f[ *this = \alpha \f]
-	void init( Scalar alpha = Teuchos::ScalarTraits<Scalar>::zero() ) {
+	void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero() ) {
 		const int n = getNumberVecs();
 		for( int i=0; i<n; ++i )
 			mfs_[i]->init(alpha);

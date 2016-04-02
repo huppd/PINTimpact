@@ -89,8 +89,7 @@ TEUCHOS_STATIC_SETUP() {
       "test-mpi", "test-serial", &testMpi,
       "Test MPI (if available) or force test of serial.  In a serial build,"
       " this option is ignored and a serial comm is always used." );
-  clp.setOption(
-      "error-tol-slack", &eps,
+	clp.setOption( "error-tol-slack", &eps,
       "Slack off of machine epsilon used to check test results" );
   clp.setOption(
       "domain", &domain,
@@ -313,7 +312,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, scale, FType ) {
   p->init(1.);
   p->scale(2.);
   norm = p->norm(Belos::TwoNorm);
-  TEST_EQUALITY( std::sqrt(4*N), norm)
+  TEST_FLOATING_EQUALITY( std::sqrt(4*N), norm, eps )
 
 }
 
