@@ -33,7 +33,9 @@ protected:
 
   Teuchos::RCP<const SpaceT> space_;
 
-	constexpr Scalar reduce( const MPI_Comm& comm, const double& normLocal, const MPI_Op& op=MPI_SUM ) const {
+	/// \note openMPI is picky her with const references :(
+	constexpr Scalar reduce( const MPI_Comm& comm, double normLocal, const MPI_Op& op=MPI_SUM ) const {
+	//constexpr Scalar reduce( const MPI_Comm& comm, const double& normLocal, MPI_Op op=MPI_SUM ) const {
 
 		Scalar normGlob;
 		MPI_Allreduce( &normLocal, &normGlob, 1, MPI_REAL8, op, comm );
