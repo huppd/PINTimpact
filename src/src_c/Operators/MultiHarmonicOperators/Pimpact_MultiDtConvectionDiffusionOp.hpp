@@ -41,7 +41,6 @@ protected:
 
 public:
 
-  /// \todo get nf from grid
   MultiDtConvectionDiffusionOp( const Teuchos::RCP<const SpaceT>& space ):
     op_( create<NonlinearWrap>( create<ConvectionDiffusionSOp<SpaceT> >(space) ) ),
     wind0_( create<ConvectionField>(space) ),

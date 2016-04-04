@@ -2052,61 +2052,61 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, EddyPrec ) {
 
 
 
-TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicConvectionOp ) {
+//TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicConvectionOp ) {
 
-	pl->set( "domain", domain );
-	pl->set( "dim", dim );
+	//pl->set( "domain", domain );
+	//pl->set( "dim", dim );
 
-	pl->set( "lx", lx );
-	pl->set( "ly", ly );
-	pl->set( "lz", lz );
+	//pl->set( "lx", lx );
+	//pl->set( "ly", ly );
+	//pl->set( "lz", lz );
 
-	pl->set<bool>( "spectral in time", true );
-  pl->set( "domain", domain );
-  pl->set( "dim", dim );
+	//pl->set<bool>( "spectral in time", true );
+  //pl->set( "domain", domain );
+  //pl->set( "dim", dim );
 
-	//  grid size
-	pl->set("nx", nx );
-	pl->set("ny", ny );
-	pl->set("nz", nz );
-	pl->set("nf", nf );
+	////  grid size
+	//pl->set("nx", nx );
+	//pl->set("ny", ny );
+	//pl->set("nz", nz );
+	//pl->set("nf", nf );
 
-	// grid stretching
-	if( sx!=0 ) {
-		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
-		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
-	}
-	if( sy!=0 ) {
-		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
-		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
-	}
-	if( sz!=0 ) {
-		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
-		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
-	}
+	//// grid stretching
+	//if( sx!=0 ) {
+		//pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+		//pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
+		//pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
+	//}
+	//if( sy!=0 ) {
+		//pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+		//pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
+		//pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
+	//}
+	//if( sz!=0 ) {
+		//pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+		//pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
+		//pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
+	//}
 
-  // processor grid size
-  pl->set( "npx", npx );
-  pl->set( "npy", npy );
-  pl->set( "npz", npz );
-  pl->set( "npf", npf );
+  //// processor grid size
+  //pl->set( "npx", npx );
+  //pl->set( "npy", npy );
+  //pl->set( "npz", npz );
+  //pl->set( "npf", npf );
 
-  auto space = Pimpact::createSpace<ST,OT,4,dNC>( pl );
+  //auto space = Pimpact::createSpace<ST,OT,4,dNC>( pl );
 
-  auto vel = Pimpact::create<Pimpact::VectorField>( space );
+  //auto vel = Pimpact::create<Pimpact::VectorField>( space );
 
-  auto mv1 = Pimpact::createMultiHarmonicVectorField( space );
-  auto mv2 = Pimpact::createMultiHarmonicVectorField( space );
+  //auto mv1 = Pimpact::createMultiHarmonicVectorField( space );
+  //auto mv2 = Pimpact::createMultiHarmonicVectorField( space );
 
-  auto op = Pimpact::createMultiHarmonicConvectionOp( space );
+  //auto op = Pimpact::createMultiHarmonicConvectionOp( space );
 
-  op->assignField( *mv1 );
-  op->apply( *mv1, *mv2 );
+  //op->assignField( *mv1 );
+  //op->apply( *mv1, *mv2 );
 
-}
+//}
 
 
 
@@ -2168,166 +2168,113 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicOpWrap ) {
 
 
 
-TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiDtHelmholtz) {
+//TEUCHOS_UNIT_TEST( CompoundOperator, CompoundOpWrap ) {
 
-	pl->set( "domain", domain );
-	pl->set( "dim", dim );
+	//using SpaceT = Pimpact::Space<ST,OT,4,dNC>;
 
-	pl->set<bool>( "spectral in time", true );
+	//using VF = Pimpact::VectorField<SpaceT>;
+	//using SF = Pimpact::ScalarField<SpaceT>;
 
-	pl->set( "lx", lx );
-	pl->set( "ly", ly );
-	pl->set( "lz", lz );
+	//pl->set( "domain", domain );
+	//pl->set( "dim", dim );
 
-	//  grid size
-	pl->set("nx", nx );
-	pl->set("ny", ny );
-	pl->set("nz", nz );
-	pl->set("nf", nf );
+	//pl->set( "lx", lx );
+	//pl->set( "ly", ly );
+	//pl->set( "lz", lz );
 
-	// grid stretching
-	if( sx!=0 ) {
-		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
-		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
-	}
-	if( sy!=0 ) {
-		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
-		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
-	}
-	if( sz!=0 ) {
-		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
-		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
-	}
+	//pl->set<bool>( "spectral in time", true );
 
-  // processor grid size
-  pl->set( "npx", npx );
-  pl->set( "npy", npy );
-  pl->set( "npz", npz );
-  pl->set( "npf", npf );
+	////  grid size
+	//pl->set("nx", nx );
+	//pl->set("ny", ny );
+	//pl->set("nz", nz );
+	//pl->set("nf", nf );
 
-	auto space = Pimpact::createSpace<ST,OT,4,dNC>( pl );
+	//// grid stretching
+	//if( sx!=0 ) {
+		//pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+		//pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
+		//pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
+	//}
+	//if( sy!=0 ) {
+		//pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+		//pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
+		//pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
+	//}
+	//if( sz!=0 ) {
+		//pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+		//pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
+		//pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
+	//}
 
-	auto mv1 = Pimpact::createMultiHarmonicVectorField( space );
-	auto mv2 = Pimpact::createMultiHarmonicVectorField( space );
+  //// processor grid size
+  //pl->set( "npx", npx );
+  //pl->set( "npy", npy );
+  //pl->set( "npz", npz );
+  //pl->set( "npf", npf );
 
-	auto op = Pimpact::createMultiDtHelmholtz( space );
+	//auto space = Pimpact::createSpace<ST,OT,4,dNC>( pl );
 
-	op->apply( *mv1, *mv2 );
+	//auto x =
+		//Pimpact::createMultiField(
+				//Pimpact::createCompoundField(
+					//Pimpact::createMultiHarmonic<VF>( space ),
+					//Pimpact::createMultiHarmonic<SF>( space )
+					//)
+				//);
 
-}
+	//auto fu   = x->clone();
+	//x->init(1.);
+	//x->random();
 
+	//auto opV2V =
+		//Pimpact::createAdd2Op(
+				//Pimpact::createMultiDtHelmholtz( space, 1., 1. ),
+				//Pimpact::createMultiHarmonicConvectionOp(space)	);
 
+	//auto opS2V = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::GradOp>( space ) );
+	//auto opV2S = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::DivOp>( space ) );
 
-TEUCHOS_UNIT_TEST( CompoundOperator, CompoundOpWrap ) {
+	//auto op =
+		//Pimpact::createMultiOperatorBase(
+				//Pimpact::createCompoundOpWrap(
+					//opV2V,
+					//opS2V,
+					//opV2S )
+				//);
 
-	using SpaceT = Pimpact::Space<ST,OT,4,dNC>;
+	//// vector to vector operator
+	//fu->init(0.);
+	//TEST_EQUALITY( 0., fu->norm( Belos::InfNorm ) );
 
-	using VF = Pimpact::VectorField<SpaceT>;
-	using SF = Pimpact::ScalarField<SpaceT>;
+	//opV2V->apply( x->getConstFieldPtr(0)->getConstVField(), fu->getFieldPtr(0)->getVField() );
 
-	pl->set( "domain", domain );
-	pl->set( "dim", dim );
-
-	pl->set( "lx", lx );
-	pl->set( "ly", ly );
-	pl->set( "lz", lz );
-
-	pl->set<bool>( "spectral in time", true );
-
-	//  grid size
-	pl->set("nx", nx );
-	pl->set("ny", ny );
-	pl->set("nz", nz );
-	pl->set("nf", nf );
-
-	// grid stretching
-	if( sx!=0 ) {
-		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
-		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
-	}
-	if( sy!=0 ) {
-		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
-		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
-	}
-	if( sz!=0 ) {
-		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
-		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
-	}
-
-  // processor grid size
-  pl->set( "npx", npx );
-  pl->set( "npy", npy );
-  pl->set( "npz", npz );
-  pl->set( "npf", npf );
-
-	auto space = Pimpact::createSpace<ST,OT,4,dNC>( pl );
-
-	auto x =
-		Pimpact::createMultiField(
-				Pimpact::createCompoundField(
-					Pimpact::createMultiHarmonic<VF>( space ),
-					Pimpact::createMultiHarmonic<SF>( space )
-					)
-				);
-
-	auto fu   = x->clone();
-	x->init(1.);
-	x->random();
-
-	auto opV2V =
-		Pimpact::createAdd2Op(
-				Pimpact::createMultiDtHelmholtz( space, 1., 1. ),
-				Pimpact::createMultiHarmonicConvectionOp(space)	);
-
-	auto opS2V = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::GradOp>( space ) );
-	auto opV2S = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::DivOp>( space ) );
-
-	auto op =
-		Pimpact::createMultiOperatorBase(
-				Pimpact::createCompoundOpWrap(
-					opV2V,
-					opS2V,
-					opV2S )
-				);
-
-	// vector to vector operator
-	fu->init(0.);
-	TEST_EQUALITY( 0., fu->norm( Belos::InfNorm ) );
-
-	opV2V->apply( x->getConstFieldPtr(0)->getConstVField(), fu->getFieldPtr(0)->getVField() );
-
-	TEST_INEQUALITY( 0., fu->norm( Belos::InfNorm ) );
+	//TEST_INEQUALITY( 0., fu->norm( Belos::InfNorm ) );
 
 
-	// scalar to vector operator
-	fu->init(0.);
-	TEST_EQUALITY( 0., fu->norm( Belos::InfNorm ) );
+	//// scalar to vector operator
+	//fu->init(0.);
+	//TEST_EQUALITY( 0., fu->norm( Belos::InfNorm ) );
 
-	opS2V->apply( x->getConstFieldPtr(0)->getConstSField(), fu->getFieldPtr(0)->getVField() );
+	//opS2V->apply( x->getConstFieldPtr(0)->getConstSField(), fu->getFieldPtr(0)->getVField() );
 
-	TEST_INEQUALITY( 0., fu->norm( Belos::InfNorm ) );
+	//TEST_INEQUALITY( 0., fu->norm( Belos::InfNorm ) );
 
-	// vector to scalar operator
-	fu->init(0.);
-	TEST_EQUALITY( 0., fu->norm( Belos::InfNorm ) );
+	//// vector to scalar operator
+	//fu->init(0.);
+	//TEST_EQUALITY( 0., fu->norm( Belos::InfNorm ) );
 
-	opV2S->apply( x->getConstFieldPtr(0)->getConstVField(), fu->getFieldPtr(0)->getSField() );
+	//opV2S->apply( x->getConstFieldPtr(0)->getConstVField(), fu->getFieldPtr(0)->getSField() );
 
-	TEST_INEQUALITY( 0., fu->norm( Belos::InfNorm ) );
+	//TEST_INEQUALITY( 0., fu->norm( Belos::InfNorm ) );
 
-	// compound operator
-	fu->init(0.);
-	TEST_EQUALITY( 0., fu->norm( Belos::InfNorm ) );
-	op->apply(*x,*fu);
-	TEST_INEQUALITY( 0., fu->norm( Belos::InfNorm ) );
+	//// compound operator
+	//fu->init(0.);
+	//TEST_EQUALITY( 0., fu->norm( Belos::InfNorm ) );
+	//op->apply(*x,*fu);
+	//TEST_INEQUALITY( 0., fu->norm( Belos::InfNorm ) );
 
-}
+//}
 
 
 

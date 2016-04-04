@@ -681,137 +681,137 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
 
 
 
-TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicConvectionOp ) {
+//TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicConvectionOp ) {
 
-	const int d = 4;
+	//const int d = 4;
 
-	pl->set( "dim", dim );
-  pl->set( "domain", domain );
-	pl->set<bool>( "spectral in time", true );
+	//pl->set( "dim", dim );
+  //pl->set( "domain", domain );
+	//pl->set<bool>( "spectral in time", true );
 
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  //auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
-  auto vel = Pimpact::create<Pimpact::VectorField>( space );
+  //auto vel = Pimpact::create<Pimpact::VectorField>( space );
 
-  auto mv1 = Pimpact::createMultiHarmonicVectorField( space );
-  auto mv2 = Pimpact::createMultiHarmonicVectorField( space );
+  //auto mv1 = Pimpact::createMultiHarmonicVectorField( space );
+  //auto mv2 = Pimpact::createMultiHarmonicVectorField( space );
 
-  auto op = Pimpact::createMultiHarmonicConvectionOp( space );
+  //auto op = Pimpact::createMultiHarmonicConvectionOp( space );
 
-  op->assignField( *mv1 );
-  op->apply( *mv1, *mv2 );
+  //op->assignField( *mv1 );
+  //op->apply( *mv1, *mv2 );
 
-}
-
-
-
-TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicDtConvectionDiffusionOp ) {
-
-	const int d = 4;
-
-	pl->set( "dim", dim );
-  pl->set( "domain", domain );
-	pl->set<bool>( "spectral in time", true );
-
-	OT nf = 4;
-  pl->set<ST>( "Re", 1.e0 );
-  pl->set<ST>( "alpha2", 12.0 );
-  pl->set<OT>( "nf", nf );
-
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
-
-	ST re = space->getDomainSize()->getRe();
-	ST alpha2 = space->getDomainSize()->getAlpha2();
-
-  auto vel = Pimpact::create<Pimpact::VectorField>( space );
-
-  auto wind = Pimpact::createMultiHarmonicVectorField( space );
-  auto x    = Pimpact::createMultiHarmonicVectorField( space );
-  auto y1   = Pimpact::createMultiHarmonicVectorField( space );
-  auto y2   = Pimpact::createMultiHarmonicVectorField( space );
-  auto diff = Pimpact::createMultiHarmonicVectorField( space );
+//}
 
 
-	auto op1 =
-		Pimpact::createAdd2Op(
-				Pimpact::createMultiDtHelmholtz( space, alpha2/re, 1./re ),
-				Pimpact::createMultiHarmonicConvectionOp( space ) );
 
-  auto op2 =
-		Pimpact::createMultiDtConvectionDiffusionOp( space );
+//TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicDtConvectionDiffusionOp ) {
 
-	// init const wind 
-	wind->get0FieldPtr()->initField( Pimpact::ConstFlow, 1., 1., 1. );
-	for( int i=0; i<nf; ++i ) {
-		wind->getCFieldPtr(i)->initField( Pimpact::ConstFlow, 1., 1., 1. );
-		wind->getSFieldPtr(i)->initField( Pimpact::ConstFlow, 1., 1., 1. );
-	}
+	//const int d = 4;
 
-	// init const dt
-	x->get0FieldPtr()->initField( Pimpact::ConstFlow, 1., 1., 1. );
-	for( int i=0; i<nf; ++i ) {
-		x->getCFieldPtr(i)->initField( Pimpact::ConstFlow, 1., 1., 1. );
-		x->getSFieldPtr(i)->initField( Pimpact::ConstFlow, 1., 1., 1. );
-	}
+	//pl->set( "dim", dim );
+  //pl->set( "domain", domain );
+	//pl->set<bool>( "spectral in time", true );
 
-	op1->assignField( *wind );
-	op2->assignField( *wind );
+	//OT nf = 4;
+  //pl->set<ST>( "Re", 1.e0 );
+  //pl->set<ST>( "alpha2", 12.0 );
+  //pl->set<OT>( "nf", nf );
 
-  op1->apply( *x, *y1 );
-  op2->apply( *x, *y2 );
+  //auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
-	diff->add( 1., *y1, -1.,  *y2 );
+	//ST re = space->getDomainSize()->getRe();
+	//ST alpha2 = space->getDomainSize()->getAlpha2();
 
-	std::cout << "\nconst error(dt): " << diff->norm( Belos::InfNorm ) << "\n";
-  TEST_EQUALITY_CONST( diff->norm( Belos::InfNorm ) <eps, true );
+  //auto vel = Pimpact::create<Pimpact::VectorField>( space );
 
-	// init const udx 
-	x->get0FieldPtr()->initField( Pimpact::ConstFlow,0 );
-//	x->get0FieldPtr()->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inX );
-//	x->get0FieldPtr()->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inY );
-//	x->get0FieldPtr()->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inZ );
-	for( int i=0; i<nf; ++i ) {
-//		x->getCFieldPtr(i)->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inX );
-//		x->getCFieldPtr(i)->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inY );
-//		x->getCFieldPtr(i)->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inZ );
-		x->getCFieldPtr(i)->initField( Pimpact::ConstFlow, 0. );
-		x->getSFieldPtr(i)->initField( Pimpact::ConstFlow, 0. );
-		x->getSFieldPtr(i)->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inX, 1. );
-//		x->getSFieldPtr(i)->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inY, -1. );
-//		x->getSFieldPtr(i)->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inZ, -1. );
-	}
-
-  op1->apply( *x, *y1 );
-  op2->apply( *x, *y2 );
-
-	diff->add( 1., *y1, -1.,  *y2 );
-
-	ST diffs = diff->norm( Belos::InfNorm );
-	std::cout << "const error(du): " << diffs << "\n";
-  TEST_EQUALITY_CONST( diffs<eps, true );
-	if( diffs>=eps ) {
-		//y1->write(0);
-		//y2->write(100);
-		//diff->write(1000);
-	}
+  //auto wind = Pimpact::createMultiHarmonicVectorField( space );
+  //auto x    = Pimpact::createMultiHarmonicVectorField( space );
+  //auto y1   = Pimpact::createMultiHarmonicVectorField( space );
+  //auto y2   = Pimpact::createMultiHarmonicVectorField( space );
+  //auto diff = Pimpact::createMultiHarmonicVectorField( space );
 
 
-	// init const ddx 
-	x->get0FieldPtr()->initField( Pimpact::PoiseuilleFlow2D_inX );
-	for( int i=0; i<nf; ++i ) {
-		x->getCFieldPtr(i)->initField( Pimpact::PoiseuilleFlow2D_inX );
-		x->getSFieldPtr(i)->initField( Pimpact::PoiseuilleFlow2D_inX );
-	}
+	//auto op1 =
+		//Pimpact::createAdd2Op(
+				//Pimpact::createMultiDtHelmholtz( space, alpha2/re, 1./re ),
+				//Pimpact::createMultiHarmonicConvectionOp( space ) );
 
-  op1->apply( *x, *y1 );
-  op2->apply( *x, *y2 );
+  //auto op2 =
+		//Pimpact::createMultiDtConvectionDiffusionOp( space );
 
-	diff->add( 1., *y1, -1.,  *y2 );
+	//// init const wind 
+	//wind->get0FieldPtr()->initField( Pimpact::ConstFlow, 1., 1., 1. );
+	//for( int i=0; i<nf; ++i ) {
+		//wind->getCFieldPtr(i)->initField( Pimpact::ConstFlow, 1., 1., 1. );
+		//wind->getSFieldPtr(i)->initField( Pimpact::ConstFlow, 1., 1., 1. );
+	//}
 
-	std::cout << "error(ddx): " << diff->norm( Belos::InfNorm ) << "\n";
-  TEST_EQUALITY_CONST( diff->norm( Belos::InfNorm ) <eps, true );
+	//// init const dt
+	//x->get0FieldPtr()->initField( Pimpact::ConstFlow, 1., 1., 1. );
+	//for( int i=0; i<nf; ++i ) {
+		//x->getCFieldPtr(i)->initField( Pimpact::ConstFlow, 1., 1., 1. );
+		//x->getSFieldPtr(i)->initField( Pimpact::ConstFlow, 1., 1., 1. );
+	//}
 
-}
+	//op1->assignField( *wind );
+	//op2->assignField( *wind );
+
+  //op1->apply( *x, *y1 );
+  //op2->apply( *x, *y2 );
+
+	//diff->add( 1., *y1, -1.,  *y2 );
+
+	//std::cout << "\nconst error(dt): " << diff->norm( Belos::InfNorm ) << "\n";
+  //TEST_EQUALITY_CONST( diff->norm( Belos::InfNorm ) <eps, true );
+
+	//// init const udx 
+	//x->get0FieldPtr()->initField( Pimpact::ConstFlow,0 );
+////	x->get0FieldPtr()->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inX );
+////	x->get0FieldPtr()->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inY );
+////	x->get0FieldPtr()->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inZ );
+	//for( int i=0; i<nf; ++i ) {
+////		x->getCFieldPtr(i)->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inX );
+////		x->getCFieldPtr(i)->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inY );
+////		x->getCFieldPtr(i)->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inZ );
+		//x->getCFieldPtr(i)->initField( Pimpact::ConstFlow, 0. );
+		//x->getSFieldPtr(i)->initField( Pimpact::ConstFlow, 0. );
+		//x->getSFieldPtr(i)->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inX, 1. );
+////		x->getSFieldPtr(i)->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inY, -1. );
+////		x->getSFieldPtr(i)->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inZ, -1. );
+	//}
+
+  //op1->apply( *x, *y1 );
+  //op2->apply( *x, *y2 );
+
+	//diff->add( 1., *y1, -1.,  *y2 );
+
+	//ST diffs = diff->norm( Belos::InfNorm );
+	//std::cout << "const error(du): " << diffs << "\n";
+  //TEST_EQUALITY_CONST( diffs<eps, true );
+	//if( diffs>=eps ) {
+		////y1->write(0);
+		////y2->write(100);
+		////diff->write(1000);
+	//}
+
+
+	//// init const ddx 
+	//x->get0FieldPtr()->initField( Pimpact::PoiseuilleFlow2D_inX );
+	//for( int i=0; i<nf; ++i ) {
+		//x->getCFieldPtr(i)->initField( Pimpact::PoiseuilleFlow2D_inX );
+		//x->getSFieldPtr(i)->initField( Pimpact::PoiseuilleFlow2D_inX );
+	//}
+
+  //op1->apply( *x, *y1 );
+  //op2->apply( *x, *y2 );
+
+	//diff->add( 1., *y1, -1.,  *y2 );
+
+	//std::cout << "error(ddx): " << diff->norm( Belos::InfNorm ) << "\n";
+  //TEST_EQUALITY_CONST( diff->norm( Belos::InfNorm ) <eps, true );
+
+//}
 
 
 
