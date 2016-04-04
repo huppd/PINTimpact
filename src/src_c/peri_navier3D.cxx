@@ -134,7 +134,7 @@ int main( int argi, char** argv ) {
 
 	// init vectors
 	Teuchos::RCP<MF> x = createMultiField( createCompoundField( Teuchos::rcp( new
-					VF(space,true) ), Teuchos::rcp( new SF(space,false) ) ) ) ;
+					VF(space,true) ), Teuchos::rcp( new SF(space,true) ) ) ) ;
 
 	// init Fields
 	x->getFieldPtr(0)->getVFieldPtr()->initField( pl->sublist("Base flow") );
@@ -143,16 +143,16 @@ int main( int argi, char** argv ) {
 		x->init(0.);
 	else if( "almost zero"==initZero ) {
 		x->getFieldPtr(0)->getVFieldPtr()->random();
-		x->getFieldPtr(0)->getSFieldPtr()->init(0.);
+		//x->getFieldPtr(0)->getSFieldPtr()->init(0.);
 		x->scale(1.e-32);
 	}
 	else if( "random"==initZero )
 		x->random();
 	else if( "exact"==initZero ) {
-		x->getFieldPtr(0)->getSFieldPtr()->get0FieldPtr()->initField( Pimpact::Grad2D_inX, -2./space->getDomainSize()->getRe() );
+		//x->getFieldPtr(0)->getSFieldPtr()->get0FieldPtr()->initField( Pimpact::Grad2D_inX, -2./space->getDomainSize()->getRe() );
 	}
 	x->getFieldPtr(0)->getVFieldPtr()->changed();
-	x->getFieldPtr(0)->getSFieldPtr()->changed();
+	//x->getFieldPtr(0)->getSFieldPtr()->changed();
 
 
 

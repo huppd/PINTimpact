@@ -62,10 +62,9 @@ protected:
 		}
 		else{
 			Ordinal nx = field0_->getStorageSize();
-			Ordinal nf = ((-1==space()->sInd(U,3))?1:0)+2*(space()->eInd(U,3) - std::max(space()->sInd(U,3),0));
+			Ordinal nf = 1+2*(space()->eInd(U,3) - std::max(space()->sInd(U,3),0));
 			s_ = new Scalar[ getStorageSize() ];
-			if( -1==space()->sInd(U,3) )
-				field0_->setStoragePtr( s_ );
+			field0_->setStoragePtr( s_ );
 			for( Ordinal i=0; i<space()->eInd(U,3) - std::max(space()->sInd(U,3),0); ++i )
 				fields_[i]->setStoragePtr( s_ + nx + 2*nx*i );
 		}
@@ -77,13 +76,14 @@ public:
 		return(
 				( global_ )?
 					( ( 1 + 2*space()->nGlo(3) )*field0_->getStorageSize() ):
-					( ( ((-1==space()->sInd(U,3))?1:0) + 2*(space()->eInd(U,3) - std::max(space()->sInd(U,3),0))  )*field0_->getStorageSize() )
+					( ( 1 + 2*(space()->eInd(U,3) - std::max(space()->sInd(U,3),0))  )*field0_->getStorageSize() )
 				);
 	}
 
 	MultiHarmonicField( const Teuchos::RCP<const SpaceT>& space, const bool& global=true ):
 		AF( space ),
 		global_(global),
+		field0_( Teuchos::rcp( new IFT(space,false) ) ),
 		fields_( space->nGlo(3) ),
     exchangedState_( true ) {
 
@@ -91,13 +91,10 @@ public:
 			TEUCHOS_TEST_FOR_EXCEPT( true != space()->getStencilWidths()->spectralT() );
 
 			if( global_ ) {
-				field0_ = Teuchos::rcp( new IFT(space,false) );
 				for( Ordinal i=0; i<space->nGlo(3); ++i )
 					fields_[i] = Teuchos::rcp( new ModeField<IFT>( space, false ) );
 			}
 			else{
-				if( -1==space()->sInd(U,3) )
-					field0_ = Teuchos::rcp( new IFT(space,false) );
 				for( Ordinal i=0; i<space()->eInd(U,3) - std::max(space()->sInd(U,3),0); ++i )
 					fields_[i] = Teuchos::rcp( new ModeField<IFT>( space, false ) );
 			}
@@ -116,17 +113,15 @@ public:
 	MultiHarmonicField( const MultiHarmonicField& vF, ECopyType copyType=DeepCopy ):
 		AF( vF.space() ),
 		global_( vF.global_ ),
+		field0_( Teuchos::rcp( new IFT( *vF.field0_, copyType ) ) ),
 		fields_( vF.space()->nGlo(3) ),
     exchangedState_(vF.exchangedState_) {
 
 			if( global_ ) {
-				field0_ = Teuchos::rcp( new IFT( *vF.field0_, copyType ) );
 				for( Ordinal i=0; i< space()->nGlo(3); ++i )
 					fields_[i] = Teuchos::rcp( new ModeField<IFT>( vF.getConstField(i), copyType ) );
 			}
 			else{
-				if( -1==space()->sInd(U,3) )
-					field0_ = Teuchos::rcp( new IFT( *vF.field0_, copyType ) );
 				for( Ordinal i=0; i<space()->eInd(U,3) - std::max(space()->sInd(U,3),0); ++i )
 					fields_[i] = Teuchos::rcp( new ModeField<IFT>( vF.getConstField(i), copyType ) );
 			}
