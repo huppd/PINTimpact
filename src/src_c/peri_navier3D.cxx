@@ -133,7 +133,8 @@ int main( int argi, char** argv ) {
 
 
 	// init vectors
-	auto x = Pimpact::create<MF>( space );
+	Teuchos::RCP<MF> x = createMultiField( createCompoundField( Teuchos::rcp( new
+					VF(space,true) ), Teuchos::rcp( new SF(space,false) ) ) ) ;
 
 	// init Fields
 	x->getFieldPtr(0)->getVFieldPtr()->initField( pl->sublist("Base flow") );

@@ -25,6 +25,7 @@ namespace Pimpact {
 /// \brief important basic Vector class
 /// vector for wrapping 2 fields into one mode
 /// \ingroup Field
+/// \todo use attributes methods in vectorspace functions
 template<class VField, class SField>
 class CompoundField : private AbstractField<typename VField::SpaceT> {
 
