@@ -142,9 +142,8 @@ int main( int argi, char** argv ) {
 	if( "zero"==initZero )
 		x->init(0.);
 	else if( "almost zero"==initZero ) {
-		x->getFieldPtr(0)->getVFieldPtr()->random();
-		//x->getFieldPtr(0)->getSFieldPtr()->init(0.);
-		x->scale(1.e-32);
+		x->random();
+		x->scale(1.e-12);
 	}
 	else if( "random"==initZero )
 		x->random();
@@ -202,7 +201,7 @@ int main( int argi, char** argv ) {
 
 				pl->sublist("ConvDiff").sublist("Solver").set(
 						"Output Stream",
-						Pimpact::createOstream( zeroOp->getLabel()+rl+"_"+std::to_string(space()->rankST())+".txt", space->rankS() ) );
+						Pimpact::createOstream( zeroOp->getLabel()+rl+".txt", space->rankST() ) );
 
 
 				auto zeroInv =
@@ -213,7 +212,7 @@ int main( int argi, char** argv ) {
 
 				pl->sublist("M_ConvDiff").sublist("Solver").set(
 						"Output Stream",
-						Pimpact::createOstream( modeOp->getLabel()+rl+"_"+std::to_string(space()->rankST())+".txt", space->rankS() ) );
+						Pimpact::createOstream( modeOp->getLabel()+rl+".txt", space->rankST() ) );
 
 
 				auto modeInv =
@@ -260,7 +259,7 @@ int main( int argi, char** argv ) {
 				else {
 					pl->sublist("MH_ConvDiff").sublist("Solver").set(
 							"Output Stream",
-							Pimpact::createOstream( opV2V->getLabel()+rl+"_"+std::to_string(space()->rankST())+".txt", space->rankS() ) );
+							Pimpact::createOstream( opV2V->getLabel()+rl+".txt", space->rankST() ) );
 
 
 					auto opV2Vprob =
@@ -283,7 +282,7 @@ int main( int argi, char** argv ) {
 			////--- inverse DivGrad
 			pl->sublist("DivGrad").sublist("Solver").set(
 					"Output Stream",
-					Pimpact::createOstream( "DivGrad"+rl+"_"+std::to_string(space()->rankST())+".txt", space->rankS() ) );
+					Pimpact::createOstream( "DivGrad"+rl+".txt", space->rankST() ) );
 
 			auto divGradInv2 =
 				Pimpact::createInverseOp( 
@@ -351,7 +350,7 @@ int main( int argi, char** argv ) {
 		/*** end of init preconditioner ****************************************************************************/
 
 
-		pl->sublist("Belos Solver").sublist("Solver").set( "Output Stream", Pimpact::createOstream("stats_linSolve"+rl+"_"+std::to_string(space()->rankST())+".txt", space->rankS() ) );
+		pl->sublist("Belos Solver").sublist("Solver").set( "Output Stream", Pimpact::createOstream("stats_linSolve"+rl+".txt", space->rankST() ) );
 
 
 		auto lp_ = Pimpact::createLinearProblem<MF>(
@@ -368,7 +367,7 @@ int main( int argi, char** argv ) {
 
 		auto inter = NOX::Pimpact::createInterface( fu, op, lp );
 
-		auto nx = NOX::Pimpact::createVector(x);
+		auto nx = NOX::Pimpact::createVector( x );
 
 		auto bla = Teuchos::parameterList();
 
@@ -383,7 +382,9 @@ int main( int argi, char** argv ) {
 			NOX::Solver::buildSolver( group, statusTest, Teuchos::rcpFromRef( pl->sublist("NOX Solver") ) );
 
 
-		if( 0==space->rankST() ) std::cout << "\n\t--- Nf: "<< space->nGlo(3) <<"\tdof: "<<x->getLength()<<"\t---\n";
+		Teuchos::writeParameterListToXmlFile( *pl, "parameterOut.xml" );
+		if( 0==space->rankST() )
+			std::cout << "\n\t--- Nf: "<< space->nGlo(3) <<"\tdof: "<<x->getLength()<<"\t---\n";
 
 		// Solve the nonlinear system
 		{
@@ -408,7 +409,7 @@ int main( int argi, char** argv ) {
 		}
 
 		{
-			auto out = Pimpact::createOstream( "energy_dis"+rl+"_"+std::to_string(space()->rankST())+".txt", space->rankS() );
+			auto out = Pimpact::createOstream( "energy_dis"+rl+".txt", space->rankST() );
 
 			*out << 0 << "\t" << x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->norm() << "\t" << std::sqrt(x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->getLength()) << "\n";
 			for( int i=0; i<space->nGlo(3); ++i )
