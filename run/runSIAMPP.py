@@ -24,10 +24,10 @@ case_path = ['','','','','','','','','']
 runs = range( 1 )
 
 res       = [ 100 ]
-alpha2s   = [ 0.2 ]
-nfs       = [ 4 ]
+alpha2s   = [ 0.1 ]
+nfs       = [ 1, 2, 3, 4 ]
 nxs       = [ 1, 2, 4 ]
-npxs      = [ 1, 2, 4 ]
+npxs      = [ 1, 2, 4, 8 ]
 
 
 case_path[0] = '/ultimate'
@@ -65,8 +65,10 @@ for re in res:
 						ma.setParameter( root, 'npz', max(npx/2,1) )
 						ma.setParameter( root, 'npf',     npf     )
 						tree.write( 'parameter3D.xml' )
+						nptot = npx*max(npx/4,1)*max(npx/2,1)*npf
 						for run in runs:
+							print()
 							print( case_path )
-							print(     exe_pre( npx*max(npx/4,1)*max(npx/2,1)*npf, ' -N -R "select[model==Opteron8380"] ', run ) + exe_path+'/'+exe  )
-							os.system( exe_pre( npx*max(npx/4,1)*max(npx/2,1)*npf, ' -N -R "select[model==Opteron8380"] ', run ) + exe_path+'/'+exe  )
+							print(     exe_pre( nptot, ' -N -R "select[model==Opteron8380"] -R "rusage[mem='+str(max(1024*3/2*nx*nf*npf/nptot,1024))+']" ', run ) + exe_path+'/'+exe  )
+							os.system( exe_pre( nptot, ' -N -R "select[model==Opteron8380"] -R "rusage[mem='+str(max(1024*3/2*nx*nf*npf/nptot,1024))+']" ', run ) + exe_path+'/'+exe  )
 

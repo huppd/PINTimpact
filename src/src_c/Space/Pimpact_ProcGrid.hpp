@@ -103,12 +103,9 @@ protected:
     for( int i=0; i<dim; ++i )
       procSize *= procGridSize_[i];
 
-		TEUCHOS_TEST_FOR_EXCEPT( procSize != commSize );
+		TEUCHOS_TEST_FOR_EXCEPTION( procSize!=commSize, std::logic_error, "procSize: " << procSize << " != commSize: " << commSize );
 
     Teuchos::Tuple<int,dim> ijkB;                        // mpi grid coordinates
-//    Teuchos::Tuple<int,dim> periodic =
-			;  
-    
 
 		//
 		// -- commWorld_ ---

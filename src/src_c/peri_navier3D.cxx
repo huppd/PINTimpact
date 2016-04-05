@@ -202,7 +202,8 @@ int main( int argi, char** argv ) {
 
 				pl->sublist("ConvDiff").sublist("Solver").set(
 						"Output Stream",
-						Pimpact::createOstream( zeroOp->getLabel()+rl+".txt", space->rankST() ));
+						Pimpact::createOstream( zeroOp->getLabel()+rl+"_"+std::to_string(space()->rankST())+".txt", space->rankS() ) );
+
 
 				auto zeroInv =
 					Pimpact::create<MOP>( zeroOp, Teuchos::rcpFromRef( pl->sublist("ConvDiff") ) );
@@ -212,7 +213,8 @@ int main( int argi, char** argv ) {
 
 				pl->sublist("M_ConvDiff").sublist("Solver").set(
 						"Output Stream",
-						Pimpact::createOstream( modeOp->getLabel()+rl+".txt", space->rankST() ) );
+						Pimpact::createOstream( modeOp->getLabel()+rl+"_"+std::to_string(space()->rankST())+".txt", space->rankS() ) );
+
 
 				auto modeInv =
 					Pimpact::create<MOP>(
@@ -258,7 +260,8 @@ int main( int argi, char** argv ) {
 				else {
 					pl->sublist("MH_ConvDiff").sublist("Solver").set(
 							"Output Stream",
-							Pimpact::createOstream( opV2V->getLabel()+rl+".txt", space->rankST() ) );
+							Pimpact::createOstream( opV2V->getLabel()+rl+"_"+std::to_string(space()->rankST())+".txt", space->rankS() ) );
+
 
 					auto opV2Vprob =
 						Pimpact::createLinearProblem<MVF>(
@@ -280,7 +283,7 @@ int main( int argi, char** argv ) {
 			////--- inverse DivGrad
 			pl->sublist("DivGrad").sublist("Solver").set(
 					"Output Stream",
-					Pimpact::createOstream( "DivGrad"+rl+".txt", space->rankST() ) );
+					Pimpact::createOstream( "DivGrad"+rl+"_"+std::to_string(space()->rankST())+".txt", space->rankS() ) );
 
 			auto divGradInv2 =
 				Pimpact::createInverseOp( 
@@ -348,7 +351,8 @@ int main( int argi, char** argv ) {
 		/*** end of init preconditioner ****************************************************************************/
 
 
-		pl->sublist("Belos Solver").sublist("Solver").set( "Output Stream", Pimpact::createOstream("stats_linSolve"+rl+".txt",space->rankST()) );
+		pl->sublist("Belos Solver").sublist("Solver").set( "Output Stream", Pimpact::createOstream("stats_linSolve"+rl+"_"+std::to_string(space()->rankST())+".txt", space->rankS() ) );
+
 
 		auto lp_ = Pimpact::createLinearProblem<MF>(
 				jop,
@@ -404,7 +408,8 @@ int main( int argi, char** argv ) {
 		}
 
 		{
-			auto out = Pimpact::createOstream( "energy_dis"+rl+".txt", space->rankST() );
+			auto out = Pimpact::createOstream( "energy_dis"+rl+"_"+std::to_string(space()->rankST())+".txt", space->rankS() );
+
 			*out << 0 << "\t" << x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->norm() << "\t" << std::sqrt(x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->getLength()) << "\n";
 			for( int i=0; i<space->nGlo(3); ++i )
 				*out << i+1 << "\t" << x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(i)->norm() << "\t" << std::sqrt( (S)x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(i)->getLength()) << "\n";
