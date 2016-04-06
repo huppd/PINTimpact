@@ -11,16 +11,17 @@ def exe_pre( np, ops='', run=0 ):
 	# return( "bsub -n "+str(np)+" "+ops+" -o output"+str(run)+" " )
 	return( "bsub -n "+str(np)+ ' '+ops+' '+' -oo output'+str(run)+' ' )
 
-def mkdir( path, npa ):
+def getPath( path, npa ):
 	fullPath = data_path
 	for i in range( npa+1 ):
 		fullPath += path[i]
+	return( fullPath )
+
+def mkdir( path, npa ):
+	fullPath = getPath( path, npa )
 	if not os.path.exists( fullPath ):
 		os.mkdir( fullPath )
 
 def chdir( path, npa ):
-	fullPath = data_path
-	for i in range( npa+1 ):
-		fullPath += path[i]
-	os.chdir( fullPath )
+	os.chdir( getPath( path, npa ) )
 	os.system( ' rm ./* -r -v  ' )

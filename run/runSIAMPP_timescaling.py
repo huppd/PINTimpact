@@ -25,12 +25,12 @@ runs = range( 1 )
 
 res       = [ 100 ]
 alpha2s   = [ 0.1 ]
-nfs       = [ 1 ]
+nfs       = range( 1, 16 )
 nxs       = [ 1, 2, 4 ]
-npxs      = [ 1, 2, 4 ]
+npxs      = [ 4 ]
 
 
-case_path[0] = '/ultimate'
+case_path[0] = '/scale_time'
 mkdir( case_path, 0 )
 
 for re in res:
@@ -62,11 +62,11 @@ for re in res:
 						ma.setParameter( root, 'nz', 32*nx+1 )
 						ma.setParameter( root, 'nf', nf )
 						ma.setParameter( root, 'npx',     npx      )
-						ma.setParameter( root, 'npy', max(npx/4,1) )
-						ma.setParameter( root, 'npz', max(npx/2,1) )
-						ma.setParameter( root, 'npf',     npf     )
+						ma.setParameter( root, 'npy',  max(npx/2,1))
+						ma.setParameter( root, 'npz',     npx      )
+						ma.setParameter( root, 'npf',     npf      )
 						tree.write( 'parameter3D.xml' )
-						nptot = npx*max(npx/4,1)*max(npx/2,1)*npf
+						nptot = npx*npx*max(npx/2,1)*npf
 						for run in runs:
 							print()
 							print( case_path )
