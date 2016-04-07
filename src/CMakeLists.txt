@@ -1,5 +1,3 @@
-
-
 #This file was created by modifiying the files in
 #Trilinos/demos/buildAgaintsTrilinos. The primary change was to make it a single
 #file cmake system in a flat directory. If you would like to run a cmake

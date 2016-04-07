@@ -80,9 +80,9 @@ public:
 				);
 	}
 
-	MultiHarmonicField( const Teuchos::RCP<const SpaceT>& space, const bool& global=true ):
+	MultiHarmonicField( const Teuchos::RCP<const SpaceT>& space ):
 		AF( space ),
-		global_(global),
+		global_(true),
 		field0_( Teuchos::rcp( new IFT(space,false) ) ),
 		fields_( space->nGlo(3) ),
     exchangedState_( true ) {
@@ -112,7 +112,7 @@ public:
   /// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
 	MultiHarmonicField( const MultiHarmonicField& vF, ECopyType copyType=DeepCopy ):
 		AF( vF.space() ),
-		global_( vF.global_ ),
+		global_( true ),
 		field0_( Teuchos::rcp( new IFT( *vF.field0_, copyType ) ) ),
 		fields_( vF.space()->nGlo(3) ),
     exchangedState_(vF.exchangedState_) {
@@ -155,10 +155,10 @@ public:
 protected:
 
 	constexpr Ordinal index( const Ordinal& i ) const {
-		return( i+
-				( global_||-1==space()->sInd(U,3) )?
+		return( i+ 
+				(( global_||-1==space()->sInd(U,3) )?
 					0:
-					(-space()->sInd(U,3))
+					(-space()->sInd(U,3)) )
 				);
 
 	};
@@ -434,7 +434,7 @@ public:
 			get0FieldPtr()->init( alpha );
 
 		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
-			getFieldPtr(i)->init(alpha);
+			getFieldPtr(i)->init( alpha );
 
 		changed();
 
@@ -534,7 +534,7 @@ public:
 	/// \todo biggest todo
 	void exchange() const {
 
-		TEUCHOS_TEST_FOR_EXCEPT( !global_ );
+		//TEUCHOS_TEST_FOR_EXCEPT( !global_ );
 
 		// check if exchange is necessary
 		if( exchangedState_==false ) {

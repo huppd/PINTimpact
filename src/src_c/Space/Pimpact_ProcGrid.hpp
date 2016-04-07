@@ -65,7 +65,7 @@ protected:
 
 
 	MPI_Comm commSlice_[dim];           ///< sub comm along dimension
-	Teuchos::Tuple<int,dim> rankSlice_; ///< sub rank should be equivalent to iB_
+	Teuchos::Tuple<int,dim> rankSlice_; ///< sub rank should be equivalent to iB_ rankcoordinate??
 
 
 //  MPI_Comm commBar_[3];

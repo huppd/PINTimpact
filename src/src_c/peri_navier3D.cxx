@@ -140,7 +140,7 @@ int main( int argi, char** argv ) {
 	x->getFieldPtr(0)->getVFieldPtr()->initField( pl->sublist("Base flow") );
 
 	if( "zero"==initZero )
-		x->init(0.);
+		x->init( 0. );
 	else if( "almost zero"==initZero ) {
 		x->random();
 		x->scale(1.e-12);
@@ -162,8 +162,10 @@ int main( int argi, char** argv ) {
 		if( refinement>1 )
 			rl = std::to_string( static_cast<long long>(refine) ); // long long needed on brutus(intel)
 
-		auto fu   = x->clone( Pimpact::ShallowCopy );
+		auto fu = x->clone( Pimpact::ShallowCopy );
 		fu->getFieldPtr(0)->getVFieldPtr()->initField( pl->sublist("Force") );
+		if( withoutput )
+			fu->write( 90000 );
 
 
 		auto opV2V = Pimpact::createMultiDtConvectionDiffusionOp( space );
@@ -403,7 +405,7 @@ int main( int argi, char** argv ) {
 
 		x = Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr();
 		if( withoutput ) {
-			Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr()->write(refine*1000 );
+			Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr()->write( refine*1000 );
 			Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr()->getFieldPtr(0)->getVFieldPtr()->write( 500+refine*1000, true );
 			//		Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(900);
 		}
