@@ -80,7 +80,7 @@ public:
 				);
 	}
 
-	MultiHarmonicField( const Teuchos::RCP<const SpaceT>& space ):
+	MultiHarmonicField( const Teuchos::RCP<const SpaceT>& space, const bool global=true ):
 		AF( space ),
 		global_(true),
 		field0_( Teuchos::rcp( new IFT(space,false) ) ),
