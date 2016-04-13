@@ -24,4 +24,4 @@ def mkdir( path, npa ):
 
 def chdir( path, npa ):
 	os.chdir( getPath( path, npa ) )
-	os.system( ' rm ./* -r -v  ' )
+	# os.system( ' rm ./* -r -v  ' )

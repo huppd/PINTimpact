@@ -23,4 +23,4 @@ def chdir( path, npa ):
 	for i in range( npa+1 ):
 		fullPath += path[i]
 	os.chdir( fullPath )
-	os.system( ' rm ./* -r -v  ' )
+	# os.system( ' rm ./* -r -v  ' )
