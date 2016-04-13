@@ -28,8 +28,6 @@ public:
 
   using SpaceT = ST;
 
-  using Scalar = typename SpaceT::Scalar;
-
   using DomainFieldT = TimeField< VectorField<SpaceT> >;
   using RangeFieldT = TimeField< VectorField<SpaceT> >;
 
@@ -68,7 +66,7 @@ public:
 
   };
 
-  void apply( const DomainFieldT& x, RangeFieldT& y, Scalar mul=0. ) const {
+  void apply( const DomainFieldT& x, RangeFieldT& y, typename SpaceT::Scalar mul=0. ) const {
 
     x.exchange();
 

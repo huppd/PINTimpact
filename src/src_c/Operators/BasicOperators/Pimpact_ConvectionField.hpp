@@ -35,8 +35,8 @@ public:
 
 protected:
 
-  Teuchos::RCP<const InterpolateS2V<SpaceT> > interpolateS2V_;
-  Teuchos::RCP<const InterpolateV2S<Scalar,Ordinal,dimension,dimNC> > interpolateV2S_;
+  const Teuchos::RCP<const InterpolateS2V<SpaceT> > interpolateS2V_;
+  const Teuchos::RCP<const InterpolateV2S<Scalar,Ordinal,dimension,dimNC> > interpolateV2S_;
 
   Teuchos::Tuple< Teuchos::Tuple<Teuchos::RCP<ScalarField<SpaceT> >, 3>, 3> u_;
 
@@ -108,7 +108,7 @@ public:
   };
 
 
-  const FieldTensor& get() const { return( u_ ); }
+  constexpr const FieldTensor& get() const { return( u_ ); }
 
   FieldTensor& get() { return( u_ ); }
 

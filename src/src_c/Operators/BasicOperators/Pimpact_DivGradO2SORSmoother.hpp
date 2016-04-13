@@ -16,8 +16,8 @@ void OP_DivGradO2SORSmoother(
     const int* const N,
     const int* const BL,
     const int* const BU,
-    const int* const BCL,
-    const int* const BCU,
+    const int* const SS,
+    const int* const NN,
     const double* const cdg1,
     const double* const cdg2,
     const double* const cdg3,
@@ -41,13 +41,12 @@ public:
 
 	using SpaceT = typename OperatorT::SpaceT;
 
-	using Scalar = typename SpaceT::Scalar;
-	using Ordinal = typename SpaceT::Ordinal;
-
 	using DomainFieldT = ScalarField<SpaceT>;
 	using RangeFieldT = ScalarField<SpaceT>;
 
 protected:
+
+	using Scalar = typename SpaceT::Scalar;
 
   Scalar omega_;
 	int rbgsMode_;
@@ -97,8 +96,8 @@ public:
 					space()->nLoc(),
 					space()->bl(),
 					space()->bu(),
-					space()->getBCLocal()->getBCL(),
-					space()->getBCLocal()->getBCU(),
+					space()->sIndB(S),
+					space()->eIndB(S),
 					op_->getC(X),
 					op_->getC(Y),
 					op_->getC(Z),
@@ -107,7 +106,6 @@ public:
 					x.getConstRawPtr(),
 					y.getRawPtr() );
 
-			//y.setCornersZero();
 			y.changed();
 		}
 		if( levelYes_ )
@@ -119,7 +117,7 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
-	Teuchos::RCP<const SpaceT> space() const { return(op_->space()); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(op_->space()); };
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 

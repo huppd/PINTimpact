@@ -21,10 +21,9 @@ public:
 
   using SpaceT = ST;
 
-  using Scalar = typename SpaceT::Scalar;
-  using Ordinal = typename SpaceT::Ordinal;
-
 protected:
+
+  using Scalar = typename SpaceT::Scalar;
 
 	const Teuchos::RCP<const SpaceT> space_;
 
@@ -47,7 +46,7 @@ public:
 
   void assignField( const DomainFieldT& mv ) {};
 
-	Teuchos::RCP<const SpaceT> space() const { return(space_); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(space_); };
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 

@@ -26,18 +26,10 @@ public:
 
   using SpaceT = typename ConvVOpT::SpaceT;
 
-
-  using SSmootherT = ST<typename ConvVOpT::ConvSOpT>;
-
-  using Scalar = typename SpaceT::Scalar;
-  using Ordinal = typename SpaceT::Ordinal;
-
-  static const int dimension = SpaceT::dimension;
-
-  static const int dimNC = SpaceT::dimNC;
-
   using DomainFieldT = VectorField<SpaceT>;
   using RangeFieldT = VectorField<SpaceT>;
+
+  using SSmootherT = ST<typename ConvVOpT::ConvSOpT>;
 
 protected:
 
@@ -66,8 +58,6 @@ public:
 
   }
 
-  //void apply(const DomainFieldT& z, const DomainFieldT& x, RangeFieldT& y, Scalar mul=0. ) const {};
-
   Teuchos::RCP< ConvectionField<SpaceT> >
   getConvField() const {
     return( convField_ );
@@ -76,7 +66,7 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
-	Teuchos::RCP<const SpaceT> space() const { return(convVWrap_->space()); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(convVWrap_->space()); };
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
 		convVWrap_->setParameter( para );

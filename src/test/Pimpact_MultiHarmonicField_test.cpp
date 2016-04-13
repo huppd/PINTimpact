@@ -452,16 +452,19 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonic, exchange, FType ) {
 
 	auto field = Pimpact::createMultiHarmonic<FType>( space );
 
-	field->init( space->getProcGrid()->getRankSlice(3) );
+	if( space->sInd(Pimpact::U,3)<0 )
+		field->get0FieldPtr()->init( 1. );
+
+	for( OT i=std::max(space->sInd(Pimpact::U,3),0); i<space->eInd(Pimpact::U,3); ++i )
+		field->getFieldPtr(i)->init( i+1. );
+
+	field->changed();
 	field->exchange();
 
-  TEST_FLOATING_EQUALITY( field->getConst0FieldPtr()->norm(Belos::InfNorm,false), 0., eps );
+	TEST_FLOATING_EQUALITY( field->getConst0FieldPtr()->normLoc(Belos::InfNorm), 1., eps );
 
-//	for( OT i=0; i<space->nGlo(3); ++i ) {
-//		field->getConstCFieldPtr(i)->print(  );
-//		field->getConstSFieldPtr(i)->print(  );
-//	}
-  TEST_FLOATING_EQUALITY( field->getConstCFieldPtr(space->nGlo(3)-1)->norm(Belos::InfNorm,false), space->getProcGrid()->getNP(3)-1., eps );
+	for( OT i=0; i<space->nGlo(3); ++i )
+		TEST_FLOATING_EQUALITY( field->getConstFieldPtr(i)->normLoc(Belos::InfNorm), static_cast<ST>(i)+1., eps );
 
 }
 

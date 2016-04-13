@@ -34,9 +34,9 @@ public:
 protected:
 
 
-  Teuchos::RCP<OpV2V> opV2V_;
-  Teuchos::RCP<OpS2V> opS2V_;
-  Teuchos::RCP<OpS2S> opS2S_;
+  const Teuchos::RCP<OpV2V> opV2V_;
+  const Teuchos::RCP<OpS2V> opS2V_;
+  const Teuchos::RCP<OpS2S> opS2S_;
 
 public:
 
@@ -73,7 +73,7 @@ public:
     //    opV2S_->assignField( mv.getConstVField() );
 	};
 
-	Teuchos::RCP<const SpaceT> space() const { return(opV2V_->space()); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(opV2V_->space()); };
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 

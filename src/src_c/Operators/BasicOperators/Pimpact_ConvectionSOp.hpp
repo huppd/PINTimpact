@@ -61,7 +61,7 @@ protected:
 
   using TO = const Teuchos::Tuple<Scalar*,3>;
 
-  Teuchos::RCP<const SpaceT> space_;
+  const Teuchos::RCP<const SpaceT> space_;
 
   TO cSD_;
   TO cVD_;
@@ -289,22 +289,22 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
-  Teuchos::RCP<const SpaceT>  space() const { return( space_ ); }
+  constexpr const Teuchos::RCP<const SpaceT>&  space() const { return( space_ ); }
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
 
-  const Scalar* getCU( const ECoord& dir, const EField& ftype ) const  {
+  constexpr const Scalar* getCU( const ECoord& dir, const EField& ftype ) const  {
     return( ( ((int)dir)==((int)ftype) )?cVU_[dir]:cSU_[dir] );
 //      return( cVU_[dir] );
   }
 
-  const Scalar* getCD( const ECoord& dir, const EField& ftype ) const  {
+  constexpr const Scalar* getCD( const ECoord& dir, const EField& ftype ) const  {
     return( ( ((int)dir)==((int)ftype) )?cVD_[dir]:cSD_[dir] );
 //      return( cVD_[dir] );
   }
 
-	const std::string getLabel() const { return( "Convection" ); };
+	constexpr const std::string getLabel() const { return( "Convection" ); };
 
 
 }; // end of class ConvectionSOp

@@ -58,7 +58,7 @@ public:
   /// \f[ x_i = \gamma \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
   virtual NOX::Abstract::Vector& init( double gamma=0 ) {
-    field_->init( static_cast<typename Field::Scalar>(gamma) );
+    field_->init( gamma );
     return( *this );
   }
 
@@ -129,7 +129,7 @@ public:
   /// \f[ x_i = \gamma x_i \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
   virtual NOX::Abstract::Vector& scale(double gamma) {
-    field_->scale( static_cast<typename Field::Scalar>(gamma) );
+    field_->scale( gamma );
     return( *this );
   }
 
@@ -295,7 +295,7 @@ public:
   /// \note Even if the vector is distributed across processors, this
   /// should return the <em> global length </em> of the vector.
   virtual NOX::size_type length() const {
-    return( field_->getLength(true) );
+    return( field_->getLength()*field_->getNumberVecs() );
   }
 
 

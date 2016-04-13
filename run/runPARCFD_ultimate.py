@@ -29,13 +29,13 @@ os.system( 'make '+exe+' -j4' )
 case_path = ['','','','']
 
 ns        = [ 2 ]
-res       = [ 10, 100, 200 ]
+res       = [ 100, 100, 400 ]
 alpha2s   = [ 0.05, 0.1, 0.2, 0.4 ]
 
 res = [ 200 ]
 alpha2s  = [ 0.05, 0.1 ]
 
-case_path[0] = '/ultimate3'
+case_path[0] = '/ultimate'
 if not os.path.exists( data_path+case_path[0] ):
 	os.mkdir( data_path+case_path[0] )
 
@@ -60,5 +60,6 @@ for n in ns:
 			ma.setParameter( root, 'ny',  32*2+1 )
 			ma.setParameter( root, 'nz',  64*2+1 )
 			tree.write('parameter3D.xml')
-			os.system( exe_pre(npx*npy*npz,' -W 48:00 ') + exe_path+exe + ' > output ' )
+			# os.system( exe_pre(npx*npy*npz,' -W 48:00 ') + exe_path+exe + ' > output ' )
+			print( exe_pre(npx*npy*npz,' -W 48:00 ') + exe_path+exe + ' > output ' )
 

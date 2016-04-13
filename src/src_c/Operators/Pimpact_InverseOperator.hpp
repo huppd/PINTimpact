@@ -21,7 +21,6 @@ template< class FieldT >
 class InverseOperator {
 
   using MF = FieldT;
-  using S = typename MF::Scalar;
   using Op = OperatorBase<MF>;
 
 public:
@@ -43,12 +42,10 @@ public:
 
 
   void apply( const MF& x, MF& y, Belos::ETrans trans=Belos::NOTRANS ) const {
-//		x.setCornersZero();
     linprob_->solve( Teuchos::rcpFromRef(y), Teuchos::rcpFromRef(x) );
   }
 
   void apply( const Teuchos::RCP<const MF>& x, const Teuchos::RCP<MF>& y, Belos::ETrans trans=Belos::NOTRANS ) const {
-//		x.setCornersZero();
     linprob_->solve( y, x );
   }
 
@@ -72,7 +69,7 @@ public:
   };
 
 	
-	Teuchos::RCP<const SpaceT> space() const { return(linprob_->space()); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(linprob_->space()); };
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 

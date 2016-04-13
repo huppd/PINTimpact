@@ -30,9 +30,6 @@ public:
 
 protected:
 
-  Teuchos::RCP<typename OP2::RangeFieldT> temp1_; // has to be equal to OP2::DomainFieldT
-  Teuchos::RCP<typename OP2::DomainFieldT> temp2_; // has to be euqal to OP3::DomainFieldT
-
   Teuchos::RCP<OP1> op1_;
   Teuchos::RCP<OP2> op2_;
   Teuchos::RCP<OP3> op3_;
@@ -42,29 +39,28 @@ public:
   TripleCompositionOp(
       const Teuchos::RCP<OP1>&          op1,
       const Teuchos::RCP<OP2>&          op2,
-      const Teuchos::RCP<OP3>&          op3
-      ):
-        temp1_( create<typename OP2::DomainFieldT>(op1->space()) ),
-        temp2_( create<typename OP2::RangeFieldT>(op1->space()) ),
+			const Teuchos::RCP<OP3>&          op3 ):
         op1_(op1),
         op2_(op2),
-        op3_(op3)
-{};
+				op3_(op3) {};
 
   void apply(const DomainFieldT& x, RangeFieldT& y, Belos::ETrans trans=Belos::NOTRANS) const {
 
-    op3_->apply( x, *temp1_);
+		Teuchos::RCP<typename OP2::RangeFieldT> temp1  = create<typename OP2::DomainFieldT>( space() ); // has to be equal to OP2::DomainFieldT
+		Teuchos::RCP<typename OP2::DomainFieldT> temp2 = create<typename OP2::RangeFieldT>(  space() ); // has to be equal to OP3::DomainFieldT
 
-    op2_->apply( *temp1_, *temp2_ );
+    op3_->apply( x, *temp1);
 
-    op1_->apply( *temp2_, y );
+    op2_->apply( *temp1, *temp2 );
+
+    op1_->apply( *temp2, y );
 
   }
 
   /// \note here nothing happens, because it is assumed to be done somewhere else
 	void assignField( const RangeFieldT& field ) { };
 
-	Teuchos::RCP<const SpaceT> space() const { return(op1_->space()); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(op1_->space()); };
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
 		if( !op1_.is_null() ) op1_->setParameter( para );
@@ -93,8 +89,7 @@ template<class OP1, class OP2, class OP3>
 Teuchos::RCP< TripleCompositionOp<OP1, OP2, OP3> > createTripleCompositionOp(
     const Teuchos::RCP<OP1>& op1,
     const Teuchos::RCP<OP2>& op2,
-    const Teuchos::RCP<OP3>& op3
-      ) {
+		const Teuchos::RCP<OP3>& op3 ) {
 
   return( Teuchos::rcp(	new TripleCompositionOp<OP1,OP2,OP3>( op1, op2, op3 ) ) );
 

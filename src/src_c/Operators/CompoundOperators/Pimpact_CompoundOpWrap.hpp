@@ -35,9 +35,9 @@ public:
 
 protected:
 
-	Teuchos::RCP<OpV2V> opV2V_;
-	Teuchos::RCP<OpS2V> opS2V_;
-	Teuchos::RCP<OpV2S> opV2S_;
+	const Teuchos::RCP<OpV2V> opV2V_;
+	const Teuchos::RCP<OpS2V> opS2V_;
+	const Teuchos::RCP<OpV2S> opV2S_;
 
 public:
 
@@ -79,12 +79,12 @@ public:
 	};
 
 
-	Teuchos::RCP<const SpaceT> space() const { return(opV2V_->space()); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(opV2V_->space()); };
 
 
-  Teuchos::RCP<OpV2V> getOpV2V() const { return( opV2V_ ); }
-  Teuchos::RCP<OpS2V> getOpS2V() const { return( opS2V_ ); }
-  Teuchos::RCP<OpV2S> getOpV2S() const { return( opV2S_ ); }
+  constexpr const Teuchos::RCP<OpV2V>& getOpV2V() const { return( opV2V_ ); }
+  constexpr const Teuchos::RCP<OpS2V>& getOpS2V() const { return( opS2V_ ); }
+  constexpr const Teuchos::RCP<OpV2S>& getOpV2S() const { return( opV2S_ ); }
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 

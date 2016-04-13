@@ -54,8 +54,8 @@ protected:
   const Teuchos::RCP<const OperatorT> op_;
 
 	Teuchos::Tuple< Teuchos::RCP<VectorT>, 3 > dl_;
-	Teuchos::Tuple< Teuchos::RCP<VectorT>, 3 > du_;
 	Teuchos::Tuple< Teuchos::RCP<VectorT>, 3 > d_;
+	Teuchos::Tuple< Teuchos::RCP<VectorT>, 3 > du_;
 	Teuchos::Tuple< Teuchos::RCP<VectorT>, 3 > du2_;
 
 	Teuchos::Tuple< Teuchos::RCP<OVectorT> , 3 > ipiv_;
@@ -77,19 +77,19 @@ public:
     nIter_( pl->get<int>( "numIters", 1 ) ),
     omega_( pl->get<Scalar>( "omega", 0.75 ) ),
     levelYes_( pl->get<bool>( "level", false ) ),
-    //temp_( create<DomainFieldT>( op->space() ) ),
     op_(op) {
 		
-			lineDirection_[X] = pl->get<bool>( "X", true );
+			lineDirection_[X] = pl->get<bool>( "X", false );
 			lineDirection_[Y] = pl->get<bool>( "Y", true  );
-			lineDirection_[Z] = pl->get<bool>( "Z", true );
+			lineDirection_[Z] = pl->get<bool>( "Z", false );
 			
 			TEUCHOS_TEST_FOR_EXCEPT( !lineDirection_[X] && !lineDirection_[Y] && !lineDirection_[Z] );
 
 			for( int dir=0; dir<3; ++dir ) {
+
 				n_[dir] = space()->eInd( S, dir ) - space()->sInd( S, dir ) + 1 ;
+
 				if( true==lineDirection_[dir] ) {
-					//std::cout << n_[dir] << "\n";
 
 					dl_ [dir] = Teuchos::rcp( new VectorT( n_[dir]-1, true ) );
 					d_  [dir] = Teuchos::rcp( new VectorT( n_[dir]  , true ) );
@@ -106,15 +106,6 @@ public:
 						(*du_[dir])[i-1] = op_->getC( dir, i, +1 );
 						(*dl_[dir])[i-1] = op_->getC( dir, i+1, -1 );
 					}
-					if( space()->getBCLocal()->getBCL(dir)>0 ) {
-						(*d_[dir])[0] = op_->getC( dir, 1,  0 );
-					}
-					if( space()->getBCLocal()->getBCU(dir)>0 ) {
-						(*d_[dir])[n_[dir]-1] = op_->getC( dir, n_[dir],  0 );
-					}
-					//std::cout << "\ndl: " << *dl_[dir] << "\n";
-					//std::cout << "d: " << *d_[dir] << "\n";
-					//std::cout << "du: " << *du_[dir] << "\n\n";
 
 					Ordinal lu_factorization_sucess;
 					Teuchos::LAPACK<Ordinal,Scalar> lapack;
@@ -137,40 +128,33 @@ public:
 	void apply(const DomainFieldT& b, RangeFieldT& y,
 			Belos::ETrans trans=Belos::NOTRANS ) const {
 
-		Teuchos::RCP<DomainFieldT> temp_ =
+		Teuchos::RCP<DomainFieldT> temp =
 			Teuchos::rcp( new DomainFieldT( space() ) );
 
 		for( int i=0; i<nIter_; ++i) {
 
-			for( int dir=2; dir>=0; --dir ) { // why?
+			//for( int dir=2; dir>=0; --dir ) { // why?
+			for( int dir=0; dir<3; ++dir ) { // why?
 
 				if( true==lineDirection_[dir] ) {
 
-					op_->computeResidual( b, y, *temp_ );
+					op_->computeResidual( b, y, *temp );
 
-					Ordinal SS[3];
-					Ordinal NN[3];
 					Ordinal i[3];
 
 					int d1 = ( dir + 1 )%3;
 					int d2 = ( dir + 2 )%3;
 					if( d2>d1 ) std::swap( d2, d1 );
 
-					for( int j=0; j<3; ++j ) {
-						SS[j] = op_->getSR(j);
-						NN[j] = op_->getER(j);
-					}
 
 					Teuchos::RCP<VectorT> B = Teuchos::rcp( new VectorT( n_[dir], false ) );
 
-					for( i[d1]=SS[d1]; i[d1]<=NN[d1]; ++i[d1] )
-						for( i[d2]=SS[d2]; i[d2]<=NN[d2]; ++i[d2] ) {
+					for( i[d1]=space()->sInd(S,d1); i[d1]<=space()->eInd(S,d1); ++i[d1] )
+						for( i[d2]=space()->sInd(S,d2); i[d2]<=space()->eInd(S,d2); ++i[d2] ) {
 
 							// transfer
 							for( i[dir]=space()->sInd(S,dir); i[dir]<=space()->eInd(S,dir); ++i[dir] )
-								(*B)[i[dir]-1] = temp_->at(i);
-								//(*B)[i[dir]-1] = b.at(i);
-							//std::cout << *B << "\n";
+								(*B)[ i[dir]-1 ] = temp->at(i);
 
 							Ordinal lu_solve_sucess;
 							Teuchos::LAPACK<Ordinal,Scalar> lapack;
@@ -191,42 +175,14 @@ public:
 
 							//// transfer back
 							for( i[dir]=space()->sInd(S,dir); i[dir]<=space()->eInd(S,dir); ++i[dir] )
-								y.at(i) = y.at(i) + omega_*(*B)[i[dir]-1];
+								y.at(i) = y.at(i) + omega_*(*B)[ i[dir]-1 ];
 						}
 
-					// boundaries
-					if( space()->getBCLocal()->getBCL(d1)>0 ) {
-						i[d1] = space()->sInd(S,d1);
-						for( i[d2]=op_->getSR(d2); i[d2]<=op_->getER(d2); ++i[d2] )
-							for( i[dir]=op_->getSR(dir); i[dir]<=op_->getER(dir); ++i[dir] )
-								y.at(i) = y.at(i) + omega_*temp_->at(i)/op_->getC( d1, i[d1], 0 );
-
-					}
-					if( space()->getBCLocal()->getBCU(d1)>0 ) {
-						i[d1] = space()->eInd(S,d1);
-						for( i[d2]=op_->getSR(d2); i[d2]<=op_->getER(d2); ++i[d2] )
-							for( i[dir]=op_->getSR(dir); i[dir]<=op_->getER(dir); ++i[dir] )
-								y.at(i) = y.at(i) + omega_*temp_->at(i)/op_->getC( d1, i[d1], 0 );
-					}
-					if( space()->getBCLocal()->getBCL(d2)>0 ) {
-						i[d2] = space()->sInd(S,d2);
-						for( i[d1]=op_->getSR(d1); i[d1]<=op_->getER(d1); ++i[d1] )
-							for( i[dir]=op_->getSR(dir); i[dir]<=op_->getER(dir); ++i[dir] )
-								y.at(i) = y.at(i) + omega_*temp_->at(i)/op_->getC( d2, i[d2], 0 );
-
-					}
-					if( space()->getBCLocal()->getBCU(d2)>0 ) {
-						i[d2] = space()->eInd(S,d2);
-						for( i[d1]=op_->getSR(d1); i[d1]<=op_->getER(d1); ++i[d1] )
-							for( i[dir]=op_->getSR(dir); i[dir]<=op_->getER(dir); ++i[dir] )
-								y.at(i) = y.at(i) + omega_*temp_->at(i)/op_->getC( d2, i[d2], 0 );
-					}
-					
-					
 					y.changed();
-				}
-			}
-		}
+
+				} // end of if( true==lineDirection_[dir] )
+			}// end of for dir = 2...0
+		} // end of for i=0...nIter_
 
 		if( levelYes_ )
 			y.level();
@@ -237,7 +193,7 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
-	Teuchos::RCP<const SpaceT> space() const { return(op_->space()); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(op_->space()); };
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 

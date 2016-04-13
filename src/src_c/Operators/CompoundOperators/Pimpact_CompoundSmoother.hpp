@@ -38,12 +38,12 @@ protected:
 	using VF = typename OpS2VT::RangeFieldT;
 	using SF = typename OpS2VT::DomainFieldT;
 
-	using OpVSmoother = vSmoother< OpV2VT>;
+	using OpVSmoother = vSmoother<OpV2VT>;
 	using OpSSmootherT = TripleCompositionOp< sSmoother,TripleCompositionOp<OpV2ST,OpV2VT,OpS2VT>,sSmoother>;
 
-	Teuchos::RCP<OpS2VT> opS2V_;
+	const Teuchos::RCP<OpS2VT> opS2V_;
 
-	Teuchos::RCP<OpVSmoother> opVSmoother_;
+	const Teuchos::RCP<OpVSmoother> opVSmoother_;
 	Teuchos::RCP<OpSSmootherT> opSSmoother_;
 
 public:
@@ -52,22 +52,24 @@ public:
 			const Teuchos::RCP< CompoundOpT >& op,
 			Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::null	):
 		opS2V_( op->getOpS2V() ),
-		opVSmoother_( Teuchos::rcp( new OpVSmoother( op->getOpV2V(), Teuchos::rcpFromRef(pl->sublist("VSmoother") ) ) ) ) {
+		opVSmoother_( Teuchos::rcp( new OpVSmoother( op->getOpV2V(),
+						Teuchos::rcpFromRef(pl->sublist("VSmoother") ) ) ) ) {
 
-			auto bla = createTripleCompositionOp( op->getOpV2S(), op->getOpV2V(), op->getOpS2V() );
-			auto blup = Teuchos::rcp( new sSmoother( space() ) );
+			Teuchos::RCP< TripleCompositionOp<OpV2ST,OpV2VT,OpS2VT> > opDHG =
+				createTripleCompositionOp( op->getOpV2S(), op->getOpV2V(),
+						op->getOpS2V() );
 
-			opSSmoother_ = createTripleCompositionOp( blup, bla, blup );
+			Teuchos::RCP<sSmoother> opDGi = Teuchos::rcp( new sSmoother( space() ) );
+
+			opSSmoother_ = createTripleCompositionOp( opDGi, opDHG, opDGi );
 
 		};
 
 	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
 		Teuchos::RCP<VF> tempv =  create<VF>( space() ); 
-		//Teuchos::RCP<SF> temps;
 
 		opSSmoother_->apply( x.getConstSField() ,  y.getSField() );
-		y.getSField().scale( -1. );
 
 		opS2V_->apply( y.getConstSField(), *tempv );
 
@@ -81,13 +83,13 @@ public:
 	void assignField( const DomainFieldT& mv ) {
 	};
 
-	Teuchos::RCP<const SpaceT> space() const { return(opS2V_->space()); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(opS2V_->space()); };
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
 	bool hasApplyTranspose() const { return( false ); }
 
-	const std::string getLabel() const { return( "CompoundSmoother" ); };
+	constexpr const std::string getLabel() const { return( "CompoundSmoother" ); };
 
   void print( std::ostream& out=std::cout ) const {
 		out << getLabel() << ":\n";

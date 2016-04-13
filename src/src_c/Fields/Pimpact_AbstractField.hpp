@@ -33,26 +33,15 @@ protected:
 
   Teuchos::RCP<const SpaceT> space_;
 
-	void reduceNorm( const MPI_Comm& comm, double& norm, Belos::NormType type = Belos::OneNorm ) const {
+	/// \note openMPI is picky her with const references :(
+	constexpr Scalar reduce( const MPI_Comm& comm, double normLocal, const MPI_Op& op=MPI_SUM ) const {
+	//constexpr Scalar reduce( const MPI_Comm& comm, const double& normLocal, MPI_Op op=MPI_SUM ) const {
 
 		Scalar normGlob;
+		MPI_Allreduce( &normLocal, &normGlob, 1, MPI_REAL8, op, comm );
+		return( normGlob );
 
-		switch(type) {
-			case Belos::OneNorm:
-				MPI_Allreduce( &norm, &normGlob, 1, MPI_REAL8, MPI_SUM, comm );
-				norm = normGlob;
-				break;
-			case Belos::TwoNorm:
-				MPI_Allreduce( &norm, &normGlob, 1, MPI_REAL8, MPI_SUM, comm );
-				norm = std::sqrt( normGlob );
-				break;
-			case Belos::InfNorm:
-				MPI_Allreduce( &norm, &normGlob, 1, MPI_REAL8, MPI_MAX, comm );
-				norm = normGlob;
-				break;
-		}
 	}
-
 
 }; // end of class AbstractField
 

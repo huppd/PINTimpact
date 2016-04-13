@@ -27,13 +27,13 @@ public:
 
   using SpaceT = ST;
 
-  using Scalar = typename SpaceT::Scalar;
-  using Ordinal = typename SpaceT::Ordinal;
-
   using DomainFieldT = TimeField< VectorField<SpaceT> >;
   using RangeFieldT = TimeField< VectorField<SpaceT> >;
 
 protected:
+
+  using Scalar = typename SpaceT::Scalar;
+  using Ordinal = typename SpaceT::Ordinal;
 
   Teuchos::RCP<NonlinearWrap< ConvectionDiffusionSOp<SpaceT> > > op_;
 
@@ -78,7 +78,7 @@ public:
 
 		Scalar pi = 4.*std::atan(1.);
 
-		Scalar mulI = a2*iRe*((Scalar)space()->nGlo(3))/2./pi;
+		Scalar mulI = a2*iRe*(static_cast<Scalar>(space()->nGlo(3)))/2./pi;
 
 		
 		y.exchange();
@@ -117,7 +117,7 @@ public:
 
 
 
-	Teuchos::RCP<const SpaceT> space() const { return(op_->space()); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(op_->space()); };
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 

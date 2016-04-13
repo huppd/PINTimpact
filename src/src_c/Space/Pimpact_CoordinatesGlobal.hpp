@@ -30,7 +30,7 @@ namespace Pimpact{
 ///
 /// \tparam ScalarT scalar type
 /// \tparam OrdinalT index type
-/// \tparam dim computiational dimension
+/// \tparam dim computational dimension
 ///
 /// \note: - local processor-block coordinates and grid spacings are
 ///          automatically derived from global grid
@@ -383,29 +383,16 @@ public:
 	/// \name getter
 	/// @{ 
 
-	const ScalarT* getX( ECoord dir, EField ftype ) const {
-		if( EField::S==ftype )
-			return( xS_[static_cast<int>(dir)].getRawPtr() );
-		else if( static_cast<int>(dir)==static_cast<int>(ftype) )
-			return( xV_[ static_cast<int>(dir) ].getRawPtr() );
-		else
-			return( xS_[ static_cast<int>(dir) ].getRawPtr() );
+
+	constexpr const ScalarT* getX( const int& dir, const int& ftype ) const {
+		return(
+				( EField::S==static_cast<EField>(ftype) || dir!=ftype )?
+					xS_[dir].getRawPtr():
+					xV_[dir].getRawPtr() 
+				);
 	}
 
-	const ScalarT* get( int dir, int ftype ) const {
-		return( getX( static_cast<ECoord>(dir), static_cast<EField>(ftype) ) );
-	}
-
-	const ScalarT* get( ECoord dir, int ftype ) const {
-		return( getX( dir, static_cast<EField>(ftype) ) );
-	}
-
-	const ScalarT* get( int dir, EField ftype ) const {
-		return( getX( static_cast<ECoord>(dir), ftype ) );
-	}
-
-
-	const Teuchos::Tuple< Teuchos::RCP<Teuchos::ParameterList> ,3>& getStretchParameter() const {
+	constexpr const Teuchos::Tuple< Teuchos::RCP<Teuchos::ParameterList> ,3>& getStretchParameter() const {
 		return( stretchPara_ );
 	}
 

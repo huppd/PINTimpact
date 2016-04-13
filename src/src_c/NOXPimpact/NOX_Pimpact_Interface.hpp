@@ -37,8 +37,8 @@ class Interface {
 public:
 
   using Field = F;
-  using S = typename Field::Scalar;
-  using O = typename Field::Ordinal;
+  //using S = typename Field::SpaceT::Scalar;
+  //using O = typename Field::SpaceT::Ordinal;
   using Op = ::Pimpact::OperatorBase<Field>;
 
 protected:

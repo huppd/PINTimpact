@@ -20,12 +20,12 @@ public:
 
   using SpaceT = typename OpT::SpaceT;
 
-  using Scalar = typename SpaceT::Scalar;
-
   using DomainFieldT = ModeField<typename OpT::DomainFieldT >;
   using RangeFieldT = ModeField<typename OpT::RangeFieldT  >;
 
 protected:
+
+  using Scalar = typename SpaceT::Scalar;
 
 	Scalar mulI_;
 	Scalar mulC_;
@@ -76,7 +76,7 @@ public:
 	void assignField( const DomainFieldT& mv ) { };
 
 
-	Teuchos::RCP<const SpaceT> space() const { return(op_->space()); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(op_->space()); };
 
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {

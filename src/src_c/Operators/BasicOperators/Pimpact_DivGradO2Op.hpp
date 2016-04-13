@@ -41,21 +41,6 @@ void Op_getCDG(
     double* const cdg2,
     double* const cdg3 );
 
-//void OP_DivGradO2Op(
-    //const int& dimens,
-    //const int* const N,
-    //const int* const SR,
-    //const int* const ER,
-    //const int* const BL,
-    //const int* const BU,
-    //const int* const BCL,
-    //const int* const BCU,
-    //const double* const cdg1,
-    //const double* const cdg2,
-    //const double* const cdg3,
-    //const double* const phi,
-          //double* const Lap );
-
 }
 
 
@@ -71,15 +56,13 @@ public:
 
   using SpaceT = ST;
 
-  using Scalar = typename SpaceT::Scalar;
-  using Ordinal = typename SpaceT::Ordinal;
-
   using DomainFieldT = ScalarField<SpaceT>;
   using RangeFieldT = ScalarField<SpaceT>;
 
-  using TO = const Teuchos::Tuple<Ordinal,3>;
-
 protected:
+
+  using Scalar = typename SpaceT::Scalar;
+  using Ordinal = typename SpaceT::Ordinal;
 
   using TS = const Teuchos::Tuple<Scalar*,3>;
 
@@ -90,11 +73,7 @@ protected:
 
   TS c_;
 
-	TO SR_;
-	TO ER_;
-
 public:
-
 
 	DivGradO2Op( const Teuchos::RCP<const SpaceT>& space ): space_(space) {
 
@@ -102,15 +81,6 @@ public:
 			// allocate stencil
 			Ordinal nTemp = 3*( space_->nLoc(i) - 1 + 1 );
 			c_[i] = new Scalar[ nTemp ];
-
-			// inner field bounds
-			SR_[i] = 1;
-			ER_[i] = space_->nLoc(i) - 1;
-
-			if( space_->getBCLocal()->getBCL(i) >  0 ) SR_[i] = 2;
-			if( space_->getBCLocal()->getBCL(i) == 0 ) SR_[i] = 1;
-			if( space_->getBCLocal()->getBCU(i) >  0 ) ER_[i] = space_->nLoc(i) - 1;
-			if( space_->getBCLocal()->getBCU(i) == 0 ) ER_[i] = space_->nLoc(i);
 		}
 
 		Op_getCDG(
@@ -141,53 +111,18 @@ public:
 
 		x.exchange();
 
-		// inner stencil
 		if( 3==space()->dim() )
-			for( Ordinal k=getSR(Z); k<=getER(Z); ++k )
-				for( Ordinal j=getSR(Y); j<=getER(Y); ++j )
-					for( Ordinal i=getSR(X); i<=getER(X); ++i ) {
+			for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
+				for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
+					for( Ordinal i=space()->sInd(S,Y); i<=space()->eInd(S,X); ++i ) {
 						y.at(i,j,k) = innerStenc3D(x, i,j,k);
 					}
 		else
-			for( Ordinal k=getSR(Z); k<=getER(Z); ++k )
-				for( Ordinal j=getSR(Y); j<=getER(Y); ++j )
-					for( Ordinal i=getSR(X); i<=getER(X); ++i ) {
+			for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
+				for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
+					for( Ordinal i=space()->sInd(S,Y); i<=space()->eInd(S,X); ++i ) {
 						y.at(i,j,k) = innerStenc2D(x, i,j,k);
 					}
-
-		// boundaries
-		for( int d=0; d<3; ++d ) {
-
-			int d1 = ( d + 1 )%3;
-			int d2 = ( d + 2 )%3;
-			if( d2>d1 ) std::swap( d2, d1 );
-			TO i;
-
-			// lower boundaries
-			if( space_->getBCLocal()->getBCL(d)>0 ) {
-				i[d] = 1;
-				for( i[d1]=getSR(d1); i[d1]<=getER(d1); ++i[d1] )
-					for( i[d2]=getSR(d2); i[d2]<=getER(d2); ++i[d2] ) {
-						TO ip = i;
-						++ip[d];
-						y.at(i) =
-							getC(d,i[d],0)*x.at(i) + getC(d,i[d],+1)*x.at(ip);
-					}
-			}
-
-			// upper boundaries
-			if( space_->getBCLocal()->getBCU(d)>0 ) {
-				i[d] = space_->nLoc(d);
-				for( i[d1]=getSR(d1); i[d1]<=getER(d1); ++i[d1] )
-					for( i[d2]=getSR(d2); i[d2]<=getER(d2); ++i[d2] ) {
-						TO ip = i;
-						--ip[d];
-						y.at(i) =
-							getC(d,i[d],0)*x.at(i) + getC(d,i[d],-1)*x.at(ip);
-					}
-			}
-
-		}
 
 		y.changed();
 
@@ -199,58 +134,21 @@ public:
 		x.exchange();
 		// inner stencil
 		if( 3==space()->dim() )
-			for( Ordinal k=getSR(Z); k<=getER(Z); ++k )
-				for( Ordinal j=getSR(Y); j<=getER(Y); ++j )
-					for( Ordinal i=getSR(X); i<=getER(X); ++i ) {
+			for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
+				for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
+					for( Ordinal i=space()->sInd(S,Y); i<=space()->eInd(S,X); ++i ) {
 						res.at(i,j,k) = b.at(i,j,k) - innerStenc3D(x, i,j,k);
 					}
 		else
-			for( Ordinal k=getSR(Z); k<=getER(Z); ++k )
-				for( Ordinal j=getSR(Y); j<=getER(Y); ++j )
-					for( Ordinal i=getSR(X); i<=getER(X); ++i ) {
+			for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
+				for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
+					for( Ordinal i=space()->sInd(S,Y); i<=space()->eInd(S,X); ++i ) {
 						res.at(i,j,k) = b.at(i,j,k) - innerStenc2D(x, i,j,k);
 					}
-
-		// boundaries
-		for( int d=0; d<3; ++d ) {
-
-			int d1 = getDir1( d ); 
-			int d2 = getDir2( d ); 
-
-			TO i;
-
-			// lower boundaries
-			if( space_->getBCLocal()->getBCL(d)>0 ) {
-				i[d] = 1;
-				for( i[d2]=getSR(d2); i[d2]<=getER(d2); ++i[d2] )
-					for( i[d1]=getSR(d1); i[d1]<=getER(d1); ++i[d1] ) {
-						TO ip = i;
-						++ip[d];
-						res.at(i) = b.at(i) -
-							getC(d,i[d],0 )*x.at(i) -
-							getC(d,i[d],+1)*x.at(ip);
-					}
-			}
-
-			// upper boundaries
-			if( space_->getBCLocal()->getBCU(d)>0 ) {
-				i[d] = space_->nLoc(d);
-				for( i[d2]=getSR(d2); i[d2]<=getER(d2); ++i[d2] ) 
-					for( i[d1]=getSR(d1); i[d1]<=getER(d1); ++i[d1] ) {
-						TO ip = i;
-						--ip[d];
-						res.at(i) = b.at(i) -
-							getC(d,i[d],0 )*x.at(i) -
-							getC(d,i[d],-1)*x.at(ip);
-					}
-			}
-
-		}
 
 		res.changed();
 
 	}
-
 
 
 	/// \name setter
@@ -265,8 +163,6 @@ public:
   void print( std::ostream& out=std::cout ) const {
     out << "--- " << getLabel() << " ---\n";
     out << " --- stencil: ---";
-		out << " sr: " << SR_ << "\n";
-		out << " er: " << ER_ << "\n";
     for( int dir=0; dir<3; ++dir ) {
       out << "\ndir: " << dir << "\n";
       for( int i=1; i<=space_->nLoc(dir); ++i ) {
@@ -297,7 +193,7 @@ public:
 
 protected:
 
-	inline Scalar innerStenc3D( const DomainFieldT& x, const Ordinal& i, const Ordinal& j,
+	inline constexpr Scalar innerStenc3D( const DomainFieldT& x, const Ordinal& i, const Ordinal& j,
 			const Ordinal& k ) const {
 
 		return( 
@@ -308,7 +204,7 @@ protected:
 				);
 	}
 
-	inline Scalar innerStenc2D( const DomainFieldT& x, const Ordinal& i, const Ordinal& j,
+	inline constexpr Scalar innerStenc2D( const DomainFieldT& x, const Ordinal& i, const Ordinal& j,
 			const Ordinal& k ) const {
 
 		return( 
@@ -325,32 +221,23 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
-	Teuchos::RCP<const SpaceT> space() const { return(space_); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(space_); };
 
-	inline const Scalar* getC( const ECoord& dir) const  {
+	inline constexpr const Scalar* getC( const ECoord& dir) const  {
 		return( getC( static_cast<const int&>(dir) ) );
   }
 
-  inline const Scalar* getC( const int& dir) const  {
+  inline constexpr const Scalar* getC( const int& dir) const  {
 		return( c_[dir] );
   }
 
-	inline const Scalar& getC( const ECoord& dir, Ordinal i, Ordinal off ) const  {
+	inline constexpr const Scalar& getC( const ECoord& dir, Ordinal i, Ordinal off ) const  {
 		return( getC( static_cast<const int&>(dir), i, off ) );
   }
 
-	inline const Scalar& getC( const int& dir, Ordinal i, Ordinal off ) const  {
+	inline constexpr const Scalar& getC( const int& dir, Ordinal i, Ordinal off ) const  {
 		return( c_[dir][ off + 1 + (i-1)*3 ] );
   }
-
-	inline const Ordinal* getSR() const { return( SR_.getRawPtr() ); }
-	inline const Ordinal* getER() const { return( ER_.getRawPtr() ); }
-
-	inline const Ordinal& getSR( const Ordinal& coord ) const { return( SR_[coord] ); }
-	inline const Ordinal& getER( const Ordinal& coord ) const { return( ER_[coord] ); }
-
-	inline const Ordinal& getSR( const ECoord& coord ) const { return( getSR( static_cast<Ordinal>(coord) ) ); }
-	inline const Ordinal& getER( const ECoord& coord ) const { return( getER( static_cast<Ordinal>(coord) ) ); }
 
 	const std::string getLabel() const { return( "DivGradO2" ); };
 

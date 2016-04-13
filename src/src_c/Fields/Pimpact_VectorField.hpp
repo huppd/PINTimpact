@@ -68,16 +68,14 @@ public:
 
 	using SpaceT = SpaceType;
 
+protected:
+
 	using Scalar = typename SpaceT::Scalar;
 	using Ordinal = typename SpaceT::Ordinal;
 
-	static const int dimension = SpaceT::dimension;
-
-protected:
-
 	using ScalarArray = Scalar*;
 
-	using VF = VectorField<SpaceT>;
+	using FieldT = VectorField<SpaceT>;
 	using SF = ScalarField<SpaceT>;
 
 	ScalarArray s_;
@@ -85,8 +83,6 @@ protected:
 	const bool owning_;
 
 	Teuchos::Tuple< Teuchos::RCP<SF>, 3 > sFields_;
-
-private:
 
 	void allocate() {
 		Ordinal n = getStorageSize()/3;
@@ -143,9 +139,9 @@ public:
 
 	~VectorField() { if( owning_ ) delete[] s_; }
 
-	Teuchos::RCP<VF> clone( ECopyType copyType=DeepCopy ) const {
+	Teuchos::RCP<FieldT> clone( ECopyType copyType=DeepCopy ) const {
 
-		Teuchos::RCP<VF> vf = Teuchos::rcp( new VF( space() ) );
+		Teuchos::RCP<FieldT> vf = Teuchos::rcp( new FieldT( space() ) );
 
 		switch( copyType ) {
 			case ShallowCopy:
@@ -170,21 +166,17 @@ public:
 	/// \f[ N_v = (N_x-2)(N_y-1)(N_z-2) \f]
 	/// \f[ N_w = (N_x-2)(N_y-2)(N_z-1) \f]
 	/// \return vect length \f[= N_u+N_v+N_w\f]
-	Ordinal getLength( bool dummy=false ) const {
-
-		Teuchos::RCP<const BoundaryConditionsGlobal<dimension> > bc =
-			space()->getBCGlobal();
-
+	constexpr Ordinal getLength() const {
 		Ordinal n = 0;
 		for( int i=0; i<space()->dim(); ++i )
-			n += sFields_[i]->getLength( dummy );
+			n += sFields_[i]->getLength();
 
 		return( n );
 	}
 
 
 	/// \brief get number of stored Field's
-	int getNumberVecs() const { return( 1 ); }
+	constexpr int getNumberVecs() const { return( 1 ); }
 
 
   /// @}
@@ -194,7 +186,7 @@ public:
   /// \brief Replace \c this with \f$\alpha A + \beta B\f$.
   ///
   /// only inner points
-	void add( const Scalar& alpha, const VF& A, const Scalar& beta, const VF& B ) {
+	void add( const Scalar& alpha, const FieldT& A, const Scalar& beta, const FieldT& B ) {
 		// add test for consistent VectorSpaces in debug mode
 		for( int i=0; i<space()->dim(); ++i ) {
 			sFields_[i]->add( alpha, *A.sFields_[i], beta, *B.sFields_[i] );
@@ -209,7 +201,7 @@ public:
 	/// Here x represents this vector, and we update it as
 	/// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
 	/// \return Reference to this object
-	void abs(const VF& y) {
+	void abs(const FieldT& y) {
 		for( int i=0; i<space()->dim(); ++i )
 			sFields_[i]->abs( *y.sFields_[i] );
 		changed();
@@ -221,7 +213,7 @@ public:
 	/// Here x represents this vector, and we update it as
 	/// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
 	/// \return Reference to this object
-	void reciprocal(const VF& y){
+	void reciprocal(const FieldT& y){
 		// add test for consistent VectorSpaces in debug mode
 		for( int i=0; i<space()->dim(); ++i)
 			sFields_[i]->reciprocal( *y.sFields_[i] );
@@ -242,7 +234,7 @@ public:
 	/// Here x represents this vector, and we update it as
 	/// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
 	/// \return Reference to this object
-	void scale(const VF& a) {
+	void scale(const FieldT& a) {
 		// add test for consistent VectorSpaces in debug mode
 		for(int i=0; i<space()->dim(); ++i)
 			sFields_[i]->scale( *a.sFields_[i] );
@@ -251,15 +243,20 @@ public:
 
 
 	/// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
-	Scalar dot ( const VF& a, bool global=true ) const {
+	constexpr Scalar dotLoc ( const FieldT& a ) const {
 		Scalar b = 0.;
 
 		for( int i=0; i<space()->dim(); ++i )
-			b += sFields_[i]->dot( *a.sFields_[i], false );
-
-		if( global ) this->reduceNorm( comm(), b );
+			b += sFields_[i]->dotLoc( *a.sFields_[i] );
 
 		return( b );
+
+	}
+
+	/// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
+	constexpr Scalar dot( const FieldT& y ) const {
+
+		return( this->reduce( comm(), dotLoc( y ) ) );
 
 	}
 
@@ -268,29 +265,37 @@ public:
 	/// \name Norm method
 	/// @{
 
-	/// \brief Compute the norm of each individual vector.
-	///
-	/// Upon return, \c normvec[i] holds the value of \f$||this_i||_2^2\f$, the \c i-th column of \c this.
-	/// \attention the two norm is not the real two norm but its square
-	Scalar norm(  Belos::NormType type = Belos::TwoNorm, bool global=true ) const {
+	constexpr Scalar normLoc(  Belos::NormType type = Belos::TwoNorm ) const {
 
 		Scalar normvec = 0.;
 
 		for( int i=0; i<space()->dim(); ++i )
-			switch(type) {
-				default:
-					normvec += sFields_[i]->norm(type,false);
-					break;
-				case Belos::InfNorm:
-					normvec = std::max( sFields_[i]->norm(type,false), normvec ) ;
-					break;
-			}
-
-		if( global ) this->reduceNorm( comm(), normvec, type );
+			normvec =
+				(type==Belos::InfNorm)?
+					std::max( sFields_[i]->normLoc(type), normvec ):
+					( normvec+sFields_[i]->normLoc(type) );
 
 		return( normvec );
 
 	}
+ /// \brief compute the norm
+  /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
+	/// \todo include scaled norm
+  constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm ) const {
+
+		Scalar normvec = this->reduce(
+				comm(),
+				normLoc( type ),
+				(Belos::InfNorm==type)?MPI_MAX:MPI_SUM );
+
+		normvec =
+			(Belos::TwoNorm==type) ?
+				std::sqrt(normvec) :
+				normvec;
+
+    return( normvec );
+
+  }
 
 
 	/// \brief Weighted 2-Norm.
@@ -298,16 +303,23 @@ public:
 	/// Here x represents this vector, and we compute its weighted norm as follows:
 	/// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
 	/// \return \f$ \|x\|_w \f$
-	double norm( const VF& weights, bool global=true ) const {
+	constexpr Scalar normLoc( const FieldT& weights ) const {
 		Scalar normvec = 0.;
 
 		for( int i=0; i<space()->dim(); ++i )
-			normvec += sFields_[i]->norm( *weights.sFields_[i], false);
-
-		if( global ) this->reduceNorm( comm(), normvec, Belos::TwoNorm );
+			normvec += sFields_[i]->normLoc( *weights.sFields_[i] );
 
 		return( normvec );
 
+	}
+  /// \brief Weighted 2-Norm.
+  ///
+  /// \warning untested
+  /// Here x represents this vector, and we compute its weighted norm as follows:
+  /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
+  /// \return \f$ \|x\|_w \f$
+  constexpr Scalar norm( const FieldT& weights ) const {
+		return( std::sqrt( this->reduce( comm(), normLoc( weights ) ) ) );
 	}
 
 
@@ -319,7 +331,7 @@ public:
 	/// \brief mv := A
 	///
 	/// Assign (deep copy) A into mv.
-	void assign( const VF& a ) {
+	void assign( const FieldT& a ) {
 
 		for( int i=0; i<space()->dim(); ++i)
 			sFields_[i]->assign( *a.sFields_[i] );
@@ -1247,10 +1259,10 @@ public:
 						space()->eIndB(V),
 						space()->sIndB(W),
 						space()->eIndB(W),
-						space()->getCoordinatesGlobal()->getX( X, EField::S ),
-						space()->getCoordinatesGlobal()->getX( X, EField::U ),
-						space()->getCoordinatesLocal()->getX( Z, EField::W ),
-						space()->getInterpolateV2S()->getC( X ),
+						space()->getCoordinatesGlobal()->getX( ECoord::X, EField::S ),
+						space()->getCoordinatesGlobal()->getX( ECoord::X, EField::U ),
+						space()->getCoordinatesLocal()->getX( ECoord::Z, EField::W ),
+						space()->getInterpolateV2S()->getC( ECoord::X ),
 						space()->getDomainSize()->getRe(),
 						0,                   // nonDim  
 						kappa,               // kappa
@@ -1275,11 +1287,11 @@ public:
 						space()->sIndB(W),
 						space()->eIndB(W),
 						space()->getBCGlobal()->getBCL( Z ),
-						space()->getCoordinatesLocal()->getX( X, EField::U ),
-						space()->getCoordinatesLocal()->getX( X, EField::S ),
-						space()->getCoordinatesLocal()->getX( Y, EField::S ),
-						space()->getCoordinatesLocal()->getX( Z, EField::W ),
-						space()->getCoordinatesLocal()->getX( Z, EField::S ),
+						space()->getCoordinatesLocal()->getX( ECoord::X, EField::U ),
+						space()->getCoordinatesLocal()->getX( ECoord::X, EField::S ),
+						space()->getCoordinatesLocal()->getX( ECoord::Y, EField::S ),
+						space()->getCoordinatesLocal()->getX( ECoord::Z, EField::W ),
+						space()->getCoordinatesLocal()->getX( ECoord::Z, EField::S ),
 						3, // dist_type,          
 						0.15, // vortex_ampli_prim,  
 						3., // vortex_x1pos,       
@@ -1300,9 +1312,6 @@ public:
 
 	/// dirty hack(necessary for MG)
   void level() const {}
-
-	/// \brief does nothing as cornerer are well defined
-	void setCornersZero() const {}
 
   /// @}
 
@@ -1393,7 +1402,7 @@ public:
 	/// Operator or on top field implementer.
 	/// @{ 
 
-	Ordinal getStorageSize() const { return( sFields_[0]->getStorageSize()*3 ); }
+	constexpr Ordinal getStorageSize() const { return( sFields_[0]->getStorageSize()*3 ); }
 
   void setStoragePtr( Scalar*  array ) {
     s_ = array;
@@ -1402,25 +1411,25 @@ public:
       sFields_[i]->setStoragePtr( s_+i*n );
   }
 
-	Scalar* getRawPtr() { return( s_ ); }
+	constexpr Scalar* getRawPtr() { return( s_ ); }
 
-	const Scalar* getConstRawPtr() const { return( s_ ); }
+	constexpr const Scalar* getConstRawPtr() const { return( s_ ); }
 
-  Scalar* getRawPtr ( int i )       { return( sFields_[i]->getRawPtr() ); }
+  constexpr Scalar* getRawPtr ( int i )       { return( sFields_[i]->getRawPtr() ); }
 
-	const Scalar* getConstRawPtr ( int i )  const  { return( sFields_[i]->getConstRawPtr() ); }
+	constexpr const Scalar* getConstRawPtr ( int i )  const  { return( sFields_[i]->getConstRawPtr() ); }
 
 	///  @} 
 
-  Teuchos::RCP<SF> getFieldPtr( int i ) { return(  sFields_[i] ); }
-  SF& getField   ( int i ) { return( *sFields_[i] ); }
+  constexpr Teuchos::RCP<SF> getFieldPtr( int i ) { return(  sFields_[i] ); }
+  constexpr SF& getField   ( int i ) { return( *sFields_[i] ); }
 
-  Teuchos::RCP<const SF> getConstFieldPtr( int i ) const { return(  sFields_[i] ); }
-  const SF&  getConstField   ( int i ) const { return( *sFields_[i] ); }
+  constexpr Teuchos::RCP<const SF> getConstFieldPtr( int i ) const { return(  sFields_[i] ); }
+  constexpr const SF&  getConstField   ( int i ) const { return( *sFields_[i] ); }
 
-  Teuchos::RCP<const SpaceT> space() const { return( AbstractField<SpaceT>::space_ ); }
+  constexpr const Teuchos::RCP<const SpaceT>& space() const { return( AbstractField<SpaceT>::space_ ); }
 
-  const MPI_Comm& comm() const { return(space()->comm()); }
+  constexpr const MPI_Comm& comm() const { return(space()->comm()); }
 
 
   /// \name comunication methods.

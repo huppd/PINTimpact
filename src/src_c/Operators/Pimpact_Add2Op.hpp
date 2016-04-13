@@ -60,7 +60,7 @@ public:
     op2_->assignField( mv );
   };
 
-	Teuchos::RCP<const SpaceT> space() const { return(op1_->space()); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(op1_->space()); };
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
 		op1_->setParameter( para );

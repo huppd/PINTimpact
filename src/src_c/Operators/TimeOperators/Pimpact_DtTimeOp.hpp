@@ -23,14 +23,13 @@ public:
 
   using SpaceT = ST;
 
-  using Scalar = typename SpaceT::Scalar;
-
-  using Ordinal = typename SpaceT::Ordinal;
-
   using DomainFieldT = TimeField< VectorField<SpaceT> >;
   using RangeFieldT = TimeField< VectorField<SpaceT> >;
 
 protected:
+
+  using Scalar = typename SpaceT::Scalar;
+  using Ordinal = typename SpaceT::Ordinal;
 
   Teuchos::RCP<const SpaceT> space_;
 
@@ -65,7 +64,7 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
-	Teuchos::RCP<const SpaceT> space() const { return(space_); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(space_); };
 
 	const std::string getLabel() const { return( "DtTimeOp " ); };
 

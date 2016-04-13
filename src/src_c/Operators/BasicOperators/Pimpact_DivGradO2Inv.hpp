@@ -28,9 +28,6 @@ public:
 
   using SpaceT = typename OperatorT::SpaceT;
 
-  using Scalar = typename SpaceT::Scalar;
-  using Ordinal = typename SpaceT::Ordinal;
-
   using DomainFieldT = ScalarField<SpaceT>;
   using RangeFieldT = ScalarField<SpaceT>;
 
@@ -40,9 +37,7 @@ protected:
 
 	const Teuchos::RCP<const TeuchosSolver<OperatorT> > solver_;
 
-
 public:
-
 
 	/// \brief constructor
 	///
@@ -58,8 +53,6 @@ public:
 	void apply( const DomainFieldT& x, RangeFieldT& y, Belos::ETrans
 			trans=Belos::NOTRANS ) const {
 
-		x.setCornersZero();
-
 		solver_->apply( x, y );
 
 		if( levelYes_ )
@@ -71,7 +64,7 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
-	Teuchos::RCP<const SpaceT> space() const { return(solver_->getOperator()->space()); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(solver_->getOperator()->space()); };
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 

@@ -22,17 +22,17 @@ template< class MultiFieldT >
 class LinearProblem {
 
   using MF = MultiFieldT;
-  using Scalar = typename MF::Scalar;
+
   using Op = OperatorBase<MF>;
 
   using SpaceT = typename Op::SpaceT;
+
+  using Scalar = typename SpaceT::Scalar;
 
   Teuchos::RCP< Belos::SolverManager<Scalar, MF, Op> >	solver_;
   Teuchos::RCP< Belos::LinearProblem<Scalar, MF, Op> > problem_;
 
 public:
-
-//  LinearProblem():solver_(Teuchos::null),problem_(Teuchos::null) {};
 
   /// constructor
   LinearProblem(
@@ -58,14 +58,14 @@ public:
   /// \name getter methods
   //@{
 
-  const Teuchos::RCP<const Belos::SolverManager<Scalar, MF, Op> > getSolver() const {
+  constexpr const Teuchos::RCP<const Belos::SolverManager<Scalar, MF, Op> > getSolver() const {
     return( solver_ );
   }
-  const Teuchos::RCP<const Belos::LinearProblem<Scalar, MF, Op> > getProblem() const {
+  constexpr Teuchos::RCP<const Belos::LinearProblem<Scalar, MF, Op> > getProblem() const {
     return( problem_ );
   }
 
-	Teuchos::RCP<const SpaceT> space() const {
+	constexpr const Teuchos::RCP<const SpaceT>& space() const {
 		return(problem_->getOperator()->space());
 	};
 
@@ -92,7 +92,7 @@ public:
   /// \brief Set left preconditioner (\c LP) of linear problem \f$AX = B\f$.
   ///
   /// The operator is set by pointer; no copy of the operator is made.
-  void setLeftPrec(const Teuchos::RCP<const Op> &LP) {
+  void setLeftPrec( const Teuchos::RCP<const Op>& LP) {
     problem_->setLeftPrec( LP );
   }
 
@@ -100,7 +100,7 @@ public:
   /// \brief Set right preconditioner (\c RP) of linear problem \f$AX = B\f$.
   ///
   /// The operator is set by pointer; no copy of the operator is made.
-  void setRightPrec(const Teuchos::RCP<const Op> &RP) {
+  void setRightPrec( const Teuchos::RCP<const Op>& RP) {
     problem_->setRightPrec( RP );
   }
 
@@ -123,7 +123,7 @@ Teuchos::RCP< LinearProblem<MF> > createLinearProblem(
     Teuchos::RCP<Teuchos::ParameterList> param,
     const std::string& solvername="GMRES" ) {
 
-	using S = typename MF::Scalar;
+	using S = typename MF::SpaceT::Scalar;
 	using Op = OperatorBase<MF>;
 
 	Belos::SolverFactory<S,MF,Op> factory;

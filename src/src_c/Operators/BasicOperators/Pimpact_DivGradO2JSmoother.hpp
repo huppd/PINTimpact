@@ -14,24 +14,6 @@
 namespace Pimpact{
 
 
-//extern "C"
-//void OP_DivGradO2JSmoother(
-    //const int& dimens,
-    //const int* const N,
-    //const int* const BL,
-    //const int* const BU,
-    //const int* const SR,
-    //const int* const ER,
-    //const double* const cdg1,
-    //const double* const cdg2,
-    //const double* const cdg3,
-    //const double& omega,
-    //const double* const b,
-    //const double* const x,
-          //double* const temp );
-
-
-
 
 /// \brief \f$\omega\f$-Jacobian smoother for second Order DivGradOp.
 ///
@@ -67,8 +49,8 @@ protected:
 
   const Teuchos::RCP<const OperatorT> op_;
 
-	Teuchos::Tuple< Teuchos::RCP<SolverT>, 3 > AsovL_;
-	Teuchos::Tuple< Teuchos::RCP<SolverT>, 3 > AsovU_;
+	const Teuchos::Tuple< Teuchos::RCP<SolverT>, 3 > AsovL_;
+	const Teuchos::Tuple< Teuchos::RCP<SolverT>, 3 > AsovU_;
 
 public:
 
@@ -204,45 +186,36 @@ public:
       y.exchange();
 
 			if( 3==space()->dim() )
-				for( Ordinal k=getSR(Z); k<=getER(Z); ++k )
-					for( Ordinal j=getSR(Y); j<=getER(Y); ++j )
-						for( Ordinal i=getSR(X); i<=getER(X); ++i ) {
+				for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
+					for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
+						for( Ordinal i=space()->sInd(S,Y); i<=space()->eInd(S,X); ++i ) {
 							temp->at(i,j,k) = innerStenc3D( b, y, i,j,k);
 						}
 			else
-				for( Ordinal k=getSR(Z); k<=getER(Z); ++k )
-					for( Ordinal j=getSR(Y); j<=getER(Y); ++j )
-						for( Ordinal i=getSR(X); i<=getER(X); ++i ) {
+				for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
+					for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
+						for( Ordinal i=space()->sInd(S,Y); i<=space()->eInd(S,X); ++i ) {
 							temp->at(i,j,k) = innerStenc2D( b, y, i,j,k);
-           }
+						}
 			
-			if( 0==bcSmoothing_ )
-				applyJBCSmoothing( b, y, *temp, omega_ );
-			else
-				applyDBCSmoothing( b, *temp, omega_ );
-
 			temp->changed();
 			temp->exchange();
 
 			if( 3==space()->dim() )
-				for( Ordinal k=getSR(Z); k<=getER(Z); ++k )
-					for( Ordinal j=getSR(Y); j<=getER(Y); ++j )
-						for( Ordinal i=getSR(X); i<=getER(X); ++i ) {
+				for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
+					for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
+						for( Ordinal i=space()->sInd(S,Y); i<=space()->eInd(S,X); ++i ) {
 							y.at(i,j,k) = innerStenc3D( b, *temp, i,j,k);
 						}
 			else
-				for( Ordinal k=getSR(Z); k<=getER(Z); ++k )
-					for( Ordinal j=getSR(Y); j<=getER(Y); ++j )
-						for( Ordinal i=getSR(X); i<=getER(X); ++i ) {
+				for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
+					for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
+						for( Ordinal i=space()->sInd(S,Y); i<=space()->eInd(S,X); ++i ) {
 							y.at(i,j,k) = innerStenc2D( b, *temp, i,j,k);
-           }
-
-			if( 0==bcSmoothing_ )
-				applyJBCSmoothing( b, *temp, y, omega_ );
-			else
-				applyDBCSmoothing( b, y, omega_ );
+						}
 
 			y.changed();
+
 		}
 		if( levelYes_ )
 			y.level();
@@ -253,7 +226,7 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
-	Teuchos::RCP<const SpaceT> space() const { return(op_->space()); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(op_->space()); };
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
@@ -287,50 +260,8 @@ protected:
 	}
 
 
-	void applyJBCSmoothing( const DomainFieldT& b, const DomainFieldT& x,
-			RangeFieldT& y, const Scalar& omega ) const {
 
-		for( int d=0; d<3; ++d ) {
-
-			int d1 = getDir1( d );
-			int d2 = getDir2( d );
-
-			Teuchos::Tuple< Ordinal, 3> i;
-			// boundary conditions in X
-			if( space()->getBCLocal()->getBCL( d )>0 ) {
-				i[d] = 1;
-				for( i[d2]=getSR(d2); i[d2]<=getER(d2); ++i[d2] )
-					for( i[d1]=getSR(d1); i[d1]<=getER(d1); ++i[d1] ) {
-
-						Teuchos::Tuple< Ordinal, 3> ip = i;
-
-						++ip[d];
-
-						y.at(i) =
-							(1-omega)*x.at(i) + omega/getC(d,i[d],0) *( b.at(i) - getC(d,i[d],+1)*x.at(ip) );
-					}
-
-			}
-			if( space()->getBCLocal()->getBCU(d)>0 ) {
-				i[d] = space()->nLoc(d);
-				for( i[d2]=getSR(d2); i[d2]<=getER(d2); ++i[d2] )
-					for( i[d1]=getSR(d1); i[d1]<=getER(d1); ++i[d1] ) {
-
-						Teuchos::Tuple< Ordinal, 3> ip = i;
-
-						--ip[d];
-
-						y.at(i) =
-							(1-omega)*x.at(i) + omega/getC(d,i[d],0) *( b.at(i) - getC(d,i[d],-1)*x.at(ip) );
-					}
-
-			}
-		}
-
-	}
-
-
-	inline Scalar innerStenc3D( const DomainFieldT& b, const DomainFieldT& x,
+	inline constexpr Scalar innerStenc3D( const DomainFieldT& b, const DomainFieldT& x,
 			const Ordinal& i, const Ordinal& j, const Ordinal& k ) const { 
 
 		return(
@@ -343,7 +274,7 @@ protected:
 
 	} 
 
-	inline Scalar innerStenc2D( const DomainFieldT& b, const DomainFieldT& x,
+	inline constexpr Scalar innerStenc2D( const DomainFieldT& b, const DomainFieldT& x,
 			const Ordinal& i, const Ordinal& j, const Ordinal& k ) const { 
 
 		return(
@@ -355,31 +286,21 @@ protected:
 
 	} 
 
-	inline const Scalar* getC( const ECoord& dir) const  { 
+	inline constexpr const Scalar* getC( const ECoord& dir) const  { 
 		return( op_->getC( dir ) ); 
 	} 
 
-	inline const Scalar* getC( const int& dir) const  { 
+	inline constexpr const Scalar* getC( const int& dir) const  { 
 		return( op_->getC( dir ) ); 
 	} 
 
-	inline const Scalar& getC( const ECoord& dir, Ordinal i, Ordinal off ) const  { 
+	inline constexpr const Scalar& getC( const ECoord& dir, Ordinal i, Ordinal off ) const  { 
 		return( op_->getC( dir, i, off ) ); 
 	} 
 
-	inline const Scalar& getC( const int& dir, Ordinal i, Ordinal off ) const  { 
+	inline constexpr const Scalar& getC( const int& dir, Ordinal i, Ordinal off ) const  { 
 		return( op_->getC( dir, i, off ) ); 
 	} 
-
-	inline const Ordinal* getSR() const { return( op_->getSR() ); } 
-	inline const Ordinal* getER() const { return( op_->getER() ); } 
-
-	inline const Ordinal& getSR( const Ordinal& coord ) const { return( op_->getSR( coord ) ); } 
-	inline const Ordinal& getER( const Ordinal& coord ) const { return( op_->getER( coord ) ); } 
-
-	inline const Ordinal& getSR( const ECoord& coord ) const { return( op_->getSR( coord ) ); } 
-	inline const Ordinal& getER( const ECoord& coord ) const { return( op_->getER( coord ) ); } 
-
 	
 }; // end of class DivGradO2JSmoother
 

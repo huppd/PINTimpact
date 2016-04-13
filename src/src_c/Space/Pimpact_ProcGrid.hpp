@@ -65,7 +65,7 @@ protected:
 
 
 	MPI_Comm commSlice_[dim];           ///< sub comm along dimension
-	Teuchos::Tuple<int,dim> rankSlice_; ///< sub rank should be equivalent to iB_
+	Teuchos::Tuple<int,dim> rankSlice_; ///< sub rank should be equivalent to iB_ rankcoordinate??
 
 
 //  MPI_Comm commBar_[3];
@@ -103,12 +103,9 @@ protected:
     for( int i=0; i<dim; ++i )
       procSize *= procGridSize_[i];
 
-		TEUCHOS_TEST_FOR_EXCEPT( procSize != commSize );
+		TEUCHOS_TEST_FOR_EXCEPTION( procSize!=commSize, std::logic_error, "procSize: " << procSize << " != commSize: " << commSize );
 
     Teuchos::Tuple<int,dim> ijkB;                        // mpi grid coordinates
-//    Teuchos::Tuple<int,dim> periodic =
-			;  
-    
 
 		//
 		// -- commWorld_ ---
@@ -255,29 +252,29 @@ public:
 		out << "\trankSlices: " << rankSlice_ << "\n";
   }
 
-  const bool& participating() const { return( participating_ ); }
+  constexpr const bool& participating() const { return( participating_ ); }
 
-	const OrdinalT& getNP( int i ) const { return( procGridSize_[i] ); }
-	const TO&             getNP()        const { return( procGridSize_ ); }
+	constexpr const OrdinalT& getNP( int i ) const { return( procGridSize_[i] ); }
+	constexpr const TO&       getNP()        const { return( procGridSize_ ); }
 
-  const MPI_Comm& getCommWorld() const { return( commWorld_ ); }
-  const MPI_Comm& getCommS() const { return( commSub_ ); }
+  constexpr const MPI_Comm& getCommWorld() const { return( commWorld_ ); }
+  constexpr const MPI_Comm& getCommS() const { return( commSub_ ); }
 
-  const int& getRank() const { return( rankWorld_ ); }
+  constexpr const int& getRank() const { return( rankWorld_ ); }
 
-  const int& getRankS() const { return( rankSub_ ); }
+  constexpr const int& getRankS() const { return( rankSub_ ); }
 
-  const int* getRankL() const { return( rankL_.getRawPtr() ); }
-  const int* getRankU() const { return( rankU_.getRawPtr() ); }
+  constexpr const int* getRankL() const { return( rankL_.getRawPtr() ); }
+  constexpr const int* getRankU() const { return( rankU_.getRawPtr() ); }
 
-  const int& getIB( int i ) const { return( iB_[i] ); }
-  const TO & getIB() const { return( iB_ ); }
+  constexpr const int& getIB( const int& i ) const { return( iB_[i] ); }
+  constexpr const TO & getIB() const { return( iB_ ); }
 
-  const int& getRankL( int i ) const { return( rankL_[i] ); }
-  const int& getRankU( int i ) const { return( rankU_[i] ); }
+  constexpr const int& getRankL( const int& i ) const { return( rankL_[i] ); }
+  constexpr const int& getRankU( const int& i ) const { return( rankU_[i] ); }
 
-  const MPI_Comm& getCommSlice( int i ) const { return( commSlice_[i] ); }
-  const int&      getRankSlice( int i ) const { return( rankSlice_[i] ); }
+  constexpr const MPI_Comm& getCommSlice( const int& i ) const { return( commSlice_[i] ); }
+  constexpr const int&      getRankSlice( const int& i ) const { return( rankSlice_[i] ); }
 
 }; // end of class ProcGrid
 

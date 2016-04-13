@@ -45,13 +45,13 @@ public:
 
   using SpaceT = ST;
 
-  using Scalar = typename SpaceT::Scalar;
-  using Ordinal = typename SpaceT::Ordinal;
-
   using DomainFieldT = VectorField<SpaceT>;
   using RangeFieldT = ScalarField<SpaceT>;
 
 protected:
+
+  using Scalar = typename SpaceT::Scalar;
+  using Ordinal = typename SpaceT::Ordinal;
 
   using TO = const Teuchos::Tuple<Scalar*,3>;
 
@@ -100,7 +100,7 @@ public:
 	}
 
 
-  void apply(const DomainFieldT& x, RangeFieldT& y,
+  void apply( const DomainFieldT& x, RangeFieldT& y,
       Belos::ETrans trans=Belos::NOTRANS ) const {
 
     for( int dir=0; dir<space_->dim(); ++dir )
@@ -121,7 +121,6 @@ public:
         x.getConstRawPtr(),
         y.getRawPtr() );
 
-		y.setCornersZero();
     y.changed();
 
   }
@@ -131,11 +130,15 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
-	Teuchos::RCP<const SpaceT> space() const { return(space_); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(space_); };
 
-  const Scalar* getC( const ECoord& dir ) const {
+  inline constexpr const Scalar* getC( const ECoord& dir ) const {
       return( c_[dir] );
   }
+
+	//inline constexpr const Scalar& getC( const ECoord& dir, Ordinal i, Ordinal off ) const  {
+		//return( c_[dir][ off - space_->dl(i) + 1 + (i-1)*( space_->du(i) - space_->dl(i) + 1) ] );
+  //}
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 

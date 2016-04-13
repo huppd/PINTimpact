@@ -133,25 +133,25 @@ int main( int argi, char** argv ) {
 
 
 	// init vectors
-	auto x = Pimpact::create<MF>( space );
+	Teuchos::RCP<MF> x = createMultiField( createCompoundField( Teuchos::rcp( new
+					VF(space,true) ), Teuchos::rcp( new SF(space,true) ) ) ) ;
 
 	// init Fields
 	x->getFieldPtr(0)->getVFieldPtr()->initField( pl->sublist("Base flow") );
 
 	if( "zero"==initZero )
-		x->init(0.);
+		x->init( 0. );
 	else if( "almost zero"==initZero ) {
-		x->getFieldPtr(0)->getVFieldPtr()->random();
-		x->getFieldPtr(0)->getSFieldPtr()->init(0.);
-		x->scale(1.e-32);
+		x->random();
+		x->scale(1.e-12);
 	}
 	else if( "random"==initZero )
 		x->random();
 	else if( "exact"==initZero ) {
-		x->getFieldPtr(0)->getSFieldPtr()->get0FieldPtr()->initField( Pimpact::Grad2D_inX, -2./space->getDomainSize()->getRe() );
+		//x->getFieldPtr(0)->getSFieldPtr()->get0FieldPtr()->initField( Pimpact::Grad2D_inX, -2./space->getDomainSize()->getRe() );
 	}
 	x->getFieldPtr(0)->getVFieldPtr()->changed();
-	x->getFieldPtr(0)->getSFieldPtr()->changed();
+	//x->getFieldPtr(0)->getSFieldPtr()->changed();
 
 
 
@@ -162,8 +162,10 @@ int main( int argi, char** argv ) {
 		if( refinement>1 )
 			rl = std::to_string( static_cast<long long>(refine) ); // long long needed on brutus(intel)
 
-		auto fu   = x->clone( Pimpact::ShallowCopy );
+		auto fu = x->clone( Pimpact::ShallowCopy );
 		fu->getFieldPtr(0)->getVFieldPtr()->initField( pl->sublist("Force") );
+		if( withoutput )
+			fu->write( 90000 );
 
 
 		auto opV2V = Pimpact::createMultiDtConvectionDiffusionOp( space );
@@ -201,7 +203,8 @@ int main( int argi, char** argv ) {
 
 				pl->sublist("ConvDiff").sublist("Solver").set(
 						"Output Stream",
-						Pimpact::createOstream( zeroOp->getLabel()+rl+".txt", space->rankST() ));
+						Pimpact::createOstream( zeroOp->getLabel()+rl+".txt", space->rankST() ) );
+
 
 				auto zeroInv =
 					Pimpact::create<MOP>( zeroOp, Teuchos::rcpFromRef( pl->sublist("ConvDiff") ) );
@@ -212,6 +215,7 @@ int main( int argi, char** argv ) {
 				pl->sublist("M_ConvDiff").sublist("Solver").set(
 						"Output Stream",
 						Pimpact::createOstream( modeOp->getLabel()+rl+".txt", space->rankST() ) );
+
 
 				auto modeInv =
 					Pimpact::create<MOP>(
@@ -259,6 +263,7 @@ int main( int argi, char** argv ) {
 							"Output Stream",
 							Pimpact::createOstream( opV2V->getLabel()+rl+".txt", space->rankST() ) );
 
+
 					auto opV2Vprob =
 						Pimpact::createLinearProblem<MVF>(
 								Pimpact::createMultiOperatorBase( opV2V ),
@@ -302,7 +307,8 @@ int main( int argi, char** argv ) {
 					Pimpact::DivGradO2Op,
 					Pimpact::DivGradO2JSmoother,
 					//Pimpact::DivGradO2SORSmoother,
-					POP
+					//POP
+					Pimpact::DivGradO2Inv
 						>( mgSpaces, Teuchos::rcpFromRef( pl->sublist("DivGrad").sublist("Multi Grid") ) );
 
 				if( 0==space->rankST() )
@@ -346,7 +352,8 @@ int main( int argi, char** argv ) {
 		/*** end of init preconditioner ****************************************************************************/
 
 
-		pl->sublist("Belos Solver").sublist("Solver").set( "Output Stream", Pimpact::createOstream("stats_linSolve"+rl+".txt",space->rankST()) );
+		pl->sublist("Belos Solver").sublist("Solver").set( "Output Stream", Pimpact::createOstream("stats_linSolve"+rl+".txt", space->rankST() ) );
+
 
 		auto lp_ = Pimpact::createLinearProblem<MF>(
 				jop,
@@ -362,7 +369,7 @@ int main( int argi, char** argv ) {
 
 		auto inter = NOX::Pimpact::createInterface( fu, op, lp );
 
-		auto nx = NOX::Pimpact::createVector(x);
+		auto nx = NOX::Pimpact::createVector( x );
 
 		auto bla = Teuchos::parameterList();
 
@@ -377,7 +384,9 @@ int main( int argi, char** argv ) {
 			NOX::Solver::buildSolver( group, statusTest, Teuchos::rcpFromRef( pl->sublist("NOX Solver") ) );
 
 
-		if( 0==space->rankST() ) std::cout << "\n\t--- Nf: "<< space->nGlo(3) <<"\tdof: "<<x->getLength(true)<<"\t---\n";
+		Teuchos::writeParameterListToXmlFile( *pl, "parameterOut.xml" );
+		if( 0==space->rankST() )
+			std::cout << "\n\t--- Nf: "<< space->nGlo(3) <<"\tdof: "<<x->getLength()<<"\t---\n";
 
 		// Solve the nonlinear system
 		{
@@ -396,13 +405,14 @@ int main( int argi, char** argv ) {
 
 		x = Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr();
 		if( withoutput ) {
-			Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr()->write(refine*1000 );
+			Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr()->write( refine*1000 );
 			Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr()->getFieldPtr(0)->getVFieldPtr()->write( 500+refine*1000, true );
 			//		Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(900);
 		}
 
 		{
 			auto out = Pimpact::createOstream( "energy_dis"+rl+".txt", space->rankST() );
+
 			*out << 0 << "\t" << x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->norm() << "\t" << std::sqrt(x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->getLength()) << "\n";
 			for( int i=0; i<space->nGlo(3); ++i )
 				*out << i+1 << "\t" << x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(i)->norm() << "\t" << std::sqrt( (S)x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(i)->getLength()) << "\n";

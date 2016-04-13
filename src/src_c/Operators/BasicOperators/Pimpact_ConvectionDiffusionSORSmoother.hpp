@@ -218,12 +218,12 @@ public:
 
   bool hasApplyTranspose() const { return( false ); }
 
-  Teuchos::RCP<const SpaceT> space() const { return(op_->space()); }
+  constexpr const Teuchos::RCP<const SpaceT>& space() const { return(op_->space()); }
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
    
 
-	const std::string getLabel() const { return( "ConvectionDiffusionSORSmoother" ); };
+	constexpr const std::string getLabel() const { return( "ConvectionDiffusionSORSmoother" ); };
 
 
 }; // end of class ConvectionDiffusionSORSmoother

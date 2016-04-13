@@ -24,8 +24,8 @@ class MultiHarmonicMultiOpWrap  {
 
 public:
 
-  using DomainFieldT = MultiHarmonicField<typename MultiOperator::DomainFieldT::FieldT>;
-  using RangeFieldT = MultiHarmonicField<typename MultiOperator::RangeFieldT::FieldT>;
+  using DomainFieldT = MultiHarmonicField<typename MultiOperator::DomainFieldT::InnerFieldT>;
+  using RangeFieldT = MultiHarmonicField<typename MultiOperator::RangeFieldT::InnerFieldT>;
 
   using SpaceT = typename DomainFieldT::SpaceT;
 
@@ -39,22 +39,22 @@ public:
 
   MultiHarmonicMultiOpWrap( const Teuchos::RCP<MultiOperator>& op ): op_(op) {};
 
-  void apply( const DomainFieldT& x,
-      RangeFieldT& y,
+	void apply( const DomainFieldT& x, RangeFieldT& y,
       Belos::ETrans trans=Belos::NOTRANS) const {
 
-		auto mx = Teuchos::rcp( new typename MultiOperator::DomainFieldT( space(), (int)0 ) );
-		auto my = Teuchos::rcp( new typename MultiOperator::RangeFieldT ( space(), (int)0 ) );
+		Teuchos::RCP<typename MultiOperator::DomainFieldT> mx =
+			Teuchos::rcp( new typename MultiOperator::DomainFieldT( space(), 0 ) );
 
+		Teuchos::RCP<typename MultiOperator::RangeFieldT>	 my = Teuchos::rcp( new
+				typename MultiOperator::RangeFieldT ( space(), 0 ) );
 
 		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i ) {
-
 			// making x 
 			mx->push_back(
-				Teuchos::rcp_const_cast<typename MultiOperator::DomainFieldT::FieldT>(
+				Teuchos::rcp_const_cast<typename MultiOperator::DomainFieldT::InnerFieldT>(
 						x.getConstCFieldPtr(i) ) );
 			mx->push_back(
-					Teuchos::rcp_const_cast<typename MultiOperator::DomainFieldT::FieldT>(
+					Teuchos::rcp_const_cast<typename MultiOperator::DomainFieldT::InnerFieldT>(
 						x.getConstSFieldPtr(i) ) );
 
 			// making y
@@ -64,7 +64,7 @@ public:
 
 		if( space()->sInd(U,3)<0 ) {
 			mx->push_back(
-					Teuchos::rcp_const_cast<typename MultiOperator::DomainFieldT::FieldT>(
+					Teuchos::rcp_const_cast<typename MultiOperator::DomainFieldT::InnerFieldT>(
 						x.getConst0FieldPtr() ) );
 			my->push_back( y.get0FieldPtr() );
 		}
@@ -82,7 +82,7 @@ public:
 
   bool hasApplyTranspose() const { return( op_->hasApplyTranspose() ); }
 
-	Teuchos::RCP<const SpaceT> space() const { return(op_->space()); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(op_->space()); };
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
 		op_->setParameter( para );

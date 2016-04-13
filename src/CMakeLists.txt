@@ -1,5 +1,3 @@
-
-
 #This file was created by modifiying the files in
 #Trilinos/demos/buildAgaintsTrilinos. The primary change was to make it a single
 #file cmake system in a flat directory. If you would like to run a cmake
@@ -26,17 +24,17 @@ find_package( Trilinos REQUIRED )
 
 # Echo trilinos build info just for fun
 message( "\nFound Trilinos!  Here are the details: " )
-message( "   Trilinos_DIR = ${Trilinos_DIR}" )
-message( "   Trilinos_VERSION = ${Trilinos_VERSION}" )
-message( "   Trilinos_PACKAGE_LIST = ${Trilinos_PACKAGE_LIST}" )
-message( "   Trilinos_LIBRARIES = ${Trilinos_LIBRARIES}" )
-message( "   Trilinos_INCLUDE_DIRS = ${Trilinos_INCLUDE_DIRS}" )
-message( "   Trilinos_LIBRARY_DIRS = ${Trilinos_LIBRARY_DIRS}" )
-message( "   Trilinos_TPL_LIST = ${Trilinos_TPL_LIST}" )
-message( "   Trilinos_TPL_INCLUDE_DIRS = ${Trilinos_TPL_INCLUDE_DIRS}" )
-message( "   Trilinos_TPL_LIBRARIES = ${Trilinos_TPL_LIBRARIES}" )
-message( "   Trilinos_TPL_LIBRARY_DIRS = ${Trilinos_TPL_LIBRARY_DIRS}" )
-message( "   Trilinos_BUILD_SHARED_LIBS = ${Trilinos_BUILD_SHARED_LIBS}" )
+message( "Trilinos_DIR = ${Trilinos_DIR}" )
+message( "Trilinos_VERSION = ${Trilinos_VERSION}" )
+message( "Trilinos_PACKAGE_LIST = ${Trilinos_PACKAGE_LIST}" )
+message( "Trilinos_LIBRARIES = ${Trilinos_LIBRARIES}" )
+message( "Trilinos_INCLUDE_DIRS = ${Trilinos_INCLUDE_DIRS}" )
+message( "Trilinos_LIBRARY_DIRS = ${Trilinos_LIBRARY_DIRS}" )
+message( "Trilinos_TPL_LIST = ${Trilinos_TPL_LIST}" )
+message( "Trilinos_TPL_INCLUDE_DIRS = ${Trilinos_TPL_INCLUDE_DIRS}" )
+message( "Trilinos_TPL_LIBRARIES = ${Trilinos_TPL_LIBRARIES}" )
+message( "Trilinos_TPL_LIBRARY_DIRS = ${Trilinos_TPL_LIBRARY_DIRS}" )
+message( "Trilinos_BUILD_SHARED_LIBS = ${Trilinos_BUILD_SHARED_LIBS}" )
 message( "End of Trilinos details\n" )
 
 
@@ -49,18 +47,27 @@ message( "\nMPI Fortran? ${MPI_Fortran_FOUND}" )
 message( "MPI Fortran INCLUDE_DIRS = ${MPI_Fortran_INCLUDE_PATH}" )
 message( "MPI Fortran LIBRARIES =    ${MPI_Fortran_LIBRARIES}\n" )
 
-FIND_PACKAGE( HDF5 COMPONENTS CXX Fortran HL Fortran_HL )
-message( "\nHDF5? ${HDF5_FOUND}" )
-message( "HDF5_IS_PARALLEL? ${HDF5_IS_PARALLEL}" )
-message( "HDF5_INCLUDE_DIRS: ${HDF5_INCLUDE_DIRS}" )
-message( "HDF5_DEFINITIONS: ${HDF5_DEFINITIONS}" )
-message( "HDF5_C_LIBRARIES: ${HDF5_C_LIBRARIES}" )
-message( "HDF5_CXX_LIBRARIES: ${HDF5_CXX_LIBRARIES}" )
-message( "HDF5_Fortran_LIBRARIES: ${HDF5_Fortran_LIBRARIES}" )
-message( "HDF5_HL_LIBRARIES: ${HDF5_HL_LIBRARIES}" )
-message( "HDF5_Fortran_HL_LIBRARIES: ${HDF5_Fortran_HL_LIBRARIES}" )
-message( "HDF5_LIBRARIES: ${HDF5_LIBRARIES}" )
-message( "HDF5_LIBRARY_DIRS: ${HDF5_LIBRARY_DIRS}" )
+option( findHDF5 "findHDF5" OFF)
+
+if( findHDF5 )
+	FIND_PACKAGE( HDF5 COMPONENTS C Fortran HL Fortran_HL )
+	message( "\nHDF5? ${HDF5_FOUND}" )
+	message( "HDF5_IS_PARALLEL? ${HDF5_IS_PARALLEL}" )
+	message( "HDF5_INCLUDE_DIRS: ${HDF5_INCLUDE_DIRS}" )
+	message( "HDF5_DEFINITIONS: ${HDF5_DEFINITIONS}" )
+	message( "HDF5_C_LIBRARIES: ${HDF5_C_LIBRARIES}" )
+	message( "HDF5_CXX_LIBRARIES: ${HDF5_CXX_LIBRARIES}" )
+	message( "HDF5_Fortran_LIBRARIES: ${HDF5_Fortran_LIBRARIES}" )
+	message( "HDF5_HL_LIBRARIES: ${HDF5_HL_LIBRARIES}" )
+	message( "HDF5_Fortran_HL_LIBRARIES: ${HDF5_Fortran_HL_LIBRARIES}" )
+	message( "HDF5_LIBRARIES: ${HDF5_LIBRARIES}" )
+	message( "HDF5_LIBRARY_DIRS: ${HDF5_LIBRARY_DIRS}" )
+
+	add_definitions( ${HDF5_DEFINITIONS} )
+else()
+	message( "findHDF5? off ")
+endif()
+
 
 option( enable_ETI "enable_ETI" OFF)
 
@@ -105,15 +112,23 @@ message( "CXX flags: " ${CMAKE_CXX_FLAGS})
 message( "CMAKE_Fortran_COMPILE_FLAGS: ${CMAKE_Fortran_COMPILE_FLAGS}\n" )
 
 
-set( Limpact_TPL_LIBRARIES hdf5hl_fortran hdf5_hl hdf5_fortran hdf5 z m ${Trilinos_TPL_LIBRARIES} )
-set( Pimpact_TPL_LIBRARIES lpimpact ${Limpact_TPL_LIBRARIES} gfortran ${MPI_Fortran_LIBRARIES}  ${Trilinos_TPL_LIBRARIES} ${Trilinos_LIBRARIES} )
+#if( findHDF5 )
+	#set( Limpact_TPL_LIBRARIES ${HDF5_LIBRARIES} ${Trilinos_TPL_LIBRARIES} )
+#else()
+	set( Limpact_TPL_LIBRARIES hdf5hl_fortran hdf5_hl hdf5_fortran hdf5 z m
+		${Trilinos_TPL_LIBRARIES} )
+#endif()
 
+set( Pimpact_TPL_LIBRARIES lpimpact ${Limpact_TPL_LIBRARIES} gfortran
+	${MPI_Fortran_LIBRARIES}  ${Trilinos_TPL_LIBRARIES} ${Trilinos_LIBRARIES} )
 
+message( "\nLimpact_TPL_LIBRARIES: ${Limpact_TPL_LIBRARIES}\n" )
+message( "\nPimpact_TPL_LIBRARIES: ${Pimpact_TPL_LIBRARIES}\n" )
 
-INCLUDE_DIRECTORIES( ${inc_dir} ${Trilinos_INCLUDE_DIRS} ${Trilinos_TPL_INCLUDE_DIRS} ${HDF5_INCLUDE_DIRS}
-	#"/cluster/apps/hdf5/1.8.12/x86_64/gcc_4.8.2/openmpi_1.6.5/include" # was necessary on euler 
-	)
-LINK_DIRECTORIES( ${Trilinos_LIBRARY_DIRS} ${Trilinos_TPL_LIBRARY_DIRS} )
+include_directories( ${inc_dir} ${Trilinos_INCLUDE_DIRS}
+	${Trilinos_TPL_INCLUDE_DIRS} ${HDF5_INCLUDE_DIRS})
+link_directories( ${Trilinos_LIBRARY_DIRS} ${Trilinos_TPL_LIBRARY_DIRS}
+	${HDF5_LIBRARY_DIRS} )
 
 
 # Appends the cmake/modules path inside the MAKE_MODULE_PATH variable which stores the

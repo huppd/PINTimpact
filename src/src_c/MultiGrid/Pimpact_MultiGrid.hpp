@@ -75,17 +75,13 @@ protected:
 	bool initZero_;
 	int numCycles_;
 
-	Teuchos::RCP<const MGSpacesT> mgSpaces_;
+	const Teuchos::RCP<const MGSpacesT> mgSpaces_;
 
 	Teuchos::RCP<const MGTransfersT> mgTrans_;
 
 	Teuchos::RCP<const MGOperatorsT> mgOps_;
 
 	Teuchos::RCP<const MGSmoothersT> mgSms_;
-
-	Teuchos::RCP<MGFieldsT> x_;
-	Teuchos::RCP<MGFieldsT> temp_;
-	Teuchos::RCP<MGFieldsT> b_;
 
 	Teuchos::RCP<CGridSolverT> cGridSolver_;
 
@@ -114,9 +110,6 @@ public:
 		mgTrans_( createMGTransfers<TransT,RestrT,InterT>(mgSpaces) ),
 		mgOps_(   createMGOperators<FOperatorT,COperatorT>(mgSpaces) ),
 		mgSms_(   createMGSmoothers<SmootherT>( mgOps_, Teuchos::rcpFromRef(pl->sublist("Smoother")) ) ),
-		x_   ( createMGFields<FieldT>(mgSpaces) ),
-		temp_( createMGFields<FieldT>(mgSpaces) ),
-		b_   ( createMGFields<FieldT>(mgSpaces) ),
 		cGridSolver_(
 				mgSpaces_->participating(-1)?create<CGridSolverT>( mgOps_->get(-1), Teuchos::rcpFromRef(pl->sublist("Coarse Grid Solver")) ):Teuchos::null ) {}
 
@@ -126,75 +119,78 @@ public:
 	/// defect correction\f$ \hat{L}u_{k+1} = f-L u_k +\hat{L}u_k \f$ and V-cylce for solving with \f$\hat{L}\f$
 	/// \todo extract smooth/restrict/interpolate method???
 	/// \todo template cycle method
-	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
+	void apply( const DomainFieldT& x0, RangeFieldT& y ) const {
+
+		Teuchos::RCP<MGFieldsT> x    = createMGFields<FieldT>( mgSpaces_ );
+		Teuchos::RCP<MGFieldsT> temp = createMGFields<FieldT>( mgSpaces_ );
+		Teuchos::RCP<MGFieldsT> b    = createMGFields<FieldT>( mgSpaces_ );
 
 		for( int j=0; j<numCycles_; ++j ) {
 
 			if( defectCorrection_ && !initZero_ ) {
 				// defect correction rhs \hat{f}= b = x - L y
-				mgOps_->get()->computeResidual( x, y, *b_->get() );
+				mgOps_->get()->computeResidual( x0, y, *b->get() );
 
 				// transfer init y and \hat{f} to coarsest coarse
-				mgTrans_->getTransferOp()->apply( y, *x_->get(0) );
-				mgTrans_->getTransferOp()->apply( *b_->get(), *b_->get(0) );
+				mgTrans_->getTransferOp()->apply( y, *x->get(0) );
+				mgTrans_->getTransferOp()->apply( *b->get(), *b->get(0) );
 
 				// residual temp = \hat(L) y
-				mgOps_->get(0)->apply( *x_->get(0), *temp_->get(0) );
+				mgOps_->get(0)->apply( *x->get(0), *temp->get(0) );
 				// b = x - L y +\hat{L} y
-				b_->get(0)->add( 1., *b_->get(0), 1, *temp_->get(0) );
+				b->get(0)->add( 1., *b->get(0), 1, *temp->get(0) );
 
 			}
 			else {
 				// === no defect correction
 				if( initZero_ && 0==j )
-					x_->get(0)->init( 0. );
+					x->get(0)->init( 0. );
 				else
-					mgTrans_->getTransferOp()->apply( y, *x_->get(0) );
-				mgTrans_->getTransferOp()->apply( x, *b_->get(0) );
+					mgTrans_->getTransferOp()->apply( y, *x->get(0) );
+				mgTrans_->getTransferOp()->apply( x0, *b->get(0) );
 			}
 
 			int i;
 			for( i=0; i<mgSpaces_->getNGrids()-1; ++i ) {
-				if( i>0 ) x_->get(i)->init(0.); // necessary? for DivGradOp yes
+				if( i>0 ) x->get(i)->init(0.); // necessary? for DivGradOp yes
 
 				if( mgSpaces_->participating(i) ) {
-					mgSms_->get(i)->apply( *b_->get(i), *x_->get(i) );
-					mgOps_->get(i)->computeResidual( *b_->get(i), *x_->get(i), *temp_->get(i) );
-					mgTrans_->getRestrictionOp(i)->apply( *temp_->get(i), *b_->get(i+1) );
+					mgSms_->get(i)->apply( *b->get(i), *x->get(i) );
+					mgOps_->get(i)->computeResidual( *b->get(i), *x->get(i), *temp->get(i) );
+					mgTrans_->getRestrictionOp(i)->apply( *temp->get(i), *b->get(i+1) );
 				}
 			}
 
 			// coarse grid solution
 			i = -1;
 			if( mgSpaces_->participating(i) ) {
-				//b_->get(i)->setCornersZero();
-				x_->get(i)->init(0.);
+				x->get(i)->init(0.);
 				try{
-					cGridSolver_->apply( *b_->get(i), *x_->get(i) );
+					cGridSolver_->apply( *b->get(i), *x->get(i) );
 				}
 				catch( std::logic_error& e ) {
 					std::cout << "error in MG on coarse grid:\n";
 					cGridSolver_->print();
-					b_->get(i)->print();
-					b_->get(i)->write(111);
-					x_->get(i)->write(222);
+					b->get(i)->print();
+					b->get(i)->write(111);
+					x->get(i)->write(222);
 					throw( e );
 				}
-				//x_->get(i)->level();
+				//x->get(i)->level();
 			}
 
 			for( i=-2; i>=-mgSpaces_->getNGrids(); --i ) {
 				// interpolate/correct/smooth
 				if( mgSpaces_->participating(i) ) {
-					mgTrans_->getInterpolationOp(i)->apply( *x_->get(i+1), *temp_->get(i) );
-					x_->get(i)->add( 1., *temp_->get(i), 1., *x_->get(i) );
+					mgTrans_->getInterpolationOp(i)->apply( *x->get(i+1), *temp->get(i) );
+					x->get(i)->add( 1., *temp->get(i), 1., *x->get(i) );
 					//
-					mgSms_->get( i )->apply( *b_->get(i), *x_->get(i) );
+					mgSms_->get( i )->apply( *b->get(i), *x->get(i) );
 				}
 			}
 
 			// use temp as stopping cirterion
-			mgTrans_->getTransferOp()->apply( *x_->get(0), y );
+			mgTrans_->getTransferOp()->apply( *x->get(0), y );
 
 		}
 
@@ -203,28 +199,24 @@ public:
 
 	void assignField( const DomainFieldT& mv ) {
 
+		Teuchos::RCP<MGFieldsT> temp = createMGFields<FieldT>( mgSpaces_ );
+
 		mgOps_->get()->assignField( mv );
-		mgTrans_->getTransferOp()->apply( mv, *temp_->get(0) );
+		mgTrans_->getTransferOp()->apply( mv, *temp->get(0) );
 
 		for( int i=0; i<mgSpaces_->getNGrids()-1; ++i )  {
 			if( mgSpaces_->participating(i) ) {
-				mgOps_->get(i)->assignField( *temp_->get(i) );
-				mgTrans_->getRestrictionOp(i)->apply( *temp_->get(i), *temp_->get(i+1) );
+				mgOps_->get(i)->assignField( *temp->get(i) );
+				mgTrans_->getRestrictionOp(i)->apply( *temp->get(i), *temp->get(i+1) );
 			}
 		}
 
 		if( mgSpaces_->participating(-1) )
-			mgOps_->get(-1)->assignField( *temp_->get(-1) );
-
-
-		// cleaning temp field up
-		temp_->get()->initField();
-		for( int i=0; i<mgSpaces_->getNGrids(); ++i )
-			temp_->get(i)->initField();
+			mgOps_->get(-1)->assignField( *temp->get(-1) );
 
 	};
 
-	Teuchos::RCP<const SpaceT> space() const { return(mgSpaces_->get()); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(mgSpaces_->get()); };
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
 		mgOps_->setParameter( para );

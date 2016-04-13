@@ -18,9 +18,6 @@ namespace Pimpact{
 template<class Field>
 class ForcingOp {
 
-  using Scalar = typename Field::Scalar;
-  using Ordinal = typename Field::Ordinal;
-
 public:
 
   using DomainFieldT = Field;
@@ -30,6 +27,8 @@ public:
 
 protected:
 
+  using Scalar = typename SpaceT::Scalar;
+
   Teuchos::RCP<DomainFieldT> forcing_;
   Scalar mul_;
 
@@ -38,17 +37,15 @@ public:
   ForcingOp( const Teuchos::RCP<DomainFieldT>& forcing=Teuchos::null, Scalar mul=1 ):
     forcing_(forcing),mul_(mul) {};
 
-  void setForcing( const Teuchos::RCP<DomainFieldT> forcing ) {
+  void setForcing( const Teuchos::RCP<DomainFieldT>& forcing ) {
     forcing_ = forcing;
   }
 
-  void setMultiplicator( Scalar mul ){
-    mul_ = mul;
-  }
+	void setMultiplicator( const Scalar& mul ) { mul_ = mul; }
 
   /// \brief \f[ y = force*x \f]
   void apply( const DomainFieldT& x, RangeFieldT& y ) const {
-		if( std::abs(mul_-1.) < 1.e-16 ) {
+		if( std::abs(mul_-1.) < Teuchos::ScalarTraits<Scalar>::eps() ) {
 			y.assign( x );
 		}
 		else
@@ -56,7 +53,8 @@ public:
     y.scale( *forcing_ );
   }
 
-	Teuchos::RCP<const SpaceT> space() const { return(forcing_->space()); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const {
+		return( forcing_->space() ); };
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
@@ -77,7 +75,7 @@ public:
 /// \relates ForcingOp
 template<class F>
 Teuchos::RCP<ForcingOp<F> > createForcingOp(
-    const Teuchos::RCP<F>& forcing, typename F::Scalar mul=1. ) {
+    const Teuchos::RCP<F>& forcing, typename F::SpaceT::Scalar mul=1. ) {
   return(
       Teuchos::rcp( new ForcingOp<F>( forcing, mul ) )
   );

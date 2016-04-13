@@ -233,37 +233,37 @@ public:
 	/// \name getter methods
 	/// \{
 
-	const Teuchos::RCP<const StencilWidths<dimension,dimNC> >&
+	constexpr const Teuchos::RCP<const StencilWidths<dimension,dimNC> >&
 	getStencilWidths() const { return( stencilWidths_ ); }
 
-	const Teuchos::RCP<const IndexSpace<OT,dimension> >&
+	constexpr const Teuchos::RCP<const IndexSpace<OT,dimension> >&
 	getIndexSpace() const { return( indexSpace_ ); }
 
-	const Teuchos::RCP<const GridSizeGlobal<OT> >&
+	constexpr const Teuchos::RCP<const GridSizeGlobal<OT> >&
 	getGridSizeGlobal() const { return( gridSizeGlobal_ );  }
 
-	const Teuchos::RCP<const GridSizeLocal<OT,dimension> >&
+	constexpr const Teuchos::RCP<const GridSizeLocal<OT,dimension> >&
 	getGridSizeLocal() const { return( gridSizeLocal_ );  }
 
-	const Teuchos::RCP<const ProcGrid<OT,dimension> >&
+	constexpr const Teuchos::RCP<const ProcGrid<OT,dimension> >&
 	getProcGrid() const { return( procGrid_ ); }
 
-	const Teuchos::RCP<const CoordinatesGlobal<ST,OT,dimension> >&
+	constexpr const Teuchos::RCP<const CoordinatesGlobal<ST,OT,dimension> >&
 	getCoordinatesGlobal() const { return( coordGlobal_ ); }
 
-	const Teuchos::RCP<const CoordinatesLocal<ST,OT,dimension,dimNC> >&
+	constexpr const Teuchos::RCP<const CoordinatesLocal<ST,OT,dimension,dimNC> >&
 	getCoordinatesLocal() const { return( coordLocal_ ); }
 
-	const Teuchos::RCP<const DomainSize<ST> >&
+	constexpr const Teuchos::RCP<const DomainSize<ST> >&
 	getDomainSize() const { return( domainSize_ ); }
 
-	const Teuchos::RCP<const BoundaryConditionsGlobal<dimension> >&
+	constexpr const Teuchos::RCP<const BoundaryConditionsGlobal<dimension> >&
 	getBCGlobal()   const { return( boundaryConditionsGlobal_ ); }
 
-	const Teuchos::RCP<const BoundaryConditionsLocal<dimension> >&
+	constexpr const Teuchos::RCP<const BoundaryConditionsLocal<dimension> >&
 	getBCLocal()    const { return( boundaryConditionsLocal_ ); }
 
-	const Teuchos::RCP<const InterpolateV2S<ST,OT,dimension,dimNC> >&
+	constexpr const Teuchos::RCP<const InterpolateV2S<ST,OT,dimension,dimNC> >&
 	getInterpolateV2S() const { return( interV2S_ ); }
 
 	/// \}
@@ -271,81 +271,81 @@ public:
 	/// \name getter methods IMPACT style
 	/// \{
 
-	const MPI_Comm& comm()  const { return( procGrid_->getCommS()  ); }
+	constexpr const MPI_Comm& comm()  const { return( procGrid_->getCommS()  ); }
 
-	const MPI_Comm& commST()  const { return( procGrid_->getCommWorld()  ); }
+	constexpr const MPI_Comm& commST()  const { return( procGrid_->getCommWorld()  ); }
 
-	int rankST() const { return( procGrid_->getRank() ); }
-	int rankS () const { return( procGrid_->getRankS() ); }
+	constexpr const int& rankST() const { return( procGrid_->getRank() ); }
+	constexpr const int& rankS () const { return( procGrid_->getRankS() ); }
 
-	const int&      dim()   const { return( getDomainSize()->getDim() ); }
+	constexpr const int&      dim()   const { return( domainSize_->getDim() ); }
 
-	const Ordinal* nGlo()        const { return( gridSizeGlobal_->getRawPtr()  ); }
-	const Ordinal& nGlo( int i ) const { return( gridSizeGlobal_->get(i) ); }
+	constexpr const Ordinal* nGlo()        const { return( gridSizeGlobal_->getRawPtr()  ); }
+	constexpr const Ordinal& nGlo( const int& i ) const { return( gridSizeGlobal_->get(i) ); }
 
-	const Ordinal* nLoc()        const { return( gridSizeLocal_->getRawPtr()  ); }
-	const Ordinal& nLoc( int i ) const { return( gridSizeLocal_->get(i) ); }
+	constexpr const Ordinal* nLoc()        const { return( gridSizeLocal_->getRawPtr()  ); }
+	constexpr const Ordinal& nLoc( const int& i ) const { return( gridSizeLocal_->get(i) ); }
 
-	const Ordinal* bl()         const { return( stencilWidths_->getBL()   ); }
-	const Ordinal& bl( int i )  const { return( stencilWidths_->getBL(i)  ); }
+	constexpr const Ordinal* bl()         const { return( stencilWidths_->getBL()   ); }
+	constexpr const Ordinal& bl( const int& i )  const { return( stencilWidths_->getBL(i)  ); }
 
-	const Ordinal* bu()         const { return( stencilWidths_->getBU()   ); }
-	const Ordinal& bu( int i )  const { return( stencilWidths_->getBU(i)  ); }
+	constexpr const Ordinal* bu()         const { return( stencilWidths_->getBU()   ); }
+	constexpr const Ordinal& bu( const int& i )  const { return( stencilWidths_->getBU(i)  ); }
 
-	const Ordinal* dl()         const { return( stencilWidths_->getDL()   ); }
-	const Ordinal& dl( int i )  const { return( stencilWidths_->getDL(i)  ); }
+	constexpr const Ordinal* dl()         const { return( stencilWidths_->getDL()   ); }
+	constexpr const Ordinal& dl( const int& i )  const { return( stencilWidths_->getDL(i)  ); }
 
-	const Ordinal* du()         const { return( stencilWidths_->getDU()   ); }
-	const Ordinal& du( int i )  const { return( stencilWidths_->getDU(i)  ); }
+	constexpr const Ordinal* du()         const { return( stencilWidths_->getDU()   ); }
+	constexpr const Ordinal& du( const int& i )  const { return( stencilWidths_->getDU(i)  ); }
 
-	const Ordinal* gl()         const { return( stencilWidths_->getGL()   ); }
-	const Ordinal& gl( int i )  const { return( stencilWidths_->getGL(i)  ); }
+	constexpr const Ordinal* gl()         const { return( stencilWidths_->getGL()   ); }
+	constexpr const Ordinal& gl( const int& i )  const { return( stencilWidths_->getGL(i)  ); }
 
-	const Ordinal* gu()         const { return( stencilWidths_->getGU()   ); }
-	const Ordinal& gu( int i )  const { return( stencilWidths_->getGU(i)  ); }
+	constexpr const Ordinal* gu()         const { return( stencilWidths_->getGU()   ); }
+	constexpr const Ordinal& gu( const int& i )  const { return( stencilWidths_->getGU(i)  ); }
 
-	const Ordinal* nl()         const { return( stencilWidths_->getNL()   ); }
-	const Ordinal& nl( int i )  const { return( stencilWidths_->getNL(i)  ); }
+	constexpr const Ordinal* nl()         const { return( stencilWidths_->getNL()   ); }
+	constexpr const Ordinal& nl( const int& i )  const { return( stencilWidths_->getNL(i)  ); }
 
-	const Ordinal* nu()         const { return( stencilWidths_->getNU()   ); }
-	const Ordinal& nu( int i )  const { return( stencilWidths_->getNU(i)  ); }
+	constexpr const Ordinal* nu()         const { return( stencilWidths_->getNU()   ); }
+	constexpr const Ordinal& nu( const int& i )  const { return( stencilWidths_->getNU(i)  ); }
 
 
-	const Ordinal* sInd( int fieldType ) const {
+	constexpr const Ordinal* sInd( const int& fieldType ) const {
 		return( indexSpace_->sInd( fieldType ) );
 	}
-	const Ordinal* eInd(  int fieldType ) const {
+	constexpr const Ordinal* eInd(  const int& fieldType ) const {
 		return( indexSpace_->eInd( fieldType ) );
 	}
 
-	const Ordinal* sIndB( int fieldType ) const {
+	constexpr const Ordinal* sIndB( const int& fieldType ) const {
 		return( indexSpace_->sIndB( fieldType ) );
 	}
-	const Ordinal* eIndB( int fieldType ) const {
+	constexpr const Ordinal* eIndB( const int& fieldType ) const {
 		return( indexSpace_->eIndB( fieldType ) );
 	}
 
-	const Ordinal& sInd( int fieldType, int dir ) const {
+	constexpr const Ordinal& sInd( const int& fieldType, const int& dir ) const {
 		return( indexSpace_->sInd( fieldType, dir ) );
 	}
-	const Ordinal& eInd(  int fieldType, int dir ) const {
+	constexpr const Ordinal& eInd(  const int& fieldType, const int& dir ) const {
 		return( indexSpace_->eInd( fieldType, dir ) );
 	}
 
-	const Ordinal& sIndB( int fieldType, int dir ) const {
+	constexpr const Ordinal& sIndB( const int& fieldType, const int& dir ) const {
 		return( indexSpace_->sIndB( fieldType, dir ) );
 	}
-	const Ordinal& eIndB( int fieldType, int dir ) const {
+	constexpr const Ordinal& eIndB( const int& fieldType, const int& dir ) const {
 		return( indexSpace_->eIndB( fieldType, dir ) );
 	}
 
-	const Ordinal* ib() const { return( procGrid_->getIB().getRawPtr() ); }
+	constexpr const Ordinal* ib() const { return( procGrid_->getIB().getRawPtr() ); }
 
-	const Ordinal* getShift()      const { return( indexSpace_->getShift()  ); }
-	const Ordinal& getShift(int i) const { return( indexSpace_->getShift(i)  ); }
+	constexpr const Ordinal* getShift()      const { return( indexSpace_->getShift()  ); }
+	constexpr const Ordinal& getShift( const int& i) const { return( indexSpace_->getShift(i)  ); }
 
-	const Ordinal* np()      const { return( procGrid_->getNP().getRawPtr() ); }
-	const Ordinal& np(int i) const { return( procGrid_->getNP(i) ); }
+	constexpr const Ordinal* np()      const { return( procGrid_->getNP().getRawPtr() ); }
+	constexpr const Ordinal& np( const int& i) const { return( procGrid_->getNP(i) ); }
 
 	/// \}
 

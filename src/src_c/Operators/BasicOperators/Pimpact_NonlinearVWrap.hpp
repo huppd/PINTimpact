@@ -23,19 +23,14 @@ public:
 
   using SpaceT = typename SOpT::SpaceT;
 
-  using Scalar = typename SpaceT::Scalar;
-  using Ordinal = typename SpaceT::Ordinal;
-
-  static const int dimension = SpaceT::dimension;
-
-  static const int dimNC = SpaceT::dimNC;
-
   using DomainFieldT = VectorField<SpaceT>;
   using RangeFieldT = VectorField<SpaceT>;
 
   using FieldTensor = Teuchos::Tuple< Teuchos::Tuple<Teuchos::RCP<ScalarField<SpaceT> >, 3>, 3>;
 
 protected:
+
+  using Scalar = typename SpaceT::Scalar;
 
   Teuchos::RCP<SOpT> convectionSOp_;
 
@@ -64,13 +59,13 @@ public:
 
   }
 
-  Teuchos::RCP<const SpaceT> space() const { return( convectionSOp_->space() ); }
+  constexpr const Teuchos::RCP<const SpaceT>& space() const { return( convectionSOp_->space() ); }
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
 		convectionSOp_->setParameter( para );
 	}
 
-  Teuchos::RCP<const SOpT> getSOp() const {
+  constexpr const Teuchos::RCP<const SOpT> getSOp() const {
     return( convectionSOp_ );
   }
 

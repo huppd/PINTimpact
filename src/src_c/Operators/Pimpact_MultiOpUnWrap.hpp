@@ -24,8 +24,8 @@ public:
 
   using OperatorT = MOperatorT;
 
-  using DomainFieldT = typename MOperatorT::DomainFieldT::FieldT;
-  using RangeFieldT = typename MOperatorT::RangeFieldT::FieldT;
+  using DomainFieldT = typename MOperatorT::DomainFieldT::InnerFieldT;
+  using RangeFieldT = typename MOperatorT::RangeFieldT::InnerFieldT;
 
   using SpaceT = typename DomainFieldT::SpaceT;
 
@@ -66,7 +66,7 @@ public:
 
   Teuchos::RCP<MOperatorT> getOperatorPtr() { return( op_ ); }
 
-	Teuchos::RCP<const SpaceT> space() const { return(op_->space()); }
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(op_->space()); }
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
 		op_->setParameter( para );

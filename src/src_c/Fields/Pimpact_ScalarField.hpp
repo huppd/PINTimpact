@@ -3,8 +3,11 @@
 #define PIMPACT_SCALARFIELD_HPP
 
 
-#include <vector>
+#include <cmath>
+#include <functional>
 #include <iostream>
+#include <random>
+#include <vector>
 
 #include "mpi.h"
 
@@ -37,16 +40,15 @@ public:
 
   using SpaceT = SpaceType;
 
+protected:
+
   using Scalar = typename SpaceT::Scalar;
   using Ordinal = typename SpaceT::Ordinal;
 
-  static const int dimension = SpaceT::dimension;
-
-protected:
-
   using ScalarArray = Scalar*;
-  using MV = ScalarField< SpaceT >;
+  using FieldT = ScalarField< SpaceT >;
   using State = Teuchos::Tuple<bool,3>;
+
 
   ScalarArray s_;
 
@@ -54,9 +56,7 @@ protected:
 
   State exchangedState_;
 
-  EField fType_;
-
-private:
+  const EField fType_;
 
 	void allocate() {
 		Ordinal n = getStorageSize();
@@ -64,7 +64,6 @@ private:
 	}
 
 public:
-
 
   ScalarField( const Teuchos::RCP<const SpaceT>& space, bool owning=true, EField fType=EField::S ):
     AbstractField<SpaceT>( space ),
@@ -78,7 +77,6 @@ public:
     }
 
   };
-
 
   /// \brief copy constructor.
   ///
@@ -112,9 +110,9 @@ public:
 	~ScalarField() { if( owning_ ) delete[] s_; }
 
 
-  Teuchos::RCP<MV> clone( ECopyType copyType=DeepCopy ) const {
+  Teuchos::RCP<FieldT> clone( ECopyType copyType=DeepCopy ) const {
 
-		Teuchos::RCP<MV> mv = Teuchos::rcp( new MV( space(), true, this->fType_ ) );
+		Teuchos::RCP<FieldT> mv = Teuchos::rcp( new FieldT( space(), true, this->fType_ ) );
 
 		switch( copyType ) {
 			case ShallowCopy:
@@ -132,84 +130,27 @@ public:
   /// \{
 
   /// \brief returns the length of Field.
-	Ordinal getLength( bool dummy=false ) const {
+	/// \todo test heavliy
+	constexpr Ordinal getLength() const {
 
-		Teuchos::RCP<const BoundaryConditionsGlobal<dimension> > bc =
+		Teuchos::RCP<const BoundaryConditionsGlobal<SpaceT::dimension> > bc =
 			space()->getBCGlobal();
 
 		Ordinal vl = 1;
 
-		switch( fType_ ) {
-			case EField::S : {
-
-				Teuchos::Tuple<Ordinal,3> n;
-
-				for(int i = 0; i<space()->dim(); ++i) {
-					if( PeriodicBC==bc->getBCL(i) )
-						n[i] = space()->nGlo(i)-1;
-					else
-						n[i] = space()->nGlo(i);
-					vl *= n[i];
-				}
-
-				const int* bcl =  space()->getBCGlobal()->getBCL();
-				const int* bcu =  space()->getBCGlobal()->getBCU();
-
-				if( 2==space()->dim() ) {
-					if( bcl[0]>0 && bcl[1]>0 ) vl -= 1;
-					if( bcl[0]>0 && bcu[1]>0 ) vl -= 1;
-					if( bcu[0]>0 && bcl[1]>0 ) vl -= 1;
-					if( bcu[0]>0 && bcu[1]>0 ) vl -= 1;
-				}
-				else{
-					if( bcl[0]>0 && bcl[1]>0 ) vl -= n[2] - ((bcl[2]==-1)?0:2);
-					if( bcl[0]>0 && bcu[1]>0 ) vl -= n[2] - ((bcl[2]==-1)?0:2);
-					if( bcu[0]>0 && bcl[1]>0 ) vl -= n[2] - ((bcl[2]==-1)?0:2);
-					if( bcu[0]>0 && bcu[1]>0 ) vl -= n[2] - ((bcl[2]==-1)?0:2);
-
-					if( bcl[0]>0 && bcl[2]>0 ) vl -= n[1] - ((bcl[1]==-1)?0:2);
-					if( bcl[0]>0 && bcu[2]>0 ) vl -= n[1] - ((bcl[1]==-1)?0:2);
-					if( bcu[0]>0 && bcl[2]>0 ) vl -= n[1] - ((bcl[1]==-1)?0:2);
-					if( bcu[0]>0 && bcu[2]>0 ) vl -= n[1] - ((bcl[1]==-1)?0:2);
-
-					if( bcl[1]>0 && bcl[2]>0 ) vl -= n[0] - ((bcl[0]==-1)?0:2);
-					if( bcl[1]>0 && bcu[2]>0 ) vl -= n[0] - ((bcl[0]==-1)?0:2);
-					if( bcu[1]>0 && bcl[2]>0 ) vl -= n[0] - ((bcl[0]==-1)?0:2);
-					if( bcu[1]>0 && bcu[2]>0 ) vl -= n[0] - ((bcl[0]==-1)?0:2);
-
-					if( bcl[0]>0 && bcl[1]>0 && bcl[2]>0 ) vl -= 1;
-					if( bcu[0]>0 && bcl[1]>0 && bcl[2]>0 ) vl -= 1;
-					if( bcl[0]>0 && bcu[1]>0 && bcl[2]>0 ) vl -= 1;
-					if( bcl[0]>0 && bcl[1]>0 && bcu[2]>0 ) vl -= 1;
-
-					if( bcu[0]>0 && bcu[1]>0 && bcu[2]>0 ) vl -= 1;
-					if( bcl[0]>0 && bcu[1]>0 && bcu[2]>0 ) vl -= 1;
-					if( bcu[0]>0 && bcl[1]>0 && bcu[2]>0 ) vl -= 1;
-					if( bcu[0]>0 && bcu[1]>0 && bcl[2]>0 ) vl -= 1;
-				}
-				break;
-			}
-			default: {
-				for( int j=0; j<space()->dim(); ++j) {
-					if( fType_==j ) {
-						vl *= space()->nGlo(j)-1;
-					}
-					else {
-						if( PeriodicBC==bc->getBCL(j) )
-							vl *= space()->nGlo(j)-2+1;
-						else
-							vl *= space()->nGlo(j)-2;
-					}
-				}
-				break;
-			}
+		for( int dir = 0; dir<space()->dim(); ++dir ) {
+				vl *= space()->nGlo(dir) +
+					( (EField::S==fType_)?
+						( (PeriodicBC==bc->getBCL(dir))?-1:0 ) :
+						( (fType_==dir)?-1:(-2 + ( (PeriodicBC==bc->getBCL(dir))?1:0 )) ) );
 		}
+
 		return( vl );
 	}
 
 
   /// \brief get number of stored Field's
-  int getNumberVecs() const { return( 1 ); }
+  constexpr int getNumberVecs() const { return( 1 ); }
 
 
   /// @}
@@ -217,39 +158,24 @@ public:
   /// @{
 
   /// \brief Replace \c this with \f$\alpha A + \beta B\f$.
-  void add( const Scalar& alpha, const MV& A, const Scalar& beta, const MV& B ) {
+  void add( const Scalar& alpha, const FieldT& A, const Scalar& beta, const FieldT& B ) {
     // add test for consistent VectorSpaces in debug mode
-    if( s_==A.s_ && s_==B.s_ )
-      scale( alpha+beta );
-    else if( s_==A.s_ && s_!=B.s_ )
-      SF_add2(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sInd(fType_),
-          space()->eInd(fType_),
-          s_, B.s_,
-          alpha, beta );
-    else if( s_!=A.s_ && s_==B.s_ )
-      SF_add2(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sInd(fType_),
-          space()->eInd(fType_),
-          s_, A.s_,
-          beta, alpha );
-    else if( s_!=A.s_ && s_!=B.s_ )
-      SF_add(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sInd(fType_),
-          space()->eInd(fType_),
-          s_, A.s_, B.s_,
-          alpha, beta );
-    changed();
-  }
+		if( s_==A.s_ && s_==B.s_ )
+			scale( alpha+beta );
+		else{
+			for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
+				for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
+					for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i ) {
+						if( s_==A.s_ && s_!=B.s_ )
+							at(i,j,k) = alpha*at(i,j,k) + beta*B.at(i,j,k);
+						else if( s_!=A.s_ && s_==B.s_ )
+							at(i,j,k) = alpha*A.at(i,j,k) + beta*at(i,j,k);
+						else if( s_!=A.s_ && s_!=B.s_ )
+							at(i,j,k) = alpha*A.at(i,j,k) + beta*B.at(i,j,k);
+					}
+			changed();
+		}
+	}
 
 
   /// \brief Put element-wise absolute values of source vector \c y into this
@@ -258,18 +184,15 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  void abs(const MV& y) {
-    // add test for consistent VectorSpaces in debug mode
-    SF_abs(
-        space()->nLoc(),
-        space()->bl(),
-        space()->bu(),
-        space()->sInd(fType_),
-        space()->eInd(fType_),
-        s_,
-        y.s_ );
+	void abs( const FieldT& y) {
+		// add test for consistent VectorSpaces in debug mode
+		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
+			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
+				for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
+					at(i,j,k) = std::abs( y.at(i,j,k) );
 		changed();
-  }
+
+	}
 
 
   /// \brief Put element-wise reciprocal of source vector \c y into this vector.
@@ -277,30 +200,22 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
   /// \return Reference to this object
-  void reciprocal(const MV& y){
+  void reciprocal( const FieldT& y){
     // add test for consistent VectorSpaces in debug mode
-    SF_reciprocal(
-        space()->nLoc(),
-        space()->bl(),
-        space()->bu(),
-        space()->sInd(fType_),
-        space()->eInd(fType_),
-        s_,
-        y.s_ );
+		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
+			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
+				for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
+					at(i,j,k) = Teuchos::ScalarTraits<Scalar>::one()/ y.at(i,j,k);
     changed();
   }
 
 
   /// \brief Scale each element of the vector with \c alpha.
 	void scale( const Scalar& alpha ) {
-		SF_scale(
-				space()->nLoc(),
-				space()->bl(),
-				space()->bu(),
-				space()->sInd(fType_),
-				space()->eInd(fType_),
-				s_,
-				alpha);
+		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
+			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
+				for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
+					at(i,j,k) *= alpha;
 		changed();
 	}
 
@@ -308,17 +223,14 @@ public:
   /// \brief Scale this vector <em>element-by-element</em> by the vector a.
   ///
   /// Here x represents this vector, and we update it as
-  /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
+  /// \f[ x_i = x_i \cdot y_i \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-	void scale(const MV& a) {
+	void scale( const FieldT& y ) {
 		// add test for consistent VectorSpaces in debug mode
-		SF_scale2(
-				space()->nLoc(),
-				space()->bl(),
-				space()->bu(),
-				space()->sInd(fType_),
-				space()->eInd(fType_),
-				s_, a.s_ );
+		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
+			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
+				for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
+					at(i,j,k) *= y.at(i,j,k);
 		changed();
 	}
 
@@ -326,77 +238,88 @@ public:
   /// \name Norm method(reductions)
   /// @{
 
-	/// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
-  Scalar dot ( const MV& a, bool global=true ) const {
+	/// \brief Compute a locla scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
+	constexpr Scalar dotLoc( const FieldT& y ) const {
 
-    Scalar b = 0.;
+		Scalar b = Teuchos::ScalarTraits<Scalar>::zero();
 
-		setCornersZero();
-		a.setCornersZero();
+		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
+			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
+				for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
+					b += at(i,j,k)*y.at(i,j,k);
 
-    SF_dot(
-        space()->nLoc(),
-        space()->bl(),
-        space()->bu(),
-        space()->sInd(fType_),
-        space()->eInd(fType_),
-        s_,
-        a.s_,
-        b );
+		return( b );
 
-    if( global ) this->reduceNorm( comm(), b );
+	}
 
-    return( b );
+	/// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y
+	/// and \c this, i.e.\f$b = y^H this\f$.
+	constexpr Scalar dot( const FieldT& y ) const {
+		return( this->reduce( comm(), dotLoc( y ) ) );
+	}
+
+  constexpr Scalar normLoc1() const {
+
+    Scalar normvec = Teuchos::ScalarTraits<Scalar>::zero();
+
+		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
+			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
+				for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
+							normvec += std::abs( at(i,j,k) );
+
+    return( normvec );
+  }
+  constexpr Scalar normLoc2() const {
+
+    Scalar normvec = Teuchos::ScalarTraits<Scalar>::zero();
+
+		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
+			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
+				for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
+							normvec += at(i,j,k)*at(i,j,k);
+
+    return( normvec );
+  }
+  constexpr Scalar normLocInf() const {
+
+    Scalar normvec = Teuchos::ScalarTraits<Scalar>::zero();
+
+		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
+			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
+				for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
+							normvec = std::fmax( std::abs(at(i,j,k)), normvec );
+
+    return( normvec );
   }
 
+	constexpr Scalar normLoc( Belos::NormType type = Belos::TwoNorm ) const {
 
+		return(
+				( Belos::OneNorm==type)?
+					normLoc1():
+					(Belos::TwoNorm==type)?
+						normLoc2():
+						normLocInf() );
 
+	}
 
   /// \brief compute the norm
   /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
 	/// \todo include scaled norm
-  Scalar norm(  Belos::NormType type = Belos::TwoNorm, bool global=true ) const {
+  constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm ) const {
 
-    Scalar normvec = 0.;
+		Scalar normvec = this->reduce(
+				comm(),
+				normLoc( type ),
+				(Belos::InfNorm==type)?MPI_MAX:MPI_SUM );
 
-		setCornersZero();
-
-    switch(type) {
-    case Belos::OneNorm:
-      SF_comp1Norm(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sInd(fType_),
-          space()->eInd(fType_),
-          s_,
-          normvec );
-      break;
-    case Belos::TwoNorm:
-      SF_comp2Norm(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sInd(fType_),
-          space()->eInd(fType_),
-          s_,
-          normvec );
-      break;
-    case Belos::InfNorm:
-      SF_compInfNorm(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sInd(fType_),
-          space()->eInd(fType_),
-          s_,
-          normvec );
-      break;
-    }
-
-    if( global ) this->reduceNorm( comm(), normvec, type );
+		normvec =
+			(Belos::TwoNorm==type) ?
+				std::sqrt(normvec) :
+				normvec;
 
     return( normvec );
+
   }
 
 
@@ -406,27 +329,28 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  double norm(const MV& weights, bool global=true ) const {
+  constexpr Scalar normLoc( const FieldT& weights ) const {
 
-    Scalar normvec = 0.;
+    Scalar normvec = Teuchos::ScalarTraits<Scalar>::zero();
 
-		setCornersZero();
-
-    SF_weightedNorm(
-        space()->nLoc(),
-        space()->bl(),
-        space()->bu(),
-        space()->sInd(fType_ ),
-        space()->eInd(fType_),
-        s_,
-				weights.s_,
-        normvec );
-
-    if( global ) this->reduceNorm( comm(), normvec, Belos::TwoNorm );
+		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
+			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
+				for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
+					normvec += at(i,j,k)*at(i,j,k)*weights.at(i,j,k)*weights.at(i,j,k);
 
     return( normvec );
 
   }
+
+  /// \brief Weighted 2-Norm.
+  ///
+  /// \warning untested
+  /// Here x represents this vector, and we compute its weighted norm as follows:
+  /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
+  /// \return \f$ \|x\|_w \f$
+  constexpr Scalar norm( const FieldT& weights ) const {
+		return( std::sqrt( this->reduce( comm(), normLoc( weights ) ) ) );
+	}
 
 
   //\}
@@ -438,70 +362,53 @@ public:
   /// Assign (deep copy) \c a into \c this.
   /// total deep, boundaries and everythin.
   /// \note the \c StencilWidths is not take care of assuming every field is generated with one
-  /// \note "indexing" is done c++
-  void assign( const MV& a ) {
+	void assign( const FieldT& a ) {
 
-//		SF_assign(
-//				space()->nLoc(),
-//				space()->bl(),
-//				space()->bu(),
-//				space()->sInd(fType_ ),
-//				space()->eInd(fType_),
-//				s_, a.s_ );
-//
-//		changed();
+		for(int i=0; i<getStorageSize(); ++i)
+			s_[i] = a.s_[i];
 
-	 for(int i=0; i<getStorageSize(); ++i)
-		 s_[i] = a.s_[i];
+		for( int dir=0; dir<space()->dim(); ++dir )
+			exchangedState_[dir] = a.exchangedState_[dir];
 
-	 for( int dir=0; dir<space()->dim(); ++dir )
-		 exchangedState_[dir] = a.exchangedState_[dir];
-  }
+	}
 
 
   /// \brief Replace the vectors with a random vectors.
   /// depending on Fortrans \c Random_number implementation, with always same seed => not save, if good randomness is required
   void random( bool useSeed = false, int seed = 1 ) {
-    SF_random(
-        space()->nLoc(),
-        space()->bl(),
-        space()->bu(),
-        space()->sInd(fType_),
-        space()->eInd(fType_),
-        s_);
+
+		std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<> dis( -0.5, 0.5 );
+
+		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
+			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
+				for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
+					at(i,j,k) = dis(gen);
+
 		if( !space()->getProcGrid()->participating() )
-			SF_init(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sIndB(fType_),
-          space()->eIndB(fType_),
-          s_,
-          0. );
+			for( Ordinal k=space()->sIndB(fType_,Z); k<=space()->eIndB(fType_,Z); ++k )
+				for( Ordinal j=space()->sIndB(fType_,Y); j<=space()->eIndB(fType_,Y); ++j )
+					for( Ordinal i=space()->sIndB(fType_,X); i<=space()->eIndB(fType_,X); ++i )
+						at(i,j,k) = Teuchos::ScalarTraits<Scalar>::zero();
     changed();
   }
 
 
   /// \brief Replace each element of the vector  with \c alpha.
-	/// \deprecated
   void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero() ) {
-    SF_init(
-        space()->nLoc(),
-        space()->bl(),
-        space()->bu(),
-        space()->sInd(fType_),
-        space()->eInd(fType_),
-        s_, alpha);
+
+		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
+			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
+				for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
+					at(i,j,k) = alpha;
+		
 		if( !space()->getProcGrid()->participating() )
-			SF_init(
-          space()->nLoc(),
-          space()->bl(),
-          space()->bu(),
-          space()->sIndB(fType_),
-          space()->eIndB(fType_),
-          s_,
-          0. );
-    changed();
+			for( Ordinal k=space()->sIndB(fType_,Z); k<=space()->eIndB(fType_,Z); ++k )
+				for( Ordinal j=space()->sIndB(fType_,Y); j<=space()->eIndB(fType_,Y); ++j )
+					for( Ordinal i=space()->sIndB(fType_,X); i<=space()->eIndB(fType_,X); ++i )
+						at(i,j,k) = Teuchos::ScalarTraits<Scalar>::zero();
+		changed();
   }
 
 protected:
@@ -537,7 +444,7 @@ public:
 	template<typename Functor>
 	void initFromFunction( Functor&& func ) {
 
-		Teuchos::RCP<const CoordinatesLocal<Scalar,Ordinal,dimension,SpaceT::dimNC> > coord =
+		Teuchos::RCP<const CoordinatesLocal<Scalar,Ordinal,SpaceT::dimension,SpaceT::dimNC> > coord =
 			space()->getCoordinatesLocal();
 		Teuchos::RCP<const DomainSize<Scalar> > domain = space()->getDomainSize();
 
@@ -561,14 +468,8 @@ public:
 
 		switch( type ) {
 			case ConstField :
-				SF_init(
-						space()->nLoc(),
-						space()->bl(),
-						space()->bu(),
-						space()->sIndB(fType_),
-						space()->eIndB(fType_),
-						s_,
-						para.get<Scalar>( "C", 0. ) );
+				initFromFunction( [&para](Scalar,Scalar,Scalar)->const Scalar&{
+						return( para.get<Scalar>( "C", Teuchos::ScalarTraits<Scalar>::zero() ) ); } );
 				break;
 			case Grad2D_inX :
 				SF_init_2DGradX(
@@ -580,7 +481,7 @@ public:
 						space()->getDomainSize()->getSize( X ),
 						space()->getCoordinatesLocal()->getX( X, fType_ ),
 						s_,
-						para.get<Scalar>( "dx", 1. )	);
+						para.get<Scalar>( "dx", Teuchos::ScalarTraits<Scalar>::one() )	);
 				break;
 			case Grad2D_inY :
 				SF_init_2DGradY(
@@ -592,7 +493,7 @@ public:
 						space()->getDomainSize()->getSize( Y ),
 						space()->getCoordinatesLocal()->getX( Y, fType_ ),
 						s_ ,
-						para.get<Scalar>( "dy", 1. )	);
+						para.get<Scalar>( "dy", Teuchos::ScalarTraits<Scalar>::one() )	);
 				break;
 			case Grad2D_inZ :
 				SF_init_2DGradZ(
@@ -604,7 +505,7 @@ public:
 						space()->getDomainSize()->getSize( Z ),
 						space()->getCoordinatesLocal()->getX( Z, fType_ ),
 						s_ ,
-						para.get<Scalar>( "dz", 1. )	);
+						para.get<Scalar>( "dz", Teuchos::ScalarTraits<Scalar>::one() )	);
 				break;
 			case Poiseuille2D_inX :
 				SF_init_2DPoiseuilleX(
@@ -641,10 +542,10 @@ public:
 				break;
 			case FPoint :
 				Scalar xc[3] = { 
-					para.get<Scalar>( "c_x", 1. ),
+					para.get<Scalar>( "c_x", Teuchos::ScalarTraits<Scalar>::one() ),
 					para.get<Scalar>( "c_y", space()->getDomainSize()->getSize( Y )/2. ),
 					para.get<Scalar>( "c_z", space()->getDomainSize()->getSize( Z )/2. ) };
-				Scalar amp = para.get<Scalar>( "amp", 1. );
+				Scalar amp = para.get<Scalar>( "amp", Teuchos::ScalarTraits<Scalar>::one() );
 				Scalar sig[3] = {
 					para.get<Scalar>( "sig_x", 0.2 ),
 					para.get<Scalar>( "sig_y", 0.2 ),
@@ -666,14 +567,8 @@ public:
 		}
 
 		if( !space()->getProcGrid()->participating() ) // not sure why?
-			SF_init(
-					space()->nLoc(),
-					space()->bl(),
-					space()->bu(),
-					space()->sIndB(fType_),
-					space()->eIndB(fType_),
-					s_,
-					0. );
+			initFromFunction( [](Scalar,Scalar,Scalar)->Scalar{
+					return( Teuchos::ScalarTraits<Scalar>::zero() ); } );
 
 		changed();
 	}
@@ -681,17 +576,11 @@ public:
 
 	/// \brief initializes VectorField with the initial field defined in Fortran
 	/// \deprecated
-	void initField( EScalarField fieldType = ConstField, Scalar alpha=0. ) {
+	void initField( EScalarField fieldType = ConstField, Scalar alpha=Teuchos::ScalarTraits<Scalar>::zero() ) {
 		switch( fieldType ) {
 			case ConstField :
-				SF_init(
-						space()->nLoc(),
-						space()->bl(),
-						space()->bu(),
-						space()->sIndB(fType_),
-						space()->eIndB(fType_),
-						s_,
-						alpha );
+				initFromFunction( [&alpha](Scalar,Scalar,Scalar)->Scalar&{
+						return( alpha ); } );
 				break;
 			case Grad2D_inX :
 				SF_init_2DGradX(
@@ -703,7 +592,7 @@ public:
 						space()->getDomainSize()->getSize( X ),
 						space()->getCoordinatesLocal()->getX( X, fType_ ),
 						s_,
-						(std::abs(alpha)<1.e-16)?1.:alpha	);
+						(std::abs(alpha)<Teuchos::ScalarTraits<Scalar>::eps())?Teuchos::ScalarTraits<Scalar>::one():alpha	);
 				break;
 			case Grad2D_inY :
 				SF_init_2DGradY(
@@ -715,7 +604,7 @@ public:
 						space()->getDomainSize()->getSize( Y ),
 						space()->getCoordinatesLocal()->getX( Y, fType_ ),
 						s_ ,
-						(std::abs(alpha)<1.e-16)?1.:alpha	);
+						(std::abs(alpha)<Teuchos::ScalarTraits<Scalar>::eps())?Teuchos::ScalarTraits<Scalar>::one():alpha	);
 				break;
 			case Grad2D_inZ :
 				SF_init_2DGradZ(
@@ -727,7 +616,7 @@ public:
 						space()->getDomainSize()->getSize( Z ),
 						space()->getCoordinatesLocal()->getX( Z, fType_ ),
 						s_ ,
-						(std::abs(alpha)<1.e-16)?1.:alpha	);
+						(std::abs(alpha)<Teuchos::ScalarTraits<Scalar>::eps())?Teuchos::ScalarTraits<Scalar>::one():alpha	);
 				break;
 			case Poiseuille2D_inX :
 				SF_init_2DPoiseuilleX(
@@ -765,8 +654,7 @@ public:
 			case FPoint :
 				Scalar xc[3] =
 				{ 
-					1.,
-					//				1.,
+					Teuchos::ScalarTraits<Scalar>::one(),
 					//				space()->getDomainSize()->getSize( X )/4.,
 					space()->getDomainSize()->getSize( Y )/2.,
 					space()->getDomainSize()->getSize( Z )/2. };
@@ -789,54 +677,32 @@ public:
 		}
 
 		if( !space()->getProcGrid()->participating() )
-			SF_init(
-					space()->nLoc(),
-					space()->bl(),
-					space()->bu(),
-					space()->sIndB(fType_),
-					space()->eIndB(fType_),
-					s_,
-					0. );
+			initFromFunction( [&alpha](Scalar,Scalar,Scalar)->Scalar{
+					return( Teuchos::ScalarTraits<Scalar>::zero() ); } );
 		changed();
 	}
 
-
-	/// \brief set corners of Dirichlet boundary conditions to zero
-	void setCornersZero() const {
-
-		if( EField::S == fType_ ) {
-			SF_handle_corner(
-					space()->nLoc(),
-					space()->bl(),
-					space()->bu(),
-					space()->getBCLocal()->getBCL(),
-					space()->getBCLocal()->getBCU(),
-					s_ );
-
-			changed();
-		}
-	}
-
-
-	void level() const {
+	void level() {
 
 		if( EField::S == fType_ ) {
 
-			// set corners to zero, such that level depends only on inner field
-			setCornersZero();
+			Scalar pre0 = Teuchos::ScalarTraits<Scalar>::zero();
 
-			SF_level(
-					MPI_Comm_c2f( space()->comm() ),
-					getLength(),
-					space()->nLoc(),
-					space()->bl(),
-					space()->bu(),
-					space()->sIndB(fType_),
-					space()->eIndB(fType_),
-					s_ );
+			for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
+				for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
+					for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
+						pre0 += at(i,j,k);
 
-			//changed(); already done in setCornersZero
+			pre0 = this->reduce( space()->comm(), pre0 );
+			pre0 /= static_cast<Scalar>( getLength() );
+
+			for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
+				for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
+					for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
+						at(i,j,k) -= pre0;
+
 		}
+
 	}
 
   /// \}
@@ -854,9 +720,9 @@ public:
 		for(int i=0; i<3; ++i)
 			cw[i] = space()->nLoc(i) + space()->bu(i) - space()->bl(i) + 1;
 
-		for( Ordinal k=space()->sIndB(fType_,2); k<=space()->eIndB(fType_,2); ++k )
-			for( Ordinal j=space()->sIndB(fType_,1); j<=space()->eIndB(fType_,1); ++j )
-				for( Ordinal i=space()->sIndB(fType_,0); i<=space()->eIndB(fType_,0); ++i )
+		for( Ordinal k=space()->sIndB(fType_,Z); k<=space()->eIndB(fType_,Z); ++k )
+			for( Ordinal j=space()->sIndB(fType_,Y); j<=space()->eIndB(fType_,Y); ++j )
+				for( Ordinal i=space()->sIndB(fType_,X); i<=space()->eIndB(fType_,X); ++i )
 					out << i << "\t" << j << "\t" << k << "\t" << at(i,j,k) << "\n";
   }
 
@@ -959,8 +825,8 @@ public:
             count,
             (EField::S==fType_)?9:10,
 						(EField::S==fType_)?s_:temp->s_,
-						space()->getCoordinatesGlobal()->get(0,EField::S),
-						space()->getCoordinatesGlobal()->get(1,EField::S),
+						space()->getCoordinatesGlobal()->getX(0,EField::S),
+						space()->getCoordinatesGlobal()->getX(1,EField::S),
 						space()->getDomainSize()->getRe(),
 						space()->getDomainSize()->getAlpha2() );
       }
@@ -989,12 +855,12 @@ public:
             (EField::S==fType_)?9:10,
             stride,
             (EField::S==fType_)?s_:temp->s_,
-            space()->getCoordinatesGlobal()->get(0,EField::S),
-            space()->getCoordinatesGlobal()->get(1,EField::S),
-            space()->getCoordinatesGlobal()->get(2,EField::S),
-            space()->getCoordinatesGlobal()->get(0,EField::U),
-            space()->getCoordinatesGlobal()->get(1,EField::V),
-            space()->getCoordinatesGlobal()->get(2,EField::W),
+            space()->getCoordinatesGlobal()->getX(0,EField::S),
+            space()->getCoordinatesGlobal()->getX(1,EField::S),
+            space()->getCoordinatesGlobal()->getX(2,EField::S),
+            space()->getCoordinatesGlobal()->getX(0,EField::U),
+            space()->getCoordinatesGlobal()->getX(1,EField::V),
+            space()->getCoordinatesGlobal()->getX(2,EField::W),
             space()->getDomainSize()->getRe(),
             space()->getDomainSize()->getAlpha2() );
 
@@ -1025,12 +891,12 @@ public:
           (EField::S==fType_)?9:10,
           stride,
           s_,
-          space()->getCoordinatesGlobal()->get(0,EField::S),
-          space()->getCoordinatesGlobal()->get(1,EField::S),
-          space()->getCoordinatesGlobal()->get(2,EField::S),
-          space()->getCoordinatesGlobal()->get(0,EField::U),
-          space()->getCoordinatesGlobal()->get(1,EField::V),
-          space()->getCoordinatesGlobal()->get(2,EField::W),
+          space()->getCoordinatesGlobal()->getX(0,EField::S),
+          space()->getCoordinatesGlobal()->getX(1,EField::S),
+          space()->getCoordinatesGlobal()->getX(2,EField::S),
+          space()->getCoordinatesGlobal()->getX(0,EField::U),
+          space()->getCoordinatesGlobal()->getX(1,EField::V),
+          space()->getCoordinatesGlobal()->getX(2,EField::W),
           space()->getDomainSize()->getRe(),
           space()->getDomainSize()->getAlpha2() );
 
@@ -1067,9 +933,9 @@ public:
 
   /// @}
 
-  const Teuchos::RCP<const SpaceT>& space() const { return( AbstractField<SpaceT>::space_ ); }
+  constexpr const Teuchos::RCP<const SpaceT>& space() const { return( AbstractField<SpaceT>::space_ ); }
 
-  const MPI_Comm& comm() const { return( space()->comm() ); }
+  constexpr const MPI_Comm& comm() const { return( space()->comm() ); }
 
   /// \name comunication methods.
 	/// \brief highly dependent on underlying storage should only be used by
@@ -1142,17 +1008,17 @@ public:
 protected:
 
 	/// \brief stride in X direction
-	inline const Ordinal stride0() const {
+	constexpr Ordinal stride0() const {
 		return( 1 );
 	}
 
 	/// \brief stride in Y direction
-	inline const Ordinal stride1() const {
+	constexpr Ordinal stride1() const {
 		return( space()->nLoc(0)+space()->bu(0)-space()->bl(0)+1 );
 	}
 
 	/// \brief stride in Z direction
-	inline const Ordinal stride2() const {
+	constexpr Ordinal stride2() const {
 		return(
 				( space()->nLoc(0)+space()->bu(0)-space()->bl(0)+1 )*(
 					space()->nLoc(1)+space()->bu(1)-space()->bl(1)+1 ) );
@@ -1162,17 +1028,15 @@ protected:
 	/// \brief stride
 	///
 	/// \param dir direction of stride
-	inline const Ordinal stride( const int& dir ) const {
-		switch( dir ) {
-			case 0 : 
-				return( stride0() );
-      case 1 :
-				return( stride1() );
-      case 2 :
-				return( stride2() );
-			default:
-				return( 0 );
-		}
+	constexpr Ordinal stride( const int& dir ) const {
+		return(
+				(0==dir)?
+					stride0():
+					( (1==dir)?
+						stride1():
+						stride2()
+					)
+				);
 	}
 
 public:
@@ -1182,7 +1046,7 @@ public:
 	/// \param i index in x-direction
 	/// \param j index in y-direction
 	/// \param k index in z-direction
-	inline const Ordinal index( const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
+	constexpr Ordinal index( const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
 		return( (i-space()->bl(0)) +
 				    (j-space()->bl(1))*stride1() +
 				    (k-space()->bl(2))*stride2() );
@@ -1195,7 +1059,7 @@ public:
 	/// \param k index in z-direction
 	///
 	/// \return const reference
-	inline const Scalar& at( const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
+	constexpr const Scalar& at( const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
 		return( s_[ index(i,j,k) ] );
 	}
 
@@ -1213,26 +1077,26 @@ public:
 	/// \brief field access
 	///
 	/// \param i index coordinate 
-	inline const Scalar& at( const Ordinal* i ) const {
+	constexpr const Scalar& at( const Ordinal* const i ) const {
 		return( s_[ index(i[0],i[1],i[2]) ] );
 	}
 	/// \brief field access
 	///
 	/// \param i index coordinate 
-	inline Scalar& at( const Ordinal* i ) {
+	inline Scalar& at( const Ordinal* const i ) {
 		return( s_[ index(i[0],i[1],i[2]) ] );
 	}
 
 	/// \brief field access
 	///
 	/// \param i index coordinate 
-	inline Scalar& at( const Teuchos::Tuple<Ordinal,3>& i ) {
+	inline Scalar& at( const Teuchos::Tuple<const Ordinal,3>& i ) {
 		return( s_[ index(i[0],i[1],i[2]) ] );
 	}
 	/// \brief field access
 	///
 	/// \param i index coordinate 
-	inline const Scalar& at( const Teuchos::Tuple<Ordinal,3>& i ) const {
+	constexpr const Scalar& at( const Teuchos::Tuple<const Ordinal,3>& i ) const {
 		return( s_[ index(i[0],i[1],i[2]) ] );
 	}
 

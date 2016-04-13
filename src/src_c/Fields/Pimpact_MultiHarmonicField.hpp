@@ -26,60 +26,78 @@ namespace Pimpact {
 ///
 /// vector for wrapping many fields into one multiharmonic field
 /// \ingroup Field
-template<class FieldT>
-class MultiHarmonicField : private AbstractField<typename FieldT::SpaceT> {
+template<class IFT>
+class MultiHarmonicField : private AbstractField<typename IFT::SpaceT> {
 
 public:
 
-  using SpaceT = typename FieldT::SpaceT;
+  using SpaceT = typename IFT::SpaceT;
+
+protected:
 
   using Scalar = typename SpaceT::Scalar;
   using Ordinal = typename SpaceT::Ordinal;
 
-  static const int dimension = SpaceT::dimension;
-
-protected:
-
-  using MV = MultiHarmonicField<FieldT>;
+  using FieldT = MultiHarmonicField<IFT>;
 
   using AF = AbstractField<SpaceT>;
 
-  Teuchos::RCP<FieldT> field0_;
+	const bool global_;
 
-  Teuchos::Array< Teuchos::RCP< ModeField<FieldT> > > fields_;
+  Teuchos::RCP<IFT> field0_;
+
+  Teuchos::Array< Teuchos::RCP< ModeField<IFT> > > fields_;
 
 	Scalar* s_;
 
   mutable bool exchangedState_;
 
-private:
-
 	void allocate() {
-		Ordinal n = field0_->getStorageSize();
-		s_ = new Scalar[n*(1+2*space()->nGlo(3))];
-		field0_->setStoragePtr( s_ );
-		for( Ordinal i=0; i<space()->nGlo(3); ++i )
-			fields_[i]->setStoragePtr( s_ + n + 2*n*i );
+		if( global_ ) {
+			Ordinal n = field0_->getStorageSize();
+			s_ = new Scalar[ getStorageSize() ];
+			field0_->setStoragePtr( s_ );
+			for( Ordinal i=0; i<space()->nGlo(3); ++i )
+				fields_[i]->setStoragePtr( s_ + n + 2*n*i );
+		}
+		else{
+			Ordinal nx = field0_->getStorageSize();
+			Ordinal nf = 1+2*(space()->eInd(U,3) - std::max(space()->sInd(U,3),0));
+			s_ = new Scalar[ getStorageSize() ];
+			field0_->setStoragePtr( s_ );
+			for( Ordinal i=0; i<space()->eInd(U,3) - std::max(space()->sInd(U,3),0); ++i )
+				fields_[i]->setStoragePtr( s_ + nx + 2*nx*i );
+		}
 	}
-
 
 public:
 
-	Ordinal getStorageSize() const { return( (1+2*space()->nGlo(3))*field0_->getStorageSize() ); }
+	constexpr Ordinal getStorageSize() const {
+		return(
+				( global_ )?
+					( ( 1 + 2*space()->nGlo(3) )*field0_->getStorageSize() ):
+					( ( 1 + 2*(space()->eInd(U,3) - std::max(space()->sInd(U,3),0))  )*field0_->getStorageSize() )
+				);
+	}
 
-	/// \todo add etst
-  MultiHarmonicField(
-			const Teuchos::RCP<const SpaceT>& space ):
+	MultiHarmonicField( const Teuchos::RCP<const SpaceT>& space, const bool global=true ):
 		AF( space ),
-		field0_( Teuchos::rcp( new FieldT(space,false) ) ),
+		global_(true),
+		field0_( Teuchos::rcp( new IFT(space,false) ) ),
 		fields_( space->nGlo(3) ),
     exchangedState_( true ) {
 
-			TEUCHOS_TEST_FOR_EXCEPT( 4 != dimension  );
+			TEUCHOS_TEST_FOR_EXCEPT( 4 != SpaceT::dimension  );
 			TEUCHOS_TEST_FOR_EXCEPT( true != space()->getStencilWidths()->spectralT() );
 
-			for( Ordinal i=0; i<space->nGlo(3); ++i )
-				fields_[i] = Teuchos::rcp( new ModeField<FieldT>( space, false ) );
+			if( global_ ) {
+				for( Ordinal i=0; i<space->nGlo(3); ++i )
+					fields_[i] = Teuchos::rcp( new ModeField<IFT>( space, false ) );
+			}
+			else{
+				for( Ordinal i=0; i<space()->eInd(U,3) - std::max(space()->sInd(U,3),0); ++i )
+					fields_[i] = Teuchos::rcp( new ModeField<IFT>( space, false ) );
+			}
 
 			allocate();
 			initField();
@@ -94,12 +112,19 @@ public:
   /// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
 	MultiHarmonicField( const MultiHarmonicField& vF, ECopyType copyType=DeepCopy ):
 		AF( vF.space() ),
-		field0_( Teuchos::rcp( new FieldT( *vF.field0_, copyType ) ) ),
+		global_( true ),
+		field0_( Teuchos::rcp( new IFT( *vF.field0_, copyType ) ) ),
 		fields_( vF.space()->nGlo(3) ),
     exchangedState_(vF.exchangedState_) {
 
-			for( Ordinal i=0; i< space()->nGlo(3); ++i )
-				fields_[i] = Teuchos::rcp( new ModeField<FieldT>( vF.getConstField(i), copyType ) );
+			if( global_ ) {
+				for( Ordinal i=0; i< space()->nGlo(3); ++i )
+					fields_[i] = Teuchos::rcp( new ModeField<IFT>( vF.getConstField(i), copyType ) );
+			}
+			else{
+				for( Ordinal i=0; i<space()->eInd(U,3) - std::max(space()->sInd(U,3),0); ++i )
+					fields_[i] = Teuchos::rcp( new ModeField<IFT>( vF.getConstField(i), copyType ) );
+			}
 
 			allocate();
 			switch( copyType ) {
@@ -117,9 +142,9 @@ public:
 
 	~MultiHarmonicField() { delete[] s_; }
 
-  Teuchos::RCP<MV> clone( ECopyType ctype=DeepCopy ) const {
+  Teuchos::RCP<FieldT> clone( ECopyType ctype=DeepCopy ) const {
 
-    return( Teuchos::rcp( new MV(*this,ctype) ) );
+    return( Teuchos::rcp( new FieldT(*this,ctype) ) );
 
   }
 
@@ -127,55 +152,63 @@ public:
   /// \name Attribute methods
   /// \{
 
-  /// \warning it is assumed that both fields have the same \c StencilWidths
+protected:
+
+	constexpr Ordinal index( const Ordinal& i ) const {
+		return( i+ 
+				(( global_||-1==space()->sInd(U,3) )?
+					0:
+					(-space()->sInd(U,3)) )
+				);
+
+	};
+
+public:
+
+  constexpr IFT&                    get0Field()               { return( *field0_ ); }
+  constexpr const IFT&              getConst0Field()    const { return( *field0_ ); }
+  constexpr Teuchos::RCP<      IFT> get0FieldPtr()            { return(  field0_ ); }
+  constexpr Teuchos::RCP<const IFT> getConst0FieldPtr() const { return(  field0_ ); }
+
+  constexpr ModeField<IFT>&                     getField        ( const Ordinal& i )       { return( *fields_[index(i)] ); }
+  constexpr const ModeField<IFT>&               getConstField   ( const Ordinal& i ) const { return( *fields_[index(i)] ); }
+  constexpr Teuchos::RCP<      ModeField<IFT> > getFieldPtr     ( const Ordinal& i )       { return( fields_[index(i)]  ); }
+  constexpr Teuchos::RCP<const ModeField<IFT> > getConstFieldPtr( const Ordinal& i ) const { return( fields_[index(i)]  ); }
+
+  constexpr IFT&                    getCField        ( const Ordinal& i )       { return( fields_[index(i)]->getCField()      ); }
+  constexpr const IFT&              getConstCField   ( const Ordinal& i ) const { return( fields_[index(i)]->getConstCField() ); }
+  constexpr Teuchos::RCP<      IFT> getCFieldPtr     ( const Ordinal& i )       { return( fields_[index(i)]->getCFieldPtr()   ); }
+  constexpr Teuchos::RCP<const IFT> getConstCFieldPtr( const Ordinal& i ) const { return( fields_[index(i)]->getConstCFieldPtr() ); }
+
+  constexpr IFT&                    getSField        ( const Ordinal& i )       { return( fields_[index(i)]->getSField()         ); }
+  constexpr const IFT&              getConstSField   ( const Ordinal& i ) const { return( fields_[index(i)]->getConstSField()    ); }
+  constexpr Teuchos::RCP<      IFT> getSFieldPtr     ( const Ordinal& i )       { return( fields_[index(i)]->getSFieldPtr()      ); }
+  constexpr Teuchos::RCP<const IFT> getConstSFieldPtr( const Ordinal& i ) const { return( fields_[index(i)]->getConstSFieldPtr() ); }
 
 
-  FieldT&                    get0Field()               { return( *field0_ ); }
-  const FieldT&              getConst0Field()    const { return( *field0_ ); }
-  Teuchos::RCP<      FieldT> get0FieldPtr()            { return(  field0_ ); }
-  Teuchos::RCP<const FieldT> getConst0FieldPtr() const { return(  field0_ ); }
+  constexpr const Teuchos::RCP<const SpaceT>& space() const { return( AF::space_ ); }
 
-
-  ModeField<FieldT>&                     getField        ( int i )       { return( *fields_[i] ); }
-  const ModeField<FieldT>&               getConstField   ( int i ) const { return( *fields_[i] ); }
-  Teuchos::RCP<      ModeField<FieldT> > getFieldPtr     ( int i )       { return( fields_[i]  ); }
-  Teuchos::RCP<const ModeField<FieldT> > getConstFieldPtr( int i ) const { return( fields_[i]  ); }
-
-
-  FieldT&                    getCField        ( int i )       { return( fields_[i]->getCField()      ); }
-  const FieldT&              getConstCField   ( int i ) const { return( fields_[i]->getConstCField() ); }
-  Teuchos::RCP<      FieldT> getCFieldPtr     ( int i )       { return( fields_[i]->getCFieldPtr()   ); }
-  Teuchos::RCP<const FieldT> getConstCFieldPtr( int i ) const { return( fields_[i]->getConstCFieldPtr() ); }
-
-
-  FieldT&                    getSField        ( int i )       { return( fields_[i]->getSField()         ); }
-  const FieldT&              getConstSField   ( int i ) const { return( fields_[i]->getConstSField()    ); }
-  Teuchos::RCP<      FieldT> getSFieldPtr     ( int i )       { return( fields_[i]->getSFieldPtr()      ); }
-  Teuchos::RCP<const FieldT> getConstSFieldPtr( int i ) const { return( fields_[i]->getConstSFieldPtr() ); }
-
-
-  Teuchos::RCP<const SpaceT> space() const { return( AF::space_ ); }
-
-  const MPI_Comm& comm() const { return( space()->getProcGrid()->getCommWorld() ); }
+  constexpr const MPI_Comm& comm() const { return( space()->getProcGrid()->getCommWorld() ); }
 
   /// \brief returns the length of Field.
   ///
   /// the vector length is with regard to the inner points
-  Ordinal getLength( bool nox_vec=false ) const {
+  constexpr Ordinal getLength() const {
 
 		Ordinal len = 0;
-		len += field0_->getLength(true);
+		len += getConst0FieldPtr()->getLength();
 
-		for( Ordinal i=0; i<space()->nGlo(3); ++i )
-			len += fields_[i]->getLength(true);
+		//for( Ordinal i=0; i<space()->nGlo(3); ++i )
+			//len += getConstFieldPtr(i)->getLength();
+			len += space()->nGlo(3)*getConstFieldPtr( std::max(space()->sInd(U,3),0) )->getLength();
+
     return( len );
+
   }
 
 
   /// \brief get number of stored Field's
-  /// \todo what makes sense here?
-  int getNumberVecs() const { return( 1 ); }
-
+  constexpr int getNumberVecs() const { return( 1 ); }
 
 
   /// \}
@@ -184,10 +217,10 @@ public:
 
   /// \brief Replace \c this with \f$\alpha A + \beta B\f$.
 	/// \todo add test for consistent VectorSpaces in debug mode
-  void add( const Scalar& alpha, const MV& A, const Scalar& beta, const MV& B ) {
+  void add( const Scalar& alpha, const FieldT& A, const Scalar& beta, const FieldT& B ) {
 
 		if( space()->sInd(U,3)<0 )
-			field0_->add(alpha, *A.field0_, beta, *B.field0_);
+			get0FieldPtr()->add(alpha, A.getConst0Field(), beta, B.getConst0Field() );
 
 		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
 			getFieldPtr(i)->add( alpha, A.getConstField(i), beta, B.getConstField(i) );
@@ -203,10 +236,10 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  void abs(const MV& y) {
+  void abs( const FieldT& y) {
 
 		if( space()->sInd(U,3)<0 )
-			field0_->abs( *y.field0_ );
+			get0FieldPtr()->abs( y.getConst0Field() );
 
 		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
 			getFieldPtr(i)->abs( y.getConstField(i) );
@@ -221,10 +254,10 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
   /// \return Reference to this object
-  void reciprocal(const MV& y){
+  void reciprocal( const FieldT& y){
 
 		if( space()->sInd(U,3)<0 )
-			field0_->reciprocal( *y.field0_ );
+			get0FieldPtr()->reciprocal( y.getConst0Field() );
 
 		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
 			getFieldPtr(i)->reciprocal( y.getConstField(i) );
@@ -238,10 +271,10 @@ public:
   void scale( const Scalar& alpha ) {
 
 		if( space()->sInd(U,3)<0 )
-			field0_->scale(alpha);
+			get0FieldPtr()->scale( alpha );
 
 		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
-			getFieldPtr(i)->scale(alpha);
+			getFieldPtr(i)->scale( alpha );
 
 		changed();
 
@@ -253,10 +286,10 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  void scale(const MV& a) {
+  void scale( const FieldT& a) {
 
 		if( space()->sInd(U,3)<0 )
-			field0_->scale( *a.field0_ );
+			get0FieldPtr()->scale( a.getConst0Field() );
 
 		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
 			getFieldPtr(i)->scale( a.getConstField(i) );
@@ -272,46 +305,78 @@ public:
   /// \{
 
   /// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
-  Scalar dot ( const MV& a, bool global=true ) const {
+  constexpr Scalar dotLoc( const FieldT& a ) const {
 
     Scalar b = 0.;
 
 		if( space()->sInd(U,3)<0 )
-			b += field0_->dot( *a.field0_, false );
+			b += getConst0FieldPtr()->dotLoc( a.getConst0Field() );
 		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
-			b += getConstFieldPtr(i)->dot( a.getConstField(i), false );
-
-    if( global ) this->reduceNorm( comm(), b );
+			b += getConstFieldPtr(i)->dotLoc( a.getConstField(i) );
 
     return( b );
 
   }
 
+	/// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
+	constexpr Scalar dot( const FieldT& y ) const {
+
+		return( this->reduce( comm(), dotLoc( y ) ) );
+
+	}
+
   /// \brief Compute the norm of Field.
   /// Upon return, \c normvec[i] holds the value of \f$||this_i||_2\f$, the \c i-th column of \c this.
-  Scalar norm(  Belos::NormType type = Belos::TwoNorm, bool global=true ) const {
+  constexpr Scalar normLoc( Belos::NormType type = Belos::TwoNorm ) const {
 
     Scalar normvec = 0.;
 
 		if( space()->sInd(U,3)<0 )
-			normvec += field0_->norm(type,false);
+			normvec += getConst0FieldPtr()->normLoc(type);
 
-    switch(type) {
-    case Belos::OneNorm:
 		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
-				normvec += getConstFieldPtr(i)->norm(type,false);
-      break;
-    case Belos::TwoNorm:
-		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
-				normvec += getConstFieldPtr(i)->norm(type,false);
-      break;
-    case Belos::InfNorm:
-		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
-				normvec = std::max( getConstFieldPtr(i)->norm(type,false), normvec );
-      break;
-    }
+				normvec =
+					(Belos::InfNorm==type)?
+					std::max( getConstFieldPtr(i)->normLoc(type), normvec ):
+					(normvec+getConstFieldPtr(i)->normLoc(type));
 
-    if( global ) this->reduceNorm( comm(), normvec, type );
+		return( normvec );
+
+  }
+
+ /// \brief compute the norm
+  /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
+	/// \todo include scaled norm
+  constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm ) const {
+
+		Scalar normvec = this->reduce(
+				comm(),
+				normLoc( type ),
+				(Belos::InfNorm==type)?MPI_MAX:MPI_SUM );
+
+		normvec =
+			(Belos::TwoNorm==type) ?
+				std::sqrt(normvec) :
+				normvec;
+
+    return( normvec );
+
+  }
+
+  /// \brief Weighted 2-Norm.
+  ///
+  /// Here x represents this vector, and we compute its weighted norm as follows:
+  /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
+  /// \return \f$ \|x\|_w \f$
+  constexpr Scalar normLoc( const FieldT& weights ) const {
+
+    Scalar normvec= Teuchos::ScalarTraits<Scalar>::zero();
+
+		if( space()->sInd(U,3)<0 )
+			normvec += getConst0FieldPtr()->normLoc( weights.getConst0Field() );
+
+		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
+			normvec += getConstFieldPtr(i)->normLoc(weights.getConstField(i));
 
     return( normvec );
 
@@ -320,24 +385,13 @@ public:
 
   /// \brief Weighted 2-Norm.
   ///
+  /// \warning untested
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  double norm( const MV& weights, bool global=true ) const {
-
-    double normvec= 0.;
-
-		if( space()->sInd(U,3)<0 )
-			normvec += field0_->norm(*weights.field0_,false);
-
-		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
-			normvec += getConstFieldPtr(i)->norm(weights.getConstField(i),false);
-
-    if( global ) this->reduceNorm( comm(), normvec, Belos::TwoNorm );
-
-    return( normvec );
-
-  }
+  constexpr Scalar norm( const FieldT& weights ) const {
+		return( std::sqrt( this->reduce( comm(), normLoc( weights ) ) ) );
+	}
 
 
   /// \}
@@ -347,10 +401,10 @@ public:
 
   /// \brief mv := A
   /// Assign (deep copy) A into mv.
-  void assign( const MV& a ) {
+  void assign( const FieldT& a ) {
 
 		if( space()->sInd(U,3)<0 )
-			field0_->assign(*a.field0_);
+			get0FieldPtr()->assign( a.getConst0Field() );
 
 		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
 			getFieldPtr(i)->assign( a.getConstField(i) );
@@ -363,7 +417,7 @@ public:
   void random(bool useSeed = false, int seed = 1) {
 
 		if( space()->sInd(U,3)<0 )
-			field0_->random();
+			get0FieldPtr()->random();
 
 		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
 			getFieldPtr(i)->random();
@@ -377,10 +431,10 @@ public:
   void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero() ) {
 
 		if( space()->sInd(U,3)<0 )
-			field0_->init( alpha );
+			get0FieldPtr()->init( alpha );
 
 		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
-			getFieldPtr(i)->init(alpha);
+			getFieldPtr(i)->init( alpha );
 
 		changed();
 
@@ -389,7 +443,7 @@ public:
 
 	void initField() {
 		if( space()->sInd(U,3)<0 )
-			field0_->initField();
+			get0FieldPtr()->initField();
 		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
 			getFieldPtr(i)->initField();
 		changed();
@@ -400,7 +454,7 @@ public:
 	void initField( Teuchos::ParameterList& para ) {
 
 		if( space()->sInd(U,3)<0 )
-			field0_->initField( para.sublist("0 mode") );
+			get0FieldPtr()->initField( para.sublist("0 mode") );
 
 		if( space()->sInd(U,3)<=0 && 0<space()->eInd(U,3) ) {
 			getCFieldPtr(0)->initField( para.sublist("cos mode") );
@@ -409,23 +463,10 @@ public:
 		changed();
 	}
 
-
-	void setCornersZero() const {
-
-		if( space()->sInd(U,3)<0 )
-			field0_->setCornersZero();
-
-		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
-			getConstFieldPtr(i)->setCornersZero();
-
-		changed();
-	}
-
-
-  void level() const {
+  void level()  {
 
 		if( space()->sInd(U,3)<0 )
-			field0_->level();
+			get0FieldPtr()->level();
 		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
 			getConstFieldPtr(i)->level();
 
@@ -439,7 +480,7 @@ public:
   void print( std::ostream& os=std::cout ) const {
 
 		if( space()->sInd(U,3)<0 )
-			field0_->print( os );
+			getConst0FieldPtr()->print( os );
 		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
 			getConstFieldPtr(i)->print( os );
   }
@@ -453,7 +494,7 @@ public:
 				Scalar pi = 4.*std::atan(1.);
 				Ordinal nf = space()->nGlo(3);
 				Ordinal nt = 4*nf;
-				Teuchos::RCP<FieldT> temp = getConst0FieldPtr()->clone( Pimpact::ShallowCopy );
+				Teuchos::RCP<IFT> temp = getConst0FieldPtr()->clone( Pimpact::ShallowCopy );
 				for( Ordinal i=0; i<nt;  ++i ) {
 					temp->assign( getConst0Field() );
 					//				temp->initField(  );
@@ -472,7 +513,7 @@ public:
 		}
 		else{
 			if( space()->sInd(U,3)<0 )
-				field0_->write(count);
+				getConst0FieldPtr()->write(count);
 			for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i ) {
 				getConstCFieldPtr(i)->write( count+2*i+1 );
 				getConstSFieldPtr(i)->write( count+2*i+2 );
@@ -493,18 +534,20 @@ public:
 	/// \todo biggest todo
 	void exchange() const {
 
+		//TEUCHOS_TEST_FOR_EXCEPT( !global_ );
+
 		// check if exchange is necessary
 		if( exchangedState_==false ) {
 
 			// exchange spatial
 			if( space()->sInd(U,3)<0 )
-				field0_->exchange();
+				get0FieldPtr()->exchange();
 
 			for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
 				getConstFieldPtr(i)->exchange();
 
 			// mpi stuff
-			int nx = field0_->getStorageSize();
+			int nx = getConst0FieldPtr()->getStorageSize();
 
 			// --- sendcount ---
 			int sendcount = 0;
@@ -558,7 +601,7 @@ public:
 
 			// set non owning spatial block as exchanged
 			if( space()->sInd(U,3)>0 )
-				field0_->setExchanged();
+				getConst0FieldPtr()->setExchanged();
 
 			for( Ordinal i=0; i<space()->sInd(U,3); ++i )
 				getConstFieldPtr(i)->setExchanged();

@@ -46,25 +46,6 @@ void MG_getCIV(
 		const int& dd,
 		double* const cIV );
 
-void MG_InterpolateCorners(
-		const int* const N,
-		const int* const bL,
-		const int* const bU,
-		const int* const BCL,
-		const int* const BCU,
-		const double* const phi );
-
-void MG_InterpolateCornersPost(
-		const int* const N,
-		const int* const bL,
-		const int* const bU,
-		const int* const BCL,
-		const int* const BCU,
-		const double* const x1,
-		const double* const x2,
-		const double* const x3,
-		double* const phi );
-
 void MG_InterpolateScatter(
 		const int* const Nc,
 		const int* const bLc,
@@ -451,14 +432,6 @@ public:
 
 		if( EField::S==fType ) {
 
-			//MG_InterpolateCorners(
-					//spaceC_->nLoc(),
-					//spaceC_->bl(),
-					//spaceC_->bu(),
-					//spaceC_->getBCLocal()->getBCL(),
-					//spaceC_->getBCLocal()->getBCU(),
-					//x.getConstRawPtr() );
-
 			if( spaceC_->getProcGrid()->participating() )
 				x.exchange();
 
@@ -491,17 +464,6 @@ public:
 					cIS_[1].getRawPtr(),
 					cIS_[2].getRawPtr(),
 					x.getConstRawPtr(),
-					y.getRawPtr() );
-
-			MG_InterpolateCornersPost(
-					spaceF_->nLoc(),
-					spaceF_->bl(),
-					spaceF_->bu(),
-					spaceF_->getBCLocal()->getBCL(),
-					spaceF_->getBCLocal()->getBCU(),
-					spaceF_->getCoordinatesLocal()->getX( ECoord::X, EField::S ),
-					spaceF_->getCoordinatesLocal()->getX( ECoord::Y, EField::S ),
-					spaceF_->getCoordinatesLocal()->getX( ECoord::Z, EField::S ),
 					y.getRawPtr() );
 
 		}

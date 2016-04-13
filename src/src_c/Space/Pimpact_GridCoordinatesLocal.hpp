@@ -148,22 +148,12 @@ public:
   };
 
 
-  const ScalarT* getX( ECoord dir, EField ftype=EField::S ) const  {
-    if( EField::S==ftype )
-      return( xS_[dir] );
-    else if( (int)dir==(int)ftype )
-      return( xV_[dir] );
-    else
-      return( xS_[dir] );
-  }
-  const ScalarT* getX( ECoord dir, int ftype ) const  {
-    return( getX( dir, (EField) ftype ) );
-  }
-  const ScalarT* getX( int dir, EField ftype ) const  {
-    return( getX( (ECoord) dir, ftype ) );
-  }
-  const ScalarT* getX( int dir, int ftype ) const  {
-    return( getX( (ECoord) dir, (EField) ftype ) );
+  constexpr const ScalarT* getX( const int& dir, const int& ftype ) const  {
+		return(
+				( EField::S==static_cast<EField>(ftype) || dir!=ftype )?
+					xS_[dir]:
+					xV_[dir]
+				);
   }
 
 

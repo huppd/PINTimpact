@@ -41,10 +41,9 @@ public:
 
   using SpaceT = ST;
 
-  using Scalar = typename SpaceT::Scalar;
-  using Ordinal = typename SpaceT::Ordinal;
-
 protected:
+
+  using Scalar = typename SpaceT::Scalar;
 
   Scalar alpha2_;
   Scalar iRe_;
@@ -75,7 +74,7 @@ public:
   /// \begin{bmatrix} \hat{\mathbf{x}}^c \\ \hat{\mathbf{x}}^s  \end{bmatrix} \f]
   void apply(const DomainFieldT& x, RangeFieldT& y, int k=1 ) const {
 
-    const Ordinal& dim = space()->dim();
+    const int& dim = space()->dim();
 
     for( int i=0; i<dim; ++i ) {
 
@@ -126,7 +125,7 @@ public:
 
   void assignField( const DomainFieldT& mv ) {};
 
-	Teuchos::RCP<const SpaceT> space() const { return(L_->space()); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(L_->space()); };
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 

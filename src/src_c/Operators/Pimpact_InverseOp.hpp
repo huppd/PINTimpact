@@ -24,6 +24,7 @@ class InverseOp {
 public:
 
   using OperatorT = OT;
+
   using SpaceT = typename OperatorT::SpaceT;
 
   using MF = typename OperatorT::DomainFieldT;
@@ -87,7 +88,6 @@ public:
   void apply( const MF& x, MF& y ) const {
 		if( level_    ) { x.level(); }
 		if( initZero_ ) { y.init( ); }
-		x.setCornersZero();
     linprob_->solve( Teuchos::rcpFromRef(y), Teuchos::rcpFromRef(x) );
   }
 
@@ -111,7 +111,7 @@ public:
   };
 
 
-	Teuchos::RCP<const SpaceT> space() const { return(linprob_->space()); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(linprob_->space()); };
 
 	Teuchos::RCP< LinearProblem<MF> > getLinearProblem() { return(linprob_); }
 
@@ -156,7 +156,6 @@ public:
     linprob_->print( out );
   }
 
-//	Teuchos::RCP<const SpaceT> space() const { return(linprob_->getProblem()->getOperator()->space()); };
 
 }; // end of class InverseOp
 

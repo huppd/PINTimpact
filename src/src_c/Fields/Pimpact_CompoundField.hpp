@@ -25,6 +25,7 @@ namespace Pimpact {
 /// \brief important basic Vector class
 /// vector for wrapping 2 fields into one mode
 /// \ingroup Field
+/// \todo use attributes methods in vectorspace functions
 template<class VField, class SField>
 class CompoundField : private AbstractField<typename VField::SpaceT> {
 
@@ -32,15 +33,12 @@ public:
 
   using SpaceT = typename VField::SpaceT;
 
+protected:
+
   using Scalar = typename SpaceT::Scalar;
   using Ordinal =typename SpaceT::Ordinal;
 
-  static const int dimension = SpaceT::dimension;
-
-
-protected:
-
-  using MV = CompoundField<VField,SField>;
+  using FieldT = CompoundField<VField,SField>;
 
   using AF = AbstractField<SpaceT>;
 
@@ -74,28 +72,28 @@ public:
 {};
 
 
-  Teuchos::RCP<MV> clone( ECopyType ctype=DeepCopy ) const {
-    return( Teuchos::rcp( new MV( *this, ctype ) ) );
+  Teuchos::RCP<FieldT> clone( ECopyType ctype=DeepCopy ) const {
+    return( Teuchos::rcp( new FieldT( *this, ctype ) ) );
   }
 
   /// \name Attribute methods
   /// \{
 
-  VField& getVField() { return( *vfield_ ); }
-  SField& getSField() { return( *sfield_ ); }
+  constexpr VField& getVField() { return( *vfield_ ); }
+  constexpr SField& getSField() { return( *sfield_ ); }
 
-  const VField& getConstVField() const { return( *vfield_ ); }
-  const SField& getConstSField() const { return( *sfield_ ); }
+  constexpr const VField& getConstVField() const { return( *vfield_ ); }
+  constexpr const SField& getConstSField() const { return( *sfield_ ); }
 
-  Teuchos::RCP<VField> getVFieldPtr() { return( vfield_ ); }
-  Teuchos::RCP<SField> getSFieldPtr() { return( sfield_ ); }
+  constexpr Teuchos::RCP<VField> getVFieldPtr() { return( vfield_ ); }
+  constexpr Teuchos::RCP<SField> getSFieldPtr() { return( sfield_ ); }
 
-  Teuchos::RCP<const VField> getConstVFieldPtr() const { return( vfield_ ); }
-  Teuchos::RCP<const SField> getConstSFieldPtr() const { return( sfield_ ); }
+  constexpr Teuchos::RCP<const VField> getConstVFieldPtr() const { return( vfield_ ); }
+  constexpr Teuchos::RCP<const SField> getConstSFieldPtr() const { return( sfield_ ); }
 
-  Teuchos::RCP<const SpaceT> space() const { return( AF::space_ ); }
+  constexpr const Teuchos::RCP<const SpaceT>& space() const { return( AF::space_ ); }
 
-  const MPI_Comm& comm() const { return(vfield_->comm()); }
+  constexpr const MPI_Comm& comm() const { return(vfield_->comm()); }
 
 
   /// \brief get Vect length
@@ -103,13 +101,13 @@ public:
   /// the vector length is withregard to the inner points
   /// \return vector length
   /// \brief returns the length of Field.
-  Ordinal getLength( bool nox_vec=false ) const {
-    return( vfield_->getLength(nox_vec) + sfield_->getLength(nox_vec) );
+  constexpr Ordinal getLength() const {
+    return( vfield_->getLength() + sfield_->getLength() );
   }
 
 
   /// \brief get number of stored Field's
-  int getNumberVecs() const { return( 1 ); }
+  constexpr int getNumberVecs() const { return( 1 ); }
 
 
   /// \}
@@ -117,7 +115,7 @@ public:
   /// \{
 
   /// \brief Replace \c this with \f$\alpha A + \beta B\f$.
-  void add( const Scalar& alpha, const MV& A, const Scalar& beta, const MV& B ) {
+  void add( const Scalar& alpha, const FieldT& A, const Scalar& beta, const FieldT& B ) {
     // add test for consistent VectorSpaces in debug mode
     vfield_->add(alpha, *A.vfield_, beta, *B.vfield_);
     sfield_->add(alpha, *A.sfield_, beta, *B.sfield_);
@@ -130,7 +128,7 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  void abs(const MV& y) {
+  void abs( const FieldT& y ) {
     vfield_->abs( *y.vfield_ );
     sfield_->abs( *y.sfield_ );
   }
@@ -141,7 +139,7 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
   /// \return Reference to this object
-  void reciprocal(const MV& y){
+  void reciprocal( const FieldT& y){
     vfield_->reciprocal( *y.vfield_ );
     sfield_->reciprocal( *y.sfield_ );
   }
@@ -159,23 +157,29 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  void scale(const MV& a) {
+  void scale( const FieldT& a) {
     vfield_->scale( *a.vfield_ );
     sfield_->scale( *a.sfield_ );
   }
 
 
   /// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
-  Scalar dot ( const MV& a, bool global=true ) const {
+  constexpr Scalar dotLoc( const FieldT& a ) const {
 
     Scalar b = 0.;
 
-    b = vfield_->dot( *a.vfield_, false ) + sfield_->dot( *a.sfield_, false );
-
-    if( global ) this->reduceNorm( comm(), b );
+    b = vfield_->dotLoc( *a.vfield_ ) + sfield_->dotLoc( *a.sfield_ );
 
     return( b );
   }
+
+
+	/// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
+	constexpr Scalar dot( const FieldT& y ) const {
+
+		return( this->reduce( comm(), dotLoc( y ) ) );
+
+	}
 
 
   /// \}
@@ -183,27 +187,32 @@ public:
   /// \{
 
   /// \brief Compute the norm of the field.
-  Scalar norm(  Belos::NormType type = Belos::TwoNorm, bool global=true) const {
+  constexpr Scalar normLoc(  Belos::NormType type = Belos::TwoNorm ) const {
 
-    Scalar normvec=0;
+		return(
+			(Belos::InfNorm==type)?
+			std::max(vfield_->normLoc(type), sfield_->normLoc(type) ):
+			(vfield_->normLoc(type) + sfield_->normLoc(type)) );
 
-    switch(type) {
-    //    case Belos::OneNorm:
-    default:
-      normvec = vfield_->norm(type,false) + sfield_->norm(type,false);
-      break;
-      //    case Belos::TwoNorm:
-      //      normvec = vfield_->norm(type,false) + sfield_->norm(type,false);
-      ////      normvec = std::pow(vfield_->norm(type,false),2) + std::pow(sfield_->norm(type,false),2);
-      //      break;
-    case Belos::InfNorm:
-      normvec = std::max(vfield_->norm(type,false), sfield_->norm(type,false) ) ;
-      break;
-    }
+  }
 
-    if( global ) this->reduceNorm( comm(), normvec, type );
+ /// \brief compute the norm
+  /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
+	/// \todo include scaled norm
+  constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm ) const {
+
+		Scalar normvec = this->reduce(
+				comm(),
+				normLoc( type ),
+				(Belos::InfNorm==type)?MPI_MAX:MPI_SUM );
+
+		normvec =
+			(Belos::TwoNorm==type) ?
+				std::sqrt(normvec) :
+				normvec;
 
     return( normvec );
+
   }
 
 
@@ -212,18 +221,21 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  /// \todo add \c std::sqrt
-  double norm(const MV& weights, bool global=true) const {
-
-    double normvec=
-        vfield_->norm( *weights.vfield_, false ) +
-        sfield_->norm( *weights.sfield_, false );
-
-    if( global ) this->reduceNorm( comm(), normvec, Belos::TwoNorm );
-
-    return( normvec );
-
+  constexpr Scalar normLoc( const FieldT& weights ) const {
+		return(
+				vfield_->normLoc( *weights.vfield_ ) +
+				sfield_->normLoc( *weights.sfield_ ) );
   }
+
+  /// \brief Weighted 2-Norm.
+  ///
+  /// \warning untested
+  /// Here x represents this vector, and we compute its weighted norm as follows:
+  /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
+  /// \return \f$ \|x\|_w \f$
+  constexpr Scalar norm( const FieldT& weights ) const {
+		return( std::sqrt( this->reduce( comm(), normLoc( weights ) ) ) );
+	}
 
 
   /// \}
@@ -232,7 +244,7 @@ public:
 
   /// \brief mv := A
   /// Assign (deep copy) A into mv.
-  void assign( const MV& a ) {
+  void assign( const FieldT& a ) {
     vfield_->assign(*a.vfield_);
     sfield_->assign(*a.sfield_);
   }
@@ -255,11 +267,6 @@ public:
     vfield_->initField();
     sfield_->initField();
 	}
-
-	void setCornersZero() const {
-    vfield_->setCornersZero();
-    sfield_->setCornersZero();
-  }
 
 	void level() const {
     vfield_->level();

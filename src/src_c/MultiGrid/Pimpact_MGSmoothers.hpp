@@ -55,12 +55,13 @@ public:
 //public:
 
   /// \brief gets ith smoother, similar to python i=-1 is gets you the coarses space
-  Teuchos::RCP<SmootherT> get( int i ) const {
-    if( i<0 )
-      return( smoothers_[mgSpaces_->getNGrids()+i] );
-  else
-      return( smoothers_[i] );
-  }
+	const Teuchos::RCP<SmootherT>& get( int i ) const {
+		TEUCHOS_TEST_FOR_EXCEPT( -1==i );
+		if( i<0 )
+			return( smoothers_[mgSpaces_->getNGrids()+i] );
+		else
+			return( smoothers_[i] );
+	}
 
 	//  void print(  std::ostream& out=std::cout ) const { }
 

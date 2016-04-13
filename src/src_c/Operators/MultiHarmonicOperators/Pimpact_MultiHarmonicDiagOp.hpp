@@ -18,17 +18,17 @@ namespace Pimpact {
 template< class ZeroOpT, class ModeOpT >
 class MultiHarmonicDiagOp {
 
-	public:
+public:
 
   using SpaceT = typename ZeroOpT::SpaceT;
-
-  using Scalar = typename SpaceT::Scalar;
-  using Ordinal = typename SpaceT::Ordinal;
 
   using DomainFieldT = MultiHarmonicField<typename ZeroOpT::DomainFieldT>;
   using RangeFieldT = MultiHarmonicField<typename ZeroOpT::RangeFieldT>;
 
 protected:
+
+  using Scalar = typename SpaceT::Scalar;
+  using Ordinal = typename SpaceT::Ordinal;
 
   Teuchos::RCP<ZeroOpT> zeroOp_;
 
@@ -88,7 +88,7 @@ public:
 
   }
 
-	Teuchos::RCP<const SpaceT> space() const { return(zeroOp_->space()); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(zeroOp_->space()); };
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 

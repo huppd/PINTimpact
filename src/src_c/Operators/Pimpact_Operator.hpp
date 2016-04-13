@@ -87,12 +87,9 @@
 /// \defgroup MultiHarmonicOperator Multi-harmonic Operator
 /// \ingroup Operator
 /// Operator operate on multi-harmonic fields: \c Pimpact::MultiHarmonicField
-#include "Pimpact_MultiDtHelmholtzOp.hpp"
-#include "Pimpact_MultiConvectionOp.hpp"
 #include "Pimpact_MultiHarmonicOpWrap.hpp"
 #include "Pimpact_MultiHarmonicMultiOpWrap.hpp"
 #include "Pimpact_MultiHarmonicDiagOp.hpp"
-#include "Pimpact_MultiDiagConvectionOp.hpp"
 #include "Pimpact_MultiDtConvectionDiffusionOp.hpp"
 
 
