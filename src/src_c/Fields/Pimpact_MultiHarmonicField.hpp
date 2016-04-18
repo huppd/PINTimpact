@@ -52,7 +52,10 @@ protected:
 
   mutable bool exchangedState_;
 
+
+
 	void allocate() {
+
 		if( global_ ) {
 			Ordinal n = field0_->getStorageSize();
 			s_ = new Scalar[ getStorageSize() ];
@@ -70,6 +73,7 @@ protected:
 		}
 	}
 
+
 public:
 
 	constexpr Ordinal getStorageSize() const {
@@ -82,7 +86,7 @@ public:
 
 	MultiHarmonicField( const Teuchos::RCP<const SpaceT>& space, const bool global=true ):
 		AF( space ),
-		global_(true),
+		global_(global),
 		field0_( Teuchos::rcp( new IFT(space,false) ) ),
 		fields_( space->nGlo(3) ),
     exchangedState_( true ) {
@@ -112,18 +116,18 @@ public:
   /// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
 	MultiHarmonicField( const MultiHarmonicField& vF, ECopyType copyType=DeepCopy ):
 		AF( vF.space() ),
-		global_( true ),
+		global_( vF.global_ ),
 		field0_( Teuchos::rcp( new IFT( *vF.field0_, copyType ) ) ),
 		fields_( vF.space()->nGlo(3) ),
     exchangedState_(vF.exchangedState_) {
 
 			if( global_ ) {
-				for( Ordinal i=0; i< space()->nGlo(3); ++i )
-					fields_[i] = Teuchos::rcp( new ModeField<IFT>( vF.getConstField(i), copyType ) );
+				for( Ordinal i=1; i<=space()->nGlo(3); ++i )
+					fields_[i-1] = Teuchos::rcp( new ModeField<IFT>( vF.getConstField(i), copyType ) );
 			}
 			else{
 				for( Ordinal i=0; i<space()->eInd(U,3) - std::max(space()->sInd(U,3),0); ++i )
-					fields_[i] = Teuchos::rcp( new ModeField<IFT>( vF.getConstField(i), copyType ) );
+					fields_[i] = Teuchos::rcp( new ModeField<IFT>( vF.getConstField(i+std::max(space()->sInd(U,3),0)+1), copyType ) );
 			}
 
 			allocate();
@@ -155,7 +159,7 @@ public:
 protected:
 
 	constexpr Ordinal index( const Ordinal& i ) const {
-		return( i+ 
+		return( i - 1 + 
 				(( global_||-1==space()->sInd(U,3) )?
 					0:
 					(-space()->sInd(U,3)) )
@@ -196,11 +200,9 @@ public:
   constexpr Ordinal getLength() const {
 
 		Ordinal len = 0;
-		len += getConst0FieldPtr()->getLength();
 
-		//for( Ordinal i=0; i<space()->nGlo(3); ++i )
-			//len += getConstFieldPtr(i)->getLength();
-			len += space()->nGlo(3)*getConstFieldPtr( std::max(space()->sInd(U,3),0) )->getLength();
+		len += getConst0FieldPtr()->getLength();
+		len += space()->nGlo(3)*getConstFieldPtr( std::max(space()->sInd(U,3),0)+1 )->getLength();
 
     return( len );
 
@@ -222,7 +224,7 @@ public:
 		if( space()->sInd(U,3)<0 )
 			get0FieldPtr()->add(alpha, A.getConst0Field(), beta, B.getConst0Field() );
 
-		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
+		for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i )
 			getFieldPtr(i)->add( alpha, A.getConstField(i), beta, B.getConstField(i) );
 
 		changed();
@@ -241,7 +243,7 @@ public:
 		if( space()->sInd(U,3)<0 )
 			get0FieldPtr()->abs( y.getConst0Field() );
 
-		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
+		for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i )
 			getFieldPtr(i)->abs( y.getConstField(i) );
 
 		changed();
@@ -259,7 +261,7 @@ public:
 		if( space()->sInd(U,3)<0 )
 			get0FieldPtr()->reciprocal( y.getConst0Field() );
 
-		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
+		for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i )
 			getFieldPtr(i)->reciprocal( y.getConstField(i) );
 
 		changed();
@@ -273,7 +275,7 @@ public:
 		if( space()->sInd(U,3)<0 )
 			get0FieldPtr()->scale( alpha );
 
-		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
+		for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i )
 			getFieldPtr(i)->scale( alpha );
 
 		changed();
@@ -291,7 +293,7 @@ public:
 		if( space()->sInd(U,3)<0 )
 			get0FieldPtr()->scale( a.getConst0Field() );
 
-		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
+		for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i )
 			getFieldPtr(i)->scale( a.getConstField(i) );
 
 		changed();
@@ -311,7 +313,7 @@ public:
 
 		if( space()->sInd(U,3)<0 )
 			b += getConst0FieldPtr()->dotLoc( a.getConst0Field() );
-		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
+		for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i )
 			b += getConstFieldPtr(i)->dotLoc( a.getConstField(i) );
 
     return( b );
@@ -334,7 +336,7 @@ public:
 		if( space()->sInd(U,3)<0 )
 			normvec += getConst0FieldPtr()->normLoc(type);
 
-		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
+		for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i )
 				normvec =
 					(Belos::InfNorm==type)?
 					std::max( getConstFieldPtr(i)->normLoc(type), normvec ):
@@ -375,7 +377,7 @@ public:
 		if( space()->sInd(U,3)<0 )
 			normvec += getConst0FieldPtr()->normLoc( weights.getConst0Field() );
 
-		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
+		for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i )
 			normvec += getConstFieldPtr(i)->normLoc(weights.getConstField(i));
 
     return( normvec );
@@ -406,7 +408,7 @@ public:
 		if( space()->sInd(U,3)<0 )
 			get0FieldPtr()->assign( a.getConst0Field() );
 
-		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
+		for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i )
 			getFieldPtr(i)->assign( a.getConstField(i) );
 
 		changed();
@@ -419,7 +421,7 @@ public:
 		if( space()->sInd(U,3)<0 )
 			get0FieldPtr()->random();
 
-		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
+		for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i )
 			getFieldPtr(i)->random();
 
 		changed();
@@ -433,7 +435,7 @@ public:
 		if( space()->sInd(U,3)<0 )
 			get0FieldPtr()->init( alpha );
 
-		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
+		for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i )
 			getFieldPtr(i)->init( alpha );
 
 		changed();
@@ -444,7 +446,7 @@ public:
 	void initField() {
 		if( space()->sInd(U,3)<0 )
 			get0FieldPtr()->initField();
-		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
+		for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i )
 			getFieldPtr(i)->initField();
 		changed();
 	}
@@ -457,8 +459,8 @@ public:
 			get0FieldPtr()->initField( para.sublist("0 mode") );
 
 		if( space()->sInd(U,3)<=0 && 0<space()->eInd(U,3) ) {
-			getCFieldPtr(0)->initField( para.sublist("cos mode") );
-			getSFieldPtr(0)->initField( para.sublist("sin mode") );
+			getCFieldPtr(1)->initField( para.sublist("cos mode") );
+			getSFieldPtr(1)->initField( para.sublist("sin mode") );
 		}
 		changed();
 	}
@@ -467,7 +469,7 @@ public:
 
 		if( space()->sInd(U,3)<0 )
 			get0FieldPtr()->level();
-		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
+		for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i )
 			getConstFieldPtr(i)->level();
 
 		changed();
@@ -481,7 +483,7 @@ public:
 
 		if( space()->sInd(U,3)<0 )
 			getConst0FieldPtr()->print( os );
-		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
+		for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i )
 			getConstFieldPtr(i)->print( os );
   }
 
@@ -498,12 +500,12 @@ public:
 				for( Ordinal i=0; i<nt;  ++i ) {
 					temp->assign( getConst0Field() );
 					//				temp->initField(  );
-					for( Ordinal j=0; j<nf; ++j ) {
+					for( Ordinal j=1; j<=nf; ++j ) {
 						temp->add(
 								1., *temp,
-								std::sin( 2.*pi*i*((Scalar)j+1.)/nt ), getConstSField(j) );
+								std::sin( 2.*pi*i*((Scalar)j)/nt ), getConstSField(j) );
 						temp->add(
-								std::cos( 2.*pi*i*((Scalar)j+1.)/nt ), getConstCField(j),
+								std::cos( 2.*pi*i*((Scalar)j)/nt ), getConstCField(j),
 								1., *temp );
 						temp->write( count+i );
 					}
@@ -514,9 +516,9 @@ public:
 		else{
 			if( space()->sInd(U,3)<0 )
 				getConst0FieldPtr()->write(count);
-			for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i ) {
-				getConstCFieldPtr(i)->write( count+2*i+1 );
-				getConstSFieldPtr(i)->write( count+2*i+2 );
+			for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i ) {
+				getConstCFieldPtr(i)->write( count+2*i   );
+				getConstSFieldPtr(i)->write( count+2*i+1 );
 			}
 		}
   }
@@ -543,7 +545,7 @@ public:
 			if( space()->sInd(U,3)<0 )
 				get0FieldPtr()->exchange();
 
-			for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
+			for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i )
 				getConstFieldPtr(i)->exchange();
 
 			// mpi stuff
@@ -553,7 +555,7 @@ public:
 			int sendcount = 0;
 			if( space()->sInd(U,3)<0 )
 				sendcount += nx;
-			for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i )
+			for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i )
 				sendcount += 2*nx;
 
 			// --- recvcount, displacement ---
@@ -603,10 +605,10 @@ public:
 			if( space()->sInd(U,3)>0 )
 				getConst0FieldPtr()->setExchanged();
 
-			for( Ordinal i=0; i<space()->sInd(U,3); ++i )
+			for( Ordinal i=1; i<=space()->sInd(U,3); ++i )
 				getConstFieldPtr(i)->setExchanged();
 
-			for( Ordinal i=space()->eInd(U,3); i<space()->nGlo(3); ++i )
+			for( Ordinal i=space()->eInd(U,3)+1; i<=space()->nGlo(3); ++i )
 				getConstFieldPtr(i)->setExchanged();
 		}
 

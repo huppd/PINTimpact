@@ -47,7 +47,7 @@ public:
 		if( space()->sInd(U,3)<0 )
 			op_->apply( x.getConst0Field(), y.get0Field() );
 
-		for( typename SpaceT::Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i ) { 
+		for( typename SpaceT::Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i ) { 
       op_->apply( x.getConstCField(i), y.getCField(i) );
       op_->apply( x.getConstSField(i), y.getSField(i) );
     }

@@ -48,7 +48,7 @@ public:
 		Teuchos::RCP<typename MultiOperator::RangeFieldT>	 my = Teuchos::rcp( new
 				typename MultiOperator::RangeFieldT ( space(), 0 ) );
 
-		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i ) {
+		for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i ) {
 			// making x 
 			mx->push_back(
 				Teuchos::rcp_const_cast<typename MultiOperator::DomainFieldT::InnerFieldT>(

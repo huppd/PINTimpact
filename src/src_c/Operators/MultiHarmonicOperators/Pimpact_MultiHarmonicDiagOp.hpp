@@ -31,7 +31,6 @@ protected:
   using Ordinal = typename SpaceT::Ordinal;
 
   Teuchos::RCP<ZeroOpT> zeroOp_;
-
 	Teuchos::RCP<ModeOpT> modeOp_;
 
 public:
@@ -43,9 +42,7 @@ public:
 
 
   void assignField( const DomainFieldT& mv ) {
-
     zeroOp_->assignField( mv.getConst0Field() );
-
   };
 
 
@@ -69,20 +66,13 @@ public:
 		if( space()->sInd(U,3)<0 )
 			zeroOp_->apply( x.getConst0Field(), y.get0Field() );
 
-//		for( int i=0; i<Nf; ++i ) {
-		for( Ordinal i=std::max(space()->sInd(U,3),0); i<space()->eInd(U,3); ++i ){ 
-//			if( a2*(i+1)<iRe ) {
-//				zeroOp_->apply( x.getConstCField(i), y.getCField(i) );
-//				zeroOp_->apply( x.getConstSField(i), y.getSField(i) );
-//			}
-//			else{
-				// set parameters
-			para->set<Scalar>( "mulI", a2*(i+1) );
+		for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i ){ 
+			// set parameters
+			para->set<Scalar>( "mulI", a2*i );
 			para->set<Scalar>( "mulC", 1. );
 			para->set<Scalar>( "mulL", iRe );
 			modeOp_->setParameter( para );
 			modeOp_->apply( x.getConstField(i), y.getField(i) );
-//			}
 		}
 		y.changed();
 

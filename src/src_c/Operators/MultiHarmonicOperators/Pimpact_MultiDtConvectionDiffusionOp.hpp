@@ -39,6 +39,8 @@ protected:
   Teuchos::Array< Teuchos::RCP<ConvectionField<SpaceT> > > windc_;
   Teuchos::Array< Teuchos::RCP<ConvectionField<SpaceT> > > winds_;
 
+  using FieldTensorT = typename ConvectionField<SpaceT>::FieldTensor;
+
 public:
 
   MultiDtConvectionDiffusionOp( const Teuchos::RCP<const SpaceT>& space ):
@@ -54,24 +56,24 @@ public:
 
   };
 
-  void assignField( const DomainFieldT& mv ) {
 
-//		mv.write(99);
+	/// \todo check for mv global if not make global temp + exchange
+  void assignField( const DomainFieldT& mv ) {
 
 		mv.exchange();
 
     wind0_->assignField( mv.getConst0Field() );
 
     Ordinal Nf = space()->nGlo(3);
-    for( Ordinal i=0; i<Nf; ++i ) {
-      windc_[i]->assignField( mv.getConstCField(i) );
-      winds_[i]->assignField( mv.getConstSField(i) );
+    for( Ordinal i=1; i<=Nf; ++i ) {
+      windc_[i-1]->assignField( mv.getConstCField(i) );
+      winds_[i-1]->assignField( mv.getConstSField(i) );
     }
 
   };
 
 
-	/// \todo change loops such that only local stuff is computed
+	/// \todo check for y global if not make global temp + exchange
   void apply( const DomainFieldT& y, RangeFieldT& z, bool init_yes=true ) const {
 		
 		Ordinal Nf = space()->nGlo(3);
@@ -86,11 +88,11 @@ public:
     // computing zero mode of z
 		if( space()->sInd(U,3)<0 ) {
 
-			op_->apply( wind0_->get(), y.getConst0Field(), z.get0Field(), 0., 0., 1., iRe );
+			op_->apply( get0Wind(), y.getConst0Field(), z.get0Field(), 0., 0., 1., iRe );
 
-			for( Ordinal i=0; i<Nf; ++i ) {
-				op_->apply( windc_[i]->get(), y.getConstCField(i), z.get0Field(), 1., 0., 0.5, 0. );
-				op_->apply( winds_[i]->get(), y.getConstSField(i), z.get0Field(), 1., 0., 0.5, 0. );
+			for( Ordinal i=1; i<=Nf; ++i ) {
+				op_->apply( getCWind(i), y.getConstCField(i), z.get0Field(), 1., 0., 0.5, 0. );
+				op_->apply( getSWind(i), y.getConstSField(i), z.get0Field(), 1., 0., 0.5, 0. );
 			}
 
 		}
@@ -98,51 +100,48 @@ public:
 
     // computing cos mode of z
 		for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i ) {
-//    for( Ordinal i=1; i<=Nf; ++i ) { // change to seInd
-//
-      op_->apply( wind0_->get(),      y.getConstCField(i-1), z.getCField(i-1), 0., 0., 1., iRe );
+      op_->apply( get0Wind(),  y.getConstCField(i), z.getCField(i), 0., 0., 1., iRe );
 
-      op_->apply( windc_[i-1]->get(), y.getConst0Field(),    z.getCField(i-1), 1., 0., 1., 0.  );
+      op_->apply( getCWind(i), y.getConst0Field(),  z.getCField(i), 1., 0., 1., 0.  );
 
       for( Ordinal k=1; k+i<=Nf; ++k ) { // thats fine
-				mulI = (k-1==i-1)?(a2*i):0;
-        op_->apply( windc_[k+i-1]->get(), y.getConstCField(k-1),   z.getCField(i-1), 1.,   0., 0.5, 0. );
 
-        op_->apply( windc_[k-1]->get(),   y.getConstCField(k+i-1), z.getCField(i-1), 1.,   0., 0.5, 0. );
+				mulI = (k==i)?(a2*i):0;
+        op_->apply( getCWind(k+i), y.getConstCField( k ), z.getCField(i), 1.,   0., 0.5, 0. );
 
-        op_->apply( winds_[k+i-1]->get(), y.getConstSField(k-1),   z.getCField(i-1), 1., mulI, 0.5, 0. );
+        op_->apply( getCWind( k ), y.getConstCField(k+i), z.getCField(i), 1.,   0., 0.5, 0. );
 
-        op_->apply( winds_[k-1]->get(),   y.getConstSField(k+i-1), z.getCField(i-1), 1.,   0., 0.5, 0. );
+        op_->apply( getSWind(k+i), y.getConstSField( k ), z.getCField(i), 1., mulI, 0.5, 0. );
+
+        op_->apply( getSWind( k ), y.getConstSField(k+i), z.getCField(i), 1.,   0., 0.5, 0. );
       }
     }
 
     // computing sin mode of y
-//    for( Ordinal i=1; i<=Nf; ++i ) { // change to seInd
 		for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i ) {
 
-      op_->apply( wind0_->get(),      y.getConstSField(i-1), z.getSField(i-1), 0., 0., 1., iRe );
+      op_->apply( get0Wind(),  y.getConstSField(i), z.getSField(i), 0., 0., 1., iRe );
 
-      op_->apply( winds_[i-1]->get(), y.getConst0Field(),    z.getSField(i-1), 1., 0., 1., 0.  );
+      op_->apply( getSWind(i), y.getConst0Field(),  z.getSField(i), 1., 0., 1., 0.  );
 
       for( Ordinal k=1; k+i<=Nf; ++k ) { // that is fine
-				mulI = (k-1==i-1)?(a2*i):0;
-        op_->apply( windc_[k+i-1]->get(), y.getConstSField(k-1),   z.getSField(i-1), 1.,    0., -0.5, 0. );
+				mulI = (k==i)?(a2*i):0;
+        op_->apply( getCWind(k+i), y.getConstSField( k ), z.getSField(i), 1.,    0., -0.5, 0. );
 
-        op_->apply( windc_[k-1]->get(),   y.getConstSField(k+i-1), z.getSField(i-1), 1.,    0.,  0.5, 0. );
+        op_->apply( getCWind( k ), y.getConstSField(k+i), z.getSField(i), 1.,    0.,  0.5, 0. );
 
-        op_->apply( winds_[k+i-1]->get(), y.getConstCField(k-1),   z.getSField(i-1), 1., -mulI,  0.5, 0. );
+        op_->apply( getSWind(k+i), y.getConstCField( k ), z.getSField(i), 1., -mulI,  0.5, 0. );
 
-        op_->apply( winds_[k-1]->get(),   y.getConstCField(k+i-1), z.getSField(i-1), 1.,    0., -0.5, 0. );
+        op_->apply( getSWind( k ), y.getConstCField(k+i), z.getSField(i), 1.,    0., -0.5, 0. );
       }
     }
 
 		// rest of time
-//		for( Ordinal i=Nf/2+1; i<=Nf; ++i ) { // change to local
 		for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i ) {
 			if( Nf/2+1<=i && i<=Nf ) {
 				mulI = a2*i;
-				z.getCFieldPtr(i-1)->add( 1., z.getCField(i-1),  mulI, y.getConstSField(i-1) );
-				z.getSFieldPtr(i-1)->add( 1., z.getSField(i-1), -mulI, y.getConstCField(i-1) );
+				z.getCFieldPtr(i)->add( 1., z.getCField(i),  mulI, y.getConstSField(i) );
+				z.getSFieldPtr(i)->add( 1., z.getSField(i), -mulI, y.getConstCField(i) );
 			}
 		}
 
@@ -154,11 +153,11 @@ public:
 				i = k+l; 
 				if( i<=Nf ) { // do something here
 					if( std::max(space()->sInd(U,3),0)+1<=i && i<=space()->eInd(U,3)) {
-						op_->apply( windc_[k-1]->get(), y.getConstCField(l-1), z.getCField(i-1), 1., 0.,  0.5, 0. );
-						op_->apply( winds_[k-1]->get(), y.getConstSField(l-1), z.getCField(i-1), 1., 0., -0.5, 0. );
+						op_->apply( getCWind(k), y.getConstCField(l), z.getCField(i), 1., 0.,  0.5, 0. );
+						op_->apply( getSWind(k), y.getConstSField(l), z.getCField(i), 1., 0., -0.5, 0. );
 
-						op_->apply( windc_[k-1]->get(), y.getConstSField(l-1), z.getSField(i-1), 1., 0., 0.5, 0. );
-						op_->apply( winds_[k-1]->get(), y.getConstCField(l-1), z.getSField(i-1), 1., 0., 0.5, 0. );
+						op_->apply( getCWind(k), y.getConstSField(l), z.getSField(i), 1., 0.,  0.5, 0. );
+						op_->apply( getSWind(k), y.getConstCField(l), z.getSField(i), 1., 0.,  0.5, 0. );
 					}
 				}
 			}
@@ -167,12 +166,6 @@ public:
 		z.changed();
 
   }
-
-
-
-//  void apply(const DomainFieldT& x, RangeFieldT& y) const {
-//    apply(x,x,y);
-//  }
 
 
 	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(op_->space()); };
@@ -187,6 +180,13 @@ public:
 		out <<  getLabel() << ":\n";
 		op_->print( out );
   }
+
+protected:
+
+	constexpr const FieldTensorT& get0Wind() const { return( wind0_->get() ); }
+
+	constexpr const FieldTensorT& getCWind( const Ordinal& i) const { return( windc_[i-1]->get() ); }
+	constexpr const FieldTensorT& getSWind( const Ordinal& i) const { return( winds_[i-1]->get() ); }
 
 }; // end of class MultiDtConvectionDiffusionOp
 

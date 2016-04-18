@@ -129,15 +129,21 @@ int main( int argi, char** argv ) {
 	S   refinementTol  = pl->sublist("Solver").get<S>(   "refinement tol",   1.e-6 );
 	int refinementStep = pl->sublist("Solver").get<int>( "refinement step",  2     );
 
-	auto space = Pimpact::createSpace<S,O,4,4>( Teuchos::rcpFromRef( pl->sublist( "Space", true ) ) );
+	Teuchos::RCP<const Pimpact::Space<S,O,4,4> > space =
+		Pimpact::createSpace<S,O,4,4>(
+				Teuchos::rcpFromRef( pl->sublist( "Space", true ) ) );
 
 
 	// init vectors
-	Teuchos::RCP<MF> x = createMultiField( createCompoundField( Teuchos::rcp( new
-					VF(space,true) ), Teuchos::rcp( new SF(space,true) ) ) ) ;
+	Teuchos::RCP<MF> x =
+		createMultiField(
+				createCompoundField(
+					Teuchos::rcp( new VF(space,true) ),
+					Teuchos::rcp( new SF(space,false) ) ) ) ;
 
 	// init Fields
 	x->getFieldPtr(0)->getVFieldPtr()->initField( pl->sublist("Base flow") );
+
 
 	if( "zero"==initZero )
 		x->init( 0. );
@@ -163,6 +169,7 @@ int main( int argi, char** argv ) {
 			rl = std::to_string( static_cast<long long>(refine) ); // long long needed on brutus(intel)
 
 		auto fu = x->clone( Pimpact::ShallowCopy );
+		std::cout << "hello: " << space->rankST() << "\n";
 		fu->getFieldPtr(0)->getVFieldPtr()->initField( pl->sublist("Force") );
 		if( withoutput )
 			fu->write( 90000 );
