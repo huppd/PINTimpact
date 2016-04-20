@@ -109,11 +109,13 @@ protected:
     // time direction automatically periodic BC
     if( 4==dimension ) {
 			if( sW->spectralT() ) {
+
 				OrdinalT nl  = (gridSizeLocal->get(3)+1)/procGrid->getNP(3);
 				OrdinalT rem = (gridSizeLocal->get(3)+1)%procGrid->getNP(3);
 				int rank = procGrid->getIB(3)-1;
 				OrdinalT sI = -1 +  rank   *nl + (( rank   <rem)? rank   :rem);
 				OrdinalT eI = -1 + (rank+1)*nl + (((rank+1)<rem)?(rank+1):rem);
+
 //				std::cout << "\tnl: " << nl << "\trem: " << rem << "\trank: " << rank << "\tsI: " << sI << "\teI: " << eI << "\n";
 				sIndS_[3] = sI;
 				eIndS_[3] = eI;

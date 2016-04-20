@@ -64,8 +64,7 @@ public:
 
     wind0_->assignField( mv.getConst0Field() );
 
-    Ordinal Nf = space()->nGlo(3);
-    for( Ordinal i=1; i<=Nf; ++i ) {
+    for( Ordinal i=1; i<=space()->nGlo(3); ++i ) {
       windc_[i-1]->assignField( mv.getConstCField(i) );
       winds_[i-1]->assignField( mv.getConstSField(i) );
     }
