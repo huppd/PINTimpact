@@ -250,14 +250,13 @@ public:
 			b += sFields_[i]->dotLoc( *a.sFields_[i] );
 
 		return( b );
-
 	}
+
 
 	/// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
 	constexpr Scalar dot( const FieldT& y ) const {
 
 		return( this->reduce( comm(), dotLoc( y ) ) );
-
 	}
 
 
@@ -276,8 +275,9 @@ public:
 					( normvec+sFields_[i]->normLoc(type) );
 
 		return( normvec );
-
 	}
+
+
  /// \brief compute the norm
   /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
 	/// \todo include scaled norm
@@ -294,7 +294,6 @@ public:
 				normvec;
 
     return( normvec );
-
   }
 
 
@@ -310,8 +309,9 @@ public:
 			normvec += sFields_[i]->normLoc( *weights.sFields_[i] );
 
 		return( normvec );
-
 	}
+
+
   /// \brief Weighted 2-Norm.
   ///
   /// \warning untested
@@ -336,7 +336,6 @@ public:
 		for( int i=0; i<space()->dim(); ++i)
 			sFields_[i]->assign( *a.sFields_[i] );
 		changed();
-
 	}
 
 

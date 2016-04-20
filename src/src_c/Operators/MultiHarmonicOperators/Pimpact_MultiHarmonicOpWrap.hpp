@@ -44,10 +44,10 @@ public:
 	void apply( const DomainFieldT& x, RangeFieldT& y,
       Belos::ETrans trans=Belos::NOTRANS) const {
 
-		if( space()->sInd(U,3)<0 )
+		if( 0==space()->sInd(U,3) )
 			op_->apply( x.getConst0Field(), y.get0Field() );
 
-		for( typename SpaceT::Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i ) { 
+		for( typename SpaceT::Ordinal i=std::max(space()->sInd(U,3),1); i<=space()->eInd(U,3); ++i ) {
       op_->apply( x.getConstCField(i), y.getCField(i) );
       op_->apply( x.getConstSField(i), y.getSField(i) );
     }

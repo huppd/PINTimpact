@@ -61,10 +61,10 @@ public:
 		para->set<Scalar>( "mulL", iRe );
 		zeroOp_->setParameter( para );
 
-		if( space()->sInd(U,3)<0 )
+		if( 0==space()->sInd(U,3) )
 			zeroOp_->apply( x.getConst0Field(), y.get0Field() );
 
-		for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i ) { 
+		for( Ordinal i=std::max(space()->sInd(U,3),1); i<=space()->eInd(U,3); ++i ) {
 			// set parameters
 			para->set<Scalar>( "mulI", a2*i );
 			para->set<Scalar>( "mulC", 1. );
@@ -73,8 +73,7 @@ public:
 			modeOp_->apply( x.getConstField(i), y.getField(i) );
 		}
 		y.changed();
-
-  }
+	}
 
 	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(zeroOp_->space()); };
 

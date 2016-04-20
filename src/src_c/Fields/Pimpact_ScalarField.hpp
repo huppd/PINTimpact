@@ -75,7 +75,6 @@ public:
 			allocate();
 			initField();
     }
-
   };
 
   /// \brief copy constructor.
@@ -103,7 +102,6 @@ public:
         break;
       }
     }
-
   };
 
 
@@ -123,7 +121,6 @@ public:
 				break;
 		}
     return( mv );
-
   }
 
   /// \name Attribute methods
@@ -249,7 +246,6 @@ public:
 					b += at(i,j,k)*y.at(i,j,k);
 
 		return( b );
-
 	}
 
 	/// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y
@@ -269,6 +265,8 @@ public:
 
     return( normvec );
   }
+
+
   constexpr Scalar normLoc2() const {
 
     Scalar normvec = Teuchos::ScalarTraits<Scalar>::zero();
@@ -280,6 +278,8 @@ public:
 
     return( normvec );
   }
+
+
   constexpr Scalar normLocInf() const {
 
     Scalar normvec = Teuchos::ScalarTraits<Scalar>::zero();
@@ -300,8 +300,8 @@ public:
 					(Belos::TwoNorm==type)?
 						normLoc2():
 						normLocInf() );
-
 	}
+
 
   /// \brief compute the norm
   /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
@@ -319,7 +319,6 @@ public:
 				normvec;
 
     return( normvec );
-
   }
 
 
@@ -339,8 +338,8 @@ public:
 					normvec += at(i,j,k)*at(i,j,k)*weights.at(i,j,k)*weights.at(i,j,k);
 
     return( normvec );
-
   }
+
 
   /// \brief Weighted 2-Norm.
   ///
@@ -369,7 +368,6 @@ public:
 
 		for( int dir=0; dir<space()->dim(); ++dir )
 			exchangedState_[dir] = a.exchangedState_[dir];
-
 	}
 
 
@@ -456,7 +454,6 @@ public:
 							( coord->getX(fType_,Y,j)-domain->getOrigin(Y) )/domain->getSize(Y),
 							( coord->getX(fType_,Z,k)-domain->getOrigin(Z) )/domain->getSize(Z) );
 				}
-
 	}
 
 
@@ -700,9 +697,7 @@ public:
 				for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
 					for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
 						at(i,j,k) -= pre0;
-
 		}
-
 	}
 
   /// \}
@@ -899,9 +894,7 @@ public:
           space()->getCoordinatesGlobal()->getX(2,EField::W),
           space()->getDomainSize()->getRe(),
           space()->getDomainSize()->getAlpha2() );
-
     }
-
   }
 
 

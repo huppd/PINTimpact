@@ -113,7 +113,6 @@ public:
 							s_[i] = vF.s_[i];
 						break;
 				}
-
 			}
 	};
 
@@ -132,7 +131,6 @@ public:
 		}
 
     return( mv );
-
   }
 
   /// \name Attribute methods
@@ -228,7 +226,6 @@ public:
     b = fieldc_->dotLoc( *a.fieldc_) + fields_->dotLoc( *a.fields_ );
 
     return( b );
-
   }
 
 
@@ -236,7 +233,6 @@ public:
 	constexpr Scalar dot( const FieldT& y ) const {
 
 		return( this->reduce( comm(), dotLoc( y ) ) );
-
 	}
 
   /// \}
@@ -269,7 +265,6 @@ public:
 				normvec;
 
     return( normvec );
-
   }
 
 
@@ -346,11 +341,6 @@ public:
   ///
   /// \{
 	
-//  void changed() const {
-//    fieldc_->changed( dir );
-//    fields_->changed( dir );
-//  }
-
   void exchange() const {
     fieldc_->exchange();
     fields_->exchange();

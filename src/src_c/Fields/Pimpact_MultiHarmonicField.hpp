@@ -57,18 +57,24 @@ protected:
 	void allocate() {
 
 		if( global_ ) {
-			Ordinal n = field0_->getStorageSize();
+
+			Ordinal nx = field0_->getStorageSize();
+
 			s_ = new Scalar[ getStorageSize() ];
+			
 			field0_->setStoragePtr( s_ );
+
 			for( Ordinal i=0; i<space()->nGlo(3); ++i )
-				fields_[i]->setStoragePtr( s_ + n + 2*n*i );
+				fields_[i]->setStoragePtr( s_ + nx + 2*nx*i );
 		}
 		else{
+
 			Ordinal nx = field0_->getStorageSize();
-			Ordinal nf = 1+2*(space()->eInd(U,3) - std::max(space()->sInd(U,3),0));
+
 			s_ = new Scalar[ getStorageSize() ];
+
 			field0_->setStoragePtr( s_ );
-			for( Ordinal i=0; i<space()->eInd(U,3) - std::max(space()->sInd(U,3),0); ++i )
+			for( Ordinal i=0; i<=space()->eInd(U,3) - std::max(space()->sInd(U,3),1); ++i )
 				fields_[i]->setStoragePtr( s_ + nx + 2*nx*i );
 		}
 	}
@@ -79,10 +85,11 @@ public:
 	constexpr Ordinal getStorageSize() const {
 		return(
 				( global_ )?
-					( ( 1 + 2*space()->nGlo(3) )*field0_->getStorageSize() ):
-					( ( 1 + 2*(space()->eInd(U,3) - std::max(space()->sInd(U,3),0))  )*field0_->getStorageSize() )
+					( ( 1 + 2*space()->nGlo(3)                                             )*field0_->getStorageSize() ):
+					( ( 1 + 2*( space()->eInd(U,3) - std::max(space()->sInd(U,3),1) + 1 )  )*field0_->getStorageSize() )
 				);
 	}
+
 
 	MultiHarmonicField( const Teuchos::RCP<const SpaceT>& space, const bool global=true ):
 		AF( space ),
@@ -99,14 +106,13 @@ public:
 					fields_[i] = Teuchos::rcp( new ModeField<IFT>( space, false ) );
 			}
 			else{
-				for( Ordinal i=0; i<space()->eInd(U,3) - std::max(space()->sInd(U,3),0); ++i )
+				for( Ordinal i=0; i<space()->eInd(U,3) - std::max(space()->sInd(U,3),1) + 1; ++i )
 					fields_[i] = Teuchos::rcp( new ModeField<IFT>( space, false ) );
 			}
 
 			allocate();
 			initField();
-
-		};
+	};
 
 
   /// \brief copy constructor.
@@ -126,8 +132,8 @@ public:
 					fields_[i-1] = Teuchos::rcp( new ModeField<IFT>( vF.getConstField(i), copyType ) );
 			}
 			else{
-				for( Ordinal i=0; i<space()->eInd(U,3) - std::max(space()->sInd(U,3),0); ++i )
-					fields_[i] = Teuchos::rcp( new ModeField<IFT>( vF.getConstField(i+std::max(space()->sInd(U,3),0)+1), copyType ) );
+				for( Ordinal i=0; i<space()->eInd(U,3) - std::max(space()->sInd(U,3),1) + 1; ++i )
+					fields_[i] = Teuchos::rcp( new ModeField<IFT>( vF.getConstField(i+std::max(space()->sInd(U,3),1)), copyType ) );
 			}
 
 			allocate();
@@ -140,8 +146,7 @@ public:
 						s_[i] = vF.s_[i];
 					break;
 			}
-
-		};
+	};
 
 
 	~MultiHarmonicField() { delete[] s_; }
@@ -149,7 +154,6 @@ public:
   Teuchos::RCP<FieldT> clone( ECopyType ctype=DeepCopy ) const {
 
     return( Teuchos::rcp( new FieldT(*this,ctype) ) );
-
   }
 
 
@@ -160,11 +164,10 @@ protected:
 
 	constexpr Ordinal index( const Ordinal& i ) const {
 		return( i - 1 + 
-				(( global_||-1==space()->sInd(U,3) )?
+				(( global_||0==space()->sInd(U,3) )?
 					0:
-					(-space()->sInd(U,3)) )
+					(-space()->sInd(U,3)+1) )
 				);
-
 	};
 
 public:
@@ -202,10 +205,9 @@ public:
 		Ordinal len = 0;
 
 		len += getConst0FieldPtr()->getLength();
-		len += space()->nGlo(3)*getConstFieldPtr( std::max(space()->sInd(U,3),0)+1 )->getLength();
+		len += space()->nGlo(3)*getConstFieldPtr( std::max(space()->sInd(U,3),1) )->getLength();
 
     return( len );
-
   }
 
 
@@ -221,14 +223,13 @@ public:
 	/// \todo add test for consistent VectorSpaces in debug mode
   void add( const Scalar& alpha, const FieldT& A, const Scalar& beta, const FieldT& B ) {
 
-		if( space()->sInd(U,3)<0 )
+		if( 0==space()->sInd(U,3) )
 			get0FieldPtr()->add(alpha, A.getConst0Field(), beta, B.getConst0Field() );
 
-		for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i )
+		for( Ordinal i=std::max(space()->sInd(U,3),1); i<=space()->eInd(U,3); ++i )
 			getFieldPtr(i)->add( alpha, A.getConstField(i), beta, B.getConstField(i) );
 
 		changed();
-
   }
 
 
@@ -240,14 +241,13 @@ public:
   /// \return Reference to this object
   void abs( const FieldT& y) {
 
-		if( space()->sInd(U,3)<0 )
+		if( 0==space()->sInd(U,3) )
 			get0FieldPtr()->abs( y.getConst0Field() );
 
-		for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i )
+		for( Ordinal i=std::max(space()->sInd(U,3),1); i<=space()->eInd(U,3); ++i )
 			getFieldPtr(i)->abs( y.getConstField(i) );
 
 		changed();
-
   }
 
 
@@ -258,24 +258,23 @@ public:
   /// \return Reference to this object
   void reciprocal( const FieldT& y){
 
-		if( space()->sInd(U,3)<0 )
+		if( 0==space()->sInd(U,3) )
 			get0FieldPtr()->reciprocal( y.getConst0Field() );
 
-		for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i )
+		for( Ordinal i=std::max(space()->sInd(U,3),1); i<=space()->eInd(U,3); ++i )
 			getFieldPtr(i)->reciprocal( y.getConstField(i) );
 
 		changed();
-
   }
 
 
   /// \brief Scale each element of the vectors in \c this with \c alpha.
   void scale( const Scalar& alpha ) {
 
-		if( space()->sInd(U,3)<0 )
+		if( 0==space()->sInd(U,3) )
 			get0FieldPtr()->scale( alpha );
 
-		for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i )
+		for( Ordinal i=std::max(space()->sInd(U,3),1); i<=space()->eInd(U,3); ++i )
 			getFieldPtr(i)->scale( alpha );
 
 		changed();
@@ -290,10 +289,10 @@ public:
   /// \return Reference to this object
   void scale( const FieldT& a) {
 
-		if( space()->sInd(U,3)<0 )
+		if( 0==space()->sInd(U,3) )
 			get0FieldPtr()->scale( a.getConst0Field() );
 
-		for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i )
+		for( Ordinal i=std::max(space()->sInd(U,3),1); i<=space()->eInd(U,3); ++i )
 			getFieldPtr(i)->scale( a.getConstField(i) );
 
 		changed();
@@ -311,20 +310,18 @@ public:
 
     Scalar b = 0.;
 
-		if( space()->sInd(U,3)<0 )
+		if( 0==space()->sInd(U,3) )
 			b += getConst0FieldPtr()->dotLoc( a.getConst0Field() );
-		for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i )
+		for( Ordinal i=std::max(space()->sInd(U,3),1); i<=space()->eInd(U,3); ++i )
 			b += getConstFieldPtr(i)->dotLoc( a.getConstField(i) );
 
     return( b );
-
   }
 
 	/// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
 	constexpr Scalar dot( const FieldT& y ) const {
 
 		return( this->reduce( comm(), dotLoc( y ) ) );
-
 	}
 
   /// \brief Compute the norm of Field.
@@ -333,20 +330,20 @@ public:
 
     Scalar normvec = 0.;
 
-		if( space()->sInd(U,3)<0 )
+		if( 0==space()->sInd(U,3) )
 			normvec += getConst0FieldPtr()->normLoc(type);
 
-		for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i )
-				normvec =
-					(Belos::InfNorm==type)?
-					std::max( getConstFieldPtr(i)->normLoc(type), normvec ):
-					(normvec+getConstFieldPtr(i)->normLoc(type));
+		for( Ordinal i=std::max(space()->sInd(U,3),1); i<=space()->eInd(U,3); ++i )
+			normvec =
+				(Belos::InfNorm==type)?
+				std::max( getConstFieldPtr(i)->normLoc(type), normvec ):
+				(normvec+getConstFieldPtr(i)->normLoc(type));
 
 		return( normvec );
-
   }
 
- /// \brief compute the norm
+
+	/// \brief compute the norm
   /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
 	/// \todo include scaled norm
   constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm ) const {
@@ -362,8 +359,8 @@ public:
 				normvec;
 
     return( normvec );
-
   }
+
 
   /// \brief Weighted 2-Norm.
   ///
@@ -374,14 +371,13 @@ public:
 
     Scalar normvec= Teuchos::ScalarTraits<Scalar>::zero();
 
-		if( space()->sInd(U,3)<0 )
+		if( 0==space()->sInd(U,3) )
 			normvec += getConst0FieldPtr()->normLoc( weights.getConst0Field() );
 
-		for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i )
+		for( Ordinal i=std::max(space()->sInd(U,3),1); i<=space()->eInd(U,3); ++i )
 			normvec += getConstFieldPtr(i)->normLoc(weights.getConstField(i));
 
     return( normvec );
-
   }
 
 
@@ -405,10 +401,10 @@ public:
   /// Assign (deep copy) A into mv.
   void assign( const FieldT& a ) {
 
-		if( space()->sInd(U,3)<0 )
+		if( 0==space()->sInd(U,3) )
 			get0FieldPtr()->assign( a.getConst0Field() );
 
-		for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i )
+		for( Ordinal i=std::max(space()->sInd(U,3),1); i<=space()->eInd(U,3); ++i )
 			getFieldPtr(i)->assign( a.getConstField(i) );
 
 		changed();
@@ -418,36 +414,37 @@ public:
   /// \brief Replace the vectors with a random vectors.
   void random(bool useSeed = false, int seed = 1) {
 
-		if( space()->sInd(U,3)<0 )
+		if( 0==space()->sInd(U,3) )
 			get0FieldPtr()->random();
 
-		for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i )
+		for( Ordinal i=std::max(space()->sInd(U,3),1); i<=space()->eInd(U,3); ++i )
 			getFieldPtr(i)->random();
 
 		changed();
-
   }
 
 
   /// \brief Replace each element of the vector  with \c alpha.
   void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero() ) {
 
-		if( space()->sInd(U,3)<0 )
+		if( 0==space()->sInd(U,3) )
 			get0FieldPtr()->init( alpha );
 
-		for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i )
+		for( Ordinal i=std::max(space()->sInd(U,3),1); i<=space()->eInd(U,3); ++i )
 			getFieldPtr(i)->init( alpha );
 
 		changed();
-
   }
 
 
 	void initField() {
-		if( space()->sInd(U,3)<0 )
+
+		if( 0==space()->sInd(U,3) )
 			get0FieldPtr()->initField();
-		for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i )
+
+		for( Ordinal i=std::max(space()->sInd(U,3),1); i<=space()->eInd(U,3); ++i )
 			getFieldPtr(i)->initField();
+
 		changed();
 	}
 
@@ -455,10 +452,10 @@ public:
 	///  \brief initializes including boundaries to zero 
 	void initField( Teuchos::ParameterList& para ) {
 
-		if( space()->sInd(U,3)<0 )
+		if( 0==space()->sInd(U,3) )
 			get0FieldPtr()->initField( para.sublist("0 mode") );
 
-		if( space()->sInd(U,3)<=0 && 0<space()->eInd(U,3) ) {
+		if( space()->sInd(U,3)<=1 && 1<=space()->eInd(U,3) ) {
 			getCFieldPtr(1)->initField( para.sublist("cos mode") );
 			getSFieldPtr(1)->initField( para.sublist("sin mode") );
 		}
@@ -467,13 +464,13 @@ public:
 
   void level()  {
 
-		if( space()->sInd(U,3)<0 )
+		if( 0==space()->sInd(U,3) )
 			get0FieldPtr()->level();
-		for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i )
+
+		for( Ordinal i=std::max(space()->sInd(U,3),1); i<=space()->eInd(U,3); ++i )
 			getConstFieldPtr(i)->level();
 
 		changed();
-
   }
 
   /// \}
@@ -481,11 +478,13 @@ public:
   /// Print the vector.  To be used for debugging only.
   void print( std::ostream& os=std::cout ) const {
 
-		if( space()->sInd(U,3)<0 )
+		if( 0==space()->sInd(U,3) )
 			getConst0FieldPtr()->print( os );
-		for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i )
+
+		for( Ordinal i=std::max(space()->sInd(U,3),1); i<=space()->eInd(U,3); ++i )
 			getConstFieldPtr(i)->print( os );
   }
+
 
   void write( int count=0, bool time_evol_yes=false ) const {
 
@@ -511,12 +510,13 @@ public:
 					}
 				}
 			}
-
 		}
 		else{
-			if( space()->sInd(U,3)<0 )
+
+			if( 0==space()->sInd(U,3) )
 				getConst0FieldPtr()->write(count);
-			for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i ) {
+
+			for( Ordinal i=std::max(space()->sInd(U,3),1); i<=space()->eInd(U,3); ++i ) {
 				getConstCFieldPtr(i)->write( count+2*i   );
 				getConstSFieldPtr(i)->write( count+2*i+1 );
 			}
@@ -529,9 +529,8 @@ public:
 	///
 	/// \{
 
-  void changed() const {
-    exchangedState_ = false;
-  }
+	void changed() const { exchangedState_ = false; }
+
 
 	/// \todo biggest todo
 	void exchange() const {
@@ -542,10 +541,10 @@ public:
 		if( exchangedState_==false ) {
 
 			// exchange spatial
-			if( space()->sInd(U,3)<0 )
+			if( 0==space()->sInd(U,3) )
 				get0FieldPtr()->exchange();
 
-			for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i )
+			for( Ordinal i=std::max(space()->sInd(U,3),1); i<=space()->eInd(U,3); ++i )
 				getConstFieldPtr(i)->exchange();
 
 			// mpi stuff
@@ -553,9 +552,9 @@ public:
 
 			// --- sendcount ---
 			int sendcount = 0;
-			if( space()->sInd(U,3)<0 )
+			if( 0==space()->sInd(U,3) )
 				sendcount += nx;
-			for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i )
+			for( Ordinal i=std::max(space()->sInd(U,3),1); i<=space()->eInd(U,3); ++i )
 				sendcount += 2*nx;
 
 			// --- recvcount, displacement ---
@@ -602,16 +601,15 @@ public:
 			delete[] displs;
 
 			// set non owning spatial block as exchanged
-			if( space()->sInd(U,3)>0 )
+			if( 0!=space()->sInd(U,3) )
 				getConst0FieldPtr()->setExchanged();
 
-			for( Ordinal i=1; i<=space()->sInd(U,3); ++i )
+			for( Ordinal i=1; i<space()->sInd(U,3); ++i )
 				getConstFieldPtr(i)->setExchanged();
 
 			for( Ordinal i=space()->eInd(U,3)+1; i<=space()->nGlo(3); ++i )
 				getConstFieldPtr(i)->setExchanged();
 		}
-
 	}
 
 	/// \}
@@ -630,7 +628,6 @@ Teuchos::RCP< MultiHarmonicField< FieldT > > createMultiHarmonic(
 
 	return(
 			create< MultiHarmonicField<FieldT> >( space ) );
-
 }
 
 

@@ -93,8 +93,7 @@ public:
 
 			for( int i=0; i<nt; ++i )
 				mfs_[i]->setStoragePtr( array_+i*nx );
-
-		}
+	}
 
 
 
@@ -131,8 +130,7 @@ public:
 					array_[i] = 0.;
 				exchangedState_ = true;
 			}
-
-		}
+	}
 
 
 
@@ -177,7 +175,6 @@ public:
 		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
 			mfs_[i]->add( alpha, *A.mfs_[i], beta, *B.mfs_[i] );
 		changed();
-
 	}
 
 
@@ -192,7 +189,6 @@ public:
 		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
 			mfs_[i]->abs( *y.mfs_[i] );
 		changed();
-
 	}
 
 
@@ -202,6 +198,7 @@ public:
 	/// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
 	/// \return Reference to this object
 	void reciprocal( const FieldT& y){
+
 		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
 			mfs_[i]->reciprocal( *y.mfs_[i] );
 		changed();
@@ -213,6 +210,7 @@ public:
 	/// Here x represents on \c Field, and we update it as
 	/// \f[ x_i = \alpha x_i \quad \mbox{for } i=1,\dots,n \f]
 	void scale( const Scalar& alpha ) {
+
 		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
 			mfs_[i]->scale(alpha);
 		changed();
@@ -233,7 +231,6 @@ public:
 	/// \}
 
 
-
 	/// \brief Compute the inner product for the \c TimeField considering it as one Vector.
 	constexpr Scalar dotLoc( const FieldT& A ) const {
 
@@ -243,14 +240,12 @@ public:
 			b+= mfs_[i]->dotLoc( *A.mfs_[i] );
 
 		return( b );
-
 	}
 
 	/// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
 	constexpr Scalar dot( const FieldT& y ) const {
 
 		return( this->reduce( comm(), dotLoc( y ) ) );
-
 	}
 
 
@@ -267,6 +262,7 @@ public:
 
 		return( normvec );
 	}
+
  /// \brief compute the norm
   /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm/
 	/// \todo include scaled norm
@@ -283,7 +279,6 @@ public:
 				normvec );
 
     return( normvec );
-
   }
 
 
@@ -321,7 +316,6 @@ public:
 		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
 			mfs_[i]->assign( *A.mfs_[i] );
 		changed();
-
 	}
 
 
@@ -331,7 +325,6 @@ public:
 		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
 			mfs_[i]->random();
 		changed();
-
 	}
 
 
@@ -341,7 +334,6 @@ public:
 		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
 			mfs_[i]->init(alpha);
 		changed();
-
 	}
 
 	void initField() {
@@ -355,7 +347,6 @@ public:
 		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
 			mfs_[i]->level();
 		changed();
-
 	}
 
 
@@ -470,7 +461,6 @@ Teuchos::RCP< TimeField<FieldT> >
 createTimeField( const Teuchos::RCP<const SpaceT>& space ) {
 
 	return( Teuchos::rcp( new TimeField<FieldT>( space ) ) );
-
 }
 
 
@@ -542,7 +532,6 @@ initVectorTimeField(
 		}
 
 	field->changed();
-
 }
 
 

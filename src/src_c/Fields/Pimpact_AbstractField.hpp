@@ -40,7 +40,6 @@ protected:
 		Scalar normGlob;
 		MPI_Allreduce( &normLocal, &normGlob, 1, MPI_REAL8, op, comm );
 		return( normGlob );
-
 	}
 
 }; // end of class AbstractField

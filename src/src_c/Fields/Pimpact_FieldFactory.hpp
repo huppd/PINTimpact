@@ -29,7 +29,6 @@ createMultiModeVectorField( const Teuchos::RCP<const SpaceT>& space, int n=1 ) {
 	Teuchos::RCP< ModeField<VectorField<SpaceT> > > vel = create< ModeField< VectorField<SpaceT> > >( space );
 
 	return( createMultiField<ModeField<VectorField<SpaceT> > >( *vel, n ) );
-
 }
 
 
@@ -46,7 +45,6 @@ createMultiModeScalarField( const Teuchos::RCP<const SpaceT>& space, int n=1 ) {
 		scal = create< ModeField<ScalarField<SpaceT> > >( space );
 
   return( createMultiField<ModeField<ScalarField<SpaceT> > >( *scal, n ) );
-
 }
 
 
@@ -130,7 +128,6 @@ createInitMSF(
 		sca = Pimpact::create< ModeField<ScalarField<SpaceT> > >( space );
 
   return( Pimpact::createMultiField<ModeField<ScalarField<SpaceT> > >(*sca,1) );
-
 }
 
 

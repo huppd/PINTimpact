@@ -39,8 +39,8 @@ public:
 
   MultiHarmonicMultiOpWrap( const Teuchos::RCP<MultiOperator>& op ): op_(op) {};
 
-	void apply( const DomainFieldT& x, RangeFieldT& y,
-      Belos::ETrans trans=Belos::NOTRANS) const {
+	void apply( const DomainFieldT& x, RangeFieldT& y, Belos::ETrans
+			trans=Belos::NOTRANS) const {
 
 		Teuchos::RCP<typename MultiOperator::DomainFieldT> mx =
 			Teuchos::rcp( new typename MultiOperator::DomainFieldT( space(), 0 ) );
@@ -48,10 +48,10 @@ public:
 		Teuchos::RCP<typename MultiOperator::RangeFieldT>	 my = Teuchos::rcp( new
 				typename MultiOperator::RangeFieldT ( space(), 0 ) );
 
-		for( Ordinal i=std::max(space()->sInd(U,3),0)+1; i<=space()->eInd(U,3); ++i ) {
+		for( Ordinal i=std::max(space()->sInd(U,3),1); i<=space()->eInd(U,3); ++i ) {
 			// making x 
 			mx->push_back(
-				Teuchos::rcp_const_cast<typename MultiOperator::DomainFieldT::InnerFieldT>(
+					Teuchos::rcp_const_cast<typename MultiOperator::DomainFieldT::InnerFieldT>(
 						x.getConstCFieldPtr(i) ) );
 			mx->push_back(
 					Teuchos::rcp_const_cast<typename MultiOperator::DomainFieldT::InnerFieldT>(
@@ -60,9 +60,9 @@ public:
 			// making y
 			my->push_back( y.getCFieldPtr(i) );
 			my->push_back( y.getSFieldPtr(i) );
-    }
+		}
 
-		if( space()->sInd(U,3)<0 ) {
+		if( 0==space()->sInd(U,3) ) {
 			mx->push_back(
 					Teuchos::rcp_const_cast<typename MultiOperator::DomainFieldT::InnerFieldT>(
 						x.getConst0FieldPtr() ) );
@@ -74,10 +74,10 @@ public:
 
 		y.changed();
 
-  };
+	};
 
   void assignField( const DomainFieldT& mv ) {
-//		op_->assignField( Pimpact::createMultiField(mv.getConst0FieldPtr()) );
+		//op_->assignField( Pimpact::createMultiField(mv.getConst0FieldPtr()) );
   };
 
   bool hasApplyTranspose() const { return( op_->hasApplyTranspose() ); }

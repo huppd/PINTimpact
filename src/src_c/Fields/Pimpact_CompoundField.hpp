@@ -69,7 +69,7 @@ public:
     AF( field.space() ),
     vfield_( Teuchos::rcp( new VField( *field.vfield_, copyType ) ) ),
     sfield_( Teuchos::rcp( new SField( *field.sfield_, copyType ) ) )
-{};
+	{};
 
 
   Teuchos::RCP<FieldT> clone( ECopyType ctype=DeepCopy ) const {
@@ -178,7 +178,6 @@ public:
 	constexpr Scalar dot( const FieldT& y ) const {
 
 		return( this->reduce( comm(), dotLoc( y ) ) );
-
 	}
 
 
@@ -193,7 +192,6 @@ public:
 			(Belos::InfNorm==type)?
 			std::max(vfield_->normLoc(type), sfield_->normLoc(type) ):
 			(vfield_->normLoc(type) + sfield_->normLoc(type)) );
-
   }
 
  /// \brief compute the norm
@@ -212,7 +210,6 @@ public:
 				normvec;
 
     return( normvec );
-
   }
 
 
@@ -308,7 +305,6 @@ Teuchos::RCP< CompoundField<VField,SField> > createCompoundField(
 
   return( Teuchos::RCP<CompoundField<VField,SField> > (
       new CompoundField<VField,SField>( vfield, sfield ) ) );
-
 }
 
 

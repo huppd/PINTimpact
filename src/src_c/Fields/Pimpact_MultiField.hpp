@@ -58,31 +58,27 @@ public:
   /// \brief constructor taking a \c FieldT constructing multiple shallow copys.
   /// \note maybe hide and make it private
 	MultiField( const InnerFieldT& field, const int numvecs, ECopyType ctyp=ShallowCopy ):
-		AF( field.space() ),
-		mfs_(numvecs) {
+		AF( field.space() ), mfs_(numvecs) {
 			for( int i=0; i<numvecs; ++i )
 				mfs_[i] = field.clone(ctyp);
-		}
+	}
 
 
   /// \brief cheap constructor from one FieldT.
   ///
   /// creates simple wrapper from field(no coppying).
 	MultiField( const Teuchos::RCP<InnerFieldT>& field ):
-		AF( field->space() ),
-		mfs_(1) {
+		AF( field->space() ), mfs_(1) {
 			mfs_[0] = field;
-		}
+	}
 
 
 	MultiField( const FieldT& mv, ECopyType ctype ):
 		AF( mv.space() ), mfs_( mv.getNumberVecs() ) {
 
-			for( int i=0; i<getNumberVecs(); ++i ) {
+			for( int i=0; i<getNumberVecs(); ++i )
 				mfs_[i] = mv.mfs_[i]->clone(ctype);
-			}
-
-		}
+	}
 
 
 	/// \brief  constructor, creates \c numvecs  empty fields
@@ -91,13 +87,11 @@ public:
 	/// \param numvecs
 	/// \return
 	MultiField( const Teuchos::RCP<const SpaceT>& space, int numvecs=1 ):
-		AF( space ),
-		mfs_( numvecs ) {
+		AF( space ), mfs_( numvecs ) {
 
 			for( int i=0; i<numvecs; ++i )
 				mfs_[i] = create<InnerFieldT>( space );
-
-		}
+	}
 
 
   /// \brief Create a new \c MultiField with \c numvecs columns.
@@ -353,7 +347,6 @@ public:
 
 		MPI_Allreduce( temp, dots.data(), n, MPI_REAL8, MPI_SUM, comm() );
 		delete[] temp;
-
 	}
 
 
@@ -436,7 +429,6 @@ public:
 				normvec;
 
     return( normvec );
-
   }
 
 
@@ -454,6 +446,8 @@ public:
 
 		return( nor );
 	}
+
+
   /// \brief Weighted 2-Norm.
   ///
   /// \warning untested
@@ -570,7 +564,6 @@ template<class FieldT>
 Teuchos::RCP< MultiField<FieldT> > createMultiField( const Teuchos::RCP<FieldT>& field ) {
 
 	return( Teuchos::rcp( new MultiField<FieldT>( field ) ) );
-
 }
 
 
