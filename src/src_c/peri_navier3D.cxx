@@ -139,7 +139,7 @@ int main( int argi, char** argv ) {
 	Teuchos::RCP<MF> x =
 		createMultiField(
 				createCompoundField(
-					Teuchos::rcp( new VF(space) ),
+					Teuchos::rcp( new VF(space,true) ),
 					Teuchos::rcp( new SF(space) ) ) ) ;
 
 	// init Fields
@@ -198,7 +198,6 @@ int main( int argi, char** argv ) {
 
 			// create Multi space
 			auto mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, pl->sublist("Multi Grid").get<int>("maxGrids") );
-
 
 
 			Teuchos::RCP< Pimpact::OperatorBase<MVF> > opV2Vinv = Teuchos::null;

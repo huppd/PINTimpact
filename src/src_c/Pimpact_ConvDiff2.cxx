@@ -96,7 +96,6 @@ int main( int argi, char** argv ) {
       z->initField( Pimpact::ConstFlow, 0., 0., 0. );
 
       op->assignField( *wind );
-      smoother->assignField( *wind );
 
       // constructing rhs
       op->apply( *y, *z );

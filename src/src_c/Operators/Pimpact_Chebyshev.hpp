@@ -338,7 +338,7 @@ protected:
 public:
 
 	void assignField( const DomainFieldT& mv ) {
-		op_->assignField( mv );
+		//op_->assignField( mv );
 	};
 
 	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(op_->space()); };

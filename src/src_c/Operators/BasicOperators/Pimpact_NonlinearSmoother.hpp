@@ -24,43 +24,46 @@ class NonlinearSmoother {
 
 public:
 
-  using SpaceT = typename ConvVOpT::SpaceT;
+	using SpaceT = typename ConvVOpT::SpaceT;
 
-  using DomainFieldT = VectorField<SpaceT>;
-  using RangeFieldT = VectorField<SpaceT>;
+	using DomainFieldT = VectorField<SpaceT>;
+	using RangeFieldT = VectorField<SpaceT>;
 
-  using SSmootherT = ST<typename ConvVOpT::ConvSOpT>;
+	using SSmootherT = ST<typename ConvVOpT::ConvSOpT>;
 
 protected:
 
-  Teuchos::RCP<NonlinearWrap<SSmootherT> > convVWrap_;
+	Teuchos::RCP<NonlinearWrap<SSmootherT> > convVWrap_;
 
-  Teuchos::RCP< ConvectionField<SpaceT> > convField_;
+	Teuchos::RCP< ConvectionField<SpaceT> > convField_;
 
 public:
 
-    NonlinearSmoother(
-        const Teuchos::RCP<const ConvVOpT>& op,
-        Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ):
-      convVWrap_( create<NonlinearWrap<SSmootherT> >( create<SSmootherT>( op->getSOp(), pl ) ) ),
-      convField_( op->getConvField() ) {};
+	NonlinearSmoother(
+			const Teuchos::RCP<const ConvVOpT>& op,
+			Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ):
+		convVWrap_( create<NonlinearWrap<SSmootherT> >( create<SSmootherT>( op->getSOp(), pl ) ) ),
+		convField_( op->getConvField() ) {};
 
 
+	/// NOFX should not be already assigned in Operators.
+	void assignField( const DomainFieldT& mv ) const {
+//#ifndef NDEBUG
+		//TEUCHOS_TEST_FOR_EXCEPT( true );
+//#endif
+	};
 
-  /// should not be already assigned in Operators.
-  void assignField( const DomainFieldT& mv ) const { convField_->assignField( mv ); };
 
   /// \note Operator's wind has to be assigned correctly
-  /// \deprecated
   void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
     convVWrap_->apply( convField_->get(), x, y );
   }
 
-  Teuchos::RCP< ConvectionField<SpaceT> >
-  getConvField() const {
-    return( convField_ );
-  }
+
+	Teuchos::RCP< ConvectionField<SpaceT> > getConvField() const {
+		return( convField_ );
+	}
 
 
   bool hasApplyTranspose() const { return( false ); }

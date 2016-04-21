@@ -36,61 +36,61 @@ class Interface {
 
 public:
 
-  using Field = F;
+	using Field = F;
 
-  using Op = ::Pimpact::OperatorBase<Field>;
+	using Op = ::Pimpact::OperatorBase<Field>;
 
 protected:
 
-  Teuchos::RCP<Field> fu_;
-  Teuchos::RCP<Op>    op_;
-  Teuchos::RCP<Op>   jop_;
+	Teuchos::RCP<Field> fu_;
+	Teuchos::RCP<Op>    op_;
+	Teuchos::RCP<Op>   jop_;
 
 public:
 
-  /// Constructor
-  Interface(
-      Teuchos::RCP<Field> fu=Teuchos::null,
-      Teuchos::RCP<Op>    op=Teuchos::null,
-      Teuchos::RCP<Op>   jop=Teuchos::null ):
-        fu_( fu ),
-        op_(op),
-        jop_(jop) {};
+	/// Constructor
+	Interface(
+			Teuchos::RCP<Field> fu=Teuchos::null,
+			Teuchos::RCP<Op>    op=Teuchos::null,
+			Teuchos::RCP<Op>   jop=Teuchos::null ):
+		fu_( fu ),
+		op_(op),
+		jop_(jop) {};
 
-  /// Compute the function, F, given the specified input vector x.
-  NOX::Abstract::Group::ReturnType computeF(const Field& x, Field& f ) {
+	/// Compute the function, F, given the specified input vector x.
+	NOX::Abstract::Group::ReturnType computeF(const Field& x, Field& f ) {
 
-    op_->assignField( x );
-    op_->apply( x, f );
-    f.add( 1., f, -1., *fu_ );
-//		f.level();
-    return( NOX::Abstract::Group::Ok );
-  }
+		op_->assignField( x );
+		op_->apply( x, f );
+		f.add( 1., f, -1., *fu_ );
 
-
-  /// \brief Compute the Jacobian Operator, given the specified input vector x.
-  NOX::Abstract::Group::ReturnType computeJacobian( const Field& x ) {
-
-	 jop_->assignField( x );
-    return( NOX::Abstract::Group::Ok );
-  }
+		return( NOX::Abstract::Group::Ok );
+	}
 
 
-  NOX::Abstract::Group::ReturnType applyJacobian( const Field& x, Field& y, Belos::ETrans type=Belos::NOTRANS ) {
-    return( NOX::Abstract::Group::NotDefined );
-  }
+	/// \brief Compute the Jacobian Operator, given the specified input vector x.
+	NOX::Abstract::Group::ReturnType computeJacobian( const Field& x ) {
+
+		jop_->assignField( x );
+		return( NOX::Abstract::Group::Ok );
+	}
 
 
-  NOX::Abstract::Group::ReturnType applyJacobianInverse( Teuchos::ParameterList &params, const Field& x, Field& y ) {
-
-    jop_->apply( x, y );
-    return( NOX::Abstract::Group::Ok );
-  }
+	NOX::Abstract::Group::ReturnType applyJacobian( const Field& x, Field& y, Belos::ETrans type=Belos::NOTRANS ) {
+		return( NOX::Abstract::Group::NotDefined );
+	}
 
 
-  NOX::Abstract::Group::ReturnType applyPreconditioner( const Field& x, Field& y ) {
-    return( NOX::Abstract::Group::NotDefined );
-  }
+	NOX::Abstract::Group::ReturnType applyJacobianInverse( Teuchos::ParameterList &params, const Field& x, Field& y ) {
+
+		jop_->apply( x, y );
+		return( NOX::Abstract::Group::Ok );
+	}
+
+
+	NOX::Abstract::Group::ReturnType applyPreconditioner( const Field& x, Field& y ) {
+		return( NOX::Abstract::Group::NotDefined );
+	}
 
 }; // end of class Interface
 

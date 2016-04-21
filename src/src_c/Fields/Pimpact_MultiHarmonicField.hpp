@@ -125,7 +125,8 @@ public:
   /// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
 	MultiHarmonicField( const MultiHarmonicField& vF, ECopyType copyType=DeepCopy ):
 		AF( vF.space() ),
-		global_( vF.global_ ),
+		//global_( vF.global_ ),
+		global_( vF.space()->np(3)==1 ),
 		field0_( Teuchos::rcp( new IFT( *vF.field0_, copyType ) ) ),
 		fields_( vF.space()->nGlo(3) ),
     exchangedState_(vF.exchangedState_) {
