@@ -50,7 +50,6 @@ public:
 
     for( Ordinal i=0; i<nt; ++i ) 
       wind_[i] = create<ConvectionField>( space );
-
   };
 
   void assignField( const DomainFieldT& mv ) {
@@ -62,7 +61,6 @@ public:
     for( Ordinal i=0; i<nt; ++i ) {
       wind_[i]->assignField( mv.getConstField(i) );
     }
-
   };
 
 
@@ -98,11 +96,9 @@ public:
 				op_->apply( wind_[i]->get(), y.getConstField(i), *temp, 0., 0., 1., iRe );
 
 				z.getField(i).add( 1., z.getConstField(i), 0.5, *temp );
-
 			}
 
 			op_->apply( wind_[sInd-1]->get(), y.getConstField(sInd-1), z.getField(sInd), 1., 0., 0.5, iRe*0.5 );
-
 
 		}
 		else {
@@ -112,7 +108,6 @@ public:
 			}
 		}
 		z.changed();
-
 	}
 
 

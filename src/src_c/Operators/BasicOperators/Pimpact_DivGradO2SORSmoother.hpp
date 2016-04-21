@@ -110,7 +110,6 @@ public:
 		}
 		if( levelYes_ )
 			y.level();
-
 	}
 
   void assignField( const DomainFieldT& mv ) {};

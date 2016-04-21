@@ -99,7 +99,6 @@ public:
       dirs_[1] = pl->get<short int>( "dir Y", 1 );
       dirs_[2] = pl->get<short int>( "dir Z", 1 );
     }
-
   }
 
 
@@ -126,7 +125,6 @@ public:
         applyNPoint( x, y, z );
 
     }
-
   }
 
 protected:
@@ -161,7 +159,6 @@ protected:
 				for( dirs_[0]=-1; dirs_[0]<2; dirs_[0]+=2 )
 					apply( x, y, z, dirs_, loopOrder_ );
 		}
-
 	}
 
 
@@ -203,7 +200,6 @@ protected:
         omega_ );
 
     z.changed();
-
   }
 
 public:
@@ -212,7 +208,6 @@ public:
 
     out << "--- " << getLabel() << "---\n";
     op_->print();
-
   }
 
 

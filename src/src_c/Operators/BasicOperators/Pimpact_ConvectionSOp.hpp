@@ -178,9 +178,7 @@ public:
 					if( std::isnan( cVD_[i][j] ) || std::isinf( cVD_[i][j] ) ) cVD_[i][j] = 0.;
 					if( std::isnan( cVU_[i][j] ) || std::isinf( cVU_[i][j] ) ) cVU_[i][j] = 0.;
 				}
-
 			}
-
 	};
 
 
@@ -240,7 +238,6 @@ public:
 				mulC );
 
 		z.changed();
-
 	}
 
 

@@ -39,7 +39,6 @@ void OP_helmholtz(
 template<class ST>
 class HelmholtzOp {
 
-
 public:
 
   using SpaceT = ST;
@@ -68,7 +67,7 @@ public:
 			const Teuchos::RCP<const SpaceT>& space ):
 		space_( space ),
 		mulI_( static_cast<Scalar>(0.) ),
-		mulL_( 1./space_->getDomainSize()->getRe() )	{
+		mulL_( 1./space_->getDomainSize()->getRe() ) {
 
     for( int i=0; i<3; ++i ) {
       Ordinal nTemp = ( space_->nLoc(i) + 1 )*( space_->bu(i) - space_->bl(i) + 1);
@@ -121,7 +120,6 @@ public:
             space_->getCoordinatesLocal()->getX( i, i ),
             cV_[i] );
     }
-
   };
 
   ~HelmholtzOp() {
@@ -155,7 +153,6 @@ public:
     }
 
     y.changed();
-
   }
 
   void assignField( const DomainFieldT& mv ) {};
@@ -203,7 +200,7 @@ public:
 	constexpr const Teuchos::RCP<const SpaceT>& space() const { return( space_ ); };
 
   constexpr const Scalar* getC( const ECoord& dir, const EField& ftype ) const {
-      return( ((int)dir==(int)ftype)?cV_[dir]:cS_[dir] );
+		return( ((int)dir==(int)ftype)?cV_[dir]:cS_[dir] );
   }
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {

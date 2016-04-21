@@ -90,7 +90,6 @@ public:
 			}
 			// not working on brutus(intel)
 			//interpolationOps_.shrink_to_fit();
-
 	}
 
 public:
@@ -137,9 +136,8 @@ public:
 		for( int i=-2; i>=-mgSpaces_->getNGrids(); --i ) 
 			if( mgSpaces_->participating(i) ) 
 				getInterpolationOp(i)->apply( *x->get(i+1), *x->get(i) );
-		
-		getTransferOp()->apply( *x->get(0), *x->get() );
 
+		getTransferOp()->apply( *x->get(0), *x->get() );
 	}
 
 	template< template<class> class FieldT>
@@ -149,7 +147,6 @@ public:
 		for( int i=0; i<mgSpaces_->getNGrids()-1; ++i ) 
 			if( mgSpaces_->participating(i) ) 
 				getRestrictionOp(i)->apply( *x->get(i), *x->get(i+1) );
-		
 	}
 
 }; // end of class MGTransfers
@@ -166,13 +163,8 @@ Teuchos::RCP<const MGTransfers<MGSpacesT,TransT,RestrT,InterT> >
 createMGTransfers(
     const Teuchos::RCP<const MGSpacesT>& mgSpaces ) {
 
-  return(
-      Teuchos::rcp(
-          new MGTransfers<MGSpacesT,TransT,RestrT,InterT>( mgSpaces )
-      )
-  );
-
-}
+	return( Teuchos::rcp(
+					new MGTransfers<MGSpacesT,TransT,RestrT,InterT>( mgSpaces ) ) ); }
 
 
 

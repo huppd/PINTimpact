@@ -139,7 +139,6 @@ public:
       Pimpact::MultiField<Field>& mv ) {
 
     mv.TimesMatAdd( alpha, A, B, beta );
-
   }
 
 
@@ -170,8 +169,8 @@ public:
   MvTransMv (Scalar alpha,
       const Pimpact::MultiField<Field>& A,
       const Pimpact::MultiField<Field>& B,
-      Teuchos::SerialDenseMatrix<int,Scalar>& C)
-  {
+			Teuchos::SerialDenseMatrix<int,Scalar>& C) {
+
     A.Trans(alpha,B,C);
   }
 

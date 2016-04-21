@@ -191,9 +191,7 @@ public:
 
 			// use temp as stopping cirterion
 			mgTrans_->getTransferOp()->apply( *x->get(0), y );
-
 		}
-
 	}
 
 
@@ -213,7 +211,6 @@ public:
 
 		if( mgSpaces_->participating(-1) )
 			mgOps_->get(-1)->assignField( *temp->get(-1) );
-
 	};
 
 	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(mgSpaces_->get()); };
@@ -238,6 +235,7 @@ public:
 		if( mgSpaces_->participating(-1) )
 			out << "Coarse Grid Solver: " << cGridSolver_->getLabel() << "\n";
 	}
+
 
 }; // end of class MultiGrid
 
@@ -265,7 +263,6 @@ createMultiGrid(
 					mgSpaces, pl )
 				)
 			);
-
 }
 
 

@@ -208,7 +208,6 @@ protected:
 
 										if( newRanks[i+nGather_[0]*j+nGather_[0]*nGather_[1]*k]==spaceF_->rankST() )
 											member_yes = true;
-
 									}
 								}
 							}
@@ -236,9 +235,7 @@ protected:
 										MPI_INTEGER, // data type of elements of send buffer (handle)
 										MPI_SUM,     // operation (handle)
 										comm2_ );    // communicator (handle)
-
 							}
-
 						}
 			}
 			else{
@@ -406,7 +403,6 @@ public:
 		comm2_(MPI_COMM_NULL) {
 
 			init( spaceF_->getProcGrid()->getNP() );
-
 	}
 
 	InterpolationOp(
@@ -418,7 +414,6 @@ public:
 		comm2_(MPI_COMM_NULL) {
 
 			init( np );
-
 	}
 
 
@@ -533,8 +528,8 @@ public:
 		}
 
 		y.changed();
-
 	}
+
 
 	void print(  std::ostream& out=std::cout ) const {
 
@@ -557,7 +552,6 @@ public:
 				}
 				out << "\n";
 			}
-
 		}
 
 		out << "\n";

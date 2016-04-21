@@ -25,8 +25,9 @@ namespace Pimpact {
 		createNOXSolverParameter(
 				const std::string& solverName = "NonlinearCG",
 				const std::string& lineSearchName = "NonlinearCG" ); 
-}
-}
+
+} // end of namespace Pimpact
+} // end of namespace NOX
 
 
 #endif // end of #ifndef NOX_PIMPACT_STATUSTEST_HPP

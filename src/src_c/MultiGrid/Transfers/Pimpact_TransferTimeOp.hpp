@@ -53,7 +53,6 @@ public:
 
 		out << "=== TransferTimeOP ===\n";
 		opV_->print( out );
-
   }
 
 }; // end of class TransferTime

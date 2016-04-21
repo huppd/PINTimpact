@@ -172,7 +172,6 @@ public:
 				y.getRawPtr() );
 
 		y.changed();
-
 	}
 
 	void assignField( const RangeFieldT& mv ) {};
@@ -201,40 +200,40 @@ public:
 
 	const std::string getLabel() const { return( "InterpolateV2S" ); };
 
-	};
+};
 
 
 
-	/// \relates InterpolateV2S
-	template< class S, class O, int d, int dimNC >
-		Teuchos::RCP<const InterpolateV2S<S,O,d,dimNC> > createInterpolateV2S(
-				const Teuchos::RCP<const IndexSpace<O,d> >&  iS,
-				const Teuchos::RCP<const GridSizeLocal<O,d> >& gridSizeLocal,
-				const Teuchos::RCP<const StencilWidths<d,dimNC> >& stencilWidths,
-				const Teuchos::RCP<const DomainSize<S> >& domainSize,
-				const Teuchos::RCP<const BoundaryConditionsLocal<d> >& boundaryConditionsLocal,
-				const Teuchos::RCP<const CoordinatesLocal<S,O,d,dimNC> >& coordinatesLocal ) {
+/// \relates InterpolateV2S
+template< class S, class O, int d, int dimNC >
+Teuchos::RCP<const InterpolateV2S<S,O,d,dimNC> > createInterpolateV2S(
+		const Teuchos::RCP<const IndexSpace<O,d> >&  iS,
+		const Teuchos::RCP<const GridSizeLocal<O,d> >& gridSizeLocal,
+		const Teuchos::RCP<const StencilWidths<d,dimNC> >& stencilWidths,
+		const Teuchos::RCP<const DomainSize<S> >& domainSize,
+		const Teuchos::RCP<const BoundaryConditionsLocal<d> >& boundaryConditionsLocal,
+		const Teuchos::RCP<const CoordinatesLocal<S,O,d,dimNC> >& coordinatesLocal ) {
 
-			return(
-					Teuchos::rcp(
-						new InterpolateV2S<S,O,d,dimNC>(
-							iS,
-							gridSizeLocal,
-							stencilWidths,
-							domainSize,
-							boundaryConditionsLocal,
-							coordinatesLocal ) ) );
-		}
+	return(
+			Teuchos::rcp(
+				new InterpolateV2S<S,O,d,dimNC>(
+					iS,
+					gridSizeLocal,
+					stencilWidths,
+					domainSize,
+					boundaryConditionsLocal,
+					coordinatesLocal ) ) );
+}
 
 
 
-	/// \relates InterpolateV2S
-	/// \todo make specalization of create<Inter>( space)
-	template< class S, class O, int d, int dimNC >
-		Teuchos::RCP<const InterpolateV2S<S,O,d,dimNC> > createInterpolateV2S(
-				const Teuchos::RCP<const Space<S,O,d,dimNC> >& space ) {
-			return( space->getInterpolateV2S() );
-		}
+/// \relates InterpolateV2S
+/// \todo make specalization of create<Inter>( space)
+template< class S, class O, int d, int dimNC >
+Teuchos::RCP<const InterpolateV2S<S,O,d,dimNC> > createInterpolateV2S(
+		const Teuchos::RCP<const Space<S,O,d,dimNC> >& space ) {
+	return( space->getInterpolateV2S() );
+}
 
 
 } // end of namespace Pimpact

@@ -211,7 +211,6 @@ public:
     default: // just to make the compliler happy
       return( Teuchos::null );
     }
-
   }
 
 

@@ -65,8 +65,6 @@ public:
         opS2V_(opS2V),
         opV2S_(opV2S) {
 
-
-
     auto opSchur =
         Pimpact::createOperatorBase(
             Pimpact::createTripleCompositionOp(
@@ -82,7 +80,6 @@ public:
 //    lp_ = Pimpact::createLinearProblem< MultiField<SF> >( opSchur, Teuchos::null, Teuchos::null, Teuchos::null, "GmresPoly" );
 //    lp_ = Pimpact::createLinearProblem< MultiField<SF> >( opSchur, Teuchos::null, Teuchos::null, para, "GCRODR" );
 //    lp_ = Pimpact::createLinearProblem< MultiField<SF> >( opSchur, Teuchos::null, Teuchos::null, Teuchos::parameterList(), "GCRODR" );
-
   };
 
   void apply(const DomainFieldT& x, RangeFieldT& y ) const {
@@ -121,7 +118,6 @@ public:
 //    opV2V_->apply( *createMultiField(tempv_), *createMultiField( y.getVFieldPtr() ) );
 ////    y.getSFieldPtr()->add( 0., y.getConstSField(), 1., x.getConstSField() );
 //    // ~ (D H^{-1} G)^{-1} p = D H^{-1} f_u - f_p
-
   }
 
   /// \todo fixme

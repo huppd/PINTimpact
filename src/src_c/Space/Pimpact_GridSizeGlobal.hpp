@@ -37,7 +37,6 @@ protected:
 
 			for( int i=0; i<2; ++i )
 				TEUCHOS_TEST_FOR_EXCEPT( ((*this)[i]-1)%2 != 0 );
-
 		};
 
 public:
@@ -77,7 +76,6 @@ Teuchos::RCP<const GridSizeGlobal<O> > createGridSizeGlobal( const Teuchos::Tupl
 	return(
 			Teuchos::rcp(
 				new GridSizeGlobal<O>( to ) ) );
-
 }
 
 

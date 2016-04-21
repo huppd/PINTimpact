@@ -287,7 +287,6 @@ protected:
       shift_[i] = (procGrid->getIB(i)-1)*( gridSizeLocal->get(i)-1 );
     if( 4==dimension )
       shift_[3] = (procGrid->getIB(3)-1)*( gridSizeLocal->get(3) );
-
   }
 
 public:

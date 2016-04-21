@@ -66,7 +66,6 @@ public:
 		y.getVField().add( 1., y.getConstVField(), 1., *temp );
 		// ~div
 		opV2S_->apply( x.getConstVField(), y.getSField() );
-
 	}
 
 	void computeResidual( const RangeFieldT& b, const DomainFieldT& x, RangeFieldT& res ) const {

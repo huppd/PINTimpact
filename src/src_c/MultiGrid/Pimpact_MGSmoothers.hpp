@@ -49,7 +49,6 @@ public:
 
 	// not working on brutus
     //smoothers_.shrink_to_fit();
-
   }
 
 //public:
@@ -80,11 +79,7 @@ createMGSmoothers(
       Teuchos::rcp(
           new MGSmoothers<MGOperatorsT,SmootherT>(
               mgOperators,
-              pl
-          )
-      )
-  );
-
+							pl ) ) );
 }
 
 

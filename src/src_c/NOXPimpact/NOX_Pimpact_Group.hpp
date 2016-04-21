@@ -528,8 +528,8 @@ public:
     //    std::cout << "Call applyRightPrecon.... !!!!!!\n";
 
     return( sharedInterfacePtr->getObject(this)->applyPreconditioner( xVector.getField(), RHSVector.getField() ) );
-
   }
+
   virtual NOX::Abstract::Group::ReturnType
   applyRightPreconditioning(bool useTranspose,
       Teuchos::ParameterList& params,

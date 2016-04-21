@@ -21,7 +21,6 @@ enum ECopyType {
 };
 
 
-
 enum ECoord { X=0, Y=1, Z=2, T=4 };
 
 std::string toString( ECoord type );

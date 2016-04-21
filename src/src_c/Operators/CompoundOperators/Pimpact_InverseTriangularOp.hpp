@@ -63,7 +63,6 @@ public:
 
 		opV2V_->apply( *tempv, y.getVField() );
 //		opV2V_->apply( x.getConstVField(), y.getVField() );
-
 	}
 
 
@@ -104,7 +103,6 @@ createInverseTriangularOp(
   return(
       Teuchos::rcp( new InverseTriangularOp<OpV2V,OpS2V,OpS2S>(opV2V,opS2V,opS2S) )
 			);
-
 }
 
 

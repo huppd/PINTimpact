@@ -54,7 +54,6 @@ public:
 
     grad_->apply( x, *temp );
     div_->apply( *temp, y );
-
   }
 
 	void computeResidual( const RangeFieldT& b, const DomainFieldT& x, RangeFieldT& res ) const {
@@ -76,7 +75,6 @@ public:
 		out << "---" << getLabel() << "---\n";
 		div_->print( out );
 		grad_->print( out );
-
   }
 
 }; // end of DivGradOp
@@ -92,7 +90,6 @@ Teuchos::RCP< DivGradOp<SpaceT> > createDivGradOp(
   return(
       Teuchos::rcp( new DivGradOp<SpaceT>( div, grad ) )
   );
-
 }
 
 

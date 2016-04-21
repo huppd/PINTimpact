@@ -65,7 +65,6 @@ public:
       auto opPrec = Teuchos::rcp_const_cast<Op>( prob->getRightPrec() );
       opPrec->assignField( mv );
     }
-
   };
 
 	
@@ -81,6 +80,7 @@ public:
 		out << "Inverse:\n";
     linprob_->print( out );
   }
+
 
 }; // end of class InverseOperator
 

@@ -128,7 +128,6 @@ void MG_RestrictGather(
 		const int* const sizsR,          
 		const int* const offsR,          
     double* const phic );
-
 }
 
 
@@ -345,7 +344,6 @@ protected:
 												comm2_ );    // communicator (handle)
 
 									}
-
 								}
 				}
 
@@ -399,7 +397,6 @@ protected:
 								dispR_[ i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ] = counter;
 								counter += recvR_[ i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ];
 							}
-
 				}
 			}
 
@@ -449,7 +446,6 @@ public:
 		comm2_(MPI_COMM_NULL) {
 
 			init( spaceF_->getProcGrid()->getNP() );
-
   }
 
 
@@ -462,7 +458,6 @@ public:
 		comm2_(MPI_COMM_NULL) {
 
 			init( np );
-
   }
 
 
@@ -550,7 +545,6 @@ public:
 					cRS_[2],
 					x.getConstRawPtr(),
 					y.getRawPtr() );
-
 		}
 
 		if( nGather_[0]*nGather_[1]*nGather_[2]>1 )
@@ -570,7 +564,6 @@ public:
 					y.getRawPtr() );
 
 		y.changed();
-
 	}
 
 
@@ -616,7 +609,6 @@ public:
 			}
 			out << "\n";
 		}
-
 	}
 
 	
@@ -637,7 +629,6 @@ Teuchos::RCP<const OpT<SpaceT> > create(
     const Teuchos::RCP<const SpaceT>& spaceC ) {
 
   return( Teuchos::rcp( new OpT<SpaceT>(spaceF,spaceC) ) );
-
 }
 
 

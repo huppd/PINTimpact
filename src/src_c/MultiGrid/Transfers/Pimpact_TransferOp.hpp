@@ -28,6 +28,7 @@ void OP_Transfer(
     double* const phiOUT );
 
 
+
 /// \brief Transfers fields from "coarse" to "fine" spaces, necessary when \c Space::dimNC is  different.
 ///
 /// Goes in both direction. If this is used a lot, it could be beneficial, to
@@ -71,7 +72,7 @@ public:
   template< class SP1T, class SP2T>
   void apply( const ScalarField<SP1T>& x, ScalarField<SP2T>& y ) const {
 
-    const EField& fType = x.getType();
+		const EField& fType = x.getType();
 
     TEUCHOS_TEST_FOR_EXCEPT( fType != y.getType() );
 
@@ -92,8 +93,8 @@ public:
         y.getRawPtr() );
 
     y.changed();
-
   }
+
 
   void assignField( const RangeFieldT& mv ) {};
 

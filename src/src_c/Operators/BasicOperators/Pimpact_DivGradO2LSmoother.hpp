@@ -179,14 +179,12 @@ public:
 						}
 
 					y.changed();
-
 				} // end of if( true==lineDirection_[dir] )
 			}// end of for dir = 2...0
 		} // end of for i=0...nIter_
 
 		if( levelYes_ )
 			y.level();
-
 	}
 
   void assignField( const DomainFieldT& mv ) {};

@@ -98,15 +98,11 @@ createOperatorBase( const Teuchos::RCP<Op>& op ) {
 
     return(
         Teuchos::rcp_dynamic_cast< OperatorBase<typename Op::DomainFieldT, typename Op::RangeFieldT>  >(
-            Teuchos::rcp( new OperatorPimpl<Op>( op )
-            )
-        )
-    );
-
+						Teuchos::rcp( new OperatorPimpl<Op>(op) ) ) );
 }
 
 
-
 } // end of namespace Pimpact
+
 
 #endif // end of #ifndef PIMPACT_OPERATORBASE_HPP

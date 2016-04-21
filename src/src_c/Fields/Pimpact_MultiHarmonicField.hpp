@@ -91,7 +91,10 @@ public:
 	}
 
 
-	MultiHarmonicField( const Teuchos::RCP<const SpaceT>& space, const bool global=true ):
+	MultiHarmonicField( const Teuchos::RCP<const SpaceT>& space ):
+		MultiHarmonicField( space, space->np(3)==1 ) {};
+
+	MultiHarmonicField( const Teuchos::RCP<const SpaceT>& space, const bool global ):
 		AF( space ),
 		global_(global),
 		field0_( Teuchos::rcp( new IFT(space,false) ) ),
@@ -171,6 +174,8 @@ protected:
 	};
 
 public:
+
+	constexpr const bool& global() const { return( global_ ); }
 
   constexpr IFT&                    get0Field()               { return( *field0_ ); }
   constexpr const IFT&              getConst0Field()    const { return( *field0_ ); }
@@ -532,10 +537,11 @@ public:
 	void changed() const { exchangedState_ = false; }
 
 
-	/// \todo biggest todo
 	void exchange() const {
 
-		//TEUCHOS_TEST_FOR_EXCEPT( !global_ );
+#ifndef NDEBUG
+		TEUCHOS_TEST_FOR_EXCEPT( !global_ );
+#endif
 
 		// check if exchange is necessary
 		if( exchangedState_==false ) {

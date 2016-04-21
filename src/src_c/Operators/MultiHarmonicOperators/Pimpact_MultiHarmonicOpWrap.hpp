@@ -53,7 +53,6 @@ public:
     }
 
 		y.changed();
-
   };
 
 

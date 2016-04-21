@@ -42,8 +42,7 @@ public:
       const Teuchos::RCP<OP1>& op1,
       const Teuchos::RCP<OP2>& op2 ):
         op1_(op1),
-				op2_(op2)
-{};
+				op2_(op2) {};
 
   void apply(
       const DomainFieldT& x,

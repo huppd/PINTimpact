@@ -117,7 +117,6 @@ public:
 				y.getRawPtr() );
 
 		y.changed();
-
 	}
 
 	void assignField( const RangeFieldT& mv ) {};

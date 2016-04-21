@@ -73,7 +73,6 @@ public:
 		op_->apply( *mx, *my );
 
 		y.changed();
-
 	};
 
   void assignField( const DomainFieldT& mv ) {

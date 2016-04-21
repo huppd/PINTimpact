@@ -170,7 +170,6 @@ protected:
         // throw exeption
         ;
       }
-
     }
 
     // Anzahl der Koeffizienten im Feld (zentrale Differenzen angenommen):
@@ -214,7 +213,6 @@ protected:
     }
     if( 4==dim ) nl_[3] = bl_[3];
     if( 4==dim ) nu_[3] = bu_[3];
-
 };
 
   /// \brief constructor
@@ -298,9 +296,8 @@ public:
 template< int d, int dnc  >
 const Teuchos::RCP<const StencilWidths<d,dnc> > createStencilWidths( const bool& spectralT ){
 
-  return(
-      Teuchos::RCP<const StencilWidths<d,dnc> > (
-          new StencilWidths<d,dnc>( spectralT ) ) );
+	return( Teuchos::RCP<const StencilWidths<d,dnc> > (
+				new StencilWidths<d,dnc>( spectralT ) ) );
 }
 
 

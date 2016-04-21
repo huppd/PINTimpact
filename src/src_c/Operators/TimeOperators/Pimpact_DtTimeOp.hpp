@@ -44,7 +44,6 @@ public:
 			Scalar idt = ((Scalar)space_->nGlo()[3])/2./pi;
 			mulI_ =
 				space_->getDomainSize()->getAlpha2()*idt/space_->getDomainSize()->getRe();
-
 		};
 
 
@@ -57,7 +56,6 @@ public:
     }
 
     y.changed();
-
   }
 
   void assignField( const DomainFieldT& mv ) {};

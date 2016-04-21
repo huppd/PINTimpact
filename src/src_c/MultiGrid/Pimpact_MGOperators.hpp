@@ -62,7 +62,6 @@ public:
 
 	// not working on brutus
     //cOperator_.shrink_to_fit();
-
   }
 
 public:
@@ -86,7 +85,6 @@ public:
     for( int i=0; i<mgSpaces_->getNGrids(); ++i )
 			if( mgSpaces_->participating(i) )
 					cOperator_[i]->setParameter( para );
-
 	}
 
 }; // end of class MGOperators
@@ -103,7 +101,6 @@ createMGOperators(
       Teuchos::rcp(
           new MGOperators<MGSpacesT,FOperatorT,COperatorT>(
               mgSpaces ) ) );
-
 }
 
 

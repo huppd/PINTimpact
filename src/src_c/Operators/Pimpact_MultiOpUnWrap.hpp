@@ -55,7 +55,6 @@ public:
     op_->apply(
         *createMultiField( Teuchos::rcp_const_cast<DomainFieldT>(Teuchos::rcpFromRef(x)) ),
         *createMultiField( Teuchos::rcpFromRef(y) ) );
-
   }
 
   void assignField( const DomainFieldT& mv ) {
@@ -87,8 +86,7 @@ public:
 template<class MOperatorT>
 Teuchos::RCP< MultiOpUnWrap<MOperatorT> > createMultiOpUnWrap( const Teuchos::RCP<MOperatorT>& op ) {
 
-    return( create<MultiOpUnWrap,MOperatorT>( op ) );
-
+	return( create<MultiOpUnWrap,MOperatorT>( op ) );
 }
 
 

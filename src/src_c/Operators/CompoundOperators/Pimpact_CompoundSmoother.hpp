@@ -62,7 +62,6 @@ public:
 			Teuchos::RCP<sSmoother> opDGi = Teuchos::rcp( new sSmoother( space() ) );
 
 			opSSmoother_ = createTripleCompositionOp( opDGi, opDHG, opDGi );
-
 		};
 
 	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
@@ -76,12 +75,10 @@ public:
 		tempv->add( -1., *tempv, 1., x.getConstVField() );
 
 		opVSmoother_->apply( *tempv, y.getVField() );
-
 	}
 
 
-	void assignField( const DomainFieldT& mv ) {
-	};
+	void assignField( const DomainFieldT& mv ) { };
 
 	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(opS2V_->space()); };
 

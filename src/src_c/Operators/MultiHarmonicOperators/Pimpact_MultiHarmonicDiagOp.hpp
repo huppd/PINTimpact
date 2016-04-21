@@ -35,14 +35,27 @@ protected:
 
 public:
 
-  /// \todo get nf from grid
   MultiHarmonicDiagOp( const Teuchos::RCP<ZeroOpT>& zeroOp, const Teuchos::RCP<ModeOpT>& modeOp ):
 		zeroOp_( zeroOp ),
 		modeOp_( modeOp ) {};
 
 
-  void assignField( const DomainFieldT& mv ) {
-    zeroOp_->assignField( mv.getConst0Field() );
+	/// \todo either tangle this with wind of operator or make an exchange ZeroField
+  void assignField( const DomainFieldT& y_ref ) {
+
+		Teuchos::RCP<const DomainFieldT> y;
+
+		if( y_ref.global() )
+			y = Teuchos::rcpFromRef( y_ref );
+		else {
+			Teuchos::RCP<DomainFieldT> temp = Teuchos::rcp( new DomainFieldT( space(), true ) );
+			temp->assign( y_ref );
+			y = temp;
+			//std::cout << "prec: y->global(): " << y->global() << "\n";
+		}
+
+		y->exchange();
+    zeroOp_->assignField( y->getConst0Field() );
   };
 
 
@@ -101,7 +114,6 @@ createMultiHarmonicDiagOp(
 		const Teuchos::RCP<ModeOpT>& modeOp ) {
 
   return( Teuchos::rcp( new MultiHarmonicDiagOp<ZeroOpT,ModeOpT>( zeroOp, modeOp ) ) );
-
 }
 
 

@@ -140,7 +140,6 @@ Teuchos::RCP< LinearProblem<MF> > createLinearProblem(
 	solver->setProblem(problem);
 
 	return( Teuchos::rcp( new LinearProblem<MF>(solver,problem) ) );
-
 }
 
 } // end of namespace Pimpact

@@ -66,17 +66,14 @@ public:
         if( i+1<space()->eInd(S,3) )
           y.getFieldPtr(i+1)->add( 0., y.getConstField(i+1), 0.5, *temp_ );
       }
-
     }
     else{
 
 //      typename RangeFieldT::Iter j = y.sInd_;
       for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
         op_->apply( x.getConstField(i) , y.getField(i) );
-
     }
     y.changed();
-
   }
 
   void assignField( const DomainFieldT& mv ) {};
@@ -106,7 +103,6 @@ Teuchos::RCP< TimeOpWrap<OpT,CNY> > createTimeOpWrap(
 		const Teuchos::RCP<OpT>& op ) {
 
 	return( Teuchos::rcp( new TimeOpWrap<OpT,CNY>( op ) ) );
-
 }
 
 

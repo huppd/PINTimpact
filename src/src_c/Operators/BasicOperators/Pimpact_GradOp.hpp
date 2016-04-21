@@ -112,7 +112,6 @@ public:
             space_->getCoordinatesLocal()->getX( i, i ),
             c_[i] );
     }
-
   };
 
 
@@ -176,7 +175,7 @@ public:
 	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(space_); };
 
   constexpr const Scalar* getC( const ECoord& dir ) const {
-      return( c_[dir] );
+		return( c_[dir] );
   }
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {}

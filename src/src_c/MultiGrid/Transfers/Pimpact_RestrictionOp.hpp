@@ -201,7 +201,6 @@ protected:
 								MPI_Allreduce( &rank_comm2, &rankc2_, 1, MPI_INTEGER, MPI_SUM, comm2_ );
 
 							}
-
 						}
 
 				MPI_Group_free( &baseGroup );
@@ -254,7 +253,6 @@ protected:
 								dispR_[ i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ] = counter;
 								counter += recvR_[ i + j*nGather_[0] + k*nGather_[0]*nGather_[1] ];
 							}
-
 				}
 			}
 
@@ -298,7 +296,6 @@ public:
 		comm2_(MPI_COMM_NULL) {
 
 			init( spaceF_->getProcGridSize()->getTuple() );
-
   }
 
 
@@ -311,7 +308,6 @@ public:
 		comm2_(MPI_COMM_NULL) {
 
 			init( nb );
-
   }
 
 
@@ -397,7 +393,6 @@ public:
 					y.getRawPtr() );
 
 		y.changed();
-
 	}
 
 
@@ -445,7 +440,6 @@ public:
 			}
 			out << "\n";
 		}
-
 	}
 
 
@@ -466,7 +460,6 @@ Teuchos::RCP<const OpT<SpaceT> > create(
     const Teuchos::RCP<const SpaceT>& spaceC ) {
 
   return( Teuchos::rcp( new OpT<SpaceT>(spaceF,spaceC) ) );
-
 }
 
 

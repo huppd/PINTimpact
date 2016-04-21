@@ -37,8 +37,7 @@ class Interface {
 public:
 
   using Field = F;
-  //using S = typename Field::SpaceT::Scalar;
-  //using O = typename Field::SpaceT::Ordinal;
+
   using Op = ::Pimpact::OperatorBase<Field>;
 
 protected:
@@ -66,7 +65,6 @@ public:
     f.add( 1., f, -1., *fu_ );
 //		f.level();
     return( NOX::Abstract::Group::Ok );
-
   }
 
 
@@ -75,7 +73,6 @@ public:
 
 	 jop_->assignField( x );
     return( NOX::Abstract::Group::Ok );
-
   }
 
 
@@ -88,7 +85,6 @@ public:
 
     jop_->apply( x, y );
     return( NOX::Abstract::Group::Ok );
-
   }
 
 
@@ -106,9 +102,8 @@ Teuchos::RCP< Interface<Field> > createInterface(
     Teuchos::RCP<Field> fu=Teuchos::null,
     Teuchos::RCP< ::Pimpact::OperatorBase<Field> >  op=Teuchos::null,
     Teuchos::RCP< ::Pimpact::OperatorBase<Field> > jop=Teuchos::null ) {
-  return(
-      Teuchos::rcp( new Interface<Field>(fu,op,jop) )
-  );
+
+	return( Teuchos::rcp( new Interface<Field>(fu,op,jop) ) );
 }
 
 

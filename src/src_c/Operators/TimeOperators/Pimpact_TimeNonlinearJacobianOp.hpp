@@ -63,7 +63,6 @@ public:
 
     for( typename DomainFieldT::Iter i = u_->mfs_.begin(); i<u_->mfs_.end(); ++i )
       (*i)->exchange();
-
   };
 
   void apply( const DomainFieldT& x, RangeFieldT& y, typename SpaceT::Scalar mul=0. ) const {
@@ -113,7 +112,6 @@ public:
     }
 
     y.changed();
-
   }
 
   bool hasApplyTranspose() const { return( false ); }
@@ -131,8 +129,7 @@ createTimeNonlinearJacobian(
     const Teuchos::RCP<const SpaceT>& space,
     const bool& isNewton=true ) {
 
-    return( Teuchos::rcp( new TimeNonlinearJacobian<SpaceT,CNY>( space, isNewton ) ) );
-
+	return( Teuchos::rcp( new TimeNonlinearJacobian<SpaceT,CNY>( space, isNewton ) ) );
 }
 
 

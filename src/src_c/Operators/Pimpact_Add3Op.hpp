@@ -101,7 +101,6 @@ Teuchos::RCP< Add3Op<OP1, OP2, OP3> > createAdd3Op(
     const Teuchos::RCP<OP3>& op3=Teuchos::null ) {
 
   return( Teuchos::rcp( new Add3Op<OP1,OP2,OP3>( op1, op2, op3 ) ) );
-
 }
 
 

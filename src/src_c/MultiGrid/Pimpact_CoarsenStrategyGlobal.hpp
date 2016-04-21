@@ -79,7 +79,6 @@ public:
 					if( ( (nGlo[dir]-1)%2 )==0 && nGlo[dir]>=cgsize ) {
 						nGlo[dir] = (nGlo[dir]-1)/2 + 1;
 						coarsen_yes = true;
-
 					}
 					// figure out if processor grid has to be coarsened
 					npNew[dir] = 1;
@@ -93,7 +92,7 @@ public:
 						npNew[dir] = 1;
 
 					//multiSpace.push_back( createCoarseSpace( multiSpace.back(), coarsen_dir, nGlo, stride, NB, IB, i==maxGrids-1 ) );
-				//}
+					//}
 
 
 			//}

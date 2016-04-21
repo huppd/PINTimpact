@@ -54,7 +54,6 @@ public:
     op2_->apply( *temp1, *temp2 );
 
     op1_->apply( *temp2, y );
-
   }
 
   /// \note here nothing happens, because it is assumed to be done somewhere else
@@ -92,7 +91,6 @@ Teuchos::RCP< TripleCompositionOp<OP1, OP2, OP3> > createTripleCompositionOp(
 		const Teuchos::RCP<OP3>& op3 ) {
 
   return( Teuchos::rcp(	new TripleCompositionOp<OP1,OP2,OP3>( op1, op2, op3 ) ) );
-
 }
 
 

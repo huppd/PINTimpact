@@ -149,7 +149,6 @@ public:
 
 			yu->changed();
 			yp->changed();
-
 		}
 	}
 

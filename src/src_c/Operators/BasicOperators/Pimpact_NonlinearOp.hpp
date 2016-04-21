@@ -38,30 +38,27 @@ protected:
 
 public:
 
-    NonlinearOp( const Teuchos::RCP<const SpaceT>& space ):
-      convVWrap_( create<NonlinearWrap<ConvSOpT> >( create<ConvSOpT>(space) ) ),
-      convField_( create<ConvectionField>( space ) ) {};
+	NonlinearOp( const Teuchos::RCP<const SpaceT>& space ):
+		convVWrap_( create<NonlinearWrap<ConvSOpT> >( create<ConvSOpT>(space) ) ),
+		convField_( create<ConvectionField>( space ) ) {};
 
-    template< class ConvSOpTT >
-    NonlinearOp( const Teuchos::RCP<ConvSOpTT>& op ):
-      convVWrap_( create<NonlinearWrap<ConvSOpT> >( create<ConvSOpT>( op->space() ) ) ),
-      convField_( op->getConvField() ) {}
+	template< class ConvSOpTT >
+	NonlinearOp( const Teuchos::RCP<ConvSOpTT>& op ):
+		convVWrap_( create<NonlinearWrap<ConvSOpT> >( create<ConvSOpT>( op->space() ) ) ),
+		convField_( op->getConvField() ) {}
 
+	void assignField( const DomainFieldT& mv ) const { convField_->assignField( mv ); };
 
-  void assignField( const DomainFieldT& mv ) const { convField_->assignField( mv ); };
+	/// \note Operator's wind has to be assigned correctly
+	void apply( const DomainFieldT& x, RangeFieldT& y, Scalar mul=Teuchos::ScalarTraits<Scalar>::zero() ) const {
 
+		if( mul<Teuchos::ScalarTraits<Scalar>::eps() ) {
+			y.init(0);
+			mul=1.;
+		}
 
-  /// \note Operator's wind has to be assigned correctly
-  void apply( const DomainFieldT& x, RangeFieldT& y, Scalar mul=Teuchos::ScalarTraits<Scalar>::zero() ) const {
-
-    if( mul<Teuchos::ScalarTraits<Scalar>::eps() ) {
-      y.init(0);
-      mul=1.;
-    }
-
-    convVWrap_->apply( convField_->get(), x, y, mul );
-
-  }
+		convVWrap_->apply( convField_->get(), x, y, mul );
+	}
 
 
   /// \deprecated
@@ -114,11 +111,7 @@ createNonlinearOp(
 		Pimpact::create<Pimpact::ConvectionSOp>( space ) ;
 
   return( Teuchos::rcp( new NonlinearOp< ConvectionSOp<SpaceT> >( sop ) ) );
-
-
 }
-
-
 
 
 

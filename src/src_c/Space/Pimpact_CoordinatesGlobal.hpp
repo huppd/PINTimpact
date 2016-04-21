@@ -192,7 +192,6 @@ protected:
 		//std::cout << "i: " << i << "\n"
 			//<< " wl: " << wL << "xl: " << xL << ", x_i: " << x << "\n";
 		//std::cout << "\n"<<  x << "\n";
-
 	}
 
 	///  @} 
@@ -370,10 +369,8 @@ protected:
 
 			}
 		}
-
 		//Teuchos::RCP<std::ostream> out = createOstream( "coord.txt", 0 );
 		//print( *out );
-
 	};
 
 
@@ -415,7 +412,6 @@ public:
 			for( typename Teuchos::ArrayRCP<ScalarT>::iterator jp=xV_[i].begin(); jp<xV_[i].end(); ++jp )
 				out << j++ << "\t" << *jp << "\n";
 		}
-
 	};
 
 
@@ -447,7 +443,6 @@ createCoordinatesGlobal(
 					gridSize,
 					domainSize,
 					gridStretching ) ) );
-
 }
 
 
@@ -474,7 +469,6 @@ createCoordinatesGlobal(
 					coordinates )
 				)
 			);
-
 }
 
 

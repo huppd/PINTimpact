@@ -75,14 +75,13 @@ public:
 				N_ *= ( NN_[i] - SS_[i] + 1 );
 				cw_[i] = ( NN_[i] - SS_[i] + 1 );
 			}
-
 		}
 
 	TeuchosTransfer(
 			const Teuchos::RCP<const SpaceT>& space,
 			const Ordinal* SS,
 			const Ordinal* NN ):
-		space_(space){
+		space_(space) {
 
 			for( int i=0; i<3; ++i ) {
 				SS_[i] = SS[i];
@@ -95,7 +94,6 @@ public:
 				N_ *= ( NN_[i] - SS_[i] + 1 );
 				cw_[i] = ( NN_[i] - SS_[i] + 1 );
 			}
-
 		}
 
 
@@ -111,7 +109,6 @@ public:
 				for( Ordinal j=SS_[Y]; j<=NN_[Y]; ++j )
 					for( Ordinal i=SS_[X]; i<=NN_[X]; ++i )
 						(*v)( getI(i,j,k) ) = x.at(i,j,k);
-
 	}
 
 
@@ -124,7 +121,6 @@ public:
 				for( Ordinal j=SS_[Y]; j<=NN_[Y]; ++j )
 					for( Ordinal i=SS_[X]; i<=NN_[X]; ++i )
 						x.at(i,j,k) = (*v)( getI(i,j,k) );
-
 	}
 
 
@@ -136,9 +132,7 @@ public:
 				for( Ordinal j=SS_[Y]; j<=NN_[Y]; ++j )
 					for( Ordinal i=SS_[X]; i<=NN_[X]; ++i )
 						x.at(i,j,k) = (1-om)*x.at(i,j,k) + om*(*v)( getI(i,j,k) );
-
 	}
-
 
 
 	void apply( Teuchos::RCP<const DivGradO2Op<SpaceT> > op,
@@ -168,11 +162,8 @@ public:
 						if( (k+o)>=SS_[Z] && (k+o)<=NN_[Z] )
 							(*A)( I, getI( i, j, k+o ) ) += op->getC( Z, k, o) ;
 					}
-
 				}
-
 	}
-
 
 
 	// \todo not BC ready
@@ -292,7 +283,6 @@ public:
 			for( Ordinal j=SY; j<=NY; ++j )
 				for( Ordinal i=SX; i<=NX; ++i )
 					(*b)( getI(i,j,k) ) -= x.at(i,j,k-1)*op->getC( Z, k, -1 );
-
 		}
 
 		if( space_->getBCLocal()->getBCU(Z)<=0 || NN_[Z]<space_->eIndB(EField::S,Z) ) {
@@ -315,9 +305,7 @@ public:
 			for( Ordinal j=SY; j<=NY; ++j )
 				for( Ordinal i=SX; i<=NX; ++i )
 					(*b)( getI(i,j,k) ) -= x.at(i,j,k+1)*op->getC( Z, k, +1 );
-
 		}
-
 	}
 
 	constexpr const std::string getLabel() const { return( "TeuchosTransfer" ); };
@@ -332,11 +320,10 @@ public:
 		out << "NN: (\t";
 		for( int i=0; i<3; ++i ) out << NN_[i] << "\t";
 		out << "\n";
-
-
 	}
 
 }; // end of class TeuchosTransfer
+
 
 template<class OperatorT>
 class TeuchosSolver {
@@ -380,7 +367,6 @@ protected:
 		Asov_->factorWithEquilibration( true );
 		Asov_->setMatrix( A );
 		Asov_->factor();
-
 	}
 
 public:
@@ -390,7 +376,6 @@ public:
 		trans_( Teuchos::rcp( new TeuchosTransfer<SpaceT>( op->space() ) ) ) {
 
 			init();
-
 		}
 
 	TeuchosSolver(
@@ -401,7 +386,6 @@ public:
 		trans_( Teuchos::rcp( new TeuchosTransfer<SpaceT>( op->space(), SS, NN ) ) ) {
 
 			init();
-
 		}
 
 	void apply( const DomainFieldT& x, RangeFieldT& y )  const {
@@ -417,7 +401,6 @@ public:
 		trans_->apply( X_, y );
 
 		y.changed();
-
 	}
 
 	void apply( const DomainFieldT& x, RangeFieldT& y, const Scalar& omega )  const {
@@ -430,7 +413,6 @@ public:
 		trans_->apply( X_, y, omega );
 
 		y.changed();
-
 	}
 
 	/// \name getter
@@ -517,7 +499,6 @@ public:
 				(*A)(I,l) = 0.;
 			(*A)( I, I )   += op_->getC( dir, i, 0) ;
 			(*A)( I, I+1 ) += op_->getC( dir, i,+1) ;
-
 		}
 
 		// upper boundaries
@@ -606,7 +587,6 @@ public:
        *             the Schur form no longer satisfy SELECT=.TRUE.  This
        *             could also be caused by underflow due to scaling.
 			 */
-
 	}
 
 	void computeEV( Scalar& evMax, Scalar& evMin ) const {
@@ -620,8 +600,8 @@ public:
 			evMax += evMaxTemp;
 			evMin += evMinTemp;
 		}
-
 	}
+
 	// move to EV computer
 	void computeFullEV( Scalar& evMax, Scalar& evMin ) const {
 
@@ -703,7 +683,6 @@ public:
        *             the Schur form no longer satisfy SELECT=.TRUE.  This
        *             could also be caused by underflow due to scaling.
 			 */
-
 	}
 };
 

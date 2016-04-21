@@ -212,7 +212,6 @@ protected:
 			MPI_Errhandler_set(commWorld_, MPI_ERRORS_ARE_FATAL );
 		if( commSub_!=MPI_COMM_NULL )
 			MPI_Errhandler_set(commSub_, MPI_ERRORS_ARE_FATAL );
-
   }
 
 public:
@@ -293,7 +292,6 @@ Teuchos::RCP<const ProcGrid<O,d> > createProcGrid(
 					procGridSize,
 					bcg,
 					participating ) ) );
-
 }
 
 

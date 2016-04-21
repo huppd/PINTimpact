@@ -27,7 +27,6 @@ namespace Pimpact {
 /// \brief important basic Vector class
 /// vector for wrapping 2 fields into one mode
 /// \ingroup Field
-/// \todo continous memory
 template<class IFT>
 class ModeField : private AbstractField<typename IFT::SpaceT> {
 
@@ -249,8 +248,8 @@ public:
     return( normvec );
   }
 
- /// \brief compute the norm
-  /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
+	/// \brief compute the norm
+	/// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
 	/// \todo include scaled norm
   constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm ) const {
 

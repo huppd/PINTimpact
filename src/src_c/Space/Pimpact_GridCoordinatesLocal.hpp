@@ -131,7 +131,6 @@ protected:
 							xS_[i][it] = 2.*pi*( static_cast<ScalarT>(it) + offset )/nt;
 							xV_[i][it] = 2.*pi*( static_cast<ScalarT>(it) + offset )/nt;
 						}
-
 					}
 				}
 			}
@@ -200,7 +199,6 @@ Teuchos::RCP<const GridCoordinatesLocal<S,O,d> > createGridCoordinatesLocal(
               bcLocal,
               procGrid,
               coordGlobal ) ) );
-
 }
 
 

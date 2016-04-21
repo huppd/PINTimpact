@@ -56,7 +56,6 @@ public:
 
     opV_->apply( x.getConstVField(), y.getVField() );
     opS_->apply( x.getConstSField(), y.getSField() );
-
 	}
 
 //	void apply( const RangeFieldT& x, DomainFieldT& y ) const {
@@ -72,7 +71,6 @@ public:
 		out << "=== TransferCompoundOP ===\n";
 		opV_->print( out );
 		opS_->print( out );
-
   }
 
 }; // end of class TransferCompoundOp

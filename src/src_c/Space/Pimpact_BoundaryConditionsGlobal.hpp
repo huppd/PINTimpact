@@ -57,7 +57,6 @@ protected:
 			BCL_int_[3] = static_cast<int>( PeriodicBC );
 			BCU_int_[3] = static_cast<int>( PeriodicBC );
 		}
-
 	}
 
 	BoundaryConditionsGlobal( TBC3 BCL_global, TBC3 BCU_global ) {
@@ -70,7 +69,6 @@ protected:
 			BCL_int_[3] = static_cast<int>( PeriodicBC );
 			BCU_int_[3] = static_cast<int>( PeriodicBC );
 		}
-
 	}
 
 public:
@@ -95,7 +93,6 @@ public:
     }
     if( 4==dim ) periodic[3] = 1;
 		return( periodic );
-
 	}
 
 	///  @} 

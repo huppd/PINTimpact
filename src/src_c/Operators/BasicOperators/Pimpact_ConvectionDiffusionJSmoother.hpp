@@ -175,7 +175,6 @@ public:
 					omega_ );
 
 			y.changed();
-
     }
   }
 

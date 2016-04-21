@@ -88,10 +88,8 @@ public:
 				if( 0==space()->rankST() ) {
 					std::cout << "lamMax: (" << lamMax_ << ",\t" << lamMin_ << " )\n";
 				}
-
 			}
-
-	}
+		}
 
 
 	void apply( const DomainFieldT& b, RangeFieldT& x ) const { 
@@ -278,7 +276,6 @@ protected:
 		}
 
 		x0.assign( *x );
-
 	}
 
 
@@ -303,7 +300,6 @@ protected:
 		// r0 = B-Ax_0
 		//x->assign( x );
 		op_->computeResidual( b, *x, *r );
-
 
 		if( !out_.is_null() )
 			*out_ << r->norm() << "\n";

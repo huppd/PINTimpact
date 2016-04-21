@@ -55,7 +55,6 @@ public:
 
 			// not working on brutus
 			//cFields_.shrink_to_fit();
-
 	}
 
 public:
@@ -85,7 +84,6 @@ Teuchos::RCP< MGFields<MGSpacesT,FieldT> >
 createMGFields( const Teuchos::RCP<const MGSpacesT>& mgSpaces ) {
 
 	return( Teuchos::rcp( new MGFields<MGSpacesT,FieldT>( mgSpaces ) ) );
-
 }
 
 

@@ -55,7 +55,6 @@ public:
   void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
     convVWrap_->apply( convField_->get(), x, y );
-
   }
 
   Teuchos::RCP< ConvectionField<SpaceT> >

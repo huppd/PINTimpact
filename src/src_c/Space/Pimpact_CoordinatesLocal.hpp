@@ -180,7 +180,6 @@ public:
 			for( typename Teuchos::ArrayRCP<ScalarT>::iterator jp=xV_[i].begin(); jp<xV_[i].end(); ++jp )
 				out << j++ << "\t" << *jp << "\n";
 		}
-
 	};
 
 }; // end of class CoordinatesLocal
@@ -212,7 +211,6 @@ createCoordinatesLocal(
 					bcLocal,
 					procGrid,
 					coordGlobal ) ) );
-
 }
 
 

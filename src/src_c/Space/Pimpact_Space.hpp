@@ -163,7 +163,6 @@ public:
 					coordLocal_ );
 
 		openH5F();
-
 	}
 
 
@@ -370,7 +369,6 @@ public:
 		//    coordGlobal_->print(out);
 		//
 		//		coordLocal_->print(out);
-
 	}
 
 
@@ -395,7 +393,6 @@ public:
 			pl->set<ST>( "lx", 1., "length in x-direction" );
 			pl->set<ST>( "ly", 1., "length in y-direction" );
 			pl->set<ST>( "lz", 1., "length in z-direction" );
-
 
 			// grid size
 			pl->set<bool>("spectral in time", false, "enables spectral time discretization" );
@@ -435,7 +432,6 @@ Teuchos::RCP<const Space<ST,OT,d,dimNC> >
 createSpace( Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ) {
 
 	return( Teuchos::rcp( new Space<ST,OT,d,dimNC>( pl ) ) );
-
 }
 
 
@@ -826,10 +822,7 @@ static Teuchos::RCP< const SpaceT > createSpace(
 					domainSize,
 					boundaryConditionsGlobal,
 					boundaryConditionsLocal,
-					interV2S )
-				)
-			);
-
+					interV2S ) ) );
 }
 
 

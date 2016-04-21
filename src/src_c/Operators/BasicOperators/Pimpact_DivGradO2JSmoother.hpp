@@ -110,7 +110,6 @@ public:
 
 					// set solver and solve
 					AsovU_[0] = Teuchos::rcp( new SolverT( op_, SS, NN ) );
-
 				}
 
 				// boundary conditions in Y
@@ -125,7 +124,6 @@ public:
 
 					// set solver and solve
 					AsovL_[1] = Teuchos::rcp( new SolverT( op_, SS, NN ) );
-
 				}
 				if( space()->getBCLocal()->getBCU(Y)>0 ) {
 					SS[X] = space()->sInd(EField::S,X);
@@ -138,7 +136,6 @@ public:
 
 					// set solver and solve
 					AsovU_[1] = Teuchos::rcp( new SolverT( op_, SS, NN ) );
-
 				}
 
 				// boundary conditions in Z
@@ -153,7 +150,6 @@ public:
 
 					// set solver and solve
 					AsovL_[2] = Teuchos::rcp( new SolverT( op_, SS, NN ) );
-
 				}
 				if( space()->getBCLocal()->getBCU(Z)>0 ) {
 					SS[X] = space()->sInd(EField::S,X);
@@ -166,11 +162,8 @@ public:
 
 					// set solver and solve
 					AsovU_[2] = Teuchos::rcp( new SolverT( op_, SS,NN ) );
-
 				}
-
 			}
-
 		}
 
 
@@ -219,7 +212,6 @@ public:
 		}
 		if( levelYes_ )
 			y.level();
-
 	}
 
   void assignField( const DomainFieldT& mv ) {};
@@ -251,7 +243,6 @@ protected:
 			if( space()->getBCLocal()->getBCU(i)>0 )
 				AsovU_[i]->apply( b, x, omega );
 		}
-
 	}
 
 
@@ -271,7 +262,6 @@ protected:
 				getC(X,i,-1)*x.at(i-1,j  ,k  ) - getC(X,i,1)*x.at(i+1,j  ,k  ) - 
 				getC(Y,j,-1)*x.at(i  ,j-1,k  ) - getC(Y,j,1)*x.at(i  ,j+1,k  ) - 
 				getC(Z,k,-1)*x.at(i  ,j  ,k-1) - getC(Z,k,1)*x.at(i  ,j  ,k+1) ) );
-
 	} 
 
 	inline constexpr Scalar innerStenc2D( const DomainFieldT& b, const DomainFieldT& x,
@@ -283,7 +273,6 @@ protected:
 					b.at(i,j,k) - 
 				getC(X,i,-1)*x.at(i-1,j  ,k  ) - getC(X,i,1)*x.at(i+1,j  ,k  ) - 
 				getC(Y,j,-1)*x.at(i  ,j-1,k  ) - getC(Y,j,1)*x.at(i  ,j+1,k  ) ) );
-
 	} 
 
 	inline constexpr const Scalar* getC( const ECoord& dir) const  { 
@@ -315,7 +304,6 @@ create(
 
   return(
       Teuchos::rcp( new SmootherT<OperatorT>( op, pl ) ) );
-
 }
 
 
@@ -328,7 +316,6 @@ create(
 
   return(
       Teuchos::rcp( new SmootherT( op, pl ) ) );
-
 }
 
 

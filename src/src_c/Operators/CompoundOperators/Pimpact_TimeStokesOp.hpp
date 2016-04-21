@@ -153,7 +153,6 @@ public:
 
 		yu->changed();
 		yp->changed();
-
 	}
 
 	void assignField( const DomainFieldT& mv ) { };

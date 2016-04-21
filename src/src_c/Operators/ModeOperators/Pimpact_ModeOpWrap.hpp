@@ -46,7 +46,6 @@ public:
 
 	  op_->apply( x.getConstCField(), y.getCField() );
     op_->apply( x.getConstSField(), y.getSField() );
-
 	}
 
   void assignField( const DomainFieldT& mv ) {

@@ -55,8 +55,8 @@ protected:
 			BCL_int_[3] = static_cast<int>( NeighborBC );
 			BCU_int_[3] = static_cast<int>( NeighborBC );
 		}
-
 	};
+
 
 	BoundaryConditionsLocal( TBC3 BCL_local, TBC3 BCU_local ) {
 
@@ -68,7 +68,6 @@ protected:
 			BCL_int_[3] = static_cast<int>( NeighborBC );
 			BCU_int_[3] = static_cast<int>( NeighborBC );
 		}
-
 	}
 
 public:
@@ -136,7 +135,6 @@ Teuchos::RCP< const BoundaryConditionsLocal<d> >  createBoudaryConditionsLocal(
 	return(
 			Teuchos::rcp(
 				new BoundaryConditionsLocal<d>( BCL, BCU ) ) );
-
 }
 
 

@@ -42,6 +42,7 @@
 
 
 
+
 using S = double;
 using O = int;
 
@@ -138,8 +139,8 @@ int main( int argi, char** argv ) {
 	Teuchos::RCP<MF> x =
 		createMultiField(
 				createCompoundField(
-					Teuchos::rcp( new VF(space,true) ),
-					Teuchos::rcp( new SF(space,false) ) ) ) ;
+					Teuchos::rcp( new VF(space) ),
+					Teuchos::rcp( new SF(space) ) ) ) ;
 
 	// init Fields
 	x->getFieldPtr(0)->getVFieldPtr()->initField( pl->sublist("Base flow") );
@@ -184,8 +185,7 @@ int main( int argi, char** argv ) {
 					Pimpact::createCompoundOpWrap(
 						opV2V,
 						opS2V,
-						opV2S )
-					);
+						opV2S ) );
 
 
 		Teuchos::RCP<BOp> jop;
@@ -258,9 +258,7 @@ int main( int argi, char** argv ) {
 					Pimpact::createMultiOperatorBase(
 							Pimpact::createMultiHarmonicDiagOp(
 								zeroInv, 
-								modeInv
-								)
-							);
+								modeInv ) );
 
 
 				if( withprec>3 )
@@ -282,7 +280,6 @@ int main( int argi, char** argv ) {
 					opV2Vprob->setRightPrec( opV2Vprec );
 					opV2Vinv = Pimpact::createInverseOperatorBase( opV2Vprob );
 				}
-
 			}
 
 
@@ -299,8 +296,7 @@ int main( int argi, char** argv ) {
 							opV2S->getOperatorPtr(),
 							opS2V->getOperatorPtr()
 							)
-						, Teuchos::rcpFromRef( pl->sublist("DivGrad") )
-						);
+						, Teuchos::rcpFromRef( pl->sublist("DivGrad") ) );
 
 			{ // init multigrid divgrad
 
@@ -326,23 +322,20 @@ int main( int argi, char** argv ) {
 
 			auto divGradInv =
 				Pimpact::createMultiHarmonicMultiOpWrap(
-						divGradInv2
-						);
+						divGradInv2 );
 
 			// schurcomplement approximator ...
 			auto opSchur =
 				Pimpact::createTripleCompositionOp(
 						opV2S,
 						opV2V,
-						opS2V
-						);
+						opS2V );
 
 			auto opS2Sinv =
 				Pimpact::createTripleCompositionOp(
 						divGradInv,
 						opSchur,
-						divGradInv
-						);
+						divGradInv );
 
 			if( space->rankST()==0 )
 				std::cout << opS2Sinv->getLabel() << "\n";

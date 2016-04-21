@@ -56,7 +56,6 @@ public:
 
 		opV_->apply( x.getConstVField(), y.getVField() );
 		opS_->apply( x.getConstSField(), y.getSField() );
-
 	}
 
 
@@ -65,7 +64,6 @@ public:
 		out << "=== IntResCompoundOP ===\n";
 		opV_->print( out );
 		opS_->print( out );
-
   }
 
 }; // end of class IntResCompoundOp

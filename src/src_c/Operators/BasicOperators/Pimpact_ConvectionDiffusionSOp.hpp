@@ -91,14 +91,12 @@ public:
 	void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z ) const {
 
 		apply( x, y, z, mul_, mulI_, mulC_, mulL_ );
-
 	}
 
 	/// \f[ z = mul z + (x\cdot\nabla) y - \frac{1}{Re} \Delta z \f]
 	void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mul ) const {
 
 		apply( x, y, z, mul, mulI_, mulC_, mulL_ );
-
 	}
 
 	/// \f[ z = mul z + mulI y + mulC(x\cdot\nabla)y - mulL \Delta y \f]
@@ -144,7 +142,6 @@ public:
 				mulL );
 
 		z.changed();
-
 	}
 
 	void computeResidual( const RangeFieldT& b, const DomainFieldT& x, RangeFieldT& res ) const {

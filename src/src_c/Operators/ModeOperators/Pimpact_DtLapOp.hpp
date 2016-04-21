@@ -120,7 +120,6 @@ public:
 
     y.getCField().changed();
     y.getSField().changed();
-
   }
 
   void assignField( const DomainFieldT& mv ) {};

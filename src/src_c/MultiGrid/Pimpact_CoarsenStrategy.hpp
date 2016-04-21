@@ -81,7 +81,6 @@ public:
 		//multiSpace.shrink_to_fit();
 
 		return( multiSpace );
-
 	}
 
 

@@ -46,7 +46,6 @@ public:
     for( int i=0; i<x.space()->dim(); ++i ) {
       convectionSOp_->apply( u[i], x.getConstField(i), y.getField(i), mul );
     }
-
   }
 
   /// \note Operator's wind has to be assigned correctly
@@ -56,7 +55,6 @@ public:
     for( int i=0; i<x.space()->dim(); ++i ) {
       convectionSOp_->apply( u[i], x.getConstField(i), y.getField(i), mul, mulI, mulC, mulL );
     }
-
   }
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const { return( convectionSOp_->space() ); }

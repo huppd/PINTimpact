@@ -107,7 +107,6 @@ public:
       auto opPrec = Teuchos::rcp_const_cast<Op>( prob->getRightPrec() );
       opPrec->assignField( mv );
     }
-
   };
 
 
@@ -171,10 +170,10 @@ createInverseOp(
     return( Teuchos::rcp( new InverseOp<MultiOpWrap<OpT> >( op ) ) );
 	else
     return( Teuchos::rcp( new InverseOp<MultiOpWrap<OpT> >( op, pl ) ) );
-
 }
 
 
 } // end of namespace Pimpact
+
 
 #endif // end of #ifndef PIMPACT_INVERSEOP_HPP

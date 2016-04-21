@@ -57,7 +57,6 @@ public:
 		linprob_->setLeftPrec(
 				createMultiOperatorBase(
 					create<PreconditionerT>(op) ) );
-
 	}
 
 
@@ -78,7 +77,6 @@ public:
 				linprob_->setRightPrec(
 						createMultiOperatorBase(
 							create<PreconditionerT>(op, Teuchos::rcpFromRef( pl->sublist("Preconditioner") )) ) );
-
 		}
 
 
@@ -87,7 +85,6 @@ public:
 		linprob_->solve(
 				createMultiField( Teuchos::rcpFromRef(y) ),
 				createMultiField( Teuchos::rcpFromRef( const_cast<DomainFieldT&>(x) ) ) );
-
 	}
 
 
@@ -110,7 +107,6 @@ public:
 			auto opPrec = Teuchos::rcp_const_cast<Op>( prob->getRightPrec() );
 			opPrec->assignField( mv );
 		}
-
 	};
 
 

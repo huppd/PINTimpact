@@ -52,14 +52,12 @@ public:
 
     for( int i=0; i<x.getNumberVecs(); ++i )
       op_->apply( x.getConstField(i), y.getField(i) );
-
   }
 
 
   void assignField( const DomainFieldT& mv ) {
 
     op_->assignField( mv.getConstField(0) );
-
   };
 
 
@@ -88,8 +86,7 @@ public:
 template<class OperatorT>
 Teuchos::RCP< MultiOpWrap<OperatorT> > createMultiOpWrap( const Teuchos::RCP<OperatorT>& op ) {
 
-	 return( Teuchos::rcp( new MultiOpWrap<OperatorT>( op ) ) );
-
+	return( Teuchos::rcp( new MultiOpWrap<OperatorT>( op ) ) );
 }
 
 

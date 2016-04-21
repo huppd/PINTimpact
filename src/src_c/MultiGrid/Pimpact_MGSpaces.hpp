@@ -95,7 +95,6 @@ createMGSpaces(
           new MGSpaces<FSpaceT,CSpaceT>(
               space,
               spaces ) ) );
-
 }
 
 
