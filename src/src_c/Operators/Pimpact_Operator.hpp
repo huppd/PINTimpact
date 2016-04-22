@@ -6,7 +6,6 @@
 #include "Pimpact_Fields.hpp" // ETI
 
 /// \defgroup Operator Operators
-/// \todo think about adding a compResidual( x, b, res ) method to Operators
 #include "Pimpact_Add2Op.hpp"
 #include "Pimpact_Add3Op.hpp"
 #include "Pimpact_Chebyshev.hpp"

@@ -1605,7 +1605,7 @@ module mod_diff
   !! \param[in] exch_yes indicates, if phi has to be exchanged(ghost layers)
   !! \param[inout] phi = vel in case of mod_rhs
   !! \param[out] Lap
-  !! \todo change for discrete forcing
+  !! \note todo change for discrete forcing
   subroutine Helmholtz(m,exch_yes,phi,Lap)
   
   implicit none

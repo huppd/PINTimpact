@@ -75,7 +75,6 @@ public:
       cS_[i] = new Scalar[ nTemp ];
       if( i<space_->dim() )
         FD_getDiffCoeff(
-//            space_->rankST(),
             space_->nLoc(i),
             space_->bl(i),
             space_->bu(i),
@@ -99,7 +98,6 @@ public:
       cV_[i] = new Scalar[ nTemp ];
       if( i<space_->dim() )
         FD_getDiffCoeff(
-//            space_->rankST(),
             space_->nLoc(i),
             space_->bl(i),
             space_->bu(i),

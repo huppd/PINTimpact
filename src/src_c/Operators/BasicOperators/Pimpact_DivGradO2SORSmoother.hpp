@@ -33,7 +33,7 @@ void OP_DivGradO2SORSmoother(
 ///
 /// \relates DivGradO2Op
 /// \ingroup BaseOperator
-/// \todo instead of hardcode 2nd Order it would be pretty to use new space with StencilWidth<3,2>
+/// \note instead of hardcode 2nd Order it would be pretty to use new space with StencilWidth<3,2>
 template<class OperatorT>
 class DivGradO2SORSmoother {
 

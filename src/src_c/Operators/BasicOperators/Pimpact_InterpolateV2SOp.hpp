@@ -53,7 +53,6 @@ class ScalarField;
 /// \ingroup Space
 ///
 /// is used in the \c ScalarField::write method to interpolate the velocity to the pressure points, also used in \c ConvectionVOp
-/// \todo check boundaries some fixing necessary
 template< class Scalar, class Ordinal, int dimension, int dimNC >
 class InterpolateV2S {
 
@@ -228,10 +227,10 @@ Teuchos::RCP<const InterpolateV2S<S,O,d,dimNC> > createInterpolateV2S(
 
 
 /// \relates InterpolateV2S
-/// \todo make specalization of create<Inter>( space)
 template< class S, class O, int d, int dimNC >
 Teuchos::RCP<const InterpolateV2S<S,O,d,dimNC> > createInterpolateV2S(
 		const Teuchos::RCP<const Space<S,O,d,dimNC> >& space ) {
+
 	return( space->getInterpolateV2S() );
 }
 

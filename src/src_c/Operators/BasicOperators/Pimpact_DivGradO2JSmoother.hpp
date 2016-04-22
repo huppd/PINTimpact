@@ -20,8 +20,7 @@ namespace Pimpact{
 ///
 /// \relates DivGradO2Op
 /// \ingroup BaseOperator
-/// \todo instead of hardcode 2nd Order it would be pretty to use new space with StencilWidth<3,2>
-/// \todo handle corner
+/// \note todo instead of hardcode 2nd Order it would be pretty to use new space with StencilWidth<3,2>
 template<class OperatorT>
 class DivGradO2JSmoother {
 
@@ -295,7 +294,6 @@ protected:
 
 
 
-/// \todo move somewhere better
 template<template<class> class SmootherT, class OperatorT>
 Teuchos::RCP< SmootherT<OperatorT> >
 create(

@@ -19,7 +19,7 @@ namespace Pimpact {
 
 /// \ingroup CompoundOperator
 /// \relates TripleComposition
-/// \todo deprecated, mv temporary variables to apply
+/// \note deprecated?, mv temporary variables to apply
 ///
 /// \f[
 ///		\begin{bmatrix} I & 0 \\ opV2S opV2V & -I \end{bmatrix}^{-1}
@@ -120,7 +120,7 @@ public:
 //    // ~ (D H^{-1} G)^{-1} p = D H^{-1} f_u - f_p
   }
 
-  /// \todo fixme
+  /// \todo fixme, should be remodeled anyway
   void assignField( const DomainFieldT& mv ) {
     opV2V_->assignField( *createMultiField( Teuchos::rcp_const_cast<VF>(mv.getConstVFieldPtr()) ) );
 //    opS2V_->assignField( mv.getConstVField() );

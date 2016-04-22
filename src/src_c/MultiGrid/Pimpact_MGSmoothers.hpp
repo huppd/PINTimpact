@@ -17,8 +17,8 @@ namespace Pimpact {
 
 
 /// \ingroup MG
-/// \todo add constructro from FOperator
-/// \todo generalize MGContainer, specify to Fields and Operators
+/// \note todo add constructro from FOperator
+/// \note todo generalize MGContainer, specify to Fields and Operators
 template<class MGOperatorsT, template<class> class ST>
 class MGSmoothers {
 

@@ -66,7 +66,7 @@ public:
 	/// \brief most important object
 	///
 	/// \param pl parameters
-	/// \todo document parameter choices
+	/// \note todo document parameter choices
 	Space( Teuchos::RCP<Teuchos::ParameterList> pl ) {
 
 		pl->validateParametersAndSetDefaults( *getValidParameters(), 0 );
@@ -603,8 +603,8 @@ static Teuchos::RCP< const SpaceT > createSpace(
 
 
 
-/// \todo move ProcGrid createion to createProcGrid(...)
-/// \todo redo input GridSizeGlobal, ProcGridSize
+/// \note todo move ProcGrid createion to createProcGrid(...)
+/// \note todo redo input GridSizeGlobal, ProcGridSize
 /// \relates CoarsenStrategyGlobal
 template<class SpaceT>
 static Teuchos::RCP< const SpaceT > createSpace(

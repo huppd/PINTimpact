@@ -34,8 +34,6 @@ namespace Pimpact {
 /// the implementation should be improved such that communication is done such
 /// that only done once per FieldT not per Field
 ///
-/// \todo decide if it is better to modifie ghostlayer or exchange eventuell more
-/// \todo maybe move functionality in Scalar/VectorField<S,O,4>
 /// \ingroup Field
 template<class Field>
 class TimeField : private AbstractField<typename Field::SpaceT> {
@@ -265,7 +263,6 @@ public:
 
  /// \brief compute the norm
   /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm/
-	/// \todo include scaled norm
   constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm ) const {
 
 		Scalar normvec = this->reduce(
@@ -454,7 +451,6 @@ public:
 
 /// \brief factory for \c TimeField
 /// \relates TimeField
-/// \todo substitue
 /// \deprecated
 template<class FieldT, class SpaceT>
 Teuchos::RCP< TimeField<FieldT> >
@@ -465,7 +461,7 @@ createTimeField( const Teuchos::RCP<const SpaceT>& space ) {
 
 
 
-/// \todo move to initField
+/// \deprecated 
 template<class SpaceT>
 void
 initVectorTimeField(
@@ -501,38 +497,38 @@ initVectorTimeField(
 				field->getFieldPtr(i)->initField( PoiseuilleFlow2D_inY );
 				break;
 			case Streaming2DFlow: {
-															S ampt = std::sin( 2.*pi*((S)i+offset)/nt );
-															field->getFieldPtr(i)->initField( Streaming2D, ampt );
-															break;
-														}
+				S ampt = std::sin( 2.*pi*((S)i+offset)/nt );
+				field->getFieldPtr(i)->initField( Streaming2D, ampt );
+				break;
+			}
 			case OscilatingDisc2D: {
-															 //			std::cout << "\ti: " << i << "\tt: " << 2.*pi*((S)i+offset)/nt << "\tt: " << space->getCoordinatesLocal()->getX( ECoord::T, EField::S )[i] << "\n";
-															 S ymt = ym+amp*std::sin( space->getCoordinatesLocal()->getX( ECoord::T, EField::S )[i] );
-															 S xmt = xm;
-															 field->getFieldPtr(i)->initField( Disc2D, xmt, ymt, rad );
-															 break;
-														 }
+				//			std::cout << "\ti: " << i << "\tt: " << 2.*pi*((S)i+offset)/nt << "\tt: " << space->getCoordinatesLocal()->getX( ECoord::T, EField::S )[i] << "\n";
+				S ymt = ym+amp*std::sin( space->getCoordinatesLocal()->getX( ECoord::T, EField::S )[i] );
+				S xmt = xm;
+				field->getFieldPtr(i)->initField( Disc2D, xmt, ymt, rad );
+				break;
+		  }
 			case OscilatingDisc2DVel: {
-																	S yvelt = amp*std::cos( 2.*pi*((S)i+offset)/nt );
-																	S xvelt = 0;
-																	field->getFieldPtr(i)->init( Teuchos::tuple( xvelt, yvelt, 0.) );
-																	break;
-																}
+				S yvelt = amp*std::cos( 2.*pi*((S)i+offset)/nt );
+				S xvelt = 0;
+				field->getFieldPtr(i)->init( Teuchos::tuple( xvelt, yvelt, 0.) );
+				break;
+			}
 			case ConstVel_inX:{
-													field->getFieldPtr(i)->init( Teuchos::tuple( -2*xm*std::cos(space->getCoordinatesLocal()->getX( ECoord::T, EField::S )[i]), 0., 0.) ); // here xm = p
-													break;
-												}
+				field->getFieldPtr(i)->init( Teuchos::tuple( -2*xm*std::cos(space->getCoordinatesLocal()->getX( ECoord::T, EField::S )[i]), 0., 0.) ); // here xm = p
+				break;
+			}
 			case Pulsatile_inX: {
-														//field->getFieldPtr(i)->initField( Pulsatile2D_inX, xm, space->getCoordinatesLocal()->getX( ECoord::T, EField::S )[i], ym, rad); // the arguments are (xmt,i,ymt,rad) --> (re,t,px,alpha)
-														break;
-													}
+				//field->getFieldPtr(i)->initField( Pulsatile2D_inX, xm, space->getCoordinatesLocal()->getX( ECoord::T, EField::S )[i], ym, rad); // the arguments are (xmt,i,ymt,rad) --> (re,t,px,alpha)
+				break;
+			}
 			default:
-													field->getFieldPtr(i)->initField( ZeroFlow );
-													break;
+				field->getFieldPtr(i)->initField( ZeroFlow );
+				break;
 		}
 
 	field->changed();
-}
+	}
 
 
 } // end of namespace Pimpact

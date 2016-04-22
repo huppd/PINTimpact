@@ -339,9 +339,7 @@ contains
 
 
 
-  !> \todo maybe use SS and NN with boundary instead should be more cleaner
-  !! \todo make restrictHWion proper in 3d not just in 1d!!!
-  subroutine MG_restrictHWV(    &
+  subroutine MG_restrictHWV(  &
       dimens,                 &
       dir,                    &
       Nf,                     &
@@ -583,7 +581,6 @@ contains
 
 
 
-  !> \todo ununderstand recevbuf size not coorect
   subroutine MG_RestrictGather( &
       Nc,                       &
       bLc,bUc,                  &
@@ -673,7 +670,6 @@ contains
       end do
     end if
 
-    !end if
 
   end subroutine MG_RestrictGather
 

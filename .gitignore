@@ -3,4 +3,5 @@
 *.txt
 debug/
 doc/
+profile/
 release/

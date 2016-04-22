@@ -306,7 +306,6 @@ contains
 
   !> \brief computes Time dependent Stokes operator
   !! is used for inner field
-  !! \todo implement: generat small systems solve them, update solution
   subroutine OP_TimeStokesBSmoother( &
       dimens,               &
       N,                    &

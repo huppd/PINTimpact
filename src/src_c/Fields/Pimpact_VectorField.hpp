@@ -280,7 +280,6 @@ public:
 
  /// \brief compute the norm
   /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
-	/// \todo include scaled norm
   constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm ) const {
 
 		Scalar normvec = this->reduce(

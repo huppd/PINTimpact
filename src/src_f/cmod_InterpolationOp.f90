@@ -863,11 +863,13 @@ contains
 
 
 
-  !> \todo understand recevbuf size not correct
+  !> \brief 
+  !! \note todo understand recevbuf size not correct
   !! \todo fix sendbuf size
   subroutine MG_InterpolateScatter( &
       Nc,                           &
-      bLc,bUc,                      &
+      bLc,                          &
+      bUc,                          &
       iimax,                        &
       n_gather,                     &
       participate_yes,              &
@@ -889,7 +891,7 @@ contains
 
     integer(c_int), intent(in)     :: n_gather(3)
 
-    logical(c_bool), intent(in)     :: participate_yes
+    logical(c_bool), intent(in)    :: participate_yes
 
     integer(c_int), intent(in)     :: rankc2
 

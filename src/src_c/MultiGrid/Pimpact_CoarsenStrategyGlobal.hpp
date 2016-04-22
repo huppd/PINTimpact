@@ -19,13 +19,13 @@ namespace Pimpact {
 ///
 /// \tparam FSpaceT space on finest level not necessary the same for the coarse grids( difference in \c dim_nc).
 /// it should be that the coardinates are taken from the fine grid and are halved.
-/// \todo compute coordinates correctly (grid stretching only on finest grid, afterwards simple coarsening),
+/// \note compute coordinates correctly (grid stretching only on finest grid, afterwards simple coarsening),
 /// cleanest version would be to use same grid stretching on every level, makes
 /// interpolation and restriction slightly more complicated.
-///\todo the \c CSpaceT parameter allows even smaller Grids nLoc=1 but therefore
+///\note the \c CSpaceT parameter allows even smaller Grids nLoc=1 but therefore
 ///the exception in GridSilzeLocal has to be adapted on StencilWidths
 /// \ingroup MG
-/// \todo add template parameter for coarses gridSize, and some procGrid stuff
+/// \note add template parameter for coarses gridSize, and some procGrid stuff
 template<class FSpaceT,class CSpaceT, int cgsize=9>
 class CoarsenStrategyGlobal {
 
@@ -44,7 +44,7 @@ class CoarsenStrategyGlobal {
 
 public:
 
-	// \todo make interface if spectral refinment is desired or not
+	/// todo make interface if spectral refinment is desired or not
 	static std::vector<Teuchos::RCP<const CSpaceT> > getMultiSpace(
 			const Teuchos::RCP<const FSpaceT> space,
 			int maxGrids=10 ) {

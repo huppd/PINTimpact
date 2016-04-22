@@ -154,8 +154,6 @@ contains
 
 
 
-  !> \todo maybe use SS and NN with boundary instead should be more cleaner
-  !! \todo make restrictFWion proper in 3d not just in 1d!!!
   subroutine MG_restrictFWV(    &
       dimens,                   &
       dir,                      &

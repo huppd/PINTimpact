@@ -89,7 +89,7 @@ protected:
 
 public:
 
-	/// \todo constructor from space
+	/// \note todo constructor from space
 	TimeNS4DBSmoother( const Teuchos::RCP<const OperatorT>& op , Teuchos::RCP<Teuchos::ParameterList> pl = Teuchos::parameterList()):
 		op_( op ),
 		numIters_( pl->get<int>("numIters",4) )	{};

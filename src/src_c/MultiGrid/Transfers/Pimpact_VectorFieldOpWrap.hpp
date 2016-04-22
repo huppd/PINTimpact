@@ -67,9 +67,9 @@ public:
   }
 
 	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(sop_->space()); };
-	/// \todo dirty
+	/// \note dirty
 	Teuchos::RCP<const SpaceT> spaceC() const { return(sop_->spaceC()); };
-	/// \todo dirty
+	/// \note dirty
 	Teuchos::RCP<const SpaceT> spaceF() const { return(sop_->spaceF()); };
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {

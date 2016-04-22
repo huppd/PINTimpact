@@ -25,7 +25,7 @@ namespace Pimpact {
 /// \brief important basic Vector class
 /// vector for wrapping 2 fields into one mode
 /// \ingroup Field
-/// \todo use attributes methods in vectorspace functions???
+/// todo use attributes methods in vectorspace functions???
 template<class VField, class SField>
 class CompoundField : private AbstractField<typename VField::SpaceT> {
 
@@ -196,7 +196,6 @@ public:
 
  /// \brief compute the norm
   /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
-	/// \todo include scaled norm
   constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm ) const {
 
 		Scalar normvec = this->reduce(

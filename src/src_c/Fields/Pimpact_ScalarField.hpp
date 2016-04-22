@@ -32,7 +32,6 @@ namespace Pimpact {
 /// vector for a scalar field, e.g.: pressure,
 /// \note all indexing is done in Fortran
 /// \ingroup Field
-/// \todo think about using Teuchos::ArrayRCP instead of Scalar* should make delete
 template<class SpaceType>
 class ScalarField : private AbstractField< SpaceType > {
 
@@ -127,7 +126,6 @@ public:
   /// \{
 
   /// \brief returns the length of Field.
-	/// \todo test heavliy
 	constexpr Ordinal getLength() const {
 
 		Teuchos::RCP<const BoundaryConditionsGlobal<SpaceT::dimension> > bc =
@@ -305,7 +303,6 @@ public:
 
   /// \brief compute the norm
   /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
-	/// \todo include scaled norm
   constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm ) const {
 
 		Scalar normvec = this->reduce(
@@ -723,7 +720,6 @@ public:
 
 
   /// Write the ScalarField to an hdf5 file, the velocities are interpolated to the pressure points
-  /// \todo add 3d case here
   /// \todo add restart
 	void write( int count=0 , bool restart=false ) const {
 

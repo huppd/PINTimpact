@@ -33,7 +33,7 @@ void OP_DtHelmholtz(
 
 
 /// \ingroup ModeOperator
-/// \todo move c_ from Helmholtz
+/// \note todo move c_ from Helmholtz
 template<class ST>
 class DtLapOp {
 

@@ -453,7 +453,6 @@ public:
 
 
 
-/// \todo colect all create methods in one file
 template<template<class> class OpT, class SpaceT>
 Teuchos::RCP<const OpT<SpaceT> > create(
     const Teuchos::RCP<const SpaceT>& spaceF,

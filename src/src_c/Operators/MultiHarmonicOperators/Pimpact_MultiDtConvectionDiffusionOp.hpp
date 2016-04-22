@@ -56,7 +56,6 @@ public:
   };
 
 
-	/// \todo check for mv global if not make global temp + exchange
   void assignField( const DomainFieldT& y_ref ) {
 
 		Teuchos::RCP<const DomainFieldT> y;
@@ -81,7 +80,6 @@ public:
   };
 
 
-	/// \todo check for y global if not make global temp + exchange
   void apply( const DomainFieldT& y_ref, RangeFieldT& z, bool init_yes=true ) const {
 		
 		Teuchos::RCP<const DomainFieldT> y;

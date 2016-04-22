@@ -16,7 +16,7 @@ namespace Pimpact {
 /// \f[ op1 op2 op3 \mathbf{x} = \mathbf{y} \f]
 /// Both operators are applied sequentially.
 /// the \c DomainFieldT \c OP1 has to equal to the \c RangeFieldT \c OP2.
-/// \todo insert static_assert
+/// \note todo insert static_assert for types
 /// \ingroup Operator
 template< class OP1, class OP2, class OP3=OP2 >
 class TripleCompositionOp {

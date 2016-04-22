@@ -57,7 +57,7 @@ int main(int argi, char** argv ) {
   S alpha2 = 1.;
   my_CLP.setOption( "omega", &alpha2, "introduced frequency" );
 
-  // flow type \todo + Boundary conditions
+  // flow type todo + Boundary conditions
   int flow = 1;
   my_CLP.setOption( "flow", &flow, "Flow type: 0=zero flow, 1=2D Poiseuille flow in x, 2=2D Poiseuille flow in y" );
 

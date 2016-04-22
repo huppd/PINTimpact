@@ -38,7 +38,7 @@ public:
 	using Ordinal = typename SpaceT::Ordinal;
 
 	using VectorT = Teuchos::SerialDenseVector<Ordinal,Scalar>;
-	using MatrixT = Teuchos::SerialDenseMatrix<Ordinal,Scalar>;
+	using MatrixT = Teuchos::SerialDenseMatrix<Ordinal,Scalar>; /// \todo having sparse matrix
 
 protected:
 
@@ -166,7 +166,7 @@ public:
 	}
 
 
-	// \todo not BC ready
+	// \note not BC ready
 	void updateRHS( const Teuchos::RCP<const DivGradO2Op<SpaceT> > op,
 			const DomainFieldT& x, Teuchos::RCP<VectorT> b ) const {
 
@@ -512,7 +512,7 @@ public:
 			(*A)( I, I-1 ) += op_->getC( dir, i,-1) ;
 		}
 
-		// compute EV, \todo move to TeuchosBla
+		// compute EV, todo move to TeuchosBla
 		Ordinal sdim = 0;
 		Teuchos::RCP< VectorT > evr = Teuchos::rcp( new VectorT(n,false) );
 		Teuchos::RCP< VectorT > evi = Teuchos::rcp( new VectorT(n,false) );
@@ -622,7 +622,7 @@ public:
 		}
 
 		
-		// compute EV, \todo move to TeuchosBla
+		// compute EV, todo move to TeuchosBla
 		Ordinal sdim = 0;
 		Teuchos::RCP< VectorT > evr = Teuchos::rcp( new VectorT(N,false) );
 		Teuchos::RCP< VectorT > evi = Teuchos::rcp( new VectorT(N,false) );

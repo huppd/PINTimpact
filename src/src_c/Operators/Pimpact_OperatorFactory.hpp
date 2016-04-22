@@ -29,7 +29,6 @@ createMultiModeOpWrap( const Teuchos::RCP<Op>& op ) {
 
 /// \relates MultiOpWrap
 /// \relates OperatorBase
-/// \todo substitute tparam MF with MultiField<OP::DomainFIeld>...
 template<class Op>
 Teuchos::RCP< OperatorBase< MultiField<typename Op::DomainFieldT>,MultiField<typename Op::RangeFieldT> > >
 createMultiOperatorBase( const Teuchos::RCP<Op>& op ) {

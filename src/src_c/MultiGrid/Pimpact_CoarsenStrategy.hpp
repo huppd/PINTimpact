@@ -19,10 +19,10 @@ namespace Pimpact {
 ///
 /// \tparam FSpaceT space on finest level not necessary the same for the coarse grids( difference in \c dim_nc).
 /// it should be that the coardinates are taken from the fine grid and are halved.
-/// \todo compute coordinates correctly (grid stretching only on finest grid, afterwards simple coarsening),
+/// \note compute coordinates correctly (grid stretching only on finest grid, afterwards simple coarsening),
 /// cleanest version would be to use same grid stretching on every level, makes
 /// interpolation and restriction slightly more complicated.
-///\todo the \c CSpaceT parameter allows even smaller Grids nLoc=1 but therefore
+///\note the \c CSpaceT parameter allows even smaller Grids nLoc=1 but therefore
 ///the exception in GridSilzeLocal has to be adapted on StencilWidths
 /// \ingroup MG
 template<class FSpaceT,class CSpaceT>

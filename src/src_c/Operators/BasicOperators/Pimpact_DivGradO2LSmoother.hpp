@@ -21,7 +21,7 @@ namespace Pimpact{
 ///
 /// \relates DivGradO2Op
 /// \ingroup BaseOperator
-/// \todo work in progress
+/// \note work in progress
 template<class OperatorT>
 class DivGradO2LSmoother {
 
@@ -50,7 +50,6 @@ protected:
 
 	bool levelYes_;
 
-
   const Teuchos::RCP<const OperatorT> op_;
 
 	Teuchos::Tuple< Teuchos::RCP<VectorT>, 3 > dl_;
@@ -73,16 +72,16 @@ public:
 	///   - "level" - a \c bool number of smoothing steps. Default: false  /
 	DivGradO2LSmoother(
 			const Teuchos::RCP<const OperatorT>& op,
-      const Teuchos::RCP<Teuchos::ParameterList>& pl=Teuchos::parameterList() ):
-    nIter_( pl->get<int>( "numIters", 1 ) ),
-    omega_( pl->get<Scalar>( "omega", 0.75 ) ),
-    levelYes_( pl->get<bool>( "level", false ) ),
-    op_(op) {
-		
+			const Teuchos::RCP<Teuchos::ParameterList>& pl=Teuchos::parameterList() ):
+		nIter_( pl->get<int>( "numIters", 1 ) ),
+		omega_( pl->get<Scalar>( "omega", 0.75 ) ),
+		levelYes_( pl->get<bool>( "level", false ) ),
+		op_(op) {
+
 			lineDirection_[X] = pl->get<bool>( "X", false );
 			lineDirection_[Y] = pl->get<bool>( "Y", true  );
 			lineDirection_[Z] = pl->get<bool>( "Z", false );
-			
+
 			TEUCHOS_TEST_FOR_EXCEPT( !lineDirection_[X] && !lineDirection_[Y] && !lineDirection_[Z] );
 
 			for( int dir=0; dir<3; ++dir ) {
@@ -124,7 +123,7 @@ public:
 
 
   /// \f[ y_k = (1-\omega) y_k + \omega D^{-1}( x - A y_k ) \f]
-	/// \todo solve multiple problems at once
+	/// \note todo solve multiple problems at once
 	void apply(const DomainFieldT& b, RangeFieldT& y,
 			Belos::ETrans trans=Belos::NOTRANS ) const {
 
@@ -173,14 +172,14 @@ public:
 
 							TEUCHOS_TEST_FOR_EXCEPT( lu_solve_sucess );
 
-							//// transfer back
+							// transfer back
 							for( i[dir]=space()->sInd(S,dir); i[dir]<=space()->eInd(S,dir); ++i[dir] )
 								y.at(i) = y.at(i) + omega_*(*B)[ i[dir]-1 ];
 						}
 
 					y.changed();
 				} // end of if( true==lineDirection_[dir] )
-			}// end of for dir = 2...0
+			} // end of for dir = 2...0
 		} // end of for i=0...nIter_
 
 		if( levelYes_ )

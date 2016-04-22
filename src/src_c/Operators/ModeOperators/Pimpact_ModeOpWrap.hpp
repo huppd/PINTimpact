@@ -40,7 +40,7 @@ public:
 	~ModeOpWrap() {op_=Teuchos::null;};
 
 
-	/// \todo apply for helmholtx k=...
+	/// \note todo apply for helmholtx k=...
 	void apply( const DomainFieldT& x, RangeFieldT& y,
 			Belos::ETrans trans=Belos::NOTRANS) const {
 

@@ -218,7 +218,7 @@ public:
 
 	/// \note should only be used if knowing what to do(e.g. MG)
 	/// \warning no safety checks
-	/// \todo make privet, make coarsening here.
+	/// \note todo make privat, make coarsening here.
 	ProcGrid(
 			TO procGridSize,
 			bool participating,

@@ -19,6 +19,7 @@ namespace Pimpact{
 
 /// \brief inverse for second Order DivGradOp.
 ///
+/// \todo make the same for ConvectionDiffusionSOp, or better more general
 /// \relates DivGradO2Op
 /// \ingroup BaseOperator
 template<class OperatorT>

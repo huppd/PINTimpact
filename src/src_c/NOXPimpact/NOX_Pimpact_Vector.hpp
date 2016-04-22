@@ -153,7 +153,7 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = \alpha \; a_i + \gamma \; x_i \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  /// \todo test me good
+  /// \test test me good
   virtual NOX::Abstract::Vector& update(double alpha, const Vector<Field>& a, double gamma = 0.0) {
     field_->add( alpha, *a.field_, gamma, *field_);
     return( *this );
@@ -168,7 +168,7 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = \alpha \; a_i + \beta \; b_i + \gamma \; x_i \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  /// \todo test me
+  /// \test me
   virtual NOX::Abstract::Vector& update(
       double alpha, const Vector<Field>& a,
       double beta, const Vector<Field>& b,

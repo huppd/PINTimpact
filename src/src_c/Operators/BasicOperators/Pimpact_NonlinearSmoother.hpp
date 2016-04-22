@@ -14,9 +14,9 @@ namespace Pimpact {
 
 
 /// \brief Convection Operator for Velocity fields
-/// \todo make wind template parameter as well.(necessary when different winds
+/// \note make wind template parameter as well.(necessary when different winds
 /// are wanted, meaning moving interpolation steps from assign to apply
-/// \todo make constructor so wind can be shared by different operators.
+/// \note todo make constructor so wind can be shared by different operators.
 /// \ingroup BaseOperator
 /// \ingroup NonlinearOperator
 template<class ConvVOpT, template<class> class ST>

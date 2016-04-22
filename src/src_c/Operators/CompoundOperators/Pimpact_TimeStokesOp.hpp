@@ -83,7 +83,7 @@ protected:
 
 public:
 
-	/// \todo constructor from space
+	/// \note todo constructor from space
 	TimeStokesOp(
 			const Teuchos::RCP<const SpaceT>& space ):
 		helm_( create< HelmholtzOp<ST> >(space) ),

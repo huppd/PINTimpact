@@ -117,8 +117,8 @@ public:
 
 	/// \brief solves \f$ L y = x \f$
 	/// defect correction\f$ \hat{L}u_{k+1} = f-L u_k +\hat{L}u_k \f$ and V-cylce for solving with \f$\hat{L}\f$
-	/// \todo extract smooth/restrict/interpolate method???
-	/// \todo template cycle method
+	/// \note todo extract smooth/restrict/interpolate method???
+	/// \note todo template cycle method
 	void apply( const DomainFieldT& x0, RangeFieldT& y ) const {
 
 		Teuchos::RCP<MGFieldsT> x    = createMGFields<FieldT>( mgSpaces_ );

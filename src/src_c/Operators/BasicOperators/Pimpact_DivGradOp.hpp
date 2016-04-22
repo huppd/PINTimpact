@@ -18,7 +18,7 @@ namespace Pimpact{
 
 /// \brief "laplace" for pressure.
 /// \ingroup BaseOperator
-/// \todo not workin properly?
+/// \note todo not workin properly?
 /// \warning does not hold test.
 template<class ST>
 class DivGradOp {

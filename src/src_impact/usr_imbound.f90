@@ -1,5 +1,4 @@
 !> \brief module introducing a discrete direct immersed boundaries
-!! \author huppd
 module usr_imbound
 
   use mod_dims
@@ -14,10 +13,8 @@ module usr_imbound
   contains
 
 
-  !> \todo add obstacle characteristic function
 
   !> \brief calculate distance to immersed boundary
-  !! \author huppd
   !! \param[in] x
   !! \param[in] y
   !! \param[in] z
@@ -60,7 +57,6 @@ module usr_imbound
 
 
   !> \brief returns velocity of immersed boundaries at time
-  !! \author huppd
   !! \param[in] m velocity direction
   function vel_ib(x,y,z,m) result(velocity_ib)
 
