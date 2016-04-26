@@ -16,19 +16,19 @@ namespace Pimpact{
 
 extern "C"
 void OP_helmholtz(
-    const int& dimens,
-    const int* const N,
-    const int* const bl,
-    const int* const bu,
-    const int* const ss,
-    const int* const nn,
-    const double* const c11,
-    const double* const c22,
-    const double* const c33,
-    const double& mulI,
-    const double& multL,
-    const double* const phi,
-    double* const lap );
+		const int& dimens,
+		const int* const N,
+		const int* const bl,
+		const int* const bu,
+		const int* const ss,
+		const int* const nn,
+		const double* const c11,
+		const double* const c22,
+		const double* const c33,
+		const double& mulI,
+		const double& multL,
+		const double* const phi,
+		double* const lap );
 
 
 
@@ -130,24 +130,24 @@ public:
 
   void apply(const DomainFieldT& x, RangeFieldT& y ) const {
 
-    x.exchange();
+    for( int dir=0; dir<space_->dim(); ++dir ) {
 
-    for( int i=0; i<space_->dim(); ++i ) {
-      EField fType = (EField)i;
-      OP_helmholtz(
-          space_->dim(),
-          space_->nLoc(),
-          space_->bl(),
-          space_->bu(),
-          space_->sInd(fType),
-          space_->eInd(fType),
-          getC(X,fType),
-          getC(Y,fType),
-          getC(Z,fType),
-          mulI_,
-          mulL_,
-          x.getConstRawPtr(fType),
-          y.getRawPtr(fType) );
+      EField fType = static_cast<EField>(dir);
+
+			x.getField(fType).exchange();
+
+			if( 3==space_->dim() ) {
+				for( Ordinal k=space()->sInd(fType,Z); k<=space()->eInd(fType,Z); ++k )
+					for( Ordinal j=space()->sInd(fType,Y); j<=space()->eInd(fType,Y); ++j )
+						for( Ordinal i=space()->sInd(fType,X); i<=space()->eInd(fType,X); ++i )
+							y.getField(fType).at(i,j,k) = innerStenc3D( x, fType, i, j, k);
+			}
+			else{
+				for( Ordinal k=space()->sInd(fType,Z); k<=space()->eInd(fType,Z); ++k )
+					for( Ordinal j=space()->sInd(fType,Y); j<=space()->eInd(fType,Y); ++j )
+						for( Ordinal i=space()->sInd(fType,X); i<=space()->eInd(fType,X); ++i )
+							y.getField(fType).at(i,j,k) = innerStenc2D( x, fType, i, j, k);
+			}
     }
 
     y.changed();
@@ -162,31 +162,33 @@ public:
     out << "--- " << getLabel() << " ---\n";
     out << " --- scalar stencil: ---";
 
-    for( int i=0; i<3; ++i ) {
+    for( int dir=0; dir<3; ++dir ) {
 
-			out << "\ncoord: " << toString( static_cast<ECoord>(i) ) << "\n";
+			out << "\ncoord: " << toString( static_cast<ECoord>(dir) ) << "\n";
 
-      Ordinal nTemp1 = space_->nLoc(i) + 1;
-      Ordinal nTemp2 = space_->bu(i) - space_->bl(i) + 1;
+      Ordinal nTemp2 = space_->bu(dir) - space_->bl(dir) + 1;
 
-      for( Ordinal j=0; j<nTemp1; ++j ) {
-        out << "\ni: " << j << "\t(";
-        for( Ordinal k=0; k<nTemp2; ++k ) {
-          out << cS_[i][k+nTemp2*j] <<", ";
+      for( Ordinal i=0; i<=space_->nLoc(dir); ++i ) {
+        out << "\ni: " << i << "\t(";
+        for( Ordinal k=space_->bl(dir); k<=space_->bu(dir); ++k ) {
+          out << getC(static_cast<ECoord>(dir),S,i,k) <<", ";
         }
         out << ")\n";
       }
       out << "\n";
     }
     out << " --- velocity stencil: ---";
-    for( int i=0; i<3; ++i ) {
-      out << "\ndir: " << i << "\n";
-      Ordinal nTemp1 = ( space_->nLoc(i) + 1 );
-      Ordinal nTemp2 = ( space_->bu(i) - space_->bl(i) + 1 );
-      for( int j=0; j<nTemp1; ++j ) {
-        out << "\ni: " << j << "\t(";
-        for( int k=0; k<nTemp2; ++k ) {
-          out << cV_[i][k+nTemp2*j] <<", ";
+
+    for( int dir=0; dir<3; ++dir ) {
+
+			out << "\ncoord: " << toString( static_cast<ECoord>(dir) ) << "\n";
+
+      Ordinal nTemp2 = ( space_->bu(dir) - space_->bl(dir) + 1 );
+
+      for( Ordinal i=0; i<=space_->nLoc(dir); ++i ) {
+        out << "\ni: " << i << "\t(";
+        for( Ordinal k=space_->bl(dir); k<=space_->bu(dir); ++k ) {
+          out << getC(static_cast<ECoord>(dir),static_cast<EField>(dir),i,k) <<", ";
         }
         out << ")\n";
       }
@@ -197,9 +199,13 @@ public:
 
 	constexpr const Teuchos::RCP<const SpaceT>& space() const { return( space_ ); };
 
-  constexpr const Scalar* getC( const ECoord& dir, const EField& ftype ) const {
-		return( ((int)dir==(int)ftype)?cV_[dir]:cS_[dir] );
+  constexpr const Scalar* getC( const int& dir, const int& ftype ) const {
+		return( (dir==ftype)?cV_[dir]:cS_[dir] );
   }
+
+	constexpr const Scalar& getC( const ECoord& dir, const EField& ftype, Ordinal i, Ordinal off ) const {
+		return( getC(dir,ftype)[ off - space_->bl(dir) + i*( space_->bu(dir) - space_->bl(dir) + 1) ] );
+	}
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
 		mulI_ = para->get<Scalar>( "mulI", 0. );
@@ -207,6 +213,40 @@ public:
 	}
 
 	const std::string getLabel() const { return( "Helmholtz" ); };
+
+protected:
+
+	inline constexpr Scalar innerStenc3D( const DomainFieldT& x, const EField& fType,
+			const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
+
+		Scalar lap = 0.;
+
+		for( int ii=space_->bl(X); ii<=space_->bu(X); ++ii ) 
+			lap += getC(X,fType,i,ii)*x.getConstField(fType).at(i+ii,j,k);
+
+		for( int jj=space_->bl(Y); jj<=space_->bu(Y); ++jj ) 
+			lap += getC(Y,fType,j,jj)*x.getConstField(fType).at(i,j+jj,k);
+
+		for( int kk=space_->bl(Z); kk<=space_->bu(Z); ++kk ) 
+			lap += getC(Z,fType,k,kk)*x.getConstField(fType).at(i,j,k+kk);
+
+		return( mulI_*x.getField(fType).at(i,j,k) - mulL_*lap );
+	}
+
+	inline constexpr Scalar innerStenc2D( const DomainFieldT& x, const EField& fType,
+			const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
+
+		Scalar lap = 0.;
+
+		for( int ii=space_->bl(X); ii<=space_->bu(X); ++ii ) 
+			lap += getC(X,fType,i,ii)*x.getConstField(fType).at(i+ii,j,k);
+
+		for( int jj=space_->bl(Y); jj<=space_->bu(Y); ++jj ) 
+			lap += getC(Y,fType,j,jj)*x.getConstField(fType).at(i,j+jj,k);
+
+		return( mulI_*x.getConstField(fType).at(i,j,k) - mulL_*lap );
+	}
+
 
 }; // end of class HelmholtzOp
 

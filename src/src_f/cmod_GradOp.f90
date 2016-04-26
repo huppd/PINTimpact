@@ -295,6 +295,7 @@ contains
 
   !> \brief computes \f$ \mathrm{grad = \nabla\phi } \f$
   !! is used for inner field
+  !! \depcrecated
   subroutine OP_grad( &
       dimens,         &
       N,              &

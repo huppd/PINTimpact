@@ -91,14 +91,14 @@ public:
 
 			for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
 				for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
-					for( Ordinal i=space()->sInd(S,Y); i<=space()->eInd(S,X); ++i )
+					for( Ordinal i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i )
 						y.at(i,j,k) = innerStenc3D( x, i, j, k );
 		}
 		else{
 
 			for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
 				for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
-					for( Ordinal i=space()->sInd(S,Y); i<=space()->eInd(S,X); ++i )
+					for( Ordinal i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i )
 						y.at(i,j,k) = innerStenc2D( x, i, j, k );
 		}
 
@@ -116,7 +116,7 @@ public:
 		return( c_[dir] );
 	}
 
-	constexpr const Scalar& getC( const ECoord& dir, Ordinal i, Ordinal off ) const  {
+	constexpr const Scalar& getC( const ECoord& dir, Ordinal i, Ordinal off ) const {
 		return( c_[dir][ off - space_->dl(dir) + i*( space_->du(dir) - space_->dl(dir) + 1) ] );
 	}
 

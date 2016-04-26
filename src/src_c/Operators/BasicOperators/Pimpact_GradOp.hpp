@@ -18,28 +18,7 @@ namespace Pimpact{
 
 
 
-extern "C" {
-
-void OP_grad(
-    const int& dimens,
-    const int* const N,
-    const int* const bl,
-    const int* const bu,
-    const int* const gl,
-    const int* const gu,
-    const int* const su,
-    const int* const nu,
-    const int* const sv,
-    const int* const nv,
-    const int* const sw,
-    const int* const nw,
-    const double* const c1,
-    const double* const c2,
-    const double* const c3,
-    const double* const phi,
-    double* const grad );
-
-void OP_extrapolateBC(
+extern "C" void OP_extrapolateBC(
 		const int& m,         
     const int* const N,         
     const int* const bL,
@@ -53,7 +32,6 @@ void OP_extrapolateBC(
 		const double* const c,    
 		const double*       phi );
 
-}
 
 
 
@@ -124,29 +102,26 @@ public:
 
   void apply(const DomainFieldT& x, RangeFieldT& y) const {
 
-		int dim = space_->dim();
-    for( int i=0; i<dim; ++i) {
-      x.exchange(i);
-    }
+		x.exchange(X);
+		for( Ordinal k=space()->sIndB(U,Z); k<=space()->eIndB(U,Z); ++k )
+			for( Ordinal j=space()->sIndB(U,Y); j<=space()->eIndB(U,Y); ++j )
+				for( Ordinal i=space()->sIndB(U,X); i<=space()->eIndB(U,X); ++i )
+					y.getField(U).at(i,j,k) = innerStencU( x, i, j, k );
 
-		OP_grad(
-				space_->dim(),
-				space_->nLoc(),
-				space_->bl(),
-				space_->bu(),
-				space_->gl(),
-				space_->gu(),
-				space_->sIndB(U),
-				space_->eIndB(U),
-				space_->sIndB(V),
-				space_->eIndB(V),
-				space_->sIndB(W),
-				space_->eIndB(W),
-        getC(X),
-        getC(Y),
-        getC(Z),
-				x.getConstRawPtr(),
-				y.getRawPtr() );
+		x.exchange(Y);
+		for( Ordinal k=space()->sIndB(V,Z); k<=space()->eIndB(V,Z); ++k )
+			for( Ordinal j=space()->sIndB(V,Y); j<=space()->eIndB(V,Y); ++j )
+				for( Ordinal i=space()->sIndB(V,X); i<=space()->eIndB(V,X); ++i )
+					y.getField(V).at(i,j,k) = innerStencV( x, i, j, k );
+
+		if( 3==space_->dim() )  {
+
+			x.exchange(Z);
+			for( Ordinal k=space()->sIndB(W,Z); k<=space()->eIndB(W,Z); ++k )
+				for( Ordinal j=space()->sIndB(W,Y); j<=space()->eIndB(W,Y); ++j )
+					for( Ordinal i=space()->sIndB(W,X); i<=space()->eIndB(W,X); ++i )
+						y.getField(W).at(i,j,k) = innerStencW( x, i, j, k );
+		}
 
 		for( int i=0; i<space()->dim(); ++i ) {
 			OP_extrapolateBC(
@@ -174,23 +149,26 @@ public:
 
 	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(space_); };
 
-  constexpr const Scalar* getC( const ECoord& dir ) const {
+	constexpr const Scalar* getC( const ECoord& dir ) const {
 		return( c_[dir] );
-  }
+	}
+
+	constexpr const Scalar& getC( const ECoord& dir, Ordinal i, Ordinal off ) const {
+		return( c_[dir][ off - space_->gl(dir) + i*( space_->gu(dir) - space_->gl(dir) + 1) ] );
+	}
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {}
 
   void print( std::ostream& out=std::cout ) const {
     out << "--- " << getLabel() << " ---\n";
     out << " --- stencil: ---";
-    for( int i=0; i<3; ++i ) {
-      out << "\ndir: " << i << "\n";
-      Ordinal nTemp1 = ( space_->nLoc(i) + 1 );
-      Ordinal nTemp2 = ( space_->gu(i) - space_->gl(i) + 1 );
-      for( int j=0; j<nTemp1; ++j ) {
-        out << "\ni: " << j << "\t(";
-        for( int k=0; k<nTemp2; ++k ) {
-          out << c_[i][k+nTemp2*j] <<", ";
+    for( int dir=0; dir<3; ++dir ) {
+			out << "\ndir: " << toString(static_cast<ECoord>(dir)) << "\n";
+
+      for( int i=0; i<=space_->nLoc(dir); ++i ) {
+        out << "\ni: " << i << "\t(";
+        for( int ii=space_->gl(dir); ii<=space_->gu(dir); ++ii ) {
+          out << getC( static_cast<ECoord>(dir), i, ii ) <<", ";
         }
         out << ")\n";
       }
@@ -199,6 +177,42 @@ public:
   }
 
 	const std::string getLabel() const { return( "Grad" ); };
+
+protected:
+
+	inline constexpr Scalar innerStencU( const DomainFieldT& x,
+			const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
+
+		Scalar grad = 0.;
+
+		for( int ii=space_->gl(X); ii<=space_->gu(X); ++ii ) 
+			grad += getC(X,i,ii)*x.at(i+ii,j,k);
+
+		return( grad );
+	}
+
+	inline constexpr Scalar innerStencV( const DomainFieldT& x,
+			const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
+
+		Scalar grad = 0.;
+
+		for( int jj=space_->gl(Y); jj<=space_->gu(Y); ++jj ) 
+			grad += getC(Y,j,jj)*x.at(i,j+jj,k);
+
+		return( grad );
+	}
+
+	inline constexpr Scalar innerStencW( const DomainFieldT& x,
+			const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
+
+		Scalar grad = 0.;
+
+		for( int kk=space_->gl(Z); kk<=space_->gu(Z); ++kk ) 
+			grad += getC(Z,k,kk)*x.at(i,j,k+kk);
+
+		return( grad );
+	}
+
 
 }; // end of class GradOp
 
