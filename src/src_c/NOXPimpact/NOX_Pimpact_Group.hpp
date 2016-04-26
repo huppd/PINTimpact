@@ -383,7 +383,6 @@ public:
 
     // Zero out the Newton Vector
     NewtonVector.init( 0.0 );
-//		RHSVector.level();
 
     // Create Epetra problem for the linear solve
     status = applyJacobianInverse(params, RHSVector, NewtonVector);

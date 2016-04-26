@@ -16,6 +16,7 @@ module cmod_DivOp
 contains
 
   !>  \brief computes \f$ \mathrm{div = \nabla\cdot\phi } \f$
+  !! \deprecated
   subroutine OP_div(  &
       dimens,         &
       N,              &

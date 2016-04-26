@@ -47,9 +47,10 @@ public:
   void apply(const DomainFieldT& x, RangeFieldT& y, Belos::ETrans trans=Belos::NOTRANS) const {
 
 		Teuchos::RCP<typename OP2::RangeFieldT> temp1  = create<typename OP2::DomainFieldT>( space() ); // has to be equal to OP2::DomainFieldT
-		Teuchos::RCP<typename OP2::DomainFieldT> temp2 = create<typename OP2::RangeFieldT>(  space() ); // has to be equal to OP3::DomainFieldT
 
     op3_->apply( x, *temp1);
+
+		Teuchos::RCP<typename OP2::DomainFieldT> temp2 = create<typename OP2::RangeFieldT>(  space() ); // has to be equal to OP3::DomainFieldT
 
     op2_->apply( *temp1, *temp2 );
 

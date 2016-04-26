@@ -51,25 +51,22 @@ public:
 
 	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
-		Teuchos::RCP<VF> tempv = create<VF>( space() );
-
 		opS2S_->apply( x.getConstSField(),  y.getSField() );
 		y.getSField().scale( -1. );
 
+		Teuchos::RCP<VF> tempv = create<VF>( space() );
+
 		opS2V_->apply( y.getConstSField(), *tempv );
 
-//		tempv2_->add( -1., *tempv, 1., x.getConstVField() );
 		tempv->add( -1., *tempv, 1., x.getConstVField() );
 
 		opV2V_->apply( *tempv, y.getVField() );
-//		opV2V_->apply( x.getConstVField(), y.getVField() );
+
 	}
 
 
 	void assignField( const DomainFieldT& mv ) {
 		opV2V_->assignField( mv.getConstVField());
-    //    opS2V_->assignField( mv.getConstVField() );
-    //    opV2S_->assignField( mv.getConstVField() );
 	};
 
 	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(opV2V_->space()); };
