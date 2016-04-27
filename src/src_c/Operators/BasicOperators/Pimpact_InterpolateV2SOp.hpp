@@ -141,6 +141,7 @@ public:
 
 	void apply( const DomainFieldT& x, RangeFieldT& y, Belos::ETrans trans=Belos::NOTRANS ) const {
 
+#ifndef NDBEUG
 		TEUCHOS_TEST_FOR_EXCEPTION(
 				x.getType() == S,
 				std::logic_error,
@@ -150,6 +151,7 @@ public:
 				y.getType() != S,
 				std::logic_error,
 				"Pimpact::InterpolateV2S:: can only interpolate to Scalar!!!\n");
+#endif
 
 		Teuchos::RCP<const SpaceT> space = x.space();
 

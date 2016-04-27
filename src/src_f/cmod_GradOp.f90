@@ -17,6 +17,7 @@ contains
 
   !> \brief computes \f$ \mathrm{grad = \nabla\phi } \f$
   !! is used for inner field
+  !! \deprecated
   subroutine OP_S2VOp( &
       dir,             &
       N,               &

@@ -5,9 +5,7 @@
 
 #include <Teuchos_Array.hpp>
 #include "Teuchos_CommandLineProcessor.hpp"
-#include <Teuchos_CommHelpers.hpp>
-#include "Teuchos_Range1D.hpp"
-#include "Teuchos_RCP.hpp"
+#include <Teuchos_CommHelpers.hpp> #include "Teuchos_Range1D.hpp" #include "Teuchos_RCP.hpp"
 #include <Teuchos_Tuple.hpp>
 #include "Teuchos_XMLParameterListCoreHelpers.hpp"
 

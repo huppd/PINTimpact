@@ -14,19 +14,19 @@ namespace Pimpact{
 
 
 
-extern "C"
-void OP_S2VOp(
-		const int& dir,
-		const int* const N,
-		const int* const bl,
-		const int* const bu,
-		const int* const gl,
-		const int* const gu,
-		const int* const ss,
-		const int* const nn,
-		const double* const c,
-		const double* const phi,
-		double* const grad );
+//extern "C"
+//void OP_S2VOp(
+		//const int& dir,
+		//const int* const N,
+		//const int* const bl,
+		//const int* const bu,
+		//const int* const gl,
+		//const int* const gu,
+		//const int* const ss,
+		//const int* const nn,
+		//const double* const c,
+		//const double* const phi,
+		//double* const grad );
 
 
 
@@ -96,25 +96,32 @@ public:
 
 	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
+#ifndef NDEBUG
 		TEUCHOS_TEST_FOR_EXCEPT( x.getType() != S );
 		TEUCHOS_TEST_FOR_EXCEPT( y.getType() == S );
+#endif
 
 		int m = static_cast<int>( y.getType() );
+		const EField& field = y.getType();
 
-		x.exchange( m );
 
-		OP_S2VOp(
-				m+1,
-				space_->nLoc(),
-				space_->bl(),
-				space_->bu(),
-				space_->gl(),
-				space_->gu(),
-				space_->sInd(m),
-				space_->eInd(m),
-				c_[m],
-				x.getConstRawPtr(),
-				y.getRawPtr() );
+		x.exchange(m);
+		for( Ordinal k=space()->sInd(field,Z); k<=space()->eInd(field,Z); ++k )
+			for( Ordinal j=space()->sInd(field,Y); j<=space()->eInd(field,Y); ++j )
+				for( Ordinal i=space()->sInd(field,X); i<=space()->eInd(field,X); ++i ) {
+					y.at(i,j,k) = 0.;
+					for( int ii = space_->gl(m); ii<=space_->gu(m); ++ii ) {
+						if( U==field ) {
+							y.at(i,j,k) += getC(static_cast<ECoord>(m),i,ii)*x.at(i+ii,j,k) ;
+						}
+						else if( V==field ) {
+							y.at(i,j,k) += getC(static_cast<ECoord>(m),j,ii)*x.at(i,j+ii,k) ;
+						}
+						else if( W==field ) {
+							y.at(i,j,k) += getC(static_cast<ECoord>(m),k,ii)*x.at(i,j,k+ii) ;
+						}
+					}
+				}
 
 		y.changed();
 	}
@@ -132,19 +139,17 @@ public:
 		out << "\n--- " << getLabel() << " ---\n";
 		out << "--- stencil: ---";
 
-		for( int i=0; i<3; ++i ) {
+		for( int dir=0; dir<3; ++dir ) {
 
-			out << "\ncoord: " << toString( static_cast<ECoord>(i) ) << "\n";
+			out << "\ncoord: " << toString( static_cast<ECoord>(dir) ) << "\n";
 
-			Ordinal nTemp1 = space_->nLoc(i) + 1;
-			Ordinal nTemp2 = space_->gu(i) - space_->gl(i) + 1;
+			Ordinal nTemp2 = space_->gu(dir) - space_->gl(dir) + 1;
 
-			for( Ordinal j=0; j<nTemp1; ++j ) {
-				out << "\ni: " << j << "\t(";
-				for( Ordinal k=0; k<nTemp2; ++k ) {
-					out << c_[i][k+nTemp2*j] <<", ";
+			for( Ordinal i=0; i<=space_->nLoc(dir); ++i ) {
+				out << "\ni: " << i << "\t(";
+				for( Ordinal k=space_->gl(dir); k<=space_->gu(dir); ++k ) {
+					out << getC(static_cast<ECoord>(dir),i,k) <<", ";
 				}
-
 				out << ")\n";
 			}
 			out << "\n";
@@ -152,6 +157,15 @@ public:
 	}
 
 	const std::string getLabel() const { return( "InterpolateS2V" ); };
+
+	constexpr const Scalar* getC( const ECoord& dir ) const {
+		return( c_[dir] );
+	}
+
+	constexpr const Scalar& getC( const ECoord& dir, Ordinal i, Ordinal off ) const {
+		return( c_[dir][ off - space_->gl(dir) + i*( space_->gu(dir) - space_->gl(dir) + 1) ] );
+	}
+
 
 }; // end of class InterpolateS2V
 
