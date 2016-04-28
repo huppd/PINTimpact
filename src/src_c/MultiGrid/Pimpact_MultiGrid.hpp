@@ -100,6 +100,7 @@ public:
 	///     FSpaceT::dimNC - CSpaceT::dimNC+1)  /
 	///   - "Smoother" - a \c sublist for smoothers
 	///   - "Coarse Grid Solver" - a \c sublist for coarse grid solver
+	/// \todo FSpaceOperator should be passed here
 	MultiGrid(
 			const Teuchos::RCP<const MGSpacesT>& mgSpaces,
 			const Teuchos::RCP<Teuchos::ParameterList>& pl ):
@@ -195,6 +196,7 @@ public:
 	}
 
 
+	/// \todo smoother that have to be updated should be "assigned" as well
 	void assignField( const DomainFieldT& mv ) {
 
 		Teuchos::RCP<MGFieldsT> temp = createMGFields<FieldT>( mgSpaces_ );

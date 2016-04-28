@@ -113,7 +113,7 @@ contains
 
   !>  \brief sets non block boundary conditions to zero(not joust corners)
   !!
-  !!
+  !! should be obsolete by now
   !! \param[in] N local grid size
   !! \param[in] bl lower storage offset
   !! \param[in] bu upper storage offset

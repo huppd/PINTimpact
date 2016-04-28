@@ -5,7 +5,9 @@
 
 #include <Teuchos_Array.hpp>
 #include "Teuchos_CommandLineProcessor.hpp"
-#include <Teuchos_CommHelpers.hpp> #include "Teuchos_Range1D.hpp" #include "Teuchos_RCP.hpp"
+#include <Teuchos_CommHelpers.hpp>
+#include "Teuchos_Range1D.hpp"
+#include "Teuchos_RCP.hpp"
 #include <Teuchos_Tuple.hpp>
 #include "Teuchos_XMLParameterListCoreHelpers.hpp"
 
@@ -108,11 +110,9 @@ int main( int argi, char** argv ) {
 
 	// init Fields
 	x->getVFieldPtr()->initField( pl->sublist("Base flow") );
-
-	std::string rl = "";
+	x->getVFieldPtr()->write();
 
 	auto f = x->clone( Pimpact::ShallowCopy );
-
 
 	auto opV2V = Pimpact::createMultiDtConvectionDiffusionOp( space );
 	auto opS2V = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::GradOp>( space ) );
@@ -128,9 +128,6 @@ int main( int argi, char** argv ) {
 
 
 	// --- inverse DivGrad
-	//pl->sublist("DivGrad").sublist("Solver").set(
-			//"Output Stream",
-			//Pimpact::createOstream( "DivGrad"+rl+".txt", space->rankST() ) );
 
 	auto divGradInv2 =
 		Pimpact::createInverseOp( 

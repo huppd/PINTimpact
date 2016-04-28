@@ -46,9 +46,11 @@
 using S = double;
 using O = int;
 
-using SpaceT = Pimpact::Space<S,O,4,4>;
+const int dNC = 2;
 
-using FSpaceT = Pimpact::Space<S,O,4,4>;
+using SpaceT = Pimpact::Space<S,O,4,dNC>;
+
+using FSpaceT = Pimpact::Space<S,O,4,dNC>;
 using CSpaceT = Pimpact::Space<S,O,4,2>;
 
 using CS = Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT>;
@@ -130,8 +132,8 @@ int main( int argi, char** argv ) {
 	S   refinementTol  = pl->sublist("Solver").get<S>(   "refinement tol",   1.e-6 );
 	int refinementStep = pl->sublist("Solver").get<int>( "refinement step",  2     );
 
-	Teuchos::RCP<const Pimpact::Space<S,O,4,4> > space =
-		Pimpact::createSpace<S,O,4,4>(
+	Teuchos::RCP<const Pimpact::Space<S,O,4,dNC> > space =
+		Pimpact::createSpace<S,O,4,dNC>(
 				Teuchos::rcpFromRef( pl->sublist( "Space", true ) ) );
 
 
