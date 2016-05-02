@@ -322,6 +322,9 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateV2SOp ) {
   auto op = Pimpact::createInterpolateV2S( space );
   //  auto op = Pimpact::create<Pimpact::InterpolateV2S>( space );
 	
+	op->print();
+
+
 	if( 0==rank )
 		std::cout << "\n";
 	for( int i=0; i<space->dim(); ++i ) {
@@ -2501,11 +2504,11 @@ TEUCHOS_UNIT_TEST( Convergence, InterpolateV2SOp ) {
 		// compute order
 		ST order2 = order<ST>( dofs, error2 );
 		if( 0==rank )	
-			std::cout << "DivOp: order two norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << order2 << "\n";
+			std::cout << "InterpolateV2SOp: order two norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << order2 << "\n";
 
 		ST orderInf = order<ST>( dofs, errorInf );
 		if( 0==rank )	
-			std::cout << "DivOp: order inf norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << orderInf << "\n";
+			std::cout << "InterpolateV2SOp: order inf norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << orderInf << "\n";
 		// test
 		TEST_EQUALITY( -order2  >4., true );
 		TEST_EQUALITY( -orderInf>4., true );

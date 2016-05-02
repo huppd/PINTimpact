@@ -14,22 +14,6 @@ namespace Pimpact{
 
 
 
-//extern "C"
-//void OP_S2VOp(
-		//const int& dir,
-		//const int* const N,
-		//const int* const bl,
-		//const int* const bu,
-		//const int* const gl,
-		//const int* const gu,
-		//const int* const ss,
-		//const int* const nn,
-		//const double* const c,
-		//const double* const phi,
-		//double* const grad );
-
-
-
 /// \ingroup BaseOperator
 template<class ST>
 class InterpolateS2V {

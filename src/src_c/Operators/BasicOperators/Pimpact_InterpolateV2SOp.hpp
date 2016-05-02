@@ -132,12 +132,6 @@ public:
 	};
 
 
-	//~InterpolateV2S() {
-		//for( int i=0; i<3; ++i ) {
-			//delete[] c_[i];
-		//}
-	//}
-
 
 	void apply( const DomainFieldT& x, RangeFieldT& y, Belos::ETrans trans=Belos::NOTRANS ) const {
 
@@ -168,7 +162,7 @@ public:
 				space->du(m),
 				space->sInd(S),
 				space->eInd(S),
-				getC( static_cast<ECoord>(m) ),
+				getC( m ),
 				x.getConstRawPtr(),
 				y.getRawPtr() );
 
@@ -183,6 +177,13 @@ public:
 
 	void print( std::ostream& out=std::cout ) const {
 		out << "--- " << getLabel() << " ---\n";
+		for( int dir=0; dir<3; ++dir ) {
+			std::cout << "dir: " << dir << "\n";
+			for( auto iter=c_[dir].begin(); iter!=c_[dir].end(); ++iter ) 
+				out << *iter << "\n";
+		}
+		//for( int dir=0; dir<3; ++dir )
+			//out <<  c_[dir];
 		//    out << " --- InterpolateV2S stencil: ---";
 		//    for( int i=0; i<3; ++i ) {
 		//      out << "\ndir: " << i << "\n( ";
@@ -192,11 +193,11 @@ public:
 		//      out << ")\n";
 	}
 
-	const Scalar* getC( const ECoord& dir ) const  {
-		return( c_[static_cast<int>(dir)].get() );
+	constexpr const Scalar* getC( const int& dir ) const  {
+		return( c_[dir].getRawPtr() );
 	}
-	const Scalar* getCM( const ECoord& dir ) const  {
-		return( cm_[static_cast<int>(dir)].get() );
+	constexpr const Scalar* getCM( const int& dir ) const  {
+		return( cm_[dir].getRawPtr() );
 	}
 
 	const std::string getLabel() const { return( "InterpolateV2S" ); };

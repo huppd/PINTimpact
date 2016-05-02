@@ -51,7 +51,7 @@ public:
 	Chebyshev(
 			const Teuchos::RCP<const OperatorT>& op,
 			const Teuchos::RCP<Teuchos::ParameterList>& pl=Teuchos::parameterList() ):
-    numIters_( pl->get<int>( "numIters", 8 ) ),
+    numIters_( pl->get<int>( "numIters", 12 ) ),
 		lamMax_( pl->get<Scalar>( "max EV", Teuchos::ScalarTraits<Scalar>::zero() ) ),
 		lamMin_( pl->get<Scalar>( "min EV", Teuchos::ScalarTraits<Scalar>::zero() ) ),
     op_(op) {

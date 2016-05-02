@@ -107,17 +107,21 @@ int main( int argi, char** argv ) {
 
 	// init vectors
 	auto x = Pimpact::create<CF>( space );
+	auto f = x->clone( Pimpact::ShallowCopy );
 
 	// init Fields
 	x->getVFieldPtr()->initField( pl->sublist("Base flow") );
 	x->getVFieldPtr()->write();
 
-	auto f = x->clone( Pimpact::ShallowCopy );
 
 	auto opV2V = Pimpact::createMultiDtConvectionDiffusionOp( space );
 	auto opS2V = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::GradOp>( space ) );
 	auto opV2S = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::DivOp>( space ) );
 	opV2V->assignField( x->getVField() );
+
+	opV2S->apply( x->getVField(), f->getSField() );
+	if( 0==space->rankST() )
+		std::cout << "\ndiv(U) = " << f->getSFieldPtr()->norm() << "\n";
 
 	// create Multi space
 	auto mgSpaces =
@@ -145,7 +149,8 @@ int main( int argi, char** argv ) {
 		Pimpact::InterpolationOp,
 		Pimpact::DivGradOp,
 		Pimpact::DivGradO2Op,
-		Pimpact::DivGradO2LSmoother,
+		//Pimpact::DivGradO2LSmoother,
+		Pimpact::Chebyshev,
 		Pimpact::DivGradO2Inv
 			>( mgSpaces, Teuchos::rcpFromRef( pl->sublist("DivGrad").sublist("Multi Grid") ) );
 

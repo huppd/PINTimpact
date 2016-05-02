@@ -2062,12 +2062,10 @@ contains
 
     real(c_double), intent(in)     :: y1u( 0:M(1) )
 
-    !real(c_double), intent(in)     :: x1p( bL(1):(N(1)+bU(1)) )
-    !real(c_double), intent(in)     :: x2p( bL(2):(N(2)+bU(2)) )
-
     real(c_double), intent(in)     :: x3w( bL(3):(N(3)+bU(3)) )
 
-    real(c_double), intent(in)     :: cIup( dU(1):dL(1), 0:N(1) )
+    !real(c_double), intent(in)     :: cIup( dU(1):dL(1), 0:N(1) )
+    real(c_double), intent(in)     :: cIup( dU(1):dL(1) )
 
     real(c_double), intent(in)     :: Re              
     integer(c_int), intent(in)     :: nonDim
@@ -2133,31 +2131,40 @@ contains
 
     call calcbasicflow(rank, kappa, sweep_angle_degrees, sweep_angle, angle_attack,M(1)+1,y1u_temp(0),baseflow_global(0,3),baseflow_global(0,1),baseflow_global(0,2), blThick)
 
-    if( 1==IB1 ) then
-      write(*,*) "blabla"
+
+    !write(*,*)  'ii, cIup(ii,i)'
+    !do ii = dL(1), dU(1)
+      !write(*,*)  ii, cIup(ii)
+    !end do
+
+    if( 1==IB1 ) then ! change to BCL(1)
       do ii = 0, dU(1)
-        write(*,*) ii, cIup(ii,1),baseflow_global(0,1)
-        baseflow_global(0,1) = baseflow_global(0,1) - cIup(ii,1)*baseflow_global(1+ii,1)
+        write(*,*) ii, cIup(ii),baseflow_global(1+ii,1)
+        baseflow_global(0,1) = baseflow_global(0,1) - cIup(ii)*baseflow_global(1+ii,1)
       end do
-      baseflow_global(0,1) = baseflow_global(0,1) / cIup(-1,1)
+      baseflow_global(0,1) = baseflow_global(0,1) / cIup(-1)
+
+      !write(*,*)
+
     end if
+    write(*,*) cIup(-1),baseflow_global(0,1)
+
     baseflow(bL(1):(N(1)+bU(1)),1) = baseflow_global((bL(1)+iShift):(N(1)+bU(1)+iShift),1) / Re
 
-    write(*,*) ii, cIup(-1,1),baseflow_global(0,1)
     ! TEST!!! - debugging purposes only
     write(*,*) "distance, velocity (both in x1-direction)"
     DO i = SU(1), NU(1)
-      write(*,*)  baseflow(i,1)
+      write(*,*)  i, baseflow(i,1)
     end do
     write(*,*)
     write(*,*) "distance, velocity (both in x2-direction)"
     DO i = SV(1), NV(1)
-      write(*,*)  baseflow(i,2)
+      write(*,*) i, baseflow(i,2)
     end do
     write(*,*)
     write(*,*) "distance, velocity (both in x3-direction)"
     DO k = SW(1), NW(1)
-      write(*,*) , baseflow(i,3)*x3w(k)
+      write(*,*) k, baseflow(k,3)*x3w(k)
     end do
 
     do k = SU(3), NU(3)

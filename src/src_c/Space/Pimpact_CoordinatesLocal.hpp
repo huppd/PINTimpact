@@ -147,7 +147,7 @@ public:
 	/// \name getter
 	/// @{ 
 
-  inline constexpr const ScalarT* getX( const int& dir, const int& ftype ) const  {
+	constexpr const ScalarT* getX( const int& dir, const int& ftype ) const  {
 		return(
 				( EField::S==ftype || dir!=ftype ) ?
 					xS_[dir].getRawPtr() :

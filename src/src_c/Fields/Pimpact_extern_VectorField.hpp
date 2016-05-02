@@ -10,7 +10,6 @@ namespace Pimpact {
 
 extern "C" {
 
-
 void VF_write( double* phiU, double* phiV, double* phiW, const int& count );
 
 void VF_init_2DPulsatileX(
@@ -44,7 +43,6 @@ void VF_init_2DPulsatileXC(
     const double& re, const double& om, const double& px,
     double* const phiU, double* const phiV, double* const phiW );
 
-
 void VF_init_2DPulsatileYC(
     const int* const N,
     const int* const bL,
@@ -59,7 +57,6 @@ void VF_init_2DPulsatileYC(
     const double* const x1,
     const double& re, const double& om, const double& px,
     double* const phiU, double* const phiV, double* const phiW );
-
 
 void VF_init_2DPulsatileXS(
     const int* const N,
@@ -76,7 +73,6 @@ void VF_init_2DPulsatileXS(
     const double& re, const double& om, const double& px,
     double* const phiU, double* const phiV, double* const phiW );
 
-
 void VF_init_2DPulsatileYS(
     const int* const N,
     const int* const bL,
@@ -92,7 +88,6 @@ void VF_init_2DPulsatileYS(
     const double& re, const double& om, const double& px,
     double* const phiU, double* const phiV, double* const phiW );
 
-
 void VF_init_StreamingC(
     const int* const N,
     const int* const bL,
@@ -107,7 +102,6 @@ void VF_init_StreamingC(
     const double* const x1,
     const double& amp,
     double* const phiU, double* const phiV, double* const phiW );
-
 
 void VF_init_StreamingS(
     const int* const N,
@@ -252,22 +246,21 @@ void VF_init_RotatingDisc(
     const double& xm, const double& ym, const double& omega,
     double* const phiU, double* const phiV, double* const phiW );
 
-
 void VF_init_SHBF( 
 		const int& rank,      
-    const int& iShift,    
-    const int& IB1,       
-    const int* const M,         
-    const int* const N,         
-    const int* const bL,
+		const int& iShift,    
+		const int& IB1,       
+		const int* const M,         
+		const int* const N,         
+		const int* const bL,
 		const int* const bU,     
-    const int* const dL,
+		const int* const dL,
 		const int* const dU,     
-    const int* const SU,
+		const int* const SU,
 		const int* const NU,     
-    const int* const SV,
+		const int* const SV,
 		const int* const NV,     
-    const int* const SW,
+		const int* const SW,
 		const int* const NW,     
 		const double* const y1p,       
 		const double* const y1u,       
