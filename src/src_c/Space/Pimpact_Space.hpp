@@ -86,7 +86,10 @@ public:
 				pl->get<ST>("alpha2"),
 				pl->get<ST>("lx"),
 				pl->get<ST>("ly"),
-				pl->get<ST>("lz") );
+				pl->get<ST>("lz"),
+				pl->get<ST>("o x", 0.),
+				pl->get<ST>("o y", 0.),
+				pl->get<ST>("o z", 0.) );
 
 		// are all template paramter needed here?
 		int domain = pl->get<int>("domain");

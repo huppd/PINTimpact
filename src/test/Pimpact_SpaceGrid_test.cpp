@@ -67,7 +67,10 @@ TEUCHOS_UNIT_TEST( IndexSpace, localConsistency ) {
       pl->get("alpha2",1.),
       pl->get("lx",2.),
       pl->get("ly",2.),
-      pl->get("lz",1.) );
+      pl->get("lz",1.),
+      pl->get("o x",0.),
+      pl->get("o y",0.),
+      pl->get("o z",0.) );
 
   auto stencilWidths = Pimpact::createStencilWidths<d,dNC>( false );
 
@@ -127,7 +130,10 @@ TEUCHOS_UNIT_TEST( ProcGrid, test ) {
 			pl->get("alpha2",1.),
 			pl->get("lx",2.),
 			pl->get("ly",2.),
-			pl->get("lz",1.) );
+			pl->get("lz",1.),
+			pl->get("o x",0.),
+			pl->get("o y",0.),
+			pl->get("o z",0.) );
 
 	auto stencilWidths = Pimpact::createStencilWidths<d,4>( true );
 

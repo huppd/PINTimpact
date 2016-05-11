@@ -23,13 +23,10 @@ template<class ScalarT>
 class DomainSize {
 
 	template<class ST>
-	friend Teuchos::RCP<const DomainSize<ST> > createDomainSize();
-
-	template<class ST>
-	friend Teuchos::RCP<const DomainSize<ST> > createDomainSize( int dim, ST L1, ST L2, ST L3 );
-
-	template<class ST>
-	friend Teuchos::RCP<const DomainSize<ST> > createDomainSize( int dim, ST re, ST alpha2, ST L1, ST L2, ST L3 );
+	friend Teuchos::RCP<const DomainSize<ST> > createDomainSize(
+			int dim, ST re, ST alpha2,
+			ST L1, ST L2, ST L3,
+			ST x1, ST x2, ST x3 );
 
 public:
 
@@ -47,20 +44,14 @@ protected:
 
 	TS3 origin_;
 
-	DomainSize( int dim, ScalarT L1, ScalarT L2, ScalarT L3 ):
-		dim_(dim),re_(1.),alpha2_(1.),
-		domainSize_( Teuchos::tuple(L1, L2, L3) ),
-		origin_( Teuchos::tuple( 0.,0.,0.) ) {};
-
-	DomainSize( int dim, ScalarT re, ScalarT alpha2, ScalarT L1, ScalarT L2, ScalarT L3 ):
+	DomainSize(
+			int dim, ScalarT re, ScalarT alpha2,
+			ScalarT L1, ScalarT L2, ScalarT L3,
+			ScalarT x1, ScalarT x2, ScalarT x3 ):
 		dim_(dim),re_(re),alpha2_(alpha2),
 		domainSize_( Teuchos::tuple(L1, L2, L3) ),
-		origin_( Teuchos::tuple( 0.,0.,0.) ) {};
+		origin_( Teuchos::tuple( x1, x2, x3 ) ) {};
 
-	DomainSize( int dim, TS3 domainSize ):
-		dim_(dim),re_(1.),alpha2_(1.),
-		domainSize_( domainSize ),
-		origin_( Teuchos::tuple( 0.,0.,0.) ) {};
 
 public:
 
@@ -97,23 +88,18 @@ public:
 
 
 
-/// \relates DomainSize
-/// \deprecated
-template<class ScalarT>
-Teuchos::RCP<const DomainSize<ScalarT> > createDomainSize( int dim, ScalarT L1, ScalarT L2, ScalarT L3 ) {
-  return(
-      Teuchos::rcp(
-          new DomainSize<ScalarT>( dim, 1., 1., L1, L2, L3 ) ) );
-}
-
-
 
 /// \relates DomainSize
 template<class ScalarT>
-Teuchos::RCP<const DomainSize<ScalarT> > createDomainSize( int dim, ScalarT re, ScalarT alpha2, ScalarT L1, ScalarT L2, ScalarT L3 ) {
+Teuchos::RCP<const DomainSize<ScalarT> >
+createDomainSize(
+		int dim, ScalarT re, ScalarT alpha2,
+		ScalarT L1, ScalarT L2, ScalarT L3,
+		ScalarT x1, ScalarT x2, ScalarT x3 ) {
+
   return(
       Teuchos::rcp(
-          new DomainSize<ScalarT>( dim, re, alpha2, L1, L2, L3 ) ) );
+          new DomainSize<ScalarT>( dim, re, alpha2, L1, L2, L3, x1, x2, x3 ) ) );
 }
 
 

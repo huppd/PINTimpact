@@ -138,7 +138,7 @@ int main( int argi, char** argv ) {
 				Pimpact::createDivGradOp(
 					opV2S->getOperatorPtr(),
 					opS2V->getOperatorPtr() ),
-					Teuchos::rcpFromRef( pl->sublist("DivGrad") ));
+					Teuchos::rcpFromRef( pl->sublist("DivGrad") ) );
 
 
 	auto mgDivGrad = 
