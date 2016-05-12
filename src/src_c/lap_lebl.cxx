@@ -132,7 +132,6 @@ int main( int argi, char** argv ) {
 
 
 	// --- inverse DivGrad
-
 	auto divGradInv2 =
 		Pimpact::createInverseOp( 
 				Pimpact::createDivGradOp(

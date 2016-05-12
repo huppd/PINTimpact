@@ -87,9 +87,9 @@ public:
 				pl->get<ST>("lx"),
 				pl->get<ST>("ly"),
 				pl->get<ST>("lz"),
-				pl->get<ST>("o x", 0.),
-				pl->get<ST>("o y", 0.),
-				pl->get<ST>("o z", 0.) );
+				pl->get<ST>("origin x", 0.),
+				pl->get<ST>("origin y", 0.),
+				pl->get<ST>("origin z", 0.) );
 
 		// are all template paramter needed here?
 		int domain = pl->get<int>("domain");
@@ -396,6 +396,10 @@ public:
 			pl->set<ST>( "lx", 1., "length in x-direction" );
 			pl->set<ST>( "ly", 1., "length in y-direction" );
 			pl->set<ST>( "lz", 1., "length in z-direction" );
+
+			pl->set<ST>( "origin x", 1., "origin in x-direction" );
+			pl->set<ST>( "origin y", 1., "origin in y-direction" );
+			pl->set<ST>( "origin z", 1., "origin in z-direction" );
 
 			// grid size
 			pl->set<bool>("spectral in time", false, "enables spectral time discretization" );
