@@ -970,7 +970,105 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
 
 	}
 
+	// InvDiag consistency test
+	x->init( 1. );
+	op->applyInvDiag( *x, *b );
+	op2->applyInvDiag( *x, *x2 );
+	b->write();
+	x2->write(1);
+
+	x2->add( 1., *x2, -1., *b );
+	x2->write(2);
+	std::cout << "diff InvDiag: " << x2->norm() << "\n";
+
 }
+
+
+
+TEUCHOS_UNIT_TEST( BasicOperator, DivGradTransposeOp ) {
+
+	//const int dNC = 2;
+
+  pl->set( "domain", domain );
+  pl->set( "dim", dim );
+
+	pl->set( "lx", lx );
+	pl->set( "ly", ly );
+	pl->set( "lz", lz );
+
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
+
+	// grid stretching
+	if( sx!=0 ) {
+		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
+		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
+		//pl->sublist("Stretching in X").set<ST>( "x0 L", 0.2 );
+	}
+	if( sy!=0 ) {
+		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
+		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
+	}
+	if( sz!=0 ) {
+		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
+		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
+	}
+
+  // processor grid size
+  pl->set( "npx", npx );
+  pl->set( "npy", npy );
+  pl->set( "npz", npz );
+  pl->set( "npf", npf );
+
+  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+
+  auto xp = Pimpact::create<Pimpact::ScalarField>( space );
+  auto xv = Pimpact::create<Pimpact::VectorField>( space );
+  auto bp = Pimpact::create<Pimpact::ScalarField>( space );
+  auto bp2 = Pimpact::create<Pimpact::ScalarField>( space );
+  auto bv = Pimpact::create<Pimpact::VectorField>( space );
+  auto bv2 = Pimpact::create<Pimpact::VectorField>( space );
+
+
+  auto div = Pimpact::create<Pimpact::DivOp>( space );
+  auto grad = Pimpact::create<Pimpact::GradOp>( space );
+
+	auto divGrad = Pimpact::createDivGradOp( div, grad );
+
+	div->print();
+	grad->print();
+
+	//xp->init(1.);
+	////xp->random();
+
+	//div->apply(  *xp, *bv  );
+	//grad->apply( *xp, *bv2 );
+
+	//bv->write();
+	//bv2->write(1);
+
+	//bv->add( 1., *bv, -1., *bv2 );
+	//std::cout << "difference(grad, div^T): " << bv->norm() << "\n";
+	//bv->write(3);
+
+	xp->initField( Pimpact::Grad2D_inX );
+	//xp->random();
+	divGrad->apply( *xp, *bp );
+	divGrad->apply( *xp, *bp2, Belos::TRANS );
+
+	bp->add( 1., *bp, -1., *bp2 );
+	std::cout << "difference(divgrad, divgrad^T): " << bp->norm() << "\n";
+
+	bp->write();
+
+}
+
 
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
@@ -2790,6 +2888,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, DivGradOp, OperatorT ) {
   pl->set( "npz", npz );
   pl->set( "npf", npf );
 
+	std::string label;
 	//  grid size
 	for( int dir=0; dir<3; ++dir ) {
 
@@ -2846,6 +2945,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, DivGradOp, OperatorT ) {
 			}
 
 			auto op = Pimpact::create<OperatorT>( space );
+			label = op->getLabel();
 
 			vel->random();
 			op->apply( *p, *vel );
@@ -2862,11 +2962,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, DivGradOp, OperatorT ) {
 		// compute order
 		ST order2 = order<ST>( dofs, error2 );
 		if( 0==rank )	
-			std::cout << "DivOp: order two norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << order2 << "\n";
+			std::cout << label << ": order two norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << order2 << "\n";
 
 		ST orderInf = order<ST>( dofs, errorInf );
 		if( 0==rank )	
-			std::cout << "DivOp: order inf norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << orderInf << "\n";
+			std::cout << label << ": order inf norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << orderInf << "\n";
 		// test
 		TEST_EQUALITY( -order2  >2., true );
 		TEST_EQUALITY( -orderInf>2., true );

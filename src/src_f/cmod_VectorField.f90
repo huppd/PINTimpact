@@ -2163,8 +2163,8 @@ contains
     end do
     write(*,*)
     write(*,*) "distance, velocity (both in x3-direction)"
-    DO k = SW(1), NW(1)
-      write(*,*) k, baseflow(k,3)*x3w(k)
+    DO i = SW(1), NW(1)
+      write(*,*) i, baseflow(i,3)
     end do
 
     do k = SU(3), NU(3)

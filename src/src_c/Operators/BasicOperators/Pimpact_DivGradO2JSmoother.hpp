@@ -180,13 +180,13 @@ public:
 			if( 3==space()->dim() )
 				for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
 					for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
-						for( Ordinal i=space()->sInd(S,Y); i<=space()->eInd(S,X); ++i ) {
+						for( Ordinal i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i ) {
 							temp->at(i,j,k) = innerStenc3D( b, y, i,j,k);
 						}
 			else
 				for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
 					for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
-						for( Ordinal i=space()->sInd(S,Y); i<=space()->eInd(S,X); ++i ) {
+						for( Ordinal i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i ) {
 							temp->at(i,j,k) = innerStenc2D( b, y, i,j,k);
 						}
 			
@@ -196,13 +196,13 @@ public:
 			if( 3==space()->dim() )
 				for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
 					for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
-						for( Ordinal i=space()->sInd(S,Y); i<=space()->eInd(S,X); ++i ) {
+						for( Ordinal i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i ) {
 							y.at(i,j,k) = innerStenc3D( b, *temp, i,j,k);
 						}
 			else
 				for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
 					for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
-						for( Ordinal i=space()->sInd(S,Y); i<=space()->eInd(S,X); ++i ) {
+						for( Ordinal i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i ) {
 							y.at(i,j,k) = innerStenc2D( b, *temp, i,j,k);
 						}
 

@@ -65,10 +65,14 @@ public:
 
 protected:
 
-	using TO = const Teuchos::Tuple< Teuchos::ArrayRCP<Scalar>, 3 >;
+	using TS = const Teuchos::Tuple< Teuchos::ArrayRCP<Scalar>, 3 >;
+	using TO = const Teuchos::Tuple< Ordinal, dimension >;
 
-	TO c_;
-	TO cm_;
+	TO dl_;
+	TO du_;
+
+	TS c_;
+	TS cm_;
 
 public:
 
@@ -78,7 +82,8 @@ public:
 			const Teuchos::RCP<const StencilWidths<dimension,dimNC> >& stencilWidths,
 			const Teuchos::RCP<const DomainSize<Scalar> >& domainSize,
 			const Teuchos::RCP<const BoundaryConditionsLocal<dimension> >& boundaryConditionsLocal,
-			const Teuchos::RCP<const CoordinatesLocal<Scalar,Ordinal,dimension,dimNC> >& coordinatesLocal ) {
+			const Teuchos::RCP<const CoordinatesLocal<Scalar,Ordinal,dimension,dimNC> >& coordinatesLocal ):
+	dl_( stencilWidths->getDLTuple() ), du_( stencilWidths->getDUTuple() ) {
 
 
 		for( int i=0; i<3; ++i ) {
@@ -198,6 +203,13 @@ public:
 	}
 	constexpr const Scalar* getCM( const int& dir ) const  {
 		return( cm_[dir].getRawPtr() );
+	}
+
+	constexpr const Scalar& getC( const ECoord& dir, Ordinal i, Ordinal off ) const {
+		//std::cout << "dl: " << dl_ << "\n";
+		//std::cout << "du: " << du_ << "\n";
+		//std::cout << off - dl_[dir] + i*( du_[dir] - dl_[dir] + 1) << "\n";
+		return( c_[dir][ off - dl_[dir] + i*( du_[dir] - dl_[dir] + 1) ] );
 	}
 
 	const std::string getLabel() const { return( "InterpolateV2S" ); };

@@ -266,9 +266,11 @@ public:
 
   constexpr const int* getDL()               const { return( dl_.getRawPtr() ); }
   constexpr const int& getDL( const int& i ) const { return( dl_[i] ); }
+  constexpr const TO&  getDLTuple()          const { return( dl_ ); }
 
   constexpr const int* getDU()               const { return( du_.getRawPtr() ); }
   constexpr const int& getDU( const int& i ) const { return( du_[i] ); }
+  constexpr const TO&  getDUTuple()          const { return( du_ ); }
 
   constexpr const int* getGL()               const { return( gl_.getRawPtr() ); }
   constexpr const int& getGL( const int& i ) const { return( gl_[i] ); }

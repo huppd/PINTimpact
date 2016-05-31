@@ -111,45 +111,63 @@ public:
 
 		x.exchange();
 
-		if( 3==space()->dim() )
+		if( 3==space()->dim() ) {
 			for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
 				for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
-					for( Ordinal i=space()->sInd(S,Y); i<=space()->eInd(S,X); ++i ) {
+					for( Ordinal i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i )
 						y.at(i,j,k) = innerStenc3D(x, i,j,k);
-					}
-		else
+		}
+		else {
 			for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
 				for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
-					for( Ordinal i=space()->sInd(S,Y); i<=space()->eInd(S,X); ++i ) {
+					for( Ordinal i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i )
 						y.at(i,j,k) = innerStenc2D(x, i,j,k);
-					}
+		}
 
 		y.changed();
-
 	}
+
 
 	void computeResidual( const RangeFieldT& b, const DomainFieldT& x,
 			RangeFieldT& res ) const {
 
 		x.exchange();
 		// inner stencil
-		if( 3==space()->dim() )
+		if( 3==space()->dim() ) {
 			for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
 				for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
-					for( Ordinal i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i ) {
+					for( Ordinal i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i )
 						res.at(i,j,k) = b.at(i,j,k) - innerStenc3D(x, i,j,k);
-					}
-		else
+		}
+		else {
 			for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
 				for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
-					for( Ordinal i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i ) {
+					for( Ordinal i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i )
 						res.at(i,j,k) = b.at(i,j,k) - innerStenc2D(x, i,j,k);
-					}
+		}
 
 		res.changed();
-
 	}
 
+
+	void applyInvDiag( const DomainFieldT& x, RangeFieldT& y ) const {
+
+		if( 3==space()->dim() ) {
+			for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
+				for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
+					for( Ordinal i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i )
+						y.at(i,j,k) = x.at(i,j,k)/( getC(X,i,0) + getC(Y,j,0) +
+								getC(Z,k,0) );
+		}
+		else {
+			for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
+				for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
+					for( Ordinal i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i )
+						y.at(i,j,k) = x.at(i,j,k)/( getC(X,i,0) + getC(Y,j,0) );
+		}
+
+		y.changed();
+	}
 
 	/// \name setter
 	/// @{ 

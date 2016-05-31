@@ -15,6 +15,7 @@
 #include "Pimpact_InverseOp.hpp"
 #include "Pimpact_PrecInverseOp.hpp"
 #include "Pimpact_ForcingOp.hpp"
+#include "Pimpact_Transpose.hpp"
 
 
 /// \defgroup BaseOperator Basic Operator

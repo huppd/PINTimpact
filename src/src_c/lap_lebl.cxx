@@ -44,10 +44,11 @@
 
 using S = double;
 using O = int;
+const int dNC = 4;
 
-using SpaceT = Pimpact::Space<S,O,4,4>;
+using SpaceT = Pimpact::Space<S,O,4,dNC>;
 
-using FSpaceT = Pimpact::Space<S,O,4,4>;
+using FSpaceT = SpaceT;
 using CSpaceT = Pimpact::Space<S,O,4,2>;
 
 using CS = Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT>;
@@ -102,7 +103,7 @@ int main( int argi, char** argv ) {
 
 	///////////////////////////////////////////  set up initial stuff ////////////////////////////
 	auto space =
-		Pimpact::createSpace<S,O,4,4>( Teuchos::rcpFromRef( pl->sublist( "Space", true ) ) );
+		Pimpact::createSpace<S,O,4,dNC>( Teuchos::rcpFromRef( pl->sublist( "Space", true ) ) );
 
 
 	// init vectors
@@ -137,14 +138,21 @@ int main( int argi, char** argv ) {
 				Pimpact::createDivGradOp(
 					opV2S->getOperatorPtr(),
 					opS2V->getOperatorPtr() ),
-					Teuchos::rcpFromRef( pl->sublist("DivGrad") ) );
+				Teuchos::rcpFromRef( pl->sublist("DivGrad") ) );
+
+	// --- inverse DivGrad^T
+	auto divGradInvTT =
+		Pimpact::createInverseOp( 
+				Pimpact::createTranspose(
+					Pimpact::createDivGradOp(
+						opV2S->getOperatorPtr(),
+						opS2V->getOperatorPtr() ) ),
+				Teuchos::rcpFromRef( pl->sublist("DivGrad") ) );
 
 
 	auto mgDivGrad = 
 		Pimpact::createMultiGrid<
-		Pimpact::ScalarField,
-		Pimpact::TransferOp,
-		Pimpact::RestrictionHWOp,
+		Pimpact::ScalarField, Pimpact::TransferOp, Pimpact::RestrictionHWOp,
 		Pimpact::InterpolationOp,
 		Pimpact::DivGradOp,
 		Pimpact::DivGradO2Op,
@@ -156,26 +164,87 @@ int main( int argi, char** argv ) {
 	if( 0==space->rankST() )
 		mgDivGrad->print();
 
-	divGradInv2->setRightPrec( Pimpact::createMultiOperatorBase( mgDivGrad ) );
+	{ // without prec
+		divGradInv2->setRightPrec( Pimpact::createMultiOperatorBase( mgDivGrad ) );
+		//divGradInv2->setLeftPrec( Pimpact::createMultiOperatorBase( mgDivGrad ) );
+		//divGradInvTT->setLeftPrec( Pimpact::createMultiOperatorBase( mgDivGrad ) );
 
-	auto divGradInv =
-		Pimpact::createMultiHarmonicMultiOpWrap(
-				divGradInv2
-				);
+		auto divGradInv =
+			Pimpact::createMultiHarmonicMultiOpWrap(
+					divGradInv2 );
+		auto divGradInvT =
+			Pimpact::createMultiHarmonicMultiOpWrap(
+					divGradInvTT );
 
-	opV2V->apply( x->getVField(), f->getVField() );
-	opV2S->apply( f->getVField(), f->getSField() );
+		opV2V->apply( x->getVField(), f->getVField() );
+		opV2S->apply( f->getVField(), f->getSField() );
 
-	f->getSFieldPtr()->write( 99 );
-	//x->getSFieldPtr()->random();
-	x->getSFieldPtr()->get0FieldPtr()->initField( Pimpact::Grad2D_inX, -2./space->getDomainSize()->getRe() );
-	//for( int i=0; i<10; ++i )
-		//mgDivGrad->apply( f->getSFieldPtr()->get0Field(), x->getSFieldPtr()->get0Field() );
-	divGradInv->apply( f->getSField(), x->getSField() );
+		f->getSFieldPtr()->write( 99 );
+		{ // compute contribution to nullspace
+			auto fSlevel = f->getSFieldPtr()->clone( Pimpact::DeepCopy );
+			//f->getSFieldPtr()->level();
+			fSlevel->level();
+			fSlevel->add( 1., f->getSField(), -1., *fSlevel );
+			std::cout << " contribution nullspace: " << fSlevel->norm() << "\n";
+		}
 
-	x->level();
-	x->getSFieldPtr()->write();
+		//x->getSFieldPtr()->random();
+		//x->getSFieldPtr()->get0FieldPtr()->initField( Pimpact::Grad2D_inX, -2./space->getDomainSize()->getRe() ); //for( int i=0; i<10; ++i ) //mgDivGrad->apply( f->getSFieldPtr()->get0Field(), x->getSFieldPtr()->get0Field() );
 
+		//f->getSFieldPtr()->level();
+		//
+		// solve nullspace IMPACT style
+		auto nullspace = f->getSFieldPtr()->clone();
+		{
+		nullspace->init( 1. );
+		//nullspace->random();
+		auto ones = nullspace->clone();
+		ones->init( 0. );
+		//ones->random();
+		divGradInvT->apply( *ones, *nullspace );
+		nullspace->write(888);
+		}
+
+		// --------------------- solve with plaine rhs
+		x->getSFieldPtr()->init( 0. );
+		divGradInv->apply( f->getSField(), x->getSField() );
+
+		//// compute Residual I
+		auto res =  Pimpact::createMultiField( f->getSFieldPtr()->get0FieldPtr()->clone() );
+		//res->push_back();
+		//res->push_back();
+		divGradInv->getOperatorPtr()->getLinearProblem()->getProblem()->getOperator()->apply(
+				*Pimpact::createMultiField( x->getSFieldPtr()->get0FieldPtr() ),
+				*res );
+		res->getFieldPtr( 0 )->add( 1., f->getSFieldPtr()->get0Field(), -1., res->getField( 0 ) );
+		std::cout << "||res||: " << res->norm() << "\n";
+		res->write( 777 );
+		//res->push_back();
+		//divGradInv->getOperatorPtr()->getLinearProblem()->getProblem()->computeCurrResVec( res.getRawPtr() );
+
+
+		x->level();
+		x->getSFieldPtr()->write();
+
+		// --------------------- solve with leveld rhs
+		auto xl = x->getSFieldPtr()->clone();
+		xl->init(0.);
+		f->getSField().level();
+		divGradInv->apply( f->getSField(), *xl );
+
+		xl->level();
+		xl->write( 10 );
+		// diff between solution
+		x->getSFieldPtr()->add( 1., x->getSField(), -1., *xl );
+		x->getSFieldPtr()->write(666);
+		std::cout << "||x-xl||: " << x->getSFieldPtr()->norm() << "\n";
+
+		// compute resudial II
+		//opS2V->apply( xl->getSField(), x->getVField() );
+		//x->getVField().add( 1., xl->getVField(), 1., f->getVField() );
+		//std::cout << "residual: " << x->getVFieldPtr()->norm() << "\n";
+
+	}
 	Teuchos::TimeMonitor::summarize();
 
 	Teuchos::writeParameterListToXmlFile( *pl, "parameterOut.xml" );

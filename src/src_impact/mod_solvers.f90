@@ -1769,7 +1769,7 @@ module mod_solvers
      norm_inf = MAX(ABS(rr(i)),norm_inf)
   end do
   
-  call MPI_ALLREDUCE(norm_inf,norm_inf_global,1,MPI_REAL8,MPI_MAX,comm,merror) ! MPI_REDUCE bringt nichts, weil exit_yes dann mit MPI_BCAST verteilt werden m�sste ...
+  call MPI_ALLREDUCE(norm_inf,norm_inf_global,1,MPI_REAL8,MPI_MAX,comm,merror) ! MPI_REDUCE bringt nichts, weil exit_yes dann mit MPI_BCAST verteilt werden müsste ...
   norm_inf = norm_inf_global
   !===========================================================================================================
   
