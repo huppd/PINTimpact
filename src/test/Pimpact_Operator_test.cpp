@@ -888,6 +888,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
   auto op2 = Pimpact::create<Pimpact::DivGradO2Op>( space );
 
   op->print();
+  op2->print();
 
   // zero test
   b->initField( Pimpact::ConstField, 0. );
@@ -979,7 +980,11 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
 
 	x2->add( 1., *x2, -1., *b );
 	x2->write(2);
-	std::cout << "diff InvDiag: " << x2->norm() << "\n";
+	ST diff = x2->norm( Belos::InfNorm );
+	if( 0==space->rankST() ) 
+		std::cout << "diff InvDiag: " << diff << "\n";
+	TEST_EQUALITY( diff<eps, true );
+	//space->getStencilWidths()->print();
 
 }
 

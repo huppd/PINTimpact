@@ -165,7 +165,7 @@ int main( int argi, char** argv ) {
 		mgDivGrad->print();
 
 	{ // without prec
-		divGradInv2->setRightPrec( Pimpact::createMultiOperatorBase( mgDivGrad ) );
+		//divGradInv2->setRightPrec( Pimpact::createMultiOperatorBase( mgDivGrad ) );
 		//divGradInv2->setLeftPrec( Pimpact::createMultiOperatorBase( mgDivGrad ) );
 		//divGradInvTT->setLeftPrec( Pimpact::createMultiOperatorBase( mgDivGrad ) );
 
@@ -226,11 +226,16 @@ int main( int argi, char** argv ) {
 		x->level();
 		x->getSFieldPtr()->write();
 
-		// --------------------- solve with leveld rhs
+		// --------------------- solve with nullspaced rhs
 		auto xl = x->getSFieldPtr()->clone();
 		xl->init(0.);
-		f->getSField().level();
-		divGradInv->apply( f->getSField(), *xl );
+		//f->getSField().level();
+		auto f_ = f->getSFieldPtr()->clone( Pimpact::DeepCopy );
+		f_->get0FieldPtr()->add(
+				1., f->getSFieldPtr()->get0Field(),
+				-nullspace->get0FieldPtr()->dot( f->getSFieldPtr()->get0Field() )/nullspace->get0FieldPtr()->dot( nullspace->get0Field() ), nullspace->get0Field() );
+		std::cout << "(rhs,nullspace): " << f_->get0FieldPtr()->dot( nullspace->get0Field() ) << "\n";
+		divGradInv->apply( *f_, *xl );
 
 		xl->level();
 		xl->write( 10 );

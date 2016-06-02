@@ -155,15 +155,17 @@ public:
 		if( 3==space()->dim() ) {
 			for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
 				for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
-					for( Ordinal i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i )
-						y.at(i,j,k) = x.at(i,j,k)/( getC(X,i,0) + getC(Y,j,0) +
-								getC(Z,k,0) );
+					for( Ordinal i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i ) {
+						Scalar diag = std::abs( getC(X,i,0) + getC(Y,j,0) + getC(Z,k,0) );
+						std::cout << i << "\t" << j << "\t" << k << "\t" << diag << "\n";
+						y.at(i,j,k) = x.at(i,j,k)/diag;
+					}
 		}
 		else {
 			for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
 				for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
 					for( Ordinal i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i )
-						y.at(i,j,k) = x.at(i,j,k)/( getC(X,i,0) + getC(Y,j,0) );
+						y.at(i,j,k) = x.at(i,j,k)/std::abs( getC(X,i,0) + getC(Y,j,0) );
 		}
 
 		y.changed();

@@ -83,152 +83,72 @@ public:
 
 	void applyInvDiag( const DomainFieldT& x, RangeFieldT& y ) const {
 
-		//for( int dir=0; dir<space()->dim(); ++dir )
-		//x.exchange();
+		for( OT k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
+			for( OT j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
+				for( OT i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i ) {
+					ST diag = 0.;
 
-		if( 3==space()->dim() ) {
-
-			for( OT k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
-				for( OT j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
-					for( OT i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i ) {
-						ST diag = 
-							div_->getC( X, i, 0) * grad_->getC( X, i, 0) +
-							div_->getC( Y, j, 0) * grad_->getC( Y, j, 0) +
-							div_->getC( Z, k, 0) * grad_->getC( Z, k, 0);
-
-						// BC in X
-						if( space()->sInd(S,X)==i &&  0<space()->getBCLocal()->getBCL(X) ) {
-							diag -= div_->getC(X,i,-1) * grad_->getC( X, i, 0) *
-								space()->getInterpolateV2S()->getC(X,i,0) /
-								space()->getInterpolateV2S()->getC(X,i,-1);
+					// X direction
+					for( OT ii=space()->dl(X); ii<=space()->du(X); ++ii ) {
+						if( 0<space()->getBCLocal()->getBCL(X) && i+ii==0 ) {
+							for( OT iii=0; iii<=space()->du(X); ++iii )
+								diag -= div_->getC( X, i, ii ) * grad_->getC( X, i+iii, -iii)
+									* space()->getInterpolateV2S()->getC(X,i,iii) /
+									space()->getInterpolateV2S()->getC(X,i,-1);
 						}
-
-						if( space()->eInd(S,X)==i && 0<space()->getBCLocal()->getBCU(X) ) {
-							diag -= div_->getC(X,i,0) * grad_->getC( X, i-1, 0) * 
-								space()->getInterpolateV2S()->getC(X,i,-1) /
-								space()->getInterpolateV2S()->getC(X,i, 0);
+						else if( 0<space()->getBCLocal()->getBCU(X) && i+ii==space()->eInd(S,X) ) {
+							for( OT iii=space()->dl(X); iii<=-1; ++iii )
+								diag -= div_->getC( X, i, ii ) * grad_->getC( X, i+iii, -iii)
+									* space()->getInterpolateV2S()->getC(X,i,iii) /
+									space()->getInterpolateV2S()->getC(X,i,0);
 						}
-
-						// BC in Y
-						if( space()->sInd(S,Y)==j &&  0<space()->getBCLocal()->getBCL(Y) ) {
-							diag -= div_->getC(Y,j,-1) * grad_->getC( Y, j, 0) *
-								space()->getInterpolateV2S()->getC(Y,j,0) /
-								space()->getInterpolateV2S()->getC(Y,j,-1);
-						}
-
-						if( space()->eInd(S,Y)==j && 0<space()->getBCLocal()->getBCU(Y) ) {
-							diag -= div_->getC(Y,j,0) * grad_->getC( Y, j-1, 0) * 
-								space()->getInterpolateV2S()->getC(Y,j,-1) /
-								space()->getInterpolateV2S()->getC(Y,j, 0);
-						}
-
-						// BC in Z
-						if( space()->sInd(S,Z)==k &&  0<space()->getBCLocal()->getBCL(Z) ) {
-							diag -= div_->getC(Z,k,-1) * grad_->getC( Z, k, 0) *
-								space()->getInterpolateV2S()->getC(Z,k,0) /
-								space()->getInterpolateV2S()->getC(Z,k,-1);
-						}
-
-						if( space()->eInd(S,Z)==k && 0<space()->getBCLocal()->getBCU(Z) ) {
-							diag -= div_->getC(Z,k,0) * grad_->getC( Z, k-1, 0) * 
-								space()->getInterpolateV2S()->getC(Z,k,-1) /
-								space()->getInterpolateV2S()->getC(Z,k, 0);
-						}
-
-						if( diag!=0 )
-							y.at(i,j,k) = x.at(i,j,k)/std::abs( diag );
-						else{
-							y.at(i,j,k) = 0.;
-							std::cout << "i: " << i << " j: " << j << " k: " << k << "\n";
-						}
-						//std::cout << y.at(i,j,k) << "\n";
+						else
+							diag += div_->getC( X, i, ii )*grad_->getC( X, i+ii, -ii );
 					}
-		}
-		else{
 
-			for( OT k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
-				for( OT j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
-					for( OT i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i ) {
-						ST diag = 
-							div_->getC( X, i, 0) * grad_->getC( X, i, 0) +
-							div_->getC( Y, j, 0) * grad_->getC( Y, j, 0);
-
-						if( space()->sInd(S,X)==i &&  0<space()->getBCLocal()->getBCL(X) )
-							diag -= div_->getC(X,i,-1) * grad_->getC( X, i, 0) *
-								space()->getInterpolateV2S()->getC(X,i,0) /
-								space()->getInterpolateV2S()->getC(X,i,-1);
-						
-						if( space()->eInd(S,X)==i && 0<space()->getBCLocal()->getBCU(X) )
-							diag -= div_->getC(X,i,1) * grad_->getC( X, i, 0) * x.at(i,j,k) *
-								space()->getInterpolateV2S()->getC(X,i,-1) /
-								space()->getInterpolateV2S()->getC(X,i, 0);
-
-						y.at(i,j,k) = x.at(i,j,k)/diag;
+					// Y direction
+					for( OT jj=space()->dl(Y); jj<=space()->du(Y); ++jj ) {
+						if( 0<space()->getBCLocal()->getBCL(Y) && j+jj==0 ) {
+							for( OT jjj=0; jjj<=space()->du(Y); ++jjj )
+								diag -= div_->getC( Y, j, jj ) * grad_->getC( Y, 1+jjj, -jjj)
+									* space()->getInterpolateV2S()->getC(Y,j,jjj) /
+									space()->getInterpolateV2S()->getC(Y,1,-1);
+						}
+						else if( 0<space()->getBCLocal()->getBCU(Y) && j+jj==space()->eInd(S,Y) ) {
+							for( OT jjj=space()->dl(Y); jjj<=-1; ++jjj )
+								diag -= div_->getC( Y, j, jj ) * grad_->getC( Y, j+jjj, -jjj)
+									* space()->getInterpolateV2S()->getC(Y,j,jjj) /
+									space()->getInterpolateV2S()->getC(Y,j,0);
+						}
+						else
+							diag += div_->getC( Y, j, jj )*grad_->getC( Y, j+jj, -jj );
 					}
-		}
 
-		// Dirichlet boundary conditions in X
-			//OT i = space()->sInd(S,X);
-			//for( OT k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
-				//for( OT j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j ) {
-					//y.at(i,j,k) -=
-						//div_->getC(X,i,-1) * grad_->getC( X, i, 0) * x.at(i,j,k) *
-						//space()->getInterpolateV2S()->getC(X,i,0) /
-						//space()->getInterpolateV2S()->getC(X,i,-1);
-				//}
-			//std::cout  << space()->getInterpolateV2S()->getC(X,1,-1) << "\t\t";
-			//std::cout  << space()->getInterpolateV2S()->getC(X,1, 0) << "\n";
+					if( 3==space()->dim() ) {
+						// Z direction
+						for( OT kk=space()->dl(Z); kk<=space()->du(Z); ++kk ) {
+							if( 0<space()->getBCLocal()->getBCL(Z) && k+kk==0 ) {
+								for( OT kkk=0; kkk<=space()->du(Z); ++kkk )
+									diag -= div_->getC( Z, k, kk ) * grad_->getC( Z, 1+kkk, -kkk)
+										* space()->getInterpolateV2S()->getC(Z,k,kkk) /
+										space()->getInterpolateV2S()->getC(Z,1,-1);
+							}
+							else if( 0<space()->getBCLocal()->getBCU(Z) && k+kk==space()->eInd(S,Z) ) {
+								for( OT kkk=space()->dl(Z); kkk<=-1; ++kkk )
+									diag -= div_->getC( Z, k, kk ) * grad_->getC( Z, k+kkk, -kkk)
+										* space()->getInterpolateV2S()->getC(Z,k,kkk) /
+										space()->getInterpolateV2S()->getC(Z,k,0);
+							}
+							else
+								diag += div_->getC( Z, k, kk )*grad_->getC( Z, k+kk, -kk );
+						}
+					}
 
-		//}
-		//if( 0<space()->getBCLocal()->getBCU(X) ) {
-			//OT i = space()->eInd(S,X);
-			//for( OT k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
-				//for( OT j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
-					//y.at(i,j,k) -=
-						//div_->getC(X,i,1) * grad_->getC( X, i, 0) * x.at(i,j,k) *
-						//space()->getInterpolateV2S()->getC(X,i,-1) /
-						//space()->getInterpolateV2S()->getC(X,i, 0);
-		//}
-
-		//// Dirichlet boundary conditions in Y
-		//if( 0<space()->getBCLocal()->getBCL(Y) ) {
-			//OT j=space()->sInd(S,Y);
-			//for( OT k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
-				//for( OT i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i )
-					//y.at(i,j,k) -=
-						//div_->getC(Y,j,-1) * grad_->getC( Y, j, 0) * x.at(i,j,k) *
-						//space()->getInterpolateV2S()->getC(Y,j,0) /
-						//space()->getInterpolateV2S()->getC(Y,j,-1);
-		//}
-		//if( 0<space()->getBCLocal()->getBCU(Y) ) {
-			//OT j=space()->eInd(S,Y);
-			//for( OT k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
-				//for( OT i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i )
-					//y.at(i,j,k) -=
-						//div_->getC(Y,j,1) * grad_->getC( Y, j, 0) * x.at(i,j,k) *
-						//space()->getInterpolateV2S()->getC(Y,j,-1) /
-						//space()->getInterpolateV2S()->getC(Y,j, 0);
-		//}
-
-		//// Dirichlet boundary conditions in Z
-		//if( 0<space()->getBCLocal()->getBCL(Z) ) {
-			//OT k=space()->sInd(S,Z);
-			//for( OT j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
-				//for( OT i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i )
-					//y.at(i,j,k) -=
-						//div_->getC(Z,k,-1) * grad_->getC( Z, k, 0) * x.at(i,j,k) *
-						//space()->getInterpolateV2S()->getC(Z,k,0) /
-						//space()->getInterpolateV2S()->getC(Z,k,-1);
-		//}
-		//if( 0<space()->getBCLocal()->getBCU(Z) ) {
-			//OT k=space()->eInd(S,Z);
-			//for( OT j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
-				//for( OT i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i )
-					//y.at(i,j,k) -=
-						//div_->getC(Z,j,1) * grad_->getC( Z, k, 0) * x.at(i,j,k) *
-						//space()->getInterpolateV2S()->getC(Z,k,-1) /
-						//space()->getInterpolateV2S()->getC(Z,k, 0);
-		//}
+#ifndef NDEBUG
+					TEUCHOS_TEST_FOR_EXCEPT( 0==diag );
+#endif
+					y.at(i,j,k) = x.at(i,j,k)/std::abs( diag );
+				}
 
 		y.changed();
 	}

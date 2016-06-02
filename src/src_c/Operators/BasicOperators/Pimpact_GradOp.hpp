@@ -215,14 +215,14 @@ public:
 			for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
 				for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
 					for( Ordinal i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i )
-						;//y.at(i,j,k) = innerStenc3D( x, i, j, k );
+						y.at(i,j,k) = innerStenc3D( x, i, j, k );
 		}
 		else{
 
 			for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
 				for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
 					for( Ordinal i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i )
-						;//y.at(i,j,k) = innerStenc2D( x, i, j, k );
+						y.at(i,j,k) = innerStenc2D( x, i, j, k );
 		}
 
     y.changed();
@@ -320,7 +320,7 @@ protected:
 		return( grad );
 	}
 
-	inline constexpr Scalar innerStenc3D( const DomainFieldT& x,
+	inline constexpr Scalar innerStenc3D( const RangeFieldT& x,
 			const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
 
 		Scalar gradT = 0.;
@@ -337,7 +337,7 @@ protected:
 		return( gradT );
 	}
 
-	inline constexpr Scalar innerStenc2D( const DomainFieldT& x,
+	inline constexpr Scalar innerStenc2D( const RangeFieldT& x,
 			const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
 
 		Scalar gradT = 0.;

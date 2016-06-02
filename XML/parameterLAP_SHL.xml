@@ -45,14 +45,14 @@
     <Parameter docString="" id="52" isDefault="false" isUsed="true" name="maxGrids" type="int" value="10" />
   </ParameterList>
   <ParameterList id="7" name="DivGrad">
-		<Parameter docString="" id="53" isDefault="true" isUsed="true" name="Solver name" type="string" value="Fixed Point" />
+		<!--<Parameter docString="" id="53" isDefault="true" isUsed="true" name="Solver name" type="string" value="Fixed Point" />-->
 		<!--<Parameter docString="" id="53" isDefault="true" isUsed="true" name="Solver name" type="string" value="BiCGstab" />-->
 		<!--<Parameter docString="" id="53" isDefault="true" isUsed="true" name="Solver name" type="string" value="TFQMR" />-->
-		<!--<Parameter docString="" id="53" isDefault="true" isUsed="true" name="Solver name" type="string" value="GMRES" />-->
+		<Parameter docString="" id="53" isDefault="true" isUsed="true" name="Solver name" type="string" value="GMRES" />
     <Parameter docString="" id="54" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
     <Parameter docString="" id="55" isDefault="true" isUsed="true" name="initZero" type="bool" value="false" />
     <ParameterList id="8" name="Solver">
-      <!--<Parameter docString="" id="56" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="2" />-->
+			<!--<Parameter docString="" id="56" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="2" />-->
       <!--<Parameter docString="" id="57" isDefault="false" isUsed="true" name="Maximum Restarts" type="int" value="100" />-->
       <!--<Parameter docString="" id="58" isDefault="false" isUsed="true" name="Block Size" type="int" value="2" />-->
       <!--<Parameter docString="" id="59" isDefault="false" isUsed="true" name="Adaptive Block Size" type="bool" value="false" />-->
@@ -60,7 +60,7 @@
 			<Parameter docString="" id="61" isDefault="false" isUsed="true" name="Implicit Residual Scaling" type="string" value="Norm of Initial Residual" />
 			<Parameter docString="" id="62" isDefault="false" isUsed="true" name="Explicit Residual Scaling" type="string" value="Norm of Initial Residual" />
       <!--<Parameter docString="" id="63" isDefault="false" isUsed="true" name="Orthogonalization" type="string" value="DGKS" />-->
-      <Parameter docString="" id="64" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="100" />
+      <Parameter docString="" id="64" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="200" />
 			<Parameter docString="" id="65" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.00000000000000006e-06" />
       <Parameter docString="" id="66" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
       <Parameter docString="" id="67" isDefault="false" isUsed="true" name="Timer Label" type="string" value="DivGrad" />
