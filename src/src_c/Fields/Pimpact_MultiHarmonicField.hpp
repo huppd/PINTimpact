@@ -53,7 +53,6 @@ protected:
   mutable bool exchangedState_;
 
 
-
 	void allocate() {
 
 		if( global_ ) {
@@ -201,7 +200,9 @@ public:
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const { return( AF::space_ ); }
 
+
   constexpr const MPI_Comm& comm() const { return( space()->getProcGrid()->getCommWorld() ); }
+
 
   /// \brief returns the length of Field.
   ///
@@ -211,7 +212,8 @@ public:
 		Ordinal len = 0;
 
 		len += getConst0FieldPtr()->getLength();
-		len += space()->nGlo(3)*getConstFieldPtr( std::max(space()->sInd(U,3),1) )->getLength();
+		//len += space()->nGlo(3)*getConstFieldPtr( std::max(space()->sInd(U,3),1) )->getLength();
+		len += 2*space()->nGlo(3)*getConst0FieldPtr()->getLength();
 
     return( len );
   }
@@ -637,7 +639,21 @@ Teuchos::RCP< MultiHarmonicField< FieldT > > createMultiHarmonic(
 }
 
 
+
+/// \brief creates a multi-harmonic scalar field.
+///
+/// \relates MultiHarmonicField
+/// \param space scalar Vector Space to which returned vector belongs
+template<class FieldT>
+Teuchos::RCP< MultiHarmonicField< FieldT > > createMultiHarmonic(
+    const Teuchos::RCP<const typename FieldT::SpaceT >& space, bool global ) {
+
+	return( Teuchos::rcp( new  MultiHarmonicField<FieldT>( space, global ) ) );
+}
+
+
 } // end of namespace Pimpact
+
 
 
 #ifdef COMPILE_ETI

@@ -112,7 +112,7 @@ public:
 
 				for( Ordinal i = space_->sInd(S,dir); i<=space_->eInd(S,dir); ++i )
 					for( Ordinal ii = space_->dl(dir); ii<=space_->du(dir); ++ii ) {
-						Ordinal ind = ( ii - space_->bl(dir) ) + ( i+space_->getShift(dir) )*( space_->bu(dir) - space_->bl(dir) + 1 );
+						Ordinal ind = ( ii - space_->bl(dir) ) + ( i+space_->getShift(dir)- space_->bl(dir) )*( space_->bu(dir) - space_->bl(dir) + 1 );
 						cG1[ ind ]= getC( static_cast<ECoord>(dir), i, ii );
 					}
 
@@ -120,14 +120,9 @@ public:
 						cG1,    		                                // const void *sendbuf,
 						cG2,    		                                // void *recvbuf,
 						nTempG,			                                // int count,
-            MPI_REAL8,	                                // MPI_Datatype datatype,
+						MPI_REAL8,	                                // MPI_Datatype datatype,
 						MPI_SUM,		                                // MPI_Op op,
 						space_->getProcGrid()->getCommSlice(dir) ); // MPI_Comm comm )
-
-				//for( Ordinal i=0; i<nTempG; ++i ) {
-					//std::cout << "cG1: " << cG1[i] << "\t";
-					//std::cout << "cG2: " << cG2[i] << "\n";
-				//}
 
 
 				if( -1==space_->getBCGlobal()->getBCL(dir) ) {
@@ -136,14 +131,18 @@ public:
 					Ordinal M1 = space_->nGlo(dir);
 
 					for( Ordinal i=space->bl(dir); i<=-1; ++i )
-						for( Ordinal ii=space->bl(dir); ii<=space->bu(dir); ++ii )
-							cG2[ ii-space_->bl(dir) + (2+ls1+i)*( space_->bu(dir) - space_->bl(dir) + 1 ) ] =
-								cG2[ ii-space_->bl(dir) + ( M1+1+ls1+i)*( space_->bu(dir) - space_->bl(dir) + 1 ) ];
+						for( Ordinal ii=space->bl(dir); ii<=space->bu(dir); ++ii ) {
+							Ordinal indT = ii-space_->bl(dir) + (2+ls1+i-space_->bl(dir)   )*( space_->bu(dir) - space_->bl(dir) + 1 );
+							Ordinal indS = ii-space_->bl(dir) + (M1+1+ls1+i-space_->bl(dir))*( space_->bu(dir) - space_->bl(dir) + 1 );
+							cG2[ indT ] = cG2[ indS ];
+						}
 
 					for( Ordinal i=1; i<=space->bu(dir); ++i )
-						for( Ordinal ii=space->bl(dir); ii<=space->bu(dir); ++ii )
-							cG2[ ii-space_->bl(dir) + (2+ls1+i)*( space_->bu(dir) - space_->bl(dir) + 1 ) ] =
-								cG2[ ii-space_->bl(dir) + ( M1+1+ls1+i)*( space_->bu(dir) - space_->bl(dir) + 1 ) ];
+						for( Ordinal ii=space->bl(dir); ii<=space->bu(dir); ++ii ) {
+							Ordinal indT = ii-space_->bl(dir) + (M1+ls1+i-space_->bl(dir))*( space_->bu(dir) - space_->bl(dir) + 1 );
+							Ordinal indS = ii-space_->bl(dir) + ( 1+ls1+i-space_->bl(dir))*( space_->bu(dir) - space_->bl(dir) + 1 );
+							cG2[ indT ] = cG2[ indS ];
+						}
 				}
 
 				for( Ordinal
@@ -152,7 +151,7 @@ public:
 						++i ) 
 					for( Ordinal ii=space->gl(dir); ii<=space->gu(dir); ++ii ) {
 						Ordinal ind1 = ( ii - space_->gl(dir) ) + ( i )*( space_->gu(dir) - space_->gl(dir) + 1 );
-						Ordinal ind2 = ( -ii - space_->bl(dir) ) + ( i+ii+space_->getShift(dir) )*( space_->bu(dir) - space_->bl(dir) + 1 );
+						Ordinal ind2 = ( -ii - space_->bl(dir) ) + ( i+ii+space_->getShift(dir)-space_->bl(dir) )*( space_->bu(dir) - space_->bl(dir) + 1 );
 						cT_[dir][ind1] = cG2[ ind2 ];
 					}
 

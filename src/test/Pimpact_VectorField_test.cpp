@@ -49,12 +49,12 @@ TEUCHOS_STATIC_SETUP() {
 	pl->set( "dim", dim );
 	pl->set( "domain", domain );
 
-	pl->set( "lx", 2. );
-	pl->set( "ly", 2. );
-	pl->set( "lz", 1. );
+	pl->set( "lx", 20. );
+	pl->set( "ly", 20. );
+	pl->set( "lz", 10. );
 
 
-	pl->set("nx", 25 );
+	pl->set("nx", 9 );
 	pl->set("ny", 17 );
 	if(  3==dim )
 		pl->set("nz", 9 );

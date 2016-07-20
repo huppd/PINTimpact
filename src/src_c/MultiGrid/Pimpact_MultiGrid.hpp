@@ -228,7 +228,7 @@ public:
 
 	void print( std::ostream& out=std::cout ) const {
 		out << "--- " << getLabel() << " ---\n";
-		out << "#grids: " << mgSpaces_->getNGrids() << " numCycles: "<<numCycles_<< "init zero: "<<initZero_ << "\n";
+		out << "#grids: " << mgSpaces_->getNGrids() << " numCycles: "<<numCycles_<< " init zero: "<<initZero_ << "\n";
 		out << "FOperator: " << mgOps_->get()->getLabel() << " d" << FSpaceT::dimNC << "\n";
 		if( mgSpaces_->participating(0) )
 			out << "COperator: " << mgOps_->get(0)->getLabel()  << " d" << CSpaceT::dimNC << "\n";

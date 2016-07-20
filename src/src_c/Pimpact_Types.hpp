@@ -34,12 +34,12 @@ std::string toString( EField type );
 /// \relates BoundaryConditionsGlobal
 /// \relates BoundaryConditionsLocal
 enum EBCType {
-  SymmetryBC = -2,
-  PeriodicBC = -1,
-  NeighborBC = 0,
-  DirichletBC = 1,
-  NeumannBC = 2,
-  RobinBC = 3
+  SymmetryBC = -2, ///< -2
+  PeriodicBC = -1, ///< -1
+  NeighborBC = 0,  ///<  0 
+  DirichletBC = 1, ///<  1 
+  NeumannBC = 2,   ///<  2 
+  RobinBC = 3      ///<  3 
 };
 
 

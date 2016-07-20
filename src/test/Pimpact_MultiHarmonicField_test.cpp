@@ -28,6 +28,7 @@ using SF = typename Pimpact::ScalarField<SpaceT>;
 using VF = typename Pimpact::VectorField<SpaceT>;
 
 bool testMpi = true;
+bool global = true;
 double eps = 1e-6;
 
 int dim = 3;
@@ -43,6 +44,7 @@ int ny = 9;
 int nz = 9;
 int nf = 7;
 
+
 auto pl = Teuchos::parameterList();
 
 
@@ -56,6 +58,8 @@ TEUCHOS_STATIC_SETUP() {
   clp.setOption(
       "error-tol-slack", &eps,
       "Slack off of machine epsilon used to check test results" );
+
+	clp.setOption( "global", "local", &global, "" );
 
 	clp.setOption( "dim", &dim, "dim" );
 	clp.setOption( "domain", &domain, "domain" );
@@ -106,7 +110,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, constructor, FType ) {
 
   auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
-	auto field = Pimpact::createMultiHarmonic<FType>( space );
+	auto field = Pimpact::createMultiHarmonic<FType>( space, global );
 
 	const int m = field->getNumberVecs();
 
@@ -140,7 +144,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, clone, FType ) {
 
   auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
-	auto field = Pimpact::createMultiHarmonic<FType>( space );
+	auto field = Pimpact::createMultiHarmonic<FType>( space, global );
 
 	auto field2 = field->clone();
 
@@ -176,7 +180,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, InfNorm, FType ) {
 
   auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
-	auto field = Pimpact::createMultiHarmonic<FType>( space );
+	auto field = Pimpact::createMultiHarmonic<FType>( space, global );
 
 	ST norm;
 
@@ -226,13 +230,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, InitTwoNorm, FType  ) {
 
   auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
-	auto field = Pimpact::createMultiHarmonic<FType>( space );
+	auto field = Pimpact::createMultiHarmonic<FType>( space, global );
 
 	int N = field->getLength();
 
 	for( ST i=0.; i< 200.1; ++i ) {
 		field->init(i/2.);
-    TEST_FLOATING_EQUALITY( std::sqrt(std::pow(i/2.,2)*N), field->norm(Belos::TwoNorm), eps );
+		TEST_FLOATING_EQUALITY( std::sqrt(std::pow(i/2.,2)*N), field->norm(Belos::TwoNorm), eps );
 	}
 
 }
@@ -261,7 +265,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, dot, FType  ) {
 
   auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
-	auto field1 = Pimpact::createMultiHarmonic<FType>( space );
+	auto field1 = Pimpact::createMultiHarmonic<FType>( space, global );
 
   auto field2 = field1->clone();
 
@@ -317,7 +321,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, scale, FType ) {
 
   auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
-	auto field = Pimpact::createMultiHarmonic<FType>( space );
+	auto field = Pimpact::createMultiHarmonic<FType>( space, global );
 
 	int N = field->getLength();
 	ST norm;
@@ -353,7 +357,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, random, FType ) {
 
   auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
-	auto field = Pimpact::createMultiHarmonic<FType>( space );
+	auto field = Pimpact::createMultiHarmonic<FType>( space, global );
 
 	int N = field->getLength();
 	ST norm;
@@ -389,7 +393,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, add, FType ) {
 
   auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
-	auto field1 = Pimpact::createMultiHarmonic<FType>( space );
+	auto field1 = Pimpact::createMultiHarmonic<FType>( space, global );
   auto field2 = field1->clone();
   auto field3 = field1->clone();
 
@@ -450,12 +454,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonic, exchange, FType ) {
 
   auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
-	auto field = Pimpact::createMultiHarmonic<FType>( space );
+	auto field = Pimpact::createMultiHarmonic<FType>( space, true );
 
-	if( space->sInd(Pimpact::U,3)<0 )
+	if( space->sInd(Pimpact::U,3)<=0 )
 		field->get0FieldPtr()->init( 1. );
 
-	for( OT i=std::max(space->sInd(Pimpact::U,3),0); i<space->eInd(Pimpact::U,3); ++i )
+	for( OT i=std::max(space->sInd(Pimpact::U,3),1); i<=space->eInd(Pimpact::U,3); ++i )
 		field->getFieldPtr(i)->init( i+1. );
 
 	field->changed();
@@ -463,13 +467,15 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonic, exchange, FType ) {
 
 	TEST_FLOATING_EQUALITY( field->getConst0FieldPtr()->normLoc(Belos::InfNorm), 1., eps );
 
-	for( OT i=0; i<space->nGlo(3); ++i )
+	for( OT i=1; i<=space->nGlo(3); ++i )
 		TEST_FLOATING_EQUALITY( field->getConstFieldPtr(i)->normLoc(Belos::InfNorm), static_cast<ST>(i)+1., eps );
 
 }
 
+
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonic, exchange, SF )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonic, exchange, VF )
+
 
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, write, FType ) {
@@ -491,7 +497,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, write, FType ) {
 
   auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
-	auto field = Pimpact::createMultiHarmonic<FType>( space );
+	auto field = Pimpact::createMultiHarmonic<FType>( space, global );
 
 	field->init( 1. );
 //	field->write();

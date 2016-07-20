@@ -69,7 +69,7 @@ else()
 endif()
 
 
-option( enable_ETI "enable_ETI" OFF)
+option( enable_ETI "enable_ETI" OFF )
 
 if( enable_ETI )
 	add_definitions( -DCOMPILE_ETI )

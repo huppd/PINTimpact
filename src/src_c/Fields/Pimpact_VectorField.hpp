@@ -185,10 +185,11 @@ public:
   /// \brief Replace \c this with \f$\alpha A + \beta B\f$.
   ///
   /// only inner points
-	void add( const Scalar& alpha, const FieldT& A, const Scalar& beta, const FieldT& B ) {
+	void add( const Scalar& alpha, const FieldT& A, const Scalar& beta, const
+			FieldT& B, const bool& bcYes=false ) {
 		// add test for consistent VectorSpaces in debug mode
 		for( int i=0; i<space()->dim(); ++i ) {
-			sFields_[i]->add( alpha, *A.sFields_[i], beta, *B.sFields_[i] );
+			sFields_[i]->add( alpha, *A.sFields_[i], beta, *B.sFields_[i], bcYes );
 		}
 		changed();
 	}
@@ -200,9 +201,9 @@ public:
 	/// Here x represents this vector, and we update it as
 	/// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
 	/// \return Reference to this object
-	void abs(const FieldT& y) {
+	void abs( const FieldT& y, const bool& bcYes=false ) {
 		for( int i=0; i<space()->dim(); ++i )
-			sFields_[i]->abs( *y.sFields_[i] );
+			sFields_[i]->abs( *y.sFields_[i], bcYes );
 		changed();
 	}
 
@@ -212,18 +213,18 @@ public:
 	/// Here x represents this vector, and we update it as
 	/// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
 	/// \return Reference to this object
-	void reciprocal(const FieldT& y){
+	void reciprocal( const FieldT& y, const bool& bcYes=false ) {
 		// add test for consistent VectorSpaces in debug mode
 		for( int i=0; i<space()->dim(); ++i)
-			sFields_[i]->reciprocal( *y.sFields_[i] );
+			sFields_[i]->reciprocal( *y.sFields_[i], bcYes );
 		changed();
 	}
 
 
 	/// \brief Scale each element of the vectors in \c this with \c alpha.
-	void scale( const Scalar& alpha ) {
+	void scale( const Scalar& alpha, const bool& bcYes=false ) {
 		for(int i=0; i<space()->dim(); ++i)
-			sFields_[i]->scale( alpha );
+			sFields_[i]->scale( alpha, bcYes );
 		changed();
 	}
 
@@ -233,29 +234,29 @@ public:
 	/// Here x represents this vector, and we update it as
 	/// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
 	/// \return Reference to this object
-	void scale(const FieldT& a) {
+	void scale( const FieldT& a, const bool& bcYes=false ) {
 		// add test for consistent VectorSpaces in debug mode
 		for(int i=0; i<space()->dim(); ++i)
-			sFields_[i]->scale( *a.sFields_[i] );
+			sFields_[i]->scale( *a.sFields_[i], bcYes );
 		changed();
 	}
 
 
 	/// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
-	constexpr Scalar dotLoc ( const FieldT& a ) const {
+	constexpr Scalar dotLoc ( const FieldT& a, const bool& bcYes=false ) const {
 		Scalar b = 0.;
 
 		for( int i=0; i<space()->dim(); ++i )
-			b += sFields_[i]->dotLoc( *a.sFields_[i] );
+			b += sFields_[i]->dotLoc( *a.sFields_[i], bcYes );
 
 		return( b );
 	}
 
 
 	/// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
-	constexpr Scalar dot( const FieldT& y ) const {
+	constexpr Scalar dot( const FieldT& y, const bool& bcYes=false ) const {
 
-		return( this->reduce( comm(), dotLoc( y ) ) );
+		return( this->reduce( comm(), dotLoc( y, bcYes ) ) );
 	}
 
 
@@ -263,15 +264,15 @@ public:
 	/// \name Norm method
 	/// @{
 
-	constexpr Scalar normLoc(  Belos::NormType type = Belos::TwoNorm ) const {
+	constexpr Scalar normLoc( Belos::NormType type = Belos::TwoNorm, const bool& bcYes=false ) const {
 
 		Scalar normvec = 0.;
 
 		for( int i=0; i<space()->dim(); ++i )
 			normvec =
 				(type==Belos::InfNorm)?
-					std::max( sFields_[i]->normLoc(type), normvec ):
-					( normvec+sFields_[i]->normLoc(type) );
+					std::max( sFields_[i]->normLoc(type,bcYes), normvec ):
+					( normvec+sFields_[i]->normLoc(type,bcYes) );
 
 		return( normvec );
 	}
@@ -279,11 +280,11 @@ public:
 
  /// \brief compute the norm
   /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
-  constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm ) const {
+  constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm, const bool& bcYes=false ) const {
 
 		Scalar normvec = this->reduce(
 				comm(),
-				normLoc( type ),
+				normLoc( type, bcYes ),
 				(Belos::InfNorm==type)?MPI_MAX:MPI_SUM );
 
 		normvec =
@@ -300,11 +301,11 @@ public:
 	/// Here x represents this vector, and we compute its weighted norm as follows:
 	/// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
 	/// \return \f$ \|x\|_w \f$
-	constexpr Scalar normLoc( const FieldT& weights ) const {
+	constexpr Scalar normLoc( const FieldT& weights, const bool& bcYes=false ) const {
 		Scalar normvec = 0.;
 
 		for( int i=0; i<space()->dim(); ++i )
-			normvec += sFields_[i]->normLoc( *weights.sFields_[i] );
+			normvec += sFields_[i]->normLoc( *weights.sFields_[i], bcYes );
 
 		return( normvec );
 	}
@@ -316,8 +317,8 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr Scalar norm( const FieldT& weights ) const {
-		return( std::sqrt( this->reduce( comm(), normLoc( weights ) ) ) );
+  constexpr Scalar norm( const FieldT& weights, const bool& bcYes=false ) const {
+		return( std::sqrt( this->reduce( comm(), normLoc( weights, bcYes ) ) ) );
 	}
 
 
@@ -341,26 +342,26 @@ public:
 	///
 	/// depending on Fortrans \c Random_number implementation, with always same
 	/// seed => not save, if good randomness is required
-	void random(bool useSeed = false, int seed = 1) {
+	void random(bool useSeed = false, const bool& bcYes=false, int seed = 1) {
 
 		for( int i=0; i<space()->dim(); ++i )
-			sFields_[i]->random( useSeed, seed );
+			sFields_[i]->random( useSeed, bcYes, seed );
 
 		changed();
 	}
 
 	/// \brief Replace each element of the vector  with \c alpha.
-	void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero() ) {
+	void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const bool& bcYes=false ) {
 		for( int i=0; i<space()->dim(); ++i )
-			sFields_[i]->init( alpha );
+			sFields_[i]->init( alpha, bcYes );
 		changed();
 	}
 
 
 	/// \brief Replace each element of the vector \c getRawPtr[i] with \c alpha[i].
-	void init( const Teuchos::Tuple<Scalar,3>& alpha ) {
+	void init( const Teuchos::Tuple<Scalar,3>& alpha, const bool& bcYes=false ) {
 		for( int i=0; i<space()->dim(); ++i )
-			sFields_[i]->init( alpha[i] );
+			sFields_[i]->init( alpha[i], bcYes );
 		changed();
 	}
 

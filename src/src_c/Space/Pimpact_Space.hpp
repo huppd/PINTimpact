@@ -313,32 +313,53 @@ public:
 	constexpr const Ordinal& nu( const int& i )  const { return( stencilWidths_->getNU(i)  ); }
 
 
+	/// \deprecated
 	constexpr const Ordinal* sInd( const int& fieldType ) const {
 		return( indexSpace_->sInd( fieldType ) );
 	}
+	/// \deprecated
 	constexpr const Ordinal* eInd(  const int& fieldType ) const {
 		return( indexSpace_->eInd( fieldType ) );
 	}
 
+	/// \deprecated
 	constexpr const Ordinal* sIndB( const int& fieldType ) const {
 		return( indexSpace_->sIndB( fieldType ) );
 	}
+	/// \deprecated
 	constexpr const Ordinal* eIndB( const int& fieldType ) const {
 		return( indexSpace_->eIndB( fieldType ) );
 	}
 
+	/// \deprecated
 	constexpr const Ordinal& sInd( const int& fieldType, const int& dir ) const {
 		return( indexSpace_->sInd( fieldType, dir ) );
 	}
+	/// \deprecated
 	constexpr const Ordinal& eInd(  const int& fieldType, const int& dir ) const {
 		return( indexSpace_->eInd( fieldType, dir ) );
 	}
 
+	/// \deprecated
 	constexpr const Ordinal& sIndB( const int& fieldType, const int& dir ) const {
 		return( indexSpace_->sIndB( fieldType, dir ) );
 	}
+	/// \deprecated
 	constexpr const Ordinal& eIndB( const int& fieldType, const int& dir ) const {
 		return( indexSpace_->eIndB( fieldType, dir ) );
+	}
+
+	constexpr const Ordinal& begin( const int& fieldType, const int& dir, const bool& bcYes=false ) const {
+		return(
+				bcYes?
+				indexSpace_->sIndB( fieldType, dir ):
+				indexSpace_->sInd ( fieldType, dir ) );
+	}
+	constexpr const Ordinal& end( const int& fieldType, const int& dir, const bool& bcYes=false ) const {
+		return(
+				bcYes?
+				indexSpace_->eIndB( fieldType, dir ):
+				indexSpace_->eInd ( fieldType, dir ) );
 	}
 
 	constexpr const Ordinal* ib() const { return( procGrid_->getIB().getRawPtr() ); }
@@ -347,7 +368,7 @@ public:
 	constexpr const Ordinal& getShift( const int& i) const { return( indexSpace_->getShift(i)  ); }
 
 	constexpr const Ordinal* np()      const { return( procGrid_->getNP().getRawPtr() ); }
-	constexpr const Ordinal& np( const int& i) const { return( procGrid_->getNP(i) ); }
+	constexpr const Ordinal& np( const int& i ) const { return( procGrid_->getNP(i) ); }
 
 	/// \}
 
@@ -397,9 +418,9 @@ public:
 			pl->set<ST>( "ly", 1., "length in y-direction" );
 			pl->set<ST>( "lz", 1., "length in z-direction" );
 
-			pl->set<ST>( "origin x", 1., "origin in x-direction" );
-			pl->set<ST>( "origin y", 1., "origin in y-direction" );
-			pl->set<ST>( "origin z", 1., "origin in z-direction" );
+			pl->set<ST>( "origin x", 0., "origin in x-direction" );
+			pl->set<ST>( "origin y", 0., "origin in y-direction" );
+			pl->set<ST>( "origin z", 0., "origin in z-direction" );
 
 			// grid size
 			pl->set<bool>("spectral in time", false, "enables spectral time discretization" );

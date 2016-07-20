@@ -81,7 +81,10 @@ public:
 			<< "\talpha^2= " << alpha2_ << "\n"
 			<< "\tlx= "      << domainSize_[0]
 			<< "\tly= "      << domainSize_[1]
-			<< "\tlz= "      << domainSize_[2] << "\n";
+			<< "\tlz= "      << domainSize_[2] << "\n"
+			<< "\tox= "      << origin_[0]
+			<< "\toy= "      << origin_[1]
+			<< "\toz= "      << origin_[2] << "\n";
 	};
 
 }; // end of DomainSize

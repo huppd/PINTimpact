@@ -153,23 +153,36 @@ public:
   /// @{
 
   /// \brief Replace \c this with \f$\alpha A + \beta B\f$.
-  void add( const Scalar& alpha, const FieldT& A, const Scalar& beta, const FieldT& B ) {
-    // add test for consistent VectorSpaces in debug mode
-		if( s_==A.s_ && s_==B.s_ )
-			scale( alpha+beta );
-		else{
-			for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
-				for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
-					for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i ) {
-						if( s_==A.s_ && s_!=B.s_ )
-							at(i,j,k) = alpha*at(i,j,k) + beta*B.at(i,j,k);
-						else if( s_!=A.s_ && s_==B.s_ )
-							at(i,j,k) = alpha*A.at(i,j,k) + beta*at(i,j,k);
-						else if( s_!=A.s_ && s_!=B.s_ )
-							at(i,j,k) = alpha*A.at(i,j,k) + beta*B.at(i,j,k);
-					}
-			changed();
+	/// \todo make checks for spaces and k
+	void add( const Scalar& alpha, const FieldT& A, const Scalar& beta, const
+			FieldT& B, const bool& bcYes=false ) {
+
+#ifndef NDEBUG
+		for( int dir=0; dir<3; ++dir ) {
+			bool same_space = space()->nLoc(dir)>A.space()->nLoc(dir) || 
+				space()->nLoc(dir)>B.space()->nLoc(dir);
+			TEUCHOS_TEST_FOR_EXCEPT( same_space );
+			bool consistent_space = (
+					(A.space()->nLoc(dir)-1)%(space()->nLoc(dir)-1) )!=0 || (
+					(B.space()->nLoc(dir)-1)%(space()->nLoc(dir)-1) )!=0 ;
+			TEUCHOS_TEST_FOR_EXCEPT( consistent_space );
 		}
+#endif
+		Teuchos::Tuple<Ordinal,3> da;
+		Teuchos::Tuple<Ordinal,3> db;
+
+		for( int dir=0; dir<3; ++dir ) {
+			da[dir] = ( A.space()->nLoc(dir)-1 )/( space()->nLoc(dir)-1 );
+			db[dir] = ( B.space()->nLoc(dir)-1 )/( space()->nLoc(dir)-1 );
+		}
+
+		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
+			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
+				for( Ordinal i=space()->begin(fType_,X,bcYes); i<=space()->end(fType_,X,bcYes); ++i )
+					at(i,j,k) = alpha*A.at( (i-1)*da[0]+1, (j-1)*da[1]+1,(k-1)*da[2]+1 )
+						         + beta*B.at( (i-1)*db[0]+1, (j-1)*db[1]+1,(k-1)*db[2]+1 );
+
+		changed();
 	}
 
 
@@ -179,14 +192,21 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-	void abs( const FieldT& y) {
-		// add test for consistent VectorSpaces in debug mode
-		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
-			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
-				for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
-					at(i,j,k) = std::abs( y.at(i,j,k) );
-		changed();
+	void abs( const FieldT& y, const bool& bcYes=false ) {
 
+#ifndef NDEBUG
+		for( int dir=0; dir<3; ++dir ) {
+			bool same_space = space()->nLoc(dir)!=y.space()->nLoc(dir);
+			TEUCHOS_TEST_FOR_EXCEPT( same_space );
+		}
+#endif
+
+		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
+			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
+				for( Ordinal i=space()->begin(fType_,X,bcYes); i<=space()->end(fType_,X,bcYes); ++i )
+					at(i,j,k) = std::abs( y.at(i,j,k) );
+
+		changed();
 	}
 
 
@@ -195,22 +215,32 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
   /// \return Reference to this object
-  void reciprocal( const FieldT& y){
-    // add test for consistent VectorSpaces in debug mode
-		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
-			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
-				for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
+  void reciprocal( const FieldT& y, const bool& bcYes=false ) {
+
+#ifndef NDEBUG
+		for( int dir=0; dir<3; ++dir ) {
+			bool same_space = space()->nLoc(dir)!=y.space()->nLoc(dir);
+			TEUCHOS_TEST_FOR_EXCEPT( same_space );
+		}
+#endif
+
+		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
+			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
+				for( Ordinal i=space()->begin(fType_,X,bcYes); i<=space()->end(fType_,X,bcYes); ++i )
 					at(i,j,k) = Teuchos::ScalarTraits<Scalar>::one()/ y.at(i,j,k);
+
     changed();
   }
 
 
   /// \brief Scale each element of the vector with \c alpha.
-	void scale( const Scalar& alpha ) {
-		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
-			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
-				for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
+	void scale( const Scalar& alpha, const bool& bcYes=false ) {
+
+		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
+			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
+				for( Ordinal i=space()->begin(fType_,X,bcYes); i<=space()->end(fType_,X,bcYes); ++i )
 					at(i,j,k) *= alpha;
+
 		changed();
 	}
 
@@ -219,12 +249,18 @@ public:
   ///
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = x_i \cdot y_i \quad \mbox{for } i=1,\dots,n \f]
-  /// \return Reference to this object
-	void scale( const FieldT& y ) {
-		// add test for consistent VectorSpaces in debug mode
-		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
-			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
-				for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
+	void scale( const FieldT& y, const bool& bcYes=false ) {
+
+#ifndef NDEBUG
+		for( int dir=0; dir<3; ++dir ) {
+			bool same_space = space()->nLoc(dir)!=y.space()->nLoc(dir);
+			TEUCHOS_TEST_FOR_EXCEPT( same_space );
+		}
+#endif
+
+		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
+			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
+				for( Ordinal i=space()->begin(fType_,X,bcYes); i<=space()->end(fType_,X,bcYes); ++i )
 					at(i,j,k) *= y.at(i,j,k);
 		changed();
 	}
@@ -234,13 +270,20 @@ public:
   /// @{
 
 	/// \brief Compute a locla scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
-	constexpr Scalar dotLoc( const FieldT& y ) const {
+	constexpr Scalar dotLoc( const FieldT& y, const bool& bcYes=false ) const {
+
+#ifndef NDEBUG
+		for( int dir=0; dir<3; ++dir ) {
+			bool same_space = space()->nLoc(dir)!=y.space()->nLoc(dir);
+			TEUCHOS_TEST_FOR_EXCEPT( same_space );
+		}
+#endif
 
 		Scalar b = Teuchos::ScalarTraits<Scalar>::zero();
 
-		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
-			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
-				for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
+		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
+			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
+				for( Ordinal i=space()->begin(fType_,X,bcYes); i<=space()->end(fType_,X,bcYes); ++i )
 					b += at(i,j,k)*y.at(i,j,k);
 
 		return( b );
@@ -248,66 +291,66 @@ public:
 
 	/// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y
 	/// and \c this, i.e.\f$b = y^H this\f$.
-	constexpr Scalar dot( const FieldT& y ) const {
-		return( this->reduce( comm(), dotLoc( y ) ) );
+	constexpr Scalar dot( const FieldT& y, const bool& bcYes=false ) const {
+		return( this->reduce( comm(), dotLoc( y, bcYes ) ) );
 	}
 
-  constexpr Scalar normLoc1() const {
+  constexpr Scalar normLoc1( const bool& bcYes=false ) const {
 
     Scalar normvec = Teuchos::ScalarTraits<Scalar>::zero();
 
-		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
-			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
-				for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
-							normvec += std::abs( at(i,j,k) );
+		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
+			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
+				for( Ordinal i=space()->begin(fType_,X,bcYes); i<=space()->end(fType_,X,bcYes); ++i )
+					normvec += std::abs( at(i,j,k) );
 
     return( normvec );
   }
 
 
-  constexpr Scalar normLoc2() const {
+  constexpr Scalar normLoc2( const bool& bcYes=false ) const {
 
     Scalar normvec = Teuchos::ScalarTraits<Scalar>::zero();
 
-		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
-			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
-				for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
-							normvec += at(i,j,k)*at(i,j,k);
+		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
+			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
+				for( Ordinal i=space()->begin(fType_,X,bcYes); i<=space()->end(fType_,X,bcYes); ++i )
+					normvec += at(i,j,k)*at(i,j,k);
 
     return( normvec );
   }
 
 
-  constexpr Scalar normLocInf() const {
+  constexpr Scalar normLocInf( const bool& bcYes=false ) const {
 
     Scalar normvec = Teuchos::ScalarTraits<Scalar>::zero();
 
-		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
-			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
-				for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
-							normvec = std::fmax( std::abs(at(i,j,k)), normvec );
+		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
+			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
+				for( Ordinal i=space()->begin(fType_,X,bcYes); i<=space()->end(fType_,X,bcYes); ++i )
+					normvec = std::fmax( std::abs(at(i,j,k)), normvec );
 
     return( normvec );
   }
 
-	constexpr Scalar normLoc( Belos::NormType type = Belos::TwoNorm ) const {
+	constexpr Scalar normLoc( Belos::NormType type = Belos::TwoNorm, const bool& bcYes=false ) const {
 
 		return(
 				( Belos::OneNorm==type)?
-					normLoc1():
+					normLoc1(bcYes):
 					(Belos::TwoNorm==type)?
-						normLoc2():
-						normLocInf() );
+						normLoc2(bcYes):
+						normLocInf(bcYes) );
 	}
 
 
   /// \brief compute the norm
   /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
-  constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm ) const {
+  constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm, const bool& bcYes=false ) const {
 
 		Scalar normvec = this->reduce(
 				comm(),
-				normLoc( type ),
+				normLoc( type,bcYes ),
 				(Belos::InfNorm==type)?MPI_MAX:MPI_SUM );
 
 		normvec =
@@ -325,13 +368,20 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr Scalar normLoc( const FieldT& weights ) const {
+  constexpr Scalar normLoc( const FieldT& weights, const bool& bcYes=false ) const {
+
+#ifndef NDEBUG
+		for( int dir=0; dir<3; ++dir ) {
+			bool same_space = space()->nLoc(dir)!=weights.space()->nLoc(dir);
+			TEUCHOS_TEST_FOR_EXCEPT( same_space );
+		}
+#endif
 
     Scalar normvec = Teuchos::ScalarTraits<Scalar>::zero();
 
-		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
-			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
-				for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
+		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
+			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
+				for( Ordinal i=space()->begin(fType_,X,bcYes); i<=space()->end(fType_,X,bcYes); ++i )
 					normvec += at(i,j,k)*at(i,j,k)*weights.at(i,j,k)*weights.at(i,j,k);
 
     return( normvec );
@@ -344,8 +394,8 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr Scalar norm( const FieldT& weights ) const {
-		return( std::sqrt( this->reduce( comm(), normLoc( weights ) ) ) );
+  constexpr Scalar norm( const FieldT& weights, const bool& bcYes=false ) const {
+		return( std::sqrt( this->reduce( comm(), normLoc( weights, bcYes ) ) ) );
 	}
 
 
@@ -360,6 +410,13 @@ public:
   /// \note the \c StencilWidths is not take care of assuming every field is generated with one
 	void assign( const FieldT& a ) {
 
+#ifndef NDEBUG
+		for( int dir=0; dir<3; ++dir ) {
+			bool same_space = space()->nLoc(dir)!=a.space()->nLoc(dir);
+			TEUCHOS_TEST_FOR_EXCEPT( same_space );
+		}
+#endif
+
 		for(int i=0; i<getStorageSize(); ++i)
 			s_[i] = a.s_[i];
 
@@ -370,38 +427,38 @@ public:
 
   /// \brief Replace the vectors with a random vectors.
   /// depending on Fortrans \c Random_number implementation, with always same seed => not save, if good randomness is required
-  void random( bool useSeed = false, int seed = 1 ) {
+  void random( bool useSeed = false, const bool& bcYes=false , int seed = 1 ) {
 
 		std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> dis( -0.5, 0.5 );
 
-		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
-			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
-				for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
+		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
+			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
+				for( Ordinal i=space()->begin(fType_,X,bcYes); i<=space()->end(fType_,X,bcYes); ++i )
 					at(i,j,k) = dis(gen);
 
 		if( !space()->getProcGrid()->participating() )
-			for( Ordinal k=space()->sIndB(fType_,Z); k<=space()->eIndB(fType_,Z); ++k )
-				for( Ordinal j=space()->sIndB(fType_,Y); j<=space()->eIndB(fType_,Y); ++j )
-					for( Ordinal i=space()->sIndB(fType_,X); i<=space()->eIndB(fType_,X); ++i )
+			for( Ordinal k=space()->begin(fType_,Z,true); k<=space()->end(fType_,Z,true); ++k )
+				for( Ordinal j=space()->begin(fType_,Y,true); j<=space()->end(fType_,Y,true); ++j )
+					for( Ordinal i=space()->begin(fType_,X,true); i<=space()->end(fType_,X,true); ++i )
 						at(i,j,k) = Teuchos::ScalarTraits<Scalar>::zero();
-    changed();
+		changed();
   }
 
 
   /// \brief Replace each element of the vector  with \c alpha.
-  void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero() ) {
+  void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const bool& bcYes=false ) {
 
-		for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
-			for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
-				for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
+		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
+			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
+				for( Ordinal i=space()->begin(fType_,X,bcYes); i<=space()->end(fType_,X,bcYes); ++i )
 					at(i,j,k) = alpha;
 		
 		if( !space()->getProcGrid()->participating() )
-			for( Ordinal k=space()->sIndB(fType_,Z); k<=space()->eIndB(fType_,Z); ++k )
-				for( Ordinal j=space()->sIndB(fType_,Y); j<=space()->eIndB(fType_,Y); ++j )
-					for( Ordinal i=space()->sIndB(fType_,X); i<=space()->eIndB(fType_,X); ++i )
+			for( Ordinal k=space()->begin(fType_,Z,true); k<=space()->end(fType_,Z,true); ++k )
+				for( Ordinal j=space()->begin(fType_,Y,true); j<=space()->end(fType_,Y,true); ++j )
+					for( Ordinal i=space()->begin(fType_,X,true); i<=space()->end(fType_,X,true); ++i )
 						at(i,j,k) = Teuchos::ScalarTraits<Scalar>::zero();
 		changed();
   }
@@ -443,14 +500,14 @@ public:
 			space()->getCoordinatesLocal();
 		Teuchos::RCP<const DomainSize<Scalar> > domain = space()->getDomainSize();
 
-		for( Ordinal k=space()->sIndB(fType_,Z); k<=space()->eIndB(fType_,Z); ++k )
-			for( Ordinal j=space()->sIndB(fType_,Y); j<=space()->eIndB(fType_,Y); ++j )
-				for( Ordinal i=space()->sIndB(fType_,X); i<=space()->eIndB(fType_,X); ++i ) {
+		const bool& bcYes = true;
+		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
+			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
+				for( Ordinal i=space()->begin(fType_,X,bcYes); i<=space()->end(fType_,X,bcYes); ++i )
 					at(i,j,k) = func(
 							( coord->getX(fType_,X,i)-domain->getOrigin(X) )/domain->getSize(X),
 							( coord->getX(fType_,Y,j)-domain->getOrigin(Y) )/domain->getSize(Y),
 							( coord->getX(fType_,Z,k)-domain->getOrigin(Z) )/domain->getSize(Z) );
-				}
 	}
 
 

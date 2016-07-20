@@ -160,7 +160,7 @@ contains
 
 
 
-  !>  \brief sets non block boundary conditions to zero
+  !>  \brief extrapolates for non-block BC outside value
   subroutine OP_extrapolateBC(  &
       m,                        &
       N,                        &
