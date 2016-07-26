@@ -152,34 +152,44 @@ contains
 
 
 
+  !> \brief shooting method for SHBL
+  !!
+  !! \param[out] v solution vector
+  !! \param[in] grid array of grid points
+  !! \param[in] n number of grid points
+  !! \param[in] sweep_angle sweep angle PHI
+  !! \param[in] angle_attack sweep angle ALPHA
+  !! \param[in] kappa boundary suction KAPPA
+  !! \param[in] s starting value for shooting
+  !! \param[in] r end value for shooting
+  !! \param[in] rank rank of processor (for write)
   SUBROUTINE shoot_v(v,grid,n,sweep_angle,angle_attack,kappa,s,r,rank)
 
     implicit none
 
-    !!!-----------------------------------------------------------------------
-    integer(c_int), intent(in)    :: n             !< number of grid points
-    real(c_double), intent(out)   :: v(n,3)        !< OUTPUT: solution vector
-    real(c_double), intent(in)    :: grid(n)       !< array of grid points
-    real(c_double), intent(inout) :: s,r           !< starting and end value for shooting
-    real(c_double), intent(in)    :: sweep_angle   !< sweep angle PHI
-    real(c_double), intent(in)    :: angle_attack  !< sweep angle ALPHA
-    real(c_double), intent(in)    :: kappa         !< boundary suction KAPPA
-    integer(c_int), intent(in)    :: rank          !< rank of processor (for write)
-    !!!-----------------------------------------------------------------------
+    !-----------------------------------------------------------------------
+    integer(c_int), intent(in)    :: n
+    real(c_double), intent(out)   :: v(n,3)
+    real(c_double), intent(in)    :: grid(n)
+    real(c_double), intent(inout) :: s,r
+    real(c_double), intent(in)    :: sweep_angle
+    real(c_double), intent(in)    :: angle_attack
+    real(c_double), intent(in)    :: kappa
+    integer(c_int), intent(in)    :: rank
+    !-------------------------------------------------------------------------
     real(c_double) :: rhs(3)        !value of right-hand side
     real(c_double) :: g(3)          !intermediate value in Runge-Kutta integration
     real(c_double) :: t(3)          !intermediate value of v at x
     real(c_double) :: rk1(3), rk2(3)!Runge-Kutta coefficients
     real(c_double) :: dx            !integration step
     real(c_double) :: x             !independent variable
-    !integer(c_int) :: i, j, k    !counters
     integer(c_int) :: i, k    !counters
     real(c_double) :: cosPhi        !cos(sweep_angle)
     real(c_double) :: sinAlpha      !sin(angle_attack)
     real(c_double) :: upperBound    !upper interval boundary for integration
-    !!!=====================================================================
+    !=====================================================================
 
-    !!set Runge-Kutta coefficients
+    ! set Runge-Kutta coefficients
     rk1(1) = 0.
     rk1(2) = -5./9. 
     rk1(3) = -153./128.

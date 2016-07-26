@@ -33,7 +33,7 @@ contains
   !! \param[in] mulL factor which corresponds to the factor of the Laplace part
   !! \param[in] phi
   !! \param[out] Lap
-  !! \depcrecated
+  !! \deprecated
   subroutine OP_helmholtz(  &
       dimens,               &
       N,                    &

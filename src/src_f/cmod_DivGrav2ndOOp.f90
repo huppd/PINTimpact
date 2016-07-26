@@ -443,8 +443,8 @@ contains
   !! \param[in] N local grid size
   !! \param[in] bL lower storage offset
   !! \param[in] bU upper storage offset
-  !! \param[in] BCL local lower boundary conditions
-  !! \param[in] BCU local upper boundary conditions
+  !! \param[in] SR start index 
+  !! \param[in] ER end index 
   !! \param[in] cdg1 stencil in x-direction
   !! \param[in] cdg2 stencil in y-direction
   !! \param[in] cdg3 stencil in z-direction

@@ -24,14 +24,14 @@ contains
   !!        condtions can be get from Space::bl()
   !! \param bu is the upper stencil width used for ghost layer and boundary
   !!        condtions can be get from \c Space::bu()
-  !! \param dl is the lower stencil width for the divergence stencil used for ghost layer and boundary
-  !! \param du is the upper stencil width for the divergence stencil used for ghost layer and boundary
+  !! \param cL
+  !! \param cU
+  !! \param dL is the lower stencil width for the divergence stencil used for ghost layer and boundary
+  !! \param dU is the upper stencil width for the divergence stencil used for ghost layer and boundary
   !!        condtions can be get from \c Space::dl()
-  !! \param bu is the upper stencil width for the divergence stencil used for ghost layer and boundary
-  !!        condtions can be get from \c Space::du()
-  !! \param gl is the lower stencil width for the gradiant stencil used for ghost layer and boundary
+  !! \param gL is the lower stencil width for the gradiant stencil used for ghost layer and boundary
   !!        condtions can be get from \c Space::gl()
-  !! \param gu is the upper stencil width for the gradiant stencil used for ghost layer and boundary
+  !! \param gU is the upper stencil width for the gradiant stencil used for ghost layer and boundary
   !!        condtions can be get from \c Space::gu()
   !! \param SS starting index for pressure fields, can be get from \c
   !!        Space::sInd(EFieldType)
@@ -49,6 +49,18 @@ contains
   !!        Space::sInd(EFieldType::W)
   !! \param NW end index for velocity fields in z-direction, can be get from \c
   !!        Space::eInd(EFieldType::W)
+  !! \param c1uD
+  !! \param c2vD
+  !! \param c3wD
+  !! \param c1uU
+  !! \param c2vU
+  !! \param c3wU
+  !! \param c1pD
+  !! \param c2pD
+  !! \param c3pD
+  !! \param c1pU
+  !! \param c2pU
+  !! \param c3pU
   !! \param c11p stencil coefficients for laplace operator in x-direction on
   !!        pressure coordinates, can be get from \c HelmholtzOp::getC(X,S)
   !! \param c22p stencil coefficients for laplace operator in y-direction on
@@ -69,6 +81,9 @@ contains
   !! \param cG3 stencil coefficients for divergence operator in z-direction, can be get from \c GradOp::getC(Z)
   !! \param mulI correspond to multiplicator of time derivative should be \f$ \frac{\alpha^2}{\mathrm{Re} \Delta t} \f$
   !! \param mulL correspond to multiplicator of laplace operator should be \f$ \frac{1}{\mathrm{Re}} \f$
+  !! \param windU
+  !! \param windV
+  !! \param windW
   !! \param veln velocity field array of next time step, can be get from \c VelocityField::getConstRawPtr    
   !! \param pn pressure field array of next time step, can be get from \c VelocityField::getConstRawPtr    
   !! \param[out] r_vel residual velocity field array of next time step, can be get from \c VelocityField::getConstRawPtr    

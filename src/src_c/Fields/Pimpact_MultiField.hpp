@@ -188,9 +188,6 @@ public:
 
 
   /// \brief returns the length of MultiField.
-  ///
-  /// \param nox_vec if \c MultiField is used for NOX the Vector length is
-  /// considered for all Fields
   constexpr Ordinal getLength() const {
 		return( mfs_[0]->getLength() );
 	}

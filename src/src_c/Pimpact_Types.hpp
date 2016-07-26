@@ -75,7 +75,7 @@ enum EScalarField {
 int getDir1( const int& dir );
 int getDir2( const int& dir );
 
-std::string toString( EScalarField type );
+std::string toString( Pimpact::EScalarField type );
 
 /// \brief used in mains
 /// \relates initTimeVectorField
