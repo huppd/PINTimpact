@@ -143,9 +143,6 @@ public:
 
 
 	/// \brief returns the length of Field.
-	///
-	/// \param noxVec if \c TimeField is used for NOX the Vector length is
-	/// considered for all Fields
 	constexpr Ordinal getLength() const {
 		return( space()->nGlo(3)*mfs_[0]->getLength() );
 	}

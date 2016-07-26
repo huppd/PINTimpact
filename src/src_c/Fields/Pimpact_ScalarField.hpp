@@ -448,6 +448,8 @@ public:
 
 
   /// \brief Replace each element of the vector  with \c alpha.
+	/// \param alpha init value
+	/// \param bcYes also initializing the boundary values
   void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const bool& bcYes=false ) {
 
 		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
@@ -733,6 +735,8 @@ public:
 		changed();
 	}
 
+
+	/// \brief levels field if scalar field
 	void level() {
 
 		if( EField::S == fType_ ) {

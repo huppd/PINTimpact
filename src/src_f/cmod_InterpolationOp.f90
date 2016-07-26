@@ -865,11 +865,11 @@ contains
 
   !> \brief 
   !! \note todo understand recevbuf size not correct
-  !! \todo fix sendbuf size
   subroutine MG_InterpolateScatter( &
       Nc,                           &
       bLc,                          &
       bUc,                          &
+      np,                           &
       iimax,                        &
       n_gather,                     &
       participate_yes,              &
@@ -886,6 +886,8 @@ contains
 
     integer(c_int), intent(in)     :: bLc(3)
     integer(c_int), intent(in)     :: bUc(3)
+
+    integer(c_int), intent(in)     :: np(3)
 
     integer(c_int), intent(in)     :: iimax(3)
 
@@ -911,8 +913,9 @@ contains
     integer(c_int)                ::  merror
     real(c_double), allocatable   ::  recvbuf(:,:,:)
     integer(c_int)                ::  offsg(1:3), dispg
-    !real(c_double)                ::  sendbuf( 1:( ( Nc(1)+NB(1)-1 )*( Nc(2)+NB(2)-1 )*( Nc(3)+NB(2)-1 ) ) )
-    real(c_double)                ::  sendbuf( 0:( ( Nc(1)+12 )*( Nc(2)+12 )*( Nc(3)+12 ) ) )
+    !real(c_double)                ::  sendbuf( 1:( ( Nc(1)+np(1)-1 )*( Nc(2)+np(2)-1 )*( Nc(3)+np(3)-1 ) ) ) ! from IMPACT
+    real(c_double)                ::  sendbuf( 0:( ( Nc(1)+np(1)*3 )*( Nc(2)+np(2)*3 )*( Nc(3)+np(3)*3 ) ) )
+    !real(c_double)                ::  sendbuf( 0:( ( Nc(1)+12 )*( Nc(2)+12 )*( Nc(3)+12 ) ) )
 
 
 
