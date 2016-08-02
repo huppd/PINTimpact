@@ -18,32 +18,7 @@
 namespace Pimpact{
 
 
-extern "C" {
-
-void Op_getCDG(
-    const int& dimens,
-    const int* const M,
-    const int* const N,
-    const int* const BL,
-    const int* const BU,
-    const int* const BCL,
-    const int* const BCU,
-    const double* const y1u,
-    const double* const y2v,
-    const double* const y3w,
-    const double* const x1p,
-    const double* const x2p,
-    const double* const x3p,
-    const double* const x1u,
-    const double* const x2v,
-    const double* const x3w,
-    double* const cdg1,
-    double* const cdg2,
-    double* const cdg3 );
-
-void Op_getCDG_dir(
-    const int& dir,
-    const int& dimens,
+extern "C" void Op_getCDG_dir(
     const int& M,
     const int& N,
     const int& BL,
@@ -54,8 +29,6 @@ void Op_getCDG_dir(
     const double* const x1p,
     const double* const x1u,
     double* const cdg1 );
-
-}
 
 
 
@@ -95,41 +68,20 @@ public:
 			// allocate stencil
 			Ordinal nTemp = 3*( space_->nLoc(dir) - 1 + 1 );
 			c_[dir] = new Scalar[ nTemp ];
-			Op_getCDG_dir(
-					dir+1,
-					space_->dim(),
-					space_->nGlo( dir ),
-					space_->nLoc( dir ),
-					space_->bl( dir ),
-					space_->bu( dir ),
-					space_->getBCLocal()->getBCL( dir ),
-					space_->getBCLocal()->getBCU( dir ),
-					space_->getCoordinatesGlobal()->getX( static_cast<ECoord>(dir), static_cast<EField>(dir) ),
-					space_->getCoordinatesLocal()->getX( static_cast<ECoord>(dir), EField::S ),
-					space_->getCoordinatesLocal()->getX( static_cast<ECoord>(dir), static_cast<EField>(dir) ),
-					c_[dir] );
-		}
 
-		//Op_getCDG(
-				//space_->dim(),
-				//space_->nGlo(),
-				//space_->nLoc(),
-				//space_->bl(),
-				//space_->bu(),
-				//space_->getBCLocal()->getBCL(),
-				//space_->getBCLocal()->getBCU(),
-				//space_->getCoordinatesGlobal()->getX( ECoord::X, EField::U ),
-				//space_->getCoordinatesGlobal()->getX( ECoord::Y, EField::V ),
-				//space_->getCoordinatesGlobal()->getX( ECoord::Z, EField::W ),
-				//space_->getCoordinatesLocal()->getX( ECoord::X, EField::S ),
-				//space_->getCoordinatesLocal()->getX( ECoord::Y, EField::S ),
-				//space_->getCoordinatesLocal()->getX( ECoord::Z, EField::S ),
-				//space_->getCoordinatesLocal()->getX( ECoord::X, EField::U ),
-				//space_->getCoordinatesLocal()->getX( ECoord::Y, EField::V ),
-				//space_->getCoordinatesLocal()->getX( ECoord::Z, EField::W ),
-				//c_[0],
-				//c_[1],
-				//c_[2] );
+			if( dir<space->dim() )
+				Op_getCDG_dir(
+						space_->nGlo( dir ),
+						space_->nLoc( dir ),
+						space_->bl( dir ),
+						space_->bu( dir ),
+						space_->getBCLocal()->getBCL( dir ),
+						space_->getBCLocal()->getBCU( dir ),
+						space_->getCoordinatesGlobal()->getX( static_cast<ECoord>(dir), static_cast<EField>(dir) ),
+						space_->getCoordinatesLocal()->getX( static_cast<ECoord>(dir), EField::S ),
+						space_->getCoordinatesLocal()->getX( static_cast<ECoord>(dir), static_cast<EField>(dir) ),
+						c_[dir] );
+		}
 	}
 
 
