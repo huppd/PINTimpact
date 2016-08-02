@@ -41,6 +41,20 @@ void Op_getCDG(
     double* const cdg2,
     double* const cdg3 );
 
+void Op_getCDG_dir(
+    const int& dir,
+    const int& dimens,
+    const int& M,
+    const int& N,
+    const int& BL,
+    const int& BU,
+    const int& BCL,
+    const int& BCU,
+    const double* const y1u,
+    const double* const x1p,
+    const double* const x1u,
+    double* const cdg1 );
+
 }
 
 
@@ -77,32 +91,45 @@ public:
 
 	DivGradO2Op( const Teuchos::RCP<const SpaceT>& space ): space_(space) {
 
-		for( int i=0; i<3; ++i ) {
+		for( int dir=0; dir<3; ++dir ) {
 			// allocate stencil
-			Ordinal nTemp = 3*( space_->nLoc(i) - 1 + 1 );
-			c_[i] = new Scalar[ nTemp ];
+			Ordinal nTemp = 3*( space_->nLoc(dir) - 1 + 1 );
+			c_[dir] = new Scalar[ nTemp ];
+			Op_getCDG_dir(
+					dir+1,
+					space_->dim(),
+					space_->nGlo( dir ),
+					space_->nLoc( dir ),
+					space_->bl( dir ),
+					space_->bu( dir ),
+					space_->getBCLocal()->getBCL( dir ),
+					space_->getBCLocal()->getBCU( dir ),
+					space_->getCoordinatesGlobal()->getX( static_cast<ECoord>(dir), static_cast<EField>(dir) ),
+					space_->getCoordinatesLocal()->getX( static_cast<ECoord>(dir), EField::S ),
+					space_->getCoordinatesLocal()->getX( static_cast<ECoord>(dir), static_cast<EField>(dir) ),
+					c_[dir] );
 		}
 
-		Op_getCDG(
-				space_->dim(),
-				space_->nGlo(),
-				space_->nLoc(),
-				space_->bl(),
-				space_->bu(),
-				space_->getBCLocal()->getBCL(),
-				space_->getBCLocal()->getBCU(),
-				space_->getCoordinatesGlobal()->getX( ECoord::X, EField::U ),
-				space_->getCoordinatesGlobal()->getX( ECoord::Y, EField::V ),
-				space_->getCoordinatesGlobal()->getX( ECoord::Z, EField::W ),
-				space_->getCoordinatesLocal()->getX( ECoord::X, EField::S ),
-				space_->getCoordinatesLocal()->getX( ECoord::Y, EField::S ),
-				space_->getCoordinatesLocal()->getX( ECoord::Z, EField::S ),
-				space_->getCoordinatesLocal()->getX( ECoord::X, EField::U ),
-				space_->getCoordinatesLocal()->getX( ECoord::Y, EField::V ),
-				space_->getCoordinatesLocal()->getX( ECoord::Z, EField::W ),
-				c_[0],
-				c_[1],
-				c_[2] );
+		//Op_getCDG(
+				//space_->dim(),
+				//space_->nGlo(),
+				//space_->nLoc(),
+				//space_->bl(),
+				//space_->bu(),
+				//space_->getBCLocal()->getBCL(),
+				//space_->getBCLocal()->getBCU(),
+				//space_->getCoordinatesGlobal()->getX( ECoord::X, EField::U ),
+				//space_->getCoordinatesGlobal()->getX( ECoord::Y, EField::V ),
+				//space_->getCoordinatesGlobal()->getX( ECoord::Z, EField::W ),
+				//space_->getCoordinatesLocal()->getX( ECoord::X, EField::S ),
+				//space_->getCoordinatesLocal()->getX( ECoord::Y, EField::S ),
+				//space_->getCoordinatesLocal()->getX( ECoord::Z, EField::S ),
+				//space_->getCoordinatesLocal()->getX( ECoord::X, EField::U ),
+				//space_->getCoordinatesLocal()->getX( ECoord::Y, EField::V ),
+				//space_->getCoordinatesLocal()->getX( ECoord::Z, EField::W ),
+				//c_[0],
+				//c_[1],
+				//c_[2] );
 	}
 
 

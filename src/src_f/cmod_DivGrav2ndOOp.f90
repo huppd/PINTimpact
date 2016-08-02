@@ -15,6 +15,117 @@ module cmod_DivGrad2ndOOp
 
 contains
 
+  subroutine Op_getCDG_dir( &
+      dir,                  &
+      dimens,               &
+      M,                    &
+      N,                    &
+      BL,                   &
+      BU,                   &
+      BCL,                  &
+      BCU,                  &
+      yu,                   &
+      xp,                   &
+      xu,                   &
+      cDG ) bind( c, name='Op_getCDG_dir' )
+
+    implicit none
+
+    integer(c_int), intent(in)    :: dir
+
+    integer(c_int), intent(in)    :: dimens
+
+    integer(c_int), intent(in)    :: M
+
+    integer(c_int), intent(in)    :: N
+
+    integer(c_int), intent(in)    :: BL
+    integer(c_int), intent(in)    :: BU
+
+    integer(c_int), intent(in)    :: BCL
+    integer(c_int), intent(in)    :: BCU
+
+    real(c_double), intent(in)    :: yu(0:M)
+
+    real(c_double), intent(in)    :: xp(bl:N+bu)
+
+    real(c_double), intent(in)    :: xu(bl:N+bu)
+
+    real(c_double), intent(inout) :: cDG(-1:1,1:N)
+
+    real(c_double)                :: cGp( 0:1,0:N)
+
+    real(c_double)                :: cDu(-1:0,1:N)
+
+    integer(c_int)                :: i, j, k
+    integer(c_int)                :: jmax, kmax
+
+    cDG = 0.
+
+    cGp = 0.
+    cDu = 0.
+
+    !---------------------------------------------------------------------------!
+    ! Achtung: Falls nicht periodisch, wird hier am Rand ein Fehler gemacht,    !
+    !          der nur über die Sonderbehandlung weiter unten korrigiert wird!  !
+    !---------------------------------------------------------------------------!
+
+    do i = 1, N-1
+      cGp(0,i) = -1./( xp(i+1) - xp(i) )
+      cGp(1,i) =  1./( xp(i+1) - xp(i) )
+    end do
+
+    do i = 1, N
+      cDu(-1,i) = -1./( xu(i) - xu(i-1) )
+      cDu( 0,i) =  1./( xu(i) - xu(i-1) )
+    end do
+
+    if( BCL > 0 ) then
+      cGp(:,0) = 0. !???is set anyway to zero???
+      cDu(:,1) = 0. 
+      !cDu( 0,1   ) =  1./(xu(1) - xu (0))
+      cDu(0,1) = 1./( yu(1) - yu(0) ) ! TEST!!! Der Schoenheit halber, s.u.
+    else
+      cGp(0,0) = -1./( xp(1) - xp(0) )
+      cGp(1,0) =  1./( xp(1) - xp(0) )
+    end if
+
+    if( BCU > 0 ) then
+      cGp(:,N) =  0.
+      cDu(:,N) =  0.
+      !cDu(-1,N) = -1./( xu(N) - xu(N-1) ) ! TEST!!! Das geht in die Hose ...
+      cDu(-1,N) = -1./( yu(M) - yu(M-1) )
+    else
+      cGp( 0,N) = -1./( xp(N+1) - xp(N) )
+      cGp( 1,N) =  1./( xp(N+1) - xp(N) )
+    end if
+    !-------------------------------------------------------------------------------------------
+    do i = 1, N
+      cDG(-1,i) = cDu(-1,i)*cGp(0,i-1)
+      cDG( 0,i) = cDu(-1,i)*cGp(1,i-1) + cDu(0,i)*cGp(0,i)
+      cDG( 1,i) =                        cDu(0,i)*cGp(1,i)
+    end do
+
+    ! Faktor 2 kommt von der Approximation DH-¹D ~= DI-¹G, wobei I hier das
+    ! Interpolationspolynom am Rand darstellt
+    if( BCL > 0 ) cDG( :,1) = 2.*cDG(:,1) ! TEST!!! Ist das wirklich so optimal?
+    if( BCU > 0 ) cDG( :,N) = 2.*cDG(:,N)
+
+    if( BCL == -2) then
+      cDG( 1,1) = cDG( 1, 1 ) + cDG( -1, 1 )
+      cDG(-1,1) = 0.
+    end if
+
+    if(BCU == -2) then
+      cDG(-1,N) = cDG(-1, N ) + cDG( 1, N )
+      cDG( 1,N) = 0.
+    end if
+
+  end subroutine Op_getCDG_dir
+
+
+
+  !> \deprecated
   subroutine Op_getCDG(   &
       dimens,             &
       M,                  &
@@ -138,7 +249,7 @@ contains
       cdg1(-1,1) = 0.
     end if
 
-    if (BCU(2) == -2) then
+    if (BCU(1) == -2) then
       cdg1(-1,N(1)) = cdg1( -1, N(1) ) + cdg1( 1, N(1) )
       cdg1( 1,N(1)) = 0.
     end if

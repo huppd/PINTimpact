@@ -2973,19 +2973,21 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, DivGradOp, OperatorT ) {
 		auto xRef   = Pimpact::create<Pimpact::ScalarField>( spaceRef );
 
 		auto opRef = Pimpact::create<OperatorT>( spaceRef );
+		//opRef->print();
+		//auto opRef = Pimpact::create<Pimpact::DivGradOp>( spaceRef );
 
 		// init 
 		if( 0==dir ) {
 			xRef->initFromFunction(
-					[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(x*pi2) ); } );
+					[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::sin(x*pi2) ); } );
 		}
 		else if( 1==dir ) {
 			xRef->initFromFunction(
-					[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(y*pi2) ); } );
+					[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::sin(y*pi2) ); } );
 		}
 		else if( 2==dir ) {
 			xRef->initFromFunction(
-					[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(z*pi2) ); } );
+					[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::sin(z*pi2) ); } );
 		}
 
 
@@ -3038,21 +3040,45 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, DivGradOp, OperatorT ) {
 			// init 
 			if( 0==dir ) {
 				p->initFromFunction(
-						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(x*pi2) ); } );
+						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::sin(x*pi2) ); } );
 				sol->initFromFunction(
-						[&pi2]( ST x, ST y, ST z ) ->ST {  return( -std::cos(x*pi2)*pi2*pi2 ); } );
+						[&pi2]( ST x, ST y, ST z ) ->ST {  
+							if( std::abs( x ) < Teuchos::ScalarTraits<ST>::eps() 	 )
+								return( pi2*std::cos(x*pi2) );
+							else if( std::abs( x-lx )<1.e-12 )
+								return( pi2*std::cos(x*pi2) );
+							else
+								return( -std::sin(x*pi2)*pi2*pi2 );
+						}
+					);
 			}
 			else if( 1==dir ) {
 				p->initFromFunction(
-						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(y*pi2) ); } );
+						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::sin(y*pi2) ); } );
 				sol->initFromFunction(
-						[&pi2]( ST x, ST y, ST z ) ->ST {  return( -std::cos(y*pi2)*pi2*pi2 ); } );
+						[&pi2]( ST x, ST y, ST z ) ->ST {
+							if( std::abs( y ) < Teuchos::ScalarTraits<ST>::eps() )
+								return( pi2*std::cos(y*pi2) );
+							else if( std::abs( y-ly ) < Teuchos::ScalarTraits<ST>::eps() )
+								return( pi2*std::cos(y*pi2) );
+							else
+								return( -std::sin(y*pi2)*pi2*pi2 );
+						}
+					);
 			}
 			else if( 2==dir ) {
 				p->initFromFunction(
-						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(z*pi2) ); } );
+						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::sin(z*pi2) ); } );
 				sol->initFromFunction(
-						[&pi2]( ST x, ST y, ST z ) ->ST {  return( -std::cos(z*pi2)*pi2*pi2 ); } );
+						[&pi2]( ST x, ST y, ST z ) ->ST {  
+							if( std::abs( z ) < Teuchos::ScalarTraits<ST>::eps() )
+								return( pi2*std::cos(z*pi2) );
+							else if( std::abs( z-lz ) < Teuchos::ScalarTraits<ST>::eps() )
+								return( pi2*std::cos(z*pi2) );
+							else
+								return( -std::sin(z*pi2)*pi2*pi2 );
+						}
+					);
 			}
 
 			auto op = Pimpact::create<OperatorT>( space );
@@ -3076,7 +3102,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, DivGradOp, OperatorT ) {
 			//sol->write(1);
 			//e->write(2);
 			//eRef->write(3);
-			//y->write(4);
+			//yRef->write(4);
 
 		}
 		// compute order

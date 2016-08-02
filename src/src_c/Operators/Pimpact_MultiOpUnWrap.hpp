@@ -82,7 +82,6 @@ public:
 
 
 /// \relates MultiOpUnWrap
-/// \todo offer version where create<SpaceObject> is used
 template<class MOperatorT>
 Teuchos::RCP< MultiOpUnWrap<MOperatorT> > createMultiOpUnWrap( const Teuchos::RCP<MOperatorT>& op ) {
 

@@ -208,12 +208,11 @@ contains
         DO k = SB(3), NB(3)
           DO j = SB(2), NB(2)
             !pgi$ unroll = n:8
-            phi(i,j,k) = 0.
-            DO ii = 0, dU
-              phi(i,j,k) = phi(i,j,k) - c(ii,1)*phi(1+ii,j,k)
-            END DO
-            phi(i,j,k) = phi(i,j,k) / c(-1,1)
-            !print *, c(-1,1)
+            !phi(i,j,k) = 0.
+            !DO ii = 0, dU
+              !phi(i,j,k) = phi(i,j,k) - c(ii,1)*phi(1+ii,j,k)
+            !END DO
+            phi(i,j,k) = 2*phi(i+1,j,k) - phi(i+2,j,k) !! extrapolation
           END DO
         END DO
       END IF
@@ -221,12 +220,13 @@ contains
         i = NB(1)
         DO k = SB(3), NB(3)
           DO j = SB(2), NB(2)
-            phi(i,j,k) = 0.
-            !pgi$ unroll = n:8
-            DO ii = dL, -1
-              phi(i,j,k) = phi(i,j,k) - c(ii,i)*phi(i+ii,j,k)
-            END DO
-            phi(i,j,k) = phi(i,j,k) / c(0,i)
+            !phi(i,j,k) = 0.
+            !!pgi$ unroll = n:8
+            !DO ii = dL, -1
+              !phi(i,j,k) = phi(i,j,k) - c(ii,i)*phi(i+ii,j,k)
+            !END DO
+            !phi(i,j,k) = phi(i,j,k) / c(0,i)
+            phi(i,j,k) = 2*phi(i-1,j,k) - phi(i-2,j,k) !! extrapolation
           END DO
         END DO
       END IF
@@ -237,12 +237,13 @@ contains
         j = SB(2)
         DO k = SB(3), NB(3)
           DO i = SB(1), NB(1)
-            phi(i,j,k) = 0.
-            !pgi$ unroll = n:8
-            DO jj = 0, dU
-              phi(i,j,k) = phi(i,j,k) - c(jj,1)*phi(i,1+jj,k)
-            END DO
-            phi(i,j,k) = phi(i,j,k) / c(-1,1)
+            !phi(i,j,k) = 0.
+            !!pgi$ unroll = n:8
+            !DO jj = 0, dU
+              !phi(i,j,k) = phi(i,j,k) - c(jj,1)*phi(i,1+jj,k)
+            !END DO
+            !phi(i,j,k) = phi(i,j,k) / c(-1,1)
+            phi(i,j,k) = 2*phi(i,j+1,k) - phi(i,j+2,k) !! extrapolation
           END DO
         END DO
       END IF
@@ -250,12 +251,13 @@ contains
         j = NB(2)
         DO k = SB(3), NB(3)
           DO i = SB(1), NB(1)
-            phi(i,j,k) = 0.
-            !pgi$ unroll = n:8
-            DO jj = dL, -1
-              phi(i,j,k) = phi(i,j,k) - c(jj,j)*phi(i,j+jj,k)
-            END DO
-            phi(i,j,k) = phi(i,j,k) / c(0,j)
+            !phi(i,j,k) = 0.
+            !!pgi$ unroll = n:8
+            !DO jj = dL, -1
+              !phi(i,j,k) = phi(i,j,k) - c(jj,j)*phi(i,j+jj,k)
+            !END DO
+            !phi(i,j,k) = phi(i,j,k) / c(0,j)
+            phi(i,j,k) = 2*phi(i,j-1,k) - phi(i,j-2,k) !! extrapolation
           END DO
         END DO
       END IF
@@ -266,12 +268,13 @@ contains
         k = SB(3)
         DO j = SB(2), NB(2)
           DO i = SB(1), NB(1)
-            !pgi$ unroll = n:8
-            phi(i,j,k) = 0.
-            DO kk = 0, dU
-              phi(i,j,k) = phi(i,j,k) - c(kk,1)*phi(i,j,1+kk)
-            END DO
-            phi(i,j,k) = phi(i,j,k) / c(-1,1)
+            !!pgi$ unroll = n:8
+            !phi(i,j,k) = 0.
+            !DO kk = 0, dU
+              !phi(i,j,k) = phi(i,j,k) - c(kk,1)*phi(i,j,1+kk)
+            !END DO
+            !phi(i,j,k) = phi(i,j,k) / c(-1,1)
+            phi(i,j,k) = 2*phi(i,j,k+1) - phi(i,j,k+2) !! extrapolation
           END DO
         END DO
       END IF
@@ -279,12 +282,13 @@ contains
         k = NB(3)
         DO j = SB(2), NB(2)
           DO i = SB(1), NB(1)
-            phi(i,j,k) = 0.
-            !pgi$ unroll = n:8
-            DO kk = dL, -1
-              phi(i,j,k) = phi(i,j,k) - c(kk,k)*phi(i,j,k+kk)
-            END DO
-            phi(i,j,k) = phi(i,j,k) / c(0,k)
+            !phi(i,j,k) = 0.
+            !!pgi$ unroll = n:8
+            !DO kk = dL, -1
+              !phi(i,j,k) = phi(i,j,k) - c(kk,k)*phi(i,j,k+kk)
+            !END DO
+            !phi(i,j,k) = phi(i,j,k) / c(0,k)
+            phi(i,j,k) = 2*phi(i,j,k-1) - phi(i,j,k-2) !! extrapolation
           END DO
         END DO
       END IF
