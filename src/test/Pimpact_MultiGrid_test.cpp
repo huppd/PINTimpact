@@ -32,6 +32,7 @@ using CSL = Pimpact::CoarsenStrategy<FSpaceT,CSpaceT>;
 using CSG = Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT>;
 
 using MGSpacesT = Pimpact::MGSpaces<FSpaceT,CSpaceT>;
+//using MGSpacesT = Pimpact::MGSpaces<CSpaceT,CSpaceT>;
 
 template<class T>
 using BSF = Pimpact::MultiField< Pimpact::ScalarField<T> >;
@@ -65,6 +66,7 @@ using DGJMGT = Pimpact::MultiGrid<
 	Pimpact::RestrictionHWOp,
 	Pimpact::InterpolationOp,
 	Pimpact::DivGradOp,
+	//Pimpact::DivGradO2Op,
 	Pimpact::DivGradO2Op,
 	Pimpact::DivGradO2JSmoother,
 	Pimpact::DivGradO2Inv >;
@@ -1595,7 +1597,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, DivGradOp, CS, MGT ) {
 	ST error0 = x->norm();
 	ST errorp = error0;
 
-	opO2->apply( *x, *res );
+	//opO2->apply( *x, *res );
+	op->apply( *x, *res );
 	ST res0 = res->norm();
 	ST resP = res0;
 
@@ -1612,7 +1615,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, DivGradOp, CS, MGT ) {
 
 		ST error = x->norm();
 
-		opO2->apply( *x, *res );
+		//opO2->apply( *x, *res );
+		op->apply( *x, *res );
 		ST residual = res->norm();
 
 		if( space()->rankST()==0 )
@@ -1639,35 +1643,36 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, DivGradOp, CS, MGT ) {
 
 		Pimpact::EScalarField type = static_cast<Pimpact::EScalarField>(dir);
 
-		x->initField( type );
+		x->init( 0 );
 		sol->initField( type );
 		sol->level();
 
-		opO2->apply( *x, *b );
-
-		x->init( 0 );
+		// construct RHS
+		opO2->apply( *sol, *b );
 
 		// residual
 		opO2->apply( *x, *res );
 		res->add( -1, *b, 1., *res );
 		ST res0 = res->norm();
 		ST resP = res0;
-		//error
+
+		// error
 		res->add( 1., *sol, -1., *x );
 		ST err0 = res->norm();
 		ST errP = err0;
-		//ST err0 = 1.;
-		//ST errP =1.;
 
+		// output
 		if( space()->rankST()==0 ) {
 			std::cout << "\n\n\t\t\t--- " << Pimpact::toString(type) << " test ---\n";
 			std::cout << "\tresidual:\trate:\t\t\terror:\t\trate:\n";
 			std::cout << "\t"  << 1.<< "\t\t\t\t" << 1.  << "\n";
 		}
 		for( int i=0; i<nMax; ++i ) {
+			// mg cycle
 			mg->apply( *b, *x );
 			x->level();
 
+			// residual
 			opO2->apply( *x, *res );
 			res->add( -1, *b, 1., *res );
 			ST residual = res->norm();
@@ -1681,7 +1686,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, DivGradOp, CS, MGT ) {
 		}
 		TEST_EQUALITY( res->norm()/std::sqrt( static_cast<ST>( res->getLength() ) )<1.e-3, true );
 
-		//bm->get( 0 )-init( 0. );
+		op->apply( *sol, *b );
 		xm->init( 0. );
 		linprob->solve( xm, bm );
 	}

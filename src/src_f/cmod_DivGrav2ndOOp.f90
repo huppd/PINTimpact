@@ -74,9 +74,9 @@ contains
     end do
 
     if( BCL > 0 ) then
-      cGp(:,0) = 0. !???is set anyway to zero???
-      cDu(:,1) = 0. 
-      !cDu( 0,1   ) =  1./(xu(1) - xu (0))
+      cGp(:,0) = 0.
+      cDu(:,1) = 0.
+      !cDu(0,1) =  1./(xu(1) - xu (0))
       cDu(0,1) = 1./( yu(1) - yu(0) ) ! TEST!!! Der Schoenheit halber, s.u.
     else
       cGp(0,0) = -1./( xp(1) - xp(0) )
@@ -101,15 +101,27 @@ contains
 
     ! Faktor 2 kommt von der Approximation DH-¹D ~= DI-¹G, wobei I hier das
     ! Interpolationspolynom am Rand darstellt
-    if( BCL > 0 ) cDG( :,1) = 2.*cDG(:,1) ! TEST!!! Ist das wirklich so optimal?
+    if( BCL > 0 ) cDG( :,1) = 2.*cDG(:,1) 
     if( BCU > 0 ) cDG( :,N) = 2.*cDG(:,N)
+    !!! Neumann
+    !if( BCL > 0 ) then
+      !cDG(-1,1) =  0. 
+      !cDG( 0,1) =  1./( xp(2) - xp(1) )
+      !cDG(+1,1) = -1./( xp(2) - xp(1) )
+    !end if
+    !if( BCU > 0 ) then
+      !cDG(-1,N) = -1./( xp(N) - xp(N-1) ) 
+      !cDG( 0,N) =  1./( xp(N) - xp(N-1) )
+      !cDG(+1,N) =  0.
+    !end if
+    !!!
 
     if( BCL == -2) then
       cDG( 1,1) = cDG( 1, 1 ) + cDG( -1, 1 )
       cDG(-1,1) = 0.
     end if
 
-    if(BCU == -2) then
+    if( BCU == -2 ) then
       cDG(-1,N) = cDG(-1, N ) + cDG( 1, N )
       cDG( 1,N) = 0.
     end if

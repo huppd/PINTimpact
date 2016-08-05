@@ -25,8 +25,22 @@ extern "C" void OP_extrapolateBC(
 		const int* const bU,     
     const int& dL,
 		const int& dU,     
-		const int* const BC_L,
-		const int* const BC_U, 
+		const int& BCL,
+		const int& BCU, 
+		const int* const SB,
+		const int* const NB,
+		const double* const c,    
+		const double*       phi );
+
+extern "C" void OP_extrapolateBC2(
+		const int& m,         
+    const int* const N,         
+    const int* const bL,
+		const int* const bU,     
+    const int& dL,
+		const int& dU,     
+		const int& BC_L,
+		const int& BC_U, 
 		const int* const SB,
 		const int* const NB,
 		const double* const c,    
@@ -48,8 +62,7 @@ protected:
   using Scalar = typename SpaceT::Scalar;
   using Ordinal = typename SpaceT::Ordinal;
 
-  using TO = const Teuchos::Tuple<Scalar*,3>;
-
+  using TO = const Teuchos::Tuple<Scalar*,3>; 
   Teuchos::RCP<const SpaceT> space_;
 
   TO c_;
@@ -197,13 +210,30 @@ public:
 					space_->bu(),
 					space_->dl(i),
 					space_->du(i),
-					space_->getBCLocal()->getBCL(),
-					space_->getBCLocal()->getBCU(),
+					space_->getBCLocal()->getBCL(i),
+					space_->getBCLocal()->getBCU(i),
 					space_->sIndB(i),
 					space_->eIndB(i),
-					space_->getInterpolateV2S()->getCM( static_cast<ECoord>(i) ),
-					//space_->getInterpolateV2S()->getC( static_cast<ECoord>(i) ),
+					//space_->getInterpolateV2S()->getCM( static_cast<ECoord>(i) ), // O1
+					space_->getInterpolateV2S()->getC( static_cast<ECoord>(i) ), // O3
 					y.getRawPtr(i) );
+			//OP_extrapolateBC2(
+					//i+1,
+					//space_->nLoc(),
+					//space_->bl(),
+					//space_->bu(),
+					//space_->bu(i),
+					//space_->bu(i),
+					////1,1,
+					////2,2,
+					////3,3,
+					//space_->getBCLocal()->getBCL(i),
+					//space_->getBCLocal()->getBCU(i),
+					//space_->sIndB(i),
+					//space_->eIndB(i),
+					//space_->getCoordinatesLocal()->getX( static_cast<ECoord>(i), static_cast<EField>(i) ),
+					////space_->getInterpolateV2S()->getC( static_cast<ECoord>(i) ),
+					//y.getRawPtr(i) );
 
     y.changed();
   }

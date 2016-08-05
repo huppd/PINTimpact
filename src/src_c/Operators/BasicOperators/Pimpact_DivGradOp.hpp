@@ -59,6 +59,11 @@ public:
 			case Belos::NOTRANS : {
 				grad_->apply( x, *temp );
 				div_->apply( *temp, y );
+				// for Dirichlet boundary conditions interpolate temp to y
+				//for( OT k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
+					//for( OT j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
+						//for( OT i=space()->begin(S,X); i<=space()->end(S,X); ++i )
+							//y.at(i,j,k) = innerStenc3D( *temp, i, j, k );
 				break;
 			}
 			case Belos::TRANS : {
@@ -152,6 +157,72 @@ public:
 
 		y.changed();
 	}
+
+	//inline ST innerStenc3D( const VectorField<SpaceT> & x,
+			//const OT& i, const OT& j, const OT& k ) const {
+
+		//ST div = 0.;
+
+		//if( i==space()->begin(S,X) && space()->getBCLocal()->getBCL(X)==DirichletBC )
+			//for( int ii=space()->dl(X); ii<=space()->du(X); ++ii ) 
+				//div -= space()->getInterpolateV2S()->getC(X,i,ii)*x.getField(U).at(i+ii,j,k);
+		//else if( i==space()->end(S,X) && space()->getBCLocal()->getBCU(X)==DirichletBC )
+			//for( int ii=space()->dl(X); ii<=space()->du(X); ++ii ) 
+				//div += space()->getInterpolateV2S()->getC(X,i,ii)*x.getField(U).at(i+ii,j,k);
+		//else
+			//for( int ii=space()->dl(X); ii<=space()->du(X); ++ii ) 
+				//div += div_->getC(X,i,ii)*x.getField(U).at(i+ii,j,k);
+
+		//if( j==space()->begin(S,Y) && space()->getBCLocal()->getBCL(Y)==DirichletBC )
+			//for( int jj=space()->dl(Y); jj<=space()->du(Y); ++jj ) 
+				//div -= space()->getInterpolateV2S()->getC(Y,j,jj)*x.getField(V).at(i,j+jj,k);
+		//else if( j==space()->end(S,Y) && space()->getBCLocal()->getBCU(Y)==DirichletBC )
+			//for( int jj=space()->dl(Y); jj<=space()->du(Y); ++jj ) 
+				//div += space()->getInterpolateV2S()->getC(Y,j,jj)*x.getField(V).at(i,j+jj,k);
+		//else
+			//for( int jj=space()->dl(Y); jj<=space()->du(Y); ++jj ) 
+				//div += div_->getC(Y,j,jj)*x.getField(V).at(i,j+jj,k);
+
+		//if( k==space()->begin(S,Z) && space()->getBCLocal()->getBCL(Z)==DirichletBC )
+			//for( int kk=space()->dl(Z); kk<=space()->du(Z); ++kk ) 
+				//div -= space()->getInterpolateV2S()->getC(Z,k,kk)*x.getField(W).at(i,j,k+kk);
+		//else if( k==space()->end(S,Z) && space()->getBCLocal()->getBCU(Z)==DirichletBC )
+			//for( int kk=space()->dl(Z); kk<=space()->du(Z); ++kk ) 
+				//div += space()->getInterpolateV2S()->getC(Z,k,kk)*x.getField(W).at(i,j,k+kk);
+		//else
+			//for( int kk=space()->dl(Z); kk<=space()->du(Z); ++kk ) 
+				//div += div_->getC(Z,k,kk)*x.getField(W).at(i,j,k+kk);
+
+		//return( div );
+	//}
+
+	//inline ST innerStenc2D( const VectorField<SpaceT> & x,
+			//const OT& i, const OT& j, const OT& k ) const {
+
+		//ST div = 0.;
+
+		//if( i==space()->begin(S,X) && space()->getBCLocal()->getBCL(X)==DirichletBC )
+			//for( int ii=space()->dl(X); ii<=space()->du(X); ++ii ) 
+				//div -= space()->getInterpolateV2S()->getC(X,i,ii)*x.getField(U).at(i+ii,j,k);
+		//else if( i==space()->end(S,X) && space()->getBCLocal()->getBCU(X)==DirichletBC )
+			//for( int ii=space()->dl(X); ii<=space()->du(X); ++ii ) 
+				//div += space()->getInterpolateV2S()->getC(X,i,ii)*x.getField(U).at(i+ii,j,k);
+		//else
+			//for( int ii=space()->dl(X); ii<=space()->du(X); ++ii ) 
+				//div += div_->getC(X,i,ii)*x.getField(U).at(i+ii,j,k);
+
+		//if( j==space()->begin(S,Y) && space()->getBCLocal()->getBCL(Y)==DirichletBC )
+			//for( int jj=space()->dl(Y); jj<=space()->du(Y); ++jj ) 
+				//div -= space()->getInterpolateV2S()->getC(Y,j,jj)*x.getField(V).at(i,j+jj,k);
+		//else if( j==space()->end(S,Y) && space()->getBCLocal()->getBCU(Y)==DirichletBC )
+			//for( int jj=space()->dl(Y); jj<=space()->du(Y); ++jj ) 
+				//div += space()->getInterpolateV2S()->getC(Y,j,jj)*x.getField(V).at(i,j+jj,k);
+		//else
+			//for( int jj=space()->dl(Y); jj<=space()->du(Y); ++jj ) 
+				//div += div_->getC(Y,j,jj)*x.getField(V).at(i,j+jj,k);
+
+		//return( div );
+	//}
 
   void assignField( const DomainFieldT& mv ) {};
 

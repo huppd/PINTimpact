@@ -318,7 +318,7 @@ int main( int argi, char** argv ) {
 				if( 0==space->rankST() )
 					mgDivGrad->print();
 
-				divGradInv2->setRightPrec( Pimpact::createMultiOperatorBase( mgDivGrad ) );
+				//divGradInv2->setRightPrec( Pimpact::createMultiOperatorBase( mgDivGrad ) );
 			}
 
 			auto divGradInv =

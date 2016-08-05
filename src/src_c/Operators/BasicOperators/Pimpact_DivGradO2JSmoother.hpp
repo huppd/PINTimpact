@@ -55,7 +55,7 @@ public:
 
 	DivGradO2JSmoother( const Teuchos::RCP<const SpaceT>& space ):
     omega_( (2==space->dim())?0.8:6./7. ),
-    nIter_( 2 ),
+    nIter_( 4 ),
     levelYes_( false ),
 		bcSmoothing_( 0 ),
 		depth_( 2 ),

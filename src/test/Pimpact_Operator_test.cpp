@@ -207,10 +207,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivOp ) {
 	TEST_EQUALITY( p->norm( Belos::InfNorm )<eps, true );
 
 
-	// random test //vel->random();
+	// random test
+	vel->random();
 
 	op->apply(*vel,*p);
-
 
 	TEST_EQUALITY( p->norm( Belos::InfNorm )>eps, true );
 
@@ -972,18 +972,18 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
 	}
 
 	// InvDiag consistency test
-	x->init( 1. );
-	op->applyInvDiag( *x, *b );
-	op2->applyInvDiag( *x, *x2 );
-	b->write();
-	x2->write(1);
+	//x->init( 1. );
+	//op->applyInvDiag( *x, *b );
+	//op2->applyInvDiag( *x, *x2 );
+	//b->write();
+	//x2->write(1);
 
-	x2->add( 1., *x2, -1., *b );
-	x2->write(2);
-	ST diff = x2->norm( Belos::InfNorm );
-	if( 0==space->rankST() ) 
-		std::cout << "diff InvDiag: " << diff << "\n";
-	TEST_EQUALITY( diff<eps, true );
+	//x2->add( 1., *x2, -1., *b );
+	//x2->write(2);
+	//ST diff = x2->norm( Belos::InfNorm );
+	//if( 0==space->rankST() ) 
+		//std::cout << "diff InvDiag: " << diff << "\n";
+	//TEST_EQUALITY( diff<eps, true );
 	//space->getStencilWidths()->print();
 
 }
@@ -1983,7 +1983,7 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, TripleCompostion ) {
 
   // Make an empty new parameter list.
   //auto solverParams = Teuchos::parameterList();
-  auto solverParams = Pimpact::createLinSolverParameter( "GMRES", 1.e-1 );
+  auto solverParams = Pimpact::createLinSolverParameter( "GMRES", 9.e-1 );
 
   // Create the Pimpact::LinearSolver solver.
   auto Hprob = Pimpact::createLinearProblem<MVF>( H, temp, temp, solverParams,"GMRES" );
@@ -2060,7 +2060,7 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, InverseOperator ) {
 			Pimpact::create<Pimpact::HelmholtzOp>(space) );
 
 	// Make an empty new parameter list.
-	auto solverParams = Pimpact::createLinSolverParameter( "CG", 1.e-1 );
+	auto solverParams = Pimpact::createLinSolverParameter( "CG", 9.e-1 );
 
 	// Create the Pimpact::LinearSolver solver.
 	auto prob =
@@ -2131,7 +2131,7 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, EddyPrec ) {
 	B->init(1.);
 
 	// Make an empty new parameter list.
-	auto solverParams = Pimpact::createLinSolverParameter("CG",1.e-1);
+	auto solverParams = Pimpact::createLinSolverParameter("CG",9.e-1);
 
 	// Create the Pimpact::LinearSolver solver.
 	auto A =
@@ -2979,15 +2979,15 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, DivGradOp, OperatorT ) {
 		// init 
 		if( 0==dir ) {
 			xRef->initFromFunction(
-					[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::sin(x*pi2) ); } );
+					[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(x*pi2) ); } );
 		}
 		else if( 1==dir ) {
 			xRef->initFromFunction(
-					[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::sin(y*pi2) ); } );
+					[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(y*pi2) ); } );
 		}
 		else if( 2==dir ) {
 			xRef->initFromFunction(
-					[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::sin(z*pi2) ); } );
+					[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(z*pi2) ); } );
 		}
 
 
@@ -3040,43 +3040,43 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, DivGradOp, OperatorT ) {
 			// init 
 			if( 0==dir ) {
 				p->initFromFunction(
-						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::sin(x*pi2) ); } );
+						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(x*pi2) ); } );
 				sol->initFromFunction(
 						[&pi2]( ST x, ST y, ST z ) ->ST {  
-							if( std::abs( x ) < Teuchos::ScalarTraits<ST>::eps() 	 )
-								return( pi2*std::cos(x*pi2) );
-							else if( std::abs( x-lx )<1.e-12 )
-								return( pi2*std::cos(x*pi2) );
-							else
-								return( -std::sin(x*pi2)*pi2*pi2 );
+							//if( std::abs( x ) < Teuchos::ScalarTraits<ST>::eps() )
+								//return( -pi2*std::cos(x*pi2) );
+							//else if( std::abs( x-lx )<1.e-12 )
+								//return( pi2*std::cos(x*pi2) );
+							//else
+								return( - pi2*pi2*std::cos(x*pi2) );
 						}
 					);
 			}
 			else if( 1==dir ) {
 				p->initFromFunction(
-						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::sin(y*pi2) ); } );
+						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(y*pi2) ); } );
 				sol->initFromFunction(
 						[&pi2]( ST x, ST y, ST z ) ->ST {
-							if( std::abs( y ) < Teuchos::ScalarTraits<ST>::eps() )
-								return( pi2*std::cos(y*pi2) );
-							else if( std::abs( y-ly ) < Teuchos::ScalarTraits<ST>::eps() )
-								return( pi2*std::cos(y*pi2) );
-							else
-								return( -std::sin(y*pi2)*pi2*pi2 );
+							//if( std::abs( y ) < Teuchos::ScalarTraits<ST>::eps() )
+								//return( -pi2*std::cos(y*pi2) );
+							//else if( std::abs( y-ly ) < Teuchos::ScalarTraits<ST>::eps() )
+								//return( pi2*std::cos(y*pi2) );
+							//else
+								return( - pi2*pi2*std::cos(y*pi2) );
 						}
 					);
 			}
 			else if( 2==dir ) {
 				p->initFromFunction(
-						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::sin(z*pi2) ); } );
+						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(z*pi2) ); } );
 				sol->initFromFunction(
 						[&pi2]( ST x, ST y, ST z ) ->ST {  
-							if( std::abs( z ) < Teuchos::ScalarTraits<ST>::eps() )
-								return( pi2*std::cos(z*pi2) );
-							else if( std::abs( z-lz ) < Teuchos::ScalarTraits<ST>::eps() )
-								return( pi2*std::cos(z*pi2) );
-							else
-								return( -std::sin(z*pi2)*pi2*pi2 );
+							//if( std::abs( z ) < Teuchos::ScalarTraits<ST>::eps() )
+								//return( -pi2*std::cos(z*pi2) );
+							//else if( std::abs( z-lz ) < Teuchos::ScalarTraits<ST>::eps() )
+								//return( pi2*std::cos(z*pi2) );
+							//else
+								return( - pi2*pi2*std::cos(z*pi2) );
 						}
 					);
 			}
@@ -3103,8 +3103,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, DivGradOp, OperatorT ) {
 			//e->write(2);
 			//eRef->write(3);
 			//yRef->write(4);
-
 		}
+
 		// compute order
 		ST order2 = order<ST>( dofs, error2 );
 		if( 0==rank )	
