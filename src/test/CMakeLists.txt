@@ -15,6 +15,7 @@ include_directories( "../src_c/MultiGrid/Transfers" )
 
 enable_testing()
 
+## unit tests
 ADD_EXECUTABLE( SpaceGridTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_SpaceGrid_test.cpp )
 TARGET_LINK_LIBRARIES( SpaceGridTest  ${Pimpact_TPL_LIBRARIES} )
 add_test( NAME SpaceGridTest COMMAND mpirun -np 4 ./SpaceGridTest )
@@ -82,9 +83,16 @@ add_test( NAME NOXSolvesPimpactTest COMMAND mpirun -np 4 ./NOXSolvesPimpactTest 
 
 ADD_EXECUTABLE( MultiGridTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_MultiGrid_test.cpp )
 TARGET_LINK_LIBRARIES( MultiGridTest ${Pimpact_TPL_LIBRARIES} ) 
-add_test( NAME MultiGridTest COMMAND mpirun -np 8 MultiGridTest )
+add_test( NAME MultiGridTest COMMAND mpirun -np 8 ./MultiGridTest )
 
 ADD_EXECUTABLE( MultiGridTimeTest Teuchos_StandardParallelUnitTestMain.cpp
 Pimpact_MultiGridTime_test.cpp )
 TARGET_LINK_LIBRARIES( MultiGridTimeTest ${Pimpact_TPL_LIBRARIES} )
-add_test( NAME MultiGridTimeTest COMMAND mpirun -np 8 MultiGridTimeTest )
+add_test( NAME MultiGridTimeTest COMMAND mpirun -np 8 ./MultiGridTimeTest )
+
+
+## regression tests
+ADD_EXECUTABLE( LapSolverTest Teuchos_StandardParallelUnitTestMain.cpp
+	Pimpact_LapSolver_test.cpp )
+TARGET_LINK_LIBRARIES( LapSolverTest ${Pimpact_TPL_LIBRARIES} )
+add_test( NAME LapSolverTest COMMAND mpirun -np 8 ./LapSolverTest )

@@ -25,7 +25,7 @@ const int dimension = 4;
 
 using SpaceT = Pimpact::Space<ST,OT,dimension,4>;
 
-using FSpaceT = Pimpact::Space<ST,OT,dimension,4>;
+using FSpaceT = SpaceT;
 using CSpaceT = Pimpact::Space<ST,OT,dimension,2>;
 
 using CSL = Pimpact::CoarsenStrategy<FSpaceT,CSpaceT>;
@@ -187,7 +187,6 @@ TEUCHOS_STATIC_SETUP() {
 	clp.setOption( "maxGrids", &maxGrids, "" );
 
 	pl->set<ST>( "Re", 400 );
-
 }
 
 
