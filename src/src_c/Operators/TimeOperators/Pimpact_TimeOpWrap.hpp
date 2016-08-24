@@ -56,21 +56,21 @@ public:
     if( true==CNyes ) {
 
       x.exchange();
-      for( int i=0; i < space()->eInd(S,3); ++i ) {
+      for( int i=0; i < space()->end(S,3); ++i ) {
 
         op_->apply( x.getConstField(i), *temp_ );
 
-        if( i>=space()->sInd(S,3) )
+        if( i>=space()->begin(S,3) )
           y.getFieldPtr(i)->add( 1., y.getConstField(i), 0.5, *temp_ );
 
-        if( i+1<space()->eInd(S,3) )
+        if( i+1<space()->end(S,3) )
           y.getFieldPtr(i+1)->add( 0., y.getConstField(i+1), 0.5, *temp_ );
       }
     }
     else{
 
 //      typename RangeFieldT::Iter j = y.sInd_;
-      for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
+      for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
         op_->apply( x.getConstField(i) , y.getField(i) );
     }
     y.changed();

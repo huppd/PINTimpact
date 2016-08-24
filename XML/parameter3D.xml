@@ -33,7 +33,7 @@
     <Parameter docString="" id="79" isDefault="false" isUsed="true" name="refinement level" type="int" value="1" />
     <Parameter docString="" id="80" isDefault="false" isUsed="true" name="refinement tol" type="double" value="9.99999999999999955e-07" />
     <Parameter docString="" id="81" isDefault="false" isUsed="true" name="refinement step" type="int" value="1" />
-    <Parameter docString="" id="82" isDefault="false" isUsed="true" name="init zero" type="string" value="almost zero" />
+    <Parameter docString="" id="82" isDefault="false" isUsed="true" name="init zero" type="string" value="zero" />
   </ParameterList>
   <ParameterList id="6" name="Multi Grid">
     <Parameter docString="" id="83" isDefault="false" isUsed="true" name="maxGrids" type="int" value="20" />
@@ -133,13 +133,14 @@
       </ParameterList>
   </ParameterList>
   <ParameterList id="25" name="DivGrad">
-    <Parameter docString="" id="142" isDefault="true" isUsed="true" name="Solver name" type="string" value="GMRES" />
+    <!--<Parameter docString="" id="142" isDefault="true" isUsed="true" name="Solver name" type="string" value="GMRES" />-->
+    <Parameter docString="" id="142" isDefault="true" isUsed="true" name="Solver name" type="string" value="TFQMR" />
     <Parameter docString="" id="143" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
-    <Parameter docString="" id="144" isDefault="true" isUsed="true" name="initZero" type="bool" value="false" />
+    <Parameter docString="" id="144" isDefault="true" isUsed="true" name="initZero" type="bool" value="true" />
 		<ParameterList id="26" name="Solver">
-			<Parameter docString="" id="145" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="2" />
+			<!--<Parameter docString="" id="145" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="2" />-->
 			<!--<Parameter docString="" id="146" isDefault="false" isUsed="true" name="Maximum Restarts" type="int" value="1" />-->
-			<Parameter docString="" id="147" isDefault="false" isUsed="true" name="Block Size" type="int" value="2" />
+			<!--<Parameter docString="" id="147" isDefault="false" isUsed="true" name="Block Size" type="int" value="2" />-->
 			<!--<Parameter docString="" id="148" isDefault="false" isUsed="true" name="Adaptive Block Size" type="bool" value="false" />-->
 			<!--<Parameter docString="" id="149" isDefault="false" isUsed="true" name="Flexible Gmres" type="bool" value="true" />-->
 			<!--<Parameter docString="" id="150" isDefault="false" isUsed="true" name="Implicit Residual Scaling" type="string" value="Norm of RHS" />-->
@@ -153,10 +154,10 @@
 			<Parameter docString="" id="158" isDefault="false" isUsed="true" name="Output Style" type="int" value="1" />
 		</ParameterList>
 		<ParameterList id="27" name="Multi Grid">
-      <Parameter docString="" id="159" isDefault="false" isUsed="true" name="numCycles" type="int" value="1" />
-      <Parameter docString="" id="160" isDefault="false" isUsed="true" name="init zero" type="bool" value="false" />
+      <Parameter docString="" id="159" isDefault="false" isUsed="true" name="numCycles" type="int" value="4" />
+      <Parameter docString="" id="160" isDefault="false" isUsed="true" name="init zero" type="bool" value="true" />
       <ParameterList id="28" name="Smoother">
-        <Parameter docString="" id="161" isDefault="false" isUsed="true" name="numIters" type="int" value="4" />
+        <Parameter docString="" id="161" isDefault="false" isUsed="true" name="numIters" type="int" value="8" />
         <Parameter docString="" id="162" isDefault="true" isUsed="true" name="omega" type="double" value="8.57142857142857095e-01" />
         <Parameter docString="" id="163" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
       </ParameterList>
@@ -264,51 +265,51 @@
     </ParameterList>
   </ParameterList>
   <ParameterList id="47" name="Force">
-    <ParameterList id="48" name="0 mode">
-      <Parameter docString="" id="249" isDefault="true" isUsed="true" name="Type" type="string" value="Scalar" />
-      <ParameterList id="49" name="U">
-        <Parameter docString="" id="250" isDefault="true" isUsed="true" name="Type" type="string" value="Point" />
-        <Parameter docString="" id="251" isDefault="true" isUsed="true" name="c_x" type="double" value="1.00000000000000000e+00" />
-        <Parameter docString="" id="252" isDefault="true" isUsed="true" name="c_y" type="double" value="1.00000000000000000e+00" />
-        <Parameter docString="" id="253" isDefault="true" isUsed="true" name="c_z" type="double" value="2.00000000000000000e+00" />
-        <Parameter docString="" id="254" isDefault="true" isUsed="true" name="amp" type="double" value="-2.00000000000000000e+00" />
-        <Parameter docString="" id="255" isDefault="true" isUsed="true" name="sig_x" type="double" value="2.00000000000000011e-01" />
-        <Parameter docString="" id="256" isDefault="true" isUsed="true" name="sig_y" type="double" value="2.00000000000000011e-01" />
-        <Parameter docString="" id="257" isDefault="true" isUsed="true" name="sig_z" type="double" value="2.00000000000000011e-01" />
-      </ParameterList>
-      <ParameterList id="50" name="V">
-        <Parameter docString="" id="258" isDefault="true" isUsed="true" name="Type" type="string" value="constant" />
-        <Parameter docString="" id="259" isDefault="true" isUsed="true" name="C" type="double" value="0.00000000000000000e+00" />
-      </ParameterList>
-      <ParameterList id="51" name="W">
-        <Parameter docString="" id="260" isDefault="true" isUsed="true" name="Type" type="string" value="constant" />
-        <Parameter docString="" id="261" isDefault="true" isUsed="true" name="C" type="double" value="0.00000000000000000e+00" />
-      </ParameterList>
-    </ParameterList>
-    <ParameterList id="52" name="cos mode">
-      <Parameter docString="" id="262" isDefault="true" isUsed="true" name="Type" type="string" value="Scalar" />
-      <ParameterList id="53" name="U">
-        <Parameter docString="" id="263" isDefault="true" isUsed="true" name="Type" type="string" value="constant" />
-        <Parameter docString="" id="264" isDefault="true" isUsed="true" name="C" type="double" value="0.00000000000000000e+00" />
-      </ParameterList>
-      <ParameterList id="54" name="V">
-        <Parameter docString="" id="265" isDefault="true" isUsed="true" name="Type" type="string" value="Point" />
-        <Parameter docString="" id="266" isDefault="true" isUsed="true" name="c_x" type="double" value="1.00000000000000000e+00" />
-        <Parameter docString="" id="267" isDefault="true" isUsed="true" name="c_y" type="double" value="1.00000000000000000e+00" />
-        <Parameter docString="" id="268" isDefault="true" isUsed="true" name="c_z" type="double" value="2.00000000000000000e+00" />
-        <Parameter docString="" id="269" isDefault="true" isUsed="true" name="amp" type="double" value="1.00000000000000000e+00" />
-        <Parameter docString="" id="270" isDefault="true" isUsed="true" name="sig_x" type="double" value="2.00000000000000011e-01" />
-        <Parameter docString="" id="271" isDefault="true" isUsed="true" name="sig_y" type="double" value="2.00000000000000011e-01" />
-        <Parameter docString="" id="272" isDefault="true" isUsed="true" name="sig_z" type="double" value="2.00000000000000011e-01" />
-      </ParameterList>
-      <ParameterList id="55" name="W">
-        <Parameter docString="" id="273" isDefault="true" isUsed="true" name="Type" type="string" value="constant" />
-        <Parameter docString="" id="274" isDefault="true" isUsed="true" name="C" type="double" value="0.00000000000000000e+00" />
-      </ParameterList>
-    </ParameterList>
-    <ParameterList id="56" name="sin mode">
-      <Parameter docString="" id="275" isDefault="true" isUsed="true" name="Type" type="string" value="Zero" />
-    </ParameterList>
+    <!--<ParameterList id="48" name="0 mode">-->
+      <!--<Parameter docString="" id="249" isDefault="true" isUsed="true" name="Type" type="string" value="Scalar" />-->
+      <!--<ParameterList id="49" name="U">-->
+        <!--<Parameter docString="" id="250" isDefault="true" isUsed="true" name="Type" type="string" value="Point" />-->
+        <!--<Parameter docString="" id="251" isDefault="true" isUsed="true" name="c_x" type="double" value="1.00000000000000000e+00" />-->
+        <!--<Parameter docString="" id="252" isDefault="true" isUsed="true" name="c_y" type="double" value="1.00000000000000000e+00" />-->
+        <!--<Parameter docString="" id="253" isDefault="true" isUsed="true" name="c_z" type="double" value="2.00000000000000000e+00" />-->
+        <!--<Parameter docString="" id="254" isDefault="true" isUsed="true" name="amp" type="double" value="-2.00000000000000000e+00" />-->
+        <!--<Parameter docString="" id="255" isDefault="true" isUsed="true" name="sig_x" type="double" value="2.00000000000000011e-01" />-->
+        <!--<Parameter docString="" id="256" isDefault="true" isUsed="true" name="sig_y" type="double" value="2.00000000000000011e-01" />-->
+        <!--<Parameter docString="" id="257" isDefault="true" isUsed="true" name="sig_z" type="double" value="2.00000000000000011e-01" />-->
+      <!--</ParameterList>-->
+      <!--<ParameterList id="50" name="V">-->
+        <!--<Parameter docString="" id="258" isDefault="true" isUsed="true" name="Type" type="string" value="constant" />-->
+        <!--<Parameter docString="" id="259" isDefault="true" isUsed="true" name="C" type="double" value="0.00000000000000000e+00" />-->
+      <!--</ParameterList>-->
+      <!--<ParameterList id="51" name="W">-->
+        <!--<Parameter docString="" id="260" isDefault="true" isUsed="true" name="Type" type="string" value="constant" />-->
+        <!--<Parameter docString="" id="261" isDefault="true" isUsed="true" name="C" type="double" value="0.00000000000000000e+00" />-->
+      <!--</ParameterList>-->
+    <!--</ParameterList>-->
+    <!--<ParameterList id="52" name="cos mode">-->
+      <!--<Parameter docString="" id="262" isDefault="true" isUsed="true" name="Type" type="string" value="Scalar" />-->
+      <!--<ParameterList id="53" name="U">-->
+        <!--<Parameter docString="" id="263" isDefault="true" isUsed="true" name="Type" type="string" value="constant" />-->
+        <!--<Parameter docString="" id="264" isDefault="true" isUsed="true" name="C" type="double" value="0.00000000000000000e+00" />-->
+      <!--</ParameterList>-->
+      <!--<ParameterList id="54" name="V">-->
+        <!--<Parameter docString="" id="265" isDefault="true" isUsed="true" name="Type" type="string" value="Point" />-->
+        <!--<Parameter docString="" id="266" isDefault="true" isUsed="true" name="c_x" type="double" value="1.00000000000000000e+00" />-->
+        <!--<Parameter docString="" id="267" isDefault="true" isUsed="true" name="c_y" type="double" value="1.00000000000000000e+00" />-->
+        <!--<Parameter docString="" id="268" isDefault="true" isUsed="true" name="c_z" type="double" value="2.00000000000000000e+00" />-->
+        <!--<Parameter docString="" id="269" isDefault="true" isUsed="true" name="amp" type="double" value="1.00000000000000000e+00" />-->
+        <!--<Parameter docString="" id="270" isDefault="true" isUsed="true" name="sig_x" type="double" value="2.00000000000000011e-01" />-->
+        <!--<Parameter docString="" id="271" isDefault="true" isUsed="true" name="sig_y" type="double" value="2.00000000000000011e-01" />-->
+        <!--<Parameter docString="" id="272" isDefault="true" isUsed="true" name="sig_z" type="double" value="2.00000000000000011e-01" />-->
+      <!--</ParameterList>-->
+      <!--<ParameterList id="55" name="W">-->
+        <!--<Parameter docString="" id="273" isDefault="true" isUsed="true" name="Type" type="string" value="constant" />-->
+        <!--<Parameter docString="" id="274" isDefault="true" isUsed="true" name="C" type="double" value="0.00000000000000000e+00" />-->
+      <!--</ParameterList>-->
+    <!--</ParameterList>-->
+    <!--<ParameterList id="56" name="sin mode">-->
+      <!--<Parameter docString="" id="275" isDefault="true" isUsed="true" name="Type" type="string" value="Zero" />-->
+    <!--</ParameterList>-->
   </ParameterList>
   <Validators />
 </ParameterList>

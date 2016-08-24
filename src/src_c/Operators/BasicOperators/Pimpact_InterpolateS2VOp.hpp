@@ -91,9 +91,9 @@ public:
 
 		x.exchange(m);
 		//
-		for( Ordinal k=space()->sIndB(field,Z); k<=space()->eIndB(field,Z); ++k )
-			for( Ordinal j=space()->sIndB(field,Y); j<=space()->eIndB(field,Y); ++j )
-				for( Ordinal i=space()->sIndB(field,X); i<=space()->eIndB(field,X); ++i ) {
+		for( Ordinal k=space()->begin(field,Z,true); k<=space()->end(field,Z,true); ++k )
+			for( Ordinal j=space()->begin(field,Y,true); j<=space()->end(field,Y,true); ++j )
+				for( Ordinal i=space()->begin(field,X,true); i<=space()->end(field,X,true); ++i ) {
 					y.at(i,j,k) = 0.;
 					for( int ii = space_->gl(m); ii<=space_->gu(m); ++ii ) {
 						if( U==field ) {

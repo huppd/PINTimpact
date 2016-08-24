@@ -91,15 +91,15 @@ public:
 		x.exchange();
 
 		if( 3==space()->dim() ) {
-			for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
-				for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
-					for( Ordinal i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i )
+			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
+				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
+					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i )
 						y.at(i,j,k) = innerStenc3D(x, i,j,k);
 		}
 		else {
-			for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
-				for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
-					for( Ordinal i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i )
+			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
+				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
+					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i )
 						y.at(i,j,k) = innerStenc2D(x, i,j,k);
 		}
 
@@ -113,15 +113,15 @@ public:
 		x.exchange();
 		// inner stencil
 		if( 3==space()->dim() ) {
-			for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
-				for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
-					for( Ordinal i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i )
+			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
+				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
+					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i )
 						res.at(i,j,k) = b.at(i,j,k) - innerStenc3D(x, i,j,k);
 		}
 		else {
-			for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
-				for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
-					for( Ordinal i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i )
+			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
+				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
+					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i )
 						res.at(i,j,k) = b.at(i,j,k) - innerStenc2D(x, i,j,k);
 		}
 
@@ -132,18 +132,18 @@ public:
 	void applyInvDiag( const DomainFieldT& x, RangeFieldT& y ) const {
 
 		if( 3==space()->dim() ) {
-			for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
-				for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
-					for( Ordinal i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i ) {
+			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
+				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
+					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
 						Scalar diag = std::abs( getC(X,i,0) + getC(Y,j,0) + getC(Z,k,0) );
 						std::cout << i << "\t" << j << "\t" << k << "\t" << diag << "\n";
 						y.at(i,j,k) = x.at(i,j,k)/diag;
 					}
 		}
 		else {
-			for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
-				for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
-					for( Ordinal i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i )
+			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
+				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
+					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i )
 						y.at(i,j,k) = x.at(i,j,k)/std::abs( getC(X,i,0) + getC(Y,j,0) );
 		}
 

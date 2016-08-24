@@ -137,15 +137,15 @@ public:
 			x.getField(fType).exchange();
 
 			if( 3==space_->dim() ) {
-				for( Ordinal k=space()->sInd(fType,Z); k<=space()->eInd(fType,Z); ++k )
-					for( Ordinal j=space()->sInd(fType,Y); j<=space()->eInd(fType,Y); ++j )
-						for( Ordinal i=space()->sInd(fType,X); i<=space()->eInd(fType,X); ++i )
+				for( Ordinal k=space()->begin(fType,Z); k<=space()->end(fType,Z); ++k )
+					for( Ordinal j=space()->begin(fType,Y); j<=space()->end(fType,Y); ++j )
+						for( Ordinal i=space()->begin(fType,X); i<=space()->end(fType,X); ++i )
 							y.getField(fType).at(i,j,k) = innerStenc3D( x, fType, i, j, k);
 			}
 			else{
-				for( Ordinal k=space()->sInd(fType,Z); k<=space()->eInd(fType,Z); ++k )
-					for( Ordinal j=space()->sInd(fType,Y); j<=space()->eInd(fType,Y); ++j )
-						for( Ordinal i=space()->sInd(fType,X); i<=space()->eInd(fType,X); ++i )
+				for( Ordinal k=space()->begin(fType,Z); k<=space()->end(fType,Z); ++k )
+					for( Ordinal j=space()->begin(fType,Y); j<=space()->end(fType,Y); ++j )
+						for( Ordinal i=space()->begin(fType,X); i<=space()->end(fType,X); ++i )
 							y.getField(fType).at(i,j,k) = innerStenc2D( x, fType, i, j, k);
 			}
     }

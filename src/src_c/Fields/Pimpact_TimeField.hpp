@@ -167,7 +167,7 @@ public:
 	///	floating-point arithmetic. (Remember that NaN*0 = NaN.)
 	void add( Scalar alpha, const FieldT& A, Scalar beta, const FieldT& B ) {
 
-		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
+		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
 			mfs_[i]->add( alpha, *A.mfs_[i], beta, *B.mfs_[i] );
 		changed();
 	}
@@ -181,7 +181,7 @@ public:
 	/// \return Reference to this object
 	void abs( const FieldT& y) {
 
-		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
+		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
 			mfs_[i]->abs( *y.mfs_[i] );
 		changed();
 	}
@@ -194,7 +194,7 @@ public:
 	/// \return Reference to this object
 	void reciprocal( const FieldT& y){
 
-		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
+		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
 			mfs_[i]->reciprocal( *y.mfs_[i] );
 		changed();
 	}
@@ -206,7 +206,7 @@ public:
 	/// \f[ x_i = \alpha x_i \quad \mbox{for } i=1,\dots,n \f]
 	void scale( const Scalar& alpha ) {
 
-		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
+		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
 			mfs_[i]->scale(alpha);
 		changed();
 	}
@@ -218,7 +218,7 @@ public:
 	/// \f[ x_i = x_i \cdot y_i \quad \mbox{for } i=1,\dots,n \f]
 	/// \return Reference to this object
 	void scale( const FieldT& y) {
-		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
+		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
 			mfs_[i]->scale( *y.mfs_[i] );
 		changed();
 	}
@@ -231,7 +231,7 @@ public:
 
 		Scalar b = 0.;
 
-		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
+		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
 			b+= mfs_[i]->dotLoc( *A.mfs_[i] );
 
 		return( b );
@@ -249,7 +249,7 @@ public:
 
 		Scalar normvec = 0.;
 
-		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
+		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
 			normvec = 
 				( (Belos::InfNorm==type)?
 				std::max( mfs_[i]->normLoc(type), normvec ) :
@@ -285,7 +285,7 @@ public:
 
 		Scalar nor = Teuchos::ScalarTraits<Scalar>::zero();
 
-		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
+		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
 			nor+= mfs_[i]->norm( *weights.mfs_[i] );
 
 		return( nor );
@@ -307,7 +307,7 @@ public:
 	/// assign (deep copy) A into mv.
 	void assign( const FieldT& A ) {
 
-		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
+		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
 			mfs_[i]->assign( *A.mfs_[i] );
 		changed();
 	}
@@ -316,7 +316,7 @@ public:
 	/// \brief Replace the vectors with a random vectors.
 	void random(bool useSeed = false, int seed = 1) {
 
-		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
+		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
 			mfs_[i]->random();
 		changed();
 	}
@@ -325,20 +325,20 @@ public:
 	/// \brief \f[ *this = \alpha \f]
 	void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero() ) {
 
-		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
+		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
 			mfs_[i]->init(alpha);
 		changed();
 	}
 
 	void initField() {
-		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
+		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
 			mfs_[i]->initField();
 		changed();
 	}
 
 	void level() const {
 
-		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
+		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
 			mfs_[i]->level();
 		changed();
 	}
@@ -346,14 +346,14 @@ public:
 
 	/// \param os
 	void print( std::ostream& os=std::cout ) const {
-		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
+		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
 			mfs_[i]->print( os );
 	}
 
 
 
 	void write( int count=0 ) const {
-		for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i )
+		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
 			mfs_[i]->write(count++ + space()->getShift(3) );
 	}
 
@@ -393,10 +393,10 @@ public:
 				Ordinal lengthU = transU * mfs_[0]->getStorageSize();
 
 				Scalar* ghostUR = mfs_[0]->getRawPtr();
-				Scalar* ghostLR = mfs_[space()->eInd(S,3)]->getRawPtr();
+				Scalar* ghostLR = mfs_[space()->end(S,3)]->getRawPtr();
 
-				Scalar* ghostUS = mfs_[space()->eInd(S,3)-transL]->getRawPtr();
-				Scalar* ghostLS = mfs_[space()->sInd(S,3)       ]->getRawPtr();
+				Scalar* ghostUS = mfs_[space()->end(S,3)-transL]->getRawPtr();
+				Scalar* ghostLS = mfs_[space()->begin(S,3)       ]->getRawPtr();
 
 				if( transL>0 ) MPI_Irecv( ghostUR, lengthL, MPI_REAL8, rankL, 1, comm(), &reqL);
 				if( transU>0 ) MPI_Irecv( ghostLR, lengthU, MPI_REAL8, rankU, 2, comm(), &reqU);
@@ -409,17 +409,17 @@ public:
 
 				// depends on if field from sender was exchanged, so to be sure
 				mfs_[ 0                  ]->changed();
-				mfs_[ space()->eInd(S,3) ]->changed();
+				mfs_[ space()->end(S,3) ]->changed();
 
 			}
 			else {
 				if( std::abs( space()->bl(3) )>0 ) {
-					mfs_[space()->sInd(S,3)-1]->assign( *mfs_[space()->eInd(S,3)-1] );
-					mfs_[space()->sInd(S,3)-1]->changed();
+					mfs_[space()->begin(S,3)-1]->assign( *mfs_[space()->end(S,3)-1] );
+					mfs_[space()->begin(S,3)-1]->changed();
 				}
 				if( std::abs( space()->bu(3) )>0 ) {
-					mfs_[space()->eInd(S,3)]->assign( *mfs_[space()->sInd(S,3)] );
-					mfs_[space()->eInd(S,3)]->changed();
+					mfs_[space()->end(S,3)]->assign( *mfs_[space()->begin(S,3)] );
+					mfs_[space()->end(S,3)]->changed();
 				}
 			}
 		}
@@ -477,9 +477,9 @@ initVectorTimeField(
 	S pi = 4.*std::atan(1.);
 
 	S nt = space->nGlo(3);
-	S offset = space->getShift(3) - space->sInd(EField::S,3);
+	S offset = space->getShift(3) - space->begin(EField::S,3);
 
-	for( O i=space->sInd(EField::S,3); i<space->eInd(EField::S,3); ++i )
+	for( O i=space->begin(EField::S,3); i<space->end(EField::S,3); ++i )
 		switch( flowType ) {
 			case Zero2DFlow:
 				field->getFieldPtr(i)->initField( ZeroFlow );

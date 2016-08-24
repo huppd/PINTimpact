@@ -56,22 +56,22 @@ public:
 
 		x.exchange();
 
-		if( y.space()->sInd(U,3)<0 )
+		if( y.space()->begin(U,3)<0 )
 			op_->apply( x.getConst0Field(), y.get0Field() );
 
 		//    int m = std::min( x.space()->nGlo(3), y.space()->nGlo(3) );
 		//    for( int i=0; i<m; ++i ) {
 
-		Ordinal iS = std::max( y.space()->sInd(U,3), 0 );
-		Ordinal iE = std::min( x.space()->nGlo(3), y.space()->eInd(U,3) );
+		Ordinal iS = std::max( y.space()->begin(U,3), 0 );
+		Ordinal iE = std::min( x.space()->nGlo(3), y.space()->end(U,3) );
 
 		for( Ordinal i=iS; i<iE; ++i ) {
 			op_->apply( x.getConstCField(i), y.getCField(i) );
 			op_->apply( x.getConstSField(i), y.getSField(i) );
 		}
 
-		iS = std::max(x.space()->nGlo(3),y.space()->sInd(U,3));
-		iE = y.space()->eInd(U,3);
+		iS = std::max(x.space()->nGlo(3),y.space()->begin(U,3));
+		iE = y.space()->end(U,3);
 		for( Ordinal i=iS; i<iE; ++i ) {
 			y.getCField(i).initField();
 			y.getSField(i).initField();

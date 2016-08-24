@@ -100,7 +100,7 @@ public:
 		Scalar mulI;
 
     // computing zero mode of z
-		if( 0==space()->sInd(U,3) ) {
+		if( 0==space()->begin(U,3) ) {
 
 			op_->apply( get0Wind(), y->getConst0Field(), z.get0Field(), 0., 0., 1., iRe );
 
@@ -111,7 +111,7 @@ public:
 		}
 
     // computing cos mode of z
-		for( Ordinal i=std::max(space()->sInd(U,3),1); i<=space()->eInd(U,3); ++i ) {
+		for( Ordinal i=std::max(space()->begin(U,3),1); i<=space()->end(U,3); ++i ) {
 
       op_->apply( get0Wind( ), y->getConstCField(i), z.getCField(i), 0., 0., 1., iRe );
       op_->apply( getCWind(i), y->getConst0Field( ), z.getCField(i), 1., 0., 1., 0.  );
@@ -128,7 +128,7 @@ public:
     }
 
     // computing sin mode of y
-		for( Ordinal i=std::max(space()->sInd(U,3),1); i<=space()->eInd(U,3); ++i ) {
+		for( Ordinal i=std::max(space()->begin(U,3),1); i<=space()->end(U,3); ++i ) {
 
       op_->apply( get0Wind(),  y->getConstSField(i), z.getSField(i), 0., 0., 1., iRe );
       op_->apply( getSWind(i), y->getConst0Field(),  z.getSField(i), 1., 0., 1., 0.  );
@@ -145,7 +145,7 @@ public:
     }
 
 		// rest of time
-		for( Ordinal i=std::max(space()->sInd(U,3),1); i<=space()->eInd(U,3); ++i ) {
+		for( Ordinal i=std::max(space()->begin(U,3),1); i<=space()->end(U,3); ++i ) {
 			if( Nf/2+1<=i && i<=Nf ) {
 				mulI = a2*i;
 				z.getCFieldPtr(i)->add( 1., z.getCField(i),  mulI, y->getConstSField(i) );
@@ -159,7 +159,7 @@ public:
 			for( Ordinal l=1; l<=Nf; ++l ) { // that is fine
 				i = k+l; 
 				if( i<=Nf ) { // do something here
-					if( std::max(space()->sInd(U,3),1)<=i && i<=space()->eInd(U,3) ) {
+					if( std::max(space()->begin(U,3),1)<=i && i<=space()->end(U,3) ) {
 						op_->apply( getCWind(k), y->getConstCField(l), z.getCField(i), 1., 0.,  0.5, 0. );
 						op_->apply( getSWind(k), y->getConstSField(l), z.getCField(i), 1., 0., -0.5, 0. );
 

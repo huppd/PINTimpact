@@ -74,10 +74,10 @@ public:
 		para->set<Scalar>( "mulL", iRe );
 		zeroOp_->setParameter( para );
 
-		if( 0==space()->sInd(U,3) )
+		if( 0==space()->begin(U,3) )
 			zeroOp_->apply( x.getConst0Field(), y.get0Field() );
 
-		for( Ordinal i=std::max(space()->sInd(U,3),1); i<=space()->eInd(U,3); ++i ) {
+		for( Ordinal i=std::max(space()->begin(U,3),1); i<=space()->end(U,3); ++i ) {
 			// set parameters
 			para->set<Scalar>( "mulI", a2*i );
 			para->set<Scalar>( "mulC", 1. );

@@ -97,7 +97,7 @@ public:
 			xu->exchange();
 			//		xp->exchange();
 
-			for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i ) {
+			for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i ) {
 				xu->getConstFieldPtr(i-1)->exchange();
 				xu->getConstFieldPtr(i)->exchange();
 				xp->getConstFieldPtr(i)->exchange();
@@ -142,7 +142,7 @@ public:
 					yp->getRawPtr(),
 					L );
 
-			for( Ordinal i=space()->sInd(S,3); i<space()->eInd(S,3); ++i ) {
+			for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i ) {
 				yu->getFieldPtr(i)->changed();
 				yp->getFieldPtr(i)->changed();
 			} 

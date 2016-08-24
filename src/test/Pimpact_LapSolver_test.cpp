@@ -272,6 +272,8 @@ TEUCHOS_UNIT_TEST( bla, bla  ) {
 		Pimpact::InterpolationOp,
 		Pimpact::DivGradOp,
 		Pimpact::DivGradO2Op,
+		//Pimpact::DivGradO2JSmoother,
+		//Pimpact::DivGradO2SORSmoother,
 		//Pimpact::DivGradO2LSmoother,
 		Pimpact::Chebyshev,
 		Pimpact::DivGradO2Inv
@@ -285,7 +287,8 @@ TEUCHOS_UNIT_TEST( bla, bla  ) {
 				Pimpact::createInvDiagonal( divGradOp ) ) );
 	//divGradInv2->setRightPrec( Pimpact::createMultiOperatorBase(
 	//Pimpact::createInvDiagonal( divGradOp ) ) );
-	//divGradInv2->setRightPrec( Pimpact::createMultiOperatorBase( mgDivGrad ) );
+	divGradInv2->setRightPrec( Pimpact::createMultiOperatorBase( mgDivGrad ) );
+	//divGradInv2->setLeftPrec( Pimpact::createMultiOperatorBase( mgDivGrad ) );
 	//divGradInvTT->setLeftPrec( Pimpact::createMultiOperatorBase( mgDivGrad ) );
 	//divGradInvTT->setLeftPrec( Pimpact::createMultiOperatorBase(
 
@@ -325,8 +328,10 @@ TEUCHOS_UNIT_TEST( bla, bla  ) {
 
 	// --------------------- solve with plaine rhs
 	x->getSFieldPtr()->init( 0. );
+	//x->getSFieldPtr()->random();
 	divGradInv->apply( rhs2->getSField(), x->getSField() );
 	x->getSFieldPtr()->init( 0. );
+	//x->getSFieldPtr()->random();
 	divGradInv->apply( rhs->getSField(), x->getSField() );
 
 	// write solution

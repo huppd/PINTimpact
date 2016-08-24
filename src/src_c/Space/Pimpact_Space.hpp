@@ -331,24 +331,6 @@ public:
 		return( indexSpace_->eIndB( fieldType ) );
 	}
 
-	/// \deprecated
-	constexpr const Ordinal& sInd( const int& fieldType, const int& dir ) const {
-		return( indexSpace_->sInd( fieldType, dir ) );
-	}
-	/// \deprecated
-	constexpr const Ordinal& eInd(  const int& fieldType, const int& dir ) const {
-		return( indexSpace_->eInd( fieldType, dir ) );
-	}
-
-	/// \deprecated
-	constexpr const Ordinal& sIndB( const int& fieldType, const int& dir ) const {
-		return( indexSpace_->sIndB( fieldType, dir ) );
-	}
-	/// \deprecated
-	constexpr const Ordinal& eIndB( const int& fieldType, const int& dir ) const {
-		return( indexSpace_->eIndB( fieldType, dir ) );
-	}
-
 	constexpr const Ordinal& begin( const int& fieldType, const int& dir, const bool& bcYes=false ) const {
 		return(
 				bcYes?

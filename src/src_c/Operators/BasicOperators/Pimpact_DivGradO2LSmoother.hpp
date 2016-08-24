@@ -86,7 +86,7 @@ public:
 
 			for( int dir=0; dir<3; ++dir ) {
 
-				n_[dir] = space()->eInd( S, dir ) - space()->sInd( S, dir ) + 1 ;
+				n_[dir] = space()->end( S, dir ) - space()->begin( S, dir ) + 1 ;
 
 				if( true==lineDirection_[dir] ) {
 
@@ -97,11 +97,11 @@ public:
                                                         
 					ipiv_[dir] = Teuchos::rcp( new OVectorT( n_[dir], true ) );
 
-					for( Ordinal i=space()->sInd( S, dir ); i<=space()->eInd( S, dir ); ++i ) {
+					for( Ordinal i=space()->begin( S, dir ); i<=space()->end( S, dir ); ++i ) {
 						for( int j=0; j<space()->dim(); ++j )
 							(*d_[dir])[i-1] += op_->getC( j, i,  0 );
 					}
-					for( Ordinal i=space()->sInd( S, dir ); i<space()->eInd( S, dir ); ++i ) {
+					for( Ordinal i=space()->begin( S, dir ); i<space()->end( S, dir ); ++i ) {
 						(*du_[dir])[i-1] = op_->getC( dir, i, +1 );
 						(*dl_[dir])[i-1] = op_->getC( dir, i+1, -1 );
 					}
@@ -148,11 +148,11 @@ public:
 
 					Teuchos::RCP<VectorT> B = Teuchos::rcp( new VectorT( n_[dir], false ) );
 
-					for( i[d1]=space()->sInd(S,d1); i[d1]<=space()->eInd(S,d1); ++i[d1] )
-						for( i[d2]=space()->sInd(S,d2); i[d2]<=space()->eInd(S,d2); ++i[d2] ) {
+					for( i[d1]=space()->begin(S,d1); i[d1]<=space()->end(S,d1); ++i[d1] )
+						for( i[d2]=space()->begin(S,d2); i[d2]<=space()->end(S,d2); ++i[d2] ) {
 
 							// transfer
-							for( i[dir]=space()->sInd(S,dir); i[dir]<=space()->eInd(S,dir); ++i[dir] )
+							for( i[dir]=space()->begin(S,dir); i[dir]<=space()->end(S,dir); ++i[dir] )
 								(*B)[ i[dir]-1 ] = temp->at(i);
 
 							Ordinal lu_solve_sucess;
@@ -173,7 +173,7 @@ public:
 							TEUCHOS_TEST_FOR_EXCEPT( lu_solve_sucess );
 
 							// transfer back
-							for( i[dir]=space()->sInd(S,dir); i[dir]<=space()->eInd(S,dir); ++i[dir] )
+							for( i[dir]=space()->begin(S,dir); i[dir]<=space()->end(S,dir); ++i[dir] )
 								y.at(i) = y.at(i) + omega_*(*B)[ i[dir]-1 ];
 						}
 

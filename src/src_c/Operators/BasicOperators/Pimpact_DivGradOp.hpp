@@ -88,9 +88,9 @@ public:
 
 	void applyInvDiag( const DomainFieldT& x, RangeFieldT& y ) const {
 
-		for( OT k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
-			for( OT j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
-				for( OT i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i ) {
+		for( OT k=space()->begin(S,Z,false); k<=space()->end(S,Z,false); ++k )
+			for( OT j=space()->begin(S,Y,false); j<=space()->end(S,Y,false); ++j )
+				for( OT i=space()->begin(S,X,false); i<=space()->end(S,X,false); ++i ) {
 					ST diag = 0.;
 
 					// X direction
@@ -101,7 +101,7 @@ public:
 									* space()->getInterpolateV2S()->getC(X,i,iii) /
 									space()->getInterpolateV2S()->getC(X,i,-1);
 						}
-						else if( 0<space()->getBCLocal()->getBCU(X) && i+ii==space()->eInd(S,X) ) {
+						else if( 0<space()->getBCLocal()->getBCU(X) && i+ii==space()->end(S,X,false) ) {
 							for( OT iii=space()->dl(X); iii<=-1; ++iii )
 								diag -= div_->getC( X, i, ii ) * grad_->getC( X, i+iii, -iii)
 									* space()->getInterpolateV2S()->getC(X,i,iii) /
@@ -119,7 +119,7 @@ public:
 									* space()->getInterpolateV2S()->getC(Y,j,jjj) /
 									space()->getInterpolateV2S()->getC(Y,1,-1);
 						}
-						else if( 0<space()->getBCLocal()->getBCU(Y) && j+jj==space()->eInd(S,Y) ) {
+						else if( 0<space()->getBCLocal()->getBCU(Y) && j+jj==space()->end(S,Y,false) ) {
 							for( OT jjj=space()->dl(Y); jjj<=-1; ++jjj )
 								diag -= div_->getC( Y, j, jj ) * grad_->getC( Y, j+jjj, -jjj)
 									* space()->getInterpolateV2S()->getC(Y,j,jjj) /
@@ -138,7 +138,7 @@ public:
 										* space()->getInterpolateV2S()->getC(Z,k,kkk) /
 										space()->getInterpolateV2S()->getC(Z,1,-1);
 							}
-							else if( 0<space()->getBCLocal()->getBCU(Z) && k+kk==space()->eInd(S,Z) ) {
+							else if( 0<space()->getBCLocal()->getBCU(Z) && k+kk==space()->end(S,Z,false) ) {
 								for( OT kkk=space()->dl(Z); kkk<=-1; ++kkk )
 									diag -= div_->getC( Z, k, kk ) * grad_->getC( Z, k+kkk, -kkk)
 										* space()->getInterpolateV2S()->getC(Z,k,kkk) /

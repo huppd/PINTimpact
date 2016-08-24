@@ -87,25 +87,25 @@ public:
 
 				// boundary conditions in X
 				if( space()->getBCLocal()->getBCL(X)>0 ) {
-					SS[X] = space()->sInd(EField::S,X);
-					SS[Y] = space()->sInd(EField::S,Y);
-					SS[Z] = space()->sInd(EField::S,Z);
+					SS[X] = space()->begin(EField::S,X);
+					SS[Y] = space()->begin(EField::S,Y);
+					SS[Z] = space()->begin(EField::S,Z);
 
-					NN[X] = space()->sInd(EField::S,X)+depth_;
-					NN[Y] = space()->eInd(EField::S,Y);
-					NN[Z] = space()->eInd(EField::S,Z);
+					NN[X] = space()->begin(EField::S,X)+depth_;
+					NN[Y] = space()->end(EField::S,Y);
+					NN[Z] = space()->end(EField::S,Z);
 
 					// set solver and solve
 					AsovL_[0] = Teuchos::rcp( new SolverT( op_, SS, NN) );
 				}
 				if( space()->getBCLocal()->getBCU(X)>0 ) {
-					SS[X] = space()->eInd(EField::S,X)-depth_;
-					SS[Y] = space()->sInd(EField::S,Y);
-					SS[Z] = space()->sInd(EField::S,Z);
+					SS[X] = space()->end(EField::S,X)-depth_;
+					SS[Y] = space()->begin(EField::S,Y);
+					SS[Z] = space()->begin(EField::S,Z);
 
-					NN[X] = space()->eInd(EField::S,X);
-					NN[Y] = space()->eInd(EField::S,Y);
-					NN[Z] = space()->eInd(EField::S,Z);
+					NN[X] = space()->end(EField::S,X);
+					NN[Y] = space()->end(EField::S,Y);
+					NN[Z] = space()->end(EField::S,Z);
 
 					// set solver and solve
 					AsovU_[0] = Teuchos::rcp( new SolverT( op_, SS, NN ) );
@@ -113,25 +113,25 @@ public:
 
 				// boundary conditions in Y
 				if( space()->getBCLocal()->getBCL(Y)>0 ) {
-					SS[X] = space()->sInd(EField::S,X);
-					SS[Y] = space()->sInd(EField::S,Y);
-					SS[Z] = space()->sInd(EField::S,Z);
+					SS[X] = space()->begin(EField::S,X);
+					SS[Y] = space()->begin(EField::S,Y);
+					SS[Z] = space()->begin(EField::S,Z);
 
-					NN[X] = space()->eInd(EField::S,X);
-					NN[Y] = space()->sInd(EField::S,Y)+depth_;
-					NN[Z] = space()->eInd(EField::S,Z);
+					NN[X] = space()->end(EField::S,X);
+					NN[Y] = space()->begin(EField::S,Y)+depth_;
+					NN[Z] = space()->end(EField::S,Z);
 
 					// set solver and solve
 					AsovL_[1] = Teuchos::rcp( new SolverT( op_, SS, NN ) );
 				}
 				if( space()->getBCLocal()->getBCU(Y)>0 ) {
-					SS[X] = space()->sInd(EField::S,X);
-					SS[Y] = space()->eInd(EField::S,Y)-depth_;
-					SS[Z] = space()->sInd(EField::S,Z);
+					SS[X] = space()->begin(EField::S,X);
+					SS[Y] = space()->end(EField::S,Y)-depth_;
+					SS[Z] = space()->begin(EField::S,Z);
 
-					NN[X] = space()->eInd(EField::S,X);
-					NN[Y] = space()->eInd(EField::S,Y);
-					NN[Z] = space()->eInd(EField::S,Z);
+					NN[X] = space()->end(EField::S,X);
+					NN[Y] = space()->end(EField::S,Y);
+					NN[Z] = space()->end(EField::S,Z);
 
 					// set solver and solve
 					AsovU_[1] = Teuchos::rcp( new SolverT( op_, SS, NN ) );
@@ -139,25 +139,25 @@ public:
 
 				// boundary conditions in Z
 				if( space()->getBCLocal()->getBCL(Z)>0 ) {
-					SS[X] = space()->sInd(EField::S,X);
-					SS[Y] = space()->sInd(EField::S,Y);
-					SS[Z] = space()->sInd(EField::S,Z);
+					SS[X] = space()->begin(EField::S,X);
+					SS[Y] = space()->begin(EField::S,Y);
+					SS[Z] = space()->begin(EField::S,Z);
 
-					NN[X] = space()->eInd(EField::S,X);
-					NN[Y] = space()->eInd(EField::S,Y);
-					NN[Z] = space()->sInd(EField::S,Z)+depth_;
+					NN[X] = space()->end(EField::S,X);
+					NN[Y] = space()->end(EField::S,Y);
+					NN[Z] = space()->begin(EField::S,Z)+depth_;
 
 					// set solver and solve
 					AsovL_[2] = Teuchos::rcp( new SolverT( op_, SS, NN ) );
 				}
 				if( space()->getBCLocal()->getBCU(Z)>0 ) {
-					SS[X] = space()->sInd(EField::S,X);
-					SS[Y] = space()->sInd(EField::S,Y);
-					SS[Z] = space()->eInd(EField::S,Z)-depth_;
+					SS[X] = space()->begin(EField::S,X);
+					SS[Y] = space()->begin(EField::S,Y);
+					SS[Z] = space()->end(EField::S,Z)-depth_;
 
-					NN[X] = space()->eInd(EField::S,X);
-					NN[Y] = space()->eInd(EField::S,Y);
-					NN[Z] = space()->eInd(EField::S,Z);
+					NN[X] = space()->end(EField::S,X);
+					NN[Y] = space()->end(EField::S,Y);
+					NN[Z] = space()->end(EField::S,Z);
 
 					// set solver and solve
 					AsovU_[2] = Teuchos::rcp( new SolverT( op_, SS,NN ) );
@@ -178,15 +178,15 @@ public:
       y.exchange();
 
 			if( 3==space()->dim() )
-				for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
-					for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
-						for( Ordinal i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i ) {
+				for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
+					for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
+						for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
 							temp->at(i,j,k) = innerStenc3D( b, y, i,j,k);
 						}
 			else
-				for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
-					for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
-						for( Ordinal i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i ) {
+				for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
+					for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
+						for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
 							temp->at(i,j,k) = innerStenc2D( b, y, i,j,k);
 						}
 			
@@ -194,15 +194,15 @@ public:
 			temp->exchange();
 
 			if( 3==space()->dim() )
-				for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
-					for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
-						for( Ordinal i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i ) {
+				for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
+					for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
+						for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
 							y.at(i,j,k) = innerStenc3D( b, *temp, i,j,k);
 						}
 			else
-				for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
-					for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
-						for( Ordinal i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i ) {
+				for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
+					for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
+						for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
 							y.at(i,j,k) = innerStenc2D( b, *temp, i,j,k);
 						}
 

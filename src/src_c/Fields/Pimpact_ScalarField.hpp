@@ -743,17 +743,17 @@ public:
 
 			Scalar pre0 = Teuchos::ScalarTraits<Scalar>::zero();
 
-			for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
-				for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
-					for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
+			for( Ordinal k=space()->begin(fType_,Z); k<=space()->end(fType_,Z); ++k )
+				for( Ordinal j=space()->begin(fType_,Y); j<=space()->end(fType_,Y); ++j )
+					for( Ordinal i=space()->begin(fType_,X); i<=space()->end(fType_,X); ++i )
 						pre0 += at(i,j,k);
 
 			pre0 = this->reduce( space()->comm(), pre0 );
 			pre0 /= static_cast<Scalar>( getLength() );
 
-			for( Ordinal k=space()->sInd(fType_,Z); k<=space()->eInd(fType_,Z); ++k )
-				for( Ordinal j=space()->sInd(fType_,Y); j<=space()->eInd(fType_,Y); ++j )
-					for( Ordinal i=space()->sInd(fType_,X); i<=space()->eInd(fType_,X); ++i )
+			for( Ordinal k=space()->begin(fType_,Z); k<=space()->end(fType_,Z); ++k )
+				for( Ordinal j=space()->begin(fType_,Y); j<=space()->end(fType_,Y); ++j )
+					for( Ordinal i=space()->begin(fType_,X); i<=space()->end(fType_,X); ++i )
 						at(i,j,k) -= pre0;
 		}
 	}
@@ -773,9 +773,9 @@ public:
 		for(int i=0; i<3; ++i)
 			cw[i] = space()->nLoc(i) + space()->bu(i) - space()->bl(i) + 1;
 
-		for( Ordinal k=space()->sIndB(fType_,Z); k<=space()->eIndB(fType_,Z); ++k )
-			for( Ordinal j=space()->sIndB(fType_,Y); j<=space()->eIndB(fType_,Y); ++j )
-				for( Ordinal i=space()->sIndB(fType_,X); i<=space()->eIndB(fType_,X); ++i )
+		for( Ordinal k=space()->begin(fType_,Z,true); k<=space()->end(fType_,Z,true); ++k )
+			for( Ordinal j=space()->begin(fType_,Y,true); j<=space()->end(fType_,Y,true); ++j )
+				for( Ordinal i=space()->begin(fType_,X,true); i<=space()->end(fType_,X,true); ++i )
 					out << i << "\t" << j << "\t" << k << "\t" << at(i,j,k) << "\n";
   }
 

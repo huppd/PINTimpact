@@ -110,7 +110,7 @@ public:
 					cG2[i] = 0.;
 				}
 
-				for( Ordinal i = space_->sInd(S,dir); i<=space_->eInd(S,dir); ++i )
+				for( Ordinal i = space_->begin(S,dir); i<=space_->end(S,dir); ++i )
 					for( Ordinal ii = space_->dl(dir); ii<=space_->du(dir); ++ii ) {
 						Ordinal ind = ( ii - space_->bl(dir) ) + ( i+space_->getShift(dir)- space_->bl(dir) )*( space_->bu(dir) - space_->bl(dir) + 1 );
 						cG1[ ind ]= getC( static_cast<ECoord>(dir), i, ii );
@@ -146,8 +146,8 @@ public:
 				}
 
 				for( Ordinal
-						i =space_->sIndB(static_cast<EField>(dir),static_cast<ECoord>(dir));
-						i<=space_->eIndB(static_cast<EField>(dir),static_cast<ECoord>(dir));
+						i =space_->begin(static_cast<EField>(dir),static_cast<ECoord>(dir),true);
+						i<=space_->end(static_cast<EField>(dir),static_cast<ECoord>(dir),true);
 						++i ) 
 					for( Ordinal ii=space->gl(dir); ii<=space->gu(dir); ++ii ) {
 						Ordinal ind1 = ( ii - space_->gl(dir) ) + ( i )*( space_->gu(dir) - space_->gl(dir) + 1 );
@@ -176,16 +176,16 @@ public:
 
 		if( 3==space_->dim() ) {
 
-			for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
-				for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
-					for( Ordinal i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i )
+			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
+				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
+					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i )
 						y.at(i,j,k) = innerStenc3D( x, i, j, k );
 		}
 		else {
 
-			for( Ordinal k=space()->sInd(S,Z); k<=space()->eInd(S,Z); ++k )
-				for( Ordinal j=space()->sInd(S,Y); j<=space()->eInd(S,Y); ++j )
-					for( Ordinal i=space()->sInd(S,X); i<=space()->eInd(S,X); ++i )
+			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
+				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
+					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i )
 						y.at(i,j,k) = innerStenc2D( x, i, j, k );
 		}
 
@@ -196,23 +196,23 @@ public:
 	void apply( const RangeFieldT& x, DomainFieldT& y ) const {
 
 		x.exchange(X);
-		for( Ordinal k=space()->sIndB(U,Z); k<=space()->eIndB(U,Z); ++k )
-			for( Ordinal j=space()->sIndB(U,Y); j<=space()->eIndB(U,Y); ++j )
-				for( Ordinal i=space()->sIndB(U,X); i<=space()->eIndB(U,X); ++i )
+		for( Ordinal k=space()->begin(U,Z,true); k<=space()->end(U,Z,true); ++k )
+			for( Ordinal j=space()->begin(U,Y,true); j<=space()->end(U,Y,true); ++j )
+				for( Ordinal i=space()->begin(U,X,true); i<=space()->end(U,X,true); ++i )
 					y.getField(U).at(i,j,k) = innerStencU( x, i, j, k );
 
 		x.exchange(Y);
-		for( Ordinal k=space()->sIndB(V,Z); k<=space()->eIndB(V,Z); ++k )
-			for( Ordinal j=space()->sIndB(V,Y); j<=space()->eIndB(V,Y); ++j )
-				for( Ordinal i=space()->sIndB(V,X); i<=space()->eIndB(V,X); ++i )
+		for( Ordinal k=space()->begin(V,Z,true); k<=space()->end(V,Z,true); ++k )
+			for( Ordinal j=space()->begin(V,Y,true); j<=space()->end(V,Y,true); ++j )
+				for( Ordinal i=space()->begin(V,X,true); i<=space()->end(V,X,true); ++i )
 					y.getField(V).at(i,j,k) = innerStencV( x, i, j, k );
 
 		if( 3==space_->dim() )  {
 
 			x.exchange(Z);
-			for( Ordinal k=space()->sIndB(W,Z); k<=space()->eIndB(W,Z); ++k )
-				for( Ordinal j=space()->sIndB(W,Y); j<=space()->eIndB(W,Y); ++j )
-					for( Ordinal i=space()->sIndB(W,X); i<=space()->eIndB(W,X); ++i )
+			for( Ordinal k=space()->begin(W,Z,true); k<=space()->end(W,Z,true); ++k )
+				for( Ordinal j=space()->begin(W,Y,true); j<=space()->end(W,Y,true); ++j )
+					for( Ordinal i=space()->begin(W,X,true); i<=space()->end(W,X,true); ++i )
 						y.getField(W).at(i,j,k) = innerStencW( x, i, j, k );
 		}
 

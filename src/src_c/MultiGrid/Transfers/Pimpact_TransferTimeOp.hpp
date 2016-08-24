@@ -42,7 +42,7 @@ public:
 	template< class DT, class RT>
 	void apply( const DT& x, RT& y ) const {
 
-		for (int i=x.space()->sInd(S,3); i<x.space()->eInd(S,3); ++i)
+		for (int i=x.space()->begin(S,3); i<x.space()->end(S,3); ++i)
 	   		 opV_->apply( x.getConstField(i), y.getField(i) );
 	
 		y.changed();

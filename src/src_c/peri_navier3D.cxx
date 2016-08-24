@@ -309,7 +309,8 @@ int main( int argi, char** argv ) {
 					Pimpact::InterpolationOp,
 					Pimpact::DivGradOp,
 					Pimpact::DivGradO2Op,
-					Pimpact::DivGradO2JSmoother,
+					//Pimpact::DivGradO2JSmoother,
+					Pimpact::Chebyshev,
 					//Pimpact::DivGradO2SORSmoother,
 					//POP
 					Pimpact::DivGradO2Inv
