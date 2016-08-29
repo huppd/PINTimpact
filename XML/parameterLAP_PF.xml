@@ -9,7 +9,7 @@
     <Parameter docString="length in z-direction" id="21" isDefault="false" isUsed="true" name="lz" type="double" value="2.00000000000000000e+00" />
     <Parameter docString="amount of grid points in x-direction: a*2**q+1" id="22" isDefault="false" isUsed="true" name="nx" type="int" value="33" />
     <Parameter docString="amount of grid points in y-direction: a*2**q+1" id="23" isDefault="false" isUsed="true" name="ny" type="int" value="33" />
-    <Parameter docString="amount of grid points in z-direction: a*2**q+1" id="24" isDefault="false" isUsed="true" name="nz" type="int" value="33" />
+    <Parameter docString="amount of grid points in z-direction: a*2**q+1" id="24" isDefault="false" isUsed="true" name="nz" type="int" value="9" />
     <Parameter docString="amount of grid points in f-direction" id="25" isDefault="false" isUsed="true" name="nf" type="int" value="1" />
     <Parameter docString="amount of processors in x-direction" id="26" isDefault="false" isUsed="true" name="npx" type="int" value="1" />
     <Parameter docString="amount of processors in y-direction" id="27" isDefault="false" isUsed="true" name="npy" type="int" value="1" />
@@ -23,19 +23,19 @@
       <Parameter docString="" id="32" isDefault="false" isUsed="true" name="Stretch Type" type="string" value="cos" />
       <Parameter docString="" id="33" isDefault="true" isUsed="true" name="x0 U" type="double" value="0.00000000000000000e+00" />
       <Parameter docString="" id="34" isDefault="true" isUsed="true" name="x0 L" type="double" value="0.00000000000000000e+00" />
-      <Parameter docString="" id="35" isDefault="true" isUsed="true" name="N metr U" type="double" value="1.65000000000000000e+01" />
-      <Parameter docString="" id="36" isDefault="true" isUsed="true" name="N metr L" type="double" value="1.65000000000000000e+01" />
+      <Parameter docString="" id="35" isDefault="true" isUsed="true" name="N metr U" type="double" value="33.00000000000000e+00" />
+      <Parameter docString="" id="36" isDefault="true" isUsed="true" name="N metr L" type="double" value="33.000000000000000e+00" />
     </ParameterList>
     <ParameterList id="4" name="Stretching in Z">
       <Parameter docString="" id="37" isDefault="false" isUsed="true" name="Stretch Type" type="string" value="none" />
     </ParameterList>
   </ParameterList>
   <ParameterList id="5" name="Multi Grid">
-    <Parameter docString="" id="38" isDefault="false" isUsed="true" name="maxGrids" type="int" value="1" />
+    <Parameter docString="" id="38" isDefault="false" isUsed="true" name="maxGrids" type="int" value="10" />
   </ParameterList>
 	<ParameterList id="6" name="DivGrad">
-		<Parameter docString="" id="39" isDefault="true" isUsed="true" name="Solver name" type="string" value="TFQMR" />
-		<!--<Parameter docString="" id="39" isDefault="true" isUsed="true" name="Solver name" type="string" value="Flexible Gmres" />-->
+		<!--<Parameter docString="" id="39" isDefault="true" isUsed="true" name="Solver name" type="string" value="TFQMR" />-->
+		<Parameter docString="" id="39" isDefault="true" isUsed="true" name="Solver name" type="string" value="Flexible Gmres" />
 		<!--<Parameter docString="" id="39" isDefault="true" isUsed="true" name="Solver name" type="string" value="Gmres" />-->
     <Parameter docString="" id="40" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
     <Parameter docString="" id="41" isDefault="true" isUsed="true" name="initZero" type="bool" value="false" />
@@ -53,7 +53,7 @@
       <Parameter docString="" id="50" isDefault="false" isUsed="true" name="numCycles" type="int" value="1" />
       <Parameter docString="" id="51" isDefault="false" isUsed="true" name="init zero" type="bool" value="true" />
       <ParameterList id="9" name="Smoother">
-        <Parameter docString="" id="52" isDefault="false" isUsed="true" name="numIters" type="int" value="4" />
+        <Parameter docString="" id="52" isDefault="false" isUsed="true" name="numIters" type="int" value="24" />
         <Parameter docString="" id="53" isDefault="true" isUsed="true" name="level" type="bool" value="false" />
       </ParameterList>
       <ParameterList id="10" name="Coarse Grid Solver">

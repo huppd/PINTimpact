@@ -179,62 +179,6 @@ contains
 
 
 
-  !> \deprecated
-  subroutine MG_InterpolateCorners( &
-      n,                            &
-      bL,                           &
-      bU,                           &
-      BCL,                          &
-      BCU,                          &
-      phi ) bind(c,name='MG_InterpolateCorners')
-
-    implicit none
-
-    integer(c_int), intent(in)    :: n(3)
-
-    integer(c_int), intent(in)    :: bL(3)
-    integer(c_int), intent(in)    :: bU(3)
-
-    integer(c_int), intent(in)    :: BCL(3)
-    integer(c_int), intent(in)    :: BCU(3)
-
-    real(c_double), intent(inout) :: phi( bL(1):(n(1)+bU(1)), bL(2):(n(2)+bU(2)), bL(3):(n(3)+bU(3)) )
-
-
-    if( BCL(1)>0 .and. BCL(2)>0 ) phi(1,    1,    1:n(3)) = ( phi(2     , 1   , 1:n(3)) + phi(1   , 2     , 1:n(3)) + phi(2     , 2     , 1:n(3)) )/3.
-    if( BCL(1)>0 .and. BCU(2)>0 ) phi(1,    n(2), 1:n(3)) = ( phi(2     , n(2), 1:n(3)) + phi(1   , n(2)-1, 1:n(3)) + phi(2     , n(2)-1, 1:n(3)) )/3.
-    if( BCU(1)>0 .and. BCL(2)>0 ) phi(n(1), 1,    1:n(3)) = ( phi(n(1)-1, 1   , 1:n(3)) + phi(n(1), 2     , 1:n(3)) + phi(n(1)-1, 2     , 1:n(3)) )/3.
-    if( BCU(1)>0 .and. BCU(2)>0 ) phi(n(1), n(2), 1:n(3)) = ( phi(n(1)-1, n(2), 1:n(3)) + phi(n(1), n(2)-1, 1:n(3)) + phi(n(1)-1, n(2)-1, 1:n(3)) )/3.
-
-    if( BCL(1)>0 .and. BCL(3)>0 ) phi(1,    1:n(2), 1   ) = ( phi(2     , 1:n(2), 1   ) + phi(1   , 1:n(2), 2     ) + phi(2     , 1:n(2), 2     ) )/3.
-    if( BCL(1)>0 .and. BCU(3)>0 ) phi(1,    1:n(2), n(3)) = ( phi(2     , 1:n(2), n(3)) + phi(1   , 1:n(2), n(3)-1) + phi(2     , 1:n(2), n(3)-1) )/3.
-    if( BCU(1)>0 .and. BCL(3)>0 ) phi(n(1), 1:n(2), 1   ) = ( phi(n(1)-1, 1:n(2), 1   ) + phi(n(1), 1:n(2), 2     ) + phi(n(1)-1, 1:n(2), 2     ) )/3.
-    if( BCU(1)>0 .and. BCU(3)>0 ) phi(n(1), 1:n(2), n(3)) = ( phi(n(1)-1, 1:n(2), n(3)) + phi(n(1), 1:n(2), n(3)-1) + phi(n(1)-1, 1:n(2), n(3)-1) )/3.
-
-    if( BCL(2)>0 .and. BCL(3)>0 ) phi(1:n(1), 1   , 1   ) = ( phi(1:n(1), 2     , 1   ) + phi(1:n(1), 1   , 2     ) + phi(1:n(1), 2     , 2     ) )/3.
-    if( BCL(2)>0 .and. BCU(3)>0 ) phi(1:n(1), 1   , n(3)) = ( phi(1:n(1), 2     , n(3)) + phi(1:n(1), 1   , n(3)-1) + phi(1:n(1), 2     , n(3)-1) )/3.
-    if( BCU(2)>0 .and. BCL(3)>0 ) phi(1:n(1), n(2), 1   ) = ( phi(1:n(1), n(2)-1, 1   ) + phi(1:n(1), n(2), 2     ) + phi(1:n(1), n(2)-1, 2     ) )/3.
-    if( BCU(2)>0 .and. BCU(3)>0 ) phi(1:n(1), n(2), n(3)) = ( phi(1:n(1), n(2)-1, n(3)) + phi(1:n(1), n(2), n(3)-1) + phi(1:n(1), n(2)-1, n(3)-1) )/3.
-
-    !if( BCL(1)>0 .and. BCL(2)>0 ) phi( 1,    1,    1:n(3) ) = ( phi(2     , 1,    1:n(3) ) + phi(1   , 2     , 1:n(3)) )/2.
-    !if( BCL(1)>0 .and. BCU(2)>0 ) phi( 1,    n(2), 1:n(3) ) = ( phi(2     , n(2), 1:n(3) ) + phi(1   , n(2)-1, 1:n(3)) )/2.
-    !if( BCU(1)>0 .and. BCL(2)>0 ) phi( n(1), 1,    1:n(3) ) = ( phi(n(1)-1, 1,    1:n(3) ) + phi(n(1), 2     , 1:n(3)) )/2.
-    !if( BCU(1)>0 .and. BCU(2)>0 ) phi( n(1), n(2), 1:n(3) ) = ( phi(n(1)-1, n(2), 1:n(3) ) + phi(n(1), n(2)-1, 1:n(3)) )/2.
-
-    !if( BCL(1)>0 .and. BCL(3)>0 ) phi( 1,    1:n(2), 1    ) = ( phi(2     , 1:n(2), 1    ) + phi(1   , 1:n(2), 2     ) )/2.
-    !if( BCL(1)>0 .and. BCU(3)>0 ) phi( 1,    1:n(2), n(3) ) = ( phi(2     , 1:n(2), n(3) ) + phi(1   , 1:n(2), n(3)-1) )/2.
-    !if( BCU(1)>0 .and. BCL(3)>0 ) phi( n(1), 1:n(2), 1    ) = ( phi(n(1)-1, 1:n(2), 1    ) + phi(n(1), 1:n(2), 2     ) )/2.
-    !if( BCU(1)>0 .and. BCU(3)>0 ) phi( n(1), 1:n(2), n(3) ) = ( phi(n(1)-1, 1:n(2), n(3) ) + phi(n(1), 1:n(2), n(3)-1) )/2.
-
-    !if( BCL(2)>0 .and. BCL(3)>0 ) phi( 1:n(1), 1   , 1    ) = ( phi(1:n(1), 2     , 1    ) + phi(1:n(1), 1   , 2     ) )/2.
-    !if( BCL(2)>0 .and. BCU(3)>0 ) phi( 1:n(1), 1   , n(3) ) = ( phi(1:n(1), 2     , n(3) ) + phi(1:n(1), 1   , n(3)-1) )/2.
-    !if( BCU(2)>0 .and. BCL(3)>0 ) phi( 1:n(1), n(2), 1    ) = ( phi(1:n(1), n(2)-1, 1    ) + phi(1:n(1), n(2), 2     ) )/2.
-    !if( BCU(2)>0 .and. BCU(3)>0 ) phi( 1:n(1), n(2), n(3) ) = ( phi(1:n(1), n(2)-1, n(3) ) + phi(1:n(1), n(2), n(3)-1) )/2.
-
-  end subroutine MG_InterpolateCorners
-
-
-
   !> \brief corrects values at corners through extrapolation
   !!
   !! \param[in] n
