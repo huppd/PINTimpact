@@ -123,7 +123,7 @@ int main( int argi, char** argv ) {
 
 	///////////////////////////////////////////  set up initial stuff ////////////////////////////
 
-	std::string initZero = pl->sublist("Solver").get<std::string>( "init zero", "zero" );
+	std::string initZero = pl->sublist("Solver").get<std::string>( "initial guess", "zero" );
 
 	int withprec=pl->sublist("Solver").get<int>( "withprec", 2 );
 	int withoutput=pl->sublist("Solver").get<int>( "withoutput", 1 );

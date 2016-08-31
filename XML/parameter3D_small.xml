@@ -33,7 +33,7 @@
     <Parameter docString="" id="79" isDefault="false" isUsed="true" name="refinement level" type="int" value="1" />
     <Parameter docString="" id="80" isDefault="false" isUsed="true" name="refinement tol" type="double" value="9.99999999999999955e-07" />
     <Parameter docString="" id="81" isDefault="false" isUsed="true" name="refinement step" type="int" value="1" />
-    <Parameter docString="" id="82" isDefault="false" isUsed="true" name="init zero" type="string" value="bla" />
+    <Parameter docString="" id="82" isDefault="false" isUsed="true" name="initial guess" type="string" value="bla" />
   </ParameterList>
   <ParameterList id="6" name="Multi Grid">
     <Parameter docString="" id="83" isDefault="false" isUsed="true" name="maxGrids" type="int" value="20" />

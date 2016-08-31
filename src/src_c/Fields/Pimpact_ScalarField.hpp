@@ -30,7 +30,6 @@ namespace Pimpact {
 
 /// \brief important basic Vector class
 /// vector for a scalar field, e.g.: pressure,
-/// \note all indexing is done in Fortran
 /// \ingroup Field
 template<class SpaceType>
 class ScalarField : private AbstractField< SpaceType > {
