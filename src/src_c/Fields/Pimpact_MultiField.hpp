@@ -500,6 +500,12 @@ public:
 			mfs_[i]->initField();
 	}
 
+  void extrapolateBC() const {
+		const int n = getNumberVecs();
+		for( int i=0; i<n; ++i )
+			mfs_[i]->extrapolateBC();
+	}
+
 	void level() const {
 		const int n = getNumberVecs();
 		for( int i=0; i<n; ++i )

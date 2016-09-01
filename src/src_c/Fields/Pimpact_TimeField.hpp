@@ -336,6 +336,13 @@ public:
 		changed();
 	}
 
+	void extrapolateBC() const {
+
+		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
+			mfs_[i]->extrapolateBC();
+		changed();
+	}
+
 	void level() const {
 
 		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )

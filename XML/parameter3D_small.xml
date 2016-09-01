@@ -125,7 +125,7 @@
       <Parameter docString="" id="134" isDefault="false" isUsed="true" name="Explicit Residual Scaling" type="string" value="Norm of RHS" />
       <Parameter docString="" id="135" isDefault="false" isUsed="true" name="Orthogonalization" type="string" value="DGKS" />
       <Parameter docString="" id="136" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="80" />
-      <Parameter docString="" id="137" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.00000000000000006e-01" />
+      <Parameter docString="" id="137" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.00000000000000006e-04" />
       <Parameter docString="" id="138" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
       <Parameter docString="" id="139" isDefault="false" isUsed="true" name="Timer Label" type="string" value="Compound( MHDtConvectionDiffusion, MH_Grad, MH_Div )" />
       <Parameter docString="" id="140" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="-1" />
@@ -146,7 +146,7 @@
 			<!--<Parameter docString="" id="151" isDefault="false" isUsed="true" name="Explicit Residual Scaling" type="string" value="Norm of RHS" />-->
 			<!--<Parameter docString="" id="152" isDefault="false" isUsed="true" name="Orthogonalization" type="string" value="DGKS" />-->
 			<!--<Parameter docString="" id="153" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="10" />-->
-			<Parameter docString="" id="154" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.00000000000000002e-03" />
+			<Parameter docString="" id="154" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.00000000000000002e-01" />
 			<Parameter docString="" id="155" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
 			<Parameter docString="" id="156" isDefault="false" isUsed="true" name="Timer Label" type="string" value="DivGrad" />
 			<Parameter docString="" id="157" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="-1" />

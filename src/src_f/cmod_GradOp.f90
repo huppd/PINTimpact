@@ -26,7 +26,7 @@ contains
   !! \param[in] BC_U upper boundary condtions
   !! \param[in] SB start index including boundaries
   !! \param[in] NB end index including boundaries
-  !! \param[out] grad field
+  !! \param[out] phi field
   subroutine OP_SetBCZero(  &
       N,                    &
       bL,                   &
@@ -35,7 +35,7 @@ contains
       BC_U,                 &
       SB,                   &
       NB,                   &
-      grad ) bind ( c, name='OP_SetBCZero' )
+      phi ) bind ( c, name='OP_SetBCZero' )
 
     implicit none
 
@@ -50,22 +50,23 @@ contains
     integer(c_int), intent(in)  :: SB(3)
     integer(c_int), intent(in)  :: NB(3)
 
-    real(c_double), intent(inout) :: grad(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
+    real(c_double), intent(inout) :: phi(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
 
 
     !--- Boundary conditions --------------------------------------------------------------------
-    if (BC_L(1) > 0) grad(SB(1)      ,SB(2):NB(2),SB(3):NB(3)) = 0.
-    if (BC_U(1) > 0) grad(      NB(1),SB(2):NB(2),SB(3):NB(3)) = 0.
-    if (BC_L(2) > 0) grad(SB(1):NB(1),SB(2)      ,SB(3):NB(3)) = 0.
-    if (BC_U(2) > 0) grad(SB(1):NB(1),      NB(2),SB(3):NB(3)) = 0.
-    if (BC_L(3) > 0) grad(SB(1):NB(1),SB(2):NB(2),SB(3)      ) = 0.
-    if (BC_U(3) > 0) grad(SB(1):NB(1),SB(2):NB(2),      NB(3)) = 0.
+    if (BC_L(1) > 0) phi(SB(1)      ,SB(2):NB(2),SB(3):NB(3)) = 0.
+    if (BC_U(1) > 0) phi(      NB(1),SB(2):NB(2),SB(3):NB(3)) = 0.
+    if (BC_L(2) > 0) phi(SB(1):NB(1),SB(2)      ,SB(3):NB(3)) = 0.
+    if (BC_U(2) > 0) phi(SB(1):NB(1),      NB(2),SB(3):NB(3)) = 0.
+    if (BC_L(3) > 0) phi(SB(1):NB(1),SB(2):NB(2),SB(3)      ) = 0.
+    if (BC_U(3) > 0) phi(SB(1):NB(1),SB(2):NB(2),      NB(3)) = 0.
 
   end subroutine OP_SetBCZero
 
 
 
-  !>  \brief extrapolates for non-block BC outside value
+  !> \brief extrapolates for non-block BC outside value, such that phi is zero
+  !! on the boundary
   subroutine OP_extrapolateBC(  &
       m,                        &
       N,                        &
@@ -198,7 +199,7 @@ contains
 
 
 
-  !>  \brief extrapolates for non-block BC outside value
+  !>  \brief extrapolates for non-block BC outside value continously
   !!
   !! using Neville-Aitken scheme
   subroutine OP_extrapolateBC2(  &
@@ -246,7 +247,7 @@ contains
     real(c_double)                :: x
 
     integer(c_int) :: i, j, k
-    integer(c_int) :: ii,jj,kk
+    integer(c_int) :: ii, kk
 
     !--------------------------------------------------------------------------------------------
     !write(*,*) dl

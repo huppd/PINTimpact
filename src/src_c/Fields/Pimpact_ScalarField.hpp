@@ -735,6 +735,9 @@ public:
 	}
 
 
+	void extrapolateBC() const {}
+
+
 	/// \brief levels field if scalar field
 	void level() {
 

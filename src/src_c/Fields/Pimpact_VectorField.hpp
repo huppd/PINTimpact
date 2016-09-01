@@ -1270,6 +1270,28 @@ public:
 	}
 
 
+	/// \brief extrapoltes on the boundaries such that it is zero
+	/// \note dirty hack(necessary for TripleCompostion)
+  void extrapolateBC() const {
+
+		for( int i=0; i<space()->dim(); ++i )
+			OP_extrapolateBC(
+					i+1,
+					space()->nLoc(),
+					space()->bl(),
+					space()->bu(),
+					space()->dl(i),
+					space()->du(i),
+					space()->getBCLocal()->getBCL(i),
+					space()->getBCLocal()->getBCU(i),
+					space()->sIndB(i),
+					space()->eIndB(i),
+					//space()->getInterpolateV2S()->getCM( static_cast<ECoord>(i) ), // O1
+					space()->getInterpolateV2S()->getC( static_cast<ECoord>(i) ), // O3
+					getRawPtr(i) );
+	}
+
+
 	/// dirty hack(necessary for MG)
   void level() const {}
 

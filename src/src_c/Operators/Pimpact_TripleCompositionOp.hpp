@@ -54,6 +54,8 @@ public:
 
     op2_->apply( *temp1, *temp2 );
 
+		temp2->extrapolateBC();
+
     op1_->apply( *temp2, y );
   }
 

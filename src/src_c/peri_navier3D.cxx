@@ -309,8 +309,8 @@ int main( int argi, char** argv ) {
 					Pimpact::InterpolationOp,
 					Pimpact::DivGradOp,
 					Pimpact::DivGradO2Op,
-					//Pimpact::DivGradO2JSmoother,
-					Pimpact::Chebyshev,
+					Pimpact::DivGradO2JSmoother,
+					//Pimpact::Chebyshev,
 					//Pimpact::DivGradO2SORSmoother,
 					//POP
 					Pimpact::DivGradO2Inv
@@ -319,7 +319,7 @@ int main( int argi, char** argv ) {
 				if( 0==space->rankST() )
 					mgDivGrad->print();
 
-				//divGradInv2->setRightPrec( Pimpact::createMultiOperatorBase( mgDivGrad ) );
+				divGradInv2->setRightPrec( Pimpact::createMultiOperatorBase( mgDivGrad ) );
 			}
 
 			auto divGradInv =

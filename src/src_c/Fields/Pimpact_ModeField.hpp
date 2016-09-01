@@ -317,6 +317,11 @@ public:
     fields_->initField();
 	}
 
+  void extrapolateBC() const {
+    fieldc_->extrapolateBC();
+    fields_->extrapolateBC();
+  }
+
   void level() const {
     fieldc_->level();
     fields_->level();

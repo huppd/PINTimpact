@@ -264,6 +264,11 @@ public:
     sfield_->initField();
 	}
 
+	void extrapolateBC() const {
+		vfield_->extrapolateBC();
+    sfield_->extrapolateBC();
+  }
+
 	void level() const {
     vfield_->level();
     sfield_->level();
