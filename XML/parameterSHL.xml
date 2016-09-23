@@ -33,7 +33,7 @@
   </ParameterList>
   <Parameter docString="forcing, ja?" id="74" isDefault="false" isUsed="true" name="forcing" type="int" value="1" />
   <ParameterList id="5" name="Solver">
-    <Parameter docString="" id="75" isDefault="false" isUsed="true" name="withprec" type="int" value="0" />
+    <Parameter docString="" id="75" isDefault="false" isUsed="true" name="withprec" type="int" value="3" />
     <Parameter docString="" id="76" isDefault="false" isUsed="true" name="withoutput" type="int" value="1" />
     <Parameter docString="" id="77" isDefault="false" isUsed="true" name="refinement level" type="int" value="1" />
     <Parameter docString="" id="78" isDefault="false" isUsed="true" name="refinement tol" type="double" value="9.99999999999999955e-07" />
@@ -122,7 +122,7 @@
 			<!--<Parameter docString="" id="124" isDefault="false" isUsed="true" name="Maximum Restarts" type="int" value="100" />-->
       <!--<Parameter docString="" id="125" isDefault="false" isUsed="true" name="Block Size" type="int" value="1" />-->
       <!--<Parameter docString="" id="126" isDefault="false" isUsed="true" name="Adaptive Block Size" type="bool" value="true" />-->
-      <!--<Parameter docString="" id="127" isDefault="false" isUsed="true" name="Flexible Gmres" type="bool" value="true" />-->
+			<Parameter docString="" id="127" isDefault="false" isUsed="true" name="Flexible Gmres" type="bool" value="true" />
       <!--<Parameter docString="" id="128" isDefault="false" isUsed="true" name="Implicit Residual Scaling" type="string" value="Norm of RHS" />-->
       <!--<Parameter docString="" id="129" isDefault="false" isUsed="true" name="Explicit Residual Scaling" type="string" value="Norm of RHS" />-->
       <!--<Parameter docString="" id="130" isDefault="false" isUsed="true" name="Orthogonalization" type="string" value="DGKS" />-->
@@ -300,5 +300,4 @@
       <Parameter docString="" id="250" isDefault="true" isUsed="true" name="Type" type="string" value="Zero" />
     </ParameterList>
   </ParameterList>
-  <Validators />
 </ParameterList>

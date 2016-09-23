@@ -28,34 +28,34 @@ class Group : public virtual NOX::Abstract::Group {
 
 public:
 
-	using Field = typename Interface::Field;
-	using Vector = NOX::Pimpact::Vector<Field>;
+	using FieldT = typename Interface::FieldT;
+	using VectorT = NOX::Pimpact::Vector<FieldT>;
 
 protected:
 
 	/// Printing Utilities object
-  const NOX::Utils utils;
+	const NOX::Utils utils;
 
   /// @name Vectors
   //@{
   /// Solution vector pointer.
-  Teuchos::RCP<Vector> xVectorPtr;
+  Teuchos::RCP<VectorT> xVectorPtr;
   /// Solution vector.
-  Vector& xVector;
+  VectorT& xVector;
   /// Right-hand-side vector pointer (function evaluation).
-  Teuchos::RCP<Vector> RHSVectorPtr;
+  Teuchos::RCP<VectorT> RHSVectorPtr;
   /// Right-hand-side vector (function evaluation).
-  Vector& RHSVector;
+  VectorT& RHSVector;
   /// Gradient vector pointer (steepest descent vector).
-  Teuchos::RCP<Vector> gradVectorPtr;
+  Teuchos::RCP<VectorT> gradVectorPtr;
   /// Gradient vector (steepest descent vector).
-  Vector& gradVector;
+  VectorT& gradVector;
   /// Newton direction vector pointer.
-  Teuchos::RCP<Vector> NewtonVectorPtr;
+  Teuchos::RCP<VectorT> NewtonVectorPtr;
   /// Newton direction vector.
-  Vector& NewtonVector;
+  VectorT& NewtonVector;
   /// An extra temporary vector, only allocated if needed.
-  mutable Teuchos::RCP<Vector> tmpVectorPtr;
+  mutable Teuchos::RCP<VectorT> tmpVectorPtr;
 
   //@}
   /// \name IsValid flags
@@ -86,13 +86,12 @@ protected:
   /// @name Shared Operators
   //@{
   /// Pointer to shared Interface
-  Teuchos::RCP<
-  NOX::SharedObject< Interface, NOX::Pimpact::Group<Interface> >
-  > sharedInterfacePtr;
+	Teuchos::RCP< NOX::SharedObject< Interface, NOX::Pimpact::Group<Interface> >
+		> sharedInterfacePtr;
 
   /// Reference to shared Interface
-  NOX::SharedObject< Interface, NOX::Pimpact::Group<Interface> >&
-  sharedInterface;
+	NOX::SharedObject< Interface, NOX::Pimpact::Group<Interface> >&
+		sharedInterface;
 
   //@}
 
@@ -106,23 +105,23 @@ protected:
 
 public:
 
-  /// \brief Constructor with NO linear system.
-  ///
-  /// \warning: If this constructor is used, then methods that require
-  /// a Jacobian or preconditioning will not be available.  You will be
-  /// limited to simple algorithms like nonlinear-CG with no
-  /// preconditioning.
+	/// \brief Constructor with NO linear system.
+	///
+	/// \warning: If this constructor is used, then methods that require
+	/// a Jacobian or preconditioning will not be available.  You will be
+	/// limited to simple algorithms like nonlinear-CG with no
+	/// preconditioning.
 	Group( Teuchos::ParameterList& printingParams,
 			const Teuchos::RCP<Interface>& i,
-			const Vector& x):
+			const VectorT& x):
 		utils(printingParams),
-		xVectorPtr(Teuchos::rcp_dynamic_cast<Vector>(x.clone(DeepCopy))),
+		xVectorPtr(Teuchos::rcp_dynamic_cast<VectorT>(x.clone(DeepCopy))),
 		xVector(*xVectorPtr),
-		RHSVectorPtr(Teuchos::rcp_dynamic_cast<Vector>(x.clone(ShapeCopy))),
+		RHSVectorPtr(Teuchos::rcp_dynamic_cast<VectorT>(x.clone(ShapeCopy))),
 		RHSVector(*RHSVectorPtr),
-		gradVectorPtr(Teuchos::rcp_dynamic_cast<Vector>(x.clone(ShapeCopy))),
+		gradVectorPtr(Teuchos::rcp_dynamic_cast<VectorT>(x.clone(ShapeCopy))),
 		gradVector(*gradVectorPtr),
-		NewtonVectorPtr(Teuchos::rcp_dynamic_cast<Vector>(x.clone(ShapeCopy))),
+		NewtonVectorPtr(Teuchos::rcp_dynamic_cast<VectorT>(x.clone(ShapeCopy))),
 		NewtonVector(*NewtonVectorPtr),
 		normNewtonSolveResidual(0),
 		conditionNumber(0.0),
@@ -139,17 +138,17 @@ public:
 	}
 
 
-  /// \brief Copy constructor. If type is DeepCopy, takes ownership of valid
-  /// shared linear system.
-	Group(const NOX::Pimpact::Group<Interface>& source, NOX::CopyType type = NOX::DeepCopy):
+	/// \brief Copy constructor. If type is DeepCopy, takes ownership of valid
+	/// shared linear system.
+	Group( const NOX::Pimpact::Group<Interface>& source, NOX::CopyType type = NOX::DeepCopy ):
 		utils(source.utils),
-		xVectorPtr(Teuchos::rcp_dynamic_cast<Vector>(source.xVector.clone(type))),
+		xVectorPtr(Teuchos::rcp_dynamic_cast<VectorT>(source.xVector.clone(type))),
 		xVector(*xVectorPtr),
-		RHSVectorPtr(Teuchos::rcp_dynamic_cast<Vector>(source.RHSVector.clone(type))),
+		RHSVectorPtr(Teuchos::rcp_dynamic_cast<VectorT>(source.RHSVector.clone(type))),
 		RHSVector(*RHSVectorPtr),
-		gradVectorPtr(Teuchos::rcp_dynamic_cast<Vector>(source.gradVector.clone(type))),
+		gradVectorPtr(Teuchos::rcp_dynamic_cast<VectorT>(source.gradVector.clone(type))),
 		gradVector(*gradVectorPtr),
-		NewtonVectorPtr(Teuchos::rcp_dynamic_cast<Vector>(source.NewtonVector.clone(type))),
+		NewtonVectorPtr(Teuchos::rcp_dynamic_cast<VectorT>(source.NewtonVector.clone(type))),
 		NewtonVector(*NewtonVectorPtr),
 		sharedInterfacePtr( source.sharedInterfacePtr ),
 		sharedInterface(*sharedInterfacePtr),
@@ -190,13 +189,13 @@ public:
   virtual ~Group() {}
 
 
-  virtual NOX::Abstract::Group& operator=(const NOX::Abstract::Group& source) {
+  virtual NOX::Abstract::Group& operator=( const NOX::Abstract::Group& source ) {
     return( operator=(dynamic_cast<const Group&> (source)) );
   }
 
 
   /// See operator=(const NOX::Abstract::Group&);
-  virtual NOX::Abstract::Group& operator=(const NOX::Pimpact::Group<Interface>& source) {
+  virtual NOX::Abstract::Group& operator=( const NOX::Pimpact::Group<Interface>& source ) {
     // Copy the xVector
     xVector = source.xVector;
 
@@ -214,9 +213,8 @@ public:
     isValidConditionNumber = source.isValidConditionNumber;
 
     // Only copy vectors that are valid
-    if (isValidRHS) {
+    if (isValidRHS)
       RHSVector = source.RHSVector;
-    }
 
     if (isValidGrad)
       gradVector = source.gradVector;
@@ -248,7 +246,7 @@ public:
   /// \name "Compute" functions.
   //@{
 
-  virtual void setX(const Vector& y) {
+  virtual void setX( const VectorT& y ) {
     //    if (isPreconditioner()) {
     ////      sharedLinearSystem.getObject(this)->destroyPreconditioner();
     //    }
@@ -256,14 +254,14 @@ public:
     xVector = y;
     return;
   }
-  virtual void setX(const NOX::Abstract::Vector& y) {
-    setX(dynamic_cast<const Vector&> (y));
+  virtual void setX( const NOX::Abstract::Vector& y ) {
+    setX( dynamic_cast<const VectorT&> (y) );
     return;
   }
 
 
   virtual void computeX( const Group& grp,
-      const Vector& d,
+      const VectorT& d,
       double step ) {
     //    if( isPreconditioner() )
     //      sharedLinearSystem.getObject(this)->destroyPreconditioner();
@@ -271,16 +269,15 @@ public:
     xVector.update(1.0, grp.xVector, step, d);
     return;
   }
-  virtual void computeX(const NOX::Abstract::Group& grp,
+  virtual void computeX( const NOX::Abstract::Group& grp,
       const NOX::Abstract::Vector& d,
-      double step) {
+      double step ) {
 
 		Teuchos::TimeMonitor bla(*noxUpdateX_);
 
     // Cast to appropriate type, then call the "native" computeX
-    const Group& pimpgrp = dynamic_cast<const Group&> (grp);
-    const Vector& pimpd =  dynamic_cast<const Vector&> (d);
-
+    const Group& pimpgrp = dynamic_cast<const Group&>( grp );
+    const VectorT& pimpd =  dynamic_cast<const VectorT&>( d );
 
     computeX( pimpgrp, pimpd, step );
     return;
@@ -362,7 +359,7 @@ public:
   }
 
 
-  virtual NOX::Abstract::Group::ReturnType computeNewton(Teuchos::ParameterList& params) {
+  virtual NOX::Abstract::Group::ReturnType computeNewton( Teuchos::ParameterList& params ) {
 
 		Teuchos::TimeMonitor bla( *noxCompdx_ );
 
@@ -412,7 +409,7 @@ public:
   //@{
 
   virtual NOX::Abstract::Group::ReturnType
-  applyJacobian(const Vector& input, Vector& result) const {
+  applyJacobian( const VectorT& input, VectorT& result ) const {
     //    // Check validity of the Jacobian
     if (!isJacobian())
       return( Abstract::Group::BadDependency );
@@ -425,8 +422,8 @@ public:
   }
   virtual NOX::Abstract::Group::ReturnType
   applyJacobian(const NOX::Abstract::Vector& input, NOX::Abstract::Vector& result) const {
-    const Vector& pimpinput =  dynamic_cast<const Vector&> (input);
-    Vector& pimpresult = dynamic_cast<Vector&> (result);
+    const VectorT& pimpinput =  dynamic_cast<const VectorT&> (input);
+    VectorT& pimpresult = dynamic_cast<VectorT&> (result);
 
     return( applyJacobian( pimpinput, pimpresult) );
   }
@@ -476,7 +473,7 @@ public:
   /// linear solve.
   /// The parameter "Reuse Preconditioner" is a boolean that tells the group to turn off control of preconditioner recalculation.  This is a dangerous flag but can really speed the computations if the user knows what they are doing.  Toggling this flag is left to the user (ideally it should be done through a status test).  Defaults to false.
   virtual NOX::Abstract::Group::ReturnType
-  applyJacobianInverse(Teuchos::ParameterList &params, const Vector &input, Vector &result) const {
+  applyJacobianInverse( Teuchos::ParameterList &params, const VectorT& input, VectorT& result ) const {
     if (!isJacobian())
       return( Abstract::Group::BadDependency );
 
@@ -510,18 +507,19 @@ public:
     return( status );
   }
   virtual NOX::Abstract::Group::ReturnType
-  applyJacobianInverse(Teuchos::ParameterList &params, const NOX::Abstract::Vector &input, NOX::Abstract::Vector &result) const {
-    const Vector& pimpInput = dynamic_cast<const Vector&>(input);
-    Vector& pimpResult = dynamic_cast<Vector&>(result);
+  applyJacobianInverse( Teuchos::ParameterList& params, const NOX::Abstract::Vector& input, NOX::Abstract::Vector& result ) const {
+    const VectorT& pimpInput = dynamic_cast<const VectorT&>(input);
+    VectorT& pimpResult = dynamic_cast<VectorT&>(result);
     return( applyJacobianInverse(params, pimpInput, pimpResult) );
   }
 
 
   virtual NOX::Abstract::Group::ReturnType
-  applyRightPreconditioning(bool useTranspose,
-      Teuchos::ParameterList& params,
-      const Vector& input,
-      Vector& result) const {
+  applyRightPreconditioning(
+			bool useTranspose,
+			Teuchos::ParameterList& params,
+			const VectorT& input,
+			VectorT& result ) const {
 
     //    params.print();
     //    std::cout << "Call applyRightPrecon.... !!!!!!\n";
@@ -535,8 +533,8 @@ public:
       const NOX::Abstract::Vector& input,
       NOX::Abstract::Vector& result) const {
     //    return( Abstract::Group::NotDefined );
-    const Vector& pimpInput = dynamic_cast<const Vector&>(input);
-    Vector& pimpResult = dynamic_cast<Vector&>(result);
+    const VectorT& pimpInput = dynamic_cast<const VectorT&>(input);
+    VectorT& pimpResult = dynamic_cast<VectorT&>(result);
 
     return( applyRightPreconditioning(useTranspose, params, pimpInput, pimpResult) );
   }
@@ -802,7 +800,7 @@ template< class Interface >
 Teuchos::RCP<NOX::Pimpact::Group<Interface> > createGroup(
     const Teuchos::RCP<Teuchos::ParameterList>& list,
     const Teuchos::RCP<Interface>& i,
-    const Teuchos::RCP<typename NOX::Pimpact::Group<Interface>::Vector>& x ) {
+    const Teuchos::RCP<typename NOX::Pimpact::Group<Interface>::VectorT>& x ) {
   return( Teuchos::rcp( new NOX::Pimpact::Group<Interface>( *list, i, *x ) ) );
 }
 

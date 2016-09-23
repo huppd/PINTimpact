@@ -482,130 +482,130 @@ TEUCHOS_STATIC_SETUP() {
 //}
 
 
-TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
+//TEUCHOS_UNIT_TEST( NOXPimpact_Group, SimpleNonlinear ) {
 
-  typedef Pimpact::VectorField<SpaceT> VF;
+  //typedef Pimpact::VectorField<SpaceT> VF;
 
-	typedef Pimpact::MultiField<VF> MVF;
-
-
-  typedef NOX::Pimpact::Interface<MVF> Inter;
-  typedef NOX::Pimpact::Vector<typename Inter::Field> NV;
+	//typedef Pimpact::MultiField<VF> MVF;
 
 
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
-
-  int rank = space->rankST();
-
-  auto vel = Pimpact::create<Pimpact::VectorField>( space );
-
-  vel->initField( Pimpact::ZeroFlow );
-
-  auto x = Pimpact::createMultiField( *vel->clone(), 1 );
-  auto f = Pimpact::createMultiField( *vel->clone(), 1 );
+  //typedef NOX::Pimpact::Interface<MVF> Inter;
+  //typedef NOX::Pimpact::Vector<typename Inter::FieldT> NV;
 
 
- auto sop = Pimpact::create<ConvDiffOpT>( space ); ;
+  //auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
- auto op =
-	 Pimpact::createOperatorBase(
-			 Pimpact::createMultiOpWrap(
-				 sop
-				 )
-			 );
+  //int rank = space->rankST();
 
- auto smoother =
-	 Pimpact::createOperatorBase(
-			 Pimpact::createMultiOpWrap(
-				 Pimpact::create<
-				 Pimpact::NonlinearSmoother<
-				 ConvDiffOpT<Pimpact::Space<ST,OT,d,dNC> > ,
-				 Pimpact::ConvectionDiffusionSORSmoother > > (
-					 sop
-					 )
-				 )
-			 );
+  //auto vel = Pimpact::create<Pimpact::VectorField>( space );
 
- auto jop = op;
+  //vel->initField( Pimpact::ZeroFlow );
 
- // init Fields, init and rhs
- x->getFieldPtr(0)->initField( Pimpact::RankineVortex2D );
- f->getFieldPtr(0)->initField( Pimpact::ZeroFlow );
-
-// x->write( 97 );
- op->assignField(*x);
- op->apply( *x, *f );
-// f->write( 98 );
-
- x->init( 0. );
-
- auto para = Pimpact::createLinSolverParameter("GMRES",1.e-6);
-
- auto lp_ = Pimpact::createLinearProblem<MVF>(
-		 jop, x->clone(), f->clone(), para , "GMRES" );
-
- lp_->setRightPrec( smoother );
-//  lp_->setLeftPrec( smoother );
-
- auto lp = Pimpact::createInverseOperatorBase<MVF>( lp_ );
-
- auto inter = NOX::Pimpact::createInterface<MVF>( f, op, lp );
-
- auto nx = NOX::Pimpact::createVector( x );
-
- auto bla = Teuchos::parameterList();
-
- auto group = NOX::Pimpact::createGroup( bla, inter, nx );
-
- // Set up the status tests
- auto statusTest = NOX::Pimpact::createStatusTest();
-
- // Create the list of solver parameters
- Teuchos::RCP<Teuchos::ParameterList> solverParametersPtr =
-	 Teuchos::rcp(new Teuchos::ParameterList);
+  //auto x = Pimpact::createMultiField( *vel->clone(), 1 );
+  //auto f = Pimpact::createMultiField( *vel->clone(), 1 );
 
 
- // Create the line search parameters sublist
- Teuchos::ParameterList& lineSearchParameters = solverParametersPtr->sublist("Line Search");
- lineSearchParameters.set("Method","Backtrack");
- lineSearchParameters.sublist("Backtrack").set("Recovery Step",1.e-12/2.);
+ //auto sop = Pimpact::create<ConvDiffOpT>( space ); ;
+
+ //auto op =
+	 //Pimpact::createOperatorBase(
+			 //Pimpact::createMultiOpWrap(
+				 //sop
+				 //)
+			 //);
+
+ //auto smoother =
+	 //Pimpact::createOperatorBase(
+			 //Pimpact::createMultiOpWrap(
+				 //Pimpact::create<
+				 //Pimpact::NonlinearSmoother<
+				 //ConvDiffOpT<Pimpact::Space<ST,OT,d,dNC> > ,
+				 //Pimpact::ConvectionDiffusionSORSmoother > > (
+					 //sop
+					 //)
+				 //)
+			 //);
+
+ //auto jop = op;
+
+ //// init Fields, init and rhs
+ //x->getFieldPtr(0)->initField( Pimpact::RankineVortex2D );
+ //f->getFieldPtr(0)->initField( Pimpact::ZeroFlow );
+
+//// x->write( 97 );
+ //op->assignField(*x);
+ //op->apply( *x, *f );
+//// f->write( 98 );
+
+ //x->init( 0. );
+
+ //auto para = Pimpact::createLinSolverParameter("GMRES",1.e-6);
+
+ //auto lp_ = Pimpact::createLinearProblem<MVF>(
+		 //jop, x->clone(), f->clone(), para , "GMRES" );
+
+ //lp_->setRightPrec( smoother );
+////  lp_->setLeftPrec( smoother );
+
+ //auto lp = Pimpact::createInverseOperatorBase<MVF>( lp_ );
+
+ //auto inter = NOX::Pimpact::createInterface<MVF>( f, op, lp );
+
+ //auto nx = NOX::Pimpact::createVector( x );
+
+ //auto bla = Teuchos::parameterList();
+
+ //auto group = NOX::Pimpact::createGroup( bla, inter, nx );
+
+ //// Set up the status tests
+ //auto statusTest = NOX::Pimpact::createStatusTest();
+
+ //// Create the list of solver parameters
+ //Teuchos::RCP<Teuchos::ParameterList> solverParametersPtr =
+	 //Teuchos::rcp(new Teuchos::ParameterList);
 
 
- // Create the solver
- Teuchos::RCP<NOX::Solver::Generic> solver =
-	 NOX::Solver::buildSolver( group, statusTest, solverParametersPtr);
+ //// Create the line search parameters sublist
+ //Teuchos::ParameterList& lineSearchParameters = solverParametersPtr->sublist("Line Search");
+ //lineSearchParameters.set("Method","Backtrack");
+ //lineSearchParameters.sublist("Backtrack").set("Recovery Step",1.e-12/2.);
 
- // Solve the nonlinear system
- NOX::StatusTest::StatusType status = solver->solve();
 
- // Print the parameter list
- if(rank==0) std::cout << "\n" << "-- Parameter List From Solver --" << "\n";
- if(rank==0) std::cout << "\n" << status << "\n";
- if(rank==0) solver->getList().print(std::cout);
+ //// Create the solver
+ //Teuchos::RCP<NOX::Solver::Generic> solver =
+	 //NOX::Solver::buildSolver( group, statusTest, solverParametersPtr);
 
- // Get the answer
- *group = solver->getSolutionGroup();
+ //// Solve the nonlinear system
+ //NOX::StatusTest::StatusType status = solver->solve();
 
- // Print the answer
- if(rank==0) std::cout << "\n" << "-- Final Solution From Solver --" << "\n";
-// Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() )->getConstFieldPtr()->write(99);
+ //// Print the parameter list
+ //if(rank==0) std::cout << "\n" << "-- Parameter List From Solver --" << "\n";
+ //if(rank==0) std::cout << "\n" << status << "\n";
+ //if(rank==0) solver->getList().print(std::cout);
 
- auto sol = Teuchos::rcp_const_cast<VF>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() )->getConstFieldPtr()->getConstFieldPtr(0) );
-// sol->write(888);
+ //// Get the answer
+ //*group = solver->getSolutionGroup();
 
- vel->initField( Pimpact::RankineVortex2D );
+ //// Print the answer
+ //if(rank==0) std::cout << "\n" << "-- Final Solution From Solver --" << "\n";
+//// Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() )->getConstFieldPtr()->write(99);
 
- auto er = vel->clone();
- er->initField( Pimpact::ZeroFlow );
- er->add( 1., *sol, -1., *vel );
-// er->write(100);
+ //auto sol = Teuchos::rcp_const_cast<VF>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() )->getConstFieldPtr()->getConstFieldPtr(0) );
+//// sol->write(888);
 
- std::cout << " error: " << er->norm() << "\n";
- TEST_EQUALITY( er->norm() < 1.e-4, true );
+ //vel->initField( Pimpact::RankineVortex2D );
 
-// Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(999);
+ //auto er = vel->clone();
+ //er->initField( Pimpact::ZeroFlow );
+ //er->add( 1., *sol, -1., *vel );
+//// er->write(100);
 
-}
+ //std::cout << " error: " << er->norm() << "\n";
+ //TEST_EQUALITY( er->norm() < 1.e-4, true );
+
+//// Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(999);
+
+//}
 
 
 

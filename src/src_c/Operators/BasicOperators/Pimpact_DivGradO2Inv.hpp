@@ -47,6 +47,7 @@ public:
 	///   These are the options accepted by the solver manager: none
 	DivGradO2Inv( const Teuchos::RCP<const OperatorT>& op,
 			const Teuchos::RCP<Teuchos::ParameterList>& pl=Teuchos::parameterList() ):
+	 levelYes_( pl->get<bool>( "level", false ) ),
 		solver_( Teuchos::rcp( new TeuchosSolver<OperatorT>( op ) ) ) { }
 
 

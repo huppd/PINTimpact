@@ -341,8 +341,8 @@ public:
 	using VectorT = Teuchos::SerialDenseVector<Ordinal,Scalar>;
 	using MatrixT = Teuchos::SerialDenseMatrix<Ordinal,Scalar>;
 
-	using SolverT = Teuchos::SerialDenseSolver<Ordinal,Scalar>;
-	//using SolverT = Teuchos::SerialQRDenseSolver<Ordinal,Scalar>;
+	//using SolverT = Teuchos::SerialDenseSolver<Ordinal,Scalar>;
+	using SolverT = Teuchos::SerialQRDenseSolver<Ordinal,Scalar>;
 
 protected:
 
@@ -393,7 +393,7 @@ public:
 		trans_->apply( x, B_ );
 
 		y.exchange();
-		trans_->updateRHS( op_, y, B_ );
+		//trans_->updateRHS( op_, y, B_ );
 
 		Asov_->setVectors( X_, B_ );
 		Asov_->solve();

@@ -1920,259 +1920,259 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, DtModeOp ) {
 
 
 
-TEUCHOS_UNIT_TEST( MultiModeOperator, TripleCompostion ) {
+//TEUCHOS_UNIT_TEST( MultiModeOperator, TripleCompostion ) {
 
-  pl->set( "domain", domain );
-  pl->set( "dim", dim );
+  //pl->set( "domain", domain );
+  //pl->set( "dim", dim );
 
-	pl->set( "lx", lx );
-	pl->set( "ly", ly );
-	pl->set( "lz", lz );
+	//pl->set( "lx", lx );
+	//pl->set( "ly", ly );
+	//pl->set( "lz", lz );
 
-	//  grid size
-	pl->set("nx", nx );
-	pl->set("ny", ny );
-	pl->set("nz", nz );
-	pl->set("nf", nf );
+	////  grid size
+	//pl->set("nx", nx );
+	//pl->set("ny", ny );
+	//pl->set("nz", nz );
+	//pl->set("nf", nf );
 
-	// grid stretching
-	if( sx!=0 ) {
-		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
-		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
-	}
-	if( sy!=0 ) {
-		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
-		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
-	}
-	if( sz!=0 ) {
-		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
-		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
-	}
+	//// grid stretching
+	//if( sx!=0 ) {
+		//pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+		//pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
+		//pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
+	//}
+	//if( sy!=0 ) {
+		//pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+		//pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
+		//pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
+	//}
+	//if( sz!=0 ) {
+		//pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+		//pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
+		//pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
+	//}
 
-  // processor grid size
-  pl->set( "npx", npx );
-  pl->set( "npy", npy );
-  pl->set( "npz", npz );
-  pl->set( "npf", npf );
+  //// processor grid size
+  //pl->set( "npx", npx );
+  //pl->set( "npy", npy );
+  //pl->set( "npz", npz );
+  //pl->set( "npf", npf );
 
-	pl->set( "Re", 1. );
-	pl->set( "alpha2", 1. );
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+	//pl->set( "Re", 1. );
+	//pl->set( "alpha2", 1. );
+  //auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
-  using MVF = Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<SpaceT> > >;
-  using MSF = Pimpact::MultiField<Pimpact::ModeField<Pimpact::ScalarField<SpaceT> > >;
+  //using MVF = Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<SpaceT> > >;
+  //using MSF = Pimpact::MultiField<Pimpact::ModeField<Pimpact::ScalarField<SpaceT> > >;
 
-  auto X = Pimpact::create<MSF>( space );
-  auto B = Pimpact::create<MSF>( space );
+  //auto X = Pimpact::create<MSF>( space );
+  //auto B = Pimpact::create<MSF>( space );
 
-  auto temp = Pimpact::create<MVF>( space );
+  //auto temp = Pimpact::create<MVF>( space );
 
-  X->init(0.);
-//  B->random();
-  B->init(1.);
-
-
-  auto H =
-      Pimpact::createMultiOperatorBase(
-          Pimpact::createDtLapOp( space, 0., 10. ) );
-
-  H->apply( *temp, *temp );
-
-  // Make an empty new parameter list.
-  //auto solverParams = Teuchos::parameterList();
-  auto solverParams = Pimpact::createLinSolverParameter( "GMRES", 9.e-1 );
-
-  // Create the Pimpact::LinearSolver solver.
-  auto Hprob = Pimpact::createLinearProblem<MVF>( H, temp, temp, solverParams,"GMRES" );
-  auto Hinv  = Pimpact::createInverseOperator( Hprob );
-
-  auto schur = Pimpact::createTripleCompositionOp(
-      Pimpact::createMultiModeOpWrap( Pimpact::create<Pimpact::DivOp>( space ) ),
-      Hinv,
-      Pimpact::createMultiModeOpWrap( Pimpact::create<Pimpact::GradOp>( space ) )
-  );
-
-  schur->apply( *B, *X );
-
-}
+  //X->init(0.);
+////  B->random();
+  //B->init(1.);
 
 
+  //auto H =
+      //Pimpact::createMultiOperatorBase(
+          //Pimpact::createDtLapOp( space, 0., 10. ) );
 
+  //H->apply( *temp, *temp );
 
-TEUCHOS_UNIT_TEST( MultiModeOperator, InverseOperator ) {
+  //// Make an empty new parameter list.
+  ////auto solverParams = Teuchos::parameterList();
+  //auto solverParams = Pimpact::createLinSolverParameter( "GMRES", 9.e-1 );
 
-	pl->set( "domain", domain );
-	pl->set( "dim", dim );
+  //// Create the Pimpact::LinearSolver solver.
+  //auto Hprob = Pimpact::createLinearProblem<MVF>( H, temp, temp, solverParams,"GMRES" );
+  //auto Hinv  = Pimpact::createInverseOperator( Hprob );
 
-	pl->set( "lx", lx );
-	pl->set( "ly", ly );
-	pl->set( "lz", lz );
+  //auto schur = Pimpact::createTripleCompositionOp(
+      //Pimpact::createMultiModeOpWrap( Pimpact::create<Pimpact::DivOp>( space ) ),
+      //Hinv,
+      //Pimpact::createMultiModeOpWrap( Pimpact::create<Pimpact::GradOp>( space ) )
+  //);
 
-	//  grid size
-	pl->set("nx", nx );
-	pl->set("ny", ny );
-	pl->set("nz", nz );
-	pl->set("nf", nf );
+  //schur->apply( *B, *X );
 
-	// grid stretching
-	if( sx!=0 ) {
-		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
-		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
-	}
-	if( sy!=0 ) {
-		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
-		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
-	}
-	if( sz!=0 ) {
-		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
-		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
-	}
-
-	// processor grid size
-	pl->set( "npx", npx );
-	pl->set( "npy", npy );
-	pl->set( "npz", npz );
-	pl->set( "npf", npf );
-
-	auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
-
-	using Teuchos::ParameterList;
-	using Teuchos::parameterList;
-	using Teuchos::RCP;
-	using Teuchos::rcp; // Save some typing
-
-
-	using MVF = Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<SpaceT> > >;
-
-	auto X = Pimpact::create<MVF>( space );
-	auto B = Pimpact::create<MVF>( space );
-
-	X->init(0.);
-	B->random();
-
-	auto op = Pimpact::createMultiModeOperatorBase<MVF>(
-			Pimpact::create<Pimpact::HelmholtzOp>(space) );
-
-	// Make an empty new parameter list.
-	auto solverParams = Pimpact::createLinSolverParameter( "CG", 9.e-1 );
-
-	// Create the Pimpact::LinearSolver solver.
-	auto prob =
-		Pimpact::createLinearProblem<MVF>(
-				op,
-				X,X,
-				//          Pimpact::createMultiField(X->getFieldPtr(0)->getCFieldPtr()),
-				//          Pimpact::createMultiField(B->getFieldPtr(0)->getCFieldPtr()),
-				solverParams );
-
-	auto opinv = Pimpact::createInverseOperator<MVF>( prob );
-	auto opp = Pimpact::createOperatorBase( opinv );
-
-}
+//}
 
 
 
 
+//TEUCHOS_UNIT_TEST( MultiModeOperator, InverseOperator ) {
 
-TEUCHOS_UNIT_TEST( MultiModeOperator, EddyPrec ) {
+	//pl->set( "domain", domain );
+	//pl->set( "dim", dim );
 
-	pl->set( "domain", domain );
-	pl->set( "dim", dim );
+	//pl->set( "lx", lx );
+	//pl->set( "ly", ly );
+	//pl->set( "lz", lz );
 
-	pl->set( "lx", lx );
-	pl->set( "ly", ly );
-	pl->set( "lz", lz );
+	////  grid size
+	//pl->set("nx", nx );
+	//pl->set("ny", ny );
+	//pl->set("nz", nz );
+	//pl->set("nf", nf );
 
-	//  grid size
-	pl->set("nx", nx );
-	pl->set("ny", ny );
-	pl->set("nz", nz );
-	pl->set("nf", nf );
+	//// grid stretching
+	//if( sx!=0 ) {
+		//pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+		//pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
+		//pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
+	//}
+	//if( sy!=0 ) {
+		//pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+		//pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
+		//pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
+	//}
+	//if( sz!=0 ) {
+		//pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+		//pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
+		//pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
+	//}
 
-	// grid stretching
-	if( sx!=0 ) {
-		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
-		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
-	}
-	if( sy!=0 ) {
-		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
-		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
-	}
-	if( sz!=0 ) {
-		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
-		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
-	}
+	//// processor grid size
+	//pl->set( "npx", npx );
+	//pl->set( "npy", npy );
+	//pl->set( "npz", npz );
+	//pl->set( "npf", npf );
 
-  // processor grid size
-  pl->set( "npx", npx );
-  pl->set( "npy", npy );
-  pl->set( "npz", npz );
-  pl->set( "npf", npf );
+	//auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
-	//pl->set("alpha2",1.);
-	//pl->set("Re",1./14.);
-	auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+	//using Teuchos::ParameterList;
+	//using Teuchos::parameterList;
+	//using Teuchos::RCP;
+	//using Teuchos::rcp; // Save some typing
 
-	auto temp = Pimpact::createMultiModeVectorField( space );
 
-	auto X = Pimpact::createMultiModeVectorField( space );
-	auto B = Pimpact::createMultiModeVectorField( space );
+	//using MVF = Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<SpaceT> > >;
 
-	X->init(0.);
-	B->init(1.);
+	//auto X = Pimpact::create<MVF>( space );
+	//auto B = Pimpact::create<MVF>( space );
 
-	// Make an empty new parameter list.
-	auto solverParams = Pimpact::createLinSolverParameter("CG",9.e-1);
+	//X->init(0.);
+	//B->random();
 
-	// Create the Pimpact::LinearSolver solver.
-	auto A =
-		Pimpact::createMultiOperatorBase(
-				Pimpact::create<Pimpact::HelmholtzOp>( space )
-				);
+	//auto op = Pimpact::createMultiModeOperatorBase<MVF>(
+			//Pimpact::create<Pimpact::HelmholtzOp>(space) );
 
-	A->apply( *Pimpact::createMultiField( B->getFieldPtr(0)->getCFieldPtr() ), 
-			*Pimpact::createMultiField( X->getFieldPtr(0)->getCFieldPtr() ) );
+	//// Make an empty new parameter list.
+	//auto solverParams = Pimpact::createLinSolverParameter( "CG", 9.e-1 );
 
-	auto prob =
-		Pimpact::createLinearProblem<Pimpact::MultiField<Pimpact::VectorField<SpaceT> > >(
-				A,
-				Teuchos::null,
-				Teuchos::null,
-				solverParams,
-				"CG" );
+	//// Create the Pimpact::LinearSolver solver.
+	//auto prob =
+		//Pimpact::createLinearProblem<MVF>(
+				//op,
+				//X,X,
+				////          Pimpact::createMultiField(X->getFieldPtr(0)->getCFieldPtr()),
+				////          Pimpact::createMultiField(B->getFieldPtr(0)->getCFieldPtr()),
+				//solverParams );
 
-	prob->solve( Pimpact::createMultiField( B->getFieldPtr(0)->getCFieldPtr() ), 
-			Pimpact::createMultiField( X->getFieldPtr(0)->getCFieldPtr() ) );
+	//auto opinv = Pimpact::createInverseOperator<MVF>( prob );
+	//auto opp = Pimpact::createOperatorBase( opinv );
+
+//}
+
+
+
+
+
+//TEUCHOS_UNIT_TEST( MultiModeOperator, EddyPrec ) {
+
+	//pl->set( "domain", domain );
+	//pl->set( "dim", dim );
+
+	//pl->set( "lx", lx );
+	//pl->set( "ly", ly );
+	//pl->set( "lz", lz );
+
+	////  grid size
+	//pl->set("nx", nx );
+	//pl->set("ny", ny );
+	//pl->set("nz", nz );
+	//pl->set("nf", nf );
+
+	//// grid stretching
+	//if( sx!=0 ) {
+		//pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+		//pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
+		//pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
+	//}
+	//if( sy!=0 ) {
+		//pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+		//pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
+		//pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
+	//}
+	//if( sz!=0 ) {
+		//pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+		//pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
+		//pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
+	//}
+
+  //// processor grid size
+  //pl->set( "npx", npx );
+  //pl->set( "npy", npy );
+  //pl->set( "npz", npz );
+  //pl->set( "npf", npf );
+
+	////pl->set("alpha2",1.);
+	////pl->set("Re",1./14.);
+	//auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+
+	//auto temp = Pimpact::createMultiModeVectorField( space );
+
+	//auto X = Pimpact::createMultiModeVectorField( space );
+	//auto B = Pimpact::createMultiModeVectorField( space );
+
+	//X->init(0.);
+	//B->init(1.);
+
+	//// Make an empty new parameter list.
+	//auto solverParams = Pimpact::createLinSolverParameter("CG",9.e-1);
+
+	//// Create the Pimpact::LinearSolver solver.
+	//auto A =
+		//Pimpact::createMultiOperatorBase(
+				//Pimpact::create<Pimpact::HelmholtzOp>( space )
+				//);
+
+	//A->apply( *Pimpact::createMultiField( B->getFieldPtr(0)->getCFieldPtr() ), 
+			//*Pimpact::createMultiField( X->getFieldPtr(0)->getCFieldPtr() ) );
+
+	//auto prob =
+		//Pimpact::createLinearProblem<Pimpact::MultiField<Pimpact::VectorField<SpaceT> > >(
+				//A,
+				//Teuchos::null,
+				//Teuchos::null,
+				//solverParams,
+				//"CG" );
+
+	//prob->solve( Pimpact::createMultiField( B->getFieldPtr(0)->getCFieldPtr() ), 
+			//Pimpact::createMultiField( X->getFieldPtr(0)->getCFieldPtr() ) );
 	
-	auto invOp = Pimpact::createInverseOperator( prob );
+	//auto invOp = Pimpact::createInverseOperator( prob );
 
-	invOp->apply( Pimpact::createMultiField( B->getFieldPtr(0)->getCFieldPtr() ), 
-			Pimpact::createMultiField( X->getFieldPtr(0)->getCFieldPtr() ) );
+	//invOp->apply( Pimpact::createMultiField( B->getFieldPtr(0)->getCFieldPtr() ), 
+			//Pimpact::createMultiField( X->getFieldPtr(0)->getCFieldPtr() ) );
 
-	auto op =
-		Pimpact::create<Pimpact::EddyPrec>(
-				Pimpact::createMultiOpUnWrap(
-					Pimpact::createInverseOperatorBase(prob) ) );
-//	auto op =
-//		Pimpact::create<Pimpact::EddyPrec>( 
-//				Pimpact::createMultiOpUnWrap( A )	);
+	//auto op =
+		//Pimpact::create<Pimpact::EddyPrec>(
+				//Pimpact::createMultiOpUnWrap(
+					//Pimpact::createInverseOperatorBase(prob) ) );
+////	auto op =
+////		Pimpact::create<Pimpact::EddyPrec>( 
+////				Pimpact::createMultiOpUnWrap( A )	);
 	
-	op->apply( X->getField(0), B->getField(0) );
+	//op->apply( X->getField(0), B->getField(0) );
 	
-	auto schur = Pimpact::createMultiOperatorBase( op );
+	//auto schur = Pimpact::createMultiOperatorBase( op );
 
-	schur->apply( *B, *X );
+	//schur->apply( *B, *X );
 
-}
+//}
 
 
 

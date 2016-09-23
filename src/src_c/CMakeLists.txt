@@ -33,11 +33,11 @@ target_link_libraries( lpimpact cmod )
 #message("cxx compiler:  ${CMAKE_CXX_COMPILER}")
 #message("impactlibs:" ${ALL_f90_SRCS})
 
-add_executable(stat_stokes stat_stokes.cxx)
-TARGET_LINK_LIBRARIES( stat_stokes  ${Pimpact_TPL_LIBRARIES} ) 
+#add_executable(stat_stokes stat_stokes.cxx)
+#TARGET_LINK_LIBRARIES( stat_stokes  ${Pimpact_TPL_LIBRARIES} ) 
 
-add_executable( peri_stokes peri_stokes.cxx )
-TARGET_LINK_LIBRARIES( peri_stokes  ${Pimpact_TPL_LIBRARIES} )
+#add_executable( peri_stokes peri_stokes.cxx )
+#TARGET_LINK_LIBRARIES( peri_stokes  ${Pimpact_TPL_LIBRARIES} )
 
 add_executable( lap_lebl lap_lebl.cxx )
 TARGET_LINK_LIBRARIES( lap_lebl  ${Pimpact_TPL_LIBRARIES} )
@@ -54,23 +54,8 @@ TARGET_LINK_LIBRARIES( conv_diff_mg2  ${Pimpact_TPL_LIBRARIES} )
 add_executable( conv_diff2 Pimpact_ConvDiff2.cxx )
 TARGET_LINK_LIBRARIES( conv_diff2  ${Pimpact_TPL_LIBRARIES} )
 
-#add_executable( peri_navier_fix peri_navier_fix.cxx )
-#TARGET_LINK_LIBRARIES( peri_navier_fix ${Pimpact_TPL_LIBRARIES} ) 
-
-add_executable( peri_navier peri_navier.cxx )
-TARGET_LINK_LIBRARIES( peri_navier ${Pimpact_TPL_LIBRARIES} ) 
-
-#add_executable( peri_navier_lebl peri_navier_lebl.cxx )
-#TARGET_LINK_LIBRARIES( peri_navier_lebl ${Pimpact_TPL_LIBRARIES} ) 
-
 add_executable( peri_navier3D peri_navier3D.cxx )
 TARGET_LINK_LIBRARIES( peri_navier3D ${Pimpact_TPL_LIBRARIES} ) 
-
-add_executable( peri_navier3D_direct peri_navier3D_direct.cxx )
-TARGET_LINK_LIBRARIES( peri_navier3D_direct ${Pimpact_TPL_LIBRARIES} ) 
-
-#add_executable( peri_navierSMG peri_navierSMG.cxx )
-#TARGET_LINK_LIBRARIES( peri_navierSMG ${Pimpact_TPL_LIBRARIES} ) 
 
 add_executable( peri_navierXML peri_navierSMGXML.cxx )
 TARGET_LINK_LIBRARIES( peri_navierXML ${Pimpact_TPL_LIBRARIES} ) 

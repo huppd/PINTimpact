@@ -30,35 +30,33 @@ namespace Pimpact {
 /// problem using the NOX::Epetra objects for the linear algebra
 /// implementation.  Used by NOX::Epetra::Group to provide a link
 /// to the external code for residual fills.
-/// \tparam Field hast to be of type \c Pimpact::MultiField.
-template<class F>
+/// \tparam FieldT hast to be of type \c Pimpact::MultiField.
+template< class FT, class OpT=::Pimpact::OperatorBase<FT>, class IOpT=::Pimpact::OperatorBase<FT> >
 class Interface {
 
 public:
 
-	using Field = F;
-
-	using Op = ::Pimpact::OperatorBase<Field>;
+	using FieldT = FT;
 
 protected:
 
-	Teuchos::RCP<Field> fu_;
-	Teuchos::RCP<Op>    op_;
-	Teuchos::RCP<Op>   jop_;
+	Teuchos::RCP<FieldT> fu_;
+	Teuchos::RCP<OpT>    op_;
+	Teuchos::RCP<IOpT>   jopInv_;
 
 public:
 
 	/// Constructor
 	Interface(
-			Teuchos::RCP<Field> fu=Teuchos::null,
-			Teuchos::RCP<Op>    op=Teuchos::null,
-			Teuchos::RCP<Op>   jop=Teuchos::null ):
+			Teuchos::RCP<FieldT> fu=Teuchos::null,
+			Teuchos::RCP<OpT>    op=Teuchos::null,
+			Teuchos::RCP<IOpT>   jop=Teuchos::null ):
 		fu_( fu ),
 		op_(op),
-		jop_(jop) {};
+		jopInv_(jop) {};
 
 	/// Compute the function, F, given the specified input vector x.
-	NOX::Abstract::Group::ReturnType computeF(const Field& x, Field& f ) {
+	NOX::Abstract::Group::ReturnType computeF(const FieldT& x, FieldT& f ) {
 
 		op_->assignField( x );
 		op_->apply( x, f );
@@ -69,26 +67,26 @@ public:
 
 
 	/// \brief Compute the Jacobian Operator, given the specified input vector x.
-	NOX::Abstract::Group::ReturnType computeJacobian( const Field& x ) {
+	NOX::Abstract::Group::ReturnType computeJacobian( const FieldT& x ) {
 
-		jop_->assignField( x );
+		jopInv_->assignField( x );
 		return( NOX::Abstract::Group::Ok );
 	}
 
 
-	NOX::Abstract::Group::ReturnType applyJacobian( const Field& x, Field& y, Belos::ETrans type=Belos::NOTRANS ) {
+	NOX::Abstract::Group::ReturnType applyJacobian( const FieldT& x, FieldT& y, Belos::ETrans type=Belos::NOTRANS ) {
 		return( NOX::Abstract::Group::NotDefined );
 	}
 
 
-	NOX::Abstract::Group::ReturnType applyJacobianInverse( Teuchos::ParameterList &params, const Field& x, Field& y ) {
+	NOX::Abstract::Group::ReturnType applyJacobianInverse( Teuchos::ParameterList &params, const FieldT& x, FieldT& y ) {
 
-		jop_->apply( x, y );
+		jopInv_->apply( x, y );
 		return( NOX::Abstract::Group::Ok );
 	}
 
 
-	NOX::Abstract::Group::ReturnType applyPreconditioner( const Field& x, Field& y ) {
+	NOX::Abstract::Group::ReturnType applyPreconditioner( const FieldT& x, FieldT& y ) {
 		return( NOX::Abstract::Group::NotDefined );
 	}
 
@@ -97,13 +95,13 @@ public:
 
 
 /// \relates Interface
-template<class Field>
-Teuchos::RCP< Interface<Field> > createInterface(
-    Teuchos::RCP<Field> fu=Teuchos::null,
-    Teuchos::RCP< ::Pimpact::OperatorBase<Field> >  op=Teuchos::null,
-    Teuchos::RCP< ::Pimpact::OperatorBase<Field> > jop=Teuchos::null ) {
+template<class FT, class OpT=::Pimpact::OperatorBase<FT>, class IOpT=::Pimpact::OperatorBase<FT> >
+Teuchos::RCP< Interface<FT,OpT,IOpT> > createInterface(
+    Teuchos::RCP<FT> fu=Teuchos::null,
+    Teuchos::RCP<OpT>  op=Teuchos::null,
+    Teuchos::RCP<IOpT> jop=Teuchos::null ) {
 
-	return( Teuchos::rcp( new Interface<Field>(fu,op,jop) ) );
+	return( Teuchos::rcp( new Interface<FT,OpT,IOpT>(fu,op,jop) ) );
 }
 
 
@@ -111,34 +109,34 @@ Teuchos::RCP< Interface<Field> > createInterface(
 } // end of namespace NOX
 
 
-#ifdef COMPILE_ETI
-#include "Pimpact_Space.hpp"
-#include "Pimpact_Fields.hpp"
-extern template class NOX::Pimpact::Interface<
-Pimpact::MultiField<Pimpact::VectorField<Pimpact::Space<double,int,3,2>
-> > >; 
-extern template class NOX::Pimpact::Interface<
-		Pimpact::CompoundField<
-			Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<Pimpact::Space<double,int,3,4> > > >,
-			Pimpact::MultiField<Pimpact::ModeField<Pimpact::ScalarField<Pimpact::Space<double,int,3,4> > > >
-		>
-	>; 
-extern template class NOX::Pimpact::Interface<
-		Pimpact::MultiField<
-			Pimpact::CompoundField<
-				Pimpact::MultiHarmonicField<Pimpact::VectorField<Pimpact::Space<double,int,3,4> > >,
-				Pimpact::MultiHarmonicField<Pimpact::ScalarField<Pimpact::Space<double,int,3,4> > > 
-			>
-		>
-	>; 
-extern template class NOX::Pimpact::Interface<
-		Pimpact::MultiField<
-			Pimpact::CompoundField<
-				Pimpact::TimeField<Pimpact::VectorField<Pimpact::Space<double,int,4,4> > >,
-				Pimpact::TimeField<Pimpact::ScalarField<Pimpact::Space<double,int,4,4> > > 
-			>
-		>
-	>; 
-#endif
+//#ifdef COMPILE_ETI
+//#include "Pimpact_Space.hpp"
+//#include "Pimpact_Fields.hpp"
+//extern template class NOX::Pimpact::Interface<
+//Pimpact::MultiField<Pimpact::VectorField<Pimpact::Space<double,int,3,2>
+//> > >; 
+//extern template class NOX::Pimpact::Interface<
+		//Pimpact::CompoundField<
+			//Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<Pimpact::Space<double,int,3,4> > > >,
+			//Pimpact::MultiField<Pimpact::ModeField<Pimpact::ScalarField<Pimpact::Space<double,int,3,4> > > >
+		//>
+	//>; 
+//extern template class NOX::Pimpact::Interface<
+		//Pimpact::MultiField<
+			//Pimpact::CompoundField<
+				//Pimpact::MultiHarmonicField<Pimpact::VectorField<Pimpact::Space<double,int,3,4> > >,
+				//Pimpact::MultiHarmonicField<Pimpact::ScalarField<Pimpact::Space<double,int,3,4> > > 
+			//>
+		//>
+	//>; 
+//extern template class NOX::Pimpact::Interface<
+		//Pimpact::MultiField<
+			//Pimpact::CompoundField<
+				//Pimpact::TimeField<Pimpact::VectorField<Pimpact::Space<double,int,4,4> > >,
+				//Pimpact::TimeField<Pimpact::ScalarField<Pimpact::Space<double,int,4,4> > > 
+			//>
+		//>
+	//>; 
+//#endif
 
 #endif // end of #ifndef NOX_PIMPACT_INTERFACE_HPP

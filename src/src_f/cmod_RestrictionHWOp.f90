@@ -47,7 +47,7 @@ contains
     !=== Restriktion, linienweise, 1d ==========================================================================
     !===========================================================================================================
 
-    do i = 1,iimax 
+    do i = 1, iimax 
       if( 1==dd ) then
         cR(-1,i) = 0.
         cR( 0,i) = 1.
@@ -64,12 +64,12 @@ contains
 
     if( BC_L > 0 ) then
       cR(-1,1) = 0.
-      cR( 0,1) = 1.
-      cR( 1,1) = 0.
+      cR( 0,1) = 0.5
+      cR( 1,1) = 0.5
 
-      cR(-1,2) = 0. ! TEST!!! Sollte evtl. noch ergaenzt werden ...
-      cR( 0,2) = 1.
-      cR( 1,2) = 0.
+      !cR(-1,2) = 0. ! TEST!!! Sollte evtl. noch ergaenzt werden ...
+      !cR( 0,2) = 1.
+      !cR( 1,2) = 0.
     end if
     if (BC_L == -2) then
       cR( 1,1) = cR( 1,1) + cR(-1,1)
@@ -77,13 +77,13 @@ contains
     end if
 
     if (BC_U > 0) then
-      cR(-1,iimax) = 0.
-      cR( 0,iimax) = 1.
+      cR(-1,iimax) = 0.5
+      cR( 0,iimax) = 0.5
       cR( 1,iimax) = 0.
 
-      cR(-1,iimax-1) = 0.
-      cR( 0,iimax-1) = 1.
-      cR( 1,iimax-1) = 0.
+      !cR(-1,iimax-1) = 0.
+      !cR( 0,iimax-1) = 1.
+      !cR( 1,iimax-1) = 0.
     end if
 
     if (BC_U == -2) then

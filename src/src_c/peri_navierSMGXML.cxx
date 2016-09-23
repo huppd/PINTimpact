@@ -62,8 +62,7 @@ using MF = Pimpact::MultiField<CF>;
 
 using BOp = Pimpact::OperatorBase<MF>;
 
-using Inter = NOX::Pimpact::Interface<MF>;
-using NV = NOX::Pimpact::Vector<typename Inter::Field>;
+using NV = NOX::Pimpact::Vector<MF>;
 
 
 template<class T> using FT =
@@ -193,21 +192,17 @@ int main(int argi, char** argv ) {
 		auto opS2V = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::GradOp>( space ) );
 		auto opV2S = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::DivOp>( space ) );
 
-		auto op =
-			Pimpact::createMultiOperatorBase(
-					Pimpact::createCompoundOpWrap(
+		auto op = Pimpact::createCompoundOpWrap(
 						opV2V,
 						opS2V,
-						opV2S )
-					);
+						opV2S );
+
+		pl->sublist("Picard Solver").sublist("Solver").set( "Output Stream", Pimpact::createOstream("Picard"+rl+".txt", space->rankST() ) );
+
+		auto opInv = Pimpact::createInverseOp( op, Teuchos::rcpFromRef( pl->sublist("Picard Solver") ) );
 
 
-    Teuchos::RCP<BOp> jop;
-		jop = op;
-
-    Teuchos::RCP<BOp> lprec;
-
-		/*** init preconditioner ****************************************************************************/
+		/*** init preconditioner *******************************************************************/
 		if( withprec>0 ) {
 
 			auto mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, pl->sublist("Multi Grid").get<int>("maxGrids") );
@@ -228,34 +223,18 @@ int main(int argi, char** argv ) {
 
 			mg->print();
 
-			lprec = Pimpact::createMultiOperatorBase( mg );
-
+			opInv->setRightPrec( Pimpact::createMultiOperatorBase( mg ) );
 		}
 
-		/*** end of init preconditioner ****************************************************************************/
+		/*** end of init preconditioner ************************************************************/
 
+    auto inter = NOX::Pimpact::createInterface( fu, Pimpact::createMultiOpWrap(op), opInv );
 
-
-		pl->sublist("Belos Solver").sublist("Solver").set( "Output Stream", Pimpact::createOstream("stats_linSolve"+rl+".txt",space->rankST()) );
-
-    auto lp_ = Pimpact::createLinearProblem<MF>(
-				jop,
-				x->clone(),
-				fu->clone(),
-				Teuchos::rcpFromRef(pl->sublist("Belos Solver").sublist("Solver") ),
-				pl->sublist("Belos Solver").get<std::string>("Solver name") );
-
-		if( withprec ) lp_->setRightPrec( lprec );
-
-    auto lp = Pimpact::createInverseOperatorBase( lp_ );
-
-    auto inter = NOX::Pimpact::createInterface( fu, op, lp );
-
-    auto nx = NOX::Pimpact::createVector(x);
+    auto nx = NOX::Pimpact::createVector( x );
 
     auto bla = Teuchos::parameterList();
 
-    auto group = NOX::Pimpact::createGroup<Inter>( bla, inter, nx );
+    auto group = NOX::Pimpact::createGroup( bla, inter, nx );
 
     // Set up the status tests
 		auto statusTest =

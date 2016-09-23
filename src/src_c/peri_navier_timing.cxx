@@ -47,8 +47,7 @@ using MF = Pimpact::MultiField<CF>;
 
 using BOp = Pimpact::OperatorBase<MF>;
 
-using Inter = NOX::Pimpact::Interface<MF>;
-using NV = NOX::Pimpact::Vector<typename Inter::Field>;
+using NV = NOX::Pimpact::Vector<MF>;
 
 
 
@@ -209,29 +208,20 @@ int main(int argi, char** argv ) {
     para->set( "Explicit Residual Scaling", "Norm of RHS" );
 
 
-    auto opV2V =
-				Pimpact::createMultiDtConvectionDiffusionOp( space );
-    auto opS2V = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::GradOp>( space ) );
-    auto opV2S = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::DivOp>( space ) );
+		auto opV2V = Pimpact::createMultiDtConvectionDiffusionOp( space );
+		auto opS2V = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::GradOp>( space ) );
+		auto opV2S = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::DivOp>( space ) );
 
-    auto op =
-        Pimpact::createMultiOperatorBase(
-            Pimpact::createCompoundOpWrap(
+		auto op = Pimpact::createCompoundOpWrap(
 								opV2V,
 								opS2V,
-								opV2S )
-        );
+								opV2S );
 
+		pl->sublist("Picard Solver").sublist("Solver").set( "Output Stream", Pimpact::createOstream("Picard"+rl+".txt", space->rankST() ) );
 
-    Teuchos::RCP<BOp> jop;
-		jop = op;
+		auto opInv = Pimpact::createInverseOp( op, Teuchos::rcpFromRef( pl->sublist("Picard Solver") ) );
 
-
-    auto lp_ = Pimpact::createLinearProblem<MF>(
-        jop, x->clone(), fu->clone(), para, linSolName );
-    auto lp = Pimpact::createInverseOperatorBase<MF>( lp_ );
-
-    auto inter = NOX::Pimpact::createInterface<MF>( fu, op, lp );
+    auto inter = NOX::Pimpact::createInterface( fu, op, opInv );
 
     auto nx = NOX::Pimpact::createVector(x);
 

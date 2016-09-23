@@ -18,12 +18,12 @@ namespace Pimpact{
 /// \ingroup Operator
 /// hides all the linear solver typeerasiure stuff
 /// \tparam OperatorT has to be of type \c Pimpact::MultiWrapOp
-template< class OT >
+template< class MOT >
 class InverseOp {
 
 public:
 
-  using OperatorT = OT;
+  using OperatorT = MOT;
 
   using SpaceT = typename OperatorT::SpaceT;
 
@@ -42,7 +42,6 @@ protected:
 
 public:
 
-//	template<class IOperatorT>
 	InverseOp( const Teuchos::RCP<const SpaceT>& space ):
 		level_(false),
 		initZero_(false) {
@@ -86,9 +85,9 @@ public:
 
 
   void apply( const MF& x, MF& y ) const {
-		if( level_    ) { x.level(); }
 		if( initZero_ ) { y.init( ); }
     linprob_->solve( Teuchos::rcpFromRef(y), Teuchos::rcpFromRef(x) );
+		if( level_    ) { y.level(); }
   }
 
 
@@ -164,14 +163,26 @@ public:
 template< class OpT>
 Teuchos::RCP< InverseOp< MultiOpWrap<OpT> > >
 createInverseOp(
-    const Teuchos::RCP<OpT>& op, Teuchos::RCP< Teuchos::ParameterList > pl=Teuchos::null ) {
+		const Teuchos::RCP<OpT>& op, Teuchos::RCP< Teuchos::ParameterList > pl=Teuchos::null ) {
 
 	if( pl.is_null() )
-    return( Teuchos::rcp( new InverseOp<MultiOpWrap<OpT> >( op ) ) );
+		return( Teuchos::rcp( new InverseOp<MultiOpWrap<OpT> >( op ) ) );
 	else
-    return( Teuchos::rcp( new InverseOp<MultiOpWrap<OpT> >( op, pl ) ) );
+		return( Teuchos::rcp( new InverseOp<MultiOpWrap<OpT> >( op, pl ) ) );
 }
 
+///// \relates InverseOp
+//template< class MOpT>
+//Teuchos::RCP< InverseOp< MOpT > >
+//createInverseOp(
+		//const Teuchos::RCP<MOpT>& mOp,
+		//Teuchos::RCP< Teuchos::ParameterList > pl=Teuchos::null ) {
+
+	//if( pl.is_null() )
+    //return( Teuchos::rcp( new InverseOp<MOpT>( mOp ) ) );
+	//else
+    //return( Teuchos::rcp( new InverseOp<MOpT>( mOp, pl ) ) );
+//}
 
 } // end of namespace Pimpact
 

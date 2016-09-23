@@ -67,8 +67,8 @@ using MF = Pimpact::MultiField<CF>;
 
 using BOp = Pimpact::OperatorBase<MF>;
 
-using Inter = NOX::Pimpact::Interface<MF>;
-using NV = NOX::Pimpact::Vector<typename Inter::Field>;
+//using Inter = NOX::Pimpact::Interface<MF>;
+using NV = NOX::Pimpact::Vector<MF>;
 
 
 template<class T1,class T2>
@@ -79,8 +79,8 @@ template<class T>
 using InterVF = Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<T> >;
 
 
-template<class T>
-using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
+template<class OpT>
+using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< OpT > > >;
 
 
 //template<class T> using PrecS = Pimpact::MultiOpSmoother< Pimpact::DivGradO2JSmoother<T> >;
@@ -123,9 +123,8 @@ int main( int argi, char** argv ) {
 
 	///////////////////////////////////////////  set up initial stuff ////////////////////////////
 
-	std::string initZero = pl->sublist("Solver").get<std::string>( "initial guess", "zero" );
+	std::string initGuess = pl->sublist("Solver").get<std::string>( "initial guess", "zero" );
 
-	int withprec=pl->sublist("Solver").get<int>( "withprec", 2 );
 	int withoutput=pl->sublist("Solver").get<int>( "withoutput", 1 );
 
 	int refinement     = pl->sublist("Solver").get<int>( "refinement level", 1     );
@@ -138,29 +137,28 @@ int main( int argi, char** argv ) {
 
 
 	// init vectors
-	Teuchos::RCP<MF> x =
-		createMultiField(
-				createCompoundField(
-					Teuchos::rcp( new VF(space,true) ),
-					Teuchos::rcp( new SF(space) ) ) ) ;
+	Teuchos::RCP<MF> x = createMultiField(
+			createCompoundField(
+				Teuchos::rcp( new VF(space,true) ),
+				Teuchos::rcp( new SF(space) ) ) ) ;
 
 	// init Fields
 	x->getFieldPtr(0)->getVFieldPtr()->initField( pl->sublist("Base flow") );
 
 
-	if( "zero"==initZero )
+	if( "zero"==initGuess )
 		x->init( 0. );
-	else if( "almost zero"==initZero ) {
+	else if( "almost zero"==initGuess ) {
 		x->random();
 		x->scale(1.e-12);
 	}
-	else if( "random"==initZero )
+	else if( "random"==initGuess )
 		x->random();
-	else if( "exact"==initZero ) {
-		//x->getFieldPtr(0)->getSFieldPtr()->get0FieldPtr()->initField( Pimpact::Grad2D_inX, -2./space->getDomainSize()->getRe() );
+	else if( "exact"==initGuess ) {
+		x->getFieldPtr(0)->getSFieldPtr()->get0FieldPtr()->initField( Pimpact::Grad2D_inX, -2./space->getDomainSize()->getRe() );
 	}
 	x->getFieldPtr(0)->getVFieldPtr()->changed();
-	//x->getFieldPtr(0)->getSFieldPtr()->changed();
+	x->getFieldPtr(0)->getSFieldPtr()->changed();
 
 
 
@@ -182,107 +180,82 @@ int main( int argi, char** argv ) {
 		auto opS2V = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::GradOp>( space ) );
 		auto opV2S = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::DivOp>( space ) );
 
-		auto op =
-			Pimpact::createMultiOperatorBase(
-					Pimpact::createCompoundOpWrap(
-						opV2V,
-						opS2V,
-						opV2S ) );
+		auto op = Pimpact::createCompoundOpWrap(
+					opV2V,
+					opS2V,
+					opV2S );
 
+		pl->sublist("Picard Solver").sublist("Solver").set( "Output Stream", Pimpact::createOstream("Picard"+rl+".txt", space->rankST() ) );
 
-		Teuchos::RCP<BOp> jop;
-		jop = op;
-
-		Teuchos::RCP<BOp> lprec;
+		auto opInv = Pimpact::createInverseOp( op, Teuchos::rcpFromRef( pl->sublist("Picard Solver") ) );
 
 		/*** init preconditioner ****************************************************************************/
-		if( withprec>0 ) {
+		std::string picardPrecString = pl->sublist("Picard Solver").get<std::string>( "preconditioner", "none" );
+		if( "none" != picardPrecString ) { 
+
+			Teuchos::RCP<BOp> lprec;
 
 			// create Multi space
 			auto mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, pl->sublist("Multi Grid").get<int>("maxGrids") );
 
+			//Teuchos::RCP< Pimpact::OperatorBase<MVF> > opV2Vinv = Teuchos::null;
 
-			Teuchos::RCP< Pimpact::OperatorBase<MVF> > opV2Vinv = Teuchos::null;
+			// creat H0-inv prec
+			auto zeroOp = Pimpact::create<ConvDiffOpT>( space );
 
-			if( withprec>1 ) {
+			pl->sublist("ConvDiff").sublist("Solver").set( "Output Stream",
+					Pimpact::createOstream( zeroOp->getLabel()+rl+".txt", space->rankST() ) );
 
-				// creat H0-inv prec
-				auto zeroOp = Pimpact::create<ConvDiffOpT>( space );
+			auto zeroInv =
+				Pimpact::create<MOP>( zeroOp, Teuchos::rcpFromRef( pl->sublist("ConvDiff") ) );
 
-				pl->sublist("ConvDiff").sublist("Solver").set(
-						"Output Stream",
-						Pimpact::createOstream( zeroOp->getLabel()+rl+".txt", space->rankST() ) );
+			auto modeOp =
+				Teuchos::rcp( new Pimpact::ModeNonlinearOp< ConvDiffOpT<SpaceT> >( zeroOp ) );
 
+			pl->sublist("M_ConvDiff").sublist("Solver").set(
+					"Output Stream",
+					Pimpact::createOstream( modeOp->getLabel()+rl+".txt", space->rankST() ) );
 
-				auto zeroInv =
-					Pimpact::create<MOP>( zeroOp, Teuchos::rcpFromRef( pl->sublist("ConvDiff") ) );
+			auto modeInv =
+				Pimpact::create<MOP>(
+						modeOp,
+						Teuchos::rcpFromRef( pl->sublist("M_ConvDiff") ) );
 
-				auto modeOp =
-					Teuchos::rcp( new Pimpact::ModeNonlinearOp< ConvDiffOpT<SpaceT> >( zeroOp ) );
+			auto mgConvDiff =
+				Pimpact::createMultiGrid<
+				Pimpact::VectorField,
+				TransVF,
+				RestrVF,
+				InterVF,
+				ConvDiffOpT,
+				ConvDiffOpT,
+				//					ConvDiffSORT,
+				ConvDiffJT,
+				//					MOP
+				POP2
+					> ( mgSpaces, Teuchos::rcpFromRef( pl->sublist("ConvDiff").sublist("Multi Grid") ) ) ;
 
-				pl->sublist("M_ConvDiff").sublist("Solver").set(
-						"Output Stream",
-						Pimpact::createOstream( modeOp->getLabel()+rl+".txt", space->rankST() ) );
+			if( 0==space->rankST() )
+				mgConvDiff->print();
 
+			zeroInv->getOperatorPtr()->getLinearProblem()->setRightPrec( Pimpact::createMultiOperatorBase(mgConvDiff) );
+			modeInv->getOperatorPtr()->getLinearProblem()->setRightPrec( Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::EddyPrec>( zeroInv ) ) );
 
-				auto modeInv =
-					Pimpact::create<MOP>(
-							modeOp,
-							Teuchos::rcpFromRef( pl->sublist("M_ConvDiff") ) );
-
-
-				auto mgConvDiff =
-					Pimpact::createMultiGrid<
-					Pimpact::VectorField,
-					TransVF,
-					RestrVF,
-					InterVF,
-					ConvDiffOpT,
-					ConvDiffOpT,
-					//					ConvDiffSORT,
-					ConvDiffJT,
-					//					MOP
-					POP2
-						> ( mgSpaces, Teuchos::rcpFromRef( pl->sublist("ConvDiff").sublist("Multi Grid") ) ) ;
-
-				if( 0==space->rankST() )
-					mgConvDiff->print();
-
-				if( withprec>2 ) {
-					zeroInv->getOperatorPtr()->getLinearProblem()->setRightPrec( Pimpact::createMultiOperatorBase(mgConvDiff) );
-					modeInv->getOperatorPtr()->getLinearProblem()->setRightPrec( Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::EddyPrec>( zeroInv ) ) );
-				}
-
-				// create Hinv prec
-				Teuchos::RCP<Pimpact::OperatorBase<MVF> >
-					opV2Vprec = 
-					Pimpact::createMultiOperatorBase(
-							Pimpact::createMultiHarmonicDiagOp(
-								zeroInv, 
-								modeInv ) );
+			// create Hinv prec
+			Teuchos::RCP<Pimpact::OperatorBase<MVF> > opV2Vprec = 
+				Pimpact::createMultiOperatorBase(
+						Pimpact::createMultiHarmonicDiagOp(
+							zeroInv, 
+							modeInv ) );
 
 
-				if( withprec>3 )
-					opV2Vinv = opV2Vprec;
-				else {
-					pl->sublist("MH_ConvDiff").sublist("Solver").set(
-							"Output Stream",
-							Pimpact::createOstream( opV2V->getLabel()+rl+".txt", space->rankST() ) );
+			pl->sublist("MH_ConvDiff").sublist("Solver").set(
+					"Output Stream",
+					Pimpact::createOstream( opV2V->getLabel()+rl+".txt", space->rankST() ) );
 
 
-					auto opV2Vprob =
-						Pimpact::createLinearProblem<MVF>(
-								Pimpact::createMultiOperatorBase( opV2V ),
-								Teuchos::null,
-								Teuchos::null,
-								Teuchos::rcpFromRef( pl->sublist("MH_ConvDiff").sublist("Solver") ),
-								pl->sublist("MH_ConvDiff").get<std::string>("Solver name","GMRES") );
-
-					opV2Vprob->setRightPrec( opV2Vprec );
-					opV2Vinv = Pimpact::createInverseOperatorBase( opV2Vprob );
-				}
-			}
-
+			auto opV2Vinv = Pimpact::createInverseOp( opV2V, Teuchos::rcpFromRef( pl->sublist("MH_ConvDiff") ) );
+			opV2Vinv->setRightPrec( opV2Vprec );
 
 			/////////////////////////////////////////end of opv2v///////////////////////////////////////////////////////////////////
 
@@ -299,7 +272,9 @@ int main( int argi, char** argv ) {
 							)
 						, Teuchos::rcpFromRef( pl->sublist("DivGrad") ) );
 
-			{ // init multigrid divgrad
+			std::string divGradPrecString = pl->sublist("DivGrad").get<std::string>("preconditioner","none");
+
+			if( "none" != divGradPrecString ) { // init multigrid divgrad
 
 				auto mgDivGrad = 
 					Pimpact::createMultiGrid<
@@ -313,13 +288,18 @@ int main( int argi, char** argv ) {
 					//Pimpact::Chebyshev,
 					//Pimpact::DivGradO2SORSmoother,
 					//POP
-					Pimpact::DivGradO2Inv
+					//Pimpact::DivGradO2Inv
+					//Pimpact::DivGradO2SORSmoother
+					Pimpact::DivGradO2JSmoother
 						>( mgSpaces, Teuchos::rcpFromRef( pl->sublist("DivGrad").sublist("Multi Grid") ) );
 
 				if( 0==space->rankST() )
 					mgDivGrad->print();
 
-				divGradInv2->setRightPrec( Pimpact::createMultiOperatorBase( mgDivGrad ) );
+				if( "right" == divGradPrecString ) 
+					divGradInv2->setRightPrec( Pimpact::createMultiOperatorBase( mgDivGrad ) );
+				if( "left" == divGradPrecString ) 
+					divGradInv2->setLeftPrec( Pimpact::createMultiOperatorBase( mgDivGrad ) );
 			}
 
 			auto divGradInv =
@@ -348,34 +328,20 @@ int main( int argi, char** argv ) {
 						opS2V,
 						opS2Sinv );
 
-			lprec = Pimpact::createMultiOperatorBase( invTriangOp );
-
+			if( "right" == picardPrecString ) 
+				opInv->setRightPrec( Pimpact::createMultiOperatorBase( invTriangOp ) );
+			if( "left" == picardPrecString ) 
+				opInv->setLeftPrec( Pimpact::createMultiOperatorBase( invTriangOp ) );
 		}
 		/*** end of init preconditioner ****************************************************************************/
 
-
-		pl->sublist("Belos Solver").sublist("Solver").set( "Output Stream", Pimpact::createOstream("stats_linSolve"+rl+".txt", space->rankST() ) );
-
-
-		auto lp_ = Pimpact::createLinearProblem<MF>(
-				jop,
-				x->clone(),
-				fu->clone(),
-				Teuchos::rcpFromRef(pl->sublist("Belos Solver").sublist("Solver") ),
-				pl->sublist("Belos Solver").get<std::string>("Solver name") );
-
-		if( withprec ) lp_->setRightPrec( lprec );
-		//		if( withprec ) lp_->setLeftPrec( lprec );
-
-		auto lp = Pimpact::createInverseOperatorBase( lp_ );
-
-		auto inter = NOX::Pimpact::createInterface( fu, op, lp );
+		auto inter = NOX::Pimpact::createInterface( fu, createMultiOpWrap(op), opInv );
 
 		auto nx = NOX::Pimpact::createVector( x );
 
 		auto bla = Teuchos::parameterList();
 
-		auto group = NOX::Pimpact::createGroup<Inter>( bla, inter, nx );
+		auto group = NOX::Pimpact::createGroup( bla, inter, nx );
 
 		// Set up the status tests
 		auto statusTest =
@@ -407,6 +373,7 @@ int main( int argi, char** argv ) {
 
 		x = Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr();
 		if( withoutput ) {
+			Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr()->level();
 			Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr()->write( refine*1000 );
 			Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr()->getFieldPtr(0)->getVFieldPtr()->write( 500+refine*1000, true );
 			//		Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(900);

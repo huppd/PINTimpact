@@ -99,7 +99,7 @@ using Fo = Pimpact::ForcingOp<VF>;
 using BOp = Pimpact::OperatorBase<MF>;
 
 using Inter = NOX::Pimpact::Interface<MF>;
-using NV = NOX::Pimpact::Vector<typename Inter::Field>;
+using NV = NOX::Pimpact::Vector<typename Inter::FieldT>;
 
 
 

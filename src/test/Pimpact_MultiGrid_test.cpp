@@ -678,7 +678,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Restrictor, CS ) {
 						mgSpaces->get(level),
 						mgSpaces->get()->getProcGrid()->getNP() ) );
 
-		//if( mgSpaces->participating(level-1) ) op->print();
+		if( mgSpaces->participating(level-1) ) op->print();
 
 		Teuchos::Tuple<Pimpact::EField,4> type =
 			Teuchos::tuple(
@@ -1512,6 +1512,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, DivGradOp, CS, MGT ) {
 	mgPL->set<bool>( "defect correction", false );
 	//mgPL->set<bool>( "defect correction", true );
 	mgPL->set<bool>( "init zero", false );
+	//mgPL->set<bool>( "init zero", true );
 
 	// Smoother: Line
 	//mgPL->sublist("Smoother").set<int>( "numIters", 4 );

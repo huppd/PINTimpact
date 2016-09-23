@@ -11,7 +11,6 @@
 #include "Pimpact_Chebyshev.hpp"
 #include "Pimpact_CompositionOp.hpp"
 #include "Pimpact_TripleCompositionOp.hpp"
-#include "Pimpact_InverseOperator.hpp"
 #include "Pimpact_InverseOp.hpp"
 #include "Pimpact_InvDiagonal.hpp"
 #include "Pimpact_PrecInverseOp.hpp"

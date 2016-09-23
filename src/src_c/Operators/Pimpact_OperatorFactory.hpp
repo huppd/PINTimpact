@@ -50,18 +50,6 @@ Teuchos::RCP<const OperatorBase<MF> > createMultiModeOperatorBase( const Teuchos
 }
 
 
-/// \relates OperatorBase
-/// \relates MultiOpWrap
-/// \relates InverseOperator
-template<class MF>
-Teuchos::RCP< OperatorBase<MF> >
-createInverseOperatorBase( const Teuchos::RCP< LinearProblem<MF> >& linProb ) {
-
-	return( createOperatorBase( createInverseOperator<MF>( linProb )));
-}
-
-
-
 } // end of namespace Pimpact
 
 #endif // end of #ifndef PIMPACT_OPERATORFACTORY_HPP
