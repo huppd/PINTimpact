@@ -190,15 +190,13 @@ int main( int argi, char** argv ) {
 		auto opInv = Pimpact::createInverseOp( op, Teuchos::rcpFromRef( pl->sublist("Picard Solver") ) );
 
 		/*** init preconditioner ****************************************************************************/
-		std::string picardPrecString = pl->sublist("Picard Solver").get<std::string>( "preconditioner", "none" );
-		if( "none" != picardPrecString ) { 
 
-			Teuchos::RCP<BOp> lprec;
+		std::string picardPrecString = pl->sublist("Picard Solver").get<std::string>( "preconditioner", "none" );
+
+		if( "none" != picardPrecString ) { 
 
 			// create Multi space
 			auto mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, pl->sublist("Multi Grid").get<int>("maxGrids") );
-
-			//Teuchos::RCP< Pimpact::OperatorBase<MVF> > opV2Vinv = Teuchos::null;
 
 			// creat H0-inv prec
 			auto zeroOp = Pimpact::create<ConvDiffOpT>( space );
@@ -276,8 +274,7 @@ int main( int argi, char** argv ) {
 
 			if( "none" != divGradPrecString ) { // init multigrid divgrad
 
-				auto mgDivGrad = 
-					Pimpact::createMultiGrid<
+				auto mgDivGrad = Pimpact::createMultiGrid<
 					Pimpact::ScalarField,
 					Pimpact::TransferOp,
 					Pimpact::RestrictionHWOp,
@@ -376,24 +373,25 @@ int main( int argi, char** argv ) {
 			Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr()->level();
 			Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr()->write( refine*1000 );
 			Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr()->getFieldPtr(0)->getVFieldPtr()->write( 500+refine*1000, true );
-			//		Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(900);
 		}
 
 		{
 			auto out = Pimpact::createOstream( "energy_dis"+rl+".txt", space->rankST() );
 
-			*out << 0 << "\t" << x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->norm() << "\t" << std::sqrt(x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->getLength()) << "\n";
-			for( int i=0; i<space->nGlo(3); ++i )
-				*out << i+1 << "\t" << x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(i)->norm() << "\t" << std::sqrt( (S)x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(i)->getLength()) << "\n";
+			*out << 0 << "\t" << x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->norm() << "\t" << std::sqrt( static_cast<S>( x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->getLength() ) ) << "\n";
+			for( int i=1; i<=space->nGlo(3); ++i )
+				*out << i << "\t" << x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(i)->norm() << "\t" << std::sqrt( static_cast<S>( x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(i)->getLength() ) ) << "\n";
 		}
 
-
 		// spectral refinement criterion
-		{
+		if( refinement>1 ) {
+
 			x->getFieldPtr(0)->getVFieldPtr()->exchange();
-			S truncError =
-				x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(space->nGlo(3)-1)->norm()/ 
-				x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(0               )->norm() ;
+			S u_nf = x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(space->nGlo(3))->norm();
+			S u_1  = x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(1             )->norm();
+			S truncError = 1.;
+			if( u_nf != u_1 ) // just in case u_1=u_nf=0
+			 truncError = u_nf / u_1 ;
 			if( truncError < refinementTol ) {
 				if( 0==space->rankST() )
 					std::cout << "\n||u[nf]||/||u[1]|| = " << truncError << " < " << refinementTol << "\n\n"; 
@@ -402,9 +400,7 @@ int main( int argi, char** argv ) {
 			else
 				if( 0==space->rankST() )
 					std::cout << "\n||u[nf]||/||u[1]|| = " << truncError << " >= " << refinementTol << "\n\n"; 
-		}
 
-		if( refinement>1 ) {
 			auto spaceF =
 				Pimpact::RefinementStrategy<SpaceT>::createRefinedSpace(
 						space, Teuchos::tuple<int>( 0, 0, 0, refinementStep ) );
@@ -415,13 +411,11 @@ int main( int argi, char** argv ) {
 						Pimpact::TransferMultiHarmonicOp< Pimpact::VectorFieldOpWrap< Pimpact::InterpolationOp<SpaceT> > >,
 						Pimpact::TransferMultiHarmonicOp< Pimpact::InterpolationOp<SpaceT> >
 						>( space, spaceF ) );
-//			refineOp->print();
+			// refineOp->print();
 
 			// init Fields for fine Boundary conditions
 			auto xf = Pimpact::create<CF>( spaceF );
 			xf->getVFieldPtr()->initField( pl->sublist("Base flow") );
-			//xf->getVFieldPtr()->get0FieldPtr()->initField(
-					//static_cast<Pimpact::EVectorField>(baseflow), 1. );
 
 			auto temp = Pimpact::create<CF>( spaceF );
 
@@ -432,7 +426,7 @@ int main( int argi, char** argv ) {
 			x = Pimpact::createMultiField( xf );
 			space = spaceF;
 		}
-	} 
+	} // end of for( int refine=0; refine<refinement; ++refine ) {
 	/******************************************************************************************/
 
 	Teuchos::TimeMonitor::summarize();

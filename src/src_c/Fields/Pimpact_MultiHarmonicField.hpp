@@ -535,8 +535,8 @@ public:
 				getConst0FieldPtr()->write(count);
 
 			for( Ordinal i=std::max(space()->begin(U,3),1); i<=space()->end(U,3); ++i ) {
-				getConstCFieldPtr(i)->write( count+2*i   );
-				getConstSFieldPtr(i)->write( count+2*i+1 );
+				getConstCFieldPtr(i)->write( count+2*i-1 );
+				getConstSFieldPtr(i)->write( count+2*i   );
 			}
 		}
   }
