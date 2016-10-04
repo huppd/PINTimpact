@@ -22,21 +22,6 @@ namespace Pimpact{
 
 
 
-extern "C"
-void OP_interpolateV2S(
-		const int& m,
-		const int* const N,
-		const int* const bl,
-		const int* const bu,
-		const int&       dl,
-		const int&       du,
-		const int* const ss,
-		const int* const nn,
-		const double* const c,
-		const double* const phi,
-		double* const inter );
-
-
 
 template< class S,class O, int d, int dimNC>
 class Space;
@@ -68,6 +53,8 @@ protected:
 	using TS = const Teuchos::Tuple< Teuchos::ArrayRCP<Scalar>, 3 >;
 	using TO = const Teuchos::Tuple< Ordinal, dimension >;
 
+	Teuchos::RCP<const GridSizeLocal<Ordinal,dimension> > gridSizeLocal_;
+
 	TO dl_;
 	TO du_;
 
@@ -83,7 +70,8 @@ public:
 			const Teuchos::RCP<const DomainSize<Scalar> >& domainSize,
 			const Teuchos::RCP<const BoundaryConditionsLocal<dimension> >& boundaryConditionsLocal,
 			const Teuchos::RCP<const CoordinatesLocal<Scalar,Ordinal,dimension,dimNC> >& coordinatesLocal ):
-	dl_( stencilWidths->getDLTuple() ), du_( stencilWidths->getDUTuple() ) {
+		gridSizeLocal_( gridSizeLocal ), dl_( stencilWidths->getDLTuple() ), du_(
+				stencilWidths->getDUTuple() ) {
 
 
 		for( int i=0; i<3; ++i ) {
@@ -154,25 +142,45 @@ public:
 
 		Teuchos::RCP<const SpaceT> space = x.space();
 
-		int m = static_cast<int>( x.getType() );
+		//int m = static_cast<int>( x.getType() );
+		ECoord m = static_cast<ECoord>( x.getType() );
 
+		
 		x.exchange( m );
 
-		OP_interpolateV2S(
-				m+1,
-				space->nLoc(),
-				space->bl(),
-				space->bu(),
-				space->dl(m),
-				space->du(m),
-				space->sInd(S),
-				space->eInd(S),
-				getC( m ),
-				x.getConstRawPtr(),
-				y.getRawPtr() );
+		if( X==m ) {
+			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
+				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
+					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
+						y.at(i,j,k) = getC( m, i, dl_[m] )*x.at(i+dl_[m],j,k);
+						for( Ordinal ii=dl_[m]+1; ii<=du_[m]; ++ii )
+							y.at(i,j,k) += getC( m, i, ii )*x.at(i+ii,j,k);
+					}
+		}
+
+		if( Y==m ) {
+			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
+				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
+					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
+						y.at(i,j,k) = getC( m, j, dl_[m] )*x.at(i,j+dl_[m],k);
+						for( Ordinal jj=dl_[m]+1; jj<=du_[m]; ++jj )
+							y.at(i,j,k) += getC( m, j, jj )*x.at(i,j+jj,k);
+					}
+		}
+
+		if( Z==m ) {
+			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
+				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
+					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
+						y.at(i,j,k) = getC( m, k, dl_[m] )*x.at(i,j,k+dl_[m]);
+						for( Ordinal kk=dl_[m]+1; kk<=du_[m]; ++kk )
+							y.at(i,j,k) += getC( m, k, kk )*x.at(i,j,k+kk);
+					}
+		}
 
 		y.changed();
 	}
+
 
 	void assignField( const RangeFieldT& mv ) {};
 
@@ -183,19 +191,17 @@ public:
 	void print( std::ostream& out=std::cout ) const {
 		out << "--- " << getLabel() << " ---\n";
 		for( int dir=0; dir<3; ++dir ) {
-			std::cout << "dir: " << dir << "\n";
-			for( auto iter=c_[dir].begin(); iter!=c_[dir].end(); ++iter ) 
-				out << *iter << "\n";
+			out << "\ndir: " << toString(static_cast<ECoord>(dir)) << "\n";
+
+			for( int i=0; i<=gridSizeLocal_->get(dir); ++i ) {
+				out << "\ni: " << i << "\t(";
+				for( int ii=dl_[dir]; ii<=du_[dir]; ++ii ) {
+					out << getC( static_cast<ECoord>(dir), i, ii ) <<", ";
+				}
+				out << ")\n";
+			}
+			out << "\n";
 		}
-		//for( int dir=0; dir<3; ++dir )
-			//out <<  c_[dir];
-		//    out << " --- InterpolateV2S stencil: ---";
-		//    for( int i=0; i<3; ++i ) {
-		//      out << "\ndir: " << i << "\n( ";
-		//      Ordinal nTemp = ( space_->nLoc(i) + 1 )*( space_->du(i) - space_->dl(i) + 1);
-		//      for( int j=0; j<nTemp; ++j )
-		//        out << c_[i][j] <<"\t";
-		//      out << ")\n";
 	}
 
 	constexpr const Scalar* getC( const int& dir ) const  {
@@ -206,10 +212,10 @@ public:
 	}
 
 	constexpr const Scalar& getC( const ECoord& dir, Ordinal i, Ordinal off ) const {
-		//std::cout << "dl: " << dl_ << "\n";
-		//std::cout << "du: " << du_ << "\n";
-		//std::cout << off - dl_[dir] + i*( du_[dir] - dl_[dir] + 1) << "\n";
 		return( c_[dir][ off - dl_[dir] + i*( du_[dir] - dl_[dir] + 1) ] );
+	}
+	constexpr const Scalar& getCM( const ECoord& dir, Ordinal i, Ordinal off ) const {
+		return( cm_[dir][ off - dl_[dir] + i*( du_[dir] - dl_[dir] + 1) ] );
 	}
 
 	const std::string getLabel() const { return( "InterpolateV2S" ); };

@@ -46,7 +46,7 @@
 using S = double;
 using O = int;
 
-const int dNC = 2;
+const int dNC = 4;
 
 using SpaceT = Pimpact::Space<S,O,4,dNC>;
 
@@ -54,7 +54,6 @@ using FSpaceT = Pimpact::Space<S,O,4,dNC>;
 using CSpaceT = Pimpact::Space<S,O,4,2>;
 
 using CS = Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT>;
-//using CS = Pimpact::CoarsenStrategy<FSpaceT,CSpaceT>;
 
 using VF = Pimpact::MultiHarmonicField< Pimpact::VectorField<SpaceT> >;
 using SF = Pimpact::MultiHarmonicField< Pimpact::ScalarField<SpaceT> >;
@@ -67,7 +66,6 @@ using MF = Pimpact::MultiField<CF>;
 
 using BOp = Pimpact::OperatorBase<MF>;
 
-//using Inter = NOX::Pimpact::Interface<MF>;
 using NV = NOX::Pimpact::Vector<MF>;
 
 
@@ -79,13 +77,10 @@ template<class T>
 using InterVF = Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<T> >;
 
 
-template<class OpT>
-using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< OpT > > >;
-
-
 //template<class T> using PrecS = Pimpact::MultiOpSmoother< Pimpact::DivGradO2JSmoother<T> >;
 //template<class T> using POP   = Pimpact::PrecInverseOp< T, Pimpact::DivGradO2SORSmoother >;
 template<class T> using POP   = Pimpact::PrecInverseOp< T, Pimpact::DivGradO2JSmoother >;
+//template<class T> using POP   = Pimpact::PrecInverseOp< T, Pimpact::Chebyshev >;
 template<class T> using POP2  = Pimpact::PrecInverseOp< T, ConvDiffJT >;
 template<class T> using POP3  = Pimpact::PrecInverseOp< T, ConvDiffSORT >;
 //template<class T> using POP2 = Pimpact::PrecInverseOP< T, Pimpact::NonlinearSmoother<T,Pimpact::ConvectionDiffusionSORSmoother > >;
@@ -161,7 +156,6 @@ int main( int argi, char** argv ) {
 	x->getFieldPtr(0)->getSFieldPtr()->changed();
 
 
-
 	/******************************************************************************************/
 	for( int refine=0; refine<refinement; ++refine ) {
 
@@ -170,10 +164,10 @@ int main( int argi, char** argv ) {
 			rl = std::to_string( static_cast<long long>(refine) ); // long long needed on brutus(intel)
 
 		auto fu = x->clone( Pimpact::ShallowCopy );
-		std::cout << "hello: " << space->rankST() << "\n";
 		fu->getFieldPtr(0)->getVFieldPtr()->initField( pl->sublist("Force") );
-		if( withoutput )
-			fu->write( 90000 );
+
+		//if( withoutput )
+			//fu->write( 90000 );
 
 
 		auto opV2V = Pimpact::createMultiDtConvectionDiffusionOp( space );
@@ -197,6 +191,7 @@ int main( int argi, char** argv ) {
 
 			// create Multi space
 			auto mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, pl->sublist("Multi Grid").get<int>("maxGrids") );
+			//auto mgSpaces = Pimpact::createMGSpaces<FSpaceT,FSpaceT,CS>( space, pl->sublist("Multi Grid").get<int>("maxGrids") );
 
 			// creat H0-inv prec
 			auto zeroOp = Pimpact::create<ConvDiffOpT>( space );
@@ -204,20 +199,18 @@ int main( int argi, char** argv ) {
 			pl->sublist("ConvDiff").sublist("Solver").set( "Output Stream",
 					Pimpact::createOstream( zeroOp->getLabel()+rl+".txt", space->rankST() ) );
 
-			auto zeroInv =
-				Pimpact::create<MOP>( zeroOp, Teuchos::rcpFromRef( pl->sublist("ConvDiff") ) );
+			auto zeroInv = Pimpact::createMultiOpUnWrap( Pimpact::createInverseOp(
+						zeroOp, Teuchos::rcpFromRef( pl->sublist("ConvDiff") ) ) );
 
-			auto modeOp =
-				Teuchos::rcp( new Pimpact::ModeNonlinearOp< ConvDiffOpT<SpaceT> >( zeroOp ) );
+			auto modeOp = Teuchos::rcp( new
+					Pimpact::ModeNonlinearOp<ConvDiffOpT<SpaceT> >( zeroOp ) );
 
 			pl->sublist("M_ConvDiff").sublist("Solver").set(
 					"Output Stream",
 					Pimpact::createOstream( modeOp->getLabel()+rl+".txt", space->rankST() ) );
 
-			auto modeInv =
-				Pimpact::create<MOP>(
-						modeOp,
-						Teuchos::rcpFromRef( pl->sublist("M_ConvDiff") ) );
+			auto modeInv = Pimpact::createMultiOpUnWrap( Pimpact::createInverseOp(
+						modeOp, Teuchos::rcpFromRef( pl->sublist("M_ConvDiff") ) ) );
 
 			auto mgConvDiff =
 				Pimpact::createMultiGrid<
@@ -229,15 +222,14 @@ int main( int argi, char** argv ) {
 				ConvDiffOpT,
 				//					ConvDiffSORT,
 				ConvDiffJT,
-				//					MOP
 				POP2
 					> ( mgSpaces, Teuchos::rcpFromRef( pl->sublist("ConvDiff").sublist("Multi Grid") ) ) ;
 
-			if( 0==space->rankST() )
-				mgConvDiff->print();
+			//if( 0==space->rankST() )
+				//mgConvDiff->print();
 
-			zeroInv->getOperatorPtr()->getLinearProblem()->setRightPrec( Pimpact::createMultiOperatorBase(mgConvDiff) );
-			modeInv->getOperatorPtr()->getLinearProblem()->setRightPrec( Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::EddyPrec>( zeroInv ) ) );
+			zeroInv->getOperatorPtr()->setRightPrec( Pimpact::createMultiOperatorBase(mgConvDiff) );
+			modeInv->getOperatorPtr()->setRightPrec( Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::EddyPrec>(zeroInv) ) );
 
 			// create Hinv prec
 			Teuchos::RCP<Pimpact::OperatorBase<MVF> > opV2Vprec = 
@@ -252,25 +244,41 @@ int main( int argi, char** argv ) {
 					Pimpact::createOstream( opV2V->getLabel()+rl+".txt", space->rankST() ) );
 
 
-			auto opV2Vinv = Pimpact::createInverseOp( opV2V, Teuchos::rcpFromRef( pl->sublist("MH_ConvDiff") ) );
-			opV2Vinv->setRightPrec( opV2Vprec );
+			auto opV2Vinv = Pimpact::createInverseOp( opV2V, Teuchos::rcpFromRef(
+						pl->sublist("MH_ConvDiff") ) );
 
-			/////////////////////////////////////////end of opv2v///////////////////////////////////////////////////////////////////
+			opV2Vinv->setRightPrec( opV2Vprec);
 
+			/////////////////////////////////////////end of opv2v//////////////////////////////////////
 			////--- inverse DivGrad
-			pl->sublist("DivGrad").sublist("Solver").set(
-					"Output Stream",
+
+			pl->sublist("DivGrad").sublist("Solver").set( "Output Stream",
 					Pimpact::createOstream( "DivGrad"+rl+".txt", space->rankST() ) );
+
+			auto divGradOp =
+				Pimpact::createDivGradOp(
+						opV2S->getOperatorPtr(),
+						opS2V->getOperatorPtr() );
 
 			auto divGradInv2 =
 				Pimpact::createInverseOp( 
-						Pimpact::createDivGradOp(
-							opV2S->getOperatorPtr(),
-							opS2V->getOperatorPtr()
-							)
-						, Teuchos::rcpFromRef( pl->sublist("DivGrad") ) );
+						divGradOp,
+						Teuchos::rcpFromRef( pl->sublist("DivGrad") ) );
 
-			std::string divGradPrecString = pl->sublist("DivGrad").get<std::string>("preconditioner","none");
+			std::string divGradScalString =
+				pl->sublist("DivGrad").get<std::string>("scaling","none");
+
+			if( "none" != divGradScalString ) { 
+				if( "left" != divGradScalString )
+					divGradInv2->setLeftPrec( Pimpact::createMultiOperatorBase(
+								Pimpact::createInvDiagonal( divGradOp ) ) );
+				if( "right" != divGradScalString )
+					divGradInv2->setRightPrec( Pimpact::createMultiOperatorBase(
+								Pimpact::createInvDiagonal( divGradOp ) ) );
+			}
+
+			std::string divGradPrecString =
+				pl->sublist("DivGrad").get<std::string>("preconditioner","none");
 
 			if( "none" != divGradPrecString ) { // init multigrid divgrad
 
@@ -280,11 +288,13 @@ int main( int argi, char** argv ) {
 					Pimpact::RestrictionHWOp,
 					Pimpact::InterpolationOp,
 					Pimpact::DivGradOp,
+					//Pimpact::DivGradOp,
 					Pimpact::DivGradO2Op,
 					Pimpact::DivGradO2JSmoother,
 					//Pimpact::Chebyshev,
 					//Pimpact::DivGradO2SORSmoother,
 					//POP
+					//Pimpact::Chebyshev
 					//Pimpact::DivGradO2Inv
 					//Pimpact::DivGradO2SORSmoother
 					Pimpact::DivGradO2JSmoother

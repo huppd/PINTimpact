@@ -34,8 +34,7 @@ protected:
 
 public:
 
-	InvDiagonal( const Teuchos::RCP<OP>& op ): op_(op) {
-	};
+	InvDiagonal( const Teuchos::RCP<OP>& op ): op_(op) {};
 
 
 	void apply(const DomainFieldT& x, RangeFieldT& y,

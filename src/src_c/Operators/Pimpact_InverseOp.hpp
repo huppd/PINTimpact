@@ -37,6 +37,7 @@ public:
 protected:
 
 	bool level_;
+	bool levelRHS_;
 	bool initZero_;
   Teuchos::RCP< LinearProblem<MF> > linprob_;
 
@@ -44,6 +45,7 @@ public:
 
 	InverseOp( const Teuchos::RCP<const SpaceT>& space ):
 		level_(false),
+		levelRHS_(false),
 		initZero_(false) {
 
 			auto para = 
@@ -73,8 +75,9 @@ public:
 
  template<class IOperatorT>
  InverseOp( const Teuchos::RCP<IOperatorT>& op,
-		 Teuchos::RCP<Teuchos::ParameterList> pl ):
+		 const Teuchos::RCP<Teuchos::ParameterList>& pl ):
 	 level_( pl->get<bool>( "level", false ) ),
+	 levelRHS_( pl->get<bool>( "level RHS", false ) ),
 	 initZero_( pl->get<bool>( "initZero", false ) ),
 	 linprob_( createLinearProblem<MF>(
 				 createOperatorBase( create<OperatorT>(op) ),
@@ -85,6 +88,7 @@ public:
 
 
   void apply( const MF& x, MF& y ) const {
+		if( levelRHS_ ) { x.level(); }
 		if( initZero_ ) { y.init( ); }
     linprob_->solve( Teuchos::rcpFromRef(y), Teuchos::rcpFromRef(x) );
 		if( level_    ) { y.level(); }
@@ -111,8 +115,13 @@ public:
 
 	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(linprob_->space()); };
 
-	Teuchos::RCP< LinearProblem<MF> > getLinearProblem() { return(linprob_); }
+	constexpr Teuchos::RCP<const LinearProblem<MF> > getLinearProblem() const {
+		return(linprob_);
+	}
 
+	constexpr Teuchos::RCP<const Op> getOperatorPtr() const {
+		return( getLinearProblem()->getOperatorPtr() );
+	};
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
     auto prob = linprob_->getProblem();
@@ -162,27 +171,20 @@ public:
 /// \relates InverseOp
 template< class OpT>
 Teuchos::RCP< InverseOp< MultiOpWrap<OpT> > >
-createInverseOp(
-		const Teuchos::RCP<OpT>& op, Teuchos::RCP< Teuchos::ParameterList > pl=Teuchos::null ) {
-
-	if( pl.is_null() )
-		return( Teuchos::rcp( new InverseOp<MultiOpWrap<OpT> >( op ) ) );
-	else
-		return( Teuchos::rcp( new InverseOp<MultiOpWrap<OpT> >( op, pl ) ) );
+createInverseOp( const Teuchos::RCP<OpT>& op ) {
+	return( Teuchos::rcp( new InverseOp<MultiOpWrap<OpT> >( op ) ) );
 }
 
-///// \relates InverseOp
-//template< class MOpT>
-//Teuchos::RCP< InverseOp< MOpT > >
-//createInverseOp(
-		//const Teuchos::RCP<MOpT>& mOp,
-		//Teuchos::RCP< Teuchos::ParameterList > pl=Teuchos::null ) {
 
-	//if( pl.is_null() )
-    //return( Teuchos::rcp( new InverseOp<MOpT>( mOp ) ) );
-	//else
-    //return( Teuchos::rcp( new InverseOp<MOpT>( mOp, pl ) ) );
-//}
+/// \relates InverseOp
+template< class OpT>
+Teuchos::RCP< InverseOp< MultiOpWrap<OpT> > >
+createInverseOp(
+		const Teuchos::RCP<OpT>& op,
+		const Teuchos::RCP<Teuchos::ParameterList>& pl ) {
+
+	return( Teuchos::rcp( new InverseOp<MultiOpWrap<OpT> >( op, pl ) ) );
+}
 
 } // end of namespace Pimpact
 

@@ -59,11 +59,6 @@ public:
 			case Belos::NOTRANS : {
 				grad_->apply( x, *temp );
 				div_->apply( *temp, y );
-				// for Dirichlet boundary conditions interpolate temp to y
-				//for( OT k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
-					//for( OT j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
-						//for( OT i=space()->begin(S,X); i<=space()->end(S,X); ++i )
-							//y.at(i,j,k) = innerStenc3D( *temp, i, j, k );
 				break;
 			}
 			case Belos::TRANS : {

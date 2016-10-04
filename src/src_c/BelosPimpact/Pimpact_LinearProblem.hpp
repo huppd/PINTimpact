@@ -66,9 +66,12 @@ public:
   }
 
 	constexpr const Teuchos::RCP<const SpaceT>& space() const {
-		return(problem_->getOperator()->space());
+		return( problem_->getOperator()->space() );
 	};
 
+	constexpr Teuchos::RCP<const Op> getOperatorPtr() const {
+		return( getProblem()->getOperator() );
+	};
 
   //@}
   /// \name setter methods
@@ -120,7 +123,7 @@ Teuchos::RCP< LinearProblem<MF> > createLinearProblem(
     const Teuchos::RCP<const OperatorBase<MF> >& A,
     const Teuchos::RCP<MF>& x,
     const Teuchos::RCP<const MF>& b,
-    Teuchos::RCP<Teuchos::ParameterList> param,
+    const Teuchos::RCP<Teuchos::ParameterList>& param,
     const std::string& solvername="GMRES" ) {
 
 	using S = typename MF::SpaceT::Scalar;

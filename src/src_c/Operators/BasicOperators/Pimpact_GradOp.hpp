@@ -168,47 +168,33 @@ public:
 
   void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
+		bool bcY_ = true;
+		//bool bcY_ = false;
+
 		x.exchange(X);
-		for( Ordinal k=space()->begin(U,Z,true); k<=space()->end(U,Z,true); ++k )
-			for( Ordinal j=space()->begin(U,Y,true); j<=space()->end(U,Y,true); ++j )
-				for( Ordinal i=space()->begin(U,X,true); i<=space()->end(U,X,true); ++i )
+		for( Ordinal k=space()->begin(U,Z,bcY_); k<=space()->end(U,Z,bcY_); ++k )
+			for( Ordinal j=space()->begin(U,Y,bcY_); j<=space()->end(U,Y,bcY_); ++j )
+				for( Ordinal i=space()->begin(U,X,bcY_); i<=space()->end(U,X,bcY_); ++i )
 					y.getField(U).at(i,j,k) = innerStencU( x, i, j, k );
 
 		x.exchange(Y);
-		for( Ordinal k=space()->begin(V,Z,true); k<=space()->end(V,Z,true); ++k )
-			for( Ordinal j=space()->begin(V,Y,true); j<=space()->end(V,Y,true); ++j )
-				for( Ordinal i=space()->begin(V,X,true); i<=space()->end(V,X,true); ++i )
+		for( Ordinal k=space()->begin(V,Z,bcY_); k<=space()->end(V,Z,bcY_); ++k )
+			for( Ordinal j=space()->begin(V,Y,bcY_); j<=space()->end(V,Y,bcY_); ++j )
+				for( Ordinal i=space()->begin(V,X,bcY_); i<=space()->end(V,X,bcY_); ++i )
 					y.getField(V).at(i,j,k) = innerStencV( x, i, j, k );
 
 		if( 3==space_->dim() )  {
 
 			x.exchange(Z);
-			for( Ordinal k=space()->begin(W,Z,true); k<=space()->end(W,Z,true); ++k )
-				for( Ordinal j=space()->begin(W,Y,true); j<=space()->end(W,Y,true); ++j )
-					for( Ordinal i=space()->begin(W,X,true); i<=space()->end(W,X,true); ++i )
+			for( Ordinal k=space()->begin(W,Z,bcY_); k<=space()->end(W,Z,bcY_); ++k )
+				for( Ordinal j=space()->begin(W,Y,bcY_); j<=space()->end(W,Y,bcY_); ++j )
+					for( Ordinal i=space()->begin(W,X,bcY_); i<=space()->end(W,X,bcY_); ++i )
 						y.getField(W).at(i,j,k) = innerStencW( x, i, j, k );
 		}
+		// BC scaling experimental
 
 		y.extrapolateBC();
 		
-		//OP_extrapolateBC2(
-		//i+1,
-		//space_->nLoc(),
-		//space_->bl(),
-		//space_->bu(),
-		//space_->bu(i),
-		//space_->bu(i),
-		////1,1,
-		////2,2,
-		////3,3,
-		//space_->getBCLocal()->getBCL(i),
-		//space_->getBCLocal()->getBCU(i),
-		//space_->sIndB(i),
-		//space_->eIndB(i),
-		//space_->getCoordinatesLocal()->getX( static_cast<ECoord>(i), static_cast<EField>(i) ),
-		////space_->getInterpolateV2S()->getC( static_cast<ECoord>(i) ),
-		//y.getRawPtr(i) );
-
     y.changed();
   }
 

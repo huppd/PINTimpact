@@ -24,6 +24,20 @@ void OP_extrapolateBC(
 		const double* const c,    
 		const double*       phi );
 
+extern "C" void OP_extrapolateBC2(
+		const int& m,         
+    const int* const N,         
+    const int* const bL,
+		const int* const bU,     
+    const int& dL,
+		const int& dU,     
+		const int& BC_L,
+		const int& BC_U, 
+		const int* const SB,
+		const int* const NB,
+		const double* const c,    
+		const double*       phi );
+
 void VF_write( double* phiU, double* phiV, double* phiW, const int& count );
 
 void VF_init_2DPulsatileX(

@@ -331,13 +331,13 @@ public:
 		return( indexSpace_->eIndB( fieldType ) );
 	}
 
-	constexpr const Ordinal& begin( const int& fieldType, const int& dir, const bool& bcYes=false ) const {
+	inline constexpr const Ordinal& begin( const int& fieldType, const int& dir, const bool& bcYes=false ) const {
 		return(
 				bcYes?
 				indexSpace_->sIndB( fieldType, dir ):
 				indexSpace_->sInd ( fieldType, dir ) );
 	}
-	constexpr const Ordinal& end( const int& fieldType, const int& dir, const bool& bcYes=false ) const {
+	inline constexpr const Ordinal& end( const int& fieldType, const int& dir, const bool& bcYes=false ) const {
 		return(
 				bcYes?
 				indexSpace_->eIndB( fieldType, dir ):

@@ -90,10 +90,10 @@ set( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${Trilinos_Fortran_COMPILER_FLA
 
 
 if( CMAKE_COMPILER_IS_GNUCXX )
-	set( CMAKE_CXX_FLAGS_RELEASE  "${CMAKE_CXX_FLAGS_RELEASE} -Ofast -ftree-vectorizer-verbose=1 -funroll-all-loops -ftree-vectorize  -ffast-math -funsafe-math-optimizations -fargument-noalias-global -march=native -malign-double ")
+	set( CMAKE_CXX_FLAGS_RELEASE  "${CMAKE_CXX_FLAGS_RELEASE} -Ofast -ftree-vectorizer-verbose=0 -funroll-all-loops -ftree-vectorize  -ffast-math -funsafe-math-optimizations -fargument-noalias-global -march=native -malign-double ")
 	set( CMAKE_CXX_FLAGS_PROFILE "${CMAKE_CXX_FLAGS_PROFILE} ${CMAKE_CXX_FLAGS_RELEASE}  -g ")# -pg
 	set( CMAKE_Fortran_FLAGS  "${CMAKE_Fortran_FLAGS} -ffree-line-length-none -fdollar-ok -Wall -cpp " )
-	set( CMAKE_Fortran_FLAGS_RELEASE  " ${CMAKE_Fortran_FLAGS_RELEASE} -Ofast -ftree-vectorizer-verbose=1  -ffast-math -funroll-all-loops -fpeel-loops -ftracer -funswitch-loops -ftree-vectorize -march=native -funsafe-math-optimizations -fomit-frame-pointer -fno-math-errno  -Ofast -fargument-noalias-global -march=native -malign-double" )
+	set( CMAKE_Fortran_FLAGS_RELEASE  " ${CMAKE_Fortran_FLAGS_RELEASE} -Ofast -ftree-vectorizer-verbose=0  -ffast-math -funroll-all-loops -fpeel-loops -ftracer -funswitch-loops -ftree-vectorize -march=native -funsafe-math-optimizations -fomit-frame-pointer -fno-math-errno  -Ofast -fargument-noalias-global -march=native -malign-double" )
 	set( CMAKE_Fortran_FLAGS_PROFILE "${CMAKE_Fortran_FLAGS_PROFILE} ${CMAKE_Fortran_FLAGS_RELEASE}  -g  ")  # -pg
 	set( CMAKE_Fortran_COMPILE_FLAGS "${CMAKE_Fortran_COMPILE_FLAGS} ${Trilinos_Fortran_COMPILER_FLAGS} -xf95-cpp-input -fdefault-real-8 -fdefault-double-8  "  )
 else()

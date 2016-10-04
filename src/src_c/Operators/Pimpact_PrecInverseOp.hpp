@@ -54,14 +54,14 @@ public:
 				para,
 				"GMRES" );
 
-		linprob_->setLeftPrec(
+		linprob_->setRightPrec(
 				createMultiOperatorBase(
 					create<PreconditionerT>(op) ) );
 	}
 
 
 	PrecInverseOp( const Teuchos::RCP<OperatorT>& op,
-			Teuchos::RCP<Teuchos::ParameterList> pl ):
+			const Teuchos::RCP<Teuchos::ParameterList>& pl ):
 		linprob_( createLinearProblem<MF>(
 					createMultiOperatorBase( op ),
 					create<MF>( op->space() ),
@@ -90,9 +90,8 @@ public:
 
 	void assignField( const DomainFieldT& mvr ) {
 
-		auto mv =
-			createMultiField(
-					Teuchos::rcpFromRef<DomainFieldT>( const_cast<DomainFieldT&>(mvr) ) );
+		auto mv = createMultiField(
+				Teuchos::rcpFromRef<DomainFieldT>( const_cast<DomainFieldT&>(mvr) ) );
 
 		auto prob = linprob_->getProblem();
 
