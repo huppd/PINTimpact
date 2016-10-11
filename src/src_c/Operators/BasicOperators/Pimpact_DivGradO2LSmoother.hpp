@@ -78,9 +78,9 @@ public:
 		levelYes_( pl->get<bool>( "level", false ) ),
 		op_(op) {
 
-			lineDirection_[X] = pl->get<bool>( "X", false );
+			lineDirection_[X] = pl->get<bool>( "X", true );
 			lineDirection_[Y] = pl->get<bool>( "Y", true  );
-			lineDirection_[Z] = pl->get<bool>( "Z", false );
+			lineDirection_[Z] = pl->get<bool>( "Z", true );
 
 			TEUCHOS_TEST_FOR_EXCEPT( !lineDirection_[X] && !lineDirection_[Y] && !lineDirection_[Z] );
 
@@ -99,11 +99,11 @@ public:
 
 					for( Ordinal i=space()->begin( S, dir ); i<=space()->end( S, dir ); ++i ) {
 						for( int j=0; j<space()->dim(); ++j )
-							(*d_[dir])[i-1] += op_->getC( j, i,  0 );
+							(*d_[dir])[i-space()->begin(S,dir)] += op_->getC( j, i,  0 );
 					}
-					for( Ordinal i=space()->begin( S, dir ); i<space()->end( S, dir ); ++i ) {
-						(*du_[dir])[i-1] = op_->getC( dir, i, +1 );
-						(*dl_[dir])[i-1] = op_->getC( dir, i+1, -1 );
+					for( Ordinal i=space()->begin(S,dir); i<space()->end( S, dir ); ++i ) {
+						(*du_[dir])[i-space()->begin(S,dir)] = op_->getC( dir, i+1, +1 );
+						(*dl_[dir])[i-space()->begin(S,dir)] = op_->getC( dir, i  , -1 );
 					}
 
 					Ordinal lu_factorization_sucess;

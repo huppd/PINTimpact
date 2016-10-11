@@ -30,7 +30,8 @@ void OP_DivGradO2SORSmoother(
 
 /// \brief \f$\omega\f$-SORacobian smoother for second Order DivGradOp.
 ///
-///
+/// \todo test, c++fy
+/// \deprecated
 /// \relates DivGradO2Op
 /// \ingroup BaseOperator
 /// \note instead of hardcode 2nd Order it would be pretty to use new space with StencilWidth<3,2>

@@ -150,17 +150,30 @@ public:
 			for( Ordinal j=SS_[Y]; j<=NN_[Y]; ++j )
 				for( Ordinal i=SS_[X]; i<=NN_[X]; ++i ) {
 
-					Ordinal I = getI( i, j, k );
+					const bool bcX = (op->space()->getBCLocal()->getBCL(X) > 0 && i==op->space()->begin(S,X) ) ||
+						(op->space()->getBCLocal()->getBCU(X) > 0 && i==op->space()->end(S,X) ) ;
+					const bool bcY = (op->space()->getBCLocal()->getBCL(Y) > 0 && j==op->space()->begin(S,Y) ) ||
+						(op->space()->getBCLocal()->getBCU(Y) > 0 && j==op->space()->end(S,Y) ) ;
+					const bool bcZ = (op->space()->getBCLocal()->getBCL(Z) > 0 && k==op->space()->begin(S,Z) ) ||
+						(op->space()->getBCLocal()->getBCU(Z) > 0 && k==op->space()->end(S,Z) ) ;
+
+					const Scalar& eps = 1.e-1;
+
+					const Scalar epsX = (bcY||bcZ)?eps:1.;
+					const Scalar epsY = (bcX||bcZ)?eps:1.;
+					const Scalar epsZ = (bcX||bcY)?eps:1.;
+
+					const Ordinal I = getI( i, j, k );
 
 					for( int o=-1; o<=1; ++o ) {
 						if( (i+o)>=SS_[X] && (i+o)<=NN_[X] ) 
-							(*A)( I, getI( i+o, j, k ) ) += op->getC( X, i, o) ;
+							(*A)( I, getI( i+o, j, k ) ) += epsX*op->getC( X, i, o) ;
 
 						if( (j+o)>=SS_[Y] && (j+o)<=NN_[Y] )
-							(*A)( I, getI( i, j+o, k ) ) += op->getC( Y, j, o) ;
+							(*A)( I, getI( i, j+o, k ) ) += epsY*op->getC( Y, j, o) ;
 
 						if( (k+o)>=SS_[Z] && (k+o)<=NN_[Z] )
-							(*A)( I, getI( i, j, k+o ) ) += op->getC( Z, k, o) ;
+							(*A)( I, getI( i, j, k+o ) ) += epsZ*op->getC( Z, k, o) ;
 					}
 				}
 	}

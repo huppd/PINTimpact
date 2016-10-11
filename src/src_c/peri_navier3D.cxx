@@ -155,7 +155,6 @@ int main( int argi, char** argv ) {
 	x->getFieldPtr(0)->getVFieldPtr()->changed();
 	x->getFieldPtr(0)->getSFieldPtr()->changed();
 
-
 	/******************************************************************************************/
 	for( int refine=0; refine<refinement; ++refine ) {
 

@@ -195,21 +195,44 @@ protected:
 	inline constexpr Scalar innerStenc3D( const DomainFieldT& x, const Ordinal& i, const Ordinal& j,
 			const Ordinal& k ) const {
 
+		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->begin(S,X) ) ||
+		           (space()->getBCLocal()->getBCU(X) > 0 && i==space()->end(S,X) ) ;
+		const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->begin(S,Y) ) ||
+		           (space()->getBCLocal()->getBCU(Y) > 0 && j==space()->end(S,Y) ) ;
+		const bool bcZ = (space()->getBCLocal()->getBCL(Z) > 0 && k==space()->begin(S,Z) ) ||
+		           (space()->getBCLocal()->getBCU(Z) > 0 && k==space()->end(S,Z) ) ;
+
+		const Scalar& eps = 1.e-1;
+
+		const Scalar epsX = (bcY||bcZ)?eps:1.;
+		const Scalar epsY = (bcX||bcZ)?eps:1.;
+		const Scalar epsZ = (bcX||bcY)?eps:1.;
+
 		return( 
-				getC(X,i,-1)*x.at(i-1,j  ,k  ) + getC(X,i,1)*x.at(i+1,j  ,k  ) +
-				getC(Y,j,-1)*x.at(i  ,j-1,k  ) + getC(Y,j,1)*x.at(i  ,j+1,k  ) +
-				getC(Z,k,-1)*x.at(i  ,j  ,k-1) + getC(Z,k,1)*x.at(i  ,j  ,k+1) +
-				( getC(X,i,0) + getC(Y,j,0) + getC(Z,k,0) )*x.at(i,j,k)
+				epsX*getC(X,i,-1)*x.at(i-1,j  ,k  ) + epsX*getC(X,i,1)*x.at(i+1,j  ,k  ) +
+				epsY*getC(Y,j,-1)*x.at(i  ,j-1,k  ) + epsY*getC(Y,j,1)*x.at(i  ,j+1,k  ) +
+				epsZ*getC(Z,k,-1)*x.at(i  ,j  ,k-1) + epsZ*getC(Z,k,1)*x.at(i  ,j  ,k+1) +
+				( epsX*getC(X,i,0) + epsY*getC(Y,j,0) + epsZ*getC(Z,k,0) )*x.at(i,j,k)
 				);
 	}
 
 	inline constexpr Scalar innerStenc2D( const DomainFieldT& x, const Ordinal& i, const Ordinal& j,
 			const Ordinal& k ) const {
 
+		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->begin(S,X) ) ||
+		           (space()->getBCLocal()->getBCU(X) > 0 && i==space()->end(S,X) ) ;
+		const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->begin(S,Y) ) ||
+		           (space()->getBCLocal()->getBCU(Y) > 0 && j==space()->end(S,Y) ) ;
+
+		const Scalar& eps = 1.e-4;
+
+		const Scalar epsX = (bcY)?eps:1.;
+		const Scalar epsY = (bcX)?eps:1.;
+
 		return( 
-				getC(X,i,-1)*x.at(i-1,j  ,k  ) + getC(X,i,1)*x.at(i+1,j  ,k  ) +
-				getC(Y,j,-1)*x.at(i  ,j-1,k  ) + getC(Y,j,1)*x.at(i  ,j+1,k  ) +
-				( getC(X,i,0) + getC(Y,j,0) )*x.at(i,j,k)
+				epsX*getC(X,i,-1)*x.at(i-1,j  ,k  ) + epsX*getC(X,i,1)*x.at(i+1,j  ,k  ) +
+				epsY*getC(Y,j,-1)*x.at(i  ,j-1,k  ) + epsY*getC(Y,j,1)*x.at(i  ,j+1,k  ) +
+				( epsX*getC(X,i,0) + epsY*getC(Y,j,0) )*x.at(i,j,k)
 				);
 	}
 

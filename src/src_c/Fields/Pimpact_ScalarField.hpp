@@ -735,7 +735,78 @@ public:
 	}
 
 
-	void extrapolateBC() const {}
+	void extrapolateBC() {
+
+		if( U==fType_ ) {
+			if( space()->getBCLocal()->getBCL(X) > 0 ) {
+				Ordinal i = space()->begin(fType_,X,true);
+				for( Ordinal k=space()->begin(fType_,Z, true); k<=space()->end(fType_,Z,true); ++k )
+					for( Ordinal j=space()->begin(fType_,Y,true); j<=space()->end(fType_,Y,true); ++j ) {
+						at(i,j,k) = 0.;
+						for( Ordinal ii=0; ii<=space()->du(X); ++ii ) {
+							at(i,j,k) -= space()->getInterpolateV2S()->getC(X,1,ii)*at(1+ii,j,k);  
+						}
+						at(i,j,k) /= space()->getInterpolateV2S()->getC(X,1,-1);
+					}
+			}
+			if( space()->getBCLocal()->getBCU(X) > 0 ) {
+				Ordinal i = space()->end(fType_,X,true);
+				for( Ordinal k=space()->begin(fType_,Z, true); k<=space()->end(fType_,Z,true); ++k )
+					for( Ordinal j=space()->begin(fType_,Y,true); j<=space()->end(fType_,Y,true); ++j ) {
+						at(i,j,k) = 0.;
+						for( Ordinal ii=space()->dl(X); ii<=-1; ++ii )
+							at(i,j,k) -= space()->getInterpolateV2S()->getC(X,i,ii)*at(i+ii,j,k); 
+						at(i,j,k) /= space()->getInterpolateV2S()->getC(X,i,0);
+					}
+			}
+		}
+		else if( V==fType_ ) {
+			if( space()->getBCLocal()->getBCL(Y) > 0 ) {
+				Ordinal j = space()->begin(fType_,Y,true);
+				for( Ordinal k=space()->begin(fType_,Z, true); k<=space()->end(fType_,Z,true); ++k )
+					for( Ordinal i=space()->begin(fType_,X,true); i<=space()->end(fType_,X,true); ++i ) {
+						at(i,j,k) = 0.;
+						for( Ordinal jj=0; jj<=space()->du(Y); ++jj ) {
+							at(i,j,k) -= space()->getInterpolateV2S()->getC(Y,1,jj)*at(i,1+jj,k);  
+						}
+						at(i,j,k) /= space()->getInterpolateV2S()->getC(Y,1,-1);
+					}
+			}
+			if( space()->getBCLocal()->getBCU(Y) > 0 ) {
+				Ordinal j = space()->end(fType_,Y,true);
+				for( Ordinal k=space()->begin(fType_,Z, true); k<=space()->end(fType_,Z,true); ++k )
+					for( Ordinal i=space()->begin(fType_,X,true); i<=space()->end(fType_,X,true); ++i ) {
+						at(i,j,k) = 0.;
+						for( Ordinal jj=space()->dl(Y); jj<=-1; ++jj )
+							at(i,j,k) -= space()->getInterpolateV2S()->getC(Y,j,jj)*at(i,j+jj,k); 
+						at(i,j,k) /= space()->getInterpolateV2S()->getC(Y,j,0);
+					}
+			}
+		}
+		else if( W==fType_ ) {
+			if( space()->getBCLocal()->getBCL(Z) > 0 ) {
+				Ordinal k = space()->begin(fType_,Z,true);
+				for( Ordinal j=space()->begin(fType_,Y,true); j<=space()->end(fType_,Y,true); ++j )
+					for( Ordinal i=space()->begin(fType_,X,true); i<=space()->end(fType_,X,true); ++i ) {
+						at(i,j,k) = 0.;
+						for( Ordinal kk=0; kk<=space()->du(Z); ++kk ) {
+							at(i,j,k) -= space()->getInterpolateV2S()->getC(Z,1,kk)*at(i,j,1+kk);  
+						}
+						at(i,j,k) /= space()->getInterpolateV2S()->getC(Z,1,-1);
+					}
+			}
+			if( space()->getBCLocal()->getBCU(Z) > 0 ) {
+				Ordinal k = space()->end(fType_,Z,true);
+				for( Ordinal j=space()->begin(fType_,Y,true); j<=space()->end(fType_,Y,true); ++j )
+					for( Ordinal i=space()->begin(fType_,X,true); i<=space()->end(fType_,X,true); ++i ) {
+						at(i,j,k) = 0.;
+						for( Ordinal kk=space()->dl(Z); kk<=-1; ++kk )
+							at(i,j,k) -= space()->getInterpolateV2S()->getC(Z,k,kk)*at(i,j,k+kk); 
+						at(i,j,k) /= space()->getInterpolateV2S()->getC(Z,k,0);
+					}
+			}
+		}
+	}
 
 
 	/// \brief levels field if scalar field

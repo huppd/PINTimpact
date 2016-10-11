@@ -20,8 +20,8 @@
 			<!--<Parameter docString="" id="61" isDefault="false" isUsed="true" name="Stretch Type" type="string" value="cos" />-->
 			<!--<Parameter docString="" id="62" isDefault="true" isUsed="true" name="x0 U" type="double" value="0.00000000000000000e+00" />-->
 			<!--<Parameter docString="" id="63" isDefault="true" isUsed="true" name="x0 L" type="double" value="5.00000000000000028e-02" />-->
-			<!--<Parameter docString="" id="64" isDefault="true" isUsed="true" name="N metr U" type="double" value="17.00000000000000000e+00" />-->
-			<!--<Parameter docString="" id="65" isDefault="true" isUsed="true" name="N metr L" type="double" value="17.0000000000000000e+00" />-->
+			<!--<Parameter docString="" id="64" isDefault="true" isUsed="true" name="N metr U" type="double" value="9.00000000000000000e+00" />-->
+			<!--<Parameter docString="" id="65" isDefault="true" isUsed="true" name="N metr L" type="double" value="9.0000000000000000e+00" />-->
 		</ParameterList>
 		<ParameterList id="3" name="Stretching in Y">
 			<!--<Parameter docString="" id="66" isDefault="false" isUsed="true" name="Stretch Type" type="string" value="cos" />-->
@@ -143,7 +143,7 @@
 		<Parameter docString="" id="130" isDefault="true" isUsed="true" name="initZero" type="bool" value="true" />
 		<!--<Parameter docString="" id="193" isDefault="true" isUsed="true" name="preconditioner" type="string" value="none" />-->
 		<!--<Parameter docString="" id="193" isDefault="true" isUsed="true" name="preconditioner" type="string" value="left" />-->
-		<!--<Parameter docString="" id="193" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />-->
+		<Parameter docString="" id="193" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
 		<!--<Parameter docString="" id="300" isDefault="true" isUsed="true" name="scaling" type="string" value="left" />-->
 		<ParameterList id="25" name="Solver">
 			<Parameter docString="" id="131" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-04" />
@@ -151,7 +151,7 @@
 			<Parameter docString="" id="133" isDefault="false" isUsed="true" name="Timer Label" type="string" value="DivGrad" />
 			<Parameter docString="" id="134" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="-1" />
 			<Parameter docString="" id="135" isDefault="false" isUsed="true" name="Output Style" type="int" value="1" />
-			<!--<Parameter docString="" id="200" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="8" />-->
+			<Parameter docString="" id="200" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="10" />
 		</ParameterList>
 		<ParameterList id="26" name="Multi Grid">
 			<Parameter docString="" id="136" isDefault="false" isUsed="true" name="numCycles" type="int" value="1" />

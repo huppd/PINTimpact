@@ -69,7 +69,8 @@ using DGJMGT = Pimpact::MultiGrid<
 	//Pimpact::DivGradO2Op,
 	Pimpact::DivGradO2Op,
 	Pimpact::DivGradO2JSmoother,
-	Pimpact::DivGradO2Inv >;
+	Pimpact::DivGradO2JSmoother >;
+	//Pimpact::DivGradO2Inv >;
 
 using DGSORMGT = Pimpact::MultiGrid<
 	MGSpacesT,
@@ -80,7 +81,8 @@ using DGSORMGT = Pimpact::MultiGrid<
 	Pimpact::DivGradOp,
 	Pimpact::DivGradO2Op,
 	Pimpact::DivGradO2SORSmoother,
-	Pimpact::DivGradO2Inv >;
+	Pimpact::DivGradO2SORSmoother >;
+	//Pimpact::DivGradO2Inv >;
 
 using DGLMGT = Pimpact::MultiGrid<
 	MGSpacesT,
@@ -91,7 +93,8 @@ using DGLMGT = Pimpact::MultiGrid<
 	Pimpact::DivGradOp,
 	Pimpact::DivGradO2Op,
 	Pimpact::DivGradO2LSmoother,
-	Pimpact::DivGradO2Inv >;
+	Pimpact::DivGradO2LSmoother >;
+	//Pimpact::DivGradO2Inv >;
 
 using DGCMGT = Pimpact::MultiGrid<
 	MGSpacesT,
@@ -102,7 +105,8 @@ using DGCMGT = Pimpact::MultiGrid<
 	Pimpact::DivGradOp,
 	Pimpact::DivGradO2Op,
 	Pimpact::Chebyshev,
-	Pimpact::DivGradO2Inv >;
+	Pimpact::Chebyshev >;
+	//Pimpact::DivGradO2Inv >;
 
 bool testMpi = true;
 double eps = 1e-6;
@@ -1049,7 +1053,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 			TEST_EQUALITY( errInf<eps, true  );
 			if( errInf>=eps ) {
 				int i = 0;
-				er->write( i );
+				er->write( std::abs(i) );
 				std::string r = std::to_string( static_cast<long long>( space->rankST() ) ); // long long needed on brutus(intel)
 				er->print( *Pimpact::createOstream( "int_error_c_r"+r+".txt" ) );
 				//er->print(  );
@@ -1077,7 +1081,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 				TEST_EQUALITY( errInf<eps, true  );
 				if( errInf>=eps ) {
 					int i = dir-2;
-					er->write( i );
+					er->write( std::abs(i) );
 					std::string d = std::to_string( static_cast<long long>( dir-1 ) ); // long long needed on brutus(intel)
 					std::string r = std::to_string( static_cast<long long>( space->rankST() ) ); // long long needed on brutus(intel)
 					er->print( *Pimpact::createOstream( "int_error_g"+d+"_r"+r+".txt" ) );
@@ -1153,7 +1157,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 				errInf = er->norm( Belos::InfNorm );
 				TEST_EQUALITY( errInf<eps, true  );
 				if( errInf>=eps )
-					er->write( 1*(dir-2) );
+					er->write( std::abs(1*(dir-2)) );
 			}
 			if( 0==space->rankST() )
 				std::cout << "restriction error (" << Pimpact::toString(type) << "): " << errInf << "\n";

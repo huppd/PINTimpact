@@ -191,7 +191,60 @@ public:
 					for( Ordinal i=space()->begin(W,X,bcY_); i<=space()->end(W,X,bcY_); ++i )
 						y.getField(W).at(i,j,k) = innerStencW( x, i, j, k );
 		}
+
 		// BC scaling experimental
+		const Scalar& eps = 1.e-1;
+		//std::cout << "eps: " << eps << "\n";
+		for( int dir=0; dir<3; ++dir ) {
+			bool bc2 = true;
+			if( 0!=dir ) {
+				if( space()->getBCLocal()->getBCL(X) > 0 ) {
+					Ordinal i = space()->begin(dir,X,true);
+					for( Ordinal k=space()->begin(dir,Z, bc2); k<=space()->end(dir,Z,bc2); ++k )
+						for( Ordinal j=space()->begin(dir,Y,bc2); j<=space()->end(dir,Y,bc2); ++j )
+							y.getField(dir).at(i,j,k) *= eps;  
+				}
+				if( space()->getBCLocal()->getBCU(X) > 0 ) {
+					Ordinal i = space()->end(dir,X,true);
+					for( Ordinal k=space()->begin(dir,Z,bc2); k<=space()->end(dir,Z,bc2); ++k )
+						for( Ordinal j=space()->begin(dir,Y,bc2); j<=space()->end(dir,Y,bc2); ++j )
+							y.getField(dir).at(i,j,k) *= eps;  
+				}
+				bc2 = false;
+			}
+
+			if( 1!=dir ) {
+				if( space()->getBCLocal()->getBCL(Y) > 0 ) {
+					Ordinal j = space()->begin(dir,Y,true);
+					for( Ordinal k=space()->begin(dir,Z,bc2); k<=space()->end(dir,Z,bc2); ++k )
+						for( Ordinal i=space()->begin(dir,X,bc2); i<=space()->end(dir,X,bc2); ++i ) 
+							y.getField(dir).at(i,j,k) *= eps;  
+				}
+				if( space()->getBCLocal()->getBCU(Y) > 0 ) {
+					Ordinal j = space()->end(dir,Y,true);
+					for( Ordinal k=space()->begin(dir,Z,bc2); k<=space()->end(dir,Z,bc2); ++k )
+						for( Ordinal i=space()->begin(dir,X,bc2); i<=space()->end(dir,X,bc2); ++i )
+							y.getField(dir).at(i,j,k) *= eps;  
+				}
+				bc2 = false;
+			}
+
+			if( 2!=dir ) {
+				if( space()->getBCLocal()->getBCL(Z) > 0 ) {
+					Ordinal k = space()->begin(dir,Z,true);
+					for( Ordinal j=space()->begin(dir,Y,bc2); j<=space()->end(dir,Y,bc2); ++j )
+						for( Ordinal i=space()->begin(dir,X,bc2); i<=space()->end(dir,X,bc2); ++i )
+							y.getField(dir).at(i,j,k) *= eps;  
+				}
+				if( space()->getBCLocal()->getBCU(Z) > 0 ) {
+					Ordinal k = space()->end(dir,Z,true);
+					for( Ordinal j=space()->begin(dir,Y,bc2); j<=space()->end(dir,Y,bc2); ++j )
+						for( Ordinal i=space()->begin(dir,X,bc2); i<=space()->end(dir,X,bc2); ++i )
+							y.getField(dir).at(i,j,k) *= eps;  
+				}
+				bc2 = false;
+			}
+		}
 
 		y.extrapolateBC();
 		

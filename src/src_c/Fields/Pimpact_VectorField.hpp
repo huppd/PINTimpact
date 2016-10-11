@@ -1270,42 +1270,11 @@ public:
 	}
 
 
-	/// \brief extrapoltes on the boundaries such that it is zero
+	/// \brief extrapolates on the boundaries such that it is zero
 	/// \note dirty hack(necessary for TripleCompostion)
   void extrapolateBC() const {
-
 		for( int i=0; i<space()->dim(); ++i )
-			OP_extrapolateBC(
-					i+1,
-					space()->nLoc(),
-					space()->bl(),
-					space()->bu(),
-					space()->dl(i),
-					space()->du(i),
-					space()->getBCLocal()->getBCL(i),
-					space()->getBCLocal()->getBCU(i),
-					space()->sIndB(i),
-					space()->eIndB(i),
-					//space()->getInterpolateV2S()->getCM( static_cast<ECoord>(i) ), // O1
-					space()->getInterpolateV2S()->getC( static_cast<ECoord>(i) ), // O3
-					getRawPtr(i) );
-			//OP_extrapolateBC2(
-					//i+1,
-					//space()->nLoc(),
-					//space()->bl(),
-					//space()->bu(),
-					//space()->bu(i),
-					//space()->bu(i),
-					////1,1,
-					////2,2,
-					////3,3,
-					//space()->getBCLocal()->getBCL(i),
-					//space()->getBCLocal()->getBCU(i),
-					//space()->sIndB(i),
-					//space()->eIndB(i),
-					//space()->getCoordinatesLocal()->getX( static_cast<ECoord>(i), static_cast<EField>(i) ),
-					////space_->getInterpolateV2S()->getC( static_cast<ECoord>(i) ),
-					//getRawPtr(i) );
+			getFieldPtr(i)->extrapolateBC();
 	}
 
 
