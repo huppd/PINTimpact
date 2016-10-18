@@ -90,10 +90,11 @@ int main( int argi, char** argv ) {
 
       auto sol = y->clone( Pimpact::DeepCopy );
 
-      wind->initField( Pimpact::RankineVortex2D );
+      wind->getFieldPtr(0)->initField( Pimpact::Grad2D_inY );
+      wind->getFieldPtr(1)->initField( Pimpact::Grad2D_inX );
       //        wind->write(1111);
 
-      z->initField( Pimpact::ConstFlow, 0., 0., 0. );
+      z->initField();
 
       op->assignField( *wind );
 
@@ -107,7 +108,7 @@ int main( int argi, char** argv ) {
       }
       //        z->write(2222);
 
-      y->initField( Pimpact::ConstFlow, 0., 0., 0. );
+      y->initField();
 
 
       S error;

@@ -21,7 +21,7 @@ Teuchos::RCP< Teuchos::ParameterList > createLinSolverParameter(
 		double tol=1.e-6,
 		int outfreq=100,
     const Teuchos::RCP<std::ostream>& outStream=Teuchos::rcp(&std::cout,false),
-	 	int maxIters=1000,
+	 	int maxIters=100,
 		const std::string& label="HelloWorld" );
 
 

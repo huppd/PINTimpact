@@ -1030,7 +1030,9 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeNSOp ) {
 	auto field2 = Pimpact::create<typename OpT::DomainFieldT>( space );
 
 	for( OT i=space->begin(Pimpact::U,3); i<space->end(Pimpact::U,3); ++i ) {
-		wind->getVFieldPtr()->getFieldPtr(i)->initField( Pimpact::ConstFlow, 2., 2., 2. );
+		wind->getVFieldPtr()->getFieldPtr(i)->getFieldPtr( Pimpact::U )->initField( Pimpact::ConstField, 2. );
+		wind->getVFieldPtr()->getFieldPtr(i)->getFieldPtr( Pimpact::V )->initField( Pimpact::ConstField, 2. );
+		wind->getVFieldPtr()->getFieldPtr(i)->getFieldPtr( Pimpact::W )->initField( Pimpact::ConstField, 2. );
 		field1->getVFieldPtr()->getFieldPtr(i)->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inY );
 		field1->getVFieldPtr()->getFieldPtr(i)->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inZ );
 		field1->getVFieldPtr()->getFieldPtr(i)->getFieldPtr(Pimpact::W)->initField( Pimpact::Grad2D_inX );

@@ -486,53 +486,55 @@ initVectorTimeField(
 	S nt = space->nGlo(3);
 	S offset = space->getShift(3) - space->begin(EField::S,3);
 
-	for( O i=space->begin(EField::S,3); i<space->end(EField::S,3); ++i )
-		switch( flowType ) {
-			case Zero2DFlow:
-				field->getFieldPtr(i)->initField( ZeroFlow );
-				break;
-			case Const2DFlow:
-				field->getFieldPtr(i)->initField( ConstFlow, xm, ym, rad );
-				break;
-			case Poiseuille_inX:
-				field->getFieldPtr(i)->initField( PoiseuilleFlow2D_inX );
-				break;
-			case Poiseuille_inY:
-				field->getFieldPtr(i)->initField( PoiseuilleFlow2D_inY );
-				break;
-			case Streaming2DFlow: {
-				S ampt = std::sin( 2.*pi*((S)i+offset)/nt );
-				field->getFieldPtr(i)->initField( Streaming2D, ampt );
-				break;
-			}
-			case OscilatingDisc2D: {
-				//			std::cout << "\ti: " << i << "\tt: " << 2.*pi*((S)i+offset)/nt << "\tt: " << space->getCoordinatesLocal()->getX( ECoord::T, EField::S )[i] << "\n";
-				S ymt = ym+amp*std::sin( space->getCoordinatesLocal()->getX( ECoord::T, EField::S )[i] );
-				S xmt = xm;
-				field->getFieldPtr(i)->initField( Disc2D, xmt, ymt, rad );
-				break;
-		  }
-			case OscilatingDisc2DVel: {
-				S yvelt = amp*std::cos( 2.*pi*((S)i+offset)/nt );
-				S xvelt = 0;
-				field->getFieldPtr(i)->init( Teuchos::tuple( xvelt, yvelt, 0.) );
-				break;
-			}
-			case ConstVel_inX:{
-				field->getFieldPtr(i)->init( Teuchos::tuple( -2*xm*std::cos(space->getCoordinatesLocal()->getX( ECoord::T, EField::S )[i]), 0., 0.) ); // here xm = p
-				break;
-			}
-			case Pulsatile_inX: {
-				//field->getFieldPtr(i)->initField( Pulsatile2D_inX, xm, space->getCoordinatesLocal()->getX( ECoord::T, EField::S )[i], ym, rad); // the arguments are (xmt,i,ymt,rad) --> (re,t,px,alpha)
-				break;
-			}
-			default:
-				field->getFieldPtr(i)->initField( ZeroFlow );
-				break;
-		}
+	bool notImplemented = true;
+	TEUCHOS_TEST_FOR_EXCEPT( notImplemented );
+	//for( O i=space->begin(EField::S,3); i<space->end(EField::S,3); ++i )
+		//switch( flowType ) {
+			//case Zero2DFlow:
+				//field->getFieldPtr(i)->initField( ZeroFlow );
+				//break;
+			//case Const2DFlow:
+				//field->getFieldPtr(i)->initField( ConstFlow, xm, ym, rad );
+				//break;
+			//case Poiseuille_inX:
+				//field->getFieldPtr(i)->initField( PoiseuilleFlow2D_inX );
+				//break;
+			//case Poiseuille_inY:
+				//field->getFieldPtr(i)->initField( PoiseuilleFlow2D_inY );
+				//break;
+			//case Streaming2DFlow: {
+				//S ampt = std::sin( 2.*pi*((S)i+offset)/nt );
+				//field->getFieldPtr(i)->initField( Streaming2D, ampt );
+				//break;
+			//}
+			//case OscilatingDisc2D: {
+				////			std::cout << "\ti: " << i << "\tt: " << 2.*pi*((S)i+offset)/nt << "\tt: " << space->getCoordinatesLocal()->getX( ECoord::T, EField::S )[i] << "\n";
+				//S ymt = ym+amp*std::sin( space->getCoordinatesLocal()->getX( ECoord::T, EField::S )[i] );
+				//S xmt = xm;
+				//field->getFieldPtr(i)->initField( Disc2D, xmt, ymt, rad );
+				//break;
+			//}
+			//case OscilatingDisc2DVel: {
+				//S yvelt = amp*std::cos( 2.*pi*((S)i+offset)/nt );
+				//S xvelt = 0;
+				//field->getFieldPtr(i)->init( Teuchos::tuple( xvelt, yvelt, 0.) );
+				//break;
+			//}
+			//case ConstVel_inX:{
+				//field->getFieldPtr(i)->init( Teuchos::tuple( -2*xm*std::cos(space->getCoordinatesLocal()->getX( ECoord::T, EField::S )[i]), 0., 0.) ); // here xm = p
+				//break;
+			//}
+			//case Pulsatile_inX: {
+				////field->getFieldPtr(i)->initField( Pulsatile2D_inX, xm, space->getCoordinatesLocal()->getX( ECoord::T, EField::S )[i], ym, rad); // the arguments are (xmt,i,ymt,rad) --> (re,t,px,alpha)
+				//break;
+			//}
+			//default:
+				//field->getFieldPtr(i)->initField( ZeroFlow );
+				//break;
+		//}
 
-	field->changed();
-	}
+	//field->changed();
+}
 
 
 } // end of namespace Pimpact

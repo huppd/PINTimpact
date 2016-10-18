@@ -157,7 +157,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
 
 
   auto temp = Pimpact::create<Pimpact::VectorField>( space );
-  temp->initField(Pimpact::PoiseuilleFlow2D_inX);
+	temp->getFieldPtr( Pimpact::U )->initField(Pimpact::Poiseuille2D_inX);
   //  temp->init(0.);
 
   auto p = Pimpact::createScalarField(space);
@@ -166,7 +166,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
   auto b = x->clone();
 
 
-  temp->initField(Pimpact::ZeroFlow);
+	temp->initField();
   auto op = Pimpact::createOperatorBase(
       Pimpact::createMultiOpWrap(
 				Pimpact::create< Pimpact::DivGradOp<SpaceT> >(space)

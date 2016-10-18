@@ -364,9 +364,9 @@ protected:
 				for( OrdinalT j=1; j<Mc; ++j )
 					xV_[dir][j] = coordinatesF->xS_[dir][j*d-1];
 
-				xV_[dir][0 ] =   xS_[dir][0   ]-xV_[dir][1   ];
-				xV_[dir][Mc] = 2*xS_[dir][Mc-1]-xV_[dir][Mc-1];
-
+				// otherwise restrictin of the boundary is wrong
+				xV_[dir][0 ] = coordinatesF->xV_[dir][0];
+				xV_[dir][Mc] = coordinatesF->xV_[dir][Mf];
 			}
 		}
 		//Teuchos::RCP<std::ostream> out = createOstream( "coord.txt", 0 );

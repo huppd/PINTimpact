@@ -68,19 +68,17 @@ template<class SpaceT> using CVF = Pimpact::CompoundField<Pimpact::TimeField<Pim
 
 template<class SpaceT> using INT = Pimpact::IntResCompoundOp<
 
-                 Pimpact::InterpolationTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<SpaceT> > >,
+Pimpact::InterpolationTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<SpaceT> > >,
 
-                 Pimpact::InterpolationTimeOp<                           Pimpact::InterpolationOp<SpaceT> > >;
+	Pimpact::InterpolationTimeOp<                           Pimpact::InterpolationOp<SpaceT> > >;
 
 template<class SpaceT> using RES = Pimpact::IntResCompoundOp<
-                                        Pimpact::RestrictionTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::RestrictionHWOp<SpaceT> > >,
-                                        Pimpact::RestrictionTimeOp<                           Pimpact::RestrictionHWOp<SpaceT> > >;
+	Pimpact::RestrictionTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::RestrictionHWOp<SpaceT> > >,
+	Pimpact::RestrictionTimeOp<                           Pimpact::RestrictionHWOp<SpaceT> > >;
 
 template<class SpaceT1, class SpaceT2> using TCO = Pimpact::TransferCompoundOp<
-
-                 Pimpact::TransferTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<SpaceT1, SpaceT2> > >,
-
-                 Pimpact::TransferTimeOp<                           Pimpact::TransferOp<SpaceT1, SpaceT2> > >;
+	Pimpact::TransferTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<SpaceT1, SpaceT2> > >,
+	Pimpact::TransferTimeOp<                           Pimpact::TransferOp<SpaceT1, SpaceT2> > >;
 
 template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
 
@@ -292,7 +290,7 @@ int main(int argi, char** argv ) {
 
 
 
-  // init vectors
+	// init vectors
 	auto x =
 		Pimpact::createMultiField(
 				Pimpact::createCompoundField(

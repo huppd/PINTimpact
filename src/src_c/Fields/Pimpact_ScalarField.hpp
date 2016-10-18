@@ -493,7 +493,10 @@ protected:
 
 public:
 
-	///  \brief initializes including boundaries to zero 
+	/// \brief initializes field from a lambda function
+	///
+	/// \tparam Functor need a to have an Operator (x,y,z)->u
+	/// \param func  note that x,y,z, should be defined between 0 and one the scaling happens here
 	template<typename Functor>
 	void initFromFunction( Functor&& func ) {
 

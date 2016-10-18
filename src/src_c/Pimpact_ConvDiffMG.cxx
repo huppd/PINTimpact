@@ -142,21 +142,17 @@ int main( int argi, char** argv ) {
         // init solution
 				y->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inX );
 				y->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inY );
-//				y->initField( Pimpact::RankineVortex2D );
 
         auto sol = y->clone( Pimpact::DeepCopy );
 				//sol->write(3333);
 
-			 wind->initField( Pimpact::ConstFlow, std::cos( phi ), std::sin( phi ), 0. );
-//				wind->initField( Pimpact::ConstFlow, 0., 0., 0. );
-//				wind->getFieldPtr(Pimpact::U)->init( std::cos( phi ) );
-//				wind->getFieldPtr(Pimpact::V)->init( std::sin( phi ) );
-				//wind->write(1111);
+				wind->getFieldPtr(Pimpact::U)->initField(  Pimpact::ConstField, std::cos( phi ) );
+				wind->getFieldPtr(Pimpact::V)->initField(  Pimpact::ConstField, std::sin( phi ) );
 
         op->assignField( *wind );
 			 	smoother->assignField( *wind );
 
-        z->initField( Pimpact::ConstFlow, 0., 0., 0. );
+        z->initField();
 
         // constructing rhs
         op->apply( *y, *z );
@@ -168,7 +164,7 @@ int main( int argi, char** argv ) {
 			 }
 				//z->write(2222);
 
-        y->initField( Pimpact::ConstFlow, 0., 0., 0. );
+        y->initField();
 
         std::ofstream ofs;
         std::string filename = "GS.txt";

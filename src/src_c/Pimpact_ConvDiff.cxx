@@ -92,9 +92,6 @@ int main( int argi, char** argv ) {
       for( int phii=0; phii<nwinds; ++phii ) {
 
         S phi = phii*2.*pi/(nwinds);
-//        S phi = 2.*pi/(nwinds)*0.25;
-//        S phi = 2.*pi/(nwinds)*0.;
-//        S phi = phi*2.*pi/(nwinds);
 
         if( space()->rankST()==0 )
           phifile << phi << "\t";
@@ -106,13 +103,12 @@ int main( int argi, char** argv ) {
 
         auto sol = y->clone( Pimpact::DeepCopy );
 
-        wind->initField( Pimpact::ConstFlow, std::cos( phi ), std::sin( phi ), 0. );
-//        wind->write(1111);
+				wind->getFieldPtr(Pimpact::U)->initField(  Pimpact::ConstField, std::cos( phi ) );
+				wind->getFieldPtr(Pimpact::V)->initField(  Pimpact::ConstField, std::sin( phi ) );
 
-        z->initField( Pimpact::ConstFlow, 0., 0., 0. );
+        z->initField();
 
         op->assignField( *wind );
-//        smoother->assignField( *wind );
 
         // constructing rhs
         op->apply( *y, *z );
@@ -122,9 +118,8 @@ int main( int argi, char** argv ) {
            op->apply( *y, *bc );
            z->add( 1., *z, -1., *bc );
         }
-//        z->write(2222);
 
-        y->initField( Pimpact::ConstFlow, 0., 0., 0. );
+        y->initField();
 
         std::ofstream ofs;
         std::string filename = "GS.txt";

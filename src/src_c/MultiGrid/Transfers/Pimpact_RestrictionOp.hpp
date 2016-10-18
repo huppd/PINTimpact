@@ -1,6 +1,6 @@
 #pragma once
-#ifndef PIMPACT_RESTRICTIONOP_HPP
 #define PIMPACT_RESTRICTIONOP_HPP
+#ifndef PIMPACT_RESTRICTIONOP_HPP
 
 
 #include "Teuchos_RCP.hpp"

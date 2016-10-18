@@ -164,21 +164,21 @@ TEUCHOS_UNIT_TEST( VectorField, initField ) {
 
 	auto divOp = Pimpact::create<Pimpact::DivOp>( space );
 
-	for( int i=22; i<=23; ++i ) {
-		if( 17==i )
-			vel->initField( Pimpact::EVectorField(i), 1., 1., 0.25 );
-		else
-			vel->initField( Pimpact::EVectorField(i) );
-		vel->write( i );
-		divOp->apply( *vel, *divVec );
-		auto bla = divVec->norm( Belos::InfNorm );
-		if( 0==space->rankST() )
-			std::cout << "EField: " << i << "\tmax div: " << bla << "\n";
-		bla = divVec->norm( Belos::TwoNorm );
-		if( 0==space->rankST() )
-			std::cout << "EField: " << i << "\t||div||: " << bla << "\n";
-		divVec->write( i*2 );
-	}
+	//for( int i=22; i<=23; ++i ) {
+		////if( 17==i )
+			////vel->initField( Pimpact::EVectorField(i), 1., 1., 0.25 );
+		////else
+			////vel->initField( Pimpact::EVectorField(i) );
+		//vel->write( i );
+		//divOp->apply( *vel, *divVec );
+		//auto bla = divVec->norm( Belos::InfNorm );
+		//if( 0==space->rankST() )
+			//std::cout << "EField: " << i << "\tmax div: " << bla << "\n";
+		//bla = divVec->norm( Belos::TwoNorm );
+		//if( 0==space->rankST() )
+			//std::cout << "EField: " << i << "\t||div||: " << bla << "\n";
+		//divVec->write( i*2 );
+	//}
 
 }
 

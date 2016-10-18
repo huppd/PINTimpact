@@ -143,7 +143,6 @@ int main(int argi, char** argv ) {
 	///////////////////////////////////////////  set up initial stuff //////////////////////////////
 	
 	int initZero = pl->sublist("Solver").get<int>("initZero");
-	Pimpact::EVectorField baseflow = (Pimpact::EVectorField)pl->get<int>( "baseflow", 1 );
 	
 	auto space = Pimpact::createSpace<S,O,3,4>( Teuchos::rcpFromRef( pl->sublist("Space",true) ) );
 
@@ -151,7 +150,7 @@ int main(int argi, char** argv ) {
 	auto x = Pimpact::create<MF>( space );
 
 	// init Fields
-	x->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->initField( baseflow, 1. );
+	x->getFieldPtr(0)->getVFieldPtr()->initField( pl->sublist("Base flow") );
 
 	if( 0==initZero )
 		x->init(0.);
@@ -288,7 +287,7 @@ int main(int argi, char** argv ) {
 			auto xf = Pimpact::create<CF>( spaceF );
 			// init Fields
 			//		boundaries
-			xf->getVFieldPtr()->get0FieldPtr()->initField( baseflow, 1. );
+			xf->getVFieldPtr()->initField( pl->sublist("Base flow") );
 			auto temp = Pimpact::create<CF>( spaceF );
 
 			refineOp->apply( x->getField(0), *temp );

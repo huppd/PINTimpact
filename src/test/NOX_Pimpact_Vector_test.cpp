@@ -63,13 +63,9 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, createInitPrint ) {
 
 	auto space = Pimpact::createSpace( pl );
 
-	auto xv = Pimpact::createInitMVF(Pimpact::Zero2DFlow, space );
+	Teuchos::RCP<CF> x  = Pimpact::create<CF>( space );
 
-	auto xs = Pimpact::createInitMSF( space );
-
-	auto x  = Pimpact::createCompoundField( xv, xs );
-
-	Teuchos::RCP<NV> nx = Teuchos::rcp(new NV(x) );
+	Teuchos::RCP<NV> nx = Teuchos::rcp( new NV(x) );
 
 	nx->init( space->rankST() );
 }
@@ -79,11 +75,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, InfNormAndInit ) {
 
 	auto space = Pimpact::createSpace( pl );
 
-	auto xv = Pimpact::createInitMVF(Pimpact::Zero2DFlow, space );
-
-	auto xs = Pimpact::createInitMSF( space );
-
-	auto x  = Pimpact::createCompoundField( xv, xs );
+	Teuchos::RCP<CF> x  = Pimpact::create<CF>( space );
 
 	Teuchos::RCP<NV> um = Teuchos::rcp(new NV(x) );
 
@@ -114,11 +106,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, TwoNormAndInit ) {
 
 	auto space = Pimpact::createSpace( pl );
 
-	auto xv = Pimpact::createInitMVF(Pimpact::Zero2DFlow, space );
-
-	auto xs = Pimpact::createInitMSF( space );
-
-	auto x  = Pimpact::createCompoundField( xv, xs );
+	Teuchos::RCP<CF> x  = Pimpact::create<CF>( space );
 
 	Teuchos::RCP<NV> q = Teuchos::rcp(new NV(x) );
 
@@ -140,11 +128,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, add ) {
 
 	auto space = Pimpact::createSpace( pl );
 
-  auto xv = Pimpact::createInitMVF(Pimpact::Zero2DFlow, space );
-
-  auto xs = Pimpact::createInitMSF( space );
-
-  auto x  = Pimpact::createCompoundField( xv, xs );
+	Teuchos::RCP<CF> x  = Pimpact::create<CF>( space );
 
   Teuchos::RCP<NV> vel1 = Teuchos::rcp(new NV(x) );
   Teuchos::RCP<NV> vel2 = Teuchos::rcp(new NV( x->clone(Pimpact::ShallowCopy) ) );
@@ -177,11 +161,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, reciprocal ) {
 
 	auto space = Pimpact::createSpace( pl );
 
-  auto xv = Pimpact::createInitMVF(Pimpact::Zero2DFlow, space );
-
-  auto xs = Pimpact::createInitMSF( space );
-
-  auto x  = Pimpact::createCompoundField( xv, xs );
+	Teuchos::RCP<CF> x  = Pimpact::create<CF>( space );
 
   Teuchos::RCP<NV> vel1 = Teuchos::rcp(new NV(x) );
   Teuchos::RCP<NV> vel2 = Teuchos::rcp(new NV( x->clone(Pimpact::ShallowCopy) ) );
@@ -219,11 +199,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, normWeighted ) {
 
 	auto space = Pimpact::createSpace( pl );
 
-  auto xv = Pimpact::createInitMVF(Pimpact::Zero2DFlow, space );
-
-  auto xs = Pimpact::createInitMSF( space );
-
-  auto x  = Pimpact::createCompoundField( xv, xs );
+	Teuchos::RCP<CF> x  = Pimpact::create<CF>( space );
 
   Teuchos::RCP<NV> vel1 = Teuchos::rcp(new NV(x) );
   Teuchos::RCP<NV> vel2 = Teuchos::rcp(new NV( x->clone(Pimpact::ShallowCopy) ) );
@@ -268,11 +244,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, scale2 ) {
 
 	auto space = Pimpact::createSpace( pl );
 
-  auto xv = Pimpact::createInitMVF(Pimpact::Zero2DFlow, space );
-
-  auto xs = Pimpact::createInitMSF( space );
-
-  auto x  = Pimpact::createCompoundField( xv, xs );
+	Teuchos::RCP<CF> x  = Pimpact::create<CF>( space );
 
   Teuchos::RCP<NV> vel1 = Teuchos::rcp(new NV(x) );
   Teuchos::RCP<NV> vel2 = Teuchos::rcp(new NV( x->clone(Pimpact::ShallowCopy) ) );
@@ -314,11 +286,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, innerProduct ) {
 
 	auto space = Pimpact::createSpace( pl );
 
-	auto xv = Pimpact::createInitMVF(Pimpact::Zero2DFlow, space );
-
-	auto xs = Pimpact::createInitMSF( space );
-
-	auto x  = Pimpact::createCompoundField( xv, xs );
+	Teuchos::RCP<CF> x  = Pimpact::create<CF>( space );
 
 	Teuchos::RCP<NV> vel1 = Teuchos::rcp(new NV(x) );
 	Teuchos::RCP<NV> vel2 = Teuchos::rcp(new NV( x->clone() ) );
@@ -355,11 +323,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, scale ) {
 
 	auto space = Pimpact::createSpace( pl );
 
-	auto xv = Pimpact::createInitMVF(Pimpact::Zero2DFlow, space );
-
-	auto xs = Pimpact::createInitMSF( space );
-
-	auto x  = Pimpact::createCompoundField( xv, xs );
+	Teuchos::RCP<CF> x  = Pimpact::create<CF>( space );
 
 	Teuchos::RCP<NV> q = Teuchos::rcp(new NV(x) );
 
@@ -378,11 +342,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, random ) {
 
 	auto space = Pimpact::createSpace( pl );
 
-	auto xv = Pimpact::createInitMVF(Pimpact::Zero2DFlow, space );
-
-	auto xs = Pimpact::createInitMSF( space );
-
-	auto x  = Pimpact::createCompoundField( xv, xs );
+	Teuchos::RCP<CF> x  = Pimpact::create<CF>( space );
 
 	Teuchos::RCP<NV> q = Teuchos::rcp(new NV(x) );
 
@@ -402,12 +362,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, update ) {
 
 	auto space = Pimpact::createSpace( pl );
 
-	auto xv = Pimpact::createInitMVF(Pimpact::Zero2DFlow, space );
-
-	auto xs = Pimpact::createInitMSF( space );
-
-	auto x  = Pimpact::createCompoundField( xv, xs );
-
+	Teuchos::RCP<CF> x  = Pimpact::create<CF>( space );
 
 	Teuchos::RCP<NV> vel1 = Teuchos::rcp(new NV(x) );
 	Teuchos::RCP<NV> vel2 = Teuchos::rcp(new NV(x->clone()) );

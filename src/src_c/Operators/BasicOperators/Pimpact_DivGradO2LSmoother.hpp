@@ -78,9 +78,9 @@ public:
 		levelYes_( pl->get<bool>( "level", false ) ),
 		op_(op) {
 
-			lineDirection_[X] = pl->get<bool>( "X", true );
+			lineDirection_[X] = pl->get<bool>( "X", false );
 			lineDirection_[Y] = pl->get<bool>( "Y", true  );
-			lineDirection_[Z] = pl->get<bool>( "Z", true );
+			lineDirection_[Z] = pl->get<bool>( "Z", false );
 
 			TEUCHOS_TEST_FOR_EXCEPT( !lineDirection_[X] && !lineDirection_[Y] && !lineDirection_[Z] );
 

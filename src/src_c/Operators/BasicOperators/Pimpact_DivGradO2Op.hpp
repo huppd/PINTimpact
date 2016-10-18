@@ -102,8 +102,6 @@ public:
 					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i )
 						y.at(i,j,k) = innerStenc2D(x, i,j,k);
 		}
-
-		y.changed();
 	}
 
 

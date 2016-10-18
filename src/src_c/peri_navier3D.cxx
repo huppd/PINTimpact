@@ -219,8 +219,8 @@ int main( int argi, char** argv ) {
 				InterVF,
 				ConvDiffOpT,
 				ConvDiffOpT,
-				//					ConvDiffSORT,
-				ConvDiffJT,
+				ConvDiffSORT,
+				//ConvDiffJT,
 				POP2
 					> ( mgSpaces, Teuchos::rcpFromRef( pl->sublist("ConvDiff").sublist("Multi Grid") ) ) ;
 
