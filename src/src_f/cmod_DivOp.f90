@@ -17,6 +17,7 @@ contains
 
 
   !>  \brief sets non block boundary conditions to zero
+  !! \deprecated
   subroutine OP_extrapolateBC_transp( &
       m,                              &
       N,                              &

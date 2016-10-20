@@ -18,24 +18,6 @@ namespace Pimpact{
 
 
 
-
-extern "C" void OP_extrapolateBC2(
-		const int& m,         
-    const int* const N,         
-    const int* const bL,
-		const int* const bU,     
-    const int& dL,
-		const int& dU,     
-		const int& BC_L,
-		const int& BC_U, 
-		const int* const SB,
-		const int* const NB,
-		const double* const c,    
-		const double*       phi );
-
-
-
-
 /// \ingroup BaseOperator
 template<class ST>
 class GradOp {
@@ -192,59 +174,58 @@ public:
 						y.getField(W).at(i,j,k) = innerStencW( x, i, j, k );
 		}
 
-		//// BC scaling experimental
-		//const Scalar& eps = 1.e-1;
-		////std::cout << "eps: " << eps << "\n";
-		//for( int dir=0; dir<3; ++dir ) {
-			//bool bc2 = true;
-			//if( 0!=dir ) {
-				//if( space()->getBCLocal()->getBCL(X) > 0 ) {
-					//Ordinal i = space()->begin(dir,X,true);
-					//for( Ordinal k=space()->begin(dir,Z, bc2); k<=space()->end(dir,Z,bc2); ++k )
-						//for( Ordinal j=space()->begin(dir,Y,bc2); j<=space()->end(dir,Y,bc2); ++j )
-							//y.getField(dir).at(i,j,k) *= eps;  
-				//}
-				//if( space()->getBCLocal()->getBCU(X) > 0 ) {
-					//Ordinal i = space()->end(dir,X,true);
-					//for( Ordinal k=space()->begin(dir,Z,bc2); k<=space()->end(dir,Z,bc2); ++k )
-						//for( Ordinal j=space()->begin(dir,Y,bc2); j<=space()->end(dir,Y,bc2); ++j )
-							//y.getField(dir).at(i,j,k) *= eps;  
-				//}
-				//bc2 = false;
-			//}
+		// BC scaling 
+		const Scalar& eps = 1.e-1;
+		for( int dir=0; dir<3; ++dir ) {
+			bool bc2 = true;
+			if( 0!=dir ) {
+				if( space()->getBCLocal()->getBCL(X) > 0 ) {
+					Ordinal i = space()->begin(dir,X,true);
+					for( Ordinal k=space()->begin(dir,Z, bc2); k<=space()->end(dir,Z,bc2); ++k )
+						for( Ordinal j=space()->begin(dir,Y,bc2); j<=space()->end(dir,Y,bc2); ++j )
+							y.getField(dir).at(i,j,k) *= eps;  
+				}
+				if( space()->getBCLocal()->getBCU(X) > 0 ) {
+					Ordinal i = space()->end(dir,X,true);
+					for( Ordinal k=space()->begin(dir,Z,bc2); k<=space()->end(dir,Z,bc2); ++k )
+						for( Ordinal j=space()->begin(dir,Y,bc2); j<=space()->end(dir,Y,bc2); ++j )
+							y.getField(dir).at(i,j,k) *= eps;  
+				}
+				bc2 = false;
+			}
 
-			//if( 1!=dir ) {
-				//if( space()->getBCLocal()->getBCL(Y) > 0 ) {
-					//Ordinal j = space()->begin(dir,Y,true);
-					//for( Ordinal k=space()->begin(dir,Z,bc2); k<=space()->end(dir,Z,bc2); ++k )
-						//for( Ordinal i=space()->begin(dir,X,bc2); i<=space()->end(dir,X,bc2); ++i ) 
-							//y.getField(dir).at(i,j,k) *= eps;  
-				//}
-				//if( space()->getBCLocal()->getBCU(Y) > 0 ) {
-					//Ordinal j = space()->end(dir,Y,true);
-					//for( Ordinal k=space()->begin(dir,Z,bc2); k<=space()->end(dir,Z,bc2); ++k )
-						//for( Ordinal i=space()->begin(dir,X,bc2); i<=space()->end(dir,X,bc2); ++i )
-							//y.getField(dir).at(i,j,k) *= eps;  
-				//}
-				//bc2 = false;
-			//}
+			if( 1!=dir ) {
+				if( space()->getBCLocal()->getBCL(Y) > 0 ) {
+					Ordinal j = space()->begin(dir,Y,true);
+					for( Ordinal k=space()->begin(dir,Z,bc2); k<=space()->end(dir,Z,bc2); ++k )
+						for( Ordinal i=space()->begin(dir,X,bc2); i<=space()->end(dir,X,bc2); ++i ) 
+							y.getField(dir).at(i,j,k) *= eps;  
+				}
+				if( space()->getBCLocal()->getBCU(Y) > 0 ) {
+					Ordinal j = space()->end(dir,Y,true);
+					for( Ordinal k=space()->begin(dir,Z,bc2); k<=space()->end(dir,Z,bc2); ++k )
+						for( Ordinal i=space()->begin(dir,X,bc2); i<=space()->end(dir,X,bc2); ++i )
+							y.getField(dir).at(i,j,k) *= eps;  
+				}
+				bc2 = false;
+			}
 
-			//if( 2!=dir ) {
-				//if( space()->getBCLocal()->getBCL(Z) > 0 ) {
-					//Ordinal k = space()->begin(dir,Z,true);
-					//for( Ordinal j=space()->begin(dir,Y,bc2); j<=space()->end(dir,Y,bc2); ++j )
-						//for( Ordinal i=space()->begin(dir,X,bc2); i<=space()->end(dir,X,bc2); ++i )
-							//y.getField(dir).at(i,j,k) *= eps;  
-				//}
-				//if( space()->getBCLocal()->getBCU(Z) > 0 ) {
-					//Ordinal k = space()->end(dir,Z,true);
-					//for( Ordinal j=space()->begin(dir,Y,bc2); j<=space()->end(dir,Y,bc2); ++j )
-						//for( Ordinal i=space()->begin(dir,X,bc2); i<=space()->end(dir,X,bc2); ++i )
-							//y.getField(dir).at(i,j,k) *= eps;  
-				//}
-				//bc2 = false;
-			//}
-		//}
+			if( 2!=dir ) {
+				if( space()->getBCLocal()->getBCL(Z) > 0 ) {
+					Ordinal k = space()->begin(dir,Z,true);
+					for( Ordinal j=space()->begin(dir,Y,bc2); j<=space()->end(dir,Y,bc2); ++j )
+						for( Ordinal i=space()->begin(dir,X,bc2); i<=space()->end(dir,X,bc2); ++i )
+							y.getField(dir).at(i,j,k) *= eps;  
+				}
+				if( space()->getBCLocal()->getBCU(Z) > 0 ) {
+					Ordinal k = space()->end(dir,Z,true);
+					for( Ordinal j=space()->begin(dir,Y,bc2); j<=space()->end(dir,Y,bc2); ++j )
+						for( Ordinal i=space()->begin(dir,X,bc2); i<=space()->end(dir,X,bc2); ++i )
+							y.getField(dir).at(i,j,k) *= eps;  
+				}
+				bc2 = false;
+			}
+		}
 
 		y.extrapolateBC();
 		
@@ -373,13 +354,13 @@ protected:
 		Scalar gradT = 0.;
 
 		for( int ii=space_->dl(X); ii<=space_->du(X); ++ii ) 
-			gradT += getC(X,i,ii)*x.getField(U).at(i+ii,j,k);
+			gradT += getCTrans(X,i,ii)*x.getField(U).at(i+ii,j,k);
 
 		for( int jj=space_->dl(Y); jj<=space_->du(Y); ++jj ) 
-			gradT += getC(Y,j,jj)*x.getField(V).at(i,j+jj,k);
+			gradT += getCTrans(Y,j,jj)*x.getField(V).at(i,j+jj,k);
 
 		for( int kk=space_->dl(Z); kk<=space_->du(Z); ++kk ) 
-			gradT += getC(Z,k,kk)*x.getField(W).at(i,j,k+kk);
+			gradT += getCTrans(Z,k,kk)*x.getField(W).at(i,j,k+kk);
 
 		return( gradT );
 	}

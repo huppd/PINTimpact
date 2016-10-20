@@ -866,16 +866,19 @@ public:
 				break;
 			}
 			case Couette : {
-				sFields_[U]->initFromFunction( 
+				getFieldPtr(U)->initFromFunction( 
 						[]( Scalar x, Scalar y, Scalar z ) -> Scalar {
 							return( y );
 						} );
 				break;
 		  }
 			case Cavity : {
-				sFields_[U]->initFromFunction( 
+				getFieldPtr(U)->initFromFunction( 
 						[]( Scalar x, Scalar y, Scalar z ) -> Scalar {
-							return( (std::abs(x)<1.e-16)?1:0 );
+							if( std::abs(x-1.)<0.5 )
+								return( 1. );
+							else
+								return( 0. );
 						} );
 				break;
 		 }
@@ -886,9 +889,9 @@ public:
 
 	/// \brief extrapolates on the boundaries such that it is zero
 	/// \note dirty hack(necessary for TripleCompostion)
-  void extrapolateBC() const {
+	void extrapolateBC( Belos::ETrans trans=Belos::NOTRANS ) {
 		for( int i=0; i<space()->dim(); ++i )
-			getFieldPtr(i)->extrapolateBC();
+			getFieldPtr(i)->extrapolateBC( trans );
 	}
 
 

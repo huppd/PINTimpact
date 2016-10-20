@@ -469,13 +469,13 @@ public:
 		changed();
 	}
 
-  void extrapolateBC() const {
+	void extrapolateBC( Belos::ETrans trans=Belos::NOTRANS ) {
 
 		if( 0==space()->begin(U,3) )
-			get0FieldPtr()->extrapolateBC();
+			get0FieldPtr()->extrapolateBC( trans );
 
 		for( Ordinal i=std::max(space()->begin(U,3),1); i<=space()->end(U,3); ++i )
-			getConstFieldPtr(i)->extrapolateBC();
+			getConstFieldPtr(i)->extrapolateBC( trans );
 
 		changed();
   }

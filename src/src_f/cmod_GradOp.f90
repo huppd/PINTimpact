@@ -64,6 +64,7 @@ contains
   !> \brief extrapolates for non-block BC outside value, such that phi is zero
   !! on the boundary
   !! \todo move to c++
+  !! \deprecated
   subroutine OP_extrapolateBC(  &
       m,                        &
       N,                        &

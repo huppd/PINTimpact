@@ -190,25 +190,29 @@ int main( int argi, char** argv ) {
 	auto divGradInvT = Pimpact::createMultiHarmonicMultiOpWrap( divGradInvTT );
 
 	// solve nullspace IMPACT style
-	//auto nullspace = f->getSFieldPtr()->clone();
-	//{
-		//nullspace->init( 1. );
-		//auto ones = nullspace->clone();
-		//divGradInvT->getOperatorPtr()->getOperatorPtr()->apply(
-				//*Pimpact::createMultiField( nullspace->get0FieldPtr() ),
-				//*Pimpact::createMultiField( ones->get0FieldPtr() ));
+	auto nullspace = f->getSFieldPtr()->clone();
+	{
+		nullspace->init( 1. );
+		auto zeros = nullspace->clone();
+		divGradInvT->getOperatorPtr()->getOperatorPtr()->apply(
+				*Pimpact::createMultiField( nullspace->get0FieldPtr() ),
+				*Pimpact::createMultiField( zeros->get0FieldPtr() ));
 
-		//ones->write( 666 );
-		//ones->init( 0. );
-		////ones->random();
-		//divGradInvT->apply( *ones, *nullspace );
-		//nullspace->write(888);
-	//}
+		zeros->write( 666 );
+		zeros->init( 0. );
+		//zeros->random();
+		divGradInvT->apply( *zeros, *nullspace );
+		nullspace->write(888);
+	}
 
-	//// --------------------- solve with plaine rhs
+	////// --------------------- solve with plaine rhs
 	divGradInv->apply( f->getSField(), x->getSField() );
+	//x->getSField().init(0.);
+	//divGradInv->apply( *nullspace, x->getSField() );
+	//x->getSField().write(999);
 
-	//// compute Residual I
+
+	// compute Residual I
 	{
 		auto res =  Pimpact::createMultiField( f->getSFieldPtr()->get0FieldPtr()->clone() );
 		divGradInv->getOperatorPtr()->getLinearProblem()->getProblem()->getOperator()->apply(
@@ -240,10 +244,10 @@ int main( int argi, char** argv ) {
 	//x->getSFieldPtr()->write(666);
 	//std::cout << "||x-xl||: " << x->getSFieldPtr()->norm() << "\n";
 
-	//// compute resudial II
-	////opS2V->apply( xl->getSField(), x->getVField() );
-	////x->getVField().add( 1., xl->getVField(), 1., f->getVField() );
-	////std::cout << "residual: " << x->getVFieldPtr()->norm() << "\n";
+	// compute resudial II
+	//opS2V->apply( xl->getSField(), x->getVField() );
+	//x->getVField().add( 1., xl->getVField(), 1., f->getVField() );
+	//std::cout << "residual: " << x->getVFieldPtr()->norm() << "\n";
 
 	Teuchos::TimeMonitor::summarize();
 

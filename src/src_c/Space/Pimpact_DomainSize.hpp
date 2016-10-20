@@ -100,8 +100,7 @@ createDomainSize(
 		ScalarT L1, ScalarT L2, ScalarT L3,
 		ScalarT x1, ScalarT x2, ScalarT x3 ) {
 
-  return(
-      Teuchos::rcp(
+	return( Teuchos::rcp(
           new DomainSize<ScalarT>( dim, re, alpha2, L1, L2, L3, x1, x2, x3 ) ) );
 }
 

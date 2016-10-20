@@ -18,23 +18,6 @@ namespace Pimpact{
 
 
 
-extern "C" void OP_extrapolateBC_transp(
-		const int& m,         
-    const int* const N,         
-    const int* const bL,
-		const int* const bU,     
-    const int& dL,
-		const int& dU,     
-		const int* const BC_L,
-		const int* const BC_U, 
-		const int* const SB,
-		const int* const NB,
-		const double* const c,    
-		const double*       phi );
-
-
-
-
 /// \brief Divergence operator.
 /// \ingroup BaseOperator
 template<class ST>
@@ -216,20 +199,60 @@ public:
 						y.getField(W).at(i,j,k) = innerStencW( x, i, j, k );
 		}
 
-		for( int i=0; i<space()->dim(); ++i )
-			OP_extrapolateBC_transp(
-					i+1,
-					space_->nLoc(),
-					space_->bl(),
-					space_->bu(),
-					space_->dl(i),
-					space_->du(i),
-					space_->getBCLocal()->getBCL(),
-					space_->getBCLocal()->getBCU(),
-					space_->sIndB(i),
-					space_->eIndB(i),
-					space_->getInterpolateV2S()->getCM( static_cast<ECoord>(i) ),
-					y.getRawPtr(i) );
+		y.extrapolateBC( Belos::TRANS );
+
+		// BC scaling 
+		const Scalar& eps = 1.e-1;
+		for( int dir=0; dir<3; ++dir ) {
+			bool bc2 = true;
+			if( 0!=dir ) {
+				if( space()->getBCLocal()->getBCL(X) > 0 ) {
+					Ordinal i = space()->begin(dir,X,true);
+					for( Ordinal k=space()->begin(dir,Z, bc2); k<=space()->end(dir,Z,bc2); ++k )
+						for( Ordinal j=space()->begin(dir,Y,bc2); j<=space()->end(dir,Y,bc2); ++j )
+							y.getField(dir).at(i,j,k) *= eps;  
+				}
+				if( space()->getBCLocal()->getBCU(X) > 0 ) {
+					Ordinal i = space()->end(dir,X,true);
+					for( Ordinal k=space()->begin(dir,Z,bc2); k<=space()->end(dir,Z,bc2); ++k )
+						for( Ordinal j=space()->begin(dir,Y,bc2); j<=space()->end(dir,Y,bc2); ++j )
+							y.getField(dir).at(i,j,k) *= eps;  
+				}
+				bc2 = false;
+			}
+
+			if( 1!=dir ) {
+				if( space()->getBCLocal()->getBCL(Y) > 0 ) {
+					Ordinal j = space()->begin(dir,Y,true);
+					for( Ordinal k=space()->begin(dir,Z,bc2); k<=space()->end(dir,Z,bc2); ++k )
+						for( Ordinal i=space()->begin(dir,X,bc2); i<=space()->end(dir,X,bc2); ++i ) 
+							y.getField(dir).at(i,j,k) *= eps;  
+				}
+				if( space()->getBCLocal()->getBCU(Y) > 0 ) {
+					Ordinal j = space()->end(dir,Y,true);
+					for( Ordinal k=space()->begin(dir,Z,bc2); k<=space()->end(dir,Z,bc2); ++k )
+						for( Ordinal i=space()->begin(dir,X,bc2); i<=space()->end(dir,X,bc2); ++i )
+							y.getField(dir).at(i,j,k) *= eps;  
+				}
+				bc2 = false;
+			}
+
+			if( 2!=dir ) {
+				if( space()->getBCLocal()->getBCL(Z) > 0 ) {
+					Ordinal k = space()->begin(dir,Z,true);
+					for( Ordinal j=space()->begin(dir,Y,bc2); j<=space()->end(dir,Y,bc2); ++j )
+						for( Ordinal i=space()->begin(dir,X,bc2); i<=space()->end(dir,X,bc2); ++i )
+							y.getField(dir).at(i,j,k) *= eps;  
+				}
+				if( space()->getBCLocal()->getBCU(Z) > 0 ) {
+					Ordinal k = space()->end(dir,Z,true);
+					for( Ordinal j=space()->begin(dir,Y,bc2); j<=space()->end(dir,Y,bc2); ++j )
+						for( Ordinal i=space()->begin(dir,X,bc2); i<=space()->end(dir,X,bc2); ++i )
+							y.getField(dir).at(i,j,k) *= eps;  
+				}
+				bc2 = false;
+			}
+		}
 
 		y.changed();
 	}
@@ -252,6 +275,7 @@ public:
 
 	constexpr const Scalar& getCTrans( const ECoord& dir, Ordinal i, Ordinal off ) const {
 		return( cT_[dir][ off - space_->gl(dir) + i*( space_->gu(dir) - space_->gl(dir) + 1) ] );
+		//return( c_[dir][ -off - space_->dl(dir) + i*( space_->du(dir) - space_->dl(dir) + 1) ] );
 	}
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}

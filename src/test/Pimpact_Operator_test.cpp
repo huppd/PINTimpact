@@ -856,6 +856,102 @@ TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
 }
 
 
+TEUCHOS_UNIT_TEST( BasicOperator, DivGradOp2M ) {
+
+	OT nx =7;
+	OT ny =7;
+	OT nz =7;
+
+  pl->set( "domain", domain );
+  pl->set( "dim", dim );
+
+	pl->set( "lx", lx );
+	pl->set( "ly", ly );
+	pl->set( "lz", lz );
+
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
+
+	// grid stretching
+	if( sx!=0 ) {
+		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
+		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
+		//pl->sublist("Stretching in X").set<ST>( "x0 L", 0.2 );
+	}
+	if( sy!=0 ) {
+		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
+		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
+	}
+	if( sz!=0 ) {
+		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
+		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
+	}
+
+  // processor grid size
+  pl->set( "npx", npx );
+  pl->set( "npy", npy );
+  pl->set( "npz", npz );
+  pl->set( "npf", npf );
+
+  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+
+  auto x = Pimpact::create<Pimpact::ScalarField>( space );
+  auto x2= Pimpact::create<Pimpact::ScalarField>( space );
+  auto b = Pimpact::create<Pimpact::ScalarField>( space );
+
+  auto op = Pimpact::create<Pimpact::DivGradOp>( space );
+
+	{
+		Teuchos::RCP<std::ostream> output = Pimpact::createOstream( "DivGradOp.txt" );
+		*output << std::scientific << std::setprecision(std::numeric_limits<long double>::digits10 + 1) ;
+
+		for( OT k=space->begin(Pimpact::S,Pimpact::Z); k<=space->end(Pimpact::S,Pimpact::Z); ++k )
+			for( OT j=space->begin(Pimpact::S,Pimpact::Y); j<=space->end(Pimpact::S,Pimpact::Y); ++j )
+				for( OT i=space->begin(Pimpact::S,Pimpact::X); i<=space->end(Pimpact::S,Pimpact::X); ++i ) {
+					x->init( 0. );
+					x->at(i,j,k) = 1.;
+					op->apply( *x, *b );
+
+					for( OT kk=space->begin(Pimpact::S,Pimpact::Z); kk<=space->end(Pimpact::S,Pimpact::Z); ++kk )
+						for( OT jj=space->begin(Pimpact::S,Pimpact::Y); jj<=space->end(Pimpact::S,Pimpact::Y); ++jj )
+							for( OT ii=space->begin(Pimpact::S,Pimpact::X); ii<=space->end(Pimpact::S,Pimpact::X); ++ii ) {
+								x2->init( 0. );
+								x2->at(ii,jj,kk) = 1.;
+								*output << x2->dot( *b ) << "\t";
+							}
+					*output << "\n";
+				}
+	}
+
+	{
+		Teuchos::RCP<std::ostream> output = Pimpact::createOstream( "DivGradOpT.txt" );
+		*output << std::scientific << std::setprecision(std::numeric_limits<long double>::digits10 + 1) ;
+
+		for( OT k=space->begin(Pimpact::S,Pimpact::Z); k<=space->end(Pimpact::S,Pimpact::Z); ++k )
+			for( OT j=space->begin(Pimpact::S,Pimpact::Y); j<=space->end(Pimpact::S,Pimpact::Y); ++j )
+				for( OT i=space->begin(Pimpact::S,Pimpact::X); i<=space->end(Pimpact::S,Pimpact::X); ++i ) {
+					x->init( 0. );
+					x->at(i,j,k) = 1.;
+					op->apply( *x, *b, Belos::TRANS );
+
+					for( OT kk=space->begin(Pimpact::S,Pimpact::Z); kk<=space->end(Pimpact::S,Pimpact::Z); ++kk )
+						for( OT jj=space->begin(Pimpact::S,Pimpact::Y); jj<=space->end(Pimpact::S,Pimpact::Y); ++jj )
+							for( OT ii=space->begin(Pimpact::S,Pimpact::X); ii<=space->end(Pimpact::S,Pimpact::X); ++ii ) {
+								x2->init( 0. );
+								x2->at(ii,jj,kk) = 1.;
+								*output << x2->dot( *b ) << "\t";
+							}
+					*output << "\n";
+				}
+	}
+
+}
 
 TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
 
@@ -1078,7 +1174,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradTransposeOp ) {
 	grad->apply( *xp, *bv2 );
 	std::cout << "||grad(ones)||" << bv2->norm() << "\n";
 
-	bv->write();
+	//bv->write();
 	//bv2->write(1);
 
 	grad->apply( *xv, *bp);
@@ -1086,7 +1182,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradTransposeOp ) {
 	div->apply(  *xv, *bp2  );
 	std::cout << "||div(ones)||" << bp2->norm() << "\n";
 
-	bp->write();
+	//bp->write();
 	//bp2->write(1);
 
 	divGrad->apply( *xp, *bp );
@@ -1109,7 +1205,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradTransposeOp ) {
 	bp->add( 1., *bp, -1., *bp2 );
 	std::cout << "difference(divgrad, divgrad^T): " << bp->norm() << "\n";
 
-	//bp->write(3);
+	bp->write(3);
 
 }
 

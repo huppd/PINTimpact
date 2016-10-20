@@ -317,9 +317,9 @@ public:
     fields_->initField();
 	}
 
-  void extrapolateBC() const {
-    fieldc_->extrapolateBC();
-    fields_->extrapolateBC();
+	void extrapolateBC( Belos::ETrans trans=Belos::NOTRANS ) const {
+    fieldc_->extrapolateBC( trans );
+    fields_->extrapolateBC( trans );
   }
 
   void level() const {
