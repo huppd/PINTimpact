@@ -80,7 +80,7 @@ template<class T> using ConvDiffJT =
 	Pimpact::NonlinearSmoother<T,Pimpact::ConvectionDiffusionJSmoother >;
 
 template<class T1,class T2> using TransVF = Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<T1,T2> >;
-template<class T> using RestrVF = Pimpact::VectorFieldOpWrap<Pimpact::RestrictionHWOp<T> >;
+template<class T> using RestrVF = Pimpact::VectorFieldOpWrap<Pimpact::RestrictionVFOp<T> >;
 template<class T> using InterVF = Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<T> >;
 
 template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
@@ -92,7 +92,7 @@ using DGJMGT = Pimpact::MultiGrid<
 	MGSpacesT,
 	Pimpact::ScalarField,
 	Pimpact::TransferOp,
-	Pimpact::RestrictionHWOp,
+	Pimpact::RestrictionSFOp,
 	Pimpact::InterpolationOp,
 	Pimpact::DivGradOp,
 	//Pimpact::DivGradO2Op,
@@ -104,7 +104,7 @@ using DGSORMGT = Pimpact::MultiGrid<
 	MGSpacesT,
 	Pimpact::ScalarField,
 	Pimpact::TransferOp,
-	Pimpact::RestrictionHWOp,
+	Pimpact::RestrictionSFOp,
 	Pimpact::InterpolationOp,
 	Pimpact::DivGradOp,
 	Pimpact::DivGradO2Op,
@@ -115,7 +115,7 @@ using DGLMGT = Pimpact::MultiGrid<
 	MGSpacesT,
 	Pimpact::ScalarField,
 	Pimpact::TransferOp,
-	Pimpact::RestrictionHWOp,
+	Pimpact::RestrictionSFOp,
 	Pimpact::InterpolationOp,
 	Pimpact::DivGradOp,
 	Pimpact::DivGradO2Op,
@@ -126,7 +126,7 @@ using DGCMGT = Pimpact::MultiGrid<
 	MGSpacesT,
 	Pimpact::ScalarField,
 	Pimpact::TransferOp,
-	Pimpact::RestrictionHWOp,
+	Pimpact::RestrictionSFOp,
 	Pimpact::InterpolationOp,
 	Pimpact::DivGradOp,
 	Pimpact::DivGradO2Op,
@@ -147,7 +147,7 @@ using CF = Pimpact::CompoundField< VF, SF>;
 template<class T1,class T2>
 using TransVF = Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<T1,T2> >;
 template<class T>
-using RestrVF = Pimpact::VectorFieldOpWrap<Pimpact::RestrictionHWOp<T> >;
+using RestrVF = Pimpact::VectorFieldOpWrap<Pimpact::RestrictionVFOp<T> >;
 template<class T>
 using InterVF = Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<T> >;
 
@@ -268,7 +268,7 @@ TEUCHOS_UNIT_TEST( bla, bla  ) {
 
 	auto mgDivGrad = 
 		Pimpact::createMultiGrid<
-		Pimpact::ScalarField, Pimpact::TransferOp, Pimpact::RestrictionHWOp,
+		Pimpact::ScalarField, Pimpact::TransferOp, Pimpact::RestrictionSFOp,
 		Pimpact::InterpolationOp,
 		Pimpact::DivGradOp,
 		Pimpact::DivGradO2Op,

@@ -858,9 +858,13 @@ TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
 
 TEUCHOS_UNIT_TEST( BasicOperator, DivGradOp2M ) {
 
-	OT nx =7;
-	OT ny =7;
-	OT nz =7;
+	OT nx = 7;
+	OT ny = 7;
+	OT nz = 7;
+
+	//OT nx = 9;
+	//OT ny = 9;
+	//OT nz = 9;
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
@@ -904,54 +908,95 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradOp2M ) {
   auto x = Pimpact::create<Pimpact::ScalarField>( space );
   auto x2= Pimpact::create<Pimpact::ScalarField>( space );
   auto b = Pimpact::create<Pimpact::ScalarField>( space );
+  auto ones = Pimpact::create<Pimpact::ScalarField>( space );
+  auto diag = Pimpact::create<Pimpact::ScalarField>( space );
 
   auto op = Pimpact::create<Pimpact::DivGradOp>( space );
 
-	{
-		Teuchos::RCP<std::ostream> output = Pimpact::createOstream( "DivGradOp.txt" );
-		*output << std::scientific << std::setprecision(std::numeric_limits<long double>::digits10 + 1) ;
-
-		for( OT k=space->begin(Pimpact::S,Pimpact::Z); k<=space->end(Pimpact::S,Pimpact::Z); ++k )
-			for( OT j=space->begin(Pimpact::S,Pimpact::Y); j<=space->end(Pimpact::S,Pimpact::Y); ++j )
-				for( OT i=space->begin(Pimpact::S,Pimpact::X); i<=space->end(Pimpact::S,Pimpact::X); ++i ) {
-					x->init( 0. );
-					x->at(i,j,k) = 1.;
-					op->apply( *x, *b );
-
-					for( OT kk=space->begin(Pimpact::S,Pimpact::Z); kk<=space->end(Pimpact::S,Pimpact::Z); ++kk )
-						for( OT jj=space->begin(Pimpact::S,Pimpact::Y); jj<=space->end(Pimpact::S,Pimpact::Y); ++jj )
-							for( OT ii=space->begin(Pimpact::S,Pimpact::X); ii<=space->end(Pimpact::S,Pimpact::X); ++ii ) {
-								x2->init( 0. );
-								x2->at(ii,jj,kk) = 1.;
-								*output << x2->dot( *b ) << "\t";
-							}
-					*output << "\n";
-				}
-	}
+	ones->init( 1. );
+	op->applyInvDiag( *ones, *diag );
 
 	{
-		Teuchos::RCP<std::ostream> output = Pimpact::createOstream( "DivGradOpT.txt" );
-		*output << std::scientific << std::setprecision(std::numeric_limits<long double>::digits10 + 1) ;
+		OT nx = space->end(Pimpact::S,Pimpact::X) - space->begin(Pimpact::S,Pimpact::X) + 1;
+		OT ny = space->end(Pimpact::S,Pimpact::Y) - space->begin(Pimpact::S,Pimpact::Y) + 1;
+		OT nz = space->end(Pimpact::S,Pimpact::Z) - space->begin(Pimpact::S,Pimpact::Z) + 1;
 
-		for( OT k=space->begin(Pimpact::S,Pimpact::Z); k<=space->end(Pimpact::S,Pimpact::Z); ++k )
-			for( OT j=space->begin(Pimpact::S,Pimpact::Y); j<=space->end(Pimpact::S,Pimpact::Y); ++j )
-				for( OT i=space->begin(Pimpact::S,Pimpact::X); i<=space->end(Pimpact::S,Pimpact::X); ++i ) {
-					x->init( 0. );
-					x->at(i,j,k) = 1.;
-					op->apply( *x, *b, Belos::TRANS );
+		Teuchos::SerialDenseMatrix<OT,ST> DJG( nx*ny*nz, nx*ny*nz );
+		{
+			Teuchos::RCP<std::ostream> output = Pimpact::createOstream( "DivGradOp.txt" );
+			*output << std::scientific << std::setprecision(std::numeric_limits<long double>::digits10 + 1) ;
 
-					for( OT kk=space->begin(Pimpact::S,Pimpact::Z); kk<=space->end(Pimpact::S,Pimpact::Z); ++kk )
-						for( OT jj=space->begin(Pimpact::S,Pimpact::Y); jj<=space->end(Pimpact::S,Pimpact::Y); ++jj )
-							for( OT ii=space->begin(Pimpact::S,Pimpact::X); ii<=space->end(Pimpact::S,Pimpact::X); ++ii ) {
-								x2->init( 0. );
-								x2->at(ii,jj,kk) = 1.;
-								*output << x2->dot( *b ) << "\t";
-							}
-					*output << "\n";
-				}
+			for( OT k=space->begin(Pimpact::S,Pimpact::Z); k<=space->end(Pimpact::S,Pimpact::Z); ++k )
+				for( OT j=space->begin(Pimpact::S,Pimpact::Y); j<=space->end(Pimpact::S,Pimpact::Y); ++j )
+					for( OT i=space->begin(Pimpact::S,Pimpact::X); i<=space->end(Pimpact::S,Pimpact::X); ++i ) {
+						OT II = i-space->begin(Pimpact::S,Pimpact::X)
+							+ nx*( j-space->begin(Pimpact::S,Pimpact::Y) )
+							+ nx*ny*( k-space->begin(Pimpact::S,Pimpact::Z) );
+						x->init( 0. );
+						x->at(i,j,k) = 1.;
+						op->apply( *x, *b );
+
+						for( OT kk=space->begin(Pimpact::S,Pimpact::Z); kk<=space->end(Pimpact::S,Pimpact::Z); ++kk )
+							for( OT jj=space->begin(Pimpact::S,Pimpact::Y); jj<=space->end(Pimpact::S,Pimpact::Y); ++jj )
+								for( OT ii=space->begin(Pimpact::S,Pimpact::X); ii<=space->end(Pimpact::S,Pimpact::X); ++ii ) {
+									OT JJ = ii-space->begin(Pimpact::S,Pimpact::X)
+										+ nx*( jj-space->begin(Pimpact::S,Pimpact::Y) )
+										+ nx*ny*( kk-space->begin(Pimpact::S,Pimpact::Z) );
+									x2->init( 0. );
+									x2->at(ii,jj,kk) = 1.;
+
+									DJG(II,JJ) = x2->dot( *b );
+									*output << DJG(II,JJ) << "\t";
+								}
+						*output << "\n";
+						//std::cout << "|diag-diag| " << 1./std::abs(DJG(II,II))  << "\n";
+						//std::cout << "|diag-diag| " <<  diag->at(i,j,k) << "\n";
+						//std::cout << "|diag-diag| ("<<i<<", "<<j<< ", " <<k<<") " <<  1./std::abs(DJG(II,II))-diag->at(i,j,k) << "\n\n";
+					}
+		}
+
+		Teuchos::SerialDenseMatrix<OT,ST> DJGT( nx*ny*nz, nx*ny*nz );
+		{
+			Teuchos::RCP<std::ostream> output = Pimpact::createOstream( "DivGradOpT.txt" );
+			*output << std::scientific << std::setprecision(std::numeric_limits<long double>::digits10 + 1) ;
+
+			for( OT k=space->begin(Pimpact::S,Pimpact::Z); k<=space->end(Pimpact::S,Pimpact::Z); ++k )
+				for( OT j=space->begin(Pimpact::S,Pimpact::Y); j<=space->end(Pimpact::S,Pimpact::Y); ++j )
+					for( OT i=space->begin(Pimpact::S,Pimpact::X); i<=space->end(Pimpact::S,Pimpact::X); ++i ) {
+						OT II = i-space->begin(Pimpact::S,Pimpact::X)
+							+ nx*( j-space->begin(Pimpact::S,Pimpact::Y) )
+							+ nx*ny*( k-space->begin(Pimpact::S,Pimpact::Z) );
+						x->init( 0. );
+						x->at(i,j,k) = 1.;
+						op->apply( *x, *b, Belos::TRANS );
+
+						for( OT kk=space->begin(Pimpact::S,Pimpact::Z); kk<=space->end(Pimpact::S,Pimpact::Z); ++kk )
+							for( OT jj=space->begin(Pimpact::S,Pimpact::Y); jj<=space->end(Pimpact::S,Pimpact::Y); ++jj )
+								for( OT ii=space->begin(Pimpact::S,Pimpact::X); ii<=space->end(Pimpact::S,Pimpact::X); ++ii ) {
+									OT JJ = ii-space->begin(Pimpact::S,Pimpact::X)
+										+ nx*( jj-space->begin(Pimpact::S,Pimpact::Y) )
+										+ nx*ny*( kk-space->begin(Pimpact::S,Pimpact::Z) );
+									x2->init( 0. );
+									x2->at(ii,jj,kk) = 1.;
+									DJGT(JJ,II) = x2->dot( *b );
+									*output << DJGT(JJ,II) << "\t";
+								}
+						*output << "\n";
+					}
+		}
+		DJG -= DJGT;
+
+		ST errOne = DJG.normOne();
+		std::cout << "\n||DJG-DJG^TT||_1 = " << errOne << "\n";
+		TEST_EQUALITY( errOne<eps, true );
+
+		ST errInf = DJG.normInf();
+		std::cout << "||DJG-DJG^TT||_infty = " << errInf << "\n";
+		TEST_EQUALITY( errInf<eps, true );
 	}
-
 }
+
+
 
 TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
 

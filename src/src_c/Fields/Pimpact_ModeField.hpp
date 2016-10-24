@@ -73,11 +73,11 @@ public:
   }
 
 
-  ModeField( const Teuchos::RCP<const SpaceT>& space, bool owning=true ):
-    AF( space ),
+	ModeField( const Teuchos::RCP<const SpaceT>& space, bool owning=true ):
+		AF( space ),
 		owning_(owning),
-    fieldc_( Teuchos::rcp( new IFT(space,false) ) ),
-    fields_( Teuchos::rcp( new IFT(space,false) ) ) {
+		fieldc_( Teuchos::rcp( new IFT(space,false) ) ),
+		fields_( Teuchos::rcp( new IFT(space,false) ) ) {
 
 			if( owning_ ) {
 				allocate();

@@ -51,7 +51,7 @@ template<class T> using ConvDiffJT =
 	Pimpact::NonlinearSmoother<T,Pimpact::ConvectionDiffusionJSmoother >;
 
 template<class T1,class T2> using TransVF = Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<T1,T2> >;
-template<class T> using RestrVF = Pimpact::VectorFieldOpWrap<Pimpact::RestrictionHWOp<T> >;
+template<class T> using RestrVF = Pimpact::VectorFieldOpWrap<Pimpact::RestrictionVFOp<T> >;
 template<class T> using InterVF = Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<T> >;
 
 template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
@@ -63,7 +63,7 @@ using DGJMGT = Pimpact::MultiGrid<
 	MGSpacesT,
 	Pimpact::ScalarField,
 	Pimpact::TransferOp,
-	Pimpact::RestrictionHWOp,
+	Pimpact::RestrictionSFOp,
 	Pimpact::InterpolationOp,
 	Pimpact::DivGradOp,
 	//Pimpact::DivGradO2Op,
@@ -78,7 +78,7 @@ using DGSORMGT = Pimpact::MultiGrid<
 	MGSpacesT,
 	Pimpact::ScalarField,
 	Pimpact::TransferOp,
-	Pimpact::RestrictionHWOp,
+	Pimpact::RestrictionSFOp,
 	Pimpact::InterpolationOp,
 	Pimpact::DivGradOp,
 	Pimpact::DivGradO2Op,
@@ -91,7 +91,7 @@ using DGLMGT = Pimpact::MultiGrid<
 	MGSpacesT,
 	Pimpact::ScalarField,
 	Pimpact::TransferOp,
-	Pimpact::RestrictionHWOp,
+	Pimpact::RestrictionSFOp,
 	Pimpact::InterpolationOp,
 	Pimpact::DivGradOp,
 	Pimpact::DivGradO2Op,
@@ -105,7 +105,7 @@ using DGCMGT = Pimpact::MultiGrid<
 	MGSpacesT,
 	Pimpact::ScalarField,
 	Pimpact::TransferOp,
-	Pimpact::RestrictionHWOp,
+	Pimpact::RestrictionSFOp,
 	Pimpact::InterpolationOp,
 	Pimpact::DivGradOp,
 	Pimpact::DivGradO2Op,
@@ -639,7 +639,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSmoothers, VFconstructor, CSG )
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Restrictor, CS ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MGTransfers, Restrictor, CS, RestrictorType ) {
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
@@ -685,34 +685,36 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Restrictor, CS ) {
 		if( 0==space->rankST() ) {
 			std::cout << "\n\n\t--- level: " << level-1 << "---\n";
 		}
-		Teuchos::RCP<const Pimpact::RestrictionHWOp<CSpaceT> > op = 
-			Teuchos::rcp( new Pimpact::RestrictionHWOp<CSpaceT>(
+		Teuchos::RCP<const RestrictorType > op = 
+			Teuchos::rcp( new RestrictorType(
 						mgSpaces->get(level-1),
 						mgSpaces->get(level),
 						mgSpaces->get()->getProcGrid()->getNP() ) );
 
 		if( mgSpaces->participating(level-1) ) op->print();
 
-		Teuchos::Tuple<Pimpact::EField,4> type =
-			Teuchos::tuple(
-					Pimpact::EField::S,
-					Pimpact::EField::U,
-					Pimpact::EField::V,
-					Pimpact::EField::W );
+		std::vector<Pimpact::EField> types;
+		if( "Restriction SF"==op->getLabel() )
+			types.push_back( Pimpact::EField::S );
+		else if( "Restriction VF"==op->getLabel() ) {
+			types.push_back( Pimpact::EField::U );
+			types.push_back( Pimpact::EField::V );
+			types.push_back( Pimpact::EField::W );
+		}
 
-		for( int i=fs; i<fe; ++i ) {
-			if( 2==dim && i==Pimpact::EField::W ) break;
+		for( auto type=types.begin(); type!=types.end(); ++type ) {
+			if( 2==dim && *type==Pimpact::EField::W ) break;
 			if( 0==space->rankST() )
-				std::cout << " --- ftype: " << i << " ---\n";
+				std::cout << " --- ftype: " << Pimpact::toString(*type) << " ---\n";
 
 			Teuchos::RCP< Pimpact::ScalarField<CSpaceT> > fieldf;
 			Teuchos::RCP< Pimpact::ScalarField<CSpaceT> > fieldc;
 			Teuchos::RCP< Pimpact::ScalarField<CSpaceT> > sol;
 			Teuchos::RCP< Pimpact::ScalarField<CSpaceT> > er;
 
-			fieldf = Pimpact::createScalarField( mgSpaces->get( level-1 ), type[i] );
+			fieldf = Pimpact::createScalarField( mgSpaces->get( level-1 ), *type );
 
-			fieldc = Pimpact::createScalarField( mgSpaces->get( level ), type[i] );
+			fieldc = Pimpact::createScalarField( mgSpaces->get( level ), *type );
 			sol = fieldc->clone();
 			er = fieldc->clone();
 
@@ -756,7 +758,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Restrictor, CS ) {
 			}
 
 			// the hard test
-			for( int dir=1; dir<=1; ++ dir ) {
+			for( int dir=1; dir<=3; ++ dir ) {
 
 				Pimpact::EScalarField type = static_cast<Pimpact::EScalarField>(dir);
 				fieldf->initField( type );
@@ -785,8 +787,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Restrictor, CS ) {
 } // end of TEUCHOS_UNIT_TEST_TEMPLATE
 
 
+using ResSF = Pimpact::RestrictionSFOp<CSpaceT>;
+using ResVF = Pimpact::RestrictionVFOp<CSpaceT>;
 //TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, Restrictor, CSL )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, Restrictor, CSG )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MGTransfers, Restrictor, CSG, ResSF )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MGTransfers, Restrictor, CSG, ResVF )
 
 
 
@@ -836,7 +841,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator, CS ) {
 
 	std::cout << "\nrank: " << space->rankST() << "\tnGridLevels: " << mgSpaces->getNGrids() << "\n";
 
-	auto mgTransfers = Pimpact::createMGTransfers<Pimpact::TransferOp,Pimpact::RestrictionHWOp,Pimpact::InterpolationOp>( mgSpaces );
+	auto mgTransfers = Pimpact::createMGTransfers<Pimpact::TransferOp,Pimpact::RestrictionSFOp,Pimpact::InterpolationOp>( mgSpaces );
 
 	for( int level=0; level<mgSpaces->getNGrids()-1; ++level ) {
 
@@ -1002,7 +1007,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 	Teuchos::RCP<const MGSpacesT> mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, maxGrids );
 
 	auto mgTransfers = Pimpact::createMGTransfers<
-		Pimpact::TransferOp,Pimpact::RestrictionHWOp,Pimpact::InterpolationOp>(
+		Pimpact::TransferOp,Pimpact::RestrictionSFOp,Pimpact::InterpolationOp>(
 				mgSpaces );
 
 	auto x = Pimpact::createMGFields<Pimpact::ScalarField>( mgSpaces );

@@ -36,16 +36,20 @@ public:
 
 protected:
 
+	using ScalarT = typename SpaceT::Scalar;
 	bool level_;
 	bool levelRHS_;
+	bool nullspaceOrtho_;
 	bool initZero_;
   Teuchos::RCP< LinearProblem<MF> > linprob_;
+	Teuchos::RCP<const RangeFieldT> nullspace_;
 
 public:
 
 	InverseOp( const Teuchos::RCP<const SpaceT>& space ):
 		level_(false),
 		levelRHS_(false),
+		nullspaceOrtho_(false),
 		initZero_(false) {
 
 			auto para = 
@@ -61,7 +65,10 @@ public:
 
 	template<class IOperatorT>
 	InverseOp( const Teuchos::RCP<IOperatorT>& op ):
-		level_(false), initZero_(false) {
+		level_(false),
+		levelRHS_(false),
+		nullspaceOrtho_(false),
+		initZero_(false) {
 
 			auto para = 
 				createLinSolverParameter("GMRES",1.e-1,-1, Teuchos::rcp( new Teuchos::oblackholestream ), 10 );
@@ -78,6 +85,7 @@ public:
 		 const Teuchos::RCP<Teuchos::ParameterList>& pl ):
 	 level_( pl->get<bool>( "level", false ) ),
 	 levelRHS_( pl->get<bool>( "level RHS", false ) ),
+	 nullspaceOrtho_( pl->get<bool>( "nullspace ortho", false ) ),
 	 initZero_( pl->get<bool>( "initZero", false ) ),
 	 linprob_( createLinearProblem<MF>(
 				 createOperatorBase( create<OperatorT>(op) ),
@@ -87,43 +95,62 @@ public:
 				 pl->get<std::string>("Solver name","GMRES") ) ) { }
 
 
-  void apply( const MF& x, MF& y ) const {
-		if( levelRHS_ ) { x.level(); }
-		if( initZero_ ) { y.init( ); }
+ /// \todo clean up: rm clone make nullspace normalized.
+ void apply( const MF& x, MF& y ) const {
+	 if( levelRHS_ ) { x.level(); }
+	 if( initZero_ ) { y.init( ); }
+	 if( nullspaceOrtho_ ) {
+		 auto x_ = x.clone();
+		 //nullspace_->write( 999 );
+		 for( int i=0; i<x_->getNumberVecs(); ++i ) {
+			 ScalarT bla = -nullspace_->getFieldPtr(0)->dot( x_->getField(i) );
+			 std::cout << "bla: " << std::setprecision(10) << bla  << "\n";
+			 //std::cout << "x_->getNumberVecs(): " << x_->getNumberVecs() << "\n";
+			 //std::cout << "nullspace_->getNumberVecs(): " << nullspace_->getNumberVecs() << "\n";
+			 x_->getFieldPtr(i)->add( 1., x_->getField(i), bla, nullspace_->getField(0) );
+		 }
+
+		 linprob_->solve( Teuchos::rcpFromRef(y), x_ );
+	 }
+	 else
     linprob_->solve( Teuchos::rcpFromRef(y), Teuchos::rcpFromRef(x) );
-		if( level_    ) { y.level(); }
-  }
+	 if( level_    ) { y.level(); }
+ }
 
 
-  void assignField( const DomainFieldT& mv ) {
+ void assignField( const DomainFieldT& mv ) {
 
-    auto prob = linprob_->getProblem();
+	 auto prob = linprob_->getProblem();
 
-    Teuchos::rcp_const_cast<Op>( prob->getOperator() )->assignField( mv );
+	 Teuchos::rcp_const_cast<Op>( prob->getOperator() )->assignField( mv );
 
-    if( prob->isLeftPrec() ) {
-      auto opPrec = Teuchos::rcp_const_cast<Op>( prob->getLeftPrec() );
-      opPrec->assignField( mv );
-    }
+	 if( prob->isLeftPrec() ) {
+		 auto opPrec = Teuchos::rcp_const_cast<Op>( prob->getLeftPrec() );
+		 opPrec->assignField( mv );
+	 }
 
-    if( prob->isRightPrec() ) {
-      auto opPrec = Teuchos::rcp_const_cast<Op>( prob->getRightPrec() );
-      opPrec->assignField( mv );
-    }
-  };
+	 if( prob->isRightPrec() ) {
+		 auto opPrec = Teuchos::rcp_const_cast<Op>( prob->getRightPrec() );
+		 opPrec->assignField( mv );
+	 }
+ }
 
+ void setNullspace( const Teuchos::RCP<const RangeFieldT>& nullspace ) {
+	 nullspaceOrtho_ = true;
+	 nullspace_ = nullspace;
+ }
 
-	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(linprob_->space()); };
+ constexpr const Teuchos::RCP<const SpaceT>& space() const { return(linprob_->space()); };
 
-	constexpr Teuchos::RCP<const LinearProblem<MF> > getLinearProblem() const {
-		return(linprob_);
-	}
+ constexpr Teuchos::RCP<const LinearProblem<MF> > getLinearProblem() const {
+	 return(linprob_);
+ }
 
-	constexpr Teuchos::RCP<const Op> getOperatorPtr() const {
-		return( getLinearProblem()->getOperatorPtr() );
-	};
+ constexpr Teuchos::RCP<const Op> getOperatorPtr() const {
+	 return( getLinearProblem()->getOperatorPtr() );
+ };
 
-	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
+ void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
     auto prob = linprob_->getProblem();
 
 		Teuchos::rcp_const_cast<Op>( prob->getOperator() )->setParameter( para );

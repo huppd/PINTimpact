@@ -50,7 +50,13 @@ void closeH5F();
 
 /// \brief Space in the sense of a vector space, it is the connection between Field and Operators
 ///
+/// \tparam ST scalar type normaly double
+/// \tparam OT ordinal tye 
+/// \tparam spatialD spatial dimension 2 or 3
+/// \tparam d computational grid dimension 3 or 4
+/// \tparam dNC dimension stencil
 /// \ingroup SpaceObject
+//template< class ST, class OT, int spatialD, int d, int dNC >
 template< class ST, class OT, int d, int dNC >
 class Space {
 
@@ -59,6 +65,7 @@ public:
 	using Scalar  = ST;
 	using Ordinal = OT;
 
+	//static const int spatialDim = sd;
 	static const int dimension = d;
 	static const int dimNC = dNC;
 

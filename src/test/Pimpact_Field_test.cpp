@@ -57,12 +57,8 @@ TEUCHOS_STATIC_SETUP() {
   clp.setOption(
       "error-tol-slack", &eps,
       "Slack off of machine epsilon used to check test results" );
-  clp.setOption(
-      "domain", &domain,
-      "domain" );
-  clp.setOption(
-      "dim", &dim,
-      "dim" );
+	clp.setOption( "domain", &domain, "domain" );
+	clp.setOption( "dim", &dim, "dim" );
   clp.setOption( "nx", &nx, "" );
   clp.setOption( "ny", &ny, "" );
   clp.setOption( "nz", &nz, "" );

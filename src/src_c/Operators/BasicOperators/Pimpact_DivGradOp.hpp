@@ -81,7 +81,11 @@ public:
 	}
 
 
+	/// \test
+	/// \todo add eps
 	void applyInvDiag( const DomainFieldT& x, RangeFieldT& y ) const {
+
+		//const Scalar& eps = 0.1;
 
 		for( OT k=space()->begin(S,Z,false); k<=space()->end(S,Z,false); ++k )
 			for( OT j=space()->begin(S,Y,false); j<=space()->end(S,Y,false); ++j )
@@ -92,9 +96,9 @@ public:
 					for( OT ii=space()->dl(X); ii<=space()->du(X); ++ii ) {
 						if( 0<space()->getBCLocal()->getBCL(X) && i+ii==0 ) {
 							for( OT iii=0; iii<=space()->du(X); ++iii )
-								diag -= div_->getC( X, i, ii ) * grad_->getC( X, i+iii, -iii)
-									* space()->getInterpolateV2S()->getC(X,i,iii) /
-									space()->getInterpolateV2S()->getC(X,i,-1);
+								diag -= div_->getC( X, i, ii ) * grad_->getC(X,1+iii,-iii)
+									* space()->getInterpolateV2S()->getC(X,1,iii) /
+									space()->getInterpolateV2S()->getC(X,1,-1);
 						}
 						else if( 0<space()->getBCLocal()->getBCU(X) && i+ii==space()->end(S,X,false) ) {
 							for( OT iii=space()->dl(X); iii<=-1; ++iii )
@@ -111,7 +115,7 @@ public:
 						if( 0<space()->getBCLocal()->getBCL(Y) && j+jj==0 ) {
 							for( OT jjj=0; jjj<=space()->du(Y); ++jjj )
 								diag -= div_->getC( Y, j, jj ) * grad_->getC( Y, 1+jjj, -jjj)
-									* space()->getInterpolateV2S()->getC(Y,j,jjj) /
+									* space()->getInterpolateV2S()->getC(Y,1,jjj) /
 									space()->getInterpolateV2S()->getC(Y,1,-1);
 						}
 						else if( 0<space()->getBCLocal()->getBCU(Y) && j+jj==space()->end(S,Y,false) ) {
@@ -130,7 +134,7 @@ public:
 							if( 0<space()->getBCLocal()->getBCL(Z) && k+kk==0 ) {
 								for( OT kkk=0; kkk<=space()->du(Z); ++kkk )
 									diag -= div_->getC( Z, k, kk ) * grad_->getC( Z, 1+kkk, -kkk)
-										* space()->getInterpolateV2S()->getC(Z,k,kkk) /
+										* space()->getInterpolateV2S()->getC(Z,1,kkk) /
 										space()->getInterpolateV2S()->getC(Z,1,-1);
 							}
 							else if( 0<space()->getBCLocal()->getBCU(Z) && k+kk==space()->end(S,Z,false) ) {

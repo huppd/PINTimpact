@@ -72,7 +72,7 @@ using NV = NOX::Pimpact::Vector<MF>;
 template<class T1,class T2>
 using TransVF = Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<T1,T2> >;
 template<class T>
-using RestrVF = Pimpact::VectorFieldOpWrap<Pimpact::RestrictionHWOp<T> >;
+using RestrVF = Pimpact::VectorFieldOpWrap<Pimpact::RestrictionVFOp<T> >;
 template<class T>
 using InterVF = Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<T> >;
 
@@ -264,6 +264,29 @@ int main( int argi, char** argv ) {
 						divGradOp,
 						Teuchos::rcpFromRef( pl->sublist("DivGrad") ) );
 
+			////--- nullspace 
+			if( pl->sublist("DivGrad").get<bool>("nullspace ortho",true) ) {
+				auto nullspace = Pimpact::createMultiField( x->getFieldPtr(0)->getSFieldPtr()->get0FieldPtr()->clone() );
+				auto zeros = nullspace->clone();
+
+				nullspace->init( 1. );
+				zeros->init( 0. );
+
+				auto divGradInvTT =
+					Pimpact::createInverseOp( 
+							Pimpact::createTranspose( divGradOp ),
+							Teuchos::rcpFromRef( pl->sublist("DivGrad^T") ) );
+
+				divGradInvTT->apply( *zeros, *nullspace );
+				S blup = std::sqrt( 1./nullspace->dot(*nullspace) );
+				//std::cout << "blup: "<< std::setprecision(10) << blup << "\n";
+				nullspace->scale( blup );
+				//std::cout << "blupblup: "<< std::setprecision(10) << nullspace->dot(*nullspace) << "\n";
+				nullspace->write(888);
+				divGradInv2->setNullspace( nullspace );
+			}
+			//// --- end nullspace
+
 			std::string divGradScalString =
 				pl->sublist("DivGrad").get<std::string>("scaling","none");
 
@@ -284,13 +307,13 @@ int main( int argi, char** argv ) {
 				auto mgDivGrad = Pimpact::createMultiGrid<
 					Pimpact::ScalarField,
 					Pimpact::TransferOp,
-					Pimpact::RestrictionHWOp,
+					Pimpact::RestrictionSFOp,
 					Pimpact::InterpolationOp,
 					Pimpact::DivGradOp,
 					//Pimpact::DivGradOp,
 					Pimpact::DivGradO2Op,
-					Pimpact::DivGradO2JSmoother,
-					//Pimpact::Chebyshev,
+					//Pimpact::DivGradO2JSmoother,
+					Pimpact::Chebyshev,
 					//Pimpact::DivGradO2SORSmoother,
 					//POP
 					//Pimpact::Chebyshev

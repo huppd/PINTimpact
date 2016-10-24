@@ -78,8 +78,8 @@ using TransF = Pimpact::TransferCompoundOp<
 
 template<class T>     
 using RestrF = Pimpact::TransferCompoundOp<
-	Pimpact::TransferMultiHarmonicOp< Pimpact::VectorFieldOpWrap< Pimpact::RestrictionHWOp<T> > >,
-	Pimpact::TransferMultiHarmonicOp<                             Pimpact::RestrictionHWOp<T> > >;
+	Pimpact::TransferMultiHarmonicOp< Pimpact::VectorFieldOpWrap< Pimpact::RestrictionVFOp<T> > >,
+	Pimpact::TransferMultiHarmonicOp<                             Pimpact::RestrictionSFOp<T> > >;
 
 
 template<class T> 

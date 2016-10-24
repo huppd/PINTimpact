@@ -127,6 +127,7 @@ public:
 	}
 
 
+	/// \todo add eps
 	void applyInvDiag( const DomainFieldT& x, RangeFieldT& y ) const {
 
 		if( 3==space()->dim() ) {
