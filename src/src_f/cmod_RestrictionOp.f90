@@ -140,6 +140,7 @@ contains
     end do
 
     if( BC_L > 0 ) then
+      !cR( 1,1) = cR(1,1) + cR(-1,1) ! equivalent to 0.5 0.5
       cR(-1,1) = 0.
       cR( 0,1) = 0.5
       cR( 1,1) = 0.5

@@ -116,6 +116,7 @@ public:
 /// \tparam dim computational dimension
 /// \param dtype domain type
 ///
+/// \deprecated
 /// \return 
 /// \relates BoundaryConditionsGlobal
 template<int dim=3>

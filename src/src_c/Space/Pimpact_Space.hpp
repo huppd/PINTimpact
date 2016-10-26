@@ -319,6 +319,8 @@ public:
 	constexpr const Ordinal* nu()         const { return( stencilWidths_->getNU()   ); }
 	constexpr const Ordinal& nu( const int& i )  const { return( stencilWidths_->getNU(i)  ); }
 
+	constexpr const int& bcl( const int dir) const { return( getBCLocal()->getBCL(dir)   ); }
+	constexpr const int& bcu( const int dir) const { return( getBCLocal()->getBCU(dir)   ); }
 
 	/// \deprecated
 	constexpr const Ordinal* sInd( const int& fieldType ) const {

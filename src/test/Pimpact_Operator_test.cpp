@@ -73,6 +73,7 @@ ST omega = 0.8;
 ST winds = 1;
 int sweeps = 12;
 int nIter = 1;
+OT ns = 8;
 
 OT nx = 33;
 OT ny = 33;
@@ -116,6 +117,7 @@ TEUCHOS_STATIC_SETUP() {
       "Slack off of machine epsilon used to check test results" );
 	clp.setOption( "sweeps", &sweeps, "" );
 	clp.setOption( "nIter", &nIter, "" );
+	clp.setOption( "ns", &ns, "" );
 
 	clp.setOption( "lx", &lx, "" );
 	clp.setOption( "ly", &ly, "" );
@@ -2586,8 +2588,6 @@ TEUCHOS_UNIT_TEST( Convergence, DivOp ) {
 		pl->set<OT>( "nz", 9 );
 		pl->set<OT>( "nf", 1 );
 
-		OT ns = 8;
-
 		std::vector<ST> error2( ns );
 		std::vector<ST> errorInf( ns );
 		std::vector<ST> dofs( ns );
@@ -2706,8 +2706,6 @@ TEUCHOS_UNIT_TEST( Convergence, InterpolateV2SOp ) {
 		pl->set<OT>( "nz", 9 );
 		pl->set<OT>( "nf", 1 );
 
-		OT ns = 8;
-
 		std::vector<ST> error2( ns );
 		std::vector<ST> errorInf( ns );
 		std::vector<ST> dofs( ns );
@@ -2824,7 +2822,6 @@ TEUCHOS_UNIT_TEST( Convergence, InterpolateS2VOp ) {
 		pl->set<OT>( "nz", 9 );
 		pl->set<OT>( "nf", 1 );
 
-		OT ns = 8;
 
 		std::vector<ST> error2( ns );
 		std::vector<ST> errorInf( ns );
@@ -2921,7 +2918,7 @@ TEUCHOS_UNIT_TEST( Convergence, InterpolateS2VOp ) {
 
 
 
-TEUCHOS_UNIT_TEST( Convergence, GradOp ) { 
+TEUCHOS_UNIT_TEST( Convergence, extrapolateBC ) { 
 
 	//const int dNC = 2;
   pl->set( "domain", domain );
@@ -2945,7 +2942,117 @@ TEUCHOS_UNIT_TEST( Convergence, GradOp ) {
 		pl->set<OT>( "nz", 9 );
 		pl->set<OT>( "nf", 1 );
 
-		OT ns = 8;
+		std::vector<ST> error2( ns );
+		std::vector<ST> errorInf( ns );
+		std::vector<ST> dofs( ns );
+
+		ST pi2 = std::atan(1)*8;
+
+		if( 0==rank )	
+			std::cout << "\n\nN\t||e||_2\t\t||e||_inf\n";
+
+		for( OT n=0; n<ns; ++n ) {
+
+			if( 0==dir ) 
+				pl->set<OT>( "nx", 8*std::pow(2,n)+1 );
+			else if( 1==dir )
+				pl->set<OT>( "ny", 8*std::pow(2,n)+1 );
+			else if( 2==dir )
+				pl->set<OT>( "nz", 8*std::pow(2,n)+1 );
+
+			// grid stretching
+			if( sx!=0 ) {
+				pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+				pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(pl->get<OT>("nx"))/2. );
+				pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(pl->get<OT>("nx"))/2. );
+				//pl->sublist("Stretching in X").set<ST>( "x0 L", 0.05 );
+				//pl->sublist("Stretching in X").set<ST>( "x0 U", 0. );
+			}
+			if( sy!=0 ) {
+				pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+				pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(pl->get<OT>("ny"))/2. );
+				pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(pl->get<OT>("ny"))/2. );
+			}
+			if( sz!=0 ) {
+				pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+				pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(pl->get<OT>("nz"))/2. );
+				pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(pl->get<OT>("nz"))/2. );
+			}
+			auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+
+			auto vel = Pimpact::create<Pimpact::VectorField>( space );
+			auto sol = vel->clone( Pimpact::ShallowCopy );
+
+			// init 
+			if( 0==dir ) {
+				vel->getFieldPtr(Pimpact::U)->initFromFunction(
+						[&pi2]( ST x, ST y, ST z ) ->ST { return(  std::sin(x*pi2) ); } );
+				sol->getFieldPtr(Pimpact::U)->initFromFunction(
+						[&pi2]( ST x, ST y, ST z ) ->ST { return(  std::sin(x*pi2) ); } );
+			}
+			else if( 1==dir ) {
+				vel->getFieldPtr(Pimpact::V)->initFromFunction(
+						[&pi2]( ST x, ST y, ST z ) ->ST { return( std::sin(y*pi2) ); } );
+				sol->getFieldPtr(Pimpact::V)->initFromFunction(
+						[&pi2]( ST x, ST y, ST z ) ->ST { return( std::sin(y*pi2) ); } );
+			}
+			else if( 2==dir ) {
+				vel->getFieldPtr(Pimpact::W)->initFromFunction(
+						[&pi2]( ST x, ST y, ST z ) ->ST { return(  std::sin(z*pi2) ); } );
+				sol->getFieldPtr(Pimpact::W)->initFromFunction(
+						[&pi2]( ST x, ST y, ST z ) ->ST { return(  std::sin(z*pi2) ); } );
+			}
+			vel->extrapolateBC();
+
+
+			// compute error
+			vel->getFieldPtr(dir)->add( 1., sol->getConstField(dir), -1., vel->getConstField(dir), true );
+			vel->write( n );
+			
+			error2[n]   = std::log10( vel->getConstFieldPtr(dir)->norm( Belos::TwoNorm, true ) / sol->getConstFieldPtr(dir)->norm( Belos::TwoNorm, true ) );
+			errorInf[n] = std::log10( vel->getConstFieldPtr(dir)->norm( Belos::InfNorm, true ) / sol->getConstFieldPtr(dir)->norm( Belos::InfNorm, true ) );
+
+			dofs[n] = std::log10( 8.*std::pow(2.,n)+1. );
+			if( 0==rank )	
+				std::cout << std::pow(10.,dofs[n]) << "\t" << std::pow(10.,error2[n]) << "\t" << std::pow(10.,errorInf[n]) << "\n";
+		}
+		// compute order
+		ST order2 = order<ST>( dofs, error2 );
+		if( 0==rank )	
+			std::cout << "extrapolateBC: order two norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << order2 << "\n";
+
+		ST orderInf = order<ST>( dofs, errorInf );
+		if( 0==rank )	
+			std::cout << "extrapolateBC: order inf norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << orderInf << "\n";
+		// test
+		TEST_EQUALITY( -order2  >3., true );
+		TEST_EQUALITY( -orderInf>3., true );
+	}
+	
+}
+TEUCHOS_UNIT_TEST( Convergence, GradOp ) { 
+
+	//const int dNC = 2;
+  pl->set( "domain", domain );
+  pl->set( "dim", dim );
+
+	pl->set( "lx", lx );
+	pl->set( "ly", ly );
+	pl->set( "lz", lz );
+
+  // processor grid size
+  pl->set( "npx", npx );
+  pl->set( "npy", npy );
+  pl->set( "npz", npz );
+  pl->set( "npf", npf );
+
+	//  grid size
+	for( int dir=0; dir<3; ++dir ) {
+
+		pl->set<OT>( "nx", 9 );
+		pl->set<OT>( "ny", 9 );
+		pl->set<OT>( "nz", 9 );
+		pl->set<OT>( "nf", 1 );
 
 		std::vector<ST> error2( ns );
 		std::vector<ST> errorInf( ns );
@@ -2994,11 +3101,11 @@ TEUCHOS_UNIT_TEST( Convergence, GradOp ) {
 				p->initFromFunction(
 						[&pi2]( ST x, ST y, ST z ) ->ST { return(  std::cos(x*pi2) ); } );
 				sol->getFieldPtr(Pimpact::U)->initFromFunction(
-						[&pi2]( ST x, ST y, ST z ) ->ST {
-							if( std::abs( y ) < Teuchos::ScalarTraits<ST>::eps() ||
-									std::abs( y-ly )<Teuchos::ScalarTraits<ST>::eps()||
-							    std::abs( z ) < Teuchos::ScalarTraits<ST>::eps() ||
-									std::abs( z-lz )<Teuchos::ScalarTraits<ST>::eps()  )
+						[&pi2,&space]( ST x, ST y, ST z ) ->ST {
+							if( (std::abs( y )   <Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0 ) ||
+									(std::abs( y-ly )<Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0 ) ||
+							    (std::abs( z )   <Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0 ) ||
+									(std::abs( z-lz )<Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0 )  )
 								return( -std::sin(x*pi2)*pi2*0.1 ); 
 							else
 								return( -std::sin(x*pi2)*pi2 );
@@ -3008,11 +3115,11 @@ TEUCHOS_UNIT_TEST( Convergence, GradOp ) {
 				p->initFromFunction(
 						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(y*pi2) ); } );
 				sol->getFieldPtr(Pimpact::V)->initFromFunction(
-						[&pi2]( ST x, ST y, ST z ) ->ST {
-							if( std::abs( x ) < Teuchos::ScalarTraits<ST>::eps() ||
-									std::abs( x-lx )<Teuchos::ScalarTraits<ST>::eps()||
-							    std::abs( z ) < Teuchos::ScalarTraits<ST>::eps() ||
-									std::abs( z-lz )<Teuchos::ScalarTraits<ST>::eps()  )
+						[&pi2,&space]( ST x, ST y, ST z ) ->ST {
+							if( (std::abs( x )   <Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0 ) ||
+									(std::abs( x-lx )<Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0 ) ||
+							    (std::abs( z )   <Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0 ) ||
+									(std::abs( z-lz )<Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0 )  )
 								return( -std::sin(y*pi2)*pi2*0.1 ); 
 							else
 								return( -std::sin(y*pi2)*pi2 );
@@ -3022,11 +3129,11 @@ TEUCHOS_UNIT_TEST( Convergence, GradOp ) {
 				p->initFromFunction(
 						[&pi2]( ST x, ST y, ST z ) ->ST {  return(  std::cos(z*pi2) ); } );
 				sol->getFieldPtr(Pimpact::W)->initFromFunction(
-						[&pi2]( ST x, ST y, ST z ) ->ST { 
-							if( std::abs( x ) < Teuchos::ScalarTraits<ST>::eps() ||
-									std::abs( x-lx )<Teuchos::ScalarTraits<ST>::eps()||
-							    std::abs( y ) < Teuchos::ScalarTraits<ST>::eps() ||
-									std::abs( y-ly )<Teuchos::ScalarTraits<ST>::eps()  )
+						[&pi2,&space]( ST x, ST y, ST z ) ->ST { 
+							if( (std::abs( x )   <Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0 ) ||
+									(std::abs( x-lx )<Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0 ) ||
+							    (std::abs( y )   <Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0 ) ||
+									(std::abs( y-ly )<Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0 )  )
 								return( -std::sin(z*pi2)*pi2*0.1 ); 
 							else
 								return( -std::sin(z*pi2)*pi2 );
@@ -3068,10 +3175,8 @@ TEUCHOS_UNIT_TEST( Convergence, GradOp ) {
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, DivGradOp, OperatorT ) { 
 
-	OT ns = 8;
 	ST pi2 = std::atan(1)*8;
 	std::string label;
-	//OT ns = 1;
 
   pl->set( "domain", domain );
   pl->set( "dim", dim );
@@ -3225,11 +3330,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, DivGradOp, OperatorT ) {
 				p->initFromFunction(
 						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(x*pi2) ); } );
 				sol->initFromFunction(
-						[&pi2]( ST x, ST y, ST z ) ->ST {  
-							if( std::abs( y ) < Teuchos::ScalarTraits<ST>::eps() ||
-									std::abs( y-ly )<Teuchos::ScalarTraits<ST>::eps()||
-							    std::abs( z ) < Teuchos::ScalarTraits<ST>::eps() ||
-									std::abs( z-lz )<Teuchos::ScalarTraits<ST>::eps()  )
+						[&pi2,&space]( ST x, ST y, ST z ) ->ST {  
+							if( (std::abs( y )   < Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0 ) ||
+									(std::abs( y-ly )<Teuchos::ScalarTraits<ST>::eps()  && space->bcu(1)>0 ) ||
+							    (std::abs( z )   < Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0 ) ||
+									(std::abs( z-lz )< Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0 )  )
 								return( - pi2*pi2*0.1*std::cos(x*pi2) );
 							else
 								return( - pi2*pi2*std::cos(x*pi2) );
@@ -3240,11 +3345,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, DivGradOp, OperatorT ) {
 				p->initFromFunction(
 						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(y*pi2) ); } );
 				sol->initFromFunction(
-						[&pi2]( ST x, ST y, ST z ) ->ST {
-							if( std::abs( x ) < Teuchos::ScalarTraits<ST>::eps() ||
-									std::abs( x-lx )<Teuchos::ScalarTraits<ST>::eps()||
-							    std::abs( z ) < Teuchos::ScalarTraits<ST>::eps() ||
-									std::abs( z-lz )<Teuchos::ScalarTraits<ST>::eps()  )
+						[&pi2,&space]( ST x, ST y, ST z ) ->ST {
+							if( (std::abs( x )   < Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0 ) ||
+									(std::abs( x-lx )< Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0 ) ||
+							    (std::abs( z )   < Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0 ) ||
+									(std::abs( z-lz )< Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0 )  )
 								return( - pi2*pi2*0.1*std::cos(y*pi2) );
 							else
 								return( - pi2*pi2*std::cos(y*pi2) );
@@ -3255,11 +3360,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, DivGradOp, OperatorT ) {
 				p->initFromFunction(
 						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(z*pi2) ); } );
 				sol->initFromFunction(
-						[&pi2]( ST x, ST y, ST z ) ->ST {  
-							if( std::abs( x ) < Teuchos::ScalarTraits<ST>::eps() ||
-									std::abs( x-lx )<Teuchos::ScalarTraits<ST>::eps()||
-							    std::abs( y ) < Teuchos::ScalarTraits<ST>::eps() ||
-									std::abs( y-ly )<Teuchos::ScalarTraits<ST>::eps()  )
+						[&pi2,&space]( ST x, ST y, ST z ) ->ST {  
+							if( (std::abs( x )   < Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0 ) ||
+									(std::abs( x-lx )< Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0 ) ||
+							    (std::abs( y )   < Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0 ) ||
+									(std::abs( y-ly )< Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0 )  )
 								return( - pi2*pi2*0.1*std::cos(z*pi2) );
 							else
 								return( - pi2*pi2*std::cos(z*pi2) );
@@ -3286,7 +3391,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, DivGradOp, OperatorT ) {
 				std::cout                                  << std::pow(10.,error2Ref[n]) << "\t" << std::pow(10.,errorInfRef[n]) << "\n";
 			//y->write(0);
 			//sol->write(1);
-			//e->write(2);
+			e->write(2);
 			//eRef->write(3);
 			//yRef->write(4);
 		}
@@ -3343,8 +3448,6 @@ TEUCHOS_UNIT_TEST( Convergence, HelmholtzOp ) {
 			pl->set<OT>( "ny", 9 );
 			pl->set<OT>( "nz", 9 );
 			pl->set<OT>( "nf", 1 );
-
-			OT ns = 8;
 
 			std::vector<ST> error2( ns );
 			std::vector<ST> errorInf( ns );

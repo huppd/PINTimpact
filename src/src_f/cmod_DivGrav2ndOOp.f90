@@ -76,8 +76,9 @@ contains
     if( BCL > 0 ) then
       cGp(:,0) = 0.
       cDu(:,1) = 0.
-      !cDu(0,1) =  1./(xu(1) - xu (0))
       cDu(0,1) = 1./( yu(1) - yu(0) ) ! TEST!!! Der Schoenheit halber, s.u.
+      !cDu(0,1) =  1./(xu(1) - xu (0))
+      !cDu(0,1) =  0.5/( xu(1) - xp(1) )
     else
       cGp(0,0) = -1./( xp(1) - xp(0) )
       cGp(1,0) =  1./( xp(1) - xp(0) )
@@ -86,8 +87,11 @@ contains
     if( BCU > 0 ) then
       cGp(:,N) =  0.
       cDu(:,N) =  0.
-      !cDu(-1,N) = -1./( xu(N) - xu(N-1) ) ! TEST!!! Das geht in die Hose ...
       cDu(-1,N) = -1./( yu(M) - yu(M-1) )
+      !cDu(-1,N) = -1./( yu(M+1) - yu(M) )
+      !cDu(-1,N) = -1./( xu(N) - xu(N-1) ) ! TEST!!! Das geht in die Hose ...
+      !cDu(-1,N) = -0.5/( xu(N) - xp(N) ) ! TEST!!! Das geht in die Hose ...
+      ! Aber Warum?
     else
       cGp( 0,N) = -1./( xp(N+1) - xp(N) )
       cGp( 1,N) =  1./( xp(N+1) - xp(N) )
@@ -101,20 +105,18 @@ contains
 
     ! Faktor 2 kommt von der Approximation DH-¹D ~= DI-¹G, wobei I hier das
     ! Interpolationspolynom am Rand darstellt
-    if( BCL > 0 ) cDG( :,1) = 2.*cDG(:,1) 
-    if( BCU > 0 ) cDG( :,N) = 2.*cDG(:,N)
-    !!! Neumann
-    !if( BCL > 0 ) then
-      !cDG(-1,1) =  0. 
-      !cDG( 0,1) =  1./( xp(2) - xp(1) )
-      !cDG(+1,1) = -1./( xp(2) - xp(1) )
-    !end if
-    !if( BCU > 0 ) then
-      !cDG(-1,N) = -1./( xp(N) - xp(N-1) ) 
-      !cDG( 0,N) =  1./( xp(N) - xp(N-1) )
-      !cDG(+1,N) =  0.
-    !end if
-    !!!
+    if( BCL > 0 ) then
+      cDG( :,1) = 2.*cDG(:,1) 
+      !cDG(-1,1) = 0. 
+      !cDG( 0,1) =  cDG(0,2) 
+      !cDG( 1,1) = -cDG(0,2) 
+    end if
+    if( BCU > 0 ) then 
+      cDG( :,N) = 2.*cDG(:,N)
+      !cDG(-1,N) =  cDG(0,N-1) 
+      !cDG( 0,N) = -cDG(0,N-1) 
+      !cDG( 1,N) = 0. 
+    end if
 
     if( BCL == -2) then
       cDG( 1,1) = cDG( 1, 1 ) + cDG( -1, 1 )
