@@ -49,7 +49,7 @@ TEUCHOS_STATIC_SETUP() {
 			"Slack off of machine epsilon used to check test results" );
 
 	pl->set( "dim", 3 );
-	pl->set( "domain", 0 );
+	Pimpact::setBoundaryConditions( pl, 0 );
 
 	pl->set( "nx", 25 );
 	pl->set( "ny", 17 );

@@ -98,7 +98,7 @@ TEUCHOS_UNIT_TEST( StencilWidths, print ) {
 
 TEUCHOS_UNIT_TEST( IndexSpace, localConsistency ) {
 
-  pl->set( "domain", domain );
+	Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -150,8 +150,7 @@ TEUCHOS_UNIT_TEST( IndexSpace, localConsistency ) {
   auto stencilWidths = Pimpact::createStencilWidths<d,dNC>( false );
 
   auto boundaryConditionsGlobal =
-		Pimpact::createBoudaryConditionsGlobal(
-				Pimpact::EDomainType( pl->get("domain",2) ) );
+		Pimpact::createBoudaryConditionsGlobal( Teuchos::rcpFromRef(pl->sublist("boundary conditions") ) );
 
  auto procGridSize =
 	 Teuchos::tuple(
@@ -199,7 +198,7 @@ TEUCHOS_UNIT_TEST( ProcGrid, test ) {
 
 	const int d = 4;
 
-  pl->set( "domain", domain );
+	Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -251,7 +250,7 @@ TEUCHOS_UNIT_TEST( ProcGrid, test ) {
 	auto stencilWidths = Pimpact::createStencilWidths<d,4>( true );
 
 	auto boundaryConditionsGlobal =
-		Pimpact::createBoudaryConditionsGlobal<d>( Pimpact::EDomainType( pl->get("domain",2) ) );
+		Pimpact::createBoudaryConditionsGlobal<d>( Teuchos::rcpFromRef( pl->sublist("boundary conditions") ) );
 
 	auto gridSizeGlobal =
 		Pimpact::createGridSizeGlobal<OT>(
@@ -308,7 +307,8 @@ TEUCHOS_UNIT_TEST( ProcGrid, test ) {
 
 TEUCHOS_UNIT_TEST( Space, CoordinatesGlobal ) {
 
-  pl->set( "domain", domain );
+	Pimpact::setBoundaryConditions( pl, domain );
+  //pl->set( "domain", domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -349,7 +349,7 @@ TEUCHOS_UNIT_TEST( Space, CoordinatesGlobal ) {
 	Teuchos::RCP< const Pimpact::Space<ST,OT,4,dNC> > space =
 		Pimpact::createSpace<ST,OT,4,dNC>( pl );
 
-	//space->print();
+	space->print();
 
 	auto coord = space->getCoordinatesGlobal();
 
@@ -378,7 +378,8 @@ TEUCHOS_UNIT_TEST( Space, CoordinatesGlobal ) {
 
 TEUCHOS_UNIT_TEST( Space, CoordinatesLocal ) {
 
-  pl->set( "domain", domain );
+	Pimpact::setBoundaryConditions( pl, domain );
+  //pl->set( "domain", domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );

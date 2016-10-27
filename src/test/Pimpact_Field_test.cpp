@@ -82,7 +82,7 @@ TEUCHOS_STATIC_SETUP() {
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, print, FType ) {
 
   pl->set( "dim", dim );
-  pl->set( "domain", domain );
+	Pimpact::setBoundaryConditions( pl, domain );
 
   pl->set("nx", nx );
   pl->set("ny", ny );
@@ -115,7 +115,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, print, CMF )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, InfNormAndInit, FType ) {
 
   pl->set( "dim", dim );
-  pl->set( "domain", domain );
+	Pimpact::setBoundaryConditions( pl, domain );
 
   pl->set("nx", nx );
   pl->set("ny", ny );
@@ -167,7 +167,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, InfNormAndInit, CMF )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, OneNormAndInit, FType ) {
 
   pl->set( "dim", dim );
-  pl->set( "domain", domain );
+	Pimpact::setBoundaryConditions( pl, domain );
 
   pl->set("nx", nx );
   pl->set("ny", ny );
@@ -202,7 +202,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, OneNormAndInit, CMF )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, TwoNormAndInit, FType ) {
 
   pl->set( "dim", dim );
-  pl->set( "domain", domain );
+	Pimpact::setBoundaryConditions( pl, domain );
 
   pl->set("nx", nx );
   pl->set("ny", ny );
@@ -235,7 +235,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, TwoNormAndInit, CMF )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, dot, FType ) {
 
   pl->set( "dim", dim );
-  pl->set( "domain", domain );
+	Pimpact::setBoundaryConditions( pl, domain );
 
   pl->set("nx", nx );
   pl->set("ny", ny );
@@ -291,7 +291,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, dot, CMF )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, scale, FType ) {
 
   pl->set( "dim", dim );
-  pl->set( "domain", domain );
+	Pimpact::setBoundaryConditions( pl, domain );
 
   pl->set("nx", nx );
   pl->set("ny", ny );
@@ -327,7 +327,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, scale, CMF )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, random, FType ) {
 
   pl->set( "dim", dim );
-  pl->set( "domain", domain );
+	Pimpact::setBoundaryConditions( pl, domain );
 
   pl->set("nx", nx );
   pl->set("ny", ny );
@@ -363,7 +363,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, random, CMF )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TemplateField, add, FType ) {
 
   pl->set( "dim", dim );
-  pl->set( "domain", domain );
+	Pimpact::setBoundaryConditions( pl, domain );
 
   pl->set("nx", nx );
   pl->set("ny", ny );
@@ -424,7 +424,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TemplateField, add, CMF )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, write, FType ) {
 
   pl->set( "dim", dim );
-  pl->set( "domain", domain );
+	Pimpact::setBoundaryConditions( pl, domain );
 
   pl->set("nx", nx );
   pl->set("ny", ny );
@@ -460,7 +460,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, write, CMF )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, writeRestart, FType ) {
 
   pl->set( "dim", dim );
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
 
   pl->set("nx", nx );
   pl->set("ny", ny );
@@ -490,7 +490,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, writeRestart, VF )
 TEUCHOS_UNIT_TEST( ScalarField, initField ) {
 
   pl->set( "dim", dim );
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
 
   pl->set("nx", nx );
   pl->set("ny", ny );
@@ -516,7 +516,7 @@ TEUCHOS_UNIT_TEST( ScalarField, initField ) {
 TEUCHOS_UNIT_TEST( ScalarField, level ) {
 
   pl->set( "dim", dim );
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
 	// check: 0, 2, 4, 5
 	// error: 1, 3
 

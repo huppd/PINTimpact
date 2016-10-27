@@ -65,7 +65,7 @@ TEUCHOS_STATIC_SETUP() {
 // test shows that nLoc is not consistent with start and end indexes
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, constructor, FType ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
   // processor grid size
@@ -94,7 +94,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, constructor, MVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, TwoNorm, FType ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
   // processor grid size
@@ -131,7 +131,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, TwoNorm, MVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, clone, FType ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
   // processor grid size
@@ -164,7 +164,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, clone, MVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneCopy, FType ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
   // processor grid size
@@ -205,7 +205,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, CloneCopy, MVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneCopy2, FType ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
   // processor grid size
@@ -254,7 +254,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, CloneCopy2, MVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneCopy3, FType ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
   // processor grid size
@@ -299,7 +299,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, CloneCopy3, MVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneViewNonConst1, FType ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
   // processor grid size
@@ -350,7 +350,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, CloneViewNonConst1, MVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneViewNonConst2, FType ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
   // processor grid size
@@ -398,7 +398,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, CloneViewNonConst2, MVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneView1, FType ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
   // processor grid size
@@ -450,7 +450,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, CloneView1, MVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneView2, FType ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
   // processor grid size
@@ -499,7 +499,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, CloneView2, MVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, TimesMatAdd, FType ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
   // processor grid size
@@ -585,7 +585,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, TimesMatAdd, MVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, add, FType ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
   // processor grid size
@@ -658,7 +658,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, add, MVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, dot, FType ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
   // processor grid size
@@ -721,7 +721,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, dot, MVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, Trans, FType ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
   // processor grid size

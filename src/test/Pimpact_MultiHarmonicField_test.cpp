@@ -93,7 +93,7 @@ TEUCHOS_STATIC_SETUP() {
 // test shows that nLoc is not consistent with start and end indexes
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, constructor, FType ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	//  grid size
@@ -127,7 +127,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicField, constructor, VF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, clone, FType ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	//  grid size
@@ -163,7 +163,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicField, clone, VF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, InfNorm, FType ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	//  grid size
@@ -213,7 +213,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicField, InfNorm, VF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, InitTwoNorm, FType  ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	//  grid size
@@ -248,7 +248,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicField, InitTwoNorm, VF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, dot, FType  ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	//  grid size
@@ -304,7 +304,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicField, dot, VF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, scale, FType ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	//  grid size
@@ -340,7 +340,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicField, scale, VF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, random, FType ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	//  grid size
@@ -376,7 +376,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicField, random, VF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, add, FType ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	//  grid size
@@ -436,7 +436,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicField, add, VF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonic, exchange, FType ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	//  grid size
@@ -480,7 +480,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonic, exchange, VF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, write, FType ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	//  grid size

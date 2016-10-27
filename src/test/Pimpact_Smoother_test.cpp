@@ -86,7 +86,7 @@ TEUCHOS_STATIC_SETUP() {
 
 	pl->set( "Re", 1. );
 	pl->set( "alpha2", 1. );
-	pl->set( "domain", domain );
+	Pimpact::setBoundaryConditions( pl, domain );
 
 	pl->set( "lx", 2. );
 	pl->set( "ly", 2. );

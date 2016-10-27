@@ -102,6 +102,71 @@ Pimpact::createOstream( const std::string& fname, int rank ) {
 
 }
 
+void Pimpact::setBoundaryConditions( const
+		Teuchos::RCP<Teuchos::ParameterList>& pl , int dtype ) {
+
+	switch( static_cast<Pimpact::EDomainType>(dtype) ) {
+		case Pimpact::AllDirichlet:
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "lower X", Pimpact::DirichletBC );
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "upper X", Pimpact::DirichletBC );
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "lower Y", Pimpact::DirichletBC );
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "upper Y", Pimpact::DirichletBC );
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "lower Z", Pimpact::DirichletBC );
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "upper Z", Pimpact::DirichletBC );
+			break;
+		case Pimpact::AllPeriodic:
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "lower X", Pimpact::PeriodicBC );
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "upper X", Pimpact::PeriodicBC );
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "lower Y", Pimpact::PeriodicBC );
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "upper Y", Pimpact::PeriodicBC );
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "lower Z", Pimpact::PeriodicBC );
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "upper Z", Pimpact::PeriodicBC );
+			break;
+		case Pimpact::AllNeumann:
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "lower X", Pimpact::NeumannBC );
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "upper X", Pimpact::NeumannBC );
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "lower Y", Pimpact::NeumannBC );
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "upper Y", Pimpact::NeumannBC );
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "lower Z", Pimpact::NeumannBC );
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "upper Z", Pimpact::NeumannBC );
+			break;
+		case Pimpact::AllSymmetric:
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "lower X", Pimpact::SymmetryBC );
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "upper X", Pimpact::SymmetryBC );
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "lower Y", Pimpact::SymmetryBC );
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "upper Y", Pimpact::SymmetryBC );
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "lower Z", Pimpact::SymmetryBC );
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "upper Z", Pimpact::SymmetryBC );
+			break;
+		case Pimpact::Dirichelt2DChannel:
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "lower X", Pimpact::DirichletBC );
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "upper X", Pimpact::DirichletBC );
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "lower Y", Pimpact::DirichletBC );
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "upper Y", Pimpact::DirichletBC );
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "lower Z", Pimpact::PeriodicBC );
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "upper Z", Pimpact::PeriodicBC );
+			break;
+		case Pimpact::Periodic2DChannel:
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "lower X", Pimpact::PeriodicBC );
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "upper X", Pimpact::PeriodicBC );
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "lower Y", Pimpact::DirichletBC );
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "upper Y", Pimpact::DirichletBC );
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "lower Z", Pimpact::PeriodicBC );
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "upper Z", Pimpact::PeriodicBC );
+			break;
+		case Pimpact::Open2DChannel:
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "lower X", Pimpact::DirichletBC );
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "upper X", Pimpact::NeumannBC   );
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "lower Y", Pimpact::DirichletBC );
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "upper Y", Pimpact::DirichletBC );
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "lower Z", Pimpact::PeriodicBC  );
+			pl->sublist("boundary conditions").set<Pimpact::EBCType>( "upper Z", Pimpact::PeriodicBC  );
+			break;
+		default:
+			std::cout << "!!!Warning: unkown EDomainType:\t" <<dtype<<"\t!!!\n";
+	}
+}
+
 #ifdef COMPILE_ETI
 template class Pimpact::Space<double,int,3,2>;
 template class Pimpact::Space<double,int,3,4>;

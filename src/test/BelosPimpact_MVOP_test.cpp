@@ -60,7 +60,7 @@ TEUCHOS_STATIC_SETUP() {
       "domain", &domain,
       "domain" );
 
-  pl->set( "domain", domain );
+	Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", 3 );
   pl->set( "nx", 33 );
   pl->set( "ny", 17 );

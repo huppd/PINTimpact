@@ -110,45 +110,24 @@ TEUCHOS_STATIC_SETUP() {
 	clp.setOption(
 	    "fe", &fe,
 	    "Slack off of machine epsilon used to check test results" );
-	clp.setOption(
-	    "npx", &npx,
-	    "" );
-	clp.setOption(
-	    "npy", &npy,
-	    "" );
-	clp.setOption(
-	    "npz", &npz,
-	    "" );
-	clp.setOption(
-	    "npf", &npf,
-	    "" );
-	clp.setOption(
-	    "nx", &nx,
-	    "" );
-	clp.setOption(
-	    "ny", &ny,
-	    "" );
-	clp.setOption(
-	    "nz", &nz,
-	    "" );
-	clp.setOption(
-	    "nf", &nf,
-	    "" );
-	clp.setOption(
-	    "rank", &rankbla,
-	    "" );
-	clp.setOption(
-	    "maxGrids", &maxGrids,
-	    "" );
+	clp.setOption( "npx", &npx, "" );
+	clp.setOption( "npy", &npy, "" );
+	clp.setOption( "npz", &npz, "" );
+	clp.setOption( "npf", &npf, "" );
+	clp.setOption( "nx", &nx, "" );
+	clp.setOption( "ny", &ny, "" );
+	clp.setOption( "nz", &nz, "" );
+	clp.setOption( "nf", &nf, "" );
+	clp.setOption( "rank", &rankbla, "" );
+	clp.setOption( "maxGrids", &maxGrids, "" );
 	clp.setOption(
       	"output", "noutput", &output,
       	"Test MPI (if available) or force test of serial.  In a serial build,"
       	" this option is ignored and a serial comm is always used." );
 
 
-
   pl->set( "dim", 3 );
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
 
   pl->set( "lx", 2. );
   pl->set( "ly", 2. );

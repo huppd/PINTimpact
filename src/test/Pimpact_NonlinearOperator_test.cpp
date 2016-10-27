@@ -234,7 +234,7 @@ template<class T> using ConvOpT = Pimpact::NonlinearOp<Pimpact::ConvectionSOp<T>
 TEUCHOS_UNIT_TEST( BasicOperator, NonlinearOp ) {
 
 	pl->set( "dim", dim );
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
 
   auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
@@ -369,7 +369,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, NonlinearOp ) {
 TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionOp  ) {
 
 	pl->set( "dim", dim );
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
 
   auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
@@ -504,7 +504,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionOp  ) {
 TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionSORSmoother ) {
 
 	pl->set( "dim", dim );
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
 
   pl->set<ST>("Re",1000);
 
@@ -649,7 +649,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionSORSmoother ) {
 TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
 
 	pl->set( "dim", dim );
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
 
   pl->set<ST>("Re",100);
   auto space = Pimpact::createSpace<ST,OT,d,2>( pl );

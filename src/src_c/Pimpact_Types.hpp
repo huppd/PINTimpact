@@ -3,6 +3,8 @@
 #define PIMPACT_TYPES_HPP
 
 
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_ParameterList.hpp"
 #include "BelosTypes.hpp"
 
 
@@ -34,12 +36,12 @@ std::string toString( EField type );
 /// \relates BoundaryConditionsGlobal
 /// \relates BoundaryConditionsLocal
 enum EBCType {
-  SymmetryBC = -2, ///< -2
-  PeriodicBC = -1, ///< -1
-  NeighborBC = 0,  ///<  0 
-  DirichletBC = 1, ///<  1 
-  NeumannBC = 2,   ///<  2 
-  RobinBC = 3      ///<  3 
+  SymmetryBC  = -2, ///< -2
+  PeriodicBC  = -1, ///< -1
+  NeighborBC  =  0, ///<  0 
+  DirichletBC =  1, ///<  1 
+  NeumannBC   =  2, ///<  2 
+  RobinBC     =  3  ///<  3 
 };
 
 
@@ -48,12 +50,13 @@ enum EBCType {
 /// 
 /// \relates BoundaryConditionsGlobal
 enum EDomainType {
-  AllDirichlet = 0,
-  Dirichelt2DChannel = 1,
-  Periodic2DChannel = 2,
-  AllNeumann2D = 3,
-  AllPeriodic = 4,
-  Neumann1Periodic2 = 5
+  AllDirichlet       = 0,
+  AllPeriodic        = 1,
+  AllNeumann         = 2,
+  AllSymmetric       = 3,
+  Dirichelt2DChannel = 4,
+  Periodic2DChannel  = 5,
+  Open2DChannel      = 6
 };
 
 
@@ -111,7 +114,13 @@ enum EForceType {
 /// \return  pointer to a std::ofstream
 Teuchos::RCP<std::ostream> createOstream( const std::string& fname, int rank=0 );
 
+
+void setBoundaryConditions( const Teuchos::RCP<Teuchos::ParameterList>& pl ,
+		int dtype );
+
 }
+
+
 
 
 #endif // PIMPACT_TYPES_HPP

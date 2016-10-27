@@ -33,6 +33,11 @@ public:
 	template<int d>
   friend Teuchos::RCP<const BoundaryConditionsGlobal<d> > createBoudaryConditionsGlobal( EDomainType dtype );
 
+template<int d>
+friend Teuchos::RCP<const BoundaryConditionsGlobal<d> >
+createBoudaryConditionsGlobal( const Teuchos::RCP<Teuchos::ParameterList>& pl );
+
+
 protected:
 
   Ti3 BCL_int_;
@@ -111,85 +116,20 @@ public:
 
 
 
-/// \brief creates global boundary conditions accordint to domaint Tyep
-///
-/// \tparam dim computational dimension
-/// \param dtype domain type
-///
-/// \deprecated
-/// \return 
-/// \relates BoundaryConditionsGlobal
 template<int dim=3>
 Teuchos::RCP<const BoundaryConditionsGlobal<dim> >
-createBoudaryConditionsGlobal(
-    EDomainType dtype ) {
+createBoudaryConditionsGlobal( const Teuchos::RCP<Teuchos::ParameterList>& pl ) {
 
-  switch( dtype ) {
-  case AllDirichlet:
-    return(
-        Teuchos::rcp(
-            new BoundaryConditionsGlobal<dim>() ) );
-    break;
-  case Dirichelt2DChannel:
-    return(
-        Teuchos::rcp(
-            new BoundaryConditionsGlobal<dim>(
-                DirichletBC,
-                DirichletBC,
-                DirichletBC,
-                DirichletBC,
-                PeriodicBC,
-                PeriodicBC ) ) );
-    break;
-  case Periodic2DChannel:
-    return(
-        Teuchos::rcp(
-            new BoundaryConditionsGlobal<dim>(
-                PeriodicBC,
-                PeriodicBC,
-                DirichletBC,
-                DirichletBC,
-                PeriodicBC,
-                PeriodicBC ) ) );
-    break;
-  case AllNeumann2D:
-    return(
-        Teuchos::rcp(
-            new BoundaryConditionsGlobal<dim>(
-                NeumannBC,
-                NeumannBC,
-                NeumannBC,
-                NeumannBC,
-                PeriodicBC,
-                PeriodicBC ) ) );
-    break;
-  case AllPeriodic:
-    return(
-        Teuchos::rcp(
-            new BoundaryConditionsGlobal<dim>(
-                PeriodicBC,
-                PeriodicBC,
-                PeriodicBC,
-                PeriodicBC,
-                PeriodicBC,
-                PeriodicBC ) ) );
-    break;
-  case Neumann1Periodic2:
-    return(
-        Teuchos::rcp(
-            new BoundaryConditionsGlobal<dim>(
-                NeumannBC,
-                NeumannBC,
-                PeriodicBC,
-                PeriodicBC,
-                PeriodicBC,
-                PeriodicBC ) ) );
-    break;
-  default:
-    std::cout << "!!!Warning: unkown EDomainType:\t" <<dtype<<"\t!!!\n";
-    return( Teuchos::null );
-  }
+	return( Teuchos::rcp( new BoundaryConditionsGlobal<dim>(
+					pl->get<EBCType>( "lower X", DirichletBC ),
+					pl->get<EBCType>( "upper X", DirichletBC ),
+					pl->get<EBCType>( "lower Y", DirichletBC ),
+					pl->get<EBCType>( "upper Y", DirichletBC ),
+					pl->get<EBCType>( "lower Z", DirichletBC ),
+					pl->get<EBCType>( "upper Z", DirichletBC ) ) ) );
 }
+
+
 
 
 } // end of namespace Pimpact

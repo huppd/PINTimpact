@@ -206,7 +206,7 @@ TEUCHOS_STATIC_SETUP() {
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSpaces, constructor, CS ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -274,7 +274,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSpaces, constructor, CSG )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGFields, SFconstructor, CS ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -339,7 +339,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGFields, SFconstructor, CSG )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGFields, VFconstructor, CS ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -403,7 +403,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGFields, VFconstructor, CSG )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGOperators, SFconstructor, CS ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -465,7 +465,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGOperators, SFconstructor, CSG )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGOperators, VFconstructor, CS ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -523,7 +523,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGOperators, VFconstructor, CSG )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSmoothers, SFconstructor, CS ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -582,7 +582,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSmoothers, SFconstructor, CSG )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSmoothers, VFconstructor, CS ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -641,7 +641,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSmoothers, VFconstructor, CSG )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MGTransfers, Restrictor, CS, RestrictorType ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -966,7 +966,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, Interpolator, CSG )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -1189,7 +1189,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, MGTransfersSF, CSG )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersVF, CS ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -1468,7 +1468,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, MGTransfersVF, CSG )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, DivGradOp, CS, MGT ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -1888,7 +1888,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, ConvDiffSOR, CSG )
 //TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, ConvDiffJ, CS, SmootherT ) {
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffJ, CS ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );

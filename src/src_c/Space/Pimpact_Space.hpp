@@ -78,7 +78,6 @@ public:
 
 		pl->validateParametersAndSetDefaults( *getValidParameters(), 0 );
 
-		Teuchos::writeParameterListToXmlFile( *pl, "parameterSpace.xml" );
 
 		stencilWidths_ =
 			Pimpact::createStencilWidths<dimension,dimNC>(
@@ -99,12 +98,15 @@ public:
 				pl->get<ST>("origin z", 0.) );
 
 		// are all template paramter needed here?
-		int domain = pl->get<int>("domain");
-		domain = ( 2==pl->get<int>("dim") && 0==domain )?1:domain;
+		//int domain = pl->get<int>("domain");
+		//domain = ( 2==pl->get<int>("dim") && 0==domain )?1:domain;
 
+		//boundaryConditionsGlobal_ =
+			//Pimpact::createBoudaryConditionsGlobal<d>(
+					//Pimpact::EDomainType( domain ) );
 		boundaryConditionsGlobal_ =
 			Pimpact::createBoudaryConditionsGlobal<d>(
-					Pimpact::EDomainType( domain ) );
+						Teuchos::rcpFromRef( pl->sublist("boundary conditions") ) );
 
 		gridSizeGlobal_ =
 			Pimpact::createGridSizeGlobal<OT>(
@@ -173,6 +175,8 @@ public:
 					coordLocal_ );
 
 		openH5F();
+
+		Teuchos::writeParameterListToXmlFile( *pl, "parameterSpace.xml" );
 	}
 
 
@@ -399,8 +403,16 @@ public:
 			pl->set<ST>("alpha2", 1.,
 					"Womersley square alpha^2");
 			// domain type
-			pl->set<int>( "domain", 2,
-					"Domain type: 0:all dirichlet, 1:dirichlet 2d channel, 2: periodic 2d channel" );
+			pl->sublist("boundary conditions");
+			pl->sublist("boundary conditions").set<EBCType>( "lower X", DirichletBC );
+			pl->sublist("boundary conditions").set<EBCType>( "upper X", DirichletBC );
+			pl->sublist("boundary conditions").set<EBCType>( "lower Y", DirichletBC );
+			pl->sublist("boundary conditions").set<EBCType>( "upper Y", DirichletBC );
+			pl->sublist("boundary conditions").set<EBCType>( "lower Z", DirichletBC );
+			pl->sublist("boundary conditions").set<EBCType>( "upper Z", DirichletBC );
+
+			//pl->set<int>( "domain", 2,
+					//"Domain type: 0:all dirichlet, 1:dirichlet 2d channel, 2: periodic 2d channel" );
 
 			// domain size
 			pl->set<int>("dim", 3, "dimension of problem" );
@@ -843,6 +855,7 @@ static Teuchos::RCP< const SpaceT > createSpace(
 					boundaryConditionsLocal,
 					interV2S ) ) );
 }
+
 
 
 

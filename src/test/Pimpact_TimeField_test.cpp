@@ -91,28 +91,16 @@ TEUCHOS_STATIC_SETUP() {
       " this option is ignored and a serial comm is always used." );
 	clp.setOption( "error-tol-slack", &eps,
       "Slack off of machine epsilon used to check test results" );
-  clp.setOption(
-      "domain", &domain,
-      "domain" );
-  clp.setOption(
-      "dim", &dim,
-      "dim" );
-	clp.setOption(
-	    "npx", &npx,
-	    "" );
-	clp.setOption(
-	    "npy", &npy,
-	    "" );
-	clp.setOption(
-	    "npz", &npz,
-	    "" );
-	clp.setOption(
-	    "npf", &npf,
-	    "" );
+	clp.setOption( "domain", &domain, "domain" );
+	clp.setOption( "dim", &dim, "dim" );
+	clp.setOption( "npx", &npx, "" );
+	clp.setOption( "npy", &npy, "" );
+	clp.setOption( "npz", &npz, "" );
+	clp.setOption( "npf", &npf, "" );
 
   pl->set( "Re", 10. );
   pl->set( "alpha2", 24. );
-  pl->set( "domain", domain );
+	Pimpact::setBoundaryConditions( pl, domain );
 
   pl->set( "lx", 1. );
   pl->set( "ly", 1. );
@@ -720,7 +708,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, DtTimeOp ) {
 TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOp ) {
 
   pl->set( "alpha2", 24. );
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
 
   pl->set( "lx", 1. );
   pl->set( "ly", 1. );

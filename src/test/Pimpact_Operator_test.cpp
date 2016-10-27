@@ -152,7 +152,7 @@ TEUCHOS_STATIC_SETUP() {
 
 TEUCHOS_UNIT_TEST( BasicOperator, DivOp ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -284,7 +284,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivOp ) {
 
 TEUCHOS_UNIT_TEST( BasicOperator, InterpolateV2SOp ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -366,7 +366,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateV2SOp ) {
 
 TEUCHOS_UNIT_TEST( BasicOperator, InterpolateS2VOp ) {
 
-	pl->set( "domain", domain );
+	Pimpact::setBoundaryConditions( pl, domain );
 	pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -453,7 +453,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateS2VOp ) {
 
 TEUCHOS_UNIT_TEST( BasicOperator, TransferOp ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -524,7 +524,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, TransferOp ) {
 
 TEUCHOS_UNIT_TEST( BasicOperator, VectorFieldOpWrap ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -596,7 +596,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, VectorFieldOpWrap ) {
 
 TEUCHOS_UNIT_TEST( BasicOperator, GradOp ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -693,7 +693,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, GradOp ) {
 
 TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -868,7 +868,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradOp2M ) {
 	//OT ny = 9;
 	//OT nz = 9;
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -1004,7 +1004,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
 
 	const int dNC = 2;
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -1157,7 +1157,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradTransposeOp ) {
 
 	//const int dNC = 2;
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -1260,7 +1260,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradTransposeOp ) {
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -1486,7 +1486,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( BasicOperator, DivGradO2Smoother, LT )
 
 TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Inv ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -1578,7 +1578,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Inv ) {
 
 TEUCHOS_UNIT_TEST( BasicOperator, ForcingOp ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -1637,97 +1637,9 @@ TEUCHOS_UNIT_TEST( BasicOperator, ForcingOp ) {
 
 
 
-template<class T> using MSFT = Pimpact::MultiField< Pimpact::ScalarField<T> >;
-template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
-
-TEUCHOS_UNIT_TEST( MultiOperator, InverseOp ) {
-
-  pl->set( "domain", domain );
-  pl->set( "dim", dim );
-
-	pl->set( "lx", lx );
-	pl->set( "ly", ly );
-	pl->set( "lz", lz );
-
-	//  grid size
-	pl->set("nx", nx );
-	pl->set("ny", ny );
-	pl->set("nz", nz );
-	pl->set("nf", nf );
-
-	// grid stretching
-	if( sx!=0 ) {
-		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
-		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
-	}
-	if( sy!=0 ) {
-		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
-		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
-	}
-	if( sz!=0 ) {
-		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
-		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
-	}
-
-  // processor grid size
-  pl->set( "npx", npx );
-  pl->set( "npy", npy );
-  pl->set( "npz", npz );
-  pl->set( "npf", npf );
-
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
-
-  auto x = Pimpact::create<Pimpact::ScalarField>( space );
-  auto b = Pimpact::create<Pimpact::ScalarField>( space );
-
-  auto op = Pimpact::create<Pimpact::DivGradO2Op>( space );
-
-  auto opinv = Pimpact::create<MOP>( op );
-
-  // Grad in x
-  x->initField( Pimpact::Grad2D_inX );
-
-  op->apply(*x,*b);
-
-  x->init();
-
-  opinv->apply( *b, *x );
-
-  b->initField( Pimpact::Grad2D_inX );
-  x->add( -1, *x, 1., *b );
-
-	ST error = x->norm( Belos::InfNorm )/b->norm( Belos::InfNorm );
-	//if( 0==rank )
-		//std::cout << "\nerror: " << error << "\n";
-	//TEST_EQUALITY( error<0.5, true );
-
-  // Grad in y
-  x->initField( Pimpact::Grad2D_inY );
-
-  op->apply(*x,*b);
-
-  x->init();
-
-  opinv->apply( *b, *x );
-
-  b->initField( Pimpact::Grad2D_inY );
-  x->add( -1, *x, 1., *b );
-
-	error = x->norm( Belos::InfNorm )/b->norm( Belos::InfNorm );
-	if( 0==rank )
-		std::cout << "error: " << error << "\n";
-	TEST_EQUALITY( error<0.5, true );
-
-}
-
-
-
 TEUCHOS_UNIT_TEST( MultiOperator, Add2Op ) {
 
-	pl->set( "domain", domain );
+	Pimpact::setBoundaryConditions( pl, domain );
 	pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -1796,7 +1708,7 @@ template<class T> using WUP = Pimpact::MultiOpUnWrap<Pimpact::MultiOpWrap<T> >;
 
 TEUCHOS_UNIT_TEST( MultiOperator, MulitOpUnWrap ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -1860,7 +1772,7 @@ TEUCHOS_UNIT_TEST( MultiOperator, MulitOpUnWrap ) {
 
 TEUCHOS_UNIT_TEST( MultiModeOperator, HelmholtzOp ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -1920,7 +1832,7 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, HelmholtzOp ) {
 
 TEUCHOS_UNIT_TEST( MultiModeOperator, DtModeOp ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -1994,7 +1906,7 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, DtModeOp ) {
 
 //TEUCHOS_UNIT_TEST( MultiModeOperator, DtLapOp ) {
 
-	//pl->set( "domain", domain );
+	//Pimpact::setBoundaryConditions( pl, domain );
 	//pl->set( "dim", dim );
 
 	//pl->set( "lx", lx );
@@ -2083,7 +1995,7 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, DtModeOp ) {
 
 //TEUCHOS_UNIT_TEST( MultiModeOperator, TripleCompostion ) {
 
-  //pl->set( "domain", domain );
+  //Pimpact::setBoundaryConditions( pl, domain );
   //pl->set( "dim", dim );
 
 	//pl->set( "lx", lx );
@@ -2165,7 +2077,7 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, DtModeOp ) {
 
 //TEUCHOS_UNIT_TEST( MultiModeOperator, InverseOperator ) {
 
-	//pl->set( "domain", domain );
+	//Pimpact::setBoundaryConditions( pl, domain );
 	//pl->set( "dim", dim );
 
 	//pl->set( "lx", lx );
@@ -2243,7 +2155,7 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, DtModeOp ) {
 
 //TEUCHOS_UNIT_TEST( MultiModeOperator, EddyPrec ) {
 
-	//pl->set( "domain", domain );
+	//Pimpact::setBoundaryConditions( pl, domain );
 	//pl->set( "dim", dim );
 
 	//pl->set( "lx", lx );
@@ -2340,7 +2252,7 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, DtModeOp ) {
 
 //TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicConvectionOp ) {
 
-	//pl->set( "domain", domain );
+	//Pimpact::setBoundaryConditions( pl, domain );
 	//pl->set( "dim", dim );
 
 	//pl->set( "lx", lx );
@@ -2348,7 +2260,7 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, DtModeOp ) {
 	//pl->set( "lz", lz );
 
 	//pl->set<bool>( "spectral in time", true );
-  //pl->set( "domain", domain );
+  //Pimpact::setBoundaryConditions( pl, domain );
   //pl->set( "dim", dim );
 
 	////  grid size
@@ -2400,7 +2312,7 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicOpWrap ) {
 
 	using SpaceT = Pimpact::Space<ST,OT,4,dNC>;
 
-	pl->set( "domain", domain );
+	Pimpact::setBoundaryConditions( pl, domain );
 	pl->set( "dim", dim );
 
 	pl->set<bool>( "spectral in time", true );
@@ -2461,7 +2373,7 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicOpWrap ) {
 	//using VF = Pimpact::VectorField<SpaceT>;
 	//using SF = Pimpact::ScalarField<SpaceT>;
 
-	//pl->set( "domain", domain );
+	//Pimpact::setBoundaryConditions( pl, domain );
 	//pl->set( "dim", dim );
 
 	//pl->set( "lx", lx );
@@ -2566,7 +2478,7 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicOpWrap ) {
 
 TEUCHOS_UNIT_TEST( Convergence, DivOp ) {
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -2685,7 +2597,7 @@ TEUCHOS_UNIT_TEST( Convergence, DivOp ) {
 
 TEUCHOS_UNIT_TEST( Convergence, InterpolateV2SOp ) { 
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -2801,7 +2713,7 @@ TEUCHOS_UNIT_TEST( Convergence, InterpolateV2SOp ) {
 
 TEUCHOS_UNIT_TEST( Convergence, InterpolateS2VOp ) { 
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -2921,7 +2833,7 @@ TEUCHOS_UNIT_TEST( Convergence, InterpolateS2VOp ) {
 TEUCHOS_UNIT_TEST( Convergence, extrapolateBC ) { 
 
 	//const int dNC = 2;
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -3033,7 +2945,7 @@ TEUCHOS_UNIT_TEST( Convergence, extrapolateBC ) {
 TEUCHOS_UNIT_TEST( Convergence, GradOp ) { 
 
 	//const int dNC = 2;
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -3178,7 +3090,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, DivGradOp, OperatorT ) {
 	ST pi2 = std::atan(1)*8;
 	std::string label;
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -3427,7 +3339,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( Convergence, DivGradOp, DivGradO2OpT )
 
 TEUCHOS_UNIT_TEST( Convergence, HelmholtzOp ) { 
 
-  pl->set( "domain", domain );
+  Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );

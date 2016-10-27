@@ -39,15 +39,10 @@ TEUCHOS_STATIC_SETUP() {
 	clp.setOption(
 			"error-tol-slack", &eps,
 			"Slack off of machine epsilon used to check test results" );
-	clp.setOption(
-			"domain", &domain,
-			"domain" );
-	clp.setOption(
-			"dim", &dim,
-			"dim" );
+	clp.setOption( "domain", &domain, "domain" );
+	clp.setOption( "dim", &dim, "dim" );
 
 	pl->set( "dim", dim );
-	pl->set( "domain", domain );
 
 	pl->set( "lx", 20. );
 	pl->set( "ly", 20. );
@@ -74,7 +69,7 @@ TEUCHOS_STATIC_SETUP() {
 TEUCHOS_UNIT_TEST( VectorField, InfNorm_and_initvec2d ) {
 
 	pl->set( "dim", dim );
-	pl->set( "domain", domain );
+	Pimpact::setBoundaryConditions( pl, domain );
 
 	// processor grid size
 	pl->set("npx", (2==dim)?4:2 );
@@ -110,7 +105,7 @@ TEUCHOS_UNIT_TEST( VectorField, InfNorm_and_initvec2d ) {
 TEUCHOS_UNIT_TEST( VectorField, initField ) {
 
 	pl->set( "dim", dim );
-	pl->set( "domain", domain );
+	Pimpact::setBoundaryConditions( pl, domain );
 
 	pl->set<ST>( "Re", 400. );
 
@@ -165,19 +160,19 @@ TEUCHOS_UNIT_TEST( VectorField, initField ) {
 	auto divOp = Pimpact::create<Pimpact::DivOp>( space );
 
 	//for( int i=22; i<=23; ++i ) {
-		////if( 17==i )
-			////vel->initField( Pimpact::EVectorField(i), 1., 1., 0.25 );
-		////else
-			////vel->initField( Pimpact::EVectorField(i) );
-		//vel->write( i );
-		//divOp->apply( *vel, *divVec );
-		//auto bla = divVec->norm( Belos::InfNorm );
-		//if( 0==space->rankST() )
-			//std::cout << "EField: " << i << "\tmax div: " << bla << "\n";
-		//bla = divVec->norm( Belos::TwoNorm );
-		//if( 0==space->rankST() )
-			//std::cout << "EField: " << i << "\t||div||: " << bla << "\n";
-		//divVec->write( i*2 );
+	////if( 17==i )
+	////vel->initField( Pimpact::EVectorField(i), 1., 1., 0.25 );
+	////else
+	////vel->initField( Pimpact::EVectorField(i) );
+	//vel->write( i );
+	//divOp->apply( *vel, *divVec );
+	//auto bla = divVec->norm( Belos::InfNorm );
+	//if( 0==space->rankST() )
+	//std::cout << "EField: " << i << "\tmax div: " << bla << "\n";
+	//bla = divVec->norm( Belos::TwoNorm );
+	//if( 0==space->rankST() )
+	//std::cout << "EField: " << i << "\t||div||: " << bla << "\n";
+	//divVec->write( i*2 );
 	//}
 
 }

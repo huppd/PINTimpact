@@ -148,7 +148,7 @@ TEUCHOS_STATIC_SETUP() {
 
 TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
 
-  pl->set( "domain", domain );
+	Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -207,7 +207,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
 
 TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Inv ) {
 
-  pl->set( "domain", domain );
+	Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
