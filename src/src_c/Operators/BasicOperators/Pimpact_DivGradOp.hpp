@@ -223,6 +223,9 @@ public:
 		//return( div );
 	//}
 
+  Teuchos::RCP<const DivOp<SpaceT> > getDivOp() const { return( div_ ); }
+  Teuchos::RCP<const GradOp<SpaceT> > getGradOp() const { return( grad_ ); }
+
   void assignField( const DomainFieldT& mv ) {};
 
   bool hasApplyTranspose() const { return( true ); }

@@ -150,6 +150,13 @@ public:
 
   void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
+		applyG( x,y );
+		applyJ( y );
+  }
+
+
+  void applyG( const DomainFieldT& x, RangeFieldT& y ) const {
+
 		bool bcY_ = true;
 		//bool bcY_ = false;
 
@@ -173,6 +180,10 @@ public:
 					for( Ordinal i=space()->begin(W,X,bcY_); i<=space()->end(W,X,bcY_); ++i )
 						y.getField(W).at(i,j,k) = innerStencW( x, i, j, k );
 		}
+  }
+
+
+  void applyJ( RangeFieldT& y ) const {
 
 		// BC scaling 
 		const Scalar& eps = 0.1;

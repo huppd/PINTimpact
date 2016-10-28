@@ -31,11 +31,8 @@ public:
   friend Teuchos::RCP<const BoundaryConditionsGlobal<d> > createBoudaryConditionsGlobal();
 
 	template<int d>
-  friend Teuchos::RCP<const BoundaryConditionsGlobal<d> > createBoudaryConditionsGlobal( EDomainType dtype );
-
-template<int d>
-friend Teuchos::RCP<const BoundaryConditionsGlobal<d> >
-createBoudaryConditionsGlobal( const Teuchos::RCP<Teuchos::ParameterList>& pl );
+	friend Teuchos::RCP<const BoundaryConditionsGlobal<d> >
+	createBoudaryConditionsGlobal( const Teuchos::RCP<Teuchos::ParameterList>& pl );
 
 
 protected:
@@ -44,19 +41,16 @@ protected:
   Ti3 BCU_int_;
 
 	BoundaryConditionsGlobal(
-			EBCType BC1L=DirichletBC,
-			EBCType BC1U=DirichletBC,
-			EBCType BC2L=DirichletBC,
-			EBCType BC2U=DirichletBC,
-			EBCType BC3L=DirichletBC,
-			EBCType BC3U=DirichletBC ) {
+			int BC1L, int BC1U,
+			int BC2L, int BC2U,
+			int BC3L, int BC3U ) {
 
-		BCL_int_[0] = static_cast<int>( BC1L );
-		BCU_int_[0] = static_cast<int>( BC1U );
-		BCL_int_[1] = static_cast<int>( BC2L );
-		BCU_int_[1] = static_cast<int>( BC2U );
-		BCL_int_[2] = static_cast<int>( BC3L );
-		BCU_int_[2] = static_cast<int>( BC3U );
+		BCL_int_[0] = BC1L;
+		BCU_int_[0] = BC1U;
+		BCL_int_[1] = BC2L;
+		BCU_int_[1] = BC2U;
+		BCL_int_[2] = BC3L;
+		BCU_int_[2] = BC3U;
 
 		if( 4==dim ) {
 			BCL_int_[3] = static_cast<int>( PeriodicBC );
@@ -121,12 +115,12 @@ Teuchos::RCP<const BoundaryConditionsGlobal<dim> >
 createBoudaryConditionsGlobal( const Teuchos::RCP<Teuchos::ParameterList>& pl ) {
 
 	return( Teuchos::rcp( new BoundaryConditionsGlobal<dim>(
-					pl->get<EBCType>( "lower X", DirichletBC ),
-					pl->get<EBCType>( "upper X", DirichletBC ),
-					pl->get<EBCType>( "lower Y", DirichletBC ),
-					pl->get<EBCType>( "upper Y", DirichletBC ),
-					pl->get<EBCType>( "lower Z", DirichletBC ),
-					pl->get<EBCType>( "upper Z", DirichletBC ) ) ) );
+					pl->get<int>( "lower X", 1 ),
+					pl->get<int>( "upper X", 1 ),
+					pl->get<int>( "lower Y", 1 ),
+					pl->get<int>( "upper Y", 1 ),
+					pl->get<int>( "lower Z", 1 ),
+					pl->get<int>( "upper Z", 1 ) ) ) );
 }
 
 

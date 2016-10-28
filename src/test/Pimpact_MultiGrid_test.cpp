@@ -798,7 +798,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MGTransfers, Restrictor, CSG, ResVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator, CS ) {
 
-	pl->set( "domain", domain );
+	Pimpact::setBoundaryConditions( pl, domain );
 	pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
@@ -1734,7 +1734,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG, DGCMGT )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffSOR, CS ) {
 
-	pl->set( "domain", domain );
+	Pimpact::setBoundaryConditions( pl, domain );
 	pl->set( "dim", dim );
 
 	pl->set( "lx", lx );

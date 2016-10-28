@@ -477,7 +477,7 @@ initVectorTimeField(
 		typename SpaceT::Scalar amp=0.25 ) {
 
 	using S = typename SpaceT::Scalar;
-	using O = typename SpaceT::Ordinal;
+	//using O = typename SpaceT::Ordinal;
 
 	Teuchos::RCP<const SpaceT> space = field->space();
 

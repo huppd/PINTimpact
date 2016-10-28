@@ -327,16 +327,14 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateV2SOp ) {
   auto vel = Pimpact::create<Pimpact::VectorField>( space );
 
   auto op = Pimpact::createInterpolateV2S( space );
-  //  auto op = Pimpact::create<Pimpact::InterpolateV2S>( space );
 	
 	op->print();
-
 
 	if( 0==rank )
 		std::cout << "\n";
 	for( int i=0; i<space->dim(); ++i ) {
 
-		for( int bla=1; bla<=6; ++bla ) {
+		for( int bla=0; bla<=((domain!=1)?6:0); ++bla ) {
 
 			Pimpact::EScalarField type =	static_cast<Pimpact::EScalarField>(bla);
 
@@ -418,7 +416,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateS2VOp ) {
 
 		auto sol = solv->getFieldPtr( i );
 
-		for( int bla=1; bla<=6; ++bla ) {
+		for( int bla=0; bla<=(domain!=1?6:0); ++bla ) {
 
 			Pimpact::EScalarField type =	static_cast<Pimpact::EScalarField>(bla);
 
@@ -596,96 +594,98 @@ TEUCHOS_UNIT_TEST( BasicOperator, VectorFieldOpWrap ) {
 
 TEUCHOS_UNIT_TEST( BasicOperator, GradOp ) {
 
-  Pimpact::setBoundaryConditions( pl, domain );
-  pl->set( "dim", dim );
+	if( domain!=1 ) {
+		Pimpact::setBoundaryConditions( pl, domain );
+		pl->set( "dim", dim );
 
-	pl->set( "lx", lx );
-	pl->set( "ly", ly );
-	pl->set( "lz", lz );
+		pl->set( "lx", lx );
+		pl->set( "ly", ly );
+		pl->set( "lz", lz );
 
-	//  grid size
-	pl->set("nx", nx );
-	pl->set("ny", ny );
-	pl->set("nz", nz );
-	pl->set("nf", nf );
+		//  grid size
+		pl->set("nx", nx );
+		pl->set("ny", ny );
+		pl->set("nz", nz );
+		pl->set("nf", nf );
 
-	// grid stretching
-	if( sx!=0 ) {
-		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
-		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
+		// grid stretching
+		if( sx!=0 ) {
+			pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+			pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
+			pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
+		}
+		if( sy!=0 ) {
+			pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+			pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
+			pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
+		}
+		if( sz!=0 ) {
+			pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+			pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
+			pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
+		}
+
+		// processor grid size
+		pl->set( "npx", npx );
+		pl->set( "npy", npy );
+		pl->set( "npz", npz );
+		pl->set( "npf", npf );
+
+		auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+
+
+		auto p = Pimpact::create<Pimpact::ScalarField>( space );
+		auto v = Pimpact::create<Pimpact::VectorField>( space );
+		auto sol = v->clone();
+
+		auto op = Pimpact::create<Pimpact::GradOp>( space );
+		op->print();
+
+		// op in x test
+		p->initField( Pimpact::Grad2D_inX );
+		sol->initField();
+		sol->getFieldPtr( Pimpact::X )->initField( Pimpact::ConstField, 1. );
+		v->random();
+
+		op->apply(*p,*v);
+
+		sol->add( 1., *sol, -1., *v );
+
+		ST error = sol->norm( Belos::InfNorm );
+		if( 0==rank )
+			std::cout << "error: " << error << "\n";
+		TEST_EQUALITY( error<eps, true );
+
+		// op in y test
+		p->initField( Pimpact::Grad2D_inY );
+		sol->initField();
+		sol->getFieldPtr( Pimpact::V )->initField( Pimpact::ConstField, 1. );
+		v->random();
+
+		op->apply(*p,*v);
+
+		sol->add( 1., *sol, -1., *v );
+
+		error = sol->norm( Belos::InfNorm );
+		if( 0==rank )
+			std::cout << "error: " << error << "\n";
+		TEST_EQUALITY( error<eps, true );
+
+		// op in z test
+		p->initField( Pimpact::Grad2D_inZ );
+		sol->initField();
+		sol->getFieldPtr( Pimpact::W )->initField( Pimpact::ConstField, 1. );
+		v->random();
+
+		op->apply(*p,*v);
+
+		sol->add( 1., *sol, -1., *v );
+
+		error = sol->norm( Belos::InfNorm );
+		if( 0==rank )
+			std::cout << "error: " << error << "\n";
+		TEST_EQUALITY( error<eps, true );
 	}
-	if( sy!=0 ) {
-		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
-		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
-	}
-	if( sz!=0 ) {
-		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
-		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
-	}
-
-  // processor grid size
-  pl->set( "npx", npx );
-  pl->set( "npy", npy );
-  pl->set( "npz", npz );
-  pl->set( "npf", npf );
-
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
-
-
-  auto p = Pimpact::create<Pimpact::ScalarField>( space );
-  auto v = Pimpact::create<Pimpact::VectorField>( space );
-	auto sol = v->clone();
-
-  auto op = Pimpact::create<Pimpact::GradOp>( space );
-  op->print();
-
-  // op in x test
-  p->initField( Pimpact::Grad2D_inX );
-	sol->initField();
-	sol->getFieldPtr( Pimpact::X )->initField( Pimpact::ConstField, 1. );
-  v->random();
-
-  op->apply(*p,*v);
-
-	sol->add( 1., *sol, -1., *v );
-
-	ST error = sol->norm( Belos::InfNorm );
-	if( 0==rank )
-		std::cout << "error: " << error << "\n";
-  TEST_EQUALITY( error<eps, true );
-
-  // op in y test
-  p->initField( Pimpact::Grad2D_inY );
-	sol->initField();
-	sol->getFieldPtr( Pimpact::V )->initField( Pimpact::ConstField, 1. );
-  v->random();
-
-  op->apply(*p,*v);
-
-	sol->add( 1., *sol, -1., *v );
-
-	error = sol->norm( Belos::InfNorm );
-	if( 0==rank )
-		std::cout << "error: " << error << "\n";
-  TEST_EQUALITY( error<eps, true );
-
-  // op in z test
-  p->initField( Pimpact::Grad2D_inZ );
-	sol->initField();
-	sol->getFieldPtr( Pimpact::W )->initField( Pimpact::ConstField, 1. );
-  v->random();
-
-  op->apply(*p,*v);
-
-	sol->add( 1., *sol, -1., *v );
-
-	error = sol->norm( Belos::InfNorm );
-	if( 0==rank )
-		std::cout << "error: " << error << "\n";
-  TEST_EQUALITY( error<eps, true );
 
 }
 
@@ -693,8 +693,184 @@ TEUCHOS_UNIT_TEST( BasicOperator, GradOp ) {
 
 TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
 
-  Pimpact::setBoundaryConditions( pl, domain );
-  pl->set( "dim", dim );
+	if( domain!= 1 ) {
+		Pimpact::setBoundaryConditions( pl, domain );
+		pl->set( "dim", dim );
+
+		pl->set( "lx", lx );
+		pl->set( "ly", ly );
+		pl->set( "lz", lz );
+
+		//  grid size
+		pl->set("nx", nx );
+		pl->set("ny", ny );
+		pl->set("nz", nz );
+		pl->set("nf", nf );
+
+		// grid stretching
+		if( sx!=0 ) {
+			pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+			pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
+			pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
+		}
+		if( sy!=0 ) {
+			pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+			pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
+			pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
+		}
+		if( sz!=0 ) {
+			pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+			pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
+			pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
+		}
+
+		// processor grid size
+		pl->set( "npx", npx );
+		pl->set( "npy", npy );
+		pl->set( "npz", npz );
+		pl->set( "npf", npf );
+
+		ST mulI = 5.;
+		ST mulL = 3.;
+
+		pl->set<ST>( "alpha2", mulI );
+		pl->set<ST>( "Re", 1./mulL );
+
+		auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+
+		auto x = Pimpact::create<Pimpact::VectorField>(space);
+		auto bs= Pimpact::create<Pimpact::VectorField>(space);
+		auto b = Pimpact::create<Pimpact::VectorField>(space);
+
+		auto op= Pimpact::create<Pimpact::HelmholtzOp>( space );
+
+		op->print();
+
+		// test in x direction
+		x->initField();
+		x->getFieldPtr( Pimpact::U )->initField( Pimpact::Poiseuille2D_inX );
+		bs->init( Teuchos::tuple( 8./std::pow(space->getDomainSize()->getSize(Pimpact::Y),2), 0., 0. ) );
+		bs->add( mulI, *x, mulL, *bs );
+
+		auto para = Teuchos::parameterList();
+		para->set<ST>( "mulI", mulI );
+		op->setParameter( para );
+		op->apply( *x, *b );
+
+		bs->add( 1., *bs, -1, *b);
+
+		ST error = bs->norm( Belos::InfNorm );
+		if( 0==rank )
+			std::cout << "error(poiseuilleX): " << error << "\n";
+		TEST_EQUALITY( error<eps, true );
+		if( error>= eps ){
+			std::string r = std::to_string( static_cast<long long>( rank ) ); // long long needed on brutus(intel)
+			bs->print(
+					*Pimpact::createOstream( "error_helm_poiX_r"+r+".txt" ));
+		}
+
+		// test in y direction
+		x->initField();
+		x->getFieldPtr( Pimpact::V )->initField( Pimpact::Poiseuille2D_inY );
+		bs->init( Teuchos::tuple( 0., 8./std::pow(space->getDomainSize()->getSize(Pimpact::X),2), 0. ) );
+		bs->add( mulI, *x, mulL, *bs );
+
+		op->apply( *x, *b );
+
+		bs->add( 1., *bs, -1, *b );
+
+		error = bs->norm( Belos::InfNorm );
+		if( 0==rank )
+			std::cout << "error(poiseuilleY): " << error << "\n";
+		TEST_EQUALITY( error<eps, true );
+		if( error>= eps ){
+			std::string r = std::to_string( static_cast<long long>( rank ) ); // long long needed on brutus(intel)
+			bs->print(
+					*Pimpact::createOstream( "error_helm_poiY_r"+r+".txt" ));
+		}
+
+		// test in z direction
+		x->initField(  );
+		x->getFieldPtr( Pimpact::W )->initField( Pimpact::Poiseuille2D_inZ );
+		bs->init( Teuchos::tuple( 0., 0., 8./std::pow(space->getDomainSize()->getSize(Pimpact::X),2) ) );
+		bs->add( mulI, *x, mulL, *bs );
+
+		op->apply( *x, *b );
+
+		bs->add( 1., *bs, -1, *b);
+
+		error = bs->norm( Belos::InfNorm );
+		if( 0==rank )
+			std::cout << "error(poiseuilleZ): " << error << "\n";
+		TEST_EQUALITY( error<eps, true );
+		if( error>= eps ){
+			std::string r = std::to_string( static_cast<long long>( rank ) ); // long long needed on brutus(intel)
+			bs->print(
+					*Pimpact::createOstream( "error_helm_poiZ_r"+r+".txt" ));
+		}
+
+		// the circle XY test
+		x->initField();
+		x->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inY, -1. );
+		x->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inX,  1. );
+		bs->initField();
+		bs->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inY, -1. );
+		bs->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inX,  1. );
+		bs->scale( mulI );
+
+		op->apply( *x, *b );
+
+		bs->add( 1., *bs, -1, *b );
+
+		error = bs->norm( Belos::InfNorm );
+		if( 0==rank )
+			std::cout << "error(circleXY): " << error << "\n";
+		TEST_EQUALITY( error<eps, true );
+		if( error>= eps ){
+			std::string r = std::to_string( static_cast<long long>( rank ) ); // long long needed on brutus(intel)
+			bs->print(
+					*Pimpact::createOstream( "error_helm_circXY_r"+r+".txt" ));
+		}
+
+		// the circle XZ test
+		x->initField();
+		x->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inY, -1. );
+		x->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inX,  1. );
+		bs->initField();
+		bs->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inY, -1. );
+		bs->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inX,  1. );
+
+		bs->scale( mulI );
+
+		op->apply( *x, *b );
+
+		bs->add( 1., *bs, -1, *b );
+
+		error = bs->norm( Belos::InfNorm );
+		if( 0==rank )
+			std::cout << "error(circleXZ): " << error << "\n";
+		TEST_EQUALITY( error<eps, true );
+		if( error>= eps ){
+			std::string r = std::to_string( static_cast<long long>( rank ) ); // long long needed on brutus(intel)
+			bs->print(
+					*Pimpact::createOstream( "error_helm_circXZ_r"+r+".txt" ));
+		}
+	}
+}
+
+
+TEUCHOS_UNIT_TEST( BasicOperator, DivGradOp2M ) {
+
+	OT nx = 7;
+	OT ny = 7;
+	OT nz = 7;
+
+	//OT nx = 9;
+	//OT ny = 9;
+	//OT nz = 9;
+
+	Pimpact::setBoundaryConditions( pl, domain );
+	pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
 	pl->set( "ly", ly );
@@ -711,6 +887,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
 		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
 		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
 		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
+		//pl->sublist("Stretching in X").set<ST>( "x0 L", 0.2 );
 	}
 	if( sy!=0 ) {
 		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
@@ -723,142 +900,111 @@ TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
 		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
 	}
 
-  // processor grid size
-  pl->set( "npx", npx );
-  pl->set( "npy", npy );
-  pl->set( "npz", npz );
-  pl->set( "npf", npf );
+	// processor grid size
+	pl->set( "npx", npx );
+	pl->set( "npy", npy );
+	pl->set( "npz", npz );
+	pl->set( "npf", npf );
 
-  ST mulI = 5.;
-  ST mulL = 3.;
+	auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
-  pl->set<ST>( "alpha2", mulI );
-  pl->set<ST>( "Re", 1./mulL );
+	auto x = Pimpact::create<Pimpact::ScalarField>( space );
+	auto x2= Pimpact::create<Pimpact::ScalarField>( space );
+	auto b = Pimpact::create<Pimpact::ScalarField>( space );
+	auto ones = Pimpact::create<Pimpact::ScalarField>( space );
+	auto diag = Pimpact::create<Pimpact::ScalarField>( space );
 
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+	auto op = Pimpact::create<Pimpact::DivGradOp>( space );
 
-  auto x = Pimpact::create<Pimpact::VectorField>(space);
-  auto bs= Pimpact::create<Pimpact::VectorField>(space);
-  auto b = Pimpact::create<Pimpact::VectorField>(space);
+	ones->init( 1. );
+	op->applyInvDiag( *ones, *diag );
 
-  auto op= Pimpact::create<Pimpact::HelmholtzOp>( space );
+	OT nxS = space->end(Pimpact::S,Pimpact::X) - space->begin(Pimpact::S,Pimpact::X) + 1;
+	OT nyS = space->end(Pimpact::S,Pimpact::Y) - space->begin(Pimpact::S,Pimpact::Y) + 1;
+	OT nzS = space->end(Pimpact::S,Pimpact::Z) - space->begin(Pimpact::S,Pimpact::Z) + 1;
+	OT nS = nxS*nyS*nzS;
 
-  op->print();
 
-  // test in x direction
-  x->initField();
-  x->getFieldPtr( Pimpact::U )->initField( Pimpact::Poiseuille2D_inX );
-  bs->init( Teuchos::tuple( 8./std::pow(space->getDomainSize()->getSize(Pimpact::Y),2), 0., 0. ) );
-  bs->add( mulI, *x, mulL, *bs );
+	Teuchos::SerialDenseMatrix<OT,ST> DJG( nS, nS );
 
-	auto para = Teuchos::parameterList();
-	para->set<ST>( "mulI", mulI );
-	op->setParameter( para );
-  op->apply( *x, *b );
+	// test DJG
+	{
+		Teuchos::RCP<std::ostream> output = Pimpact::createOstream( "DivGradOp.txt" );
+		*output << std::scientific << std::setprecision(std::numeric_limits<long double>::digits10 + 1) ;
 
-  bs->add( 1., *bs, -1, *b);
+		for( OT k=space->begin(Pimpact::S,Pimpact::Z); k<=space->end(Pimpact::S,Pimpact::Z); ++k )
+			for( OT j=space->begin(Pimpact::S,Pimpact::Y); j<=space->end(Pimpact::S,Pimpact::Y); ++j )
+				for( OT i=space->begin(Pimpact::S,Pimpact::X); i<=space->end(Pimpact::S,Pimpact::X); ++i ) {
+					OT II = i-space->begin(Pimpact::S,Pimpact::X)
+						+ nxS*( j-space->begin(Pimpact::S,Pimpact::Y) )
+						+ nxS*nyS*( k-space->begin(Pimpact::S,Pimpact::Z) );
+					x->init( 0. );
+					x->at(i,j,k) = 1.;
+					op->apply( *x, *b );
 
-	ST error = bs->norm( Belos::InfNorm );
-	if( 0==rank )
-		std::cout << "error(poiseuilleX): " << error << "\n";
-  TEST_EQUALITY( error<eps, true );
-	if( error>= eps ){
-		std::string r = std::to_string( static_cast<long long>( rank ) ); // long long needed on brutus(intel)
-		bs->print(
-				*Pimpact::createOstream( "error_helm_poiX_r"+r+".txt" ));
+					for( OT kk=space->begin(Pimpact::S,Pimpact::Z); kk<=space->end(Pimpact::S,Pimpact::Z); ++kk )
+						for( OT jj=space->begin(Pimpact::S,Pimpact::Y); jj<=space->end(Pimpact::S,Pimpact::Y); ++jj )
+							for( OT ii=space->begin(Pimpact::S,Pimpact::X); ii<=space->end(Pimpact::S,Pimpact::X); ++ii ) {
+								OT JJ = ii-space->begin(Pimpact::S,Pimpact::X)
+									+ nxS*( jj-space->begin(Pimpact::S,Pimpact::Y) )
+									+ nxS*nyS*( kk-space->begin(Pimpact::S,Pimpact::Z) );
+								x2->init( 0. );
+								x2->at(ii,jj,kk) = 1.;
+
+								DJG(II,JJ) = x2->dot( *b );
+								*output << DJG(II,JJ) << "\t";
+							}
+					*output << "\n";
+					//std::cout << "|diag-diag| " << 1./std::abs(DJG(II,II))  << "\n";
+					//std::cout << "|diag-diag| " <<  diag->at(i,j,k) << "\n";
+					//std::cout << "|diag-diag| ("<<i<<", "<<j<< ", " <<k<<") " <<  1./std::abs(DJG(II,II))-diag->at(i,j,k) << "\n\n";
+				}
 	}
 
-  // test in y direction
-  x->initField();
-  x->getFieldPtr( Pimpact::V )->initField( Pimpact::Poiseuille2D_inY );
-  bs->init( Teuchos::tuple( 0., 8./std::pow(space->getDomainSize()->getSize(Pimpact::X),2), 0. ) );
-  bs->add( mulI, *x, mulL, *bs );
+	// test DJG^T
+	Teuchos::SerialDenseMatrix<OT,ST> DJGT( nx*ny*nz, nx*ny*nz );
+	{
+		Teuchos::RCP<std::ostream> output = Pimpact::createOstream( "DivGradOpT.txt" );
+		*output << std::scientific << std::setprecision(std::numeric_limits<long double>::digits10 + 1) ;
 
-  op->apply( *x, *b );
+		for( OT k=space->begin(Pimpact::S,Pimpact::Z); k<=space->end(Pimpact::S,Pimpact::Z); ++k )
+			for( OT j=space->begin(Pimpact::S,Pimpact::Y); j<=space->end(Pimpact::S,Pimpact::Y); ++j )
+				for( OT i=space->begin(Pimpact::S,Pimpact::X); i<=space->end(Pimpact::S,Pimpact::X); ++i ) {
+					OT II = i-space->begin(Pimpact::S,Pimpact::X)
+						+ nx*( j-space->begin(Pimpact::S,Pimpact::Y) )
+						+ nx*ny*( k-space->begin(Pimpact::S,Pimpact::Z) );
+					x->init( 0. );
+					x->at(i,j,k) = 1.;
+					op->apply( *x, *b, Belos::TRANS );
 
-  bs->add( 1., *bs, -1, *b );
-
-	error = bs->norm( Belos::InfNorm );
-	if( 0==rank )
-		std::cout << "error(poiseuilleY): " << error << "\n";
-  TEST_EQUALITY( error<eps, true );
-	if( error>= eps ){
-		std::string r = std::to_string( static_cast<long long>( rank ) ); // long long needed on brutus(intel)
-		bs->print(
-				*Pimpact::createOstream( "error_helm_poiY_r"+r+".txt" ));
+					for( OT kk=space->begin(Pimpact::S,Pimpact::Z); kk<=space->end(Pimpact::S,Pimpact::Z); ++kk )
+						for( OT jj=space->begin(Pimpact::S,Pimpact::Y); jj<=space->end(Pimpact::S,Pimpact::Y); ++jj )
+							for( OT ii=space->begin(Pimpact::S,Pimpact::X); ii<=space->end(Pimpact::S,Pimpact::X); ++ii ) {
+								OT JJ = ii-space->begin(Pimpact::S,Pimpact::X)
+									+ nx*( jj-space->begin(Pimpact::S,Pimpact::Y) )
+									+ nx*ny*( kk-space->begin(Pimpact::S,Pimpact::Z) );
+								x2->init( 0. );
+								x2->at(ii,jj,kk) = 1.;
+								DJGT(JJ,II) = x2->dot( *b );
+								*output << DJGT(JJ,II) << "\t";
+							}
+					*output << "\n";
+				}
 	}
+	DJG -= DJGT;
 
-  // test in z direction
-  x->initField(  );
-	x->getFieldPtr( Pimpact::W )->initField( Pimpact::Poiseuille2D_inZ );
-  bs->init( Teuchos::tuple( 0., 0., 8./std::pow(space->getDomainSize()->getSize(Pimpact::X),2) ) );
-  bs->add( mulI, *x, mulL, *bs );
+	ST errOne = DJG.normOne();
+	std::cout << "\n||DJG-DJG^TT||_1 = " << errOne << "\n";
+	TEST_EQUALITY( errOne<eps, true );
 
-  op->apply( *x, *b );
-
-  bs->add( 1., *bs, -1, *b);
-
-	error = bs->norm( Belos::InfNorm );
-	if( 0==rank )
-		std::cout << "error(poiseuilleZ): " << error << "\n";
-  TEST_EQUALITY( error<eps, true );
-	if( error>= eps ){
-		std::string r = std::to_string( static_cast<long long>( rank ) ); // long long needed on brutus(intel)
-		bs->print(
-				*Pimpact::createOstream( "error_helm_poiZ_r"+r+".txt" ));
-	}
-
-  // the circle XY test
-	x->initField();
-  x->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inY, -1. );
-  x->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inX,  1. );
-	bs->initField();
-  bs->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inY, -1. );
-  bs->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inX,  1. );
-  bs->scale( mulI );
-
-  op->apply( *x, *b );
-
-  bs->add( 1., *bs, -1, *b );
-
-	error = bs->norm( Belos::InfNorm );
-	if( 0==rank )
-		std::cout << "error(circleXY): " << error << "\n";
-  TEST_EQUALITY( error<eps, true );
-	if( error>= eps ){
-		std::string r = std::to_string( static_cast<long long>( rank ) ); // long long needed on brutus(intel)
-		bs->print(
-				*Pimpact::createOstream( "error_helm_circXY_r"+r+".txt" ));
-	}
-
-  // the circle XZ test
-	x->initField();
-  x->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inY, -1. );
-  x->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inX,  1. );
-	bs->initField();
-  bs->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inY, -1. );
-  bs->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inX,  1. );
-
-  bs->scale( mulI );
-
-  op->apply( *x, *b );
-
-  bs->add( 1., *bs, -1, *b );
-
-	error = bs->norm( Belos::InfNorm );
-	if( 0==rank )
-		std::cout << "error(circleXZ): " << error << "\n";
-  TEST_EQUALITY( error<eps, true );
-	if( error>= eps ){
-		std::string r = std::to_string( static_cast<long long>( rank ) ); // long long needed on brutus(intel)
-		bs->print(
-				*Pimpact::createOstream( "error_helm_circXZ_r"+r+".txt" ));
-	}
-
+	ST errInf = DJG.normInf();
+	std::cout << "||DJG-DJG^TT||_infty = " << errInf << "\n";
+	TEST_EQUALITY( errInf<eps, true );
 }
 
 
-TEUCHOS_UNIT_TEST( BasicOperator, DivGradOp2M ) {
+
+TEUCHOS_UNIT_TEST( BasicOperator, DivOp2M ) {
 
 	OT nx = 7;
 	OT ny = 7;
@@ -907,95 +1053,225 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradOp2M ) {
 
   auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
-  auto x = Pimpact::create<Pimpact::ScalarField>( space );
-  auto x2= Pimpact::create<Pimpact::ScalarField>( space );
-  auto b = Pimpact::create<Pimpact::ScalarField>( space );
-  auto ones = Pimpact::create<Pimpact::ScalarField>( space );
-  auto diag = Pimpact::create<Pimpact::ScalarField>( space );
+	auto x = Pimpact::create<Pimpact::VectorField>( space );
+	auto x2= Pimpact::create<Pimpact::ScalarField>( space );
+	auto b = Pimpact::create<Pimpact::ScalarField>( space );
+	auto ones = Pimpact::create<Pimpact::ScalarField>( space );
 
-  auto op = Pimpact::create<Pimpact::DivGradOp>( space );
+  auto op = Pimpact::create<Pimpact::DivOp>( space );
 
-	ones->init( 1. );
-	op->applyInvDiag( *ones, *diag );
 
-	{
-		OT nx = space->end(Pimpact::S,Pimpact::X) - space->begin(Pimpact::S,Pimpact::X) + 1;
-		OT ny = space->end(Pimpact::S,Pimpact::Y) - space->begin(Pimpact::S,Pimpact::Y) + 1;
-		OT nz = space->end(Pimpact::S,Pimpact::Z) - space->begin(Pimpact::S,Pimpact::Z) + 1;
+	OT nxS = space->end(Pimpact::S,Pimpact::X,true) - space->begin(Pimpact::S,Pimpact::X,true) + 1;
+	OT nyS = space->end(Pimpact::S,Pimpact::Y,true) - space->begin(Pimpact::S,Pimpact::Y,true) + 1;
+	OT nzS = space->end(Pimpact::S,Pimpact::Z,true) - space->begin(Pimpact::S,Pimpact::Z,true) + 1;
+	OT nS = nxS*nyS*nzS;
 
-		Teuchos::SerialDenseMatrix<OT,ST> DJG( nx*ny*nz, nx*ny*nz );
-		{
-			Teuchos::RCP<std::ostream> output = Pimpact::createOstream( "DivGradOp.txt" );
-			*output << std::scientific << std::setprecision(std::numeric_limits<long double>::digits10 + 1) ;
+	OT nxU = space->end(Pimpact::U,Pimpact::X,true) - space->begin(Pimpact::U,Pimpact::X,true) + 1;
+	OT nyU = space->end(Pimpact::U,Pimpact::Y,true) - space->begin(Pimpact::U,Pimpact::Y,true) + 1;
+	OT nzU = space->end(Pimpact::U,Pimpact::Z,true) - space->begin(Pimpact::U,Pimpact::Z,true) + 1;
+	OT nU = nxU*nyU*nzU;
 
-			for( OT k=space->begin(Pimpact::S,Pimpact::Z); k<=space->end(Pimpact::S,Pimpact::Z); ++k )
-				for( OT j=space->begin(Pimpact::S,Pimpact::Y); j<=space->end(Pimpact::S,Pimpact::Y); ++j )
-					for( OT i=space->begin(Pimpact::S,Pimpact::X); i<=space->end(Pimpact::S,Pimpact::X); ++i ) {
-						OT II = i-space->begin(Pimpact::S,Pimpact::X)
-							+ nx*( j-space->begin(Pimpact::S,Pimpact::Y) )
-							+ nx*ny*( k-space->begin(Pimpact::S,Pimpact::Z) );
-						x->init( 0. );
-						x->at(i,j,k) = 1.;
-						op->apply( *x, *b );
+	OT nxV = space->end(Pimpact::V,Pimpact::X,true) - space->begin(Pimpact::V,Pimpact::X,true) + 1;
+	OT nyV = space->end(Pimpact::V,Pimpact::Y,true) - space->begin(Pimpact::V,Pimpact::Y,true) + 1;
+	OT nzV = space->end(Pimpact::V,Pimpact::Z,true) - space->begin(Pimpact::V,Pimpact::Z,true) + 1;
+	OT nV = nxV*nyV*nzV;
 
-						for( OT kk=space->begin(Pimpact::S,Pimpact::Z); kk<=space->end(Pimpact::S,Pimpact::Z); ++kk )
-							for( OT jj=space->begin(Pimpact::S,Pimpact::Y); jj<=space->end(Pimpact::S,Pimpact::Y); ++jj )
-								for( OT ii=space->begin(Pimpact::S,Pimpact::X); ii<=space->end(Pimpact::S,Pimpact::X); ++ii ) {
-									OT JJ = ii-space->begin(Pimpact::S,Pimpact::X)
-										+ nx*( jj-space->begin(Pimpact::S,Pimpact::Y) )
-										+ nx*ny*( kk-space->begin(Pimpact::S,Pimpact::Z) );
-									x2->init( 0. );
-									x2->at(ii,jj,kk) = 1.;
+	OT nxW = space->end(Pimpact::W,Pimpact::X,true) - space->begin(Pimpact::W,Pimpact::X,true) + 1;
+	OT nyW = space->end(Pimpact::W,Pimpact::Y,true) - space->begin(Pimpact::W,Pimpact::Y,true) + 1;
+	OT nzW = space->end(Pimpact::W,Pimpact::Z,true) - space->begin(Pimpact::W,Pimpact::Z,true) + 1;
+	OT nW = nxW*nyW*nzW;
 
-									DJG(II,JJ) = x2->dot( *b );
-									*output << DJG(II,JJ) << "\t";
-								}
-						*output << "\n";
-						//std::cout << "|diag-diag| " << 1./std::abs(DJG(II,II))  << "\n";
-						//std::cout << "|diag-diag| " <<  diag->at(i,j,k) << "\n";
-						//std::cout << "|diag-diag| ("<<i<<", "<<j<< ", " <<k<<") " <<  1./std::abs(DJG(II,II))-diag->at(i,j,k) << "\n\n";
-					}
-		}
+	Teuchos::Tuple<OT,3> NX = Teuchos::tuple( nxU,nxV,nxW );
+	Teuchos::Tuple<OT,3> NY = Teuchos::tuple( nyU,nyV,nyW );
+	Teuchos::Tuple<OT,3> NZ = Teuchos::tuple( nzU,nzV,nzW );
+	Teuchos::Tuple<OT,3> offset = Teuchos::tuple( 0, nU, nU+nV );
 
-		Teuchos::SerialDenseMatrix<OT,ST> DJGT( nx*ny*nz, nx*ny*nz );
-		{
-			Teuchos::RCP<std::ostream> output = Pimpact::createOstream( "DivGradOpT.txt" );
-			*output << std::scientific << std::setprecision(std::numeric_limits<long double>::digits10 + 1) ;
+	Teuchos::SerialDenseMatrix<OT,ST> D  ( nS      , nU+nV+nW );
 
-			for( OT k=space->begin(Pimpact::S,Pimpact::Z); k<=space->end(Pimpact::S,Pimpact::Z); ++k )
-				for( OT j=space->begin(Pimpact::S,Pimpact::Y); j<=space->end(Pimpact::S,Pimpact::Y); ++j )
-					for( OT i=space->begin(Pimpact::S,Pimpact::X); i<=space->end(Pimpact::S,Pimpact::X); ++i ) {
-						OT II = i-space->begin(Pimpact::S,Pimpact::X)
-							+ nx*( j-space->begin(Pimpact::S,Pimpact::Y) )
-							+ nx*ny*( k-space->begin(Pimpact::S,Pimpact::Z) );
-						x->init( 0. );
-						x->at(i,j,k) = 1.;
-						op->apply( *x, *b, Belos::TRANS );
+	// test D
 
-						for( OT kk=space->begin(Pimpact::S,Pimpact::Z); kk<=space->end(Pimpact::S,Pimpact::Z); ++kk )
-							for( OT jj=space->begin(Pimpact::S,Pimpact::Y); jj<=space->end(Pimpact::S,Pimpact::Y); ++jj )
-								for( OT ii=space->begin(Pimpact::S,Pimpact::X); ii<=space->end(Pimpact::S,Pimpact::X); ++ii ) {
-									OT JJ = ii-space->begin(Pimpact::S,Pimpact::X)
-										+ nx*( jj-space->begin(Pimpact::S,Pimpact::Y) )
-										+ nx*ny*( kk-space->begin(Pimpact::S,Pimpact::Z) );
-									x2->init( 0. );
-									x2->at(ii,jj,kk) = 1.;
-									DJGT(JJ,II) = x2->dot( *b );
-									*output << DJGT(JJ,II) << "\t";
-								}
-						*output << "\n";
-					}
-		}
-		DJG -= DJGT;
+	Teuchos::RCP<std::ostream> output = Pimpact::createOstream( "DivOp.txt" );
+	*output << std::scientific << std::setprecision(std::numeric_limits<long double>::digits10 + 1) ;
 
-		ST errOne = DJG.normOne();
-		std::cout << "\n||DJG-DJG^TT||_1 = " << errOne << "\n";
-		TEST_EQUALITY( errOne<eps, true );
+	for( int dir=0; dir<3; ++dir ) {
+		for( OT k=space->begin(dir,Pimpact::Z,true); k<=space->end(dir,Pimpact::Z,true); ++k )
+			for( OT j=space->begin(dir,Pimpact::Y,true); j<=space->end(dir,Pimpact::Y,true); ++j )
+				for( OT i=space->begin(dir,Pimpact::X,true); i<=space->end(dir,Pimpact::X,true); ++i ) {
+					OT II =               i-space->begin(dir,Pimpact::X,true)
+						+ NX[dir]*(         j-space->begin(dir,Pimpact::Y,true) )
+						+ NX[dir]*NY[dir]*( k-space->begin(dir,Pimpact::Z,true) ) + offset[dir];
+					x->initField();
+					x->getFieldPtr(dir)->at(i,j,k) = 1.;
+					op->apply( *x, *b );
 
-		ST errInf = DJG.normInf();
-		std::cout << "||DJG-DJG^TT||_infty = " << errInf << "\n";
-		TEST_EQUALITY( errInf<eps, true );
+					for( OT kk=space->begin(Pimpact::S,Pimpact::Z,true); kk<=space->end(Pimpact::S,Pimpact::Z,true); ++kk )
+						for( OT jj=space->begin(Pimpact::S,Pimpact::Y,true); jj<=space->end(Pimpact::S,Pimpact::Y,true); ++jj )
+							for( OT ii=space->begin(Pimpact::S,Pimpact::X,true); ii<=space->end(Pimpact::S,Pimpact::X,true); ++ii ) {
+								OT JJ =       ii-space->begin(Pimpact::S,Pimpact::X,true)
+									+ nxS*(     jj-space->begin(Pimpact::S,Pimpact::Y,true) )
+									+ nxS*nyS*( kk-space->begin(Pimpact::S,Pimpact::Z,true) );
+								x2->initField();
+								x2->at(ii,jj,kk) = 1.;
+
+								D(JJ,II) = x2->dot( *b );
+								*output << D(JJ,II) << "\t";
+							}
+					*output << "\n";
+				}
 	}
+}
+
+
+
+TEUCHOS_UNIT_TEST( BasicOperator, GradOp2M ) {
+
+	OT nx = 7;
+	OT ny = 7;
+	OT nz = 7;
+
+	//OT nx = 9;
+	//OT ny = 9;
+	//OT nz = 9;
+
+  Pimpact::setBoundaryConditions( pl, domain );
+  pl->set( "dim", dim );
+
+	pl->set( "lx", lx );
+	pl->set( "ly", ly );
+	pl->set( "lz", lz );
+
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
+
+	// grid stretching
+	if( sx!=0 ) {
+		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
+		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
+		//pl->sublist("Stretching in X").set<ST>( "x0 L", 0.2 );
+	}
+	if( sy!=0 ) {
+		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
+		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
+	}
+	if( sz!=0 ) {
+		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
+		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
+	}
+
+  // processor grid size
+  pl->set( "npx", npx );
+  pl->set( "npy", npy );
+  pl->set( "npz", npz );
+  pl->set( "npf", npf );
+
+  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+
+	auto x = Pimpact::create<Pimpact::VectorField>( space );
+	auto x2= Pimpact::create<Pimpact::ScalarField>( space );
+	auto b = Pimpact::create<Pimpact::VectorField>( space );
+
+  auto op = Pimpact::create<Pimpact::GradOp>( space );
+
+
+	OT nxS = space->end(Pimpact::S,Pimpact::X,true) - space->begin(Pimpact::S,Pimpact::X,true) + 1;
+	OT nyS = space->end(Pimpact::S,Pimpact::Y,true) - space->begin(Pimpact::S,Pimpact::Y,true) + 1;
+	OT nzS = space->end(Pimpact::S,Pimpact::Z,true) - space->begin(Pimpact::S,Pimpact::Z,true) + 1;
+	OT nS = nxS*nyS*nzS;
+
+	OT nxU = space->end(Pimpact::U,Pimpact::X,true) - space->begin(Pimpact::U,Pimpact::X,true) + 1;
+	OT nyU = space->end(Pimpact::U,Pimpact::Y,true) - space->begin(Pimpact::U,Pimpact::Y,true) + 1;
+	OT nzU = space->end(Pimpact::U,Pimpact::Z,true) - space->begin(Pimpact::U,Pimpact::Z,true) + 1;
+	OT nU = nxU*nyU*nzU;
+
+	OT nxV = space->end(Pimpact::V,Pimpact::X,true) - space->begin(Pimpact::V,Pimpact::X,true) + 1;
+	OT nyV = space->end(Pimpact::V,Pimpact::Y,true) - space->begin(Pimpact::V,Pimpact::Y,true) + 1;
+	OT nzV = space->end(Pimpact::V,Pimpact::Z,true) - space->begin(Pimpact::V,Pimpact::Z,true) + 1;
+	OT nV = nxV*nyV*nzV;
+
+	OT nxW = space->end(Pimpact::W,Pimpact::X,true) - space->begin(Pimpact::W,Pimpact::X,true) + 1;
+	OT nyW = space->end(Pimpact::W,Pimpact::Y,true) - space->begin(Pimpact::W,Pimpact::Y,true) + 1;
+	OT nzW = space->end(Pimpact::W,Pimpact::Z,true) - space->begin(Pimpact::W,Pimpact::Z,true) + 1;
+	OT nW = nxW*nyW*nzW;
+
+	Teuchos::Tuple<OT,3> NX = Teuchos::tuple( nxU,nxV,nxW );
+	Teuchos::Tuple<OT,3> NY = Teuchos::tuple( nyU,nyV,nyW );
+	Teuchos::Tuple<OT,3> NZ = Teuchos::tuple( nzU,nzV,nzW );
+	Teuchos::Tuple<OT,3> offset = Teuchos::tuple( 0, nU, nU+nV );
+
+	Teuchos::SerialDenseMatrix<OT,ST> G  ( nU+nV+nW, nS);
+
+	// test G
+
+	Teuchos::RCP<std::ostream> output = Pimpact::createOstream( "GradOp.txt" );
+	*output << std::scientific << std::setprecision(std::numeric_limits<long double>::digits10 + 1) ;
+
+	for( OT kk=space->begin(Pimpact::S,Pimpact::Z,true); kk<=space->end(Pimpact::S,Pimpact::Z,true); ++kk )
+		for( OT jj=space->begin(Pimpact::S,Pimpact::Y,true); jj<=space->end(Pimpact::S,Pimpact::Y,true); ++jj )
+			for( OT ii=space->begin(Pimpact::S,Pimpact::X,true); ii<=space->end(Pimpact::S,Pimpact::X,true); ++ii ) {
+				OT JJ =       ii-space->begin(Pimpact::S,Pimpact::X,true)
+					+ nxS*(     jj-space->begin(Pimpact::S,Pimpact::Y,true) )
+					+ nxS*nyS*( kk-space->begin(Pimpact::S,Pimpact::Z,true) );
+				x2->initField();
+				x2->at(ii,jj,kk) = 1.;
+				op->applyG( *x2, *b );
+
+				for( int dir=0; dir<3; ++dir ) {
+					for( OT k=space->begin(dir,Pimpact::Z,true); k<=space->end(dir,Pimpact::Z,true); ++k )
+						for( OT j=space->begin(dir,Pimpact::Y,true); j<=space->end(dir,Pimpact::Y,true); ++j )
+							for( OT i=space->begin(dir,Pimpact::X,true); i<=space->end(dir,Pimpact::X,true); ++i ) {
+								OT II =               i-space->begin(dir,Pimpact::X,true)
+									+ NX[dir]*(         j-space->begin(dir,Pimpact::Y,true) )
+									+ NX[dir]*NY[dir]*( k-space->begin(dir,Pimpact::Z,true) ) + offset[dir];
+								x->initField();
+								x->getFieldPtr(dir)->at(i,j,k) = 1.;
+
+
+								G(II,JJ) = x->dot( *b, true );
+								//*output << G(II,JJ) << "\t";
+							}
+					//*output << "\n";
+				}
+	}
+	*output << G;
+
+	// test J
+	Teuchos::RCP<std::ostream> outputJ = Pimpact::createOstream( "JOp.txt" );
+	*output << std::scientific << std::setprecision(std::numeric_limits<long double>::digits10 + 1) ;
+
+	Teuchos::SerialDenseMatrix<OT,ST> J  ( nU+nV+nW, nU+nV+nW );
+	for( int dir=0; dir<3; ++dir ) {
+		for( OT kk=space->begin(dir,Pimpact::Z,true); kk<=space->end(dir,Pimpact::Z,true); ++kk )
+			for( OT jj=space->begin(dir,Pimpact::Y,true); jj<=space->end(dir,Pimpact::Y,true); ++jj )
+				for( OT ii=space->begin(dir,Pimpact::X,true); ii<=space->end(dir,Pimpact::X,true); ++ii ) {
+					OT JJ =           ii-space->begin(dir,Pimpact::X,true)
+						+ NX[dir]*(     jj-space->begin(dir,Pimpact::Y,true) )
+						+ NX[dir]*NY[dir]*( kk-space->begin(dir,Pimpact::Z,true) )+offset[dir];
+					b->initField();
+					b->getFieldPtr(dir)->at(ii,jj,kk) = 1.;
+					op->applyJ( *b );
+
+					for( OT k=space->begin(dir,Pimpact::Z,true); k<=space->end(dir,Pimpact::Z,true); ++k )
+						for( OT j=space->begin(dir,Pimpact::Y,true); j<=space->end(dir,Pimpact::Y,true); ++j )
+							for( OT i=space->begin(dir,Pimpact::X,true); i<=space->end(dir,Pimpact::X,true); ++i ) {
+								OT II =               i-space->begin(dir,Pimpact::X,true)
+									+ NX[dir]*(         j-space->begin(dir,Pimpact::Y,true) )
+									+ NX[dir]*NY[dir]*( k-space->begin(dir,Pimpact::Z,true) ) + offset[dir];
+								x->initField();
+								x->getFieldPtr(dir)->at(i,j,k) = 1.;
+
+								J(II,JJ) = x->dot( *b, true );
+								//*outputJ << J(II,JJ) << "\t";
+							}
+					//*outputJ << "\n";
+				}
+	}
+	*outputJ << J ;
 }
 
 
@@ -1541,9 +1817,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Inv ) {
   auto solver = Pimpact::create<Pimpact::DivGradO2Inv>( op, ppl );
 
   // --- consistency test ---
-	//for( int dir=1; dir<=6; ++dir ) {
-	for( int dir=1; dir<=6; ++dir ) {
-		x->initField( static_cast<Pimpact::EScalarField>(dir) );
+	for( int field=0; field<=(domain!=1?6:0); ++field ) {
+		x->initField( static_cast<Pimpact::EScalarField>(field) );
 		x->level();
 		xp->random();
 
@@ -1564,7 +1839,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Inv ) {
 
 
 		if( 0==rank )
-			std::cout << "consistency for " << dir << ": ||" << err2 << "||_2, ||" << errInf << "||_inf\n";
+			std::cout << "consistency for " << Pimpact::toString(static_cast<Pimpact::EScalarField>(field)) << ": ||" << err2 << "||_2, ||" << errInf << "||_inf\n";
 
 		if( npx*npy*npz==1 ) {
 			TEST_EQUALITY( err2<eps, true );
@@ -2832,113 +3107,115 @@ TEUCHOS_UNIT_TEST( Convergence, InterpolateS2VOp ) {
 
 TEUCHOS_UNIT_TEST( Convergence, extrapolateBC ) { 
 
-	//const int dNC = 2;
-  Pimpact::setBoundaryConditions( pl, domain );
-  pl->set( "dim", dim );
+	if( domain!=1 ) {
+		//const int dNC = 2;
+		Pimpact::setBoundaryConditions( pl, domain );
+		pl->set( "dim", dim );
 
-	pl->set( "lx", lx );
-	pl->set( "ly", ly );
-	pl->set( "lz", lz );
+		pl->set( "lx", lx );
+		pl->set( "ly", ly );
+		pl->set( "lz", lz );
 
-  // processor grid size
-  pl->set( "npx", npx );
-  pl->set( "npy", npy );
-  pl->set( "npz", npz );
-  pl->set( "npf", npf );
+		// processor grid size
+		pl->set( "npx", npx );
+		pl->set( "npy", npy );
+		pl->set( "npz", npz );
+		pl->set( "npf", npf );
 
-	//  grid size
-	for( int dir=0; dir<3; ++dir ) {
+		//  grid size
+		for( int dir=0; dir<3; ++dir ) {
 
-		pl->set<OT>( "nx", 9 );
-		pl->set<OT>( "ny", 9 );
-		pl->set<OT>( "nz", 9 );
-		pl->set<OT>( "nf", 1 );
+			pl->set<OT>( "nx", 9 );
+			pl->set<OT>( "ny", 9 );
+			pl->set<OT>( "nz", 9 );
+			pl->set<OT>( "nf", 1 );
 
-		std::vector<ST> error2( ns );
-		std::vector<ST> errorInf( ns );
-		std::vector<ST> dofs( ns );
+			std::vector<ST> error2( ns );
+			std::vector<ST> errorInf( ns );
+			std::vector<ST> dofs( ns );
 
-		ST pi2 = std::atan(1)*8;
+			ST pi2 = std::atan(1)*8;
 
-		if( 0==rank )	
-			std::cout << "\n\nN\t||e||_2\t\t||e||_inf\n";
-
-		for( OT n=0; n<ns; ++n ) {
-
-			if( 0==dir ) 
-				pl->set<OT>( "nx", 8*std::pow(2,n)+1 );
-			else if( 1==dir )
-				pl->set<OT>( "ny", 8*std::pow(2,n)+1 );
-			else if( 2==dir )
-				pl->set<OT>( "nz", 8*std::pow(2,n)+1 );
-
-			// grid stretching
-			if( sx!=0 ) {
-				pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
-				pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(pl->get<OT>("nx"))/2. );
-				pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(pl->get<OT>("nx"))/2. );
-				//pl->sublist("Stretching in X").set<ST>( "x0 L", 0.05 );
-				//pl->sublist("Stretching in X").set<ST>( "x0 U", 0. );
-			}
-			if( sy!=0 ) {
-				pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
-				pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(pl->get<OT>("ny"))/2. );
-				pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(pl->get<OT>("ny"))/2. );
-			}
-			if( sz!=0 ) {
-				pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
-				pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(pl->get<OT>("nz"))/2. );
-				pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(pl->get<OT>("nz"))/2. );
-			}
-			auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
-
-			auto vel = Pimpact::create<Pimpact::VectorField>( space );
-			auto sol = vel->clone( Pimpact::ShallowCopy );
-
-			// init 
-			if( 0==dir ) {
-				vel->getFieldPtr(Pimpact::U)->initFromFunction(
-						[&pi2]( ST x, ST y, ST z ) ->ST { return(  std::sin(x*pi2) ); } );
-				sol->getFieldPtr(Pimpact::U)->initFromFunction(
-						[&pi2]( ST x, ST y, ST z ) ->ST { return(  std::sin(x*pi2) ); } );
-			}
-			else if( 1==dir ) {
-				vel->getFieldPtr(Pimpact::V)->initFromFunction(
-						[&pi2]( ST x, ST y, ST z ) ->ST { return( std::sin(y*pi2) ); } );
-				sol->getFieldPtr(Pimpact::V)->initFromFunction(
-						[&pi2]( ST x, ST y, ST z ) ->ST { return( std::sin(y*pi2) ); } );
-			}
-			else if( 2==dir ) {
-				vel->getFieldPtr(Pimpact::W)->initFromFunction(
-						[&pi2]( ST x, ST y, ST z ) ->ST { return(  std::sin(z*pi2) ); } );
-				sol->getFieldPtr(Pimpact::W)->initFromFunction(
-						[&pi2]( ST x, ST y, ST z ) ->ST { return(  std::sin(z*pi2) ); } );
-			}
-			vel->extrapolateBC();
-
-
-			// compute error
-			vel->getFieldPtr(dir)->add( 1., sol->getConstField(dir), -1., vel->getConstField(dir), true );
-			vel->write( n );
-			
-			error2[n]   = std::log10( vel->getConstFieldPtr(dir)->norm( Belos::TwoNorm, true ) / sol->getConstFieldPtr(dir)->norm( Belos::TwoNorm, true ) );
-			errorInf[n] = std::log10( vel->getConstFieldPtr(dir)->norm( Belos::InfNorm, true ) / sol->getConstFieldPtr(dir)->norm( Belos::InfNorm, true ) );
-
-			dofs[n] = std::log10( 8.*std::pow(2.,n)+1. );
 			if( 0==rank )	
-				std::cout << std::pow(10.,dofs[n]) << "\t" << std::pow(10.,error2[n]) << "\t" << std::pow(10.,errorInf[n]) << "\n";
-		}
-		// compute order
-		ST order2 = order<ST>( dofs, error2 );
-		if( 0==rank )	
-			std::cout << "extrapolateBC: order two norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << order2 << "\n";
+				std::cout << "\n\nN\t||e||_2\t\t||e||_inf\n";
 
-		ST orderInf = order<ST>( dofs, errorInf );
-		if( 0==rank )	
-			std::cout << "extrapolateBC: order inf norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << orderInf << "\n";
-		// test
-		TEST_EQUALITY( -order2  >3., true );
-		TEST_EQUALITY( -orderInf>3., true );
+			for( OT n=0; n<ns; ++n ) {
+
+				if( 0==dir ) 
+					pl->set<OT>( "nx", 8*std::pow(2,n)+1 );
+				else if( 1==dir )
+					pl->set<OT>( "ny", 8*std::pow(2,n)+1 );
+				else if( 2==dir )
+					pl->set<OT>( "nz", 8*std::pow(2,n)+1 );
+
+				// grid stretching
+				if( sx!=0 ) {
+					pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
+					pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(pl->get<OT>("nx"))/2. );
+					pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(pl->get<OT>("nx"))/2. );
+					//pl->sublist("Stretching in X").set<ST>( "x0 L", 0.05 );
+					//pl->sublist("Stretching in X").set<ST>( "x0 U", 0. );
+				}
+				if( sy!=0 ) {
+					pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
+					pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(pl->get<OT>("ny"))/2. );
+					pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(pl->get<OT>("ny"))/2. );
+				}
+				if( sz!=0 ) {
+					pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
+					pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(pl->get<OT>("nz"))/2. );
+					pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(pl->get<OT>("nz"))/2. );
+				}
+				auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+
+				auto vel = Pimpact::create<Pimpact::VectorField>( space );
+				auto sol = vel->clone( Pimpact::ShallowCopy );
+
+				// init 
+				if( 0==dir ) {
+					vel->getFieldPtr(Pimpact::U)->initFromFunction(
+							[&pi2]( ST x, ST y, ST z ) ->ST { return(  std::sin(x*pi2) ); } );
+					sol->getFieldPtr(Pimpact::U)->initFromFunction(
+							[&pi2]( ST x, ST y, ST z ) ->ST { return(  std::sin(x*pi2) ); } );
+				}
+				else if( 1==dir ) {
+					vel->getFieldPtr(Pimpact::V)->initFromFunction(
+							[&pi2]( ST x, ST y, ST z ) ->ST { return( std::sin(y*pi2) ); } );
+					sol->getFieldPtr(Pimpact::V)->initFromFunction(
+							[&pi2]( ST x, ST y, ST z ) ->ST { return( std::sin(y*pi2) ); } );
+				}
+				else if( 2==dir ) {
+					vel->getFieldPtr(Pimpact::W)->initFromFunction(
+							[&pi2]( ST x, ST y, ST z ) ->ST { return(  std::sin(z*pi2) ); } );
+					sol->getFieldPtr(Pimpact::W)->initFromFunction(
+							[&pi2]( ST x, ST y, ST z ) ->ST { return(  std::sin(z*pi2) ); } );
+				}
+				vel->extrapolateBC();
+
+
+				// compute error
+				vel->getFieldPtr(dir)->add( 1., sol->getConstField(dir), -1., vel->getConstField(dir), true );
+				vel->write( n );
+
+				error2[n]   = std::log10( vel->getConstFieldPtr(dir)->norm( Belos::TwoNorm, true ) / sol->getConstFieldPtr(dir)->norm( Belos::TwoNorm, true ) );
+				errorInf[n] = std::log10( vel->getConstFieldPtr(dir)->norm( Belos::InfNorm, true ) / sol->getConstFieldPtr(dir)->norm( Belos::InfNorm, true ) );
+
+				dofs[n] = std::log10( 8.*std::pow(2.,n)+1. );
+				if( 0==rank )	
+					std::cout << std::pow(10.,dofs[n]) << "\t" << std::pow(10.,error2[n]) << "\t" << std::pow(10.,errorInf[n]) << "\n";
+			}
+			// compute order
+			ST order2 = order<ST>( dofs, error2 );
+			if( 0==rank )	
+				std::cout << "extrapolateBC: order two norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << order2 << "\n";
+
+			ST orderInf = order<ST>( dofs, errorInf );
+			if( 0==rank )	
+				std::cout << "extrapolateBC: order inf norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << orderInf << "\n";
+			// test
+			TEST_EQUALITY( -order2  >3., true );
+			TEST_EQUALITY( -orderInf>3., true );
+		}
 	}
 	
 }
@@ -3449,8 +3726,8 @@ TEUCHOS_UNIT_TEST( Convergence, HelmholtzOp ) {
 			if( 0==rank )	
 				std::cout << "Helmholtz(" << Pimpact::toString(static_cast<Pimpact::EField>(field)) << "): order inf norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << orderInf << "\n";
 			// test
-			TEST_EQUALITY( -order2  >4., true );
-			TEST_EQUALITY( -orderInf>4., true );
+			TEST_EQUALITY( -order2  >3., true );
+			TEST_EQUALITY( -orderInf>3., true );
 		}
 
 	}
