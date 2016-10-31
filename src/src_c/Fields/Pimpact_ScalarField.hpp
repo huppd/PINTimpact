@@ -268,7 +268,7 @@ public:
   /// \name Norm method(reductions)
   /// @{
 
-	/// \brief Compute a locla scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
+	/// \brief Compute a local scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
 	constexpr Scalar dotLoc( const FieldT& y, const bool& bcYes=false ) const {
 
 #ifndef NDEBUG

@@ -23,11 +23,21 @@ enum ECopyType {
 };
 
 
-enum ECoord { X=0, Y=1, Z=2, T=4 };
+enum ECoord {
+	X=0, ///< 0
+	Y=1, ///< 1
+	Z=2, ///< 2
+	T=4  ///< 4
+};
 
 std::string toString( ECoord type );
 
-enum EField { U=0, V=1, W=2, S=4 };
+enum EField {
+	U=0, ///< 0
+	V=1, ///< 0
+	W=2, ///< 2
+	S=4  ///< 4
+};
 
 std::string toString( EField type );
 
@@ -50,13 +60,13 @@ enum EBCType {
 /// 
 /// \relates BoundaryConditionsGlobal
 enum EDomainType {
-  AllDirichlet       = 0,
-  AllPeriodic        = 1,
-  AllNeumann         = 2,
-  AllSymmetric       = 3,
-  Dirichelt2DChannel = 4,
-  Periodic2DChannel  = 5,
-  Open2DChannel      = 6
+  AllDirichlet       = 0,	///< 0
+  AllPeriodic        = 1,	///< 1
+  AllNeumann         = 2, ///< 2
+  AllSymmetric       = 3, ///< 3
+  Dirichelt2DChannel = 4, ///< 4
+  Periodic2DChannel  = 5, ///< 5
+  Open2DChannel      = 6  ///< 6
 };
 
 
@@ -64,13 +74,13 @@ enum EDomainType {
 /// \brief Scalar Field profile
 /// \relates ScalarField::initField
 enum EScalarField {
-	ConstField = 0,
-  Grad2D_inX = 1,
-  Grad2D_inY = 2,
-  Grad2D_inZ = 3,
-	Poiseuille2D_inX = 4,
-  Poiseuille2D_inY = 5,
-  Poiseuille2D_inZ = 6,
+	ConstField = 0,	      ///< 0
+  Grad2D_inX = 1,       ///< 1
+  Grad2D_inY = 2,       ///< 2
+  Grad2D_inZ = 3,       ///< 3
+	Poiseuille2D_inX = 4, ///< 4
+  Poiseuille2D_inY = 5, ///< 5
+  Poiseuille2D_inZ = 6, ///< 6
   FPoint = 7
 };
 
@@ -83,27 +93,27 @@ std::string toString( Pimpact::EScalarField type );
 /// \brief used in mains
 /// \relates initTimeVectorField
 enum EFlowType {
-  Zero2DFlow = 0, 
-  Const2DFlow = 10, 
-  Poiseuille_inX=1,
-  Poiseuille_inY=2,
-  Pulsatile_inX=3,
-  Pulsatile_inY=4,
-  Streaming2DFlow=5,
-  Streaming2DFlow2=6,
-  Streaming2DFlow3=7,
-  OscilatingDisc2D=8,
-  OscilatingDisc2DVel=9,
-  ConstVel_inX=11
+  Zero2DFlow          =  0,	///<  0
+  Const2DFlow         = 10, ///< 10
+  Poiseuille_inX      =  1, ///<  1
+  Poiseuille_inY      =  2, ///<  2
+  Pulsatile_inX       =  3, ///<  3
+  Pulsatile_inY       =  4, ///<  4
+  Streaming2DFlow     =  5, ///<  5
+  Streaming2DFlow2    =  6, ///<  6
+  Streaming2DFlow3    =  7, ///<  7
+  OscilatingDisc2D    =  8, ///<  8
+  OscilatingDisc2DVel =  9, ///<  9
+  ConstVel_inX        = 11  ///< 11
 };
 
 
 /// \brief kind of force
 enum EForceType {
-  Dipol        = 1,
-  Disc         = 2,
-  RotatingDisc = 3,
-  PseudoOscilatingDisc = 4
+  Dipol                = 1, ///< 1
+  Disc                 = 2, ///< 2
+  RotatingDisc         = 3, ///< 3
+  PseudoOscilatingDisc = 4  ///< 4
 };
 
 /// \brief creates file and stream to it
