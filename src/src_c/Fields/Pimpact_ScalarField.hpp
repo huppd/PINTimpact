@@ -80,27 +80,27 @@ public:
 	/// \note copyType is 
   /// \param sF ScalarField which is copied
   /// \param copyType by default a ECopy::Deep is done but also allows to ECopy::Shallow
-  ScalarField( const ScalarField& sF, ECopy copyType=ECopy::Deep ):
-    AbstractField<SpaceT>( sF.space() ),
-    owning_( sF.owning_ ),
-    exchangedState_( sF.exchangedState_ ),
-    fType_( sF.fType_ ) {
+	ScalarField( const ScalarField& sF, ECopy copyType=ECopy::Deep ):
+		AbstractField<SpaceT>( sF.space() ),
+		owning_( sF.owning_ ),
+		exchangedState_( sF.exchangedState_ ),
+		fType_( sF.fType_ ) {
 
     if( owning_ ) {
 
 			allocate();
 
-      switch( copyType ) {
-      case ECopy::Shallow:
-				initField();
-        break;
-      case ECopy::Deep:
-        for( int i=0; i<getStorageSize(); ++i)
-          s_[i] = sF.s_[i];
-        break;
-      }
-    }
-  };
+			switch( copyType ) {
+				case ECopy::Shallow:
+					initField();
+					break;
+				case ECopy::Deep:
+					for( int i=0; i<getStorageSize(); ++i)
+						s_[i] = sF.s_[i];
+					break;
+			}
+		}
+		};
 
 
 	~ScalarField() { if( owning_ ) delete[] s_; }
@@ -118,8 +118,8 @@ public:
 					mv->getRawPtr()[i] = s_[i];
 				break;
 		}
-    return( mv );
-  }
+		return( mv );
+	}
 
   /// \name Attribute methods
   /// \{
@@ -632,6 +632,7 @@ public:
 	/// \brief initializes VectorField with the initial field defined in Fortran
 	/// \deprecated
 	void initField( EScalarField fieldType = ConstField, Scalar alpha=Teuchos::ScalarTraits<Scalar>::zero() ) {
+
 		switch( fieldType ) {
 			case ConstField :
 				initFromFunction( [&alpha](Scalar,Scalar,Scalar)->Scalar&{
@@ -924,65 +925,65 @@ public:
 
 		if( 0==space()->rankS() )
 			switch(fType_) {
-      case U:
-				std::cout << "writing velocity field x(" << count << ") ...\n";
-				break;
-			case V:
-				std::cout << "writing velocity field y(" << count << ") ...\n";
-				break;
-			case W:
-				std::cout << "writing velocity field z(" << count << ") ...\n";
-				break;
-			case EField::S:
-				std::cout << "writing pressure field  (" << count << ") ...\n";
-				Teuchos::Tuple<Ordinal,3> N;
-				for( int i=0; i<3; ++i ) {
-					N[i] = space()->nGlo(i);
-          if( space()->getBCGlobal()->getBCL(i)==Pimpact::PeriodicBC )
-						N[i] = N[i]-1;
-				}
-				std::ofstream xfile;
-				std::ostringstream ss;
-				ss << std::setw( 5 ) << std::setfill( '0' ) << count;
-        std::string fname = "pre_"+ss.str();
-				xfile.open( fname+".xmf", std::ofstream::out );
-				xfile<< "<Xdmf xmlns:xi=\"http://www.w3.org/2003/XInclude\" Version=\"2.1\">\n";
-				xfile << "\t<Domain>\n";
-				xfile << "\t\t<Grid Name=\"3DRectMesh\" GridType=\"Uniform\">\n";
-				xfile << "\t\t\t<Topology TopologyType=\"3DRectMesh\" Dimensions=\""<< N[2] << " " << N[1] << " " << N[0] << "\"/>\n";
-				xfile << "\t\t\t<Geometry GeometryType=\"VXVYVZ\">\n";
-				xfile << "\t\t\t\t<DataItem ItemType=\"Uniform\"\n";
-				xfile << "\t\t\t\t\tDimensions=\""<< N[0] << "\"\n";
-				xfile << "\t\t\t\t\tNumberType=\"Float\"\n";
-				xfile << "\t\t\t\t\tPrecision=\"8\"\n";
-				xfile << "\t\t\t\t\tFormat=\"HDF\">\n";
-				xfile << "\t\t\t\t\t" << fname << ".h5:/VectorX\n";
-				xfile << "\t\t\t\t</DataItem>\n";
-				xfile << "\t\t\t\t<DataItem ItemType=\"Uniform\"\n";
-				xfile << "\t\t\t\t\tDimensions=\""<< N[1] << "\"\n";
-				xfile << "\t\t\t\t\tNumberType=\"Float\"\n";
-				xfile << "\t\t\t\t\tPrecision=\"8\"\n";
-				xfile << "\t\t\t\t\tFormat=\"HDF\">\n";
-				xfile << "\t\t\t\t\t" << fname << ".h5:/VectorY\n";
-				xfile << "\t\t\t\t</DataItem>\n";
-				xfile << "\t\t\t\t<DataItem ItemType=\"Uniform\"\n";
-				xfile << "\t\t\t\t\tDimensions=\""<< N[2] << "\"\n";
-				xfile << "\t\t\t\t\tNumberType=\"Float\"\n";
-				xfile << "\t\t\t\t\tPrecision=\"8\"\n";
-				xfile << "\t\t\t\t\tFormat=\"HDF\">\n";
-				xfile << "\t\t\t\t\t" << fname << ".h5:/VectorZ\n";
-				xfile << "\t\t\t\t</DataItem>\n";
-				xfile << "\t\t\t</Geometry>\n";
-				xfile << "\t\t\t<Attribute Name=\"Pressure\" AttributeType=\"Scalar\" Center=\"Node\">\n";
-				xfile << "\t\t\t\t<DataItem Dimensions=\""<< N[2] << " " << N[1] << " " << N[0] << "\" NumberType=\"Float\" Precision=\"8\" Format=\"HDF\">\n";
-				xfile << "\t\t\t\t\t" << fname << ".h5:/pre\n";
-				xfile << "\t\t\t\t</DataItem>\n";
-				xfile << "\t\t\t</Attribute>\n";
-				xfile << "\t\t</Grid>\n";
-				xfile << "\t</Domain>\n";
-				xfile << "</Xdmf>\n";
-				xfile.close();
-				break;
+				case U:
+					std::cout << "writing velocity field x(" << count << ") ...\n";
+					break;
+				case V:
+					std::cout << "writing velocity field y(" << count << ") ...\n";
+					break;
+				case W:
+					std::cout << "writing velocity field z(" << count << ") ...\n";
+					break;
+				case EField::S:
+					std::cout << "writing pressure field  (" << count << ") ...\n";
+					Teuchos::Tuple<Ordinal,3> N;
+					for( int i=0; i<3; ++i ) {
+						N[i] = space()->nGlo(i);
+						if( space()->getBCGlobal()->getBCL(i)==Pimpact::PeriodicBC )
+							N[i] = N[i]-1;
+					}
+					std::ofstream xfile;
+					std::ostringstream ss;
+					ss << std::setw( 5 ) << std::setfill( '0' ) << count;
+					std::string fname = "pre_"+ss.str();
+					xfile.open( fname+".xmf", std::ofstream::out );
+					xfile<< "<Xdmf xmlns:xi=\"http://www.w3.org/2003/XInclude\" Version=\"2.1\">\n";
+					xfile << "\t<Domain>\n";
+					xfile << "\t\t<Grid Name=\"3DRectMesh\" GridType=\"Uniform\">\n";
+					xfile << "\t\t\t<Topology TopologyType=\"3DRectMesh\" Dimensions=\""<< N[2] << " " << N[1] << " " << N[0] << "\"/>\n";
+					xfile << "\t\t\t<Geometry GeometryType=\"VXVYVZ\">\n";
+					xfile << "\t\t\t\t<DataItem ItemType=\"Uniform\"\n";
+					xfile << "\t\t\t\t\tDimensions=\""<< N[0] << "\"\n";
+					xfile << "\t\t\t\t\tNumberType=\"Float\"\n";
+					xfile << "\t\t\t\t\tPrecision=\"8\"\n";
+					xfile << "\t\t\t\t\tFormat=\"HDF\">\n";
+					xfile << "\t\t\t\t\t" << fname << ".h5:/VectorX\n";
+					xfile << "\t\t\t\t</DataItem>\n";
+					xfile << "\t\t\t\t<DataItem ItemType=\"Uniform\"\n";
+					xfile << "\t\t\t\t\tDimensions=\""<< N[1] << "\"\n";
+					xfile << "\t\t\t\t\tNumberType=\"Float\"\n";
+					xfile << "\t\t\t\t\tPrecision=\"8\"\n";
+					xfile << "\t\t\t\t\tFormat=\"HDF\">\n";
+					xfile << "\t\t\t\t\t" << fname << ".h5:/VectorY\n";
+					xfile << "\t\t\t\t</DataItem>\n";
+					xfile << "\t\t\t\t<DataItem ItemType=\"Uniform\"\n";
+					xfile << "\t\t\t\t\tDimensions=\""<< N[2] << "\"\n";
+					xfile << "\t\t\t\t\tNumberType=\"Float\"\n";
+					xfile << "\t\t\t\t\tPrecision=\"8\"\n";
+					xfile << "\t\t\t\t\tFormat=\"HDF\">\n";
+					xfile << "\t\t\t\t\t" << fname << ".h5:/VectorZ\n";
+					xfile << "\t\t\t\t</DataItem>\n";
+					xfile << "\t\t\t</Geometry>\n";
+					xfile << "\t\t\t<Attribute Name=\"Pressure\" AttributeType=\"Scalar\" Center=\"Node\">\n";
+					xfile << "\t\t\t\t<DataItem Dimensions=\""<< N[2] << " " << N[1] << " " << N[0] << "\" NumberType=\"Float\" Precision=\"8\" Format=\"HDF\">\n";
+					xfile << "\t\t\t\t\t" << fname << ".h5:/pre\n";
+					xfile << "\t\t\t\t</DataItem>\n";
+					xfile << "\t\t\t</Attribute>\n";
+					xfile << "\t\t</Grid>\n";
+					xfile << "\t</Domain>\n";
+					xfile << "</Xdmf>\n";
+					xfile.close();
+					break;
 			}
 
 		if( !restart ) {

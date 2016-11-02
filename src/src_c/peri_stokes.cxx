@@ -211,47 +211,47 @@ int main(int argi, char** argv ) {
   // create choosen preconditioner
   Teuchos::RCP<Pimpact::OperatorBase<MVF> > lprec = Teuchos::null;
 
-  switch(precType) {
-		
-  //case 1: { // didn't realy work
-    //if(rank==0) std::cout << "\n\tprecType: 1, -Dt/omega\n";
+	switch(precType) {
 
-    //lprec =
-        //Pimpact::createMultiOperatorBase(
-            //Pimpact::createDtModeOp<SpaceT>( -1./alpha2 ) );
-    //break;
-  //}
-  case 2: {
-    if(rank==0) std::cout << "\n\tprecType: 2, Lap^-1\n";
+		//case 1: { // didn't realy work
+		//if(rank==0) std::cout << "\n\tprecType: 1, -Dt/omega\n";
 
-    auto solverParams = Pimpact::createLinSolverParameter( "CG", tol*l1*l2/n1/n2/1000 );
-    solverParams->set ("Verbosity", int( Belos::Errors) );
-    auto op =
-        Pimpact::createMultiModeOperatorBase<MVF>(
-            Pimpact::create<Pimpact::HelmholtzOp>( space )
-        );
-    // Create the Pimpact::LinearSolver solver.
-    auto prob =
-        Pimpact::createLinearProblem<MVF>(
-            op,
-            fu,
-            fu, solverParams, "CG" );
+		//lprec =
+		//Pimpact::createMultiOperatorBase(
+		//Pimpact::createDtModeOp<SpaceT>( -1./alpha2 ) );
+		//break;
+		//}
+		case 2: {
+			if(rank==0) std::cout << "\n\tprecType: 2, Lap^-1\n";
 
-    lprec = Pimpact::createOperatorBase( Pimpact::createInverseOperator<MVF>( prob ) );
-    break;
-  }
-  case 3: {
-    if(rank==0) std::cout << "\n\tprecType: 3, EddyPrec(CG)\n";
+			auto solverParams = Pimpact::createLinSolverParameter( "CG", tol*l1*l2/n1/n2/1000 );
+			solverParams->set ("Verbosity", int( Belos::Errors) );
+			auto op =
+				Pimpact::createMultiModeOperatorBase<MVF>(
+						Pimpact::create<Pimpact::HelmholtzOp>( space )
+						);
+			// Create the Pimpact::LinearSolver solver.
+			auto prob =
+				Pimpact::createLinearProblem<MVF>(
+						op,
+						fu,
+						fu, solverParams, "CG" );
 
-    auto solverParams = Pimpact::createLinSolverParameter( "CG", tol*l1*l2/n1/n2/1000 );
-    solverParams->set( "Verbosity", int( Belos::Errors) );
-		auto A =
-			Pimpact::createMultiOperatorBase(
-					Pimpact::create<Pimpact::HelmholtzOp>( space )
-					);
+			lprec = Pimpact::createOperatorBase( Pimpact::createInverseOperator<MVF>( prob ) );
+			break;
+		}
+		case 3: {
+			if(rank==0) std::cout << "\n\tprecType: 3, EddyPrec(CG)\n";
 
-		auto para = Teuchos::parameterList();
-		para->set<S>( "mulI", alpha2 );
+			auto solverParams = Pimpact::createLinSolverParameter( "CG", tol*l1*l2/n1/n2/1000 );
+			solverParams->set( "Verbosity", int( Belos::Errors) );
+			auto A =
+				Pimpact::createMultiOperatorBase(
+						Pimpact::create<Pimpact::HelmholtzOp>( space )
+						);
+
+			auto para = Teuchos::parameterList();
+			para->set<S>( "mulI", alpha2 );
 
 		A->setParameter( para );
 
@@ -340,56 +340,56 @@ int main(int argi, char** argv ) {
 
   // create choosen preconditioner
   Teuchos::RCP<Pimpact::OperatorBase<MSF> > precSchur = Teuchos::null;
-  switch(precTypeSchur) {
-  case 0:
-    break;
-  case 1: {
+	switch(precTypeSchur) {
+		case 0:
+			break;
+		case 1: {
 
-//    //--- inverse DivGrad
-//    auto divGradPrec =
-//        Pimpact::createMultiOperatorBase< MSF >(
-//            Pimpact::createModeOpWrap( Pimpact::createMGVDivGradOp<S,O,3>(true) ) );
-//
-//    auto divGradProb =
-//        Pimpact::createLinearProblem< MSF >(
-//            Pimpact::createMultiOperatorBase< MSF >(
-//                Pimpact::createModeOpWrap(
-//                    Pimpact::createDivGradOp<S,O,3>(
-//                        u->getConstFieldPtr(0)->getConstCFieldPtr()->clone(),
-//                        Pimpact::createDivOp( space ),
-//                        Pimpact::createGradOp( space )
-//                    )
-//                )
-//            ),
-//            Teuchos::null,
-//            Teuchos::null,
-//            Teuchos::parameterList(),
-//            "GMRES" );
-//    divGradProb->setRightPrec( divGradPrec );
-//    auto divGradInv = Pimpact::createInverseOperatorBase( divGradProb );
-//
-//    precSchur =
-//        Pimpact::createOperatorBase(
-//            Pimpact::createTripleCompositionOp(
-//                divGradInv,
-//                Pimpact::createInverseOperator( schurProb ),
-//                divGradInv ) );
+			//    //--- inverse DivGrad
+			//    auto divGradPrec =
+			//        Pimpact::createMultiOperatorBase< MSF >(
+			//            Pimpact::createModeOpWrap( Pimpact::createMGVDivGradOp<S,O,3>(true) ) );
+			//
+			//    auto divGradProb =
+			//        Pimpact::createLinearProblem< MSF >(
+			//            Pimpact::createMultiOperatorBase< MSF >(
+			//                Pimpact::createModeOpWrap(
+			//                    Pimpact::createDivGradOp<S,O,3>(
+			//                        u->getConstFieldPtr(0)->getConstCFieldPtr()->clone(),
+			//                        Pimpact::createDivOp( space ),
+			//                        Pimpact::createGradOp( space )
+			//                    )
+			//                )
+			//            ),
+			//            Teuchos::null,
+			//            Teuchos::null,
+			//            Teuchos::parameterList(),
+			//            "GMRES" );
+			//    divGradProb->setRightPrec( divGradPrec );
+			//    auto divGradInv = Pimpact::createInverseOperatorBase( divGradProb );
+			//
+			//    precSchur =
+			//        Pimpact::createOperatorBase(
+			//            Pimpact::createTripleCompositionOp(
+			//                divGradInv,
+			//                Pimpact::createInverseOperator( schurProb ),
+			//                divGradInv ) );
 
-    break;
-  }
-  default:
-    break;
-  }
-  if( leftPrec )
-    schurProb->setLeftPrec( precSchur );
-  else
-    schurProb->setRightPrec( precSchur );
+			break;
+		}
+		default:
+			break;
+	}
+	if( leftPrec )
+		schurProb->setLeftPrec( precSchur );
+	else
+		schurProb->setRightPrec( precSchur );
 
-  // solve stationary stokes
-  H_prob->solve( tempv, fu );
+	// solve stationary stokes
+	H_prob->solve( tempv, fu );
 
-  div->apply( *tempv, *temps );
-  temps->add( -1., *fp, 1., *temps );
+	div->apply( *tempv, *temps );
+	temps->add( -1., *fp, 1., *temps );
 
   solverParams = Pimpact::createLinSolverParameter( solver_name_1, tol*l1*l2/n1/n2 );
   solverParams->set( "Output Stream", outLap2 );

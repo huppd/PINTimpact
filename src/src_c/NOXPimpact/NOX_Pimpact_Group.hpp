@@ -159,30 +159,30 @@ public:
 		noxAssign_( Teuchos::TimeMonitor::getNewCounter("NOX: assign DF") ) {
 
 			switch (type) {
-			case DeepCopy:
-				isValidRHS = source.isValidRHS;
-				isValidJacobian = source.isValidJacobian;
-				isValidGrad = source.isValidGrad;
-				isValidNewton = source.isValidNewton;
-				isValidNormNewtonSolveResidual = source.isValidNormNewtonSolveResidual;
-				isValidConditionNumber = source.isValidConditionNumber;
-				normNewtonSolveResidual = source.normNewtonSolveResidual;
-				conditionNumber = source.conditionNumber;
-				isValidPreconditioner = source.isValidPreconditioner;
-				isValidSolverJacOp = source.isValidSolverJacOp;
+				case DeepCopy:
+					isValidRHS = source.isValidRHS;
+					isValidJacobian = source.isValidJacobian;
+					isValidGrad = source.isValidGrad;
+					isValidNewton = source.isValidNewton;
+					isValidNormNewtonSolveResidual = source.isValidNormNewtonSolveResidual;
+					isValidConditionNumber = source.isValidConditionNumber;
+					normNewtonSolveResidual = source.normNewtonSolveResidual;
+					conditionNumber = source.conditionNumber;
+					isValidPreconditioner = source.isValidPreconditioner;
+					isValidSolverJacOp = source.isValidSolverJacOp;
 
-				// New copy takes ownership of the shared Jacobian for DeepCopy
-				if (isValidJacobian)
-					sharedInterface.getObject(this);
-				break;
-			case ShapeCopy:
-				resetIsValid();
-				break;
-			default:
-				std::cerr << "ERROR: Invalid ConstructorType for group copy constructor." << std::endl;
-				throw "NOX Error";
+					// New copy takes ownership of the shared Jacobian for DeepCopy
+					if (isValidJacobian)
+						sharedInterface.getObject(this);
+					break;
+				case ShapeCopy:
+					resetIsValid();
+					break;
+				default:
+					std::cerr << "ERROR: Invalid ConstructorType for group copy constructor." << std::endl;
+					throw "NOX Error";
 			}
-  }
+		}
 
 
   /// Destructor.

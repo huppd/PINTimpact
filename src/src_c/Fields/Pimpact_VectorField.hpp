@@ -104,7 +104,7 @@ public:
 						break;
 				}
 			}
-	};
+		};
 
 
 	~VectorField() { if( owning_ ) delete[] s_; }
@@ -778,21 +778,21 @@ public:
 
 				Ordinal nTemp = space()->gu(X) - space()->gl(X) + 1;
 				//for( Ordinal i=0; i<=space()->nLoc(X); ++i ) {
-					//std::cout << "i: " << i<< " (\t";
-					//for( Ordinal ii=0; ii<nTemp; ++ii )
-						//std::cout << space()->getInterpolateV2S()->getC(X)[ i*nTemp + ii ] << ",\t";
-					//std::cout << ")\n";
+				//std::cout << "i: " << i<< " (\t";
+				//for( Ordinal ii=0; ii<nTemp; ++ii )
+				//std::cout << space()->getInterpolateV2S()->getC(X)[ i*nTemp + ii ] << ",\t";
+				//std::cout << ")\n";
 				//}
 				//Scalar c[6] = { 
-					//space()->getInterpolateV2S()->getC(X)[ nTemp + 0 ],
-					//space()->getInterpolateV2S()->getC(X)[ nTemp + 1 ],
-					//space()->getInterpolateV2S()->getC(X)[ nTemp + 2 ],
-					//space()->getInterpolateV2S()->getC(X)[ nTemp + 3 ],
-					//space()->getInterpolateV2S()->getC(X)[ nTemp + 4 ],
-					//space()->getInterpolateV2S()->getC(X)[ nTemp + 5 ] };
+				//space()->getInterpolateV2S()->getC(X)[ nTemp + 0 ],
+				//space()->getInterpolateV2S()->getC(X)[ nTemp + 1 ],
+				//space()->getInterpolateV2S()->getC(X)[ nTemp + 2 ],
+				//space()->getInterpolateV2S()->getC(X)[ nTemp + 3 ],
+				//space()->getInterpolateV2S()->getC(X)[ nTemp + 4 ],
+				//space()->getInterpolateV2S()->getC(X)[ nTemp + 5 ] };
 				//std::cout << "c\n";
 				//for( Ordinal ii=0; ii<nTemp; ++ii )
-					//std::cout << c[  ii ] << ",\t";
+				//std::cout << c[  ii ] << ",\t";
 				//std::cout << "c\n";
 
 				VF_init_SHBF( 
@@ -826,7 +826,7 @@ public:
 						sFields_[W]->getRawPtr() );
 
 				std::cout << "hello\n"
-				<< space()->getInterpolateV2S()->getC(X)[9] << "\n";
+					<< space()->getInterpolateV2S()->getC(X)[9] << "\n";
 
 				break;
 			}
@@ -868,20 +868,20 @@ public:
 			case Couette : {
 				getFieldPtr(U)->initFromFunction( 
 						[]( Scalar x, Scalar y, Scalar z ) -> Scalar {
-							return( y );
+						return( y );
 						} );
 				break;
-		  }
+			}
 			case Cavity : {
 				getFieldPtr(U)->initFromFunction( 
 						[]( Scalar x, Scalar y, Scalar z ) -> Scalar {
-							if( std::abs(x-1.)<0.5 )
-								return( 1. );
-							else
-								return( 0. );
+						if( std::abs(x-1.)<0.5 )
+						return( 1. );
+						else
+						return( 0. );
 						} );
 				break;
-		 }
+			}
 		}
 		changed();
 	}

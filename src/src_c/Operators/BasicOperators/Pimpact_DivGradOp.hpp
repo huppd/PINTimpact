@@ -72,7 +72,7 @@ public:
 				break;
 			}
 		}
-  }
+	}
 
 
 	void computeResidual( const RangeFieldT& b, const DomainFieldT& x, RangeFieldT& res ) const {

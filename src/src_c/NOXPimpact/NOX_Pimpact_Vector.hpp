@@ -203,15 +203,15 @@ public:
   /// \return Pointer to newly created vector or NULL if clone is not supported.
   virtual Teuchos::RCP<NOX::Abstract::Vector>
   clone(NOX::CopyType type = NOX::DeepCopy) const {
-    switch(type) {
-    case NOX::DeepCopy:
-      return( Teuchos::rcp(new Vector<Field>( field_->clone( ::Pimpact::ECopy::Deep) ) ) );
-    case NOX::ShapeCopy:
-      return( Teuchos::rcp(new Vector<Field>( field_->clone( ::Pimpact::ECopy::Shallow) ) ) );
-    default: // just to make the compliler happy
-      return( Teuchos::null );
-    }
-  }
+		switch(type) {
+			case NOX::DeepCopy:
+				return( Teuchos::rcp(new Vector<Field>( field_->clone( ::Pimpact::ECopy::Deep) ) ) );
+			case NOX::ShapeCopy:
+				return( Teuchos::rcp(new Vector<Field>( field_->clone( ::Pimpact::ECopy::Shallow) ) ) );
+			default: // just to make the compliler happy
+				return( Teuchos::null );
+		}
+	}
 
 
   /// \brief Create a MultiVector with \c numVecs+1 columns out of an array of
@@ -247,13 +247,13 @@ public:
   /// </uL>
   /// \return \f$\|x\|\f$
   virtual double norm( NOX::Abstract::Vector::NormType type=NOX::Abstract::Vector::TwoNorm) const {
-    switch( type ) {
-    case OneNorm: return( field_->norm( Belos::OneNorm ) );
-    case TwoNorm: return( field_->norm( Belos::TwoNorm ) );
-    case MaxNorm: return( field_->norm( Belos::InfNorm ) );
-    default: std::cout << "!!! Warning unknown NOX::Pimpact::Vector::NormType:\t" << type << "\n"; return(0.); // unnecssary but surpresses compiler warning
-    }
-  }
+		switch( type ) {
+			case OneNorm: return( field_->norm( Belos::OneNorm ) );
+			case TwoNorm: return( field_->norm( Belos::TwoNorm ) );
+			case MaxNorm: return( field_->norm( Belos::InfNorm ) );
+			default: std::cout << "!!! Warning unknown NOX::Pimpact::Vector::NormType:\t" << type << "\n"; return(0.); // unnecssary but surpresses compiler warning
+		}
+	}
 
 
   /// \brief Weighted 2-Norm.

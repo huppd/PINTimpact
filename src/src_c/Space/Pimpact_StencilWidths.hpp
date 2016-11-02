@@ -99,78 +99,78 @@ protected:
     //--- Anzahl Stencil-Koeffizienten (Rand) -------------------------------------------------------------------
     // implementation here is a little bit fuzzy, because Tuple has no nice templated constructor we copy
     for( int i=0; i<3; ++i ) {
-      switch(dimNC) {
-      case(2): {
+			switch(dimNC) {
+				case(2): {
 
-        auto tempC = Teuchos::tuple( 2, 3 );
-        auto tempD = Teuchos::tuple( 2, 2 );
-        auto tempG = Teuchos::tuple( 0, 2 );
+					auto tempC = Teuchos::tuple( 2, 3 );
+					auto tempD = Teuchos::tuple( 2, 2 );
+					auto tempG = Teuchos::tuple( 0, 2 );
 
-        for( int j=0; j<dimNC; ++j ) {
-          ncbC_[i][j] = tempC[j];
-          ncbD_[i][j] = tempD[j];
-          ncbG_[i][j] = tempG[j];
-        }
-        break;
-      }
-      case(3): {
-            auto tempC = Teuchos::tuple( 3, 4, 5 );
-            auto tempD = Teuchos::tuple( 3, 4, 4 );
-            auto tempG = Teuchos::tuple( 2, 3, 4 );
+					for( int j=0; j<dimNC; ++j ) {
+						ncbC_[i][j] = tempC[j];
+						ncbD_[i][j] = tempD[j];
+						ncbG_[i][j] = tempG[j];
+					}
+					break;
+				}
+				case(3): {
+					auto tempC = Teuchos::tuple( 3, 4, 5 );
+					auto tempD = Teuchos::tuple( 3, 4, 4 );
+					auto tempG = Teuchos::tuple( 2, 3, 4 );
 
-        for( int j=0; j<dimNC; ++j ) {
-          ncbC_[i][j] = tempC[j];
-          ncbD_[i][j] = tempD[j];
-          ncbG_[i][j] = tempG[j];
-        }
-        break;
-      }
-      case(4): {
-        // Stabil   (xi >= 2, Re=10000, N=17)
-        auto tempC = Teuchos::tuple( 4, 5, 5, 7 );
-        auto tempD = Teuchos::tuple( 4, 4, 6, 6 );
-        auto tempG = Teuchos::tuple( 3, 4, 4, 6 );
-        for( int j=0; j<dimNC; ++j ) {
-          ncbC_[i][j] = tempC[j];
-          ncbD_[i][j] = tempD[j];
-          ncbG_[i][j] = tempG[j];
-        }
-        break;
-      }
-      case(5): {
-        // Instabil (äquidistant, Re=10000, N=17)
-        // auto tempC = Teuchos::tuple( 5, 6, 6, 7, 9 );
-        // auto tempD = Teuchos::tuple( 5, 4, 6, 8, 8 );
-        // auto tempG = Teuchos::tuple( 0, 5, 4, 6, 8 );
-        // Stabil  (Re=10000, N=65, leicht gestreckt, explizites Forcing)
-        auto tempC = Teuchos::tuple( 3, 7, 7, 7, 9 );
-        auto tempD = Teuchos::tuple( 6, 6, 6, 8, 8 );
-        auto tempG = Teuchos::tuple( 0, 6, 6, 6, 8 );
+					for( int j=0; j<dimNC; ++j ) {
+						ncbC_[i][j] = tempC[j];
+						ncbD_[i][j] = tempD[j];
+						ncbG_[i][j] = tempG[j];
+					}
+					break;
+				}
+				case(4): {
+					// Stabil   (xi >= 2, Re=10000, N=17)
+					auto tempC = Teuchos::tuple( 4, 5, 5, 7 );
+					auto tempD = Teuchos::tuple( 4, 4, 6, 6 );
+					auto tempG = Teuchos::tuple( 3, 4, 4, 6 );
+					for( int j=0; j<dimNC; ++j ) {
+						ncbC_[i][j] = tempC[j];
+						ncbD_[i][j] = tempD[j];
+						ncbG_[i][j] = tempG[j];
+					}
+					break;
+				}
+				case(5): {
+					// Instabil (äquidistant, Re=10000, N=17)
+					// auto tempC = Teuchos::tuple( 5, 6, 6, 7, 9 );
+					// auto tempD = Teuchos::tuple( 5, 4, 6, 8, 8 );
+					// auto tempG = Teuchos::tuple( 0, 5, 4, 6, 8 );
+					// Stabil  (Re=10000, N=65, leicht gestreckt, explizites Forcing)
+					auto tempC = Teuchos::tuple( 3, 7, 7, 7, 9 );
+					auto tempD = Teuchos::tuple( 6, 6, 6, 8, 8 );
+					auto tempG = Teuchos::tuple( 0, 6, 6, 6, 8 );
 
-        for( int j=0; j<dimNC; ++j ) {
-          ncbC_[i][j] = tempC[j];
-          ncbD_[i][j] = tempD[j];
-          ncbG_[i][j] = tempG[j];
-        }
-        break;
-      }
-      case(6): {
-        // Instabil (äquidistant, Re=10000, N=17)
-        auto tempC = Teuchos::tuple( 6, 7, 7, 7,  9, 11 );
-        auto tempD = Teuchos::tuple( 6, 6, 6, 8, 10, 10 );
-        auto tempG = Teuchos::tuple( 5, 6, 6, 6,  8, 10 );
-        for( int j=0; j<dimNC; ++j ) {
-          ncbC_[i][j] = tempC[j];
-          ncbD_[i][j] = tempD[j];
-          ncbG_[i][j] = tempG[j];
-        }
-        break;
-      }
-      default:
-        // throw exeption
-        ;
-      }
-    }
+					for( int j=0; j<dimNC; ++j ) {
+						ncbC_[i][j] = tempC[j];
+						ncbD_[i][j] = tempD[j];
+						ncbG_[i][j] = tempG[j];
+					}
+					break;
+				}
+				case(6): {
+					// Instabil (äquidistant, Re=10000, N=17)
+					auto tempC = Teuchos::tuple( 6, 7, 7, 7,  9, 11 );
+					auto tempD = Teuchos::tuple( 6, 6, 6, 8, 10, 10 );
+					auto tempG = Teuchos::tuple( 5, 6, 6, 6,  8, 10 );
+					for( int j=0; j<dimNC; ++j ) {
+						ncbC_[i][j] = tempC[j];
+						ncbD_[i][j] = tempD[j];
+						ncbG_[i][j] = tempG[j];
+					}
+					break;
+				}
+				default:
+					// throw exeption
+					;
+			}
+		}
 
     // Anzahl der Koeffizienten im Feld (zentrale Differenzen angenommen):
     Teuchos::Tuple<int,3> ncC;

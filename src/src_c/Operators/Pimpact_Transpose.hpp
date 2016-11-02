@@ -58,7 +58,7 @@ public:
 				break;
 			}
 		}
-  }
+	}
 
   void assignField( const DomainFieldT& mv ) {
     op_->assignField( mv );
