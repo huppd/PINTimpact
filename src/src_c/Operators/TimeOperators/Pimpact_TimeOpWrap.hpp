@@ -49,9 +49,8 @@ public:
 		temp_( create<typename OperatorT::RangeFieldT>(op->space()) ) {};
 
   /// \brief default apply
-  void apply( const DomainFieldT& x,
-      RangeFieldT& y,
-      Belos::ETrans trans=Belos::NOTRANS ) const {
+	void apply( const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans&
+			trans=Belos::NOTRANS ) const {
 
     if( true==CNyes ) {
 

@@ -39,7 +39,7 @@ public:
 
   MultiHarmonicMultiOpWrap( const Teuchos::RCP<MultiOperator>& op ): op_(op) {};
 
-	void apply( const DomainFieldT& x, RangeFieldT& y, Belos::ETrans
+	void apply( const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans&
 			trans=Belos::NOTRANS) const {
 
 		Teuchos::RCP<typename MultiOperator::DomainFieldT> mx =

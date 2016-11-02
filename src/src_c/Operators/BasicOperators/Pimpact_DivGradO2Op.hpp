@@ -85,7 +85,7 @@ public:
 	}
 
 
-	void apply( const DomainFieldT& x, RangeFieldT& y, Belos::ETrans
+	void apply( const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans&
 			trans=Belos::NOTRANS ) const {
 
 		x.exchange();
@@ -130,11 +130,25 @@ public:
 	/// \todo add eps
 	void applyInvDiag( const DomainFieldT& x, RangeFieldT& y ) const {
 
+		const Scalar& eps = 0.1;
+
 		if( 3==space()->dim() ) {
 			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
 				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
 					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
-						Scalar diag = std::abs( getC(X,i,0) + getC(Y,j,0) + getC(Z,k,0) );
+
+						const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->begin(S,X) ) ||
+							(               space()->getBCLocal()->getBCU(X) > 0 && i==space()->end(S,X) ) ;
+						const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->begin(S,Y) ) ||
+							(               space()->getBCLocal()->getBCU(Y) > 0 && j==space()->end(S,Y) ) ;
+						const bool bcZ = (space()->getBCLocal()->getBCL(Z) > 0 && k==space()->begin(S,Z) ) ||
+							(               space()->getBCLocal()->getBCU(Z) > 0 && k==space()->end(S,Z) ) ;
+
+						const Scalar epsX = ( (bcY||bcZ)?eps:1. );
+						const Scalar epsY = ( (bcX||bcZ)?eps:1. );
+						const Scalar epsZ = ( (bcX||bcY)?eps:1. );
+
+						Scalar diag = std::abs( epsX*getC(X,i,0) + epsY*getC(Y,j,0) + epsZ*getC(Z,k,0) );
 						std::cout << i << "\t" << j << "\t" << k << "\t" << diag << "\n";
 						y.at(i,j,k) = x.at(i,j,k)/diag;
 					}
@@ -142,8 +156,17 @@ public:
 		else {
 			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
 				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
-					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i )
-						y.at(i,j,k) = x.at(i,j,k)/std::abs( getC(X,i,0) + getC(Y,j,0) );
+					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
+						const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->begin(S,X) ) ||
+							(               space()->getBCLocal()->getBCU(X) > 0 && i==space()->end(S,X) ) ;
+						const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->begin(S,Y) ) ||
+							(               space()->getBCLocal()->getBCU(Y) > 0 && j==space()->end(S,Y) ) ;
+
+						const Scalar epsX = ( bcY?eps:1. );
+						const Scalar epsY = ( bcX?eps:1. );
+
+						y.at(i,j,k) = x.at(i,j,k)/std::abs( epsX*getC(X,i,0) + epsY*getC(Y,j,0) );
+					}
 		}
 
 		y.changed();

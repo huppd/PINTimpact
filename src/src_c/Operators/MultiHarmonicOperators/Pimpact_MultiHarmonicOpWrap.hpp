@@ -42,7 +42,7 @@ public:
 
 
 	void apply( const DomainFieldT& x, RangeFieldT& y,
-      Belos::ETrans trans=Belos::NOTRANS) const {
+      const Belos::ETrans& trans=Belos::NOTRANS) const {
 
 		if( 0==space()->begin(U,3) )
 			op_->apply( x.getConst0Field(), y.get0Field() );

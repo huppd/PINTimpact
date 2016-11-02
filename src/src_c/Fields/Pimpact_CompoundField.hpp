@@ -264,7 +264,7 @@ public:
     sfield_->initField();
 	}
 
-	void extrapolateBC( Belos::ETrans trans=Belos::NOTRANS ) {
+	void extrapolateBC( const Belos::ETrans& trans=Belos::NOTRANS ) {
 		vfield_->extrapolateBC( trans );
     sfield_->extrapolateBC( trans );
   }

@@ -74,7 +74,7 @@ public:
 	}
 
 
-	NOX::Abstract::Group::ReturnType applyJacobian( const FieldT& x, FieldT& y, Belos::ETrans type=Belos::NOTRANS ) {
+	NOX::Abstract::Group::ReturnType applyJacobian( const FieldT& x, FieldT& y, const Belos::ETrans& type=Belos::NOTRANS ) {
 		return( NOX::Abstract::Group::NotDefined );
 	}
 

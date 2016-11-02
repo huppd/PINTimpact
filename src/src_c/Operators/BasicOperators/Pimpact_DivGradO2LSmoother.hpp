@@ -139,8 +139,8 @@ public:
 
   /// \f[ y_k = (1-\omega) y_k + \omega D^{-1}( x - A y_k ) \f]
 	/// \note todo solve multiple problems at once
-	void apply(const DomainFieldT& b, RangeFieldT& y,
-			Belos::ETrans trans=Belos::NOTRANS ) const {
+	void apply(const DomainFieldT& b, RangeFieldT& y, const Belos::ETrans&
+			trans=Belos::NOTRANS ) const {
 
 		Teuchos::RCP<DomainFieldT> temp =
 			Teuchos::rcp( new DomainFieldT( space() ) );

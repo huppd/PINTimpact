@@ -303,7 +303,7 @@ int main(int argi, char** argv ) {
   //x->init( 0. );
   x->random();
   
-  auto fu   = x->clone(Pimpact::ShallowCopy);
+  auto fu   = x->clone(Pimpact::ECopy::Shallow);
   fu->init( 0. );
 
   Teuchos::RCP<VF> force=Teuchos::null;
@@ -312,7 +312,7 @@ int main(int argi, char** argv ) {
 	if( 0!=forcing )
 	{
 
-		force = x->getConstFieldPtr(0)->getConstVFieldPtr()->clone( Pimpact::ShallowCopy );
+		force = x->getConstFieldPtr(0)->getConstVFieldPtr()->clone( Pimpact::ECopy::Shallow );
 
 		Pimpact::initVectorTimeField(
 				force,
@@ -327,7 +327,7 @@ int main(int argi, char** argv ) {
 
 		fu->getFieldPtr(0)->getVFieldPtr()->scale( *force );
 
-		forcem1 = force->clone(Pimpact::ShallowCopy);
+		forcem1 = force->clone(Pimpact::ECopy::Shallow);
 		forcem1->init( 1. );
 		forcem1->add( 1., *forcem1, -1., *force );
 

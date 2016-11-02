@@ -26,7 +26,8 @@ public:
 
   using SpaceT = typename DomainFieldT::SpaceT;
 
-  virtual void apply( const DomainField& x, RangeField& y, Belos::ETrans trans=Belos::NOTRANS ) const {} ;
+	virtual void apply( const DomainField& x, RangeField& y, const Belos::ETrans&
+			trans=Belos::NOTRANS ) const {} ;
 
   virtual void assignField( const DomainField& mv ) {};
 
@@ -64,8 +65,9 @@ public:
 
   virtual ~OperatorPimpl() {opm_=Teuchos::null;};
 
-  virtual void apply( const DomainFieldT& x, RangeFieldT& y, Belos::ETrans trans=Belos::NOTRANS ) const {
-    opm_->apply( x, y, trans );
+	virtual void apply( const DomainFieldT& x, RangeFieldT& y, const
+			Belos::ETrans& trans=Belos::NOTRANS ) const {
+		opm_->apply( x, y, trans );
   }
 
   virtual void assignField( const DomainFieldT& field ) {

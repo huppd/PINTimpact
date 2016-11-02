@@ -174,7 +174,7 @@ int main(int argi, char** argv ) {
 		if( refinement>1 )
 			rl = std::to_string( (long long)refine ); // long long needed on brutus(intel)
 
-		auto fu   = x->clone( Pimpact::ShallowCopy );
+		auto fu   = x->clone( Pimpact::ECopy::Shallow );
 		if( 0==pl->get<int>("forcing", 1) )
 			fu->init( 0. );
 		else {

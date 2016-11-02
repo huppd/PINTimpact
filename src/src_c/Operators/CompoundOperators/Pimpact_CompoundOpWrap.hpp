@@ -54,8 +54,8 @@ public:
 		opS2V_(opS2V),
 		opV2S_(opV2S) {};
 
-	void apply(const DomainFieldT& x, RangeFieldT& y,
-			Belos::ETrans trans=Belos::NOTRANS  ) const {
+	void apply(const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans&
+			trans=Belos::NOTRANS  ) const {
 
 		Teuchos::RCP<VF> temp = Teuchos::rcp( new VF( space() ) );
 

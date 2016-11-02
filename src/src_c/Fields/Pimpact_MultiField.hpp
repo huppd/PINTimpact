@@ -500,7 +500,7 @@ public:
 			mfs_[i]->initField();
 	}
 
-	void extrapolateBC( Belos::ETrans trans=Belos::NOTRANS ) {
+	void extrapolateBC( const Belos::ETrans& trans=Belos::NOTRANS ) {
 		const int n = getNumberVecs();
 		for( int i=0; i<n; ++i )
 			mfs_[i]->extrapolateBC( trans );

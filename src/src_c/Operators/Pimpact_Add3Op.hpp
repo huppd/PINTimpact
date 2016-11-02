@@ -43,8 +43,8 @@ public:
       const Teuchos::RCP<OP3>& op3=Teuchos::null ):
         op1_(op1), op2_(op2), op3_(op3) {};
 
-  void apply(const DomainFieldT& x, RangeFieldT& y,
-      Belos::ETrans trans=Belos::NOTRANS ) const {
+	void apply(const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans&
+			trans=Belos::NOTRANS ) const {
 
 		Teuchos::RCP<RangeFieldT> temp = Teuchos::rcp( new RangeFieldT( space() ) );
 

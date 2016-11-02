@@ -889,7 +889,7 @@ public:
 
 	/// \brief extrapolates on the boundaries such that it is zero
 	/// \note dirty hack(necessary for TripleCompostion)
-	void extrapolateBC( Belos::ETrans trans=Belos::NOTRANS ) {
+	void extrapolateBC( const Belos::ETrans& trans=Belos::NOTRANS ) {
 		for( int i=0; i<space()->dim(); ++i )
 			getFieldPtr(i)->extrapolateBC( trans );
 	}

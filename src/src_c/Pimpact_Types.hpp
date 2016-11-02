@@ -16,10 +16,8 @@ namespace Pimpact {
 
 /// \brief Copy Type
 enum class ECopy : bool {
-  /// Deep Copy, means that everything is copied including boundaries
-  Deep,
-  /// Schallow Copy, up to now new field is initialized to zero.
-  Shallow
+	Deep,		///< Deep Copy, means that everything is copied including boundaries
+	Shallow	///< Shallow Copy, new field is initialized with zero.
 };
 
 
@@ -113,9 +111,10 @@ enum EForceType {
 };
 
 
+/// \todo use this, maybe change enum name
 enum class With : bool {
-	BC   = true,	///< [true] including grid points on the boundary
-	noBC = false 	///< [false] only inner points (DOF)
+	B   = true,	///< [true] including grid points on the boundary
+	noB = false	///< [false] only inner points (DOF)
 };
 
 int getDir1( const int& dir );

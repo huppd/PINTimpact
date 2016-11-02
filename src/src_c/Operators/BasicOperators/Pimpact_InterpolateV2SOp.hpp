@@ -126,7 +126,8 @@ public:
 
 
 
-	void apply( const DomainFieldT& x, RangeFieldT& y, Belos::ETrans trans=Belos::NOTRANS ) const {
+	void apply( const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans&
+			trans=Belos::NOTRANS ) const {
 
 #ifndef NDBEUG
 		TEUCHOS_TEST_FOR_EXCEPTION(

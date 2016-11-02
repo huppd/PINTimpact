@@ -162,7 +162,7 @@ int main( int argi, char** argv ) {
 		if( refinement>1 )
 			rl = std::to_string( static_cast<long long>(refine) ); // long long needed on brutus(intel)
 
-		auto fu = x->clone( Pimpact::ShallowCopy );
+		auto fu = x->clone( Pimpact::ECopy::Shallow );
 		fu->getFieldPtr(0)->getVFieldPtr()->initField( pl->sublist("Force") );
 
 		//if( withoutput )
@@ -276,6 +276,17 @@ int main( int argi, char** argv ) {
 					Pimpact::createInverseOp( 
 							Pimpact::createTranspose( divGradOp ),
 							Teuchos::rcpFromRef( pl->sublist("DivGrad^T") ) );
+
+				std::string divGradScalString =
+					pl->sublist("DivGrad^T").get<std::string>("scaling","none");
+				if( "none" != divGradScalString ) { 
+					if( "left" != divGradScalString )
+						divGradInvTT->setLeftPrec( Pimpact::createMultiOperatorBase(
+									Pimpact::createInvDiagonal( divGradOp ) ) );
+					if( "right" != divGradScalString )
+						divGradInvTT->setRightPrec( Pimpact::createMultiOperatorBase(
+									Pimpact::createInvDiagonal( divGradOp ) ) );
+				}
 
 				divGradInvTT->apply( *zeros, *nullspace );
 				S blup = std::sqrt( 1./nullspace->dot(*nullspace) );

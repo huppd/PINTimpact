@@ -340,7 +340,7 @@ public:
 		changed();
 	}
 
-	void extrapolateBC( Belos::ETrans trans=Belos::NOTRANS ) {
+	void extrapolateBC( const Belos::ETrans& trans=Belos::NOTRANS ) {
 
 		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
 			mfs_[i]->extrapolateBC( trans );

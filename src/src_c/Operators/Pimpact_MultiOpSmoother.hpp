@@ -42,8 +42,8 @@ public:
 		op_( Teuchos::rcp( new OperatorT( op->getOperatorPtr() ) ) ) {}
 
 
-	void apply( const DomainFieldT& x, RangeFieldT& y,
-			Belos::ETrans trans=Belos::NOTRANS) const {
+	void apply( const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans&
+			trans=Belos::NOTRANS) const {
 
     TEUCHOS_TEST_FOR_EXCEPT( x.getNumberVecs()!=y.getNumberVecs() );
 

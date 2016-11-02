@@ -136,7 +136,7 @@ int main( int argi, char** argv ) {
 				y->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inX );
 				y->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inY );
 
-				auto sol = y->clone( Pimpact::DeepCopy );
+				auto sol = y->clone( Pimpact::ECopy::Deep );
 
 				wind->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inX );
 				wind->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inY );
@@ -150,7 +150,7 @@ int main( int argi, char** argv ) {
 				op->apply( *y, *z );
 				{
 					y->init(0);
-					auto bc = z->clone( Pimpact::ShallowCopy );
+					auto bc = z->clone( Pimpact::ECopy::Shallow );
 					op->apply( *y, *bc );
 					z->add( 1., *z, -1., *bc );
 				}

@@ -469,7 +469,7 @@ public:
 		changed();
 	}
 
-	void extrapolateBC( Belos::ETrans trans=Belos::NOTRANS ) {
+	void extrapolateBC( const Belos::ETrans& trans=Belos::NOTRANS ) {
 
 		if( 0==space()->begin(U,3) )
 			get0FieldPtr()->extrapolateBC( trans );

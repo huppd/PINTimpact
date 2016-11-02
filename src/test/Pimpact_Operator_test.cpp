@@ -872,12 +872,16 @@ TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
 TEUCHOS_UNIT_TEST( BasicOperator, DivGradOp2M ) {
 
 	OT nx = 9;
-	OT ny = 7;
+	OT ny = 11;
 	OT nz = 7;
 
 	//OT nx = 9;
 	//OT ny = 9;
 	//OT nz = 9;
+	
+	//OT nx = 33;
+	//OT ny = 33;
+	//OT nz = 33;
 
 	Pimpact::setBoundaryConditions( pl, domain );
 	pl->set( "dim", dim );
@@ -928,6 +932,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradOp2M ) {
 
 	ones->init( 1. );
 	op->applyInvDiag( *ones, *diag );
+
+	diag->write(999);
 
 	OT nxS = space->end(Pimpact::S,Pimpact::X) - space->begin(Pimpact::S,Pimpact::X) + 1;
 	OT nyS = space->end(Pimpact::S,Pimpact::Y) - space->begin(Pimpact::S,Pimpact::Y) + 1;
@@ -1439,18 +1445,18 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
 	}
 
 	// InvDiag consistency test
-	//x->init( 1. );
-	//op->applyInvDiag( *x, *b );
-	//op2->applyInvDiag( *x, *x2 );
-	//b->write();
-	//x2->write(1);
+	x->init( 1. );
+	op->applyInvDiag( *x, *b );
+	op2->applyInvDiag( *x, *x2 );
+	b->write();
+	x2->write(1);
 
-	//x2->add( 1., *x2, -1., *b );
-	//x2->write(2);
-	//ST diff = x2->norm( Belos::InfNorm );
-	//if( 0==space->rankST() ) 
-		//std::cout << "diff InvDiag: " << diff << "\n";
-	//TEST_EQUALITY( diff<eps, true );
+	x2->add( 1., *x2, -1., *b );
+	x2->write(2);
+	ST diff = x2->norm( Belos::InfNorm );
+	if( 0==space->rankST() ) 
+		std::cout << "diff InvDiag: " << diff << "\n";
+	TEST_EQUALITY( diff<eps, true );
 }
 
 

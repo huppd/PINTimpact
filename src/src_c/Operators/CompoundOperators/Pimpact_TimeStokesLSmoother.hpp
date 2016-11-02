@@ -80,7 +80,7 @@ public:
 		numIters_( pl->get<int>("numIters",4) ) {};
 
 	void apply(const DomainFieldT& x, RangeFieldT& y, const Ordinal L=1,
-			Belos::ETrans trans=Belos::NOTRANS  ) const {
+			const Belos::ETrans& trans=Belos::NOTRANS  ) const {
 
 		Scalar pi = 4.*std::atan(1.);
 		Scalar idt = ((Scalar)space()->nGlo()[3])/2./pi;

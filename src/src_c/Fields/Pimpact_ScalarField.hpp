@@ -738,7 +738,7 @@ public:
 	}
 
 
-	void extrapolateBC( Belos::ETrans trans=Belos::NOTRANS ) {
+	void extrapolateBC( const Belos::ETrans& trans=Belos::NOTRANS ) {
 
 		switch( trans ) {
 			case Belos::NOTRANS : {

@@ -51,7 +51,7 @@ public:
     grad_(grad) {};
 
   void apply(const DomainFieldT& x, RangeFieldT& y,
-      Belos::ETrans trans=Belos::NOTRANS ) const {
+      const Belos::ETrans& trans=Belos::NOTRANS ) const {
 
 		Teuchos::RCP< VectorField<SpaceT> > temp = create<VectorField>( space() );
 
