@@ -187,6 +187,8 @@ public:
 
 		// BC scaling 
 		const Scalar& eps = 0.1;
+		//const Scalar& eps = 1.;
+		
 		for( int dir=0; dir<3; ++dir ) {
 			bool bc2 = true;
 			if( 0!=dir ) {

@@ -1535,8 +1535,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, DivGradOp, CS, MGT ) {
 	mgPL->set<int>( "numCycles", 1 );
 	mgPL->set<bool>( "defect correction", false );
 	//mgPL->set<bool>( "defect correction", true );
-	mgPL->set<bool>( "init zero", false );
-	//mgPL->set<bool>( "init zero", true );
+	//mgPL->set<bool>( "init zero", false );
+	mgPL->set<bool>( "init zero", true );
 
 	// Smoother: Line
 	//mgPL->sublist("Smoother").set<int>( "numIters", 4 );

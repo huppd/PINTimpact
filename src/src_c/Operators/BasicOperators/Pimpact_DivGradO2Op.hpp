@@ -195,17 +195,17 @@ protected:
 			const Ordinal& k ) const {
 
 		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->begin(S,X) ) ||
-		           (space()->getBCLocal()->getBCU(X) > 0 && i==space()->end(S,X) ) ;
+			(               space()->getBCLocal()->getBCU(X) > 0 && i==space()->end(S,X) ) ;
 		const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->begin(S,Y) ) ||
-		           (space()->getBCLocal()->getBCU(Y) > 0 && j==space()->end(S,Y) ) ;
+			(               space()->getBCLocal()->getBCU(Y) > 0 && j==space()->end(S,Y) ) ;
 		const bool bcZ = (space()->getBCLocal()->getBCL(Z) > 0 && k==space()->begin(S,Z) ) ||
-		           (space()->getBCLocal()->getBCU(Z) > 0 && k==space()->end(S,Z) ) ;
+			(               space()->getBCLocal()->getBCU(Z) > 0 && k==space()->end(S,Z) ) ;
 
 		const Scalar& eps = 1.e-1;
 
-		const Scalar epsX = (bcY||bcZ)?eps:1.;
-		const Scalar epsY = (bcX||bcZ)?eps:1.;
-		const Scalar epsZ = (bcX||bcY)?eps:1.;
+		const Scalar epsX = ( (bcY||bcZ)?eps:1. );
+		const Scalar epsY = ( (bcX||bcZ)?eps:1. );
+		const Scalar epsZ = ( (bcX||bcY)?eps:1. );
 
 		return( 
 				epsX*getC(X,i,-1)*x.at(i-1,j  ,k  ) + epsX*getC(X,i,1)*x.at(i+1,j  ,k  ) +

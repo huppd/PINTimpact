@@ -18,7 +18,7 @@ namespace Pimpact{
 
 /// \brief \f$\omega\f$-Line smoother for second Order DivGradOp.
 ///
-///
+/// \todo make stretch ready
 /// \relates DivGradO2Op
 /// \ingroup BaseOperator
 /// \note work in progress
@@ -97,10 +97,25 @@ public:
                                                         
 					ipiv_[dir] = Teuchos::rcp( new OVectorT( n_[dir], true ) );
 
-					for( Ordinal i=space()->begin( S, dir ); i<=space()->end( S, dir ); ++i ) {
+					// --- diagonal ---
+					for( int j=0; j<space()->dim(); ++j ) {
+						if( j==dir )
+								(*d_[dir])[space()->begin(S,dir)-space()->begin(S,dir)] += op_->getC( j,space()->begin(S,dir),  0 );
+						else
+							(*d_[dir])[space()->begin(S,dir)-space()->begin(S,dir)] += 0.1*op_->getC( j,space()->begin(S,dir),  0 );
+					}
+					for( Ordinal i=space()->begin( S, dir )+1; i<=space()->end( S, dir )-1; ++i ) {
 						for( int j=0; j<space()->dim(); ++j )
 							(*d_[dir])[i-space()->begin(S,dir)] += op_->getC( j, i,  0 );
 					}
+					for( int j=0; j<space()->dim(); ++j ) {
+						if( j==dir )
+							(*d_[dir])[space()->end(S,dir)-space()->begin(S,dir)] += op_->getC(j,space()->end(S,dir),0);
+						else
+							(*d_[dir])[space()->end(S,dir)-space()->begin(S,dir)] += 0.1*op_->getC(j,space()->end(S,dir),0);
+					}
+
+					// --- off diagonal
 					for( Ordinal i=space()->begin(S,dir); i<space()->end( S, dir ); ++i ) {
 						(*du_[dir])[i-space()->begin(S,dir)] = op_->getC( dir, i+1, +1 );
 						(*dl_[dir])[i-space()->begin(S,dir)] = op_->getC( dir, i  , -1 );
@@ -132,8 +147,8 @@ public:
 
 		for( int i=0; i<nIter_; ++i) {
 
-			//for( int dir=2; dir>=0; --dir ) { // why?
-			for( int dir=0; dir<3; ++dir ) { // why?
+			for( int dir=2; dir>=0; --dir ) { // why?
+			//for( int dir=0; dir<3; ++dir ) { // why?
 
 				if( true==lineDirection_[dir] ) {
 
@@ -148,8 +163,10 @@ public:
 
 					Teuchos::RCP<VectorT> B = Teuchos::rcp( new VectorT( n_[dir], false ) );
 
-					for( i[d1]=space()->begin(S,d1); i[d1]<=space()->end(S,d1); ++i[d1] )
-						for( i[d2]=space()->begin(S,d2); i[d2]<=space()->end(S,d2); ++i[d2] ) {
+					//for( i[d1]=space()->begin(S,d1)+1; i[d1]<=space()->end(S,d1)-1; ++i[d1] )
+						//for( i[d2]=space()->begin(S,d2)+1; i[d2]<=space()->end(S,d2)-1; ++i[d2] ) {
+					for( i[d1]=space()->begin(S,d1)+1; i[d1]<=space()->end(S,d1)-1; ++i[d1] )
+						for( i[d2]=space()->begin(S,d2)+1; i[d2]<=space()->end(S,d2)-1; ++i[d2] ) {
 
 							// transfer
 							for( i[dir]=space()->begin(S,dir); i[dir]<=space()->end(S,dir); ++i[dir] )

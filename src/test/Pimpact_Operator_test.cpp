@@ -60,7 +60,9 @@ using MVF = typename Pimpact::ModeField<VF>;
 
 
 bool testMpi = true;
-ST eps = 1e-8;
+int print = 0;
+//ST eps = Teuchos::ScalarTraits<ST>::eps()*10;
+ST eps = 1.e-8;
 
 int dim = 3;
 int domain = 0;
@@ -109,6 +111,7 @@ TEUCHOS_STATIC_SETUP() {
   clp.setOption(
       "eps", &eps,
       "Slack off of machine epsilon used to check test results" );
+	clp.setOption( "print", &print, "" );
 	clp.setOption( "domain", &domain, "domain" );
 	clp.setOption( "dim", &dim, "dim" );
 	clp.setOption( "omega", &omega,
@@ -170,8 +173,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivOp ) {
 		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
 		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
 		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
-		pl->sublist("Stretching in X").set<ST>( "x0 L", 0.05 );
-		pl->sublist("Stretching in X").set<ST>( "x0 U", 0. );
+		//pl->sublist("Stretching in X").set<ST>( "x0 L", 0.05 );
+		//pl->sublist("Stretching in X").set<ST>( "x0 U", 0. );
 	}
 	if( sy!=0 ) {
 		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
@@ -202,7 +205,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivOp ) {
 	auto op = Pimpact::create<Pimpact::DivOp>( space );
 	std::cout << "\n\nhello\n\n";
 
-	op->print();
+	if( print )
+		op->print();
 
 	op->apply( *vel, *p );
 
@@ -328,7 +332,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateV2SOp ) {
 
   auto op = Pimpact::createInterpolateV2S( space );
 	
-	op->print();
+	if( print )
+		op->print();
 
 	if( 0==rank )
 		std::cout << "\n";
@@ -407,7 +412,9 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateS2VOp ) {
 	auto solv = vel->clone();
 
 	auto op = Pimpact::create<Pimpact::InterpolateS2V>( space );
-	op->print();
+
+	if( print )
+		op->print();
 
 	if( 0==rank )
 		std::cout << "\n";
@@ -639,7 +646,9 @@ TEUCHOS_UNIT_TEST( BasicOperator, GradOp ) {
 		auto sol = v->clone();
 
 		auto op = Pimpact::create<Pimpact::GradOp>( space );
-		op->print();
+
+		if( print )
+			op->print();
 
 		// op in x test
 		p->initField( Pimpact::Grad2D_inX );
@@ -744,7 +753,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
 
 		auto op= Pimpact::create<Pimpact::HelmholtzOp>( space );
 
-		op->print();
+		if( print )
+			op->print();
 
 		// test in x direction
 		x->initField();
@@ -861,7 +871,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
 
 TEUCHOS_UNIT_TEST( BasicOperator, DivGradOp2M ) {
 
-	OT nx = 7;
+	OT nx = 9;
 	OT ny = 7;
 	OT nz = 7;
 
@@ -955,9 +965,14 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradOp2M ) {
 								*output << DJG(II,JJ) << "\t";
 							}
 					*output << "\n";
-					//std::cout << "|diag-diag| " << 1./std::abs(DJG(II,II))  << "\n";
-					//std::cout << "|diag-diag| " <<  diag->at(i,j,k) << "\n";
-					//std::cout << "|diag-diag| ("<<i<<", "<<j<< ", " <<k<<") " <<  1./std::abs(DJG(II,II))-diag->at(i,j,k) << "\n\n";
+					ST errorDiag = std::abs( 1./std::abs(DJG(II,II))-diag->at(i,j,k)) /
+						std::abs(1./std::abs(DJG(II,II)) );
+					if( errorDiag>=eps ) {
+						std::cout << "diag("<<i<<", "<<j<< ", " <<k<<")\t" <<
+							std::abs( 1./std::abs(DJG(II,II))-diag->at(i,j,k)
+									)/std::abs(1./std::abs(DJG(II,II))) << "\n";
+					}
+					TEST_EQUALITY( errorDiag<eps, true );
 				}
 	}
 
@@ -994,7 +1009,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradOp2M ) {
 	DJG -= DJGT;
 
 	ST errOne = DJG.normOne();
-	std::cout << "\n||DJG-DJG^TT||_1 = " << errOne << "\n";
+	std::cout << "\n\n||DJG-DJG^TT||_1 = " << errOne << "\n";
 	TEST_EQUALITY( errOne<eps, true );
 
 	ST errInf = DJG.normInf();
@@ -1278,6 +1293,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, GradOp2M ) {
 
 TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
 
+	Teuchos::RCP<Teuchos::ParameterList> pl = Teuchos::parameterList();
+
 	const int dNC = 2;
 
   Pimpact::setBoundaryConditions( pl, domain );
@@ -1317,6 +1334,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
   pl->set( "npz", npz );
   pl->set( "npf", npf );
 
+
   auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
   auto x = Pimpact::create<Pimpact::ScalarField>( space );
@@ -1327,8 +1345,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
   auto op = Pimpact::create<Pimpact::DivGradOp>( space );
   auto op2 = Pimpact::create<Pimpact::DivGradO2Op>( space );
 
-  op->print();
-  op2->print();
+	if( print ) {
+		op->print();
+		op2->print();
+	}
 
   // zero test
   b->initField( Pimpact::ConstField, 0. );
@@ -1377,6 +1397,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
 
 	// consistency test
 	b->random();
+	b->random();
 	op->apply( *b, *x );
 	op2->apply( *b, *x2 );
 
@@ -1387,6 +1408,9 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
 		std::cout << "consistency error random: inf: " << errInf << ", two: " << err2 << "\n";
 	TEST_EQUALITY( errInf<eps, true );
 	TEST_EQUALITY( err2<eps, true );
+	if( errInf>=eps ) {
+		x2->write();
+	}
 
 	for( int dir=0; dir<=6; ++dir ) {
 
@@ -1405,8 +1429,12 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
 		TEST_EQUALITY( err2<eps, true );
 		if( errInf>=eps && err2>=eps ) {
 			std::string r = std::to_string( static_cast<long long>( rank ) ); // long long needed on brutus(intel)
-			x2->print(
-					*Pimpact::createOstream( "error_dgo2_"+Pimpact::toString(type)+"_r"+r+".txt" ) );
+			x2->print( *Pimpact::createOstream(
+						"error_dgo2_"+Pimpact::toString(type)+"_r"+r+".txt" ) );
+			x2->write(dir+1);
+			x->write( (dir+1)*10 );
+			x2->add( 1., *x2, 1., *x );
+			x2->write( (dir+1)*100 );
 		}
 	}
 
@@ -1423,8 +1451,6 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
 	//if( 0==space->rankST() ) 
 		//std::cout << "diff InvDiag: " << diff << "\n";
 	//TEST_EQUALITY( diff<eps, true );
-	//space->getStencilWidths()->print();
-
 }
 
 
@@ -1485,8 +1511,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradTransposeOp ) {
 
 	auto divGrad = Pimpact::createDivGradOp( div, grad );
 
-	div->print();
-	grad->print();
+	if( print ) {
+		div->print();
+		grad->print();
+	}
 
 	xp->init(1.);
 	xv->init(1.);
@@ -1810,7 +1838,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Inv ) {
 
   auto op = Pimpact::create<Pimpact::DivGradO2Op>( space );
 
-	op->print2Mat();
+	if( print )
+		op->print2Mat();
 
   auto ppl = Teuchos::parameterList();
 
@@ -2798,8 +2827,8 @@ TEUCHOS_UNIT_TEST( Convergence, DivOp ) {
 				pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
 				pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(pl->get<OT>("nx"))/2. );
 				pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(pl->get<OT>("nx"))/2. );
-				pl->sublist("Stretching in X").set<ST>( "x0 L", 0.05 );
-				pl->sublist("Stretching in X").set<ST>( "x0 U", 0. );
+				//pl->sublist("Stretching in X").set<ST>( "x0 L", 0.05 );
+				//pl->sublist("Stretching in X").set<ST>( "x0 U", 0. );
 			}
 			if( sy!=0 ) {
 				pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
@@ -2916,8 +2945,8 @@ TEUCHOS_UNIT_TEST( Convergence, InterpolateV2SOp ) {
 				pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
 				pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(pl->get<OT>("nx"))/2. );
 				pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(pl->get<OT>("nx"))/2. );
-				pl->sublist("Stretching in X").set<ST>( "x0 L", 0.05 );
-				pl->sublist("Stretching in X").set<ST>( "x0 U", 0. );
+				//pl->sublist("Stretching in X").set<ST>( "x0 L", 0.05 );
+				//pl->sublist("Stretching in X").set<ST>( "x0 U", 0. );
 			}
 			if( sy!=0 ) {
 				pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
@@ -3033,8 +3062,8 @@ TEUCHOS_UNIT_TEST( Convergence, InterpolateS2VOp ) {
 				pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
 				pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(pl->get<OT>("nx"))/2. );
 				pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(pl->get<OT>("nx"))/2. );
-				pl->sublist("Stretching in X").set<ST>( "x0 L", 0.05 );
-				pl->sublist("Stretching in X").set<ST>( "x0 U", 0. );
+				//pl->sublist("Stretching in X").set<ST>( "x0 L", 0.05 );
+				//pl->sublist("Stretching in X").set<ST>( "x0 U", 0. );
 			}
 			if( sy!=0 ) {
 				pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
@@ -3266,8 +3295,8 @@ TEUCHOS_UNIT_TEST( Convergence, GradOp ) {
 				pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
 				pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(pl->get<OT>("nx"))/2. );
 				pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(pl->get<OT>("nx"))/2. );
-				pl->sublist("Stretching in X").set<ST>( "x0 L", 0.05 );
-				pl->sublist("Stretching in X").set<ST>( "x0 U", 0. );
+				//pl->sublist("Stretching in X").set<ST>( "x0 L", 0.05 );
+				//pl->sublist("Stretching in X").set<ST>( "x0 U", 0. );
 			}
 			if( sy!=0 ) {
 				pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
@@ -3393,8 +3422,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, DivGradOp, OperatorT ) {
 			pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
 			pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(pl->get<OT>("nx"))/2. );
 			pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(pl->get<OT>("nx"))/2. );
-			pl->sublist("Stretching in X").set<ST>( "x0 L", 0.05 );
-			pl->sublist("Stretching in X").set<ST>( "x0 U", 0. );
+			//pl->sublist("Stretching in X").set<ST>( "x0 L", 0.05 );
+			//pl->sublist("Stretching in X").set<ST>( "x0 U", 0. );
 		}
 		if( sy!=0 ) {
 			pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
@@ -3430,8 +3459,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, DivGradOp, OperatorT ) {
 			plRef->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
 			plRef->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(plRef->get<OT>("nx"))/2. );
 			plRef->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(plRef->get<OT>("nx"))/2. );
-			plRef->sublist("Stretching in X").set<ST>( "x0 L", 0.05 );
-			plRef->sublist("Stretching in X").set<ST>( "x0 U", 0. );
+			//plRef->sublist("Stretching in X").set<ST>( "x0 L", 0.05 );
+			//plRef->sublist("Stretching in X").set<ST>( "x0 U", 0. );
 		}
 		if( sy!=0 ) {
 			plRef->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
@@ -3492,8 +3521,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, DivGradOp, OperatorT ) {
 				pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
 				pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(pl->get<OT>("nx"))/2. );
 				pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(pl->get<OT>("nx"))/2. );
-				pl->sublist("Stretching in X").set<ST>( "x0 L", 0.05 );
-				pl->sublist("Stretching in X").set<ST>( "x0 U", 0. );
+				//pl->sublist("Stretching in X").set<ST>( "x0 L", 0.05 );
+				//pl->sublist("Stretching in X").set<ST>( "x0 U", 0. );
 			}
 			if( sy!=0 ) {
 				pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
@@ -3659,8 +3688,8 @@ TEUCHOS_UNIT_TEST( Convergence, HelmholtzOp ) {
 					pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
 					pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(pl->get<OT>("nx")) );
 					pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(pl->get<OT>("nx")) );
-					pl->sublist("Stretching in X").set<ST>( "x0 L", 0.05 );
-					pl->sublist("Stretching in X").set<ST>( "x0 U", 0. );
+					//pl->sublist("Stretching in X").set<ST>( "x0 L", 0.05 );
+					//pl->sublist("Stretching in X").set<ST>( "x0 U", 0. );
 				}
 				if( sy!=0 ) {
 					pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
