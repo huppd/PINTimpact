@@ -99,8 +99,8 @@ public:
   ///
   /// shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
   /// \param field 
-  /// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
-	TimeField( const TimeField& field, ECopyType copyType=DeepCopy ):
+  /// \param copyType by default a ECopyType::Shallow is done but allows also to deepcopy the field
+	TimeField( const TimeField& field, ECopyType copyType=ECopyType::Deep ):
 		AF( field.space() ),
 		exchangedState_( field.exchangedState_ ) {
 
@@ -119,14 +119,18 @@ public:
 			for( int i=0; i<nt; ++i )
 				mfs_[i]->setStoragePtr( array_+i*nx );
 
-			if( DeepCopy==copyType )
-				for( int i=0; i<nt; ++i ) {
-					mfs_[i]->assign( *(field.mfs_[i]) );
+			switch( copyType ) {
+				case( ECopyType::Deep ) : {
+					for( int i=0; i<nt; ++i )
+						mfs_[i]->assign( *(field.mfs_[i]) );
+					break;
 				}
-			else {
-				for( int i=0; i<nt*nx; ++i )
-					array_[i] = 0.;
-				exchangedState_ = true;
+				case( ECopyType::Shallow ) : {
+					for( int i=0; i<nt*nx; ++i )
+						array_[i] = 0.;
+					exchangedState_ = true;
+					break;
+				}
 			}
 	}
 
@@ -136,7 +140,7 @@ public:
 
 
 	/// \brief Create a new \c TimeField with
-	Teuchos::RCP< FieldT > clone( ECopyType ctype = DeepCopy ) const {
+	Teuchos::RCP< FieldT > clone( ECopyType ctype = ECopyType::Deep ) const {
 		Teuchos::RCP< FieldT > mv_ = Teuchos::rcp( new FieldT(*this,ctype) );
 		return( mv_ );
 	}

@@ -15,11 +15,11 @@ namespace Pimpact {
 
 
 /// \brief Copy Type
-enum ECopyType {
+enum class ECopyType : bool {
   /// Deep Copy, means that everything is copied including boundaries
-  DeepCopy,
+  Deep,
   /// Schallow Copy, up to now new field is initialized to zero.
-  ShallowCopy
+  Shallow
 };
 
 
@@ -85,10 +85,6 @@ enum EScalarField {
 };
 
 
-int getDir1( const int& dir );
-int getDir2( const int& dir );
-
-std::string toString( Pimpact::EScalarField type );
 
 /// \brief used in mains
 /// \relates initTimeVectorField
@@ -115,6 +111,18 @@ enum EForceType {
   RotatingDisc         = 3, ///< 3
   PseudoOscilatingDisc = 4  ///< 4
 };
+
+
+enum class EWith : bool {
+	BC   = true,	///< [true] including grid points on the boundary
+	noBC = false 	///< [false] only inner points (DOF)
+};
+
+int getDir1( const int& dir );
+int getDir2( const int& dir );
+
+std::string toString( Pimpact::EScalarField type );
+
 
 /// \brief creates file and stream to it
 ///

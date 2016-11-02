@@ -205,9 +205,9 @@ public:
   clone(NOX::CopyType type = NOX::DeepCopy) const {
     switch(type) {
     case NOX::DeepCopy:
-      return( Teuchos::rcp(new Vector<Field>( field_->clone( ::Pimpact::DeepCopy) ) ) );
+      return( Teuchos::rcp(new Vector<Field>( field_->clone( ::Pimpact::ECopyType::Deep) ) ) );
     case NOX::ShapeCopy:
-      return( Teuchos::rcp(new Vector<Field>( field_->clone( ::Pimpact::ShallowCopy) ) ) );
+      return( Teuchos::rcp(new Vector<Field>( field_->clone( ::Pimpact::ECopyType::Shallow) ) ) );
     default: // just to make the compliler happy
       return( Teuchos::null );
     }

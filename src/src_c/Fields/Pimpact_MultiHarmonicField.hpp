@@ -121,8 +121,8 @@ public:
   ///
   /// shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
   /// \param vF
-  /// \param copyType by default a ShallowCopy is done but allows also to deepcopy the field
-	MultiHarmonicField( const MultiHarmonicField& vF, ECopyType copyType=DeepCopy ):
+  /// \param copyType by default a ECopyType::Shallow is done but allows also to deepcopy the field
+	MultiHarmonicField( const MultiHarmonicField& vF, ECopyType copyType=ECopyType::Deep ):
 		AF( vF.space() ),
 		//global_( vF.global_ ),
 		global_( vF.space()->np(3)==1 ),
@@ -141,10 +141,10 @@ public:
 
 			allocate();
 			switch( copyType ) {
-				case ShallowCopy:
+				case ECopyType::Shallow:
 					initField();
 					break;
-				case DeepCopy:
+				case ECopyType::Deep:
 					for( int i=0; i<getStorageSize(); ++i )
 						s_[i] = vF.s_[i];
 					break;
@@ -154,7 +154,7 @@ public:
 
 	~MultiHarmonicField() { delete[] s_; }
 
-  Teuchos::RCP<FieldT> clone( ECopyType ctype=DeepCopy ) const {
+  Teuchos::RCP<FieldT> clone( ECopyType ctype=ECopyType::Deep ) const {
 
     return( Teuchos::rcp( new FieldT(*this,ctype) ) );
   }
@@ -513,7 +513,7 @@ public:
 				Scalar pi = 4.*std::atan(1.);
 				Ordinal nf = space()->nGlo(3);
 				Ordinal nt = 4*nf;
-				Teuchos::RCP<IFT> temp = getConst0FieldPtr()->clone( Pimpact::ShallowCopy );
+				Teuchos::RCP<IFT> temp = getConst0FieldPtr()->clone( Pimpact::ECopyType::Shallow );
 				for( Ordinal i=0; i<nt;  ++i ) {
 					temp->assign( getConst0Field() );
 					//				temp->initField(  );

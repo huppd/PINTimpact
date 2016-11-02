@@ -377,7 +377,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionOp  ) {
   auto y = Pimpact::create<Pimpact::VectorField>( space );
   auto z = Pimpact::create<Pimpact::VectorField>( space );
   auto z2 = Pimpact::create<Pimpact::VectorField>( space );
-  auto sol = y->clone(Pimpact::ShallowCopy);
+  auto sol = y->clone(Pimpact::ECopyType::Shallow);
 
 
   auto op = Pimpact::createAdd2Op(
@@ -541,7 +541,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionSORSmoother ) {
   y->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inX );
   y->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inX );
 
-  auto sol = y->clone( Pimpact::DeepCopy );
+  auto sol = y->clone( Pimpact::ECopyType::Deep );
 
   op->assignField( *wind );
 
@@ -549,7 +549,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionSORSmoother ) {
 
   {
     y->init(0);
-    auto bc = z->clone( Pimpact::ShallowCopy );
+    auto bc = z->clone( Pimpact::ECopyType::Shallow );
     op->apply( *y, *bc );
     z->add( 1., *z, -1., *bc );
   }
@@ -578,7 +578,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionSORSmoother ) {
   y->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inY );
   y->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inY );
 
-  sol = y->clone( Pimpact::DeepCopy );
+  sol = y->clone( Pimpact::ECopyType::Deep );
 
   op->assignField( *wind );
 
@@ -586,7 +586,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionSORSmoother ) {
 
   {
     y->init(0);
-    auto bc = z->clone( Pimpact::ShallowCopy );
+    auto bc = z->clone( Pimpact::ECopyType::Shallow );
     op->apply( *y, *bc );
     z->add( 1., *z, -1., *bc );
   }
@@ -613,7 +613,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionSORSmoother ) {
   y->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inZ );
   y->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inZ );
 
-  sol = y->clone( Pimpact::DeepCopy );
+  sol = y->clone( Pimpact::ECopyType::Deep );
 
   op->assignField( *wind );
 
@@ -621,7 +621,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionSORSmoother ) {
 
   {
     y->init(0);
-    auto bc = z->clone( Pimpact::ShallowCopy );
+    auto bc = z->clone( Pimpact::ECopyType::Shallow );
     op->apply( *y, *bc );
     z->add( 1., *z, -1., *bc );
   }
