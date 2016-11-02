@@ -68,8 +68,8 @@ public:
     auto opSchur =
         Pimpact::createOperatorBase(
             Pimpact::createTripleCompositionOp(
-                createMultiField( tempv_->clone(Pimpact::ECopyType::Shallow) ),
-                createMultiField( tempv_->clone(Pimpact::ECopyType::Shallow) ),
+                createMultiField( tempv_->clone(Pimpact::ECopy::Shallow) ),
+                createMultiField( tempv_->clone(Pimpact::ECopy::Shallow) ),
                 createMultiOpWrap( opV2S_ ),
                 opV2V_,
                 createMultiOpWrap( opS2V_ )

@@ -79,8 +79,8 @@ public:
   ///
 	/// \note copyType is 
   /// \param sF ScalarField which is copied
-  /// \param copyType by default a ECopyType::Deep is done but also allows to ECopyType::Shallow
-  ScalarField( const ScalarField& sF, ECopyType copyType=ECopyType::Deep ):
+  /// \param copyType by default a ECopy::Deep is done but also allows to ECopy::Shallow
+  ScalarField( const ScalarField& sF, ECopy copyType=ECopy::Deep ):
     AbstractField<SpaceT>( sF.space() ),
     owning_( sF.owning_ ),
     exchangedState_( sF.exchangedState_ ),
@@ -91,10 +91,10 @@ public:
 			allocate();
 
       switch( copyType ) {
-      case ECopyType::Shallow:
+      case ECopy::Shallow:
 				initField();
         break;
-      case ECopyType::Deep:
+      case ECopy::Deep:
         for( int i=0; i<getStorageSize(); ++i)
           s_[i] = sF.s_[i];
         break;
@@ -106,14 +106,14 @@ public:
 	~ScalarField() { if( owning_ ) delete[] s_; }
 
 
-  Teuchos::RCP<FieldT> clone( ECopyType copyType=ECopyType::Deep ) const {
+  Teuchos::RCP<FieldT> clone( ECopy copyType=ECopy::Deep ) const {
 
 		Teuchos::RCP<FieldT> mv = Teuchos::rcp( new FieldT( space(), true, this->fType_ ) );
 
 		switch( copyType ) {
-			case ECopyType::Shallow:
+			case ECopy::Shallow:
 				break;
-			case ECopyType::Deep:
+			case ECopy::Deep:
 				for( int i=0; i<getStorageSize(); ++i)
 					mv->getRawPtr()[i] = s_[i];
 				break;

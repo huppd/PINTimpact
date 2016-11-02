@@ -1019,8 +1019,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 
 	// interpolation 
 	{
-		auto sol = fieldf->clone( Pimpact::ECopyType::Shallow );
-		auto er = fieldf->clone( Pimpact::ECopyType::Shallow );
+		auto sol = fieldf->clone( Pimpact::ECopy::Shallow );
+		auto er = fieldf->clone( Pimpact::ECopy::Shallow );
 
 		// the zero test
 		fieldf->init( 1. );
@@ -1108,8 +1108,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 
 	// restriction 
 	{
-		auto sol = fieldc->clone( Pimpact::ECopyType::Shallow );
-		auto er = fieldc->clone( Pimpact::ECopyType::Shallow );
+		auto sol = fieldc->clone( Pimpact::ECopy::Shallow );
+		auto er = fieldc->clone( Pimpact::ECopy::Shallow );
 
 
 		// the zero test
@@ -1239,8 +1239,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersVF, CS ) {
 
 	// interpolation 
 	{
-		auto sol = fieldf->clone( Pimpact::ECopyType::Shallow );
-		auto er = fieldf->clone( Pimpact::ECopyType::Shallow );
+		auto sol = fieldf->clone( Pimpact::ECopy::Shallow );
+		auto er = fieldf->clone( Pimpact::ECopy::Shallow );
 
 
 		// the zero test
@@ -1376,8 +1376,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersVF, CS ) {
 	}
 	// restriction 
 	{
-		auto sol = fieldc->clone( Pimpact::ECopyType::Shallow );
-		auto er = fieldc->clone( Pimpact::ECopyType::Shallow );
+		auto sol = fieldc->clone( Pimpact::ECopy::Shallow );
+		auto er = fieldc->clone( Pimpact::ECopy::Shallow );
 
 		// the zero test
 		fieldf->initField();
@@ -1509,8 +1509,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, DivGradOp, CS, MGT ) {
 
 	auto x = Pimpact::create<Pimpact::ScalarField>( space );
 	auto b = Pimpact::create<Pimpact::ScalarField>( space );
-	auto res = x->clone( Pimpact::ECopyType::Shallow );
-	auto sol = x->clone( Pimpact::ECopyType::Shallow );
+	auto res = x->clone( Pimpact::ECopy::Shallow );
+	auto sol = x->clone( Pimpact::ECopy::Shallow );
 
 	auto xm = Pimpact::createMultiField( x );
 	auto bm = Pimpact::createMultiField( b );
@@ -1828,12 +1828,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffSOR, CS ) {
 	x->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inX );
 	x->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inY );
 	x->getFieldPtr(Pimpact::W)->initField( Pimpact::Grad2D_inZ );
-	auto sol = x->clone( Pimpact::ECopyType::Deep );
+	auto sol = x->clone( Pimpact::ECopy::Deep );
 
 	op->apply(*x,*b);
 	{
 		x->init(0);
-		auto bc = x->clone( Pimpact::ECopyType::Shallow );
+		auto bc = x->clone( Pimpact::ECopy::Shallow );
 		op->apply( *x, *bc );
 		b->add( 1., *b, -1., *bc );
 	}
@@ -1990,12 +1990,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffJ, CS ) {
 //	x->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inX );
 //	x->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inY );
 	x->getFieldPtr(Pimpact::W)->initField( Pimpact::Grad2D_inY );
-	auto sol = x->clone( Pimpact::ECopyType::Deep );
+	auto sol = x->clone( Pimpact::ECopy::Deep );
 
 //	op->apply(*x,*b);
 //	{
 //		x->init(0);
-//		auto bc = x->clone( Pimpact::ECopyType::Shallow );
+//		auto bc = x->clone( Pimpact::ECopy::Shallow );
 //		op->apply( *x, *bc );
 //		b->add( 1., *b, -1., *bc );
 //	}

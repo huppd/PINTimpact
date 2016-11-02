@@ -92,8 +92,8 @@ public:
   ///
   /// shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
   /// \param vF
-  /// \param copyType by default a ECopyType::Shallow is done but allows also to deepcopy the field
-  ModeField(const ModeField& vF, ECopyType copyType=ECopyType::Deep):
+  /// \param copyType by default a ECopy::Shallow is done but allows also to deepcopy the field
+  ModeField(const ModeField& vF, ECopy copyType=ECopy::Deep):
     AF( vF.space() ),
 		owning_( vF.owning_ ),
     fieldc_( Teuchos::rcp( new IFT(*vF.fieldc_,copyType) ) ),
@@ -104,10 +104,10 @@ public:
 				allocate();
 
 				switch( copyType ) {
-					case ECopyType::Shallow:
+					case ECopy::Shallow:
 						initField();
 						break;
-					case ECopyType::Deep:
+					case ECopy::Deep:
 						for( int i=0; i<getStorageSize(); ++i )
 							s_[i] = vF.s_[i];
 						break;
@@ -116,14 +116,14 @@ public:
 	};
 
 
-  Teuchos::RCP<FieldT> clone( ECopyType cType=ECopyType::Deep ) const {
+  Teuchos::RCP<FieldT> clone( ECopy cType=ECopy::Deep ) const {
 
 		Teuchos::RCP<FieldT> mv = Teuchos::rcp( new FieldT( space() ) );
 
 		switch( cType ) {
-			case ECopyType::Shallow:
+			case ECopy::Shallow:
 				break;
-			case ECopyType::Deep:
+			case ECopy::Deep:
 				for( int i=0; i<getStorageSize(); ++i )
 					mv->getRawPtr()[i] = this->s_[i];
 				break;

@@ -135,8 +135,8 @@ protected:
 //#endif // HAVE_TEUCHOS_DEBUG
 
 		//// Fetch cached temporary vectors.
-		//Teuchos::RCP<DomainFieldT> V_ptr = b.clone( Pimpact::ECopyType::Shallow );
-		//Teuchos::RCP<DomainFieldT> W_ptr = b.clone( Pimpact::ECopyType::Shallow );
+		//Teuchos::RCP<DomainFieldT> V_ptr = b.clone( Pimpact::ECopy::Shallow );
+		//Teuchos::RCP<DomainFieldT> W_ptr = b.clone( Pimpact::ECopy::Shallow );
 
 		//// mfh 28 Jan 2013: We write V1 instead of V, so as not to confuse
 		//// the multivector V with the typedef V (for Tpetra::Vector).
@@ -219,7 +219,7 @@ protected:
 			////W.scale( dtemp1 );
 			////W.elementWiseMultiply( dtemp2, D_inv, V1, one ); // W = one*W + dtemp2*D_inv.*V1
 			//{
-				//auto temp = W.clone( Pimpact::ECopyType::Shallow );
+				//auto temp = W.clone( Pimpact::ECopy::Shallow );
 				//temp->reciprocal( *D_ );
 				//temp->scale( V1 );
 				//W.add( dtemp1, W, dtemp2, *temp );
@@ -245,12 +245,12 @@ protected:
 		Scalar alpha = 1./d;
 		Scalar beta = 0.;
 
-		Teuchos::RCP<DomainFieldT> x = x0.clone( ECopyType::Deep );
+		Teuchos::RCP<DomainFieldT> x = x0.clone( ECopy::Deep );
 
 		// r_0 = B-Ax_0
-		Teuchos::RCP<RangeFieldT> r = x0.clone( ECopyType::Shallow );
-		Teuchos::RCP<RangeFieldT> z = x0.clone( ECopyType::Shallow );
-		Teuchos::RCP<RangeFieldT> p = x0.clone( ECopyType::Shallow );
+		Teuchos::RCP<RangeFieldT> r = x0.clone( ECopy::Shallow );
+		Teuchos::RCP<RangeFieldT> z = x0.clone( ECopy::Shallow );
+		Teuchos::RCP<RangeFieldT> p = x0.clone( ECopy::Shallow );
 
 		op_->computeResidual( b, *x, *r );
 
@@ -283,10 +283,10 @@ protected:
 	void applyPIMP( const DomainFieldT& b, RangeFieldT& x0 ) const {
 		// after Gutknecht: three-term Chebyshev iteration
 		//
-		Teuchos::RCP<RangeFieldT> r = b.clone( ECopyType::Shallow );
+		Teuchos::RCP<RangeFieldT> r = b.clone( ECopy::Shallow );
 
-		Teuchos::RCP<DomainFieldT> p = x0.clone( ECopyType::Shallow ); // ~ init(0)
-		Teuchos::RCP<DomainFieldT> x = x0.clone( ECopyType::Deep ); // x->assign( x0 )
+		Teuchos::RCP<DomainFieldT> p = x0.clone( ECopy::Shallow ); // ~ init(0)
+		Teuchos::RCP<DomainFieldT> x = x0.clone( ECopy::Deep ); // x->assign( x0 )
 
 
 		Scalar alpha = ( lamMax_ + lamMin_ )/2;

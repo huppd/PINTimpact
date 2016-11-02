@@ -131,7 +131,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, add ) {
 	Teuchos::RCP<CF> x  = Pimpact::create<CF>( space );
 
   Teuchos::RCP<NV> vel1 = Teuchos::rcp(new NV(x) );
-  Teuchos::RCP<NV> vel2 = Teuchos::rcp(new NV( x->clone(Pimpact::ECopyType::Shallow) ) );
+  Teuchos::RCP<NV> vel2 = Teuchos::rcp(new NV( x->clone(Pimpact::ECopy::Shallow) ) );
 
   double dot;
 
@@ -164,7 +164,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, reciprocal ) {
 	Teuchos::RCP<CF> x  = Pimpact::create<CF>( space );
 
   Teuchos::RCP<NV> vel1 = Teuchos::rcp(new NV(x) );
-  Teuchos::RCP<NV> vel2 = Teuchos::rcp(new NV( x->clone(Pimpact::ECopyType::Shallow) ) );
+  Teuchos::RCP<NV> vel2 = Teuchos::rcp(new NV( x->clone(Pimpact::ECopy::Shallow) ) );
 
   double dot;
 
@@ -202,7 +202,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, normWeighted ) {
 	Teuchos::RCP<CF> x  = Pimpact::create<CF>( space );
 
   Teuchos::RCP<NV> vel1 = Teuchos::rcp(new NV(x) );
-  Teuchos::RCP<NV> vel2 = Teuchos::rcp(new NV( x->clone(Pimpact::ECopyType::Shallow) ) );
+  Teuchos::RCP<NV> vel2 = Teuchos::rcp(new NV( x->clone(Pimpact::ECopy::Shallow) ) );
 
   double norm;
 
@@ -247,7 +247,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, scale2 ) {
 	Teuchos::RCP<CF> x  = Pimpact::create<CF>( space );
 
   Teuchos::RCP<NV> vel1 = Teuchos::rcp(new NV(x) );
-  Teuchos::RCP<NV> vel2 = Teuchos::rcp(new NV( x->clone(Pimpact::ECopyType::Shallow) ) );
+  Teuchos::RCP<NV> vel2 = Teuchos::rcp(new NV( x->clone(Pimpact::ECopy::Shallow) ) );
 
   double dot;
 

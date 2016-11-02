@@ -64,15 +64,15 @@ public:
   ///
   /// shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
   /// \param field 
-  /// \param copyType by default a ECopyType::Shallow is done but allows also to deepcopy the field
-  CompoundField( const CompoundField& field, ECopyType copyType=ECopyType::Deep ):
+  /// \param copyType by default a ECopy::Shallow is done but allows also to deepcopy the field
+  CompoundField( const CompoundField& field, ECopy copyType=ECopy::Deep ):
     AF( field.space() ),
     vfield_( Teuchos::rcp( new VField( *field.vfield_, copyType ) ) ),
     sfield_( Teuchos::rcp( new SField( *field.sfield_, copyType ) ) )
 	{};
 
 
-  Teuchos::RCP<FieldT> clone( ECopyType ctype=ECopyType::Deep ) const {
+  Teuchos::RCP<FieldT> clone( ECopy ctype=ECopy::Deep ) const {
     return( Teuchos::rcp( new FieldT( *this, ctype ) ) );
   }
 

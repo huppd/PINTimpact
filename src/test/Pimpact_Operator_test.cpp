@@ -197,7 +197,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivOp ) {
 
 	auto p   = Pimpact::create<Pimpact::ScalarField>( space );
 	auto vel = Pimpact::create<Pimpact::VectorField>( space );
-	auto sol = p->clone( Pimpact::ECopyType::Shallow );
+	auto sol = p->clone( Pimpact::ECopy::Shallow );
 
 	// zero test
 	vel->initField();
@@ -1752,7 +1752,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
 
 		x->initField( static_cast<Pimpact::EScalarField>(dir) );
 		x->level();
-		auto xp = x->clone( Pimpact::ECopyType::Deep );
+		auto xp = x->clone( Pimpact::ECopy::Deep );
 
 		op->apply( *x, *b );
 
@@ -2269,7 +2269,7 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, DtModeOp ) {
 
 	//A->apply( *mv, *mv2 );
 
-	//auto diff = mv->getConstFieldPtr(0)->getConstCFieldPtr()->clone(Pimpact::ECopyType::Shallow);
+	//auto diff = mv->getConstFieldPtr(0)->getConstCFieldPtr()->clone(Pimpact::ECopy::Shallow);
 
 	//diff->add( 1., mv->getConstFieldPtr(0)->getConstCField(), -1.,  mv2->getConstFieldPtr(0)->getConstSField() );
 
@@ -2845,7 +2845,7 @@ TEUCHOS_UNIT_TEST( Convergence, DivOp ) {
 
 			auto vel = Pimpact::create<Pimpact::VectorField>( space );
 			auto p   = Pimpact::create<Pimpact::ScalarField>( space );
-			auto sol = p->clone( Pimpact::ECopyType::Shallow );
+			auto sol = p->clone( Pimpact::ECopy::Shallow );
 
 			// init 
 			if( 0==dir ) {
@@ -2963,7 +2963,7 @@ TEUCHOS_UNIT_TEST( Convergence, InterpolateV2SOp ) {
 
 			auto vel = Pimpact::create<Pimpact::VectorField>( space );
 			auto p   = Pimpact::create<Pimpact::ScalarField>( space );
-			auto sol = p->clone( Pimpact::ECopyType::Shallow );
+			auto sol = p->clone( Pimpact::ECopy::Shallow );
 
 			// init 
 			if( 0==dir ) {
@@ -3080,7 +3080,7 @@ TEUCHOS_UNIT_TEST( Convergence, InterpolateS2VOp ) {
 
 			auto vel = Pimpact::create<Pimpact::VectorField>( space );
 			auto p   = Pimpact::create<Pimpact::ScalarField>( space );
-			auto sol = vel->clone( Pimpact::ECopyType::Shallow );
+			auto sol = vel->clone( Pimpact::ECopy::Shallow );
 
 			// init 
 			if( 0==dir ) {
@@ -3198,7 +3198,7 @@ TEUCHOS_UNIT_TEST( Convergence, extrapolateBC ) {
 				auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
 
 				auto vel = Pimpact::create<Pimpact::VectorField>( space );
-				auto sol = vel->clone( Pimpact::ECopyType::Shallow );
+				auto sol = vel->clone( Pimpact::ECopy::Shallow );
 
 				// init 
 				if( 0==dir ) {
@@ -3312,7 +3312,7 @@ TEUCHOS_UNIT_TEST( Convergence, GradOp ) {
 
 			auto vel = Pimpact::create<Pimpact::VectorField>( space );
 			auto p   = Pimpact::create<Pimpact::ScalarField>( space );
-			auto sol = vel->clone( Pimpact::ECopyType::Shallow );
+			auto sol = vel->clone( Pimpact::ECopy::Shallow );
 
 			// init 
 			if( 0==dir ) {
@@ -3541,7 +3541,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, DivGradOp, OperatorT ) {
 			auto p   = Pimpact::create<Pimpact::ScalarField>( space );
 			auto e   = Pimpact::create<Pimpact::ScalarField>( space );
 			auto eRef= Pimpact::create<Pimpact::ScalarField>( space );
-			auto sol = y->clone( Pimpact::ECopyType::Shallow );
+			auto sol = y->clone( Pimpact::ECopy::Shallow );
 
 			// init 
 			if( 0==dir ) {
@@ -3706,7 +3706,7 @@ TEUCHOS_UNIT_TEST( Convergence, HelmholtzOp ) {
 
 				auto x   = Pimpact::create<Pimpact::VectorField>( space );
 				auto y   = Pimpact::create<Pimpact::VectorField>( space );
-				auto sol = x->clone( Pimpact::ECopyType::Shallow );
+				auto sol = x->clone( Pimpact::ECopy::Shallow );
 
 				// init 
 				ST pi2 = std::atan(1)*8;

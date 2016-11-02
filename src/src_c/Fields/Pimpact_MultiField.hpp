@@ -57,7 +57,7 @@ public:
 
   /// \brief constructor taking a \c FieldT constructing multiple shallow copys.
   /// \note maybe hide and make it private
-	MultiField( const InnerFieldT& field, const int numvecs, ECopyType ctyp=ECopyType::Shallow ):
+	MultiField( const InnerFieldT& field, const int numvecs, ECopy ctyp=ECopy::Shallow ):
 		AF( field.space() ), mfs_(numvecs) {
 			for( int i=0; i<numvecs; ++i )
 				mfs_[i] = field.clone(ctyp);
@@ -73,7 +73,7 @@ public:
 	}
 
 
-	MultiField( const FieldT& mv, ECopyType ctype ):
+	MultiField( const FieldT& mv, ECopy ctype ):
 		AF( mv.space() ), mfs_( mv.getNumberVecs() ) {
 
 			for( int i=0; i<getNumberVecs(); ++i )
@@ -109,7 +109,7 @@ public:
   /// The returned Pimpact::MultiField has the same (distribution over one or
   /// more parallel processes) Its entries are not initialized and have undefined
   /// values.
-	Teuchos::RCP< FieldT > clone( ECopyType ctype = ECopyType::Deep ) const {
+	Teuchos::RCP< FieldT > clone( ECopy ctype = ECopy::Deep ) const {
 		return( Teuchos::rcp( new FieldT(*this,ctype) ) );
 	}
 
@@ -127,7 +127,7 @@ public:
 	Teuchos::RCP<FieldT> CloneCopy( const std::vector<int>& index ) const {
 		Teuchos::RCP<FieldT> mv_ = Teuchos::rcp( new FieldT( space(), index.size() ) );
 		for( unsigned int i=0; i<index.size(); ++i ) {
-			mv_->mfs_[i] = mfs_[ index[i] ]->clone( ECopyType::Deep );
+			mv_->mfs_[i] = mfs_[ index[i] ]->clone( ECopy::Deep );
 		}
 		return( mv_ );
 	}
@@ -140,7 +140,7 @@ public:
     Teuchos::RCP<FieldT> mv_ = Teuchos::rcp( new FieldT(space(), index.size()) );
     int j = 0;
     for( int i=index.lbound(); i<=index.ubound(); ++i ) {
-      mv_->mfs_[j] = mfs_[i]->clone( ECopyType::Deep );
+      mv_->mfs_[j] = mfs_[i]->clone( ECopy::Deep );
       ++j;
     }
     return( mv_ );
@@ -208,7 +208,7 @@ public:
   /// \brief addes new field at end
   void push_back( const Teuchos::RCP<InnerFieldT>& field=Teuchos::null ) {
     if( Teuchos::is_null(field) )
-      mfs_.push_back( mfs_.back()->clone(ECopyType::Shallow) );
+      mfs_.push_back( mfs_.back()->clone(ECopy::Shallow) );
     else
       mfs_.push_back( field );
   }
@@ -551,7 +551,7 @@ public:
 template<class FieldT>
 Teuchos::RCP< MultiField<FieldT> > createMultiField(
     const FieldT& field,
-    const int numvecs, ECopyType ctype = ECopyType::Shallow ) {
+    const int numvecs, ECopy ctype = ECopy::Shallow ) {
 
   return( Teuchos::rcp( new MultiField<FieldT>( field, numvecs, ctype ) ) );
 }

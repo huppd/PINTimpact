@@ -189,8 +189,8 @@ TEUCHOS_UNIT_TEST( bla, bla  ) {
 
 	// init Fields
 	auto x = Pimpact::create<CF>( space );
-	auto rhs = x->clone( Pimpact::ECopyType::Shallow );
-	auto rhs2 = x->clone( Pimpact::ECopyType::Shallow );
+	auto rhs = x->clone( Pimpact::ECopy::Shallow );
+	auto rhs2 = x->clone( Pimpact::ECopy::Shallow );
 
 	x->getVFieldPtr()->initField( pl->sublist("Base flow") );
 	x->getSFieldPtr()->get0FieldPtr()->initField( Pimpact::Grad2D_inX, -2./space->getDomainSize()->getRe() );
@@ -306,7 +306,7 @@ TEUCHOS_UNIT_TEST( bla, bla  ) {
 				//x->getSFieldPtr()->get0Field() );
 
 	//{ // compute contribution to nullspace
-		//auto fSlevel = rhs->getSFieldPtr()->clone( Pimpact::ECopyType::Deep );
+		//auto fSlevel = rhs->getSFieldPtr()->clone( Pimpact::ECopy::Deep );
 		////rhs->getSFieldPtr()->level();
 		//fSlevel->level();
 		//fSlevel->add( 1., rhs->getSField(), -1., *fSlevel );
@@ -360,7 +360,7 @@ TEUCHOS_UNIT_TEST( bla, bla  ) {
 	//auto xl = x->getSFieldPtr()->clone();
 	//xl->init(0.);
 	////rhs->getSField().level();
-	//auto f_ = rhs->getSFieldPtr()->clone( Pimpact::ECopyType::Deep );
+	//auto f_ = rhs->getSFieldPtr()->clone( Pimpact::ECopy::Deep );
 	//f_->get0FieldPtr()->add(
 	//1., rhs->getSFieldPtr()->get0Field(),
 	//-nullspace->get0FieldPtr()->dot( rhs->getSFieldPtr()->get0Field() )/nullspace->get0FieldPtr()->dot( nullspace->get0Field() ), nullspace->get0Field() );

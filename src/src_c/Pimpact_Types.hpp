@@ -15,7 +15,7 @@ namespace Pimpact {
 
 
 /// \brief Copy Type
-enum class ECopyType : bool {
+enum class ECopy : bool {
   /// Deep Copy, means that everything is copied including boundaries
   Deep,
   /// Schallow Copy, up to now new field is initialized to zero.
@@ -113,7 +113,7 @@ enum EForceType {
 };
 
 
-enum class EWith : bool {
+enum class With : bool {
 	BC   = true,	///< [true] including grid points on the boundary
 	noBC = false 	///< [false] only inner points (DOF)
 };
