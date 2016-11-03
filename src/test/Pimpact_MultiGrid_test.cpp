@@ -747,8 +747,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MGTransfers, Restrictor, CS, RestrictorType )
 
 			if( mgSpaces->participating(level) ) {
 
-				er->add( 1., *sol, -1., *fieldc, true );
-				ST errInf = er->norm(Belos::InfNorm, true);
+				er->add( 1., *sol, -1., *fieldc, Pimpact::With::B );
+				ST errInf = er->norm(Belos::InfNorm, Pimpact::With::B);
 				if( 0==space->rankST() )
 					std::cout << "error Const: " << errInf << " ("<< op->getDD() << ")\n";
 				//if( i>0 )
@@ -768,8 +768,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MGTransfers, Restrictor, CS, RestrictorType )
 				if( mgSpaces->participating(level-1) ) op->apply( *fieldf, *fieldc );
 
 				if( mgSpaces->participating(level) ) {
-					er->add( 1., *sol, -1., *fieldc, true );
-					double errInf = er->norm(Belos::InfNorm, true );
+					er->add( 1., *sol, -1., *fieldc, Pimpact::With::B );
+					double errInf = er->norm(Belos::InfNorm, Pimpact::With::B );
 					if( 0==space->rankST() )
 						std::cout << "error ("<< toString(type) << "): " << errInf << " ("<< op->getDD() << ")\n";
 					TEST_EQUALITY( errInf<eps, true );

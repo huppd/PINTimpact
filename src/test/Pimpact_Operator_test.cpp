@@ -869,15 +869,15 @@ TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
 }
 
 
-TEUCHOS_UNIT_TEST( BasicOperator, DivGradOp2M ) {
-
-	OT nx = 9;
-	OT ny = 11;
-	OT nz = 7;
+TEUCHOS_UNIT_TEST( MatrixTest, DivGradOp2M ) {
 
 	//OT nx = 9;
-	//OT ny = 9;
-	//OT nz = 9;
+	//OT ny = 11;
+	//OT nz = 7;
+
+	OT nx = 9;
+	OT ny = 9;
+	OT nz = 9;
 	
 	//OT nx = 33;
 	//OT ny = 33;
@@ -968,9 +968,9 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradOp2M ) {
 								x2->at(ii,jj,kk) = 1.;
 
 								DJG(II,JJ) = x2->dot( *b );
-								*output << DJG(II,JJ) << "\t";
+								//*output << DJG(II,JJ) << "\t";
 							}
-					*output << "\n";
+					//*output << "\n";
 					ST errorDiag = std::abs( 1./std::abs(DJG(II,II))-diag->at(i,j,k)) /
 						std::abs(1./std::abs(DJG(II,II)) );
 					if( errorDiag>=eps ) {
@@ -980,6 +980,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradOp2M ) {
 					}
 					TEST_EQUALITY( errorDiag<eps, true );
 				}
+		DJG.print( *output );
 	}
 
 	// test DJG^T
@@ -1007,10 +1008,11 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradOp2M ) {
 								x2->init( 0. );
 								x2->at(ii,jj,kk) = 1.;
 								DJGT(JJ,II) = x2->dot( *b );
-								*output << DJGT(JJ,II) << "\t";
+								//*output << DJGT(JJ,II) << "\t";
 							}
-					*output << "\n";
+					//*output << "\n";
 				}
+		DJGT.print( *output );
 	}
 	DJG -= DJGT;
 
@@ -1025,15 +1027,15 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradOp2M ) {
 
 
 
-TEUCHOS_UNIT_TEST( BasicOperator, DivOp2M ) {
+TEUCHOS_UNIT_TEST( MatrixTest, DivOp2M ) {
 
-	OT nx = 7;
-	OT ny = 7;
-	OT nz = 7;
+	//OT nx = 7;
+	//OT ny = 7;
+	//OT nz = 7;
 
-	//OT nx = 9;
-	//OT ny = 9;
-	//OT nz = 9;
+	OT nx = 9;
+	OT ny = 9;
+	OT nz = 9;
 
   Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
@@ -1082,24 +1084,24 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivOp2M ) {
   auto op = Pimpact::create<Pimpact::DivOp>( space );
 
 
-	OT nxS = space->end(Pimpact::S,Pimpact::X,true) - space->begin(Pimpact::S,Pimpact::X,true) + 1;
-	OT nyS = space->end(Pimpact::S,Pimpact::Y,true) - space->begin(Pimpact::S,Pimpact::Y,true) + 1;
-	OT nzS = space->end(Pimpact::S,Pimpact::Z,true) - space->begin(Pimpact::S,Pimpact::Z,true) + 1;
+	OT nxS = space->end(Pimpact::S,Pimpact::X,Pimpact::With::B) - space->begin(Pimpact::S,Pimpact::X,Pimpact::With::B) + 1;
+	OT nyS = space->end(Pimpact::S,Pimpact::Y,Pimpact::With::B) - space->begin(Pimpact::S,Pimpact::Y,Pimpact::With::B) + 1;
+	OT nzS = space->end(Pimpact::S,Pimpact::Z,Pimpact::With::B) - space->begin(Pimpact::S,Pimpact::Z,Pimpact::With::B) + 1;
 	OT nS = nxS*nyS*nzS;
 
-	OT nxU = space->end(Pimpact::U,Pimpact::X,true) - space->begin(Pimpact::U,Pimpact::X,true) + 1;
-	OT nyU = space->end(Pimpact::U,Pimpact::Y,true) - space->begin(Pimpact::U,Pimpact::Y,true) + 1;
-	OT nzU = space->end(Pimpact::U,Pimpact::Z,true) - space->begin(Pimpact::U,Pimpact::Z,true) + 1;
+	OT nxU = space->end(Pimpact::U,Pimpact::X,Pimpact::With::B) - space->begin(Pimpact::U,Pimpact::X,Pimpact::With::B) + 1;
+	OT nyU = space->end(Pimpact::U,Pimpact::Y,Pimpact::With::B) - space->begin(Pimpact::U,Pimpact::Y,Pimpact::With::B) + 1;
+	OT nzU = space->end(Pimpact::U,Pimpact::Z,Pimpact::With::B) - space->begin(Pimpact::U,Pimpact::Z,Pimpact::With::B) + 1;
 	OT nU = nxU*nyU*nzU;
 
-	OT nxV = space->end(Pimpact::V,Pimpact::X,true) - space->begin(Pimpact::V,Pimpact::X,true) + 1;
-	OT nyV = space->end(Pimpact::V,Pimpact::Y,true) - space->begin(Pimpact::V,Pimpact::Y,true) + 1;
-	OT nzV = space->end(Pimpact::V,Pimpact::Z,true) - space->begin(Pimpact::V,Pimpact::Z,true) + 1;
+	OT nxV = space->end(Pimpact::V,Pimpact::X,Pimpact::With::B) - space->begin(Pimpact::V,Pimpact::X,Pimpact::With::B) + 1;
+	OT nyV = space->end(Pimpact::V,Pimpact::Y,Pimpact::With::B) - space->begin(Pimpact::V,Pimpact::Y,Pimpact::With::B) + 1;
+	OT nzV = space->end(Pimpact::V,Pimpact::Z,Pimpact::With::B) - space->begin(Pimpact::V,Pimpact::Z,Pimpact::With::B) + 1;
 	OT nV = nxV*nyV*nzV;
 
-	OT nxW = space->end(Pimpact::W,Pimpact::X,true) - space->begin(Pimpact::W,Pimpact::X,true) + 1;
-	OT nyW = space->end(Pimpact::W,Pimpact::Y,true) - space->begin(Pimpact::W,Pimpact::Y,true) + 1;
-	OT nzW = space->end(Pimpact::W,Pimpact::Z,true) - space->begin(Pimpact::W,Pimpact::Z,true) + 1;
+	OT nxW = space->end(Pimpact::W,Pimpact::X,Pimpact::With::B) - space->begin(Pimpact::W,Pimpact::X,Pimpact::With::B) + 1;
+	OT nyW = space->end(Pimpact::W,Pimpact::Y,Pimpact::With::B) - space->begin(Pimpact::W,Pimpact::Y,Pimpact::With::B) + 1;
+	OT nzW = space->end(Pimpact::W,Pimpact::Z,Pimpact::With::B) - space->begin(Pimpact::W,Pimpact::Z,Pimpact::With::B) + 1;
 	OT nW = nxW*nyW*nzW;
 
 	Teuchos::Tuple<OT,3> NX = Teuchos::tuple( nxU,nxV,nxW );
@@ -1115,44 +1117,45 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivOp2M ) {
 	*output << std::scientific << std::setprecision(std::numeric_limits<long double>::digits10 + 1) ;
 
 	for( int dir=0; dir<3; ++dir ) {
-		for( OT k=space->begin(dir,Pimpact::Z,true); k<=space->end(dir,Pimpact::Z,true); ++k )
-			for( OT j=space->begin(dir,Pimpact::Y,true); j<=space->end(dir,Pimpact::Y,true); ++j )
-				for( OT i=space->begin(dir,Pimpact::X,true); i<=space->end(dir,Pimpact::X,true); ++i ) {
-					OT II =               i-space->begin(dir,Pimpact::X,true)
-						+ NX[dir]*(         j-space->begin(dir,Pimpact::Y,true) )
-						+ NX[dir]*NY[dir]*( k-space->begin(dir,Pimpact::Z,true) ) + offset[dir];
+		for( OT k=space->begin(dir,Pimpact::Z,Pimpact::With::B); k<=space->end(dir,Pimpact::Z,Pimpact::With::B); ++k )
+			for( OT j=space->begin(dir,Pimpact::Y,Pimpact::With::B); j<=space->end(dir,Pimpact::Y,Pimpact::With::B); ++j )
+				for( OT i=space->begin(dir,Pimpact::X,Pimpact::With::B); i<=space->end(dir,Pimpact::X,Pimpact::With::B); ++i ) {
+					OT II =               i-space->begin(dir,Pimpact::X,Pimpact::With::B)
+						+ NX[dir]*(         j-space->begin(dir,Pimpact::Y,Pimpact::With::B) )
+						+ NX[dir]*NY[dir]*( k-space->begin(dir,Pimpact::Z,Pimpact::With::B) ) + offset[dir];
 					x->initField();
 					x->getFieldPtr(dir)->at(i,j,k) = 1.;
 					op->apply( *x, *b );
 
-					for( OT kk=space->begin(Pimpact::S,Pimpact::Z,true); kk<=space->end(Pimpact::S,Pimpact::Z,true); ++kk )
-						for( OT jj=space->begin(Pimpact::S,Pimpact::Y,true); jj<=space->end(Pimpact::S,Pimpact::Y,true); ++jj )
-							for( OT ii=space->begin(Pimpact::S,Pimpact::X,true); ii<=space->end(Pimpact::S,Pimpact::X,true); ++ii ) {
-								OT JJ =       ii-space->begin(Pimpact::S,Pimpact::X,true)
-									+ nxS*(     jj-space->begin(Pimpact::S,Pimpact::Y,true) )
-									+ nxS*nyS*( kk-space->begin(Pimpact::S,Pimpact::Z,true) );
+					for( OT kk=space->begin(Pimpact::S,Pimpact::Z,Pimpact::With::B); kk<=space->end(Pimpact::S,Pimpact::Z,Pimpact::With::B); ++kk )
+						for( OT jj=space->begin(Pimpact::S,Pimpact::Y,Pimpact::With::B); jj<=space->end(Pimpact::S,Pimpact::Y,Pimpact::With::B); ++jj )
+							for( OT ii=space->begin(Pimpact::S,Pimpact::X,Pimpact::With::B); ii<=space->end(Pimpact::S,Pimpact::X,Pimpact::With::B); ++ii ) {
+								OT JJ =       ii-space->begin(Pimpact::S,Pimpact::X,Pimpact::With::B)
+									+ nxS*(     jj-space->begin(Pimpact::S,Pimpact::Y,Pimpact::With::B) )
+									+ nxS*nyS*( kk-space->begin(Pimpact::S,Pimpact::Z,Pimpact::With::B) );
 								x2->initField();
 								x2->at(ii,jj,kk) = 1.;
 
 								D(JJ,II) = x2->dot( *b );
-								*output << D(JJ,II) << "\t";
+								//*output << D(JJ,II) << "\t";
 							}
-					*output << "\n";
+					//*output << "\n";
 				}
 	}
+	D.print( *output );
 }
 
 
 
-TEUCHOS_UNIT_TEST( BasicOperator, GradOp2M ) {
+TEUCHOS_UNIT_TEST( MatrixTest, GradOp2M ) {
 
-	OT nx = 7;
-	OT ny = 7;
-	OT nz = 7;
+	//OT nx = 7;
+	//OT ny = 7;
+	//OT nz = 7;
 
-	//OT nx = 9;
-	//OT ny = 9;
-	//OT nz = 9;
+	OT nx = 9;
+	OT ny = 9;
+	OT nz = 9;
 
   Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
@@ -1200,24 +1203,24 @@ TEUCHOS_UNIT_TEST( BasicOperator, GradOp2M ) {
   auto op = Pimpact::create<Pimpact::GradOp>( space );
 
 
-	OT nxS = space->end(Pimpact::S,Pimpact::X,true) - space->begin(Pimpact::S,Pimpact::X,true) + 1;
-	OT nyS = space->end(Pimpact::S,Pimpact::Y,true) - space->begin(Pimpact::S,Pimpact::Y,true) + 1;
-	OT nzS = space->end(Pimpact::S,Pimpact::Z,true) - space->begin(Pimpact::S,Pimpact::Z,true) + 1;
+	OT nxS = space->end(Pimpact::S,Pimpact::X,Pimpact::With::B) - space->begin(Pimpact::S,Pimpact::X,Pimpact::With::B) + 1;
+	OT nyS = space->end(Pimpact::S,Pimpact::Y,Pimpact::With::B) - space->begin(Pimpact::S,Pimpact::Y,Pimpact::With::B) + 1;
+	OT nzS = space->end(Pimpact::S,Pimpact::Z,Pimpact::With::B) - space->begin(Pimpact::S,Pimpact::Z,Pimpact::With::B) + 1;
 	OT nS = nxS*nyS*nzS;
 
-	OT nxU = space->end(Pimpact::U,Pimpact::X,true) - space->begin(Pimpact::U,Pimpact::X,true) + 1;
-	OT nyU = space->end(Pimpact::U,Pimpact::Y,true) - space->begin(Pimpact::U,Pimpact::Y,true) + 1;
-	OT nzU = space->end(Pimpact::U,Pimpact::Z,true) - space->begin(Pimpact::U,Pimpact::Z,true) + 1;
+	OT nxU = space->end(Pimpact::U,Pimpact::X,Pimpact::With::B) - space->begin(Pimpact::U,Pimpact::X,Pimpact::With::B) + 1;
+	OT nyU = space->end(Pimpact::U,Pimpact::Y,Pimpact::With::B) - space->begin(Pimpact::U,Pimpact::Y,Pimpact::With::B) + 1;
+	OT nzU = space->end(Pimpact::U,Pimpact::Z,Pimpact::With::B) - space->begin(Pimpact::U,Pimpact::Z,Pimpact::With::B) + 1;
 	OT nU = nxU*nyU*nzU;
 
-	OT nxV = space->end(Pimpact::V,Pimpact::X,true) - space->begin(Pimpact::V,Pimpact::X,true) + 1;
-	OT nyV = space->end(Pimpact::V,Pimpact::Y,true) - space->begin(Pimpact::V,Pimpact::Y,true) + 1;
-	OT nzV = space->end(Pimpact::V,Pimpact::Z,true) - space->begin(Pimpact::V,Pimpact::Z,true) + 1;
+	OT nxV = space->end(Pimpact::V,Pimpact::X,Pimpact::With::B) - space->begin(Pimpact::V,Pimpact::X,Pimpact::With::B) + 1;
+	OT nyV = space->end(Pimpact::V,Pimpact::Y,Pimpact::With::B) - space->begin(Pimpact::V,Pimpact::Y,Pimpact::With::B) + 1;
+	OT nzV = space->end(Pimpact::V,Pimpact::Z,Pimpact::With::B) - space->begin(Pimpact::V,Pimpact::Z,Pimpact::With::B) + 1;
 	OT nV = nxV*nyV*nzV;
 
-	OT nxW = space->end(Pimpact::W,Pimpact::X,true) - space->begin(Pimpact::W,Pimpact::X,true) + 1;
-	OT nyW = space->end(Pimpact::W,Pimpact::Y,true) - space->begin(Pimpact::W,Pimpact::Y,true) + 1;
-	OT nzW = space->end(Pimpact::W,Pimpact::Z,true) - space->begin(Pimpact::W,Pimpact::Z,true) + 1;
+	OT nxW = space->end(Pimpact::W,Pimpact::X,Pimpact::With::B) - space->begin(Pimpact::W,Pimpact::X,Pimpact::With::B) + 1;
+	OT nyW = space->end(Pimpact::W,Pimpact::Y,Pimpact::With::B) - space->begin(Pimpact::W,Pimpact::Y,Pimpact::With::B) + 1;
+	OT nzW = space->end(Pimpact::W,Pimpact::Z,Pimpact::With::B) - space->begin(Pimpact::W,Pimpact::Z,Pimpact::With::B) + 1;
 	OT nW = nxW*nyW*nzW;
 
 	Teuchos::Tuple<OT,3> NX = Teuchos::tuple( nxU,nxV,nxW );
@@ -1232,33 +1235,30 @@ TEUCHOS_UNIT_TEST( BasicOperator, GradOp2M ) {
 	Teuchos::RCP<std::ostream> output = Pimpact::createOstream( "GradOp.txt" );
 	*output << std::scientific << std::setprecision(std::numeric_limits<long double>::digits10 + 1) ;
 
-	for( OT kk=space->begin(Pimpact::S,Pimpact::Z,true); kk<=space->end(Pimpact::S,Pimpact::Z,true); ++kk )
-		for( OT jj=space->begin(Pimpact::S,Pimpact::Y,true); jj<=space->end(Pimpact::S,Pimpact::Y,true); ++jj )
-			for( OT ii=space->begin(Pimpact::S,Pimpact::X,true); ii<=space->end(Pimpact::S,Pimpact::X,true); ++ii ) {
-				OT JJ =       ii-space->begin(Pimpact::S,Pimpact::X,true)
-					+ nxS*(     jj-space->begin(Pimpact::S,Pimpact::Y,true) )
-					+ nxS*nyS*( kk-space->begin(Pimpact::S,Pimpact::Z,true) );
+	for( OT kk=space->begin(Pimpact::S,Pimpact::Z,Pimpact::With::B); kk<=space->end(Pimpact::S,Pimpact::Z,Pimpact::With::B); ++kk )
+		for( OT jj=space->begin(Pimpact::S,Pimpact::Y,Pimpact::With::B); jj<=space->end(Pimpact::S,Pimpact::Y,Pimpact::With::B); ++jj )
+			for( OT ii=space->begin(Pimpact::S,Pimpact::X,Pimpact::With::B); ii<=space->end(Pimpact::S,Pimpact::X,Pimpact::With::B); ++ii ) {
+				OT JJ =       ii-space->begin(Pimpact::S,Pimpact::X,Pimpact::With::B)
+					+ nxS*(     jj-space->begin(Pimpact::S,Pimpact::Y,Pimpact::With::B) )
+					+ nxS*nyS*( kk-space->begin(Pimpact::S,Pimpact::Z,Pimpact::With::B) );
 				x2->initField();
 				x2->at(ii,jj,kk) = 1.;
 				op->applyG( *x2, *b );
 
 				for( int dir=0; dir<3; ++dir ) {
-					for( OT k=space->begin(dir,Pimpact::Z,true); k<=space->end(dir,Pimpact::Z,true); ++k )
-						for( OT j=space->begin(dir,Pimpact::Y,true); j<=space->end(dir,Pimpact::Y,true); ++j )
-							for( OT i=space->begin(dir,Pimpact::X,true); i<=space->end(dir,Pimpact::X,true); ++i ) {
-								OT II =               i-space->begin(dir,Pimpact::X,true)
-									+ NX[dir]*(         j-space->begin(dir,Pimpact::Y,true) )
-									+ NX[dir]*NY[dir]*( k-space->begin(dir,Pimpact::Z,true) ) + offset[dir];
+					for( OT k=space->begin(dir,Pimpact::Z,Pimpact::With::B); k<=space->end(dir,Pimpact::Z,Pimpact::With::B); ++k )
+						for( OT j=space->begin(dir,Pimpact::Y,Pimpact::With::B); j<=space->end(dir,Pimpact::Y,Pimpact::With::B); ++j )
+							for( OT i=space->begin(dir,Pimpact::X,Pimpact::With::B); i<=space->end(dir,Pimpact::X,Pimpact::With::B); ++i ) {
+								OT II =               i-space->begin(dir,Pimpact::X,Pimpact::With::B)
+									+ NX[dir]*(         j-space->begin(dir,Pimpact::Y,Pimpact::With::B) )
+									+ NX[dir]*NY[dir]*( k-space->begin(dir,Pimpact::Z,Pimpact::With::B) ) + offset[dir];
 								x->initField();
 								x->getFieldPtr(dir)->at(i,j,k) = 1.;
 
-
-								G(II,JJ) = x->dot( *b, true );
-								//*output << G(II,JJ) << "\t";
+								G(II,JJ) = x->dot( *b, Pimpact::With::B );
 							}
-					//*output << "\n";
 				}
-	}
+			}
 	*output << G;
 
 	// test J
@@ -1267,26 +1267,26 @@ TEUCHOS_UNIT_TEST( BasicOperator, GradOp2M ) {
 
 	Teuchos::SerialDenseMatrix<OT,ST> J  ( nU+nV+nW, nU+nV+nW );
 	for( int dir=0; dir<3; ++dir ) {
-		for( OT kk=space->begin(dir,Pimpact::Z,true); kk<=space->end(dir,Pimpact::Z,true); ++kk )
-			for( OT jj=space->begin(dir,Pimpact::Y,true); jj<=space->end(dir,Pimpact::Y,true); ++jj )
-				for( OT ii=space->begin(dir,Pimpact::X,true); ii<=space->end(dir,Pimpact::X,true); ++ii ) {
-					OT JJ =           ii-space->begin(dir,Pimpact::X,true)
-						+ NX[dir]*(     jj-space->begin(dir,Pimpact::Y,true) )
-						+ NX[dir]*NY[dir]*( kk-space->begin(dir,Pimpact::Z,true) )+offset[dir];
+		for( OT kk=space->begin(dir,Pimpact::Z,Pimpact::With::B); kk<=space->end(dir,Pimpact::Z,Pimpact::With::B); ++kk )
+			for( OT jj=space->begin(dir,Pimpact::Y,Pimpact::With::B); jj<=space->end(dir,Pimpact::Y,Pimpact::With::B); ++jj )
+				for( OT ii=space->begin(dir,Pimpact::X,Pimpact::With::B); ii<=space->end(dir,Pimpact::X,Pimpact::With::B); ++ii ) {
+					OT JJ =           ii-space->begin(dir,Pimpact::X,Pimpact::With::B)
+						+ NX[dir]*(     jj-space->begin(dir,Pimpact::Y,Pimpact::With::B) )
+						+ NX[dir]*NY[dir]*( kk-space->begin(dir,Pimpact::Z,Pimpact::With::B) )+offset[dir];
 					b->initField();
 					b->getFieldPtr(dir)->at(ii,jj,kk) = 1.;
 					op->applyJ( *b );
 
-					for( OT k=space->begin(dir,Pimpact::Z,true); k<=space->end(dir,Pimpact::Z,true); ++k )
-						for( OT j=space->begin(dir,Pimpact::Y,true); j<=space->end(dir,Pimpact::Y,true); ++j )
-							for( OT i=space->begin(dir,Pimpact::X,true); i<=space->end(dir,Pimpact::X,true); ++i ) {
-								OT II =               i-space->begin(dir,Pimpact::X,true)
-									+ NX[dir]*(         j-space->begin(dir,Pimpact::Y,true) )
-									+ NX[dir]*NY[dir]*( k-space->begin(dir,Pimpact::Z,true) ) + offset[dir];
+					for( OT k=space->begin(dir,Pimpact::Z,Pimpact::With::B); k<=space->end(dir,Pimpact::Z,Pimpact::With::B); ++k )
+						for( OT j=space->begin(dir,Pimpact::Y,Pimpact::With::B); j<=space->end(dir,Pimpact::Y,Pimpact::With::B); ++j )
+							for( OT i=space->begin(dir,Pimpact::X,Pimpact::With::B); i<=space->end(dir,Pimpact::X,Pimpact::With::B); ++i ) {
+								OT II =               i-space->begin(dir,Pimpact::X,Pimpact::With::B)
+									+ NX[dir]*(         j-space->begin(dir,Pimpact::Y,Pimpact::With::B) )
+									+ NX[dir]*NY[dir]*( k-space->begin(dir,Pimpact::Z,Pimpact::With::B) ) + offset[dir];
 								x->initField();
 								x->getFieldPtr(dir)->at(i,j,k) = 1.;
 
-								J(II,JJ) = x->dot( *b, true );
+								J(II,JJ) = x->dot( *b, Pimpact::With::B );
 								//*outputJ << J(II,JJ) << "\t";
 							}
 					//*outputJ << "\n";
@@ -3113,11 +3113,11 @@ TEUCHOS_UNIT_TEST( Convergence, InterpolateS2VOp ) {
 			op->apply(  *p, vel->getField(dir) );
 
 			// compute error
-			vel->getFieldPtr(dir)->add( 1., sol->getConstField(dir), -1., vel->getConstField(dir), true );
+			vel->getFieldPtr(dir)->add( 1., sol->getConstField(dir), -1., vel->getConstField(dir), Pimpact::With::B );
 			vel->write(n);
 
-			error2[n] = std::log10( vel->getConstFieldPtr(dir)->norm( Belos::TwoNorm, true ) / sol->getConstFieldPtr(dir)->norm( Belos::TwoNorm, true ) );
-			errorInf[n] = std::log10( vel->getConstFieldPtr(dir)->norm( Belos::InfNorm, true ) / sol->getConstFieldPtr(dir)->norm( Belos::InfNorm, true ) );
+			error2[n] = std::log10( vel->getConstFieldPtr(dir)->norm( Belos::TwoNorm, Pimpact::With::B ) / sol->getConstFieldPtr(dir)->norm( Belos::TwoNorm, Pimpact::With::B ) );
+			errorInf[n] = std::log10( vel->getConstFieldPtr(dir)->norm( Belos::InfNorm, Pimpact::With::B ) / sol->getConstFieldPtr(dir)->norm( Belos::InfNorm, Pimpact::With::B ) );
 			dofs[n] = std::log10( 8.*std::pow(2.,n)+1. );
 			if( 0==rank )	
 				std::cout << std::pow(10.,dofs[n]) << "\t" << std::pow(10.,error2[n]) << "\t" << std::pow(10.,errorInf[n]) << "\n";
@@ -3229,11 +3229,11 @@ TEUCHOS_UNIT_TEST( Convergence, extrapolateBC ) {
 
 
 				// compute error
-				vel->getFieldPtr(dir)->add( 1., sol->getConstField(dir), -1., vel->getConstField(dir), true );
+				vel->getFieldPtr(dir)->add( 1., sol->getConstField(dir), -1., vel->getConstField(dir), Pimpact::With::B );
 				vel->write( n );
 
-				error2[n]   = std::log10( vel->getConstFieldPtr(dir)->norm( Belos::TwoNorm, true ) / sol->getConstFieldPtr(dir)->norm( Belos::TwoNorm, true ) );
-				errorInf[n] = std::log10( vel->getConstFieldPtr(dir)->norm( Belos::InfNorm, true ) / sol->getConstFieldPtr(dir)->norm( Belos::InfNorm, true ) );
+				error2[n]   = std::log10( vel->getConstFieldPtr(dir)->norm( Belos::TwoNorm, Pimpact::With::B ) / sol->getConstFieldPtr(dir)->norm( Belos::TwoNorm, Pimpact::With::B ) );
+				errorInf[n] = std::log10( vel->getConstFieldPtr(dir)->norm( Belos::InfNorm, Pimpact::With::B ) / sol->getConstFieldPtr(dir)->norm( Belos::InfNorm, Pimpact::With::B ) );
 
 				dofs[n] = std::log10( 8.*std::pow(2.,n)+1. );
 				if( 0==rank )	
@@ -3369,11 +3369,11 @@ TEUCHOS_UNIT_TEST( Convergence, GradOp ) {
 			op->apply(  *p, *vel );
 
 			// compute error
-			vel->getFieldPtr(dir)->add( 1., sol->getConstField(dir), -1., vel->getConstField(dir), true );
+			vel->getFieldPtr(dir)->add( 1., sol->getConstField(dir), -1., vel->getConstField(dir), Pimpact::With::B );
 			vel->write( n );
 			
-			error2[n] = std::log10( vel->getConstFieldPtr(dir)->norm( Belos::TwoNorm, true ) / sol->getConstFieldPtr(dir)->norm( Belos::TwoNorm, true ) );
-			errorInf[n] = std::log10( vel->getConstFieldPtr(dir)->norm( Belos::InfNorm, true ) / sol->getConstFieldPtr(dir)->norm( Belos::InfNorm, true ) );
+			error2[n] = std::log10( vel->getConstFieldPtr(dir)->norm( Belos::TwoNorm, Pimpact::With::B ) / sol->getConstFieldPtr(dir)->norm( Belos::TwoNorm, Pimpact::With::B ) );
+			errorInf[n] = std::log10( vel->getConstFieldPtr(dir)->norm( Belos::InfNorm, Pimpact::With::B ) / sol->getConstFieldPtr(dir)->norm( Belos::InfNorm, Pimpact::With::B ) );
 			//errorInf[n] = std::log10( p->norm( Belos::InfNorm ) / sol->norm( Belos::InfNorm ) );
 			dofs[n] = std::log10( 8.*std::pow(2.,n)+1. );
 			if( 0==rank )	

@@ -129,8 +129,8 @@ public:
 				}
 
 				for( Ordinal
-						i =space_->begin(static_cast<EField>(dir),static_cast<ECoord>(dir),true);
-						i<=space_->end(static_cast<EField>(dir),static_cast<ECoord>(dir),true);
+						i =space_->begin(static_cast<EField>(dir),static_cast<ECoord>(dir),With::B);
+						i<=space_->end(static_cast<EField>(dir),static_cast<ECoord>(dir),With::B);
 						++i ) 
 					for( Ordinal ii=space->gl(dir); ii<=space->gu(dir); ++ii ) {
 						Ordinal ind1 = ( ii - space_->gl(dir) ) + ( i )*( space_->gu(dir) - space_->gl(dir) + 1 );
@@ -179,23 +179,23 @@ public:
 	void apply( const RangeFieldT& x, DomainFieldT& y ) const {
 
 		x.exchange(X);
-		for( Ordinal k=space()->begin(U,Z,true); k<=space()->end(U,Z,true); ++k )
-			for( Ordinal j=space()->begin(U,Y,true); j<=space()->end(U,Y,true); ++j )
-				for( Ordinal i=space()->begin(U,X,true); i<=space()->end(U,X,true); ++i )
+		for( Ordinal k=space()->begin(U,Z,With::B); k<=space()->end(U,Z,With::B); ++k )
+			for( Ordinal j=space()->begin(U,Y,With::B); j<=space()->end(U,Y,With::B); ++j )
+				for( Ordinal i=space()->begin(U,X,With::B); i<=space()->end(U,X,With::B); ++i )
 					y.getField(U).at(i,j,k) = innerStencU( x, i, j, k );
 
 		x.exchange(Y);
-		for( Ordinal k=space()->begin(V,Z,true); k<=space()->end(V,Z,true); ++k )
-			for( Ordinal j=space()->begin(V,Y,true); j<=space()->end(V,Y,true); ++j )
-				for( Ordinal i=space()->begin(V,X,true); i<=space()->end(V,X,true); ++i )
+		for( Ordinal k=space()->begin(V,Z,With::B); k<=space()->end(V,Z,With::B); ++k )
+			for( Ordinal j=space()->begin(V,Y,With::B); j<=space()->end(V,Y,With::B); ++j )
+				for( Ordinal i=space()->begin(V,X,With::B); i<=space()->end(V,X,With::B); ++i )
 					y.getField(V).at(i,j,k) = innerStencV( x, i, j, k );
 
 		if( 3==space_->dim() )  {
 
 			x.exchange(Z);
-			for( Ordinal k=space()->begin(W,Z,true); k<=space()->end(W,Z,true); ++k )
-				for( Ordinal j=space()->begin(W,Y,true); j<=space()->end(W,Y,true); ++j )
-					for( Ordinal i=space()->begin(W,X,true); i<=space()->end(W,X,true); ++i )
+			for( Ordinal k=space()->begin(W,Z,With::B); k<=space()->end(W,Z,With::B); ++k )
+				for( Ordinal j=space()->begin(W,Y,With::B); j<=space()->end(W,Y,With::B); ++j )
+					for( Ordinal i=space()->begin(W,X,With::B); i<=space()->end(W,X,With::B); ++i )
 						y.getField(W).at(i,j,k) = innerStencW( x, i, j, k );
 		}
 
@@ -204,53 +204,53 @@ public:
 		// BC scaling 
 		const Scalar& eps = 1.e-1;
 		for( int dir=0; dir<3; ++dir ) {
-			bool bc2 = true;
+			With bc2 = With::B;
 			if( 0!=dir ) {
 				if( space()->getBCLocal()->getBCL(X) > 0 ) {
-					Ordinal i = space()->begin(dir,X,true);
+					Ordinal i = space()->begin(dir,X,With::B);
 					for( Ordinal k=space()->begin(dir,Z, bc2); k<=space()->end(dir,Z,bc2); ++k )
 						for( Ordinal j=space()->begin(dir,Y,bc2); j<=space()->end(dir,Y,bc2); ++j )
 							y.getField(dir).at(i,j,k) *= eps;  
 				}
 				if( space()->getBCLocal()->getBCU(X) > 0 ) {
-					Ordinal i = space()->end(dir,X,true);
+					Ordinal i = space()->end(dir,X,With::B);
 					for( Ordinal k=space()->begin(dir,Z,bc2); k<=space()->end(dir,Z,bc2); ++k )
 						for( Ordinal j=space()->begin(dir,Y,bc2); j<=space()->end(dir,Y,bc2); ++j )
 							y.getField(dir).at(i,j,k) *= eps;  
 				}
-				bc2 = false;
+				bc2 = With::noB;
 			}
 
 			if( 1!=dir ) {
 				if( space()->getBCLocal()->getBCL(Y) > 0 ) {
-					Ordinal j = space()->begin(dir,Y,true);
+					Ordinal j = space()->begin(dir,Y,With::B);
 					for( Ordinal k=space()->begin(dir,Z,bc2); k<=space()->end(dir,Z,bc2); ++k )
 						for( Ordinal i=space()->begin(dir,X,bc2); i<=space()->end(dir,X,bc2); ++i ) 
 							y.getField(dir).at(i,j,k) *= eps;  
 				}
 				if( space()->getBCLocal()->getBCU(Y) > 0 ) {
-					Ordinal j = space()->end(dir,Y,true);
+					Ordinal j = space()->end(dir,Y,With::B);
 					for( Ordinal k=space()->begin(dir,Z,bc2); k<=space()->end(dir,Z,bc2); ++k )
 						for( Ordinal i=space()->begin(dir,X,bc2); i<=space()->end(dir,X,bc2); ++i )
 							y.getField(dir).at(i,j,k) *= eps;  
 				}
-				bc2 = false;
+				bc2 = With::noB;
 			}
 
 			if( 2!=dir ) {
 				if( space()->getBCLocal()->getBCL(Z) > 0 ) {
-					Ordinal k = space()->begin(dir,Z,true);
+					Ordinal k = space()->begin(dir,Z,With::B);
 					for( Ordinal j=space()->begin(dir,Y,bc2); j<=space()->end(dir,Y,bc2); ++j )
 						for( Ordinal i=space()->begin(dir,X,bc2); i<=space()->end(dir,X,bc2); ++i )
 							y.getField(dir).at(i,j,k) *= eps;  
 				}
 				if( space()->getBCLocal()->getBCU(Z) > 0 ) {
-					Ordinal k = space()->end(dir,Z,true);
+					Ordinal k = space()->end(dir,Z,With::B);
 					for( Ordinal j=space()->begin(dir,Y,bc2); j<=space()->end(dir,Y,bc2); ++j )
 						for( Ordinal i=space()->begin(dir,X,bc2); i<=space()->end(dir,X,bc2); ++i )
 							y.getField(dir).at(i,j,k) *= eps;  
 				}
-				bc2 = false;
+				bc2 = With::noB;
 			}
 		}
 

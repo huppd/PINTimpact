@@ -111,11 +111,11 @@ enum EForceType {
 };
 
 
-/// \todo use this, maybe change enum name
 enum class With : bool {
 	B   = true,	///< [true] including grid points on the boundary
 	noB = false	///< [false] only inner points (DOF)
 };
+
 
 int getDir1( const int& dir );
 int getDir2( const int& dir );

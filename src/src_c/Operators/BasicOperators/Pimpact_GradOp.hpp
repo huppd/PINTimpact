@@ -92,7 +92,7 @@ public:
 					cG2[i] = 0.;
 				}
 
-				for( Ordinal i = space_->begin(dir,dir,true); i<=space_->end(dir,dir,true); ++i )
+				for( Ordinal i = space_->begin(dir,dir,With::B); i<=space_->end(dir,dir,With::B); ++i )
 					for( Ordinal ii = space_->gl(dir); ii<=space_->gu(dir); ++ii ) {
 						Ordinal ind = ( ii - space_->bl(dir) ) + ( i+space_->getShift(dir)-space_->bl(dir) )*( space_->bu(dir) - space_->bl(dir) + 1 );
 						cG1[ ind ]= getC( static_cast<ECoord>(dir), i, ii );
@@ -127,8 +127,8 @@ public:
 				}
 
 				for( Ordinal
-						i =space_->begin(S,static_cast<ECoord>(dir),true);
-						i<=space_->end(S,static_cast<ECoord>(dir),true);
+						i =space_->begin(S,static_cast<ECoord>(dir),With::B);
+						i<=space_->end(S,static_cast<ECoord>(dir),With::B);
 						++i ) 
 					for( Ordinal ii=space->dl(dir); ii<=space->du(dir); ++ii ) {
 						Ordinal ind1 = ( ii - space_->dl(dir) ) + ( i )*( space_->du(dir) - space_->dl(dir) + 1 );
@@ -157,8 +157,8 @@ public:
 
   void applyG( const DomainFieldT& x, RangeFieldT& y ) const {
 
-		bool bcY_ = true;
-		//bool bcY_ = false;
+		With bcY_ = With::B;
+		//With bcY_ = With::noB;
 
 		x.exchange(X);
 		for( Ordinal k=space()->begin(U,Z,bcY_); k<=space()->end(U,Z,bcY_); ++k )
@@ -190,53 +190,53 @@ public:
 		//const Scalar& eps = 1.;
 		
 		for( int dir=0; dir<3; ++dir ) {
-			bool bc2 = true;
+			With bc2 = With::B;
 			if( 0!=dir ) {
 				if( space()->getBCLocal()->getBCL(X) > 0 ) {
-					Ordinal i = space()->begin(dir,X,true);
+					Ordinal i = space()->begin(dir,X,With::B);
 					for( Ordinal k=space()->begin(dir,Z, bc2); k<=space()->end(dir,Z,bc2); ++k )
 						for( Ordinal j=space()->begin(dir,Y,bc2); j<=space()->end(dir,Y,bc2); ++j )
 							y.getField(dir).at(i,j,k) *= eps;  
 				}
 				if( space()->getBCLocal()->getBCU(X) > 0 ) {
-					Ordinal i = space()->end(dir,X,true);
+					Ordinal i = space()->end(dir,X,With::B);
 					for( Ordinal k=space()->begin(dir,Z,bc2); k<=space()->end(dir,Z,bc2); ++k )
 						for( Ordinal j=space()->begin(dir,Y,bc2); j<=space()->end(dir,Y,bc2); ++j )
 							y.getField(dir).at(i,j,k) *= eps;  
 				}
-				bc2 = false;
+				bc2 = With::noB;
 			}
 
 			if( 1!=dir ) {
 				if( space()->getBCLocal()->getBCL(Y) > 0 ) {
-					Ordinal j = space()->begin(dir,Y,true);
+					Ordinal j = space()->begin(dir,Y,With::B);
 					for( Ordinal k=space()->begin(dir,Z,bc2); k<=space()->end(dir,Z,bc2); ++k )
 						for( Ordinal i=space()->begin(dir,X,bc2); i<=space()->end(dir,X,bc2); ++i ) 
 							y.getField(dir).at(i,j,k) *= eps;  
 				}
 				if( space()->getBCLocal()->getBCU(Y) > 0 ) {
-					Ordinal j = space()->end(dir,Y,true);
+					Ordinal j = space()->end(dir,Y,With::B);
 					for( Ordinal k=space()->begin(dir,Z,bc2); k<=space()->end(dir,Z,bc2); ++k )
 						for( Ordinal i=space()->begin(dir,X,bc2); i<=space()->end(dir,X,bc2); ++i )
 							y.getField(dir).at(i,j,k) *= eps;  
 				}
-				bc2 = false;
+				bc2 = With::noB;
 			}
 
 			if( 2!=dir ) {
 				if( space()->getBCLocal()->getBCL(Z) > 0 ) {
-					Ordinal k = space()->begin(dir,Z,true);
+					Ordinal k = space()->begin(dir,Z,With::B);
 					for( Ordinal j=space()->begin(dir,Y,bc2); j<=space()->end(dir,Y,bc2); ++j )
 						for( Ordinal i=space()->begin(dir,X,bc2); i<=space()->end(dir,X,bc2); ++i )
 							y.getField(dir).at(i,j,k) *= eps;  
 				}
 				if( space()->getBCLocal()->getBCU(Z) > 0 ) {
-					Ordinal k = space()->end(dir,Z,true);
+					Ordinal k = space()->end(dir,Z,With::B);
 					for( Ordinal j=space()->begin(dir,Y,bc2); j<=space()->end(dir,Y,bc2); ++j )
 						for( Ordinal i=space()->begin(dir,X,bc2); i<=space()->end(dir,X,bc2); ++i )
 							y.getField(dir).at(i,j,k) *= eps;  
 				}
-				bc2 = false;
+				bc2 = With::noB;
 			}
 		}
 
