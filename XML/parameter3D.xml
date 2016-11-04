@@ -4,8 +4,8 @@
 		<Parameter docString="Womersley square alpha^2" id="49" isDefault="false" isUsed="true" name="alpha2" type="double" value="2.51327412287183449e+02" />
 		
   <ParameterList id="2" name="boundary conditions">
-    <Parameter docString="" id="50" isDefault="false" isUsed="true" name="lower X" type="int" value="-1" />
-    <Parameter docString="" id="51" isDefault="false" isUsed="true" name="upper X" type="int" value="-1" />
+    <Parameter docString="" id="50" isDefault="false" isUsed="true" name="lower X" type="int" value="1" />
+    <Parameter docString="" id="51" isDefault="false" isUsed="true" name="upper X" type="int" value="1" />
     <Parameter docString="" id="52" isDefault="false" isUsed="true" name="lower Y" type="int" value="1" />
     <Parameter docString="" id="53" isDefault="false" isUsed="true" name="upper Y" type="int" value="1" />
     <Parameter docString="" id="54" isDefault="false" isUsed="true" name="lower Z" type="int" value="-1" />
@@ -16,7 +16,7 @@
 		<Parameter docString="length in y-direction" id="58" isDefault="false" isUsed="true" name="ly" type="double" value="2.00000000000000000e+00" />
 		<Parameter docString="length in z-direction" id="59" isDefault="false" isUsed="true" name="lz" type="double" value="2.00000000000000000e+00" />
 		<Parameter docString="amount of grid points in x-direction: a*2**q+1" id="60" isDefault="false" isUsed="true" name="nx" type="int" value="7" />
-		<Parameter docString="amount of grid points in y-direction: a*2**q+1" id="61" isDefault="false" isUsed="true" name="ny" type="int" value="65" />
+		<Parameter docString="amount of grid points in y-direction: a*2**q+1" id="61" isDefault="false" isUsed="true" name="ny" type="int" value="129" />
 		<Parameter docString="amount of grid points in z-direction: a*2**q+1" id="62" isDefault="false" isUsed="true" name="nz" type="int" value="7" />
 		<Parameter docString="amount of grid points in f-direction" id="63" isDefault="false" isUsed="true" name="nf" type="int" value="1" />
 		<Parameter docString="amount of processors in x-direction" id="64" isDefault="false" isUsed="true" name="npx" type="int" value="1" />
@@ -27,11 +27,11 @@
 		<ParameterList id="3" name="Stretching in X">
 		</ParameterList>
 		<ParameterList id="4" name="Stretching in Y">
-			<Parameter docString="" id="69" isDefault="false" isUsed="true" name="Stretch Type" type="string" value="cos" />
-			<Parameter docString="" id="70" isDefault="true" isUsed="true" name="x0 U" type="double" value="0." />
-			<Parameter docString="" id="71" isDefault="true" isUsed="true" name="x0 L" type="double" value="0." />
-			<Parameter docString="" id="72" isDefault="true" isUsed="true" name="N metr U" type="double" value="0.0000000000000e+00" />
-			<Parameter docString="" id="73" isDefault="true" isUsed="true" name="N metr L" type="double" value="0.0000000000000e+00" />
+			<!--<Parameter docString="" id="69" isDefault="false" isUsed="true" name="Stretch Type" type="string" value="cos" />-->
+			<!--<Parameter docString="" id="70" isDefault="true" isUsed="true" name="x0 U" type="double" value="0." />-->
+			<!--<Parameter docString="" id="71" isDefault="true" isUsed="true" name="x0 L" type="double" value="0." />-->
+			<!--<Parameter docString="" id="72" isDefault="true" isUsed="true" name="N metr U" type="double" value="0.00e+00" />-->
+			<!--<Parameter docString="" id="73" isDefault="true" isUsed="true" name="N metr L" type="double" value="0.0e+00" />-->
 		</ParameterList>
 		<ParameterList id="5" name="Stretching in Z">
 		</ParameterList>
@@ -255,12 +255,12 @@
 		<Parameter docString="" id="197" isDefault="true" isUsed="true" name="Solver name" type="string" value="GMRES" />
 		<Parameter docString="" id="999" isDefault="true" isUsed="true" name="scaling" type="string" value="left" />
 		<ParameterList id="47" name="Solver">
-			<Parameter docString="" id="198" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="0.0e-2" />
+			<Parameter docString="" id="198" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-6" />
 			<Parameter docString="" id="199" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
 			<Parameter docString="" id="200" isDefault="false" isUsed="true" name="Timer Label" type="string" value="DivGrad^T" />
 			<Parameter docString="" id="201" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="100" />
 			<Parameter docString="" id="202" isDefault="false" isUsed="true" name="Output Style" type="int" value="1" />
-			<Parameter docString="" id="203" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="10" />
+			<!--<Parameter docString="" id="203" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="10" />-->
 		</ParameterList>
 	</ParameterList>
 </ParameterList>

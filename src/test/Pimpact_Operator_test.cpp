@@ -212,7 +212,6 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivOp ) {
 
 	TEST_EQUALITY( p->norm( Belos::InfNorm )<eps, true );
 
-
 	// random test
 	vel->random();
 
@@ -871,13 +870,13 @@ TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
 
 TEUCHOS_UNIT_TEST( MatrixTest, DivGradOp2M ) {
 
-	//OT nx = 9;
-	//OT ny = 11;
-	//OT nz = 7;
+	OT nx = 7;
+	OT ny = 7;
+	OT nz = 7;
 
-	OT nx = 9;
-	OT ny = 9;
-	OT nz = 9;
+	//OT nx = 9;
+	//OT ny = 9;
+	//OT nz = 9;
 	
 	//OT nx = 33;
 	//OT ny = 33;
@@ -968,9 +967,7 @@ TEUCHOS_UNIT_TEST( MatrixTest, DivGradOp2M ) {
 								x2->at(ii,jj,kk) = 1.;
 
 								DJG(II,JJ) = x2->dot( *b );
-								//*output << DJG(II,JJ) << "\t";
 							}
-					//*output << "\n";
 					ST errorDiag = std::abs( 1./std::abs(DJG(II,II))-diag->at(i,j,k)) /
 						std::abs(1./std::abs(DJG(II,II)) );
 					if( errorDiag>=eps ) {
@@ -1008,11 +1005,10 @@ TEUCHOS_UNIT_TEST( MatrixTest, DivGradOp2M ) {
 								x2->init( 0. );
 								x2->at(ii,jj,kk) = 1.;
 								DJGT(JJ,II) = x2->dot( *b );
-								//*output << DJGT(JJ,II) << "\t";
 							}
-					//*output << "\n";
 				}
-		DJGT.print( *output );
+		//DJGT.print( *output );
+		*output << DJGT;
 	}
 	DJG -= DJGT;
 
@@ -1029,13 +1025,13 @@ TEUCHOS_UNIT_TEST( MatrixTest, DivGradOp2M ) {
 
 TEUCHOS_UNIT_TEST( MatrixTest, DivOp2M ) {
 
-	//OT nx = 7;
-	//OT ny = 7;
-	//OT nz = 7;
+	OT nx = 7;
+	OT ny = 7;
+	OT nz = 7;
 
-	OT nx = 9;
-	OT ny = 9;
-	OT nz = 9;
+	//OT nx = 9;
+	//OT ny = 9;
+	//OT nz = 9;
 
   Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );
@@ -1149,13 +1145,13 @@ TEUCHOS_UNIT_TEST( MatrixTest, DivOp2M ) {
 
 TEUCHOS_UNIT_TEST( MatrixTest, GradOp2M ) {
 
-	//OT nx = 7;
-	//OT ny = 7;
-	//OT nz = 7;
+	OT nx = 7;
+	OT ny = 7;
+	OT nz = 7;
 
-	OT nx = 9;
-	OT ny = 9;
-	OT nz = 9;
+	//OT nx = 9;
+	//OT ny = 9;
+	//OT nz = 9;
 
   Pimpact::setBoundaryConditions( pl, domain );
   pl->set( "dim", dim );

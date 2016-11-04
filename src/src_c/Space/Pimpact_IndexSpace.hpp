@@ -352,12 +352,12 @@ public:
     out << "\tsInd: " << sIndS_ << "\n";
     out << "\teInd: " << eIndS_ << "\n";
     for( int field=0; field<3; ++field ) {
-      out << "\tinner field: " << field << "\n";
+      out << "\tinner field: " << toString( static_cast<EField>(field) )<< "\n";
       out << "\tsInd: " << sIndU_[field] << "\n";
       out << "\teInd: " << eIndU_[field] << "\n";
     }
     for( int field=0; field<3; ++field ) {
-      out << "\tfull field: " << field << "\n";
+      out << "\tfull field: " << toString( static_cast<EField>(field) ) << "\n";
       out << "\tsInd: " << sIndUB_[field] << "\n";
       out << "\teInd: " << eIndUB_[field] << "\n";
     }

@@ -81,8 +81,7 @@ public:
 	}
 
 
-	/// \test
-	/// \todo add eps
+	/// \test periodic BC
 	void applyInvDiag( const DomainFieldT& x, RangeFieldT& y ) const {
 
 		const ST& eps = 0.1;

@@ -925,10 +925,11 @@ public:
 		for(int i=0; i<3; ++i)
 			cw[i] = space()->nLoc(i) + space()->bu(i) - space()->bl(i) + 1;
 
+		out << std::scientific << std::setprecision(std::numeric_limits<long double>::digits10 + 1);
 		for( Ordinal k=space()->begin(fType_,Z,With::B); k<=space()->end(fType_,Z,With::B); ++k )
 			for( Ordinal j=space()->begin(fType_,Y,With::B); j<=space()->end(fType_,Y,With::B); ++j )
 				for( Ordinal i=space()->begin(fType_,X,With::B); i<=space()->end(fType_,X,With::B); ++i )
-					out << i << "\t" << j << "\t" << k << "\t" << at(i,j,k) << "\n";
+					out << i << "\t\t" << j << "\t\t" << k << "\t\t" << at(i,j,k) << "\n";
   }
 
 

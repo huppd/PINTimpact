@@ -62,9 +62,9 @@ enum EDomainType {
   AllPeriodic        = 1,	///< 1
   AllNeumann         = 2, ///< 2
   AllSymmetric       = 3, ///< 3
-  Dirichelt2DChannel = 4, ///< 4
-  Periodic2DChannel  = 5, ///< 5
-  Open2DChannel      = 6  ///< 6
+  Dirichelt2DChannel = 4, ///< 4 ( DirichletBC,           DirichletBC, PeriodicBC )
+  Periodic2DChannel  = 5, ///< 5 ( PeriodicBC,            DiricheltBC, PeriodicBC )
+  Open2DChannel      = 6  ///< 6 ( DirichletBC/NeumannBC, DirichletBC, PeriodicBC )
 };
 
 

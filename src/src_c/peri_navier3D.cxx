@@ -289,11 +289,13 @@ int main( int argi, char** argv ) {
 				}
 
 				divGradInvTT->apply( *zeros, *nullspace );
-				S blup = std::sqrt( 1./nullspace->dot(*nullspace) );
-				//std::cout << "blup: "<< std::setprecision(10) << blup << "\n";
-				nullspace->scale( blup );
-				//std::cout << "blupblup: "<< std::setprecision(10) << nullspace->dot(*nullspace) << "\n";
+
 				nullspace->write(888);
+				auto out = Pimpact::createOstream( "nullspace.txt", space->rankST() );
+				nullspace->print( *out );
+
+				S blup = std::sqrt( 1./nullspace->dot(*nullspace) );
+				nullspace->scale( blup );
 				divGradInv2->setNullspace( nullspace );
 			}
 			//// --- end nullspace
