@@ -17,7 +17,7 @@ namespace Pimpact{
 
 /// \brief global boundary conditions
 ///
-/// \tparam dim
+/// \tparam dim as soon time is another class dim ->sdim
 /// \ingroup SpaceObject
 template<int dim>
 class BoundaryConditionsGlobal {
@@ -37,8 +37,8 @@ public:
 
 protected:
 
-  Ti3 BCL_int_;
-  Ti3 BCU_int_;
+	Ti3 BCL_int_;
+	Ti3 BCU_int_;
 
 	BoundaryConditionsGlobal(
 			int BC1L, int BC1U,

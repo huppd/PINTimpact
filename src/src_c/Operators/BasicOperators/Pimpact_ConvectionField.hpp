@@ -27,6 +27,7 @@ public:
   using Scalar = typename SpaceT::Scalar;
   using Ordinal = typename SpaceT::Ordinal;
 
+  static const int sdim = SpaceT::sdim;
   static const int dimension = SpaceT::dimension;
 
   static const int dimNC = SpaceT::dimNC;
@@ -36,7 +37,7 @@ public:
 protected:
 
   const Teuchos::RCP<const InterpolateS2V<SpaceT> > interpolateS2V_;
-  const Teuchos::RCP<const InterpolateV2S<Scalar,Ordinal,dimension,dimNC> > interpolateV2S_;
+  const Teuchos::RCP<const InterpolateV2S<Scalar,Ordinal,sdim,dimension,dimNC> > interpolateV2S_;
 
   Teuchos::Tuple< Teuchos::Tuple<Teuchos::RCP<ScalarField<SpaceT> >, 3>, 3> u_;
 
@@ -70,7 +71,7 @@ public:
   ConvectionField(
       const Teuchos::RCP<const SpaceT>& space,
       const Teuchos::RCP< InterpolateS2V<SpaceT> >& interpolateS2V,
-      const Teuchos::RCP< InterpolateV2S<Scalar,Ordinal,dimension,dimNC> >& interpolateV2S ):
+      const Teuchos::RCP< InterpolateV2S<Scalar,Ordinal,sdim,dimension,dimNC> >& interpolateV2S ):
     interpolateS2V_(interpolateS2V),
     interpolateV2S_(interpolateV2S),
     u_(

@@ -29,21 +29,12 @@ namespace {
 
 using ST = double;
 using OT = int;
+
+const int sd = 3;
 const int d = 4;
 const int dNC = 2;
 
-bool testMpi = true;
-double eps = 3e-1;
-int domain = 0;
-int dim = 3;
-
-int npx = 2;
-int npy = 2;
-int npz = 1;
-int npf = 2;
-
-
-using SpaceT = Pimpact::Space<ST,OT,d,dNC>;
+using SpaceT = Pimpact::Space<ST,OT,sd,d,dNC>;
 
 using SF = Pimpact::ScalarField<SpaceT>;
 using VF = Pimpact::VectorField<SpaceT>;
@@ -56,6 +47,17 @@ using MTVF = Pimpact::MultiField<TVF>;
 
 using SOpBase = Pimpact::OperatorBase<MTSF>;
 using VOpBase = Pimpact::OperatorBase<MTVF>;
+
+bool testMpi = true;
+double eps = 3e-1;
+int domain = 0;
+int dim = 3;
+
+int npx = 2;
+int npy = 2;
+int npz = 1;
+int npf = 2;
+
 
 auto pl = Teuchos::parameterList();
 
@@ -126,7 +128,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, create_init_print, FType ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  auto space = Pimpact::create<SpaceT>( pl );
 
   space->print();
 
@@ -149,7 +151,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, InfNorm_and_init, FType ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  auto space = Pimpact::create<SpaceT>( pl );
 
   auto p = Pimpact::create<FType>(space);
 
@@ -193,7 +195,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, OneNorm_and_init, FType ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  auto space = Pimpact::create<SpaceT>( pl );
 
   auto p = Pimpact::create<FType>(space);
 
@@ -219,7 +221,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, TwoNorm_and_init, FType ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  auto space = Pimpact::create<SpaceT>( pl );
 
   auto p = Pimpact::create<FType>(space);
 
@@ -243,7 +245,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, dot, FType ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  auto space = Pimpact::create<SpaceT>( pl );
 
   auto vel1 = Pimpact::create<FType>(space);
   auto vel2 = Pimpact::create<FType>(space);
@@ -290,7 +292,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, scale, FType ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  auto space = Pimpact::create<SpaceT>( pl );
 
   auto p = Pimpact::create<FType>(space);
 
@@ -317,7 +319,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, random, FType ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  auto space = Pimpact::create<SpaceT>( pl );
 
   auto p = Pimpact::create<FType>(space);
 
@@ -344,7 +346,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TemplateField, add, FType ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  auto space = Pimpact::create<SpaceT>( pl );
 
   auto vel1 = Pimpact::create<FType>(space);
   auto vel2 = Pimpact::create<FType>(space);
@@ -396,7 +398,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, write, FType ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  auto space = Pimpact::create<SpaceT>( pl );
 
   auto p = Pimpact::create<FType>( space );
 
@@ -424,7 +426,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TimeField, all, FType ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  auto space = Pimpact::create<SpaceT>( pl );
 
 	space->print();
   //---------------------------------------------------
@@ -482,7 +484,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TimeField, BelosMVTest, FType ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  auto space = Pimpact::create<SpaceT>( pl );
 
   auto vel = Pimpact::create<FType>( space );
 
@@ -510,7 +512,7 @@ TEUCHOS_UNIT_TEST( TimeOpearotr, TimeOpWrap ) {
 	pl->set("npz", npz );
 	pl->set("npf", npf );
 
-	auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+	auto space = Pimpact::create<SpaceT>( pl );
 
 
 	auto field = Pimpact::create<TVF>( space );
@@ -573,7 +575,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, DtTimeOp ) {
 
 		pl->set("nf", int(std::pow(2,q)) );
 
-		auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+		auto space = Pimpact::create<SpaceT>( pl );
 
 		auto field = Pimpact::create<TVF>( space );
 		auto field1 = field->clone();
@@ -632,7 +634,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, DtTimeOp ) {
 //	pl->set("npz", npz );
 //	pl->set("npf", npf );
 //
-//	auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+//	auto space = Pimpact::create<SpaceT>( pl );
 //
 //	auto field = Pimpact::create<TVF>( space );
 //	auto field1 = field->clone();
@@ -733,7 +735,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOp ) {
 
 	using OpT = Pimpact::TimeStokesOp<SpaceT>;
 
-	auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+	auto space = Pimpact::create<SpaceT>( pl );
 
 
 	auto op = Pimpact::create<OpT>( space );
@@ -850,7 +852,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOpDT ) {
 
 		pl->set<OT>("nf", int(std::pow(2,q)) );
 
-		auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+		auto space = Pimpact::create<SpaceT>( pl );
 
 
 		auto field = Pimpact::create<typename OpT::DomainFieldT>( space );
@@ -916,7 +918,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeNSOp ) {
 
 	using OpT = Pimpact::TimeNSOp<SpaceT>;
 
-	auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+	auto space = Pimpact::create<SpaceT>( pl );
 
 
 	auto op = Pimpact::create<OpT>( space );
@@ -1070,7 +1072,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeNSOpDT ) {
 
 		pl->set("nf", int(std::pow(2,q)) );
 
-		auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+		auto space = Pimpact::create<SpaceT>( pl );
 
 
 		auto field = Pimpact::create<typename OpT::DomainFieldT>( space );

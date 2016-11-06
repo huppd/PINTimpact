@@ -33,6 +33,7 @@ class CoarsenStrategyGlobal {
   using Ordinal = typename FSpaceT::Ordinal;
 
   /// should be same for finest space and coarse spaces
+  static const int sdim = FSpaceT::sdim;
   static const int dimension = FSpaceT::dimension;
 
 	using TO = typename Teuchos::Tuple<Ordinal,dimension>;
@@ -53,7 +54,7 @@ public:
 
 		std::vector<Teuchos::RCP<const CSpaceT> > multiSpace( 1, tempSpace );
 
-		GridSizeGlobal<Ordinal> nGlo = *space->getGridSizeGlobal();
+		GridSizeGlobal<Ordinal,sdim> nGlo = *space->getGridSizeGlobal();
 
 		bool spectralT = space->getStencilWidths()->spectralT();
 
@@ -198,8 +199,8 @@ public:
 
 
 #ifdef COMPILE_ETI
-extern template class Pimpact::CoarsenStrategyGlobal< Pimpact::Space<double,int,3,4>, Pimpact::Space<double,int,3,2> >;
-extern template class Pimpact::CoarsenStrategyGlobal< Pimpact::Space<double,int,4,4>, Pimpact::Space<double,int,4,2> >;
+extern template class Pimpact::CoarsenStrategyGlobal< Pimpact::Space<double,int,3,3,4>, Pimpact::Space<double,int,3,3,2> >;
+extern template class Pimpact::CoarsenStrategyGlobal< Pimpact::Space<double,int,3,4,4>, Pimpact::Space<double,int,3,4,2> >;
 #endif
 
 

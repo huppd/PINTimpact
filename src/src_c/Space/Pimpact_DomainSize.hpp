@@ -13,17 +13,17 @@
 
 
 
-namespace Pimpact{
+namespace Pimpact {
 
 
 
 /// \brief Domain or physical set up would be better names
 /// \ingroup SpaceObject
-template<class ScalarT>
+template<class ScalarT, int sd>
 class DomainSize {
 
-	template<class ST>
-	friend Teuchos::RCP<const DomainSize<ST> > createDomainSize(
+	template<class ST, int sd_>
+	friend Teuchos::RCP<const DomainSize<ST,sd_> > createDomainSize(
 			int dim, ST re, ST alpha2,
 			ST L1, ST L2, ST L3,
 			ST x1, ST x2, ST x3 );
@@ -93,15 +93,15 @@ public:
 
 
 /// \relates DomainSize
-template<class ScalarT>
-Teuchos::RCP<const DomainSize<ScalarT> >
+template<class ScalarT, int sd>
+Teuchos::RCP<const DomainSize<ScalarT,sd> >
 createDomainSize(
 		int dim, ScalarT re, ScalarT alpha2,
 		ScalarT L1, ScalarT L2, ScalarT L3,
 		ScalarT x1, ScalarT x2, ScalarT x3 ) {
 
 	return( Teuchos::rcp(
-          new DomainSize<ScalarT>( dim, re, alpha2, L1, L2, L3, x1, x2, x3 ) ) );
+          new DomainSize<ScalarT,sd>( dim, re, alpha2, L1, L2, L3, x1, x2, x3 ) ) );
 }
 
 

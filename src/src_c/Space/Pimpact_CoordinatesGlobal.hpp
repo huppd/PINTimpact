@@ -30,7 +30,7 @@ namespace Pimpact{
 ///
 /// \tparam ScalarT scalar type
 /// \tparam OrdinalT index type
-/// \tparam dim computational dimension
+/// \tparam dim computational dimension as soon as Time is own class -> sdim
 ///
 /// \note: - local processor-block coordinates and grid spacings are
 ///          automatically derived from global grid
@@ -50,15 +50,15 @@ namespace Pimpact{
 template<class ScalarT, class OrdinalT, int dim>
 class CoordinatesGlobal {
 
-	template<class ST,class OT,int dT>
+	template<class ST,class OT, int sdT,int dT>
 	friend Teuchos::RCP<const CoordinatesGlobal<ST,OT,dT> > createCoordinatesGlobal(
-			const Teuchos::RCP<const GridSizeGlobal<OT> >& gridSize,
-			const Teuchos::RCP<const DomainSize<ST> >& domainSize,
+			const Teuchos::RCP<const GridSizeGlobal<OT,sdT> >& gridSize,
+			const Teuchos::RCP<const DomainSize<ST,sdT> >& domainSize,
 			const Teuchos::Tuple< Teuchos::RCP<Teuchos::ParameterList>, 3 >& gridStretching );
 
-	template<class ST,class OT,int dT>
+	template<class ST,class OT,int sdT,int dT>
 	friend Teuchos::RCP<const CoordinatesGlobal<ST,OT,dT> > createCoordinatesGlobal(
-			const Teuchos::RCP<const GridSizeGlobal<OT> >& gridSize,
+			const Teuchos::RCP<const GridSizeGlobal<OT,sdT> >& gridSize,
 			const Teuchos::RCP<const CoordinatesGlobal<ST,OT,dT> >& coordinates );
 
 protected:
@@ -224,9 +224,10 @@ protected:
 	/// \param[in] gridSize
 	/// \param[in] domainSize
 	/// \param[in] stretchPara
+	template<int sd>
 	CoordinatesGlobal(
-			const Teuchos::RCP<const GridSizeGlobal<OrdinalT> >& gridSize,
-			const Teuchos::RCP<const DomainSize<ScalarT> >& domainSize,
+			const Teuchos::RCP<const GridSizeGlobal<OrdinalT,sd> >& gridSize,
+			const Teuchos::RCP<const DomainSize<ScalarT,sd> >& domainSize,
 			const Teuchos::Tuple< Teuchos::RCP<Teuchos::ParameterList>, 3 >& stretchPara ):
 		stretchPara_(stretchPara) {
 
@@ -322,15 +323,16 @@ protected:
 					}
 				}
 			}
-		};
+		}
 
 
 	/// \brief constructor from fine grid
 	///
 	/// \param[in] gridSizeC
 	/// \param[in] coordinatesF
+	template<int sd>
 	CoordinatesGlobal(
-			const Teuchos::RCP<const GridSizeGlobal<OrdinalT> >& gridSizeC,
+			const Teuchos::RCP<const GridSizeGlobal<OrdinalT,sd> >& gridSizeC,
 			const Teuchos::RCP<const CoordinatesGlobal<ScalarT,OrdinalT,dim> >& coordinatesF ) {
 
 		for( int dir=0; dir<dim; ++dir ) {
@@ -371,7 +373,7 @@ protected:
 		}
 		//Teuchos::RCP<std::ostream> out = createOstream( "coord.txt", 0 );
 		//print( *out );
-	};
+	}
 
 
 public:
@@ -430,11 +432,11 @@ public:
 /// \param gridStretching
 ///
 /// \return 
-template<class ST, class OT, int d>
+template<class ST, class OT, int sd, int d>
 Teuchos::RCP<const CoordinatesGlobal<ST,OT,d> >
 createCoordinatesGlobal(
-		const Teuchos::RCP<const GridSizeGlobal<OT> >& gridSize,
-		const Teuchos::RCP<const DomainSize<ST> >& domainSize,
+		const Teuchos::RCP<const GridSizeGlobal<OT,sd> >& gridSize,
+		const Teuchos::RCP<const DomainSize<ST,sd> >& domainSize,
 		const Teuchos::Tuple< Teuchos::RCP<Teuchos::ParameterList> ,3>& gridStretching ) {
 
 	return(
@@ -456,10 +458,10 @@ createCoordinatesGlobal(
 /// \param coordinates
 ///
 /// \return 
-template<class ST, class OT, int d>
+template<class ST, class OT, int sd, int d>
 Teuchos::RCP<const CoordinatesGlobal<ST,OT,d> >
 createCoordinatesGlobal(
-		const Teuchos::RCP<const GridSizeGlobal<OT> >& gridSize,
+		const Teuchos::RCP<const GridSizeGlobal<OT,sd> >& gridSize,
 		const Teuchos::RCP<const CoordinatesGlobal<ST,OT,d> >& coordinates ) {
 
 	return(

@@ -49,6 +49,10 @@ void PI_getLocalCoordinates(
 
 
 /// \brief local grid coordinates
+/// \tparam ScalarT
+/// \tparam OrdinalT
+/// \tparam dim as soon as Time is own class ->sdim
+/// \tparam dimNC
 ///
 /// Coordinate | index
 /// -----------| --------------------------
@@ -59,11 +63,11 @@ void PI_getLocalCoordinates(
 template<class ScalarT, class OrdinalT, int dim, int dimNC>
 class CoordinatesLocal {
 
-	template<class ST,class OT,int dT, int dNC>
+	template<class ST,class OT,int sdT,int dT, int dNC>
 	friend Teuchos::RCP<const CoordinatesLocal<ST,OT,dT,dNC> > createCoordinatesLocal(
 			const Teuchos::RCP<const StencilWidths<dT,dNC> >& fieldSpace,
-			const Teuchos::RCP<const DomainSize<ST> >& domainSize,
-			const Teuchos::RCP<const GridSizeGlobal<OT> >& gridSizeGlobal,
+			const Teuchos::RCP<const DomainSize<ST,sdT> >& domainSize,
+			const Teuchos::RCP<const GridSizeGlobal<OT,sdT> >& gridSizeGlobal,
 			const Teuchos::RCP<const GridSizeLocal<OT,dT> >& gridSizeLocal,
 			const Teuchos::RCP<const BoundaryConditionsGlobal<dT> >& bcGlobal,
 			const Teuchos::RCP<const BoundaryConditionsLocal<dT> >& bcLocal,
@@ -83,10 +87,11 @@ protected:
 	Teuchos::RCP<const StencilWidths<dim,dimNC> > stencilWidths_;
 
 	//template<int dimNC>
+	template<int sdim>
 	CoordinatesLocal(
 			const Teuchos::RCP<const StencilWidths<dim,dimNC> >& stencilWidths,
-			const Teuchos::RCP<const DomainSize<ScalarT> >& domainSize,
-			const Teuchos::RCP<const GridSizeGlobal<OrdinalT> >& gridSizeGlobal,
+			const Teuchos::RCP<const DomainSize<ScalarT,sdim> >& domainSize,
+			const Teuchos::RCP<const GridSizeGlobal<OrdinalT,sdim> >& gridSizeGlobal,
 			const Teuchos::RCP<const GridSizeLocal<OrdinalT,dim> >& gridSizeLocal,
 			const Teuchos::RCP<const BoundaryConditionsGlobal<dim> >& bcGlobal,
 			const Teuchos::RCP<const BoundaryConditionsLocal<dim> >& bcLocal,
@@ -188,12 +193,12 @@ public:
 
 /// \brief create Grid coordinates Global
 /// \relates CoordinatesLocal
-template<class ST, class OT, int d, int dNC>
+template<class ST, class OT, int sd, int d, int dNC>
 Teuchos::RCP<const CoordinatesLocal<ST,OT,d,dNC> >
 createCoordinatesLocal(
 		const Teuchos::RCP<const StencilWidths<d,dNC> >& stencilWidths,
-		const Teuchos::RCP<const DomainSize<ST> >& domainSize,
-		const Teuchos::RCP<const GridSizeGlobal<OT> >& gridSizeGlobal,
+		const Teuchos::RCP<const DomainSize<ST,sd> >& domainSize,
+		const Teuchos::RCP<const GridSizeGlobal<OT,sd> >& gridSizeGlobal,
 		const Teuchos::RCP<const GridSizeLocal<OT,d> >& gridSizeLocal,
 		const Teuchos::RCP<const BoundaryConditionsGlobal<d> >& bcGlobal,
 		const Teuchos::RCP<const BoundaryConditionsLocal<d> >& bcLocal,

@@ -18,9 +18,9 @@ namespace Pimpact{
 
 /// \brief local boundary conditions depending on processor grid
 ///
-/// \tparam dimension 
+/// \tparam dimension  as soon as Time is own class dimension ->sd
 /// \ingroup SpaceObject
-template< int dimension >
+template<int dimension>
 class BoundaryConditionsLocal {
 
 protected:

@@ -21,7 +21,9 @@ namespace {
 using ST = double;
 using OT = int;
 
-using SpaceT = typename Pimpact::Space<ST,OT,3,4>;
+const int sd = 3;
+
+using SpaceT = typename Pimpact::Space<ST,OT,sd,3,4>;
 
 using SF = Pimpact::ScalarField<SpaceT>;
 using VF = Pimpact::VectorField<SpaceT>;
@@ -61,7 +63,7 @@ TEUCHOS_STATIC_SETUP() {
 
 TEUCHOS_UNIT_TEST( NOXPimpactVector, createInitPrint ) {
 
-	auto space = Pimpact::createSpace( pl );
+	Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
 	Teuchos::RCP<CF> x  = Pimpact::create<CF>( space );
 
@@ -73,7 +75,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, createInitPrint ) {
 
 TEUCHOS_UNIT_TEST( NOXPimpactVector, InfNormAndInit ) {
 
-	auto space = Pimpact::createSpace( pl );
+	Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
 	Teuchos::RCP<CF> x  = Pimpact::create<CF>( space );
 
@@ -104,7 +106,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, InfNormAndInit ) {
 
 TEUCHOS_UNIT_TEST( NOXPimpactVector, TwoNormAndInit ) {
 
-	auto space = Pimpact::createSpace( pl );
+	Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
 	Teuchos::RCP<CF> x  = Pimpact::create<CF>( space );
 
@@ -126,7 +128,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, TwoNormAndInit ) {
 
 TEUCHOS_UNIT_TEST( NOXPimpactVector, add ) {
 
-	auto space = Pimpact::createSpace( pl );
+	Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
 	Teuchos::RCP<CF> x  = Pimpact::create<CF>( space );
 
@@ -159,7 +161,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, add ) {
 
 TEUCHOS_UNIT_TEST( NOXPimpactVector, reciprocal ) {
 
-	auto space = Pimpact::createSpace( pl );
+	Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
 	Teuchos::RCP<CF> x  = Pimpact::create<CF>( space );
 
@@ -197,7 +199,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, reciprocal ) {
 
 TEUCHOS_UNIT_TEST( NOXPimpactVector, normWeighted ) {
 
-	auto space = Pimpact::createSpace( pl );
+	Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
 	Teuchos::RCP<CF> x  = Pimpact::create<CF>( space );
 
@@ -242,7 +244,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, normWeighted ) {
 
 TEUCHOS_UNIT_TEST( NOXPimpactVector, scale2 ) {
 
-	auto space = Pimpact::createSpace( pl );
+	Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
 	Teuchos::RCP<CF> x  = Pimpact::create<CF>( space );
 
@@ -284,7 +286,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, scale2 ) {
 
 TEUCHOS_UNIT_TEST( NOXPimpactVector, innerProduct ) {
 
-	auto space = Pimpact::createSpace( pl );
+	Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
 	Teuchos::RCP<CF> x  = Pimpact::create<CF>( space );
 
@@ -321,7 +323,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, innerProduct ) {
 
 TEUCHOS_UNIT_TEST( NOXPimpactVector, scale ) {
 
-	auto space = Pimpact::createSpace( pl );
+	Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
 	Teuchos::RCP<CF> x  = Pimpact::create<CF>( space );
 
@@ -340,7 +342,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, scale ) {
 
 TEUCHOS_UNIT_TEST( NOXPimpactVector, random ) {
 
-	auto space = Pimpact::createSpace( pl );
+	Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
 	Teuchos::RCP<CF> x  = Pimpact::create<CF>( space );
 
@@ -360,7 +362,7 @@ TEUCHOS_UNIT_TEST( NOXPimpactVector, random ) {
 
 TEUCHOS_UNIT_TEST( NOXPimpactVector, update ) {
 
-	auto space = Pimpact::createSpace( pl );
+	Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
 	Teuchos::RCP<CF> x  = Pimpact::create<CF>( space );
 

@@ -16,15 +16,21 @@
 namespace {
 
 
-int dim = 3;
-int domain = 0;
-
 using ST = double;
 using OT = int;
+
+const int sd = 3;
+const int d = 3;
+const int dNC = 4;
+
+using SpaceT = Pimpact::Space<ST,OT,sd,d,dNC>;
+
 
 bool testMpi = true;
 ST eps = 1e-6;
 
+int dim = 3;
+int domain = 0;
 
 auto pl = Teuchos::parameterList();
 
@@ -76,7 +82,7 @@ TEUCHOS_UNIT_TEST( VectorField, InfNorm_and_initvec2d ) {
 	pl->set("npy",            2 );
 	pl->set("npz", (2==dim)?1:2 );
 
-	auto space = Pimpact::createSpace( pl );
+	auto space = Pimpact::create<SpaceT>( pl );
 
 	auto vel = Pimpact::create<Pimpact::VectorField>( space );
 
@@ -151,7 +157,7 @@ TEUCHOS_UNIT_TEST( VectorField, initField ) {
 	pl->sublist( "Stretching in Z" ).set<ST>( "x0 U", 0. );
 
 
-	auto space = Pimpact::createSpace( pl );
+	auto space = Pimpact::create<SpaceT>( pl );
 
 	space->getInterpolateV2S()->print();
 	auto vel = Pimpact::create<Pimpact::VectorField>( space );

@@ -502,7 +502,7 @@ public:
 
 		Teuchos::RCP<const CoordinatesLocal<Scalar,Ordinal,SpaceT::dimension,SpaceT::dimNC> > coord =
 			space()->getCoordinatesLocal();
-		Teuchos::RCP<const DomainSize<Scalar> > domain = space()->getDomainSize();
+		Teuchos::RCP<const DomainSize<Scalar,SpaceT::sdim> > domain = space()->getDomainSize();
 
 		const With& bcYes = With::B;
 		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )

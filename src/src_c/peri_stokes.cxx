@@ -45,171 +45,171 @@ using MSF = Pimpact::MultiField<SF>;
 int main(int argi, char** argv ) {
 
 
-  // intialize MPI
-  MPI_Init( &argi, &argv );
+	// intialize MPI
+	MPI_Init( &argi, &argv );
 
-  //// get problem values form Comand line
-  Teuchos::CommandLineProcessor my_CLP;
+	//// get problem values form Comand line
+	Teuchos::CommandLineProcessor my_CLP;
 
-  // physical constants
-  S re = 1.;
-  my_CLP.setOption( "re", &re, "Reynolds number" );
+	// physical constants
+	S re = 1.;
+	my_CLP.setOption( "re", &re, "Reynolds number" );
 
-  S alpha2 = 1.;
-  my_CLP.setOption( "alpha2", &alpha2, "introduced frequency" );
+	S alpha2 = 1.;
+	my_CLP.setOption( "alpha2", &alpha2, "introduced frequency" );
 
-  S px = 1.;
-  my_CLP.setOption( "px", &px, "pressure gradient(only necessary for pulsatile flows)" );
+	S px = 1.;
+	my_CLP.setOption( "px", &px, "pressure gradient(only necessary for pulsatile flows)" );
 
-  // flow type
-  int flow = 1;
-  my_CLP.setOption( "flow", &flow,
-      "Flow type: 0=zero flow, 1=2D Poiseuille flow in x, 2=2D Poiseuille flow in y, 3=2D pulsatile flow in x, 4=2D pulsatile flow in, 5=2D streaming" );
+	// flow type
+	int flow = 1;
+	my_CLP.setOption( "flow", &flow,
+			"Flow type: 0=zero flow, 1=2D Poiseuille flow in x, 2=2D Poiseuille flow in y, 3=2D pulsatile flow in x, 4=2D pulsatile flow in, 5=2D streaming" );
 
-  // domain type
-  int domain = 1;
-  my_CLP.setOption( "domain", &domain,
-      "Domain type: 0:all dirichlet, 1:dirichlet 2d channel, 2: periodic 2d channel" );
+	// domain type
+	int domain = 1;
+	my_CLP.setOption( "domain", &domain,
+			"Domain type: 0:all dirichlet, 1:dirichlet 2d channel, 2: periodic 2d channel" );
 
-  // domain size
-  int dim = 2.;
-  my_CLP.setOption( "dim", &dim, "length in x-direction" );
+	// domain size
+	int dim = 2.;
+	my_CLP.setOption( "dim", &dim, "length in x-direction" );
 
-  S l1 = 2.;
-  my_CLP.setOption( "lx", &l1, "length in x-direction" );
+	S l1 = 2.;
+	my_CLP.setOption( "lx", &l1, "length in x-direction" );
 
-  S l2 = 2.;
-  my_CLP.setOption( "ly", &l2, "length in y-direction" );
+	S l2 = 2.;
+	my_CLP.setOption( "ly", &l2, "length in y-direction" );
 
-  S l3 = 2.;
-  my_CLP.setOption( "lz", &l3, "length in z-direction" );
+	S l3 = 2.;
+	my_CLP.setOption( "lz", &l3, "length in z-direction" );
 
-  // grid size
-  O n1 = 33;
-  my_CLP.setOption( "nx", &n1, "amount of grid points in x-direction: a*2**q+1" );
+	// grid size
+	O n1 = 33;
+	my_CLP.setOption( "nx", &n1, "amount of grid points in x-direction: a*2**q+1" );
 
-  O n2 = 33;
-  my_CLP.setOption( "ny", &n2, "amount of grid points in y-direction: a*2**q+1" );
+	O n2 = 33;
+	my_CLP.setOption( "ny", &n2, "amount of grid points in y-direction: a*2**q+1" );
 
-  O n3 = 2.;
-  my_CLP.setOption( "nz", &n3, "amount of grid points in z-direction: a*2**q+1" );
+	O n3 = 2.;
+	my_CLP.setOption( "nz", &n3, "amount of grid points in z-direction: a*2**q+1" );
 
-  // processor grid size
-  O np1 = 2;
-  my_CLP.setOption( "npx", &np1, "amount of processors in x-direction" );
+	// processor grid size
+	O np1 = 2;
+	my_CLP.setOption( "npx", &np1, "amount of processors in x-direction" );
 
-  O np2 = 2;
-  my_CLP.setOption( "npy", &np2, "amount of processors in y-direction" );
+	O np2 = 2;
+	my_CLP.setOption( "npy", &np2, "amount of processors in y-direction" );
 
-  O np3 = 1.;
-  my_CLP.setOption( "npz", &np3, "amount of processors in z-direction" );
+	O np3 = 1.;
+	my_CLP.setOption( "npz", &np3, "amount of processors in z-direction" );
 
-  // solver name
-  std::string solver_name_1 = "GMRES";
-  my_CLP.setOption( "solver1", &solver_name_1, "name of the solver for H" );
+	// solver name
+	std::string solver_name_1 = "GMRES";
+	my_CLP.setOption( "solver1", &solver_name_1, "name of the solver for H" );
 
-  std::string solver_name_2 = "GMRES";
-  my_CLP.setOption( "solver2", &solver_name_2, "name of the solver for Schur complement" );
+	std::string solver_name_2 = "GMRES";
+	my_CLP.setOption( "solver2", &solver_name_2, "name of the solver for Schur complement" );
 
-  S tol= 1.e-6;
-  my_CLP.setOption( "tol", &tol, "name of the solver for Schur complement" );
+	S tol= 1.e-6;
+	my_CLP.setOption( "tol", &tol, "name of the solver for Schur complement" );
 
-  // preconditioner type
-  int precType = 0;
-  my_CLP.setOption( "prec", &precType, "Type of the preconditioner." );
+	// preconditioner type
+	int precType = 0;
+	my_CLP.setOption( "prec", &precType, "Type of the preconditioner." );
 
-  int precTypeSchur = 0;
-  my_CLP.setOption( "precTypeSchur", &precTypeSchur, "Type of the preconditioner for the SchurComplement." );
+	int precTypeSchur = 0;
+	my_CLP.setOption( "precTypeSchur", &precTypeSchur, "Type of the preconditioner for the SchurComplement." );
 
-  bool leftPrec = true;
-  my_CLP.setOption( "leftPrec","rightPrec", &leftPrec, "type of fixpoint iteration matrix: 1=Newton, 2=Piccard, 3=lin diag... " );
+	bool leftPrec = true;
+	my_CLP.setOption( "leftPrec","rightPrec", &leftPrec, "type of fixpoint iteration matrix: 1=Newton, 2=Piccard, 3=lin diag... " );
 
-  my_CLP.recogniseAllOptions(true);
-  my_CLP.throwExceptions(true);
+	my_CLP.recogniseAllOptions(true);
+	my_CLP.throwExceptions(true);
 
-  my_CLP.parse(argi,argv);
-  // end of parsing
+	my_CLP.parse(argi,argv);
+	// end of parsing
 
-  // starting with ininializing
-  auto pl = Teuchos::parameterList();
+	// starting with ininializing
+	auto pl = Teuchos::parameterList();
 
-  pl->set( "Re", re );
-  pl->set( "alpha2", alpha2 );
-  pl->set( "domain", domain );
+	pl->set( "Re", re );
+	pl->set( "alpha2", alpha2 );
+	pl->set( "domain", domain );
 
-  pl->set( "lx", l1 );
-  pl->set( "ly", l2 );
-  pl->set( "lz", l3 );
+	pl->set( "lx", l1 );
+	pl->set( "ly", l2 );
+	pl->set( "lz", l3 );
 
-  pl->set( "dim", dim );
+	pl->set( "dim", dim );
 
-  pl->set("nx", n1 );
-  pl->set("ny", n2 );
-  pl->set("nz", n3 );
-
-
-  // processor grid size
-  pl->set("npx", np1 );
-  pl->set("npy", np2 );
-  pl->set("npz", np3 );
-
-  auto space = Pimpact::createSpace<S,O,3>( pl );
-
-  space->print();
-
-  int rank = space->getProcGrid()->getRank();
+	pl->set("nx", n1 );
+	pl->set("ny", n2 );
+	pl->set("nz", n3 );
 
 
-  // outputs
-  Teuchos::RCP<std::ostream> outPar;
-  Teuchos::RCP<std::ostream> outLap1;
-  Teuchos::RCP<std::ostream> outLap2;
-  Teuchos::RCP<std::ostream> outSchur;
+	// processor grid size
+	pl->set("npx", np1 );
+	pl->set("npy", np2 );
+	pl->set("npz", np3 );
 
-  if(rank==0) {
-    outPar   = Teuchos::rcp( new std::ofstream("para_case.txt") );
-    outLap1  = Teuchos::rcp( new std::ofstream("stats_solvLap1.txt") );
-    outLap2  = Teuchos::rcp( new std::ofstream("stats_solvLap2.txt") );
-    outSchur = Teuchos::rcp( new std::ofstream("stats_solvSchur.txt") );
-  }	else
-    //		outPar = Teuchos::rcp( &blackhole, false) ;
-    outPar = Teuchos::rcp( new Teuchos::oblackholestream() ) ;
+	auto space = Pimpact::create< Pimpact::Space<S,O,3> >( pl );
 
-  *outPar << " \tflow=" << flow << "\n";
-  *outPar << " \tdomain=" << domain << "\n";
-  *outPar << " \tpx=" << px << "\n";
+	space->print();
 
-  if(rank==0) {
-    Teuchos::rcp_static_cast<std::ofstream>(outPar)->close();
-  }
-  outPar = Teuchos::null;
+	int rank = space->getProcGrid()->getRank();
 
 
-  // init vectors
-  auto p     = Pimpact::createInitMSF( space );
-  auto temps = p->clone();
-  auto fp    = p->clone();
+	// outputs
+	Teuchos::RCP<std::ostream> outPar;
+	Teuchos::RCP<std::ostream> outLap1;
+	Teuchos::RCP<std::ostream> outLap2;
+	Teuchos::RCP<std::ostream> outSchur;
 
-  auto u     = Pimpact::createInitMVF( Pimpact::EFlowType(flow), space, alpha2, px );
-  auto tempv = Pimpact::createInitMVF( Pimpact::Zero2DFlow, space );
-  auto fu    = Pimpact::createInitMVF( Pimpact::Zero2DFlow, space );
+	if(rank==0) {
+		outPar   = Teuchos::rcp( new std::ofstream("para_case.txt") );
+		outLap1  = Teuchos::rcp( new std::ofstream("stats_solvLap1.txt") );
+		outLap2  = Teuchos::rcp( new std::ofstream("stats_solvLap2.txt") );
+		outSchur = Teuchos::rcp( new std::ofstream("stats_solvSchur.txt") );
+	}	else
+		//		outPar = Teuchos::rcp( &blackhole, false) ;
+		outPar = Teuchos::rcp( new Teuchos::oblackholestream() ) ;
 
-  u->write(3);
+	*outPar << " \tflow=" << flow << "\n";
+	*outPar << " \tdomain=" << domain << "\n";
+	*outPar << " \tpx=" << px << "\n";
 
-  p->init(0.);
-  u->init(0);
-  tempv->init(0);
-
-
-
-  // init Belos operators
-  auto H  =
-      Pimpact::createMultiOperatorBase(
-          Pimpact::createDtLapOp( space, alpha2, 1./re ) );
+	if(rank==0) {
+		Teuchos::rcp_static_cast<std::ofstream>(outPar)->close();
+	}
+	outPar = Teuchos::null;
 
 
-  // create choosen preconditioner
-  Teuchos::RCP<Pimpact::OperatorBase<MVF> > lprec = Teuchos::null;
+	// init vectors
+	auto p     = Pimpact::createInitMSF( space );
+	auto temps = p->clone();
+	auto fp    = p->clone();
+
+	auto u     = Pimpact::createInitMVF( Pimpact::EFlowType(flow), space, alpha2, px );
+	auto tempv = Pimpact::createInitMVF( Pimpact::Zero2DFlow, space );
+	auto fu    = Pimpact::createInitMVF( Pimpact::Zero2DFlow, space );
+
+	u->write(3);
+
+	p->init(0.);
+	u->init(0);
+	tempv->init(0);
+
+
+
+	// init Belos operators
+	auto H  =
+		Pimpact::createMultiOperatorBase(
+				Pimpact::createDtLapOp( space, alpha2, 1./re ) );
+
+
+	// create choosen preconditioner
+	Teuchos::RCP<Pimpact::OperatorBase<MVF> > lprec = Teuchos::null;
 
 	switch(precType) {
 
@@ -253,93 +253,93 @@ int main(int argi, char** argv ) {
 			auto para = Teuchos::parameterList();
 			para->set<S>( "mulI", alpha2 );
 
-		A->setParameter( para );
+			A->setParameter( para );
 
-    auto prob2 =
-			Pimpact::createLinearProblem<Pimpact::MultiField<Pimpact::VectorField<SpaceT> > >(
-					A,
-					Teuchos::null,
-					Teuchos::null,
-					//Pimpact::createMultiField( fu->getConstFieldPtr(0)->getConstCFieldPtr()->clone() ),
-					//Pimpact::createMultiField( fu->getConstFieldPtr(0)->getConstCFieldPtr()->clone() ),
-					solverParams,
-					"CG" );
+			auto prob2 =
+				Pimpact::createLinearProblem<Pimpact::MultiField<Pimpact::VectorField<SpaceT> > >(
+						A,
+						Teuchos::null,
+						Teuchos::null,
+						//Pimpact::createMultiField( fu->getConstFieldPtr(0)->getConstCFieldPtr()->clone() ),
+						//Pimpact::createMultiField( fu->getConstFieldPtr(0)->getConstCFieldPtr()->clone() ),
+						solverParams,
+						"CG" );
 
-		auto op2 =
-			Pimpact::create<Pimpact::EddyPrec>(
-					Pimpact::createMultiOpUnWrap(
-						Pimpact::createInverseOperatorBase(prob2) ) );
+			auto op2 =
+				Pimpact::create<Pimpact::EddyPrec>(
+						Pimpact::createMultiOpUnWrap(
+							Pimpact::createInverseOperatorBase(prob2) ) );
 
-		lprec = Pimpact::createMultiOperatorBase( op2 );
+			lprec = Pimpact::createMultiOperatorBase( op2 );
 
-    break;
-  }
-  default:
-    break;
-  }
-
-
-
-  // init MV operators
-  auto div  =
-      Pimpact::createMultiModeOpWrap( Pimpact::create<Pimpact::DivOp>(space) );
-  auto grad =
-      Pimpact::createMultiModeOpWrap( Pimpact::create<Pimpact::GradOp>(space) );
+			break;
+		}
+		default:
+			break;
+	}
 
 
-  // init boundary conditions
-  H->apply( *u, *fu );
-  div->apply( *u, *fp );
-  fu->scale(-1.);
-  fp->scale(-1.);
 
-  fu->write(6);
-  fp->write(6);
+	// init MV operators
+	auto div  =
+		Pimpact::createMultiModeOpWrap( Pimpact::create<Pimpact::DivOp>(space) );
+	auto grad =
+		Pimpact::createMultiModeOpWrap( Pimpact::create<Pimpact::GradOp>(space) );
 
-  u = Pimpact::createInitMVF( Pimpact::Zero2DFlow, space );
 
-  // create parameter for linsovlers
-  auto solverParams = Pimpact::createLinSolverParameter( solver_name_1, tol*l1*l2/n1/n2 );
+	// init boundary conditions
+	H->apply( *u, *fu );
+	div->apply( *u, *fp );
+	fu->scale(-1.);
+	fp->scale(-1.);
 
-  solverParams->set ("Output Stream", outLap1 );
-  //  if(precType==0) {
-  //    solverParams->set( "Num Blocks", 100 );
-  //    solverParams->set( "Maximum Iterations", 1000  );
-  //  }
-  //  else {
-  //    solverParams->set( "Num Blocks", 10 );
-  //    solverParams->set( "Maximum Iterations", 10  );
-  //  }
+	fu->write(6);
+	fp->write(6);
 
-  Teuchos::writeParameterListToXmlFile( *solverParams, "para_solver.xml" );
+	u = Pimpact::createInitMVF( Pimpact::Zero2DFlow, space );
 
-  // create problems/solvers
-  auto H_prob = Pimpact::createLinearProblem<MVF>( H, u, fu, solverParams, solver_name_1 );
-  if( leftPrec )
-    H_prob->setLeftPrec( lprec );
-  else
-    H_prob->setRightPrec( lprec );
+	// create parameter for linsovlers
+	auto solverParams = Pimpact::createLinSolverParameter( solver_name_1, tol*l1*l2/n1/n2 );
 
-  auto H_inv = Pimpact::createInverseOperator( H_prob );
+	solverParams->set ("Output Stream", outLap1 );
+	//  if(precType==0) {
+	//    solverParams->set( "Num Blocks", 100 );
+	//    solverParams->set( "Maximum Iterations", 1000  );
+	//  }
+	//  else {
+	//    solverParams->set( "Num Blocks", 10 );
+	//    solverParams->set( "Maximum Iterations", 10  );
+	//  }
 
-  auto schur =
-      Pimpact::createOperatorBase(
-          Pimpact::createTripleCompositionOp(
-              div,
-              H_inv,
-              grad
-          )
-      );
+	Teuchos::writeParameterListToXmlFile( *solverParams, "para_solver.xml" );
 
-  solverParams = Pimpact::createLinSolverParameter( solver_name_2, tol*l1*l2/n1/n2  );
-  solverParams->set( "Output Stream", outSchur );
-  //  solverParams->set( "Num Blocks", 10 );
-  //  solverParams->set( "Maximum Iterations", 10  );
+	// create problems/solvers
+	auto H_prob = Pimpact::createLinearProblem<MVF>( H, u, fu, solverParams, solver_name_1 );
+	if( leftPrec )
+		H_prob->setLeftPrec( lprec );
+	else
+		H_prob->setRightPrec( lprec );
 
-  auto schurProb = Pimpact::createLinearProblem<MSF>( schur, p,temps, solverParams, solver_name_2);
+	auto H_inv = Pimpact::createInverseOperator( H_prob );
 
-  // create choosen preconditioner
-  Teuchos::RCP<Pimpact::OperatorBase<MSF> > precSchur = Teuchos::null;
+	auto schur =
+		Pimpact::createOperatorBase(
+				Pimpact::createTripleCompositionOp(
+					div,
+					H_inv,
+					grad
+					)
+				);
+
+	solverParams = Pimpact::createLinSolverParameter( solver_name_2, tol*l1*l2/n1/n2  );
+	solverParams->set( "Output Stream", outSchur );
+	//  solverParams->set( "Num Blocks", 10 );
+	//  solverParams->set( "Maximum Iterations", 10  );
+
+	auto schurProb = Pimpact::createLinearProblem<MSF>( schur, p,temps, solverParams, solver_name_2);
+
+	// create choosen preconditioner
+	Teuchos::RCP<Pimpact::OperatorBase<MSF> > precSchur = Teuchos::null;
 	switch(precTypeSchur) {
 		case 0:
 			break;
@@ -391,35 +391,35 @@ int main(int argi, char** argv ) {
 	div->apply( *tempv, *temps );
 	temps->add( -1., *fp, 1., *temps );
 
-  solverParams = Pimpact::createLinSolverParameter( solver_name_1, tol*l1*l2/n1/n2 );
-  solverParams->set( "Output Stream", outLap2 );
-  solverParams->set("Verbosity", int( Belos::Errors) );
-  H_prob->setParameters( solverParams );
-  schurProb->solve( p, temps );
-  p->write();
+	solverParams = Pimpact::createLinSolverParameter( solver_name_1, tol*l1*l2/n1/n2 );
+	solverParams->set( "Output Stream", outLap2 );
+	solverParams->set("Verbosity", int( Belos::Errors) );
+	H_prob->setParameters( solverParams );
+	schurProb->solve( p, temps );
+	p->write();
 
-  grad->apply( *p, *tempv );
+	grad->apply( *p, *tempv );
 
-  tempv->add( -1., *tempv, 1., *fu );
+	tempv->add( -1., *tempv, 1., *fu );
 
-  solverParams->set ("Verbosity",  Belos::Errors + Belos::Warnings + Belos::IterationDetails +
-      Belos::OrthoDetails + Belos::FinalSummary +	Belos::TimingDetails +
-      Belos::StatusTestDetails + Belos::Debug );
-  solverParams->set( "Output Stream", outLap2 );
-  H_prob->setParameters( solverParams );
+	solverParams->set ("Verbosity",  Belos::Errors + Belos::Warnings + Belos::IterationDetails +
+			Belos::OrthoDetails + Belos::FinalSummary +	Belos::TimingDetails +
+			Belos::StatusTestDetails + Belos::Debug );
+	solverParams->set( "Output Stream", outLap2 );
+	H_prob->setParameters( solverParams );
 
-  H_prob->solve(u,tempv);
+	H_prob->solve(u,tempv);
 
-  u->write();
+	u->write();
 
-  if(rank==0) {
-    Teuchos::rcp_static_cast<std::ofstream>( outLap1)->close();
-    Teuchos::rcp_static_cast<std::ofstream>( outLap2)->close();
-    Teuchos::rcp_static_cast<std::ofstream>(outSchur)->close();
-  }
+	if(rank==0) {
+		Teuchos::rcp_static_cast<std::ofstream>( outLap1)->close();
+		Teuchos::rcp_static_cast<std::ofstream>( outLap2)->close();
+		Teuchos::rcp_static_cast<std::ofstream>(outSchur)->close();
+	}
 
 
-  MPI_Finalize();
-  return( 0 );
+	MPI_Finalize();
+	return( 0 );
 
 }

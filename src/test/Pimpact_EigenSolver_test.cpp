@@ -46,11 +46,12 @@ namespace {
 
 using ST = double;
 using OT= int;
+const int sd = 3;
 const int d = 3;
 const int dNC = 4;
 //const int dNC = 2;
 
-using SpaceT = Pimpact::Space<ST,OT,d,dNC>;
+using SpaceT = Pimpact::Space<ST,OT,sd,d,dNC>;
 
 using SF = typename Pimpact::ScalarField<SpaceT>;
 using VF = typename Pimpact::VectorField<SpaceT>;
@@ -190,7 +191,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
   pl->set<ST>( "alpha2", mulI );
   pl->set<ST>( "Re", 1./mulL );
 
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
 
   auto op = Pimpact::create<Pimpact::HelmholtzOp>( space );
@@ -245,7 +246,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Inv ) {
 
 	//const int dNC=2;
 
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
   auto op = Pimpact::create<Pimpact::DivGradO2Op>( space );
 

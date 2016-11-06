@@ -24,6 +24,7 @@ class RefinementStrategy {
 	using Ordinal = typename SpaceT::Ordinal;
 
 	/// should be same for finest space and coarse spaces
+	static const int sdim = SpaceT::sdim;
 	static const int dimension = SpaceT::dimension;
 
 	static const int dimNC = SpaceT::dimNC;
@@ -51,12 +52,12 @@ public:
 		if( refine_dir[3] )
 			gridSizeGlobalTup[3] = gridSizeGlobalTup[3]+refine_dir[3];
 
-    auto gridSizeGlobal = createGridSizeGlobal<Ordinal>( gridSizeGlobalTup );
+    auto gridSizeGlobal = createGridSizeGlobal<Ordinal,sdim>( gridSizeGlobalTup );
 
     auto procGrid = space->getProcGrid();
 
     auto gridSizeLocal =
-			Pimpact::createGridSizeLocal<Ordinal,dimension,dimNC>(
+			Pimpact::createGridSizeLocal<Ordinal,sdim,dimension,dimNC>(
 					gridSizeGlobal,
 					procGrid,
 					stencilWidths );
@@ -69,12 +70,12 @@ public:
 					procGrid );
 
 		auto coordGlobal =
-			Pimpact::createCoordinatesGlobal<Scalar,Ordinal,dimension>(
+			Pimpact::createCoordinatesGlobal<Scalar,Ordinal,sdim,dimension>(
 					gridSizeGlobal,
 					domainSize,
 					space->getCoordinatesGlobal()->getStretchParameter() );
 
-    auto coordLocal = Pimpact::createCoordinatesLocal<Scalar,Ordinal,dimension>(
+    auto coordLocal = Pimpact::createCoordinatesLocal<Scalar,Ordinal,sdim,dimension>(
         stencilWidths,
         domainSize,
         gridSizeGlobal,
@@ -85,7 +86,7 @@ public:
         coordGlobal );
 
     auto interV2S =
-        Pimpact::createInterpolateV2S<Scalar,Ordinal,dimension>(
+        Pimpact::createInterpolateV2S<Scalar,Ordinal,sdim,dimension>(
             indexSpace,
             gridSizeLocal,
             stencilWidths,

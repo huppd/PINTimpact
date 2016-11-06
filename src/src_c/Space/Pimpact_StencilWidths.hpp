@@ -18,10 +18,10 @@ namespace Pimpact {
 
 /// \brief contains the dimesnion and bounds of the different stencils.
 ///
-/// there are three different kind of stencil the central ones for helmholtz, than the one for divergence
+/// there are three different kind of stencil the central ones for Helmholtz, than the one for divergence
 /// and the gradient like.
 /// \ingroup SpaceObject
-/// \tparam dim dimension of grid can be 3 or 4
+/// \tparam dim dimension of grid can be 3 or 4 as soon as time is own class  ->sdim
 /// \tparam dimNC dimension of stencil
 /// - 4: Stabil   (xi >= 2, Re=10000, N=17)
 /// - 5: Stabil  (Re=10000, N=65, leicht gestreckt, explizites Forcing)

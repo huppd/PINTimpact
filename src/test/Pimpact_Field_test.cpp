@@ -17,10 +17,13 @@ namespace {
 
 using ST = double;
 using OT = int;
+
+const int sd = 3;
 const int d = 3;
 const int dNC = 4;
 
-using SpaceT = Pimpact::Space<ST,OT,d,dNC>;
+using SpaceT = Pimpact::Space<ST,OT,sd,d,dNC>;
+
 using SF = typename Pimpact::ScalarField<SpaceT>;
 using VF = typename Pimpact::VectorField<SpaceT>;
 using MSF = typename Pimpact::ModeField<SF>;
@@ -93,7 +96,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, print, FType ) {
   pl->set("npy", npy );
   pl->set("npz", (2==dim)?1:npz );
 
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
   auto p = Pimpact::create<FType>(space);
 
@@ -125,7 +128,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, InfNormAndInit, FType ) {
   pl->set("npy", npy );
   pl->set("npz", (2==dim)?1:npz );
 
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
   auto p = Pimpact::create<FType>(space);
 
@@ -177,7 +180,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, OneNormAndInit, FType ) {
   pl->set("npy", npy );
   pl->set("npz", (2==dim)?1:npz );
 
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
   auto p = Pimpact::create<FType>(space);
 
@@ -212,7 +215,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, TwoNormAndInit, FType ) {
   pl->set("npy", npy );
   pl->set("npz", (2==dim)?1:npz );
 
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
   auto p = Pimpact::create<FType>(space);
 
@@ -245,7 +248,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, dot, FType ) {
   pl->set("npy", npy );
   pl->set("npz", (2==dim)?1:npz );
 
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
   auto vel1 = Pimpact::create<FType>(space);
   auto vel2 = Pimpact::create<FType>(space);
@@ -301,7 +304,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, scale, FType ) {
   pl->set("npy", npy );
   pl->set("npz", (2==dim)?1:npz );
 
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
   auto p = Pimpact::create<FType>(space);
 
@@ -337,7 +340,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, random, FType ) {
   pl->set("npy", npy );
   pl->set("npz", (2==dim)?1:npz );
 
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
   auto p = Pimpact::create<FType>(space);
 
@@ -373,7 +376,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TemplateField, add, FType ) {
   pl->set("npy", npy );
   pl->set("npz", (2==dim)?1:npz );
 
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
   auto vel1 = Pimpact::create<FType>(space);
   auto vel2 = Pimpact::create<FType>(space);
@@ -434,7 +437,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, write, FType ) {
   pl->set("npy", npy );
   pl->set("npz", (2==dim)?1:npz );
 
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
   auto p = Pimpact::create<FType>( space );
 
@@ -470,7 +473,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, writeRestart, FType ) {
   pl->set("npy", npy );
   pl->set("npz", (2==dim)?1:npz );
 
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
   auto p = Pimpact::create<FType>(space);
 
@@ -500,7 +503,7 @@ TEUCHOS_UNIT_TEST( ScalarField, initField ) {
   pl->set("npy", npy );
   pl->set("npz", (2==dim)?1:npz );
 
-  auto space = Pimpact::createSpace( pl );
+  Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
   auto x = Pimpact::createScalarField( space );
 
@@ -528,7 +531,7 @@ TEUCHOS_UNIT_TEST( ScalarField, level ) {
   pl->set("npy", npy );
   pl->set("npz", (2==dim)?1:npz );
 
-  auto space = Pimpact::createSpace( pl );
+  Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
   auto x = Pimpact::createScalarField( space );
 

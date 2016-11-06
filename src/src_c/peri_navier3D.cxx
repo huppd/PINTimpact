@@ -46,12 +46,13 @@
 using S = double;
 using O = int;
 
+const int sd = 3;
 const int dNC = 4;
 
-using SpaceT = Pimpact::Space<S,O,4,dNC>;
+using SpaceT = Pimpact::Space<S,O,sd,4,dNC>;
 
-using FSpaceT = Pimpact::Space<S,O,4,dNC>;
-using CSpaceT = Pimpact::Space<S,O,4,2>;
+using FSpaceT = Pimpact::Space<S,O,sd,4,dNC>;
+using CSpaceT = Pimpact::Space<S,O,sd,4,2>;
 
 using CS = Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT>;
 
@@ -126,9 +127,8 @@ int main( int argi, char** argv ) {
 	S   refinementTol  = pl->sublist("Solver").get<S>(   "refinement tol",   1.e-6 );
 	int refinementStep = pl->sublist("Solver").get<int>( "refinement step",  2     );
 
-	Teuchos::RCP<const Pimpact::Space<S,O,4,dNC> > space =
-		Pimpact::createSpace<S,O,4,dNC>(
-				Teuchos::rcpFromRef( pl->sublist( "Space", true ) ) );
+	Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>(
+			Teuchos::rcpFromRef( pl->sublist( "Space", true ) ) );
 
 
 	// init vectors
@@ -166,7 +166,7 @@ int main( int argi, char** argv ) {
 		fu->getFieldPtr(0)->getVFieldPtr()->initField( pl->sublist("Force") );
 
 		//if( withoutput )
-			//fu->write( 90000 );
+		//fu->write( 90000 );
 
 
 		auto opV2V = Pimpact::createMultiDtConvectionDiffusionOp( space );
@@ -174,9 +174,9 @@ int main( int argi, char** argv ) {
 		auto opV2S = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::DivOp>( space ) );
 
 		auto op = Pimpact::createCompoundOpWrap(
-					opV2V,
-					opS2V,
-					opV2S );
+				opV2V,
+				opS2V,
+				opV2S );
 
 		pl->sublist("Picard Solver").sublist("Solver").set( "Output Stream", Pimpact::createOstream("Picard"+rl+".txt", space->rankST() ) );
 
@@ -225,7 +225,7 @@ int main( int argi, char** argv ) {
 					> ( mgSpaces, Teuchos::rcpFromRef( pl->sublist("ConvDiff").sublist("Multi Grid") ) ) ;
 
 			//if( 0==space->rankST() )
-				//mgConvDiff->print();
+			//mgConvDiff->print();
 
 			zeroInv->getOperatorPtr()->setRightPrec( Pimpact::createMultiOperatorBase(mgConvDiff) );
 			modeInv->getOperatorPtr()->setRightPrec( Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::EddyPrec>(zeroInv) ) );
@@ -436,7 +436,7 @@ int main( int argi, char** argv ) {
 			S u_1  = x->getFieldPtr(0)->getVFieldPtr()->getFieldPtr(1             )->norm();
 			S truncError = 1.;
 			if( u_nf != u_1 ) // just in case u_1=u_nf=0
-			 truncError = u_nf / u_1 ;
+				truncError = u_nf / u_1 ;
 			if( truncError < refinementTol ) {
 				if( 0==space->rankST() )
 					std::cout << "\n||u[nf]||/||u[1]|| = " << truncError << " < " << refinementTol << "\n\n"; 

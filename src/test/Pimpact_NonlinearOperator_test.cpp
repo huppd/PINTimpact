@@ -25,10 +25,11 @@ namespace {
 
 using ST = double;
 using OT = int;
+const int sd = 3;
 const int d = 3;
 const int dNC = 4;
 
-using SpaceT = Pimpact::Space<ST,OT,d,dNC>;
+using SpaceT = Pimpact::Space<ST,OT,sd,d,dNC>;
 
 using SF = typename Pimpact::ScalarField<SpaceT>;
 using VF = typename Pimpact::VectorField<SpaceT>;
@@ -120,7 +121,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionSOp ) {
 	pl->set( "dim", dim );
 	pl->set( "domain", domain );
 
-	auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+	Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
 	auto u =
 		Teuchos::tuple(
@@ -236,7 +237,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, NonlinearOp ) {
 	pl->set( "dim", dim );
   Pimpact::setBoundaryConditions( pl, domain );
 
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
   auto x = Pimpact::create<Pimpact::VectorField>( space );
   auto y = Pimpact::create<Pimpact::VectorField>( space );
@@ -371,7 +372,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionOp  ) {
 	pl->set( "dim", dim );
   Pimpact::setBoundaryConditions( pl, domain );
 
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
   auto x = Pimpact::create<Pimpact::VectorField>( space );
   auto y = Pimpact::create<Pimpact::VectorField>( space );
@@ -508,7 +509,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionSORSmoother ) {
 
   pl->set<ST>("Re",1000);
 
-  auto space = Pimpact::createSpace<ST,OT,d,2>( pl );
+  auto space = Pimpact::create<Pimpact::Space<ST,OT,sd,d,2> >( pl );
 
   auto wind = Pimpact::create<Pimpact::VectorField>( space );
   auto y = Pimpact::create<Pimpact::VectorField>( space );
@@ -652,7 +653,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
   Pimpact::setBoundaryConditions( pl, domain );
 
   pl->set<ST>("Re",100);
-  auto space = Pimpact::createSpace<ST,OT,d,2>( pl );
+  auto space = Pimpact::create<Pimpact::Space<ST,OT,sd,d,2> >( pl );
 
 
 
@@ -667,7 +668,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
   auto smoother =
       Pimpact::create<
         Pimpact::NonlinearSmoother<
-          ConvDiffOpT<Pimpact::Space<ST,OT,d,2> > ,
+          ConvDiffOpT<Pimpact::Space<ST,OT,sd,d,2> > ,
           Pimpact::ConvectionDiffusionJSmoother > > (
               op,
               pls );
@@ -720,7 +721,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
   //pl->set( "domain", domain );
 	//pl->set<bool>( "spectral in time", true );
 
-  //auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  //Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
   //auto vel = Pimpact::create<Pimpact::VectorField>( space );
 
@@ -749,7 +750,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
   //pl->set<ST>( "alpha2", 12.0 );
   //pl->set<OT>( "nf", nf );
 
-  //auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  //Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
 	//ST re = space->getDomainSize()->getRe();
 	//ST alpha2 = space->getDomainSize()->getAlpha2();

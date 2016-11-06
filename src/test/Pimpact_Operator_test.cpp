@@ -46,11 +46,13 @@ namespace {
 
 using ST = double;
 using OT= int;
+
+const int sd = 3;
 const int d = 3;
 const int dNC = 4;
 //const int dNC = 2;
 
-using SpaceT = Pimpact::Space<ST,OT,d,dNC>;
+using SpaceT = Pimpact::Space<ST,OT,sd,d,dNC>;
 
 using SF = typename Pimpact::ScalarField<SpaceT>;
 using VF = typename Pimpact::VectorField<SpaceT>;
@@ -102,22 +104,22 @@ int rank=0;
 
 TEUCHOS_STATIC_SETUP() {
 
-  Teuchos::CommandLineProcessor& clp = Teuchos::UnitTestRepository::getCLP();
-  clp.addOutputSetupOptions(true);
-  clp.setOption(
-      "test-mpi", "test-serial", &testMpi,
-      "Test MPI (if available) or force test of serial.  In a serial build,"
-      " this option is ignored and a serial comm is always used." );
-  clp.setOption(
-      "eps", &eps,
-      "Slack off of machine epsilon used to check test results" );
+	Teuchos::CommandLineProcessor& clp = Teuchos::UnitTestRepository::getCLP();
+	clp.addOutputSetupOptions(true);
+	clp.setOption(
+			"test-mpi", "test-serial", &testMpi,
+			"Test MPI (if available) or force test of serial.  In a serial build,"
+			" this option is ignored and a serial comm is always used." );
+	clp.setOption(
+			"eps", &eps,
+			"Slack off of machine epsilon used to check test results" );
 	clp.setOption( "print", &print, "" );
 	clp.setOption( "domain", &domain, "domain" );
 	clp.setOption( "dim", &dim, "dim" );
 	clp.setOption( "omega", &omega,
-      "Slack off of machine epsilon used to check test results" );
+			"Slack off of machine epsilon used to check test results" );
 	clp.setOption( "wind", &winds,
-      "Slack off of machine epsilon used to check test results" );
+			"Slack off of machine epsilon used to check test results" );
 	clp.setOption( "sweeps", &sweeps, "" );
 	clp.setOption( "nIter", &nIter, "" );
 	clp.setOption( "ns", &ns, "" );
@@ -144,9 +146,9 @@ TEUCHOS_STATIC_SETUP() {
 	//MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
 	//if( 0==rank )
-		//outp =  Teuchos::rcpFromRef( std::cout );
+	//outp =  Teuchos::rcpFromRef( std::cout );
 	//else
-		//outp = Teuchos::rcp(new Teuchos::oblackholestream() );
+	//outp = Teuchos::rcp(new Teuchos::oblackholestream() );
 	//out = *outp;
 
 }
@@ -155,8 +157,8 @@ TEUCHOS_STATIC_SETUP() {
 
 TEUCHOS_UNIT_TEST( BasicOperator, DivOp ) {
 
-  Pimpact::setBoundaryConditions( pl, domain );
-  pl->set( "dim", dim );
+	Pimpact::setBoundaryConditions( pl, domain );
+	pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
 	pl->set( "ly", ly );
@@ -193,7 +195,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivOp ) {
   pl->set( "npz", npz );
   pl->set( "npf", npf );
 
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  auto space = Pimpact::create<SpaceT>( pl );
 
 	auto p   = Pimpact::create<Pimpact::ScalarField>( space );
 	auto vel = Pimpact::create<Pimpact::VectorField>( space );
@@ -323,7 +325,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateV2SOp ) {
   pl->set( "npz", npz );
   pl->set( "npf", npf );
 
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  auto space = Pimpact::create<SpaceT>( pl );
 
   auto p = Pimpact::create<Pimpact::ScalarField>( space );
 	auto sol = p->clone();
@@ -404,7 +406,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, InterpolateS2VOp ) {
 	pl->set( "npz", npz );
 	pl->set( "npf", npf );
 
-	auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+	auto space = Pimpact::create<SpaceT>( pl );
 
 	auto p = Pimpact::create<Pimpact::ScalarField>( space );
 	auto vel = Pimpact::create<Pimpact::VectorField>( space );
@@ -493,11 +495,11 @@ TEUCHOS_UNIT_TEST( BasicOperator, TransferOp ) {
   pl->set( "npz", npz );
   pl->set( "npf", npf );
 
-  using FSpaceT = Pimpact::Space<ST,OT,d,4>;
-  using CSpaceT = Pimpact::Space<ST,OT,d,2>;
+  using FSpaceT = Pimpact::Space<ST,OT,sd,d,4>;
+  using CSpaceT = Pimpact::Space<ST,OT,sd,d,2>;
 
-  auto fSpace = Pimpact::createSpace<ST,OT,d,4>( pl );
-  auto cSpace = Pimpact::createSpace<ST,OT,d,2>( pl );
+  auto fSpace = Pimpact::create< Pimpact::Space<ST,OT,sd,d,4> >( pl );
+  auto cSpace = Pimpact::create< Pimpact::Space<ST,OT,sd,d,2> >( pl );
 
   auto fx = Pimpact::create<Pimpact::ScalarField>( fSpace );
   auto cx = Pimpact::create<Pimpact::ScalarField>( cSpace );
@@ -564,11 +566,11 @@ TEUCHOS_UNIT_TEST( BasicOperator, VectorFieldOpWrap ) {
   pl->set( "npz", npz );
   pl->set( "npf", npf );
 
-  using FSpaceT = Pimpact::Space<ST,OT,d,4>;
-  using CSpaceT = Pimpact::Space<ST,OT,d,2>;
+  using FSpaceT = Pimpact::Space<ST,OT,sd,d,4>;
+  using CSpaceT = Pimpact::Space<ST,OT,sd,d,2>;
 
-  auto fSpace = Pimpact::createSpace<ST,OT,d,4>( pl );
-  auto cSpace = Pimpact::createSpace<ST,OT,d,2>( pl );
+  auto fSpace = Pimpact::create< Pimpact::Space<ST,OT,sd,d,4> >( pl );
+  auto cSpace = Pimpact::create< Pimpact::Space<ST,OT,sd,d,2> >( pl );
 
   auto fx = Pimpact::create<Pimpact::VectorField>( fSpace );
   auto cx = Pimpact::create<Pimpact::VectorField>( cSpace );
@@ -637,7 +639,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, GradOp ) {
 		pl->set( "npz", npz );
 		pl->set( "npf", npf );
 
-		auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+		auto space = Pimpact::create<SpaceT>( pl );
 
 
 		auto p = Pimpact::create<Pimpact::ScalarField>( space );
@@ -744,7 +746,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, HelmholtzOp ) {
 		pl->set<ST>( "alpha2", mulI );
 		pl->set<ST>( "Re", 1./mulL );
 
-		auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+		auto space = Pimpact::create<SpaceT>( pl );
 
 		auto x = Pimpact::create<Pimpact::VectorField>(space);
 		auto bs= Pimpact::create<Pimpact::VectorField>(space);
@@ -919,7 +921,7 @@ TEUCHOS_UNIT_TEST( MatrixTest, DivGradOp2M ) {
 	pl->set( "npz", npz );
 	pl->set( "npf", npf );
 
-	auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+	auto space = Pimpact::create<SpaceT>( pl );
 
 	auto x = Pimpact::create<Pimpact::ScalarField>( space );
 	auto x2= Pimpact::create<Pimpact::ScalarField>( space );
@@ -1070,7 +1072,7 @@ TEUCHOS_UNIT_TEST( MatrixTest, DivOp2M ) {
   pl->set( "npz", npz );
   pl->set( "npf", npf );
 
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  auto space = Pimpact::create<SpaceT>( pl );
 
 	auto x = Pimpact::create<Pimpact::VectorField>( space );
 	auto x2= Pimpact::create<Pimpact::ScalarField>( space );
@@ -1190,7 +1192,7 @@ TEUCHOS_UNIT_TEST( MatrixTest, GradOp2M ) {
   pl->set( "npz", npz );
   pl->set( "npf", npf );
 
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  auto space = Pimpact::create<SpaceT>( pl );
 
 	auto x = Pimpact::create<Pimpact::VectorField>( space );
 	auto x2= Pimpact::create<Pimpact::ScalarField>( space );
@@ -1337,7 +1339,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Op ) {
   pl->set( "npf", npf );
 
 
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  auto space = Pimpact::create<SpaceT>( pl );
 
   auto x = Pimpact::create<Pimpact::ScalarField>( space );
   auto x2= Pimpact::create<Pimpact::ScalarField>( space );
@@ -1498,7 +1500,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradTransposeOp ) {
   pl->set( "npz", npz );
   pl->set( "npf", npf );
 
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  auto space = Pimpact::create<SpaceT>( pl );
 
   auto xp = Pimpact::create<Pimpact::ScalarField>( space );
   auto xv = Pimpact::create<Pimpact::VectorField>( space );
@@ -1610,8 +1612,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
   pl->set( "npz", npz );
   pl->set( "npf", npf );
 
-	Teuchos::RCP< const Pimpact::Space<ST,OT,d,dNC> > space =
-		Pimpact::createSpace<ST,OT,d,dNC>( pl );
+	Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
 	auto coord = space->getCoordinatesGlobal();
 	if( 0==rank ) {
@@ -1619,7 +1620,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
 		coord->print( *fstream );
 	}
 
-	Teuchos::RCP< Pimpact::ScalarField< Pimpact::Space<ST,OT,d,dNC> > > x =
+	Teuchos::RCP< Pimpact::ScalarField<SpaceT> > x =
 		Pimpact::create<Pimpact::ScalarField>( space );
 
   auto b = Pimpact::create<Pimpact::ScalarField>( space );
@@ -1830,13 +1831,13 @@ TEUCHOS_UNIT_TEST( BasicOperator, DivGradO2Inv ) {
 
 	const int dNC=2;
 
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  auto space = Pimpact::create<SpaceT>( pl );
 
-	Teuchos::RCP< Pimpact::ScalarField< Pimpact::Space<ST,OT,d,dNC> > > x =
+	Teuchos::RCP< Pimpact::ScalarField<SpaceT> > x =
 		Pimpact::create<Pimpact::ScalarField>( space );
 
-	Teuchos::RCP< Pimpact::ScalarField< Pimpact::Space<ST,OT,d,dNC> > > xp = x->clone();
-	Teuchos::RCP< Pimpact::ScalarField< Pimpact::Space<ST,OT,d,dNC> > > b = x->clone();
+	Teuchos::RCP< Pimpact::ScalarField<SpaceT> > xp = x->clone();
+	Teuchos::RCP< Pimpact::ScalarField<SpaceT> > b = x->clone();
 
   auto op = Pimpact::create<Pimpact::DivGradO2Op>( space );
 
@@ -1920,7 +1921,7 @@ TEUCHOS_UNIT_TEST( BasicOperator, ForcingOp ) {
   pl->set( "npz", npz );
   pl->set( "npf", npf );
 
-	auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+	auto space = Pimpact::create<SpaceT>( pl );
 
 	auto vel = Pimpact::create<Pimpact::VectorField>( space );
 	auto force = Pimpact::create<Pimpact::VectorField>( space );
@@ -1981,7 +1982,7 @@ TEUCHOS_UNIT_TEST( MultiOperator, Add2Op ) {
 	pl->set( "npz", npz );
 	pl->set( "npf", npf );
 
-	auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+	auto space = Pimpact::create<SpaceT>( pl );
 
 	using Teuchos::ParameterList;
 	using Teuchos::parameterList;
@@ -2050,7 +2051,7 @@ TEUCHOS_UNIT_TEST( MultiOperator, MulitOpUnWrap ) {
   pl->set( "npz", npz );
   pl->set( "npf", npf );
 
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  auto space = Pimpact::create<SpaceT>( pl );
 
   auto x = Pimpact::create<Pimpact::VectorField>(space);
   auto y = Pimpact::create<Pimpact::VectorField>(space);
@@ -2114,7 +2115,7 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, HelmholtzOp ) {
   pl->set( "npz", npz );
   pl->set( "npf", npf );
 
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  auto space = Pimpact::create<SpaceT>( pl );
 
   auto velc = Pimpact::create<Pimpact::VectorField>(space);
   auto vels = Pimpact::create<Pimpact::VectorField>(space);
@@ -2177,7 +2178,7 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, DtModeOp ) {
 	pl->set<ST>("Re", 1., "Reynolds number");
 	pl->set<ST>("alpha2", 1.,
 			"Womersley square \alpha^2");
-  auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  auto space = Pimpact::create<SpaceT>( pl );
 
   using MF = Pimpact::MultiField< Pimpact::ModeField< Pimpact::VectorField<SpaceT> > >;
   using BOp = Pimpact::OperatorBase<MF>;
@@ -2249,7 +2250,7 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, DtModeOp ) {
 	//pl->set( "npf", npf );
 
 	//pl->set( "Re", 1. );
-	//auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+	//auto space = Pimpact::create<SpaceT>( pl );
 
 	//auto velc = Pimpact::create<Pimpact::VectorField>(space);
 	//auto vels = Pimpact::create<Pimpact::VectorField>(space);
@@ -2339,7 +2340,7 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, DtModeOp ) {
 
 	//pl->set( "Re", 1. );
 	//pl->set( "alpha2", 1. );
-  //auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+  //auto space = Pimpact::create<SpaceT>( pl );
 
   //using MVF = Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<SpaceT> > >;
   //using MSF = Pimpact::MultiField<Pimpact::ModeField<Pimpact::ScalarField<SpaceT> > >;
@@ -2419,7 +2420,7 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, DtModeOp ) {
 	//pl->set( "npz", npz );
 	//pl->set( "npf", npf );
 
-	//auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+	//auto space = Pimpact::create<SpaceT>( pl );
 
 	//using Teuchos::ParameterList;
 	//using Teuchos::parameterList;
@@ -2499,7 +2500,7 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, DtModeOp ) {
 
 	////pl->set("alpha2",1.);
 	////pl->set("Re",1./14.);
-	//auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+	//auto space = Pimpact::create<SpaceT>( pl );
 
 	//auto temp = Pimpact::createMultiModeVectorField( space );
 
@@ -2598,7 +2599,7 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, DtModeOp ) {
   //pl->set( "npz", npz );
   //pl->set( "npf", npf );
 
-  //auto space = Pimpact::createSpace<ST,OT,4,dNC>( pl );
+  //auto space = Pimpact::create< Pimpact::Space<ST,OT,4,dNC> >( pl );
 
   //auto vel = Pimpact::create<Pimpact::VectorField>( space );
 
@@ -2616,7 +2617,7 @@ TEUCHOS_UNIT_TEST( MultiModeOperator, DtModeOp ) {
 
 TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicOpWrap ) {
 
-	using SpaceT = Pimpact::Space<ST,OT,4,dNC>;
+	using SpaceT = Pimpact::Space<ST,OT,sd,4,dNC>;
 
 	Pimpact::setBoundaryConditions( pl, domain );
 	pl->set( "dim", dim );
@@ -2656,7 +2657,7 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicOpWrap ) {
   pl->set( "npz", npz );
   pl->set( "npf", npf );
 
-  auto space = Pimpact::createSpace<ST,OT,4,dNC>( pl );
+  auto space = Pimpact::create<Pimpact::Space<ST,OT,sd,4,dNC> >( pl );
 
   auto vel = Pimpact::create<Pimpact::VectorField>( space );
 
@@ -2717,7 +2718,7 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicOpWrap ) {
   //pl->set( "npz", npz );
   //pl->set( "npf", npf );
 
-	//auto space = Pimpact::createSpace<ST,OT,4,dNC>( pl );
+	//auto space = Pimpact::create< Pimpact::Space<ST,OT,4,dNC> >( pl );
 
 	//auto x =
 		//Pimpact::createMultiField(
@@ -2843,7 +2844,7 @@ TEUCHOS_UNIT_TEST( Convergence, DivOp ) {
 				pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(pl->get<OT>("nz"))/2. );
 			}
 
-			auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+			auto space = Pimpact::create<SpaceT>( pl );
 
 			auto vel = Pimpact::create<Pimpact::VectorField>( space );
 			auto p   = Pimpact::create<Pimpact::ScalarField>( space );
@@ -2961,7 +2962,7 @@ TEUCHOS_UNIT_TEST( Convergence, InterpolateV2SOp ) {
 				pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(pl->get<OT>("nz"))/2. );
 			}
 
-			auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+			auto space = Pimpact::create<SpaceT>( pl );
 
 			auto vel = Pimpact::create<Pimpact::VectorField>( space );
 			auto p   = Pimpact::create<Pimpact::ScalarField>( space );
@@ -3078,7 +3079,7 @@ TEUCHOS_UNIT_TEST( Convergence, InterpolateS2VOp ) {
 				pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(pl->get<OT>("nz"))/2. );
 			}
 
-			auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+			auto space = Pimpact::create<SpaceT>( pl );
 
 			auto vel = Pimpact::create<Pimpact::VectorField>( space );
 			auto p   = Pimpact::create<Pimpact::ScalarField>( space );
@@ -3197,7 +3198,7 @@ TEUCHOS_UNIT_TEST( Convergence, extrapolateBC ) {
 					pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(pl->get<OT>("nz"))/2. );
 					pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(pl->get<OT>("nz"))/2. );
 				}
-				auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+				auto space = Pimpact::create<SpaceT>( pl );
 
 				auto vel = Pimpact::create<Pimpact::VectorField>( space );
 				auto sol = vel->clone( Pimpact::ECopy::Shallow );
@@ -3310,7 +3311,7 @@ TEUCHOS_UNIT_TEST( Convergence, GradOp ) {
 				pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(pl->get<OT>("nz"))/2. );
 				pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(pl->get<OT>("nz"))/2. );
 			}
-			auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+			auto space = Pimpact::create<SpaceT>( pl );
 
 			auto vel = Pimpact::create<Pimpact::VectorField>( space );
 			auto p   = Pimpact::create<Pimpact::ScalarField>( space );
@@ -3475,7 +3476,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, DivGradOp, OperatorT ) {
 			plRef->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(plRef->get<OT>("nz"))/2. );
 		}
 
-		auto spaceRef = Pimpact::createSpace<ST,OT,d,dNC>( plRef );
+		auto spaceRef = Pimpact::create<SpaceT>( plRef );
 
 		auto yRef = Pimpact::create<Pimpact::ScalarField>( spaceRef );
 		auto xRef   = Pimpact::create<Pimpact::ScalarField>( spaceRef );
@@ -3537,7 +3538,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, DivGradOp, OperatorT ) {
 				pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(pl->get<OT>("nz"))/2. );
 			}
 
-			auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+			auto space = Pimpact::create<SpaceT>( pl );
 
 			auto y = Pimpact::create<Pimpact::ScalarField>( space );
 			auto p   = Pimpact::create<Pimpact::ScalarField>( space );
@@ -3704,7 +3705,7 @@ TEUCHOS_UNIT_TEST( Convergence, HelmholtzOp ) {
 					pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(pl->get<OT>("nz"))/2. );
 				}
 
-				auto space = Pimpact::createSpace<ST,OT,d,dNC>( pl );
+				auto space = Pimpact::create<SpaceT>( pl );
 
 				auto x   = Pimpact::create<Pimpact::VectorField>( space );
 				auto y   = Pimpact::create<Pimpact::VectorField>( space );

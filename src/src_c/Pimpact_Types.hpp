@@ -44,12 +44,12 @@ std::string toString( EField type );
 /// \relates BoundaryConditionsGlobal
 /// \relates BoundaryConditionsLocal
 enum EBCType {
-  SymmetryBC  = -2, ///< -2
-  PeriodicBC  = -1, ///< -1
-  NeighborBC  =  0, ///<  0 
-  DirichletBC =  1, ///<  1 
-  NeumannBC   =  2, ///<  2 
-  RobinBC     =  3  ///<  3 
+	SymmetryBC  = -2, ///< -2
+	PeriodicBC  = -1, ///< -1
+	NeighborBC  =  0, ///<  0 
+	DirichletBC =  1, ///<  1 
+	NeumannBC   =  2, ///<  2 
+	RobinBC     =  3  ///<  3 
 };
 
 
@@ -58,13 +58,13 @@ enum EBCType {
 /// 
 /// \relates BoundaryConditionsGlobal
 enum EDomainType {
-  AllDirichlet       = 0,	///< 0
-  AllPeriodic        = 1,	///< 1
-  AllNeumann         = 2, ///< 2
-  AllSymmetric       = 3, ///< 3
-  Dirichelt2DChannel = 4, ///< 4 ( DirichletBC,           DirichletBC, PeriodicBC )
-  Periodic2DChannel  = 5, ///< 5 ( PeriodicBC,            DiricheltBC, PeriodicBC )
-  Open2DChannel      = 6  ///< 6 ( DirichletBC/NeumannBC, DirichletBC, PeriodicBC )
+	AllDirichlet       = 0,	///< 0
+	AllPeriodic        = 1,	///< 1
+	AllNeumann         = 2, ///< 2
+	AllSymmetric       = 3, ///< 3
+	Dirichelt2DChannel = 4, ///< 4 ( DirichletBC,           DirichletBC, PeriodicBC )
+	Periodic2DChannel  = 5, ///< 5 ( PeriodicBC,            DiricheltBC, PeriodicBC )
+	Open2DChannel      = 6  ///< 6 ( DirichletBC/NeumannBC, DirichletBC, PeriodicBC )
 };
 
 
@@ -73,13 +73,13 @@ enum EDomainType {
 /// \relates ScalarField::initField
 enum EScalarField {
 	ConstField = 0,	      ///< 0
-  Grad2D_inX = 1,       ///< 1
-  Grad2D_inY = 2,       ///< 2
-  Grad2D_inZ = 3,       ///< 3
+	Grad2D_inX = 1,       ///< 1
+	Grad2D_inY = 2,       ///< 2
+	Grad2D_inZ = 3,       ///< 3
 	Poiseuille2D_inX = 4, ///< 4
-  Poiseuille2D_inY = 5, ///< 5
-  Poiseuille2D_inZ = 6, ///< 6
-  FPoint = 7
+	Poiseuille2D_inY = 5, ///< 5
+	Poiseuille2D_inZ = 6, ///< 6
+	FPoint = 7
 };
 
 
@@ -87,27 +87,27 @@ enum EScalarField {
 /// \brief used in mains
 /// \relates initTimeVectorField
 enum EFlowType {
-  Zero2DFlow          =  0,	///<  0
-  Const2DFlow         = 10, ///< 10
-  Poiseuille_inX      =  1, ///<  1
-  Poiseuille_inY      =  2, ///<  2
-  Pulsatile_inX       =  3, ///<  3
-  Pulsatile_inY       =  4, ///<  4
-  Streaming2DFlow     =  5, ///<  5
-  Streaming2DFlow2    =  6, ///<  6
-  Streaming2DFlow3    =  7, ///<  7
-  OscilatingDisc2D    =  8, ///<  8
-  OscilatingDisc2DVel =  9, ///<  9
-  ConstVel_inX        = 11  ///< 11
+	Zero2DFlow          =  0,	///<  0
+	Const2DFlow         = 10, ///< 10
+	Poiseuille_inX      =  1, ///<  1
+	Poiseuille_inY      =  2, ///<  2
+	Pulsatile_inX       =  3, ///<  3
+	Pulsatile_inY       =  4, ///<  4
+	Streaming2DFlow     =  5, ///<  5
+	Streaming2DFlow2    =  6, ///<  6
+	Streaming2DFlow3    =  7, ///<  7
+	OscilatingDisc2D    =  8, ///<  8
+	OscilatingDisc2DVel =  9, ///<  9
+	ConstVel_inX        = 11  ///< 11
 };
 
 
 /// \brief kind of force
 enum EForceType {
-  Dipol                = 1, ///< 1
-  Disc                 = 2, ///< 2
-  RotatingDisc         = 3, ///< 3
-  PseudoOscilatingDisc = 4  ///< 4
+	Dipol                = 1, ///< 1
+	Disc                 = 2, ///< 2
+	RotatingDisc         = 3, ///< 3
+	PseudoOscilatingDisc = 4  ///< 4
 };
 
 

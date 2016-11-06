@@ -23,7 +23,7 @@ namespace Pimpact{
 
 
 
-template< class S,class O, int d, int dimNC>
+template< class S,class O, int sd, int d, int dimNC>
 class Space;
 
 
@@ -38,12 +38,12 @@ class ScalarField;
 /// \ingroup Space
 ///
 /// is used in the \c ScalarField::write method to interpolate the velocity to the pressure points, also used in \c ConvectionVOp
-template< class Scalar, class Ordinal, int dimension, int dimNC >
+template< class Scalar, class Ordinal, int sdim, int dimension, int dimNC >
 class InterpolateV2S {
 
 public:
 
-	using SpaceT = Space<Scalar,Ordinal,dimension,dimNC>;
+	using SpaceT = Space<Scalar,Ordinal,sdim,dimension,dimNC>;
 
 	using DomainFieldT = ScalarField< SpaceT >;
 	using RangeFieldT = ScalarField< SpaceT >;
@@ -67,7 +67,7 @@ public:
 			const Teuchos::RCP<const IndexSpace<Ordinal,dimension> >&  indexSpace,
 			const Teuchos::RCP<const GridSizeLocal<Ordinal,dimension> >& gridSizeLocal,
 			const Teuchos::RCP<const StencilWidths<dimension,dimNC> >& stencilWidths,
-			const Teuchos::RCP<const DomainSize<Scalar> >& domainSize,
+			const Teuchos::RCP<const DomainSize<Scalar,sdim> >& domainSize,
 			const Teuchos::RCP<const BoundaryConditionsLocal<dimension> >& boundaryConditionsLocal,
 			const Teuchos::RCP<const CoordinatesLocal<Scalar,Ordinal,dimension,dimNC> >& coordinatesLocal ):
 		gridSizeLocal_( gridSizeLocal ), dl_( stencilWidths->getDLTuple() ), du_(
@@ -226,18 +226,18 @@ public:
 
 
 /// \relates InterpolateV2S
-template< class S, class O, int d, int dimNC >
-Teuchos::RCP<const InterpolateV2S<S,O,d,dimNC> > createInterpolateV2S(
+template< class S, class O, int sd,int d, int dimNC >
+Teuchos::RCP<const InterpolateV2S<S,O,sd,d,dimNC> > createInterpolateV2S(
 		const Teuchos::RCP<const IndexSpace<O,d> >&  iS,
 		const Teuchos::RCP<const GridSizeLocal<O,d> >& gridSizeLocal,
 		const Teuchos::RCP<const StencilWidths<d,dimNC> >& stencilWidths,
-		const Teuchos::RCP<const DomainSize<S> >& domainSize,
+		const Teuchos::RCP<const DomainSize<S,sd> >& domainSize,
 		const Teuchos::RCP<const BoundaryConditionsLocal<d> >& boundaryConditionsLocal,
 		const Teuchos::RCP<const CoordinatesLocal<S,O,d,dimNC> >& coordinatesLocal ) {
 
 	return(
 			Teuchos::rcp(
-				new InterpolateV2S<S,O,d,dimNC>(
+				new InterpolateV2S<S,O,sd,d,dimNC>(
 					iS,
 					gridSizeLocal,
 					stencilWidths,
@@ -249,9 +249,9 @@ Teuchos::RCP<const InterpolateV2S<S,O,d,dimNC> > createInterpolateV2S(
 
 
 /// \relates InterpolateV2S
-template< class S, class O, int d, int dimNC >
-Teuchos::RCP<const InterpolateV2S<S,O,d,dimNC> > createInterpolateV2S(
-		const Teuchos::RCP<const Space<S,O,d,dimNC> >& space ) {
+template< class S, class O, int sd, int d, int dimNC >
+Teuchos::RCP<const InterpolateV2S<S,O,sd,d,dimNC> > createInterpolateV2S(
+		const Teuchos::RCP<const Space<S,O,sd,d,dimNC> >& space ) {
 
 	return( space->getInterpolateV2S() );
 }

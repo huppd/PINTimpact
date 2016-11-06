@@ -24,8 +24,9 @@ namespace {
 
 using ST = double;
 using OT = int;
+const int sd = 3;
 
-using SpaceT = Pimpact::Space<ST,OT,3,4>;
+using SpaceT = Pimpact::Space<ST,OT,sd,3,4>;
 
 bool testMpi = true;
 double eps = 1e-6;
@@ -61,7 +62,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 
   typedef Pimpact::OperatorBase<MVF> BOp;
 
-  auto space = Pimpact::createSpace( pl );
+  auto space = Pimpact::create<SpaceT>( pl );
 
   auto x = Pimpact::createMultiField( Pimpact::create<Pimpact::VectorField>(space) );
   auto b = Pimpact::createMultiField( Pimpact::create<Pimpact::VectorField>(space) );
@@ -109,7 +110,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 //
 //  typedef OpBase  BOp;
 //
-//  auto space = Pimpact::createSpace( pl );
+//  auto space = Pimpact::create<SpaceT>( pl );
 //
 //  auto b = Pimpact::createInitMVF( Pimpact::Streaming2DFlow, space );
 //  auto x = Pimpact::createInitMVF( Pimpact::Zero2DFlow, space );
@@ -153,7 +154,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
   typedef Pimpact::OperatorBase<BSF>  BOp;
 
 
-  auto space = Pimpact::createSpace( pl );
+  auto space = Pimpact::create<SpaceT>( pl );
 
 
   auto temp = Pimpact::create<Pimpact::VectorField>( space );
@@ -222,7 +223,7 @@ TEUCHOS_UNIT_TEST( LinearProblem, HelmholtzMV ) {
 	typedef Pimpact::MultiField< Pimpact::VectorField<SpaceT> > MF;
 
 
-	auto space = Pimpact::createSpace( pl );
+	auto space = Pimpact::create<SpaceT>( pl );
 
 	auto vel = Pimpact::create<Pimpact::VectorField>(space);
 

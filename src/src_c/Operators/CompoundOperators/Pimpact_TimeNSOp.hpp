@@ -71,6 +71,7 @@ protected:
 	using Scalar = typename SpaceT::Scalar;
 	using Ordinal = typename SpaceT::Ordinal;
 
+	static const int sdim = SpaceT::sdim;
 	static const int dimension = SpaceT::dimension;
 
 	static const int dimNC = SpaceT::dimNC;
@@ -80,7 +81,7 @@ protected:
 	Teuchos::RCP< TimeField<VectorField<ST> > > windW_;
 
 	Teuchos::RCP<const InterpolateS2V<ST> > interpolateS2V_;
-	Teuchos::RCP<const InterpolateV2S<Scalar,Ordinal,dimension,dimNC> > interpolateV2S_;
+	Teuchos::RCP<const InterpolateV2S<Scalar,Ordinal,sdim,dimension,dimNC> > interpolateV2S_;
 	Teuchos::RCP<const ConvectionSOp<ST> > conv_;
 	Teuchos::RCP<const HelmholtzOp<ST>   > helm_;
 	Teuchos::RCP<const GradOp<ST>        > grad_;

@@ -128,7 +128,7 @@ int main(int argi, char** argv ) {
    pl->set("npy", np2 );
    pl->set("npz", np3 );
 
-   auto space = Pimpact::createSpace<S,O,3>( pl );
+   auto space = Pimpact::create< Pimpact::Space<S,O,3> >( pl );
 
    space->print();
 

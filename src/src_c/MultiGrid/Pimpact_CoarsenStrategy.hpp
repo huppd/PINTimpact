@@ -32,6 +32,7 @@ class CoarsenStrategy {
 	using Ordinal = typename FSpaceT::Ordinal;
 
 	/// should be same for finest space and coarse spaces
+	static const int sdim = FSpaceT::sdim;
 	static const int dimension = FSpaceT::dimension;
 
 	using TO = typename Teuchos::Tuple<Ordinal,dimension>;
@@ -53,7 +54,7 @@ public:
 		std::vector<Teuchos::RCP<const CSpaceT> > multiSpace( 1, tempSpace );
 
 		Teuchos::Tuple<Ordinal,dimension> nLoc = *space->getGridSizeLocal();
-		GridSizeGlobal<Ordinal> nGlo = *space->getGridSizeGlobal();
+		GridSizeGlobal<Ordinal,sdim> nGlo = *space->getGridSizeGlobal();
 
 		for( Ordinal i=1; i<maxGrids; ++i ) {
 			bool coarsen_yes = false;

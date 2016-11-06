@@ -51,12 +51,13 @@ using OT = int;
 
 const int dimension = 4;
 const int dNC = 4;
+const int sd = 3;
 //const int dNC = 2;
 
-using SpaceT = Pimpact::Space<ST,OT,dimension,4>;
+using SpaceT = Pimpact::Space<ST,OT,sd,dimension,4>;
 
 using FSpaceT = SpaceT;
-using CSpaceT = Pimpact::Space<ST,OT,dimension,2>;
+using CSpaceT = Pimpact::Space<ST,OT,sd,dimension,2>;
 
 using CS = Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT>;
 
@@ -64,7 +65,7 @@ using MGSpacesT = Pimpact::MGSpaces<FSpaceT,CSpaceT>;
 
 
 template<class T>
-using BSF = Pimpact::MultiField< Pimpact::ScalarField<T> >;
+	using BSF = Pimpact::MultiField< Pimpact::ScalarField<T> >;
 
 template<class T> using BOPF = Pimpact::MultiOpWrap< Pimpact::DivGradOp<T> >;
 template<class T> using BOPC = Pimpact::MultiOpWrap< Pimpact::DivGradO2Op<T> >;
@@ -145,17 +146,17 @@ using CF = Pimpact::CompoundField< VF, SF>;
 
 
 template<class T1,class T2>
-using TransVF = Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<T1,T2> >;
+	using TransVF = Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<T1,T2> >;
 template<class T>
-using RestrVF = Pimpact::VectorFieldOpWrap<Pimpact::RestrictionVFOp<T> >;
+	using RestrVF = Pimpact::VectorFieldOpWrap<Pimpact::RestrictionVFOp<T> >;
 template<class T>
-using InterVF = Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<T> >;
+	using InterVF = Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<T> >;
 
 
 template<class T>
-using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
+	using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
 template<class T>
-using POP = Pimpact::PrecInverseOp< T, Pimpact::DivGradO2JSmoother >;
+	using POP = Pimpact::PrecInverseOp< T, Pimpact::DivGradO2JSmoother >;
 
 
 
@@ -183,7 +184,7 @@ TEUCHOS_UNIT_TEST( bla, bla  ) {
 
 
 	///////////////////////////////////////////  set up initial stuff ////////////////////////////
-	Teuchos::RCP<const SpaceT> space = Pimpact::createSpace<ST,OT,dimension,dNC>(
+	Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>(
 			Teuchos::rcpFromRef( pl->sublist( "Space", true ) ) );
 
 
@@ -301,16 +302,16 @@ TEUCHOS_UNIT_TEST( bla, bla  ) {
 
 
 	//for( int i=0; i<10; ++i ) 
-		//mgDivGrad->apply(
-				//rhs->getSFieldPtr()->get0Field(),
-				//x->getSFieldPtr()->get0Field() );
+	//mgDivGrad->apply(
+	//rhs->getSFieldPtr()->get0Field(),
+	//x->getSFieldPtr()->get0Field() );
 
 	//{ // compute contribution to nullspace
-		//auto fSlevel = rhs->getSFieldPtr()->clone( Pimpact::ECopy::Deep );
-		////rhs->getSFieldPtr()->level();
-		//fSlevel->level();
-		//fSlevel->add( 1., rhs->getSField(), -1., *fSlevel );
-		//std::cout << " contribution nullspace: " << fSlevel->norm() << "\n";
+	//auto fSlevel = rhs->getSFieldPtr()->clone( Pimpact::ECopy::Deep );
+	////rhs->getSFieldPtr()->level();
+	//fSlevel->level();
+	//fSlevel->add( 1., rhs->getSField(), -1., *fSlevel );
+	//std::cout << " contribution nullspace: " << fSlevel->norm() << "\n";
 	//}
 	//rhs->getSFieldPtr()->level();
 	//
@@ -349,9 +350,9 @@ TEUCHOS_UNIT_TEST( bla, bla  ) {
 		//ST residual = res->getVFieldPtr()->norm();
 		//res->getVFieldPtr()->write(300);
 		//if( 0==space->rankST() ) 
-			//std::cout << "|| rhs_u - grad(p) ||: " << residual << "\n";
+		//std::cout << "|| rhs_u - grad(p) ||: " << residual << "\n";
 	}
-	
+
 
 	////// compute Residual I
 	//
