@@ -30,7 +30,8 @@ protected:
 	using Scalar = typename SpaceT::Scalar;
 	using Ordinal = typename SpaceT::Ordinal;
 
-	using TO = const Teuchos::Tuple<Scalar*,3>;
+	using Stenc = Stencil<Scalar,Ordinal>;
+	using TO = const Teuchos::Tuple<Stenc*,ST::sdim>;
 
 	Teuchos::RCP< const SpaceT> space_;
 
@@ -41,41 +42,38 @@ public:
 	InterpolateS2V( const Teuchos::RCP<const SpaceT>& space ):
 		space_(space) {
 
-			for( int i=0; i<3; ++i ) {
+			for( int i=0; i<SpaceT::sdim; ++i ) {
 
-				Ordinal nTemp = ( space_->nLoc(i) + 1 )*( space_->gu(i) - space_->gl(i) + 1);
-				c_[i] = new Scalar[ nTemp ];
+				c_[i] = new Stenc( 0, space_->nLoc(i), space_->gl(i), space_->gu(i) );
 
-				if( i<SpaceT::sdim )
-					FD_getDiffCoeff(
-							space_->nLoc(i),
-							space_->bl(i),
-							space_->bu(i),
-							space_->gl(i),
-							space_->gu(i),
-							space_->getBCLocal()->getBCL(i),
-							space_->getBCLocal()->getBCU(i),
-							space_->getShift(i),
-							2,    // grid_type ???
-							i+1,  // direction
-							0,    // derivative
-							0,    // central
-							//true, // not working with grid stretching. mapping
-							false, // mapping
-							space_->getStencilWidths()->getDimNcbG(i),
-							space_->getStencilWidths()->getNcbG(i),
-							space_->getCoordinatesLocal()->getX( i, EField::S ),
-							space_->getCoordinatesLocal()->getX( i, i ),
-							c_[i] );
+				FD_getDiffCoeff(
+						space_->nLoc(i),
+						space_->bl(i),
+						space_->bu(i),
+						space_->gl(i),
+						space_->gu(i),
+						space_->getBCLocal()->getBCL(i),
+						space_->getBCLocal()->getBCU(i),
+						space_->getShift(i),
+						2,    // grid_type ???
+						i+1,  // direction
+						0,    // derivative
+						0,    // central
+						//true, // not working with grid stretching. mapping
+						false, // mapping
+						space_->getStencilWidths()->getDimNcbG(i),
+						space_->getStencilWidths()->getNcbG(i),
+						space_->getCoordinatesLocal()->getX( i, EField::S ),
+						space_->getCoordinatesLocal()->getX( i, i ),
+						c_[i]->get() );
 			}
 		};
 
 
 	~InterpolateS2V() {
-		for( int i=0; i<3; ++i )
-			delete[] c_[i];
+		for( int i=0; i<SpaceT::sdim; ++i )
+			delete c_[i];
 	}
-
 
 
 	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
@@ -83,6 +81,7 @@ public:
 #ifndef NDEBUG
 		TEUCHOS_TEST_FOR_EXCEPT( x.getType() != S );
 		TEUCHOS_TEST_FOR_EXCEPT( y.getType() == S );
+		TEUCHOS_TEST_FOR_EXCEPT( y.getType() == W && SpaceT::sdim==3 );
 #endif
 
 		int m = static_cast<int>( y.getType() );
@@ -124,31 +123,16 @@ public:
 		out << "\n--- " << getLabel() << " ---\n";
 		out << "--- stencil: ---";
 
-		for( int dir=0; dir<3; ++dir ) {
-
+		for( int dir=0; dir<SpaceT::sdim; ++dir ) {
 			out << "\ncoord: " << toString( static_cast<ECoord>(dir) ) << "\n";
-
-			Ordinal nTemp2 = space_->gu(dir) - space_->gl(dir) + 1;
-
-			for( Ordinal i=0; i<=space_->nLoc(dir); ++i ) {
-				out << "\ni: " << i << "\t(";
-				for( Ordinal k=space_->gl(dir); k<=space_->gu(dir); ++k ) {
-					out << getC(static_cast<ECoord>(dir),i,k) <<", ";
-				}
-				out << ")\n";
-			}
-			out << "\n";
+			c_[dir]->print( out );
 		}
 	}
 
 	const std::string getLabel() const { return( "InterpolateS2V" ); };
 
-	constexpr const Scalar* getC( const ECoord& dir ) const {
-		return( c_[dir] );
-	}
-
 	constexpr const Scalar& getC( const ECoord& dir, Ordinal i, Ordinal off ) const {
-		return( c_[dir][ off - space_->gl(dir) + i*( space_->gu(dir) - space_->gl(dir) + 1) ] );
+		return( c_[dir]->at( i, off ) );
 	}
 
 
@@ -157,13 +141,6 @@ public:
 
 } // end of namespace Pimpact
 
-
-#ifdef COMPILE_ETI
-extern template class Pimpact::InterpolateS2V< Pimpact::Space<double,int,3,2> >;
-extern template class Pimpact::InterpolateS2V< Pimpact::Space<double,int,3,4> >;
-extern template class Pimpact::InterpolateS2V< Pimpact::Space<double,int,4,2> >;
-extern template class Pimpact::InterpolateS2V< Pimpact::Space<double,int,4,4> >;
-#endif
 
 
 #endif // end of #ifndef PIMPACT_INTERPOLATES2VDOP_HPP

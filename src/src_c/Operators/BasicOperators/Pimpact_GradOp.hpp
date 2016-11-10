@@ -31,7 +31,9 @@ protected:
   using Scalar = typename SpaceT::Scalar;
   using Ordinal = typename SpaceT::Ordinal;
 
-  using TO = const Teuchos::Tuple<Scalar*,3>; 
+	using Stenc = Stencil< Scalar, Ordinal >;
+  using TO = const Teuchos::Tuple<Stenc*,ST::sdim>; 
+
   Teuchos::RCP<const SpaceT> space_;
 
   TO c_;
@@ -47,60 +49,49 @@ public:
 	GradOp( const Teuchos::RCP< const SpaceT>& space):
 		space_(space) {
 
-			for( int dir=0; dir<3; ++dir ) {
+			for( int dir=0; dir<ST::sdim; ++dir ) {
 				// Gradient stencil
-				Ordinal nTemp = ( space_->nLoc(dir) + 1 )*( space_->gu(dir) - space_->gl(dir) + 1);
+				
+				c_[dir] = new Stenc( 0, space_->nLoc(dir), space_->gl(dir), space_->gu(dir) );
 
-				c_[dir] = new Scalar[ nTemp ];
-
-				if( dir<SpaceT::sdim )
-					FD_getDiffCoeff(
-							space_->nLoc(dir),
-							space_->bl(dir),
-							space_->bu(dir),
-							space_->gl(dir),
-							space_->gu(dir),
-							space_->getBCLocal()->getBCL(dir),
-							space_->getBCLocal()->getBCU(dir),
-							space_->getShift(dir),
-							2,
-							dir+1,
-							1,
-							0,
-							//true, // mapping
-							false,
-							space_->getStencilWidths()->getDimNcbG(dir),
-							space_->getStencilWidths()->getNcbG(dir),
-							space_->getCoordinatesLocal()->getX( dir, EField::S ),
-							space_->getCoordinatesLocal()->getX( dir, dir ),
-							c_[dir] );
+				FD_getDiffCoeff(
+						space_->nLoc(dir),
+						space_->bl(dir),
+						space_->bu(dir),
+						space_->gl(dir),
+						space_->gu(dir),
+						space_->getBCLocal()->getBCL(dir),
+						space_->getBCLocal()->getBCU(dir),
+						space_->getShift(dir),
+						2,
+						dir+1,
+						1,
+						0,
+						//true, // mapping
+						false,
+						space_->getStencilWidths()->getDimNcbG(dir),
+						space_->getStencilWidths()->getNcbG(dir),
+						space_->getCoordinatesLocal()->getX( dir, EField::S ),
+						space_->getCoordinatesLocal()->getX( dir, dir ),
+						c_[dir]->get() );
 
 				// transposed Gradient stencil
-				Ordinal nTempT  = ( space_->nLoc(dir) + 1 )*( space_->du(dir) - space_->dl(dir) + 1);
-				cT_[dir] = new Scalar[ nTempT ];
-				for( Ordinal i = 0; i<nTempT; ++i )
-					cT_[dir][i] = 0.;
+				cT_[dir] = new Stenc( 0, space_->nLoc(dir), space_->dl(dir), space_->du(dir) );
 
 				Ordinal nTempG = ( space_->nGlo(dir) + space_->bu(dir) - space_->bl(dir) + 1 )
 					*( space_->bu(dir) - space_->bl(dir) + 1);
 
-				Scalar* cG1 = new Scalar[ nTempG ];
-				Scalar* cG2 = new Scalar[ nTempG ];
 
-				for( Ordinal i = 0; i<nTempG; ++i ) {
-					cG1[i] = 0.;
-					cG2[i] = 0.;
-				}
+				Stenc cG1( space_->bl(dir), space_->nGlo(dir) + space_->bu(dir),space_->bl(dir), space_->bu(dir) );
+				Stenc cG2( space_->bl(dir), space_->nGlo(dir) + space_->bu(dir),space_->bl(dir), space_->bu(dir) );
 
 				for( Ordinal i = space_->begin(dir,dir,With::B); i<=space_->end(dir,dir,With::B); ++i )
-					for( Ordinal ii = space_->gl(dir); ii<=space_->gu(dir); ++ii ) {
-						Ordinal ind = ( ii - space_->bl(dir) ) + ( i+space_->getShift(dir)-space_->bl(dir) )*( space_->bu(dir) - space_->bl(dir) + 1 );
-						cG1[ ind ]= getC( static_cast<ECoord>(dir), i, ii );
-					}
+					for( Ordinal ii = space_->gl(dir); ii<=space_->gu(dir); ++ii )
+						cG1( i+space_->getShift(dir), ii ) = getC( static_cast<ECoord>(dir), i, ii );
 
 				MPI_Allreduce(
-						cG1,    		                                // const void *sendbuf,
-						cG2,    		                                // void *recvbuf,
+						cG1.get(),	                                // const void *sendbuf,
+						cG2.get(),                                  // void *recvbuf,
 						nTempG,			                                // int count,
 						MPI_REAL8,	                                // MPI_Datatype datatype,
 						MPI_SUM,		                                // MPI_Op op,
@@ -112,18 +103,12 @@ public:
 					Ordinal M1 = space_->nGlo(dir);
 
 					for( Ordinal i=space->bl(dir); i<=-1; ++i )
-						for( Ordinal ii=space->bl(dir); ii<=space->bu(dir); ++ii ) {
-							Ordinal indT = ii-space_->bl(dir) + (2+ls1+i-space_->bl(dir)   )*( space_->bu(dir) - space_->bl(dir) + 1 );
-							Ordinal indS = ii-space_->bl(dir) + (M1+1+ls1+i-space_->bl(dir))*( space_->bu(dir) - space_->bl(dir) + 1 );
-							cG2[ indT ] = cG2[ indS ];
-						}
+						for( Ordinal ii=space->bl(dir); ii<=space->bu(dir); ++ii )
+							cG2(2+ls1+i,ii) = cG2(M1+1+ls1+i,ii);
 
 					for( Ordinal i=1; i<=space->bu(dir); ++i )
-						for( Ordinal ii=space->bl(dir); ii<=space->bu(dir); ++ii ) {
-							Ordinal indT = ii-space_->bl(dir) + (M1+ls1+i-space_->bl(dir))*( space_->bu(dir) - space_->bl(dir) + 1 );
-							Ordinal indS = ii-space_->bl(dir) + ( 1+ls1+i-space_->bl(dir))*( space_->bu(dir) - space_->bl(dir) + 1 );
-							cG2[ indT ] = cG2[ indS ];
-						}
+						for( Ordinal ii=space->bl(dir); ii<=space->bu(dir); ++ii )
+							cG2(M1+ls1+i,ii) = cG2(1+ls1+i,ii);
 				}
 
 				for( Ordinal
@@ -131,20 +116,17 @@ public:
 						i<=space_->end(S,static_cast<ECoord>(dir),With::B);
 						++i ) 
 					for( Ordinal ii=space->dl(dir); ii<=space->du(dir); ++ii ) {
-						Ordinal ind1 = ( ii - space_->dl(dir) ) + ( i )*( space_->du(dir) - space_->dl(dir) + 1 );
-						Ordinal ind2 = ( -ii - space_->bl(dir) ) + ( i+ii+space_->getShift(dir)-space_->bl(dir) )*( space_->bu(dir) - space_->bl(dir) + 1 );
-						cT_[dir][ind1] = cG2[ ind2 ];
+						cT_[dir]->operator()(i,ii) = cG2( i+ii+space_->getShift(dir), -ii );
 					}
-
-				delete[] cG1;
-				delete[] cG2;
 			}
 		};
 
 
   ~GradOp() {
-    for( int i=0; i<3; ++i )
-      delete[] c_[i];
+    for( int i=0; i<ST::sdim; ++i ) {
+      delete c_[i];
+      delete cT_[i];
+		}
   }
 
 
@@ -279,15 +261,15 @@ public:
 	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(space_); };
 
 	constexpr const Scalar* getC( const ECoord& dir ) const {
-		return( c_[dir] );
+		return( c_[dir]->get() );
 	}
 
 	constexpr const Scalar& getC( const ECoord& dir, Ordinal i, Ordinal off ) const {
-		return( c_[dir][ off - space_->gl(dir) + i*( space_->gu(dir) - space_->gl(dir) + 1) ] );
+		return( c_[dir]->at(i,off) );
 	}
 
 	constexpr const Scalar& getCTrans( const ECoord& dir, Ordinal i, Ordinal off ) const {
-		return( cT_[dir][ off - space_->dl(dir) + i*( space_->du(dir) - space_->dl(dir) + 1) ] );
+		return( cT_[dir]->at(i,off) );
 	}
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {}
@@ -295,32 +277,18 @@ public:
   void print( std::ostream& out=std::cout ) const {
     out << "\n--- " << getLabel() << " ---\n";
     //out << " --- stencil: ---";
-    for( int dir=0; dir<3; ++dir ) {
+    for( int dir=0; dir<ST::sdim; ++dir ) {
 			out << "\ndir: " << toString(static_cast<ECoord>(dir)) << "\n";
 
-      for( int i=0; i<=space_->nLoc(dir); ++i ) {
-        out << "\ni: " << i << "\t(";
-        for( int ii=space_->gl(dir); ii<=space_->gu(dir); ++ii ) {
-          out << getC( static_cast<ECoord>(dir), i, ii ) <<", ";
-        }
-        out << ")\n";
-      }
-      out << "\n";
+			c_[dir]->print( out );
     }
 
 		out << "--- " << getLabel() << "^T ---\n";
 		out << " --- stencil: ---";
-		for( int dir=0; dir<3; ++dir ) {
+		for( int dir=0; dir<ST::sdim; ++dir ) {
 			out << "\ndir: " << toString(static_cast<ECoord>(dir)) << "\n";
 
-			for( int i=0; i<=space_->nLoc(dir); ++i ) {
-        out << "\ni: " << i << "\t(";
-				for( int k=space_->dl(dir); k<=space_->du(dir); ++k ) {
-					out << getCTrans(static_cast<ECoord>(dir),i,k ) << ", ";
-				}
-        out << ")\n";
-			}
-			out << "\n";
+			cT_[dir]->print( out );
 		}
   }
 

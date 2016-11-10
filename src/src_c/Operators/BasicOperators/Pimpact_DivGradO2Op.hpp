@@ -51,10 +51,8 @@ protected:
   using Scalar = typename SpaceT::Scalar;
   using Ordinal = typename SpaceT::Ordinal;
 
-  using TS = const Teuchos::Tuple<Scalar*,3>;
-
-	using VectorT = Teuchos::SerialDenseVector<Ordinal,Scalar>;
-	using MatrixT = Teuchos::SerialDenseMatrix<Ordinal,Scalar>;
+	using Stenc = Stencil< Scalar, Ordinal >;
+  using TS = const Teuchos::Tuple< Stenc*, ST::sdim >;
 
   const Teuchos::RCP<const SpaceT> space_;
 
@@ -64,24 +62,27 @@ public:
 
 	DivGradO2Op( const Teuchos::RCP<const SpaceT>& space ): space_(space) {
 
-		for( int dir=0; dir<3; ++dir ) {
+		for( int dir=0; dir<ST::sdim; ++dir ) {
 			// allocate stencil
-			Ordinal nTemp = 3*( space_->nLoc(dir) - 1 + 1 );
-			c_[dir] = new Scalar[ nTemp ];
+			c_[dir] = new Stenc( 1, space_->nLoc(dir), -1, 1 );
 
-			if( dir<SpaceT::sdim )
-				Op_getCDG_dir(
-						space_->nGlo( dir ),
-						space_->nLoc( dir ),
-						space_->bl( dir ),
-						space_->bu( dir ),
-						space_->getBCLocal()->getBCL( dir ),
-						space_->getBCLocal()->getBCU( dir ),
-						space_->getCoordinatesGlobal()->getX( static_cast<ECoord>(dir), static_cast<EField>(dir) ),
-						space_->getCoordinatesLocal()->getX( static_cast<ECoord>(dir), EField::S ),
-						space_->getCoordinatesLocal()->getX( static_cast<ECoord>(dir), static_cast<EField>(dir) ),
-						c_[dir] );
+			Op_getCDG_dir(
+					space_->nGlo( dir ),
+					space_->nLoc( dir ),
+					space_->bl( dir ),
+					space_->bu( dir ),
+					space_->getBCLocal()->getBCL( dir ),
+					space_->getBCLocal()->getBCU( dir ),
+					space_->getCoordinatesGlobal()->getX( static_cast<ECoord>(dir), static_cast<EField>(dir) ),
+					space_->getCoordinatesLocal()->getX( static_cast<ECoord>(dir), EField::S ),
+					space_->getCoordinatesLocal()->getX( static_cast<ECoord>(dir), static_cast<EField>(dir) ),
+					c_[dir]->get() );
 		}
+	}
+
+	~DivGradO2Op() {
+		for( int dir=0; dir<ST::sdim; ++dir )
+			delete c_[dir];
 	}
 
 
@@ -127,7 +128,6 @@ public:
 	}
 
 
-	/// \todo add eps
 	void applyInvDiag( const DomainFieldT& x, RangeFieldT& y ) const {
 
 		const Scalar& eps = 0.1;
@@ -184,22 +184,15 @@ public:
   void print( std::ostream& out=std::cout ) const {
     out << "--- " << getLabel() << " ---\n";
     out << " --- stencil: ---";
-    for( int dir=0; dir<3; ++dir ) {
+    for( int dir=0; dir<ST::sdim; ++dir ) {
       out << "\ndir: " << dir << "\n";
-      for( int i=1; i<=space_->nLoc(dir); ++i ) {
-        out << "\ni: " << i << "\t(";
-        for( int k=-1; k<=1; ++k ) {
-					out << getC(dir,i,k) << "\t" ;
-        }
-        out << ")\n";
-      }
-      out << "\n";
+			c_[dir]->print( out );
     }
   }
 
   void print2Mat(  ) const {
 
-    for( int dir=0; dir<3; ++dir ) {
+    for( int dir=0; dir<ST::sdim; ++dir ) {
 			std::string fn = "A_" + toString( static_cast<ECoord>(dir) ) + "_" + std::to_string(space_->nLoc(dir)) + ".txt";
 
 			Teuchos::RCP<std::ostream> out = Pimpact::createOstream( fn );
@@ -272,7 +265,7 @@ public:
   }
 
   inline constexpr const Scalar* getC( const int& dir) const  {
-		return( c_[dir] );
+		return( c_[dir]->get() );
   }
 
 	inline constexpr const Scalar& getC( const ECoord& dir, Ordinal i, Ordinal off ) const  {
@@ -280,7 +273,7 @@ public:
   }
 
 	inline constexpr const Scalar& getC( const int& dir, Ordinal i, Ordinal off ) const  {
-		return( c_[dir][ off + 1 + (i-1)*3 ] );
+		return( c_[dir]->at(i,off) );
   }
 
 	const std::string getLabel() const { return( "DivGradO2" ); };

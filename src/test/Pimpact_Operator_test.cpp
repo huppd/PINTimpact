@@ -879,16 +879,16 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( BasicOperator, HelmholtzOp, D3 )
 
 
 
-#ifdef NDEBUG
+//#ifdef NDEBUG
 TEUCHOS_UNIT_TEST( MaatrixTest, DivGradOp2M ) {
 
-	//OT nx = 7;
-	//OT ny = 7;
-	//OT nz = 7;
+	OT nx = 7;
+	OT ny = 7;
+	OT nz = 7;
 
-	OT nx = 9;
-	OT ny = 9;
-	OT nz = 9;
+	//OT nx = 9;
+	//OT ny = 9;
+	//OT nz = 9;
 	
 	//OT nx = 33;
 	//OT ny = 33;
@@ -1032,7 +1032,7 @@ TEUCHOS_UNIT_TEST( MaatrixTest, DivGradOp2M ) {
 	std::cout << "||DJG-DJG^TT||_infty = " << errInf << "\n";
 	TEST_EQUALITY( errInf<eps, true );
 }
-#endif
+//#endif
 
 
 #ifdef NDEBUG

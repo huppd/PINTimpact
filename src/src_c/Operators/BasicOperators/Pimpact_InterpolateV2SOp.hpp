@@ -13,6 +13,7 @@
 #include "Pimpact_GridSizeLocal.hpp"
 #include "Pimpact_ProcGrid.hpp"
 #include "Pimpact_StencilWidths.hpp"
+#include "Pimpact_Stencil.hpp"
 #include "Pimpact_Types.hpp"
 
 
@@ -50,13 +51,8 @@ public:
 
 protected:
 
-	using TS = const Teuchos::Tuple< Teuchos::ArrayRCP<Scalar>, 3 >;
-	using TO = const Teuchos::Tuple< Ordinal, dimension >;
-
-	Teuchos::RCP<const GridSizeLocal<Ordinal,sdim,dimension> > gridSizeLocal_;
-
-	TO dl_;
-	TO du_;
+	using Stenc = Stencil<Scalar,Ordinal>;
+	using TS = const Teuchos::Tuple< Stenc*, sdim >;
 
 	TS c_;
 	TS cm_;
@@ -69,61 +65,61 @@ public:
 			const Teuchos::RCP<const StencilWidths<dimension,dimNC> >& stencilWidths,
 			const Teuchos::RCP<const DomainSize<Scalar,sdim> >& domainSize,
 			const Teuchos::RCP<const BoundaryConditionsLocal<dimension> >& boundaryConditionsLocal,
-			const Teuchos::RCP<const CoordinatesLocal<Scalar,Ordinal,dimension,dimNC> >& coordinatesLocal ):
-		gridSizeLocal_( gridSizeLocal ), dl_( stencilWidths->getDLTuple() ), du_(
-				stencilWidths->getDUTuple() ) {
+			const Teuchos::RCP<const CoordinatesLocal<Scalar,Ordinal,dimension,dimNC> >& coordinatesLocal ) {
 
 
-		for( int i=0; i<3; ++i ) {
+		for( int i=0; i<sdim; ++i ) {
 
-			Ordinal nTemp = ( gridSizeLocal->get(i) + 1 )*( stencilWidths->getDU(i) - stencilWidths->getDL(i) + 1);
-			//c_[i] = new Scalar[ nTemp ];
-			c_[i] = Teuchos::arcp<Scalar>( nTemp );
-			cm_[i] = Teuchos::arcp<Scalar>( nTemp );
+			c_[i] = new Stenc( 0, gridSizeLocal->get(i), stencilWidths->getDL(i), stencilWidths->getDU(i) );
+			cm_[i] = new Stenc( 0, gridSizeLocal->get(i), stencilWidths->getDL(i), stencilWidths->getDU(i) );
 
-			if( i<sdim ) {
-				FD_getDiffCoeff(
-						gridSizeLocal->get(i),
-						stencilWidths->getBL(i),
-						stencilWidths->getBU(i),
-						stencilWidths->getDL(i),
-						stencilWidths->getDU(i),
-						boundaryConditionsLocal->getBCL(i),
-						boundaryConditionsLocal->getBCU(i),
-						indexSpace->getShift(i),
-						3,
-						i+1,  // direction
-						0,    // 0-derivative
-						0,    // central
-						true, // not working with stretching mapping
-						stencilWidths->getDimNcbD(i),
-						stencilWidths->getNcbD(i),
-						coordinatesLocal->getX( i, i ),
-						coordinatesLocal->getX( i, EField::S ),
-						cm_[i].get() );
-				FD_getDiffCoeff(
-						gridSizeLocal->get(i),
-						stencilWidths->getBL(i),
-						stencilWidths->getBU(i),
-						stencilWidths->getDL(i),
-						stencilWidths->getDU(i),
-						boundaryConditionsLocal->getBCL(i),
-						boundaryConditionsLocal->getBCU(i),
-						indexSpace->getShift(i),
-						3,
-						i+1,  // direction
-						0,    // 0-derivative
-						0,    // central
-						false, // mapping, works with interpolateV2S
-						stencilWidths->getDimNcbD(i),
-						stencilWidths->getNcbD(i),
-						coordinatesLocal->getX( i, i ),
-						coordinatesLocal->getX( i, EField::S ),
-						c_[i].get() );
-			}
+			FD_getDiffCoeff(
+					gridSizeLocal->get(i),
+					stencilWidths->getBL(i),
+					stencilWidths->getBU(i),
+					stencilWidths->getDL(i),
+					stencilWidths->getDU(i),
+					boundaryConditionsLocal->getBCL(i),
+					boundaryConditionsLocal->getBCU(i),
+					indexSpace->getShift(i),
+					3,
+					i+1,  // direction
+					0,    // 0-derivative
+					0,    // central
+					true, // not working with stretching mapping
+					stencilWidths->getDimNcbD(i),
+					stencilWidths->getNcbD(i),
+					coordinatesLocal->getX( i, i ),
+					coordinatesLocal->getX( i, EField::S ),
+					cm_[i]->get() );
+			FD_getDiffCoeff(
+					gridSizeLocal->get(i),
+					stencilWidths->getBL(i),
+					stencilWidths->getBU(i),
+					stencilWidths->getDL(i),
+					stencilWidths->getDU(i),
+					boundaryConditionsLocal->getBCL(i),
+					boundaryConditionsLocal->getBCU(i),
+					indexSpace->getShift(i),
+					3,
+					i+1,  // direction
+					0,    // 0-derivative
+					0,    // central
+					false, // mapping, works with interpolateV2S
+					stencilWidths->getDimNcbD(i),
+					stencilWidths->getNcbD(i),
+					coordinatesLocal->getX( i, i ),
+					coordinatesLocal->getX( i, EField::S ),
+					c_[i]->get() );
 		}
 	};
 
+	~InterpolateV2S() {
+		for( int dir=0; dir<sdim; ++dir ) {
+			delete c_[dir];
+			delete cm_[dir];
+		}
+	}
 
 
 	void apply( const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans&
@@ -153,8 +149,8 @@ public:
 			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
 				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
 					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
-						y.at(i,j,k) = getC( m, i, dl_[m] )*x.at(i+dl_[m],j,k);
-						for( Ordinal ii=dl_[m]+1; ii<=du_[m]; ++ii )
+						y.at(i,j,k) = 0.;
+						for( Ordinal ii=c_[m]->bl(); ii<=c_[m]->bu(); ++ii )
 							y.at(i,j,k) += getC( m, i, ii )*x.at(i+ii,j,k);
 					}
 		}
@@ -163,8 +159,8 @@ public:
 			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
 				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
 					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
-						y.at(i,j,k) = getC( m, j, dl_[m] )*x.at(i,j+dl_[m],k);
-						for( Ordinal jj=dl_[m]+1; jj<=du_[m]; ++jj )
+						y.at(i,j,k) = 0.;
+						for( Ordinal jj=c_[m]->bl(); jj<=c_[m]->bu(); ++jj )
 							y.at(i,j,k) += getC( m, j, jj )*x.at(i,j+jj,k);
 					}
 		}
@@ -173,8 +169,8 @@ public:
 			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
 				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
 					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
-						y.at(i,j,k) = getC( m, k, dl_[m] )*x.at(i,j,k+dl_[m]);
-						for( Ordinal kk=dl_[m]+1; kk<=du_[m]; ++kk )
+						y.at(i,j,k) = 0.;
+						for( Ordinal kk=c_[m]->bl(); kk<=c_[m]->bu(); ++kk )
 							y.at(i,j,k) += getC( m, k, kk )*x.at(i,j,k+kk);
 					}
 		}
@@ -191,32 +187,23 @@ public:
 
 	void print( std::ostream& out=std::cout ) const {
 		out << "--- " << getLabel() << " ---\n";
-		for( int dir=0; dir<3; ++dir ) {
+		for( int dir=0; dir<sdim; ++dir ) {
 			out << "\ndir: " << toString(static_cast<ECoord>(dir)) << "\n";
-
-			for( int i=0; i<=gridSizeLocal_->get(dir); ++i ) {
-				out << "\ni: " << i << "\t(";
-				for( int ii=dl_[dir]; ii<=du_[dir]; ++ii ) {
-					out << getC( static_cast<ECoord>(dir), i, ii ) <<", ";
-				}
-				out << ")\n";
-			}
-			out << "\n";
+			c_[dir]->print( out );
 		}
 	}
 
 	constexpr const Scalar* getC( const int& dir ) const  {
-		return( c_[dir].getRawPtr() );
+		return( c_[dir]->get() );
 	}
 	constexpr const Scalar* getCM( const int& dir ) const  {
-		return( cm_[dir].getRawPtr() );
+		return( cm_[dir]->get() );
 	}
-
 	constexpr const Scalar& getC( const ECoord& dir, Ordinal i, Ordinal off ) const {
-		return( c_[dir][ off - dl_[dir] + i*( du_[dir] - dl_[dir] + 1) ] );
+		return( c_[dir]->at( i, off ) );
 	}
 	constexpr const Scalar& getCM( const ECoord& dir, Ordinal i, Ordinal off ) const {
-		return( cm_[dir][ off - dl_[dir] + i*( du_[dir] - dl_[dir] + 1) ] );
+		return( cm_[dir]->at( i, off ) );
 	}
 
 	const std::string getLabel() const { return( "InterpolateV2S" ); };
@@ -258,14 +245,6 @@ Teuchos::RCP<const InterpolateV2S<S,O,sd,d,dimNC> > createInterpolateV2S(
 
 
 } // end of namespace Pimpact
-
-
-#ifdef COMPILE_ETI
-extern template class Pimpact::InterpolateV2S<double,int,3,2>;
-extern template class Pimpact::InterpolateV2S<double,int,3,4>;
-extern template class Pimpact::InterpolateV2S<double,int,4,2>;
-extern template class Pimpact::InterpolateV2S<double,int,4,4>;
-#endif
 
 
 #endif // end of #ifndef PIMPACT_INTERPOLATEVTOSOP_HPP
