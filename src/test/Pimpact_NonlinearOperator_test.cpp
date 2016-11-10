@@ -45,7 +45,6 @@ using ConvDiffSORT = Pimpact::NonlinearSmoother<T,Pimpact::ConvectionDiffusionSO
 bool testMpi = true;
 ST eps = 1e-10;
 
-int dim = 3;
 int domain = 0;
 
 ST omega = 0.8;
@@ -73,7 +72,6 @@ TEUCHOS_STATIC_SETUP() {
 			"eps", &eps,
 			"Slack off of machine epsilon used to check test results" );
 	clp.setOption( "domain", &domain, "domain" );
-	clp.setOption( "dim", &dim, "dim" );
 	clp.setOption( "omega", &omega,
 			"Slack off of machine epsilon used to check test results" );
 	clp.setOption( "wind", &winds,
@@ -118,7 +116,6 @@ TEUCHOS_STATIC_SETUP() {
 
 TEUCHOS_UNIT_TEST( BasicOperator, ConvectionSOp ) {
 
-	pl->set( "dim", dim );
 	pl->set( "domain", domain );
 
 	Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
@@ -153,8 +150,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionSOp ) {
 	std::cout << "\n";
 	for( int dir=-1; dir<2; dir+= 2 ) {
 
-		for( int i=0; i<space->dim(); ++i )
-			for( int j=0; j<space->dim(); ++j )
+		for( int i=0; i<SpaceT::sdim; ++i )
+			for( int j=0; j<SpaceT::sdim; ++j )
 				u[i][j]->initField( Pimpact::ConstField, 2.*dir );
 
 		solv->getFieldPtr(Pimpact::U)->initField( Pimpact::ConstField, 2.*dir );
@@ -168,11 +165,11 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionSOp ) {
 
 		y->random();
 
-		for( int i=0; i<space->dim(); ++i ) {
+		for( int i=0; i<SpaceT::sdim; ++i ) {
 			op->apply( u[i], x->getConstField(i), y->getField(i) );
 		}
 
-		for( int i=0; i<space->dim(); ++i ){
+		for( int i=0; i<SpaceT::sdim; ++i ){
 			auto sol = solv->getFieldPtr( i );
 			sol->add( 1., *sol, -1., y->getField(i) );
 			std::cout << "error in "<< i << " (gradX): " << sol->norm( Belos::InfNorm ) << "\n";
@@ -190,11 +187,11 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionSOp ) {
 		y->random();
 
 		//  op->apply( u[0], x->getConstField(0), y->getField(0), 1. );
-		for( int i=0; i<space->dim(); ++i ) {
+		for( int i=0; i<SpaceT::sdim; ++i ) {
 			op->apply( u[i], x->getConstField(i), y->getField(i) );
 		}
 
-		for( int i=0; i<space->dim(); ++i ){
+		for( int i=0; i<SpaceT::sdim; ++i ){
 			auto sol = solv->getFieldPtr( i );
 			sol->add( 1., *sol, -1., y->getField(i) );
 			std::cout << "error in "<< i << " (gradY): " << sol->norm( Belos::InfNorm ) << "\n";
@@ -212,11 +209,11 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionSOp ) {
 		y->random();
 
 		//  op->apply( u[0], x->getConstField(0), y->getField(0), 1. );
-		for( int i=0; i<space->dim(); ++i ) {
+		for( int i=0; i<SpaceT::sdim; ++i ) {
 			op->apply( u[i], x->getConstField(i), y->getField(i) );
 		}
 
-		for( int i=0; i<space->dim(); ++i ){
+		for( int i=0; i<SpaceT::sdim; ++i ){
 			auto sol = solv->getFieldPtr( i );
 			sol->add( 1., *sol, -1., y->getField(i) );
 			std::cout << "error in "<< i << " (gradZ): " << sol->norm( Belos::InfNorm ) << "\n";
@@ -234,7 +231,6 @@ template<class T> using ConvOpT = Pimpact::NonlinearOp<Pimpact::ConvectionSOp<T>
 
 TEUCHOS_UNIT_TEST( BasicOperator, NonlinearOp ) {
 
-	pl->set( "dim", dim );
   Pimpact::setBoundaryConditions( pl, domain );
 
   Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
@@ -369,7 +365,6 @@ TEUCHOS_UNIT_TEST( BasicOperator, NonlinearOp ) {
 
 TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionOp  ) {
 
-	pl->set( "dim", dim );
   Pimpact::setBoundaryConditions( pl, domain );
 
   Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
@@ -504,7 +499,6 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionOp  ) {
 
 TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionSORSmoother ) {
 
-	pl->set( "dim", dim );
   Pimpact::setBoundaryConditions( pl, domain );
 
   pl->set<ST>("Re",1000);
@@ -649,7 +643,6 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionSORSmoother ) {
 
 TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
 
-	pl->set( "dim", dim );
   Pimpact::setBoundaryConditions( pl, domain );
 
   pl->set<ST>("Re",100);
@@ -717,7 +710,6 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
 
 	//const int d = 4;
 
-	//pl->set( "dim", dim );
   //pl->set( "domain", domain );
 	//pl->set<bool>( "spectral in time", true );
 
@@ -741,7 +733,6 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
 
 	//const int d = 4;
 
-	//pl->set( "dim", dim );
   //pl->set( "domain", domain );
 	//pl->set<bool>( "spectral in time", true );
 

@@ -74,7 +74,7 @@ public:
   /// \begin{bmatrix} \hat{\mathbf{x}}^c \\ \hat{\mathbf{x}}^s  \end{bmatrix} \f]
   void apply(const DomainFieldT& x, RangeFieldT& y, int k=1 ) const {
 
-    const int& dim = space()->dim();
+    const int dim = SpaceT::sdim;
 
     for( int i=0; i<dim; ++i ) {
 

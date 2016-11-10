@@ -29,7 +29,6 @@ using SpaceT = Pimpact::Space<ST,OT,sd,d,dNC>;
 bool testMpi = true;
 ST eps = 1e-6;
 
-int dim = 3;
 int domain = 0;
 
 auto pl = Teuchos::parameterList();
@@ -46,9 +45,7 @@ TEUCHOS_STATIC_SETUP() {
 			"error-tol-slack", &eps,
 			"Slack off of machine epsilon used to check test results" );
 	clp.setOption( "domain", &domain, "domain" );
-	clp.setOption( "dim", &dim, "dim" );
 
-	pl->set( "dim", dim );
 
 	pl->set( "lx", 20. );
 	pl->set( "ly", 20. );
@@ -57,15 +54,7 @@ TEUCHOS_STATIC_SETUP() {
 
 	pl->set("nx", 9 );
 	pl->set("ny", 17 );
-	if(  3==dim )
-		pl->set("nz", 9 );
-
-	// processor grid size
-	pl->set("npx", 2 );
-	pl->set("npy", 2 );
-	if(  3==dim )
-		pl->set("npz", 2 );
-
+	pl->set("nz", 9 );
 }
 
 
@@ -74,13 +63,12 @@ TEUCHOS_STATIC_SETUP() {
 
 TEUCHOS_UNIT_TEST( VectorField, InfNorm_and_initvec2d ) {
 
-	pl->set( "dim", dim );
 	Pimpact::setBoundaryConditions( pl, domain );
 
 	// processor grid size
-	pl->set("npx", (2==dim)?4:2 );
+	pl->set("npx", (2==SpaceT::sdim)?4:2 );
 	pl->set("npy",            2 );
-	pl->set("npz", (2==dim)?1:2 );
+	pl->set("npz", (2==SpaceT::sdim)?1:2 );
 
 	auto space = Pimpact::create<SpaceT>( pl );
 
@@ -102,7 +90,7 @@ TEUCHOS_UNIT_TEST( VectorField, InfNorm_and_initvec2d ) {
 	auto alpha2 = Teuchos::tuple( 0., 0., 1. );
 	vel->init(alpha2);
 	norm = vel->norm(Belos::InfNorm);
-	TEST_FLOATING_EQUALITY( ( 2==space->dim() )?0.:1., norm, eps );
+	TEST_FLOATING_EQUALITY( ( 2==SpaceT::sdim )?0.:1., norm, eps );
 
 }
 
@@ -110,18 +98,14 @@ TEUCHOS_UNIT_TEST( VectorField, InfNorm_and_initvec2d ) {
 
 TEUCHOS_UNIT_TEST( VectorField, initField ) {
 
-	pl->set( "dim", dim );
 	Pimpact::setBoundaryConditions( pl, domain );
 
 	pl->set<ST>( "Re", 400. );
 
 	// processor grid size
-	pl->set("npx", (2==dim)?4:2 );
+	pl->set("npx", (2==SpaceT::sdim)?4:2 );
 	pl->set("npy",            2 );
-	pl->set("npz", (2==dim)?1:2 );
-	//pl->set("npx", 1 );
-	//pl->set("npy", 1 );
-	//pl->set("npz", 1 );
+	pl->set("npz", (2==SpaceT::sdim)?1:2 );
 
 	pl->set( "Re", 400. );
 
@@ -132,10 +116,6 @@ TEUCHOS_UNIT_TEST( VectorField, initField ) {
 	pl->set("nx", 65 );
 	pl->set("ny", 49 );
 	pl->set("nz", 97 );
-
-	//pl->set("nx", 1025 );
-	//pl->set("ny", 7 );
-	//pl->set("nz", 7 );
 
 	pl->sublist( "Stretching in X" ).set<std::string>("Stretch Type", "cos");
 	pl->sublist( "Stretching in X" ).set<ST>( "N metr L", pl->get<OT>("nx") );

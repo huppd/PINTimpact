@@ -13,25 +13,6 @@
 namespace Pimpact{
 
 
-
-extern "C"
-void OP_helmholtz(
-		const int& dimens,
-		const int* const N,
-		const int* const bl,
-		const int* const bu,
-		const int* const ss,
-		const int* const nn,
-		const double* const c11,
-		const double* const c22,
-		const double* const c33,
-		const double& mulI,
-		const double& multL,
-		const double* const phi,
-		double* const lap );
-
-
-
 /// \brief Helmholtz operator
 /// \ingroup BaseOperator
 ///
@@ -73,7 +54,7 @@ public:
       Ordinal nTemp = ( space_->nLoc(i) + 1 )*( space_->bu(i) - space_->bl(i) + 1);
 
       cS_[i] = new Scalar[ nTemp ];
-      if( i<space_->dim() )
+      if( i<SpaceT::sdim )
         FD_getDiffCoeff(
             space_->nLoc(i),
             space_->bl(i),
@@ -96,7 +77,7 @@ public:
             cS_[i] );
 
       cV_[i] = new Scalar[ nTemp ];
-      if( i<space_->dim() )
+      if( i<SpaceT::sdim )
         FD_getDiffCoeff(
             space_->nLoc(i),
             space_->bl(i),
@@ -130,13 +111,13 @@ public:
 
   void apply(const DomainFieldT& x, RangeFieldT& y ) const {
 
-    for( int dir=0; dir<space_->dim(); ++dir ) {
+    for( int dir=0; dir<SpaceT::sdim; ++dir ) {
 
       EField fType = static_cast<EField>(dir);
 
 			x.getField(fType).exchange();
 
-			if( 3==space_->dim() ) {
+			if( 3==SpaceT::sdim ) {
 				for( Ordinal k=space()->begin(fType,Z); k<=space()->end(fType,Z); ++k )
 					for( Ordinal j=space()->begin(fType,Y); j<=space()->end(fType,Y); ++j )
 						for( Ordinal i=space()->begin(fType,X); i<=space()->end(fType,X); ++i )

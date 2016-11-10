@@ -747,6 +747,15 @@ contains
 
 
 
+  !> restriction
+  !! \note - für allgemeine di, dj, dk geeignet!
+  !!       - überlappende Schicht in Blöcken wird (der Einfachheit halber) ebenfalls ausgetauscht, ist 
+  !!         aber im Prinzip redundant (genauer: phiC(S1R:N1R,S2R:N2R,S3R:N3R) = ...).
+  !!       - Motivation für diese kurze Routine ist die Möglichkeit, auch Varianten wie Full-Weighting 
+  !!         etc. ggf. einzubauen, ansonsten könnte sie auch eingespaart werden.                       
+  !!       - Die Block-überlappenden Stirnflächen werden ebenfalls mitverarbeitet, aber eigentlich     
+  !!         nicht gebraucht (erleichtert die Programmierung), so dass eine Initialisierung notwendig  
+  !!         ist. Dies wiederum bedingt die INTENT(inout)-Deklaration.                                 
   subroutine MG_restrictFW( &
       dimens,               &
       Nf,                   &
@@ -792,18 +801,8 @@ contains
     integer(c_int)                ::  k, kk
 
 
-    !----------------------------------------------------------------------------------------------------------!
-    ! Anmerkungen: - für allgemeine di, dj, dk geeignet!                                                       !
-    !              - überlappende Schicht in Blöcken wird (der Einfachheit halber) ebenfalls ausgetauscht, ist !
-    !                aber im Prinzip redundant (genauer: phiC(S1R:N1R,S2R:N2R,S3R:N3R) = ...).               !
-    !              - Motivation für diese kurze Routine ist die Möglichkeit, auch Varianten wie Full-Weighting !
-    !                etc. ggf. einzubauen, ansonsten könnte sie auch eingespaart werden.                       !
-    !              - Die Block-überlappenden Stirnflächen werden ebenfalls mitverarbeitet, aber eigentlich     !
-    !                nicht gebraucht (erleichtert die Programmierung), so dass eine Initialisierung notwendig  !
-    !                ist. Dies wiederum bedingt die INTENT(inout)-Deklaration.                                 !
-    !----------------------------------------------------------------------------------------------------------!
 
-    if (dimens == 3) then
+    if( dimens == 3 ) then
       do kk = 1, iimax(3)
         k = dd(3)*(kk-1)+1
         do jj = 1, iimax(2) 
@@ -858,26 +857,15 @@ contains
         do ii = 1, iimax(1)
           i = dd(1)*(ii-1)+1
           phic(ii,jj,kk) =    &
-            !&              1*1*phif(i-1,j-1,k) +  &
-          !&              2*1*phif(i  ,j-1,k) +  &
-          !&              1*1*phif(i+1,j-1,k) +  &
-          !!
-          !&              1*2*phif(i-1,j  ,k) +  &
-          !&              2*2*phif(i  ,j  ,k) +  &
-          !&              1*2*phif(i+1,j  ,k) +  &
-          !!
-          !&              cR1(-1,ii)*cR2( 0,jj)*phif(i-1,j+1,k) +  &
-          !&              cR1( 0,ii)*cR2( 0,jj)*phif(i  ,j+1,k) +  &
-          !&              cR1(+1,ii)*cR2( 0,jj)*phif(i+1,j+1,k)
-          &              cR1(-1,ii)*cR2(-1,jj)*phif(i-1,j-1,k) +  &
+            &              cR1(-1,ii)*cR2(-1,jj)*phif(i-1,j-1,k) +  &
             &              cR1( 0,ii)*cR2(-1,jj)*phif(i  ,j-1,k) +  &
             &              cR1(+1,ii)*cR2(-1,jj)*phif(i+1,j-1,k) +  &
             !
-          &              cR1(-1,ii)*cR2( 0,jj)*phif(i-1,j  ,k) +  &
+          &                cR1(-1,ii)*cR2( 0,jj)*phif(i-1,j  ,k) +  &
             &              cR1( 0,ii)*cR2( 0,jj)*phif(i  ,j  ,k) +  &
             &              cR1(+1,ii)*cR2( 0,jj)*phif(i+1,j  ,k) +  &
             !
-          &              cR1(-1,ii)*cR2(+1,jj)*phif(i-1,j+1,k) +  &
+          &                cR1(-1,ii)*cR2(+1,jj)*phif(i-1,j+1,k) +  &
             &              cR1( 0,ii)*cR2(+1,jj)*phif(i  ,j+1,k) +  &
             &              cR1(+1,ii)*cR2(+1,jj)*phif(i+1,j+1,k)
         end do
@@ -978,13 +966,13 @@ contains
     !!write(*,*) dd
 
 
-    !===========================================================================================================
+    !===========================================================================================
     if( 1==dir ) then
 
       if( 2==dimens ) then
 
         kk = SSc(3)
-        k = SSc(3)
+        k  = SSc(3)
         do jj = SSc(2), iimax(2)
           j = dd(2)*(jj-1)+1
           do ii = SSc(1), iimax(1)
@@ -996,10 +984,10 @@ contains
                 & cRV(1,ii)*cR2(-1,jj)*phif(i  ,j-1,k-1)  +  &
                 & cRV(2,ii)*cR2(-1,jj)*phif(i+1,j-1,k-1)  +  &
                 !                                             
-              & cRV(1,ii)*cR2( 0,jj)*phif(i  ,j  ,k-1)  +  &
+              &   cRV(1,ii)*cR2( 0,jj)*phif(i  ,j  ,k-1)  +  &
                 & cRV(2,ii)*cR2( 0,jj)*phif(i+1,j  ,k-1)  +  &
                 !                                             
-              & cRV(1,ii)*cR2(+1,jj)*phif(i  ,j+1,k-1)  +  &
+              &   cRV(1,ii)*cR2(+1,jj)*phif(i  ,j+1,k-1)  +  &
                 & cRV(2,ii)*cR2(+1,jj)*phif(i+1,j+1,k-1)
             end if
           end do
@@ -1020,11 +1008,11 @@ contains
                   &  cR2(  0, jj)*cR3(-1,kk)*phif(i,j  ,k-1) + &
                   &  cR2( +1, jj)*cR3(-1,kk)*phif(i,j+1,k-1) + &
                   !                                    
-                &  cR2( -1, jj)*cR3( 0,kk)*phif(i,j-1,k  ) + &
+                &    cR2( -1, jj)*cR3( 0,kk)*phif(i,j-1,k  ) + &
                   &  cR2(  0, jj)*cR3( 0,kk)*phif(i,j  ,k  ) + &
                   &  cR2( +1, jj)*cR3( 0,kk)*phif(i,j+1,k  ) + &
                   !                                    
-                &  cR2( -1, jj)*cR3(+1,kk)*phif(i,j-1,k+1) + &
+                &    cR2( -1, jj)*cR3(+1,kk)*phif(i,j-1,k+1) + &
                   &  cR2(  0, jj)*cR3(+1,kk)*phif(i,j  ,k+1) + &
                   &  cR2( +1, jj)*cR3(+1,kk)*phif(i,j+1,k+1)    
               else
@@ -1033,28 +1021,28 @@ contains
                   & cRV(1,ii)*cR2(-1,jj)*cR3(-1,kk)*phif(i  ,j-1,k-1) + &
                   & cRV(2,ii)*cR2(-1,jj)*cR3(-1,kk)*phif(i+1,j-1,k-1) + &
                   !
-                & cRV(1,ii)*cR2( 0,jj)*cR3(-1,kk)*phif(i  ,j  ,k-1) + &
+                &   cRV(1,ii)*cR2( 0,jj)*cR3(-1,kk)*phif(i  ,j  ,k-1) + &
                   & cRV(2,ii)*cR2( 0,jj)*cR3(-1,kk)*phif(i+1,j  ,k-1) + &
                   !
-                & cRV(1,ii)*cR2(+1,jj)*cR3(-1,kk)*phif(i  ,j+1,k-1) + &
+                &   cRV(1,ii)*cR2(+1,jj)*cR3(-1,kk)*phif(i  ,j+1,k-1) + &
                   & cRV(2,ii)*cR2(+1,jj)*cR3(-1,kk)*phif(i+1,j+1,k-1) + &
                   !
-                & cRV(1,ii)*cR2(-1,jj)*cR3( 0,kk)*phif(i  ,j-1,k  ) + &
+                &   cRV(1,ii)*cR2(-1,jj)*cR3( 0,kk)*phif(i  ,j-1,k  ) + &
                   & cRV(2,ii)*cR2(-1,jj)*cR3( 0,kk)*phif(i+1,j-1,k  ) + &
                   !
-                & cRV(1,ii)*cR2( 0,jj)*cR3( 0,kk)*phif(i  ,j  ,k  ) + &
+                &   cRV(1,ii)*cR2( 0,jj)*cR3( 0,kk)*phif(i  ,j  ,k  ) + &
                   & cRV(2,ii)*cR2( 0,jj)*cR3( 0,kk)*phif(i+1,j  ,k  ) + &
                   !
-                & cRV(1,ii)*cR2(+1,jj)*cR3( 0,kk)*phif(i  ,j+1,k  ) + &
+                &   cRV(1,ii)*cR2(+1,jj)*cR3( 0,kk)*phif(i  ,j+1,k  ) + &
                   & cRV(2,ii)*cR2(+1,jj)*cR3( 0,kk)*phif(i+1,j+1,k  ) + &
                   !
-                & cRV(1,ii)*cR2(-1,jj)*cR3(+1,kk)*phif(i  ,j-1,k+1) + &
+                &   cRV(1,ii)*cR2(-1,jj)*cR3(+1,kk)*phif(i  ,j-1,k+1) + &
                   & cRV(2,ii)*cR2(-1,jj)*cR3(+1,kk)*phif(i+1,j-1,k+1) + &
                   !
-                & cRV(1,ii)*cR2( 0,jj)*cR3(+1,kk)*phif(i  ,j  ,k+1) + &
+                &   cRV(1,ii)*cR2( 0,jj)*cR3(+1,kk)*phif(i  ,j  ,k+1) + &
                   & cRV(2,ii)*cR2( 0,jj)*cR3(+1,kk)*phif(i+1,j  ,k+1) + &
                   !
-                & cRV(1,ii)*cR2(+1,jj)*cR3(+1,kk)*phif(i  ,j+1,k+1) + &
+                &   cRV(1,ii)*cR2(+1,jj)*cR3(+1,kk)*phif(i  ,j+1,k+1) + &
                   & cRV(2,ii)*cR2(+1,jj)*cR3(+1,kk)*phif(i+1,j+1,k+1)    
               end if
             end do
@@ -1064,13 +1052,13 @@ contains
       end if
 
     end if
-    !===========================================================================================================
+    !===========================================================================================
     if( 2==dir ) then
 
       if( 2==dimens ) then
 
         kk = SSc(3)
-        k = SSc(3)
+        k  = SSc(3)
         do jj = SSc(2), iimax(2)
           j = dd(2)*(jj-1)+1
           do ii = SSc(1), iimax(1)
@@ -1098,11 +1086,11 @@ contains
                   &  cR1(  0, ii)*cR3(-1,kk)*phif(i  ,j,k-1) + &
                   &  cR1( +1, ii)*cR3(-1,kk)*phif(i+1,j,k-1) + &
                   !
-                &  cR1( -1, ii)*cR3( 0,kk)*phif(i-1,j,k  ) + &
+                &    cR1( -1, ii)*cR3( 0,kk)*phif(i-1,j,k  ) + &
                   &  cR1(  0, ii)*cR3( 0,kk)*phif(i  ,j,k  ) + &
                   &  cR1( +1, ii)*cR3( 0,kk)*phif(i+1,j,k  ) + &
                   !
-                &  cR1( -1, ii)*cR3(+1,kk)*phif(i-1,j,k+1) + &
+                &    cR1( -1, ii)*cR3(+1,kk)*phif(i-1,j,k+1) + &
                   &  cR1(  0, ii)*cR3(+1,kk)*phif(i  ,j,k+1) + &
                   &  cR1( +1, ii)*cR3(+1,kk)*phif(i+1,j,k+1)    
               else
@@ -1112,23 +1100,23 @@ contains
                   & cR1( 0,ii)*cRV(1,jj)*cR3(-1,kk)*phif(i  ,j  ,k-1) + &
                   & cR1(+1,ii)*cRV(1,jj)*cR3(-1,kk)*phif(i+1,j  ,k-1) + &
                   !
-                & cR1(-1,ii)*cRV(2,jj)*cR3(-1,kk)*phif(i-1,j+1,k-1) + &
+                &   cR1(-1,ii)*cRV(2,jj)*cR3(-1,kk)*phif(i-1,j+1,k-1) + &
                   & cR1( 0,ii)*cRV(2,jj)*cR3(-1,kk)*phif(i  ,j+1,k-1) + &
                   & cR1(+1,ii)*cRV(2,jj)*cR3(-1,kk)*phif(i+1,j+1,k-1) + &
                   !
-                & cR1(-1,ii)*cRV(1,jj)*cR3( 0,kk)*phif(i-1,j  ,k  ) + &
+                &   cR1(-1,ii)*cRV(1,jj)*cR3( 0,kk)*phif(i-1,j  ,k  ) + &
                   & cR1( 0,ii)*cRV(1,jj)*cR3( 0,kk)*phif(i  ,j  ,k  ) + &
                   & cR1(+1,ii)*cRV(1,jj)*cR3( 0,kk)*phif(i+1,j  ,k  ) + &
                   !
-                & cR1(-1,ii)*cRV(2,jj)*cR3( 0,kk)*phif(i-1,j+1,k  ) + &
+                &   cR1(-1,ii)*cRV(2,jj)*cR3( 0,kk)*phif(i-1,j+1,k  ) + &
                   & cR1( 0,ii)*cRV(2,jj)*cR3( 0,kk)*phif(i  ,j+1,k  ) + &
                   & cR1(+1,ii)*cRV(2,jj)*cR3( 0,kk)*phif(i+1,j+1,k  ) + &
                   !
-                & cR1(-1,ii)*cRV(1,jj)*cR3(+1,kk)*phif(i-1,j  ,k+1) + &
+                &   cR1(-1,ii)*cRV(1,jj)*cR3(+1,kk)*phif(i-1,j  ,k+1) + &
                   & cR1( 0,ii)*cRV(1,jj)*cR3(+1,kk)*phif(i  ,j  ,k+1) + &
                   & cR1(+1,ii)*cRV(1,jj)*cR3(+1,kk)*phif(i+1,j  ,k+1) + &
                   !
-                & cR1(-1,ii)*cRV(2,jj)*cR3(+1,kk)*phif(i-1,j+1,k+1) + &
+                &   cR1(-1,ii)*cRV(2,jj)*cR3(+1,kk)*phif(i-1,j+1,k+1) + &
                   & cR1( 0,ii)*cRV(2,jj)*cR3(+1,kk)*phif(i  ,j+1,k+1) + &
                   & cR1(+1,ii)*cRV(2,jj)*cR3(+1,kk)*phif(i+1,j+1,k+1)    
               end if
@@ -1139,7 +1127,7 @@ contains
       end if
 
     end if
-    !===========================================================================================================
+    !===========================================================================================
     if( 3==dimens .and. dir==3 ) then
 
       do kk = SSc(3), iimax(3)
@@ -1154,11 +1142,11 @@ contains
                 & cR1( 0,ii)*cR2(-1,jj)*phif(i  ,j-1,k) + &
                 & cR1(+1,ii)*cR2(-1,jj)*phif(i+1,j-1,k) + &
                 !
-              & cR1(-1,ii)*cR2( 0,jj)*phif(i-1,j  ,k) + &
+              &   cR1(-1,ii)*cR2( 0,jj)*phif(i-1,j  ,k) + &
                 & cR1( 0,ii)*cR2( 0,jj)*phif(i  ,j  ,k) + &
                 & cR1(+1,ii)*cR2( 0,jj)*phif(i+1,j  ,k) + &
                 !
-              & cR1(-1,ii)*cR2(+1,jj)*phif(i-1,j+1,k) + &
+              &   cR1(-1,ii)*cR2(+1,jj)*phif(i-1,j+1,k) + &
                 & cR1( 0,ii)*cR2(+1,jj)*phif(i  ,j+1,k) + &
                 & cR1(+1,ii)*cR2(+1,jj)*phif(i+1,j+1,k)
             else
@@ -1167,23 +1155,23 @@ contains
                 & cR1( 0,ii)*cR2(-1,jj)*cRV(1,kk)*phif(i  ,j-1,k  ) + &
                 & cR1(+1,ii)*cR2(-1,jj)*cRV(1,kk)*phif(i+1,j-1,k  ) + &
                 !
-              & cR1(-1,ii)*cR2(-1,jj)*cRV(2,kk)*phif(i-1,j-1,k+1) + &
+              &   cR1(-1,ii)*cR2(-1,jj)*cRV(2,kk)*phif(i-1,j-1,k+1) + &
                 & cR1( 0,ii)*cR2(-1,jj)*cRV(2,kk)*phif(i  ,j-1,k+1) + &
                 & cR1(+1,ii)*cR2(-1,jj)*cRV(2,kk)*phif(i+1,j-1,k+1) + &
                 !
-              & cR1(-1,ii)*cR2( 0,jj)*cRV(1,kk)*phif(i-1,j  ,k  ) + &
+              &   cR1(-1,ii)*cR2( 0,jj)*cRV(1,kk)*phif(i-1,j  ,k  ) + &
                 & cR1( 0,ii)*cR2( 0,jj)*cRV(1,kk)*phif(i  ,j  ,k  ) + &
                 & cR1(+1,ii)*cR2( 0,jj)*cRV(1,kk)*phif(i+1,j  ,k  ) + &
                 !
-              & cR1(-1,ii)*cR2( 0,jj)*cRV(2,kk)*phif(i-1,j  ,k+1) + &
+              &   cR1(-1,ii)*cR2( 0,jj)*cRV(2,kk)*phif(i-1,j  ,k+1) + &
                 & cR1( 0,ii)*cR2( 0,jj)*cRV(2,kk)*phif(i  ,j  ,k+1) + &
                 & cR1(+1,ii)*cR2( 0,jj)*cRV(2,kk)*phif(i+1,j  ,k+1) + &
                 !
-              & cR1(-1,ii)*cR2(+1,jj)*cRV(1,kk)*phif(i-1,j+1,k  ) + &
+              &   cR1(-1,ii)*cR2(+1,jj)*cRV(1,kk)*phif(i-1,j+1,k  ) + &
                 & cR1( 0,ii)*cR2(+1,jj)*cRV(1,kk)*phif(i  ,j+1,k  ) + &
                 & cR1(+1,ii)*cR2(+1,jj)*cRV(1,kk)*phif(i+1,j+1,k  ) + &
                 !
-              & cR1(-1,ii)*cR2(+1,jj)*cRV(2,kk)*phif(i-1,j+1,k+1) + &
+              &   cR1(-1,ii)*cR2(+1,jj)*cRV(2,kk)*phif(i-1,j+1,k+1) + &
                 & cR1( 0,ii)*cR2(+1,jj)*cRV(2,kk)*phif(i  ,j+1,k+1) + &
                 & cR1(+1,ii)*cR2(+1,jj)*cRV(2,kk)*phif(i+1,j+1,k+1)    
             end if
@@ -1192,7 +1180,7 @@ contains
       end do
 
     end if
-    !===========================================================================================================
+    !===========================================================================================
 
 
   end subroutine MG_restrictFWV

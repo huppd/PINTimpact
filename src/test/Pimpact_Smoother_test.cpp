@@ -44,7 +44,6 @@ bool testMpi = true;
 bool output = false;
 double eps = 3e-1;
 int domain = 0;
-int dim = 3;
 
 int npx = 1;
 int npy = 1;
@@ -80,7 +79,6 @@ TEUCHOS_STATIC_SETUP() {
 			"error-tol-slack", &eps,
 			"Slack off of machine epsilon used to check test results" );
 	clp.setOption( "domain", &domain, "domain" );
-	clp.setOption( "dim", &dim, "dim" );
 	clp.setOption( "npx", &npx, "" );
 	clp.setOption( "npy", &npy, "" );
 	clp.setOption( "npz", &npz, "" );
@@ -94,7 +92,6 @@ TEUCHOS_STATIC_SETUP() {
 	pl->set( "ly", 2. );
 	pl->set( "lz", 2. );
 
-	pl->set( "dim", dim );
 
 	pl->set("nx", 17) ;
 	pl->set("ny", 17) ;

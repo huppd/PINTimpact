@@ -99,9 +99,9 @@ public:
 
 		Teuchos::RCP< ScalarField<SpaceT> > temp = Teuchos::rcp( new ScalarField<SpaceT>( mv.space() ) );
 
-    for( int i=0; i<mv.space()->dim(); ++i ) {
+    for( int i=0; i<SpaceT::sdim; ++i ) {
       interpolateV2S_->apply( mv.getConstField(i), *temp );
-      for( int j=0; j<mv.space()->dim(); ++j ) {
+      for( int j=0; j<SpaceT::sdim; ++j ) {
         interpolateS2V_->apply( *temp, *u_[j][i] );
       }
     }

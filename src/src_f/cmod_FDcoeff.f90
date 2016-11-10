@@ -38,7 +38,7 @@ contains
   !! \param[in] xE coordinate out of equations
   !! \param[out] cc coefficients
   !!
-  !! todo move error handling else where
+  !! \todo move error handling else where
   !!
   !! \note: - Upwinding wird auf dem Rand unterdrücken, da Differenzenstencils dort ohnehin schief sind.
   !!        - Generell koennte/sollte die Initialisierung der Index-Grenzen auch schon vor dieser       

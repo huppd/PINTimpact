@@ -54,7 +54,7 @@ public:
 				Ordinal nTemp = ( space_->nLoc(dir) + 1 )*( space_->du(dir) - space_->dl(dir) + 1);
 
 				c_[dir] = new Scalar[ nTemp ];
-				if( dir<space_->dim() )
+				if( dir<SpaceT::sdim )
 					FD_getDiffCoeff(
 							space_->nLoc(dir),
 							space_->bl(dir),
@@ -154,10 +154,10 @@ public:
 
 	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
-		for( int dir=0; dir<space_->dim(); ++dir )
+		for( int dir=0; dir<SpaceT::sdim; ++dir )
 			x.exchange( dir, dir );
 
-		if( 3==space_->dim() ) {
+		if( 3==SpaceT::sdim ) {
 
 			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
 				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
@@ -190,7 +190,7 @@ public:
 				for( Ordinal i=space()->begin(V,X,With::B); i<=space()->end(V,X,With::B); ++i )
 					y.getField(V).at(i,j,k) = innerStencV( x, i, j, k );
 
-		if( 3==space_->dim() )  {
+		if( 3==SpaceT::sdim )  {
 
 			x.exchange(Z);
 			for( Ordinal k=space()->begin(W,Z,With::B); k<=space()->end(W,Z,With::B); ++k )
@@ -203,7 +203,7 @@ public:
 
 		// BC scaling 
 		const Scalar& eps = 1.e-1;
-		for( int dir=0; dir<3; ++dir ) {
+		for( int dir=0; dir<SpaceT::sdim; ++dir ) {
 			With bc2 = With::B;
 			if( 0!=dir ) {
 				if( space()->getBCLocal()->getBCL(X) > 0 ) {
@@ -284,31 +284,44 @@ public:
 		out << "\n--- " << getLabel() << " ---\n";
 		//out << " --- stencil: ---";
 		for( int dir=0; dir<3; ++dir ) {
-			out << "\ndir: " << toString(static_cast<ECoord>(dir)) << "\n";
+			out << "\ndir: " << toString( static_cast<ECoord>(dir) ) << "\n";
+
+			out << std::setw(8) << "dl: ";
+			for( int k=space_->dl(dir); k<=space_->du(dir); ++k ) 
+				out << std::setw(9) << k ;
+			out << " :du\n";
+
+			for( int bla=0; bla<9*(space_->du(dir)-space_->dl(dir)+1)+5; bla++ )
+				out << "-";
+			out << "\n";
 
 			for( int i=0; i<=space_->nLoc(dir); ++i ) {
-        out << "\ni: " << i << "\t(";
-				for( int k=space_->dl(dir); k<=space_->du(dir); ++k ) {
-					out << getC(static_cast<ECoord>(dir),i,k ) << ", ";
-				}
+        out << "i: " << std::setw(3) << i << " (";
+				for( int k=space_->dl(dir); k<=space_->du(dir); ++k ) 
+					out << std::setw(9) << getC(static_cast<ECoord>(dir),i,k ) ;
         out << ")\n";
 			}
-			out << "\n";
 		}
 
 		out << "--- " << getLabel() << "^T ---\n";
 		out << " --- stencil: ---";
 		for( int dir=0; dir<3; ++dir ) {
-			out << "\ndir: " << toString(static_cast<ECoord>(dir)) << "\n";
+			out << "\ndir: " << toString(static_cast<ECoord>(dir)) << "\n\n";
+
+			out << std::setw(8) << "gl: ";
+			for( int k=space_->gl(dir); k<=space_->gu(dir); ++k ) 
+				out << std::setw(9) << k ;
+			out << " :gu\n";
+			for( int bla=0; bla<9*(space_->gu(dir)-space_->gl(dir)+1)+5; bla++ )
+				out << "-";
+			out << "\n";
 
 			for( int i=0; i<=space_->nLoc(dir); ++i ) {
-        out << "\ni: " << i << "\t(";
-				for( int k=space_->gl(dir); k<=space_->gu(dir); ++k ) {
-					out << getCTrans(static_cast<ECoord>(dir),i,k ) << ", ";
-				}
-        out << ")\n";
+        out  << "i: "<< std::setw(3) << i  << " (";
+				for( int k=space_->gl(dir); k<=space_->gu(dir); ++k )
+					out << std::setw(9) << getCTrans(static_cast<ECoord>(dir),i,k );
+        out << " )\n";
 			}
-			out << "\n";
 		}
 	}
 

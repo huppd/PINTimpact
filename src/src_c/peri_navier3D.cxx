@@ -189,8 +189,8 @@ int main( int argi, char** argv ) {
 		if( "none" != picardPrecString ) { 
 
 			// create Multi space
-			auto mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, pl->sublist("Multi Grid").get<int>("maxGrids") );
-			//auto mgSpaces = Pimpact::createMGSpaces<FSpaceT,FSpaceT,CS>( space, pl->sublist("Multi Grid").get<int>("maxGrids") );
+			auto mgSpaces = Pimpact::createMGSpaces<CS>( space, pl->sublist("Multi Grid").get<int>("maxGrids") );
+			//auto mgSpaces = Pimpact::createMGSpaces<CS>( space, pl->sublist("Multi Grid").get<int>("maxGrids") );
 
 			// creat H0-inv prec
 			auto zeroOp = Pimpact::create<ConvDiffOpT>( space );

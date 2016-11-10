@@ -63,7 +63,7 @@ public:
 					stencilWidths );
 
     auto indexSpace =
-			Pimpact::createIndexSpace<Ordinal,dimension>(
+			Pimpact::createIndexSpace<Ordinal,sdim,dimension>(
 					stencilWidths,
 					gridSizeLocal,
 					boundaryConditionsLocal,

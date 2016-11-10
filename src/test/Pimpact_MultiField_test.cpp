@@ -34,7 +34,6 @@ using MVF = typename Pimpact::ModeField<VF>;
 bool testMpi = true;
 double eps = 1e-6;
 int domain = 0;
-int dim = 3;
 
 auto pl = Teuchos::parameterList();
 
@@ -42,24 +41,16 @@ auto pl = Teuchos::parameterList();
 TEUCHOS_STATIC_SETUP() {
   Teuchos::CommandLineProcessor &clp = Teuchos::UnitTestRepository::getCLP();
   clp.addOutputSetupOptions(true);
-  clp.setOption(
-      "test-mpi", "test-serial", &testMpi,
+	clp.setOption( "test-mpi", "test-serial", &testMpi,
       "Test MPI (if available) or force test of serial.  In a serial build,"
       " this option is ignored and a serial comm is always used." );
-  clp.setOption(
-      "error-tol-slack", &eps,
+	clp.setOption( "error-tol-slack", &eps,
       "Slack off of machine epsilon used to check test results" );
-  clp.setOption(
-      "domain", &domain,
-      "domain" );
-  clp.setOption(
-      "dim", &dim,
-      "dim" );
+	clp.setOption( "domain", &domain, "domain" );
 
   pl->set("nx", 33 );
   pl->set("ny", 17 );
   pl->set("nz", 9 );
-
 }
 
 
@@ -68,12 +59,11 @@ TEUCHOS_STATIC_SETUP() {
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, constructor, FType ) {
 
   Pimpact::setBoundaryConditions( pl, domain );
-  pl->set( "dim", dim );
 
   // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npx", (2==FType::SpaceT::sdim)?4:2 );
   pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
+  pl->set("npz", (2==FType::SpaceT::sdim)?1:2 );
 
   auto space = Pimpact::create<SpaceT>( pl );
 
@@ -97,12 +87,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, constructor, MVF )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, TwoNorm, FType ) {
 
   Pimpact::setBoundaryConditions( pl, domain );
-  pl->set( "dim", dim );
 
   // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npx", (2==FType::SpaceT::sdim)?4:2 );
   pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
+  pl->set("npz", (2==FType::SpaceT::sdim)?1:2 );
 
   auto space = Pimpact::create<SpaceT>( pl );
 
@@ -134,12 +123,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, TwoNorm, MVF )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, clone, FType ) {
 
   Pimpact::setBoundaryConditions( pl, domain );
-  pl->set( "dim", dim );
 
   // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npx", (2==FType::SpaceT::sdim)?4:2 );
   pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
+  pl->set("npz", (2==FType::SpaceT::sdim)?1:2 );
 
   auto space = Pimpact::create<SpaceT>( pl );
 
@@ -167,12 +155,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, clone, MVF )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneCopy, FType ) {
 
   Pimpact::setBoundaryConditions( pl, domain );
-  pl->set( "dim", dim );
 
   // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npx", (2==FType::SpaceT::sdim)?4:2 );
   pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
+  pl->set("npz", (2==FType::SpaceT::sdim)?1:2 );
 
   auto space = Pimpact::create<SpaceT>( pl );
 
@@ -208,12 +195,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, CloneCopy, MVF )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneCopy2, FType ) {
 
   Pimpact::setBoundaryConditions( pl, domain );
-  pl->set( "dim", dim );
 
   // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npx", (2==FType::SpaceT::sdim)?4:2 );
   pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
+  pl->set("npz", (2==FType::SpaceT::sdim)?1:2 );
 
   auto space = Pimpact::create<SpaceT>( pl );
 
@@ -257,12 +243,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, CloneCopy2, MVF )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneCopy3, FType ) {
 
   Pimpact::setBoundaryConditions( pl, domain );
-  pl->set( "dim", dim );
 
   // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npx", (2==FType::SpaceT::sdim)?4:2 );
   pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
+  pl->set("npz", (2==FType::SpaceT::sdim)?1:2 );
 
   auto space = Pimpact::create<SpaceT>( pl );
 
@@ -302,12 +287,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, CloneCopy3, MVF )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneViewNonConst1, FType ) {
 
   Pimpact::setBoundaryConditions( pl, domain );
-  pl->set( "dim", dim );
 
   // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npx", (2==FType::SpaceT::sdim)?4:2 );
   pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
+  pl->set("npz", (2==FType::SpaceT::sdim)?1:2 );
 
   auto space = Pimpact::create<SpaceT>( pl );
 
@@ -353,12 +337,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, CloneViewNonConst1, MVF )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneViewNonConst2, FType ) {
 
   Pimpact::setBoundaryConditions( pl, domain );
-  pl->set( "dim", dim );
 
   // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npx", (2==FType::SpaceT::sdim)?4:2 );
   pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
+  pl->set("npz", (2==FType::SpaceT::sdim)?1:2 );
 
   auto space = Pimpact::create<SpaceT>( pl );
 
@@ -401,12 +384,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, CloneViewNonConst2, MVF )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneView1, FType ) {
 
   Pimpact::setBoundaryConditions( pl, domain );
-  pl->set( "dim", dim );
 
   // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npx", (2==FType::SpaceT::sdim)?4:2 );
   pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
+  pl->set("npz", (2==FType::SpaceT::sdim)?1:2 );
 
   auto space = Pimpact::create<SpaceT>( pl );
 
@@ -453,12 +435,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, CloneView1, MVF )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneView2, FType ) {
 
   Pimpact::setBoundaryConditions( pl, domain );
-  pl->set( "dim", dim );
 
   // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npx", (2==FType::SpaceT::sdim)?4:2 );
   pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
+  pl->set("npz", (2==FType::SpaceT::sdim)?1:2 );
 
   auto space = Pimpact::create<SpaceT>( pl );
 
@@ -502,12 +483,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, CloneView2, MVF )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, TimesMatAdd, FType ) {
 
   Pimpact::setBoundaryConditions( pl, domain );
-  pl->set( "dim", dim );
 
   // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npx", (2==FType::SpaceT::sdim)?4:2 );
   pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
+  pl->set("npz", (2==FType::SpaceT::sdim)?1:2 );
 
   auto space = Pimpact::create<SpaceT>( pl );
 
@@ -588,12 +568,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, TimesMatAdd, MVF )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, add, FType ) {
 
   Pimpact::setBoundaryConditions( pl, domain );
-  pl->set( "dim", dim );
 
   // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npx", (2==FType::SpaceT::sdim)?4:2 );
   pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
+  pl->set("npz", (2==FType::SpaceT::sdim)?1:2 );
 
   auto space = Pimpact::create<SpaceT>( pl );
 
@@ -661,12 +640,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, add, MVF )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, dot, FType ) {
 
   Pimpact::setBoundaryConditions( pl, domain );
-  pl->set( "dim", dim );
 
   // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npx", (2==FType::SpaceT::sdim)?4:2 );
   pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
+  pl->set("npz", (2==FType::SpaceT::sdim)?1:2 );
 
   auto space = Pimpact::create<SpaceT>( pl );
 
@@ -724,12 +702,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiField, dot, MVF )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, Trans, FType ) {
 
   Pimpact::setBoundaryConditions( pl, domain );
-  pl->set( "dim", dim );
 
   // processor grid size
-  pl->set("npx", (2==dim)?4:2 );
+  pl->set("npx", (2==FType::SpaceT::sdim)?4:2 );
   pl->set("npy",            2 );
-  pl->set("npz", (2==dim)?1:2 );
+  pl->set("npz", (2==FType::SpaceT::sdim)?1:2 );
 
   auto space = Pimpact::create<SpaceT>( pl );
 

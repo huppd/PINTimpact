@@ -19,7 +19,7 @@ namespace Pimpact {
 extern "C" {
 
 void OP_TimeNS( 
-		const int& dimens,
+		const int dimens,
 		const int* const N,
 		const int* const bl, const int* const bu,
 		const int* const cL, const int* const cU,
@@ -120,7 +120,7 @@ public:
 		}
 
 		OP_TimeNS( 
-				space()->dim(),
+				SpaceT::sdim,
 				space()->nLoc(),
 				space()->bl(),
 				space()->bu(),
@@ -201,23 +201,23 @@ public:
 		for( Ordinal it=0; it<nt; ++it ) {
 
 			interpolateV2S_->apply( mv->getConstField(it).getConstField(U), *temp );
-			for( int j=0; j<space()->dim(); ++j ) {
+			for( int j=0; j<SpaceT::sdim; ++j ) {
 				interpolateS2V_->apply( *temp, windU_->getFieldPtr(it)->getField(j) );
 			}
 			interpolateV2S_->apply( mv->getConstField(it).getConstField(V), *temp );
-			for( int j=0; j<space()->dim(); ++j ) {
+			for( int j=0; j<SpaceT::sdim; ++j ) {
 				interpolateS2V_->apply( *temp, windV_->getFieldPtr(it)->getField(j) );
 			}
-			if( 3==space()->dim() ) {
+			if( 3==SpaceT::sdim ) {
 				interpolateV2S_->apply( mv->getConstField(it).getConstField(W), *temp );
-				for( int j=0; j<space()->dim(); ++j ) {
+				for( int j=0; j<SpaceT::sdim; ++j ) {
 					interpolateS2V_->apply( *temp, windW_->getFieldPtr(it)->getField(j) );
 				}
 			}
 		}
 		windU_->changed();
 		windV_->changed();
-		if( 3==space()->dim() )
+		if( 3==SpaceT::sdim )
 			windW_->changed();
 
 	};

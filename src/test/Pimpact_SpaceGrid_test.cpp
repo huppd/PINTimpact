@@ -20,13 +20,13 @@ const int sd = 3;
 const int d = 3;
 const int dNC = 4;
 
-using SpaceT = Pimpact::Space<ST,OT,sd,d,dNC>;
+using Space2DT = Pimpact::Space<ST,OT,2,d,dNC>;
+using Space3DT = Pimpact::Space<ST,OT,3,d,dNC>;
 
 bool testMpi = true;
 double eps = 1e+1;
 int rank = 0;
 
-int dim = 3;
 int domain = 0;
 
 ST lx = 1.;
@@ -60,7 +60,6 @@ TEUCHOS_STATIC_SETUP() {
       " this option is ignored and a serial comm is always used." );
 	clp.setOption( "error-tol-slack", &eps,
       "Slack off of machine epsilon used to check test results" );
-	clp.setOption( "dim", &dim, "dim" );
 	clp.setOption( "domain", &domain, "domain" );
 	clp.setOption( "rank", &rank, "" );
 
@@ -103,7 +102,6 @@ TEUCHOS_UNIT_TEST( StencilWidths, print ) {
 TEUCHOS_UNIT_TEST( IndexSpace, localConsistency ) {
 
 	Pimpact::setBoundaryConditions( pl, domain );
-  pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
 	pl->set( "ly", ly );
@@ -140,8 +138,7 @@ TEUCHOS_UNIT_TEST( IndexSpace, localConsistency ) {
   pl->set( "npz", npz );
   pl->set( "npf", npf );
 
-	auto domainSize = Pimpact::createDomainSize<ST,sd>(
-      pl->get<ST>( "dim", dim ),
+	auto domainSize = Pimpact::createDomainSize<ST,3>(
       pl->get<ST>("Re",1.),
       pl->get<ST>("alpha2",1.),
       pl->get<ST>("lx",2.),
@@ -163,7 +160,7 @@ TEUCHOS_UNIT_TEST( IndexSpace, localConsistency ) {
 			 pl->get("npz",1) );
 
   auto gridSizeGlobal =
-		Pimpact::createGridSizeGlobal<OT,sd>(
+		Pimpact::createGridSizeGlobal<OT,3>(
 				pl->get("nx",33),
 				pl->get("ny",33),
 				pl->get("nz",33),
@@ -175,7 +172,7 @@ TEUCHOS_UNIT_TEST( IndexSpace, localConsistency ) {
 				boundaryConditionsGlobal );
 
   auto gridSizeLocal =
-		Pimpact::createGridSizeLocal<OT,d>(
+		Pimpact::createGridSizeLocal<OT,sd,d>(
 				gridSizeGlobal,
 				procGrid,
 				stencilWidths );
@@ -203,7 +200,6 @@ TEUCHOS_UNIT_TEST( ProcGrid, test ) {
 	const int d = 4;
 
 	Pimpact::setBoundaryConditions( pl, domain );
-  pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
 	pl->set( "ly", ly );
@@ -241,7 +237,6 @@ TEUCHOS_UNIT_TEST( ProcGrid, test ) {
   pl->set( "npf", npf );
 
 	auto domainSize = Pimpact::createDomainSize<ST,sd>(
-			pl->get( "dim", dim ),
 			pl->get("Re",1.),
 			pl->get("alpha2",1.),
 			pl->get("lx",2.),
@@ -296,7 +291,7 @@ TEUCHOS_UNIT_TEST( ProcGrid, test ) {
 				procGrid );
 
 
-	auto indexSpace = Pimpact::createIndexSpace<OT,d>(
+	auto indexSpace = Pimpact::createIndexSpace<OT,sd,d>(
 			stencilWidths,
 			gridSizeLocal,
 			boundaryConditionsLocal,
@@ -312,8 +307,6 @@ TEUCHOS_UNIT_TEST( ProcGrid, test ) {
 TEUCHOS_UNIT_TEST( Space, CoordinatesGlobal ) {
 
 	Pimpact::setBoundaryConditions( pl, domain );
-  //pl->set( "domain", domain );
-  pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
 	pl->set( "ly", ly );
@@ -380,11 +373,9 @@ TEUCHOS_UNIT_TEST( Space, CoordinatesGlobal ) {
 
 
 
-TEUCHOS_UNIT_TEST( Space, CoordinatesLocal ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Space, create, SpaceT ) {
 
 	Pimpact::setBoundaryConditions( pl, domain );
-  //pl->set( "domain", domain );
-  pl->set( "dim", dim );
 
 	pl->set( "lx", lx );
 	pl->set( "ly", ly );
@@ -415,28 +406,31 @@ TEUCHOS_UNIT_TEST( Space, CoordinatesLocal ) {
 		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
 	}
 
-  // processor grid size
-  pl->set( "npx", npx );
-  pl->set( "npy", npy );
-  pl->set( "npz", npz );
-  pl->set( "npf", npf );
+	// processor grid size
+	pl->set( "npx", npx );
+	pl->set( "npy", npy );
+	pl->set( "npz", npz );
+	pl->set( "npf", npf );
 
-	Teuchos::RCP<const Pimpact::Space<ST,OT,sd,d,dNC> > space =
-		Pimpact::create< Pimpact::Space<ST,OT,sd,d,dNC> >( pl );
+	Teuchos::RCP<const SpaceT > space =
+		Pimpact::create<SpaceT>( pl );
 
-  auto coord = Pimpact::createCoordinatesLocal(
-      space->getStencilWidths(),
-      space->getDomainSize(),
-      space->getGridSizeGlobal(),
-      space->getGridSizeLocal(),
-      space->getBCGlobal(),
-      space->getBCLocal(),
-      space->getProcGrid(),
-      space->getCoordinatesGlobal() );
+	auto coord = Pimpact::createCoordinatesLocal(
+			space->getStencilWidths(),
+			space->getDomainSize(),
+			space->getGridSizeGlobal(),
+			space->getGridSizeLocal(),
+			space->getBCGlobal(),
+			space->getBCLocal(),
+			space->getProcGrid(),
+			space->getCoordinatesGlobal() );
 
 
 	if( space->getProcGrid()->getRank()==rank )
 		coord->print();
 }
+
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( Space, create, Space2DT )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( Space, create, Space3DT )
 
 } // end of namespace

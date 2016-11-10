@@ -405,7 +405,6 @@ contains
   !!   Speicherzugriffszeit limitiert
   !! - Das wird z.B. deutlich bei Single- vs.  Dualcorebetrieb
   subroutine MG_interpolate(  &
-      dimens,                 &
       Nc,                     &
       bLc,                    &
       bUc,                    &
@@ -421,8 +420,6 @@ contains
       phif ) bind(c,name='MG_interpolate')
 
     implicit none
-
-    integer(c_int), intent(in)     :: dimens
 
     integer(c_int), intent(in)     :: Nc(3)
 
@@ -505,7 +502,6 @@ contains
 
   !> \brief interpolating velocities
   subroutine MG_interpolateV( &
-      dimens,                 &
       dir,                    &
       Nc,                     &
       bLc,bUc,                &
@@ -523,8 +519,6 @@ contains
       phif ) bind (c,name='MG_interpolateV')
 
     implicit none
-
-    integer(c_int), intent(in)     :: dimens
 
     integer(c_int), intent(in)     :: dir
 

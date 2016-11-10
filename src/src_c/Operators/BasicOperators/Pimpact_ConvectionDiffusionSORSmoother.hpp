@@ -110,11 +110,11 @@ public:
     // testing field consistency
     TEUCHOS_TEST_FOR_EXCEPT( z.getType() != y.getType() );
 
-    for( int i=0; i<space()->dim(); ++i )
+    for( int i=0; i<SpaceT::sdim; ++i )
       TEUCHOS_TEST_FOR_EXCEPT( x[i]->getType() != y.getType() );
 
     // exchange wind and "rhs"
-    for( int vel_dir=0; vel_dir<space()->dim(); ++vel_dir )
+    for( int vel_dir=0; vel_dir<SpaceT::sdim; ++vel_dir )
       x[vel_dir]->exchange();
 
     for( int i=0; i<nIter_; ++i ) {
@@ -148,7 +148,7 @@ protected:
 		}
 
 		dirs_[0] = -1;
-		if( 3==space()->dim() )
+		if( 3==SpaceT::sdim )
 			for( dirs_[2]=dirS[2]; std::abs(dirs_[2])<=1; dirs_[2]+=inc[2] )
 				for( dirs_[1]=dirS[1]; std::abs(dirs_[1])<=1; dirs_[1]+=inc[1] )
 //					for( dirs_[0]=dirS[0]; std::abs(dirs_[0])<=1; dirs_[0]+=inc[0] )
@@ -169,8 +169,9 @@ protected:
 
     z.exchange();
 
+		const int sdim = SpaceT::sdim;
     OP_convectionDiffusionSOR(
-        space()->dim(),
+        sdim,
         space()->nLoc(),
         space()->bl(),
         space()->bu(),

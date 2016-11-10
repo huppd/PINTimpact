@@ -69,7 +69,7 @@ public:
 			Ordinal nTemp = 3*( space_->nLoc(dir) - 1 + 1 );
 			c_[dir] = new Scalar[ nTemp ];
 
-			if( dir<space->dim() )
+			if( dir<SpaceT::sdim )
 				Op_getCDG_dir(
 						space_->nGlo( dir ),
 						space_->nLoc( dir ),
@@ -90,7 +90,7 @@ public:
 
 		x.exchange();
 
-		if( 3==space()->dim() ) {
+		if( 3==SpaceT::sdim ) {
 			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
 				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
 					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i )
@@ -110,7 +110,7 @@ public:
 
 		x.exchange();
 		// inner stencil
-		if( 3==space()->dim() ) {
+		if( 3==SpaceT::sdim ) {
 			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
 				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
 					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i )
@@ -132,7 +132,7 @@ public:
 
 		const Scalar& eps = 0.1;
 
-		if( 3==space()->dim() ) {
+		if( 3==SpaceT::sdim ) {
 			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
 				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
 					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
@@ -149,7 +149,7 @@ public:
 						const Scalar epsZ = ( (bcX||bcY)?eps:1. );
 
 						Scalar diag = std::abs( epsX*getC(X,i,0) + epsY*getC(Y,j,0) + epsZ*getC(Z,k,0) );
-						std::cout << i << "\t" << j << "\t" << k << "\t" << diag << "\n";
+						//std::cout << i << "\t" << j << "\t" << k << "\t" << diag << "\n";
 						y.at(i,j,k) = x.at(i,j,k)/diag;
 					}
 		}
@@ -246,7 +246,7 @@ protected:
 		const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->begin(S,Y) ) ||
 		           (space()->getBCLocal()->getBCU(Y) > 0 && j==space()->end(S,Y) ) ;
 
-		const Scalar& eps = 1.e-4;
+		const Scalar& eps = 1.e-1;
 
 		const Scalar epsX = (bcY)?eps:1.;
 		const Scalar epsY = (bcX)?eps:1.;

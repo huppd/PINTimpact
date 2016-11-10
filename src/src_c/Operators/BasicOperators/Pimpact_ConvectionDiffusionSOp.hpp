@@ -105,16 +105,17 @@ public:
 
 		TEUCHOS_TEST_FOR_EXCEPT( z.getType() != y.getType() );
 
-		for( int i =0; i<space()->dim(); ++i )
+		for( int i =0; i<SpaceT::sdim; ++i )
 			TEUCHOS_TEST_FOR_EXCEPT( x[i]->getType() != y.getType() );
 
-		for( int vel_dir=0; vel_dir<space()->dim(); ++vel_dir )
+		for( int vel_dir=0; vel_dir<SpaceT::sdim; ++vel_dir )
 			x[vel_dir]->exchange();
 
 		y.exchange();
 
+		const int sdim = SpaceT::sdim;
 		OP_convectionDiffusion(
-				space()->dim(),
+				sdim,
 				space()->nLoc(),
 				space()->bl(),
 				space()->bu(),

@@ -79,7 +79,7 @@ public:
 				Ordinal nTemp = ( space_->nLoc(i) + 1 )*( space_->nu(i) - space_->nl(i) + 1);
 				cSD_[i] = new Scalar[ nTemp ];
 
-				if( i<space_->dim() )
+				if( i<SpaceT::sdim )
 					FD_getDiffCoeff(
 							space_->nLoc(i),
 							space_->bl(i),
@@ -103,7 +103,7 @@ public:
 
 				cSU_[i] = new Scalar[ nTemp ];
 
-				if( i<space_->dim() )
+				if( i<SpaceT::sdim )
 					FD_getDiffCoeff(
 							space_->nLoc(i),
 							space_->bl(i),
@@ -127,7 +127,7 @@ public:
 
 				cVD_[i] = new Scalar[ nTemp ];
 
-				if( i<space_->dim() )
+				if( i<SpaceT::sdim )
 					FD_getDiffCoeff(
 							space_->nLoc(i),
 							space_->bl(i),
@@ -150,7 +150,7 @@ public:
 							cVD_[i] );
 
 				cVU_[i] = new Scalar[ nTemp ];
-				if( i<space_->dim() )
+				if( i<SpaceT::sdim )
 					FD_getDiffCoeff(
 							space_->nLoc(i),
 							space_->bl(i),
@@ -201,20 +201,21 @@ public:
 				"Pimpact::ConvectionSOP can only be applied to same fieldType !!!\n");
 
 
-		for( int i =0; i<space_->dim(); ++i ) {
+		for( int i =0; i<SpaceT::sdim; ++i ) {
 			TEUCHOS_TEST_FOR_EXCEPTION(
 					x[i]->getType() != y.getType(),
 					std::logic_error,
 					"Pimpact::ConvectionSOP can only be applied to same fieldType !!!\n");
 		}
 
-		for( int vel_dir=0; vel_dir<space_->dim(); ++vel_dir )
+		for( int vel_dir=0; vel_dir<SpaceT::sdim; ++vel_dir )
 			x[vel_dir]->exchange();
 
 		y.exchange();
 
+		const int sdim = SpaceT::sdim;
 		OP_convection(
-				space_->dim(),
+				sdim,
 				space_->nLoc(),
 				space_->bl(),
 				space_->bu(),

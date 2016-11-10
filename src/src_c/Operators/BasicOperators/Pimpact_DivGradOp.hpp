@@ -140,7 +140,7 @@ public:
 							diag += div_->getC( Y, j, jj )*epsY*grad_->getC( Y, j+jj, -jj );
 					}
 
-					if( 3==space()->dim() ) {
+					if( 3==SpaceT::sdim ) {
 						// Z direction
 						for( OT kk=space()->dl(Z); kk<=space()->du(Z); ++kk ) {
 							if( 0<space()->getBCLocal()->getBCL(Z) && k+kk==space()->begin(W,Z,With::B) ) {

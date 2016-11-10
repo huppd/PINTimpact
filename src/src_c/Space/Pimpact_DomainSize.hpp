@@ -24,7 +24,7 @@ class DomainSize {
 
 	template<class ST, int sd_>
 	friend Teuchos::RCP<const DomainSize<ST,sd_> > createDomainSize(
-			int dim, ST re, ST alpha2,
+			ST re, ST alpha2,
 			ST L1, ST L2, ST L3,
 			ST x1, ST x2, ST x3 );
 
@@ -33,8 +33,6 @@ public:
 	using TS3 = const Teuchos::Tuple<ScalarT,3>;
 
 protected:
-
-	const int dim_;
 
 	const ScalarT re_;
 
@@ -45,21 +43,21 @@ protected:
 	TS3 origin_;
 
 	DomainSize(
-			int dim, ScalarT re, ScalarT alpha2,
+			ScalarT re, ScalarT alpha2,
 			ScalarT L1, ScalarT L2, ScalarT L3,
 			ScalarT x1, ScalarT x2, ScalarT x3 ):
-		dim_(dim),re_(re),alpha2_(alpha2),
+		re_(re),alpha2_(alpha2),
 		domainSize_( Teuchos::tuple(L1, L2, L3) ),
-		origin_( Teuchos::tuple( x1, x2, x3 ) ) {};
+		origin_( Teuchos::tuple( x1, x2, x3 ) ) {
+
+			static_assert( sd!=2 || sd!=3, "spatial dimension not valid" );
+		};
 
 
 public:
 
 	/// \name getter
 	/// @{ 
-
-	/// \todo make dim_ template parameter(e.g. spaceDim) here or somewhere else?
-	constexpr const int& getDim() const { return( dim_ ); }
 
 	constexpr const ScalarT* getSize() const { return( domainSize_.getRawPtr() ); }
 
@@ -76,7 +74,7 @@ public:
 	///  @} 
 
 	void print( std::ostream& out=std::cout ) const {
-		out << "\tspatial dim: " << dim_ << "\n"
+		out << "\tspatial dim: " << sd << "\n"
 			<< "\tRe= "      << re_ << "\n"
 			<< "\talpha^2= " << alpha2_ << "\n"
 			<< "\tlx= "      << domainSize_[0]
@@ -96,12 +94,12 @@ public:
 template<class ScalarT, int sd>
 Teuchos::RCP<const DomainSize<ScalarT,sd> >
 createDomainSize(
-		int dim, ScalarT re, ScalarT alpha2,
+		ScalarT re, ScalarT alpha2,
 		ScalarT L1, ScalarT L2, ScalarT L3,
 		ScalarT x1, ScalarT x2, ScalarT x3 ) {
 
 	return( Teuchos::rcp(
-          new DomainSize<ScalarT,sd>( dim, re, alpha2, L1, L2, L3, x1, x2, x3 ) ) );
+          new DomainSize<ScalarT,sd>( re, alpha2, L1, L2, L3, x1, x2, x3 ) ) );
 }
 
 

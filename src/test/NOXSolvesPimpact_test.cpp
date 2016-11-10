@@ -57,7 +57,6 @@ TEUCHOS_STATIC_SETUP() {
 			"eps", &eps,
 			"epsilon used to check test results" );
 
-	pl->set( "dim", 3 );
 	Pimpact::setBoundaryConditions( pl, 0 );
 
 	pl->set("nx", 65 );

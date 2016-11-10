@@ -138,7 +138,7 @@ public:
 	/// \return vect length \f[= N_u+N_v+N_w\f]
 	constexpr Ordinal getLength() const {
 		Ordinal n = 0;
-		for( int i=0; i<space()->dim(); ++i )
+		for( int i=0; i<SpaceT::sdim; ++i )
 			n += sFields_[i]->getLength();
 
 		return( n );
@@ -159,7 +159,7 @@ public:
 	void add( const Scalar& alpha, const FieldT& A, const Scalar& beta, const
 			FieldT& B, const With& bcYes=With::noB ) {
 		// add test for consistent VectorSpaces in debug mode
-		for( int i=0; i<space()->dim(); ++i ) {
+		for( int i=0; i<SpaceT::sdim; ++i ) {
 			sFields_[i]->add( alpha, *A.sFields_[i], beta, *B.sFields_[i], bcYes );
 		}
 		changed();
@@ -173,7 +173,7 @@ public:
 	/// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
 	/// \return Reference to this object
 	void abs( const FieldT& y, const With& bcYes=With::noB ) {
-		for( int i=0; i<space()->dim(); ++i )
+		for( int i=0; i<SpaceT::sdim; ++i )
 			sFields_[i]->abs( *y.sFields_[i], bcYes );
 		changed();
 	}
@@ -186,7 +186,7 @@ public:
 	/// \return Reference to this object
 	void reciprocal( const FieldT& y, const With& bcYes=With::noB ) {
 		// add test for consistent VectorSpaces in debug mode
-		for( int i=0; i<space()->dim(); ++i)
+		for( int i=0; i<SpaceT::sdim; ++i)
 			sFields_[i]->reciprocal( *y.sFields_[i], bcYes );
 		changed();
 	}
@@ -194,7 +194,7 @@ public:
 
 	/// \brief Scale each element of the vectors in \c this with \c alpha.
 	void scale( const Scalar& alpha, const With& bcYes=With::noB ) {
-		for(int i=0; i<space()->dim(); ++i)
+		for(int i=0; i<SpaceT::sdim; ++i)
 			sFields_[i]->scale( alpha, bcYes );
 		changed();
 	}
@@ -207,7 +207,7 @@ public:
 	/// \return Reference to this object
 	void scale( const FieldT& a, const With& bcYes=With::noB ) {
 		// add test for consistent VectorSpaces in debug mode
-		for(int i=0; i<space()->dim(); ++i)
+		for(int i=0; i<SpaceT::sdim; ++i)
 			sFields_[i]->scale( *a.sFields_[i], bcYes );
 		changed();
 	}
@@ -217,7 +217,7 @@ public:
 	constexpr Scalar dotLoc ( const FieldT& a, const With& bcYes=With::noB ) const {
 		Scalar b = 0.;
 
-		for( int i=0; i<space()->dim(); ++i )
+		for( int i=0; i<SpaceT::sdim; ++i )
 			b += sFields_[i]->dotLoc( *a.sFields_[i], bcYes );
 
 		return( b );
@@ -239,7 +239,7 @@ public:
 
 		Scalar normvec = 0.;
 
-		for( int i=0; i<space()->dim(); ++i )
+		for( int i=0; i<SpaceT::sdim; ++i )
 			normvec =
 				(type==Belos::InfNorm)?
 					std::max( sFields_[i]->normLoc(type,bcYes), normvec ):
@@ -275,7 +275,7 @@ public:
 	constexpr Scalar normLoc( const FieldT& weights, const With& bcYes=With::noB ) const {
 		Scalar normvec = 0.;
 
-		for( int i=0; i<space()->dim(); ++i )
+		for( int i=0; i<SpaceT::sdim; ++i )
 			normvec += sFields_[i]->normLoc( *weights.sFields_[i], bcYes );
 
 		return( normvec );
@@ -303,7 +303,7 @@ public:
 	/// Assign (deep copy) A into mv.
 	void assign( const FieldT& a ) {
 
-		for( int i=0; i<space()->dim(); ++i)
+		for( int i=0; i<SpaceT::sdim; ++i)
 			sFields_[i]->assign( *a.sFields_[i] );
 		changed();
 	}
@@ -315,7 +315,7 @@ public:
 	/// seed => not save, if good randomness is required
 	void random(bool useSeed = false, const With& bcYes=With::noB, int seed = 1) {
 
-		for( int i=0; i<space()->dim(); ++i )
+		for( int i=0; i<SpaceT::sdim; ++i )
 			sFields_[i]->random( useSeed, bcYes, seed );
 
 		changed();
@@ -323,7 +323,7 @@ public:
 
 	/// \brief Replace each element of the vector  with \c alpha.
 	void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const With& bcYes=With::noB ) {
-		for( int i=0; i<space()->dim(); ++i )
+		for( int i=0; i<SpaceT::sdim; ++i )
 			sFields_[i]->init( alpha, bcYes );
 		changed();
 	}
@@ -331,7 +331,7 @@ public:
 
 	/// \brief Replace each element of the vector \c getRawPtr[i] with \c alpha[i].
 	void init( const Teuchos::Tuple<Scalar,3>& alpha, const With& bcYes=With::noB ) {
-		for( int i=0; i<space()->dim(); ++i )
+		for( int i=0; i<SpaceT::sdim; ++i )
 			sFields_[i]->init( alpha[i], bcYes );
 		changed();
 	}
@@ -339,7 +339,7 @@ public:
 
 	///  \brief initializes VectorField including boundaries to zero 
 	void initField() {
-		for( int i=0; i<space()->dim(); ++i )
+		for( int i=0; i<SpaceT::sdim; ++i )
 			sFields_[i]->initField();
 	}
 
@@ -433,7 +433,7 @@ public:
 
 		switch( type ) {
 			case ZeroFlow : {
-				for( int i=0; i<space()->dim(); ++i )
+				for( int i=0; i<SpaceT::sdim; ++i )
 					sFields_[i]->initField( ConstField );
 				break;
 			}
@@ -444,7 +444,7 @@ public:
 				break;
 			}
 			case PoiseuilleFlow2D_inX : {
-				for( int i=0; i<space()->dim(); ++i )
+				for( int i=0; i<SpaceT::sdim; ++i )
 					if( U==i )
 						sFields_[i]->initField( Poiseuille2D_inY );
 					else
@@ -452,7 +452,7 @@ public:
 				break;
 			}
 			case PoiseuilleFlow2D_inY : {
-				for( int i=0; i<space()->dim(); ++i )
+				for( int i=0; i<SpaceT::sdim; ++i )
 					if( V==i )
 						sFields_[i]->initField( Poiseuille2D_inX );
 					else
@@ -460,7 +460,7 @@ public:
 				break;
 			}
 			case PoiseuilleFlow2D_inZ : {
-				for( int i=0; i<space()->dim(); ++i )
+				for( int i=0; i<SpaceT::sdim; ++i )
 					if( W==i )
 						sFields_[i]->initField( Poiseuille2D_inX );
 					else
@@ -890,7 +890,7 @@ public:
 	/// \brief extrapolates on the boundaries such that it is zero
 	/// \note dirty hack(necessary for TripleCompostion)
 	void extrapolateBC( const Belos::ETrans& trans=Belos::NOTRANS ) {
-		for( int i=0; i<space()->dim(); ++i )
+		for( int i=0; i<SpaceT::sdim; ++i )
 			getFieldPtr(i)->extrapolateBC( trans );
 	}
 
@@ -903,7 +903,7 @@ public:
 
   /// \brief Print the vector.  To be used for debugging only.
   void print( std::ostream& out=std::cout ) const {
-    for(int i=0; i<space()->dim(); ++i) {
+    for(int i=0; i<SpaceT::sdim; ++i) {
       sFields_[i]->print( out );
     }
   }
@@ -975,7 +975,7 @@ public:
 			xfile << "</Xdmf>\n";
 			xfile.close();
 		}
-		for( int i=0; i<space()->dim(); ++i )
+		for( int i=0; i<SpaceT::sdim; ++i )
 			getConstFieldPtr(i)->write( count, restart );
 	}
 
@@ -1027,8 +1027,8 @@ public:
   }
 
   void changed() const {
-    for( int vel_dir=0; vel_dir<space()->dim(); ++vel_dir )
-      for( int dir=0; dir<space()->dim(); ++dir ) {
+    for( int vel_dir=0; vel_dir<SpaceT::sdim; ++vel_dir )
+      for( int dir=0; dir<SpaceT::sdim; ++dir ) {
         changed( vel_dir, dir );
       }
   }
@@ -1038,8 +1038,8 @@ public:
   }
 
   void exchange() const {
-    for( int vel_dir=0; vel_dir<space()->dim(); ++vel_dir )
-      for( int dir=0; dir<space()->dim(); ++dir )
+    for( int vel_dir=0; vel_dir<SpaceT::sdim; ++vel_dir )
+      for( int dir=0; dir<SpaceT::sdim; ++dir )
         exchange( vel_dir, dir );
   }
 
@@ -1048,8 +1048,8 @@ public:
   }
 
 	void setExchanged() const {
-		for( int vel_dir=0; vel_dir<space()->dim(); ++vel_dir )
-			for( int dir=0; dir<space()->dim(); ++dir ) {
+		for( int vel_dir=0; vel_dir<SpaceT::sdim; ++vel_dir )
+			for( int dir=0; dir<SpaceT::sdim; ++dir ) {
 				setExchanged( vel_dir, dir );
 			}
 	}

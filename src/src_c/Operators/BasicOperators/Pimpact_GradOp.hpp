@@ -53,7 +53,7 @@ public:
 
 				c_[dir] = new Scalar[ nTemp ];
 
-				if( dir<space_->dim() )
+				if( dir<SpaceT::sdim )
 					FD_getDiffCoeff(
 							space_->nLoc(dir),
 							space_->bl(dir),
@@ -172,7 +172,7 @@ public:
 				for( Ordinal i=space()->begin(V,X,bcY_); i<=space()->end(V,X,bcY_); ++i )
 					y.getField(V).at(i,j,k) = innerStencV( x, i, j, k );
 
-		if( 3==space_->dim() )  {
+		if( 3==SpaceT::sdim )  {
 
 			x.exchange(Z);
 			for( Ordinal k=space()->begin(W,Z,bcY_); k<=space()->end(W,Z,bcY_); ++k )
@@ -189,7 +189,7 @@ public:
 		const Scalar& eps = 0.1;
 		//const Scalar& eps = 1.;
 		
-		for( int dir=0; dir<3; ++dir ) {
+		for( int dir=0; dir<SpaceT::sdim; ++dir ) {
 			With bc2 = With::B;
 			if( 0!=dir ) {
 				if( space()->getBCLocal()->getBCL(X) > 0 ) {
@@ -248,10 +248,10 @@ public:
 
   void apply(const RangeFieldT& x, DomainFieldT& y) const {
 
-		for( int dir=0; dir<space_->dim(); ++dir )
+		for( int dir=0; dir<SpaceT::sdim; ++dir )
 			x.exchange( dir, dir );
 
-		if( 3==space_->dim() )  {
+		if( 3==SpaceT::sdim )  {
 
 			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
 				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
@@ -384,10 +384,10 @@ protected:
 		Scalar gradT = 0.;
 
 		for( int ii=space_->dl(X); ii<=space_->du(X); ++ii ) 
-			gradT += getC(X,i,ii)*x.getField(U).at(i+ii,j,k);
+			gradT += getCTrans(X,i,ii)*x.getField(U).at(i+ii,j,k);
 
 		for( int jj=space_->dl(Y); jj<=space_->du(Y); ++jj ) 
-			gradT += getC(Y,j,jj)*x.getField(V).at(i,j+jj,k);
+			gradT += getCTrans(Y,j,jj)*x.getField(V).at(i,j+jj,k);
 
 		return( gradT );
 	}

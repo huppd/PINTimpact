@@ -61,7 +61,6 @@ void MG_InterpolateScatter(
 		const double* const phic );
 
 void MG_interpolate(
-		const int& dimens,
 		const int* const Nc,
 		const int* const bLc,
 		const int* const bUc,
@@ -77,7 +76,6 @@ void MG_interpolate(
 		double* const phif );
 
 void MG_interpolateV(
-		const int& dimens,
 		const int& dir,
 		const int* const Nf,
 		const int* const bLf,
@@ -368,7 +366,7 @@ protected:
 					cIS_[dir].getRawPtr() );
 
 			cIV_[dir] = Teuchos::arcp<Scalar>( 2*( spaceF_->nLoc(dir)-0+1 ) );
-			//      if( i<spaceC_->dim() )
+			//      if( i<CSpaceT::sdim )
 
 			Ordinal offset = 0;
 			if( 1!=nGather_[dir] )
@@ -448,7 +446,6 @@ public:
 			}
 
 			MG_interpolate(
-					spaceC_->dim(),
 					spaceC_->nLoc(),
 					spaceC_->bl(),
 					spaceC_->bu(),
@@ -507,7 +504,6 @@ public:
 			}
 
 			MG_interpolateV(
-					spaceC_->dim(),
 					dir+1,
 					spaceC_->nLoc(),
 					spaceC_->bl(),

@@ -118,11 +118,11 @@ public:
 
 		EField fType  = x.getType();
 		int dir = fType;
-		//x.exchange( dir );
 		x.exchange( );
 
+		const int sdimens = ST::sdim;
 		MG_restrictFWV(
-				spaceF()->dim(),
+				sdimens,
 				dir+1,
 				spaceF()->nLoc(),
 				spaceF()->bl(),

@@ -76,7 +76,7 @@ public:
 
     TEUCHOS_TEST_FOR_EXCEPT( fType != y.getType() );
 
-    for( int i=0; i<x.space()->dim(); ++i )
+    for( int i=0; i<SpaceT::sdim; ++i )
       TEUCHOS_TEST_FOR_EXCEPT( x.space()->nLoc(i) != y.space()->nLoc(i) );
 
     OP_Transfer(

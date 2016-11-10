@@ -53,11 +53,11 @@ namespace Pimpact {
 template<class OrdinalT, int dimension>
 class IndexSpace {
 
-  template<class O, int d, int dimNC>
+  template<class O, int sd, int d, int dimNC>
   friend Teuchos::RCP<const IndexSpace<O,d> >
   createIndexSpace(
       const Teuchos::RCP<const StencilWidths<d,dimNC> >& sW,
-      const Teuchos::RCP<const GridSizeLocal<O,d> >& gL,
+      const Teuchos::RCP<const GridSizeLocal<O,sd,d> >& gL,
       const Teuchos::RCP<const BoundaryConditionsLocal<d> >& bc,
 		 	const Teuchos::RCP<const ProcGrid<O,d> >& pG );
 
@@ -87,10 +87,10 @@ protected:
   /// \param gridSizeLocal amount of grid points stored localy on this node
   /// \param bc local boundary conditions
 	/// \param procGrid processor grid
-  template<int dimNC>
+  template<int sd, int dimNC>
   IndexSpace(
       const Teuchos::RCP<const StencilWidths<dimension,dimNC> >& sW,
-      const Teuchos::RCP<const GridSizeLocal<OrdinalT,dimension> >& gridSizeLocal,
+      const Teuchos::RCP<const GridSizeLocal<OrdinalT,sd,dimension> >& gridSizeLocal,
       const Teuchos::RCP<const BoundaryConditionsLocal<dimension> >& bc,
 		 	const Teuchos::RCP<const ProcGrid<OrdinalT,dimension> >& procGrid ) {
 
@@ -370,16 +370,16 @@ public:
 
 
 
-template<class O, int d, int dimNC>
-Teuchos::RCP<const IndexSpace<O,d> >
+template<class OT, int sd, int d, int dimNC>
+Teuchos::RCP<const IndexSpace<OT,d> >
 createIndexSpace(
     const Teuchos::RCP<const StencilWidths<d,dimNC> >& sW,
-    const Teuchos::RCP<const GridSizeLocal<O,d> >& gSL,
+    const Teuchos::RCP<const GridSizeLocal<OT,sd,d> >& gSL,
     const Teuchos::RCP<const BoundaryConditionsLocal<d> >& bc,
-		const Teuchos::RCP<const ProcGrid<O,d> >& pG ) {
+		const Teuchos::RCP<const ProcGrid<OT,d> >& pG ) {
   return(
       Teuchos::rcp(
-          new IndexSpace<O,d>( sW, gSL, bc,pG )
+          new IndexSpace<OT,d>( sW, gSL, bc,pG )
       )
   );
 

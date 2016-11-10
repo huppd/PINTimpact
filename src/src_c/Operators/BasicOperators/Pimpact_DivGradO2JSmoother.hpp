@@ -54,7 +54,7 @@ protected:
 public:
 
 	DivGradO2JSmoother( const Teuchos::RCP<const SpaceT>& space ):
-    omega_( (2==space->dim())?0.8:6./7. ),
+    omega_( (2==SpaceT::sdim)?0.8:6./7. ),
     nIter_( 4 ),
     levelYes_( false ),
 		bcSmoothing_( 0 ),
@@ -74,7 +74,7 @@ public:
   DivGradO2JSmoother(
       const Teuchos::RCP<const OperatorT>& op,
       const Teuchos::RCP<Teuchos::ParameterList>& pl=Teuchos::parameterList() ):
-    omega_( pl->get<Scalar>("omega", (2==op->space()->dim())?0.8:6./7. ) ),
+    omega_( pl->get<Scalar>("omega", (2==SpaceT::sdim)?0.8:6./7. ) ),
     nIter_( pl->get<int>( "numIters", 2 ) ),
 		bcSmoothing_( pl->get<int>( "BC smoothing", 0 ) ),
 		depth_( pl->get<Ordinal>( "depth", 2 ) ),
@@ -177,7 +177,7 @@ public:
 
       y.exchange();
 
-			if( 3==space()->dim() )
+			if( 3==SpaceT::sdim )
 				for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
 					for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
 						for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
@@ -193,7 +193,7 @@ public:
 			temp->changed();
 			temp->exchange();
 
-			if( 3==space()->dim() )
+			if( 3==SpaceT::sdim )
 				for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
 					for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
 						for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
@@ -279,12 +279,22 @@ protected:
 	inline constexpr Scalar innerStenc2D( const DomainFieldT& b, const DomainFieldT& x,
 			const Ordinal& i, const Ordinal& j, const Ordinal& k ) const { 
 
+		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->begin(S,X) ) ||
+		           (space()->getBCLocal()->getBCU(X) > 0 && i==space()->end(S,X) ) ;
+		const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->begin(S,Y) ) ||
+		           (space()->getBCLocal()->getBCU(Y) > 0 && j==space()->end(S,Y) ) ;
+
+		const Scalar& eps = 1.e-1;
+
+		const Scalar epsX = bcY?eps:1.;
+		const Scalar epsY = bcX?eps:1.;
+
 		return(
 				(1.-omega_)*x.at(i,j,k) +
-				omega_/( getC(X,i,0) + getC(Y,j,0) )*(
+				omega_/( epsX*getC(X,i,0) + epsY*getC(Y,j,0) )*(
 					b.at(i,j,k) - 
-				getC(X,i,-1)*x.at(i-1,j  ,k  ) - getC(X,i,1)*x.at(i+1,j  ,k  ) - 
-				getC(Y,j,-1)*x.at(i  ,j-1,k  ) - getC(Y,j,1)*x.at(i  ,j+1,k  ) ) );
+				epsX*getC(X,i,-1)*x.at(i-1,j  ,k  ) - epsX*getC(X,i,1)*x.at(i+1,j  ,k  ) - 
+				epsY*getC(Y,j,-1)*x.at(i  ,j-1,k  ) - epsY*getC(Y,j,1)*x.at(i  ,j+1,k  ) ) );
 	} 
 
 	inline constexpr const Scalar* getC( const ECoord& dir) const  { 

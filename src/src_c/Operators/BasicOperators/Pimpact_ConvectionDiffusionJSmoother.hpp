@@ -99,18 +99,19 @@ public:
     TEUCHOS_TEST_FOR_EXCEPT( y.getType() != x.getType() );
 
 
-    for( int i =0; i<space()->dim(); ++i )
+    for( int i =0; i<SpaceT::sdim; ++i )
       TEUCHOS_TEST_FOR_EXCEPT( wind[i]->getType() != x.getType() );
 
-    for( int vel_dir=0; vel_dir<space()->dim(); ++vel_dir )
+    for( int vel_dir=0; vel_dir<SpaceT::sdim; ++vel_dir )
       wind[vel_dir]->exchange();
 
     for( int i=0; i<nIter_; ++i ) {
 
 			y.exchange();
 
+			const int sdim = SpaceT::sdim;
       OP_convectionDiffusionJSmoother(
-          space()->dim(),
+          sdim,
           space()->nLoc(),
           space()->bl(),
           space()->bu(),
@@ -146,7 +147,7 @@ public:
 			temp->exchange();
 
 			OP_convectionDiffusionJSmoother(
-					space()->dim(),
+					sdim,
 					space()->nLoc(),
 					space()->bl(),
 					space()->bu(),

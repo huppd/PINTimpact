@@ -46,7 +46,7 @@ public:
 				Ordinal nTemp = ( space_->nLoc(i) + 1 )*( space_->gu(i) - space_->gl(i) + 1);
 				c_[i] = new Scalar[ nTemp ];
 
-				if( i<space_->dim() )
+				if( i<SpaceT::sdim )
 					FD_getDiffCoeff(
 							space_->nLoc(i),
 							space_->bl(i),

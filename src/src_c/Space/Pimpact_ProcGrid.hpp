@@ -239,6 +239,15 @@ public:
 		rankL_(rankL),
 		rankU_(rankU)	{}
 
+	~ProcGrid() {
+		MPI_Comm_free( &commWorld_ );
+		if( 4==dim )
+			MPI_Comm_free( &commSub_ );
+		for( int i=0; i<dim; ++i )
+			if( commSlice_[i]!=MPI_COMM_NULL )
+				MPI_Comm_free( &(commSlice_[i]) );
+	}
+
   void print( std::ostream& out=std::cout ) const {
     out << "\t---ProcessorGrid: ---\n";
 		out << "\tProcGridSize: " << procGridSize_ << " ---\n";

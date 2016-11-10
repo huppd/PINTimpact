@@ -30,7 +30,7 @@ void OP_DivGradO2SORSmoother(
 
 /// \brief \f$\omega\f$-SORacobian smoother for second Order DivGradOp.
 ///
-/// \todo test, c++fy
+/// \todo test, c++fy, eps scaling
 /// \deprecated
 /// \relates DivGradO2Op
 /// \ingroup BaseOperator

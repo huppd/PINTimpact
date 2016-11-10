@@ -10,20 +10,6 @@ namespace Pimpact {
 
 extern "C" {
 
-void OP_extrapolateBC(
-		const int& m,         
-    const int* const N,         
-    const int* const bL,
-		const int* const bU,     
-    const int& dL,
-		const int& dU,     
-		const int& BCL,
-		const int& BCU, 
-		const int* const SB,
-		const int* const NB,
-		const double* const c,    
-		const double*       phi );
-
 extern "C" void OP_extrapolateBC2(
 		const int& m,         
     const int* const N,         

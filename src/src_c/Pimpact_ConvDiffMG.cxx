@@ -79,7 +79,7 @@ int main( int argi, char** argv ) {
 
 	auto space = Pimpact::create< Pimpact::Space<S,O,3,d,dNC> >( pl );
 
-	auto mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, 5 );
+	auto mgSpaces = Pimpact::createMGSpaces<CS>( space, 5 );
 
 	auto wind = Pimpact::create<Pimpact::VectorField>( space );
 	auto y = Pimpact::create<Pimpact::VectorField>( space );

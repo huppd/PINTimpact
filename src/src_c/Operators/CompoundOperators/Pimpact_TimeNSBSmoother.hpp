@@ -11,7 +11,7 @@ namespace Pimpact {
 extern "C" {
 
 void OP_TimeNSBSmoother( 
-		const int& dimens,
+		const int dimens,
 		const int* const N,
 		const int* const bl,
 		const int* const bu,
@@ -124,7 +124,7 @@ public:
 			}
 
 			OP_TimeNSBSmoother(
-					space()->dim(),
+					SpaceT::sdim,
 					space()->nLoc(),
 					space()->bl(),
 					space()->bu(),

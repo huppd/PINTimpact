@@ -51,7 +51,6 @@ using VOpBase = Pimpact::OperatorBase<MTVF>;
 bool testMpi = true;
 double eps = 3e-1;
 int domain = 0;
-int dim = 3;
 
 int npx = 2;
 int npy = 2;
@@ -94,7 +93,6 @@ TEUCHOS_STATIC_SETUP() {
 	clp.setOption( "error-tol-slack", &eps,
       "Slack off of machine epsilon used to check test results" );
 	clp.setOption( "domain", &domain, "domain" );
-	clp.setOption( "dim", &dim, "dim" );
 	clp.setOption( "npx", &npx, "" );
 	clp.setOption( "npy", &npy, "" );
 	clp.setOption( "npz", &npz, "" );
@@ -108,7 +106,6 @@ TEUCHOS_STATIC_SETUP() {
   pl->set( "ly", 1. );
   pl->set( "lz", 1. );
 
-  pl->set( "dim", dim );
 
   pl->set<OT>("nx", 9 );
   pl->set<OT>("ny", 9 );
@@ -715,8 +712,6 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOp ) {
   pl->set( "lx", 1. );
   pl->set( "ly", 1. );
   pl->set( "lz", 1. );
-
-  pl->set( "dim", dim );
 
   pl->set("nx", 9 );
   pl->set("ny", 9 );

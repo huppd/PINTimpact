@@ -204,7 +204,7 @@ OpT,
 			/*** init preconditioner *******************************************************************/
 			if( withprec>0 ) {
 
-				auto mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space, pl->sublist("Multi Grid").get<int>("maxGrids") );
+				auto mgSpaces = Pimpact::createMGSpaces<CS>( space, pl->sublist("Multi Grid").get<int>("maxGrids") );
 
 				auto pls = Teuchos::rcpFromRef( pl->sublist("Multi Grid") );
 

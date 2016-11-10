@@ -23,6 +23,7 @@ namespace Pimpact {
 template<class ST>
 class RestrictionSFOp : private RestrictionBaseOp<ST> {
 
+  static const int sdim = ST::sdim;
   static const int dimension = ST::dimension;
 
 	using Scalar = typename ST::Scalar;
@@ -100,8 +101,9 @@ public:
 
 		x.exchange();
 
+		const int sdimens = sdim; // so ugly
 		MG_restrictFW(
-				spaceF()->dim(),
+				sdimens,
 				spaceF()->nLoc(),
 				spaceF()->bl(),
 				spaceF()->bu(),
@@ -115,7 +117,6 @@ public:
 				cRS_[2],
 				x.getConstRawPtr(),
 				y.getRawPtr() );
-
 
 		this->gather( y.getRawPtr() );
 
@@ -131,7 +132,7 @@ public:
 		out << "comm2:\t" << this->comm2_ << "\n";
 
 		out << " --- scalar stencil: ---";
-		for( int j=0; j<3; ++j ) {
+		for( int j=0; j<ST::sdim; ++j ) {
 
 			out << "\ndir: " << j << "\n";
 

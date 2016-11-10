@@ -25,8 +25,15 @@ namespace Pimpact {
 ///\note the \c CSpaceT parameter allows even smaller Grids nLoc=1 but therefore
 ///the exception in GridSilzeLocal has to be adapted on StencilWidths
 /// \ingroup MG
-template<class FSpaceT,class CSpaceT>
+template<class FSpaceT,class CST>
 class CoarsenStrategy {
+
+public:
+
+	using SpaceT = FSpaceT;
+	using CSpaceT = CST;
+
+protected:
 
 	using Scalar = typename FSpaceT::Scalar;
 	using Ordinal = typename FSpaceT::Ordinal;

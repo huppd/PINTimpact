@@ -264,21 +264,23 @@ TEUCHOS_UNIT_TEST( bla, bla  ) {
 				Teuchos::rcpFromRef( pl->sublist("DivGrad") ) );
 
 	//  Multigrid DivGrad
-	auto mgSpaces = Pimpact::createMGSpaces<FSpaceT,CSpaceT,CS>( space,
-			pl->sublist("Multi Grid").get<int>("maxGrids") );
+	auto mgSpaces = Pimpact::createMGSpaces<CS>( space, pl->sublist( "Multi Grid"
+				).get<int>("maxGrids") );
 
 	auto mgDivGrad = 
 		Pimpact::createMultiGrid<
-		Pimpact::ScalarField, Pimpact::TransferOp, Pimpact::RestrictionSFOp,
-		Pimpact::InterpolationOp,
-		Pimpact::DivGradOp,
-		Pimpact::DivGradO2Op,
-		//Pimpact::DivGradO2JSmoother,
-		//Pimpact::DivGradO2SORSmoother,
-		//Pimpact::DivGradO2LSmoother,
-		Pimpact::Chebyshev,
-		Pimpact::DivGradO2Inv
-			>( mgSpaces, Teuchos::rcpFromRef( pl->sublist("DivGrad").sublist("Multi Grid") ) );
+			Pimpact::ScalarField,
+			Pimpact::TransferOp,
+			Pimpact::RestrictionSFOp,
+			Pimpact::InterpolationOp,
+			Pimpact::DivGradOp,
+			Pimpact::DivGradO2Op,
+			//Pimpact::DivGradO2JSmoother,
+			//Pimpact::DivGradO2SORSmoother,
+			//Pimpact::DivGradO2LSmoother,
+			Pimpact::Chebyshev,
+			Pimpact::DivGradO2Inv
+				>( mgSpaces, Teuchos::rcpFromRef( pl->sublist("DivGrad").sublist("Multi Grid") ) );
 
 	if( 0==space->rankST() )
 		mgDivGrad->print();

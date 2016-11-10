@@ -75,17 +75,14 @@ public:
 	/// \note todo document parameter choices
 	Space( Teuchos::RCP<Teuchos::ParameterList> pl ) {
 
-		pl->validateParametersAndSetDefaults( *getValidParameters(), 0 );
+		static_assert( sd!=2 || sd!=3, "spatial dimension not valid" );
 
+		pl->validateParametersAndSetDefaults( *getValidParameters(), 0 );
 
 		stencilWidths_ = Pimpact::createStencilWidths<dimension,dimNC>(
 				pl->get<bool>("spectral in time") );
 
-
-		int dim = pl->get<int>("dim");
-		TEUCHOS_TEST_FOR_EXCEPT( 2!=dim && 3!=dim );
 		domainSize_ = Pimpact::createDomainSize<ST,sdim>(
-				dim,
 				pl->get<ST>("Re"),
 				pl->get<ST>("alpha2"),
 				pl->get<ST>("lx"),
@@ -97,11 +94,11 @@ public:
 
 		// are all template paramter needed here?
 		//int domain = pl->get<int>("domain");
-		//domain = ( 2==pl->get<int>("dim") && 0==domain )?1:domain;
+		if( 2==sd ) {
+			pl->sublist("boundary conditions").set<int>( "lower Z", -1 );
+			pl->sublist("boundary conditions").set<int>( "upper Z", -1 );
+		}
 
-		//boundaryConditionsGlobal_ =
-			//Pimpact::createBoudaryConditionsGlobal<d>(
-					//Pimpact::EDomainType( domain ) );
 		boundaryConditionsGlobal_ =
 			Pimpact::createBoudaryConditionsGlobal<d>(
 						Teuchos::rcpFromRef( pl->sublist("boundary conditions") ) );
@@ -110,7 +107,7 @@ public:
 			Pimpact::createGridSizeGlobal<OT,sdim>(
 					pl->get<OT>("nx"),
 					pl->get<OT>("ny"),
-					( 2==pl->get<int>("dim") )?2:pl->get<OT>("nz"),
+					( 2==sd )?2:pl->get<OT>("nz"),
 					pl->get<OT>("nf") );
 
 		Teuchos::Tuple<OT,d> procGridSize;
@@ -137,7 +134,7 @@ public:
 					stencilWidths_ );
 
 		indexSpace_ =
-			Pimpact::createIndexSpace<OT,d,dNC>(
+			Pimpact::createIndexSpace<OT,sdim,d,dNC>(
 					stencilWidths_,
 					gridSizeLocal_,
 					boundaryConditionsLocal_,
@@ -182,7 +179,7 @@ public:
 			const Teuchos::RCP<const StencilWidths<dimension,dimNC> >& stencilWidths,
 			const Teuchos::RCP<const IndexSpace<OT,dimension> >& indexSpace,
 			const Teuchos::RCP<const GridSizeGlobal<OT,sd> >& gridSizeGlobal,
-			const Teuchos::RCP<const GridSizeLocal<OT,dimension> >& gridSizeLocal,
+			const Teuchos::RCP<const GridSizeLocal<OT,sd,dimension> >& gridSizeLocal,
 			const Teuchos::RCP<const ProcGrid<OT,dimension> >& procGrid,
 			const Teuchos::RCP<const CoordinatesGlobal<ST,OT,dimension> >& coordGlobal,
 			const Teuchos::RCP<const CoordinatesLocal<ST,OT,dimension,dimNC> >& coordLocal,
@@ -215,7 +212,7 @@ protected:
 	Teuchos::RCP<const GridSizeGlobal<OT,sd> >
 	gridSizeGlobal_;
 
-	Teuchos::RCP<const GridSizeLocal<OT,dimension> >
+	Teuchos::RCP<const GridSizeLocal<OT,sd,dimension> >
 	gridSizeLocal_;
 
 	Teuchos::RCP<const ProcGrid<OT,dimension> >
@@ -227,8 +224,7 @@ protected:
 	Teuchos::RCP<const CoordinatesLocal<ST,OT,dimension,dimNC> >
 	coordLocal_;
 
-	Teuchos::RCP<const DomainSize<ST,sd> >
-	domainSize_;
+	Teuchos::RCP<const DomainSize<ST,sd> > domainSize_;
 
 	Teuchos::RCP<const BoundaryConditionsGlobal<dimension> >
 	boundaryConditionsGlobal_;
@@ -253,7 +249,7 @@ public:
 	constexpr const Teuchos::RCP<const GridSizeGlobal<OT,sd> >&
 	getGridSizeGlobal() const { return( gridSizeGlobal_ );  }
 
-	constexpr const Teuchos::RCP<const GridSizeLocal<OT,dimension> >&
+	constexpr const Teuchos::RCP<const GridSizeLocal<OT,sd,dimension> >&
 	getGridSizeLocal() const { return( gridSizeLocal_ );  }
 
 	constexpr const Teuchos::RCP<const ProcGrid<OT,dimension> >&
@@ -288,8 +284,6 @@ public:
 
 	constexpr const int& rankST() const { return( procGrid_->getRank() ); }
 	constexpr const int& rankS () const { return( procGrid_->getRankS() ); }
-
-	constexpr const int&      dim()   const { return( domainSize_->getDim() ); }
 
 	constexpr const Ordinal* nGlo()        const { return( gridSizeGlobal_->getRawPtr()  ); }
 	constexpr const Ordinal& nGlo( const int& i ) const { return( gridSizeGlobal_->get(i) ); }
@@ -413,8 +407,6 @@ public:
 					//"Domain type: 0:all dirichlet, 1:dirichlet 2d channel, 2: periodic 2d channel" );
 
 			// domain size
-			pl->set<int>("dim", 3, "dimension of problem" );
-
 			pl->set<ST>( "lx", 1., "length in x-direction" );
 			pl->set<ST>( "ly", 1., "length in y-direction" );
 			pl->set<ST>( "lz", 1., "length in z-direction" );
@@ -493,12 +485,12 @@ createSpace(
 
 	Teuchos::RCP<const GridSizeGlobal<Ordinal,sdim> > gridSizeGlobal = space->getGridSizeGlobal();
 
-	Teuchos::RCP<const GridSizeLocal<Ordinal,dim> > gridSizeLocal = space->getGridSizeLocal();
+	Teuchos::RCP<const GridSizeLocal<Ordinal,sdim,dim> > gridSizeLocal = space->getGridSizeLocal();
 
 	Teuchos::RCP<const ProcGrid<Ordinal, dim> > procGrid = space->getProcGrid();
 
 	Teuchos::RCP<const IndexSpace<Ordinal,dim> > indexSpace =
-		Pimpact::createIndexSpace<Ordinal,dim,dimNC>(
+		Pimpact::createIndexSpace<Ordinal,sdim,dim,dimNC>(
 				stencilWidths,
 				gridSizeLocal,
 				boundaryConditionsLocal,
@@ -577,14 +569,14 @@ static Teuchos::RCP< const SpaceT > createSpace(
 
 	Teuchos::RCP<const ProcGrid<Ordinal,dim> > procGrid = space->getProcGrid();
 
-	Teuchos::RCP<const GridSizeLocal<Ordinal,dim> > gridSizeLocal =
+	Teuchos::RCP<const GridSizeLocal<Ordinal,sdim,dim> > gridSizeLocal =
 		Pimpact::createGridSizeLocal<Ordinal,sdim,dim,dimNC>(
 				gridSizeGlobal,
 				procGrid,
 				stencilWidths );
 
 	Teuchos::RCP<const IndexSpace<Ordinal,dim> > indexSpace =
-		Pimpact::createIndexSpace<Ordinal,dim,dimNC>(
+		Pimpact::createIndexSpace<Ordinal,sdim,dim,dimNC>(
 				stencilWidths,
 				gridSizeLocal,
 				boundaryConditionsLocal,
@@ -793,7 +785,7 @@ static Teuchos::RCP< const SpaceT > createSpace(
 					rankU ) );
 
 
-	Teuchos::RCP<const GridSizeLocal<Ordinal,dimension> > gridSizeLocal =
+	Teuchos::RCP<const GridSizeLocal<Ordinal,sdim,dimension> > gridSizeLocal =
 		Pimpact::createGridSizeLocal<Ordinal,sdim,dimension,dimNC>(
 				gridSizeGlobal,
 				procGrid,
@@ -805,7 +797,7 @@ static Teuchos::RCP< const SpaceT > createSpace(
 				procGrid );
 
 	Teuchos::RCP<const IndexSpace<Ordinal,dimension> > indexSpace =
-		Pimpact::createIndexSpace<Ordinal,dimension,dimNC>(
+		Pimpact::createIndexSpace<Ordinal,sdim,dimension,dimNC>(
 				stencilWidths,
 				gridSizeLocal,
 				boundaryConditionsLocal,
@@ -815,11 +807,6 @@ static Teuchos::RCP< const SpaceT > createSpace(
 		Pimpact::createCoordinatesGlobal<Scalar,Ordinal,sdim,dimension>(
 				gridSizeGlobal,
 				space->getCoordinatesGlobal() );
-	//Teuchos::RCP<const CoordinatesGlobal<Scalar,Ordinal,dimension> > coordGlobal =
-		//Pimpact::createCoordinatesGlobal<Scalar,Ordinal,dimension>(
-				//gridSizeGlobal,
-				//domainSize,
-				//Teuchos::tuple( None, None, None) );
 
 	Teuchos::RCP<const CoordinatesLocal<Scalar,Ordinal,dimension,dimNC> > coordLocal =
 		Pimpact::createCoordinatesLocal<Scalar,Ordinal,sdim,dimension,dimNC>(

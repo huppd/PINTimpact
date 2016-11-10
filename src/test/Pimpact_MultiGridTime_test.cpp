@@ -128,8 +128,6 @@ TEUCHOS_STATIC_SETUP() {
 			"Test MPI (if available) or force test of serial.  In a serial build,"
 			" this option is ignored and a serial comm is always used." );
 
-
-	pl->set( "dim", 3 );
 	Pimpact::setBoundaryConditions( pl, domain );
 
 	pl->set( "lx", 2. );
@@ -172,7 +170,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 
 	Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl ); 
 
-	auto mgSpaces = Pimpact::createMGSpaces<FSpace4T,CSpace4T,CS>( space, maxGrids );
+	auto mgSpaces = Pimpact::createMGSpaces<CS>( space, maxGrids );
 
 
 	auto mgPL = Teuchos::parameterList();

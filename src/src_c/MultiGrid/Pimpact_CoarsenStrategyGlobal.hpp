@@ -26,8 +26,15 @@ namespace Pimpact {
 ///the exception in GridSilzeLocal has to be adapted on StencilWidths
 /// \ingroup MG
 /// \note add template parameter for coarses gridSize, and some procGrid stuff
-template<class FSpaceT,class CSpaceT, int cgsize=9>
+template<class FSpaceT,class CST, int cgsize=9>
 class CoarsenStrategyGlobal {
+
+public:
+
+	using SpaceT = FSpaceT;
+	using CSpaceT = CST;
+
+protected:
 
   using Scalar = typename FSpaceT::Scalar;
   using Ordinal = typename FSpaceT::Ordinal;
@@ -45,7 +52,7 @@ class CoarsenStrategyGlobal {
 
 public:
 
-	/// todo make interface if spectral refinment is desired or not
+	/// \todo make interface if spectral refinment is desired or not
 	static std::vector<Teuchos::RCP<const CSpaceT> > getMultiSpace(
 			const Teuchos::RCP<const FSpaceT> space,
 			int maxGrids=10 ) {

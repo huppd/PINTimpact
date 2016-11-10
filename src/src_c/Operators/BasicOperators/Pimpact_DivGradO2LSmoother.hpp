@@ -98,17 +98,17 @@ public:
 					ipiv_[dir] = Teuchos::rcp( new OVectorT( n_[dir], true ) );
 
 					// --- diagonal ---
-					for( int j=0; j<space()->dim(); ++j ) {
+					for( int j=0; j<SpaceT::sdim; ++j ) {
 						if( j==dir )
 								(*d_[dir])[space()->begin(S,dir)-space()->begin(S,dir)] += op_->getC( j,space()->begin(S,dir),  0 );
 						else
 							(*d_[dir])[space()->begin(S,dir)-space()->begin(S,dir)] += 0.1*op_->getC( j,space()->begin(S,dir),  0 );
 					}
 					for( Ordinal i=space()->begin( S, dir )+1; i<=space()->end( S, dir )-1; ++i ) {
-						for( int j=0; j<space()->dim(); ++j )
+						for( int j=0; j<SpaceT::sdim; ++j )
 							(*d_[dir])[i-space()->begin(S,dir)] += op_->getC( j, i,  0 );
 					}
-					for( int j=0; j<space()->dim(); ++j ) {
+					for( int j=0; j<SpaceT::sdim; ++j ) {
 						if( j==dir )
 							(*d_[dir])[space()->end(S,dir)-space()->begin(S,dir)] += op_->getC(j,space()->end(S,dir),0);
 						else

@@ -43,6 +43,8 @@ protected:
   using Scalar = typename SpaceT::Scalar;
   using Ordinal = typename SpaceT::Ordinal;
 
+	//static const int sdim = SpaceT::sdim;
+
   using ScalarArray = Scalar*;
   using FieldT = ScalarField< SpaceT >;
   using State = Teuchos::Tuple<bool,3>;
@@ -132,7 +134,7 @@ public:
 
 		Ordinal vl = 1;
 
-		for( int dir = 0; dir<space()->dim(); ++dir ) {
+		for( int dir = 0; dir<SpaceT::sdim; ++dir ) {
 				vl *= space()->nGlo(dir) +
 					( (EField::S==fType_)?
 						( (PeriodicBC==bc->getBCL(dir))?-1:0 ) :
@@ -419,7 +421,7 @@ public:
 		for(int i=0; i<getStorageSize(); ++i)
 			s_[i] = a.s_[i];
 
-		for( int dir=0; dir<space()->dim(); ++dir )
+		for( int dir=0; dir<SpaceT::sdim; ++dir )
 			exchangedState_[dir] = a.exchangedState_[dir];
 	}
 
@@ -739,6 +741,10 @@ public:
 	}
 
 
+	/// \brief extrapolate the velocity points outside the domain such that the
+	///  interpolated value on the boundary is zero
+	///
+	/// \param trans transposed
 	void extrapolateBC( const Belos::ETrans& trans=Belos::NOTRANS ) {
 
 		switch( trans ) {
@@ -1009,7 +1015,7 @@ public:
 				space()->getInterpolateV2S()->apply( *this, *temp );
 			}
 
-			if( 2==space()->dim() ) {
+			if( 2==SpaceT::sdim ) {
 
 				write_hdf5_2D(
             space()->rankS(),
@@ -1035,7 +1041,7 @@ public:
 						space()->getDomainSize()->getRe(),
 						space()->getDomainSize()->getAlpha2() );
       }
-      else if( 3==space()->dim() ) {
+      else if( 3==SpaceT::sdim ) {
 
         int stride[3] = {1,1,1};
 
@@ -1149,7 +1155,7 @@ public:
     exchangedState_[dir] = false;
   }
   void changed() const {
-    for( int dir=0; dir<space()->dim(); ++dir )
+    for( int dir=0; dir<SpaceT::sdim; ++dir )
       changed( dir );
   }
 
@@ -1159,7 +1165,7 @@ public:
   }
   bool is_exchanged() const {
     bool all_exchanged = true;
-    for( int dir=0; dir<space()->dim(); ++dir )
+    for( int dir=0; dir<SpaceT::sdim; ++dir )
       all_exchanged = all_exchanged && is_exchanged(dir);
     return( all_exchanged );
   }
@@ -1169,7 +1175,7 @@ public:
 		int ones[3] = {0,0,0};
     if( !exchangedState_[dir] ) {
       F_exchange(
-          space()->dim(),
+          static_cast<int>( SpaceT::sdim ),
           MPI_Comm_c2f( space()->getProcGrid()->getCommWorld() ),
           space()->getProcGrid()->getRankL(),
           space()->getProcGrid()->getRankU(),
@@ -1191,7 +1197,7 @@ public:
     }
   }
 	void exchange() const {
-		for( int dir=0; dir<space()->dim(); ++dir )
+		for( int dir=0; dir<SpaceT::sdim; ++dir )
 			exchange( dir );
 	}
 
@@ -1199,7 +1205,7 @@ public:
     exchangedState_[dir] = true;
   }
   void setExchanged(  ) const {
-    for( int dir=0; dir<space()->dim(); ++dir )
+    for( int dir=0; dir<SpaceT::sdim; ++dir )
       changed( dir );
   }
 

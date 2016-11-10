@@ -53,7 +53,7 @@ protected:
 	using TS = const Teuchos::Tuple< Teuchos::ArrayRCP<Scalar>, 3 >;
 	using TO = const Teuchos::Tuple< Ordinal, dimension >;
 
-	Teuchos::RCP<const GridSizeLocal<Ordinal,dimension> > gridSizeLocal_;
+	Teuchos::RCP<const GridSizeLocal<Ordinal,sdim,dimension> > gridSizeLocal_;
 
 	TO dl_;
 	TO du_;
@@ -65,7 +65,7 @@ public:
 
 	InterpolateV2S(
 			const Teuchos::RCP<const IndexSpace<Ordinal,dimension> >&  indexSpace,
-			const Teuchos::RCP<const GridSizeLocal<Ordinal,dimension> >& gridSizeLocal,
+			const Teuchos::RCP<const GridSizeLocal<Ordinal,sdim,dimension> >& gridSizeLocal,
 			const Teuchos::RCP<const StencilWidths<dimension,dimNC> >& stencilWidths,
 			const Teuchos::RCP<const DomainSize<Scalar,sdim> >& domainSize,
 			const Teuchos::RCP<const BoundaryConditionsLocal<dimension> >& boundaryConditionsLocal,
@@ -81,7 +81,7 @@ public:
 			c_[i] = Teuchos::arcp<Scalar>( nTemp );
 			cm_[i] = Teuchos::arcp<Scalar>( nTemp );
 
-			if( i<domainSize->getDim() ) {
+			if( i<sdim ) {
 				FD_getDiffCoeff(
 						gridSizeLocal->get(i),
 						stencilWidths->getBL(i),
@@ -229,7 +229,7 @@ public:
 template< class S, class O, int sd,int d, int dimNC >
 Teuchos::RCP<const InterpolateV2S<S,O,sd,d,dimNC> > createInterpolateV2S(
 		const Teuchos::RCP<const IndexSpace<O,d> >&  iS,
-		const Teuchos::RCP<const GridSizeLocal<O,d> >& gridSizeLocal,
+		const Teuchos::RCP<const GridSizeLocal<O,sd,d> >& gridSizeLocal,
 		const Teuchos::RCP<const StencilWidths<d,dimNC> >& stencilWidths,
 		const Teuchos::RCP<const DomainSize<S,sd> >& domainSize,
 		const Teuchos::RCP<const BoundaryConditionsLocal<d> >& boundaryConditionsLocal,

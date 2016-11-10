@@ -383,7 +383,7 @@ int main(int argi, char** argv ) {
 	Teuchos::RCP<BOp> jop;
 	{
 
-		auto mgSpaces = Pimpact::createMGSpaces<SpaceT,CSpaceT,CS4L>( space, 10);
+		auto mgSpaces = Pimpact::createMGSpaces<CS4L>( space, 10);
 
 		auto mgPL = Teuchos::parameterList();
 		mgPL->sublist("Smoother").set<std::string>("Solver name", "GMRES" );

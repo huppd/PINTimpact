@@ -27,11 +27,15 @@ public:
 
 protected:
 
-  template<class FSpaceTT, class CSpaceTT, class CoarsenStrategyT>
-  friend Teuchos::RCP<const MGSpaces<FSpaceTT,CSpaceTT> > createMGSpaces( const Teuchos::RCP<const FSpaceTT>& space, int nGridsMax );
+	template<class CoarsenStrategyT>
+	friend Teuchos::RCP<const MGSpaces<typename CoarsenStrategyT::SpaceT,
+				 typename CoarsenStrategyT::CSpaceT> >
+	 createMGSpaces( const Teuchos::RCP<const typename CoarsenStrategyT::SpaceT>&
+			 space, int nGridsMax );
 
   Teuchos::RCP<const FSpaceT> space_;
   std::vector< Teuchos::RCP<const CSpaceT> > spaces_;
+
 
   MGSpaces(
       const Teuchos::RCP<const FSpaceT>& space,
@@ -40,7 +44,6 @@ protected:
     spaces_(spaces) {}
 
 public:
-
 
 	/// \brief get number of grids
 	///
@@ -81,20 +84,19 @@ public:
 
 
 /// \relates MGSpaces
-template<class FSpaceT, class CSpaceT, class CoarsenStrategy>
-Teuchos::RCP<const MGSpaces<FSpaceT,CSpaceT> >
+template<class CoarsenStrategy>
+Teuchos::RCP<const MGSpaces<typename CoarsenStrategy::SpaceT, typename CoarsenStrategy::CSpaceT> >
 createMGSpaces(
-    const Teuchos::RCP<const FSpaceT>& space,
+    const Teuchos::RCP<const typename CoarsenStrategy::SpaceT>& space,
     int maxGrids=10 ) {
 
-  std::vector<Teuchos::RCP<const CSpaceT> > spaces =
+  std::vector<Teuchos::RCP<const typename CoarsenStrategy::CSpaceT> > spaces =
       CoarsenStrategy::getMultiSpace( space, maxGrids );
 
   return(
       Teuchos::rcp(
-          new MGSpaces<FSpaceT,CSpaceT>(
-              space,
-              spaces ) ) );
+          new MGSpaces<typename CoarsenStrategy::SpaceT, typename CoarsenStrategy::CSpaceT>(
+							space, spaces ) ) );
 }
 
 

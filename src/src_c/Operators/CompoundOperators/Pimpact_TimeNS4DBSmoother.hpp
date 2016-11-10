@@ -9,7 +9,7 @@
 namespace Pimpact {
 
 extern "C" void OP_TimeNS4DBSmoother(
-		const int& dimens,
+		const int dimens,
 		const int* const N,
 		const int* const bl,
 		const int* const bu,
@@ -123,7 +123,7 @@ public:
 			}
 
 			OP_TimeNS4DBSmoother(
-					space()->dim(),
+					SpaceT::sdim,
 					space()->nLoc(),
 					space()->bl(),
 					space()->bu(),
