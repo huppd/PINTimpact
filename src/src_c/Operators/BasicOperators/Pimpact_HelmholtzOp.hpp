@@ -5,6 +5,7 @@
 
 #include "Pimpact_extern_FDCoeff.hpp"
 #include "Pimpact_Types.hpp"
+#include "Pimpact_Stencil.hpp"
 #include "Pimpact_VectorField.hpp"
 
 
@@ -32,7 +33,14 @@ protected:
   using Scalar = typename SpaceT::Scalar;
   using Ordinal = typename SpaceT::Ordinal;
 
-  using TO = const Teuchos::Tuple<Scalar*,3>;
+	static const int dimNC = ST::dimNC;
+	static const int dim = ST::dimension;
+
+	using SW = StencilWidths<dim,dimNC>;
+
+	using Stenc = Stencil< Scalar, Ordinal, 0, SW::BL(0), SW::BU(0) >;
+
+  using TO = const Teuchos::Tuple<Stenc*,ST::sdim>; 
 
   const Teuchos::RCP<const SpaceT> space_;
 
@@ -50,70 +58,67 @@ public:
 		mulI_( static_cast<Scalar>(0.) ),
 		mulL_( 1./space_->getDomainSize()->getRe() ) {
 
-    for( int i=0; i<3; ++i ) {
-      Ordinal nTemp = ( space_->nLoc(i) + 1 )*( space_->bu(i) - space_->bl(i) + 1);
+    for( int i=0; i<SpaceT::sdim; ++i ) {
+			cS_[i] = new Stenc( space_->nLoc(i) );
+			FD_getDiffCoeff(
+					space_->nLoc(i),
+					space_->bl(i),
+					space_->bu(i),
+					space_->bl(i),
+					space_->bu(i),
+					space_->getBCLocal()->getBCL(i),
+					space_->getBCLocal()->getBCU(i),
+					space_->getShift(i),
+					int(EField::S)+1,
+					i+1,
+					2,
+					0,
+					true,
+					//false, // mapping
+					space_->getStencilWidths()->getDimNcbC(i),
+					space_->getStencilWidths()->getNcbC(i),
+					space_->getCoordinatesLocal()->getX( i, EField::S ),
+					space_->getCoordinatesLocal()->getX( i, EField::S ),
+					cS_[i]->get() );
 
-      cS_[i] = new Scalar[ nTemp ];
-      if( i<SpaceT::sdim )
-        FD_getDiffCoeff(
-            space_->nLoc(i),
-            space_->bl(i),
-            space_->bu(i),
-            space_->bl(i),
-            space_->bu(i),
-            space_->getBCLocal()->getBCL(i),
-            space_->getBCLocal()->getBCU(i),
-            space_->getShift(i),
-            int(EField::S)+1,
-            i+1,
-            2,
-            0,
-						//true,
-						false, // mapping
-            space_->getStencilWidths()->getDimNcbC(i),
-            space_->getStencilWidths()->getNcbC(i),
-            space_->getCoordinatesLocal()->getX( i, EField::S ),
-            space_->getCoordinatesLocal()->getX( i, EField::S ),
-            cS_[i] );
-
-      cV_[i] = new Scalar[ nTemp ];
-      if( i<SpaceT::sdim )
-        FD_getDiffCoeff(
-            space_->nLoc(i),
-            space_->bl(i),
-            space_->bu(i),
-            space_->bl(i),
-            space_->bu(i),
-            space_->getBCLocal()->getBCL(i),
-            space_->getBCLocal()->getBCU(i),
-            space_->getShift(i),
-            1,
-            i+1,
-            2,
-            0,
-						//true,
-						false,
-            space_->getStencilWidths()->getDimNcbC(i),
-            space_->getStencilWidths()->getNcbC(i),
-            space_->getCoordinatesLocal()->getX( i, i ),
-            space_->getCoordinatesLocal()->getX( i, i ),
-            cV_[i] );
+		
+			cV_[i] = new Stenc( space_->nLoc(i) );
+			FD_getDiffCoeff(
+					space_->nLoc(i),
+					space_->bl(i),
+					space_->bu(i),
+					space_->bl(i),
+					space_->bu(i),
+					space_->getBCLocal()->getBCL(i),
+					space_->getBCLocal()->getBCU(i),
+					space_->getShift(i),
+					1,
+					i+1,
+					2,
+					0,
+					true,
+					//false,
+					space_->getStencilWidths()->getDimNcbC(i),
+					space_->getStencilWidths()->getNcbC(i),
+					space_->getCoordinatesLocal()->getX( i, i ),
+					space_->getCoordinatesLocal()->getX( i, i ),
+					cV_[i]->get() );
     }
   };
 
   ~HelmholtzOp() {
-    for( int i=0; i<3; ++i ) {
-      delete[] cS_[i];
-      delete[] cV_[i];
+    for( int i=0; i<SpaceT::sdim; ++i ) {
+      delete cS_[i];
+      delete cV_[i];
     }
   }
 
 
   void apply(const DomainFieldT& x, RangeFieldT& y ) const {
 
-    for( int dir=0; dir<SpaceT::sdim; ++dir ) {
+		for( int dir=0; dir<SpaceT::sdim; ++dir ) {
 
-      EField fType = static_cast<EField>(dir);
+			EField fType = static_cast<EField>(dir);
 
 			x.getField(fType).exchange();
 
@@ -121,15 +126,17 @@ public:
 				for( Ordinal k=space()->begin(fType,Z); k<=space()->end(fType,Z); ++k )
 					for( Ordinal j=space()->begin(fType,Y); j<=space()->end(fType,Y); ++j )
 						for( Ordinal i=space()->begin(fType,X); i<=space()->end(fType,X); ++i )
-							y.getField(fType).at(i,j,k) = innerStenc3D( x, fType, i, j, k);
+							y.getField(fType).at(i,j,k) =
+								mulI_*x.getConstField(fType).at(i,j,k) - mulL_*innerStenc3D( x.getConstField(fType), fType, i, j, k);
 			}
 			else{
 				for( Ordinal k=space()->begin(fType,Z); k<=space()->end(fType,Z); ++k )
 					for( Ordinal j=space()->begin(fType,Y); j<=space()->end(fType,Y); ++j )
 						for( Ordinal i=space()->begin(fType,X); i<=space()->end(fType,X); ++i )
-							y.getField(fType).at(i,j,k) = innerStenc2D( x, fType, i, j, k);
+							y.getField(fType).at(i,j,k) =
+								mulI_*x.getConstField(fType).at(i,j,k) - mulL_*innerStenc2D( x.getConstField(fType), fType, i, j, k);
 			}
-    }
+		}
 
     y.changed();
   }
@@ -143,37 +150,19 @@ public:
     out << "--- " << getLabel() << " ---\n";
     out << " --- scalar stencil: ---";
 
-    for( int dir=0; dir<3; ++dir ) {
+    for( int dir=0; dir<SpaceT::sdim; ++dir ) {
 
 			out << "\ncoord: " << toString( static_cast<ECoord>(dir) ) << "\n";
 
-      Ordinal nTemp2 = space_->bu(dir) - space_->bl(dir) + 1;
-
-      for( Ordinal i=0; i<=space_->nLoc(dir); ++i ) {
-        out << "\ni: " << i << "\t(";
-        for( Ordinal k=space_->bl(dir); k<=space_->bu(dir); ++k ) {
-          out << getC(static_cast<ECoord>(dir),S,i,k) <<", ";
-        }
-        out << ")\n";
-      }
-      out << "\n";
+			cS_[dir]->print( out );
     }
     out << " --- velocity stencil: ---";
 
-    for( int dir=0; dir<3; ++dir ) {
+    for( int dir=0; dir<SpaceT::sdim; ++dir ) {
 
 			out << "\ncoord: " << toString( static_cast<ECoord>(dir) ) << "\n";
 
-      Ordinal nTemp2 = ( space_->bu(dir) - space_->bl(dir) + 1 );
-
-      for( Ordinal i=0; i<=space_->nLoc(dir); ++i ) {
-        out << "\ni: " << i << "\t(";
-        for( Ordinal k=space_->bl(dir); k<=space_->bu(dir); ++k ) {
-          out << getC(static_cast<ECoord>(dir),static_cast<EField>(dir),i,k) <<", ";
-        }
-        out << ")\n";
-      }
-      out << "\n";
+			cV_[dir]->print( out );
     }
   }
 
@@ -181,7 +170,7 @@ public:
 	constexpr const Teuchos::RCP<const SpaceT>& space() const { return( space_ ); };
 
   constexpr const Scalar* getC( const int& dir, const int& ftype ) const {
-		return( (dir==ftype)?cV_[dir]:cS_[dir] );
+		return( (dir==ftype)?cV_[dir]->get():cS_[dir]->get() );
   }
 
 	constexpr const Scalar& getC( const ECoord& dir, const EField& ftype, Ordinal i, Ordinal off ) const {
@@ -195,37 +184,36 @@ public:
 
 	const std::string getLabel() const { return( "Helmholtz" ); };
 
-protected:
 
-	inline constexpr Scalar innerStenc3D( const DomainFieldT& x, const EField& fType,
+	inline constexpr Scalar innerStenc3D( const ScalarField<SpaceT>& x, const EField& fType,
 			const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
 
 		Scalar lap = 0.;
 
 		for( int ii=space_->bl(X); ii<=space_->bu(X); ++ii ) 
-			lap += getC(X,fType,i,ii)*x.getConstField(fType).at(i+ii,j,k);
+			lap += getC(X,fType,i,ii)*x.at(i+ii,j,k);
 
 		for( int jj=space_->bl(Y); jj<=space_->bu(Y); ++jj ) 
-			lap += getC(Y,fType,j,jj)*x.getConstField(fType).at(i,j+jj,k);
+			lap += getC(Y,fType,j,jj)*x.at(i,j+jj,k);
 
 		for( int kk=space_->bl(Z); kk<=space_->bu(Z); ++kk ) 
-			lap += getC(Z,fType,k,kk)*x.getConstField(fType).at(i,j,k+kk);
+			lap += getC(Z,fType,k,kk)*x.at(i,j,k+kk);
 
-		return( mulI_*x.getField(fType).at(i,j,k) - mulL_*lap );
+		return( lap );
 	}
 
-	inline constexpr Scalar innerStenc2D( const DomainFieldT& x, const EField& fType,
+	inline constexpr Scalar innerStenc2D( const ScalarField<SpaceT>& x, const EField& fType,
 			const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
 
 		Scalar lap = 0.;
 
 		for( int ii=space_->bl(X); ii<=space_->bu(X); ++ii ) 
-			lap += getC(X,fType,i,ii)*x.getConstField(fType).at(i+ii,j,k);
+			lap += getC(X,fType,i,ii)*x.at(i+ii,j,k);
 
 		for( int jj=space_->bl(Y); jj<=space_->bu(Y); ++jj ) 
-			lap += getC(Y,fType,j,jj)*x.getConstField(fType).at(i,j+jj,k);
+			lap += getC(Y,fType,j,jj)*x.at(i,j+jj,k);
 
-		return( mulI_*x.getConstField(fType).at(i,j,k) - mulL_*lap );
+		return( lap );
 	}
 
 

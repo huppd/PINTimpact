@@ -70,9 +70,6 @@ protected:
 
 	Teuchos::Tuple< Teuchos::RCP<Teuchos::ParameterList>, 3 > stretchPara_;
 
-  //TO dxS_; // dh: doesn't know where needed?
-  //TO dxV_; // dh: locally computed in grid size local
-
 	/// \name coordinate stretchings
 	/// @{ 
 
@@ -85,9 +82,8 @@ protected:
 	/// \param[in] M
 	/// \param[in] x0
 	/// \param[out] x
-	void coord_equi( const ScalarT& i, const ScalarT& L, const ScalarT& M, const ScalarT& x0, ScalarT& x/*, ScalarT& dx*/ ) {
+	void coord_equi( const ScalarT& i, const ScalarT& L, const ScalarT& M, const ScalarT& x0, ScalarT& x ) {
 		x  = i*L/( M-1. ) - x0;
-		//dx =   L/( M-1. );
 	}
   
 	/// \brief coordinate stretching for parabulas
@@ -100,9 +96,8 @@ protected:
 	/// \param[in] x0 origin
 	/// \param[in] alpha parameter for parabola alpha=0 very parabolic alpha>>0 equidistant
 	/// \param[out] x coordinate
-	void coord_parab( const ScalarT& i, const ScalarT& L, const ScalarT& M, const ScalarT& x0, const ScalarT& alpha, ScalarT& x/*, ScalarT& dx*/ ) {
+	void coord_parab( const ScalarT& i, const ScalarT& L, const ScalarT& M, const ScalarT& x0, const ScalarT& alpha, ScalarT& x ) {
 		x  = L*( std::pow(i,2)/std::pow(M-1.,2) + 2.*alpha*i/(M-1.) )/(1.+2.*alpha) - x0;
-		//dx = L*(      2.*(i)  /std::pow(M-1.,2) + 2.*alpha  /(M-1.) )/(1.+2.*alpha);
 	}
 
 
@@ -138,7 +133,7 @@ protected:
 			const ScalarT& iMU,
 			const ScalarT& i0L,
 			const ScalarT& i0U,
-			ScalarT& x/*, ScalarT& dx*/ ) {
+			ScalarT& x ) {
 
 		ScalarT wL;
 		ScalarT wU;
@@ -189,9 +184,6 @@ protected:
 		//--- Normalization
 		x *= L/( xL + xU - iML + iMU );
 		x -= x0;
-		//std::cout << "i: " << i << "\n"
-			//<< " wl: " << wL << "xl: " << xL << ", x_i: " << x << "\n";
-		//std::cout << "\n"<<  x << "\n";
 	}
 
 	///  @} 
@@ -237,9 +229,7 @@ protected:
 				ScalarT Ms = M;
 
 				xS_ [dir] = Teuchos::arcp<ScalarT>( M   );
-				//dxS_[dir] = Teuchos::arcp<ScalarT>( M   );
 				xV_ [dir] = Teuchos::arcp<ScalarT>( M+1 );
-				//dxV_[dir] = Teuchos::arcp<ScalarT>( M+1 );
 
 				if( dir<3 ) {
 
@@ -273,7 +263,6 @@ protected:
 								coord_equi( is, L, Ms, x0, xS_[dir][i] );
 								break;
 						}
-						//std::cout << "after i: "<< i << " x: " << xS_[dir][i] << "\n\n";
 					}
 					for( OrdinalT i=0; i<=M; ++i ) {
 						ScalarT is = static_cast<ScalarT>(i) - 0.5;
@@ -300,10 +289,7 @@ protected:
 								coord_equi( is, L, Ms, x0, xV_[dir][i] );
 								break;
 						}
-						//coord_equi( is-0.5, L, Ms, x0, xV_[dir][i] );
-						//coord_parab( is-0.5, L, Ms, x0, 0.05, xV_[dir][i] );
 					}
-
 				}
 				else if( 3==dir ) {
 					// in time direction no stretching is considered as long as
@@ -314,12 +300,10 @@ protected:
 					for( OrdinalT i=0; i<M; ++i ) {
 						ScalarT is = i;
 						xS_ [dir][i] = is*L/( Ms-1. );
-						//dxS_[dir][i] =    L/( Ms-1. );
 					}
 					for( OrdinalT i=0; i<=M; ++i ) {
 						ScalarT is = static_cast<ScalarT>(i) - 0.5;
 						xV_ [dir][i] = is*L/( Ms-1. );
-						//dxV_[dir][i] =  L/( Ms-1. );
 					}
 				}
 			}
@@ -371,8 +355,6 @@ protected:
 				xV_[dir][Mc] = coordinatesF->xV_[dir][Mf];
 			}
 		}
-		//Teuchos::RCP<std::ostream> out = createOstream( "coord.txt", 0 );
-		//print( *out );
 	}
 
 

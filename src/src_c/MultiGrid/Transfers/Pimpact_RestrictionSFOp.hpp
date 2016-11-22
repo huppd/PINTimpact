@@ -18,7 +18,7 @@ namespace Pimpact {
 
 
 /// \brief Opetartor that restricts from a fine space to a coarse space
-///
+/// \todo c++fy
 /// \tparam ST type of the \c Space
 template<class ST>
 class RestrictionSFOp : private RestrictionBaseOp<ST> {

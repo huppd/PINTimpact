@@ -15,6 +15,7 @@ include_directories("./BelosPimpact")
 include_directories("./NOXPimpact")
 include_directories("./MultiGrid")
 include_directories("./MultiGrid/Transfers")
+include_directories( "./EigenSolver" )
 
 add_subdirectory("./Space")
 add_subdirectory("./Fields")

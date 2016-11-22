@@ -15,37 +15,6 @@ namespace Pimpact {
 
 
 
-extern "C"
-void OP_convectionDiffusion(
-		const int& dimens,
-		const int* const N,
-		const int* const bL,
-		const int* const bU,
-		const int* const nL,
-		const int* const nU,
-		const int* const SS,
-		const int* const NN,
-		const double* const c1D,
-		const double* const c2D,
-		const double* const c3D,
-		const double* const c1U,
-		const double* const c2U,
-		const double* const c3U,
-		const double* const c11,
-		const double* const c22,
-		const double* const c33,
-		const double* const phiU,
-		const double* const phiV,
-		const double* const phiW,
-		const double* const phi,
-		const double* nlu,
-		const double& mul,
-		const double& mulI,
-		const double& mulC,
-		const double& mulL );
-
-
-
 /// \brief convection operator, that takes the free interpolated velocity components and advects accordingly
 /// \ingroup NonliearOperator
 template<class ST>
@@ -103,44 +72,35 @@ public:
 	void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z,
 			Scalar mul, Scalar mulI, Scalar mulC, Scalar mulL ) const {
 
+		const EField& m = y.getType();
+#ifndef NDEBUG
 		TEUCHOS_TEST_FOR_EXCEPT( z.getType() != y.getType() );
-
-		for( int i =0; i<SpaceT::sdim; ++i )
+		for( int i=0; i<SpaceT::sdim; ++i )
 			TEUCHOS_TEST_FOR_EXCEPT( x[i]->getType() != y.getType() );
+#endif
 
 		for( int vel_dir=0; vel_dir<SpaceT::sdim; ++vel_dir )
 			x[vel_dir]->exchange();
 
 		y.exchange();
 
-		const int sdim = SpaceT::sdim;
-		OP_convectionDiffusion(
-				sdim,
-				space()->nLoc(),
-				space()->bl(),
-				space()->bu(),
-				space()->nl(),
-				space()->nu(),
-				space()->sInd(z.getType()),
-				space()->eInd(z.getType()),
-				convSOp_->getCD(X,z.getType()),
-				convSOp_->getCD(Y,z.getType()),
-				convSOp_->getCD(Z,z.getType()),
-				convSOp_->getCU(X,z.getType()),
-				convSOp_->getCU(Y,z.getType()),
-				convSOp_->getCU(Z,z.getType()),
-				helmOp_->getC(X,z.getType()),
-				helmOp_->getC(Y,z.getType()),
-				helmOp_->getC(Z,z.getType()),
-				x[0]->getConstRawPtr(),
-				x[1]->getConstRawPtr(),
-				x[2]->getConstRawPtr(),
-				y.getConstRawPtr(),
-				z.getRawPtr(),
-				mul,
-				mulI,
-				mulC,
-				mulL );
+		if( 3==SpaceT::sdim )
+			for( Ordinal k=space()->begin(m,Z); k<=space()->end(m,Z); ++k )
+				for( Ordinal j=space()->begin(m,Y); j<=space()->end(m,Y); ++j )
+					for( Ordinal i=space()->begin(m,X); i<=space()->end(m,X); ++i )
+						z.at(i,j,k) = mul * z.at(i,j,k)
+							+ mulI * y.at(i,j,k)
+							+ mulC * convSOp_->innerStenc3D( x[0]->at(i,j,k),
+									x[1]->at(i,j,k), x[2]->at(i,j,k), y, i, j, k )
+							- mulL * helmOp_->innerStenc3D( y, m, i, j, k);
+		else
+			for( Ordinal k=space()->begin(m,Z); k<=space()->end(m,Z); ++k )
+				for( Ordinal j=space()->begin(m,Y); j<=space()->end(m,Y); ++j )
+					for( Ordinal i=space()->begin(m,X); i<=space()->end(m,X); ++i )
+						z.at(i,j,k) = mul*z.at(i,j,k)
+							+ mulI*y.at(i,j,k)
+							+ mulC*convSOp_->innerStenc2D( x[0]->at(i,j,k), x[1]->at(i,j,k), y, i,j,k)
+							- mulL * helmOp_->innerStenc2D( y, m, i, j, k);
 
 		z.changed();
 	}
@@ -157,10 +117,6 @@ public:
 		mulI_ = para->get<Scalar>( "mulI", 0. );
 		mulC_ = para->get<Scalar>( "mulC", 1. );
 		mulL_ = para->get<Scalar>( "mulL", 1./space()->getDomainSize()->getRe() );
-//		std::cout << "mul: " << mul_ << "\n";
-//		std::cout << "mulI: " << mulI_ << "\n";
-//		std::cout << "mulC: " << mulC_ << "\n";
-//		std::cout << "mulL: " << mulL_ << "\n\n";
 	}
 
   constexpr const Teuchos::RCP<const ConvectionSOp<SpaceT> >& getConvSOp() const { return( convSOp_ ); }

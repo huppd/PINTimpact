@@ -81,30 +81,30 @@ protected:
 protected:
 
   /// \brief constructor
-  StencilWidths( const bool& spectralT ):
+	StencilWidths( const bool& spectralT ):
 		spectralT_(spectralT),
-    ncbC_(),
-    ncbD_(),
-    ncbG_(),
-    bl_(),
-    bu_(),
-    dl_(),
-    du_(),
-    gl_(),
-    gu_(),
-    nl_(),
-    nu_(),
-    ls_(Teuchos::tuple(-1,-1,-1) ) {
+		ncbC_(),
+		ncbD_(),
+		ncbG_(),
+		bl_(),
+		bu_(),
+		dl_(),
+		du_(),
+		gl_(),
+		gu_(),
+		nl_(),
+		nu_(),
+		ls_(Teuchos::tuple(-1,-1,-1) ) {
 
-    //--- Anzahl Stencil-Koeffizienten (Rand) -------------------------------------------------------------------
-    // implementation here is a little bit fuzzy, because Tuple has no nice templated constructor we copy
-    for( int i=0; i<3; ++i ) {
-			switch(dimNC) {
-				case(2): {
+			//--- Anzahl Stencil-Koeffizienten (Rand) -------------------------------------------------------------------
+			// implementation here is a little bit fuzzy, because Tuple has no nice templated constructor we copy
+			for( int i=0; i<3; ++i ) {
+				switch(dimNC) {
+					case(2): {
 
-					auto tempC = Teuchos::tuple( 2, 3 );
-					auto tempD = Teuchos::tuple( 2, 2 );
-					auto tempG = Teuchos::tuple( 0, 2 );
+					Teuchos::Tuple<int,2> tempC = Teuchos::tuple( 2, 3 );
+					Teuchos::Tuple<int,2>	tempD = Teuchos::tuple( 2, 2 );
+					Teuchos::Tuple<int,2>	tempG = Teuchos::tuple( 0, 2 );
 
 					for( int j=0; j<dimNC; ++j ) {
 						ncbC_[i][j] = tempC[j];
@@ -112,11 +112,11 @@ protected:
 						ncbG_[i][j] = tempG[j];
 					}
 					break;
-				}
+			 }
 				case(3): {
-					auto tempC = Teuchos::tuple( 3, 4, 5 );
-					auto tempD = Teuchos::tuple( 3, 4, 4 );
-					auto tempG = Teuchos::tuple( 2, 3, 4 );
+					 Teuchos::Tuple<int,3> tempC = Teuchos::tuple( 3, 4, 5 );
+					 Teuchos::Tuple<int,3> tempD = Teuchos::tuple( 3, 4, 4 );
+					 Teuchos::Tuple<int,3> tempG = Teuchos::tuple( 2, 3, 4 );
 
 					for( int j=0; j<dimNC; ++j ) {
 						ncbC_[i][j] = tempC[j];
@@ -127,9 +127,9 @@ protected:
 				}
 				case(4): {
 					// Stabil   (xi >= 2, Re=10000, N=17)
-					auto tempC = Teuchos::tuple( 4, 5, 5, 7 );
-					auto tempD = Teuchos::tuple( 4, 4, 6, 6 );
-					auto tempG = Teuchos::tuple( 3, 4, 4, 6 );
+				  Teuchos::Tuple<int,4> tempC = Teuchos::tuple( 4, 5, 5, 7 );
+				  Teuchos::Tuple<int,4> tempD = Teuchos::tuple( 4, 4, 6, 6 );
+				  Teuchos::Tuple<int,4> tempG = Teuchos::tuple( 3, 4, 4, 6 );
 					for( int j=0; j<dimNC; ++j ) {
 						ncbC_[i][j] = tempC[j];
 						ncbD_[i][j] = tempD[j];
@@ -156,9 +156,9 @@ protected:
 				}
 				case(6): {
 					// Instabil (äquidistant, Re=10000, N=17)
-					auto tempC = Teuchos::tuple( 6, 7, 7, 7,  9, 11 );
-					auto tempD = Teuchos::tuple( 6, 6, 6, 8, 10, 10 );
-					auto tempG = Teuchos::tuple( 5, 6, 6, 6,  8, 10 );
+					Teuchos::Tuple<int,6> tempC = Teuchos::tuple( 6, 7, 7, 7,  9, 11 );
+					Teuchos::Tuple<int,6> tempD = Teuchos::tuple( 6, 6, 6, 8, 10, 10 );
+					Teuchos::Tuple<int,6> tempG = Teuchos::tuple( 5, 6, 6, 6,  8, 10 );
 					for( int j=0; j<dimNC; ++j ) {
 						ncbC_[i][j] = tempC[j];
 						ncbD_[i][j] = tempD[j];
@@ -173,11 +173,11 @@ protected:
 		}
 
     // Anzahl der Koeffizienten im Feld (zentrale Differenzen angenommen):
-    Teuchos::Tuple<int,3> ncC;
+    //Teuchos::Tuple<int,3> ncC;
     Teuchos::Tuple<int,3> ncS;
 
     for( int i=0; i<3; ++i ) {
-      ncC[i] = ncbC_[i][dimNC-1];
+      //ncC[i] = ncbC_[i][dimNC-1];
       ncS[i] = ncbG_[i][dimNC-1];
     }
 
@@ -188,7 +188,6 @@ protected:
     }
     if( 4==dim ) bl_[3] = -1;
 		if( 4==dim ) bu_[3] =  1;
-//    if( 4==dim ) bu_[3] =  0;
 
     // divergence
     for( int i=0; i<3; ++i ) {
@@ -248,6 +247,39 @@ public:
     out << "\tls: " << ls_ << "\n";
   }
 
+  static constexpr inline
+	int BL( const int& i ) { 
+		return( (4==1)?-1:-dimNC+1 );
+	}
+  static constexpr inline
+	int BU( const int& i ) { 
+		return( (4==1)?1:dimNC-1 );
+	}
+  static constexpr inline
+	int DL( const int& i ) { 
+		return( (4==1)?-1:-dimNC+1 );
+	}
+  static constexpr inline
+	int DU( const int& i ) { 
+		return( (4==1)?1:dimNC-2 );
+	}
+  static constexpr inline
+	int GL( const int& i ) { 
+		return( (4==1)?-1:-dimNC+2 );
+	}
+  static constexpr inline
+	int GU( const int& i ) { 
+		return( (4==1)?1:dimNC-1 );
+	}
+  static constexpr inline
+	int NL( const int& i ) { 
+		return( (4==1)?-1:-dimNC+1 );
+	}
+  static constexpr inline
+	int NU( const int& i ) { 
+		return( (4==1)?1:dimNC-1 );
+	}
+
 	constexpr const bool& spectralT() const { return( spectralT_ ); }
 
   constexpr int getDimNcbC( const int& i ) const { return( ncbC_[i].size() ); }
@@ -259,7 +291,7 @@ public:
   constexpr const int* getNcbG( const int& i ) const { return( ncbG_[i].getRawPtr() ); }
 
   constexpr const int* getBL()               const { return( bl_.getRawPtr() ); }
-  constexpr const int& getBL( const int& i ) const { return( bl_[i] ); }
+	constexpr const int& getBL( const int& i ) const { return( bl_[i] ); }
 
   constexpr const int* getBU()               const { return( bu_.getRawPtr() ); }
   constexpr const int& getBU( const int& i ) const { return( bu_[i] ); }

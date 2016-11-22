@@ -39,6 +39,7 @@
 #include "Pimpact_Types.hpp"
 #include "Pimpact_Space.hpp"
 
+#include "Pimpact_DivGradNullSpace.hpp"
 
 
 
@@ -269,33 +270,36 @@ int main( int argi, char** argv ) {
 				auto nullspace = Pimpact::createMultiField( x->getFieldPtr(0)->getSFieldPtr()->get0FieldPtr()->clone() );
 				auto zeros = nullspace->clone();
 
-				nullspace->init( 1. );
-				zeros->init( 0. );
+				Pimpact::DivGradNullSpace<Pimpact::DivOp<SpaceT> > compNullspace;// = Pimpact::create<Pimpact::DivGradNullSpace>( );
 
-				auto divGradInvTT =
-					Pimpact::createInverseOp( 
-							Pimpact::createTranspose( divGradOp ),
-							Teuchos::rcpFromRef( pl->sublist("DivGrad^T") ) );
+				compNullspace.computeNullSpace( divGradOp->getDivOp(), nullspace->getField(0) );
+				//nullspace->init( 1. );
+				//zeros->init( 0. );
 
-				std::string divGradScalString =
-					pl->sublist("DivGrad^T").get<std::string>("scaling","none");
-				if( "none" != divGradScalString ) { 
-					if( "left" != divGradScalString )
-						divGradInvTT->setLeftPrec( Pimpact::createMultiOperatorBase(
-									Pimpact::createInvDiagonal( divGradOp ) ) );
-					if( "right" != divGradScalString )
-						divGradInvTT->setRightPrec( Pimpact::createMultiOperatorBase(
-									Pimpact::createInvDiagonal( divGradOp ) ) );
-				}
+				//auto divGradInvTT =
+					//Pimpact::createInverseOp( 
+							//Pimpact::createTranspose( divGradOp ),
+							//Teuchos::rcpFromRef( pl->sublist("DivGrad^T") ) );
 
-				divGradInvTT->apply( *zeros, *nullspace );
+				//std::string divGradScalString =
+					//pl->sublist("DivGrad^T").get<std::string>("scaling","none");
+				//if( "none" != divGradScalString ) { 
+					//if( "left" != divGradScalString )
+						//divGradInvTT->setLeftPrec( Pimpact::createMultiOperatorBase(
+									//Pimpact::createInvDiagonal( divGradOp ) ) );
+					//if( "right" != divGradScalString )
+						//divGradInvTT->setRightPrec( Pimpact::createMultiOperatorBase(
+									//Pimpact::createInvDiagonal( divGradOp ) ) );
+				//}
+
+				//divGradInvTT->apply( *zeros, *nullspace );
 
 				nullspace->write(888);
 				auto out = Pimpact::createOstream( "nullspace.txt", space->rankST() );
 				nullspace->print( *out );
 
-				S blup = std::sqrt( 1./nullspace->dot(*nullspace) );
-				nullspace->scale( blup );
+				//S blup = std::sqrt( 1./nullspace->dot(*nullspace) );
+				//nullspace->scale( blup );
 				divGradInv2->setNullspace( nullspace );
 			}
 			//// --- end nullspace
@@ -480,5 +484,4 @@ int main( int argi, char** argv ) {
 
 	MPI_Finalize();
 	return( 0 );
-
 }

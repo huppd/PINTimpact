@@ -39,7 +39,7 @@ ADD_EXECUTABLE( EigenSolverTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact
 TARGET_LINK_LIBRARIES( EigenSolverTest ${Pimpact_TPL_LIBRARIES} ) 
 
 foreach( domain RANGE 0 4 )
-	add_test( NAME "FieldTest_domain${domain}" COMMAND mpirun -np 8 ./FieldTest --domain=${domain} )
+	add_test( NAME "FieldTest_domain${domain}" COMMAND mpirun -np 8 ./FieldTest --domain=${domain} --npx=2 --npy=2 --npz=2 )
 	add_test( NAME "VectorFieldTest_domain${domain}" COMMAND mpirun -np 8 ./VectorFieldTest --domain=${domain} ) 
 	add_test( NAME "MultiFieldTest_domain${domain}" COMMAND mpirun -np 8 ./MultiFieldTest --domain=${domain} )
 	add_test( NAME "MultiHarmonicFieldTest_domain${domain}_global" COMMAND mpirun -np 8 ./MultiHarmonicFieldTest --domain=${domain} --global )

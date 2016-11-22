@@ -51,7 +51,7 @@ protected:
   using Scalar = typename SpaceT::Scalar;
   using Ordinal = typename SpaceT::Ordinal;
 
-	using Stenc = Stencil< Scalar, Ordinal >;
+	using Stenc = Stencil< Scalar, Ordinal, 1, -1, 1 >;
   using TS = const Teuchos::Tuple< Stenc*, ST::sdim >;
 
   const Teuchos::RCP<const SpaceT> space_;
@@ -64,7 +64,7 @@ public:
 
 		for( int dir=0; dir<ST::sdim; ++dir ) {
 			// allocate stencil
-			c_[dir] = new Stenc( 1, space_->nLoc(dir), -1, 1 );
+			c_[dir] = new Stenc( space_->nLoc(dir) );
 
 			Op_getCDG_dir(
 					space_->nGlo( dir ),
@@ -149,7 +149,6 @@ public:
 						const Scalar epsZ = ( (bcX||bcY)?eps:1. );
 
 						Scalar diag = std::abs( epsX*getC(X,i,0) + epsY*getC(Y,j,0) + epsZ*getC(Z,k,0) );
-						//std::cout << i << "\t" << j << "\t" << k << "\t" << diag << "\n";
 						y.at(i,j,k) = x.at(i,j,k)/diag;
 					}
 		}

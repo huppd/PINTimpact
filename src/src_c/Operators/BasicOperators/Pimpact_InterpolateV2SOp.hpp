@@ -51,7 +51,10 @@ public:
 
 protected:
 
-	using Stenc = Stencil<Scalar,Ordinal>;
+	using SW = StencilWidths<dimension,dimNC>;
+
+	using Stenc = Stencil< Scalar, Ordinal, 0, SW::DL(0), SW::DU(0) >;
+	//using Stenc = Stencil<Scalar,Ordinal,0>;
 	using TS = const Teuchos::Tuple< Stenc*, sdim >;
 
 	TS c_;
@@ -70,8 +73,8 @@ public:
 
 		for( int i=0; i<sdim; ++i ) {
 
-			c_[i] = new Stenc( 0, gridSizeLocal->get(i), stencilWidths->getDL(i), stencilWidths->getDU(i) );
-			cm_[i] = new Stenc( 0, gridSizeLocal->get(i), stencilWidths->getDL(i), stencilWidths->getDU(i) );
+			c_[i] = new Stenc(  gridSizeLocal->get(i) );
+			cm_[i] = new Stenc( gridSizeLocal->get(i) );
 
 			FD_getDiffCoeff(
 					gridSizeLocal->get(i),
@@ -105,7 +108,8 @@ public:
 					i+1,  // direction
 					0,    // 0-derivative
 					0,    // central
-					false, // mapping, works with interpolateV2S
+					//false, // mapping, works with interpolateV2S
+					true, // mapping, works with interpolateV2S
 					stencilWidths->getDimNcbD(i),
 					stencilWidths->getNcbD(i),
 					coordinatesLocal->getX( i, i ),
@@ -125,6 +129,8 @@ public:
 	void apply( const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans&
 			trans=Belos::NOTRANS ) const {
 
+		assert( x.getType() != S );
+		assert( y.getType() == S );
 #ifndef NDBEUG
 		TEUCHOS_TEST_FOR_EXCEPTION(
 				x.getType() == S,

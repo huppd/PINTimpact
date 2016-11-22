@@ -1117,7 +1117,7 @@ public:
 
 public:
 
-  const EField& getType() const { return( fType_ ); }
+  constexpr const EField& getType() const { return( fType_ ); }
 
    /// \name storage methods.
 	 /// \brief highly dependent on underlying storage should only be used by

@@ -27,10 +27,10 @@ class DivGradO2Inv {
 
 public:
 
-  using SpaceT = typename OperatorT::SpaceT;
+	using SpaceT = typename OperatorT::SpaceT;
 
-  using DomainFieldT = ScalarField<SpaceT>;
-  using RangeFieldT = ScalarField<SpaceT>;
+	using DomainFieldT = ScalarField<SpaceT>;
+	using RangeFieldT = ScalarField<SpaceT>;
 
 protected:
 
@@ -47,11 +47,11 @@ public:
 	///   These are the options accepted by the solver manager: none
 	DivGradO2Inv( const Teuchos::RCP<const OperatorT>& op,
 			const Teuchos::RCP<Teuchos::ParameterList>& pl=Teuchos::parameterList() ):
-	 levelYes_( pl->get<bool>( "level", false ) ),
+		levelYes_( pl->get<bool>( "level", false ) ),
 		solver_( Teuchos::rcp( new TeuchosSolver<OperatorT>( op ) ) ) { }
 
 
-  /// \f[ y_k = (1-\omega) y_k + \omega D^{-1}( x - N y_k ) \f]
+	/// \f[ y_k = (1-\omega) y_k + \omega D^{-1}( x - N y_k ) \f]
 	void apply( const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans&
 			trans=Belos::NOTRANS ) const {
 
@@ -61,19 +61,19 @@ public:
 			y.level();
 	}
 
-  void assignField( const DomainFieldT& mv ) {};
+	void assignField( const DomainFieldT& mv ) {};
 
-  bool hasApplyTranspose() const { return( false ); }
+	bool hasApplyTranspose() const { return( false ); }
 
 	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(solver_->getOperator()->space()); };
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
-  void print( std::ostream& out=std::cout ) const {
-    out << "--- " << getLabel() << " ---\n";
-    solver_->getOperator()->print( out );
+	void print( std::ostream& out=std::cout ) const {
+		out << "--- " << getLabel() << " ---\n";
+		solver_->getOperator()->print( out );
 		//out << "\n" << *A_ << "\n";
-  }
+	}
 
 	const std::string getLabel() const { return( "DivGradO2Inv" ); };
 

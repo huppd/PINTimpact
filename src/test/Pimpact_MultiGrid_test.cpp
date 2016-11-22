@@ -11,6 +11,8 @@
 #include "Pimpact_MultiGrid.hpp"
 #include "Pimpact_Operator.hpp"
 
+#include "Pimpact_Test.hpp"
+
 
 
 
@@ -18,16 +20,8 @@ namespace {
 
 
 
-using ST = double;
-using OT = int;
-
-const int dimension = 4;
-
-using D2 = Pimpact::Space<ST,OT,2,dimension,4>;
-using D3 = Pimpact::Space<ST,OT,3,dimension,4>;
-
-using CSpace2DT = Pimpact::Space<ST,OT,2,dimension,2>;
-using CSpace3DT = Pimpact::Space<ST,OT,3,dimension,2>;
+using CSpace2DT = Pimpact::Space<ST,OT,2,d,2>;
+using CSpace3DT = Pimpact::Space<ST,OT,3,d,2>;
 
 using CSL2D = Pimpact::CoarsenStrategy<D2,CSpace2DT>;
 using CSG2D = Pimpact::CoarsenStrategyGlobal<D2,CSpace2DT>;
@@ -170,135 +164,9 @@ using DGCMGT3D = Pimpact::MultiGrid<
 
 
 
-bool testMpi = true;
-double eps = 1e-6;
-int print = 0;
-int write = 0;
-
-int domain = 0;
-
-int ftype = 0;
-
-int fs = 0;
-int fe = 4;
-
-int level = -1;
-
-ST lx = 1.;
-ST ly = 1.;
-ST lz = 1.;
-
-OT nx = 33;
-OT ny = 33;
-OT nz = 33;
-OT nf = 1;
-
-int sx = 0;
-int sy = 0;
-int sz = 0;
-
-int npx = 1;
-int npy = 1;
-int npz = 1;
-int npf = 1;
-
-int rankbla = -1;
-
-int maxGrids = 10;
-
-int nMax = 10;
-
-auto pl = Teuchos::parameterList();
-
-
-
-TEUCHOS_STATIC_SETUP() {
-
-	Teuchos::CommandLineProcessor &clp = Teuchos::UnitTestRepository::getCLP();
-	clp.addOutputSetupOptions(true);
-	clp.setOption( "test-mpi", "test-serial", &testMpi,
-			"Test MPI (if available) or force test of serial.  In a serial build,"
-			" this option is ignored and a serial comm is always used." );
-	clp.setOption( "error-tol-slack", &eps,
-			"Slack off of machine epsilon used to check test results" );
-
-	clp.setOption( "print", &print, "" );
-	clp.setOption( "write", &write, "" );
-
-	clp.setOption( "domain", &domain, "domain" );
-
-	clp.setOption( "ftype", &ftype,
-			"Slack off of machine epsilon used to check test results" );
-	clp.setOption( "fs", &fs,
-			"Slack off of machine epsilon used to check test results" );
-	clp.setOption( "fe", &fe,
-			"Slack off of machine epsilon used to check test results" );
-	clp.setOption( "level", &level, "" );
-
-	clp.setOption( "lx", &lx, "" );
-	clp.setOption( "ly", &ly, "" );
-	clp.setOption( "lz", &lz, "" );
-
-	clp.setOption( "nx", &nx, "" );
-	clp.setOption( "ny", &ny, "" );
-	clp.setOption( "nz", &nz, "" );
-	clp.setOption( "nf", &nf, "" );
-
-	clp.setOption( "sx", &sx, "" );
-	clp.setOption( "sy", &sy, "" );
-	clp.setOption( "sz", &sz, "" );
-
-	clp.setOption( "npx", &npx, "" );
-	clp.setOption( "npy", &npy, "" );
-	clp.setOption( "npz", &npz, "" );
-	clp.setOption( "npf", &npf, "" );
-
-
-	clp.setOption( "rank", &rankbla, "" );
-	clp.setOption( "maxGrids", &maxGrids, "" );
-	clp.setOption( "nMax", &nMax, "" );
-
-	pl->set<ST>( "Re", 400 );
-}
-
-
-
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSpaces, constructor, CS ) {
 
-	Pimpact::setBoundaryConditions( pl, domain );
-
-	pl->set( "lx", lx );
-	pl->set( "ly", ly );
-	pl->set( "lz", lz );
-
-	//  grid size
-	pl->set("nx", nx );
-	pl->set("ny", ny );
-	pl->set("nz", nz );
-	pl->set("nf", nf );
-
-	// grid stretching
-	if( sx!=0 ) {
-		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
-		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
-	}
-	if( sy!=0 ) {
-		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
-		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
-	}
-	if( sz!=0 ) {
-		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
-		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
-	}
-
-	// processor grid size
-	pl->set("npx", npx );
-	pl->set("npy", npy );
-	pl->set("npz", npz );
-	pl->set("npf", npf );
+	setParameter( CS::SpaceT::sdim );
 
 	auto space = Pimpact::create<typename CS::SpaceT>( pl );
 
@@ -331,40 +199,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSpaces, constructor, CSG3D )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGFields, SFconstructor, CS ) {
 
-	Pimpact::setBoundaryConditions( pl, domain );
-
-	pl->set( "lx", lx );
-	pl->set( "ly", ly );
-	pl->set( "lz", lz );
-
-	//  grid size
-	pl->set( "nx", nx );
-	pl->set( "ny", ny );
-	pl->set( "nz", nz );
-	pl->set( "nf", nf );
-
-	// grid stretching
-	if( sx!=0 ) {
-		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
-		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
-	}
-	if( sy!=0 ) {
-		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
-		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
-	}
-	if( sz!=0 ) {
-		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
-		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
-	}
-
-	// processor grid size
-	pl->set( "npx", npx );
-	pl->set( "npy", npy );
-	pl->set( "npz", npz );
-	pl->set( "npf", npf );
+	setParameter( CS::SpaceT::sdim );
 
 	auto space = Pimpact::create<typename CS::SpaceT>( pl );
 
@@ -395,40 +230,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGFields, SFconstructor, CSG3D )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGFields, VFconstructor, CS ) {
 
-	Pimpact::setBoundaryConditions( pl, domain );
-
-	pl->set( "lx", lx );
-	pl->set( "ly", ly );
-	pl->set( "lz", lz );
-
-	//  grid size
-	pl->set("nx", nx );
-	pl->set("ny", ny );
-	pl->set("nz", nz );
-	pl->set("nf", nf );
-
-	// grid stretching
-	if( sx!=0 ) {
-		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
-		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
-	}
-	if( sy!=0 ) {
-		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
-		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
-	}
-	if( sz!=0 ) {
-		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
-		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
-	}
-
-	// processor grid size
-	pl->set("npx", npx );
-	pl->set("npy", npy );
-	pl->set("npz", npz );
-	pl->set("npf", npf );
+	setParameter( CS::SpaceT::sdim );
 
 	auto space = Pimpact::create<typename CS::SpaceT>( pl );
 
@@ -459,40 +261,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGFields, VFconstructor, CSG3D )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGOperators, SFconstructor, CS ) {
 
-	Pimpact::setBoundaryConditions( pl, domain );
-
-	pl->set( "lx", lx );
-	pl->set( "ly", ly );
-	pl->set( "lz", lz );
-
-	//  grid size
-	pl->set("nx", nx );
-	pl->set("ny", ny );
-	pl->set("nz", nz );
-	pl->set("nf", nf );
-
-	// grid stretching
-	if( sx!=0 ) {
-		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
-		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
-	}
-	if( sy!=0 ) {
-		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
-		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
-	}
-	if( sz!=0 ) {
-		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
-		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
-	}
-
-	// processor grid size
-	pl->set("npx", npx );
-	pl->set("npy", npy );
-	pl->set("npz", npz );
-	pl->set("npf", npf );
+	setParameter( CS::SpaceT::sdim );
 
 	auto space = Pimpact::create<typename CS::SpaceT>( pl );
 
@@ -521,40 +290,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGOperators, SFconstructor, CSG3D )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGOperators, VFconstructor, CS ) {
 
-	Pimpact::setBoundaryConditions( pl, domain );
-
-	pl->set( "lx", lx );
-	pl->set( "ly", ly );
-	pl->set( "lz", lz );
-
-	//  grid size
-	pl->set("nx", nx );
-	pl->set("ny", ny );
-	pl->set("nz", nz );
-	pl->set("nf", nf );
-
-	// grid stretching
-	if( sx!=0 ) {
-		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
-		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
-	}
-	if( sy!=0 ) {
-		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
-		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
-	}
-	if( sz!=0 ) {
-		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
-		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
-	}
-
-	// processor grid size
-	pl->set("npx", npx );
-	pl->set("npy", npy );
-	pl->set("npz", npz );
-	pl->set("npf", npf );
+	setParameter( CS::SpaceT::sdim );
 
 	auto space = Pimpact::create<typename CS::SpaceT>( pl );
 
@@ -577,40 +313,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGOperators, VFconstructor, CSG3D )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSmoothers, SFconstructor, CS ) {
 
-	Pimpact::setBoundaryConditions( pl, domain );
-
-	pl->set( "lx", lx );
-	pl->set( "ly", ly );
-	pl->set( "lz", lz );
-
-	//  grid size
-	pl->set("nx", nx );
-	pl->set("ny", ny );
-	pl->set("nz", nz );
-	pl->set("nf", nf );
-
-	// grid stretching
-	if( sx!=0 ) {
-		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
-		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
-	}
-	if( sy!=0 ) {
-		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
-		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
-	}
-	if( sz!=0 ) {
-		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
-		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
-	}
-
-	// processor grid size
-	pl->set("npx", npx );
-	pl->set("npy", npy );
-	pl->set("npz", npz );
-	pl->set("npf", npf );
+	setParameter( CS::SpaceT::sdim );
 
 	auto space = Pimpact::create<typename CS::SpaceT>( pl );
 
@@ -636,40 +339,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSmoothers, SFconstructor, CSG3D )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGSmoothers, VFconstructor, CS ) {
 
-	Pimpact::setBoundaryConditions( pl, domain );
-
-	pl->set( "lx", lx );
-	pl->set( "ly", ly );
-	pl->set( "lz", lz );
-
-	//  grid size
-	pl->set("nx", nx );
-	pl->set("ny", ny );
-	pl->set("nz", nz );
-	pl->set("nf", nf );
-
-	// grid stretching
-	if( sx!=0 ) {
-		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
-		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
-	}
-	if( sy!=0 ) {
-		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
-		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
-	}
-	if( sz!=0 ) {
-		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
-		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
-	}
-
-	// processor grid size
-	pl->set("npx", npx );
-	pl->set("npy", npy );
-	pl->set("npz", npz );
-	pl->set("npf", npf );
+	setParameter( CS::SpaceT::sdim );
 
 	auto space = Pimpact::create<typename CS::SpaceT>( pl );
 
@@ -694,40 +364,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGSmoothers, VFconstructor, CSG3D )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MGTransfers, Restrictor, CS, RestrictorType ) {
 
-	Pimpact::setBoundaryConditions( pl, domain );
-
-	pl->set( "lx", lx );
-	pl->set( "ly", ly );
-	pl->set( "lz", lz );
-
-	//  grid size
-	pl->set("nx", nx );
-	pl->set("ny", ny );
-	pl->set("nz", nz );
-	pl->set("nf", nf );
-
-	// grid stretching
-	if( sx!=0 ) {
-		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
-		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
-	}
-	if( sy!=0 ) {
-		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
-		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
-	}
-	if( sz!=0 ) {
-		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
-		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
-	}
-
-	// processor grid size
-	pl->set("npx", npx );
-	pl->set("npy", npy );
-	pl->set("npz", npz );
-	pl->set("npf", npf );
+	setParameter( CS::SpaceT::sdim );
 
 	auto space = Pimpact::create<typename CS::SpaceT>( pl );
 
@@ -856,40 +493,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MGTransfers, Restrictor, CSG3D, ResVF3D )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator, CS ) {
 
-	Pimpact::setBoundaryConditions( pl, domain );
-
-	pl->set( "lx", lx );
-	pl->set( "ly", ly );
-	pl->set( "lz", lz );
-
-	//  grid size
-	pl->set("nx", nx );
-	pl->set("ny", ny );
-	pl->set("nz", nz );
-	pl->set("nf", nf );
-
-	// grid stretching
-	if( sx!=0 ) {
-		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
-		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
-	}
-	if( sy!=0 ) {
-		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
-		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
-	}
-	if( sz!=0 ) {
-		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
-		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
-	}
-
-	// processor grid size
-	pl->set("npx", npx );
-	pl->set("npy", npy );
-	pl->set("npz", npz );
-	pl->set("npf", npf );
+	setParameter( CS::SpaceT::sdim );
 
 	auto space = Pimpact::create<typename CS::SpaceT>( pl );
 
@@ -1025,40 +629,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, Interpolator, CSG3D )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersSF, CS ) {
 
-	Pimpact::setBoundaryConditions( pl, domain );
-
-	pl->set( "lx", lx );
-	pl->set( "ly", ly );
-	pl->set( "lz", lz );
-
-	//  grid size
-	pl->set("nx", nx );
-	pl->set("ny", ny );
-	pl->set("nz", nz );
-	pl->set("nf", nf );
-
-	// grid stretching
-	if( sx!=0 ) {
-		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
-		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
-	}
-	if( sy!=0 ) {
-		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
-		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
-	}
-	if( sz!=0 ) {
-		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
-		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
-	}
-
-	// processor grid size
-	pl->set("npx", npx );
-	pl->set("npy", npy );
-	pl->set("npz", npz );
-	pl->set("npf", npf );
+	setParameter( CS::SpaceT::sdim );
 
 	auto space = Pimpact::create<typename CS::SpaceT>( pl );
 
@@ -1242,40 +813,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, MGTransfersSF, CSG3D )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersVF, CS ) {
 
-	Pimpact::setBoundaryConditions( pl, domain );
-
-	pl->set( "lx", lx );
-	pl->set( "ly", ly );
-	pl->set( "lz", lz );
-
-	//  grid size
-	pl->set("nx", nx );
-	pl->set("ny", ny );
-	pl->set("nz", nz );
-	pl->set("nf", nf );
-
-	// grid stretching
-	if( sx!=0 ) {
-		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
-		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
-	}
-	if( sy!=0 ) {
-		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
-		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
-	}
-	if( sz!=0 ) {
-		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
-		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
-	}
-
-	// processor grid size
-	pl->set("npx", npx );
-	pl->set("npy", npy );
-	pl->set("npz", npz );
-	pl->set("npf", npf );
+	setParameter( CS::SpaceT::sdim );
 
 	auto space = Pimpact::create<typename CS::SpaceT>( pl );
 
@@ -1523,40 +1061,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MGTransfers, MGTransfersVF, CSG3D )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, DivGradOp, CS, MGT ) {
 
-	Pimpact::setBoundaryConditions( pl, domain );
-
-	pl->set( "lx", lx );
-	pl->set( "ly", ly );
-	pl->set( "lz", lz );
-
-	//  grid size
-	pl->set( "nx", nx );
-	pl->set( "ny", ny );
-	pl->set( "nz", nz );
-	pl->set( "nf", nf );
-
-	// grid stretching
-	if( sx!=0 ) {
-		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
-		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
-	}
-	if( sy!=0 ) {
-		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
-		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
-	}
-	if( sz!=0 ) {
-		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
-		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
-	}
-
-	// processor grid size
-	pl->set( "npx", npx );
-	pl->set( "npy", npy );
-	pl->set( "npz", npz );
-	pl->set( "npf", npf );
+	setParameter( CS::SpaceT::sdim );
 
 	auto space = Pimpact::create<typename CS::SpaceT>( pl );
 
@@ -1773,10 +1278,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, DivGradOp, CS, MGT ) {
 }
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG2D, DGJMGT2D )
-TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG2D, DGSORMGT2D )
-TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG2D, DGLMGT2D )
-TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG2D, DGCMGT2D )
+//TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG2D, DGJMGT2D )
+//TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG2D, DGSORMGT2D )
+//TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG2D, DGLMGT2D )
+//TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG2D, DGCMGT2D )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG3D, DGJMGT3D )
 TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG3D, DGSORMGT3D )
@@ -1787,40 +1292,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG3D, DGCMGT3D )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffSOR, CS ) {
 
-	Pimpact::setBoundaryConditions( pl, domain );
-
-	pl->set( "lx", lx );
-	pl->set( "ly", ly );
-	pl->set( "lz", lz );
-
-	//  grid size
-	pl->set( "nx", nx );
-	pl->set( "ny", ny );
-	pl->set( "nz", nz );
-	pl->set( "nf", nf );
-
-	// grid stretching
-	if( sx!=0 ) {
-		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
-		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
-	}
-	if( sy!=0 ) {
-		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
-		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
-	}
-	if( sz!=0 ) {
-		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
-		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
-	}
-
-	// processor grid size
-	pl->set( "npx", npx );
-	pl->set( "npy", npy );
-	pl->set( "npz", npz );
-	pl->set( "npf", npf );
+	setParameter( CS::SpaceT::sdim );
 
 	auto space = Pimpact::create<typename CS::SpaceT>( pl );
 
@@ -1932,7 +1404,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffSOR, CS ) {
 
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, ConvDiffSOR, CSG2D )
+//TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, ConvDiffSOR, CSG2D )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, ConvDiffSOR, CSG3D )
 
 
@@ -1940,42 +1412,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, ConvDiffSOR, CSG3D )
 //TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, ConvDiffJ, CS, SmootherT ) {
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffJ, CS ) {
 
-	Pimpact::setBoundaryConditions( pl, domain );
-
-	pl->set( "lx", lx );
-	pl->set( "ly", ly );
-	pl->set( "lz", lz );
-
-	pl->set<ST>("Re", 100. );
-
-	//  grid size
-	pl->set("nx", nx );
-	pl->set("ny", ny );
-	pl->set("nz", nz );
-	pl->set("nf", nf );
-
-	// grid stretching
-	if( sx!=0 ) {
-		pl->sublist("Stretching in X").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in X").set<ST>( "N metr L", static_cast<ST>(nx)/2. );
-		pl->sublist("Stretching in X").set<ST>( "N metr U", static_cast<ST>(nx)/2. );
-	}
-	if( sy!=0 ) {
-		pl->sublist("Stretching in Y").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Y").set<ST>( "N metr L", static_cast<ST>(ny)/2. );
-		pl->sublist("Stretching in Y").set<ST>( "N metr U", static_cast<ST>(ny)/2. );
-	}
-	if( sz!=0 ) {
-		pl->sublist("Stretching in Z").set<std::string>( "Stretch Type", "cos" );
-		pl->sublist("Stretching in Z").set<ST>( "N metr L", static_cast<ST>(nz)/2. );
-		pl->sublist("Stretching in Z").set<ST>( "N metr U", static_cast<ST>(nz)/2. );
-	}
-
-	// processor grid size
-	pl->set("npx", npx );
-	pl->set("npy", npy );
-	pl->set("npz", npz );
-	pl->set("npf", npf );
+	setParameter( CS::SpaceT::sdim );
 
 	auto space = Pimpact::create<typename CS::SpaceT>( pl );
 
@@ -2093,7 +1530,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffJ, CS ) {
 		ofs.close();
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, ConvDiffJ, CSG2D )
+//TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, ConvDiffJ, CSG2D )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiGrid, ConvDiffJ, CSG3D )
 
 

@@ -30,7 +30,13 @@ protected:
 	using Scalar = typename SpaceT::Scalar;
 	using Ordinal = typename SpaceT::Ordinal;
 
-	using Stenc = Stencil<Scalar,Ordinal>;
+	static const int dimNC = ST::dimNC;
+	static const int dim = ST::dimension;
+
+	using SW = StencilWidths<dim,dimNC>;
+
+	using Stenc = Stencil< Scalar, Ordinal, 0, SW::GL(0), SW::GU(0) >;
+	//using Stenc = Stencil<Scalar,Ordinal,0>;
 	using TO = const Teuchos::Tuple<Stenc*,ST::sdim>;
 
 	Teuchos::RCP< const SpaceT> space_;
@@ -44,7 +50,7 @@ public:
 
 			for( int i=0; i<SpaceT::sdim; ++i ) {
 
-				c_[i] = new Stenc( 0, space_->nLoc(i), space_->gl(i), space_->gu(i) );
+				c_[i] = new Stenc( space_->nLoc(i) );
 
 				FD_getDiffCoeff(
 						space_->nLoc(i),
@@ -59,8 +65,8 @@ public:
 						i+1,  // direction
 						0,    // derivative
 						0,    // central
-						//true, // not working with grid stretching. mapping
-						false, // mapping
+						true, // not working with grid stretching. mapping
+						//false, // mapping
 						space_->getStencilWidths()->getDimNcbG(i),
 						space_->getStencilWidths()->getNcbG(i),
 						space_->getCoordinatesLocal()->getX( i, EField::S ),
@@ -81,7 +87,7 @@ public:
 #ifndef NDEBUG
 		TEUCHOS_TEST_FOR_EXCEPT( x.getType() != S );
 		TEUCHOS_TEST_FOR_EXCEPT( y.getType() == S );
-		TEUCHOS_TEST_FOR_EXCEPT( y.getType() == W && SpaceT::sdim==3 );
+		TEUCHOS_TEST_FOR_EXCEPT( y.getType() == W && SpaceT::sdim==2 );
 #endif
 
 		int m = static_cast<int>( y.getType() );

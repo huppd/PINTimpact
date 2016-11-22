@@ -42,7 +42,7 @@ public:
 
 protected:
 
-	using TO = const Teuchos::Tuple<Ordinal,3>;
+	using TO = const Teuchos::Tuple<Ordinal,SpaceT::sdim>;
 
 	const Teuchos::RCP<const SpaceT> space_;
 
@@ -51,31 +51,19 @@ protected:
 	TO SS_;
 	TO NN_;
 
-	Teuchos::Tuple<Ordinal,3> cw_;
+	Teuchos::Tuple<Ordinal,SpaceT::sdim-1> cw_;
 
-	Ordinal getI( const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
-		return( (i-SS_[X]) + (j-SS_[Y])*cw_[0] + (k-SS_[Z])*cw_[0]*cw_[1] );
+	constexpr Ordinal getI( const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
+		return(
+				(SpaceT::sdim==2)?
+				(i-SS_[X]) + (j-SS_[Y])*cw_[0] :
+				(i-SS_[X]) + (j-SS_[Y])*cw_[0] + (k-SS_[Z])*cw_[1]
+				);
 	}
 
 public:
 
 	constexpr const Ordinal& getN() const { return( N_ ); }
-
-	TeuchosTransfer( const Teuchos::RCP<const SpaceT>& space ):
-		space_(space) {
-
-			for( int i=0; i<3; ++i ) {
-				SS_[i] = space->begin( EField::S, i );
-				NN_[i] = space->end( EField::S, i );
-			}
-
-			N_ = 1;
-
-			for( int i=0; i<3; ++i ) {
-				N_ *= ( NN_[i] - SS_[i] + 1 );
-				cw_[i] = ( NN_[i] - SS_[i] + 1 );
-			}
-		}
 
 	TeuchosTransfer(
 			const Teuchos::RCP<const SpaceT>& space,
@@ -83,19 +71,23 @@ public:
 			const Ordinal* NN ):
 		space_(space) {
 
-			for( int i=0; i<3; ++i ) {
+			for( int i=0; i<SpaceT::sdim; ++i ) {
 				SS_[i] = SS[i];
 				NN_[i] = NN[i]; 
 			}
 
 			N_ = 1;
 
-			for( int i=0; i<3; ++i ) {
+			for( int i=0; i<SpaceT::sdim; ++i ) 
 				N_ *= ( NN_[i] - SS_[i] + 1 );
-				cw_[i] = ( NN_[i] - SS_[i] + 1 );
-			}
+
+			cw_[0] = ( NN_[0] - SS_[0] + 1 );
+			if( 3==SpaceT::sdim )
+				cw_[1] = ( NN_[1] - SS_[1] + 1 )*cw_[0];
 		}
 
+	TeuchosTransfer( const Teuchos::RCP<const SpaceT>& space ):
+		TeuchosTransfer( space, space->sInd(EField::S), space->eInd(EField::S) ) {}
 
 
 	void apply( const DomainFieldT& x, Teuchos::RCP<VectorT> v ) const {
@@ -172,7 +164,7 @@ public:
 						if( (j+o)>=SS_[Y] && (j+o)<=NN_[Y] )
 							(*A)( I, getI( i, j+o, k ) ) += epsY*op->getC( Y, j, o) ;
 
-						if( (k+o)>=SS_[Z] && (k+o)<=NN_[Z] )
+						if( 3==SpaceT::sdim && (k+o)>=SS_[Z] && (k+o)<=NN_[Z] )
 							(*A)( I, getI( i, j, k+o ) ) += epsZ*op->getC( Z, k, o) ;
 					}
 				}
@@ -328,14 +320,15 @@ public:
 		out << "N: " << N_ << "\n";
 		out << "cw: " << cw_ << "\n";
 		out << "SS: (\t";
-		for( int i=0; i<3; ++i ) out << SS_[i] << "\t";
+		for( int i=0; i<SpaceT::sdim; ++i ) out << SS_[i] << "\t";
 		out << "\n";
 		out << "NN: (\t";
-		for( int i=0; i<3; ++i ) out << NN_[i] << "\t";
+		for( int i=0; i<SpaceT::sdim; ++i ) out << NN_[i] << "\t";
 		out << "\n";
 	}
 
 }; // end of class TeuchosTransfer
+
 
 
 template<class OperatorT>
@@ -441,8 +434,6 @@ public:
 	constexpr const Teuchos::RCP< TeuchosTransfer<SpaceT> >& getTeuchosTransfer() const { return( trans_ ); }
 
 	///  @} 
-
-
 };
 
 
@@ -607,7 +598,7 @@ public:
 		evMax = 0.;
 		evMin = 0.;
 		
-		for( int i=0; i<3; ++i ) {
+		for( int i=0; i<SpaceT::sdim; ++i ) {
 			Scalar evMaxTemp, evMinTemp;
 			computeEV( static_cast<Pimpact::ECoord>(i), evMaxTemp, evMinTemp );
 			evMax += evMaxTemp;

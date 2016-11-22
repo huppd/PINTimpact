@@ -102,6 +102,7 @@ void MG_interpolateV(
 
 /// \brief Opetartor that interpolates from a coarse space to a fine space
 ///
+/// \todo c++fy
 /// \tparam ST type of the \c Space
 template<class ST>
 class InterpolationOp {

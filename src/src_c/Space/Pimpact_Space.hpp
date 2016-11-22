@@ -336,6 +336,19 @@ public:
 		return( indexSpace_->eIndB( fieldType ) );
 	}
 
+	//inline constexpr const Ordinal* begin( const int& fieldType, const With& withB=With::noB ) const {
+		//return(
+				//static_cast<bool>(withB)?
+				//indexSpace_->sIndB( fieldType, dir ):
+				//indexSpace_->sInd ( fieldType, dir ) );
+	//}
+	//inline constexpr const Ordinal* end( const int& fieldType, const With& withB=With::noB ) const {
+		//return(
+				//static_cast<bool>(withB)?
+				//indexSpace_->eIndB( fieldType, dir ):
+				//indexSpace_->eInd ( fieldType, dir ) );
+	//}
+
 	inline constexpr const Ordinal& begin( const int& fieldType, const int& dir, const With& withB=With::noB ) const {
 		return(
 				static_cast<bool>(withB)?

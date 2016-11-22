@@ -31,6 +31,7 @@ void OP_Transfer(
 
 /// \brief Transfers fields from "coarse" to "fine" spaces, necessary when \c Space::dimNC is  different.
 ///
+/// \todo c++fy
 /// Goes in both direction. If this is used a lot, it could be beneficial, to
 /// seperate StencilWidths with data layout, so having same datalayout for all
 /// stencile. Coping could be beneficial because Cash effects are bether

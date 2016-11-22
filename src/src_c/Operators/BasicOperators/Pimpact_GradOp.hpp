@@ -8,6 +8,7 @@
 
 #include "Pimpact_extern_FDCoeff.hpp"
 #include "Pimpact_ScalarField.hpp"
+#include "Pimpact_Stencil.hpp"
 #include "Pimpact_Types.hpp"
 #include "Pimpact_VectorField.hpp"
 
@@ -31,14 +32,21 @@ protected:
   using Scalar = typename SpaceT::Scalar;
   using Ordinal = typename SpaceT::Ordinal;
 
-	using Stenc = Stencil< Scalar, Ordinal >;
-  using TO = const Teuchos::Tuple<Stenc*,ST::sdim>; 
+	static const int dimNC = ST::dimNC;
+	static const int dim = ST::dimension;
+
+	using SW = StencilWidths<dim,dimNC>;
+
+	using StencD = Stencil< Scalar, Ordinal, 0, SW::DL(0), SW::DU(0) >;
+	using StencG = Stencil< Scalar, Ordinal, 0, SW::GL(0), SW::GU(0) >;
+
+  using TD = const Teuchos::Tuple<StencD*,ST::sdim>; 
+  using TG = const Teuchos::Tuple<StencG*,ST::sdim>; 
 
   Teuchos::RCP<const SpaceT> space_;
 
-  TO c_;
-
-  TO cT_;
+  TG c_;
+  TD cT_;
 
 public:
 
@@ -52,7 +60,7 @@ public:
 			for( int dir=0; dir<ST::sdim; ++dir ) {
 				// Gradient stencil
 				
-				c_[dir] = new Stenc( 0, space_->nLoc(dir), space_->gl(dir), space_->gu(dir) );
+				c_[dir] = new StencG( space_->nLoc(dir) );
 
 				FD_getDiffCoeff(
 						space_->nLoc(dir),
@@ -67,8 +75,8 @@ public:
 						dir+1,
 						1,
 						0,
-						//true, // mapping
-						false,
+						true, // mapping
+						//false,
 						space_->getStencilWidths()->getDimNcbG(dir),
 						space_->getStencilWidths()->getNcbG(dir),
 						space_->getCoordinatesLocal()->getX( dir, EField::S ),
@@ -76,14 +84,16 @@ public:
 						c_[dir]->get() );
 
 				// transposed Gradient stencil
-				cT_[dir] = new Stenc( 0, space_->nLoc(dir), space_->dl(dir), space_->du(dir) );
+				cT_[dir] = new StencD( space_->nLoc(dir) );
 
 				Ordinal nTempG = ( space_->nGlo(dir) + space_->bu(dir) - space_->bl(dir) + 1 )
 					*( space_->bu(dir) - space_->bl(dir) + 1);
 
 
-				Stenc cG1( space_->bl(dir), space_->nGlo(dir) + space_->bu(dir),space_->bl(dir), space_->bu(dir) );
-				Stenc cG2( space_->bl(dir), space_->nGlo(dir) + space_->bu(dir),space_->bl(dir), space_->bu(dir) );
+				Stencil< Scalar, Ordinal, SW::BL(0), SW::BL(0), SW::BU(0) >
+				cG1( space_->nGlo(dir) + space_->bu(dir) );
+				Stencil< Scalar, Ordinal, SW::BL(0), SW::BL(0), SW::BU(0) >
+				cG2( space_->nGlo(dir) + space_->bu(dir) );
 
 				for( Ordinal i = space_->begin(dir,dir,With::B); i<=space_->end(dir,dir,With::B); ++i )
 					for( Ordinal ii = space_->gl(dir); ii<=space_->gu(dir); ++ii )

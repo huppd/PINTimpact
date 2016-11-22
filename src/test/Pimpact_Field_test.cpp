@@ -9,104 +9,39 @@
 
 #include "Pimpact_Fields.hpp"
 
+#include "Pimpact_Test.hpp"
 
 
 
 namespace {
 
 
-using ST = double;
-using OT = int;
 
-const int sd = 3;
-const int d = 3;
-const int dNC = 4;
-
-using SpaceT = Pimpact::Space<ST,OT,sd,d,dNC>;
-
-using Space2D = Pimpact::Space<ST,OT,2,d,dNC>;
-using Space3D = Pimpact::Space<ST,OT,3,d,dNC>;
-
-using SF2D  = typename Pimpact::ScalarField<Space2D>;
-using VF2D  = typename Pimpact::VectorField<Space2D>;
+using SF2D  = typename Pimpact::ScalarField<D2>;
+using VF2D  = typename Pimpact::VectorField<D2>;
 using MSF2D = typename Pimpact::ModeField<SF2D>;
 using MVF2D = typename Pimpact::ModeField<VF2D>;
 using CF2D  = typename Pimpact::CompoundField<VF2D,SF2D>;
 using CMF2D = typename Pimpact::CompoundField<MVF2D,MSF2D>;
 
-using SF3D  = typename Pimpact::ScalarField<Space3D>;
-using VF3D  = typename Pimpact::VectorField<Space3D>;
+using SF3D  = typename Pimpact::ScalarField<D3>;
+using VF3D  = typename Pimpact::VectorField<D3>;
 using MSF3D = typename Pimpact::ModeField<SF3D>;
 using MVF3D = typename Pimpact::ModeField<VF3D>;
 using CF3D  = typename Pimpact::CompoundField<VF3D,SF3D>;
 using CMF3D = typename Pimpact::CompoundField<MVF3D,MSF3D>;
 
-bool testMpi = true;
-ST eps = 1e-6;
-
-int domain = 1;
-
-OT nx = 33;
-OT ny = 17;
-OT nz = 9;
-
-int npx = 2;
-int npy = 2;
-int npz = 2;
-
-auto pl = Teuchos::parameterList();
-
-
-TEUCHOS_STATIC_SETUP() {
-
-  Teuchos::CommandLineProcessor &clp = Teuchos::UnitTestRepository::getCLP();
-  clp.addOutputSetupOptions(true);
-  clp.setOption(
-      "test-mpi", "test-serial", &testMpi,
-      "Test MPI (if available) or force test of serial.  In a serial build,"
-      " this option is ignored and a serial comm is always used." );
-  clp.setOption(
-      "error-tol-slack", &eps,
-      "Slack off of machine epsilon used to check test results" );
-	clp.setOption( "domain", &domain, "domain" );
-  clp.setOption( "nx", &nx, "" );
-  clp.setOption( "ny", &ny, "" );
-  clp.setOption( "nz", &nz, "" );
-  clp.setOption( "npx", &npx, "" );
-  clp.setOption( "npy", &npy, "" );
-  clp.setOption( "npz", &npz, "" );
-
-  pl->set( "lx", 1. );
-  pl->set( "ly", 1. );
-  pl->set( "lz", 1. );
-
-  pl->set("nx", nx );
-  pl->set("ny", nx );
-  pl->set("nz", nx );
-
-
-}
 
 
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, print, FType ) {
 
-	Pimpact::setBoundaryConditions( pl, domain );
-
-  pl->set("nx", nx );
-  pl->set("ny", ny );
-  pl->set("nz", nz );
-
-  // processor grid size
-  pl->set("npx", npx );
-  pl->set("npy", (2==FType::SpaceT::sdim)?npy*npz:npy );
-  pl->set("npz", (2==FType::SpaceT::sdim)?1:npz );
+	setParameter( FType::SpaceT::sdim );
 
   Teuchos::RCP<const typename FType::SpaceT> space = Pimpact::create<typename FType::SpaceT>( pl );
 
   auto p = Pimpact::create<FType>(space);
 
-	//p->initField( Pimpact::Grad2D_inZ );
 	p->init( space->rankST() );
 	p->print();
 }
@@ -130,15 +65,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, print, CMF3D )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, InfNormAndInit, FType ) {
 
-	Pimpact::setBoundaryConditions( pl, domain );
-
-  pl->set("nx", nx );
-  pl->set("ny", ny );
-  pl->set("nz", nz );
-  // processor grid size
-  pl->set("npx", npx );
-  pl->set("npy", (2==FType::SpaceT::sdim)?npy*npz:npy );
-  pl->set("npz", (2==FType::SpaceT::sdim)?1:npz );
+	setParameter( FType::SpaceT::sdim );
 
   Teuchos::RCP<const typename FType::SpaceT> space = Pimpact::create<typename FType::SpaceT>( pl );
 
@@ -189,15 +116,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, InfNormAndInit, CMF3D )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, OneNormAndInit, FType ) {
 
-	Pimpact::setBoundaryConditions( pl, domain );
-
-  pl->set("nx", nx );
-  pl->set("ny", ny );
-  pl->set("nz", nz );
-  // processor grid size
-  pl->set("npx", npx );
-  pl->set("npy", (2==FType::SpaceT::sdim)?npy*npz:npy );
-  pl->set("npz", (2==FType::SpaceT::sdim)?1:npz );
+	setParameter( FType::SpaceT::sdim );
 
   Teuchos::RCP<const typename FType::SpaceT> space = Pimpact::create<typename FType::SpaceT>( pl );
 
@@ -230,15 +149,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, OneNormAndInit, CMF3D )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, TwoNormAndInit, FType ) {
 
-	Pimpact::setBoundaryConditions( pl, domain );
-
-  pl->set("nx", nx );
-  pl->set("ny", ny );
-  pl->set("nz", nz );
-  // processor grid size
-  pl->set("npx", npx );
-  pl->set("npy", (2==FType::SpaceT::sdim)?npy*npz:npy );
-  pl->set("npz", (2==FType::SpaceT::sdim)?1:npz );
+	setParameter( FType::SpaceT::sdim );
 
   Teuchos::RCP<const typename FType::SpaceT> space = Pimpact::create<typename FType::SpaceT>( pl );
 
@@ -270,15 +181,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, TwoNormAndInit, CMF3D )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, dot, FType ) {
 
-	Pimpact::setBoundaryConditions( pl, domain );
-
-  pl->set("nx", nx );
-  pl->set("ny", ny );
-  pl->set("nz", nz );
-  // processor grid size
-  pl->set("npx", npx );
-  pl->set("npy", (2==FType::SpaceT::sdim)?npy*npz:npy );
-  pl->set("npz", (2==FType::SpaceT::sdim)?1:npz );
+	setParameter( FType::SpaceT::sdim );
 
   Teuchos::RCP<const typename FType::SpaceT> space = Pimpact::create<typename FType::SpaceT>( pl );
 
@@ -331,15 +234,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, dot, CMF3D )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, scale, FType ) {
 
-	Pimpact::setBoundaryConditions( pl, domain );
-
-  pl->set("nx", nx );
-  pl->set("ny", ny );
-  pl->set("nz", nz );
-  // processor grid size
-  pl->set("npx", npx );
-  pl->set("npy", (2==FType::SpaceT::sdim)?npy*npz:npy );
-  pl->set("npz", (2==FType::SpaceT::sdim)?1:npz );
+	setParameter( FType::SpaceT::sdim );
 
   Teuchos::RCP<const typename FType::SpaceT> space = Pimpact::create<typename FType::SpaceT>( pl );
 
@@ -374,15 +269,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, scale, CMF3D )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, random, FType ) {
 
-	Pimpact::setBoundaryConditions( pl, domain );
-
-  pl->set("nx", nx );
-  pl->set("ny", ny );
-  pl->set("nz", nz );
-  // processor grid size
-  pl->set("npx", npx );
-  pl->set("npy", (2==FType::SpaceT::sdim)?npy*npz:npy );
-  pl->set("npz", (2==FType::SpaceT::sdim)?1:npz );
+	setParameter( FType::SpaceT::sdim );
 
   Teuchos::RCP<const typename FType::SpaceT> space = Pimpact::create<typename FType::SpaceT>( pl );
 
@@ -417,15 +304,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, random, CMF3D )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TemplateField, add, FType ) {
 
-	Pimpact::setBoundaryConditions( pl, domain );
-
-  pl->set("nx", nx );
-  pl->set("ny", ny );
-  pl->set("nz", nz );
-  // processor grid size
-  pl->set("npx", npx );
-  pl->set("npy", (2==FType::SpaceT::sdim)?npy*npz:npy );
-  pl->set("npz", (2==FType::SpaceT::sdim)?1:npz );
+	setParameter( FType::SpaceT::sdim );
 
   Teuchos::RCP<const typename FType::SpaceT> space = Pimpact::create<typename FType::SpaceT>( pl );
 
@@ -484,15 +363,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TemplateField, add, CMF3D )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, write, FType ) {
 
-	Pimpact::setBoundaryConditions( pl, domain );
-
-  pl->set("nx", nx );
-  pl->set("ny", ny );
-  pl->set("nz", nz );
-  // processor grid size
-  pl->set("npx", npx );
-  pl->set("npy", (2==FType::SpaceT::sdim)?npy*npz:npy );
-  pl->set("npz", (2==FType::SpaceT::sdim)?1:npz );
+	setParameter( FType::SpaceT::sdim );
 
   Teuchos::RCP<const typename FType::SpaceT> space = Pimpact::create<typename FType::SpaceT>( pl );
 
@@ -526,15 +397,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, write, CMF3D )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, writeRestart, FType ) {
 
-  Pimpact::setBoundaryConditions( pl, domain );
-
-  pl->set("nx", nx );
-  pl->set("ny", ny );
-  pl->set("nz", nz );
-  // processor grid size
-  pl->set("npx", npx );
-  pl->set("npy", (2==FType::SpaceT::sdim)?npy*npz:npy );
-  pl->set("npz", (2==FType::SpaceT::sdim)?1:npz );
+	setParameter( FType::SpaceT::sdim );
 
   Teuchos::RCP<const typename FType::SpaceT> space = Pimpact::create<typename FType::SpaceT>( pl );
 
@@ -557,15 +420,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, writeRestart, VF3D )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( ScalarField, initField, SpaceT ) {
 
-  Pimpact::setBoundaryConditions( pl, domain );
-
-  pl->set("nx", nx );
-  pl->set("ny", ny );
-  pl->set("nz", nz );
-  // processor grid size
-  pl->set("npx", npx );
-  pl->set("npy", (2==SpaceT::sdim)?npy*npz:npy );
-  pl->set("npz", (2==SpaceT::sdim)?1:npz );
+	setParameter( SpaceT::sdim );
 
   Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
@@ -578,23 +433,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( ScalarField, initField, SpaceT ) {
 
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( ScalarField, initField, Space2D )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( ScalarField, initField, Space3D )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( ScalarField, initField, D2 )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( ScalarField, initField, D3 )
 
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( ScalarField, level, SpaceT ) {
 
-  Pimpact::setBoundaryConditions( pl, domain );
-	// check: 0, 2, 4, 5
-	// error: 1, 3
-
-  pl->set("nx", nx );
-  pl->set("ny", ny );
-  pl->set("nz", nz );
-  // processor grid size
-  pl->set("npx", npx );
-  pl->set("npy", (2==SpaceT::sdim)?npy*npz:npy );
-  pl->set("npz", (2==SpaceT::sdim)?1:npz );
+	setParameter( SpaceT::sdim );
 
   Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
@@ -610,8 +455,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( ScalarField, level, SpaceT ) {
 
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( ScalarField, level, Space2D )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( ScalarField, level, Space3D )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( ScalarField, level, D2 )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( ScalarField, level, D3 )
 
 } // namespace
 

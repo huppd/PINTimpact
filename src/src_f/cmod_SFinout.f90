@@ -629,13 +629,13 @@ subroutine write_hdf_infoREAL(memtypeREAL,file_id,dset_id,NN,scalar_yes,attr_yes
   logical          , intent(in)  ::  scalar_yes
   logical          , intent(in)  ::  attr_yes
   character(*)     , intent(in)  ::  name
-  real   , optional, intent(in)  ::  array(1:NN)
-  real   , optional, intent(in)  ::  scalar
+  real(c_double)   , optional, intent(in)  ::  array(1:NN)
+  real(c_double)   , optional, intent(in)  ::  scalar
 
   integer(HID_T)                 ::  memspace
   integer(HID_T)                 ::  attr_id
   integer(HSIZE_T)               ::  dim_mem(1)
-  real                           ::  value(1:NN)
+  real(c_double)                 ::  value(1:NN)
 
 
   dim_mem = (/NN/)

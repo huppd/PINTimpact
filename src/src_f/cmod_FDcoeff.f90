@@ -28,9 +28,11 @@ contains
   !! \param[in] dir direction ( 1:x, 2:y, 3:z )
   !! \param[in] abl degree of derivative
   !! \param[in] upwind (0: central, 1: up, -1: low)
-  !! \param[in] mapping_yes computation of finite difference coefficients (relevant only for explicit finite differences), note affects the accuracy and temporal stability of the discretization
-  !!            -mapping_yes = .TRUE.  (computation on computational, equidistant grid and subsequent mapping on
-  !!                        physical grid)
+  !! \param[in] mapping_yes computation of finite difference coefficients
+  !!            (relevant only for explicit finite differences), note affects
+  !!            the accuracy and temporal stability of the discretization
+  !!            -mapping_yes = .TRUE.  (computation on computational,
+  !!             equidistant grid and subsequent mapping on physical grid)
   !!            -mapping_yes = .FALSE. (direct computation on physical grid)
   !! \param[in] dim_ncb dimension of ??
   !! \param[in] n_coeff_bound ??
@@ -40,9 +42,11 @@ contains
   !!
   !! \todo move error handling else where
   !!
-  !! \note: - Upwinding wird auf dem Rand unterdrücken, da Differenzenstencils dort ohnehin schief sind.
-  !!        - Generell koennte/sollte die Initialisierung der Index-Grenzen auch schon vor dieser       
-  !!          Routine ausgefuehrt werden, um hier die Uebersichtlichkeit zu verbessern.                 
+  !! \note: - Upwinding wird auf dem Rand unterdrücken, da Differenzenstencils
+  !!          dort ohnehin schief sind.
+  !!        - Generell koennte/sollte die Initialisierung der Index-Grenzen auch
+  !!          schon vor dieser Routine ausgefuehrt werden, um hier die
+  !!          Uebersichtlichkeit zu verbessern.
   subroutine FD_getDiffCoeff( &
       Nmax,                   &
       bL,                     &
@@ -96,7 +100,7 @@ contains
     real(c_double),  intent(out)  :: cc(cL:cU,0:Nmax)
 
     integer(c_int)        :: n_coeff
-    integer(c_int)        :: dim_n_coeff_bound
+    integer(c_int)        :: dim_n_coeff_bound ! Same as dim_ncb?
     integer(c_int)        :: i, ii, iC, iStart
     integer(c_int)        :: k!, kk
 
@@ -449,7 +453,7 @@ contains
 
       end if
 
-    end do
+    end do ! end of do i = iStart, Nmax
 
 
   end subroutine FD_getDiffCoeff
@@ -458,6 +462,14 @@ contains
 
 
 
+  !> \brief exact Finite differences (used for mapping)
+  !!
+  !! \param abl derivative
+  !! \param n_coeff number of coefficients
+  !! \param deltaX ???
+  !! \param cc
+  !!
+  !! \return array of coefficients
   subroutine diff_coeffs_exact( abl, n_coeff, deltaX, cc ) ! TEST!!!
 
     implicit none
@@ -470,7 +482,6 @@ contains
     ! TEST!!!
     ! - korrekt ausgerichtet?
     ! - Vorzeichen ok?
-
 
     if (n_coeff == 2) then
       if (deltaX ==  0.5 .and. abl == 0) cc(1:n_coeff) = (/ 3.,-1./)/2.
@@ -626,164 +637,19 @@ contains
 
 
 
-
-
-
-
-
-
-
-  !    subroutine test_diff(dir,abl,xC,xE,Nmax,bL,bU,cc,BCL,grid_type,name)
-  !
-  !        implicit none
-  !
-  !        integer, intent(in)   ::  dir
-  !        integer, intent(in)   ::  abl
-  !        integer, intent(in)   ::  Nmax
-  !        integer, intent(in)   ::  bL
-  !        integer, intent(in)   ::  bU
-  !        real   , intent(in)   ::  xC(bL:(Nmax+bU))
-  !        real   , intent(in)   ::  xE(bL:(Nmax+bU))
-  !        real   , intent(in)   ::  cc(bL:bU,0:Nmax)
-  !        integer, intent(in)   ::  BCL
-  !        integer, intent(in)   ::  grid_type
-  !
-  !        character(*), intent(in) ::  name
-  !
-  !        integer               ::  i, ii, iStartC, iStartE, SShift
-  !        integer               ::  nw, nw_max, n_dx
-  !        real                  ::  wave, wave_mod(1:2), dx
-  !
-  !        character(len=1)      ::  part
-  !        real                  ::  pi
-  !
-  !
-  !        !----------------------------------------------------------------------------------------------------------!
-  !        ! Anmerkungen: - Hier sollen alle Differenzen-Stencils innerhalb eines Blockes getestet werden, analog zu  !
-  !        !                ihrer Berechnung. Daher wird bewusst nicht mittels MPI in eine Datei geschrieben, sondern !
-  !        !                in verschiedene Blöcke, um Fehler bei der MPI-Programmierung auszuschliessen.             !
-  !        !----------------------------------------------------------------------------------------------------------!
-  !
-  !
-  !        !--- pi ---
-  !        pi = 2.*ABS(ACOS(0.))
-  !
-  !
-  !        if (dir == 1) then
-  !            write(part,'(i1.1)') iB(1,1)
-  !            SShift = iShift
-  !        else if (dir == 2) then
-  !            write(part,'(i1.1)') iB(2,1)
-  !            SShift = jShift
-  !        else if (dir == 3) then
-  !            write(part,'(i1.1)') iB(3,1)
-  !            SShift = kShift
-  !        else
-  !            if (rank == 0) write(*,*) 'ERROR! Wrong input at subroutine `test_diff`!'
-  !            call MPI_FINALIZE(merror)
-  !            stop
-  !        end if
-  !
-  !
-  !        open(10,file='test_'//name//'_transfer_block'//part//'.txt',status='UNKNOWN')
-  !        open(11,file='test_'//name//'_coeffs_block'  //part//'.txt',status='UNKNOWN')
-  !
-  !
-  !        !===========================================================================================================
-  !        !=== Startindex für Entwicklungspunkte =====================================================================
-  !        !===========================================================================================================
-  !        if (BCL <= 0 .or. grid_type == 0 .or. grid_type == 3) then
-  !            iStartE = 1
-  !        else
-  !            iStartE = 0
-  !        end if
-  !
-  !
-  !        !===========================================================================================================
-  !        !=== Startindex für Koeffizienten ==========================================================================
-  !        !===========================================================================================================
-  !        if (BCL > 0 .and. (grid_type == 1 .or. grid_type == 3)) then
-  !            iStartC = 0
-  !        else
-  !            iStartC = 1
-  !        end if
-  !
-  !
-  !        !===========================================================================================================
-  !        !=== Test der Koeffizienten ================================================================================
-  !        !===========================================================================================================
-  !        nw_max = 100
-  !
-  !        do i = iStartE, Nmax
-  !
-  !            do nw = 1, nw_max
-  !
-  !                wave     = pi*REAL(nw)/REAL(nw_max)
-  !                wave_mod = 0.
-  !
-  !                !=== Referenz-Gitterweite bestimmen ==================================================================
-  !                dx   = 0.
-  !                n_dx = 0
-  !
-  !                do ii = bL, bU-1
-  !                    !IF (i+ii .GE. iStartC .AND. i+ii .LT. Nmax .AND. ABS(xC(i+ii+1)-xC(i+ii)) .GT. dx) THEN
-  !                    if (i+ii >= iStartC .and. i+ii < Nmax) then
-  !                        dx   = dx + ABS(xC(i+ii+1)-xC(i+ii))
-  !                        n_dx = n_dx + 1
-  !                    end if
-  !                end do
-  !
-  !                dx = dx / REAL(n_dx)
-  !
-  !
-  !                !=== Transferfunktion plotten ========================================================================
-  !                if (abl == 0) then
-  !                    do ii = bL, bU
-  !                        wave_mod(1) = wave_mod(1) + cc(ii,i)*cos(wave/dx*(xC(i+ii)-xE(i)))
-  !                        wave_mod(2) = wave_mod(2) + cc(ii,i)*sin(wave/dx*(xC(i+ii)-xE(i)))
-  !                    end do
-  !                else if (abl == 1) then
-  !                    do ii = bL, bU
-  !                        wave_mod(1) = wave_mod(1) + cc(ii,i)*sin(wave/dx*(xC(i+ii)-xE(i)))*dx
-  !                        wave_mod(2) = wave_mod(2) + cc(ii,i)*cos(wave/dx*(xC(i+ii)-xE(i)))*dx/wave**2
-  !                    end do
-  !                else if (abl == 2) then
-  !                    do ii = bL, bU
-  !                        wave_mod(1) = wave_mod(1) - cc(ii,i)*cos(wave/dx*(xC(i+ii)-xE(i)))*dx**2
-  !                        wave_mod(2) = wave_mod(2) - cc(ii,i)*sin(wave/dx*(xC(i+ii)-xE(i)))*dx**2/wave
-  !                    end do
-  !                end if
-  !
-  !                write(10,'(i7,3E26.17)') i+SShift, wave, wave_mod(1:2)
-  !
-  !            end do
-  !
-  !            write(10,*)
-  !            write(11,'(i7,100E26.17)') i+SShift, cc(:,i)
-  !
-  !        end do
-  !
-  !        close(10)
-  !        close(11)
-  !
-  !
-  !    end subroutine test_diff
-
-
-
-
-
-
-
-
-
-
-
+  !> \brief solves B for finite differences coefficient (no mapping)
+  !! \f[ \mathbf{B}_{n\times n} = B_{ij} = (x_0 - x_j )^{i-1) = \mathttt{deltaX_i)^{j-1} \f]
+  !! \f[ \eta_i = \delta!\mathbf{B}^{-1}_{i(1+\delta) = \mathttt{cc[i]} \f]
+  !!
+  !! \param[in] abl derivative 
+  !! \param[in] filter_yes
+  !! \param[in] n_coeff number of coefficients
+  !! \param[in] deltaX
+  !! \param[out] cc
   subroutine FD_coeffs_solver(abl,filter_yes,n_coeff,deltaX,cc)
 
     implicit none
 
-    !integer(c_int) , intent(in)   ::  rank
     integer(c_int) , intent(in)   ::  abl
     logical(c_bool), intent(in)   ::  filter_yes
     integer(c_int) , intent(in)   ::  n_coeff
@@ -867,8 +733,6 @@ contains
 
     real(c_double)                  ::  polyn_vals    (1:n_coeff,1:n_coeff)
     real(c_double)                  ::  polyn_vals_inv(1:n_coeff,1:n_coeff)
-
-    !real(c_double)                  ::  const
 
 
     !===========================================================================================

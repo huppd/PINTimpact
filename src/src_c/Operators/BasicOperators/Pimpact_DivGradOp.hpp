@@ -106,11 +106,10 @@ public:
 					// X direction
 					for( OT ii=space()->dl(X); ii<=space()->du(X); ++ii ) {
 						if( 0<space()->getBCLocal()->getBCL(X) && i+ii==space()->begin(U,X,With::B) ) {
-								for( OT iii=0; iii<=space()->du(X); ++iii ) {
+								for( OT iii=0; iii<=space()->du(X); ++iii ) 
 											diag -= div_->getC( X, i, ii ) * epsX * grad_->getC( X, 1+iii, -iii-ii-1 )
 											* space()->getInterpolateV2S()->getC( X, 1, iii ) /
 											space()->getInterpolateV2S()->getC( X, 1, -1 );
-							}
 						}
 						else if( 0<space()->getBCLocal()->getBCU(X) && i+ii==space()->end(U,X,With::B) ) {
 							for( OT iii=space()->dl(X); iii<=-1; ++iii )
@@ -118,7 +117,7 @@ public:
 									* space()->getInterpolateV2S()->getC( X, space()->end(U,X,With::B), iii ) /
 									space()->getInterpolateV2S()->getC( X, space()->end(U,X,With::B), 0 );
 						}
-						else
+						else if( i+ii>=space()->begin(U,X,With::B) && i+ii<=space()->end(U,X,With::B) )
 							diag += div_->getC( X, i, ii ) * epsX * grad_->getC( X, i+ii, -ii );
 					}
 
@@ -136,7 +135,7 @@ public:
 									* space()->getInterpolateV2S()->getC( Y, space()->end(V,Y,With::B), jjj ) /
 									space()->getInterpolateV2S()->getC( Y, space()->end(V,Y,With::B), 0 );
 						}
-						else
+						else if( j+jj>=space()->begin(V,Y,With::B) && j+jj<=space()->end(V,Y,With::B) )
 							diag += div_->getC( Y, j, jj )*epsY*grad_->getC( Y, j+jj, -jj );
 					}
 
@@ -156,14 +155,12 @@ public:
 										* space()->getInterpolateV2S()->getC(Z,space()->end(W,Z,With::B),kkk) /
 										space()->getInterpolateV2S()->getC(Z,space()->end(W,Z,With::B),0);
 							}
-							else
+							else if( k+kk>=space()->begin(W,Z,With::B) && k+kk<=space()->end(W,Z,With::B) )
 								diag += div_->getC( Z, k, kk ) * epsZ * grad_->getC( Z, k+kk, -kk );
 						}
 					}
 
-#ifndef NDEBUG
-					TEUCHOS_TEST_FOR_EXCEPT( 0==diag );
-#endif
+					assert( 0!=diag );
 					y.at(i,j,k) = x.at(i,j,k)/std::abs( diag );
 				}
 

@@ -8,7 +8,14 @@
 namespace Pimpact {
 
 
-template<class Scalar, class Ordinal>
+/// \brief 
+///
+/// \tparam Scalar
+/// \tparam Ordinal
+/// \tparam ss
+/// \tparam bl_
+/// \tparam bu_
+template<class Scalar, class Ordinal, int ss, int bl_, int bu_>
 class Stencil {
 
 protected:
@@ -17,18 +24,20 @@ protected:
 
 	ScalarArray c_;
 
-	const Ordinal ss_; /// < \todo make template parameter
 	const Ordinal nn_;
-	const int bl_;	/// < \todo make template parameter
-	const int bu_;	/// < \todo make template parameter
-	const int w_;
+	//const int bl_;	/// < \todo make template parameter
+	//const int bu_;	/// < \todo make template parameter
+	static const int w_ = bu_-bl_+1;
 
 public:
 
-	Stencil( const Ordinal& ss, const Ordinal& nn, const int& bl, const int& bu ) : 
-		ss_(ss), nn_(nn), bl_(bl), bu_(bu), w_(bu_-bl_+1) {
+	Stencil( const Ordinal& nn ) : 
+		nn_(nn) {
 
-			Ordinal nTemp = ( nn_ - ss_ + 1 )*w_;
+			assert( bl_<=bu_ );
+			assert( ss<=nn_ );
+			
+			Ordinal nTemp = ( nn_ - ss + 1 )*w_;
 
 			c_ = new Scalar[ nTemp ];
 
@@ -45,18 +54,28 @@ public:
 	}
 
 	constexpr Scalar& operator()( const Ordinal& index, const int& offset ) {
-		return( c_[ offset-bl_ + (index-ss_)*w_ ] );
+		assert( offset>=bl_ );
+		assert( offset<=bu_ );
+		assert( index>=ss );
+		assert( index<=nn_ );
+		return( c_[ offset-bl_ + (index-ss)*w_ ] );
 	};
 
+
 	constexpr const Scalar& at( const Ordinal& index, const int& offset ) const {
-		return( c_[ offset-bl_ + (index-ss_)*w_ ] );
+		assert( offset>=bl_ );
+		assert( offset<=bu_ );
+		assert( index>=ss );
+		assert( index<=nn_ );
+		return(
+				c_[ offset-bl_ + (index-ss)*w_ ] );
 	}
 
-	constexpr const int& bl() const {
+	static inline constexpr int bl() {
 		return( bl_ );
 	}
 
-	constexpr const int& bu() const {
+	static inline constexpr int bu() {
 		return( bu_ );
 	}
 
@@ -70,10 +89,10 @@ public:
 			out << "-";
 		out << "\n";
 
-		for( int i=ss_; i<=nn_; ++i ) {
+		for( int i=ss; i<=nn_; ++i ) {
 			out << "i: " << std::setw(3) << i << " (";
-			for( int k=bl_; k<=bu_; ++k ) 
-				out << std::setw(9) << at(i,k);
+			for( int ii=bl_; ii<=bu_; ++ii ) 
+				out << std::setw(9) << at(i,ii);
 			out << ")\n";
 		}
 	}
