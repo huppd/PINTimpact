@@ -127,6 +127,7 @@ public:
   /// \{
 
   /// \brief returns the length of Field.
+	/// \todo adept for Neumann BC 
 	constexpr Ordinal getLength() const {
 
 		Teuchos::RCP<const BoundaryConditionsGlobal<SpaceT::dimension> > bc =
@@ -138,7 +139,9 @@ public:
 				vl *= space()->nGlo(dir) +
 					( (EField::S==fType_)?
 						( (PeriodicBC==bc->getBCL(dir))?-1:0 ) :
-						( (fType_==dir)?-1:(-2 + ( (PeriodicBC==bc->getBCL(dir))?1:0 )) ) );
+						( (fType_==dir)?
+							-1:
+							(-2 + ( (PeriodicBC==bc->getBCL(dir))?1:0 )) ) );
 		}
 
 		return( vl );
@@ -1255,7 +1258,7 @@ public:
 	/// \param i index in x-direction
 	/// \param j index in y-direction
 	/// \param k index in z-direction
-	constexpr Ordinal index( const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
+	inline constexpr Ordinal index( const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
 		return( (i-space()->bl(0)) +
 				    (j-space()->bl(1))*stride1() +
 				    (k-space()->bl(2))*stride2() );
@@ -1268,7 +1271,7 @@ public:
 	/// \param k index in z-direction
 	///
 	/// \return const reference
-	constexpr const Scalar& at( const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
+	inline constexpr const Scalar& at( const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
 		return( s_[ index(i,j,k) ] );
 	}
 
@@ -1286,7 +1289,7 @@ public:
 	/// \brief field access
 	///
 	/// \param i index coordinate 
-	constexpr const Scalar& at( const Ordinal* const i ) const {
+	inline constexpr const Scalar& at( const Ordinal* const i ) const {
 		return( s_[ index(i[0],i[1],i[2]) ] );
 	}
 	/// \brief field access
@@ -1305,7 +1308,7 @@ public:
 	/// \brief field access
 	///
 	/// \param i index coordinate 
-	constexpr const Scalar& at( const Teuchos::Tuple<const Ordinal,3>& i ) const {
+	inline constexpr const Scalar& at( const Teuchos::Tuple<const Ordinal,3>& i ) const {
 		return( s_[ index(i[0],i[1],i[2]) ] );
 	}
 

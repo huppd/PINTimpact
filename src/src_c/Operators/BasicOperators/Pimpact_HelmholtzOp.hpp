@@ -52,6 +52,7 @@ protected:
 
 public:
 
+	/// \todo change stencil at B for Neumann BC
 	HelmholtzOp(
 			const Teuchos::RCP<const SpaceT>& space ):
 		space_( space ),
@@ -114,6 +115,7 @@ public:
   }
 
 
+	/// \todo change with or without bc, everywhere
   void apply(const DomainFieldT& x, RangeFieldT& y ) const {
 
 		for( int dir=0; dir<SpaceT::sdim; ++dir ) {

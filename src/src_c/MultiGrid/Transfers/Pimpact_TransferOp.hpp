@@ -12,26 +12,8 @@
 namespace Pimpact{
 
 
-
-extern "C"
-void OP_Transfer(
-    const int* const N,
-    const int* const bLI,
-    const int* const bUI,
-    const int* const SI,
-    const int* const NI,
-    const int* const bLO,
-    const int* const bUO,
-    const int* const SO,
-    const int* const NO,
-    const double* const phiIN,
-    double* const phiOUT );
-
-
-
 /// \brief Transfers fields from "coarse" to "fine" spaces, necessary when \c Space::dimNC is  different.
 ///
-/// \todo c++fy
 /// Goes in both direction. If this is used a lot, it could be beneficial, to
 /// seperate StencilWidths with data layout, so having same datalayout for all
 /// stencile. Coping could be beneficial because Cash effects are bether
@@ -80,18 +62,10 @@ public:
     for( int i=0; i<SpaceT::sdim; ++i )
       TEUCHOS_TEST_FOR_EXCEPT( x.space()->nLoc(i) != y.space()->nLoc(i) );
 
-    OP_Transfer(
-        x.space()->nLoc(),
-        x.space()->bl(),
-        x.space()->bu(),
-        x.space()->sIndB(fType),
-        x.space()->eIndB(fType),
-        y.space()->bl(),
-        y.space()->bu(),
-        y.space()->sIndB(fType),
-        y.space()->eIndB(fType),
-        x.getConstRawPtr(),
-        y.getRawPtr() );
+		for( Ordinal k=x.space()->begin(fType,Z,With::B); k<=x.space()->end(fType,Z,With::B); ++k )
+			for( Ordinal j=x.space()->begin(fType,Y,With::B); j<=x.space()->end(fType,Y,With::B); ++j )
+				for( Ordinal i=x.space()->begin(fType,X,With::B); i<=x.space()->end(fType,X,With::B); ++i )
+					y.at(i,j,k) = x.at(i,j,k);
 
     y.changed();
   }

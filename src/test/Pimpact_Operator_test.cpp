@@ -239,11 +239,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, TransferOp, SpaceT ) {
 
 	setParameter( SpaceT::sdim );
 
-  using FSpaceT = Pimpact::Space<ST,OT,3,d,4>;
-  using CSpaceT = Pimpact::Space<ST,OT,3,d,2>;
+  using FSpaceT = Pimpact::Space<ST,OT,SpaceT::sdim,d,4>;
+  using CSpaceT = Pimpact::Space<ST,OT,SpaceT::sdim,d,2>;
 
-  auto fSpace = Pimpact::create< Pimpact::Space<ST,OT,3,d,4> >( pl );
-  auto cSpace = Pimpact::create< Pimpact::Space<ST,OT,3,d,2> >( pl );
+  auto fSpace = Pimpact::create< Pimpact::Space<ST,OT,SpaceT::sdim,d,4> >( pl );
+  auto cSpace = Pimpact::create< Pimpact::Space<ST,OT,SpaceT::sdim,d,2> >( pl );
 
   auto fx = Pimpact::create<Pimpact::ScalarField>( fSpace );
   auto cx = Pimpact::create<Pimpact::ScalarField>( cSpace );
@@ -267,7 +267,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, TransferOp, SpaceT ) {
   TEST_FLOATING_EQUALITY( fx->norm(Belos::OneNorm), cx->norm(Belos::OneNorm), eps );
   TEST_FLOATING_EQUALITY( fx->norm(Belos::TwoNorm), cx->norm(Belos::TwoNorm), eps );
   TEST_FLOATING_EQUALITY( fx->norm(Belos::InfNorm), cx->norm(Belos::InfNorm), eps );
-
 }
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( BasicOperator, TransferOp, D2 )
