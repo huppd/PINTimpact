@@ -24,7 +24,11 @@ contains
   !! \param[in] BCL local lower Boundary conditions \c BoundaryConditionsLocal
   !! \param[in] BCU local upper Boundary conditions \c BoundaryConditionsLocal
   !! \param[in] SShift shift in \c ProcGrid
-  !! \param[in] grid_type (5: p, 1: u, 2: v, 3:w ) used weridly
+  !! \param[in] grid_type used weridly
+  !!                      - 5 on pressure grid (ConvOp,HelmOp), on same grid
+  !!                      - 1 on velocity grid (ConvOp,HelmOp), on same grid
+  !!                      - 2 on velocity grid (GradOp,IntS2VOp), grid transfer
+  !!                      - 3 on pressure grid (DivOp, IntV2SOp), grid transfer
   !! \param[in] dir direction ( 1:x, 2:y, 3:z )
   !! \param[in] abl degree of derivative
   !! \param[in] upwind (0: central, 1: up, -1: low)
@@ -41,6 +45,7 @@ contains
   !! \param[out] cc coefficients
   !!
   !! \todo move error handling else where
+  !! \todo c++fy
   !!
   !! \note: - Upwinding wird auf dem Rand unterdrücken, da Differenzenstencils
   !!          dort ohnehin schief sind.
@@ -650,18 +655,18 @@ contains
 
     implicit none
 
-    integer(c_int) , intent(in)   ::  abl
-    logical(c_bool), intent(in)   ::  filter_yes
-    integer(c_int) , intent(in)   ::  n_coeff
-    real(c_double) , intent(in)   ::  deltaX(1:n_coeff)
-    real(c_double) , intent(out)  ::  cc    (1:n_coeff)
+    integer(c_int) , intent(in)  ::  abl
+    logical(c_bool), intent(in)  ::  filter_yes
+    integer(c_int) , intent(in)  ::  n_coeff
+    real(c_double) , intent(in)  ::  deltaX(1:n_coeff)
+    real(c_double) , intent(out) ::  cc    (1:n_coeff)
 
     integer(c_int)               ::  i, j
 
-    real(c_double)                  ::  polyn_vals    (1:n_coeff,1:n_coeff)
-    real(c_double)                  ::  polyn_vals_inv(1:n_coeff,1:n_coeff)
+    real(c_double)               ::  polyn_vals    (1:n_coeff,1:n_coeff)
+    real(c_double)               ::  polyn_vals_inv(1:n_coeff,1:n_coeff)
 
-    real(c_double)                  ::  const
+    real(c_double)               ::  const
 
 
     !===========================================================================================
@@ -710,19 +715,9 @@ contains
 
 
 
-
-
-
-
-
-
-
-
   subroutine FD_coeffs_solver_integral(n_coeff,deltaX,dxL,dxU,cc)
 
     implicit none
-
-    !integer(c_int), intent(in)   ::  rank
 
     integer(c_int), intent(in)   ::  n_coeff
     real(c_double), intent(in)   ::  deltaX(1:n_coeff)
@@ -766,6 +761,8 @@ contains
 
 
 
+  !> \todo c++fy
+  !! \todo replace by LU/QR
   subroutine Matrix_invert(N,matrix,matrix_inv)
 
     implicit none
@@ -780,8 +777,8 @@ contains
     real(c_double)              ::  eps
     integer(c_int)              ::  i, j, k
 
-    real(c_double)              ::  store
-    integer(c_int)              ::  maxValue, maxValuePos
+    real(c_double)              ::  store, maxValue
+    integer(c_int)              ::  maxValuePos
 
 
 
@@ -808,17 +805,17 @@ contains
       ! Pivoting == Umsortieren der aktuellen Untermatrix (j:N,j:N)
       ! (Diagonalelemente der linken Dreiecksmatrix sind betragsmaessig zu maximieren)
       ! Groesster Wert in Spalte j = zukuenftiges Diagonalelement j,j
-      maxValue    = int( abs(matrix_left(j,j)), c_int )
+      maxValue    = abs( matrix_left(j,j) ) !dh: I don't get cast to integer
       maxValuePos = j
       do i = j+1, N
-        if (ABS(matrix_left(i,j)) > maxValue) then
-          maxValue    = int( ABS(matrix_left(i,j)), c_int )
+        if( ABS(matrix_left(i,j)) > maxValue ) then
+          maxValue    = ABS( matrix_left(i,j) )
           maxValuePos = i
         end if
       end do
 
       ! Zeilen vertauschen:
-      if (maxValuePos /= j) then
+      if( maxValuePos /= j ) then
         do i = 1, N
           store                      = matrix_left(maxValuePos,i)
           matrix_left(maxValuePos,i) = matrix_left(j,i)
@@ -843,17 +840,17 @@ contains
         ! Aufaddieren von Zeile j auf aktuelle Zeile i (linke Seite):
         do k = j, N
           ! To avoid underflow:
-          if (.not. (ABS(mult2) < eps .and. ABS(matrix_left(j,k)) < eps)) then
+          !if( .not. (ABS(mult2) < eps .and. ABS(matrix_left(j,k)) < eps) ) then
             matrix_left(i,k) = matrix_left(i,k) - matrix_left(j,k)*mult2
-          end if
+          !end if
         end do
 
         ! Aufaddieren von Zeile j auf aktuelle Zeile i (rechte Seite):
         do k = 1, N
           ! To avoid underflow:
-          if (.not. (ABS(mult2) < eps .and. ABS(matrix_inv(j,k)) < eps)) then
+          !if (.not. (ABS(mult2) < eps .and. ABS(matrix_inv(j,k)) < eps)) then
             matrix_inv(i,k) = matrix_inv(i,k) - matrix_inv(j,k)*mult2
-          end if
+          !end if
         end do
 
         ! Komponente i,j explizit zu Null setzen:
@@ -883,9 +880,9 @@ contains
         ! Aufaddieren von Zeile j auf aktuelle Zeile i (rechte Seite):
         do k = 1, N
           ! To avoid underflow:
-          if (.not. (ABS(mult2) < eps .and. ABS(matrix_inv(j,k)) < eps)) then
+          !if (.not. (ABS(mult2) < eps .and. ABS(matrix_inv(j,k)) < eps)) then
             matrix_inv(i,k) = matrix_inv(i,k) - matrix_inv(j,k)*mult2
-          end if
+          !end if
         end do
 
         ! nicht-Diagonalelement explizit zu 0 setzen:

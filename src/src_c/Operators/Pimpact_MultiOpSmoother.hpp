@@ -45,7 +45,7 @@ public:
 	void apply( const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans&
 			trans=Belos::NOTRANS) const {
 
-    TEUCHOS_TEST_FOR_EXCEPT( x.getNumberVecs()!=y.getNumberVecs() );
+    assert( x.getNumberVecs()==y.getNumberVecs() );
 
     for( int i=0; i<x.getNumberVecs(); ++i )
       op_->apply( x.getConstField(i), y.getField(i) );

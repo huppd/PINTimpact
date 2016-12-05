@@ -89,7 +89,8 @@ public:
 					i+1,  // direction
 					0,    // 0-derivative
 					0,    // central
-					true, // not working with stretching mapping
+					//true, // not working with stretching mapping
+					false, // not working with stretching mapping
 					stencilWidths->getDimNcbD(i),
 					stencilWidths->getNcbD(i),
 					coordinatesLocal->getX( i, i ),
@@ -131,23 +132,10 @@ public:
 
 		assert( x.getType() != S );
 		assert( y.getType() == S );
-#ifndef NDBEUG
-		TEUCHOS_TEST_FOR_EXCEPTION(
-				x.getType() == S,
-				std::logic_error,
-				"Pimpact::InterpolateV2S:: can only interpolate from VectorField!!!\n");
-
-		TEUCHOS_TEST_FOR_EXCEPTION(
-				y.getType() != S,
-				std::logic_error,
-				"Pimpact::InterpolateV2S:: can only interpolate to Scalar!!!\n");
-#endif
 
 		Teuchos::RCP<const SpaceT> space = x.space();
 
-		//int m = static_cast<int>( x.getType() );
 		ECoord m = static_cast<ECoord>( x.getType() );
-
 		
 		x.exchange( m );
 

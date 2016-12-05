@@ -1,8 +1,10 @@
-!*************************************************************************************************************
-!* IMPACT                                                                                                    *
-!* by Rolf Henniger, Institute of Fluid Dynamics, ETH Zurich (henniger@ifd.mavt.ethz.ch)                     *
-!* Mai 2005 - Dec 2011                                                                                       *
-!*************************************************************************************************************
+!************************************************************************************************
+!* IMPACT                                                                                       *
+!* by Rolf Henniger, Institute of Fluid Dynamics, ETH Zurich (henniger@ifd.mavt.ethz.ch)        *
+!* Mai 2005 - Dec 2011                                                                          *
+!************************************************************************************************
+
+
 
 !> \brief module that exchanges ghost layers
 module cmod_exchange
@@ -17,7 +19,7 @@ module cmod_exchange
 contains
 
 
-  !> \note  Pseudo-CALL fuer cmod_exchange. Darf auf keinen Fall vom Compiler geinlined werden!                   !
+  !> \note  Pseudo-CALL fuer cmod_exchange. Darf auf keinen Fall vom Compiler geinlined werden!
   subroutine pseudocall(phi)
 
     implicit none
@@ -29,16 +31,17 @@ contains
 
 
   !> \brief exchanges ghost layer
-  !!---------------------------------------------------------------------------------------------------------------------!
-  !! \note: - [Sij,Nij] ist Untermenge von [Sip,Nip]                                                                     !
-  !!        - [Sip,Nip] ist Untermenge von [1,Ni]                                                                  !
-  !!        - [1,Ni] hat den Vorteil, dass Intervallgrenzen fest einprogrammiert sind,                             !
-  !!          was prinzipiell zu einem Vorteil bei der Effizienz führen sollte.                                    !
-  !!        - Bei Spiegelung muss die zur Spiegelungsebene orthogonale Geschwindigkeitskomponente auch im          !
-  !!          Vorzeichen gespiegelt werden, da die Spiegelungsebene nicht durchströmt werden kann!.                !
-  !!        - Alle Kopier-Schleifen sind ausgeschrieben, da der PGI-Compiler ansonsten keine Vektorisierung bzw.   !
-  !!          kein Prefetch einbaut.                                                                               !
-  !!---------------------------------------------------------------------------------------------------------------------!
+  !!
+  !! \note: - [Sij,Nij] ist Untermenge von [Sip,Nip]
+  !!        - [Sip,Nip] ist Untermenge von [1,Ni]
+  !!        - [1,Ni] hat den Vorteil, dass Intervallgrenzen fest einprogrammiert sind,
+  !!          was prinzipiell zu einem Vorteil bei der Effizienz führen sollte.
+  !!        - Bei Spiegelung muss die zur Spiegelungsebene orthogonale
+  !!          Geschwindigkeitskomponente auch im Vorzeichen gespiegelt werden,
+  !!          da die Spiegelungsebene nicht durchströmt werden kann.
+  !!        - Alle Kopier-Schleifen sind ausgeschrieben, da der PGI-Compiler
+  !!          ansonsten keine Vektorisierung bzw. kein Prefetch einbaut.
+  !!
   subroutine F_exchange(  &
       dimens,             &
       COMM,               &
@@ -104,7 +107,7 @@ contains
 
     integer(c_int)                ::  i, j, k
 
-    !======================================================================================================================
+    !============================================================================================
     if (dir == 1) then
 
       ! derterming length of message
@@ -150,7 +153,7 @@ contains
         end do
       end if
 
-      !-------------------------------------------------------------------------------------------------------------------
+      !------------------------------------------------------------------------------------------
 
       if (BCL(1) == -1) then
         do i = bL(1), -1
@@ -161,7 +164,7 @@ contains
         end do
       end if
 
-      !-------------------------------------------------------------------------------------------------------------------
+      !------------------------------------------------------------------------------------------
 
       if (vel_dir == dir) then
         if (BCL(1) > 0) phi( bL(1)  : -1     ,SS(2):NN(2),SS(3):NN(3)) = 0.
@@ -176,7 +179,7 @@ contains
 
     end if
 
-    !======================================================================================================================
+    !============================================================================================
 
     if (dir == 2) then
 
@@ -217,7 +220,7 @@ contains
         end do
       end if
 
-      !-------------------------------------------------------------------------------------------------------------------
+      !------------------------------------------------------------------------------------------
 
       if (BCL(2) == -1) then
         do j = bL(2), -1
@@ -228,7 +231,7 @@ contains
         end do
       end if
 
-      !-------------------------------------------------------------------------------------------------------------------
+      !------------------------------------------------------------------------------------------
 
       if (vel_dir == dir) then
         if (BCL(2) > 0) phi(SS(1):NN(1), bL(2)  : -1     ,SS(3):NN(3)) = 0.
@@ -243,7 +246,7 @@ contains
 
     end if
 
-    !======================================================================================================================
+    !============================================================================================
 
     if (dir == 3 .and. dimens == 3) then
 
@@ -284,7 +287,7 @@ contains
         end do
       end if
 
-      !-------------------------------------------------------------------------------------------------------------------
+      !------------------------------------------------------------------------------------------
 
       if (BCL(3) == -1) then
         do k = bL(3), -1
@@ -295,23 +298,22 @@ contains
         end do
       end if
 
-      !-------------------------------------------------------------------------------------------------------------------
+      !------------------------------------------------------------------------------------------
 
       if (vel_dir == dir) then
-        if (BCL(3)  >  0) phi(SS(1):NN(1),SS(2):NN(2), bL(3)  : -1     ) = 0.
+        if (BCL(3)  >  0) phi(SS(1):NN(1),SS(2):NN(2), bL(3)  : -1         ) = 0.
         if (BCU(3)  >  0) phi(SS(1):NN(1),SS(2):NN(2),(N(3)+1):(N(3)+bU(3))) = 0.
 
-        if (BCL(3) == -2) phi(SS(1):NN(1),SS(2):NN(2), bL(3)  :  0     ) = 0.
+        if (BCL(3) == -2) phi(SS(1):NN(1),SS(2):NN(2), bL(3)  :  0         ) = 0.
         if (BCU(3) == -2) phi(SS(1):NN(1),SS(2):NN(2), N(3)   :(N(3)+bU(3))) = 0.
       else
-        if (BCL(3) > 0 .or. BCL(3) == -2) phi(SS(1):NN(1),SS(2):NN(2), bL(3)  : 0      ) = 0.
+        if (BCL(3) > 0 .or. BCL(3) == -2) phi(SS(1):NN(1),SS(2):NN(2), bL(3)  : 0          ) = 0.
         if (BCU(3) > 0 .or. BCU(3) == -2) phi(SS(1):NN(1),SS(2):NN(2),(N(3)+1):(N(3)+bU(3))) = 0.
       end if
 
     end if
 
-    !======================================================================================================================
-
+    !============================================================================================
 
   end subroutine F_exchange
 

@@ -95,7 +95,7 @@ public:
 		if( v.is_null() )
 			v = Teuchos::rcp( new VectorT( N_, false ) );
 
-		TEUCHOS_TEST_FOR_EXCEPT( N_!= v->numRows() * v->numCols() )
+		assert( N_== v->numRows() * v->numCols() );
 
 			for( Ordinal k=SS_[Z]; k<=NN_[Z]; ++k )
 				for( Ordinal j=SS_[Y]; j<=NN_[Y]; ++j )
@@ -107,7 +107,7 @@ public:
 
 	void apply( const Teuchos::RCP<const VectorT>& v, DomainFieldT& x ) const {
 
-		TEUCHOS_TEST_FOR_EXCEPT( N_!=v->numRows()*v->numCols() )
+		assert( N_==v->numRows()*v->numCols() );
 
 			for( Ordinal k=SS_[Z]; k<=NN_[Z]; ++k )
 				for( Ordinal j=SS_[Y]; j<=NN_[Y]; ++j )
@@ -118,7 +118,7 @@ public:
 
 	void apply( const Teuchos::RCP<const VectorT>& v, DomainFieldT& x, const Scalar& om ) const {
 
-		TEUCHOS_TEST_FOR_EXCEPT( N_!=v->numRows()*v->numCols() )
+		assert( N_==v->numRows()*v->numCols() );
 
 			for( Ordinal k=SS_[Z]; k<=NN_[Z]; ++k )
 				for( Ordinal j=SS_[Y]; j<=NN_[Y]; ++j )
@@ -135,7 +135,7 @@ public:
 		else
 			*A = 0.;
 
-		TEUCHOS_TEST_FOR_EXCEPT( N_*N_!=A->numRows()*A->numCols() );
+		assert( N_*N_==A->numRows()*A->numCols() );
 
 		// inner stencil
 		for( Ordinal k=SS_[Z]; k<=NN_[Z]; ++k )
@@ -175,7 +175,7 @@ public:
 	void updateRHS( const Teuchos::RCP<const DivGradO2Op<SpaceT> > op,
 			const DomainFieldT& x, Teuchos::RCP<VectorT> b ) const {
 
-		TEUCHOS_TEST_FOR_EXCEPT( N_!=b->numRows()*b->numCols() );
+		assert( N_==b->numRows()*b->numCols() );
 
 		// boundary conditions in X
 		if( space_->getBCLocal()->getBCL(X)<=0 || SS_[X]>space_->begin(EField::S,X,true) ) {

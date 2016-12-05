@@ -65,8 +65,8 @@ public:
 						i+1,  // direction
 						0,    // derivative
 						0,    // central
-						true, // not working with grid stretching. mapping
-						//false, // mapping
+						//true, // not working with grid stretching. mapping
+						false, // mapping
 						space_->getStencilWidths()->getDimNcbG(i),
 						space_->getStencilWidths()->getNcbG(i),
 						space_->getCoordinatesLocal()->getX( i, EField::S ),
@@ -84,11 +84,9 @@ public:
 
 	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
-#ifndef NDEBUG
-		TEUCHOS_TEST_FOR_EXCEPT( x.getType() != S );
-		TEUCHOS_TEST_FOR_EXCEPT( y.getType() == S );
-		TEUCHOS_TEST_FOR_EXCEPT( y.getType() == W && SpaceT::sdim==2 );
-#endif
+		assert( x.getType() == S );
+		assert( y.getType() != S );
+		assert( !(y.getType() == W && SpaceT::sdim==2) );
 
 		int m = static_cast<int>( y.getType() );
 		const EField& field = y.getType();

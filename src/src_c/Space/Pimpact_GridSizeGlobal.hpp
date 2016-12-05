@@ -35,7 +35,7 @@ protected:
 		Teuchos::Tuple<OrdinalT,4>( gridSize ) {
 
 			for( int i=0; i<sdim; ++i )
-				TEUCHOS_TEST_FOR_EXCEPT( ((*this)[i]-1)%2 != 0 );
+				assert( ((*this)[i]-1)%2 == 0 );
 	};
 
 public:

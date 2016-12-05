@@ -59,6 +59,7 @@ void PI_getLocalCoordinates(
 /// xS         | bl..nLoc+bu+(ib-1)*(NB-1)
 /// xV         | bl..nLoc+bu+(ib-1)*(NB-1)
 ///
+/// \todo make nice interface for getter
 /// \ingroup SpaceObject
 template<class ScalarT, class OrdinalT, int dim, int dimNC>
 class CoordinatesLocal {

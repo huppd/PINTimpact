@@ -10,6 +10,7 @@
 
 #include "Pimpact_ScalarField.hpp"
 #include "Pimpact_Space.hpp"
+#include "Pimpact_Stencil.hpp"
 
 
 
@@ -122,6 +123,9 @@ public:
 	using DomainFieldT = ScalarField<SpaceT>;
 	using RangeFieldT = ScalarField<SpaceT>;
 
+	using StencS = Stencil< Scalar, Ordinal, 1, 1, 2 >;
+	using StencV = Stencil< Scalar, Ordinal, 0, 1, 2 >;
+
 protected:
 
 	Teuchos::RCP<const SpaceT> spaceC_; 		///< coarse space
@@ -141,8 +145,8 @@ protected:
 	Teuchos::ArrayRCP<Ordinal> recvI_;
 	Teuchos::ArrayRCP<Ordinal> dispI_;
 
-	Teuchos::Tuple<Teuchos::ArrayRCP<Scalar>,3> cIS_;
-	Teuchos::Tuple<Teuchos::ArrayRCP<Scalar>,3> cIV_;
+	Teuchos::Tuple<StencS*,3> cIS_;
+	Teuchos::Tuple<StencV*,3> cIV_;
 
 
 	void init( const Teuchos::Tuple<int,dimension>& np ) {
@@ -356,7 +360,8 @@ protected:
 		for( int dir=0; dir<3; ++dir ) {
 
 			//if dd>1
-			cIS_[dir] = Teuchos::arcp<Scalar>( 2*( spaceC_->nLoc(dir)-1+1 ) );
+			cIS_[dir] = new StencS( spaceC_->nLoc(dir) );
+
 			MG_getCIS(
 					spaceC_->nLoc(dir),
 					spaceF_->nLoc(dir),
@@ -364,10 +369,9 @@ protected:
 					spaceC_->bu(dir),
 					spaceF_->getCoordinatesLocal()->getX( dir, EField::S ),
 					dd_[dir],
-					cIS_[dir].getRawPtr() );
+					cIS_[dir]->get() );
 
-			cIV_[dir] = Teuchos::arcp<Scalar>( 2*( spaceF_->nLoc(dir)-0+1 ) );
-			//      if( i<CSpaceT::sdim )
+			cIV_[dir] = new StencV( spaceF_->nLoc(dir) );
 
 			Ordinal offset = 0;
 			if( 1!=nGather_[dir] )
@@ -389,7 +393,7 @@ protected:
 					spaceC_->getCoordinatesLocal()->getX( dir, dir ),
 					spaceF_->getCoordinatesLocal()->getX( dir, dir ),
 					dd_[dir],
-					cIV_[dir].getRawPtr() );
+					cIV_[dir]->get() );
 		}
 
 	} // end of void init( const Teuchos::Tuple<int,dimension>& np ) 
@@ -416,6 +420,12 @@ public:
 			init( np );
 	}
 
+	~InterpolationOp() {
+		for( int i = 0; i<3; ++i ) {
+			delete cIS_[i];
+			delete cIV_[i];
+		}
+	}
 
 	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
@@ -423,7 +433,7 @@ public:
 
 		EField fType = x.getType();
 
-		TEUCHOS_TEST_FOR_EXCEPT( x.getType()!=y.getType() );
+		assert( x.getType()==y.getType() );
 
 		if( EField::S==fType ) {
 
@@ -455,9 +465,9 @@ public:
 					spaceF_->bu(),
 					iimax_.getRawPtr(),
 					dd_.getRawPtr(),
-					cIS_[0].getRawPtr(),
-					cIS_[1].getRawPtr(),
-					cIS_[2].getRawPtr(),
+					cIS_[0]->get(),
+					cIS_[1]->get(),
+					cIS_[2]->get(),
 					x.getConstRawPtr(),
 					y.getRawPtr() );
 
@@ -518,10 +528,10 @@ public:
 					spaceF_->eIndB(fType),
 					iimax_.getRawPtr(),
 					dd_.getRawPtr(),
-					cIV_[dir].getRawPtr(),
-					cIS_[0].getRawPtr(),
-					cIS_[1].getRawPtr(),
-					cIS_[2].getRawPtr(),
+					cIV_[dir]->get(),
+					cIS_[0]->get(),
+					cIS_[1]->get(),
+					cIS_[2]->get(),
 					x.getConstRawPtr(),
 					y.getRawPtr() );
 
@@ -544,27 +554,13 @@ public:
 		out << "\n";
 		for( int j=0; j<3; ++j ) {
 			out << "\n Scalar dir: " << j << ":\n";
-			out << "i:\tcI(1,i)\tcI(2,i)\n";
-			for( int i=0; i<( spaceC_->eInd(EField::S)[j]-spaceC_->sInd(EField::S)[j]+1 ); ++i) {
-				out <<  i + spaceC_->sInd(EField::S)[j] << "\t";
-				for( int k=0; k<2; ++k ) {
-					out << cIS_[j][i*2+k] << "\t";
-				}
-				out << "\n";
-			}
+			cIS_[j]->print( out );
 		}
-
 		out << "\n";
+
 		for( int j=0; j<3; ++j ) {
 			out << "\n Vector dir: " << j << ":\n";
-			out << "i:\tcV(1,i)\tcV(2,i)\n";
-			for( int i=0; i<( spaceF_->nLoc(j)-0+1 ); ++i) {
-				out << i << "\t";
-				for( int k=0; k<2; ++k ) {
-					out << cIV_[j][i*2+k] << "\t";
-				}
-				out << "\n";
-			}
+			cIV_[j]->print( out );
 		}
 		out << "\n";
 	}

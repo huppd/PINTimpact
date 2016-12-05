@@ -96,11 +96,10 @@ public:
 		Teuchos::RCP<DomainFieldT> temp = create<DomainFieldT>( space() );
 		//int m = (int)y.getType();
 
-    TEUCHOS_TEST_FOR_EXCEPT( y.getType() != x.getType() );
-
+    assert( y.getType() == x.getType() );
 
     for( int i =0; i<SpaceT::sdim; ++i )
-      TEUCHOS_TEST_FOR_EXCEPT( wind[i]->getType() != x.getType() );
+      assert( wind[i]->getType() == x.getType() );
 
     for( int vel_dir=0; vel_dir<SpaceT::sdim; ++vel_dir )
       wind[vel_dir]->exchange();

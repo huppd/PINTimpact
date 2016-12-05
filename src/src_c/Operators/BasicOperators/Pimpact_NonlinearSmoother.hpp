@@ -48,9 +48,6 @@ public:
 
 	/// NOFX should not be already assigned in Operators.
 	void assignField( const DomainFieldT& mv ) const {
-//#ifndef NDEBUG
-		//TEUCHOS_TEST_FOR_EXCEPT( true );
-//#endif
 	};
 
 

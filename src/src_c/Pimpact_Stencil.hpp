@@ -3,6 +3,8 @@
 #define PIMPACT_STENCIL_HPP
 
 
+#include <iostream>
+
 
 
 namespace Pimpact {
@@ -10,12 +12,13 @@ namespace Pimpact {
 
 /// \brief 
 ///
+/// \todo get rid of ptr/at
 /// \tparam Scalar
 /// \tparam Ordinal
-/// \tparam ss
-/// \tparam bl_
-/// \tparam bu_
-template<class Scalar, class Ordinal, int ss, int bl_, int bu_>
+/// \tparam ss start index
+/// \tparam lb lower stencil bound
+/// \tparam ub_ upper stencil bound
+template<class Scalar, class Ordinal, int ss, int lb, int ub>
 class Stencil {
 
 protected:
@@ -25,74 +28,75 @@ protected:
 	ScalarArray c_;
 
 	const Ordinal nn_;
-	//const int bl_;	/// < \todo make template parameter
-	//const int bu_;	/// < \todo make template parameter
-	static const int w_ = bu_-bl_+1;
+	static const int w_ = ub-lb+1;
 
 public:
 
-	Stencil( const Ordinal& nn ) : 
-		nn_(nn) {
+	Stencil() : c_(nullptr),nn_(ss) {}
 
-			assert( bl_<=bu_ );
-			assert( ss<=nn_ );
-			
-			Ordinal nTemp = ( nn_ - ss + 1 )*w_;
-
-			c_ = new Scalar[ nTemp ];
-
-			for( Ordinal i=0; i<nTemp; ++i )
-				c_[i] = 0.;
-		}
-
-	~Stencil() {
-		delete[] c_;
+	Stencil( const Stencil& x ) :c_(nullptr), nn_(x.nn_) { 
+		std::swap( c_, x.c_ );
 	}
 
-	ScalarArray get() {
-		return( c_ );
+	Stencil( const Ordinal& nn ) : nn_(nn) {
+
+		assert( lb<=ub );
+		assert( ss<=nn_ );
+
+		Ordinal nTemp = ( nn_ - ss + 1 )*w_;
+
+		c_ = new Scalar[ nTemp ];
+
+		for( Ordinal i=0; i<nTemp; ++i )
+			c_[i] = 0.;
 	}
 
-	constexpr Scalar& operator()( const Ordinal& index, const int& offset ) {
-		assert( offset>=bl_ );
-		assert( offset<=bu_ );
+	~Stencil() { delete[] c_; }
+
+	ScalarArray get() { return( c_ ); }
+
+	inline constexpr Scalar& operator()( const Ordinal& index, const int& offset ) {
+		assert( offset>=lb );
+		assert( offset<=ub );
 		assert( index>=ss );
 		assert( index<=nn_ );
-		return( c_[ offset-bl_ + (index-ss)*w_ ] );
+		return( c_[ offset-lb + (index-ss)*w_ ] );
 	};
 
 
-	constexpr const Scalar& at( const Ordinal& index, const int& offset ) const {
-		assert( offset>=bl_ );
-		assert( offset<=bu_ );
+	inline constexpr const Scalar& at( const Ordinal& index, const int& offset ) const {
+		assert( offset>=lb );
+		assert( offset<=ub );
 		assert( index>=ss );
 		assert( index<=nn_ );
 		return(
-				c_[ offset-bl_ + (index-ss)*w_ ] );
+				c_[ offset-lb + (index-ss)*w_ ] );
 	}
 
 	static inline constexpr int bl() {
-		return( bl_ );
+		return( lb );
 	}
 
 	static inline constexpr int bu() {
-		return( bu_ );
+		return( ub );
 	}
 
 	void print( std::ostream& out=std::cout ) const {
 		out << std::setw(8) << "bl: ";
-		for( int k=bl_; k<=bu_; ++k ) 
-			out << std::setw(9) << k ;
+		out << std::scientific;
+		out << std::setprecision( 3 );
+		for( int k=lb; k<=ub; ++k ) 
+			out << std::setw(12) << k ;
 		out << " :bu\n";
 
-		for( int bla=0; bla<9*w_+5; bla++ )
+		for( int bla=0; bla<12*w_+5; bla++ )
 			out << "-";
 		out << "\n";
 
 		for( int i=ss; i<=nn_; ++i ) {
 			out << "i: " << std::setw(3) << i << " (";
-			for( int ii=bl_; ii<=bu_; ++ii ) 
-				out << std::setw(9) << at(i,ii);
+			for( int ii=lb; ii<=ub; ++ii ) 
+				out << std::setw(12) << at(i,ii);
 			out << ")\n";
 		}
 	}

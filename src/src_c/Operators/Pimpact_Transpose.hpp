@@ -35,9 +35,7 @@ protected:
 public:
 
 	Transpose( const Teuchos::RCP<OP>& op ): op_(op) {
-#ifndef NDEBUG
-		TEUCHOS_TEST_FOR_EXCEPT( !op->hasApplyTranspose() );
-#endif
+		assert( op->hasApplyTranspose() );
 	};
 
 

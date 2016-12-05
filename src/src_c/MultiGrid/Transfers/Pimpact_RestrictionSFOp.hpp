@@ -10,6 +10,7 @@
 #include "Pimpact_RestrictionBaseOp.hpp"
 #include "Pimpact_ScalarField.hpp"
 #include "Pimpact_Space.hpp"
+#include "Pimpact_Stencil.hpp"
 
 
 
@@ -39,15 +40,18 @@ public:
   using DomainFieldT = ScalarField<SpaceT>;
   using RangeFieldT = ScalarField<SpaceT>;
 
+	using Stenc = Stencil< Scalar, Ordinal, 1, -1, 1 >;
+
 protected:
 
-  Teuchos::Tuple<Scalar*,3> cRS_;
+  Teuchos::Tuple<Stenc*,3> cRS_;
 
 	void initSF() {
 
 		for( int i=0; i<3; ++i ) {
 
-			cRS_[i] = new Scalar[ 3*this->iimax_[i]  ];
+			//cRS_[i] = new Scalar[ 3*this->iimax_[i]  ];
+			cRS_[i] = new Stenc( this->iimax_[i] );
 
 			MG_getCRS(
 					this->iimax_[i],
@@ -62,7 +66,7 @@ protected:
 					spaceF()->bl(i),
 					spaceF()->bu(i),
 					spaceF()->getCoordinatesLocal()->getX( i, EField::S ),
-					cRS_[i] );
+					cRS_[i]->get() );
 		}
 	}
 
@@ -89,15 +93,14 @@ public:
 
   ~RestrictionSFOp() {
     for( int i=0; i<3; ++i )
-      delete[] cRS_[i];
+      delete cRS_[i];
   }
-
 
 
 	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
-		TEUCHOS_TEST_FOR_EXCEPT( x.getType()!=y.getType() );
-		TEUCHOS_TEST_FOR_EXCEPT( x.getType()!=EField::S );
+		assert( x.getType()==y.getType() );
+		assert( x.getType()==EField::S );
 
 		x.exchange();
 
@@ -112,9 +115,9 @@ public:
 				spaceC()->bu(),
 				this->iimax_.getRawPtr(),
 				this->dd_.getRawPtr(),
-				cRS_[0],
-				cRS_[1],
-				cRS_[2],
+				cRS_[0]->get(),
+				cRS_[1]->get(),
+				cRS_[2]->get(),
 				x.getConstRawPtr(),
 				y.getRawPtr() );
 
@@ -132,21 +135,9 @@ public:
 		out << "comm2:\t" << this->comm2_ << "\n";
 
 		out << " --- scalar stencil: ---";
-		for( int j=0; j<ST::sdim; ++j ) {
-
+		for( int j=0; j<3; ++j ) {
 			out << "\ndir: " << j << "\n";
-
-			Ordinal nTemp1 = this->iimax_[j];
-			Ordinal nTemp2 = 3;
-
-			for( int i=0; i<nTemp1; ++i ) {
-				out << "\ni: " << i+1 << "\t(";
-				for( int k=0; k<nTemp2; ++k ) {
-					out << cRS_[j][k+nTemp2*i] << ", ";
-				}
-				out << ")\n";
-			}
-			out << "\n";
+			cRS_[j]->print( out );
 		}
 	}
 

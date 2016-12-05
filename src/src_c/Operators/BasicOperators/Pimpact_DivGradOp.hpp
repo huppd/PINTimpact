@@ -81,7 +81,7 @@ public:
 	}
 
 
-	/// \test periodic BC
+	/// \todo fix for periodic BC
 	void applyInvDiag( const DomainFieldT& x, RangeFieldT& y ) const {
 
 		const ST& eps = 0.1;
@@ -117,7 +117,7 @@ public:
 									* space()->getInterpolateV2S()->getC( X, space()->end(U,X,With::B), iii ) /
 									space()->getInterpolateV2S()->getC( X, space()->end(U,X,With::B), 0 );
 						}
-						else if( i+ii>=space()->begin(U,X,With::B) && i+ii<=space()->end(U,X,With::B) )
+						else if( i+ii>=0 && i+ii<=space()->nLoc(X) )
 							diag += div_->getC( X, i, ii ) * epsX * grad_->getC( X, i+ii, -ii );
 					}
 
@@ -135,7 +135,7 @@ public:
 									* space()->getInterpolateV2S()->getC( Y, space()->end(V,Y,With::B), jjj ) /
 									space()->getInterpolateV2S()->getC( Y, space()->end(V,Y,With::B), 0 );
 						}
-						else if( j+jj>=space()->begin(V,Y,With::B) && j+jj<=space()->end(V,Y,With::B) )
+						else if( j+jj>=0 && j+jj<=space()->nLoc(Y) )
 							diag += div_->getC( Y, j, jj )*epsY*grad_->getC( Y, j+jj, -jj );
 					}
 
@@ -148,14 +148,13 @@ public:
 										* space()->getInterpolateV2S()->getC( Z, 1, kkk ) /
 										space()->getInterpolateV2S()->getC( Z, 1, -1 );
 							}
-							else
-							if( 0<space()->getBCLocal()->getBCU(Z) && k+kk==space()->end(W,Z,With::B) ) {
+							else if( 0<space()->getBCLocal()->getBCU(Z) && k+kk==space()->end(W,Z,With::B) ) {
 								for( OT kkk=space()->dl(Z); kkk<=-1; ++kkk )
 									diag -= div_->getC( Z, k, kk ) * epsZ * grad_->getC( Z, space()->end(W,Z,With::B)+kkk, -kkk-kk )
 										* space()->getInterpolateV2S()->getC(Z,space()->end(W,Z,With::B),kkk) /
 										space()->getInterpolateV2S()->getC(Z,space()->end(W,Z,With::B),0);
 							}
-							else if( k+kk>=space()->begin(W,Z,With::B) && k+kk<=space()->end(W,Z,With::B) )
+							else if( k+kk>=0 && k+kk<=space()->nLoc(Z) )
 								diag += div_->getC( Z, k, kk ) * epsZ * grad_->getC( Z, k+kk, -kk );
 						}
 					}

@@ -91,7 +91,7 @@ protected:
 		//
 		// --- tests ---
 		// 
-		TEUCHOS_TEST_FOR_EXCEPT( 3!=dim && 4!=dim );
+		static_assert( 3==dim || 4==dim, "spatial dimension not valid" );
 
     for( int i=0; i<dim; ++i )
 			TEUCHOS_TEST_FOR_EXCEPT( procGridSize_[i]<1 );

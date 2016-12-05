@@ -140,36 +140,37 @@ public:
   }
 
 
-  void apply( const DomainFieldT& x, RangeFieldT& y ) const {
+  void apply( const DomainFieldT& x, RangeFieldT& y, const With& withB=With::B ) const {
 
-		applyG( x,y );
-		applyJ( y );
+		applyG( x,y, withB );
+
+		if( With::B==withB )
+			applyJ( y );
+		else
+			y.setBZero();
   }
 
 
-  void applyG( const DomainFieldT& x, RangeFieldT& y ) const {
-
-		With bcY_ = With::B;
-		//With bcY_ = With::noB;
+  void applyG( const DomainFieldT& x, RangeFieldT& y, const With& withB=With::B ) const {
 
 		x.exchange(X);
-		for( Ordinal k=space()->begin(U,Z,bcY_); k<=space()->end(U,Z,bcY_); ++k )
-			for( Ordinal j=space()->begin(U,Y,bcY_); j<=space()->end(U,Y,bcY_); ++j )
-				for( Ordinal i=space()->begin(U,X,bcY_); i<=space()->end(U,X,bcY_); ++i )
+		for( Ordinal k=space()->begin(U,Z,withB); k<=space()->end(U,Z,withB); ++k )
+			for( Ordinal j=space()->begin(U,Y,withB); j<=space()->end(U,Y,withB); ++j )
+				for( Ordinal i=space()->begin(U,X,withB); i<=space()->end(U,X,withB); ++i )
 					y.getField(U).at(i,j,k) = innerStencU( x, i, j, k );
 
 		x.exchange(Y);
-		for( Ordinal k=space()->begin(V,Z,bcY_); k<=space()->end(V,Z,bcY_); ++k )
-			for( Ordinal j=space()->begin(V,Y,bcY_); j<=space()->end(V,Y,bcY_); ++j )
-				for( Ordinal i=space()->begin(V,X,bcY_); i<=space()->end(V,X,bcY_); ++i )
+		for( Ordinal k=space()->begin(V,Z,withB); k<=space()->end(V,Z,withB); ++k )
+			for( Ordinal j=space()->begin(V,Y,withB); j<=space()->end(V,Y,withB); ++j )
+				for( Ordinal i=space()->begin(V,X,withB); i<=space()->end(V,X,withB); ++i )
 					y.getField(V).at(i,j,k) = innerStencV( x, i, j, k );
 
 		if( 3==SpaceT::sdim )  {
 
 			x.exchange(Z);
-			for( Ordinal k=space()->begin(W,Z,bcY_); k<=space()->end(W,Z,bcY_); ++k )
-				for( Ordinal j=space()->begin(W,Y,bcY_); j<=space()->end(W,Y,bcY_); ++j )
-					for( Ordinal i=space()->begin(W,X,bcY_); i<=space()->end(W,X,bcY_); ++i )
+			for( Ordinal k=space()->begin(W,Z,withB); k<=space()->end(W,Z,withB); ++k )
+				for( Ordinal j=space()->begin(W,Y,withB); j<=space()->end(W,Y,withB); ++j )
+					for( Ordinal i=space()->begin(W,X,withB); i<=space()->end(W,X,withB); ++i )
 						y.getField(W).at(i,j,k) = innerStencW( x, i, j, k );
 		}
   }

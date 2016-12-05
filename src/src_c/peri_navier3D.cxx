@@ -48,7 +48,7 @@ using S = double;
 using O = int;
 
 const int sd = 3;
-const int dNC = 4;
+const int dNC = 2;
 
 using SpaceT = Pimpact::Space<S,O,sd,4,dNC>;
 
@@ -182,6 +182,29 @@ int main( int argi, char** argv ) {
 		pl->sublist("Picard Solver").sublist("Solver").set( "Output Stream", Pimpact::createOstream("Picard"+rl+".txt", space->rankST() ) );
 
 		auto opInv = Pimpact::createInverseOp( op, Teuchos::rcpFromRef( pl->sublist("Picard Solver") ) );
+
+		////--- nullspace 
+		if( pl->sublist( "Picard" ).get<bool>( "nullspace ortho", true ) ) {
+			auto nullspace = x->clone( Pimpact::ECopy::Shallow );
+
+			Pimpact::DivGradNullSpace<Pimpact::DivOp<SpaceT> > compNullspace;
+
+			compNullspace.computeNullSpace( opV2S->getOperatorPtr(),
+					nullspace->getFieldPtr(0)->getSFieldPtr()->get0Field(), false );
+			for( int i=1; i<=space->nGlo(3);++i) {
+				nullspace->getFieldPtr(0)->getSFieldPtr()->getCFieldPtr(i)->assign(
+					nullspace->getFieldPtr(0)->getSFieldPtr()->get0Field() );
+				nullspace->getFieldPtr(0)->getSFieldPtr()->getSFieldPtr(i)->assign(
+					nullspace->getFieldPtr(0)->getSFieldPtr()->get0Field() );
+			}
+
+			nullspace->write(999);
+			auto out = Pimpact::createOstream( "nullspace.txt", space->rankST() );
+			nullspace->print( *out );
+
+			opInv->setNullspace( nullspace );
+		}
+		//// --- end nullspace
 
 		/*** init preconditioner ****************************************************************************/
 

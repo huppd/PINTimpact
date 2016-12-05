@@ -57,10 +57,10 @@ public:
 
 		const EField& fType = x.getType();
 
-    TEUCHOS_TEST_FOR_EXCEPT( fType != y.getType() );
+    assert( fType == y.getType() );
 
     for( int i=0; i<SpaceT::sdim; ++i )
-      TEUCHOS_TEST_FOR_EXCEPT( x.space()->nLoc(i) != y.space()->nLoc(i) );
+      assert( x.space()->nLoc(i) == y.space()->nLoc(i) );
 
 		for( Ordinal k=x.space()->begin(fType,Z,With::B); k<=x.space()->end(fType,Z,With::B); ++k )
 			for( Ordinal j=x.space()->begin(fType,Y,With::B); j<=x.space()->end(fType,Y,With::B); ++j )

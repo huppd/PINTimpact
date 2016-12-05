@@ -8,6 +8,7 @@
 #include "Pimpact_RestrictionBaseOp.hpp"
 #include "Pimpact_ScalarField.hpp"
 #include "Pimpact_Space.hpp"
+#include "Pimpact_Stencil.hpp"
 
 
 
@@ -38,17 +39,20 @@ public:
   using DomainFieldT = ScalarField<SpaceT>;
   using RangeFieldT = ScalarField<SpaceT>;
 
+	using StencS = Stencil< Scalar, Ordinal, 1, -1, 1 >;
+	using StencV = Stencil< Scalar, Ordinal, 0,  1, 2 >;
+
 protected:
 
-  Teuchos::Tuple<Scalar*,3> cRS_;
-  Teuchos::Tuple<Scalar*,3> cRV_;
+  Teuchos::Tuple<StencS*,3> cRS_;
+  Teuchos::Tuple<StencV*,3> cRV_;
 
 	void initVF() {
 
 			// ------------------------- CRS, CRV
 			for( int i=0; i<3; ++i ) {
 
-				cRS_[i] = new Scalar[ 3*this->iimax_[i]  ];
+				cRS_[i] = new StencS( this->iimax_[i] );
 
 				MG_getCRVS(
 						this->iimax_[i],
@@ -63,9 +67,9 @@ protected:
 						spaceF()->bl(i),
 						spaceF()->bu(i),
 						spaceF()->getCoordinatesLocal()->getX( i, EField::S ),
-						cRS_[i] );
+						cRS_[i]->get() );
 
-				cRV_[i] = new Scalar[ 2*( this->iimax_[i]-0+1 ) ];
+				cRV_[i] = new StencV( this->iimax_[i] );
 
 				MG_getCRV(
 						spaceF()->getGridSizeLocal()->get(i),
@@ -77,7 +81,7 @@ protected:
 						spaceF()->getCoordinatesLocal()->getX( i, i ),
 						spaceF()->getCoordinatesLocal()->getX( i, EField::S ),
 						this->dd_[i],
-						cRV_[i] );
+						cRV_[i]->get() );
 			}
 	}
 
@@ -104,8 +108,8 @@ public:
 
   ~RestrictionVFOp() {
     for( int i=0; i<3; ++i ) {
-      delete[] cRS_[i];
-      delete[] cRV_[i];
+      delete cRS_[i];
+      delete cRV_[i];
     }
   }
 
@@ -113,8 +117,8 @@ public:
 
 	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
-		TEUCHOS_TEST_FOR_EXCEPT( x.getType()!=y.getType() );
-		TEUCHOS_TEST_FOR_EXCEPT( x.getType()==EField::S );
+		assert( x.getType()==y.getType() );
+		assert( x.getType()!=EField::S );
 
 		EField fType  = x.getType();
 		int dir = fType;
@@ -136,10 +140,10 @@ public:
 				spaceC()->eIndB(fType),
 				this->iimax_.getRawPtr(),
 				this->dd_.getRawPtr(),
-				cRV_[dir],
-				cRS_[0],
-				cRS_[1],
-				cRS_[2],
+				cRV_[dir]->get(),
+				cRS_[0]->get(),
+				cRS_[1]->get(),
+				cRS_[2]->get(),
 				x.getConstRawPtr(),
 				y.getRawPtr() );
 
@@ -158,38 +162,14 @@ public:
 
 		out << " --- scalar stencil: ---";
 		for( int j=0; j<3; ++j ) {
-
 			out << "\ndir: " << j << "\n";
-
-			Ordinal nTemp1 = this->iimax_[j];
-			Ordinal nTemp2 = 3;
-
-			for( int i=0; i<nTemp1; ++i ) {
-				out << "\ni: " << i+1 << "\t(";
-				for( int k=0; k<nTemp2; ++k ) {
-					out << cRS_[j][k+nTemp2*i] << ", ";
-				}
-				out << ")\n";
-			}
-			out << "\n";
+			cRS_[j]->print( out );
 		}
 
 		out << " --- velocity stencil: ---";
 		for( int j=0; j<3; ++j ) {
-
 			out << "\ndir: " << j << "\n";
-
-			Ordinal nTemp1 = spaceC()->eIndB(j)[j]-spaceC()->sIndB(j)[j]+1 ;
-			Ordinal nTemp2 = 2;
-
-			for( int i=0; i<nTemp1; ++i ) {
-				out << "\ni: " << i << "\t(";
-				for( int k=0; k<nTemp2; ++k ) {
-					out << cRV_[j][k+nTemp2*i] << ", ";
-				}
-				out << ")\n";
-			}
-			out << "\n";
+			cRV_[j]->print( out );
 		}
 	}
 
@@ -207,7 +187,6 @@ public:
 
 
 } // end of namespace Pimpact
-
 
 
 

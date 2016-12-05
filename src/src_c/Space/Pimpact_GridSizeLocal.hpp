@@ -74,16 +74,13 @@ protected:
     // problem is used for MultiGridSpace
 		//      for( int i=0; i<2; ++i )
 		//        if( (gridSize_[i]-1)!=1 )
-		//          TEUCHOS_TEST_FOR_EXCEPTION(
-		//              (gridSize_[i]-1)%2 != 0,
-		//              std::logic_error,
-		//              "!!!ERROR! GridSizeLocal: "<< gridSize_[i] << " cannot be used for multigrid!!!\n" );
+		//          assert( gridSize_[i]-1)%2 == 0 );
   }
 
 
 public:
 
-	constexpr const OrdinalT& get( const int& i ) const { return( (*this)[i] ); }
+	inline constexpr const OrdinalT& get( const int& i ) const { return( (*this)[i] ); }
 
   void print( std::ostream& out=std::cout ) const {
     out << " \tlocal grid size= " << (*this) << "\n";

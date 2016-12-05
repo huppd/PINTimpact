@@ -100,8 +100,8 @@ public:
 		fields_( space->nGlo(3) ),
     exchangedState_( true ) {
 
-			TEUCHOS_TEST_FOR_EXCEPT( 4 != SpaceT::dimension  );
-			TEUCHOS_TEST_FOR_EXCEPT( true != space()->getStencilWidths()->spectralT() );
+			assert( 4 == SpaceT::dimension  );
+			assert( true == space()->getStencilWidths()->spectralT() );
 
 			if( global_ ) {
 				for( Ordinal i=0; i<space->nGlo(3); ++i )
@@ -552,9 +552,7 @@ public:
 
 	void exchange() const {
 
-#ifndef NDEBUG
-		TEUCHOS_TEST_FOR_EXCEPT( !global_ );
-#endif
+		assert( global_ );
 
 		// check if exchange is necessary
 		if( exchangedState_==false ) {

@@ -108,10 +108,10 @@ public:
   void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mul=0. ) const {
 
     // testing field consistency
-    TEUCHOS_TEST_FOR_EXCEPT( z.getType() != y.getType() );
+    assert( z.getType() == y.getType() );
 
     for( int i=0; i<SpaceT::sdim; ++i )
-      TEUCHOS_TEST_FOR_EXCEPT( x[i]->getType() != y.getType() );
+      assert( x[i]->getType() == y.getType() );
 
     // exchange wind and "rhs"
     for( int vel_dir=0; vel_dir<SpaceT::sdim; ++vel_dir )

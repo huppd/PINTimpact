@@ -82,7 +82,7 @@ public:
 			lineDirection_[Y] = pl->get<bool>( "Y", true  );
 			lineDirection_[Z] = pl->get<bool>( "Z", false );
 
-			TEUCHOS_TEST_FOR_EXCEPT( !lineDirection_[X] && !lineDirection_[Y] && !lineDirection_[Z] );
+			assert( !lineDirection_[X] && !lineDirection_[Y] && !lineDirection_[Z] );
 
 			for( int dir=0; dir<3; ++dir ) {
 
@@ -131,7 +131,7 @@ public:
 							du2_[dir]->values(),
 							ipiv_[dir]->values(),
 							&lu_factorization_sucess );
-					TEUCHOS_TEST_FOR_EXCEPT( lu_factorization_sucess );
+					assert( !lu_factorization_sucess );
 				}
 			}
 		}
@@ -187,7 +187,7 @@ public:
 									B->stride(),
 									&lu_solve_sucess );
 
-							TEUCHOS_TEST_FOR_EXCEPT( lu_solve_sucess );
+							assert( !lu_solve_sucess );
 
 							// transfer back
 							for( i[dir]=space()->begin(S,dir); i[dir]<=space()->end(S,dir); ++i[dir] )

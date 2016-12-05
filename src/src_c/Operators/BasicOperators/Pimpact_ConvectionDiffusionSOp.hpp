@@ -33,7 +33,6 @@ public:
 
 protected:
 
-
 	Teuchos::RCP<const ConvectionSOp<SpaceT> > convSOp_;
 	Teuchos::RCP<const HelmholtzOp<SpaceT> > helmOp_;
 
@@ -73,11 +72,10 @@ public:
 			Scalar mul, Scalar mulI, Scalar mulC, Scalar mulL ) const {
 
 		const EField& m = y.getType();
-#ifndef NDEBUG
-		TEUCHOS_TEST_FOR_EXCEPT( z.getType() != y.getType() );
+
+		assert( z.getType() == y.getType() );
 		for( int i=0; i<SpaceT::sdim; ++i )
-			TEUCHOS_TEST_FOR_EXCEPT( x[i]->getType() != y.getType() );
-#endif
+			assert( x[i]->getType() == y.getType() );
 
 		for( int vel_dir=0; vel_dir<SpaceT::sdim; ++vel_dir )
 			x[vel_dir]->exchange();
@@ -90,8 +88,10 @@ public:
 					for( Ordinal i=space()->begin(m,X); i<=space()->end(m,X); ++i )
 						z.at(i,j,k) = mul * z.at(i,j,k)
 							+ mulI * y.at(i,j,k)
-							+ mulC * convSOp_->innerStenc3D( x[0]->at(i,j,k),
-									x[1]->at(i,j,k), x[2]->at(i,j,k), y, i, j, k )
+							+ mulC * convSOp_->innerStenc3D(
+									x[0]->at(i,j,k),
+									x[1]->at(i,j,k),
+									x[2]->at(i,j,k), y, i, j, k )
 							- mulL * helmOp_->innerStenc3D( y, m, i, j, k);
 		else
 			for( Ordinal k=space()->begin(m,Z); k<=space()->end(m,Z); ++k )

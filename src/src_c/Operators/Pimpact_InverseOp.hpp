@@ -95,26 +95,20 @@ public:
 				 pl->get<std::string>("Solver name","GMRES") ) ) { }
 
 
- /// \todo clean up: rm clone make nullspace normalized.
  void apply( const MF& x, MF& y ) const {
+
 	 if( levelRHS_ ) { x.level(); }
 	 if( initZero_ ) { y.init( ); }
 	 if( nullspaceOrtho_ ) {
-
-		 //auto x_ = x.clone();
 		 for( int i=0; i<x.getNumberVecs(); ++i ) {
 			 ScalarT bla = -nullspace_->getFieldPtr(0)->dot( x.getField(i) );
-			 std::cout << "bla: " << std::setprecision(10) << bla  << "\n";
-			 //std::cout << "x_->getNumberVecs(): " << x_->getNumberVecs() << "\n";
-			 //std::cout << "nullspace_->getNumberVecs(): " << nullspace_->getNumberVecs() << "\n";
+			 std::cout << getLabel()<< ": nullspace contributtion: " << std::abs(bla)  << "\n";
 			 const_cast<MF&>(x).getFieldPtr(i)->add( 1., x.getField(i), bla, nullspace_->getField(0) );
 		 }
-
-		 //linprob_->solve( Teuchos::rcpFromRef(y), x_ );
+		 std::cout << "\n";
 	 }
-	 //else
-    linprob_->solve( Teuchos::rcpFromRef(y), Teuchos::rcpFromRef(x) );
-	 if( level_    ) { y.level(); }
+	 linprob_->solve( Teuchos::rcpFromRef(y), Teuchos::rcpFromRef(x) );
+	 if( level_ ) y.level();
  }
 
 

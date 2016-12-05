@@ -131,7 +131,7 @@ public:
 
 	/// \brief returns the length of Field.
 	///
-	/// the vector length is withregard to the inner points such that
+	/// the vector length is with regard to the inner points such that
 	/// \f[ N_u = (N_x-1)(N_y-2)(N_z-2) \f]
 	/// \f[ N_v = (N_x-2)(N_y-1)(N_z-2) \f]
 	/// \f[ N_w = (N_x-2)(N_y-2)(N_z-1) \f]
@@ -157,7 +157,7 @@ public:
   ///
   /// only inner points
 	void add( const Scalar& alpha, const FieldT& A, const Scalar& beta, const
-			FieldT& B, const With& bcYes=With::noB ) {
+			FieldT& B, const With& bcYes=With::B ) {
 		// add test for consistent VectorSpaces in debug mode
 		for( int i=0; i<SpaceT::sdim; ++i ) {
 			sFields_[i]->add( alpha, *A.sFields_[i], beta, *B.sFields_[i], bcYes );
@@ -172,7 +172,7 @@ public:
 	/// Here x represents this vector, and we update it as
 	/// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
 	/// \return Reference to this object
-	void abs( const FieldT& y, const With& bcYes=With::noB ) {
+	void abs( const FieldT& y, const With& bcYes=With::B ) {
 		for( int i=0; i<SpaceT::sdim; ++i )
 			sFields_[i]->abs( *y.sFields_[i], bcYes );
 		changed();
@@ -184,7 +184,7 @@ public:
 	/// Here x represents this vector, and we update it as
 	/// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
 	/// \return Reference to this object
-	void reciprocal( const FieldT& y, const With& bcYes=With::noB ) {
+	void reciprocal( const FieldT& y, const With& bcYes=With::B ) {
 		// add test for consistent VectorSpaces in debug mode
 		for( int i=0; i<SpaceT::sdim; ++i)
 			sFields_[i]->reciprocal( *y.sFields_[i], bcYes );
@@ -193,7 +193,7 @@ public:
 
 
 	/// \brief Scale each element of the vectors in \c this with \c alpha.
-	void scale( const Scalar& alpha, const With& bcYes=With::noB ) {
+	void scale( const Scalar& alpha, const With& bcYes=With::B ) {
 		for(int i=0; i<SpaceT::sdim; ++i)
 			sFields_[i]->scale( alpha, bcYes );
 		changed();
@@ -205,7 +205,7 @@ public:
 	/// Here x represents this vector, and we update it as
 	/// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
 	/// \return Reference to this object
-	void scale( const FieldT& a, const With& bcYes=With::noB ) {
+	void scale( const FieldT& a, const With& bcYes=With::B ) {
 		// add test for consistent VectorSpaces in debug mode
 		for(int i=0; i<SpaceT::sdim; ++i)
 			sFields_[i]->scale( *a.sFields_[i], bcYes );
@@ -214,7 +214,7 @@ public:
 
 
 	/// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
-	constexpr Scalar dotLoc ( const FieldT& a, const With& bcYes=With::noB ) const {
+	constexpr Scalar dotLoc ( const FieldT& a, const With& bcYes=With::B ) const {
 		Scalar b = 0.;
 
 		for( int i=0; i<SpaceT::sdim; ++i )
@@ -225,7 +225,7 @@ public:
 
 
 	/// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
-	constexpr Scalar dot( const FieldT& y, const With& bcYes=With::noB ) const {
+	constexpr Scalar dot( const FieldT& y, const With& bcYes=With::B ) const {
 
 		return( this->reduce( comm(), dotLoc( y, bcYes ) ) );
 	}
@@ -235,7 +235,7 @@ public:
 	/// \name Norm method
 	/// @{
 
-	constexpr Scalar normLoc( Belos::NormType type = Belos::TwoNorm, const With& bcYes=With::noB ) const {
+	constexpr Scalar normLoc( Belos::NormType type = Belos::TwoNorm, const With& bcYes=With::B ) const {
 
 		Scalar normvec = 0.;
 
@@ -251,7 +251,7 @@ public:
 
  /// \brief compute the norm
   /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
-  constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm, const With& bcYes=With::noB ) const {
+  constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm, const With& bcYes=With::B ) const {
 
 		Scalar normvec = this->reduce(
 				comm(),
@@ -272,7 +272,7 @@ public:
 	/// Here x represents this vector, and we compute its weighted norm as follows:
 	/// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
 	/// \return \f$ \|x\|_w \f$
-	constexpr Scalar normLoc( const FieldT& weights, const With& bcYes=With::noB ) const {
+	constexpr Scalar normLoc( const FieldT& weights, const With& bcYes=With::B ) const {
 		Scalar normvec = 0.;
 
 		for( int i=0; i<SpaceT::sdim; ++i )
@@ -288,7 +288,7 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr Scalar norm( const FieldT& weights, const With& bcYes=With::noB ) const {
+  constexpr Scalar norm( const FieldT& weights, const With& bcYes=With::B ) const {
 		return( std::sqrt( this->reduce( comm(), normLoc( weights, bcYes ) ) ) );
 	}
 
@@ -313,7 +313,7 @@ public:
 	///
 	/// depending on Fortrans \c Random_number implementation, with always same
 	/// seed => not save, if good randomness is required
-	void random(bool useSeed = false, const With& bcYes=With::noB, int seed = 1) {
+	void random(bool useSeed = false, const With& bcYes=With::B, int seed = 1) {
 
 		for( int i=0; i<SpaceT::sdim; ++i )
 			sFields_[i]->random( useSeed, bcYes, seed );
@@ -322,7 +322,7 @@ public:
 	}
 
 	/// \brief Replace each element of the vector  with \c alpha.
-	void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const With& bcYes=With::noB ) {
+	void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const With& bcYes=With::B ) {
 		for( int i=0; i<SpaceT::sdim; ++i )
 			sFields_[i]->init( alpha, bcYes );
 		changed();
@@ -330,7 +330,7 @@ public:
 
 
 	/// \brief Replace each element of the vector \c getRawPtr[i] with \c alpha[i].
-	void init( const Teuchos::Tuple<Scalar,3>& alpha, const With& bcYes=With::noB ) {
+	void init( const Teuchos::Tuple<Scalar,3>& alpha, const With& bcYes=With::B ) {
 		for( int i=0; i<SpaceT::sdim; ++i )
 			sFields_[i]->init( alpha[i], bcYes );
 		changed();

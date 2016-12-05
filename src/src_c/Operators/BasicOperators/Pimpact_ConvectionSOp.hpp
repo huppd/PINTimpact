@@ -167,20 +167,6 @@ public:
 		assert( z.getType() == y.getType() );
 		for( int i=0; i<SpaceT::sdim; ++i ) 
 			assert( x[i]->getType()==y.getType() );
-#ifndef NDEBUG
-		TEUCHOS_TEST_FOR_EXCEPTION(
-				z.getType() != y.getType(),
-				std::logic_error,
-				"Pimpact::ConvectionSOP can only be applied to same fieldType !!!\n");
-
-
-		for( int i=0; i<SpaceT::sdim; ++i ) {
-			TEUCHOS_TEST_FOR_EXCEPTION(
-					x[i]->getType() != y.getType(),
-					std::logic_error,
-					"Pimpact::ConvectionSOP can only be applied to same fieldType !!!\n");
-		}
-#endif
 
 		for( int vel_dir=0; vel_dir<SpaceT::sdim; ++vel_dir )
 			x[vel_dir]->exchange();

@@ -16,7 +16,6 @@ namespace Pimpact {
 /// \f[ op1 op2 op3 \mathbf{x} = \mathbf{y} \f]
 /// Both operators are applied sequentially.
 /// the \c DomainFieldT \c OP1 has to equal to the \c RangeFieldT \c OP2.
-/// \note todo insert static_assert for types
 /// \ingroup Operator
 template< class OP1, class OP2, class OP3=OP2 >
 class TripleCompositionOp {
@@ -37,20 +36,24 @@ protected:
 public:
 
   TripleCompositionOp(
-      const Teuchos::RCP<OP1>&          op1,
-      const Teuchos::RCP<OP2>&          op2,
-			const Teuchos::RCP<OP3>&          op3 ):
+      const Teuchos::RCP<OP1>& op1,
+      const Teuchos::RCP<OP2>& op2,
+			const Teuchos::RCP<OP3>& op3 ):
         op1_(op1),
         op2_(op2),
 				op3_(op3) {};
 
-  void apply(const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans& trans=Belos::NOTRANS) const {
+  void apply( const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans& trans=Belos::NOTRANS ) const {
 
 		Teuchos::RCP<typename OP2::RangeFieldT> temp1  = create<typename OP2::DomainFieldT>( space() ); // has to be equal to OP2::DomainFieldT
 
     op3_->apply( x, *temp1);
 
 		Teuchos::RCP<typename OP2::DomainFieldT> temp2 = create<typename OP2::RangeFieldT>(  space() ); // has to be equal to OP3::DomainFieldT
+
+		// dirty hack to assign BC for H
+		// gives slight improvement for tiny test case
+		temp2->assign( *temp1 ); 
 
     op2_->apply( *temp1, *temp2 );
 

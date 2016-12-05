@@ -3392,41 +3392,36 @@ module mod_diff
   !! \test anderes Modul?
   !! \test basiert neu auf interpolate2_vel_pre ... ok??
   subroutine interpolate_vel(exch_yes)
-  
-  implicit none
-  
-  logical, intent(in   ) ::  exch_yes
-  
-  integer                ::  i, ii
-  integer                ::  j, jj
-  integer                ::  k, kk
-  
-  
-  !----------------------------------------------------------------------------------------------------------!
-  ! Anmerkungen: -                                                                                           !
-  !----------------------------------------------------------------------------------------------------------!
-  
-  
-                   call interpolate2_vel_pre(exch_yes,1,vel(b1L,b2L,b3L,1),work1)
-                   call interpolate2_vel_pre(exch_yes,2,vel(b1L,b2L,b3L,2),work2)
-  if (dimens == 3) call interpolate2_vel_pre(exch_yes,3,vel(b1L,b2L,b3L,3),work3)
-  
-  
-  call exchange(1,0,work1)
-  call exchange(2,0,work1)
-  call exchange(3,0,work1)
-  
-  call exchange(1,0,work2)
-  call exchange(2,0,work2)
-  call exchange(3,0,work2)
-  
-  if (dimens == 3) then
-     call exchange(1,0,work3)
-     call exchange(2,0,work3)
-     call exchange(3,0,work3)
-  end if
-  
-  
+
+    implicit none
+
+    logical, intent(in   ) ::  exch_yes
+
+    integer                ::  i, ii
+    integer                ::  j, jj
+    integer                ::  k, kk
+
+
+    call interpolate2_vel_pre(exch_yes,1,vel(b1L,b2L,b3L,1),work1)
+    call interpolate2_vel_pre(exch_yes,2,vel(b1L,b2L,b3L,2),work2)
+    if (dimens == 3) call interpolate2_vel_pre(exch_yes,3,vel(b1L,b2L,b3L,3),work3)
+
+
+    call exchange(1,0,work1)
+    call exchange(2,0,work1)
+    call exchange(3,0,work1)
+
+    call exchange(1,0,work2)
+    call exchange(2,0,work2)
+    call exchange(3,0,work2)
+
+    if (dimens == 3) then
+      call exchange(1,0,work3)
+      call exchange(2,0,work3)
+      call exchange(3,0,work3)
+    end if
+
+
   end subroutine interpolate_vel
   
   

@@ -45,6 +45,7 @@ namespace Pimpact{
 ///             y1p(M1) = L1
 ///                etc.
 ///
+/// \todo make nice interface for getter
 /// \relates CoordinatesGlobal
 /// \ingroup SpaceObject
 template<class ScalarT, class OrdinalT, int dim>

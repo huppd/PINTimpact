@@ -127,7 +127,6 @@ public:
   /// \{
 
   /// \brief returns the length of Field.
-	/// \todo adept for Neumann BC 
 	constexpr Ordinal getLength() const {
 
 		Teuchos::RCP<const BoundaryConditionsGlobal<SpaceT::dimension> > bc =
@@ -136,12 +135,10 @@ public:
 		Ordinal vl = 1;
 
 		for( int dir = 0; dir<SpaceT::sdim; ++dir ) {
-				vl *= space()->nGlo(dir) +
-					( (EField::S==fType_)?
-						( (PeriodicBC==bc->getBCL(dir))?-1:0 ) :
-						( (fType_==dir)?
-							-1:
-							(-2 + ( (PeriodicBC==bc->getBCL(dir))?1:0 )) ) );
+			vl *= space()->nGlo(dir) +
+				( (PeriodicBC==bc->getBCL(dir))?
+					-1:
+					(fType_==dir)?1:0);
 		}
 
 		return( vl );
@@ -159,17 +156,17 @@ public:
   /// \brief Replace \c this with \f$\alpha A + \beta B\f$.
 	/// \todo make checks for spaces and k
 	void add( const Scalar& alpha, const FieldT& A, const Scalar& beta, const
-			FieldT& B, const With& bcYes=With::noB ) {
+			FieldT& B, const With& bcYes=With::B ) {
 
 #ifndef NDEBUG
 		for( int dir=0; dir<3; ++dir ) {
 			bool same_space = space()->nLoc(dir)>A.space()->nLoc(dir) || 
 				space()->nLoc(dir)>B.space()->nLoc(dir);
-			TEUCHOS_TEST_FOR_EXCEPT( same_space );
+			assert( !same_space );
 			bool consistent_space = (
 					(A.space()->nLoc(dir)-1)%(space()->nLoc(dir)-1) )!=0 || (
 					(B.space()->nLoc(dir)-1)%(space()->nLoc(dir)-1) )!=0 ;
-			TEUCHOS_TEST_FOR_EXCEPT( consistent_space );
+			assert( !consistent_space );
 		}
 #endif
 		Teuchos::Tuple<Ordinal,3> da;
@@ -196,14 +193,10 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-	void abs( const FieldT& y, const With& bcYes=With::noB ) {
+	void abs( const FieldT& y, const With& bcYes=With::B ) {
 
-#ifndef NDEBUG
-		for( int dir=0; dir<3; ++dir ) {
-			bool same_space = space()->nLoc(dir)!=y.space()->nLoc(dir);
-			TEUCHOS_TEST_FOR_EXCEPT( same_space );
-		}
-#endif
+		for( int dir=0; dir<3; ++dir )
+			assert( space()->nLoc(dir)==y.space()->nLoc(dir) );
 
 		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
 			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
@@ -219,12 +212,12 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
   /// \return Reference to this object
-  void reciprocal( const FieldT& y, const With& bcYes=With::noB ) {
+  void reciprocal( const FieldT& y, const With& bcYes=With::B ) {
 
 #ifndef NDEBUG
 		for( int dir=0; dir<3; ++dir ) {
 			bool same_space = space()->nLoc(dir)!=y.space()->nLoc(dir);
-			TEUCHOS_TEST_FOR_EXCEPT( same_space );
+			assert( !same_space );
 		}
 #endif
 
@@ -238,7 +231,7 @@ public:
 
 
   /// \brief Scale each element of the vector with \c alpha.
-	void scale( const Scalar& alpha, const With& bcYes=With::noB ) {
+	void scale( const Scalar& alpha, const With& bcYes=With::B ) {
 
 		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
 			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
@@ -253,12 +246,12 @@ public:
   ///
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = x_i \cdot y_i \quad \mbox{for } i=1,\dots,n \f]
-	void scale( const FieldT& y, const With& bcYes=With::noB ) {
+	void scale( const FieldT& y, const With& bcYes=With::B ) {
 
 #ifndef NDEBUG
 		for( int dir=0; dir<3; ++dir ) {
 			bool same_space = space()->nLoc(dir)!=y.space()->nLoc(dir);
-			TEUCHOS_TEST_FOR_EXCEPT( same_space );
+			assert( !same_space );
 		}
 #endif
 
@@ -274,12 +267,12 @@ public:
   /// @{
 
 	/// \brief Compute a local scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
-	constexpr Scalar dotLoc( const FieldT& y, const With& bcYes=With::noB ) const {
+	constexpr Scalar dotLoc( const FieldT& y, const With& bcYes=With::B ) const {
 
 #ifndef NDEBUG
 		for( int dir=0; dir<3; ++dir ) {
 			bool same_space = space()->nLoc(dir)!=y.space()->nLoc(dir);
-			TEUCHOS_TEST_FOR_EXCEPT( same_space );
+			assert( !same_space );
 		}
 #endif
 
@@ -295,11 +288,11 @@ public:
 
 	/// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y
 	/// and \c this, i.e.\f$b = y^H this\f$.
-	constexpr Scalar dot( const FieldT& y, const With& bcYes=With::noB ) const {
+	constexpr Scalar dot( const FieldT& y, const With& bcYes=With::B ) const {
 		return( this->reduce( comm(), dotLoc( y, bcYes ) ) );
 	}
 
-  constexpr Scalar normLoc1( const With& bcYes=With::noB ) const {
+  constexpr Scalar normLoc1( const With& bcYes=With::B ) const {
 
     Scalar normvec = Teuchos::ScalarTraits<Scalar>::zero();
 
@@ -312,7 +305,7 @@ public:
   }
 
 
-  constexpr Scalar normLoc2( const With& bcYes=With::noB ) const {
+  constexpr Scalar normLoc2( const With& bcYes=With::B ) const {
 
     Scalar normvec = Teuchos::ScalarTraits<Scalar>::zero();
 
@@ -325,7 +318,7 @@ public:
   }
 
 
-  constexpr Scalar normLocInf( const With& bcYes=With::noB ) const {
+  constexpr Scalar normLocInf( const With& bcYes=With::B ) const {
 
     Scalar normvec = Teuchos::ScalarTraits<Scalar>::zero();
 
@@ -337,7 +330,7 @@ public:
     return( normvec );
   }
 
-	constexpr Scalar normLoc( Belos::NormType type = Belos::TwoNorm, const With& bcYes=With::noB ) const {
+	constexpr Scalar normLoc( Belos::NormType type = Belos::TwoNorm, const With& bcYes=With::B ) const {
 
 		return(
 				( Belos::OneNorm==type)?
@@ -350,7 +343,7 @@ public:
 
   /// \brief compute the norm
   /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
-  constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm, const With& bcYes=With::noB ) const {
+  constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm, const With& bcYes=With::B ) const {
 
 		Scalar normvec = this->reduce(
 				comm(),
@@ -372,14 +365,10 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr Scalar normLoc( const FieldT& weights, const With& bcYes=With::noB ) const {
+  constexpr Scalar normLoc( const FieldT& weights, const With& bcYes=With::B ) const {
 
-#ifndef NDEBUG
-		for( int dir=0; dir<3; ++dir ) {
-			bool same_space = space()->nLoc(dir)!=weights.space()->nLoc(dir);
-			TEUCHOS_TEST_FOR_EXCEPT( same_space );
-		}
-#endif
+		for( int dir=0; dir<3; ++dir )
+			assert( space()->nLoc(dir)==weights.space()->nLoc(dir) );
 
     Scalar normvec = Teuchos::ScalarTraits<Scalar>::zero();
 
@@ -398,7 +387,7 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr Scalar norm( const FieldT& weights, const With& bcYes=With::noB ) const {
+  constexpr Scalar norm( const FieldT& weights, const With& bcYes=With::B ) const {
 		return( std::sqrt( this->reduce( comm(), normLoc( weights, bcYes ) ) ) );
 	}
 
@@ -414,12 +403,8 @@ public:
   /// \note the \c StencilWidths is not take care of assuming every field is generated with one
 	void assign( const FieldT& a ) {
 
-#ifndef NDEBUG
-		for( int dir=0; dir<3; ++dir ) {
-			bool same_space = space()->nLoc(dir)!=a.space()->nLoc(dir);
-			TEUCHOS_TEST_FOR_EXCEPT( same_space );
-		}
-#endif
+		for( int dir=0; dir<3; ++dir )
+			assert( space()->nLoc(dir)==a.space()->nLoc(dir) );
 
 		for(int i=0; i<getStorageSize(); ++i)
 			s_[i] = a.s_[i];
@@ -430,8 +415,8 @@ public:
 
 
   /// \brief Replace the vectors with a random vectors.
-  /// depending on Fortrans \c Random_number implementation, with always same seed => not save, if good randomness is required
-  void random( bool useSeed = false, const With& bcYes=With::noB , int seed = 1 ) {
+  /// Depending on Fortrans \c Random_number implementation, with always same seed => not save, if good randomness is required
+  void random( bool useSeed = false, const With& bcYes=With::B , int seed = 1 ) {
 
 		std::random_device rd;
     std::mt19937 gen(rd());
@@ -454,7 +439,7 @@ public:
   /// \brief Replace each element of the vector  with \c alpha.
 	/// \param alpha init value
 	/// \param bcYes also initializing the boundary values
-  void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const With& bcYes=With::noB ) {
+  void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const With& bcYes=With::B ) {
 
 		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
 			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
@@ -490,8 +475,8 @@ protected:
 		else if( "poiseuille in z" == lcName ) return( Poiseuille2D_inZ );
 		else if( "point" == lcName ) return( FPoint );
 		else {
-			const bool& Flow_Type_not_known = true; 
-			TEUCHOS_TEST_FOR_EXCEPT( Flow_Type_not_known );
+			const bool& Flow_Type_not_known = false; 
+			assert( Flow_Type_not_known );
 		}
 		return( ConstField ); // just to please the compiler
 	}
@@ -934,11 +919,10 @@ public:
 		for(int i=0; i<3; ++i)
 			cw[i] = space()->nLoc(i) + space()->bu(i) - space()->bl(i) + 1;
 
-		out << std::scientific << std::setprecision(std::numeric_limits<long double>::digits10 + 1);
 		for( Ordinal k=space()->begin(fType_,Z,With::B); k<=space()->end(fType_,Z,With::B); ++k )
 			for( Ordinal j=space()->begin(fType_,Y,With::B); j<=space()->end(fType_,Y,With::B); ++j )
 				for( Ordinal i=space()->begin(fType_,X,With::B); i<=space()->end(fType_,X,With::B); ++i )
-					out << i << "\t\t" << j << "\t\t" << k << "\t\t" << at(i,j,k) << "\n";
+					out << i << "\t" << j << "\t" << k << "\t" << at(i,j,k) << "\n";
   }
 
 
