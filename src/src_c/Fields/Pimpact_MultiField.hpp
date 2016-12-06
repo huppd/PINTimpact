@@ -240,14 +240,9 @@ public:
 
 
   /// \brief <tt>mv := alpha*A + beta*B</tt>
-  ///
-  ///	The Tpetra specialization of this method ignores and completely
-  ///	overwrites any NaN or Inf entries in A.  Thus, it does <i>not</i> mean
-  ///	the same thing as <tt>mv := 0*mv + alpha*A + beta*B</tt> in IEEE 754
-  ///	floating-point arithmetic. (Remember that NaN*0 = NaN.)
-	void add( Scalar alpha, const FieldT& A, Scalar beta, const FieldT& B ) {
+	void add( Scalar alpha, const FieldT& A, Scalar beta, const FieldT& B, const With& wB=With::B ) {
 		for( int i=0; i<getNumberVecs(); ++i )
-			mfs_[i]->add( alpha, *A.mfs_[i], beta, *B.mfs_[i] );
+			mfs_[i]->add( alpha, *A.mfs_[i], beta, *B.mfs_[i], wB );
 	}
 
 

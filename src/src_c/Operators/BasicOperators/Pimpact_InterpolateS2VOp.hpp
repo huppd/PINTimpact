@@ -36,8 +36,7 @@ protected:
 	using SW = StencilWidths<dim,dimNC>;
 
 	using Stenc = Stencil< Scalar, Ordinal, 0, SW::GL(0), SW::GU(0) >;
-	//using Stenc = Stencil<Scalar,Ordinal,0>;
-	using TO = const Teuchos::Tuple<Stenc*,ST::sdim>;
+	using TO = const Teuchos::Tuple<Stenc,ST::sdim>;
 
 	Teuchos::RCP< const SpaceT> space_;
 
@@ -50,7 +49,7 @@ public:
 
 			for( int i=0; i<SpaceT::sdim; ++i ) {
 
-				c_[i] = new Stenc( space_->nLoc(i) );
+				c_[i] = Stenc( space_->nLoc(i) );
 
 				FD_getDiffCoeff(
 						space_->nLoc(i),
@@ -71,15 +70,10 @@ public:
 						space_->getStencilWidths()->getNcbG(i),
 						space_->getCoordinatesLocal()->getX( i, EField::S ),
 						space_->getCoordinatesLocal()->getX( i, i ),
-						c_[i]->get() );
+						c_[i].get() );
 			}
 		};
 
-
-	~InterpolateS2V() {
-		for( int i=0; i<SpaceT::sdim; ++i )
-			delete c_[i];
-	}
 
 
 	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
@@ -129,14 +123,14 @@ public:
 
 		for( int dir=0; dir<SpaceT::sdim; ++dir ) {
 			out << "\ncoord: " << toString( static_cast<ECoord>(dir) ) << "\n";
-			c_[dir]->print( out );
+			c_[dir].print( out );
 		}
 	}
 
 	const std::string getLabel() const { return( "InterpolateS2V" ); };
 
 	constexpr const Scalar& getC( const ECoord& dir, Ordinal i, Ordinal off ) const {
-		return( c_[dir]->at( i, off ) );
+		return( c_[dir].at( i, off ) );
 	}
 
 

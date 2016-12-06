@@ -2,6 +2,7 @@
 #ifndef PIMPACT_CONVECTIONDIFFUSIONSOP_HPP
 #define PIMPACT_CONVECTIONDIFFUSIONSOP_HPP
 
+#include "Teuchos_ScalarTraits.hpp"
 
 #include "Pimpact_ConvectionSOp.hpp"
 #include "Pimpact_HelmholtzOp.hpp"
@@ -68,6 +69,7 @@ public:
 	}
 
 	/// \f[ z = mul z + mulI y + mulC(x\cdot\nabla)y - mulL \Delta y \f]
+	/// \todo make pretty more efficient
 	void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z,
 			Scalar mul, Scalar mulI, Scalar mulC, Scalar mulL ) const {
 
@@ -82,10 +84,12 @@ public:
 
 		y.exchange();
 
+		With wB = ( (std::abs(mul)<=Teuchos::ScalarTraits<Scalar>::eps())?With::noB:With::B );
+
 		if( 3==SpaceT::sdim )
-			for( Ordinal k=space()->begin(m,Z); k<=space()->end(m,Z); ++k )
-				for( Ordinal j=space()->begin(m,Y); j<=space()->end(m,Y); ++j )
-					for( Ordinal i=space()->begin(m,X); i<=space()->end(m,X); ++i )
+			for( Ordinal k=space()->begin(m,Z,wB); k<=space()->end(m,Z,wB); ++k )
+				for( Ordinal j=space()->begin(m,Y,wB); j<=space()->end(m,Y,wB); ++j )
+					for( Ordinal i=space()->begin(m,X,wB); i<=space()->end(m,X,wB); ++i )
 						z.at(i,j,k) = mul * z.at(i,j,k)
 							+ mulI * y.at(i,j,k)
 							+ mulC * convSOp_->innerStenc3D(
@@ -94,9 +98,9 @@ public:
 									x[2]->at(i,j,k), y, i, j, k )
 							- mulL * helmOp_->innerStenc3D( y, m, i, j, k);
 		else
-			for( Ordinal k=space()->begin(m,Z); k<=space()->end(m,Z); ++k )
-				for( Ordinal j=space()->begin(m,Y); j<=space()->end(m,Y); ++j )
-					for( Ordinal i=space()->begin(m,X); i<=space()->end(m,X); ++i )
+			for( Ordinal k=space()->begin(m,Z,wB); k<=space()->end(m,Z,wB); ++k )
+				for( Ordinal j=space()->begin(m,Y,wB); j<=space()->end(m,Y,wB); ++j )
+					for( Ordinal i=space()->begin(m,X,wB); i<=space()->end(m,X,wB); ++i )
 						z.at(i,j,k) = mul*z.at(i,j,k)
 							+ mulI*y.at(i,j,k)
 							+ mulC*convSOp_->innerStenc2D( x[0]->at(i,j,k), x[1]->at(i,j,k), y, i,j,k)

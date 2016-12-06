@@ -229,13 +229,13 @@ public:
 
   /// \brief Replace \c this with \f$\alpha A + \beta B\f$.
 	/// \todo add test for consistent VectorSpaces in debug mode
-  void add( const Scalar& alpha, const FieldT& A, const Scalar& beta, const FieldT& B ) {
+  void add( const Scalar& alpha, const FieldT& A, const Scalar& beta, const FieldT& B, const With& wB=With::B ) {
 
 		if( 0==space()->begin(U,3) )
-			get0FieldPtr()->add(alpha, A.getConst0Field(), beta, B.getConst0Field() );
+			get0FieldPtr()->add(alpha, A.getConst0Field(), beta, B.getConst0Field(), wB );
 
 		for( Ordinal i=std::max(space()->begin(U,3),1); i<=space()->end(U,3); ++i )
-			getFieldPtr(i)->add( alpha, A.getConstField(i), beta, B.getConstField(i) );
+			getFieldPtr(i)->add( alpha, A.getConstField(i), beta, B.getConstField(i), wB );
 
 		changed();
   }

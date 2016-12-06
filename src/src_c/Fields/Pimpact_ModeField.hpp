@@ -169,10 +169,9 @@ public:
   /// \{
 
   /// \brief Replace \c this with \f$\alpha A + \beta B\f$.
-  void add( const Scalar& alpha, const FieldT& A, const Scalar& beta, const FieldT& B ) {
-    // add test for consistent VectorSpaces in debug mode
-    fieldc_->add(alpha, *A.fieldc_, beta, *B.fieldc_);
-    fields_->add(alpha, *A.fields_, beta, *B.fields_);
+  void add( const Scalar& alpha, const FieldT& A, const Scalar& beta, const FieldT& B, const With& wB=With::B ) {
+    fieldc_->add( alpha, *A.fieldc_, beta, *B.fieldc_, wB );
+    fields_->add( alpha, *A.fields_, beta, *B.fields_, wB );
   }
 
 

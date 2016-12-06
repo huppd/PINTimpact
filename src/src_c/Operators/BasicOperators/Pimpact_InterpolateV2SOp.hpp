@@ -54,8 +54,7 @@ protected:
 	using SW = StencilWidths<dimension,dimNC>;
 
 	using Stenc = Stencil< Scalar, Ordinal, 0, SW::DL(0), SW::DU(0) >;
-	//using Stenc = Stencil<Scalar,Ordinal,0>;
-	using TS = const Teuchos::Tuple< Stenc*, sdim >;
+	using TS = const Teuchos::Tuple< Stenc, sdim >;
 
 	TS c_;
 	TS cm_;
@@ -73,8 +72,8 @@ public:
 
 		for( int i=0; i<sdim; ++i ) {
 
-			c_[i] = new Stenc(  gridSizeLocal->get(i) );
-			cm_[i] = new Stenc( gridSizeLocal->get(i) );
+			c_[i]  = Stenc( gridSizeLocal->get(i) );
+			cm_[i] = Stenc( gridSizeLocal->get(i) );
 
 			FD_getDiffCoeff(
 					gridSizeLocal->get(i),
@@ -95,7 +94,7 @@ public:
 					stencilWidths->getNcbD(i),
 					coordinatesLocal->getX( i, i ),
 					coordinatesLocal->getX( i, EField::S ),
-					cm_[i]->get() );
+					cm_[i].get() );
 			FD_getDiffCoeff(
 					gridSizeLocal->get(i),
 					stencilWidths->getBL(i),
@@ -115,16 +114,9 @@ public:
 					stencilWidths->getNcbD(i),
 					coordinatesLocal->getX( i, i ),
 					coordinatesLocal->getX( i, EField::S ),
-					c_[i]->get() );
+					c_[i].get() );
 		}
 	};
-
-	~InterpolateV2S() {
-		for( int dir=0; dir<sdim; ++dir ) {
-			delete c_[dir];
-			delete cm_[dir];
-		}
-	}
 
 
 	void apply( const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans&
@@ -144,7 +136,7 @@ public:
 				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
 					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
 						y.at(i,j,k) = 0.;
-						for( Ordinal ii=c_[m]->bl(); ii<=c_[m]->bu(); ++ii )
+						for( Ordinal ii=c_[m].bl(); ii<=c_[m].bu(); ++ii )
 							y.at(i,j,k) += getC( m, i, ii )*x.at(i+ii,j,k);
 					}
 		}
@@ -154,7 +146,7 @@ public:
 				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
 					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
 						y.at(i,j,k) = 0.;
-						for( Ordinal jj=c_[m]->bl(); jj<=c_[m]->bu(); ++jj )
+						for( Ordinal jj=c_[m].bl(); jj<=c_[m].bu(); ++jj )
 							y.at(i,j,k) += getC( m, j, jj )*x.at(i,j+jj,k);
 					}
 		}
@@ -164,7 +156,7 @@ public:
 				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
 					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
 						y.at(i,j,k) = 0.;
-						for( Ordinal kk=c_[m]->bl(); kk<=c_[m]->bu(); ++kk )
+						for( Ordinal kk=c_[m].bl(); kk<=c_[m].bu(); ++kk )
 							y.at(i,j,k) += getC( m, k, kk )*x.at(i,j,k+kk);
 					}
 		}
@@ -183,21 +175,21 @@ public:
 		out << "--- " << getLabel() << " ---\n";
 		for( int dir=0; dir<sdim; ++dir ) {
 			out << "\ndir: " << toString(static_cast<ECoord>(dir)) << "\n";
-			c_[dir]->print( out );
+			c_[dir].print( out );
 		}
 	}
 
 	constexpr const Scalar* getC( const int& dir ) const  {
-		return( c_[dir]->get() );
+		return( c_[dir].get() );
 	}
 	constexpr const Scalar* getCM( const int& dir ) const  {
-		return( cm_[dir]->get() );
+		return( cm_[dir].get() );
 	}
-	constexpr const Scalar& getC( const ECoord& dir, Ordinal i, Ordinal off ) const {
-		return( c_[dir]->at( i, off ) );
+	constexpr const Scalar& getC( const int& dir, Ordinal i, Ordinal off ) const {
+		return( c_[dir].at( i, off ) );
 	}
-	constexpr const Scalar& getCM( const ECoord& dir, Ordinal i, Ordinal off ) const {
-		return( cm_[dir]->at( i, off ) );
+	constexpr const Scalar& getCM( const int& dir, Ordinal i, Ordinal off ) const {
+		return( cm_[dir].at( i, off ) );
 	}
 
 	const std::string getLabel() const { return( "InterpolateV2S" ); };

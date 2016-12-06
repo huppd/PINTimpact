@@ -145,8 +145,8 @@ protected:
 	Teuchos::ArrayRCP<Ordinal> recvI_;
 	Teuchos::ArrayRCP<Ordinal> dispI_;
 
-	Teuchos::Tuple<StencS*,3> cIS_;
-	Teuchos::Tuple<StencV*,3> cIV_;
+	Teuchos::Tuple<StencS,3> cIS_;
+	Teuchos::Tuple<StencV,3> cIV_;
 
 
 	void init( const Teuchos::Tuple<int,dimension>& np ) {
@@ -360,7 +360,7 @@ protected:
 		for( int dir=0; dir<3; ++dir ) {
 
 			//if dd>1
-			cIS_[dir] = new StencS( spaceC_->nLoc(dir) );
+			cIS_[dir] = StencS( spaceC_->nLoc(dir) );
 
 			MG_getCIS(
 					spaceC_->nLoc(dir),
@@ -369,9 +369,9 @@ protected:
 					spaceC_->bu(dir),
 					spaceF_->getCoordinatesLocal()->getX( dir, EField::S ),
 					dd_[dir],
-					cIS_[dir]->get() );
+					cIS_[dir].get() );
 
-			cIV_[dir] = new StencV( spaceF_->nLoc(dir) );
+			cIV_[dir] = StencV( spaceF_->nLoc(dir) );
 
 			Ordinal offset = 0;
 			if( 1!=nGather_[dir] )
@@ -393,7 +393,7 @@ protected:
 					spaceC_->getCoordinatesLocal()->getX( dir, dir ),
 					spaceF_->getCoordinatesLocal()->getX( dir, dir ),
 					dd_[dir],
-					cIV_[dir]->get() );
+					cIV_[dir].get() );
 		}
 
 	} // end of void init( const Teuchos::Tuple<int,dimension>& np ) 
@@ -420,12 +420,6 @@ public:
 			init( np );
 	}
 
-	~InterpolationOp() {
-		for( int i = 0; i<3; ++i ) {
-			delete cIS_[i];
-			delete cIV_[i];
-		}
-	}
 
 	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
@@ -465,9 +459,9 @@ public:
 					spaceF_->bu(),
 					iimax_.getRawPtr(),
 					dd_.getRawPtr(),
-					cIS_[0]->get(),
-					cIS_[1]->get(),
-					cIS_[2]->get(),
+					cIS_[0].get(),
+					cIS_[1].get(),
+					cIS_[2].get(),
 					x.getConstRawPtr(),
 					y.getRawPtr() );
 
@@ -528,10 +522,10 @@ public:
 					spaceF_->eIndB(fType),
 					iimax_.getRawPtr(),
 					dd_.getRawPtr(),
-					cIV_[dir]->get(),
-					cIS_[0]->get(),
-					cIS_[1]->get(),
-					cIS_[2]->get(),
+					cIV_[dir].get(),
+					cIS_[0].get(),
+					cIS_[1].get(),
+					cIS_[2].get(),
 					x.getConstRawPtr(),
 					y.getRawPtr() );
 
@@ -554,13 +548,13 @@ public:
 		out << "\n";
 		for( int j=0; j<3; ++j ) {
 			out << "\n Scalar dir: " << j << ":\n";
-			cIS_[j]->print( out );
+			cIS_[j].print( out );
 		}
 		out << "\n";
 
 		for( int j=0; j<3; ++j ) {
 			out << "\n Vector dir: " << j << ":\n";
-			cIV_[j]->print( out );
+			cIV_[j].print( out );
 		}
 		out << "\n";
 	}

@@ -63,7 +63,7 @@ public:
 		opV2V_->apply( x.getConstVField(), y.getVField() );
 		// ~grad
 		opS2V_->apply( x.getConstSField(), *temp );
-		y.getVField().add( 1., y.getConstVField(), 1., *temp );
+		y.getVField().add( 1., y.getConstVField(), 1., *temp, With::noB );
 		// ~div
 		opV2S_->apply( x.getConstVField(), y.getSField() );
 	}

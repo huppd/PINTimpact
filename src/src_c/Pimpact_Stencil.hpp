@@ -27,16 +27,12 @@ protected:
 
 	ScalarArray c_;
 
-	const Ordinal nn_;
+	Ordinal nn_;
 	static const int w_ = ub-lb+1;
 
 public:
 
 	Stencil() : c_(nullptr),nn_(ss) {}
-
-	Stencil( const Stencil& x ) :c_(nullptr), nn_(x.nn_) { 
-		std::swap( c_, x.c_ );
-	}
 
 	Stencil( const Ordinal& nn ) : nn_(nn) {
 
@@ -49,6 +45,29 @@ public:
 
 		for( Ordinal i=0; i<nTemp; ++i )
 			c_[i] = 0.;
+	}
+
+	Stencil( const Stencil& that ) : Stencil(that.nn_) { 
+
+		std::cout << "\n" << nn_ << "\n";
+		Ordinal nTemp = ( nn_ - ss + 1 )*w_;
+		for( Ordinal i=0; i<nTemp; ++i )
+			c_[i] = that.c_[i];
+	}
+
+	friend void swap( Stencil& one, Stencil& two ) {
+		using std::swap;
+		swap( one.nn_, two.nn_ );
+		swap( one.c_, two.c_ );
+	}
+
+	Stencil( Stencil&& that ) : Stencil() { 
+		swap( *this, that );
+	}
+
+	Stencil& operator=( Stencil that ) {
+		swap( *this, that );
+		return *this;
 	}
 
 	~Stencil() { delete[] c_; }
@@ -64,7 +83,16 @@ public:
 	};
 
 
-	inline constexpr const Scalar& at( const Ordinal& index, const int& offset ) const {
+	//inline constexpr const Scalar& at( const Ordinal& index, const int& offset ) const {
+		//assert( offset>=lb );
+		//assert( offset<=ub );
+		//assert( index>=ss );
+		//assert( index<=nn_ );
+		//return(
+				//c_[ offset-lb + (index-ss)*w_ ] );
+	//}
+
+	inline constexpr Scalar& at( const Ordinal& index, const int& offset ) {
 		assert( offset>=lb );
 		assert( offset<=ub );
 		assert( index>=ss );

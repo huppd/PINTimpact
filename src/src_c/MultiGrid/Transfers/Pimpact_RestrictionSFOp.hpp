@@ -44,14 +44,13 @@ public:
 
 protected:
 
-  Teuchos::Tuple<Stenc*,3> cRS_;
+  Teuchos::Tuple<Stenc,3> cRS_;
 
 	void initSF() {
 
 		for( int i=0; i<3; ++i ) {
 
-			//cRS_[i] = new Scalar[ 3*this->iimax_[i]  ];
-			cRS_[i] = new Stenc( this->iimax_[i] );
+			cRS_[i] = Stenc( this->iimax_[i] );
 
 			MG_getCRS(
 					this->iimax_[i],
@@ -91,12 +90,6 @@ public:
 	}
 
 
-  ~RestrictionSFOp() {
-    for( int i=0; i<3; ++i )
-      delete cRS_[i];
-  }
-
-
 	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
 		assert( x.getType()==y.getType() );
@@ -115,9 +108,9 @@ public:
 				spaceC()->bu(),
 				this->iimax_.getRawPtr(),
 				this->dd_.getRawPtr(),
-				cRS_[0]->get(),
-				cRS_[1]->get(),
-				cRS_[2]->get(),
+				cRS_[0].get(),
+				cRS_[1].get(),
+				cRS_[2].get(),
 				x.getConstRawPtr(),
 				y.getRawPtr() );
 
@@ -137,7 +130,7 @@ public:
 		out << " --- scalar stencil: ---";
 		for( int j=0; j<3; ++j ) {
 			out << "\ndir: " << j << "\n";
-			cRS_[j]->print( out );
+			cRS_[j].print( out );
 		}
 	}
 

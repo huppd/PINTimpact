@@ -157,10 +157,10 @@ public:
   ///
   /// only inner points
 	void add( const Scalar& alpha, const FieldT& A, const Scalar& beta, const
-			FieldT& B, const With& bcYes=With::B ) {
+			FieldT& B, const With& wB=With::B ) {
 		// add test for consistent VectorSpaces in debug mode
 		for( int i=0; i<SpaceT::sdim; ++i ) {
-			sFields_[i]->add( alpha, *A.sFields_[i], beta, *B.sFields_[i], bcYes );
+			sFields_[i]->add( alpha, *A.sFields_[i], beta, *B.sFields_[i], wB );
 		}
 		changed();
 	}

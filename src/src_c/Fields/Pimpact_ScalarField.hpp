@@ -156,7 +156,7 @@ public:
   /// \brief Replace \c this with \f$\alpha A + \beta B\f$.
 	/// \todo make checks for spaces and k
 	void add( const Scalar& alpha, const FieldT& A, const Scalar& beta, const
-			FieldT& B, const With& bcYes=With::B ) {
+			FieldT& B, const With& wB=With::B ) {
 
 #ifndef NDEBUG
 		for( int dir=0; dir<3; ++dir ) {
@@ -177,9 +177,9 @@ public:
 			db[dir] = ( B.space()->nLoc(dir)-1 )/( space()->nLoc(dir)-1 );
 		}
 
-		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
-			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
-				for( Ordinal i=space()->begin(fType_,X,bcYes); i<=space()->end(fType_,X,bcYes); ++i )
+		for( Ordinal k=space()->begin(fType_,Z,wB); k<=space()->end(fType_,Z,wB); ++k )
+			for( Ordinal j=space()->begin(fType_,Y,wB); j<=space()->end(fType_,Y,wB); ++j )
+				for( Ordinal i=space()->begin(fType_,X,wB); i<=space()->end(fType_,X,wB); ++i )
 					at(i,j,k) = alpha*A.at( (i-1)*da[0]+1, (j-1)*da[1]+1,(k-1)*da[2]+1 )
 						         + beta*B.at( (i-1)*db[0]+1, (j-1)*db[1]+1,(k-1)*db[2]+1 );
 

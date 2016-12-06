@@ -44,15 +44,15 @@ public:
 
 protected:
 
-  Teuchos::Tuple<StencS*,3> cRS_;
-  Teuchos::Tuple<StencV*,3> cRV_;
+  Teuchos::Tuple<StencS,3> cRS_;
+  Teuchos::Tuple<StencV,3> cRV_;
 
 	void initVF() {
 
 			// ------------------------- CRS, CRV
 			for( int i=0; i<3; ++i ) {
 
-				cRS_[i] = new StencS( this->iimax_[i] );
+				cRS_[i] = StencS( this->iimax_[i] );
 
 				MG_getCRVS(
 						this->iimax_[i],
@@ -67,9 +67,9 @@ protected:
 						spaceF()->bl(i),
 						spaceF()->bu(i),
 						spaceF()->getCoordinatesLocal()->getX( i, EField::S ),
-						cRS_[i]->get() );
+						cRS_[i].get() );
 
-				cRV_[i] = new StencV( this->iimax_[i] );
+				cRV_[i] = StencV( this->iimax_[i] );
 
 				MG_getCRV(
 						spaceF()->getGridSizeLocal()->get(i),
@@ -81,7 +81,7 @@ protected:
 						spaceF()->getCoordinatesLocal()->getX( i, i ),
 						spaceF()->getCoordinatesLocal()->getX( i, EField::S ),
 						this->dd_[i],
-						cRV_[i]->get() );
+						cRV_[i].get() );
 			}
 	}
 
@@ -103,14 +103,6 @@ public:
 		RestrictionBaseOp<ST>( spaceF, spaceC, np ) {
 
 			initVF();
-  }
-
-
-  ~RestrictionVFOp() {
-    for( int i=0; i<3; ++i ) {
-      delete cRS_[i];
-      delete cRV_[i];
-    }
   }
 
 
@@ -140,10 +132,10 @@ public:
 				spaceC()->eIndB(fType),
 				this->iimax_.getRawPtr(),
 				this->dd_.getRawPtr(),
-				cRV_[dir]->get(),
-				cRS_[0]->get(),
-				cRS_[1]->get(),
-				cRS_[2]->get(),
+				cRV_[dir].get(),
+				cRS_[0].get(),
+				cRS_[1].get(),
+				cRS_[2].get(),
 				x.getConstRawPtr(),
 				y.getRawPtr() );
 
@@ -163,13 +155,13 @@ public:
 		out << " --- scalar stencil: ---";
 		for( int j=0; j<3; ++j ) {
 			out << "\ndir: " << j << "\n";
-			cRS_[j]->print( out );
+			cRS_[j].print( out );
 		}
 
 		out << " --- velocity stencil: ---";
 		for( int j=0; j<3; ++j ) {
 			out << "\ndir: " << j << "\n";
-			cRV_[j]->print( out );
+			cRV_[j].print( out );
 		}
 	}
 

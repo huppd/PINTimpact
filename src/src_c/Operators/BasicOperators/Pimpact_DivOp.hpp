@@ -44,8 +44,8 @@ protected:
 	using StencD = Stencil< Scalar, Ordinal, 0, SW::DL(0), SW::DU(0) >;
 	using StencG = Stencil< Scalar, Ordinal, 0, SW::GL(0), SW::GU(0) >;
 
-	using TD = const Teuchos::Tuple< StencD*, ST::sdim >;
-	using TG = const Teuchos::Tuple< StencG*, ST::sdim >;
+	using TD = const Teuchos::Tuple< StencD, ST::sdim >;
+	using TG = const Teuchos::Tuple< StencG, ST::sdim >;
 
   Teuchos::RCP<const SpaceT> space_;
 
@@ -59,7 +59,7 @@ public:
 
 			for( int dir=0; dir<ST::sdim; ++dir ) {
 				// Divergence stencil
-				c_[dir] = new StencD( space_->nLoc(dir) );
+				c_[dir] = StencD( space_->nLoc(dir) );
 
 				FD_getDiffCoeff(
 						space_->nLoc(dir),
@@ -80,10 +80,10 @@ public:
 						space_->getStencilWidths()->getNcbD(dir),
 						space_->getCoordinatesLocal()->getX( dir, dir ),
 						space_->getCoordinatesLocal()->getX( dir, EField::S ),
-						c_[dir]->get() );
+						c_[dir].get() );
 
 				// Divergence stencil transposed
-				cT_[dir] = new StencG( space_->nLoc(dir) );
+				cT_[dir] = StencG( space_->nLoc(dir) );
 
 				Ordinal nTempG = ( space_->nGlo(dir) + space_->bu(dir) - space_->bl(dir) + 1 )
 					*( space_->bu(dir) - space_->bl(dir) + 1);
@@ -123,17 +123,10 @@ public:
 				for( Ordinal i = space_->begin(dir,dir,With::B);
 						i<=space_->end(dir,dir,With::B); ++i ) 
 					for( Ordinal ii=space->gl(dir); ii<=space->gu(dir); ++ii )
-						cT_[dir]->operator()( i, ii ) = cG2( i+ii+space_->getShift(dir), -ii );
+						cT_[dir]( i, ii ) = cG2( i+ii+space_->getShift(dir), -ii );
 			}
   };
 
-
-	~DivOp() {
-		for( int i=0; i<ST::sdim; ++i ) {
-			delete c_[i];
-			delete cT_[i];
-		}
-	}
 
 
 	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
@@ -250,15 +243,15 @@ public:
 	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(space_); };
 
 	constexpr const Scalar* getC( const ECoord& dir ) const {
-		return( c_[dir]->get() );
+		return( c_[dir].get() );
 	}
 
 	constexpr const Scalar& getC( const ECoord& dir, Ordinal i, Ordinal off ) const {
-		return( c_[dir]->at( i, off ) );
+		return( c_[dir].at( i, off ) );
 	}
 
 	constexpr const Scalar& getCTrans( const ECoord& dir, Ordinal i, Ordinal off ) const {
-		return( cT_[dir]->at( i, off ) );
+		return( cT_[dir].at( i, off ) );
 	}
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
@@ -268,14 +261,14 @@ public:
 		out << " --- stencil: ---";
 		for( int dir=0; dir<ST::sdim; ++dir ) {
 			out << "\ndir: " << toString( static_cast<ECoord>(dir) ) << "\n";
-			c_[dir]->print( out );
+			c_[dir].print( out );
 		}
 
 		out << "--- " << getLabel() << "^T ---\n";
 		out << " --- stencil: ---";
 		for( int dir=0; dir<ST::sdim; ++dir ) {
 			out << "\ndir: " << toString(static_cast<ECoord>(dir)) << "\n\n";
-			cT_[dir]->print( out );
+			cT_[dir].print( out );
 		}
 	}
 

@@ -52,7 +52,7 @@ protected:
   using Ordinal = typename SpaceT::Ordinal;
 
 	using Stenc = Stencil< Scalar, Ordinal, 1, -1, 1 >;
-  using TS = const Teuchos::Tuple< Stenc*, ST::sdim >;
+  using TS = const Teuchos::Tuple< Stenc, ST::sdim >;
 
   const Teuchos::RCP<const SpaceT> space_;
 
@@ -64,7 +64,7 @@ public:
 
 		for( int dir=0; dir<ST::sdim; ++dir ) {
 			// allocate stencil
-			c_[dir] = new Stenc( space_->nLoc(dir) );
+			c_[dir] = Stenc( space_->nLoc(dir) );
 
 			Op_getCDG_dir(
 					space_->nGlo( dir ),
@@ -76,13 +76,8 @@ public:
 					space_->getCoordinatesGlobal()->getX( static_cast<ECoord>(dir), static_cast<EField>(dir) ),
 					space_->getCoordinatesLocal()->getX( static_cast<ECoord>(dir), EField::S ),
 					space_->getCoordinatesLocal()->getX( static_cast<ECoord>(dir), static_cast<EField>(dir) ),
-					c_[dir]->get() );
+					c_[dir].get() );
 		}
-	}
-
-	~DivGradO2Op() {
-		for( int dir=0; dir<ST::sdim; ++dir )
-			delete c_[dir];
 	}
 
 
@@ -185,7 +180,7 @@ public:
     out << " --- stencil: ---";
     for( int dir=0; dir<ST::sdim; ++dir ) {
       out << "\ndir: " << dir << "\n";
-			c_[dir]->print( out );
+			c_[dir].print( out );
     }
   }
 
@@ -264,7 +259,7 @@ public:
   }
 
   inline constexpr const Scalar* getC( const int& dir) const  {
-		return( c_[dir]->get() );
+		return( c_[dir].get() );
   }
 
 	inline constexpr const Scalar& getC( const ECoord& dir, Ordinal i, Ordinal off ) const  {
@@ -272,7 +267,7 @@ public:
   }
 
 	inline constexpr const Scalar& getC( const int& dir, Ordinal i, Ordinal off ) const  {
-		return( c_[dir]->at(i,off) );
+		return( c_[dir].at(i,off) );
   }
 
 	const std::string getLabel() const { return( "DivGradO2" ); };
