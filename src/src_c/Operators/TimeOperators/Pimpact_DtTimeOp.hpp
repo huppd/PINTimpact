@@ -52,7 +52,7 @@ public:
     x.exchange();
 
     for( Ordinal i=space_->begin(S,3); i<space_->end(S,3); ++i ) {
-       y.getFieldPtr(i)->add( mulI_, x.getConstField(i), -mulI_, x.getConstField(i-1) );
+       y.getField(i).add( mulI_, x.getConstField(i), -mulI_, x.getConstField(i-1) );
     }
 
     y.changed();

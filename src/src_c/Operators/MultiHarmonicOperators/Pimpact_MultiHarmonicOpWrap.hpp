@@ -41,15 +41,14 @@ public:
   MultiHarmonicOpWrap( const Teuchos::RCP<OpT>& op ): op_(op) {};
 
 
-	void apply( const DomainFieldT& x, RangeFieldT& y,
-      const Belos::ETrans& trans=Belos::NOTRANS) const {
+	void apply( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::No ) const {
 
 		if( 0==space()->begin(U,3) )
-			op_->apply( x.getConst0Field(), y.get0Field() );
+			op_->apply( x.getConst0Field(), y.get0Field(), add );
 
 		for( typename SpaceT::Ordinal i=std::max(space()->begin(U,3),1); i<=space()->end(U,3); ++i ) {
-      op_->apply( x.getConstCField(i), y.getCField(i) );
-      op_->apply( x.getConstSField(i), y.getSField(i) );
+      op_->apply( x.getConstCField(i), y.getCField(i), add );
+      op_->apply( x.getConstSField(i), y.getSField(i), add );
     }
 
 		y.changed();

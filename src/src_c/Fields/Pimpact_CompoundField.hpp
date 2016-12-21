@@ -106,9 +106,6 @@ public:
   }
 
 
-  /// \brief get number of stored Field's
-  constexpr int getNumberVecs() const { return( 1 ); }
-
 
   /// \}
   /// \name Update methods
@@ -238,13 +235,15 @@ public:
   /// \name Initialization methods
   /// \{
 
-  /// \brief mv := A
-  /// Assign (deep copy) A into mv.
-  void assign( const FieldT& a ) {
-    vfield_->assign(*a.vfield_);
-    sfield_->assign(*a.sfield_);
-  }
+  /// \brief *this := a
+  /// Assign (deep copy) a into mv.
+	CompoundField& operator=( const CompoundField& a ) {
 
+    *vfield_ = *a.vfield_;
+    *sfield_ = *a.sfield_;
+
+		return *this;
+	}
 
   /// \brief Replace the vectors with a random vectors.
   void random(bool useSeed = false, int seed = 1) {
@@ -254,9 +253,9 @@ public:
 
 
   /// \brief Replace each element of the vector  with \c alpha.
-  void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero() ) {
-    vfield_->init(alpha);
-    sfield_->init(alpha);
+  void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const With& wB=With::B ) {
+    vfield_->init(alpha,wB);
+    sfield_->init(alpha,wB);
   }
 
 	void initField() {

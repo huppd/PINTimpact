@@ -108,8 +108,7 @@ public:
 						initField();
 						break;
 					case ECopy::Deep:
-						for( int i=0; i<getStorageSize(); ++i )
-							s_[i] = vF.s_[i];
+						*this = vF;
 						break;
 				}
 			}
@@ -124,8 +123,7 @@ public:
 			case ECopy::Shallow:
 				break;
 			case ECopy::Deep:
-				for( int i=0; i<getStorageSize(); ++i )
-					mv->getRawPtr()[i] = this->s_[i];
+					*mv = *this;
 				break;
 		}
 
@@ -159,9 +157,6 @@ public:
     return( fieldc_->getLength() + fields_->getLength() );
   }
 
-
-  /// \brief get number of stored Field's
-  constexpr int getNumberVecs() const { return( 1 ); }
 
 
   /// \}
@@ -292,12 +287,15 @@ public:
   /// \name Initialization methods
   /// \{
 
-  /// \brief mv := A
+  /// \brief *this := a
   /// Assign (deep copy) A into mv.
-  void assign( const FieldT& a ) {
-    fieldc_->assign( *a.fieldc_ );
-    fields_->assign( *a.fields_ );
-  }
+	ModeField& operator=( const ModeField& a ) {
+
+		*fieldc_ = *a.fieldc_;
+		*fields_ = *a.fields_;
+
+		return *this;
+	}
 
   /// \brief Replace the vectors with a random vectors.
   void random(bool useSeed = false, int seed = 1) {
@@ -306,9 +304,9 @@ public:
   }
 
   /// \brief Replace each element of the vector  with \c alpha.
-  void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero() ) {
-    fieldc_->init(alpha);
-    fields_->init(alpha);
+  void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const With& wB=With::B ) {
+    fieldc_->init(alpha,wB);
+    fields_->init(alpha,wB);
   }
 
 	void initField() {

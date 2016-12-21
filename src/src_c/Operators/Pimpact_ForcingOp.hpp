@@ -46,7 +46,7 @@ public:
   /// \brief \f[ y = force*x \f]
   void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 		if( std::abs(mul_-1.) < Teuchos::ScalarTraits<Scalar>::eps() ) {
-			y.assign( x );
+			y = x;
 		}
 		else
 			y.add( mul_, x, 0., y );

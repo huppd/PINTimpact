@@ -41,20 +41,18 @@ public:
 
 
   /// \note Operator's wind has to be assigned correctly
-  void apply( const FieldTensor& u, const DomainFieldT& x, RangeFieldT& y, Scalar mul=0., Scalar mulC=1. ) const {
+  void apply( const FieldTensor& u, const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::No ) const {
 
-    for( int i=0; i<SpaceT::sdim; ++i ) {
-      convectionSOp_->apply( u[i], x.getConstField(i), y.getField(i), mul );
-    }
+    for( int i=0; i<SpaceT::sdim; ++i )
+      convectionSOp_->apply( u[i], x.getConstField(i), y.getField(i), add );
   }
 
   /// \note Operator's wind has to be assigned correctly
   void apply( const FieldTensor& u, const DomainFieldT& x, RangeFieldT& y,
-			Scalar mul, Scalar mulI, Scalar mulC, Scalar mulL ) const {
+			Scalar mulI, Scalar mulC, Scalar mulL, const Add& add=Add::No ) const {
 
-    for( int i=0; i<SpaceT::sdim; ++i ) {
-      convectionSOp_->apply( u[i], x.getConstField(i), y.getField(i), mul, mulI, mulC, mulL );
-    }
+    for( int i=0; i<SpaceT::sdim; ++i )
+      convectionSOp_->apply( u[i], x.getConstField(i), y.getField(i), mulI, mulC, mulL, add );
   }
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const { return( convectionSOp_->space() ); }

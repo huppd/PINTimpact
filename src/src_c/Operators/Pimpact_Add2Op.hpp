@@ -48,11 +48,11 @@ public:
 	void apply(const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans&
 			trans=Belos::NOTRANS ) const {
 
-		Teuchos::RCP<typename OP1::RangeFieldT> temp = create<typename OP1::RangeFieldT>( space() );
+		typename OP1::RangeFieldT temp( space() );
 
-    op1_->apply( x, *temp);
-    op2_->apply( x, y);
-    y.add( 1., *temp, 1., y );
+    op1_->apply( x, temp );
+    op2_->apply( x, y );
+    y.add( 1., temp, 1., y );
   }
 
   void assignField( const DomainFieldT& mv ) {

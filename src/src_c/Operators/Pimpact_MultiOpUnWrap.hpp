@@ -48,8 +48,7 @@ public:
 
 
   /// \brief default apply
-	void apply( const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans&
-			trans=Belos::NOTRANS) const {
+	void apply( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::No ) const {
 
     op_->apply(
         *createMultiField( Teuchos::rcp_const_cast<DomainFieldT>(Teuchos::rcpFromRef(x)) ),

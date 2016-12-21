@@ -209,7 +209,7 @@ public:
   /// \brief <tt> mv:=A </tt>
   static void Assign (const Pimpact::MultiField<Field>& A,
       Pimpact::MultiField<Field>& mv) {
-    mv.assign(A);
+    mv = A;
   }
 
 

@@ -57,13 +57,13 @@ public:
 		pl->set<Scalar>( "mulL", mulL_ );
 		op_->setParameter( pl );
 
-		auto temp = create<typename OpT::RangeFieldT>( space() );
+		typename OpT::RangeFieldT temp( space() );
 
-		op_->apply( x.getConstCField(), *temp );
-		y.getCField().add( 1., *temp,  mulI_, x.getConstSField() );
+		op_->apply( x.getConstCField(), temp );
+		y.getCField().add( 1., temp,  mulI_, x.getConstSField() );
 
-		op_->apply( x.getConstSField(), *temp );
-		y.getSField().add( 1., *temp, -mulI_, x.getConstCField() );
+		op_->apply( x.getConstSField(), temp );
+		y.getSField().add( 1., temp, -mulI_, x.getConstCField() );
 
 //		pl->set<Scalar>( "mulI", mulI_ );
 //		pl->set<Scalar>( "mulC", mulC_ );

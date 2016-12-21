@@ -49,18 +49,19 @@ public:
 		opS2S_(opS2S) {};
 
 
+	/// \todo rm tempv???
 	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
 		opS2S_->apply( x.getConstSField(),  y.getSField() );
 		y.getSField().scale( -1. );
 
-		Teuchos::RCP<VF> tempv = create<VF>( space() );
+		VF tempv( space() );
 
-		opS2V_->apply( y.getConstSField(), *tempv );
+		opS2V_->apply( y.getConstSField(), tempv, Add::Yes );
 
-		tempv->add( -1., *tempv, 1., x.getConstVField() );
+		tempv.add( -1., tempv, 1., x.getConstVField() );
 
-		opV2V_->apply( *tempv, y.getVField() );
+		opV2V_->apply( tempv, y.getVField() );
 
 	}
 

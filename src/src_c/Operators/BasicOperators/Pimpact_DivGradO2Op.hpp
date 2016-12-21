@@ -81,22 +81,25 @@ public:
 	}
 
 
-	void apply( const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans&
-			trans=Belos::NOTRANS ) const {
+	void apply( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::No ) const {
 
 		x.exchange();
 
 		if( 3==SpaceT::sdim ) {
 			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
 				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
-					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i )
-						y.at(i,j,k) = innerStenc3D(x, i,j,k);
+					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
+						if( Add::No==add ) y(i,j,k) = 0.;
+						y(i,j,k) += innerStenc3D(x, i,j,k);
+					}
 		}
 		else {
 			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
 				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
-					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i )
-						y.at(i,j,k) = innerStenc2D(x, i,j,k);
+					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
+						if( Add::No==add ) y(i,j,k) = 0.;
+						y(i,j,k) += innerStenc2D(x, i,j,k);
+					}
 		}
 	}
 
@@ -110,13 +113,13 @@ public:
 			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
 				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
 					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i )
-						res.at(i,j,k) = b.at(i,j,k) - innerStenc3D(x, i,j,k);
+						res(i,j,k) = b(i,j,k) - innerStenc3D(x, i,j,k);
 		}
 		else {
 			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
 				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
 					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i )
-						res.at(i,j,k) = b.at(i,j,k) - innerStenc2D(x, i,j,k);
+						res(i,j,k) = b(i,j,k) - innerStenc2D(x, i,j,k);
 		}
 
 		res.changed();
@@ -143,8 +146,8 @@ public:
 						const Scalar epsY = ( (bcX||bcZ)?eps:1. );
 						const Scalar epsZ = ( (bcX||bcY)?eps:1. );
 
-						Scalar diag = std::abs( epsX*getC(X,i,0) + epsY*getC(Y,j,0) + epsZ*getC(Z,k,0) );
-						y.at(i,j,k) = x.at(i,j,k)/diag;
+						Scalar diag = std::fabs( epsX*getC(X,i,0) + epsY*getC(Y,j,0) + epsZ*getC(Z,k,0) );
+						y(i,j,k) = x(i,j,k)/diag;
 					}
 		}
 		else {
@@ -159,7 +162,7 @@ public:
 						const Scalar epsX = ( bcY?eps:1. );
 						const Scalar epsY = ( bcX?eps:1. );
 
-						y.at(i,j,k) = x.at(i,j,k)/std::abs( epsX*getC(X,i,0) + epsY*getC(Y,j,0) );
+						y(i,j,k) = x(i,j,k)/std::fabs( epsX*getC(X,i,0) + epsY*getC(Y,j,0) );
 					}
 		}
 
@@ -199,7 +202,6 @@ public:
     }
   }
 
-protected:
 
 	inline constexpr Scalar innerStenc3D( const DomainFieldT& x, const Ordinal& i, const Ordinal& j,
 			const Ordinal& k ) const {
@@ -218,10 +220,10 @@ protected:
 		const Scalar epsZ = ( (bcX||bcY)?eps:1. );
 
 		return( 
-				epsX*getC(X,i,-1)*x.at(i-1,j  ,k  ) + epsX*getC(X,i,1)*x.at(i+1,j  ,k  ) +
-				epsY*getC(Y,j,-1)*x.at(i  ,j-1,k  ) + epsY*getC(Y,j,1)*x.at(i  ,j+1,k  ) +
-				epsZ*getC(Z,k,-1)*x.at(i  ,j  ,k-1) + epsZ*getC(Z,k,1)*x.at(i  ,j  ,k+1) +
-				( epsX*getC(X,i,0) + epsY*getC(Y,j,0) + epsZ*getC(Z,k,0) )*x.at(i,j,k)
+				epsX*getC(X,i,-1)*x(i-1,j  ,k  ) + epsX*getC(X,i,1)*x(i+1,j  ,k  ) +
+				epsY*getC(Y,j,-1)*x(i  ,j-1,k  ) + epsY*getC(Y,j,1)*x(i  ,j+1,k  ) +
+				epsZ*getC(Z,k,-1)*x(i  ,j  ,k-1) + epsZ*getC(Z,k,1)*x(i  ,j  ,k+1) +
+				( epsX*getC(X,i,0) + epsY*getC(Y,j,0) + epsZ*getC(Z,k,0) )*x(i,j,k)
 				);
 	}
 
@@ -239,13 +241,46 @@ protected:
 		const Scalar epsY = (bcX)?eps:1.;
 
 		return( 
-				epsX*getC(X,i,-1)*x.at(i-1,j  ,k  ) + epsX*getC(X,i,1)*x.at(i+1,j  ,k  ) +
-				epsY*getC(Y,j,-1)*x.at(i  ,j-1,k  ) + epsY*getC(Y,j,1)*x.at(i  ,j+1,k  ) +
-				( epsX*getC(X,i,0) + epsY*getC(Y,j,0) )*x.at(i,j,k)
+				epsX*getC(X,i,-1)*x(i-1,j  ,k  ) + epsX*getC(X,i,1)*x(i+1,j  ,k  ) +
+				epsY*getC(Y,j,-1)*x(i  ,j-1,k  ) + epsY*getC(Y,j,1)*x(i  ,j+1,k  ) +
+				( epsX*getC(X,i,0) + epsY*getC(Y,j,0) )*x(i,j,k)
 				);
 	}
 
-public:
+	inline constexpr Scalar innerDiag3D( const Ordinal& i, const Ordinal& j,
+			const Ordinal& k ) const {
+
+		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->begin(S,X) ) ||
+			(               space()->getBCLocal()->getBCU(X) > 0 && i==space()->end(S,X) ) ;
+		const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->begin(S,Y) ) ||
+			(               space()->getBCLocal()->getBCU(Y) > 0 && j==space()->end(S,Y) ) ;
+		const bool bcZ = (space()->getBCLocal()->getBCL(Z) > 0 && k==space()->begin(S,Z) ) ||
+			(               space()->getBCLocal()->getBCU(Z) > 0 && k==space()->end(S,Z) ) ;
+
+		const Scalar& eps = 1.e-1;
+
+		const Scalar epsX = ( (bcY||bcZ)?eps:1. );
+		const Scalar epsY = ( (bcX||bcZ)?eps:1. );
+		const Scalar epsZ = ( (bcX||bcY)?eps:1. );
+
+		return( epsX*getC(X,i,0) + epsY*getC(Y,j,0) + epsZ*getC(Z,k,0) );
+	}
+
+	inline constexpr Scalar innerDiag2D( const Ordinal& i, const Ordinal& j,
+			const Ordinal& k ) const {
+
+		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->begin(S,X) ) ||
+			(               space()->getBCLocal()->getBCU(X) > 0 && i==space()->end(S,X) ) ;
+		const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->begin(S,Y) ) ||
+			(               space()->getBCLocal()->getBCU(Y) > 0 && j==space()->end(S,Y) ) ;
+
+		const Scalar& eps = 1.e-1;
+
+		const Scalar epsX = ( bcY?eps:1. );
+		const Scalar epsY = ( bcX?eps:1. );
+
+		return( epsX*getC(X,i,0) + epsY*getC(Y,j,0) );
+	}
 
 	/// \name getters
 	/// @{ 
@@ -267,7 +302,7 @@ public:
   }
 
 	inline constexpr const Scalar& getC( const int& dir, Ordinal i, Ordinal off ) const  {
-		return( c_[dir].at(i,off) );
+		return( c_[dir](i,off) );
   }
 
 	const std::string getLabel() const { return( "DivGradO2" ); };

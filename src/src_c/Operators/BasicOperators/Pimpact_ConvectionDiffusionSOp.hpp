@@ -37,7 +37,6 @@ protected:
 	Teuchos::RCP<const ConvectionSOp<SpaceT> > convSOp_;
 	Teuchos::RCP<const HelmholtzOp<SpaceT> > helmOp_;
 
-	Scalar mul_;
 	Scalar mulI_;
 	Scalar mulC_;
 	Scalar mulL_;
@@ -47,7 +46,6 @@ public:
 	ConvectionDiffusionSOp( const Teuchos::RCP<const SpaceT>& space  ):
 		convSOp_( create<ConvectionSOp>(space) ),
 		helmOp_( create<HelmholtzOp>(space) ),
-		mul_(0.),
 		mulI_(0.),
 		mulC_(1.),
 		mulL_(1./space()->getDomainSize()->getRe())	{};
@@ -56,55 +54,59 @@ public:
   void assignField( const RangeFieldT& mv ) {};
 
 
-	/// \f[ z =   (x\cdot\nabla) y - \frac{1}{Re} \Delta z \f]
-	void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z ) const {
+	/// \f[ y =   (wind\cdot\nabla) x - \frac{1}{Re} \Delta x \f]
+	void apply( const FluxFieldT& wind, const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::No ) const {
 
-		apply( x, y, z, mul_, mulI_, mulC_, mulL_ );
+		apply( wind, x, y, mulI_, mulC_, mulL_, add );
 	}
 
-	/// \f[ z = mul z + (x\cdot\nabla) y - \frac{1}{Re} \Delta z \f]
-	void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mul ) const {
-
-		apply( x, y, z, mul, mulI_, mulC_, mulL_ );
-	}
 
 	/// \f[ z = mul z + mulI y + mulC(x\cdot\nabla)y - mulL \Delta y \f]
-	/// \todo make pretty more efficient
-	void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z,
-			Scalar mul, Scalar mulI, Scalar mulC, Scalar mulL ) const {
-
-		const EField& m = y.getType();
+	void apply( const FluxFieldT& wind, const DomainFieldT& y, RangeFieldT& z,
+			const Scalar& mulI, const Scalar& mulC, const Scalar& mulL, const Add& add=Add::No ) const {
 
 		assert( z.getType() == y.getType() );
 		for( int i=0; i<SpaceT::sdim; ++i )
-			assert( x[i]->getType() == y.getType() );
+			assert( wind[i]->getType() == y.getType() );
 
 		for( int vel_dir=0; vel_dir<SpaceT::sdim; ++vel_dir )
-			x[vel_dir]->exchange();
+			wind[vel_dir]->exchange();
+
+
+		const EField& m = y.getType();
+
+		const With& wB = ( (Add::No==add) ? With::B : With::noB );
+		const With& wnB = With::noB;
 
 		y.exchange();
 
-		With wB = ( (std::abs(mul)<=Teuchos::ScalarTraits<Scalar>::eps())?With::noB:With::B );
-
-		if( 3==SpaceT::sdim )
-			for( Ordinal k=space()->begin(m,Z,wB); k<=space()->end(m,Z,wB); ++k )
-				for( Ordinal j=space()->begin(m,Y,wB); j<=space()->end(m,Y,wB); ++j )
-					for( Ordinal i=space()->begin(m,X,wB); i<=space()->end(m,X,wB); ++i )
-						z.at(i,j,k) = mul * z.at(i,j,k)
-							+ mulI * y.at(i,j,k)
+		if( 3==SpaceT::sdim ) {
+			for( Ordinal k=space()->begin(m,Z,wnB); k<=space()->end(m,Z,wnB); ++k )
+				for( Ordinal j=space()->begin(m,Y,wnB); j<=space()->end(m,Y,wnB); ++j )
+					for( Ordinal i=space()->begin(m,X,wnB); i<=space()->end(m,X,wnB); ++i ) {
+						if( Add::No==add ) z(i,j,k) = 0.;
+						z(i,j,k) += 
+							+ mulI * y(i,j,k)
 							+ mulC * convSOp_->innerStenc3D(
-									x[0]->at(i,j,k),
-									x[1]->at(i,j,k),
-									x[2]->at(i,j,k), y, i, j, k )
+									(*wind[0])(i,j,k),
+									(*wind[1])(i,j,k),
+									(*wind[2])(i,j,k), y, i, j, k )
 							- mulL * helmOp_->innerStenc3D( y, m, i, j, k);
-		else
-			for( Ordinal k=space()->begin(m,Z,wB); k<=space()->end(m,Z,wB); ++k )
-				for( Ordinal j=space()->begin(m,Y,wB); j<=space()->end(m,Y,wB); ++j )
-					for( Ordinal i=space()->begin(m,X,wB); i<=space()->end(m,X,wB); ++i )
-						z.at(i,j,k) = mul*z.at(i,j,k)
-							+ mulI*y.at(i,j,k)
-							+ mulC*convSOp_->innerStenc2D( x[0]->at(i,j,k), x[1]->at(i,j,k), y, i,j,k)
+					}
+		}
+		else {
+			for( Ordinal k=space()->begin(m,Z,wnB); k<=space()->end(m,Z,wnB); ++k )
+				for( Ordinal j=space()->begin(m,Y,wnB); j<=space()->end(m,Y,wnB); ++j )
+					for( Ordinal i=space()->begin(m,X,wnB); i<=space()->end(m,X,wnB); ++i ) {
+						if( Add::No==add ) z(i,j,k) = 0.;
+						z(i,j,k) += 
+							+ mulI*y(i,j,k)
+							+ mulC*convSOp_->innerStenc2D( (*wind[0])(i,j,k), (*wind[1])(i,j,k), y, i,j,k)
 							- mulL * helmOp_->innerStenc2D( y, m, i, j, k);
+					}
+		}
+
+		if( With::B==wB ) helmOp_->applyBC( y, z );
 
 		z.changed();
 	}
@@ -117,7 +119,6 @@ public:
 	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(helmOp_->space()); };
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
-		mul_  = para->get<Scalar>( "mul",  0. );
 		mulI_ = para->get<Scalar>( "mulI", 0. );
 		mulC_ = para->get<Scalar>( "mulC", 1. );
 		mulL_ = para->get<Scalar>( "mulL", 1./space()->getDomainSize()->getRe() );
@@ -128,7 +129,6 @@ public:
 
 	void print( std::ostream& out=std::cout ) const {
 		out << "--- " << getLabel() << " ---\n";
-		out << "mul: " << mul_ << "\n";
 		out << "mulI: " << mulI_ << "\n";
 		out << "mulC: " << mulC_ << "\n";
 		out << "mulL: " << mulL_ << "\n";
@@ -136,7 +136,6 @@ public:
 		helmOp_->print(out);
 	}
 
-	constexpr const Scalar& getMul() const { return( mul_ ); }
 	constexpr const Scalar& getMulI() const { return( mulI_); }
 	constexpr const Scalar& getMulC() const { return( mulC_); }
 	constexpr const Scalar& getMulL() const { return( mulL_); }

@@ -62,7 +62,7 @@ public:
 		if (d > 1 && spaceC()->nLoc(3)>1) { 
 
 			for( int i=spaceF()->begin(S,3) + 1; i < spaceF()->end(S,3) ; i=i+d ) {
-				y.getFieldPtr(i)->add( 0.5, y.getField(i-1), 0.5, y.getField(i+1) ); 
+				y.getField(i).add( 0.5, y.getField(i-1), 0.5, y.getField(i+1) ); 
 			}		
 		}
 	

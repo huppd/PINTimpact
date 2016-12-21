@@ -180,8 +180,8 @@ public:
 					direction_flag );
 
 			for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i ) {
-				yu->getFieldPtr(i)->changed();
-				yp->getFieldPtr(i)->changed();
+				yu->getField(i).changed();
+				yp->getField(i).changed();
 			} 
 
 			yu->changed();

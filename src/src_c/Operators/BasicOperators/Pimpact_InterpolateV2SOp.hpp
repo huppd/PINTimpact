@@ -119,8 +119,7 @@ public:
 	};
 
 
-	void apply( const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans&
-			trans=Belos::NOTRANS ) const {
+	void apply( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::No ) const {
 
 		assert( x.getType() != S );
 		assert( y.getType() == S );
@@ -135,9 +134,9 @@ public:
 			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
 				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
 					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
-						y.at(i,j,k) = 0.;
+						if( Add::No==add ) y(i,j,k) = 0.;
 						for( Ordinal ii=c_[m].bl(); ii<=c_[m].bu(); ++ii )
-							y.at(i,j,k) += getC( m, i, ii )*x.at(i+ii,j,k);
+							y(i,j,k) += getC( m, i, ii )*x(i+ii,j,k);
 					}
 		}
 
@@ -145,9 +144,9 @@ public:
 			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
 				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
 					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
-						y.at(i,j,k) = 0.;
+						if( Add::No==add ) y(i,j,k) = 0.;
 						for( Ordinal jj=c_[m].bl(); jj<=c_[m].bu(); ++jj )
-							y.at(i,j,k) += getC( m, j, jj )*x.at(i,j+jj,k);
+							y(i,j,k) += getC( m, j, jj )*x(i,j+jj,k);
 					}
 		}
 
@@ -155,9 +154,9 @@ public:
 			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
 				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
 					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
-						y.at(i,j,k) = 0.;
+						if( Add::No==add ) y(i,j,k) = 0.;
 						for( Ordinal kk=c_[m].bl(); kk<=c_[m].bu(); ++kk )
-							y.at(i,j,k) += getC( m, k, kk )*x.at(i,j,k+kk);
+							y(i,j,k) += getC( m, k, kk )*x(i,j,k+kk);
 					}
 		}
 
@@ -186,10 +185,10 @@ public:
 		return( cm_[dir].get() );
 	}
 	constexpr const Scalar& getC( const int& dir, Ordinal i, Ordinal off ) const {
-		return( c_[dir].at( i, off ) );
+		return( c_[dir]( i, off ) );
 	}
 	constexpr const Scalar& getCM( const int& dir, Ordinal i, Ordinal off ) const {
-		return( cm_[dir].at( i, off ) );
+		return( cm_[dir]( i, off ) );
 	}
 
 	const std::string getLabel() const { return( "InterpolateV2S" ); };

@@ -173,8 +173,8 @@ public:
 				yp->getRawPtr() );
 
 		for( Ordinal i=space()->begin(S,3)-1; i<space()->end(S,3); ++i ) {
-			yu->getFieldPtr(i)->changed();
-			yp->getFieldPtr(i)->changed();
+			yu->getField(i).changed();
+			yp->getField(i).changed();
 		}
 
 		yu->changed();
@@ -202,16 +202,16 @@ public:
 
 			interpolateV2S_->apply( mv->getConstField(it).getConstField(U), *temp );
 			for( int j=0; j<SpaceT::sdim; ++j ) {
-				interpolateS2V_->apply( *temp, windU_->getFieldPtr(it)->getField(j) );
+				interpolateS2V_->apply( *temp, windU_->getField(it).getField(j) );
 			}
 			interpolateV2S_->apply( mv->getConstField(it).getConstField(V), *temp );
 			for( int j=0; j<SpaceT::sdim; ++j ) {
-				interpolateS2V_->apply( *temp, windV_->getFieldPtr(it)->getField(j) );
+				interpolateS2V_->apply( *temp, windV_->getField(it).getField(j) );
 			}
 			if( 3==SpaceT::sdim ) {
 				interpolateV2S_->apply( mv->getConstField(it).getConstField(W), *temp );
 				for( int j=0; j<SpaceT::sdim; ++j ) {
-					interpolateS2V_->apply( *temp, windW_->getFieldPtr(it)->getField(j) );
+					interpolateS2V_->apply( *temp, windW_->getField(it).getField(j) );
 				}
 			}
 		}

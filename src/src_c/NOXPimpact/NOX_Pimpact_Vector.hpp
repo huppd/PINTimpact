@@ -98,7 +98,7 @@ public:
   /// \f[ x_i = y_i \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
   virtual NOX::Abstract::Vector& operator=(const Vector<Field>& y) {
-    field_->assign( *y.field_ );
+    *field_ = *y.field_;
     return( *this );
   }
   virtual NOX::Abstract::Vector& operator=(const NOX::Abstract::Vector& y) {
@@ -294,7 +294,7 @@ public:
   /// \note Even if the vector is distributed across processors, this
   /// should return the <em> global length </em> of the vector.
   virtual NOX::size_type length() const {
-    return( field_->getLength()*field_->getNumberVecs() );
+    return( field_->getLength() );
   }
 
 

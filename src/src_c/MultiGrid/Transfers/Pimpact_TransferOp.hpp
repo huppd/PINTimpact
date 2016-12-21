@@ -65,7 +65,7 @@ public:
 		for( Ordinal k=x.space()->begin(fType,Z,With::B); k<=x.space()->end(fType,Z,With::B); ++k )
 			for( Ordinal j=x.space()->begin(fType,Y,With::B); j<=x.space()->end(fType,Y,With::B); ++j )
 				for( Ordinal i=x.space()->begin(fType,X,With::B); i<=x.space()->end(fType,X,With::B); ++i )
-					y.at(i,j,k) = x.at(i,j,k);
+					y(i,j,k) = x(i,j,k);
 
     y.changed();
   }

@@ -31,6 +31,7 @@ namespace Pimpact {
 /// \brief important basic Vector class
 /// vector for a scalar field, e.g.: pressure,
 /// \ingroup Field
+/// \todo make owning_ fType_ template parameter
 template<class SpaceType>
 class ScalarField : private AbstractField< SpaceType > {
 
@@ -97,8 +98,7 @@ public:
 					initField();
 					break;
 				case ECopy::Deep:
-					for( int i=0; i<getStorageSize(); ++i)
-						s_[i] = sF.s_[i];
+					*this = sF;
 					break;
 			}
 		}
@@ -116,8 +116,7 @@ public:
 			case ECopy::Shallow:
 				break;
 			case ECopy::Deep:
-				for( int i=0; i<getStorageSize(); ++i)
-					mv->getRawPtr()[i] = s_[i];
+				*mv = *this;
 				break;
 		}
 		return( mv );
@@ -144,9 +143,6 @@ public:
 		return( vl );
 	}
 
-
-  /// \brief get number of stored Field's
-  constexpr int getNumberVecs() const { return( 1 ); }
 
 
   /// @}
@@ -201,7 +197,7 @@ public:
 		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
 			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
 				for( Ordinal i=space()->begin(fType_,X,bcYes); i<=space()->end(fType_,X,bcYes); ++i )
-					at(i,j,k) = std::abs( y.at(i,j,k) );
+					at(i,j,k) = std::fabs( y.at(i,j,k) );
 
 		changed();
 	}
@@ -299,7 +295,7 @@ public:
 		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
 			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
 				for( Ordinal i=space()->begin(fType_,X,bcYes); i<=space()->end(fType_,X,bcYes); ++i )
-					normvec += std::abs( at(i,j,k) );
+					normvec += std::fabs( at(i,j,k) );
 
     return( normvec );
   }
@@ -312,7 +308,7 @@ public:
 		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
 			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
 				for( Ordinal i=space()->begin(fType_,X,bcYes); i<=space()->end(fType_,X,bcYes); ++i )
-					normvec += at(i,j,k)*at(i,j,k);
+					normvec += std::pow( at(i,j,k), 2 );
 
     return( normvec );
   }
@@ -325,7 +321,7 @@ public:
 		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
 			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
 				for( Ordinal i=space()->begin(fType_,X,bcYes); i<=space()->end(fType_,X,bcYes); ++i )
-					normvec = std::fmax( std::abs(at(i,j,k)), normvec );
+					normvec = std::fmax( std::fabs(at(i,j,k)), normvec );
 
     return( normvec );
   }
@@ -396,23 +392,22 @@ public:
   /// \name Initialization methods
   //\{
 
-  /// \brief mv := A
+  /// \brief *this := a 
   ///
   /// Assign (deep copy) \c a into \c this.
-  /// total deep, boundaries and everythin.
+  /// total deep, boundaries and everything.
   /// \note the \c StencilWidths is not take care of assuming every field is generated with one
-	void assign( const FieldT& a ) {
+	ScalarField& operator=( const ScalarField& a ) {
 
-		for( int dir=0; dir<3; ++dir )
-			assert( space()->nLoc(dir)==a.space()->nLoc(dir) );
+		assert( getType()==a.getType() );
+		assert( getStorageSize()==a.getStorageSize() );
 
-		for(int i=0; i<getStorageSize(); ++i)
-			s_[i] = a.s_[i];
+		std::copy_n( a.s_, getStorageSize(), s_ );
 
 		for( int dir=0; dir<SpaceT::sdim; ++dir )
 			exchangedState_[dir] = a.exchangedState_[dir];
+		return *this;
 	}
-
 
   /// \brief Replace the vectors with a random vectors.
   /// Depending on Fortrans \c Random_number implementation, with always same seed => not save, if good randomness is required
@@ -439,20 +434,28 @@ public:
   /// \brief Replace each element of the vector  with \c alpha.
 	/// \param alpha init value
 	/// \param bcYes also initializing the boundary values
-  void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const With& bcYes=With::B ) {
+	void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const With& bcYes=With::B ) {
 
-		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
-			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
-				for( Ordinal i=space()->begin(fType_,X,bcYes); i<=space()->end(fType_,X,bcYes); ++i )
-					at(i,j,k) = alpha;
-		
-		if( !space()->getProcGrid()->participating() )
-			for( Ordinal k=space()->begin(fType_,Z,With::B); k<=space()->end(fType_,Z,With::B); ++k )
-				for( Ordinal j=space()->begin(fType_,Y,With::B); j<=space()->end(fType_,Y,With::B); ++j )
-					for( Ordinal i=space()->begin(fType_,X,With::B); i<=space()->end(fType_,X,With::B); ++i )
-						at(i,j,k) = Teuchos::ScalarTraits<Scalar>::zero();
-		changed();
-  }
+		if( With::B==bcYes ){
+			std::fill_n( s_, getStorageSize(), alpha );
+			exchangedState_[X] = true;
+			exchangedState_[Y] = true;
+			exchangedState_[Z] = true;
+		}
+		else{
+			for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
+				for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
+					for( Ordinal i=space()->begin(fType_,X,bcYes); i<=space()->end(fType_,X,bcYes); ++i )
+						at(i,j,k) = alpha;
+
+			if( !space()->getProcGrid()->participating() )
+				for( Ordinal k=space()->begin(fType_,Z,With::B); k<=space()->end(fType_,Z,With::B); ++k )
+					for( Ordinal j=space()->begin(fType_,Y,With::B); j<=space()->end(fType_,Y,With::B); ++j )
+						for( Ordinal i=space()->begin(fType_,X,With::B); i<=space()->end(fType_,X,With::B); ++i )
+							at(i,j,k) = Teuchos::ScalarTraits<Scalar>::zero();
+			changed();
+		}
+	}
 
 protected:
 
@@ -625,8 +628,9 @@ public:
 
 		switch( fieldType ) {
 			case ConstField :
-				initFromFunction( [&alpha](Scalar,Scalar,Scalar)->Scalar&{
-						return( alpha ); } );
+				std::fill_n( s_, getStorageSize(), alpha );
+				//initFromFunction( [&alpha](Scalar,Scalar,Scalar)->Scalar&{
+						//return( alpha ); } );
 				break;
 			case Grad2D_inX :
 				SF_init_2DGradX(
@@ -638,7 +642,7 @@ public:
 						space()->getDomainSize()->getSize( X ),
 						space()->getCoordinatesLocal()->getX( X, fType_ ),
 						s_,
-						(std::abs(alpha)<Teuchos::ScalarTraits<Scalar>::eps())?Teuchos::ScalarTraits<Scalar>::one():alpha	);
+						(std::fabs(alpha)<Teuchos::ScalarTraits<Scalar>::eps())?Teuchos::ScalarTraits<Scalar>::one():alpha	);
 				break;
 			case Grad2D_inY :
 				SF_init_2DGradY(
@@ -650,7 +654,7 @@ public:
 						space()->getDomainSize()->getSize( Y ),
 						space()->getCoordinatesLocal()->getX( Y, fType_ ),
 						s_ ,
-						(std::abs(alpha)<Teuchos::ScalarTraits<Scalar>::eps())?Teuchos::ScalarTraits<Scalar>::one():alpha	);
+						(std::fabs(alpha)<Teuchos::ScalarTraits<Scalar>::eps())?Teuchos::ScalarTraits<Scalar>::one():alpha	);
 				break;
 			case Grad2D_inZ :
 				SF_init_2DGradZ(
@@ -662,7 +666,7 @@ public:
 						space()->getDomainSize()->getSize( Z ),
 						space()->getCoordinatesLocal()->getX( Z, fType_ ),
 						s_ ,
-						(std::abs(alpha)<Teuchos::ScalarTraits<Scalar>::eps())?Teuchos::ScalarTraits<Scalar>::one():alpha	);
+						(std::fabs(alpha)<Teuchos::ScalarTraits<Scalar>::eps())?Teuchos::ScalarTraits<Scalar>::one():alpha	);
 				break;
 			case Poiseuille2D_inX :
 				SF_init_2DPoiseuilleX(
@@ -1235,7 +1239,6 @@ protected:
 				);
 	}
 
-public:
 
 	/// \brief computed index
 	///
@@ -1293,6 +1296,56 @@ public:
 	///
 	/// \param i index coordinate 
 	inline constexpr const Scalar& at( const Teuchos::Tuple<const Ordinal,3>& i ) const {
+		return( s_[ index(i[0],i[1],i[2]) ] );
+	}
+
+public:
+
+	/// \brief field access
+	///
+	/// \param i index in x-direction
+	/// \param j index in y-direction
+	/// \param k index in z-direction
+	///
+	/// \return const reference
+	inline constexpr const Scalar& operator()( const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
+		return( s_[ index(i,j,k) ] );
+	}
+
+	/// \brief field access
+	///
+	/// \param i index in x-direction
+	/// \param j index in y-direction
+	/// \param k index in z-direction
+	///
+	/// \return reference
+	inline Scalar& operator()( const Ordinal& i, const Ordinal& j, const Ordinal& k )  {
+		return( s_[ index(i,j,k) ] );
+	}
+
+	/// \brief field access
+	///
+	/// \param i index coordinate 
+	inline constexpr const Scalar& operator()( const Ordinal* const i ) const {
+		return( s_[ index(i[0],i[1],i[2]) ] );
+	}
+	/// \brief field access
+	///
+	/// \param i index coordinate 
+	inline Scalar& operator()( const Ordinal* const i ) {
+		return( s_[ index(i[0],i[1],i[2]) ] );
+	}
+
+	/// \brief field access
+	///
+	/// \param i index coordinate 
+	inline Scalar& operator()( const Teuchos::Tuple<const Ordinal,3>& i ) {
+		return( s_[ index(i[0],i[1],i[2]) ] );
+	}
+	/// \brief field access
+	///
+	/// \param i index coordinate 
+	inline constexpr const Scalar& operator()( const Teuchos::Tuple<const Ordinal,3>& i ) const {
 		return( s_[ index(i[0],i[1],i[2]) ] );
 	}
 

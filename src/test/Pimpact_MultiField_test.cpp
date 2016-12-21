@@ -620,7 +620,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, add, FType ) {
   mv1->add( 1., *mv2, 1., *mv3 );
 
   mv1->norm(norm1);
-  mv2->assign(*mv1);
+  *mv2 = *mv1;
   mv2->norm(norm2);
 
   for( unsigned int i=0; i<n1; ++i) {

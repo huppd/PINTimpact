@@ -111,9 +111,18 @@ enum EForceType {
 };
 
 
+/// \todo change to B::Y/ B::N
 enum class With : bool {
 	B   = true,	///< [true] including grid points on the boundary
 	noB = false	///< [false] only inner points (DOF)
+};
+
+
+/// \todo introduce to operators
+/// \todo change to Add::Y Add::N
+enum class Add : bool {
+	Yes = true,	///< [true] adds applied operator to DomainField 
+	No  = false	///< [false] sets DomainField to applied Operator 
 };
 
 

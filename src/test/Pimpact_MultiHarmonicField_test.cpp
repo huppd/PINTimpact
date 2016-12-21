@@ -109,51 +109,38 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, constructor, FType ) {
 	auto space = Pimpact::create<SpaceT>( pl );
 
 	auto field = Pimpact::createMultiHarmonic<FType>( space, global );
-
-	const int m = field->getNumberVecs();
-
-	TEST_EQUALITY( 1, m );
-
 }
 
-	TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicField, constructor, SF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicField, constructor, SF )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicField, constructor, VF )
 
 
 
 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, clone, FType ) {
 
-	TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicField, clone, FType ) {
+	Pimpact::setBoundaryConditions( pl, domain );
 
-		Pimpact::setBoundaryConditions( pl, domain );
+	//  grid size
+	pl->set("nx", nx );
+	pl->set("ny", ny );
+	pl->set("nz", nz );
+	pl->set("nf", nf );
 
-		//  grid size
-		pl->set("nx", nx );
-		pl->set("ny", ny );
-		pl->set("nz", nz );
-		pl->set("nf", nf );
+	// processor grid size
+	pl->set("npx", npx );
+	pl->set("npy", npy );
+	pl->set("npz", npz );
+	pl->set("npf", npf );
 
-		// processor grid size
-		pl->set("npx", npx );
-		pl->set("npy", npy );
-		pl->set("npz", npz );
-		pl->set("npf", npf );
+	auto space = Pimpact::create<SpaceT>( pl );
 
-		auto space = Pimpact::create<SpaceT>( pl );
+	auto field = Pimpact::createMultiHarmonic<FType>( space, global );
 
-		auto field = Pimpact::createMultiHarmonic<FType>( space, global );
+	auto field2 = field->clone();
+}
 
-		auto field2 = field->clone();
-
-		OT n1(field->getNumberVecs());
-		OT n2(field2->getNumberVecs());
-
-		TEST_EQUALITY( 1, n1 );
-		TEST_EQUALITY( 1, n2 );
-
-	}
-
-	TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicField, clone, SF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicField, clone, SF )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicField, clone, VF )
 
 

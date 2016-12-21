@@ -150,13 +150,13 @@ OpT,
 		auto x = Pimpact::create<MF>( space );
 
 		// init Fields
-		x->getFieldPtr(0)->getVFieldPtr()->initField( pl->sublist("Base flow") );
+		x->getField(0).getVField().initField( pl->sublist("Base flow") );
 
 		if( 0==initZero )
 			x->init(0.);
 		else if( 1==initZero ) {
-			x->getFieldPtr(0)->getVFieldPtr()->random();
-			x->getFieldPtr(0)->getSFieldPtr()->init(0.);
+			x->getField(0).getVField().random();
+			x->getField(0).getSField().init(0.);
 			x->scale(1.e-32);
 		}
 		else if( 2==initZero )
@@ -179,12 +179,12 @@ OpT,
 				fu->init( 0. );
 			else {
 				//			S re = space->getDomainSize()->getRe();
-				fu->getFieldPtr(0)->getVFieldPtr()->get0FieldPtr()->getFieldPtr(Pimpact::U)->initField(  Pimpact::FPoint, pl->get<S>( "lambda0x", -2. ) );
-				fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->getFieldPtr(Pimpact::V)->initField( Pimpact::FPoint, pl->get<S>( "lambdaCy",  1. ) );
-				fu->getFieldPtr(0)->getVFieldPtr()->getCFieldPtr(0)->getFieldPtr(Pimpact::W)->initField( Pimpact::FPoint, pl->get<S>( "lambdaCz",  0. ) );
-				//		fu->getFieldPtr(0)->getVFieldPtr()->getSFieldPtr(0)->getFieldPtr(Pimpact::W)->initField( Pimpact::FPoint, 1. );
+				fu->getField(0).getVField().get0Field().getField(Pimpact::U).initField(  Pimpact::FPoint, pl->get<S>( "lambda0x", -2. ) );
+				fu->getField(0).getVField().getCField(0).getField(Pimpact::V).initField( Pimpact::FPoint, pl->get<S>( "lambdaCy",  1. ) );
+				fu->getField(0).getVField().getCField(0).getField(Pimpact::W).initField( Pimpact::FPoint, pl->get<S>( "lambdaCz",  0. ) );
+				//		fu->getField(0).getVField().getSField(0).getField(Pimpact::W).initField( Pimpact::FPoint, 1. );
 			}
-			//	fu->getFieldPtr(0)->getVFieldPtr()->write( 700,true );
+			//	fu->getField(0).getVField().write( 700,true );
 
 
 			auto opV2V = Pimpact::createMultiDtConvectionDiffusionOp( space );
@@ -264,9 +264,9 @@ OpT,
 
 			if( pl->sublist("Solver").get<int>("withoutput") ) {
 				x = Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr();
-				Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr()->write( 800 );
-				Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getFieldPtr()->getFieldPtr(0)->getVFieldPtr()->write( 400, true );
-				//		Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstFieldPtr()->write(900);
+				Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getField().write( 800 );
+				Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getField().getField(0).getVField().write( 400, true );
+				//		Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() )->getConstField().write(900);
 			}
 
 			// spectral refinement of x, fu
@@ -287,7 +287,7 @@ OpT,
 				auto xf = Pimpact::create<CF>( spaceF );
 				// init Fields
 				//		boundaries
-				xf->getVFieldPtr()->initField( pl->sublist("Base flow") );
+				xf->getVField().initField( pl->sublist("Base flow") );
 				auto temp = Pimpact::create<CF>( spaceF );
 
 				refineOp->apply( x->getField(0), *temp );

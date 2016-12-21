@@ -39,7 +39,7 @@ protected:
 	using SW = StencilWidths<dim,dimNC>;
 
 	using Stenc = Stencil< Scalar, Ordinal, 0, SW::NL(0), SW::NU(0) >;
-	using TO = const Teuchos::Tuple< Stenc*, sdim >;
+	using TO = const Teuchos::Tuple< Stenc, sdim >;
 
   const Teuchos::RCP<const SpaceT> space_;
 
@@ -54,99 +54,146 @@ public:
 	ConvectionSOp( const Teuchos::RCP<const SpaceT>& space  ):
 		space_(space) {
 
-			for( int i=0; i<sdim; ++i ) {
+			for( int dir=0; dir<sdim; ++dir ) {
 
-				cSD_[i] = new Stenc( space_->nLoc(i) );
+				cSD_[dir] = Stenc( space_->nLoc(dir) );
 
 				FD_getDiffCoeff(
-						space_->nLoc(i),
-						space_->bl(i),
-						space_->bu(i),
-						space_->nl(i),
-						space_->nu(i),
-						space_->getBCLocal()->getBCL(i),
-						space_->getBCLocal()->getBCU(i),
-						space_->getShift(i),
+						space_->nLoc(dir),
+						space_->bl(dir),
+						space_->bu(dir),
+						space_->nl(dir),
+						space_->nu(dir),
+						space_->getBCLocal()->getBCL(dir),
+						space_->getBCLocal()->getBCU(dir),
+						space_->getShift(dir),
 						int(EField::S)+1,
-						i+1,
+						dir+1,
 						1,
 						-1,
-						true, // mapping
-						//false, // mapping
-						space_->getStencilWidths()->getDimNcbC(i),
-						space_->getStencilWidths()->getNcbC(i),
-						space_->getCoordinatesLocal()->getX( i, EField::S ),
-						space_->getCoordinatesLocal()->getX( i, EField::S ),
-						cSD_[i]->get() );
+						//true, // mapping
+						false, // mapping
+						space_->getStencilWidths()->getDimNcbC(dir),
+						space_->getStencilWidths()->getNcbC(dir),
+						space_->getCoordinatesLocal()->getX( dir, EField::S ),
+						space_->getCoordinatesLocal()->getX( dir, EField::S ),
+						cSD_[dir].get() );
 
-				cSU_[i] = new Stenc( space_->nLoc(i) );
+				if( DirichletBC==space_->bcl(dir) ) {
+					Ordinal i = space_->begin(S,dir,With::B);
+					for( int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii )
+						cSD_[dir](i,ii) = 0.;
+				}
+				if( DirichletBC==space_->bcu(dir) ) {
+					Ordinal i = space_->end(S,dir,With::B);
+					for( int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii )
+						cSD_[dir](i,ii) = 0.;
+				}
+
+
+				cSU_[dir] = Stenc( space_->nLoc(dir) );
 
 				FD_getDiffCoeff(
-						space_->nLoc(i),
-						space_->bl(i),
-						space_->bu(i),
-						space_->nl(i),
-						space_->nu(i),
-						space_->getBCLocal()->getBCL(i),
-						space_->getBCLocal()->getBCU(i),
-						space_->getShift(i),
+						space_->nLoc(dir),
+						space_->bl(dir),
+						space_->bu(dir),
+						space_->nl(dir),
+						space_->nu(dir),
+						space_->getBCLocal()->getBCL(dir),
+						space_->getBCLocal()->getBCU(dir),
+						space_->getShift(dir),
 						int(EField::S)+1,
-						i+1,
+						dir+1,
 						1,
 						+1,
 						true, // mapping
 						//false, // mapping
-						space_->getStencilWidths()->getDimNcbC(i),
-						space_->getStencilWidths()->getNcbC(i),
-						space_->getCoordinatesLocal()->getX( i, EField::S ),
-						space_->getCoordinatesLocal()->getX( i, EField::S ),
-						cSU_[i]->get() );
+						space_->getStencilWidths()->getDimNcbC(dir),
+						space_->getStencilWidths()->getNcbC(dir),
+						space_->getCoordinatesLocal()->getX( dir, EField::S ),
+						space_->getCoordinatesLocal()->getX( dir, EField::S ),
+						cSU_[dir].get() );
 
-				cVD_[i] = new Stenc( space_->nLoc(i) );
+				if( DirichletBC==space_->bcl(dir) ) {
+					Ordinal i = space_->begin(S,dir,With::B);
+					for( int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii )
+						cSU_[dir](i,ii) = 0.;
+				}
+				if( DirichletBC==space_->bcu(dir) ) {
+					Ordinal i = space_->end(S,dir,With::B);
+					for( int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii )
+						cSU_[dir](i,ii) = 0.;
+				}
+
+
+				cVD_[dir] = Stenc( space_->nLoc(dir) );
 
 				FD_getDiffCoeff(
-						space_->nLoc(i),
-						space_->bl(i),
-						space_->bu(i),
-						space_->nl(i),
-						space_->nu(i),
-						space_->getBCLocal()->getBCL(i),
-						space_->getBCLocal()->getBCU(i),
-						space_->getShift(i),
+						space_->nLoc(dir),
+						space_->bl(dir),
+						space_->bu(dir),
+						space_->nl(dir),
+						space_->nu(dir),
+						space_->getBCLocal()->getBCL(dir),
+						space_->getBCLocal()->getBCU(dir),
+						space_->getShift(dir),
 						1,
-						i+1,
+						dir+1,
 						1,
 						-1,
 						true, // mapping
 						//false, // mapping
-						space_->getStencilWidths()->getDimNcbC(i),
-						space_->getStencilWidths()->getNcbC(i),
-						space_->getCoordinatesLocal()->getX( i, i ),
-						space_->getCoordinatesLocal()->getX( i, i ),
-						cVD_[i]->get() );
+						space_->getStencilWidths()->getDimNcbC(dir),
+						space_->getStencilWidths()->getNcbC(dir),
+						space_->getCoordinatesLocal()->getX( dir, dir ),
+						space_->getCoordinatesLocal()->getX( dir, dir ),
+						cVD_[dir].get() );
 
-				cVU_[i] = new Stenc( space_->nLoc(i) );
+				if( DirichletBC==space_->bcl(dir) ) {
+					Ordinal i = space_->begin(dir,dir,With::B);
+					for( int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii )
+						cVD_[dir](i,ii) = 0.;
+				}
+				if( DirichletBC==space_->bcu(dir) ) {
+					Ordinal i = space_->end(dir,dir,With::B);
+					for( int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii )
+						cVD_[dir](i,ii) = 0.;
+				}
+
+
+				cVU_[dir] = Stenc( space_->nLoc(dir) );
 
 				FD_getDiffCoeff(
-						space_->nLoc(i),
-						space_->bl(i),
-						space_->bu(i),
-						space_->nl(i),
-						space_->nu(i),
-						space_->getBCLocal()->getBCL(i),
-						space_->getBCLocal()->getBCU(i),
-						space_->getShift(i),
+						space_->nLoc(dir),
+						space_->bl(dir),
+						space_->bu(dir),
+						space_->nl(dir),
+						space_->nu(dir),
+						space_->getBCLocal()->getBCL(dir),
+						space_->getBCLocal()->getBCU(dir),
+						space_->getShift(dir),
 						1,
-						i+1,
+						dir+1,
 						1,
 						+1,
 						true, // mapping
 						//false, // mapping
-						space_->getStencilWidths()->getDimNcbC(i),
-						space_->getStencilWidths()->getNcbC(i),
-						space_->getCoordinatesLocal()->getX( i, i ),
-						space_->getCoordinatesLocal()->getX( i, i ),
-						cVU_[i]->get() );
+						space_->getStencilWidths()->getDimNcbC(dir),
+						space_->getStencilWidths()->getNcbC(dir),
+						space_->getCoordinatesLocal()->getX( dir, dir ),
+						space_->getCoordinatesLocal()->getX( dir, dir ),
+						cVU_[dir].get() );
+
+				if( DirichletBC==space_->bcl(dir) ) {
+					Ordinal i = space_->begin(dir,dir,With::B);
+					for( int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii )
+						cVU_[dir](i,ii) = 0.;
+				}
+				if( DirichletBC==space_->bcu(dir) ) {
+					Ordinal i = space_->end(dir,dir,With::B);
+					for( int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii )
+						cVU_[dir](i,ii) = 0.;
+				}
 			}
 		};
 
@@ -154,14 +201,14 @@ public:
   void assignField( const RangeFieldT& mv ) {};
 
 
-	void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z,
-			Scalar mul, Scalar mulI, Scalar mulC, Scalar mulL ) const {
-		apply( x, y, z, mul, mulC );
+	void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, const Scalar& mulI, const Scalar& mulC, const Scalar& mulL, const Add& add=Add::No ) const {
+		apply( x, y, z, mulC, add );
 	}
 
 
-	void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, Scalar mul=0., Scalar mulC=1. ) const {
+	void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, const Add& add=Add::No ) const {
 
+		const Scalar& mulC = 1.;
 		int m = static_cast<int>(z.getType());
 
 		assert( z.getType() == y.getType() );
@@ -176,13 +223,17 @@ public:
 		if( 3==SpaceT::sdim )
 			for( Ordinal k=space()->begin(m,Z); k<=space()->end(m,Z); ++k )
 				for( Ordinal j=space()->begin(m,Y); j<=space()->end(m,Y); ++j )
-					for( Ordinal i=space()->begin(m,X); i<=space()->end(m,X); ++i )
-						z.at(i,j,k) = mul*z.at(i,j,k) + mulC*innerStenc3D( x[0]->at(i,j,k), x[1]->at(i,j,k), x[2]->at(i,j,k), y, i, j, k );
+					for( Ordinal i=space()->begin(m,X); i<=space()->end(m,X); ++i ) {
+						if( Add::No==add ) z(i,j,k) = 0.;
+						z(i,j,k) += mulC*innerStenc3D( (*x[0])(i,j,k), (*x[1])(i,j,k), (*x[2])(i,j,k), y, i, j, k );
+					}
 		else
 			for( Ordinal k=space()->begin(m,Z); k<=space()->end(m,Z); ++k )
 				for( Ordinal j=space()->begin(m,Y); j<=space()->end(m,Y); ++j )
-					for( Ordinal i=space()->begin(m,X); i<=space()->end(m,X); ++i )
-						z.at(i,j,k) = mul*z.at(i,j,k) + mulC*innerStenc2D( x[0]->at(i,j,k), x[1]->at(i,j,k), y, i,j,k);
+					for( Ordinal i=space()->begin(m,X); i<=space()->end(m,X); ++i ) {
+						if( Add::No==add ) z(i,j,k) = 0.;
+						z(i,j,k) += mulC*innerStenc2D( (*x[0])(i,j,k), (*x[1])(i,j,k), y, i,j,k);
+					}
 
 		z.changed();
 	}
@@ -192,13 +243,13 @@ public:
 		for( int i=0; i<SpaceT::sdim; ++i ) {
 			out << "dir: " << toString( static_cast<ECoord>(i) ) << "\n ";
 			out << "cSD:\n";
-			cSD_[i]->print( out );
+			cSD_[i].print( out );
 			out << "cSU:\n";
-			cSU_[i]->print( out );
+			cSU_[i].print( out );
 			out << "cVD:\n";
-			cVD_[i]->print( out );
+			cVD_[i].print( out );
 			out << "cVU:\n";
-			cVU_[i]->print( out );
+			cVU_[i].print( out );
 		}
 	}
 
@@ -211,19 +262,19 @@ public:
 
 
   constexpr const Scalar* getCU( const ECoord& dir, const EField& ftype ) const  {
-    return( ( ((int)dir)==((int)ftype) )?cVU_[dir]->get():cSU_[dir]->get() );
+    return( ( ((int)dir)==((int)ftype) )?cVU_[dir].get():cSU_[dir].get() );
   }
 
   constexpr const Scalar* getCD( const ECoord& dir, const EField& ftype ) const  {
-    return( ( ((int)dir)==((int)ftype) )?cVD_[dir]->get():cSD_[dir]->get() );
+    return( ( ((int)dir)==((int)ftype) )?cVD_[dir].get():cSD_[dir].get() );
   }
 
 	inline constexpr const Scalar& getC( const Scalar& wind, const ECoord& dir, const EField& ftype, const int& i, const int ii ) const {
 		return( 
 				( static_cast<int>(dir)==static_cast<int>(ftype) )?
-					(wind>=0? cVU_[dir]->at(i,ii):cVD_[dir]->at(i,ii))
+					(wind>=0? cVU_[dir](i,ii):cVD_[dir](i,ii))
 					:
-					(wind>=0? cSU_[dir]->at(i,ii):cSD_[dir]->at(i,ii))
+					(wind>=0? cSU_[dir](i,ii):cSD_[dir](i,ii))
 				);
 	}
 
@@ -234,11 +285,11 @@ public:
 
 		Scalar dx = 0.;
 		for( int ii=space_->nl(X); ii<=space_->nu(X); ++ii ) 
-			dx += getC( u,X, x.getType(),i,ii)*x.at(i+ii,j,k);
+			dx += getC( u,X, x.getType(),i,ii)*x(i+ii,j,k);
 
 		Scalar dy = 0.;
 		for( int jj=space_->nl(Y); jj<=space_->nu(Y); ++jj ) 
-			dy += getC( v,Y, x.getType(),j,jj)*x.at(i,j+jj,k);
+			dy += getC( v,Y, x.getType(),j,jj)*x(i,j+jj,k);
 
 		return( u*dx+v*dy );
 	}
@@ -249,17 +300,29 @@ public:
 
 		Scalar dx = 0.;
 		for( int ii=space_->nl(X); ii<=space_->nu(X); ++ii ) 
-			dx += getC( u,X, x.getType(),i,ii)*x.at(i+ii,j,k);
+			dx += getC( u,X, x.getType(),i,ii)*x(i+ii,j,k);
 
 		Scalar dy = 0.;
 		for( int jj=space_->nl(Y); jj<=space_->nu(Y); ++jj ) 
-			dy += getC( v,Y, x.getType(),j,jj)*x.at(i,j+jj,k);
+			dy += getC( v,Y, x.getType(),j,jj)*x(i,j+jj,k);
 
 		Scalar dz = 0.;
 		for( int kk=space_->nl(Z); kk<=space_->nu(Z); ++kk ) 
-			dz += getC( w,Z, x.getType(),k,kk)*x.at(i,j,k+kk);
+			dz += getC( w,Z, x.getType(),k,kk)*x(i,j,k+kk);
 
 		return( u*dx+v*dy+w*dz );
+	}
+
+	inline constexpr Scalar innerDiag3D( const Scalar& u, const Scalar& v, const
+			Scalar& w, const EField& fType, const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
+
+		return( u*getC( u,X, fType,i,0) + v*getC( v,Y, fType,j,0) + w*getC( w,Z, fType,k,0) );
+	}
+
+	inline constexpr Scalar innerDiag2D( const Scalar& u, const Scalar& v, const
+			Scalar& w, const EField& fType, const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
+
+		return( u*getC( u,X, fType,i,0) + v*getC( v,Y, fType,j,0) );
 	}
 
 	constexpr const std::string getLabel() const { return( "Convection" ); };

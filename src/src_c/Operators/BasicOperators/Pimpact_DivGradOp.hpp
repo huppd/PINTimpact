@@ -51,24 +51,24 @@ public:
     grad_(grad) {};
 
   void apply(const DomainFieldT& x, RangeFieldT& y,
-      const Belos::ETrans& trans=Belos::NOTRANS ) const {
+      const Belos::ETrans& trans=Belos::NOTRANS, const Add& add=Add::No ) const {
 
-		Teuchos::RCP< VectorField<SpaceT> > temp = create<VectorField>( space() );
+		VectorField<SpaceT> temp( space() );
 
 		switch( trans ) {
 			case Belos::NOTRANS : {
-				grad_->apply( x, *temp );
-				div_->apply( *temp, y );
+				grad_->apply( x, temp, add );
+				div_->apply( temp, y, add );
 				break;
 			}
 			case Belos::TRANS : {
-				div_->apply( x, *temp );
-				grad_->apply( *temp, y );
+				div_->apply( x, temp, add );
+				grad_->apply( temp, y, add );
 				break;
 			}
 			case Belos::CONJTRANS : {
-				div_->apply( x, *temp );
-				grad_->apply( *temp, y );
+				div_->apply( x, temp, add );
+				grad_->apply( temp, y, add );
 				break;
 			}
 		}
@@ -84,83 +84,15 @@ public:
 	/// \todo fix for periodic BC
 	void applyInvDiag( const DomainFieldT& x, RangeFieldT& y ) const {
 
-		const ST& eps = 0.1;
 
 		for( OT k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
 			for( OT j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
 				for( OT i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
 
-					ST diag = 0.;
-
-					const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->begin(S,X) ) ||
-						(               space()->getBCLocal()->getBCU(X) > 0 && i==space()->end(S,X) ) ;
-					const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->begin(S,Y) ) ||
-						(               space()->getBCLocal()->getBCU(Y) > 0 && j==space()->end(S,Y) ) ;
-					const bool bcZ = (space()->getBCLocal()->getBCL(Z) > 0 && k==space()->begin(S,Z) ) ||
-						(               space()->getBCLocal()->getBCU(Z) > 0 && k==space()->end(S,Z) ) ;
-
-					const ST epsX = ( (bcY||bcZ)?eps:1. );
-					const ST epsY = ( (bcX||bcZ)?eps:1. );
-					const ST epsZ = ( (bcX||bcY)?eps:1. );
-
-					// X direction
-					for( OT ii=space()->dl(X); ii<=space()->du(X); ++ii ) {
-						if( 0<space()->getBCLocal()->getBCL(X) && i+ii==space()->begin(U,X,With::B) ) {
-								for( OT iii=0; iii<=space()->du(X); ++iii ) 
-											diag -= div_->getC( X, i, ii ) * epsX * grad_->getC( X, 1+iii, -iii-ii-1 )
-											* space()->getInterpolateV2S()->getC( X, 1, iii ) /
-											space()->getInterpolateV2S()->getC( X, 1, -1 );
-						}
-						else if( 0<space()->getBCLocal()->getBCU(X) && i+ii==space()->end(U,X,With::B) ) {
-							for( OT iii=space()->dl(X); iii<=-1; ++iii )
-								diag -= div_->getC( X, i, ii ) * epsX * grad_->getC( X, space()->end(U,X,With::B)+iii, -iii-ii )
-									* space()->getInterpolateV2S()->getC( X, space()->end(U,X,With::B), iii ) /
-									space()->getInterpolateV2S()->getC( X, space()->end(U,X,With::B), 0 );
-						}
-						else if( i+ii>=0 && i+ii<=space()->nLoc(X) )
-							diag += div_->getC( X, i, ii ) * epsX * grad_->getC( X, i+ii, -ii );
-					}
-
-					// Y direction
-					for( OT jj=space()->dl(Y); jj<=space()->du(Y); ++jj ) {
-						if( 0<space()->getBCLocal()->getBCL(Y) && j+jj==space()->begin(V,Y,With::B) ) {
-							for( OT jjj=0; jjj<=space()->du(Y); ++jjj )
-								diag -= div_->getC( Y, j, jj ) * epsY * grad_->getC( Y, 1+jjj, -jjj+j-1 )
-									* space()->getInterpolateV2S()->getC( Y, 1, jjj ) /
-									space()->getInterpolateV2S()->getC( Y, 1, -1 );
-						}
-						else if( 0<space()->getBCLocal()->getBCU(Y) && j+jj==space()->end(V,Y,With::B) ) {
-							for( OT jjj=space()->dl(Y); jjj<=-1; ++jjj )
-								diag -= div_->getC( Y, j, jj ) * epsY * grad_->getC( Y, space()->end(V,Y,With::B)+jjj, -jjj-jj )
-									* space()->getInterpolateV2S()->getC( Y, space()->end(V,Y,With::B), jjj ) /
-									space()->getInterpolateV2S()->getC( Y, space()->end(V,Y,With::B), 0 );
-						}
-						else if( j+jj>=0 && j+jj<=space()->nLoc(Y) )
-							diag += div_->getC( Y, j, jj )*epsY*grad_->getC( Y, j+jj, -jj );
-					}
-
-					if( 3==SpaceT::sdim ) {
-						// Z direction
-						for( OT kk=space()->dl(Z); kk<=space()->du(Z); ++kk ) {
-							if( 0<space()->getBCLocal()->getBCL(Z) && k+kk==space()->begin(W,Z,With::B) ) {
-								for( OT kkk=0; kkk<=space()->du(Z); ++kkk )
-									diag -= div_->getC( Z, k, kk ) * epsZ * grad_->getC( Z, 1+kkk, -kkk+k-1 )
-										* space()->getInterpolateV2S()->getC( Z, 1, kkk ) /
-										space()->getInterpolateV2S()->getC( Z, 1, -1 );
-							}
-							else if( 0<space()->getBCLocal()->getBCU(Z) && k+kk==space()->end(W,Z,With::B) ) {
-								for( OT kkk=space()->dl(Z); kkk<=-1; ++kkk )
-									diag -= div_->getC( Z, k, kk ) * epsZ * grad_->getC( Z, space()->end(W,Z,With::B)+kkk, -kkk-kk )
-										* space()->getInterpolateV2S()->getC(Z,space()->end(W,Z,With::B),kkk) /
-										space()->getInterpolateV2S()->getC(Z,space()->end(W,Z,With::B),0);
-							}
-							else if( k+kk>=0 && k+kk<=space()->nLoc(Z) )
-								diag += div_->getC( Z, k, kk ) * epsZ * grad_->getC( Z, k+kk, -kk );
-						}
-					}
+					ST diag = ( (3==SpaceT::sdim)?innerDiag3D(i,j,k):innerDiag2D(i,j,k) );
 
 					assert( 0!=diag );
-					y.at(i,j,k) = x.at(i,j,k)/std::abs( diag );
+					y(i,j,k) = x(i,j,k)/std::fabs( diag );
 				}
 
 		y.changed();
@@ -185,6 +117,134 @@ public:
 		grad_->print( out );
   }
 
+
+	inline ST innerDiag3D( const OT& i, const OT& j,
+			const OT& k ) const {
+
+		ST diag = 0.;
+		const ST& eps = 0.1;
+
+		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->begin(S,X) ) ||
+			(               space()->getBCLocal()->getBCU(X) > 0 && i==space()->end(S,X) ) ;
+		const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->begin(S,Y) ) ||
+			(               space()->getBCLocal()->getBCU(Y) > 0 && j==space()->end(S,Y) ) ;
+		const bool bcZ = (space()->getBCLocal()->getBCL(Z) > 0 && k==space()->begin(S,Z) ) ||
+			(               space()->getBCLocal()->getBCU(Z) > 0 && k==space()->end(S,Z) ) ;
+
+		const ST epsX = ( (bcY||bcZ)?eps:1. );
+		const ST epsY = ( (bcX||bcZ)?eps:1. );
+		const ST epsZ = ( (bcX||bcY)?eps:1. );
+
+		// X direction
+		for( OT ii=space()->dl(X); ii<=space()->du(X); ++ii ) {
+			if( 0<space()->getBCLocal()->getBCL(X) && i+ii==space()->begin(U,X,With::B) ) {
+				for( OT iii=0; iii<=space()->du(X); ++iii ) 
+					diag -= div_->getC( X, i, ii ) * epsX * grad_->getC( X, 1+iii, -iii-ii-1 )
+						* space()->getInterpolateV2S()->getC( X, 1, iii ) /
+						space()->getInterpolateV2S()->getC( X, 1, -1 );
+			}
+			else if( 0<space()->getBCLocal()->getBCU(X) && i+ii==space()->end(U,X,With::B) ) {
+				for( OT iii=space()->dl(X); iii<=-1; ++iii )
+					diag -= div_->getC( X, i, ii ) * epsX * grad_->getC( X, space()->end(U,X,With::B)+iii, -iii-ii )
+						* space()->getInterpolateV2S()->getC( X, space()->end(U,X,With::B), iii ) /
+						space()->getInterpolateV2S()->getC( X, space()->end(U,X,With::B), 0 );
+			}
+			else if( i+ii>=0 && i+ii<=space()->nLoc(X) )
+				diag += div_->getC( X, i, ii ) * epsX * grad_->getC( X, i+ii, -ii );
+		}
+
+		// Y direction
+		for( OT jj=space()->dl(Y); jj<=space()->du(Y); ++jj ) {
+			if( 0<space()->getBCLocal()->getBCL(Y) && j+jj==space()->begin(V,Y,With::B) ) {
+				for( OT jjj=0; jjj<=space()->du(Y); ++jjj )
+					diag -= div_->getC( Y, j, jj ) * epsY * grad_->getC( Y, 1+jjj, -jjj+j-1 )
+						* space()->getInterpolateV2S()->getC( Y, 1, jjj ) /
+						space()->getInterpolateV2S()->getC( Y, 1, -1 );
+			}
+			else if( 0<space()->getBCLocal()->getBCU(Y) && j+jj==space()->end(V,Y,With::B) ) {
+				for( OT jjj=space()->dl(Y); jjj<=-1; ++jjj )
+					diag -= div_->getC( Y, j, jj ) * epsY * grad_->getC( Y, space()->end(V,Y,With::B)+jjj, -jjj-jj )
+						* space()->getInterpolateV2S()->getC( Y, space()->end(V,Y,With::B), jjj ) /
+						space()->getInterpolateV2S()->getC( Y, space()->end(V,Y,With::B), 0 );
+			}
+			else if( j+jj>=0 && j+jj<=space()->nLoc(Y) )
+				diag += div_->getC( Y, j, jj )*epsY*grad_->getC( Y, j+jj, -jj );
+		}
+
+		// Z direction
+		for( OT kk=space()->dl(Z); kk<=space()->du(Z); ++kk ) {
+			if( 0<space()->getBCLocal()->getBCL(Z) && k+kk==space()->begin(W,Z,With::B) ) {
+				for( OT kkk=0; kkk<=space()->du(Z); ++kkk )
+					diag -= div_->getC( Z, k, kk ) * epsZ * grad_->getC( Z, 1+kkk, -kkk+k-1 )
+						* space()->getInterpolateV2S()->getC( Z, 1, kkk ) /
+						space()->getInterpolateV2S()->getC( Z, 1, -1 );
+			}
+			else if( 0<space()->getBCLocal()->getBCU(Z) && k+kk==space()->end(W,Z,With::B) ) {
+				for( OT kkk=space()->dl(Z); kkk<=-1; ++kkk )
+					diag -= div_->getC( Z, k, kk ) * epsZ * grad_->getC( Z, space()->end(W,Z,With::B)+kkk, -kkk-kk )
+						* space()->getInterpolateV2S()->getC(Z,space()->end(W,Z,With::B),kkk) /
+						space()->getInterpolateV2S()->getC(Z,space()->end(W,Z,With::B),0);
+			}
+			else if( k+kk>=0 && k+kk<=space()->nLoc(Z) )
+				diag += div_->getC( Z, k, kk ) * epsZ * grad_->getC( Z, k+kk, -kk );
+		}
+
+		return( diag );
+	}
+
+	inline ST innerDiag2D( const OT& i, const OT& j, const OT& k )
+		const {
+
+		ST diag = 0.;
+		const ST& eps = 0.1;
+
+		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->begin(S,X) ) ||
+			(               space()->getBCLocal()->getBCU(X) > 0 && i==space()->end(S,X) ) ;
+		const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->begin(S,Y) ) ||
+			(               space()->getBCLocal()->getBCU(Y) > 0 && j==space()->end(S,Y) ) ;
+
+		const ST epsX = ( bcY?eps:1. );
+		const ST epsY = ( bcX?eps:1. );
+
+		// X direction
+		for( OT ii=space()->dl(X); ii<=space()->du(X); ++ii ) {
+			if( 0<space()->getBCLocal()->getBCL(X) && i+ii==space()->begin(U,X,With::B) ) {
+				for( OT iii=0; iii<=space()->du(X); ++iii ) 
+					diag -= div_->getC( X, i, ii ) * epsX * grad_->getC( X, 1+iii, -iii-ii-1 )
+						* space()->getInterpolateV2S()->getC( X, 1, iii ) /
+						space()->getInterpolateV2S()->getC( X, 1, -1 );
+			}
+			else if( 0<space()->getBCLocal()->getBCU(X) && i+ii==space()->end(U,X,With::B) ) {
+				for( OT iii=space()->dl(X); iii<=-1; ++iii )
+					diag -= div_->getC( X, i, ii ) * epsX * grad_->getC( X, space()->end(U,X,With::B)+iii, -iii-ii )
+						* space()->getInterpolateV2S()->getC( X, space()->end(U,X,With::B), iii ) /
+						space()->getInterpolateV2S()->getC( X, space()->end(U,X,With::B), 0 );
+			}
+			else if( i+ii>=0 && i+ii<=space()->nLoc(X) )
+				diag += div_->getC( X, i, ii ) * epsX * grad_->getC( X, i+ii, -ii );
+		}
+
+		// Y direction
+		for( OT jj=space()->dl(Y); jj<=space()->du(Y); ++jj ) {
+			if( 0<space()->getBCLocal()->getBCL(Y) && j+jj==space()->begin(V,Y,With::B) ) {
+				for( OT jjj=0; jjj<=space()->du(Y); ++jjj )
+					diag -= div_->getC( Y, j, jj ) * epsY * grad_->getC( Y, 1+jjj, -jjj+j-1 )
+						* space()->getInterpolateV2S()->getC( Y, 1, jjj ) /
+						space()->getInterpolateV2S()->getC( Y, 1, -1 );
+			}
+			else if( 0<space()->getBCLocal()->getBCU(Y) && j+jj==space()->end(V,Y,With::B) ) {
+				for( OT jjj=space()->dl(Y); jjj<=-1; ++jjj )
+					diag -= div_->getC( Y, j, jj ) * epsY * grad_->getC( Y, space()->end(V,Y,With::B)+jjj, -jjj-jj )
+						* space()->getInterpolateV2S()->getC( Y, space()->end(V,Y,With::B), jjj ) /
+						space()->getInterpolateV2S()->getC( Y, space()->end(V,Y,With::B), 0 );
+			}
+			else if( j+jj>=0 && j+jj<=space()->nLoc(Y) )
+				diag += div_->getC( Y, j, jj )*epsY*grad_->getC( Y, j+jj, -jj );
+		}
+
+		return( diag );
+	}
+
 }; // end of DivGradOp
 
 
@@ -192,12 +252,12 @@ public:
 /// \relates DivGradOp
 template<class SpaceT>
 Teuchos::RCP< DivGradOp<SpaceT> > createDivGradOp(
-    const Teuchos::RCP< DivOp<SpaceT> >& div,
-    const Teuchos::RCP< GradOp<SpaceT> >& grad ) {
+		const Teuchos::RCP< DivOp<SpaceT> >& div,
+		const Teuchos::RCP< GradOp<SpaceT> >& grad ) {
 
-  return(
-      Teuchos::rcp( new DivGradOp<SpaceT>( div, grad ) )
-  );
+	return(
+			Teuchos::rcp( new DivGradOp<SpaceT>( div, grad ) )
+			);
 }
 
 

@@ -404,9 +404,9 @@ contains
 
             dd = dd - mulL*( c11( 0,ind(1) ) + c22( 0,ind(2) ) ) + mulI
 
-            phiout( ind(1),ind(2),ind(3) ) =                       &
-              (1-om)*phi(ind(1),ind(2),ind(3))               &
-              + om/dd*( b(ind(1),ind(2),ind(3))               &
+            phiout( ind(1),ind(2),ind(3) ) =           &
+              (1-om)*phi(ind(1),ind(2),ind(3))         &
+              + om/dd*( b(ind(1),ind(2),ind(3))        &
               - mulC*phiU(ind(1),ind(2),ind(3))*ddU    &
               - mulC*phiV(ind(1),ind(2),ind(3))*ddV    &
               + mulL*dd1 )

@@ -82,7 +82,7 @@ public:
 			lineDirection_[Y] = pl->get<bool>( "Y", true  );
 			lineDirection_[Z] = pl->get<bool>( "Z", false );
 
-			assert( !lineDirection_[X] && !lineDirection_[Y] && !lineDirection_[Z] );
+			assert( !(!lineDirection_[X] && !lineDirection_[Y] && !lineDirection_[Z]) );
 
 			for( int dir=0; dir<3; ++dir ) {
 
@@ -142,8 +142,7 @@ public:
 	void apply(const DomainFieldT& b, RangeFieldT& y, const Belos::ETrans&
 			trans=Belos::NOTRANS ) const {
 
-		Teuchos::RCP<DomainFieldT> temp =
-			Teuchos::rcp( new DomainFieldT( space() ) );
+		DomainFieldT temp( space() );
 
 		for( int i=0; i<nIter_; ++i) {
 
@@ -152,7 +151,7 @@ public:
 
 				if( true==lineDirection_[dir] ) {
 
-					op_->computeResidual( b, y, *temp );
+					op_->computeResidual( b, y, temp );
 
 					Ordinal i[3];
 
@@ -170,7 +169,7 @@ public:
 
 							// transfer
 							for( i[dir]=space()->begin(S,dir); i[dir]<=space()->end(S,dir); ++i[dir] )
-								(*B)[ i[dir]-1 ] = temp->at(i);
+								(*B)[ i[dir]-1 ] = temp(i);
 
 							Ordinal lu_solve_sucess;
 							Teuchos::LAPACK<Ordinal,Scalar> lapack;
@@ -191,7 +190,7 @@ public:
 
 							// transfer back
 							for( i[dir]=space()->begin(S,dir); i[dir]<=space()->end(S,dir); ++i[dir] )
-								y.at(i) = y.at(i) + omega_*(*B)[ i[dir]-1 ];
+								y(i) = y(i) + omega_*(*B)[ i[dir]-1 ];
 						}
 
 					y.changed();

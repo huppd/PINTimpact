@@ -49,7 +49,7 @@ public:
 			y = Teuchos::rcpFromRef( y_ref );
 		else {
 			Teuchos::RCP<DomainFieldT> temp = Teuchos::rcp( new DomainFieldT( space(), true ) );
-			temp->assign( y_ref );
+			*temp = y_ref;
 			y = temp;
 			//std::cout << "prec: y->global(): " << y->global() << "\n";
 		}

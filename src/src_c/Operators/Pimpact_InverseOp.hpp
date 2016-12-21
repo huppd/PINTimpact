@@ -101,9 +101,10 @@ public:
 	 if( initZero_ ) { y.init( ); }
 	 if( nullspaceOrtho_ ) {
 		 for( int i=0; i<x.getNumberVecs(); ++i ) {
-			 ScalarT bla = -nullspace_->getFieldPtr(0)->dot( x.getField(i) );
+			 ScalarT bla = -nullspace_->getField(0).dot( x.getField(i) );
 			 std::cout << getLabel()<< ": nullspace contributtion: " << std::abs(bla)  << "\n";
-			 const_cast<MF&>(x).getFieldPtr(i)->add( 1., x.getField(i), bla, nullspace_->getField(0) );
+			 if( std::abs( bla ) >= Teuchos::ScalarTraits<ScalarT>::eps() )
+				 const_cast<MF&>(x).getField(i).add( 1., x.getField(i), bla, nullspace_->getField(0) );
 		 }
 		 std::cout << "\n";
 	 }

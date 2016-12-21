@@ -5,6 +5,7 @@
 
 #include <iostream>
 
+#include "Teuchos_ScalarTraits.hpp"
 
 
 namespace Pimpact {
@@ -12,7 +13,6 @@ namespace Pimpact {
 
 /// \brief 
 ///
-/// \todo get rid of ptr/at
 /// \tparam Scalar
 /// \tparam Ordinal
 /// \tparam ss start index
@@ -36,23 +36,21 @@ public:
 
 	Stencil( const Ordinal& nn ) : nn_(nn) {
 
-		assert( lb<=ub );
+		static_assert( lb<=ub, "Stencil width cannot be negative" );
 		assert( ss<=nn_ );
 
 		Ordinal nTemp = ( nn_ - ss + 1 )*w_;
 
 		c_ = new Scalar[ nTemp ];
 
-		for( Ordinal i=0; i<nTemp; ++i )
-			c_[i] = 0.;
+		std::fill_n( c_, nTemp, Teuchos::ScalarTraits<Scalar>::zero() );
 	}
 
 	Stencil( const Stencil& that ) : Stencil(that.nn_) { 
 
-		std::cout << "\n" << nn_ << "\n";
 		Ordinal nTemp = ( nn_ - ss + 1 )*w_;
-		for( Ordinal i=0; i<nTemp; ++i )
-			c_[i] = that.c_[i];
+
+		std::copy_n( that.c_, nTemp, c_ );
 	}
 
 	friend void swap( Stencil& one, Stencil& two ) {
@@ -72,7 +70,7 @@ public:
 
 	~Stencil() { delete[] c_; }
 
-	ScalarArray get() { return( c_ ); }
+	inline constexpr ScalarArray get() const { return( c_ ); }
 
 	inline constexpr Scalar& operator()( const Ordinal& index, const int& offset ) {
 		assert( offset>=lb );
@@ -82,24 +80,6 @@ public:
 		return( c_[ offset-lb + (index-ss)*w_ ] );
 	};
 
-
-	//inline constexpr const Scalar& at( const Ordinal& index, const int& offset ) const {
-		//assert( offset>=lb );
-		//assert( offset<=ub );
-		//assert( index>=ss );
-		//assert( index<=nn_ );
-		//return(
-				//c_[ offset-lb + (index-ss)*w_ ] );
-	//}
-
-	inline constexpr Scalar& at( const Ordinal& index, const int& offset ) {
-		assert( offset>=lb );
-		assert( offset<=ub );
-		assert( index>=ss );
-		assert( index<=nn_ );
-		return(
-				c_[ offset-lb + (index-ss)*w_ ] );
-	}
 
 	static inline constexpr int bl() {
 		return( lb );
@@ -124,7 +104,7 @@ public:
 		for( int i=ss; i<=nn_; ++i ) {
 			out << "i: " << std::setw(3) << i << " (";
 			for( int ii=lb; ii<=ub; ++ii ) 
-				out << std::setw(12) << at(i,ii);
+				out << std::setw(12) << (*this)(i,ii);
 			out << ")\n";
 		}
 	}

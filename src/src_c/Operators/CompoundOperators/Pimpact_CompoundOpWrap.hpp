@@ -54,16 +54,15 @@ public:
 		opS2V_(opS2V),
 		opV2S_(opV2S) {};
 
-	void apply(const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans&
-			trans=Belos::NOTRANS  ) const {
 
-		Teuchos::RCP<VF> temp = Teuchos::rcp( new VF( space() ) );
+	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
 		// H-blockz
 		opV2V_->apply( x.getConstVField(), y.getVField() );
+
 		// ~grad
-		opS2V_->apply( x.getConstSField(), *temp );
-		y.getVField().add( 1., y.getConstVField(), 1., *temp, With::noB );
+		opS2V_->apply( x.getConstSField(), y.getVField(), Add::Yes );
+
 		// ~div
 		opV2S_->apply( x.getConstVField(), y.getSField() );
 	}

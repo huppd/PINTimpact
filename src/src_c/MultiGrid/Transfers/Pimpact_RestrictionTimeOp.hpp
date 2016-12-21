@@ -57,12 +57,12 @@ public:
 				op_->apply( x.getConstField(i), y.getField(iC) );
 
 				if (d > 1)
-					y.getFieldPtr(iC)->add(0.25,*temp_,0.5,y.getField(iC));
+					y.getField(iC).add( 0.25, *temp_, 0.5, y.getField(iC) );
 			}
 			else if (d > 1) {
 				op_->apply( x.getConstField(i), *temp_ );
 				Ordinal iC = (i-spaceF()->begin(S,3) - 1)/d + spaceC()->begin(S,3);		
-				y.getFieldPtr(iC)->add(1.,y.getField(iC),0.25,*temp_);
+				y.getField(iC).add( 1., y.getField(iC), 0.25, *temp_ );
 			}
 		}
 		y.changed();

@@ -858,13 +858,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersVF, CS ) {
 			TEST_INEQUALITY( 0., fieldf->norm() );
 
 		// the stronger init test
-		fieldc->getFieldPtr(Pimpact::U)->initField( Pimpact::ConstField, 1. );
-		fieldc->getFieldPtr(Pimpact::V)->initField( Pimpact::ConstField, 1. );
-		fieldc->getFieldPtr(Pimpact::W)->initField( Pimpact::ConstField, 1. );
+		fieldc->getField(Pimpact::U).initField( Pimpact::ConstField, 1. );
+		fieldc->getField(Pimpact::V).initField( Pimpact::ConstField, 1. );
+		fieldc->getField(Pimpact::W).initField( Pimpact::ConstField, 1. );
 		fieldf->init(0.);
-		sol->getFieldPtr(Pimpact::U)->initField( Pimpact::ConstField, 1. );
-		sol->getFieldPtr(Pimpact::V)->initField( Pimpact::ConstField, 1. );
-		sol->getFieldPtr(Pimpact::W)->initField( Pimpact::ConstField, 1. );
+		sol->getField(Pimpact::U).initField( Pimpact::ConstField, 1. );
+		sol->getField(Pimpact::V).initField( Pimpact::ConstField, 1. );
+		sol->getField(Pimpact::W).initField( Pimpact::ConstField, 1. );
 
 		mgTransfers->interpolation( x );
 
@@ -882,14 +882,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersVF, CS ) {
 
 
 		//// hardcore test init test in X
-		//fieldc->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inX );
-		//fieldc->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inX );
-		//fieldc->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inX );
+		//fieldc->getField( Pimpact::U ).initField( Pimpact::Grad2D_inX );
+		//fieldc->getField( Pimpact::V ).initField( Pimpact::Grad2D_inX );
+		//fieldc->getField( Pimpact::W ).initField( Pimpact::Grad2D_inX );
 		//fieldf->initField( Pimpact::ConstFlow, 0., 0., 0. );
 
-		//sol->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inX );
-		//sol->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inX );
-		//sol->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inX );
+		//sol->getField( Pimpact::U )->initField( Pimpact::Grad2D_inX );
+		//sol->getField( Pimpact::V )->initField( Pimpact::Grad2D_inX );
+		//sol->getField( Pimpact::W )->initField( Pimpact::Grad2D_inX );
 
 		//mgTransfers->interpolation( x );
 
@@ -908,14 +908,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersVF, CS ) {
 		//}
 
 		//// hardcore test init test in Y
-		//fieldc->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inY );
-		//fieldc->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inY );
-		//fieldc->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inY );
+		//fieldc->getField( Pimpact::U ).initField( Pimpact::Grad2D_inY );
+		//fieldc->getField( Pimpact::V ).initField( Pimpact::Grad2D_inY );
+		//fieldc->getField( Pimpact::W ).initField( Pimpact::Grad2D_inY );
 		//fieldf->initField( Pimpact::ConstFlow, 0., 0., 0. );
 
-		//sol->getFieldPtr( Pimpact::U )->initField( Pimpact::Grad2D_inY );
-		//sol->getFieldPtr( Pimpact::V )->initField( Pimpact::Grad2D_inY );
-		//sol->getFieldPtr( Pimpact::W )->initField( Pimpact::Grad2D_inY );
+		//sol->getField( Pimpact::U ).initField( Pimpact::Grad2D_inY );
+		//sol->getField( Pimpact::V ).initField( Pimpact::Grad2D_inY );
+		//sol->getField( Pimpact::W ).initField( Pimpact::Grad2D_inY );
 
 		//mgTransfers->interpolation( x );
 
@@ -937,14 +937,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersVF, CS ) {
 
 			Pimpact::EScalarField type = static_cast<Pimpact::EScalarField>(dir);
 
-			fieldc->getFieldPtr( Pimpact::U )->initField( type );
-			fieldc->getFieldPtr( Pimpact::V )->initField( type );
-			fieldc->getFieldPtr( Pimpact::W )->initField( type );
+			fieldc->getField( Pimpact::U ).initField( type );
+			fieldc->getField( Pimpact::V ).initField( type );
+			fieldc->getField( Pimpact::W ).initField( type );
 			fieldf->initField();
 
-			sol->getFieldPtr( Pimpact::U )->initField( type );
-			sol->getFieldPtr( Pimpact::V )->initField( type );
-			sol->getFieldPtr( Pimpact::W )->initField( type );
+			sol->getField( Pimpact::U ).initField( type );
+			sol->getField( Pimpact::V ).initField( type );
+			sol->getField( Pimpact::W ).initField( type );
 
 			mgTransfers->interpolation( x );
 
@@ -995,13 +995,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersVF, CS ) {
 
 
 		// the stronger init test
-		fieldf->getFieldPtr(Pimpact::U)->initField( Pimpact::ConstField, 1. );
-		fieldf->getFieldPtr(Pimpact::V)->initField( Pimpact::ConstField, 1. );
-		fieldf->getFieldPtr(Pimpact::W)->initField( Pimpact::ConstField, 1. );
+		fieldf->getField(Pimpact::U).initField( Pimpact::ConstField, 1. );
+		fieldf->getField(Pimpact::V).initField( Pimpact::ConstField, 1. );
+		fieldf->getField(Pimpact::W).initField( Pimpact::ConstField, 1. );
 		fieldc->init(0.);
-		sol->getFieldPtr(Pimpact::U)->initField( Pimpact::ConstField, 1. );
-		sol->getFieldPtr(Pimpact::V)->initField( Pimpact::ConstField, 1. );
-		sol->getFieldPtr(Pimpact::W)->initField( Pimpact::ConstField, 1. );
+		sol->getField(Pimpact::U).initField( Pimpact::ConstField, 1. );
+		sol->getField(Pimpact::V).initField( Pimpact::ConstField, 1. );
+		sol->getField(Pimpact::W).initField( Pimpact::ConstField, 1. );
 
 		mgTransfers->restriction( x );
 
@@ -1021,14 +1021,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersVF, CS ) {
 
 			Pimpact::EScalarField type = static_cast<Pimpact::EScalarField>(dir);
 
-			fieldf->getFieldPtr( Pimpact::U )->initField( type );
-			fieldf->getFieldPtr( Pimpact::V )->initField( type );
-			fieldf->getFieldPtr( Pimpact::W )->initField( type );
+			fieldf->getField( Pimpact::U ).initField( type );
+			fieldf->getField( Pimpact::V ).initField( type );
+			fieldf->getField( Pimpact::W ).initField( type );
 			fieldc->initField();
 
-			sol->getFieldPtr( Pimpact::U )->initField( type );
-			sol->getFieldPtr( Pimpact::V )->initField( type );
-			sol->getFieldPtr( Pimpact::W )->initField( type );
+			sol->getField( Pimpact::U ).initField( type );
+			sol->getField( Pimpact::V ).initField( type );
+			sol->getField( Pimpact::W ).initField( type );
 
 			mgTransfers->restriction( x );
 
@@ -1349,9 +1349,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffSOR, CS ) {
 		ofs.open("MG2.txt", std::ofstream::out);
 
 	// 
-	x->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inX );
-	x->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inY );
-	x->getFieldPtr(Pimpact::W)->initField( Pimpact::Grad2D_inZ );
+	x->getField(Pimpact::U).initField( Pimpact::Grad2D_inX );
+	x->getField(Pimpact::V).initField( Pimpact::Grad2D_inY );
+	x->getField(Pimpact::W).initField( Pimpact::Grad2D_inZ );
 	auto sol = x->clone( Pimpact::ECopy::Deep );
 
 	op->apply(*x,*b);
@@ -1459,11 +1459,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffJ, CS ) {
 		wind->initField();
 		//		wind->initField();
 		//		wind->random();
-		wind->getFieldPtr(Pimpact::U)->initField( Pimpact::Poiseuille2D_inX );
-		wind->getFieldPtr(Pimpact::V)->random();
-		wind->getFieldPtr(Pimpact::V)->scale(0.1);
-		wind->getFieldPtr(Pimpact::W)->random();
-		wind->getFieldPtr(Pimpact::W)->scale(0.1);
+		wind->getField(Pimpact::U).initField( Pimpact::Poiseuille2D_inX );
+		wind->getField(Pimpact::V).random();
+		wind->getField(Pimpact::V).scale(0.1);
+		wind->getField(Pimpact::W).random();
+		wind->getField(Pimpact::W).scale(0.1);
 		op->assignField( *wind );
 		mg->assignField( *wind );
 	}
@@ -1473,10 +1473,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffJ, CS ) {
 		ofs.open("MG2.txt", std::ofstream::out);
 
 	// 
-	//	x->getFieldPtr(Pimpact::V)->initField( Pimpact::Poiseuille2D_inY );
-	//	x->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inX );
-	//	x->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inY );
-	x->getFieldPtr(Pimpact::W)->initField( Pimpact::Grad2D_inY );
+	//	x->getField(Pimpact::V).initField( Pimpact::Poiseuille2D_inY );
+	//	x->getField(Pimpact::U).initField( Pimpact::Grad2D_inX );
+	//	x->getField(Pimpact::V).initField( Pimpact::Grad2D_inY );
+	x->getField(Pimpact::W).initField( Pimpact::Grad2D_inY );
 	auto sol = x->clone( Pimpact::ECopy::Deep );
 
 	//	op->apply(*x,*b);

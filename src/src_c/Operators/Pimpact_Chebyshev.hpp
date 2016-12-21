@@ -62,7 +62,7 @@ public:
 			if( pl->get<bool>( "with output", false ) )
 				out_ = Pimpact::createOstream( "conv_Cheb.txt" );
 
-			if( std::abs( lamMax_-lamMin_ )<Teuchos::ScalarTraits<Scalar>::eps() ) {
+			if( std::fabs( lamMax_-lamMin_ )<Teuchos::ScalarTraits<Scalar>::eps() ) {
 				x->random();
 
 				Scalar lamp = 0.;
@@ -72,7 +72,7 @@ public:
 					//std::cout << "lambda: " << lam << "\t" << std::abs( lamp-lam )/std::abs(lam) << "\n";
 					r->scale( 1./r->norm() );
 					x.swap( r );
-					if( std::abs( lamp-lam )/std::abs(lam) < 1.e-3 )
+					if( std::fabs( lamp-lam )/std::fabs(lam) < 1.e-3 )
 						break;
 					else
 						lamp=lam;
@@ -179,7 +179,7 @@ protected:
 //#endif // HAVE_TEUCHOS_DEBUG
 
 			////Tpetra::deep_copy(X, W); // X = 0 + W
-			//x.assign( W );
+			//x = W;
 		//}
 //#ifdef HAVE_TEUCHOS_DEBUG
 		//cerr << "- \\|X\\|_{\\infty} = " << x.norm( Belos::InfNorm ) << endl;
@@ -260,10 +260,10 @@ protected:
 		for( int n=0; n<numIters_; ++n ) {
 
 			// precondition r
-			z->assign( *r );
+			*z = *r;
 
 			if( n==1 ) {
-				p->assign( *z );
+				*p = *z;
 			}
 			else{ 
 				beta = 1./( d - beta/alpha );
@@ -275,7 +275,7 @@ protected:
 				*out_ << r->norm() << "\n";
 		}
 
-		x0.assign( *x );
+		x0 = *x;
 	}
 
 
@@ -332,7 +332,7 @@ protected:
 			if( !out_.is_null() )
 				*out_ << r->norm() << "\n";
 		}
-		x0.assign( *x );
+		x0 = *x;
 	}
 
 public:

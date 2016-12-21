@@ -122,7 +122,7 @@ public:
 			switch( copyType ) {
 				case( ECopy::Deep ) : {
 					for( int i=0; i<nt; ++i )
-						mfs_[i]->assign( *(field.mfs_[i]) );
+						*mfs_[i] = *(field.mfs_[i]);
 					break;
 				}
 				case( ECopy::Shallow ) : {
@@ -151,12 +151,7 @@ public:
 		return( space()->nGlo(3)*mfs_[0]->getLength() );
 	}
 
-
 public:
-
-	constexpr bool HasConstantStride() const { return( true ); }
-
-	constexpr int getNumberVecs() const {  return( mfs_.size() ); }
 
 	/// \}
 	/// \name Update methods
@@ -301,14 +296,16 @@ public:
 	}
 
 
-	/// \brief mv := A.
+	/// \brief *this := a.
 	///
 	/// assign (deep copy) A into mv.
-	void assign( const FieldT& A ) {
+	TimeField& operator=( const TimeField& a ) {
 
 		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
-			mfs_[i]->assign( *A.mfs_[i] );
+			*mfs_[i] = *a.mfs_[i];
 		changed();
+
+		return *this;
 	}
 
 
@@ -322,10 +319,10 @@ public:
 
 
 	/// \brief \f[ *this = \alpha \f]
-	void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero() ) {
+	void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const With& wB=With::B ) {
 
 		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
-			mfs_[i]->init(alpha);
+			mfs_[i]->init(alpha,wB);
 		changed();
 	}
 
@@ -420,11 +417,11 @@ public:
 			}
 			else {
 				if( std::abs( space()->bl(3) )>0 ) {
-					mfs_[space()->begin(S,3)-1]->assign( *mfs_[space()->end(S,3)-1] );
+					*mfs_[space()->begin(S,3)-1] = *mfs_[space()->end(S,3)-1];
 					mfs_[space()->begin(S,3)-1]->changed();
 				}
 				if( std::abs( space()->bu(3) )>0 ) {
-					mfs_[space()->end(S,3)]->assign( *mfs_[space()->begin(S,3)] );
+					*mfs_[space()->end(S,3)] = *mfs_[space()->begin(S,3)];
 					mfs_[space()->end(S,3)]->changed();
 				}
 			}

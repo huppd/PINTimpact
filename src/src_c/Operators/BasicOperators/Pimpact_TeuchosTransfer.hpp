@@ -100,7 +100,7 @@ public:
 			for( Ordinal k=SS_[Z]; k<=NN_[Z]; ++k )
 				for( Ordinal j=SS_[Y]; j<=NN_[Y]; ++j )
 					for( Ordinal i=SS_[X]; i<=NN_[X]; ++i )
-						(*v)( getI(i,j,k) ) = x.at(i,j,k);
+						(*v)( getI(i,j,k) ) = x(i,j,k);
 	}
 
 
@@ -112,7 +112,7 @@ public:
 			for( Ordinal k=SS_[Z]; k<=NN_[Z]; ++k )
 				for( Ordinal j=SS_[Y]; j<=NN_[Y]; ++j )
 					for( Ordinal i=SS_[X]; i<=NN_[X]; ++i )
-						x.at(i,j,k) = (*v)( getI(i,j,k) );
+						x(i,j,k) = (*v)( getI(i,j,k) );
 	}
 
 
@@ -123,7 +123,7 @@ public:
 			for( Ordinal k=SS_[Z]; k<=NN_[Z]; ++k )
 				for( Ordinal j=SS_[Y]; j<=NN_[Y]; ++j )
 					for( Ordinal i=SS_[X]; i<=NN_[X]; ++i )
-						x.at(i,j,k) = (1-om)*x.at(i,j,k) + om*(*v)( getI(i,j,k) );
+						x(i,j,k) = (1-om)*x(i,j,k) + om*(*v)( getI(i,j,k) );
 	}
 
 
@@ -197,7 +197,7 @@ public:
 
 			for( Ordinal k=SZ; k<=NZ; ++k )
 				for( Ordinal j=SY; j<=NY; ++j )
-					(*b)( getI(i,j,k) ) -= x.at(i-1,j,k)*op->getC( X, i, -1 );
+					(*b)( getI(i,j,k) ) -= x(i-1,j,k)*op->getC( X, i, -1 );
 		}
 
 		if( space_->getBCLocal()->getBCU(X)<=0 || NN_[X]<space_->end(EField::S,X,true) ) {
@@ -219,7 +219,7 @@ public:
 
 			for( Ordinal k=SZ; k<=NZ; ++k )
 				for( Ordinal j=SY; j<=NY; ++j )
-					(*b)( getI(i,j,k) ) -= x.at(i+1,j,k)*op->getC( X, i, +1 );
+					(*b)( getI(i,j,k) ) -= x(i+1,j,k)*op->getC( X, i, +1 );
 		}
 
 		// boundary conditions in Y
@@ -242,7 +242,7 @@ public:
 
 			for( Ordinal k=SZ; k<=NZ; ++k )
 				for( Ordinal i=SX; i<=NX; ++i )
-					(*b)( getI(i,j,k) ) -= x.at(i,j-1,k)*op->getC( Y, j, -1 );
+					(*b)( getI(i,j,k) ) -= x(i,j-1,k)*op->getC( Y, j, -1 );
 		}
 
 		if( space_->getBCLocal()->getBCU(Y)<=0 || NN_[Y]<space_->end(EField::S,Y,true) ) {
@@ -264,7 +264,7 @@ public:
 
 			for( Ordinal k=SZ; k<=NZ; ++k )
 				for( Ordinal i=SX; i<=NX; ++i )
-					(*b)( getI(i,j,k) ) -= x.at(i,j+1,k)*op->getC( Y, j, +1 );
+					(*b)( getI(i,j,k) ) -= x(i,j+1,k)*op->getC( Y, j, +1 );
 		}
 
 		// boundary conditions in Z
@@ -287,7 +287,7 @@ public:
 
 			for( Ordinal j=SY; j<=NY; ++j )
 				for( Ordinal i=SX; i<=NX; ++i )
-					(*b)( getI(i,j,k) ) -= x.at(i,j,k-1)*op->getC( Z, k, -1 );
+					(*b)( getI(i,j,k) ) -= x(i,j,k-1)*op->getC( Z, k, -1 );
 		}
 
 		if( space_->getBCLocal()->getBCU(Z)<=0 || NN_[Z]<space_->end(EField::S,Z,true) ) {
@@ -309,7 +309,7 @@ public:
 
 			for( Ordinal j=SY; j<=NY; ++j )
 				for( Ordinal i=SX; i<=NX; ++i )
-					(*b)( getI(i,j,k) ) -= x.at(i,j,k+1)*op->getC( Z, k, +1 );
+					(*b)( getI(i,j,k) ) -= x(i,j,k+1)*op->getC( Z, k, +1 );
 		}
 	}
 
@@ -554,22 +554,22 @@ public:
 			*out << (*evr)[i] << "\n";
 			if( 0==i ) {
 				for( Ordinal j=0; j<n; ++ j ) {
-					if( std::abs( (*evr)[j] )>eps ) {
+					if( std::fabs( (*evr)[j] )>eps ) {
 						evMax = (*evr)[j] ;
 						j=n;
 					}
 				}
 				for( Ordinal j=0; j<n; ++ j ) {
-					if( std::abs( (*evr)[j] )>eps ) {
+					if( std::fabs( (*evr)[j] )>eps ) {
 						evMin = (*evr)[j] ;
 						j=n;
 					}
 				}
 			}
 			else {
-				if( std::abs( (*evr)[i] )>eps ) 
+				if( std::fabs( (*evr)[i] )>eps ) 
 					evMax = std::max( evMax, (*evr)[i] );
-				if( std::abs( (*evr)[i] )>eps ) 
+				if( std::fabs( (*evr)[i] )>eps ) 
 					evMin = std::min( evMin, (*evr)[i] );
 			}
 		}

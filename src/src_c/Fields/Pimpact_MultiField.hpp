@@ -228,6 +228,8 @@ public:
 		int m1 = A.getNumberVecs(); ///< is assumed to be equal to number vecs of this and ncolumns and nrows of b
 		int m2 = getNumberVecs();   ///< is assumed to be equal to number vecs of this and ncolumns and nrows of b
 
+		assert( m1==m2 );
+
 		scale( beta );
 
 		for( int i=0; i<m2; ++i ) {
@@ -456,23 +458,26 @@ public:
 	void SetBlock( const FieldT& A, const std::vector<int>& index ) {
 		const int n = index.size();
 		for( int i=0; i<n; ++i )
-			mfs_[index[i]]->assign(*A.mfs_[i]);
+			*mfs_[index[i]] = *A.mfs_[i];
 	}
 
   /// \param A
   /// \param index
 	void SetBlock( const FieldT& A, const Teuchos::Range1D& index) {
 		for( int i=index.lbound(); i<=index.ubound(); ++i )
-			mfs_[i]->assign(*A.mfs_[i-index.lbound()]);
+			*mfs_[i] = *A.mfs_[i-index.lbound()];
 	}
 
-  /// \brief mv := A.
+  /// \brief *this := a.
   ///
-  /// assign (deep copy) A into mv.
-	void assign( const FieldT& A ) {
+  /// assign (deep copy) a into *this.
+	MultiField& operator=( const MultiField& a ) {
+
 		const int n = getNumberVecs();
 		for( int i=0; i<n; ++i )
-			mfs_[i]->assign( *A.mfs_[i] );
+			*mfs_[i] = *a.mfs_[i];
+
+		return *this;
 	}
 
   /// \brief Replace the vectors with a random vectors.
@@ -483,10 +488,10 @@ public:
 	}
 
   /// \brief \f[ *this = \alpha \f]
-	void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero() ) {
+	void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const With& wB=With::B ) {
 		const int n = getNumberVecs();
 		for( int i=0; i<n; ++i )
-			mfs_[i]->init(alpha);
+			mfs_[i]->init(alpha,wB);
 	}
 
 	void initField() {

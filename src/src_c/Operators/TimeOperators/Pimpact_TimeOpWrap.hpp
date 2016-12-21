@@ -60,10 +60,10 @@ public:
         op_->apply( x.getConstField(i), *temp_ );
 
         if( i>=space()->begin(S,3) )
-          y.getFieldPtr(i)->add( 1., y.getConstField(i), 0.5, *temp_ );
+          y.getField(i).add( 1., y.getConstField(i), 0.5, *temp_ );
 
         if( i+1<space()->end(S,3) )
-          y.getFieldPtr(i+1)->add( 0., y.getConstField(i+1), 0.5, *temp_ );
+          y.getField(i+1).add( 0., y.getConstField(i+1), 0.5, *temp_ );
       }
     }
     else{

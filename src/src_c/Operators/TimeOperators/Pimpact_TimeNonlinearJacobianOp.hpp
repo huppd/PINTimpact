@@ -54,7 +54,7 @@ public:
     if( u_.is_null() )
       u_ = mv.clone();
     else
-      u_->assign( mv );
+      *u_ = mv;
 
     u_->exchange();
 

@@ -133,13 +133,13 @@ int main( int argi, char** argv ) {
 						phifile << re << "\t";
 
 					// init solution
-					y->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inX );
-					y->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inY );
+					y->getField(Pimpact::U).initField( Pimpact::Grad2D_inX );
+					y->getField(Pimpact::V).initField( Pimpact::Grad2D_inY );
 
 					auto sol = y->clone( Pimpact::ECopy::Deep );
 
-					wind->getFieldPtr(Pimpact::U)->initField( Pimpact::Grad2D_inX );
-					wind->getFieldPtr(Pimpact::V)->initField( Pimpact::Grad2D_inY );
+					wind->getField(Pimpact::U).initField( Pimpact::Grad2D_inX );
+					wind->getField(Pimpact::V).initField( Pimpact::Grad2D_inY );
 
 					op->assignField( *wind );
 					smoother->assignField( *wind );

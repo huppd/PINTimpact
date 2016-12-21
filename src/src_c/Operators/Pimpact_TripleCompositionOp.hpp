@@ -45,21 +45,17 @@ public:
 
   void apply( const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans& trans=Belos::NOTRANS ) const {
 
-		Teuchos::RCP<typename OP2::RangeFieldT> temp1  = create<typename OP2::DomainFieldT>( space() ); // has to be equal to OP2::DomainFieldT
+		typename OP2::RangeFieldT temp1( space() ); // has to be equal to OP2::DomainFieldT
 
-    op3_->apply( x, *temp1);
+    op3_->apply( x, temp1);
 
-		Teuchos::RCP<typename OP2::DomainFieldT> temp2 = create<typename OP2::RangeFieldT>(  space() ); // has to be equal to OP3::DomainFieldT
+		typename OP2::DomainFieldT temp2( space() ); // has to be equal to OP3::DomainFieldT
 
-		// dirty hack to assign BC for H
-		// gives slight improvement for tiny test case
-		temp2->assign( *temp1 ); 
+    op2_->apply( temp1, temp2 );
 
-    op2_->apply( *temp1, *temp2 );
+		temp2.extrapolateBC();
 
-		temp2->extrapolateBC();
-
-    op1_->apply( *temp2, y );
+    op1_->apply( temp2, y );
   }
 
   /// \note here nothing happens, because it is assumed to be done somewhere else

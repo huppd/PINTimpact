@@ -65,7 +65,7 @@ protected:
 					spaceF()->bl(i),
 					spaceF()->bu(i),
 					spaceF()->getCoordinatesLocal()->getX( i, EField::S ),
-					cRS_[i]->get() );
+					cRS_[i].get() );
 		}
 	}
 

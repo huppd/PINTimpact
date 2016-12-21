@@ -76,7 +76,7 @@ public:
 
 
 
-	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
+	void apply( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::No ) const {
 
 		assert( x.getType() == S );
 		assert( y.getType() != S );
@@ -91,16 +91,16 @@ public:
 		for( Ordinal k=space()->begin(field,Z,With::B); k<=space()->end(field,Z,With::B); ++k )
 			for( Ordinal j=space()->begin(field,Y,With::B); j<=space()->end(field,Y,With::B); ++j )
 				for( Ordinal i=space()->begin(field,X,With::B); i<=space()->end(field,X,With::B); ++i ) {
-					y.at(i,j,k) = 0.;
+					if( Add::No==add ) y(i,j,k) = 0.;
 					for( int ii = space_->gl(m); ii<=space_->gu(m); ++ii ) {
 						if( U==field ) {
-							y.at(i,j,k) += getC(static_cast<ECoord>(m),i,ii)*x.at(i+ii,j,k) ;
+							y(i,j,k) += getC(static_cast<ECoord>(m),i,ii)*x(i+ii,j,k) ;
 						}
 						else if( V==field ) {
-							y.at(i,j,k) += getC(static_cast<ECoord>(m),j,ii)*x.at(i,j+ii,k) ;
+							y(i,j,k) += getC(static_cast<ECoord>(m),j,ii)*x(i,j+ii,k) ;
 						}
 						else if( W==field ) {
-							y.at(i,j,k) += getC(static_cast<ECoord>(m),k,ii)*x.at(i,j,k+ii) ;
+							y(i,j,k) += getC(static_cast<ECoord>(m),k,ii)*x(i,j,k+ii) ;
 						}
 					}
 				}
@@ -130,7 +130,7 @@ public:
 	const std::string getLabel() const { return( "InterpolateS2V" ); };
 
 	constexpr const Scalar& getC( const ECoord& dir, Ordinal i, Ordinal off ) const {
-		return( c_[dir].at( i, off ) );
+		return( c_[dir]( i, off ) );
 	}
 
 

@@ -47,14 +47,14 @@ public:
 	void apply( const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans&
 			trans=Belos::NOTRANS ) const {
 
-		Teuchos::RCP<TempFieldT> temp = create<TempFieldT>( space() );
+		TempFieldT temp( space() );
 
     if( op1_.is_null() ) {
 //      op2_->apply( x, y );
     }
     else {
-      op2_->apply( x, *temp );
-      op1_->apply( *temp, y );
+      op2_->apply( x, temp );
+      op1_->apply( temp, y );
     }
   }
 

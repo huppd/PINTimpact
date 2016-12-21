@@ -156,7 +156,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
 
 
   auto temp = Pimpact::create<Pimpact::VectorField>( space );
-	temp->getFieldPtr( Pimpact::U )->initField(Pimpact::Poiseuille2D_inX);
+	temp->getField( Pimpact::U ).initField(Pimpact::Poiseuille2D_inX);
   //  temp->init(0.);
 
   auto p = Pimpact::createScalarField(space);

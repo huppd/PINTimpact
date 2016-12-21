@@ -50,19 +50,10 @@ public:
 	void assignField( const DomainFieldT& mv ) const { convField_->assignField( mv ); };
 
 	/// \note Operator's wind has to be assigned correctly
-	void apply( const DomainFieldT& x, RangeFieldT& y, Scalar mul=Teuchos::ScalarTraits<Scalar>::zero() ) const {
-
-		if( mul<Teuchos::ScalarTraits<Scalar>::eps() ) {
-			y.init(0);
-			mul=1.;
-		}
-
-		convVWrap_->apply( convField_->get(), x, y, mul );
+	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
+		convVWrap_->apply( convField_->get(), x, y );
 	}
 
-
-  /// \deprecated
-  void apply(const DomainFieldT& z, const DomainFieldT& x, RangeFieldT& y, Scalar mul=0. ) const { std::cout << "!!!depcreated!!!\n"; };
 
 	void computeResidual( const RangeFieldT& b, const DomainFieldT& x, RangeFieldT& res ) const {
 		apply( x, res );

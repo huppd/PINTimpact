@@ -145,8 +145,7 @@ public:
 					initField();
 					break;
 				case ECopy::Deep:
-					for( int i=0; i<getStorageSize(); ++i )
-						s_[i] = vF.s_[i];
+					*this = vF;
 					break;
 			}
 	};
@@ -219,9 +218,6 @@ public:
   }
 
 
-  /// \brief get number of stored Field's
-  constexpr int getNumberVecs() const { return( 1 ); }
-
 
   /// \}
   /// \name Update methods
@@ -232,10 +228,10 @@ public:
   void add( const Scalar& alpha, const FieldT& A, const Scalar& beta, const FieldT& B, const With& wB=With::B ) {
 
 		if( 0==space()->begin(U,3) )
-			get0FieldPtr()->add(alpha, A.getConst0Field(), beta, B.getConst0Field(), wB );
+			get0Field().add(alpha, A.getConst0Field(), beta, B.getConst0Field(), wB );
 
 		for( Ordinal i=std::max(space()->begin(U,3),1); i<=space()->end(U,3); ++i )
-			getFieldPtr(i)->add( alpha, A.getConstField(i), beta, B.getConstField(i), wB );
+			getField(i).add( alpha, A.getConstField(i), beta, B.getConstField(i), wB );
 
 		changed();
   }
@@ -250,10 +246,10 @@ public:
   void abs( const FieldT& y) {
 
 		if( 0==space()->begin(U,3) )
-			get0FieldPtr()->abs( y.getConst0Field() );
+			get0Field().abs( y.getConst0Field() );
 
 		for( Ordinal i=std::max(space()->begin(U,3),1); i<=space()->end(U,3); ++i )
-			getFieldPtr(i)->abs( y.getConstField(i) );
+			getField(i).abs( y.getConstField(i) );
 
 		changed();
   }
@@ -270,7 +266,7 @@ public:
 			get0FieldPtr()->reciprocal( y.getConst0Field() );
 
 		for( Ordinal i=std::max(space()->begin(U,3),1); i<=space()->end(U,3); ++i )
-			getFieldPtr(i)->reciprocal( y.getConstField(i) );
+			getField(i).reciprocal( y.getConstField(i) );
 
 		changed();
   }
@@ -283,7 +279,7 @@ public:
 			get0FieldPtr()->scale( alpha );
 
 		for( Ordinal i=std::max(space()->begin(U,3),1); i<=space()->end(U,3); ++i )
-			getFieldPtr(i)->scale( alpha );
+			getField(i).scale( alpha );
 
 		changed();
 
@@ -301,7 +297,7 @@ public:
 			get0FieldPtr()->scale( a.getConst0Field() );
 
 		for( Ordinal i=std::max(space()->begin(U,3),1); i<=space()->end(U,3); ++i )
-			getFieldPtr(i)->scale( a.getConstField(i) );
+			getField(i).scale( a.getConstField(i) );
 
 		changed();
   }
@@ -404,41 +400,40 @@ public:
   /// \{
 
 
-  /// \brief mv := A
-  /// Assign (deep copy) A into mv.
-  void assign( const FieldT& a ) {
+  /// \brief mv := a
+	MultiHarmonicField& operator=( const MultiHarmonicField& a ) {
 
 		if( 0==space()->begin(U,3) )
-			get0FieldPtr()->assign( a.getConst0Field() );
+			get0Field() = a.getConst0Field();
 
 		for( Ordinal i=std::max(space()->begin(U,3),1); i<=space()->end(U,3); ++i )
-			getFieldPtr(i)->assign( a.getConstField(i) );
+			getField(i) = a.getConstField(i);
 
-		changed();
-  }
+		return *this;
+	}
 
 
   /// \brief Replace the vectors with a random vectors.
   void random(bool useSeed = false, int seed = 1) {
 
 		if( 0==space()->begin(U,3) )
-			get0FieldPtr()->random();
+			get0Field().random();
 
 		for( Ordinal i=std::max(space()->begin(U,3),1); i<=space()->end(U,3); ++i )
-			getFieldPtr(i)->random();
+			getField(i).random();
 
 		changed();
   }
 
 
   /// \brief Replace each element of the vector  with \c alpha.
-  void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero() ) {
+  void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const With& wB=With::B ) {
 
 		if( 0==space()->begin(U,3) )
-			get0FieldPtr()->init( alpha );
+			get0Field().init( alpha, wB );
 
 		for( Ordinal i=std::max(space()->begin(U,3),1); i<=space()->end(U,3); ++i )
-			getFieldPtr(i)->init( alpha );
+			getField(i).init( alpha, wB );
 
 		changed();
   }
@@ -447,10 +442,10 @@ public:
 	void initField() {
 
 		if( 0==space()->begin(U,3) )
-			get0FieldPtr()->initField();
+			get0Field().initField();
 
 		for( Ordinal i=std::max(space()->begin(U,3),1); i<=space()->end(U,3); ++i )
-			getFieldPtr(i)->initField();
+			getField(i).initField();
 
 		changed();
 	}
@@ -515,8 +510,7 @@ public:
 				Ordinal nt = 4*nf;
 				Teuchos::RCP<IFT> temp = getConst0FieldPtr()->clone( Pimpact::ECopy::Shallow );
 				for( Ordinal i=0; i<nt;  ++i ) {
-					temp->assign( getConst0Field() );
-					//				temp->initField(  );
+					*temp = getConst0Field();
 					for( Ordinal j=1; j<=nf; ++j ) {
 						temp->add(
 								1., *temp,

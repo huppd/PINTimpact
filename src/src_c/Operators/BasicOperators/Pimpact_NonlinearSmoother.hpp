@@ -19,7 +19,7 @@ namespace Pimpact {
 /// \note todo make constructor so wind can be shared by different operators.
 /// \ingroup BaseOperator
 /// \ingroup NonlinearOperator
-template<class ConvVOpT, template<class> class ST>
+template<class ConvVOpT, template<class> class SmootherT>
 class NonlinearSmoother {
 
 public:
@@ -29,11 +29,11 @@ public:
 	using DomainFieldT = VectorField<SpaceT>;
 	using RangeFieldT = VectorField<SpaceT>;
 
-	using SSmootherT = ST<typename ConvVOpT::ConvSOpT>;
+	using SSmootherT = SmootherT<typename ConvVOpT::ConvSOpT>;
 
 protected:
 
-	Teuchos::RCP<NonlinearWrap<SSmootherT> > convVWrap_;
+	Teuchos::RCP< NonlinearWrap<SSmootherT> > convVWrap_;
 
 	Teuchos::RCP< ConvectionField<SpaceT> > convField_;
 

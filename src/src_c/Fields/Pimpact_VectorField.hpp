@@ -32,6 +32,8 @@ namespace Pimpact {
 /// \brief important basic Vector class  it wraps three ScalarFields.
 /// \ingroup Field
 /// \relates ScalarField
+/// \todo make Tupel -> array
+/// \todo rm RCP 
 template<class SpaceType>
 class VectorField : private AbstractField<SpaceType> {
 
@@ -99,8 +101,7 @@ public:
 						initField();
 						break;
 					case ECopy::Deep:
-						for( int i=0; i<getStorageSize(); ++i )
-							s_[i] = vF.s_[i];
+						*this = vF;
 						break;
 				}
 			}
@@ -117,8 +118,7 @@ public:
 			case ECopy::Shallow:
 				break;
 			case ECopy::Deep:
-				for( int i=0; i<getStorageSize(); ++i )
-					vf->getRawPtr()[i] = s_[i];
+				*vf = *this;
 				break;
 		}
 
@@ -143,10 +143,6 @@ public:
 
 		return( n );
 	}
-
-
-	/// \brief get number of stored Field's
-	constexpr int getNumberVecs() const { return( 1 ); }
 
 
   /// @}
@@ -298,14 +294,15 @@ public:
   /// @{
 
 
-	/// \brief mv := A
+	/// \brief *this := a
 	///
-	/// Assign (deep copy) A into mv.
-	void assign( const FieldT& a ) {
+	/// Assign (deep copy) a into mv.
+	VectorField& operator=( const VectorField& a ) {
 
 		for( int i=0; i<SpaceT::sdim; ++i)
-			sFields_[i]->assign( *a.sFields_[i] );
-		changed();
+			*sFields_[i] = *a.sFields_[i];
+
+		return *this;
 	}
 
 
@@ -313,7 +310,7 @@ public:
 	///
 	/// depending on Fortrans \c Random_number implementation, with always same
 	/// seed => not save, if good randomness is required
-	void random(bool useSeed = false, const With& bcYes=With::B, int seed = 1) {
+	void random( bool useSeed=false, const With& bcYes=With::B, int seed=1 ) {
 
 		for( int i=0; i<SpaceT::sdim; ++i )
 			sFields_[i]->random( useSeed, bcYes, seed );
@@ -866,16 +863,16 @@ public:
 				break;
 			}
 			case Couette : {
-				getFieldPtr(U)->initFromFunction( 
+				getField(U).initFromFunction( 
 						[]( Scalar x, Scalar y, Scalar z ) -> Scalar {
 						return( y );
 						} );
 				break;
 			}
 			case Cavity : {
-				getFieldPtr(U)->initFromFunction( 
+				getField(U).initFromFunction( 
 						[]( Scalar x, Scalar y, Scalar z ) -> Scalar {
-						if( std::abs(x-1.)<0.5 )
+						if( std::fabs(x-1.)<0.5 )
 						return( 1. );
 						else
 						return( 0. );
@@ -891,7 +888,7 @@ public:
 	/// \note dirty hack(necessary for TripleCompostion)
 	void extrapolateBC( const Belos::ETrans& trans=Belos::NOTRANS ) {
 		for( int i=0; i<SpaceT::sdim; ++i )
-			getFieldPtr(i)->extrapolateBC( trans );
+			getField(i).extrapolateBC( trans );
 	}
 
 
@@ -976,7 +973,7 @@ public:
 			xfile.close();
 		}
 		for( int i=0; i<SpaceT::sdim; ++i )
-			getConstFieldPtr(i)->write( count, restart );
+			getConstField(i).write( count, restart );
 	}
 
 
@@ -1006,11 +1003,16 @@ public:
 
 	///  @} 
 
-  constexpr Teuchos::RCP<SF> getFieldPtr( int i ) { return(  sFields_[i] ); }
+//protected:
+
   constexpr SF& getField   ( int i ) { return( *sFields_[i] ); }
 
-  constexpr Teuchos::RCP<const SF> getConstFieldPtr( int i ) const { return(  sFields_[i] ); }
   constexpr const SF&  getConstField   ( int i ) const { return( *sFields_[i] ); }
+
+public:
+
+  inline constexpr SF& operator()( int i ) { return( *sFields_[i] ); }
+
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const { return( AbstractField<SpaceT>::space_ ); }
 
@@ -1023,7 +1025,7 @@ public:
   /// @{
 	
   void changed( const int& vel_dir, const int& dir ) const {
-    getConstFieldPtr( vel_dir )->changed( dir );
+    getConstField( vel_dir ).changed( dir );
   }
 
   void changed() const {
@@ -1034,7 +1036,7 @@ public:
   }
 
   void exchange( const int& vel_dir, const int& dir ) const {
-    getConstFieldPtr(vel_dir)->exchange(dir);
+    getConstField(vel_dir).exchange(dir);
   }
 
   void exchange() const {
@@ -1044,7 +1046,7 @@ public:
   }
 
   void setExchanged( const int& vel_dir, const int& dir ) const {
-    getConstFieldPtr( vel_dir )->setExchanged( dir );
+    getConstField( vel_dir ).setExchanged( dir );
   }
 
 	void setExchanged() const {

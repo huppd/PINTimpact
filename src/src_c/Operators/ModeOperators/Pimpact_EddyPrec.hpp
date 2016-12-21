@@ -46,12 +46,12 @@ public:
 
  	void apply(const DomainFieldT& x, RangeFieldT& y) {
 
-		Teuchos::RCP<DomainFieldT> temp = create<DomainFieldT>( space() );
+		DomainFieldT temp( space() );
 	
 		// left
 		// where is the minus best
-		temp->getCFieldPtr()->add( 0.5, x.getConstCField(), -0.5, x.getConstSField() );
-		temp->getSFieldPtr()->add( 0.5, x.getConstCField(),  0.5, x.getConstSField() );
+		temp.getCFieldPtr()->add( 0.5, x.getConstCField(), -0.5, x.getConstSField() );
+		temp.getSFieldPtr()->add( 0.5, x.getConstCField(),  0.5, x.getConstSField() );
 
 		// set paramters
 		auto pl = Teuchos::parameterList();
@@ -61,16 +61,16 @@ public:
 
 		op_->setParameter( pl );
 
-		op_->apply( temp->getConstCField(), y.getCField() );
-		op_->apply( temp->getConstSField(), y.getSField() );
+		op_->apply( temp.getConstCField(), y.getCField() );
+		op_->apply( temp.getConstSField(), y.getSField() );
 
 // right
-//		op_->apply( x.getConstCField(), temp->getCField() );
-//		op_->apply( x.getConstSField(), temp->getSField() );
+//		op_->apply( x.getConstCField(), temp.getCField() );
+//		op_->apply( x.getConstSField(), temp.getSField() );
 //
 //		// where is the minus best
-//		y.getCFieldPtr()->add( 0.5, temp->getConstCField(), -0.5, temp->getConstSField() );
-//		y.getSFieldPtr()->add( 0.5, temp->getConstCField(),  0.5, temp->getConstSField() );
+//		y.getCFieldPtr()->add( 0.5, temp.getConstCField(), -0.5, temp.getConstSField() );
+//		y.getSFieldPtr()->add( 0.5, temp.getConstCField(),  0.5, temp.getConstSField() );
 //
 
 //		// just block

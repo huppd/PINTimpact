@@ -147,8 +147,8 @@ public:
 				yp->getRawPtr() );
 
 		for( Ordinal i=space()->begin(S,3)-1; i<space()->end(S,3); ++i ) {
-			yu->getFieldPtr(i)->changed();
-			yp->getFieldPtr(i)->changed();
+			yu->getField(i).changed();
+			yp->getField(i).changed();
 		}
 
 		yu->changed();

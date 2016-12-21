@@ -50,6 +50,9 @@ ST eps = 1.e-8;
 
 int domain = 0;
 
+ST re     = 10.;
+ST alpha2 = 10.;
+
 ST lx = 1.;
 ST ly = 1.;
 ST lz = 1.;
@@ -109,6 +112,9 @@ TEUCHOS_STATIC_SETUP() {
 	clp.setOption( "sweeps", &sweeps, "" );
 	clp.setOption( "nIter", &nIter, "" );
 	clp.setOption( "ns", &ns, "" );
+
+	clp.setOption( "re", &re, "" );
+	clp.setOption( "alpha2", &alpha2, "" );
 
 	clp.setOption( "lx", &lx, "" );
 	clp.setOption( "ly", &ly, "" );
@@ -223,6 +229,9 @@ void setStretching() {
 void setParameter( int dim ) {
 
 	Pimpact::setBoundaryConditions( pl, domain );
+
+	pl->set<ST>( "Re",     re     );
+	pl->set<ST>( "alpha2", alpha2 );
 
 	pl->set( "lx", lx );
 	pl->set( "ly", ly );

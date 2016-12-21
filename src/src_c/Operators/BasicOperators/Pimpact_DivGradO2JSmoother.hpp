@@ -167,11 +167,11 @@ public:
 
 
   /// \f[ y_k = (1-\omega) y_k + \omega D^{-1}( x - A y_k ) \f]
-	void apply(const DomainFieldT& b, RangeFieldT& y, const Belos::ETrans&
-			trans=Belos::NOTRANS ) const {
+	void apply(const DomainFieldT& b, RangeFieldT& y, const Add& add=Add::No ) const {
 
-		Teuchos::RCP<DomainFieldT> temp =
-			Teuchos::rcp( new DomainFieldT(space()) );
+		//Teuchos::RCP<DomainFieldT> temp =
+			//Teuchos::rcp( new DomainFieldT(space()) );
+		DomainFieldT temp( space() );
 
 		for( int i=0; i<nIter_; ++i) {
 
@@ -181,29 +181,29 @@ public:
 				for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
 					for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
 						for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
-							temp->at(i,j,k) = innerStenc3D( b, y, i,j,k);
+							temp(i,j,k) = innerStenc3D( b, y, i,j,k);
 						}
 			else
 				for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
 					for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
 						for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
-							temp->at(i,j,k) = innerStenc2D( b, y, i,j,k);
+							temp(i,j,k) = innerStenc2D( b, y, i,j,k);
 						}
 			
-			temp->changed();
-			temp->exchange();
+			temp.changed();
+			temp.exchange();
 
 			if( 3==SpaceT::sdim )
 				for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
 					for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
 						for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
-							y.at(i,j,k) = innerStenc3D( b, *temp, i,j,k);
+							y(i,j,k) = innerStenc3D( b, temp, i,j,k);
 						}
 			else
 				for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
 					for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
 						for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
-							y.at(i,j,k) = innerStenc2D( b, *temp, i,j,k);
+							y(i,j,k) = innerStenc2D( b, temp, i,j,k);
 						}
 
 			y.changed();
@@ -268,12 +268,12 @@ protected:
 		const Scalar epsZ = (bcX||bcY)?eps:1.;
 
 		return(
-				(1.-omega_)*x.at(i,j,k) +
+				(1.-omega_)*x(i,j,k) +
 				omega_/( epsX*getC(X,i,0) + epsY*getC(Y,j,0) + epsZ*getC(Z,k,0) )*(
-					b.at(i,j,k) - 
-				epsX*getC(X,i,-1)*x.at(i-1,j  ,k  ) - epsX*getC(X,i,1)*x.at(i+1,j  ,k  ) - 
-				epsY*getC(Y,j,-1)*x.at(i  ,j-1,k  ) - epsY*getC(Y,j,1)*x.at(i  ,j+1,k  ) - 
-				epsZ*getC(Z,k,-1)*x.at(i  ,j  ,k-1) - epsZ*getC(Z,k,1)*x.at(i  ,j  ,k+1) ) );
+					b(i,j,k) - 
+				epsX*getC(X,i,-1)*x(i-1,j  ,k  ) - epsX*getC(X,i,1)*x(i+1,j  ,k  ) - 
+				epsY*getC(Y,j,-1)*x(i  ,j-1,k  ) - epsY*getC(Y,j,1)*x(i  ,j+1,k  ) - 
+				epsZ*getC(Z,k,-1)*x(i  ,j  ,k-1) - epsZ*getC(Z,k,1)*x(i  ,j  ,k+1) ) );
 	} 
 
 	inline constexpr Scalar innerStenc2D( const DomainFieldT& b, const DomainFieldT& x,
@@ -290,11 +290,11 @@ protected:
 		const Scalar epsY = bcX?eps:1.;
 
 		return(
-				(1.-omega_)*x.at(i,j,k) +
+				(1.-omega_)*x(i,j,k) +
 				omega_/( epsX*getC(X,i,0) + epsY*getC(Y,j,0) )*(
-					b.at(i,j,k) - 
-				epsX*getC(X,i,-1)*x.at(i-1,j  ,k  ) - epsX*getC(X,i,1)*x.at(i+1,j  ,k  ) - 
-				epsY*getC(Y,j,-1)*x.at(i  ,j-1,k  ) - epsY*getC(Y,j,1)*x.at(i  ,j+1,k  ) ) );
+					b(i,j,k) - 
+				epsX*getC(X,i,-1)*x(i-1,j  ,k  ) - epsX*getC(X,i,1)*x(i+1,j  ,k  ) - 
+				epsY*getC(Y,j,-1)*x(i  ,j-1,k  ) - epsY*getC(Y,j,1)*x(i  ,j+1,k  ) ) );
 	} 
 
 	inline constexpr const Scalar* getC( const ECoord& dir) const  { 

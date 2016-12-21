@@ -53,7 +53,7 @@ public:
 			ScalarT lam = r->dot( *x )/x->dot( *x );
 			r->scale( 1./r->norm() );
 			x.swap( r );
-			if( std::abs( lamp-lam )/std::abs(lam) < tol )
+			if( std::fabs( lamp-lam )/std::fabs(lam) < tol )
 				break;
 			else
 				lamp=lam;

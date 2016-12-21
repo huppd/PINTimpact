@@ -193,9 +193,9 @@ TEUCHOS_UNIT_TEST( bla, bla  ) {
 	auto rhs = x->clone( Pimpact::ECopy::Shallow );
 	auto rhs2 = x->clone( Pimpact::ECopy::Shallow );
 
-	x->getVFieldPtr()->initField( pl->sublist("Base flow") );
-	x->getSFieldPtr()->get0FieldPtr()->initField( Pimpact::Grad2D_inX, -2./space->getDomainSize()->getRe() );
-	x->getVFieldPtr()->write();
+	x->getVField().initField( pl->sublist("Base flow") );
+	x->getSField().get0Field().initField( Pimpact::Grad2D_inX, -2./space->getDomainSize()->getRe() );
+	x->getVField().write();
 
 
 	// construct NS Operators
@@ -211,7 +211,7 @@ TEUCHOS_UNIT_TEST( bla, bla  ) {
 	// check solution for divergence freeness
 	{
 		opV2S->apply( x->getVField(), rhs->getSField() );
-		ST div = rhs->getSFieldPtr()->norm();
+		ST div = rhs->getSField().norm();
 		if( 0==space->rankST() )
 			std::cout << "\ndiv(U) = " << div << "\n";
 	}
@@ -219,35 +219,35 @@ TEUCHOS_UNIT_TEST( bla, bla  ) {
 	// generate RHS
 	opV2V->apply( x->getVField(), rhs->getVField() );
 	opV2S->apply( rhs->getVField(), rhs->getSField() );
-	divGradOp->apply( x->getSFieldPtr()->get0Field(), rhs2->getSFieldPtr()->get0Field() );
+	divGradOp->apply( x->getSField().get0Field(), rhs2->getSField().get0Field() );
 
 	{ // check pressure solution connsistent
 		auto res = rhs->clone();
 		opS2V->apply( x->getSField(), res->getVField() );
-		res->getVFieldPtr()->add( 1., rhs->getVField(), 1., res->getVField() );
+		res->getVField().add( 1., rhs->getVField(), 1., res->getVField() );
 
-		//rhs->getVFieldPtr()->write(100);
-		//res->getVFieldPtr()->write(200);
+		//rhs->getVField().write(100);
+		//res->getVField().write(200);
 
-		ST residual = res->getVFieldPtr()->norm();
-		res->getVFieldPtr()->get0FieldPtr()->write(300);
+		ST residual = res->getVField().norm();
+		res->getVField().get0Field().write(300);
 		if( 0==space->rankST() ) 
 			std::cout << "|| rhs_u - grad(p) ||: " << residual << "\n";
 	}
 	{ // check consistency of RHS
-		auto temp = rhs2->getSFieldPtr()->get0FieldPtr()->clone();
-		rhs->getSFieldPtr()->get0FieldPtr()->write(  100 );
-		rhs2->getSFieldPtr()->get0FieldPtr()->write( 200 );
+		auto temp = rhs2->getSField().get0Field().clone();
+		rhs->getSField().get0Field().write(  100 );
+		rhs2->getSField().get0Field().write( 200 );
 		temp->add(
-				1., rhs2->getSFieldPtr()->get0Field(),
-				1., rhs->getSFieldPtr()->get0Field() );
+				1., rhs2->getSField().get0Field(),
+				1., rhs->getSField().get0Field() );
 		temp->write(300);
 		std::cout << "difference rhs: " << temp->norm( Belos::InfNorm ) << "\n";
 	}
 
 	// initial guess
-	//x->getSFieldPtr()->init( 0. );
-	//x->getSFieldPtr()->random();
+	//x->getSField().init( 0. );
+	//x->getSField().random();
 
 	// --- inverse DivGrad
 
@@ -305,20 +305,20 @@ TEUCHOS_UNIT_TEST( bla, bla  ) {
 
 	//for( int i=0; i<10; ++i ) 
 	//mgDivGrad->apply(
-	//rhs->getSFieldPtr()->get0Field(),
-	//x->getSFieldPtr()->get0Field() );
+	//rhs->getSField().get0Field(),
+	//x->getSField().get0Field() );
 
 	//{ // compute contribution to nullspace
-	//auto fSlevel = rhs->getSFieldPtr()->clone( Pimpact::ECopy::Deep );
-	////rhs->getSFieldPtr()->level();
+	//auto fSlevel = rhs->getSField().clone( Pimpact::ECopy::Deep );
+	////rhs->getSField().level();
 	//fSlevel->level();
 	//fSlevel->add( 1., rhs->getSField(), -1., *fSlevel );
 	//std::cout << " contribution nullspace: " << fSlevel->norm() << "\n";
 	//}
-	//rhs->getSFieldPtr()->level();
+	//rhs->getSField().level();
 	//
 	// solve nullspace IMPACT style
-	/*auto nullspace = rhs->getSFieldPtr()->clone();*/
+	/*auto nullspace = rhs->getSField().clone();*/
 	//{
 	//nullspace->init( 1. );
 	////nullspace->random();
@@ -330,27 +330,27 @@ TEUCHOS_UNIT_TEST( bla, bla  ) {
 	//}
 
 	// --------------------- solve with plaine rhs
-	x->getSFieldPtr()->init( 0. );
-	//x->getSFieldPtr()->random();
+	x->getSField().init( 0. );
+	//x->getSField().random();
 	divGradInv->apply( rhs2->getSField(), x->getSField() );
-	x->getSFieldPtr()->init( 0. );
-	//x->getSFieldPtr()->random();
+	x->getSField().init( 0. );
+	//x->getSField().random();
 	divGradInv->apply( rhs->getSField(), x->getSField() );
 
 	// write solution
-	x->getSFieldPtr()->get0FieldPtr()->write(400);
+	x->getSField().get0Field().write(400);
 
 	// compute residual NS
 	{
 		//auto res = rhs->clone();
 		//opS2V->apply( x->getSField(), res->getVField() );
-		//res->getVFieldPtr()->add( 1., rhs->getVField(), -1., res->getVField() );
+		//res->getVField().add( 1., rhs->getVField(), -1., res->getVField() );
 
-		//rhs->getVFieldPtr()->write(100);
-		//res->getVFieldPtr()->write(200);
+		//rhs->getVField().write(100);
+		//res->getVField().write(200);
 
-		//ST residual = res->getVFieldPtr()->norm();
-		//res->getVFieldPtr()->write(300);
+		//ST residual = res->getVField().norm();
+		//res->getVField().write(300);
 		//if( 0==space->rankST() ) 
 		//std::cout << "|| rhs_u - grad(p) ||: " << residual << "\n";
 	}
@@ -360,27 +360,27 @@ TEUCHOS_UNIT_TEST( bla, bla  ) {
 	//
 
 	// --------------------- solve with nullspaced rhs
-	//auto xl = x->getSFieldPtr()->clone();
+	//auto xl = x->getSField().clone();
 	//xl->init(0.);
 	////rhs->getSField().level();
-	//auto f_ = rhs->getSFieldPtr()->clone( Pimpact::ECopy::Deep );
-	//f_->get0FieldPtr()->add(
-	//1., rhs->getSFieldPtr()->get0Field(),
-	//-nullspace->get0FieldPtr()->dot( rhs->getSFieldPtr()->get0Field() )/nullspace->get0FieldPtr()->dot( nullspace->get0Field() ), nullspace->get0Field() );
-	//std::cout << "(rhs,nullspace): " << f_->get0FieldPtr()->dot( nullspace->get0Field() ) << "\n";
+	//auto f_ = rhs->getSField().clone( Pimpact::ECopy::Deep );
+	//f_->get0Field().add(
+	//1., rhs->getSField().get0Field(),
+	//-nullspace->get0Field().dot( rhs->getSField().get0Field() )/nullspace->get0Field().dot( nullspace->get0Field() ), nullspace->get0Field() );
+	//std::cout << "(rhs,nullspace): " << f_->get0Field().dot( nullspace->get0Field() ) << "\n";
 	//divGradInv->apply( *f_, *xl );
 
 	//xl->level();
 	//xl->write( 10 );
 	//// diff between solution
-	//x->getSFieldPtr()->add( 1., x->getSField(), -1., *xl );
-	//x->getSFieldPtr()->write(666);
-	//std::cout << "||x-xl||: " << x->getSFieldPtr()->norm() << "\n";
+	//x->getSField().add( 1., x->getSField(), -1., *xl );
+	//x->getSField().write(666);
+	//std::cout << "||x-xl||: " << x->getSField().norm() << "\n";
 
 	// compute resudial II
 	//opS2V->apply( xl->getSField(), x->getVField() );
 	//x->getVField().add( 1., xl->getVField(), 1., rhs->getVField() );
-	//std::cout << "residual: " << x->getVFieldPtr()->norm() << "\n";
+	//std::cout << "residual: " << x->getVField().norm() << "\n";
 
 	Teuchos::TimeMonitor::summarize();
 
