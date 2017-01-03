@@ -167,7 +167,7 @@ public:
 
 
   /// \f[ y_k = (1-\omega) y_k + \omega D^{-1}( x - A y_k ) \f]
-	void apply(const DomainFieldT& b, RangeFieldT& y, const Add& add=Add::No ) const {
+	void apply(const DomainFieldT& b, RangeFieldT& y, const Add& add=Add::N ) const {
 
 		//Teuchos::RCP<DomainFieldT> temp =
 			//Teuchos::rcp( new DomainFieldT(space()) );
@@ -251,7 +251,7 @@ protected:
 
 
 
-	inline constexpr Scalar innerStenc3D( const DomainFieldT& b, const DomainFieldT& x,
+	constexpr Scalar innerStenc3D( const DomainFieldT& b, const DomainFieldT& x,
 			const Ordinal& i, const Ordinal& j, const Ordinal& k ) const { 
 
 		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->begin(S,X) ) ||
@@ -276,7 +276,7 @@ protected:
 				epsZ*getC(Z,k,-1)*x(i  ,j  ,k-1) - epsZ*getC(Z,k,1)*x(i  ,j  ,k+1) ) );
 	} 
 
-	inline constexpr Scalar innerStenc2D( const DomainFieldT& b, const DomainFieldT& x,
+	constexpr Scalar innerStenc2D( const DomainFieldT& b, const DomainFieldT& x,
 			const Ordinal& i, const Ordinal& j, const Ordinal& k ) const { 
 
 		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->begin(S,X) ) ||
@@ -297,19 +297,19 @@ protected:
 				epsY*getC(Y,j,-1)*x(i  ,j-1,k  ) - epsY*getC(Y,j,1)*x(i  ,j+1,k  ) ) );
 	} 
 
-	inline constexpr const Scalar* getC( const ECoord& dir) const  { 
+	constexpr const Scalar* getC( const ECoord& dir) const  { 
 		return( op_->getC( dir ) ); 
 	} 
 
-	inline constexpr const Scalar* getC( const int& dir) const  { 
+	constexpr const Scalar* getC( const int& dir) const  { 
 		return( op_->getC( dir ) ); 
 	} 
 
-	inline constexpr const Scalar& getC( const ECoord& dir, Ordinal i, Ordinal off ) const  { 
+	constexpr const Scalar& getC( const ECoord& dir, Ordinal i, Ordinal off ) const  { 
 		return( op_->getC( dir, i, off ) ); 
 	} 
 
-	inline constexpr const Scalar& getC( const int& dir, Ordinal i, Ordinal off ) const  { 
+	constexpr const Scalar& getC( const int& dir, Ordinal i, Ordinal off ) const  { 
 		return( op_->getC( dir, i, off ) ); 
 	} 
 	

@@ -47,7 +47,7 @@ protected:
 
 public:
 
-  CompoundField( const Teuchos::RCP<const SpaceT>& space, EField dummy=S ):
+  CompoundField( const Teuchos::RCP<const SpaceT>& space, F dummy=S ):
         AF( space ),
         vfield_( create<VField>(space) ),
         sfield_( create<SField>(space) ) {};
@@ -111,11 +111,11 @@ public:
   /// \name Update methods
   /// \{
 
-  /// \brief Replace \c this with \f$\alpha A + \beta B\f$.
-  void add( const Scalar& alpha, const FieldT& A, const Scalar& beta, const FieldT& B, const With& wB=With::B ) {
+  /// \brief Replace \c this with \f$\alpha a + \beta b\f$.
+  void add( const Scalar& alpha, const FieldT& a, const Scalar& beta, const FieldT& b, const B& wb=B::Y ) {
     // add test for consistent VectorSpaces in debug mode
-    vfield_->add(alpha, *A.vfield_, beta, *B.vfield_, wB );
-    sfield_->add(alpha, *A.sfield_, beta, *B.sfield_, wB );
+    vfield_->add(alpha, *a.vfield_, beta, *b.vfield_, wb );
+    sfield_->add(alpha, *a.sfield_, beta, *b.sfield_, wb );
   }
 
 
@@ -253,7 +253,7 @@ public:
 
 
   /// \brief Replace each element of the vector  with \c alpha.
-  void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const With& wB=With::B ) {
+  void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const B& wB=B::Y ) {
     vfield_->init(alpha,wB);
     sfield_->init(alpha,wB);
   }

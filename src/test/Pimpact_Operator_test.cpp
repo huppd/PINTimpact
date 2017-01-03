@@ -59,27 +59,27 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivOp, SpaceT ) {
 	TEST_EQUALITY( p->norm( Belos::InfNorm )>eps, true );
 
 	// circle XY test
-	vel->getField( Pimpact::U ).initField( Pimpact::Grad2D_inY, -1. );
-	vel->getField( Pimpact::V ).initField(  );
-	vel->getField( Pimpact::W ).initField( Pimpact::Grad2D_inX, 1. );
+	(*vel)( Pimpact::U ).initField( Pimpact::Grad2D_inY, -1. );
+	(*vel)( Pimpact::V ).initField(  );
+	(*vel)( Pimpact::W ).initField( Pimpact::Grad2D_inX, 1. );
 
 	op->apply(*vel,*p);
 
 	TEST_EQUALITY( p->norm( Belos::InfNorm )<eps, true );
 
 	// circle XZ test
-	vel->getField( Pimpact::U ).initField( Pimpact::Grad2D_inY, -1. );
-	vel->getField( Pimpact::V ).initField( Pimpact::Grad2D_inX, 1. );
-	vel->getField( Pimpact::W ).initField(  );
+	(*vel)( Pimpact::U ).initField( Pimpact::Grad2D_inY, -1. );
+	(*vel)( Pimpact::V ).initField( Pimpact::Grad2D_inX, 1. );
+	(*vel)( Pimpact::W ).initField(  );
 
 	op->apply( *vel, *p );
 
 	TEST_EQUALITY( p->norm( Belos::InfNorm )<eps, true );
 
 	// Grad test
-	vel->getField( Pimpact::U ).initField( Pimpact::Grad2D_inX );
-	vel->getField( Pimpact::V ).initField( Pimpact::Grad2D_inY, -2. );
-	vel->getField( Pimpact::W ).initField( Pimpact::Grad2D_inZ );
+	(*vel)( Pimpact::U ).initField( Pimpact::Grad2D_inX );
+	(*vel)( Pimpact::V ).initField( Pimpact::Grad2D_inY, -2. );
+	(*vel)( Pimpact::W ).initField( Pimpact::Grad2D_inZ );
 
 	p->random();
 
@@ -94,9 +94,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivOp, SpaceT ) {
 	TEST_EQUALITY( error>eps, true );
 
 	// Grad test
-	vel->getField( Pimpact::U ).initField( Pimpact::Grad2D_inZ );
-	vel->getField( Pimpact::V ).initField( Pimpact::Grad2D_inX );
-	vel->getField( Pimpact::W ).initField( Pimpact::Grad2D_inY );
+	(*vel)( Pimpact::U ).initField( Pimpact::Grad2D_inZ );
+	(*vel)( Pimpact::V ).initField( Pimpact::Grad2D_inX );
+	(*vel)( Pimpact::W ).initField( Pimpact::Grad2D_inY );
 
 	p->random();
 
@@ -108,9 +108,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivOp, SpaceT ) {
 	TEST_EQUALITY( error<eps, true );
 
 	// Grad test
-	vel->getField( Pimpact::U ).initField( Pimpact::Grad2D_inY );
-	vel->getField( Pimpact::V ).initField( Pimpact::Grad2D_inZ );
-	vel->getField( Pimpact::W ).initField( Pimpact::Grad2D_inX );
+	(*vel)( Pimpact::U ).initField( Pimpact::Grad2D_inY );
+	(*vel)( Pimpact::V ).initField( Pimpact::Grad2D_inZ );
+	(*vel)( Pimpact::W ).initField( Pimpact::Grad2D_inX );
 
 	p->random();
 
@@ -150,11 +150,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, InterpolateV2SOp, SpaceT ) {
 
 			Pimpact::EScalarField type =	static_cast<Pimpact::EScalarField>(bla);
 
-			vel->getField( i ).initField( type );
+			(*vel)( i ).initField( type );
 			sol->initField( type );
 
 			p->random();
-			op->apply( vel->getConstField(i), *p );
+			op->apply( (*vel)(i), *p );
 			sol->add( 1., *sol, -1., *p );
 
 			ST error = sol->norm( Belos::InfNorm );
@@ -197,18 +197,18 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, InterpolateS2VOp, SpaceT ) {
 
 	for( int i=0; i<SpaceT::sdim; ++i ) {
 
-		Pimpact::ScalarField<SpaceT>& sol = solv.getField( i );
+		Pimpact::ScalarField<SpaceT>& sol = solv( i );
 
 		for( int bla=0; bla<=(domain!=1?6:0); ++bla ) {
 
 			Pimpact::EScalarField type =	static_cast<Pimpact::EScalarField>(bla);
 
-			vel.getField( i ).random();
+			vel( i ).random();
 			sol.initField( type );
 			p.initField( type );
 
-			op->apply( p, vel.getField( i ) );
-			sol.add( 1., sol, -1., vel.getConstField(i) );
+			op->apply( p, vel( i ) );
+			sol.add( 1., sol, -1., vel(i) );
 
 			ST error = sol.norm( Belos::InfNorm );
 			if( 0==rank )
@@ -297,7 +297,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, VectorFieldOpWrap, SpaceT ) {
 
   // test
   fx->initField();
-  fx->getField( Pimpact::U ).initField( Pimpact::Poiseuille2D_inX );
+  (*fx)( Pimpact::U ).initField( Pimpact::Poiseuille2D_inX );
   cx->random();
 
   op->apply( *fx, *cx );
@@ -342,14 +342,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, GradOp, SpaceT ) {
 		// op in x test
 		p->initField( Pimpact::Grad2D_inX );
 		sol->initField();
-		sol->getField( Pimpact::X ).initField( Pimpact::ConstField, 1. );
+		(*sol)( Pimpact::X ).initField( Pimpact::ConstField, 1. );
 		v->random();
 
 		op->apply(*p,*v);
 
 		sol->add( 1., *sol, -1., *v );
 
-		ST error = sol->norm( Belos::InfNorm, Pimpact::With::noB );
+		ST error = sol->norm( Belos::InfNorm, Pimpact::B::N );
 		if( 0==rank )
 			std::cout << "error: " << error << "\n";
 		TEST_EQUALITY( error<eps, true );
@@ -357,14 +357,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, GradOp, SpaceT ) {
 		// op in y test
 		p->initField( Pimpact::Grad2D_inY );
 		sol->initField();
-		sol->getField( Pimpact::V ).initField( Pimpact::ConstField, 1. );
+		(*sol)( Pimpact::V ).initField( Pimpact::ConstField, 1. );
 		v->random();
 
 		op->apply(*p,*v);
 
 		sol->add( 1., *sol, -1., *v );
 
-		error = sol->norm( Belos::InfNorm, Pimpact::With::noB  );
+		error = sol->norm( Belos::InfNorm, Pimpact::B::N  );
 		if( 0==rank )
 			std::cout << "error: " << error << "\n";
 		TEST_EQUALITY( error<eps, true );
@@ -372,14 +372,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, GradOp, SpaceT ) {
 		// op in z test
 		p->initField( Pimpact::Grad2D_inZ );
 		sol->initField();
-		sol->getField( Pimpact::W ).initField( Pimpact::ConstField, 1. );
+		(*sol)( Pimpact::W ).initField( Pimpact::ConstField, 1. );
 		v->random();
 
 		op->apply(*p,*v);
 
 		sol->add( 1., *sol, -1., *v );
 
-		error = sol->norm( Belos::InfNorm, Pimpact::With::noB  );
+		error = sol->norm( Belos::InfNorm, Pimpact::B::N  );
 		if( 0==rank )
 			std::cout << "error: " << error << "\n";
 		TEST_EQUALITY( error<eps, true );
@@ -416,7 +416,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, HelmholtzOp, SpaceT ) {
 
 		// test in x direction
 		x->initField();
-		x->getField( Pimpact::U ).initField( Pimpact::Poiseuille2D_inX );
+		(*x)( Pimpact::U ).initField( Pimpact::Poiseuille2D_inX );
 		bs->init( Teuchos::tuple( 8./std::pow(space->getDomainSize()->getSize(Pimpact::Y),2), 0., 0. ) );
 		bs->add( mulI, *x, mulL, *bs );
 
@@ -427,7 +427,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, HelmholtzOp, SpaceT ) {
 
 		bs->add( 1., *bs, -1, *b);
 
-		ST error = bs->norm( Belos::InfNorm, Pimpact::With::noB );
+		ST error = bs->norm( Belos::InfNorm, Pimpact::B::N );
 		if( 0==rank )
 			std::cout << "error(poiseuilleX): " << error << "\n";
 		TEST_EQUALITY( error<eps, true );
@@ -439,7 +439,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, HelmholtzOp, SpaceT ) {
 
 		// test in y direction
 		x->initField();
-		x->getField( Pimpact::V ).initField( Pimpact::Poiseuille2D_inY );
+		(*x)( Pimpact::V ).initField( Pimpact::Poiseuille2D_inY );
 		bs->init( Teuchos::tuple( 0., 8./std::pow(space->getDomainSize()->getSize(Pimpact::X),2), 0. ) );
 		bs->add( mulI, *x, mulL, *bs );
 
@@ -447,7 +447,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, HelmholtzOp, SpaceT ) {
 
 		bs->add( 1., *bs, -1, *b );
 
-		error = bs->norm( Belos::InfNorm, Pimpact::With::noB );
+		error = bs->norm( Belos::InfNorm, Pimpact::B::N );
 		if( 0==rank )
 			std::cout << "error(poiseuilleY): " << error << "\n";
 		TEST_EQUALITY( error<eps, true );
@@ -459,7 +459,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, HelmholtzOp, SpaceT ) {
 
 		// test in z direction
 		x->initField(  );
-		x->getField( Pimpact::W ).initField( Pimpact::Poiseuille2D_inZ );
+		(*x)( Pimpact::W ).initField( Pimpact::Poiseuille2D_inZ );
 		bs->init( Teuchos::tuple( 0., 0., 8./std::pow(space->getDomainSize()->getSize(Pimpact::X),2) ) );
 		bs->add( mulI, *x, mulL, *bs );
 
@@ -467,7 +467,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, HelmholtzOp, SpaceT ) {
 
 		bs->add( 1., *bs, -1, *b);
 
-		error = bs->norm( Belos::InfNorm, Pimpact::With::noB );
+		error = bs->norm( Belos::InfNorm, Pimpact::B::N );
 		if( 0==rank )
 			std::cout << "error(poiseuilleZ): " << error << "\n";
 		TEST_EQUALITY( error<eps, true );
@@ -479,18 +479,18 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, HelmholtzOp, SpaceT ) {
 
 		// the circle XY test
 		x->initField();
-		x->getField( Pimpact::U ).initField( Pimpact::Grad2D_inY, -1. );
-		x->getField( Pimpact::W ).initField( Pimpact::Grad2D_inX,  1. );
+		(*x)( Pimpact::U ).initField( Pimpact::Grad2D_inY, -1. );
+		(*x)( Pimpact::W ).initField( Pimpact::Grad2D_inX,  1. );
 		bs->initField();
-		bs->getField( Pimpact::U ).initField( Pimpact::Grad2D_inY, -1. );
-		bs->getField( Pimpact::W ).initField( Pimpact::Grad2D_inX,  1. );
+		(*bs)( Pimpact::U ).initField( Pimpact::Grad2D_inY, -1. );
+		(*bs)( Pimpact::W ).initField( Pimpact::Grad2D_inX,  1. );
 		bs->scale( mulI );
 
 		op->apply( *x, *b );
 
 		bs->add( 1., *bs, -1, *b );
 
-		error = bs->norm( Belos::InfNorm, Pimpact::With::noB );
+		error = bs->norm( Belos::InfNorm, Pimpact::B::N );
 		if( 0==rank )
 			std::cout << "error(circleXY): " << error << "\n";
 		TEST_EQUALITY( error<eps, true );
@@ -502,11 +502,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, HelmholtzOp, SpaceT ) {
 
 		// the circle XZ test
 		x->initField();
-		x->getField( Pimpact::U ).initField( Pimpact::Grad2D_inY, -1. );
-		x->getField( Pimpact::V ).initField( Pimpact::Grad2D_inX,  1. );
+		(*x)( Pimpact::U ).initField( Pimpact::Grad2D_inY, -1. );
+		(*x)( Pimpact::V ).initField( Pimpact::Grad2D_inX,  1. );
 		bs->initField();
-		bs->getField( Pimpact::U ).initField( Pimpact::Grad2D_inY, -1. );
-		bs->getField( Pimpact::V ).initField( Pimpact::Grad2D_inX,  1. );
+		(*bs)( Pimpact::U ).initField( Pimpact::Grad2D_inY, -1. );
+		(*bs)( Pimpact::V ).initField( Pimpact::Grad2D_inX,  1. );
 
 		bs->scale( mulI );
 
@@ -514,7 +514,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, HelmholtzOp, SpaceT ) {
 
 		bs->add( 1., *bs, -1, *b );
 
-		error = bs->norm( Belos::InfNorm, Pimpact::With::noB );
+		error = bs->norm( Belos::InfNorm, Pimpact::B::N );
 		if( 0==rank )
 			std::cout << "error(circleXZ): " << error << "\n";
 		TEST_EQUALITY( error<eps, true );
@@ -592,7 +592,7 @@ TEUCHOS_UNIT_TEST( MaatrixTest, DivGradOp2M ) {
 	Teuchos::SerialDenseMatrix<OT,ST> DJG( nS, nS );
 
 	// test DJG
-	{
+	if( npx*npy*npz==1 ) {
 		Teuchos::RCP<std::ostream> output = Pimpact::createOstream( "DivGradOp.txt" );
 		*output << std::scientific << std::setprecision(std::numeric_limits<long double>::digits10 + 1) ;
 
@@ -630,7 +630,7 @@ TEUCHOS_UNIT_TEST( MaatrixTest, DivGradOp2M ) {
 
 	// test DJG^T
 	Teuchos::SerialDenseMatrix<OT,ST> DJGT( nS, nS );
-	{
+	if( npx*npy*npz==1 ) {
 		Teuchos::RCP<std::ostream> output = Pimpact::createOstream( "DivGradOpT.txt" );
 		*output << std::scientific << std::setprecision(std::numeric_limits<long double>::digits10 + 1) ;
 
@@ -720,24 +720,24 @@ TEUCHOS_UNIT_TEST( MatrixTest, DivOp2M ) {
   auto op = Pimpact::create<Pimpact::DivOp>( space );
 
 
-	OT nxS = space->end(Pimpact::S,Pimpact::X,Pimpact::With::B) - space->begin(Pimpact::S,Pimpact::X,Pimpact::With::B) + 1;
-	OT nyS = space->end(Pimpact::S,Pimpact::Y,Pimpact::With::B) - space->begin(Pimpact::S,Pimpact::Y,Pimpact::With::B) + 1;
-	OT nzS = space->end(Pimpact::S,Pimpact::Z,Pimpact::With::B) - space->begin(Pimpact::S,Pimpact::Z,Pimpact::With::B) + 1;
+	OT nxS = space->end(Pimpact::S,Pimpact::X,Pimpact::B::Y) - space->begin(Pimpact::S,Pimpact::X,Pimpact::B::Y) + 1;
+	OT nyS = space->end(Pimpact::S,Pimpact::Y,Pimpact::B::Y) - space->begin(Pimpact::S,Pimpact::Y,Pimpact::B::Y) + 1;
+	OT nzS = space->end(Pimpact::S,Pimpact::Z,Pimpact::B::Y) - space->begin(Pimpact::S,Pimpact::Z,Pimpact::B::Y) + 1;
 	OT nS = nxS*nyS*nzS;
 
-	OT nxU = space->end(Pimpact::U,Pimpact::X,Pimpact::With::B) - space->begin(Pimpact::U,Pimpact::X,Pimpact::With::B) + 1;
-	OT nyU = space->end(Pimpact::U,Pimpact::Y,Pimpact::With::B) - space->begin(Pimpact::U,Pimpact::Y,Pimpact::With::B) + 1;
-	OT nzU = space->end(Pimpact::U,Pimpact::Z,Pimpact::With::B) - space->begin(Pimpact::U,Pimpact::Z,Pimpact::With::B) + 1;
+	OT nxU = space->end(Pimpact::U,Pimpact::X,Pimpact::B::Y) - space->begin(Pimpact::U,Pimpact::X,Pimpact::B::Y) + 1;
+	OT nyU = space->end(Pimpact::U,Pimpact::Y,Pimpact::B::Y) - space->begin(Pimpact::U,Pimpact::Y,Pimpact::B::Y) + 1;
+	OT nzU = space->end(Pimpact::U,Pimpact::Z,Pimpact::B::Y) - space->begin(Pimpact::U,Pimpact::Z,Pimpact::B::Y) + 1;
 	OT nU = nxU*nyU*nzU;
 
-	OT nxV = space->end(Pimpact::V,Pimpact::X,Pimpact::With::B) - space->begin(Pimpact::V,Pimpact::X,Pimpact::With::B) + 1;
-	OT nyV = space->end(Pimpact::V,Pimpact::Y,Pimpact::With::B) - space->begin(Pimpact::V,Pimpact::Y,Pimpact::With::B) + 1;
-	OT nzV = space->end(Pimpact::V,Pimpact::Z,Pimpact::With::B) - space->begin(Pimpact::V,Pimpact::Z,Pimpact::With::B) + 1;
+	OT nxV = space->end(Pimpact::V,Pimpact::X,Pimpact::B::Y) - space->begin(Pimpact::V,Pimpact::X,Pimpact::B::Y) + 1;
+	OT nyV = space->end(Pimpact::V,Pimpact::Y,Pimpact::B::Y) - space->begin(Pimpact::V,Pimpact::Y,Pimpact::B::Y) + 1;
+	OT nzV = space->end(Pimpact::V,Pimpact::Z,Pimpact::B::Y) - space->begin(Pimpact::V,Pimpact::Z,Pimpact::B::Y) + 1;
 	OT nV = nxV*nyV*nzV;
 
-	OT nxW = space->end(Pimpact::W,Pimpact::X,Pimpact::With::B) - space->begin(Pimpact::W,Pimpact::X,Pimpact::With::B) + 1;
-	OT nyW = space->end(Pimpact::W,Pimpact::Y,Pimpact::With::B) - space->begin(Pimpact::W,Pimpact::Y,Pimpact::With::B) + 1;
-	OT nzW = space->end(Pimpact::W,Pimpact::Z,Pimpact::With::B) - space->begin(Pimpact::W,Pimpact::Z,Pimpact::With::B) + 1;
+	OT nxW = space->end(Pimpact::W,Pimpact::X,Pimpact::B::Y) - space->begin(Pimpact::W,Pimpact::X,Pimpact::B::Y) + 1;
+	OT nyW = space->end(Pimpact::W,Pimpact::Y,Pimpact::B::Y) - space->begin(Pimpact::W,Pimpact::Y,Pimpact::B::Y) + 1;
+	OT nzW = space->end(Pimpact::W,Pimpact::Z,Pimpact::B::Y) - space->begin(Pimpact::W,Pimpact::Z,Pimpact::B::Y) + 1;
 	OT nW = nxW*nyW*nzW;
 
 	Teuchos::Tuple<OT,3> NX = Teuchos::tuple( nxU,nxV,nxW );
@@ -753,22 +753,22 @@ TEUCHOS_UNIT_TEST( MatrixTest, DivOp2M ) {
 	*output << std::scientific << std::setprecision(std::numeric_limits<long double>::digits10 + 1) ;
 
 	for( int dir=0; dir<D3::sdim; ++dir ) {
-		for( OT k=space->begin(dir,Pimpact::Z,Pimpact::With::B); k<=space->end(dir,Pimpact::Z,Pimpact::With::B); ++k )
-			for( OT j=space->begin(dir,Pimpact::Y,Pimpact::With::B); j<=space->end(dir,Pimpact::Y,Pimpact::With::B); ++j )
-				for( OT i=space->begin(dir,Pimpact::X,Pimpact::With::B); i<=space->end(dir,Pimpact::X,Pimpact::With::B); ++i ) {
-					OT II =               i-space->begin(dir,Pimpact::X,Pimpact::With::B)
-						+ NX[dir]*(         j-space->begin(dir,Pimpact::Y,Pimpact::With::B) )
-						+ NX[dir]*NY[dir]*( k-space->begin(dir,Pimpact::Z,Pimpact::With::B) ) + offset[dir];
+		for( OT k=space->begin(dir,Pimpact::Z,Pimpact::B::Y); k<=space->end(dir,Pimpact::Z,Pimpact::B::Y); ++k )
+			for( OT j=space->begin(dir,Pimpact::Y,Pimpact::B::Y); j<=space->end(dir,Pimpact::Y,Pimpact::B::Y); ++j )
+				for( OT i=space->begin(dir,Pimpact::X,Pimpact::B::Y); i<=space->end(dir,Pimpact::X,Pimpact::B::Y); ++i ) {
+					OT II =               i-space->begin(dir,Pimpact::X,Pimpact::B::Y)
+						+ NX[dir]*(         j-space->begin(dir,Pimpact::Y,Pimpact::B::Y) )
+						+ NX[dir]*NY[dir]*( k-space->begin(dir,Pimpact::Z,Pimpact::B::Y) ) + offset[dir];
 					x.initField();
 					x(dir)(i,j,k) = 1.;
 					op->apply( x, b );
 
-					for( OT kk=space->begin(Pimpact::S,Pimpact::Z,Pimpact::With::B); kk<=space->end(Pimpact::S,Pimpact::Z,Pimpact::With::B); ++kk )
-						for( OT jj=space->begin(Pimpact::S,Pimpact::Y,Pimpact::With::B); jj<=space->end(Pimpact::S,Pimpact::Y,Pimpact::With::B); ++jj )
-							for( OT ii=space->begin(Pimpact::S,Pimpact::X,Pimpact::With::B); ii<=space->end(Pimpact::S,Pimpact::X,Pimpact::With::B); ++ii ) {
-								OT JJ =       ii-space->begin(Pimpact::S,Pimpact::X,Pimpact::With::B)
-									+ nxS*(     jj-space->begin(Pimpact::S,Pimpact::Y,Pimpact::With::B) )
-									+ nxS*nyS*( kk-space->begin(Pimpact::S,Pimpact::Z,Pimpact::With::B) );
+					for( OT kk=space->begin(Pimpact::S,Pimpact::Z,Pimpact::B::Y); kk<=space->end(Pimpact::S,Pimpact::Z,Pimpact::B::Y); ++kk )
+						for( OT jj=space->begin(Pimpact::S,Pimpact::Y,Pimpact::B::Y); jj<=space->end(Pimpact::S,Pimpact::Y,Pimpact::B::Y); ++jj )
+							for( OT ii=space->begin(Pimpact::S,Pimpact::X,Pimpact::B::Y); ii<=space->end(Pimpact::S,Pimpact::X,Pimpact::B::Y); ++ii ) {
+								OT JJ =       ii-space->begin(Pimpact::S,Pimpact::X,Pimpact::B::Y)
+									+ nxS*(     jj-space->begin(Pimpact::S,Pimpact::Y,Pimpact::B::Y) )
+									+ nxS*nyS*( kk-space->begin(Pimpact::S,Pimpact::Z,Pimpact::B::Y) );
 								x2.initField();
 								x2(ii,jj,kk) = 1.;
 
@@ -833,24 +833,24 @@ TEUCHOS_UNIT_TEST( MatrixTest, GradOp2M ) {
   auto op = Pimpact::create<Pimpact::GradOp>( space );
 
 
-	OT nxS = space->end(Pimpact::S,Pimpact::X,Pimpact::With::B) - space->begin(Pimpact::S,Pimpact::X,Pimpact::With::B) + 1;
-	OT nyS = space->end(Pimpact::S,Pimpact::Y,Pimpact::With::B) - space->begin(Pimpact::S,Pimpact::Y,Pimpact::With::B) + 1;
-	OT nzS = space->end(Pimpact::S,Pimpact::Z,Pimpact::With::B) - space->begin(Pimpact::S,Pimpact::Z,Pimpact::With::B) + 1;
+	OT nxS = space->end(Pimpact::S,Pimpact::X,Pimpact::B::Y) - space->begin(Pimpact::S,Pimpact::X,Pimpact::B::Y) + 1;
+	OT nyS = space->end(Pimpact::S,Pimpact::Y,Pimpact::B::Y) - space->begin(Pimpact::S,Pimpact::Y,Pimpact::B::Y) + 1;
+	OT nzS = space->end(Pimpact::S,Pimpact::Z,Pimpact::B::Y) - space->begin(Pimpact::S,Pimpact::Z,Pimpact::B::Y) + 1;
 	OT nS = nxS*nyS*nzS;
 
-	OT nxU = space->end(Pimpact::U,Pimpact::X,Pimpact::With::B) - space->begin(Pimpact::U,Pimpact::X,Pimpact::With::B) + 1;
-	OT nyU = space->end(Pimpact::U,Pimpact::Y,Pimpact::With::B) - space->begin(Pimpact::U,Pimpact::Y,Pimpact::With::B) + 1;
-	OT nzU = space->end(Pimpact::U,Pimpact::Z,Pimpact::With::B) - space->begin(Pimpact::U,Pimpact::Z,Pimpact::With::B) + 1;
+	OT nxU = space->end(Pimpact::U,Pimpact::X,Pimpact::B::Y) - space->begin(Pimpact::U,Pimpact::X,Pimpact::B::Y) + 1;
+	OT nyU = space->end(Pimpact::U,Pimpact::Y,Pimpact::B::Y) - space->begin(Pimpact::U,Pimpact::Y,Pimpact::B::Y) + 1;
+	OT nzU = space->end(Pimpact::U,Pimpact::Z,Pimpact::B::Y) - space->begin(Pimpact::U,Pimpact::Z,Pimpact::B::Y) + 1;
 	OT nU = nxU*nyU*nzU;
 
-	OT nxV = space->end(Pimpact::V,Pimpact::X,Pimpact::With::B) - space->begin(Pimpact::V,Pimpact::X,Pimpact::With::B) + 1;
-	OT nyV = space->end(Pimpact::V,Pimpact::Y,Pimpact::With::B) - space->begin(Pimpact::V,Pimpact::Y,Pimpact::With::B) + 1;
-	OT nzV = space->end(Pimpact::V,Pimpact::Z,Pimpact::With::B) - space->begin(Pimpact::V,Pimpact::Z,Pimpact::With::B) + 1;
+	OT nxV = space->end(Pimpact::V,Pimpact::X,Pimpact::B::Y) - space->begin(Pimpact::V,Pimpact::X,Pimpact::B::Y) + 1;
+	OT nyV = space->end(Pimpact::V,Pimpact::Y,Pimpact::B::Y) - space->begin(Pimpact::V,Pimpact::Y,Pimpact::B::Y) + 1;
+	OT nzV = space->end(Pimpact::V,Pimpact::Z,Pimpact::B::Y) - space->begin(Pimpact::V,Pimpact::Z,Pimpact::B::Y) + 1;
 	OT nV = nxV*nyV*nzV;
 
-	OT nxW = space->end(Pimpact::W,Pimpact::X,Pimpact::With::B) - space->begin(Pimpact::W,Pimpact::X,Pimpact::With::B) + 1;
-	OT nyW = space->end(Pimpact::W,Pimpact::Y,Pimpact::With::B) - space->begin(Pimpact::W,Pimpact::Y,Pimpact::With::B) + 1;
-	OT nzW = space->end(Pimpact::W,Pimpact::Z,Pimpact::With::B) - space->begin(Pimpact::W,Pimpact::Z,Pimpact::With::B) + 1;
+	OT nxW = space->end(Pimpact::W,Pimpact::X,Pimpact::B::Y) - space->begin(Pimpact::W,Pimpact::X,Pimpact::B::Y) + 1;
+	OT nyW = space->end(Pimpact::W,Pimpact::Y,Pimpact::B::Y) - space->begin(Pimpact::W,Pimpact::Y,Pimpact::B::Y) + 1;
+	OT nzW = space->end(Pimpact::W,Pimpact::Z,Pimpact::B::Y) - space->begin(Pimpact::W,Pimpact::Z,Pimpact::B::Y) + 1;
 	OT nW = nxW*nyW*nzW;
 
 	Teuchos::Tuple<OT,3> NX = Teuchos::tuple( nxU,nxV,nxW );
@@ -865,23 +865,23 @@ TEUCHOS_UNIT_TEST( MatrixTest, GradOp2M ) {
 	Teuchos::RCP<std::ostream> output = Pimpact::createOstream( "GradOp.txt" );
 	*output << std::scientific << std::setprecision(std::numeric_limits<long double>::digits10 + 1) ;
 
-	for( OT kk=space->begin(Pimpact::S,Pimpact::Z,Pimpact::With::B); kk<=space->end(Pimpact::S,Pimpact::Z,Pimpact::With::B); ++kk )
-		for( OT jj=space->begin(Pimpact::S,Pimpact::Y,Pimpact::With::B); jj<=space->end(Pimpact::S,Pimpact::Y,Pimpact::With::B); ++jj )
-			for( OT ii=space->begin(Pimpact::S,Pimpact::X,Pimpact::With::B); ii<=space->end(Pimpact::S,Pimpact::X,Pimpact::With::B); ++ii ) {
-				OT JJ =       ii-space->begin(Pimpact::S,Pimpact::X,Pimpact::With::B)
-					+ nxS*(     jj-space->begin(Pimpact::S,Pimpact::Y,Pimpact::With::B) )
-					+ nxS*nyS*( kk-space->begin(Pimpact::S,Pimpact::Z,Pimpact::With::B) );
+	for( OT kk=space->begin(Pimpact::S,Pimpact::Z,Pimpact::B::Y); kk<=space->end(Pimpact::S,Pimpact::Z,Pimpact::B::Y); ++kk )
+		for( OT jj=space->begin(Pimpact::S,Pimpact::Y,Pimpact::B::Y); jj<=space->end(Pimpact::S,Pimpact::Y,Pimpact::B::Y); ++jj )
+			for( OT ii=space->begin(Pimpact::S,Pimpact::X,Pimpact::B::Y); ii<=space->end(Pimpact::S,Pimpact::X,Pimpact::B::Y); ++ii ) {
+				OT JJ =       ii-space->begin(Pimpact::S,Pimpact::X,Pimpact::B::Y)
+					+ nxS*(     jj-space->begin(Pimpact::S,Pimpact::Y,Pimpact::B::Y) )
+					+ nxS*nyS*( kk-space->begin(Pimpact::S,Pimpact::Z,Pimpact::B::Y) );
 				x2.initField();
 				x2(ii,jj,kk) = 1.;
 				op->applyG( x2, b );
 
 				for( int dir=0; dir<D3::sdim; ++dir ) {
-					for( OT k=space->begin(dir,Pimpact::Z,Pimpact::With::B); k<=space->end(dir,Pimpact::Z,Pimpact::With::B); ++k )
-						for( OT j=space->begin(dir,Pimpact::Y,Pimpact::With::B); j<=space->end(dir,Pimpact::Y,Pimpact::With::B); ++j )
-							for( OT i=space->begin(dir,Pimpact::X,Pimpact::With::B); i<=space->end(dir,Pimpact::X,Pimpact::With::B); ++i ) {
-								OT II =               i-space->begin(dir,Pimpact::X,Pimpact::With::B)
-									+ NX[dir]*(         j-space->begin(dir,Pimpact::Y,Pimpact::With::B) )
-									+ NX[dir]*NY[dir]*( k-space->begin(dir,Pimpact::Z,Pimpact::With::B) ) + offset[dir];
+					for( OT k=space->begin(dir,Pimpact::Z,Pimpact::B::Y); k<=space->end(dir,Pimpact::Z,Pimpact::B::Y); ++k )
+						for( OT j=space->begin(dir,Pimpact::Y,Pimpact::B::Y); j<=space->end(dir,Pimpact::Y,Pimpact::B::Y); ++j )
+							for( OT i=space->begin(dir,Pimpact::X,Pimpact::B::Y); i<=space->end(dir,Pimpact::X,Pimpact::B::Y); ++i ) {
+								OT II =               i-space->begin(dir,Pimpact::X,Pimpact::B::Y)
+									+ NX[dir]*(         j-space->begin(dir,Pimpact::Y,Pimpact::B::Y) )
+									+ NX[dir]*NY[dir]*( k-space->begin(dir,Pimpact::Z,Pimpact::B::Y) ) + offset[dir];
 								x.initField();
 								x(dir)(i,j,k) = 1.;
 
@@ -897,22 +897,22 @@ TEUCHOS_UNIT_TEST( MatrixTest, GradOp2M ) {
 
 	Teuchos::SerialDenseMatrix<OT,ST> J  ( nU+nV+nW, nU+nV+nW );
 	for( int dir=0; dir<D3::sdim; ++dir ) {
-		for( OT kk=space->begin(dir,Pimpact::Z,Pimpact::With::B); kk<=space->end(dir,Pimpact::Z,Pimpact::With::B); ++kk )
-			for( OT jj=space->begin(dir,Pimpact::Y,Pimpact::With::B); jj<=space->end(dir,Pimpact::Y,Pimpact::With::B); ++jj )
-				for( OT ii=space->begin(dir,Pimpact::X,Pimpact::With::B); ii<=space->end(dir,Pimpact::X,Pimpact::With::B); ++ii ) {
-					OT JJ =           ii-space->begin(dir,Pimpact::X,Pimpact::With::B)
-						+ NX[dir]*(     jj-space->begin(dir,Pimpact::Y,Pimpact::With::B) )
-						+ NX[dir]*NY[dir]*( kk-space->begin(dir,Pimpact::Z,Pimpact::With::B) )+offset[dir];
+		for( OT kk=space->begin(dir,Pimpact::Z,Pimpact::B::Y); kk<=space->end(dir,Pimpact::Z,Pimpact::B::Y); ++kk )
+			for( OT jj=space->begin(dir,Pimpact::Y,Pimpact::B::Y); jj<=space->end(dir,Pimpact::Y,Pimpact::B::Y); ++jj )
+				for( OT ii=space->begin(dir,Pimpact::X,Pimpact::B::Y); ii<=space->end(dir,Pimpact::X,Pimpact::B::Y); ++ii ) {
+					OT JJ =           ii-space->begin(dir,Pimpact::X,Pimpact::B::Y)
+						+ NX[dir]*(     jj-space->begin(dir,Pimpact::Y,Pimpact::B::Y) )
+						+ NX[dir]*NY[dir]*( kk-space->begin(dir,Pimpact::Z,Pimpact::B::Y) )+offset[dir];
 					b.initField();
 					b(dir)(ii,jj,kk) = 1.;
 					op->applyJ( b );
 
-					for( OT k=space->begin(dir,Pimpact::Z,Pimpact::With::B); k<=space->end(dir,Pimpact::Z,Pimpact::With::B); ++k )
-						for( OT j=space->begin(dir,Pimpact::Y,Pimpact::With::B); j<=space->end(dir,Pimpact::Y,Pimpact::With::B); ++j )
-							for( OT i=space->begin(dir,Pimpact::X,Pimpact::With::B); i<=space->end(dir,Pimpact::X,Pimpact::With::B); ++i ) {
-								OT II =               i-space->begin(dir,Pimpact::X,Pimpact::With::B)
-									+ NX[dir]*(         j-space->begin(dir,Pimpact::Y,Pimpact::With::B) )
-									+ NX[dir]*NY[dir]*( k-space->begin(dir,Pimpact::Z,Pimpact::With::B) ) + offset[dir];
+					for( OT k=space->begin(dir,Pimpact::Z,Pimpact::B::Y); k<=space->end(dir,Pimpact::Z,Pimpact::B::Y); ++k )
+						for( OT j=space->begin(dir,Pimpact::Y,Pimpact::B::Y); j<=space->end(dir,Pimpact::Y,Pimpact::B::Y); ++j )
+							for( OT i=space->begin(dir,Pimpact::X,Pimpact::B::Y); i<=space->end(dir,Pimpact::X,Pimpact::B::Y); ++i ) {
+								OT II =               i-space->begin(dir,Pimpact::X,Pimpact::B::Y)
+									+ NX[dir]*(         j-space->begin(dir,Pimpact::Y,Pimpact::B::Y) )
+									+ NX[dir]*NY[dir]*( k-space->begin(dir,Pimpact::Z,Pimpact::B::Y) ) + offset[dir];
 								x.initField();
 								x(dir)(i,j,k) = 1.;
 
@@ -1547,7 +1547,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, DivOp, SpaceT ) {
 		std::vector<ST> errorInf( ns );
 		std::vector<ST> dofs( ns );
 
-		ST pi2 = 2.*std::acos(1.);
+		ST pi2 = 4.*std::acos(0.);
 
 		if( 0==rank )	
 			std::cout << "\n\nN\t||e||_2\t\t||e||_inf\n";
@@ -1566,40 +1566,41 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, DivOp, SpaceT ) {
 
 			auto space = Pimpact::create<SpaceT>( pl );
 
-			auto vel = Pimpact::create<Pimpact::VectorField>( space );
-			auto p   = Pimpact::create<Pimpact::ScalarField>( space );
-			auto sol = p->clone( Pimpact::ECopy::Shallow );
+			Pimpact::VectorField<SpaceT> vel( space );
+			Pimpact::ScalarField<SpaceT> p  ( space );
+			Pimpact::ScalarField<SpaceT> sol( space );
 
 			// init 
 			if( 0==dir ) {
-				vel->getField(Pimpact::U).initFromFunction(
+				vel(Pimpact::U).initFromFunction(
 						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(x*pi2) ); } );
-				sol->initFromFunction(
+				sol.initFromFunction(
 						[&pi2]( ST x, ST y, ST z ) ->ST { return( -std::sin(x*pi2)*pi2 ); } );
 			}
 			else if( 1==dir ) {
-				vel->getField(Pimpact::V).initFromFunction(
+				vel(Pimpact::V).initFromFunction(
 						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(y*pi2) ); } );
-				sol->initFromFunction(
+				sol.initFromFunction(
 						[&pi2]( ST x, ST y, ST z ) ->ST { return( -std::sin(y*pi2)*pi2 ); } );
 			}
 			else if( 2==dir ) {
-				vel->getField(Pimpact::Z).initFromFunction(
+				vel(Pimpact::Z).initFromFunction(
 						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(z*pi2) ); } );
-				sol->initFromFunction(
+				sol.initFromFunction(
 						[&pi2]( ST x, ST y, ST z ) ->ST { return( -std::sin(z*pi2)*pi2 ); } );
 			}
 
 
+			if( print ) vel(Pimpact::W).print();
 			auto op = Pimpact::create<Pimpact::DivOp>( space );
 
-			op->apply( *vel, *p );
+			op->apply( vel, p );
 
 			// compute error
-			p->add( 1., *sol, -1., *p );
-			if( write ) p->write(n);
-			error2[n] = std::log10( p->norm( Belos::TwoNorm ) / sol->norm( Belos::TwoNorm ) );
-			errorInf[n] = std::log10( p->norm( Belos::InfNorm ) / sol->norm( Belos::InfNorm ) );
+			p.add( 1., sol, -1., p );
+			if( write ) p.write(n);
+			error2[n] = std::log10( p.norm( Belos::TwoNorm ) / sol.norm( Belos::TwoNorm ) );
+			errorInf[n] = std::log10( p.norm( Belos::InfNorm ) / sol.norm( Belos::InfNorm ) );
 			dofs[n] = std::log10( 8.*std::pow(2.,n)+1. );
 			if( 0==rank )	
 				std::cout << std::pow(10.,dofs[n]) << "\t" << std::pow(10.,error2[n]) << "\t" << std::pow(10.,errorInf[n]) << "\n";
@@ -1666,19 +1667,19 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, InterpolateV2SOp, SpaceT ) {
 
 			// init 
 			if( 0==dir ) {
-				vel->getField(Pimpact::U).initFromFunction(
+				(*vel)(Pimpact::U).initFromFunction(
 						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(x*pi2) ); } );
 				sol->initFromFunction(
 						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(x*pi2) ); } );
 			}
 			else if( 1==dir ) {
-				vel->getField(Pimpact::V).initFromFunction(
+				(*vel)(Pimpact::V).initFromFunction(
 						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(y*pi2) ); } );
 				sol->initFromFunction(
 						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(y*pi2) ); } );
 			}
 			else if( 2==dir ) {
-				vel->getField(Pimpact::W).initFromFunction(
+				(*vel)(Pimpact::W).initFromFunction(
 						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(z*pi2) ); } );
 				sol->initFromFunction(
 						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(z*pi2) ); } );
@@ -1686,7 +1687,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, InterpolateV2SOp, SpaceT ) {
 
 			auto op = Pimpact::createInterpolateV2S( space );
 
-			op->apply( vel->getConstField(dir), *p );
+			op->apply( (*vel)(dir), *p );
 
 			// compute error
 			p->add( 1., *sol, -1., *p );
@@ -1761,32 +1762,32 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, InterpolateS2VOp, SpaceT ) {
 			if( 0==dir ) {
 				p->initFromFunction(
 						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(x*pi2) ); } );
-				sol->getField(Pimpact::U).initFromFunction(
+				(*sol)(Pimpact::U).initFromFunction(
 						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(x*pi2) ); } );
 			}
 			else if( 1==dir ) {
 				p->initFromFunction(
 						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(y*pi2) ); } );
-				sol->getField(Pimpact::V).initFromFunction(
+				(*sol)(Pimpact::V).initFromFunction(
 						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(y*pi2) ); } );
 			}
 			else if( 2==dir ) {
 				p->initFromFunction(
 						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(z*pi2) ); } );
-				sol->getField(Pimpact::W).initFromFunction(
+				(*sol)(Pimpact::W).initFromFunction(
 						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(z*pi2) ); } );
 			}
 
 			auto op = Pimpact::create<Pimpact::InterpolateS2V>( space );
 
-			op->apply(  *p, vel->getField(dir) );
+			op->apply(  *p, (*vel)(dir) );
 
 			// compute error
-			vel->getField(dir).add( 1., sol->getConstField(dir), -1., vel->getConstField(dir), Pimpact::With::B );
+			(*vel)(dir).add( 1., (*sol)(dir), -1., (*vel)(dir), Pimpact::B::Y );
 			if( write ) vel->write(n);
 
-			error2[n] = std::log10( vel->getConstField(dir).norm( Belos::TwoNorm, Pimpact::With::B ) / sol->getConstField(dir).norm( Belos::TwoNorm, Pimpact::With::B ) );
-			errorInf[n] = std::log10( vel->getConstField(dir).norm( Belos::InfNorm, Pimpact::With::B ) / sol->getConstField(dir).norm( Belos::InfNorm, Pimpact::With::B ) );
+			error2[n]   = std::log10( (*vel)(dir).norm( Belos::TwoNorm, Pimpact::B::Y ) / (*sol)(dir).norm( Belos::TwoNorm, Pimpact::B::Y ) );
+			errorInf[n] = std::log10( (*vel)(dir).norm( Belos::InfNorm, Pimpact::B::Y ) / (*sol)(dir).norm( Belos::InfNorm, Pimpact::B::Y ) );
 			dofs[n] = std::log10( 8.*std::pow(2.,n)+1. );
 			if( 0==rank )	
 				std::cout << std::pow(10.,dofs[n]) << "\t" << std::pow(10.,error2[n]) << "\t" << std::pow(10.,errorInf[n]) << "\n";
@@ -1854,32 +1855,32 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, extrapolateBC, SpaceT ) {
 
 				// init 
 				if( 0==dir ) {
-					vel->getField(Pimpact::U).initFromFunction(
+					(*vel)(Pimpact::U).initFromFunction(
 							[&pi2]( ST x, ST y, ST z ) ->ST { return(  std::sin(x*pi2) ); } );
-					sol->getField(Pimpact::U).initFromFunction(
+					(*sol)(Pimpact::U).initFromFunction(
 							[&pi2]( ST x, ST y, ST z ) ->ST { return(  std::sin(x*pi2) ); } );
 				}
 				else if( 1==dir ) {
-					vel->getField(Pimpact::V).initFromFunction(
+					(*vel)(Pimpact::V).initFromFunction(
 							[&pi2]( ST x, ST y, ST z ) ->ST { return( std::sin(y*pi2) ); } );
-					sol->getField(Pimpact::V).initFromFunction(
+					(*sol)(Pimpact::V).initFromFunction(
 							[&pi2]( ST x, ST y, ST z ) ->ST { return( std::sin(y*pi2) ); } );
 				}
 				else if( 2==dir ) {
-					vel->getField(Pimpact::W).initFromFunction(
+					(*vel)(Pimpact::W).initFromFunction(
 							[&pi2]( ST x, ST y, ST z ) ->ST { return(  std::sin(z*pi2) ); } );
-					sol->getField(Pimpact::W).initFromFunction(
+					(*sol)(Pimpact::W).initFromFunction(
 							[&pi2]( ST x, ST y, ST z ) ->ST { return(  std::sin(z*pi2) ); } );
 				}
 				vel->extrapolateBC();
 
 
 				// compute error
-				vel->getField(dir).add( 1., sol->getConstField(dir), -1., vel->getConstField(dir), Pimpact::With::B );
+				(*vel)(dir).add( 1., (*sol)(dir), -1., (*vel)(dir), Pimpact::B::Y );
 				if( write ) vel->write( n );
 
-				error2[n]   = std::log10( vel->getConstField(dir).norm( Belos::TwoNorm, Pimpact::With::B ) / sol->getConstField(dir).norm( Belos::TwoNorm, Pimpact::With::B ) );
-				errorInf[n] = std::log10( vel->getConstField(dir).norm( Belos::InfNorm, Pimpact::With::B ) / sol->getConstField(dir).norm( Belos::InfNorm, Pimpact::With::B ) );
+				error2[n]   = std::log10( (*vel)(dir).norm( Belos::TwoNorm, Pimpact::B::Y ) / (*sol)(dir).norm( Belos::TwoNorm, Pimpact::B::Y ) );
+				errorInf[n] = std::log10( (*vel)(dir).norm( Belos::InfNorm, Pimpact::B::Y ) / (*sol)(dir).norm( Belos::InfNorm, Pimpact::B::Y ) );
 
 				dofs[n] = std::log10( 8.*std::pow(2.,n)+1. );
 				if( 0==rank )	
@@ -1948,7 +1949,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, GradOp, SpaceT ) {
 			if( 0==dir ) {
 				p->initFromFunction(
 						[&pi2]( ST x, ST y, ST z ) ->ST { return(  std::cos(x*pi2) ); } );
-				sol->getField(Pimpact::U).initFromFunction(
+				(*sol)(Pimpact::U).initFromFunction(
 						[&pi2,&space]( ST x, ST y, ST z ) ->ST {
 							if( (std::abs( y )   <Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0 ) ||
 									(std::abs( y-ly )<Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0 ) ||
@@ -1962,7 +1963,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, GradOp, SpaceT ) {
 			else if( 1==dir ) {
 				p->initFromFunction(
 						[&pi2]( ST x, ST y, ST z ) ->ST {  return( std::cos(y*pi2) ); } );
-				sol->getField(Pimpact::V).initFromFunction(
+				(*sol)(Pimpact::V).initFromFunction(
 						[&pi2,&space]( ST x, ST y, ST z ) ->ST {
 							if( (std::abs( x )   <Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0 ) ||
 									(std::abs( x-lx )<Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0 ) ||
@@ -1976,7 +1977,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, GradOp, SpaceT ) {
 			else if( 2==dir ) {
 				p->initFromFunction(
 						[&pi2]( ST x, ST y, ST z ) ->ST {  return(  std::cos(z*pi2) ); } );
-				sol->getField(Pimpact::W).initFromFunction(
+				(*sol)(Pimpact::W).initFromFunction(
 						[&pi2,&space]( ST x, ST y, ST z ) ->ST { 
 							if( (std::abs( x )   <Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0 ) ||
 									(std::abs( x-lx )<Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0 ) ||
@@ -1993,11 +1994,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, GradOp, SpaceT ) {
 			op->apply(  *p, *vel );
 
 			// compute error
-			vel->getField(dir).add( 1., sol->getConstField(dir), -1., vel->getConstField(dir), Pimpact::With::B );
+			(*vel)(dir).add( 1., (*sol)(dir), -1., (*vel)(dir), Pimpact::B::Y );
 			if( write ) vel->write( n );
 			
-			error2[n] = std::log10( vel->getConstField(dir).norm( Belos::TwoNorm, Pimpact::With::B ) / sol->getConstField(dir).norm( Belos::TwoNorm, Pimpact::With::B ) );
-			errorInf[n] = std::log10( vel->getConstField(dir).norm( Belos::InfNorm, Pimpact::With::B ) / sol->getConstField(dir).norm( Belos::InfNorm, Pimpact::With::B ) );
+			error2[n]   = std::log10( (*vel)(dir).norm( Belos::TwoNorm, Pimpact::B::Y ) / (*sol)(dir).norm( Belos::TwoNorm, Pimpact::B::Y ) );
+			errorInf[n] = std::log10( (*vel)(dir).norm( Belos::InfNorm, Pimpact::B::Y ) / (*sol)(dir).norm( Belos::InfNorm, Pimpact::B::Y ) );
 			//errorInf[n] = std::log10( p->norm( Belos::InfNorm ) / sol->norm( Belos::InfNorm ) );
 			dofs[n] = std::log10( 8.*std::pow(2.,n)+1. );
 			if( 0==rank )	
@@ -2283,10 +2284,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, HelmholtzOp, SpaceT ) {
 					};
  
 				if( 0==dir ) {
-					x->getField(field).initFromFunction(
+					(*x)(field).initFromFunction(
 							[&inifunc]( ST x, ST y, ST z ) ->ST {  
 								return( inifunc(x) ); } );
-					sol->getField(field).initFromFunction(
+					(*sol)(field).initFromFunction(
 							[&space,&inifunc,&solfunc]( ST x, ST y, ST z ) ->ST {
 								if( (space->bcl(Pimpact::X)==Pimpact::DirichletBC && x<Teuchos::ScalarTraits<ST>::eps() ) ||
 									(  space->bcu(Pimpact::X)==Pimpact::DirichletBC && x>1-Teuchos::ScalarTraits<ST>::eps() ) )
@@ -2302,10 +2303,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, HelmholtzOp, SpaceT ) {
 									return( solfunc(x) ); } );
 				}
 				else if( 1==dir ) {
-					x->getField(field).initFromFunction(
+					(*x)(field).initFromFunction(
 							[&inifunc]( ST x, ST y, ST z ) ->ST {  
 								return( inifunc(y) ); } );
-					sol->getField(field).initFromFunction(
+					(*sol)(field).initFromFunction(
 							[&space,&inifunc,&solfunc]( ST x, ST y, ST z ) ->ST {
 								if( (space->bcl(Pimpact::Y)==Pimpact::DirichletBC && y<Teuchos::ScalarTraits<ST>::eps() ) ||
 									(  space->bcu(Pimpact::Y)==Pimpact::DirichletBC && y>1-Teuchos::ScalarTraits<ST>::eps() ) )
@@ -2321,10 +2322,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, HelmholtzOp, SpaceT ) {
 									return( solfunc(y) ); } );
 				}
 				else if( 2==dir ) {
-					x->getField(field).initFromFunction(
+					(*x)(field).initFromFunction(
 							[&inifunc]( ST x, ST y, ST z ) ->ST {  
 								return( inifunc(z) ); } );
-					sol->getField(field).initFromFunction(
+					(*sol)(field).initFromFunction(
 							[&space,&inifunc,&solfunc]( ST x, ST y, ST z ) ->ST {
 								if( (space->bcl(Pimpact::Z)==Pimpact::DirichletBC && z<Teuchos::ScalarTraits<ST>::eps() ) ||
 									(  space->bcu(Pimpact::Z)==Pimpact::DirichletBC && z>1-Teuchos::ScalarTraits<ST>::eps() ) )
@@ -2346,11 +2347,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, HelmholtzOp, SpaceT ) {
 
 				// compute error
 				if( print ) y->print();
-				y->getField(field).add( 1., sol->getConstField(field), -1., y->getConstField(field) );
+				(*y)(field).add( 1., (*sol)(field), -1., (*y)(field) );
 				//if( print ) sol->print();
 				if( write ) y->write( n );
-				error2[n]   = std::log10( y->getConstField(field).norm( Belos::TwoNorm ) / sol->getConstField(field).norm( Belos::TwoNorm ) );
-				errorInf[n] = std::log10( y->getConstField(field).norm( Belos::InfNorm ) / sol->getConstField(field).norm( Belos::InfNorm ) );
+				error2[n]   = std::log10( (*y)(field).norm( Belos::TwoNorm ) / (*sol)(field).norm( Belos::TwoNorm ) );
+				errorInf[n] = std::log10( (*y)(field).norm( Belos::InfNorm ) / (*sol)(field).norm( Belos::InfNorm ) );
 				dofs[n] = std::log10( 8.*std::pow(2.,n)+1. );
 				if( 0==rank )	
 					std::cout << std::pow(10.,dofs[n]) << "\t" << std::pow(10.,error2[n]) << "\t" << std::pow(10.,errorInf[n]) << "\n";

@@ -95,7 +95,7 @@ public:
 				Stencil< Scalar, Ordinal, SW::BL(0), SW::BL(0), SW::BU(0) >
 				cG2( space_->nGlo(dir) + space_->bu(dir) );
 
-				for( Ordinal i = space_->begin(dir,dir,With::B); i<=space_->end(dir,dir,With::B); ++i )
+				for( Ordinal i = space_->begin(dir,dir,B::Y); i<=space_->end(dir,dir,B::Y); ++i )
 					for( Ordinal ii = space_->gl(dir); ii<=space_->gu(dir); ++ii )
 						cG1( i+space_->getShift(dir), ii ) = getC( static_cast<ECoord>(dir), i, ii );
 
@@ -122,8 +122,8 @@ public:
 				}
 
 				for( Ordinal
-						i =space_->begin(S,static_cast<ECoord>(dir),With::B);
-						i<=space_->end(S,static_cast<ECoord>(dir),With::B);
+						i =space_->begin(S,static_cast<ECoord>(dir),B::Y);
+						i<=space_->end(S,static_cast<ECoord>(dir),B::Y);
 						++i ) 
 					for( Ordinal ii=space->dl(dir); ii<=space->du(dir); ++ii ) {
 						cT_[dir](i,ii) = cG2( i+ii+space_->getShift(dir), -ii );
@@ -132,35 +132,35 @@ public:
 		};
 
 
-  void apply( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::No ) const {
+  void apply( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::N ) const {
 
 		applyG( x, y, add );
 
-		if( Add::No==add )
+		if( Add::N==add )
 			applyJ( y );
 		//else
 			//y.setBZero();
   }
 
 
-  void applyG( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::No ) const {
+  void applyG( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::N ) const {
 
-		const With& withB = ( (Add::No==add) ? With::B : With::noB );
+		const B& withB = ( (Add::N==add) ? B::Y : B::N );
 
 		x.exchange(X);
 		for( Ordinal k=space()->begin(U,Z,withB); k<=space()->end(U,Z,withB); ++k )
 			for( Ordinal j=space()->begin(U,Y,withB); j<=space()->end(U,Y,withB); ++j )
 				for( Ordinal i=space()->begin(U,X,withB); i<=space()->end(U,X,withB); ++i ) {
-					if( Add::No==add ) y.getField(U)(i,j,k) = 0.;
-					y.getField(U)(i,j,k) += innerStencU( x, i, j, k );
+					if( Add::N==add ) y(U)(i,j,k) = 0.;
+					y(U)(i,j,k) += innerStencU( x, i, j, k );
 				}
 
 		x.exchange(Y);
 		for( Ordinal k=space()->begin(V,Z,withB); k<=space()->end(V,Z,withB); ++k )
 			for( Ordinal j=space()->begin(V,Y,withB); j<=space()->end(V,Y,withB); ++j )
 				for( Ordinal i=space()->begin(V,X,withB); i<=space()->end(V,X,withB); ++i ) {
-					if( Add::No==add ) y.getField(V)(i,j,k) = 0.;
-					y.getField(V)(i,j,k) += innerStencV( x, i, j, k );
+					if( Add::N==add ) y(V)(i,j,k) = 0.;
+					y(V)(i,j,k) += innerStencV( x, i, j, k );
 				}
 
 		if( 3==SpaceT::sdim )  {
@@ -169,8 +169,8 @@ public:
 			for( Ordinal k=space()->begin(W,Z,withB); k<=space()->end(W,Z,withB); ++k )
 				for( Ordinal j=space()->begin(W,Y,withB); j<=space()->end(W,Y,withB); ++j )
 					for( Ordinal i=space()->begin(W,X,withB); i<=space()->end(W,X,withB); ++i ) {
-						if( Add::No==add ) y.getField(W)(i,j,k) = 0.;
-						y.getField(W)(i,j,k) += innerStencW( x, i, j, k );
+						if( Add::N==add ) y(W)(i,j,k) = 0.;
+						y(W)(i,j,k) += innerStencW( x, i, j, k );
 					}
 		}
   }
@@ -183,53 +183,53 @@ public:
 		//const Scalar& eps = 1.;
 		
 		for( int dir=0; dir<SpaceT::sdim; ++dir ) {
-			With bc2 = With::B;
+			B bc2 = B::Y;
 			if( 0!=dir ) {
 				if( space()->getBCLocal()->getBCL(X) > 0 ) {
-					Ordinal i = space()->begin(dir,X,With::B);
+					Ordinal i = space()->begin(dir,X,B::Y);
 					for( Ordinal k=space()->begin(dir,Z, bc2); k<=space()->end(dir,Z,bc2); ++k )
 						for( Ordinal j=space()->begin(dir,Y,bc2); j<=space()->end(dir,Y,bc2); ++j )
-							y.getField(dir)(i,j,k) *= eps;  
+							y(dir)(i,j,k) *= eps;  
 				}
 				if( space()->getBCLocal()->getBCU(X) > 0 ) {
-					Ordinal i = space()->end(dir,X,With::B);
+					Ordinal i = space()->end(dir,X,B::Y);
 					for( Ordinal k=space()->begin(dir,Z,bc2); k<=space()->end(dir,Z,bc2); ++k )
 						for( Ordinal j=space()->begin(dir,Y,bc2); j<=space()->end(dir,Y,bc2); ++j )
-							y.getField(dir)(i,j,k) *= eps;  
+							y(dir)(i,j,k) *= eps;  
 				}
-				bc2 = With::noB;
+				bc2 = B::N;
 			}
 
 			if( 1!=dir ) {
 				if( space()->getBCLocal()->getBCL(Y) > 0 ) {
-					Ordinal j = space()->begin(dir,Y,With::B);
+					Ordinal j = space()->begin(dir,Y,B::Y);
 					for( Ordinal k=space()->begin(dir,Z,bc2); k<=space()->end(dir,Z,bc2); ++k )
 						for( Ordinal i=space()->begin(dir,X,bc2); i<=space()->end(dir,X,bc2); ++i ) 
-							y.getField(dir)(i,j,k) *= eps;  
+							y(dir)(i,j,k) *= eps;  
 				}
 				if( space()->getBCLocal()->getBCU(Y) > 0 ) {
-					Ordinal j = space()->end(dir,Y,With::B);
+					Ordinal j = space()->end(dir,Y,B::Y);
 					for( Ordinal k=space()->begin(dir,Z,bc2); k<=space()->end(dir,Z,bc2); ++k )
 						for( Ordinal i=space()->begin(dir,X,bc2); i<=space()->end(dir,X,bc2); ++i )
-							y.getField(dir)(i,j,k) *= eps;  
+							y(dir)(i,j,k) *= eps;  
 				}
-				bc2 = With::noB;
+				bc2 = B::N;
 			}
 
 			if( 2!=dir ) {
 				if( space()->getBCLocal()->getBCL(Z) > 0 ) {
-					Ordinal k = space()->begin(dir,Z,With::B);
+					Ordinal k = space()->begin(dir,Z,B::Y);
 					for( Ordinal j=space()->begin(dir,Y,bc2); j<=space()->end(dir,Y,bc2); ++j )
 						for( Ordinal i=space()->begin(dir,X,bc2); i<=space()->end(dir,X,bc2); ++i )
-							y.getField(dir)(i,j,k) *= eps;  
+							y(dir)(i,j,k) *= eps;  
 				}
 				if( space()->getBCLocal()->getBCU(Z) > 0 ) {
-					Ordinal k = space()->end(dir,Z,With::B);
+					Ordinal k = space()->end(dir,Z,B::Y);
 					for( Ordinal j=space()->begin(dir,Y,bc2); j<=space()->end(dir,Y,bc2); ++j )
 						for( Ordinal i=space()->begin(dir,X,bc2); i<=space()->end(dir,X,bc2); ++i )
-							y.getField(dir)(i,j,k) *= eps;  
+							y(dir)(i,j,k) *= eps;  
 				}
-				bc2 = With::noB;
+				bc2 = B::N;
 			}
 		}
 
@@ -239,7 +239,7 @@ public:
   }
 
 
-  void apply( const RangeFieldT& x, DomainFieldT& y, const Add& add=Add::No ) const {
+  void apply( const RangeFieldT& x, DomainFieldT& y, const Add& add=Add::N ) const {
 
 		for( int dir=0; dir<SpaceT::sdim; ++dir )
 			x.exchange( dir, dir );
@@ -249,7 +249,7 @@ public:
 			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
 				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
 					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
-						if( Add::No==add ) y(i,j,k) = 0.;
+						if( Add::N==add ) y(i,j,k) = 0.;
 						y(i,j,k) += innerStenc3D( x, i, j, k );
 					}
 		}
@@ -258,7 +258,7 @@ public:
 			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
 				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
 					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
-						if( Add::No==add ) y(i,j,k) = 0.;
+						if( Add::N==add ) y(i,j,k) = 0.;
 						y(i,j,k) += innerStenc2D( x, i, j, k );
 					}
 		}
@@ -311,7 +311,7 @@ public:
 
 protected:
 
-	inline constexpr Scalar innerStencU( const DomainFieldT& x,
+	constexpr Scalar innerStencU( const DomainFieldT& x,
 			const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
 
 		Scalar grad = 0.;
@@ -322,7 +322,7 @@ protected:
 		return( grad );
 	}
 
-	inline constexpr Scalar innerStencV( const DomainFieldT& x,
+	constexpr Scalar innerStencV( const DomainFieldT& x,
 			const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
 
 		Scalar grad = 0.;
@@ -333,7 +333,7 @@ protected:
 		return( grad );
 	}
 
-	inline constexpr Scalar innerStencW( const DomainFieldT& x,
+	constexpr Scalar innerStencW( const DomainFieldT& x,
 			const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
 
 		Scalar grad = 0.;
@@ -344,33 +344,33 @@ protected:
 		return( grad );
 	}
 
-	inline constexpr Scalar innerStenc3D( const RangeFieldT& x,
+	constexpr Scalar innerStenc3D( const RangeFieldT& x,
 			const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
 
 		Scalar gradT = 0.;
 
 		for( int ii=space_->dl(X); ii<=space_->du(X); ++ii ) 
-			gradT += getCTrans(X,i,ii)*x.getField(U)(i+ii,j,k);
+			gradT += getCTrans(X,i,ii)*x(U)(i+ii,j,k);
 
 		for( int jj=space_->dl(Y); jj<=space_->du(Y); ++jj ) 
-			gradT += getCTrans(Y,j,jj)*x.getField(V)(i,j+jj,k);
+			gradT += getCTrans(Y,j,jj)*x(V)(i,j+jj,k);
 
 		for( int kk=space_->dl(Z); kk<=space_->du(Z); ++kk ) 
-			gradT += getCTrans(Z,k,kk)*x.getField(W)(i,j,k+kk);
+			gradT += getCTrans(Z,k,kk)*x(W)(i,j,k+kk);
 
 		return( gradT );
 	}
 
-	inline constexpr Scalar innerStenc2D( const RangeFieldT& x,
+	constexpr Scalar innerStenc2D( const RangeFieldT& x,
 			const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
 
 		Scalar gradT = 0.;
 
 		for( int ii=space_->dl(X); ii<=space_->du(X); ++ii ) 
-			gradT += getCTrans(X,i,ii)*x.getField(U)(i+ii,j,k);
+			gradT += getCTrans(X,i,ii)*x(U)(i+ii,j,k);
 
 		for( int jj=space_->dl(Y); jj<=space_->du(Y); ++jj ) 
-			gradT += getCTrans(Y,j,jj)*x.getField(V)(i,j+jj,k);
+			gradT += getCTrans(Y,j,jj)*x(V)(i,j+jj,k);
 
 		return( gradT );
 	}

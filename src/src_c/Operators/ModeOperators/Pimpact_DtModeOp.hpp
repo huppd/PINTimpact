@@ -40,8 +40,8 @@ public:
 
 
   void apply(const DomainFieldT& x, RangeFieldT& y ) const {
-    y.getCFieldPtr()->add(      0.,  x.getConstCField(), alpha2_, x.getConstSField() );
-    y.getSFieldPtr()->add( -alpha2_,  x.getConstCField(),     0., x.getConstSField() );
+    y.getCField().add(       0.,  x.getConstCField(), alpha2_, x.getConstSField() );
+    y.getSField().add( -alpha2_,  x.getConstCField(),      0., x.getConstSField() );
   }
 
   void assignField( const DomainFieldT& mv ) {};

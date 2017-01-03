@@ -64,7 +64,7 @@ public:
 	}
 
 
-  /// \brief cheap constructor from one FieldT.
+  /// \brief cheap constructor from one InnerFieldT.
   ///
   /// creates simple wrapper from field(no coppying).
 	MultiField( const Teuchos::RCP<InnerFieldT>& field ):
@@ -215,36 +215,35 @@ public:
 
 
 
-  /// \brief \f[ *this = \alpha A B + \beta *this \f]
+  /// \brief \f[ *this = \alpha a b + \beta *this \f]
   ///
   /// \param alpha scalar
-  /// \param A Vector
-  /// \param B Matrix
+  /// \param a Vector
+  /// \param b Matrix
   /// \param beta
-	void TimesMatAdd( const Scalar& alpha, const FieldT& A,
-			const Teuchos::SerialDenseMatrix<int,Scalar>& B,
+	void TimesMatAdd( const Scalar& alpha, const FieldT& a,
+			const Teuchos::SerialDenseMatrix<int,Scalar>& b,
 			const Scalar& beta ) {
 
-		int m1 = A.getNumberVecs(); ///< is assumed to be equal to number vecs of this and ncolumns and nrows of b
+		int m1 = a.getNumberVecs(); ///< is assumed to be equal to number vecs of this and ncolumns and nrows of b
 		int m2 = getNumberVecs();   ///< is assumed to be equal to number vecs of this and ncolumns and nrows of b
 
-		assert( m1==m2 );
-
-		scale( beta );
+		//assert( m1==m2 ); // not necessary 
 
 		for( int i=0; i<m2; ++i ) {
-			for( int j=0; j<m1; ++j ) {
-				mfs_[i]->add( 1., *mfs_[i], alpha*B(j,i), *A.mfs_[j] );
+			mfs_[i]->add( beta, *mfs_[i], alpha*b(0,i), *a.mfs_[0] );
+			for( int j=1; j<m1; ++j ) {
+				mfs_[i]->add( 1., *mfs_[i], alpha*b(j,i), *a.mfs_[j] );
 			}
 		}
 	}
 
 
 
-  /// \brief <tt>mv := alpha*A + beta*B</tt>
-	void add( Scalar alpha, const FieldT& A, Scalar beta, const FieldT& B, const With& wB=With::B ) {
+  /// \brief <tt>mv := alpha*a + beta*b</tt>
+	void add( Scalar alpha, const FieldT& a, Scalar beta, const FieldT& b, const B& wb=B::Y ) {
 		for( int i=0; i<getNumberVecs(); ++i )
-			mfs_[i]->add( alpha, *A.mfs_[i], beta, *B.mfs_[i], wB );
+			mfs_[i]->add( alpha, *a.mfs_[i], beta, *b.mfs_[i], wb );
 	}
 
 
@@ -297,9 +296,9 @@ public:
   /// Here x_j represents the j'th field, and we update it as
   /// \f[ x_j[i] = \alpha_j x_j[i] \quad \mbox{for } i=1,\dots,n \f]
 	void scale( const std::vector<Scalar>& alphas ) {
-#ifdef DEBUG
-		TEST_EQUALITY( alphas.size(), getNumberVecs() );
-#endif
+
+		assert( alphas.size()==getNumberVecs() );
+
 		for( unsigned int i=0; i<alphas.size(); ++i )
 			mfs_[i]->scale( alphas[i] );
 	}
@@ -309,20 +308,17 @@ public:
   /// \param alpha
   /// \param A
   /// \param C
+	/// \todo make dot local and reduce over C (cf dot)
 	void Trans( Scalar alpha, const FieldT& A,
 			Teuchos::SerialDenseMatrix<int,Scalar>& C) const {
 
-		const int n1 = getNumberVecs();
-		const int n2 = A.getNumberVecs();
-		//#ifdef DEBUG
-		//    	if( n2!=C.numCols() )
-		//    		std::cout << "n1!=C.numCols() n1= " << n1 << ", C.numcols() = " << C.numRows() << "\n";
-		//    	if( n1!=C.numRows() )
-		//    		std::cout << "n1!=C.numCols() n1= " << n2 << ", C.numcols() = " << C.numCols() << "\n";
-		//    	TEST_EQUALITY( n2, C.numRows() );
-		//    	TEST_EQUALITY( n1, C.numCols() );
-		//#endif
-		for( int i=0; i<n1; ++i)
+		const int& n1 = getNumberVecs();
+		const int& n2 = A.getNumberVecs();
+
+		assert( n1==C.numRows() );
+		assert( n2==C.numCols() );
+
+		for( int i=0; i<n1; ++i )
 			for( int j=0; j<n2; ++j )
 				C(i,j) = alpha*mfs_[i]->dot( *A.mfs_[j] );
 	}
@@ -336,7 +332,7 @@ public:
 		const int n = getNumberVecs();
 		Scalar* temp = new Scalar[n];
 
-		for( int i=0; i<n; ++i)
+		for( int i=0; i<n; ++i )
 			temp[i] = A.mfs_[i]->dotLoc( *mfs_[i] );
 
 		MPI_Allreduce( temp, dots.data(), n, MPI_REAL8, MPI_SUM, comm() );
@@ -488,7 +484,7 @@ public:
 	}
 
   /// \brief \f[ *this = \alpha \f]
-	void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const With& wB=With::B ) {
+	void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const B& wB=B::Y ) {
 		const int n = getNumberVecs();
 		for( int i=0; i<n; ++i )
 			mfs_[i]->init(alpha,wB);

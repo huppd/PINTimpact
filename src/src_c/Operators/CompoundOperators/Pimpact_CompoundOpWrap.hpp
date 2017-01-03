@@ -61,7 +61,7 @@ public:
 		opV2V_->apply( x.getConstVField(), y.getVField() );
 
 		// ~grad
-		opS2V_->apply( x.getConstSField(), y.getVField(), Add::Yes );
+		opS2V_->apply( x.getConstSField(), y.getVField(), Add::Y );
 
 		// ~div
 		opV2S_->apply( x.getConstVField(), y.getSField() );

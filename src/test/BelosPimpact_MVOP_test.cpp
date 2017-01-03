@@ -85,65 +85,42 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, BelosMVTest, FType ) {
 
 }
 
-	TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, BelosMVTest, SF )
-	TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, BelosMVTest, VF )
-	TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, BelosMVTest, MSF )
-	TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, BelosMVTest, MVF )
-	TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, BelosMVTest, CF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, BelosMVTest, SF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, BelosMVTest, VF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, BelosMVTest, MSF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, BelosMVTest, MVF )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, BelosMVTest, CF )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, BelosMVTest, CMF )
 
 
 
 
-	TEUCHOS_UNIT_TEST( BelosOperatorMV, HelmholtzMV ) {
+TEUCHOS_UNIT_TEST( BelosOperatorMV, HelmholtzMV ) {
 
-		using VF = Pimpact::VectorField<SpaceT>;
-		using MVF = Pimpact::MultiField<VF>;
+	using VF = Pimpact::VectorField<SpaceT>;
+	using MVF = Pimpact::MultiField<VF>;
 
-		using OpBase = Pimpact::OperatorBase<MVF>;
+	using OpBase = Pimpact::OperatorBase<MVF>;
 
-
-		auto space = Pimpact::create<SpaceT>( pl );
-
-		auto field = Pimpact::create<Pimpact::VectorField>(space);
-
-		auto mv = Pimpact::createMultiField<VF>( *field, 10 );
-
-		auto opm = Pimpact::createMultiOpWrap( Pimpact::create<Pimpact::HelmholtzOp>(space) );
-
-		auto op = Pimpact::createOperatorBase( opm );
-
-		Teuchos::RCP<Belos::OutputManager<ST> > MyOM = Teuchos::rcp(
-				new Belos::OutputManager<ST>(Belos::Warnings,rcp(&out,false)) );
-
-		bool res = Belos::TestOperatorTraits< ST, MVF, OpBase >( MyOM, mv, op );
-
-		TEST_EQUALITY( res, true );
-	}
-
-
-
-TEUCHOS_UNIT_TEST( BelosOperatorMV, DtLapOp ) {
-
-	using BVF = Pimpact::MultiField<MVF>;
-
-	using OpBase = Pimpact::OperatorBase<BVF>;
 
 	auto space = Pimpact::create<SpaceT>( pl );
 
-	auto field = Pimpact::create<MVF>( space );
+	auto field = Pimpact::create<Pimpact::VectorField>(space);
 
-	auto mv = Pimpact::createMultiField<MVF>( *field, 10 );
+	auto mv = Pimpact::createMultiField<VF>( *field, 10 );
 
-	auto op = Pimpact::createMultiOperatorBase( Pimpact::createDtLapOp(space) );
+	auto opm = Pimpact::createMultiOpWrap( Pimpact::create<Pimpact::HelmholtzOp>(space) );
 
-	Teuchos::RCP<Belos::OutputManager<ST> > myOM = Teuchos::rcp(
-			new Belos::OutputManager<ST>(Belos::Warnings+Belos::TimingDetails,rcp(&out,false)) );
+	auto op = Pimpact::createOperatorBase( opm );
 
-	bool res = Belos::TestOperatorTraits< ST, BVF, OpBase >( myOM, mv, op );
+	Teuchos::RCP<Belos::OutputManager<ST> > MyOM = Teuchos::rcp(
+			new Belos::OutputManager<ST>(Belos::Warnings,rcp(&out,false)) );
+
+	bool res = Belos::TestOperatorTraits< ST, MVF, OpBase >( MyOM, mv, op );
 
 	TEST_EQUALITY( res, true );
 }
+
 
 
 

@@ -26,6 +26,7 @@ namespace Pimpact {
 ///
 /// vector for wrapping many fields into one multiharmonic field
 /// \ingroup Field
+/// \todo rm std::vector<RCP<...>>
 template<class IFT>
 class MultiHarmonicField : private AbstractField<typename IFT::SpaceT> {
 
@@ -44,9 +45,9 @@ protected:
 
 	const bool global_;
 
-  Teuchos::RCP<IFT> field0_;
+  IFT field0_;
 
-  Teuchos::Array< Teuchos::RCP< ModeField<IFT> > > fields_;
+	std::vector< Teuchos::RCP< ModeField<IFT> > > fields_;
 
 	Scalar* s_;
 
@@ -57,22 +58,22 @@ protected:
 
 		if( global_ ) {
 
-			Ordinal nx = field0_->getStorageSize();
+			Ordinal nx = field0_.getStorageSize();
 
 			s_ = new Scalar[ getStorageSize() ];
 			
-			field0_->setStoragePtr( s_ );
+			field0_.setStoragePtr( s_ );
 
 			for( Ordinal i=0; i<space()->nGlo(3); ++i )
 				fields_[i]->setStoragePtr( s_ + nx + 2*nx*i );
 		}
 		else{
 
-			Ordinal nx = field0_->getStorageSize();
+			Ordinal nx = field0_.getStorageSize();
 
 			s_ = new Scalar[ getStorageSize() ];
 
-			field0_->setStoragePtr( s_ );
+			field0_.setStoragePtr( s_ );
 			for( Ordinal i=0; i<=space()->end(U,3) - std::max(space()->begin(U,3),1); ++i )
 				fields_[i]->setStoragePtr( s_ + nx + 2*nx*i );
 		}
@@ -84,8 +85,8 @@ public:
 	constexpr Ordinal getStorageSize() const {
 		return(
 				( global_ )?
-					( ( 1 + 2*space()->nGlo(3)                                             )*field0_->getStorageSize() ):
-					( ( 1 + 2*( space()->end(U,3) - std::max(space()->begin(U,3),1) + 1 )  )*field0_->getStorageSize() )
+					( ( 1 + 2*space()->nGlo(3)                                             )*field0_.getStorageSize() ):
+					( ( 1 + 2*( space()->end(U,3) - std::max(space()->begin(U,3),1) + 1 )  )*field0_.getStorageSize() )
 				);
 	}
 
@@ -96,7 +97,7 @@ public:
 	MultiHarmonicField( const Teuchos::RCP<const SpaceT>& space, const bool global ):
 		AF( space ),
 		global_(global),
-		field0_( Teuchos::rcp( new IFT(space,false) ) ),
+		field0_( space, false ),
 		fields_( space->nGlo(3) ),
     exchangedState_( true ) {
 
@@ -126,7 +127,7 @@ public:
 		AF( vF.space() ),
 		//global_( vF.global_ ),
 		global_( vF.space()->np(3)==1 ),
-		field0_( Teuchos::rcp( new IFT( *vF.field0_, copyType ) ) ),
+		field0_( vF.field0_, copyType ),
 		fields_( vF.space()->nGlo(3) ),
     exchangedState_(vF.exchangedState_) {
 
@@ -176,25 +177,17 @@ public:
 
 	constexpr const bool& global() const { return( global_ ); }
 
-  constexpr IFT&                    get0Field()               { return( *field0_ ); }
-  constexpr const IFT&              getConst0Field()    const { return( *field0_ ); }
-  constexpr Teuchos::RCP<      IFT> get0FieldPtr()            { return(  field0_ ); }
-  constexpr Teuchos::RCP<const IFT> getConst0FieldPtr() const { return(  field0_ ); }
+                  IFT& get0Field()            { return( field0_ ); }
+  constexpr const IFT& getConst0Field() const { return( field0_ ); }
 
   constexpr ModeField<IFT>&                     getField        ( const Ordinal& i )       { return( *fields_[index(i)] ); }
   constexpr const ModeField<IFT>&               getConstField   ( const Ordinal& i ) const { return( *fields_[index(i)] ); }
-  constexpr Teuchos::RCP<      ModeField<IFT> > getFieldPtr     ( const Ordinal& i )       { return( fields_[index(i)]  ); }
-  constexpr Teuchos::RCP<const ModeField<IFT> > getConstFieldPtr( const Ordinal& i ) const { return( fields_[index(i)]  ); }
 
   constexpr IFT&                    getCField        ( const Ordinal& i )       { return( fields_[index(i)]->getCField()      ); }
   constexpr const IFT&              getConstCField   ( const Ordinal& i ) const { return( fields_[index(i)]->getConstCField() ); }
-  constexpr Teuchos::RCP<      IFT> getCFieldPtr     ( const Ordinal& i )       { return( fields_[index(i)]->getCFieldPtr()   ); }
-  constexpr Teuchos::RCP<const IFT> getConstCFieldPtr( const Ordinal& i ) const { return( fields_[index(i)]->getConstCFieldPtr() ); }
 
   constexpr IFT&                    getSField        ( const Ordinal& i )       { return( fields_[index(i)]->getSField()         ); }
   constexpr const IFT&              getConstSField   ( const Ordinal& i ) const { return( fields_[index(i)]->getConstSField()    ); }
-  constexpr Teuchos::RCP<      IFT> getSFieldPtr     ( const Ordinal& i )       { return( fields_[index(i)]->getSFieldPtr()      ); }
-  constexpr Teuchos::RCP<const IFT> getConstSFieldPtr( const Ordinal& i ) const { return( fields_[index(i)]->getConstSFieldPtr() ); }
 
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const { return( AF::space_ ); }
@@ -210,9 +203,9 @@ public:
 
 		Ordinal len = 0;
 
-		len += getConst0FieldPtr()->getLength();
-		//len += space()->nGlo(3)*getConstFieldPtr( std::max(space()->begin(U,3),1) )->getLength();
-		len += 2*space()->nGlo(3)*getConst0FieldPtr()->getLength();
+		len += getConst0Field().getLength();
+		//len += space()->nGlo(3)*getConstField( std::max(space()->begin(U,3),1) ).getLength();
+		len += 2*space()->nGlo(3)*getConst0Field().getLength();
 
     return( len );
   }
@@ -223,15 +216,15 @@ public:
   /// \name Update methods
   /// \{
 
-  /// \brief Replace \c this with \f$\alpha A + \beta B\f$.
+  /// \brief Replace \c this with \f$\alpha a + \beta b\f$.
 	/// \todo add test for consistent VectorSpaces in debug mode
-  void add( const Scalar& alpha, const FieldT& A, const Scalar& beta, const FieldT& B, const With& wB=With::B ) {
+  void add( const Scalar& alpha, const FieldT& a, const Scalar& beta, const FieldT& b, const B& wb=B::Y ) {
 
 		if( 0==space()->begin(U,3) )
-			get0Field().add(alpha, A.getConst0Field(), beta, B.getConst0Field(), wB );
+			field0_.add(alpha, a.getConst0Field(), beta, b.getConst0Field(), wb );
 
 		for( Ordinal i=std::max(space()->begin(U,3),1); i<=space()->end(U,3); ++i )
-			getField(i).add( alpha, A.getConstField(i), beta, B.getConstField(i), wB );
+			getField(i).add( alpha, a.getConstField(i), beta, b.getConstField(i), wb );
 
 		changed();
   }
@@ -246,7 +239,7 @@ public:
   void abs( const FieldT& y) {
 
 		if( 0==space()->begin(U,3) )
-			get0Field().abs( y.getConst0Field() );
+			field0_.abs( y.getConst0Field() );
 
 		for( Ordinal i=std::max(space()->begin(U,3),1); i<=space()->end(U,3); ++i )
 			getField(i).abs( y.getConstField(i) );
@@ -263,7 +256,7 @@ public:
   void reciprocal( const FieldT& y){
 
 		if( 0==space()->begin(U,3) )
-			get0FieldPtr()->reciprocal( y.getConst0Field() );
+			field0_.reciprocal( y.getConst0Field() );
 
 		for( Ordinal i=std::max(space()->begin(U,3),1); i<=space()->end(U,3); ++i )
 			getField(i).reciprocal( y.getConstField(i) );
@@ -276,7 +269,7 @@ public:
   void scale( const Scalar& alpha ) {
 
 		if( 0==space()->begin(U,3) )
-			get0FieldPtr()->scale( alpha );
+			field0_.scale( alpha );
 
 		for( Ordinal i=std::max(space()->begin(U,3),1); i<=space()->end(U,3); ++i )
 			getField(i).scale( alpha );
@@ -294,7 +287,7 @@ public:
   void scale( const FieldT& a) {
 
 		if( 0==space()->begin(U,3) )
-			get0FieldPtr()->scale( a.getConst0Field() );
+			field0_.scale( a.getConst0Field() );
 
 		for( Ordinal i=std::max(space()->begin(U,3),1); i<=space()->end(U,3); ++i )
 			getField(i).scale( a.getConstField(i) );
@@ -315,9 +308,9 @@ public:
     Scalar b = 0.;
 
 		if( 0==space()->begin(U,3) )
-			b += getConst0FieldPtr()->dotLoc( a.getConst0Field() );
+			b += getConst0Field().dotLoc( a.getConst0Field() );
 		for( Ordinal i=std::max(space()->begin(U,3),1); i<=space()->end(U,3); ++i )
-			b += getConstFieldPtr(i)->dotLoc( a.getConstField(i) );
+			b += getConstField(i).dotLoc( a.getConstField(i) );
 
     return( b );
   }
@@ -335,13 +328,13 @@ public:
     Scalar normvec = 0.;
 
 		if( 0==space()->begin(U,3) )
-			normvec += getConst0FieldPtr()->normLoc(type);
+			normvec += getConst0Field().normLoc(type);
 
 		for( Ordinal i=std::max(space()->begin(U,3),1); i<=space()->end(U,3); ++i )
 			normvec =
 				(Belos::InfNorm==type)?
-				std::max( getConstFieldPtr(i)->normLoc(type), normvec ):
-				(normvec+getConstFieldPtr(i)->normLoc(type));
+				std::max( getConstField(i).normLoc(type), normvec ):
+				(normvec+getConstField(i).normLoc(type));
 
 		return( normvec );
   }
@@ -375,10 +368,10 @@ public:
     Scalar normvec= Teuchos::ScalarTraits<Scalar>::zero();
 
 		if( 0==space()->begin(U,3) )
-			normvec += getConst0FieldPtr()->normLoc( weights.getConst0Field() );
+			normvec += getConst0Field().normLoc( weights.getConst0Field() );
 
 		for( Ordinal i=std::max(space()->begin(U,3),1); i<=space()->end(U,3); ++i )
-			normvec += getConstFieldPtr(i)->normLoc(weights.getConstField(i));
+			normvec += getConstField(i).normLoc(weights.getConstField(i));
 
     return( normvec );
   }
@@ -404,7 +397,7 @@ public:
 	MultiHarmonicField& operator=( const MultiHarmonicField& a ) {
 
 		if( 0==space()->begin(U,3) )
-			get0Field() = a.getConst0Field();
+			field0_ = a.getConst0Field();
 
 		for( Ordinal i=std::max(space()->begin(U,3),1); i<=space()->end(U,3); ++i )
 			getField(i) = a.getConstField(i);
@@ -417,7 +410,7 @@ public:
   void random(bool useSeed = false, int seed = 1) {
 
 		if( 0==space()->begin(U,3) )
-			get0Field().random();
+			field0_.random();
 
 		for( Ordinal i=std::max(space()->begin(U,3),1); i<=space()->end(U,3); ++i )
 			getField(i).random();
@@ -427,10 +420,10 @@ public:
 
 
   /// \brief Replace each element of the vector  with \c alpha.
-  void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const With& wB=With::B ) {
+  void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const B& wB=B::Y ) {
 
 		if( 0==space()->begin(U,3) )
-			get0Field().init( alpha, wB );
+			field0_.init( alpha, wB );
 
 		for( Ordinal i=std::max(space()->begin(U,3),1); i<=space()->end(U,3); ++i )
 			getField(i).init( alpha, wB );
@@ -442,7 +435,7 @@ public:
 	void initField() {
 
 		if( 0==space()->begin(U,3) )
-			get0Field().initField();
+			field0_.initField();
 
 		for( Ordinal i=std::max(space()->begin(U,3),1); i<=space()->end(U,3); ++i )
 			getField(i).initField();
@@ -455,11 +448,11 @@ public:
 	void initField( Teuchos::ParameterList& para ) {
 
 		if( 0==space()->begin(U,3) )
-			get0FieldPtr()->initField( para.sublist("0 mode") );
+			field0_.initField( para.sublist("0 mode") );
 
 		if( space()->begin(U,3)<=1 && 1<=space()->end(U,3) ) {
-			getCFieldPtr(1)->initField( para.sublist("cos mode") );
-			getSFieldPtr(1)->initField( para.sublist("sin mode") );
+			getCField(1).initField( para.sublist("cos mode") );
+			getSField(1).initField( para.sublist("sin mode") );
 		}
 		changed();
 	}
@@ -467,21 +460,21 @@ public:
 	void extrapolateBC( const Belos::ETrans& trans=Belos::NOTRANS ) {
 
 		if( 0==space()->begin(U,3) )
-			get0FieldPtr()->extrapolateBC( trans );
+			field0_.extrapolateBC( trans );
 
 		for( Ordinal i=std::max(space()->begin(U,3),1); i<=space()->end(U,3); ++i )
-			getConstFieldPtr(i)->extrapolateBC( trans );
+			getField(i).extrapolateBC( trans );
 
 		changed();
   }
 
-  void level()  {
+  void level() const {
 
 		if( 0==space()->begin(U,3) )
-			get0FieldPtr()->level();
+			field0_.level();
 
 		for( Ordinal i=std::max(space()->begin(U,3),1); i<=space()->end(U,3); ++i )
-			getConstFieldPtr(i)->level();
+			getConstField(i).level();
 
 		changed();
   }
@@ -492,10 +485,10 @@ public:
   void print( std::ostream& os=std::cout ) const {
 
 		if( 0==space()->begin(U,3) )
-			getConst0FieldPtr()->print( os );
+			getConst0Field().print( os );
 
 		for( Ordinal i=std::max(space()->begin(U,3),1); i<=space()->end(U,3); ++i )
-			getConstFieldPtr(i)->print( os );
+			getConstField(i).print( os );
   }
 
 
@@ -508,7 +501,7 @@ public:
 				Scalar pi = 4.*std::atan(1.);
 				Ordinal nf = space()->nGlo(3);
 				Ordinal nt = 4*nf;
-				Teuchos::RCP<IFT> temp = getConst0FieldPtr()->clone( Pimpact::ECopy::Shallow );
+				Teuchos::RCP<IFT> temp = getConst0Field().clone( Pimpact::ECopy::Shallow );
 				for( Ordinal i=0; i<nt;  ++i ) {
 					*temp = getConst0Field();
 					for( Ordinal j=1; j<=nf; ++j ) {
@@ -526,11 +519,11 @@ public:
 		else{
 
 			if( 0==space()->begin(U,3) )
-				getConst0FieldPtr()->write(count);
+				getConst0Field().write(count);
 
 			for( Ordinal i=std::max(space()->begin(U,3),1); i<=space()->end(U,3); ++i ) {
-				getConstCFieldPtr(i)->write( count+2*i-1 );
-				getConstSFieldPtr(i)->write( count+2*i   );
+				getConstCField(i).write( count+2*i-1 );
+				getConstSField(i).write( count+2*i   );
 			}
 		}
   }
@@ -553,13 +546,13 @@ public:
 
 			// exchange spatial
 			if( 0==space()->begin(U,3) )
-				get0FieldPtr()->exchange();
+				field0_.exchange();
 
 			for( Ordinal i=std::max(space()->begin(U,3),1); i<=space()->end(U,3); ++i )
-				getConstFieldPtr(i)->exchange();
+				getConstField(i).exchange();
 
 			// mpi stuff
-			int nx = getConst0FieldPtr()->getStorageSize();
+			int nx = getConst0Field().getStorageSize();
 
 			// --- sendcount ---
 			int sendcount = 0;
@@ -613,13 +606,13 @@ public:
 
 			// set non owning spatial block as exchanged
 			if( 0!=space()->begin(U,3) )
-				getConst0FieldPtr()->setExchanged();
+				getConst0Field().setExchanged();
 
 			for( Ordinal i=1; i<space()->begin(U,3); ++i )
-				getConstFieldPtr(i)->setExchanged();
+				getConstField(i).setExchanged();
 
 			for( Ordinal i=space()->end(U,3)+1; i<=space()->nGlo(3); ++i )
-				getConstFieldPtr(i)->setExchanged();
+				getConstField(i).setExchanged();
 		}
 	}
 

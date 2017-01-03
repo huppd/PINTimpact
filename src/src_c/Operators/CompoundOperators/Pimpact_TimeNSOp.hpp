@@ -200,18 +200,18 @@ public:
 
 		for( Ordinal it=0; it<nt; ++it ) {
 
-			interpolateV2S_->apply( mv->getConstField(it).getConstField(U), *temp );
+			interpolateV2S_->apply( mv->getConstField(it)(U), *temp );
 			for( int j=0; j<SpaceT::sdim; ++j ) {
-				interpolateS2V_->apply( *temp, windU_->getField(it).getField(j) );
+				interpolateS2V_->apply( *temp, windU_->getField(it)(j) );
 			}
-			interpolateV2S_->apply( mv->getConstField(it).getConstField(V), *temp );
+			interpolateV2S_->apply( mv->getConstField(it)(V), *temp );
 			for( int j=0; j<SpaceT::sdim; ++j ) {
-				interpolateS2V_->apply( *temp, windV_->getField(it).getField(j) );
+				interpolateS2V_->apply( *temp, windV_->getField(it)(j) );
 			}
 			if( 3==SpaceT::sdim ) {
-				interpolateV2S_->apply( mv->getConstField(it).getConstField(W), *temp );
+				interpolateV2S_->apply( mv->getConstField(it)(W), *temp );
 				for( int j=0; j<SpaceT::sdim; ++j ) {
-					interpolateS2V_->apply( *temp, windW_->getField(it).getField(j) );
+					interpolateS2V_->apply( *temp, windW_->getField(it)(j) );
 				}
 			}
 		}

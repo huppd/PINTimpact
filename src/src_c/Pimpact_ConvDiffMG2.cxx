@@ -9,7 +9,9 @@ using O = int;
 const int d = 3;
 const int dNC=4;
 
-using FSpaceT = Pimpact::Space<S,O,3,d,dNC>;
+using SpaceT = Pimpact::Space<S,O,3,d,dNC>;
+
+using FSpaceT = SpaceT;
 using CSpaceT = Pimpact::Space<S,O,3,d,2>;
 
 using CS = Pimpact::CoarsenStrategy<FSpaceT,CSpaceT>;
@@ -37,63 +39,29 @@ int main( int argi, char** argv ) {
 
 	pl->set( "domain", 1);
 
-	//int nwinds = 360*2;
-	//int nwinds = 360;
-	//int nwinds = 180;
-	//	int nwinds = 90;
-	//	int nwinds = 128;
-	//	int nwinds = 64;
-	//	int nwinds = 32;
-	//	int nwinds = 16;
-	//	int nwinds = 8;
-	//	int nwinds = 4;
-	//	int nwinds = 2;
 	int nwinds = 1;
 
-	//  S pi = (S)4. * std::atan( (S)1. ) ;
 
 	for( S re=1.; re<1e6; re*=10 ) {
-		//	pl->set<S>( "Re", 100000 );
-		//	pl->set<S>( "Re", 10000 );
 		pl->set<S>( "Re", re );
-		//	pl->set<S>( "Re", 100 );
-		//	pl->set<S>( "Re", 10 );
-		//	pl->set<S>( "Re", 1 );
-		//	pl->set<S>( "Re", 0.1 );
-		//	pl->set<S>( "Re", 0.01 );
-		//	pl->set<S>( "Re", 0.001 );
-		//	pl->set<S>( "Re", 0.0001 );
 
 
 		pl->set<O>( "nx", 513 );
 		pl->set<O>( "ny", 513 );
-		//	pl->set<O>( "nx", 257 );
-		//	pl->set<O>( "ny", 257 );
-		//	pl->set<O>( "nx", 129 );
-		//	pl->set<O>( "ny", 129 );
-		//	pl->set<O>( "nx", 65 );
-		//	pl->set<O>( "ny", 65 );
-		//	pl->set<O>( "nx", 33 );
-		//	pl->set<O>( "ny", 33 );
-		//pl->set<O>( "nx", 17 );
-		//pl->set<O>( "ny", 17 );
 
-
-		auto space = Pimpact::create< Pimpact::Space<S,O,3,d,dNC> >( pl );
+		auto space = Pimpact::create< SpaceT >( pl );
 
 		auto mgSpaces = Pimpact::createMGSpaces<CS>( space, 5 );
 
-		auto wind = Pimpact::create<Pimpact::VectorField>( space );
-		auto y = Pimpact::create<Pimpact::VectorField>( space );
-		auto z = Pimpact::create<Pimpact::VectorField>( space );
-		auto z2 = Pimpact::create<Pimpact::VectorField>( space );
-
+		Pimpact::VectorField<SpaceT> wind( space );
+		Pimpact::VectorField<SpaceT> y( space );
+		Pimpact::VectorField<SpaceT> z( space );
+		Pimpact::VectorField<SpaceT> z2( space );
 
 		auto op = Pimpact::create<ConvDiffOpT>( space );
 
 		for(short int dirx=1; dirx<4; dirx+=2 ) {
 			for(short int diry=1; diry<2; diry+=2 ) {
-
 
 				auto pls = Teuchos::parameterList();
 				pls->sublist("Smoother").set( "omega", 1. );
@@ -133,29 +101,29 @@ int main( int argi, char** argv ) {
 						phifile << re << "\t";
 
 					// init solution
-					y->getField(Pimpact::U).initField( Pimpact::Grad2D_inX );
-					y->getField(Pimpact::V).initField( Pimpact::Grad2D_inY );
+					y(Pimpact::U).initField( Pimpact::Grad2D_inX );
+					y(Pimpact::V).initField( Pimpact::Grad2D_inY );
 
-					auto sol = y->clone( Pimpact::ECopy::Deep );
+					auto sol = y.clone( Pimpact::ECopy::Deep );
 
-					wind->getField(Pimpact::U).initField( Pimpact::Grad2D_inX );
-					wind->getField(Pimpact::V).initField( Pimpact::Grad2D_inY );
+					wind(Pimpact::U).initField( Pimpact::Grad2D_inX );
+					wind(Pimpact::V).initField( Pimpact::Grad2D_inY );
 
-					op->assignField( *wind );
-					smoother->assignField( *wind );
+					op->assignField( wind );
+					smoother->assignField( wind );
 
-					z->initField();
+					z.initField();
 
 					// constructing rhs
-					op->apply( *y, *z );
+					op->apply( y, z );
 					{
-						y->init(0);
-						auto bc = z->clone( Pimpact::ECopy::Shallow );
-						op->apply( *y, *bc );
-						z->add( 1., *z, -1., *bc );
+						y.init(0);
+						auto bc = z.clone( Pimpact::ECopy::Shallow );
+						op->apply( y, *bc );
+						z.add( 1., z, -1., *bc );
 					}
 
-					y->initField();
+					y.initField();
 
 					std::ofstream ofs;
 					std::string filename = "MG.txt";
@@ -173,11 +141,11 @@ int main( int argi, char** argv ) {
 					int iter=0;
 					do {
 
-						smoother->apply( *z, *y );
+						smoother->apply( z, y );
 
-						z2->add( -1, *sol, 1, *y );
+						z2.add( -1, *sol, 1, y );
 
-						error = z2->norm()/sol->norm();
+						error = z2.norm()/sol->norm();
 
 						if( space()->rankST()==0 ) ofs << error << "\n";
 						if( space()->rankST()==0 ) std::cout <<"iter: " <<iter <<" " << error << "\n";

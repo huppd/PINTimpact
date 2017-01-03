@@ -247,35 +247,35 @@ public:
     out << "\tls: " << ls_ << "\n";
   }
 
-  static constexpr inline
+  static constexpr 
 	int BL( const int& i ) { 
 		return( (4==1)?-1:-dimNC+1 );
 	}
-  static constexpr inline
+  static constexpr 
 	int BU( const int& i ) { 
 		return( (4==1)?1:dimNC-1 );
 	}
-  static constexpr inline
+  static constexpr 
 	int DL( const int& i ) { 
 		return( (4==1)?-1:-dimNC+1 );
 	}
-  static constexpr inline
+  static constexpr 
 	int DU( const int& i ) { 
 		return( (4==1)?1:dimNC-2 );
 	}
-  static constexpr inline
+  static constexpr 
 	int GL( const int& i ) { 
 		return( (4==1)?-1:-dimNC+2 );
 	}
-  static constexpr inline
+  static constexpr 
 	int GU( const int& i ) { 
 		return( (4==1)?1:dimNC-1 );
 	}
-  static constexpr inline
+  static constexpr 
 	int NL( const int& i ) { 
 		return( (4==1)?-1:-dimNC+1 );
 	}
-  static constexpr inline
+  static constexpr 
 	int NU( const int& i ) { 
 		return( (4==1)?1:dimNC-1 );
 	}

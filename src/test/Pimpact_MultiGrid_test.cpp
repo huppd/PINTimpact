@@ -436,8 +436,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MGTransfers, Restrictor, CS, RestrictorType )
 
 			if( mgSpaces->participating(level) ) {
 
-				er->add( 1., *sol, -1., *fieldc, Pimpact::With::B );
-				ST errInf = er->norm(Belos::InfNorm, Pimpact::With::B);
+				er->add( 1., *sol, -1., *fieldc, Pimpact::B::Y );
+				ST errInf = er->norm(Belos::InfNorm, Pimpact::B::Y);
 				if( 0==space->rankST() )
 					std::cout << "error Const: " << errInf << " ("<< op->getDD() << ")\n";
 				//if( i>0 )
@@ -457,8 +457,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MGTransfers, Restrictor, CS, RestrictorType )
 				if( mgSpaces->participating(level-1) ) op->apply( *fieldf, *fieldc );
 
 				if( mgSpaces->participating(level) ) {
-					er->add( 1., *sol, -1., *fieldc, Pimpact::With::B );
-					double errInf = er->norm(Belos::InfNorm, Pimpact::With::B );
+					er->add( 1., *sol, -1., *fieldc, Pimpact::B::Y );
+					double errInf = er->norm(Belos::InfNorm, Pimpact::B::Y );
 					if( 0==space->rankST() )
 						std::cout << "error ("<< toString(type) << "): " << errInf << " ("<< op->getDD() << ")\n";
 					TEST_EQUALITY( errInf<eps, true );
@@ -858,13 +858,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersVF, CS ) {
 			TEST_INEQUALITY( 0., fieldf->norm() );
 
 		// the stronger init test
-		fieldc->getField(Pimpact::U).initField( Pimpact::ConstField, 1. );
-		fieldc->getField(Pimpact::V).initField( Pimpact::ConstField, 1. );
-		fieldc->getField(Pimpact::W).initField( Pimpact::ConstField, 1. );
+		(*fieldc)(Pimpact::U).initField( Pimpact::ConstField, 1. );
+		(*fieldc)(Pimpact::V).initField( Pimpact::ConstField, 1. );
+		(*fieldc)(Pimpact::W).initField( Pimpact::ConstField, 1. );
 		fieldf->init(0.);
-		sol->getField(Pimpact::U).initField( Pimpact::ConstField, 1. );
-		sol->getField(Pimpact::V).initField( Pimpact::ConstField, 1. );
-		sol->getField(Pimpact::W).initField( Pimpact::ConstField, 1. );
+		(*sol)(Pimpact::U).initField( Pimpact::ConstField, 1. );
+		(*sol)(Pimpact::V).initField( Pimpact::ConstField, 1. );
+		(*sol)(Pimpact::W).initField( Pimpact::ConstField, 1. );
 
 		mgTransfers->interpolation( x );
 
@@ -937,14 +937,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersVF, CS ) {
 
 			Pimpact::EScalarField type = static_cast<Pimpact::EScalarField>(dir);
 
-			fieldc->getField( Pimpact::U ).initField( type );
-			fieldc->getField( Pimpact::V ).initField( type );
-			fieldc->getField( Pimpact::W ).initField( type );
+			(*fieldc)( Pimpact::U ).initField( type );
+			(*fieldc)( Pimpact::V ).initField( type );
+			(*fieldc)( Pimpact::W ).initField( type );
 			fieldf->initField();
 
-			sol->getField( Pimpact::U ).initField( type );
-			sol->getField( Pimpact::V ).initField( type );
-			sol->getField( Pimpact::W ).initField( type );
+			(*sol)( Pimpact::U ).initField( type );
+			(*sol)( Pimpact::V ).initField( type );
+			(*sol)( Pimpact::W ).initField( type );
 
 			mgTransfers->interpolation( x );
 
@@ -995,13 +995,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersVF, CS ) {
 
 
 		// the stronger init test
-		fieldf->getField(Pimpact::U).initField( Pimpact::ConstField, 1. );
-		fieldf->getField(Pimpact::V).initField( Pimpact::ConstField, 1. );
-		fieldf->getField(Pimpact::W).initField( Pimpact::ConstField, 1. );
+		(*fieldf)(Pimpact::U).initField( Pimpact::ConstField, 1. );
+		(*fieldf)(Pimpact::V).initField( Pimpact::ConstField, 1. );
+		(*fieldf)(Pimpact::W).initField( Pimpact::ConstField, 1. );
 		fieldc->init(0.);
-		sol->getField(Pimpact::U).initField( Pimpact::ConstField, 1. );
-		sol->getField(Pimpact::V).initField( Pimpact::ConstField, 1. );
-		sol->getField(Pimpact::W).initField( Pimpact::ConstField, 1. );
+		(*sol)(Pimpact::U).initField( Pimpact::ConstField, 1. );
+		(*sol)(Pimpact::V).initField( Pimpact::ConstField, 1. );
+		(*sol)(Pimpact::W).initField( Pimpact::ConstField, 1. );
 
 		mgTransfers->restriction( x );
 
@@ -1021,14 +1021,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, MGTransfersVF, CS ) {
 
 			Pimpact::EScalarField type = static_cast<Pimpact::EScalarField>(dir);
 
-			fieldf->getField( Pimpact::U ).initField( type );
-			fieldf->getField( Pimpact::V ).initField( type );
-			fieldf->getField( Pimpact::W ).initField( type );
+			(*fieldf)( Pimpact::U ).initField( type );
+			(*fieldf)( Pimpact::V ).initField( type );
+			(*fieldf)( Pimpact::W ).initField( type );
 			fieldc->initField();
 
-			sol->getField( Pimpact::U ).initField( type );
-			sol->getField( Pimpact::V ).initField( type );
-			sol->getField( Pimpact::W ).initField( type );
+			(*sol)( Pimpact::U ).initField( type );
+			(*sol)( Pimpact::V ).initField( type );
+			(*sol)( Pimpact::W ).initField( type );
 
 			mgTransfers->restriction( x );
 
@@ -1349,9 +1349,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffSOR, CS ) {
 		ofs.open("MG2.txt", std::ofstream::out);
 
 	// 
-	x->getField(Pimpact::U).initField( Pimpact::Grad2D_inX );
-	x->getField(Pimpact::V).initField( Pimpact::Grad2D_inY );
-	x->getField(Pimpact::W).initField( Pimpact::Grad2D_inZ );
+	(*x)(Pimpact::U).initField( Pimpact::Grad2D_inX );
+	(*x)(Pimpact::V).initField( Pimpact::Grad2D_inY );
+	(*x)(Pimpact::W).initField( Pimpact::Grad2D_inZ );
 	auto sol = x->clone( Pimpact::ECopy::Deep );
 
 	op->apply(*x,*b);
@@ -1459,11 +1459,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffJ, CS ) {
 		wind->initField();
 		//		wind->initField();
 		//		wind->random();
-		wind->getField(Pimpact::U).initField( Pimpact::Poiseuille2D_inX );
-		wind->getField(Pimpact::V).random();
-		wind->getField(Pimpact::V).scale(0.1);
-		wind->getField(Pimpact::W).random();
-		wind->getField(Pimpact::W).scale(0.1);
+		(*wind)(Pimpact::U).initField( Pimpact::Poiseuille2D_inX );
+		(*wind)(Pimpact::V).random();
+		(*wind)(Pimpact::V).scale(0.1);
+		(*wind)(Pimpact::W).random();
+		(*wind)(Pimpact::W).scale(0.1);
 		op->assignField( *wind );
 		mg->assignField( *wind );
 	}
@@ -1476,7 +1476,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffJ, CS ) {
 	//	x->getField(Pimpact::V).initField( Pimpact::Poiseuille2D_inY );
 	//	x->getField(Pimpact::U).initField( Pimpact::Grad2D_inX );
 	//	x->getField(Pimpact::V).initField( Pimpact::Grad2D_inY );
-	x->getField(Pimpact::W).initField( Pimpact::Grad2D_inY );
+	(*x)(Pimpact::W).initField( Pimpact::Grad2D_inY );
 	auto sol = x->clone( Pimpact::ECopy::Deep );
 
 	//	op->apply(*x,*b);

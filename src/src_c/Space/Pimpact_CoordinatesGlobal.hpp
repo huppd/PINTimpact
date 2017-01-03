@@ -125,7 +125,7 @@ protected:
 	///	- i0L >= 0., i0U >= 0., iML >= 1 and iMU <= M is already tested.
 	/// - so following is satisfied wL, wU >= 0..
 	/// - identical to coord_tan except of std::cos functions.
-	inline void coord_cos(
+	void coord_cos(
 			const ScalarT& i,
 			const ScalarT& L,
 			const ScalarT& M,

@@ -51,22 +51,25 @@ public:
 		for( Ordinal i=std::max(space()->begin(U,3),1); i<=space()->end(U,3); ++i ) {
 			// making x 
 			mx->push_back(
-					Teuchos::rcp_const_cast<typename MultiOperator::DomainFieldT::InnerFieldT>(
-						x.getConstCFieldPtr(i) ) );
+					Teuchos::rcpFromRef(
+						const_cast<typename MultiOperator::DomainFieldT::InnerFieldT&>(
+							x.getConstCField(i) ) ) );
 			mx->push_back(
-					Teuchos::rcp_const_cast<typename MultiOperator::DomainFieldT::InnerFieldT>(
-						x.getConstSFieldPtr(i) ) );
+					Teuchos::rcpFromRef(
+						const_cast<typename MultiOperator::DomainFieldT::InnerFieldT&>(
+							x.getConstSField(i) ) ) );
 
 			// making y
-			my->push_back( y.getCFieldPtr(i) );
-			my->push_back( y.getSFieldPtr(i) );
+			my->push_back( Teuchos::rcpFromRef(y.getCField(i)) );
+			my->push_back( Teuchos::rcpFromRef(y.getSField(i)) );
 		}
 
 		if( 0==space()->begin(U,3) ) {
 			mx->push_back(
-					Teuchos::rcp_const_cast<typename MultiOperator::DomainFieldT::InnerFieldT>(
-						x.getConst0FieldPtr() ) );
-			my->push_back( y.get0FieldPtr() );
+					Teuchos::rcpFromRef(
+						const_cast<typename MultiOperator::DomainFieldT::InnerFieldT&>(
+							x.getConst0Field() ) ) );
+			my->push_back( Teuchos::rcpFromRef( y.get0Field() ) );
 		}
 
 		// applying MultiField operator
@@ -75,9 +78,7 @@ public:
 		y.changed();
 	};
 
-  void assignField( const DomainFieldT& mv ) {
-		//op_->assignField( Pimpact::createMultiField(mv.getConst0FieldPtr()) );
-  };
+	void assignField( const DomainFieldT& mv ) {};
 
   bool hasApplyTranspose() const { return( op_->hasApplyTranspose() ); }
 

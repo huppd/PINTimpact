@@ -70,9 +70,9 @@ public:
 
 	~Stencil() { delete[] c_; }
 
-	inline constexpr ScalarArray get() const { return( c_ ); }
+	constexpr ScalarArray get() const { return( c_ ); }
 
-	inline constexpr Scalar& operator()( const Ordinal& index, const int& offset ) {
+	constexpr Scalar& operator()( const Ordinal& index, const int& offset ) {
 		assert( offset>=lb );
 		assert( offset<=ub );
 		assert( index>=ss );
@@ -81,11 +81,11 @@ public:
 	};
 
 
-	static inline constexpr int bl() {
+	static constexpr int bl() {
 		return( lb );
 	}
 
-	static inline constexpr int bu() {
+	static constexpr int bu() {
 		return( ub );
 	}
 

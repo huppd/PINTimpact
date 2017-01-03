@@ -81,7 +81,7 @@ public:
 	}
 
 
-	void apply( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::No ) const {
+	void apply( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::N ) const {
 
 		x.exchange();
 
@@ -89,7 +89,7 @@ public:
 			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
 				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
 					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
-						if( Add::No==add ) y(i,j,k) = 0.;
+						if( Add::N==add ) y(i,j,k) = 0.;
 						y(i,j,k) += innerStenc3D(x, i,j,k);
 					}
 		}
@@ -97,7 +97,7 @@ public:
 			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
 				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
 					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
-						if( Add::No==add ) y(i,j,k) = 0.;
+						if( Add::N==add ) y(i,j,k) = 0.;
 						y(i,j,k) += innerStenc2D(x, i,j,k);
 					}
 		}
@@ -203,7 +203,7 @@ public:
   }
 
 
-	inline constexpr Scalar innerStenc3D( const DomainFieldT& x, const Ordinal& i, const Ordinal& j,
+	constexpr Scalar innerStenc3D( const DomainFieldT& x, const Ordinal& i, const Ordinal& j,
 			const Ordinal& k ) const {
 
 		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->begin(S,X) ) ||
@@ -227,7 +227,7 @@ public:
 				);
 	}
 
-	inline constexpr Scalar innerStenc2D( const DomainFieldT& x, const Ordinal& i, const Ordinal& j,
+	constexpr Scalar innerStenc2D( const DomainFieldT& x, const Ordinal& i, const Ordinal& j,
 			const Ordinal& k ) const {
 
 		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->begin(S,X) ) ||
@@ -247,7 +247,7 @@ public:
 				);
 	}
 
-	inline constexpr Scalar innerDiag3D( const Ordinal& i, const Ordinal& j,
+	constexpr Scalar innerDiag3D( const Ordinal& i, const Ordinal& j,
 			const Ordinal& k ) const {
 
 		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->begin(S,X) ) ||
@@ -266,7 +266,7 @@ public:
 		return( epsX*getC(X,i,0) + epsY*getC(Y,j,0) + epsZ*getC(Z,k,0) );
 	}
 
-	inline constexpr Scalar innerDiag2D( const Ordinal& i, const Ordinal& j,
+	constexpr Scalar innerDiag2D( const Ordinal& i, const Ordinal& j,
 			const Ordinal& k ) const {
 
 		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->begin(S,X) ) ||
@@ -289,19 +289,19 @@ public:
 
 	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(space_); };
 
-	inline constexpr const Scalar* getC( const ECoord& dir) const  {
+	constexpr const Scalar* getC( const ECoord& dir) const  {
 		return( getC( static_cast<const int&>(dir) ) );
   }
 
-  inline constexpr const Scalar* getC( const int& dir) const  {
+  constexpr const Scalar* getC( const int& dir) const  {
 		return( c_[dir].get() );
   }
 
-	inline constexpr const Scalar& getC( const ECoord& dir, Ordinal i, Ordinal off ) const  {
+	constexpr const Scalar& getC( const ECoord& dir, Ordinal i, Ordinal off ) const  {
 		return( getC( static_cast<const int&>(dir), i, off ) );
   }
 
-	inline constexpr const Scalar& getC( const int& dir, Ordinal i, Ordinal off ) const  {
+	constexpr const Scalar& getC( const int& dir, Ordinal i, Ordinal off ) const  {
 		return( c_[dir](i,off) );
   }
 

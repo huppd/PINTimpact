@@ -76,7 +76,7 @@ public:
 
 
 
-	void apply( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::No ) const {
+	void apply( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::N ) const {
 
 		assert( x.getType() == S );
 		assert( y.getType() != S );
@@ -88,10 +88,10 @@ public:
 
 		x.exchange(m);
 		//
-		for( Ordinal k=space()->begin(field,Z,With::B); k<=space()->end(field,Z,With::B); ++k )
-			for( Ordinal j=space()->begin(field,Y,With::B); j<=space()->end(field,Y,With::B); ++j )
-				for( Ordinal i=space()->begin(field,X,With::B); i<=space()->end(field,X,With::B); ++i ) {
-					if( Add::No==add ) y(i,j,k) = 0.;
+		for( Ordinal k=space()->begin(field,Z,B::Y); k<=space()->end(field,Z,B::Y); ++k )
+			for( Ordinal j=space()->begin(field,Y,B::Y); j<=space()->end(field,Y,B::Y); ++j )
+				for( Ordinal i=space()->begin(field,X,B::Y); i<=space()->end(field,X,B::Y); ++i ) {
+					if( Add::N==add ) y(i,j,k) = 0.;
 					for( int ii = space_->gl(m); ii<=space_->gu(m); ++ii ) {
 						if( U==field ) {
 							y(i,j,k) += getC(static_cast<ECoord>(m),i,ii)*x(i+ii,j,k) ;

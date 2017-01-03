@@ -21,28 +21,44 @@ enum class ECopy : bool {
 };
 
 
+/// \todo make enum class
+/// \todo make it iterable( <, ++ )
 enum ECoord {
-	X=0, ///< 0
-	Y=1, ///< 1
-	Z=2, ///< 2
-	T=4  ///< 4
+	X = 0, ///< 0
+	Y = 1, ///< 1
+	Z = 2, ///< 2
+	end = 3, ///< 3, just needed to finish loops
+	T = 4  ///< 4
 };
 
 std::string toString( ECoord type );
 
+// Special behavior for ++
+ECoord& operator++( ECoord& c );
+
+bool operator<( const ECoord& c, const int& i );
+
+
+/// \todo make enum class
 enum EField {
 	U=0, ///< 0
-	V=1, ///< 0
+	V=1, ///< 1
 	W=2, ///< 2
+	//end = 3, ///< 3, just needed to finish loops
 	S=4  ///< 4
 };
 
 std::string toString( EField type );
 
+EField& operator++( EField& f );
+
+bool operator<( const EField& c, const int& i );
+
 
 /// \brief kind of boundary conditions
 /// \relates BoundaryConditionsGlobal
 /// \relates BoundaryConditionsLocal
+/// \todo make enumclass impl ( comparison )
 enum EBCType {
 	SymmetryBC  = -2, ///< -2
 	PeriodicBC  = -1, ///< -1
@@ -111,18 +127,15 @@ enum EForceType {
 };
 
 
-/// \todo change to B::Y/ B::N
-enum class With : bool {
-	B   = true,	///< [true] including grid points on the boundary
-	noB = false	///< [false] only inner points (DOF)
+enum class B : bool {
+	Y = true,	///< [true] including grid points on the boundary
+	N = false	///< [false] only inner points (DOF)
 };
 
 
-/// \todo introduce to operators
-/// \todo change to Add::Y Add::N
 enum class Add : bool {
-	Yes = true,	///< [true] adds applied operator to DomainField 
-	No  = false	///< [false] sets DomainField to applied Operator 
+	Y = true,	///< [true] adds applied operator to DomainField 
+	N = false	///< [false] sets DomainField to applied Operator 
 };
 
 

@@ -160,7 +160,7 @@ public:
 					if( d2>d1 ) std::swap( d2, d1 );
 
 
-					Teuchos::RCP<VectorT> B = Teuchos::rcp( new VectorT( n_[dir], false ) );
+					Teuchos::RCP<VectorT> b = Teuchos::rcp( new VectorT( n_[dir], false ) );
 
 					//for( i[d1]=space()->begin(S,d1)+1; i[d1]<=space()->end(S,d1)-1; ++i[d1] )
 						//for( i[d2]=space()->begin(S,d2)+1; i[d2]<=space()->end(S,d2)-1; ++i[d2] ) {
@@ -169,7 +169,7 @@ public:
 
 							// transfer
 							for( i[dir]=space()->begin(S,dir); i[dir]<=space()->end(S,dir); ++i[dir] )
-								(*B)[ i[dir]-1 ] = temp(i);
+								(*b)[ i[dir]-1 ] = temp(i);
 
 							Ordinal lu_solve_sucess;
 							Teuchos::LAPACK<Ordinal,Scalar> lapack;
@@ -182,15 +182,15 @@ public:
 									du_[dir]->values(),
 									du2_[dir]->values(),
 									ipiv_[dir]->values(),
-									B->values(),
-									B->stride(),
+									b->values(),
+									b->stride(),
 									&lu_solve_sucess );
 
 							assert( !lu_solve_sucess );
 
 							// transfer back
 							for( i[dir]=space()->begin(S,dir); i[dir]<=space()->end(S,dir); ++i[dir] )
-								y(i) = y(i) + omega_*(*B)[ i[dir]-1 ];
+								y(i) = y(i) + omega_*(*b)[ i[dir]-1 ];
 						}
 
 					y.changed();

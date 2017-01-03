@@ -28,7 +28,7 @@ public:
 	using Scalar = typename SpaceT::Scalar;
 	using Ordinal = typename SpaceT::Ordinal;
 
-	using FluxFieldT = Teuchos::Tuple< Teuchos::RCP< ScalarField<SpaceT> >, 3 >;
+	using FluxFieldT = ScalarField<SpaceT>[3];
 	using DomainFieldT = ScalarField<SpaceT>;
 	using RangeFieldT = ScalarField<SpaceT>;
 
@@ -55,7 +55,7 @@ public:
 
 
 	/// \f[ y =   (wind\cdot\nabla) x - \frac{1}{Re} \Delta x \f]
-	void apply( const FluxFieldT& wind, const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::No ) const {
+	void apply( const FluxFieldT& wind, const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::N ) const {
 
 		apply( wind, x, y, mulI_, mulC_, mulL_, add );
 	}
@@ -63,20 +63,20 @@ public:
 
 	/// \f[ z = mul z + mulI y + mulC(x\cdot\nabla)y - mulL \Delta y \f]
 	void apply( const FluxFieldT& wind, const DomainFieldT& y, RangeFieldT& z,
-			const Scalar& mulI, const Scalar& mulC, const Scalar& mulL, const Add& add=Add::No ) const {
+			const Scalar& mulI, const Scalar& mulC, const Scalar& mulL, const Add& add=Add::N ) const {
 
 		assert( z.getType() == y.getType() );
 		for( int i=0; i<SpaceT::sdim; ++i )
-			assert( wind[i]->getType() == y.getType() );
+			assert( wind[i].getType() == y.getType() );
 
 		for( int vel_dir=0; vel_dir<SpaceT::sdim; ++vel_dir )
-			wind[vel_dir]->exchange();
+			wind[vel_dir].exchange();
 
 
 		const EField& m = y.getType();
 
-		const With& wB = ( (Add::No==add) ? With::B : With::noB );
-		const With& wnB = With::noB;
+		const B& wB = ( (Add::N==add) ? B::Y : B::N );
+		const B& wnB = B::N;
 
 		y.exchange();
 
@@ -84,13 +84,13 @@ public:
 			for( Ordinal k=space()->begin(m,Z,wnB); k<=space()->end(m,Z,wnB); ++k )
 				for( Ordinal j=space()->begin(m,Y,wnB); j<=space()->end(m,Y,wnB); ++j )
 					for( Ordinal i=space()->begin(m,X,wnB); i<=space()->end(m,X,wnB); ++i ) {
-						if( Add::No==add ) z(i,j,k) = 0.;
+						if( Add::N==add ) z(i,j,k) = 0.;
 						z(i,j,k) += 
 							+ mulI * y(i,j,k)
 							+ mulC * convSOp_->innerStenc3D(
-									(*wind[0])(i,j,k),
-									(*wind[1])(i,j,k),
-									(*wind[2])(i,j,k), y, i, j, k )
+									wind[0](i,j,k),
+									wind[1](i,j,k),
+									wind[2](i,j,k), y, i, j, k )
 							- mulL * helmOp_->innerStenc3D( y, m, i, j, k);
 					}
 		}
@@ -98,15 +98,15 @@ public:
 			for( Ordinal k=space()->begin(m,Z,wnB); k<=space()->end(m,Z,wnB); ++k )
 				for( Ordinal j=space()->begin(m,Y,wnB); j<=space()->end(m,Y,wnB); ++j )
 					for( Ordinal i=space()->begin(m,X,wnB); i<=space()->end(m,X,wnB); ++i ) {
-						if( Add::No==add ) z(i,j,k) = 0.;
+						if( Add::N==add ) z(i,j,k) = 0.;
 						z(i,j,k) += 
 							+ mulI*y(i,j,k)
-							+ mulC*convSOp_->innerStenc2D( (*wind[0])(i,j,k), (*wind[1])(i,j,k), y, i,j,k)
+							+ mulC*convSOp_->innerStenc2D( wind[0](i,j,k), wind[1](i,j,k), y, i,j,k)
 							- mulL * helmOp_->innerStenc2D( y, m, i, j, k);
 					}
 		}
 
-		if( With::B==wB ) helmOp_->applyBC( y, z );
+		if( B::Y==wB ) helmOp_->applyBC( y, z );
 
 		z.changed();
 	}

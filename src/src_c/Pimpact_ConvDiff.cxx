@@ -6,6 +6,8 @@ using S = double;
 using O = int;
 const int d = 3;
 
+using SpaceT = Pimpact::Space<S,O,3,d,2>;
+
 template<class T> using ConvDiffOpT = Pimpact::NonlinearOp<Pimpact::ConvectionDiffusionSOp<T> >;
 
 int main( int argi, char** argv ) {
@@ -34,25 +36,16 @@ int main( int argi, char** argv ) {
 	S pi = (S)4. * std::atan( (S)1. ) ;
 
 	pl->set<S>( "Re", 10000 );
-	//  pl->set<S>( "lx", 1 );
-	//  pl->set<S>( "ly", 1 );
-	//    pl->set<O>( "nx", 513 );
-	//    pl->set<O>( "ny", 513 );
-	//    pl->set<O>( "nx", 257 );
-	//    pl->set<O>( "ny", 257 );
 	pl->set<O>( "nx", 129 );
 	pl->set<O>( "ny", 129 );
-	//    pl->set<O>( "nx", 65 );
-	//    pl->set<O>( "ny", 65 );
-	//  pl->set<O>( "nx", 17 );
-	//  pl->set<O>( "ny", 17 );
-	auto space = Pimpact::create< Pimpact::Space<S,O,3,d,2> >( pl );
 
 
-	auto wind = Pimpact::create<Pimpact::VectorField>( space );
-	auto y = Pimpact::create<Pimpact::VectorField>( space );
-	auto z = Pimpact::create<Pimpact::VectorField>( space );
-	auto z2 = Pimpact::create<Pimpact::VectorField>( space );
+	auto space = Pimpact::create< SpaceT >( pl );
+
+	Pimpact::VectorField<SpaceT> wind( space );
+	Pimpact::VectorField<SpaceT> y   ( space );
+	Pimpact::VectorField<SpaceT> z   ( space );
+	Pimpact::VectorField<SpaceT> z2  ( space );
 
 
 	auto op = Pimpact::create<ConvDiffOpT>( space );
@@ -98,28 +91,28 @@ int main( int argi, char** argv ) {
 
 
 				// init solution
-				y->getField(Pimpact::U).initField( Pimpact::Grad2D_inY );
-				y->getField(Pimpact::V).initField( Pimpact::Grad2D_inX );
+				y(Pimpact::U).initField( Pimpact::Grad2D_inY );
+				y(Pimpact::V).initField( Pimpact::Grad2D_inX );
 
-				auto sol = y->clone( Pimpact::ECopy::Deep );
+				auto sol = y.clone( Pimpact::ECopy::Deep );
 
-				wind->getField(Pimpact::U).initField(  Pimpact::ConstField, std::cos( phi ) );
-				wind->getField(Pimpact::V).initField(  Pimpact::ConstField, std::sin( phi ) );
+				wind(Pimpact::U).initField( Pimpact::ConstField, std::cos( phi ) );
+				wind(Pimpact::V).initField( Pimpact::ConstField, std::sin( phi ) );
 
-				z->initField();
+				z.initField();
 
-				op->assignField( *wind );
+				op->assignField( wind );
 
 				// constructing rhs
-				op->apply( *y, *z );
+				op->apply( y, z );
 				{
-					y->init(0);
-					auto bc = z->clone( Pimpact::ECopy::Shallow );
-					op->apply( *y, *bc );
-					z->add( 1., *z, -1., *bc );
+					y.init(0);
+					auto bc = z.clone( Pimpact::ECopy::Shallow );
+					op->apply( y, *bc );
+					z.add( 1., z, -1., *bc );
 				}
 
-				y->initField();
+				y.initField();
 
 				std::ofstream ofs;
 				std::string filename = "GS.txt";
@@ -132,11 +125,11 @@ int main( int argi, char** argv ) {
 				int iter=0;
 				do {
 
-					smoother->apply( *z, *y );
+					smoother->apply( z, y );
 
-					z2->add( -1, *sol, 1, *y );
+					z2.add( -1, *sol, 1, y );
 
-					error = z2->norm()/sol->norm();
+					error = z2.norm()/sol->norm();
 					//          error = z2->norm();
 
 					if( iter>1000) error=-1;

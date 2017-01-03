@@ -57,7 +57,7 @@ public:
 
 		VF tempv( space() );
 
-		opS2V_->apply( y.getConstSField(), tempv, Add::Yes );
+		opS2V_->apply( y.getConstSField(), tempv, Add::Y );
 
 		tempv.add( -1., tempv, 1., x.getConstVField() );
 

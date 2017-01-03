@@ -32,8 +32,6 @@ namespace Pimpact {
 /// \brief important basic Vector class  it wraps three ScalarFields.
 /// \ingroup Field
 /// \relates ScalarField
-/// \todo make Tupel -> array
-/// \todo rm RCP 
 template<class SpaceType>
 class VectorField : private AbstractField<SpaceType> {
 
@@ -48,30 +46,28 @@ protected:
 
 	using ScalarArray = Scalar*;
 
-	using FieldT = VectorField<SpaceT>;
 	using SF = ScalarField<SpaceT>;
 
 	ScalarArray s_;
 
-	const bool owning_;
+	const bool owning_; /// < not template parameter
 
-	Teuchos::Tuple< Teuchos::RCP<SF>, 3 > sFields_;
+	SF sFields_[3];
 
 	void allocate() {
 		Ordinal n = getStorageSize()/3;
 		s_ = new Scalar[3*n];
 		for( int i=0; i<3; ++i )
-			sFields_[i]->setStoragePtr( s_+i*n );
+			sFields_[i].setStoragePtr( s_+i*n );
 	}
 
 public:
 
 	VectorField( const Teuchos::RCP< const SpaceT >& space, bool owning=true ):
 		AbstractField<SpaceT>( space ),
-		owning_(owning) {
-
-			for( int i=0; i<3; ++i )
-				sFields_[i] = Teuchos::rcp( new SF( space, false, static_cast<EField>(i) ) );
+		owning_(owning),
+		sFields_{ {space,false,U}, {space,false,V}, {space,false,W} }
+	{
 
 			if( owning_ ) {
 				allocate();
@@ -87,10 +83,12 @@ public:
 	/// \param copyType by default a ECopy::Shallow is done but allows also to deepcopy the field
 	VectorField( const VectorField& vF, ECopy copyType=ECopy::Deep ):
 		AbstractField<SpaceT>( vF.space() ),
-		owning_(vF.owning_) {
+		owning_(vF.owning_),
+		sFields_{ {vF(U),copyType}, {vF(V),copyType}, {vF(W),copyType} }
+	{
 
-			for( int i=0; i<3; ++i )
-				sFields_[i] = Teuchos::rcp( new SF( vF.getConstField(i), copyType ) ); // copytype doesnot matter here, because it's not owning
+			//for( int i=0; i<3; ++i )
+				//sFields_[i] = Teuchos::rcp( new SF( vF(i), copyType ) ); // copytype doesnot matter here, because it's not owning
 
 			if( owning_ ) {
 
@@ -110,9 +108,9 @@ public:
 
 	~VectorField() { if( owning_ ) delete[] s_; }
 
-	Teuchos::RCP<FieldT> clone( ECopy copyType=ECopy::Deep ) const {
+	Teuchos::RCP<VectorField> clone( ECopy copyType=ECopy::Deep ) const {
 
-		Teuchos::RCP<FieldT> vf = Teuchos::rcp( new FieldT( space() ) );
+		Teuchos::RCP<VectorField> vf = Teuchos::rcp( new VectorField( space() ) );
 
 		switch( copyType ) {
 			case ECopy::Shallow:
@@ -139,7 +137,7 @@ public:
 	constexpr Ordinal getLength() const {
 		Ordinal n = 0;
 		for( int i=0; i<SpaceT::sdim; ++i )
-			n += sFields_[i]->getLength();
+			n += sFields_[i].getLength();
 
 		return( n );
 	}
@@ -149,14 +147,15 @@ public:
   /// \name Update methods
   /// @{
 
-  /// \brief Replace \c this with \f$\alpha A + \beta B\f$.
+  /// \brief Replace \c this with \f$\alpha a + \beta b\f$.
   ///
   /// only inner points
-	void add( const Scalar& alpha, const FieldT& A, const Scalar& beta, const
-			FieldT& B, const With& wB=With::B ) {
+	void add( const Scalar& alpha, const VectorField& a, const Scalar& beta, const
+			VectorField& b, const B& wB=B::Y ) {
+
 		// add test for consistent VectorSpaces in debug mode
 		for( int i=0; i<SpaceT::sdim; ++i ) {
-			sFields_[i]->add( alpha, *A.sFields_[i], beta, *B.sFields_[i], wB );
+			sFields_[i].add( alpha, a(i), beta, b(i), wB );
 		}
 		changed();
 	}
@@ -168,9 +167,9 @@ public:
 	/// Here x represents this vector, and we update it as
 	/// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
 	/// \return Reference to this object
-	void abs( const FieldT& y, const With& bcYes=With::B ) {
+	void abs( const VectorField& y, const B& bcYes=B::Y ) {
 		for( int i=0; i<SpaceT::sdim; ++i )
-			sFields_[i]->abs( *y.sFields_[i], bcYes );
+			sFields_[i].abs( y(i), bcYes );
 		changed();
 	}
 
@@ -180,18 +179,18 @@ public:
 	/// Here x represents this vector, and we update it as
 	/// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
 	/// \return Reference to this object
-	void reciprocal( const FieldT& y, const With& bcYes=With::B ) {
+	void reciprocal( const VectorField& y, const B& bcYes=B::Y ) {
 		// add test for consistent VectorSpaces in debug mode
 		for( int i=0; i<SpaceT::sdim; ++i)
-			sFields_[i]->reciprocal( *y.sFields_[i], bcYes );
+			sFields_[i].reciprocal( y(i), bcYes );
 		changed();
 	}
 
 
 	/// \brief Scale each element of the vectors in \c this with \c alpha.
-	void scale( const Scalar& alpha, const With& bcYes=With::B ) {
+	void scale( const Scalar& alpha, const B& bcYes=B::Y ) {
 		for(int i=0; i<SpaceT::sdim; ++i)
-			sFields_[i]->scale( alpha, bcYes );
+			sFields_[i].scale( alpha, bcYes );
 		changed();
 	}
 
@@ -201,27 +200,27 @@ public:
 	/// Here x represents this vector, and we update it as
 	/// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
 	/// \return Reference to this object
-	void scale( const FieldT& a, const With& bcYes=With::B ) {
+	void scale( const VectorField& a, const B& bcYes=B::Y ) {
 		// add test for consistent VectorSpaces in debug mode
 		for(int i=0; i<SpaceT::sdim; ++i)
-			sFields_[i]->scale( *a.sFields_[i], bcYes );
+			sFields_[i].scale( a(i), bcYes );
 		changed();
 	}
 
 
 	/// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
-	constexpr Scalar dotLoc ( const FieldT& a, const With& bcYes=With::B ) const {
+	constexpr Scalar dotLoc ( const VectorField& a, const B& bcYes=B::Y ) const {
 		Scalar b = 0.;
 
 		for( int i=0; i<SpaceT::sdim; ++i )
-			b += sFields_[i]->dotLoc( *a.sFields_[i], bcYes );
+			b += sFields_[i].dotLoc( a(i), bcYes );
 
 		return( b );
 	}
 
 
 	/// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
-	constexpr Scalar dot( const FieldT& y, const With& bcYes=With::B ) const {
+	constexpr Scalar dot( const VectorField& y, const B& bcYes=B::Y ) const {
 
 		return( this->reduce( comm(), dotLoc( y, bcYes ) ) );
 	}
@@ -231,15 +230,15 @@ public:
 	/// \name Norm method
 	/// @{
 
-	constexpr Scalar normLoc( Belos::NormType type = Belos::TwoNorm, const With& bcYes=With::B ) const {
+	constexpr Scalar normLoc( Belos::NormType type = Belos::TwoNorm, const B& bcYes=B::Y ) const {
 
 		Scalar normvec = 0.;
 
 		for( int i=0; i<SpaceT::sdim; ++i )
 			normvec =
 				(type==Belos::InfNorm)?
-					std::max( sFields_[i]->normLoc(type,bcYes), normvec ):
-					( normvec+sFields_[i]->normLoc(type,bcYes) );
+					std::max( sFields_[i].normLoc(type,bcYes), normvec ):
+					( normvec+sFields_[i].normLoc(type,bcYes) );
 
 		return( normvec );
 	}
@@ -247,7 +246,7 @@ public:
 
  /// \brief compute the norm
   /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
-  constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm, const With& bcYes=With::B ) const {
+  constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm, const B& bcYes=B::Y ) const {
 
 		Scalar normvec = this->reduce(
 				comm(),
@@ -268,11 +267,11 @@ public:
 	/// Here x represents this vector, and we compute its weighted norm as follows:
 	/// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
 	/// \return \f$ \|x\|_w \f$
-	constexpr Scalar normLoc( const FieldT& weights, const With& bcYes=With::B ) const {
+	constexpr Scalar normLoc( const VectorField& weights, const B& bcYes=B::Y ) const {
 		Scalar normvec = 0.;
 
 		for( int i=0; i<SpaceT::sdim; ++i )
-			normvec += sFields_[i]->normLoc( *weights.sFields_[i], bcYes );
+			normvec += sFields_[i].normLoc( weights(i), bcYes );
 
 		return( normvec );
 	}
@@ -284,7 +283,7 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr Scalar norm( const FieldT& weights, const With& bcYes=With::B ) const {
+  constexpr Scalar norm( const VectorField& weights, const B& bcYes=B::Y ) const {
 		return( std::sqrt( this->reduce( comm(), normLoc( weights, bcYes ) ) ) );
 	}
 
@@ -300,7 +299,7 @@ public:
 	VectorField& operator=( const VectorField& a ) {
 
 		for( int i=0; i<SpaceT::sdim; ++i)
-			*sFields_[i] = *a.sFields_[i];
+			sFields_[i] = a(i);
 
 		return *this;
 	}
@@ -310,26 +309,26 @@ public:
 	///
 	/// depending on Fortrans \c Random_number implementation, with always same
 	/// seed => not save, if good randomness is required
-	void random( bool useSeed=false, const With& bcYes=With::B, int seed=1 ) {
+	void random( bool useSeed=false, const B& bcYes=B::Y, int seed=1 ) {
 
 		for( int i=0; i<SpaceT::sdim; ++i )
-			sFields_[i]->random( useSeed, bcYes, seed );
+			sFields_[i].random( useSeed, bcYes, seed );
 
 		changed();
 	}
 
 	/// \brief Replace each element of the vector  with \c alpha.
-	void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const With& bcYes=With::B ) {
+	void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const B& bcYes=B::Y ) {
 		for( int i=0; i<SpaceT::sdim; ++i )
-			sFields_[i]->init( alpha, bcYes );
+			sFields_[i].init( alpha, bcYes );
 		changed();
 	}
 
 
-	/// \brief Replace each element of the vector \c getRawPtr[i] with \c alpha[i].
-	void init( const Teuchos::Tuple<Scalar,3>& alpha, const With& bcYes=With::B ) {
+	/// \brief Replace each element of the vector with \c alpha[i].
+	void init( const Teuchos::Tuple<Scalar,3>& alpha, const B& bcYes=B::Y ) {
 		for( int i=0; i<SpaceT::sdim; ++i )
-			sFields_[i]->init( alpha[i], bcYes );
+			sFields_[i].init( alpha[i], bcYes );
 		changed();
 	}
 
@@ -337,7 +336,7 @@ public:
 	///  \brief initializes VectorField including boundaries to zero 
 	void initField() {
 		for( int i=0; i<SpaceT::sdim; ++i )
-			sFields_[i]->initField();
+			sFields_[i].initField();
 	}
 
 private:
@@ -431,37 +430,37 @@ public:
 		switch( type ) {
 			case ZeroFlow : {
 				for( int i=0; i<SpaceT::sdim; ++i )
-					sFields_[i]->initField( ConstField );
+					sFields_[i].initField( ConstField );
 				break;
 			}
 			case ConstFlow : {
-				sFields_[U]->initField( ConstField, para.get<Scalar>( "U", 1.) );
-				sFields_[V]->initField( ConstField, para.get<Scalar>( "V", 1.) );
-				sFields_[W]->initField( ConstField, para.get<Scalar>( "W", 1.) );
+				sFields_[U].initField( ConstField, para.get<Scalar>( "U", 1.) );
+				sFields_[V].initField( ConstField, para.get<Scalar>( "V", 1.) );
+				sFields_[W].initField( ConstField, para.get<Scalar>( "W", 1.) );
 				break;
 			}
 			case PoiseuilleFlow2D_inX : {
 				for( int i=0; i<SpaceT::sdim; ++i )
 					if( U==i )
-						sFields_[i]->initField( Poiseuille2D_inY );
+						sFields_[i].initField( Poiseuille2D_inY );
 					else
-						sFields_[i]->initField( ConstField );
+						sFields_[i].initField( ConstField );
 				break;
 			}
 			case PoiseuilleFlow2D_inY : {
 				for( int i=0; i<SpaceT::sdim; ++i )
 					if( V==i )
-						sFields_[i]->initField( Poiseuille2D_inX );
+						sFields_[i].initField( Poiseuille2D_inX );
 					else
-						sFields_[i]->initField( ConstField );
+						sFields_[i].initField( ConstField );
 				break;
 			}
 			case PoiseuilleFlow2D_inZ : {
 				for( int i=0; i<SpaceT::sdim; ++i )
 					if( W==i )
-						sFields_[i]->initField( Poiseuille2D_inX );
+						sFields_[i].initField( Poiseuille2D_inX );
 					else
-						sFields_[i]->initField( ConstField );
+						sFields_[i].initField( ConstField );
 				break;
 			}
 			case Pulsatile2D_inXC :
@@ -480,9 +479,9 @@ public:
 						space()->getDomainSize()->getRe(),     // TODO: verify
 						space()->getDomainSize()->getAlpha2(), // TODO: verify
 						para.get<Scalar>( "px", 1. ),          // TODO: verify
-						sFields_[U]->getRawPtr(),
-						sFields_[V]->getRawPtr(),
-						sFields_[W]->getRawPtr() );
+						sFields_[U].getRawPtr(),
+						sFields_[V].getRawPtr(),
+						sFields_[W].getRawPtr() );
 				break;
 			case Pulsatile2D_inYC :
 				VF_init_2DPulsatileYC(
@@ -500,9 +499,9 @@ public:
 						space()->getDomainSize()->getRe(),     // TODO: verify
 						space()->getDomainSize()->getAlpha2(), // TODO: verify
 						para.get<Scalar>( "px", 1. ),          // TODO: verify
-						sFields_[U]->getRawPtr(),
-						sFields_[V]->getRawPtr(),
-						sFields_[W]->getRawPtr() );
+						sFields_[U].getRawPtr(),
+						sFields_[V].getRawPtr(),
+						sFields_[W].getRawPtr() );
 				break;
 			case Pulsatile2D_inXS :
 				VF_init_2DPulsatileXS(
@@ -520,9 +519,9 @@ public:
 						space()->getDomainSize()->getRe(),     // TODO: verify
 						space()->getDomainSize()->getAlpha2(), // TODO: verify
 						para.get<Scalar>( "px", 1. ),          // TODO: verify
-						sFields_[U]->getRawPtr(),
-						sFields_[V]->getRawPtr(),
-						sFields_[W]->getRawPtr() );
+						sFields_[U].getRawPtr(),
+						sFields_[V].getRawPtr(),
+						sFields_[W].getRawPtr() );
 				break;
 			case Pulsatile2D_inYS :
 				VF_init_2DPulsatileYS(
@@ -540,9 +539,9 @@ public:
 						space()->getDomainSize()->getRe(),     // TODO: verify
 						space()->getDomainSize()->getAlpha2(), // TODO: verify
 						para.get<Scalar>( "px", 1. ),          // TODO: verify
-						sFields_[U]->getRawPtr(),
-						sFields_[V]->getRawPtr(),
-						sFields_[W]->getRawPtr() );
+						sFields_[U].getRawPtr(),
+						sFields_[V].getRawPtr(),
+						sFields_[W].getRawPtr() );
 				break;
 			case Streaming2D :
 				VF_init_StreamingS(
@@ -558,9 +557,9 @@ public:
 						space()->getDomainSize()->getSize(0),
 						space()->getCoordinatesLocal()->getX(X,EField::S),
 						space()->getDomainSize()->getRe(),     // TODO: verify
-						sFields_[U]->getRawPtr(),
-						sFields_[V]->getRawPtr(),
-						sFields_[W]->getRawPtr() );
+						sFields_[U].getRawPtr(),
+						sFields_[V].getRawPtr(),
+						sFields_[W].getRawPtr() );
 				break;
 			case Streaming2DC :
 				VF_init_StreamingC(
@@ -576,9 +575,9 @@ public:
 						space()->getDomainSize()->getSize(0),
 						space()->getCoordinatesLocal()->getX(X,EField::S),
 						space()->getDomainSize()->getRe(),     // TODO: verify
-						sFields_[U]->getRawPtr(),
-						sFields_[V]->getRawPtr(),
-						sFields_[W]->getRawPtr() );
+						sFields_[U].getRawPtr(),
+						sFields_[V].getRawPtr(),
+						sFields_[W].getRawPtr() );
 				break;
 			case Streaming2DS:
 				VF_init_StreamingS(
@@ -594,20 +593,20 @@ public:
 						space()->getDomainSize()->getSize(0),
 						space()->getCoordinatesLocal()->getX(X,EField::S),
 						space()->getDomainSize()->getRe(),     // TODO: verify
-						sFields_[U]->getRawPtr(),
-						sFields_[V]->getRawPtr(),
-						sFields_[W]->getRawPtr() );
+						sFields_[U].getRawPtr(),
+						sFields_[V].getRawPtr(),
+						sFields_[W].getRawPtr() );
 				break;
 			case Circle2D : {
-				sFields_[U]->initField( Grad2D_inY, -1. );
-				sFields_[V]->initField( Grad2D_inX,  1. );
-				sFields_[W]->initField();
+				sFields_[U].initField( Grad2D_inY, -1. );
+				sFields_[V].initField( Grad2D_inX,  1. );
+				sFields_[W].initField();
 				break;
 			}
 			case Circle2D_inXZ : {
-				sFields_[U]->initField( Grad2D_inY, -1. );
-				sFields_[V]->initField();
-				sFields_[W]->initField( Grad2D_inX,  1. );
+				sFields_[U].initField( Grad2D_inY, -1. );
+				sFields_[V].initField();
+				sFields_[W].initField( Grad2D_inX,  1. );
 				break;
 			}
 			case RankineVortex2D :
@@ -626,9 +625,9 @@ public:
 						space()->getCoordinatesLocal()->getX(Y,EField::S),
 						space()->getCoordinatesLocal()->getX(X,EField::U),
 						space()->getCoordinatesLocal()->getX(Y,EField::V),
-						sFields_[U]->getRawPtr(),
-						sFields_[V]->getRawPtr(),
-						sFields_[W]->getRawPtr() );
+						sFields_[U].getRawPtr(),
+						sFields_[V].getRawPtr(),
+						sFields_[W].getRawPtr() );
 				break;
 			case GaussianForcing1D :
 				VF_init_GaussianForcing1D(
@@ -643,9 +642,9 @@ public:
 						space()->eIndB(W),
 						space()->getDomainSize()->getSize(0),
 						space()->getCoordinatesLocal()->getX(X,EField::U),
-						sFields_[U]->getRawPtr(),
-						sFields_[V]->getRawPtr(),
-						sFields_[W]->getRawPtr() );
+						sFields_[U].getRawPtr(),
+						sFields_[V].getRawPtr(),
+						sFields_[W].getRawPtr() );
 				break;
 			case BoundaryFilter1D :
 				VF_init_BoundaryFilter1D(
@@ -660,9 +659,9 @@ public:
 						space()->eIndB(W),
 						space()->getDomainSize()->getSize(0),
 						space()->getCoordinatesLocal()->getX(X,EField::U),
-						sFields_[U]->getRawPtr(),
-						sFields_[V]->getRawPtr(),
-						sFields_[W]->getRawPtr() );
+						sFields_[U].getRawPtr(),
+						sFields_[V].getRawPtr(),
+						sFields_[W].getRawPtr() );
 				break;
 			case GaussianForcing2D :
 				VF_init_GaussianForcing2D(
@@ -680,9 +679,9 @@ public:
 						space()->getCoordinatesLocal()->getX(Y,EField::S),
 						space()->getCoordinatesLocal()->getX(X,EField::U),
 						space()->getCoordinatesLocal()->getX(Y,EField::V),
-						sFields_[U]->getRawPtr(),
-						sFields_[V]->getRawPtr(),
-						sFields_[W]->getRawPtr() );
+						sFields_[U].getRawPtr(),
+						sFields_[V].getRawPtr(),
+						sFields_[W].getRawPtr() );
 				break;
 			case BoundaryFilter2D :
 				VF_init_BoundaryFilter2D(
@@ -700,9 +699,9 @@ public:
 						space()->getCoordinatesLocal()->getX(Y,EField::S),
 						space()->getCoordinatesLocal()->getX(X,EField::U),
 						space()->getCoordinatesLocal()->getX(Y,EField::V),
-						sFields_[U]->getRawPtr(),
-						sFields_[V]->getRawPtr(),
-						sFields_[W]->getRawPtr() );
+						sFields_[U].getRawPtr(),
+						sFields_[V].getRawPtr(),
+						sFields_[W].getRawPtr() );
 				break;
 			case VPoint2D :
 				VF_init_Vpoint(
@@ -719,9 +718,9 @@ public:
 						space()->getCoordinatesLocal()->getX(X,EField::U),
 						space()->getCoordinatesLocal()->getX(Y,EField::S),
 						space()->getDomainSize()->getRe(),     // TODO: verify
-						sFields_[U]->getRawPtr(),
-						sFields_[V]->getRawPtr(),
-						sFields_[W]->getRawPtr() );
+						sFields_[U].getRawPtr(),
+						sFields_[V].getRawPtr(),
+						sFields_[W].getRawPtr() );
 				break;
 			case Disc2D :
 				VF_init_Disc(
@@ -744,9 +743,9 @@ public:
 						para.get<Scalar>( "center y", 1. ),
 						para.get<Scalar>( "radius", 1. ),
 						para.get<Scalar>( "sca", 0.1 ),
-						sFields_[U]->getRawPtr(),
-						sFields_[V]->getRawPtr(),
-						sFields_[W]->getRawPtr() );
+						sFields_[U].getRawPtr(),
+						sFields_[V].getRawPtr(),
+						sFields_[W].getRawPtr() );
 				break;
 			case RotationDisc2D :
 				VF_init_RotatingDisc(
@@ -764,9 +763,9 @@ public:
 						para.get<Scalar>( "center x", 1. ),
 						para.get<Scalar>( "center y", 1. ),
 						para.get<Scalar>( "omega", 1. ),
-						sFields_[U]->getRawPtr(),
-						sFields_[V]->getRawPtr(),
-						sFields_[W]->getRawPtr() );
+						sFields_[U].getRawPtr(),
+						sFields_[V].getRawPtr(),
+						sFields_[W].getRawPtr() );
 				break;
 			case SweptHiemenzFlow : {
 				Scalar pi = 4.*std::atan(1.);
@@ -818,9 +817,9 @@ public:
 						para.get<Scalar>( "seep angle", 0. ),
 						para.get<Scalar>( "seep angle", 0. )*pi/180.,
 						para.get<Scalar>( "attack angle", 0. ),
-						sFields_[U]->getRawPtr(),
-						sFields_[V]->getRawPtr(),
-						sFields_[W]->getRawPtr() );
+						sFields_[U].getRawPtr(),
+						sFields_[V].getRawPtr(),
+						sFields_[W].getRawPtr() );
 
 				std::cout << "hello\n"
 					<< space()->getInterpolateV2S()->getC(X)[9] << "\n";
@@ -851,26 +850,26 @@ public:
 						3., // vortex_x3pos,       
 						3., // vortex_radius,      
 						10, // vortex_band,        
-						sFields_[U]->getRawPtr(),
-						sFields_[V]->getRawPtr(),
-						sFields_[W]->getRawPtr() );
+						sFields_[U].getRawPtr(),
+						sFields_[V].getRawPtr(),
+						sFields_[W].getRawPtr() );
 				break;
 			}
 			case ScalarFields : {
-				sFields_[U]->initField( para.sublist( "U" ) );
-				sFields_[V]->initField( para.sublist( "V" ) );
-				sFields_[W]->initField( para.sublist( "W" ) );
+				sFields_[U].initField( para.sublist( "U" ) );
+				sFields_[V].initField( para.sublist( "V" ) );
+				sFields_[W].initField( para.sublist( "W" ) );
 				break;
 			}
 			case Couette : {
-				getField(U).initFromFunction( 
+				sFields_[U].initFromFunction( 
 						[]( Scalar x, Scalar y, Scalar z ) -> Scalar {
 						return( y );
 						} );
 				break;
 			}
 			case Cavity : {
-				getField(U).initFromFunction( 
+				sFields_[U].initFromFunction( 
 						[]( Scalar x, Scalar y, Scalar z ) -> Scalar {
 						if( std::fabs(x-1.)<0.5 )
 						return( 1. );
@@ -888,7 +887,7 @@ public:
 	/// \note dirty hack(necessary for TripleCompostion)
 	void extrapolateBC( const Belos::ETrans& trans=Belos::NOTRANS ) {
 		for( int i=0; i<SpaceT::sdim; ++i )
-			getField(i).extrapolateBC( trans );
+			sFields_[i].extrapolateBC( trans );
 	}
 
 
@@ -901,7 +900,7 @@ public:
   /// \brief Print the vector.  To be used for debugging only.
   void print( std::ostream& out=std::cout ) const {
     for(int i=0; i<SpaceT::sdim; ++i) {
-      sFields_[i]->print( out );
+      sFields_[i].print( out );
     }
   }
 
@@ -973,7 +972,7 @@ public:
 			xfile.close();
 		}
 		for( int i=0; i<SpaceT::sdim; ++i )
-			getConstField(i).write( count, restart );
+			sFields_[i].write( count, restart );
 	}
 
 
@@ -984,34 +983,45 @@ public:
 	/// Operator or on top field implementer.
 	/// @{ 
 
-	constexpr Ordinal getStorageSize() const { return( sFields_[0]->getStorageSize()*3 ); }
+	constexpr Ordinal getStorageSize() const { return( sFields_[0].getStorageSize()*3 ); }
 
   void setStoragePtr( Scalar*  array ) {
     s_ = array;
-    Ordinal n = sFields_[0]->getStorageSize();
+    Ordinal n = sFields_[0].getStorageSize();
     for( int i=0; i<3; ++i )
-      sFields_[i]->setStoragePtr( s_+i*n );
+      sFields_[i].setStoragePtr( s_+i*n );
   }
 
 	constexpr Scalar* getRawPtr() { return( s_ ); }
 
 	constexpr const Scalar* getConstRawPtr() const { return( s_ ); }
 
-  constexpr Scalar* getRawPtr ( int i )       { return( sFields_[i]->getRawPtr() ); }
+	/// \deprecated
+  Scalar* getRawPtr ( int i )       { return( sFields_[i].getRawPtr() ); }
 
-	constexpr const Scalar* getConstRawPtr ( int i )  const  { return( sFields_[i]->getConstRawPtr() ); }
+	/// \deprecated
+	constexpr const Scalar* getConstRawPtr ( int i )  const  { return( sFields_[i].getConstRawPtr() ); }
 
 	///  @} 
 
 //protected:
 
-  constexpr SF& getField   ( int i ) { return( *sFields_[i] ); }
-
-  constexpr const SF&  getConstField   ( int i ) const { return( *sFields_[i] ); }
+  //SF& getField( int i ) { return( sFields_[i]); }
+	//constexpr const SF&  getConstField( int i ) const { return( sFields_[i] ); }
 
 public:
 
-  inline constexpr SF& operator()( int i ) { return( *sFields_[i] ); }
+  SF& operator()( int i ) {
+		assert( 0<=i );
+		assert( i< 3 );
+		return( sFields_[i] );
+	}
+
+  constexpr const SF& operator()( int i ) const {
+		assert( 0<=i );
+		assert( i< 3 );
+		return( sFields_[i] );
+	}
 
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const { return( AbstractField<SpaceT>::space_ ); }
@@ -1025,7 +1035,7 @@ public:
   /// @{
 	
   void changed( const int& vel_dir, const int& dir ) const {
-    getConstField( vel_dir ).changed( dir );
+    sFields_[vel_dir].changed( dir );
   }
 
   void changed() const {
@@ -1036,7 +1046,7 @@ public:
   }
 
   void exchange( const int& vel_dir, const int& dir ) const {
-    getConstField(vel_dir).exchange(dir);
+    sFields_[vel_dir].exchange(dir);
   }
 
   void exchange() const {
@@ -1046,7 +1056,7 @@ public:
   }
 
   void setExchanged( const int& vel_dir, const int& dir ) const {
-    getConstField( vel_dir ).setExchanged( dir );
+    sFields_[vel_dir].setExchanged( dir );
   }
 
 	void setExchanged() const {

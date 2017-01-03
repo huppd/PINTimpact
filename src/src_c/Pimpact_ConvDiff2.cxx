@@ -6,6 +6,7 @@ using S = double;
 using O = int;
 const int d = 3;
 
+using SpaceT = Pimpact::Space<S,O,3,d,2>;
 
 template<class T> using ConvDiffOpT = Pimpact::NonlinearOp<Pimpact::ConvectionDiffusionSOp<T> >;
 
@@ -23,26 +24,16 @@ int main( int argi, char** argv ) {
 
 
 	pl->set<S>( "Re", 10000 );
-	//pl->set<S>( "lx", 1 );
-	//pl->set<S>( "ly", 1 );
-	//pl->set<O>( "nx", 513 );
-	//pl->set<O>( "ny", 513 );
-	//pl->set<O>( "nx", 257 );
-	//pl->set<O>( "ny", 257 );
 	pl->set<O>( "nx", 129 );
 	pl->set<O>( "ny", 129 );
-	//pl->set<O>( "nx", 65 );
-	//pl->set<O>( "ny", 65 );
-	//pl->set<O>( "nx", 17 );
-	//pl->set<O>( "ny", 17 );
 
 
-	auto space = Pimpact::create< Pimpact::Space<S,O,3,d,2> >( pl );
+	auto space = Pimpact::create< SpaceT >( pl );
 
-	auto wind = Pimpact::create<Pimpact::VectorField>( space );
-	auto y = Pimpact::create<Pimpact::VectorField>( space );
-	auto z = Pimpact::create<Pimpact::VectorField>( space );
-	auto z2 = Pimpact::create<Pimpact::VectorField>( space );
+	Pimpact::VectorField<SpaceT> wind( space );
+	Pimpact::VectorField<SpaceT> y   ( space );
+	Pimpact::VectorField<SpaceT> z   ( space );
+	Pimpact::VectorField<SpaceT> z2  ( space );
 
 
 	auto op = Pimpact::create<ConvDiffOpT>( space );
@@ -52,17 +43,14 @@ int main( int argi, char** argv ) {
 		for(short int diry=-1; diry<2; diry+=2 ) {
 
 			if( 3==dirx && diry==1 ) break;
+
 			auto pls = Teuchos::parameterList();
 			pls->set( "omega", 1. );
-			pls->set( "numIter", 1 );
+			pls->set( "numIters", 1 );
 			pls->set<int>( "Ordering", (dirx==3)?1:0 );
-			//      pls->set<int>( "Ordering", 0 );
 			pls->set<short int>( "dir X", dirx );
 			pls->set<short int>( "dir Y", diry );
-			//      pls->set<short int>( "dir X", 1 );
-			//      pls->set<short int>( "dir Y", 1 );
 			pls->set<short int>( "dir Z", 1 );
-			//  pls->set( "numIters",10)
 
 			auto smoother =
 				Pimpact::create<
@@ -85,41 +73,39 @@ int main( int argi, char** argv ) {
 
 
 			// init solution
-			y->getField(0).initField( Pimpact::Grad2D_inY );
-			y->getField(1).initField( Pimpact::Grad2D_inX );
+			y(0).initField( Pimpact::Grad2D_inY );
+			y(1).initField( Pimpact::Grad2D_inX );
 
-			auto sol = y->clone( Pimpact::ECopy::Deep );
+			auto sol = y.clone( Pimpact::ECopy::Deep );
 
-			wind->getField(0).initField( Pimpact::Grad2D_inY );
-			wind->getField(1).initField( Pimpact::Grad2D_inX );
-			//        wind->write(1111);
+			wind(0).initField( Pimpact::Grad2D_inY );
+			wind(1).initField( Pimpact::Grad2D_inX );
 
-			z->initField();
+			z.initField();
 
-			op->assignField( *wind );
+			op->assignField( wind );
 
 			// constructing rhs
-			op->apply( *y, *z );
+			op->apply( y, z );
 			{
-				y->init(0);
-				auto bc = z->clone( Pimpact::ECopy::Shallow );
-				op->apply( *y, *bc );
-				z->add( 1., *z, -1., *bc );
+				y.init(0);
+				auto bc = z.clone( Pimpact::ECopy::Shallow );
+				op->apply( y, *bc );
+				z.add( 1., z, -1., *bc );
 			}
-			//        z->write(2222);
 
-			y->initField();
+			y.initField();
 
 
 			S error;
 			int iter=0;
 			do {
 
-				smoother->apply( *z, *y );
+				smoother->apply( z, y );
 
-				z2->add( -1, *sol, 1, *y );
+				z2.add( -1, *sol, 1, y );
 
-				error = z2->norm()/sol->norm();
+				error = z2.norm()/sol->norm();
 
 				if( iter>2000) error=-1;
 

@@ -26,7 +26,7 @@ public:
   using DomainFieldT = VectorField<SpaceT>;
   using RangeFieldT = VectorField<SpaceT>;
 
-  using FieldTensor = Teuchos::Tuple< Teuchos::Tuple<Teuchos::RCP<ScalarField<SpaceT> >, 3>, 3>;
+  using FieldTensor = ScalarField<SpaceT>[3][3];
 
 protected:
 
@@ -36,23 +36,22 @@ protected:
 
 public:
 
-  NonlinearWrap( const Teuchos::RCP<SOpT>& sop ):
-    convectionSOp_( sop ) {};
+	NonlinearWrap( const Teuchos::RCP<SOpT>& sop ): convectionSOp_( sop ) {};
 
 
   /// \note Operator's wind has to be assigned correctly
-  void apply( const FieldTensor& u, const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::No ) const {
+  void apply( const FieldTensor& u, const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::N ) const {
 
     for( int i=0; i<SpaceT::sdim; ++i )
-      convectionSOp_->apply( u[i], x.getConstField(i), y.getField(i), add );
+      convectionSOp_->apply( u[i], x(i), y(i), add );
   }
 
   /// \note Operator's wind has to be assigned correctly
   void apply( const FieldTensor& u, const DomainFieldT& x, RangeFieldT& y,
-			Scalar mulI, Scalar mulC, Scalar mulL, const Add& add=Add::No ) const {
+			Scalar mulI, Scalar mulC, Scalar mulL, const Add& add=Add::N ) const {
 
     for( int i=0; i<SpaceT::sdim; ++i )
-      convectionSOp_->apply( u[i], x.getConstField(i), y.getField(i), mulI, mulC, mulL, add );
+      convectionSOp_->apply( u[i], x(i), y(i), mulI, mulC, mulL, add );
   }
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const { return( convectionSOp_->space() ); }

@@ -41,7 +41,7 @@ public:
   MultiHarmonicOpWrap( const Teuchos::RCP<OpT>& op ): op_(op) {};
 
 
-	void apply( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::No ) const {
+	void apply( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::N ) const {
 
 		if( 0==space()->begin(U,3) )
 			op_->apply( x.getConst0Field(), y.get0Field(), add );

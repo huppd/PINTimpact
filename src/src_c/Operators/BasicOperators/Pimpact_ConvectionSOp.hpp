@@ -26,7 +26,7 @@ public:
   using Scalar = typename SpaceT::Scalar;
   using Ordinal = typename SpaceT::Ordinal;
 
-  using FluxFieldT = Teuchos::Tuple< Teuchos::RCP< ScalarField<SpaceT> >, 3 >;
+  using FluxFieldT = ScalarField<SpaceT>[3];
   using DomainFieldT = ScalarField<SpaceT>;
   using RangeFieldT = ScalarField<SpaceT>;
 
@@ -80,12 +80,12 @@ public:
 						cSD_[dir].get() );
 
 				if( DirichletBC==space_->bcl(dir) ) {
-					Ordinal i = space_->begin(S,dir,With::B);
+					Ordinal i = space_->begin(S,dir,B::Y);
 					for( int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii )
 						cSD_[dir](i,ii) = 0.;
 				}
 				if( DirichletBC==space_->bcu(dir) ) {
-					Ordinal i = space_->end(S,dir,With::B);
+					Ordinal i = space_->end(S,dir,B::Y);
 					for( int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii )
 						cSD_[dir](i,ii) = 0.;
 				}
@@ -115,12 +115,12 @@ public:
 						cSU_[dir].get() );
 
 				if( DirichletBC==space_->bcl(dir) ) {
-					Ordinal i = space_->begin(S,dir,With::B);
+					Ordinal i = space_->begin(S,dir,B::Y);
 					for( int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii )
 						cSU_[dir](i,ii) = 0.;
 				}
 				if( DirichletBC==space_->bcu(dir) ) {
-					Ordinal i = space_->end(S,dir,With::B);
+					Ordinal i = space_->end(S,dir,B::Y);
 					for( int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii )
 						cSU_[dir](i,ii) = 0.;
 				}
@@ -150,12 +150,12 @@ public:
 						cVD_[dir].get() );
 
 				if( DirichletBC==space_->bcl(dir) ) {
-					Ordinal i = space_->begin(dir,dir,With::B);
+					Ordinal i = space_->begin(dir,dir,B::Y);
 					for( int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii )
 						cVD_[dir](i,ii) = 0.;
 				}
 				if( DirichletBC==space_->bcu(dir) ) {
-					Ordinal i = space_->end(dir,dir,With::B);
+					Ordinal i = space_->end(dir,dir,B::Y);
 					for( int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii )
 						cVD_[dir](i,ii) = 0.;
 				}
@@ -185,12 +185,12 @@ public:
 						cVU_[dir].get() );
 
 				if( DirichletBC==space_->bcl(dir) ) {
-					Ordinal i = space_->begin(dir,dir,With::B);
+					Ordinal i = space_->begin(dir,dir,B::Y);
 					for( int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii )
 						cVU_[dir](i,ii) = 0.;
 				}
 				if( DirichletBC==space_->bcu(dir) ) {
-					Ordinal i = space_->end(dir,dir,With::B);
+					Ordinal i = space_->end(dir,dir,B::Y);
 					for( int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii )
 						cVU_[dir](i,ii) = 0.;
 				}
@@ -201,22 +201,22 @@ public:
   void assignField( const RangeFieldT& mv ) {};
 
 
-	void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, const Scalar& mulI, const Scalar& mulC, const Scalar& mulL, const Add& add=Add::No ) const {
+	void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, const Scalar& mulI, const Scalar& mulC, const Scalar& mulL, const Add& add=Add::N ) const {
 		apply( x, y, z, mulC, add );
 	}
 
 
-	void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, const Add& add=Add::No ) const {
+	void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, const Add& add=Add::N ) const {
 
 		const Scalar& mulC = 1.;
 		int m = static_cast<int>(z.getType());
 
 		assert( z.getType() == y.getType() );
 		for( int i=0; i<SpaceT::sdim; ++i ) 
-			assert( x[i]->getType()==y.getType() );
+			assert( x[i].getType()==y.getType() );
 
 		for( int vel_dir=0; vel_dir<SpaceT::sdim; ++vel_dir )
-			x[vel_dir]->exchange();
+			x[vel_dir].exchange();
 
 		y.exchange();
 
@@ -224,15 +224,15 @@ public:
 			for( Ordinal k=space()->begin(m,Z); k<=space()->end(m,Z); ++k )
 				for( Ordinal j=space()->begin(m,Y); j<=space()->end(m,Y); ++j )
 					for( Ordinal i=space()->begin(m,X); i<=space()->end(m,X); ++i ) {
-						if( Add::No==add ) z(i,j,k) = 0.;
-						z(i,j,k) += mulC*innerStenc3D( (*x[0])(i,j,k), (*x[1])(i,j,k), (*x[2])(i,j,k), y, i, j, k );
+						if( Add::N==add ) z(i,j,k) = 0.;
+						z(i,j,k) += mulC*innerStenc3D( x[0](i,j,k), x[1](i,j,k), x[2](i,j,k), y, i, j, k );
 					}
 		else
 			for( Ordinal k=space()->begin(m,Z); k<=space()->end(m,Z); ++k )
 				for( Ordinal j=space()->begin(m,Y); j<=space()->end(m,Y); ++j )
 					for( Ordinal i=space()->begin(m,X); i<=space()->end(m,X); ++i ) {
-						if( Add::No==add ) z(i,j,k) = 0.;
-						z(i,j,k) += mulC*innerStenc2D( (*x[0])(i,j,k), (*x[1])(i,j,k), y, i,j,k);
+						if( Add::N==add ) z(i,j,k) = 0.;
+						z(i,j,k) += mulC*innerStenc2D( x[0](i,j,k), x[1](i,j,k), y, i,j,k);
 					}
 
 		z.changed();
@@ -269,7 +269,7 @@ public:
     return( ( ((int)dir)==((int)ftype) )?cVD_[dir].get():cSD_[dir].get() );
   }
 
-	inline constexpr const Scalar& getC( const Scalar& wind, const ECoord& dir, const EField& ftype, const int& i, const int ii ) const {
+	constexpr const Scalar& getC( const Scalar& wind, const ECoord& dir, const EField& ftype, const int& i, const int ii ) const {
 		return( 
 				( static_cast<int>(dir)==static_cast<int>(ftype) )?
 					(wind>=0? cVU_[dir](i,ii):cVD_[dir](i,ii))
@@ -279,7 +279,7 @@ public:
 	}
 
 
-	inline constexpr Scalar innerStenc2D( const Scalar& u, const Scalar& v, const
+	constexpr Scalar innerStenc2D( const Scalar& u, const Scalar& v, const
 			RangeFieldT& x, const Ordinal& i, const Ordinal& j, const Ordinal& k )
 		const {
 
@@ -294,7 +294,7 @@ public:
 		return( u*dx+v*dy );
 	}
 
-	inline constexpr Scalar innerStenc3D( const Scalar& u, const Scalar& v,
+	constexpr Scalar innerStenc3D( const Scalar& u, const Scalar& v,
 			const Scalar& w, const RangeFieldT& x, const Ordinal& i, const Ordinal&
 			j, const Ordinal& k ) const {
 
@@ -313,13 +313,13 @@ public:
 		return( u*dx+v*dy+w*dz );
 	}
 
-	inline constexpr Scalar innerDiag3D( const Scalar& u, const Scalar& v, const
+	constexpr Scalar innerDiag3D( const Scalar& u, const Scalar& v, const
 			Scalar& w, const EField& fType, const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
 
 		return( u*getC( u,X, fType,i,0) + v*getC( v,Y, fType,j,0) + w*getC( w,Z, fType,k,0) );
 	}
 
-	inline constexpr Scalar innerDiag2D( const Scalar& u, const Scalar& v, const
+	constexpr Scalar innerDiag2D( const Scalar& u, const Scalar& v, const
 			Scalar& w, const EField& fType, const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
 
 		return( u*getC( u,X, fType,i,0) + v*getC( v,Y, fType,j,0) );

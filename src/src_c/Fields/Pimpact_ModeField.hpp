@@ -40,52 +40,46 @@ protected:
   using Ordinal =typename SpaceT::Ordinal;
 
 	using ScalarArray =  Scalar*;
-	using FieldT = ModeField<IFT>;
 
 	using AF =  AbstractField<SpaceT>;
 
 	bool owning_;
 
-	Teuchos::RCP<IFT> fieldc_;
-  Teuchos::RCP<IFT> fields_;
+	IFT fieldc_;
+  IFT fields_;
 
 	ScalarArray s_;
 
 private:
 
 	void allocate() {
-		Ordinal n = fieldc_->getStorageSize();
-		s_ = new Scalar[2*n];
-		fieldc_->setStoragePtr( s_   );
-		fields_->setStoragePtr( s_+n );
+		setStoragePtr( new Scalar[ fieldc_.getStorageSize()+fields_.getStorageSize() ] );
 	}
 
 public:
 
-	constexpr Ordinal getStorageSize() const { return( 2*fieldc_->getStorageSize() ); }
+	constexpr Ordinal getStorageSize() const { return( fieldc_.getStorageSize()+fields_.getStorageSize() ); }
 
 	constexpr Scalar* getRawPtr() const { return( s_ ); }
 
   void setStoragePtr( Scalar*  array ) {
     s_ = array;
-		fieldc_->setStoragePtr( s_                             );
-		fields_->setStoragePtr( s_ + fieldc_->getStorageSize() );
+		fieldc_.setStoragePtr( s_                             );
+		fields_.setStoragePtr( s_ + fieldc_.getStorageSize() );
   }
 
 
 	ModeField( const Teuchos::RCP<const SpaceT>& space, bool owning=true ):
 		AF( space ),
 		owning_(owning),
-		fieldc_( Teuchos::rcp( new IFT(space,false) ) ),
-		fields_( Teuchos::rcp( new IFT(space,false) ) ) {
+		fieldc_( space, false ),
+		fields_( space, false ) {
 
 			if( owning_ ) {
 				allocate();
 				initField();
 			}
 	};
-
-	~ModeField() { if( owning_ ) delete[] s_; }
 
 
   /// \brief copy constructor.
@@ -96,8 +90,8 @@ public:
   ModeField(const ModeField& vF, ECopy copyType=ECopy::Deep):
     AF( vF.space() ),
 		owning_( vF.owning_ ),
-    fieldc_( Teuchos::rcp( new IFT(*vF.fieldc_,copyType) ) ),
-		fields_( Teuchos::rcp( new IFT(*vF.fields_,copyType) ) ) {
+    fieldc_( vF.fieldc_, copyType ),
+		fields_( vF.fields_, copyType ) {
 
 			if( owning_ ) {
 
@@ -114,10 +108,11 @@ public:
 			}
 	};
 
+	~ModeField() { if( owning_ ) delete[] s_; }
 
-  Teuchos::RCP<FieldT> clone( ECopy cType=ECopy::Deep ) const {
+  Teuchos::RCP<ModeField> clone( ECopy cType=ECopy::Deep ) const {
 
-		Teuchos::RCP<FieldT> mv = Teuchos::rcp( new FieldT( space() ) );
+		Teuchos::RCP<ModeField> mv = Teuchos::rcp( new ModeField( space() ) );
 
 		switch( cType ) {
 			case ECopy::Shallow:
@@ -133,28 +128,19 @@ public:
   /// \name Attribute methods
   /// \{
 
-  constexpr Teuchos::RCP<IFT> getCFieldPtr() { return( fieldc_ ); }
-  constexpr Teuchos::RCP<IFT> getSFieldPtr() { return( fields_ ); }
+  IFT& getCField() { return( fieldc_ ); }
+  IFT& getSField() { return( fields_ ); }
 
-  constexpr Teuchos::RCP<const IFT> getConstCFieldPtr() const { return( fieldc_ ); }
-  constexpr Teuchos::RCP<const IFT> getConstSFieldPtr() const { return( fields_ ); }
-
-  constexpr IFT& getCField() { return( *fieldc_ ); }
-  constexpr IFT& getSField() { return( *fields_ ); }
-
-  constexpr const IFT& getConstCField() const { return( *fieldc_ ); }
-  constexpr const IFT& getConstSField() const { return( *fields_ ); }
+  constexpr const IFT& getConstCField() const { return( fieldc_ ); }
+  constexpr const IFT& getConstSField() const { return( fields_ ); }
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const { return( AF::space_ ); }
 
-  constexpr const MPI_Comm& comm() const { return(fieldc_->comm()); }
+  constexpr const MPI_Comm& comm() const { return( fieldc_.comm() ); }
 
   /// \brief returns the length of Field.
-  ///
-  /// should be the same as 2*fieldc_->getVecLength()
-  /// the vector length is with regard to the inner points
   constexpr Ordinal getLength() const {
-    return( fieldc_->getLength() + fields_->getLength() );
+    return( fieldc_.getLength() + fields_.getLength() );
   }
 
 
@@ -163,10 +149,10 @@ public:
   /// \name Update methods
   /// \{
 
-  /// \brief Replace \c this with \f$\alpha A + \beta B\f$.
-  void add( const Scalar& alpha, const FieldT& A, const Scalar& beta, const FieldT& B, const With& wB=With::B ) {
-    fieldc_->add( alpha, *A.fieldc_, beta, *B.fieldc_, wB );
-    fields_->add( alpha, *A.fields_, beta, *B.fields_, wB );
+  /// \brief Replace \c this with \f$\alpha a + \beta b\f$.
+  void add( const Scalar& alpha, const ModeField& a, const Scalar& beta, const ModeField& b, const B& wb=B::Y ) {
+    fieldc_.add( alpha, a.fieldc_, beta, b.fieldc_, wb );
+    fields_.add( alpha, a.fields_, beta, b.fields_, wb );
   }
 
 
@@ -176,9 +162,9 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  void abs( const FieldT& y ) {
-    fieldc_->abs( *y.fieldc_ );
-    fields_->abs( *y.fields_ );
+  void abs( const ModeField& y ) {
+    fieldc_.abs( y.fieldc_ );
+    fields_.abs( y.fields_ );
   }
 
 
@@ -187,16 +173,16 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
   /// \return Reference to this object
-  void reciprocal( const FieldT& y ) {
-    fieldc_->reciprocal( *y.fieldc_ );
-    fields_->reciprocal( *y.fields_ );
+  void reciprocal( const ModeField& y ) {
+    fieldc_.reciprocal( y.fieldc_ );
+    fields_.reciprocal( y.fields_ );
   }
 
 
   /// \brief Scale each element of the vectors in \c this with \c alpha.
   void scale( const Scalar& alpha ) {
-    fieldc_->scale(alpha);
-    fields_->scale(alpha);
+    fieldc_.scale( alpha );
+    fields_.scale( alpha );
   }
 
 
@@ -205,25 +191,25 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  void scale(const FieldT& a) {
-    fieldc_->scale( *a.fieldc_ );
-    fields_->scale( *a.fields_ );
+  void scale(const ModeField& a) {
+    fieldc_.scale( a.fieldc_ );
+    fields_.scale( a.fields_ );
   }
 
 
   /// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
-  constexpr Scalar dotLoc( const FieldT& a ) const {
+  constexpr Scalar dotLoc( const ModeField& a ) const {
 
     Scalar b=0.;
 
-    b = fieldc_->dotLoc( *a.fieldc_) + fields_->dotLoc( *a.fields_ );
+    b = fieldc_.dotLoc( a.fieldc_) + fields_.dotLoc( a.fields_ );
 
     return( b );
   }
 
 
 	/// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
-	constexpr Scalar dot( const FieldT& y ) const {
+	constexpr Scalar dot( const ModeField& y ) const {
 
 		return( this->reduce( comm(), dotLoc( y ) ) );
 	}
@@ -236,8 +222,8 @@ public:
 
     Scalar normvec = 
 			(Belos::InfNorm==type)?
-			std::max( fieldc_->normLoc(type), fields_->normLoc(type) ):
-      ( fieldc_->normLoc(type) + fields_->normLoc(type) );
+			std::fmax( fieldc_.normLoc(type), fields_.normLoc(type) ):
+      ( fieldc_.normLoc(type) + fields_.normLoc(type) );
 
     return( normvec );
   }
@@ -265,10 +251,10 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr Scalar normLoc(const FieldT& weights ) const {
+  constexpr Scalar normLoc(const ModeField& weights ) const {
 		 return(
-				 fieldc_->normLoc(*weights.fieldc_) +
-				 fields_->normLoc(*weights.fields_)
+				 fieldc_.normLoc( weights.fieldc_ ) +
+				 fields_.normLoc( weights.fields_ )
 				 );
 	}
 
@@ -278,7 +264,7 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr Scalar norm( const FieldT& weights ) const {
+  constexpr Scalar norm( const ModeField& weights ) const {
 		return( std::sqrt( this->reduce( comm(), normLoc( weights ) ) ) );
 	}
 
@@ -291,49 +277,49 @@ public:
   /// Assign (deep copy) A into mv.
 	ModeField& operator=( const ModeField& a ) {
 
-		*fieldc_ = *a.fieldc_;
-		*fields_ = *a.fields_;
+		fieldc_ = a.fieldc_;
+		fields_ = a.fields_;
 
 		return *this;
 	}
 
   /// \brief Replace the vectors with a random vectors.
   void random(bool useSeed = false, int seed = 1) {
-    fieldc_->random();
-    fields_->random();
+    fieldc_.random();
+    fields_.random();
   }
 
   /// \brief Replace each element of the vector  with \c alpha.
-  void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const With& wB=With::B ) {
-    fieldc_->init(alpha,wB);
-    fields_->init(alpha,wB);
+  void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const B& wB=B::Y ) {
+    fieldc_.init(alpha,wB);
+    fields_.init(alpha,wB);
   }
 
 	void initField() {
-    fieldc_->initField();
-    fields_->initField();
+    fieldc_.initField();
+    fields_.initField();
 	}
 
-	void extrapolateBC( const Belos::ETrans& trans=Belos::NOTRANS ) const {
-    fieldc_->extrapolateBC( trans );
-    fields_->extrapolateBC( trans );
+	void extrapolateBC( const Belos::ETrans& trans=Belos::NOTRANS ) {
+    fieldc_.extrapolateBC( trans );
+    fields_.extrapolateBC( trans );
   }
 
   void level() const {
-    fieldc_->level();
-    fields_->level();
+    fieldc_.level();
+    fields_.level();
   }
 
   /// \}
   /// Print the vector.  To be used for debugging only.
   void print( std::ostream& out=std::cout ) const {
-    fieldc_->print( out );
-    fields_->print( out );
+    fieldc_.print( out );
+    fields_.print( out );
   }
 
   void write( int count=0 ) const {
-    fieldc_->write(count);
-    fields_->write(count+1);
+    fieldc_.write(count);
+    fields_.write(count+1);
   }
 
   /// \name comunication methods.
@@ -342,13 +328,13 @@ public:
   /// \{
 	
   void exchange() const {
-    fieldc_->exchange();
-    fields_->exchange();
+    fieldc_.exchange();
+    fields_.exchange();
   }
 
   void setExchanged() const {
-    fieldc_->setExchanged();
-    fields_->setExchanged();
+    fieldc_.setExchanged();
+    fields_.setExchanged();
   }
 
 

@@ -158,11 +158,11 @@ public:
 	/// \{
 
 
-	/// \brief <tt>mv := alpha*A + beta*B</tt>
-	void add( Scalar alpha, const FieldT& A, Scalar beta, const FieldT& B, const With& wB=With::B ) {
+	/// \brief <tt>mv := alpha*a + beta*b</tt>
+	void add( Scalar alpha, const FieldT& a, Scalar beta, const FieldT& b, const B& wb=B::Y ) {
 
 		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
-			mfs_[i]->add( alpha, *A.mfs_[i], beta, *B.mfs_[i], wB );
+			mfs_[i]->add( alpha, *a.mfs_[i], beta, *b.mfs_[i], wb );
 		changed();
 	}
 
@@ -319,7 +319,7 @@ public:
 
 
 	/// \brief \f[ *this = \alpha \f]
-	void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const With& wB=With::B ) {
+	void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const B& wB=B::Y ) {
 
 		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
 			mfs_[i]->init(alpha,wB);
