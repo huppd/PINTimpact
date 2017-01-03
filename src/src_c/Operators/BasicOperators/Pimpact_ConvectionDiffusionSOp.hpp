@@ -7,7 +7,7 @@
 #include "Pimpact_ConvectionSOp.hpp"
 #include "Pimpact_HelmholtzOp.hpp"
 #include "Pimpact_ScalarField.hpp"
-#include "Pimpact_Types.hpp"
+#include "Pimpact_Utils.hpp"
 
 
 
@@ -73,7 +73,7 @@ public:
 			wind[vel_dir].exchange();
 
 
-		const EField& m = y.getType();
+		const F& m = y.getType();
 
 		const B& wB = ( (Add::N==add) ? B::Y : B::N );
 		const B& wnB = B::N;

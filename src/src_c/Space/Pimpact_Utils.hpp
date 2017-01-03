@@ -1,6 +1,6 @@
 #pragma once
-#ifndef PIMPACT_TYPES_HPP
-#define PIMPACT_TYPES_HPP
+#ifndef PIMPACT_UTILS_HPP
+#define PIMPACT_UTILS_HPP
 
 
 #include "Teuchos_RCP.hpp"
@@ -40,20 +40,25 @@ bool operator<( const ECoord& c, const int& i );
 
 
 /// \todo make enum class
-enum EField {
+enum class F : int {
 	U=0, ///< 0
 	V=1, ///< 1
 	W=2, ///< 2
-	//end = 3, ///< 3, just needed to finish loops
+	end = 3, ///< 3, just needed to finish loops
 	S=4  ///< 4
 };
 
-std::string toString( EField type );
+std::string toString( F type );
 
-EField& operator++( EField& f );
+F& operator++( F& f );
 
-bool operator<( const EField& c, const int& i );
+bool operator<( const F& f, const int& i );
 
+bool operator==( const F& f, const int& c );
+bool operator!=( const F& f, const int& c );
+
+bool operator==( const int& c, const F& f );
+bool operator!=( const int& c, const F& f );
 
 /// \brief kind of boundary conditions
 /// \relates BoundaryConditionsGlobal
@@ -162,4 +167,4 @@ void setBoundaryConditions( const Teuchos::RCP<Teuchos::ParameterList>& pl ,
 
 
 
-#endif // PIMPACT_TYPES_HPP
+#endif // PIMPACT_UTILS_HPP

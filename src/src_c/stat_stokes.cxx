@@ -21,7 +21,7 @@
 #include "Pimpact_OperatorFactory.hpp"
 #include "Pimpact_ScalarField.hpp"
 #include "Pimpact_Space.hpp"
-#include "Pimpact_Types.hpp"
+#include "Pimpact_Utils.hpp"
 #include "Pimpact_VectorField.hpp"
 
 

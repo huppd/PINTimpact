@@ -86,7 +86,7 @@ public:
 
 			for( int dir=0; dir<3; ++dir ) {
 
-				n_[dir] = space()->end( S, dir ) - space()->begin( S, dir ) + 1 ;
+				n_[dir] = space()->end( F::S, dir ) - space()->begin( F::S, dir ) + 1 ;
 
 				if( true==lineDirection_[dir] ) {
 
@@ -100,25 +100,25 @@ public:
 					// --- diagonal ---
 					for( int j=0; j<SpaceT::sdim; ++j ) {
 						if( j==dir )
-								(*d_[dir])[space()->begin(S,dir)-space()->begin(S,dir)] += op_->getC( j,space()->begin(S,dir),  0 );
+								(*d_[dir])[space()->begin(F::S,dir)-space()->begin(F::S,dir)] += op_->getC( j,space()->begin(F::S,dir),  0 );
 						else
-							(*d_[dir])[space()->begin(S,dir)-space()->begin(S,dir)] += 0.1*op_->getC( j,space()->begin(S,dir),  0 );
+							(*d_[dir])[space()->begin(F::S,dir)-space()->begin(F::S,dir)] += 0.1*op_->getC( j,space()->begin(F::S,dir),  0 );
 					}
-					for( Ordinal i=space()->begin( S, dir )+1; i<=space()->end( S, dir )-1; ++i ) {
+					for( Ordinal i=space()->begin(F::S,dir)+1; i<=space()->end(F::S,dir)-1; ++i ) {
 						for( int j=0; j<SpaceT::sdim; ++j )
-							(*d_[dir])[i-space()->begin(S,dir)] += op_->getC( j, i,  0 );
+							(*d_[dir])[i-space()->begin(F::S,dir)] += op_->getC( j, i,  0 );
 					}
 					for( int j=0; j<SpaceT::sdim; ++j ) {
 						if( j==dir )
-							(*d_[dir])[space()->end(S,dir)-space()->begin(S,dir)] += op_->getC(j,space()->end(S,dir),0);
+							(*d_[dir])[space()->end(F::S,dir)-space()->begin(F::S,dir)] += op_->getC(j,space()->end(F::S,dir),0);
 						else
-							(*d_[dir])[space()->end(S,dir)-space()->begin(S,dir)] += 0.1*op_->getC(j,space()->end(S,dir),0);
+							(*d_[dir])[space()->end(F::S,dir)-space()->begin(F::S,dir)] += 0.1*op_->getC(j,space()->end(F::S,dir),0);
 					}
 
 					// --- off diagonal
-					for( Ordinal i=space()->begin(S,dir); i<space()->end( S, dir ); ++i ) {
-						(*du_[dir])[i-space()->begin(S,dir)] = op_->getC( dir, i+1, +1 );
-						(*dl_[dir])[i-space()->begin(S,dir)] = op_->getC( dir, i  , -1 );
+					for( Ordinal i=space()->begin(F::S,dir); i<space()->end(F::S,dir); ++i ) {
+						(*du_[dir])[i-space()->begin(F::S,dir)] = op_->getC( dir, i+1, +1 );
+						(*dl_[dir])[i-space()->begin(F::S,dir)] = op_->getC( dir, i  , -1 );
 					}
 
 					Ordinal lu_factorization_sucess;
@@ -162,13 +162,13 @@ public:
 
 					Teuchos::RCP<VectorT> b = Teuchos::rcp( new VectorT( n_[dir], false ) );
 
-					//for( i[d1]=space()->begin(S,d1)+1; i[d1]<=space()->end(S,d1)-1; ++i[d1] )
-						//for( i[d2]=space()->begin(S,d2)+1; i[d2]<=space()->end(S,d2)-1; ++i[d2] ) {
-					for( i[d1]=space()->begin(S,d1)+1; i[d1]<=space()->end(S,d1)-1; ++i[d1] )
-						for( i[d2]=space()->begin(S,d2)+1; i[d2]<=space()->end(S,d2)-1; ++i[d2] ) {
+					//for( i[d1]=space()->begin(F::S,d1)+1; i[d1]<=space()->end(F::S,d1)-1; ++i[d1] )
+						//for( i[d2]=space()->begin(F::S,d2)+1; i[d2]<=space()->end(F::S,d2)-1; ++i[d2] ) {
+					for( i[d1]=space()->begin(F::S,d1)+1; i[d1]<=space()->end(F::S,d1)-1; ++i[d1] )
+						for( i[d2]=space()->begin(F::S,d2)+1; i[d2]<=space()->end(F::S,d2)-1; ++i[d2] ) {
 
 							// transfer
-							for( i[dir]=space()->begin(S,dir); i[dir]<=space()->end(S,dir); ++i[dir] )
+							for( i[dir]=space()->begin(F::S,dir); i[dir]<=space()->end(F::S,dir); ++i[dir] )
 								(*b)[ i[dir]-1 ] = temp(i);
 
 							Ordinal lu_solve_sucess;
@@ -189,7 +189,7 @@ public:
 							assert( !lu_solve_sucess );
 
 							// transfer back
-							for( i[dir]=space()->begin(S,dir); i[dir]<=space()->end(S,dir); ++i[dir] )
+							for( i[dir]=space()->begin(F::S,dir); i[dir]<=space()->end(F::S,dir); ++i[dir] )
 								y(i) = y(i) + omega_*(*b)[ i[dir]-1 ];
 						}
 

@@ -87,7 +87,7 @@ public:
 		}
 
 	TeuchosTransfer( const Teuchos::RCP<const SpaceT>& space ):
-		TeuchosTransfer( space, space->sInd(EField::S), space->eInd(EField::S) ) {}
+		TeuchosTransfer( space, space->sInd(F::S), space->eInd(F::S) ) {}
 
 
 	void apply( const DomainFieldT& x, Teuchos::RCP<VectorT> v ) const {
@@ -142,12 +142,12 @@ public:
 			for( Ordinal j=SS_[Y]; j<=NN_[Y]; ++j )
 				for( Ordinal i=SS_[X]; i<=NN_[X]; ++i ) {
 
-					const bool bcX = (op->space()->getBCLocal()->getBCL(X) > 0 && i==op->space()->begin(S,X) ) ||
-						(op->space()->getBCLocal()->getBCU(X) > 0 && i==op->space()->end(S,X) ) ;
-					const bool bcY = (op->space()->getBCLocal()->getBCL(Y) > 0 && j==op->space()->begin(S,Y) ) ||
-						(op->space()->getBCLocal()->getBCU(Y) > 0 && j==op->space()->end(S,Y) ) ;
-					const bool bcZ = (op->space()->getBCLocal()->getBCL(Z) > 0 && k==op->space()->begin(S,Z) ) ||
-						(op->space()->getBCLocal()->getBCU(Z) > 0 && k==op->space()->end(S,Z) ) ;
+					const bool bcX = (op->space()->getBCLocal()->getBCL(X) > 0 && i==op->space()->begin(F::S,X) ) ||
+						(op->space()->getBCLocal()->getBCU(X) > 0 && i==op->space()->end(F::S,X) ) ;
+					const bool bcY = (op->space()->getBCLocal()->getBCL(Y) > 0 && j==op->space()->begin(F::S,Y) ) ||
+						(op->space()->getBCLocal()->getBCU(Y) > 0 && j==op->space()->end(F::S,Y) ) ;
+					const bool bcZ = (op->space()->getBCLocal()->getBCL(Z) > 0 && k==op->space()->begin(F::S,Z) ) ||
+						(op->space()->getBCLocal()->getBCU(Z) > 0 && k==op->space()->end(F::S,Z) ) ;
 
 					const Scalar& eps = 1.e-1;
 
@@ -178,21 +178,21 @@ public:
 		assert( N_==b->numRows()*b->numCols() );
 
 		// boundary conditions in X
-		if( space_->getBCLocal()->getBCL(X)<=0 || SS_[X]>space_->begin(EField::S,X,true) ) {
+		if( space_->getBCLocal()->getBCL(X)<=0 || SS_[X]>space_->begin(F::S,X,true) ) {
 
 			Ordinal i = SS_[X];
 
 			Ordinal SZ = SS_[Z];
-			if( space_->getBCLocal()->getBCL(Z)>0 && SS_[Z]==space_->begin(EField::S,Z,true) )
+			if( space_->getBCLocal()->getBCL(Z)>0 && SS_[Z]==space_->begin(F::S,Z,true) )
 				++SZ;
 			Ordinal NZ = NN_[Z];
-			if( space_->getBCLocal()->getBCU(Z)>0 && NN_[Z]==space_->end(EField::S,Z,true) )
+			if( space_->getBCLocal()->getBCU(Z)>0 && NN_[Z]==space_->end(F::S,Z,true) )
 				--NZ;
 			Ordinal SY = SS_[Y];
-			if( space_->getBCLocal()->getBCL(Y)>0 && SS_[Y]==space_->begin(EField::S,Y,true) )
+			if( space_->getBCLocal()->getBCL(Y)>0 && SS_[Y]==space_->begin(F::S,Y,true) )
 				++SY;
 			Ordinal NY = NN_[Y];
-			if( space_->getBCLocal()->getBCU(Y)>0 && NN_[Y]==space_->end(EField::S,Y,true) )
+			if( space_->getBCLocal()->getBCU(Y)>0 && NN_[Y]==space_->end(F::S,Y,true) )
 				--NY;
 
 			for( Ordinal k=SZ; k<=NZ; ++k )
@@ -200,21 +200,21 @@ public:
 					(*b)( getI(i,j,k) ) -= x(i-1,j,k)*op->getC( X, i, -1 );
 		}
 
-		if( space_->getBCLocal()->getBCU(X)<=0 || NN_[X]<space_->end(EField::S,X,true) ) {
+		if( space_->getBCLocal()->getBCU(X)<=0 || NN_[X]<space_->end(F::S,X,true) ) {
 
 			Ordinal i = NN_[X];
 
 			Ordinal SZ = SS_[Z];
-			if( space_->getBCLocal()->getBCL(Z)>0 && SS_[Z]==space_->begin(EField::S,Z,true) )
+			if( space_->getBCLocal()->getBCL(Z)>0 && SS_[Z]==space_->begin(F::S,Z,true) )
 				++SZ;
 			Ordinal NZ = NN_[Z];
-			if( space_->getBCLocal()->getBCU(Z)>0 && NN_[Z]==space_->end(EField::S,Z,true) )
+			if( space_->getBCLocal()->getBCU(Z)>0 && NN_[Z]==space_->end(F::S,Z,true) )
 				--NZ;
 			Ordinal SY = SS_[Y];
-			if( space_->getBCLocal()->getBCL(Y)>0 && SS_[Y]==space_->begin(EField::S,Y,true) )
+			if( space_->getBCLocal()->getBCL(Y)>0 && SS_[Y]==space_->begin(F::S,Y,true) )
 				++SY;
 			Ordinal NY = NN_[Y];
-			if( space_->getBCLocal()->getBCU(Y)>0 && NN_[Y]==space_->end(EField::S,Y,true) )
+			if( space_->getBCLocal()->getBCU(Y)>0 && NN_[Y]==space_->end(F::S,Y,true) )
 				--NY;
 
 			for( Ordinal k=SZ; k<=NZ; ++k )
@@ -223,21 +223,21 @@ public:
 		}
 
 		// boundary conditions in Y
-		if( space_->getBCLocal()->getBCL(Y)<=0 || SS_[Y]>space_->begin(EField::S,Y,true) ) {
+		if( space_->getBCLocal()->getBCL(Y)<=0 || SS_[Y]>space_->begin(F::S,Y,true) ) {
 
 			Ordinal j = SS_[Y];
 
 			Ordinal SZ = SS_[Z];
-			if( space_->getBCLocal()->getBCL(Z)>0 && SS_[Z]==space_->begin(EField::S,Z,true) )
+			if( space_->getBCLocal()->getBCL(Z)>0 && SS_[Z]==space_->begin(F::S,Z,true) )
 				++SZ;
 			Ordinal NZ = NN_[Z];
-			if( space_->getBCLocal()->getBCU(Z)>0 && NN_[Z]==space_->end(EField::S,Z,true) )
+			if( space_->getBCLocal()->getBCU(Z)>0 && NN_[Z]==space_->end(F::S,Z,true) )
 				--NZ;
 			Ordinal SX = SS_[X];
-			if( space_->getBCLocal()->getBCL(X)>0 && SS_[X]==space_->begin(EField::S,X,true) )
+			if( space_->getBCLocal()->getBCL(X)>0 && SS_[X]==space_->begin(F::S,X,true) )
 				++SX;
 			Ordinal NX = NN_[X];
-			if( space_->getBCLocal()->getBCU(X)>0 && NN_[X]==space_->end(EField::S,X,true) )
+			if( space_->getBCLocal()->getBCU(X)>0 && NN_[X]==space_->end(F::S,X,true) )
 				--NX;
 
 			for( Ordinal k=SZ; k<=NZ; ++k )
@@ -245,21 +245,21 @@ public:
 					(*b)( getI(i,j,k) ) -= x(i,j-1,k)*op->getC( Y, j, -1 );
 		}
 
-		if( space_->getBCLocal()->getBCU(Y)<=0 || NN_[Y]<space_->end(EField::S,Y,true) ) {
+		if( space_->getBCLocal()->getBCU(Y)<=0 || NN_[Y]<space_->end(F::S,Y,true) ) {
 
 			Ordinal j = NN_[Y];
 
 			Ordinal SZ = SS_[Z];
-			if( space_->getBCLocal()->getBCL(Z)>0 && SS_[Z]==space_->begin(EField::S,Z,true) )
+			if( space_->getBCLocal()->getBCL(Z)>0 && SS_[Z]==space_->begin(F::S,Z,true) )
 				++SZ;
 			Ordinal NZ = NN_[Z];
-			if( space_->getBCLocal()->getBCU(Z)>0 && NN_[Z]==space_->end(EField::S,Z,true) )
+			if( space_->getBCLocal()->getBCU(Z)>0 && NN_[Z]==space_->end(F::S,Z,true) )
 				--NZ;
 			Ordinal SX = SS_[X];
-			if( space_->getBCLocal()->getBCL(X)>0 && SS_[X]==space_->begin(EField::S,X,true) )
+			if( space_->getBCLocal()->getBCL(X)>0 && SS_[X]==space_->begin(F::S,X,true) )
 				++SX;
 			Ordinal NX = NN_[X];
-			if( space_->getBCLocal()->getBCU(X)>0 && NN_[X]==space_->end(EField::S,X,true) )
+			if( space_->getBCLocal()->getBCU(X)>0 && NN_[X]==space_->end(F::S,X,true) )
 				--NX;
 
 			for( Ordinal k=SZ; k<=NZ; ++k )
@@ -268,21 +268,21 @@ public:
 		}
 
 		// boundary conditions in Z
-		if( space_->getBCLocal()->getBCL(Z)<=0 || SS_[Z]>space_->begin(EField::S,Z,true) ) {
+		if( space_->getBCLocal()->getBCL(Z)<=0 || SS_[Z]>space_->begin(F::S,Z,true) ) {
 
 			Ordinal k = SS_[Z];
 
 			Ordinal SX = SS_[X];
-			if( space_->getBCLocal()->getBCL(X)>0 && SS_[X]==space_->begin(EField::S,X,true) )
+			if( space_->getBCLocal()->getBCL(X)>0 && SS_[X]==space_->begin(F::S,X,true) )
 				++SX;
 			Ordinal NX = NN_[X];
-			if( space_->getBCLocal()->getBCU(X)>0 && NN_[X]==space_->end(EField::S,X,true) )
+			if( space_->getBCLocal()->getBCU(X)>0 && NN_[X]==space_->end(F::S,X,true) )
 				--NX;
 			Ordinal SY = SS_[Y];
-			if( space_->getBCLocal()->getBCL(Y)>0 && SS_[Y]==space_->begin(EField::S,Y,true) )
+			if( space_->getBCLocal()->getBCL(Y)>0 && SS_[Y]==space_->begin(F::S,Y,true) )
 				++SY;
 			Ordinal NY = NN_[Y];
-			if( space_->getBCLocal()->getBCU(Y)>0 && NN_[Y]==space_->end(EField::S,Y,true) )
+			if( space_->getBCLocal()->getBCU(Y)>0 && NN_[Y]==space_->end(F::S,Y,true) )
 				--NY;
 
 			for( Ordinal j=SY; j<=NY; ++j )
@@ -290,21 +290,21 @@ public:
 					(*b)( getI(i,j,k) ) -= x(i,j,k-1)*op->getC( Z, k, -1 );
 		}
 
-		if( space_->getBCLocal()->getBCU(Z)<=0 || NN_[Z]<space_->end(EField::S,Z,true) ) {
+		if( space_->getBCLocal()->getBCU(Z)<=0 || NN_[Z]<space_->end(F::S,Z,true) ) {
 
 			Ordinal k = NN_[Z];
 
 			Ordinal SX = SS_[X];
-			if( space_->getBCLocal()->getBCL(X)>0 && SS_[X]==space_->begin(EField::S,X,true) )
+			if( space_->getBCLocal()->getBCL(X)>0 && SS_[X]==space_->begin(F::S,X,true) )
 				++SX;
 			Ordinal NX = NN_[X];
-			if( space_->getBCLocal()->getBCU(X)>0 && NN_[X]==space_->end(EField::S,X,true) )
+			if( space_->getBCLocal()->getBCU(X)>0 && NN_[X]==space_->end(F::S,X,true) )
 				--NX;
 			Ordinal SY = SS_[Y];
-			if( space_->getBCLocal()->getBCL(Y)>0 && SS_[Y]==space_->begin(EField::S,Y,true) )
+			if( space_->getBCLocal()->getBCL(Y)>0 && SS_[Y]==space_->begin(F::S,Y,true) )
 				++SY;
 			Ordinal NY = NN_[Y];
-			if( space_->getBCLocal()->getBCU(Y)>0 && NN_[Y]==space_->end(EField::S,Y,true) )
+			if( space_->getBCLocal()->getBCU(Y)>0 && NN_[Y]==space_->end(F::S,Y,true) )
 				--NY;
 
 			for( Ordinal j=SY; j<=NY; ++j )
@@ -489,7 +489,7 @@ public:
 		for( Ordinal i=1; i<=op_->space()->nLoc(dir); ++i )
 			for( int o=-1; o<=1; ++o ) {
 				Ordinal I = i-1;
-				if( (i+o)>=op_->space()->begin(S,dir) && (i+o)<=op_->space()->end(S,dir) ) 
+				if( (i+o)>=op_->space()->begin(F::S,dir) && (i+o)<=op_->space()->end(F::S,dir) ) 
 					(*A)( I, I+o ) += op_->getC( dir, i, o) ;
 			}
 
@@ -612,8 +612,8 @@ public:
 		Teuchos::RCP<const TeuchosTransfer<SpaceT> > trans =
 			Teuchos::rcp( new TeuchosTransfer<SpaceT>(
 						op_->space(),
-						op_->space()->sIndB(EField::S),
-						op_->space()->eIndB(EField::S) ) );
+						op_->space()->sIndB(F::S),
+						op_->space()->eIndB(F::S) ) );
 
 		Ordinal N = trans->getN();
 

@@ -8,7 +8,7 @@
 #include "Teuchos_ParameterList.hpp"
 #include "Teuchos_RCP.hpp"
 
-#include "Pimpact_Types.hpp"
+#include "Pimpact_Utils.hpp"
 
 
 

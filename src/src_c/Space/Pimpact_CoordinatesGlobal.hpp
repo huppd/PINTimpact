@@ -12,7 +12,7 @@
 
 #include "Pimpact_DomainSize.hpp"
 #include "Pimpact_GridSizeGlobal.hpp"
-#include "Pimpact_Types.hpp"
+#include "Pimpact_Utils.hpp"
 
 
 
@@ -366,9 +366,9 @@ public:
 	/// @{ 
 
 
-	constexpr const ScalarT* getX( const int& dir, const int& ftype ) const {
+	constexpr const ScalarT* getX( const int& dir, const F& ftype ) const {
 		return(
-				( EField::S==static_cast<EField>(ftype) || dir!=ftype )?
+				( F::S==ftype || dir!=ftype )?
 					xS_[dir].getRawPtr():
 					xV_[dir].getRawPtr() 
 				);

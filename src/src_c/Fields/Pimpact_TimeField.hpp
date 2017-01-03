@@ -15,10 +15,9 @@
 #include <BelosTypes.hpp>
 
 #include "Pimpact_AbstractField.hpp"
-#include "Pimpact_Types.hpp"
+#include "Pimpact_Utils.hpp"
 #include "Pimpact_VectorField.hpp"
 
-#include "Pimpact_Types.hpp"
 
 
 
@@ -72,7 +71,7 @@ protected:
 
 public:
 
-	TimeField( Teuchos::RCP<const SpaceT> space, EField dummy=EField::S ):
+	TimeField( Teuchos::RCP<const SpaceT> space, F dummy=F::S ):
 		AF( space ), exchangedState_(true) {
 
 			Ordinal nt = space()->nLoc(3) + space()->bu(3) - space()->bl(3);
@@ -161,7 +160,7 @@ public:
 	/// \brief <tt>mv := alpha*a + beta*b</tt>
 	void add( Scalar alpha, const FieldT& a, Scalar beta, const FieldT& b, const B& wb=B::Y ) {
 
-		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
+		for( Ordinal i=space()->begin(F::S,3); i<space()->end(F::S,3); ++i )
 			mfs_[i]->add( alpha, *a.mfs_[i], beta, *b.mfs_[i], wb );
 		changed();
 	}
@@ -175,7 +174,7 @@ public:
 	/// \return Reference to this object
 	void abs( const FieldT& y) {
 
-		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
+		for( Ordinal i=space()->begin(F::S,3); i<space()->end(F::S,3); ++i )
 			mfs_[i]->abs( *y.mfs_[i] );
 		changed();
 	}
@@ -188,7 +187,7 @@ public:
 	/// \return Reference to this object
 	void reciprocal( const FieldT& y){
 
-		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
+		for( Ordinal i=space()->begin(F::S,3); i<space()->end(F::S,3); ++i )
 			mfs_[i]->reciprocal( *y.mfs_[i] );
 		changed();
 	}
@@ -200,7 +199,7 @@ public:
 	/// \f[ x_i = \alpha x_i \quad \mbox{for } i=1,\dots,n \f]
 	void scale( const Scalar& alpha ) {
 
-		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
+		for( Ordinal i=space()->begin(F::S,3); i<space()->end(F::S,3); ++i )
 			mfs_[i]->scale(alpha);
 		changed();
 	}
@@ -212,7 +211,7 @@ public:
 	/// \f[ x_i = x_i \cdot y_i \quad \mbox{for } i=1,\dots,n \f]
 	/// \return Reference to this object
 	void scale( const FieldT& y) {
-		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
+		for( Ordinal i=space()->begin(F::S,3); i<space()->end(F::S,3); ++i )
 			mfs_[i]->scale( *y.mfs_[i] );
 		changed();
 	}
@@ -225,7 +224,7 @@ public:
 
 		Scalar b = 0.;
 
-		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
+		for( Ordinal i=space()->begin(F::S,3); i<space()->end(F::S,3); ++i )
 			b+= mfs_[i]->dotLoc( *A.mfs_[i] );
 
 		return( b );
@@ -243,7 +242,7 @@ public:
 
 		Scalar normvec = 0.;
 
-		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
+		for( Ordinal i=space()->begin(F::S,3); i<space()->end(F::S,3); ++i )
 			normvec = 
 				( (Belos::InfNorm==type)?
 				std::max( mfs_[i]->normLoc(type), normvec ) :
@@ -279,7 +278,7 @@ public:
 
 		Scalar nor = Teuchos::ScalarTraits<Scalar>::zero();
 
-		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
+		for( Ordinal i=space()->begin(F::S,3); i<space()->end(F::S,3); ++i )
 			nor+= mfs_[i]->norm( *weights.mfs_[i] );
 
 		return( nor );
@@ -301,7 +300,7 @@ public:
 	/// assign (deep copy) A into mv.
 	TimeField& operator=( const TimeField& a ) {
 
-		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
+		for( Ordinal i=space()->begin(F::S,3); i<space()->end(F::S,3); ++i )
 			*mfs_[i] = *a.mfs_[i];
 		changed();
 
@@ -312,7 +311,7 @@ public:
 	/// \brief Replace the vectors with a random vectors.
 	void random(bool useSeed = false, int seed = 1) {
 
-		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
+		for( Ordinal i=space()->begin(F::S,3); i<space()->end(F::S,3); ++i )
 			mfs_[i]->random();
 		changed();
 	}
@@ -321,27 +320,27 @@ public:
 	/// \brief \f[ *this = \alpha \f]
 	void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const B& wB=B::Y ) {
 
-		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
+		for( Ordinal i=space()->begin(F::S,3); i<space()->end(F::S,3); ++i )
 			mfs_[i]->init(alpha,wB);
 		changed();
 	}
 
 	void initField() {
-		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
+		for( Ordinal i=space()->begin(F::S,3); i<space()->end(F::S,3); ++i )
 			mfs_[i]->initField();
 		changed();
 	}
 
 	void extrapolateBC( const Belos::ETrans& trans=Belos::NOTRANS ) {
 
-		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
+		for( Ordinal i=space()->begin(F::S,3); i<space()->end(F::S,3); ++i )
 			mfs_[i]->extrapolateBC( trans );
 		changed();
 	}
 
 	void level() const {
 
-		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
+		for( Ordinal i=space()->begin(F::S,3); i<space()->end(F::S,3); ++i )
 			mfs_[i]->level();
 		changed();
 	}
@@ -349,14 +348,14 @@ public:
 
 	/// \param os
 	void print( std::ostream& os=std::cout ) const {
-		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
+		for( Ordinal i=space()->begin(F::S,3); i<space()->end(F::S,3); ++i )
 			mfs_[i]->print( os );
 	}
 
 
 
 	void write( int count=0 ) const {
-		for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i )
+		for( Ordinal i=space()->begin(F::S,3); i<space()->end(F::S,3); ++i )
 			mfs_[i]->write(count++ + space()->getShift(3) );
 	}
 
@@ -396,10 +395,10 @@ public:
 				Ordinal lengthU = transU * mfs_[0]->getStorageSize();
 
 				Scalar* ghostUR = mfs_[0]->getRawPtr();
-				Scalar* ghostLR = mfs_[space()->end(S,3)]->getRawPtr();
+				Scalar* ghostLR = mfs_[space()->end(F::S,3)]->getRawPtr();
 
-				Scalar* ghostUS = mfs_[space()->end(S,3)-transL]->getRawPtr();
-				Scalar* ghostLS = mfs_[space()->begin(S,3)       ]->getRawPtr();
+				Scalar* ghostUS = mfs_[space()->end(F::S,3)-transL]->getRawPtr();
+				Scalar* ghostLS = mfs_[space()->begin(F::S,3)       ]->getRawPtr();
 
 				if( transL>0 ) MPI_Irecv( ghostUR, lengthL, MPI_REAL8, rankL, 1, comm(), &reqL);
 				if( transU>0 ) MPI_Irecv( ghostLR, lengthU, MPI_REAL8, rankU, 2, comm(), &reqU);
@@ -412,17 +411,17 @@ public:
 
 				// depends on if field from sender was exchanged, so to be sure
 				mfs_[ 0                  ]->changed();
-				mfs_[ space()->end(S,3) ]->changed();
+				mfs_[ space()->end(F::S,3) ]->changed();
 
 			}
 			else {
 				if( std::abs( space()->bl(3) )>0 ) {
-					*mfs_[space()->begin(S,3)-1] = *mfs_[space()->end(S,3)-1];
-					mfs_[space()->begin(S,3)-1]->changed();
+					*mfs_[space()->begin(F::S,3)-1] = *mfs_[space()->end(F::S,3)-1];
+					mfs_[space()->begin(F::S,3)-1]->changed();
 				}
 				if( std::abs( space()->bu(3) )>0 ) {
-					*mfs_[space()->end(S,3)] = *mfs_[space()->begin(S,3)];
-					mfs_[space()->end(S,3)]->changed();
+					*mfs_[space()->end(F::S,3)] = *mfs_[space()->begin(F::S,3)];
+					mfs_[space()->end(F::S,3)]->changed();
 				}
 			}
 		}
@@ -480,11 +479,11 @@ initVectorTimeField(
 	S pi = 4.*std::atan(1.);
 
 	S nt = space->nGlo(3);
-	S offset = space->getShift(3) - space->begin(EField::S,3);
+	S offset = space->getShift(3) - space->begin(F::S,3);
 
 	bool notImplemented = true;
 	TEUCHOS_TEST_FOR_EXCEPT( notImplemented );
-	//for( O i=space->begin(EField::S,3); i<space->end(EField::S,3); ++i )
+	//for( O i=space->begin(F::S,3); i<space->end(F::S,3); ++i )
 		//switch( flowType ) {
 			//case Zero2DFlow:
 				//field->getFieldPtr(i)->initField( ZeroFlow );
@@ -499,29 +498,29 @@ initVectorTimeField(
 				//field->getFieldPtr(i)->initField( PoiseuilleFlow2D_inY );
 				//break;
 			//case Streaming2DFlow: {
-				//S ampt = std::sin( 2.*pi*((S)i+offset)/nt );
+				//S ampt = std::sin( 2.*pi*((F::S)i+offset)/nt );
 				//field->getFieldPtr(i)->initField( Streaming2D, ampt );
 				//break;
 			//}
 			//case OscilatingDisc2D: {
-				////			std::cout << "\ti: " << i << "\tt: " << 2.*pi*((S)i+offset)/nt << "\tt: " << space->getCoordinatesLocal()->getX( ECoord::T, EField::S )[i] << "\n";
-				//S ymt = ym+amp*std::sin( space->getCoordinatesLocal()->getX( ECoord::T, EField::S )[i] );
+				////			std::cout << "\ti: " << i << "\tt: " << 2.*pi*((F::S)i+offset)/nt << "\tt: " << space->getCoordinatesLocal()->getX( ECoord::T, F::S )[i] << "\n";
+				//S ymt = ym+amp*std::sin( space->getCoordinatesLocal()->getX( ECoord::T, F::S )[i] );
 				//S xmt = xm;
 				//field->getFieldPtr(i)->initField( Disc2D, xmt, ymt, rad );
 				//break;
 			//}
 			//case OscilatingDisc2DVel: {
-				//S yvelt = amp*std::cos( 2.*pi*((S)i+offset)/nt );
+				//S yvelt = amp*std::cos( 2.*pi*((F::S)i+offset)/nt );
 				//S xvelt = 0;
 				//field->getFieldPtr(i)->init( Teuchos::tuple( xvelt, yvelt, 0.) );
 				//break;
 			//}
 			//case ConstVel_inX:{
-				//field->getFieldPtr(i)->init( Teuchos::tuple( -2*xm*std::cos(space->getCoordinatesLocal()->getX( ECoord::T, EField::S )[i]), 0., 0.) ); // here xm = p
+				//field->getFieldPtr(i)->init( Teuchos::tuple( -2*xm*std::cos(space->getCoordinatesLocal()->getX( ECoord::T, F::S )[i]), 0., 0.) ); // here xm = p
 				//break;
 			//}
 			//case Pulsatile_inX: {
-				////field->getFieldPtr(i)->initField( Pulsatile2D_inX, xm, space->getCoordinatesLocal()->getX( ECoord::T, EField::S )[i], ym, rad); // the arguments are (xmt,i,ymt,rad) --> (re,t,px,alpha)
+				////field->getFieldPtr(i)->initField( Pulsatile2D_inX, xm, space->getCoordinatesLocal()->getX( ECoord::T, F::S )[i], ym, rad); // the arguments are (xmt,i,ymt,rad) --> (re,t,px,alpha)
 				//break;
 			//}
 			//default:

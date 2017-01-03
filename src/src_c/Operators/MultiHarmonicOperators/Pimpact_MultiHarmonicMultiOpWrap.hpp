@@ -8,7 +8,7 @@
 #include <BelosTypes.hpp>
 
 #include "Pimpact_MultiField.hpp"
-#include "Pimpact_Types.hpp"
+#include "Pimpact_Utils.hpp"
 
 
 
@@ -48,7 +48,7 @@ public:
 		Teuchos::RCP<typename MultiOperator::RangeFieldT>	 my = Teuchos::rcp( new
 				typename MultiOperator::RangeFieldT ( space(), 0 ) );
 
-		for( Ordinal i=std::max(space()->begin(U,3),1); i<=space()->end(U,3); ++i ) {
+		for( Ordinal i=std::max(space()->begin(F::U,3),1); i<=space()->end(F::U,3); ++i ) {
 			// making x 
 			mx->push_back(
 					Teuchos::rcpFromRef(
@@ -64,7 +64,7 @@ public:
 			my->push_back( Teuchos::rcpFromRef(y.getSField(i)) );
 		}
 
-		if( 0==space()->begin(U,3) ) {
+		if( 0==space()->begin(F::U,3) ) {
 			mx->push_back(
 					Teuchos::rcpFromRef(
 						const_cast<typename MultiOperator::DomainFieldT::InnerFieldT&>(

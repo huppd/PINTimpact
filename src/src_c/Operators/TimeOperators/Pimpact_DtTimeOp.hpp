@@ -6,7 +6,7 @@
 #include <cmath>
 
 #include "Pimpact_TimeField.hpp"
-#include "Pimpact_Types.hpp"
+#include "Pimpact_Utils.hpp"
 #include "Pimpact_VectorField.hpp"
 
 
@@ -51,7 +51,7 @@ public:
 
     x.exchange();
 
-    for( Ordinal i=space_->begin(S,3); i<space_->end(S,3); ++i ) {
+    for( Ordinal i=space_->begin(F::S,3); i<space_->end(F::S,3); ++i ) {
        y.getField(i).add( mulI_, x.getConstField(i), -mulI_, x.getConstField(i-1) );
     }
 

@@ -319,20 +319,20 @@ public:
 	constexpr const int& bcu( const int dir) const { return( getBCLocal()->getBCU(dir)   ); }
 
 	/// \deprecated
-	constexpr const Ordinal* sInd( const int& fieldType ) const {
+	constexpr const Ordinal* sInd( const F& fieldType ) const {
 		return( indexSpace_->sInd( fieldType ) );
 	}
 	/// \deprecated
-	constexpr const Ordinal* eInd(  const int& fieldType ) const {
+	constexpr const Ordinal* eInd(  const F& fieldType ) const {
 		return( indexSpace_->eInd( fieldType ) );
 	}
 
 	/// \deprecated
-	constexpr const Ordinal* sIndB( const int& fieldType ) const {
+	constexpr const Ordinal* sIndB( const F& fieldType ) const {
 		return( indexSpace_->sIndB( fieldType ) );
 	}
 	/// \deprecated
-	constexpr const Ordinal* eIndB( const int& fieldType ) const {
+	constexpr const Ordinal* eIndB( const F& fieldType ) const {
 		return( indexSpace_->eIndB( fieldType ) );
 	}
 
@@ -349,13 +349,13 @@ public:
 				//indexSpace_->eInd ( fieldType, dir ) );
 	//}
 
-	constexpr const Ordinal& begin( const int& fieldType, const int& dir, const B& withB=B::N ) const {
+	constexpr const Ordinal& begin( const F& fieldType, const int& dir, const B& withB=B::N ) const {
 		return(
 				static_cast<bool>(withB)?
 				indexSpace_->sIndB( fieldType, dir ):
 				indexSpace_->sInd ( fieldType, dir ) );
 	}
-	constexpr const Ordinal& end( const int& fieldType, const int& dir, const B& withB=B::N ) const {
+	constexpr const Ordinal& end( const F& fieldType, const int& dir, const B& withB=B::N ) const {
 		return(
 				static_cast<bool>(withB)?
 				indexSpace_->eIndB( fieldType, dir ):
@@ -856,20 +856,6 @@ static Teuchos::RCP< const SpaceT > createSpace(
 					boundaryConditionsLocal,
 					interV2S ) ) );
 }
-
-
-
-
-
-
-
-#ifdef COMPILE_ETI
-extern template class Space<double,int,3,2>;
-extern template class Space<double,int,3,4>;
-extern template class Space<double,int,4,2>;
-extern template class Space<double,int,4,4>;
-#endif
-
 
 
 } // end of namespace Pimpact

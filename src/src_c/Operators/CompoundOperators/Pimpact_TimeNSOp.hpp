@@ -114,7 +114,7 @@ public:
 
 		xu->exchange();
 
-		for( Ordinal i=space()->begin(S,3)-1; i<space()->end(S,3); ++i ) {
+		for( Ordinal i=space()->begin(F::S,3)-1; i<space()->end(F::S,3); ++i ) {
 			xu->getConstFieldPtr(i)->exchange();
 			xp->getConstFieldPtr(i)->exchange();
 		}
@@ -130,32 +130,32 @@ public:
 				space()->du(),
 				space()->gl(),
 				space()->gu(),
-				space()->sInd(S),
-				space()->eInd(S),
-				space()->sInd(U),
-				space()->eInd(U),
-				space()->sInd(V),
-				space()->eInd(V),
-				space()->sInd(W),
-				space()->eInd(W),
-				conv_->getCD(X,U),
-				conv_->getCD(Y,V),
-				conv_->getCD(Z,W),
-				conv_->getCU(X,U),
-				conv_->getCU(Y,V),
-				conv_->getCU(Z,W),
-				conv_->getCD(X,S),
-				conv_->getCD(Y,S),
-				conv_->getCD(Z,S),
-				conv_->getCU(X,S),
-				conv_->getCU(Y,S),
-				conv_->getCU(Z,S),
-				helm_->getC(X,S),
-				helm_->getC(Y,S),
-				helm_->getC(Z,S),
-				helm_->getC(X,U),
-				helm_->getC(Y,V),
-				helm_->getC(Z,W),
+				space()->sInd(F::S),
+				space()->eInd(F::S),
+				space()->sInd(F::U),
+				space()->eInd(F::U),
+				space()->sInd(F::V),
+				space()->eInd(F::V),
+				space()->sInd(F::W),
+				space()->eInd(F::W),
+				conv_->getCD(X,F::U),
+				conv_->getCD(Y,F::V),
+				conv_->getCD(Z,F::W),
+				conv_->getCU(X,F::U),
+				conv_->getCU(Y,F::V),
+				conv_->getCU(Z,F::W),
+				conv_->getCD(X,F::S),
+				conv_->getCD(Y,F::S),
+				conv_->getCD(Z,F::S),
+				conv_->getCU(X,F::S),
+				conv_->getCU(Y,F::S),
+				conv_->getCU(Z,F::S),
+				helm_->getC(X,F::S),
+				helm_->getC(Y,F::S),
+				helm_->getC(Z,F::S),
+				helm_->getC(X,F::U),
+				helm_->getC(Y,F::V),
+				helm_->getC(Z,F::W),
 				div_->getC(X),
 				div_->getC(Y),
 				div_->getC(Z),
@@ -172,7 +172,7 @@ public:
 				yu->getRawPtr(),
 				yp->getRawPtr() );
 
-		for( Ordinal i=space()->begin(S,3)-1; i<space()->end(S,3); ++i ) {
+		for( Ordinal i=space()->begin(F::S,3)-1; i<space()->end(F::S,3); ++i ) {
 			yu->getField(i).changed();
 			yp->getField(i).changed();
 		}
@@ -200,16 +200,16 @@ public:
 
 		for( Ordinal it=0; it<nt; ++it ) {
 
-			interpolateV2S_->apply( mv->getConstField(it)(U), *temp );
+			interpolateV2S_->apply( mv->getConstField(it)(F::U), *temp );
 			for( int j=0; j<SpaceT::sdim; ++j ) {
 				interpolateS2V_->apply( *temp, windU_->getField(it)(j) );
 			}
-			interpolateV2S_->apply( mv->getConstField(it)(V), *temp );
+			interpolateV2S_->apply( mv->getConstField(it)(F::V), *temp );
 			for( int j=0; j<SpaceT::sdim; ++j ) {
 				interpolateS2V_->apply( *temp, windV_->getField(it)(j) );
 			}
 			if( 3==SpaceT::sdim ) {
-				interpolateV2S_->apply( mv->getConstField(it)(W), *temp );
+				interpolateV2S_->apply( mv->getConstField(it)(F::W), *temp );
 				for( int j=0; j<SpaceT::sdim; ++j ) {
 					interpolateS2V_->apply( *temp, windW_->getField(it)(j) );
 				}

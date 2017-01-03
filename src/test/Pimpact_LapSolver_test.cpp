@@ -37,7 +37,7 @@
 #include "Pimpact_RefinementStrategy.hpp"
 #include "Pimpact_TransferCompoundOp.hpp"
 #include "Pimpact_TransferMultiHarmonicOp.hpp"
-#include "Pimpact_Types.hpp"
+#include "Pimpact_Utils.hpp"
 #include "Pimpact_Space.hpp"
 
 

@@ -14,7 +14,7 @@
 #include "Pimpact_ProcGrid.hpp"
 #include "Pimpact_StencilWidths.hpp"
 #include "Pimpact_Stencil.hpp"
-#include "Pimpact_Types.hpp"
+#include "Pimpact_Utils.hpp"
 
 
 
@@ -75,6 +75,8 @@ public:
 			c_[i]  = Stenc( gridSizeLocal->get(i) );
 			cm_[i] = Stenc( gridSizeLocal->get(i) );
 
+			F fi = static_cast<F>( i );
+			
 			FD_getDiffCoeff(
 					gridSizeLocal->get(i),
 					stencilWidths->getBL(i),
@@ -92,8 +94,8 @@ public:
 					false, // not working with stretching mapping
 					stencilWidths->getDimNcbD(i),
 					stencilWidths->getNcbD(i),
-					coordinatesLocal->getX( i, i ),
-					coordinatesLocal->getX( i, EField::S ),
+					coordinatesLocal->getX( i, fi ),
+					coordinatesLocal->getX( i, F::S ),
 					cm_[i].get() );
 			FD_getDiffCoeff(
 					gridSizeLocal->get(i),
@@ -112,8 +114,8 @@ public:
 					true, // mapping, works with interpolateV2S
 					stencilWidths->getDimNcbD(i),
 					stencilWidths->getNcbD(i),
-					coordinatesLocal->getX( i, i ),
-					coordinatesLocal->getX( i, EField::S ),
+					coordinatesLocal->getX( i, fi ),
+					coordinatesLocal->getX( i, F::S ),
 					c_[i].get() );
 		}
 	};
@@ -121,8 +123,8 @@ public:
 
 	void apply( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::N ) const {
 
-		assert( x.getType() != S );
-		assert( y.getType() == S );
+		assert( x.getType() != F::S );
+		assert( y.getType() == F::S );
 
 		Teuchos::RCP<const SpaceT> space = x.space();
 
@@ -131,9 +133,9 @@ public:
 		x.exchange( m );
 
 		if( X==m ) {
-			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
-				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
-					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
+			for( Ordinal k=space()->begin(F::S,Z); k<=space()->end(F::S,Z); ++k )
+				for( Ordinal j=space()->begin(F::S,Y); j<=space()->end(F::S,Y); ++j )
+					for( Ordinal i=space()->begin(F::S,X); i<=space()->end(F::S,X); ++i ) {
 						if( Add::N==add ) y(i,j,k) = 0.;
 						for( Ordinal ii=c_[m].bl(); ii<=c_[m].bu(); ++ii )
 							y(i,j,k) += getC( m, i, ii )*x(i+ii,j,k);
@@ -141,9 +143,9 @@ public:
 		}
 
 		if( Y==m ) {
-			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
-				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
-					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
+			for( Ordinal k=space()->begin(F::S,Z); k<=space()->end(F::S,Z); ++k )
+				for( Ordinal j=space()->begin(F::S,Y); j<=space()->end(F::S,Y); ++j )
+					for( Ordinal i=space()->begin(F::S,X); i<=space()->end(F::S,X); ++i ) {
 						if( Add::N==add ) y(i,j,k) = 0.;
 						for( Ordinal jj=c_[m].bl(); jj<=c_[m].bu(); ++jj )
 							y(i,j,k) += getC( m, j, jj )*x(i,j+jj,k);
@@ -151,9 +153,9 @@ public:
 		}
 
 		if( Z==m ) {
-			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
-				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
-					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
+			for( Ordinal k=space()->begin(F::S,Z); k<=space()->end(F::S,Z); ++k )
+				for( Ordinal j=space()->begin(F::S,Y); j<=space()->end(F::S,Y); ++j )
+					for( Ordinal i=space()->begin(F::S,X); i<=space()->end(F::S,X); ++i ) {
 						if( Add::N==add ) y(i,j,k) = 0.;
 						for( Ordinal kk=c_[m].bl(); kk<=c_[m].bu(); ++kk )
 							y(i,j,k) += getC( m, k, kk )*x(i,j,k+kk);

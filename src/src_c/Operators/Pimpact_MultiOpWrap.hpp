@@ -6,7 +6,7 @@
 #include "Teuchos_RCP.hpp"
 
 #include "Pimpact_MultiField.hpp"
-#include "Pimpact_Types.hpp"
+#include "Pimpact_Utils.hpp"
 
 
 

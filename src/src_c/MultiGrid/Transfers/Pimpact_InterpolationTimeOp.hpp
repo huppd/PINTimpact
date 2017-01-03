@@ -6,7 +6,7 @@
 
 #include <BelosTypes.hpp>
 
-#include "Pimpact_Types.hpp"
+#include "Pimpact_Utils.hpp"
 
 #include "Pimpact_TimeField.hpp"
 

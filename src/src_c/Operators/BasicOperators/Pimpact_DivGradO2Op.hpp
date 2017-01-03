@@ -10,7 +10,7 @@
 #include "Teuchos_LAPACK.hpp"
 
 #include "Pimpact_ScalarField.hpp"
-#include "Pimpact_Types.hpp"
+#include "Pimpact_Utils.hpp"
 
 
 
@@ -73,9 +73,9 @@ public:
 					space_->bu( dir ),
 					space_->getBCLocal()->getBCL( dir ),
 					space_->getBCLocal()->getBCU( dir ),
-					space_->getCoordinatesGlobal()->getX( static_cast<ECoord>(dir), static_cast<EField>(dir) ),
-					space_->getCoordinatesLocal()->getX( static_cast<ECoord>(dir), EField::S ),
-					space_->getCoordinatesLocal()->getX( static_cast<ECoord>(dir), static_cast<EField>(dir) ),
+					space_->getCoordinatesGlobal()->getX( static_cast<ECoord>(dir), static_cast<F>(dir) ),
+					space_->getCoordinatesLocal()->getX( static_cast<ECoord>(dir), F::S ),
+					space_->getCoordinatesLocal()->getX( static_cast<ECoord>(dir), static_cast<F>(dir) ),
 					c_[dir].get() );
 		}
 	}
@@ -86,17 +86,17 @@ public:
 		x.exchange();
 
 		if( 3==SpaceT::sdim ) {
-			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
-				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
-					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
+			for( Ordinal k=space()->begin(F::S,Z); k<=space()->end(F::S,Z); ++k )
+				for( Ordinal j=space()->begin(F::S,Y); j<=space()->end(F::S,Y); ++j )
+					for( Ordinal i=space()->begin(F::S,X); i<=space()->end(F::S,X); ++i ) {
 						if( Add::N==add ) y(i,j,k) = 0.;
 						y(i,j,k) += innerStenc3D(x, i,j,k);
 					}
 		}
 		else {
-			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
-				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
-					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
+			for( Ordinal k=space()->begin(F::S,Z); k<=space()->end(F::S,Z); ++k )
+				for( Ordinal j=space()->begin(F::S,Y); j<=space()->end(F::S,Y); ++j )
+					for( Ordinal i=space()->begin(F::S,X); i<=space()->end(F::S,X); ++i ) {
 						if( Add::N==add ) y(i,j,k) = 0.;
 						y(i,j,k) += innerStenc2D(x, i,j,k);
 					}
@@ -110,15 +110,15 @@ public:
 		x.exchange();
 		// inner stencil
 		if( 3==SpaceT::sdim ) {
-			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
-				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
-					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i )
+			for( Ordinal k=space()->begin(F::S,Z); k<=space()->end(F::S,Z); ++k )
+				for( Ordinal j=space()->begin(F::S,Y); j<=space()->end(F::S,Y); ++j )
+					for( Ordinal i=space()->begin(F::S,X); i<=space()->end(F::S,X); ++i )
 						res(i,j,k) = b(i,j,k) - innerStenc3D(x, i,j,k);
 		}
 		else {
-			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
-				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
-					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i )
+			for( Ordinal k=space()->begin(F::S,Z); k<=space()->end(F::S,Z); ++k )
+				for( Ordinal j=space()->begin(F::S,Y); j<=space()->end(F::S,Y); ++j )
+					for( Ordinal i=space()->begin(F::S,X); i<=space()->end(F::S,X); ++i )
 						res(i,j,k) = b(i,j,k) - innerStenc2D(x, i,j,k);
 		}
 
@@ -131,16 +131,16 @@ public:
 		const Scalar& eps = 0.1;
 
 		if( 3==SpaceT::sdim ) {
-			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
-				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
-					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
+			for( Ordinal k=space()->begin(F::S,Z); k<=space()->end(F::S,Z); ++k )
+				for( Ordinal j=space()->begin(F::S,Y); j<=space()->end(F::S,Y); ++j )
+					for( Ordinal i=space()->begin(F::S,X); i<=space()->end(F::S,X); ++i ) {
 
-						const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->begin(S,X) ) ||
-							(               space()->getBCLocal()->getBCU(X) > 0 && i==space()->end(S,X) ) ;
-						const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->begin(S,Y) ) ||
-							(               space()->getBCLocal()->getBCU(Y) > 0 && j==space()->end(S,Y) ) ;
-						const bool bcZ = (space()->getBCLocal()->getBCL(Z) > 0 && k==space()->begin(S,Z) ) ||
-							(               space()->getBCLocal()->getBCU(Z) > 0 && k==space()->end(S,Z) ) ;
+						const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->begin(F::S,X) ) ||
+							(               space()->getBCLocal()->getBCU(X) > 0 && i==space()->end(F::S,X) ) ;
+						const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->begin(F::S,Y) ) ||
+							(               space()->getBCLocal()->getBCU(Y) > 0 && j==space()->end(F::S,Y) ) ;
+						const bool bcZ = (space()->getBCLocal()->getBCL(Z) > 0 && k==space()->begin(F::S,Z) ) ||
+							(               space()->getBCLocal()->getBCU(Z) > 0 && k==space()->end(F::S,Z) ) ;
 
 						const Scalar epsX = ( (bcY||bcZ)?eps:1. );
 						const Scalar epsY = ( (bcX||bcZ)?eps:1. );
@@ -151,13 +151,13 @@ public:
 					}
 		}
 		else {
-			for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
-				for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
-					for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
-						const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->begin(S,X) ) ||
-							(               space()->getBCLocal()->getBCU(X) > 0 && i==space()->end(S,X) ) ;
-						const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->begin(S,Y) ) ||
-							(               space()->getBCLocal()->getBCU(Y) > 0 && j==space()->end(S,Y) ) ;
+			for( Ordinal k=space()->begin(F::S,Z); k<=space()->end(F::S,Z); ++k )
+				for( Ordinal j=space()->begin(F::S,Y); j<=space()->end(F::S,Y); ++j )
+					for( Ordinal i=space()->begin(F::S,X); i<=space()->end(F::S,X); ++i ) {
+						const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->begin(F::S,X) ) ||
+							(               space()->getBCLocal()->getBCU(X) > 0 && i==space()->end(F::S,X) ) ;
+						const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->begin(F::S,Y) ) ||
+							(               space()->getBCLocal()->getBCU(Y) > 0 && j==space()->end(F::S,Y) ) ;
 
 						const Scalar epsX = ( bcY?eps:1. );
 						const Scalar epsY = ( bcX?eps:1. );
@@ -206,12 +206,12 @@ public:
 	constexpr Scalar innerStenc3D( const DomainFieldT& x, const Ordinal& i, const Ordinal& j,
 			const Ordinal& k ) const {
 
-		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->begin(S,X) ) ||
-			(               space()->getBCLocal()->getBCU(X) > 0 && i==space()->end(S,X) ) ;
-		const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->begin(S,Y) ) ||
-			(               space()->getBCLocal()->getBCU(Y) > 0 && j==space()->end(S,Y) ) ;
-		const bool bcZ = (space()->getBCLocal()->getBCL(Z) > 0 && k==space()->begin(S,Z) ) ||
-			(               space()->getBCLocal()->getBCU(Z) > 0 && k==space()->end(S,Z) ) ;
+		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->begin(F::S,X) ) ||
+			(               space()->getBCLocal()->getBCU(X) > 0 && i==space()->end(F::S,X) ) ;
+		const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->begin(F::S,Y) ) ||
+			(               space()->getBCLocal()->getBCU(Y) > 0 && j==space()->end(F::S,Y) ) ;
+		const bool bcZ = (space()->getBCLocal()->getBCL(Z) > 0 && k==space()->begin(F::S,Z) ) ||
+			(               space()->getBCLocal()->getBCU(Z) > 0 && k==space()->end(F::S,Z) ) ;
 
 		const Scalar& eps = 1.e-1;
 
@@ -230,10 +230,10 @@ public:
 	constexpr Scalar innerStenc2D( const DomainFieldT& x, const Ordinal& i, const Ordinal& j,
 			const Ordinal& k ) const {
 
-		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->begin(S,X) ) ||
-		           (space()->getBCLocal()->getBCU(X) > 0 && i==space()->end(S,X) ) ;
-		const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->begin(S,Y) ) ||
-		           (space()->getBCLocal()->getBCU(Y) > 0 && j==space()->end(S,Y) ) ;
+		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->begin(F::S,X) ) ||
+		           (space()->getBCLocal()->getBCU(X) > 0 && i==space()->end(F::S,X) ) ;
+		const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->begin(F::S,Y) ) ||
+		           (space()->getBCLocal()->getBCU(Y) > 0 && j==space()->end(F::S,Y) ) ;
 
 		const Scalar& eps = 1.e-1;
 
@@ -250,12 +250,12 @@ public:
 	constexpr Scalar innerDiag3D( const Ordinal& i, const Ordinal& j,
 			const Ordinal& k ) const {
 
-		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->begin(S,X) ) ||
-			(               space()->getBCLocal()->getBCU(X) > 0 && i==space()->end(S,X) ) ;
-		const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->begin(S,Y) ) ||
-			(               space()->getBCLocal()->getBCU(Y) > 0 && j==space()->end(S,Y) ) ;
-		const bool bcZ = (space()->getBCLocal()->getBCL(Z) > 0 && k==space()->begin(S,Z) ) ||
-			(               space()->getBCLocal()->getBCU(Z) > 0 && k==space()->end(S,Z) ) ;
+		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->begin(F::S,X) ) ||
+			(               space()->getBCLocal()->getBCU(X) > 0 && i==space()->end(F::S,X) ) ;
+		const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->begin(F::S,Y) ) ||
+			(               space()->getBCLocal()->getBCU(Y) > 0 && j==space()->end(F::S,Y) ) ;
+		const bool bcZ = (space()->getBCLocal()->getBCL(Z) > 0 && k==space()->begin(F::S,Z) ) ||
+			(               space()->getBCLocal()->getBCU(Z) > 0 && k==space()->end(F::S,Z) ) ;
 
 		const Scalar& eps = 1.e-1;
 
@@ -269,10 +269,10 @@ public:
 	constexpr Scalar innerDiag2D( const Ordinal& i, const Ordinal& j,
 			const Ordinal& k ) const {
 
-		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->begin(S,X) ) ||
-			(               space()->getBCLocal()->getBCU(X) > 0 && i==space()->end(S,X) ) ;
-		const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->begin(S,Y) ) ||
-			(               space()->getBCLocal()->getBCU(Y) > 0 && j==space()->end(S,Y) ) ;
+		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->begin(F::S,X) ) ||
+			(               space()->getBCLocal()->getBCU(X) > 0 && i==space()->end(F::S,X) ) ;
+		const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->begin(F::S,Y) ) ||
+			(               space()->getBCLocal()->getBCU(Y) > 0 && j==space()->end(F::S,Y) ) ;
 
 		const Scalar& eps = 1.e-1;
 

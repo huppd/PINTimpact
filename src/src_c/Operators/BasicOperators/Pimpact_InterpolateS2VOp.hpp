@@ -5,7 +5,7 @@
 
 #include "Pimpact_extern_FDCoeff.hpp"
 #include "Pimpact_ScalarField.hpp"
-#include "Pimpact_Types.hpp"
+#include "Pimpact_Utils.hpp"
 
 
 
@@ -48,6 +48,7 @@ public:
 		space_(space) {
 
 			for( int i=0; i<SpaceT::sdim; ++i ) {
+				F f = static_cast<F>( i );
 
 				c_[i] = Stenc( space_->nLoc(i) );
 
@@ -68,8 +69,8 @@ public:
 						false, // mapping
 						space_->getStencilWidths()->getDimNcbG(i),
 						space_->getStencilWidths()->getNcbG(i),
-						space_->getCoordinatesLocal()->getX( i, EField::S ),
-						space_->getCoordinatesLocal()->getX( i, i ),
+						space_->getCoordinatesLocal()->getX( i, F::S ),
+						space_->getCoordinatesLocal()->getX( i, f ),
 						c_[i].get() );
 			}
 		};
@@ -78,12 +79,12 @@ public:
 
 	void apply( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::N ) const {
 
-		assert( x.getType() == S );
-		assert( y.getType() != S );
-		assert( !(y.getType() == W && SpaceT::sdim==2) );
+		assert( x.getType() == F::S );
+		assert( y.getType() != F::S );
+		assert( !(y.getType() == F::W && SpaceT::sdim==2) );
 
 		int m = static_cast<int>( y.getType() );
-		const EField& field = y.getType();
+		const F& field = y.getType();
 
 
 		x.exchange(m);
@@ -93,13 +94,13 @@ public:
 				for( Ordinal i=space()->begin(field,X,B::Y); i<=space()->end(field,X,B::Y); ++i ) {
 					if( Add::N==add ) y(i,j,k) = 0.;
 					for( int ii = space_->gl(m); ii<=space_->gu(m); ++ii ) {
-						if( U==field ) {
+						if( F::U==field ) {
 							y(i,j,k) += getC(static_cast<ECoord>(m),i,ii)*x(i+ii,j,k) ;
 						}
-						else if( V==field ) {
+						else if( F::V==field ) {
 							y(i,j,k) += getC(static_cast<ECoord>(m),j,ii)*x(i,j+ii,k) ;
 						}
-						else if( W==field ) {
+						else if( F::W==field ) {
 							y(i,j,k) += getC(static_cast<ECoord>(m),k,ii)*x(i,j,k+ii) ;
 						}
 					}

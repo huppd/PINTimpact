@@ -7,7 +7,7 @@
 #include "Pimpact_FieldFactory.hpp"
 #include "Pimpact_NonlinearVWrap.hpp"
 #include "Pimpact_TimeField.hpp"
-#include "Pimpact_Types.hpp"
+#include "Pimpact_Utils.hpp"
 #include "Pimpact_VectorField.hpp"
 
 
@@ -66,8 +66,8 @@ public:
 
   void apply( const DomainFieldT& y, RangeFieldT& z, bool init_yes=true ) const {
 		
-		Ordinal sInd = space()->begin(EField::S,3);
-		Ordinal eInd = space()->end(EField::S,3);
+		Ordinal sInd = space()->begin(F::S,3);
+		Ordinal eInd = space()->end(F::S,3);
 
     Ordinal nt = space()->nLoc(3) + space()->bu(3) - space()->bl(3);
 

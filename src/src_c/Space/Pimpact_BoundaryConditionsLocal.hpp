@@ -8,7 +8,7 @@
 
 #include "Pimpact_BoundaryConditionsGlobal.hpp"
 #include "Pimpact_ProcGrid.hpp"
-#include "Pimpact_Types.hpp"
+#include "Pimpact_Utils.hpp"
 
 
 

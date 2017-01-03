@@ -116,7 +116,7 @@ public:
 			xu->exchange();
 			//		xp->exchange();
 
-			for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i ) {
+			for( Ordinal i=space()->begin(F::S,3); i<space()->end(F::S,3); ++i ) {
 				xu->getConstFieldPtr(i-1)->exchange();
 				xu->getConstFieldPtr(i)->exchange();
 				xp->getConstFieldPtr(i)->exchange();
@@ -135,32 +135,32 @@ public:
 					space()->du(),
 					space()->gl(),
 					space()->gu(),
-					space()->sInd(S),
-					space()->eInd(S),
-					space()->sInd(U),
-					space()->eInd(U),
-					space()->sInd(V),
-					space()->eInd(V),
-					space()->sInd(W),
-					space()->eInd(W),
-					op_->getConvOp()->getCD(X,U),
-					op_->getConvOp()->getCD(Y,V),
-					op_->getConvOp()->getCD(Z,W),
-					op_->getConvOp()->getCU(X,U),
-					op_->getConvOp()->getCU(Y,V),
-					op_->getConvOp()->getCU(Z,W),
-					op_->getConvOp()->getCD(X,S),
-					op_->getConvOp()->getCD(Y,S),
-					op_->getConvOp()->getCD(Z,S),
-					op_->getConvOp()->getCU(X,S),
-					op_->getConvOp()->getCU(Y,S),
-					op_->getConvOp()->getCU(Z,S),
-					op_->getHelmholtzOp()->getC(X,S),
-					op_->getHelmholtzOp()->getC(Y,S),
-					op_->getHelmholtzOp()->getC(Z,S),
-					op_->getHelmholtzOp()->getC(X,U),
-					op_->getHelmholtzOp()->getC(Y,V),
-					op_->getHelmholtzOp()->getC(Z,W),
+					space()->sInd(F::S),
+					space()->eInd(F::S),
+					space()->sInd(F::U),
+					space()->eInd(F::U),
+					space()->sInd(F::V),
+					space()->eInd(F::V),
+					space()->sInd(F::W),
+					space()->eInd(F::W),
+					op_->getConvOp()->getCD(X,F::U),
+					op_->getConvOp()->getCD(Y,F::V),
+					op_->getConvOp()->getCD(Z,F::W),
+					op_->getConvOp()->getCU(X,F::U),
+					op_->getConvOp()->getCU(Y,F::V),
+					op_->getConvOp()->getCU(Z,F::W),
+					op_->getConvOp()->getCD(X,F::S),
+					op_->getConvOp()->getCD(Y,F::S),
+					op_->getConvOp()->getCD(Z,F::S),
+					op_->getConvOp()->getCU(X,F::S),
+					op_->getConvOp()->getCU(Y,F::S),
+					op_->getConvOp()->getCU(Z,F::S),
+					op_->getHelmholtzOp()->getC(X,F::S),
+					op_->getHelmholtzOp()->getC(Y,F::S),
+					op_->getHelmholtzOp()->getC(Z,F::S),
+					op_->getHelmholtzOp()->getC(X,F::U),
+					op_->getHelmholtzOp()->getC(Y,F::V),
+					op_->getHelmholtzOp()->getC(Z,F::W),
 					op_->getDivOp()->getC(X),
 					op_->getDivOp()->getC(Y),
 					op_->getDivOp()->getC(Z),
@@ -178,7 +178,7 @@ public:
 					yp->getRawPtr(),
 					direction_flag);
 
-			for( Ordinal i=space()->begin(S,3); i<space()->end(S,3); ++i ) {
+			for( Ordinal i=space()->begin(F::S,3); i<space()->end(F::S,3); ++i ) {
 				yu->getField(i).changed();
 				yp->getField(i).changed();
 			} 

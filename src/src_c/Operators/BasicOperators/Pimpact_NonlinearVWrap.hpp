@@ -42,16 +42,16 @@ public:
   /// \note Operator's wind has to be assigned correctly
   void apply( const FieldTensor& u, const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::N ) const {
 
-    for( int i=0; i<SpaceT::sdim; ++i )
-      convectionSOp_->apply( u[i], x(i), y(i), add );
+    for( F i=F::U; i<SpaceT::sdim; ++i )
+      convectionSOp_->apply( u[static_cast<int>(i)], x(i), y(i), add );
   }
 
   /// \note Operator's wind has to be assigned correctly
   void apply( const FieldTensor& u, const DomainFieldT& x, RangeFieldT& y,
 			Scalar mulI, Scalar mulC, Scalar mulL, const Add& add=Add::N ) const {
 
-    for( int i=0; i<SpaceT::sdim; ++i )
-      convectionSOp_->apply( u[i], x(i), y(i), mulI, mulC, mulL, add );
+    for( F i=F::U; i<SpaceT::sdim; ++i )
+      convectionSOp_->apply( u[static_cast<int>(i)], x(i), y(i), mulI, mulC, mulL, add );
   }
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const { return( convectionSOp_->space() ); }

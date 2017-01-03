@@ -104,7 +104,7 @@ public:
 
 		xu->exchange();
 
-		for( Ordinal i=space()->begin(S,3)-1; i<space()->end(S,3); ++i ) {
+		for( Ordinal i=space()->begin(F::S,3)-1; i<space()->end(F::S,3); ++i ) {
 			//			xu->getConstFieldPtr(i-1)->exchange();
 			xu->getConstFieldPtr(i)->exchange();
 			xp->getConstFieldPtr(i)->exchange();
@@ -119,20 +119,20 @@ public:
 				space()->du(),
 				space()->gl(),
 				space()->gu(),
-				space()->sInd(S),
-				space()->eInd(S),
-				space()->sInd(U),
-				space()->eInd(U),
-				space()->sInd(V),
-				space()->eInd(V),
-				space()->sInd(W),
-				space()->eInd(W),
-				helm_->getC(X,S),
-				helm_->getC(Y,S),
-				helm_->getC(Z,S),
-				helm_->getC(X,U),
-				helm_->getC(Y,V),
-				helm_->getC(Z,W),
+				space()->sInd(F::S),
+				space()->eInd(F::S),
+				space()->sInd(F::U),
+				space()->eInd(F::U),
+				space()->sInd(F::V),
+				space()->eInd(F::V),
+				space()->sInd(F::W),
+				space()->eInd(F::W),
+				helm_->getC(X,F::S),
+				helm_->getC(Y,F::S),
+				helm_->getC(Z,F::S),
+				helm_->getC(X,F::U),
+				helm_->getC(Y,F::V),
+				helm_->getC(Z,F::W),
 				div_->getC(X),
 				div_->getC(Y),
 				div_->getC(Z),
@@ -146,7 +146,7 @@ public:
 				yu->getRawPtr(),
 				yp->getRawPtr() );
 
-		for( Ordinal i=space()->begin(S,3)-1; i<space()->end(S,3); ++i ) {
+		for( Ordinal i=space()->begin(F::S,3)-1; i<space()->end(F::S,3); ++i ) {
 			yu->getField(i).changed();
 			yp->getField(i).changed();
 		}

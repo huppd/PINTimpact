@@ -83,7 +83,7 @@ public:
         x.getConstSField().exchange( i, dir );
       }
 
-      EField fType = (EField)i;
+      F fType = static_cast<F>( i );
 
       OP_DtHelmholtz(
           dim,

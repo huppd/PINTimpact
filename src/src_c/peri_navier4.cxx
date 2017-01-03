@@ -23,7 +23,7 @@
 #include "NOX_Pimpact_Interface.hpp"
 #include "NOX_Pimpact_Group.hpp"
 #include "NOX_Pimpact_StatusTest.hpp"
-#include "Pimpact_Types.hpp"
+#include "Pimpact_Utils.hpp"
 #include "Pimpact_Space.hpp"
 #include "Pimpact_Fields.hpp"
 #include "Pimpact_FieldFactory.hpp"

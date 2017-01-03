@@ -66,7 +66,7 @@ protected:
 						spaceF()->getGridSizeLocal()->get(i),
 						spaceF()->bl(i),
 						spaceF()->bu(i),
-						spaceF()->getCoordinatesLocal()->getX( i, EField::S ),
+						spaceF()->getCoordinatesLocal()->getX( i, F::S ),
 						cRS_[i].get() );
 
 				cRV_[i] = StencV( this->iimax_[i] );
@@ -79,7 +79,7 @@ protected:
 						spaceC()->getBCLocal()->getBCL(i),
 						spaceC()->getBCLocal()->getBCU(i),
 						spaceF()->getCoordinatesLocal()->getX( i, i ),
-						spaceF()->getCoordinatesLocal()->getX( i, EField::S ),
+						spaceF()->getCoordinatesLocal()->getX( i, F::S ),
 						this->dd_[i],
 						cRV_[i].get() );
 			}
@@ -110,9 +110,9 @@ public:
 	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
 		assert( x.getType()==y.getType() );
-		assert( x.getType()!=EField::S );
+		assert( x.getType()!=F::S );
 
-		EField fType  = x.getType();
+		F fType  = x.getType();
 		int dir = fType;
 		x.exchange( );
 

@@ -15,7 +15,7 @@
 #include "BelosSolverFactory.hpp"
 #include "Teuchos_oblackholestream.hpp"
 
-#include "Pimpact_Types.hpp"
+#include "Pimpact_Utils.hpp"
 #include "Pimpact_Space.hpp"
 #include "Pimpact_Fields.hpp"
 #include "Pimpact_FieldFactory.hpp"

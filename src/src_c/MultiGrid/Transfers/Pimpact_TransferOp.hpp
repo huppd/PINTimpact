@@ -4,7 +4,7 @@
 
 
 #include "Pimpact_ScalarField.hpp"
-#include "Pimpact_Types.hpp"
+#include "Pimpact_Utils.hpp"
 
 
 
@@ -55,7 +55,7 @@ public:
   template< class SP1T, class SP2T>
   void apply( const ScalarField<SP1T>& x, ScalarField<SP2T>& y ) const {
 
-		const EField& fType = x.getType();
+		const F& fType = x.getType();
 
     assert( fType == y.getType() );
 

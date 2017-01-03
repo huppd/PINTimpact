@@ -11,7 +11,7 @@
 #include "Teuchos_Tuple.hpp"
 
 #include "Pimpact_BoundaryConditionsGlobal.hpp"
-#include "Pimpact_Types.hpp"
+#include "Pimpact_Utils.hpp"
 
 
 

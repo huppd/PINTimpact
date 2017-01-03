@@ -51,15 +51,15 @@ public:
     interpolateS2V_( create<InterpolateS2V>(space) ),
     interpolateV2S_( createInterpolateV2S( space ) ),
     u_{
-			{{ space,true,U } ,
-			 { space,true,U } ,
-			 { space,true,U } },{
-			 { space,true,V } ,
-			 { space,true,V } ,
-			 { space,true,V } },{
-			 { space,true,W } ,
-			 { space,true,W } ,
-			 { space,true,W } }
+			{{ space,true,F::U } ,
+			 { space,true,F::U } ,
+			 { space,true,F::U } },{
+			 { space,true,F::V } ,
+			 { space,true,F::V } ,
+			 { space,true,F::V } },{
+			 { space,true,F::W } ,
+			 { space,true,F::W } ,
+			 { space,true,F::W } }
     } {};
 
   ConvectionField(
@@ -69,15 +69,15 @@ public:
     interpolateS2V_(interpolateS2V),
     interpolateV2S_(interpolateV2S),
     u_{
-			 { space,true, U } ,
-			 { space, true,U } ,
-			 { space, true,U } ,
-			 { space, true,V } ,
-			 { space, true,V } ,
-			 { space, true,V } ,
-			 { space, true,W } ,
-			 { space, true,W } ,
-			 { space, true,W } 
+			 { space,true,F::U } ,
+			 { space,true,F::U } ,
+			 { space,true,F::U } ,
+			 { space,true,F::V } ,
+			 { space,true,F::V } ,
+			 { space,true,F::V } ,
+			 { space,true,F::W } ,
+			 { space,true,F::W } ,
+			 { space,true,F::W } 
     } {};
 
 
@@ -86,7 +86,7 @@ public:
 		ScalarField<SpaceT> temp( mv.space() );
 
     for( int i=0; i<SpaceT::sdim; ++i ) {
-      interpolateV2S_->apply( mv(i), temp );
+      interpolateV2S_->apply( mv(static_cast<F>(i)), temp );
       for( int j=0; j<SpaceT::sdim; ++j ) {
         interpolateS2V_->apply( temp, u_[j][i] );
       }

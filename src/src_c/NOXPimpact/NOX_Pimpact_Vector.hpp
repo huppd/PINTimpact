@@ -9,7 +9,7 @@
 #include "NOX_Common.H"  // for NOX_Config.h
 
 #include "Pimpact_MultiField.hpp"
-#include "Pimpact_Types.hpp"
+#include "Pimpact_Utils.hpp"
 
 
 

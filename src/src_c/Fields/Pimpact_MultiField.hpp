@@ -14,7 +14,7 @@
 
 #include "Pimpact_AbstractField.hpp"
 #include "Pimpact_Space.hpp"
-#include "Pimpact_Types.hpp"
+#include "Pimpact_Utils.hpp"
 
 
 

@@ -10,7 +10,7 @@
 #include "Pimpact_MultiField.hpp"
 #include "Pimpact_MultiHarmonicField.hpp"
 #include "Pimpact_Space.hpp"
-#include "Pimpact_Types.hpp"
+#include "Pimpact_Utils.hpp"
 #include "Pimpact_VectorField.hpp"
 
 

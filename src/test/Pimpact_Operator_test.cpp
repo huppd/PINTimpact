@@ -159,12 +159,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, InterpolateV2SOp, SpaceT ) {
 
 			ST error = sol->norm( Belos::InfNorm );
 			if( 0==rank )
-				std::cout << "field " << Pimpact::toString( static_cast<Pimpact::EField>(i) ) << ", error("<<Pimpact::toString(type)<<"): " << error << "\n";
+				std::cout << "field " << Pimpact::toString( static_cast<Pimpact::F>(i) ) << ", error("<<Pimpact::toString(type)<<"): " << error << "\n";
 			TEST_EQUALITY( error<eps, true );
 			if( error>= eps ){
 				std::string r = std::to_string( static_cast<long long>( rank ) ); // long long needed on brutus(intel)
 				sol->print(
-						*Pimpact::createOstream( "error_int"+Pimpact::toString( static_cast<Pimpact::EField>(i) )+"2S_"+Pimpact::toString(type)+"_r"+r+".txt" ));
+						*Pimpact::createOstream( "error_int"+Pimpact::toString( static_cast<Pimpact::F>(i) )+"2S_"+Pimpact::toString(type)+"_r"+r+".txt" ));
 			}
 		}
 		
@@ -213,7 +213,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, InterpolateS2VOp, SpaceT ) {
 			ST error = sol.norm( Belos::InfNorm );
 			if( 0==rank )
 				std::cout << "field "
-					<< Pimpact::toString( static_cast<Pimpact::EField>(i) )
+					<< Pimpact::toString( static_cast<Pimpact::F>(i) )
 					<< ", error("<<Pimpact::toString(type)<<"): "
 					<< error << "\n";
 
@@ -221,7 +221,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, InterpolateS2VOp, SpaceT ) {
 			if( error>=eps ) {
 				std::string r = std::to_string( static_cast<long long>( rank ) ); // long long needed on brutus(intel)
 				sol.print(
-						*Pimpact::createOstream( "error_int_S2"+Pimpact::toString( static_cast<Pimpact::EField>(i) )+"_"+Pimpact::toString(type)+"_r"+r+".txt" ));
+						*Pimpact::createOstream( "error_int_S2"+Pimpact::toString( static_cast<Pimpact::F>(i) )+"_"+Pimpact::toString(type)+"_r"+r+".txt" ));
 			}
 
 		}
@@ -2359,11 +2359,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, HelmholtzOp, SpaceT ) {
 			// compute order
 			ST order2 = order<ST>( dofs, error2 );
 			if( 0==rank )	
-				std::cout << "Helmholtz(" << Pimpact::toString(static_cast<Pimpact::EField>(field)) << "): order two norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << order2 << "\n";
+				std::cout << "Helmholtz(" << Pimpact::toString(static_cast<Pimpact::F>(field)) << "): order two norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << order2 << "\n";
 
 			ST orderInf = order<ST>( dofs, errorInf );
 			if( 0==rank )	
-				std::cout << "Helmholtz(" << Pimpact::toString(static_cast<Pimpact::EField>(field)) << "): order inf norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << orderInf << "\n";
+				std::cout << "Helmholtz(" << Pimpact::toString(static_cast<Pimpact::F>(field)) << "): order inf norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << orderInf << "\n";
 			// test
 			TEST_EQUALITY( -order2  >3., true );
 			TEST_EQUALITY( -orderInf>3., true );

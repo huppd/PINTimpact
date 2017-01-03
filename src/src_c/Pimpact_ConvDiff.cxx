@@ -91,13 +91,13 @@ int main( int argi, char** argv ) {
 
 
 				// init solution
-				y(Pimpact::U).initField( Pimpact::Grad2D_inY );
-				y(Pimpact::V).initField( Pimpact::Grad2D_inX );
+				y(Pimpact::F::U).initField( Pimpact::Grad2D_inY );
+				y(Pimpact::F::V).initField( Pimpact::Grad2D_inX );
 
 				auto sol = y.clone( Pimpact::ECopy::Deep );
 
-				wind(Pimpact::U).initField( Pimpact::ConstField, std::cos( phi ) );
-				wind(Pimpact::V).initField( Pimpact::ConstField, std::sin( phi ) );
+				wind(Pimpact::F::U).initField( Pimpact::ConstField, std::cos( phi ) );
+				wind(Pimpact::F::V).initField( Pimpact::ConstField, std::sin( phi ) );
 
 				z.initField();
 

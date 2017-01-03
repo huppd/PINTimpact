@@ -154,10 +154,10 @@ TEUCHOS_UNIT_TEST( VectorField, initField ) {
 	//divOp->apply( *vel, *divVec );
 	//auto bla = divVec->norm( Belos::InfNorm );
 	//if( 0==space->rankST() )
-	//std::cout << "EField: " << i << "\tmax div: " << bla << "\n";
+	//std::cout << "F: " << i << "\tmax div: " << bla << "\n";
 	//bla = divVec->norm( Belos::TwoNorm );
 	//if( 0==space->rankST() )
-	//std::cout << "EField: " << i << "\t||div||: " << bla << "\n";
+	//std::cout << "F: " << i << "\t||div||: " << bla << "\n";
 	//divVec->write( i*2 );
 	//}
 

@@ -15,7 +15,7 @@
 #include "Pimpact_GridSizeLocal.hpp"
 #include "Pimpact_ProcGrid.hpp"
 #include "Pimpact_StencilWidths.hpp"
-#include "Pimpact_Types.hpp"
+#include "Pimpact_Utils.hpp"
 
 
 
@@ -157,128 +157,128 @@ protected:
 
     // Lower index in x-direction
     if( bc->getBCL(0) > 0 ) {
-      sIndU_[U][0] = 1;
-      sIndU_[V][0] = 2;
-      sIndU_[W][0] = 2;
+      sIndU_[0][0] = 1;
+      sIndU_[1][0] = 2;
+      sIndU_[2][0] = 2;
     }
     // lower index in y-direction
     if( bc->getBCL(1) > 0 ) {
-      sIndU_[U][1] = 2;
-      sIndU_[V][1] = 1;
-      sIndU_[W][1] = 2;
+      sIndU_[0][1] = 2;
+      sIndU_[1][1] = 1;
+      sIndU_[2][1] = 2;
     }
     // lower index in z-direction
     if( bc->getBCL(2) > 0 ) {
-      sIndU_[U][2] = 2;
-      sIndU_[V][2] = 2;
-      sIndU_[W][2] = 1;
+      sIndU_[0][2] = 2;
+      sIndU_[1][2] = 2;
+      sIndU_[2][2] = 1;
     }
 
     // lower index for symmetriBC
     for( int i=0; i<3; ++i )
       if( bc->getBCL(i)==SymmetryBC ) {
-        sIndU_[U][i] = 1;
-        sIndU_[V][i] = 1;
-        sIndU_[W][i] = 1;
+        sIndU_[0][i] = 1;
+        sIndU_[1][i] = 1;
+        sIndU_[2][i] = 1;
       }
 
     // upper index
     for( int i=0; i<3; ++i )
       if( bc->getBCU(i) > 0 ) {
-        eIndU_[U][i] = gridSizeLocal->get(i)-1;
-        eIndU_[V][i] = gridSizeLocal->get(i)-1;
-        eIndU_[W][i] = gridSizeLocal->get(i)-1;
+        eIndU_[0][i] = gridSizeLocal->get(i)-1;
+        eIndU_[1][i] = gridSizeLocal->get(i)-1;
+        eIndU_[2][i] = gridSizeLocal->get(i)-1;
       }
 
     // upper index in x-direction for symmetricBC
     if( bc->getBCU(0)==SymmetryBC ) {
-      eIndU_[U][0] = gridSizeLocal->get(0)-1;
-      eIndU_[V][0] = gridSizeLocal->get(0);
-      eIndU_[W][0] = gridSizeLocal->get(0);
+      eIndU_[0][0] = gridSizeLocal->get(0)-1;
+      eIndU_[1][0] = gridSizeLocal->get(0);
+      eIndU_[2][0] = gridSizeLocal->get(0);
     }
 
     // upper index in y-direction for symmetricBC
     if( bc->getBCU(1)==SymmetryBC ) {
-      eIndU_[U][1] = gridSizeLocal->get(1);
-      eIndU_[V][1] = gridSizeLocal->get(1)-1;
-      eIndU_[W][1] = gridSizeLocal->get(1);
+      eIndU_[0][1] = gridSizeLocal->get(1);
+      eIndU_[1][1] = gridSizeLocal->get(1)-1;
+      eIndU_[2][1] = gridSizeLocal->get(1);
     }
 
     // upper index in z-direction for symmetricBC
     if( bc->getBCU(2)==SymmetryBC ) {
-      eIndU_[U][2] = gridSizeLocal->get(2);
-      eIndU_[V][2] = gridSizeLocal->get(2);
-      eIndU_[W][2] = gridSizeLocal->get(2)-1;
+      eIndU_[0][2] = gridSizeLocal->get(2);
+      eIndU_[1][2] = gridSizeLocal->get(2);
+      eIndU_[2][2] = gridSizeLocal->get(2)-1;
     }
 
 		//
     // --- init IndUB_ -------------------------------
 		// 
     for( int i=0; i<3; ++i ) {
-      sIndUB_[U][i] = 2            + sW->getLS(i);
-      eIndUB_[U][i] = gridSizeLocal->get(i) + sW->getLS(i);
+      sIndUB_[0][i] = 2            + sW->getLS(i);
+      eIndUB_[0][i] = gridSizeLocal->get(i) + sW->getLS(i);
 
-      sIndUB_[V][i] = 2            + sW->getLS(i);
-      eIndUB_[V][i] = gridSizeLocal->get(i) + sW->getLS(i);
+      sIndUB_[1][i] = 2            + sW->getLS(i);
+      eIndUB_[1][i] = gridSizeLocal->get(i) + sW->getLS(i);
 
-      sIndUB_[W][i] = 2            + sW->getLS(i);
-      eIndUB_[W][i] = gridSizeLocal->get(i) + sW->getLS(i);
+      sIndUB_[2][i] = 2            + sW->getLS(i);
+      eIndUB_[2][i] = gridSizeLocal->get(i) + sW->getLS(i);
     }
 
     // Lower index in x-direction
     if( bc->getBCL(0) > 0 ) {
-      sIndUB_[U][0] = 0;
-      sIndUB_[V][0] = 1;
-      sIndUB_[W][0] = 1;
+      sIndUB_[0][0] = 0;
+      sIndUB_[1][0] = 1;
+      sIndUB_[2][0] = 1;
     }
     // lower index in y-direction
     if( bc->getBCL(1) > 0 ) {
-      sIndUB_[U][1] = 1;
-      sIndUB_[V][1] = 0;
-      sIndUB_[W][1] = 1;
+      sIndUB_[0][1] = 1;
+      sIndUB_[1][1] = 0;
+      sIndUB_[2][1] = 1;
     }
     // lower index in z-direction
     if( bc->getBCL(2) > 0 ) {
-      sIndUB_[U][2] = 1;
-      sIndUB_[V][2] = 1;
-      sIndUB_[W][2] = 0;
+      sIndUB_[0][2] = 1;
+      sIndUB_[1][2] = 1;
+      sIndUB_[2][2] = 0;
     }
 
     // lower index for symmetriBC
     for( int i=0; i<3; ++i )
       if( bc->getBCL(i)==SymmetryBC ) {
-        sIndUB_[U][i] = 1;
-        sIndUB_[V][i] = 1;
-        sIndUB_[W][i] = 1;
+        sIndUB_[0][i] = 1;
+        sIndUB_[1][i] = 1;
+        sIndUB_[2][i] = 1;
       }
 
     // upper index
     for( int i=0; i<3; ++i )
       if( bc->getBCU(i) > 0 ) {
-        eIndUB_[U][i] = gridSizeLocal->get(i);
-        eIndUB_[V][i] = gridSizeLocal->get(i);
-        eIndUB_[W][i] = gridSizeLocal->get(i);
+        eIndUB_[0][i] = gridSizeLocal->get(i);
+        eIndUB_[1][i] = gridSizeLocal->get(i);
+        eIndUB_[2][i] = gridSizeLocal->get(i);
       }
 
     // upper index in x-direction for symmetricBC
     if( bc->getBCU(0)==SymmetryBC ) {
-      eIndUB_[U][0] = gridSizeLocal->get(0)-1;
-      eIndUB_[V][0] = gridSizeLocal->get(0);
-      eIndUB_[W][0] = gridSizeLocal->get(0);
+      eIndUB_[0][0] = gridSizeLocal->get(0)-1;
+      eIndUB_[1][0] = gridSizeLocal->get(0);
+      eIndUB_[2][0] = gridSizeLocal->get(0);
     }
 
     // upper index in y-direction for symmetricBC
     if( bc->getBCU(1)==SymmetryBC ) {
-      eIndUB_[U][1] = gridSizeLocal->get(1);
-      eIndUB_[V][1] = gridSizeLocal->get(1)-1;
-      eIndUB_[W][1] = gridSizeLocal->get(1);
+      eIndUB_[0][1] = gridSizeLocal->get(1);
+      eIndUB_[1][1] = gridSizeLocal->get(1)-1;
+      eIndUB_[2][1] = gridSizeLocal->get(1);
     }
 
     // upper index in z-direction for symmetricBC
     if( bc->getBCU(2)==SymmetryBC ) {
-      eIndUB_[U][2] = gridSizeLocal->get(2);
-      eIndUB_[V][2] = gridSizeLocal->get(2);
-      eIndUB_[W][2] = gridSizeLocal->get(2)-1;
+      eIndUB_[0][2] = gridSizeLocal->get(2);
+      eIndUB_[1][2] = gridSizeLocal->get(2);
+      eIndUB_[2][2] = gridSizeLocal->get(2)-1;
     }
 
 
@@ -293,56 +293,56 @@ protected:
 
 public:
 
-  constexpr const OrdinalT* sInd( const int& fieldType ) const {
+  constexpr const OrdinalT* sInd( const F& ft ) const {
 		return(
-				(EField::S==static_cast<EField>(fieldType))?
+				( F::S==ft )?
 				sIndS_.getRawPtr():
-				sIndU_[fieldType].getRawPtr() );
+				sIndU_[static_cast<int>(ft)].getRawPtr() );
 	}
-  constexpr const OrdinalT* eInd( const int& fieldType ) const {
+  constexpr const OrdinalT* eInd( const F& ft ) const {
 		return(
-				(EField::S==static_cast<EField>(fieldType))?
+				( F::S==ft )?
 				eIndS_.getRawPtr():
-				eIndU_[fieldType].getRawPtr() );
+				eIndU_[static_cast<int>(ft)].getRawPtr() );
   }
 
-  constexpr const OrdinalT* sIndB( const int& fieldType ) const {
+  constexpr const OrdinalT* sIndB( const F& ft ) const {
     return(
-				(EField::S==static_cast<EField>(fieldType))?
+				( F::S==ft )?
 				sIndS_.getRawPtr():
-				sIndUB_[fieldType].getRawPtr() );
+				sIndUB_[static_cast<int>(ft)].getRawPtr() );
   }
-  constexpr const OrdinalT* eIndB( const int& fieldType ) const {
+  constexpr const OrdinalT* eIndB( const F& ft ) const {
     return(
-				(EField::S==static_cast<EField>(fieldType))?
+				( F::S== ft )?
 				eIndS_.getRawPtr():
-				eIndUB_[fieldType].getRawPtr() );
+				eIndUB_[static_cast<int>(ft)].getRawPtr() );
   }
 
-  constexpr const OrdinalT& sInd( const int& fieldType, const int& dir ) const {
+  constexpr const OrdinalT& sInd( const F& ft, const int& dir ) const {
     return(
-				(EField::S==static_cast<EField>(fieldType))?
+				( F::S==ft )?
 				sIndS_[dir]:
-				sIndU_[fieldType][dir] );
+				sIndU_[static_cast<int>(ft)][dir] );
   }
-  constexpr const OrdinalT& eInd(  const int& fieldType, const int& dir ) const {
+  constexpr const OrdinalT& eInd(  const F& ft, const int& dir ) const {
 		return(
-				(EField::S==static_cast<EField>(fieldType))?
+				( F::S==ft )?
 				eIndS_[dir]:
-				eIndU_[fieldType][dir] );
+				eIndU_[static_cast<int>(ft)][dir] );
   }
 
-  constexpr const OrdinalT& sIndB( const int& fieldType, const int& dir ) const {
+  constexpr const OrdinalT& sIndB( const F& ft, const int& dir ) const {
 		return(
-				(EField::S==static_cast<EField>(fieldType))?
+				( F::S==ft )?
 				sIndS_[dir]:
-				sIndUB_[fieldType][dir] );
+				sIndUB_[static_cast<int>(ft)][dir] );
   }
-  constexpr const OrdinalT& eIndB( const int& fieldType, const int& dir ) const {
+  constexpr const OrdinalT& eIndB( const F& ft, const int& dir ) const {
     return(
-				(EField::S==static_cast<EField>(fieldType))?
+				( F::S==ft )?
 				eIndS_[dir]:
-				eIndUB_[fieldType][dir] );
+				eIndUB_[static_cast<int>(ft)][dir] );
   }
 
 	constexpr const int& getShift( const int& i ) const { return( shift_[i] ); }
@@ -354,12 +354,12 @@ public:
     out << "\tsInd: " << sIndS_ << "\n";
     out << "\teInd: " << eIndS_ << "\n";
     for( int field=0; field<3; ++field ) {
-      out << "\tinner field: " << toString( static_cast<EField>(field) )<< "\n";
+      out << "\tinner field: " << toString( static_cast<F>(field) )<< "\n";
       out << "\tsInd: " << sIndU_[field] << "\n";
       out << "\teInd: " << eIndU_[field] << "\n";
     }
     for( int field=0; field<3; ++field ) {
-      out << "\tfull field: " << toString( static_cast<EField>(field) ) << "\n";
+      out << "\tfull field: " << toString( static_cast<F>(field) ) << "\n";
       out << "\tsInd: " << sIndUB_[field] << "\n";
       out << "\teInd: " << eIndUB_[field] << "\n";
     }

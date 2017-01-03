@@ -367,7 +367,7 @@ protected:
 					spaceF_->nLoc(dir),
 					spaceC_->bl(dir),
 					spaceC_->bu(dir),
-					spaceF_->getCoordinatesLocal()->getX( dir, EField::S ),
+					spaceF_->getCoordinatesLocal()->getX( dir, F::S ),
 					dd_[dir],
 					cIS_[dir].get() );
 
@@ -425,11 +425,11 @@ public:
 
 		y.initField();
 
-		EField fType = x.getType();
+		F fType = x.getType();
 
 		assert( x.getType()==y.getType() );
 
-		if( EField::S==fType ) {
+		if( F::S==fType ) {
 
 			if( spaceC_->getProcGrid()->participating() )
 				x.exchange();
@@ -473,21 +473,21 @@ public:
 
 			if( spaceC_->getProcGrid()->participating() ) {
 				switch( fType ) {
-					case EField::U:
+					case F::U:
 						x.exchange(1);
 						x.exchange(2);
 						x.exchange(0);
 						break;
-					case EField::V:
+					case F::V:
 						x.exchange(2);
 						x.exchange(0);
 						x.exchange(1);
 						break;
-					case EField::W:
+					case F::W:
 						x.exchange(0);
 						x.exchange(1);
 						x.exchange(2);
-					case EField::S:
+					case F::S:
 						break;
 				}
 			}

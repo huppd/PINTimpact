@@ -18,7 +18,7 @@
 #include "Pimpact_GridSizeLocal.hpp"
 #include "Pimpact_StencilWidths.hpp"
 #include "Pimpact_ProcGrid.hpp"
-#include "Pimpact_Types.hpp"
+#include "Pimpact_Utils.hpp"
 
 
 
@@ -109,6 +109,8 @@ protected:
 			dxS_[i] = Teuchos::arcp<ScalarT>( gridSizeLocal->get(i) );
 			dxV_[i] = Teuchos::arcp<ScalarT>( gridSizeLocal->get(i)+1 );
 
+			F fi = static_cast<F>( i );
+
 			if( i<3 )
 				PI_getLocalCoordinates(
 						domainSize->getSize(i),
@@ -121,8 +123,8 @@ protected:
 						bcLocal->getBCL(i),
 						bcLocal->getBCU(i),
 						procGrid->getIB(i),
-						coordGlobal->getX( i, EField::S),
-						coordGlobal->getX( i, i),
+						coordGlobal->getX( i, F::S),
+						coordGlobal->getX( i, fi),
 						xS_[i].getRawPtr(),
 						xV_[i].getRawPtr(),
 						dxS_[i].getRawPtr(),
@@ -139,8 +141,8 @@ protected:
 						bcLocal->getBCL(i),
 						bcLocal->getBCU(i),
 						procGrid->getIB(i),
-						coordGlobal->getX( i, EField::S ),
-						coordGlobal->getX( i, i ),
+						coordGlobal->getX( i, F::S ),
+						coordGlobal->getX( i, fi ),
 						xS_[i].getRawPtr(),
 						xV_[i].getRawPtr(),
 						dxS_[i].getRawPtr(),
@@ -153,17 +155,17 @@ public:
 	/// \name getter
 	/// @{ 
 
-	constexpr const ScalarT* getX( const int& dir, const int& ftype ) const  {
+	constexpr const ScalarT* getX( const int& dir, const F& ftype ) const  {
 		return(
-				( EField::S==ftype || dir!=ftype ) ?
+				( F::S==ftype || dir!=ftype ) ?
 					xS_[dir].getRawPtr() :
 					xV_[dir].getRawPtr()
 				);
   }
 
-  constexpr const ScalarT& getX( const int& ftype, const int& dir, const OrdinalT& i) const  {
+  constexpr const ScalarT& getX( const F& ftype, const int& dir, const OrdinalT& i) const  {
 		return(
-				( EField::S==ftype || dir!=ftype )?
+				( F::S==ftype || dir!=ftype )?
 					xS_[dir][i-stencilWidths_->getBL(dir)]:
 					xV_[dir][i-stencilWidths_->getBL(dir)]
 				);

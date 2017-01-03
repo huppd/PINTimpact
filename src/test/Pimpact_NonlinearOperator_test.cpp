@@ -92,7 +92,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, ConvectionSOp, SpaceT ) {
 			Pimpact::ScalarField<SpaceT>& sol = solv( i );
 			sol.add( 1., sol, -1., y(i) );
 			ST errorInf = sol.norm( Belos::InfNorm, Pimpact::B::N );
-			std::cout << "error in "<< Pimpact::toString( static_cast<Pimpact::EField>(i) ) << " (gradX): " << errorInf << "\n";
+			std::cout << "error in "<< Pimpact::toString( static_cast<Pimpact::F>(i) ) << " (gradX): " << errorInf << "\n";
 			TEST_EQUALITY( errorInf<eps, true );
 			if( write && errorInf>=eps )
 				sol.write();
@@ -117,7 +117,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, ConvectionSOp, SpaceT ) {
 		for( int i=0; i<SpaceT::sdim; ++i ){
 			Pimpact::ScalarField<SpaceT>& sol = solv( i );
 			sol.add( 1., sol, -1., y(i) );
-			std::cout << "error in "<< Pimpact::toString( static_cast<Pimpact::EField>(i) ) << " (gradY): " << sol.norm( Belos::InfNorm, Pimpact::B::N ) << "\n";
+			std::cout << "error in "<< Pimpact::toString( static_cast<Pimpact::F>(i) ) << " (gradY): " << sol.norm( Belos::InfNorm, Pimpact::B::N ) << "\n";
 			TEST_EQUALITY( sol.norm( Belos::InfNorm, Pimpact::B::N )<eps, true );
 		}
 		x(Pimpact::U).initField( Pimpact::Grad2D_inY );
@@ -144,7 +144,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, ConvectionSOp, SpaceT ) {
 				Pimpact::ScalarField<SpaceT>& sol = solv( i );
 				sol.add( 1., sol, -1., y(i) );
 				ST errorInf = sol.norm( Belos::InfNorm, Pimpact::B::N );
-				std::cout << "error in "<< Pimpact::toString( static_cast<Pimpact::EField>(i) ) << " (gradZ): " << errorInf << "\n";
+				std::cout << "error in "<< Pimpact::toString( static_cast<Pimpact::F>(i) ) << " (gradZ): " << errorInf << "\n";
 				TEST_EQUALITY( errorInf<eps, true );
 				if( write && errorInf>=eps )
 					//sol.write();

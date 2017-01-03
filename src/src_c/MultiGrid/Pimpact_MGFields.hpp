@@ -7,7 +7,7 @@
 
 #include "Teuchos_RCP.hpp"
 
-#include "Pimpact_Types.hpp"
+#include "Pimpact_Utils.hpp"
 
 
 
@@ -35,7 +35,7 @@ protected:
 //  Teuchos::RCP< MGFields<MGSpacesTT,FieldTT> >
 //  createMGFields(
 //      const Teuchos::RCP<const MGSpacesTT>& space,
-//      EField type=EField::S  );
+//      F type=F::S  );
 
   Teuchos::RCP<const MGSpacesT> mgSpaces_;
 

@@ -11,7 +11,7 @@
 #include "Pimpact_GridSizeGlobal.hpp"
 #include "Pimpact_ProcGrid.hpp"
 #include "Pimpact_StencilWidths.hpp"
-#include "Pimpact_Types.hpp"
+#include "Pimpact_Utils.hpp"
 
 
 

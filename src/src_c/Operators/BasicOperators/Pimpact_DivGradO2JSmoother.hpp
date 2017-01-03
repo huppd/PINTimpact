@@ -87,25 +87,25 @@ public:
 
 				// boundary conditions in X
 				if( space()->getBCLocal()->getBCL(X)>0 ) {
-					SS[X] = space()->begin(EField::S,X);
-					SS[Y] = space()->begin(EField::S,Y);
-					SS[Z] = space()->begin(EField::S,Z);
+					SS[X] = space()->begin(F::S,X);
+					SS[Y] = space()->begin(F::S,Y);
+					SS[Z] = space()->begin(F::S,Z);
 
-					NN[X] = space()->begin(EField::S,X)+depth_;
-					NN[Y] = space()->end(EField::S,Y);
-					NN[Z] = space()->end(EField::S,Z);
+					NN[X] = space()->begin(F::S,X)+depth_;
+					NN[Y] = space()->end(F::S,Y);
+					NN[Z] = space()->end(F::S,Z);
 
 					// set solver and solve
 					AsovL_[0] = Teuchos::rcp( new SolverT( op_, SS, NN) );
 				}
 				if( space()->getBCLocal()->getBCU(X)>0 ) {
-					SS[X] = space()->end(EField::S,X)-depth_;
-					SS[Y] = space()->begin(EField::S,Y);
-					SS[Z] = space()->begin(EField::S,Z);
+					SS[X] = space()->end(F::S,X)-depth_;
+					SS[Y] = space()->begin(F::S,Y);
+					SS[Z] = space()->begin(F::S,Z);
 
-					NN[X] = space()->end(EField::S,X);
-					NN[Y] = space()->end(EField::S,Y);
-					NN[Z] = space()->end(EField::S,Z);
+					NN[X] = space()->end(F::S,X);
+					NN[Y] = space()->end(F::S,Y);
+					NN[Z] = space()->end(F::S,Z);
 
 					// set solver and solve
 					AsovU_[0] = Teuchos::rcp( new SolverT( op_, SS, NN ) );
@@ -113,25 +113,25 @@ public:
 
 				// boundary conditions in Y
 				if( space()->getBCLocal()->getBCL(Y)>0 ) {
-					SS[X] = space()->begin(EField::S,X);
-					SS[Y] = space()->begin(EField::S,Y);
-					SS[Z] = space()->begin(EField::S,Z);
+					SS[X] = space()->begin(F::S,X);
+					SS[Y] = space()->begin(F::S,Y);
+					SS[Z] = space()->begin(F::S,Z);
 
-					NN[X] = space()->end(EField::S,X);
-					NN[Y] = space()->begin(EField::S,Y)+depth_;
-					NN[Z] = space()->end(EField::S,Z);
+					NN[X] = space()->end(F::S,X);
+					NN[Y] = space()->begin(F::S,Y)+depth_;
+					NN[Z] = space()->end(F::S,Z);
 
 					// set solver and solve
 					AsovL_[1] = Teuchos::rcp( new SolverT( op_, SS, NN ) );
 				}
 				if( space()->getBCLocal()->getBCU(Y)>0 ) {
-					SS[X] = space()->begin(EField::S,X);
-					SS[Y] = space()->end(EField::S,Y)-depth_;
-					SS[Z] = space()->begin(EField::S,Z);
+					SS[X] = space()->begin(F::S,X);
+					SS[Y] = space()->end(F::S,Y)-depth_;
+					SS[Z] = space()->begin(F::S,Z);
 
-					NN[X] = space()->end(EField::S,X);
-					NN[Y] = space()->end(EField::S,Y);
-					NN[Z] = space()->end(EField::S,Z);
+					NN[X] = space()->end(F::S,X);
+					NN[Y] = space()->end(F::S,Y);
+					NN[Z] = space()->end(F::S,Z);
 
 					// set solver and solve
 					AsovU_[1] = Teuchos::rcp( new SolverT( op_, SS, NN ) );
@@ -139,25 +139,25 @@ public:
 
 				// boundary conditions in Z
 				if( space()->getBCLocal()->getBCL(Z)>0 ) {
-					SS[X] = space()->begin(EField::S,X);
-					SS[Y] = space()->begin(EField::S,Y);
-					SS[Z] = space()->begin(EField::S,Z);
+					SS[X] = space()->begin(F::S,X);
+					SS[Y] = space()->begin(F::S,Y);
+					SS[Z] = space()->begin(F::S,Z);
 
-					NN[X] = space()->end(EField::S,X);
-					NN[Y] = space()->end(EField::S,Y);
-					NN[Z] = space()->begin(EField::S,Z)+depth_;
+					NN[X] = space()->end(F::S,X);
+					NN[Y] = space()->end(F::S,Y);
+					NN[Z] = space()->begin(F::S,Z)+depth_;
 
 					// set solver and solve
 					AsovL_[2] = Teuchos::rcp( new SolverT( op_, SS, NN ) );
 				}
 				if( space()->getBCLocal()->getBCU(Z)>0 ) {
-					SS[X] = space()->begin(EField::S,X);
-					SS[Y] = space()->begin(EField::S,Y);
-					SS[Z] = space()->end(EField::S,Z)-depth_;
+					SS[X] = space()->begin(F::S,X);
+					SS[Y] = space()->begin(F::S,Y);
+					SS[Z] = space()->end(F::S,Z)-depth_;
 
-					NN[X] = space()->end(EField::S,X);
-					NN[Y] = space()->end(EField::S,Y);
-					NN[Z] = space()->end(EField::S,Z);
+					NN[X] = space()->end(F::S,X);
+					NN[Y] = space()->end(F::S,Y);
+					NN[Z] = space()->end(F::S,Z);
 
 					// set solver and solve
 					AsovU_[2] = Teuchos::rcp( new SolverT( op_, SS,NN ) );
@@ -178,15 +178,15 @@ public:
       y.exchange();
 
 			if( 3==SpaceT::sdim )
-				for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
-					for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
-						for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
+				for( Ordinal k=space()->begin(F::S,Z); k<=space()->end(F::S,Z); ++k )
+					for( Ordinal j=space()->begin(F::S,Y); j<=space()->end(F::S,Y); ++j )
+						for( Ordinal i=space()->begin(F::S,X); i<=space()->end(F::S,X); ++i ) {
 							temp(i,j,k) = innerStenc3D( b, y, i,j,k);
 						}
 			else
-				for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
-					for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
-						for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
+				for( Ordinal k=space()->begin(F::S,Z); k<=space()->end(F::S,Z); ++k )
+					for( Ordinal j=space()->begin(F::S,Y); j<=space()->end(F::S,Y); ++j )
+						for( Ordinal i=space()->begin(F::S,X); i<=space()->end(F::S,X); ++i ) {
 							temp(i,j,k) = innerStenc2D( b, y, i,j,k);
 						}
 			
@@ -194,15 +194,15 @@ public:
 			temp.exchange();
 
 			if( 3==SpaceT::sdim )
-				for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
-					for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
-						for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
+				for( Ordinal k=space()->begin(F::S,Z); k<=space()->end(F::S,Z); ++k )
+					for( Ordinal j=space()->begin(F::S,Y); j<=space()->end(F::S,Y); ++j )
+						for( Ordinal i=space()->begin(F::S,X); i<=space()->end(F::S,X); ++i ) {
 							y(i,j,k) = innerStenc3D( b, temp, i,j,k);
 						}
 			else
-				for( Ordinal k=space()->begin(S,Z); k<=space()->end(S,Z); ++k )
-					for( Ordinal j=space()->begin(S,Y); j<=space()->end(S,Y); ++j )
-						for( Ordinal i=space()->begin(S,X); i<=space()->end(S,X); ++i ) {
+				for( Ordinal k=space()->begin(F::S,Z); k<=space()->end(F::S,Z); ++k )
+					for( Ordinal j=space()->begin(F::S,Y); j<=space()->end(F::S,Y); ++j )
+						for( Ordinal i=space()->begin(F::S,X); i<=space()->end(F::S,X); ++i ) {
 							y(i,j,k) = innerStenc2D( b, temp, i,j,k);
 						}
 
@@ -254,12 +254,12 @@ protected:
 	constexpr Scalar innerStenc3D( const DomainFieldT& b, const DomainFieldT& x,
 			const Ordinal& i, const Ordinal& j, const Ordinal& k ) const { 
 
-		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->begin(S,X) ) ||
-		           (space()->getBCLocal()->getBCU(X) > 0 && i==space()->end(S,X) ) ;
-		const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->begin(S,Y) ) ||
-		           (space()->getBCLocal()->getBCU(Y) > 0 && j==space()->end(S,Y) ) ;
-		const bool bcZ = (space()->getBCLocal()->getBCL(Z) > 0 && k==space()->begin(S,Z) ) ||
-		           (space()->getBCLocal()->getBCU(Z) > 0 && k==space()->end(S,Z) ) ;
+		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->begin(F::S,X) ) ||
+		           (space()->getBCLocal()->getBCU(X) > 0 && i==space()->end(F::S,X) ) ;
+		const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->begin(F::S,Y) ) ||
+		           (space()->getBCLocal()->getBCU(Y) > 0 && j==space()->end(F::S,Y) ) ;
+		const bool bcZ = (space()->getBCLocal()->getBCL(Z) > 0 && k==space()->begin(F::S,Z) ) ||
+		           (space()->getBCLocal()->getBCU(Z) > 0 && k==space()->end(F::S,Z) ) ;
 
 		const Scalar& eps = 1.e-1;
 
@@ -279,10 +279,10 @@ protected:
 	constexpr Scalar innerStenc2D( const DomainFieldT& b, const DomainFieldT& x,
 			const Ordinal& i, const Ordinal& j, const Ordinal& k ) const { 
 
-		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->begin(S,X) ) ||
-		           (space()->getBCLocal()->getBCU(X) > 0 && i==space()->end(S,X) ) ;
-		const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->begin(S,Y) ) ||
-		           (space()->getBCLocal()->getBCU(Y) > 0 && j==space()->end(S,Y) ) ;
+		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->begin(F::S,X) ) ||
+		           (space()->getBCLocal()->getBCU(X) > 0 && i==space()->end(F::S,X) ) ;
+		const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->begin(F::S,Y) ) ||
+		           (space()->getBCLocal()->getBCU(Y) > 0 && j==space()->end(F::S,Y) ) ;
 
 		const Scalar& eps = 1.e-1;
 

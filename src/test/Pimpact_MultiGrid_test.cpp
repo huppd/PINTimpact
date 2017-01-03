@@ -382,17 +382,17 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MGTransfers, Restrictor, CS, RestrictorType )
 
 		if( mgSpaces->participating(level-1) && print ) op->print();
 
-		std::vector<Pimpact::EField> types;
+		std::vector<Pimpact::F> types;
 		if( "Restriction SF"==op->getLabel() )
-			types.push_back( Pimpact::EField::S );
+			types.push_back( Pimpact::F::S );
 		else if( "Restriction VF"==op->getLabel() ) {
-			types.push_back( Pimpact::EField::U );
-			types.push_back( Pimpact::EField::V );
-			types.push_back( Pimpact::EField::W );
+			types.push_back( Pimpact::F::U );
+			types.push_back( Pimpact::F::V );
+			types.push_back( Pimpact::F::W );
 		}
 
 		for( auto type=types.begin(); type!=types.end(); ++type ) {
-			if( 2==CS::SpaceT::sdim && *type==Pimpact::EField::W ) break;
+			if( 2==CS::SpaceT::sdim && *type==Pimpact::F::W ) break;
 			if( 0==space->rankST() )
 				std::cout << " --- ftype: " << Pimpact::toString(*type) << " ---\n";
 
@@ -517,12 +517,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MGTransfers, Interpolator, CS ) {
 			op->print();
 		}
 
-		Teuchos::Tuple<Pimpact::EField,4> type =
+		Teuchos::Tuple<Pimpact::F,4> type =
 			Teuchos::tuple(
-					Pimpact::EField::S,
-					Pimpact::EField::U,
-					Pimpact::EField::V,
-					Pimpact::EField::W );
+					Pimpact::F::S,
+					Pimpact::F::U,
+					Pimpact::F::V,
+					Pimpact::F::W );
 
 		for( int i=fs; i<fe; ++i ) {
 			if( 0==space->rankST() )

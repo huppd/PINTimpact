@@ -19,7 +19,7 @@
 
 #include "Pimpact_AbstractField.hpp"
 #include "Pimpact_extern_ScalarField.hpp"
-#include "Pimpact_Types.hpp"
+#include "Pimpact_Utils.hpp"
 
 
 
@@ -54,7 +54,7 @@ protected:
 
   State exchangedState_;
 
-  const EField fType_; /// < make template parameter (default:=S)
+  const F fType_; /// < make template parameter (default:=S)
 
 	void allocate() {
 		Ordinal n = getStorageSize();
@@ -63,7 +63,7 @@ protected:
 
 public:
 
-  ScalarField( const Teuchos::RCP<const SpaceT>& space, bool owning=true, EField fType=EField::S ):
+  ScalarField( const Teuchos::RCP<const SpaceT>& space, bool owning=true, F fType=F::S ):
     AbstractField<SpaceT>( space ),
     owning_(owning),
     exchangedState_( Teuchos::tuple( true, true, true ) ),
@@ -497,6 +497,7 @@ public:
 		Teuchos::RCP<const DomainSize<Scalar,SpaceT::sdim> > domain = space()->getDomainSize();
 
 		const B& bcYes = B::Y;
+
 		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
 			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
 				for( Ordinal i=space()->begin(fType_,X,bcYes); i<=space()->end(fType_,X,bcYes); ++i )
@@ -742,7 +743,7 @@ public:
 			case( Belos::NOTRANS ): {
 
 				switch( fType_ ) {
-					case( U ):  {
+					case( F::U ):  {
 						if( space()->getBCLocal()->getBCL(X) > 0 ) {
 							Ordinal i = space()->begin(fType_,X,B::Y);
 							for( Ordinal k=space()->begin(fType_,Z, B::Y); k<=space()->end(fType_,Z,B::Y); ++k )
@@ -763,7 +764,7 @@ public:
 						}
 						break;
 					}
-					case( V ) : {
+					case( F::V ) : {
 						if( space()->getBCLocal()->getBCL(Y) > 0 ) {
 							Ordinal j = space()->begin(fType_,Y,B::Y);
 							for( Ordinal k=space()->begin(fType_,Z, B::Y); k<=space()->end(fType_,Z,B::Y); ++k )
@@ -784,7 +785,7 @@ public:
 						}
 						break;
 					}
-					case( W ) : {
+					case( F::W ) : {
 						if( space()->getBCLocal()->getBCL(Z) > 0 ) {
 							Ordinal k = space()->begin(fType_,Z,B::Y);
 							for( Ordinal j=space()->begin(fType_,Y,B::Y); j<=space()->end(fType_,Y,B::Y); ++j )
@@ -805,14 +806,15 @@ public:
 						}
 						break;
 					}
-					case( S ) : break;
+					case( F::S ) : break;
+					case( F::end ) : break;
 				}
 				break;
 			}
 			case Belos::TRANS : {
 
 				switch( fType_ ) {
-					case( U ) : {
+					case( F::U ) : {
 						if( space()->getBCLocal()->getBCL(X) > 0 ) {
 							Ordinal i = space()->begin(fType_,X,B::Y);
 							for( Ordinal k=space()->begin(fType_,Z, B::Y); k<=space()->end(fType_,Z,B::Y); ++k )
@@ -833,7 +835,7 @@ public:
 						}
 						break;
 					}
-					case( V ) : {
+					case( F::V ) : {
 						if( space()->getBCLocal()->getBCL(Y) > 0 ) {
 							Ordinal j = space()->begin(fType_,Y,B::Y);
 							for( Ordinal k=space()->begin(fType_,Z, B::Y); k<=space()->end(fType_,Z,B::Y); ++k )
@@ -854,7 +856,7 @@ public:
 						}
 						break;
 					}
-					case( W ) : {
+					case( F::W ) : {
 						if( space()->getBCLocal()->getBCL(Z) > 0 ) {
 							Ordinal k = space()->begin(fType_,Z,B::Y);
 							for( Ordinal j=space()->begin(fType_,Y,B::Y); j<=space()->end(fType_,Y,B::Y); ++j )
@@ -877,7 +879,8 @@ public:
 						}
 						break;
 					}
-					case( S ) : break;
+					case( F::S ) : break;
+					case( F::end ) : break;
 				}
 			}
 			case Belos::CONJTRANS : break;
@@ -888,7 +891,7 @@ public:
 	/// \brief levels field if scalar field
 	void level() const {
 
-		if( EField::S == fType_ ) {
+		if( F::S == fType_ ) {
 
 			Scalar pre0 = Teuchos::ScalarTraits<Scalar>::zero();
 
@@ -912,7 +915,7 @@ public:
   /// Print the vector.  To be used for debugging only.
   void print( std::ostream& out=std::cout )  const {
 
-    out << "--- FieldType: " << fType_ << "--- \n";
+    out << "--- FieldType: " << toString( fType_ ) << "--- \n";
     out << "--- StorageSize: " << getStorageSize() << "---\n";
     out << "--- owning: " << owning_ << "---\n";
     out << "--- exchangedState: " << exchangedState_ << "--\n\n";
@@ -935,16 +938,16 @@ public:
 
 		if( 0==space()->rankS() )
 			switch(fType_) {
-				case U:
+				case F::U:
 					std::cout << "writing velocity field x(" << count << ") ...\n";
 					break;
-				case V:
+				case F::V:
 					std::cout << "writing velocity field y(" << count << ") ...\n";
 					break;
-				case W:
+				case F::W:
 					std::cout << "writing velocity field z(" << count << ") ...\n";
 					break;
-				case EField::S:
+				case F::S:
 					std::cout << "writing pressure field  (" << count << ") ...\n";
 					Teuchos::Tuple<Ordinal,3> N;
 					for( int i=0; i<3; ++i ) {
@@ -999,9 +1002,9 @@ public:
 		if( !restart ) {
 			Teuchos::RCP< ScalarField<SpaceT> > temp;
 
-			if( EField::S != fType_ ) {
+			if( F::S != fType_ ) {
 				temp = Teuchos::rcp(
-						new ScalarField<SpaceT>( space(), true, EField::S ) );
+						new ScalarField<SpaceT>( space(), true, F::S ) );
 				space()->getInterpolateV2S()->apply( *this, *temp );
 			}
 
@@ -1016,18 +1019,18 @@ public:
             space()->nLoc(),
             space()->bl(),
             space()->bu(),
-            space()->sInd(EField::S),
-            space()->eInd(EField::S),
+            space()->sInd(F::S),
+            space()->eInd(F::S),
             space()->getStencilWidths()->getLS(),
             space()->np(),
             space()->ib(),
             space()->getShift(),
             (int)fType_,
             count,
-            (EField::S==fType_)?9:10,
-						(EField::S==fType_)?s_:temp->s_,
-						space()->getCoordinatesGlobal()->getX(0,EField::S),
-						space()->getCoordinatesGlobal()->getX(1,EField::S),
+            (F::S==fType_)?9:10,
+						(F::S==fType_)?s_:temp->s_,
+						space()->getCoordinatesGlobal()->getX(0,F::S),
+						space()->getCoordinatesGlobal()->getX(1,F::S),
 						space()->getDomainSize()->getRe(),
 						space()->getDomainSize()->getAlpha2() );
       }
@@ -1044,24 +1047,24 @@ public:
             space()->nLoc(),
             space()->bl(),
             space()->bu(),
-            space()->sInd(EField::S),
-            space()->eInd(EField::S),
+            space()->sInd(F::S),
+            space()->eInd(F::S),
             space()->getStencilWidths()->getLS(),
             space()->np(),
             space()->ib(),
             space()->getShift(),
 						(int)fType_+1,
-						(int)EField::S+1,
+						(int)F::S+1,
             count,
-            (EField::S==fType_)?9:10,
+            (F::S==fType_)?9:10,
             stride,
-            (EField::S==fType_)?s_:temp->s_,
-            space()->getCoordinatesGlobal()->getX(0,EField::S),
-            space()->getCoordinatesGlobal()->getX(1,EField::S),
-            space()->getCoordinatesGlobal()->getX(2,EField::S),
-            space()->getCoordinatesGlobal()->getX(0,EField::U),
-            space()->getCoordinatesGlobal()->getX(1,EField::V),
-            space()->getCoordinatesGlobal()->getX(2,EField::W),
+            (F::S==fType_)?s_:temp->s_,
+            space()->getCoordinatesGlobal()->getX(0,F::S),
+            space()->getCoordinatesGlobal()->getX(1,F::S),
+            space()->getCoordinatesGlobal()->getX(2,F::S),
+            space()->getCoordinatesGlobal()->getX(0,F::U),
+            space()->getCoordinatesGlobal()->getX(1,F::V),
+            space()->getCoordinatesGlobal()->getX(2,F::W),
             space()->getDomainSize()->getRe(),
             space()->getDomainSize()->getAlpha2() );
 
@@ -1089,15 +1092,15 @@ public:
           (int)fType_+1,
           (int)fType_+1,
           count,
-          (EField::S==fType_)?9:10,
+          (F::S==fType_)?9:10,
           stride,
           s_,
-          space()->getCoordinatesGlobal()->getX(0,EField::S),
-          space()->getCoordinatesGlobal()->getX(1,EField::S),
-          space()->getCoordinatesGlobal()->getX(2,EField::S),
-          space()->getCoordinatesGlobal()->getX(0,EField::U),
-          space()->getCoordinatesGlobal()->getX(1,EField::V),
-          space()->getCoordinatesGlobal()->getX(2,EField::W),
+          space()->getCoordinatesGlobal()->getX(0,F::S),
+          space()->getCoordinatesGlobal()->getX(1,F::S),
+          space()->getCoordinatesGlobal()->getX(2,F::S),
+          space()->getCoordinatesGlobal()->getX(0,F::U),
+          space()->getCoordinatesGlobal()->getX(1,F::V),
+          space()->getCoordinatesGlobal()->getX(2,F::W),
           space()->getDomainSize()->getRe(),
           space()->getDomainSize()->getAlpha2() );
     }
@@ -1107,7 +1110,7 @@ public:
 
 public:
 
-  constexpr const EField& getType() const { return( fType_ ); }
+  constexpr const F& getType() const { return( fType_ ); }
 
    /// \name storage methods.
 	 /// \brief highly dependent on underlying storage should only be used by
@@ -1174,8 +1177,8 @@ public:
           space()->bu(),
           space()->getBCLocal()->getBCL(),
           space()->getBCLocal()->getBCU(),
-          space()->sInd(EField::S),
-          space()->eInd(EField::S),
+          space()->sInd(F::S),
+          space()->eInd(F::S),
 //				space()->sIndB(fType_), // should it work
 //        space()->eIndB(fType_),
 					ones,
@@ -1363,7 +1366,7 @@ template<class SpaceT>
 Teuchos::RCP< ScalarField<SpaceT> >
 createScalarField(
 		const Teuchos::RCP<const SpaceT >& space,
-		EField fType=EField::S ) {
+		F fType=F::S ) {
 
 	return( Teuchos::rcp(
 			new ScalarField<SpaceT>( space, true, fType ) ) );
