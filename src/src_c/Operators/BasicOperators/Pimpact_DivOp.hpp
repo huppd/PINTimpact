@@ -57,6 +57,9 @@ public:
 	DivOp( const Teuchos::RCP<const SpaceT>& space ):
 		space_(space) {
 
+			//const bool mapping = true;  // order ~2
+			const bool mapping = false;   // order ~6
+
 			for( int dir=0; dir<ST::sdim; ++dir ) {
 				F fdir = static_cast<F>( dir );
 				
@@ -76,8 +79,7 @@ public:
 						dir+1,
 						1,
 						0,
-						//true, // mapping
-						false,
+						mapping, // mapping
 						space_->getStencilWidths()->getDimNcbD(dir),
 						space_->getStencilWidths()->getNcbD(dir),
 						space_->getCoordinatesLocal()->getX( dir, fdir ),

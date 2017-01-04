@@ -60,7 +60,7 @@ public:
   template< class SP1T, class SP2T>
   void apply( const VectorField<SP1T>& x, VectorField<SP2T>& y ) const {
 
-    for( int i=0; i<SpaceT::sdim; ++i ) {
+    for( F i=F::U; i<SpaceT::sdim; ++i ) {
       sop_->apply( x(i), y(i) );
     }
 

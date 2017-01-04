@@ -179,10 +179,10 @@ OpT,
 				fu->init( 0. );
 			else {
 				//			S re = space->getDomainSize()->getRe();
-				fu->getField(0).getVField().get0Field( )(Pimpact::U).initField(  Pimpact::FPoint, pl->get<S>( "lambda0x", -2. ) );
-				fu->getField(0).getVField().getCField(0)(Pimpact::V).initField( Pimpact::FPoint, pl->get<S>( "lambdaCy",  1. ) );
-				fu->getField(0).getVField().getCField(0)(Pimpact::W).initField( Pimpact::FPoint, pl->get<S>( "lambdaCz",  0. ) );
-				//		fu->getField(0).getVField().getSField(0)(Pimpact::W).initField( Pimpact::FPoint, 1. );
+				fu->getField(0).getVField().get0Field( )(Pimpact::F::U).initField(  Pimpact::FPoint, pl->get<S>( "lambda0x", -2. ) );
+				fu->getField(0).getVField().getCField(0)(Pimpact::F::V).initField( Pimpact::FPoint, pl->get<S>( "lambdaCy",  1. ) );
+				fu->getField(0).getVField().getCField(0)(Pimpact::F::W).initField( Pimpact::FPoint, pl->get<S>( "lambdaCz",  0. ) );
+				//		fu->getField(0).getVField().getSField(0)(Pimpact::F::W).initField( Pimpact::FPoint, 1. );
 			}
 			//	fu->getField(0).getVField().write( 700,true );
 

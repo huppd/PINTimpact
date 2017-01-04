@@ -43,7 +43,7 @@ protected:
 
 	using AF =  AbstractField<SpaceT>;
 
-	bool owning_;
+	const bool owning_;
 
 	IFT fieldc_;
   IFT fields_;

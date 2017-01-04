@@ -54,6 +54,7 @@ public:
 	ConvectionSOp( const Teuchos::RCP<const SpaceT>& space  ):
 		space_(space) {
 
+			const bool mapping = false;
 			for( int dir=0; dir<sdim; ++dir ) {
 
 				cSD_[dir] = Stenc( space_->nLoc(dir) );
@@ -71,8 +72,7 @@ public:
 						dir+1,
 						1,
 						-1,
-						//true, // mapping
-						false, // mapping
+						mapping,
 						space_->getStencilWidths()->getDimNcbC(dir),
 						space_->getStencilWidths()->getNcbC(dir),
 						space_->getCoordinatesLocal()->getX( dir, F::S ),
@@ -106,8 +106,7 @@ public:
 						dir+1,
 						1,
 						+1,
-						true, // mapping
-						//false, // mapping
+						mapping,
 						space_->getStencilWidths()->getDimNcbC(dir),
 						space_->getStencilWidths()->getNcbC(dir),
 						space_->getCoordinatesLocal()->getX( dir, F::S ),
@@ -143,8 +142,7 @@ public:
 						dir+1,
 						1,
 						-1,
-						true, // mapping
-						//false, // mapping
+						mapping,
 						space_->getStencilWidths()->getDimNcbC(dir),
 						space_->getStencilWidths()->getNcbC(dir),
 						space_->getCoordinatesLocal()->getX( dir, fdir ),
@@ -178,8 +176,7 @@ public:
 						dir+1,
 						1,
 						+1,
-						true, // mapping
-						//false, // mapping
+						mapping,
 						space_->getStencilWidths()->getDimNcbC(dir),
 						space_->getStencilWidths()->getNcbC(dir),
 						space_->getCoordinatesLocal()->getX( dir, fdir ),
@@ -211,7 +208,7 @@ public:
 	void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, const Add& add=Add::N ) const {
 
 		const Scalar& mulC = 1.;
-		int m = static_cast<int>(z.getType());
+		F m = z.getType();
 
 		assert( z.getType() == y.getType() );
 		for( int i=0; i<SpaceT::sdim; ++i ) 
@@ -243,7 +240,7 @@ public:
 	void print( std::ostream& out=std::cout ) const {
 		out << " --- ConvectioSOp ---\n";
 		for( int i=0; i<SpaceT::sdim; ++i ) {
-			out << "dir: " << toString( static_cast<ECoord>(i) ) << "\n ";
+			out << "dir: " << static_cast<ECoord>(i) << "\n ";
 			out << "cSD:\n";
 			cSD_[i].print( out );
 			out << "cSU:\n";
@@ -336,12 +333,12 @@ public:
 } // end of namespace Pimpact
 
 
-#ifdef COMPILE_ETI
-extern template class Pimpact::ConvectionSOp< Pimpact::Space<double,int,3,2> >;
-extern template class Pimpact::ConvectionSOp< Pimpact::Space<double,int,3,4> >;
-extern template class Pimpact::ConvectionSOp< Pimpact::Space<double,int,4,2> >;
-extern template class Pimpact::ConvectionSOp< Pimpact::Space<double,int,4,4> >;
-#endif
+//#ifdef COMPILE_ETI
+//extern template class Pimpact::ConvectionSOp< Pimpact::Space<double,int,3,2> >;
+//extern template class Pimpact::ConvectionSOp< Pimpact::Space<double,int,3,4> >;
+//extern template class Pimpact::ConvectionSOp< Pimpact::Space<double,int,4,2> >;
+//extern template class Pimpact::ConvectionSOp< Pimpact::Space<double,int,4,4> >;
+//#endif
 
 
 #endif // end of #ifndef PIMPACT_CONVECTIONSOP_HPP

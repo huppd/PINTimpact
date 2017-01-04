@@ -57,6 +57,9 @@ public:
 	GradOp( const Teuchos::RCP< const SpaceT>& space):
 		space_(space) {
 
+			//const bool mapping=true; // order ~2
+			const bool mapping=false; // order ~6
+
 			for( int dir=0; dir<ST::sdim; ++dir ) {
 				// Gradient stencil
 				
@@ -77,8 +80,7 @@ public:
 						dir+1,
 						1,
 						0,
-						//true, // mapping
-						false,
+						mapping,
 						space_->getStencilWidths()->getDimNcbG(dir),
 						space_->getStencilWidths()->getNcbG(dir),
 						space_->getCoordinatesLocal()->getX( dir, F::S ),
@@ -147,20 +149,20 @@ public:
 
   void applyG( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::N ) const {
 
-		const B& withB = ( (Add::N==add) ? B::Y : B::N );
+		const B& b = ( (Add::N==add) ? B::Y : B::N );
 
 		x.exchange(X);
-		for( Ordinal k=space()->begin(F::U,Z,withB); k<=space()->end(F::U,Z,withB); ++k )
-			for( Ordinal j=space()->begin(F::U,Y,withB); j<=space()->end(F::U,Y,withB); ++j )
-				for( Ordinal i=space()->begin(F::U,X,withB); i<=space()->end(F::U,X,withB); ++i ) {
+		for( Ordinal k=space()->begin(F::U,Z,b); k<=space()->end(F::U,Z,b); ++k )
+			for( Ordinal j=space()->begin(F::U,Y,b); j<=space()->end(F::U,Y,b); ++j )
+				for( Ordinal i=space()->begin(F::U,X,b); i<=space()->end(F::U,X,b); ++i ) {
 					if( Add::N==add ) y(F::U)(i,j,k) = 0.;
 					y(F::U)(i,j,k) += innerStencU( x, i, j, k );
 				}
 
 		x.exchange(Y);
-		for( Ordinal k=space()->begin(F::V,Z,withB); k<=space()->end(F::V,Z,withB); ++k )
-			for( Ordinal j=space()->begin(F::V,Y,withB); j<=space()->end(F::V,Y,withB); ++j )
-				for( Ordinal i=space()->begin(F::V,X,withB); i<=space()->end(F::V,X,withB); ++i ) {
+		for( Ordinal k=space()->begin(F::V,Z,b); k<=space()->end(F::V,Z,b); ++k )
+			for( Ordinal j=space()->begin(F::V,Y,b); j<=space()->end(F::V,Y,b); ++j )
+				for( Ordinal i=space()->begin(F::V,X,b); i<=space()->end(F::V,X,b); ++i ) {
 					if( Add::N==add ) y(F::V)(i,j,k) = 0.;
 					y(F::V)(i,j,k) += innerStencV( x, i, j, k );
 				}
@@ -168,9 +170,9 @@ public:
 		if( 3==SpaceT::sdim )  {
 
 			x.exchange(Z);
-			for( Ordinal k=space()->begin(F::W,Z,withB); k<=space()->end(F::W,Z,withB); ++k )
-				for( Ordinal j=space()->begin(F::W,Y,withB); j<=space()->end(F::W,Y,withB); ++j )
-					for( Ordinal i=space()->begin(F::W,X,withB); i<=space()->end(F::W,X,withB); ++i ) {
+			for( Ordinal k=space()->begin(F::W,Z,b); k<=space()->end(F::W,Z,b); ++k )
+				for( Ordinal j=space()->begin(F::W,Y,b); j<=space()->end(F::W,Y,b); ++j )
+					for( Ordinal i=space()->begin(F::W,X,b); i<=space()->end(F::W,X,b); ++i ) {
 						if( Add::N==add ) y(F::W)(i,j,k) = 0.;
 						y(F::W)(i,j,k) += innerStencW( x, i, j, k );
 					}
@@ -295,7 +297,7 @@ public:
     out << "\n--- " << getLabel() << " ---\n";
     //out << " --- stencil: ---";
     for( int dir=0; dir<ST::sdim; ++dir ) {
-			out << "\ndir: " << toString(static_cast<ECoord>(dir)) << "\n";
+			out << "\ndir: " << static_cast<ECoord>(dir) << "\n";
 
 			c_[dir].print( out );
     }
@@ -303,7 +305,7 @@ public:
 		out << "--- " << getLabel() << "^T ---\n";
 		out << " --- stencil: ---";
 		for( int dir=0; dir<ST::sdim; ++dir ) {
-			out << "\ndir: " << toString(static_cast<ECoord>(dir)) << "\n";
+			out << "\ndir: " << static_cast<ECoord>(dir) << "\n";
 
 			cT_[dir].print( out );
 		}

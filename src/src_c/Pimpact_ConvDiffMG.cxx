@@ -104,14 +104,14 @@ int main( int argi, char** argv ) {
 					phifile << phi << "\t";
 
 				// init solution
-				y(Pimpact::U).initField( Pimpact::Grad2D_inX );
-				y(Pimpact::V).initField( Pimpact::Grad2D_inY );
+				y(Pimpact::F::U).initField( Pimpact::Grad2D_inX );
+				y(Pimpact::F::V).initField( Pimpact::Grad2D_inY );
 
 				auto sol = y.clone( Pimpact::ECopy::Deep );
 				//sol->write(3333);
 
-				wind(Pimpact::U).initField(  Pimpact::ConstField, std::cos( phi ) );
-				wind(Pimpact::V).initField(  Pimpact::ConstField, std::sin( phi ) );
+				wind(Pimpact::F::U).initField(  Pimpact::ConstField, std::cos( phi ) );
+				wind(Pimpact::F::V).initField(  Pimpact::ConstField, std::sin( phi ) );
 
 				op->assignField( wind );
 				smoother->assignField( wind );

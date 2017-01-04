@@ -1,4 +1,4 @@
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-file(GLOB trans_SOURCES *.cpp)
+#file(GLOB trans_SOURCES *.cpp)
 set( trans_SOURCES ${trans_SOURCES} PARENT_SCOPE ) 

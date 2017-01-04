@@ -73,13 +73,13 @@ int main( int argi, char** argv ) {
 
 
 			// init solution
-			y(0).initField( Pimpact::Grad2D_inY );
-			y(1).initField( Pimpact::Grad2D_inX );
+			y(Pimpact::F::U).initField( Pimpact::Grad2D_inY );
+			y(Pimpact::F::V).initField( Pimpact::Grad2D_inX );
 
 			auto sol = y.clone( Pimpact::ECopy::Deep );
 
-			wind(0).initField( Pimpact::Grad2D_inY );
-			wind(1).initField( Pimpact::Grad2D_inX );
+			wind(Pimpact::F::U).initField( Pimpact::Grad2D_inY );
+			wind(Pimpact::F::V).initField( Pimpact::Grad2D_inX );
 
 			z.initField();
 

@@ -44,7 +44,6 @@ protected:
   using Ordinal = typename SpaceT::Ordinal;
 
   using ScalarArray = Scalar*;
-  using FieldT = ScalarField< SpaceT >;
   using State = Teuchos::Tuple<bool,3>;
 
 
@@ -105,9 +104,9 @@ public:
 	~ScalarField() { if( owning_ ) delete[] s_; }
 
 
-  Teuchos::RCP<FieldT> clone( ECopy copyType=ECopy::Deep ) const {
+  Teuchos::RCP<ScalarField> clone( ECopy copyType=ECopy::Deep ) const {
 
-		Teuchos::RCP<FieldT> mv = Teuchos::rcp( new FieldT( space(), true, this->fType_ ) );
+		Teuchos::RCP<ScalarField> mv = Teuchos::rcp( new ScalarField( space(), true, this->fType_ ) );
 
 		switch( copyType ) {
 			case ECopy::Shallow:
@@ -148,8 +147,8 @@ public:
 
   /// \brief Replace \c this with \f$\alpha a + \beta B\f$.
 	/// \todo make checks for spaces and k
-	void add( const Scalar& alpha, const FieldT& a, const Scalar& beta, const
-			FieldT& b, const B& wb=B::Y ) {
+	void add( const Scalar& alpha, const ScalarField& a, const Scalar& beta, const
+			ScalarField& b, const B& wb=B::Y ) {
 
 		assert( a.getType()==b.getType() );
 		assert( getType()==b.getType() );
@@ -188,7 +187,7 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-	void abs( const FieldT& y, const B& bcYes=B::Y ) {
+	void abs( const ScalarField& y, const B& bcYes=B::Y ) {
 
 		for( int dir=0; dir<3; ++dir )
 			assert( space()->nLoc(dir)==y.space()->nLoc(dir) );
@@ -207,7 +206,7 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
   /// \return Reference to this object
-  void reciprocal( const FieldT& y, const B& bcYes=B::Y ) {
+  void reciprocal( const ScalarField& y, const B& bcYes=B::Y ) {
 
 #ifndef NDEBUG
 		for( int dir=0; dir<3; ++dir ) {
@@ -241,7 +240,7 @@ public:
   ///
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = x_i \cdot y_i \quad \mbox{for } i=1,\dots,n \f]
-	void scale( const FieldT& y, const B& bcYes=B::Y ) {
+	void scale( const ScalarField& y, const B& bcYes=B::Y ) {
 
 #ifndef NDEBUG
 		for( int dir=0; dir<3; ++dir ) {
@@ -262,7 +261,7 @@ public:
   /// @{
 
 	/// \brief Compute a local scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
-	constexpr Scalar dotLoc( const FieldT& y, const B& bcYes=B::Y ) const {
+	constexpr Scalar dotLoc( const ScalarField& y, const B& bcYes=B::Y ) const {
 
 #ifndef NDEBUG
 		for( int dir=0; dir<3; ++dir ) {
@@ -283,7 +282,7 @@ public:
 
 	/// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y
 	/// and \c this, i.e.\f$b = y^H this\f$.
-	constexpr Scalar dot( const FieldT& y, const B& bcYes=B::Y ) const {
+	constexpr Scalar dot( const ScalarField& y, const B& bcYes=B::Y ) const {
 		return( this->reduce( comm(), dotLoc( y, bcYes ) ) );
 	}
 
@@ -360,7 +359,7 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr Scalar normLoc( const FieldT& weights, const B& bcYes=B::Y ) const {
+  constexpr Scalar normLoc( const ScalarField& weights, const B& bcYes=B::Y ) const {
 
 		for( int dir=0; dir<3; ++dir )
 			assert( space()->nLoc(dir)==weights.space()->nLoc(dir) );
@@ -382,7 +381,7 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr Scalar norm( const FieldT& weights, const B& bcYes=B::Y ) const {
+  constexpr Scalar norm( const ScalarField& weights, const B& bcYes=B::Y ) const {
 		return( std::sqrt( this->reduce( comm(), normLoc( weights, bcYes ) ) ) );
 	}
 
@@ -807,7 +806,7 @@ public:
 						break;
 					}
 					case( F::S ) : break;
-					case( F::end ) : break;
+					//case( F::end ) : break;
 				}
 				break;
 			}
@@ -880,7 +879,6 @@ public:
 						break;
 					}
 					case( F::S ) : break;
-					case( F::end ) : break;
 				}
 			}
 			case Belos::CONJTRANS : break;
@@ -915,7 +913,7 @@ public:
   /// Print the vector.  To be used for debugging only.
   void print( std::ostream& out=std::cout )  const {
 
-    out << "--- FieldType: " << toString( fType_ ) << "--- \n";
+    out << "--- FieldType: " << fType_ << "--- \n";
     out << "--- StorageSize: " << getStorageSize() << "---\n";
     out << "--- owning: " << owning_ << "---\n";
     out << "--- exchangedState: " << exchangedState_ << "--\n\n";

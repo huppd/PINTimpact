@@ -27,11 +27,22 @@ enum ECoord {
 	X = 0, ///< 0
 	Y = 1, ///< 1
 	Z = 2, ///< 2
-	end = 3, ///< 3, just needed to finish loops
 	T = 4  ///< 4
 };
 
-std::string toString( ECoord type );
+std::string toString( ECoord type ) {
+	switch( type ) {
+		case ECoord::X   : return( "X" );
+		case ECoord::Y   : return( "Y" );
+		case ECoord::Z   : return( "Z" );
+		case ECoord::T   : return( "T" );
+	}
+	return( "" ); // prevent compiler warning
+}
+
+std::ostream& operator<<( std::ostream& out, ECoord c ) {
+	return( out << toString(c) ); 
+}
 
 // Special behavior for ++
 ECoord& operator++( ECoord& c );
@@ -39,26 +50,69 @@ ECoord& operator++( ECoord& c );
 bool operator<( const ECoord& c, const int& i );
 
 
-/// \todo make enum class
 enum class F : int {
 	U=0, ///< 0
 	V=1, ///< 1
 	W=2, ///< 2
-	end = 3, ///< 3, just needed to finish loops
 	S=4  ///< 4
 };
 
-std::string toString( F type );
+std::string toString( F type ) {
+	switch( type ) {
+		case F::U   : return( "U" );
+		case F::V   : return( "V" );
+		case F::W   : return( "W" );
+		case F::S   : return( "S" );
+	}
+	return( "" ); // prevent compiler warning
+}
 
-F& operator++( F& f );
+std::ostream& operator<<( std::ostream& out, F f ) {
+	return( out << toString(f) ); 
+}
 
-bool operator<( const F& f, const int& i );
+F& operator++( F& c ) {
+	switch( c ) {
+		case F::U   : return( c = F::V );
+		case F::V   : return( c = F::W );
+		case F::W   : return( c = F::S );
+		case F::S   : return( c = F::S );
+	}
+	return( c );
+}
 
-bool operator==( const F& f, const int& c );
-bool operator!=( const F& f, const int& c );
+bool operator<( const F& c, int i ) {
+	return( static_cast<int>(c)<i );
+}
 
-bool operator==( const int& c, const F& f );
-bool operator!=( const int& c, const F& f );
+bool operator==( const F& f, const int& c ) {
+	if( F::U==f &&  ECoord::X==c ) return( true );
+	else if( F::V==f &&  ECoord::Y==c ) return( true );
+	else if( F::W==f &&  ECoord::Z==c ) return( true );
+	else return( false );
+}
+
+bool operator!=( const F& f, const int& c ) {
+	if( F::U==f &&  ECoord::X==c ) return( false );
+	else if( F::V==f &&  ECoord::Y==c ) return( false );
+	else if( F::W==f &&  ECoord::Z==c ) return( false );
+	else return( true );
+}
+
+
+bool operator==( const int& c, const F& f ) {
+	if( F::U==f &&  ECoord::X==c ) return( true );
+	else if( F::V==f &&  ECoord::Y==c ) return( true );
+	else if( F::W==f &&  ECoord::Z==c ) return( true );
+	else return( false );
+}
+
+bool operator!=( const int& c, const F& f ) {
+	if( F::U==f &&  ECoord::X==c ) return( false );
+	else if( F::V==f &&  ECoord::Y==c ) return( false );
+	else if( F::W==f &&  ECoord::Z==c ) return( false );
+	else return( true );
+}
 
 /// \brief kind of boundary conditions
 /// \relates BoundaryConditionsGlobal
@@ -147,7 +201,19 @@ enum class Add : bool {
 int getDir1( const int& dir );
 int getDir2( const int& dir );
 
-std::string toString( Pimpact::EScalarField type );
+std::string toString( EScalarField type ) {
+	switch( type ) {
+		case EScalarField::ConstField : return( "constant" );
+		case EScalarField::Grad2D_inX : return( "grad in x" );
+		case EScalarField::Grad2D_inY : return( "grad in y" );
+		case EScalarField::Grad2D_inZ : return( "grad in z" );
+		case EScalarField::Poiseuille2D_inX : return( "poiseuille in x" );
+		case EScalarField::Poiseuille2D_inY : return( "poiseuille in y" );
+		case EScalarField::Poiseuille2D_inZ : return( "poiseuille in z" );
+		case EScalarField::FPoint : return( "poiseuille in z" );
+	}
+	return( "" ); // prevent compiler warning
+}
 
 
 /// \brief creates file and stream to it
@@ -156,13 +222,83 @@ std::string toString( Pimpact::EScalarField type );
 /// \param rank if rank==0 then file is created otherwise ostream is a blackhole, 'default'=0
 ///
 /// \return  pointer to a std::ofstream
-Teuchos::RCP<std::ostream> createOstream( const std::string& fname, int rank=0 );
+Teuchos::RCP<std::ostream> createOstream( const std::string& fname, int rank=0
+		) {
 
-
-void setBoundaryConditions( const Teuchos::RCP<Teuchos::ParameterList>& pl ,
-		int dtype );
+	if( 0==rank )
+		return( Teuchos::rcp( new std::ofstream( fname ) ) );
+	else
+		return( Teuchos::rcp( new Teuchos::oblackholestream ) );
 
 }
+
+
+void setBoundaryConditions( const
+		Teuchos::RCP<Teuchos::ParameterList>& pl , int dtype ) {
+
+	switch( static_cast<EDomainType>(dtype) ) {
+		case AllDirichlet:
+			pl->sublist("boundary conditions").set<int>( "lower X", DirichletBC );
+			pl->sublist("boundary conditions").set<int>( "upper X", DirichletBC );
+			pl->sublist("boundary conditions").set<int>( "lower Y", DirichletBC );
+			pl->sublist("boundary conditions").set<int>( "upper Y", DirichletBC );
+			pl->sublist("boundary conditions").set<int>( "lower Z", DirichletBC );
+			pl->sublist("boundary conditions").set<int>( "upper Z", DirichletBC );
+			break;
+		case AllPeriodic:
+			pl->sublist("boundary conditions").set<int>( "lower X", PeriodicBC );
+			pl->sublist("boundary conditions").set<int>( "upper X", PeriodicBC );
+			pl->sublist("boundary conditions").set<int>( "lower Y", PeriodicBC );
+			pl->sublist("boundary conditions").set<int>( "upper Y", PeriodicBC );
+			pl->sublist("boundary conditions").set<int>( "lower Z", PeriodicBC );
+			pl->sublist("boundary conditions").set<int>( "upper Z", PeriodicBC );
+			break;
+		case AllNeumann:
+			pl->sublist("boundary conditions").set<int>( "lower X", NeumannBC );
+			pl->sublist("boundary conditions").set<int>( "upper X", NeumannBC );
+			pl->sublist("boundary conditions").set<int>( "lower Y", NeumannBC );
+			pl->sublist("boundary conditions").set<int>( "upper Y", NeumannBC );
+			pl->sublist("boundary conditions").set<int>( "lower Z", NeumannBC );
+			pl->sublist("boundary conditions").set<int>( "upper Z", NeumannBC );
+			break;
+		case AllSymmetric:
+			pl->sublist("boundary conditions").set<int>( "lower X", SymmetryBC );
+			pl->sublist("boundary conditions").set<int>( "upper X", SymmetryBC );
+			pl->sublist("boundary conditions").set<int>( "lower Y", SymmetryBC );
+			pl->sublist("boundary conditions").set<int>( "upper Y", SymmetryBC );
+			pl->sublist("boundary conditions").set<int>( "lower Z", SymmetryBC );
+			pl->sublist("boundary conditions").set<int>( "upper Z", SymmetryBC );
+			break;
+		case Dirichelt2DChannel:
+			pl->sublist("boundary conditions").set<int>( "lower X", DirichletBC );
+			pl->sublist("boundary conditions").set<int>( "upper X", DirichletBC );
+			pl->sublist("boundary conditions").set<int>( "lower Y", DirichletBC );
+			pl->sublist("boundary conditions").set<int>( "upper Y", DirichletBC );
+			pl->sublist("boundary conditions").set<int>( "lower Z", PeriodicBC );
+			pl->sublist("boundary conditions").set<int>( "upper Z", PeriodicBC );
+			break;
+		case Periodic2DChannel:
+			pl->sublist("boundary conditions").set<int>( "lower X", PeriodicBC );
+			pl->sublist("boundary conditions").set<int>( "upper X", PeriodicBC );
+			pl->sublist("boundary conditions").set<int>( "lower Y", DirichletBC );
+			pl->sublist("boundary conditions").set<int>( "upper Y", DirichletBC );
+			pl->sublist("boundary conditions").set<int>( "lower Z", PeriodicBC );
+			pl->sublist("boundary conditions").set<int>( "upper Z", PeriodicBC );
+			break;
+		case Open2DChannel:
+			pl->sublist("boundary conditions").set<int>( "lower X", DirichletBC );
+			pl->sublist("boundary conditions").set<int>( "upper X", NeumannBC   );
+			pl->sublist("boundary conditions").set<int>( "lower Y", DirichletBC );
+			pl->sublist("boundary conditions").set<int>( "upper Y", DirichletBC );
+			pl->sublist("boundary conditions").set<int>( "lower Z", PeriodicBC  );
+			pl->sublist("boundary conditions").set<int>( "upper Z", PeriodicBC  );
+			break;
+		default:
+			std::cout << "!!!Warning: unkown EDomainType:\t" <<dtype<<"\t!!!\n";
+	}
+}
+
+} // end of namespace Pipmact
 
 
 

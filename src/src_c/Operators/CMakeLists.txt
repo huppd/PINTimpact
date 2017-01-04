@@ -1,4 +1,4 @@
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-set( operator_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Pimpact_Operator.cpp  PARENT_SCOPE) 
+#set( operator_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Pimpact_Operator.cpp  PARENT_SCOPE) 
 

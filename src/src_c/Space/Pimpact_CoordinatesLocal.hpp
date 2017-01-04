@@ -176,14 +176,14 @@ public:
   void print( std::ostream& out=std::cout ) const {
 
     for( int dir=0; dir<dim; ++dir ) {
-      out << "Local coordinates of scalars in dir: " << toString( static_cast<ECoord>(dir) ) << "\n";
+      out << "Local coordinates of scalars in dir: " << static_cast<ECoord>(dir) << "\n";
       out << "i\txS\n";
 			OrdinalT j = 0;
 			for( typename Teuchos::ArrayRCP<ScalarT>::iterator jp=xS_[dir].begin(); jp<xS_[dir].end(); ++jp )
 				out << j++ + stencilWidths_->getBL(dir) << "\t" << *jp << "\n";
 		}
     for( int dir=0; dir<dim; ++dir ) {
-      out << "Local coordinates of velocities in dir: " << toString( static_cast<ECoord>(dir) ) << "\n";
+      out << "Local coordinates of velocities in dir: " << static_cast<ECoord>(dir) << "\n";
 			OrdinalT j = 0;
 			for( typename Teuchos::ArrayRCP<ScalarT>::iterator jp=xV_[dir].begin(); jp<xV_[dir].end(); ++jp )
 				out << j++ + stencilWidths_->getBL(dir)<< "\t" << *jp << "\n";

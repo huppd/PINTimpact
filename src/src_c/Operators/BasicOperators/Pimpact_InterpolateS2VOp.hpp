@@ -47,6 +47,9 @@ public:
 	InterpolateS2V( const Teuchos::RCP<const SpaceT>& space ):
 		space_(space) {
 
+			//const bool mapping = true; // order ~4
+			const bool mapping = false;  // order ~6
+
 			for( int i=0; i<SpaceT::sdim; ++i ) {
 				F f = static_cast<F>( i );
 
@@ -65,8 +68,7 @@ public:
 						i+1,  // direction
 						0,    // derivative
 						0,    // central
-						//true, // not working with grid stretching. mapping
-						false, // mapping
+						mapping, // mapping
 						space_->getStencilWidths()->getDimNcbG(i),
 						space_->getStencilWidths()->getNcbG(i),
 						space_->getCoordinatesLocal()->getX( i, F::S ),
@@ -123,7 +125,7 @@ public:
 		out << "--- stencil: ---";
 
 		for( int dir=0; dir<SpaceT::sdim; ++dir ) {
-			out << "\ncoord: " << toString( static_cast<ECoord>(dir) ) << "\n";
+			out << "\ncoord: " << static_cast<ECoord>(dir) << "\n";
 			c_[dir].print( out );
 		}
 	}

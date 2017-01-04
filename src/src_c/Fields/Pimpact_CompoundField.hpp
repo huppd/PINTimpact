@@ -38,8 +38,6 @@ protected:
   using Scalar = typename SpaceT::Scalar;
   using Ordinal =typename SpaceT::Ordinal;
 
-  using FieldT = CompoundField<VField,SField>;
-
   using AF = AbstractField<SpaceT>;
 
   Teuchos::RCP<VField> vfield_;
@@ -72,8 +70,8 @@ public:
 	{};
 
 
-  Teuchos::RCP<FieldT> clone( ECopy ctype=ECopy::Deep ) const {
-    return( Teuchos::rcp( new FieldT( *this, ctype ) ) );
+  Teuchos::RCP<CompoundField> clone( ECopy ctype=ECopy::Deep ) const {
+    return( Teuchos::rcp( new CompoundField( *this, ctype ) ) );
   }
 
   /// \name Attribute methods
@@ -112,7 +110,7 @@ public:
   /// \{
 
   /// \brief Replace \c this with \f$\alpha a + \beta b\f$.
-  void add( const Scalar& alpha, const FieldT& a, const Scalar& beta, const FieldT& b, const B& wb=B::Y ) {
+  void add( const Scalar& alpha, const CompoundField& a, const Scalar& beta, const CompoundField& b, const B& wb=B::Y ) {
     // add test for consistent VectorSpaces in debug mode
     vfield_->add(alpha, *a.vfield_, beta, *b.vfield_, wb );
     sfield_->add(alpha, *a.sfield_, beta, *b.sfield_, wb );
@@ -125,7 +123,7 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = | y_i | \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  void abs( const FieldT& y ) {
+  void abs( const CompoundField& y ) {
     vfield_->abs( *y.vfield_ );
     sfield_->abs( *y.sfield_ );
   }
@@ -136,7 +134,7 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i =  \frac{1}{y_i} \quad \mbox{for } i=1,\dots,n  \f]
   /// \return Reference to this object
-  void reciprocal( const FieldT& y){
+  void reciprocal( const CompoundField& y){
     vfield_->reciprocal( *y.vfield_ );
     sfield_->reciprocal( *y.sfield_ );
   }
@@ -154,14 +152,14 @@ public:
   /// Here x represents this vector, and we update it as
   /// \f[ x_i = x_i \cdot a_i \quad \mbox{for } i=1,\dots,n \f]
   /// \return Reference to this object
-  void scale( const FieldT& a) {
+  void scale( const CompoundField& a) {
     vfield_->scale( *a.vfield_ );
     sfield_->scale( *a.sfield_ );
   }
 
 
   /// \brief Compute a scalar \c b, which is the dot-product of \c a and \c this, i.e.\f$b = a^H this\f$.
-  constexpr Scalar dotLoc( const FieldT& a ) const {
+  constexpr Scalar dotLoc( const CompoundField& a ) const {
 
     Scalar b = 0.;
 
@@ -172,7 +170,7 @@ public:
 
 
 	/// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
-	constexpr Scalar dot( const FieldT& y ) const {
+	constexpr Scalar dot( const CompoundField& y ) const {
 
 		return( this->reduce( comm(), dotLoc( y ) ) );
 	}
@@ -214,7 +212,7 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr Scalar normLoc( const FieldT& weights ) const {
+  constexpr Scalar normLoc( const CompoundField& weights ) const {
 		return(
 				vfield_->normLoc( *weights.vfield_ ) +
 				sfield_->normLoc( *weights.sfield_ ) );
@@ -226,7 +224,7 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr Scalar norm( const FieldT& weights ) const {
+  constexpr Scalar norm( const CompoundField& weights ) const {
 		return( std::sqrt( this->reduce( comm(), normLoc( weights ) ) ) );
 	}
 

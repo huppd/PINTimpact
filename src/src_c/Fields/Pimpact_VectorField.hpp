@@ -1013,13 +1013,11 @@ protected:
 
   SF& at( F i ) {
 		assert( !(F::S==i) );
-		assert( !(F::end==i) );
 		return( sFields_[ static_cast<int>(i) ] );
 	}
 
   constexpr const SF& at( F i ) const {
 		assert( !(F::S==i) );
-		assert( !(F::end==i) );
 		return( sFields_[ static_cast<int>(i) ] );
 	}
 

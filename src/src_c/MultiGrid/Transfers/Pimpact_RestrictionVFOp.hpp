@@ -51,6 +51,7 @@ protected:
 
 			// ------------------------- CRS, CRV
 			for( int i=0; i<3; ++i ) {
+				F fi = static_cast<F>( i );
 
 				cRS_[i] = StencS( this->iimax_[i] );
 
@@ -78,7 +79,7 @@ protected:
 						this->iimax_[i],
 						spaceC()->getBCLocal()->getBCL(i),
 						spaceC()->getBCLocal()->getBCU(i),
-						spaceF()->getCoordinatesLocal()->getX( i, i ),
+						spaceF()->getCoordinatesLocal()->getX( i, fi ),
 						spaceF()->getCoordinatesLocal()->getX( i, F::S ),
 						this->dd_[i],
 						cRV_[i].get() );
@@ -113,7 +114,7 @@ public:
 		assert( x.getType()!=F::S );
 
 		F fType  = x.getType();
-		int dir = fType;
+		int dir = static_cast<int>( fType );
 		x.exchange( );
 
 		const int sdimens = ST::sdim;

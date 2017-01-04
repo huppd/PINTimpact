@@ -61,7 +61,7 @@ ST omega = 0.8;
 ST winds = 1;
 int sweeps = 12;
 int nIter = 10;
-OT ns = 8;
+OT ns = 4;
 
 OT nx = 33;
 OT ny = 33;

@@ -180,28 +180,28 @@ int main( int argi, char** argv ) {
 			S B = -0.75;
 			S C = -0.25;
 
-			//fu->getField(0).getVField().get0Field()(Pimpact::U).initFromFunction(
+			//fu->getField(0).getVField().get0Field()(Pimpact::F::U).initFromFunction(
 					//[&pi2,&re]( S x, S y, S z ) ->S {  return(  -std::sin(2.*x*pi2)/4. ); } );
-			//fu->getField(0).getVField().get0Field()(Pimpact::V).initFromFunction(
+			//fu->getField(0).getVField().get0Field()(Pimpact::F::V).initFromFunction(
 					//[&pi2,&re]( S x, S y, S z ) ->S {  return(  -std::sin(2.*y*pi2)/4. ); } );
 
-			fu->getField(0).getVField().getCField(1)(Pimpact::U).initFromFunction(
+			fu->getField(0).getVField().getCField(1)(Pimpact::F::U).initFromFunction(
 					[&pi2,&alpha2,&re,&A]( S x, S y, S z ) ->S {  return( alpha2*A*std::cos(x*pi2)*std::sin(y*pi2)*std::sin(z*pi2)/re ); } );
-			fu->getField(0).getVField().getCField(1)(Pimpact::V).initFromFunction(
+			fu->getField(0).getVField().getCField(1)(Pimpact::F::V).initFromFunction(
 					[&pi2,&alpha2,&re,&B]( S x, S y, S z ) ->S {  return( alpha2*B*std::sin(x*pi2)*std::cos(y*pi2)*std::sin(z*pi2)/re ); } );
-			fu->getField(0).getVField().getCField(1)(Pimpact::W).initFromFunction(
+			fu->getField(0).getVField().getCField(1)(Pimpact::F::W).initFromFunction(
 					[&pi2,&alpha2,&re,&C]( S x, S y, S z ) ->S {  return( alpha2*C*std::sin(x*pi2)*std::sin(y*pi2)*std::cos(z*pi2)/re ); } );
 
-			fu->getField(0).getVField().getSField(1)(Pimpact::U).initFromFunction(
+			fu->getField(0).getVField().getSField(1)(Pimpact::F::U).initFromFunction(
 					[&pi2,&re,&A]( S x, S y, S z ) ->S {  return( 3.*A*std::cos(x*pi2)*std::sin(y*pi2)*std::sin(z*pi2)/re ); } );
-			fu->getField(0).getVField().getSField(1)(Pimpact::V).initFromFunction(
+			fu->getField(0).getVField().getSField(1)(Pimpact::F::V).initFromFunction(
 					[&pi2,&re,&B]( S x, S y, S z ) ->S {  return( 3.*B*std::sin(x*pi2)*std::cos(y*pi2)*std::sin(z*pi2)/re ); } );
-			fu->getField(0).getVField().getSField(1)(Pimpact::W).initFromFunction(
+			fu->getField(0).getVField().getSField(1)(Pimpact::F::W).initFromFunction(
 					[&pi2,&re,&C]( S x, S y, S z ) ->S {  return( 3.*C*std::sin(x*pi2)*std::sin(y*pi2)*std::cos(z*pi2)/re ); } );
 
-			//fu->getField(0).getVField().getCField(2)(Pimpact::U).initFromFunction(
+			//fu->getField(0).getVField().getCField(2)(Pimpact::F::U).initFromFunction(
 					//[&pi2]( S x, S y, S z ) ->S { return( std::sin(2.*x*pi2)/4. ); } );
-			//fu->getField(0).getVField().getCField(2)(Pimpact::V).initFromFunction(
+			//fu->getField(0).getVField().getCField(2)(Pimpact::F::V).initFromFunction(
 					//[&pi2]( S x, S y, S z ) ->S { return( std::sin(2.*y*pi2)/4. ); } );
 
 			//fu->getField(0).getVField().initField( pl->sublist("Force") );
@@ -231,11 +231,11 @@ int main( int argi, char** argv ) {
 			compNullspace.computeNullSpace( opV2S->getOperatorPtr(),
 					nullspace->getField(0).getSField().get0Field(), true );
 
-			nullspace->getField(0).getVField().get0Field()(Pimpact::U).initFromFunction(
+			nullspace->getField(0).getVField().get0Field()(Pimpact::F::U).initFromFunction(
 					[&space]( S x, S y, S z ) -> S {  return( ( (Pimpact::DirichletBC==space->bcl(Pimpact::X)&&x<=0.)?1.:0.) + ( (Pimpact::DirichletBC==space->bcu(Pimpact::X)&&1.<=x)?-1.:0.) ); } );
-			nullspace->getField(0).getVField().get0Field()(Pimpact::V).initFromFunction(
+			nullspace->getField(0).getVField().get0Field()(Pimpact::F::V).initFromFunction(
 					[&space]( S x, S y, S z ) -> S {  return( ( (Pimpact::DirichletBC==space->bcl(Pimpact::Y)&&y<=0.)?1.:0.) + ( (Pimpact::DirichletBC==space->bcu(Pimpact::Y)&&1.<=y)?-1.:0.) ); } );
-			nullspace->getField(0).getVField().get0Field()(Pimpact::W).initFromFunction(
+			nullspace->getField(0).getVField().get0Field()(Pimpact::F::W).initFromFunction(
 					[&space]( S x, S y, S z ) -> S {  return( ( (Pimpact::DirichletBC==space->bcl(Pimpact::Z)&&z<=0.)?1.:0.) + ( (Pimpact::DirichletBC==space->bcu(Pimpact::Z)&&1.<=z)?-1.:0.) ); } );
 
 			S blup = std::sqrt( 1./nullspace->dot( *nullspace ) );

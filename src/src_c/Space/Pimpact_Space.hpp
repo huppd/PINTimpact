@@ -52,8 +52,8 @@ void closeH5F();
 ///
 /// \tparam ST scalar type normaly double
 /// \tparam OT ordinal tye 
-/// \tparam spatialD spatial dimension 2 or 3
-/// \tparam d computational grid dimension 3 or 4
+/// \tparam sd spatial dimension 2 or 3
+/// \tparam d  computational grid dimension 3 or 4
 /// \tparam dNC dimension stencil
 /// \ingroup SpaceObject
 template< class ST, class OT, int sd, int d, int dNC >

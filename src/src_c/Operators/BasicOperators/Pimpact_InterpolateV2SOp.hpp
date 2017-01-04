@@ -57,7 +57,7 @@ protected:
 	using TS = const Teuchos::Tuple< Stenc, sdim >;
 
 	TS c_;
-	TS cm_;
+	//TS cm_;
 
 public:
 
@@ -69,14 +69,36 @@ public:
 			const Teuchos::RCP<const BoundaryConditionsLocal<dimension> >& boundaryConditionsLocal,
 			const Teuchos::RCP<const CoordinatesLocal<Scalar,Ordinal,dimension,dimNC> >& coordinatesLocal ) {
 
+		//const bool mapping = true; // order ~4
+		const bool mapping = false; // order ~6
 
 		for( int i=0; i<sdim; ++i ) {
 
 			c_[i]  = Stenc( gridSizeLocal->get(i) );
-			cm_[i] = Stenc( gridSizeLocal->get(i) );
+			//cm_[i] = Stenc( gridSizeLocal->get(i) );
 
 			F fi = static_cast<F>( i );
 			
+			//FD_getDiffCoeff(
+					//gridSizeLocal->get(i),
+					//stencilWidths->getBL(i),
+					//stencilWidths->getBU(i),
+					//stencilWidths->getDL(i),
+					//stencilWidths->getDU(i),
+					//boundaryConditionsLocal->getBCL(i),
+					//boundaryConditionsLocal->getBCU(i),
+					//indexSpace->getShift(i),
+					//3,
+					//i+1,  // direction
+					//0,    // 0-derivative
+					//0,    // central
+					////true, // not working with stretching mapping
+					//false, // not working with stretching mapping
+					//stencilWidths->getDimNcbD(i),
+					//stencilWidths->getNcbD(i),
+					//coordinatesLocal->getX( i, fi ),
+					//coordinatesLocal->getX( i, F::S ),
+					//cm_[i].get() );
 			FD_getDiffCoeff(
 					gridSizeLocal->get(i),
 					stencilWidths->getBL(i),
@@ -90,28 +112,7 @@ public:
 					i+1,  // direction
 					0,    // 0-derivative
 					0,    // central
-					//true, // not working with stretching mapping
-					false, // not working with stretching mapping
-					stencilWidths->getDimNcbD(i),
-					stencilWidths->getNcbD(i),
-					coordinatesLocal->getX( i, fi ),
-					coordinatesLocal->getX( i, F::S ),
-					cm_[i].get() );
-			FD_getDiffCoeff(
-					gridSizeLocal->get(i),
-					stencilWidths->getBL(i),
-					stencilWidths->getBU(i),
-					stencilWidths->getDL(i),
-					stencilWidths->getDU(i),
-					boundaryConditionsLocal->getBCL(i),
-					boundaryConditionsLocal->getBCU(i),
-					indexSpace->getShift(i),
-					3,
-					i+1,  // direction
-					0,    // 0-derivative
-					0,    // central
-					//false, // mapping, works with interpolateV2S
-					true, // mapping, works with interpolateV2S
+					mapping, // mapping, works with interpolateV2S
 					stencilWidths->getDimNcbD(i),
 					stencilWidths->getNcbD(i),
 					coordinatesLocal->getX( i, fi ),
@@ -183,15 +184,15 @@ public:
 	constexpr const Scalar* getC( const int& dir ) const  {
 		return( c_[dir].get() );
 	}
-	constexpr const Scalar* getCM( const int& dir ) const  {
-		return( cm_[dir].get() );
-	}
+	//constexpr const Scalar* getCM( const int& dir ) const  {
+		//return( cm_[dir].get() );
+	//}
 	constexpr const Scalar& getC( const int& dir, Ordinal i, Ordinal off ) const {
 		return( c_[dir]( i, off ) );
 	}
-	constexpr const Scalar& getCM( const int& dir, Ordinal i, Ordinal off ) const {
-		return( cm_[dir]( i, off ) );
-	}
+	//constexpr const Scalar& getCM( const int& dir, Ordinal i, Ordinal off ) const {
+		//return( cm_[dir]( i, off ) );
+	//}
 
 	const std::string getLabel() const { return( "InterpolateV2S" ); };
 

@@ -59,84 +59,85 @@ public:
 		mulI_( static_cast<Scalar>(0.) ),
 		mulL_( 1./space_->getDomainSize()->getRe() ) {
 
-    for( int dir=0; dir<SpaceT::sdim; ++dir ) {
+			//const bool mapping = true; // order ~2
+			const bool mapping = false; // order ~6
 
-			F fdir = static_cast<F>( dir );
+			for( int dir=0; dir<SpaceT::sdim; ++dir ) {
 
-			cS_[dir] = Stenc( space_->nLoc(dir) );
-			FD_getDiffCoeff(
-					space_->nLoc(dir),
-					space_->bl(dir),
-					space_->bu(dir),
-					space_->bl(dir),
-					space_->bu(dir),
-					space_->getBCLocal()->getBCL(dir),
-					space_->getBCLocal()->getBCU(dir),
-					space_->getShift(dir),
-					int(F::S)+1,
-					dir+1,
-					2,
-					0,
-					//true,
-					false, // mapping
-					space_->getStencilWidths()->getDimNcbC(dir),
-					space_->getStencilWidths()->getNcbC(dir),
-					space_->getCoordinatesLocal()->getX( dir, F::S ),
-					space_->getCoordinatesLocal()->getX( dir, F::S ),
-					cS_[dir].get() );
+				F fdir = static_cast<F>( dir );
 
-			//if( DirichletBC==space_->bcl(dir) ) {
+				cS_[dir] = Stenc( space_->nLoc(dir) );
+				FD_getDiffCoeff(
+						space_->nLoc(dir),
+						space_->bl(dir),
+						space_->bu(dir),
+						space_->bl(dir),
+						space_->bu(dir),
+						space_->getBCLocal()->getBCL(dir),
+						space_->getBCLocal()->getBCU(dir),
+						space_->getShift(dir),
+						int(F::S)+1,
+						dir+1,
+						2,
+						0,
+						mapping, // mapping
+						space_->getStencilWidths()->getDimNcbC(dir),
+						space_->getStencilWidths()->getNcbC(dir),
+						space_->getCoordinatesLocal()->getX( dir, F::S ),
+						space_->getCoordinatesLocal()->getX( dir, F::S ),
+						cS_[dir].get() );
+
+				//if( DirichletBC==space_->bcl(dir) ) {
 				//Ordinal i = space_->begin(S,dir,B::Y);
 				//for( int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii )
-					//cS_[dir](i,ii) = 0.;
+				//cS_[dir](i,ii) = 0.;
 				//cS_[dir](i,0) = -1./mulL_;
-			//}
-			//if( DirichletBC==space_->bcu(dir) ) {
+				//}
+				//if( DirichletBC==space_->bcu(dir) ) {
 				//Ordinal i = space_->end(S,dir,B::Y);
 				//for( int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii )
-					//cS_[dir](i,ii) = 0.;
+				//cS_[dir](i,ii) = 0.;
 				//cS_[dir](i,0) = -1./mulL_;
-			//}
+				//}
 
-		
-			cV_[dir] = Stenc( space_->nLoc(dir) );
-			FD_getDiffCoeff(
-					space_->nLoc(dir),
-					space_->bl(dir),
-					space_->bu(dir),
-					space_->bl(dir),
-					space_->bu(dir),
-					space_->getBCLocal()->getBCL(dir),
-					space_->getBCLocal()->getBCU(dir),
-					space_->getShift(dir),
-					1,
-					dir+1,
-					2,
-					0,
-					true,
-					//false,
-					space_->getStencilWidths()->getDimNcbC(dir),
-					space_->getStencilWidths()->getNcbC(dir),
-					space_->getCoordinatesLocal()->getX( dir, fdir ),
-					space_->getCoordinatesLocal()->getX( dir, fdir ),
-					cV_[dir].get() );
 
-			//if( DirichletBC==space_->bcl(dir) ) {
+				cV_[dir] = Stenc( space_->nLoc(dir) );
+				FD_getDiffCoeff(
+						space_->nLoc(dir),
+						space_->bl(dir),
+						space_->bu(dir),
+						space_->bl(dir),
+						space_->bu(dir),
+						space_->getBCLocal()->getBCL(dir),
+						space_->getBCLocal()->getBCU(dir),
+						space_->getShift(dir),
+						1,
+						dir+1,
+						2,
+						0,
+						mapping,
+						space_->getStencilWidths()->getDimNcbC(dir),
+						space_->getStencilWidths()->getNcbC(dir),
+						space_->getCoordinatesLocal()->getX( dir, fdir ),
+						space_->getCoordinatesLocal()->getX( dir, fdir ),
+						cV_[dir].get() );
+
+				//if( DirichletBC==space_->bcl(dir) ) {
 				//Ordinal i = space_->begin(dir,dir,B::Y);
 				//for( int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii )
-					//cV_[dir](i,ii) = 0.;
+				//cV_[dir](i,ii) = 0.;
 				//for( int ii=SW::DL(0); ii<=SW::DU(0); ++ii )
-					//cV_[dir](i,ii) = -space_->getInterpolateV2S()->getC(dir,i+1,ii)/mulL_;
-			//}
-			//if( DirichletBC==space_->bcu(dir) ) {
+				//cV_[dir](i,ii) = -space_->getInterpolateV2S()->getC(dir,i+1,ii)/mulL_;
+				//}
+				//if( DirichletBC==space_->bcu(dir) ) {
 				//Ordinal i = space_->end(dir,dir,B::Y);
 				//for( int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii )
-					//cV_[dir](i,ii) = 0.;
+				//cV_[dir](i,ii) = 0.;
 				//for( int ii=SW::DL(0); ii<=SW::DU(0); ++ii )
-					//cV_[dir](i,ii) = -space_->getInterpolateV2S()->getC(dir,i,ii)/mulL_;
-			//}
-    }
-  };
+				//cV_[dir](i,ii) = -space_->getInterpolateV2S()->getC(dir,i,ii)/mulL_;
+				//}
+			}
+		};
 
 
 
@@ -349,7 +350,7 @@ public:
 
     for( int dir=0; dir<SpaceT::sdim; ++dir ) {
 
-			out << "\ncoord: " << toString( static_cast<ECoord>(dir) ) << "\n";
+			out << "\ncoord: " << static_cast<ECoord>(dir) << "\n";
 
 			cS_[dir].print( out );
     }
@@ -357,7 +358,7 @@ public:
 
     for( int dir=0; dir<SpaceT::sdim; ++dir ) {
 
-			out << "\ncoord: " << toString( static_cast<ECoord>(dir) ) << "\n";
+			out << "\ncoord: " << static_cast<ECoord>(dir) << "\n";
 
 			cV_[dir].print( out );
     }

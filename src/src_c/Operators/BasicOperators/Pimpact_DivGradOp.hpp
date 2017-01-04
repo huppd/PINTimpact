@@ -57,7 +57,8 @@ public:
 
 		switch( trans ) {
 			case Belos::NOTRANS : {
-				grad_->apply( x, temp, add );
+				grad_->applyG( x, temp, add );
+				grad_->applyJ( temp );
 				div_->apply( temp, y, add );
 				break;
 			}

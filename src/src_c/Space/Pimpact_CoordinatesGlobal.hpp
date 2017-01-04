@@ -383,7 +383,7 @@ public:
 	void print( std::ostream& out=std::cout ) const {
 
 		for( int i=0; i<dim; ++i ) {
-			out << "Global coordinates of scalars in dir: " << toString( static_cast<ECoord>(i) ) << "\n";
+			out << "Global coordinates of scalars in dir: " << static_cast<ECoord>(i) << "\n";
 			out << "i\txS\n";
 			OrdinalT j = 0;
 			for( typename Teuchos::ArrayRCP<ScalarT>::iterator jp=xS_[i].begin(); jp<xS_[i].end(); ++jp )
@@ -391,7 +391,7 @@ public:
 		}
 
 		for( int i=0; i<dim; ++i ) {
-			out << "Global coordinates of vectors in dir: " << toString( static_cast<ECoord>(i) ) << "\n";
+			out << "Global coordinates of vectors in dir: " << static_cast<ECoord>(i) << "\n";
 			out << "i\txV\n";
 			OrdinalT j = 0;
 			for( typename Teuchos::ArrayRCP<ScalarT>::iterator jp=xV_[i].begin(); jp<xV_[i].end(); ++jp )

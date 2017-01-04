@@ -105,7 +105,6 @@ int Pimpact::getDir1( const int& dir ) {
 	if( dir2<dir1 )
 		return( dir2 );
 	return( dir1 );
-
 }
 
 int Pimpact::getDir2( const int& dir ) {
@@ -115,7 +114,6 @@ int Pimpact::getDir2( const int& dir ) {
 	if( dir2>dir1 )
 		return( dir2 );
 	return( dir1 );
-
 }
 
 

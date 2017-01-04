@@ -52,8 +52,8 @@ public:
 	
 		x.exchange();
 
-		for( Ordinal i=spaceC()->begin(S,3); i <= spaceC()->end(S,3); ++i ) { 
-			Ordinal iF = d*( i-spaceC()->begin(S,3) ) + spaceF()->begin(S,3);
+		for( Ordinal i=spaceC()->begin(F::S,3); i <= spaceC()->end(F::S,3); ++i ) { 
+			Ordinal iF = d*( i-spaceC()->begin(F::S,3) ) + spaceF()->begin(F::S,3);
 			op_->apply( x.getConstField( i ), y.getField( iF ) );
 			if (spaceC()->nLoc(3)==1 && d>1) 
 				op_->apply( x.getConstField(1), y.getField(2) );
@@ -61,7 +61,7 @@ public:
 
 		if (d > 1 && spaceC()->nLoc(3)>1) { 
 
-			for( int i=spaceF()->begin(S,3) + 1; i < spaceF()->end(S,3) ; i=i+d ) {
+			for( int i=spaceF()->begin(F::S,3) + 1; i < spaceF()->end(F::S,3) ; i=i+d ) {
 				y.getField(i).add( 0.5, y.getField(i-1), 0.5, y.getField(i+1) ); 
 			}		
 		}

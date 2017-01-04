@@ -378,20 +378,21 @@ protected:
 				offset =
 					( iimax_[dir]-1 )*( spaceF_->getProcGrid()->getIB(dir)-1 - nGather_[dir]*(spaceC_->getProcGrid()->getIB(dir)-1) );
 
+			F fdir = static_cast<F>( dir );
 			MG_getCIV(
 					spaceC_->nLoc(dir),
 					spaceC_->bl(dir),
 					spaceC_->bu(dir),
-					spaceC_->sInd(dir)[dir],
-					spaceC_->eInd(dir)[dir],
+					spaceC_->sInd(fdir)[dir],
+					spaceC_->eInd(fdir)[dir],
 					spaceF_->getBCLocal()->getBCL(dir),
 					spaceF_->getBCLocal()->getBCU(dir),
 					spaceF_->nLoc(dir),
 					spaceF_->bl(dir),
 					spaceF_->bu(dir),
 					offset,
-					spaceC_->getCoordinatesLocal()->getX( dir, dir ),
-					spaceF_->getCoordinatesLocal()->getX( dir, dir ),
+					spaceC_->getCoordinatesLocal()->getX( dir, fdir ),
+					spaceF_->getCoordinatesLocal()->getX( dir, fdir ),
 					dd_[dir],
 					cIV_[dir].get() );
 		}
@@ -469,7 +470,7 @@ public:
 		else {
 
 			//		y.initField();
-			int dir = fType;
+			int dir = static_cast<int>( fType );
 
 			if( spaceC_->getProcGrid()->participating() ) {
 				switch( fType ) {
