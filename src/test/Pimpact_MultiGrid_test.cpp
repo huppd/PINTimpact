@@ -1420,8 +1420,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffJ, CS ) {
 
 	auto mgPL = Teuchos::parameterList();
 	mgPL->set<int>("numCycles", 1 );
-	//	mgPL->sublist("Smoother").set( "omega", 0.6 );
-	//	mgPL->sublist("Smoother").set( "numIters", 10 );
 
 	mgPL->sublist("Coarse Grid Solver").set<std::string>("Solver name", "GMRES" );
 
@@ -1442,30 +1440,32 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffJ, CS ) {
 		ConvDiffOpT,
 		ConvDiffOpT,
 		ConvDiffJT,
+		ConvDiffJT
 		//		ConvDiffSORT,
-		MOP
+		//MOP
 			>( mgSpaces, mgPL );
 
 	if( print ) mg->print();
 
 	auto op = Pimpact::create< ConvDiffOpT >( space );
 
-	auto x = Pimpact::create<Pimpact::VectorField>( space );
-	auto b = Pimpact::create<Pimpact::VectorField>( space );
-	auto temp = x->clone();
+	Pimpact::VectorField<typename CS::SpaceT> x( space );
+	Pimpact::VectorField<typename CS::SpaceT> b( space );
+	Pimpact::VectorField<typename CS::SpaceT> temp( space );
 
 	{
-		auto wind = x->clone();
-		wind->initField();
-		//		wind->initField();
-		//		wind->random();
-		(*wind)(Pimpact::F::U).initField( Pimpact::Poiseuille2D_inX );
-		(*wind)(Pimpact::F::V).random();
-		(*wind)(Pimpact::F::V).scale(0.1);
-		(*wind)(Pimpact::F::W).random();
-		(*wind)(Pimpact::F::W).scale(0.1);
-		op->assignField( *wind );
-		mg->assignField( *wind );
+		Pimpact::VectorField<typename CS::SpaceT> wind( space );
+		//wind.initField();
+		////		wind->initField();
+		////		wind->random();
+		//wind(Pimpact::F::U).initField( Pimpact::Poiseuille2D_inX );
+		//wind(Pimpact::F::V).random();
+		//wind(Pimpact::F::V).scale(0.1);
+		//wind(Pimpact::F::W).random();
+		//wind(Pimpact::F::W).scale(0.1);
+		wind.init( 1. );
+		op->assignField( wind );
+		mg->assignField( wind );
 	}
 
 	std::ofstream ofs;
@@ -1473,27 +1473,27 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffJ, CS ) {
 		ofs.open("MG2.txt", std::ofstream::out);
 
 	// 
-	//	x->getField(Pimpact::F::V).initField( Pimpact::Poiseuille2D_inY );
-	//	x->getField(Pimpact::F::U).initField( Pimpact::Grad2D_inX );
-	//	x->getField(Pimpact::F::V).initField( Pimpact::Grad2D_inY );
-	(*x)(Pimpact::F::W).initField( Pimpact::Grad2D_inY );
-	auto sol = x->clone( Pimpact::ECopy::Deep );
+	//	x(Pimpact::F::V).initField( Pimpact::Poiseuille2D_inY );
+	//	x(Pimpact::F::U).initField( Pimpact::Grad2D_inX );
+	//	x(Pimpact::F::V).initField( Pimpact::Grad2D_inY );
+	x(Pimpact::F::W).initField( Pimpact::Grad2D_inY );
+	auto sol = x.clone( Pimpact::ECopy::Deep );
 
-	//	op->apply(*x,*b);
+	//	op->apply( x, b );
 	//	{
-	//		x->init(0);
-	//		auto bc = x->clone( Pimpact::ECopy::Shallow );
-	//		op->apply( *x, *bc );
-	//		b->add( 1., *b, -1., *bc );
+	//		x.init(0);
+	//		auto bc = x.clone( Pimpact::ECopy::Shallow );
+	//		op->apply( x, *bc );
+	//		b.add( 1., b, -1., *bc );
 	//	}
-	//	b->write(1);
+	//	b.write(1);
 
-	x->initField();
+	x.initField();
 	sol->initField();
-	x->random();
+	x.random();
 
-	temp->add( -1, *x, 1., *sol );
-	ST res = temp->norm();
+	temp.add( -1, x, 1., *sol );
+	ST res = temp.norm();
 	ST res_0 = res;
 	ST res_p = res;
 
@@ -1505,11 +1505,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffJ, CS ) {
 	}
 
 	for( int i=0; i<20; ++i ) {
-		mg->apply( *b, *x );
-		if( write ) x->write(i+10);
+		mg->apply( b, x );
+		if( write ) x.write(i+10);
 
-		temp->add( -1, *x, 1., *sol );
-		ST res = temp->norm();
+		temp.add( -1, x, 1., *sol );
+		//ST res = temp.norm(Belos::TwoNorm, Pimpact::B::N );
+		ST res = temp.norm();
 
 		if( space()->rankST()==0 ) {
 			std::cout << "\t" << res/res_0 << "\t" <<  res/res_p << "\n";
@@ -1522,9 +1523,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, ConvDiffJ, CS ) {
 		std::cout << "\n";
 	}
 
-	TEST_EQUALITY( temp->norm()<0.5, true );
+	TEST_EQUALITY( temp.norm()<0.5, true );
 
-	if( write ) x->write(2);
+	if( write ) x.write(2);
 
 	if( space()->rankST()==0 )
 		ofs.close();

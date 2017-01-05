@@ -140,19 +140,6 @@ int main( int argi, char** argv ) {
 	x->getField(0).getVField().initField( pl->sublist("Base flow") );
 
 
-	//if( "zero"==initGuess )
-		//x->init( 0. );
-	//else if( "almost zero"==initGuess ) {
-		//x->random();
-		//x->scale(1.e-12);
-	//}
-	//else if( "random"==initGuess )
-		//x->random();
-	//else if( "exact"==initGuess ) {
-		//x->getField(0).getSField().get0Field().initField( Pimpact::Grad2D_inX, -2./space->getDomainSize()->getRe() );
-	//}
-	//x->getField(0).getVField().changed();
-	//x->getField(0).getSField().changed();
 
 	/******************************************************************************************/
 	for( int refine=0; refine<refinement; ++refine ) {
@@ -172,13 +159,21 @@ int main( int argi, char** argv ) {
 
 		auto fu = x->clone( Pimpact::ECopy::Shallow );
 		// Taylor Green Vortex
-		{
+
+		std::string forceType = pl->sublist("Force").get<std::string>("force type","Dirichlet");
+		if( "force"== forceType )
+			fu->getField(0).getVField().initField( pl->sublist("Force") );
+		else if( "Taylor-Green"==forceType ) {
 			S pi2 = 2.*std::acos(-1.);
 			S alpha2 = space->getDomainSize()->getAlpha2();
 			S re = space->getDomainSize()->getRe();
-			S A =  1.;
-			S B = -0.75;
-			S C = -0.25;
+			S A =  pl->sublist("Force").get<S>("A", 1.);
+			S B =  pl->sublist("Force").get<S>("B",-1.);
+			S C =  pl->sublist("Force").get<S>("C", 0.);
+			S a =  pl->sublist("Force").get<S>("a", 1.);
+			S b =  pl->sublist("Force").get<S>("b", 1.);
+			S c =  pl->sublist("Force").get<S>("c", 1.);
+			TEUCHOS_TEST_FOR_EXCEPT( std::abs(a*A+b*B+c*C)>1.e-16 );
 
 			//fu->getField(0).getVField().get0Field()(Pimpact::F::U).initFromFunction(
 					//[&pi2,&re]( S x, S y, S z ) ->S {  return(  -std::sin(2.*x*pi2)/4. ); } );
@@ -186,35 +181,49 @@ int main( int argi, char** argv ) {
 					//[&pi2,&re]( S x, S y, S z ) ->S {  return(  -std::sin(2.*y*pi2)/4. ); } );
 
 			fu->getField(0).getVField().getCField(1)(Pimpact::F::U).initFromFunction(
-					[&pi2,&alpha2,&re,&A]( S x, S y, S z ) ->S {  return( alpha2*A*std::cos(x*pi2)*std::sin(y*pi2)*std::sin(z*pi2)/re ); } );
+					[&]( S x, S y, S z ) ->S {  return( alpha2*A*std::cos(a*x*pi2)*std::sin(b*y*pi2)*std::sin(c*z*pi2)/re ); } );
 			fu->getField(0).getVField().getCField(1)(Pimpact::F::V).initFromFunction(
-					[&pi2,&alpha2,&re,&B]( S x, S y, S z ) ->S {  return( alpha2*B*std::sin(x*pi2)*std::cos(y*pi2)*std::sin(z*pi2)/re ); } );
+					[&]( S x, S y, S z ) ->S {  return( alpha2*B*std::sin(a*x*pi2)*std::cos(b*y*pi2)*std::sin(c*z*pi2)/re ); } );
 			fu->getField(0).getVField().getCField(1)(Pimpact::F::W).initFromFunction(
-					[&pi2,&alpha2,&re,&C]( S x, S y, S z ) ->S {  return( alpha2*C*std::sin(x*pi2)*std::sin(y*pi2)*std::cos(z*pi2)/re ); } );
+					[&]( S x, S y, S z ) ->S {  return( alpha2*C*std::sin(a*x*pi2)*std::sin(b*y*pi2)*std::cos(c*z*pi2)/re ); } );
 
 			fu->getField(0).getVField().getSField(1)(Pimpact::F::U).initFromFunction(
-					[&pi2,&re,&A]( S x, S y, S z ) ->S {  return( 3.*A*std::cos(x*pi2)*std::sin(y*pi2)*std::sin(z*pi2)/re ); } );
+					[&]( S x, S y, S z ) ->S {  return( 3.*A*std::cos(a*x*pi2)*std::sin(b*y*pi2)*std::sin(c*z*pi2)/re ); } );
 			fu->getField(0).getVField().getSField(1)(Pimpact::F::V).initFromFunction(
-					[&pi2,&re,&B]( S x, S y, S z ) ->S {  return( 3.*B*std::sin(x*pi2)*std::cos(y*pi2)*std::sin(z*pi2)/re ); } );
+					[&]( S x, S y, S z ) ->S {  return( 3.*B*std::sin(a*x*pi2)*std::cos(b*y*pi2)*std::sin(c*z*pi2)/re ); } );
 			fu->getField(0).getVField().getSField(1)(Pimpact::F::W).initFromFunction(
-					[&pi2,&re,&C]( S x, S y, S z ) ->S {  return( 3.*C*std::sin(x*pi2)*std::sin(y*pi2)*std::cos(z*pi2)/re ); } );
+					[&]( S x, S y, S z ) ->S {  return( 3.*C*std::sin(a*x*pi2)*std::sin(b*y*pi2)*std::cos(c*z*pi2)/re ); } );
 
 			//fu->getField(0).getVField().getCField(2)(Pimpact::F::U).initFromFunction(
 					//[&pi2]( S x, S y, S z ) ->S { return( std::sin(2.*x*pi2)/4. ); } );
 			//fu->getField(0).getVField().getCField(2)(Pimpact::F::V).initFromFunction(
 					//[&pi2]( S x, S y, S z ) ->S { return( std::sin(2.*y*pi2)/4. ); } );
 
-			//fu->getField(0).getVField().initField( pl->sublist("Force") );
+		}
+		else if( "Dirichlet"==forceType ) {
+			// something with DirichletBC
+			//fu->getField(0).getVField() = x->getField(0).getVField();
+			opV2V->apply( x->getField(0).getVField(), fu->getField(0).getVField() );
+			// super ugly hack for DirichletBC
+			fu->init( 0., Pimpact::B::N );
+			//x->init( 0. );
 		}
 
-		//// something with DirichletBC
-		//{
-		////fu->getField(0).getVField() = x->getField(0).getVField();
-		//opV2V->apply( x->getField(0).getVField(), fu->getField(0).getVField() );
-		//// super ugly hack for DirichletBC
-		//fu->init( 0., Pimpact::B::N );
-		////x->init( 0. );
-		//}
+		if( 0==refine ) {
+			if( "zero"==initGuess )
+				x->init( 0. );
+			else if( "almost zero"==initGuess ) {
+				x->random();
+				x->scale(1.e-12);
+			}
+			else if( "random"==initGuess )
+				x->random();
+			else if( "exact"==initGuess ) {
+				x->getField(0).getSField().get0Field().initField( Pimpact::Grad2D_inX, -2./space->getDomainSize()->getRe() );
+			}
+			x->getField(0).getVField().changed();
+			x->getField(0).getSField().changed();
+		}
 
 		if( withoutput ) fu->write( 90000 );
 

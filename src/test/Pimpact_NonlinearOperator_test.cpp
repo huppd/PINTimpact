@@ -600,8 +600,8 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
 
 	// init smoother
   auto pls = Teuchos::parameterList();
-	pls->set( "omega", 1. );
-  pls->set( "numIters", 1 );
+	//pls->set( "omega", 0.5 );
+	pls->set( "numIters", 1 );
 
   auto smoother =
       Pimpact::create<

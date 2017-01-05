@@ -8,8 +8,8 @@
     <Parameter docString="" id="51" isDefault="false" isUsed="true" name="upper X" type="int" value="1" />
     <Parameter docString="" id="52" isDefault="false" isUsed="true" name="lower Y" type="int" value="1" />
     <Parameter docString="" id="53" isDefault="false" isUsed="true" name="upper Y" type="int" value="1" />
-    <Parameter docString="" id="54" isDefault="false" isUsed="true" name="lower Z" type="int" value="1" />
-    <Parameter docString="" id="55" isDefault="false" isUsed="true" name="upper Z" type="int" value="1" />
+    <Parameter docString="" id="54" isDefault="false" isUsed="true" name="lower Z" type="int" value="-1" />
+    <Parameter docString="" id="55" isDefault="false" isUsed="true" name="upper Z" type="int" value="-1" />
   </ParameterList>
 		<Parameter docString="length in x-direction" id="57" isDefault="false" isUsed="true" name="lx" type="double" value="2.00000000000000000e+00" />
 		<Parameter docString="length in y-direction" id="58" isDefault="false" isUsed="true" name="ly" type="double" value="2.00000000000000000e+00" />
@@ -240,7 +240,8 @@
 	</ParameterList>
 	<ParameterList id="41" name="Base flow">
 		<ParameterList id="42" name="0 mode">
-			<Parameter docString="" id="191" isDefault="true" isUsed="true" name="Type" type="string" value="Poiseuille" />
+			<!--<Parameter docString="" id="191" isDefault="true" isUsed="true" name="Type" type="string" value="Poiseuille" />-->
+			<Parameter docString="" id="291" isDefault="true" isUsed="true" name="Type" type="string" value="Couette" />
 		</ParameterList>
 		<ParameterList id="43" name="cos mode">
 			<!--<Parameter docString="" id="291" isDefault="true" isUsed="true" name="Type" type="string" value="Couette" />-->

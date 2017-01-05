@@ -27,7 +27,6 @@ ScalarT order( const std::vector<ScalarT>& x, const std::vector<ScalarT>& y ) {
 	const ScalarT a    = (n * s_xy - s_x * s_y) / (n * s_xx - s_x * s_x);
 
 	return( a );
-
 }
 
 

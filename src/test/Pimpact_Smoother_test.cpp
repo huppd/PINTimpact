@@ -97,8 +97,6 @@ TEUCHOS_STATIC_SETUP() {
 	pl->set("ny", 17) ;
 	pl->set("nz", 17) ;
 	pl->set("nf", 16) ;
-
-
 }
 
 
