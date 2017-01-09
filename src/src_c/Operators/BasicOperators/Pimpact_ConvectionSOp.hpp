@@ -54,7 +54,9 @@ public:
 	ConvectionSOp( const Teuchos::RCP<const SpaceT>& space  ):
 		space_(space) {
 
-			const bool mapping = false;
+			//const bool mapping = true; // order: ~3
+			const bool mapping = false; //order: ~5
+			
 			for( int dir=0; dir<sdim; ++dir ) {
 
 				cSD_[dir] = Stenc( space_->nLoc(dir) );
@@ -205,33 +207,37 @@ public:
 	}
 
 
-	void apply( const FluxFieldT& x, const DomainFieldT& y, RangeFieldT& z, const Add& add=Add::N ) const {
+	void apply( const FluxFieldT& wind, const DomainFieldT& y, RangeFieldT& z, const Add& add=Add::N ) const {
+
+		const B& b = ( (Add::N==add) ? B::Y : B::N );
 
 		const Scalar& mulC = 1.;
 		F m = z.getType();
 
 		assert( z.getType() == y.getType() );
+
 		for( int i=0; i<SpaceT::sdim; ++i ) 
-			assert( x[i].getType()==y.getType() );
+			assert( wind[i].getType()==y.getType() );
+
 
 		for( int vel_dir=0; vel_dir<SpaceT::sdim; ++vel_dir )
-			x[vel_dir].exchange();
+			wind[vel_dir].exchange();
 
 		y.exchange();
 
 		if( 3==SpaceT::sdim )
-			for( Ordinal k=space()->begin(m,Z); k<=space()->end(m,Z); ++k )
-				for( Ordinal j=space()->begin(m,Y); j<=space()->end(m,Y); ++j )
-					for( Ordinal i=space()->begin(m,X); i<=space()->end(m,X); ++i ) {
+			for( Ordinal k=space()->begin(m,Z,b); k<=space()->end(m,Z,b); ++k )
+				for( Ordinal j=space()->begin(m,Y,b); j<=space()->end(m,Y,b); ++j )
+					for( Ordinal i=space()->begin(m,X,b); i<=space()->end(m,X,b); ++i ) {
 						if( Add::N==add ) z(i,j,k) = 0.;
-						z(i,j,k) += mulC*innerStenc3D( x[0](i,j,k), x[1](i,j,k), x[2](i,j,k), y, i, j, k );
+						z(i,j,k) += mulC*innerStenc3D( wind[0](i,j,k), wind[1](i,j,k), wind[2](i,j,k), y, i, j, k );
 					}
 		else
-			for( Ordinal k=space()->begin(m,Z); k<=space()->end(m,Z); ++k )
-				for( Ordinal j=space()->begin(m,Y); j<=space()->end(m,Y); ++j )
-					for( Ordinal i=space()->begin(m,X); i<=space()->end(m,X); ++i ) {
+			for( Ordinal k=space()->begin(m,Z,b); k<=space()->end(m,Z,b); ++k )
+				for( Ordinal j=space()->begin(m,Y,b); j<=space()->end(m,Y,b); ++j )
+					for( Ordinal i=space()->begin(m,X,b); i<=space()->end(m,X,b); ++i ) {
 						if( Add::N==add ) z(i,j,k) = 0.;
-						z(i,j,k) += mulC*innerStenc2D( x[0](i,j,k), x[1](i,j,k), y, i,j,k);
+						z(i,j,k) += mulC*innerStenc2D( wind[0](i,j,k), wind[1](i,j,k), y, i,j,k);
 					}
 
 		z.changed();

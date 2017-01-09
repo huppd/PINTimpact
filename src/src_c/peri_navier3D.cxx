@@ -173,7 +173,7 @@ int main( int argi, char** argv ) {
 			S a =  pl->sublist("Force").get<S>("a", 1.);
 			S b =  pl->sublist("Force").get<S>("b", 1.);
 			S c =  pl->sublist("Force").get<S>("c", 1.);
-			TEUCHOS_TEST_FOR_EXCEPT( std::abs(a*A+b*B+c*C)>1.e-16 );
+			TEUCHOS_TEST_FOR_EXCEPT( std::abs( a*A + b*B + c*C )>1.e-16 );
 
 			//fu->getField(0).getVField().get0Field()(Pimpact::F::U).initFromFunction(
 					//[&pi2,&re]( S x, S y, S z ) ->S {  return(  -std::sin(2.*x*pi2)/4. ); } );

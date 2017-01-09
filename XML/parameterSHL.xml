@@ -22,13 +22,13 @@
 		<Parameter docString="amount of processors in z-direction" id="69" isDefault="false" isUsed="true" name="npz" type="int" value="1" />
 		<Parameter docString="amount of processors in f-direction" id="70" isDefault="false" isUsed="true" name="npf" type="int" value="1" />
     <Parameter docString="" id="71" isDefault="true" isUsed="true" name="spectral in time" type="bool" value="true" />
-    <ParameterList id="3" name="Stretching in X">
-			<Parameter docString="" id="72" isDefault="false" isUsed="true" name="Stretch Type" type="string" value="cos" />
-			<Parameter docString="" id="73" isDefault="true" isUsed="true" name="x0 U" type="double" value="0.00000000000000000e+00" />
-			<Parameter docString="" id="74" isDefault="true" isUsed="true" name="x0 L" type="double" value="0.05000000000000000e+00" />
-			<Parameter docString="" id="75" isDefault="true" isUsed="true" name="N metr U" type="double" value="6.50000000000000000e+01" />
-			<Parameter docString="" id="76" isDefault="true" isUsed="true" name="N metr L" type="double" value="6.50000000000000000e+01" />
-    </ParameterList>
+		<ParameterList id="3" name="Stretching in X">
+			<!--<Parameter docString="" id="72" isDefault="false" isUsed="true" name="Stretch Type" type="string" value="cos" />-->
+			<!--<Parameter docString="" id="73" isDefault="true" isUsed="true" name="x0 U" type="double" value="0.00000000000000000e+00" />-->
+			<!--<Parameter docString="" id="74" isDefault="true" isUsed="true" name="x0 L" type="double" value="0.05000000000000000e+00" />-->
+			<!--<Parameter docString="" id="75" isDefault="true" isUsed="true" name="N metr U" type="double" value="6.50000000000000000e+02" />-->
+			<!--<Parameter docString="" id="76" isDefault="true" isUsed="true" name="N metr L" type="double" value="6.50000000000000000e+02" />-->
+		</ParameterList>
     <ParameterList id="4" name="Stretching in Y">
       <Parameter docString="" id="77" isDefault="false" isUsed="true" name="Stretch Type" type="string" value="none" />
     </ParameterList>
@@ -43,7 +43,7 @@
     <Parameter docString="" id="82" isDefault="false" isUsed="true" name="refinement level" type="int" value="1" />
     <Parameter docString="" id="83" isDefault="false" isUsed="true" name="refinement tol" type="double" value="9.99999999999999955e-07" />
     <Parameter docString="" id="84" isDefault="false" isUsed="true" name="refinement step" type="int" value="1" />
-    <Parameter docString="" id="85" isDefault="false" isUsed="true" name="initial guess" type="string" value="none" />
+    <Parameter docString="" id="85" isDefault="false" isUsed="true" name="initial guess" type="string" value="zero" />
   </ParameterList>
   <ParameterList id="7" name="Multi Grid">
     <Parameter docString="" id="86" isDefault="false" isUsed="true" name="maxGrids" type="int" value="3" />
@@ -71,7 +71,7 @@
         </ParameterList>
         <ParameterList id="13" name="Test 2">
           <Parameter docString="" id="101" isDefault="false" isUsed="true" name="Test Type" type="string" value="MaxIters" />
-          <Parameter docString="" id="102" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="10" />
+          <Parameter docString="" id="102" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="2" />
         </ParameterList>
         <ParameterList id="14" name="Test 3">
           <Parameter docString="" id="103" isDefault="false" isUsed="true" name="Test Type" type="string" value="Stagnation" />

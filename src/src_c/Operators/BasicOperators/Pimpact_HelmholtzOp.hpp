@@ -144,8 +144,7 @@ public:
 	/// \todo change with or without bc, everywhere
   void apply( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::N  ) const {
 
-		const B& wB = ( (Add::N==add) ? B::Y : B::N );
-		const B& wnB = B::N;
+		const B& nb = B::N;
 
 		for( int dir=0; dir<SpaceT::sdim; ++dir ) {
 
@@ -154,24 +153,24 @@ public:
 			x(fType).exchange();
 
 			if( 3==SpaceT::sdim ) {
-				for( Ordinal k=space()->begin(fType,Z,wnB); k<=space()->end(fType,Z,wnB); ++k )
-					for( Ordinal j=space()->begin(fType,Y,wnB); j<=space()->end(fType,Y,wnB); ++j )
-						for( Ordinal i=space()->begin(fType,X,wnB); i<=space()->end(fType,X,wnB); ++i ) {
+				for( Ordinal k=space()->begin(fType,Z,nb); k<=space()->end(fType,Z,nb); ++k )
+					for( Ordinal j=space()->begin(fType,Y,nb); j<=space()->end(fType,Y,nb); ++j )
+						for( Ordinal i=space()->begin(fType,X,nb); i<=space()->end(fType,X,nb); ++i ) {
 							if( Add::N==add ) y(fType)(i,j,k) = 0.;
 							y(fType)(i,j,k) +=
 								mulI_*x(fType)(i,j,k) - mulL_*innerStenc3D( x(fType), fType, i, j, k);
 						}
 			}
 			else{
-				for( Ordinal k=space()->begin(fType,Z,wnB); k<=space()->end(fType,Z,wnB); ++k )
-					for( Ordinal j=space()->begin(fType,Y,wnB); j<=space()->end(fType,Y,wnB); ++j )
-						for( Ordinal i=space()->begin(fType,X,wnB); i<=space()->end(fType,X,wnB); ++i ) {
+				for( Ordinal k=space()->begin(fType,Z,nb); k<=space()->end(fType,Z,nb); ++k )
+					for( Ordinal j=space()->begin(fType,Y,nb); j<=space()->end(fType,Y,nb); ++j )
+						for( Ordinal i=space()->begin(fType,X,nb); i<=space()->end(fType,X,nb); ++i ) {
 							if( Add::N==add ) y(fType)(i,j,k) = 0.;
 							y(fType)(i,j,k) +=
 								mulI_*x(fType)(i,j,k) - mulL_*innerStenc2D( x(fType), fType, i, j, k);
 						}
 			}
-			if( wB==B::Y ) applyBC( x(fType), y(fType) );
+			if( Add::N==add ) applyBC( x(fType), y(fType) );
 		}
     y.changed();
   }
