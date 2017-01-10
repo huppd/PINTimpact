@@ -495,11 +495,11 @@ public:
 			space()->getCoordinatesLocal();
 		Teuchos::RCP<const DomainSize<Scalar,SpaceT::sdim> > domain = space()->getDomainSize();
 
-		const B& bcYes = B::Y;
+		const B& bY = B::Y;
 
-		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
-			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
-				for( Ordinal i=space()->begin(fType_,X,bcYes); i<=space()->end(fType_,X,bcYes); ++i )
+		for( Ordinal k=space()->begin(fType_,Z,bY); k<=space()->end(fType_,Z,bY); ++k )
+			for( Ordinal j=space()->begin(fType_,Y,bY); j<=space()->end(fType_,Y,bY); ++j )
+				for( Ordinal i=space()->begin(fType_,X,bY); i<=space()->end(fType_,X,bY); ++i )
 					at(i,j,k) = func(
 							( coord->getX(fType_,X,i)-domain->getOrigin(X) )/domain->getSize(X),
 							( coord->getX(fType_,Y,j)-domain->getOrigin(Y) )/domain->getSize(Y),

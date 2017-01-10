@@ -26,6 +26,7 @@ namespace Pimpact {
 /// - 4: Stabil   (xi >= 2, Re=10000, N=17)
 /// - 5: Stabil  (Re=10000, N=65, leicht gestreckt, explizites Forcing)
 /// - 6: Instabil (äquidistant, Re=10000, N=17)
+/// \todo rm dim, make it same in every direction
 template< int dim, int dimNC >
 class StencilWidths {
 
@@ -219,7 +220,6 @@ protected:
   /// \param bl lower bound of storage
   /// \param bu upper bound of storage
   StencilWidths(
-      //      int dimension,
       TO bl,
       TO bu ):
         bl_(bl),
