@@ -179,24 +179,23 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionVOp ) {
 
 	for(int dir=-1; dir<2; dir+=2 ) {
 		// x test
-		x( Pimpact::F::U ).initField( Pimpact::ConstField, 2.*dir );
-		x( Pimpact::F::V ).initField( Pimpact::ConstField, 2.*dir );
-		x( Pimpact::F::W ).initField( Pimpact::ConstField, 2.*dir );
-		y( Pimpact::F::U ).initField( Pimpact::Grad2D_inX );
-		y( Pimpact::F::V ).initField( Pimpact::Grad2D_inX );
-		y( Pimpact::F::W ).initField( Pimpact::Grad2D_inX );
+		for( Pimpact::F f = Pimpact::F::U; f<SpaceT::sdim; ++ f ) {
+			x( f ).init( 2.*dir );
+			y( f ).initField( Pimpact::Grad2D_inX );
+			z2( f ).init( 2.*dir, Pimpact::B::N );
+		}
 		z.random();
-		z2( Pimpact::F::U ).initField( Pimpact::ConstField, 2.*dir );
-		z2( Pimpact::F::V ).initField( Pimpact::ConstField, 2.*dir );
-		z2( Pimpact::F::W ).initField( Pimpact::ConstField, 2.*dir );
 
 		op->assignField( x );
 		op->apply( y, z );
 
 		z2.add( -1, z2, 1, z );
 
-		std::cout << "error in "<< dir << " (gradX): " << z2.norm( Belos::InfNorm ) << "\n";
-		TEST_EQUALITY( z2.norm( Belos::InfNorm )<eps, true );
+		if( print ) z2.print();
+		ST error = z2.norm(Belos::InfNorm,Pimpact::B::N);
+		if( 0==space->rankST() )
+			std::cout << "\nerror in "<< dir << " (gradX): " << error << "\n";
+		TEST_EQUALITY( error<eps, true );
 
 		// y test
 		x( Pimpact::F::U ).initField( Pimpact::ConstField, 2.*dir );
@@ -215,8 +214,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionVOp ) {
 
 		z2.add( -1, z2, 1, z );
 
-		std::cout << "error in "<< dir << " (gradY): " << z2.norm( Belos::InfNorm ) << "\n";
-		TEST_EQUALITY( z2.norm( Belos::InfNorm )<eps, true );
+		error = z2.norm(Belos::InfNorm,Pimpact::B::N);
+		if( 0==space->rankST() )
+			std::cout << "error in "<< dir << " (gradY): " << error << "\n";
+		TEST_EQUALITY( error<eps, true );
 
 		// z test
 		x( Pimpact::F::U ).initField( Pimpact::ConstField, 2.*dir );
@@ -235,8 +236,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionVOp ) {
 
 		z2.add( -1, z2, 1, z );
 
-		std::cout << "error in "<< dir << " (gradZ): " << z2.norm( Belos::InfNorm ) << "\n";
-		TEST_EQUALITY( z2.norm( Belos::InfNorm )<eps, true );
+		error = z2.norm(Belos::InfNorm,Pimpact::B::N);
+		if( 0==space->rankST() )
+			std::cout << "error in "<< dir << " (gradZ): " << error << "\n";
+		TEST_EQUALITY( error<eps, true );
 	}
 
 	// x test
@@ -254,8 +257,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionVOp ) {
 
 	z2.add( -1, z2, 1, z );
 
-	std::cout << "error in (poisX): " << z2.norm( Belos::InfNorm ) << "\n";
-	TEST_EQUALITY( z2.norm( Belos::InfNorm )<eps, true );
+	ST error = z2.norm(Belos::InfNorm,Pimpact::B::N);
+	if( 0==space->rankST() )
+		std::cout << "error in (poisX): " << error << "\n";
+	TEST_EQUALITY( error<eps, true );
 
 	// y test
 	x.initField();
@@ -272,8 +277,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionVOp ) {
 
 	z2.add( -1, z2, 1, z );
 
-	std::cout << "error in (poisY): " << z2.norm( Belos::InfNorm ) << "\n";
-	TEST_EQUALITY( z2.norm( Belos::InfNorm )<eps, true );
+	error = z2.norm(Belos::InfNorm,Pimpact::B::N);
+	if( 0==space->rankST() )
+		std::cout << "error in (poisY): " << error << "\n";
+	TEST_EQUALITY( error<eps, true );
 
 	// z test
 	x.initField();
@@ -290,8 +297,10 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionVOp ) {
 
 	z2.add( -1, z2, 1, z );
 
-	std::cout << "error in (poisZ): " << z2.norm( Belos::InfNorm ) << "\n";
-	TEST_EQUALITY( z2.norm( Belos::InfNorm, Pimpact::B::N  )<eps, true );
+	error = z2.norm(Belos::InfNorm,Pimpact::B::N);
+	if( 0==space->rankST() )
+		std::cout << "error in (poisZ): " << error << "\n";
+	TEST_EQUALITY( error<eps, true );
 
 }
 

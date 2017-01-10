@@ -189,14 +189,14 @@ public:
 			if( DirichletBC==space()->bcl(Y) ) {
 				Ordinal j = space()->begin(f,Y,B::Y);
 				for( Ordinal k=space()->begin(f,Z,B::Y); k<=space()->end(f,Z,B::Y); ++k )
-					for( Ordinal i=space()->begin(f,X,B::Y); i<=space()->end(f,X,B::Y); ++i ) {
+					for( Ordinal i=space()->begin(f,X,B::N); i<=space()->end(f,X,B::N); ++i ) {
 						y(i,j,k) = x(i,j,k);
 					}
 			}
 			if( DirichletBC==space()->bcu(Y) ) {
 				Ordinal j = space()->end(f,Y,B::Y);
 				for( Ordinal k=space()->begin(f,Z,B::Y); k<=space()->end(f,Z,B::Y); ++k )
-					for( Ordinal i=space()->begin(f,X,B::Y); i<=space()->end(f,X,B::Y); ++i ) {
+					for( Ordinal i=space()->begin(f,X,B::N); i<=space()->end(f,X,B::N); ++i ) {
 						y(i,j,k) = x(i,j,k);
 					}
 			}
@@ -204,14 +204,14 @@ public:
 			if( DirichletBC==space()->bcl(Z) ) {
 				Ordinal k = space()->begin(f,Z,B::Y);
 				for( Ordinal j=space()->begin(f,Y,B::Y); j<=space()->end(f,Y,B::Y); ++j )
-					for( Ordinal i=space()->begin(f,X,B::Y); i<=space()->end(f,X,B::Y); ++i ) {
+					for( Ordinal i=space()->begin(f,X,B::N); i<=space()->end(f,X,B::N); ++i ) {
 						y(i,j,k) = x(i,j,k);
 					}
 			}
 			if( DirichletBC==space()->bcl(Z) ) {
 				Ordinal k = space()->end(f,Z,B::Y);
 				for( Ordinal j=space()->begin(f,Y,B::Y); j<=space()->end(f,Y,B::Y); ++j )
-					for( Ordinal i=space()->begin(f,X,B::Y); i<=space()->end(f,X,B::Y); ++i ) {
+					for( Ordinal i=space()->begin(f,X,B::N); i<=space()->end(f,X,B::N); ++i ) {
 						y(i,j,k) = x(i,j,k);
 					}
 			}
@@ -240,14 +240,14 @@ public:
 		if( F::V==f ) {
 			if( DirichletBC==space()->bcl(X) ) {
 				Ordinal i = space()->begin(f,X,B::Y);
-				for( Ordinal k=space()->begin(f,Z,B::N); k<=space()->end(f,Z,B::N); ++k )
-					for( Ordinal j=space()->begin(f,Y,B::Y); j<=space()->end(f,Y,B::Y); ++j )
+				for( Ordinal k=space()->begin(f,Z,B::Y); k<=space()->end(f,Z,B::Y); ++k )
+					for( Ordinal j=space()->begin(f,Y,B::N); j<=space()->end(f,Y,B::N); ++j )
 						y(i,j,k) = x(i,j,k);
 			}
 			if( DirichletBC==space()->bcu(X) ) {
 				Ordinal i = space()->end(f,X,B::Y);
-				for( Ordinal k=space()->begin(f,Z,B::N); k<=space()->end(f,Z,B::N); ++k )
-					for( Ordinal j=space()->begin(f,Y,B::Y); j<=space()->end(f,Y,B::Y); ++j )
+				for( Ordinal k=space()->begin(f,Z,B::Y); k<=space()->end(f,Z,B::Y); ++k )
+					for( Ordinal j=space()->begin(f,Y,B::N); j<=space()->end(f,Y,B::N); ++j )
 						y(i,j,k) = x(i,j,k);
 			}
 

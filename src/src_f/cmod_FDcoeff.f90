@@ -25,10 +25,10 @@ contains
   !! \param[in] BCU local upper Boundary conditions \c BoundaryConditionsLocal
   !! \param[in] SShift shift in \c ProcGrid
   !! \param[in] grid_type used weridly
-  !!                      - 5 on pressure grid (ConvOp,HelmOp), on same grid
-  !!                      - 1 on velocity grid (ConvOp,HelmOp), on same grid
-  !!                      - 2 on velocity grid (GradOp,IntS2VOp), grid transfer
-  !!                      - 3 on pressure grid (DivOp, IntV2SOp), grid transfer
+  !!                      - 5 on pressure grid S2S(ConvOp,HelmOp), on same grid
+  !!                      - 1 on velocity grid V2V(ConvOp,HelmOp), on same grid
+  !!                      - 2 on velocity grid S2V(GradOp,IntS2VOp), grid transfer
+  !!                      - 3 on pressure grid V2S(DivOp, IntV2SOp), grid transfer
   !! \param[in] dir direction ( 1:x, 2:y, 3:z )
   !! \param[in] abl degree of derivative
   !! \param[in] upwind (0: central, 1: up, -1: low)
@@ -291,13 +291,13 @@ contains
           ! Koeffizienten-Punkte ("iC"):
           iC = i + left + (ii-1)
 
-          if (mapping_yes) then
+          if( mapping_yes )then
             if( grid_type == 2 ) then
-              deltaX(ii) = REAL(iC-i)-0.5
+              deltaX(ii) = real(iC-i,c_double)-0.5
             else if (grid_type == 3) then
-              deltaX(ii) = REAL(iC-i)+0.5
+              deltaX(ii) = real(iC-i,c_double)+0.5
             else
-              deltaX(ii) = REAL(iC-i)
+              deltaX(ii) = real(iC-i,c_double)
             end if
           else
             deltaX(ii) = xC(iC) - xE(i)
@@ -399,15 +399,15 @@ contains
           end if
 
         end if
-        !=======================================================================================
+        !===========================================================================
 
 
         deallocate(deltaX)
 
 
-        !=======================================================================================
-        !=== Symmetrie =========================================================================
-        !=======================================================================================
+        !===========================================================================
+        !=== Symmetrie =============================================================
+        !===========================================================================
         if (BCL == -2 .and. abl == -1 .and. i == iStart) then
           cc(0,i) = 0.5*cc(0,i)
           do ii = cL, -1
@@ -420,8 +420,8 @@ contains
             cc(ii,i) = 0.
           end do
         end if
-        !---------------------------------------------------------------------------------------
-        !---------------------------------------------------------------------------------------
+        !---------------------------------------------------------------------------
+        !---------------------------------------------------------------------------
         ! TEST!!! abl == -1 ???
         if (BCL == -2 .and. (i+cL) < 1) then
           if (grid_type == 5 .or. (grid_type == 2 .and. i >= 1)) then
@@ -437,7 +437,7 @@ contains
             end do
           end if
         end if
-        !---------------------------------------------------------------------------------------
+        !---------------------------------------------------------------------------
         if (BCU == -2 .and. (i+cU) > (Nmax+0)) then
           if (grid_type == 5 .or. (grid_type == 2 .and. i <= Nmax-1)) then
             do ii = 1, i+cU-(Nmax-0)
@@ -454,7 +454,7 @@ contains
             end do
           end if
         end if
-        !=======================================================================================
+        !===========================================================================
 
       end if
 
@@ -701,7 +701,7 @@ contains
     !==========================================================================================
     const = 1.
     do i = 1, abl-1
-      const = const*REAL(1+i)
+      const = const*real(1+i,c_double)
     end do
 
 
@@ -797,7 +797,7 @@ contains
 
 
     !--- Vorwaertsschritt -------------------------------------
-    ! linke Seite umformen in obere Dreiecksmatrix
+    ! linke Seite umformen in obere Dreiecksmatrix============
     ! rechte Seite umformen in untere Dreiecksmatrix
 
     do j = 1, N-1
@@ -840,17 +840,17 @@ contains
         ! Aufaddieren von Zeile j auf aktuelle Zeile i (linke Seite):
         do k = j, N
           ! To avoid underflow:
-          !if( .not. (ABS(mult2) < eps .and. ABS(matrix_left(j,k)) < eps) ) then
+          if( .not. (ABS(mult2) < eps .and. ABS(matrix_left(j,k)) < eps) ) then
             matrix_left(i,k) = matrix_left(i,k) - matrix_left(j,k)*mult2
-          !end if
+          end if
         end do
 
         ! Aufaddieren von Zeile j auf aktuelle Zeile i (rechte Seite):
         do k = 1, N
           ! To avoid underflow:
-          !if (.not. (ABS(mult2) < eps .and. ABS(matrix_inv(j,k)) < eps)) then
+          if (.not. (ABS(mult2) < eps .and. ABS(matrix_inv(j,k)) < eps)) then
             matrix_inv(i,k) = matrix_inv(i,k) - matrix_inv(j,k)*mult2
-          !end if
+          end if
         end do
 
         ! Komponente i,j explizit zu Null setzen:
@@ -880,9 +880,9 @@ contains
         ! Aufaddieren von Zeile j auf aktuelle Zeile i (rechte Seite):
         do k = 1, N
           ! To avoid underflow:
-          !if (.not. (ABS(mult2) < eps .and. ABS(matrix_inv(j,k)) < eps)) then
+          if (.not. (ABS(mult2) < eps .and. ABS(matrix_inv(j,k)) < eps)) then
             matrix_inv(i,k) = matrix_inv(i,k) - matrix_inv(j,k)*mult2
-          !end if
+          end if
         end do
 
         ! nicht-Diagonalelement explizit zu 0 setzen:

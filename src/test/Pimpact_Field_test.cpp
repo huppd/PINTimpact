@@ -424,11 +424,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( ScalarField, initField, SpaceT ) {
 
   Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
-  auto x = Pimpact::createScalarField( space );
+	Pimpact::ScalarField<SpaceT> x( space );
 
   for( int i=0; i<=7; ++i ) {
-    x->initField( Pimpact::EScalarField(i) );
-    x->write( i );
+    x.initField( static_cast<Pimpact::EScalarField>(i) );
+    x.write( i );
   }
 
 }
@@ -443,12 +443,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( ScalarField, level, SpaceT ) {
 
   Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
-  auto x = Pimpact::createScalarField( space );
+	Pimpact::ScalarField<SpaceT> x( space );
 
-	x->init( 1. );
-	x->level();
+	x.init( 1. );
+	x.level();
 
-	ST level = x->norm();
+	ST level = x.norm();
 	if( 0==space()->rankST() )
 		std::cout << "\nlevel: " << level << "\n";
   TEST_EQUALITY( level<eps , true );

@@ -26,7 +26,7 @@ namespace Pimpact {
 /// - 4: Stabil   (xi >= 2, Re=10000, N=17)
 /// - 5: Stabil  (Re=10000, N=65, leicht gestreckt, explizites Forcing)
 /// - 6: Instabil (äquidistant, Re=10000, N=17)
-/// \todo rm dim, make it same in every direction
+/// \todo rm dim, make it same in every direction, necessary change no Fortran bl(3)
 template< int dim, int dimNC >
 class StencilWidths {
 
@@ -139,16 +139,16 @@ protected:
 					break;
 				}
 				case(5): {
-					// Instabil (äquidistant, Re=10000, N=17)
-					// auto tempC = Teuchos::tuple( 5, 6, 6, 7, 9 );
-					// auto tempD = Teuchos::tuple( 5, 4, 6, 8, 8 );
-					// auto tempG = Teuchos::tuple( 0, 5, 4, 6, 8 );
-					// Stabil  (Re=10000, N=65, leicht gestreckt, explizites Forcing)
-					auto tempC = Teuchos::tuple( 3, 7, 7, 7, 9 );
-					auto tempD = Teuchos::tuple( 6, 6, 6, 8, 8 );
-					auto tempG = Teuchos::tuple( 0, 6, 6, 6, 8 );
+					 // Instabil (äquidistant, Re=10000, N=17)
+					 auto tempC = Teuchos::tuple( 5, 6, 6, 7, 9 );
+					 auto tempD = Teuchos::tuple( 5, 4, 6, 8, 8 );
+					 auto tempG = Teuchos::tuple( 0, 5, 4, 6, 8 );
+					 // Stabil  (Re=10000, N=65, leicht gestreckt, explizites Forcing)
+					 //auto tempC = Teuchos::tuple( 3, 7, 7, 7, 9 );
+					 //auto tempD = Teuchos::tuple( 6, 6, 6, 8, 8 );
+					 //auto tempG = Teuchos::tuple( 0, 6, 6, 6, 8 );
 
-					for( int j=0; j<dimNC; ++j ) {
+					 for( int j=0; j<dimNC; ++j ) {
 						ncbC_[i][j] = tempC[j];
 						ncbD_[i][j] = tempD[j];
 						ncbG_[i][j] = tempG[j];
@@ -249,35 +249,35 @@ public:
 
   static constexpr 
 	int BL( const int& i ) { 
-		return( (4==1)?-1:-dimNC+1 );
+		return( (3==i)?-1:-dimNC+1 );
 	}
   static constexpr 
 	int BU( const int& i ) { 
-		return( (4==1)?1:dimNC-1 );
+		return( (3==i)?1:dimNC-1 );
 	}
   static constexpr 
 	int DL( const int& i ) { 
-		return( (4==1)?-1:-dimNC+1 );
+		return( (3==i)?-1:-dimNC+1 );
 	}
   static constexpr 
 	int DU( const int& i ) { 
-		return( (4==1)?1:dimNC-2 );
+		return( (3==i)?1:dimNC-2 );
 	}
   static constexpr 
 	int GL( const int& i ) { 
-		return( (4==1)?-1:-dimNC+2 );
+		return( (3==i)?-1:-dimNC+2 );
 	}
   static constexpr 
 	int GU( const int& i ) { 
-		return( (4==1)?1:dimNC-1 );
+		return( (3==i)?1:dimNC-1 );
 	}
   static constexpr 
 	int NL( const int& i ) { 
-		return( (4==1)?-1:-dimNC+1 );
+		return( (3==i)?-1:-dimNC+1 );
 	}
   static constexpr 
 	int NU( const int& i ) { 
-		return( (4==1)?1:dimNC-1 );
+		return( (3==i)?1:dimNC-1 );
 	}
 
 	constexpr const bool& spectralT() const { return( spectralT_ ); }
@@ -290,34 +290,34 @@ public:
   constexpr const int* getNcbD( const int& i ) const { return( ncbD_[i].getRawPtr() ); }
   constexpr const int* getNcbG( const int& i ) const { return( ncbG_[i].getRawPtr() ); }
 
-  constexpr const int* getBL()               const { return( bl_.getRawPtr() ); }
+	constexpr const int* getBL()               const { return( bl_.getRawPtr() ); }
 	constexpr const int& getBL( const int& i ) const { return( bl_[i] ); }
 
-  constexpr const int* getBU()               const { return( bu_.getRawPtr() ); }
-  constexpr const int& getBU( const int& i ) const { return( bu_[i] ); }
+	constexpr const int* getBU()               const { return( bu_.getRawPtr() ); }
+	constexpr const int& getBU( const int& i ) const { return( bu_[i] ); }
 
-  constexpr const int* getDL()               const { return( dl_.getRawPtr() ); }
-  constexpr const int& getDL( const int& i ) const { return( dl_[i] ); }
-  constexpr const TO&  getDLTuple()          const { return( dl_ ); }
+	constexpr const int* getDL()               const { return( dl_.getRawPtr() ); }
+	constexpr const int& getDL( const int& i ) const { return( dl_[i] ); }
+	constexpr const TO&  getDLTuple()          const { return( dl_ ); }
 
-  constexpr const int* getDU()               const { return( du_.getRawPtr() ); }
-  constexpr const int& getDU( const int& i ) const { return( du_[i] ); }
-  constexpr const TO&  getDUTuple()          const { return( du_ ); }
+	constexpr const int* getDU()               const { return( du_.getRawPtr() ); }
+	constexpr const int& getDU( const int& i ) const { return( du_[i] ); }
+	constexpr const TO&  getDUTuple()          const { return( du_ ); }
 
-  constexpr const int* getGL()               const { return( gl_.getRawPtr() ); }
-  constexpr const int& getGL( const int& i ) const { return( gl_[i] ); }
+	constexpr const int* getGL()               const { return( gl_.getRawPtr() ); }
+	constexpr const int& getGL( const int& i ) const { return( gl_[i] ); }
 
-  constexpr const int* getGU()               const { return( gu_.getRawPtr() ); }
-  constexpr const int& getGU( const int& i ) const { return( gu_[i] ); }
+	constexpr const int* getGU()               const { return( gu_.getRawPtr() ); }
+	constexpr const int& getGU( const int& i ) const { return( gu_[i] ); }
 
-  constexpr const int* getNL()               const { return( nl_.getRawPtr() ); }
-  constexpr const int& getNL( const int& i ) const { return( nl_[i] ); }
+	constexpr const int* getNL()               const { return( nl_.getRawPtr() ); }
+	constexpr const int& getNL( const int& i ) const { return( nl_[i] ); }
 
-  constexpr const int* getNU()               const { return( nu_.getRawPtr() ); }
-  constexpr const int& getNU( const int& i ) const { return( nu_[i] ); }
+	constexpr const int* getNU()               const { return( nu_.getRawPtr() ); }
+	constexpr const int& getNU( const int& i ) const { return( nu_[i] ); }
 
-  constexpr const int* getLS()               const { return( ls_.getRawPtr() ); }
-  constexpr const int& getLS( const int& i ) const { return( ls_[i] ); }
+	constexpr const int* getLS()               const { return( ls_.getRawPtr() ); }
+	constexpr const int& getLS( const int& i ) const { return( ls_[i] ); }
 
 }; // end of class StencilWidths
 

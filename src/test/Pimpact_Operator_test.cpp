@@ -1684,7 +1684,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, InterpolateV2SOp, SpaceT ) {
 			if( write ) p.write( n );
 			if( print ) p.print();
 
-			error2[n] = std::log10( p.norm( Belos::TwoNorm ) / sol.norm( Belos::TwoNorm ) );
+			error2[n]   = std::log10( p.norm( Belos::TwoNorm ) / sol.norm( Belos::TwoNorm ) );
 			errorInf[n] = std::log10( p.norm( Belos::InfNorm ) / sol.norm( Belos::InfNorm ) );
 			dofs[n] = std::log10( 8.*std::pow(2.,n)+1. );
 

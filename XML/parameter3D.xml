@@ -76,7 +76,7 @@
 				</ParameterList>
 				<ParameterList id="13" name="Test 2">
 					<Parameter docString="" id="94" isDefault="false" isUsed="true" name="Test Type" type="string" value="MaxIters" />
-					<Parameter docString="" id="95" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="1" />
+					<Parameter docString="" id="95" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="2" />
 				</ParameterList>
 				<ParameterList id="14" name="Test 3">
 					<Parameter docString="" id="96" isDefault="false" isUsed="true" name="Test Type" type="string" value="Stagnation" />
@@ -240,8 +240,8 @@
 	</ParameterList>
 	<ParameterList id="41" name="Base flow">
 		<ParameterList id="42" name="0 mode">
-			<!--<Parameter docString="" id="191" isDefault="true" isUsed="true" name="Type" type="string" value="Poiseuille" />-->
-			<Parameter docString="" id="291" isDefault="true" isUsed="true" name="Type" type="string" value="Couette" />
+			<Parameter docString="" id="191" isDefault="true" isUsed="true" name="Type" type="string" value="Poiseuille" />
+			<!--<Parameter docString="" id="291" isDefault="true" isUsed="true" name="Type" type="string" value="Couette" />-->
 		</ParameterList>
 		<ParameterList id="43" name="cos mode">
 			<!--<Parameter docString="" id="291" isDefault="true" isUsed="true" name="Type" type="string" value="Couette" />-->

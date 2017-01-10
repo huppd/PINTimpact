@@ -515,107 +515,58 @@ public:
 
 		switch( type ) {
 			case ConstField :
-				initFromFunction( [&para](Scalar,Scalar,Scalar)->const Scalar&{
-						return( para.get<Scalar>( "C", Teuchos::ScalarTraits<Scalar>::zero() ) ); } );
+				init( Teuchos::ScalarTraits<Scalar>::zero() );
 				break;
 			case Grad2D_inX :
-				SF_init_2DGradX(
-						space()->nLoc(),
-						space()->bl(),
-						space()->bu(),
-						space()->sIndB(fType_),
-						space()->eIndB(fType_),
-						space()->getDomainSize()->getSize( X ),
-						space()->getCoordinatesLocal()->getX( X, fType_ ),
-						s_,
-						para.get<Scalar>( "dx", Teuchos::ScalarTraits<Scalar>::one() )	);
-				break;
+				{
+					Scalar a = para.get<Scalar>( "dx", Teuchos::ScalarTraits<Scalar>::one() );
+					initFromFunction( [&a] (Scalar x, Scalar y, Scalar z)->Scalar { return( a*(x-0.5) ); } );
+					break;
+				}
 			case Grad2D_inY :
-				SF_init_2DGradY(
-						space()->nLoc(),
-						space()->bl(),
-						space()->bu(),
-						space()->sIndB(fType_),
-						space()->eIndB(fType_),
-						space()->getDomainSize()->getSize( Y ),
-						space()->getCoordinatesLocal()->getX( Y, fType_ ),
-						s_ ,
-						para.get<Scalar>( "dy", Teuchos::ScalarTraits<Scalar>::one() )	);
-				break;
+				{
+					Scalar a = para.get<Scalar>( "dy", Teuchos::ScalarTraits<Scalar>::one() );
+					initFromFunction( [&a] (Scalar x, Scalar y, Scalar z)->Scalar { return( a*(y-0.5) ); } );
+					break;
+				}
 			case Grad2D_inZ :
-				SF_init_2DGradZ(
-						space()->nLoc(),
-						space()->bl(),
-						space()->bu(),
-						space()->sIndB(fType_),
-						space()->eIndB(fType_),
-						space()->getDomainSize()->getSize( Z ),
-						space()->getCoordinatesLocal()->getX( Z, fType_ ),
-						s_ ,
-						para.get<Scalar>( "dz", Teuchos::ScalarTraits<Scalar>::one() )	);
-				break;
+				{
+					Scalar a = para.get<Scalar>( "dz", Teuchos::ScalarTraits<Scalar>::one() );
+					initFromFunction( [&a] (Scalar x, Scalar y, Scalar z)->Scalar { return( a*(z-0.5) ); } );
+					break;
+				}
 			case Poiseuille2D_inX :
-				SF_init_2DPoiseuilleX(
-						space()->nLoc(),
-						space()->bl(),
-						space()->bu(),
-						space()->sIndB(fType_),
-						space()->eIndB(fType_),
-						space()->getDomainSize()->getSize( X ),
-						space()->getCoordinatesLocal()->getX( X, fType_ ),
-						s_ );
+				initFromFunction( [] (Scalar x, Scalar y, Scalar z)->Scalar { return( 4.*x*(1.-x) ); } );
 				break;
 			case Poiseuille2D_inY :
-				SF_init_2DPoiseuilleY(
-						space()->nLoc(),
-						space()->bl(),
-						space()->bu(),
-						space()->sIndB(fType_),
-						space()->eIndB(fType_),
-						space()->getDomainSize()->getSize( Y ),
-						space()->getCoordinatesLocal()->getX( Y, fType_ ),
-						s_ );
+				initFromFunction( [] (Scalar x, Scalar y, Scalar z)->Scalar { return( 4.*y*(1.-y) ); } );
 				break;
 			case Poiseuille2D_inZ :
-				SF_init_2DPoiseuilleZ(
-						space()->nLoc(),
-						space()->bl(),
-						space()->bu(),
-						space()->sIndB(fType_),
-						space()->eIndB(fType_),
-						space()->getDomainSize()->getSize( Z ),
-						space()->getCoordinatesLocal()->getX( Z, fType_ ),
-						s_ );
+				initFromFunction( [] (Scalar x, Scalar y, Scalar z)->Scalar { return( 4.*z*(1.-z) ); } );
 				break;
 			case FPoint :
-				Scalar xc[3] = { 
-					para.get<Scalar>( "c_x", Teuchos::ScalarTraits<Scalar>::one() ),
-					para.get<Scalar>( "c_y", space()->getDomainSize()->getSize( Y )/2. ),
-					para.get<Scalar>( "c_z", space()->getDomainSize()->getSize( Z )/2. ) };
-				Scalar amp = para.get<Scalar>( "amp", Teuchos::ScalarTraits<Scalar>::one() );
-				Scalar sig[3] = {
-					para.get<Scalar>( "sig_x", 0.2 ),
-					para.get<Scalar>( "sig_y", 0.2 ),
-					para.get<Scalar>( "sig_z", 0.2 ) };
-				SF_init_Vpoint(
-						space()->nLoc(),
-						space()->bl(),
-						space()->bu(),
-						space()->sIndB(fType_),
-						space()->eIndB(fType_),
-						space()->getCoordinatesLocal()->getX( X, fType_ ),
-						space()->getCoordinatesLocal()->getX( Y, fType_ ),
-						space()->getCoordinatesLocal()->getX( Z, fType_ ),
-						xc,
-						amp,
-						sig,
-						s_ );
-				break;
+				{
+					Scalar xc[3] = { 
+						para.get<Scalar>( "c_x", Teuchos::ScalarTraits<Scalar>::one() ),
+						para.get<Scalar>( "c_y", space()->getDomainSize()->getSize( Y )/2. ),
+						para.get<Scalar>( "c_z", space()->getDomainSize()->getSize( Z )/2. ) };
+					Scalar amp = para.get<Scalar>( "amp", Teuchos::ScalarTraits<Scalar>::one() );
+					Scalar sig[3] = {
+						para.get<Scalar>( "sig_x", 0.2 ),
+						para.get<Scalar>( "sig_y", 0.2 ),
+						para.get<Scalar>( "sig_z", 0.2 ) };
+					initFromFunction( [&xc,&amp,&sig] (Scalar x, Scalar y, Scalar z)->Scalar {
+							return( amp*std::exp(
+									-std::pow( (x-xc[0])/sig[0], 2 )
+									-std::pow( (x-xc[1])/sig[1], 2 )
+									-std::pow( (x-xc[2])/sig[2], 2 ) ) ); }
+							);
+					break;
+				}
 		}
 
 		if( !space()->getProcGrid()->participating() ) // not sure why?
-			initFromFunction( [](Scalar,Scalar,Scalar)->Scalar{
-					return( Teuchos::ScalarTraits<Scalar>::zero() ); } );
+			init( Teuchos::ScalarTraits<Scalar>::zero() );
 
 		changed();
 	}
@@ -627,107 +578,60 @@ public:
 
 		switch( fieldType ) {
 			case ConstField :
-				std::fill_n( s_, getStorageSize(), alpha );
-				//initFromFunction( [&alpha](Scalar,Scalar,Scalar)->Scalar&{
-						//return( alpha ); } );
-				break;
+				{
+					init( alpha );
+					break;
+				}
 			case Grad2D_inX :
-				SF_init_2DGradX(
-						space()->nLoc(),
-						space()->bl(),
-						space()->bu(),
-						space()->sIndB(fType_),
-						space()->eIndB(fType_),
-						space()->getDomainSize()->getSize( X ),
-						space()->getCoordinatesLocal()->getX( X, fType_ ),
-						s_,
-						(std::fabs(alpha)<Teuchos::ScalarTraits<Scalar>::eps())?Teuchos::ScalarTraits<Scalar>::one():alpha	);
+				{
+					Scalar a = (std::fabs(alpha)<Teuchos::ScalarTraits<Scalar>::eps())?Teuchos::ScalarTraits<Scalar>::one():alpha;
+					initFromFunction( [&a] (Scalar x, Scalar y, Scalar z)->Scalar { return( a*(x-0.5) ); } );
 				break;
+				}
 			case Grad2D_inY :
-				SF_init_2DGradY(
-						space()->nLoc(),
-						space()->bl(),
-						space()->bu(),
-						space()->sIndB(fType_),
-						space()->eIndB(fType_),
-						space()->getDomainSize()->getSize( Y ),
-						space()->getCoordinatesLocal()->getX( Y, fType_ ),
-						s_ ,
-						(std::fabs(alpha)<Teuchos::ScalarTraits<Scalar>::eps())?Teuchos::ScalarTraits<Scalar>::one():alpha	);
-				break;
+				{
+					Scalar a = (std::fabs(alpha)<Teuchos::ScalarTraits<Scalar>::eps())?Teuchos::ScalarTraits<Scalar>::one():alpha;
+					initFromFunction( [&a] (Scalar x, Scalar y, Scalar z)->Scalar { return( a*(y-0.5) ); } );
+					break;
+				}
 			case Grad2D_inZ :
-				SF_init_2DGradZ(
-						space()->nLoc(),
-						space()->bl(),
-						space()->bu(),
-						space()->sIndB(fType_),
-						space()->eIndB(fType_),
-						space()->getDomainSize()->getSize( Z ),
-						space()->getCoordinatesLocal()->getX( Z, fType_ ),
-						s_ ,
-						(std::fabs(alpha)<Teuchos::ScalarTraits<Scalar>::eps())?Teuchos::ScalarTraits<Scalar>::one():alpha	);
-				break;
+				{
+					Scalar a = (std::fabs(alpha)<Teuchos::ScalarTraits<Scalar>::eps())?Teuchos::ScalarTraits<Scalar>::one():alpha;
+					initFromFunction( [&a] (Scalar x, Scalar y, Scalar z)->Scalar { return( a*(z-0.5) ); } );
+					break;
+				}
 			case Poiseuille2D_inX :
-				SF_init_2DPoiseuilleX(
-						space()->nLoc(),
-						space()->bl(),
-						space()->bu(),
-						space()->sIndB(fType_),
-						space()->eIndB(fType_),
-						space()->getDomainSize()->getSize( X ),
-						space()->getCoordinatesLocal()->getX( X, fType_ ),
-						s_ );
-				break;
+				{
+					initFromFunction( [] (Scalar x, Scalar y, Scalar z)->Scalar { return( 4.*x*(1.-x) ); } );
+					break;
+				}
 			case Poiseuille2D_inY :
-				SF_init_2DPoiseuilleY(
-						space()->nLoc(),
-						space()->bl(),
-						space()->bu(),
-						space()->sIndB(fType_),
-						space()->eIndB(fType_),
-						space()->getDomainSize()->getSize( Y ),
-						space()->getCoordinatesLocal()->getX( Y, fType_ ),
-						s_ );
-				break;
+				{
+					initFromFunction( [] (Scalar x, Scalar y, Scalar z)->Scalar { return( 4.*y*(1.-y) ); } );
+					break;
+				}
 			case Poiseuille2D_inZ :
-				SF_init_2DPoiseuilleZ(
-						space()->nLoc(),
-						space()->bl(),
-						space()->bu(),
-						space()->sIndB(fType_),
-						space()->eIndB(fType_),
-						space()->getDomainSize()->getSize( Z ),
-						space()->getCoordinatesLocal()->getX( Z, fType_ ),
-						s_ );
-				break;
+				{
+					initFromFunction( [] (Scalar x, Scalar y, Scalar z)->Scalar { return( 4.*z*(1.-z) ); } );
+					break;
+				}
 			case FPoint :
-				Scalar xc[3] =
-				{ 
-					Teuchos::ScalarTraits<Scalar>::one(),
-					//				space()->getDomainSize()->getSize( X )/4.,
-					space()->getDomainSize()->getSize( Y )/2.,
-					space()->getDomainSize()->getSize( Z )/2. };
-				Scalar amp = alpha; //2./space()->getDomainSize()->getRe();
-				Scalar sig[3] = { 0.2, 0.2, 0.2 };
-				SF_init_Vpoint(
-						space()->nLoc(),
-						space()->bl(),
-						space()->bu(),
-						space()->sIndB(fType_),
-						space()->eIndB(fType_),
-						space()->getCoordinatesLocal()->getX( X, fType_ ),
-						space()->getCoordinatesLocal()->getX( Y, fType_ ),
-						space()->getCoordinatesLocal()->getX( Z, fType_ ),
-						xc,
-						amp,
-						sig,
-						s_ );
-				break;
+				{
+					Scalar xc[3] = { 0.5, 0.5, 0.5 };
+					Scalar amp = alpha; 
+					Scalar sig[3] = { 0.2, 0.2, 0.2 };
+					initFromFunction( [&xc,&amp,&sig] (Scalar x, Scalar y, Scalar z)->Scalar {
+							return( amp*std::exp(
+									-std::pow( (x-xc[0])/sig[0], 2 )
+									-std::pow( (x-xc[1])/sig[1], 2 )
+									-std::pow( (x-xc[2])/sig[2], 2 ) ) ); }
+							);
+					break;
+				}
 		}
 
 		if( !space()->getProcGrid()->participating() )
-			initFromFunction( [&alpha](Scalar,Scalar,Scalar)->Scalar{
-					return( Teuchos::ScalarTraits<Scalar>::zero() ); } );
+			init( Teuchos::ScalarTraits<Scalar>::zero() );
 		changed();
 	}
 

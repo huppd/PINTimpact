@@ -877,6 +877,22 @@ contains
 
 
 
+  !> \note - Null-Setzen am Rand nicht notwendig!                                                      
+  !!       - Da nur in Richtung der jeweiligen Geschwindigkeitskomponente gemittelt wird, muss nicht   
+  !!         die spezialisierte Helmholtz-Variante aufgerufen werden.                                  
+  !!       - Austauschrichtung ist invers zu ex1, ex2, ex3. Bei mehreren Blöcken wird auch der jeweils 
+  !!         redundante "überlappende" Punkt aufgrund der zu grossen Intervallgrenzen (1:iimax) zwar   
+  !!         berechnet, aber aufgrund des Einweg-Austauschs falsch berechnet! Dieses Vorgehen wurde    
+  !!         bislang aus übersichtsgründen vorgezogen, macht aber eine Initialisierung notwendig.      
+  !!         Dabei werden Intervalle der Form 0:imax anstelle von 1:imax bearbeitet, da hier nur die   
+  !!         das feinste Geschwindigkeitsgitter behandelt wird!                                        
+  !!       - INTENT(inout) ist bei den feinen Gittern notwendig, da Ghost-Werte ausgetauscht werden    
+  !!         müssen.                                                                                   
+  !!       - Zuviele Daten werden ausgetauscht; eigentlich müsste in der Grenzfläche nur jeder 4.      
+  !!         Punkt behandelt werden (4x zuviel!). Leider etwas unschön, könnte aber durch eine         
+  !!         spezialisierte Austauschroutine behandelt werden, da das übergeben von Feldern mit        
+  !!         Intervallen von b1L:(iimax+b1U) nur sehr schlecht funktionieren würde (d.h. mit Um-       
+  !!         kopieren).                                                                                
   subroutine MG_restrictFWV(    &
       dimens,                   &
       dir,                      &
@@ -935,27 +951,8 @@ contains
     integer(c_int)               ::  k, kk
 
 
-    !----------------------------------------------------------------------------------------------------------!
-    ! Anmerkungen: - Null-Setzen am Rand nicht notwendig!                                                      !
-    !              - Da nur in Richtung der jeweiligen Geschwindigkeitskomponente gemittelt wird, muss nicht   !
-    !                die spezialisierte Helmholtz-Variante aufgerufen werden.                                  !
-    !              - Austauschrichtung ist invers zu ex1, ex2, ex3. Bei mehreren Blöcken wird auch der jeweils !
-    !                redundante "überlappende" Punkt aufgrund der zu grossen Intervallgrenzen (1:iimax) zwar   !
-    !                berechnet, aber aufgrund des Einweg-Austauschs falsch berechnet! Dieses Vorgehen wurde    !
-    !                bislang aus übersichtsgründen vorgezogen, macht aber eine Initialisierung notwendig.      !
-    !                Dabei werden Intervalle der Form 0:imax anstelle von 1:imax bearbeitet, da hier nur die   !
-    !                das feinste Geschwindigkeitsgitter behandelt wird!                                        !
-    !              - INTENT(inout) ist bei den feinen Gittern notwendig, da Ghost-Werte ausgetauscht werden    !
-    !                müssen.                                                                                   !
-    !              - Zuviele Daten werden ausgetauscht; eigentlich müsste in der Grenzfläche nur jeder 4.      !
-    !                Punkt behandelt werden (4x zuviel!). Leider etwas unschön, könnte aber durch eine         !
-    !                spezialisierte Austauschroutine behandelt werden, da das übergeben von Feldern mit        !
-    !                Intervallen von b1L:(iimax+b1U) nur sehr schlecht funktionieren würde (d.h. mit Um-       !
-    !                kopieren).                                                                                !
-    !----------------------------------------------------------------------------------------------------------!
 
     ! TEST!!! Test schreiben, um n_gather(:,2) .GT. 1 hier zu vermeiden! Gleiches gilt natürlich für die Interpolation.
-
 
 
     !dd=1
