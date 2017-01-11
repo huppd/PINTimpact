@@ -60,7 +60,6 @@
 /// \ingroup Operator
 /// Operator operate on mode fields: \c Pimpact::ModeField
 #include "Pimpact_DtModeOp.hpp"
-#include "Pimpact_DtLapOp.hpp"
 #include "Pimpact_EddyPrec.hpp"
 #include "Pimpact_ModeOpWrap.hpp"
 
