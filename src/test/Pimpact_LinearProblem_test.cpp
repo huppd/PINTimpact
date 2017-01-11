@@ -97,53 +97,6 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 
 
 
-//TEUCHOS_UNIT_TEST( BelosSolver, DtLapOp ) {
-//
-//
-//  typedef Pimpact::VectorField<SpaceT> VF;
-//  typedef Pimpact::ModeField<VF> MVF;
-//  typedef Pimpact::MultiField<MVF> BVF;
-//
-//  typedef Pimpact::OperatorBase<BVF> OpBase;
-//
-//  typedef OpBase  BOp;
-//
-//  auto space = Pimpact::create<SpaceT>( pl );
-//
-//  auto b = Pimpact::createInitMVF( Pimpact::Streaming2DFlow, space );
-//  auto x = Pimpact::createInitMVF( Pimpact::Zero2DFlow, space );
-//
-//
-//  auto op = Pimpact::createMultiOperatorBase( Pimpact::createDtLapOp(space) );
-//
-//  auto para = Pimpact::createLinSolverParameter("GMRES",eps);
-//
-//  Belos::SolverFactory<ST, BVF, BOp > factory;
-//  // Make an empty new parameter list.
-//
-//  // Create the GMRES solver.
-//  Teuchos::RCP<Belos::SolverManager<ST, BVF, BOp > > solver =
-//      factory.create( "GMRES", para );
-//
-//  // Create a LinearProblem struct with the problem to solve.
-//  // A, X, B, and M are passed by (smart) pointer, not copied.
-//  Teuchos::RCP<Belos::LinearProblem<ST, BVF, BOp > > problem =
-//      Teuchos::rcp (new Belos::LinearProblem<ST, BVF, BOp > (op, x, b));
-//
-//  problem->setProblem(x,b);
-//
-//  // Tell the solver what problem you want to solve.
-//  solver->setProblem( problem );
-//
-//  solver->solve();
-//  TEST_EQUALITY( solver->achievedTol()<eps, true );
-//
-//  x->write(20);
-//
-//}
-
-
-
 TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
 
   typedef Pimpact::ScalarField<SpaceT> SF;

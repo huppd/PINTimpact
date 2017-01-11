@@ -205,7 +205,9 @@ int main(int argi, char** argv ) {
 	// init Belos operators
 	auto H  =
 		Pimpact::createMultiOperatorBase(
-				Pimpact::createDtLapOp( space, alpha2, 1./re ) );
+				Pimpact::createAdd2Op(
+					Pimpact::create<Pimpact::DtModeOp>( space ),
+					Pimpact::createModeOpWrap( Pimpact::create<Pimpact::HelmholtzOp>( space ) ) ) );
 
 
 	// create choosen preconditioner

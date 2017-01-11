@@ -1164,7 +1164,6 @@ contains
     ! vel(S1U:N1U,S2U:N2U,S3U:N3U,1)
     ! vel(S1V:N1V,S2V:N2V,S3V:N3V,2)
     ! vel(S1W:N1W,S2W:N2W,S3W:N3W,3)
-    !
 
     pi = 4.*atan(1.)
 
