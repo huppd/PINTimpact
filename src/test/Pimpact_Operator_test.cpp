@@ -130,6 +130,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, InterpolateV2SOp, SpaceT ) {
 
   auto space = Pimpact::create<SpaceT>( pl );
 
+	if( print ) space->print();
+
 	Pimpact::ScalarField<SpaceT> p( space );
 	Pimpact::ScalarField<SpaceT> sol( space );
 	Pimpact::VectorField<SpaceT> vel( space );
@@ -1298,22 +1300,18 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
 }
 
 using JT2D   = Pimpact::DivGradO2JSmoother< Pimpact::DivGradO2Op<D2> >;
-using SORT2D = Pimpact::DivGradO2SORSmoother< Pimpact::DivGradO2Op<D2> >;
 using CheT2D = Pimpact::Chebyshev< Pimpact::DivGradO2Op<D2> >;
 using LT2D   = Pimpact::DivGradO2LSmoother< Pimpact::DivGradO2Op<D2> >;
 
 using JT3D   = Pimpact::DivGradO2JSmoother< Pimpact::DivGradO2Op<D3> >;
-using SORT3D = Pimpact::DivGradO2SORSmoother< Pimpact::DivGradO2Op<D3> >;
 using CheT3D = Pimpact::Chebyshev< Pimpact::DivGradO2Op<D3> >;
 using LT3D   = Pimpact::DivGradO2LSmoother< Pimpact::DivGradO2Op<D3> >;
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( BasicOperator, DivGradO2Smoother, JT2D   )
-//TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( BasicOperator, DivGradO2Smoother, SORT2D ) // deprecatedno eps scaling
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( BasicOperator, DivGradO2Smoother, CheT2D )
 //TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( BasicOperator, DivGradO2Smoother, LT2D   ) // debug this
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( BasicOperator, DivGradO2Smoother, JT3D   )
-//TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( BasicOperator, DivGradO2Smoother, SORT3D ) // deprecatedno eps scaling
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( BasicOperator, DivGradO2Smoother, CheT3D )
 //TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( BasicOperator, DivGradO2Smoother, LT3D   ) // debug this
 

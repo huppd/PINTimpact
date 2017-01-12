@@ -49,7 +49,6 @@ template<class T> using InterVF = Pimpact::VectorFieldOpWrap<Pimpact::Interpolat
 
 template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
 template<class T> using POP = Pimpact::PrecInverseOp< T, Pimpact::DivGradO2JSmoother >;
-template<class T> using POP2 = Pimpact::PrecInverseOp< T, Pimpact::DivGradO2SORSmoother >;
 
 
 using DGJMGT2D = Pimpact::MultiGrid<
@@ -82,31 +81,7 @@ using DGJMGT3D = Pimpact::MultiGrid<
 	//Pimpact::DivGradO2JSmoother >;
 	Pimpact::DivGradO2Inv >;
 
-using DGSORMGT2D = Pimpact::MultiGrid<
-	Spaces2D,
-	Pimpact::ScalarField,
-	Pimpact::TransferOp,
-	Pimpact::RestrictionSFOp,
-	Pimpact::InterpolationOp,
-	Pimpact::DivGradOp,
-	Pimpact::DivGradO2Op,
-	Pimpact::DivGradO2SORSmoother,
-	MOP >;
-//Pimpact::DivGradO2SORSmoother >;
-//Pimpact::DivGradO2Inv >;
 
-using DGSORMGT3D = Pimpact::MultiGrid<
-	Spaces3D,
-	Pimpact::ScalarField,
-	Pimpact::TransferOp,
-	Pimpact::RestrictionSFOp,
-	Pimpact::InterpolationOp,
-	Pimpact::DivGradOp,
-	Pimpact::DivGradO2Op,
-	Pimpact::DivGradO2SORSmoother,
-	MOP >;
-//Pimpact::DivGradO2SORSmoother >;
-//Pimpact::DivGradO2Inv >;
 
 using DGLMGT2D = Pimpact::MultiGrid<
 	Spaces2D,
@@ -1279,12 +1254,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, DivGradOp, CS, MGT ) {
 
 
 //TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG2D, DGJMGT2D )
-//TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG2D, DGSORMGT2D )
 //TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG2D, DGLMGT2D )
 //TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG2D, DGCMGT2D )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG3D, DGJMGT3D )
-TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG3D, DGSORMGT3D )
 TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG3D, DGLMGT3D )
 TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG3D, DGCMGT3D )
 

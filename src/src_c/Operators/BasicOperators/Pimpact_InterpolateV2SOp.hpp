@@ -75,30 +75,9 @@ public:
 		for( int i=0; i<sdim; ++i ) {
 
 			c_[i]  = Stenc( gridSizeLocal->get(i) );
-			//cm_[i] = Stenc( gridSizeLocal->get(i) );
 
 			F fi = static_cast<F>( i );
 			
-			//FD_getDiffCoeff(
-					//gridSizeLocal->get(i),
-					//stencilWidths->getBL(i),
-					//stencilWidths->getBU(i),
-					//stencilWidths->getDL(i),
-					//stencilWidths->getDU(i),
-					//boundaryConditionsLocal->getBCL(i),
-					//boundaryConditionsLocal->getBCU(i),
-					//indexSpace->getShift(i),
-					//3,
-					//i+1,  // direction
-					//0,    // 0-derivative
-					//0,    // central
-					////true, // not working with stretching mapping
-					//false, // not working with stretching mapping
-					//stencilWidths->getDimNcbD(i),
-					//stencilWidths->getNcbD(i),
-					//coordinatesLocal->getX( i, fi ),
-					//coordinatesLocal->getX( i, F::S ),
-					//cm_[i].get() );
 			FD_getDiffCoeff(
 					gridSizeLocal->get(i),
 					stencilWidths->getBL(i),

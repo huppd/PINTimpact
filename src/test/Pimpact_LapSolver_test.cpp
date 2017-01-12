@@ -74,9 +74,6 @@ template<class T> using BSM = Pimpact::MultiOpWrap< Pimpact::DivGradO2JSmoother<
 template<class T> using ConvDiffOpT =
 	Pimpact::NonlinearOp<Pimpact::ConvectionDiffusionSOp<T> >;
 
-template<class T> using ConvDiffSORT =
-	Pimpact::NonlinearSmoother<T,Pimpact::ConvectionDiffusionSORSmoother >;
-
 template<class T> using ConvDiffJT =
 	Pimpact::NonlinearSmoother<T,Pimpact::ConvectionDiffusionJSmoother >;
 
@@ -86,7 +83,6 @@ template<class T> using InterVF = Pimpact::VectorFieldOpWrap<Pimpact::Interpolat
 
 template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
 template<class T> using POP = Pimpact::PrecInverseOp< T, Pimpact::DivGradO2JSmoother >;
-template<class T> using POP2 = Pimpact::PrecInverseOp< T, Pimpact::DivGradO2SORSmoother >;
 
 
 using DGJMGT = Pimpact::MultiGrid<
@@ -101,16 +97,6 @@ using DGJMGT = Pimpact::MultiGrid<
 	Pimpact::DivGradO2JSmoother,
 	Pimpact::DivGradO2Inv >;
 
-using DGSORMGT = Pimpact::MultiGrid<
-	MGSpacesT,
-	Pimpact::ScalarField,
-	Pimpact::TransferOp,
-	Pimpact::RestrictionSFOp,
-	Pimpact::InterpolationOp,
-	Pimpact::DivGradOp,
-	Pimpact::DivGradO2Op,
-	Pimpact::DivGradO2SORSmoother,
-	Pimpact::DivGradO2Inv >;
 
 using DGLMGT = Pimpact::MultiGrid<
 	MGSpacesT,
@@ -276,7 +262,6 @@ TEUCHOS_UNIT_TEST( bla, bla  ) {
 			Pimpact::DivGradOp,
 			Pimpact::DivGradO2Op,
 			//Pimpact::DivGradO2JSmoother,
-			//Pimpact::DivGradO2SORSmoother,
 			//Pimpact::DivGradO2LSmoother,
 			Pimpact::Chebyshev,
 			Pimpact::DivGradO2Inv

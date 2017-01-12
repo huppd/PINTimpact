@@ -346,13 +346,14 @@ TEUCHOS_UNIT_TEST( Space, CoordinatesGlobal ) {
 	Teuchos::RCP< const Pimpact::Space<ST,OT,sd,4,dNC> > space =
 		Pimpact::create< Pimpact::Space<ST,OT,sd,4,dNC> >( pl );
 
-	space->print();
+	//space->print();
 
 	auto coord = space->getCoordinatesGlobal();
 
-	if( space->rankST()==rank )
+	if( space->rankST()==0 )
 		coord->print();
 
+	space->getInterpolateV2S()->print();
 	auto gsg = space->getGridSizeGlobal();
 
 	auto gridSizeGlobal =
@@ -367,8 +368,8 @@ TEUCHOS_UNIT_TEST( Space, CoordinatesGlobal ) {
 				gridSizeGlobal,
 				coord );
 
-	if( space->rankST()==rank )
-		cordc->print();
+	//if( space->rankST()==0 )
+		//cordc->print();
 }
 
 
