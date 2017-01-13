@@ -157,7 +157,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, InterpolateV2SOp, SpaceT ) {
 
 			ST error = sol.norm( Belos::InfNorm );
 			if( 0==space->rankST() ) std::cout << "field " << i <<
-				", error("<< Pimpact::toString(type) <<"): " << error << "\n";
+				", error("<< type <<"): " << error << "\n";
 			TEST_EQUALITY( error<eps, true );
 			if( error>= eps ){
 				std::string r = std::to_string( static_cast<long long>( rank ) ); // long long needed on brutus(intel)
@@ -209,7 +209,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, InterpolateS2VOp, SpaceT ) {
 
 			ST error = sol.norm( Belos::InfNorm );
 			if( 0==rank ) std::cout << "field " << i
-					<< ", error("<<Pimpact::toString(type)<<"): "
+					<< ", error("<< type <<"): "
 					<< error << "\n";
 
 			TEST_EQUALITY( error<eps, true );
@@ -1008,7 +1008,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Op, SpaceT ) {
 		errInf = x2.norm( Belos::InfNorm );
 		err2 = x2.norm( Belos::TwoNorm )/std::sqrt( x2.getLength() );
 		if( 0==rank )
-			std::cout << "consistency error("+Pimpact::toString(type)+"): inf: " << errInf << ", two: " << err2 << "\n";
+			std::cout << "consistency error(" << type << "): inf: " << errInf << ", two: " << err2 << "\n";
 		TEST_EQUALITY( errInf<eps, true );
 		TEST_EQUALITY( err2<eps, true );
 		if( errInf>=eps && err2>=eps ) {
@@ -1160,7 +1160,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
 	for( int i=0; i<SType::SpaceT::sdim; ++i ) {
 		ev->computeEV( static_cast<Pimpact::ECoord>(i), evMax, evMin );
 		if( 0==rank )	
-			std::cout << Pimpact::toString( static_cast<Pimpact::ECoord>(i) ) << ": "
+			std::cout << static_cast<Pimpact::ECoord>(i) << ": "
 				<< evMax << "\t" <<evMin << "\n";
 	}
 
@@ -1247,7 +1247,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Smoother, SType ) {
 		//ST errP =1.;
 
 		if( 0==rank ) {
-			std::cout << "\n\n\t\t\t--- " << Pimpact::toString(type) << " test ---\n";
+			std::cout << "\n\n\t\t\t--- " << type << " test ---\n";
 			std::cout << "\tresidual:\trate:\t\t\terror:\t\trate:\n";
 			std::cout << "\t"  << 1.<< "\t\t\t\t" << 1.  << "\n";
 		}
@@ -1324,11 +1324,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Inv, SpaceT ) {
 
   auto space = Pimpact::create<SpaceT>( pl );
 
-	Teuchos::RCP< Pimpact::ScalarField<SpaceT> > x =
-		Pimpact::create<Pimpact::ScalarField>( space );
-
+	Pimpact::ScalarField<SpaceT> x ( space );
 	Pimpact::ScalarField<SpaceT> xp( space );
-	Teuchos::RCP< Pimpact::ScalarField<SpaceT> > b = x->clone();
+	Pimpact::ScalarField<SpaceT> b ( space );
 
   auto op = Pimpact::create<Pimpact::DivGradO2Op>( space );
 
@@ -1341,20 +1339,21 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Inv, SpaceT ) {
 
   // --- consistency test ---
 	for( int field=0; field<=(domain!=1?6:0); ++field ) {
-		x->initField( static_cast<Pimpact::EScalarField>(field) );
-		x->level();
+		x.initField( static_cast<Pimpact::EScalarField>(field) );
+		x.level();
 		xp.random();
 
-		op->apply( *x, *b );
-		solver->apply( *b, xp );
+		op->apply( x, b );
+		solver->apply( b, xp );
 
-		xp.add( 1., xp, -1., *x );
+		xp.add( 1., xp, -1., x );
 		xp.level();
 
 		ST err2 = xp.norm( Belos::InfNorm )/std::sqrt( static_cast<ST>(xp.getLength()) );
 		ST errInf = xp.norm( Belos::InfNorm );
 		if( errInf>=eps ) {
 			if( write ) xp.write();
+			if( print ) xp.print();
 			//std::cout << "rank: " << rank << "\te: " << xp.norm( Belos::InfNorm, false ) << "\n";
 			//if( 0==rank )
 				//xp.print();
@@ -1362,7 +1361,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Inv, SpaceT ) {
 
 
 		if( 0==rank )
-			std::cout << "consistency for " << Pimpact::toString(static_cast<Pimpact::EScalarField>(field)) << ": ||" << err2 << "||_2, ||" << errInf << "||_inf\n";
+			std::cout << "consistency for " << static_cast<Pimpact::EScalarField>(field) << ": ||" << err2 << "||_2, ||" << errInf << "||_inf\n";
 
 		if( npx*npy*npz==1 ) {
 			TEST_EQUALITY( err2<eps, true );
@@ -1372,7 +1371,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, DivGradO2Inv, SpaceT ) {
 
 }
 
-//TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( BasicOperator, DivGradO2Inv, D2 ) /// \todo has DivGradO2Inv from dim==2 has to be fixed.
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( BasicOperator, DivGradO2Inv, D2 )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( BasicOperator, DivGradO2Inv, D3 )
 
 
@@ -1410,11 +1409,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiOperator, Add2Op, SpaceT ) {
 	setParameter( SpaceT::sdim );
 
 	auto space = Pimpact::create<SpaceT>( pl );
-
-	using Teuchos::ParameterList;
-	using Teuchos::parameterList;
-	using Teuchos::RCP;
-	using Teuchos::rcp; // Save some typing
 
 	auto velx = Pimpact::create<Pimpact::VectorField>(space);
 
@@ -1595,11 +1589,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, DivOp, SpaceT ) {
 		// compute order
 		ST order2 = order<ST>( dofs, error2 );
 		if( 0==rank )	
-			std::cout << "DivOp: order two norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << order2 << "\n";
+			std::cout << "DivOp: order two norm in "<< static_cast<Pimpact::ECoord>(dir) << "-dir: " << order2 << "\n";
 
 		ST orderInf = order<ST>( dofs, errorInf );
 		if( 0==rank )	
-			std::cout << "DivOp: order inf norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << orderInf << "\n";
+			std::cout << "DivOp: order inf norm in "<< static_cast<Pimpact::ECoord>(dir) << "-dir: " << orderInf << "\n";
 		// test
 		TEST_EQUALITY( -order2>3., true );
 		TEST_EQUALITY( -orderInf>3., true );
@@ -1788,11 +1782,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, InterpolateS2VOp, SpaceT ) {
 		// compute order
 		ST order2 = order<ST>( dofs, error2 );
 		if( 0==rank )	
-			std::cout << "InterpolateS2V: order two norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << order2 << "\n";
+			std::cout << "InterpolateS2V: order two norm in "<< static_cast<Pimpact::ECoord>(dir) << "-dir: " << order2 << "\n";
 
 		ST orderInf = order<ST>( dofs, errorInf );
 		if( 0==rank )	
-			std::cout << "InterpolateS2V: order inf norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << orderInf << "\n";
+			std::cout << "InterpolateS2V: order inf norm in "<< static_cast<Pimpact::ECoord>(dir) << "-dir: " << orderInf << "\n";
 		// test
 		TEST_EQUALITY( -order2  >4., true );
 		TEST_EQUALITY( -orderInf>3.9, true );
@@ -1880,11 +1874,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, extrapolateBC, SpaceT ) {
 			// compute order
 			ST order2 = order<ST>( dofs, error2 );
 			if( 0==rank )	
-				std::cout << "extrapolateBC: order two norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << order2 << "\n";
+				std::cout << "extrapolateBC: order two norm in "<< static_cast<Pimpact::ECoord>(dir) << "-dir: " << order2 << "\n";
 
 			ST orderInf = order<ST>( dofs, errorInf );
 			if( 0==rank )	
-				std::cout << "extrapolateBC: order inf norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << orderInf << "\n";
+				std::cout << "extrapolateBC: order inf norm in "<< static_cast<Pimpact::ECoord>(dir) << "-dir: " << orderInf << "\n";
 			// test
 			TEST_EQUALITY( -order2  >3., true );
 			TEST_EQUALITY( -orderInf>3., true );
@@ -1998,11 +1992,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, GradOp, SpaceT ) {
 		// compute order
 		ST order2 = order<ST>( dofs, error2 );
 		if( 0==rank )	
-			std::cout << "GradOp: order two norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << order2 << "\n";
+			std::cout << "GradOp: order two norm in "<< static_cast<Pimpact::ECoord>(dir) << "-dir: " << order2 << "\n";
 
 		ST orderInf = order<ST>( dofs, errorInf );
 		if( 0==rank )	
-			std::cout << "GradOp: order inf norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << orderInf << "\n";
+			std::cout << "GradOp: order inf norm in "<< static_cast<Pimpact::ECoord>(dir) << "-dir: " << orderInf << "\n";
 		// test
 		TEST_EQUALITY( -order2  >3., true );
 		TEST_EQUALITY( -orderInf>3., true );
@@ -2184,19 +2178,19 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, DivGradOp, OperatorT ) {
 		// compute order
 		ST order2 = order<ST>( dofs, error2 );
 		if( 0==rank )	
-			std::cout << label << ": order two norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << order2 << "\n";
+			std::cout << label << ": order two norm in "<< static_cast<Pimpact::ECoord>(dir) << "-dir: " << order2 << "\n";
 
 		ST orderInf = order<ST>( dofs, errorInf );
 		if( 0==rank )	
-			std::cout << label << ": order inf norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << orderInf << "\n";
+			std::cout << label << ": order inf norm in "<< static_cast<Pimpact::ECoord>(dir) << "-dir: " << orderInf << "\n";
 
 		ST order2Ref = order<ST>( dofs, error2Ref );
 		if( 0==rank )	
-			std::cout << label << ": ref order two norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << order2Ref << "\n";
+			std::cout << label << ": ref order two norm in "<< static_cast<Pimpact::ECoord>(dir) << "-dir: " << order2Ref << "\n";
 
 		ST orderInfRef = order<ST>( dofs, errorInfRef );
 		if( 0==rank )	
-			std::cout << label << ": ref order inf norm in "<< Pimpact::toString(static_cast<Pimpact::ECoord>(dir)) << "-dir: " << orderInfRef << "\n";
+			std::cout << label << ": ref order inf norm in "<< static_cast<Pimpact::ECoord>(dir) << "-dir: " << orderInfRef << "\n";
 		// test
 		TEST_EQUALITY( -order2  >2., true );
 		TEST_EQUALITY( -orderInf>2., true );
@@ -2332,7 +2326,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, HelmholtzOp, SpaceT ) {
 
 				auto op = Pimpact::create<Pimpact::HelmholtzOp>( space );
 
-				op->apply(  x, y );
+				op->apply( x, y );
 
 				// compute error
 				if( print ) y.print();

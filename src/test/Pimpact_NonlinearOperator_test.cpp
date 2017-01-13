@@ -25,6 +25,8 @@ namespace {
 
 const int sd = 3;
 
+const ST pi2 = std::atan(1.)*8.;
+
 using SpaceT = Pimpact::Space<ST,OT,sd,d,dNC>;
 
 using SF = typename Pimpact::ScalarField<SpaceT>;
@@ -35,7 +37,15 @@ using MVF = typename Pimpact::ModeField<VF>;
 template<class T>
 using ConvDiffOpT = Pimpact::NonlinearOp<Pimpact::ConvectionDiffusionSOp<T> >;
 template<class T>
+using ConvDiffJT = Pimpact::NonlinearSmoother<T,Pimpact::ConvectionDiffusionJSmoother >;
+template<class T>
 using ConvDiffSORT = Pimpact::NonlinearSmoother<T,Pimpact::ConvectionDiffusionSORSmoother >;
+
+
+using ConvDiffOp3D = Pimpact::NonlinearOp<Pimpact::ConvectionDiffusionSOp<D3> >;
+
+using ConvDiffJ3D = Pimpact::NonlinearSmoother<ConvDiffOp3D,Pimpact::ConvectionDiffusionJSmoother >;
+using ConvDiffSOR3D = Pimpact::NonlinearSmoother<ConvDiffOp3D,Pimpact::ConvectionDiffusionSORSmoother >;
 
 
 
@@ -600,11 +610,11 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionSORSmoother ) {
 
 
 
-TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, ConvectionDiffusion, SType ) {
 
-	setParameter( SpaceT::sdim );
+	setParameter( SType::SpaceT::sdim );
 
-  auto space = Pimpact::create<SpaceT>( pl );
+  auto space = Pimpact::create<typename SType::SpaceT>( pl );
 
   auto op = Pimpact::create<ConvDiffOpT>( space );
 
@@ -613,20 +623,22 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
 	//pls->set( "omega", 0.5 );
 	pls->set( "numIters", 1 );
 
-  auto smoother =
-      Pimpact::create<
-        Pimpact::NonlinearSmoother<
-          ConvDiffOpT<SpaceT> ,
-          Pimpact::ConvectionDiffusionJSmoother > > (
-              op,
-              pls );
+	auto smoother = Pimpact::create<SType>( op, pls );
 
 	//  init wind
 	{
+
 		Pimpact::VectorField<SpaceT> wind( space );
-		wind(Pimpact::F::U).initField( Pimpact::ConstField, 1. );
-		wind(Pimpact::F::V).initField( Pimpact::ConstField, 1. );
-		wind(Pimpact::F::W).initField( Pimpact::ConstField, 1. );
+
+		auto windfunc = [&pi2]( ST x ) -> ST {
+			return( -std::cos(pi2*x/2) );
+		};
+		wind(Pimpact::F::U).initFromFunction(
+				[&windfunc]( ST x, ST y, ST z) ->ST { return( windfunc(x) ); } );
+		wind(Pimpact::F::V).initFromFunction(
+				[&windfunc]( ST x, ST y, ST z) ->ST { return( windfunc(y) ); } );
+		wind(Pimpact::F::W).initFromFunction(
+				[&windfunc]( ST x, ST y, ST z) ->ST { return( windfunc(z) ); } );
 
 		op->assignField( wind );
 	}
@@ -640,13 +652,14 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
 	Pimpact::VectorField<SpaceT> y( space );
 
 	// Consistency
-	auto xs = x.clone( Pimpact::ECopy::Deep ); 
+	Pimpact::VectorField<SpaceT> xs( space );
+	xs = x;
 	op->apply( x, y );
 
 	smoother->apply( y, x );
-	x.write(1);
-	xs->write(2);
-	x.add( 1., *xs, -1., x );
+	//x.write(1);
+	//xs.write(2);
+	x.add( 1., xs, -1., x );
 	//x.abs( x );
 	ST error0 = x.norm( Belos::InfNorm );
 	if( space()->rankST()==0 )
@@ -661,15 +674,17 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
 	error0 = x.norm( Belos::InfNorm );
 	ST error;
 	if( space()->rankST()==0 )
-		std::cout << "\nerror: " << error0 << "\n";
+		std::cout << "\ninit error: " << error0 << "\n\n";
 
+	if( space()->rankST()==0 )
+		std::cout << "error:\n" << 1. << "\n";
 	//x.write( 0 );
   for(int i=0; i<ns; ++i) {
     smoother->apply( y, x );
 
     error = x.norm( Belos::InfNorm )/error0;
     if( space()->rankST()==0 )
-      std::cout << "error: " << error << "\n";
+      std::cout << error << "\n";
 
 		if( write ) x.write( i+1 );
   }
@@ -677,6 +692,9 @@ TEUCHOS_UNIT_TEST( BasicOperator, ConvectionDiffusionJSmoother ) {
   TEST_EQUALITY_CONST( error<0.1, true );
 }
 
+
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( BasicOperator, ConvectionDiffusion, ConvDiffJ3D ) 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( BasicOperator, ConvectionDiffusion, ConvDiffSOR3D )
 
 
 

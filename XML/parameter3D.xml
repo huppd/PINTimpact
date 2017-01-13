@@ -1,8 +1,7 @@
 <ParameterList id="0" name="ANONYMOUS">
 	<ParameterList id="1" name="Space">
-		<Parameter docString="Reynolds number" id="48" isDefault="false" isUsed="true" name="Re" type="double" value="1.00000000000000000e+02" />
+		<Parameter docString="Reynolds number" id="48" isDefault="false" isUsed="true" name="Re" type="double" value="1.00000000000000000e-02" />
 		<Parameter docString="Womersley square alpha^2" id="49" isDefault="false" isUsed="true" name="alpha2" type="double" value="2.51327412287183449e+02" />
-		
   <ParameterList id="2" name="boundary conditions">
     <Parameter docString="" id="50" isDefault="false" isUsed="true" name="lower X" type="int" value="1" />
     <Parameter docString="" id="51" isDefault="false" isUsed="true" name="upper X" type="int" value="1" />
@@ -24,9 +23,9 @@
 		<Parameter docString="amount of processors in f-direction" id="67" isDefault="false" isUsed="true" name="npf" type="int" value="1" />
 		<Parameter docString="" id="68" isDefault="true" isUsed="true" name="spectral in time" type="bool" value="true" />
 		<ParameterList id="3" name="Stretching in X">
-			<!--<Parameter docString="" id="996" isDefault="false" isUsed="true" name="Stretch Type" type="string" value="cos" />-->
-			<!--<Parameter docString="" id="927" isDefault="true" isUsed="true" name="N metr U" type="double" value="16.5" />-->
-			<!--<Parameter docString="" id="937" isDefault="true" isUsed="true" name="N metr L" type="double" value="16.5" />-->
+			<Parameter docString="" id="996" isDefault="false" isUsed="true" name="Stretch Type" type="string" value="cos" />
+			<Parameter docString="" id="927" isDefault="true" isUsed="true" name="N metr U" type="double" value="16.5" />
+			<Parameter docString="" id="937" isDefault="true" isUsed="true" name="N metr L" type="double" value="16.5" />
 		</ParameterList>
 		<ParameterList id="4" name="Stretching in Y">
 			<!--<Parameter docString="" id="69" isDefault="false" isUsed="true" name="Stretch Type" type="string" value="para" />-->
@@ -125,6 +124,7 @@
 		<Parameter docString="" id="118" isDefault="true" isUsed="true" name="Solver name" type="string" value="Flexible GMRES" />
 		<!--<Parameter docString="" id="118" isDefault="true" isUsed="true" name="Solver name" type="string" value="GMRES" />-->
 		<Parameter docString="" id="119" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
+		<Parameter docString="" id="921" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="false" />
 		<ParameterList id="24" name="Solver">
 			<Parameter docString="" id="120" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.000000000000000e-01" />
 			<Parameter docString="" id="121" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
@@ -193,7 +193,7 @@
 		</ParameterList>
 		<ParameterList id="36" name="Solver">
 			<Parameter docString="" id="159" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="20" />
-			<Parameter docString="" id="160" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.00000000000000000e-04" />
+			<Parameter docString="" id="160" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.00000000000000000e-01" />
 			<Parameter docString="" id="161" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
 			<Parameter docString="" id="162" isDefault="false" isUsed="true" name="Timer Label" type="string" value="ConvectionDiffusionVOp" />
 			<Parameter docString="" id="163" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="-1" />

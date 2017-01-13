@@ -36,7 +36,7 @@ protected:
 
 	bool levelYes_;
 
-	const Teuchos::RCP<const TeuchosSolver<OperatorT> > solver_;
+	const TeuchosSolver<OperatorT> solver_;
 
 public:
 
@@ -48,13 +48,13 @@ public:
 	DivGradO2Inv( const Teuchos::RCP<const OperatorT>& op,
 			const Teuchos::RCP<Teuchos::ParameterList>& pl=Teuchos::parameterList() ):
 		levelYes_( pl->get<bool>( "level", false ) ),
-		solver_( Teuchos::rcp( new TeuchosSolver<OperatorT>( op ) ) ) { }
+		solver_( op ) { }
 
 
 	/// \f[ y_k = (1-\omega) y_k + \omega D^{-1}( x - N y_k ) \f]
 	void apply( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::N ) const {
 
-		solver_->apply( x, y );
+		solver_.apply( x, y );
 
 		if( levelYes_ )
 			y.level();
@@ -64,13 +64,13 @@ public:
 
 	bool hasApplyTranspose() const { return( false ); }
 
-	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(solver_->getOperator()->space()); };
+	constexpr const Teuchos::RCP<const SpaceT>& space() const { return( solver_.getOperator()->space() ); };
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
 
 	void print( std::ostream& out=std::cout ) const {
 		out << "--- " << getLabel() << " ---\n";
-		solver_->getOperator()->print( out );
+		solver_.getOperator()->print( out );
 		//out << "\n" << *A_ << "\n";
 	}
 

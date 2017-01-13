@@ -53,7 +53,7 @@ protected:
 
 	Teuchos::Tuple<Ordinal,SpaceT::sdim-1> cw_;
 
-	constexpr Ordinal getI( const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
+	constexpr Ordinal getI( const Ordinal& i, const Ordinal& j, const Ordinal& k ) {
 		return(
 				(SpaceT::sdim==2)?
 				(i-SS_[X]) + (j-SS_[Y])*cw_[0] :
@@ -63,7 +63,7 @@ protected:
 
 public:
 
-	constexpr const Ordinal& getN() const { return( N_ ); }
+	constexpr const Ordinal& getN() { return( N_ ); }
 
 	TeuchosTransfer(
 			const Teuchos::RCP<const SpaceT>& space,
@@ -90,44 +90,57 @@ public:
 		TeuchosTransfer( space, space->sInd(F::S), space->eInd(F::S) ) {}
 
 
-	void apply( const DomainFieldT& x, Teuchos::RCP<VectorT> v ) const {
+	void apply( const DomainFieldT& x, VectorT& v ) const {
 
-		if( v.is_null() )
-			v = Teuchos::rcp( new VectorT( N_, false ) );
+		assert( N_== v.numRows() * v.numCols() );
 
-		assert( N_== v->numRows() * v->numCols() );
-
+		if( 2==SpaceT::sdim )
+			for( Ordinal j=SS_[Y]; j<=NN_[Y]; ++j )
+				for( Ordinal i=SS_[X]; i<=NN_[X]; ++i )
+						v( getI(i,j,1) ) = x(i,j,1);
+		else 
 			for( Ordinal k=SS_[Z]; k<=NN_[Z]; ++k )
 				for( Ordinal j=SS_[Y]; j<=NN_[Y]; ++j )
 					for( Ordinal i=SS_[X]; i<=NN_[X]; ++i )
-						(*v)( getI(i,j,k) ) = x(i,j,k);
+						v( getI(i,j,k) ) = x(i,j,k);
 	}
 
 
 
-	void apply( const Teuchos::RCP<const VectorT>& v, DomainFieldT& x ) const {
+	void apply( const VectorT& v, DomainFieldT& x ) const {
 
-		assert( N_==v->numRows()*v->numCols() );
+		assert( N_ == v.numRows()*v.numCols() );
 
+		if( 2==SpaceT::sdim )
+			for( Ordinal j=SS_[Y]; j<=NN_[Y]; ++j )
+				for( Ordinal i=SS_[X]; i<=NN_[X]; ++i )
+					x(i,j,1) = v( getI(i,j,1) );
+		else
 			for( Ordinal k=SS_[Z]; k<=NN_[Z]; ++k )
 				for( Ordinal j=SS_[Y]; j<=NN_[Y]; ++j )
 					for( Ordinal i=SS_[X]; i<=NN_[X]; ++i )
-						x(i,j,k) = (*v)( getI(i,j,k) );
+						x(i,j,k) = v( getI(i,j,k) );
+		//x.print();
 	}
 
 
-	void apply( const Teuchos::RCP<const VectorT>& v, DomainFieldT& x, const Scalar& om ) const {
+	void apply( const VectorT& v, DomainFieldT& x, const Scalar& om ) const {
 
-		assert( N_==v->numRows()*v->numCols() );
+		assert( N_==v.numRows()*v.numCols() );
 
+		if( 2==SpaceT::sdim )
+			for( Ordinal j=SS_[Y]; j<=NN_[Y]; ++j )
+				for( Ordinal i=SS_[X]; i<=NN_[X]; ++i )
+					x(i,j,1) = (1-om)*x(i,j,1) + om*v( getI(i,j,1) );
+		else
 			for( Ordinal k=SS_[Z]; k<=NN_[Z]; ++k )
 				for( Ordinal j=SS_[Y]; j<=NN_[Y]; ++j )
 					for( Ordinal i=SS_[X]; i<=NN_[X]; ++i )
-						x(i,j,k) = (1-om)*x(i,j,k) + om*(*v)( getI(i,j,k) );
+						x(i,j,k) = (1-om)*x(i,j,k) + om*v( getI(i,j,k) );
 	}
 
 
-	void apply( Teuchos::RCP<const DivGradO2Op<SpaceT> > op,
+	void apply( const Teuchos::RCP<const DivGradO2Op<SpaceT> >& op,
 			Teuchos::RCP<MatrixT> A ) const {
 
 		if( A.is_null() )
@@ -319,11 +332,10 @@ public:
 		out << "--- " << getLabel() << " ---\n";
 		out << "N: " << N_ << "\n";
 		out << "cw: " << cw_ << "\n";
-		out << "SS: (\t";
-		for( int i=0; i<SpaceT::sdim; ++i ) out << SS_[i] << "\t";
-		out << "\n";
-		out << "NN: (\t";
-		for( int i=0; i<SpaceT::sdim; ++i ) out << NN_[i] << "\t";
+		out << "SS: \t";
+		 out << SS_ << "\n";
+		out << "NN: \t";
+		out << NN_ << "\n";
 		out << "\n";
 	}
 
@@ -356,13 +368,8 @@ protected:
 	Teuchos::RCP< TeuchosTransfer<SpaceT> > trans_;
 	Teuchos::RCP< SolverT > Asov_;
 
-	Teuchos::RCP<VectorT> X_;
-	Teuchos::RCP<VectorT>	B_;
 
 	void init() {
-
-		X_ = Teuchos::rcp( new VectorT( getN(), false ) );
-		B_ = Teuchos::rcp( new VectorT( getN(), false ) );
 
 		Teuchos::RCP<MatrixT> A = Teuchos::rcp( new MatrixT( getN(), getN(), true ) );
 		Asov_ = Teuchos::rcp( new SolverT() );
@@ -396,12 +403,15 @@ public:
 
 	void apply( const DomainFieldT& x, RangeFieldT& y )  const {
 
+		VectorT X_( getN(), false );
+		VectorT	B_( getN(), false );
+
 		trans_->apply( x, B_ );
 
 		y.exchange();
 		//trans_->updateRHS( op_, y, B_ );
 
-		Asov_->setVectors( X_, B_ );
+		Asov_->setVectors( Teuchos::rcpFromRef(X_), Teuchos::rcpFromRef(B_) );
 		Asov_->solve();
 
 		trans_->apply( X_, y );
@@ -410,6 +420,9 @@ public:
 	}
 
 	void apply( const DomainFieldT& x, RangeFieldT& y, const Scalar& omega )  const {
+
+		VectorT X_( getN(), false );
+		VectorT	B_( getN(), false );
 
 		trans_->apply( x, B_ );
 

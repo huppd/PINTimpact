@@ -11,8 +11,8 @@
 			<Parameter docString="" id="59" isDefault="false" isUsed="true" name="upper Z" type="int" value="1" />
 		</ParameterList>
 		<Parameter docString="length in x-direction" id="60" isDefault="false" isUsed="true" name="lx" type="double" value="3.00000000000000000e+01" />
-		<Parameter docString="length in y-direction" id="61" isDefault="false" isUsed="true" name="ly" type="double" value="2.00000000000000000e+01" />
-		<Parameter docString="length in z-direction" id="62" isDefault="false" isUsed="true" name="lz" type="double" value="2.00000000000000000e+01" />
+		<Parameter docString="length in y-direction" id="61" isDefault="false" isUsed="true" name="ly" type="double" value="1.00000000000000000e+02" />
+		<Parameter docString="length in z-direction" id="62" isDefault="false" isUsed="true" name="lz" type="double" value="7.50000000000000000e+01" />
 		<Parameter docString="amount of grid points in x-direction: a*2**q+1" id="63" isDefault="false" isUsed="true" name="nx" type="int" value="65" />
 		<Parameter docString="amount of grid points in y-direction: a*2**q+1" id="64" isDefault="false" isUsed="true" name="ny" type="int" value="49" />
 		<Parameter docString="amount of grid points in z-direction: a*2**q+1" id="65" isDefault="false" isUsed="true" name="nz" type="int" value="97" />
@@ -35,6 +35,10 @@
     <ParameterList id="5" name="Stretching in Z">
       <Parameter docString="" id="78" isDefault="false" isUsed="true" name="Stretch Type" type="string" value="none" />
     </ParameterList>
+		<Parameter docString="" id="9927" isDefault="true" isUsed="true" name="origin x" type="double" value="0.00000000000000000e+00"/>
+		<Parameter docString="" id="9928" isDefault="true" isUsed="true" name="origin y" type="double" value="0.00000000000000000e+00"/>
+		<Parameter docString="" id="9929" isDefault="true" isUsed="true" name="origin z" type="double" value="3.75000000000000000e+01"/>
+
   </ParameterList>
   <Parameter docString="forcing, ja?" id="79" isDefault="false" isUsed="true" name="forcing" type="int" value="1" />
   <ParameterList id="6" name="Solver">
@@ -210,7 +214,7 @@
           <Parameter docString="" id="190" isDefault="false" isUsed="true" name="omega" type="double" value="1.00000000000000000e+00" />
         </ParameterList>
       </ParameterList>
-      <Parameter docString="" id="191" isDefault="true" isUsed="true" name="numCycles" type="int" value="1" />
+      <Parameter docString="" id="191" isDefault="true" isUsed="true" name="numCycles" type="int" value="2" />
       <ParameterList id="38" name="Smoother">
         <Parameter docString="" id="192" isDefault="true" isUsed="true" name="omega" type="double" value="5.00000000000000000e-01" />
         <Parameter docString="" id="193" isDefault="true" isUsed="true" name="numIters" type="int" value="4" />
@@ -260,7 +264,7 @@
 		<Parameter docString="" id="227" isDefault="true" isUsed="true" name="Solver name" type="string" value="Flexible GMRES" />
 		<Parameter docString="" id="228" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
     <ParameterList id="43" name="Solver">
-      <Parameter docString="" id="229" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="5" />
+      <Parameter docString="" id="229" isDefault="false" isUsed="true" name="Num Blocks" type="int" value="10" />
       <Parameter docString="" id="230" isDefault="false" isUsed="true" name="Maximum Restarts" type="int" value="10" />
       <Parameter docString="" id="231" isDefault="false" isUsed="true" name="Block Size" type="int" value="1" />
       <Parameter docString="" id="232" isDefault="false" isUsed="true" name="Adaptive Block Size" type="bool" value="true" />

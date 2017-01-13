@@ -139,6 +139,7 @@ int main( int argi, char** argv ) {
 
 	// init Fields
 	x->getField(0).getVField().initField( pl->sublist("Base flow") );
+	if( withoutput ) x->write( 900 );
 
 
 
@@ -226,14 +227,14 @@ int main( int argi, char** argv ) {
 			x->getField(0).getSField().changed();
 		}
 
-		if( withoutput ) fu->write( 90000 );
+		//if( withoutput ) fu->write( 90000 );
 
 		pl->sublist("Picard Solver").sublist("Solver").set( "Output Stream", Pimpact::createOstream("Picard"+rl+".txt", space->rankST() ) );
 
 		auto opInv = Pimpact::createInverseOp( op, Teuchos::rcpFromRef( pl->sublist("Picard Solver") ) );
 
 		////--- nullspace 
-		if( pl->sublist( "Picard" ).get<bool>( "nullspace ortho", true ) ) {
+		if( pl->sublist( "Picard Solver" ).get<bool>( "nullspace ortho", true ) ) {
 			auto nullspace = x->clone( Pimpact::ECopy::Shallow );
 
 			Pimpact::DivGradNullSpace<Pimpact::DivOp<SpaceT> > compNullspace;
@@ -517,7 +518,8 @@ int main( int argi, char** argv ) {
 		if( withoutput ) {
 			Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getField().level();
 			Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getField().write( refine*1000 );
-			Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getField().getField(0).getVField().write( 500+refine*1000, true );
+			//Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getXPtr() ))->getField().getField(0).getVField().write( 500+refine*1000, true );
+			//Teuchos::rcp_const_cast<NV>(Teuchos::rcp_dynamic_cast<const NV>( group->getFPtr() ))->getField().write( refine*1000 );
 		}
 
 		{
