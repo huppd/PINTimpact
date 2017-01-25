@@ -59,14 +59,23 @@ public:
 
 public:
 
-  constexpr const Teuchos::RCP<FFieldT>& get(       ) const { return( fField_ ); }
+  constexpr const FFieldT& get() { return( *fField_ ); }
+  FFieldT& get() { return( *fField_ ); }
 
   /// \brief gets ith operator, similar to python i=-1 is gets you the coarses space
-  constexpr const Teuchos::RCP<CFieldT>& get( int i ) const {
+  constexpr const CFieldT& get( int i ) const {
     if( i<0 )
-      return( cFields_[mgSpaces_->getNGrids()+i] );
+      return( *cFields_[mgSpaces_->getNGrids()+i] );
     else
-      return( cFields_[i] );
+      return( *cFields_[i] );
+  }
+	
+  /// \brief gets ith operator, similar to python i=-1 is gets you the coarses space
+	CFieldT& get( int i )  {
+		if( i<0 )
+			return( *cFields_[mgSpaces_->getNGrids()+i] );
+		else
+			return( *cFields_[i] );
   }
 
 

@@ -753,7 +753,7 @@ contains
     cc = 0.
     do j = 1, n_coeff
       do i = 1, n_coeff
-        cc(j) = cc(j) + (dxU**i - dxL**i)/REAL(i)*polyn_vals_inv(i,j)
+        cc(j) = cc(j) + (dxU**i - dxL**i)/real(i,c_double)*polyn_vals_inv(i,j)
       end do
     end do
 

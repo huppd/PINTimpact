@@ -6,13 +6,14 @@
 
 using S = double;
 using O = int;
-const int d = 3;
-const int dNC=4;
+const int sd = 2;
+const int d  = 3;
+const int dNC= 4;
 
-using SpaceT = Pimpact::Space<S,O,3,d,dNC>;
+using SpaceT = Pimpact::Space<S,O,sd,d,dNC>;
 
 using FSpaceT = SpaceT;
-using CSpaceT = Pimpact::Space<S,O,3,d,2>;
+using CSpaceT = Pimpact::Space<S,O,sd,d,2>;
 
 
 using CS = Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT>;
@@ -38,16 +39,14 @@ int main( int argi, char** argv ) {
 	pl->set("npy",2);
 	pl->set("npx",2);
 
-	pl->set( "domain", 1);
-
 	int nwinds = 64;
 
 	S pi = 4. * std::atan(1.) ;
 
 	pl->set<S>( "Re", 1000 );
 
-	pl->set<O>( "nx", 257 );
-	pl->set<O>( "ny", 257 );
+	pl->set<O>( "nx", 129 );
+	pl->set<O>( "ny", 129 );
 
 	auto space = Pimpact::create<SpaceT>( pl );
 
@@ -110,25 +109,18 @@ int main( int argi, char** argv ) {
 				auto sol = y.clone( Pimpact::ECopy::Deep );
 				//sol->write(3333);
 
-				wind(Pimpact::F::U).initField(  Pimpact::ConstField, std::cos( phi ) );
-				wind(Pimpact::F::V).initField(  Pimpact::ConstField, std::sin( phi ) );
+				wind(Pimpact::F::U).init( std::cos( phi ) );
+				wind(Pimpact::F::V).init( std::sin( phi ) );
 
 				op->assignField( wind );
 				smoother->assignField( wind );
 
-				z.initField();
+				z.init();
 
 				// constructing rhs
 				op->apply( y, z );
-				{
-					y.init(0);
-					auto bc = z.clone( Pimpact::ECopy::Shallow );
-					op->apply( y, *bc );
-					z.add( 1., z, -1., *bc );
-				}
-				//z->write(2222);
 
-				y.initField();
+				y.init();
 
 				std::ofstream ofs;
 				std::string filename = "GS.txt";
@@ -144,11 +136,8 @@ int main( int argi, char** argv ) {
 					smoother->apply( z, y );
 
 					z2.add( -1., *sol, 1., y );
-					//					op->apply( *y, *z2 );
-					//					z2->add( 1., *z2, -1., *z );
 
 					error = z2.norm()/sol->norm();
-					//          error = z2->norm();
 
 
 					if( space()->rankST()==0 ) ofs << error << "\n";

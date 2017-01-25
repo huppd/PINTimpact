@@ -67,7 +67,7 @@ protected:
 						spaceF()->getGridSizeLocal()->get(i),
 						spaceF()->bl(i),
 						spaceF()->bu(i),
-						spaceF()->getCoordinatesLocal()->getX( i, F::S ),
+						spaceF()->getCoordinatesLocal()->getX( F::S, i ),
 						cRS_[i].get() );
 
 				cRV_[i] = StencV( this->iimax_[i] );
@@ -79,8 +79,8 @@ protected:
 						this->iimax_[i],
 						spaceC()->getBCLocal()->getBCL(i),
 						spaceC()->getBCLocal()->getBCU(i),
-						spaceF()->getCoordinatesLocal()->getX( i, fi ),
-						spaceF()->getCoordinatesLocal()->getX( i, F::S ),
+						spaceF()->getCoordinatesLocal()->getX( fi, i ),
+						spaceF()->getCoordinatesLocal()->getX( F::S, i ),
 						this->dd_[i],
 						cRV_[i].get() );
 			}

@@ -33,7 +33,7 @@ protected:
   using Scalar = typename SpaceT::Scalar;
   using Ordinal = typename SpaceT::Ordinal;
 
-  Teuchos::RCP<NonlinearWrap< ConvectionDiffusionSOp<SpaceT> > > op_;
+  Teuchos::RCP< NonlinearWrap< ConvectionDiffusionSOp<SpaceT> > > op_;
 
   Teuchos::RCP< ConvectionField<SpaceT> > wind0_;
   Teuchos::Array< Teuchos::RCP<ConvectionField<SpaceT> > > windc_;
@@ -172,6 +172,17 @@ public:
 
 		z.changed();
   }
+
+  void applyBC( const DomainFieldT& x, RangeFieldT& y ) const {
+
+		if( 0==space()->begin(F::U,3) )
+			op_->getSOp()->getHelmholtzOp()->applyBC( x.getConst0Field(), y.get0Field() );
+
+		for( typename SpaceT::Ordinal i=std::max(space()->begin(F::U,3),1); i<=space()->end(F::U,3); ++i ) {
+			op_->getSOp()->getHelmholtzOp()->applyBC( x.getConstCField(i), y.getCField(i) );
+			op_->getSOp()->getHelmholtzOp()->applyBC( x.getConstSField(i), y.getSField(i) );
+		}
+	}
 
 
 	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(op_->space()); };

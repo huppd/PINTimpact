@@ -29,13 +29,13 @@ class VectorFieldOpWrap {
 public:
 	
 
-  typedef typename SOpT::FSpaceT FSpaceT;
-  typedef typename SOpT::CSpaceT CSpaceT;
+  using FSpaceT = typename SOpT::FSpaceT;
+  using CSpaceT = typename SOpT::CSpaceT;
 
-	typedef FSpaceT SpaceT;
+	using SpaceT = FSpaceT;
 
-	typedef VectorField<FSpaceT>  DomainFieldT;
-	typedef VectorField<CSpaceT>  RangeFieldT;
+	using DomainFieldT = VectorField<FSpaceT>;
+	using  RangeFieldT = VectorField<CSpaceT>;
 
 protected:
 

@@ -32,26 +32,26 @@ class MultiHarmonicField : private AbstractField<typename IFT::SpaceT> {
 
 public:
 
-  using SpaceT = typename IFT::SpaceT;
+	using SpaceT = typename IFT::SpaceT;
 
 protected:
 
-  using Scalar = typename SpaceT::Scalar;
-  using Ordinal = typename SpaceT::Ordinal;
+	using Scalar = typename SpaceT::Scalar;
+	using Ordinal = typename SpaceT::Ordinal;
 
-  using FieldT = MultiHarmonicField<IFT>;
+	using FieldT = MultiHarmonicField<IFT>;
 
-  using AF = AbstractField<SpaceT>;
+	using AF = AbstractField<SpaceT>;
 
 	const bool global_;
 
-  IFT field0_;
+	IFT field0_;
 
 	std::vector< Teuchos::RCP< ModeField<IFT> > > fields_;
 
 	Scalar* s_;
 
-  mutable bool exchangedState_;
+	mutable bool exchangedState_;
 
 
 	void allocate() {
@@ -114,7 +114,7 @@ public:
 			}
 
 			allocate();
-			initField();
+			init();
 	};
 
 
@@ -143,7 +143,7 @@ public:
 			allocate();
 			switch( copyType ) {
 				case ECopy::Shallow:
-					initField();
+					init();
 					break;
 				case ECopy::Deep:
 					*this = vF;
@@ -432,27 +432,15 @@ public:
   }
 
 
-	void initField() {
-
-		if( 0==space()->begin(F::U,3) )
-			field0_.initField();
-
-		for( Ordinal i=std::max(space()->begin(F::U,3),1); i<=space()->end(F::U,3); ++i )
-			getField(i).initField();
-
-		changed();
-	}
-
-
 	///  \brief initializes including boundaries to zero 
-	void initField( Teuchos::ParameterList& para ) {
+	void initField( Teuchos::ParameterList& para, const Add& add=Add::N  ) {
 
 		if( 0==space()->begin(F::U,3) )
-			field0_.initField( para.sublist("0 mode") );
+			field0_.initField( para.sublist("0 mode"), add );
 
 		if( space()->begin(F::U,3)<=1 && 1<=space()->end(F::U,3) ) {
-			getCField(1).initField( para.sublist("cos mode") );
-			getSField(1).initField( para.sublist("sin mode") );
+			getCField(1).initField( para.sublist("cos mode"), add );
+			getSField(1).initField( para.sublist("sin mode"), add );
 		}
 		changed();
 	}

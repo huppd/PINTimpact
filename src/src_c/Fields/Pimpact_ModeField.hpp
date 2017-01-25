@@ -77,7 +77,7 @@ public:
 
 			if( owning_ ) {
 				allocate();
-				initField();
+				init();
 			}
 	};
 
@@ -99,7 +99,7 @@ public:
 
 				switch( copyType ) {
 					case ECopy::Shallow:
-						initField();
+						init();
 						break;
 					case ECopy::Deep:
 						*this = vF;
@@ -294,11 +294,6 @@ public:
     fieldc_.init(alpha,wB);
     fields_.init(alpha,wB);
   }
-
-	void initField() {
-    fieldc_.initField();
-    fields_.initField();
-	}
 
 	void extrapolateBC( const Belos::ETrans& trans=Belos::NOTRANS ) {
     fieldc_.extrapolateBC( trans );

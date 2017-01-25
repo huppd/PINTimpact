@@ -77,16 +77,16 @@ public:
 						mapping,
 						space_->getStencilWidths()->getDimNcbC(dir),
 						space_->getStencilWidths()->getNcbC(dir),
-						space_->getCoordinatesLocal()->getX( dir, F::S ),
-						space_->getCoordinatesLocal()->getX( dir, F::S ),
+						space_->getCoordinatesLocal()->getX( F::S, dir ),
+						space_->getCoordinatesLocal()->getX( F::S, dir ),
 						cSD_[dir].get() );
 
-				if( DirichletBC==space_->bcl(dir) ) {
+				if( BC::Dirichlet==space_->bcl(dir) ) {
 					Ordinal i = space_->begin(F::S,dir,B::Y);
 					for( int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii )
 						cSD_[dir](i,ii) = 0.;
 				}
-				if( DirichletBC==space_->bcu(dir) ) {
+				if( BC::Dirichlet==space_->bcu(dir) ) {
 					Ordinal i = space_->end(F::S,dir,B::Y);
 					for( int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii )
 						cSD_[dir](i,ii) = 0.;
@@ -111,16 +111,16 @@ public:
 						mapping,
 						space_->getStencilWidths()->getDimNcbC(dir),
 						space_->getStencilWidths()->getNcbC(dir),
-						space_->getCoordinatesLocal()->getX( dir, F::S ),
-						space_->getCoordinatesLocal()->getX( dir, F::S ),
+						space_->getCoordinatesLocal()->getX( F::S, dir ),
+						space_->getCoordinatesLocal()->getX( F::S, dir ),
 						cSU_[dir].get() );
 
-				if( DirichletBC==space_->bcl(dir) ) {
+				if( BC::Dirichlet==space_->bcl(dir) ) {
 					Ordinal i = space_->begin(F::S,dir,B::Y);
 					for( int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii )
 						cSU_[dir](i,ii) = 0.;
 				}
-				if( DirichletBC==space_->bcu(dir) ) {
+				if( BC::Dirichlet==space_->bcu(dir) ) {
 					Ordinal i = space_->end(F::S,dir,B::Y);
 					for( int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii )
 						cSU_[dir](i,ii) = 0.;
@@ -147,16 +147,16 @@ public:
 						mapping,
 						space_->getStencilWidths()->getDimNcbC(dir),
 						space_->getStencilWidths()->getNcbC(dir),
-						space_->getCoordinatesLocal()->getX( dir, fdir ),
-						space_->getCoordinatesLocal()->getX( dir, fdir ),
+						space_->getCoordinatesLocal()->getX( fdir, dir ),
+						space_->getCoordinatesLocal()->getX( fdir, dir ),
 						cVD_[dir].get() );
 
-				if( DirichletBC==space_->bcl(dir) ) {
+				if( BC::Dirichlet==space_->bcl(dir) ) {
 					Ordinal i = space_->begin(fdir,dir,B::Y);
 					for( int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii )
 						cVD_[dir](i,ii) = 0.;
 				}
-				if( DirichletBC==space_->bcu(dir) ) {
+				if( BC::Dirichlet==space_->bcu(dir) ) {
 					Ordinal i = space_->end(fdir,dir,B::Y);
 					for( int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii )
 						cVD_[dir](i,ii) = 0.;
@@ -181,16 +181,16 @@ public:
 						mapping,
 						space_->getStencilWidths()->getDimNcbC(dir),
 						space_->getStencilWidths()->getNcbC(dir),
-						space_->getCoordinatesLocal()->getX( dir, fdir ),
-						space_->getCoordinatesLocal()->getX( dir, fdir ),
+						space_->getCoordinatesLocal()->getX( fdir, dir ),
+						space_->getCoordinatesLocal()->getX( fdir, dir ),
 						cVU_[dir].get() );
 
-				if( DirichletBC==space_->bcl(dir) ) {
+				if( BC::Dirichlet==space_->bcl(dir) ) {
 					Ordinal i = space_->begin(fdir,dir,B::Y);
 					for( int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii )
 						cVU_[dir](i,ii) = 0.;
 				}
-				if( DirichletBC==space_->bcu(dir) ) {
+				if( BC::Dirichlet==space_->bcu(dir) ) {
 					Ordinal i = space_->end(fdir,dir,B::Y);
 					for( int ii=Stenc::bl(); ii<=Stenc::bu(); ++ii )
 						cVU_[dir](i,ii) = 0.;
@@ -324,8 +324,8 @@ public:
 		return( u*getC( u,X, fType,i,0) + v*getC( v,Y, fType,j,0) + w*getC( w,Z, fType,k,0) );
 	}
 
-	constexpr Scalar innerDiag2D( const Scalar& u, const Scalar& v, const
-			Scalar& w, const F& fType, const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
+	constexpr Scalar innerDiag2D( const Scalar& u, const Scalar& v,
+			const F& fType, const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
 
 		return( u*getC( u,X, fType,i,0) + v*getC( v,Y, fType,j,0) );
 	}

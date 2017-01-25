@@ -490,12 +490,6 @@ public:
 			mfs_[i]->init(alpha,wB);
 	}
 
-	void initField() {
-		const int n = getNumberVecs();
-		for( int i=0; i<n; ++i )
-			mfs_[i]->initField();
-	}
-
 	void extrapolateBC( const Belos::ETrans& trans=Belos::NOTRANS ) {
 		const int n = getNumberVecs();
 		for( int i=0; i<n; ++i )

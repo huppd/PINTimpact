@@ -34,15 +34,15 @@ int main(int argi, char** argv ) {
   using Teuchos::RCP;
   using Teuchos::rcp; // Save some typing
 
-  typedef double S;
-  typedef int O;
+  using S = double;
+  using O = int;
 
-  typedef Pimpact::Space<S,O,3,4> SpaceT;
+  using SpaceT = Pimpact::Space<S,O,3,4>;
 
-  typedef Pimpact::VectorField<SpaceT> VF;
-  typedef Pimpact::ScalarField<SpaceT> SF;
-  typedef Pimpact::MultiField<VF>  MVF;
-  typedef Pimpact::MultiField<SF>  MSF;
+  using VF = Pimpact::VectorField<SpaceT>;
+  using SF = Pimpact::ScalarField<SpaceT>;
+  using MVF = Pimpact::MultiField<VF>;
+  using MSF = Pimpact::MultiField<SF>;
 
   // intialize MPI
   MPI_Init( &argi, &argv );

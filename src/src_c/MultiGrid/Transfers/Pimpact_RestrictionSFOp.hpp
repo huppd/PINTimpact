@@ -64,7 +64,7 @@ protected:
 					spaceF()->getGridSizeLocal()->get(i),
 					spaceF()->bl(i),
 					spaceF()->bu(i),
-					spaceF()->getCoordinatesLocal()->getX( i, F::S ),
+					spaceF()->getCoordinatesLocal()->getX( F::S, i ),
 					cRS_[i].get() );
 		}
 	}

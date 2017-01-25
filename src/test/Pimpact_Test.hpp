@@ -249,7 +249,6 @@ void setParameter( int dim ) {
 	pl->set( "npf", npf );
 
 	setStretching();
-	//pl->print();
 }
 
 }

@@ -1,6 +1,6 @@
 <ParameterList id="0" name="ANONYMOUS">
 	<ParameterList id="1" name="Space">
-		<Parameter docString="Reynolds number" id="48" isDefault="false" isUsed="true" name="Re" type="double" value="1.00000000000000000e-02" />
+		<Parameter docString="Reynolds number" id="48" isDefault="false" isUsed="true" name="Re" type="double" value="1.00000000000000000e+02" />
 		<Parameter docString="Womersley square alpha^2" id="49" isDefault="false" isUsed="true" name="alpha2" type="double" value="2.51327412287183449e+02" />
   <ParameterList id="2" name="boundary conditions">
     <Parameter docString="" id="50" isDefault="false" isUsed="true" name="lower X" type="int" value="1" />
@@ -23,9 +23,9 @@
 		<Parameter docString="amount of processors in f-direction" id="67" isDefault="false" isUsed="true" name="npf" type="int" value="1" />
 		<Parameter docString="" id="68" isDefault="true" isUsed="true" name="spectral in time" type="bool" value="true" />
 		<ParameterList id="3" name="Stretching in X">
-			<Parameter docString="" id="996" isDefault="false" isUsed="true" name="Stretch Type" type="string" value="cos" />
-			<Parameter docString="" id="927" isDefault="true" isUsed="true" name="N metr U" type="double" value="16.5" />
-			<Parameter docString="" id="937" isDefault="true" isUsed="true" name="N metr L" type="double" value="16.5" />
+			<!--<Parameter docString="" id="996" isDefault="false" isUsed="true" name="Stretch Type" type="string" value="cos" />-->
+			<!--<Parameter docString="" id="927" isDefault="true" isUsed="true" name="N metr U" type="double" value="16.5" />-->
+			<!--<Parameter docString="" id="937" isDefault="true" isUsed="true" name="N metr L" type="double" value="16.5" />-->
 		</ParameterList>
 		<ParameterList id="4" name="Stretching in Y">
 			<!--<Parameter docString="" id="69" isDefault="false" isUsed="true" name="Stretch Type" type="string" value="para" />-->
@@ -240,8 +240,8 @@
 	</ParameterList>
 	<ParameterList id="41" name="Base flow">
 		<ParameterList id="42" name="0 mode">
-			<Parameter docString="" id="191" isDefault="true" isUsed="true" name="Type" type="string" value="Poiseuille" />
-			<!--<Parameter docString="" id="291" isDefault="true" isUsed="true" name="Type" type="string" value="Couette" />-->
+			<!--<Parameter docString="" id="191" isDefault="true" isUsed="true" name="Type" type="string" value="Poiseuille" />-->
+			<Parameter docString="" id="291" isDefault="true" isUsed="true" name="Type" type="string" value="Couette" />
 		</ParameterList>
 		<ParameterList id="43" name="cos mode">
 			<!--<Parameter docString="" id="291" isDefault="true" isUsed="true" name="Type" type="string" value="Couette" />-->
@@ -252,5 +252,11 @@
 		</ParameterList>
 	</ParameterList>
 	<ParameterList id="45" name="Force">
+		<!--<Parameter docString="" id="9232" isDefault="true" isUsed="true" name="force type" type="string" value="Taylor-Green"/>-->
+		<ParameterList id="9942" name="0 mode">
+			<!--<Parameter docString="" id="191" isDefault="true" isUsed="true" name="Type" type="string" value="Poiseuille" />-->
+			<!--<Parameter docString="" id="191" isDefault="true" isUsed="true" name="Type" type="string" value="Disturbance" />-->
+			<!--<Parameter docString="" id="291" isDefault="true" isUsed="true" name="Type" type="string" value="Couette" />-->
+		</ParameterList>
 	</ParameterList>
 </ParameterList>

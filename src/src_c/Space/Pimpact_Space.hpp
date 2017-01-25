@@ -397,12 +397,12 @@ public:
 					"Womersley square alpha^2");
 			// domain type
 			pl->sublist("boundary conditions");
-			pl->sublist("boundary conditions").set<EBCType>( "lower X", DirichletBC );
-			pl->sublist("boundary conditions").set<EBCType>( "upper X", DirichletBC );
-			pl->sublist("boundary conditions").set<EBCType>( "lower Y", DirichletBC );
-			pl->sublist("boundary conditions").set<EBCType>( "upper Y", DirichletBC );
-			pl->sublist("boundary conditions").set<EBCType>( "lower Z", DirichletBC );
-			pl->sublist("boundary conditions").set<EBCType>( "upper Z", DirichletBC );
+			pl->sublist("boundary conditions").set<int>( "lower X", static_cast<int>( BC::Dirichlet ) );
+			pl->sublist("boundary conditions").set<int>( "upper X", static_cast<int>( BC::Dirichlet ) );
+			pl->sublist("boundary conditions").set<int>( "lower Y", static_cast<int>( BC::Dirichlet ) );
+			pl->sublist("boundary conditions").set<int>( "upper Y", static_cast<int>( BC::Dirichlet ) );
+			pl->sublist("boundary conditions").set<int>( "lower Z", static_cast<int>( BC::Dirichlet ) );
+			pl->sublist("boundary conditions").set<int>( "upper Z", static_cast<int>( BC::Dirichlet ) );
 
 			//pl->set<int>( "domain", 2,
 					//"Domain type: 0:all dirichlet, 1:dirichlet 2d channel, 2: periodic 2d channel" );

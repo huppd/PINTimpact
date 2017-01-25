@@ -151,7 +151,7 @@ protected:
 		if( 3==SpaceT::sdim )
 			for( dirs_[2]=dirS[2]; std::abs(dirs_[2])<=1; dirs_[2]+=inc[2] )
 				for( dirs_[1]=dirS[1]; std::abs(dirs_[1])<=1; dirs_[1]+=inc[1] )
-//					for( dirs_[0]=dirS[0]; std::abs(dirs_[0])<=1; dirs_[0]+=inc[0] )
+					for( dirs_[0]=dirS[0]; std::abs(dirs_[0])<=1; dirs_[0]+=inc[0] )
 						apply( x, y, z, dirs_, loopOrder_ );
 		else {
 			dirs_[2] = 1 ;
@@ -171,8 +171,7 @@ protected:
 
     z.exchange();
 
-		applyBC( y, z);
-
+		applyBC( y, z );
     OP_convectionDiffusionSOR(
         sdim,
         space()->nLoc(),
@@ -203,6 +202,7 @@ protected:
         op_->getMulL(),
         omega_ );
 
+		applyBC( y, z );
     z.changed();
   }
 
@@ -214,157 +214,159 @@ protected:
 
 		assert( b.getType()==y.getType() );
 
+		const F& f = b.getType();
+
 		const Scalar& omegaBC = omega_;
+		//const Scalar& omegaBC = 0.9;
+	
 		// U-field
-		if( F::U==y.getType() ) {
-			if( DirichletBC==space()->bcl(Y) ) {
-				Ordinal j = space()->begin(F::U,Y,B::Y);
-				for( Ordinal k=space()->begin(F::U,Z,B::Y); k<=space()->end(F::U,Z,B::Y); ++k )
-					for( Ordinal i=space()->begin(F::U,X,B::Y); i<=space()->end(F::U,X,B::Y); ++i )
-						y(i,j,k) += omegaBC*( b(i,j,k) - y(i,j,k) );
+		if( F::U==f ) {
+			if( BC::Dirichlet==space()->bcl(Y) ) {
+				Ordinal j = space()->begin(f,Y,B::Y);
+				for( Ordinal k=space()->begin(f,Z,B::Y); k<=space()->end(f,Z,B::Y); ++k )
+					for( Ordinal i=space()->begin(f,X,B::N); i<=space()->end(f,X,B::N); ++i )
+						y(i,j,k) = b(i,j,k);
 			}
-			if( DirichletBC==space()->bcu(Y) ) {
-				Ordinal j = space()->end(F::U,Y,B::Y);
-				for( Ordinal k=space()->begin(F::U,Z,B::Y); k<=space()->end(F::U,Z,B::Y); ++k )
-					for( Ordinal i=space()->begin(F::U,X,B::Y); i<=space()->end(F::U,X,B::Y); ++i )
-						y(i,j,k) += omegaBC*( b(i,j,k) - y(i,j,k) );
-			}
-
-			if( DirichletBC==space()->bcl(Z) ) {
-				Ordinal k = space()->begin(F::U,Z,B::Y);
-				for( Ordinal j=space()->begin(F::U,Y,B::Y); j<=space()->end(F::U,Y,B::Y); ++j )
-					for( Ordinal i=space()->begin(F::U,X,B::Y); i<=space()->end(F::U,X,B::Y); ++i )
-						y(i,j,k) += omegaBC*( b(i,j,k) - y(i,j,k) );
-			}
-			if( DirichletBC==space()->bcl(Z) ) {
-				Ordinal k = space()->end(F::U,Z,B::Y);
-				for( Ordinal j=space()->begin(F::U,Y,B::Y); j<=space()->end(F::U,Y,B::Y); ++j )
-					for( Ordinal i=space()->begin(F::U,X,B::Y); i<=space()->end(F::U,X,B::Y); ++i )
-						y(i,j,k) += omegaBC*( b(i,j,k) - y(i,j,k) );
+			if( BC::Dirichlet==space()->bcu(Y) ) {
+				Ordinal j = space()->end(f,Y,B::Y);
+				for( Ordinal k=space()->begin(f,Z,B::Y); k<=space()->end(f,Z,B::Y); ++k )
+					for( Ordinal i=space()->begin(f,X,B::N); i<=space()->end(f,X,B::N); ++i )
+						y(i,j,k) = b(i,j,k);
 			}
 
-			if( DirichletBC==space()->bcl(X) ) {
-				Ordinal i = space()->begin(F::U,X,B::Y);
-				for( Ordinal k=space()->begin(F::U,Z,B::Y); k<=space()->end(F::U,Z,B::Y); ++k )
-					for( Ordinal j=space()->begin(F::U,Y,B::Y); j<=space()->end(F::U,Y,B::Y); ++j ) {
-						y(i,j,k) = 0.;
+			if( BC::Dirichlet==space()->bcl(Z) ) {
+				Ordinal k = space()->begin(f,Z,B::Y);
+				for( Ordinal j=space()->begin(f,Y,B::Y); j<=space()->end(f,Y,B::Y); ++j )
+					for( Ordinal i=space()->begin(f,X,B::N); i<=space()->end(f,X,B::N); ++i )
+						y(i,j,k) = b(i,j,k);
+			}
+			if( BC::Dirichlet==space()->bcl(Z) ) {
+				Ordinal k = space()->end(f,Z,B::Y);
+				for( Ordinal j=space()->begin(f,Y,B::Y); j<=space()->end(f,Y,B::Y); ++j )
+					for( Ordinal i=space()->begin(f,X,B::N); i<=space()->end(f,X,B::N); ++i )
+						y(i,j,k) = b(i,j,k);
+			}
+
+			if( BC::Dirichlet==space()->bcl(X) ) {
+				Ordinal i = space()->begin(f,X,B::Y);
+				for( Ordinal k=space()->begin(f,Z,B::Y); k<=space()->end(f,Z,B::Y); ++k )
+					for( Ordinal j=space()->begin(f,Y,B::Y); j<=space()->end(f,Y,B::Y); ++j ) {
+						Scalar bla = 0.;
 						for( Ordinal ii=space()->dl(X); ii<=space()->du(X); ++ii )
-							y(i,j,k) += space()->getInterpolateV2S()->getC( X, i+1, ii )*y(1+i+ii,j,k);
-						y(i,j,k) += omegaBC*( b(i,j,k) - y(i,j,k) )/space()->getInterpolateV2S()->getC( X, i+1, 0 );
+							bla += space()->getInterpolateV2S()->getC( X, i+1, ii )*y(1+i+ii,j,k);
+						y(i,j,k) += omegaBC*( b(i,j,k) - bla )/space()->getInterpolateV2S()->getC( X, i+1, 0 );
 					}
 			}
-			if( DirichletBC==space()->bcu(X) ) {
-				Ordinal i = space()->end(F::U,X,B::Y);
-				for( Ordinal k=space()->begin(F::U,Z,B::Y); k<=space()->end(F::U,Z,B::Y); ++k )
-					for( Ordinal j=space()->begin(F::U,Y,B::Y); j<=space()->end(F::U,Y,B::Y); ++j ) {
-						y(i,j,k) = 0.;
+			if( BC::Dirichlet==space()->bcu(X) ) {
+				Ordinal i = space()->end(f,X,B::Y);
+				for( Ordinal k=space()->begin(f,Z,B::Y); k<=space()->end(f,Z,B::Y); ++k )
+					for( Ordinal j=space()->begin(f,Y,B::Y); j<=space()->end(f,Y,B::Y); ++j ) {
+						Scalar bla = 0.;
 						for( Ordinal ii=space()->dl(X); ii<=space()->du(X); ++ii )
-							y(i,j,k) += space()->getInterpolateV2S()->getC( X, i, ii )*y(i+ii,j,k);
-						y(i,j,k) = y(i,j,k) + omegaBC*( b(i,j,k) - y(i,j,k) )/space()->getInterpolateV2S()->getC( X, i, 0 );
+							bla += space()->getInterpolateV2S()->getC( X, i, ii )*y(i+ii,j,k);
+						y(i,j,k) +=  omegaBC*( b(i,j,k) - bla )/space()->getInterpolateV2S()->getC( X, i, 0 );
 					}
 			}
 		}
 
 		// V-field
-		if( F::V==y.getType() ) {
-			if( DirichletBC==space()->bcl(X) ) {
-				Ordinal i = space()->begin(F::V,X,B::Y);
-				for( Ordinal k=space()->begin(F::V,Z,B::N); k<=space()->end(F::V,Z,B::N); ++k )
-					for( Ordinal j=space()->begin(F::V,Y,B::Y); j<=space()->end(F::V,Y,B::Y); ++j )
-						y(i,j,k) += omegaBC*( b(i,j,k) - y(i,j,k) );
+		if( F::V==f ) {
+			if( BC::Dirichlet==space()->bcl(X) ) {
+				Ordinal i = space()->begin(f,X,B::Y);
+				for( Ordinal k=space()->begin(f,Z,B::Y); k<=space()->end(f,Z,B::Y); ++k )
+					for( Ordinal j=space()->begin(f,Y,B::N); j<=space()->end(f,Y,B::N); ++j )
+						y(i,j,k) = b(i,j,k);
 			}
-			if( DirichletBC==space()->bcu(X) ) {
-				Ordinal i = space()->end(F::V,X,B::Y);
-				for( Ordinal k=space()->begin(F::V,Z,B::N); k<=space()->end(F::V,Z,B::N); ++k )
-					for( Ordinal j=space()->begin(F::V,Y,B::Y); j<=space()->end(F::V,Y,B::Y); ++j )
-						y(i,j,k) += omegaBC*( b(i,j,k) - y(i,j,k) );
-			}
-
-			if( DirichletBC==space()->bcl(Z) ) {
-				Ordinal k = space()->begin(F::V,Z,B::Y);
-				for( Ordinal j=space()->begin(F::V,Y,B::N); j<=space()->end(F::V,Y,B::N); ++j )
-					for( Ordinal i=space()->begin(F::V,X,B::Y); i<=space()->end(F::V,X,B::Y); ++i ) {
-						y(i,j,k) += omegaBC*( b(i,j,k) - y(i,j,k) );
-					}
-			}
-			if( DirichletBC==space()->bcu(Z) ) {
-				Ordinal k = space()->end(F::V,Z,B::Y);
-				for( Ordinal j=space()->begin(F::V,Y,B::N); j<=space()->end(F::V,Y,B::N); ++j )
-					for( Ordinal i=space()->begin(F::V,X,B::Y); i<=space()->end(F::V,X,B::Y); ++i ) {
-						y(i,j,k) += omegaBC*( b(i,j,k) - y(i,j,k) );
-					}
+			if( BC::Dirichlet==space()->bcu(X) ) {
+				Ordinal i = space()->end(f,X,B::Y);
+				for( Ordinal k=space()->begin(f,Z,B::Y); k<=space()->end(f,Z,B::Y); ++k )
+					for( Ordinal j=space()->begin(f,Y,B::N); j<=space()->end(f,Y,B::N); ++j )
+						y(i,j,k) = b(i,j,k);
 			}
 
-			if( DirichletBC==space()->bcl(Y) ) {
-				Ordinal j = space()->begin(F::V,Y,B::Y);
-				for( Ordinal k=space()->begin(F::V,Z,B::Y); k<=space()->end(F::V,Z,B::Y); ++k )
-					for( Ordinal i=space()->begin(F::V,X,B::Y); i<=space()->end(F::V,X,B::Y); ++i ) {
-						y(i,j,k) = 0.;
-						for( Ordinal jj=space()->dl(Y); jj<=space()->du(Y); ++jj )
-							y(i,j,k) += space()->getInterpolateV2S()->getC( Y, j+1, jj )*y(i,1+j+jj,k);
-						y(i,j,k) = y(i,j,k) + omegaBC*( b(i,j,k) - y(i,j,k) )/space()->getInterpolateV2S()->getC( Y, j+1, 0 );
+			if( BC::Dirichlet==space()->bcl(Z) ) {
+				Ordinal k = space()->begin(f,Z,B::Y);
+				for( Ordinal j=space()->begin(f,Y,B::N); j<=space()->end(f,Y,B::N); ++j )
+					for( Ordinal i=space()->begin(f,X,B::Y); i<=space()->end(f,X,B::Y); ++i ) {
+						y(i,j,k) = b(i,j,k);
 					}
 			}
-			if( DirichletBC==space()->bcu(Y) ) {
-				Ordinal j = space()->end(F::V,Y,B::Y);
-				for( Ordinal k=space()->begin(F::V,Z,B::Y); k<=space()->end(F::V,Z,B::Y); ++k )
-					for( Ordinal i=space()->begin(F::V,X,B::Y); i<=space()->end(F::V,X,B::Y); ++i ) {
-						y(i,j,k) = 0.;
+			if( BC::Dirichlet==space()->bcu(Z) ) {
+				Ordinal k = space()->end(f,Z,B::Y);
+				for( Ordinal j=space()->begin(f,Y,B::N); j<=space()->end(f,Y,B::N); ++j )
+					for( Ordinal i=space()->begin(f,X,B::Y); i<=space()->end(f,X,B::Y); ++i ) {
+						y(i,j,k) = b(i,j,k);
+					}
+			}
+
+			if( BC::Dirichlet==space()->bcl(Y) ) {
+				Ordinal j = space()->begin(f,Y,B::Y);
+				for( Ordinal k=space()->begin(f,Z,B::Y); k<=space()->end(f,Z,B::Y); ++k )
+					for( Ordinal i=space()->begin(f,X,B::Y); i<=space()->end(f,X,B::Y); ++i ) {
+						Scalar bla = 0.;
 						for( Ordinal jj=space()->dl(Y); jj<=space()->du(Y); ++jj )
-							y(i,j,k) += space()->getInterpolateV2S()->getC( Y, j, jj )*y(i,j+jj,k);
-						y(i,j,k) = y(i,j,k) + omegaBC*( b(i,j,k) - y(i,j,k) )/space()->getInterpolateV2S()->getC( Y, j, 0 );
+							bla += space()->getInterpolateV2S()->getC( Y, j+1, jj )*y(i,1+j+jj,k);
+						y(i,j,k) += omegaBC*( b(i,j,k) - bla )/space()->getInterpolateV2S()->getC( Y, j+1, 0 );
+					}
+			}
+			if( BC::Dirichlet==space()->bcu(Y) ) {
+				Ordinal j = space()->end(f,Y,B::Y);
+				for( Ordinal k=space()->begin(f,Z,B::Y); k<=space()->end(f,Z,B::Y); ++k )
+					for( Ordinal i=space()->begin(f,X,B::Y); i<=space()->end(f,X,B::Y); ++i ) {
+						Scalar bla = 0.;
+						for( Ordinal jj=space()->dl(Y); jj<=space()->du(Y); ++jj )
+							bla += space()->getInterpolateV2S()->getC( Y, j, jj )*y(i,j+jj,k);
+						y(i,j,k) += omegaBC*( b(i,j,k) - bla )/space()->getInterpolateV2S()->getC( Y, j, 0 );
 					}
 			}
 		}
 
 		// W-field
-		if( F::W==y.getType() ) {
-			if( DirichletBC==space()->bcl(X) ) {
-				Ordinal i = space()->begin(F::W,X,B::Y);
-				for( Ordinal k=space()->begin(F::W,Z,B::N); k<=space()->end(F::W,Z,B::N); ++k )
-					for( Ordinal j=space()->begin(F::W,Y,B::Y); j<=space()->end(F::W,Y,B::Y); ++j )
-						y(i,j,k) += omegaBC*( b(i,j,k) - y(i,j,k) );
+		if( F::W==f ) {
+			if( BC::Dirichlet==space()->bcl(X) ) {
+				Ordinal i = space()->begin(f,X,B::Y);
+				for( Ordinal k=space()->begin(f,Z,B::N); k<=space()->end(f,Z,B::N); ++k )
+					for( Ordinal j=space()->begin(f,Y,B::Y); j<=space()->end(f,Y,B::Y); ++j )
+						y(i,j,k) = b(i,j,k);
 			}
-			if( DirichletBC==space()->bcu(X) ) {
-				Ordinal i = space()->end(F::W,X,B::Y);
-				for( Ordinal k=space()->begin(F::W,Z,B::N); k<=space()->end(F::W,Z,B::N); ++k )
-					for( Ordinal j=space()->begin(F::W,Y,B::Y); j<=space()->end(F::W,Y,B::Y); ++j )
-						y(i,j,k) += omegaBC*( b(i,j,k) - y(i,j,k) );
-			}
-
-			if( DirichletBC==space()->bcl(Y) ) {
-				Ordinal j = space()->begin(F::W,Y,B::Y);
-				for( Ordinal k=space()->begin(F::W,Z,B::N); k<=space()->end(F::W,Z,B::N); ++k )
-					for( Ordinal i=space()->begin(F::W,X,B::Y); i<=space()->end(F::W,X,B::Y); ++i ) {
-						y(i,j,k) += omegaBC*( b(i,j,k) - y(i,j,k) );
-					}
-			}
-			if( DirichletBC==space()->bcu(Y) ) {
-				Ordinal j = space()->end(F::W,Y,B::Y);
-				for( Ordinal k=space()->begin(F::W,Z,B::N); k<=space()->end(F::W,Z,B::N); ++k )
-					for( Ordinal i=space()->begin(F::W,X,B::Y); i<=space()->end(F::W,X,B::Y); ++i ) {
-						y(i,j,k) += omegaBC*( b(i,j,k) - y(i,j,k) );
-					}
+			if( BC::Dirichlet==space()->bcu(X) ) {
+				Ordinal i = space()->end(f,X,B::Y);
+				for( Ordinal k=space()->begin(f,Z,B::N); k<=space()->end(f,Z,B::N); ++k )
+					for( Ordinal j=space()->begin(f,Y,B::Y); j<=space()->end(f,Y,B::Y); ++j )
+						y(i,j,k) = b(i,j,k);
 			}
 
-			if( DirichletBC==space()->bcl(Z) ) {
-				Ordinal k = space()->begin(F::W,Z,B::Y);
-				for( Ordinal j=space()->begin(F::W,Y,B::Y); j<=space()->end(F::W,Y,B::Y); ++j )
-					for( Ordinal i=space()->begin(F::W,X,B::Y); i<=space()->end(F::W,X,B::Y); ++i ) {
-						y(i,j,k) = 0.;
+			if( BC::Dirichlet==space()->bcl(Y) ) {
+				Ordinal j = space()->begin(f,Y,B::Y);
+				for( Ordinal k=space()->begin(f,Z,B::N); k<=space()->end(f,Z,B::N); ++k )
+					for( Ordinal i=space()->begin(f,X,B::Y); i<=space()->end(f,X,B::Y); ++i )
+						y(i,j,k) = b(i,j,k);
+			}
+			if( BC::Dirichlet==space()->bcu(Y) ) {
+				Ordinal j = space()->end(f,Y,B::Y);
+				for( Ordinal k=space()->begin(f,Z,B::N); k<=space()->end(f,Z,B::N); ++k )
+					for( Ordinal i=space()->begin(f,X,B::Y); i<=space()->end(f,X,B::Y); ++i )
+						y(i,j,k) = b(i,j,k);
+			}
+
+			if( BC::Dirichlet==space()->bcl(Z) ) {
+				Ordinal k = space()->begin(f,Z,B::Y);
+				for( Ordinal j=space()->begin(f,Y,B::Y); j<=space()->end(f,Y,B::Y); ++j )
+					for( Ordinal i=space()->begin(f,X,B::Y); i<=space()->end(f,X,B::Y); ++i ) {
+						Scalar bla = 0.;
 						for( Ordinal kk=space()->dl(Z); kk<=space()->du(Z); ++kk )
-							y(i,j,k) += space()->getInterpolateV2S()->getC( Z, k+1, kk )*y(i,j,1+k+kk);
-						y(i,j,k) = y(i,j,k) + omegaBC*( b(i,j,k) - y(i,j,k) )/space()->getInterpolateV2S()->getC( Z, k+1, 0 );
+							bla += space()->getInterpolateV2S()->getC( Z, k+1, kk )*y(i,j,1+k+kk);
+						y(i,j,k) += omegaBC*( b(i,j,k) - bla )/space()->getInterpolateV2S()->getC( Z, k+1, 0 );
 					}
 			}
-			if( DirichletBC==space()->bcu(Z) ) {
-				Ordinal k = space()->end(F::W,Z,B::Y);
-				for( Ordinal j=space()->begin(F::W,Y,B::Y); j<=space()->end(F::W,Y,B::Y); ++j )
-					for( Ordinal i=space()->begin(F::W,X,B::Y); i<=space()->end(F::W,X,B::Y); ++i ) {
-						y(i,j,k) = 0.;
+			if( BC::Dirichlet==space()->bcu(Z) ) {
+				Ordinal k = space()->end(f,Z,B::Y);
+				for( Ordinal j=space()->begin(f,Y,B::Y); j<=space()->end(f,Y,B::Y); ++j )
+					for( Ordinal i=space()->begin(f,X,B::Y); i<=space()->end(f,X,B::Y); ++i ) {
+						Scalar bla = 0.;
 						for( Ordinal kk=space()->dl(Z); kk<=space()->du(Z); ++kk )
-							y(i,j,k) += space()->getInterpolateV2S()->getC( Z, k, kk )*y(i,j,k+kk);
-						y(i,j,k) = y(i,j,k) + omegaBC*( b(i,j,k) - y(i,j,k) )/space()->getInterpolateV2S()->getC( Z, k, 0 );
+							bla += space()->getInterpolateV2S()->getC( Z, k, kk )*y(i,j,k+kk);
+						y(i,j,k) += omegaBC*( b(i,j,k) - bla )/space()->getInterpolateV2S()->getC( Z, k, 0 );
 					}
 			}
 		}

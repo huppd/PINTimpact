@@ -20,6 +20,7 @@ namespace Pimpact{
 ///
 /// \tparam dimension  as soon as Time is own class dimension ->sd
 /// \ingroup SpaceObject
+/// \todo make int -> BC
 template<int dimension>
 class BoundaryConditionsLocal {
 
@@ -30,19 +31,19 @@ protected:
 			const Teuchos::RCP<const BoundaryConditionsGlobal<dT> >& bcg,
 			const Teuchos::RCP<const ProcGrid<OT,dT> >&  pg );
 
-	using TBC3 = const Teuchos::Tuple<EBCType,3>;
+	using TBC3 = const Teuchos::Tuple<BC,3>;
 	using TO = const Teuchos::Tuple<int,dimension>;
 
 	TO BCL_int_;
 	TO BCU_int_;
 
 	BoundaryConditionsLocal(
-			EBCType BC1L=DirichletBC,
-			EBCType BC1U=DirichletBC,
-			EBCType BC2L=DirichletBC,
-			EBCType BC2U=DirichletBC,
-			EBCType BC3L=DirichletBC,
-			EBCType BC3U=DirichletBC ) {
+			BC BC1L=BC::Dirichlet,
+			BC BC1U=BC::Dirichlet,
+			BC BC2L=BC::Dirichlet,
+			BC BC2U=BC::Dirichlet,
+			BC BC3L=BC::Dirichlet,
+			BC BC3U=BC::Dirichlet ) {
 
 		TBC3 BCL_local_ = Teuchos::tuple( BC1L, BC2L, BC3L );
 		TBC3 BCU_local_ = Teuchos::tuple( BC1U, BC2U, BC3U );
@@ -52,8 +53,8 @@ protected:
 			BCU_int_[i] = static_cast<int>( BCU_local_[i] );
 		}
 		if( 4==dimension ) {
-			BCL_int_[3] = static_cast<int>( NeighborBC );
-			BCU_int_[3] = static_cast<int>( NeighborBC );
+			BCL_int_[3] = static_cast<int>( BC::Neighbor );
+			BCU_int_[3] = static_cast<int>( BC::Neighbor );
 		}
 	};
 
@@ -65,8 +66,8 @@ protected:
 			BCU_int_[i] = static_cast<int>( BCU_local[i] );
 		}
 		if( 4==dimension ) {
-			BCL_int_[3] = static_cast<int>( NeighborBC );
-			BCU_int_[3] = static_cast<int>( NeighborBC );
+			BCL_int_[3] = static_cast<int>( BC::Neighbor );
+			BCU_int_[3] = static_cast<int>( BC::Neighbor );
 		}
 	}
 
@@ -110,26 +111,26 @@ Teuchos::RCP< const BoundaryConditionsLocal<d> >  createBoudaryConditionsLocal(
 		const Teuchos::RCP<const BoundaryConditionsGlobal<d> >& bcg,
 		const Teuchos::RCP<const ProcGrid<O,d> >&  pg ) {
 
-	typedef const Teuchos::Tuple<EBCType,3> TBC3;
+	using TBC3 = const Teuchos::Tuple<BC,3>;
 
 	// Default: Neighbor block
-	TBC3 BCL = Teuchos::tuple( NeighborBC, NeighborBC, NeighborBC );
-	TBC3 BCU = Teuchos::tuple( NeighborBC, NeighborBC, NeighborBC );
+	TBC3 BCL = Teuchos::tuple( BC::Neighbor, BC::Neighbor, BC::Neighbor );
+	TBC3 BCU = Teuchos::tuple( BC::Neighbor, BC::Neighbor, BC::Neighbor );
 
 	// special case periodic BC with only one block:
 	for( int i=0; i<3; ++i ) {
-		if( PeriodicBC==bcg->getBCL(i) && 1==pg->getNP(i) ){
-			BCL[i] = PeriodicBC;
-			BCU[i] = PeriodicBC;
+		if( BC::Periodic==bcg->getBCL(i) && 1==pg->getNP(i) ){
+			BCL[i] = BC::Periodic;
+			BCU[i] = BC::Periodic;
 		}
 	}
 
 	// boundary condition on procgrid boundar
 	for( int i=0; i<3; ++i ) {
 		if( pg->getRankL(i)<0 )
-			BCL[i] = static_cast<EBCType>( bcg->getBCL(i) );
+			BCL[i] = static_cast<BC>( bcg->getBCL(i) );
 		if( pg->getRankU(i)<0 )
-			BCU[i] = static_cast<EBCType>( bcg->getBCU(i) );
+			BCU[i] = static_cast<BC>( bcg->getBCU(i) );
 	}
 
 	return(

@@ -73,8 +73,8 @@ public:
 		iS = std::max(x.space()->nGlo(3),y.space()->begin(F::U,3));
 		iE = y.space()->end(F::U,3);
 		for( Ordinal i=iS; i<iE; ++i ) {
-			y.getCField(i).initField();
-			y.getSField(i).initField();
+			y.getCField(i).init();
+			y.getSField(i).init();
 		}
 
 		y.changed();

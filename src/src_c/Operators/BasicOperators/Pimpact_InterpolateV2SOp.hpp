@@ -94,8 +94,8 @@ public:
 					mapping, // mapping, works with interpolateV2S
 					stencilWidths->getDimNcbD(i),
 					stencilWidths->getNcbD(i),
-					coordinatesLocal->getX( i, fi ),
-					coordinatesLocal->getX( i, F::S ),
+					coordinatesLocal->getX( fi, i ),
+					coordinatesLocal->getX( F::S, i ),
 					c_[i].get() );
 		}
 	};

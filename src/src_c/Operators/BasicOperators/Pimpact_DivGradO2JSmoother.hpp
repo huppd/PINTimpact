@@ -40,16 +40,10 @@ protected:
 
   Scalar omega_;
   int nIter_;
-	int bcSmoothing_;
-	Ordinal depth_;
 
 	bool levelYes_;
 
-
   const Teuchos::RCP<const OperatorT> op_;
-
-	const Teuchos::Tuple< Teuchos::RCP<SolverT>, 3 > AsovL_;
-	const Teuchos::Tuple< Teuchos::RCP<SolverT>, 3 > AsovU_;
 
 public:
 
@@ -57,8 +51,6 @@ public:
     omega_( (2==SpaceT::sdim)?0.8:6./7. ),
     nIter_( 4 ),
     levelYes_( false ),
-		bcSmoothing_( 0 ),
-		depth_( 2 ),
     op_( Teuchos::rcp( new OperatorT(space) ) ) {}
 
 	/// \brief constructor
@@ -76,101 +68,13 @@ public:
       const Teuchos::RCP<Teuchos::ParameterList>& pl=Teuchos::parameterList() ):
     omega_( pl->get<Scalar>("omega", (2==SpaceT::sdim)?0.8:6./7. ) ),
     nIter_( pl->get<int>( "numIters", 2 ) ),
-		bcSmoothing_( pl->get<int>( "BC smoothing", 0 ) ),
-		depth_( pl->get<Ordinal>( "depth", 2 ) ),
     levelYes_( pl->get<bool>( "level", false ) ),
-    op_(op) {
-		
-			if( 0<bcSmoothing_ ) {
-				Ordinal SS[3];
-				Ordinal NN[3];
-
-				// boundary conditions in X
-				if( space()->getBCLocal()->getBCL(X)>0 ) {
-					SS[X] = space()->begin(F::S,X);
-					SS[Y] = space()->begin(F::S,Y);
-					SS[Z] = space()->begin(F::S,Z);
-
-					NN[X] = space()->begin(F::S,X)+depth_;
-					NN[Y] = space()->end(F::S,Y);
-					NN[Z] = space()->end(F::S,Z);
-
-					// set solver and solve
-					AsovL_[0] = Teuchos::rcp( new SolverT( op_, SS, NN) );
-				}
-				if( space()->getBCLocal()->getBCU(X)>0 ) {
-					SS[X] = space()->end(F::S,X)-depth_;
-					SS[Y] = space()->begin(F::S,Y);
-					SS[Z] = space()->begin(F::S,Z);
-
-					NN[X] = space()->end(F::S,X);
-					NN[Y] = space()->end(F::S,Y);
-					NN[Z] = space()->end(F::S,Z);
-
-					// set solver and solve
-					AsovU_[0] = Teuchos::rcp( new SolverT( op_, SS, NN ) );
-				}
-
-				// boundary conditions in Y
-				if( space()->getBCLocal()->getBCL(Y)>0 ) {
-					SS[X] = space()->begin(F::S,X);
-					SS[Y] = space()->begin(F::S,Y);
-					SS[Z] = space()->begin(F::S,Z);
-
-					NN[X] = space()->end(F::S,X);
-					NN[Y] = space()->begin(F::S,Y)+depth_;
-					NN[Z] = space()->end(F::S,Z);
-
-					// set solver and solve
-					AsovL_[1] = Teuchos::rcp( new SolverT( op_, SS, NN ) );
-				}
-				if( space()->getBCLocal()->getBCU(Y)>0 ) {
-					SS[X] = space()->begin(F::S,X);
-					SS[Y] = space()->end(F::S,Y)-depth_;
-					SS[Z] = space()->begin(F::S,Z);
-
-					NN[X] = space()->end(F::S,X);
-					NN[Y] = space()->end(F::S,Y);
-					NN[Z] = space()->end(F::S,Z);
-
-					// set solver and solve
-					AsovU_[1] = Teuchos::rcp( new SolverT( op_, SS, NN ) );
-				}
-
-				// boundary conditions in Z
-				if( space()->getBCLocal()->getBCL(Z)>0 ) {
-					SS[X] = space()->begin(F::S,X);
-					SS[Y] = space()->begin(F::S,Y);
-					SS[Z] = space()->begin(F::S,Z);
-
-					NN[X] = space()->end(F::S,X);
-					NN[Y] = space()->end(F::S,Y);
-					NN[Z] = space()->begin(F::S,Z)+depth_;
-
-					// set solver and solve
-					AsovL_[2] = Teuchos::rcp( new SolverT( op_, SS, NN ) );
-				}
-				if( space()->getBCLocal()->getBCU(Z)>0 ) {
-					SS[X] = space()->begin(F::S,X);
-					SS[Y] = space()->begin(F::S,Y);
-					SS[Z] = space()->end(F::S,Z)-depth_;
-
-					NN[X] = space()->end(F::S,X);
-					NN[Y] = space()->end(F::S,Y);
-					NN[Z] = space()->end(F::S,Z);
-
-					// set solver and solve
-					AsovU_[2] = Teuchos::rcp( new SolverT( op_, SS,NN ) );
-				}
-			}
-		}
+		op_(op) {}
 
 
   /// \f[ y_k = (1-\omega) y_k + \omega D^{-1}( x - A y_k ) \f]
 	void apply(const DomainFieldT& b, RangeFieldT& y, const Add& add=Add::N ) const {
 
-		//Teuchos::RCP<DomainFieldT> temp =
-			//Teuchos::rcp( new DomainFieldT(space()) );
 		DomainFieldT temp( space() );
 
 		for( int i=0; i<nIter_; ++i) {
@@ -231,25 +135,6 @@ public:
 	const std::string getLabel() const { return( "DivGradO2JSmoother" ); };
 
 protected:
-
-	void applyDBCSmoothing( const DomainFieldT& b, DomainFieldT& x, const Scalar& omega ) const {
-
-		// boundary conditions in 
-		for( int i=0; i<3; ++i ) {
-			if( space()->getBCLocal()->getBCL(i)>0 )
-				AsovL_[i]->apply( b, x, omega );
-
-			if( space()->getBCLocal()->getBCU(i)>0 )
-				AsovU_[i]->apply( b, x, omega );
-		}
-	}
-
-
-	void applyJBCSmoothing( const DomainFieldT& b, const DomainFieldT& x, RangeFieldT& y ) const {
-		applyJBCSmoothing( b, x, y, omega_ );
-	}
-
-
 
 	constexpr Scalar innerStenc3D( const DomainFieldT& b, const DomainFieldT& x,
 			const Ordinal& i, const Ordinal& j, const Ordinal& k ) const { 

@@ -50,10 +50,10 @@ class OperatorPimpl : public virtual OperatorBase<typename Op::DomainFieldT, typ
 
 public:
 
-  typedef typename Op::DomainFieldT DomainFieldT;
-  typedef typename Op::RangeFieldT RangeFieldT;
+  using DomainFieldT = typename Op::DomainFieldT;
+  using  RangeFieldT = typename Op::RangeFieldT;
 
-  typedef typename DomainFieldT::SpaceT SpaceT;
+  using SpaceT = typename DomainFieldT::SpaceT;
 
 protected:
 

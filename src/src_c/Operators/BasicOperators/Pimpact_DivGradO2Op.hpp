@@ -73,9 +73,9 @@ public:
 					space_->bu( dir ),
 					space_->getBCLocal()->getBCL( dir ),
 					space_->getBCLocal()->getBCU( dir ),
-					space_->getCoordinatesGlobal()->getX( static_cast<ECoord>(dir), static_cast<F>(dir) ),
-					space_->getCoordinatesLocal()->getX( static_cast<ECoord>(dir), F::S ),
-					space_->getCoordinatesLocal()->getX( static_cast<ECoord>(dir), static_cast<F>(dir) ),
+					space_->getCoordinatesGlobal()->getX( static_cast<F>(dir), static_cast<ECoord>(dir) ),
+					space_->getCoordinatesLocal()->getX( F::S, static_cast<ECoord>(dir) ),
+					space_->getCoordinatesLocal()->getX( static_cast<F>(dir), static_cast<ECoord>(dir) ),
 					c_[dir].get() );
 		}
 	}

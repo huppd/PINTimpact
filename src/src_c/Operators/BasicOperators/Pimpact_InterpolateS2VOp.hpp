@@ -71,8 +71,8 @@ public:
 						mapping, // mapping
 						space_->getStencilWidths()->getDimNcbG(i),
 						space_->getStencilWidths()->getNcbG(i),
-						space_->getCoordinatesLocal()->getX( i, F::S ),
-						space_->getCoordinatesLocal()->getX( i, f ),
+						space_->getCoordinatesLocal()->getX( F::S, i ),
+						space_->getCoordinatesLocal()->getX( f, i ),
 						c_[i].get() );
 			}
 		};

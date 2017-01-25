@@ -71,7 +71,7 @@ public:
 
 			if( owning_ ) {
 				allocate();
-				initField();
+				init();
 			}
 	};
 
@@ -93,7 +93,7 @@ public:
 
 			switch( copyType ) {
 				case ECopy::Shallow:
-					initField();
+					init();
 					break;
 				case ECopy::Deep:
 					*this = vF;
@@ -329,13 +329,6 @@ public:
 		changed();
 	}
 
-
-	///  \brief initializes VectorField including boundaries to zero 
-	void initField() {
-		for( F i=F::U; i<SpaceT::sdim; ++i )
-			at(i).initField();
-	}
-
 private:
 
 	/// \brief kind of VectorField profile
@@ -349,7 +342,6 @@ private:
 		Pulsatile2D_inXS,
 		Pulsatile2D_inYC,
 		Pulsatile2D_inYS,
-		Streaming2D,
 		Circle2D,
 		Circle2D_inXZ,
 		RankineVortex2D,
@@ -389,7 +381,7 @@ private:
 		else if( "pulsatile in x sin" == lcName ) return( Pulsatile2D_inXS );
 		else if( "pulsatile in y cos" == lcName ) return( Pulsatile2D_inYC );
 		else if( "pulsatile in y sin" == lcName ) return( Pulsatile2D_inYS );
-		else if( "streaming" == lcName ) return( Streaming2D );
+		else if( "streaming" == lcName ) return( Streaming2DS );
 		else if( "circle" == lcName ) return( Circle2D );
 		else if( "circle xy" == lcName ) return( Circle2D );
 		else if( "circle xz" == lcName ) return( Circle2D_inXZ );
@@ -418,8 +410,10 @@ private:
 
 public:
 
-	///  \brief initializes including boundaries to zero 
-	void initField( Teuchos::ParameterList& para ) {
+	/// \brief initializes including boundaries to zero 
+	/// \todo rm FORTRAN
+	/// \todo make it init or addable
+	void initField( Teuchos::ParameterList& para, const Add& add=Add::N ) {
 
 		EVectorField type =
 			string2enum( para.get<std::string>( "Type", "zero" ) );
@@ -428,349 +422,365 @@ public:
 			case ZeroFlow :
 				{
 					for( F i=F::U; i<SpaceT::sdim; ++i )
-						at(i).initField( ConstField );
+						if( Add::N==add ) at(i).init();
 					break;
 				}
 			case ConstFlow :
 				{
-					at(F::U).initField( ConstField, para.get<Scalar>( "U", 1.) );
-					at(F::V).initField( ConstField, para.get<Scalar>( "V", 1.) );
-					at(F::W).initField( ConstField, para.get<Scalar>( "W", 1.) );
+					Scalar u = para.get<Scalar>( "U", 1.);
+					Scalar v = para.get<Scalar>( "V", 1.);
+					Scalar w = para.get<Scalar>( "V", 1.);
+
+					at(F::U).initFromFunction( [&u]( Scalar x, Scalar y, Scalar z)->Scalar{
+							return( u ); },
+							add );
+					at(F::V).initFromFunction( [&v]( Scalar x, Scalar y, Scalar z)->Scalar{
+							return( v ); },
+							add );
+					at(F::W).initFromFunction( [&w]( Scalar x, Scalar y, Scalar z)->Scalar{
+							return( w ); },
+							add );
 					break;
 				}
 			case PoiseuilleFlow2D_inX :
 				{
 					for( F i=F::U; i<SpaceT::sdim; ++i )
 						if( F::U==i )
-							at(i).initField( Poiseuille2D_inY );
+							at(i).initFromFunction(
+									[] (Scalar x, Scalar y, Scalar z)->Scalar { return( 4.*y*(1.-y) ); },
+									add );
 						else
-							at(i).initField( ConstField );
+							if( Add::N==add ) at(i).init();
 					break;
 				}
 			case PoiseuilleFlow2D_inY :
 				{
 					for( F i=F::U; i<SpaceT::sdim; ++i )
 						if( F::V==i )
-							at(i).initField( Poiseuille2D_inX );
+							at(i).initFromFunction(
+									[] (Scalar x, Scalar y, Scalar z)->Scalar { return( 4.*x*(1.-x) ); },
+									add );
 						else
-							at(i).initField( ConstField );
+							if( Add::N==add ) at(i).init();
 					break;
 				}
 			case PoiseuilleFlow2D_inZ :
 				{
 					for( F i=F::U; i<SpaceT::sdim; ++i )
 						if(F::W==i )
-							at(i).initField( Poiseuille2D_inX );
+							at(i).initFromFunction(
+									[] (Scalar x, Scalar y, Scalar z)->Scalar { return( 4.*x*(1.-x) ); },
+									add );
 						else
-							at(i).initField( ConstField );
+							if( Add::N==add ) at(i).init();
 					break;
 				}
 			case Pulsatile2D_inXC :
-				VF_init_2DPulsatileXC(
-						space()->nLoc(),
-						space()->bl(),
-						space()->bu(),
-						space()->sIndB(F::U),
-						space()->eIndB(F::U),
-						space()->sIndB(F::V),
-						space()->eIndB(F::V),
-						space()->sIndB(F::W),
-						space()->eIndB(F::W),
-						space()->getDomainSize()->getSize(1),
-						space()->getCoordinatesLocal()->getX(Y,F::S),
-						space()->getDomainSize()->getRe(),     // TODO: verify
-						space()->getDomainSize()->getAlpha2(), // TODO: verify
-						para.get<Scalar>( "px", 1. ),          // TODO: verify
-						at(F::U).getRawPtr(),
-						at(F::V).getRawPtr(),
-						at(F::W).getRawPtr() );
-				break;
+				{
+					VF_init_2DPulsatileXC(
+							space()->nLoc(),
+							space()->bl(),
+							space()->bu(),
+							space()->sIndB(F::U),
+							space()->eIndB(F::U),
+							space()->sIndB(F::V),
+							space()->eIndB(F::V),
+							space()->sIndB(F::W),
+							space()->eIndB(F::W),
+							space()->getDomainSize()->getSize(1),
+							space()->getCoordinatesLocal()->getX(F::S,Y),
+							space()->getDomainSize()->getRe(),     // TODO: verify
+							space()->getDomainSize()->getAlpha2(), // TODO: verify
+							para.get<Scalar>( "px", 1. ),          // TODO: verify
+							at(F::U).getRawPtr(),
+							at(F::V).getRawPtr(),
+							at(F::W).getRawPtr() );
+					break;
+				}
 			case Pulsatile2D_inYC :
-				VF_init_2DPulsatileYC(
-						space()->nLoc(),
-						space()->bl(),
-						space()->bu(),
-						space()->sIndB(F::U),
-						space()->eIndB(F::U),
-						space()->sIndB(F::V),
-						space()->eIndB(F::V),
-						space()->sIndB(F::W),
-						space()->eIndB(F::W),
-						space()->getDomainSize()->getSize(0),
-						space()->getCoordinatesLocal()->getX(X,F::S),
-						space()->getDomainSize()->getRe(),     // TODO: verify
-						space()->getDomainSize()->getAlpha2(), // TODO: verify
-						para.get<Scalar>( "px", 1. ),          // TODO: verify
-						at(F::U).getRawPtr(),
-						at(F::V).getRawPtr(),
-						at(F::W).getRawPtr() );
-				break;
+				{
+					VF_init_2DPulsatileYC(
+							space()->nLoc(),
+							space()->bl(),
+							space()->bu(),
+							space()->sIndB(F::U),
+							space()->eIndB(F::U),
+							space()->sIndB(F::V),
+							space()->eIndB(F::V),
+							space()->sIndB(F::W),
+							space()->eIndB(F::W),
+							space()->getDomainSize()->getSize(0),
+							space()->getCoordinatesLocal()->getX(F::S,X),
+							space()->getDomainSize()->getRe(),     // TODO: verify
+							space()->getDomainSize()->getAlpha2(), // TODO: verify
+							para.get<Scalar>( "px", 1. ),          // TODO: verify
+							at(F::U).getRawPtr(),
+							at(F::V).getRawPtr(),
+							at(F::W).getRawPtr() );
+					break;
+				}
 			case Pulsatile2D_inXS :
-				VF_init_2DPulsatileXS(
-						space()->nLoc(),
-						space()->bl(),
-						space()->bu(),
-						space()->sIndB(F::U),
-						space()->eIndB(F::U),
-						space()->sIndB(F::V),
-						space()->eIndB(F::V),
-						space()->sIndB(F::W),
-						space()->eIndB(F::W),
-						space()->getDomainSize()->getSize(1),
-						space()->getCoordinatesLocal()->getX(Y,F::S),
-						space()->getDomainSize()->getRe(),     // TODO: verify
-						space()->getDomainSize()->getAlpha2(), // TODO: verify
-						para.get<Scalar>( "px", 1. ),          // TODO: verify
-						at(F::U).getRawPtr(),
-						at(F::V).getRawPtr(),
-						at(F::W).getRawPtr() );
-				break;
+				{
+					VF_init_2DPulsatileXS(
+							space()->nLoc(),
+							space()->bl(),
+							space()->bu(),
+							space()->sIndB(F::U),
+							space()->eIndB(F::U),
+							space()->sIndB(F::V),
+							space()->eIndB(F::V),
+							space()->sIndB(F::W),
+							space()->eIndB(F::W),
+							space()->getDomainSize()->getSize(1),
+							space()->getCoordinatesLocal()->getX(F::S,Y),
+							space()->getDomainSize()->getRe(),     // TODO: verify
+							space()->getDomainSize()->getAlpha2(), // TODO: verify
+							para.get<Scalar>( "px", 1. ),          // TODO: verify
+							at(F::U).getRawPtr(),
+							at(F::V).getRawPtr(),
+							at(F::W).getRawPtr() );
+					break;
+				}
 			case Pulsatile2D_inYS :
-				VF_init_2DPulsatileYS(
-						space()->nLoc(),
-						space()->bl(),
-						space()->bu(),
-						space()->sIndB(F::U),
-						space()->eIndB(F::U),
-						space()->sIndB(F::V),
-						space()->eIndB(F::V),
-						space()->sIndB(F::W),
-						space()->eIndB(F::W),
-						space()->getDomainSize()->getSize(0),
-						space()->getCoordinatesLocal()->getX(X,F::S),
-						space()->getDomainSize()->getRe(),     // TODO: verify
-						space()->getDomainSize()->getAlpha2(), // TODO: verify
-						para.get<Scalar>( "px", 1. ),          // TODO: verify
-						at(F::U).getRawPtr(),
-						at(F::V).getRawPtr(),
-						at(F::W).getRawPtr() );
-				break;
-			case Streaming2D :
-				VF_init_StreamingS(
-						space()->nLoc(),
-						space()->bl(),
-						space()->bu(),
-						space()->sIndB(F::U),
-						space()->eIndB(F::U),
-						space()->sIndB(F::V),
-						space()->eIndB(F::V),
-						space()->sIndB(F::W),
-						space()->eIndB(F::W),
-						space()->getDomainSize()->getSize(0),
-						space()->getCoordinatesLocal()->getX(X,F::S),
-						space()->getDomainSize()->getRe(),     // TODO: verify
-						at(F::U).getRawPtr(),
-						at(F::V).getRawPtr(),
-						at(F::W).getRawPtr() );
-				break;
+				{
+					VF_init_2DPulsatileYS(
+							space()->nLoc(),
+							space()->bl(),
+							space()->bu(),
+							space()->sIndB(F::U),
+							space()->eIndB(F::U),
+							space()->sIndB(F::V),
+							space()->eIndB(F::V),
+							space()->sIndB(F::W),
+							space()->eIndB(F::W),
+							space()->getDomainSize()->getSize(0),
+							space()->getCoordinatesLocal()->getX(F::S,X),
+							space()->getDomainSize()->getRe(),     // TODO: verify
+							space()->getDomainSize()->getAlpha2(), // TODO: verify
+							para.get<Scalar>( "px", 1. ),          // TODO: verify
+							at(F::U).getRawPtr(),
+							at(F::V).getRawPtr(),
+							at(F::W).getRawPtr() );
+					break;
+				}
 			case Streaming2DC :
-				VF_init_StreamingC(
-						space()->nLoc(),
-						space()->bl(),
-						space()->bu(),
-						space()->sIndB(F::U),
-						space()->eIndB(F::U),
-						space()->sIndB(F::V),
-						space()->eIndB(F::V),
-						space()->sIndB(F::W),
-						space()->eIndB(F::W),
-						space()->getDomainSize()->getSize(0),
-						space()->getCoordinatesLocal()->getX(X,F::S),
-						space()->getDomainSize()->getRe(),     // TODO: verify
-						at(F::U).getRawPtr(),
-						at(F::V).getRawPtr(),
-						at(F::W).getRawPtr() );
-				break;
+				{
+					Scalar amp = space()->getDomainSize()->getRe();
+					Scalar pi = 4.*std::atan(1.);
+					Scalar L1 = space()->getDomainSize()->getSize(X);
+					Scalar om = 2.*pi/L1;
+
+					if( Add::N==add ) at(F::U).init();
+					at(F::V).initFromFunction( 
+							[&amp,&om]( Scalar x, Scalar y, Scalar z ) -> Scalar {
+								return( amp*std::cos( om*x ) ); },
+							add );
+					if( Add::N==add ) at(F::W).init();
+					break;
+				}
 			case Streaming2DS:
-				VF_init_StreamingS(
-						space()->nLoc(),
-						space()->bl(),
-						space()->bu(),
-						space()->sIndB(F::U),
-						space()->eIndB(F::U),
-						space()->sIndB(F::V),
-						space()->eIndB(F::V),
-						space()->sIndB(F::W),
-						space()->eIndB(F::W),
-						space()->getDomainSize()->getSize(0),
-						space()->getCoordinatesLocal()->getX(X,F::S),
-						space()->getDomainSize()->getRe(),     // TODO: verify
-						at(F::U).getRawPtr(),
-						at(F::V).getRawPtr(),
-						at(F::W).getRawPtr() );
-				break;
+				{
+					Scalar amp = space()->getDomainSize()->getRe();
+					Scalar pi = 4.*std::atan(1.);
+					Scalar L1 = space()->getDomainSize()->getSize(X);
+					Scalar om = 2.*pi/L1;
+
+					if( Add::N==add ) at(F::U).init();
+					at(F::V).initFromFunction( 
+							[&amp,&om]( Scalar x, Scalar y, Scalar z ) -> Scalar {
+							return( amp*std::sin( om*x ) ); },
+							add );
+					if( Add::N==add ) at(F::W).init();
+					break;
+				}
 			case Circle2D :
 				{
 					at(F::U).initField( Grad2D_inY, -1. );
 					at(F::V).initField( Grad2D_inX,  1. );
-					at(F::W).initField();
+					if( Add::N==add ) at(F::W).init();
 					break;
 				}
 			case Circle2D_inXZ :
 				{
 					at(F::U).initField( Grad2D_inY, -1. );
-					at(F::V).initField();
+					if( Add::N==add ) at(F::V).init();
 					at(F::W).initField( Grad2D_inX,  1. );
 					break;
 				}
 			case RankineVortex2D :
-				VF_init_RankineVortex(
-						space()->nLoc(),
-						space()->bl(),
-						space()->bu(),
-						space()->sIndB(F::U),
-						space()->eIndB(F::U),
-						space()->sIndB(F::V),
-						space()->eIndB(F::V),
-						space()->sIndB(F::W),
-						space()->eIndB(F::W),
-						space()->getDomainSize()->getSize(),
-						space()->getCoordinatesLocal()->getX(X,F::S),
-						space()->getCoordinatesLocal()->getX(Y,F::S),
-						space()->getCoordinatesLocal()->getX(X,F::U),
-						space()->getCoordinatesLocal()->getX(Y,F::V),
-						at(F::U).getRawPtr(),
-						at(F::V).getRawPtr(),
-						at(F::W).getRawPtr() );
-				break;
+				{
+					VF_init_RankineVortex(
+							space()->nLoc(),
+							space()->bl(),
+							space()->bu(),
+							space()->sIndB(F::U),
+							space()->eIndB(F::U),
+							space()->sIndB(F::V),
+							space()->eIndB(F::V),
+							space()->sIndB(F::W),
+							space()->eIndB(F::W),
+							space()->getDomainSize()->getSize(),
+							space()->getCoordinatesLocal()->getX(F::S,X),
+							space()->getCoordinatesLocal()->getX(F::S,Y),
+							space()->getCoordinatesLocal()->getX(F::U,X),
+							space()->getCoordinatesLocal()->getX(F::V,Y),
+							at(F::U).getRawPtr(),
+							at(F::V).getRawPtr(),
+							at(F::W).getRawPtr() );
+					break;
+				}
 			case GaussianForcing1D :
-				VF_init_GaussianForcing1D(
-						space()->nLoc(),
-						space()->bl(),
-						space()->bu(),
-						space()->sIndB(F::U),
-						space()->eIndB(F::U),
-						space()->sIndB(F::V),
-						space()->eIndB(F::V),
-						space()->sIndB(F::W),
-						space()->eIndB(F::W),
-						space()->getDomainSize()->getSize(0),
-						space()->getCoordinatesLocal()->getX(X,F::U),
-						at(F::U).getRawPtr(),
-						at(F::V).getRawPtr(),
-						at(F::W).getRawPtr() );
-				break;
+				{
+					VF_init_GaussianForcing1D(
+							space()->nLoc(),
+							space()->bl(),
+							space()->bu(),
+							space()->sIndB(F::U),
+							space()->eIndB(F::U),
+							space()->sIndB(F::V),
+							space()->eIndB(F::V),
+							space()->sIndB(F::W),
+							space()->eIndB(F::W),
+							space()->getDomainSize()->getSize(0),
+							space()->getCoordinatesLocal()->getX(F::U,X),
+							at(F::U).getRawPtr(),
+							at(F::V).getRawPtr(),
+							at(F::W).getRawPtr() );
+					break;
+				}
 			case BoundaryFilter1D :
-				VF_init_BoundaryFilter1D(
-						space()->nLoc(),
-						space()->bl(),
-						space()->bu(),
-						space()->sIndB(F::U),
-						space()->eIndB(F::U),
-						space()->sIndB(F::V),
-						space()->eIndB(F::V),
-						space()->sIndB(F::W),
-						space()->eIndB(F::W),
-						space()->getDomainSize()->getSize(0),
-						space()->getCoordinatesLocal()->getX(X,F::U),
-						at(F::U).getRawPtr(),
-						at(F::V).getRawPtr(),
-						at(F::W).getRawPtr() );
-				break;
+				{
+					VF_init_BoundaryFilter1D(
+							space()->nLoc(),
+							space()->bl(),
+							space()->bu(),
+							space()->sIndB(F::U),
+							space()->eIndB(F::U),
+							space()->sIndB(F::V),
+							space()->eIndB(F::V),
+							space()->sIndB(F::W),
+							space()->eIndB(F::W),
+							space()->getDomainSize()->getSize(0),
+							space()->getCoordinatesLocal()->getX(F::U,X),
+							at(F::U).getRawPtr(),
+							at(F::V).getRawPtr(),
+							at(F::W).getRawPtr() );
+					break;
+				}
 			case GaussianForcing2D :
-				VF_init_GaussianForcing2D(
-						space()->nLoc(),
-						space()->bl(),
-						space()->bu(),
-						space()->sIndB(F::U),
-						space()->eIndB(F::U),
-						space()->sIndB(F::V),
-						space()->eIndB(F::V),
-						space()->sIndB(F::W),
-						space()->eIndB(F::W),
-						space()->getDomainSize()->getSize(),
-						space()->getCoordinatesLocal()->getX(X,F::S),
-						space()->getCoordinatesLocal()->getX(Y,F::S),
-						space()->getCoordinatesLocal()->getX(X,F::U),
-						space()->getCoordinatesLocal()->getX(Y,F::V),
-						at(F::U).getRawPtr(),
-						at(F::V).getRawPtr(),
-						at(F::W).getRawPtr() );
-				break;
+				{
+					VF_init_GaussianForcing2D(
+							space()->nLoc(),
+							space()->bl(),
+							space()->bu(),
+							space()->sIndB(F::U),
+							space()->eIndB(F::U),
+							space()->sIndB(F::V),
+							space()->eIndB(F::V),
+							space()->sIndB(F::W),
+							space()->eIndB(F::W),
+							space()->getDomainSize()->getSize(),
+							space()->getCoordinatesLocal()->getX(F::S,X),
+							space()->getCoordinatesLocal()->getX(F::S,Y),
+							space()->getCoordinatesLocal()->getX(F::U,X),
+							space()->getCoordinatesLocal()->getX(F::V,Y),
+							at(F::U).getRawPtr(),
+							at(F::V).getRawPtr(),
+							at(F::W).getRawPtr() );
+					break;
+				}
 			case BoundaryFilter2D :
-				VF_init_BoundaryFilter2D(
-						space()->nLoc(),
-						space()->bl(),
-						space()->bu(),
-						space()->sIndB(F::U),
-						space()->eIndB(F::U),
-						space()->sIndB(F::V),
-						space()->eIndB(F::V),
-						space()->sIndB(F::W),
-						space()->eIndB(F::W),
-						space()->getDomainSize()->getSize(),
-						space()->getCoordinatesLocal()->getX(X,F::S),
-						space()->getCoordinatesLocal()->getX(Y,F::S),
-						space()->getCoordinatesLocal()->getX(X,F::U),
-						space()->getCoordinatesLocal()->getX(Y,F::V),
-						at(F::U).getRawPtr(),
-						at(F::V).getRawPtr(),
-						at(F::W).getRawPtr() );
-				break;
+				{
+					VF_init_BoundaryFilter2D(
+							space()->nLoc(),
+							space()->bl(),
+							space()->bu(),
+							space()->sIndB(F::U),
+							space()->eIndB(F::U),
+							space()->sIndB(F::V),
+							space()->eIndB(F::V),
+							space()->sIndB(F::W),
+							space()->eIndB(F::W),
+							space()->getDomainSize()->getSize(),
+							space()->getCoordinatesLocal()->getX(F::S,X),
+							space()->getCoordinatesLocal()->getX(F::S,Y),
+							space()->getCoordinatesLocal()->getX(F::U,X),
+							space()->getCoordinatesLocal()->getX(F::V,Y),
+							at(F::U).getRawPtr(),
+							at(F::V).getRawPtr(),
+							at(F::W).getRawPtr() );
+					break;
+				}
 			case VPoint2D :
-				VF_init_Vpoint(
-						space()->nLoc(),
-						space()->bl(),
-						space()->bu(),
-						space()->sIndB(F::U),
-						space()->eIndB(F::U),
-						space()->sIndB(F::V),
-						space()->eIndB(F::V),
-						space()->sIndB(F::W),
-						space()->eIndB(F::W),
-						space()->getDomainSize()->getSize(),
-						space()->getCoordinatesLocal()->getX(X,F::U),
-						space()->getCoordinatesLocal()->getX(Y,F::S),
-						space()->getDomainSize()->getRe(),     // TODO: verify
-						at(F::U).getRawPtr(),
-						at(F::V).getRawPtr(),
-						at(F::W).getRawPtr() );
-				break;
+				{
+					VF_init_Vpoint(
+							space()->nLoc(),
+							space()->bl(),
+							space()->bu(),
+							space()->sIndB(F::U),
+							space()->eIndB(F::U),
+							space()->sIndB(F::V),
+							space()->eIndB(F::V),
+							space()->sIndB(F::W),
+							space()->eIndB(F::W),
+							space()->getDomainSize()->getSize(),
+							space()->getCoordinatesLocal()->getX(F::U,X),
+							space()->getCoordinatesLocal()->getX(F::S,Y),
+							space()->getDomainSize()->getRe(),     // TODO: verify
+							at(F::U).getRawPtr(),
+							at(F::V).getRawPtr(),
+							at(F::W).getRawPtr() );
+					break;
+				}
 			case Disc2D :
-				VF_init_Disc(
-						space()->nLoc(),
-						space()->bl(),
-						space()->bu(),
-						space()->sIndB(F::U),
-						space()->eIndB(F::U),
-						space()->sIndB(F::V),
-						space()->eIndB(F::V),
-						space()->sIndB(F::W),
-						space()->eIndB(F::W),
-						space()->getCoordinatesLocal()->getX(X,F::S),
-						space()->getCoordinatesLocal()->getX(Y,F::S),
-						space()->getCoordinatesLocal()->getX(Z,F::S),
-						space()->getCoordinatesLocal()->getX(X,F::U),
-						space()->getCoordinatesLocal()->getX(Y,F::V),
-						//re, om, px,sca,
-						para.get<Scalar>( "center x", 1. ),
-						para.get<Scalar>( "center y", 1. ),
-						para.get<Scalar>( "radius", 1. ),
-						para.get<Scalar>( "sca", 0.1 ),
-						at(F::U).getRawPtr(),
-						at(F::V).getRawPtr(),
-						at(F::W).getRawPtr() );
-				break;
+				{
+					VF_init_Disc(
+							space()->nLoc(),
+							space()->bl(),
+							space()->bu(),
+							space()->sIndB(F::U),
+							space()->eIndB(F::U),
+							space()->sIndB(F::V),
+							space()->eIndB(F::V),
+							space()->sIndB(F::W),
+							space()->eIndB(F::W),
+							space()->getCoordinatesLocal()->getX(F::S,X),
+							space()->getCoordinatesLocal()->getX(F::S,Y),
+							space()->getCoordinatesLocal()->getX(F::S,Z),
+							space()->getCoordinatesLocal()->getX(F::U,X),
+							space()->getCoordinatesLocal()->getX(F::V,Y),
+							//re, om, px,sca,
+							para.get<Scalar>( "center x", 1. ),
+							para.get<Scalar>( "center y", 1. ),
+							para.get<Scalar>( "radius", 1. ),
+							para.get<Scalar>( "sca", 0.1 ),
+							at(F::U).getRawPtr(),
+							at(F::V).getRawPtr(),
+							at(F::W).getRawPtr() );
+					break;
+				}
 			case RotationDisc2D :
-				VF_init_RotatingDisc(
-						space()->nLoc(),
-						space()->bl(),
-						space()->bu(),
-						space()->sIndB(F::U),
-						space()->eIndB(F::U),
-						space()->sIndB(F::V),
-						space()->eIndB(F::V),
-						space()->sIndB(F::W),
-						space()->eIndB(F::W),
-						space()->getCoordinatesLocal()->getX(X,F::S),
-						space()->getCoordinatesLocal()->getX(Y,F::S),
-						para.get<Scalar>( "center x", 1. ),
-						para.get<Scalar>( "center y", 1. ),
-						para.get<Scalar>( "omega", 1. ),
-						at(F::U).getRawPtr(),
-						at(F::V).getRawPtr(),
-						at(F::W).getRawPtr() );
-				break;
+				{
+					VF_init_RotatingDisc(
+							space()->nLoc(),
+							space()->bl(),
+							space()->bu(),
+							space()->sIndB(F::U),
+							space()->eIndB(F::U),
+							space()->sIndB(F::V),
+							space()->eIndB(F::V),
+							space()->sIndB(F::W),
+							space()->eIndB(F::W),
+							space()->getCoordinatesLocal()->getX(F::S,X),
+							space()->getCoordinatesLocal()->getX(F::S,Y),
+							para.get<Scalar>( "center x", 1. ),
+							para.get<Scalar>( "center y", 1. ),
+							para.get<Scalar>( "omega", 1. ),
+							at(F::U).getRawPtr(),
+							at(F::V).getRawPtr(),
+							at(F::W).getRawPtr() );
+					break;
+				}
 			case SweptHiemenzFlow :
 				{
 					Scalar pi = 4.*std::atan(1.);
@@ -812,9 +822,9 @@ public:
 							space()->eIndB(F::V),
 							space()->sIndB(F::W),
 							space()->eIndB(F::W),
-							space()->getCoordinatesGlobal()->getX( X, F::S ),
-							space()->getCoordinatesGlobal()->getX( X, F::U ),
-							space()->getCoordinatesLocal()->getX( Z, F::W ),
+							space()->getCoordinatesGlobal()->getX(F::S,X),
+							space()->getCoordinatesGlobal()->getX(F::U,X),
+							space()->getCoordinatesLocal()->getX( F::W, Z ),
 							space()->getInterpolateV2S()->getC(X)+2*nTemp-1, /// \todo rm dirty hack
 							space()->getDomainSize()->getRe(),
 							para.get<int>( "nonDim", 0 ),
@@ -826,65 +836,97 @@ public:
 							at(F::V).getRawPtr(),
 							at(F::W).getRawPtr() );
 
-					std::cout << "hello\n"
-						<< space()->getInterpolateV2S()->getC(X)[9] << "\n";
+					//std::cout << "hello\n" << space()->getInterpolateV2S()->getC(X)[9] <<
+						//"\n";
 
 					break;
 				}
 			case Disturbance :
 				{
-					VF_init_Dist(
-							space()->rankST(),      
-							space()->nLoc(),
-							space()->bl(),
-							space()->bu(),
-							space()->sIndB(F::U),
-							space()->eIndB(F::U),
-							space()->sIndB(F::V),
-							space()->eIndB(F::V),
-							space()->sIndB(F::W),
-							space()->eIndB(F::W),
-							space()->getBCGlobal()->getBCL( Z ),
-							space()->getCoordinatesLocal()->getX( X, F::U ),
-							space()->getCoordinatesLocal()->getX( X, F::S ),
-							space()->getCoordinatesLocal()->getX( Y, F::S ),
-							space()->getCoordinatesLocal()->getX( Z, F::W ),
-							space()->getCoordinatesLocal()->getX( Z, F::S ),
-							3, // dist_type,          
-							0.15, // vortex_ampli_prim,  
-							3., // vortex_x1pos,       
-							3., // vortex_x3pos,       
-							3., // vortex_radius,      
-							10, // vortex_band,        
-							at(F::U).getRawPtr(),
-							at(F::V).getRawPtr(),
-							at(F::W).getRawPtr() );
+					for( int i=0; i<100; ++i )
+						std::cout << "hello\n";
+					Scalar pi = 4.*std::atan(1.);
+					Scalar xc = para.get<Scalar>( "xc", 0.3 );
+					Scalar zc = para.get<Scalar>( "zc", 0.3 );
+					Scalar b  = para.get<Scalar>( "b",  1. );
+					Scalar A  = para.get<Scalar>( "A",  1. );
+					at(F::U).initFromFunction( 
+							[&pi,&xc,&zc,&A,&b]( Scalar x, Scalar y, Scalar z ) -> Scalar {
+								if( y<=0. && std::fabs( x-xc )<b && std::fabs(z-zc)<b ) {
+									return(
+										-0.5*A*std::sin( pi*(z-zc)/b )*( 1. + std::cos( pi*(x-xc)/b ) )
+										+0.5*A*std::sin( pi*(z-zc)/b )*( 1. + std::cos( pi*(x+xc)/b ) ) );
+								}
+								else 
+									return( 0. ); },
+							add );
+					at(F::V).initFromFunction( 
+							[&pi,&xc,&zc,&A,&b]( Scalar x, Scalar y, Scalar z ) -> Scalar {
+								if( y<=0. && std::fabs( x-xc )<b && std::fabs(z-zc)<b ) {
+									return(
+										+0.5*A*std::sin( pi*(x-xc)/b )*( 1. + std::cos( pi*(z-zc)/b ) )
+										-0.5*A*std::sin( pi*(x-xc)/b )*( 1. + std::cos( pi*(z-zc)/b ) ) );
+								}
+								else 
+									return( 0. ); },
+							add );
+					if( Add::N==add ) at(F::W).init();
+					//VF_init_Dist(
+							//space()->rankST(),      
+							//space()->nLoc(),
+							//space()->bl(),
+							//space()->bu(),
+							//space()->sIndB(F::U),
+							//space()->eIndB(F::U),
+							//space()->sIndB(F::V),
+							//space()->eIndB(F::V),
+							//space()->sIndB(F::W),
+							//space()->eIndB(F::W),
+							//space()->getBCGlobal()->getBCL( Z ),
+							//space()->getCoordinatesLocal()->getX( F::U, X ),
+							//space()->getCoordinatesLocal()->getX( F::S, X ),
+							//space()->getCoordinatesLocal()->getX( F::S, Y ),
+							//space()->getCoordinatesLocal()->getX( F::W, Z ),
+							//space()->getCoordinatesLocal()->getX( F::S, Z ),
+							//3, // dist_type,          
+							//0.15, // vortex_ampli_prim,  
+							//3., // vortex_x1pos,       
+							//3., // vortex_x3pos,       
+							//3., // vortex_radius,      
+							//10, // vortex_band,        
+							//at(F::U).getRawPtr(),
+							//at(F::V).getRawPtr(),
+							//at(F::W).getRawPtr() );
 					break;
 				}
 			case ScalarFields :
 				{
-					at(F::U).initField( para.sublist( "U" ) );
-					at(F::V).initField( para.sublist( "V" ) );
-					at(F::W).initField( para.sublist( "W" ) );
+					at(F::U).initField( para.sublist( "U" ), add );
+					at(F::V).initField( para.sublist( "V" ), add );
+					at(F::W).initField( para.sublist( "W" ), add );
 					break;
 				}
 			case Couette :
 				{
 					at(F::U).initFromFunction( 
 							[]( Scalar x, Scalar y, Scalar z ) -> Scalar {
-							return( y );
-							} );
+								return( y ); },
+							add );
+					if( Add::N==add ) at(F::V).init();
+					if( Add::N==add ) at(F::W).init();
 					break;
 				}
 			case Cavity :
 				{
 					at(F::U).initFromFunction( 
 							[]( Scalar x, Scalar y, Scalar z ) -> Scalar {
-							if( std::fabs(x-1.)<0.5 )
-							return( 1. );
-							else
-							return( 0. );
-							} );
+								if( std::fabs(x-1.)<0.5 )
+									return( 1. );
+								else
+									return( 0. ); },
+							add );
+					if( Add::N==add ) at(F::V).init();
+					if( Add::N==add ) at(F::W).init();
 					break;
 				}
 		}
@@ -924,7 +966,7 @@ public:
 			Teuchos::Tuple<Ordinal,3> N;
 			for( int i=0; i<3; ++i ) {
 				N[i] = space()->nGlo(i);
-				if( space()->getBCGlobal()->getBCL(i)==Pimpact::PeriodicBC )
+				if( space()->getBCGlobal()->getBCL(i)==Pimpact::BC::Periodic )
 					N[i] = N[i]-1;
 			}
 			std::ofstream xfile;

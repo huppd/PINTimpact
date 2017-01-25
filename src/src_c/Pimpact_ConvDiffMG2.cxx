@@ -112,7 +112,7 @@ int main( int argi, char** argv ) {
 					op->assignField( wind );
 					smoother->assignField( wind );
 
-					z.initField();
+					z.init();
 
 					// constructing rhs
 					op->apply( y, z );
@@ -123,7 +123,7 @@ int main( int argi, char** argv ) {
 						z.add( 1., z, -1., *bc );
 					}
 
-					y.initField();
+					y.init();
 
 					std::ofstream ofs;
 					std::string filename = "MG.txt";

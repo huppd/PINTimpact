@@ -32,10 +32,10 @@ enum ECoord {
 
 std::string toString( ECoord type ) {
 	switch( type ) {
-		case ECoord::X   : return( "X" );
-		case ECoord::Y   : return( "Y" );
-		case ECoord::Z   : return( "Z" );
-		case ECoord::T   : return( "T" );
+		case ECoord::X : return( "X" );
+		case ECoord::Y : return( "Y" );
+		case ECoord::Z : return( "Z" );
+		case ECoord::T : return( "T" );
 	}
 	return( "" ); // prevent compiler warning
 }
@@ -117,16 +117,23 @@ bool operator!=( const int& c, const F& f ) {
 /// \brief kind of boundary conditions
 /// \relates BoundaryConditionsGlobal
 /// \relates BoundaryConditionsLocal
-/// \todo make enumclass impl ( comparison )
-enum EBCType {
-	SymmetryBC  = -2, ///< -2
-	PeriodicBC  = -1, ///< -1
-	NeighborBC  =  0, ///<  0 
-	DirichletBC =  1, ///<  1 
-	NeumannBC   =  2, ///<  2 
-	RobinBC     =  3  ///<  3 
+/// \todo make enumclass impl ()
+enum  BC  {
+	Symmetry  = -2, ///< -2
+	Periodic  = -1, ///< -1
+	Neighbor  =  0, ///<  0 
+	Dirichlet =  1, ///<  1 
+	Neumann   =  2, ///<  2 
+	Robin     =  3  ///<  3 
 };
 
+
+bool operator<( const int& i, const BC& c ) {
+	return( i<static_cast<int>(c) );
+}
+//bool operator<( const BC& left, const BC& right ) {
+	//return( static_cast<int>(left)<static_cast<int>(right) );
+//}
 
 
 /// \brief type of Domain, e.g. periodic channel, box, ...
@@ -137,9 +144,9 @@ enum EDomainType {
 	AllPeriodic        = 1,	///< 1
 	AllNeumann         = 2, ///< 2
 	AllSymmetric       = 3, ///< 3
-	Dirichelt2DChannel = 4, ///< 4 ( DirichletBC,           DirichletBC, PeriodicBC )
-	Periodic2DChannel  = 5, ///< 5 ( PeriodicBC,            DiricheltBC, PeriodicBC )
-	Open2DChannel      = 6  ///< 6 ( DirichletBC/NeumannBC, DirichletBC, PeriodicBC )
+	Dirichelt2DChannel = 4, ///< 4 ( BC::Dirichlet,             BC::Dirichlet, BC::Periodic )
+	Periodic2DChannel  = 5, ///< 5 ( BC::Periodic,              BC::Dirichelt, BC::Periodic )
+	Open2DChannel      = 6  ///< 6 ( BC::Dirichlet/BC::Neumann, BC::Dirichlet, BC::Periodic )
 };
 
 
@@ -215,6 +222,10 @@ std::string toString( EScalarField type ) {
 	return( "" ); // prevent compiler warning
 }
 
+std::ostream& operator<<( std::ostream& out, const EScalarField& c ) {
+	return( out << toString(c) ); 
+}
+
 
 /// \brief creates file and stream to it
 ///
@@ -238,60 +249,60 @@ void setBoundaryConditions( const
 
 	switch( static_cast<EDomainType>(dtype) ) {
 		case AllDirichlet:
-			pl->sublist("boundary conditions").set<int>( "lower X", DirichletBC );
-			pl->sublist("boundary conditions").set<int>( "upper X", DirichletBC );
-			pl->sublist("boundary conditions").set<int>( "lower Y", DirichletBC );
-			pl->sublist("boundary conditions").set<int>( "upper Y", DirichletBC );
-			pl->sublist("boundary conditions").set<int>( "lower Z", DirichletBC );
-			pl->sublist("boundary conditions").set<int>( "upper Z", DirichletBC );
+			pl->sublist("boundary conditions").set<int>( "lower X", static_cast<int>( BC::Dirichlet ) );
+			pl->sublist("boundary conditions").set<int>( "upper X", static_cast<int>( BC::Dirichlet ) );
+			pl->sublist("boundary conditions").set<int>( "lower Y", static_cast<int>( BC::Dirichlet ) );
+			pl->sublist("boundary conditions").set<int>( "upper Y", static_cast<int>( BC::Dirichlet ) );
+			pl->sublist("boundary conditions").set<int>( "lower Z", static_cast<int>( BC::Dirichlet ) );
+			pl->sublist("boundary conditions").set<int>( "upper Z", static_cast<int>( BC::Dirichlet ) );
 			break;
 		case AllPeriodic:
-			pl->sublist("boundary conditions").set<int>( "lower X", PeriodicBC );
-			pl->sublist("boundary conditions").set<int>( "upper X", PeriodicBC );
-			pl->sublist("boundary conditions").set<int>( "lower Y", PeriodicBC );
-			pl->sublist("boundary conditions").set<int>( "upper Y", PeriodicBC );
-			pl->sublist("boundary conditions").set<int>( "lower Z", PeriodicBC );
-			pl->sublist("boundary conditions").set<int>( "upper Z", PeriodicBC );
+			pl->sublist("boundary conditions").set<int>( "lower X", static_cast<int>( BC::Periodic ) );
+			pl->sublist("boundary conditions").set<int>( "upper X", static_cast<int>( BC::Periodic ) );
+			pl->sublist("boundary conditions").set<int>( "lower Y", static_cast<int>( BC::Periodic ) );
+			pl->sublist("boundary conditions").set<int>( "upper Y", static_cast<int>( BC::Periodic ) );
+			pl->sublist("boundary conditions").set<int>( "lower Z", static_cast<int>( BC::Periodic ) );
+			pl->sublist("boundary conditions").set<int>( "upper Z", static_cast<int>( BC::Periodic ) );
 			break;
 		case AllNeumann:
-			pl->sublist("boundary conditions").set<int>( "lower X", NeumannBC );
-			pl->sublist("boundary conditions").set<int>( "upper X", NeumannBC );
-			pl->sublist("boundary conditions").set<int>( "lower Y", NeumannBC );
-			pl->sublist("boundary conditions").set<int>( "upper Y", NeumannBC );
-			pl->sublist("boundary conditions").set<int>( "lower Z", NeumannBC );
-			pl->sublist("boundary conditions").set<int>( "upper Z", NeumannBC );
+			pl->sublist("boundary conditions").set<int>( "lower X", static_cast<int>( BC::Neumann ) );
+			pl->sublist("boundary conditions").set<int>( "upper X", static_cast<int>( BC::Neumann ) );
+			pl->sublist("boundary conditions").set<int>( "lower Y", static_cast<int>( BC::Neumann ) );
+			pl->sublist("boundary conditions").set<int>( "upper Y", static_cast<int>( BC::Neumann ) );
+			pl->sublist("boundary conditions").set<int>( "lower Z", static_cast<int>( BC::Neumann ) );
+			pl->sublist("boundary conditions").set<int>( "upper Z", static_cast<int>( BC::Neumann ) );
 			break;
 		case AllSymmetric:
-			pl->sublist("boundary conditions").set<int>( "lower X", SymmetryBC );
-			pl->sublist("boundary conditions").set<int>( "upper X", SymmetryBC );
-			pl->sublist("boundary conditions").set<int>( "lower Y", SymmetryBC );
-			pl->sublist("boundary conditions").set<int>( "upper Y", SymmetryBC );
-			pl->sublist("boundary conditions").set<int>( "lower Z", SymmetryBC );
-			pl->sublist("boundary conditions").set<int>( "upper Z", SymmetryBC );
+			pl->sublist("boundary conditions").set<int>( "lower X", static_cast<int>( BC::Symmetry ) );
+			pl->sublist("boundary conditions").set<int>( "upper X", static_cast<int>( BC::Symmetry ) );
+			pl->sublist("boundary conditions").set<int>( "lower Y", static_cast<int>( BC::Symmetry ) );
+			pl->sublist("boundary conditions").set<int>( "upper Y", static_cast<int>( BC::Symmetry ) );
+			pl->sublist("boundary conditions").set<int>( "lower Z", static_cast<int>( BC::Symmetry ) );
+			pl->sublist("boundary conditions").set<int>( "upper Z", static_cast<int>( BC::Symmetry ) );
 			break;
 		case Dirichelt2DChannel:
-			pl->sublist("boundary conditions").set<int>( "lower X", DirichletBC );
-			pl->sublist("boundary conditions").set<int>( "upper X", DirichletBC );
-			pl->sublist("boundary conditions").set<int>( "lower Y", DirichletBC );
-			pl->sublist("boundary conditions").set<int>( "upper Y", DirichletBC );
-			pl->sublist("boundary conditions").set<int>( "lower Z", PeriodicBC );
-			pl->sublist("boundary conditions").set<int>( "upper Z", PeriodicBC );
+			pl->sublist("boundary conditions").set<int>( "lower X", static_cast<int>( BC::Dirichlet ) );
+			pl->sublist("boundary conditions").set<int>( "upper X", static_cast<int>( BC::Dirichlet ) );
+			pl->sublist("boundary conditions").set<int>( "lower Y", static_cast<int>( BC::Dirichlet ) );
+			pl->sublist("boundary conditions").set<int>( "upper Y", static_cast<int>( BC::Dirichlet ) );
+			pl->sublist("boundary conditions").set<int>( "lower Z", static_cast<int>( BC::Periodic  ) );
+			pl->sublist("boundary conditions").set<int>( "upper Z", static_cast<int>( BC::Periodic  ) );
 			break;
 		case Periodic2DChannel:
-			pl->sublist("boundary conditions").set<int>( "lower X", PeriodicBC );
-			pl->sublist("boundary conditions").set<int>( "upper X", PeriodicBC );
-			pl->sublist("boundary conditions").set<int>( "lower Y", DirichletBC );
-			pl->sublist("boundary conditions").set<int>( "upper Y", DirichletBC );
-			pl->sublist("boundary conditions").set<int>( "lower Z", PeriodicBC );
-			pl->sublist("boundary conditions").set<int>( "upper Z", PeriodicBC );
+			pl->sublist("boundary conditions").set<int>( "lower X", static_cast<int>( BC::Periodic  ) );
+			pl->sublist("boundary conditions").set<int>( "upper X", static_cast<int>( BC::Periodic  ) );
+			pl->sublist("boundary conditions").set<int>( "lower Y", static_cast<int>( BC::Dirichlet ) );
+			pl->sublist("boundary conditions").set<int>( "upper Y", static_cast<int>( BC::Dirichlet ) );
+			pl->sublist("boundary conditions").set<int>( "lower Z", static_cast<int>( BC::Periodic  ) );
+			pl->sublist("boundary conditions").set<int>( "upper Z", static_cast<int>( BC::Periodic  ) );
 			break;
 		case Open2DChannel:
-			pl->sublist("boundary conditions").set<int>( "lower X", DirichletBC );
-			pl->sublist("boundary conditions").set<int>( "upper X", NeumannBC   );
-			pl->sublist("boundary conditions").set<int>( "lower Y", DirichletBC );
-			pl->sublist("boundary conditions").set<int>( "upper Y", DirichletBC );
-			pl->sublist("boundary conditions").set<int>( "lower Z", PeriodicBC  );
-			pl->sublist("boundary conditions").set<int>( "upper Z", PeriodicBC  );
+			pl->sublist("boundary conditions").set<int>( "lower X", static_cast<int>( BC::Dirichlet ) );
+			pl->sublist("boundary conditions").set<int>( "upper X", static_cast<int>( BC::Neumann   ) );
+			pl->sublist("boundary conditions").set<int>( "lower Y", static_cast<int>( BC::Dirichlet ) );
+			pl->sublist("boundary conditions").set<int>( "upper Y", static_cast<int>( BC::Dirichlet ) );
+			pl->sublist("boundary conditions").set<int>( "lower Z", static_cast<int>( BC::Periodic  ) );
+			pl->sublist("boundary conditions").set<int>( "upper Z", static_cast<int>( BC::Periodic  ) );
 			break;
 		default:
 			std::cout << "!!!Warning: unkown EDomainType:\t" <<dtype<<"\t!!!\n";

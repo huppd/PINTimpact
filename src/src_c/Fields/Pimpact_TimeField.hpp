@@ -325,12 +325,6 @@ public:
 		changed();
 	}
 
-	void initField() {
-		for( Ordinal i=space()->begin(F::S,3); i<space()->end(F::S,3); ++i )
-			mfs_[i]->initField();
-		changed();
-	}
-
 	void extrapolateBC( const Belos::ETrans& trans=Belos::NOTRANS ) {
 
 		for( Ordinal i=space()->begin(F::S,3); i<space()->end(F::S,3); ++i )
@@ -503,8 +497,8 @@ initVectorTimeField(
 				//break;
 			//}
 			//case OscilatingDisc2D: {
-				////			std::cout << "\ti: " << i << "\tt: " << 2.*pi*((F::S)i+offset)/nt << "\tt: " << space->getCoordinatesLocal()->getX( ECoord::T, F::S )[i] << "\n";
-				//S ymt = ym+amp*std::sin( space->getCoordinatesLocal()->getX( ECoord::T, F::S )[i] );
+				////			std::cout << "\ti: " << i << "\tt: " << 2.*pi*((F::S)i+offset)/nt << "\tt: " << space->getCoordinatesLocal()->getX(  F::S, ECoord::T )[i] << "\n";
+				//S ymt = ym+amp*std::sin( space->getCoordinatesLocal()->getX( F::S, ECoord::T )[i] );
 				//S xmt = xm;
 				//field->getFieldPtr(i)->initField( Disc2D, xmt, ymt, rad );
 				//break;
@@ -516,11 +510,11 @@ initVectorTimeField(
 				//break;
 			//}
 			//case ConstVel_inX:{
-				//field->getFieldPtr(i)->init( Teuchos::tuple( -2*xm*std::cos(space->getCoordinatesLocal()->getX( ECoord::T, F::S )[i]), 0., 0.) ); // here xm = p
+				//field->getFieldPtr(i)->init( Teuchos::tuple( -2*xm*std::cos(space->getCoordinatesLocal()->getX( F::S, ECoord::T )[i]), 0., 0.) ); // here xm = p
 				//break;
 			//}
 			//case Pulsatile_inX: {
-				////field->getFieldPtr(i)->initField( Pulsatile2D_inX, xm, space->getCoordinatesLocal()->getX( ECoord::T, F::S )[i], ym, rad); // the arguments are (xmt,i,ymt,rad) --> (re,t,px,alpha)
+				////field->getFieldPtr(i)->initField( Pulsatile2D_inX, xm, space->getCoordinatesLocal()->getX( F::S, ECoord::T )[i], ym, rad); // the arguments are (xmt,i,ymt,rad) --> (re,t,px,alpha)
 				//break;
 			//}
 			//default:

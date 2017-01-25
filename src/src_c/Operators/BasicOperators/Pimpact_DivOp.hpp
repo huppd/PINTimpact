@@ -82,8 +82,8 @@ public:
 						mapping, // mapping
 						space_->getStencilWidths()->getDimNcbD(dir),
 						space_->getStencilWidths()->getNcbD(dir),
-						space_->getCoordinatesLocal()->getX( dir, fdir ),
-						space_->getCoordinatesLocal()->getX( dir, F::S ),
+						space_->getCoordinatesLocal()->getX( fdir, dir ),
+						space_->getCoordinatesLocal()->getX( F::S, dir ),
 						c_[dir].get() );
 
 				// Divergence stencil transposed

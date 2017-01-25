@@ -83,8 +83,8 @@ public:
 						mapping,
 						space_->getStencilWidths()->getDimNcbG(dir),
 						space_->getStencilWidths()->getNcbG(dir),
-						space_->getCoordinatesLocal()->getX( dir, F::S ),
-						space_->getCoordinatesLocal()->getX( dir, fdir ),
+						space_->getCoordinatesLocal()->getX( F::S, dir ),
+						space_->getCoordinatesLocal()->getX( fdir, dir ),
 						c_[dir].get() );
 
 				// transposed Gradient stencil

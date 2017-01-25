@@ -11,7 +11,95 @@
 namespace Pimpact {
 
 
-/// \brief 
+
+/// \brief Array
+///
+/// \tparam Scalar
+/// \tparam Ordinal
+/// \tparam ss start index
+template< class Scalar, class Ordinal, int ss >
+class Array {
+
+protected:
+
+	using ScalarArray = Scalar*;
+
+	ScalarArray c_;
+
+	Ordinal nn_;
+
+	constexpr Ordinal size() {
+		return( nn_-ss+1 );
+	}
+
+public:
+
+	Array() : c_(nullptr),nn_(ss) {}
+
+	Array( const Ordinal& nn ) : nn_(nn) {
+
+		assert( ss<=nn_ );
+
+		c_ = new Scalar[ size() ];
+
+		std::fill_n( c_, size(), Teuchos::ScalarTraits<Scalar>::zero() );
+	}
+
+	Array( const Array& that ) : Array(that.nn_) { 
+
+		std::copy_n( that.c_, size(), c_ );
+	}
+
+	friend void swap( Array& one, Array& two ) {
+		using std::swap;
+		swap( one.nn_, two.nn_ );
+		swap( one.c_, two.c_ );
+	}
+
+	Array( Array&& that ) : Array() { 
+		swap( *this, that );
+	}
+
+	Array& operator=( Array that ) {
+		swap( *this, that );
+		return *this;
+	}
+
+	~Array() { delete[] c_; }
+
+	constexpr ScalarArray get() const { return( c_ ); }
+
+	constexpr const Ordinal& NN() {
+		return( nn_ );
+	}
+
+	Scalar& operator[]( const Ordinal& index ) {
+		assert( index>=ss );
+		assert( index<=nn_ );
+		return( c_[ index-ss ] );
+	};
+
+	constexpr Scalar& operator[]( const Ordinal& index ) {
+		assert( index>=ss );
+		assert( index<=nn_ );
+		return( c_[ index-ss ] );
+	};
+
+
+	void print( std::ostream& out=std::cout ) const {
+
+		out << std::scientific;
+		out << std::setw(3) << "i" << std::setw(14) << "x" << "\n";
+		for( Ordinal i=ss; i<=nn_; ++i ) {
+			out << std::setw(3) << i << std::setw(14) << (*this)[i] << "\n";
+		}
+	}
+
+}; // end of class Array 
+
+
+
+/// \brief Stencil
 ///
 /// \tparam Scalar
 /// \tparam Ordinal
@@ -30,6 +118,10 @@ protected:
 	Ordinal nn_;
 	static const int w_ = ub-lb+1;
 
+	constexpr Ordinal size() {
+		return( ( nn_ - ss + 1 )*w_ );
+	}
+
 public:
 
 	Stencil() : c_(nullptr),nn_(ss) {}
@@ -39,18 +131,14 @@ public:
 		static_assert( lb<=ub, "Stencil width cannot be negative" );
 		assert( ss<=nn_ );
 
-		Ordinal nTemp = ( nn_ - ss + 1 )*w_;
+		c_ = new Scalar[ size() ];
 
-		c_ = new Scalar[ nTemp ];
-
-		std::fill_n( c_, nTemp, Teuchos::ScalarTraits<Scalar>::zero() );
+		std::fill_n( c_, size(), Teuchos::ScalarTraits<Scalar>::zero() );
 	}
 
 	Stencil( const Stencil& that ) : Stencil(that.nn_) { 
 
-		Ordinal nTemp = ( nn_ - ss + 1 )*w_;
-
-		std::copy_n( that.c_, nTemp, c_ );
+		std::copy_n( that.c_, size(), c_ );
 	}
 
 	friend void swap( Stencil& one, Stencil& two ) {
@@ -89,6 +177,10 @@ public:
 		return( ub );
 	}
 
+	constexpr const Ordinal& NN() {
+		return( nn_ );
+	}
+
 	void print( std::ostream& out=std::cout ) const {
 		out << std::setw(8) << "bl: ";
 		out << std::scientific;
@@ -101,7 +193,7 @@ public:
 			out << "-";
 		out << "\n";
 
-		for( int i=ss; i<=nn_; ++i ) {
+		for( Ordinal i=ss; i<=nn_; ++i ) {
 			out << "i: " << std::setw(3) << i << " (";
 			for( int ii=lb; ii<=ub; ++ii ) 
 				out << std::setw(12) << (*this)(i,ii);

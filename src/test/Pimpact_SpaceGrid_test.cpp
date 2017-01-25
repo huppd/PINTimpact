@@ -353,7 +353,7 @@ TEUCHOS_UNIT_TEST( Space, CoordinatesGlobal ) {
 	if( space->rankST()==0 )
 		coord->print();
 
-	space->getInterpolateV2S()->print();
+	//space->getInterpolateV2S()->print();
 	auto gsg = space->getGridSizeGlobal();
 
 	auto gridSizeGlobal =

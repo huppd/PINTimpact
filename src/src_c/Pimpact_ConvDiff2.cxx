@@ -4,9 +4,11 @@
 
 using S = double;
 using O = int;
+const int sd = 2;
 const int d = 3;
+const int dNC = 2;
 
-using SpaceT = Pimpact::Space<S,O,3,d,2>;
+using SpaceT = Pimpact::Space<S,O,sd,d,dNC>;
 
 template<class T> using ConvDiffOpT = Pimpact::NonlinearOp<Pimpact::ConvectionDiffusionSOp<T> >;
 
@@ -20,7 +22,6 @@ int main( int argi, char** argv ) {
 	pl->set("npy",1);
 	pl->set("npx",1);
 
-	pl->set( "domain", 1);
 
 
 	pl->set<S>( "Re", 10000 );
@@ -54,9 +55,9 @@ int main( int argi, char** argv ) {
 
 			auto smoother =
 				Pimpact::create<
-				Pimpact::NonlinearSmoother<
-				ConvDiffOpT<Pimpact::Space<S,O,3,d,2> > ,
-				Pimpact::ConvectionDiffusionSORSmoother > > (
+					Pimpact::NonlinearSmoother<
+						ConvDiffOpT<SpaceT> ,
+						Pimpact::ConvectionDiffusionSORSmoother > > (
 						op,
 						pls );
 
@@ -65,11 +66,12 @@ int main( int argi, char** argv ) {
 			if( space()->rankST()==0 ) {
 				std::string fname = "raki.txt";
 				if( 3==dirx )
-					fname.insert( 4, std::to_string( (long long)8 ) );
+					fname.insert( 4, std::to_string( static_cast<long long>(8) ) );
 				else
-					fname.insert( 4, std::to_string( (long long)dirx+diry*2+3 ) );
+					fname.insert( 4, std::to_string( static_cast<long long>(dirx+diry*2+3) ) );
 				phifile.open( fname, std::ofstream::out);
 			}
+
 
 
 			// init solution
@@ -81,21 +83,14 @@ int main( int argi, char** argv ) {
 			wind(Pimpact::F::U).initField( Pimpact::Grad2D_inY );
 			wind(Pimpact::F::V).initField( Pimpact::Grad2D_inX );
 
-			z.initField();
+			z.init();
 
 			op->assignField( wind );
 
 			// constructing rhs
 			op->apply( y, z );
-			{
-				y.init(0);
-				auto bc = z.clone( Pimpact::ECopy::Shallow );
-				op->apply( y, *bc );
-				z.add( 1., z, -1., *bc );
-			}
 
-			y.initField();
-
+			y.init();
 
 			S error;
 			int iter=0;
@@ -116,6 +111,7 @@ int main( int argi, char** argv ) {
 
 				if( space()->rankST()==0 ) {
 					phifile << iter << "\t" << error << "\n";
+					std::cout << iter << "\t" << error << "\n";
 				}
 
 			}

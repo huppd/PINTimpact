@@ -70,7 +70,7 @@ public:
 
     if( owning_ ) {
 			allocate();
-			initField();
+			init();
     }
   };
 
@@ -91,7 +91,7 @@ public:
 
 			switch( copyType ) {
 				case ECopy::Shallow:
-					initField();
+					init();
 					break;
 				case ECopy::Deep:
 					*this = sF;
@@ -131,7 +131,7 @@ public:
 
 		for( int dir = 0; dir<SpaceT::sdim; ++dir ) {
 			vl *= space()->nGlo(dir) +
-				( (PeriodicBC==bc->getBCL(dir))?
+				( (BC::Periodic==bc->getBCL(dir))?
 					-1:
 					(fType_==dir)?1:0);
 		}
@@ -489,7 +489,7 @@ public:
 	/// \tparam Functor need a to have an Operator (x,y,z)->u
 	/// \param func  note that x,y,z, should be defined between 0 and one the scaling happens here
 	template<typename Functor>
-	void initFromFunction( Functor&& func ) {
+	void initFromFunction( Functor&& func, const Add& add=Add::N ) {
 
 		Teuchos::RCP<const CoordinatesLocal<Scalar,Ordinal,SpaceT::dimension,SpaceT::dimNC> > coord =
 			space()->getCoordinatesLocal();
@@ -499,51 +499,79 @@ public:
 
 		for( Ordinal k=space()->begin(fType_,Z,bY); k<=space()->end(fType_,Z,bY); ++k )
 			for( Ordinal j=space()->begin(fType_,Y,bY); j<=space()->end(fType_,Y,bY); ++j )
-				for( Ordinal i=space()->begin(fType_,X,bY); i<=space()->end(fType_,X,bY); ++i )
-					at(i,j,k) = func(
-							( coord->getX(fType_,X,i)-domain->getOrigin(X) )/domain->getSize(X),
-							( coord->getX(fType_,Y,j)-domain->getOrigin(Y) )/domain->getSize(Y),
-							( coord->getX(fType_,Z,k)-domain->getOrigin(Z) )/domain->getSize(Z) );
+				for( Ordinal i=space()->begin(fType_,X,bY); i<=space()->end(fType_,X,bY); ++i ) {
+					if( Add::Y==add )
+						at(i,j,k) += func(
+								( coord->getX(fType_,X,i)-domain->getOrigin(X) )/domain->getSize(X),
+								( coord->getX(fType_,Y,j)-domain->getOrigin(Y) )/domain->getSize(Y),
+								( coord->getX(fType_,Z,k)-domain->getOrigin(Z) )/domain->getSize(Z) );
+					else
+						at(i,j,k) = func(
+								( coord->getX(fType_,X,i)-domain->getOrigin(X) )/domain->getSize(X),
+								( coord->getX(fType_,Y,j)-domain->getOrigin(Y) )/domain->getSize(Y),
+								( coord->getX(fType_,Z,k)-domain->getOrigin(Z) )/domain->getSize(Z) );
+				}
+		changed();
 	}
 
 
 	///  \brief initializes including boundaries to zero 
-	void initField( Teuchos::ParameterList& para ) {
+	void initField( Teuchos::ParameterList& para, const Add& add=Add::N ) {
 
 		EScalarField type =
 			string2enum( para.get<std::string>( "Type", "constant" ) );
 
 		switch( type ) {
 			case ConstField :
-				init( Teuchos::ScalarTraits<Scalar>::zero() );
-				break;
+				{
+					if( Add::N==add ) init();
+					break;
+				}
 			case Grad2D_inX :
 				{
 					Scalar a = para.get<Scalar>( "dx", Teuchos::ScalarTraits<Scalar>::one() );
-					initFromFunction( [&a] (Scalar x, Scalar y, Scalar z)->Scalar { return( a*(x-0.5) ); } );
+					initFromFunction(
+							[&a] (Scalar x, Scalar y, Scalar z)->Scalar { return( a*(x-0.5) ); },
+							add );
 					break;
 				}
 			case Grad2D_inY :
 				{
 					Scalar a = para.get<Scalar>( "dy", Teuchos::ScalarTraits<Scalar>::one() );
-					initFromFunction( [&a] (Scalar x, Scalar y, Scalar z)->Scalar { return( a*(y-0.5) ); } );
+					initFromFunction(
+							[&a] (Scalar x, Scalar y, Scalar z)->Scalar { return( a*(y-0.5) ); },
+							add );
 					break;
 				}
 			case Grad2D_inZ :
 				{
 					Scalar a = para.get<Scalar>( "dz", Teuchos::ScalarTraits<Scalar>::one() );
-					initFromFunction( [&a] (Scalar x, Scalar y, Scalar z)->Scalar { return( a*(z-0.5) ); } );
+					initFromFunction(
+							[&a] (Scalar x, Scalar y, Scalar z)->Scalar { return( a*(z-0.5) ); },
+							add );
 					break;
 				}
 			case Poiseuille2D_inX :
-				initFromFunction( [] (Scalar x, Scalar y, Scalar z)->Scalar { return( 4.*x*(1.-x) ); } );
-				break;
+				{
+					initFromFunction(
+							[] (Scalar x, Scalar y, Scalar z)->Scalar { return( 4.*x*(1.-x) ); },
+							add );
+					break;
+				}
 			case Poiseuille2D_inY :
-				initFromFunction( [] (Scalar x, Scalar y, Scalar z)->Scalar { return( 4.*y*(1.-y) ); } );
-				break;
+				{
+					initFromFunction(
+							[] (Scalar x, Scalar y, Scalar z)->Scalar { return( 4.*y*(1.-y) ); },
+							add );
+					break;
+				}
 			case Poiseuille2D_inZ :
-				initFromFunction( [] (Scalar x, Scalar y, Scalar z)->Scalar { return( 4.*z*(1.-z) ); } );
-				break;
+				{
+					initFromFunction(
+							[] (Scalar x, Scalar y, Scalar z)->Scalar { return( 4.*z*(1.-z) ); },
+							add );
+					break;
+				}
 			case FPoint :
 				{
 					Scalar xc[3] = { 
@@ -555,12 +583,13 @@ public:
 						para.get<Scalar>( "sig_x", 0.2 ),
 						para.get<Scalar>( "sig_y", 0.2 ),
 						para.get<Scalar>( "sig_z", 0.2 ) };
-					initFromFunction( [&xc,&amp,&sig] (Scalar x, Scalar y, Scalar z)->Scalar {
-							return( amp*std::exp(
-									-std::pow( (x-xc[0])/sig[0], 2 )
-									-std::pow( (x-xc[1])/sig[1], 2 )
-									-std::pow( (x-xc[2])/sig[2], 2 ) ) ); }
-							);
+					initFromFunction(
+							[&xc,&amp,&sig] (Scalar x, Scalar y, Scalar z)->Scalar {
+								return( amp*std::exp(
+										-std::pow( (x-xc[0])/sig[0], 2 )
+										-std::pow( (x-xc[1])/sig[1], 2 )
+										-std::pow( (x-xc[2])/sig[2], 2 ) ) ); },
+							add );
 					break;
 				}
 		}
@@ -574,7 +603,7 @@ public:
 
 	/// \brief initializes VectorField with the initial field defined in Fortran
 	/// \deprecated
-	void initField( EScalarField fieldType = ConstField, Scalar alpha=Teuchos::ScalarTraits<Scalar>::zero() ) {
+	void initField( EScalarField fieldType, Scalar alpha=Teuchos::ScalarTraits<Scalar>::zero() ) {
 
 		switch( fieldType ) {
 			case ConstField :
@@ -854,7 +883,7 @@ public:
 					Teuchos::Tuple<Ordinal,3> N;
 					for( int i=0; i<3; ++i ) {
 						N[i] = space()->nGlo(i);
-						if( space()->getBCGlobal()->getBCL(i)==Pimpact::PeriodicBC )
+						if( space()->getBCGlobal()->getBCL(i)==Pimpact::BC::Periodic )
 							N[i] = N[i]-1;
 					}
 					std::ofstream xfile;
@@ -931,8 +960,8 @@ public:
             count,
             (F::S==fType_)?9:10,
 						(F::S==fType_)?s_:temp->s_,
-						space()->getCoordinatesGlobal()->getX(0,F::S),
-						space()->getCoordinatesGlobal()->getX(1,F::S),
+						space()->getCoordinatesGlobal()->getX(F::S,0),
+						space()->getCoordinatesGlobal()->getX(F::S,1),
 						space()->getDomainSize()->getRe(),
 						space()->getDomainSize()->getAlpha2() );
       }
@@ -961,12 +990,12 @@ public:
             (F::S==fType_)?9:10,
             stride,
             (F::S==fType_)?s_:temp->s_,
-            space()->getCoordinatesGlobal()->getX(0,F::S),
-            space()->getCoordinatesGlobal()->getX(1,F::S),
-            space()->getCoordinatesGlobal()->getX(2,F::S),
-            space()->getCoordinatesGlobal()->getX(0,F::U),
-            space()->getCoordinatesGlobal()->getX(1,F::V),
-            space()->getCoordinatesGlobal()->getX(2,F::W),
+            space()->getCoordinatesGlobal()->getX(F::S,0),
+            space()->getCoordinatesGlobal()->getX(F::S,1),
+            space()->getCoordinatesGlobal()->getX(F::S,2),
+            space()->getCoordinatesGlobal()->getX(F::U,0),
+            space()->getCoordinatesGlobal()->getX(F::V,1),
+            space()->getCoordinatesGlobal()->getX(F::W,2),
             space()->getDomainSize()->getRe(),
             space()->getDomainSize()->getAlpha2() );
 
@@ -997,12 +1026,12 @@ public:
           (F::S==fType_)?9:10,
           stride,
           s_,
-          space()->getCoordinatesGlobal()->getX(0,F::S),
-          space()->getCoordinatesGlobal()->getX(1,F::S),
-          space()->getCoordinatesGlobal()->getX(2,F::S),
-          space()->getCoordinatesGlobal()->getX(0,F::U),
-          space()->getCoordinatesGlobal()->getX(1,F::V),
-          space()->getCoordinatesGlobal()->getX(2,F::W),
+          space()->getCoordinatesGlobal()->getX(F::S,0),
+          space()->getCoordinatesGlobal()->getX(F::S,1),
+          space()->getCoordinatesGlobal()->getX(F::S,2),
+          space()->getCoordinatesGlobal()->getX(F::U,0),
+          space()->getCoordinatesGlobal()->getX(F::V,1),
+          space()->getCoordinatesGlobal()->getX(F::W,2),
           space()->getDomainSize()->getRe(),
           space()->getDomainSize()->getAlpha2() );
     }

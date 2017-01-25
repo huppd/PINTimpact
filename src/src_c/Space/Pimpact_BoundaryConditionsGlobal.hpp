@@ -19,12 +19,13 @@ namespace Pimpact{
 ///
 /// \tparam dim as soon time is another class dim ->sdim
 /// \ingroup SpaceObject
+/// \todo make int -> BC
 template<int dim>
 class BoundaryConditionsGlobal {
 
 public:
 
-	using TBC3 = const Teuchos::Tuple<EBCType,dim>;
+	using TBC3 = const Teuchos::Tuple<BC,dim>;
 	using Ti3 = const Teuchos::Tuple<int,dim>;
 
 	template<int d>
@@ -53,8 +54,8 @@ protected:
 		BCU_int_[2] = BC3U;
 
 		if( 4==dim ) {
-			BCL_int_[3] = static_cast<int>( PeriodicBC );
-			BCU_int_[3] = static_cast<int>( PeriodicBC );
+			BCL_int_[3] = static_cast<int>( BC::Periodic );
+			BCU_int_[3] = static_cast<int>( BC::Periodic );
 		}
 	}
 
@@ -65,8 +66,8 @@ protected:
 			BCU_int_[i] = static_cast<int>( BCU_global[i] );
 		};
 		if( 4==dim ) {
-			BCL_int_[3] = static_cast<int>( PeriodicBC );
-			BCU_int_[3] = static_cast<int>( PeriodicBC );
+			BCL_int_[3] = static_cast<int>( BC::Periodic );
+			BCU_int_[3] = static_cast<int>( BC::Periodic );
 		}
 	}
 
@@ -85,7 +86,7 @@ public:
 
 		Teuchos::Tuple<int,dim> periodic;
     for( int i=0; i<3; ++i ) {
-      if( getBCL(i)==PeriodicBC )
+      if( getBCL(i)==BC::Periodic )
         periodic[i] = 1;
       else
         periodic[i] = 0;

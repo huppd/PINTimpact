@@ -77,13 +77,27 @@ class CoordinatesLocal {
 
 protected:
 
+	using SW = StencilWidths<dim,dimNC>;
+
+	using DAS = Array<ScalarT,OrdinalT,1>;
+	using DAV = Array<ScalarT,OrdinalT,0>;
+
+	using TDAS = const Teuchos::Tuple< DAS, dim >;
+	using TDAV = const Teuchos::Tuple< DAV, dim >;
+
+	using AS = Array<ScalarT,OrdinalT,SW::BL(0)>;
+	using AV = Array<ScalarT,OrdinalT,SW::BL(0)>;
+
+	using TAS = const Teuchos::Tuple< AS, dim >;
+	using TAV = const Teuchos::Tuple< AV, dim >;
+
 	using TO = const Teuchos::Tuple< Teuchos::ArrayRCP<ScalarT>, dim >;
 
-	TO xS_;
-	TO xV_;
+	TAS xS_;
+	TAV xV_;
 
-	TO dxS_;
-	TO dxV_;
+	TDAS dxS_;
+	TDAV dxV_;
 
 	Teuchos::RCP<const StencilWidths<dim,dimNC> > stencilWidths_;
 
@@ -102,12 +116,12 @@ protected:
 
 		for( int i=0; i<dim; ++i ) {
 
-			OrdinalT nTemp = gridSizeLocal->get(i) + stencilWidths->getBU(i) - stencilWidths->getBL(i) + 1;
+			//OrdinalT nTemp = gridSizeLocal->get(i) + stencilWidths->getBU(i) - stencilWidths->getBL(i) + 1;
 
-			xS_[i]  = Teuchos::arcp<ScalarT>( nTemp                   );
-			xV_[i]  = Teuchos::arcp<ScalarT>( nTemp                   );
-			dxS_[i] = Teuchos::arcp<ScalarT>( gridSizeLocal->get(i) );
-			dxV_[i] = Teuchos::arcp<ScalarT>( gridSizeLocal->get(i)+1 );
+			xS_[i]  = AS( gridSizeLocal->get(i) + SW::BU(i) );
+			xV_[i]  = AV( gridSizeLocal->get(i) + SW::BU(i) );
+			dxS_[i] = DAS( gridSizeLocal->get(i) );
+			dxV_[i] = DAV( gridSizeLocal->get(i) );
 
 			F fi = static_cast<F>( i );
 
@@ -123,12 +137,12 @@ protected:
 						bcLocal->getBCL(i),
 						bcLocal->getBCU(i),
 						procGrid->getIB(i),
-						coordGlobal->getX( i, F::S),
-						coordGlobal->getX( i, fi),
-						xS_[i].getRawPtr(),
-						xV_[i].getRawPtr(),
-						dxS_[i].getRawPtr(),
-						dxV_[i].getRawPtr() );
+						coordGlobal->getX( F::S, i),
+						coordGlobal->getX( fi, i ),
+						xS_[i].get(),
+						xV_[i].get(),
+						dxS_[i].get(),
+						dxV_[i].get() );
 			else if( 3==i )
 				PI_getLocalCoordinates(
 						4.*std::atan(1.),
@@ -141,12 +155,12 @@ protected:
 						bcLocal->getBCL(i),
 						bcLocal->getBCU(i),
 						procGrid->getIB(i),
-						coordGlobal->getX( i, F::S ),
-						coordGlobal->getX( i, fi ),
-						xS_[i].getRawPtr(),
-						xV_[i].getRawPtr(),
-						dxS_[i].getRawPtr(),
-						dxV_[i].getRawPtr() );
+						coordGlobal->getX( F::S, i ),
+						coordGlobal->getX( fi, i ),
+						xS_[i].get(),
+						xV_[i].get(),
+						dxS_[i].get(),
+						dxV_[i].get() );
 		}
 	}
 
@@ -155,38 +169,31 @@ public:
 	/// \name getter
 	/// @{ 
 
-	constexpr const ScalarT* getX( const int& dir, const F& ftype ) const  {
+	constexpr const ScalarT* getX( const F& ftype, const int& dir ) const  {
 		return(
 				( F::S==ftype || dir!=ftype ) ?
-					xS_[dir].getRawPtr() :
-					xV_[dir].getRawPtr()
+					xS_[dir].get() :
+					xV_[dir].get()
 				);
   }
 
-  constexpr const ScalarT& getX( const F& ftype, const int& dir, const OrdinalT& i) const  {
-		return(
-				( F::S==ftype || dir!=ftype )?
-					xS_[dir][i-stencilWidths_->getBL(dir)]:
-					xV_[dir][i-stencilWidths_->getBL(dir)]
-				);
+  constexpr const ScalarT& getX( const F& ftype, const int& dir, const OrdinalT& i) const {
+		return( ( F::S==ftype || dir!=ftype )?
+				xS_[dir][i]: xV_[dir][i] );
   }
 
 	///  @} 
 
   void print( std::ostream& out=std::cout ) const {
 
-    for( int dir=0; dir<dim; ++dir ) {
-      out << "Local coordinates of scalars in dir: " << static_cast<ECoord>(dir) << "\n";
-      out << "i\txS\n";
-			OrdinalT j = 0;
-			for( typename Teuchos::ArrayRCP<ScalarT>::iterator jp=xS_[dir].begin(); jp<xS_[dir].end(); ++jp )
-				out << j++ + stencilWidths_->getBL(dir) << "\t" << *jp << "\n";
+		for( int i=0; i<dim; ++i ) {
+			out << "Local coordinates of scalars in dir: " << static_cast<ECoord>(i) << "\n";
+			xS_[i].print( out );
 		}
-    for( int dir=0; dir<dim; ++dir ) {
-      out << "Local coordinates of velocities in dir: " << static_cast<ECoord>(dir) << "\n";
-			OrdinalT j = 0;
-			for( typename Teuchos::ArrayRCP<ScalarT>::iterator jp=xV_[dir].begin(); jp<xV_[dir].end(); ++jp )
-				out << j++ + stencilWidths_->getBL(dir)<< "\t" << *jp << "\n";
+
+		for( int i=0; i<dim; ++i ) {
+			out << "Local coordinates of velocity in dir: " << static_cast<ECoord>(i) << "\n";
+			xV_[i].print( out );
 		}
 	};
 

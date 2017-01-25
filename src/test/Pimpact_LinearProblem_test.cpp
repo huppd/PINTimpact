@@ -55,10 +55,10 @@ TEUCHOS_STATIC_SETUP() {
 
 TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 
-  typedef Pimpact::VectorField<SpaceT> VF;
-  typedef Pimpact::MultiField<VF> MVF;
+  using VF = Pimpact::VectorField<SpaceT>;
+  using MVF = Pimpact::MultiField<VF>;
 
-  typedef Pimpact::OperatorBase<MVF> BOp;
+  using BOp = Pimpact::OperatorBase<MVF>;
 
   auto space = Pimpact::create<SpaceT>( pl );
 
@@ -99,10 +99,10 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 
 TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
 
-  typedef Pimpact::ScalarField<SpaceT> SF;
-  typedef Pimpact::MultiField<SF> BSF;
+  using SF = Pimpact::ScalarField<SpaceT>;
+  using BSF = Pimpact::MultiField<SF>;
 
-  typedef Pimpact::OperatorBase<BSF>  BOp;
+  using BOp = Pimpact::OperatorBase<BSF>;
 
 
   auto space = Pimpact::create<SpaceT>( pl );
@@ -117,7 +117,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
   auto b = x->clone();
 
 
-	temp.initField();
+	temp.init();
   auto op = Pimpact::createOperatorBase(
       Pimpact::createMultiOpWrap(
 				Pimpact::create< Pimpact::DivGradOp<SpaceT> >(space)

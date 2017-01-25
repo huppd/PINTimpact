@@ -367,7 +367,7 @@ protected:
 					spaceF_->nLoc(dir),
 					spaceC_->bl(dir),
 					spaceC_->bu(dir),
-					spaceF_->getCoordinatesLocal()->getX( dir, F::S ),
+					spaceF_->getCoordinatesLocal()->getX( F::S, dir  ),
 					dd_[dir],
 					cIS_[dir].get() );
 
@@ -391,8 +391,8 @@ protected:
 					spaceF_->bl(dir),
 					spaceF_->bu(dir),
 					offset,
-					spaceC_->getCoordinatesLocal()->getX( dir, fdir ),
-					spaceF_->getCoordinatesLocal()->getX( dir, fdir ),
+					spaceC_->getCoordinatesLocal()->getX( fdir, dir ),
+					spaceF_->getCoordinatesLocal()->getX( fdir, dir ),
 					dd_[dir],
 					cIV_[dir].get() );
 		}
@@ -424,7 +424,7 @@ public:
 
 	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
-		y.initField();
+		y.init();
 
 		F fType = x.getType();
 
@@ -469,7 +469,7 @@ public:
 		}
 		else {
 
-			//		y.initField();
+			//		y.init();
 			int dir = static_cast<int>( fType );
 
 			if( spaceC_->getProcGrid()->participating() ) {

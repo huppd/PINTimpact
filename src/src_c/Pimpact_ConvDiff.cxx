@@ -4,11 +4,14 @@
 
 using S = double;
 using O = int;
+const int sd = 2;
 const int d = 3;
+const int dNC = 2;
 
-using SpaceT = Pimpact::Space<S,O,3,d,2>;
+using SpaceT = Pimpact::Space<S,O,sd,d,dNC>;
 
 template<class T> using ConvDiffOpT = Pimpact::NonlinearOp<Pimpact::ConvectionDiffusionSOp<T> >;
+
 
 int main( int argi, char** argv ) {
 
@@ -19,23 +22,11 @@ int main( int argi, char** argv ) {
 	pl->set("npy",1);
 	pl->set("npx",1);
 
-	pl->set( "domain", 1);
-
-	//  int nwinds = 360*2;
-	//  int nwinds = 360;
-	int nwinds = 360/2;
-	//    int nwinds = 360/4;
-	//    int nwinds = 360/6;
-	//    int nwinds = 64;
-	//    int nwinds = 32;
-	//    int nwinds = 16;
-	//    int nwinds = 8;
-	//    int nwinds = 4;
-	//    int nwinds = 1;
+	int nwinds = 64;
 
 	S pi = (S)4. * std::atan( (S)1. ) ;
 
-	pl->set<S>( "Re", 10000 );
+	pl->set<S>( "Re", 1000 );
 	pl->set<O>( "nx", 129 );
 	pl->set<O>( "ny", 129 );
 
@@ -65,9 +56,9 @@ int main( int argi, char** argv ) {
 
 			auto smoother =
 				Pimpact::create<
-				Pimpact::NonlinearSmoother<
-				ConvDiffOpT<Pimpact::Space<S,O,3,d,2> > ,
-				Pimpact::ConvectionDiffusionSORSmoother > > (
+					Pimpact::NonlinearSmoother<
+						ConvDiffOpT<SpaceT> ,
+						Pimpact::ConvectionDiffusionSORSmoother > > (
 						op,
 						pls );
 
@@ -76,9 +67,9 @@ int main( int argi, char** argv ) {
 			if( space()->rankST()==0 ) {
 				std::string fname = "phin.txt";
 				if( 3==dirx )
-					fname.insert( 4, std::to_string( (long long)8 ) );
+					fname.insert( 4, std::to_string( static_cast<long long>(8) ) );
 				else
-					fname.insert( 4, std::to_string( (long long)dirx+diry*2+3 ) );
+					fname.insert( 4, std::to_string( static_cast<long long>(dirx+diry*2+3) ) );
 				phifile.open( fname, std::ofstream::out);
 			}
 
@@ -89,34 +80,27 @@ int main( int argi, char** argv ) {
 				if( space()->rankST()==0 )
 					phifile << phi << "\t";
 
-
 				// init solution
 				y(Pimpact::F::U).initField( Pimpact::Grad2D_inY );
 				y(Pimpact::F::V).initField( Pimpact::Grad2D_inX );
 
 				auto sol = y.clone( Pimpact::ECopy::Deep );
 
-				wind(Pimpact::F::U).initField( Pimpact::ConstField, std::cos( phi ) );
-				wind(Pimpact::F::V).initField( Pimpact::ConstField, std::sin( phi ) );
-
-				z.initField();
+				wind(Pimpact::F::U).init( std::cos( phi ) );
+				wind(Pimpact::F::V).init( std::sin( phi ) );
 
 				op->assignField( wind );
 
+				z.init();
+
 				// constructing rhs
 				op->apply( y, z );
-				{
-					y.init(0);
-					auto bc = z.clone( Pimpact::ECopy::Shallow );
-					op->apply( y, *bc );
-					z.add( 1., z, -1., *bc );
-				}
 
-				y.initField();
+				y.init();
 
 				std::ofstream ofs;
 				std::string filename = "GS.txt";
-				filename.insert( 2, std::to_string( (long long)phii) );
+				filename.insert( 2, std::to_string( static_cast<long long>(phii) ) );
 
 				if( space()->rankST()==0 )
 					ofs.open(filename, std::ofstream::out);
@@ -130,11 +114,11 @@ int main( int argi, char** argv ) {
 					z2.add( -1, *sol, 1, y );
 
 					error = z2.norm()/sol->norm();
-					//          error = z2->norm();
 
 					if( iter>1000) error=-1;
 
 					if( space()->rankST()==0 ) ofs << error << "\n";
+					if( space()->rankST()==0 ) std::cout << error << "\n";
 
 					iter++;
 
@@ -142,7 +126,6 @@ int main( int argi, char** argv ) {
 				while( error>1.e-6 );
 
 				if( space()->rankST()==0 )
-					//          phifile << error << "\n";
 					phifile << iter << "\n";
 
 

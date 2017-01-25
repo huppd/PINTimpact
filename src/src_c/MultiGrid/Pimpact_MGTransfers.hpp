@@ -132,22 +132,22 @@ public:
   }
 
 	template< template<class> class FieldT>
-	void interpolation( const Teuchos::RCP< MGFields<MGSpacesT,FieldT> >& x ) const {
+	void interpolation( MGFields<MGSpacesT,FieldT>& x ) const {
 
 		for( int i=-2; i>=-mgSpaces_->getNGrids(); --i ) 
 			if( mgSpaces_->participating(i) ) 
-				getInterpolationOp(i)->apply( *x->get(i+1), *x->get(i) );
+				getInterpolationOp(i)->apply( x.get(i+1), x.get(i) );
 
-		getTransferOp()->apply( *x->get(0), *x->get() );
+		getTransferOp()->apply( x.get(0), x.get() );
 	}
 
 	template< template<class> class FieldT>
-	void restriction( const Teuchos::RCP< MGFields<MGSpacesT,FieldT> >& x ) const {
+	void restriction( MGFields<MGSpacesT,FieldT>& x ) const {
 
-		getTransferOp()->apply( *x->get(), *x->get(0) );
+		getTransferOp()->apply( x.get(), x.get(0) );
 		for( int i=0; i<mgSpaces_->getNGrids()-1; ++i ) 
 			if( mgSpaces_->participating(i) ) 
-				getRestrictionOp(i)->apply( *x->get(i), *x->get(i+1) );
+				getRestrictionOp(i)->apply( x.get(i), x.get(i+1) );
 	}
 
 }; // end of class MGTransfers

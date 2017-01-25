@@ -12,6 +12,7 @@
 
 #include "Pimpact_DomainSize.hpp"
 #include "Pimpact_GridSizeGlobal.hpp"
+#include "Pimpact_Stencil.hpp"
 #include "Pimpact_Utils.hpp"
 
 
@@ -64,10 +65,14 @@ class CoordinatesGlobal {
 
 protected:
 
-	using TO = const Teuchos::Tuple< Teuchos::ArrayRCP<ScalarT>, dim >;
+	using AS = Array<ScalarT,OrdinalT,1>;
+	using AV = Array<ScalarT,OrdinalT,0>;
 
-  TO xS_;
-  TO xV_;
+	using TAS = const Teuchos::Tuple< AS, dim >;
+	using TAV = const Teuchos::Tuple< AV, dim >;
+
+  TAS xS_;
+  TAV xV_;
 
 	Teuchos::Tuple< Teuchos::RCP<Teuchos::ParameterList>, 3 > stretchPara_;
 
@@ -229,8 +234,8 @@ protected:
 				OrdinalT M = gridSize->get(dir);
 				ScalarT Ms = M;
 
-				xS_ [dir] = Teuchos::arcp<ScalarT>( M   );
-				xV_ [dir] = Teuchos::arcp<ScalarT>( M+1 );
+				xS_ [dir] = AS( M );
+				xV_ [dir] = AV( M );
 
 				if( dir<3 ) {
 
@@ -238,8 +243,8 @@ protected:
 					ScalarT x0 = domainSize->getOrigin(dir);
 
 					int stretchType = string2int( stretchPara_[dir]->get<std::string>( "Stretch Type", "none" ) );
-					for( OrdinalT i=0; i<M; ++i ) {
-						ScalarT is = i;
+					for( OrdinalT i=1; i<=M; ++i ) {
+						ScalarT is = i-1;
 
 						switch( stretchType ) {
 							case 0:
@@ -298,7 +303,7 @@ protected:
 
 					ScalarT L = 4.*std::atan(1.);
 
-					for( OrdinalT i=0; i<M; ++i ) {
+					for( OrdinalT i=1; i<=M; ++i ) {
 						ScalarT is = i;
 						xS_ [dir][i] = is*L/( Ms-1. );
 					}
@@ -323,41 +328,50 @@ protected:
 		for( int dir=0; dir<dim; ++dir ) {
 
 			OrdinalT Mc = gridSizeC->get(dir);
-			OrdinalT Mf = coordinatesF->xS_[dir].size();
+			OrdinalT Mf = coordinatesF->xS_[dir].NN();
 
 			if( Mc==Mf ) {
-				xS_ [dir] = coordinatesF->xS_ [dir];
-				xV_ [dir] = coordinatesF->xV_ [dir];
+				xS_[dir] = coordinatesF->xS_[dir];
+				xV_[dir] = coordinatesF->xV_[dir];
 			}
 			else {
 
-				xS_ [dir] = Teuchos::arcp<ScalarT>( Mc   );
-				xV_ [dir] = Teuchos::arcp<ScalarT>( Mc+1 );
+				xS_[dir] = AS( Mc );
+				xV_[dir] = AV( Mc );
 
 				OrdinalT d = 1;
 
 				if( dir<3 ) {
-					if( Mc>1 ) // shouldn't be neccessary when strategy makes its job correct. maybe throw exception
+					if( Mc>1 ) // shouldn't be necessary when strategy makes its job correct. maybe throw exception
 						d = ( Mf - 1 )/( Mc - 1);
 				}
 				else {
-					if( Mc>0 ) // shouldn't be neccessary when strategy makes its job correct. maybe throw exception
+					if( Mc>0 ) // shouldn't be necessary when strategy makes its job correct. maybe throw exception
 						d = Mf / Mc;
 				}
 
-				for( OrdinalT j=0; j<Mc; ++j )
-					xS_[dir][j] = coordinatesF->xS_[dir][j*d];
+				for( OrdinalT j=1; j<=Mc; ++j )
+					xS_[dir][j] = coordinatesF->xS_[dir][(j-1)*d+1];
 
 				for( OrdinalT j=1; j<Mc; ++j )
-					xV_[dir][j] = coordinatesF->xS_[dir][j*d-1];
+					xV_[dir][j] = coordinatesF->xS_[dir][j*d];
 
-				// otherwise restrictin of the boundary is wrong
+				// otherwise restriction of the boundary is wrong
 				xV_[dir][0 ] = coordinatesF->xV_[dir][0];
 				xV_[dir][Mc] = coordinatesF->xV_[dir][Mf];
+
+				//xV_[dir][0 ] = 2.*xS_[dir][1]-xV_[dir][1];
+				//xV_[dir][Mc] = 2.*xS_[dir][Mc]-xV_[dir][Mc];
 			}
 		}
 	}
 
+
+	//ScalarT& at( const int& dir, const F& ftype, const OrdinalT& i ) {
+		////assert( ( F::S==ftype || dir!=ftype ) && () );
+
+		//return( ( F::S==ftype || dir!=ftype )?  xS_[dir][i] : xV_[dir][i] );
+	//}
 
 public:
 
@@ -366,13 +380,20 @@ public:
 	/// @{ 
 
 
-	constexpr const ScalarT* getX( const int& dir, const F& ftype ) const {
+	constexpr const ScalarT* getX( const F& ftype, const int& dir ) {
 		return(
 				( F::S==ftype || dir!=ftype )?
-					xS_[dir].getRawPtr():
-					xV_[dir].getRawPtr() 
+					xS_[dir].get():
+					xV_[dir].get() 
 				);
 	}
+
+	//constexpr const ScalarT& at( const int& dir, const F& ftype, const OrdinalT& i ) {
+		////assert( ( F::S==ftype || dir!=ftype ) && () );
+
+		//return( ( F::S==ftype || dir!=ftype )?  xS_[dir][i] : xV_[dir][i] );
+	//}
+
 
 	constexpr const Teuchos::Tuple< Teuchos::RCP<Teuchos::ParameterList> ,3>& getStretchParameter() const {
 		return( stretchPara_ );
@@ -384,18 +405,12 @@ public:
 
 		for( int i=0; i<dim; ++i ) {
 			out << "Global coordinates of scalars in dir: " << static_cast<ECoord>(i) << "\n";
-			out << "i\txS\n";
-			OrdinalT j = 0;
-			for( typename Teuchos::ArrayRCP<ScalarT>::iterator jp=xS_[i].begin(); jp<xS_[i].end(); ++jp )
-				out << ++j << "\t" << *jp << "\n";
+			xS_[i].print( out );
 		}
 
 		for( int i=0; i<dim; ++i ) {
-			out << "Global coordinates of vectors in dir: " << static_cast<ECoord>(i) << "\n";
-			out << "i\txV\n";
-			OrdinalT j = 0;
-			for( typename Teuchos::ArrayRCP<ScalarT>::iterator jp=xV_[i].begin(); jp<xV_[i].end(); ++jp )
-				out << j++ << "\t" << *jp << "\n";
+			out << "Global coordinates of velocity in dir: " << static_cast<ECoord>(i) << "\n";
+			xV_[i].print( out );
 		}
 	};
 
