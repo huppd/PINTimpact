@@ -44,6 +44,7 @@ protected:
 
 public:
 
+	/// \todo set stencils for dNC=2 and BC=Dirichlet 
 	InterpolateS2V( const Teuchos::RCP<const SpaceT>& space ):
 		space_(space) {
 

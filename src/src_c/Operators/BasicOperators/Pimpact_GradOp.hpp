@@ -35,10 +35,8 @@ protected:
 	static const int dimNC = ST::dimNC;
 	static const int dim = ST::dimension;
 
-	using SW = StencilWidths<dim,dimNC>;
-
-	using StencD = Stencil< Scalar, Ordinal, 0, SW::DL(0), SW::DU(0) >;
-	using StencG = Stencil< Scalar, Ordinal, 0, SW::GL(0), SW::GU(0) >;
+	using StencD = Stencil< Scalar, Ordinal, 0, ST::SW::DL(0), ST::SW::DU(0) >;
+	using StencG = Stencil< Scalar, Ordinal, 0, ST::SW::GL(0), ST::SW::GU(0) >;
 
   using TD = const Teuchos::Tuple<StencD,ST::sdim>; 
   using TG = const Teuchos::Tuple<StencG,ST::sdim>; 
@@ -54,6 +52,7 @@ public:
   using RangeFieldT =  VectorField<SpaceT>;
 
 	/// \todo for the transposed stencil it would be better to compute locally all global stencils instead of MPI_allreduce them 
+	/// \todo make it MG readey (participant, all reduce)
 	GradOp( const Teuchos::RCP< const SpaceT>& space):
 		space_(space) {
 
@@ -94,9 +93,9 @@ public:
 					*( space_->bu(dir) - space_->bl(dir) + 1);
 
 
-				Stencil< Scalar, Ordinal, SW::BL(0), SW::BL(0), SW::BU(0) >
+				Stencil< Scalar, Ordinal, ST::SW::BL(0), ST::SW::BL(0), ST::SW::BU(0) >
 				cG1( space_->nGlo(dir) + space_->bu(dir) );
-				Stencil< Scalar, Ordinal, SW::BL(0), SW::BL(0), SW::BU(0) >
+				Stencil< Scalar, Ordinal, ST::SW::BL(0), ST::SW::BL(0), ST::SW::BU(0) >
 				cG2( space_->nGlo(dir) + space_->bu(dir) );
 
 				for( Ordinal i = space_->begin(fdir,dir,B::Y); i<=space_->end(fdir,dir,B::Y); ++i )
@@ -320,7 +319,7 @@ protected:
 
 		Scalar grad = 0.;
 
-		for( int ii=space_->gl(X); ii<=space_->gu(X); ++ii ) 
+		for( int ii=ST::SW::GL(X); ii<=ST::SW::GU(X); ++ii ) 
 			grad += getC(X,i,ii)*x(i+ii,j,k);
 
 		return( grad );
@@ -331,7 +330,7 @@ protected:
 
 		Scalar grad = 0.;
 
-		for( int jj=space_->gl(Y); jj<=space_->gu(Y); ++jj ) 
+		for( int jj=ST::SW::GL(Y); jj<=ST::SW::GU(Y); ++jj ) 
 			grad += getC(Y,j,jj)*x(i,j+jj,k);
 
 		return( grad );
@@ -342,7 +341,7 @@ protected:
 
 		Scalar grad = 0.;
 
-		for( int kk=space_->gl(Z); kk<=space_->gu(Z); ++kk ) 
+		for( int kk=ST::SW::GL(Z); kk<=ST::SW::GU(Z); ++kk ) 
 			grad += getC(Z,k,kk)*x(i,j,k+kk);
 
 		return( grad );
@@ -353,13 +352,13 @@ protected:
 
 		Scalar gradT = 0.;
 
-		for( int ii=space_->dl(X); ii<=space_->du(X); ++ii ) 
+		for( int ii=ST::SW::DL(X); ii<=ST::SW::DU(X); ++ii ) 
 			gradT += getCTrans(X,i,ii)*x(F::U)(i+ii,j,k);
 
-		for( int jj=space_->dl(Y); jj<=space_->du(Y); ++jj ) 
+		for( int jj=ST::SW::DL(Y); jj<=ST::SW::DU(Y); ++jj ) 
 			gradT += getCTrans(Y,j,jj)*x(F::V)(i,j+jj,k);
 
-		for( int kk=space_->dl(Z); kk<=space_->du(Z); ++kk ) 
+		for( int kk=ST::SW::DL(Z); kk<=ST::SW::DU(Z); ++kk ) 
 			gradT += getCTrans(Z,k,kk)*x(F::W)(i,j,k+kk);
 
 		return( gradT );
@@ -370,10 +369,10 @@ protected:
 
 		Scalar gradT = 0.;
 
-		for( int ii=space_->dl(X); ii<=space_->du(X); ++ii ) 
+		for( int ii=ST::SW::DL(X); ii<=ST::SW::DU(X); ++ii ) 
 			gradT += getCTrans(X,i,ii)*x(F::U)(i+ii,j,k);
 
-		for( int jj=space_->dl(Y); jj<=space_->du(Y); ++jj ) 
+		for( int jj=ST::SW::DL(Y); jj<=ST::SW::DU(Y); ++jj ) 
 			gradT += getCTrans(Y,j,jj)*x(F::V)(i,j+jj,k);
 
 		return( gradT );

@@ -360,8 +360,9 @@ protected:
 				xV_[dir][0 ] = coordinatesF->xV_[dir][0];
 				xV_[dir][Mc] = coordinatesF->xV_[dir][Mf];
 
-				//xV_[dir][0 ] = 2.*xS_[dir][1]-xV_[dir][1];
-				//xV_[dir][Mc] = 2.*xS_[dir][Mc]-xV_[dir][Mc];
+				// makes restriction on boundaries more complicated but Operators on coarse grid smoother
+				//xV_[dir][0 ] = 2.*xS_[dir][1]-xV_[dir][1]; 
+				//xV_[dir][Mc] = 2.*xS_[dir][Mc]-xV_[dir][Mc-1];
 			}
 		}
 	}

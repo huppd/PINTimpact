@@ -68,6 +68,7 @@ public:
 	static const int dimension = d;
 	static const int dimNC = dNC;
 
+	using SW = StencilWidths<dimension,dimNC>;
 
 	/// \brief most important object
 	///
@@ -673,6 +674,7 @@ static Teuchos::RCP< const SpaceT > createSpace(
 	bool participating = false;
 	MPI_Comm commWorld = space->getProcGrid()->getCommWorld();
 	MPI_Comm commSub ;//= space->getProcGrid()->getCommS();
+	//std::cout << "rank: " << space->rankST() << "\tcomm: " << commWorld<< "\n";
 
 	int rankWorld = space->getProcGrid()->getRank();
 	int rankSub = space->getProcGrid()->getRank(); // necessary?
@@ -784,7 +786,9 @@ static Teuchos::RCP< const SpaceT > createSpace(
 					ib,
 					rankL,
 					rankU ) );
+	//procGrid->print();
 
+	//std::cout << "rank: " << space->rankST() << "\tcomm: " << commWorld<< "\n";
 
 	Teuchos::RCP<const GridSizeLocal<Ordinal,sdim,dimension> > gridSizeLocal =
 		Pimpact::createGridSizeLocal<Ordinal,sdim,dimension,dimNC>(

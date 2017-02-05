@@ -169,6 +169,14 @@ public:
 	/// \name getter
 	/// @{ 
 
+	constexpr const ScalarT* operator()( const F& ftype, const int& dir ) const  {
+		return( getX( ftype, dir ) );
+  }
+
+  constexpr const ScalarT& operator()( const F& ftype, const int& dir, const OrdinalT& i) const {
+		return( getX( ftype, dir, i ) );
+  }
+
 	constexpr const ScalarT* getX( const F& ftype, const int& dir ) const  {
 		return(
 				( F::S==ftype || dir!=ftype ) ?
@@ -180,6 +188,14 @@ public:
   constexpr const ScalarT& getX( const F& ftype, const int& dir, const OrdinalT& i) const {
 		return( ( F::S==ftype || dir!=ftype )?
 				xS_[dir][i]: xV_[dir][i] );
+  }
+
+	constexpr const AS& getS( const int& dir ) const  {
+		return( xS_[dir] );
+  }
+
+	constexpr const AV& getV( const int& dir ) const {
+		return( xV_[dir] );
   }
 
 	///  @} 

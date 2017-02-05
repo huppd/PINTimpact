@@ -39,10 +39,8 @@ protected:
 	static const int dimNC = ST::dimNC;
 	static const int dim = ST::dimension;
 
-	using SW = StencilWidths<dim,dimNC>;
-
-	using StencD = Stencil< Scalar, Ordinal, 0, SW::DL(0), SW::DU(0) >;
-	using StencG = Stencil< Scalar, Ordinal, 0, SW::GL(0), SW::GU(0) >;
+	using StencD = Stencil< Scalar, Ordinal, 0, ST::SW::DL(0), ST::SW::DU(0) >;
+	using StencG = Stencil< Scalar, Ordinal, 0, ST::SW::GL(0), ST::SW::GU(0) >;
 
 	using TD = const Teuchos::Tuple< StencD, ST::sdim >;
 	using TG = const Teuchos::Tuple< StencG, ST::sdim >;
@@ -54,6 +52,7 @@ protected:
 
 public:
 
+	/// \todo make it MG readey (participant, all reduce)
 	DivOp( const Teuchos::RCP<const SpaceT>& space ):
 		space_(space) {
 
@@ -92,9 +91,9 @@ public:
 				Ordinal nTempG = ( space_->nGlo(dir) + space_->bu(dir) - space_->bl(dir) + 1 )
 					*( space_->bu(dir) - space_->bl(dir) + 1);
 
-				Stencil< Scalar, Ordinal, SW::BL(0), SW::BL(0), SW::BU(0) >
+				Stencil< Scalar, Ordinal, ST::SW::BL(0), ST::SW::BL(0), ST::SW::BU(0) >
 					cG1( space_->nGlo(dir) + space_->bu(dir) );
-				Stencil< Scalar, Ordinal, SW::BL(0), SW::BL(0), SW::BU(0) >
+				Stencil< Scalar, Ordinal, ST::SW::BL(0), ST::SW::BL(0), ST::SW::BU(0) >
 					cG2( space_->nGlo(dir) + space_->bu(dir) );
 
 				for( Ordinal i = space_->begin(F::S,dir); i<=space_->end(F::S,dir); ++i )

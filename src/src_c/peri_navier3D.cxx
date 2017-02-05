@@ -423,7 +423,6 @@ int main( int argi, char** argv ) {
 					Pimpact::RestrictionSFOp,
 					Pimpact::InterpolationOp,
 					Pimpact::DivGradOp,
-					//Pimpact::DivGradOp,
 					Pimpact::DivGradO2Op,
 					Pimpact::DivGradO2JSmoother,
 					//Pimpact::Chebyshev,

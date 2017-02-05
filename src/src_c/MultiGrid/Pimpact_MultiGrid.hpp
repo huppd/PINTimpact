@@ -109,7 +109,7 @@ public:
 		defectCorrection_( pl->get<bool>("defect correction", true ) ),
 		initZero_( pl->get<bool>("init zero", false ) ),
 		numCycles_( pl->get<int>("numCycles",FSpaceT::dimNC-CSpaceT::dimNC+1) ),
-		cycleType_( pl->get<int>( "cycle type", 1 ) ),
+		cycleType_( pl->get<int>( "cycle type", 0 ) ),
 		mgSpaces_(mgSpaces),
 		mgTrans_( createMGTransfers<TransT,RestrT,InterT>(mgSpaces) ),
 		mgOps_(   createMGOperators<FOperatorT,COperatorT>(mgSpaces) ),

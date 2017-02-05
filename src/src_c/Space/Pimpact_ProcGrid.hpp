@@ -208,10 +208,10 @@ protected:
 		}
 
 		// maybe dispensable...
-		if( commWorld_!=MPI_COMM_NULL )
-			MPI_Errhandler_set(commWorld_, MPI_ERRORS_ARE_FATAL );
-		if( commSub_!=MPI_COMM_NULL )
-			MPI_Errhandler_set(commSub_, MPI_ERRORS_ARE_FATAL );
+		//if( commWorld_!=MPI_COMM_NULL )
+			//MPI_Comm_create_errhandler(commWorld_, MPI_ERRORS_ARE_FATAL ); // is deprecated
+		//if( commSub_!=MPI_COMM_NULL )
+			//MPI_Comm_create_errhandler(commSub_, MPI_ERRORS_ARE_FATAL );
   }
 
 public:
@@ -220,15 +220,15 @@ public:
 	/// \warning no safety checks
 	/// \note todo make privat, make coarsening here.
 	ProcGrid(
-			TO procGridSize,
-			bool participating,
-			MPI_Comm commWorld,
-			MPI_Comm commSub,
-			int rankWorld,
-			int rankSub,
-			Teuchos::Tuple<int,dim> ib,
-			Teuchos::Tuple<int,dim> rankL,
-			Teuchos::Tuple<int,dim> rankU ):
+			const TO& procGridSize,
+			const bool& participating,
+			const MPI_Comm& commWorld,
+			const MPI_Comm& commSub,
+			const int& rankWorld,
+			const int& rankSub,
+			const Teuchos::Tuple<int,dim>& ib,
+			const Teuchos::Tuple<int,dim>& rankL,
+			const Teuchos::Tuple<int,dim>& rankU ):
 		procGridSize_(procGridSize),
 		participating_(participating),
 		commWorld_(commWorld),
@@ -237,19 +237,24 @@ public:
 		rankSub_(rankSub),
 		iB_(ib),
 		rankL_(rankL),
-		rankU_(rankU)	{}
+		rankU_(rankU)	{
+			std::cout << "rank: " << rankWorld_ << "\tcomm: " << commWorld_ << "\n";
+		}
 
+	/// \todo figure out why freeing is not working, desirable for many Utest, destructor called twize?
 	~ProcGrid() {
-		MPI_Comm_free( &commWorld_ );
-		if( 4==dim )
-			MPI_Comm_free( &commSub_ );
-		for( int i=0; i<dim; ++i )
-			if( commSlice_[i]!=MPI_COMM_NULL )
-				MPI_Comm_free( &(commSlice_[i]) );
+		//if( commWorld_!=MPI_COMM_NULL )
+		//std::cout << "rank: " << rankWorld_ << "\tcomm: " << commWorld_ << "\n";
+		//MPI_Comm_free( &commWorld_ );
+		//if( 4==dim )
+			//MPI_Comm_free( &commSub_ );
+		//for( int i=0; i<dim; ++i )
+			//if( commSlice_[i]!=MPI_COMM_NULL )
+				//MPI_Comm_free( &(commSlice_[i]) );
 	}
 
   void print( std::ostream& out=std::cout ) const {
-    out << "\t---ProcessorGrid: ---\n";
+    out << "\t---ProcessorGrid ---\n";
 		out << "\tProcGridSize: " << procGridSize_ << " ---\n";
     out << "\tparticipating: " <<participating_<<"\n";
     out << "\trankSub: " <<rankSub_<<"\n";

@@ -1766,11 +1766,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, InterpolateS2VOp, SpaceT ) {
 			op->apply( p, vel(dir) );
 
 			// compute error
-			vel(dir).add( 1., sol(dir), -1., vel(dir), Pimpact::B::Y );
+			vel(dir).add( 1., sol(dir), -1., vel(dir) );
 			if( write ) vel.write(n);
 
-			error2[n]   = std::log10( vel(dir).norm( Belos::TwoNorm, Pimpact::B::Y ) / sol(dir).norm( Belos::TwoNorm, Pimpact::B::Y ) );
-			errorInf[n] = std::log10( vel(dir).norm( Belos::InfNorm, Pimpact::B::Y ) / sol(dir).norm( Belos::InfNorm, Pimpact::B::Y ) );
+			error2[n]   = std::log10( vel(dir).norm( Belos::TwoNorm ) / sol(dir).norm( Belos::TwoNorm ) );
+			errorInf[n] = std::log10( vel(dir).norm( Belos::InfNorm ) / sol(dir).norm( Belos::InfNorm ) );
 			dofs[n] = std::log10( 8.*std::pow(2.,n)+1. );
 			if( 0==rank )	
 				std::cout << std::pow(10.,dofs[n]) << "\t" << std::pow(10.,error2[n]) << "\t" << std::pow(10.,errorInf[n]) << "\n";

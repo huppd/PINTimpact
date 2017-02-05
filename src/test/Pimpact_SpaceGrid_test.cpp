@@ -374,7 +374,7 @@ TEUCHOS_UNIT_TEST( Space, CoordinatesGlobal ) {
 
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Space, create, SpaceT ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Space, CoordinatesLocal, SpaceT ) {
 
 	Pimpact::setBoundaryConditions( pl, domain );
 
@@ -431,7 +431,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Space, create, SpaceT ) {
 		coord->print();
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( Space, create, Space2DT )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( Space, create, Space3DT )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( Space, CoordinatesLocal, Space2DT )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( Space, CoordinatesLocal, Space3DT )
 
 } // end of namespace

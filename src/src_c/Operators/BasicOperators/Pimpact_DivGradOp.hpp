@@ -116,6 +116,7 @@ public:
 		out << "---" << getLabel() << "---\n";
 		div_->print( out );
 		grad_->print( out );
+		space()->getInterpolateV2S()->print();
   }
 
 

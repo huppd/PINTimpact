@@ -57,7 +57,7 @@ public:
 
   /// \brief constructor taking a \c FieldT constructing multiple shallow copys.
   /// \note maybe hide and make it private
-	MultiField( const InnerFieldT& field, const int numvecs, ECopy ctyp=ECopy::Shallow ):
+	MultiField( const InnerFieldT& field, const int& numvecs, ECopy ctyp=ECopy::Shallow ):
 		AF( field.space() ), mfs_(numvecs) {
 			for( int i=0; i<numvecs; ++i )
 				mfs_[i] = field.clone(ctyp);
@@ -86,8 +86,8 @@ public:
 	/// \param space
 	/// \param numvecs
 	/// \return
-	MultiField( const Teuchos::RCP<const SpaceT>& space, int numvecs=1 ):
-		AF( space ), mfs_( numvecs ) {
+	MultiField( const Teuchos::RCP<const SpaceT>& space, const int& numvecs=1 ):
+		AF( space ), mfs_(numvecs) {
 
 			for( int i=0; i<numvecs; ++i )
 				mfs_[i] = create<InnerFieldT>( space );
@@ -99,7 +99,7 @@ public:
   /// The returned Pimpact::MultiField has the same (distribution over one or
   /// more parallel processes) Its entries are not initialized and have undefined
   /// values.
-	Teuchos::RCP< FieldT > clone( const int numvecs ) const {
+	Teuchos::RCP< FieldT > clone( const int& numvecs ) const {
 		return( Teuchos::rcp( new FieldT( *mfs_[0], numvecs ) ) );
 	}
 
@@ -519,18 +519,14 @@ public:
 	/// \name Attribute methods
 	/// @{ 
 
-	constexpr InnerFieldT&       getField     (int i)       { return( *mfs_[i] ); }
-	constexpr const InnerFieldT& getConstField(int i) const { return( *mfs_[i] ); }
-
-	constexpr Teuchos::RCP<InnerFieldT>       getFieldPtr     (int i)       { return( mfs_[i] ); }
-	constexpr Teuchos::RCP<const InnerFieldT> getConstFieldPtr(int i) const { return( mfs_[i] ); }
+	InnerFieldT& getField( const int& i ) { return( *mfs_[i] ); }
+	constexpr const InnerFieldT& getField( const int& i ) { return( *mfs_[i] ); }
 
 	constexpr const Teuchos::RCP<const SpaceT>& space() const { return( AF::space_ ); }
 
 	constexpr const MPI_Comm& comm() const { return(mfs_[0]->comm()); }
 
 	///  @} 
-
 
 }; // end of class MultiField
 

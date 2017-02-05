@@ -34,7 +34,7 @@ protected:
 
 public:
 
-	Array() : c_(nullptr),nn_(ss) {}
+	Array() : c_(nullptr), nn_(ss) {}
 
 	Array( const Ordinal& nn ) : nn_(nn) {
 

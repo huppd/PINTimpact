@@ -39,19 +39,19 @@ protected:
 
   Teuchos::RCP<const MGSpacesT> mgSpaces_;
 
-  Teuchos::RCP< FFieldT >                fField_;
-  std::vector< Teuchos::RCP<CFieldT> >  cFields_;
+  FFieldT              fField_;
+  std::vector<CFieldT> cFields_;
 
 public:
 
 	MGFields( const Teuchos::RCP<const MGSpacesT>& mgSpaces ):
 		mgSpaces_(mgSpaces),
-		fField_( Teuchos::rcp( new FFieldT( mgSpaces_->get() ) ) ),
-		cFields_( mgSpaces_->getNGrids() ) {
+		fField_( mgSpaces_->get() ),
+		cFields_() {
 
 			for( int i=0; i<mgSpaces_->getNGrids(); ++i )
 				//			if( 0==i || mgSpaces_->participating(i-1) )
-				cFields_[i] = Teuchos::rcp( new CFieldT( mgSpaces_->get(i) ) );
+				cFields_.push_back( CFieldT( mgSpaces_->get(i) ) );
 
 			// not working on brutus
 			//cFields_.shrink_to_fit();
@@ -59,23 +59,23 @@ public:
 
 public:
 
-  constexpr const FFieldT& get() { return( *fField_ ); }
-  FFieldT& get() { return( *fField_ ); }
+  constexpr const FFieldT& get() { return( fField_ ); }
+  FFieldT& get() { return( fField_ ); }
 
   /// \brief gets ith operator, similar to python i=-1 is gets you the coarses space
   constexpr const CFieldT& get( int i ) const {
     if( i<0 )
-      return( *cFields_[mgSpaces_->getNGrids()+i] );
+      return( cFields_[mgSpaces_->getNGrids()+i] );
     else
-      return( *cFields_[i] );
+      return( cFields_[i] );
   }
 	
   /// \brief gets ith operator, similar to python i=-1 is gets you the coarses space
 	CFieldT& get( int i )  {
 		if( i<0 )
-			return( *cFields_[mgSpaces_->getNGrids()+i] );
+			return( cFields_[mgSpaces_->getNGrids()+i] );
 		else
-			return( *cFields_[i] );
+			return( cFields_[i] );
   }
 
 
@@ -98,17 +98,6 @@ createMGFields( const Teuchos::RCP<const MGSpacesT>& mgSpaces ) {
 
 
 } // end of namespace Pimpact
-
-
-#ifdef COMPILE_ETI
-#include "Pimpact_MGSpaces.hpp"
-#include "Pimpact_ScalarField.hpp"
-#include "Pimpact_VectorField.hpp"
-extern template class Pimpact::MGFields< Pimpact::MGSpaces< Pimpact::Space<double,int,3,4>, Pimpact::Space<double,int,3,2> >, Pimpact::ScalarField >;
-extern template class Pimpact::MGFields< Pimpact::MGSpaces< Pimpact::Space<double,int,4,4>, Pimpact::Space<double,int,4,2> >, Pimpact::ScalarField >;
-extern template class Pimpact::MGFields< Pimpact::MGSpaces< Pimpact::Space<double,int,3,4>, Pimpact::Space<double,int,3,2> >, Pimpact::VectorField >;
-extern template class Pimpact::MGFields< Pimpact::MGSpaces< Pimpact::Space<double,int,4,4>, Pimpact::Space<double,int,4,2> >, Pimpact::VectorField >;
-#endif
 
 
 #endif // end of #ifndef PIMPACT_MGFIELDS_HPP

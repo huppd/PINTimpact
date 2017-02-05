@@ -76,8 +76,8 @@ contains
     if( BCL > 0 ) then
       cGp(:,0) = 0.
       cDu(:,1) = 0.
-      !cDu(0,1) = 1./( yu(1) - yu(0) ) ! TEST!!! Der Schoenheit halber, s.u.
-      cDu(0,1) = 1./( xp(2) - xp(1) ) ! TEST!!! Der Schoenheit halber, s.u.
+      cDu(0,1) = 1./( yu(1) - yu(0) ) ! TEST!!! Der Schoenheit halber, s.u.
+      !cDu(0,1) = 1./( xp(2) - xp(1) ) ! TEST!!! Der Schoenheit halber, s.u.
       !cDu(0,1) =  1./(xu(1) - xu (0)) !! shoudl be the same
     else
       cGp(0,0) = -1./( xp(1) - xp(0) )
@@ -87,8 +87,9 @@ contains
     if( BCU > 0 ) then
       cGp(:,N) =  0.
       cDu(:,N) =  0.
-      !cDu(-1,N) = -1./( yu(M) - yu(M-1) )
-      cDu(-1,N) = -1./( xp(N) - xp(N-1) ) ! TEST!!! Der Schoenheit halber, s.u.
+      cDu(-1,N) = -1./( yu(M) - yu(M-1) )
+      !cDu(-1,N) = -1./( xp(N) - xp(N-1) ) ! consistency bad, good convergence,
+      ! consistency prefered
       !cDu(-1,N) = -1./( xu(N) - xu(N-1) ) ! TEST!!! Das geht in die Hose ...
       !cDu(-1,N) = -1./( yu(M+1) - yu(M) )
     else
