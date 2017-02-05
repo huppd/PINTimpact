@@ -47,6 +47,17 @@ protected:
   Teuchos::Tuple<StencS,3> cRS_;
   Teuchos::Tuple<StencV,3> cRV_;
 
+	Ordinal getIF( const int& dir, const Ordinal& ii ) const {
+
+		Ordinal i=this->dd_[dir]*( ii-1 ) + 1;
+
+		if( 0<spaceC()->getBCLocal()->getBCL(dir) )
+			i = std::max( 0, i );
+		if( 0<spaceC()->getBCLocal()->getBCU(dir) )
+			i = std::min( spaceF()->end(F::S,dir)-1, i );
+		return( i );
+	}
+
 	/// \todo mv MG_getCRVS to Base class deal with BC here
 	void initVF() {
 
@@ -75,52 +86,37 @@ protected:
 
 				cRV_[dir] = StencV( iimax );
 
-				const auto& xv = spaceF()->getCoordinatesLocal()->getV(dir);
-				const auto& xs = spaceF()->getCoordinatesLocal()->getS(dir);
+				const auto& xf = spaceF()->getCoordinatesLocal()->getV(dir);
+				const auto& xc = spaceC()->getCoordinatesLocal()->getV(dir);
 
 				// Restriktion, linienweise, 1d 
 				// fine
-				//     xv(i)        xs(i+1)        xv(i+1)
+				//     xf(i)        xs(i+1)        xf(i+1)
 				//  ----->-------------o------------->-----
 				//       |-----------Dx12------------|
+				//  ------------------->-------------------
+				//                  xc(ii)               
 				//                  
 				// coarse
-				if( 1==this->dd_[dir] ) {
-					for( Ordinal ii=0; ii<=iimax; ++ii ) {
-						cRV_[dir](ii,0) = 1.;
-						cRV_[dir](ii,1) = 0.;
-					}
+				for( Ordinal ii =0; ii<=iimax; ++ii ) {
+
+					Ordinal i = getIF( dir, ii );
+
+					Scalar dx12 = xf[i+1] - xf[i];
+
+					cRV_[dir](ii,0) = ( xf[i+1]-xc[ii] )/dx12;
+					cRV_[dir](ii,1) = ( xc[ii ]-xf[i ] )/dx12;
 				}
-				else {
-					for( Ordinal ii =0; ii<=iimax; ++ii ) {
 
-						Ordinal i = this->dd_[dir]*( ii-1 ) + 1;
+				// a little bit shaky, please verify this when IO is ready
+				if( BC::Symmetry==spaceC()->getBCLocal()->getBCL(dir) ) {
+					cRV_[dir](0,0) = 0.;
+					cRV_[dir](0,1) = 0.;
+				}
 
-						Scalar dx12 = xv[i+1] - xv[i];
-
-						cRV_[dir](ii,0) = ( xv[i+1]-xs[i+1] )/dx12;
-						cRV_[dir](ii,1) = ( xs[i+1]-xv[i  ] )/dx12;
-					}
-
-					// a little bit shaky, please verify this when IO is ready
-					if( 0<spaceC()->getBCLocal()->getBCL(dir) ) {
-						Scalar x0 = spaceF()->getCoordinatesLocal()->getV(dir)[0];
-						cRV_[dir](0,0) = 0.;
-						cRV_[dir](0,1) = 1.;
-					}
-					if( BC::Symmetry==spaceC()->getBCLocal()->getBCL(dir) ) {
-						cRV_[dir](0,0) = 0.;
-						cRV_[dir](0,1) = 0.;
-					}
-
-					if( 0<spaceC()->getBCLocal()->getBCU(dir) ) {
-						cRV_[dir](iimax,0) = 1.;
-						cRV_[dir](iimax,1) = 0.;
-					}
-					if( BC::Symmetry==spaceC()->getBCLocal()->getBCU(dir) ) {
-						cRV_[dir](iimax,0) = 0.;
-						cRV_[dir](iimax,1) = 0.;
-					}
+				if( BC::Symmetry==spaceC()->getBCLocal()->getBCU(dir) ) {
+					cRV_[dir](iimax,0) = 0.;
+					cRV_[dir](iimax,1) = 0.;
 				}
 			}
 	}
@@ -164,7 +160,7 @@ public:
 							for( Ordinal jj=spaceC()->begin(fType,Y,B::Y); jj<=this->iimax_[Y]; ++jj ) {
 								Ordinal j = this->dd_[Y]*( jj - 1 ) + 1;
 								for( Ordinal ii=spaceC()->begin(fType,X,B::Y); ii<=this->iimax_[X]; ++ii ) {
-									Ordinal i = this->dd_[X]*( ii - 1 ) + 1;
+									Ordinal i = getIF(X,ii);
 
 									y(ii,jj,kk) = 0.;
 
@@ -182,7 +178,7 @@ public:
 							for( Ordinal jj=spaceC()->begin(fType,Y,B::Y); jj<=this->iimax_[Y]; ++jj ) {
 								Ordinal j = this->dd_[Y]*( jj - 1 ) + 1;
 								for( Ordinal ii=spaceC()->begin(fType,X,B::Y); ii<=this->iimax_[X]; ++ii ) {
-									Ordinal i = this->dd_[X]*( ii - 1 ) + 1;
+									Ordinal i = getIF(X,ii);
 
 									y(ii,jj,kk) = 0.;
 
@@ -204,7 +200,7 @@ public:
 						for( Ordinal kk=spaceC()->begin(fType,Z,B::Y); kk<=this->iimax_[Z]; ++kk ) {
 							Ordinal k = kk;
 							for( Ordinal jj=spaceC()->begin(fType,Y,B::Y); jj<=this->iimax_[Y]; ++jj ) {
-								Ordinal j = this->dd_[Y]*( jj - 1 ) + 1;
+								Ordinal j = getIF(Y,jj);
 								for( Ordinal ii=spaceC()->begin(fType,X,B::Y); ii<=this->iimax_[X]; ++ii ) {
 									Ordinal i = this->dd_[X]*( ii - 1 ) + 1;
 
@@ -222,7 +218,7 @@ public:
 						for( Ordinal kk=spaceC()->begin(fType,Z,B::Y); kk<=this->iimax_[Z]; ++kk ) {
 							Ordinal k = this->dd_[Z]* ( kk - 1 ) + 1;
 							for( Ordinal jj=spaceC()->begin(fType,Y,B::Y); jj<=this->iimax_[Y]; ++jj ) {
-								Ordinal j = this->dd_[Y]*( jj - 1 ) + 1;
+								Ordinal j = getIF(Y,jj);
 								for( Ordinal ii=spaceC()->begin(fType,X,B::Y); ii<=this->iimax_[X]; ++ii ) {
 									Ordinal i = this->dd_[X]*( ii - 1 ) + 1;
 
@@ -243,7 +239,7 @@ public:
 				{ 
 					
 					for( Ordinal kk=spaceC()->begin(fType,Z,B::Y); kk<=this->iimax_[Z]; ++kk ) {
-						Ordinal k = this->dd_[Z]* ( kk - 1 ) + 1;
+						Ordinal k = getIF(Z,kk);
 						for( Ordinal jj=spaceC()->begin(fType,Y,B::Y); jj<=this->iimax_[Y]; ++jj ) {
 							Ordinal j = this->dd_[Y]*( jj - 1 ) + 1;
 							for( Ordinal ii=spaceC()->begin(fType,X,B::Y); ii<=this->iimax_[X]; ++ii ) {
