@@ -40,7 +40,7 @@ public:
   using RangeFieldT = ScalarField<SpaceT>;
 
 	using StencS = Stencil< Scalar, Ordinal, 1, -1, 1 >;
-	using StencV = Stencil< Scalar, Ordinal, 0,  1, 2 >;
+	using StencV = Stencil< Scalar, Ordinal, 0,  0, 1 >;
 
 protected:
 
@@ -85,34 +85,42 @@ protected:
 				//       |-----------Dx12------------|
 				//                  
 				// coarse
-				for( Ordinal ii =0; ii<=iimax; ++ii ) {
-
-					Ordinal i = this->dd_[dir]*( ii-1 ) + 1;
-
-					Scalar dx12 = xv[i+1] - xv[i];
-
-					cRV_[dir](ii,1) = ( xv[i+1]-xs[i+1] )/dx12;
-					cRV_[dir](ii,2) = ( xs[i+1]-xv[i  ] )/dx12;
+				if( 1==this->dd_[dir] ) {
+					for( Ordinal ii=0; ii<=iimax; ++ii ) {
+						cRV_[dir](ii,0) = 1.;
+						cRV_[dir](ii,1) = 0.;
+					}
 				}
+				else {
+					for( Ordinal ii =0; ii<=iimax; ++ii ) {
 
-				// a little bit shaky, please verify this when IO is ready
-				if( 0<spaceC()->getBCLocal()->getBCL(dir) ) {
-					Scalar x0 = spaceF()->getCoordinatesLocal()->getV(dir)[0];
-					cRV_[dir](0,1) = 0.;
-					cRV_[dir](0,2) = 1.;
-				}
-				if( BC::Symmetry==spaceC()->getBCLocal()->getBCL(dir) ) {
-					cRV_[dir](0,1) = 0.;
-					cRV_[dir](0,2) = 0.;
-				}
+						Ordinal i = this->dd_[dir]*( ii-1 ) + 1;
 
-				if( 0<spaceC()->getBCLocal()->getBCU(dir) ) {
-					cRV_[dir](iimax,1) = 1.;
-					cRV_[dir](iimax,2) = 0.;
-				}
-				if( BC::Symmetry==spaceC()->getBCLocal()->getBCU(dir) ) {
-					cRV_[dir](iimax,1) = 0.;
-					cRV_[dir](iimax,2) = 0.;
+						Scalar dx12 = xv[i+1] - xv[i];
+
+						cRV_[dir](ii,0) = ( xv[i+1]-xs[i+1] )/dx12;
+						cRV_[dir](ii,1) = ( xs[i+1]-xv[i  ] )/dx12;
+					}
+
+					// a little bit shaky, please verify this when IO is ready
+					if( 0<spaceC()->getBCLocal()->getBCL(dir) ) {
+						Scalar x0 = spaceF()->getCoordinatesLocal()->getV(dir)[0];
+						cRV_[dir](0,0) = 0.;
+						cRV_[dir](0,1) = 1.;
+					}
+					if( BC::Symmetry==spaceC()->getBCLocal()->getBCL(dir) ) {
+						cRV_[dir](0,0) = 0.;
+						cRV_[dir](0,1) = 0.;
+					}
+
+					if( 0<spaceC()->getBCLocal()->getBCU(dir) ) {
+						cRV_[dir](iimax,0) = 1.;
+						cRV_[dir](iimax,1) = 0.;
+					}
+					if( BC::Symmetry==spaceC()->getBCLocal()->getBCU(dir) ) {
+						cRV_[dir](iimax,0) = 0.;
+						cRV_[dir](iimax,1) = 0.;
+					}
 				}
 			}
 	}
@@ -160,17 +168,10 @@ public:
 
 									y(ii,jj,kk) = 0.;
 
-									if( 1==this->dd_[X] )
-										for( int jjj=-1; jjj<=1; ++jjj )
+									for( int jjj=-1; jjj<=1; ++jjj )
+										for( int iii=0; iii<=1; ++iii )
 											y(ii,jj,kk) +=
-												cRS_[Y](jj,jjj)*x(i,j+jjj,k);
-											
-									else 
-										for( int jjj=-1; jjj<=1; ++jjj )
-											for( int iii=1; iii<=2; ++iii )
-												y(ii,jj,kk) +=
-													cRV_[X](ii,iii)*cRS_[Y](jj,jjj)*x(i+iii-1,j+jjj,k) ;
-									
+												cRV_[X](ii,iii)*cRS_[Y](jj,jjj)*x(i+iii,j+jjj,k) ;
 								}
 							}
 						}
@@ -185,17 +186,11 @@ public:
 
 									y(ii,jj,kk) = 0.;
 
-									if( 1==this->dd_[X] )
-										for( int kkk=-1; kkk<=1; ++kkk )
-											for( int jjj=-1; jjj<=1; ++jjj )
+									for( int kkk=-1; kkk<=1; ++kkk )
+										for( int jjj=-1; jjj<=1; ++jjj )
+											for( int iii=0; iii<=1; ++iii )
 												y(ii,jj,kk) +=
-													cRS_[Y](jj,jjj)*cRS_[Z](kk,kkk)*x(i,j+jjj,k+kkk);
-									else
-										for( int kkk=-1; kkk<=1; ++kkk )
-											for( int jjj=-1; jjj<=1; ++jjj )
-												for( int iii=1; iii<=2; ++iii )
-													y(ii,jj,kk) +=
-														cRV_[X](ii,iii)*cRS_[Y](jj,jjj)*cRS_[Z](kk,kkk)*x(i+iii-1,j+jjj,k+kkk) ;
+													cRV_[X](ii,iii)*cRS_[Y](jj,jjj)*cRS_[Z](kk,kkk)*x(i+iii,j+jjj,k+kkk) ;
 								}
 							}
 						}
@@ -215,17 +210,10 @@ public:
 
 									y(ii,jj,kk) = 0.;
 
-									if( 1==this->dd_[Y] )
+									for( int jjj=0; jjj<=1; ++jjj )
 										for( int iii=-1; iii<=1; ++iii )
-											y(ii,jj,kk) +=
-												cRS_[X](ii,iii)*x(i+iii,j,k);
-											
-									else 
-										for( int jjj=1; jjj<=2; ++jjj )
-											for( int iii=-1; iii<=1; ++iii )
-												y(ii,jj,kk) += 
-													cRS_[X](ii,iii)*cRV_[Y](jj,jjj)*x(i+iii,j+jjj-1,k) ;
-									
+											y(ii,jj,kk) += 
+												cRS_[X](ii,iii)*cRV_[Y](jj,jjj)*x(i+iii,j+jjj,k) ;
 								}
 							}
 						}
@@ -240,17 +228,11 @@ public:
 
 									y(ii,jj,kk) = 0.;
 
-									if( 1==this->dd_[Y] )
-										for( int kkk=-1; kkk<=1; ++kkk )
+									for( int kkk=-1; kkk<=1; ++kkk )
+										for( int jjj=0; jjj<=1; ++jjj )
 											for( int iii=-1; iii<=1; ++iii )
 												y(ii,jj,kk) +=
-													cRS_[X](ii,iii)*cRS_[Z](kk,kkk)*x(i+iii,j,k+kkk);
-									else
-										for( int kkk=-1; kkk<=1; ++kkk )
-											for( int jjj=1; jjj<=2; ++jjj )
-												for( int iii=-1; iii<=1; ++iii )
-													y(ii,jj,kk) +=
-														cRS_[X](ii,iii)*cRV_[Y](jj,jjj)*cRS_[Z](kk,kkk)*x(i+iii,j+jjj-1,k+kkk) ;
+													cRS_[X](ii,iii)*cRV_[Y](jj,jjj)*cRS_[Z](kk,kkk)*x(i+iii,j+jjj,k+kkk) ;
 								}
 							}
 						}
@@ -269,17 +251,11 @@ public:
 
 								y(ii,jj,kk) = 0.;
 
-								if( 1==this->dd_[Z] )
+								for( int kkk=0; kkk<=1; ++kkk )
 									for( int jjj=-1; jjj<=1; ++jjj )
 										for( int iii=-1; iii<=1; ++iii )
 											y(ii,jj,kk) +=
-												cRS_[X](ii,iii)*cRS_[Y](jj,jjj)*x(i+iii,j+jjj,k);
-								else
-									for( int kkk=1; kkk<=2; ++kkk )
-										for( int jjj=-1; jjj<=1; ++jjj )
-											for( int iii=-1; iii<=1; ++iii )
-												y(ii,jj,kk) +=
-													cRS_[X](ii,iii)*cRS_[Y](jj,jjj)*cRV_[Z](kk,kkk)*x(i+iii,j+jjj,k+kkk-1) ;
+												cRS_[X](ii,iii)*cRS_[Y](jj,jjj)*cRV_[Z](kk,kkk)*x(i+iii,j+jjj,k+kkk) ;
 							}
 						}
 					}

@@ -477,8 +477,8 @@ using ResVF2D = Pimpact::RestrictionVFOp<CSpace2DT>;
 using ResSF3D = Pimpact::RestrictionSFOp<CSpace3DT>;
 using ResVF3D = Pimpact::RestrictionVFOp<CSpace3DT>;
 
-//TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MGTransfers, Restrictor, CSG2D, ResSF2D )
-//TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MGTransfers, Restrictor, CSG2D, ResVF2D )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MGTransfers, Restrictor, CSG2D, ResSF2D )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MGTransfers, Restrictor, CSG2D, ResVF2D )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MGTransfers, Restrictor, CSG3D, ResSF3D )
 TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MGTransfers, Restrictor, CSG3D, ResVF3D )
