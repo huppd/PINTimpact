@@ -61,6 +61,7 @@
 #include "Pimpact_DtModeOp.hpp"
 #include "Pimpact_EddyPrec.hpp"
 #include "Pimpact_ModeOpWrap.hpp"
+#include "Pimpact_ModeNonlinearOp.hpp"
 
 /// \defgroup MultiOperator Multi Operator
 /// \ingroup Operator

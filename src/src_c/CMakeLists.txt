@@ -27,7 +27,7 @@ add_subdirectory("./NOXPimpact")
  
 
 add_library( lpimpact ${Space_SOURCES} ${field_SOURCES} ${operator_SOURCES} ${belosETI_SOURCES} ${mg_SOURCES} ${trans_SOURCES} ${nox_SOURCES} )
-set_target_properties( lpimpact PROPERTIES LINKER_LANGUAGE CXX)
+set_target_properties( lpimpact PROPERTIES LINKER_LANGUAGE CXX )
 target_link_libraries( lpimpact cmod )
  
 

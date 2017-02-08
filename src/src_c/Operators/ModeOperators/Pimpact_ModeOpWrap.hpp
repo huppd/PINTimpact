@@ -44,8 +44,8 @@ public:
 	void apply( const DomainFieldT& x, RangeFieldT& y,
 			const Belos::ETrans& trans=Belos::NOTRANS) const {
 
-	  op_->apply( x.getConstCField(), y.getCField() );
-    op_->apply( x.getConstSField(), y.getSField() );
+	  op_->apply( x.getCField(), y.getCField() );
+    op_->apply( x.getSField(), y.getSField() );
 	}
 
   void assignField( const DomainFieldT& mv ) {

@@ -87,7 +87,7 @@ public:
   /// shallow copy, because of efficiency and conistency with \c Pimpact::MultiField
   /// \param vF
   /// \param copyType by default a ECopy::Shallow is done but allows also to deepcopy the field
-  ModeField(const ModeField& vF, ECopy copyType=ECopy::Deep):
+  ModeField( const ModeField& vF, ECopy copyType=ECopy::Deep ):
     AF( vF.space() ),
 		owning_( vF.owning_ ),
     fieldc_( vF.fieldc_, copyType ),
@@ -131,8 +131,8 @@ public:
   IFT& getCField() { return( fieldc_ ); }
   IFT& getSField() { return( fields_ ); }
 
-  constexpr const IFT& getConstCField() const { return( fieldc_ ); }
-  constexpr const IFT& getConstSField() const { return( fields_ ); }
+  constexpr const IFT& getCField() { return( fieldc_ ); }
+  constexpr const IFT& getSField() { return( fields_ ); }
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const { return( AF::space_ ); }
 

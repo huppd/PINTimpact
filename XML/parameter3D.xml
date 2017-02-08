@@ -140,7 +140,7 @@
 		<Parameter docString="" id="127" isDefault="true" isUsed="true" name="initZero" type="bool" value="true" />
 		<Parameter docString="" id="128" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
 		<Parameter docString="" id="333" isDefault="true" isUsed="true" name="scaling" type="string" value="left" />
-		<Parameter docString="" id="129" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="true" />
+		<Parameter docString="" id="129" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="false" />
 		<ParameterList id="26" name="Solver">
 			<Parameter docString="" id="130" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-06" />
 			<Parameter docString="" id="346" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="10" />

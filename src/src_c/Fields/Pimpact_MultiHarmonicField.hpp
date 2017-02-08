@@ -184,10 +184,10 @@ public:
   constexpr const ModeField<IFT>&               getConstField   ( const Ordinal& i ) const { return( *fields_[index(i)] ); }
 
   constexpr IFT&                    getCField        ( const Ordinal& i )       { return( fields_[index(i)]->getCField()      ); }
-  constexpr const IFT&              getConstCField   ( const Ordinal& i ) const { return( fields_[index(i)]->getConstCField() ); }
+  constexpr const IFT&              getConstCField   ( const Ordinal& i ) const { return( fields_[index(i)]->getCField() ); }
 
   constexpr IFT&                    getSField        ( const Ordinal& i )       { return( fields_[index(i)]->getSField()         ); }
-  constexpr const IFT&              getConstSField   ( const Ordinal& i ) const { return( fields_[index(i)]->getConstSField()    ); }
+  constexpr const IFT&              getConstSField   ( const Ordinal& i ) const { return( fields_[index(i)]->getSField()    ); }
 
 
   constexpr const Teuchos::RCP<const SpaceT>& space() const { return( AF::space_ ); }

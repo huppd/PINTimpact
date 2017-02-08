@@ -50,8 +50,9 @@ public:
 	
 		// left
 		// where is the minus best
-		temp.getCField().add( 0.5, x.getConstCField(), -0.5, x.getConstSField() );
-		temp.getSField().add( 0.5, x.getConstCField(),  0.5, x.getConstSField() );
+		temp = x;
+		temp.getCField().add( 0.5, x.getCField(), -0.5, x.getSField(), B::N );
+		temp.getSField().add( 0.5, x.getCField(),  0.5, x.getSField(), B::N );
 
 		// set paramters
 		auto pl = Teuchos::parameterList();
@@ -61,8 +62,8 @@ public:
 
 		op_->setParameter( pl );
 
-		op_->apply( temp.getConstCField(), y.getCField() );
-		op_->apply( temp.getConstSField(), y.getSField() );
+		op_->apply( temp.getCField(), y.getCField() );
+		op_->apply( temp.getSField(), y.getSField() );
 
 // right
 //		op_->apply( x.getConstCField(), temp.getCField() );

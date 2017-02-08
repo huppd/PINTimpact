@@ -61,9 +61,7 @@ using DGJMGT2D = Pimpact::MultiGrid<
 	Pimpact::DivGradOp,
 	Pimpact::DivGradO2Op,
 	Pimpact::DivGradO2JSmoother,
-	MOP>;
-	//Pimpact::DivGradO2JSmoother >;
-	//Pimpact::DivGradO2Inv >;
+	Pimpact::DivGradO2Inv >;
 
 using DGJMGT3D = Pimpact::MultiGrid<
 	Spaces3D,
@@ -1214,9 +1212,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, DivGradOp, CS, MGT ) {
 }
 
 
-//TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG2D, DGJMGT2D )
-//TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG2D, DGLMGT2D )
-//TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG2D, DGCMGT2D )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG2D, DGJMGT2D )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG2D, DGLMGT2D )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG2D, DGCMGT2D )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG3D, DGJMGT3D )
 //TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG3D, DGLMGT3D )
@@ -1260,8 +1258,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, ConvDiffOp, CS, MGT ) {
 				//Belos::Debug );
 	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<std::string>("Timer Label", "Coarse Grid Solver" );
 	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<ST>("Convergence Tolerance"
-			, 1.e-16 );
-	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set( "Maximum Iterations", 10 );
+			, 1.e-1 );
+	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set( "Maximum Iterations", 100 );
 
 	Teuchos::RCP<MGT> mg = Teuchos::rcp( new MGT( mgSpaces, mgPL ) );
 
@@ -1396,8 +1394,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, ConvDiffOp, CS, MGT ) {
 TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, ConvDiffOp, CSG2D, CDJ2D )
 TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, ConvDiffOp, CSG3D, CDJ3D )
 
-//TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, ConvDiffOp, CSG2D, CDSOR2D )
-//TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, ConvDiffOp, CSG3D, CDSOR3D )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, ConvDiffOp, CSG2D, CDSOR2D )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, ConvDiffOp, CSG3D, CDSOR3D )
 
 
 

@@ -558,6 +558,137 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( BasicOperator, ConvectionDiffusionSmoother
 
 
 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( ModeOperator, ModeNonlinearOp, SpaceT ) {
+
+	pl->set<bool>( "spectral in time", true );
+
+	ST pi2 = 2.*std::acos(-1.);
+
+	lx = pi2 ;
+	ly = pi2 ;
+	lz = pi2 ;
+
+	nf = 4;
+
+	setParameter( SpaceT::sdim );
+	Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
+
+
+	Pimpact::ModeField< Pimpact::VectorField<SpaceT> > x( space );
+	Pimpact::ModeField< Pimpact::VectorField<SpaceT> > y( space );
+	Pimpact::ModeField< Pimpact::VectorField<SpaceT> > sol( space );
+	Pimpact::ModeField< Pimpact::VectorField<SpaceT> > err( space );
+
+	auto zeroOp = Pimpact::create<ConvDiffOpT>( space );
+	
+	//Teuchos::RCP<const Pimpact::ModeNonlinearOp<ConvDiffOpT<SpaceT> > op =
+	auto op =
+		Teuchos::rcp( new Pimpact::ModeNonlinearOp< ConvDiffOpT<SpaceT> >(zeroOp));
+
+	ST iRe = 1./space->getDomainSize()->getRe();
+	ST a2 = space->getDomainSize()->getAlpha2()*iRe;
+
+	// computing zero mode of z
+	// set paramteters
+	auto para = Teuchos::parameterList();
+	para->set<ST>( "mulI", a2  );
+	para->set<ST>( "mulC", 1.  );
+	para->set<ST>( "mulL", iRe );
+	op->setParameter( para );
+
+	// initializtion
+	{
+		Pimpact::VectorField<SpaceT> wind( space );
+		wind(Pimpact::F::U).init( 1. );
+		wind(Pimpact::F::V).init( 1. );
+		////wind(Pimpact::F::W).init( 1. );
+
+		zeroOp->assignField( wind );
+	}
+
+	x.getSField()(Pimpact::F::U).initFromFunction(
+			[&pi2]( ST x, ST y, ST z ) ->ST { return(  std::cos(x*pi2)*std::sin(y*pi2) ); } );
+	x.getSField()(Pimpact::F::V).initFromFunction(
+			[&pi2]( ST x, ST y, ST z ) ->ST { return( -std::sin(x*pi2)*std::cos(y*pi2) ); } );
+
+	if( write ) x.write( 10 );
+
+	// solution init
+	
+	sol.getCField()(Pimpact::F::U).initFromFunction(
+	    	[&pi2,&alpha2,&re,&space]( ST x, ST y, ST z ) ->ST {
+					if( ((x   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0 ) ||
+						(  (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0 ) ||
+						(  (y   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0 ) ||
+						(  (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0 ) ||
+						(  (z   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0 ) ||
+						(  (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0 ) )
+						return( 0. );
+					else
+						return( alpha2*std::cos(x*pi2)*std::sin(y*pi2)/re ); } );
+
+	sol.getCField()(Pimpact::F::V).initFromFunction(
+	    	[&pi2,&alpha2,&re,&space]( ST x, ST y, ST z ) ->ST {
+					if( ((x   )<=Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0 ) ||
+						(  (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0 ) ||
+						(  (y   )<=Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0 ) ||
+						(  (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0 ) ||
+						(  (z   )<=Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0 ) ||
+						(  (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0 ) )
+						return( 0. );
+					else
+						return( -alpha2*std::sin(x*pi2)*std::cos(y*pi2)/re ); } );
+
+	sol.getSField()(Pimpact::F::U).initFromFunction(
+				[&pi2,&re,&space]( ST x, ST y, ST z ) ->ST {
+					if( ((x   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0 ) ||
+						(  (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0 ) ||
+						(  (y   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0 ) ||
+						(  (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0 ) ||
+						(  (z   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0 ) ||
+						(  (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0 ) )
+						return(  std::cos( std::min(std::max(x,0.),1.)*pi2)*std::sin(std::min(std::max(y,0.),1.)*pi2) );
+					else
+						return(
+							-    std::sin(x*pi2)*std::sin(y*pi2)
+							+    std::cos(x*pi2)*std::cos(y*pi2)
+							+ 2.*std::cos(x*pi2)*std::sin(y*pi2)/re ); } );
+	sol.getSField()(Pimpact::F::V).initFromFunction(
+				[&pi2,&re,&space]( ST x, ST y, ST z ) ->ST {
+					if( (( x   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0 ) ||
+						(  ( x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0 ) ||
+						(  ( y   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0 ) ||
+						(  ( y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0 ) ||
+						(  ( z   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0 ) ||
+						(  ( z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0 ) )
+						return(  -std::sin(std::min(std::max(x,0.),1.)*pi2)*std::cos(std::min(std::max(y,0.),1.)*pi2) );
+					else
+						return(
+							-    std::cos(x*pi2)*std::cos(y*pi2)
+							+    std::sin(x*pi2)*std::sin(y*pi2)
+							- 2.*std::sin(x*pi2)*std::cos(y*pi2)/re ); } );
+
+	if( write ) sol.write( 30 );
+
+	op->apply( x, y );
+
+	if( write ) y.write( 20 );
+
+	err.add( 1., sol, -1., y );
+	if( write ) err.write( 0 );
+	if( print ) err.print(   );
+
+	ST error = err.norm(Belos::InfNorm)/sol.norm(Belos::InfNorm);
+	std::cout << "\nerror: " << error << "\n";
+	if( 1==domain )
+		TEST_EQUALITY( error<(1./nx/ny), true );
+}
+
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( ModeOperator, ModeNonlinearOp, D2 )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( ModeOperator, ModeNonlinearOp, D3 )
+
+
+
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicOperator, MultiHarmonicDtConvectionDiffusionOp, SpaceT ) {
 
 	pl->set<bool>( "spectral in time", true );
@@ -593,24 +724,96 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicOperator, MultiHarmonicDtConvect
 	// solution init
 	
 	sol.get0Field()(Pimpact::F::U).initFromFunction(
-			[&pi2]( ST x, ST y, ST z ) ->ST {  return(  -std::sin(2.*x*pi2)/4. ); } );
+			[=]( ST x, ST y, ST z ) ->ST {
+				if( ((x   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0 ) ||
+					(  (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0 ) ||
+					(  (y   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0 ) ||
+					(  (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0 ) ||
+					(  (z   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0 ) ||
+					(  (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0 ) )
+					return( 0. );
+				else
+					return(  -std::sin(2.*x*pi2)/4. ); } );
 	sol.get0Field()(Pimpact::F::V).initFromFunction(
-			[&pi2]( ST x, ST y, ST z ) ->ST {  return(  -std::sin(2.*y*pi2)/4. ); } );
+			[=]( ST x, ST y, ST z ) ->ST {
+				if( ((x   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0 ) ||
+					(  (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0 ) ||
+					(  (y   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0 ) ||
+					(  (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0 ) ||
+					(  (z   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0 ) ||
+					(  (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0 ) )
+					return( 0. );
+				else
+					return(  -std::sin(2.*y*pi2)/4. ); } );
 
 	sol.getCField(1)(Pimpact::F::U).initFromFunction(
-	    	[&pi2,&alpha2,&re]( ST x, ST y, ST z ) ->ST {  return(  alpha2*std::cos(x*pi2)*std::sin(y*pi2)/re ); } );
+			[=]( ST x, ST y, ST z ) ->ST {
+				if( ((x   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0 ) ||
+					(  (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0 ) ||
+					(  (y   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0 ) ||
+					(  (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0 ) ||
+					(  (z   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0 ) ||
+					(  (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0 ) )
+					return( 0. );
+				else
+					return(  alpha2*std::cos(x*pi2)*std::sin(y*pi2)/re ); } );
 	sol.getCField(1)(Pimpact::F::V).initFromFunction(
-	    	[&pi2,&alpha2,&re]( ST x, ST y, ST z ) ->ST {  return( -alpha2*std::sin(x*pi2)*std::cos(y*pi2)/re ); } );
+			[=]( ST x, ST y, ST z ) ->ST {
+				if( ((x   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0 ) ||
+					(  (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0 ) ||
+					(  (y   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0 ) ||
+					(  (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0 ) ||
+					(  (z   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0 ) ||
+					(  (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0 ) )
+					return( 0. );
+				else
+					return( -alpha2*std::sin(x*pi2)*std::cos(y*pi2)/re ); } );
 
 	sol.getSField(1)(Pimpact::F::U).initFromFunction(
-				[&pi2,&re]( ST x, ST y, ST z ) ->ST {  return(  2.*std::cos(x*pi2)*std::sin(y*pi2)/re ); } );
+			[=]( ST x, ST y, ST z ) ->ST {
+				if( ((x   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0 ) ||
+					(  (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0 ) ||
+					(  (y   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0 ) ||
+					(  (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0 ) ||
+					(  (z   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0 ) ||
+					(  (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0 ) )
+				return(  std::cos(std::min(std::max(x,0.),1.)*pi2)*std::sin(y*pi2) );
+				else
+					return(  2.*std::cos(x*pi2)*std::sin(y*pi2)/re ); } );
 	sol.getSField(1)(Pimpact::F::V).initFromFunction(
-				[&pi2,&re]( ST x, ST y, ST z ) ->ST {  return( -2.*std::sin(x*pi2)*std::cos(y*pi2)/re ); } );
+			[=]( ST x, ST y, ST z ) ->ST {
+				if( ((x   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0 ) ||
+					(  (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0 ) ||
+					(  (y   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0 ) ||
+					(  (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0 ) ||
+					(  (z   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0 ) ||
+					(  (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0 ) )
+					return( -std::sin(x*pi2)*std::cos(std::max(std::min(y,1.),0.)*pi2) );
+				else
+					return( -2.*std::sin(x*pi2)*std::cos(y*pi2)/re ); } );
 
 	sol.getCField(2)(Pimpact::F::U).initFromFunction(
-			[&pi2]( ST x, ST y, ST z ) ->ST { return( std::sin(2.*x*pi2)/4. ); } );
+			[=]( ST x, ST y, ST z ) ->ST {
+				if( ((x   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0 ) ||
+					(  (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0 ) ||
+					(  (y   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0 ) ||
+					(  (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0 ) ||
+					(  (z   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0 ) ||
+					(  (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0 ) )
+					return( 0. );
+				else
+					return( std::sin(2.*x*pi2)/4. ); } );
 	sol.getCField(2)(Pimpact::F::V).initFromFunction(
-			[&pi2]( ST x, ST y, ST z ) ->ST { return( std::sin(2.*y*pi2)/4. ); } );
+			[=]( ST x, ST y, ST z ) ->ST {
+				if( ((x   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0 ) ||
+					(  (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0 ) ||
+					(  (y   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0 ) ||
+					(  (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0 ) ||
+					(  (z   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0 ) ||
+					(  (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0 ) )
+					return( 0. );
+				else
+					return( std::sin(2.*y*pi2)/4. ); } );
 
 	if( write ) sol.write( 30 );
 
@@ -624,8 +827,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicOperator, MultiHarmonicDtConvect
 
 	ST error = err.norm()/sol.norm();
 	std::cout << "\nerror: " << error << "\n";
-	if( 1==domain )
-		TEST_EQUALITY( error<(1./nx/ny), true );
+	TEST_EQUALITY( error<(1./nx/ny), true );
 }
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicOperator, MultiHarmonicDtConvectionDiffusionOp, D2 )

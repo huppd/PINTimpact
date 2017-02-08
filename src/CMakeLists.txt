@@ -116,7 +116,7 @@ message( "CMAKE_Fortran_COMPILE_FLAGS: ${CMAKE_Fortran_COMPILE_FLAGS}\n" )
 set( Limpact_TPL_LIBRARIES ${HDF5_LIBRARIES} ${Trilinos_TPL_LIBRARIES} )
 
 
-set( Pimpact_TPL_LIBRARIES lpimpact ${Limpact_TPL_LIBRARIES} # gfortran
+set( Pimpact_TPL_LIBRARIES lpimpact ${Limpact_TPL_LIBRARIES}  gfortran
 	${MPI_Fortran_LIBRARIES}  ${Trilinos_TPL_LIBRARIES} ${Trilinos_LIBRARIES} )
 
 message( "\nLimpact_TPL_LIBRARIES: ${Limpact_TPL_LIBRARIES}\n" )
