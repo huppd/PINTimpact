@@ -77,19 +77,19 @@ public:
   /// \name Attribute methods
   /// \{
 
-  constexpr VField& getVField() { return( *vfield_ ); }
-  constexpr SField& getSField() { return( *sfield_ ); }
+  VField& getVField() { return( *vfield_ ); }
+  SField& getSField() { return( *sfield_ ); }
 
-  constexpr const VField& getConstVField() const { return( *vfield_ ); }
-  constexpr const SField& getConstSField() const { return( *sfield_ ); }
+  constexpr const VField& getVField() { return( *vfield_ ); }
+  constexpr const SField& getSField() { return( *sfield_ ); }
 
-  constexpr Teuchos::RCP<VField> getVFieldPtr() { return( vfield_ ); }
-  constexpr Teuchos::RCP<SField> getSFieldPtr() { return( sfield_ ); }
+	Teuchos::RCP<VField> getVFieldPtr() { return( vfield_ ); }
+	Teuchos::RCP<SField> getSFieldPtr() { return( sfield_ ); }
 
-  constexpr Teuchos::RCP<const VField> getConstVFieldPtr() const { return( vfield_ ); }
-  constexpr Teuchos::RCP<const SField> getConstSFieldPtr() const { return( sfield_ ); }
+  constexpr Teuchos::RCP<const VField> getVFieldPtr() { return( vfield_ ); }
+  constexpr Teuchos::RCP<const SField> getSFieldPtr() { return( sfield_ ); }
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() const { return( AF::space_ ); }
+  constexpr const Teuchos::RCP<const SpaceT>& space() { return( AF::space_ ); }
 
   constexpr const MPI_Comm& comm() const { return(vfield_->comm()); }
 

@@ -71,17 +71,17 @@ public:
 
 		y->exchange();
 
-    wind0_->assignField( y->getConst0Field() );
+    wind0_->assignField( y->get0Field() );
 
     for( Ordinal i=1; i<=space()->nGlo(3); ++i ) {
-      windc_[i-1]->assignField( y->getConstCField(i) );
-      winds_[i-1]->assignField( y->getConstSField(i) );
+      windc_[i-1]->assignField( y->getCField(i) );
+      winds_[i-1]->assignField( y->getSField(i) );
     }
   };
 
 
   void apply( const DomainFieldT& y_ref, RangeFieldT& z, bool init_yes=true ) const {
-		
+
 		Teuchos::RCP<const DomainFieldT> y;
 		if( y_ref.global() )
 			y = Teuchos::rcpFromRef( y_ref );
@@ -102,45 +102,45 @@ public:
     // computing zero mode of z
 		if( 0==space()->begin(F::U,3) ) {
 
-			op_->apply( get0Wind(), y->getConst0Field(), z.get0Field(), 0., 1., iRe, Add::N );
+			op_->apply( get0Wind(), y->get0Field(), z.get0Field(), 0., 1., iRe, Add::N );
 
 			for( Ordinal i=1; i<=Nf; ++i ) {
-				op_->apply( getCWind(i), y->getConstCField(i), z.get0Field(), 0., 0.5, 0., Add::Y );
-				op_->apply( getSWind(i), y->getConstSField(i), z.get0Field(), 0., 0.5, 0., Add::Y );
+				op_->apply( getCWind(i), y->getCField(i), z.get0Field(), 0., 0.5, 0., Add::Y );
+				op_->apply( getSWind(i), y->getSField(i), z.get0Field(), 0., 0.5, 0., Add::Y );
 			}
 		}
 
     // computing cos mode of z
 		for( Ordinal i=std::max(space()->begin(F::U,3),1); i<=space()->end(F::U,3); ++i ) {
 
-      op_->apply( get0Wind( ), y->getConstCField(i), z.getCField(i), 0., 1., iRe, Add::N  );
-      op_->apply( getCWind(i), y->getConst0Field( ), z.getCField(i), 0., 1., 0.,  Add::Y );
+      op_->apply( get0Wind( ), y->getCField(i), z.getCField(i), 0., 1., iRe, Add::N  );
+      op_->apply( getCWind(i), y->get0Field( ), z.getCField(i), 0., 1., 0.,  Add::Y );
 
       for( Ordinal k=1; k+i<=Nf; ++k ) { // thats fine
 
 				mulI = (k==i)?(a2*i):0;
 
-        op_->apply( getCWind(k+i), y->getConstCField( k ), z.getCField(i),   0., 0.5, 0., Add::Y );
-        op_->apply( getCWind( k ), y->getConstCField(k+i), z.getCField(i),   0., 0.5, 0., Add::Y );
-        op_->apply( getSWind(k+i), y->getConstSField( k ), z.getCField(i), mulI, 0.5, 0., Add::Y );
-        op_->apply( getSWind( k ), y->getConstSField(k+i), z.getCField(i),   0., 0.5, 0., Add::Y );
+        op_->apply( getCWind(k+i), y->getCField( k ), z.getCField(i),   0., 0.5, 0., Add::Y );
+        op_->apply( getCWind( k ), y->getCField(k+i), z.getCField(i),   0., 0.5, 0., Add::Y );
+        op_->apply( getSWind(k+i), y->getSField( k ), z.getCField(i), mulI, 0.5, 0., Add::Y );
+        op_->apply( getSWind( k ), y->getSField(k+i), z.getCField(i),   0., 0.5, 0., Add::Y );
       }
     }
 
     // computing sin mode of y
 		for( Ordinal i=std::max(space()->begin(F::U,3),1); i<=space()->end(F::U,3); ++i ) {
 
-      op_->apply( get0Wind(),  y->getConstSField(i), z.getSField(i), 0., 1., iRe, Add::N  );
-      op_->apply( getSWind(i), y->getConst0Field(),  z.getSField(i), 0., 1., 0. , Add::Y );
+      op_->apply( get0Wind(),  y->getSField(i), z.getSField(i), 0., 1., iRe, Add::N  );
+      op_->apply( getSWind(i), y->get0Field(),  z.getSField(i), 0., 1., 0. , Add::Y );
 
       for( Ordinal k=1; k+i<=Nf; ++k ) { // that is fine
 
 				mulI = (k==i)?(a2*i):0;
 
-        op_->apply( getCWind(k+i), y->getConstSField( k ), z.getSField(i),    0., -0.5, 0., Add::Y );
-        op_->apply( getCWind( k ), y->getConstSField(k+i), z.getSField(i),    0.,  0.5, 0., Add::Y );
-        op_->apply( getSWind(k+i), y->getConstCField( k ), z.getSField(i), -mulI,  0.5, 0., Add::Y );
-        op_->apply( getSWind( k ), y->getConstCField(k+i), z.getSField(i),    0., -0.5, 0., Add::Y );
+        op_->apply( getCWind(k+i), y->getSField( k ), z.getSField(i),    0., -0.5, 0., Add::Y );
+        op_->apply( getCWind( k ), y->getSField(k+i), z.getSField(i),    0.,  0.5, 0., Add::Y );
+        op_->apply( getSWind(k+i), y->getCField( k ), z.getSField(i), -mulI,  0.5, 0., Add::Y );
+        op_->apply( getSWind( k ), y->getCField(k+i), z.getSField(i),    0., -0.5, 0., Add::Y );
       }
     }
 
@@ -148,8 +148,8 @@ public:
 		for( Ordinal i=std::max(space()->begin(F::U,3),1); i<=space()->end(F::U,3); ++i ) {
 			if( Nf/2+1<=i && i<=Nf ) {
 				mulI = a2*i;
-				z.getCField(i).add( 1., z.getCField(i),  mulI, y->getConstSField(i) );
-				z.getSField(i).add( 1., z.getSField(i), -mulI, y->getConstCField(i) );
+				z.getCField(i).add( 1., z.getCField(i),  mulI, y->getSField(i), B::N );
+				z.getSField(i).add( 1., z.getSField(i), -mulI, y->getCField(i), B::N );
 			}
 		}
 
@@ -160,11 +160,11 @@ public:
 				i = k+l; 
 				if( i<=Nf ) { // do something here
 					if( std::max(space()->begin(F::U,3),1)<=i && i<=space()->end(F::U,3) ) {
-						op_->apply( getCWind(k), y->getConstCField(l), z.getCField(i), 0.,  0.5, 0., Add::Y );
-						op_->apply( getSWind(k), y->getConstSField(l), z.getCField(i), 0., -0.5, 0., Add::Y );
+						op_->apply( getCWind(k), y->getCField(l), z.getCField(i), 0.,  0.5, 0., Add::Y );
+						op_->apply( getSWind(k), y->getSField(l), z.getCField(i), 0., -0.5, 0., Add::Y );
 
-						op_->apply( getCWind(k), y->getConstSField(l), z.getSField(i), 0.,  0.5, 0., Add::Y );
-						op_->apply( getSWind(k), y->getConstCField(l), z.getSField(i), 0.,  0.5, 0., Add::Y );
+						op_->apply( getCWind(k), y->getSField(l), z.getSField(i), 0.,  0.5, 0., Add::Y );
+						op_->apply( getSWind(k), y->getCField(l), z.getSField(i), 0.,  0.5, 0., Add::Y );
 					}
 				}
 			}
@@ -176,11 +176,11 @@ public:
   void applyBC( const DomainFieldT& x, RangeFieldT& y ) const {
 
 		if( 0==space()->begin(F::U,3) )
-			op_->getSOp()->getHelmholtzOp()->applyBC( x.getConst0Field(), y.get0Field() );
+			op_->getSOp()->getHelmholtzOp()->applyBC( x.get0Field(), y.get0Field() );
 
 		for( typename SpaceT::Ordinal i=std::max(space()->begin(F::U,3),1); i<=space()->end(F::U,3); ++i ) {
-			op_->getSOp()->getHelmholtzOp()->applyBC( x.getConstCField(i), y.getCField(i) );
-			op_->getSOp()->getHelmholtzOp()->applyBC( x.getConstSField(i), y.getSField(i) );
+			op_->getSOp()->getHelmholtzOp()->applyBC( x.getCField(i), y.getCField(i) );
+			op_->getSOp()->getHelmholtzOp()->applyBC( x.getSField(i), y.getSField(i) );
 		}
 	}
 

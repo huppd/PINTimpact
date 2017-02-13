@@ -197,10 +197,10 @@ public:
 	///
 	/// Here x represents on \c Field, and we update it as
 	/// \f[ x_i = \alpha x_i \quad \mbox{for } i=1,\dots,n \f]
-	void scale( const Scalar& alpha ) {
+	void scale( const Scalar& alpha, const B& wB=B::Y ) {
 
 		for( Ordinal i=space()->begin(F::S,3); i<space()->end(F::S,3); ++i )
-			mfs_[i]->scale(alpha);
+			mfs_[i]->scale(alpha, wB);
 		changed();
 	}
 
@@ -424,12 +424,11 @@ public:
 	}
 
 
-	constexpr Teuchos::RCP<Field> getFieldPtr( int i ) { return(  mfs_[i] ); }
-	constexpr Field& getField   ( int i ) { return( *mfs_[i] ); }
+	                Field& getField( const int& i ) { return( *mfs_[i] ); }
+	constexpr const Field& getField( int i ) const { return( *mfs_[i] ); }
 
-
-	constexpr Teuchos::RCP<const Field> getConstFieldPtr( int i ) const { return(  mfs_[i] ); }
-	constexpr const Field&  getConstField   ( int i ) const { return( *mfs_[i] ); }
+	          Teuchos::RCP<Field>       getFieldPtr( const int& i ) { return(  mfs_[i] ); }
+	constexpr Teuchos::RCP<const Field> getFieldPtr( const int& i ) { return(  mfs_[i] ); }
 
 
 	constexpr ScalarArray getRawPtr() { return( array_ ); }

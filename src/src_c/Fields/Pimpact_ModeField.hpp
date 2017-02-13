@@ -180,9 +180,9 @@ public:
 
 
   /// \brief Scale each element of the vectors in \c this with \c alpha.
-  void scale( const Scalar& alpha ) {
-    fieldc_.scale( alpha );
-    fields_.scale( alpha );
+  void scale( const Scalar& alpha, const B& wB=B::Y ) {
+    fieldc_.scale( alpha, wB );
+    fields_.scale( alpha, wB );
   }
 
 

@@ -23,7 +23,7 @@ public:
 	using CSpaceT = typename TransVT::CSpaceT;
 
 	using SpaceT = typename TransVT::SpaceT;
-  
+
 	using DomainFieldT = TimeField<typename TransVT::DomainFieldT>;
 	using RangeFieldT = TimeField<typename TransVT::RangeFieldT>;
 	
@@ -43,17 +43,16 @@ public:
 	void apply( const DT& x, RT& y ) const {
 
 		for (int i=x.space()->begin(F::S,3); i<x.space()->end(F::S,3); ++i)
-	   		 opV_->apply( x.getConstField(i), y.getField(i) );
-	
+			opV_->apply( x.getField(i), y.getField(i) );
+
 		y.changed();
 	}
 
 	
-  void print(  std::ostream& out=std::cout ) const {
-
+	void print(  std::ostream& out=std::cout ) const {
 		out << "=== TransferTimeOP ===\n";
 		opV_->print( out );
-  }
+	}
 
 }; // end of class TransferTime
 

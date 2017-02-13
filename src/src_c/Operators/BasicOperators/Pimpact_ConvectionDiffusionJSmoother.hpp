@@ -82,7 +82,7 @@ public:
 			const Teuchos::RCP<const OperatorT>& op,
 			Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ):
 		omega_( pl->get<Scalar>("omega", 0.5 ) ),
-		nIter_( pl->get("numIters", 1 ) ),
+		nIter_( pl->get("numIters", 5 ) ),
 		op_(op) {}
 
 

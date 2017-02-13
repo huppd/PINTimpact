@@ -225,11 +225,11 @@ public:
 
 
   /// \brief Scale each element of the vector with \c alpha.
-	void scale( const Scalar& alpha, const B& bcYes=B::Y ) {
+	void scale( const Scalar& alpha, const B& wB=B::Y ) {
 
-		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
-			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
-				for( Ordinal i=space()->begin(fType_,X,bcYes); i<=space()->end(fType_,X,bcYes); ++i )
+		for( Ordinal k=space()->begin(fType_,Z,wB); k<=space()->end(fType_,Z,wB); ++k )
+			for( Ordinal j=space()->begin(fType_,Y,wB); j<=space()->end(fType_,Y,wB); ++j )
+				for( Ordinal i=space()->begin(fType_,X,wB); i<=space()->end(fType_,X,wB); ++i )
 					at(i,j,k) *= alpha;
 
 		changed();

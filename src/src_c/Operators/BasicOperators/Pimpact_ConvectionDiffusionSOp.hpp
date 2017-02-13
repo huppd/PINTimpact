@@ -57,6 +57,9 @@ public:
 	/// \f[ y =   (wind\cdot\nabla) x - \frac{1}{Re} \Delta x \f]
 	void apply( const FluxFieldT& wind, const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::N ) const {
 
+		//std::cout << "mulI: " << mulI_ << "\n";
+		//std::cout << "mulC: " << mulC_ << "\n";
+		//std::cout << "mulL: " << mulL_ << "\n";
 		apply( wind, x, y, mulI_, mulC_, mulL_, add );
 	}
 
@@ -79,6 +82,9 @@ public:
 		const B& wnB = B::N;
 
 		y.exchange();
+
+
+		//std::cout << "mulI: " << mulI << "\tmulC: " << mulC << "\tmulL: " << mulL << "\tsize: " << wind[0].getLength() << "\tnorm: " << wind[0].norm() << "\n";
 
 		if( 3==SpaceT::sdim ) {
 			for( Ordinal k=space()->begin(m,Z,wnB); k<=space()->end(m,Z,wnB); ++k )
@@ -119,9 +125,9 @@ public:
 	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(helmOp_->space()); };
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
-		mulI_ = para->get<Scalar>( "mulI", 0. );
-		mulC_ = para->get<Scalar>( "mulC", 1. );
-		mulL_ = para->get<Scalar>( "mulL", 1./space()->getDomainSize()->getRe() );
+		mulI_ = para->get<Scalar>( "mulI" );
+		mulC_ = para->get<Scalar>( "mulC" );
+		mulL_ = para->get<Scalar>( "mulL" );
 	}
 
   constexpr const Teuchos::RCP<const ConvectionSOp<SpaceT> >& getConvSOp() const { return( convSOp_ ); }

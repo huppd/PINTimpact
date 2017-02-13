@@ -40,7 +40,7 @@ public:
 		modeOp_( modeOp ) {};
 
 
-	/// \todo either tangle this with wind of operator or make an exchange ZeroField
+	/// \todo either tangle this with wind of operator or make an exchange ZeroField (tangle preferred)
   void assignField( const DomainFieldT& y_ref ) {
 
 		Teuchos::RCP<const DomainFieldT> y;
@@ -55,7 +55,7 @@ public:
 		}
 
 		y->exchange();
-    zeroOp_->assignField( y->getConst0Field() );
+    zeroOp_->assignField( y->get0Field() );
   };
 
 
@@ -75,7 +75,7 @@ public:
 		zeroOp_->setParameter( para );
 
 		if( 0==space()->begin(F::U,3) )
-			zeroOp_->apply( x.getConst0Field(), y.get0Field() );
+			zeroOp_->apply( x.get0Field(), y.get0Field() );
 
 		for( Ordinal i=std::max(space()->begin(F::U,3),1); i<=space()->end(F::U,3); ++i ) {
 			// set parameters
@@ -83,7 +83,7 @@ public:
 			para->set<Scalar>( "mulC", 1. );
 			para->set<Scalar>( "mulL", iRe );
 			modeOp_->setParameter( para );
-			modeOp_->apply( x.getConstField(i), y.getField(i) );
+			modeOp_->apply( x.getField(i), y.getField(i) );
 		}
 		y.changed();
 	}

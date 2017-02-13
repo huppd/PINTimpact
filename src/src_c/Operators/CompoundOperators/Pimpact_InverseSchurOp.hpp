@@ -86,45 +86,45 @@ public:
 
     //----full Schur complement
     // ~ H^{-1} f_u
-    opV2V_->apply( *createMultiField( Teuchos::rcp_const_cast<VF>(x.getConstVFieldPtr()) ), *createMultiField(tempv_) ); // should be correct
+    opV2V_->apply( *createMultiField( Teuchos::rcp_const_cast<VF>(x.getVFieldPtr()) ), *createMultiField(tempv_) ); // should be correct
     // ~ D H^{-1} f_u
     opV2S_->apply( *tempv_, *temps_ );
     // ~ D H^{-1} f_u - f_p
-    temps_->add( -1., x.getConstSField(), 1., *temps_ );
+    temps_->add( -1., x.getSField(), 1., *temps_ );
     // ~ (D H^{-1} G)^{-1} p = D H^{-1} f_u - f_p
     lp_->solve( createMultiField( y.getSFieldPtr()), createMultiField(temps_) );
     // ~ G p
-    opS2V_->apply( y.getConstSField(), *tempv_ );
+    opS2V_->apply( y.getSField(), *tempv_ );
     // ~ f_u - G p
-    tempv_->add( -1., *tempv_, 1., x.getConstVField() );
+    tempv_->add( -1., *tempv_, 1., x.getVField() );
     // ~ H^{-1}(f_u -G p)
     opV2V_->apply( *createMultiField(tempv_), *createMultiField( y.getVFieldPtr() ) );
 
 //    //----Diag Schur
-//    opV2V_->apply( *createMultiField( Teuchos::rcp_const_cast<VF>(x.getConstVFieldPtr()) ), *createMultiField(y.getVFieldPtr()) ); // should be correct
-////    y.getSFieldPtr()->add( 0., y.getConstSField(), 1., x.getConstSField() );
+//    opV2V_->apply( *createMultiField( Teuchos::rcp_const_cast<VF>(x.getVFieldPtr()) ), *createMultiField(y.getVFieldPtr()) ); // should be correct
+////    y.getSFieldPtr()->add( 0., y.getSField(), 1., x.getSField() );
 //    // ~ (D H^{-1} G)^{-1} p = D H^{-1} f_u - f_p
 //    lp_->solve(
 //        createMultiField( y.getSFieldPtr()),
-//        createMultiField( Teuchos::rcp_const_cast<SF>(x.getConstSFieldPtr()) ) );
+//        createMultiField( Teuchos::rcp_const_cast<SF>(x.getSFieldPtr()) ) );
 ////    x.getSFieldPtr()->scale(-1);
 
 //    ----Triangular Schur
-//    temps_->add( -1., x.getConstSField(), 0., *temps_ );
+//    temps_->add( -1., x.getSField(), 0., *temps_ );
 //    lp_->solve( createMultiField( y.getSFieldPtr()), createMultiField(temps_) );
-//    opS2V_->apply( y.getConstSField(), *tempv_ );
-//    tempv_->add( -1., *tempv_, 1., x.getConstVField() );
+//    opS2V_->apply( y.getSField(), *tempv_ );
+//    tempv_->add( -1., *tempv_, 1., x.getVField() );
 //
 //    opV2V_->apply( *createMultiField(tempv_), *createMultiField( y.getVFieldPtr() ) );
-////    y.getSFieldPtr()->add( 0., y.getConstSField(), 1., x.getConstSField() );
+////    y.getSFieldPtr()->add( 0., y.getSField(), 1., x.getSField() );
 //    // ~ (D H^{-1} G)^{-1} p = D H^{-1} f_u - f_p
   }
 
   /// \todo fixme, should be remodeled anyway
   void assignField( const DomainFieldT& mv ) {
-    opV2V_->assignField( *createMultiField( Teuchos::rcp_const_cast<VF>(mv.getConstVFieldPtr()) ) );
-//    opS2V_->assignField( mv.getConstVField() );
-//    opV2S_->assignField( mv.getConstVField() );
+    opV2V_->assignField( *createMultiField( Teuchos::rcp_const_cast<VF>(mv.getVFieldPtr()) ) );
+//    opS2V_->assignField( mv.getVField() );
+//    opV2S_->assignField( mv.getVField() );
   };
 
 	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(opV2V_->space()); };

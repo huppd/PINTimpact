@@ -48,13 +48,7 @@ public:
 
 		DomainFieldT temp( space() );
 	
-		// left
-		// where is the minus best
-		temp = x;
-		temp.getCField().add( 0.5, x.getCField(), -0.5, x.getSField(), B::N );
-		temp.getSField().add( 0.5, x.getCField(),  0.5, x.getSField(), B::N );
-
-		// set paramters
+		//// set paramters
 		auto pl = Teuchos::parameterList();
 		pl->set<Scalar>( "mulI", mulI_ );
 		pl->set<Scalar>( "mulC", mulC_ );
@@ -62,33 +56,24 @@ public:
 
 		op_->setParameter( pl );
 
+		// left
+		temp = x;
+		temp.getCField().add( 0.5, x.getCField(),  0.5, x.getSField(), B::N );
+		temp.getSField().add( 0.5, x.getCField(), -0.5, x.getSField(), B::N );
+
 		op_->apply( temp.getCField(), y.getCField() );
 		op_->apply( temp.getSField(), y.getSField() );
 
-// right
-//		op_->apply( x.getConstCField(), temp.getCField() );
-//		op_->apply( x.getConstSField(), temp.getSField() );
-//
-//		// where is the minus best
-//		y.getCField().add( 0.5, temp.getConstCField(), -0.5, temp.getConstSField() );
-//		y.getSField().add( 0.5, temp.getConstCField(),  0.5, temp.getConstSField() );
-//
+		// just block( if mulI<max(mulC_,mulL) ???)
+		// set paramters
+		//auto pl = Teuchos::parameterList();
+		//pl->set<Scalar>( "mulI", 0. );
+		//pl->set<Scalar>( "mulC", mulC_ );
+		//pl->set<Scalar>( "mulL", mulL_ );
+		//op_->setParameter( pl );
 
-//		// just block
-//		// set paramters
-//		auto pl = Teuchos::parameterList();
-//		pl->set<Scalar>( "mulI", 0. );
-//		pl->set<Scalar>( "mulC", mulC_ );
-//		pl->set<Scalar>( "mulL", mulL_ );
-//		op_->setParameter( pl );
-//
-//		op_->apply( x.getConstCField(), y.getCField() );
-//		op_->apply( x.getConstSField(), y.getSField() );
-//
-//		pl->set<Scalar>( "mulI", mulI_ );
-//		pl->set<Scalar>( "mulC", mulC_ );
-//		pl->set<Scalar>( "mulL", mulL_ );
-//		op_->setParameter( pl );
+		//op_->apply( x.getCField(), y.getCField() );
+		//op_->apply( x.getSField(), y.getSField() );
  	}
 
 

@@ -71,7 +71,7 @@ public:
 		initZero_(false) {
 
 			auto para = 
-				createLinSolverParameter("GMRES",1.e-1,-1, Teuchos::rcp( new Teuchos::oblackholestream ), 10 );
+				createLinSolverParameter( "GMRES", 1.e-1, -1, Teuchos::rcp( new Teuchos::oblackholestream ), 10 );
 			linprob_ = createLinearProblem<MF>(
 					createOperatorBase( create<OperatorT>(op) ),
 					create<MF>( op->space() ),

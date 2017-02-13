@@ -67,6 +67,10 @@ ADD_EXECUTABLE( NonlinearOperatorTest Teuchos_StandardParallelUnitTestMain.cpp P
 TARGET_LINK_LIBRARIES( NonlinearOperatorTest ${Pimpact_TPL_LIBRARIES} ) 
 add_test( NAME NonlinearOperatorTest COMMAND mpirun -np 8 ./NonlinearOperatorTest )
 
+ADD_EXECUTABLE( SolverTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_Solver_test.cpp )
+TARGET_LINK_LIBRARIES( SolverTest ${Pimpact_TPL_LIBRARIES} ) 
+add_test( NAME SolverTest COMMAND mpirun -np 8 ./SolverTest )
+
 ADD_EXECUTABLE( LinearProblemTest Teuchos_StandardParallelUnitTestMain.cpp Pimpact_LinearProblem_test.cpp )
 TARGET_LINK_LIBRARIES( LinearProblemTest ${Pimpact_TPL_LIBRARIES} ) 
 add_test( NAME LinearProblemTest COMMAND mpirun -np 4 ./LinearProblemTest )

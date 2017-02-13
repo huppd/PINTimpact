@@ -53,11 +53,11 @@ public:
 			mx->push_back(
 					Teuchos::rcpFromRef(
 						const_cast<typename MultiOperator::DomainFieldT::InnerFieldT&>(
-							x.getConstCField(i) ) ) );
+							x.getCField(i) ) ) );
 			mx->push_back(
 					Teuchos::rcpFromRef(
 						const_cast<typename MultiOperator::DomainFieldT::InnerFieldT&>(
-							x.getConstSField(i) ) ) );
+							x.getSField(i) ) ) );
 
 			// making y
 			my->push_back( Teuchos::rcpFromRef(y.getCField(i)) );
@@ -68,7 +68,7 @@ public:
 			mx->push_back(
 					Teuchos::rcpFromRef(
 						const_cast<typename MultiOperator::DomainFieldT::InnerFieldT&>(
-							x.getConst0Field() ) ) );
+							x.get0Field() ) ) );
 			my->push_back( Teuchos::rcpFromRef( y.get0Field() ) );
 		}
 

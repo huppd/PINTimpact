@@ -629,11 +629,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( ModeOperator, ModeNonlinearOp, SpaceT ) {
 
 	sol.getCField()(Pimpact::F::V).initFromFunction(
 	    	[&pi2,&alpha2,&re,&space]( ST x, ST y, ST z ) ->ST {
-					if( ((x   )<=Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0 ) ||
+					if( ((x   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(0)>0 ) ||
 						(  (x-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(0)>0 ) ||
-						(  (y   )<=Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0 ) ||
+						(  (y   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(1)>0 ) ||
 						(  (y-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(1)>0 ) ||
-						(  (z   )<=Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0 ) ||
+						(  (z   )<= Teuchos::ScalarTraits<ST>::eps() && space->bcl(2)>0 ) ||
 						(  (z-1.)>=-Teuchos::ScalarTraits<ST>::eps() && space->bcu(2)>0 ) )
 						return( 0. );
 					else
@@ -832,6 +832,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicOperator, MultiHarmonicDtConvect
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicOperator, MultiHarmonicDtConvectionDiffusionOp, D2 )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MultiHarmonicOperator, MultiHarmonicDtConvectionDiffusionOp, D3 )
+
 
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, ConvectionSOp, SpaceT ) { 
@@ -1067,8 +1068,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, ConvectionVOp, SpaceT ) {
 					sol(field).initFromFunction(
 							[&field,&dir,&space,&solfunc,&windfunc]( ST x, ST y, ST z ) ->ST {
 								if( field==dir && (
-									( space->bcl(Pimpact::X)==Pimpact::BC::Dirichlet && x<Teuchos::ScalarTraits<ST>::eps()   ) ||
-									( space->bcu(Pimpact::X)==Pimpact::BC::Dirichlet && x>1-Teuchos::ScalarTraits<ST>::eps() ) )
+									( space->bcl(Pimpact::X)==Pimpact::BC::Dirichlet && x<=Teuchos::ScalarTraits<ST>::eps()   ) ||
+									( space->bcu(Pimpact::X)==Pimpact::BC::Dirichlet && x>=1-Teuchos::ScalarTraits<ST>::eps() ) )
 									) 
 									return( 0. );
 								else
@@ -1080,8 +1081,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, ConvectionVOp, SpaceT ) {
 					sol(field).initFromFunction(
 							[&field,&dir,&space,&windfunc,&solfunc]( ST x, ST y, ST z ) ->ST {
 								if( field==dir && (
-									( space->bcl(Pimpact::Y)==Pimpact::BC::Dirichlet && y<Teuchos::ScalarTraits<ST>::eps()   ) ||
-									( space->bcu(Pimpact::Y)==Pimpact::BC::Dirichlet && y>1-Teuchos::ScalarTraits<ST>::eps() ) )
+									( space->bcl(Pimpact::Y)==Pimpact::BC::Dirichlet && y<=Teuchos::ScalarTraits<ST>::eps()   ) ||
+									( space->bcu(Pimpact::Y)==Pimpact::BC::Dirichlet && y>=1-Teuchos::ScalarTraits<ST>::eps() ) )
 									) 
 									return( 0. );
 								else
@@ -1094,8 +1095,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, ConvectionVOp, SpaceT ) {
 					sol(field).initFromFunction(
 							[&field,&dir,&space,&windfunc,&solfunc]( ST x, ST y, ST z ) ->ST {
 								if( field==dir && (
-									( space->bcl(Pimpact::Z)==Pimpact::BC::Dirichlet && z<Teuchos::ScalarTraits<ST>::eps()   ) ||
-									( space->bcu(Pimpact::Z)==Pimpact::BC::Dirichlet && z>1-Teuchos::ScalarTraits<ST>::eps() ) )
+									( space->bcl(Pimpact::Z)==Pimpact::BC::Dirichlet && z<=Teuchos::ScalarTraits<ST>::eps()   ) ||
+									( space->bcu(Pimpact::Z)==Pimpact::BC::Dirichlet && z>=1-Teuchos::ScalarTraits<ST>::eps() ) )
 									) 
 									return( 0. );
 								else
@@ -1222,12 +1223,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, ConvectionDiffusionOp, SpaceT ) 
 								return( inifunc(x) ); } );
 					sol(field).initFromFunction(
 							[&field,&dir,&space,&inifunc,&solfunc,&solfunc2,&windfunc]( ST x, ST y, ST z ) ->ST {
-								if( (space->bcl(Pimpact::X)==Pimpact::BC::Dirichlet && x<Teuchos::ScalarTraits<ST>::eps()   ) ||
-									(  space->bcu(Pimpact::X)==Pimpact::BC::Dirichlet && x>1-Teuchos::ScalarTraits<ST>::eps() ) ||
-									(  space->bcl(Pimpact::Z)==Pimpact::BC::Dirichlet && z<Teuchos::ScalarTraits<ST>::eps()   ) ||
-									(  space->bcu(Pimpact::Z)==Pimpact::BC::Dirichlet && z>1-Teuchos::ScalarTraits<ST>::eps() ) ||
-								  (  space->bcl(Pimpact::Y)==Pimpact::BC::Dirichlet && y<Teuchos::ScalarTraits<ST>::eps()   ) ||
-									(  space->bcu(Pimpact::Y)==Pimpact::BC::Dirichlet && y>1-Teuchos::ScalarTraits<ST>::eps() ) ) 
+								if( (space->bcl(Pimpact::X)==Pimpact::BC::Dirichlet && x<=Teuchos::ScalarTraits<ST>::eps()   ) ||
+									(  space->bcu(Pimpact::X)==Pimpact::BC::Dirichlet && x>=1-Teuchos::ScalarTraits<ST>::eps() ) ||
+									(  space->bcl(Pimpact::Z)==Pimpact::BC::Dirichlet && z<=Teuchos::ScalarTraits<ST>::eps()   ) ||
+									(  space->bcu(Pimpact::Z)==Pimpact::BC::Dirichlet && z>=1-Teuchos::ScalarTraits<ST>::eps() ) ||
+								  (  space->bcl(Pimpact::Y)==Pimpact::BC::Dirichlet && y<=Teuchos::ScalarTraits<ST>::eps()   ) ||
+									(  space->bcu(Pimpact::Y)==Pimpact::BC::Dirichlet && y>=1-Teuchos::ScalarTraits<ST>::eps() ) ) 
 									return( inifunc(x) );
 								else
 									return( windfunc(x)*solfunc(x)+solfunc2(x) ); } );
@@ -1237,12 +1238,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, ConvectionDiffusionOp, SpaceT ) 
 								return( inifunc(y) ); } );
 					sol(field).initFromFunction(
 							[&field,&dir,&space,&inifunc,&solfunc,&solfunc2,&windfunc]( ST x, ST y, ST z ) ->ST {
-								if( (space->bcl(Pimpact::X)==Pimpact::BC::Dirichlet && x<Teuchos::ScalarTraits<ST>::eps()   ) ||
-									(  space->bcu(Pimpact::X)==Pimpact::BC::Dirichlet && x>1-Teuchos::ScalarTraits<ST>::eps() ) ||
-									(  space->bcl(Pimpact::Z)==Pimpact::BC::Dirichlet && z<Teuchos::ScalarTraits<ST>::eps()   ) ||
-									(  space->bcu(Pimpact::Z)==Pimpact::BC::Dirichlet && z>1-Teuchos::ScalarTraits<ST>::eps() ) ||
-								  (  space->bcl(Pimpact::Y)==Pimpact::BC::Dirichlet && y<Teuchos::ScalarTraits<ST>::eps()   ) ||
-									(  space->bcu(Pimpact::Y)==Pimpact::BC::Dirichlet && y>1-Teuchos::ScalarTraits<ST>::eps() ) ) 
+								if( (space->bcl(Pimpact::X)==Pimpact::BC::Dirichlet && x<=Teuchos::ScalarTraits<ST>::eps()   ) ||
+									(  space->bcu(Pimpact::X)==Pimpact::BC::Dirichlet && x>=1-Teuchos::ScalarTraits<ST>::eps() ) ||
+									(  space->bcl(Pimpact::Z)==Pimpact::BC::Dirichlet && z<=Teuchos::ScalarTraits<ST>::eps()   ) ||
+									(  space->bcu(Pimpact::Z)==Pimpact::BC::Dirichlet && z>=1-Teuchos::ScalarTraits<ST>::eps() ) ||
+								  (  space->bcl(Pimpact::Y)==Pimpact::BC::Dirichlet && y<=Teuchos::ScalarTraits<ST>::eps()   ) ||
+									(  space->bcu(Pimpact::Y)==Pimpact::BC::Dirichlet && y>=1-Teuchos::ScalarTraits<ST>::eps() ) ) 
 									return( inifunc(y) );
 								else
 									return( windfunc(y)*solfunc(y)+solfunc2(y) ); } );
@@ -1253,12 +1254,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, ConvectionDiffusionOp, SpaceT ) 
 								return( inifunc(z) ); } );
 					sol(field).initFromFunction(
 							[&field,&dir,&space,&inifunc,&solfunc,&solfunc2,&windfunc]( ST x, ST y, ST z ) ->ST {
-								if( (space->bcl(Pimpact::X)==Pimpact::BC::Dirichlet && x<Teuchos::ScalarTraits<ST>::eps()   ) ||
-									(  space->bcu(Pimpact::X)==Pimpact::BC::Dirichlet && x>1-Teuchos::ScalarTraits<ST>::eps() ) ||
-									(  space->bcl(Pimpact::Z)==Pimpact::BC::Dirichlet && z<Teuchos::ScalarTraits<ST>::eps()   ) ||
-									(  space->bcu(Pimpact::Z)==Pimpact::BC::Dirichlet && z>1-Teuchos::ScalarTraits<ST>::eps() ) ||
-								  (  space->bcl(Pimpact::Y)==Pimpact::BC::Dirichlet && y<Teuchos::ScalarTraits<ST>::eps()   ) ||
-									(  space->bcu(Pimpact::Y)==Pimpact::BC::Dirichlet && y>1-Teuchos::ScalarTraits<ST>::eps() ) ) 
+								if( (space->bcl(Pimpact::X)==Pimpact::BC::Dirichlet && x<=Teuchos::ScalarTraits<ST>::eps()   ) ||
+									(  space->bcu(Pimpact::X)==Pimpact::BC::Dirichlet && x>=1-Teuchos::ScalarTraits<ST>::eps() ) ||
+									(  space->bcl(Pimpact::Z)==Pimpact::BC::Dirichlet && z<=Teuchos::ScalarTraits<ST>::eps()   ) ||
+									(  space->bcu(Pimpact::Z)==Pimpact::BC::Dirichlet && z>=1-Teuchos::ScalarTraits<ST>::eps() ) ||
+								  (  space->bcl(Pimpact::Y)==Pimpact::BC::Dirichlet && y<=Teuchos::ScalarTraits<ST>::eps()   ) ||
+									(  space->bcu(Pimpact::Y)==Pimpact::BC::Dirichlet && y>=1-Teuchos::ScalarTraits<ST>::eps() ) ) 
 									return( inifunc(z) );
 								else
 									return( windfunc(z)*solfunc(z)+solfunc2(z) ); } );

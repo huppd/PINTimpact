@@ -56,7 +56,7 @@ public:
   }
 
   void assignField( const DomainFieldT& mv ) {
-    op_->assignField( *createMultiField( Teuchos::rcp_const_cast<DomainFieldT>(Teuchos::rcpFromRef(mv))) );
+    op_->assignField( MultiField<DomainFieldT>( Teuchos::rcp_const_cast<DomainFieldT>(Teuchos::rcpFromRef(mv))) );
   };
 
   bool hasApplyTranspose() const { return( op_->hasApplyTranspose() ); }

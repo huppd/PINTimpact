@@ -68,11 +68,11 @@ public:
 
 		Teuchos::RCP<VF> tempv =  create<VF>( space() ); 
 
-		opSSmoother_->apply( x.getConstSField() ,  y.getSField() );
+		opSSmoother_->apply( x.getSField() ,  y.getSField() );
 
-		opS2V_->apply( y.getConstSField(), *tempv );
+		opS2V_->apply( y.getSField(), *tempv );
 
-		tempv->add( -1., *tempv, 1., x.getConstVField() );
+		tempv->add( -1., *tempv, 1., x.getVField() );
 
 		opVSmoother_->apply( *tempv, y.getVField() );
 	}

@@ -52,14 +52,14 @@ public:
 	/// \todo rm tempv???
 	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
-		opS2S_->apply( x.getConstSField(),  y.getSField() );
+		opS2S_->apply( x.getSField(),  y.getSField() );
 		y.getSField().scale( -1. );
 
 		VF tempv( space() );
 
-		opS2V_->apply( y.getConstSField(), tempv, Add::Y );
+		opS2V_->apply( y.getSField(), tempv, Add::Y );
 
-		tempv.add( -1., tempv, 1., x.getConstVField() );
+		tempv.add( -1., tempv, 1., x.getVField() );
 
 		opV2V_->apply( tempv, y.getVField() );
 
@@ -67,7 +67,7 @@ public:
 
 
 	void assignField( const DomainFieldT& mv ) {
-		opV2V_->assignField( mv.getConstVField());
+		opV2V_->assignField( mv.getVField() );
 	};
 
 	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(opV2V_->space()); };

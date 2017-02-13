@@ -312,7 +312,7 @@ int main(int argi, char** argv ) {
 	if( 0!=forcing )
 	{
 
-		force = x->getField(0).getConstVFieldPtr()->clone( Pimpact::ECopy::Shallow );
+		force = x->getField(0).getVFieldPtr()->clone( Pimpact::ECopy::Shallow );
 
 		Pimpact::initVectorTimeField(
 				force,

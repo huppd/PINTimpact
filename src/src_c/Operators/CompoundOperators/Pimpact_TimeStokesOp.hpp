@@ -97,17 +97,17 @@ public:
 		Scalar re = space()->getDomainSize()->getRe();
 		Scalar mulI = space()->getDomainSize()->getAlpha2()*idt/re;
 
-		auto xu = x.getConstVFieldPtr();
-		auto xp = x.getConstSFieldPtr();
+		auto xu = x.getVFieldPtr();
+		auto xp = x.getSFieldPtr();
 		auto yu = y.getVFieldPtr();
 		auto yp = y.getSFieldPtr();
 
 		xu->exchange();
 
 		for( Ordinal i=space()->begin(F::S,3)-1; i<space()->end(F::S,3); ++i ) {
-			//			xu->getConstFieldPtr(i-1)->exchange();
-			xu->getConstFieldPtr(i)->exchange();
-			xp->getConstFieldPtr(i)->exchange();
+			//			xu->getFieldPtr(i-1)->exchange();
+			xu->getFieldPtr(i)->exchange();
+			xp->getFieldPtr(i)->exchange();
 		}
 
 		OP_TimeStokes( 

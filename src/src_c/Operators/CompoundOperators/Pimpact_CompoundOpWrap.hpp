@@ -58,13 +58,13 @@ public:
 	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
 		// H-blockz
-		opV2V_->apply( x.getConstVField(), y.getVField() );
+		opV2V_->apply( x.getVField(), y.getVField() );
 
 		// ~grad
-		opS2V_->apply( x.getConstSField(), y.getVField(), Add::Y );
+		opS2V_->apply( x.getSField(), y.getVField(), Add::Y );
 
 		// ~div
-		opV2S_->apply( x.getConstVField(), y.getSField() );
+		opV2S_->apply( x.getVField(), y.getSField() );
 	}
 
 	void computeResidual( const RangeFieldT& b, const DomainFieldT& x, RangeFieldT& res ) const {
@@ -73,7 +73,7 @@ public:
 	}
 
 	void assignField( const DomainFieldT& mv ) {
-		opV2V_->assignField( mv.getConstVField() );
+		opV2V_->assignField( mv.getVField() );
 	};
 
 

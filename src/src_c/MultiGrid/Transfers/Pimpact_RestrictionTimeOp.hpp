@@ -47,20 +47,20 @@ public:
 		x.exchange();
 
 		if (d > 1)
-			op_->apply( x.getConstField(0), *temp_ );
+			op_->apply( x.getField(0), *temp_ );
 
 		for( Ordinal i=spaceF()->begin(F::S,3); i<spaceF()->end(F::S,3); ++i )  {
 
 			if ( (i-spaceF()->begin(F::S,3))%d==0 ) {
 
 				Ordinal iC = (i-spaceF()->begin(F::S,3))/d + spaceC()->begin(F::S,3);
-				op_->apply( x.getConstField(i), y.getField(iC) );
+				op_->apply( x.getField(i), y.getField(iC) );
 
 				if (d > 1)
 					y.getField(iC).add( 0.25, *temp_, 0.5, y.getField(iC) );
 			}
 			else if (d > 1) {
-				op_->apply( x.getConstField(i), *temp_ );
+				op_->apply( x.getField(i), *temp_ );
 				Ordinal iC = (i-spaceF()->begin(F::S,3) - 1)/d + spaceC()->begin(F::S,3);		
 				y.getField(iC).add( 1., y.getField(iC), 0.25, *temp_ );
 			}

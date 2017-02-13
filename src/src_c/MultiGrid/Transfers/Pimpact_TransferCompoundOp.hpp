@@ -54,14 +54,14 @@ public:
 	template<class DT, class RT>
 	void apply( const DT& x, RT& y ) const {
 
-    opV_->apply( x.getConstVField(), y.getVField() );
-    opS_->apply( x.getConstSField(), y.getSField() );
+    opV_->apply( x.getVField(), y.getVField() );
+    opS_->apply( x.getSField(), y.getSField() );
 	}
 
 //	void apply( const RangeFieldT& x, DomainFieldT& y ) const {
 //
-//    opV_->apply( x.getConstVField(), y.getVField() );
-//    opS_->apply( x.getConstSField(), y.getSField() );
+//    opV_->apply( x.getVField(), y.getVField() );
+//    opS_->apply( x.getSField(), y.getSField() );
 //
 //	}
 

@@ -442,10 +442,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonic, exchange, FType ) {
 	field->changed();
 	field->exchange();
 
-	TEST_FLOATING_EQUALITY( field->getConst0Field().normLoc(Belos::InfNorm), 1., eps );
+	TEST_FLOATING_EQUALITY( field->get0Field().normLoc(Belos::InfNorm), 1., eps );
 
 	for( OT i=1; i<=space->nGlo(3); ++i )
-		TEST_FLOATING_EQUALITY( field->getConstField(i).normLoc(Belos::InfNorm), static_cast<ST>(i)+1., eps );
+		TEST_FLOATING_EQUALITY( field->getField(i).normLoc(Belos::InfNorm), static_cast<ST>(i)+1., eps );
 
 }
 

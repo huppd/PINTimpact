@@ -54,9 +54,9 @@ public:
 
 		for( Ordinal i=spaceC()->begin(F::S,3); i <= spaceC()->end(F::S,3); ++i ) { 
 			Ordinal iF = d*( i-spaceC()->begin(F::S,3) ) + spaceF()->begin(F::S,3);
-			op_->apply( x.getConstField( i ), y.getField( iF ) );
+			op_->apply( x.getField( i ), y.getField( iF ) );
 			if (spaceC()->nLoc(3)==1 && d>1) 
-				op_->apply( x.getConstField(1), y.getField(2) );
+				op_->apply( x.getField(1), y.getField(2) );
 		}
 
 		if (d > 1 && spaceC()->nLoc(3)>1) { 

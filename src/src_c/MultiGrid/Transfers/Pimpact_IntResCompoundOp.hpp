@@ -54,8 +54,8 @@ public:
 
 	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
-		opV_->apply( x.getConstVField(), y.getVField() );
-		opS_->apply( x.getConstSField(), y.getSField() );
+		opV_->apply( x.getVField(), y.getVField() );
+		opS_->apply( x.getSField(), y.getSField() );
 	}
 
 

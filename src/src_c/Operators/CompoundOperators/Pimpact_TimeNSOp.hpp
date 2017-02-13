@@ -107,16 +107,16 @@ public:
 		Scalar re = space()->getDomainSize()->getRe();
 		Scalar mulI = space()->getDomainSize()->getAlpha2()*idt/re;
 
-		auto xu = x.getConstVFieldPtr();
-		auto xp = x.getConstSFieldPtr();
+		auto xu = x.getVFieldPtr();
+		auto xp = x.getSFieldPtr();
 		auto yu = y.getVFieldPtr();
 		auto yp = y.getSFieldPtr();
 
 		xu->exchange();
 
 		for( Ordinal i=space()->begin(F::S,3)-1; i<space()->end(F::S,3); ++i ) {
-			xu->getConstFieldPtr(i)->exchange();
-			xp->getConstFieldPtr(i)->exchange();
+			xu->getFieldPtr(i)->exchange();
+			xp->getFieldPtr(i)->exchange();
 		}
 
 		OP_TimeNS( 
@@ -192,7 +192,7 @@ public:
 
 		Ordinal nt = space()->nLoc(3) + space()->bu(3) - space()->bl(3);
 
-		auto mv = cmv.getConstVFieldPtr();
+		auto mv = cmv.getVFieldPtr();
 
 		auto temp = createScalarField<ST>( space() );
 
@@ -200,16 +200,16 @@ public:
 
 		for( Ordinal it=0; it<nt; ++it ) {
 
-			interpolateV2S_->apply( mv->getConstField(it)(F::U), *temp );
+			interpolateV2S_->apply( mv->getField(it)(F::U), *temp );
 			for( F j=F::U; j<SpaceT::sdim; ++j ) {
 				interpolateS2V_->apply( *temp, windU_->getField(it)(j) );
 			}
-			interpolateV2S_->apply( mv->getConstField(it)(F::V), *temp );
+			interpolateV2S_->apply( mv->getField(it)(F::V), *temp );
 			for( F j=F::U; j<SpaceT::sdim; ++j ) {
 				interpolateS2V_->apply( *temp, windV_->getField(it)(j) );
 			}
 			if( 3==SpaceT::sdim ) {
-				interpolateV2S_->apply( mv->getConstField(it)(F::W), *temp );
+				interpolateV2S_->apply( mv->getField(it)(F::W), *temp );
 				for( F j=F::U; j<SpaceT::sdim; ++j ) {
 					interpolateS2V_->apply( *temp, windW_->getField(it)(j) );
 				}

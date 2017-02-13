@@ -44,11 +44,11 @@ public:
 	void apply( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::N ) const {
 
 		if( 0==space()->begin(F::U,3) )
-			op_->apply( x.getConst0Field(), y.get0Field(), add );
+			op_->apply( x.get0Field(), y.get0Field(), add );
 
 		for( typename SpaceT::Ordinal i=std::max(space()->begin(F::U,3),1); i<=space()->end(F::U,3); ++i ) {
-      op_->apply( x.getConstCField(i), y.getCField(i), add );
-      op_->apply( x.getConstSField(i), y.getSField(i), add );
+      op_->apply( x.getCField(i), y.getCField(i), add );
+      op_->apply( x.getSField(i), y.getSField(i), add );
     }
 
 		y.changed();
@@ -56,7 +56,7 @@ public:
 
 
   void assignField( const DomainFieldT& mv ) {
-    op_->assignField( mv.getConst0Field() );
+    op_->assignField( mv.get0Field() );
   };
 
   bool hasApplyTranspose() const { return( op_->hasApplyTranspose() ); }

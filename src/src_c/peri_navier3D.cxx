@@ -328,20 +328,21 @@ int main( int argi, char** argv ) {
 				//if( 0==space->rankST() )
 				//mgConvDiff->print();
 
-				zeroInv->getOperatorPtr()->setRightPrec( Pimpact::createMultiOperatorBase(mgConvDiff) );
+				std::string convDiffPrecString = pl->sublist("ConvDiff").get<std::string>( "preconditioner", "right" );
+				if( "right" == convDiffPrecString ) 
+					zeroInv->getOperatorPtr()->setRightPrec( Pimpact::createMultiOperatorBase(mgConvDiff) );
 				modeInv->getOperatorPtr()->setRightPrec( Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::EddyPrec>(zeroInv) ) );
 
 				// create Hinv prec
 				Teuchos::RCP<Pimpact::OperatorBase<MVF> > opV2Vprec = 
 					Pimpact::createMultiOperatorBase(
 							Pimpact::createMultiHarmonicDiagOp(
-								zeroInv, 
-								modeInv ) );
+								zeroInv, modeInv ) );
 
 				if( "right" == mhConvDiffPrecString ) 
-					opV2Vinv->setRightPrec( opV2Vprec);
+					opV2Vinv->setRightPrec( opV2Vprec );
 				if( "left" == mhConvDiffPrecString ) 
-					opV2Vinv->setLeftPrec( opV2Vprec);
+					opV2Vinv->setLeftPrec( opV2Vprec );
 			}
 
 

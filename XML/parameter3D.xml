@@ -131,7 +131,7 @@
 			<Parameter docString="" id="122" isDefault="false" isUsed="true" name="Timer Label" type="string" value="Compound( MHDtConvectionDiffusion, MH_Grad, MH_Div )" />
 			<Parameter docString="" id="123" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="10" />
 			<Parameter docString="" id="124" isDefault="false" isUsed="true" name="Output Style" type="int" value="1" />
-			<Parameter docString="" id="761" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="20" />
+			<!--<Parameter docString="" id="761" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="20" />-->
 		</ParameterList>
 	</ParameterList>
 	<ParameterList id="25" name="DivGrad">
@@ -225,12 +225,13 @@
 	</ParameterList>
 	<ParameterList id="39" name="MH_ConvDiff">
 		<!--<Parameter docString="" id="184" isDefault="true" isUsed="true" name="Solver name" type="string" value="TFQMR" />-->
-		<Parameter docString="" id="184" isDefault="true" isUsed="true" name="Solver name" type="string" value="Flexible GMRES" />
+		<!--<Parameter docString="" id="184" isDefault="true" isUsed="true" name="Solver name" type="string" value="Flexible GMRES" />-->
+		<Parameter docString="" id="184" isDefault="true" isUsed="true" name="Solver name" type="string" value="GMRES" />
 		<!--<Parameter docString="" id="184" isDefault="true" isUsed="true" name="Solver name" type="string" value="GMRES" />-->
 		<!--<Parameter docString="" id="911" isDefault="true" isUsed="true" name="preconditioner" type="string" value="none" />-->
 		<Parameter docString="" id="911" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
 		<ParameterList id="40" name="Solver">
-			<Parameter docString="" id="185" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="20" />
+			<!--<Parameter docString="" id="185" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="20" />-->
 			<Parameter docString="" id="186" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.00000000000000006e-01" />
 			<Parameter docString="" id="187" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
 			<Parameter docString="" id="188" isDefault="false" isUsed="true" name="Timer Label" type="string" value="MHDtConvectionDiffusion" />
