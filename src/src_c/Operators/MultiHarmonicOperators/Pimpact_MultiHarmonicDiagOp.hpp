@@ -56,6 +56,7 @@ public:
 
 		y->exchange();
     zeroOp_->assignField( y->get0Field() );
+    //modeOp->assignField( y->get0Field() );
   };
 
 

@@ -301,15 +301,15 @@ protected:
 					// in time direction no stretching is considered as long as
 					// time-periodic problems are considered equidistant should be best
 
-					ScalarT L = 4.*std::atan(1.);
+					ScalarT pi2 = 8.*std::atan(1.);
 
 					for( OrdinalT i=1; i<=M; ++i ) {
-						ScalarT is = i;
-						xS_ [dir][i] = is*L/( Ms-1. );
+						ScalarT is = i-1;
+						xS_ [dir][i] = is*pi2/( Ms );
 					}
 					for( OrdinalT i=0; i<=M; ++i ) {
 						ScalarT is = static_cast<ScalarT>(i) - 0.5;
-						xV_ [dir][i] = is*L/( Ms-1. );
+						xV_ [dir][i] = is*pi2/( Ms-1. );
 					}
 				}
 			}
@@ -360,41 +360,65 @@ protected:
 				xV_[dir][0 ] = coordinatesF->xV_[dir][0];
 				xV_[dir][Mc] = coordinatesF->xV_[dir][Mf];
 
+				// for many grids this seems better for less grids the above seems to be better ~4
 				// makes restriction on boundaries more complicated but Operators on coarse grid smoother
-				//xV_[dir][0 ] = 2.*xS_[dir][1]-xV_[dir][1]; 
-				//xV_[dir][Mc] = 2.*xS_[dir][Mc]-xV_[dir][Mc-1];
+				//const double& alpha = 0.5; // 0.5 increase convergence for unstreched grids beyond maxGirds>2 but for stretch even worse for maxGrids=2
+				//xV_[dir][0 ] = (1.+alpha)*xS_[dir][1] -alpha*xV_[dir][1]; 
+				//xV_[dir][Mc] = (1.+alpha)*xS_[dir][Mc]-alpha*xV_[dir][Mc-1];
+				{
+					//ScalarT is = static_cast<ScalarT>(i) - 0.5;
+					//switch( stretchType ) {
+						//case 0:
+							//coord_equi( -0.5,   L, Mc, x0, xV_[dir][0] );
+							//coord_equi( Mc-0.5, L, Mc, x0, xV_[dir][Mc] );
+							//break;
+						//case 1:
+							//coord_parab( -0.5,   L, Mc, x0, stretchPara_[dir]->get<ScalarT>( "alpha", 0.5 ), xV_[dir][0] );
+							//coord_parab( Mc-0.5, L, Mc, x0, stretchPara_[dir]->get<ScalarT>( "alpha", 0.5 ), xV_[dir][Mc] );
+							//break;
+						//case 2:
+							//coord_cos(
+									//0.5,
+									//L,
+									//Mc,
+									//x0,
+									//stretchPara_[dir]->get<ScalarT>( "N metr L", 1. ),
+									//stretchPara_[dir]->get<ScalarT>( "N metr U", M  ),
+									//stretchPara_[dir]->get<ScalarT>( "x0 L", 0. ),
+									//stretchPara_[dir]->get<ScalarT>( "x0 U", 0.  ),
+									//xV_[dir][0] );
+							//coord_cos(
+									//Mc+0.5,
+									//L,
+									//Mc,
+									//x0,
+									//stretchPara_[dir]->get<ScalarT>( "N metr L", 1. ),
+									//stretchPara_[dir]->get<ScalarT>( "N metr U", M  ),
+									//stretchPara_[dir]->get<ScalarT>( "x0 L", 0. ),
+									//stretchPara_[dir]->get<ScalarT>( "x0 U", 0.  ),
+									//xV_[dir][0] );
+							//break;
+						//default:
+							//coord_equi( -0,5,   L, Mc, x0, xV_[dir][0] );
+							//coord_equi( MC-0.5, L, Mc, x0, xV_[dir][Mc] );
+							//break;
+					//}
+				}
 			}
 		}
 	}
 
-
-	//ScalarT& at( const int& dir, const F& ftype, const OrdinalT& i ) {
-		////assert( ( F::S==ftype || dir!=ftype ) && () );
-
-		//return( ( F::S==ftype || dir!=ftype )?  xS_[dir][i] : xV_[dir][i] );
-	//}
-
 public:
-
 
 	/// \name getter
 	/// @{ 
 
-
 	constexpr const ScalarT* getX( const F& ftype, const int& dir ) {
 		return(
 				( F::S==ftype || dir!=ftype )?
-					xS_[dir].get():
-					xV_[dir].get() 
+					xS_[dir].get():xV_[dir].get() 
 				);
 	}
-
-	//constexpr const ScalarT& at( const int& dir, const F& ftype, const OrdinalT& i ) {
-		////assert( ( F::S==ftype || dir!=ftype ) && () );
-
-		//return( ( F::S==ftype || dir!=ftype )?  xS_[dir][i] : xV_[dir][i] );
-	//}
-
 
 	constexpr const Teuchos::Tuple< Teuchos::RCP<Teuchos::ParameterList> ,3>& getStretchParameter() const {
 		return( stretchPara_ );

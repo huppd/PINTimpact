@@ -132,7 +132,7 @@ protected:
 			}
 			else{
 				OrdinalT sI = 0 - sW->getBL(3);
-				OrdinalT eI = gridSizeLocal->get(3) + sW->getBU(3) - sW->getBL(3);
+				OrdinalT eI = gridSizeLocal->get(3) - sW->getBL(3)-1;
 				sIndS_[3] = sI;
 				eIndS_[3] = eI;
 				for( int i=0; i<3; ++i ) {

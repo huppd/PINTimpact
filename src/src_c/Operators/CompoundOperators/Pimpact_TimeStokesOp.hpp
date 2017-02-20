@@ -75,17 +75,13 @@ public:
 
 protected:
 
-	//  Teuchos::RCP<VF> temp_;
-
 	Teuchos::RCP<const HelmholtzOp<ST> > helm_;
 	Teuchos::RCP<const GradOp<ST> > grad_;
 	Teuchos::RCP<const DivOp<ST> > div_;
 
 public:
 
-	/// \note todo constructor from space
-	TimeStokesOp(
-			const Teuchos::RCP<const SpaceT>& space ):
+	TimeStokesOp( const Teuchos::RCP<const SpaceT>& space ):
 		helm_( create< HelmholtzOp<ST> >(space) ),
 		grad_( create< GradOp<ST> >(space) ),
 		div_( create< DivOp<ST> >(space) ) {};
@@ -93,7 +89,7 @@ public:
 	void apply(const DomainFieldT& x, RangeFieldT& y ) const {
 
 		Scalar pi = 4.*std::atan(1.);
-		Scalar idt = ((Scalar)space()->nGlo()[3])/2./pi;
+		Scalar idt = ((Scalar)space()->nGlo(3))/2./pi;
 		Scalar re = space()->getDomainSize()->getRe();
 		Scalar mulI = space()->getDomainSize()->getAlpha2()*idt/re;
 
@@ -105,9 +101,9 @@ public:
 		xu->exchange();
 
 		for( Ordinal i=space()->begin(F::S,3)-1; i<space()->end(F::S,3); ++i ) {
-			//			xu->getFieldPtr(i-1)->exchange();
-			xu->getFieldPtr(i)->exchange();
-			xp->getFieldPtr(i)->exchange();
+			//			xu->getField(i-1).exchange();
+			xu->getField(i).exchange();
+			xp->getField(i).exchange();
 		}
 
 		OP_TimeStokes( 

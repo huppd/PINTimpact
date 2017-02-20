@@ -128,7 +128,7 @@ public:
 
 	void applyInvDiag( const DomainFieldT& x, RangeFieldT& y ) const {
 
-		const Scalar& eps = 0.1;
+		const Scalar& eps = 1.e-1;
 
 		if( 3==SpaceT::sdim ) {
 			for( Ordinal k=space()->begin(F::S,Z); k<=space()->end(F::S,Z); ++k )
@@ -248,7 +248,7 @@ public:
 	}
 
 	constexpr Scalar innerDiag3D( const Ordinal& i, const Ordinal& j,
-			const Ordinal& k ) const {
+			const Ordinal& k ) {
 
 		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->begin(F::S,X) ) ||
 			(               space()->getBCLocal()->getBCU(X) > 0 && i==space()->end(F::S,X) ) ;
@@ -267,7 +267,7 @@ public:
 	}
 
 	constexpr Scalar innerDiag2D( const Ordinal& i, const Ordinal& j,
-			const Ordinal& k ) const {
+			const Ordinal& k ) {
 
 		const bool bcX = (space()->getBCLocal()->getBCL(X) > 0 && i==space()->begin(F::S,X) ) ||
 			(               space()->getBCLocal()->getBCU(X) > 0 && i==space()->end(F::S,X) ) ;

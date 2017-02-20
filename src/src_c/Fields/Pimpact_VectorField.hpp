@@ -785,8 +785,6 @@ public:
 				{
 					Scalar pi = 4.*std::atan(1.);
 
-					std::cout << "hello\n";
-
 					Ordinal nTemp = space()->gu(X) - space()->gl(X) + 1;
 					//for( Ordinal i=0; i<=space()->nLoc(X); ++i ) {
 					//std::cout << "i: " << i<< " (\t";
@@ -846,13 +844,20 @@ public:
 					for( int i=0; i<100; ++i )
 						std::cout << "hello\n";
 					Scalar pi = 4.*std::atan(1.);
-					Scalar xc = para.get<Scalar>( "xc", 0.3 );
-					Scalar zc = para.get<Scalar>( "zc", 0.3 );
-					Scalar b  = para.get<Scalar>( "b",  1. );
-					Scalar A  = para.get<Scalar>( "A",  1. );
+					Scalar xc = para.get<Scalar>( "xc", 1.3 );
+					Scalar zc = para.get<Scalar>( "zc", 3.0 );
+					Scalar b  = para.get<Scalar>( "b",  3. );
+					Scalar A  = para.get<Scalar>( "A",  0.1 );
+
+					Teuchos::RCP<const DomainSize<Scalar,SpaceT::sdim> > domain = space()->getDomainSize();
 					at(F::U).initFromFunction( 
-							[&pi,&xc,&zc,&A,&b]( Scalar x, Scalar y, Scalar z ) -> Scalar {
-								if( y<=0. && std::fabs( x-xc )<b && std::fabs(z-zc)<b ) {
+							[=]( Scalar x_, Scalar y_, Scalar z_ ) -> Scalar {
+
+								Scalar x = x_*domain->getSize(X) + domain->getOrigin(X);
+								Scalar y = y_*domain->getSize(Y) + domain->getOrigin(Y);
+								Scalar z = z_*domain->getSize(Z) + domain->getOrigin(Z); 
+
+								if( y<=0. && std::fabs( x-xc )<b && (std::fabs(z-zc)<b || std::fabs(z+zc)<b) ) {
 									return(
 										-0.5*A*std::sin( pi*(z-zc)/b )*( 1. + std::cos( pi*(x-xc)/b ) )
 										+0.5*A*std::sin( pi*(z-zc)/b )*( 1. + std::cos( pi*(x+xc)/b ) ) );
@@ -861,8 +866,13 @@ public:
 									return( 0. ); },
 							add );
 					at(F::V).initFromFunction( 
-							[&pi,&xc,&zc,&A,&b]( Scalar x, Scalar y, Scalar z ) -> Scalar {
-								if( y<=0. && std::fabs( x-xc )<b && std::fabs(z-zc)<b ) {
+							[=]( Scalar x_, Scalar y_, Scalar z_ ) -> Scalar {
+
+								Scalar x = x_*domain->getSize(X) + domain->getOrigin(X);
+								Scalar y = y_*domain->getSize(Y) + domain->getOrigin(Y);
+								Scalar z = z_*domain->getSize(Z) + domain->getOrigin(Z); 
+
+								if( y<=0. && std::fabs( x-xc )<b && (std::fabs(z-zc)<b || std::fabs(z+zc)<b) ) {
 									return(
 										+0.5*A*std::sin( pi*(x-xc)/b )*( 1. + std::cos( pi*(z-zc)/b ) )
 										-0.5*A*std::sin( pi*(x-xc)/b )*( 1. + std::cos( pi*(z-zc)/b ) ) );

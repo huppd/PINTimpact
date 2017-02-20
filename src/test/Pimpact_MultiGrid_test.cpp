@@ -1148,9 +1148,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, DivGradOp, CS, MGT ) {
 	//x.write();
 	//TEST_EQUALITY( x.norm()/std::sqrt( static_cast<ST>(x.getLength()) )<1.e-3, true );
 
-	bm->init( 0. );
-	xm->random();
-	linprob->solve( xm, bm );
+	//bm->init( 0. );
+	//xm->random();
+	//linprob->solve( xm, bm );
 
 	// --- grad test ---
 	auto e = x.clone();
@@ -1164,6 +1164,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, DivGradOp, CS, MGT ) {
 
 		// construct RHS
 		opO2->apply( sol, b );
+		if( print ) b.print();
 
 		// residual
 		opO2->apply( x, res );
@@ -1185,8 +1186,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, DivGradOp, CS, MGT ) {
 		}
 		for( int i=0; i<1; ++i ) {
 			// mg cycle
-			//mg->apply( b, x );
-			mg->applyVFull( b, x );
+			mg->apply( b, x );
+			//mg->applyVFull( b, x );
 			x.level();
 
 			// residual
@@ -1204,17 +1205,18 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, DivGradOp, CS, MGT ) {
 		TEST_EQUALITY( res.norm()/std::sqrt( static_cast<ST>( res.getLength() ) )<1.e-3, true );
 
 		op->apply( sol, b );
+		if( print ) b.print();
 		xm->init( 0. );
-		xm->random();
+		//xm->random();
 		linprob->solve( xm, bm );
 		if( write ) xm->write();
 	}
 }
 
 
-TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG2D, DGJMGT2D )
-TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG2D, DGLMGT2D )
-TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG2D, DGCMGT2D )
+//TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG2D, DGJMGT2D )
+//TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG2D, DGLMGT2D )
+//TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG2D, DGCMGT2D )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG3D, DGJMGT3D )
 //TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MultiGrid, DivGradOp, CSG3D, DGLMGT3D )
@@ -1229,16 +1231,17 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, ConvDiffOp, CS, MGT ) {
 	auto space = Pimpact::create<typename CS::SpaceT>( pl );
 
 	auto mgSpaces = Pimpact::createMGSpaces<CS>( space, maxGrids );
+	if( -1==print )  mgSpaces->print();
 
 	auto mgPL = Teuchos::parameterList();
 	mgPL->set<int>( "numCycles", 1 );
 	mgPL->set<bool>( "defect correction", false );
 	//mgPL->set<bool>( "defect correction", true );
+	mgPL->set<bool>( "init zero", true );
 	//mgPL->set<bool>( "init zero", false );
-	//mgPL->set<bool>( "init zero", true );
 
-	//mgPL->sublist("Smoother").set<ST>( "omega", 1. );
-	//mgPL->sublist("Smoother").set( "numIters", 2 );
+	mgPL->sublist("Smoother").set<ST>( "omega", 0.5 );
+	mgPL->sublist("Smoother").set( "numIters", 10 );
 	//mgPL->sublist("Smoother").set( "Ordering", 1 );
 	//mgPL->sublist("Smoother").set<short int>( "dir X", -1 );
 	//mgPL->sublist("Smoother").set<short int>( "dir Y", -1 );
@@ -1247,18 +1250,18 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, ConvDiffOp, CS, MGT ) {
 	mgPL->sublist("Coarse Grid Solver").set<std::string>("Solver name", "GMRES" );
 
 	//	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<Teuchos::RCP<std::ostream> >( "Output Stream", Teuchos::rcp( &std::cout, false ) );
-		//mgPL->sublist("Coarse Grid Solver").sublist("Solver").set("Verbosity",
-				//Belos::Errors +
-				//Belos::Warnings +
+		mgPL->sublist("Coarse Grid Solver").sublist("Solver").set("Verbosity",
+				Belos::Errors +
+				Belos::Warnings +
 				////Belos::IterationDetails +
 				////Belos::OrthoDetails +
-				//Belos::FinalSummary +
+				Belos::FinalSummary +
 				////Belos::TimingDetails +
 				////Belos::StatusTestDetails +
-				//Belos::Debug );
+				Belos::Debug );
 	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<std::string>("Timer Label", "Coarse Grid Solver" );
 	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set<ST>("Convergence Tolerance"
-			, 1.e-1 );
+			, 1.0e-6 );
 	mgPL->sublist("Coarse Grid Solver").sublist("Solver").set( "Maximum Iterations", 100 );
 
 	Teuchos::RCP<MGT> mg = Teuchos::rcp( new MGT( mgSpaces, mgPL ) );
@@ -1270,20 +1273,20 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, ConvDiffOp, CS, MGT ) {
 	Pimpact::VectorField<typename CS::SpaceT> temp( space );
 	Pimpact::VectorField<typename CS::SpaceT> sol(  space );
 
-	{
-		Pimpact::VectorField<typename CS::SpaceT> wind( space );
-		auto windfunc = [&pi2]( ST x ) -> ST { return( -std::cos(pi2*x/2) ); };
-		wind(Pimpact::F::U).initFromFunction(
-				[&windfunc]( ST x, ST y, ST z) ->ST { return( windfunc(x) ); } );
-		wind(Pimpact::F::V).initFromFunction(
-				[&windfunc]( ST x, ST y, ST z) ->ST { return( windfunc(y) ); } );
-		if( 3==CS::SpaceT::sdim )
-			wind(Pimpact::F::W).initFromFunction(
-					[&windfunc]( ST x, ST y, ST z) ->ST { return( windfunc(z) ); } );
+	//{
+		//Pimpact::VectorField<typename CS::SpaceT> wind( space );
+		//auto windfunc = [&pi2]( ST x ) -> ST { return( -std::cos(pi2*x/2) ); };
+		//wind(Pimpact::F::U).initFromFunction(
+				//[&windfunc]( ST x, ST y, ST z) ->ST { return( windfunc(x) ); } );
+		//wind(Pimpact::F::V).initFromFunction(
+				//[&windfunc]( ST x, ST y, ST z) ->ST { return( windfunc(y) ); } );
+		//if( 3==CS::SpaceT::sdim )
+			//wind(Pimpact::F::W).initFromFunction(
+					//[&windfunc]( ST x, ST y, ST z) ->ST { return( windfunc(z) ); } );
 
-		op->assignField( wind );
-		mg->assignField( wind );
-	}
+		//op->assignField( wind );
+		//mg->assignField( wind );
+	//}
 
 	std::ofstream ofs;
 	if( space()->rankST()==0 )
@@ -1313,8 +1316,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, ConvDiffOp, CS, MGT ) {
 	}
 
 	for( int i=0; i<nIter; ++i ) {
-		//mg->apply( b, x );
-		mg->applyVFull( b, x );
+		mg->apply( b, x );
+		//mg->applyVFull( b, x );
 		if( write ) x.write(i+10);
 
 		temp.add( -1., x, 1., sol );

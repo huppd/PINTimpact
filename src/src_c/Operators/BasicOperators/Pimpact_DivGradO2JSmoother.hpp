@@ -111,7 +111,6 @@ public:
 						}
 
 			y.changed();
-
 		}
 		if( levelYes_ )
 			y.level();

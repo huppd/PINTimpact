@@ -82,7 +82,7 @@ public:
 			const Teuchos::RCP<const OperatorT>& op,
 			Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::parameterList() ):
 		omega_( pl->get<Scalar>("omega", 0.5 ) ),
-		nIter_( pl->get("numIters", 5 ) ),
+		nIter_( pl->get("numIters", 10 ) ),
 		op_(op) {}
 
 
@@ -149,6 +149,7 @@ protected:
 	/// \brief implements smoothing for Dirichlet boundary conditions as identity
 	/// in tangential / velocity direction or interpolation in wand normal
 	/// direction
+	/// \todo think of computing interpolated values in corner directly
 	void applyBC( const DomainFieldT& b, const DomainFieldT& x, RangeFieldT& y	) const {
 
 		assert( b.getType()==y.getType() );
@@ -191,10 +192,18 @@ protected:
 				Ordinal i = space()->begin(f,X,B::Y);
 				for( Ordinal k=space()->begin(f,Z,B::Y); k<=space()->end(f,Z,B::Y); ++k )
 					for( Ordinal j=space()->begin(f,Y,B::Y); j<=space()->end(f,Y,B::Y); ++j ) {
-						y(i,j,k) = 0.;
-						for( Ordinal ii=space()->dl(X); ii<=space()->du(X); ++ii )
-							y(i,j,k) += space()->getInterpolateV2S()->getC( X, i+1, ii )*x(1+i+ii,j,k);
-						y(i,j,k) = x(i,j,k) + omegaBC*( b(i,j,k) - y(i,j,k) )/space()->getInterpolateV2S()->getC( X, i+1, 0 );
+						//if( k==space()->begin(f,Z,B::Y) || k==space()->end(f,Z,B::Y) || j==space()->begin(f,Y,B::Y) || j==space()->end(f,Y,B::Y)  ) {
+							//y(i,j,k) = 0.;
+							//for( Ordinal ii=0; ii<=space()->du(X); ++ii )
+								//y(i,j,k) += space()->getInterpolateV2S()->getC( X, i+1, ii )*b(1+i+ii,j,k);
+							//y(i,j,k) = ( b(i,j,k) - y(i,j,k) )/space()->getInterpolateV2S()->getC( X, i+1, -1 );
+						//}
+						//else {
+							y(i,j,k) = 0.;
+							for( Ordinal ii=space()->dl(X); ii<=space()->du(X); ++ii )
+								y(i,j,k) += space()->getInterpolateV2S()->getC( X, i+1, ii )*x(1+i+ii,j,k);
+							y(i,j,k) = x(i,j,k) + omegaBC*( b(i,j,k) - y(i,j,k) )/space()->getInterpolateV2S()->getC( X, i+1, 0 );
+						//}
 					}
 			}
 			if( BC::Dirichlet==space()->bcu(X) ) {

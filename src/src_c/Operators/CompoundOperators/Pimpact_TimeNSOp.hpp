@@ -115,8 +115,8 @@ public:
 		xu->exchange();
 
 		for( Ordinal i=space()->begin(F::S,3)-1; i<space()->end(F::S,3); ++i ) {
-			xu->getFieldPtr(i)->exchange();
-			xp->getFieldPtr(i)->exchange();
+			xu->getField(i).exchange();
+			xp->getField(i).exchange();
 		}
 
 		OP_TimeNS( 

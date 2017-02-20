@@ -67,17 +67,15 @@ template<class SpaceT> using CVF = Pimpact::CompoundField<Pimpact::TimeField<Pim
 	Pimpact::TimeField<Pimpact::ScalarField<SpaceT> > >;
 
 template<class SpaceT> using INT = Pimpact::IntResCompoundOp<
-
-Pimpact::InterpolationTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<SpaceT> > >,
-
+	Pimpact::InterpolationTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<SpaceT> > >,
 	Pimpact::InterpolationTimeOp<                           Pimpact::InterpolationOp<SpaceT> > >;
 
-	template<class SpaceT> using RES = Pimpact::IntResCompoundOp<
+template<class SpaceT> using RES = Pimpact::IntResCompoundOp<
 	Pimpact::RestrictionTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::RestrictionVFOp<SpaceT> > >,
 	Pimpact::RestrictionTimeOp<                           Pimpact::RestrictionSFOp<SpaceT> > >;
 
 template<class SpaceT1, class SpaceT2> using TCO = Pimpact::TransferCompoundOp<
-Pimpact::TransferTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<SpaceT1, SpaceT2> > >,
+	Pimpact::TransferTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<SpaceT1, SpaceT2> > >,
 	Pimpact::TransferTimeOp<                           Pimpact::TransferOp<SpaceT1, SpaceT2> > >;
 
 template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;

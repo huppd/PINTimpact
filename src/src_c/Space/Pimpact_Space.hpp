@@ -377,6 +377,8 @@ public:
 
 		procGrid_->print( out );
 
+		getBCGlobal()->print( out );
+
 		getBCLocal()->print( out );
 
 		//    coordGlobal_->print(out);

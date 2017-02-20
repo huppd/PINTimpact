@@ -34,6 +34,7 @@ contains
   !! \param dxv local vector deltas
   !! \relates GridCoordinatesLocal
   subroutine PI_getLocalCoordinates(  &
+      time,                           &
       L,                              &
       M,                              &
       N,                              &
@@ -52,6 +53,7 @@ contains
 
     implicit none
 
+    integer(c_int), intent(in)   :: time
 
     real(c_double), intent(in)   :: L
 
@@ -129,7 +131,11 @@ contains
 
 
     !--- distribution to processor blocks -------------------------------------------------------
-    iiShift = (iB-1)*(N-1)
+    if( time==1 ) then
+      iiShift = (iB-1)*N
+    else
+      iiShift = (iB-1)*(N-1)
+    end if
 
     xs(bL:(N+bU)) = ysR((iiShift+bL):(iiShift+N+bU))
     xv(bL:(N+bU)) = yvR((iiShift+bL):(iiShift+N+bU))

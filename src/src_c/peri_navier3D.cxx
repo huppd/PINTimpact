@@ -80,6 +80,9 @@ template<class T>
 using InterVF = Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<T> >;
 
 
+template<class T>
+using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
+
 //template<class T> using PrecS = Pimpact::MultiOpSmoother< Pimpact::DivGradO2JSmoother<T> >;
 //template<class T> using POP   = Pimpact::PrecInverseOp< T, Pimpact::DivGradO2SORSmoother >;
 template<class T> using POP   = Pimpact::PrecInverseOp< T, Pimpact::DivGradO2JSmoother >;
@@ -241,11 +244,11 @@ int main( int argi, char** argv ) {
 					nullspace->getField(0).getSField().get0Field(), true );
 
 			nullspace->getField(0).getVField().get0Field()(Pimpact::F::U).initFromFunction(
-					[&space]( S x, S y, S z ) -> S {  return( ( (Pimpact::BC::Dirichlet==space->bcl(Pimpact::X)&&x<=0.)?1.:0.) + ( (Pimpact::BC::Dirichlet==space->bcu(Pimpact::X)&&1.<=x)?-1.:0.) ); } );
+					[&space]( S x, S y, S z ) -> S { return( ( (Pimpact::BC::Dirichlet==space->bcl(Pimpact::X)&&x<=0.)?1.:0.) + ( (Pimpact::BC::Dirichlet==space->bcu(Pimpact::X)&&1.<=x)?-1.:0.) ); } );
 			nullspace->getField(0).getVField().get0Field()(Pimpact::F::V).initFromFunction(
-					[&space]( S x, S y, S z ) -> S {  return( ( (Pimpact::BC::Dirichlet==space->bcl(Pimpact::Y)&&y<=0.)?1.:0.) + ( (Pimpact::BC::Dirichlet==space->bcu(Pimpact::Y)&&1.<=y)?-1.:0.) ); } );
+					[&space]( S x, S y, S z ) -> S { return( ( (Pimpact::BC::Dirichlet==space->bcl(Pimpact::Y)&&y<=0.)?1.:0.) + ( (Pimpact::BC::Dirichlet==space->bcu(Pimpact::Y)&&1.<=y)?-1.:0.) ); } );
 			nullspace->getField(0).getVField().get0Field()(Pimpact::F::W).initFromFunction(
-					[&space]( S x, S y, S z ) -> S {  return( ( (Pimpact::BC::Dirichlet==space->bcl(Pimpact::Z)&&z<=0.)?1.:0.) + ( (Pimpact::BC::Dirichlet==space->bcu(Pimpact::Z)&&1.<=z)?-1.:0.) ); } );
+					[&space]( S x, S y, S z ) -> S { return( ( (Pimpact::BC::Dirichlet==space->bcl(Pimpact::Z)&&z<=0.)?1.:0.) + ( (Pimpact::BC::Dirichlet==space->bcu(Pimpact::Z)&&1.<=z)?-1.:0.) ); } );
 
 			S blup = std::sqrt( 1./nullspace->dot( *nullspace ) );
 			nullspace->scale( blup );
@@ -321,7 +324,8 @@ int main( int argi, char** argv ) {
 					//ConvDiffSORT,
 					ConvDiffJT,
 					//ConvDiffJT
-					POP2
+					MOP
+					//POP2
 					//POP3
 						> ( mgSpaces, Teuchos::rcpFromRef( pl->sublist("ConvDiff").sublist("Multi Grid") ) ) ;
 
@@ -428,9 +432,9 @@ int main( int argi, char** argv ) {
 					Pimpact::DivGradO2JSmoother,
 					//Pimpact::Chebyshev,
 					//Pimpact::DivGradO2SORSmoother,
-					//POP
+					MOP
 					//Pimpact::Chebyshev
-					Pimpact::DivGradO2Inv
+					//Pimpact::DivGradO2Inv
 					//Pimpact::DivGradO2SORSmoother
 					//Pimpact::DivGradO2JSmoother
 						>( mgSpaces, Teuchos::rcpFromRef( pl->sublist("DivGrad").sublist("Multi Grid") ) );

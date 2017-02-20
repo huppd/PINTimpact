@@ -21,6 +21,7 @@ enum class ECopy : bool {
 };
 
 
+/// \todo change T->3, consistently
 /// \todo make enum class
 /// \todo make it iterable( <, ++ )
 enum ECoord {

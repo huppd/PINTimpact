@@ -86,7 +86,7 @@ public:
 			auto temp = create<VectorField>( space() );
 
 
-			for( Ordinal i=sInd; i<eInd; ++i ) {
+			for( Ordinal i=sInd; i<=eInd; ++i ) {
 
 				z.getField(i).add( mulI, y.getConstField(i), -mulI, y.getConstField(i-1) );
 
@@ -102,7 +102,7 @@ public:
 
 		}
 		else {
-			for( Ordinal i=sInd; i<eInd; ++i ) {
+			for( Ordinal i=sInd; i<=eInd; ++i ) {
 				op_->apply( wind_[i]->get(), y.getConstField(i), z.getField(i), 0., mulI, 1., iRe );
 				z.getField(i).add( 1., z.getConstField(i), -mulI, y.getConstField(i-1) );
 			}
