@@ -41,8 +41,6 @@ class TimeField : private AbstractField<typename Field::SpaceT> {
 	friend class TimeOpWrap;
 	template<class SpaceTT>
 	friend class DtTimeOp;
-	template<class SpaceTT, bool CNY>
-	friend class TimeNonlinearJacobian;
 
 public:
 
