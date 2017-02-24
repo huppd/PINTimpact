@@ -40,7 +40,6 @@ using SpaceT = Pimpact::Space<ST,OT,sd,d,dNC>;
 
 
 bool testMpi = true;
-ST eps = 1.e0;
 auto pl = Teuchos::parameterList();
 
 template<class T> using ConvDiffOpT = Pimpact::NonlinearOp<Pimpact::ConvectionDiffusionSOp<T> >;
@@ -53,9 +52,6 @@ TEUCHOS_STATIC_SETUP() {
 			"test-mpi", "test-serial", &testMpi,
 			"Test MPI (if available) or force test of serial.  In a serial build,"
 			" this option is ignored and a serial comm is always used." );
-	clp.setOption(
-			"eps", &eps,
-			"epsilon used to check test results" );
 
 	Pimpact::setBoundaryConditions( pl, 0 );
 

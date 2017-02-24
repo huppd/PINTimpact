@@ -34,19 +34,13 @@ protected:
   using Ordinal = typename SpaceT::Ordinal;
 
   Teuchos::RCP<OperatorT> op_;
-  Teuchos::RCP<typename OperatorT::RangeFieldT> temp_;
 
 public:
 
-  TimeOpWrap(
-			const Teuchos::RCP<const SpaceT>& space ):
-		op_( create<OperatorT>(space) ),
-		temp_( create<typename OperatorT::RangeFieldT>(space) ) {};
+	TimeOpWrap( const Teuchos::RCP<const SpaceT>& space ):
+		op_( create<OperatorT>(space) ) {};
 
-  TimeOpWrap(
-			const Teuchos::RCP<OperatorT>& op ):
-		op_(op),
-		temp_( create<typename OperatorT::RangeFieldT>(op->space()) ) {};
+	TimeOpWrap( const Teuchos::RCP<OperatorT>& op ): op_(op) {};
 
   /// \brief default apply
 	void apply( const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans&
@@ -54,16 +48,18 @@ public:
 
     if( true==CNyes ) {
 
+			typename OperatorT::RangeFieldT temp( space() );
+
       x.exchange();
       for( int i=0; i <=space()->end(F::S,3); ++i ) {
 
-        op_->apply( x.getField(i), *temp_ );
+        op_->apply( x.getField(i), temp );
 
         if( i>=space()->begin(F::S,3) )
-          y.getField(i).add( 1., y.getField(i), 0.5, *temp_ );
+          y.getField(i).add( 1., y.getField(i), 0.5, temp );
 
         if( i+1<=space()->end(F::S,3) )
-          y.getField(i+1).add( 0., y.getField(i+1), 0.5, *temp_ );
+          y.getField(i+1).add( 0., y.getField(i+1), 0.5, temp );
       }
     }
     else{

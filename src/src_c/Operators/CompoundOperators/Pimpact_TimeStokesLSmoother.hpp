@@ -143,8 +143,8 @@ public:
 					L );
 
 			for( Ordinal i=space()->begin(F::S,3); i<space()->end(F::S,3); ++i ) {
-				yu->getFieldPtr(i)->changed();
-				yp->getFieldPtr(i)->changed();
+				yu->getField(i).changed();
+				yp->getField(i).changed();
 			} 
 
 			yu->changed();

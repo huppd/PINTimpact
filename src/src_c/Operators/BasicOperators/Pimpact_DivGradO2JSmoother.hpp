@@ -145,7 +145,7 @@ protected:
 		const bool bcZ = (space()->getBCLocal()->getBCL(Z) > 0 && k==space()->begin(F::S,Z) ) ||
 		           (space()->getBCLocal()->getBCU(Z) > 0 && k==space()->end(F::S,Z) ) ;
 
-		const Scalar& eps = 1.e-1;
+		const Scalar& eps = 0.1;
 
 		const Scalar epsX = (bcY||bcZ)?eps:1.;
 		const Scalar epsY = (bcX||bcZ)?eps:1.;
@@ -168,15 +168,16 @@ protected:
 		const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->begin(F::S,Y) ) ||
 		           (space()->getBCLocal()->getBCU(Y) > 0 && j==space()->end(F::S,Y) ) ;
 
-		const Scalar& eps = 1.e-1;
+		const Scalar& eps = 0.1;
 
 		const Scalar epsX = bcY?eps:1.;
 		const Scalar epsY = bcX?eps:1.;
 
+		Scalar diag = (epsX*getC(X,i,0) + epsY*getC(Y,j,0));
+		diag = (diag!=0.)?diag:1.;
 		return(
 				(1.-omega_)*x(i,j,k) +
-				omega_/( epsX*getC(X,i,0) + epsY*getC(Y,j,0) )*(
-					b(i,j,k) - 
+				omega_/diag*( b(i,j,k) - 
 				epsX*getC(X,i,-1)*x(i-1,j  ,k  ) - epsX*getC(X,i,1)*x(i+1,j  ,k  ) - 
 				epsY*getC(Y,j,-1)*x(i  ,j-1,k  ) - epsY*getC(Y,j,1)*x(i  ,j+1,k  ) ) );
 	} 

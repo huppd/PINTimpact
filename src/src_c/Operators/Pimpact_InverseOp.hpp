@@ -18,6 +18,8 @@ namespace Pimpact{
 /// \ingroup Operator
 /// hides all the linear solver typeerasiure stuff
 /// \tparam OperatorT has to be of type \c Pimpact::MultiWrapOp
+/// \todo merge with Prec...
+/// \todo 
 template< class MOT >
 class InverseOp {
 
@@ -41,6 +43,7 @@ protected:
 	bool levelRHS_;
 	bool nullspaceOrtho_;
 	bool initZero_;
+	bool debug_;
   Teuchos::RCP< LinearProblem<MF> > linprob_;
 	Teuchos::RCP<const RangeFieldT> nullspace_;
 
@@ -50,7 +53,8 @@ public:
 		level_(false),
 		levelRHS_(false),
 		nullspaceOrtho_(false),
-		initZero_(false) {
+		initZero_(false),
+		debug_(false) {
 
 			auto para = 
 				createLinSolverParameter("GMRES",1.e-1,-1, Teuchos::rcp( new Teuchos::oblackholestream ), 200 );
@@ -68,7 +72,8 @@ public:
 		level_(false),
 		levelRHS_(false),
 		nullspaceOrtho_(false),
-		initZero_(false) {
+		initZero_(false),
+		debug_(false) {
 
 			auto para = 
 				createLinSolverParameter( "GMRES", 1.e-1, -1, Teuchos::rcp( new Teuchos::oblackholestream ), 10 );
@@ -87,6 +92,7 @@ public:
 	 levelRHS_( pl->get<bool>( "level RHS", false ) ),
 	 nullspaceOrtho_( pl->get<bool>( "nullspace ortho", false ) ),
 	 initZero_( pl->get<bool>( "initZero", false ) ),
+	 debug_( pl->get<bool>( "debug", false ) ),
 	 linprob_( createLinearProblem<MF>(
 				 createOperatorBase( create<OperatorT>(op) ),
 				 create<MF>( op->space() ),
@@ -95,6 +101,7 @@ public:
 				 pl->get<std::string>("Solver name","GMRES") ) ) { }
 
 
+ /// \todo throw if not converged or something
  void apply( const MF& x, MF& y ) const {
 
 	 if( levelRHS_ ) { x.level(); }
@@ -108,7 +115,16 @@ public:
 		 }
 		 std::cout << "\n";
 	 }
-	 linprob_->solve( Teuchos::rcpFromRef(y), Teuchos::rcpFromRef(x) );
+
+	 Belos::ReturnType succes = linprob_->solve( Teuchos::rcpFromRef(y), Teuchos::rcpFromRef(x) );
+
+	 if( debug_ && Belos::ReturnType::Unconverged==succes ) {
+		 x.write();
+		 assert( false );
+		 //TEUCHOS_TEST_FOR_EXCEPT( false );
+		 //TEUCHOS_TEST_FOR_EXCEPT( true );
+	 }
+
 	 if( level_ ) y.level();
  }
 

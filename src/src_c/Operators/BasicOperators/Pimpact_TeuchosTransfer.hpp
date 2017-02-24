@@ -162,7 +162,7 @@ public:
 					const bool bcZ = (op->space()->getBCLocal()->getBCL(Z) > 0 && k==op->space()->begin(F::S,Z) ) ||
 						(op->space()->getBCLocal()->getBCU(Z) > 0 && k==op->space()->end(F::S,Z) ) ;
 
-					const Scalar& eps = 1.e-1;
+					const Scalar& eps = 0.1;
 
 					const Scalar epsX = (bcY||bcZ)?eps:1.;
 					const Scalar epsY = (bcX||bcZ)?eps:1.;

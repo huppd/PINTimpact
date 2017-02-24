@@ -56,7 +56,8 @@ using SpaceT = Pimpact::Space<S,O,sd,4,dNC>;
 using FSpaceT = Pimpact::Space<S,O,sd,4,dNC>;
 using CSpaceT = Pimpact::Space<S,O,sd,4,2>;
 
-using CS = Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT>;
+//using CS = Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT>;
+using CS = Pimpact::CoarsenStrategy<FSpaceT,CSpaceT>; // dirty fix: till gather isn't fixed
 
 using VF = Pimpact::MultiHarmonicField< Pimpact::VectorField<SpaceT> >;
 using SF = Pimpact::MultiHarmonicField< Pimpact::ScalarField<SpaceT> >;
@@ -153,6 +154,13 @@ int main( int argi, char** argv ) {
 		auto opS2V = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::GradOp>( space ) );
 		auto opV2S = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::DivOp>( space ) );
 
+		{
+			opV2S->apply( x->getField(0).getVField(), x->getField(0).getSField()  );
+			S divergence = x->getField(0).getSField().norm();
+			if( 0==space->rankST() )
+				std::cout << "\ndiv(Base Flow): " << divergence << "\n\n";
+			x->getField(0).getSField().init( 0. );
+		}
 		auto op = Pimpact::createCompoundOpWrap(
 				opV2V,
 				opS2V,

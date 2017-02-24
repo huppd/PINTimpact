@@ -56,7 +56,7 @@ public:
 		jopInv_(jop) {};
 
 	/// Compute the function, F, given the specified input vector x.
-	NOX::Abstract::Group::ReturnType computeF(const FieldT& x, FieldT& f ) {
+	NOX::Abstract::Group::ReturnType computeF( const FieldT& x, FieldT& f ) {
 
 		op_->assignField( x );
 		op_->apply( x, f );
@@ -108,35 +108,5 @@ Teuchos::RCP< Interface<FT,OpT,IOpT> > createInterface(
 } // end of namespace Pimpact
 } // end of namespace NOX
 
-
-//#ifdef COMPILE_ETI
-//#include "Pimpact_Space.hpp"
-//#include "Pimpact_Fields.hpp"
-//extern template class NOX::Pimpact::Interface<
-//Pimpact::MultiField<Pimpact::VectorField<Pimpact::Space<double,int,3,2>
-//> > >; 
-//extern template class NOX::Pimpact::Interface<
-		//Pimpact::CompoundField<
-			//Pimpact::MultiField<Pimpact::ModeField<Pimpact::VectorField<Pimpact::Space<double,int,3,4> > > >,
-			//Pimpact::MultiField<Pimpact::ModeField<Pimpact::ScalarField<Pimpact::Space<double,int,3,4> > > >
-		//>
-	//>; 
-//extern template class NOX::Pimpact::Interface<
-		//Pimpact::MultiField<
-			//Pimpact::CompoundField<
-				//Pimpact::MultiHarmonicField<Pimpact::VectorField<Pimpact::Space<double,int,3,4> > >,
-				//Pimpact::MultiHarmonicField<Pimpact::ScalarField<Pimpact::Space<double,int,3,4> > > 
-			//>
-		//>
-	//>; 
-//extern template class NOX::Pimpact::Interface<
-		//Pimpact::MultiField<
-			//Pimpact::CompoundField<
-				//Pimpact::TimeField<Pimpact::VectorField<Pimpact::Space<double,int,4,4> > >,
-				//Pimpact::TimeField<Pimpact::ScalarField<Pimpact::Space<double,int,4,4> > > 
-			//>
-		//>
-	//>; 
-//#endif
 
 #endif // end of #ifndef NOX_PIMPACT_INTERFACE_HPP

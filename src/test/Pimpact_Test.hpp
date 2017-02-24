@@ -59,7 +59,7 @@ ST lz = 1.;
 ST omega = 0.8;
 ST winds = 1;
 int sweeps = 12;
-int nIter = 10;
+int nIter = 1;
 OT ns = 4;
 
 OT nx = 33;
@@ -87,7 +87,7 @@ int rankbla = -1;
 
 int maxGrids = 10;
 
-int nMax = 10;
+int nMax = 1;
 
 int rank=0; // ???
 

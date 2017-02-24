@@ -128,7 +128,7 @@ public:
 
 	void applyInvDiag( const DomainFieldT& x, RangeFieldT& y ) const {
 
-		const Scalar& eps = 1.e-1;
+		const Scalar& eps = 0.1;
 
 		if( 3==SpaceT::sdim ) {
 			for( Ordinal k=space()->begin(F::S,Z); k<=space()->end(F::S,Z); ++k )
@@ -213,7 +213,7 @@ public:
 		const bool bcZ = (space()->getBCLocal()->getBCL(Z) > 0 && k==space()->begin(F::S,Z) ) ||
 			(               space()->getBCLocal()->getBCU(Z) > 0 && k==space()->end(F::S,Z) ) ;
 
-		const Scalar& eps = 1.e-1;
+		const Scalar& eps = 0.1;
 
 		const Scalar epsX = ( (bcY||bcZ)?eps:1. );
 		const Scalar epsY = ( (bcX||bcZ)?eps:1. );
@@ -235,7 +235,7 @@ public:
 		const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->begin(F::S,Y) ) ||
 		           (space()->getBCLocal()->getBCU(Y) > 0 && j==space()->end(F::S,Y) ) ;
 
-		const Scalar& eps = 1.e-1;
+		const Scalar& eps = 0.1;
 
 		const Scalar epsX = (bcY)?eps:1.;
 		const Scalar epsY = (bcX)?eps:1.;
@@ -257,7 +257,7 @@ public:
 		const bool bcZ = (space()->getBCLocal()->getBCL(Z) > 0 && k==space()->begin(F::S,Z) ) ||
 			(               space()->getBCLocal()->getBCU(Z) > 0 && k==space()->end(F::S,Z) ) ;
 
-		const Scalar& eps = 1.e-1;
+		const Scalar& eps = 0.1;
 
 		const Scalar epsX = ( (bcY||bcZ)?eps:1. );
 		const Scalar epsY = ( (bcX||bcZ)?eps:1. );
@@ -274,7 +274,7 @@ public:
 		const bool bcY = (space()->getBCLocal()->getBCL(Y) > 0 && j==space()->begin(F::S,Y) ) ||
 			(               space()->getBCLocal()->getBCU(Y) > 0 && j==space()->end(F::S,Y) ) ;
 
-		const Scalar& eps = 1.e-1;
+		const Scalar& eps = 0.1;
 
 		const Scalar epsX = ( bcY?eps:1. );
 		const Scalar epsY = ( bcX?eps:1. );

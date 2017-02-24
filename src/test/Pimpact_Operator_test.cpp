@@ -2161,6 +2161,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Convergence, DivGradOp, OperatorT ) {
 				std::cout  << std::pow(10.,dofs[n]) << "\t" << std::pow(10.,error2[n]) << "\t" << std::pow(10.,errorInf[n]) << "\t";
 				std::cout                                  << std::pow(10.,error2Ref[n]) << "\t" << std::pow(10.,errorInfRef[n]) << "\n";
 			}
+			if( print ) e->print();
 			if( write ) {
 				y->write(0);
 				sol->write(1);

@@ -233,13 +233,13 @@ int main(int argi, char** argv ) {
 
 	pl->set( "Re", re );
 	pl->set( "alpha2", alpha2 );
-	pl->set( "domain", domain );
+	//pl->set( "domain", domain );
 
 	pl->set( "lx", l1 );
 	pl->set( "ly", l2 );
 	pl->set( "lz", l3 );
 
-	pl->set( "dim", dim );
+	//pl->set( "dim", dim );
 
 	pl->set("nx", n1 );
 	pl->set("ny", n2 );

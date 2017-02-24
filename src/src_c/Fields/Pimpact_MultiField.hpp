@@ -513,7 +513,7 @@ public:
 	void write( int count=0 ) const {
 		const int n = getNumberVecs();
 		for( int i=0; i<n; ++i )
-			mfs_[i]->write(count);
+			mfs_[i]->write(count + i);
 	}
 
 	/// \name Attribute methods

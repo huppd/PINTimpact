@@ -192,7 +192,8 @@ public:
 		y.extrapolateBC( Belos::TRANS );
 
 		// BC scaling 
-		const Scalar& eps = 1.e-1;
+		const Scalar& eps = 0.1;
+
 		for( F dir=F::U; dir<SpaceT::sdim; ++dir ) {
 			B bc2 = B::Y;
 			if( F::U!=dir ) {

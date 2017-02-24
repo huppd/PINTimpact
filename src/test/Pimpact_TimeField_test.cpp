@@ -23,15 +23,16 @@
 
 #include "Pimpact_TimeStokesBSmoother.hpp"
 
+#include "Pimpact_Test.hpp"
+
+
+
+
 namespace {
 
 
-using ST = double;
-using OT = int;
 
 const int sd = 3;
-const int d = 4;
-const int dNC = 2;
 
 using SpaceT = Pimpact::Space<ST,OT,sd,d,dNC>;
 
@@ -47,93 +48,20 @@ using MTVF = Pimpact::MultiField<TVF>;
 using SOpBase = Pimpact::OperatorBase<MTSF>;
 using VOpBase = Pimpact::OperatorBase<MTVF>;
 
-bool testMpi = true;
-double eps = 3e-1;
-int domain = 0;
-
-int npx = 2;
-int npy = 2;
-int npz = 1;
-int npf = 2;
-
-
-auto pl = Teuchos::parameterList();
-
-double slope(const std::vector<double>& x, const std::vector<double>& y){
-	double n = x.size();
-
-	double avgX = std::accumulate(x.begin(), x.end(), 0.0) / n;
-	double avgY = std::accumulate(y.begin(), y.end(), 0.0) / n;
-
-	double numerator = 0.0;
-	double denominator = 0.0;
-
-	for(int i=0; i<n; ++i){
-		numerator += (x[i] - avgX) * (y[i] - avgY);
-		denominator += (x[i] - avgX) * (x[i] - avgX);
-	}
-
-	if(denominator == 0){
-		return 0;
-	}
-
-	return numerator / denominator;
-}
-
-
-
-TEUCHOS_STATIC_SETUP() {
-  Teuchos::CommandLineProcessor &clp = Teuchos::UnitTestRepository::getCLP();
-  clp.addOutputSetupOptions(true);
-  clp.setOption(
-      "test-mpi", "test-serial", &testMpi,
-      "Test MPI (if available) or force test of serial.  In a serial build,"
-      " this option is ignored and a serial comm is always used." );
-	clp.setOption( "error-tol-slack", &eps,
-      "Slack off of machine epsilon used to check test results" );
-	clp.setOption( "domain", &domain, "domain" );
-	clp.setOption( "npx", &npx, "" );
-	clp.setOption( "npy", &npy, "" );
-	clp.setOption( "npz", &npz, "" );
-	clp.setOption( "npf", &npf, "" );
-
-  pl->set( "Re", 10. );
-  pl->set( "alpha2", 24. );
-  pl->set( "Re", 1. );
-  pl->set( "alpha2", 1. );
-	Pimpact::setBoundaryConditions( pl, domain );
-
-  pl->set( "lx", 1. );
-  pl->set( "ly", 1. );
-  pl->set( "lz", 1. );
-
-
-  pl->set<OT>("nx", 9 );
-  pl->set<OT>("ny", 9 );
-  pl->set<OT>("nz", 9 );
-
-  pl->set<OT>("nf", 8 );
-
-}
 
 
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, create_init_print, FType ) {
 
-	// processor grid size
-	pl->set("npx", npx );
-	pl->set("npy", npy );
-	pl->set("npz", npz );
-	pl->set("npf", npf );
+	setParameter( SpaceT::sdim );
 
-  auto space = Pimpact::create<SpaceT>( pl );
+	auto space = Pimpact::create<SpaceT>( pl );
 
-  space->print();
+	space->print();
 
-  FType p(space);
+	FType p(space);
 
-  p.init( space->rankST() );
-
+	p.init( space->rankST() );
 }
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, create_init_print, TSF )
@@ -143,11 +71,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, create_init_print, TVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, InfNorm_and_init, FType ) {
 
-	// processor grid size
-	pl->set("npx", npx );
-	pl->set("npy", npy );
-	pl->set("npz", npz );
-	pl->set("npf", npf );
+	setParameter( SpaceT::sdim );
 
   auto space = Pimpact::create<SpaceT>( pl );
 
@@ -186,11 +110,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, InfNorm_and_init, TVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, OneNorm_and_init, FType ) {
 
-	// processor grid size
-	pl->set("npx", npx );
-	pl->set("npy", npy );
-	pl->set("npz", npz );
-	pl->set("npf", npf );
+	setParameter( SpaceT::sdim );
 
   auto space = Pimpact::create<SpaceT>( pl );
 
@@ -212,11 +132,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, OneNorm_and_init, TVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, TwoNorm_and_init, FType ) {
 
-	// processor grid size
-	pl->set("npx", npx );
-	pl->set("npy", npy );
-	pl->set("npz", npz );
-	pl->set("npf", npf );
+	setParameter( SpaceT::sdim );
 
   auto space = Pimpact::create<SpaceT>( pl );
 
@@ -236,11 +152,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, TwoNorm_and_init, TVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, dot, FType ) {
 
-	// processor grid size
-	pl->set("npx", npx );
-	pl->set("npy", npy );
-	pl->set("npz", npz );
-	pl->set("npf", npf );
+	setParameter( SpaceT::sdim );
 
   auto space = Pimpact::create<SpaceT>( pl );
 
@@ -283,11 +195,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, dot, TVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, scale, FType ) {
 
-	// processor grid size
-	pl->set("npx", npx );
-	pl->set("npy", npy );
-	pl->set("npz", npz );
-	pl->set("npf", npf );
+	setParameter( SpaceT::sdim );
 
   auto space = Pimpact::create<SpaceT>( pl );
 
@@ -310,11 +218,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, scale, TVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, random, FType ) {
 
-	// processor grid size
-	pl->set("npx", npx );
-	pl->set("npy", npy );
-	pl->set("npz", npz );
-	pl->set("npf", npf );
+	setParameter( SpaceT::sdim );
 
   auto space = Pimpact::create<SpaceT>( pl );
 
@@ -337,11 +241,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, random, TVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TemplateField, add, FType ) {
 
-	// processor grid size
-	pl->set("npx", npx );
-	pl->set("npy", npy );
-	pl->set("npz", npz );
-	pl->set("npf", npf );
+	setParameter( SpaceT::sdim );
 
   auto space = Pimpact::create<SpaceT>( pl );
 
@@ -379,7 +279,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TemplateField, add, FType ) {
   vel1->add( 0.5, *vel2, 0.5, *vel3);
   norm = vel1->norm(Belos::TwoNorm);
   TEST_EQUALITY( std::sqrt(N), norm )
-
 }
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TemplateField, add, TSF )
@@ -389,11 +288,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TemplateField, add, TVF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, write, FType ) {
 
-	// processor grid size
-	pl->set("npx", npx );
-	pl->set("npy", npy );
-	pl->set("npz", npz );
-	pl->set("npf", npf );
+	setParameter( SpaceT::sdim );
 
   auto space = Pimpact::create<SpaceT>( pl );
 
@@ -417,11 +312,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, write, TVF )
 // test shows that nLoc is not consistent with start and end indexes
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TimeField, all, FType ) {
 
-	// processor grid size
-	pl->set("npx", npx );
-	pl->set("npy", npy );
-	pl->set("npz", npz );
-	pl->set("npf", npf );
+	setParameter( SpaceT::sdim );
 
   auto space = Pimpact::create<SpaceT>( pl );
 
@@ -461,11 +352,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TimeField, all, FType ) {
 	field2s->init( space->getProcGrid()->getIB(3) );
 	field2s->exchange();
 	field2s->write();
-
-
-
-
-
 }
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TimeField, all, SF )
@@ -475,11 +361,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TimeField, all, VF )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TimeField, BelosMVTest, FType ) {
 
-	// processor grid size
-	pl->set("npx", npx );
-	pl->set("npy", npy );
-	pl->set("npz", npz );
-	pl->set("npf", npf );
+	setParameter( SpaceT::sdim );
 
   auto space = Pimpact::create<SpaceT>( pl );
 
@@ -503,14 +385,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TimeField, BelosMVTest, TVF )
 
 TEUCHOS_UNIT_TEST( TimeOpearotr, TimeOpWrap ) {
 
-	// processor grid size
-	pl->set("npx", npx );
-	pl->set("npy", npy );
-	pl->set("npz", npz );
-	pl->set("npf", npf );
+	setParameter( SpaceT::sdim );
 
 	auto space = Pimpact::create<SpaceT>( pl );
-
 
 	auto field = Pimpact::create<TVF>( space );
 	auto field1 = field->clone();
@@ -552,15 +429,8 @@ TEUCHOS_UNIT_TEST( TimeOpearotr, TimeOpWrap ) {
 
 TEUCHOS_UNIT_TEST( TimeOperator, DtTimeOp ) {
 
+	setParameter( SpaceT::sdim );
 	// processor grid size
-	pl->set("npx", npx );
-	pl->set("npy", npy );
-	pl->set("npz", npz );
-	pl->set("npf", npf );
-
-	pl->set("nx", 33 );
-	pl->set("ny", 17 );
-	pl->set("nz", 9 );
     
 	double pi = 4.*std::atan(1.);
 
@@ -571,6 +441,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, DtTimeOp ) {
 	for( int q = 0; q < l; q++ ) {
 
 		pl->set<OT>( "nf", 8*std::pow(2,q) );
+
 		OT nt = 8*std::pow(2,q);
 
 		auto space = Pimpact::create<SpaceT>( pl );
@@ -632,8 +503,8 @@ TEUCHOS_UNIT_TEST( TimeOperator, DtTimeOp ) {
 				std::cout << std::pow(10.,idt[q]) << "\t" << bla << "\n";
 	}
 
-	double sl = slope(idt,error);
-	std::cout << "slope: " << sl << "\n";
+	double sl = order(idt,error);
+	std::cout << "order: " << sl << "\n";
 
 	TEST_EQUALITY( std::abs(sl + 1.) <  0.05, true );
 
@@ -643,110 +514,46 @@ TEUCHOS_UNIT_TEST( TimeOperator, DtTimeOp ) {
 
 
 
-//TEUCHOS_UNIT_TEST( TimeOperator, TimeDtConvectionDiffusionOp ) {
-//
-//	// processor grid size
-//	pl->set("npx", npx );
-//	pl->set("npy", npy );
-//	pl->set("npz", npz );
-//	pl->set("npf", npf );
-//
-//	auto space = Pimpact::create<SpaceT>( pl );
-//
-//	auto field = Pimpact::create<TVF>( space );
-//	auto field1 = field->clone();
-//	auto field2 = field->clone();
-//	auto wind = field->clone();
-//
-//
-//	auto op = Pimpact::create<Pimpact::TimeDtConvectionDiffusionOp<SpaceT,true> >( space );
-//
-//
-//	// Const diffusion test
-//	Pimpact::initVectorTimeField( field1, Pimpact::Poiseuille_inX );
-//	field2->init(0);
-//
-//	op->apply( *field1, *field2 );
-//
-//  initVectorTimeField( field1, Pimpact::Const2DFlow, 8./std::pow(space->getDomainSize()->getSize(Pimpact::Y),2), 0., 0. );
-//	field->add( 1., *field1, -1., *field2 );
-//	field->write(100);
-//
-//	std::cout << "error: " << field()->norm() << "\n";
-//	TEST_EQUALITY( field()->norm()<eps, true );
-//
-//	// cos test
-//	Pimpact::initVectorTimeField( field, Pimpact::OscilatingDisc2DVel,0.,0.,0.,1. );
-//	field1->init(0);
-//	field2->init(0);
-//
-//	op->apply( *field, *field1 );
-//	op->apply( *field1, *field2 );
-//
-//	ST a2 = space->getDomainSize()->getAlpha2()/space->getDomainSize()->getRe();
-//
-//	ST bla = a2*a2;
-//
-//	field->add( bla, *field, 1, *field2 );
-//
-////	field->write();
-////	 std::cout << "a^4: " << bla << "\n";
-//	std::cout << "error: " << field()->norm() << "\n";
-//
-//  // test against flow dir
-//	for( OT i=space->begin(Pimpact::F::U,3); i<space->end(Pimpact::F::U,3); ++i ) {
-//		wind->getFieldPtr(i)->initField( Pimpact::ConstFlow, 2., 2., 2. );
-//		field1->getFieldPtr(i)->getFieldPtr(Pimpact::F::U)->initField( Pimpact::Grad2D_inX );
-//		field1->getFieldPtr(i)->getFieldPtr(Pimpact::F::V)->initField( Pimpact::Grad2D_inY );
-//		field1->getFieldPtr(i)->getFieldPtr(Pimpact::F::W)->initField( Pimpact::Grad2D_inZ );
-//		field2->getFieldPtr(i)->init( Teuchos::tuple(2.,2.,2.) );
-//		wind->changed();
-//		field1->changed();
-//		field2->changed();
-//	}
-//
-////	wind->write();
-////	field1->write(10);
-////	field2->write(20);
-//
-//  op->assignField( *wind );
-//  op->apply( *field1, *field );
-//
-////	field->write(30);
-//
-//	field->add( 1., *field, -1., *field2 );
-//
-////	field->write(40);
-//
-//	std::cout << "error: " << field()->norm() << "\n";
-//
-//}
+TEUCHOS_UNIT_TEST( TimeOperator, TimeDtConvectionDiffusionOp ) {
+
+	setParameter( SpaceT::sdim );
+
+	auto space = Pimpact::create<SpaceT>( pl );
+
+	auto y = Pimpact::create<TVF>( space );
+	auto x = y->clone();
+	auto sol = y->clone();
+	auto wind = y->clone();
+
+
+	auto op = Pimpact::create<Pimpact::TimeDtConvectionDiffusionOp<SpaceT,false> >( space );
+
+	// test against flow dir
+	for( OT i=space->begin(Pimpact::F::U,3); i<=space->end(Pimpact::F::U,3); ++i ) {
+		wind->getField(i).init( 2. );
+		x->getField(i)(Pimpact::F::U).initField( Pimpact::Grad2D_inX );
+		x->getField(i)(Pimpact::F::V).initField( Pimpact::Grad2D_inY );
+		x->getField(i)(Pimpact::F::W).initField( Pimpact::Grad2D_inZ );
+		sol->getField(i).init( Teuchos::tuple(2.,2.,2.) );
+		wind->changed();
+		x->changed();
+		sol->changed();
+	}
+
+
+	op->assignField( *wind );
+	op->apply( *x, *y );
+
+	y->add( 1., *y, -1., *sol );
+
+	std::cout << "error: " << y->norm() << "\n";
+}
 
 
 
 TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOp ) {
 
-  pl->set( "alpha2", 24. );
-  Pimpact::setBoundaryConditions( pl, domain );
-
-  pl->set( "lx", 1. );
-  pl->set( "ly", 1. );
-  pl->set( "lz", 1. );
-
-  pl->set("nx", 9 );
-  pl->set("ny", 9 );
-  pl->set("nz", 9 );
-
-  pl->set("nf", 8 );
-
-	// processor grid size
-	pl->set("npx", npx );
-	pl->set("npy", npy );
-	pl->set("npz", npz );
-	pl->set("npf", npf );
-
-	ST re = 100.;
-	pl->set<ST>("Re", re );
+	setParameter( SpaceT::sdim );
 
 	using OpT = Pimpact::TimeStokesOp<SpaceT>;
 
@@ -846,15 +653,13 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOp ) {
 
 }
 
+
+
 TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOpDT ) {
 
 	using OpT = Pimpact::TimeStokesOp<SpaceT>;
 
-	// processor grid size
-	pl->set<int>("npx", npx );
-	pl->set<int>("npy", npy );
-	pl->set<int>("npz", npz );
-	pl->set<int>("npf", npf );
+	setParameter( SpaceT::sdim );
 
 
 	double pi = 4.*std::atan(1.);
@@ -909,8 +714,8 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOpDT ) {
 
 	}
 
-	double sl = std::abs(slope(idt,error));
-	std::cout << "slope: " << sl << "\n";
+	double sl = std::abs(order(idt,error));
+	std::cout << "order: " << sl << "\n";
 
 	TEST_EQUALITY( std::abs(sl - 0.5) <  0.05, true );
 
@@ -922,14 +727,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOpDT ) {
 
 TEUCHOS_UNIT_TEST( TimeOperator, TimeNSOp ) {
 
-	// processor grid size
-	pl->set("npx", npx );
-	pl->set("npy", npy );
-	pl->set("npz", npz );
-	pl->set("npf", npf );
-
-	ST re = 100.;
-	pl->set<ST>("Re", re );
+	setParameter( SpaceT::sdim );
 
 	using OpT = Pimpact::TimeNSOp<SpaceT>;
 
@@ -1062,20 +860,15 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeNSOp ) {
 
 	std::cout << "conv errorV: " << field()->getVFieldPtr()->norm() << "\n";
 	std::cout << "conv errorS: " << field()->getSFieldPtr()->norm() << "\n";
-
 }
+
 
 
 TEUCHOS_UNIT_TEST( TimeOperator, TimeNSOpDT ) {
 
 	using OpT = Pimpact::TimeNSOp<SpaceT>;
 
-	// processor grid size
-	pl->set("npx", npx );
-	pl->set("npy", npy );
-	pl->set("npz", npz );
-	pl->set("npf", npf );
-
+	setParameter( SpaceT::sdim );
 
 	double pi = 4.*std::atan(1.);
 
@@ -1131,8 +924,8 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeNSOpDT ) {
 
 	}
 
-	double sl = std::abs(slope(idt,error));
-	std::cout << "slope: " << sl << "\n";
+	double sl = std::abs(order(idt,error));
+	std::cout << "order: " << sl << "\n";
 
 	TEST_EQUALITY( std::abs(sl - 0.5) <  0.05, true );
 

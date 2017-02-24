@@ -68,7 +68,6 @@ public:
 		owning_(owning),
 		sFields_{ {space,false,F::U}, {space,false,F::V}, {space,false,F::W} }
 	{
-
 			if( owning_ ) {
 				allocate();
 				init();
@@ -841,8 +840,6 @@ public:
 				}
 			case Disturbance :
 				{
-					for( int i=0; i<100; ++i )
-						std::cout << "hello\n";
 					Scalar pi = 4.*std::atan(1.);
 					Scalar xc = para.get<Scalar>( "xc", 1.3 );
 					Scalar zc = para.get<Scalar>( "zc", 3.0 );
@@ -850,6 +847,21 @@ public:
 					Scalar A  = para.get<Scalar>( "A",  0.1 );
 
 					Teuchos::RCP<const DomainSize<Scalar,SpaceT::sdim> > domain = space()->getDomainSize();
+					at(F::W).initFromFunction( 
+							[=]( Scalar x_, Scalar y_, Scalar z_ ) -> Scalar {
+
+								Scalar x = x_*domain->getSize(X) + domain->getOrigin(X);
+								Scalar y = y_*domain->getSize(Y) + domain->getOrigin(Y);
+								Scalar z = z_*domain->getSize(Z) + domain->getOrigin(Z); 
+
+								if( y<=0. && std::fabs( x-xc )<b && (std::fabs(z-zc)<b || std::fabs(z+zc)<b) ) {
+									return(
+										-0.5*A*std::sin( pi*(x-xc)/b )*( 1. + std::cos( pi*(z-zc)/b ) )
+										+0.5*A*std::sin( pi*(x-xc)/b )*( 1. + std::cos( pi*(z+zc)/b ) ) );
+								}
+								else 
+									return( 0. ); },
+							add );
 					at(F::U).initFromFunction( 
 							[=]( Scalar x_, Scalar y_, Scalar z_ ) -> Scalar {
 
@@ -859,23 +871,8 @@ public:
 
 								if( y<=0. && std::fabs( x-xc )<b && (std::fabs(z-zc)<b || std::fabs(z+zc)<b) ) {
 									return(
-										-0.5*A*std::sin( pi*(z-zc)/b )*( 1. + std::cos( pi*(x-xc)/b ) )
-										+0.5*A*std::sin( pi*(z-zc)/b )*( 1. + std::cos( pi*(x+xc)/b ) ) );
-								}
-								else 
-									return( 0. ); },
-							add );
-					at(F::V).initFromFunction( 
-							[=]( Scalar x_, Scalar y_, Scalar z_ ) -> Scalar {
-
-								Scalar x = x_*domain->getSize(X) + domain->getOrigin(X);
-								Scalar y = y_*domain->getSize(Y) + domain->getOrigin(Y);
-								Scalar z = z_*domain->getSize(Z) + domain->getOrigin(Z); 
-
-								if( y<=0. && std::fabs( x-xc )<b && (std::fabs(z-zc)<b || std::fabs(z+zc)<b) ) {
-									return(
-										+0.5*A*std::sin( pi*(x-xc)/b )*( 1. + std::cos( pi*(z-zc)/b ) )
-										-0.5*A*std::sin( pi*(x-xc)/b )*( 1. + std::cos( pi*(z-zc)/b ) ) );
+										+0.5*A*std::sin( pi*(z-zc)/b )*( 1. + std::cos( pi*(x-xc)/b ) )
+										-0.5*A*std::sin( pi*(z+zc)/b )*( 1. + std::cos( pi*(x-xc)/b ) ) );
 								}
 								else 
 									return( 0. ); },

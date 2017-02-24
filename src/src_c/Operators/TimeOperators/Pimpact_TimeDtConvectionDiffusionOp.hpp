@@ -59,7 +59,7 @@ public:
     Ordinal nt = space()->nLoc(3) + space()->bu(3) - space()->bl(3);
 
     for( Ordinal i=0; i<nt; ++i ) {
-      wind_[i]->assignField( mv.getConstField(i) );
+      wind_[i]->assignField( mv.getField(i) );
     }
   };
 
@@ -83,28 +83,28 @@ public:
 
 		if( CNyes ) {
 
-			auto temp = create<VectorField>( space() );
+			VectorField<SpaceT> temp( space() );
 
 
 			for( Ordinal i=sInd; i<=eInd; ++i ) {
 
-				z.getField(i).add( mulI, y.getConstField(i), -mulI, y.getConstField(i-1) );
+				z.getField(i).add( mulI, y.getField(i), -mulI, y.getField(i-1), B::N );
 
 				if( i>sInd )
-					z.getField(i).add( 1., z.getConstField(i), 0.5, *temp );
+					z.getField(i).add( 1., z.getField(i), 0.5, temp );
 
-				op_->apply( wind_[i]->get(), y.getConstField(i), *temp, 0., 0., 1., iRe );
+				op_->apply( wind_[i]->get(), y.getField(i), temp, 0., 1., iRe, Add::N );
 
-				z.getField(i).add( 1., z.getConstField(i), 0.5, *temp );
+				z.getField(i).add( 1., z.getField(i), 0.5, temp );
 			}
 
-			op_->apply( wind_[sInd-1]->get(), y.getConstField(sInd-1), z.getField(sInd), 1., 0., 0.5, iRe*0.5 );
+			op_->apply( wind_[sInd-1]->get(), y.getField(sInd-1), z.getField(sInd), 0., 0.5, iRe*0.5, Add::Y );
 
 		}
 		else {
 			for( Ordinal i=sInd; i<=eInd; ++i ) {
-				op_->apply( wind_[i]->get(), y.getConstField(i), z.getField(i), 0., mulI, 1., iRe );
-				z.getField(i).add( 1., z.getConstField(i), -mulI, y.getConstField(i-1) );
+				op_->apply( wind_[i]->get(), y.getField(i), z.getField(i), mulI, 1., iRe, Add::N );
+				z.getField(i).add( 1., z.getField(i), -mulI, y.getField(i-1), B::N );
 			}
 		}
 		z.changed();
