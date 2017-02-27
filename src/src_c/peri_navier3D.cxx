@@ -236,7 +236,7 @@ int main( int argi, char** argv ) {
 			x->getField(0).getSField().changed();
 		}
 
-		if( withoutput ) fu->write( 90000 );
+		//if( withoutput ) fu->write( 90000 );
 
 		pl->sublist("Picard Solver").sublist("Solver").set( "Output Stream", Pimpact::createOstream("Picard"+rl+".txt", space->rankST() ) );
 
@@ -274,7 +274,7 @@ int main( int argi, char** argv ) {
 			}
 
 
-			nullspace->write(999);
+			//nullspace->write(999);
 			auto out = Pimpact::createOstream( "nullspace.txt", space->rankST() );
 			nullspace->print( *out );
 
@@ -403,7 +403,7 @@ int main( int argi, char** argv ) {
 
 				//divGradInvTT->apply( *zeros, *nullspace );
 
-				nullspace->write(888);
+				//nullspace->write(888);
 				auto out = Pimpact::createOstream( "nullspace.txt", space->rankST() );
 				nullspace->print( *out );
 
