@@ -1493,15 +1493,14 @@ TEUCHOS_UNIT_TEST( MultiHarmonicOperator, MultiHarmonicOpWrap ) {
 
   auto space = Pimpact::create<Pimpact::Space<ST,OT,3,4,dNC> >( pl );
 
-  auto vel = Pimpact::create<Pimpact::VectorField>( space );
-
-  auto mv1 = Pimpact::createMultiHarmonicVectorField( space );
-  auto mv2 = Pimpact::createMultiHarmonicVectorField( space );
 
   auto op = Pimpact::createMultiHarmonicOpWrap< Pimpact::HelmholtzOp<SpaceT> >(
       Pimpact::create<Pimpact::HelmholtzOp>(space) );
 
-  op->apply( *mv1, *mv2 );
+  Pimpact::MultiHarmonicField< Pimpact::VectorField<Pimpact::Space<ST,OT,3,4,dNC> > > x( space );
+  Pimpact::MultiHarmonicField< Pimpact::VectorField<Pimpact::Space<ST,OT,3,4,dNC> > > y( space );
+
+  op->apply( x, y );
 }
 
 

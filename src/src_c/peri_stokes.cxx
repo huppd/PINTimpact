@@ -18,7 +18,6 @@
 #include "BelosPimpactAdapter.hpp"
 #include "Pimpact_Utils.hpp"
 #include "Pimpact_Space.hpp"
-#include "Pimpact_FieldFactory.hpp"
 #include "Pimpact_LinearProblem.hpp"
 #include "Pimpact_LinSolverParameter.hpp"
 #include "Pimpact_Operator.hpp"

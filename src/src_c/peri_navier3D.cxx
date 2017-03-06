@@ -25,7 +25,6 @@
 #include "Pimpact_CoarsenStrategyGlobal.hpp"
 #include "Pimpact_CoarsenStrategy.hpp"
 #include "Pimpact_Fields.hpp"
-#include "Pimpact_FieldFactory.hpp"
 #include "Pimpact_LinearProblem.hpp"
 #include "Pimpact_LinSolverParameter.hpp"
 #include "Pimpact_ModeNonlinearOp.hpp"

@@ -4,7 +4,6 @@
 
 
 #include "Pimpact_ConvectionDiffusionSOp.hpp"
-#include "Pimpact_FieldFactory.hpp"
 #include "Pimpact_NonlinearVWrap.hpp"
 #include "Pimpact_TimeField.hpp"
 #include "Pimpact_Utils.hpp"

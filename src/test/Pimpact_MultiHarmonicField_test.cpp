@@ -10,7 +10,6 @@
 #include "Pimpact_Fields.hpp"
 
 #include "Pimpact_MultiHarmonicField.hpp"
-#include "Pimpact_FieldFactory.hpp"
 
 
 

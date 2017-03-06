@@ -10,7 +10,7 @@
 #only a serial configure(no mpi) and assumes that the install of Trilinos it is
 #pointed to has Epetra enabled. 
 
-cmake_minimum_required(VERSION 2.8.10)
+cmake_minimum_required( VERSION 2.8.10 )
 
 project( pimpact CXX Fortran )
 

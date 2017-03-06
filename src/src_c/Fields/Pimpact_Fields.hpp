@@ -8,7 +8,6 @@
 /// back bone of Pimpact,  can be seen as linerar algebra vectors
 
 #include "Pimpact_CompoundField.hpp"
-#include "Pimpact_FieldFactory.hpp"
 #include "Pimpact_ModeField.hpp"
 #include "Pimpact_MultiField.hpp"
 #include "Pimpact_MultiHarmonicField.hpp"

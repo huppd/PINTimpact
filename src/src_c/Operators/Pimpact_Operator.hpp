@@ -72,7 +72,6 @@
 /// \ingroup Operator
 /// Operator operate on compound fields: \c Pimpact::CompoundField
 #include "Pimpact_CompoundOpWrap.hpp"
-#include "Pimpact_InverseSchurOp.hpp"
 #include "Pimpact_InverseTriangularOp.hpp"
 #include "Pimpact_TimeStokesOp.hpp"
 #include "Pimpact_TimeStokesBSmoother.hpp"

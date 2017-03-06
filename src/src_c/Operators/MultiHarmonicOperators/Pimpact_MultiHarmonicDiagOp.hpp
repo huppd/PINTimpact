@@ -4,7 +4,6 @@
 
 
 #include "Pimpact_EddyPrec.hpp"
-#include "Pimpact_FieldFactory.hpp"
 #include "Pimpact_MultiHarmonicField.hpp"
 #include "Pimpact_Utils.hpp"
 
