@@ -261,8 +261,8 @@ int main(int argi, char** argv ) {
 						A,
 						Teuchos::null,
 						Teuchos::null,
-						//Pimpact::createMultiField( fu->getConstFieldPtr(0)->getConstCFieldPtr()->clone() ),
-						//Pimpact::createMultiField( fu->getConstFieldPtr(0)->getConstCFieldPtr()->clone() ),
+						//Pimpact::wrapMultiField( fu->getConstFieldPtr(0)->getConstCFieldPtr()->clone() ),
+						//Pimpact::wrapMultiField( fu->getConstFieldPtr(0)->getConstCFieldPtr()->clone() ),
 						solverParams,
 						"CG" );
 

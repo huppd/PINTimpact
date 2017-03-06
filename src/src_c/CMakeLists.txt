@@ -34,9 +34,6 @@ target_link_libraries( lpimpact cmod )
 #message("cxx compiler:  ${CMAKE_CXX_COMPILER}")
 #message("impactlibs:" ${ALL_f90_SRCS})
 
-#add_executable(stat_stokes stat_stokes.cxx)
-#TARGET_LINK_LIBRARIES( stat_stokes  ${Pimpact_TPL_LIBRARIES} ) 
-
 #add_executable( peri_stokes peri_stokes.cxx )
 #TARGET_LINK_LIBRARIES( peri_stokes  ${Pimpact_TPL_LIBRARIES} )
 

@@ -83,14 +83,14 @@ public:
 	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
 		linprob_->solve(
-				createMultiField( Teuchos::rcpFromRef(y) ),
-				createMultiField( Teuchos::rcpFromRef( const_cast<DomainFieldT&>(x) ) ) );
+				wrapMultiField( Teuchos::rcpFromRef(y) ),
+				wrapMultiField( Teuchos::rcpFromRef( const_cast<DomainFieldT&>(x) ) ) );
 	}
 
 
 	void assignField( const DomainFieldT& mvr ) {
 
-		auto mv = createMultiField(
+		auto mv = wrapMultiField(
 				Teuchos::rcpFromRef<DomainFieldT>( const_cast<DomainFieldT&>(mvr) ) );
 
 		auto prob = linprob_->getProblem();

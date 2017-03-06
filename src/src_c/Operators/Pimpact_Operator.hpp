@@ -89,5 +89,6 @@
 #include "Pimpact_MultiHarmonicDiagOp.hpp"
 #include "Pimpact_MultiDtConvectionDiffusionOp.hpp"
 
+#include "Pimpact_OperatorFactory.hpp"
 
 #endif // end of #ifndef PIMPACT_OPERATOR_HPP

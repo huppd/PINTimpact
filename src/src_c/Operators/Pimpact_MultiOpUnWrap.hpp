@@ -51,8 +51,8 @@ public:
 	void apply( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::N ) const {
 
     op_->apply(
-        *createMultiField( Teuchos::rcp_const_cast<DomainFieldT>(Teuchos::rcpFromRef(x)) ),
-        *createMultiField( Teuchos::rcpFromRef(y) ) );
+        *wrapMultiField( Teuchos::rcp_const_cast<DomainFieldT>(Teuchos::rcpFromRef(x)) ),
+        *wrapMultiField( Teuchos::rcpFromRef(y) ) );
   }
 
   void assignField( const DomainFieldT& mv ) {

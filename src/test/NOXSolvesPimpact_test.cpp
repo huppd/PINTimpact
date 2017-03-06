@@ -347,8 +347,8 @@ TEUCHOS_STATIC_SETUP() {
 //  auto vel = Pimpact::createVectorField<ST,OT>(fS,iIS,fIS);
 //
 //
-//  auto x = Pimpact::createMultiField<VF>(*vel->clone(),10);
-//  auto y = Pimpact::createMultiField<VF>(*vel->clone(),10);
+//  auto x = Pimpact::copy2MultiField<VF>(*vel->clone(),10);
+//  auto y = Pimpact::copy2MultiField<VF>(*vel->clone(),10);
 //
 //  auto op = Pimpact::createMultiOperatorBase<MVF,OP>();
 //
@@ -497,8 +497,8 @@ TEUCHOS_STATIC_SETUP() {
 
 //vel->initField( Pimpact::ZeroFlow );
 
-//auto x = Pimpact::createMultiField( *vel->clone(), 1 );
-//auto f = Pimpact::createMultiField( *vel->clone(), 1 );
+//auto x = Pimpact::copy2MultiField( *vel->clone(), 1 );
+//auto f = Pimpact::copy2MultiField( *vel->clone(), 1 );
 
 
 //auto sop = Pimpact::create<ConvDiffOpT>( space ); ;

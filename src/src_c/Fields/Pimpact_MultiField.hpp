@@ -534,8 +534,9 @@ public:
 
 /// \brief factory for \c MultiField
 /// \relates MultiField
+/// \deprecated
 template<class FieldT>
-Teuchos::RCP< MultiField<FieldT> > createMultiField(
+Teuchos::RCP< MultiField<FieldT> > copy2MultiField(
     const FieldT& field,
     const int numvecs, ECopy ctype = ECopy::Shallow ) {
 
@@ -549,7 +550,7 @@ Teuchos::RCP< MultiField<FieldT> > createMultiField(
 /// simple wrapper.
 /// \relates MultiField
 template<class FieldT>
-Teuchos::RCP< MultiField<FieldT> > createMultiField( const Teuchos::RCP<FieldT>& field ) {
+Teuchos::RCP< MultiField<FieldT> > wrapMultiField( const Teuchos::RCP<FieldT>& field ) {
 
 	return( Teuchos::rcp( new MultiField<FieldT>( field ) ) );
 }

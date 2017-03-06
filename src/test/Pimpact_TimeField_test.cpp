@@ -343,7 +343,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TimeField, all, FType ) {
 	// some test
 	auto fields = Pimpact::createTimeField<FType>( space );
 
-	auto msca = Pimpact::createMultiField(*fields,5);
+	auto msca = Pimpact::copy2MultiField(*fields,5);
 
 	auto field2s = fields->clone();
 	field2s->random();
@@ -367,7 +367,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TimeField, BelosMVTest, FType ) {
 
   auto vel = Pimpact::create<FType>( space );
 
-  auto mvec = Pimpact::createMultiField( *vel, 5 );
+  auto mvec = Pimpact::copy2MultiField( *vel, 5 );
 
   // Create an output manager to handle the I/O from the solver
   Teuchos::RCP<Belos::OutputManager<ST> > MyOM =
@@ -393,7 +393,7 @@ TEUCHOS_UNIT_TEST( TimeOpearotr, TimeOpWrap ) {
 	auto field1 = field->clone();
 	auto field2 = field->clone();
 
-	auto mv = Pimpact::createMultiField( *field, 10 );
+	auto mv = Pimpact::copy2MultiField( *field, 10 );
 
 	// op test
 	auto op = Pimpact::createTimeOpWrap<Pimpact::HelmholtzOp<SpaceT>,true>(

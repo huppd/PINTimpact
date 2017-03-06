@@ -69,7 +69,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, constructor, FType ) {
 
   auto p = Pimpact::create<FType>(space);
 
-  auto mv = Pimpact::createMultiField( *p, 10 );
+  auto mv = Pimpact::copy2MultiField( *p, 10 );
 
   const int m = mv->getNumberVecs();
 
@@ -97,7 +97,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, TwoNorm, FType ) {
 
   auto p = Pimpact::create<FType>( space );
 
-  auto mv = Pimpact::createMultiField( *p, 10 );
+  auto mv = Pimpact::copy2MultiField( *p, 10 );
 
   const OT m = mv->getNumberVecs();
   const OT n = mv->getLength();
@@ -133,7 +133,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, clone, FType ) {
 
   auto p = Pimpact::create<FType>( space );
 
-  auto mv = Pimpact::createMultiField( *p, 1 );
+  auto mv = Pimpact::copy2MultiField( *p, 1 );
 
   auto mv2 = mv->clone(10);
 
@@ -165,7 +165,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneCopy, FType ) {
 
   auto p = Pimpact::create<FType>( space );
 
-  auto mv = Pimpact::createMultiField(*p,10);
+  auto mv = Pimpact::copy2MultiField(*p,10);
 
   mv->random();
   auto mv2 = mv->CloneCopy();
@@ -205,7 +205,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneCopy2, FType ) {
 
   auto p = Pimpact::create<FType>( space );
 
-  auto mv = Pimpact::createMultiField(*p,10);
+  auto mv = Pimpact::copy2MultiField(*p,10);
 
   mv->random();
 
@@ -253,7 +253,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneCopy3, FType ) {
 
   auto p = Pimpact::create<FType>( space );
 
-  auto mv1 = Pimpact::createMultiField(*p,10);
+  auto mv1 = Pimpact::copy2MultiField(*p,10);
 
   mv1->random();
 
@@ -297,7 +297,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneViewNonConst1, FType ) {
 
   auto p = Pimpact::create<FType>( space );
 
-  auto mv1 = Pimpact::createMultiField(*p,10);
+  auto mv1 = Pimpact::copy2MultiField(*p,10);
 
   mv1->init(0.);
 
@@ -347,7 +347,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneViewNonConst2, FType ) {
 
   auto p = Pimpact::create<FType>( space );
 
-  auto mv1 = Pimpact::createMultiField(*p,10);
+  auto mv1 = Pimpact::copy2MultiField(*p,10);
 
   mv1->init(0.);
 
@@ -394,7 +394,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneView1, FType ) {
 
   auto p = Pimpact::create<FType>( space );
 
-  auto mv1 = Pimpact::createMultiField(*p,10);
+  auto mv1 = Pimpact::copy2MultiField(*p,10);
 
   mv1->init(0.);
 
@@ -445,7 +445,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, CloneView2, FType ) {
 
   auto p = Pimpact::create<FType>( space );
 
-  auto mv1 = Pimpact::createMultiField(*p,10);
+  auto mv1 = Pimpact::copy2MultiField(*p,10);
 
   mv1->init(0.);
 
@@ -493,7 +493,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, TimesMatAdd, FType ) {
 
   auto p = Pimpact::create<FType>( space );
 
-  auto mv1 = Pimpact::createMultiField( *p, 10 );
+  auto mv1 = Pimpact::copy2MultiField( *p, 10 );
 
   mv1->init(0.);
 
@@ -578,7 +578,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, add, FType ) {
 
   auto p = Pimpact::create<FType>( space );
 
-  auto mv1 = Pimpact::createMultiField(*p,10);
+  auto mv1 = Pimpact::copy2MultiField(*p,10);
 
   mv1->init(0.);
 
@@ -650,7 +650,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, dot, FType ) {
 
   auto p = Pimpact::create<FType>( space );
 
-  auto mv1 = Pimpact::createMultiField(*p,10);
+  auto mv1 = Pimpact::copy2MultiField(*p,10);
 
   mv1->init(0.);
 
@@ -712,7 +712,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiField, Trans, FType ) {
 
   auto p = Pimpact::create<FType>( space );
 
-  auto mv1 = Pimpact::createMultiField(*p,10);
+  auto mv1 = Pimpact::copy2MultiField(*p,10);
 
   mv1->init(0.);
 

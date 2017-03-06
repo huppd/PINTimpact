@@ -62,8 +62,8 @@ TEUCHOS_UNIT_TEST( BelosSolver, HelmholtzMV ) {
 
   auto space = Pimpact::create<SpaceT>( pl );
 
-  auto x = Pimpact::createMultiField( Pimpact::create<Pimpact::VectorField>(space) );
-  auto b = Pimpact::createMultiField( Pimpact::create<Pimpact::VectorField>(space) );
+  auto x = Pimpact::wrapMultiField( Pimpact::create<Pimpact::VectorField>(space) );
+  auto b = Pimpact::wrapMultiField( Pimpact::create<Pimpact::VectorField>(space) );
 
   b->init( 1. );
 
@@ -113,7 +113,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
 
   auto p = Pimpact::createScalarField(space);
 
-  auto x = Pimpact::createMultiField( *p, 1 );
+  auto x = Pimpact::copy2MultiField( *p, 1 );
   auto b = x->clone();
 
 
@@ -177,8 +177,8 @@ TEUCHOS_UNIT_TEST( LinearProblem, HelmholtzMV ) {
 
 	auto vel = Pimpact::create<Pimpact::VectorField>(space);
 
-	auto x = Pimpact::createMultiField(*vel,1);
-	auto b = Pimpact::createMultiField(*vel,1);
+	auto x = Pimpact::copy2MultiField(*vel,1);
+	auto b = Pimpact::copy2MultiField(*vel,1);
 
 	x->init(0.);
 	b->init(1.);

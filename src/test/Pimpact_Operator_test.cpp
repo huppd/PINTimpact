@@ -1408,8 +1408,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiOperator, Add2Op, SpaceT ) {
 	auto velx = Pimpact::create<Pimpact::VectorField>(space);
 
 
-	auto x = Pimpact::createMultiField(*velx->clone(),10);
-	auto y = Pimpact::createMultiField(*velx->clone(),10);
+	auto x = Pimpact::copy2MultiField(*velx->clone(),10);
+	auto y = Pimpact::copy2MultiField(*velx->clone(),10);
 
 	auto op = Pimpact::createOperatorBase(
 			Pimpact::createMultiOpWrap(

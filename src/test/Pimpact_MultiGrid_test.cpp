@@ -1012,8 +1012,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, DivGradOp, CS, MGT ) {
 	Pimpact::ScalarField<typename CS::SpaceT> res( space );
 	Pimpact::ScalarField<typename CS::SpaceT> sol( space );
 
-	auto xm = Pimpact::createMultiField( Teuchos::rcpFromRef(x) );
-	auto bm = Pimpact::createMultiField( Teuchos::rcpFromRef(b) );
+	auto xm = Pimpact::wrapMultiField( Teuchos::rcpFromRef(x) );
+	auto bm = Pimpact::wrapMultiField( Teuchos::rcpFromRef(b) );
 	//Teuchos::RCP< Pimpact::MultiField<Pimpact::ScalarField<typename CS::SpaceT> >
 		//> xm = Teuchos::rcp( new Pimpact::MultiField<Pimpact::ScalarField<typename
 				//CS::SpaceT> >( space ) );
@@ -1375,8 +1375,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MultiGrid, ConvDiffOp, CS, MGT ) {
 	param->set( "Maximum Iterations", nMax );
 	//param->set( "Flexible Gmres", false );
 	//
-	auto xm = Pimpact::createMultiField( Teuchos::rcpFromRef(x) );
-	auto bm = Pimpact::createMultiField( Teuchos::rcpFromRef(b) );
+	auto xm = Pimpact::wrapMultiField( Teuchos::rcpFromRef(x) );
+	auto bm = Pimpact::wrapMultiField( Teuchos::rcpFromRef(b) );
 
 	auto bop = Pimpact::createMultiOperatorBase( op );
 	auto prec = Pimpact::createMultiOperatorBase( mg );

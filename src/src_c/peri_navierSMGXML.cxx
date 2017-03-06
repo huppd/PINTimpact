@@ -293,7 +293,7 @@ OpT,
 
 				xf->add( 1., *temp, 0., *temp );
 
-				x = Pimpact::createMultiField( xf );
+				x = Pimpact::wrapMultiField( xf );
 				space = spaceF;
 			}
 		} 

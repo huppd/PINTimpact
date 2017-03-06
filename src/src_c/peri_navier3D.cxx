@@ -135,7 +135,7 @@ int main( int argi, char** argv ) {
 
 
 	// init vectors
-	Teuchos::RCP<MF> x = createMultiField(
+	Teuchos::RCP<MF> x = wrapMultiField(
 			createCompoundField(
 				Teuchos::rcp( new VF(space,true) ),
 				Teuchos::rcp( new SF(space) ) ) ) ;
@@ -375,7 +375,7 @@ int main( int argi, char** argv ) {
 
 			////--- nullspace 
 			if( pl->sublist("DivGrad").get<bool>("nullspace ortho",true) ) {
-				auto nullspace = Pimpact::createMultiField( x->getField(0).getSField().get0Field().clone() );
+				auto nullspace = Pimpact::wrapMultiField( x->getField(0).getSField().get0Field().clone() );
 				auto zeros = nullspace->clone();
 
 				Pimpact::DivGradNullSpace<Pimpact::DivOp<SpaceT> > compNullspace;// = Pimpact::create<Pimpact::DivGradNullSpace>( );
@@ -580,7 +580,7 @@ int main( int argi, char** argv ) {
 
 			xf->add( 1., *temp, 0., *temp );
 
-			x = Pimpact::createMultiField( xf );
+			x = Pimpact::wrapMultiField( xf );
 			space = spaceF;
 		}
 	} // end of for( int refine=0; refine<refinement; ++refine ) {
