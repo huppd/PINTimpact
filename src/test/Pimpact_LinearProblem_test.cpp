@@ -111,9 +111,7 @@ TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
   Pimpact::VectorField<SpaceT> temp( space );
 	temp( Pimpact::F::U ).initField(Pimpact::Poiseuille2D_inX);
 
-  auto p = Pimpact::createScalarField(space);
-
-  auto x = Pimpact::copy2MultiField( *p, 1 );
+  auto x = Teuchos::rcp( new Pimpact::MultiField<Pimpact::ScalarField<SpaceT> >( space, 1 ) );
   auto b = x->clone();
 
 
@@ -170,15 +168,13 @@ TEUCHOS_UNIT_TEST( BelosSolver, DivGrad ) {
 
 TEUCHOS_UNIT_TEST( LinearProblem, HelmholtzMV ) {
 
-	typedef Pimpact::MultiField< Pimpact::VectorField<SpaceT> > MF;
+	using MF = Pimpact::MultiField< Pimpact::VectorField<SpaceT> >;
 
 
 	auto space = Pimpact::create<SpaceT>( pl );
 
-	auto vel = Pimpact::create<Pimpact::VectorField>(space);
-
-	auto x = Pimpact::copy2MultiField(*vel,1);
-	auto b = Pimpact::copy2MultiField(*vel,1);
+	auto x = Teuchos::rcp( new Pimpact::MultiField<Pimpact::VectorField<SpaceT> >(space,1) );
+	auto b = Teuchos::rcp( new Pimpact::MultiField<Pimpact::VectorField<SpaceT> >(space,1) );
 
 	x->init(0.);
 	b->init(1.);

@@ -58,7 +58,7 @@ public:
     Ordinal nt = space()->nLoc(3) + space()->bu(3) - space()->bl(3);
 
     for( Ordinal i=0; i<nt; ++i ) {
-      wind_[i]->assignField( mv.getField(i) );
+      wind_[i]->assignField( mv(i) );
     }
   };
 
@@ -87,23 +87,23 @@ public:
 
 			for( Ordinal i=sInd; i<=eInd; ++i ) {
 
-				z.getField(i).add( mulI, y.getField(i), -mulI, y.getField(i-1), B::N );
+				z(i).add( mulI, y(i), -mulI, y(i-1), B::N );
 
 				if( i>sInd )
-					z.getField(i).add( 1., z.getField(i), 0.5, temp );
+					z(i).add( 1., z(i), 0.5, temp );
 
-				op_->apply( wind_[i]->get(), y.getField(i), temp, 0., 1., iRe, Add::N );
+				op_->apply( wind_[i]->get(), y(i), temp, 0., 1., iRe, Add::N );
 
-				z.getField(i).add( 1., z.getField(i), 0.5, temp );
+				z(i).add( 1., z(i), 0.5, temp );
 			}
 
-			op_->apply( wind_[sInd-1]->get(), y.getField(sInd-1), z.getField(sInd), 0., 0.5, iRe*0.5, Add::Y );
+			op_->apply( wind_[sInd-1]->get(), y(sInd-1), z(sInd), 0., 0.5, iRe*0.5, Add::Y );
 
 		}
 		else {
 			for( Ordinal i=sInd; i<=eInd; ++i ) {
-				op_->apply( wind_[i]->get(), y.getField(i), z.getField(i), mulI, 1., iRe, Add::N );
-				z.getField(i).add( 1., z.getField(i), -mulI, y.getField(i-1), B::N );
+				op_->apply( wind_[i]->get(), y(i), z(i), mulI, 1., iRe, Add::N );
+				z(i).add( 1., z(i), -mulI, y(i-1), B::N );
 			}
 		}
 		z.changed();

@@ -28,41 +28,40 @@ public:
 protected:
 
   Teuchos::RCP<OperatorT> op_; // restriction in space
-  Teuchos::RCP<typename OperatorT::RangeFieldT> temp_; 
 
 public:
     
 	RestrictionTimeOp(
 			const Teuchos::RCP<const SpaceT>& spaceF,
 			const Teuchos::RCP<const SpaceT>& spaceC):
-		op_(Teuchos::rcp(new OperatorT(spaceF,spaceC))),
-		temp_( create<typename OperatorT::RangeFieldT>( spaceC ) ){};
+		op_(Teuchos::rcp(new OperatorT(spaceF,spaceC))) {};
 
 
 	// x is fn in this case
 	void apply( const DomainFieldT& x, RangeFieldT& y) const {
 
+		typename OperatorT::RangeFieldT temp( spaceC() ); 
 		Ordinal d = spaceF()->nLoc(3)/spaceC()->nLoc(3);
 
 		x.exchange();
 
 		if (d > 1)
-			op_->apply( x.getField(0), *temp_ );
+			op_->apply( x(0), temp );
 
 		for( Ordinal i=spaceF()->begin(F::S,3); i<spaceF()->end(F::S,3); ++i )  {
 
 			if ( (i-spaceF()->begin(F::S,3))%d==0 ) {
 
 				Ordinal iC = (i-spaceF()->begin(F::S,3))/d + spaceC()->begin(F::S,3);
-				op_->apply( x.getField(i), y.getField(iC) );
+				op_->apply( x(i), y(iC) );
 
 				if (d > 1)
-					y.getField(iC).add( 0.25, *temp_, 0.5, y.getField(iC) );
+					y(iC).add( 0.25, temp, 0.5, y(iC) );
 			}
 			else if (d > 1) {
-				op_->apply( x.getField(i), *temp_ );
+				op_->apply( x(i), temp );
 				Ordinal iC = (i-spaceF()->begin(F::S,3) - 1)/d + spaceC()->begin(F::S,3);		
-				y.getField(iC).add( 1., y.getField(iC), 0.25, *temp_ );
+				y(iC).add( 1., y(iC), 0.25, temp );
 			}
 		}
 		y.changed();

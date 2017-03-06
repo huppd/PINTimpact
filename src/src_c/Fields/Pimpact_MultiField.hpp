@@ -532,19 +532,6 @@ public:
 
 
 
-/// \brief factory for \c MultiField
-/// \relates MultiField
-/// \deprecated
-template<class FieldT>
-Teuchos::RCP< MultiField<FieldT> > copy2MultiField(
-    const FieldT& field,
-    const int numvecs, ECopy ctype = ECopy::Shallow ) {
-
-  return( Teuchos::rcp( new MultiField<FieldT>( field, numvecs, ctype ) ) );
-}
-
-
-
 /// \brief factory for \c MultiField.
 ///
 /// simple wrapper.
@@ -556,9 +543,7 @@ Teuchos::RCP< MultiField<FieldT> > wrapMultiField( const Teuchos::RCP<FieldT>& f
 }
 
 
-
 } // end of namespace Pimpact
-
 
 
 #endif // end of #ifndef PIMPACT_MULTIFIELD_HPP

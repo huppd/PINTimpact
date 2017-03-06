@@ -53,18 +53,18 @@ public:
       x.exchange();
       for( int i=0; i <=space()->end(F::S,3); ++i ) {
 
-        op_->apply( x.getField(i), temp );
+        op_->apply( x(i), temp );
 
         if( i>=space()->begin(F::S,3) )
-          y.getField(i).add( 1., y.getField(i), 0.5, temp );
+          y(i).add( 1., y(i), 0.5, temp );
 
         if( i+1<=space()->end(F::S,3) )
-          y.getField(i+1).add( 0., y.getField(i+1), 0.5, temp );
+          y(i+1).add( 0., y(i+1), 0.5, temp );
       }
     }
     else{
       for( Ordinal i=space()->begin(F::S,3); i<=space()->end(F::S,3); ++i )
-        op_->apply( x.getField(i) , y.getField(i) );
+        op_->apply( x(i) , y(i) );
     }
     y.changed();
   }

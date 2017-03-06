@@ -103,24 +103,24 @@ public:
 		Scalar re = space()->getDomainSize()->getRe();
 		Scalar mulI = space()->getDomainSize()->getAlpha2()*idt/re;
 
-		int direction_flag;
+		int direction_flag = 0;
+
+		auto& xu = x.getVField();
+		auto& xp = x.getSField();
+		auto& yu = y.getVField();
+		auto& yp = y.getSField();
 
 		for( int iters=0; iters<numIters_; ++iters ) {
 
 			direction_flag++;
 
-			auto xu = x.getVFieldPtr();
-			auto xp = x.getSFieldPtr();
-			auto yu = y.getVFieldPtr();
-			auto yp = y.getSFieldPtr();
-
-			xu->exchange();
-			//		xp->exchange();
+			xu.exchange();
+			//xp.exchange();
 
 			for( Ordinal i=space()->begin(F::S,3); i<space()->end(F::S,3); ++i ) {
-				xu->getField(i-1).exchange();
-				xu->getField(i).exchange();
-				xp->getField(i).exchange();
+				xu(i-1).exchange();
+				xu(i).exchange();
+				xp(i).exchange();
 			}
 
 			OP_TimeNSBSmoother(
@@ -173,19 +173,19 @@ public:
 					op_->getWindU_()->getConstRawPtr(),
 					op_->getWindV_()->getConstRawPtr(),
 					op_->getWindW_()->getConstRawPtr(),               
-					xu->getConstRawPtr(),
-					xp->getConstRawPtr(),
-					yu->getRawPtr(),
-					yp->getRawPtr(),
+					xu.getConstRawPtr(),
+					xp.getConstRawPtr(),
+					yu.getRawPtr(),
+					yp.getRawPtr(),
 					direction_flag );
 
 			for( Ordinal i=space()->begin(F::S,3); i<space()->end(F::S,3); ++i ) {
-				yu->getField(i).changed();
-				yp->getField(i).changed();
+				yu(i).changed();
+				yp(i).changed();
 			} 
 
-			yu->changed();
-			yp->changed();
+			yu.changed();
+			yp.changed();
 		}
 	}
 

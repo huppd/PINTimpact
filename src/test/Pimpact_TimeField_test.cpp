@@ -343,8 +343,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TimeField, all, FType ) {
 	// some test
 	auto fields = Pimpact::createTimeField<FType>( space );
 
-	auto msca = Pimpact::copy2MultiField(*fields,5);
-
 	auto field2s = fields->clone();
 	field2s->random();
 	MPI_Barrier( MPI_COMM_WORLD );
@@ -365,9 +363,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TimeField, BelosMVTest, FType ) {
 
   auto space = Pimpact::create<SpaceT>( pl );
 
-  auto vel = Pimpact::create<FType>( space );
-
-  auto mvec = Pimpact::copy2MultiField( *vel, 5 );
+  auto mvec = Teuchos::rcp( new Pimpact::MultiField<FType>( space, 5 ) );
 
   // Create an output manager to handle the I/O from the solver
   Teuchos::RCP<Belos::OutputManager<ST> > MyOM =
@@ -375,7 +371,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TimeField, BelosMVTest, FType ) {
 
   bool res = Belos::TestMultiVecTraits<ST,Pimpact::MultiField<FType> >(MyOM,mvec);
   TEST_EQUALITY_CONST(res,true);
-
 }
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TimeField, BelosMVTest, TSF )
@@ -389,33 +384,13 @@ TEUCHOS_UNIT_TEST( TimeOpearotr, TimeOpWrap ) {
 
 	auto space = Pimpact::create<SpaceT>( pl );
 
-	auto field = Pimpact::create<TVF>( space );
-	auto field1 = field->clone();
-	auto field2 = field->clone();
-
-	auto mv = Pimpact::copy2MultiField( *field, 10 );
+	auto mv = Teuchos::rcp( new Pimpact::MultiField<TVF>( space, 10 ) );
 
 	// op test
 	auto op = Pimpact::createTimeOpWrap<Pimpact::HelmholtzOp<SpaceT>,true>(
 			Pimpact::create<Pimpact::HelmholtzOp>(space ) );
 
-	field2->random();
-	Pimpact::initVectorTimeField( field1, Pimpact::Poiseuille_inX );
-	op->apply( *field1, *field2 );
-	field2->write();
-	Pimpact::initVectorTimeField( field2, Pimpact::Zero2DFlow );
-	Pimpact::initVectorTimeField( field2, Pimpact::Poiseuille_inX );
-	field2->write(10);
-	Pimpact::initVectorTimeField( field2, Pimpact::Poiseuille_inY );
-	field2->write(20);
-	Pimpact::initVectorTimeField( field2, Pimpact::Streaming2DFlow );
-	field2->write(30);
-	Pimpact::initVectorTimeField( field2, Pimpact::OscilatingDisc2D );
-	field2->write(40);
-
-	auto bop =
-		Pimpact::createMultiOperatorBase( op );
-
+	auto bop = Pimpact::createMultiOperatorBase( op );
 
 	Teuchos::RCP<Belos::OutputManager<ST> > myOM = Teuchos::rcp(
 			new Belos::OutputManager<ST>(Belos::Warnings+Belos::TimingDetails,rcp(&out,false)) );
@@ -474,8 +449,8 @@ TEUCHOS_UNIT_TEST( TimeOperator, DtTimeOp ) {
 			ST beta = a2*std::cos( space->getCoordinatesLocal()->getX( Pimpact::F::S, 3, i ) );
 			//std::cout << "\ti: " << i << "\tt: " << space->getCoordinatesLocal()->getX( Pimpact::F::S, 3, i ) << 
 				//"\talpha: " << alpha << "\tbeta: " << beta <<"\n";
-			x.getField(i).init( alpha );
-			sol.getField(i).init( beta );
+			x(i).init( alpha );
+			sol(i).init( beta );
 			x.changed();
 			sol.changed();
 		}
@@ -487,12 +462,12 @@ TEUCHOS_UNIT_TEST( TimeOperator, DtTimeOp ) {
 		
 		//ST offset = space->getShift(3);
 		//for( OT i=space->begin(Pimpact::F::S,3); i<space->end(Pimpact::F::S,3); ++i ) {
-			////std::cout << "\ti: " << i << "\tt: " << 2.*pi*(i+offset)/nt << "\tt: " << space->getCoordinatesLocal()->getX(  Pimpact::F::S, Pimpact::ECoord::T, i ) << "\t" << x.getField(i).norm( Belos::InfNorm) << "\n";
+			////std::cout << "\ti: " << i << "\tt: " << 2.*pi*(i+offset)/nt << "\tt: " << space->getCoordinatesLocal()->getX(  Pimpact::F::S, Pimpact::ECoord::T, i ) << "\t" << x(i).norm( Belos::InfNorm) << "\n";
 		//}
 		er.add( 1., y, -1., sol, Pimpact::B::N );
 
 		//for( OT i=space->begin(Pimpact::F::S,3); i<space->end(Pimpact::F::S,3); ++i ) {
-			//std::cout << "i: " << i << "er: " << er.getField(i).norm(Belos::InfNorm) << "\n";
+			//std::cout << "i: " << i << "er: " << er(i).norm(Belos::InfNorm) << "\n";
 		//}
 		ST bla = er.norm(Belos::InfNorm);
 
@@ -530,11 +505,11 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeDtConvectionDiffusionOp ) {
 
 	// test against flow dir
 	for( OT i=space->begin(Pimpact::F::U,3); i<=space->end(Pimpact::F::U,3); ++i ) {
-		wind->getField(i).init( 2. );
-		x->getField(i)(Pimpact::F::U).initField( Pimpact::Grad2D_inX );
-		x->getField(i)(Pimpact::F::V).initField( Pimpact::Grad2D_inY );
-		x->getField(i)(Pimpact::F::W).initField( Pimpact::Grad2D_inZ );
-		sol->getField(i).init( Teuchos::tuple(2.,2.,2.) );
+		wind->operator()(i).init( 2. );
+		x->operator()(i)(Pimpact::F::U).initField( Pimpact::Grad2D_inX );
+		x->operator()(i)(Pimpact::F::V).initField( Pimpact::Grad2D_inY );
+		x->operator()(i)(Pimpact::F::W).initField( Pimpact::Grad2D_inZ );
+		sol->operator()(i).init( Teuchos::tuple(2.,2.,2.) );
 		wind->changed();
 		x->changed();
 		sol->changed();
@@ -600,7 +575,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOp ) {
 	// Gradient test in X
 	//Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Zero2DFlow );
 	for( OT i=space->begin(Pimpact::F::U,3); i<space->end(Pimpact::F::U,3); ++i ) {
-		x->getSFieldPtr()->getField(i).initField( Pimpact::Grad2D_inX );
+		x->getSField()(i).initField( Pimpact::Grad2D_inX );
 	}
 //	x->write();
 	y->random();
@@ -608,7 +583,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOp ) {
 	op->apply( *x, *y );
 //	y->write(100);
 	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Const2DFlow, 1., 0., 0. );
-	x->getSFieldPtr()->init( 0. );
+	x->getSField().init( 0. );
 	x->add( 1., *x, -1., *y );
 //	x->write(200);
 
@@ -618,7 +593,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOp ) {
 	// Gradient test in Y
 	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Zero2DFlow );
 	for( OT i=space->begin(Pimpact::F::U,3); i<space->end(Pimpact::F::U,3); ++i ) {
-		x->getSFieldPtr()->getField(i).initField( Pimpact::Grad2D_inY );
+		x->getSField()(i).initField( Pimpact::Grad2D_inY );
 	}
 //	x->write();
 	y->random();
@@ -626,7 +601,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOp ) {
 	op->apply( *x, *y );
 //	y->write(100);
 	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Const2DFlow, 0., 1., 0. );
-	x->getSFieldPtr()->init( 0. );
+	x->getSField().init( 0. );
 	x->add( 1., *x, -1., *y );
 //	x->write(200);
 
@@ -636,7 +611,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOp ) {
 	// Gradient test in Z
 	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Zero2DFlow );
 	for( OT i=space->begin(Pimpact::F::U,3); i<space->end(Pimpact::F::U,3); ++i ) {
-		x->getSFieldPtr()->getField(i).initField( Pimpact::Grad2D_inZ );
+		x->getSField()(i).initField( Pimpact::Grad2D_inZ );
 	}
 //	x->write();
 	y->random();
@@ -644,7 +619,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeStokesOp ) {
 	op->apply( *x, *y );
 //	y->write(100);
 	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Const2DFlow, 0., 0., 1. );
-	x->getSFieldPtr()->init( 0. );
+	x->getSField().init( 0. );
 	x->add( 1., *x, -1., *y );
 //	x->write(200);
 
@@ -774,7 +749,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeNSOp ) {
 	// Gradient test in X
 	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Zero2DFlow );
 	for( OT i=space->begin(Pimpact::F::U,3); i<space->end(Pimpact::F::U,3); ++i ) {
-		x->getSFieldPtr()->getField(i).initField( Pimpact::Grad2D_inX );
+		x->getSField()(i).initField( Pimpact::Grad2D_inX );
 	}
 //	x->write();
 	y->random();
@@ -782,7 +757,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeNSOp ) {
 	op->apply( *x, *y );
 //	y->write(100);
 	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Const2DFlow, 1., 0., 0. );
-	x->getSFieldPtr()->init( 0. );
+	x->getSField().init( 0. );
 	x->add( 1., *x, -1., *y );
 //	x->write(200);
 
@@ -792,7 +767,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeNSOp ) {
 	// Gradient test in Y
 	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Zero2DFlow );
 	for( OT i=space->begin(Pimpact::F::U,3); i<space->end(Pimpact::F::U,3); ++i ) {
-		x->getSFieldPtr()->getField(i).initField( Pimpact::Grad2D_inY );
+		x->getSField()(i).initField( Pimpact::Grad2D_inY );
 	}
 //	x->write();
 	y->random();
@@ -800,7 +775,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeNSOp ) {
 	op->apply( *x, *y );
 //	y->write(100);
 	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Const2DFlow, 0., 1., 0. );
-	x->getSFieldPtr()->init( 0. );
+	x->getSField().init( 0. );
 	x->add( 1., *x, -1., *y );
 //	x->write(200);
 
@@ -810,7 +785,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeNSOp ) {
 	// Gradient test in Z
 	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Zero2DFlow );
 	for( OT i=space->begin(Pimpact::F::U,3); i<space->end(Pimpact::F::U,3); ++i ) {
-		x->getSFieldPtr()->getField(i).initField( Pimpact::Grad2D_inZ );
+		x->getSField()(i).initField( Pimpact::Grad2D_inZ );
 	}
 //	x->write();
 	y->random();
@@ -818,7 +793,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeNSOp ) {
 	op->apply( *x, *y );
 //	y->write(100);
 	Pimpact::initVectorTimeField( x->getVFieldPtr(), Pimpact::Const2DFlow, 0., 0., 1. );
-	x->getSFieldPtr()->init( 0. );
+	x->getSField().init( 0. );
 	x->add( 1., *x, -1., *y );
 //	x->write(200);
 
@@ -833,16 +808,16 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeNSOp ) {
 	auto field2 = Pimpact::create<typename OpT::DomainFieldT>( space );
 
 	for( OT i=space->begin(Pimpact::F::U,3); i<space->end(Pimpact::F::U,3); ++i ) {
-		wind->getVFieldPtr()->getField(i)( Pimpact::F::U ).initField( Pimpact::ConstField, 2. );
-		wind->getVFieldPtr()->getField(i)( Pimpact::F::V ).initField( Pimpact::ConstField, 2. );
-		wind->getVFieldPtr()->getField(i)( Pimpact::F::W ).initField( Pimpact::ConstField, 2. );
-		field1->getVFieldPtr()->getField(i)(Pimpact::F::U).initField( Pimpact::Grad2D_inY );
-		field1->getVFieldPtr()->getField(i)(Pimpact::F::V).initField( Pimpact::Grad2D_inZ );
-		field1->getVFieldPtr()->getField(i)(Pimpact::F::W).initField( Pimpact::Grad2D_inX );
-		field2->getVFieldPtr()->getField(i).init( Teuchos::tuple(2.,2.,2.) );
-		wind->getVFieldPtr()->changed();
-		field1->getVFieldPtr()->changed();
-		field2->getVFieldPtr()->changed();
+		wind->getVField()(i)( Pimpact::F::U ).initField( Pimpact::ConstField, 2. );
+		wind->getVField()(i)( Pimpact::F::V ).initField( Pimpact::ConstField, 2. );
+		wind->getVField()(i)( Pimpact::F::W ).initField( Pimpact::ConstField, 2. );
+		field1->getVField()(i)(Pimpact::F::U).initField( Pimpact::Grad2D_inY );
+		field1->getVField()(i)(Pimpact::F::V).initField( Pimpact::Grad2D_inZ );
+		field1->getVField()(i)(Pimpact::F::W).initField( Pimpact::Grad2D_inX );
+		field2->getVField()(i).init( Teuchos::tuple(2.,2.,2.) );
+		wind->getVField().changed();
+		field1->getVField().changed();
+		field2->getVField().changed();
 	}
 
 //	wind->write();
@@ -858,8 +833,8 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeNSOp ) {
 
 //	field->write(40);
 
-	std::cout << "conv errorV: " << field()->getVFieldPtr()->norm() << "\n";
-	std::cout << "conv errorS: " << field()->getSFieldPtr()->norm() << "\n";
+	std::cout << "conv errorV: " << field()->getVField().norm() << "\n";
+	std::cout << "conv errorS: " << field()->getSField().norm() << "\n";
 }
 
 

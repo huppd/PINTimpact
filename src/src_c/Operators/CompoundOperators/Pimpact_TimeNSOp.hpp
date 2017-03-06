@@ -107,16 +107,16 @@ public:
 		Scalar re = space()->getDomainSize()->getRe();
 		Scalar mulI = space()->getDomainSize()->getAlpha2()*idt/re;
 
-		auto xu = x.getVFieldPtr();
-		auto xp = x.getSFieldPtr();
-		auto yu = y.getVFieldPtr();
-		auto yp = y.getSFieldPtr();
+		auto& xu = x.getVField();
+		auto& xp = x.getSField();
+		auto& yu = y.getVField();
+		auto& yp = y.getSField();
 
-		xu->exchange();
+		xu.exchange();
 
 		for( Ordinal i=space()->begin(F::S,3)-1; i<space()->end(F::S,3); ++i ) {
-			xu->getField(i).exchange();
-			xp->getField(i).exchange();
+			xu(i).exchange();
+			xp(i).exchange();
 		}
 
 		OP_TimeNS( 
@@ -167,18 +167,18 @@ public:
 				windU_->getConstRawPtr(),
 				windV_->getConstRawPtr(),
 				windW_->getConstRawPtr(),
-				xu->getConstRawPtr(),
-				xp->getConstRawPtr(),
-				yu->getRawPtr(),
-				yp->getRawPtr() );
+				xu.getConstRawPtr(),
+				xp.getConstRawPtr(),
+				yu.getRawPtr(),
+				yp.getRawPtr() );
 
 		for( Ordinal i=space()->begin(F::S,3)-1; i<space()->end(F::S,3); ++i ) {
-			yu->getField(i).changed();
-			yp->getField(i).changed();
+			yu(i).changed();
+			yp(i).changed();
 		}
 
-		yu->changed();
-		yp->changed();
+		yu.changed();
+		yp.changed();
 
 	}
 
@@ -192,26 +192,26 @@ public:
 
 		Ordinal nt = space()->nLoc(3) + space()->bu(3) - space()->bl(3);
 
-		auto mv = cmv.getVFieldPtr();
+		auto& mv = cmv.getVField();
 
-		auto temp = createScalarField<ST>( space() );
+		ScalarField<ST> temp( space() );
 
-		mv->exchange();
+		mv.exchange();
 
 		for( Ordinal it=0; it<nt; ++it ) {
 
-			interpolateV2S_->apply( mv->getField(it)(F::U), *temp );
+			interpolateV2S_->apply( mv(it)(F::U), temp );
 			for( F j=F::U; j<SpaceT::sdim; ++j ) {
-				interpolateS2V_->apply( *temp, windU_->getField(it)(j) );
+				interpolateS2V_->apply( temp, windU_->operator()(it)(j) );
 			}
-			interpolateV2S_->apply( mv->getField(it)(F::V), *temp );
+			interpolateV2S_->apply( mv(it)(F::V), temp );
 			for( F j=F::U; j<SpaceT::sdim; ++j ) {
-				interpolateS2V_->apply( *temp, windV_->getField(it)(j) );
+				interpolateS2V_->apply( temp, windV_->operator()(it)(j) );
 			}
 			if( 3==SpaceT::sdim ) {
-				interpolateV2S_->apply( mv->getField(it)(F::W), *temp );
+				interpolateV2S_->apply( mv(it)(F::W), temp );
 				for( F j=F::U; j<SpaceT::sdim; ++j ) {
-					interpolateS2V_->apply( *temp, windW_->getField(it)(j) );
+					interpolateS2V_->apply( temp, windW_->operator()(it)(j) );
 				}
 			}
 		}

@@ -72,9 +72,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TempField, BelosMVTest, FType ) {
 
 	auto space = Pimpact::create<SpaceT>( pl );
 
-	auto x = Pimpact::create<FType>( space );
-
-	auto mx = Pimpact::copy2MultiField( *x, 5 );
+	auto mx = Teuchos::rcp( new Pimpact::MultiField<FType>( space, 5 ) );
 
 	// Create an output manager to handle the I/O from the solver
 	Teuchos::RCP<Belos::OutputManager<ST> > MyOM =
@@ -105,9 +103,7 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, HelmholtzMV ) {
 
 	auto space = Pimpact::create<SpaceT>( pl );
 
-	auto field = Pimpact::create<Pimpact::VectorField>(space);
-
-	auto mv = Pimpact::copy2MultiField<VF>( *field, 10 );
+	auto mv = Teuchos::rcp( new Pimpact::MultiField<VF>( space, 10 ) );
 
 	auto opm = Pimpact::createMultiOpWrap( Pimpact::create<Pimpact::HelmholtzOp>(space) );
 
@@ -133,11 +129,7 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, DivGrad ) {
 
 	auto space = Pimpact::create<SpaceT>( pl );
 
-	auto temp = Pimpact::create<Pimpact::VectorField>( space );
-
-	auto p = Pimpact::create<Pimpact::ScalarField>( space );
-
-	auto mv = Pimpact::copy2MultiField(*p,10);
+	auto mv = Teuchos::rcp( new Pimpact::MultiField<Pimpact::ScalarField<SpaceT> >( space , 10 ) );
 	auto mv2 = mv->clone();
 
 	auto lap = Pimpact::createOperatorBase(
@@ -159,7 +151,6 @@ TEUCHOS_UNIT_TEST( BelosOperatorMV, DivGrad ) {
 	Belos::TestOperatorTraits< ST, BSF, OpBase > (MyOM,mv,lap);
 
 	TEST_EQUALITY( res, true );
-
 }
 
 

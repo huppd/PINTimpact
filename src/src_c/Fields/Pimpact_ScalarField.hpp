@@ -1059,9 +1059,9 @@ public:
 
 	void setStoragePtr( Scalar*  array ) { s_ = array; }
 
-	ScalarArray getRawPtr() { return( s_ ); }
+	constexpr ScalarArray getRawPtr() { return( s_ ); }
 
-	const Scalar* getConstRawPtr() const { return( s_ ); }
+	constexpr const Scalar* getConstRawPtr() { return( s_ ); }
 
 
   /// @}

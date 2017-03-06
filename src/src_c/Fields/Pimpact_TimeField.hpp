@@ -33,6 +33,7 @@ namespace Pimpact {
 /// the implementation should be improved such that communication is done such
 /// that only done once per FieldT not per Field
 ///
+/// \todo rm RCP from vector
 /// \ingroup Field
 template<class Field>
 class TimeField : private AbstractField<typename Field::SpaceT> {
@@ -75,7 +76,7 @@ public:
 			for( int i=0; i<nt; ++i )
 				mfs_[i] = Teuchos::rcp( new Field( space, false ) );
 
-			Ordinal nx = mfs_[0]->getStorageSize();
+			Ordinal nx = at(0).getStorageSize();
 
 			array_ = new Scalar[nx*nt];
 
@@ -83,7 +84,7 @@ public:
 				array_[i] = 0.;
 
 			for( int i=0; i<nt; ++i )
-				mfs_[i]->setStoragePtr( array_+i*nx );
+				at(i).setStoragePtr( array_+i*nx );
 	}
 
 
@@ -109,12 +110,12 @@ public:
 			array_ = new Scalar[nx*nt];
 
 			for( int i=0; i<nt; ++i )
-				mfs_[i]->setStoragePtr( array_+i*nx );
+				at(i).setStoragePtr( array_+i*nx );
 
 			switch( copyType ) {
 				case( ECopy::Deep ) : {
 					for( int i=0; i<nt; ++i )
-						*mfs_[i] = *(field.mfs_[i]);
+						at(i) = field(i);
 					break;
 				}
 				case( ECopy::Shallow ) : {
@@ -140,7 +141,7 @@ public:
 
 	/// \brief returns the length of Field.
 	constexpr Ordinal getLength() const {
-		return( space()->nGlo(3)*mfs_[0]->getLength() );
+		return( space()->nGlo(3)*at(0).getLength() );
 	}
 
 public:
@@ -154,7 +155,7 @@ public:
 	void add( Scalar alpha, const FieldT& a, Scalar beta, const FieldT& b, const B& wb=B::Y ) {
 
 		for( Ordinal i=space()->begin(F::S,3); i<=space()->end(F::S,3); ++i )
-			mfs_[i]->add( alpha, *a.mfs_[i], beta, *b.mfs_[i], wb );
+			at(i).add( alpha, a(i), beta, b(i), wb );
 		changed();
 	}
 
@@ -168,7 +169,7 @@ public:
 	void abs( const FieldT& y) {
 
 		for( Ordinal i=space()->begin(F::S,3); i<=space()->end(F::S,3); ++i )
-			mfs_[i]->abs( *y.mfs_[i] );
+			at(i).abs( y(i) );
 		changed();
 	}
 
@@ -181,7 +182,7 @@ public:
 	void reciprocal( const FieldT& y){
 
 		for( Ordinal i=space()->begin(F::S,3); i<=space()->end(F::S,3); ++i )
-			mfs_[i]->reciprocal( *y.mfs_[i] );
+			at(i).reciprocal( y(i) );
 		changed();
 	}
 
@@ -193,7 +194,7 @@ public:
 	void scale( const Scalar& alpha, const B& wB=B::Y ) {
 
 		for( Ordinal i=space()->begin(F::S,3); i<=space()->end(F::S,3); ++i )
-			mfs_[i]->scale(alpha, wB);
+			at(i).scale( alpha, wB );
 		changed();
 	}
 
@@ -205,7 +206,7 @@ public:
 	/// \return Reference to this object
 	void scale( const FieldT& y) {
 		for( Ordinal i=space()->begin(F::S,3); i<=space()->end(F::S,3); ++i )
-			mfs_[i]->scale( *y.mfs_[i] );
+			at(i).scale( y(i) );
 		changed();
 	}
 
@@ -218,7 +219,7 @@ public:
 		Scalar b = 0.;
 
 		for( Ordinal i=space()->begin(F::S,3); i<=space()->end(F::S,3); ++i )
-			b+= mfs_[i]->dotLoc( *A.mfs_[i] );
+			b+= at(i).dotLoc( A(i) );
 
 		return( b );
 	}
@@ -238,8 +239,8 @@ public:
 		for( Ordinal i=space()->begin(F::S,3); i<=space()->end(F::S,3); ++i )
 			normvec = 
 				( (Belos::InfNorm==type)?
-				std::max( mfs_[i]->normLoc(type), normvec ) :
-				(normvec + mfs_[i]->normLoc(type) ) );
+				std::max( at(i).normLoc(type), normvec ) :
+				(normvec + at(i).normLoc(type) ) );
 
 		return( normvec );
 	}
@@ -272,7 +273,7 @@ public:
 		Scalar nor = Teuchos::ScalarTraits<Scalar>::zero();
 
 		for( Ordinal i=space()->begin(F::S,3); i<=space()->end(F::S,3); ++i )
-			nor+= mfs_[i]->norm( *weights.mfs_[i] );
+			nor+= at(i).norm( weights(i) );
 
 		return( nor );
 	}
@@ -294,7 +295,7 @@ public:
 	TimeField& operator=( const TimeField& a ) {
 
 		for( Ordinal i=space()->begin(F::S,3); i<=space()->end(F::S,3); ++i )
-			*mfs_[i] = *a.mfs_[i];
+			at(i) = a(i);
 		changed();
 
 		return *this;
@@ -305,7 +306,7 @@ public:
 	void random(bool useSeed = false, int seed = 1) {
 
 		for( Ordinal i=space()->begin(F::S,3); i<=space()->end(F::S,3); ++i )
-			mfs_[i]->random();
+			at(i).random();
 		changed();
 	}
 
@@ -314,21 +315,21 @@ public:
 	void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const B& wB=B::Y ) {
 
 		for( Ordinal i=space()->begin(F::S,3); i<=space()->end(F::S,3); ++i )
-			mfs_[i]->init(alpha,wB);
+			at(i).init(alpha,wB);
 		changed();
 	}
 
 	void extrapolateBC( const Belos::ETrans& trans=Belos::NOTRANS ) {
 
 		for( Ordinal i=space()->begin(F::S,3); i<=space()->end(F::S,3); ++i )
-			mfs_[i]->extrapolateBC( trans );
+			at(i).extrapolateBC( trans );
 		changed();
 	}
 
 	void level() const {
 
 		for( Ordinal i=space()->begin(F::S,3); i<=space()->end(F::S,3); ++i )
-			mfs_[i]->level();
+			at(i).level();
 		changed();
 	}
 
@@ -336,14 +337,14 @@ public:
 	/// \param os
 	void print( std::ostream& os=std::cout ) const {
 		for( Ordinal i=space()->begin(F::S,3); i<=space()->end(F::S,3); ++i )
-			mfs_[i]->print( os );
+			at(i).print( os );
 	}
 
 
 
 	void write( int count=0 ) const {
 		for( Ordinal i=space()->begin(F::S,3); i<=space()->end(F::S,3); ++i )
-			mfs_[i]->write(count++ + space()->getShift(3) );
+			at(i).write(count++ + space()->getShift(3) );
 	}
 
 
@@ -378,14 +379,14 @@ public:
 				MPI_Status statusL;
 				MPI_Status statusU;
 
-				Ordinal lengthL = transL * mfs_[0]->getStorageSize();
-				Ordinal lengthU = transU * mfs_[0]->getStorageSize();
+				Ordinal lengthL = transL * at(0).getStorageSize();
+				Ordinal lengthU = transU * at(0).getStorageSize();
 
-				Scalar* ghostUR = mfs_[space()->begin(F::S,3)-transU]->getRawPtr();
-				Scalar* ghostLR = mfs_[space()->end(F::S,3)  +transL]->getRawPtr();
+				Scalar* ghostUR = at( space()->begin(F::S,3)-transU).getRawPtr();
+				Scalar* ghostLR = at( space()->end(F::S,3)  +transL).getRawPtr();
 
-				Scalar* ghostUS = mfs_[space()->end(F::S,3)]->getRawPtr();
-				Scalar* ghostLS = mfs_[space()->begin(F::S,3)]->getRawPtr();
+				Scalar* ghostUS = at(space()->end(F::S,3)  ).getRawPtr();
+				Scalar* ghostLS = at(space()->begin(F::S,3)).getRawPtr();
 
 				if( transL>0 ) MPI_Irecv( ghostUR, lengthL, MPI_REAL8, rankL, 1, comm(), &reqL);
 				if( transU>0 ) MPI_Irecv( ghostLR, lengthU, MPI_REAL8, rankU, 2, comm(), &reqU);
@@ -397,31 +398,38 @@ public:
 				if( transU>0 ) MPI_Wait( &reqU, &statusU );
 
 				// depends on if field from sender was exchanged, so to be sure
-				mfs_[ 0                  ]->changed();
-				mfs_[ space()->end(F::S,3) ]->changed();
+				at( 0                    ).changed();
+				at( space()->end(F::S,3) ).changed();
 
 			}
 			else {
 				if( std::abs( space()->bl(3) )>0 ) {
 					*mfs_[space()->begin(F::S,3)-1] = *mfs_[space()->end(F::S,3)-1];
-					mfs_[space()->begin(F::S,3)-1]->changed();
+					at(space()->begin(F::S,3)-1).changed();
 				}
 				if( std::abs( space()->bu(3) )>0 ) {
 					*mfs_[space()->end(F::S,3)] = *mfs_[space()->begin(F::S,3)];
-					mfs_[space()->end(F::S,3)]->changed();
+					at(space()->end(F::S,3)).changed();
 				}
 			}
 		}
-
 		exchangedState_ = true;
 	}
 
 
-	                Field& getField( const int& i ) { return( *mfs_[i] ); }
-	constexpr const Field& getField( const int& i ) { return( *mfs_[i] ); }
+protected:
+	                Field& at( const int& i ) { return( *mfs_[i] ); }
+	constexpr const Field& at( const int& i ) { return( *mfs_[i] ); }
+
+public:
+
+	                Field& operator()( const int& i ) { return( at(i) ); }
+	constexpr const Field& operator()( const int& i ) { return( at(i) ); }
+
+									//Field& getField( const int& i ) { return( at(i) ); }
+	//constexpr const Field& getField( const int& i ) { return( at(i) ); }
 
 	constexpr ScalarArray getRawPtr() { return( array_ ); }
-
 
 	constexpr const Scalar* getConstRawPtr() const { return( array_ ); }
 

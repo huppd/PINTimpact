@@ -54,15 +54,15 @@ public:
 
 		for( Ordinal i=spaceC()->begin(F::S,3); i <= spaceC()->end(F::S,3); ++i ) { 
 			Ordinal iF = d*( i-spaceC()->begin(F::S,3) ) + spaceF()->begin(F::S,3);
-			op_->apply( x.getField( i ), y.getField( iF ) );
+			op_->apply( x( i ), y( iF ) );
 			if (spaceC()->nLoc(3)==1 && d>1) 
-				op_->apply( x.getField(1), y.getField(2) );
+				op_->apply( x(1), y(2) );
 		}
 
 		if (d > 1 && spaceC()->nLoc(3)>1) { 
 
 			for( int i=spaceF()->begin(F::S,3) + 1; i < spaceF()->end(F::S,3) ; i=i+d ) {
-				y.getField(i).add( 0.5, y.getField(i-1), 0.5, y.getField(i+1) ); 
+				y(i).add( 0.5, y(i-1), 0.5, y(i+1) ); 
 			}		
 		}
 	

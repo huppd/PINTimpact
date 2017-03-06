@@ -93,17 +93,17 @@ public:
 		Scalar re = space()->getDomainSize()->getRe();
 		Scalar mulI = space()->getDomainSize()->getAlpha2()*idt/re;
 
-		auto xu = x.getVFieldPtr();
-		auto xp = x.getSFieldPtr();
-		auto yu = y.getVFieldPtr();
-		auto yp = y.getSFieldPtr();
+		auto& xu = x.getVField();
+		auto& xp = x.getSField();
+		auto& yu = y.getVField();
+		auto& yp = y.getSField();
 
-		xu->exchange();
+		xu.exchange();
 
 		for( Ordinal i=space()->begin(F::S,3)-1; i<space()->end(F::S,3); ++i ) {
-			//			xu->getField(i-1).exchange();
-			xu->getField(i).exchange();
-			xp->getField(i).exchange();
+			//xu(i-1).exchange();
+			xu(i).exchange();
+			xp(i).exchange();
 		}
 
 		OP_TimeStokes( 
@@ -137,18 +137,18 @@ public:
 				grad_->getC(Z),
 				mulI,                 
 				1./re,                 
-				xu->getConstRawPtr(),
-				xp->getConstRawPtr(),
-				yu->getRawPtr(),
-				yp->getRawPtr() );
+				xu.getConstRawPtr(),
+				xp.getConstRawPtr(),
+				yu.getRawPtr(),
+				yp.getRawPtr() );
 
 		for( Ordinal i=space()->begin(F::S,3)-1; i<space()->end(F::S,3); ++i ) {
-			yu->getField(i).changed();
-			yp->getField(i).changed();
+			yu(i).changed();
+			yp(i).changed();
 		}
 
-		yu->changed();
-		yp->changed();
+		yu.changed();
+		yp.changed();
 	}
 
 	void assignField( const DomainFieldT& mv ) { };
