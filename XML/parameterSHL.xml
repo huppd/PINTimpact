@@ -70,7 +70,7 @@
         </ParameterList>
         <ParameterList id="13" name="Test 2">
           <Parameter docString="" id="101" isDefault="false" isUsed="true" name="Test Type" type="string" value="MaxIters" />
-          <Parameter docString="" id="102" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="4" />
+          <Parameter docString="" id="102" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="3" />
         </ParameterList>
         <ParameterList id="14" name="Test 3">
           <Parameter docString="" id="103" isDefault="false" isUsed="true" name="Test Type" type="string" value="Stagnation" />
