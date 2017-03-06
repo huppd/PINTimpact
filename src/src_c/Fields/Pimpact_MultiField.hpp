@@ -559,53 +559,5 @@ Teuchos::RCP< MultiField<FieldT> > createMultiField( const Teuchos::RCP<FieldT>&
 } // end of namespace Pimpact
 
 
-#ifdef COMPILE_ETI
-#include "Pimpact_VectorField.hpp"
-#include "Pimpact_TimeField.hpp"
-//#include "Pimpact_MultiHarmonicField.hpp"
-#include "Pimpact_CompoundField.hpp"
-//ScalarFields
-extern template class Pimpact::MultiField< Pimpact::ScalarField< Pimpact::Space<double,int,3,2> > >;
-extern template class Pimpact::MultiField< Pimpact::ScalarField< Pimpact::Space<double,int,3,4> > >;
-extern template class Pimpact::MultiField< Pimpact::ScalarField< Pimpact::Space<double,int,4,2> > >;
-extern template class Pimpact::MultiField< Pimpact::ScalarField< Pimpact::Space<double,int,4,4> > >;
-
-//VectorFields
-extern template class Pimpact::MultiField< Pimpact::VectorField< Pimpact::Space<double,int,3,2> > >;
-extern template class Pimpact::MultiField< Pimpact::VectorField< Pimpact::Space<double,int,3,4> > >;
-extern template class Pimpact::MultiField< Pimpact::VectorField< Pimpact::Space<double,int,4,2> > >;
-extern template class Pimpact::MultiField< Pimpact::VectorField< Pimpact::Space<double,int,4,4> > >;
-
-//TimeFields
-extern template class Pimpact::MultiField< Pimpact::TimeField< Pimpact::ScalarField< Pimpact::Space<double,int,4,2> > > >;
-extern template class Pimpact::MultiField< Pimpact::TimeField< Pimpact::ScalarField< Pimpact::Space<double,int,4,4> > > >;
-extern template class Pimpact::MultiField< Pimpact::TimeField< Pimpact::VectorField< Pimpact::Space<double,int,4,2> > > >;
-extern template class Pimpact::MultiField< Pimpact::TimeField< Pimpact::VectorField< Pimpact::Space<double,int,4,4> > > >;
-
-//ModeFields
-extern template class Pimpact::MultiField< Pimpact::ModeField< Pimpact::ScalarField< Pimpact::Space<double,int,3,2> > > >;
-extern template class Pimpact::MultiField< Pimpact::ModeField< Pimpact::ScalarField< Pimpact::Space<double,int,3,4> > > >;
-extern template class Pimpact::MultiField< Pimpact::ModeField< Pimpact::VectorField< Pimpact::Space<double,int,3,2> > > >;
-extern template class Pimpact::MultiField< Pimpact::ModeField< Pimpact::VectorField< Pimpact::Space<double,int,3,4> > > >;
-
-////MultiHarmonicFields
-extern template class Pimpact::MultiField< Pimpact::MultiHarmonicField< Pimpact::ScalarField< Pimpact::Space<double,int,3,2> > > >;
-extern template class Pimpact::MultiField< Pimpact::MultiHarmonicField< Pimpact::ScalarField< Pimpact::Space<double,int,3,4> > > >;
-extern template class Pimpact::MultiField< Pimpact::MultiHarmonicField< Pimpact::VectorField< Pimpact::Space<double,int,3,2> > > >;
-extern template class Pimpact::MultiField< Pimpact::MultiHarmonicField< Pimpact::VectorField< Pimpact::Space<double,int,3,4> > > >;
-
-//CompoundFields
-extern template class Pimpact::MultiField< Pimpact::CompoundField< Pimpact::VectorField< Pimpact::Space<double,int,3,2> >, Pimpact::ScalarField< Pimpact::Space<double,int,3,2> > > >;
-extern template class Pimpact::MultiField< Pimpact::CompoundField< Pimpact::VectorField< Pimpact::Space<double,int,3,4> >, Pimpact::ScalarField< Pimpact::Space<double,int,3,4> > > >;
-extern template class Pimpact::MultiField< Pimpact::CompoundField< Pimpact::TimeField< Pimpact::VectorField< Pimpact::Space<double,int,4,2> > >, Pimpact::TimeField< Pimpact::ScalarField< Pimpact::Space<double,int,4,2> > > > >;
-extern template class Pimpact::MultiField< Pimpact::CompoundField< Pimpact::TimeField< Pimpact::VectorField< Pimpact::Space<double,int,4,4> > >, Pimpact::TimeField< Pimpact::ScalarField< Pimpact::Space<double,int,4,4> > > > >;
-extern template class Pimpact::MultiField< Pimpact::CompoundField< Pimpact::ModeField< Pimpact::VectorField< Pimpact::Space<double,int,3,2> > >, Pimpact::ModeField< Pimpact::ScalarField< Pimpact::Space<double,int,3,2> > > > >;
-extern template class Pimpact::MultiField< Pimpact::CompoundField< Pimpact::ModeField< Pimpact::VectorField< Pimpact::Space<double,int,3,4> > >, Pimpact::ModeField< Pimpact::ScalarField< Pimpact::Space<double,int,3,4> > > > >;
-extern template class Pimpact::MultiField< Pimpact::CompoundField< Pimpact::MultiHarmonicField< Pimpact::VectorField< Pimpact::Space<double,int,3,2> > >, Pimpact::MultiHarmonicField< Pimpact::ScalarField< Pimpact::Space<double,int,3,2> > > > >;
-extern template class Pimpact::MultiField< Pimpact::CompoundField< Pimpact::MultiHarmonicField< Pimpact::VectorField< Pimpact::Space<double,int,3,4> > >, Pimpact::MultiHarmonicField< Pimpact::ScalarField< Pimpact::Space<double,int,3,4> > > > >;
-extern template class Pimpact::MultiField< Pimpact::CompoundField< Pimpact::MultiHarmonicField< Pimpact::VectorField< Pimpact::Space<double,int,4,2> > >, Pimpact::MultiHarmonicField< Pimpact::ScalarField< Pimpact::Space<double,int,4,2> > > > >;
-extern template class Pimpact::MultiField< Pimpact::CompoundField< Pimpact::MultiHarmonicField< Pimpact::VectorField< Pimpact::Space<double,int,4,4> > >, Pimpact::MultiHarmonicField< Pimpact::ScalarField< Pimpact::Space<double,int,4,4> > > > >;
-#endif // end of #ifdef COMPILE_ETI
-
 
 #endif // end of #ifndef PIMPACT_MULTIFIELD_HPP
