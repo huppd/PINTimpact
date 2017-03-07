@@ -217,7 +217,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 	auto err = x->clone();
 	err->init(1);
 
-	Pimpact::initVectorTimeField( true_sol->getVFieldPtr(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha );
+	Pimpact::initVectorTimeField( true_sol->getVField(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha );
 
 	op->assignField(*true_sol);
 
@@ -250,7 +250,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiGrid, MG, CS ) {
 
 	///////
 
-	Pimpact::initVectorTimeField( true_sol->getVFieldPtr(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha );
+	Pimpact::initVectorTimeField( true_sol->getVField(), Pimpact::Pulsatile_inX, pl->get<double>("Re"), p, alpha );
 
 	// for consistency, ok
 	//x = true_sol->clone();

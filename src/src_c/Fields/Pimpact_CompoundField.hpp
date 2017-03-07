@@ -25,7 +25,8 @@ namespace Pimpact {
 /// \brief important basic Vector class
 /// vector for wrapping 2 fields into one mode
 /// \ingroup Field
-/// todo use attributes methods in vectorspace functions???
+/// \todo use attributes methods in vectorspace functions???
+/// \todo rm RCP, therefore make move constructor
 template<class VField, class SField>
 class CompoundField : private AbstractField<typename VField::SpaceT> {
 
@@ -82,12 +83,6 @@ public:
 
   constexpr const VField& getVField() { return( *vfield_ ); }
   constexpr const SField& getSField() { return( *sfield_ ); }
-
-	Teuchos::RCP<VField> getVFieldPtr() { return( vfield_ ); }
-	Teuchos::RCP<SField> getSFieldPtr() { return( sfield_ ); }
-
-  constexpr Teuchos::RCP<const VField> getVFieldPtr() { return( vfield_ ); }
-  constexpr Teuchos::RCP<const SField> getSFieldPtr() { return( sfield_ ); }
 
   constexpr const Teuchos::RCP<const SpaceT>& space() { return( AF::space_ ); }
 

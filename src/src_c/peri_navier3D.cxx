@@ -135,6 +135,7 @@ int main( int argi, char** argv ) {
 
 
 	// init vectors
+	//Teuchos::RCP<MF> x = Teuchos::rcp( new MF( space ) );
 	Teuchos::RCP<MF> x = wrapMultiField(
 			createCompoundField(
 				Teuchos::rcp( new VF(space,true) ),

@@ -296,7 +296,7 @@ int main(int argi, char** argv ) {
 
 
 	// init Fields, init and rhs
-	Pimpact::initVectorTimeField( x->getField(0).getVFieldPtr(), Pimpact::EFlowType(flow) );
+	Pimpact::initVectorTimeField( x->getField(0).getVField(), Pimpact::EFlowType(flow) );
 	//x->init( 0. );
 	x->random();
 
@@ -309,26 +309,26 @@ int main(int argi, char** argv ) {
 	if( 0!=forcing )
 	{
 
-		force = x->getField(0).getVFieldPtr()->clone( Pimpact::ECopy::Shallow );
+		force = x->getField(0).getVField().clone( Pimpact::ECopy::Shallow );
 
 		Pimpact::initVectorTimeField(
-				force,
+				*force,
 				Pimpact::OscilatingDisc2D,
 				xm*l1, ym*l2, rad, amp );
 		//		force->write(500);
 		//
 		Pimpact::initVectorTimeField(
-				fu->getField(0).getVFieldPtr(),
+				fu->getField(0).getVField(),
 				Pimpact::OscilatingDisc2DVel,
 				xm*l1, ym*l2, rad, amp*alpha2/re );
 
-		fu->getField(0).getVFieldPtr()->scale( *force );
+		fu->getField(0).getVField().scale( *force );
 
 		forcem1 = force->clone(Pimpact::ECopy::Shallow);
 		forcem1->init( 1. );
 		forcem1->add( 1., *forcem1, -1., *force );
 
-		x->getField(0).getVFieldPtr()->scale( *force );
+		x->getField(0).getVField().scale( *force );
 
 	}
 
