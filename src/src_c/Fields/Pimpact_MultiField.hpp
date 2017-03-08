@@ -536,6 +536,8 @@ public:
 ///
 /// simple wrapper.
 /// \relates MultiField
+/// 
+/// \todo make field reference + const cast( think of giving to flavours
 template<class FieldT>
 Teuchos::RCP< MultiField<FieldT> > wrapMultiField( const Teuchos::RCP<FieldT>& field ) {
 

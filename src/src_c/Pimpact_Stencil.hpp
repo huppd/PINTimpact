@@ -161,10 +161,12 @@ public:
 	constexpr ScalarArray get() const { return( c_ ); }
 
 	constexpr Scalar& operator()( const Ordinal& index, const int& offset ) {
+
 		assert( offset>=lb );
 		assert( offset<=ub );
 		assert( index>=ss );
 		assert( index<=nn_ );
+
 		return( c_[ offset-lb + (index-ss)*w_ ] );
 	};
 

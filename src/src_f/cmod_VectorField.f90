@@ -162,8 +162,7 @@ contains
   !! \param[in] kappa boundary suction KAPPA
   !! \param[in] s starting value for shooting
   !! \param[in] r end value for shooting
-  !! \param[in] rank rank of processor (for write)
-  SUBROUTINE shoot_v(v,grid,n,sweep_angle,angle_attack,kappa,s,r,rank)
+  SUBROUTINE shoot_v(v,grid,n,sweep_angle,angle_attack,kappa,s,r)
 
     implicit none
 
@@ -175,7 +174,6 @@ contains
     real(c_double), intent(in)    :: sweep_angle
     real(c_double), intent(in)    :: angle_attack
     real(c_double), intent(in)    :: kappa
-    integer(c_int), intent(in)    :: rank
     !-------------------------------------------------------------------------
     real(c_double) :: rhs(3)        !value of right-hand side
     real(c_double) :: g(3)          !intermediate value in Runge-Kutta integration
@@ -212,7 +210,7 @@ contains
     do
       ! -- mjohn 111111
       !! catch values in order to prevent divergence collapse (floating point overflow)
-      IF (rank .EQ. 0 .AND. abs(t(1)) .ge. 1e6) THEN
+      if( abs(t(1)) .ge. 1e6 ) then
         r = t(2) + cosPhi;
         exit
       end if
@@ -454,8 +452,8 @@ contains
 
     !!!*** solve equation for v
     ! move to VectorField::initField
-    if (rank .EQ. 0 .AND. (kappa.GT.3.0 .OR. kappa.LT.0.0 .OR. sweep_angle_degrees.GT.90.0  .OR. sweep_angle_degrees.LT.0.0 )) then
-      WRITE(*,*) 'WARNING: kappa or sweep angle outside allowed interval!! Shooting integration might fail.'
+    if( kappa.gt.3.0 .or. kappa.LT.0.0 .or. sweep_angle_degrees.GT.90.0  .or. sweep_angle_degrees.LT.0.0 ) then
+      WRITE(*,*) 'WARNING: kappa or sweep angle outside allowed interval!! Shooting integration might fail. rank: ', rank
     end if
 
     initv1 = -vxxGuess*(1+1e-3) !value of ddv for first shot
@@ -465,7 +463,7 @@ contains
     !----------- mjohn 101111 
 
     !!! ---------------------------------------------------------- SOLVE SHOOTING INTEGRATION PROBLEM FOR VELOCITY V ----------------------------------------------------
-    if (rank.eq.0) then
+    if( rank == 0 ) then
       WRITE(*,*) ' Solving equation v'''''' = cos^2(sweep_angle) - v''^2  + v v'''' for v'
     end if
 
@@ -474,8 +472,8 @@ contains
     s1 = initv2
 
     !! two initial shots
-    call shoot_v(v,grid,n,sweep_angle,angle_attack,kappa,s0,r0,rank)
-    call shoot_v(v,grid,n,sweep_angle,angle_attack,kappa,s1,r1,rank)
+    call shoot_v(v,grid,n,sweep_angle,angle_attack,kappa,s0,r0)
+    call shoot_v(v,grid,n,sweep_angle,angle_attack,kappa,s1,r1)
 
     i = 1
     !! controlled shooting loop
@@ -489,12 +487,12 @@ contains
         r0 = r1
       end if
 
-      call shoot_v(v,grid,n,sweep_angle,angle_attack,kappa,s1,r1,rank)
+      call shoot_v(v,grid,n,sweep_angle,angle_attack,kappa,s1,r1)
 
       if(abs(r1) .le. 1e-10) then
         !!goal reached
         exit
-      elseif ((s1 .eq. s0) .or. (r1 .eq. r0)) then
+      elseif ((s1 == s0) .or. (r1 == r0)) then
         !!no more progress
         exit
       end if
@@ -504,7 +502,7 @@ contains
     sv = s1
 
     !! print output  
-    if (rank.eq.0) then
+    if( rank==0 ) then
       !      write(*,*) '   Ended shoot_v successfully. ddy(v)|0 = ', v(1,3)
       write(*,*) ' residuum =', r1
       !      if ( ((initv1+initv2)/2.0) .NE. 0.0) then
@@ -516,7 +514,7 @@ contains
     end if
 
     !!! ---------------------------------------------------------- SOLVE SHOOTING INTEGRATION PROBLEM FOR VELOCITY W ----------------------------------------------------
-    if (rank.eq.0) then
+    if( rank==0 ) then
       WRITE(*,*) ' Solving equation w'''' = v w'' for w'
     end if
 
@@ -540,7 +538,7 @@ contains
       call shoot_w(w,v,grid,n,sweep_angle,sweep_angle_degrees,kappa,sv,s1,r1,blThick)
 
       !!check result
-      IF(abs(r1) .LE. 1E-10) THEN
+      IF( abs(r1) .LE. 1E-10 ) THEN
         !!goal reached
         EXIT
       ELSEIF ((s1 .EQ. s0) .OR. (r1 .EQ. r0)) THEN
@@ -550,7 +548,7 @@ contains
     END DO
 
     !! print output
-    if (rank.eq.0) then
+    if( rank==0 ) then
       !      write(*,*) '   Ended shoot_w successfully. dy(w)|0 = ', w(1,2)
       write(*,*) ' residuum =', r1
       write(*,*)
@@ -572,79 +570,6 @@ contains
     deallocate(v,w)
 
   END SUBROUTINE calcbasicflow
-
-
-
-  !> extracts field to field without ghostlayers or boundaries
-  subroutine extract_dof(    &
-      dimens,                &
-      N,                     &
-      bL,bU,                 &
-      SU,NU,                 &
-      SV,NV,                 &
-      SW,NW,                 &
-      phiiU,phiiV,phiiW,     &
-      phioU,phioV,phioW ) bind ( c, name='VF_extract_dof' )
-
-    implicit none
-
-    integer(c_int), intent(in)    ::  dimens
-
-    integer(c_int), intent(in)    ::  N(3)
-
-    integer(c_int), intent(in)    ::  bL(3)
-    integer(c_int), intent(in)    ::  bU(3)
-
-    integer(c_int), intent(in)    ::  SU(3)
-    integer(c_int), intent(in)    ::  NU(3)
-
-    integer(c_int), intent(in)    ::  SV(3)
-    integer(c_int), intent(in)    ::  NV(3)
-
-    integer(c_int), intent(in)    ::  SW(3)
-    integer(c_int), intent(in)    ::  NW(3)
-
-    real(c_double),  intent(in)   ::  phiiU(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-    real(c_double),  intent(in)   ::  phiiV(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-    real(c_double),  intent(in)   ::  phiiW(bL(1):(N(1)+bU(1)),bL(2):(N(2)+bU(2)),bL(3):(N(3)+bU(3)))
-
-    real(c_double),  intent(out)   ::  phioU(SU(1):NU(1),SU(2):NU(2),SU(3):NU(3))
-    real(c_double),  intent(out)   ::  phioV(SV(1):NV(1),SV(2):NV(2),SV(3):NV(3))
-    real(c_double),  intent(out)   ::  phioW(SW(1):NW(1),SW(2):NW(2),SW(3):NW(3))
-
-    integer(c_int)                       ::  i, j, k
-
-
-    do k = SU(3), NU(3)
-      do j = SU(2), NU(2)
-        !pgi$ unroll = n:8
-        do i = SU(1), NU(1)
-          phioU(i,j,k) =  phiiU(i,j,k)
-        end do
-      end do
-    end do
-
-    do k = SV(3), NV(3)
-      do j = SV(2), NV(2)
-        !pgi$ unroll = n:8
-        do i = SV(1), NV(1)
-          phioV(i,j,k) =  phiiV(i,j,k)
-        end do
-      end do
-    end do
-
-    if (dimens == 3) then
-      do k = SW(3), NW(3)
-        do j = SW(2), NW(2)
-          !pgi$ unroll = n:8
-          do i = SW(1), NW(1)
-            phioW(i,j,k) =  phiiW(i,j,k)
-          end do
-        end do
-      end do
-    end if
-
-  end subroutine extract_dof
 
 
 
@@ -1858,7 +1783,7 @@ contains
     !real(c_double)                ::  baseflow1p     (bL(1):(N(1)+bU(1)))
 
 
-    !---- mjohn 120207  ------------------------------------------------ SWEPT HIEMENZ BASE FLOW -----------------------------------------------------------------------
+    !---- mjohn 120207 --------------------------- SWEPT HIEMENZ BASE FLOW ---------------------
 
     ! initialize variables
     velU = 0.
@@ -1876,13 +1801,13 @@ contains
     ! integration routines however are unaltered (see below), because variables are overwritten (see usr_config.f90)
     select case (nonDim)
     case(0)
-      if(rank .eq. 0) then
+      if( rank == 0 ) then
         write(*,'(a)') 'classical non-dimensionalization applied'
       end if
       ! traditinoal SHBL case
       baseflow(bL(1):(N(1)+bU(1)),2) = baseflow_global((bL(1)+iShift):(N(1)+bU(1)+iShift),2)
     case default
-      if(rank .eq. 0) then
+      if( rank == 0 ) then
         write(*,'(a)') 'novel non-dimensionalization applied'
       end if
       ! 2 degrees of freedom and novel formalism (cases 1 and 2)
@@ -1900,7 +1825,7 @@ contains
 
     !write(*,*)  'ii, cIup(ii,i)'
     !do ii = dL(1), dU(1)
-      !write(*,*)  ii, cIup(ii)
+    !write(*,*)  ii, cIup(ii)
     !end do
 
     if( 1==IB1 ) then ! change to BCL(1)
@@ -1910,28 +1835,28 @@ contains
       end do
       baseflow_global(0,1) = baseflow_global(0,1) / cIup(-1)
 
-      !write(*,*)
-
     end if
-    write(*,*) cIup(-1),baseflow_global(0,1)
+    !write(*,*) cIup(-1),baseflow_global(0,1)
 
     baseflow(bL(1):(N(1)+bU(1)),1) = baseflow_global((bL(1)+iShift):(N(1)+bU(1)+iShift),1) / Re
 
     ! TEST!!! - debugging purposes only
-    write(*,*) "distance, velocity (both in x1-direction)"
-    DO i = SU(1), NU(1)
-      write(*,*)  i, baseflow(i,1)
-    end do
-    write(*,*)
-    write(*,*) "distance, velocity (both in x2-direction)"
-    DO i = SV(1), NV(1)
-      write(*,*) i, baseflow(i,2)
-    end do
-    write(*,*)
-    write(*,*) "distance, velocity (both in x3-direction)"
-    DO i = SW(1), NW(1)
-      write(*,*) i, baseflow(i,3)
-    end do
+    if( rank == 0 ) then
+      write(*,*) "distance, velocity (both in x1-direction)"
+      DO i = SU(1), NU(1)
+        write(*,*)  i+iShift, baseflow(i,1)
+      end do
+      write(*,*)
+      write(*,*) "distance, velocity (both in x2-direction)"
+      DO i = SV(1), NV(1)
+        write(*,*) i+iShift, baseflow(i,2)
+      end do
+      write(*,*)
+      write(*,*) "distance, velocity (both in x3-direction)"
+      DO i = SW(1), NW(1)
+        write(*,*) i+iShift, baseflow(i,3)
+      end do
+    endif
 
     do k = SU(3), NU(3)
       do j = SU(2), NU(2)
@@ -2250,9 +2175,9 @@ contains
     end do
 
     !----- mjohn 260912
-    IF(rank == 0 .AND. aborted .eq. 1) THEN
+    if( rank == 0 .and. aborted == 1) then
       WRITE(*,*) "WARNING! No valid initial disturbance defined. Initial conditions equal to baseflow only."
-    END IF
+    end if
 
   end subroutine VF_init_Dist
 

@@ -134,6 +134,7 @@ int main( int argi, char** argv ) {
 			Teuchos::rcpFromRef( pl->sublist( "Space", true ) ) );
 
 
+	if( 0==space->rankST() ) std::cout << "initial field\n";
 	// init vectors
 	//Teuchos::RCP<MF> x = Teuchos::rcp( new MF( space ) );
 	Teuchos::RCP<MF> x = wrapMultiField(
@@ -143,35 +144,39 @@ int main( int argi, char** argv ) {
 
 	// init Fields
 	x->getField(0).getVField().initField( pl->sublist("Base flow") );
-	//if( withoutput ) x->write( 900 );
+	//if( withoutput ) x->getField(0).getVField().get0Field().print(  );
 
-
-
-	/******************************************************************************************/
+	/*********************************************************************************/
 	for( int refine=0; refine<refinement; ++refine ) {
 
+		if( 0==space->rankST() ) std::cout << "create operator\n";
 		auto opV2V = Pimpact::createMultiDtConvectionDiffusionOp( space );
 		auto opS2V = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::GradOp>( space ) );
 		auto opV2S = Pimpact::createMultiHarmonicOpWrap( Pimpact::create<Pimpact::DivOp>( space ) );
 
-		{
-			opV2S->apply( x->getField(0).getVField(), x->getField(0).getSField()  );
-			S divergence = x->getField(0).getSField().norm();
-			if( 0==space->rankST() )
-				std::cout << "\ndiv(Base Flow): " << divergence << "\n\n";
-			x->getField(0).getSField().init( 0. );
-		}
 		auto op = Pimpact::createCompoundOpWrap(
 				opV2V,
 				opS2V,
 				opV2S );
 
+		if( 0==space->rankST() ) std::cout << "create RHS:\n";
+		if( 0==space->rankST() ) std::cout << "\tdiv test\n";
+		{
+			opV2S->apply( x->getField(0).getVField(), x->getField(0).getSField()  );
+			S divergence = x->getField(0).getSField().norm();
+			if( 0==space->rankST() )
+				std::cout << "\n\tdiv(Base Flow): " << divergence << "\n\n";
+			x->getField(0).getSField().init( 0. );
+		}
+
 		std::string rl = "";
 		if( refinement>1 )
 			rl = std::to_string( static_cast<long long>(refine) ); // long long needed on brutus(intel)
 
+		if( 0==space->rankST() ) std::cout << "\tcreate RHS\n";
 		auto fu = x->clone( Pimpact::ECopy::Shallow );
 
+		if( 0==space->rankST() ) std::cout << "\tBC interpolation\n";
 		{
 			// to get the Dirichlet for the RHS (necessary interpolation) ugly
 			// super ugly hack for BC::Dirichlet
@@ -179,6 +184,7 @@ int main( int argi, char** argv ) {
 			fu->init( 0., Pimpact::B::N );
 		}
 
+		if( 0==space->rankST() ) std::cout << "\tforcing\n";
 		// Taylor Green Vortex
 		std::string forceType = pl->sublist("Force").get<std::string>("force type","Dirichlet");
 		if( "force"== forceType )
@@ -220,6 +226,7 @@ int main( int argi, char** argv ) {
 					//[&pi2]( S x, S y, S z ) ->S { return( std::sin(2.*y*pi2)/4. ); } );
 		}
 
+		if( 0==space->rankST() ) std::cout << "set initial conditions\n";
 		if( 0==refine ) {
 			if( "zero"==initGuess )
 				x->init( 0. );
