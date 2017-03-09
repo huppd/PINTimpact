@@ -70,7 +70,7 @@
         </ParameterList>
         <ParameterList id="13" name="Test 2">
           <Parameter docString="" id="101" isDefault="false" isUsed="true" name="Test Type" type="string" value="MaxIters" />
-          <Parameter docString="" id="102" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="1" />
+          <Parameter docString="" id="102" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="2" />
         </ParameterList>
         <ParameterList id="14" name="Test 3">
           <Parameter docString="" id="103" isDefault="false" isUsed="true" name="Test Type" type="string" value="Stagnation" />
@@ -124,11 +124,11 @@
 		<Parameter docString="" id="128" isDefault="true" isUsed="true" name="preconditioner" type="string" value="right" />
 		<Parameter docString="" id="411" isDefault="true" isUsed="true" name="nullspace ortho" type="bool" value="false" />
 		<ParameterList id="25" name="Solver">
+			<Parameter docString="" id="130" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="30" />
+			<Parameter docString="" id="131" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-01" />
 			<Parameter docString="" id="741" isDefault="false" isUsed="true" name="Implicit Residual Scaling" type="string" value="Norm of RHS" />
 			<Parameter docString="" id="841" isDefault="false" isUsed="true" name="Explicit Residual Scaling" type="string" value="Norm of RHS" />
 			<Parameter docString="" id="129" isDefault="false" isUsed="true" name="Flexible Gmres" type="bool" value="true" />
-			<Parameter docString="" id="130" isDefault="false" isUsed="true" name="Maximum Iterations" type="int" value="20" />
-			<Parameter docString="" id="131" isDefault="false" isUsed="true" name="Convergence Tolerance" type="double" value="1.0e-01" />
 			<Parameter docString="" id="132" isDefault="false" isUsed="true" name="Verbosity" type="int" value="111" />
 			<Parameter docString="" id="133" isDefault="false" isUsed="true" name="Timer Label" type="string" value="Compound( MHDtConvectionDiffusion, MH_Grad, MH_Div )" />
 			<Parameter docString="" id="134" isDefault="false" isUsed="true" name="Output Frequency" type="int" value="10" />
