@@ -23,15 +23,15 @@ case_path = ['','','','','','','','','']
 
 runs = range( 1 )
 
-res       = [ 300 ]
-alpha2s   =  [ 1./60., 1./30., 1./15., 1./10. ]
+res      = [ 300 ]
+alpha2s  = [ 1./60., 1./30., 1./15., 1./10. ]
 nf       =  1 
 nx       =  1 
 npx      =  1 
 npf = 1
 
 
-case_path[0] = '/ultimaate'
+case_path[0] = '/ultimate'
 mkdir( case_path, 0 )
 
 for re in res:
