@@ -85,27 +85,28 @@ public:
 
 				// generate global Div Stencil(copy from transposed stencil)
 				// generate Matrix
-				Teuchos::RCP<MatrixT> D = Teuchos::rcp( new MatrixT( N + 1, N, true ) );
+				Teuchos::RCP<MatrixT> Dtrans = Teuchos::rcp( new MatrixT( N+1, N, true ) );
 				for( Ordinal i=0; i<=N; ++i ) {
 					for( int ii=space->gl(dir); ii<=space->gu(dir); ++ii ) {
 						if( 0<=i+ii-1 && i+ii-1<N )
-							(*D)(i,i+ii-1) = cG2(i+ii,-ii);
+							(*Dtrans)(i,i+ii-1) = cG2(i+ii,-ii);
 					}
 				}
+
 				// generate RHS
 				Teuchos::RCP<VectorT> b = Teuchos::rcp( new VectorT( N + 1, true ) );
 
 				if( space->getBCGlobal()->getBCL(dir)>0 ) {
 					if( DJG_yes ) {
-						(*b)(0) = -space->getInterpolateV2S()->getC( static_cast<Pimpact::ECoord>(dir),1,-1);
-						(*b)(1) = -space->getInterpolateV2S()->getC( static_cast<Pimpact::ECoord>(dir),1, 0);
-						(*b)(2) = -space->getInterpolateV2S()->getC( static_cast<Pimpact::ECoord>(dir),1, 1);
-						(*b)(3) = -space->getInterpolateV2S()->getC( static_cast<Pimpact::ECoord>(dir),1, 2);
+
+						for( int ii=-1; ii<=space->du(dir); ++ii )
+							(*b)(ii+1) = -space->getInterpolateV2S()->getC( static_cast<Pimpact::ECoord>(dir),1,ii);
+
 						MPI_Bcast(
-								&(*b)(0),																		//void* data,
-								4,																					//int count,
-								MPI_DOUBLE,																	//MPI_Datatype datatype,
-								0,																					//int root,
+								&(*b)(0),																		// void* data,
+								space->du(dir)+2,														// int count,
+								MPI_DOUBLE,																	// MPI_Datatype datatype,
+								0,																					// int root,
 								space->getProcGrid()->getCommSlice(dir) );	// MPI_Comm comm )
 					}
 					else
@@ -114,33 +115,33 @@ public:
 
 				if( space->getBCGlobal()->getBCU(dir)>0 ) {
 					if( DJG_yes ) {
-					(*b)(N-3) = space->getInterpolateV2S()->getC( static_cast<Pimpact::ECoord>(dir),space->end(F::S,dir),-3);
-					(*b)(N-2) = space->getInterpolateV2S()->getC( static_cast<Pimpact::ECoord>(dir),space->end(F::S,dir),-2);
-					(*b)(N-1) = space->getInterpolateV2S()->getC( static_cast<Pimpact::ECoord>(dir),space->end(F::S,dir),-1);
-					(*b)(N  ) = space->getInterpolateV2S()->getC( static_cast<Pimpact::ECoord>(dir),space->end(F::S,dir), 0);
-					MPI_Bcast(
-							&(*b)(N-3),																	//void* data,
-							4,																					//int count,
-							MPI_DOUBLE,																	//MPI_Datatype datatype,
-							space->getProcGrid()->getNP(dir)-1,					//int root,
-							space->getProcGrid()->getCommSlice(dir) );	// MPI_Comm comm )
+
+						for( int ii=space->dl(dir); ii<=0; ++ii )
+							(*b)(N+ii) = space->getInterpolateV2S()->getC( static_cast<Pimpact::ECoord>(dir),space->end(F::S,dir), ii);
+						
+						MPI_Bcast(
+								&(*b)(N-3),																	//void* data,
+								1-space->dl(dir),														//int count,
+								MPI_DOUBLE,																	//MPI_Datatype datatype,
+								space->getProcGrid()->getNP(dir)-1,					//int root,
+								space->getProcGrid()->getCommSlice(dir) );	// MPI_Comm comm )
 					}
 					else
 						(*b)(N) = 1.;
 				}
 
-				Teuchos::RCP<SolverT> solv_ = Teuchos::rcp( new SolverT() );
-				solv_->factorWithEquilibration( true );
-				solv_->setMatrix( D );
-				solv_->factor();
-				solv_->setVectors( x_[dir], b );
-				solv_->solve();
+				SolverT solv;
+				solv.factorWithEquilibration( true );
+				solv.setMatrix( Dtrans );
+				solv.factor();
+				solv.setVectors( x_[dir], b );
+				solv.solve();
 				// solve with QRU
 				if( 0==space->rankST() ) {
-					std::cout << "dir: " << dir << "\n";
-					std::cout << std::scientific;
-					std::cout << std::setprecision( std::numeric_limits<long double>::digits10 + 1);
-					std::cout << *x_[dir] << "\n";
+					//std::cout << "dir: " << dir << "\n";
+					//std::cout << std::scientific;
+					//std::cout << std::setprecision( std::numeric_limits<long double>::digits10 + 1);
+					//std::cout << *x_[dir] << "\n";
 
 					Teuchos::RCP<std::ostream> output = Pimpact::createOstream( "null.txt" );
 					x_[dir]->print( *output );
@@ -153,14 +154,6 @@ public:
 					for( Ordinal i=space()->begin(F::S,X); i<=space()->end(F::S,X); ++i ) {
 							y(i,j,k) = (*x_[0])(i-1+space->getShift(0))* (*x_[1])(j-1+space->getShift(1))* (*x_[2])(k-1+space->getShift(2));
 					}
-			//y(1,1,1) = 0.;
-			//y(space()->end(F::S,X),1,1) = 0.;
-			//y(1.,space()->end(F::S,Y),1) = 0.;
-			//y(1.,1.,space()->end(F::S,Z)) = 0.;
-			//y(1.,space()->end(F::S,Y),space()->end(F::S,Z)) = 0.;
-			//y(space()->end(F::S,X),1.,space()->end(F::S,Z)) = 0.;
-			//y(space()->end(F::S,X),space()->end(F::S,Y),1) = 0.;
-			//y(space()->end(F::S,X),space()->end(F::S,Y),space()->end(F::S,Z)) = 0.;
 		}
 		else{
 			for( Ordinal k=space()->begin(F::S,Z); k<=space()->end(F::S,Z); ++k )
@@ -170,7 +163,6 @@ public:
 		}
 		Scalar blup = std::sqrt( 1./y.dot(y) );
 		y.scale( blup );
-		//y.write( SpaceT::sdim );
 	}
 
 

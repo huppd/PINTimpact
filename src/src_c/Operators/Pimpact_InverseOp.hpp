@@ -109,18 +109,18 @@ public:
 	 if( nullspaceOrtho_ ) {
 		 for( int i=0; i<x.getNumberVecs(); ++i ) {
 			 ScalarT bla = -nullspace_->getField(0).dot( x.getField(i) );
-			 std::cout << getLabel()<< ": nullspace contributtion: " << std::abs(bla)  << "\n";
+			 if( 0==space()->rankST() ) std::cout << getLabel()<< ": nullspace contributtion[" << i<< "]: " << std::abs(bla)  << "\n";
 			 if( std::abs( bla ) >= Teuchos::ScalarTraits<ScalarT>::eps() )
 				 const_cast<MF&>(x).getField(i).add( 1., x.getField(i), bla, nullspace_->getField(0) );
 		 }
-		 std::cout << "\n";
+		 if( 0==space()->rankST() ) std::cout << "\n";
 	 }
 
 	 Belos::ReturnType succes = linprob_->solve( Teuchos::rcpFromRef(y), Teuchos::rcpFromRef(x) );
 
 	 if( debug_ && Belos::ReturnType::Unconverged==succes ) {
 		 x.write();
-		 assert( false );
+		 assert( Belos::ReturnType::Converged==succes );
 		 //TEUCHOS_TEST_FOR_EXCEPT( false );
 		 //TEUCHOS_TEST_FOR_EXCEPT( true );
 	 }

@@ -802,9 +802,6 @@ public:
 					//for( Ordinal ii=0; ii<nTemp; ++ii )
 					//std::cout << c[  ii ] << ",\t";
 					//std::cout << "c\n";
-					std::cout << "rankST: " << space()->rankST() << "\n"
-						<< "shift: " << space()->getShift(0) << "\n"
-						<< "IB: " << space()->getProcGrid()->getIB(0) << "\n\n";
 
 					VF_init_SHBF( 
 							//1,
