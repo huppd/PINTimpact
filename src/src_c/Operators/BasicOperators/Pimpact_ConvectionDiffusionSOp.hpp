@@ -125,6 +125,8 @@ public:
 	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(helmOp_->space()); };
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
+		std::cout << getLabel() << "\n";
+
 		mulI_ = para->get<Scalar>( "mulI" );
 		mulC_ = para->get<Scalar>( "mulC" );
 		mulL_ = para->get<Scalar>( "mulL" );

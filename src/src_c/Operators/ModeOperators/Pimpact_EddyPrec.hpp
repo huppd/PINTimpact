@@ -88,9 +88,9 @@ public:
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
 
-		mulI_ = para->get<Scalar>( "mulI", 0. );
-		mulC_ = para->get<Scalar>( "mulC", 1. );
-		mulL_ = para->get<Scalar>( "mulL", 1./space()->getDomainSize()->getRe() );
+		mulI_ = para->get<Scalar>( "mulI" );
+		mulC_ = para->get<Scalar>( "mulC" );
+		mulL_ = para->get<Scalar>( "mulL" );
 
 	}
 

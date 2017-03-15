@@ -57,7 +57,6 @@
 /// \defgroup ModeOperator Mode Operator
 /// \ingroup Operator
 /// Operator operate on mode fields: \c Pimpact::ModeField
-#include "Pimpact_DtModeOp.hpp"
 #include "Pimpact_EddyPrec.hpp"
 #include "Pimpact_ModeOpWrap.hpp"
 #include "Pimpact_ModeNonlinearOp.hpp"

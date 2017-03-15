@@ -78,9 +78,11 @@ public:
     return( opm_->hasApplyTranspose() );
   };
 
-	virtual const Teuchos::RCP<const SpaceT>& space() const { return(opm_->space()); };
+	virtual const Teuchos::RCP<const SpaceT>& space() const {
+		return(opm_->space()); };
 
-	virtual void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) { opm_->setParameter(para); }
+	virtual void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para )
+	{ opm_->setParameter(para); }
 
   virtual Teuchos::RCP<Op> getOperatorPtr() { return( opm_ ); }
 

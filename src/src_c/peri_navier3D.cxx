@@ -25,7 +25,6 @@
 #include "Pimpact_CoarsenStrategyGlobal.hpp"
 #include "Pimpact_CoarsenStrategy.hpp"
 #include "Pimpact_Fields.hpp"
-#include "Pimpact_LinearProblem.hpp"
 #include "Pimpact_LinSolverParameter.hpp"
 #include "Pimpact_ModeNonlinearOp.hpp"
 #include "Pimpact_MultiGrid.hpp"
@@ -115,7 +114,7 @@ int main( int argi, char** argv ) {
 
 
 	auto pl = Teuchos::getParametersFromXmlFile( xmlFilename );
-	pl->print();
+	//pl->print();
 
 	/////////////////////////////////////////// end of set up parameters /////////////////////////
 
@@ -135,8 +134,8 @@ int main( int argi, char** argv ) {
 
 
 	if( 0==space->rankST() ) std::cout << "initial field\n";
+
 	// init vectors
-	//Teuchos::RCP<MF> x = Teuchos::rcp( new MF( space ) );
 	Teuchos::RCP<MF> x = wrapMultiField(
 			createCompoundField(
 				Teuchos::rcp( new VF(space,true) ),
@@ -144,7 +143,6 @@ int main( int argi, char** argv ) {
 
 	// init Fields
 	x->getField(0).getVField().initField( pl->sublist("Base flow") );
-	//if( withoutput ) x->getField(0).getVField().get0Field().print(  );
 
 	/*********************************************************************************/
 	for( int refine=0; refine<refinement; ++refine ) {
@@ -500,9 +498,7 @@ int main( int argi, char** argv ) {
 
 		auto nx = NOX::Pimpact::createVector( x );
 
-		auto bla = Teuchos::parameterList();
-
-		auto group = NOX::Pimpact::createGroup( bla, inter, nx );
+		auto group = NOX::Pimpact::createGroup( Teuchos::parameterList(), inter, nx );
 
 		// Set up the status tests
 		auto statusTest =

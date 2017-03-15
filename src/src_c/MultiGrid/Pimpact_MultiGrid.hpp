@@ -306,6 +306,7 @@ public:
 	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(mgSpaces_->get()); };
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
+		std::cout << "MultiGrid\n";
 		mgOps_->setParameter( para );
 	}
 

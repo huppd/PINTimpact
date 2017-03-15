@@ -57,6 +57,8 @@ public:
   constexpr const Teuchos::RCP<const SpaceT>& space() const { return( convectionSOp_->space() ); }
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
+		std::cout << getLabel() << " set: \n";
+		para->print();
 		convectionSOp_->setParameter( para );
 	}
 

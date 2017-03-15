@@ -56,6 +56,10 @@ ST lx = 1.;
 ST ly = 1.;
 ST lz = 1.;
 
+ST x0 = 0.;
+ST y0 = 0.;
+ST z0 = 0.;
+
 ST omega = 0.8;
 ST winds = 1;
 int sweeps = 12;
@@ -118,6 +122,10 @@ TEUCHOS_STATIC_SETUP() {
 	clp.setOption( "lx", &lx, "" );
 	clp.setOption( "ly", &ly, "" );
 	clp.setOption( "lz", &lz, "" );
+
+	clp.setOption( "x0", &x0, "" );
+	clp.setOption( "y0", &y0, "" );
+	clp.setOption( "z0", &z0, "" );
 
 	clp.setOption( "nx", &nx, "" );
 	clp.setOption( "ny", &ny, "" );
@@ -235,6 +243,10 @@ void setParameter( int dim ) {
 	pl->set( "lx", lx );
 	pl->set( "ly", ly );
 	pl->set( "lz", lz );
+
+	pl->set<ST>( "origin x", x0, "origin in x-direction" );
+	pl->set<ST>( "origin y", y0, "origin in y-direction" );
+	pl->set<ST>( "origin z", z0, "origin in z-direction" );
 
 	//  grid size
 	pl->set( "nx", nx );

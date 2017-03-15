@@ -111,7 +111,8 @@ public:
 	/// a Jacobian or preconditioning will not be available.  You will be
 	/// limited to simple algorithms like nonlinear-CG with no
 	/// preconditioning.
-	Group( Teuchos::ParameterList& printingParams,
+	Group(
+			Teuchos::ParameterList& printingParams,
 			const Teuchos::RCP<Interface>& i,
 			const VectorT& x):
 		utils(printingParams),
@@ -382,7 +383,7 @@ public:
     NewtonVector.init( 0.0 );
 
     // Create Epetra problem for the linear solve
-    status = applyJacobianInverse(params, RHSVector, NewtonVector);
+    status = applyJacobianInverse( params, RHSVector, NewtonVector );
 
     // Scale soln by -1
     NewtonVector.scale(-1.0);
@@ -463,7 +464,8 @@ public:
   /// <ul>
   /// <li> NOX::Abstract::Group::NotDefined - Returned by default implementation
   /// in NOX::Abstract::Group
-  /// <li> NOX::Abstract::Group::BadDependency - If \f$J\f$ has not been computed     <li> NOX::Abstract::Group::NotConverged - If the linear solve fails to satisfy the "Tolerance"
+  /// <li> NOX::Abstract::Group::BadDependency - If \f$J\f$ has not been computed
+	/// <li> NOX::Abstract::Group::NotConverged - If the linear solve fails to satisfy the "Tolerance"
   /// specified in \c params
   /// <li> NOX::Abstract::Group::Failed - If the computation fails
   /// <li> NOX::Abstract::Group::Ok - Otherwise
@@ -506,6 +508,7 @@ public:
 
     return( status );
   }
+
   virtual NOX::Abstract::Group::ReturnType
   applyJacobianInverse( Teuchos::ParameterList& params, const NOX::Abstract::Vector& input, NOX::Abstract::Vector& result ) const {
     const VectorT& pimpInput = dynamic_cast<const VectorT&>(input);
@@ -796,11 +799,11 @@ protected:
 
 /// \relates Group
 template< class Interface >
-//Teuchos::RCP<NOX::Abstract::Group> createGroup(
 Teuchos::RCP<NOX::Pimpact::Group<Interface> > createGroup(
     const Teuchos::RCP<Teuchos::ParameterList>& list,
     const Teuchos::RCP<Interface>& i,
     const Teuchos::RCP<typename NOX::Pimpact::Group<Interface>::VectorT>& x ) {
+
   return( Teuchos::rcp( new NOX::Pimpact::Group<Interface>( *list, i, *x ) ) );
 }
 

@@ -88,6 +88,7 @@ public:
   ///   all the parameters that the solver understands, possibly
   ///   including human-readable documentation and validators.
   void setParameters( const Teuchos::RCP<Teuchos::ParameterList> &params ) {
+		std::cout<< "Pimpact::LinearProblem\n";
     solver_->setParameters( params );
   }
 

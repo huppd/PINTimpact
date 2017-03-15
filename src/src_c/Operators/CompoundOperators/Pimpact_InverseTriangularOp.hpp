@@ -72,7 +72,11 @@ public:
 
 	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(opV2V_->space()); };
 
-	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {
+		std::cout << getLabel() << "\n";
+		opV2V_->setParameter( para );
+		opS2S_->setParameter( para );
+	}
 
   bool hasApplyTranspose() const { return( false ); }
 

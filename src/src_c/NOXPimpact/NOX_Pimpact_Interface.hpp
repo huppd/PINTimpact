@@ -81,6 +81,20 @@ public:
 
 	NOX::Abstract::Group::ReturnType applyJacobianInverse( Teuchos::ParameterList &params, const FieldT& x, FieldT& y ) {
 
+		double atol = params.get<double>("Tolerance");
+		double res = x.norm();
+		Teuchos::RCP<Teuchos::ParameterList> para = Teuchos::parameterList("Linear Solver");
+		para->set<double>( "Convergence Tolerance", atol*res );
+		//std::cout << "--- applyJacobianInverse ---\n";
+		//std::cout << params;
+		//std::cout << "Tolerance: " << atol << "\n";
+		//std::cout << "||F||: " << res << "\n";
+		//std::cout << "eps||F||: " << atol*res << "\n";
+		//std::cout << para->name() << "\n";
+		//para->print();
+		//std::cout << "----------------------------\n";
+		// compute Tol
+		jopInv_->setParameter( para );
 		jopInv_->apply( x, y );
 		return( NOX::Abstract::Group::Ok );
 	}

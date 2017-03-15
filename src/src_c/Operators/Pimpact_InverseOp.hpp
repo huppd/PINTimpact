@@ -153,29 +153,41 @@ public:
 
  constexpr const Teuchos::RCP<const SpaceT>& space() const { return(linprob_->space()); };
 
- constexpr Teuchos::RCP<const LinearProblem<MF> > getLinearProblem() const {
-	 return(linprob_);
- }
-
  constexpr Teuchos::RCP<const Op> getOperatorPtr() const {
-	 return( getLinearProblem()->getOperatorPtr() );
+	 return( linprob_->getOperatorPtr() );
  };
 
  void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
-    auto prob = linprob_->getProblem();
 
-		Teuchos::rcp_const_cast<Op>( prob->getOperator() )->setParameter( para );
+	 if( para->name()=="Linear Solver" ) {
+		 std::cout << getLabel() << ":\n";
 
-    if( prob->isLeftPrec() ) {
-      auto opPrec = Teuchos::rcp_const_cast<Op>( prob->getLeftPrec() );
-      opPrec->setParameter( para );
-    }
+		 //Teuchos::RCP<Teuchos::ParameterList> parSolver=
+		 //Teuchos::rcp_const_cast<Teuchos::ParameterList>(
+		 //linprob_->getSolver()->getCurrentParameters() );
 
-    if( prob->isRightPrec() ) {
-      auto opPrec = Teuchos::rcp_const_cast<Op>( prob->getRightPrec() );
-      opPrec->setParameter( para );
-    }
-	}
+		 //parSolver->set<ScalarT>( "Convergence Tolerance",
+		 //para->get<double>("Convergence Tolerance") );
+
+		 //*parSolver->get<Teuchos::RCP<std::ostream> >("Output Stream") << "hello";
+		 //linprob_->getSolver()->reset();
+		 //Teuchos::rcp_const_cast< Belos::SolverManager<ScalarT,MF,OperatorBase<MF> > >( linprob_->getSolver() )->reset( Belos::ResetType::Problem );
+		 //Teuchos::rcp_const_cast< Belos::SolverManager<ScalarT,MF,OperatorBase<MF> > >( linprob_->getSolver() )->setParameters( parSolver );
+	 }
+
+	 auto prob = linprob_->getProblem();
+
+	 Teuchos::rcp_const_cast<Op>( prob->getOperator() )->setParameter( para );
+
+	 if( prob->isLeftPrec() ) {
+		 Teuchos::rcp_const_cast<Op>( prob->getLeftPrec() )->setParameter( para );
+	 }
+
+	 if( prob->isRightPrec() ) {
+		 Teuchos::rcp_const_cast<Op>( prob->getRightPrec() )->setParameter( para );
+		 para->print();
+	 }
+ }
 
 
   /// \brief Set left preconditioner (\c LP) of linear problem \f$AX = B\f$.

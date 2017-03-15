@@ -84,7 +84,12 @@ public:
   constexpr const Teuchos::RCP<OpS2V>& getOpS2V() const { return( opS2V_ ); }
   constexpr const Teuchos::RCP<OpV2S>& getOpV2S() const { return( opV2S_ ); }
 
-	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {
+		std::cout << getLabel() << "\n";
+		opV2V_->setParameter( para );
+		opS2V_->setParameter( para );
+		opV2S_->setParameter( para );
+	}
 
   bool hasApplyTranspose() const { return( false ); }
 

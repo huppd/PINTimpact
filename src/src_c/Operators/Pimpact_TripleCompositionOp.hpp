@@ -64,6 +64,7 @@ public:
 	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(op1_->space()); };
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
+		std::cout << getLabel() << "\n";
 		if( !op1_.is_null() ) op1_->setParameter( para );
 		if( !op2_.is_null() ) op2_->setParameter( para );
 		if( !op3_.is_null() ) op3_->setParameter( para );
