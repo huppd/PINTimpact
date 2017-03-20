@@ -85,7 +85,6 @@ public:
   constexpr const Teuchos::RCP<OpV2S>& getOpV2S() const { return( opV2S_ ); }
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {
-		std::cout << getLabel() << "\n";
 		opV2V_->setParameter( para );
 		opS2V_->setParameter( para );
 		opV2S_->setParameter( para );

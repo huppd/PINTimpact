@@ -130,7 +130,7 @@ public:
 	/// \f[ N_v = (N_x-2)(N_y-1)(N_z-2) \f]
 	/// \f[ N_w = (N_x-2)(N_y-2)(N_z-1) \f]
 	/// \return vect length \f[= N_u+N_v+N_w\f]
-	constexpr Ordinal getLength() const {
+	constexpr Ordinal getLength() {
 		Ordinal n = 0;
 		for( F i=F::U; i<SpaceT::sdim; ++i )
 			n += at(i).getLength();

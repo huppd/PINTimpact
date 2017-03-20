@@ -199,7 +199,7 @@ public:
   /// \brief returns the length of Field.
   ///
   /// the vector length is with regard to the inner points
-  constexpr Ordinal getLength() const {
+  constexpr Ordinal getLength() {
 
 		Ordinal len = 0;
 

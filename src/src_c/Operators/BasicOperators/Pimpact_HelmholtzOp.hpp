@@ -384,8 +384,10 @@ public:
 	}
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
-		mulI_ = para->get<Scalar>( "mulI", 0. );
-		mulL_ = para->get<Scalar>( "mulL", 1./space_->getDomainSize()->getRe() );
+		if( para->name()!="Linear Solver" ) {
+			mulI_ = para->get<Scalar>( "mulI", 0. );
+			mulL_ = para->get<Scalar>( "mulL", 1./space_->getDomainSize()->getRe() );
+		}
 	}
 
 	const std::string getLabel() const { return( "Helmholtz" ); };

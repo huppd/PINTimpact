@@ -143,7 +143,7 @@ OpT,
 
 		int initZero = pl->sublist("Solver").get<int>("initZero");
 
-		auto space = Pimpact::create< Pimpact::Space<S,O,3,3,4> >( Teuchos::rcpFromRef( pl->sublist("Space",true) ) );
+		auto space = Pimpact::create< Pimpact::Space<S,O,3,3,4> >( Teuchos::sublist( pl, "Space", true) );
 
 		// init vectors
 		auto x = Pimpact::create<MF>( space );
@@ -197,7 +197,7 @@ OpT,
 
 			pl->sublist("Picard Solver").sublist("Solver").set( "Output Stream", Pimpact::createOstream("Picard"+rl+".txt", space->rankST() ) );
 
-			auto opInv = Pimpact::createInverseOp( op, Teuchos::rcpFromRef( pl->sublist("Picard Solver") ) );
+			auto opInv = Pimpact::createInverseOp( op, Teuchos::sublist( pl, "Picard Solver" ) );
 
 
 			/*** init preconditioner *******************************************************************/
@@ -205,7 +205,7 @@ OpT,
 
 				auto mgSpaces = Pimpact::createMGSpaces<CS>( space, pl->sublist("Multi Grid").get<int>("maxGrids") );
 
-				auto pls = Teuchos::rcpFromRef( pl->sublist("Multi Grid") );
+				auto pls = Teuchos::sublist( pl, "Multi Grid" );
 
 				auto mg =
 					Pimpact::createMultiGrid<
@@ -241,7 +241,7 @@ OpT,
 
 			// Create the solver
 			Teuchos::RCP<NOX::Solver::Generic> solver =
-				NOX::Solver::buildSolver( group, statusTest, Teuchos::rcpFromRef( pl->sublist("NOX Solver") ) );
+				NOX::Solver::buildSolver( group, statusTest, Teuchos::sublist( pl, "NOX Solver" ) );
 
 			if( 0==space->rankST() ) std::cout << "\n\t--- Nf: "<< space->nGlo(3) <<"\tdof: "<<x->getLength()<<"\t---\n";
 

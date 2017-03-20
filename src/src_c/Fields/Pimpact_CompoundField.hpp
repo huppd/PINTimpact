@@ -94,7 +94,7 @@ public:
   /// the vector length is withregard to the inner points
   /// \return vector length
   /// \brief returns the length of Field.
-  constexpr Ordinal getLength() const {
+  constexpr Ordinal getLength() {
     return( vfield_->getLength() + sfield_->getLength() );
   }
 

@@ -18,6 +18,8 @@ namespace Pimpact {
 
 
 /// \tparam MultiFieldT has to be of type \c Pimpact::MultiField
+/// 
+/// \deprecated
 template< class MultiFieldT >
 class LinearProblem {
 
@@ -77,21 +79,6 @@ public:
   /// \name setter methods
   //@{
 
-  /// \brief Set the parameters of the solver to use when solving the linear problem.
-  ///
-  /// \param params [in/out] List of parameters to use when solving
-  ///   the linear problem.  This list will be modified as necessary
-  ///   to include default parameters that need not be provided.  If
-  ///   params is null, then this method uses default parameters.
-  ///
-  /// \note The ParameterList returned by \c getValidParameters() has
-  ///   all the parameters that the solver understands, possibly
-  ///   including human-readable documentation and validators.
-  void setParameters( const Teuchos::RCP<Teuchos::ParameterList> &params ) {
-		std::cout<< "Pimpact::LinearProblem\n";
-    solver_->setParameters( params );
-  }
-
 
   /// \brief Set left preconditioner (\c LP) of linear problem \f$AX = B\f$.
   ///
@@ -147,54 +134,6 @@ Teuchos::RCP< LinearProblem<MF> > createLinearProblem(
 }
 
 } // end of namespace Pimpact
-
-
-
-#ifdef COMPILE_ETI
-
-#include "Pimpact_ScalarField.hpp"
-#include "Pimpact_VectorField.hpp"
-#include "Pimpact_MultiHarmonicField.hpp"
-#include "Pimpact_CompoundField.hpp"
-#include "Pimpact_MultiField.hpp"
-
-namespace Pimpact {
-
-// ScalarFields
-extern template class LinearProblem< MultiField<ScalarField< Space<double,int,3,2> > > >;
-extern template class LinearProblem< MultiField<ScalarField< Space<double,int,3,4> > > >;
-extern template class LinearProblem< MultiField<ScalarField< Space<double,int,4,2> > > >;
-extern template class LinearProblem< MultiField<ScalarField< Space<double,int,4,4> > > >;
-
-// VectorFields
-extern template class LinearProblem< MultiField<VectorField< Space<double,int,3,2> > > >;
-extern template class LinearProblem< MultiField<VectorField< Space<double,int,3,4> > > >;
-extern template class LinearProblem< MultiField<VectorField< Space<double,int,4,2> > > >;
-extern template class LinearProblem< MultiField<VectorField< Space<double,int,4,4> > > >;
-
-// MultiHarmonicFields
-extern template class LinearProblem< MultiField <MultiHarmonicField< ScalarField< Space<double,int,3,2> > > > >;
-extern template class LinearProblem< MultiField <MultiHarmonicField< ScalarField< Space<double,int,3,4> > > > >;
-                                                                    
-extern template class LinearProblem< MultiField <MultiHarmonicField< VectorField< Space<double,int,3,2> > > > >;
-extern template class LinearProblem< MultiField <MultiHarmonicField< VectorField< Space<double,int,3,4> > > > >;
-
-// TimeFields
-extern template class LinearProblem< MultiField< TimeField< ScalarField< Space<double,int,4,2> > > > >;
-extern template class LinearProblem< MultiField< TimeField< ScalarField< Space<double,int,4,4> > > > >;
-
-extern template class LinearProblem< MultiField< TimeField< VectorField< Space<double,int,4,2> > > > >;
-extern template class LinearProblem< MultiField< TimeField< VectorField< Space<double,int,4,4> > > > >;
-
-// CompoundFields
-extern template class LinearProblem< MultiField< CompoundField< MultiHarmonicField< VectorField< Space<double,int,3,2> > >, MultiHarmonicField< ScalarField< Space<double,int,3,2> > > > > >;
-extern template class LinearProblem< MultiField< CompoundField< MultiHarmonicField< VectorField< Space<double,int,3,4> > >, MultiHarmonicField< ScalarField< Space<double,int,3,4> > > > > >;
-extern template class LinearProblem< MultiField< CompoundField< TimeField< VectorField< Space<double,int,4,2> > >, TimeField< ScalarField< Space<double,int,4,2> > > > > >;
-extern template class LinearProblem< MultiField< CompoundField< TimeField< VectorField< Space<double,int,4,4> > >, TimeField< ScalarField< Space<double,int,4,4> > > > > >;
-
-} // end of namespace Pimpact
-
-#endif
 
 
 #endif // end of #ifndef PIMPACT_LINEARPROBLEM_HPP

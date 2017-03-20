@@ -140,7 +140,7 @@ public:
 
 
 	/// \brief returns the length of Field.
-	constexpr Ordinal getLength() const {
+	constexpr Ordinal getLength() {
 		return( space()->nGlo(3)*at(0).getLength() );
 	}
 

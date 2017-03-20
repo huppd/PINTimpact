@@ -188,7 +188,7 @@ public:
 
 
   /// \brief returns the length of MultiField.
-  constexpr Ordinal getLength() const {
+  constexpr Ordinal getLength() {
 		return( mfs_[0]->getLength() );
 	}
 

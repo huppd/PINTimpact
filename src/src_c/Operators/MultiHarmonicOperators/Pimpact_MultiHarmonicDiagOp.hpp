@@ -68,26 +68,28 @@ public:
 
     // computing zero mode of z
 		// set paramteters
-		{
+		if( 0==space()->begin(F::U,3) ) {
+
+			// set parameters
+			//
 			auto para = Teuchos::parameterList();
 			para->set<Scalar>( "mulI", 0. );
 			para->set<Scalar>( "mulC", 1. );
 			para->set<Scalar>( "mulL", iRe );
 			zeroOp_->setParameter( para );
+
+			zeroOp_->apply( x.get0Field(), y.get0Field() );
 		}
 
-		if( 0==space()->begin(F::U,3) )
-			zeroOp_->apply( x.get0Field(), y.get0Field() );
-
 		for( Ordinal i=std::max(space()->begin(F::U,3),1); i<=space()->end(F::U,3); ++i ) {
+
 			// set parameters
 			auto para = Teuchos::parameterList();
 			para->set<Scalar>( "mulI", a2*i );
 			para->set<Scalar>( "mulC", 1. );
 			para->set<Scalar>( "mulL", iRe );
-			std::cout << "set: \n";
-			para->print();
 			modeOp_->setParameter( para );
+
 			modeOp_->apply( x.getField(i), y.getField(i) );
 		}
 		y.changed();
@@ -95,7 +97,10 @@ public:
 
 	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(zeroOp_->space()); };
 
-	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {}
+	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) { 
+		zeroOp_->setParameter( para );
+		modeOp_->setParameter( para );
+	}
 
   bool hasApplyTranspose() const { return( false ); }
 

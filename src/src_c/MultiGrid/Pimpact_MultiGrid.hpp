@@ -113,9 +113,9 @@ public:
 		mgSpaces_(mgSpaces),
 		mgTrans_( createMGTransfers<TransT,RestrT,InterT>(mgSpaces) ),
 		mgOps_(   createMGOperators<FOperatorT,COperatorT>(mgSpaces) ),
-		mgSms_(   createMGSmoothers<SmootherT>( mgOps_, Teuchos::rcpFromRef(pl->sublist("Smoother")) ) ),
+		mgSms_(   createMGSmoothers<SmootherT>( mgOps_, Teuchos::sublist(pl, "Smoother") ) ),
 		cGridSolver_(
-				mgSpaces_->participating(-1)?create<CGridSolverT>( mgOps_->get(-1), Teuchos::rcpFromRef(pl->sublist("Coarse Grid Solver")) ):Teuchos::null ) {}
+				mgSpaces_->participating(-1)?create<CGridSolverT>( mgOps_->get(-1), Teuchos::sublist(pl,"Coarse Grid Solver") ):Teuchos::null ) {}
 
 
 
@@ -306,7 +306,6 @@ public:
 	constexpr const Teuchos::RCP<const SpaceT>& space() const { return(mgSpaces_->get()); };
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
-		std::cout << "MultiGrid\n";
 		mgOps_->setParameter( para );
 	}
 

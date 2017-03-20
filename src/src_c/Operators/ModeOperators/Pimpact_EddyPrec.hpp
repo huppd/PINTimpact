@@ -48,6 +48,12 @@ public:
 
 		DomainFieldT temp( space() );
 	
+
+		// left
+		temp = x;
+		temp.getCField().add( 0.5, x.getCField(),  0.5, x.getSField(), B::N );
+		temp.getSField().add( 0.5, x.getCField(), -0.5, x.getSField(), B::N );
+
 		//// set paramters
 		auto pl = Teuchos::parameterList();
 		pl->set<Scalar>( "mulI", mulI_ );
@@ -55,11 +61,6 @@ public:
 		pl->set<Scalar>( "mulL", mulL_ );
 
 		op_->setParameter( pl );
-
-		// left
-		temp = x;
-		temp.getCField().add( 0.5, x.getCField(),  0.5, x.getSField(), B::N );
-		temp.getSField().add( 0.5, x.getCField(), -0.5, x.getSField(), B::N );
 
 		op_->apply( temp.getCField(), y.getCField() );
 		op_->apply( temp.getSField(), y.getSField() );
@@ -88,9 +89,11 @@ public:
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
 
-		mulI_ = para->get<Scalar>( "mulI" );
-		mulC_ = para->get<Scalar>( "mulC" );
-		mulL_ = para->get<Scalar>( "mulL" );
+		if( para->name()!="Linear Solver" ) {
+			mulI_ = para->get<Scalar>( "mulI" );
+			mulC_ = para->get<Scalar>( "mulC" );
+			mulL_ = para->get<Scalar>( "mulL" );
+		}
 
 	}
 

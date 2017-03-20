@@ -102,7 +102,7 @@ public:
 
 		boundaryConditionsGlobal_ =
 			Pimpact::createBoudaryConditionsGlobal<d>(
-						Teuchos::rcpFromRef( pl->sublist("boundary conditions") ) );
+						Teuchos::sublist(pl,"boundary conditions") );
 
 		gridSizeGlobal_ =
 			Pimpact::createGridSizeGlobal<OT,sdim>(
@@ -146,9 +146,9 @@ public:
 					gridSizeGlobal_,
 					domainSize_,
 					Teuchos::tuple< Teuchos::RCP<Teuchos::ParameterList> >(
-						Teuchos::rcpFromRef( pl->sublist("Stretching in X") ),
-						Teuchos::rcpFromRef( pl->sublist("Stretching in Y") ),
-						Teuchos::rcpFromRef( pl->sublist("Stretching in Z") ) ) );
+						Teuchos::sublist( pl, "Stretching in X" ),
+						Teuchos::sublist( pl, "Stretching in Y" ),
+						Teuchos::sublist( pl, "Stretching in Z" ) ) );
 
 		coordLocal_ =
 			Pimpact::createCoordinatesLocal<ST,OT,sdim,d,dNC>(

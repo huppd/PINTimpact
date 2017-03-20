@@ -130,7 +130,7 @@ int main( int argi, char** argv ) {
 	int refinementStep = pl->sublist("Solver").get<int>( "refinement step",  2     );
 
 	Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>(
-			Teuchos::rcpFromRef( pl->sublist( "Space", true ) ) );
+			Teuchos::sublist( pl, "Space", true ) );
 
 
 	if( 0==space->rankST() ) std::cout << "initial field\n";
@@ -245,7 +245,7 @@ int main( int argi, char** argv ) {
 
 		pl->sublist("Picard Solver").sublist("Solver").set( "Output Stream", Pimpact::createOstream("Picard"+rl+".txt", space->rankST() ) );
 
-		auto opInv = Pimpact::createInverseOp( op, Teuchos::rcpFromRef( pl->sublist("Picard Solver") ) );
+		auto opInv = Pimpact::createInverseOp( op, Teuchos::sublist( pl, "Picard Solver" ) );
 
 		////--- nullspace 
 		if( pl->sublist( "Picard Solver" ).get<bool>( "nullspace ortho", true ) ) {
@@ -314,7 +314,7 @@ int main( int argi, char** argv ) {
 						Pimpact::createOstream( zeroOp->getLabel()+rl+".txt", space->rankST() ) );
 
 				auto zeroInv = Pimpact::createMultiOpUnWrap( Pimpact::createInverseOp(
-							zeroOp, Teuchos::rcpFromRef( pl->sublist("ConvDiff") ) ) );
+							zeroOp, Teuchos::sublist( pl, "ConvDiff" ) ) );
 
 				auto modeOp = Teuchos::rcp( new
 						Pimpact::ModeNonlinearOp< ConvDiffOpT<SpaceT> >( zeroOp ) );
@@ -324,7 +324,7 @@ int main( int argi, char** argv ) {
 						Pimpact::createOstream( modeOp->getLabel()+rl+".txt", space->rankST() ) );
 
 				auto modeInv = Pimpact::createMultiOpUnWrap( Pimpact::createInverseOp(
-							modeOp, Teuchos::rcpFromRef( pl->sublist("M_ConvDiff") ) ) );
+							modeOp, Teuchos::sublist( pl, "M_ConvDiff" ) ) );
 
 				auto mgConvDiff =
 					Pimpact::createMultiGrid<
@@ -340,7 +340,7 @@ int main( int argi, char** argv ) {
 					MOP
 					//POP2
 					//POP3
-						> ( mgSpaces, Teuchos::rcpFromRef( pl->sublist("ConvDiff").sublist("Multi Grid") ) ) ;
+						> ( mgSpaces, Teuchos::sublist( Teuchos::sublist( pl, "ConvDiff"), "Multi Grid" ) ) ;
 
 				//if( 0==space->rankST() )
 				//mgConvDiff->print();
@@ -348,7 +348,14 @@ int main( int argi, char** argv ) {
 				std::string convDiffPrecString = pl->sublist("ConvDiff").get<std::string>( "preconditioner", "right" );
 				if( "right" == convDiffPrecString ) 
 					zeroInv->getOperatorPtr()->setRightPrec( Pimpact::createMultiOperatorBase(mgConvDiff) );
-				modeInv->getOperatorPtr()->setRightPrec( Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::EddyPrec>(zeroInv) ) );
+				if( "left" == convDiffPrecString )
+					zeroInv->getOperatorPtr()->setLeftPrec( Pimpact::createMultiOperatorBase(mgConvDiff) );
+
+				std::string modeConvDiffPrecString = pl->sublist("M_ConvDiff").get<std::string>( "preconditioner", "right" );
+				if( "right" == modeConvDiffPrecString ) 
+					modeInv->getOperatorPtr()->setRightPrec( Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::EddyPrec>(zeroInv) ) );
+				if( "left" == modeConvDiffPrecString )
+					modeInv->getOperatorPtr()->setLeftPrec( Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::EddyPrec>(zeroInv) ) );
 
 				// create Hinv prec
 				Teuchos::RCP<Pimpact::OperatorBase<MVF> > opV2Vprec = 
@@ -377,7 +384,7 @@ int main( int argi, char** argv ) {
 			auto divGradInv2 =
 				Pimpact::createInverseOp( 
 						divGradOp,
-						Teuchos::rcpFromRef( pl->sublist("DivGrad") ) );
+						Teuchos::sublist( pl, "DivGrad") );
 
 			////--- nullspace 
 			if( pl->sublist("DivGrad").get<bool>("nullspace ortho",true) ) {
@@ -393,7 +400,7 @@ int main( int argi, char** argv ) {
 				//auto divGradInvTT =
 					//Pimpact::createInverseOp( 
 							//Pimpact::createTranspose( divGradOp ),
-							//Teuchos::rcpFromRef( pl->sublist("DivGrad^T") ) );
+							//Teuchos::sublist( pl, "DivGrad^T" ) );
 
 				//std::string divGradScalString =
 					//pl->sublist("DivGrad^T").get<std::string>("scaling","none");
@@ -450,7 +457,7 @@ int main( int argi, char** argv ) {
 					//Pimpact::DivGradO2Inv
 					//Pimpact::DivGradO2SORSmoother
 					//Pimpact::DivGradO2JSmoother
-						>( mgSpaces, Teuchos::rcpFromRef( pl->sublist("DivGrad").sublist("Multi Grid") ) );
+						>( mgSpaces, Teuchos::sublist( Teuchos::sublist( pl, "DivGrad"), "Multi Grid") );
 
 				if( 0==space->rankST() )
 					mgDivGrad->print();
@@ -506,7 +513,7 @@ int main( int argi, char** argv ) {
 
 		// Create the solver
 		Teuchos::RCP<NOX::Solver::Generic> solver =
-			NOX::Solver::buildSolver( group, statusTest, Teuchos::rcpFromRef( pl->sublist("NOX Solver") ) );
+			NOX::Solver::buildSolver( group, statusTest, Teuchos::sublist( pl, "NOX Solver" ) );
 
 
 		Teuchos::writeParameterListToXmlFile( *pl, "parameterOut.xml" );

@@ -122,7 +122,7 @@ public:
   /// \{
 
   /// \brief returns the length of Field.
-	constexpr Ordinal getLength() const {
+	constexpr Ordinal getLength() {
 
 		Teuchos::RCP<const BoundaryConditionsGlobal<SpaceT::dimension> > bc =
 			space()->getBCGlobal();

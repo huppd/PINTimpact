@@ -81,10 +81,11 @@ public:
 
 
 	void setParameter( Teuchos::RCP<Teuchos::ParameterList> para ) {
-
-		mulI_ = para->get<Scalar>( "mulI" );
-		mulC_ = para->get<Scalar>( "mulC" );
-		mulL_ = para->get<Scalar>( "mulL" );
+		if( para->name()!="Linear Solver" ) {
+			mulI_ = para->get<Scalar>( "mulI" );
+			mulC_ = para->get<Scalar>( "mulC" );
+			mulL_ = para->get<Scalar>( "mulL" );
+		}
 	}
 
 

@@ -139,7 +139,7 @@ public:
   constexpr const MPI_Comm& comm() const { return( fieldc_.comm() ); }
 
   /// \brief returns the length of Field.
-  constexpr Ordinal getLength() const {
+  constexpr Ordinal getLength() {
     return( fieldc_.getLength() + fields_.getLength() );
   }
 

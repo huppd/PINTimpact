@@ -78,9 +78,6 @@ public:
 
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) const {
 
-		std::cout << "MG Operators get:\n";
-		//para->print();
-		
 		fOperator_->setParameter( para );
 
 		for( int i=0; i<mgSpaces_->getNGrids(); ++i )

@@ -66,17 +66,17 @@ public:
 					createMultiOperatorBase( op ),
 					create<MF>( op->space() ),
 					create<MF>( op->space() ),
-					Teuchos::rcpFromRef( pl->sublist("Solver") ), 
+					Teuchos::sublist(pl,"Solver"), 
 					pl->get<std::string>("Solver name","GMRES") ) ) { 
 
 			if( pl->get<bool>( "LeftPrec", false ) )
 				linprob_->setLeftPrec(
 						createMultiOperatorBase(
-							create<PreconditionerT>(op, Teuchos::rcpFromRef( pl->sublist("Preconditioner") )) ) );
+							create<PreconditionerT>(op, Teuchos::sublist(pl,"Preconditioner")) ) );
 			else
 				linprob_->setRightPrec(
 						createMultiOperatorBase(
-							create<PreconditionerT>(op, Teuchos::rcpFromRef( pl->sublist("Preconditioner") )) ) );
+							create<PreconditionerT>( op, Teuchos::sublist(pl,"Preconditioner") ) ) );
 		}
 
 

@@ -53,7 +53,7 @@ public:
 			Teuchos::RCP<Teuchos::ParameterList> pl=Teuchos::null	):
 		opS2V_( op->getOpS2V() ),
 		opVSmoother_( Teuchos::rcp( new OpVSmoother( op->getOpV2V(),
-						Teuchos::rcpFromRef(pl->sublist("VSmoother") ) ) ) ) {
+						Teuchos::sublist(pl,"VSmoother") ) ) ) {
 
 			Teuchos::RCP< TripleCompositionOp<OpV2ST,OpV2VT,OpS2VT> > opDHG =
 				createTripleCompositionOp( op->getOpV2S(), op->getOpV2V(),
