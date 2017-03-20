@@ -19,13 +19,13 @@ namespace Pimpact{
 /// 
 /// \tparam OperatorT has to be of type \c Pimpact::MultiWrapOp
 /// \ingroup Operator
-template< class OT, template<class> class PT >
+template< class OpT, template<class> class PT >
 class PrecInverseOp {
 
 public:
 
-	using OperatorT = OT;
-	using PreconditionerT = PT<OT>;
+	using OperatorT = OpT;
+	using PreconditionerT = PT<OpT>;
 
 	using SpaceT = typename OperatorT::SpaceT;
 
@@ -34,7 +34,7 @@ public:
 
 	using MF = typename Pimpact::MultiField<DomainFieldT>;
 
-	using Op = OperatorBase<MF>;
+	using MOpT = OperatorBase<MF>;
 
 protected:
 
@@ -95,16 +95,16 @@ public:
 
 		auto prob = linprob_->getProblem();
 
-		Teuchos::rcp_const_cast<Op>( prob->getOperator() )->assignField( *mv );
+		Teuchos::rcp_const_cast<MOpT>( prob->getOperator() )->assignField( *mv );
 
 		if( prob->isLeftPrec() ) {
-			auto opPrec = Teuchos::rcp_const_cast<Op>( prob->getLeftPrec() );
-			opPrec->assignField( mv );
+			auto opPrec = Teuchos::rcp_const_cast<MOpT>( prob->getLeftPrec() );
+			opPrec->assignField( *mv );
 		}
 
 		if( prob->isRightPrec() ) {
-			auto opPrec = Teuchos::rcp_const_cast<Op>( prob->getRightPrec() );
-			opPrec->assignField( mv );
+			auto opPrec = Teuchos::rcp_const_cast<MOpT>( prob->getRightPrec() );
+			opPrec->assignField( *mv );
 		}
 	};
 
@@ -117,15 +117,15 @@ public:
 	void setParameter( const Teuchos::RCP<Teuchos::ParameterList>& para ) {
 		auto prob = linprob_->getProblem();
 
-		Teuchos::rcp_const_cast<Op>( prob->getOperator() )->setParameter( para );
+		Teuchos::rcp_const_cast<MOpT>( prob->getOperator() )->setParameter( para );
 
 		if( prob->isLeftPrec() ) {
-			auto opPrec = Teuchos::rcp_const_cast<Op>( prob->getLeftPrec() );
+			auto opPrec = Teuchos::rcp_const_cast<MOpT>( prob->getLeftPrec() );
 			opPrec->setParameter( para );
 		}
 
 		if( prob->isRightPrec() ) {
-			auto opPrec = Teuchos::rcp_const_cast<Op>( prob->getRightPrec() );
+			auto opPrec = Teuchos::rcp_const_cast<MOpT>( prob->getRightPrec() );
 			opPrec->setParameter( para );
 		}
 	}

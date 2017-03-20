@@ -11,6 +11,7 @@
 
 #include "Pimpact_LinearProblem.hpp"
 #include "Pimpact_LinSolverParameter.hpp"
+#include "Pimpact_MultiField.hpp"
 #include "Pimpact_MultiOpWrap.hpp"
 #include "Pimpact_Utils.hpp"
 
@@ -25,21 +26,22 @@ namespace Pimpact {
 /// hides all the linear solver typeerasiure stuff
 /// \tparam OperatorT has to be of type \c Pimpact::MultiWrapOp
 /// \todo merge with Prec...
-template< class MOT >
+template< class OpT >
 class InverseOp {
 
 public:
 
-  using OperatorT = MOT;
+  using OperatorT = OpT;
 
-  using SpaceT = typename OperatorT::SpaceT;
+	using SpaceT = typename OperatorT::SpaceT;
 
-  using MF = typename OperatorT::DomainFieldT;
+	using DomainFieldT = typename OperatorT::DomainFieldT;
+	using RangeFieldT = typename OperatorT::RangeFieldT;
 
-  using Op = OperatorBase<MF>;
+	using MF = typename Pimpact::MultiField<DomainFieldT>;
 
-  using DomainFieldT = typename OperatorT::DomainFieldT;
-  using RangeFieldT = typename OperatorT::RangeFieldT;
+  using MOpT = OperatorBase<MF>;
+
 
 protected:
 
@@ -53,11 +55,10 @@ protected:
 	std::string solverName_;
 
 	Teuchos::RCP< Teuchos::ParameterList > solverParameter_;
-  Teuchos::RCP< Belos::LinearProblem<ST, MF, Op> > problem_;
+  Teuchos::RCP< Belos::LinearProblem<ST, MF, MOpT> > problem_;
 
 	Teuchos::RCP<const RangeFieldT> nullspace_;
 
-public:
 
 	/// should be avoided
 	InverseOp( const Teuchos::RCP<const SpaceT>& space ):
@@ -68,10 +69,12 @@ public:
 		debug_(false),
 		solverName_( "GMRES" ),
 		solverParameter_( createLinSolverParameter("GMRES",1.e-1,-1, Teuchos::rcp( new Teuchos::oblackholestream ), 200 ) ),
-		problem_( Teuchos::rcp( new Belos::LinearProblem<ST,MF,Op> () )) {}
+		problem_( Teuchos::rcp( new Belos::LinearProblem<ST,MF,MOpT> () )) {}
 
-	template<class IOperatorT>
-	InverseOp( const Teuchos::RCP<IOperatorT>& op ):
+public:
+
+	//template<class OperatorT>
+	InverseOp( const Teuchos::RCP<OpT>& op ):
 		level_(false),
 		levelRHS_(false),
 		nullspaceOrtho_(false),
@@ -81,14 +84,14 @@ public:
 		solverParameter_( createLinSolverParameter( "GMRES", 1.e-1, -1, Teuchos::rcp( new Teuchos::oblackholestream ),10 ) ),
 		problem_(
 				Teuchos::rcp(
-					new Belos::LinearProblem<ST,MF,Op>(
-						createOperatorBase( create<OperatorT>(op) ),
+					new Belos::LinearProblem<ST,MF,MOpT>(
+						createMultiOperatorBase( op ),
 						Teuchos::RCP<MF>(),
 						Teuchos::RCP<MF>() ) )) {}
 
 
- template<class IOperatorT>
- InverseOp( const Teuchos::RCP<IOperatorT>& op,
+ //template<class IOperatorT>
+ InverseOp( const Teuchos::RCP<OperatorT>& op,
 		 const Teuchos::RCP<Teuchos::ParameterList>& pl ):
 	 level_( pl->get<bool>( "level", false ) ),
 	 levelRHS_( pl->get<bool>( "level RHS", false ) ),
@@ -98,11 +101,18 @@ public:
 	 solverName_( pl->get<std::string>("Solver name", "GMRES") ),
 	 solverParameter_( Teuchos::sublist( pl, "Solver" ) ),
 	 problem_(
-			 Teuchos::rcp( new Belos::LinearProblem<ST,MF,Op>(
-					 createOperatorBase( create<OperatorT>(op) ),
+			 Teuchos::rcp( new Belos::LinearProblem<ST,MF,MOpT>(
+					 createMultiOperatorBase( op ),
 					 Teuchos::RCP<MF>(),
 					 Teuchos::RCP<MF>() ) )) {}
 
+
+ void apply( const DomainFieldT& x, RangeFieldT& y ) const {
+	 apply(
+			 *wrapMultiField( Teuchos::rcpFromRef<DomainFieldT>(
+					 const_cast<DomainFieldT&>(x) ) ),
+			 *wrapMultiField( Teuchos::rcpFromRef<RangeFieldT>(y) ) );
+ }
 
  void apply( const MF& x, MF& y ) const {
 
@@ -110,18 +120,18 @@ public:
 	 if( initZero_ ) { y.init( ); }
 	 if( nullspaceOrtho_ ) {
 		 for( int i=0; i<x.getNumberVecs(); ++i ) {
-			 ST bla = -nullspace_->getField(0).dot( x.getField(i) );
+			 ST bla = -nullspace_->dot( x.getField(i) );
 			 if( 0==space()->rankST() ) std::cout << getLabel()<< ": nullspace contributtion[" << i<< "]: " << std::abs(bla)  << "\n";
 			 if( std::abs( bla ) >= Teuchos::ScalarTraits<ST>::eps() )
-				 const_cast<MF&>(x).getField(i).add( 1., x.getField(i), bla, nullspace_->getField(0) );
+				 const_cast<MF&>(x).getField(i).add( 1., x.getField(i), bla, *nullspace_ );
 		 }
 		 if( 0==space()->rankST() ) std::cout << "\n";
 	 }
 
 	 problem_->setProblem( Teuchos::rcpFromRef(y), Teuchos::rcpFromRef(x) );
-	 Belos::SolverFactory<ST,MF,Op> factory;
+	 Belos::SolverFactory<ST,MF,MOpT> factory;
 
-	 Teuchos::RCP< Belos::SolverManager<ST,MF,Op> > solver =
+	 Teuchos::RCP< Belos::SolverManager<ST,MF,MOpT> > solver =
 		 factory.create(solverName_,solverParameter_);
 
 	 solver->setProblem( problem_ );
@@ -137,22 +147,37 @@ public:
 	 if( level_ ) y.level();
  }
 
+	void assignField( const DomainFieldT& mvr ) {
 
- void assignField( const DomainFieldT& mv ) {
+		auto mv = wrapMultiField(
+				Teuchos::rcpFromRef<DomainFieldT>( const_cast<DomainFieldT&>(mvr) ) );
 
+		Teuchos::rcp_const_cast<MOpT>( problem_->getOperator() )->assignField( *mv );
 
-	 Teuchos::rcp_const_cast<Op>( problem_->getOperator() )->assignField( mv );
+		if( problem_->isLeftPrec() ) {
+			auto opPrec = Teuchos::rcp_const_cast<MOpT>( problem_->getLeftPrec() );
+			opPrec->assignField( *mv );
+		}
 
-	 if( problem_->isLeftPrec() ) {
-		 auto opPrec = Teuchos::rcp_const_cast<Op>( problem_->getLeftPrec() );
-		 opPrec->assignField( mv );
-	 }
+		if( problem_->isRightPrec() ) {
+			auto opPrec = Teuchos::rcp_const_cast<MOpT>( problem_->getRightPrec() );
+			opPrec->assignField( *mv );
+		}
+	};
 
-	 if( problem_->isRightPrec() ) {
-		 auto opPrec = Teuchos::rcp_const_cast<Op>( problem_->getRightPrec() );
-		 opPrec->assignField( mv );
-	 }
- }
+ //void assignField( const DomainFieldT& mv ) {
+	 //Teuchos::rcp_const_cast<Op>( problem_->getOperator() )->assignField( mv );
+
+	 //if( problem_->isLeftPrec() ) {
+		 //auto opPrec = Teuchos::rcp_const_cast<Op>( problem_->getLeftPrec() );
+		 //opPrec->assignField( mv );
+	 //}
+
+	 //if( problem_->isRightPrec() ) {
+		 //auto opPrec = Teuchos::rcp_const_cast<Op>( problem_->getRightPrec() );
+		 //opPrec->assignField( mv );
+	 //}
+ //}
 
  void setNullspace( const Teuchos::RCP<const RangeFieldT>& nullspace ) {
 	 nullspaceOrtho_ = true;
@@ -163,7 +188,7 @@ public:
 	 return( problem_->getOperator()->space() );
  };
 
- constexpr Teuchos::RCP<const Op> getOperator() {
+ constexpr Teuchos::RCP<const MOpT> getOperator() {
 	 return( problem_->getOperator() );
  };
 
@@ -173,13 +198,13 @@ public:
 		 solverParameter_->set<ST>( "Convergence Tolerance",
 				 para->get<double>("Convergence Tolerance") );
 
-	 Teuchos::rcp_const_cast<Op>( problem_->getOperator() )->setParameter( para );
+	 Teuchos::rcp_const_cast<MOpT>( problem_->getOperator() )->setParameter( para );
 
 	 if( problem_->isLeftPrec() )
-		 Teuchos::rcp_const_cast<Op>( problem_->getLeftPrec() )->setParameter( para );
+		 Teuchos::rcp_const_cast<MOpT>( problem_->getLeftPrec() )->setParameter( para );
 
 	 if( problem_->isRightPrec() )
-		 Teuchos::rcp_const_cast<Op>( problem_->getRightPrec() )->setParameter( para );
+		 Teuchos::rcp_const_cast<MOpT>( problem_->getRightPrec() )->setParameter( para );
  }
 
 
@@ -212,21 +237,21 @@ public:
 
 
 /// \relates InverseOp
-template< class OpT>
-Teuchos::RCP< InverseOp< MultiOpWrap<OpT> > >
+template<class OpT>
+Teuchos::RCP< InverseOp<OpT> >
 createInverseOp( const Teuchos::RCP<OpT>& op ) {
-	return( Teuchos::rcp( new InverseOp<MultiOpWrap<OpT> >( op ) ) );
+	return( Teuchos::rcp( new InverseOp<OpT>( op ) ) );
 }
 
 
 /// \relates InverseOp
-template< class OpT>
-Teuchos::RCP< InverseOp< MultiOpWrap<OpT> > >
+template<class OpT>
+Teuchos::RCP< InverseOp<OpT> >
 createInverseOp(
 		const Teuchos::RCP<OpT>& op,
 		const Teuchos::RCP<Teuchos::ParameterList>& pl ) {
 
-	return( Teuchos::rcp( new InverseOp<MultiOpWrap<OpT> >( op, pl ) ) );
+	return( Teuchos::rcp( new InverseOp<OpT>( op, pl ) ) );
 }
 
 } // end of namespace Pimpact

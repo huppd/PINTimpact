@@ -24,7 +24,7 @@ template<class T> using InterVF = Pimpact::VectorFieldOpWrap<Pimpact::Interpolat
 
 
 
-template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
+template<class T> using MOP = Pimpact::InverseOp<T>;
 
 
 
@@ -81,8 +81,7 @@ int main( int argi, char** argv ) {
 				ConvDiffOpT,
 				ConvDiffOpT,
 				ConvDiffSORT,
-				MOP
-					> ( mgSpaces, pls );
+				MOP > ( mgSpaces, pls );
 
 			std::ofstream phifile;
 

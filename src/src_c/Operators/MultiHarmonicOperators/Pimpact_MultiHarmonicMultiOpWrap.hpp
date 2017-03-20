@@ -18,45 +18,47 @@ namespace Pimpact {
 
 /// \brief Operator wrapper.
 /// \ingroup MultiHarmonicOperator
-/// wraps a \c MultiOperator and adds the functionality of handling \c MultiHarmonicField's which allows block methods
-template<class MultiOperator>
+/// wraps a \c OpT and adds the functionality of handling \c MultiHarmonicField's which allows block methods
+/// \notes coupled to InverseOp
+template<class OpT>
 class MultiHarmonicMultiOpWrap  {
 
 public:
 
-  using DomainFieldT = MultiHarmonicField<typename MultiOperator::DomainFieldT::InnerFieldT>;
-  using RangeFieldT = MultiHarmonicField<typename MultiOperator::RangeFieldT::InnerFieldT>;
+  using DomainFieldT = MultiHarmonicField<typename OpT::DomainFieldT>;
+  using RangeFieldT = MultiHarmonicField<typename OpT::RangeFieldT>;
 
-  using SpaceT = typename DomainFieldT::SpaceT;
+  using SpaceT = typename OpT::SpaceT;
 
 protected:
 
   using Ordinal = typename SpaceT::Ordinal;
 
-  Teuchos::RCP<MultiOperator> op_;
+  using MDomainFT = MultiField<typename DomainFieldT::InnerFieldT>;
+  using MRanageFT = MultiField<typename RangeFieldT::InnerFieldT>;
+
+  Teuchos::RCP<OpT> op_;
 
 public:
 
-  MultiHarmonicMultiOpWrap( const Teuchos::RCP<MultiOperator>& op ): op_(op) {};
+  MultiHarmonicMultiOpWrap( const Teuchos::RCP<OpT>& op ): op_(op) {};
 
-	void apply( const DomainFieldT& x, RangeFieldT& y, const Belos::ETrans&
-			trans=Belos::NOTRANS) const {
 
-		Teuchos::RCP<typename MultiOperator::DomainFieldT> mx =
-			Teuchos::rcp( new typename MultiOperator::DomainFieldT( space(), 0 ) );
+	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
-		Teuchos::RCP<typename MultiOperator::RangeFieldT>	 my = Teuchos::rcp( new
-				typename MultiOperator::RangeFieldT ( space(), 0 ) );
+		Teuchos::RCP<MDomainFT> mx = Teuchos::rcp( new MDomainFT( space(), 0 ) );
+
+		Teuchos::RCP<MRanageFT>	 my = Teuchos::rcp( new MRanageFT( space(), 0 ) );
 
 		for( Ordinal i=std::max(space()->begin(F::U,3),1); i<=space()->end(F::U,3); ++i ) {
 			// making x 
 			mx->push_back(
 					Teuchos::rcpFromRef(
-						const_cast<typename MultiOperator::DomainFieldT::InnerFieldT&>(
+						const_cast<typename DomainFieldT::InnerFieldT&>(
 							x.getCField(i) ) ) );
 			mx->push_back(
 					Teuchos::rcpFromRef(
-						const_cast<typename MultiOperator::DomainFieldT::InnerFieldT&>(
+						const_cast<typename DomainFieldT::InnerFieldT&>(
 							x.getSField(i) ) ) );
 
 			// making y
@@ -67,7 +69,7 @@ public:
 		if( 0==space()->begin(F::U,3) ) {
 			mx->push_back(
 					Teuchos::rcpFromRef(
-						const_cast<typename MultiOperator::DomainFieldT::InnerFieldT&>(
+						const_cast<typename DomainFieldT::InnerFieldT&>(
 							x.get0Field() ) ) );
 			my->push_back( Teuchos::rcpFromRef( y.get0Field() ) );
 		}
@@ -88,7 +90,7 @@ public:
 		op_->setParameter( para );
 	}
 
-  Teuchos::RCP<MultiOperator> getOperatorPtr() { return( op_ ); }
+  Teuchos::RCP<OpT> getOperatorPtr() { return( op_ ); }
 
 	const std::string getLabel() const { return( "MH(M)_"+op_->getLabel() ); };
 

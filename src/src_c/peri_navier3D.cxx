@@ -80,7 +80,7 @@ using InterVF = Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<T> >;
 
 
 template<class T>
-using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
+using MOP = Pimpact::InverseOp<T>;
 
 //template<class T> using PrecS = Pimpact::MultiOpSmoother< Pimpact::DivGradO2JSmoother<T> >;
 //template<class T> using POP   = Pimpact::PrecInverseOp< T, Pimpact::DivGradO2SORSmoother >;
@@ -249,45 +249,45 @@ int main( int argi, char** argv ) {
 
 		////--- nullspace 
 		if( pl->sublist( "Picard Solver" ).get<bool>( "nullspace ortho", true ) ) {
-			auto nullspace = x->clone( Pimpact::ECopy::Shallow );
+			auto nullspace = x->getField(0).clone( Pimpact::ECopy::Shallow );
 
 			Pimpact::DivGradNullSpace<Pimpact::DivOp<SpaceT> > compNullspace;
 
 			compNullspace.computeNullSpace( opV2S->getOperatorPtr(),
-					nullspace->getField(0).getSField().get0Field(), true );
+					nullspace->getSField().get0Field(), true );
 
-			nullspace->getField(0).getVField().get0Field()(Pimpact::F::U).initFromFunction(
+			nullspace->getVField().get0Field()(Pimpact::F::U).initFromFunction(
 					[&space]( S x, S y, S z ) -> S { return( ( (Pimpact::BC::Dirichlet==space->bcl(Pimpact::X)&&x<=0.)?1.:0.) + ( (Pimpact::BC::Dirichlet==space->bcu(Pimpact::X)&&1.<=x)?-1.:0.) ); } );
-			nullspace->getField(0).getVField().get0Field()(Pimpact::F::V).initFromFunction(
+			nullspace->getVField().get0Field()(Pimpact::F::V).initFromFunction(
 					[&space]( S x, S y, S z ) -> S { return( ( (Pimpact::BC::Dirichlet==space->bcl(Pimpact::Y)&&y<=0.)?1.:0.) + ( (Pimpact::BC::Dirichlet==space->bcu(Pimpact::Y)&&1.<=y)?-1.:0.) ); } );
-			nullspace->getField(0).getVField().get0Field()(Pimpact::F::W).initFromFunction(
+			nullspace->getVField().get0Field()(Pimpact::F::W).initFromFunction(
 					[&space]( S x, S y, S z ) -> S { return( ( (Pimpact::BC::Dirichlet==space->bcl(Pimpact::Z)&&z<=0.)?1.:0.) + ( (Pimpact::BC::Dirichlet==space->bcu(Pimpact::Z)&&1.<=z)?-1.:0.) ); } );
 
 			S blup = std::sqrt( 1./nullspace->dot( *nullspace ) );
 			nullspace->scale( blup );
 
 			for( int i=1; i<=space->nGlo(3);++i) {
-				nullspace->getField(0).getSField().getCField(i) =
-					nullspace->getField(0).getSField().get0Field();
-				nullspace->getField(0).getSField().getSField(i) =
-					nullspace->getField(0).getSField().get0Field();
+				nullspace->getSField().getCField(i) =
+					nullspace->getSField().get0Field();
+				nullspace->getSField().getSField(i) =
+					nullspace->getSField().get0Field();
 
-				nullspace->getField(0).getVField().getCField(i) =
-					nullspace->getField(0).getVField().get0Field();
-				nullspace->getField(0).getVField().getSField(i) =
-					nullspace->getField(0).getVField().get0Field();
+				nullspace->getVField().getCField(i) =
+					nullspace->getVField().get0Field();
+				nullspace->getVField().getSField(i) =
+					nullspace->getVField().get0Field();
 			}
 
 
 			//nullspace->write(999);
-			auto out = Pimpact::createOstream( "nullspace.txt", space->rankST() );
-			nullspace->print( *out );
+			//auto out = Pimpact::createOstream( "nullspace.txt", space->rankST() );
+			//nullspace->print( *out );
 
 			opInv->setNullspace( nullspace );
 		}
 		//// --- end nullspace
 
-		/*** init preconditioner ****************************************************************************/
+		/*** init preconditioner *******************************************************************/
 
 		std::string picardPrecString = pl->sublist("Picard Solver").get<std::string>( "preconditioner", "none" );
 
@@ -296,7 +296,7 @@ int main( int argi, char** argv ) {
 			// create Multi space
 			auto mgSpaces = Pimpact::createMGSpaces<CS>( space, pl->sublist("Multi Grid").get<int>("maxGrids") );
 
-			/////////////////////////////////////////begin of opv2v//////////////////////////////////////
+			///////////////////////////////////////////begin of opv2v////////////////////////////////////
 
 			pl->sublist("MH_ConvDiff").sublist("Solver").set(
 					"Output Stream",
@@ -313,8 +313,8 @@ int main( int argi, char** argv ) {
 				pl->sublist("ConvDiff").sublist("Solver").set( "Output Stream",
 						Pimpact::createOstream( zeroOp->getLabel()+rl+".txt", space->rankST() ) );
 
-				auto zeroInv = Pimpact::createMultiOpUnWrap( Pimpact::createInverseOp(
-							zeroOp, Teuchos::sublist( pl, "ConvDiff" ) ) );
+				auto zeroInv = Pimpact::createInverseOp(
+							zeroOp, Teuchos::sublist( pl, "ConvDiff" ) );
 
 				auto modeOp = Teuchos::rcp( new
 						Pimpact::ModeNonlinearOp< ConvDiffOpT<SpaceT> >( zeroOp ) );
@@ -323,8 +323,8 @@ int main( int argi, char** argv ) {
 						"Output Stream",
 						Pimpact::createOstream( modeOp->getLabel()+rl+".txt", space->rankST() ) );
 
-				auto modeInv = Pimpact::createMultiOpUnWrap( Pimpact::createInverseOp(
-							modeOp, Teuchos::sublist( pl, "M_ConvDiff" ) ) );
+				auto modeInv = Pimpact::createInverseOp(
+						modeOp, Teuchos::sublist( pl, "M_ConvDiff" ) );
 
 				auto mgConvDiff =
 					Pimpact::createMultiGrid<
@@ -347,15 +347,15 @@ int main( int argi, char** argv ) {
 
 				std::string convDiffPrecString = pl->sublist("ConvDiff").get<std::string>( "preconditioner", "right" );
 				if( "right" == convDiffPrecString ) 
-					zeroInv->getOperatorPtr()->setRightPrec( Pimpact::createMultiOperatorBase(mgConvDiff) );
+					zeroInv->setRightPrec( Pimpact::createMultiOperatorBase(mgConvDiff) );
 				if( "left" == convDiffPrecString )
-					zeroInv->getOperatorPtr()->setLeftPrec( Pimpact::createMultiOperatorBase(mgConvDiff) );
+					zeroInv->setLeftPrec( Pimpact::createMultiOperatorBase(mgConvDiff) );
 
 				std::string modeConvDiffPrecString = pl->sublist("M_ConvDiff").get<std::string>( "preconditioner", "right" );
 				if( "right" == modeConvDiffPrecString ) 
-					modeInv->getOperatorPtr()->setRightPrec( Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::EddyPrec>(zeroInv) ) );
+					modeInv->setRightPrec( Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::EddyPrec>(zeroInv) ) );
 				if( "left" == modeConvDiffPrecString )
-					modeInv->getOperatorPtr()->setLeftPrec( Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::EddyPrec>(zeroInv) ) );
+					modeInv->setLeftPrec( Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::EddyPrec>(zeroInv) ) );
 
 				// create Hinv prec
 				Teuchos::RCP<Pimpact::OperatorBase<MVF> > opV2Vprec = 
@@ -388,39 +388,17 @@ int main( int argi, char** argv ) {
 
 			////--- nullspace 
 			if( pl->sublist("DivGrad").get<bool>("nullspace ortho",true) ) {
-				auto nullspace = Pimpact::wrapMultiField( x->getField(0).getSField().get0Field().clone() );
+				auto nullspace = x->getField(0).getSField().get0Field().clone();
 				auto zeros = nullspace->clone();
 
-				Pimpact::DivGradNullSpace<Pimpact::DivOp<SpaceT> > compNullspace;// = Pimpact::create<Pimpact::DivGradNullSpace>( );
+				Pimpact::DivGradNullSpace<Pimpact::DivOp<SpaceT> > compNullspace;
 
-				compNullspace.computeNullSpace( divGradOp->getDivOp(), nullspace->getField(0) );
-				//nullspace->init( 1. );
-				//zeros->init( 0. );
-
-				//auto divGradInvTT =
-					//Pimpact::createInverseOp( 
-							//Pimpact::createTranspose( divGradOp ),
-							//Teuchos::sublist( pl, "DivGrad^T" ) );
-
-				//std::string divGradScalString =
-					//pl->sublist("DivGrad^T").get<std::string>("scaling","none");
-				//if( "none" != divGradScalString ) { 
-					//if( "left" != divGradScalString )
-						//divGradInvTT->setLeftPrec( Pimpact::createMultiOperatorBase(
-									//Pimpact::createInvDiagonal( divGradOp ) ) );
-					//if( "right" != divGradScalString )
-						//divGradInvTT->setRightPrec( Pimpact::createMultiOperatorBase(
-									//Pimpact::createInvDiagonal( divGradOp ) ) );
-				//}
-
-				//divGradInvTT->apply( *zeros, *nullspace );
+				compNullspace.computeNullSpace( divGradOp->getDivOp(), *nullspace );
 
 				//nullspace->write(888);
-				auto out = Pimpact::createOstream( "nullspace.txt", space->rankST() );
-				nullspace->print( *out );
+				//auto out = Pimpact::createOstream( "nullspace.txt", space->rankST() );
+				//nullspace->print( *out );
 
-				//S blup = std::sqrt( 1./nullspace->dot(*nullspace) );
-				//nullspace->scale( blup );
 				divGradInv2->setNullspace( nullspace );
 			}
 			//// --- end nullspace
@@ -485,12 +463,12 @@ int main( int argi, char** argv ) {
 						opSchur,
 						divGradInv );
 
-			if( space->rankST()==0 )
-				std::cout << opS2Sinv->getLabel() << "\n";
+			//if( space->rankST()==0 )
+				//std::cout << opS2Sinv->getLabel() << "\n";
 
 			auto invTriangOp =
 				Pimpact::createInverseTriangularOp(
-						Pimpact::createMultiOpUnWrap( opV2Vinv ),
+						 opV2Vinv,
 						opS2V,
 						opS2Sinv );
 
@@ -499,9 +477,9 @@ int main( int argi, char** argv ) {
 			if( "left" == picardPrecString ) 
 				opInv->setLeftPrec( Pimpact::createMultiOperatorBase( invTriangOp ) );
 		}
-		/*** end of init preconditioner ****************************************************************************/
+		//** end of init preconditioner ***************************************************************
 
-		auto inter = NOX::Pimpact::createInterface( fu, createMultiOpWrap(op), opInv );
+		auto inter = NOX::Pimpact::createInterface( fu, Pimpact::createMultiOpWrap(op), Pimpact::createMultiOpWrap(opInv) );
 
 		auto nx = NOX::Pimpact::createVector( x );
 
