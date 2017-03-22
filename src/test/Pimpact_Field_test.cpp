@@ -418,23 +418,30 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, writeRestart, SF3D )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TempField, writeRestart, VF3D )
 	
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( ScalarField, initField, SpaceT ) {
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( ScalarField, ReadWrite, SpaceT ) {
 
 	setParameter( SpaceT::sdim );
 
   Teuchos::RCP<const SpaceT> space = Pimpact::create<SpaceT>( pl );
 
-	Pimpact::ScalarField<SpaceT> x( space );
+	Pimpact::ScalarField<SpaceT> write( space );
+	Pimpact::ScalarField<SpaceT> read( space );
+	Pimpact::ScalarField<SpaceT> err( space );
 
-  for( int i=0; i<=7; ++i ) {
-    x.initField( static_cast<Pimpact::EScalarField>(i) );
-    x.write( i );
+  for( int i=1; i<=6; ++i ) {
+    write.initField( static_cast<Pimpact::EScalarField>(i) );
+    write.write( i, true );
+		//read.read(i);
+
+		err.add( 1., read, -1., write );
+		ST error = err.norm();
+		if( 0==space->rankST() ) std::cout << "\nerror: " << error << "\n";
+		TEST_EQUALITY( std::abs(error)<eps, true );
   }
-
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( ScalarField, initField, D2 )
-TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( ScalarField, initField, D3 )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( ScalarField, ReadWrite, D2 )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( ScalarField, ReadWrite, D3 )
 
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( ScalarField, level, SpaceT ) {

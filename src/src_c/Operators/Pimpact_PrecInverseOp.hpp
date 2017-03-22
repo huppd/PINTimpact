@@ -17,7 +17,6 @@ namespace Pimpact{
 
 /// \brief hides all the linear solver typeerasiure stuff
 /// 
-/// \tparam OperatorT has to be of type \c Pimpact::MultiWrapOp
 /// \ingroup Operator
 template< class OpT, template<class> class PT >
 class PrecInverseOp {

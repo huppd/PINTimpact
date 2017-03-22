@@ -48,7 +48,7 @@ template<class T1,class T2> using TransVF = Pimpact::VectorFieldOpWrap<Pimpact::
 template<class T> using RestrVF = Pimpact::VectorFieldOpWrap<Pimpact::RestrictionVFOp<T> >;
 template<class T> using InterVF = Pimpact::VectorFieldOpWrap<Pimpact::InterpolationOp<T> >;
 
-template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
+template<class T> using MOP = Pimpact::InverseOp< T >;
 template<class T> using POP = Pimpact::PrecInverseOp< T, Pimpact::DivGradO2JSmoother >;
 
 

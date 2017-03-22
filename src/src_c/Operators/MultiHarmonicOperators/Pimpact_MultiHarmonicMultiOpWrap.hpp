@@ -46,36 +46,35 @@ public:
 
 	void apply( const DomainFieldT& x, RangeFieldT& y ) const {
 
-		Teuchos::RCP<MDomainFT> mx = Teuchos::rcp( new MDomainFT( space(), 0 ) );
-
-		Teuchos::RCP<MRanageFT>	 my = Teuchos::rcp( new MRanageFT( space(), 0 ) );
+		MDomainFT mx( space(), 0 );
+		MRanageFT my( space(), 0 );
 
 		for( Ordinal i=std::max(space()->begin(F::U,3),1); i<=space()->end(F::U,3); ++i ) {
 			// making x 
-			mx->push_back(
+			mx.push_back(
 					Teuchos::rcpFromRef(
 						const_cast<typename DomainFieldT::InnerFieldT&>(
 							x.getCField(i) ) ) );
-			mx->push_back(
+			mx.push_back(
 					Teuchos::rcpFromRef(
 						const_cast<typename DomainFieldT::InnerFieldT&>(
 							x.getSField(i) ) ) );
 
 			// making y
-			my->push_back( Teuchos::rcpFromRef(y.getCField(i)) );
-			my->push_back( Teuchos::rcpFromRef(y.getSField(i)) );
+			my.push_back( Teuchos::rcpFromRef(y.getCField(i)) );
+			my.push_back( Teuchos::rcpFromRef(y.getSField(i)) );
 		}
 
 		if( 0==space()->begin(F::U,3) ) {
-			mx->push_back(
+			mx.push_back(
 					Teuchos::rcpFromRef(
 						const_cast<typename DomainFieldT::InnerFieldT&>(
 							x.get0Field() ) ) );
-			my->push_back( Teuchos::rcpFromRef( y.get0Field() ) );
+			my.push_back( Teuchos::rcpFromRef( y.get0Field() ) );
 		}
 
 		// applying MultiField operator
-		op_->apply( *mx, *my );
+		op_->apply( mx, my );
 
 		y.changed();
 	};

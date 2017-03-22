@@ -63,7 +63,7 @@ using ConvDiffJ3D = Pimpact::NonlinearSmoother<ConvDiffOp3D,Pimpact::ConvectionD
 using ConvDiffSOR3D = Pimpact::NonlinearSmoother<ConvDiffOp3D,Pimpact::ConvectionDiffusionSORSmoother >;
 
 template<class T> using POP2  = Pimpact::PrecInverseOp< T, ConvDiffJT >;
-template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
+template<class T> using MOP = Pimpact::InverseOp< T >;
 
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( ModeSolver, ModeNonlinearOp, SpaceT ) {
@@ -115,8 +115,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( ModeSolver, ModeNonlinearOp, SpaceT ) {
 	auto modeOp =
 		Teuchos::rcp( new Pimpact::ModeNonlinearOp< ConvDiffOpT<SpaceT> >(zeroOp));
 
-	auto modeInv =
-		Pimpact::createMultiOpUnWrap( Pimpact::createInverseOp( modeOp, param ) );
+	auto modeInv = Pimpact::createInverseOp( modeOp, param );
 
 
 	using FSpaceT = SpaceT;
@@ -124,9 +123,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( ModeSolver, ModeNonlinearOp, SpaceT ) {
 
 	using CS = Pimpact::CoarsenStrategyGlobal<FSpaceT,CSpaceT>;
 	auto mgSpaces = Pimpact::createMGSpaces<CS>( space, maxGrids );
-	auto zeroInv =
-		Pimpact::createMultiOpUnWrap(
-				Pimpact::createInverseOp( zeroOp, param ) );
+
+	auto zeroInv = Pimpact::createInverseOp( zeroOp, param );
 
 	auto mgConvDiff =
 		Pimpact::createMultiGrid<
@@ -147,9 +145,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( ModeSolver, ModeNonlinearOp, SpaceT ) {
 	//if( 0==space->rankST() )
 	//mgConvDiff->print();
 
-	zeroInv->getOperatorPtr()->setRightPrec( Pimpact::createMultiOperatorBase(mgConvDiff) );
-	modeInv->getOperatorPtr()->setRightPrec( Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::EddyPrec>(zeroInv) ) );
-	//modeInv->getOperatorPtr()->setLeftPrec( Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::EddyPrec>(zeroInv) ) );
+	zeroInv->setRightPrec( Pimpact::createMultiOperatorBase(mgConvDiff) );
+	modeInv->setRightPrec( Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::EddyPrec>(zeroInv) ) );
+	//modeInv->setLeftPrec( Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::EddyPrec>(zeroInv) ) );
 
 	ST iRe = 1./space->getDomainSize()->getRe();
 	ST a2 = space->getDomainSize()->getAlpha2()*iRe;
@@ -313,9 +311,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicSolver, MultiHarmonicDiagOp, Spa
 	
 	auto zeroOp = Pimpact::create<ConvDiffOpT>( space );
 	
-	auto zeroInv =
-		Pimpact::createMultiOpUnWrap(
-				Pimpact::createInverseOp( zeroOp, param ) );
+	auto zeroInv = Pimpact::createInverseOp( zeroOp, param );
 
 	auto modeOp =
 		Teuchos::rcp( new Pimpact::ModeNonlinearOp< ConvDiffOpT<SpaceT> >(zeroOp));
@@ -333,8 +329,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicSolver, MultiHarmonicDiagOp, Spa
 			Belos::StatusTestDetails +
 			Belos::Debug );
 
-	auto modeInv =
-		Pimpact::createMultiOpUnWrap( Pimpact::createInverseOp( modeOp, param ) );
+	auto modeInv = Pimpact::createInverseOp( modeOp, param );
 
 
 	using FSpaceT = SpaceT;
@@ -362,9 +357,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MultiHarmonicSolver, MultiHarmonicDiagOp, Spa
 	//if( 0==space->rankST() )
 	//mgConvDiff->print();
 
-	zeroInv->getOperatorPtr()->setRightPrec( Pimpact::createMultiOperatorBase(mgConvDiff) );
-	modeInv->getOperatorPtr()->setRightPrec( Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::EddyPrec>(zeroInv) ) );
-	//modeInv->getOperatorPtr()->setLeftPrec( Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::EddyPrec>(zeroInv) ) );
+	zeroInv->setRightPrec( Pimpact::createMultiOperatorBase(mgConvDiff) );
+	modeInv->setRightPrec( Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::EddyPrec>(zeroInv) ) );
+	//modeInv->setLeftPrec( Pimpact::createMultiOperatorBase( Pimpact::create<Pimpact::EddyPrec>(zeroInv) ) );
 
 	auto opV2Vprec = Pimpact::createMultiHarmonicDiagOp( zeroInv, modeInv );
 

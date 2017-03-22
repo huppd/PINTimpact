@@ -117,8 +117,6 @@ protected:
 
 		for( int i=0; i<dim; ++i ) {
 
-			//OrdinalT nTemp = gridSizeLocal->get(i) + stencilWidths->getBU(i) - stencilWidths->getBL(i) + 1;
-
 			xS_[i]  = AS( gridSizeLocal->get(i) + SW::BU(i) );
 			xV_[i]  = AV( gridSizeLocal->get(i) + SW::BU(i) );
 			dxS_[i] = DAS( gridSizeLocal->get(i) );
@@ -153,25 +151,6 @@ protected:
 					xS_[i][ii] = pi2/nt*( ii+offset -1 );
 					xV_[i][ii] = pi2/nt*( ii+offset -1 );
 				}
-
-				//PI_getLocalCoordinates(
-						//1,
-						//8.*std::atan(1.),
-						//gridSizeGlobal->get(i),
-						//gridSizeLocal->get(i),
-						//stencilWidths->getBL(i),
-						//stencilWidths->getBU(i),
-						//bcGlobal->getBCL(i),
-						//bcGlobal->getBCU(i),
-						//bcLocal->getBCL(i),
-						//bcLocal->getBCU(i),
-						//procGrid->getIB(i),
-						//coordGlobal->getX( F::S, i ),
-						//coordGlobal->getX( fi, i ),
-						//xS_[i].get(),
-						//xV_[i].get(),
-						//dxS_[i].get(),
-						//dxV_[i].get() );
 			}
 		}
 	}

@@ -93,7 +93,7 @@ Pimpact::MultiDtConvectionDiffusionOp<T>,
 	Pimpact::MultiHarmonicOpWrap< Pimpact::GradOp<T> >,
 	Pimpact::MultiHarmonicOpWrap< Pimpact::DivOp<T > > >;
 
-template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
+template<class T> using MOP = Pimpact::InverseOp< T >;
 
 template<class OpT>
 using Smoother =
@@ -226,7 +226,7 @@ OpT,
 
 			/*** end of init preconditioner ************************************************************/
 
-			auto inter = NOX::Pimpact::createInterface( fu, Pimpact::createMultiOpWrap(op), opInv );
+			auto inter = NOX::Pimpact::createInterface( fu, Pimpact::createMultiOpWrap(op), Pimpact::createMultiOpWrap(opInv) );
 
 			auto nx = NOX::Pimpact::createVector( x );
 

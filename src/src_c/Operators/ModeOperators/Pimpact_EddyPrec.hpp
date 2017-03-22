@@ -23,7 +23,7 @@ public:
 	using SpaceT = typename OpT::SpaceT;
 
 	using DomainFieldT = ModeField<typename OpT::DomainFieldT>;
-	using RangeFieldT = ModeField<typename OpT::RangeFieldT >;
+	using RangeFieldT = ModeField<typename OpT::RangeFieldT>;
 
 protected:
 
@@ -62,8 +62,19 @@ public:
 
 		op_->setParameter( pl );
 
-		op_->apply( temp.getCField(), y.getCField() );
-		op_->apply( temp.getSField(), y.getSField() );
+		MultiField<typename OpT::DomainFieldT> mx( space(), 0 );
+		MultiField<typename OpT::RangeFieldT> my( space(), 0 );
+
+		mx.push_back( Teuchos::rcpFromRef(temp.getCField()) );
+		mx.push_back( Teuchos::rcpFromRef(temp.getSField()) );
+
+		my.push_back( Teuchos::rcpFromRef(y.getCField()) );
+		my.push_back( Teuchos::rcpFromRef(y.getSField()) );
+		
+		//op_->apply( temp.getCField(), y.getCField() );
+		//op_->apply( temp.getSField(), y.getSField() );
+
+		op_->apply( mx, my );
 
 		// just block( if mulI<max(mulC_,mulL) ???)
 		// set paramters

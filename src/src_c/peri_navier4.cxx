@@ -77,7 +77,7 @@ template<class SpaceT1, class SpaceT2> using TCO = Pimpact::TransferCompoundOp<
 	Pimpact::TransferTimeOp<Pimpact::VectorFieldOpWrap<Pimpact::TransferOp<SpaceT1, SpaceT2> > >,
 	Pimpact::TransferTimeOp<                           Pimpact::TransferOp<SpaceT1, SpaceT2> > >;
 
-template<class T> using MOP = Pimpact::MultiOpUnWrap<Pimpact::InverseOp< Pimpact::MultiOpWrap< T > > >;
+template<class T> using MOP = Pimpact::InverseOp<T>;
 
 
 
