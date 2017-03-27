@@ -64,48 +64,48 @@ protected:
   Teuchos::Tuple<int,dim> rankU_;
 
 
-	MPI_Comm commSlice_[dim];           ///< sub comm along dimension
-	Teuchos::Tuple<int,dim> rankSlice_; ///< sub rank should be equivalent to iB_ rankcoordinate??
+	MPI_Comm commBar_[dim];           ///< sub comm along dimension
+	Teuchos::Tuple<int,dim> rankBar_; ///< sub rank should be equivalent to iB_ rankcoordinate??
 
+	MPI_Comm commSlice_[3];           ///< sub comm containt slice( slice(time) not necessary, because this is in subcommunicator, a bit messy. I know
+	Teuchos::Tuple<int,3> rankSlice_;
 
-//  MPI_Comm commBar_[3];
-//
-//  Teuchos::Tuple<int,3> rankBar_;
-//
-
-  ProcGrid(
-      TO& procGridSize,
-      const Teuchos::RCP<const BoundaryConditionsGlobal<dim> >& bcg,
-		 	bool participating ):
-				procGridSize_(procGridSize),
-        participating_(participating),
-				commWorld_(),
-				commSub_(),
-				rankWorld_(0),
-				rankSub_(0),
-				iB_(),
-				rankL_(),
-				rankU_()//,commSlice_(),commBar_(),rankSlice_(),rankBar_()
-	{
+	ProcGrid(
+			TO& procGridSize,
+			const Teuchos::RCP<const BoundaryConditionsGlobal<dim> >& bcg,
+			bool participating ):
+		procGridSize_(procGridSize),
+		participating_(participating),
+		commWorld_(),
+		commSub_(),
+		rankWorld_(0),
+		rankSub_(0),
+		iB_(),
+		rankL_(),
+		rankU_(),
+		commBar_(),
+		rankBar_(),
+		commSlice_(),
+		rankSlice_() {
 
 		//
 		// --- tests ---
 		// 
 		static_assert( 3==dim || 4==dim, "spatial dimension not valid" );
 
-    for( int i=0; i<dim; ++i )
+		for( int i=0; i<dim; ++i )
 			TEUCHOS_TEST_FOR_EXCEPT( procGridSize_[i]<1 );
 
-    int commSize;
-    MPI_Comm_size( MPI_COMM_WORLD, &commSize );
+		int commSize;
+		MPI_Comm_size( MPI_COMM_WORLD, &commSize );
 
-    int procSize = 1;
-    for( int i=0; i<dim; ++i )
-      procSize *= procGridSize_[i];
+		int procSize = 1;
+		for( int i=0; i<dim; ++i )
+			procSize *= procGridSize_[i];
 
 		TEUCHOS_TEST_FOR_EXCEPTION( procSize!=commSize, std::logic_error, "procSize: " << procSize << " != commSize: " << commSize );
 
-    Teuchos::Tuple<int,dim> ijkB;                        // mpi grid coordinates
+		Teuchos::Tuple<int,dim> ijkB;                        // mpi grid coordinates
 
 		//
 		// -- commWorld_ ---
@@ -114,9 +114,9 @@ protected:
 				MPI_COMM_WORLD,              // communicator without Cartesian information
 				dim,                         // number of dimensions
 				procGridSize_.getRawPtr(),   // number of processors in each dimension
-        bcg->periodic().getRawPtr(), // array for mpi to signal where periodic grid is, from manual should be bool
-        true,                        // true means ranking may be reorderd
-        &commWorld_ );               // new communicator with Cartesian information
+				bcg->periodic().getRawPtr(), // array for mpi to signal where periodic grid is, from manual should be bool
+				true,                        // true means ranking may be reorderd
+				&commWorld_ );               // new communicator with Cartesian information
 
 
 		//
@@ -124,23 +124,23 @@ protected:
 		// -- rankWorld_(just spatial comm without time) ---
 		// -- rankSub_(just spatial comm without time) ---
 		// 
-    if( 3==dim ) {
+		if( 3==dim ) {
 
-      commSub_ = commWorld_;
-      // gets rank from COMM_CART
+			commSub_ = commWorld_;
+			// gets rank from COMM_CART
 			if( commSub_==MPI_COMM_NULL )
 				rankSub_ = -1;
 			else 
 				MPI_Comm_rank( commSub_, &rankSub_ ); // get rank
-      rankWorld_ = rankSub_;
+			rankWorld_ = rankSub_;
 
-    }
-    else if( 4==dim ) {
+		}
+		else if( 4==dim ) {
 
 			int temp[] = {1,1,1,0};
 			MPI_Cart_sub( commWorld_, temp, &commSub_ );
 
-      // gets rank from COMM_CART
+			// gets rank from COMM_CART
 			if( commWorld_==MPI_COMM_NULL )
 				rankWorld_ = -1;
 			else
@@ -149,7 +149,7 @@ protected:
 				rankSub_ = -1;
 			else 
 				MPI_Comm_rank( commSub_, &rankSub_ );
-    }
+		}
 
 		//
 		// -- iB_ ---
@@ -184,13 +184,36 @@ protected:
 						&rankU_[i] );  // rank destination
 
 		//
-		// --- commSlice, rankSlice ---
+		// --- commBar, rankBar ---
 		//
 		Teuchos::Tuple<int,dim> temp;
 		for( int i=0; i<dim; ++i ) {
 			for( int j=0; j<dim; ++j )
 				temp[j] = 0;
 			temp[i] = 1;
+
+			if( commWorld_==MPI_COMM_NULL )
+				commBar_[i] = MPI_COMM_NULL;
+			else
+				MPI_Cart_sub(
+						commWorld_,       // input communicator
+						temp.getRawPtr(), // included sub dimensions
+						&commBar_[i] ); // output sub communicator
+
+			// gets rank from COMM_CART
+			if( commBar_[i]==MPI_COMM_NULL )
+				rankBar_[i] = -1;
+			else
+				MPI_Comm_rank( commBar_[i], &rankBar_[i] );
+		}
+
+		// --- commSlice, rankSlice ---
+		//
+		temp[dim-1] = 0; // setting time or Z zero
+		for( int i=0; i<3; ++i ) {
+			for( int j=0; j<3; ++j )
+				temp[j] = 1;
+			temp[i] = 0;
 
 			if( commWorld_==MPI_COMM_NULL )
 				commSlice_[i] = MPI_COMM_NULL;
@@ -243,11 +266,11 @@ public:
 
 	/// \todo figure out why freeing is not working, desirable for many Utest, destructor called twize?
 	~ProcGrid() {
-		//if( commWorld_!=MPI_COMM_NULL )
-		//std::cout << "rank: " << rankWorld_ << "\tcomm: " << commWorld_ << "\n";
-		//MPI_Comm_free( &commWorld_ );
-		//if( 4==dim )
-			//MPI_Comm_free( &commSub_ );
+		if( commWorld_!=MPI_COMM_NULL )
+			//std::cout << "rank: " << rankWorld_ << "\tcomm: " << commWorld_ << "\n";
+			MPI_Comm_free( &commWorld_ );
+		if( commSub_!=MPI_COMM_NULL )
+			MPI_Comm_free( &commSub_ );
 		//for( int i=0; i<dim; ++i )
 			//if( commSlice_[i]!=MPI_COMM_NULL )
 				//MPI_Comm_free( &(commSlice_[i]) );
@@ -262,7 +285,8 @@ public:
     out << "\trankL: " <<rankL_<<"\n";
     out << "\trankU: " <<rankU_<<"\n";
     out << "\tproc coordinate: " << iB_ << "\n";
-		out << "\trankSlices: " << rankSlice_ << "\n";
+		out << "\trankBar: " << rankBar_ << "\n";
+		out << "\trankSlice: " << rankSlice_ << "\n";
   }
 
   constexpr const bool& participating() const { return( participating_ ); }
@@ -285,6 +309,9 @@ public:
 
   constexpr const int& getRankL( const int& i ) const { return( rankL_[i] ); }
   constexpr const int& getRankU( const int& i ) const { return( rankU_[i] ); }
+
+  constexpr const MPI_Comm& getCommBar( const int& i ) const { return( commBar_[i] ); }
+  constexpr const int&      getRankBar( const int& i ) const { return( rankBar_[i] ); }
 
   constexpr const MPI_Comm& getCommSlice( const int& i ) const { return( commSlice_[i] ); }
   constexpr const int&      getRankSlice( const int& i ) const { return( rankSlice_[i] ); }

@@ -22,8 +22,6 @@ class AbstractField {
 
 public:
 
-  using Scalar = typename SpaceT::Scalar;
-  using Ordinal = typename SpaceT::Ordinal;
 
   static const int dimension = SpaceT::dimension;
 
@@ -31,13 +29,15 @@ public:
 
 protected:
 
+	using ST = typename SpaceT::Scalar;
+
   Teuchos::RCP<const SpaceT> space_;
 
 	/// \note openMPI is picky her with const references :(
-	constexpr Scalar reduce( const MPI_Comm& comm, double normLocal, const MPI_Op& op=MPI_SUM ) const {
-	//constexpr Scalar reduce( const MPI_Comm& comm, const double& normLocal, MPI_Op op=MPI_SUM ) const {
+	/// \note think about making pubplic
+	constexpr ST reduce( const MPI_Comm& comm, ST normLocal, const MPI_Op& op=MPI_SUM )  {
 
-		Scalar normGlob;
+		ST normGlob;
 		MPI_Allreduce( &normLocal, &normGlob, 1, MPI_REAL8, op, comm );
 		return( normGlob );
 	}

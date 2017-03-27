@@ -9,6 +9,7 @@
 #include "BelosSolverFactory.hpp"
 #include "BelosSolverManager.hpp"
 
+#include "Pimpact_EmptyProjector.hpp"
 #include "Pimpact_LinearProblem.hpp"
 #include "Pimpact_LinSolverParameter.hpp"
 #include "Pimpact_MultiField.hpp"
@@ -26,7 +27,7 @@ namespace Pimpact {
 /// 
 /// \todo merge with Prec...
 /// \ingroup Operator
-template< class OpT >
+template< class OpT, template<class> class  ProjectorT=EmptyProjector >
 class InverseOp {
 
 public:
@@ -59,11 +60,15 @@ protected:
 	Teuchos::RCP< Teuchos::ParameterList > solverParameter_;
 	Teuchos::RCP< Belos::LinearProblem<ST, MF, MOpT> > problem_;
 
+	const ProjectorT<OpT> projector_;
+
+	/// \deprecated
 	Teuchos::RCP<const RangeFieldT> nullspace_;
 
 public:
 
 	/// should be avoided( used in peri_navierSMGXML)
+	/// does not work
 	InverseOp( const Teuchos::RCP<const SpaceT>& space ):
 		level_(false),
 		levelRHS_(false),
@@ -90,7 +95,8 @@ public:
 					new Belos::LinearProblem<ST,MF,MOpT>(
 						createMultiOperatorBase( op ),
 						Teuchos::rcp( new MF(op->space()) ),
-						Teuchos::rcp( new MF(op->space()) ) ) ) ) {}
+						Teuchos::rcp( new MF(op->space()) ) ) ) ),
+		projector_( op ) {}
 
 
 	//template<class IOperatorT>
@@ -108,32 +114,34 @@ public:
 				Teuchos::rcp( new Belos::LinearProblem<ST,MF,MOpT>(
 						createMultiOperatorBase( op ),
 						Teuchos::rcp( new MF(op->space()) ),
-						Teuchos::rcp( new MF(op->space()) ) ) )) {}
+						Teuchos::rcp( new MF(op->space()) ) ) )),
+		projector_( op ) {}
 
 
-	void apply( const DomainFieldT& x, RangeFieldT& y, const Add& add=Add::N  ) const {
+	void apply( const DomainFieldT& rhs, RangeFieldT& y, const Add& add=Add::N  ) const {
 		apply(
 				*wrapMultiField( Teuchos::rcpFromRef<DomainFieldT>(
-						const_cast<DomainFieldT&>(x) ) ),
+						const_cast<DomainFieldT&>(rhs) ) ),
 				*wrapMultiField( Teuchos::rcpFromRef<RangeFieldT>(y) ) );
 	}
 
 
-	void apply( const MF& x, MF& y, const Add& add=Add::N  ) const {
+	void apply( const MF& rhs, MF& y, const Add& add=Add::N  ) const {
 
-		if( levelRHS_ ) { x.level(); }
+		if( levelRHS_ ) { rhs.level(); }
 		if( initZero_ ) { y.init( ); }
 		if( nullspaceOrtho_ ) {
-			for( int i=0; i<x.getNumberVecs(); ++i ) {
-				ST bla = -nullspace_->dot( x.getField(i) );
+			for( int i=0; i<rhs.getNumberVecs(); ++i ) {
+				ST bla = -nullspace_->dot( rhs.getField(i) );
 				if( 0==space()->rankST() ) std::cout << getLabel()<< ": nullspace contributtion[" << i<< "]: " << std::abs(bla)  << "\n";
 				if( std::abs( bla ) >= Teuchos::ScalarTraits<ST>::eps() )
-					const_cast<MF&>(x).getField(i).add( 1., x.getField(i), bla, *nullspace_ );
+					const_cast<MF&>(rhs).getField(i).add( 1., rhs.getField(i), bla, *nullspace_ );
+				projector_( const_cast<RangeFieldT&>(rhs.getField(i)) );
 			}
 			if( 0==space()->rankST() ) std::cout << "\n";
 		}
 
-		problem_->setProblem( Teuchos::rcpFromRef(y), Teuchos::rcpFromRef(x) );
+		problem_->setProblem( Teuchos::rcpFromRef(y), Teuchos::rcpFromRef(rhs) );
 		Belos::SolverFactory<ST,MF,MOpT> factory;
 
 		Teuchos::RCP< Belos::SolverManager<ST,MF,MOpT> > solver =
@@ -143,7 +151,7 @@ public:
 		Belos::ReturnType succes = solver->solve();
 
 		if( debug_ && Belos::ReturnType::Unconverged==succes ) {
-			x.write();
+			rhs.write();
 			assert( Belos::ReturnType::Converged==succes );
 			//TEUCHOS_TEST_FOR_EXCEPT( false );
 			//TEUCHOS_TEST_FOR_EXCEPT( true );

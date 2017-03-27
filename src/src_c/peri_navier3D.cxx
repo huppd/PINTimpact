@@ -3,12 +3,12 @@
 
 #include <mpi.h>
 
-#include <Teuchos_Array.hpp>
+#include "Teuchos_Array.hpp"
 #include "Teuchos_CommandLineProcessor.hpp"
-#include <Teuchos_CommHelpers.hpp>
+#include "Teuchos_CommHelpers.hpp"
 #include "Teuchos_Range1D.hpp"
 #include "Teuchos_RCP.hpp"
-#include <Teuchos_Tuple.hpp>
+#include "Teuchos_Tuple.hpp"
 #include "Teuchos_XMLParameterListCoreHelpers.hpp"
 
 #include "BelosOutputManager.hpp"
@@ -22,6 +22,8 @@
 #include "NOX_Pimpact_Interface.hpp"
 #include "NOX_Pimpact_Vector.hpp"
 #include "NOX_Pimpact_StatusTest.hpp"
+
+#include "Pimpact_AnalysisTools.hpp"
 #include "Pimpact_CoarsenStrategyGlobal.hpp"
 #include "Pimpact_CoarsenStrategy.hpp"
 #include "Pimpact_Fields.hpp"
@@ -524,9 +526,9 @@ int main( int argi, char** argv ) {
 		{
 			auto out = Pimpact::createOstream( "energy_dis"+rl+".txt", space->rankST() );
 
-			*out << 0 << "\t" << x->getField(0).getVField().get0Field().norm() << "\t" << std::sqrt( static_cast<S>( x->getField(0).getVField().get0Field().getLength() ) ) << "\n";
+			*out << 0 << "\t" << Pimpact::computeEnergy( x->getField(0).getVField().get0Field() ) << "\t" << 0. << "\n";
 			for( int i=1; i<=space->nGlo(3); ++i )
-				*out << i << "\t" << x->getField(0).getVField().getField(i).norm() << "\t" << std::sqrt( static_cast<S>( x->getField(0).getVField().getField(i).getLength() ) ) << "\n";
+				*out << i << "\t" << Pimpact::computeEnergy( x->getField(0).getVField().getCField(i) ) << "\t" << Pimpact::computeEnergy( x->getField(0).getVField().getSField(i) ) << "\n";
 		}
 
 		// spectral refinement criterion

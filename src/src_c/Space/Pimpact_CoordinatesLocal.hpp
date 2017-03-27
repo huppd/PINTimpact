@@ -168,26 +168,35 @@ public:
 		return( getX( ftype, dir, i ) );
   }
 
+	/// \deprecated
 	constexpr const ScalarT* getX( const F& ftype, const int& dir ) const  {
 		return(
 				( F::S==ftype || dir!=ftype ) ?
 					xS_[dir].get() :
 					xV_[dir].get()
 				);
-  }
+	}
 
+	/// \deprecated
   constexpr const ScalarT& getX( const F& ftype, const int& dir, const OrdinalT& i) const {
 		return( ( F::S==ftype || dir!=ftype )?
 				xS_[dir][i]: xV_[dir][i] );
   }
 
-	constexpr const AS& getS( const int& dir ) const  {
-		return( xS_[dir] );
+  constexpr const ScalarT& dx( const F& ftype, const int& dir, const OrdinalT& i) const {
+		return( ( F::S==ftype || dir!=ftype )?
+				dxS_[dir][i]: dxV_[dir][i] );
   }
 
+	/// \deprecated
+	constexpr const AS& getS( const int& dir ) const  {
+		return( xS_[dir] );
+	}
+
+	/// \deprecated
 	constexpr const AV& getV( const int& dir ) const {
 		return( xV_[dir] );
-  }
+	}
 
 	///  @} 
 

@@ -54,6 +54,12 @@ public:
 		temp.getCField().add( 0.5, x.getCField(),  0.5, x.getSField(), B::N );
 		temp.getSField().add( 0.5, x.getCField(), -0.5, x.getSField(), B::N );
 
+
+		MultiField<typename OpT::DomainFieldT> mx( space(), 0 );
+		MultiField<typename OpT::RangeFieldT> my( space(), 0 );
+
+		
+
 		//// set paramters
 		auto pl = Teuchos::parameterList();
 		pl->set<Scalar>( "mulI", mulI_ );
@@ -62,19 +68,15 @@ public:
 
 		op_->setParameter( pl );
 
-		MultiField<typename OpT::DomainFieldT> mx( space(), 0 );
-		MultiField<typename OpT::RangeFieldT> my( space(), 0 );
-
-		mx.push_back( Teuchos::rcpFromRef(temp.getCField()) );
-		mx.push_back( Teuchos::rcpFromRef(temp.getSField()) );
-
-		my.push_back( Teuchos::rcpFromRef(y.getCField()) );
-		my.push_back( Teuchos::rcpFromRef(y.getSField()) );
+		op_->apply( temp.getCField(), y.getCField() );
+		op_->apply( temp.getSField(), y.getSField() );
 		
-		//op_->apply( temp.getCField(), y.getCField() );
-		//op_->apply( temp.getSField(), y.getSField() );
+		//mx.push_back( Teuchos::rcpFromRef(temp.getCField()) );
+		//mx.push_back( Teuchos::rcpFromRef(temp.getSField()) );
 
-		op_->apply( mx, my );
+		//my.push_back( Teuchos::rcpFromRef(y.getCField()) );
+		//my.push_back( Teuchos::rcpFromRef(y.getSField()) );
+		//op_->apply( mx, my );
 
 		// just block( if mulI<max(mulC_,mulL) ???)
 		// set paramters

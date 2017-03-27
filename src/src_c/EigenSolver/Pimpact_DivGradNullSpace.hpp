@@ -75,12 +75,12 @@ public:
 
 				/// \todo Allgather would be better
 				MPI_Allreduce(
-						cG1.get(),    		                          // const void *sendbuf,
-						cG2.get(),    		                          // void *recvbuf,
-						nTempG,			                                // int count,
-						MPI_REAL8,	                                // MPI_Datatype datatype,
-						MPI_SUM,		                                // MPI_Op op,
-						space->getProcGrid()->getCommSlice(dir) );	// MPI_Comm comm )
+						cG1.get(),    		                        // const void *sendbuf,
+						cG2.get(),    		                        // void *recvbuf,
+						nTempG,			                              // int count,
+						MPI_REAL8,	                              // MPI_Datatype datatype,
+						MPI_SUM,		                              // MPI_Op op,
+						space->getProcGrid()->getCommBar(dir) );	// MPI_Comm comm )
 
 
 				// generate global Div Stencil(copy from transposed stencil)
@@ -103,11 +103,11 @@ public:
 							(*b)(ii+1) = -space->getInterpolateV2S()->getC( static_cast<Pimpact::ECoord>(dir),1,ii);
 
 						MPI_Bcast(
-								&(*b)(0),																		// void* data,
-								space->du(dir)+2,														// int count,
-								MPI_DOUBLE,																	// MPI_Datatype datatype,
-								0,																					// int root,
-								space->getProcGrid()->getCommSlice(dir) );	// MPI_Comm comm )
+								&(*b)(0),																	// void* data,
+								space->du(dir)+2,													// int count,
+								MPI_DOUBLE,																// MPI_Datatype datatype,
+								0,																				// int root,
+								space->getProcGrid()->getCommBar(dir) );	// MPI_Comm comm )
 					}
 					else
 						(*b)(0) = -1.;
@@ -120,11 +120,11 @@ public:
 							(*b)(N+ii) = space->getInterpolateV2S()->getC( static_cast<Pimpact::ECoord>(dir),space->end(F::S,dir), ii);
 						
 						MPI_Bcast(
-								&(*b)(N-3),																	//void* data,
-								1-space->dl(dir),														//int count,
-								MPI_DOUBLE,																	//MPI_Datatype datatype,
-								space->getProcGrid()->getNP(dir)-1,					//int root,
-								space->getProcGrid()->getCommSlice(dir) );	// MPI_Comm comm )
+								&(*b)(N-3),																//void* data,
+								1-space->dl(dir),													//int count,
+								MPI_DOUBLE,																//MPI_Datatype datatype,
+								space->getProcGrid()->getNP(dir)-1,				//int root,
+								space->getProcGrid()->getCommBar(dir) );	// MPI_Comm comm )
 					}
 					else
 						(*b)(N) = 1.;

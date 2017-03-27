@@ -103,12 +103,12 @@ public:
 						cG1( i+space_->getShift(dir), ii ) = getC( static_cast<ECoord>(dir), i, ii );
 
 				MPI_Allreduce(
-						cG1.get(),	                                // const void *sendbuf,
-						cG2.get(),                                  // void *recvbuf,
-						nTempG,			                                // int count,
-						MPI_REAL8,	                                // MPI_Datatype datatype,
-						MPI_SUM,		                                // MPI_Op op,
-						space_->getProcGrid()->getCommSlice(dir) ); // MPI_Comm comm )
+						cG1.get(),	                              // const void *sendbuf,
+						cG2.get(),                                // void *recvbuf,
+						nTempG,			                              // int count,
+						MPI_REAL8,	                              // MPI_Datatype datatype,
+						MPI_SUM,		                              // MPI_Op op,
+						space_->getProcGrid()->getCommBar(dir) ); // MPI_Comm comm )
 
 				if( -1==space_->getBCGlobal()->getBCL(dir) ) {
 

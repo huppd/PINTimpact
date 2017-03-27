@@ -40,10 +40,10 @@ public:
 
 protected:
 
-  using Scalar = typename SpaceT::Scalar;
+  using ST = typename SpaceT::Scalar;
   using Ordinal = typename SpaceT::Ordinal;
 
-  using ScalarArray = Scalar*;
+  using ScalarArray = ST*;
   using State = Teuchos::Tuple<bool,3>;
 
 
@@ -57,7 +57,7 @@ protected:
 
 	void allocate() {
 		Ordinal n = getStorageSize();
-		s_ = new Scalar[n];
+		s_ = new ST[n];
 	}
 
 public:
@@ -147,7 +147,7 @@ public:
 
   /// \brief Replace \c this with \f$\alpha a + \beta B\f$.
 	/// \todo make checks for spaces and k
-	void add( const Scalar& alpha, const ScalarField& a, const Scalar& beta, const
+	void add( const ST& alpha, const ScalarField& a, const ST& beta, const
 			ScalarField& b, const B& wb=B::Y ) {
 
 		assert( a.getType()==b.getType() );
@@ -218,14 +218,14 @@ public:
 		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
 			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
 				for( Ordinal i=space()->begin(fType_,X,bcYes); i<=space()->end(fType_,X,bcYes); ++i )
-					at(i,j,k) = Teuchos::ScalarTraits<Scalar>::one()/ y.at(i,j,k);
+					at(i,j,k) = Teuchos::ScalarTraits<ST>::one()/ y.at(i,j,k);
 
     changed();
   }
 
 
   /// \brief Scale each element of the vector with \c alpha.
-	void scale( const Scalar& alpha, const B& wB=B::Y ) {
+	void scale( const ST& alpha, const B& wB=B::Y ) {
 
 		for( Ordinal k=space()->begin(fType_,Z,wB); k<=space()->end(fType_,Z,wB); ++k )
 			for( Ordinal j=space()->begin(fType_,Y,wB); j<=space()->end(fType_,Y,wB); ++j )
@@ -261,7 +261,7 @@ public:
   /// @{
 
 	/// \brief Compute a local scalar \c b, which is the dot-product of \c y and \c this, i.e.\f$b = y^H this\f$.
-	constexpr Scalar dotLoc( const ScalarField& y, const B& bcYes=B::Y ) const {
+	constexpr ST dotLoc( const ScalarField& y, const B& bcYes=B::Y ) const {
 
 #ifndef NDEBUG
 		for( int dir=0; dir<3; ++dir ) {
@@ -270,7 +270,7 @@ public:
 		}
 #endif
 
-		Scalar b = Teuchos::ScalarTraits<Scalar>::zero();
+		ST b = Teuchos::ScalarTraits<ST>::zero();
 
 		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
 			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
@@ -282,13 +282,13 @@ public:
 
 	/// \brief Compute/reduces a scalar \c b, which is the dot-product of \c y
 	/// and \c this, i.e.\f$b = y^H this\f$.
-	constexpr Scalar dot( const ScalarField& y, const B& bcYes=B::Y ) const {
+	constexpr ST dot( const ScalarField& y, const B& bcYes=B::Y ) const {
 		return( this->reduce( comm(), dotLoc( y, bcYes ) ) );
 	}
 
-  constexpr Scalar normLoc1( const B& bcYes=B::Y ) const {
+  constexpr ST normLoc1( const B& bcYes=B::Y ) const {
 
-    Scalar normvec = Teuchos::ScalarTraits<Scalar>::zero();
+    ST normvec = Teuchos::ScalarTraits<ST>::zero();
 
 		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
 			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
@@ -299,9 +299,9 @@ public:
   }
 
 
-  constexpr Scalar normLoc2( const B& bcYes=B::Y ) const {
+  constexpr ST normLoc2( const B& bcYes=B::Y ) const {
 
-    Scalar normvec = Teuchos::ScalarTraits<Scalar>::zero();
+    ST normvec = Teuchos::ScalarTraits<ST>::zero();
 
 		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
 			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
@@ -312,9 +312,9 @@ public:
   }
 
 
-  constexpr Scalar normLocInf( const B& bcYes=B::Y ) const {
+  constexpr ST normLocInf( const B& bcYes=B::Y ) const {
 
-    Scalar normvec = Teuchos::ScalarTraits<Scalar>::zero();
+    ST normvec = Teuchos::ScalarTraits<ST>::zero();
 
 		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
 			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
@@ -324,7 +324,7 @@ public:
     return( normvec );
   }
 
-	constexpr Scalar normLoc( Belos::NormType type = Belos::TwoNorm, const B& bcYes=B::Y ) const {
+	constexpr ST normLoc( Belos::NormType type = Belos::TwoNorm, const B& bcYes=B::Y ) const {
 
 		return(
 				( Belos::OneNorm==type)?
@@ -337,9 +337,9 @@ public:
 
   /// \brief compute the norm
   /// \return by default holds the value of \f$||this||_2\f$, or in the specified norm.
-  constexpr Scalar norm( Belos::NormType type = Belos::TwoNorm, const B& bcYes=B::Y ) const {
+  constexpr ST norm( Belos::NormType type = Belos::TwoNorm, const B& bcYes=B::Y ) const {
 
-		Scalar normvec = this->reduce(
+		ST normvec = this->reduce(
 				comm(),
 				normLoc( type,bcYes ),
 				(Belos::InfNorm==type)?MPI_MAX:MPI_SUM );
@@ -359,12 +359,12 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr Scalar normLoc( const ScalarField& weights, const B& bcYes=B::Y ) const {
+  constexpr ST normLoc( const ScalarField& weights, const B& bcYes=B::Y ) const {
 
 		for( int dir=0; dir<3; ++dir )
 			assert( space()->nLoc(dir)==weights.space()->nLoc(dir) );
 
-    Scalar normvec = Teuchos::ScalarTraits<Scalar>::zero();
+    ST normvec = Teuchos::ScalarTraits<ST>::zero();
 
 		for( Ordinal k=space()->begin(fType_,Z,bcYes); k<=space()->end(fType_,Z,bcYes); ++k )
 			for( Ordinal j=space()->begin(fType_,Y,bcYes); j<=space()->end(fType_,Y,bcYes); ++j )
@@ -381,7 +381,7 @@ public:
   /// Here x represents this vector, and we compute its weighted norm as follows:
   /// \f[ \|x\|_w = \sqrt{\sum_{i=1}^{n} w_i \; x_i^2} \f]
   /// \return \f$ \|x\|_w \f$
-  constexpr Scalar norm( const ScalarField& weights, const B& bcYes=B::Y ) const {
+  constexpr ST norm( const ScalarField& weights, const B& bcYes=B::Y ) const {
 		return( std::sqrt( this->reduce( comm(), normLoc( weights, bcYes ) ) ) );
 	}
 
@@ -424,7 +424,7 @@ public:
 			for( Ordinal k=space()->begin(fType_,Z,B::Y); k<=space()->end(fType_,Z,B::Y); ++k )
 				for( Ordinal j=space()->begin(fType_,Y,B::Y); j<=space()->end(fType_,Y,B::Y); ++j )
 					for( Ordinal i=space()->begin(fType_,X,B::Y); i<=space()->end(fType_,X,B::Y); ++i )
-						at(i,j,k) = Teuchos::ScalarTraits<Scalar>::zero();
+						at(i,j,k) = Teuchos::ScalarTraits<ST>::zero();
 		changed();
   }
 
@@ -432,7 +432,7 @@ public:
   /// \brief Replace each element of the vector  with \c alpha.
 	/// \param alpha init value
 	/// \param bcYes also initializing the boundary values
-	void init( const Scalar& alpha = Teuchos::ScalarTraits<Scalar>::zero(), const B& bcYes=B::Y ) {
+	void init( const ST& alpha = Teuchos::ScalarTraits<ST>::zero(), const B& bcYes=B::Y ) {
 
 		if( B::Y==bcYes ){
 			std::fill_n( s_, getStorageSize(), alpha );
@@ -450,7 +450,7 @@ public:
 				for( Ordinal k=space()->begin(fType_,Z,B::Y); k<=space()->end(fType_,Z,B::Y); ++k )
 					for( Ordinal j=space()->begin(fType_,Y,B::Y); j<=space()->end(fType_,Y,B::Y); ++j )
 						for( Ordinal i=space()->begin(fType_,X,B::Y); i<=space()->end(fType_,X,B::Y); ++i )
-							at(i,j,k) = Teuchos::ScalarTraits<Scalar>::zero();
+							at(i,j,k) = Teuchos::ScalarTraits<ST>::zero();
 			changed();
 		}
 	}
@@ -491,9 +491,9 @@ public:
 	template<typename Functor>
 	void initFromFunction( Functor&& func, const Add& add=Add::N ) {
 
-		Teuchos::RCP<const CoordinatesLocal<Scalar,Ordinal,SpaceT::dimension,SpaceT::dimNC> > coord =
+		Teuchos::RCP<const CoordinatesLocal<ST,Ordinal,SpaceT::dimension,SpaceT::dimNC> > coord =
 			space()->getCoordinatesLocal();
-		Teuchos::RCP<const DomainSize<Scalar,SpaceT::sdim> > domain = space()->getDomainSize();
+		Teuchos::RCP<const DomainSize<ST,SpaceT::sdim> > domain = space()->getDomainSize();
 
 		const B& bY = B::Y;
 
@@ -529,62 +529,62 @@ public:
 				}
 			case Grad2D_inX :
 				{
-					Scalar a = para.get<Scalar>( "dx", Teuchos::ScalarTraits<Scalar>::one() );
+					ST a = para.get<ST>( "dx", Teuchos::ScalarTraits<ST>::one() );
 					initFromFunction(
-							[&a] (Scalar x, Scalar y, Scalar z)->Scalar { return( a*(x-0.5) ); },
+							[&a] (ST x, ST y, ST z)->ST { return( a*(x-0.5) ); },
 							add );
 					break;
 				}
 			case Grad2D_inY :
 				{
-					Scalar a = para.get<Scalar>( "dy", Teuchos::ScalarTraits<Scalar>::one() );
+					ST a = para.get<ST>( "dy", Teuchos::ScalarTraits<ST>::one() );
 					initFromFunction(
-							[&a] (Scalar x, Scalar y, Scalar z)->Scalar { return( a*(y-0.5) ); },
+							[&a] (ST x, ST y, ST z)->ST { return( a*(y-0.5) ); },
 							add );
 					break;
 				}
 			case Grad2D_inZ :
 				{
-					Scalar a = para.get<Scalar>( "dz", Teuchos::ScalarTraits<Scalar>::one() );
+					ST a = para.get<ST>( "dz", Teuchos::ScalarTraits<ST>::one() );
 					initFromFunction(
-							[&a] (Scalar x, Scalar y, Scalar z)->Scalar { return( a*(z-0.5) ); },
+							[&a] (ST x, ST y, ST z)->ST { return( a*(z-0.5) ); },
 							add );
 					break;
 				}
 			case Poiseuille2D_inX :
 				{
 					initFromFunction(
-							[] (Scalar x, Scalar y, Scalar z)->Scalar { return( 4.*x*(1.-x) ); },
+							[] (ST x, ST y, ST z)->ST { return( 4.*x*(1.-x) ); },
 							add );
 					break;
 				}
 			case Poiseuille2D_inY :
 				{
 					initFromFunction(
-							[] (Scalar x, Scalar y, Scalar z)->Scalar { return( 4.*y*(1.-y) ); },
+							[] (ST x, ST y, ST z)->ST { return( 4.*y*(1.-y) ); },
 							add );
 					break;
 				}
 			case Poiseuille2D_inZ :
 				{
 					initFromFunction(
-							[] (Scalar x, Scalar y, Scalar z)->Scalar { return( 4.*z*(1.-z) ); },
+							[] (ST x, ST y, ST z)->ST { return( 4.*z*(1.-z) ); },
 							add );
 					break;
 				}
 			case FPoint :
 				{
-					Scalar xc[3] = { 
-						para.get<Scalar>( "c_x", Teuchos::ScalarTraits<Scalar>::one() ),
-						para.get<Scalar>( "c_y", space()->getDomainSize()->getSize( Y )/2. ),
-						para.get<Scalar>( "c_z", space()->getDomainSize()->getSize( Z )/2. ) };
-					Scalar amp = para.get<Scalar>( "amp", Teuchos::ScalarTraits<Scalar>::one() );
-					Scalar sig[3] = {
-						para.get<Scalar>( "sig_x", 0.2 ),
-						para.get<Scalar>( "sig_y", 0.2 ),
-						para.get<Scalar>( "sig_z", 0.2 ) };
+					ST xc[3] = { 
+						para.get<ST>( "c_x", Teuchos::ScalarTraits<ST>::one() ),
+						para.get<ST>( "c_y", space()->getDomainSize()->getSize( Y )/2. ),
+						para.get<ST>( "c_z", space()->getDomainSize()->getSize( Z )/2. ) };
+					ST amp = para.get<ST>( "amp", Teuchos::ScalarTraits<ST>::one() );
+					ST sig[3] = {
+						para.get<ST>( "sig_x", 0.2 ),
+						para.get<ST>( "sig_y", 0.2 ),
+						para.get<ST>( "sig_z", 0.2 ) };
 					initFromFunction(
-							[&xc,&amp,&sig] (Scalar x, Scalar y, Scalar z)->Scalar {
+							[&xc,&amp,&sig] (ST x, ST y, ST z)->ST {
 								return( amp*std::exp(
 										-std::pow( (x-xc[0])/sig[0], 2 )
 										-std::pow( (x-xc[1])/sig[1], 2 )
@@ -595,7 +595,7 @@ public:
 		}
 
 		if( !space()->getProcGrid()->participating() ) // not sure why?
-			init( Teuchos::ScalarTraits<Scalar>::zero() );
+			init( Teuchos::ScalarTraits<ST>::zero() );
 
 		changed();
 	}
@@ -603,7 +603,7 @@ public:
 
 	/// \brief initializes VectorField with the initial field defined in Fortran
 	/// \deprecated
-	void initField( EScalarField fieldType, Scalar alpha=Teuchos::ScalarTraits<Scalar>::zero() ) {
+	void initField( EScalarField fieldType, ST alpha=Teuchos::ScalarTraits<ST>::zero() ) {
 
 		switch( fieldType ) {
 			case ConstField :
@@ -613,43 +613,43 @@ public:
 				}
 			case Grad2D_inX :
 				{
-					Scalar a = (std::fabs(alpha)<Teuchos::ScalarTraits<Scalar>::eps())?Teuchos::ScalarTraits<Scalar>::one():alpha;
-					initFromFunction( [&a] (Scalar x, Scalar y, Scalar z)->Scalar { return( a*(x-0.5) ); } );
+					ST a = (std::fabs(alpha)<Teuchos::ScalarTraits<ST>::eps())?Teuchos::ScalarTraits<ST>::one():alpha;
+					initFromFunction( [&a] (ST x, ST y, ST z)->ST { return( a*(x-0.5) ); } );
 				break;
 				}
 			case Grad2D_inY :
 				{
-					Scalar a = (std::fabs(alpha)<Teuchos::ScalarTraits<Scalar>::eps())?Teuchos::ScalarTraits<Scalar>::one():alpha;
-					initFromFunction( [&a] (Scalar x, Scalar y, Scalar z)->Scalar { return( a*(y-0.5) ); } );
+					ST a = (std::fabs(alpha)<Teuchos::ScalarTraits<ST>::eps())?Teuchos::ScalarTraits<ST>::one():alpha;
+					initFromFunction( [&a] (ST x, ST y, ST z)->ST { return( a*(y-0.5) ); } );
 					break;
 				}
 			case Grad2D_inZ :
 				{
-					Scalar a = (std::fabs(alpha)<Teuchos::ScalarTraits<Scalar>::eps())?Teuchos::ScalarTraits<Scalar>::one():alpha;
-					initFromFunction( [&a] (Scalar x, Scalar y, Scalar z)->Scalar { return( a*(z-0.5) ); } );
+					ST a = (std::fabs(alpha)<Teuchos::ScalarTraits<ST>::eps())?Teuchos::ScalarTraits<ST>::one():alpha;
+					initFromFunction( [&a] (ST x, ST y, ST z)->ST { return( a*(z-0.5) ); } );
 					break;
 				}
 			case Poiseuille2D_inX :
 				{
-					initFromFunction( [] (Scalar x, Scalar y, Scalar z)->Scalar { return( 4.*x*(1.-x) ); } );
+					initFromFunction( [] (ST x, ST y, ST z)->ST { return( 4.*x*(1.-x) ); } );
 					break;
 				}
 			case Poiseuille2D_inY :
 				{
-					initFromFunction( [] (Scalar x, Scalar y, Scalar z)->Scalar { return( 4.*y*(1.-y) ); } );
+					initFromFunction( [] (ST x, ST y, ST z)->ST { return( 4.*y*(1.-y) ); } );
 					break;
 				}
 			case Poiseuille2D_inZ :
 				{
-					initFromFunction( [] (Scalar x, Scalar y, Scalar z)->Scalar { return( 4.*z*(1.-z) ); } );
+					initFromFunction( [] (ST x, ST y, ST z)->ST { return( 4.*z*(1.-z) ); } );
 					break;
 				}
 			case FPoint :
 				{
-					Scalar xc[3] = { 0.5, 0.5, 0.5 };
-					Scalar amp = alpha; 
-					Scalar sig[3] = { 0.2, 0.2, 0.2 };
-					initFromFunction( [&xc,&amp,&sig] (Scalar x, Scalar y, Scalar z)->Scalar {
+					ST xc[3] = { 0.5, 0.5, 0.5 };
+					ST amp = alpha; 
+					ST sig[3] = { 0.2, 0.2, 0.2 };
+					initFromFunction( [&xc,&amp,&sig] (ST x, ST y, ST z)->ST {
 							return( amp*std::exp(
 									-std::pow( (x-xc[0])/sig[0], 2 )
 									-std::pow( (x-xc[1])/sig[1], 2 )
@@ -660,7 +660,7 @@ public:
 		}
 
 		if( !space()->getProcGrid()->participating() )
-			init( Teuchos::ScalarTraits<Scalar>::zero() );
+			init( Teuchos::ScalarTraits<ST>::zero() );
 		changed();
 	}
 
@@ -824,7 +824,7 @@ public:
 
 		if( F::S == fType_ ) {
 
-			Scalar pre0 = Teuchos::ScalarTraits<Scalar>::zero();
+			ST pre0 = Teuchos::ScalarTraits<ST>::zero();
 
 			for( Ordinal k=space()->begin(fType_,Z); k<=space()->end(fType_,Z); ++k )
 				for( Ordinal j=space()->begin(fType_,Y); j<=space()->end(fType_,Y); ++j )
@@ -832,7 +832,7 @@ public:
 						pre0 += at(i,j,k);
 
 			pre0 = this->reduce( space()->comm(), pre0 );
-			pre0 /= static_cast<Scalar>( getLength() );
+			pre0 /= static_cast<ST>( getLength() );
 
 			for( Ordinal k=space()->begin(fType_,Z); k<=space()->end(fType_,Z); ++k )
 				for( Ordinal j=space()->begin(fType_,Y); j<=space()->end(fType_,Y); ++j )
@@ -1057,11 +1057,11 @@ public:
     return( n );
   }
 
-	void setStoragePtr( Scalar*  array ) { s_ = array; }
+	void setStoragePtr( ST*  array ) { s_ = array; }
 
 	constexpr ScalarArray getRawPtr() { return( s_ ); }
 
-	constexpr const Scalar* getConstRawPtr() { return( s_ ); }
+	constexpr const ST* getConstRawPtr() { return( s_ ); }
 
 
   /// @}
@@ -1191,7 +1191,7 @@ protected:
 	/// \param k index in z-direction
 	///
 	/// \return const reference
-	constexpr const Scalar& at( const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
+	constexpr const ST& at( const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
 		return( s_[ index(i,j,k) ] );
 	}
 
@@ -1202,33 +1202,33 @@ protected:
 	/// \param k index in z-direction
 	///
 	/// \return reference
-	Scalar& at( const Ordinal& i, const Ordinal& j, const Ordinal& k )  {
+	ST& at( const Ordinal& i, const Ordinal& j, const Ordinal& k )  {
 		return( s_[ index(i,j,k) ] );
 	}
 
 	/// \brief field access
 	///
 	/// \param i index coordinate 
-	constexpr const Scalar& at( const Ordinal* const i ) const {
+	constexpr const ST& at( const Ordinal* const i ) const {
 		return( s_[ index(i[0],i[1],i[2]) ] );
 	}
 	/// \brief field access
 	///
 	/// \param i index coordinate 
-	Scalar& at( const Ordinal* const i ) {
+	ST& at( const Ordinal* const i ) {
 		return( s_[ index(i[0],i[1],i[2]) ] );
 	}
 
 	/// \brief field access
 	///
 	/// \param i index coordinate 
-	Scalar& at( const Teuchos::Tuple<const Ordinal,3>& i ) {
+	ST& at( const Teuchos::Tuple<const Ordinal,3>& i ) {
 		return( s_[ index(i[0],i[1],i[2]) ] );
 	}
 	/// \brief field access
 	///
 	/// \param i index coordinate 
-	constexpr const Scalar& at( const Teuchos::Tuple<const Ordinal,3>& i ) const {
+	constexpr const ST& at( const Teuchos::Tuple<const Ordinal,3>& i ) const {
 		return( s_[ index(i[0],i[1],i[2]) ] );
 	}
 
@@ -1241,7 +1241,7 @@ public:
 	/// \param k index in z-direction
 	///
 	/// \return const reference
-	constexpr const Scalar& operator()( const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
+	constexpr const ST& operator()( const Ordinal& i, const Ordinal& j, const Ordinal& k ) const {
 		return( s_[ index(i,j,k) ] );
 	}
 
@@ -1252,33 +1252,33 @@ public:
 	/// \param k index in z-direction
 	///
 	/// \return reference
-	Scalar& operator()( const Ordinal& i, const Ordinal& j, const Ordinal& k )  {
+	ST& operator()( const Ordinal& i, const Ordinal& j, const Ordinal& k )  {
 		return( s_[ index(i,j,k) ] );
 	}
 
 	/// \brief field access
 	///
 	/// \param i index coordinate 
-	constexpr const Scalar& operator()( const Ordinal* const i ) const {
+	constexpr const ST& operator()( const Ordinal* const i ) const {
 		return( s_[ index(i[0],i[1],i[2]) ] );
 	}
 	/// \brief field access
 	///
 	/// \param i index coordinate 
-	Scalar& operator()( const Ordinal* const i ) {
+	ST& operator()( const Ordinal* const i ) {
 		return( s_[ index(i[0],i[1],i[2]) ] );
 	}
 
 	/// \brief field access
 	///
 	/// \param i index coordinate 
-	Scalar& operator()( const Teuchos::Tuple<const Ordinal,3>& i ) {
+	ST& operator()( const Teuchos::Tuple<const Ordinal,3>& i ) {
 		return( s_[ index(i[0],i[1],i[2]) ] );
 	}
 	/// \brief field access
 	///
 	/// \param i index coordinate 
-	constexpr const Scalar& operator()( const Teuchos::Tuple<const Ordinal,3>& i ) const {
+	constexpr const ST& operator()( const Teuchos::Tuple<const Ordinal,3>& i ) const {
 		return( s_[ index(i[0],i[1],i[2]) ] );
 	}
 

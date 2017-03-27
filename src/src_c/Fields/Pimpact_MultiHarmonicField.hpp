@@ -561,7 +561,7 @@ public:
 
 //			std::cout << "\trankST: " << space()->rankST() << "\tsendcount: " << sendcount << "\n";
 
-//			MPI_Barrier( space()->getProcGrid()->getCommSlice(3) );
+//			MPI_Barrier( space()->getProcGrid()->getCommBar(3) );
 
 			for( int rank=0; rank<np; ++rank ) {
 				if( 0==rank )
@@ -580,14 +580,14 @@ public:
 
 			// exchange modes
 			MPI_Allgatherv(
-					MPI_IN_PLACE,                           // sendbuf
-					sendcount,                              // sendcount
-					MPI_REAL8,                              // sendtype
-					s_,                                     // recvbuf
-					recvcounts,                             // recvcounts
-					displs,                                 // displs
-					MPI_REAL8,                              // recvtype
-					space()->getProcGrid()->getCommSlice(3) // comm
+					MPI_IN_PLACE,                         // sendbuf
+					sendcount,                            // sendcount
+					MPI_REAL8,                            // sendtype
+					s_,                                   // recvbuf
+					recvcounts,                           // recvcounts
+					displs,                               // displs
+					MPI_REAL8,                            // recvtype
+					space()->getProcGrid()->getCommBar(3) // comm
 					); 
 
 			delete[] recvcounts;

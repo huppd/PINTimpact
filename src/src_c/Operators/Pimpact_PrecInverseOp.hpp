@@ -17,6 +17,7 @@ namespace Pimpact{
 
 /// \brief hides all the linear solver typeerasiure stuff
 /// 
+/// \todo inherit from InverseOp
 /// \ingroup Operator
 template< class OpT, template<class> class PT >
 class PrecInverseOp {

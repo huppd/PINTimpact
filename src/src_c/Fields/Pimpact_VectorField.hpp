@@ -33,7 +33,7 @@ namespace Pimpact {
 /// \ingroup Field
 /// \relates ScalarField
 template<class SpaceType>
-class VectorField : private AbstractField<SpaceType> {
+class VectorField : protected AbstractField<SpaceType> {
 
 public:
 
@@ -1085,10 +1085,14 @@ protected:
 
 public:
 
-  constexpr const Teuchos::RCP<const SpaceT>& space() const { return( AbstractField<SpaceT>::space_ ); }
+  constexpr const Teuchos::RCP<const SpaceT>& space() { return( AbstractField<SpaceT>::space_ ); }
 
-  constexpr const MPI_Comm& comm() const { return(space()->comm()); }
+  constexpr const MPI_Comm& comm() { return(space()->comm()); }
 
+
+	constexpr Scalar allReduce( Scalar local, const MPI_Op& op=MPI_SUM  ) {
+		return( this->reduce( comm(), local ) );
+	}
 
   /// \name comunication methods.
   /// \brief highly dependent on underlying storage should only be used by Operator or on top field implementer.
