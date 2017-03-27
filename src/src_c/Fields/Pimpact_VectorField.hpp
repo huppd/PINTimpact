@@ -320,14 +320,6 @@ public:
 		changed();
 	}
 
-
-	/// \brief Replace each element of the vector with \c alpha[i].
-	void init( const Teuchos::Tuple<Scalar,3>& alpha, const B& bcYes=B::Y ) {
-		for( F i=F::U; i<SpaceT::sdim; ++i )
-			at(i).init( alpha[static_cast<int>(i)], bcYes );
-		changed();
-	}
-
 private:
 
 	/// \brief kind of VectorField profile

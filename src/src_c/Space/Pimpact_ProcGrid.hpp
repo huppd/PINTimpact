@@ -289,32 +289,32 @@ public:
 		out << "\trankSlice: " << rankSlice_ << "\n";
   }
 
-  constexpr const bool& participating() const { return( participating_ ); }
+  constexpr const bool& participating() { return( participating_ ); }
 
-	constexpr const OrdinalT& getNP( int i ) const { return( procGridSize_[i] ); }
-	constexpr const TO&       getNP()        const { return( procGridSize_ ); }
+	constexpr const OrdinalT& getNP( int i ) { return( procGridSize_[i] ); }
+	constexpr const TO&       getNP()        { return( procGridSize_ ); }
 
-  constexpr const MPI_Comm& getCommWorld() const { return( commWorld_ ); }
-  constexpr const MPI_Comm& getCommS() const { return( commSub_ ); }
+  constexpr const MPI_Comm& getCommWorld() { return( commWorld_ ); }
+  constexpr const MPI_Comm& getCommS()     { return( commSub_ ); }
 
-  constexpr const int& getRank() const { return( rankWorld_ ); }
+  constexpr const int& getRank()  { return( rankWorld_ ); }
 
-  constexpr const int& getRankS() const { return( rankSub_ ); }
+  constexpr const int& getRankS() { return( rankSub_ ); }
 
-  constexpr const int* getRankL() const { return( rankL_.getRawPtr() ); }
-  constexpr const int* getRankU() const { return( rankU_.getRawPtr() ); }
+  constexpr const int* getRankL() { return( rankL_.getRawPtr() ); }
+  constexpr const int* getRankU() { return( rankU_.getRawPtr() ); }
 
-  constexpr const int& getIB( const int& i ) const { return( iB_[i] ); }
-  constexpr const TO & getIB() const { return( iB_ ); }
+  constexpr const int& getIB( const int& i ) { return( iB_[i] ); }
+  constexpr const TO & getIB() { return( iB_ ); }
 
-  constexpr const int& getRankL( const int& i ) const { return( rankL_[i] ); }
-  constexpr const int& getRankU( const int& i ) const { return( rankU_[i] ); }
+  constexpr const int& getRankL( const int& i ) { return( rankL_[i] ); }
+  constexpr const int& getRankU( const int& i ) { return( rankU_[i] ); }
 
-  constexpr const MPI_Comm& getCommBar( const int& i ) const { return( commBar_[i] ); }
-  constexpr const int&      getRankBar( const int& i ) const { return( rankBar_[i] ); }
+  constexpr const MPI_Comm& getCommBar( const int& i ) { return( commBar_[i] ); }
+  constexpr const int&      getRankBar( const int& i ) { return( rankBar_[i] ); }
 
-  constexpr const MPI_Comm& getCommSlice( const int& i ) const { return( commSlice_[i] ); }
-  constexpr const int&      getRankSlice( const int& i ) const { return( rankSlice_[i] ); }
+  constexpr const MPI_Comm& getCommSlice( const int& i ) { return( commSlice_[i] ); }
+  constexpr const int&      getRankSlice( const int& i ) { return( rankSlice_[i] ); }
 
 }; // end of class ProcGrid
 

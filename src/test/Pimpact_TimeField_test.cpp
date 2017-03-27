@@ -509,7 +509,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeDtConvectionDiffusionOp ) {
 		x->operator()(i)(Pimpact::F::U).initField( Pimpact::Grad2D_inX );
 		x->operator()(i)(Pimpact::F::V).initField( Pimpact::Grad2D_inY );
 		x->operator()(i)(Pimpact::F::W).initField( Pimpact::Grad2D_inZ );
-		sol->operator()(i).init( Teuchos::tuple(2.,2.,2.) );
+		sol->operator()(i).init( 2. );
 		wind->changed();
 		x->changed();
 		sol->changed();
@@ -814,7 +814,7 @@ TEUCHOS_UNIT_TEST( TimeOperator, TimeNSOp ) {
 		field1->getVField()(i)(Pimpact::F::U).initField( Pimpact::Grad2D_inY );
 		field1->getVField()(i)(Pimpact::F::V).initField( Pimpact::Grad2D_inZ );
 		field1->getVField()(i)(Pimpact::F::W).initField( Pimpact::Grad2D_inX );
-		field2->getVField()(i).init( Teuchos::tuple(2.,2.,2.) );
+		field2->getVField()(i).init( 2. );
 		wind->getVField().changed();
 		field1->getVField().changed();
 		field2->getVField().changed();

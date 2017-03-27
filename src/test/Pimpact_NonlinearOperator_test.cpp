@@ -346,10 +346,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, ConvectionDiffusionOp, SpaceT 
 	auto op2 = Pimpact::create< ConvDiffOpT<SpaceT> >( space );
 
 
-  x( Pimpact::F::U ).initField( Pimpact::ConstField, 2. );
-  x( Pimpact::F::V ).initField( Pimpact::ConstField, 2. );
-  x( Pimpact::F::W ).initField( Pimpact::ConstField, 2. );
-  sol.init( Teuchos::tuple(2.,2.,2.) );
+  x.init( 2. );
+  x.init( 2. );
+  x.init( 2. );
+  sol.init( 2.);
 
   // consistency test in x
   y(Pimpact::F::U).initField( Pimpact::Grad2D_inX );
@@ -375,7 +375,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, ConvectionDiffusionOp, SpaceT 
   y(Pimpact::F::U).initField( Pimpact::Grad2D_inY );
   y(Pimpact::F::V).initField( Pimpact::Grad2D_inY );
   y(Pimpact::F::W).initField( Pimpact::Grad2D_inY );
-  sol.init( Teuchos::tuple(2.,2.,2.) );
+  sol.init( 2. );
 
   op->assignField( x );
   op2->assignField( x );
@@ -396,7 +396,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, ConvectionDiffusionOp, SpaceT 
 		y(Pimpact::F::U).initField( Pimpact::Grad2D_inZ );
 		y(Pimpact::F::V).initField( Pimpact::Grad2D_inZ );
 		y(Pimpact::F::W).initField( Pimpact::Grad2D_inZ );
-		sol.init( Teuchos::tuple(2.,2.,2.) );
+		sol.init( 2. );
 
 		op->assignField( x );
 		op2->assignField( x );
@@ -417,7 +417,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, ConvectionDiffusionOp, SpaceT 
   // consistency test in pois x
 	y.init();
   y(Pimpact::F::U).initField( Pimpact::Poiseuille2D_inX );
-  sol.init( Teuchos::tuple(0.,0.,0.) );
+  sol.init( 0. );
   z.random();
 
   op->apply( y, z );
@@ -433,7 +433,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, ConvectionDiffusionOp, SpaceT 
   // consistency test in pois y
 	y.init();
   y(Pimpact::F::V).initField( Pimpact::Poiseuille2D_inY );
-  sol.init( Teuchos::tuple(0.,0.,0.) );
+  sol.init( 0. );
   z.random();
 
   op->apply( y, z );

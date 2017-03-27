@@ -406,7 +406,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, HelmholtzOp, SpaceT ) {
 		// test in x direction
 		x.init();
 		x( Pimpact::F::U ).initField( Pimpact::Poiseuille2D_inX );
-		bs.init( Teuchos::tuple( 8./std::pow(space->getDomainSize()->getSize(Pimpact::Y),2), 0., 0. ) );
+		bs( Pimpact::F::U ).init( 8./std::pow(space->getDomainSize()->getSize(Pimpact::Y),2) );
+		bs( Pimpact::F::V ).init( 0. );
+		bs( Pimpact::F::W ).init( 0. );
+
 		bs.add( mulI, x, mulL, bs );
 
 		auto para = Teuchos::parameterList();
@@ -428,7 +431,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, HelmholtzOp, SpaceT ) {
 		// test in y direction
 		x.init();
 		x( Pimpact::F::V ).initField( Pimpact::Poiseuille2D_inY );
-		bs.init( Teuchos::tuple( 0., 8./std::pow(space->getDomainSize()->getSize(Pimpact::X),2), 0. ) );
+		bs( Pimpact::F::U ).init( 0. );
+		bs( Pimpact::F::V ).init( 8./std::pow(space->getDomainSize()->getSize(Pimpact::X),2) );
+		bs( Pimpact::F::W ).init( 0. );
 		bs.add( mulI, x, mulL, bs );
 
 		op->apply( x, b );
@@ -447,7 +452,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( BasicOperator, HelmholtzOp, SpaceT ) {
 		// test in z direction
 		x.init();
 		x( Pimpact::F::W ).initField( Pimpact::Poiseuille2D_inZ );
-		bs.init( Teuchos::tuple( 0., 0., 8./std::pow(space->getDomainSize()->getSize(Pimpact::X),2) ) );
+
+		bs( Pimpact::F::U ).init( 0. );
+		bs( Pimpact::F::V ).init( 0. );
+		bs( Pimpact::F::W ).init( 8./std::pow(space->getDomainSize()->getSize(Pimpact::X),2) );
+
 		bs.add( mulI, x, mulL, bs );
 
 		op->apply( x, b );
